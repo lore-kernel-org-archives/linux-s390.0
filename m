@@ -1,420 +1,270 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail-106120.protonmail.ch (mail-106120.protonmail.ch [79.135.106.120])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17EBA2E7378
-	for <linux-s390@vger.kernel.org>; Sun,  9 Aug 2026 00:51:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.175
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786236685; cv=pass; b=nh2c83ZD2wXe76mWaaeDt7hSRTmmRl1eiWckUxq7xfY3rY25DNxP10ZMAK4FJlo3NFQjyIl3rInpyx+6/xS45zEozYeFK8hp1FRT7H0EOCugHrbu+2FAITEZCur0tKTQeEVsvqEUD7/KcOTl8QWf5zN/+L+6+e5gMod/4ODghjQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786236685; c=relaxed/simple;
-	bh=zs4SfiVaTFG87zEuWa7DYEYXMveiqU+3HeFFRIGyKW0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qhHc0b7T9jhNQxahplAjrva0IOHuqHL3WysA90KysVrTKRkrCyu3u+NX2fb8MiJMOcKhj5JhfhBg00SVuJEaE5Xr505991aPpqfLoFX9SC0OF2biVjLVGJYp1p0PCzQt17TBVTUkaQTJFO3B14Bw5q0VsyAZRvaiKUXoD/IONW0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=mayzSwPH; arc=pass smtp.client-ip=209.85.160.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5E8D21255A
+	for <linux-s390@vger.kernel.org>; Sun,  9 Aug 2026 01:49:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.120
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786240178; cv=none; b=KQmMgWs57L3R/gmBqyD6dYFN49T/9t9JyD7Z41Vut5WvwMA32mN2dpq6OHQFHnH4uAfZ16w0uVDMGzJZ5BqebMbpvHovshRASthMB8x3hzkbkoQfW2nWaP3vjZ7fOG+uOHdL25Y+DAPy+SVft4fytHTnxPavrsn3zv6oXz/zBxI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786240178; c=relaxed/simple;
+	bh=fbWMCnLA27YH7DXqm7lLNbL5Ej7RajU2bpPU2Kj669A=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=oMQqHPCLM/4bCjosR6x2PUyHL+x3FPXWhgJKY7rTbtvM/pq8onP2cSN/WoM6a4o8zB0UazKA/HNwlfwlm3oJECC3BaP+zWZnlK5j0Pegzvpo6pTsTmJMM3h/FMqhwMEYv4GMMCkmwT7Zr3932wf7w87we6434YyRvFiYG8+RVbA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=lOs8gXqk; arc=none smtp.client-ip=79.135.106.120
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="mayzSwPH"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-51c10e86e52so135041cf.1
-        for <linux-s390@vger.kernel.org>; Sat, 08 Aug 2026 17:51:22 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786236682; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Tb3fgDYYM91694paLqCGVqRmHzDnfQALY8wWipoCs3DFkwX9mH479VcgBS2bwwNAkd
-         htkdWc8OS4rZwHiUF5GoXPUQGwmbDgqsa2nxBsiM4vp8Zw+/HlcutsSc1mI4DYV095Hr
-         jLKtiXj8KMjlKZkx+530xGRWGspJb4YAA9yR7sweVHUcyNtrKj4Hb/pb3SdZiirqFmTE
-         QKo9UzNBdDme4phiW7pAylOwp8NgkilNv77o4e7VSq9YJaICy88qbSIoVpthwB021XcU
-         gXKIXF9gvA6LnYovXzDLg+6omkozUrACHLCgxQWtF7SrtSRo6ywTrTOLfF86eNFoe9IZ
-         Dhyg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=5t26LPlL2x6rRQWr8/8g+glnpY16lnjlFmjLTvMppKc=;
-        fh=Mo5Kkz6tLXEXFgy2a9ZaAkX8uyiietNvCYhYZ+y4WZ8=;
-        b=IRnc5VTo+h5594E4ID8cGAbpoLTIrglqjZzblnmSUZ043nWWmuvOOxnVclaWlYHI2W
-         ydtUuoglacWI3/u2J3c4rqn/MC5A5j33F2+C3B+qlIvh8y97JVMcqfyHUHPt91i3ZIoy
-         VVgF9Ddwu8xGfopreYYjjGHsFPR0YVHiJMEAzR/aJMjlozjQagLBW+xq00JV0jds7NXb
-         p8pxNAZyeGx/cOuUNiz1KnITocEk2c2MG3zfsEhjVoIZWeF9Ms4fZf+iNgvUzRVAbT+Z
-         MhwoUgoWBsXPHoKTrS4a1XpSyW23dmal2dwNW8l6mybQLBjd41ejgAZMaZy/6p9YEy64
-         WG9g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1786236682; x=1786841482; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=5t26LPlL2x6rRQWr8/8g+glnpY16lnjlFmjLTvMppKc=;
-        b=mayzSwPHAL/EG8FJoZI5aKdT8CHoYJZoOfGR60texMJUcsaFfweID2d2APveCsFmm1
-         7NfP3GfZ2EQU894bhlpMILuLG+mTAieRNk2Jbtyqn98artzE34Y0EuWwG/QK6ZJ6toMn
-         n5lK4xcaN8kCTgvUrVo9N9V5hR2yPbiohBmiih119V+93+N+BujhVBcKw9vy47pvbFo+
-         TwQZREPnF2dEqkUaMXFFfIH2oMsuXEzfppmkQt9dP8O7W2ds8X2A8VUohwh1dmhKplIl
-         3fWjha0ZSz5WNIA8LvL1QIChiW5WKOaWQhiyxQJ06q+i6dlaSnIGjChtT02tH4Fvqxot
-         LKGA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786236682; x=1786841482;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=5t26LPlL2x6rRQWr8/8g+glnpY16lnjlFmjLTvMppKc=;
-        b=V3gjWfMKGsKlAwC+etf5AQue4ktvx06EnIfTl8QSdi5DZA4hlfL1D81tbYvP+Vyhxf
-         QYtGywMmGP35TQM1063RHoK/9UQGYnk2hFln0iwH2ajiTh6AJDgAJI/WGiLahyalFdby
-         GCakp393Gy8PsL626ZH83h7NCY2e3gwVpZBSadkJOKcxXYooed525V9pkoZ4nCk64m5A
-         Ls5EJOnfvh6I0s5LHxYie9DZ/0e4CYMv/60NTmGWjGUSFvrZTVE9ELTqyszJWnsex8MR
-         M1XSiDCdgnaMgnr+oavcSoEnu/bo44Qp0KSMMNwtY5My1qKnaNk51uF46/eNdB3GiInC
-         dw1A==
-X-Forwarded-Encrypted: i=1; AHgh+RpuEHpgmwep7p6Zq/GxwF+vc67IMM5mG4LKNMaSqlo2Uail/hnixsor7IrcXd7dwby0pdcSeyfwk9rJ@vger.kernel.org
-X-Gm-Message-State: AOJu0YzlRj6Eigg2/Jxqw/pKsaAw/DpwRY2vlFHHFWBw51XhyLbPXCwU
-	Q6qsWlVUuH44FU0v2AXEsLONX0c4+5IEjcyzS/ZwA6fJQJOAEDWweROBBcJBJhxAftAeVhvINFo
-	mUwgtG7Fi2As0HNcCIPTCiaQYH2tKkUbgooUXg5i2
-X-Gm-Gg: AR+sD11PVRPtOkOT7JpONKyYWFcI40b+z5WJecDv4KCabXyo5f3aK8KizfWJle9PS7s
-	EOmrF80V8eg4u/hyaRihs4Xh8f+yIKXDbIFlor6PW/XuavtDe3nVe8BqMkhniIAde0I5J95R3FG
-	HIdiqkr2d+dQvZ89K+WwqVWNXwZPy/OdKx21UEnadvHfOE8SHzncxgu7mTS6YvCOemruR9/bXPP
-	fCSOGhR0BsTjXqsKqepMys03apkWJ1a/w9PUjee0AjTpkC+nFss6u3Kok4YVPwdWJfOtN19ayng
-	xh41FlifLq9x9AsnHD/eD9lsG3SITjKGqhzLi7/Xd0U=
-X-Received: by 2002:a05:622a:2c2:b0:517:5d71:84e5 with SMTP id
- d75a77b69052e-52d28104052mr10844831cf.5.1786236681095; Sat, 08 Aug 2026
- 17:51:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="lOs8gXqk"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
+	s=7q5u5koad5hq7phwgw5adzl2vm.protonmail; t=1786240163; x=1786499363;
+	bh=fbWMCnLA27YH7DXqm7lLNbL5Ej7RajU2bpPU2Kj669A=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=lOs8gXqktmpLbC9lQumH3dMOt6xNbtn1bstLKESnDT7PbUYKVWWqijaEZXeaicZLj
+	 2SmCOwY2hhiS2I4KlmWY7Y9KNQqZMkqBASmrilWHFQe404TVgmr0/tNPx3pc2FsbRm
+	 4eUQ8o6Uwlsw0vX5eenY4lNC0Ir3GLH8O419cNnvhA33L7obtKBwF/5ta5GGXz47mZ
+	 8SRmNgH0APcrHIAsV/EbEGM4J/P8TDID7hTyIwG8OIfyxYFgeW4ZPH6IpHIAuDF7Ql
+	 /hiyfbe2jeOfxvAjcm7mD0SSiaPh2BLM967Ab38IYN0Qzr+j2M+hvFPA7+NlzBcdKG
+	 JjgkCGzf5K3BA==
+Date: Sun, 09 Aug 2026 01:49:20 +0000
+To: Alexandra Winter <wintera@linux.ibm.com>
+From: Bryam Vargas <hexlabsecurity@proton.me>
+Cc: Hidayath Khan <hidayath@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Thorsten Winkler <twinkler@linux.ibm.com>
+Subject: Re: [RFC] net/iucv: af_iucv socket locking - accounting, and a staged plan
+Message-ID: <20260809014911.752106-1-hexlabsecurity@proton.me>
+In-Reply-To: <f74b9587-c09c-4fce-9415-e2d3b49d0247@linux.ibm.com>
+References: <20260724222917.134769-1-hexlabsecurity@proton.me> <f74b9587-c09c-4fce-9415-e2d3b49d0247@linux.ibm.com>
+Feedback-ID: 199661219:user:proton
+X-Pm-Message-ID: 2c68e6b841fca3e02b15ea9b4604672833a3a68c
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260806-b4-scalable-cow-virt-pgoff-v4-0-ab318a350404@kernel.org> <20260806-b4-scalable-cow-virt-pgoff-v4-1-ab318a350404@kernel.org>
-In-Reply-To: <20260806-b4-scalable-cow-virt-pgoff-v4-1-ab318a350404@kernel.org>
-From: Suren Baghdasaryan <surenb@google.com>
-Date: Sat, 8 Aug 2026 17:51:10 -0700
-X-Gm-Features: AUfX_mwrAfErRpWaGdsaXjFbVsuLxmBdhaCS8dBRSF7bNpazo-ZM1X1L3isxLV8
-Message-ID: <CAJuCfpFAA1H2pOi6EOarNtrdzLQDJyhm6QOGsfZ4SFTuM5eiLQ@mail.gmail.com>
-Subject: Re: [PATCH v4 01/20] mm/vma: introduce VMA anon page offset field and
- add helpers
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
-	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
-	Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Miaohe Lin <linmiaohe@huawei.com>, 
-	Naoya Horiguchi <nao.horiguchi@gmail.com>, Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, 
-	Lance Yang <lance.yang@linux.dev>, Kees Cook <kees@kernel.org>, Zi Yan <ziy@nvidia.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>, 
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
-	Usama Arif <usama.arif@linux.dev>, Matthew Brost <matthew.brost@intel.com>, 
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, 
-	Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>, 
-	Ying Huang <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>, 
-	Peter Xu <peterx@redhat.com>, Xu Xin <xu.xin16@zte.com.cn>, 
-	Chengming Zhou <chengming.zhou@linux.dev>, Arnd Bergmann <arnd@arndb.de>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Alex Deucher <alexander.deucher@amd.com>, =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, Boris Brezillon <boris.brezillon@collabora.com>, 
-	Steven Price <steven.price@arm.com>, Liviu Dudau <liviu.dudau@arm.com>, 
-	Huang Rui <ray.huang@amd.com>, Matthew Auld <matthew.auld@intel.com>, 
-	=?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
-	Rodrigo Vivi <rodrigo.vivi@intel.com>, Masami Hiramatsu <mhiramat@kernel.org>, 
-	Oleg Nesterov <oleg@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, 
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Ian Rogers <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, 
-	James Clark <james.clark@linaro.org>, Jason Gunthorpe <jgg@ziepe.ca>, 
-	John Hubbard <jhubbard@nvidia.com>, Muchun Song <muchun.song@linux.dev>, 
-	Oscar Salvador <osalvador@suse.de>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
-	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, 
-	Baoquan He <baoquan.he@linux.dev>, Youngjun Park <youngjun.park@lge.com>, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, kvm@vger.kernel.org, 
-	linux-s390@vger.kernel.org, amd-gfx@lists.freedesktop.org, 
-	dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org, 
-	linux-perf-users@vger.kernel.org, linux-trace-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 6, 2026 at 1:22=E2=80=AFPM Lorenzo Stoakes (ARM) <ljs@kernel.or=
-g> wrote:
->
-> Establish fields in vm_area_struct to store the anonymous page offset of
-> VMAs.
->
-> Initially, the anonymous page offset of a VMA is vma->vm_start >>
-> PAGE_SHIFT.
->
-> When a VMA is remapped to new_address its anonymous page offset is either
-> updated to new_address >> PAGE_SHIFT if unfaulted or, if faulted, remains
-> equal to the anonymous page offset it had when first faulted.
->
-> Currently, anonymous folios belonging to CoW'd MAP_PRIVATE-mapped
-> file-backed VMAs are tracked by their file offsets. By adding anonymous
-> offset as a property of VMAs, we can now track them by their anonymous pa=
-ge
-> offset instead.
->
-> By tracking this, we provide the means by which to eliminate this
-> inconsistency, and more importantly lay the foundations for future work f=
+Alexandra,
+
+Four things in the RFC were wrong. Two of them change what I asked you to
+decide, so they go first.
+
+The data races. I called them that on the strength of herd7, and that was
+wrong. sk_state is volatile unsigned char skc_state, and LKMM raises its
+data-race flag only when one side of a conflict is a plain access, so a
+volatile access never qualifies. My litmus encoded the writes as plain, whi=
+ch
+manufactured the flag - and the flag was the only thing separating the bug =
+arms
+from the fixed ones. That set did not show what I said it showed. I rebuilt=
+ it
+three times and every rebuild described code that does not exist; the last =
+one
+paired a writer that only fires on the classic transport with a waker that =
+only
+fires on HiperSockets, which no single socket can be. There is no replaceme=
+nt
+litmus. The unsynchronized writes are still unsynchronized and that part re=
+ads
+straight from the source.
+
+"The owner check plus re-enqueue fixes the state machine against
+close/bind/listen/shutdown". It does not fix close. iucv_sock_close() sets
+IUCV_CLOSING at :417 and then, when !err and skbs_in_xmit is non-zero at :4=
+20,
+sleeps in iucv_sock_wait() for IUCV_CLOSED. That macro does release_sock()
+before schedule_timeout() and lock_sock() after, so sk_lock.owned is clear =
+for
+the whole sleep, up to IUCV_DISCONN_TIMEOUT. A sock_owned_by_user() check i=
+n a
+softirq writer reads false across that window, and release_sock() would dra=
+in a
+deferred write into it on the way out. Option A orders the tasklet against =
+a
+process context holding the lock and does nothing for one sleeping inside i=
+t.
+Tell me if I have misread iucv_sock_wait().
+
+"Stage 2 affects the core and the four other iucv users". It doesn't have t=
+o.
+Below.
+
+The hardware caveat was too broad. iucv_packet_type is registered with
+dev_add_pack() on every af_iucv init and carries no .dev, so an ETH_P_AF_IU=
+CV
+frame on any netdev reaches afiucv_hs_rcv, and the dispatch from there bran=
+ches
+only on trans_hdr->flags. The softirq sk_state writers are drivable in a pl=
+ain
+s390x guest. What needs your hardware is the classic transport and the real
+qeth TX-completion contexts.
+
+> I would prefer option A: keep the tasklet and use bh_lock_sock(). You see=
+m to
+> think that is doable?
+> Less invasive is attractive.
+
+Yes, with one ordering constraint and one shortcut.
+
+The constraint is stage 1, which you already signed off on. Option A can't
+order the tasklet against the reader until recvmsg holds the socket lock:
+recvmsg sets no sk_lock.owned today, so the deferral branch has nothing to =
+test
+and never fires against it. Stage 1 is a prerequisite for stage 2, not a
+parallel track.
+
+The shortcut removes the cost you flagged in f558120cd709, "this may requir=
+e
+adding return values to the tasklet functions and thus changes to all users=
+ of
+iucv". struct proto has .release_cb, and net/smc already uses it
+(smc_release_cb). af_iucv can set iucv_proto.release_cb and keep a per-sock=
+et
+mask of pending state changes: af_iucv.c plus one field in af_iucv.h, no re=
+turn
+values, nothing in net/iucv/iucv.c, and monreader, vmlogrdr, smsgiucv and
+hvc_iucv untouched.
+
+I prototyped it on an s390x kernel: a writer that finds sock_owned_by_user(=
+)
+true sets a bit instead of touching sk_state, and release_sock() applies it=
+ --
+sk_state 1 -> 5, defer flags cleared. Synthetic __init probe, not the real
+handler path; it shows the deferral vehicle works, nothing more. Log on req=
+uest.
+
+release_cb runs under sk_lock.slock with BH disabled, so whatever gets defe=
+rred
+there must not sleep. Writing sk_state and waking the state-change waiters =
+is
+fine.
+
+> No, I don't like that. message_q is a concept for iucv not HS - I see mes=
+sage_q.lock
+> is already used in both paths, but I don't want to stretch it further.
+> I prefer your proposal above and would like to test it with KASAN etc.
+
+Agreed, and I'd drop that alternative. Worth adding that message_q.lock alr=
+eady
+reaches further than it should on that path: iucv_sock_recvmsg() calls
+iucv_send_ctrl() with it held, and iucv_send_ctrl() allocates through
+sock_alloc_send_skb(), which uses sk->sk_allocation - GFP_KERNEL for these
+sockets. On a default-msglimit HiperSockets socket the msglimit/2 gate fire=
+s at
+64 receives, so it's not a corner case. I have a DEBUG_ATOMIC_SLEEP splat f=
 or
-> the scalable CoW anonymous rmap rework.
->
-> This patch simply adds the fields and some simple helpers. Subsequent
-> patches will update mm code to make use of these fields correctly.
->
-> The fields chosen are packed in the VMA such that, for 64-bit kernel
-> builds, no additional space is taken up.
->
-> The first field is present on cacheline 0 containing key VMA fields, and
-> the second on cacheline 3, which contains file-backed reverse mapping
-> fields.
->
-> Given the relative time spent accessing reverse mapping fields as well as
-> updating them, there shouldn't be any performance impact here from false
-> sharing.
->
-> Update the VMA userland tests to account for this change.
->
-> No callsites are updated yet, so no functional change intended.
->
-> Acked-by: David Hildenbrand (Arm) <david@kernel.org>
-> Reviewed-by: Gregory Price (Meta) <gourry@gourry.net>
-> Reviewed-by: Xu Xin <xu.xin16@zte.com.cn>
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> ---
->  include/linux/mm.h              | 59 +++++++++++++++++++++++++++++++++++=
-++++++
->  include/linux/mm_types.h        | 12 +++++++++
->  mm/vma.h                        | 14 ++++++++++
->  mm/vma_init.c                   |  1 +
->  tools/testing/vma/include/dup.h | 26 ++++++++++++++++++
->  5 files changed, 112 insertions(+)
->
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 87feaa5a2b78..df78847f5f07 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -4393,6 +4393,65 @@ static inline pgoff_t vma_last_pgoff(const struct =
-vm_area_struct *vma)
->         return vma_end_pgoff(vma) - 1;
->  }
->
-> +/**
-> + * vma_start_anon_pgoff() - Get the anonymous page offset of the start o=
-f @vma
-> + * @vma: The VMA whose anonymous page offset is required.
-> + *
-> + * If unfaulted, then this is vma->vm_start >> PAGE_SHIFT, if faulted th=
-en the
-> + * anonymous page offset at the time of first fault.
-> + *
-> + * If the VMA is anonymous, this returns the same value as vma_start_pgo=
-ff().
-> + *
-> + * This value is used for tracking MAP_PRIVATE file-backed mappings by t=
-heir
-> + * anonymous page offset.
+it from an s390x guest, from the same __init probe as above with msg_recv s=
+et
+rather than received: the state is staged, the sleeping allocation under
+spin_lock_bh is not.
 
-I assume this function should not be used with shared file-backed
-mappings, right? If so, maybe add a comment like the one you have for
-linear_anon_page_index(): "It is not valid to call this function for
-shared file-backed mappings."?
+> I wonder, if there is more required than taking and releasing the socket =
+lock.
+> e.g. I think recvmsg needs to check (sk->sk_state =3D=3D IUCV_CONNECTED) =
+before
+> iucv_send_ctrl(sk, AF_IUCV_FLAG_WIN).
+> But let's take it one by one.
 
+The check belongs there, and I'd put it in with the lock rather than before=
+ it.
+Unlocked it narrows the window without closing it: iucv_sock_close() clears
+hs_dev under lock_sock while recvmsg holds nothing, so the gap between the =
+test
+and iucv_send_ctrl() stays open. It becomes sound once recvmsg holds the so=
+cket
+lock, which is where stage 1 puts it.
 
+iucv_send_ctrl() has one more defect at that call site, independent of the
+locking: five callers, and this is the only one not gated on the transport,=
+ so a
+classic z/VM socket sends a HiperSockets control frame it has no device for=
+. It
+sizes the skb via LL_RESERVED_SPACE(iucv->hs_dev), afiucv_hs_send() returns
+-ENODEV on a null skb->dev, and recvmsg turns that into IUCV_DISCONN. It ta=
+kes
+SO_MSGLIMIT set to 1 to get there: msg_recv is only incremented on the
+HiperSockets path, so on a classic socket it stays zero and the msglimit/2 =
+test
+passes only when msglimit is 1. On a guest booted without relocate_lowcore =
+the
+read through the null hs_dev lands in the mapped lowcore instead of faultin=
+g,
+which is why I saw a spurious disconnect and not an oops; with lowcore
+relocation that read would fault.
 
-> + *
-> + * Returns: The anonymous page offset of the start of @vma.
-> + */
-> +static inline pgoff_t vma_start_anon_pgoff(const struct vm_area_struct *=
-vma)
-> +{
-> +       pgoff_t pgoff =3D 0;
-> +
-> +#ifdef CONFIG_64BIT
-> +       pgoff +=3D vma->__vm_anon_pgoff_hi;
-> +       pgoff <<=3D 32;
-> +#endif
-> +       pgoff +=3D vma->__vm_anon_pgoff_lo;
-> +       return pgoff;
-> +}
-> +
-> +/**
-> + * vma_end_anon_pgoff() - Get the anonymous page offset of the exclusive=
- end of
-> + * @vma.
-> + * @vma: The VMA whose end anonymous page offset is required.
-> + *
-> + * This returns the anonymous exclusive end page offset of @vma, which i=
-s useful
-> + * for expressing page offset ranges.
-> + *
-> + * See the description of vma_start_anon_pgoff() for a description of VM=
-A
-> + * anonymous page offsets.
-> + *
-> + * Returns: The exclusive end anonymous page offset of @vma.
-> + */
-> +static inline pgoff_t vma_end_anon_pgoff(const struct vm_area_struct *vm=
-a)
-> +{
-> +       return vma_start_anon_pgoff(vma) + vma_pages(vma);
-> +}
-> +
-> +/**
-> + * vma_last_anon_pgoff() - Get the anonymous page offset of the last pag=
-e in
-> + * @vma.
-> + * @vma: The VMA whose last anonymous page offset is required.
-> + *
-> + * See the description of vma_start_anon_pgoff() for a description of VM=
-A
-> + * anonymous page offsets.
-> + *
-> + * Returns: The last anonymous page offset of @vma.
-> + */
-> +static inline pgoff_t vma_last_anon_pgoff(const struct vm_area_struct *v=
-ma)
-> +{
-> +       return vma_end_anon_pgoff(vma) - 1;
-> +}
-> +
->  static inline unsigned long vma_desc_size(const struct vm_area_desc *des=
-c)
->  {
->         return desc->end - desc->start;
-> diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-> index 939b5ea8c9e0..ebf0d912be7d 100644
-> --- a/include/linux/mm_types.h
-> +++ b/include/linux/mm_types.h
-> @@ -967,6 +967,11 @@ struct vm_area_struct {
->          */
->         unsigned int vm_lock_seq;
->  #endif
-> +       /*
-> +        * Low 32-bits of anonymous page offset.
-> +        * See vma_start_anon_pgoff() comment for details.
-> +        */
-> +       unsigned int __vm_anon_pgoff_lo;
->         /*
->          * A file's MAP_PRIVATE vma can be in both i_mmap tree and anon_v=
-ma
->          * list, after a COW of one of the file pages.  A MAP_SHARED vma
-> @@ -1041,6 +1046,13 @@ struct vm_area_struct {
->  #ifdef CONFIG_DEBUG_LOCK_ALLOC
->         struct lockdep_map vmlock_dep_map;
->  #endif
-> +#endif
-> +#ifdef CONFIG_64BIT
-> +       /*
-> +        * High 32-bits of anonymous page offset.
-> +        * See vma_start_anon_pgoff() comment for details.
-> +        */
-> +       unsigned int __vm_anon_pgoff_hi;
->  #endif
->         /*
->          * For areas with an address space and backing store,
-> diff --git a/mm/vma.h b/mm/vma.h
-> index 0bc7d521e976..54ed7c744e3b 100644
-> --- a/mm/vma.h
-> +++ b/mm/vma.h
-> @@ -283,6 +283,20 @@ static inline void vma_set_pgoff(struct vm_area_stru=
-ct *vma, pgoff_t pgoff)
->         vma->vm_pgoff =3D pgoff;
->  }
->
-> +static inline void __vma_set_anon_pgoff(struct vm_area_struct *vma, pgof=
-f_t pgoff)
-> +{
-> +#ifdef CONFIG_64BIT
-> +       vma->__vm_anon_pgoff_hi =3D pgoff >> 32;
-> +#endif
-> +       vma->__vm_anon_pgoff_lo =3D pgoff & GENMASK(31, 0);
-> +}
-> +
-> +static inline void vma_set_anon_pgoff(struct vm_area_struct *vma, pgoff_=
-t pgoff)
-> +{
-> +       vma_assert_can_modify(vma);
-> +       __vma_set_anon_pgoff(vma, pgoff);
-> +}
-> +
->  static inline void vma_add_pgoff(struct vm_area_struct *vma, pgoff_t del=
-ta)
->  {
->         vma_assert_can_modify(vma);
-> diff --git a/mm/vma_init.c b/mm/vma_init.c
-> index 715feee283f0..baa7e82f47e3 100644
-> --- a/mm/vma_init.c
-> +++ b/mm/vma_init.c
-> @@ -51,6 +51,7 @@ static void vm_area_init_from(const struct vm_area_stru=
-ct *src,
->         dest->vm_end =3D src->vm_end;
->         dest->anon_vma =3D src->anon_vma;
->         dest->vm_pgoff =3D vma_start_pgoff(src);
-> +       __vma_set_anon_pgoff(dest, vma_start_anon_pgoff(src));
->         dest->vm_file =3D src->vm_file;
->         dest->vm_private_data =3D src->vm_private_data;
->         vm_flags_init(dest, src->vm_flags);
-> diff --git a/tools/testing/vma/include/dup.h b/tools/testing/vma/include/=
-dup.h
-> index c52b23773cd2..26d9210b1e8b 100644
-> --- a/tools/testing/vma/include/dup.h
-> +++ b/tools/testing/vma/include/dup.h
-> @@ -577,6 +577,7 @@ struct vm_area_struct {
->          */
->         unsigned int vm_lock_seq;
->  #endif
-> +       unsigned int __vm_anon_pgoff_lo;
->
->         /*
->          * A file's MAP_PRIVATE vma can be in both i_mmap tree and anon_v=
-ma
-> @@ -612,6 +613,9 @@ struct vm_area_struct {
->  #ifdef CONFIG_PER_VMA_LOCK
->         /* Unstable RCU readers are allowed to read this. */
->         refcount_t vm_refcnt;
-> +#endif
-> +#ifdef CONFIG_64BIT
-> +       unsigned int __vm_anon_pgoff_hi;
->  #endif
->         /*
->          * For areas with an address space and backing store,
-> @@ -1320,6 +1324,28 @@ static inline pgoff_t vma_end_pgoff(const struct v=
-m_area_struct *vma)
->         return vma_start_pgoff(vma) + vma_pages(vma);
->  }
->
-> +static inline pgoff_t vma_start_anon_pgoff(const struct vm_area_struct *=
-vma)
-> +{
-> +       pgoff_t pgoff =3D 0;
-> +
-> +#ifdef CONFIG_64BIT
-> +       pgoff +=3D vma->__vm_anon_pgoff_hi;
-> +       pgoff <<=3D 32;
-> +#endif
-> +       pgoff +=3D vma->__vm_anon_pgoff_lo;
-> +       return pgoff;
-> +}
-> +
-> +static inline pgoff_t vma_end_anon_pgoff(const struct vm_area_struct *vm=
-a)
-> +{
-> +       return vma_start_anon_pgoff(vma) + vma_pages(vma);
-> +}
-> +
-> +static inline pgoff_t vma_last_anon_pgoff(const struct vm_area_struct *v=
-ma)
-> +{
-> +       return vma_end_anon_pgoff(vma) - 1;
-> +}
-> +
->  static inline int vfs_mmap_prepare(struct file *file, struct vm_area_des=
-c *desc)
->  {
->         return file->f_op->mmap_prepare(desc);
->
-> --
-> 2.55.0
->
+> This is a tough one. Maybe we need to add a context parameter to qeth_not=
+ify_skbs() ?
+
+Yes, and one of the two obvious candidates doesn't work.
+
+qeth_notify_skbs() has two calling functions. qeth_iqd_tx_complete() reache=
+s it
+three times and has a single caller, qeth_tx_poll(), so it is NAPI only.
+qeth_tx_complete_pending_bufs() reaches it once and has two callers:
+qeth_drain_output_queue() with drain=3Dtrue, and qeth_tx_poll() with drain=
+=3Dfalse.
+The drain path is the only non-NAPI reach, so drain is already an exact
+discriminator at that call site and it's in scope there. budget is not:
+netpoll calls napi->poll(napi, 0) from atomic context, so budget =3D=3D 0 h=
+appens on
+both sides. qeth_tx_complete_buf() on the next line passes budget to
+napi_consume_skb(), correct there and wrong here.
+
+No single primitive covers both contexts, which is why the parameter is
+unavoidable: bh_lock_sock() is a plain spin_lock() on sk_lock.slock with no=
+ BH
+disable, so it's unsafe from the drain path, and lock_sock() sleeps, so it'=
+s
+unsafe from NAPI. sk_txnotify is an af_iucv/qeth private pointer, so the
+signature change touches af_iucv.h, af_iucv.c and qeth_core_main.c and none=
+ of
+the four other iucv_handler users.
+
+I also read your reply on Nagamani PV's afiucv_netdev_event() patch, and I =
+agree
+with the call. The notifier runs in process context, so lock_sock() is avai=
+lable
+there; the two-line fix closes the traversal use-after-free and leaves
+sk->sk_state =3D IUCV_DISCONN and sk->sk_state_change() in the loop body wi=
+th no
+socket lock. I had that site filed as stage 3, on the assumption it needed =
+a
+lock chosen for it. Process context makes it the same shape as stage 1 -
+lock_sock, owned_by_user, backlog - so it folds into the combined fix.
+
+> That would be great, we are also working on several small fixes. Let's ge=
+t them out of the way.
+
+The connack patch is written: bh_lock_sock() in iucv_callback_connack(), th=
+e one
+site whose context is unambiguous, since connrej and shutdown run in the sa=
+me
+tasklet and already take it. Fixes: eac3731bd04c - the function has held no=
+ lock
+since 2007. checkpatch --strict is quiet and it builds for s390x. Which tre=
+e do
+you want it against?
+
+> Thanks again for working on this. You identified several workitems, are t=
+here any
+> where you would prefer me or Hidayath to work on?
+> Otherwise we will continue with issues that are not on this list and work=
+ on
+> running and improving our testcases.
+
+You already answered the only thing I would have asked for: you will valida=
+te
+any revision. The analysis I can do here; z/VM and real HiperSockets I can'=
+t,
+and QEMU is not z/VM, so machine_is_vm() is false and the classic transport=
+ is
+not reachable at all. If you would rather own the stage 2 change yourselves=
+,
+take it.
+
+Thanks,
+Bryam
+
