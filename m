@@ -1,33 +1,33 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 257C737B02D;
-	Mon, 10 Aug 2026 14:07:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id CDCB63D6498;
+	Mon, 10 Aug 2026 14:08:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786370877; cv=none; b=Fg5M1GBxgOWclf2JUQIOmud7uf0cVfELXYCwpXtaomyS5LR82MQHry1QUiKEw7ExNJnspvPeUdBPLDCU0RFiE+ookYS57By/NHUM5Jn0P1LFeSAMkkxyWN1Y6d2EfQ3k0Rzq661R0g4mJxGYYGX8tFrizySL89Il0gt981a6h3E=
+	t=1786370908; cv=none; b=VxCl/EhWwspfwoybrz1zcKWrDeTn5qCK1mfApCw/0O950KElrWngx6yTPXvaKgZz5zRePnwHjKTlgEWyDYLuCnqrM4CCYCNgkjgqu2QFG8Pu9smKSbVKTFbiWd+FL6xYSx3mMwUb4rIs+l4z4coFgG8hEVf9PmZETkhkGdtWFrc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786370877; c=relaxed/simple;
-	bh=l/l2H3T3xXRxtAlEmVxkMBjt3GQq1sSw4qqDUaZjjxc=;
+	s=arc-20240116; t=1786370908; c=relaxed/simple;
+	bh=WIG5gWxWn/Ev2rkfLIG3WmO0JyDYfhFXREH1iOSeZTw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UKGbfacET3tpSIWa3qhAkYMtjlhal7Ec01mIFFl3P3gzOmWXrdT2Qd5UMKws0zutMxJ4E2TFn9Sjfqx5CBn/vIAFJxldBM0zJ8FxWzDsUV7/gTr+q7mxwC8BYrcz7qccspIsTIFOUSyhDivlMZX3GQOCUZs7a/Qfed8fSVtLago=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=VDMFqS+F; arc=none smtp.client-ip=217.140.110.172
+	 In-Reply-To:Content-Type; b=sPsn5OG1Sc/oAi3Xg/rrmq2TpLesysoFqCcIV2TRXDTZL+Ez1/Od4vUrMjMoKXr6mlm0c1vd4Fnrjps/DgMVx2ak2UBhfZULjn4k5HUe2tK8OcTKuQCqOo1nhIZSmWrD6foF/8rcXOEMNedm41JAwQGyHQKYFAieUQ2J7bXo8pE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=ZXStNpjX; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="VDMFqS+F"
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="ZXStNpjX"
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 745021516;
-	Mon, 10 Aug 2026 07:07:50 -0700 (PDT)
-Received: from [10.57.5.211] (unknown [10.57.5.211])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A0B0D3F86F;
-	Mon, 10 Aug 2026 07:07:44 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4A7941516;
+	Mon, 10 Aug 2026 07:08:22 -0700 (PDT)
+Received: from [10.2.212.23] (e121345-lin.cambridge.arm.com [10.2.212.23])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CA3DB3F86F;
+	Mon, 10 Aug 2026 07:08:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1786370874; bh=l/l2H3T3xXRxtAlEmVxkMBjt3GQq1sSw4qqDUaZjjxc=;
+	t=1786370906; bh=WIG5gWxWn/Ev2rkfLIG3WmO0JyDYfhFXREH1iOSeZTw=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=VDMFqS+FI7dztumWUIj0YSzO03RhoFJUBQIQzYUdFvqVl9cEv8Iw/mDKNo7PN1C6X
-	 1VHMihPE5KmCMT17k5n8XBwRp9N9Pbg9cGBMMV/3LzWSgApFGs1tQxNrK6u2zmk9z2
-	 n2fKbvDMQjaTvkmApv2yhkGVWehw0StqDsKzTy6c=
-Message-ID: <efd52893-bf66-40cc-a53d-980b89cee448@arm.com>
-Date: Mon, 10 Aug 2026 16:07:41 +0200
+	b=ZXStNpjXVYvpxTBkP3rWmmwVPR479gsTPUbyBMBR8VKOLTsj4ratjHRO92RiDGFax
+	 IG5dbWhAWx0ncg0zwRBfNQKPrft0K+c13K0wFbEYz8ngMLcySRRYMCHpujbZ48aqGf
+	 1iA6qXJ9C3VW4Jm34gws0KQ9bPcSOJKgwmrVFNto=
+Message-ID: <3cccd2d2-b59c-47ec-8a87-f504a5427576@arm.com>
+Date: Mon, 10 Aug 2026 15:08:19 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,99 +35,109 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 03/22] mm: introduce MMF_KERNEL flag and set it for
- init_mm
-To: "David Hildenbrand (Arm)" <david@kernel.org>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, linux-mm@kvack.org
-Cc: Andrew Morton <akpm@linux-foundation.org>,
- Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>,
- Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Pasha Tatashin <pasha.tatashin@soleen.com>,
- Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Ryan Roberts <ryan.roberts@arm.com>, linux-arm-kernel@lists.infradead.org,
- Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
- Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, linux-riscv@lists.infradead.org,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+Subject: Re: [PATCH] arm64: swiotlb: Keep the default size for protected
+ guests
+To: Jason Gunthorpe <jgg@ziepe.ca>, Will Deacon <will@kernel.org>,
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+ Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Mostafa Saleh <smostafa@google.com>, iommu@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linux-coco@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
+ Steven Price <steven.price@arm.com>,
+ Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Jiri Pirko <jiri@resnulli.us>,
+ Petr Tesarik <ptesarik@suse.com>, Alexey Kardashevskiy <aik@amd.com>,
+ Dan Williams <dan.j.williams@intel.com>, Xu Yilun
+ <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <chleroy@kernel.org>,
  Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>, linux-s390@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>,
- Andreas Larsson <andreas@gaisler.com>, sparclinux@vger.kernel.org,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>, linux-um@lists.infradead.org,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, Ning Sun <ning.sun@intel.com>,
- x86@kernel.org, tboot-devel@lists.sourceforge.net,
- Ard Biesheuvel <ardb@kernel.org>,
- Ilias Apalodimas <ilias.apalodimas@linaro.org>, linux-efi@vger.kernel.org,
- Vishal Moola <vishal.moola@gmail.com>, Alistair Popple <apopple@nvidia.com>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-References: <20260714-remove_pgtable_cdtor-v1-0-44be8a7685d7@arm.com>
- <20260714-remove_pgtable_cdtor-v1-3-44be8a7685d7@arm.com>
- <01f07ea2-8bdd-4450-8a49-548f8b646cfd@kernel.org>
- <33fc9d31-2866-4315-9510-0004deb93994@kernel.org>
-From: Kevin Brodsky <kevin.brodsky@arm.com>
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+References: <anX7F7dnKOtAOIIe@google.com> <20260807164734.GE200537@ziepe.ca>
+ <anYgXSR4VAi3TpOj@google.com>
+ <CGME20260807182023eucas1p1f653436207b2b00338e99ea1d8f847df@eucas1p1.samsung.com>
+ <20260807182017.GH200537@ziepe.ca>
+ <7d22482f-d5fd-4cf4-9d32-6a54e02f2fbb@samsung.com>
+ <yq5av79iiard.fsf@kernel.org> <anml6lLRERm1Iv-_@willie-the-truck>
+ <28442500-1d53-4776-bae5-459c3ffc1cc6@samsung.com>
+ <anm6K2umtx4iKnyZ@willie-the-truck> <20260810130818.GN200537@ziepe.ca>
+From: Robin Murphy <robin.murphy@arm.com>
 Content-Language: en-GB
-In-Reply-To: <33fc9d31-2866-4315-9510-0004deb93994@kernel.org>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20260810130818.GN200537@ziepe.ca>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 05/08/2026 14:07, David Hildenbrand (Arm) wrote:
-> On 8/3/26 15:59, Christophe Leroy (CS GROUP) wrote:
->> Le 14/07/2026 à 16:03, Kevin Brodsky a écrit :
->>> mm code often needs to know whether some mm represents a kernel or
->>> user address space. This is currently done by comparing the mm
->>> pointer with &init_mm; besides not being particularly elegant, this
->>> ignores the fact that other mm's (e.g. efi_mm) may also represent
->>> parts of the kernel address space.
+On 10/08/2026 2:08 pm, Jason Gunthorpe wrote:
+> On Mon, Aug 10, 2026 at 12:46:51PM +0100, Will Deacon wrote:
+>> On Mon, Aug 10, 2026 at 01:37:11PM +0200, Marek Szyprowski wrote:
+>>> On 10.08.2026 12:20, Will Deacon wrote:
+>>>> On Mon, Aug 10, 2026 at 02:59:42PM +0530, Aneesh Kumar K.V wrote:
+>>>>> Marek Szyprowski <m.szyprowski@samsung.com> writes:
+>>>>>
+>>>>>> On 07.08.2026 20:20, Jason Gunthorpe wrote:
+>>>>>>> On Fri, Aug 07, 2026 at 06:13:49PM +0000, Mostafa Saleh wrote:
+>>>>>>>> But the whole thing is best effort anyway, the kernel picks
+>>>>>>>> IO_TLB_DEFAULT_SIZE which does not depend on the system topology or
+>>>>>>>> how many devices or how much DMA they do.
+>>>>>>>> SWIOTLB memory is wasted if unused so we should be careful around
+>>>>>>>> that as it would be the other way around and users would have to
+>>>>>>>> decrease it manually.
+>>>>>>> Yeah, it is why the arch code shouldn't really be sizing it directly,
+>>>>>>> it should be done in common code and, yes, we are probably going to
+>>>>>>> have to do something alot smarter to have the common code better
+>>>>>>> auto-tune this for the CC case..
+>>>>>> What about the $subject patch? I assume that it is still needed to
+>>>>>>
+>>>>>> restore the behavior that was altered by the "[PATCH v8 00/23]
+>>>>>>
+>>>>>> dma-mapping: Track shared DMA state through direct, pool and swiotlb
+>>>>>>
+>>>>>> paths?" patchset?
+>>>>>>
+>>>>> I would request that we pick this patch to fix the regression described
+>>>>> in https://lore.kernel.org/all/yq5azeyxyfol.fsf@kernel.org/.
+>>>> I really don't think we need it. CCA hardware isn't exactly widespread
+>>>> and the KVM host side patches don't appear close to being merged.
 >>>
->>> Introduce a new mm flag MMF_KERNEL and set it for init_mm.
->>> Subsequent patches will use this flag to replace comparisons with
->>> &init_mm. No functional change is introduced for now.
->> Did you consider performance impact ? This test is usually done in quite
->> critical memory handling functions.
->>
->> init_mm is known at link time. Before your patch 08/22 there is just a
->> comparison of mm (r3) with a constant (loaded in r10):
->>
->> c0014048 <assert_pte_locked>:
->> c0014048:    3d 40 c1 09     lis     r10,-16119
->> c001404c:    39 4a 03 98     addi    r10,r10,920
->> c0014050:    7c 03 50 00     cmpw    r3,r10
->> c0014054:    4d 82 00 20     beqlr
->> ...
->>
->> After patch 08/22 we have, it first checks that mm is not 0, then it loads the
->> word located at mm+528 then AND it with 0x1. This load might be costly.
->>
->> c0014048 <assert_pte_locked>:
->> c0014048:    2c 03 00 00     cmpwi   r3,0
->> c001404c:    7c 85 23 78     mr      r5,r4
->> c0014050:    41 82 00 10     beq     c0014060 <assert_pte_locked+0x18>
->> c0014054:    81 23 02 10     lwz     r9,528(r3)
->> c0014058:    71 29 00 01     andi.   r9,r9,1
->> c001405c:    4c 82 00 20     bnelr
-> Is that a real problem, though?
+>>> Does this mean that the branch for-next/coco [1] won't go to v7.3-rc1?
+> 
+> Let's not make progress on guest support contingent on KVM CCA host
+> side patches please. I expect the CSPs will have VM instance types
+> available based on CCA within quarters, and Linux as a Guest should
+> work in those environments regardless of what KVM is doing. I don't
+> really expect full KVM support for years, frankly, the patchset is
+> massive. Even Intel and AMD don't have full KVM support yet.
+> 
+> People already have CCA capable HW, are already testing this stuff and
+> the closer upstream can get to being workable as a guest without a
+> mountain of OOT patches the better.
+> 
+> I agree the thing is not ideal, but it was merged to ARM like this a
+> long time ago, this patch is just fixing a small oopsie (was it a
+> merge conflict?) to put it back. I don't the objection.
 
-I doubt it, this is a load from a fixed address and therefore highly
-cacheable/predictable. At worst we're keeping an extra cache line
-allocated, but I'd expect init_mm to be already in the cache most of the
-time.
+Yup, it seems pretty clearly like a straightforward bug in this series 
+(or maybe even just the merge resolution), where it should have just 
+removed the use of SWIOTLB_FORCE, but changing the if/else structure 
+inadvertently upset the whole flow in a way that it shouldn't have.
 
-> What we could do is to just keep the == &init_mm check internally on configs
-> where we know that there is only a single such MM context.
+For a fix patch it might be clearer to restore the "(is_realm_world() || 
+is_protected_kvm_guest())" condition exactly as before, then save any 
+further refactoring for the next round of new development. And if there 
+is a concern that skipping the resizing wastes memory for pKVM, then 
+surely that falls on e62decaf98e7 ("arm64/coco: Add pKVM as a CC 
+platform") which intentionally added that logic.
 
-Sure, if this provides a clear performance benefit on powerpc or other
-architectures/configs that don't have an efi_mm we could do that.
+I do concur that there's not necessarily a mad panic to get this into 
+Marek's 7.3 pull, as folks trying to use linux-next or bleeding-edge 
+mainline for CCA work (or indeed anything) should know the risks, but it 
+should at least be one for the 7.3-rc fixes cycle. Aneesh, FYI generally 
+once things are queued, please just send follow-up fixes as their own 
+thing rather than replies, for maximum clarity.
 
-- Kevin
+Thanks,
+Robin.
