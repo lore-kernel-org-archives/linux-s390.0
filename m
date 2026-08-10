@@ -1,147 +1,114 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAA57385D75
-	for <linux-s390@vger.kernel.org>; Mon, 10 Aug 2026 10:05:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.129.124
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786356334; cv=pass; b=HTNT+Emkf5OdEtoLV2TuBuXeaxhWVGD9u2J9iO3rb/48aUdwsNW0gyJUYNtFVgFp7JYn/Neulr1kU4bfXQf/2PiL+CybMvoVuOF6CCnOK81A6hLBZa00JBod+O0GU6vd0lg2zKTRJ9YcQ812NRhsRap4oNACLN3RIz1ZDeX3oSE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786356334; c=relaxed/simple;
-	bh=4LdAx9fvvsBB7MjnkYBLZN0nPHxZGz7WnwP8m1gHhRo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qvHTiEipiQDxbEMF2i5ePt3w/hhiHpHo3X+DxXSc9qNC7UUR06x0PokWgZWQF2BmIqyig2qD5x7iN4WWk89vqV2IcGKXiJVbKDyMb3ct37Tw1uKFerlmSfT0MppMa9xdgWD+7gV2jbYAgErHkABtoaU/TMgPg1Kzx3fuCSHQ3dM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QTEa7/16; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=C550Dx8Y; arc=pass smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B25DD2D592C;
+	Mon, 10 Aug 2026 10:20:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786357236; cv=none; b=FNs9ahbsJ3PIGVPhfZg7rSOriokMwEuHbasKTQda9g0k+TQhoaXzJG7BOvy5ZDlwH16Zdp/c46C0v/2KCOBi4tHtHQj7V51b3qXt7+61/VPYjzp8QbQYVGWh58QGbn4czLGr1lluj8IlWgjNg+a24MHFpDSL9lPjUL1rdpo6KnQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786357236; c=relaxed/simple;
+	bh=QDnLd2Qssm4qkXIlUrBXDBoa7JhwdI6IPm/F30rfl4w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NLJTg8XYmTAADAzVWAQTNomFGSbkwC0B+WhRWGft2otFKRfoOPRw5IBjG5IVAOfaVThNkpKoKyEebHv3wQ17w+8f3uivr9eUSRYPx32NWfEOzTFm8A454F/3vQLFUhguQeM45RajkdIwXClwogE6wwo2l0lh1TVsj9ZQD0+jkhg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SOj+T9lc; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QTEa7/16";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="C550Dx8Y"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786356331;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=KTE9q723VNHgSKbOmtVFOArX1damMhZ8BQEArvWAKkE=;
-	b=QTEa7/16a/7shE+b0ITk9RK4I2UZkFD36BnX5OYf+q4ndwMw2dxvVLVFTlpNn+QIGzQJHd
-	pS8Yl+c3kv65tFBafIf8P+QhM0Bo+EjyCaCnSGNwWNyFzp3MxUOeTn6hqDDgvvrt1uLSpm
-	d9IjhLEkDTKWZF33XedKcDFJBc/cODo=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-641-sDPyvrsCO2K6RJvjVjz3Zg-1; Mon, 10 Aug 2026 06:05:10 -0400
-X-MC-Unique: sDPyvrsCO2K6RJvjVjz3Zg-1
-X-Mimecast-MFC-AGG-ID: sDPyvrsCO2K6RJvjVjz3Zg_1786356309
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4954a93c565so9264065e9.2
-        for <linux-s390@vger.kernel.org>; Mon, 10 Aug 2026 03:05:10 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786356309; cv=none;
-        d=google.com; s=arc-20260327;
-        b=VrD60s4AstXlsD0TOSYK8yi3kkfNAXgmLPjC5/L1IkVZlTZ94UKzyvj/UDQg1PT/9q
-         dVyTGKAbVXo7tKWkndJEFpOaJcAFal6BvagzWWg33mkId0HT0aw0vOMgXOtkeV0Ogb2t
-         GMqzDYfUijdxx9tlEa3T3mcsgNUzoSndz9EXAMn/jsI4mLV640NRJ6NMrMyHVcFVvEpG
-         0wKb/pH6WJOSH8DGC0ZZ2GoTvkh2YkPqouoRQ+o6WPUmG8N306ObnjVDiF+C5TkMQv4o
-         H2fUPu8KwcZ1qv1dz9xXHiTl2+xKeNUnAejW8bFsCwehxNS3EyY/Uf6AVf6us2SdAfcZ
-         RCPQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=KTE9q723VNHgSKbOmtVFOArX1damMhZ8BQEArvWAKkE=;
-        fh=OKp5eQZn+8aJhTYK7aK5nBL9i0Y7Uka0Xs9WKmSkZCU=;
-        b=aY/qkGiTTTxC8PONiX13ezzFYB04mkL6Yuo5N1x+T/PNIdkztRNlc572Vy7SCuL18j
-         JwmW9JXu8rP5cRBM3xtRcsb6Bw1aThhrLdNLXb56rFAw1NFOq7RN7omIuRRTI4kF01Sf
-         fMYs3TMRKbEzrRguS0KsAy1lobh8FNcbg813fGv9Rs6WeCDkwxUQHqoF/Cd7hZgh2RBM
-         wzEwe+2tVCtGprfI5T7z8lUwMhvdtDgTx6qB6CZr2yAY46HHCc4pP8EJDjSmDl2ygIo0
-         Dpln+rolg2GhUJcEoTuppJuBi2K4FzYZ/R+wzbQyXtpURsNKk6TZfSsckJSuYMtGCuvh
-         p1dQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1786356309; x=1786961109; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=KTE9q723VNHgSKbOmtVFOArX1damMhZ8BQEArvWAKkE=;
-        b=C550Dx8Y4F8LdeHXnN+Nag7AvjpSQKSZJigSZZ96cHQU/4uJlKENkqe3evapvfrPWy
-         /Bgzihvkp04i/sbEHSMDONR1oyVL8+nFQH5ixnxdiSihyS6EArcRGJV56mV6bDgg9k4w
-         6uIIYgRkr6suElCfqPTEAi4PKGRNkpV72812R7c3cyIY3wB2RSXG7xRgOAZQDZRkchIQ
-         VR9XVvBbfaGDa7goWuCZgFacuejAawigokyVHlUq10v+yPIGSRcKZ/urTa+iw1dBt6x7
-         UO3AiQSynCtHlZ8o9jtGKNDT/cEcFktSxu3Wka254ps0arMhAEzif2FxWaIn5AH9Lg+U
-         oQBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786356309; x=1786961109;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=KTE9q723VNHgSKbOmtVFOArX1damMhZ8BQEArvWAKkE=;
-        b=clNFmiSo76pPTnPBEqh0HFwbez09oQGcIjXzn93X6yubmVGFNiCzu0V+Ty/UKeYqe5
-         r7pkdUKDoOHCWp6lmIiIU44T6aN1wz3pWLDSxMIFHkLVR3loFMSO2fDsNcKkHQoSxiPK
-         4XmjSnJCJIWv9fzAjMIA2PvN68kE8Tp/MnsvxoGKExKdWosNQ74RhDFA7dkxydHekirH
-         s/O3WlhkfTJNv+04kZPrkkmhlxLz2XauyIoRGTZH2x5YMQdeULofPI9vSzQOlfls4pJS
-         gadnmgWr8Hj/GuIIvp98Kk0l8eC+iJPN51+ACAcXjPxbnJG7qxwKZ7CueJqx7hrY72zy
-         At+A==
-X-Forwarded-Encrypted: i=1; AHgh+RouC9c1aAFa0duCAT41YZu8aY/v4tmXZnBXbmrEd/XXV7Mzomxl2PzoTvPQS7nSYvytt3YvFGeuYmOC@vger.kernel.org
-X-Gm-Message-State: AOJu0YxU7Y1PHRtqSGYU8u0ZLaMCrJkQV+KuOQvSHkXNQbO74rEBnsRF
-	uvL1l7GdYNB/vyCb790LVV21/uT8faRnZWfmq/lrezCWCB5NsCezDMg26792cCkYcQima2ftyb6
-	DX/u8vufrMHdJlRbKP8JXTM1Iq7CO4NeqGcrpAb3OIma0p6+Z128Gl8Vjbc8Zu+RAXizoy5qoy5
-	U8gGHOFWORzbbZciNhVrdtIcQNXNSfr6N/96+ymNOmUytGLg==
-X-Gm-Gg: AR+sD13Zt82rnUTVy0KUPaRyiCEYz/HRI8LR+craIOJt9ab3WYDLPxV0TYRPwR9FEVI
-	5WSgGr0B5gPHXeEkthJGMZEdVyWk4F5BrtZ9PB2a6KD0GHdFJFmmvNqqDZn8V8ETvNg/NtHOpbu
-	I9G754LgK5JJsC9goLU12CY8xtHc2hzF9IY77vBRk0zYrLUnoOm2ugVQJkur/Y1k0huGZKR/oji
-	asstckLE7zReSclc3eWAkvTAuAvrKo1dmcIvrmiofQhyzzaHh0JC6qNKN4=
-X-Received: by 2002:a05:600c:3226:b0:490:e5c1:b8bf with SMTP id 5b1f17b1804b1-499727a3b84mr5344275e9.13.1786356309221;
-        Mon, 10 Aug 2026 03:05:09 -0700 (PDT)
-X-Received: by 2002:a05:600c:3226:b0:490:e5c1:b8bf with SMTP id
- 5b1f17b1804b1-499727a3b84mr5343835e9.13.1786356308812; Mon, 10 Aug 2026
- 03:05:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SOj+T9lc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 169771F000E9;
+	Mon, 10 Aug 2026 10:20:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786357235;
+	bh=KO6eVlrCoGv7LRa95h7FC3E/wXet0JaIn2ciTJXwruE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=SOj+T9lcP3BfqhGI1ByG0Cv3PFMgqUXv8bHIyEGQ0Crx7WPJvpMXrDR6cnXA8haDH
+	 cYjQmWETdYROJsgxJuY0xAnMz+qcsum4zhRddj5OuQmXFYimXS65x+nSJ/ri3Pl+I1
+	 NNbWKQWfp+9tZN7Pqfs4BBq401HgnEBNwmndyyrcCDyiTbSvJXGLmyQauDbrl/5q/E
+	 wSkKYR4xrnk2AmyDzRpVJfB47dSs8n1OBShCZjXa2N+CTMRHmZEtOsPiqUVTW8WnRr
+	 dQPmOerSaod1zGxwRrnOVvRSAkC99DwkhJUjDCZDMb4jRWp+BTOJwOS++QcQwsQ0GI
+	 RC8+hOhcdNwJA==
+Date: Mon, 10 Aug 2026 11:20:26 +0100
+From: Will Deacon <will@kernel.org>
+To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>, Mostafa Saleh <smostafa@google.com>,
+	iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [PATCH] arm64: swiotlb: Keep the default size for protected
+ guests
+Message-ID: <anml6lLRERm1Iv-_@willie-the-truck>
+References: <yq5acxvu2ict.fsf@kernel.org>
+ <anXbJ2O4DWgPxCeg@willie-the-truck>
+ <20260807135810.GA200537@ziepe.ca>
+ <anX7F7dnKOtAOIIe@google.com>
+ <20260807164734.GE200537@ziepe.ca>
+ <anYgXSR4VAi3TpOj@google.com>
+ <CGME20260807182023eucas1p1f653436207b2b00338e99ea1d8f847df@eucas1p1.samsung.com>
+ <20260807182017.GH200537@ziepe.ca>
+ <7d22482f-d5fd-4cf4-9d32-6a54e02f2fbb@samsung.com>
+ <yq5av79iiard.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260804120529.1730187-1-pbonzini@redhat.com> <20260804120529.1730187-4-pbonzini@redhat.com>
- <49840a84-6d73-4a15-adae-800eccfb1c7d@amd.com>
-In-Reply-To: <49840a84-6d73-4a15-adae-800eccfb1c7d@amd.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Mon, 10 Aug 2026 12:04:48 +0200
-X-Gm-Features: AUfX_my6VzuSeHJgh3uVKaTYyn_VnWzP5xLi-qQ5sWEuv-5l4TAmINZeor_-704
-Message-ID: <CABgObfYvz_SrBBXmzJfiW0VsQyRa8OWQdP7myfY=WAws63oguw@mail.gmail.com>
-Subject: Re: [PATCH v2 3/6] drm/ttm, drm/vmwgfx: directly create writable PTEs
- when mkwrite is in use
-To: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
-	Alex Williamson <alex@shazbot.org>, bcm-kernel-feedback-list@broadcom.com, 
-	Boris Brezillon <boris.brezillon@collabora.com>, David Hildenbrand <david@kernel.org>, 
-	dri-devel@lists.freedesktop.org, Fei Li <fei1.li@intel.com>, 
-	Huang Rui <ray.huang@amd.com>, linux-mm@kvack.org, linux-s390@vger.kernel.org, 
-	Michal Hocko <mhocko@suse.com>, Peter Xu <peterx@redhat.com>, Sergio Lopez <slp@redhat.com>, 
-	Sean Christopherson <seanjc@google.com>, Thomas Zimmermann <tzimmermann@suse.de>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yq5av79iiard.fsf@kernel.org>
 
-On Mon, Aug 10, 2026 at 12:01=E2=80=AFPM Christian K=C3=B6nig
-<christian.koenig@amd.com> wrote:
->
->
-> > -             /* Never error on prefaulted PTEs */
-> > +             /* Never error on prefaulted PTEs and never map them writ=
-able */
-> > +             mkwrite =3D false;
->
-> As far as I can see that is a really bad idea, we do want the prefaulted =
-PTEs writeable.
->
-> The whole prefaulting is essentially an optimization for cases where taki=
-ng a fault has massively overhead (virtualization for example).
->
-> Wasn't vmf_insert_pfn_prot() making them writeable before?
+On Mon, Aug 10, 2026 at 02:59:42PM +0530, Aneesh Kumar K.V wrote:
+> Marek Szyprowski <m.szyprowski@samsung.com> writes:
+> 
+> > On 07.08.2026 20:20, Jason Gunthorpe wrote:
+> >> On Fri, Aug 07, 2026 at 06:13:49PM +0000, Mostafa Saleh wrote:
+> >>> But the whole thing is best effort anyway, the kernel picks
+> >>> IO_TLB_DEFAULT_SIZE which does not depend on the system topology or
+> >>> how many devices or how much DMA they do.
+> >>> SWIOTLB memory is wasted if unused so we should be careful around
+> >>> that as it would be the other way around and users would have to
+> >>> decrease it manually.
+> >> Yeah, it is why the arch code shouldn't really be sizing it directly,
+> >> it should be done in common code and, yes, we are probably going to
+> >> have to do something alot smarter to have the common code better
+> >> auto-tune this for the CC case..
+> >
+> > What about the $subject patch? I assume that it is still needed to
+> >
+> > restore the behavior that was altered by the "[PATCH v8 00/23]
+> >
+> > dma-mapping: Track shared DMA state through direct, pool and swiotlb
+> >
+> > paths?" patchset?
+> >
+> 
+> I would request that we pick this patch to fix the regression described
+> in https://lore.kernel.org/all/yq5azeyxyfol.fsf@kernel.org/.
 
-In general yes and they still will be, but not if pfn_mkwrite was used
-(as in the vmwgfx driver). I'll change the comment to "never force
-them to be writable". Setting mkwrite to false is exactly the same
-behavior as before, setting it to true is a superset.
+I really don't think we need it. CCA hardware isn't exactly widespread
+and the KVM host side patches don't appear close to being merged.
 
-Paolo
+We have time to fix this properly, rather than papering over it in the
+arch code.
 
+Please consider this a NAK from the arm64 side on this patch.
+
+Will
