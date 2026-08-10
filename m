@@ -1,132 +1,170 @@
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70F8B3A59A3;
-	Mon, 10 Aug 2026 11:37:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F02035C68C;
+	Mon, 10 Aug 2026 11:37:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786361837; cv=none; b=aCyIYeKMqKrQGTvZqXlgLw/VzBCJ52hmISz4XfuXzdCaKKVJhgDVH1v3kDY9dX6gj6JDKIyBmXXnnKmY6m3HEWPQQTDT2q2izf+XJuluoKlw65aSRsiL5ekDZ2Pcfg4d4LMb6XumVEc2ABf+pb0wxM9sZaHxB71aSb8CddJDov8=
+	t=1786361863; cv=none; b=k6ymBVtNdgdL2sJc+r+as2KapnrNM5MffLdKFTfRhujtxpg0BIxSptxdw/xxPdXxbGnGhGkwmylYyySi4xDNSxjsscS8d5os20Rmw7DIb5iCidhggdKjGqldCb85tGckHGbPiHT/oZ87UiSghZzZ/20tsgLnOjuqihe5vYFaL/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786361837; c=relaxed/simple;
-	bh=JILZlLag93tKeGGKVP72PK95/5BhRFdNvP2Z+0HaKE8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
-	 Content-Type:References; b=j0QEp4qd4fGwNZclxVH240wCHWD12I/sie+N/p8YJC93xxiT2kyMO1uHIbOlVYsaNgQvaX5Z10OT2UryOhocGYk54zXCObwKK8APtqYpwhQ342q19XRp15EEMISBVk4NeOqtE+PYamwoR/QEAG3fPL7lu8u/UsGLp3VeQLGlzQo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=kN3DxXhi; arc=none smtp.client-ip=210.118.77.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1786361863; c=relaxed/simple;
+	bh=BMJDIE6CHbO1/hXXuxN0Oc8LiGEVwJX2mXmYuVlwD60=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=GeUFv73d3lIu6ZUv7yavfoFkhCPzl7nJd/K87wmqy5Tp9mlj31ptAhUrieXcUpIEV1fPGzfGU0tNkCOdctsuGSb3Zv+o5tHpIvcumd4Sej3kMfGQoInJ+ApRM4nXRyk4VRMAh0jTc4xzdZPtbyvOjhB8dxV6Z+NiGi1NQ95h+Bg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ryHsbdLR; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="kN3DxXhi"
-Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20260810113713euoutp016f3f4b77a2df3bfdc305d031c6984c9a~Kbp97gzYA2148921489euoutp01h;
-	Mon, 10 Aug 2026 11:37:13 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20260810113713euoutp016f3f4b77a2df3bfdc305d031c6984c9a~Kbp97gzYA2148921489euoutp01h
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1786361833;
-	bh=kV5ZYrj5wE4GOEKRMF/gxoB7LU5gFTUJHkhmU9HyjMA=;
-	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-	b=kN3DxXhiV6A32AfRhNBQCO8Y9H3rbjoYrVAP4Y+RwnGiaH2R4moCILniw2BNmc07i
-	 qVDB2xKU0IDVgY36eMntlSkuzEBYinOGgCSE0qA/VEzpbfJWamjWYMHLWeJVGM2Q6c
-	 TT41noYxnIJu2mycFyI4SXwKJL3jDjmL5dWuupLA=
-Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
-	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-	20260810113713eucas1p1b0aa58555e68eca16ad8962462d5afdd~Kbp9wCQhp2359123591eucas1p1b;
-	Mon, 10 Aug 2026 11:37:13 +0000 (GMT)
-Received: from [106.120.50.46] (unknown [106.120.50.46]) by
-	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20260810113711eusmtip2ac80bb2608e56255c84c347422994fd6~Kbp8OmsY60892908929eusmtip2X;
-	Mon, 10 Aug 2026 11:37:11 +0000 (GMT)
-Message-ID: <28442500-1d53-4776-bae5-459c3ffc1cc6@samsung.com>
-Date: Mon, 10 Aug 2026 13:37:11 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ryHsbdLR"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67A9Vjks1169813;
+	Mon, 10 Aug 2026 11:37:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=7GrJgi
+	WXNOuyc/JoQ56ScV07wQEhbyTHNRlFdfLNWQ8=; b=ryHsbdLRptfs2fLl+CyfB8
+	ZZWf4q+DDMuPWRt7JryiNwW64PYGbvdtA003LldKeP6GS+2txIj76evAZMO3dmcl
+	0hYAVmAdC9jtaf9xz3fCFPOuA0BMByIbHtQOCISmTVQcBEfCOolsizGlo2mGfeeO
+	s3n2fU5z9dApNsmOO0EPpEirx26quDQYJDRZf7ytMGncMZuTV6gIZ1M3P+udkdde
+	iMmZX1l2GSsBbfNqusX1YLKFWn/wzADHOdOiCiJqSCxucxdt1eKE65YX8NcBQhNF
+	ak8S5Z/N02tLMi0RAjMSpVdVyRC9WgH54jhVrc5czW5xpvL3Yw+r3KD/yO9wRCWg
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvp2qb6j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 10 Aug 2026 11:37:28 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67ABQPFI006307;
+	Mon, 10 Aug 2026 11:37:28 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxg9gvh62-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 10 Aug 2026 11:37:28 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67ABbNkn41943456
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 10 Aug 2026 11:37:24 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DBE752004B;
+	Mon, 10 Aug 2026 11:37:23 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7AC032004E;
+	Mon, 10 Aug 2026 11:37:23 +0000 (GMT)
+Received: from [192.168.2.127] (unknown [9.111.54.108])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 10 Aug 2026 11:37:23 +0000 (GMT)
+From: Mete Durlu <meted@linux.ibm.com>
+Date: Mon, 10 Aug 2026 13:35:57 +0200
+Subject: [PATCH v5 2/3] s390: Implement arch_do_panic()
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Betterbird (Windows)
-Subject: Re: [PATCH] arm64: swiotlb: Keep the default size for protected
- guests
-To: Will Deacon <will@kernel.org>, "Aneesh Kumar K.V"
-	<aneesh.kumar@kernel.org>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>, Mostafa Saleh <smostafa@google.com>,
-	iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev, Robin Murphy
-	<robin.murphy@arm.com>, Marc Zyngier <maz@kernel.org>, Steven Price
-	<steven.price@arm.com>, Suzuki K Poulose <Suzuki.Poulose@arm.com>, Catalin
-	Marinas <catalin.marinas@arm.com>, Jiri Pirko <jiri@resnulli.us>, Petr
-	Tesarik <ptesarik@suse.com>, Alexey Kardashevskiy <aik@amd.com>, Dan
-	Williams <dan.j.williams@intel.com>, Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Madhavan
-	Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer
-	<gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily
-	Gorbik <gor@linux.ibm.com>, Christian Borntraeger
-	<borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
-	x86@kernel.org
-Content-Language: en-US
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-In-Reply-To: <anml6lLRERm1Iv-_@willie-the-truck>
-Content-Transfer-Encoding: 8bit
-X-CMS-MailID: 20260810113713eucas1p1b0aa58555e68eca16ad8962462d5afdd
-X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20260807182023eucas1p1f653436207b2b00338e99ea1d8f847df
-X-EPHeader: CA
-X-CMS-RootMailID: 20260807182023eucas1p1f653436207b2b00338e99ea1d8f847df
-References: <yq5acxvu2ict.fsf@kernel.org>
-	<anXbJ2O4DWgPxCeg@willie-the-truck> <20260807135810.GA200537@ziepe.ca>
-	<anX7F7dnKOtAOIIe@google.com> <20260807164734.GE200537@ziepe.ca>
-	<anYgXSR4VAi3TpOj@google.com>
-	<CGME20260807182023eucas1p1f653436207b2b00338e99ea1d8f847df@eucas1p1.samsung.com>
-	<20260807182017.GH200537@ziepe.ca>
-	<7d22482f-d5fd-4cf4-9d32-6a54e02f2fbb@samsung.com>
-	<yq5av79iiard.fsf@kernel.org> <anml6lLRERm1Iv-_@willie-the-truck>
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260810-arch_do_panic-v5-2-e86ae992c253@linux.ibm.com>
+References: <20260810-arch_do_panic-v5-0-e86ae992c253@linux.ibm.com>
+In-Reply-To: <20260810-arch_do_panic-v5-0-e86ae992c253@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>, Petr Mladek <pmladek@suse.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Andreas Larsson <andreas@gaisler.com>,
+        Bradley Morgan <include@grrlz.net>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+        sparclinux@vger.kernel.org, Mete Durlu <meted@linux.ibm.com>
+X-Mailer: b4 0.14.3
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=AMtp2X5w c=1 sm=1 tr=0 ts=6a79b7f8 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=978copb2vMzALUAMs8wA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: Rle0Et69GdhUWL8gPMlYsxYokfQSbsYx
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEwMDEwMSBTYWx0ZWRfX0hzs8yKSzujt
+ z8djMcrxeU2Ryz+OUoyRBm2d7G8pK7o3plos6bYo6HvqmbaR0eXTZK76vWUvrn644TA+PvH49nt
+ hnEuEMAB1l4M1oHvN0zKp8KER5rcOc63BxO4PLCaYSgWOR4CKkgRy25WPOLHfAHSHMiXCMyzXL9
+ kzyfMEHt5nfmUQT0aoe23TVYnu+g6YPLrp419Hp0gRg2ytwcspW53TNHnp4VkC5V4T/vYEYpJTG
+ C+3hJddmtrg+p1w90rrPse4j4T7P51YCnSgesBCsKEOT+Tjiimj/8/hsxORtIslUZxUeY6EfEUE
+ LWsCFgAxzUb5mD/b8gAc/3eC/DG2oYnH44+PZTM1x6evteWT5MKwyKRBL0/G02XPRT5gvf7Qw2T
+ g+LpXeteL8Rj+j3wbx+KtXoGeALVOyuohsdNYdh/BnK1g8jdRjQTmzKXvS/+fRUD4iSvCiUAc7s
+ BuWlXymriZM5JtJdSFQ==
+X-Proofpoint-ORIG-GUID: Rle0Et69GdhUWL8gPMlYsxYokfQSbsYx
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODEwMDEwMSBTYWx0ZWRfX3C27axWJgJnT
+ BP1O0HC2pi5K0ef1t53GfpuvcZJ5/nxqHeDJR+HLs3y8bwpKM/5vz7uF7yIUOd2fySc/RLaLFo6
+ +zxhieSWWoBynZxCcmK3i0GvXHYDwFc=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-10_02,2026-08-07_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
+ priorityscore=1501 impostorscore=0 phishscore=0 spamscore=0 bulkscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608100101
 
-On 10.08.2026 12:20, Will Deacon wrote:
-> On Mon, Aug 10, 2026 at 02:59:42PM +0530, Aneesh Kumar K.V wrote:
->> Marek Szyprowski <m.szyprowski@samsung.com> writes:
->>
->>> On 07.08.2026 20:20, Jason Gunthorpe wrote:
->>>> On Fri, Aug 07, 2026 at 06:13:49PM +0000, Mostafa Saleh wrote:
->>>>> But the whole thing is best effort anyway, the kernel picks
->>>>> IO_TLB_DEFAULT_SIZE which does not depend on the system topology or
->>>>> how many devices or how much DMA they do.
->>>>> SWIOTLB memory is wasted if unused so we should be careful around
->>>>> that as it would be the other way around and users would have to
->>>>> decrease it manually.
->>>> Yeah, it is why the arch code shouldn't really be sizing it directly,
->>>> it should be done in common code and, yes, we are probably going to
->>>> have to do something alot smarter to have the common code better
->>>> auto-tune this for the CC case..
->>> What about the $subject patch? I assume that it is still needed to
->>>
->>> restore the behavior that was altered by the "[PATCH v8 00/23]
->>>
->>> dma-mapping: Track shared DMA state through direct, pool and swiotlb
->>>
->>> paths?" patchset?
->>>
->> I would request that we pick this patch to fix the regression described
->> in https://lore.kernel.org/all/yq5azeyxyfol.fsf@kernel.org/.
-> I really don't think we need it. CCA hardware isn't exactly widespread
-> and the KVM host side patches don't appear close to being merged.
+Implement s390 specific arch_do_panic() instead of using s390 specific
+ifdef sections in vpanic() code. disabled_wait() is now called after
+"end Kernel panic" marker.
+No functional changes.
 
-Does this mean that the branch for-next/coco [1] won't go to v7.3-rc1?
+Signed-off-by: Mete Durlu <meted@linux.ibm.com>
+---
+ arch/s390/kernel/traps.c | 7 +++++++
+ kernel/panic.c           | 3 ---
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
-I've used it as a base for the mentioned DMA-mapping patchset.
+diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
+index 564403496a7c..309d3d3e95fd 100644
+--- a/arch/s390/kernel/traps.c
++++ b/arch/s390/kernel/traps.c
+@@ -24,6 +24,7 @@
+ #include <linux/entry-common.h>
+ #include <linux/kmsan.h>
+ #include <linux/bug.h>
++#include <linux/panic.h>
+ #include <asm/entry-percpu.h>
+ #include <asm/asm-extable.h>
+ #include <asm/irqflags.h>
+@@ -31,6 +32,7 @@
+ #include <asm/vtime.h>
+ #include <asm/fpu.h>
+ #include <asm/fault.h>
++#include <asm/processor.h>
+ #include "entry.h"
+ 
+ static inline void __user *get_trap_ip(struct pt_regs *regs)
+@@ -275,6 +277,11 @@ static void monitor_event_exception(struct pt_regs *regs)
+ 	}
+ }
+ 
++void arch_do_panic(void)
++{
++	disabled_wait();
++}
++
+ void kernel_stack_invalid(struct pt_regs *regs)
+ {
+ 	/*
+diff --git a/kernel/panic.c b/kernel/panic.c
+index 726a97842232..ee6e3f9e3900 100644
+--- a/kernel/panic.c
++++ b/kernel/panic.c
+@@ -752,9 +752,6 @@ void vpanic(const char *fmt, va_list args)
+ 		pr_emerg("Press Stop-A (L1-A) from sun keyboard or send break\n"
+ 			 "twice on console to return to the boot prom\n");
+ 	}
+-#endif
+-#if defined(CONFIG_S390)
+-	disabled_wait();
+ #endif
+ 	pr_emerg("---[ end Kernel panic - not syncing: %s ]---\n", buf);
+ 
 
-
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git/log/?h=for-next/coco
-
-
-> We have time to fix this properly, rather than papering over it in the
-> arch code.
->
-> Please consider this a NAK from the arm64 side on this patch.
-
-Best regards
 -- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+2.55.0
 
