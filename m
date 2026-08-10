@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41F99360745;
-	Mon, 10 Aug 2026 19:04:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E53B73090D4;
+	Mon, 10 Aug 2026 19:06:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786388680; cv=none; b=EMwe1VCQdj7OhKyMspPtZ93hkhhBTSv24RZh+20NeRBw3nKG0yrq+DrrHWqkQdKMfN1qRXr3/2eNCyVlQKj7SonS1RTP63F/I6yrb1PoKgcDb6/4LC9L/VsnQgRfKbVTVQNF6Y+oz73gTj6D6hRKyFAGWd8W2JqU+F4eud52KLg=
+	t=1786388784; cv=none; b=qYBFab91mxdQ+7jIC6H1paKz9eEgrqrublTSHq/EECY/UdW0w6z3ToCOz8SgCzNfsKk3/CQdTGh9VOsTb9TLxu1y6sEjeEbSVM9A0iiNP2w2nbi5vk786NKmfwjR+zaqTaQzhjn/W9vD+wzM7elYfB8lYh/B8Zi6Gonr8OG5jwE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786388680; c=relaxed/simple;
-	bh=k+kkVUn5IwVjUDegOkkA0Y2hsLUnkK7QGZmZ9gpm2xI=;
+	s=arc-20240116; t=1786388784; c=relaxed/simple;
+	bh=79pF1OLywV96kGWddh+Hs/D7G3XABIN6mYrQwzmv4yw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UGnijEyuuzB9b/QEBRtwbzSYBIQk5bd/SVrefENDPvl8i8F6v4yjQL/amkLs9/Hda6mvIzSc8gvVWFbf/FlPXxxcrZ1w2+q8AbAre5PhVao1Lvt/0OM8XT08k8SQWjMwcIGTdMCQFsRdqBf4Nqj5fFiAjZkSZKL0P4TnbOTp7r8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ThqtMLTh; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=Ydjc7oMiGmJW2uQD7sNfIjO2fa1ASMS2krYv+B1DqX24XQExa2NgsHvszb7kmHYalZFOiKtEF6Lsy1lWyoIlwlyLPHYa6Gu8yZIHgUIOKbQcpP8T1CeaZrWySkAnrbibE3JTJjwhCg9wGUdO/eMGAPi1XCNvwr16kqJt0ztaJU8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Haejo0od; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ThqtMLTh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D40D1F000E9;
-	Mon, 10 Aug 2026 19:04:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Haejo0od"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E9DF1F000E9;
+	Mon, 10 Aug 2026 19:06:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786388677;
-	bh=wCWAj/IB9/Y4w78qXxms7OwhGGfziyuHvO5KgFUv6B8=;
+	s=k20260515; t=1786388782;
+	bh=T+39KDLCLYqbTKSddLas4IGMqRBXMEx9Py+60cglBnU=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=ThqtMLThm+JlEs0PWr88/r5aPvTGagXV2EKv/oViLQAObOt0udqTMeol0dQhLMROo
-	 GE83nTTxQt0GVcmHG5HC74dRHD4A5TiCYFZmZNv17w3adt7NyIawV0XM+5MGAcGTnb
-	 mnRE7CnuNoNAHvLnGU5Csrytb+LBKXVb05iAHSP3c/O+X9k7uTElfgKFTJJRD40X3n
-	 OvIL1WOKHEh3XArTCbuWhgK5ee4sKuBXqTQewUFv0XKtXk57ADjX1sVDcqE7AgX7Yo
-	 9uE2mXlgG6OMBp+Arc29zsNHLf1ie3dl9Zn+NFh2jXXLvUNq8HxKaNCMOLYgr4ET5/
-	 Jvt+utrbeR0iw==
-Message-ID: <4b90323b-27a6-42c9-a11f-b57a5c097b62@kernel.org>
-Date: Mon, 10 Aug 2026 21:04:29 +0200
+	b=Haejo0od72m9pz+U1NxyJfraNukUkcmtM8Sc2+i3ddnMJnbZD2OVbEyVkdFg6SMAg
+	 +ZB8VITfiXona/RKNH/i8KmefHCYih1NL8X2F863CGHx1AxzPh6MeE1kkDeljWuJDX
+	 ZbrgAObCmTkVcxtXFeZW5H/xNYXC3KyRL7SvwCKaOeQDUIO1I3FKWfhLJpuQlG4Cbh
+	 fbF678ivXlnrAbiZV5fWqgtijDfRnDE37P/NeCw+nrVs/pIGLXaZTUx6XJnaWITkGu
+	 FEO/gLWCHiirzTf7tirRmlFnFMmHAjrBJzYQ91pNzrrxesAi36SkB92mFvQp3F5CNG
+	 XvlUAzCZTL4Kg==
+Message-ID: <bbba657a-914b-4154-8a7c-6193e41151f4@kernel.org>
+Date: Mon, 10 Aug 2026 21:06:03 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,22 +35,45 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/6] mm: export vmf_insert_pfn_prot_mkwrite(), change
- variants to inline
-To: Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org,
- kvm@vger.kernel.org
-Cc: Alex Williamson <alex@shazbot.org>,
- bcm-kernel-feedback-list@broadcom.com,
- Boris Brezillon <boris.brezillon@collabora.com>,
- Christian Koenig <christian.koenig@amd.com>,
- dri-devel@lists.freedesktop.org, Fei Li <fei1.li@intel.com>,
- Huang Rui <ray.huang@amd.com>, linux-mm@kvack.org,
- linux-s390@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
- Peter Xu <peterx@redhat.com>, Sergio Lopez <slp@redhat.com>,
- Sean Christopherson <seanjc@google.com>,
- Thomas Zimmermann <tzimmermann@suse.de>, stable@vger.kernel.org
-References: <20260804120529.1730187-1-pbonzini@redhat.com>
- <20260804120529.1730187-2-pbonzini@redhat.com>
+Subject: Re: [PATCH v4 05/10] mm/cma: Allow dynamically creating CMA areas
+To: Thierry Reding <thierry.reding@kernel.org>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Sowjanya Komatineni <skomatineni@nvidia.com>,
+ Luca Ceresoli <luca.ceresoli@bootlin.com>,
+ Mikko Perttunen <mperttunen@nvidia.com>, Yury Norov <yury.norov@gmail.com>,
+ Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+ Russell King <linux@armlinux.org.uk>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Andrew Morton <akpm@linux-foundation.org>, Lorenzo Stoakes <ljs@kernel.org>,
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
+ Robin Murphy <robin.murphy@arm.com>, Sumit Semwal <sumit.semwal@linaro.org>,
+ Benjamin Gaignard <benjamin.gaignard@collabora.com>,
+ Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>,
+ "T.J. Mercier" <tjmercier@google.com>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu
+ <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Chun Ng <chunn@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>,
+ devicetree@vger.kernel.org, linux-tegra@vger.kernel.org,
+ linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-s390@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux.dev,
+ linaro-mm-sig@lists.linaro.org, linux-trace-kernel@vger.kernel.org,
+ Thierry Reding <treding@nvidia.com>
+References: <20260807-tegra-vpr-v4-0-5510d16af89e@nvidia.com>
+ <20260807-tegra-vpr-v4-5-5510d16af89e@nvidia.com>
+ <3b458c02-e836-4b24-a712-57fa8dd59e45@kernel.org> <annbzvLojXK33Sav@orome>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -97,170 +120,60 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260804120529.1730187-2-pbonzini@redhat.com>
+In-Reply-To: <annbzvLojXK33Sav@orome>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 8/4/26 14:05, Paolo Bonzini wrote:
-> Right now, users of .pfn_mkwrite() have no way to create a PTE
-> that has gone through maybe_mkwrite().  Because vma_set_page_prot()
-> will have cleared the writable PTE bit, users of fixup_user_fault()
-> will see a read-only PTE and have no clue that the page needs
-> a *second* fault to reach its final status.
+On 8/10/26 16:14, Thierry Reding wrote:
+> On Fri, Aug 07, 2026 at 06:16:06PM +0200, David Hildenbrand (Arm) wrote:
+>> On 8/7/26 17:54, Thierry Reding wrote:
+>>> From: Thierry Reding <treding@nvidia.com>
+>>>
+>>> There is no technical reason why there should be a limited number of CMA
+>>> regions, so extract some code into helpers and use them to create extra
+>>> functions (cma_create() and cma_free()) that allow creating and freeing,
+>>> respectively, CMA regions dynamically at runtime.
+>>>
+>>> The static array of CMA areas cannot be replaced by dynamically created
+>>> areas because for many of them, allocation must not fail and some cases
+>>> may need to initialize them before the slab allocator is even available.
+>>> To account for this, keep these "early" areas in a separate list and
+>>> track the dynamic areas in a separate list.
+>>>
+>>> Signed-off-by: Thierry Reding <treding@nvidia.com>
+>>> ---
+>>
+>> Sorry that I didn't get to reply earlier to
+>>
+>> 	https://lore.kernel.org/all/anS0nxAwCXGWZRl9@orome/
+>>
+>> But I am still not convinced why we shouldn't just have a single array that
+>> grows dynamically.
+>>
+>> "
+>> After replying to T.J. I think this static array is actually a nice
+>> feature in a way. It allows us to more easily make a distinction between
+>> the regular CMA regions created from reserved-memory regions that
+>> represent classic carveouts, and the more versatile CMA areas that could
+>> be used for any purpose.
+>>
+>> Telling the two types apart could obviously also be solved using some
+>> kind of flag stored with the CMA area, but at this point I don't really
+>> see a reason why the two lists would need to be unified.
+>> "
+>>
+>> Really, cma_for_each_early_area() + cma_for_each_area() is just nasty.
+>>
+>> I'd strongly vote to unify unless there is a very good reason to do it
+>> separately.
 > 
-> Handling this in fixup_user_fault() is problematic: the information
-> about the presence of *_mkwrite is only recorded in vma->vm_page_prot,
-> which is an opaque pgprot_t, therefore only follow_pfnmap_start()
-> knows how to retrieve it.
-> 
-> There are actually some preexisting functions that suggest how this
-> is supposed to be handled, namely vmf_insert_page_mkwrite() and
-> vmf_insert_pfn_pmd().  Fixing the drivers requires similar variants
-> of vm_insert_pfn(), namely vmf_insert_pfn_mkwrite() for the common
-> case where vma->vm_page_prot is okay, and vmf_insert_pfn_prot_mkwrite()
-> when really all parameters are needed.  This makes it possible
-> to fix drivers that use .pfn_mkwrite together with
-> vmf_insert_pfn() and vmf_insert_pfn_prot().
-> 
-> Since vmf_insert_pfn_prot_mkwrite() is the most general variant
-> and all the others are just special cases, turn them into inline
-> functions in the header.
-> 
-> Fixes: 28e3918179aa ("drm/gem-shmem: Track folio accessed/dirty status in mmap")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> ---
->  include/linux/mm.h | 81 +++++++++++++++++++++++++++++++++++++++++---
->  mm/huge_memory.c   |  2 +-
->  mm/memory.c        | 84 ++++++++++++++++++++--------------------------
->  3 files changed, 114 insertions(+), 53 deletions(-)
-> 
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 485df9c2dbdd..01184a4bdd6f 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -4544,16 +4544,89 @@ int vm_map_pages_zero(struct vm_area_struct *vma, struct page **pages,
->  				unsigned long num);
->  vm_fault_t vmf_insert_page_mkwrite(struct vm_fault *vmf, struct page *page,
->  			bool write);
-> -vm_fault_t vmf_insert_pfn(struct vm_area_struct *vma, unsigned long addr,
-> -			unsigned long pfn);
-> -vm_fault_t vmf_insert_pfn_prot(struct vm_area_struct *vma, unsigned long addr,
-> -			unsigned long pfn, pgprot_t pgprot);
-> +vm_fault_t vmf_insert_pfn_prot_mkwrite(struct vm_area_struct *vma, unsigned long addr,
-> +			unsigned long pfn, pgprot_t pgprot, bool mkwrite);
->  vm_fault_t vmf_insert_mixed(struct vm_area_struct *vma, unsigned long addr,
->  			unsigned long pfn);
->  vm_fault_t vmf_insert_mixed_mkwrite(struct vm_area_struct *vma,
->  		unsigned long addr, unsigned long pfn);
->  int vm_iomap_memory(struct vm_area_struct *vma, phys_addr_t start, unsigned long len);
->  
+> Marek had an interesting suggestion to extend CMA with fixed address or
+> range allocations, in which case we would only need a single CMA area.
+> If that works and is acceptable, there's not much need any longer for
+> cma_create()/cma_free().
 
-To not inflate mm.h too much, can we just try removing all details that can also
-be had in vmf_insert_pfn_prot_mkwrite() doc, and refer to that?
-
-> +
-> +/**
-> + * vmf_insert_pfn_prot - insert single pfn into user vma with specified pgprot
-> + * @vma: user vma to map to
-> + * @addr: target user address of this page
-> + * @pfn: source kernel pfn
-> + * @pgprot: pgprot flags for the inserted page
-> + *
-> + * This is exactly like vmf_insert_pfn(), except that it allows drivers
-> + * to override pgprot on a per-page basis.  For more information,
-> + * see vmf_insert_pfn_prot_mkwrite().
-
-For example, I would keep this statement here for all 3 variants.
-
-> + *
-> + * This only makes sense for IO mappings, and it makes no sense for
-> + * COW mappings.  In general, using multiple vmas is preferable;
-> + * vmf_insert_pfn_prot should only be used if using multiple VMAs is
-> + * impractical.
-
-Can we just move that for vmf_insert_pfn_prot_mkwrite() and document it when
-pgprot != vma->vm_page_prot ?
-
-> + *
-> + * Context: Process context.  May allocate using %GFP_KERNEL.
-> + * Return: vm_fault_t value.
-> + */
-> +static inline vm_fault_t vmf_insert_pfn_prot(struct vm_area_struct *vma,
-> +			unsigned long addr, unsigned long pfn, pgprot_t pgprot)
-> +{
-> +	return vmf_insert_pfn_prot_mkwrite(vma, addr, pfn, pgprot, false);
-> +}
-> +
-> +/**
-> + * vmf_insert_pfn_mkwrite - insert single pfn into user vma, possibly writable
-> + * @vma: user vma to map to
-> + * @addr: target user address of this page
-> + * @pfn: source kernel pfn
-> + * @write: whether the PTE should be installed writable
-> + *
-> + * Like vmf_insert_pfn(), except that @write allows installing a writable
-> + * PTE even when @vma is under write notification.  For more information,
-> + * see vmf_insert_pfn_prot_mkwrite().
-> + *
-> + * Note that neither .pfn_mkwrite() nor .page_mkwrite() is invoked, so the
-> + * caller must itself do whatever they would have done if @write is true.
-
-Similarly move that to vmf_insert_pfn_prot_mkwrite().
-
-> + *
-> + * Context: Process context.  May allocate using %GFP_KERNEL.
-> + * Return: vm_fault_t value.
-> + */
-> +static inline vm_fault_t vmf_insert_pfn_mkwrite(struct vm_area_struct *vma,
-> +			unsigned long addr, unsigned long pfn, bool write)
-> +{
-> +	return vmf_insert_pfn_prot_mkwrite(vma, addr, pfn, vma->vm_page_prot, write);
-> +}
-> +
-> +/**
-> + * vmf_insert_pfn - insert single pfn into user vma
-> + * @vma: user vma to map to
-> + * @addr: target user address of this page
-> + * @pfn: source kernel pfn
-> + *
-> + * Similar to vm_insert_page, this allows drivers to insert individual pages
-> + * they've allocated into a user vma. Same comments apply.
-
-I know that you are moving this doc, but some things stick out:
-
-Wouldn't it be better to also refer to vmf_insert_pfn() instead, like all the
-other variants?
-
-> + *
-> + * This function should only be called from a vm_ops->fault handler, and
-> + * in that case the handler should return the result of this function.
-
-Isn't this the same for the other ones as well?
-
-> + *
-> + * vma cannot be a COW mapping.
-
-Isn't this the same for all of them?
-
-> + *
-> + * As this is called only for pages that do not currently exist, we
-> + * do not need to flush old virtual caches or the TLB.
-
-Isn't this an implementation detail?
-
-> + *
-> + * Context: Process context.  May allocate using %GFP_KERNEL.
-> + * Return: vm_fault_t value.
-> + */
-> +static inline vm_fault_t vmf_insert_pfn(struct vm_area_struct *vma,
-> +			unsigned long addr, unsigned long pfn)
-> +{
-> +	return vmf_insert_pfn_mkwrite(vma, addr, pfn, false);
-> +}
-> +
-
-Apart from that LGTM.
+That would be even better :) I didn't fully grasp what he meant, but feel free
+to send a prototype of the CMA changes over!
 
 -- 
 Cheers,
