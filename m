@@ -1,245 +1,133 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from fhigh-a8-smtp.messagingengine.com (fhigh-a8-smtp.messagingengine.com [103.168.172.159])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DECA13B9D97;
-	Mon, 10 Aug 2026 23:19:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAB553B3899;
+	Mon, 10 Aug 2026 23:40:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.159
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786403957; cv=none; b=P3kTQ2qcfKNqqXt7yZn9PaGigMv9U/ua3Z2bn/XJaAVcdG8CZGcT4jTbcKPQYvBbMnD9eBpOJwWbysiEoiZyy6Qdhmy3fvgvOTIe1nMm7Vkh4buyTuAPtF/YEYCLkAxAPl7iU+y8ADJ8LALSgL/fJboN//ot6dcQoldjlZX+ePE=
+	t=1786405246; cv=none; b=RtG2TAXGz96mVfYiUfW9rQPiU0/VNYGkq5a/Z390tcl+LEcTrloPC4n/SBWHIRmIDwKabBIONNwS/QVxbnRFD4Knt7pMYim+E2FdRMkCNqie/U22/KJqiX+xWnXDtuZ5obN1Nqw89mIT4RciOwSSCcKsaJ7UPb1iL1Nl9+VaE4M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786403957; c=relaxed/simple;
-	bh=L0AKXJBvAZGKXAPVIct0/GrD2ytU2lnsU3MeywuN4NU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GxiY/2G3zPb5sQNxlAIwnEiVQztiDJPpEW6fIkNZrhwkzJcUVso2AZDGcOCcsxzB5ZhHtzSuyV0pym3JRK45fLdBeIx3E740VopfOFCysKmrJh/LW3WuUYCvEmdKFbZALlYthV/EgQM0BcWvXok5Gce9fOpp2SeKkkV5IBaJAC0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CCqLTf15; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786405246; c=relaxed/simple;
+	bh=61i0Tj0rEYYqSEC5nfj1ndmvbU2GK4RVRd6AoQA6d8c=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=A6GxWsvxGOuwkCMp9FZfmvDYcqnp4OA795uvX61g3nGzs6AdvpvwFDubhZsx0mTJ7QSWT6OohYC4Js/UknFOMpQPdAeYlXBtAB7e7q1717TrbTRhQOe+q9OhYCXKQK+jWhOBRrRVnAU7brX87hFWJGkWfWmjTdGaMtpy0/GZ89k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=1Z5LGVEg; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=kdQ/cxF9; arc=none smtp.client-ip=103.168.172.159
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CCqLTf15"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ACFD1F000E9;
-	Mon, 10 Aug 2026 23:19:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786403955;
-	bh=rgO7H61q+f+FhrghRlHGl5HqKQjbNf8XYgfJ8GAU0uY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=CCqLTf150Y+7Pu00FGxWA+WBl4ChAyYlEGC3eglzJgxY+eQAOiK9UoW2UjYWujZAN
-	 DCiNfqRHPL68FD5BrxX2KlYZ6sUjFK7E9C7S423VLb3qJwi4wUaCuXIXcWKxgoyZAu
-	 r3tiJMX5bMJ7JndG/QqAOq/mC34Vr7ss/D5p3kHVQ7nrNTr/yXbsNXaowZNcy74flG
-	 PERrRlDVQSTIqipZU9T9oCGx1MMupdmzpHB/4M2IPnnolRbl6LtpqWtntjf41fAg7w
-	 vLRjA/5aMnFYr6Yza5XnN1AUXwf3NoKBQTWj087u7WfRbEKql8hKhyLcYjmrKEImyU
-	 C+f/Sf30eoj+A==
-From: Jakub Kicinski <kuba@kernel.org>
-To: hidayath@linux.ibm.com
-Cc: Jakub Kicinski <kuba@kernel.org>,
-	alibuda@linux.alibaba.com,
-	dust.li@linux.alibaba.com,
-	sidraya@linux.ibm.com,
-	mjambigi@linux.ibm.com,
-	andrew+netdev@lunn.ch,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	pasic@linux.ibm.com,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org
-Subject: Re: [PATCH net] net/smc: drop the abort_work reference when the work is cancelled
-Date: Mon, 10 Aug 2026 16:19:13 -0700
-Message-ID: <20260810231913.969204-1-kuba@kernel.org>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260806081549.595001-1-hidayath@linux.ibm.com>
-References: <20260806081549.595001-1-hidayath@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="1Z5LGVEg";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="kdQ/cxF9"
+Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id D49F1140017D;
+	Mon, 10 Aug 2026 19:40:41 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-05.internal (MEProxy); Mon, 10 Aug 2026 19:40:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1786405241;
+	 x=1786491641; bh=GqC1G3ieoiRn883tbkElHwNaI4yAZdErJQZ6YzKtag8=; b=
+	1Z5LGVEgG68QB+g72auqrX3Z4R5Z5d385SCykewUxy7t3tBzqwTHWit3xqqTeCc3
+	vuo3bJOmwelWzd43STx3PNiPqbgJVxGNy1t9s8+6tdPPidrUzNBe9jLdF8Ennlto
+	/Y4pm+VYFPQ01gAyx61NoE8Ulp2HC4RIKaR8s3AxzmJcA9TLgNFIkzgE0HGpfTMl
+	yKw8DvWUiA7E3mi/NdJ7/HKkX7nV6Q8aUu4EOee9/v15LNmM8cidSP4S6HNVsO+m
+	LD6eAv3A7TfIuTF6uKUnV4e24bBf9drbGEhxuqX1u7blWrVJQBz2q9cSGt2mKAOs
+	Mkvdf84REw+ww+RofzyEFw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1786405241; x=
+	1786491641; bh=GqC1G3ieoiRn883tbkElHwNaI4yAZdErJQZ6YzKtag8=; b=k
+	dQ/cxF97oAxKDgSRdj3eOB1ZY+IhKySHfKg/Lyc3f6Xs+OFXS8BPDWHLKBIAvPzm
+	RpPQOZ7Fwaclxxxsg4h3ZRnbLbBWY6ShYvbhCoP1rxlARqavoOycmCRTiV49mfPN
+	UR8UYv30wN/x32CbUqlfxwf2Tb1jao9QMZijpWK+5O90ZC0g+qbLeO8MZoClQhe1
+	+Jr5F/M0PucgaF3H7ux+USWzjKLK7k9AbN4qIjPnht86h4tZzVBbA2pTkdFokvVo
+	+CPn51cmcFrLj5hhNSQLU5GnE/qZlSbmc6SYnK148m0H0DDv2kTpqTtL2INic3Wc
+	dXnTYE6vPn6ohHy0HhOqA==
+X-ME-Sender: <xms:eWF6alG8USHqM2D2xSkQvAsP9nQuFfXR8RH_ZvGK08vXUFn_zq7vmA>
+    <xme:eWF6aigFHDpI-BZcMsG5ClPjoLEqeB8pgR1-2tVBDR9aGIX2NpPOcRuWyoBkL6qBJ
+    hARH_Ao0HtXAQFEcLFkpPGHf77bSNAL034qbkOh-Pgq3FCnh2lO>
+X-ME-Received: <xmr:eWF6aivk6uRCicbX4oJEY1TkOKkZeXOG06z_XHHTolqa_gixFxyNQdJfm45FMQ>
+X-ME-Proxy-Cause: dmFkZTEFKj3tAxVGTQVweajQWmOYcwaM76wEBlyzx/blQIlubAzDhd421/au3fiSOUKUVr
+    /yto4R9en7nCvrz86d6jfbaWc9upRsnUTRWaM3Chg48XiyLMv8HaJsO+8Nyc8/uJB2k9No
+    clYd/vHVJsLgue69wUmqLB/K7UpE3041+ddz5OOcJeyahSi+sj+Z2T/z34R1Y2CWah4HhU
+    E6d+zTpXqtWcIe5kdCCvzs6y2gPvhstyRFn66piZ5FvPMqwr9jb1xxPrM2xUgV71sa0xOi
+    INQessOzONDqabGorf2v3eq3olGGlPT9g6Gl0cqr6uH6P+3AuL0i1Nbazsizw/vNmi4AkY
+    xW3fIoUBqrwNa/UqEIK8dqVGq2mxv8R6fTFWy3DXz679doXt514G5fWXvxYJ5Q56Rt/Z6i
+    kcpB61XZRSQHNYbON7Vjm5qBJjrr0QioHpPizywa1ORXnPtksoTcUTq5OprJuy6jf3BkE1
+    y+cj3S3eK2m7cIr7W4vOY1AGDd8GZGQUuhYwZD0oniy8NNPDJKCCkufuqh3HaDdefJnlK+
+    GiLHZx5KA5m5yfdbv+FuuLN7OhygeQKFANGUfP1HqqvhrS6ay9P+HUt2YKPNPa4BLI+c0X
+    +3ZOEN/TcRvowTcksA0LE5jvsdH8u1EF1aJyULpx6IFZu3pCAOMNLdXFa8Ww
+X-ME-Proxy: <xmx:eWF6altOHoW9dOuzUPDIYT69bHtK0CQWJJgS7TxXcwFmEH_TuCtBOA>
+    <xmx:eWF6anFifwVzFIUOEQXOniPy899lqpilmO5ABMjCRw7mADfMjkZLPA>
+    <xmx:eWF6agNDv37xbGMRM7-PHN4DD7lB6Dy4MALge_CWzKpacQH4ThEHDw>
+    <xmx:eWF6amJVM_7qORBCqZPrFHCgrwtZHGDqcRqEQ0cmzTXa23wYqWzRbw>
+    <xmx:eWF6arweJpaBDY0aQQ5vdKrBymIEFACCoJmLBznapdhTaOTAvZggD6YG>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 10 Aug 2026 19:40:40 -0400 (EDT)
+Date: Mon, 10 Aug 2026 17:40:39 -0600
+From: Alex Williamson <alex@shazbot.org>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org, mjrosato@linux.ibm.com, borntraeger@linux.ibm.com,
+ mattev@meta.com, schnelle@linux.ibm.com, alex@shazbot.org
+Subject: Re: [PATCH v1] vfio/pci: Avoid mapping BARs for devices with
+ non-mappable BARs
+Message-ID: <20260810174039.12ca9c9c@shazbot.org>
+In-Reply-To: <20260729181116.1373-1-alifm@linux.ibm.com>
+References: <20260729181116.1373-1-alifm@linux.ibm.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-This is an AI-generated review of your patch. The human sending this
-email says "*shiko finds more issues with the work termination here.
-Can you please TAL and fix these all in one series?"
----
-net/smc: drop the abort_work reference when the work is cancelled
+On Wed, 29 Jul 2026 11:11:16 -0700
+Farhan Ali <alifm@linux.ibm.com> wrote:
 
-The patch makes smc_conn_free() drop the socket reference handed to
-conn->abort_work when cancel_work_sync() reports that the work was still
-pending, so the sock_hold() taken by the scheduler of the work is not
-leaked.  It follows the pattern smc_close_cancel_work() already uses for
-conn->close_work.
-
-A few questions about the surrounding cancel logic follow.
-
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index b4208cb186c5e..3d4a86d99dd6b 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -1252,6 +1252,7 @@ static void smc_buf_unuse(struct smc_connection *conn,
->  /* remove a finished connection from its link group */
->  void smc_conn_free(struct smc_connection *conn)
->  {
-> +	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
->  	struct smc_link_group *lgr = conn->lgr;
+> vfio_pci_core_map_bars() calls pci_iomap() to set up BAR resources, but not
+> all devices support having their BARs mapped by the CPU. The
+> non_mappable_bars flag indicates that a PCI device's BARs cannot be
+> accessed by the CPU. The ISM device on s390 is one such device. The BAR
+> size for an ISM device is 256 TiB, and attempting to map the BAR will lead
+> to warnings:
+> 
+> vmalloc_node_range for size 281474976714752 failed: Address range
+> restricted to 0x2110bab00000 - 0x21903ab00000
+> 
+> Use pdev->non_mappable_bars to skip pci_iomap() for such devices. This flag
+> is set by the PCI core at enumeration time and already serves the same
+> purpose in vfio_pci_probe_mmaps().
+> 
+> Fixes: 05f2a68b407a ("vfio/pci: Set up BAR resources and maps in vfio_pci_core_enable()")
+> Reported-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> ---
+>  drivers/vfio/pci/vfio_pci_core.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+> index 3f11a9624b9c..6a184588ff23 100644
+> --- a/drivers/vfio/pci/vfio_pci_core.c
+> +++ b/drivers/vfio/pci/vfio_pci_core.c
+> @@ -554,6 +554,9 @@ static void vfio_pci_core_map_bars(struct vfio_pci_core_device *vdev)
 >  
->  	if (!lgr || conn->freed)
-> @@ -1275,8 +1276,13 @@ static void smc_buf_unuse(struct smc_connection *conn,
->  		tasklet_kill(&conn->rx_tsklet);
->  	} else {
->  		smc_cdc_wait_pend_tx_wr(conn);
-> -		if (current_work() != &conn->abort_work)
-> -			cancel_work_sync(&conn->abort_work);
-> +		/* If the work was pending (cancel returns true) it never ran,
-> +		 * so the sock_hold taken by its scheduler was never released.
-> +		 */
-> +		if (current_work() != &conn->abort_work) {
-> +			if (cancel_work_sync(&conn->abort_work))
-> +				sock_put(&smc->sk);
-> +		}
+>  		vdev->barmap[bar] = IOMEM_ERR_PTR(-ENODEV);
+>  
+> +		if (pdev->non_mappable_bars)
+> +			continue;
+> +
+>  		if (!pci_resource_len(pdev, i))
+>  			continue;
+>  
 
-[Severity: High]
-This isn't a bug introduced by this patch, but can this cancel_work_sync()
-deadlock against a already-running abort_work?
+Applied to vfio next branch for v7.3.  Thanks,
 
-The worker takes the socket lock as its first action:
-
-net/smc/smc_core.c:smc_conn_abort_work() {
-	lock_sock(&smc->sk);
-	smc_conn_kill(conn, true);
-	release_sock(&smc->sk);
-	sock_put(&smc->sk); /* sock_hold done by schedulers of abort_work */
-}
-
-and the callers of smc_conn_free() reach it while holding that same lock:
-
-net/smc/af_smc.c:__smc_release()
-	lock_sock(sk);
-	...
-	if (!smc->use_fallback)
-		smc_conn_free(&smc->conn);
-
-net/smc/smc_close.c:smc_close_passive_work()  (inside lock_sock(sk))
-	if ((sk->sk_state == SMC_CLOSED) &&
-	    (sock_flag(sk, SOCK_DEAD) || !sk->sk_socket)) {
-		smc_conn_free(conn);
-
-net/smc/smc_close.c:smc_close_active_abort()  (SMC_PEERCLOSEWAIT1/2,
-SMC_PEERFINCLOSEWAIT, SMC_PROCESSABORT, SMC_APPFINCLOSEWAIT)
-		smc_conn_free(&smc->conn);
-
-So if abort_work has already started on another CPU and is blocked in
-lock_sock(), the closing task holds the socket lock and waits in
-cancel_work_sync() for that worker, which cannot proceed.  The
-current_work() != &conn->abort_work test only covers the case where the
-same task is running abort_work itself.
-
-Note both abort_work and close_work are queued on smc_close_wq, so
-close_work running smc_close_passive_work() can be the blocking canceller.
-
-The commit message cites smc_close_cancel_work() as the model:
-
-	if (cancel_work_sync(&smc->conn.close_work))
-		sock_put(sk);
-
-but that helper drops the socket lock around the cancel:
-
-net/smc/smc_close.c:smc_close_cancel_work() {
-	release_sock(sk);
-	if (cancel_work_sync(&smc->conn.close_work))
-		sock_put(sk);
-	cancel_delayed_work_sync(&smc->conn.tx_work);
-	lock_sock(sk);
-}
-
-Should the abort_work cancel do the same, and would that change where the
-new sock_put() has to live?
-
-[Severity: High]
-This is a pre-existing ordering issue rather than something the patch adds,
-but does cancel_work_sync() here actually keep abort_work from being
-re-armed?
-
-The cancel happens before smc_lgr_unregister_conn(conn), so the receive
-path can still find the connection:
-
-net/smc/smc_cdc.c:smc_cdc_rx_handler() {
-	read_lock_bh(&lgr->conns_lock);
-	conn = smc_lgr_find_conn(ntohl(cdc->token), lgr);
-	if (!conn || conn->out_of_sync) {
-		read_unlock_bh(&lgr->conns_lock);
-		return;
-	}
-	smc = container_of(conn, struct smc_sock, conn);
-	sock_hold(&smc->sk);
-	read_unlock_bh(&lgr->conns_lock);
-
-and then queue the work again:
-
-net/smc/smc_cdc.c:smc_cdc_msg_validate() {
-		sock_hold(&smc->sk); /* sock_put in abort_work */
-		if (!queue_work(smc_close_wq, &conn->abort_work))
-			sock_put(&smc->sk);
-
-cancel_work_sync() passes cflags 0, so it re-enables the work before
-returning:
-
-kernel/workqueue.c:__cancel_work_sync() {
-	ret = __cancel_work(work, cflags | WORK_CANCEL_DISABLE);
-	...
-	if (wq_online)
-		__flush_work(work, true);
-
-	if (!(cflags & WORK_CANCEL_DISABLE))
-		enable_work(work);
-
-which means a queue_work() issued after the cancel returns succeeds.  The
-freshly queued worker then runs smc_conn_abort_work() -> smc_conn_kill() on
-a connection with conn->freed == 1 whose lgr reference smc_conn_free()
-already dropped, and dereferences conn->lgr:
-
-net/smc/smc_core.c:smc_conn_kill() {
-	if (conn->lgr->is_smcd && conn->lgr->peer_shutdown)
-
-Would unregistering the connection from lgr->conns_all before cancelling,
-or gating the queueing on conn->freed under conns_lock, close that window?
-
->  	}
->  	if (!list_empty(&lgr->list)) {
->  		smc_buf_unuse(conn, lgr); /* allow buffer reuse */
-
-[Severity: High]
-This is also a pre-existing problem and not something introduced here, but
-the patch documents smc_conn_free() as the place that disposes of a pending
-abort_work, and one exit path of the function skips that disposal:
-
-net/smc/smc_core.c:smc_conn_free() {
-	if (!smc_conn_lgr_valid(conn))
-		/* Connection has already unregistered from
-		 * link group.
-		 */
-		goto lgr_put;
-	...
-lgr_put:
-	if (!lgr->is_smcd)
-		smcr_link_put(conn->lnk); /* link_hold in smc_conn_create() */
-	smc_lgr_put(lgr); /* lgr_hold in smc_conn_create() */
-}
-
-On that path neither the cancel nor the new sock_put() runs, yet the
-connection's link and link-group references are still dropped, and
-conn->lgr is not reset.  A pending abort_work then dereferences it:
-
-net/smc/smc_core.c:smc_conn_kill() {
-	if (conn->lgr->is_smcd && conn->lgr->peer_shutdown)
-
-Concretely, a peer sends a CDC message with prod_flags.failover_validation
-and a stale seqno, so smc_cdc_msg_validate() queues abort_work.  Meanwhile
-__smc_lgr_terminate() calls smc_conn_kill(), which does
-smc_lgr_unregister_conn() (clearing alert_token_local) and then
-smc_close_active_abort() -> smc_conn_free(); smc_conn_lgr_valid(conn) is
-now false, so the goto lgr_put path is taken.  __smc_lgr_terminate() then
-calls smc_lgr_free(), whose smc_lgr_put() drops the last reference and
-kfree()s the lgr while abort_work is still queued.
-
-Can the queued abort_work read a freed struct smc_link_group here, and
-should this exit path also cancel the work and return its reference?
+Alex
