@@ -1,197 +1,206 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8775C3B7B9D
-	for <linux-s390@vger.kernel.org>; Mon, 10 Aug 2026 10:56:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FB0C3BE659;
+	Mon, 10 Aug 2026 11:14:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786359368; cv=none; b=X4lFQPo3fu/jNwe8fLjnSi7WoUGeUz4Mm7SHz1JFY2+78TR1tsXgwulKyTOKiPyOFnFGJe18aQq7vaUVlwzv5sljRr1vsAj/x+ApaI5uLPn/iUSvffQAyzXQ272L5d4mLU8QFiY7Xf0GupmYQiQ7eVFOc0EC1TWaofLUCPqur5g=
+	t=1786360492; cv=none; b=iXR3yBqDelBn161XhN0HHdRrz7Ab2gR0qTsQDJxZilgt27MNKRxlU1F58/Ez1W4C2JgE65udGP8tSFIVBmpOxINJiHSFs0QDbZFFsveyPIO5Z4laOxosu0koxusf94lc+DcopCDYGLu66wOs4K6lckKa4IOmBp5OyRICkzsAcgw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786359368; c=relaxed/simple;
-	bh=3XJuS1zJZghLe6cvepipcunHvSHlmm6kBCnnioMmGsg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Of+55TgA0A2Go++HhobOB69zwiYYpi75+oBpvT4VGyyDunAufLYqVrY/GRRIs8W31fUTOyCycMoh7EUu3TEi1MeulWLyqSKr/onqoEb/w8hsg/98+pqzN6JWO9GOurWeTxk1PuOxFmY048fVP1JIQWK5uvlc67F1hxVIAqpiVds=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UVQYU0bE; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786360492; c=relaxed/simple;
+	bh=DAcPtw5y/AR4X6DapdtZe+gtfW6tp4upzGmyim5ulp8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=o7xRxoh+BtdNJiqvPa+ozJ3BEEMtjYMmvmzpelmE8rQWTeO0+UgHAuT62FyKe3AsD+esO8cFXcUfKKvg3NLo2n6mH2/14mEdCJ3lnIIQloJcvdoHAUACC8v1043OniqWcXGjcShV+bngYOsqeKo9R9f7T2xWbGqIvD0ithiHVnI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=If4Va1Nm; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UVQYU0bE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB0E51F000E9;
-	Mon, 10 Aug 2026 10:56:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786359367;
-	bh=0MfB6rws/efGLwRkrofynejxh/vaHHECQvNhANUSRI0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UVQYU0bE8/INexTPTDScRfxR+JhgRyOLeennQL33vfs8G1flFf7Cq2Q8MZ8ovr/j0
-	 8b2C0CwJxTCntGXRockSALXyStNRfaV0dg11QQOsJIxM6uGobCcj7upM2GCeP0r2n2
-	 1j1YVGZ27CzevvRWSQLnFCFErhRBlOCKnxOIbu9furDDH2WE5o7IdoDK9d02Rxph+4
-	 kLFlenGYtqx3vdJTUi3GtP8kfmi9fGKLh53vbfPUW/vG191ed7t1yh9camLODlIdos
-	 66kF+hXNaE9+uGB76w2pLJw/jIy/ORxO4qiwCe9Bc56U4rDWupIV1ldR5C2cu4T+uI
-	 esqdNSO9pA21w==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net] s390/ctcm: Prevent XID null dereference
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Aswin Karuvally" <aswin@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260809105536.541453-1-aswin@linux.ibm.com>
-References: <20260809105536.541453-1-aswin@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 10 Aug 2026 10:56:06 +0000
-Message-Id: <20260810105606.CB0E51F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="If4Va1Nm"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67A9VT6P1208869;
+	Mon, 10 Aug 2026 11:14:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=F5sSozvRRGqo7fHQ1ImoJqlEG1S5UNjiqXB4AJUFP
+	OY=; b=If4Va1NmBXltcjMnYSt7H89awqygrBAi9UopHqFJeqopUjYF/UiV0JmSr
+	ZzwU+yrDcw5ad3z+IWX1Hummt1WNwZmxzYt1lCqmuEDXlbRuFZA2dlFKOu3Dn/mN
+	qJM3leDVwioDoBYvLfJ8I2vR7v/DrVARbRy/QrmGBkQgfop3gZO6xcauz7BGqxpL
+	q23wFn/YmUM/LrrPdORHa+y1bajLfveGerNKekVv4+2poMo+0vDqWuOQhxjAVOj6
+	1N3I+X/Q8KSmLj9fGKxXjEPttfAkRHjRTYIhJiQZoRdIrQLtQwxd9bB/CA+b58Ba
+	8ay5vvTj92xCJYpMgQDcDc1+PvA8Q==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvq97jq9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 10 Aug 2026 11:14:37 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67ABBL7v031225;
+	Mon, 10 Aug 2026 11:14:36 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxh0g4c1b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 10 Aug 2026 11:14:36 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67ABEXDL51446234
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 10 Aug 2026 11:14:33 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 261A52004E;
+	Mon, 10 Aug 2026 11:14:33 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E5C392004B;
+	Mon, 10 Aug 2026 11:14:32 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Mon, 10 Aug 2026 11:14:32 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
+	id CC6F21603D2; Mon, 10 Aug 2026 13:14:32 +0200 (CEST)
+From: Alexandra Winter <wintera@linux.ibm.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: Hidayath Khan <hidayath@linux.ibm.com>,
+        Dust Li <dust.li@linux.alibaba.com>, stable@vger.kernel.org,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>
+Subject: [PATCH net] net/dibs: Correct freeing of dmb_clientid_arr
+Date: Mon, 10 Aug 2026 13:14:32 +0200
+Message-ID: <20260810111432.2334900-1-wintera@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: 7791h2VxduCO9UthnV-Ac9au4tE09Tb9
+X-Authority-Analysis: v=2.4 cv=PbDPQChd c=1 sm=1 tr=0 ts=6a79b29e cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=higaAn-RmfpUlMDw3n0A:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEwMDA5NiBTYWx0ZWRfX+cuDUCCq4/e0
+ 9tEOyExZxaj4RcBUPJo/Haet9kBl0Znw5DnZ1zyHIgEhpM3Y2QlxbWXfC7dIh3GhuVhd5YUETGE
+ 8CkWGTZ8FRxuzyFZUXsJEnUzGNelhtBxButOoEoGKSWewKV2oaNd1G0emK5o+cnLk9AzIO84cG6
+ ejoCk2cjg8KueiozALjprJI2sg7X1+aAcaeH83YYDTcZm1h3iDzPbKs3K5pYNg8MkLrvKzAOj+f
+ n31e0al5pQ9jPXcz84PD4g8Zk+LQ5dgG4sFpL/E5AkXUlSl7atZwh+zSO+7EavI7xwLIshPFmjM
+ j9FoSiams+i1B0gURsdP+OtEghPhUFsxV1MiQ17TSD9zaI8pWibRc/4ICu8fObybNmknFGasArF
+ 9B/3HDLlN0rE6z82wsbGO/rLPPKh3UFzogYxe6CXWIszq9yEcQft5WIK8ll5k3IH4yWk5T7f5oU
+ 40gvjcSPXh4Nw06yt1g==
+X-Proofpoint-ORIG-GUID: QYjAPgBnpCfl6JChPmiEr0ehuy95yLb9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODEwMDA5NiBTYWx0ZWRfX4c9+oWD1kS+g
+ HQGygNvTqNRHhsLQ8cPscKvaYsQIWHaAtjIsW/PS4v5jhLJClmdLNNhRtv4BIqyYHv1AitBYOLH
+ WinwnBZISkIr7jIjs5+fTTGG+8A9Tu0=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-10_02,2026-08-07_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 bulkscore=0 impostorscore=0 malwarescore=0 adultscore=0
+ clxscore=1015 priorityscore=1501 suspectscore=0 phishscore=0
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608100096
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
+A dibs device interrupt handler can be active after dibs_dev_del() and
+may still access dmb_clientid_arr. (UAF)
 
-New issues:
-- [High] The XID validation logic creates an asymmetric error handling flaw=
- where a failure on the first processed channel is silently ignored if the =
-second channel succeeds, allowing the group to incorrectly transition to th=
-e READY state.
+In case of a failure in dibs_dev_add() being called by dibs_lo_dev_probe(=
+)
+dmb_clientid_arr is freed twice (double free).
 
-Pre-existing issues:
-- [High] Calling `kfree()` on an interior pointer to a previously freed sk_=
-buff data buffer during device teardown.
-- [High] An integer underflow when calculating `group_max_buflen` from untr=
-usted network input can lead to a massively oversized buffer limit, potenti=
-ally causing an `skb_put` panic during transmission.
-- [High] Device teardown frees core structures without synchronously cancel=
-ling FSM timers, leading to a Use-After-Free.
-- [High] Group FSM state is accessed concurrently without locks, leading to=
- data races on shared variables.
---
+Free dmb_clientid_arr in dibs_dev_release() after last reference is gone.
+Note that allocating in dibs_dev_add() instead of dibs_dev_alloc() is ok
+for now, because no dmbs can be registered before dibs_dev_add().
 
---- Patch [1]: [PATCH net] s390/ctcm: Prevent XID null dereference ---
-commit eba778bf6c3c6c80501b99041bb51b27ad5c49b6
-Author: Aswin Karuvally <aswin@linux.ibm.com>
-Subject: s390/ctcm: Prevent XID null dereference
-
-The mpc_validate_xid() function sets grp->saved_xid2->xid2_flag2 to 0x40
-to signal XID validation error. This commit updates it to prevent a null
-dereference if the peer XID is NULL or an r/w channel pairing mismatch
-occurs. It also updates mpc_action_go_ready() to handle the uninitialized
-structure.
-
+Fixes: cc21191b584c ("dibs: Move data path to dibs layer")
 Cc: stable@vger.kernel.org
+Co-developed-by: Hidayath Khan <hidayath@linux.ibm.com>
+Signed-off-by: Hidayath Khan <hidayath@linux.ibm.com>
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+---
+This is a squash of [1] and [2] as requested by Jakub.
 
-> diff --git a/drivers/s390/net/ctcm_mpc.c b/drivers/s390/net/ctcm_mpc.c
-> --- a/drivers/s390/net/ctcm_mpc.c
-> +++ b/drivers/s390/net/ctcm_mpc.c
-> @@ -826,7 +826,7 @@ static void mpc_action_go_ready(fsm_instance *fsm, in=
-t event, void *arg)
-> =20
->  	fsm_deltimer(&grp->timer);
+Simon and Dust Li, I'd appreciate, if you could double-check whether
+you can give R-b again.
 
-[Severity: High]
-This is a pre-existing issue, but I am curious about the teardown sequence
-when cancelling timers here and during interface removal.
+Link: https://lore.kernel.org/netdev/20260806120447.596164-1-hidayath@lin=
+ux.ibm.com/ [1]
+Link: https://lore.kernel.org/netdev/20260804085848.3579518-1-wintera@lin=
+ux.ibm.com/ [2]
 
-fsm_deltimer() wraps timer_delete(), which doesn't wait for concurrent
-timer callbacks to finish.
+=20
+---
+ drivers/dibs/dibs_loopback.c |  1 -
+ drivers/dibs/dibs_main.c     | 14 ++++----------
+ 2 files changed, 4 insertions(+), 11 deletions(-)
 
-If a timer expires concurrently during device teardown (ctc_mpc_dealloc_ch)
-while the driver proceeds to free grp and grp->fsm, could the executing
-timer callback dereference freed memory when it calls fsm_event()?
-
-> -	if (grp->saved_xid2->xid2_flag2 =3D=3D 0x40) {
-> +	if (!grp->saved_xid2 || grp->saved_xid2->xid2_flag2 =3D=3D 0x40) {
-
-[Severity: High]
-If the first channel fails validation (e.g., mismatched direction) and sets
-priv->xid->xid2_flag2 to 0x40, grp->saved_xid2 remains NULL.
-
-If the second channel then succeeds, it initializes grp->saved_xid2 with a
-valid xid where xid2_flag2 is 0x00.=20
-
-Since this check only evaluates grp->saved_xid2->xid2_flag2, could this
-allow the state machine to falsely bypass the check and transition to the
-ready state, completely ignoring the earlier failure stored in
-priv->xid->xid2_flag2?
-
-
-[Severity: High]
-This is a pre-existing issue, but does this state machine implementation
-have data races on shared group state variables?
-
-The read and write channels are separate ccw_device instances, so their
-irq handlers use different locks. Because fsm_event() dispatches actions
-without internal synchronization:
-
-fsm_event()
-    state =3D atomic_read(&fi->state);
-    // executes action directly
-
-Can concurrent irq handlers from different channels execute read-modify-wri=
-te
-operations on shared fields (like grp->outstanding_xid2--) simultaneously,
-corrupting the state?
-
->  		priv->xid->xid2_flag2 =3D 0x00;
->  		if (grp->estconnfunc) {
-
-[ ... ]
-
-> @@ -1636,7 +1636,13 @@ static int mpc_validate_xid(struct mpcg_info *mpcg=
-info)
-
-[Severity: High]
-This is a pre-existing issue, but could the buffer calculation earlier in
-mpc_validate_xid() underflow?
-
-mpc_validate_xid() receives an untrusted xid2_buf_len from the network:
-
-    if (grp->group_max_buflen =3D=3D 0 || grp->group_max_buflen > xid->xid2=
-_buf_len - len)
-        grp->group_max_buflen =3D xid->xid2_buf_len - len;
-   =20
-If xid->xid2_buf_len is less than len, does the subtraction underflow to a
-huge value?
-
-Since data_space is calculated as grp->group_max_buflen - TH_HEADER_LENGTH
-in ctcmpc_chx_txdone(), and skb_put_data() relies on it, can this trigger
-an skb_over_panic when packing data into the transmit sk_buff?
-
->  			"The XID used in the MPC protocol is not valid, "
->  			"rc =3D %d\n", rc);
->  		priv->xid->xid2_flag2 =3D 0x40;
-> -		grp->saved_xid2->xid2_flag2 =3D 0x40;
-> +
-> +		/* If xid is NULL (rc=3D1) or r/w channel pairing mismatch
-> +		 * (rc=3D2) happens, grp->saved_xid2 is never initialized
-> +		 * and becomes NULL
-> +		 */
-> +		if (grp->saved_xid2)
-> +			grp->saved_xid2->xid2_flag2 =3D 0x40;
->  	}
-> =20
->  	return rc;
-
-[Severity: High]
-This is a pre-existing issue, but I wanted to ask about the lifecycle of
-these pointers during teardown.=20
-   =20
-When the group is initialized:
-
-ctcmpc_init_mpc_group()
-    grp->xid =3D (struct xid2 *)skb_tail_pointer(grp->xid_skb);
-    ...
-    priv->xid =3D grp->xid;
-   =20
-During device teardown:
-
-ctcm_free_netdevice()
-    dev_kfree_skb(grp->xid_skb);
-    ...
-    kfree(priv->xid);
-
-Does this sequence cause a use-after-free and an invalid free by passing an
-interior pointer of the already freed sk_buff data buffer directly to
-kfree()?
-
+diff --git a/drivers/dibs/dibs_loopback.c b/drivers/dibs/dibs_loopback.c
+index fd5caf1e19a8..649e4e375be3 100644
+--- a/drivers/dibs/dibs_loopback.c
++++ b/drivers/dibs/dibs_loopback.c
+@@ -335,7 +335,6 @@ static int dibs_lo_dev_probe(void)
+ 	return 0;
+=20
+ err_reg:
+-	kfree(dibs->dmb_clientid_arr);
+ 	/* pairs with dibs_dev_alloc() */
+ 	put_device(&dibs->dev);
+ 	kfree(ldev);
+diff --git a/drivers/dibs/dibs_main.c b/drivers/dibs/dibs_main.c
+index 4c26fd06973f..2b53a9d277dc 100644
+--- a/drivers/dibs/dibs_main.c
++++ b/drivers/dibs/dibs_main.c
+@@ -128,6 +128,7 @@ static void dibs_dev_release(struct device *dev)
+=20
+ 	dibs =3D container_of(dev, struct dibs_dev, dev);
+=20
++	kfree(dibs->dmb_clientid_arr);
+ 	kfree(dibs);
+ }
+=20
+@@ -194,12 +195,13 @@ int dibs_dev_add(struct dibs_dev *dibs)
+=20
+ 	ret =3D device_add(&dibs->dev);
+ 	if (ret)
+-		goto free_client_arr;
++		return ret;
+=20
+ 	ret =3D sysfs_create_group(&dibs->dev.kobj, &dibs_dev_attr_group);
+ 	if (ret) {
+ 		dev_err(&dibs->dev, "sysfs_create_group failed for dibs_dev\n");
+-		goto err_device_del;
++		device_del(&dibs->dev);
++		return ret;
+ 	}
+ 	mutex_lock(&dibs_dev_list.mutex);
+ 	mutex_lock(&clients_lock);
+@@ -214,13 +216,6 @@ int dibs_dev_add(struct dibs_dev *dibs)
+ 	mutex_unlock(&dibs_dev_list.mutex);
+=20
+ 	return 0;
+-
+-err_device_del:
+-	device_del(&dibs->dev);
+-free_client_arr:
+-	kfree(dibs->dmb_clientid_arr);
+-	return ret;
+-
+ }
+ EXPORT_SYMBOL_GPL(dibs_dev_add);
+=20
+@@ -247,7 +242,6 @@ void dibs_dev_del(struct dibs_dev *dibs)
+ 	mutex_unlock(&dibs_dev_list.mutex);
+=20
+ 	device_del(&dibs->dev);
+-	kfree(dibs->dmb_clientid_arr);
+ }
+ EXPORT_SYMBOL_GPL(dibs_dev_del);
+=20
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260809105536.5414=
-53-1-aswin@linux.ibm.com?part=3D1
+2.39.5 (Apple Git-154)
+
