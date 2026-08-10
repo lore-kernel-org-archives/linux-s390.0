@@ -1,529 +1,164 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97CED3D9DA8;
-	Mon, 10 Aug 2026 13:01:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF04D3DB311
+	for <linux-s390@vger.kernel.org>; Mon, 10 Aug 2026 13:08:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786366880; cv=none; b=SfQBgtNMw9+fwrmcybfd7VhDGzjIGShnhmcbCn90mytA5bt0L9X2r9Wt8uTzLW5Cfx0S43e9bOvSUc/2B4QkikxPjXfLBFy4oX9xNLjP0RMXXRTVAiUy1i5vA7V0SFNVELl5f//q5Q4FBI5/D/dmc7ZVpRUgY3kJ1s/XQRML4Fk=
+	t=1786367302; cv=none; b=qpQhNtmikVRvVox8Dbl+DDpOfPkbeotioeC7cNi96X5sRw/EBADBUTPASyZLc9K1dIHvCmrYUbfb/NjIXMWgfs6zyhIx3pq/u8JJ0dXFUoBOEFF52nzkOXWfgV/8Kr4KbvV1GJACDSwK0XdFDTbKeOkbGqtWrNQw6BkP+sEmfJI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786366880; c=relaxed/simple;
-	bh=mfG7Azw81hPEVdqzwgIOg8Z+aGmBTWEtxIP+wtpAXiY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ucs+YvlBq4i96l/i4YYEjDuCoWpdHbsSVVIfCefVY/Bqs+akCVBJrDl3ii6fXwGzHfEPfwCmxwpCaAJ84+bqwZcKjRcsJ3RaWpnpCGChP2Bjpgv2xhftORNhOTwAJKh4cML8ygD1OvrM0JgoOiZA3Q75rhuk11RTG5SHi2zcXWY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hswFVdlv; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1786367302; c=relaxed/simple;
+	bh=fYoOLYp8STPeqtUEMMg1V9r97/aMbQKiFeOjtdj7QMc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HSVsmFoJXFEgeLCpRZ1mgJwga19sQPj5c3QbPtgeFneSJc+EGVTeZeaQZKsoxF7viRNvILNCUUFQwiF89zTgKOYPTuziwCccBqerpVJFFhqYg6HLgTQfkghI7nkfhQhFrboiqaui9/2Bhp42gVqqhHo5wlhVT1Ll6voUZOXujFA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=XE3a+O7C; arc=none smtp.client-ip=209.85.219.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hswFVdlv"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 6C029C2BCFC;
-	Mon, 10 Aug 2026 13:01:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1786366880;
-	bh=mfG7Azw81hPEVdqzwgIOg8Z+aGmBTWEtxIP+wtpAXiY=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=hswFVdlvA9HXbD2zDYECoxGn1LecujnqYHYlTR9fyEW+RID83KoIaaYyIqHrSX6VC
-	 56Ed8jUdNUNWoyf8lh8p3k1yogzn1yB38XvNsbvxNUPH8uzGpmuEc0tbXCBHKGhg9K
-	 QnFZfaHyQx8KfXreeTh5FhuN59F4zr5kXA5Zp+wWjPook4efFvcQHPeRIc2WKnbWB8
-	 FHm63oPwSSrj/ob+ZcpR7bKDSdrPk+6fCr0V2vhxA7QkyNdUsBYJ6i1bDqjscct0A8
-	 /IB3GJr0yudArqPz7z4UVzSTXejLtFlM+Ia1mpTLlKTamtDj5N4ZEJdZFP9D19MGAL
-	 icRjlXce328Mg==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B085C5B56B;
-	Mon, 10 Aug 2026 13:01:20 +0000 (UTC)
-From: Joel Granados <joel.granados@kernel.org>
-Date: Mon, 10 Aug 2026 15:01:04 +0200
-Subject: [PATCH v4 3/3] net: Const qualify network templated ctl_tables
- Arrays
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="XE3a+O7C"
+Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-8f1e274ccb9so8464446d6.2
+        for <linux-s390@vger.kernel.org>; Mon, 10 Aug 2026 06:08:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1786367299; x=1786972099; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=pTDI6EKrZhHzu91ABEa/3hYoH7aGPcaJaVd/MJRw0Ok=;
+        b=XE3a+O7ClrINyZYgTEFft03F+wkedh+IrWhaFM2DEURnpZke/5a3tSIvnGOntGDUWg
+         1zIlaXmjygrEKRaKri60lNtMZKHXXd6JRWQ1iFaSF4YHrfLd2RrcPd8BlKt3D4vlGj6t
+         8UF/m+mzHWTJE4+yG71vvmLr0yPLH4Wqvme5OjZ2oG/9+LWAsFrtY011J4FLS6dzvXof
+         rsWFivXQsx2OdchNPpMCYXRk9Ui0m7ZG64GoM+dgBY5Ms2NwXkGRB/P4QhtEAEjM2k1H
+         jja+0rfYsoHpOiMpx6uj4Jgn5Qt3ro1psTdWXqijW7uiaBOnfolP7lx04xEOiUie6jOW
+         op+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786367299; x=1786972099;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=pTDI6EKrZhHzu91ABEa/3hYoH7aGPcaJaVd/MJRw0Ok=;
+        b=ORQppm9WI41nc5NoIFbCZ3JVniDplUhQb0/AxdgCXYY9LRrankI2cnCZIv0/FfV6w/
+         hG5tPZm897a7F1vdkOrUZjy7MEXb2jikWt0BktWK6hEHnaziMSu1kTFvFR4M7ZQKBz//
+         X0/35KMzoQkt152oJDprtcgu4uSGP9F/XkRq29Ob1jBr3O3S5sTV3CUCDMm0TFsoCJSI
+         OGcnxM8fnX9P3qD4XPuHbUg6H50zHXABPMdMDfoWKeTnu3eD81648CoBR7pP5srJu1yN
+         GFwK50TxYa41iHLfaQDc0HwU/4BnaIguDhj2ofkGtRuDioGpdhssapfiTMU5zkRo5vol
+         EvlQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rp8jJ3TpMOtkWIOsSR+lqv0tVqvZ+g1wVbwcl5PggxYP4QOT03mQw9yzsgbbz8LljsVm26TvlR6Wq5L@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzgzdb6IxR1hmP9F96tom8SMIlsaY0z/VLIpuhaY9CjMa1iUgUf
+	I7JDoHgLBMfTWrf24P0I0y2QcoYov/gV9eXq/Bv7jeWCWyTXgpu0XTZVktwKs1epDT8=
+X-Gm-Gg: AR+sD139tzDKRUmxLWK3gfIredrjqS3GzmtgapTD5JdrSiBrkyhnLWiM0dG9oUvRBY2
+	MpHROJJmHaCVgYYF6r1Ru63p4IlqWOCy7QGRT0v3PHsx3fgZgPzR8kKVyJuGsnv11znskt3ngzy
+	ijCCVkXZIO7K/Y6AJpv0xtIz3tudQX+HwtowfKzP1YWBlBIa0iZgpaw84SnL4ab6a/x4CqaOETz
+	0oFMAJtRuA8x6O5nZTH9b0uY8pB5xW0AQKy6ynA7XrrJwmDJw4Ra26Ub1zq3u1CkfMT5JRVYUna
+	Yshxbr0PuKtOpde1nxgdW3WuMkXNEvk4ayjQSGL9eRBy5VV0OHtWPC+th4w9E+zyuvlT8Zh70o2
+	iBDpADsDaU0w7A0MEs6PwQBwm+Rl+0tNcGUCrWs7I6C5u/Ch+k2OnBsGnaI4nePHLrTX8AwGIcz
+	liF0rQVWEa2hnfWD9M19PJuMZFw7j0/cosQp+elg==
+X-Received: by 2002:ac8:574f:0:b0:51b:fcb4:7576 with SMTP id d75a77b69052e-52d20961711mr224570371cf.15.1786367299519;
+        Mon, 10 Aug 2026 06:08:19 -0700 (PDT)
+Received: from ziepe.ca ([142.166.156.215])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52d163c1aefsm70838551cf.12.2026.08.10.06.08.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Aug 2026 06:08:18 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1wtPjm-000000022LS-0EaO;
+	Mon, 10 Aug 2026 10:08:18 -0300
+Date: Mon, 10 Aug 2026 10:08:18 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Will Deacon <will@kernel.org>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+	Mostafa Saleh <smostafa@google.com>, iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
+	Marc Zyngier <maz@kernel.org>, Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [PATCH] arm64: swiotlb: Keep the default size for protected
+ guests
+Message-ID: <20260810130818.GN200537@ziepe.ca>
+References: <anX7F7dnKOtAOIIe@google.com>
+ <20260807164734.GE200537@ziepe.ca>
+ <anYgXSR4VAi3TpOj@google.com>
+ <CGME20260807182023eucas1p1f653436207b2b00338e99ea1d8f847df@eucas1p1.samsung.com>
+ <20260807182017.GH200537@ziepe.ca>
+ <7d22482f-d5fd-4cf4-9d32-6a54e02f2fbb@samsung.com>
+ <yq5av79iiard.fsf@kernel.org>
+ <anml6lLRERm1Iv-_@willie-the-truck>
+ <28442500-1d53-4776-bae5-459c3ffc1cc6@samsung.com>
+ <anm6K2umtx4iKnyZ@willie-the-truck>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260810-jag-net_const_qualify-v4-3-77e888237c69@kernel.org>
-References: <20260810-jag-net_const_qualify-v4-0-77e888237c69@kernel.org>
-In-Reply-To: <20260810-jag-net_const_qualify-v4-0-77e888237c69@kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
- David Ahern <dsahern@kernel.org>, Ido Schimmel <idosch@nvidia.com>, 
- Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>, 
- Phil Sutter <phil@nwl.cc>, 
- Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, 
- Xin Long <lucien.xin@gmail.com>, 
- Steffen Klassert <steffen.klassert@secunet.com>, 
- Herbert Xu <herbert@gondor.apana.org.au>, 
- "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>, 
- Sidraya Jayagond <sidraya@linux.ibm.com>, 
- Wenjia Zhang <wenjia@linux.ibm.com>, 
- Mahanta Jambigi <mjambigi@linux.ibm.com>, 
- Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, 
- Kuniyuki Iwashima <kuniyu@google.com>, 
- Stefano Garzarella <sgarzare@redhat.com>
-Cc: chia-yu.chang@nokia-bell-labs.com, netdev@vger.kernel.org, 
- linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org, 
- coreteam@netfilter.org, linux-sctp@vger.kernel.org, 
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
- virtualization@lists.linux.dev, Joel Granados <joel.granados@kernel.org>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=13709;
- i=joel.granados@kernel.org; h=from:subject:message-id;
- bh=mfG7Azw81hPEVdqzwgIOg8Z+aGmBTWEtxIP+wtpAXiY=;
- b=owJ4nAHtARL+kA0DAAoBupfNUreWQU8ByyZiAGp5y53Tj1wbx1niL50rI9zUuw4Po8QHCSOxm
- dq7OT3P7cqBVokBswQAAQoAHRYhBK5HCVcl5jElzssnkLqXzVK3lkFPBQJqecudAAoJELqXzVK3
- lkFPKpUL/3FC3496puI/yFKlPtUQ5Ei426Wr1E2Y0oJGWl7bLOF8SQAA1FBeo1bd+3GxxC1aer/
- zbfxAkDxpPLyhiDSA49Kv5d7PYXeeOXnD1kj/mQ3TrNb2w8o+0ATO5gbmGKe3Ddzh8UafOAHk0D
- IWOszlNtDoK3ybUNy39cs20v+IvgPsZP0IPPNKwvWD2vB3y6QUyPom6g8VAb9q46BGSHIgHIpLJ
- reKb6mfImtGrcgU5yHO1hwbAG9bM096lato6BGKIzdg181veV3Gu42qERsSzuAltXOsJzhbrBmh
- cf8rWvC1FNOyJqTEVxXovilBDtym1QZ2dzgyR9JOKNJXYcBlj2C9Vi1jFf6KO6mk8X8JvYoZvPc
- 3AeTyXCPkVYhp4XG/wzIRJGfmj7N+prPlkYnHxQ3k/gDkY+FJqf7oKAO/FpiJ0YUxxDD5E1MgPg
- sUTJ38N4xUPRQXuSeXhLifoH4VFS1asaPbeW5t8uABEGZjD5PE6DVBSYxyEQ1GBiEqi29KAxy86
- 8c=
-X-Developer-Key: i=joel.granados@kernel.org; a=openpgp;
- fpr=F1F8E46D30F0F6C4A45FF4465895FAAC338C6E77
-X-Endpoint-Received: by B4 Relay for joel.granados@kernel.org/default with
- auth_id=239
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <anm6K2umtx4iKnyZ@willie-the-truck>
 
-Add duplication helpers in the cases where the ctl_table array elements
-are modified after duplication. Helpers return a ctl_table as const
-pointer allowing the const qualification of the static global ctl_table
-array.
+On Mon, Aug 10, 2026 at 12:46:51PM +0100, Will Deacon wrote:
+> On Mon, Aug 10, 2026 at 01:37:11PM +0200, Marek Szyprowski wrote:
+> > On 10.08.2026 12:20, Will Deacon wrote:
+> > > On Mon, Aug 10, 2026 at 02:59:42PM +0530, Aneesh Kumar K.V wrote:
+> > >> Marek Szyprowski <m.szyprowski@samsung.com> writes:
+> > >>
+> > >>> On 07.08.2026 20:20, Jason Gunthorpe wrote:
+> > >>>> On Fri, Aug 07, 2026 at 06:13:49PM +0000, Mostafa Saleh wrote:
+> > >>>>> But the whole thing is best effort anyway, the kernel picks
+> > >>>>> IO_TLB_DEFAULT_SIZE which does not depend on the system topology or
+> > >>>>> how many devices or how much DMA they do.
+> > >>>>> SWIOTLB memory is wasted if unused so we should be careful around
+> > >>>>> that as it would be the other way around and users would have to
+> > >>>>> decrease it manually.
+> > >>>> Yeah, it is why the arch code shouldn't really be sizing it directly,
+> > >>>> it should be done in common code and, yes, we are probably going to
+> > >>>> have to do something alot smarter to have the common code better
+> > >>>> auto-tune this for the CC case..
+> > >>> What about the $subject patch? I assume that it is still needed to
+> > >>>
+> > >>> restore the behavior that was altered by the "[PATCH v8 00/23]
+> > >>>
+> > >>> dma-mapping: Track shared DMA state through direct, pool and swiotlb
+> > >>>
+> > >>> paths?" patchset?
+> > >>>
+> > >> I would request that we pick this patch to fix the regression described
+> > >> in https://lore.kernel.org/all/yq5azeyxyfol.fsf@kernel.org/.
+> > > I really don't think we need it. CCA hardware isn't exactly widespread
+> > > and the KVM host side patches don't appear close to being merged.
+> > 
+> > Does this mean that the branch for-next/coco [1] won't go to v7.3-rc1?
 
-Signed-off-by: Joel Granados <joel.granados@kernel.org>
----
- net/core/sysctl_net_core.c        | 38 +++++++++++++++++----------
- net/ipv4/sysctl_net_ipv4.c        | 54 +++++++++++++++++++++++----------------
- net/ipv4/xfrm4_policy.c           | 22 ++++++++++++----
- net/ipv6/xfrm6_policy.c           | 22 ++++++++++++----
- net/netfilter/nf_hooks_lwtunnel.c |  4 +--
- net/smc/smc_sysctl.c              | 26 ++++++++++++++-----
- net/unix/sysctl_net_unix.c        | 21 +++++++++++----
- net/vmw_vsock/af_vsock.c          | 25 +++++++++++++-----
- 8 files changed, 146 insertions(+), 66 deletions(-)
+Let's not make progress on guest support contingent on KVM CCA host
+side patches please. I expect the CSPs will have VM instance types
+available based on CCA within quarters, and Linux as a Guest should
+work in those environments regardless of what KVM is doing. I don't
+really expect full KVM support for years, frankly, the patchset is
+massive. Even Intel and AMD don't have full KVM support yet.
 
-diff --git a/net/core/sysctl_net_core.c b/net/core/sysctl_net_core.c
-index b508618bfc12393ba926ebf5a2dd4ea73ef03ee8..eb35da3556f4aa00cecd4582ab94e339d2518506 100644
---- a/net/core/sysctl_net_core.c
-+++ b/net/core/sysctl_net_core.c
-@@ -678,7 +678,7 @@ static struct ctl_table net_core_table[] = {
- 	},
- };
- 
--static struct ctl_table netns_core_table[] = {
-+static const struct ctl_table netns_core_table[] = {
- #if IS_ENABLED(CONFIG_RPS)
- 	{
- 		.procname	= "rps_default_mask",
-@@ -787,26 +787,38 @@ static int __init fb_tunnels_only_for_init_net_sysctl_setup(char *str)
- }
- __setup("fb_tunnels=", fb_tunnels_only_for_init_net_sysctl_setup);
- 
--static __net_init int sysctl_core_net_init(struct net *net)
-+static const struct ctl_table *netns_core_table_dup(struct net *net)
- {
- 	size_t table_size = ARRAY_SIZE(netns_core_table);
- 	struct ctl_table *tbl;
-+	int i;
-+
-+	tbl = kmemdup(netns_core_table, sizeof(netns_core_table), GFP_KERNEL);
-+	if (!tbl)
-+		return NULL;
-+
-+	for (i = 0; i < table_size; ++i) {
-+		if (tbl[i].data == &sysctl_wmem_max)
-+			break;
-+
-+		tbl[i].data += (char *)net - (char *)&init_net;
-+	}
-+	for (; i < table_size; ++i)
-+		tbl[i].mode &= ~0222;
-+
-+	return tbl;
-+}
-+
-+static __net_init int sysctl_core_net_init(struct net *net)
-+{
-+	size_t table_size = ARRAY_SIZE(netns_core_table);
-+	const struct ctl_table *tbl;
- 
- 	tbl = netns_core_table;
- 	if (!net_eq(net, &init_net)) {
--		int i;
--		tbl = kmemdup(tbl, sizeof(netns_core_table), GFP_KERNEL);
-+		tbl = netns_core_table_dup(net);
- 		if (tbl == NULL)
- 			goto err_dup;
--
--		for (i = 0; i < table_size; ++i) {
--			if (tbl[i].data == &sysctl_wmem_max)
--				break;
--
--			tbl[i].data += (char *)net - (char *)&init_net;
--		}
--		for (; i < table_size; ++i)
--			tbl[i].mode &= ~0222;
- 	}
- 
- 	net->core.sysctl_hdr = register_net_sysctl_sz(net, "net/core", tbl, table_size);
-diff --git a/net/ipv4/sysctl_net_ipv4.c b/net/ipv4/sysctl_net_ipv4.c
-index ca1180dba1dea9ce72028ba49b7f953da343336b..2f0363bca2a88d68276670cfce6fb04398f82bc5 100644
---- a/net/ipv4/sysctl_net_ipv4.c
-+++ b/net/ipv4/sysctl_net_ipv4.c
-@@ -624,7 +624,7 @@ static struct ctl_table ipv4_table[] = {
- 	},
- };
- 
--static struct ctl_table ipv4_net_table[] = {
-+static const struct ctl_table ipv4_net_table[] = {
- 	{
- 		.procname	= "tcp_max_tw_buckets",
- 		.data		= &init_net.ipv4.tcp_death_row.sysctl_max_tw_buckets,
-@@ -1654,35 +1654,45 @@ static struct ctl_table ipv4_net_table[] = {
- 	},
- };
- 
--static __net_init int ipv4_sysctl_init_net(struct net *net)
-+static const struct ctl_table *ipv4_net_table_dup(struct net *net)
- {
- 	size_t table_size = ARRAY_SIZE(ipv4_net_table);
- 	struct ctl_table *table;
-+	int i;
-+
-+	table = kmemdup(ipv4_net_table, sizeof(ipv4_net_table), GFP_KERNEL);
-+	if (!table)
-+		return NULL;
-+
-+	for (i = 0; i < table_size; i++) {
-+		if (table[i].data) {
-+			/* Update the variables to point into
-+			 * the current struct net
-+			 */
-+			table[i].data += (void *)net - (void *)&init_net;
-+		} else {
-+			/* Entries without data pointer are global;
-+			 * Make them read-only in non-init_net ns
-+			 */
-+			table[i].mode &= ~0222;
-+		}
-+		if (table[i].extra2 >= (void *)&init_net.ipv4 &&
-+		    table[i].extra2 < (void *)(&init_net.ipv4 + 1))
-+			table[i].extra2 += (void *)net - (void *)&init_net;
-+	}
-+	return table;
-+}
-+
-+static __net_init int ipv4_sysctl_init_net(struct net *net)
-+{
-+	size_t table_size = ARRAY_SIZE(ipv4_net_table);
-+	const struct ctl_table *table;
- 
- 	table = ipv4_net_table;
- 	if (!net_eq(net, &init_net)) {
--		int i;
--
--		table = kmemdup(table, sizeof(ipv4_net_table), GFP_KERNEL);
-+		table = ipv4_net_table_dup(net);
- 		if (!table)
- 			goto err_alloc;
--
--		for (i = 0; i < table_size; i++) {
--			if (table[i].data) {
--				/* Update the variables to point into
--				 * the current struct net
--				 */
--				table[i].data += (void *)net - (void *)&init_net;
--			} else {
--				/* Entries without data pointer are global;
--				 * Make them read-only in non-init_net ns
--				 */
--				table[i].mode &= ~0222;
--			}
--			if (table[i].extra2 >= (void *)&init_net.ipv4 &&
--			    table[i].extra2 < (void *)(&init_net.ipv4 + 1))
--				table[i].extra2 += (void *)net - (void *)&init_net;
--		}
- 	}
- 
- 	net->ipv4.ipv4_hdr = register_net_sysctl_sz(net, "net/ipv4", table,
-diff --git a/net/ipv4/xfrm4_policy.c b/net/ipv4/xfrm4_policy.c
-index 58faf1ddd2b151e4569bb6351029718dac37521b..ab7a01029d490416d36482f7a3189f83d6670f42 100644
---- a/net/ipv4/xfrm4_policy.c
-+++ b/net/ipv4/xfrm4_policy.c
-@@ -141,7 +141,7 @@ static const struct xfrm_policy_afinfo xfrm4_policy_afinfo = {
- };
- 
- #ifdef CONFIG_SYSCTL
--static struct ctl_table xfrm4_policy_table[] = {
-+static const struct ctl_table xfrm4_policy_table[] = {
- 	{
- 		.procname       = "xfrm4_gc_thresh",
- 		.data           = &init_net.xfrm.xfrm4_dst_ops.gc_thresh,
-@@ -151,18 +151,30 @@ static struct ctl_table xfrm4_policy_table[] = {
- 	},
- };
- 
--static __net_init int xfrm4_net_sysctl_init(struct net *net)
-+static const struct ctl_table *xfrm4_policy_table_dup(struct net *net)
- {
- 	struct ctl_table *table;
-+
-+	table = kmemdup(xfrm4_policy_table, sizeof(xfrm4_policy_table),
-+			GFP_KERNEL);
-+	if (!table)
-+		return NULL;
-+
-+	table[0].data = &net->xfrm.xfrm4_dst_ops.gc_thresh;
-+
-+	return table;
-+}
-+
-+static __net_init int xfrm4_net_sysctl_init(struct net *net)
-+{
-+	const struct ctl_table *table;
- 	struct ctl_table_header *hdr;
- 
- 	table = xfrm4_policy_table;
- 	if (!net_eq(net, &init_net)) {
--		table = kmemdup(table, sizeof(xfrm4_policy_table), GFP_KERNEL);
-+		table = xfrm4_policy_table_dup(net);
- 		if (!table)
- 			goto err_alloc;
--
--		table[0].data = &net->xfrm.xfrm4_dst_ops.gc_thresh;
- 	}
- 
- 	hdr = register_net_sysctl_sz(net, "net/ipv4", table,
-diff --git a/net/ipv6/xfrm6_policy.c b/net/ipv6/xfrm6_policy.c
-index 3b749475f6ed6573eec7337b502d9188ee199bee..5ec063cb4aa4378e70fff002dd03abf2029b247f 100644
---- a/net/ipv6/xfrm6_policy.c
-+++ b/net/ipv6/xfrm6_policy.c
-@@ -187,7 +187,7 @@ static void xfrm6_policy_fini(void)
- }
- 
- #ifdef CONFIG_SYSCTL
--static struct ctl_table xfrm6_policy_table[] = {
-+static const struct ctl_table xfrm6_policy_table[] = {
- 	{
- 		.procname       = "xfrm6_gc_thresh",
- 		.data		= &init_net.xfrm.xfrm6_dst_ops.gc_thresh,
-@@ -197,18 +197,30 @@ static struct ctl_table xfrm6_policy_table[] = {
- 	},
- };
- 
--static int __net_init xfrm6_net_sysctl_init(struct net *net)
-+static const struct ctl_table *xfrm6_policy_table_dup(struct net *net)
- {
- 	struct ctl_table *table;
-+
-+	table = kmemdup(xfrm6_policy_table, sizeof(xfrm6_policy_table),
-+			GFP_KERNEL);
-+	if (!table)
-+		return NULL;
-+
-+	table[0].data = &net->xfrm.xfrm6_dst_ops.gc_thresh;
-+
-+	return table;
-+}
-+
-+static int __net_init xfrm6_net_sysctl_init(struct net *net)
-+{
-+	const struct ctl_table *table;
- 	struct ctl_table_header *hdr;
- 
- 	table = xfrm6_policy_table;
- 	if (!net_eq(net, &init_net)) {
--		table = kmemdup(table, sizeof(xfrm6_policy_table), GFP_KERNEL);
-+		table = xfrm6_policy_table_dup(net);
- 		if (!table)
- 			goto err_alloc;
--
--		table[0].data = &net->xfrm.xfrm6_dst_ops.gc_thresh;
- 	}
- 
- 	hdr = register_net_sysctl_sz(net, "net/ipv6", table,
-diff --git a/net/netfilter/nf_hooks_lwtunnel.c b/net/netfilter/nf_hooks_lwtunnel.c
-index 2d890dd04ff89041e6aec3741f24cdd7bc47d1fe..4e1eef1ba0f1559ca35f024723af551c6c9e7d35 100644
---- a/net/netfilter/nf_hooks_lwtunnel.c
-+++ b/net/netfilter/nf_hooks_lwtunnel.c
-@@ -54,7 +54,7 @@ int nf_hooks_lwtunnel_sysctl_handler(const struct ctl_table *table, int write,
- }
- EXPORT_SYMBOL_GPL(nf_hooks_lwtunnel_sysctl_handler);
- 
--static struct ctl_table nf_lwtunnel_sysctl_table[] = {
-+static const struct ctl_table nf_lwtunnel_sysctl_table[] = {
- 	{
- 		.procname	= "nf_hooks_lwtunnel",
- 		.data		= NULL,
-@@ -66,8 +66,8 @@ static struct ctl_table nf_lwtunnel_sysctl_table[] = {
- 
- static int __net_init nf_lwtunnel_net_init(struct net *net)
- {
-+	const struct ctl_table *table;
- 	struct ctl_table_header *hdr;
--	struct ctl_table *table;
- 
- 	table = nf_lwtunnel_sysctl_table;
- 	if (!net_eq(net, &init_net)) {
-diff --git a/net/smc/smc_sysctl.c b/net/smc/smc_sysctl.c
-index b1efed5462435b1a6f2f59584a4cf47f5f6e1981..09dad48337f6164f5765fa793412bdebf47e61ca 100644
---- a/net/smc/smc_sysctl.c
-+++ b/net/smc/smc_sysctl.c
-@@ -97,7 +97,7 @@ static int proc_smc_hs_ctrl(const struct ctl_table *ctl, int write,
- }
- #endif /* CONFIG_SMC_HS_CTRL_BPF */
- 
--static struct ctl_table smc_table[] = {
-+static const struct ctl_table smc_table[] = {
- 	{
- 		.procname       = "autocorking_size",
- 		.data           = &init_net.smc.sysctl_autocorking_size,
-@@ -195,14 +195,29 @@ static struct ctl_table smc_table[] = {
- #endif /* CONFIG_SMC_HS_CTRL_BPF */
- };
- 
--int __net_init smc_sysctl_net_init(struct net *net)
-+static const struct ctl_table *smc_table_dup(struct net *net)
- {
- 	size_t table_size = ARRAY_SIZE(smc_table);
- 	struct ctl_table *table;
-+	int i;
-+
-+	table = kmemdup(smc_table, sizeof(smc_table), GFP_KERNEL);
-+	if (!table)
-+		return NULL;
-+
-+	for (i = 0; i < table_size; i++)
-+		table[i].data += (void *)net - (void *)&init_net;
-+
-+	return table;
-+}
-+
-+int __net_init smc_sysctl_net_init(struct net *net)
-+{
-+	size_t table_size = ARRAY_SIZE(smc_table);
-+	const struct ctl_table *table;
- 
- 	table = smc_table;
- 	if (!net_eq(net, &init_net)) {
--		int i;
- #if IS_ENABLED(CONFIG_SMC_HS_CTRL_BPF)
- 		struct smc_hs_ctrl *ctrl;
- 
-@@ -214,12 +229,9 @@ int __net_init smc_sysctl_net_init(struct net *net)
- 		rcu_read_unlock();
- #endif /* CONFIG_SMC_HS_CTRL_BPF */
- 
--		table = kmemdup(table, sizeof(smc_table), GFP_KERNEL);
-+		table = smc_table_dup(net);
- 		if (!table)
- 			goto err_alloc;
--
--		for (i = 0; i < table_size; i++)
--			table[i].data += (void *)net - (void *)&init_net;
- 	}
- 
- 	net->smc.smc_hdr = register_net_sysctl_sz(net, "net/smc", table,
-diff --git a/net/unix/sysctl_net_unix.c b/net/unix/sysctl_net_unix.c
-index e02ed6e3955c06b60cf4afb02656df8956f075ba..47660d5726bbd7d812762f4feffa9a0a42499d7d 100644
---- a/net/unix/sysctl_net_unix.c
-+++ b/net/unix/sysctl_net_unix.c
-@@ -13,7 +13,7 @@
- 
- #include "af_unix.h"
- 
--static struct ctl_table unix_table[] = {
-+static const struct ctl_table unix_table[] = {
- 	{
- 		.procname	= "max_dgram_qlen",
- 		.data		= &init_net.unx.sysctl_max_dgram_qlen,
-@@ -23,18 +23,29 @@ static struct ctl_table unix_table[] = {
- 	},
- };
- 
--int __net_init unix_sysctl_register(struct net *net)
-+static const struct ctl_table *unix_table_dup(struct net *net)
- {
- 	struct ctl_table *table;
- 
-+	table = kmemdup(unix_table, sizeof(unix_table), GFP_KERNEL);
-+	if (!table)
-+		return NULL;
-+
-+	table[0].data = &net->unx.sysctl_max_dgram_qlen;
-+
-+	return table;
-+}
-+
-+int __net_init unix_sysctl_register(struct net *net)
-+{
-+	const struct ctl_table *table;
-+
- 	if (net_eq(net, &init_net)) {
- 		table = unix_table;
- 	} else {
--		table = kmemdup(unix_table, sizeof(unix_table), GFP_KERNEL);
-+		table = unix_table_dup(net);
- 		if (!table)
- 			goto err_alloc;
--
--		table[0].data = &net->unx.sysctl_max_dgram_qlen;
- 	}
- 
- 	net->unx.ctl = register_net_sysctl_sz(net, "net/unix", table,
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 622dbd0467994428f1a590f559b78d8c17f6ba60..caebef73ea58d2b6043ca3fe3b6872f92fbe9fa6 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -2899,7 +2899,7 @@ static int vsock_net_child_mode_string(const struct ctl_table *table, int write,
- 	return 0;
- }
- 
--static struct ctl_table vsock_table[] = {
-+static const struct ctl_table vsock_table[] = {
- 	{
- 		.procname	= "ns_mode",
- 		.data		= &init_net.vsock.mode,
-@@ -2925,20 +2925,31 @@ static struct ctl_table vsock_table[] = {
- 	},
- };
- 
--static int __net_init vsock_sysctl_register(struct net *net)
-+static const struct ctl_table *vsock_table_dup(struct net *net)
- {
- 	struct ctl_table *table;
- 
-+	table = kmemdup(vsock_table, sizeof(vsock_table), GFP_KERNEL);
-+	if (!table)
-+		return NULL;
-+
-+	table[0].data = &net->vsock.mode;
-+	table[1].data = &net->vsock.child_ns_mode;
-+	table[2].data = &net->vsock.g2h_fallback;
-+
-+	return table;
-+}
-+
-+static int __net_init vsock_sysctl_register(struct net *net)
-+{
-+	const struct ctl_table *table;
-+
- 	if (net_eq(net, &init_net)) {
- 		table = vsock_table;
- 	} else {
--		table = kmemdup(vsock_table, sizeof(vsock_table), GFP_KERNEL);
-+		table = vsock_table_dup(net);
- 		if (!table)
- 			goto err_alloc;
--
--		table[0].data = &net->vsock.mode;
--		table[1].data = &net->vsock.child_ns_mode;
--		table[2].data = &net->vsock.g2h_fallback;
- 	}
- 
- 	net->vsock.sysctl_hdr = register_net_sysctl_sz(net, "net/vsock", table,
+People already have CCA capable HW, are already testing this stuff and
+the closer upstream can get to being workable as a guest without a
+mountain of OOT patches the better.
 
--- 
-2.50.1
+I agree the thing is not ideal, but it was merged to ARM like this a
+long time ago, this patch is just fixing a small oopsie (was it a
+merge conflict?) to put it back. I don't the objection.
 
-
+Jason
