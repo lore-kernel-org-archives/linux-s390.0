@@ -1,122 +1,136 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3203E4A32;
-	Mon, 10 Aug 2026 07:47:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F0473A4505;
+	Mon, 10 Aug 2026 08:36:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786348058; cv=none; b=eGVvUa71DGSg1oFrF8CnVxxbXOv80fKnV7Z7kAXSBHgrcr2TAkqWn7x1vupCjK2C0DWP33AZ9EN7p5WcjWix3PD3UY3c9FxZrGBUlWbrZiusBrU2imJ3m/yfVP8IW1LcJ2+evhP1SxOD4zQ52ap+E0MZVkWv2wINOOo5OZwFvO0=
+	t=1786351016; cv=none; b=cKsLIG302uAFmHa2DLz0E4YM5XqC5VWGCB6yFmWmWKguFsGQ847sHhS5mqMv1qxYtLiDFfQMAfPSLj7+gKoJ8Vbo0DBiCW+v+1KWJtBlQLfPjQ2rjaeZwPatPLF4QgvTe7q9ayt7A/QN2czPxMCEeBoJBuyNchkP/qk1ROfn0FM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786348058; c=relaxed/simple;
-	bh=g7MIX4GKv7NDCNx6HOis0FNG6NziKw6qgJWUn+u4pKM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hWaKvbSJFd3dxYW6dogy1c5FiAKeaH1i1s8x0mmaF0pgQ9kVq8hnfO3Pmh1ctmOavteCg3zkuru0dvlBZ75VdHd8kvcyS4AKlx/oz9BWmiodjp/R8yF8cmWyICV/KNHuGGsP014TDtICs0DkVfoDBIdgWZPVpvfK37IVaQbuB6g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=R40WBjjL; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786351016; c=relaxed/simple;
+	bh=0heE0aeUQp5JoHVaYB/JZs1HN8xkC2lK7gU6vSQV+9A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=B1E8wyD4Uq1SkzNfffuqybEFJE5SC9+auyTJxhcpXBGB7UTOCYzMmVFnFFYmaTsJJkB9D4PGgJFUal1IvzSqjfNbeL+ybVQet60cLTxjHYmpXFNPkwzzWMLgKlIvtEfR7SSnaz+Xi2VohYWAlS9tmSeXNwlDmlLRVQa+kLxDI/Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WG9vfruA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="R40WBjjL"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67A5VRk6752139;
-	Mon, 10 Aug 2026 07:47:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=g7MIX4
-	GKv7NDCNx6HOis0FNG6NziKw6qgJWUn+u4pKM=; b=R40WBjjLVYmflnTmwsS8Ce
-	ZJletgeZJsz2/thjphld6DvwML/jBO8DQ3UsofIDf3IMqJzbVElkEQzXeFH3rFuz
-	nEoogST66u9OVTNO9nORFa1eQBimeG+Ul3nC1ixHK+SsGhoVjzXLwpuPK6pBEP62
-	Q5x1dY0hl1WS1ZE2QXslJ8/+7ITAfBrNO9KV52FLT8kFeXPqOmIyAN6apccVIqka
-	jDWWjZrMXPpGdhJUYozcFeW0bzGg8SwAfC+JSN3KSqC4U/Kr7jXMPJtYNSyVmGC4
-	tEo3OUPe+IxATbxmoFAWbu8DMpT3IFKgECfBQYHnOnCvxACn7r0R7/f5EfPzEyRg
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvm9eugm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 10 Aug 2026 07:47:18 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67A7QO9x016210;
-	Mon, 10 Aug 2026 07:47:17 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxf5vuya6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 10 Aug 2026 07:47:17 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67A7lDOE38535652
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 10 Aug 2026 07:47:13 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EBC582004E;
-	Mon, 10 Aug 2026 07:47:12 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BD1D52004B;
-	Mon, 10 Aug 2026 07:47:12 +0000 (GMT)
-Received: from [9.224.91.49] (unknown [9.224.91.49])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 10 Aug 2026 07:47:12 +0000 (GMT)
-Message-ID: <6f82c1f5-06f5-431d-9b23-4e34c8572c8a@linux.ibm.com>
-Date: Mon, 10 Aug 2026 09:47:12 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WG9vfruA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E7FC1F00A3D;
+	Mon, 10 Aug 2026 08:36:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786351015;
+	bh=JV5WNgHkpKWzZzTADt5HV8WfufvTRE1W/LdtA3ppIU0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=WG9vfruAdcqV26E8riIECGmFnBJZd5QFGEF/vLwr28j8gC4/i7xF0ppv5LbXGsZXX
+	 JxNn+AK3ID5hxM+oY6+3ga/4g5kSAUZ3bpLvKsQ3jdW2iUMHhzYR8K+qeLV3wBd+SH
+	 VfMjlXUAPInIsYgKwkG0faj9NQPkTn8mbqTh93b2RkQ6vc61GikkngdVPvCYS8u1v3
+	 Bbmd+K6Qvi9MyaqQYp3ipshXdNTBrXxLxAhKWBNy+rqBS761NXJu8HVp2apMLGHoSi
+	 TNqEO7IDleHDyLVMiyzHc0N4UA6L3SFYnW+RHipKKKGb19601kNwdtCQOjQmzQOcPt
+	 EgpNCWtEiomWw==
+Date: Mon, 10 Aug 2026 09:36:21 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: Suren Baghdasaryan <surenb@google.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	David Hildenbrand <david@kernel.org>, "Liam R. Howlett" <liam@infradead.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, Michal Hocko <mhocko@suse.com>, 
+	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Miaohe Lin <linmiaohe@huawei.com>, 
+	Naoya Horiguchi <nao.horiguchi@gmail.com>, Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, 
+	Lance Yang <lance.yang@linux.dev>, Kees Cook <kees@kernel.org>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>, 
+	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+	Usama Arif <usama.arif@linux.dev>, Matthew Brost <matthew.brost@intel.com>, 
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
+	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
+	Alistair Popple <apopple@nvidia.com>, Peter Xu <peterx@redhat.com>, Xu Xin <xu.xin16@zte.com.cn>, 
+	Chengming Zhou <chengming.zhou@linux.dev>, Arnd Bergmann <arnd@arndb.de>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Alex Deucher <alexander.deucher@amd.com>, 
+	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Boris Brezillon <boris.brezillon@collabora.com>, Steven Price <steven.price@arm.com>, 
+	Liviu Dudau <liviu.dudau@arm.com>, Huang Rui <ray.huang@amd.com>, 
+	Matthew Auld <matthew.auld@intel.com>, 
+	Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
+	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
+	Mark Rutland <mark.rutland@arm.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
+	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, 
+	Adrian Hunter <adrian.hunter@intel.com>, James Clark <james.clark@linaro.org>, 
+	Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>, 
+	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, Chris Li <chrisl@kernel.org>, 
+	Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, 
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
+	Youngjun Park <youngjun.park@lge.com>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-kselftest@vger.kernel.org, kvm@vger.kernel.org, 
+	linux-s390@vger.kernel.org, amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
+	intel-xe@lists.freedesktop.org, linux-perf-users@vger.kernel.org, 
+	linux-trace-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 01/20] mm/vma: introduce VMA anon page offset field
+ and add helpers
+Message-ID: <anmLnvWAyIJwjsXj@lucifer>
+References: <20260806-b4-scalable-cow-virt-pgoff-v4-0-ab318a350404@kernel.org>
+ <20260806-b4-scalable-cow-virt-pgoff-v4-1-ab318a350404@kernel.org>
+ <CAJuCfpFAA1H2pOi6EOarNtrdzLQDJyhm6QOGsfZ4SFTuM5eiLQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC] net/iucv: af_iucv socket locking - accounting, and a staged
- plan
-To: Bryam Vargas <hexlabsecurity@proton.me>
-Cc: Hidayath Khan <hidayath@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
-        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Thorsten Winkler <twinkler@linux.ibm.com>
-References: <20260724222917.134769-1-hexlabsecurity@proton.me>
- <f74b9587-c09c-4fce-9415-e2d3b49d0247@linux.ibm.com>
- <20260809014911.752106-1-hexlabsecurity@proton.me>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20260809014911.752106-1-hexlabsecurity@proton.me>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEwMDA2MyBTYWx0ZWRfX+y70lmAPLu74
- nAvsmNKs03aYW6TForlczlil/RUIJ7dwMHaiUjV5fjisV6YOyQHwnfW2DdujlwT+wf5gh+lJGl0
- WKZRkYz9P5oTbdZ1m2y/QpwKpxxUtEveXJHQ1ep2vM41EYdho1yr4fbV1lr0/B7lMBCQR+HvCou
- 6KpujKIZEyatOzBnNJ6seg2sL+PmJdgZFVGlj5L5jy4f+O80dhUv0rxeBlYXqlRl3JJYsUAm3Hl
- wKuJ3QraX3JPoLu6ZFnHG4FIZ1SQBG4OKQ7uhZ2CQwuDjeQUPz2SzcuJ1WuThAul00QXxmwGuSE
- GIpCVPnOCBgBRCY+GUNI7nbIs2lA5o6T5/VK5HdcfnK7h9ns8CMb1+TZqMoUPG4aGRjxqlARCs1
- NEuILIRPXmbjU0QveBkrkNQ4GFiieX2m2FrctyAZmSnx/Q/1WbHAsxYNjbzR/6OxZyl+7wwL/QG
- rNUnP0sYUh2Rw8250gA==
-X-Proofpoint-ORIG-GUID: 1sRoKFbtWRwXFM--b_9dg4Ib6fOgmHk3
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEwMDA2MyBTYWx0ZWRfXyz5ijW14Bi/t
- 7mJBAakkaivEyOAoDCcyJNbbiNU6EHd0ESM6a8Bm7kplRob9+QWj1z68H2JnuGMJ08JLOrjBuQH
- dl8JJtx5Lj8KT5pnorIyREddnZ0FZlk=
-X-Authority-Analysis: v=2.4 cv=IfK3n2qa c=1 sm=1 tr=0 ts=6a798206 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=V45w1f9ymux-jMZoJjQA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: N-i0qHDQlNPloHC5238KVQ-iZp6VoD_5
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-10_01,2026-08-07_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 impostorscore=0 bulkscore=0 clxscore=1015
- lowpriorityscore=0 adultscore=0 malwarescore=0 spamscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608100063
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAJuCfpFAA1H2pOi6EOarNtrdzLQDJyhm6QOGsfZ4SFTuM5eiLQ@mail.gmail.com>
 
+On Sat, Aug 08, 2026 at 05:51:10PM -0700, Suren Baghdasaryan wrote:
+> On Thu, Aug 6, 2026 at 1:22 PM Lorenzo Stoakes (ARM) <ljs@kernel.org> wrote:
+> > diff --git a/include/linux/mm.h b/include/linux/mm.h
+> > index 87feaa5a2b78..df78847f5f07 100644
+> > --- a/include/linux/mm.h
+> > +++ b/include/linux/mm.h
+> > @@ -4393,6 +4393,65 @@ static inline pgoff_t vma_last_pgoff(const struct vm_area_struct *vma)
+> >         return vma_end_pgoff(vma) - 1;
+> >  }
+> >
+> > +/**
+> > + * vma_start_anon_pgoff() - Get the anonymous page offset of the start of @vma
+> > + * @vma: The VMA whose anonymous page offset is required.
+> > + *
+> > + * If unfaulted, then this is vma->vm_start >> PAGE_SHIFT, if faulted then the
+> > + * anonymous page offset at the time of first fault.
+> > + *
+> > + * If the VMA is anonymous, this returns the same value as vma_start_pgoff().
+> > + *
+> > + * This value is used for tracking MAP_PRIVATE file-backed mappings by their
+> > + * anonymous page offset.
+>
+> I assume this function should not be used with shared file-backed
+> mappings, right? If so, maybe add a comment like the one you have for
+> linear_anon_page_index(): "It is not valid to call this function for
+> shared file-backed mappings."?
 
+No that's not the case, it is valid to access this for any VMA though it's only
+meaningful for MAP_PRIVATE and anonymous VMAs (though in the latter case pgoff
+== anon pgoff).
 
-On 09.08.26 03:49, Bryam Vargas wrote:
->> That would be great, we are also working on several small fixes. Let's get them out of the way.
-> The connack patch is written: bh_lock_sock() in iucv_callback_connack(), the one
-> site whose context is unambiguous, since connrej and shutdown run in the same
-> tasklet and already take it. Fixes: eac3731bd04c - the function has held no lock
-> since 2007. checkpatch --strict is quiet and it builds for s390x. Which tree do
-> you want it against?
+The code keeps the anon pgoff values consistent even for shared mappings because
+- hey - we have the field anyway and it's easiest and safest to just keep it the
+same.
 
-net, please.
+One alternative would be to have code that checks the flags and zeroes the field
+otherwise , but then you have problems like - early on initialisation now
+there's an ordering requirement which can easily go wrong.
+
+Another alternative is to just leave it stale, but then that seems objectively
+worse and again requires branching code on update and set.
+
+All-in-all it's easier to keep this working the same for any type of mapping,
+it's just useless to do anything with the anon pgoff for a shared mapping :)
+
+--
+Cheers, Lorenzo
