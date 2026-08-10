@@ -1,143 +1,152 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id CDCB63D6498;
-	Mon, 10 Aug 2026 14:08:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6269E3F077C;
+	Mon, 10 Aug 2026 14:14:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786370908; cv=none; b=VxCl/EhWwspfwoybrz1zcKWrDeTn5qCK1mfApCw/0O950KElrWngx6yTPXvaKgZz5zRePnwHjKTlgEWyDYLuCnqrM4CCYCNgkjgqu2QFG8Pu9smKSbVKTFbiWd+FL6xYSx3mMwUb4rIs+l4z4coFgG8hEVf9PmZETkhkGdtWFrc=
+	t=1786371262; cv=none; b=dg5ZBKT0zxQbXqW/ZpLaASHrv7GuWoewBmf/p8ofuVp4ZZ4/30wZIGl51ies6TsQ79aw+m0MSh38PRrRjHuTa/bSJQYG9TKDf+0x0yp5vLbqyAQ3QSnTe2JW8sTTaN33e1I9dGkd/Ejigh7eG0ZY2AxqztDxeVPAgrhX1YQLnt0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786370908; c=relaxed/simple;
-	bh=WIG5gWxWn/Ev2rkfLIG3WmO0JyDYfhFXREH1iOSeZTw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sPsn5OG1Sc/oAi3Xg/rrmq2TpLesysoFqCcIV2TRXDTZL+Ez1/Od4vUrMjMoKXr6mlm0c1vd4Fnrjps/DgMVx2ak2UBhfZULjn4k5HUe2tK8OcTKuQCqOo1nhIZSmWrD6foF/8rcXOEMNedm41JAwQGyHQKYFAieUQ2J7bXo8pE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=ZXStNpjX; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	s=arc-20240116; t=1786371262; c=relaxed/simple;
+	bh=2VRexDWzd/FwjKhqx0ta8n+OzYjSyu4UQt7QBvUx/nQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nwcKmugqFRJISoJRratrdXlbxip10Io+cksb5r8oYzTgDUJ3fHor9ca5CTCK4zErzwL+85R6unLC3el11r9gj3DwphUFqQWB92duhgoD3z1m2DrA7j/JhKGmNIQMkqyE5jY7Ais1A2nyy7TS++7O4yIvzxy6YpAtLhdo9D95VS4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mX+kc7VL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="ZXStNpjX"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4A7941516;
-	Mon, 10 Aug 2026 07:08:22 -0700 (PDT)
-Received: from [10.2.212.23] (e121345-lin.cambridge.arm.com [10.2.212.23])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CA3DB3F86F;
-	Mon, 10 Aug 2026 07:08:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1786370906; bh=WIG5gWxWn/Ev2rkfLIG3WmO0JyDYfhFXREH1iOSeZTw=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=ZXStNpjXVYvpxTBkP3rWmmwVPR479gsTPUbyBMBR8VKOLTsj4ratjHRO92RiDGFax
-	 IG5dbWhAWx0ncg0zwRBfNQKPrft0K+c13K0wFbEYz8ngMLcySRRYMCHpujbZ48aqGf
-	 1iA6qXJ9C3VW4Jm34gws0KQ9bPcSOJKgwmrVFNto=
-Message-ID: <3cccd2d2-b59c-47ec-8a87-f504a5427576@arm.com>
-Date: Mon, 10 Aug 2026 15:08:19 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mX+kc7VL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8787D1F000E9;
+	Mon, 10 Aug 2026 14:14:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786371257;
+	bh=iehNUi3egKfQHvYDNGbbdbgLVRR5Q5cJOqpp5C8Holw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=mX+kc7VLJtEYOvp9eGzSbishYvLpCPkZLR4wXwvjM+wgYETFgrk9xkyfZ1a24vtri
+	 65ciAVNY1eJFvAX2bAMV2BZRvoU1yHEY3Y5nwK/h/z/S1K9fmc0HFeLTnzJNwxwnvh
+	 MXmQ+Y4/Bgx5CaRyf2mpgo3ANRET883pr2yUAom2B3bjyyNBj49w7EFFmeZL3mS8BP
+	 m4IThuwjn0FbSzKS4XQf+8c0tVREC4KvHbtmEs74Xg4d0IuRzNhYY1qCKMiEZe4k3A
+	 jB3YgCtck/dVYN0wDiM5ADDw6SKS0cdM8N9+keC869RIEF1LTOnz8KBopzUo7OUunB
+	 bdNexLqovZBcQ==
+Date: Mon, 10 Aug 2026 16:14:14 +0200
+From: Thierry Reding <thierry.reding@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Jonathan Hunter <jonathanh@nvidia.com>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Sowjanya Komatineni <skomatineni@nvidia.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
+	Mikko Perttunen <mperttunen@nvidia.com>, Yury Norov <yury.norov@gmail.com>, 
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>, Russell King <linux@armlinux.org.uk>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, Lorenzo Stoakes <ljs@kernel.org>, 
+	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
+	Robin Murphy <robin.murphy@arm.com>, Sumit Semwal <sumit.semwal@linaro.org>, 
+	Benjamin Gaignard <benjamin.gaignard@collabora.com>, Brian Starkey <Brian.Starkey@arm.com>, 
+	John Stultz <jstultz@google.com>, "T.J. Mercier" <tjmercier@google.com>, 
+	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, Steven Rostedt <rostedt@goodmis.org>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Chun Ng <chunn@nvidia.com>, 
+	Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org, linux-tegra@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, 
+	iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
+	linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>
+Subject: Re: [PATCH v4 05/10] mm/cma: Allow dynamically creating CMA areas
+Message-ID: <annbzvLojXK33Sav@orome>
+References: <20260807-tegra-vpr-v4-0-5510d16af89e@nvidia.com>
+ <20260807-tegra-vpr-v4-5-5510d16af89e@nvidia.com>
+ <3b458c02-e836-4b24-a712-57fa8dd59e45@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] arm64: swiotlb: Keep the default size for protected
- guests
-To: Jason Gunthorpe <jgg@ziepe.ca>, Will Deacon <will@kernel.org>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
- Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Mostafa Saleh <smostafa@google.com>, iommu@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-coco@lists.linux.dev, Marc Zyngier <maz@kernel.org>,
- Steven Price <steven.price@arm.com>,
- Suzuki K Poulose <Suzuki.Poulose@arm.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Jiri Pirko <jiri@resnulli.us>,
- Petr Tesarik <ptesarik@suse.com>, Alexey Kardashevskiy <aik@amd.com>,
- Dan Williams <dan.j.williams@intel.com>, Xu Yilun
- <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <chleroy@kernel.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-References: <anX7F7dnKOtAOIIe@google.com> <20260807164734.GE200537@ziepe.ca>
- <anYgXSR4VAi3TpOj@google.com>
- <CGME20260807182023eucas1p1f653436207b2b00338e99ea1d8f847df@eucas1p1.samsung.com>
- <20260807182017.GH200537@ziepe.ca>
- <7d22482f-d5fd-4cf4-9d32-6a54e02f2fbb@samsung.com>
- <yq5av79iiard.fsf@kernel.org> <anml6lLRERm1Iv-_@willie-the-truck>
- <28442500-1d53-4776-bae5-459c3ffc1cc6@samsung.com>
- <anm6K2umtx4iKnyZ@willie-the-truck> <20260810130818.GN200537@ziepe.ca>
-From: Robin Murphy <robin.murphy@arm.com>
-Content-Language: en-GB
-In-Reply-To: <20260810130818.GN200537@ziepe.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="i7x3s4iklpcr3dcx"
+Content-Disposition: inline
+In-Reply-To: <3b458c02-e836-4b24-a712-57fa8dd59e45@kernel.org>
 
-On 10/08/2026 2:08 pm, Jason Gunthorpe wrote:
-> On Mon, Aug 10, 2026 at 12:46:51PM +0100, Will Deacon wrote:
->> On Mon, Aug 10, 2026 at 01:37:11PM +0200, Marek Szyprowski wrote:
->>> On 10.08.2026 12:20, Will Deacon wrote:
->>>> On Mon, Aug 10, 2026 at 02:59:42PM +0530, Aneesh Kumar K.V wrote:
->>>>> Marek Szyprowski <m.szyprowski@samsung.com> writes:
->>>>>
->>>>>> On 07.08.2026 20:20, Jason Gunthorpe wrote:
->>>>>>> On Fri, Aug 07, 2026 at 06:13:49PM +0000, Mostafa Saleh wrote:
->>>>>>>> But the whole thing is best effort anyway, the kernel picks
->>>>>>>> IO_TLB_DEFAULT_SIZE which does not depend on the system topology or
->>>>>>>> how many devices or how much DMA they do.
->>>>>>>> SWIOTLB memory is wasted if unused so we should be careful around
->>>>>>>> that as it would be the other way around and users would have to
->>>>>>>> decrease it manually.
->>>>>>> Yeah, it is why the arch code shouldn't really be sizing it directly,
->>>>>>> it should be done in common code and, yes, we are probably going to
->>>>>>> have to do something alot smarter to have the common code better
->>>>>>> auto-tune this for the CC case..
->>>>>> What about the $subject patch? I assume that it is still needed to
->>>>>>
->>>>>> restore the behavior that was altered by the "[PATCH v8 00/23]
->>>>>>
->>>>>> dma-mapping: Track shared DMA state through direct, pool and swiotlb
->>>>>>
->>>>>> paths?" patchset?
->>>>>>
->>>>> I would request that we pick this patch to fix the regression described
->>>>> in https://lore.kernel.org/all/yq5azeyxyfol.fsf@kernel.org/.
->>>> I really don't think we need it. CCA hardware isn't exactly widespread
->>>> and the KVM host side patches don't appear close to being merged.
->>>
->>> Does this mean that the branch for-next/coco [1] won't go to v7.3-rc1?
-> 
-> Let's not make progress on guest support contingent on KVM CCA host
-> side patches please. I expect the CSPs will have VM instance types
-> available based on CCA within quarters, and Linux as a Guest should
-> work in those environments regardless of what KVM is doing. I don't
-> really expect full KVM support for years, frankly, the patchset is
-> massive. Even Intel and AMD don't have full KVM support yet.
-> 
-> People already have CCA capable HW, are already testing this stuff and
-> the closer upstream can get to being workable as a guest without a
-> mountain of OOT patches the better.
-> 
-> I agree the thing is not ideal, but it was merged to ARM like this a
-> long time ago, this patch is just fixing a small oopsie (was it a
-> merge conflict?) to put it back. I don't the objection.
 
-Yup, it seems pretty clearly like a straightforward bug in this series 
-(or maybe even just the merge resolution), where it should have just 
-removed the use of SWIOTLB_FORCE, but changing the if/else structure 
-inadvertently upset the whole flow in a way that it shouldn't have.
+--i7x3s4iklpcr3dcx
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v4 05/10] mm/cma: Allow dynamically creating CMA areas
+MIME-Version: 1.0
 
-For a fix patch it might be clearer to restore the "(is_realm_world() || 
-is_protected_kvm_guest())" condition exactly as before, then save any 
-further refactoring for the next round of new development. And if there 
-is a concern that skipping the resizing wastes memory for pKVM, then 
-surely that falls on e62decaf98e7 ("arm64/coco: Add pKVM as a CC 
-platform") which intentionally added that logic.
+On Fri, Aug 07, 2026 at 06:16:06PM +0200, David Hildenbrand (Arm) wrote:
+> On 8/7/26 17:54, Thierry Reding wrote:
+> > From: Thierry Reding <treding@nvidia.com>
+> >=20
+> > There is no technical reason why there should be a limited number of CMA
+> > regions, so extract some code into helpers and use them to create extra
+> > functions (cma_create() and cma_free()) that allow creating and freeing,
+> > respectively, CMA regions dynamically at runtime.
+> >=20
+> > The static array of CMA areas cannot be replaced by dynamically created
+> > areas because for many of them, allocation must not fail and some cases
+> > may need to initialize them before the slab allocator is even available.
+> > To account for this, keep these "early" areas in a separate list and
+> > track the dynamic areas in a separate list.
+> >=20
+> > Signed-off-by: Thierry Reding <treding@nvidia.com>
+> > ---
+>=20
+> Sorry that I didn't get to reply earlier to
+>=20
+> 	https://lore.kernel.org/all/anS0nxAwCXGWZRl9@orome/
+>=20
+> But I am still not convinced why we shouldn't just have a single array th=
+at
+> grows dynamically.
+>=20
+> "
+> After replying to T.J. I think this static array is actually a nice
+> feature in a way. It allows us to more easily make a distinction between
+> the regular CMA regions created from reserved-memory regions that
+> represent classic carveouts, and the more versatile CMA areas that could
+> be used for any purpose.
+>=20
+> Telling the two types apart could obviously also be solved using some
+> kind of flag stored with the CMA area, but at this point I don't really
+> see a reason why the two lists would need to be unified.
+> "
+>=20
+> Really, cma_for_each_early_area() + cma_for_each_area() is just nasty.
+>=20
+> I'd strongly vote to unify unless there is a very good reason to do it
+> separately.
 
-I do concur that there's not necessarily a mad panic to get this into 
-Marek's 7.3 pull, as folks trying to use linux-next or bleeding-edge 
-mainline for CCA work (or indeed anything) should know the risks, but it 
-should at least be one for the 7.3-rc fixes cycle. Aneesh, FYI generally 
-once things are queued, please just send follow-up fixes as their own 
-thing rather than replies, for maximum clarity.
+Marek had an interesting suggestion to extend CMA with fixed address or
+range allocations, in which case we would only need a single CMA area.
+If that works and is acceptable, there's not much need any longer for
+cma_create()/cma_free().
 
-Thanks,
-Robin.
+Thierry
+
+--i7x3s4iklpcr3dcx
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmp53LYACgkQ3SOs138+
+s6F2pA//agw5g+ad2JaahbYD22vSCRqW3CiqP6DioCJAxsagk9tg5EhZHpBTyXgx
+NeLeY+2kE3x6TL2VgqHJ4y8hoBb9s8kMQ/Y1mzKbX42KBaSncC7KOHxHC4oAYZ/Y
+GIzavTlTlWZlGrD9qC/3YmmWdG7aHRr/UXALcH8VhYqn65ABqGIkmVmAcFBkZCC6
+QAsB0WWbU1GVW7adArp/XjeywXwzYbuDjrhYMccXmfBexX5iA7dqyEBLybPiAhiw
+/dN0PzpxaKReMS62gTC8Vl7nRW9mMC5NJpnDfMXzQtz5LBxYQkgUM07SFF4Z1cpH
+ndEI0GkQyLkesWA8HJWysBbKHuO053/jjcE1+3JW61POx8TSmHPIW0Y52kE5O7h+
+639yzEAlbLtPXsq9zQz6xpstENU5reyLz+IBhH3XC+f0RawuNb2YOnP29ayByUkS
+o5Eg0kYjFGZP82xhBRlmveTPfBrTe/Un1wfJjnPMNttHrJaK7n3nlOrI6O7YAFau
+Ou3/c15vyAOs1JrqdxCnPk4GOQFfYCwiK9cogcw/k2q6tgoSTjxuZsxqmmzOTAZx
+Xj0mKBiV6RR5VCygyH+6tbdoPERl3Y8LHEP/cc642K9ldPi2Xjdqiylwt/4v7hkV
+VM2qHuSnW8bwLF8N3ee2tCKpCmsx+rjwPK2tyQgPc8ts1VvqSyI=
+=OEKA
+-----END PGP SIGNATURE-----
+
+--i7x3s4iklpcr3dcx--
