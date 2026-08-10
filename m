@@ -1,114 +1,197 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B25DD2D592C;
-	Mon, 10 Aug 2026 10:20:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8775C3B7B9D
+	for <linux-s390@vger.kernel.org>; Mon, 10 Aug 2026 10:56:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786357236; cv=none; b=FNs9ahbsJ3PIGVPhfZg7rSOriokMwEuHbasKTQda9g0k+TQhoaXzJG7BOvy5ZDlwH16Zdp/c46C0v/2KCOBi4tHtHQj7V51b3qXt7+61/VPYjzp8QbQYVGWh58QGbn4czLGr1lluj8IlWgjNg+a24MHFpDSL9lPjUL1rdpo6KnQ=
+	t=1786359368; cv=none; b=X4lFQPo3fu/jNwe8fLjnSi7WoUGeUz4Mm7SHz1JFY2+78TR1tsXgwulKyTOKiPyOFnFGJe18aQq7vaUVlwzv5sljRr1vsAj/x+ApaI5uLPn/iUSvffQAyzXQ272L5d4mLU8QFiY7Xf0GupmYQiQ7eVFOc0EC1TWaofLUCPqur5g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786357236; c=relaxed/simple;
-	bh=QDnLd2Qssm4qkXIlUrBXDBoa7JhwdI6IPm/F30rfl4w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NLJTg8XYmTAADAzVWAQTNomFGSbkwC0B+WhRWGft2otFKRfoOPRw5IBjG5IVAOfaVThNkpKoKyEebHv3wQ17w+8f3uivr9eUSRYPx32NWfEOzTFm8A454F/3vQLFUhguQeM45RajkdIwXClwogE6wwo2l0lh1TVsj9ZQD0+jkhg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SOj+T9lc; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786359368; c=relaxed/simple;
+	bh=3XJuS1zJZghLe6cvepipcunHvSHlmm6kBCnnioMmGsg=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Of+55TgA0A2Go++HhobOB69zwiYYpi75+oBpvT4VGyyDunAufLYqVrY/GRRIs8W31fUTOyCycMoh7EUu3TEi1MeulWLyqSKr/onqoEb/w8hsg/98+pqzN6JWO9GOurWeTxk1PuOxFmY048fVP1JIQWK5uvlc67F1hxVIAqpiVds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UVQYU0bE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SOj+T9lc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 169771F000E9;
-	Mon, 10 Aug 2026 10:20:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UVQYU0bE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB0E51F000E9;
+	Mon, 10 Aug 2026 10:56:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786357235;
-	bh=KO6eVlrCoGv7LRa95h7FC3E/wXet0JaIn2ciTJXwruE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=SOj+T9lcP3BfqhGI1ByG0Cv3PFMgqUXv8bHIyEGQ0Crx7WPJvpMXrDR6cnXA8haDH
-	 cYjQmWETdYROJsgxJuY0xAnMz+qcsum4zhRddj5OuQmXFYimXS65x+nSJ/ri3Pl+I1
-	 NNbWKQWfp+9tZN7Pqfs4BBq401HgnEBNwmndyyrcCDyiTbSvJXGLmyQauDbrl/5q/E
-	 wSkKYR4xrnk2AmyDzRpVJfB47dSs8n1OBShCZjXa2N+CTMRHmZEtOsPiqUVTW8WnRr
-	 dQPmOerSaod1zGxwRrnOVvRSAkC99DwkhJUjDCZDMb4jRWp+BTOJwOS++QcQwsQ0GI
-	 RC8+hOhcdNwJA==
-Date: Mon, 10 Aug 2026 11:20:26 +0100
-From: Will Deacon <will@kernel.org>
-To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>, Mostafa Saleh <smostafa@google.com>,
-	iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [PATCH] arm64: swiotlb: Keep the default size for protected
- guests
-Message-ID: <anml6lLRERm1Iv-_@willie-the-truck>
-References: <yq5acxvu2ict.fsf@kernel.org>
- <anXbJ2O4DWgPxCeg@willie-the-truck>
- <20260807135810.GA200537@ziepe.ca>
- <anX7F7dnKOtAOIIe@google.com>
- <20260807164734.GE200537@ziepe.ca>
- <anYgXSR4VAi3TpOj@google.com>
- <CGME20260807182023eucas1p1f653436207b2b00338e99ea1d8f847df@eucas1p1.samsung.com>
- <20260807182017.GH200537@ziepe.ca>
- <7d22482f-d5fd-4cf4-9d32-6a54e02f2fbb@samsung.com>
- <yq5av79iiard.fsf@kernel.org>
+	s=k20260515; t=1786359367;
+	bh=0MfB6rws/efGLwRkrofynejxh/vaHHECQvNhANUSRI0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=UVQYU0bE8/INexTPTDScRfxR+JhgRyOLeennQL33vfs8G1flFf7Cq2Q8MZ8ovr/j0
+	 8b2C0CwJxTCntGXRockSALXyStNRfaV0dg11QQOsJIxM6uGobCcj7upM2GCeP0r2n2
+	 1j1YVGZ27CzevvRWSQLnFCFErhRBlOCKnxOIbu9furDDH2WE5o7IdoDK9d02Rxph+4
+	 kLFlenGYtqx3vdJTUi3GtP8kfmi9fGKLh53vbfPUW/vG191ed7t1yh9camLODlIdos
+	 66kF+hXNaE9+uGB76w2pLJw/jIy/ORxO4qiwCe9Bc56U4rDWupIV1ldR5C2cu4T+uI
+	 esqdNSO9pA21w==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net] s390/ctcm: Prevent XID null dereference
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Aswin Karuvally" <aswin@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260809105536.541453-1-aswin@linux.ibm.com>
+References: <20260809105536.541453-1-aswin@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 10 Aug 2026 10:56:06 +0000
+Message-Id: <20260810105606.CB0E51F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yq5av79iiard.fsf@kernel.org>
 
-On Mon, Aug 10, 2026 at 02:59:42PM +0530, Aneesh Kumar K.V wrote:
-> Marek Szyprowski <m.szyprowski@samsung.com> writes:
-> 
-> > On 07.08.2026 20:20, Jason Gunthorpe wrote:
-> >> On Fri, Aug 07, 2026 at 06:13:49PM +0000, Mostafa Saleh wrote:
-> >>> But the whole thing is best effort anyway, the kernel picks
-> >>> IO_TLB_DEFAULT_SIZE which does not depend on the system topology or
-> >>> how many devices or how much DMA they do.
-> >>> SWIOTLB memory is wasted if unused so we should be careful around
-> >>> that as it would be the other way around and users would have to
-> >>> decrease it manually.
-> >> Yeah, it is why the arch code shouldn't really be sizing it directly,
-> >> it should be done in common code and, yes, we are probably going to
-> >> have to do something alot smarter to have the common code better
-> >> auto-tune this for the CC case..
-> >
-> > What about the $subject patch? I assume that it is still needed to
-> >
-> > restore the behavior that was altered by the "[PATCH v8 00/23]
-> >
-> > dma-mapping: Track shared DMA state through direct, pool and swiotlb
-> >
-> > paths?" patchset?
-> >
-> 
-> I would request that we pick this patch to fix the regression described
-> in https://lore.kernel.org/all/yq5azeyxyfol.fsf@kernel.org/.
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+s) to consider:
 
-I really don't think we need it. CCA hardware isn't exactly widespread
-and the KVM host side patches don't appear close to being merged.
+New issues:
+- [High] The XID validation logic creates an asymmetric error handling flaw=
+ where a failure on the first processed channel is silently ignored if the =
+second channel succeeds, allowing the group to incorrectly transition to th=
+e READY state.
 
-We have time to fix this properly, rather than papering over it in the
-arch code.
+Pre-existing issues:
+- [High] Calling `kfree()` on an interior pointer to a previously freed sk_=
+buff data buffer during device teardown.
+- [High] An integer underflow when calculating `group_max_buflen` from untr=
+usted network input can lead to a massively oversized buffer limit, potenti=
+ally causing an `skb_put` panic during transmission.
+- [High] Device teardown frees core structures without synchronously cancel=
+ling FSM timers, leading to a Use-After-Free.
+- [High] Group FSM state is accessed concurrently without locks, leading to=
+ data races on shared variables.
+--
 
-Please consider this a NAK from the arm64 side on this patch.
+--- Patch [1]: [PATCH net] s390/ctcm: Prevent XID null dereference ---
+commit eba778bf6c3c6c80501b99041bb51b27ad5c49b6
+Author: Aswin Karuvally <aswin@linux.ibm.com>
+Subject: s390/ctcm: Prevent XID null dereference
 
-Will
+The mpc_validate_xid() function sets grp->saved_xid2->xid2_flag2 to 0x40
+to signal XID validation error. This commit updates it to prevent a null
+dereference if the peer XID is NULL or an r/w channel pairing mismatch
+occurs. It also updates mpc_action_go_ready() to handle the uninitialized
+structure.
+
+Cc: stable@vger.kernel.org
+
+> diff --git a/drivers/s390/net/ctcm_mpc.c b/drivers/s390/net/ctcm_mpc.c
+> --- a/drivers/s390/net/ctcm_mpc.c
+> +++ b/drivers/s390/net/ctcm_mpc.c
+> @@ -826,7 +826,7 @@ static void mpc_action_go_ready(fsm_instance *fsm, in=
+t event, void *arg)
+> =20
+>  	fsm_deltimer(&grp->timer);
+
+[Severity: High]
+This is a pre-existing issue, but I am curious about the teardown sequence
+when cancelling timers here and during interface removal.
+
+fsm_deltimer() wraps timer_delete(), which doesn't wait for concurrent
+timer callbacks to finish.
+
+If a timer expires concurrently during device teardown (ctc_mpc_dealloc_ch)
+while the driver proceeds to free grp and grp->fsm, could the executing
+timer callback dereference freed memory when it calls fsm_event()?
+
+> -	if (grp->saved_xid2->xid2_flag2 =3D=3D 0x40) {
+> +	if (!grp->saved_xid2 || grp->saved_xid2->xid2_flag2 =3D=3D 0x40) {
+
+[Severity: High]
+If the first channel fails validation (e.g., mismatched direction) and sets
+priv->xid->xid2_flag2 to 0x40, grp->saved_xid2 remains NULL.
+
+If the second channel then succeeds, it initializes grp->saved_xid2 with a
+valid xid where xid2_flag2 is 0x00.=20
+
+Since this check only evaluates grp->saved_xid2->xid2_flag2, could this
+allow the state machine to falsely bypass the check and transition to the
+ready state, completely ignoring the earlier failure stored in
+priv->xid->xid2_flag2?
+
+
+[Severity: High]
+This is a pre-existing issue, but does this state machine implementation
+have data races on shared group state variables?
+
+The read and write channels are separate ccw_device instances, so their
+irq handlers use different locks. Because fsm_event() dispatches actions
+without internal synchronization:
+
+fsm_event()
+    state =3D atomic_read(&fi->state);
+    // executes action directly
+
+Can concurrent irq handlers from different channels execute read-modify-wri=
+te
+operations on shared fields (like grp->outstanding_xid2--) simultaneously,
+corrupting the state?
+
+>  		priv->xid->xid2_flag2 =3D 0x00;
+>  		if (grp->estconnfunc) {
+
+[ ... ]
+
+> @@ -1636,7 +1636,13 @@ static int mpc_validate_xid(struct mpcg_info *mpcg=
+info)
+
+[Severity: High]
+This is a pre-existing issue, but could the buffer calculation earlier in
+mpc_validate_xid() underflow?
+
+mpc_validate_xid() receives an untrusted xid2_buf_len from the network:
+
+    if (grp->group_max_buflen =3D=3D 0 || grp->group_max_buflen > xid->xid2=
+_buf_len - len)
+        grp->group_max_buflen =3D xid->xid2_buf_len - len;
+   =20
+If xid->xid2_buf_len is less than len, does the subtraction underflow to a
+huge value?
+
+Since data_space is calculated as grp->group_max_buflen - TH_HEADER_LENGTH
+in ctcmpc_chx_txdone(), and skb_put_data() relies on it, can this trigger
+an skb_over_panic when packing data into the transmit sk_buff?
+
+>  			"The XID used in the MPC protocol is not valid, "
+>  			"rc =3D %d\n", rc);
+>  		priv->xid->xid2_flag2 =3D 0x40;
+> -		grp->saved_xid2->xid2_flag2 =3D 0x40;
+> +
+> +		/* If xid is NULL (rc=3D1) or r/w channel pairing mismatch
+> +		 * (rc=3D2) happens, grp->saved_xid2 is never initialized
+> +		 * and becomes NULL
+> +		 */
+> +		if (grp->saved_xid2)
+> +			grp->saved_xid2->xid2_flag2 =3D 0x40;
+>  	}
+> =20
+>  	return rc;
+
+[Severity: High]
+This is a pre-existing issue, but I wanted to ask about the lifecycle of
+these pointers during teardown.=20
+   =20
+When the group is initialized:
+
+ctcmpc_init_mpc_group()
+    grp->xid =3D (struct xid2 *)skb_tail_pointer(grp->xid_skb);
+    ...
+    priv->xid =3D grp->xid;
+   =20
+During device teardown:
+
+ctcm_free_netdevice()
+    dev_kfree_skb(grp->xid_skb);
+    ...
+    kfree(priv->xid);
+
+Does this sequence cause a use-after-free and an invalid free by passing an
+interior pointer of the already freed sk_buff data buffer directly to
+kfree()?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260809105536.5414=
+53-1-aswin@linux.ibm.com?part=3D1
