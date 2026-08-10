@@ -1,181 +1,169 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E53B73090D4;
-	Mon, 10 Aug 2026 19:06:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2A0943F4BF;
+	Mon, 10 Aug 2026 19:23:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786388784; cv=none; b=qYBFab91mxdQ+7jIC6H1paKz9eEgrqrublTSHq/EECY/UdW0w6z3ToCOz8SgCzNfsKk3/CQdTGh9VOsTb9TLxu1y6sEjeEbSVM9A0iiNP2w2nbi5vk786NKmfwjR+zaqTaQzhjn/W9vD+wzM7elYfB8lYh/B8Zi6Gonr8OG5jwE=
+	t=1786389794; cv=none; b=FOKaiUYs4VDlrDke6MMgthEAU9FHqEcJumFfMH/r1xndxtO01erOkBxI737Ih4ItdSIGOdDRJXK780PqKi6yRx6e/mwP2TOTR3dba2iHfcrnncVtlaGQHkdrrIPE2k7rhjF5JvVMOMioe9BQ7Kifc29QXSCtySr/R3enUhQ5G78=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786388784; c=relaxed/simple;
-	bh=79pF1OLywV96kGWddh+Hs/D7G3XABIN6mYrQwzmv4yw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Ydjc7oMiGmJW2uQD7sNfIjO2fa1ASMS2krYv+B1DqX24XQExa2NgsHvszb7kmHYalZFOiKtEF6Lsy1lWyoIlwlyLPHYa6Gu8yZIHgUIOKbQcpP8T1CeaZrWySkAnrbibE3JTJjwhCg9wGUdO/eMGAPi1XCNvwr16kqJt0ztaJU8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Haejo0od; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786389794; c=relaxed/simple;
+	bh=kDSSBAYu5KEI5VJmEGyLUerVvrWJTSVUJi143tSMic4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qkint5pnHfylTLMcMNAnXIKet9QW3qBpqIHf6igORQjQ7aVavGcNb1Wmnk0jlN6P/rHsEGZUes+OHNblmv3r/rMGpuV6lRSV1+IXioNGENoMBbohtRdaBUzvAkkr3nBabOa3RwcnG9hlGuvDKNEABMP08GNonpX3HzPkhGeywcI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dYeWoV1j; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Haejo0od"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E9DF1F000E9;
-	Mon, 10 Aug 2026 19:06:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786388782;
-	bh=T+39KDLCLYqbTKSddLas4IGMqRBXMEx9Py+60cglBnU=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Haejo0od72m9pz+U1NxyJfraNukUkcmtM8Sc2+i3ddnMJnbZD2OVbEyVkdFg6SMAg
-	 +ZB8VITfiXona/RKNH/i8KmefHCYih1NL8X2F863CGHx1AxzPh6MeE1kkDeljWuJDX
-	 ZbrgAObCmTkVcxtXFeZW5H/xNYXC3KyRL7SvwCKaOeQDUIO1I3FKWfhLJpuQlG4Cbh
-	 fbF678ivXlnrAbiZV5fWqgtijDfRnDE37P/NeCw+nrVs/pIGLXaZTUx6XJnaWITkGu
-	 FEO/gLWCHiirzTf7tirRmlFnFMmHAjrBJzYQ91pNzrrxesAi36SkB92mFvQp3F5CNG
-	 XvlUAzCZTL4Kg==
-Message-ID: <bbba657a-914b-4154-8a7c-6193e41151f4@kernel.org>
-Date: Mon, 10 Aug 2026 21:06:03 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dYeWoV1j"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67AJ2GoG2513316;
+	Mon, 10 Aug 2026 19:23:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=OQsO88xfGMNd4ZjNZe6GR5mWXb3Z1j11NHYC3OCoH
+	lo=; b=dYeWoV1jR+KdwSdyacAjkJATicTEGrwftO6wXP9ldPuS7tmuv3+DbOvzc
+	ehbnYj8FWRLV6XuQSMIvgU6SDZFC56+n32ZYY2GDSyAr0DAQ/GKSiLC5+AlZdzDU
+	PFJ2NEQCLlzNfheg3kd29eG7K6AEPTK3CioLhSyijsdd8Ts+1vSeA0a+R6V5ZudI
+	07rJolAMOFGVx0Jx032qDGmkXEjyiUBGIxoa8wEbZVqDjYsR5UZrGiWo98a1fCib
+	M5NDqc4Prw0C6BCwD5m6MVmM+30eHQR+XR8ID91HfsR7nysb043HBtUuzfXOBm67
+	kXa822annAhpj6U64364p/EZHAXUw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvnw18cw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 10 Aug 2026 19:23:00 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67AJBoEL005939;
+	Mon, 10 Aug 2026 19:23:00 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxg9gx2k0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 10 Aug 2026 19:23:00 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67AJMxim25363006
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 10 Aug 2026 19:22:59 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EC20858062;
+	Mon, 10 Aug 2026 19:22:58 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EA36558057;
+	Mon, 10 Aug 2026 19:22:57 +0000 (GMT)
+Received: from li-4c4c4544-004d-4810-8043-b7c04f423534.ibm.com.com (unknown [9.61.71.153])
+	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 10 Aug 2026 19:22:57 +0000 (GMT)
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com,
+        pasic@linux.ibm.com, alex@shazbot.org, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com
+Subject: [PATCH v2 0/8] s390/vfio-ap: Fix bugs in vfio_ap device driver callback functions
+Date: Mon, 10 Aug 2026 15:22:49 -0400
+Message-ID: <20260810192257.1208410-1-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 05/10] mm/cma: Allow dynamically creating CMA areas
-To: Thierry Reding <thierry.reding@kernel.org>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Sowjanya Komatineni <skomatineni@nvidia.com>,
- Luca Ceresoli <luca.ceresoli@bootlin.com>,
- Mikko Perttunen <mperttunen@nvidia.com>, Yury Norov <yury.norov@gmail.com>,
- Rasmus Villemoes <linux@rasmusvillemoes.dk>,
- Russell King <linux@armlinux.org.uk>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Andrew Morton <akpm@linux-foundation.org>, Lorenzo Stoakes <ljs@kernel.org>,
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Marek Szyprowski <m.szyprowski@samsung.com>,
- Robin Murphy <robin.murphy@arm.com>, Sumit Semwal <sumit.semwal@linaro.org>,
- Benjamin Gaignard <benjamin.gaignard@collabora.com>,
- Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>,
- "T.J. Mercier" <tjmercier@google.com>,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu
- <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Chun Ng <chunn@nvidia.com>, Thierry Reding <thierry.reding@gmail.com>,
- devicetree@vger.kernel.org, linux-tegra@vger.kernel.org,
- linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
- linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-s390@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux.dev,
- linaro-mm-sig@lists.linaro.org, linux-trace-kernel@vger.kernel.org,
- Thierry Reding <treding@nvidia.com>
-References: <20260807-tegra-vpr-v4-0-5510d16af89e@nvidia.com>
- <20260807-tegra-vpr-v4-5-5510d16af89e@nvidia.com>
- <3b458c02-e836-4b24-a712-57fa8dd59e45@kernel.org> <annbzvLojXK33Sav@orome>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <annbzvLojXK33Sav@orome>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=RsP16imK c=1 sm=1 tr=0 ts=6a7a2514 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=RzCfie-kr_QcCd8fBx8p:22 a=XlMgntXxoZGTRFLZ7GoA:9
+X-Proofpoint-GUID: q_3PGTNblfvW02IbN4lAs69mp_svKwV_
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEwMDE2MiBTYWx0ZWRfXyI8eX13FCvnG
+ F6x03IkxSay3ORVQlGAWSZDgg4FaHCxC3snLM6K7ZJ96xep++8u0Iy6NtoHAImBMvpzuZPvGlcG
+ fxWdB/X0MR3d9eU40OPT8miPBbXkfWTfVS8g3IEHys8gOg10grqkOmooukRHz+KvOo6qk93osp5
+ HWtFjPZ4zgZxDOQA2v17TgGD86qyKX5ktkZDcdjXPSSPPMz8Ij3XnFN7key16dtp+QLyGZPBk9I
+ cVnZ7/F2BmGYg7ohzQqT1IvUvrS53YUJ9BBH94hccnOKSSylFtqzABd0V0uw0Q+Ju9yjMvdpziF
+ NgwdLs1w3zrOFGp63ekRkskot76/ZAOUVcQtHaZKyydW+EVWwlOAsIUWxgoUVMLLq+neoEuIq/d
+ xw+PXmqQU3hk9PA8rcpRWBiNhxfXi28q5cNIzyU84jVGcY/QDH8xAwRug4LSwo4RL+52RdWxof8
+ l5PEBZVX3I6tadFYH2w==
+X-Proofpoint-ORIG-GUID: q_3PGTNblfvW02IbN4lAs69mp_svKwV_
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODEwMDE2MiBTYWx0ZWRfX4tRiU0pdGo60
+ NQndDDUW985SkRwp1daWa0MsfihMr2EsgCZA6xHoWnF5UOf+QnawhF9gvbQ4+FCwcNCr22OrEDo
+ RbG0QefYFJ3wVXVnt3b3Kk/7KFKKM70=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-10_05,2026-08-10_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 impostorscore=0 suspectscore=0 clxscore=1015 malwarescore=0
+ phishscore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608100162
 
-On 8/10/26 16:14, Thierry Reding wrote:
-> On Fri, Aug 07, 2026 at 06:16:06PM +0200, David Hildenbrand (Arm) wrote:
->> On 8/7/26 17:54, Thierry Reding wrote:
->>> From: Thierry Reding <treding@nvidia.com>
->>>
->>> There is no technical reason why there should be a limited number of CMA
->>> regions, so extract some code into helpers and use them to create extra
->>> functions (cma_create() and cma_free()) that allow creating and freeing,
->>> respectively, CMA regions dynamically at runtime.
->>>
->>> The static array of CMA areas cannot be replaced by dynamically created
->>> areas because for many of them, allocation must not fail and some cases
->>> may need to initialize them before the slab allocator is even available.
->>> To account for this, keep these "early" areas in a separate list and
->>> track the dynamic areas in a separate list.
->>>
->>> Signed-off-by: Thierry Reding <treding@nvidia.com>
->>> ---
->>
->> Sorry that I didn't get to reply earlier to
->>
->> 	https://lore.kernel.org/all/anS0nxAwCXGWZRl9@orome/
->>
->> But I am still not convinced why we shouldn't just have a single array that
->> grows dynamically.
->>
->> "
->> After replying to T.J. I think this static array is actually a nice
->> feature in a way. It allows us to more easily make a distinction between
->> the regular CMA regions created from reserved-memory regions that
->> represent classic carveouts, and the more versatile CMA areas that could
->> be used for any purpose.
->>
->> Telling the two types apart could obviously also be solved using some
->> kind of flag stored with the CMA area, but at this point I don't really
->> see a reason why the two lists would need to be unified.
->> "
->>
->> Really, cma_for_each_early_area() + cma_for_each_area() is just nasty.
->>
->> I'd strongly vote to unify unless there is a very good reason to do it
->> separately.
-> 
-> Marek had an interesting suggestion to extend CMA with fixed address or
-> range allocations, in which case we would only need a single CMA area.
-> If that works and is acceptable, there's not much need any longer for
-> cma_create()/cma_free().
+Patches 2/5 and 5/5 in this series were previously posted as individual
+fixes upstream. During review of those patches, the reviewer identified
+several pre-existing problems in the same code paths that are addressed
+by the remaining three patches. All five patches are fixes for
+pre-existing bugs and are tagged for stable.
 
-That would be even better :) I didn't fully grasp what he meant, but feel free
-to send a prototype of the CMA changes over!
+Patches 1/5, 3/5 and 4/5 fix bugs in the call trees of the two
+callback functions implemented by the vfio_ap device
+driver -- vfio_ap_on_cfg_changed and vfio_ap_on_scan_complete:
+
+* Patch 1/5 fixes a stale do_remove flag in vfio_ap_mdev_cfg_remove
+  that causes spurious hot-unplug operations on mdevs that have no
+  assigned adapters, domains or control domains in common with those
+  removed from the host AP configuration.
+
+* Patch 3/5 fixes the use of the wrong lock to protect the addition of
+  a newly created ap_matrix_mdev object to the mdev_list in the
+  vfio_ap_mdev_probe function.
+
+* Patch 4/5 fixes the missing mdevs_lock while updating the apm_add,
+  aqm_add and adm_add fields of an ap_matrix_mdev object in
+  vfio_ap_mdev_cfg_add.
+
+Patches 6-8 fix additional pre-existing bugs and were added as 
+responses to reviews of v1 of this patch series. The change log below
+identifies the patch reviewed and the resulting change:
+
+Change log v1 => v2:
+~~~~~~~~~~~~~~~~~~~
+Patch 2/5: Fix dereference matrix_mdev->kvm without checking for NULL
+* Added new patch to fix the potential use of an uninitialized apm_filtered
+  object passed to rest_queues_for_apids called from the 
+  vfio_ap_mdev_hot_plug_cfg function. This is a pre-existing condition
+  discovered during patch review of 2/5 for v1 of the series.
+
+Patch 3/5: Fix use of wrong lock in mdev probe function
+* Added new patch to guard the traversal of the matrix_dev->mdev_list in
+  the vfio_ap_mdev_for_queue function called from the status_show funciton.
+  This is a pre-existing condition discovered during review of patch 3/5
+  for v1 of the series.
+
+Patch 5/5: Fix control domain removal in vfio_ap_mdev_cfg_remove
+* Added new patch to fix skipping of hot-unplug in 
+  vfio_ap_mdev_hot_unplug_cfg function when the last adpater or domain is
+  removed from the host's AP configuration. This is a pre-existing 
+  condition discovered during review of patch 5/5 for v1 of the series.
+
+
+
+Anthony Krowiak (8):
+  s390/vfio-ap: Fix stale do_remove flag across iterations in
+    vfio_ap_mdev_cfg_remove
+  s390/vfio-ap: Fix dereference matrix_mdev->kvm without checking for
+    NULL
+  s390/vfio-ap: Fix use of wrong lock in mdev probe function
+  s390/vfio-ap: Fix required lock not held during update of
+    ap_matrix_mdev object
+  s390/vfio-ap: Fix control domain removal in vfio_ap_mdev_cfg_remove
+  s390/vfio-ap: fix potential use of uninitialized apm_filtered bitmap
+  s390/vfio-ap: Fix required lock not held during display of sysfs
+    status attribute
+  s390/vfio-ap: Fix hot-unplug skipped when last AP adapter or domain
+    removed
+
+ drivers/s390/crypto/vfio_ap_ops.c | 93 +++++++++++++++++++++----------
+ 1 file changed, 63 insertions(+), 30 deletions(-)
 
 -- 
-Cheers,
+2.53.0
 
-David
