@@ -1,60 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1583737F010;
-	Tue, 11 Aug 2026 18:44:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AA4D386426;
+	Tue, 11 Aug 2026 18:44:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786473845; cv=none; b=MwMQd3yVF8fLsyj6FnEgaVSxpkRgXm70JLoyNc2c4Ll/EocAgF2ipcwFEPcV9YGajBsdFcLVPstbAGe2bRs68O5sQqIJQxT7b/jxoTtt2s3kHRdvbDTWwNlfV0mnOWpkRvA+8T4dO7u5p2hs3y3Za00XbmHOjNsrVQcyHaUw2Cs=
+	t=1786473847; cv=none; b=VyzVwxPIKWwg444cJyTOVwR9SY+oyXlYY/KnSIPIyNp17+K8pnRp+vorQ2xh+2/JsxmSX5GNR3w+8J9T67SVbzIkvgDksZBdiXrcV2PhAP8RUP6MCBf+l8samDJqvgfAqF62CThV08V4mOWOShqpX3eeNqS1OzqUx73egr2PfYo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786473845; c=relaxed/simple;
-	bh=t7LQz+NXpuUjMAQMy9r/sy8XRbnOC4NPbwuc6164idc=;
+	s=arc-20240116; t=1786473847; c=relaxed/simple;
+	bh=xlG82s+h5sv8Q6fffeyd70M3/aMVHeaKQn0QXEpnzRo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=mNjbZT3XssdOAVQqWPry1dovCo8sY+rdB8JzBlKLNAXjpC+aezvkoSeuAKiWnvEJWwwz7owWChG9gUdQxpOkcDX60eNj7l/CT3+Oici6qVYRalweZPOaq+f5CTHQmuxGYyST7+CB3bHcTFcumeIQ5m3GYVKc1dfzVWr1ygWHpqo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=O7fMMoLZ; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=i9Gvhy/wdzPX8fa/QOMczRxVVmTkz87lRxDBmERQTBlzLlWPPVKOu/zxEvzTfTcMyN+k7FvyyOIMxfDSicWrBhZfOjoqg7XkK0bhzXZf+S3B/2sYw23U61wL7OoCJvyoKSY22EzxEmU2qVusI+M/dX+n+jksQnT403v6mVnyaec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=g71Gonn/; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="O7fMMoLZ"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67BGVTta889197;
-	Tue, 11 Aug 2026 18:43:36 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="g71Gonn/"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67BGVZCN3260704;
+	Tue, 11 Aug 2026 18:42:58 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=t7LQz+
-	NXpuUjMAQMy9r/sy8XRbnOC4NPbwuc6164idc=; b=O7fMMoLZ0ZYl/oGbsLUI7t
-	D+6Bn0e8PXravfrIwKlqRfw8R3GupUtVqMtFSRH8schSvfFvU0VUkRu6Y33QhU5n
-	cE0cR5wWYt6B0GDyTRdo7deTQYDX2VfZCsNHgagk+XTyBK24g8SQDJV4mzGDuDtd
-	gqPI+Hb/KRIa2SaVLFGDOToNirw06nbi64JrVR3qUWTz1j3yube0d73CypPp0Rt/
-	GJsShhDVTdXtS/fKvYonSsxmyCZaEXgI4L/U1UMFYnCfpQh4Uhqpx0cWs5ly5UhD
-	JQc979sZSMmTYZYg/ZXsju5LfiKGskogycbeSp2MJ3tSTd0ZX4ZII5G7bFn3D1ag
+	:message-id:mime-version:references:subject:to; s=pp1; bh=5MO44F
+	4Zv0eyMYW2iYWod+3Xppi+HLTR/i6mChX/HCc=; b=g71Gonn/Iz7449tUBFWXmS
+	EAFNvNlO+NX1GDPG+4H3SETLnRU5QrdfaJjzzF9xmDtR/94hh1O3EFPQNASFZvkH
+	xHiD2/9ncGJaXUdlSJgEijT8tBTapT2Qh5Ikn42lYXgLeav2hQu1cavYL8z8Xs/2
+	A91DoAlKMLt+QiuXH80FxIARj1uJ8/TkhkVypsjQuwckrD+RRo6xnio++p+w/nAY
+	r4aqQVwn3cchbXNeG7L+S9VoQq1tEynhHSf2S3Yuhcjovg7gSSSvAlDaClN9z+5b
+	WBF0QF7mEjFQbawRgL3g7TK1EDRcXDj2ftkhs2AFZFhzLzgKcsZfhQMttwqfRFVw
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvq9egjc-1
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvjyxgpa-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 18:43:35 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67BIfGCe024444;
-	Tue, 11 Aug 2026 18:43:34 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxf5w2cyy-1
+	Tue, 11 Aug 2026 18:42:58 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67BIfIDY011798;
+	Tue, 11 Aug 2026 18:42:57 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxh0ga54d-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 18:43:34 +0000 (GMT)
+	Tue, 11 Aug 2026 18:42:57 +0000 (GMT)
 Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67BIhXda47055160
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67BIgtWL29426278
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Aug 2026 18:43:33 GMT
+	Tue, 11 Aug 2026 18:42:56 GMT
 Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 296C358052;
-	Tue, 11 Aug 2026 18:43:33 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id B24525805D;
+	Tue, 11 Aug 2026 18:42:55 +0000 (GMT)
 Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2567558056;
-	Tue, 11 Aug 2026 18:43:32 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id A9F2558052;
+	Tue, 11 Aug 2026 18:42:54 +0000 (GMT)
 Received: from [9.61.58.252] (unknown [9.61.58.252])
 	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Aug 2026 18:43:32 +0000 (GMT)
-Message-ID: <6bdacd0c-572e-405a-a378-663f13edc154@linux.ibm.com>
-Date: Tue, 11 Aug 2026 14:43:31 -0400
+	Tue, 11 Aug 2026 18:42:54 +0000 (GMT)
+Message-ID: <00b0ea7d-bdeb-42d3-aad1-a8a827f2deb1@linux.ibm.com>
+Date: Tue, 11 Aug 2026 14:42:54 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,8 +62,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 7/8] s390/vfio-ap: Fix required lock not held during
- display of sysfs status attribute
+Subject: Re: [PATCH v2 3/8] s390/vfio-ap: Fix use of wrong lock in mdev probe
+ function
 To: Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, pasic@linux.ibm.com,
@@ -72,66 +72,87 @@ Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, pasic@linux.ibm.com,
         agordeev@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
         stable@vger.kernel.org
 References: <20260810192257.1208410-1-akrowiak@linux.ibm.com>
- <20260810192257.1208410-8-akrowiak@linux.ibm.com>
- <5d755e25-be9d-4227-b06c-63563fcce0b5@linux.ibm.com>
+ <20260810192257.1208410-4-akrowiak@linux.ibm.com>
+ <4ca672ce-da47-497c-aed1-9500b7e89798@linux.ibm.com>
 Content-Language: en-US
 From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <5d755e25-be9d-4227-b06c-63563fcce0b5@linux.ibm.com>
+In-Reply-To: <4ca672ce-da47-497c-aed1-9500b7e89798@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 5dK9bfIx5FEzaNtlF8kZDiQd0Gm7QmEw
-X-Authority-Analysis: v=2.4 cv=PbDPQChd c=1 sm=1 tr=0 ts=6a7b6d58 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODExMDE1NSBTYWx0ZWRfX9VU4Eokx9buj
+ aKLNy1s7YP3w54ruBV73u3ndZlr5A7ItZotsQE1gxFxE9VziosSY3gAURXPyYdZl1wRzMtgnwqq
+ W3b5bCw5pL5qFQk/L25g7hfV53u4pRjdJh7QJfE+bsskjMnz3LigGaTcb1MdpLSpS9caY8sDqKT
+ c9UeHs57XwZls49WvLjKGQfIVt8uxvqjvgr9t94sS+Ft4zk8tVOi59bVI2lFl1swlTtEui1MviX
+ 2wfb+4MSi3R+jhAiCB7MiN/84o+nVW6eoFlALzT37ojjTHZyJ4andRhZ9/EAGHC1N1e2YcRTSv1
+ g0jmQXsCu1NJSXJRtN1LTeEGZH9fUdM4zAi+NWUmZidOJXq+Nr0o4jcJD7Bmr0iIoEJLOwXRIwI
+ mAdfWnsDzyQEbb0SFoksX+P6nP6AodlV55mTJ0V26VLW4bxfdxZifNHArvkL+LTjtNuWhpD5DP/
+ BffFBV+onasV7UyyB8Q==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODExMDE1NSBTYWx0ZWRfX4umAFPZHvgsx
+ Ww4ho4jM/wqRiWq5TCKGQUp39hxiBE0bJCcoiADYvxbjJ49hRHHXwCe/1Xd8dCMzBGovO/9BKYn
+ 5vhJRTzddPjXnmGAa9fIxOr5R8Z7Is0=
+X-Authority-Analysis: v=2.4 cv=RqD16imK c=1 sm=1 tr=0 ts=6a7b6d32 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=8gt7DvUvnbPXcpqzDXYA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODExMDE1NSBTYWx0ZWRfX+oYbvsoOjRea
- bPFtkg+13P3p3siufY6vRQTC2MWuBsYaXMXHYKKk5zl5F50DSL6bt0ok6kUI3fJZCCr2Jh+2xQK
- p/ycct9mnBwSFqXZ8HP6iaZe8vyok06chIq37pzOkTWJnKZCGxxsL1mXt3hHoChG56d6k/RJdsM
- 8xPiDhRfmw1fGwb+xtiKxZR/UjaCfx48MtDXZQTdY3AcyoFWfwR6zUlrKl4dGU7UJ6m/4S7ABfj
- hSU1T0qXl42ItDhtWFe1pfvo1vG7PZjJUFjPvr9H240FlI2b33jzw965HKcinP5Ip3VY1z0qJ9R
- MFOIkhL6sx3JU0GlGrhSnFkn4/X8LNRazJnVxl2ou9h0nw821Mw859Ecp0b6X8OazfMriHiveSM
- BlAP3YfsK81XqMOnWEq2mcVncR5etzWIt2YfDaheqcTfyJ/0n9r/J5MKySvgZWpTLcPtsvp5pFd
- 9iX9NGy+XS9XMcD30LQ==
-X-Proofpoint-ORIG-GUID: 5dK9bfIx5FEzaNtlF8kZDiQd0Gm7QmEw
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODExMDE1NSBTYWx0ZWRfXzgScLTJlGGLO
- ftHAlQ8OfQoj1cTfpFllx3yJWaZFp+azpBIyovFpAHd0A5KWYEDLmbN7bUYQhLKuIRNhByc7gqx
- MCaHRwIbDFcKqEfKVmy4ZMpL04g84R0=
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=jtReu2WqipzCHsYDBJAA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: MwzcveZLEw94U2_lvS6XG9FBCsjg6xpf
+X-Proofpoint-ORIG-GUID: MwzcveZLEw94U2_lvS6XG9FBCsjg6xpf
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-11_04,2026-08-10_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 bulkscore=0 impostorscore=0 malwarescore=0 adultscore=0
- clxscore=1015 priorityscore=1501 suspectscore=0 phishscore=0
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ phishscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
+ clxscore=1015 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
  definitions=main-2608110155
 
 
 
-On 8/11/26 2:03 PM, Matthew Rosato wrote:
+On 8/11/26 11:58 AM, Matthew Rosato wrote:
 > On 8/10/26 3:22 PM, Anthony Krowiak wrote:
->> The status_show function that supports display of the status attribute of
->> the devices in /sys/bus/ap/devices calls the vfio_ap_mdev_for_queue
->> function which iterates the matrix_dev->mdev_list to find the object
->> representing the queue device whose status is to be displayed. In order to
->> traverse this list, the matrix_dev->guests_lock mutex must be held which is
->> not the case.
+>> The vfio_ap_mdev_probe function uses the matrix_dev->mdevs_lock
+>> mutex to guard the add of a newly created ap_matrix_mdev object to the
+>> matrix_dev->mdev_list. This mutex does not protect against traversal
+>> of the list; its purpose is to guard against concurrent access to fields
+>> contained in an ap_matrix_mdev object. This could lead to kernel memory
+>> corruption or use-after-free if another mdev is created concurrently.
 >>
->> To fix this, the guests_lock mutex is taken prior to taking the
->> matrix_dev->mdevs_lock mutex in the status_show function. It is taken
->> there rather than the vfio_ap_mdev_for_queue function - where it is
->> needed - because it must be taken prior to the mdevs_lock mutex in order to
->> adhere to the proper locking order and prevent a lockdep splat; also
->> because the mdevs_lock is needed there to access fields within
->> the matrix_mdev object in that function.
+>> The adding of an ap_matrix_mdev object to matrix_dev->mdev_list
+>> is now guarded by the matrix_dev->guests_lock which is the correct
+>> way to protect against concurrent mdev_list access.
 >>
->> Fixes: f139862b92cf ("s390/vfio-ap: add status attribute to AP queue device's sysfs dir")
+>> See the vfio-ap-locking.rst in the linux kernel tree.
+>>
+>> Fixes: 2c1ee8983aa3 ("s390/vfio-ap: prepare for dynamic update of guest's APCB on queue probe/remove")
 >> Cc: stable@vger.kernel.org
 >> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
-> Please see my comment on patch 3.
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c | 4 ++--
+>>   1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>> index e382e5a1cb99..a472de00bc14 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -803,9 +803,9 @@ static int vfio_ap_mdev_probe(struct mdev_device *mdev)
+>>   	matrix_mdev->req_trigger = NULL;
+>>   	matrix_mdev->cfg_chg_trigger = NULL;
+>>   	dev_set_drvdata(&mdev->dev, matrix_mdev);
+>> -	mutex_lock(&matrix_dev->mdevs_lock);
+>> +	mutex_lock(&matrix_dev->guests_lock);
+> Sashiko reports that this patch introduces a regression, which seems valid.
+>
+> AFAICT you resolve this regression with patch 7 of this series.
+>
+> For the sake of bisect, can you look at whether squashing these 2
+> patches together would work so that we don't have an interim regression?
 
-See my response to your comment on patch 3:)
+The reason for the two different patches is because the shah on the 
+Fixes: tag
+differ.
 
+>
+>
 
