@@ -1,62 +1,61 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F34F543E074;
-	Tue, 11 Aug 2026 13:36:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F365438236F;
+	Tue, 11 Aug 2026 13:36:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786455429; cv=none; b=qWM+fExqnNdcj5hS2D+3smgT6Y9NtY4JoxmC02gH2PzfswqVzCAaG3l4KN/CwhpW45gVGY+Y/Onj6eoIpkczULyHq06hPZHOZ2t04GUxrh6nEovNcFWSiSyjOddWBmZiRPPiLGL+lRK7M0R/YuWxoGMIhBoCWHmaDwlbe25/3ls=
+	t=1786455429; cv=none; b=goLWhV6kJcbqMRDCfCmp18hBto9uHDiZQoeVB50CmfE2niI28W+MXx+PMpQj/YRAt+SzZWWx80cZomvJPV1yQN5DNpQSyUPXH1JeXlxNOoU+k2acKIVIL6P+Bu/kG5eWnrp/KO4qGQQTwE+Sxjv7AUyOcUg6yUnhy/aLXmjQ37c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1786455429; c=relaxed/simple;
-	bh=O7SL02TT8NHppOgjP8Vqtbxt9/IOiKhI7TMJciscvls=;
+	bh=jXOLWB5f1cgQW/6GwGN0QmN+rI/oxMzIx5r/y309RWU=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=et8ggUPjk5yPn5vTvoJI+cyhPqvACNyw8Iuc/wCU880sD49wVljuZK4zlyRV9ScDfzOUiJAeITWUPfPkiz+tf65AaTrGYe245IHTTb4r65OnNDk7Lq27uODBbuDBBB9BmgRvAVT4YiG+Jtm9aE0T/T6lVBSYE/jowLfUov9P7UI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XRj1xomE; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:To:Cc; b=OOs+RKtX7pTgX5hc+DMyR2vtlXGkQdqYuPNkGeq0eB5wEbQp/71UA1pXvhEXuO9WmLY8L8OpuJwjJMd+Efq4Ptcyj7FnXX72ww3cr2AAA7yR5XJ+qitJ41fo9A9IqtWBLg3Iaps/1TnPgVbsBrlOnS0ShUxuArQ31X02xFxeJ8o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=au+HAu6a; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XRj1xomE"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67BDX5HK3634496;
-	Tue, 11 Aug 2026 13:36:34 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="au+HAu6a"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67BDWPSc537265;
+	Tue, 11 Aug 2026 13:36:38 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=XERgtJ
-	aujzI76yTWAGyFdJElEeoffQDG8xdh8pspT7M=; b=XRj1xomEmZRfxmZFF9PFY5
-	zzHYKURsEwiWydFf5aCfczmtFj50l+/Jm0ZEn5DtdMEfvWqX2WYO4EHhQ4/VJYsn
-	1l0YPbr4VHYDdwR2C8RQtiZTgCx3tCAhyvzuw1ooAY5UlNsWxw6H9ocNF03FsM9A
-	uczdAK+vr/WfGQrmoxvfUEf8Ofs1m3acTugyA5HOaioWliXa7eyan7lv1egFdfjh
-	iqMjVmL0jt4epQBmp4XAUWbRddQ9bclLscuXu2lSdbj5i6ysIs2AX8jR0de/nJHY
-	3A5KdzWV8wX87mr2gyJvr9JsB3dlp10kLJCXVSwuJfZAGr146t1Zk6kRcCNIMVXg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=QcqoVL
+	YvbxWno3e25HVTF28WDDDWnr1DPJ2iDy6GeVs=; b=au+HAu6aSxftyH2V/lKQk2
+	tYvjcbyY4SH3sNwXrtK71sKDx+/ey4Cl20nrtmfFMXkQc123Z6LlFy1KTqQOAT4+
+	FltXTYAUt6pwIRKnyPbiNLBS3O4ltIleF8/Yf26dE+YKARE+n/K0NtweR1pBBSsm
+	PpiQRbiu9nv9F/REzwrMl8MSYO+rRfNyKSlhTaQZDUYtfFv0sFW+6tvqJ1mGKrw+
+	M/3sfBVmj8TeuOok6CTEVCH/whpA7bj4UuXcx6cpoDswxr+0Go4J1mJok1dIC582
+	mYvkORtLpkgxrRYG8W3E86s6CO9o1effCGeDxnR/nGtbBSwMqhpbSYEaONQDWxjQ
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fyb23nuq9-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvm9n5ma-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 13:36:34 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67BDQEIh008250;
-	Tue, 11 Aug 2026 13:36:33 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxesq185f-1
+	Tue, 11 Aug 2026 13:36:38 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67BDQHXH025916;
+	Tue, 11 Aug 2026 13:36:37 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxf5w16uj-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 13:36:33 +0000 (GMT)
+	Tue, 11 Aug 2026 13:36:37 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67BDaTpa28115272
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67BDaXi838142446
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Aug 2026 13:36:29 GMT
+	Tue, 11 Aug 2026 13:36:33 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B5DCF2004E;
-	Tue, 11 Aug 2026 13:36:29 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2F95B20043;
+	Tue, 11 Aug 2026 13:36:33 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1D35E2004D;
-	Tue, 11 Aug 2026 13:36:29 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8B7AD2004B;
+	Tue, 11 Aug 2026 13:36:32 +0000 (GMT)
 Received: from [192.168.88.251] (unknown [9.111.69.228])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Aug 2026 13:36:29 +0000 (GMT)
+	Tue, 11 Aug 2026 13:36:32 +0000 (GMT)
 From: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Date: Tue, 11 Aug 2026 15:36:17 +0200
-Subject: [PATCH v3 02/20] KVM: s390: vsie: Move SCAO validation into a
- function
+Date: Tue, 11 Aug 2026 15:36:22 +0200
+Subject: [PATCH v3 07/20] KVM: s390: vsie: Move release/acquire gmap shadow
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -65,7 +64,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260811-vsie-sigpi-v3-2-45aa1ab07c7c@linux.ibm.com>
+Message-Id: <20260811-vsie-sigpi-v3-7-45aa1ab07c7c@linux.ibm.com>
 References: <20260811-vsie-sigpi-v3-0-45aa1ab07c7c@linux.ibm.com>
 In-Reply-To: <20260811-vsie-sigpi-v3-0-45aa1ab07c7c@linux.ibm.com>
 To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
@@ -79,122 +78,199 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Christoph Schlameuss <schlameuss@linux.ibm.com>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2730;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4834;
  i=schlameuss@linux.ibm.com; h=from:subject:message-id;
- bh=O7SL02TT8NHppOgjP8Vqtbxt9/IOiKhI7TMJciscvls=;
- b=owGbwMvMwCUmoqVx+bqN+mXG02pJDFnVqpEGOV523jq8GqsOiLJEL96VoBbNcnlLvMzNxectL
- 2QERFR0lLIwiHExyIopslSLW+dV9bUunXPQ8hrMHFYmkCEMXJwCMJEF/YwM7aJ5Ux9euvL471Qn
- 76XHojvuihXZ8n31/dy/QUbJad9DFoa/gtVPLt/9sZ1zuVnPCnX1O7y2057uT74tIfqs+vC7rk9
- RnAA=
+ bh=jXOLWB5f1cgQW/6GwGN0QmN+rI/oxMzIx5r/y309RWU=;
+ b=owGbwMvMwCUmoqVx+bqN+mXG02pJDFnVqlGn7Vrs0r4U//7EHzXl1NG751iqbhV6vPCfFlD37
+ F7BRZNFHaUsDGJcDLJiiizV4tZ5VX2tS+cctLwGM4eVCWQIAxenAEyk5RnDT8Y1j2PVD9t/1vGM
+ q//DfkK4NXq6uURww+9GG97uY0+jbjP8j54qI9TePOusf8xRzlN2HCttRa9xsDa4Ll+qERRU/Di
+ JAQA=
 X-Developer-Key: i=schlameuss@linux.ibm.com; a=openpgp;
  fpr=0E34A68642574B2253AF4D31EEED6AB388551EC3
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=XqfK/1F9 c=1 sm=1 tr=0 ts=6a7b2562 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODExMDExMyBTYWx0ZWRfX+/xbOyAbmghm
+ KGC7nNdeLyLiT8chsLt/rGw9ZU+HMSerLMpFRC9m5WS6Fd1E/GSXULUxvfOqNqvFKwCoqzvfVkN
+ RBFYW1jwPm17lEvV7nPZsDXC8nP3nFRzUhJHajpOmvf8/I6lHdfhx2saw+GDuy3k5cYNmot28cJ
+ kLHVbJeDlCWykjRUhz8fR6ARl52is/txjg0BfXnCTazYEsPldCxThobwwTJXrdt4HveIy49RJA2
+ iq4NIYP4Kqc97RT7BMomWaPDOSkFXhyFCr936lzpydH/SCJ8g7EZXio0U8ssIX+1VVB6fpSphjn
+ M9ZBnWWOAW3ByXtA1TYwOpbPJceERfvns/yAz6TcrPkKc3Yc8M9kbbLl6sngaj6yGEghUXR93lG
+ hQxZuMDC3F69aU/9Fbcqp6m8OV6LAWPi3A90YLNQbOR9m+3couWKoiFDhOfDLdoM69bbhxYPczf
+ Ubjlny/yA/R0bNhjd0g==
+X-Proofpoint-ORIG-GUID: _k1lfQq7_Yw6cQHm_N9w3c62dRXCad_P
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODExMDExMyBTYWx0ZWRfXxqh0mZr/XI00
+ pjv0jiFd6LcWm0+UeFA9XbcdNHbNZa1ONp0trUM3125hnwh62P4QzDuHOyZa1xDx5QErfk4Q+jO
+ zzqetT0R4N9uiecFzM4R75QZ1XpM4Yo=
+X-Authority-Analysis: v=2.4 cv=IfK3n2qa c=1 sm=1 tr=0 ts=6a7b2566 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=e9sD66FpFztUsjZjJoEA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODExMDExMyBTYWx0ZWRfXweq//oj3DdQE
- +uiSM+4X8UcwWquXFOV8vkatsgXLOtAFSrBcAzpuWpnz3+KcdJP/hUoI8cxKB7FFTc37NyUBAmM
- LiEcZIKQhhjEj4FvQtpIqNFc89ARrt9wQz8Loq9IPkEi2ZrROC/g/2HeM6zPl/fyeCMUChxskBn
- uLCKlFH1o0U//8QYpHNSTeRy3n1tbG4OHXK0PMvqLbHqqjrpFKNA829EsQVF8pGph/aTClhCBx3
- 28rKpNGJufVhxzoEL75rOuFl4BnfWpCedsxbxrboQUCgaNe8X9HLm2dl9dpkWAwcvQjY7BQSV0A
- OdwuiC2reyWzc/q/4Ct0c9AEyw4UOZzH8MU/8Q/0N80BIk0zvs24Pl2eRDoL7h5Qzr5waOUpCbT
- r8DGlqxe9m+Sh55K4qx+58WJILRK2QVYoV+/xSAjhS+52ghlCcKyVwZPzkYr52zQBKavHsHIYHO
- lfnvsEGIvPCbVzzha4A==
-X-Proofpoint-ORIG-GUID: hiEhF6vxP9F4b_rbgbajGygklXGWcho4
-X-Proofpoint-GUID: hiEhF6vxP9F4b_rbgbajGygklXGWcho4
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODExMDExMyBTYWx0ZWRfX5z18gw9YrdEF
- UonJKDyhiyDYsosiCP9Fy+iQKW5/GC3fZ094/qJYWGPFoTWYw0ELu59Wu17GL8ZuAH8u6ab4E7w
- BADNkiGsXKzUcekzHnCN6AZh1pCvTJU=
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=_7pECfS6dbZ_FIWTgVQA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: _k1lfQq7_Yw6cQHm_N9w3c62dRXCad_P
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-11_03,2026-08-10_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 spamscore=0 adultscore=0 malwarescore=0 clxscore=1015
- suspectscore=0 priorityscore=1501 impostorscore=0 phishscore=0 bulkscore=0
+ phishscore=0 priorityscore=1501 impostorscore=0 bulkscore=0 clxscore=1015
+ lowpriorityscore=0 adultscore=0 malwarescore=0 spamscore=0 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608110113
 
-Improve readability as well as allow re-use in coming patches.
-
-In particular add the logic to be able to check the validity of BSCA and
-ESCA origin addresses.
+Move {release,acquire}_gmap_shadow() up in preparation for the next patch.
+No change intended.
 
 Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 ---
- arch/s390/kvm/vsie.c | 42 ++++++++++++++++++++++++++++++------------
- 1 file changed, 30 insertions(+), 12 deletions(-)
+ arch/s390/kvm/vsie.c | 130 +++++++++++++++++++++++++--------------------------
+ 1 file changed, 65 insertions(+), 65 deletions(-)
 
 diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 010327a6ebee..6aa44362033c 100644
+index 0e32d1543ae2..86e1c605f4ce 100644
 --- a/arch/s390/kvm/vsie.c
 +++ b/arch/s390/kvm/vsie.c
-@@ -71,6 +71,11 @@ static_assert(sizeof(struct vsie_page) == PAGE_SIZE);
- static_assert(offsetof(struct vsie_page, mcck_info) == offsetof(struct sie_page, mcck_info));
- static_assert(IS_ALIGNED(offsetof(struct vsie_page, crycb), 8));
- 
-+static inline bool sie_uses_esca(struct kvm_s390_sie_block *scb)
-+{
-+	return (scb->ecb2 & ECB2_ESCA);
-+}
-+
- static unsigned long read_scao(struct kvm *kvm, struct kvm_s390_sie_block *scb)
- {
- 	unsigned long vsie_sca = READ_ONCE(scb->scaol) & ~0xfUL;
-@@ -97,6 +102,25 @@ static int set_validity_icpt(struct kvm_s390_sie_block *scb,
- 	return 1;
+@@ -149,6 +149,71 @@ static int prefix_is_mapped(struct vsie_page *vsie_page)
+ 	return !(atomic_read(&vsie_page->scb_s.prog20) & PROG_REQUEST);
  }
  
-+/* The sca header must not cross pages etc. */
-+static int validate_scao(struct kvm_vcpu *vcpu, struct kvm_s390_sie_block *scb, gpa_t gpa)
++static void release_gmap_shadow(struct vsie_page *vsie_page)
 +{
-+	int offset;
++	struct gmap *gmap = vsie_page->gmap_cache.gmap;
 +
-+	if (gpa < 2 * PAGE_SIZE)
-+		return set_validity_icpt(scb, 0x0038U);
-+	if ((gpa & ~0x1fffUL) == kvm_s390_get_prefix(vcpu))
-+		return set_validity_icpt(scb, 0x0011U);
++	lockdep_assert_held(&gmap->kvm->arch.gmap->children_lock);
 +
-+	if (sie_uses_esca(scb))
-+		offset = offsetof(struct esca_block, cpu[0]) - 1;
-+	else
-+		offset = offsetof(struct bsca_block, cpu[0]) - 1;
-+	if ((gpa & PAGE_MASK) != ((gpa + offset) & PAGE_MASK))
-+		return set_validity_icpt(scb, 0x003bU);
-+	return 0;
++	list_del(&vsie_page->gmap_cache.list);
++	vsie_page->gmap_cache.gmap = NULL;
++	prefix_unmapped(vsie_page);
++
++	if (list_empty(&gmap->scb_users)) {
++		gmap_remove_child(gmap);
++		gmap_put(gmap);
++	}
 +}
 +
- /* mark the prefix as unmapped, this will block the VSIE */
- static void prefix_unmapped(struct vsie_page *vsie_page)
- {
-@@ -787,20 +811,14 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 
- 	gpa = read_scao(vcpu->kvm, scb_o);
- 	if (gpa) {
--		if (gpa < 2 * PAGE_SIZE)
--			rc = set_validity_icpt(scb_s, 0x0038U);
--		else if ((gpa & ~0x1fffUL) == kvm_s390_get_prefix(vcpu))
--			rc = set_validity_icpt(scb_s, 0x0011U);
--		else if ((gpa & PAGE_MASK) !=
--			 ((gpa + offsetof(struct bsca_block, cpu[0]) - 1) & PAGE_MASK))
--			rc = set_validity_icpt(scb_s, 0x003bU);
--		if (!rc) {
--			rc = pin_guest_page(vcpu->kvm, gpa, &hpa);
--			if (rc)
--				rc = set_validity_icpt(scb_s, 0x0034U);
--		}
-+		rc = validate_scao(vcpu, scb_s, gpa);
- 		if (rc)
- 			goto unpin;
-+		rc = pin_guest_page(vcpu->kvm, gpa, &hpa);
-+		if (rc) {
-+			rc = set_validity_icpt(scb_s, 0x0034U);
-+			goto unpin;
++static struct gmap *acquire_gmap_shadow(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
++{
++	union ctlreg0 cr0;
++	struct gmap *gmap;
++	union asce asce;
++	int edat;
++
++	asce.val = vcpu->arch.sie_block->gcr[1];
++	cr0.val = vcpu->arch.sie_block->gcr[0];
++	edat = cr0.edat && test_kvm_facility(vcpu->kvm, 8);
++	edat += edat && test_kvm_facility(vcpu->kvm, 78);
++
++	scoped_guard(spinlock, &vcpu->kvm->arch.gmap->children_lock) {
++		gmap = vsie_page->gmap_cache.gmap;
++		if (gmap) {
++			/*
++			 * ASCE or EDAT could have changed since last icpt, or the gmap
++			 * we're holding has been unshadowed. If the gmap is still valid,
++			 * we can safely reuse it.
++			 */
++			if (gmap_is_shadow_valid(gmap, asce, edat)) {
++				vcpu->kvm->stat.gmap_shadow_reuse++;
++				gmap_get(gmap);
++				return gmap;
++			}
++			/* release the old shadow and mark the prefix as unmapped */
++			release_gmap_shadow(vsie_page);
 +		}
- 		vsie_page->sca_gpa = gpa;
- 		write_scao(scb_s, hpa);
- 	}
++	}
++again:
++	gmap = gmap_create_shadow(vcpu->arch.mc, vcpu->kvm->arch.gmap, asce, edat);
++	if (IS_ERR(gmap))
++		return gmap;
++	scoped_guard(spinlock, &vcpu->kvm->arch.gmap->children_lock) {
++		/* unlikely race condition, remove the previous shadow */
++		if (vsie_page->gmap_cache.gmap)
++			release_gmap_shadow(vsie_page);
++		if (!gmap->parent) {
++			gmap_put(gmap);
++			goto again;
++		}
++		vcpu->kvm->stat.gmap_shadow_create++;
++		list_add(&vsie_page->gmap_cache.list, &gmap->scb_users);
++		vsie_page->gmap_cache.gmap = gmap;
++		prefix_unmapped(vsie_page);
++	}
++	return gmap;
++}
++
+ /*
+  * Pin the guest page given by gpa and set hpa to the pinned host address.
+  * Will always be pinned writable.
+@@ -1310,71 +1375,6 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page, struc
+ 	return rc;
+ }
+ 
+-static void release_gmap_shadow(struct vsie_page *vsie_page)
+-{
+-	struct gmap *gmap = vsie_page->gmap_cache.gmap;
+-
+-	lockdep_assert_held(&gmap->kvm->arch.gmap->children_lock);
+-
+-	list_del(&vsie_page->gmap_cache.list);
+-	vsie_page->gmap_cache.gmap = NULL;
+-	prefix_unmapped(vsie_page);
+-
+-	if (list_empty(&gmap->scb_users)) {
+-		gmap_remove_child(gmap);
+-		gmap_put(gmap);
+-	}
+-}
+-
+-static struct gmap *acquire_gmap_shadow(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+-{
+-	union ctlreg0 cr0;
+-	struct gmap *gmap;
+-	union asce asce;
+-	int edat;
+-
+-	asce.val = vcpu->arch.sie_block->gcr[1];
+-	cr0.val = vcpu->arch.sie_block->gcr[0];
+-	edat = cr0.edat && test_kvm_facility(vcpu->kvm, 8);
+-	edat += edat && test_kvm_facility(vcpu->kvm, 78);
+-
+-	scoped_guard(spinlock, &vcpu->kvm->arch.gmap->children_lock) {
+-		gmap = vsie_page->gmap_cache.gmap;
+-		if (gmap) {
+-			/*
+-			 * ASCE or EDAT could have changed since last icpt, or the gmap
+-			 * we're holding has been unshadowed. If the gmap is still valid,
+-			 * we can safely reuse it.
+-			 */
+-			if (gmap_is_shadow_valid(gmap, asce, edat)) {
+-				vcpu->kvm->stat.gmap_shadow_reuse++;
+-				gmap_get(gmap);
+-				return gmap;
+-			}
+-			/* release the old shadow and mark the prefix as unmapped */
+-			release_gmap_shadow(vsie_page);
+-		}
+-	}
+-again:
+-	gmap = gmap_create_shadow(vcpu->arch.mc, vcpu->kvm->arch.gmap, asce, edat);
+-	if (IS_ERR(gmap))
+-		return gmap;
+-	scoped_guard(spinlock, &vcpu->kvm->arch.gmap->children_lock) {
+-		/* unlikely race condition, remove the previous shadow */
+-		if (vsie_page->gmap_cache.gmap)
+-			release_gmap_shadow(vsie_page);
+-		if (!gmap->parent) {
+-			gmap_put(gmap);
+-			goto again;
+-		}
+-		vcpu->kvm->stat.gmap_shadow_create++;
+-		list_add(&vsie_page->gmap_cache.list, &gmap->scb_users);
+-		vsie_page->gmap_cache.gmap = gmap;
+-		prefix_unmapped(vsie_page);
+-	}
+-	return gmap;
+-}
+-
+ /*
+  * Register the shadow scb at the VCPU, e.g. for kicking out of vsie.
+  */
 
 -- 
 2.55.0
