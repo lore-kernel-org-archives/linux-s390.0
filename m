@@ -1,125 +1,117 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80F5334040D;
-	Tue, 11 Aug 2026 14:57:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7753426D09
+	for <linux-s390@vger.kernel.org>; Tue, 11 Aug 2026 14:57:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786460240; cv=none; b=boPbhEAW+DpvGUJ6LJRRgD+U3ciyBI/PUt23V0T9DitsWatMo6oleTiZCWai4lG4r5/9f52TraHtNpaqotKe2MZ0NyFCn4h+DIOxvSBMwzfSH+fd0fuN9CpdTu+Am2aBjmqqTl6SUido2WtFXW4SQzpGWkR7Ti35xT9v1SbrgBw=
+	t=1786460274; cv=none; b=WOW9cEduiyyULhdALfxyPotrk5dRpa8hNEYi2Y7EYCshyjrLpsZ6CTJ5PYYNb9kPV8zc6XFTeQx7M1ZopqQA+CkoAsj8kgoc5beo/WNTQPsOXa9KBiJUqNZ3FxFYXMvm4j7YCPx5vsUVfMek0NiYY6XCrZtFEX7/0fiY6UDXOQw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786460240; c=relaxed/simple;
-	bh=hh6cRLVkiaqtaspBX2a3cT0FetnM2CxpAvk7PkByJ48=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pUTWMyk7nPXDR5/Lv0nQ8m9a5d1RquW8Z7UTOOaVDzbZhgFGb3VGDJydxeWMbFh3xKz2sKtwf2fy711z7r0H+sB7bUwzNj8yftnZqJwrx9K6MorgZUzr/k0Hx1+FFqknx09+kY1VWzReLhKd7NVY8JZlpvtODUrbQOYYir7UoyU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YDLBS+Jm; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1786460274; c=relaxed/simple;
+	bh=LLsBJZ8zpHMgw34jFJfV9ICgPZSQ8owPqihpiN+dB6w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=skaGcXSZdQ8PiZh4uucBKyUT/6dU3Lhe7xSfOgngJsicWCqeUrX4dM4EufPJdruE8uQoNbzTdhQ2t3Fg45xwxyL7ChYoEHcqbjII8KcPt9j87ovEI5Xu7SUX+8R1VBIKlRvk62ZN5rJg0ueYplCO0GE9YYSKLMpW1BfrjOMO2Qk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oAVzBT6j; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YDLBS+Jm"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67BDWsVE3633567;
-	Tue, 11 Aug 2026 14:57:14 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oAVzBT6j"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67BDWfKp492561
+	for <linux-s390@vger.kernel.org>; Tue, 11 Aug 2026 14:57:53 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=CzY665
-	t3NBDowK8EC1TP+RAj/yz5qOwYALKEW6bGZQc=; b=YDLBS+Jmnu6x/nNTIqlhTy
-	fsR9tu5+CvyoJAKwmK4dZLrMN/cuy+yNj7yGtzHl/zkmd5dLgVEl273ViopXNrXk
-	wBptsKsu2Ll09AP5MrdLJEAFTFNn2wS4AJGTB7hAQ44vvhnAOvuN7s4DAapT8YuT
-	cbeD1YmeXrpn2lqVGLRHQLMFZNxU9cqOO63C+tGHou36ra0ngzU0iR3qDFhnUQTE
-	3r8Gpokv5+4eEbXOYW5vHCmskhgS8Rqrb9GOtykfGNpvc3FLToo4Oda3Be/0atpK
-	b+3vlWqANlzhA7CH/cOe7Kr5SRSYxpQBa8+Fn7PRO+BslAPhlLuXCirDQjhfhJcw
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fyb23p7mu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 14:57:14 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67BEuIn2009280;
-	Tue, 11 Aug 2026 14:57:13 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxg9h1akn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 14:57:13 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67BEvCBm32178878
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=KvoDZ6hh8wkA0BpCbnSI/23QS9a/2G
+	FcRypNgh3DsY0=; b=oAVzBT6jAc4JLbYkHVr0kYLsNeHTUjUgl+ZnioEZbcqgL0
+	pCE6WmTaASbkg+6Rbr72ozHWTvDH/Y9hKWGebHQQbF/WXO8i9pk0AeV4M+wt+x1a
+	Dw9x0boFwqCgw+p6zRZ4NJ7+bu44JKML6oycBWFALDlljIhzEFYAtjaPqz1gaslc
+	amaWXy4schI1ALyJbry1RWQdfBUZGnrR1V8JFoijdnZagJI1IxRORFkc3LEz0qci
+	XjHn8VO6zhx6pFQIWr5WYIUufLKAyw+kDGRpFoVmOt74K7proyxXOHrVHn8g26TJ
+	9GmALM3FPs2GXPL5A9Do4Dr2uJFU6P488Zgb0m8g==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvq9dg9s-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 11 Aug 2026 14:57:52 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67BEuTIu021850
+	for <linux-s390@vger.kernel.org>; Tue, 11 Aug 2026 14:57:51 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxh0g98hm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 11 Aug 2026 14:57:51 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67BEvlOg33685950
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Aug 2026 14:57:12 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 75C2F58059;
-	Tue, 11 Aug 2026 14:57:12 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CF9ED58043;
-	Tue, 11 Aug 2026 14:57:10 +0000 (GMT)
-Received: from [9.61.146.44] (unknown [9.61.146.44])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Aug 2026 14:57:10 +0000 (GMT)
-Message-ID: <5e0c6818-b96d-4c16-85ec-856d880e7ce8@linux.ibm.com>
-Date: Tue, 11 Aug 2026 10:57:10 -0400
+	Tue, 11 Aug 2026 14:57:47 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A32982004B;
+	Tue, 11 Aug 2026 14:57:47 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 62FA420040;
+	Tue, 11 Aug 2026 14:57:47 +0000 (GMT)
+Received: from osiris (unknown [9.87.143.60])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 11 Aug 2026 14:57:47 +0000 (GMT)
+Date: Tue, 11 Aug 2026 16:57:46 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH] s390/diag324: Preserve -EBUSY return code
+Message-ID: <20260811145746.12308F67-hca@linux.ibm.com>
+References: <20260811142306.4032721-1-sumanthk@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/8] s390/vfio-ap: Fix stale do_remove flag across
- iterations in vfio_ap_mdev_cfg_remove
-To: Anthony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, pasic@linux.ibm.com,
-        alex@shazbot.org, kwankhede@nvidia.com, fiuczy@linux.ibm.com,
-        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        agordeev@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        stable@vger.kernel.org
-References: <20260810192257.1208410-1-akrowiak@linux.ibm.com>
- <20260810192257.1208410-2-akrowiak@linux.ibm.com>
-Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <20260810192257.1208410-2-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260811142306.4032721-1-sumanthk@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=XqfK/1F9 c=1 sm=1 tr=0 ts=6a7b384a cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=jlkX0w0HnUhOnOpiu7cA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODExMDEyMSBTYWx0ZWRfXyQde4QCeNF+w
- vKoqBRpBScC3KkKSNcgAK/6fK89VJpMMbZnbIJiLuKTdq1JzXU+1Y/G7BCqfAPQka3A+PF1CRN8
- S8QxmNoT1vLdoZ4D2JCke5svfMYiZopIDGHLhVG1TGteg9ZsciZ1PR0GkQ1F0k8jkfCcnEoaPjj
- zaCJ8LTHMsouF1oiq1YDHAt3KR4AsYapI61QJfbmKBGgskjrK3rXjIXnXkTgGpRyPfhbR0bJOLW
- 8OeUdheZN1DJgxzNJsfkSoH4paw18nHjWfr2otk2B9NFvila19WWcpUzp+DmCS3oFpygohlbG92
- OoLWKPmqCC8iB4bDdFASoSFVgrQCYyZ1xKdQXQvhivAb5DaU2JNJbdSt5P0Az0ywzo9gPHo7YfS
- 5jFh19OaQz0EzRLzyYrhJjfUj3TkI00fpglS6OSOqSC2jkjyqQM3UlYWqgYLLV5woMKH8zgzEHy
- IOfUxOyRbeLEZuPeA6w==
-X-Proofpoint-ORIG-GUID: y0jkhEWdjeCL9NtTUKU1OEa7gdrzciwH
-X-Proofpoint-GUID: y0jkhEWdjeCL9NtTUKU1OEa7gdrzciwH
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODExMDEyMSBTYWx0ZWRfX1Y99OdRPOWfc
- AJMXE3sl7LyzYrly+tzJnJCdNRGlinwaCQtmlqXtY4xB2TAzlQvRCnWmRLgLgSz8RT4gkg2YBCH
- Z5H15Q/mQlvGrxemZaNrNb4wu46NVE8=
+X-Proofpoint-GUID: aSGle3cRITonT6dPIdL8F7jqCXpMRFNW
+X-Authority-Analysis: v=2.4 cv=PbDPQChd c=1 sm=1 tr=0 ts=6a7b3870 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=KPRq9Xze4Kf-ZWUkMK4A:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODExMDEyMSBTYWx0ZWRfX609jBcOF5GST
+ aLQJy4jVHXqOXlzvbtw+ljOk7H3wUGCC1rRkBO0Uc0uMcLrE0de3TNTIenP7Pkslj4rDK9gl4cv
+ 6z9bXEbBQO2QLShlnRTk+77ERZJCbcrAeVflyDA5zpwt8lEquygOciJ/Tjp7JaA8g2cX0t8Q7Zx
+ jWVi64Y1zWyeumN7j3lxUffxQgVUX/R2uXQcP13N1OaNd3VG3p5h+14Ml28IWSy61gYOWAsPq7v
+ PG2uOYQqLXXzwRI+J36r0IKbDMuFyHmWv0go22XN0/Lsz5bMwEXU8wRzbv8u8d8o4EAIt3c9jKi
+ jvzOYfZ090gMSNmA40aj3XuZAE3qt42ChYTZ4JkGOb/wPy03kTAJMx7pFbgWwfyt+x5o5xsFkyE
+ iI0RzUsy2DG2Zw0ElbqWrhVxjqXLzUJTy4RG2TdwXvOUqRO2UN50WmL6ULpGa7SlH11KuUTyydY
+ nhk5zddN/YczgXcHhNw==
+X-Proofpoint-ORIG-GUID: aSGle3cRITonT6dPIdL8F7jqCXpMRFNW
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODExMDEyMSBTYWx0ZWRfX1l7cjNJSLRsZ
+ HM9ryrMUUi1hCY5j0ESrsjgwnMonnhLmtqysaauYiPXhLoY6+GHyBX/U2adgfywS6ypO11Xb8e2
+ GIfSYxODH1Meub7rXAYFcC9zDrKvu+U=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-11_03,2026-08-10_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 spamscore=0 adultscore=0 malwarescore=0 clxscore=1015
- suspectscore=0 priorityscore=1501 impostorscore=0 phishscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608110121
+ spamscore=0 bulkscore=0 impostorscore=0 malwarescore=0 adultscore=0
+ clxscore=1015 priorityscore=1501 suspectscore=0 phishscore=0
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608110121
 
-On 8/10/26 3:22 PM, Anthony Krowiak wrote:
-> The do_remove flag in vfio_ap_mdev_cfg_remove() is initialised to zero
-> before the loop that iterates over the list of matrix mdevs, but is
-> never reset at the start of each iteration. Since do_remove is
-> OR-accumulated across iterations, a positive result from one mdev
-> carries over to subsequent mdevs.
+On Tue, Aug 11, 2026 at 04:23:06PM +0200, Sumanth Korikkar wrote:
+> When diag324 reports -EBUSY, the error code is
+> overwritten by the result of copy_to_user() and put_user(). As a result,
+> the ioctl may incorrectly return success instead of -EBUSY.
 > 
-> The fix is to set the do_remove flag with the first call to bitmap_and;
-> for example: do_remove = bitmap_an rather than do_remove |= bitmap_and.
+> Preserve the original diag324 return code and only return -EFAULT when
+> copying data to userspace fails.
 > 
-> Fixes: eeb386aeb5b7 ("s390/vfio-ap: handle config changed and scan complete notification")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+> Fixes: 90e6f191e1ee ("s390/diag324: Retrieve power readings via diag 0x324")
+> Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+> ---
+>  arch/s390/kernel/diag/diag324.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-
-
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
