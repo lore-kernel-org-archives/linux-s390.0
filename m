@@ -1,142 +1,128 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F3E2383339;
-	Tue, 11 Aug 2026 18:51:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA9FC345EBF;
+	Tue, 11 Aug 2026 18:52:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786474274; cv=none; b=cGrfjK0K4jfxepNPRByLQocyoXcqSnvfwHFZi+/VpWRKrbMb2ehtwBnM5HvnsfyPeUqj1TiaWk3ho4NBhUbV/t8nZ/0CbMmABAJ8Tqip8GHueTg/lOjp2d6lJgcASnprwRYTtIEXc10adBiYQBv1YtzXE/mzhBajA8r0PREBphc=
+	t=1786474330; cv=none; b=Pj6/64Q2VQS3MkjT9kau/RWQJbtptxfMqpHJArWkLIKaiUfmvmud+/i3tzsWUZQFaGqntXXh8oaMAD7Iws/4Pot7rRwe4Dt9IG+jquTkF1M9rsilwO1pU6P9NV9m4mwLf3HlIa6TVPkgSVcvT9CutUy3QxDfS2nKYuj9csqGS1w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786474274; c=relaxed/simple;
-	bh=42101hI5mEHuX6DdULR9yIYZheUVk8C+PK8fZ+n1Q6Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ERPxyYc1mEPSfUci2YjOIsMIKt58A7GAKjOr5pOLrCGTdyZehxHA7KdHv/lBqUUgZY9uOU/Oyis5qUCuu+S6G1R+i0dG1/RW/ftzgtwfk70fi7mj0xLHA3p7SO9W3GU80oSediG/8yL15ot45kqmS3JwoP359NWv7zb/7uSPjXU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ebvtvz1r; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786474330; c=relaxed/simple;
+	bh=iG6kolHVo+LhrokzkJn9oo8OafaqsBYZtLW62gK7dbY=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=VhFZrjSH07ikb62SMZR70+VlVvcVEDiOHme77qSfitUFPGpXtqnvdWE9P8rdbbBneIIennFPN/bTW+3u5dxgMoDGpxv+o71fLw1iw88qISexVbrujOl5ycWQwgxarkrU29ZVkazVzy09kXi5siDugI+8ImqF+A1vynkHjhwgrN0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f9fcK+NV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ebvtvz1r"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67BGVZEp3260705;
-	Tue, 11 Aug 2026 18:51:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=42101h
-	I5mEHuX6DdULR9yIYZheUVk8C+PK8fZ+n1Q6Y=; b=ebvtvz1rLXqCKopGIDdhTB
-	RlelHoKL+LacfimqJCso/MR/mjCGe/9WDo6ZqqBy022FTtEQYP299gBCdPQJ8O4N
-	vDAqhX1AWR6uN9VNYwXiM8cG2wYxxrhji0JJ+LdTQ0O7UPWiiRVrGh4IqQzVpciD
-	6p79FhbB+DaVv1+hZAq6ORfYQaF3kt6DqKCdKGLUrE+Gf+a/A1buyHZn7KO1qRyI
-	qzMGLv1wQurzdpL9NCFEmI59UPBBBXGQ3/sNA8/twRE9QmJ9SEAXozBBRStp4/1y
-	Ivcb3OmVMQDdCu9cCUBMystBqttL2HOguoHKnV4LogTB64vWKHvfnR3LInHW8UoA
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvjyxhuv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 18:51:05 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67BIfHmp012585;
-	Tue, 11 Aug 2026 18:51:05 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxesq2fm3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 18:51:05 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67BIp3Ex4981638
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Aug 2026 18:51:03 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 25BDD58065;
-	Tue, 11 Aug 2026 18:51:03 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1FA4458056;
-	Tue, 11 Aug 2026 18:51:02 +0000 (GMT)
-Received: from [9.61.58.252] (unknown [9.61.58.252])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Aug 2026 18:51:02 +0000 (GMT)
-Message-ID: <48f2d952-3116-4e0c-b0e6-bc6460446c08@linux.ibm.com>
-Date: Tue, 11 Aug 2026 14:51:01 -0400
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f9fcK+NV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64C9D1F00A3A;
+	Tue, 11 Aug 2026 18:51:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786474329;
+	bh=L0HTQS1LYVWSdc3RimfvMueRkxBKnov+tJfBP1Nzenc=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date;
+	b=f9fcK+NVNWrvcSOcKHy6zfAbJxAzV4H4fy8MVkzolSHyhTXevNA14uYiezSHzn6pQ
+	 ycpaMxR2NK5BhnYOlevG/IFGX9tQA5Zq59bExZRq8ebTHdeuBPIJKdmorpcmlYiJYN
+	 enPNXmLxCznd3cawK4k1uWZ7ls5UQ+kBsVAJbZyI9ASkk1wotZU4MuXOcOSURRiwqg
+	 sT65TPpe9rPAxYbWb9c4r08z7q71qyz1ECpgE74A6BnSnCI7mMzF6uQjafv+S2Jyy3
+	 tECe4u8tzT2Nvo9T8WlyH+ZxIb0wNqskL4SGoz+McXb9NEhgBdQAaCdq0Vli+in/qH
+	 jqXBcNxLA7xiA==
+From: Vinod Koul <vkoul@kernel.org>
+To: Julia.Lawall@inria.fr, Alex Deucher <alexander.deucher@amd.com>, 
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
+ Alexandre Belloni <alexandre.belloni@bootlin.com>, 
+ Andrew Lunn <andrew@lunn.ch>, Andrew Morton <akpm@linux-foundation.org>, 
+ Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>, 
+ Borislav Petkov <bp@alien8.de>, 
+ =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+ Daniel Lezcano <daniel.lezcano@kernel.org>, 
+ David Airlie <airlied@gmail.com>, "David S. Miller" <davem@davemloft.net>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Eric Dumazet <edumazet@google.com>, Florian Westphal <fw@strlen.de>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Hans de Goede <hansg@kernel.org>, Hans Verkuil <hverkuil@kernel.org>, 
+ Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
+ Herbert Xu <herbert@gondor.apana.org.au>, 
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+ Jani Nikula <jani.nikula@linux.intel.com>, Jaroslav Kysela <perex@perex.cz>, 
+ Jason Gunthorpe <jgg@ziepe.ca>, Jiri Pirko <jiri@resnulli.us>, 
+ "Joerg Roedel (AMD)" <joro@8bytes.org>, Johan Hovold <johan@kernel.org>, 
+ Jonathan Cameron <jic23@kernel.org>, 
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, 
+ Julian Anastasov <ja@ssi.bg>, Leon Romanovsky <leon@kernel.org>, 
+ Liam Girdwood <lgirdwood@gmail.com>, Linus Walleij <linusw@kernel.org>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Mark Brown <broonie@kernel.org>, 
+ "Martin K. Petersen" <martin.petersen@oracle.com>, 
+ Matthew Sakai <msakai@redhat.com>, 
+ Mauro Carvalho Chehab <mchehab@kernel.org>, 
+ Maxime Ripard <mripard@kernel.org>, 
+ Michael Turquette <mturquette@baylibre.com>, 
+ Mike Rapoport <rppt@kernel.org>, 
+ Miri Korenblit <miriam.rachel.korenblit@intel.com>, 
+ Nicolas Palix <nicolas.palix@imag.fr>, 
+ Pablo Neira Ayuso <pablo@netfilter.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Ping-Ke Shih <pkshih@realtek.com>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Sebastian Reichel <sre@kernel.org>, 
+ Shuah Khan <shuah@kernel.org>, Simona Vetter <simona@ffwll.ch>, 
+ Simon Horman <horms@verge.net.au>, Stephen Boyd <sboyd@kernel.org>, 
+ Steve French <sfrench@samba.org>, Takashi Iwai <tiwai@suse.com>, 
+ Thomas Renninger <trenn@suse.com>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ Tony Luck <tony.luck@intel.com>, Tvrtko Ursulin <tursulin@ursulin.net>, 
+ Vadim Fedorenko <vadim.fedorenko@linux.dev>, Will Deacon <will@kernel.org>, 
+ Yazen Ghannam <Yazen.Ghannam@amd.com>, 
+ Sang-Heon Jeon <ekffu200098@gmail.com>
+Cc: cocci@inria.fr, amd-gfx@lists.freedesktop.org, 
+ dmaengine@vger.kernel.org, dm-devel@lists.linux.dev, 
+ dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, 
+ intel-wired-lan@lists.osuosl.org, iommu@lists.linux.dev, 
+ linux-cifs@vger.kernel.org, linux-clk@vger.kernel.org, 
+ linux-crypto@vger.kernel.org, linux-edac@vger.kernel.org, 
+ linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org, 
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-media@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, 
+ linux-rdma@vger.kernel.org, linux-rtc@vger.kernel.org, 
+ linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+ linux-sound@vger.kernel.org, linux-usb@vger.kernel.org, 
+ linux-wireless@vger.kernel.org, lvs-devel@vger.kernel.org, 
+ netdev@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+ nouveau@lists.freedesktop.org, platform-driver-x86@vger.kernel.org
+In-Reply-To: <20260723184538.3888637-1-ekffu200098@gmail.com>
+References: <20260723184538.3888637-1-ekffu200098@gmail.com>
+Subject: Re: (subset) [PATCH 00/36] treewide: remove conditional returns
+ with no effect
+Message-Id: <178647430099.1113716.2263974283705757692.b4-ty@kernel.org>
+Date: Wed, 12 Aug 2026 00:21:40 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 7/8] s390/vfio-ap: Fix required lock not held during
- display of sysfs status attribute
-To: Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, pasic@linux.ibm.com,
-        alex@shazbot.org, kwankhede@nvidia.com, fiuczy@linux.ibm.com,
-        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        agordeev@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        stable@vger.kernel.org
-References: <20260810192257.1208410-1-akrowiak@linux.ibm.com>
- <20260810192257.1208410-8-akrowiak@linux.ibm.com>
- <5d755e25-be9d-4227-b06c-63563fcce0b5@linux.ibm.com>
- <c3b21393-d01f-4816-90b6-4c868d4a0f9d@linux.ibm.com>
-Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <c3b21393-d01f-4816-90b6-4c868d4a0f9d@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODExMDE1NSBTYWx0ZWRfX4ulS+1nTHhT8
- P/eHgcT57epM/gEZXlVaR/J+eQM5BfE6zI8asFZiLPfrw4BuVta5ykcwGE0zapxdLZFK5h2KWk3
- 4DJxTtvrabegAD58u95OjFrVHeiAiu5xHr/G3oDkEGpHjNGD6SCZqiCk+HKQMcwVd2pawHKzDV1
- 8KR873uW+OWZsdKRsk8MHtlTEBoYbB/cIpGIOkw4Dn2qxUDRHbRoWqyRx0W4vCyAi5YQIjds+dB
- 2dpsY/N/lGLkRkYwihrIas6/e8CtouFB2e2ZqatlREkREJSZmyhE8Vo+Pr3QEjid2MMeHota9hi
- NZ395sNqel+1YMWrpk4CKcBePWxOabftdUGWRJ+oo188EtHJxKYDvZF1bHcw4rBXBMZn+q0UCPZ
- WTYBJut10ooubJF89/zG1QuYLwWKvsSP9p3F5EWUvnDc46GPsoSIy4pQWBG24BewyyFbnj56l9h
- V5F/M+06Hx9G5yJSX0A==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODExMDE1NSBTYWx0ZWRfX3L4rQO8cwW2I
- 5hLwwlMta7CvHMlA9XemsmkWWohav7eOGpVwn1vNtTnrLrHmE4vc8Wqs5Bbuwxk341JwqCihtDt
- Wkfi+FL3gTzWt2SkcTLn2WeZd0JdNKg=
-X-Authority-Analysis: v=2.4 cv=RqD16imK c=1 sm=1 tr=0 ts=6a7b6f1a cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=FuzQXSa-VKAIRvJYoHoA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: dunqAlGKRcAUzXFPuxT4MhWTMgMOATb6
-X-Proofpoint-ORIG-GUID: dunqAlGKRcAUzXFPuxT4MhWTMgMOATb6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-11_04,2026-08-10_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
- clxscore=1015 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608110155
+X-Mailer: b4 0.13.0
 
 
+On Fri, 24 Jul 2026 03:45:02 +0900, Sang-Heon Jeon wrote:
+> While reading mm/memblock, I found a conditional return where both
+> branches return the same value:
+> 
+> 	err = do_something();
+> 	if (err)
+> 		return err;
+> 	return err;
+> 
+> [...]
 
-On 8/11/26 2:20 PM, Matthew Rosato wrote:
-> On 8/11/26 2:03 PM, Matthew Rosato wrote:
->> On 8/10/26 3:22 PM, Anthony Krowiak wrote:
->>> The status_show function that supports display of the status attribute of
->>> the devices in /sys/bus/ap/devices calls the vfio_ap_mdev_for_queue
->>> function which iterates the matrix_dev->mdev_list to find the object
->>> representing the queue device whose status is to be displayed. In order to
->>> traverse this list, the matrix_dev->guests_lock mutex must be held which is
->>> not the case.
->>>
->>> To fix this, the guests_lock mutex is taken prior to taking the
->>> matrix_dev->mdevs_lock mutex in the status_show function. It is taken
->>> there rather than the vfio_ap_mdev_for_queue function - where it is
->>> needed - because it must be taken prior to the mdevs_lock mutex in order to
->>> adhere to the proper locking order and prevent a lockdep splat; also
->>> because the mdevs_lock is needed there to access fields within
->>> the matrix_mdev object in that function.
->>>
->>> Fixes: f139862b92cf ("s390/vfio-ap: add status attribute to AP queue device's sysfs dir")
->>> Cc: stable@vger.kernel.org
->>> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
->> Please see my comment on patch 3.
-> Also same idea here, I don't believe the pre-existing finding from
-> Sashiko against this patch is resolved by this series, so have a look
-> and consider a follow-on patch if it's a valid report.
+Applied, thanks!
 
-Can you be more specific as to which Sashiko finding you are talking about?
+[19/36] dmaengine: qcom_hidma: remove conditional return with no effect
+        commit: 04b8c3de13871653a8ecbd9f1adfea4d0694ecfe
+
+Best regards,
+-- 
+~Vinod
 
 
