@@ -1,65 +1,67 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7BEB44B69C
-	for <linux-s390@vger.kernel.org>; Tue, 11 Aug 2026 13:39:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FE4D446C00;
+	Tue, 11 Aug 2026 13:41:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786455588; cv=none; b=mQLu7cKq6nSovmWMVN5GI8zcxioCXK1hn9KZw3krbRmErhnLsQ6ZlOcqSejfLOs9Ee3YRMjmfKmtrOZVcvrfTXYpvFoHtjYidZbiFfPBRfSpxhT+XaFAJTaLtUvdSO6oLNVvKrtif5oOA+Lh5B8LquPe4jM7AA+in1QyXYFOq3A=
+	t=1786455690; cv=none; b=BUy/WtdNlhC8cbkO9kg+GM1yFqUWvZVLMgvpRumfSnNffbvcFmkdqobgnDLtoGRwjv9Lvd+dsS/+5p++3XEtADA6ii+vTfi19pcEm4BQxyjunJ+IPf5PENK/ZZ4U9JDnXkLpDn5H8fEHgN+Za5+bHSvcW51U/4PqazYtAzngKAQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786455588; c=relaxed/simple;
-	bh=udqzQohdYvUvcmPGgxKFllBKvLyUtA49rA9VU9ioXQY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=puNubXKXg6KbVPces7hHpodzj/Y61fMyHH2J6xYpOtZnj9AwH7IMOZhUv4AEkHZXwWhxDKE6I1LqI7fXnLmKXlKPlOOIVDr7/lHtILBb7gqSIH4TsRNjPZVLLpHVLsqWSS7bLCUtSXsbtWsMSBbtksdbLXSqB9x/DtLn5bms1xM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZqLWNf/4; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786455690; c=relaxed/simple;
+	bh=idYus8T0LQwQB8GboRP+Zd2eV3snzPhAoiY5HpXEQ/M=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gPbpTaPxiqL4ZmryIRIzYqG6atzU2LaQvnprsVrIeljXmnVgbnvy5n1h1C/Kg7ld6kCBF6CBLVedL5hjMVuxX8s7hWwmB46z2tVptSupHPp3KUiVuY82ESkp8w4PIEKDFfJHoRcVlY7WvNgsH3SGRQFliPBfctSjppv9ohNZZeo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WjOpUM8Z; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZqLWNf/4"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67BDWuc73633631
-	for <linux-s390@vger.kernel.org>; Tue, 11 Aug 2026 13:39:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=5ayDqBgRM21PNa2ZoJkAfRA2+pB/eP/eyUB/L3ehW
-	6M=; b=ZqLWNf/4XBU4irzFIBEKINvmr8KwFd7RZHg/+Ru/Goic33va/YVaFzV6m
-	jXwakgh8+wWbi9kaEDToClFMhbDmFBQgO+Xwpjk4F7YVB+i2Ap6gxLHtdxQYFrZv
-	INoI4Ue7Vw7K+gMjM4gTFrpJHjdjIB+3qGOUyhsJQqOo0Amj4AY9sOjNhoigeO6O
-	6TELfN4AA1NqunUWYjvOu64ZGHce0+yFhcfpCS2UmGdV05IYDVuL+BnLXzWSWe9L
-	wrUhq5SUKSbAqwjSWoxZqA/GmNsgxCBGVnK2O6qb88A3hqol5Kar4/y8ymNPsTvA
-	46tkQLybC3Pc5isdCHXqtGIsC3wGg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fyb23nv3m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 11 Aug 2026 13:39:27 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67BDQGB8030164
-	for <linux-s390@vger.kernel.org>; Tue, 11 Aug 2026 13:39:26 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxg9h1156-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 11 Aug 2026 13:39:26 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67BDdMwq31916522
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Aug 2026 13:39:22 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6546B2004E;
-	Tue, 11 Aug 2026 13:39:22 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 383362004B;
-	Tue, 11 Aug 2026 13:39:22 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Aug 2026 13:39:22 +0000 (GMT)
-From: Thomas Richter <tmricht@linux.ibm.com>
-To: linux-s390@vger.kernel.org, sumanthk@linux.ibm.com, japo@linux.ibm.com
-Cc: agordeev@linux.ibm.com, iii@linux.ibm.com, hca@linux.ibm.com,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Subject: [PATCH v3] s390/cpum_cf: Handle CPU hotplug via prepare/dead callbacks
-Date: Tue, 11 Aug 2026 15:39:01 +0200
-Message-ID: <20260811133901.3765063-1-tmricht@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WjOpUM8Z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B39B11F000E9;
+	Tue, 11 Aug 2026 13:41:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786455678;
+	bh=Rtob55i4e0G3U1P7cI6YyoQ5Gk8sDLsGafMrnwcMx2Y=;
+	h=From:To:Cc:Subject:Date;
+	b=WjOpUM8Zua34pWZkC/xHj7rZadf2NR92L+j7peuB2sGQVps47SQ7I9RtU8SF18l6I
+	 IOh/wc7zD4UA0dbEhTmcxDzLStcT1cvy1mrgeLWWWyuGOUZKL6L8S5R71MlHSOjVOf
+	 Gh9h6CvCQXmsBmtCBx5c6iccERDFj62Dr+KKoVWJNsEppeq5zZyyzYCjMT2RGvAFbo
+	 +wpOunRFbWefmd0o691QiJ86WOkjX/8ExdZWV7k9L/oX/qR8GTQ+94d9ZuViEPto9z
+	 zp/AxyWsyP/wCjKCAeD8aWGIabx2hjjHuhMNglixaSBZdqHawXPD8B/SrTh5qLREzt
+	 J012u7kyh0ffg==
+From: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
+To: iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-coco@lists.linux.dev
+Cc: Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>,
+	Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	x86@kernel.org,
+	"Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
+Subject: [RFC PATCH] dma: swiotlb: Size shared default pools for memory encryption
+Date: Tue, 11 Aug 2026 19:10:56 +0530
+Message-ID: <20260811134056.756015-1-aneesh.kumar@kernel.org>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,557 +69,314 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=XqfK/1F9 c=1 sm=1 tr=0 ts=6a7b260f cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=6xuyW9Y38czxRJGrymUA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODExMDExMyBTYWx0ZWRfX8dGBAO6r31GZ
- CAbpWVU6wP6gSoonKbBCdiYmpNUQHhDzzijdsKVgqfCNZAtwacVI89pR4X/LkcQDcVb3bf/urXu
- G3mx6C9Wu1BxA/MYB+FkJ+Sim0SCvOb5o203JazPxBLHML/IA5UWRaQjEqDsx58mXD8EORGTnSM
- riGts9u4kXU2S3L+R+dE83sz5sfN2M/Ixn3yCVgvQnWYuW3gNLwEyOQgnNLek9rKiCaGo4xrnZ6
- gyontnkZsOietc29LNa8SVtdLzHKKfjkOHcJJAmQWQP/p6vhGg6RbTNPpHz+CPLQb7BvG8c0uYW
- e7EIhm7ZoYPNGHuOvAJsI9AFEfiRWiw6LzXaFUGw+/+4l2hrjQll83MlSvBLvFjmjbH7h4/ccy2
- XPbrS9g6C9TP/xKmpAgpUn+EPuvFfqMMV3BMk28Y1QdSGrQ4DbTzuotcPt109zJ3s+q3uEQy40c
- u4uiOCKK2M3Tyzpz9GQ==
-X-Proofpoint-ORIG-GUID: 7LUtzhmZiJeOwuXxL5oI-3ikVlscpNB4
-X-Proofpoint-GUID: 7LUtzhmZiJeOwuXxL5oI-3ikVlscpNB4
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODExMDExMyBTYWx0ZWRfX1wedWujirgpI
- gVEP80da2/0McOeC39P+lJWE5ai29+qGARAV22xXc/OXPbIKe2cbA8WxgCo3kJ6pcQ+tvPcJfnI
- C3AGCEuuEStsQZyaliE2v9ZZxV6QiTA=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-11_03,2026-08-10_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 spamscore=0 adultscore=0 malwarescore=0 clxscore=1015
- suspectscore=0 priorityscore=1501 impostorscore=0 phishscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608110113
 
-V3: - Code based on KI-claude
-    - syswide changed to tskctx, because events with cpu == -1 are called
-      per-task events in perf subsystem.
-    
-The command 'perf stat -e cycles -- <command>' crashes the kernel
-when CPUs are hotplug added during that run.
+Systems with memory encryption use swiotlb to provide shared or
+unencrypted buffers for device DMA. Confidential guests may route all
+DMA through these buffers, while SME hosts use them for devices that
+cannot address encrypted memory. The default swiotlb pool can therefore
+be exhausted under I/O-intensive workloads.
 
-Root cause is the allocation of struct cpu_cf_events at first
-event initialization. The allocation is dynamic and the first
-event that has task context creates such a structure for
-each online CPU. This is not sufficient. CPUs may be offline
-during event creation and can be set online during the
-perf run time. For example commands
+Let architectures mark the default swiotlb pool as shared before
+swiotlb_init(). Move the existing x86 sizing policy into generic swiotlb
+code and add early pool marking for arm64 Realm guests, powerpc secure
+guests, s390 protected-virtualization guests, and x86 memory-encryption
+platforms. Use CC_ATTR_MEM_ENCRYPT on x86 to include host SME, whose
+swiotlb pool must also be decrypted for devices that cannot address
+encrypted memory.
 
- # echo 0 > /sys/devices/system/cpu/cpu1/online
- # perf stat -e cycles -i -- stress-ng -t10s --matrix X
- # sleep 1
- # echo 1 > /sys/devices/system/cpu/cpu1/online
+Move the powerpc secure-guest swiotlb enablement before initialization
+so that the shared pool is allocated with the required flags. pKVM
+guests continue to use a restricted DMA pool instead of the default
+swiotlb pool.
 
-create an event for CPUs 0,2-X. Since the events are created with
-task-context, the scheduler will eventually schedule the program
-on CPU1. This CPU has not created and initialized any per
-CPU event infrastructure as that CPU was not online at the time
-of the perf invocation. Thus when the scheduler runs stress-ng
-on CPU1, the function cpumf_pmu_add() refers to a NULL pointer:
-
- struct cpu_cf_events *cpuhw = this_cpu_cfhw();
-
-This function call is invoked after the task stress-ng has been
-made runnable on CPU1. And this_cpu_cfhw() returns NULL.
-
-The result is a panic:
-[1148608.961663] Unable to handle kernel pointer dereference in virtual kernel address space
-[1148608.961677] Failing address: 0000000000000000 TEID: 0000000000000483
-[1148608.961679] Fault in home space mode while using kernel ASCE.
-[1148608.961683] AS:000000ff318dc007 R3:000000fffd5a8007 S:000000fffd5a7801 P:000000000000013d
-[1148608.961733] Oops: 0004 ilc:3 [#1]SMP
-[1148608.961738] Modules linked in: nf_tables ib_core vhost_net vhost
-                 ....
-[1148608.961797] Hardware name: IBM 9175 ML1 400 (LPAR)
-[1148608.961799] Krnl PSW : 0404d00180000000 000003ef8291fd0c (cpumf_pmu_add+0x3c/0x80)
-[1148608.961813]            R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
-[1148608.961816] Krnl GPRS: 0000000000000026 0000000000040000 0000000000000000 0000000000000004
-[1148608.961818]            0000000000000130 fffffd105615b000 0000000000000000 0000000085324300
-[1148608.961820]            0000000000000000 00000000857edc80 0000000000000001 0000000290090000
-[1148608.961821]            000003ff9ad094c0 0000000290090000 000003ef8291fcfa 0000036f86ccb3e0
-[1148608.961830] Krnl Code: 000003ef8291fcfa: e330b1880004      lg      %r3,392(%r11)
-           000003ef8291fd00: e31020180004       lg      %r1,24(%r2)
-          #000003ef8291fd06: ec13002f1056       rosbg   %r1,%r3,0,47,16
-          >000003ef8291fd0c: e31020180024       stg     %r1,24(%r2)
-           000003ef8291fd12: e54cb1f00003       mvhi    496(%r11),3
-           000003ef8291fd18: a7a10001           tmll    %r10,1
-           000003ef8291fd1c: a774000a           brc     7,000003ef8291fd30
-           000003ef8291fd20: a7290000           lghi    %r2,0
-[1148608.961880] Call Trace:
-[1148608.961881]  [<000003ef8291fd0c>] cpumf_pmu_add+0x3c/0x80
-[1148608.961885]  [<000003ef82bb5e3e>] event_sched_in+0xae/0x190
-[1148608.961890]  [<000003ef82bb60d6>] merge_sched_in+0x1b6/0x390
-[1148608.961892]  [<000003ef82bb65b8>] visit_groups_merge.constprop.0.isra.0+0x308/0x5b0
-[1148608.961894]  [<000003ef82bb689a>] pmu_groups_sched_in+0x3a/0x50
-[1148608.961896]  [<000003ef82bb6a30>] ctx_sched_in+0x180/0x260
-[1148608.961898]  [<000003ef82bb780c>] perf_event_context_sched_in+0x11c/0x2d0
-[1148608.961900]  [<000003ef82bb79ee>] __perf_event_task_sched_in+0x2e/0xc0
-[1148608.961902]  [<000003ef82994834>] finish_task_switch.isra.0+0x1a4/0x250
-[1148608.961907]  [<000003ef8340b5e6>] __schedule+0x376/0x750
-[1148608.961914]  [<000003ef8340b9fe>] schedule+0x3e/0xd0
-[1148608.961916]  [<000003ef83412ca2>] schedule_hrtimeout_range_clock+0xc2/0x110
-[1148608.961919]  [<000003ef82d0d36c>] poll_schedule_timeout.constprop.0+0x5c/0xb0
-[1148608.961926]  [<000003ef82d0e276>] do_poll+0x286/0x3b0
-[1148608.961928]  [<000003ef82d0e5a8>] do_sys_poll+0x208/0x2f0
-[1148608.961931]  [<000003ef82d0f230>] __s390x_sys_poll+0xe0/0x160
-[1148608.961934]  [<000003ef83408028>] __do_syscall+0x168/0x290
-[1148608.961934]  [<000003ef83408028>] __do_syscall+0x168/0x290
-[1148608.961936]  [<000003ef83413754>] system_call+0x74/0x98
-[1148608.961938] Last Breaking-Event-Address:
-[1148608.961939]  [<000003ef8291f1d8>] this_cpu_cfhw+0x38/0x40
-[1148608.961943] Kernel panic - not syncing: Fatal exception: panic_on_oops
-
-The issue arises only in per-task context when the CPUMF facility is
-used and the scheduler picks a random CPU for such a process to run on.
-The scheduler enables the CPUMF infrastructure via PMU callback
-functions pmu::add() and pmu::del().
-
-Introduce a CPU hotplug prepare/dead callback pair which creates and
-removes the per CPU counter data while the CPU is offline. Count the
-users which track every CPU (cpu == -1), that is perf_event_open()
-events with task context and /dev/hwctr device sessions, in the new
-counter cpu_cf_root::tskcnt, protected by pmc_reserve_mutex.
-This ensures the infrastructure is available when
-new CPU is selected to run the per-task context process.
-
-In cpum_cf_free_root() and cpum_cf_free_cpu() ensure the reference
-pointer to data structures is set to NULL before the data is freed
-to prevent interrupt handlers to access stale data.
-
-Fixes: 9b9cf3c77e7e ("s390/cpum_cf: rework PER_CPU_DEFINE of struct cpu_cf_events")
-Cc: <stable@vger.kernel.org> # v6.5+
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Suggested-by: Heiko Carstens <hca@linux.ibm.com>
-Suggested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_cf.c | 215 +++++++++++++++++++++-----------
- 1 file changed, 142 insertions(+), 73 deletions(-)
+ arch/arm64/mm/init.c                 |  6 ++-
+ arch/powerpc/mm/mem.c                |  7 +++
+ arch/powerpc/platforms/pseries/svm.c | 10 ----
+ arch/s390/mm/init.c                  |  2 +
+ arch/x86/mm/mem_encrypt.c            | 27 ++--------
+ include/linux/swiotlb.h              |  7 ++-
+ kernel/dma/swiotlb.c                 | 73 ++++++++++++++++++++++------
+ 7 files changed, 82 insertions(+), 50 deletions(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_cf.c b/arch/s390/kernel/perf_cpum_cf.c
-index 2076ac22e2c4..2a8d4cc1d6a2 100644
---- a/arch/s390/kernel/perf_cpum_cf.c
-+++ b/arch/s390/kernel/perf_cpum_cf.c
-@@ -110,6 +110,7 @@ struct cpu_cf_ptr {
- 
- static struct cpu_cf_root {		/* Anchor to per CPU data */
- 	refcount_t refcnt;		/* Overall active events */
-+	unsigned int tskctx;		/* Users tracking all CPUs (cpu == -1) */
- 	struct cpu_cf_ptr __percpu *cfptr;
- } cpu_cf_root;
- 
-@@ -118,13 +119,15 @@ static struct cpu_cf_root {		/* Anchor to per CPU data */
-  * user space in task context with perf_event_open() and close()
-  * system calls.
-  *
-- * This mutex serializes functions cpum_cf_alloc_cpu() called at event
-- * initialization via cpumf_pmu_event_init() and function cpum_cf_free_cpu()
-- * called at event removal via call back function hw_perf_event_destroy()
-- * when the event is deleted. They are serialized to enforce correct
-- * bookkeeping of pointer and reference counts anchored by
-- * struct cpu_cf_root and the access to cpu_cf_root::refcnt and the
-- * per CPU pointers stored in cpu_cf_root::cfptr.
-+ * This mutex serializes the allocation and removal of the per CPU counter
-+ * data via cpum_cf_alloc_cpu() and cpum_cf_free_cpu(). They are called with
-+ * this mutex held at event initialization via cpumf_pmu_event_init(), at
-+ * event removal via call back function hw_perf_event_destroy() when the
-+ * event is deleted, and from the CPU hotplug prepare/dead callbacks. The
-+ * mutex enforces correct bookkeeping of pointer and reference counts
-+ * anchored by struct cpu_cf_root and protects the access to
-+ * cpu_cf_root::refcnt, cpu_cf_root::tskctx and the per CPU pointers
-+ * stored in cpu_cf_root::cfptr.
-  */
- static DEFINE_MUTEX(pmc_reserve_mutex);
- 
-@@ -167,12 +170,14 @@ static void cpum_cf_reset_cpu(void *flags)
- }
- 
- /* Free per CPU data when the last event is removed. */
--static void cpum_cf_free_root(void)
-+static void cpum_cf_free_root(unsigned int num)
+diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+index e308a7cabd12..4c022e8aed43 100644
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -338,8 +338,12 @@ void __init arch_setup_zero_pages(void)
+ void __init arch_mm_preinit(void)
  {
--	if (!refcount_dec_and_test(&cpu_cf_root.refcnt))
-+	struct cpu_cf_ptr __percpu *p = cpu_cf_root.cfptr;
-+
-+	if (!refcount_sub_and_test(num, &cpu_cf_root.refcnt))
- 		return;
--	free_percpu(cpu_cf_root.cfptr);
- 	cpu_cf_root.cfptr = NULL;
-+	free_percpu(p);
- 	irq_subclass_unregister(IRQ_SUBCLASS_MEASUREMENT_ALERT);
- 	on_each_cpu(cpum_cf_reset_cpu, NULL, 1);
- 	debug_sprintf_event(cf_dbg, 4, "%s root.refcnt %u cfptr %d\n",
-@@ -186,17 +191,17 @@ static void cpum_cf_free_root(void)
-  * CPUs possible, which might be larger than the number of CPUs currently
-  * online.
-  */
--static int cpum_cf_alloc_root(void)
-+static int cpum_cf_alloc_root(unsigned int num)
- {
- 	int rc = 0;
+ 	unsigned int flags = SWIOTLB_VERBOSE;
++	/* pKVM uses restricted-dma-pool */
++	bool cc_guest = is_realm_world();
  
--	if (refcount_inc_not_zero(&cpu_cf_root.refcnt))
-+	if (refcount_add_not_zero(num, &cpu_cf_root.refcnt))
- 		return rc;
- 
- 	/* The memory is already zeroed. */
- 	cpu_cf_root.cfptr = alloc_percpu(struct cpu_cf_ptr);
- 	if (cpu_cf_root.cfptr) {
--		refcount_set(&cpu_cf_root.refcnt, 1);
-+		refcount_set(&cpu_cf_root.refcnt, num);
- 		on_each_cpu(cpum_cf_reset_cpu, NULL, 1);
- 		irq_subclass_register(IRQ_SUBCLASS_MEASUREMENT_ALERT);
- 	} else {
-@@ -206,20 +211,23 @@ static int cpum_cf_alloc_root(void)
- 	return rc;
- }
- 
--/* Free CPU counter data structure for a PMU */
--static void cpum_cf_free_cpu(int cpu)
-+/*
-+ * Remove num references to the CPU counter data structure of a PMU.
-+ * Called with pmc_reserve_mutex held.
-+ */
-+static void cpum_cf_free_cpu(int cpu, unsigned int num)
- {
- 	struct cpu_cf_events *cpuhw;
- 	struct cpu_cf_ptr *p;
- 
--	mutex_lock(&pmc_reserve_mutex);
-+	lockdep_assert_held(&pmc_reserve_mutex);
- 	/*
- 	 * When invoked via CPU hotplug handler, there might be no events
- 	 * installed or that particular CPU might not have an
- 	 * event installed. This anchor pointer can be NULL!
- 	 */
- 	if (!cpu_cf_root.cfptr)
--		goto out;
-+		return;
- 	p = per_cpu_ptr(cpu_cf_root.cfptr, cpu);
- 	cpuhw = p->cpucf;
- 	/*
-@@ -227,28 +235,29 @@ static void cpum_cf_free_cpu(int cpu)
- 	 * installed on that CPU, but on different CPUs.
- 	 */
- 	if (!cpuhw)
--		goto out;
-+		return;
- 
--	if (refcount_dec_and_test(&cpuhw->refcnt)) {
--		kfree(cpuhw);
-+	if (refcount_sub_and_test(num, &cpuhw->refcnt)) {
- 		p->cpucf = NULL;
-+		kfree(cpuhw);
- 	}
--	cpum_cf_free_root();
--out:
--	mutex_unlock(&pmc_reserve_mutex);
-+	cpum_cf_free_root(num);
- }
- 
--/* Allocate CPU counter data structure for a PMU. Called under mutex lock. */
--static int cpum_cf_alloc_cpu(int cpu)
-+/*
-+ * Add num references to the CPU counter data structure of a PMU and
-+ * allocate it when necessary. Called with pmc_reserve_mutex held.
-+ */
-+static int cpum_cf_alloc_cpu(int cpu, unsigned int num)
- {
- 	struct cpu_cf_events *cpuhw;
- 	struct cpu_cf_ptr *p;
- 	int rc;
- 
--	mutex_lock(&pmc_reserve_mutex);
--	rc = cpum_cf_alloc_root();
-+	lockdep_assert_held(&pmc_reserve_mutex);
-+	rc = cpum_cf_alloc_root(num);
- 	if (rc)
--		goto unlock;
-+		return rc;
- 	p = per_cpu_ptr(cpu_cf_root.cfptr, cpu);
- 	cpuhw = p->cpucf;
- 
-@@ -256,12 +265,12 @@ static int cpum_cf_alloc_cpu(int cpu)
- 		cpuhw = kzalloc_obj(*cpuhw);
- 		if (cpuhw) {
- 			p->cpucf = cpuhw;
--			refcount_set(&cpuhw->refcnt, 1);
-+			refcount_set(&cpuhw->refcnt, num);
- 		} else {
- 			rc = -ENOMEM;
- 		}
- 	} else {
--		refcount_inc(&cpuhw->refcnt);
-+		refcount_add(num, &cpuhw->refcnt);
- 	}
- 	if (rc) {
+-	if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
++	if (cc_guest) {
++		swiotlb_mark_default_cc_shared();
++	} else if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
  		/*
-@@ -269,10 +278,8 @@ static int cpum_cf_alloc_cpu(int cpu)
- 		 * cpu_cf_event in not created, its destroy() function is not
- 		 * invoked. Adjust the reference counter for the anchor.
- 		 */
--		cpum_cf_free_root();
-+		cpum_cf_free_root(num);
- 	}
--unlock:
--	mutex_unlock(&pmc_reserve_mutex);
- 	return rc;
- }
+ 		 * If no bouncing needed for ZONE_DMA, reduce the swiotlb
+ 		 * buffer for kmalloc() bouncing to 1MB per 1GB of RAM.
+diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+index 4c1afab91996..39246ac66ad4 100644
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -287,6 +287,13 @@ void __init arch_mm_preinit(void)
+ 	BUILD_BUG_ON(MMU_PAGE_COUNT > 16);
  
-@@ -284,39 +291,70 @@ static int cpum_cf_alloc_cpu(int cpu)
-  * perf_event_open() with task context and /dev/hwctr interface.
-  * If cpu is non-zero install event on this CPU only. This setup handles
-  * perf_event_open() with CPU context.
-+ * Users with cpu == -1 are counted in cpu_cf_root::tskctx. The CPU hotplug
-+ * prepare and dead callbacks use this count to install and remove the per
-+ * CPU counter data on a new or dying CPU.
-  */
--static int cpum_cf_alloc(int cpu)
-+static int cpum_cf_alloc_cpuslocked(int cpu)
- {
- 	cpumask_var_t mask;
- 	int rc;
+ #ifdef CONFIG_SWIOTLB
++	if (is_secure_guest()) {
++		/* The host can access DMA buffers only through the SWIOTLB. */
++		swiotlb_mark_default_cc_shared();
++		ppc_swiotlb_enable = 1;
++		ppc_swiotlb_flags |= SWIOTLB_ANY;
++	}
++
+ 	/*
+ 	 * Some platforms (e.g. 85xx) limit DMA-able memory way below
+ 	 * 4G. We force memblock to bottom-up mode to ensure that the
+diff --git a/arch/powerpc/platforms/pseries/svm.c b/arch/powerpc/platforms/pseries/svm.c
+index 7a403dbd35ee..4a0be631dc6d 100644
+--- a/arch/powerpc/platforms/pseries/svm.c
++++ b/arch/powerpc/platforms/pseries/svm.c
+@@ -21,16 +21,6 @@ static int __init init_svm(void)
+ 	if (!is_secure_guest())
+ 		return 0;
  
-+	lockdep_assert_cpus_held();
- 	if (cpu == -1) {
- 		if (!zalloc_cpumask_var(&mask, GFP_KERNEL))
- 			return -ENOMEM;
-+		mutex_lock(&pmc_reserve_mutex);
- 		for_each_online_cpu(cpu) {
--			rc = cpum_cf_alloc_cpu(cpu);
-+			rc = cpum_cf_alloc_cpu(cpu, 1);
- 			if (rc) {
- 				for_each_cpu(cpu, mask)
--					cpum_cf_free_cpu(cpu);
-+					cpum_cf_free_cpu(cpu, 1);
- 				break;
- 			}
- 			cpumask_set_cpu(cpu, mask);
- 		}
-+		if (!rc)
-+			cpu_cf_root.tskctx++;
-+		mutex_unlock(&pmc_reserve_mutex);
- 		free_cpumask_var(mask);
- 	} else {
--		rc = cpum_cf_alloc_cpu(cpu);
-+		mutex_lock(&pmc_reserve_mutex);
-+		rc = cpum_cf_alloc_cpu(cpu, 1);
-+		mutex_unlock(&pmc_reserve_mutex);
- 	}
- 	return rc;
- }
- 
--static void cpum_cf_free(int cpu)
-+static int cpum_cf_alloc(int cpu)
- {
-+	int rc;
-+
-+	cpus_read_lock();
-+	rc = cpum_cf_alloc_cpuslocked(cpu);
-+	cpus_read_unlock();
-+	return rc;
-+}
-+
-+static void cpum_cf_free_cpuslocked(int cpu)
-+{
-+	lockdep_assert_cpus_held();
-+	mutex_lock(&pmc_reserve_mutex);
- 	if (cpu == -1) {
-+		cpu_cf_root.tskctx--;
- 		for_each_online_cpu(cpu)
--			cpum_cf_free_cpu(cpu);
-+			cpum_cf_free_cpu(cpu, 1);
- 	} else {
--		cpum_cf_free_cpu(cpu);
-+		cpum_cf_free_cpu(cpu, 1);
- 	}
-+	mutex_unlock(&pmc_reserve_mutex);
-+}
-+
-+static void cpum_cf_free(int cpu)
-+{
-+	cpus_read_lock();
-+	cpum_cf_free_cpuslocked(cpu);
-+	cpus_read_unlock();
- }
- 
- #define	CF_DIAG_CTRSET_DEF		0xfeef	/* Counter set header mark */
-@@ -1090,53 +1128,67 @@ static refcount_t cfset_opencnt = REFCOUNT_INIT(0);	/* Access count */
- static DEFINE_MUTEX(cfset_ctrset_mutex);
- 
- /*
-- * CPU hotplug handles only /dev/hwctr device.
-- * For perf_event_open() the CPU hotplug handling is done on kernel common
-- * code:
-+ * CPU hotplug handling:
-+ *
-+ * cpum_cf_prepare_cpu() and cpum_cf_dead_cpu() run while the new or dying
-+ * CPU is offline. They create and remove the per CPU counter data for all
-+ * users tracking every CPU (cpu == -1), that is perf_event_open() events
-+ * with task context and /dev/hwctr device sessions. Each such user holds
-+ * one reference to the per CPU counter data of each CPU. Therefore install
-+ * and remove one reference per user, tracked in cpu_cf_root::tskctx. This
-+ * guarantees the per CPU counter data exists before the new CPU executes
-+ * its first task and is removed only after the dying CPU is gone.
-+ *
-+ * cpum_cf_online_cpu() and cpum_cf_offline_cpu() run while the new or
-+ * dying CPU is online. They handle only the counter set state of open
-+ * /dev/hwctr device sessions on that CPU. For perf_event_open() events
-+ * nothing is done:
-  * - CPU add: Nothing is done since a file descriptor can not be created
-  *   and returned to the user.
-  * - CPU delete: Handled by common code via pmu_disable(), pmu_stop() and
-- *   pmu_delete(). The event itself is removed when the file descriptor is
-- *   closed.
-+ *   pmu_delete(). During task exit processing of grouped perf events
-+ *   triggered by CPU hotplug processing, pmu_disable() is called as part
-+ *   of perf context removal process. The event itself is removed when the
-+ *   event file descriptor is closed.
-  */
-+static int cpum_cf_prepare_cpu(unsigned int cpu)
-+{
-+	int rc = 0;
-+
-+	mutex_lock(&pmc_reserve_mutex);
-+	if (cpu_cf_root.tskctx)
-+		rc = cpum_cf_alloc_cpu(cpu, cpu_cf_root.tskctx);
-+	mutex_unlock(&pmc_reserve_mutex);
-+	return rc;
-+}
-+
-+static int cpum_cf_dead_cpu(unsigned int cpu)
-+{
-+	mutex_lock(&pmc_reserve_mutex);
-+	if (cpu_cf_root.tskctx)
-+		cpum_cf_free_cpu(cpu, cpu_cf_root.tskctx);
-+	mutex_unlock(&pmc_reserve_mutex);
-+	return 0;
-+}
-+
- static int cfset_online_cpu(unsigned int cpu);
- 
- static int cpum_cf_online_cpu(unsigned int cpu)
- {
--	int rc = 0;
+-	/* Don't release the SWIOTLB buffer. */
+-	ppc_swiotlb_enable = 1;
 -
 -	/*
--	 * Ignore notification for perf_event_open().
--	 * Handle only /dev/hwctr device sessions.
+-	 * Since the guest memory is inaccessible to the host, devices always
+-	 * need to use the SWIOTLB buffer for DMA even if dma_capable() says
+-	 * otherwise.
 -	 */
- 	mutex_lock(&cfset_ctrset_mutex);
--	if (refcount_read(&cfset_opencnt)) {
--		rc = cpum_cf_alloc_cpu(cpu);
--		if (!rc)
--			cfset_online_cpu(cpu);
--	}
-+	if (refcount_read(&cfset_opencnt))
-+		cfset_online_cpu(cpu);
- 	mutex_unlock(&cfset_ctrset_mutex);
--	return rc;
-+	return 0;
- }
+-	ppc_swiotlb_flags |= SWIOTLB_ANY;
+-
+ 	/* Share the SWIOTLB buffer with the host. */
+ 	swiotlb_update_mem_attributes();
  
- static int cfset_offline_cpu(unsigned int cpu);
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 8d1de5a2e554..d88578fa550c 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -163,6 +163,8 @@ static void __init pv_init(void)
+ 	if (!is_prot_virt_guest())
+ 		return;
  
- static int cpum_cf_offline_cpu(unsigned int cpu)
- {
--	/*
--	 * During task exit processing of grouped perf events triggered by CPU
--	 * hotplug processing, pmu_disable() is called as part of perf context
--	 * removal process. Therefore do not trigger event removal now for
--	 * perf_event_open() created events. Perf common code triggers event
--	 * destruction when the event file descriptor is closed.
--	 *
--	 * Handle only /dev/hwctr device sessions.
--	 */
- 	mutex_lock(&cfset_ctrset_mutex);
--	if (refcount_read(&cfset_opencnt)) {
-+	if (refcount_read(&cfset_opencnt))
- 		cfset_offline_cpu(cpu);
--		cpum_cf_free_cpu(cpu);
--	}
- 	mutex_unlock(&cfset_ctrset_mutex);
- 	return 0;
- }
-@@ -1183,7 +1235,7 @@ static void cpumf_measurement_alert(struct ext_code ext_code,
- static int cfset_init(void);
- static int __init cpumf_pmu_init(void)
- {
--	int rc;
-+	int state, rc;
- 
- 	/* Extract counter measurement facility information */
- 	if (!cpum_cf_avail() || qctri(&cpumf_ctr_info))
-@@ -1225,11 +1277,24 @@ static int __init cpumf_pmu_init(void)
- 		cfset_init();
- 	}
- 
-+	rc = cpuhp_setup_state(CPUHP_BP_PREPARE_DYN,
-+			       "perf/s390/cf:prepare",
-+			       cpum_cf_prepare_cpu, cpum_cf_dead_cpu);
-+	if (rc < 0)
-+		goto out3;
-+	state = rc;
++	swiotlb_mark_default_cc_shared();
 +
- 	rc = cpuhp_setup_state(CPUHP_AP_PERF_S390_CF_ONLINE,
- 			       "perf/s390/cf:online",
- 			       cpum_cf_online_cpu, cpum_cf_offline_cpu);
--	return rc;
-+	if (rc < 0)
-+		goto out4;
-+	return 0;
+ 	virtio_set_mem_acc_cb(virtio_require_restricted_mem_acc);
  
-+out4:
-+	cpuhp_remove_state(state);
-+out3:
-+	perf_pmu_unregister(&cpumf_pmu);
- out2:
- 	debug_unregister_view(cf_dbg, &debug_sprintf_view);
- 	debug_unregister(cf_dbg);
-@@ -1385,6 +1450,7 @@ static void cfset_all_stop(struct cfset_request *req)
-  */
- static int cfset_release(struct inode *inode, struct file *file)
+ 	/* make sure bounce buffers are shared */
+diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
+index 95bae74fdab2..9fa4c97b34e0 100644
+--- a/arch/x86/mm/mem_encrypt.c
++++ b/arch/x86/mm/mem_encrypt.c
+@@ -101,9 +101,6 @@ void __init mem_encrypt_init(void)
+ 
+ void __init mem_encrypt_setup_arch(void)
  {
-+	cpus_read_lock();
- 	mutex_lock(&cfset_ctrset_mutex);
- 	/* Open followed by close/exit has no private_data */
- 	if (file->private_data) {
-@@ -1395,9 +1461,10 @@ static int cfset_release(struct inode *inode, struct file *file)
- 	}
- 	if (refcount_dec_and_test(&cfset_opencnt)) {	/* Last close */
- 		on_each_cpu(cfset_release_cpu, NULL, 1);
--		cpum_cf_free(-1);
-+		cpum_cf_free_cpuslocked(-1);
- 	}
- 	mutex_unlock(&cfset_ctrset_mutex);
-+	cpus_read_unlock();
- 	return 0;
+-	phys_addr_t total_mem = memblock_phys_mem_size();
+-	unsigned long size;
+-
+ 	/*
+ 	 * Do RMP table fixups after the e820 tables have been setup by
+ 	 * e820__memory_setup().
+@@ -111,30 +108,12 @@ void __init mem_encrypt_setup_arch(void)
+ 	if (cc_platform_has(CC_ATTR_HOST_SEV_SNP))
+ 		snp_fixup_e820_tables();
+ 
++	if (cc_platform_has(CC_ATTR_MEM_ENCRYPT))
++		swiotlb_mark_default_cc_shared();
++
+ 	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
+ 		return;
+ 
+-	/*
+-	 * For SEV and TDX, all DMA has to occur via shared/unencrypted pages.
+-	 * Kernel uses SWIOTLB to make this happen without changing device
+-	 * drivers. However, depending on the workload being run, the
+-	 * default 64MB of SWIOTLB may not be enough and SWIOTLB may
+-	 * run out of buffers for DMA, resulting in I/O errors and/or
+-	 * performance degradation especially with high I/O workloads.
+-	 *
+-	 * Adjust the default size of SWIOTLB using a percentage of guest
+-	 * memory for SWIOTLB buffers. Also, as the SWIOTLB bounce buffer
+-	 * memory is allocated from low memory, ensure that the adjusted size
+-	 * is within the limits of low available memory.
+-	 *
+-	 * The percentage of guest memory used here for SWIOTLB buffers
+-	 * is more of an approximation of the static adjustment which
+-	 * 64MB for <1G, and ~128M to 256M for 1G-to-4G, i.e., the 6%
+-	 */
+-	size = total_mem * 6 / 100;
+-	size = clamp_val(size, IO_TLB_DEFAULT_SIZE, SZ_1G);
+-	swiotlb_adjust_size(size);
+-
+ 	/* Set restricted memory access for virtio. */
+ 	virtio_set_mem_acc_cb(virtio_require_restricted_mem_acc);
+ }
+diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
+index 277b9aa2edaa..324859ecb5cd 100644
+--- a/include/linux/swiotlb.h
++++ b/include/linux/swiotlb.h
+@@ -189,7 +189,8 @@ void swiotlb_dev_init(struct device *dev);
+ size_t swiotlb_max_mapping_size(struct device *dev);
+ bool is_swiotlb_allocated(void);
+ bool is_swiotlb_active(struct device *dev);
+-void __init swiotlb_adjust_size(unsigned long size);
++void __init swiotlb_mark_default_cc_shared(void);
++void swiotlb_adjust_size(unsigned long size);
+ phys_addr_t default_swiotlb_base(void);
+ phys_addr_t default_swiotlb_limit(void);
+ #else
+@@ -228,6 +229,10 @@ static inline bool is_swiotlb_active(struct device *dev)
+ 	return false;
  }
  
-@@ -1416,15 +1483,17 @@ static int cfset_open(struct inode *inode, struct file *file)
- 		return -EPERM;
- 	file->private_data = NULL;
++static inline void swiotlb_mark_default_cc_shared(void)
++{
++}
++
+ static inline void swiotlb_adjust_size(unsigned long size)
+ {
+ }
+diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+index 897aba538c5b..bc67d427f995 100644
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -208,7 +208,7 @@ unsigned long swiotlb_size_or_default(void)
+ 	return default_nslabs << IO_TLB_SHIFT;
+ }
  
-+	cpus_read_lock();
- 	mutex_lock(&cfset_ctrset_mutex);
- 	if (!refcount_inc_not_zero(&cfset_opencnt)) {	/* First open */
--		rc = cpum_cf_alloc(-1);
-+		rc = cpum_cf_alloc_cpuslocked(-1);
- 		if (!rc) {
- 			cfset_session_init();
- 			refcount_set(&cfset_opencnt, 1);
- 		}
- 	}
- 	mutex_unlock(&cfset_ctrset_mutex);
-+	cpus_read_unlock();
+-void __init swiotlb_adjust_size(unsigned long size)
++void swiotlb_adjust_size(unsigned long size)
+ {
+ 	/*
+ 	 * If swiotlb parameter has not been specified, give a chance to
+@@ -274,24 +274,15 @@ static void swiotlb_mark_pool_used(struct io_tlb_pool *pool)
+ void __init swiotlb_update_mem_attributes(void)
+ {
+ 	struct io_tlb_pool *mem = &io_tlb_default_mem.defpool;
+-	unsigned long bytes;
+-
+-	/*
+-	 * if platform support memory encryption, swiotlb buffers are
+-	 * shared by default.
+-	 */
+-	if (cc_platform_has(CC_ATTR_MEM_ENCRYPT))
+-		io_tlb_default_mem.cc_shared = true;
+-	else
+-		io_tlb_default_mem.cc_shared = false;
  
- 	/* nonseekable_open() never fails */
- 	return rc ?: nonseekable_open(inode, file);
+ 	if (!mem->nslabs || mem->late_alloc)
+ 		return;
+-	bytes = PAGE_ALIGN(mem->nslabs << IO_TLB_SHIFT);
+ 
+ 	if (io_tlb_default_mem.cc_shared) {
+ 		int ret;
++		unsigned long bytes;
+ 
++		bytes = PAGE_ALIGN(mem->nslabs << IO_TLB_SHIFT);
+ 		ret = set_memory_decrypted((unsigned long)mem->vaddr,
+ 					   bytes >> PAGE_SHIFT);
+ 		if (ret) {
+@@ -382,6 +373,42 @@ static void __init *swiotlb_memblock_alloc(unsigned long nslabs,
+ 	return tlb;
+ }
+ 
++void __init swiotlb_mark_default_cc_shared(void)
++{
++	io_tlb_default_mem.cc_shared = true;
++}
++
++static void swiotlb_adjust_cc_attributes(void)
++{
++	unsigned long size;
++	phys_addr_t total_mem = memblock_phys_mem_size();
++
++	/*
++	 * For SEV and TDX and CCA, all DMA has to occur via
++	 * shared/unencrypted pages. Kernel uses SWIOTLB to make this
++	 * happen without changing device drivers. However, depending on
++	 * the workload being run, the default 64MB of SWIOTLB may not be
++	 * enough and SWIOTLB may run out of buffers for DMA, resulting in
++	 * I/O errors and/or performance degradation especially with high
++	 * I/O workloads.
++	 *
++	 * Adjust the default size of SWIOTLB using a percentage of guest
++	 * memory for SWIOTLB buffers. Also, as the SWIOTLB bounce buffer
++	 * memory is allocated from low memory, ensure that the adjusted
++	 * size is within the limits of low available memory.
++	 *
++	 * The percentage of guest memory used here for SWIOTLB buffers is
++	 * more of an approximation of the static adjustment which 64MB for
++	 * <1G, and ~128M to 256M for 1G-to-4G, i.e., the 6%
++	 */
++	size = total_mem * 6 / 100;
++	size = clamp_val(size, IO_TLB_DEFAULT_SIZE, SZ_1G);
++	swiotlb_adjust_size(size);
++
++	if (!IS_ENABLED(CONFIG_SWIOTLB_DYNAMIC))
++		pr_info("Consider enabling CONFIG_SWIOTLB_DYNAMIC for memory-encrypted systems\n");
++}
++
+ /*
+  * Statically reserve bounce buffer space and initialize bounce buffer data
+  * structures for the software IO TLB used to implement the DMA API.
+@@ -395,8 +422,14 @@ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
+ 	size_t alloc_size;
+ 	void *tlb;
+ 
+-	if (!addressing_limit && !swiotlb_force_bounce)
++	/*
++	 * A shared pool is required for DMA on memory-encrypted systems even
++	 * when all devices are otherwise able to address memory directly.
++	 */
++	if (!addressing_limit && !swiotlb_force_bounce &&
++	    !io_tlb_default_mem.cc_shared)
+ 		return;
++
+ 	if (swiotlb_force_disable)
+ 		return;
+ 
+@@ -411,6 +444,9 @@ void __init swiotlb_init_remap(bool addressing_limit, unsigned int flags,
+ 		io_tlb_default_mem.phys_limit = ARCH_LOW_ADDRESS_LIMIT;
+ #endif
+ 
++	if (io_tlb_default_mem.cc_shared)
++		swiotlb_adjust_cc_attributes();
++
+ 	if (!default_nareas)
+ 		swiotlb_adjust_nareas(num_possible_cpus());
+ 
+@@ -465,7 +501,7 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
+ 		int (*remap)(void *tlb, unsigned long nslabs))
+ {
+ 	struct io_tlb_pool *mem = &io_tlb_default_mem.defpool;
+-	unsigned long nslabs = ALIGN(size >> IO_TLB_SHIFT, IO_TLB_SEGSIZE);
++	unsigned long nslabs;
+ 	unsigned int order, area_order, slot_order;
+ 	bool leak_pages = false;
+ 	unsigned int nareas;
+@@ -479,6 +515,15 @@ int swiotlb_init_late(size_t size, gfp_t gfp_mask,
+ 	if (swiotlb_force_disable)
+ 		return 0;
+ 
++	/* Apply the shared-pool default sizing before deriving nslabs. */
++	if (io_tlb_default_mem.cc_shared &&
++	    size == swiotlb_size_or_default()) {
++		swiotlb_adjust_cc_attributes();
++		size = swiotlb_size_or_default();
++	}
++
++	nslabs = ALIGN(size >> IO_TLB_SHIFT, IO_TLB_SEGSIZE);
++
+ 	io_tlb_default_mem.force_bounce = swiotlb_force_bounce;
+ 
+ #ifdef CONFIG_SWIOTLB_DYNAMIC
 -- 
-2.55.0
+2.43.0
 
