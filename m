@@ -1,154 +1,194 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41491441612;
-	Tue, 11 Aug 2026 12:13:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D99B3B6346;
+	Tue, 11 Aug 2026 12:19:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786450404; cv=none; b=Vg5kDoW8QS0THFLA2Zfh52Blrt0H6IUVms1R/OChhh8ji9p3m/D6dCbL1/Z9fyOJxPUBb8bkYV++NSu+sj7lzAwREr9LIUgDwjD3WiT3GCn35Ts8kJplBrtIVHSVnSYnSSh3L98acwxqKge2PI3QTqLZvfb37w47iVqx4trrGa8=
+	t=1786450759; cv=none; b=f3YpK8n5TYVqGhysZVtSMOdz224YqUwoe7/uz6kr8AnBwqq0JsETGQ4TUav8F9j92m1lfIdV+7lh88gRLFnFFQ9A6WUD5BZD2oMfPnBrOQqvEdN1dKVXYHmOky7s3sKlsMv3EIBjr1UIz2ib5CO/2yEB/tlpCvRYdo4fs/SbcqQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786450404; c=relaxed/simple;
-	bh=AJzUXXtRVme24twgOTFRxyxPKPibajxDweG+9B/essA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=j8xNqj1U8S3qKdOAxQEbLaBoLN0oDrgYvajOOEBVBPhxJTB8sGdEl8/2BY/YmP932B5i1krgHdcFMwrFXyNKGa/Aa/IMwKJWLJR064fiCq2kt/UTDN/KcX+7KNK6SHQ3F9UltDCrIVA6bO031S2K9NWpM21/ncDMz3mHblxkskg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rz9qZJ9R; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786450759; c=relaxed/simple;
+	bh=ZsfJkkF+3s7Cw2VC+bVec0eQIPKX+EYKXWihETGaVqg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VI9iR2mPWvoiQ9fDNXpG01wtx0d0mxgtwCzeKVmEmQGSZrafz3S34I2+NKtjENmUKCTCkttYFJGeGeb1nYxGBQ4xHWzb7z2OC1AeLYFUzxA5zR6U8dtQnpIiUC/kfnH5SEeD/BBIEvlRVUSHyMjGZumnRqq1aVCKRGKk3GJSggE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TXNMjobD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rz9qZJ9R"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67BAVgW7065121;
-	Tue, 11 Aug 2026 12:13:21 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=F33Kzwbr4XstHAu1hJl3hlRLxWE01X2+jn/QLHKDf
-	dk=; b=rz9qZJ9RdWOoGPGTv/G6CQaEsEag6mhVlIrbgXVBnPx7fqO94plaQzxlZ
-	Qx7fjesqaGjP0wbApQmKOwqiQwCwSXkog4K2CZzkhFu3FZ7btasgea4DLp8uge5F
-	UxLSVAs1cUXyF8Q1+1DiokiMTq9KCaFixuO/gRGJ1oKJtI6x0k7/nfa4xTJosJAw
-	4JiBjvfwCc5iCCjBaTCyLTUPSAOffwc9kQISb5hJLY0H7ih5FWzYHFpBCVlIhnB7
-	9YXFhDNILGUXq7aFeEh/OUDCEmqSN3POUbeRfbRLbExvOn8agcYyeVDkSTWHUFMg
-	2M2vOk7PDG4QBnbNR52bL4nL1v7hQ==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvp2v58r-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 12:13:21 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67BCBHiB006537;
-	Tue, 11 Aug 2026 12:13:21 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxg9h0rdh-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 12:13:21 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67BCDG8333816896
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Aug 2026 12:13:16 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 588652004B;
-	Tue, 11 Aug 2026 12:13:16 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3C01820043;
-	Tue, 11 Aug 2026 12:13:16 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Tue, 11 Aug 2026 12:13:16 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55669)
-	id 200F0161223; Tue, 11 Aug 2026 14:13:16 +0200 (CEST)
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390/mm: Fix fail path in crst_table_upgrade()
-Date: Tue, 11 Aug 2026 14:13:16 +0200
-Message-ID: <20260811121316.2622460-1-agordeev@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TXNMjobD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F85C1F000E9;
+	Tue, 11 Aug 2026 12:19:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786450757;
+	bh=Xvzc+EeNb8Im8dB3S7R/NiVmDdjq/C66nQ7WBuXB2zI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=TXNMjobDbIc63sDdOlI10Nh7q+mnPvAo/JjD3mXhc/Dl6aXE+nsN3rUP2cAaVyW1L
+	 Z7o2I8sszdUezbEQLc5RmQXjA479gzmknsqjoZ8u3YbqkZYsltanbXordLkwxhAGY2
+	 5G/AP2+nIs7Us0k7/N9hnbNk0PdTqusrMBKZ78wBdCOc2NhwlTXPjnaDUTJD/v6/xQ
+	 W3UVqF9Gx2/dEEvrP2SLTIEAy9TMw6gPO2TIL27uMCUL5YjrkpZcV6QHhxGfMyBU7m
+	 7XqGq5BghAS/BtC9jOPRhTMG1LJI2pTzoq/wwsa0PhjCSHxyppnWfmgwaF3qRvdVD9
+	 zocZhajt+iBig==
+Date: Tue, 11 Aug 2026 13:19:13 +0100
+From: Simon Horman <horms@kernel.org>
+To: Hidayath Khan <hidayath@linux.ibm.com>
+Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
+	sidraya@linux.ibm.com, mjambigi@linux.ibm.com,
+	andrew+netdev@lunn.ch, tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, pasic@linux.ibm.com,
+	linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH net] net/smc: fix use-after-free in
+ smc_rx_pipe_buf_release()
+Message-ID: <20260811121913.GD51943@horms.kernel.org>
+References: <20260810064041.720441-1-hidayath@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=AMtp2X5w c=1 sm=1 tr=0 ts=6a7b11e1 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=2jIwNAcMr-JrPlo6F3oA:9
-X-Proofpoint-GUID: 8Xxl0Ahz6-imZbqROpoo5PuqH0GhkisE
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODExMDEwMCBTYWx0ZWRfX0HnBbJIIf78C
- eVR9PUJvbfHjP3rziofZ0zvrN0i1uB/ARet2W1YPXTQQXFveXnlJXfIpIPMj6UduPEiijs1RWbl
- jbKkUUVe8Sjuzp4wf/clsTRianAp1WCWCfJDLAVEn2q1UEBYKhrUiecfpkZA/f47IDrZ9cjqqUg
- BIcpY9kbIV/hBZGbTAJ0DKe6hf2uGNBAIfjbMXfcnd5LK+dmfh+9jhLIg9HVdtPllU+cUDszrg6
- kioQE+0KFtMX7CSJzyl4KFn0fOfx6SHmZ1iyTOez262D6WPr6tJAOV96TCtGxtJdAyF0cgVGzsH
- HuCylpN2PJiYvl5WXbYqRiM7xnh9Izt+DL4lTwno0k8WNbKDO/wQDA1ilNIZ/7HiPg3b5irXGs1
- Aa9lIX2oX0DL1jLGNKR24oNXzYQtWxJJhZfau40n0PvP2SNGWQDRiDn8wM5uOmBje8l97zvZzG6
- Y7TeKglwso7axd3Umpw==
-X-Proofpoint-ORIG-GUID: 8Xxl0Ahz6-imZbqROpoo5PuqH0GhkisE
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODExMDEwMCBTYWx0ZWRfX/EtkRnWX60o8
- cqqGMdkFxWuUSNIay50hR9MPoqBKIi5d6eykpU/JhOTvjyNB8DScisbn6gLBtRTX9mgk3S4QE9/
- H2e4ZxF4CqsRibJsmHEgSAhvE59GXGg=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-11_01,2026-08-10_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
- priorityscore=1501 impostorscore=0 phishscore=0 spamscore=0 bulkscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608110100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260810064041.720441-1-hidayath@linux.ibm.com>
 
-On a 4-to-5 level upgrade (unlike 3-to-5) p4d local variable
-stays NULL. If the pgd allocation then fails, the fault code
-path calls pagetable_dtor(virt_to_ptdesc(p4d)) with NULL.
+On Mon, Aug 10, 2026 at 08:40:41AM +0200, Hidayath Khan wrote:
+> smc_rx_splice() hands RMB pages to a pipe and takes a socket reference for
+> each entry, so the smc_sock survives until the reader is done.  The
+> connection does not: a close in between runs smc_conn_free(), which
+> releases the link group and returns the receive buffer to the link group's
+> pool.
+> 
+> smc_rx_pipe_buf_release() tries to detect that by testing sk_state, but it
+> does so before taking the socket lock, and then dereferences the connection
+> anyway:
+> 
+>         if (sk->sk_state == SMC_CLOSED || ...)
+>                 goto out;
+>         conn = &smc->conn;
+>         lock_sock(sk);
+>         smc_rx_update_cons(smc, priv->len);
+> 
+> smc_rx_update_cons() reads conn->rmb_desc->len twice and then calls
+> smc_tx_consumer_update(), which walks conn->lgr and conn->lnk.  The state
+> can change between the test and the lock, and on the is_reg_err path
+> smcr_buf_unuse() does not recycle the descriptor but frees it outright, so
+> this is a use-after-free rather than a stale read.
+> 
+> sk_state is also the wrong thing to test.  Take the socket lock first so
+> the test and the cursor update cannot be separated, and test the receive
+> buffer itself, which is what the code goes on to dereference.
+> 
+> For that test to mean anything, smc_buf_unuse() has to stop leaving a
+> pointer to a descriptor it has just released; clear conn->rmb_desc there.
+> Nothing in smc_conn_free() reads it afterwards, and smc_ism_unset_conn()
+> already returns early on a NULL rmb_desc, so an SMC-D teardown that reaches
+> it twice becomes a no-op instead of indexing smcd->conn[] with a stale
+> sba_idx.
+> 
+> Fixes: 9014db202cb7 ("smc: add support for splice()")
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
+> Signed-off-by: Hidayath Khan <hidayath@linux.ibm.com>
+> ---
+>  net/smc/smc_core.c |  1 +
+>  net/smc/smc_rx.c   | 10 ++++++----
+>  2 files changed, 7 insertions(+), 4 deletions(-)
+> 
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index c0027d2fe4e8..def65ebc0b53 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -1248,6 +1248,7 @@ static void smc_buf_unuse(struct smc_connection *conn,
+>  			WRITE_ONCE(conn->rmb_desc->used, 0);
+>  		}
+>  		SMC_STAT_RMB_SIZE(smc, is_smcd, true, false, bufsize);
+> +		conn->rmb_desc = NULL;
+>  	}
+>  }
 
-Fixes: 502269ab98b5 ("s390/mm: add missing ctor/dtor on page table upgrad=
-e")
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
----
- arch/s390/mm/pgalloc.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+Hi,
 
-diff --git a/arch/s390/mm/pgalloc.c b/arch/s390/mm/pgalloc.c
-index 9610770fcf6d..87a8bdb3e51e 100644
---- a/arch/s390/mm/pgalloc.c
-+++ b/arch/s390/mm/pgalloc.c
-@@ -69,14 +69,19 @@ int crst_table_upgrade(struct mm_struct *mm, unsigned=
- long end)
- 	if (asce_limit =3D=3D _REGION2_SIZE) {
- 		p4d =3D crst_table_alloc(mm);
- 		if (unlikely(!p4d))
--			goto err_p4d;
-+			return -ENOMEM;
- 		crst_table_init(p4d, _REGION2_ENTRY_EMPTY);
- 		pagetable_p4d_ctor(virt_to_ptdesc(p4d));
- 	}
- 	if (end > _REGION1_SIZE) {
- 		pgd =3D crst_table_alloc(mm);
--		if (unlikely(!pgd))
--			goto err_pgd;
-+		if (unlikely(!pgd)) {
-+			if (p4d) {
-+				pagetable_dtor(virt_to_ptdesc(p4d));
-+				crst_table_free(mm, p4d);
-+			}
-+			return -ENOMEM;
-+		}
- 		crst_table_init(pgd, _REGION1_ENTRY_EMPTY);
- 		pagetable_pgd_ctor(virt_to_ptdesc(pgd));
- 	}
-@@ -106,12 +111,6 @@ int crst_table_upgrade(struct mm_struct *mm, unsigne=
-d long end)
- 	on_each_cpu(__crst_table_upgrade, mm, 0);
-=20
- 	return 0;
--
--err_pgd:
--	pagetable_dtor(virt_to_ptdesc(p4d));
--	crst_table_free(mm, p4d);
--err_p4d:
--	return -ENOMEM;
- }
-=20
- unsigned long *page_table_alloc_noprof(struct mm_struct *mm)
---=20
-2.53.0
+The AI-generated review at [1] flags the following.
+Could you take a look?
 
+[1] https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260810064041.720441-1-hidayath%40linux.ibm.com
+
+AI-generated review text:
+
+  Before this change conn->rmb_desc stayed non-NULL once it was set, so
+  readers that never take the socket lock could only ever see a stale (still
+  mapped) descriptor.  Can this new store turn those into NULL
+  dereferences?
+
+  Two paths look exposed.  First, the SMC-R CDC receive path.  In
+  smc_conn_free() the buffer is released before the conn leaves the link
+  group:
+
+  net/smc/smc_core.c:smc_conn_free() {
+	...
+	if (!list_empty(&lgr->list)) {
+		smc_buf_unuse(conn, lgr); /* allow buffer reuse */
+		smc_lgr_unregister_conn(conn);
+	}
+	...
+  }
+
+  So there is a window where the conn is still in lgr->conns_all with
+  rmb_desc == NULL.  smc_cdc_rx_handler() finds it there, and
+  smc_cdc_msg_recv() only takes bh_lock_sock():
+
+  net/smc/smc_cdc.c:smc_cdc_msg_recv() {
+	sock_hold(&smc->sk);
+	bh_lock_sock(&smc->sk);
+	smc_cdc_msg_recv_action(smc, cdc);
+	bh_unlock_sock(&smc->sk);
+	...
+  }
+
+  bh_lock_sock() takes sk->sk_lock.slock and does not exclude a
+  process-context lock_sock() owner running smc_release() ->
+  __smc_release() -> smc_conn_free(), which is why
+  smc_cdc_msg_recv_action() itself has to check sock_owned_by_user().  That
+  same function then does:
+
+  net/smc/smc_cdc.c:smc_cdc_msg_recv_action() {
+	...
+	diff_prod = smc_curs_diff(conn->rmb_desc->len, &prod_old,
+				  &conn->local_rx_ctrl.prod);
+	...
+  }
+
+  and on urgent data smc_cdc_handle_urg_data_arrival() does:
+
+  net/smc/smc_cdc.c:smc_cdc_handle_urg_data_arrival() {
+	base = (char *)conn->rmb_desc->cpu_addr + conn->rx_off;
+	if (conn->urg_curs.count)
+		conn->urg_rx_byte = *(base + conn->urg_curs.count - 1);
+	else
+		conn->urg_rx_byte = *(base + conn->rmb_desc->len - 1);
+	...
+  }
+
+  Neither has a NULL check, and this runs in softirq/tasklet context.  Would
+  it be safer to clear rmb_desc after smc_lgr_unregister_conn(), once the
+  conn can no longer be found by the CDC handler?
+
+  Second, the sock_diag dump.  smc_diag_dump_proto() walks the sockets under
+  read_lock(&prot->h.smc_hash->lock) only, never lock_sock(), and
+  __smc_diag_dump() tests the pointer in the condition:
+
+  net/smc/smc_diag.c:__smc_diag_dump() {
+	...
+	if (smc_conn_lgr_valid(&smc->conn) && smc->conn.lgr->is_smcd &&
+	    (req->diag_ext & (1 << (SMC_DIAG_DMBINFO - 1))) &&
+	    !list_empty(&smc->conn.lgr->list) && smc->conn.rmb_desc) {
+	...
+		dinfo.token = conn->rmb_desc->token;
+	...
+  }
+
+  Can a close on another CPU clear the pointer between that test and the
+  conn->rmb_desc->token dereference?  The same file also does the plain
+  double load
+
+	.rmbe_size = conn->rmb_desc ? conn->rmb_desc->len : 0,
+
+  with no READ_ONCE, which the compiler may reload after the test.
