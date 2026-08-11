@@ -1,138 +1,129 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 453DA330D2A;
-	Tue, 11 Aug 2026 20:44:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFB5D3403F8
+	for <linux-s390@vger.kernel.org>; Tue, 11 Aug 2026 23:20:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786481053; cv=none; b=SxVEGhgqvO/P7B6qUK313+GRyEFm+4/E7ziZBL81MwIYonXuqRqxWZafMAR0Zlv4CpVX9tY2Pj95zjA7pZqYPCwKfcF1c4lr4B5r4K6aZ0io1hZvfqrPdVBZMcWIeXINkE1+fIZ2ED99e4bK3GAxChETlrzT4FUTS3nfJXy+miE=
+	t=1786490408; cv=none; b=cU7xUWIph5l0xk0is8efNpzwGJT0y54//cxAnMZ/kXocSbsU+B/67tmWmMRyTcRYzW8XaYKtmTX3kvN6yzJey5T1+GupUi//dlMsZqDW40Dg8n5XZz1mOdMt7exuAn9E8U//8Dfq1ix51wF/3F1Vn3L9hYpnUEIyF1eogIWsjRY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786481053; c=relaxed/simple;
-	bh=ghutynPgu8p1zY87BMd9qH45ZDg2eVasdV7waSOi8rY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=F1WeYemTHT46gtIjwMAC2QdtclmBxs8YauUa7iJOrlGlQkMeZJ8dIGgXtEL9moRHjExC38efl10XXBzfFrmb1NyDme5Rz9npbK8EV+9FrrPE/1QK9RRbiTrLzfhcCMOCUSVKTJfu/osNeqwNQMPNlWmP9+vVOKNpF4zLEdbMqE8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IIr8t7Cm; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786490408; c=relaxed/simple;
+	bh=9IHT31oTZmV0VeYxdRkHXlkyLp1UBl78qnhC3GuV9I8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fdawLK96jC+0fmjyqLlJpOBeXzrjTBx8x6EKFmqGJxh0sqi+P9vHdJ08aHpNBP6pVke5WealQ1fsT3vnQfMYcAO8oG0uUHH37+GQENWzopdmWYhSBH+jOAEUbr+b095QFs4i+vDMlBE2PUdfcj/1xlG5BZT21pIZlqJHVB/ZhAo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=isslab.korea.ac.kr; spf=none smtp.mailfrom=isslab.korea.ac.kr; dkim=pass (2048-bit key) header.d=isslab-korea-ac-kr.20251104.gappssmtp.com header.i=@isslab-korea-ac-kr.20251104.gappssmtp.com header.b=B//ZdEyq; arc=none smtp.client-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=isslab.korea.ac.kr
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=isslab.korea.ac.kr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IIr8t7Cm"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67BJVVnQ1327808;
-	Tue, 11 Aug 2026 20:44:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=jlQEM0
-	B67mc7Ns8QfSDXxeVcBaXvfkc9zNqRItDeSKs=; b=IIr8t7Cm/Bd1EN75Sdfo1Z
-	VJfgDquGI+XbRCep2fb4k2Iy5nkx/F5lECN+6AgYPBj9ANbClp3TPJg7lciquuyS
-	NogxrG2f+ctSPlbIjW5NIfKNVB+PPjMdz5px/hjn98xj5MUnq4s4dJSMMlzPAZz9
-	BQoZ3XeSMzx5H4gkNcDzBNFMgWkfirKZGtHN+sMdjEN2VSLf935F1Hkskdg8kSua
-	3LL38GJuxnQyab7W7eB9BE0k8kenuwSBJf2gPq8sBIuc+dnuer/6b5g456CDb/3i
-	3u83XG7IzzPr20/luSpZ7IUYIy6j6omHj7Zh0sOljS0fUg5kH8qj6PEz2iyiKmzQ
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvm9q5st-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 20:44:03 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67BKfOZJ029656;
-	Tue, 11 Aug 2026 20:44:02 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxhfy2myp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 20:44:02 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67BKi0c336045542
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Aug 2026 20:44:01 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9E79758056;
-	Tue, 11 Aug 2026 20:44:00 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7DAD75803F;
-	Tue, 11 Aug 2026 20:43:59 +0000 (GMT)
-Received: from [9.61.146.44] (unknown [9.61.146.44])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Aug 2026 20:43:59 +0000 (GMT)
-Message-ID: <ee703b01-ea21-43c4-a38c-8b505034b0fb@linux.ibm.com>
-Date: Tue, 11 Aug 2026 16:43:59 -0400
+	dkim=pass (2048-bit key) header.d=isslab-korea-ac-kr.20251104.gappssmtp.com header.i=@isslab-korea-ac-kr.20251104.gappssmtp.com header.b="B//ZdEyq"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2cf27856f9cso1953925ad.2
+        for <linux-s390@vger.kernel.org>; Tue, 11 Aug 2026 16:20:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=isslab-korea-ac-kr.20251104.gappssmtp.com; s=20251104; t=1786490405; x=1787095205; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=8gUR5XNd4P4Fr5D6DF/rwFxtm19io3AVFBF1yERCCmA=;
+        b=B//ZdEyq0eHyplW1VuMeZfathIb4Cy9FarpRcqrYluvBh36Yg3VNqjGnb6Daf6zRru
+         if8zqlIX6HuFyENTZHx5MiNxoZmqomD9CuKNI8bPOCY5+lt5YbGAEAkF1vbRrayjwkzi
+         AfBtKa9p58Kpfu1FaUU+ACvMTdi8JxETsxsUUyzjw7JCrDdfOc4xe4caTVOgeQooyWDE
+         yfrDOHUZm1dCt5bGkieWR76LndaJrt8XfKrQ76QBP7XrMVXLOhsWf3lsTc4Ofq3Qmbq2
+         eY76lI4UpCATWh//JDZSWVUZoMbmK6bcctf5RAH6XU/C7bm6Y6SWZQAT98AWLOh12ghh
+         U9CA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786490405; x=1787095205;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=8gUR5XNd4P4Fr5D6DF/rwFxtm19io3AVFBF1yERCCmA=;
+        b=SbhffMaW+IgkzCteSz+o7TmZRol4VxoX+/eK1EFhAq3CGI/5Uc8UE81ZaqWcsw7d69
+         DHrbHEN/oHWm2DqQ4ATSAy9qJdCHEdF/TXny9HVTDoolpFLvWYXtGhRzmRKHvFKDHWp7
+         ULl6jhZyYw+0L+LmGV+EZBPgADhjgKW+Bu4D9bjw2e3lRKkM/JbrquoRfD83tiwVFr0N
+         CNJzGFw2oixk6HCBQ7sQtt9VYOdwrzhUltZdEB8lSJKiSM6LmmSFDjNrm2ct0eXbHh/7
+         2A1bRx073gH3bmfVz2nQudKJNOVkyYAcjqwTiEUS/qUcO/yy4Lrdnu84IMh4JE/a1yqT
+         MWUQ==
+X-Forwarded-Encrypted: i=1; AHgh+RqWEA4sHwZJzz+U5Ee0awe0gpjLhMQBA4A5gi2Yab/oKvUlWJxF4csxBCk1er9xMieXbrQrLici/bbq@vger.kernel.org
+X-Gm-Message-State: AOJu0YxI8ndZiTXrsQF6KKyoR6YyZKeh73LOe1gaPAAEgsM/u9O6b8rK
+	INVknJxOX+vQQMMehDFc1xGl2c4W2AQcYRd8+jXCJrwNoJfdnUm7ZI1lMVoCtqoFGl0=
+X-Gm-Gg: AR+sD12DgX0l2wW/PhW5iGOphkiW45JiIHLdM4HF0QbGTqcOPGHuYzsO1wt9WlsQsxo
+	s25kWP1/chEoCo1HXkNuPOOOOFsdtPSaXYdRo2BfDonWs9qulbeMcEE9Su79GFhe1BBxJfYootY
+	2zEhGv6F7gmwgdb8gUATXyyR553gu0SjAhDdYzQJ5iNW+jJFwvg0OAJdlum8wzFrMojXTkoZFTG
+	zimFeXHtd2CbWtL8lH6lHSotGMPVao70u8YQT1CXNbrmYNbuG11JLHWxVj6FM5a5pKjImQI2qDL
+	gv6gNGYruOXQCdz6E2UFKbkqCL1BDVLtJRgFaLXMblYTW/+Ootn6gXTmzqtGCEZstHPCfKiSRtC
+	INuFphMHOfVuIPbEo/HSl/5YuMrfh8UyqgMFwl9UZoGJs0cmFu2OkfS9826Y+2xdf8XSNlkCbrK
+	FsocwOaWLCAO9tKrmwlGyiuYZVnFzY17pyjfmRrihWpOeQcwy9qznB0y1rfeV8TbT2Tei4d4vZ1
+	SmYBmMezV0=
+X-Received: by 2002:a05:6a21:b90:b0:3c3:c080:71ca with SMTP id adf61e73a8af0-3cc3f218cc3mr674091637.0.1786490404833;
+        Tue, 11 Aug 2026 16:20:04 -0700 (PDT)
+Received: from yhlee-960QFG.Davolink ([2406:5900:1044:110c:365f:6c09:b402:1986])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cbedbac8842sm1177810a12.30.2026.08.11.16.19.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Aug 2026 16:20:04 -0700 (PDT)
+From: Yehyeong Lee <yhlee@isslab.korea.ac.kr>
+To: alibuda@linux.alibaba.com,
+	dust.li@linux.alibaba.com,
+	sidraya@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	kuba@kernel.org,
+	davem@davemloft.net,
+	edumazet@google.com,
+	pabeni@redhat.com
+Cc: leitao@debian.org,
+	horms@kernel.org,
+	mjambigi@linux.ibm.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	guangguan.wang@linux.alibaba.com,
+	kees@kernel.org,
+	gustavoars@kernel.org,
+	netdev@vger.kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-hardening@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Yehyeong Lee <yhlee@isslab.korea.ac.kr>
+Subject: [PATCH net v6 0/3] net/smc: fix out-of-bounds and use-after-free in SMC-Rv2 LLC processing
+Date: Wed, 12 Aug 2026 08:18:59 +0900
+Message-ID: <20260811231902.47089-1-yhlee@isslab.korea.ac.kr>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 8/8] s390/vfio-ap: Fix hot-unplug skipped when last AP
- adapter or domain removed
-To: Anthony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, pasic@linux.ibm.com,
-        alex@shazbot.org, kwankhede@nvidia.com, fiuczy@linux.ibm.com,
-        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        agordeev@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        stable@vger.kernel.org
-References: <20260810192257.1208410-1-akrowiak@linux.ibm.com>
- <20260810192257.1208410-9-akrowiak@linux.ibm.com>
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <20260810192257.1208410-9-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODExMDE3MyBTYWx0ZWRfX1xvESTZERLux
- DfbFnChO2Vrxi7v5fGkLRJ55hXCqSV+gTbWnBHdu9X0RRkBRPjES+LCUlQ3JVOYQSDAGg6z6EVE
- Q/iQCV2vfL7sfbngwTH1qhhAYr1zJV/y7iZpzD2VpPkDMJhez/AjrtefFXQBejsUI91jVtGWECC
- pSb54FCuCLsmNApYSA9ptPPt/7w7nWO2/9qiUx6Mzey3IE/uyw5a63+ygt42hzUhsr3PfKdvoAg
- /olUjXERgeu69UrtXjPuE6M1bDoyoVeSXv05UUEAqIzEC3gfkU4AqfiNx4Zwlf6zmqQ3dz7jxYB
- L0af0xcmovNvcwMHdOfEQ7rEPYKqlx/5djm/q4c35azZCc7GCbryby1hDroo0lOGomaaTFGvyBm
- 46CFOBTb3ck9nobM4ZbTeItWOylpLDj0eU9bs/X1pl4v2Vi3jur3Fbdr4tf3di2I9o8lPjmfX+H
- q+gns3Oe0Djqd7tCNzw==
-X-Proofpoint-ORIG-GUID: x7Yg1-cmNCD_Aqgj5fSNTTgz2mGNnovQ
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODExMDE3MyBTYWx0ZWRfXyzxgW6RpydYG
- xKvCIrEbPqiRLMsdxDtwU+ujHsYW0appC5BqQawtiTwn+FSjRtrmn3EwUBCETLET+5l2IpxocyA
- s51B5yShKFipMmsaLPWpUq7czviL6HU=
-X-Authority-Analysis: v=2.4 cv=IfK3n2qa c=1 sm=1 tr=0 ts=6a7b8993 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=fD2uEicUE52K2J2evs0A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: x7Yg1-cmNCD_Aqgj5fSNTTgz2mGNnovQ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-11_05,2026-08-10_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 impostorscore=0 bulkscore=0 clxscore=1015
- lowpriorityscore=0 adultscore=0 malwarescore=0 spamscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608110173
+Content-Transfer-Encoding: 8bit
 
-On 8/10/26 3:22 PM, Anthony Krowiak wrote:
-> The vfio_ap_mdev_hot_unplug_cfg() function uses the return value of
-> bitmap_andnot() to determine whether the guest APCB needs to be updated.
-> However, bitmap_andnot() returns false when the resulting destination
-> bitmap is empty. This means that if the only adapter, domain or control
-> domain assigned to an mdev is removed from the host's AP confikguration,
+Patch 1 fixes a use-after-free of the LLC queue entry in
+smc_llc_srv_add_link(), patch 2 bounds the peer's rkey counts, and patch 3
+carries the tail of an oversized v2 message in the queue entry so that both
+readers are bounded by what arrived.  All three are tagged for stable: a
+tree that takes 1 and 2 without 3 still deletes rkeys read from whatever an
+earlier message left in the shared receive buffer.
 
-s/confikguration/configuration/
+Changes since v5:
+ - 1/3: leave through the existing exit label instead of repeating the two
+   kfree()s (Breno Leitao).  The object code is unchanged.
+ - 3/3: add the Fixes: and Cc: stable tags (Simon Horman).
+ - 3/3: assert that the two DELETE_RKEY_V2 layouts agree on the offset of
+   rkey[], since the parsing code indexes one and the existing assert
+   constrains the other.
+ - 3/3: limit the copied tail to the largest one either reader can use,
+   so the size of the queue entry is not chosen by the peer.
+ - 3/3: the comment in smc_wr_init_sge() described the memcpy() this patch
+   removes; correct it.
 
-> the bit is correctly cleared from the shadow APCB, but bitmap_andnot()
-> returns false because the result is an empty bitmap. Consequently,
-> do_hotplug remains 0 and vfio_ap_mdev_update_guest_apcb() is never called,
-> leaving the KVM guest with stale hardware access to the unplugged AP
-> devices.
-> 
-> Fix this by replacing the bitmap_andnot() return value check with
-> bitmap_intersects() to determine whether the shadow APCB actually
-> overlaps with the removal mask. If there is an intersection, call
-> bitmap_andnot() solely for its side effect of clearing the bits, then
-> unconditionally set do_hotplug to trigger the guest APCB update.
-> 
-> Fixes: eeb386aeb5b7c ("s390/vfio-ap: handle config changed and scan complete notification")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+Yehyeong Lee (3):
+  net/smc: fix use-after-free of the LLC qentry in
+    smc_llc_srv_add_link()
+  net/smc: bound the peer rkey counts in SMC-Rv2 LLC messages
+  net/smc: carry oversized SMC-Rv2 LLC messages in the queue entry
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+---
+v5: https://lore.kernel.org/netdev/20260801094208.1937951-1-yhlee@isslab.korea.ac.kr/
 
-Also please look at the one other pre-existing finding against this
-patch, another potential follow-on.
+ net/smc/smc_llc.c | 122 ++++++++++++++++++++++++++++++++++++----------
+ net/smc/smc_wr.c  |   6 +--
+ 2 files changed, 98 insertions(+), 30 deletions(-)
+
+-- 
+2.43.0
 
