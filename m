@@ -1,31 +1,31 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5122C2E5B21;
-	Tue, 11 Aug 2026 04:21:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id A9E822C0F6D;
+	Tue, 11 Aug 2026 04:21:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786422105; cv=none; b=q39kIlAWBum4XT36QsEOyWazT/JLOHtS8hZfaRGM+bxUOepIEOBeptJj1OYoIwW0jCNSXR8SyPCv5U2F1JpOv3CpvejVB9F7XbbejOuq2LKtQmDRz7Oxf2z/CvJoiUoIQgv0BsL6d4yU7MnFzX23p43q3da/mqem+FIgUO4kt7w=
+	t=1786422107; cv=none; b=Xn96eU595rAFHDDJZntZb+KV2hzpoTWU58ybWr4MeOWNuuF1DdCX720n9f93/8Z1aRagg/btgq1yz4B+0PO970kiJeNO6QRMYb0ReAXUCg/wgWOVWa0RkXUarq8vqFu12zfK9CbKSLAsHLy4lsVQVp5K5hyC7AIeRqqLmF9bEAQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786422105; c=relaxed/simple;
-	bh=OKKk+J7eMHIWw8QjhuEJW1LEtsSDjKpxvNzpv83/ug8=;
+	s=arc-20240116; t=1786422107; c=relaxed/simple;
+	bh=o/tR0NWvhY3SX4yLhgLdlKztVZ/ZDPp9f0uGwvGj4xI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pvjw8xxzDkSW2OYZHWZkVzRoIltZpMc1kGy4t0VAjvaUrbybClRPUxVC07+tp8s70rPFaXhoWjHy+6sLOIwAEMbOCiFQ5otG6qHOS9pzqbzmksiZ6J0/ds991srCSkoqttM/8ZrD7bklBNDBAPbAVYgwcgUahcfI0TWG3O+hhWQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=NDnTBVj2; arc=none smtp.client-ip=217.140.110.172
+	 MIME-Version; b=fwWcF4aGQMuTUyLXWx0xjexec2o85nYKT+B2rBXyt2Gi2+jdS+map+nN/mgOYEKkPpfHak8/V6V60vovR9xmwLxABlB3ZhV/yYLJP2s3h7Aeh+6WubFGZas6+L24RTJkPNydfVYu3/QaqxhWkZ/S2r4b9o2FnjUlUf5enkbs5wo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=EP3Dq1aP; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="NDnTBVj2"
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="EP3Dq1aP"
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 977B6168F;
-	Mon, 10 Aug 2026 21:21:35 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 346BB1691;
+	Mon, 10 Aug 2026 21:21:39 -0700 (PDT)
 Received: from localhost (a085714.arm.com [10.164.19.28])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CD6F33F673;
-	Mon, 10 Aug 2026 21:21:38 -0700 (PDT)
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6B11A3F673;
+	Mon, 10 Aug 2026 21:21:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1786422099; bh=OKKk+J7eMHIWw8QjhuEJW1LEtsSDjKpxvNzpv83/ug8=;
+	t=1786422103; bh=o/tR0NWvhY3SX4yLhgLdlKztVZ/ZDPp9f0uGwvGj4xI=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=NDnTBVj22FStQ+XK0HLwvJKJro3KeX1TWQm5rzPJ0S7csuqOhawi++Hc637b87GPD
-	 Hvinpr7iTMbSodkYtTOTqdZ/yXYwlvbKLRTdNZffXQArm0ptKBDdXtxSDLXybURVE7
-	 0SmAxajLRK1u+03/uA3LFe6J/WvE1OGUYKFOsK0Q=
+	b=EP3Dq1aP8UBMadr/tul1OY+DRwLecwPVYiwRmMER+BCOGaV30lmk3V/aTuXJJLtmB
+	 8PbwdwY+cvaT+ugZq70QKqNBl3AgTAqOTQQ5Kb3naXF5+49iz+XTSHKlHN+Dd0+sIQ
+	 52UG0j98GXXDebh0dSdXFEtoYAzAN2jBOkz34COU=
 From: Anshuman Khandual <anshuman.khandual@arm.com>
 To: linux-mm@kvack.org,
 	akpm@linux-foundation.org,
@@ -56,9 +56,9 @@ Cc: Anshuman Khandual <anshuman.khandual@arm.com>,
 	linux-um@lists.infradead.org,
 	linux-arch@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [RFC V2 4/6] sh/mm: Stop using [p4d|pud|pmd]_ERROR()
-Date: Tue, 11 Aug 2026 09:51:17 +0530
-Message-ID: <20260811042119.3652929-5-anshuman.khandual@arm.com>
+Subject: [RFC V2 5/6] sh/mm: Stop using pgd_ERROR()
+Date: Tue, 11 Aug 2026 09:51:18 +0530
+Message-ID: <20260811042119.3652929-6-anshuman.khandual@arm.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260811042119.3652929-1-anshuman.khandual@arm.com>
 References: <20260811042119.3652929-1-anshuman.khandual@arm.com>
@@ -70,8 +70,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Stop using [p4d|pud|pmd]_ERROR() in __get_pte_phys() as the pgtable entries
-are known to be NULL and hence could not really be accessed.
+Stop using pgd_ERROR() in __get_pte_phys() when page table entry is already
+known to be empty.
 
 Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
 Cc: Rich Felker <dalias@libc.org>
@@ -80,39 +80,25 @@ Cc: linux-sh@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- arch/sh/mm/init.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ arch/sh/mm/init.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
-index b3c7fd84ceb4..0bb8555568a4 100644
+index 0bb8555568a4..585012293632 100644
 --- a/arch/sh/mm/init.c
 +++ b/arch/sh/mm/init.c
-@@ -58,22 +58,16 @@ static pte_t *__get_pte_phys(unsigned long addr)
- 	}
+@@ -52,10 +52,8 @@ static pte_t *__get_pte_phys(unsigned long addr)
+ 	pmd_t *pmd;
+ 
+ 	pgd = pgd_offset_k(addr);
+-	if (pgd_none(*pgd)) {
+-		pgd_ERROR(*pgd);
++	if (pgd_none(*pgd))
+ 		return NULL;
+-	}
  
  	p4d = p4d_alloc(NULL, pgd, addr);
--	if (unlikely(!p4d)) {
--		p4d_ERROR(*p4d);
-+	if (unlikely(!p4d))
- 		return NULL;
--	}
- 
- 	pud = pud_alloc(NULL, p4d, addr);
--	if (unlikely(!pud)) {
--		pud_ERROR(*pud);
-+	if (unlikely(!pud))
- 		return NULL;
--	}
- 
- 	pmd = pmd_alloc(NULL, pud, addr);
--	if (unlikely(!pmd)) {
--		pmd_ERROR(*pmd);
-+	if (unlikely(!pmd))
- 		return NULL;
--	}
- 
- 	return pte_offset_kernel(pmd, addr);
- }
+ 	if (unlikely(!p4d))
 -- 
 2.43.0
 
