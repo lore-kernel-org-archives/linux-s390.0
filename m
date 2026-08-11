@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 039C53F9F22;
-	Tue, 11 Aug 2026 16:44:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95D47407CCF;
+	Tue, 11 Aug 2026 16:46:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786466674; cv=none; b=F+cNrLMz6xzT206tQ7lF3delsl9b6VSCxZ10Y2pAiG+/A9t4qzyVdTzNtcjfufxN+HxIEeNgnHMQeQIbu1ksHwzG/eJBYWSBfvckkqn2/e9euxOdvVxdoWGiV7PLCQzvKVoSNmyveGBlwWKzqf25j8sPN5Sy+RhSjt+u9hNvMVo=
+	t=1786466796; cv=none; b=UOyNyX3NoFXz6djch2OmQQPBUzo38WynZcpgNvhnlozSd9E0W0F7202wFzRaBeqzIlCDHGSzovxXTiCaa+GV0Sjcwcr8/kpmkTLF6klbwnleSveGKJYQ7kJ+1/1y8Rv2fbh2MzJqvg2r3J2m2FfqQO5xRnnlOWS8LgPA4JLDVGQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786466674; c=relaxed/simple;
-	bh=0jMyZZEBWeHJFGWFY7uMvVyDeU/qet406ZJAsDX8aaU=;
+	s=arc-20240116; t=1786466796; c=relaxed/simple;
+	bh=u0YUwamuGKRT47cErQRTvVYHHaC0Mo1pQowrpeHW930=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sBZncrobQUPIl3Syky6uRJBHkqU1jdm+m/L/Fk8eiZrXOeKc/XAzClTh3fZc39vUjRpeCSxGtfDKZxYaj3neDyMM/WAx5M8xHSlELVcQimygC+IwI4YIAHDfku3q9X3kDwbGsfMhPe2juwJoRSy8Vq4sPzSXIJiqXZZL4LIcMHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hHVkB6GY; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=E/YORpXcFZX6/fnpWMxD6Hfj/HG/6v/sHc6BJ9kBkth5kI1rZCgkWC6VSvtUI31ZYqDUNo2fF8vNLGe223758PS5yGzrEWSzpGj7nOd+MKmDEEB+PdnHCWBkA16l+i0evq0LLaaRoC62/NPvtz4cIO349PjMsLjsgb2jYzNzu8s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PDOZm2SI; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hHVkB6GY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 955941F000E9;
-	Tue, 11 Aug 2026 16:44:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PDOZm2SI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2C271F000E9;
+	Tue, 11 Aug 2026 16:46:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786466664;
-	bh=2nDP2yo4Z7/8hyrcK4LHPjnUI6OonoDg03U38JzRLms=;
+	s=k20260515; t=1786466790;
+	bh=/XUCNlER7njUc40tBR0DWcTfriB1zvkQvss6GHD2ank=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=hHVkB6GYhX+6ZWhhsgZFxKzOnkGl2RYOjzFptgt0LCOOUol9ozVzcavLD6CvDQydn
-	 dD7uSwc6jau6XFfSmk+IKexK6u8o6CeKGHkCuKXrrZ5ZTjQpBaNq7q2BAxRoNZpfbB
-	 DFn7OzDXW1vNtKFqNmrCGSpgV8QZYUsLSUd8vGpNzrrwVHH9yLjObobUtS5Znirks1
-	 g0F47R8DNocE+LgLop8peVMqvNZ90+CL5I6DyccMXHmwf3Ag+Y2iz6YFiIln1mRPt7
-	 UdIgWjZ1qv52eMMvDlYKcast9now6cuY+C80b4nyZpyoCm5Lw8Zk1YHCZaDr08uci1
-	 VSMkUMM/zhr7g==
-Message-ID: <3a0a9aaf-20f5-4f92-b848-00ab702e8fe2@kernel.org>
-Date: Tue, 11 Aug 2026 18:44:01 +0200
+	b=PDOZm2SIEHzJEYL6kAt2p9SwsPWFP53BfhFoDIV5PJx4Mar22fWokuwB1Gs40HMCW
+	 HusJkPRcas4gssRJHuMvSkcy0pQOGTfK9t7uteNp15QoUveerW2+sQ/5N5czl4URVe
+	 6huPu9zGCJOtwppJ8w1zMucIJf3bBhZUKXFmUyF7Cjlj/mkR0OgZUmQeUhQP92R7jv
+	 yVieUyIsqDE5eH662LglgH6MGJcAh0MiiR41c50TFp4hD+mDnj/smhw97Lg4dNjutr
+	 DKAURUrvfOmLvLTJNeKIvaIwsjRGawg9+A+NfDLh/l+iN5qQjYALyXHDiynJvEt825
+	 Ap0uIpkDLBUoA==
+Message-ID: <c76f1dab-97a0-47e3-92ef-042e403c64db@kernel.org>
+Date: Tue, 11 Aug 2026 18:46:06 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,7 +35,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 07/20] mm/vma: fix self-merge check in copy_vma()
+Subject: Re: [PATCH v4 08/20] tools/testing/vma: add tests for copy_vma()
+ self-merge
 To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>,
  Andrew Morton <akpm@linux-foundation.org>,
  "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
@@ -95,7 +96,7 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  intel-xe@lists.freedesktop.org, linux-perf-users@vger.kernel.org,
  linux-trace-kernel@vger.kernel.org
 References: <20260806-b4-scalable-cow-virt-pgoff-v4-0-ab318a350404@kernel.org>
- <20260806-b4-scalable-cow-virt-pgoff-v4-7-ab318a350404@kernel.org>
+ <20260806-b4-scalable-cow-virt-pgoff-v4-8-ab318a350404@kernel.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -142,40 +143,85 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260806-b4-scalable-cow-virt-pgoff-v4-7-ab318a350404@kernel.org>
+In-Reply-To: <20260806-b4-scalable-cow-virt-pgoff-v4-8-ab318a350404@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
+On 8/6/26 22:21, Lorenzo Stoakes (ARM) wrote:
+> Assert that a VMA can be moved backwards, forwards and between a preceding
+> VMA and its old self.
 > 
-> Since copy_vma_and_data() which calls copy_vma() intends to reference the
-> old VMA after the merge, it must have this pointer updated.
+> In the cases in which the VMA merges only with itself expect that to be
+> achieved by expanding its old self, so assert that these function
+> correctly.
 > 
-> This kind of self-merge is not possible with a succeeding merge, as the
-> merge always prefers to expand the preceding VMA if possible.
-> 
-> copy_vma() accounts for this by explicitly checking to see if a self-merge
-> occurred and updating the vmap pointer if so. However it incorrect did so
-> even for a subsequent merge (this is simply a noop so it had no impact).
-
-Took me longer than it should to find out that this is no real fix ;)
-
-> 
-> So change this to only check for the case which matters - a backwards
-> merge - and rearrange the parameters to make it clearer we're doing that -
-> i.e. check new_vma->vm_start < old_vma_start (having already renamed
-> vma_start to old_vma_start to make it clear this is the previous VMA).
-> 
-> Also update the existing wall-of-text comment to be a lot clearer.
-> 
-> While we're here, replace the VM_BUG_ON_VMA() with a VM_WARN_ON_ONCE_VMA()
-> and update the VMA userland tests accordingly.
-> 
-> No functional change intended.
+> However in the case of a merge between a preceding VMA and itself the
+> original VMA is removed, so assert that the preceding VMA replaces the one
+> passed in as vmap and the merge is as expected.
 > 
 > Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 > ---
-I skimmed over it, looks correct, but the merging stuff is way over my head to
-confidentially give a RB tag her :)
+>  tools/testing/vma/tests/vma.c | 46 ++++++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 45 insertions(+), 1 deletion(-)
+> 
+> diff --git a/tools/testing/vma/tests/vma.c b/tools/testing/vma/tests/vma.c
+> index 754a2da06321..0d40d7ba2181 100644
+> --- a/tools/testing/vma/tests/vma.c
+> +++ b/tools/testing/vma/tests/vma.c
+> @@ -33,7 +33,51 @@ static bool test_copy_vma(void)
+>  	struct mm_struct mm = {};
+>  	bool need_locks = false;
+>  	VMA_ITERATOR(vmi, &mm, 0);
+> -	struct vm_area_struct *vma, *vma_new, *vma_next;
+> +	struct vm_area_struct *vma, *vma_prev, *vma_new, *vma_next, *vma_orig;
+> +
+> +	/* Move forwards, adjacent to old self - self-merge. */
+> +
+> +	vma = alloc_and_link_vma(&mm, 0x1000, 0x2000, 1, vma_flags);
+> +	vma_set_anonymous(vma);
+> +	vma_orig = vma;
+> +	vma_new = copy_vma(&vma, 0x2000, 0x1000, 1, &need_locks);
+> +	ASSERT_EQ(vma_new, vma_orig);
+> +	ASSERT_EQ(vma, vma_orig);
+> +	ASSERT_EQ(vma_new->vm_start, 0x1000);
+> +	ASSERT_EQ(vma_new->vm_end, 0x3000);
+> +
+> +	cleanup_mm(&mm, &vmi);
+> +
+> +	/* Move backwards, adjacent to old self - self-merge. */
+> +
+> +	vma = alloc_and_link_vma(&mm, 0x2000, 0x3000, 2, vma_flags);
+> +	vma_set_anonymous(vma);
+> +	vma_orig = vma;
+> +	vma_new = copy_vma(&vma, 0x1000, 0x1000, 2, &need_locks);
+> +	ASSERT_EQ(vma_new, vma_orig);
+> +	ASSERT_EQ(vma, vma_orig);
+> +	ASSERT_EQ(vma_new->vm_start, 0x1000);
+> +	ASSERT_EQ(vma_new->vm_end, 0x3000);
+> +
+> +	cleanup_mm(&mm, &vmi);
+> +
+> +	/*
+> +	 * Move backwards between prior VMA and old self - self-merge and vma
+> +	 * updated to a new VMA.
+> +	 */
+> +
+> +	vma_prev = alloc_and_link_vma(&mm, 0x1000, 0x2000, 1, vma_flags);
+> +	vma_set_anonymous(vma_prev);
+> +	vma = alloc_and_link_vma(&mm, 0x3000, 0x4000, 3, vma_flags);
+> +	vma_set_anonymous(vma);
+> +	vma_orig = vma;
+> +	vma_new = copy_vma(&vma, 0x2000, 0x1000, 3, &need_locks);
+> +	ASSERT_NE(vma_new, vma_orig);
+> +	ASSERT_EQ(vma_new, vma);
+> +	ASSERT_EQ(vma_new->vm_start, 0x1000);
+> +	ASSERT_EQ(vma_new->vm_end, 0x4000);
+> +
+> +	cleanup_mm(&mm, &vmi);
+
+Okay, these examples were pretty useful to understand the original problem.
+
+Acked-by: David Hildenbrand (Arm) <david@kernel.org>
 
 -- 
 Cheers,
