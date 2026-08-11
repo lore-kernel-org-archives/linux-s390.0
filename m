@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFD6843D4EE;
-	Tue, 11 Aug 2026 17:07:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D9D9263C8F;
+	Tue, 11 Aug 2026 17:07:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786468026; cv=none; b=qd7IY4tHQgTtifLWFt9jC3cX/8Z4Uqm8AetRQiRpJdrMGqOtWV7AZEbkaK0ivmnMYM8R3gKMGY/hCcnQmb/8GvT3YCLVgMmegoUi9zw6skx9Kus9MOjJDiauI+9wqZqCUd6zG1+bTlIPTEGN/l0oxjwNeoyIg1IYEwXAHoJ/NF0=
+	t=1786468073; cv=none; b=oovXSpBGeV9iGwts+iOrrF/Vz/vI8MUN9DBVoHRPlx8+5pqlFIGgotPRJREiIUU0w2ZJ3rCsSA3QgHO//THssnJyDY/m1N85e9uOWdUKsT1kApmp7bR3+BlqQ8Yw4iDGiDJLgSpp9MGjW7QpOfqQ31qDa59TmlokLQ0hqw40HEk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786468026; c=relaxed/simple;
-	bh=tzHgNprRUHzM+nWJ/u98+1Hlh2UAUyJ3Kbr/TZIbCxA=;
+	s=arc-20240116; t=1786468073; c=relaxed/simple;
+	bh=N+mXIOIWXA0/orzNzNwGG39tuU2ATGudf/Z8m3WST2M=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZZOIhdLPzj1DC/xCO2FzkdV2lcDv7zXO1uWQV7zkklocbOOlmMdyJca8spVJ1DsDzX30MqA6Zrv7bqG6SlSOi611nWUZkh6sr17NFiW9lhLclrVX49J0vDeLtauLmyQvRGiMCkiN6mj5Yb0KKkprXPPTBvc0UxkOlBUtYLs/zbQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Bf5TjJfO; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=enfbRKignxBQMv6FDdxJRyH+MKYKfCcYtfjCC5C5MGZ0kyFmzzmzsPvIBtoFZS/wxJm5aGgrKAuedFd/LfKBYsEphhgnPigwVWqYgN9ysanbjWmohdr2vZBS8RAh2f6JZvkOOh0X65DsM8ZL1sPQ0Bv5Ksu6i8sALcVrt0t6MPw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=muZHQpJO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Bf5TjJfO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56DAB1F000E9;
-	Tue, 11 Aug 2026 17:06:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="muZHQpJO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33E4A1F00A3A;
+	Tue, 11 Aug 2026 17:07:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786468024;
-	bh=tzHgNprRUHzM+nWJ/u98+1Hlh2UAUyJ3Kbr/TZIbCxA=;
+	s=k20260515; t=1786468071;
+	bh=iUKLaNVgnm6yVlIUuq3S+v3XbNNRA5IFdKQLUZEf4Po=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Bf5TjJfOh3SVJsd4OtNdIG5B5d2xI11qP61qJcO2dcoDBDjurnJvmNPwolN5e/u0t
-	 B+s35+Ba3k0Ns93TcFR/N9sUve5/+B3Goi9qQ4RIFY2/TfV1P1ngNQrwNDWdpXcp/r
-	 4q69xnZYEQ2sxu0tJvaoTKAAFegaeOn7niN+JtEhikAMpqH+Kg8C+KtvXPzvej/CwY
-	 f4+zv+hOyB74boEfRrhRV6IzRg4W734UjR7CsmOmmM/IuOBia8qp9ei8JtAxef+bGo
-	 fuAaB+9VFjwnNgmP/8bxFEXx+LF/kKv9tXOqV2pglDl8d/GMZ6T8XshRpJkqe6TIUs
-	 eq8QHs1RDNSBg==
-Date: Tue, 11 Aug 2026 18:06:44 +0100
+	b=muZHQpJO9uzZAk0kMRcdaEMI9jcfs4Uu8oC32MtScjPY0WQhPC9xcG9YtLeaqYkRQ
+	 BghULgIcL5/Ouo5WcMWjVgCzG81bXQD6IdhgzJ6RLsQSkBK03Zm7Q/fe1OeV3TUm0h
+	 46THJIkIrI54+SDkzKF9E0cwdr8sdNPbtzdgd4zMW4gmlKrbgcMHPDNsbQ5FIgOYzV
+	 5i4BQIab45nRpWJ+5/jy2TB8m8BQIVBiwTgWhiKCPfXFIL663Lp+qsXIZ1AuT7UVS6
+	 vdbOBvZg6oEOgAzKgxsuG5rlZ/X3CLkTg0FKOgfOxRCP92SoTKocLw6YIaqodz+n1H
+	 r9H212Mfzjw/w==
+Date: Tue, 11 Aug 2026 18:07:36 +0100
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 To: "David Hildenbrand (Arm)" <david@kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>, 
@@ -70,13 +70,12 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 	linux-s390@vger.kernel.org, amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
 	intel-xe@lists.freedesktop.org, linux-perf-users@vger.kernel.org, 
 	linux-trace-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 07/20] mm/vma: fix self-merge check in copy_vma()
-Message-ID: <antWi82nEl-7GY7u@gremlin>
+Subject: Re: [PATCH v4 16/20] tools/testing/selftests/mm: test anonymous page
+ offset merge behaviour
+Message-ID: <antWw3a0iEv4l1Yd@gremlin>
 References: <20260806-b4-scalable-cow-virt-pgoff-v4-0-ab318a350404@kernel.org>
- <20260806-b4-scalable-cow-virt-pgoff-v4-7-ab318a350404@kernel.org>
- <3a0a9aaf-20f5-4f92-b848-00ab702e8fe2@kernel.org>
- <antTCpT9gXN7pSRn@gremlin>
- <20f5b9eb-c4ad-4241-9556-e9bfce9ac715@kernel.org>
+ <20260806-b4-scalable-cow-virt-pgoff-v4-16-ab318a350404@kernel.org>
+ <cf70ce8f-cdde-43ec-a50e-796d4e390f3f@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -85,50 +84,59 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20f5b9eb-c4ad-4241-9556-e9bfce9ac715@kernel.org>
+In-Reply-To: <cf70ce8f-cdde-43ec-a50e-796d4e390f3f@kernel.org>
 
-On Tue, Aug 11, 2026 at 06:53:05PM +0200, David Hildenbrand (Arm) wrote:
-> On 8/11/26 18:51, Lorenzo Stoakes (ARM) wrote:
-> > On Tue, Aug 11, 2026 at 06:44:01PM +0200, David Hildenbrand (Arm) wrote:
-> >>>
-> >>> Since copy_vma_and_data() which calls copy_vma() intends to reference the
-> >>> old VMA after the merge, it must have this pointer updated.
-> >>>
-> >>> This kind of self-merge is not possible with a succeeding merge, as the
-> >>> merge always prefers to expand the preceding VMA if possible.
-> >>>
-> >>> copy_vma() accounts for this by explicitly checking to see if a self-merge
-> >>> occurred and updating the vmap pointer if so. However it incorrect did so
-> >>> even for a subsequent merge (this is simply a noop so it had no impact).
-> >>
-> >> Took me longer than it should to find out that this is no real fix ;)
-> >>
-> >>>
-> >>> So change this to only check for the case which matters - a backwards
-> >>> merge - and rearrange the parameters to make it clearer we're doing that -
-> >>> i.e. check new_vma->vm_start < old_vma_start (having already renamed
-> >>> vma_start to old_vma_start to make it clear this is the previous VMA).
-> >>>
-> >>> Also update the existing wall-of-text comment to be a lot clearer.
-> >>>
-> >>> While we're here, replace the VM_BUG_ON_VMA() with a VM_WARN_ON_ONCE_VMA()
-> >>> and update the VMA userland tests accordingly.
-> >>>
-> >>> No functional change intended.
-> >>>
-> >>> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> >>> ---
-> >> I skimmed over it, looks correct, but the merging stuff is way over my head to
-> >> confidentially give a RB tag her :)
+On Tue, Aug 11, 2026 at 06:56:18PM +0200, David Hildenbrand (Arm) wrote:
+> On 8/6/26 22:21, Lorenzo Stoakes (ARM) wrote:
+> > While maintaining anonymous page offsets for VMAs has no impact for most
+> > merge cases, it does impact MAP_PRIVATE-mapped file-backed mappings which
+> > happen to have matching page offset but not matching anonymous page offset.
 > >
-> > Well that's what A-b is for ;)
+> > Assert this behaviour by attempting to map an unfaulted MAP_PRIVATE-memfd
+> > region with a faulted one with compatible file page offsets but
+> > incompatible anonymous page offsets.
+> >
+> > Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+> > ---
+> >  tools/testing/selftests/mm/merge.c | 57 ++++++++++++++++++++++++++++++++++++++
+> >  1 file changed, 57 insertions(+)
+> >
+> > diff --git a/tools/testing/selftests/mm/merge.c b/tools/testing/selftests/mm/merge.c
+> > index 519e5ac02db7..cb7cdb6b7ada 100644
+> > --- a/tools/testing/selftests/mm/merge.c
+> > +++ b/tools/testing/selftests/mm/merge.c
+> > @@ -1305,6 +1305,63 @@ TEST_F(merge, merge_vmas_with_mseal)
+> >  	ASSERT_EQ(procmap->query.vma_end, (unsigned long)ptr + 2 * page_size);
+> >  }
+> >
+> > +TEST_F(merge, anon_and_page_offset_mismatch_memfd)
+> > +{
+> > +	struct procmap_fd *procmap = &self->procmap;
+> > +	unsigned int page_size = self->page_size;
+> > +	char *carveout = self->carveout;
+> > +	char *ptr, *ptr2;
+> > +	int fd;
+> > +
+> > +	/* Create a 10 page memfd descriptor. */
+> > +	fd = memfd_create("anon_page_offset_test", MFD_CLOEXEC);
+> > +	ASSERT_NE(fd, -1);
+> > +	ASSERT_EQ(ftruncate(fd, 10 * page_size), 0);
+> > +
+> > +	/* Map a region using the memfd at page offset 0. */
+> > +	ptr = mmap(carveout, 5 * page_size, PROT_READ | PROT_WRITE,
+> > +		   MAP_FIXED | MAP_PRIVATE, fd, 0);
+> > +	ASSERT_NE(ptr, MAP_FAILED);
+> > +
+> > +	/*
+> > +	 * Map another separately, and fault in, at page offset 5:
+> > +	 *
 >
-> Assisted-by? Half-assed-by?
+> "Fault in" is imprecise, as a read-fault won't do. "Trigger a CoW fault." might
+> be better.
+
+Andrew - could you fix up? Thanks :)
+
 >
-> ;)
-
-A schloppy schplatch I like? ;)
-
 >
 > Acked-by: David Hildenbrand (Arm) <david@kernel.org>
 
