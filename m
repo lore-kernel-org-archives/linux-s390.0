@@ -1,62 +1,61 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF6834446EE;
-	Tue, 11 Aug 2026 13:36:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D5393B9DB3;
+	Tue, 11 Aug 2026 13:36:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786455432; cv=none; b=Y6fCoi/FubpoIZxrTekpRN5iKHT8YDKL9JlhGYpDJMO9oiR66+/PNHufnxwYlajpa0MgXs1cJgc4OdcPWkFXmSiKzqhdUcZMmJ/0WKeJOa6yuno5AmpX9C51N4RC+RjMYJdT5joJUsZcysUatQhM1xF9zuVNhzUf4oAiRyG+N/0=
+	t=1786455437; cv=none; b=PfXs06mnOYzo73meHzvmGS5QwqWDxymB79SXDaFfxaYiPXv92aRvZZkdc54sfPyjiK17EElSklLMTZGRFOFxfpvYF+MV07VAvvLmGZ2SiyBI2jfaYHa9SFPriwxSHiA3Tj6rmJ0GBTfOXzUgsA2Y5PWbVistcVdx/x2r8Q+27lU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786455432; c=relaxed/simple;
-	bh=XjRoL7ltg11Uz8L0RB1JmKlsHcGEy3eqG8znuPOUgo0=;
+	s=arc-20240116; t=1786455437; c=relaxed/simple;
+	bh=CEk1YLxXIt80jAcUDclDk76mtkc7kWx0qW3TSMaCDto=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=m/OPFzj8aLrhNoKAW5BN+Spjc5njFfBTaevFpyhYpox1vJP5MWEzTwb+vISYfUnvLKZUrV8TYY52fCAPJggoEqH9V5VbzZsCxcrPP0gfhIr4THO1o558PtPhyPvsnvMH+trkqWGfbkAgr3BlK8DKcHrTTNOLJrn5mOLlDd9ejb8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=euWeDX0o; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:To:Cc; b=PeoynS7pj5vBPlsZrdCyuDtTvtQalDUJYzCJN6pZCj779zruTwchaIPxL67kQDGDJ9ZUTa11JQgl+YHTLWIzQaEPmrCli04ohbyWfNbxLlzSw+5+O+mLsayLlji/OEszzJNz0vnt4GqAcRSKjKL0eGRJt+cClf8IVgS2GxGwlng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=nCnYB7ER; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="euWeDX0o"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67BDXIWa451627;
-	Tue, 11 Aug 2026 13:36:46 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="nCnYB7ER"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67BDWSaV2864456;
+	Tue, 11 Aug 2026 13:36:38 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=SpfDHV
-	qjPQaY6S5/d8WNG7cMy28bjX7JJcx8tQAElBs=; b=euWeDX0oCqvontVCGJb3dO
-	t0Dbopaf7MaABPHFMligUZx0LOaV1UN6jMQ3m4uU4sVcrlqh7nPG48ra+YOib8XI
-	2/I/jyyCW9L53zf5c9AUfl7khtnwZPrIP3Hof0MsOd0h5hoo1WPOdBMsKTl//w7X
-	B6sb5Jjlh2A4QKOd4PKOBd3bdZg97X7kFMEw2B3Qf0DM2vIwXNTMyhfXfJr2NcH3
-	mbfZQQAQ1OH4lhNG/gpyQKFDkNUgMjcmTo2NlUzxqPK9nE7bNmc1hUp8vc8jZQPI
-	lQ9IR5YXG0mSS8kSFzHdFzfhjRDKejsU5d+M+IUyTfecg0Fd4hqWRgs2cCINftug
+	:message-id:mime-version:references:subject:to; s=pp1; bh=y0upoM
+	Cf5j6BEIBwMmxpzgZaZChlEJv1kuygYL/Hvak=; b=nCnYB7ERO70pZs/q6sJvXs
+	7jFUZhNJfBW/AWwyj/2aLZke7/erWHQM0i+xdGuGuqXTMBKXITvLhjwLGmBysGmh
+	NrWY46tma0zQPfOZ6yXfpixUsQKTRCPvu7cSbveLfJSUExz7asJGoGv2X2t3MmhK
+	oZo1URAEk2h2TfcERz+3w2THp9200AMfvctLnY/uCGJPdA8wRsgsIULOv8wYTbR9
+	Ir2ScTfrhOAi3p4Fn/tjlKal8PhBFnDBocgO83VNB564sTow0RwwZpwzOvVhDjbJ
+	36Zlyegtf6zR8xUx/aW5vkPXkwVD9nWBSe0BU78SNRPxRZoykvZn19Pc0OyXENAQ
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvp2vgkf-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvjyw48b-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 13:36:46 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67BDQGAb030164;
-	Tue, 11 Aug 2026 13:36:45 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxg9h10uj-1
+	Tue, 11 Aug 2026 13:36:37 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67BDQFuv025889;
+	Tue, 11 Aug 2026 13:36:36 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxf5w16ug-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 13:36:45 +0000 (GMT)
+	Tue, 11 Aug 2026 13:36:36 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67BDafHT35914036
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67BDaWI431523082
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Aug 2026 13:36:41 GMT
+	Tue, 11 Aug 2026 13:36:32 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 96CA82004B;
-	Tue, 11 Aug 2026 13:36:41 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 7A97920043;
+	Tue, 11 Aug 2026 13:36:32 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0155E20043;
-	Tue, 11 Aug 2026 13:36:41 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id D5D1E2004E;
+	Tue, 11 Aug 2026 13:36:31 +0000 (GMT)
 Received: from [192.168.88.251] (unknown [9.111.69.228])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Aug 2026 13:36:40 +0000 (GMT)
+	Tue, 11 Aug 2026 13:36:31 +0000 (GMT)
 From: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Date: Tue, 11 Aug 2026 15:36:34 +0200
-Subject: [PATCH v3 19/20] KVM: s390: vsie: Create minimal scb shadows for
- not running g3 blocks
+Date: Tue, 11 Aug 2026 15:36:21 +0200
+Subject: [PATCH v3 06/20] KVM: s390: vsie: Move pin/unpin guest page
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -65,7 +64,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260811-vsie-sigpi-v3-19-45aa1ab07c7c@linux.ibm.com>
+Message-Id: <20260811-vsie-sigpi-v3-6-45aa1ab07c7c@linux.ibm.com>
 References: <20260811-vsie-sigpi-v3-0-45aa1ab07c7c@linux.ibm.com>
 In-Reply-To: <20260811-vsie-sigpi-v3-0-45aa1ab07c7c@linux.ibm.com>
 To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
@@ -79,157 +78,122 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Christoph Schlameuss <schlameuss@linux.ibm.com>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4171;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2629;
  i=schlameuss@linux.ibm.com; h=from:subject:message-id;
- bh=XjRoL7ltg11Uz8L0RB1JmKlsHcGEy3eqG8znuPOUgo0=;
- b=owGbwMvMwCUmoqVx+bqN+mXG02pJDFnVqtHT/ggu+PNbXPDePq2pakWhP9TTFx+3uNXz5W/Vd
- ru5ym5pHaUsDGJcDLJiiizV4tZ5VX2tS+cctLwGM4eVCWQIAxenAEwk8iXD/+CkGzvmvfti6xO6
- akcYR6rmhSOlGuVznx4PnnuneIGwqBgjw8zpE9I3bNuT96/e80HVtzNVVwVbiraWrGLccszvNn/
- 7fH4A
+ bh=CEk1YLxXIt80jAcUDclDk76mtkc7kWx0qW3TSMaCDto=;
+ b=owGbwMvMwCUmoqVx+bqN+mXG02pJDFnVqpHyal9OfW5UZOVeZ/frwcEqDfHeKXtef5lufZi18
+ I5xnPDPjlIWBjEuBlkxRZZqceu8qr7WpXMOWl6DmcPKBDKEgYtTACYS4czIMG1SpdaSuctuHijc
+ zepfUm++3PTyxJAXn3X3X5rI7Mys4s7wP3hOWU/OzND5jJwuvzbvWfmU+fX+UOs/r4W3Ge6Wt6p
+ s4AMA
 X-Developer-Key: i=schlameuss@linux.ibm.com; a=openpgp;
  fpr=0E34A68642574B2253AF4D31EEED6AB388551EC3
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=AMtp2X5w c=1 sm=1 tr=0 ts=6a7b256e cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODExMDExMyBTYWx0ZWRfXxn9EG3CvBnuh
+ 4j5VvHPgK2W09JqH5eASEtc2dTZirYpaVdDRyfszmtfeofCqdJ6V7aAkLo6sjjbGGnvdHmyITSg
+ c2K2i26ZM6ZKhbgEJO5ZvCSifmnDk+nzDbwA+MGtA/Nr0F1Ty+yoISHErX2/oY0Bu0UKuZnXSgK
+ h56Q4I915RFw8dVi9iJotLQQOqOFl1GAHi9r7v0dTOtp5UvcIbWC8iexLhfOB3yNUqeWyrK9kVK
+ 320Jy5nRZnacUZpKJMS6VvXvnBZERcp8UiFl4CRfxzJuzdpg91Eku4g6ryAgs1FR5ZUgPLegTO8
+ Wzj/d6YKPIiItX/YFOWWUAXBg6MQKw744pvMV+iRtemSR107WeCeq6JyccJmZRGMYDkRr/PrYjU
+ /6hts4N5bj8/RxdKTBWlEDre2wM63yxsHXnOpNF2puZpkdWDO0YDqKSC0hdg0PT9ut+ubd/Fz6x
+ CFakKe5b0VQaHiDiSRA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODExMDExMyBTYWx0ZWRfX0FcnazZfAzEh
+ X9KH8wrTJaJ9jZgyaghfag02WUrzSD3CWfN+J8TwIbBzauPIRih457xEYY7FYHMTwOvIIlYeRgy
+ V49WTelTWZcExJ1+WZhLOv/KfE4rhdo=
+X-Authority-Analysis: v=2.4 cv=RqD16imK c=1 sm=1 tr=0 ts=6a7b2565 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=o-mTpO_FGGOuZA_1EAsA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: H9Bm9f-i1xnHkSJXBiddoBWyLVRnHGJe
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODExMDExMyBTYWx0ZWRfX2Z8X2EZ1+vf5
- DR1/Yv3Tl7gK8hfeXzhW5NTa03HlZnQGKIqP164ohPnoddMRnLMO2zRANYt6gRuRvmAeZCHptPq
- 6ZYMffKDiR12YBLk+zLWOD/hG8upZF412PxERMPySpFeOmU+JjaTmIdNpXyp+pjroqV8Q0vyV4J
- Toa6o6hYiiBFW/5raFp0r+ULAT9b9pQFWRDoG1mjj4zlWv5v0LUCY6gbHn+pcAgPcjaW7cFBvu/
- ozz5A5vD8FRF5vdLj997rT0Iu7NKwUopJgm5v2qXYOBUbGXkvax5WJn9Fa2hmCU4nqIqBwf8NUp
- D8zXP5yCuzJKapELn7vVfBvTeSQB2kjnbVYgrfVs3+zGnD6w42R+pV5jfxUVp24NV6USEyTizG1
- YlwUCxpYJey41Cid2EjcqcpU2S5t5Xv/wmIcb4GCxlMUkTTs2QYYmh/TFRSXw47gCEfvndtyP/1
- m+lBE3SN8wdMF6sM+8w==
-X-Proofpoint-ORIG-GUID: H9Bm9f-i1xnHkSJXBiddoBWyLVRnHGJe
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODExMDExMyBTYWx0ZWRfX4Lil6F5ILlAo
- ndSTSScns1ev6D4Q+Z6VGec6IDJdo9JcSZ7IhmD3zPn7gN1C47o4HqhKLsNu060719XOBfyngza
- IDg/vNvwkx0qThwDSw75EFVJ+qpzjEQ=
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=PzVfekSpv1mMiI4dbA8A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: H2eVxejv8NSsowqzCfub0lJn5mYs3KJY
+X-Proofpoint-ORIG-GUID: H2eVxejv8NSsowqzCfub0lJn5mYs3KJY
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-11_03,2026-08-10_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
- priorityscore=1501 impostorscore=0 phishscore=0 spamscore=0 bulkscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ phishscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
+ clxscore=1015 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
  definitions=main-2608110113
 
-Instead of creating a full shadow for vSIE control blocks only create a
-minimal shadow for SIGP purposes for currently not running guest-3
-control blocks. This reduces the overhead to shadow the whole guest-3
-configuration.
-The minimal shadow only contains the information needed for SIGPI and
-SRSI. The shadow will still be recreated fully when a vSIE is entered
-with that SCB later.
+Move {,un}pin_guest_page() up in preparation for the next patch.
+No change intended.
 
 Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 ---
- arch/s390/kvm/vsie.c | 54 +++++++++++++++++++++++++++++++++++-----------------
- 1 file changed, 37 insertions(+), 17 deletions(-)
+ arch/s390/kvm/vsie.c | 52 ++++++++++++++++++++++++++--------------------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
 
 diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 8640435c9d5f..1184527dea48 100644
+index 3f49d2e6986d..0e32d1543ae2 100644
 --- a/arch/s390/kvm/vsie.c
 +++ b/arch/s390/kvm/vsie.c
-@@ -364,8 +364,7 @@ static void update_intervention_requests(struct vsie_page *vsie_page)
- static int prepare_cpuflags(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- {
- 	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
--	struct kvm_s390_sie_block *scb_o = vsie_page->scb_o;
--	int newflags, cpuflags = atomic_read(&scb_o->cpuflags);
-+	int newflags, cpuflags = atomic_read(&vsie_page->scb_o->cpuflags);
- 
- 	/* we don't allow ESA/390 guests unless explicitly enabled */
- 	if (!(cpuflags & CPUSTAT_ZARCH) && !vcpu->kvm->arch.allow_vsie_esamode)
-@@ -708,6 +707,39 @@ static void unshadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		scb_o->ihcpu = scb_s->ihcpu;
+@@ -149,6 +149,32 @@ static int prefix_is_mapped(struct vsie_page *vsie_page)
+ 	return !(atomic_read(&vsie_page->scb_s.prog20) & PROG_REQUEST);
  }
  
-+static int shadow_scb_minimal(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
++/*
++ * Pin the guest page given by gpa and set hpa to the pinned host address.
++ * Will always be pinned writable.
++ *
++ * Returns: - 0 on success
++ *          - -EINVAL if the gpa is not valid guest storage
++ */
++static int pin_guest_page(struct kvm *kvm, gpa_t gpa, hpa_t *hpa)
 +{
-+	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
-+	struct kvm_s390_sie_block *scb_o = vsie_page->scb_o;
-+	int rc;
++	struct page *page;
 +
-+	/* make sure we don't have any leftovers when reusing the scb */
-+	scb_s->icptcode = 0;
-+	scb_s->eca = 0;
-+	scb_s->ecb = 0;
-+	scb_s->ecb2 = 0;
-+	scb_s->ecb3 = 0;
-+	scb_s->ecd = 0;
-+	scb_s->fac = 0;
-+	scb_s->fpf = 0;
-+
-+	rc = prepare_cpuflags(vcpu, vsie_page);
-+	if (rc)
-+		return rc;
-+
-+	scb_s->icpua = scb_o->icpua;
-+	scb_s->ecb2 |= scb_o->ecb2 & ECB2_ESCA;
-+
-+	if (vsie_page->vsie_sca) {
-+		scb_s->eca |= scb_o->eca & ECA_SIGPI;
-+		scb_s->ecb |= scb_o->ecb & ECB_SRSI;
-+		write_scao(scb_s, virt_to_phys(&vsie_page->vsie_sca->ssca));
-+		scb_s->osda = virt_to_phys(scb_o);
-+	}
-+
++	page = gfn_to_page(kvm, gpa_to_gfn(gpa));
++	if (!page)
++		return -EINVAL;
++	*hpa = (hpa_t)page_to_phys(page) + (gpa & ~PAGE_MASK);
 +	return 0;
 +}
 +
- /*
-  * Setup the shadow scb by copying and checking the relevant parts of the g2
-  * provided scb.
-@@ -727,17 +759,7 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	unsigned long new_mso = 0;
- 	int rc;
++/* Unpins a page previously pinned via pin_guest_page, marking it as dirty. */
++static void unpin_guest_page(struct kvm *kvm, gpa_t gpa, hpa_t hpa)
++{
++	kvm_release_page_dirty(pfn_to_page(phys_to_pfn(hpa)));
++	/* mark the page always as dirty for migration */
++	mark_page_dirty(kvm, gpa_to_gfn(gpa));
++}
++
+ /* copy the updated intervention request bits into the shadow scb */
+ static void update_intervention_requests(struct vsie_page *vsie_page)
+ {
+@@ -752,32 +778,6 @@ static int map_prefix(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page, struct
+ 	return rc;
+ }
  
--	/* make sure we don't have any leftovers when reusing the scb */
--	scb_s->icptcode = 0;
--	scb_s->eca = 0;
--	scb_s->ecb = 0;
--	scb_s->ecb2 = 0;
--	scb_s->ecb3 = 0;
--	scb_s->ecd = 0;
--	scb_s->fac = 0;
--	scb_s->fpf = 0;
+-/*
+- * Pin the guest page given by gpa and set hpa to the pinned host address.
+- * Will always be pinned writable.
+- *
+- * Returns: - 0 on success
+- *          - -EINVAL if the gpa is not valid guest storage
+- */
+-static int pin_guest_page(struct kvm *kvm, gpa_t gpa, hpa_t *hpa)
+-{
+-	struct page *page;
 -
--	rc = prepare_cpuflags(vcpu, vsie_page);
-+	rc = shadow_scb_minimal(vcpu, vsie_page);
- 	if (rc)
- 		goto out;
- 
-@@ -767,8 +789,6 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	if (!(atomic_read(&scb_s->cpuflags) & CPUSTAT_KSS))
- 		scb_s->ictl |= ICTL_ISKE | ICTL_SSKE | ICTL_RRBE;
- 
--	scb_s->icpua = scb_o->icpua;
+-	page = gfn_to_page(kvm, gpa_to_gfn(gpa));
+-	if (!page)
+-		return -EINVAL;
+-	*hpa = (hpa_t)page_to_phys(page) + (gpa & ~PAGE_MASK);
+-	return 0;
+-}
 -
- 	if (!(atomic_read(&scb_s->cpuflags) & CPUSTAT_ZARCH))
- 		new_prefix &= GUEST_PREFIX_MASK_ESA;
- 	else
-@@ -2137,7 +2157,7 @@ static int _shadow_sca(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
- 		__set_bit(VSIE_SCA_ESCA, &vsie_sca->flags);
- 	sca_mcn_copy(vsie_sca, phys_to_virt(sca_o_hpa(vsie_sca)));
- 
--	/* pin and make shadow for ALL scb in the sca */
-+	/* pin and make minimal shadow for ALL scb in the sca */
- 	cpu_slots = is_esca ? KVM_S390_MAX_VSIE_VCPUS : KVM_S390_BSCA_CPU_SLOTS;
- 	for_each_set_bit_inv(cpu_nr, (unsigned long *)&vsie_sca->mcn, cpu_slots) {
- 		rc = get_sca_entry_addr(vcpu->kvm, vsie_sca, cpu_nr, NULL, &sca_o_entry_hpa);
-@@ -2163,7 +2183,7 @@ static int _shadow_sca(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
- 				rc = PTR_ERR(vsie_page_n);
- 			if (rc)
- 				goto err;
--			rc = shadow_scb(vcpu, vsie_page_n);
-+			rc = shadow_scb_minimal(vcpu, vsie_page_n);
- 			vsie_sca_update(vsie_sca, cpu_nr, vsie_page_n, sca_o_entry_hpa);
- 			put_vsie_page(vsie_page_n);
- 			if (rc)
+-/* Unpins a page previously pinned via pin_guest_page, marking it as dirty. */
+-static void unpin_guest_page(struct kvm *kvm, gpa_t gpa, hpa_t hpa)
+-{
+-	kvm_release_page_dirty(pfn_to_page(phys_to_pfn(hpa)));
+-	/* mark the page always as dirty for migration */
+-	mark_page_dirty(kvm, gpa_to_gfn(gpa));
+-}
+-
+ /* unpin all blocks previously pinned by pin_blocks(), marking them dirty */
+ static void unpin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ {
 
 -- 
 2.55.0
