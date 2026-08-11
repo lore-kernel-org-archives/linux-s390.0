@@ -1,33 +1,60 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 204904248A0;
-	Tue, 11 Aug 2026 09:00:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97CAB40F744;
+	Tue, 11 Aug 2026 09:21:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786438833; cv=none; b=JxViAC1c+ipF73KIdfxeKF7BZRhznNY761u82UfJKgF64tdNWk8yMxQHMpZ5XkFF3+INThFBTRmDVsTUCCBGr9goUkJpOvu3JDM3rWlR0rcpfgl+gnKBLw9e/72Dwwrjid71aunV3O6StjL324S7tpfKve8uwqY944Udr7Y4Dyg=
+	t=1786440062; cv=none; b=r8vXZZX96FrahXrohT6DcSMpUIjjw81kPejk5vftjfvNkCt8JzI8qkFq/NHJ53ebgyl/yTBrTirl+pNBRQCgTgfdcOmjfeY9CS7+Is1xjq2Ewd88d/W/8/1jZCukUFCMLMULtrCAyIDZWIBYKXf774eBPzfJs1vLcl7qlBkGZXI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786438833; c=relaxed/simple;
-	bh=tUiTGK9kLGJYJG38Hawj4v69yMlo3kmE+u/Tuup4Yg4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TQKLrLMbAUr2Hstvi/1Gj1oSG0NXcGveujmgm+igbfabPltutkw7VK9yVFcfNRc7Cgw1c4PnLDjIBDqQxbkslPQiIWV9i38KOnWCfTGwdAH/mxsJpvXiiwGe/cjqV5Bo2iEGuWH8m9GbFQ7Z+3M35yTbho/58TXuaR5DUiA92Iw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=p0EklLMH; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	s=arc-20240116; t=1786440062; c=relaxed/simple;
+	bh=dc1BLD2dg7yrpEhvGtxRkENFk+pHc1HBcM6inJPP+kA=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=DXWCIayxbwhTirCidwAnpheAMtF7msC3kDnBRDmeGS6zdZv9zrPalRCG6HwBYAjxDVsfMAVvWLIdgsE5Kxm100zwrvtTJtVSxl0F7tL0X3W+S8ApT5k4q7xDUlweT/nw1mg3PaCRDXJmWvpf44CHxiOA9WsRunmkvKD/YG39NQ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aB7ad8QE; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="p0EklLMH"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 781581682;
-	Tue, 11 Aug 2026 02:00:26 -0700 (PDT)
-Received: from [10.57.5.193] (unknown [10.57.5.193])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3B19F3F86F;
-	Tue, 11 Aug 2026 02:00:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1786438830; bh=tUiTGK9kLGJYJG38Hawj4v69yMlo3kmE+u/Tuup4Yg4=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=p0EklLMHJGrKLnVqOINCl1ZfxhRZ+BNvpIRznN2rLsga1Dwdloi6U4xuE1VCQAm02
-	 kBFiXP3tqlA3ARY2zoYWjzb5WjBU+6w3Cb3dcRQRjE/0+/SN3iB10dvAMI84fhbPXQ
-	 52YnfLEkfwAxucsSI1ar27PS56iSCcvkFqLRrZM8=
-Message-ID: <643a624d-0106-44ed-a7f5-aaf9316f94fd@arm.com>
-Date: Tue, 11 Aug 2026 11:00:09 +0200
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aB7ad8QE"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67AN1mIQ1102214;
+	Tue, 11 Aug 2026 09:20:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=BmHm/1
+	S3e7v3/qC1G38UKuzdKFJvdQaf18Bs7TWcNJo=; b=aB7ad8QExXWxO0Gj5tSXXX
+	49mv/3+Ra4gzyvHdvZed4h8wBGRe8ROzPmV6wzjd7HivhkKAbgMs7wcurcXKavWz
+	v7IERiKyeaijJwKXchmjLHce2R+LSXkc4zqFRfFHoMpdrexRnLCa7UgYqCmqXkRI
+	CnbVubJlZLH5mgJi9AfMvhH0R6pT5UDQ4TNOnDbvdPl6mmg7UOIX+Vu1OKx6r0N4
+	YvJ4aJxIRehjCOME1oTP0hoSFxktXj6biOKIAVlL/QhZ/cWEBcCxihi81uQG9O6v
+	buMUDdKO0n/XBe3OKnrWPMjQrFLPnGzoJhD70XUf0FvHycjz8ILO8ji88uU86nRg
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvjyv6kn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 11 Aug 2026 09:20:46 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67B9BGoI022335;
+	Tue, 11 Aug 2026 09:20:45 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxf5w0eet-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 11 Aug 2026 09:20:45 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67B9Keg639715290
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 11 Aug 2026 09:20:41 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DC6882004B;
+	Tue, 11 Aug 2026 09:20:40 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9B8F320043;
+	Tue, 11 Aug 2026 09:20:40 +0000 (GMT)
+Received: from [9.224.90.36] (unknown [9.224.90.36])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 11 Aug 2026 09:20:40 +0000 (GMT)
+Message-ID: <0e7d2695-3473-46c7-badc-ebf862a022dd@linux.ibm.com>
+Date: Tue, 11 Aug 2026 11:20:40 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,106 +62,83 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 03/22] mm: introduce MMF_KERNEL flag and set it for
- init_mm
-To: David Laight <david.laight.linux@gmail.com>,
- "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, linux-mm@kvack.org,
- Andrew Morton <akpm@linux-foundation.org>, Lorenzo Stoakes <ljs@kernel.org>,
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Pasha Tatashin <pasha.tatashin@soleen.com>,
- Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Ryan Roberts <ryan.roberts@arm.com>, linux-arm-kernel@lists.infradead.org,
- Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
- Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, linux-riscv@lists.infradead.org,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>, linux-s390@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>,
- Andreas Larsson <andreas@gaisler.com>, sparclinux@vger.kernel.org,
- Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>, linux-um@lists.infradead.org,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, Ning Sun <ning.sun@intel.com>,
- x86@kernel.org, tboot-devel@lists.sourceforge.net,
- Ard Biesheuvel <ardb@kernel.org>,
- Ilias Apalodimas <ilias.apalodimas@linaro.org>, linux-efi@vger.kernel.org,
- Vishal Moola <vishal.moola@gmail.com>, Alistair Popple <apopple@nvidia.com>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-References: <20260714-remove_pgtable_cdtor-v1-0-44be8a7685d7@arm.com>
- <20260714-remove_pgtable_cdtor-v1-3-44be8a7685d7@arm.com>
- <01f07ea2-8bdd-4450-8a49-548f8b646cfd@kernel.org>
- <33fc9d31-2866-4315-9510-0004deb93994@kernel.org>
- <20260811091016.5ca67143@pumpkin>
-From: Kevin Brodsky <kevin.brodsky@arm.com>
-Content-Language: en-GB
-In-Reply-To: <20260811091016.5ca67143@pumpkin>
+Subject: Re: [PATCH net] net/dibs: Correct freeing of dmb_clientid_arr
+From: Alexandra Winter <wintera@linux.ibm.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: Hidayath Khan <hidayath@linux.ibm.com>,
+        Dust Li <dust.li@linux.alibaba.com>, stable@vger.kernel.org,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>
+References: <20260810111432.2334900-1-wintera@linux.ibm.com>
+Content-Language: en-US
+In-Reply-To: <20260810111432.2334900-1-wintera@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODExMDA3NCBTYWx0ZWRfX7aeKau+y+p0y
+ sSXm8XcPAHwWlclxRECd1i4PT9tqDob/i7sCccAdbZLnNBrcJ0ZBFLupIExFLkFGsZcl/A64Vyd
+ 9jbYea8+gJGqVG2lWas/4VaN8hiKKkZPQCtUxQdlZQ7rYkQpa2P1dud83vfeEXHpaFx5CWwYR+5
+ hcUQxcgODjVQh7zeQIQ79MgnSl2ILU/yn6QGNwZDL3NhsCgumpOe96llzxiF1L1r7cZ2AtcWcx7
+ TyjH3RkmxSi/ATu3jJBJq6dVGThEb/QhHQqzN0Nvrk3qXcf3bKTCCaY8SrJiqI0nh+gmzgxZd4f
+ TzMUGJeLRC4S8po4Bfof05ffTBCFs3Hz4GactSd9Q7S3R/kRbAHAI1dkRCdyMyW538oqtUoqpKL
+ ry2+BuolPD/vt96d0H67ekQEfEV6ECb8G27bfejReac0p090DAA7VuWw+ZvIUPL3O4yuZFxehxj
+ ZGVJrT5Fbc/3teFQqsA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODExMDA3NCBTYWx0ZWRfX0lfXr0AC0Osq
+ Ejas9Q1jrmXWGOZcTMdIjmWRA+m/tDsVVdvzRtnel9vKcn1VR/yPzSZp7L0dS8rAyY/kjnErOIG
+ m8SmXEdSgid2PliWImZAKr+OjW1Uz5Y=
+X-Authority-Analysis: v=2.4 cv=RqD16imK c=1 sm=1 tr=0 ts=6a7ae96e cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=AxoDFHF54RuZZfRr5JsA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: keszK41sogrJRWcc6HBChVjtKg3kAPIL
+X-Proofpoint-ORIG-GUID: Bi3Ia__sULsuMmIybTpB8qzcyM2uAcQw
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-10_06,2026-08-10_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
+ clxscore=1015 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608110074
 
-On 11/08/2026 10:10, David Laight wrote:
-> On Wed, 5 Aug 2026 14:07:01 +0200
-> "David Hildenbrand (Arm)" <david@kernel.org> wrote:
->
->> On 8/3/26 15:59, Christophe Leroy (CS GROUP) wrote:
->>>
->>> Le 14/07/2026 à 16:03, Kevin Brodsky a écrit :  
->>>> mm code often needs to know whether some mm represents a kernel or
->>>> user address space. This is currently done by comparing the mm
->>>> pointer with &init_mm; besides not being particularly elegant, this
->>>> ignores the fact that other mm's (e.g. efi_mm) may also represent
->>>> parts of the kernel address space.
->>>>
->>>> Introduce a new mm flag MMF_KERNEL and set it for init_mm.
->>>> Subsequent patches will use this flag to replace comparisons with
->>>> &init_mm. No functional change is introduced for now.  
->>> Did you consider performance impact ? This test is usually done in quite
->>> critical memory handling functions.
->>>
->>> init_mm is known at link time. Before your patch 08/22 there is just a
->>> comparison of mm (r3) with a constant (loaded in r10):
->>>
->>> c0014048 <assert_pte_locked>:
->>> c0014048:    3d 40 c1 09     lis     r10,-16119
->>> c001404c:    39 4a 03 98     addi    r10,r10,920
->>> c0014050:    7c 03 50 00     cmpw    r3,r10
->>> c0014054:    4d 82 00 20     beqlr
->>> ...
->>>
->>> After patch 08/22 we have, it first checks that mm is not 0, then it loads the
->>> word located at mm+528 then AND it with 0x1. This load might be costly.
->>>
->>> c0014048 <assert_pte_locked>:
->>> c0014048:    2c 03 00 00     cmpwi   r3,0
->>> c001404c:    7c 85 23 78     mr      r5,r4
->>> c0014050:    41 82 00 10     beq     c0014060 <assert_pte_locked+0x18>
->>> c0014054:    81 23 02 10     lwz     r9,528(r3)
->>> c0014058:    71 29 00 01     andi.   r9,r9,1
->>> c001405c:    4c 82 00 20     bnelr  
->> Is that a real problem, though?
-> The cost of the read is likely to matter most if the branch gets mispredicted.
-> I'd also guess the mm isn't usually NULL - so that branch needs to statically
-> predicted correctly as well.
-> I'd also not assume that the mm is in the cache (unless the surrounding code
-> has already accessed it), the L1 data caches are small.
 
-You're right, I didn't think about this the right way round - in general
-it may not be easy to predict that mm points to init_mm, and an
-arbitrary user mm isn't guaranteed to be cached. Repeated calls to
-mm_is_kernel(mm) in the same function shouldn't cost much though.
 
-Would some (micro)benchmark be particularly relevant to measure the
-overhead, if any?
+On 10.08.26 13:14, Alexandra Winter wrote:
+> A dibs device interrupt handler can be active after dibs_dev_del() and
+> may still access dmb_clientid_arr. (UAF)
+> 
+> In case of a failure in dibs_dev_add() being called by dibs_lo_dev_probe()
+> dmb_clientid_arr is freed twice (double free).
+> 
+> Free dmb_clientid_arr in dibs_dev_release() after last reference is gone.
+> Note that allocating in dibs_dev_add() instead of dibs_dev_alloc() is ok
+> for now, because no dmbs can be registered before dibs_dev_add().
+> 
+> Fixes: cc21191b584c ("dibs: Move data path to dibs layer")
+> Cc: stable@vger.kernel.org
+> Co-developed-by: Hidayath Khan <hidayath@linux.ibm.com>
+> Signed-off-by: Hidayath Khan <hidayath@linux.ibm.com>
+> Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+> ---
+> This is a squash of [1] and [2] as requested by Jakub.
+> 
+> Simon and Dust Li, I'd appreciate, if you could double-check whether
+> you can give R-b again.
+> 
+> Link: https://lore.kernel.org/netdev/20260806120447.596164-1-hidayath@linux.ibm.com/ [1]
+> Link: https://lore.kernel.org/netdev/20260804085848.3579518-1-wintera@linux.ibm.com/ [2]
 
-- Kevin
+
+Title should be 'dibs:' instead of  'net/dibs:' for commonality
+dibs: Correct freeing of dmb_clientid_arr
+
