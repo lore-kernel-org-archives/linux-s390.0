@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D7B03EDE70;
-	Tue, 11 Aug 2026 16:52:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA7F52EEE6E;
+	Tue, 11 Aug 2026 16:53:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786467157; cv=none; b=iNIUAew6m4x9/sceGHauIPxJ80pp9fOCHTbYPsrZ7FU3jIp+eT4YdjOcRTO/crWOZ+2uVGyoXdez2N+9JI3AgFYM0NHTNVvnbKrup1l/SdmU5iAXvLnU6zzLFWDAdHjIlchWhhfJ5ANe0bJTUX3BwflGwEzIhuP0uH4luAExKpU=
+	t=1786467211; cv=none; b=s7DXfAeVs0nWBRBPSIKoLhlsXKbudV2pzuWsnqJFP3IFEk7ZqEg1CUNJT9kCAfQ8m/GdIXOI1gk/VCW8qxoiHLgH/a2cgBoJRiSNIZombZaLnbqd6SdWd8MuTAFmnOrz2Ch6xHdkhQh4/azWz7IqvdY5Xkjh8iYMTmyarLd0d3w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786467157; c=relaxed/simple;
-	bh=Q3iWWEEZZvPjsSuHF/4Pnc3/MFEtYBO8+frbfm5ILDY=;
+	s=arc-20240116; t=1786467211; c=relaxed/simple;
+	bh=AnrrjB6sLLkHvSD5ZezLD9oPyTY78L5uYGaT99YUEKY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TfCLPygLK/3fI6DadiD3FI0pilGxeyL8+JK5DW3ACReWie3CR5GkcKmxgNoAxlDblZLX9DCbYbnFGXgfvqA0RNgIx+AbNELFUyUrD1LD7O/w/a/yYsD3Lm9Tkxbk6+Fhea4okhG9OZr6uvAeHvNhPJT/GO2chzagsyoDh/yK/lY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Jvgo3kgj; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=QhPZeTnM1q/gWrwg0dyIv5zEl7zpArwUX9GSRZAjM5CvkZRi11G3OiKcupr/gkhrdIyBi8FB3lgXXPlHElHNYF9rnZ844jfgm+gIUqN55Y5LLlLQYkp+ci/Vw/OE3vd6A5Wfdtt5fWPI0yaGRmqA65HNMkYkxF5rM1p49koczvQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eUWm7wHR; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Jvgo3kgj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 439D81F000E9;
-	Tue, 11 Aug 2026 16:52:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eUWm7wHR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A3771F000E9;
+	Tue, 11 Aug 2026 16:53:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786467151;
-	bh=mAasdSnBH2Brz4u/CC8frp1bw4E9g00TGcYdxzOdfsA=;
+	s=k20260515; t=1786467210;
+	bh=faCwjOaV4ggvOJTu3mQalUWdVzO14/xtKlYuKKC1bt0=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Jvgo3kgjY22ALPkIQ10MF9H8O7gsSZFQkE5mIk5zgk+cuUdPf/TwHKsAj380JXuL9
-	 ZJdMXN32JXVeLsOT0zIz9b12l8r78MZdt5F/tur4FrcUEjjg8eJVMI+gJ2YdDcMhJX
-	 XJx8LKunvZ3X84G3aqdNdoLAwld1AfwKkD06m/1UzCgr+HDS9N99IbFU0wyXdpX2Ah
-	 xRNi9aUI/Z36g+5E5erW4QK25QCCx85ilTwSlJrawqpXWRvtE4/xoHTTOcU6p2Q1cw
-	 9iXdpTA2g6Ve4dAwca/wQKOSuk04hk53wIbcp/78Vuj9M8ZMNAm8QSRwxmcf6nf/cN
-	 WfAjn2fsV2CKQ==
-Message-ID: <ac29dd48-c150-454f-a3ed-d5971db10f19@kernel.org>
-Date: Tue, 11 Aug 2026 18:52:06 +0200
+	b=eUWm7wHRfSiRbjXlRdDMhSWBZ3b07JcjXwAH0jW27Db5STdElQ2HbMmcXJJIJWxB6
+	 rQonhNQ2vaCyRhBsnC+l+mo1zquiuqCxJzBN3VK3rIoY6TZ4G4rylcsNz8n9S1Jte8
+	 Vig6qQBuHGVgLXbfojokmRbRMYVsYw2S5LPifQ7sYo91PavOCJGTq0fmkLW0CW0ScO
+	 cqPzHYg7kk056vo4x+1KmrgBj/y1Tj9MU8cVHSGE8iDAFhx6UO8066UB18RlrbypI4
+	 8GPIxF5CQMQxS/IphlkkNk8q8a1T+zsT20zMqIyWI79OWJKawdOWc5YfgoCRYML/Z9
+	 H3xJOE5glmQrA==
+Message-ID: <20f5b9eb-c4ad-4241-9556-e9bfce9ac715@kernel.org>
+Date: Tue, 11 Aug 2026 18:53:05 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,10 +35,9 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 14/20] mm/rmap: use anon pgoff to track MAP_PRIVATE
- file-backed anon folios
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>,
+Subject: Re: [PATCH v4 07/20] mm/vma: fix self-merge check in copy_vma()
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
  "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
  Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
  Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>,
@@ -88,15 +87,15 @@ To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>,
  Oscar Salvador <osalvador@suse.de>, Chris Li <chrisl@kernel.org>,
  Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
  Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>,
- Youngjun Park <youngjun.park@lge.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-kselftest@vger.kernel.org,
- kvm@vger.kernel.org, linux-s390@vger.kernel.org,
- amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
- intel-xe@lists.freedesktop.org, linux-perf-users@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org
+ Youngjun Park <youngjun.park@lge.com>, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-kselftest@vger.kernel.org, kvm@vger.kernel.org,
+ linux-s390@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+ dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
+ linux-perf-users@vger.kernel.org, linux-trace-kernel@vger.kernel.org
 References: <20260806-b4-scalable-cow-virt-pgoff-v4-0-ab318a350404@kernel.org>
- <20260806-b4-scalable-cow-virt-pgoff-v4-14-ab318a350404@kernel.org>
+ <20260806-b4-scalable-cow-virt-pgoff-v4-7-ab318a350404@kernel.org>
+ <3a0a9aaf-20f5-4f92-b848-00ab702e8fe2@kernel.org> <antTCpT9gXN7pSRn@gremlin>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -143,88 +142,48 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260806-b4-scalable-cow-virt-pgoff-v4-14-ab318a350404@kernel.org>
+In-Reply-To: <antTCpT9gXN7pSRn@gremlin>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 8/6/26 22:21, Lorenzo Stoakes (ARM) wrote:
-> Currently anonymous folios belonging to CoW'd MAP_PRIVATE file-backed
-> mappings are indexed by their page offset within the file in which they
-> were originally mapped.
+On 8/11/26 18:51, Lorenzo Stoakes (ARM) wrote:
+> On Tue, Aug 11, 2026 at 06:44:01PM +0200, David Hildenbrand (Arm) wrote:
+>>>
+>>> Since copy_vma_and_data() which calls copy_vma() intends to reference the
+>>> old VMA after the merge, it must have this pointer updated.
+>>>
+>>> This kind of self-merge is not possible with a succeeding merge, as the
+>>> merge always prefers to expand the preceding VMA if possible.
+>>>
+>>> copy_vma() accounts for this by explicitly checking to see if a self-merge
+>>> occurred and updating the vmap pointer if so. However it incorrect did so
+>>> even for a subsequent merge (this is simply a noop so it had no impact).
+>>
+>> Took me longer than it should to find out that this is no real fix ;)
+>>
+>>>
+>>> So change this to only check for the case which matters - a backwards
+>>> merge - and rearrange the parameters to make it clearer we're doing that -
+>>> i.e. check new_vma->vm_start < old_vma_start (having already renamed
+>>> vma_start to old_vma_start to make it clear this is the previous VMA).
+>>>
+>>> Also update the existing wall-of-text comment to be a lot clearer.
+>>>
+>>> While we're here, replace the VM_BUG_ON_VMA() with a VM_WARN_ON_ONCE_VMA()
+>>> and update the VMA userland tests accordingly.
+>>>
+>>> No functional change intended.
+>>>
+>>> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+>>> ---
+>> I skimmed over it, looks correct, but the merging stuff is way over my head to
+>> confidentially give a RB tag her :)
 > 
-> This differs from anonymous folios belonging to pure anon mappings which
-> are indexed by their anonymous page offset (the address at which they'd
-> belong in the VMA when first faulted).
-> 
-> This change fixes this inconsistency, always indexing anonymous folios by
-> their anonymous page offset regardless of the VMA to which they belong.
-> 
-> The foundations have been laid such that we need only switch this
-> functionality on such by:
-> 
-> * Using linear_anon_page_index() in __folio_set_anon() to assign the
->   folio's index to the anonymous linear index rather than the file-backed
->   one.
-> 
-> * Otherwise using linear_anon_page_index() in all instances where
->   anonymous folios are being referenced or manipulated.
-> 
-> * Replacing vma_address() with vma_filebacked_address() or
->   vma_anon_address() as appropriate.
-> 
-> * Updating the merging logic to check that anonymous page offsets are
->   aligned as well as filebacked ones for MAP_PRIVATE file-backed VMAs,
->   introducing needs_adjacent_anon_pgoff() to figure out when this is
->   required.
-> 
-> * Updating linear_folio_page_index() to invoke linear_anon_page_index()
->   if the folio is anonymous.
-> 
-> * Updating vma_address_end() to use the VMA's anonymous page offset when
->   pvmw->pgoff is anonymous.
-> 
-> * Correcting folio_within_range() to use anonymous page offset for
->   anonymous folios.
-> 
-> This will have no impact on merging of anonymous VMAs, whose page offset
-> and anonymous page offset are identical, nor will it impact shared
-> file-backed VMAs, which will continue to be merged based on the file-backed
-> page offset.
-> 
-> However, MAP_PRIVATE file-backed mappings must now be aligned on anonymous
-> page offset as well.
-> 
-> In most instances this should have no impact on merging of file-backed
-> mappings, which are usually not merged all that often, let alone
-> MAP_PRIVATE mapped ones, and rarely remapped and faulted before being moved
-> back in place (the case in which a merge may now fail).
-> 
-> One subtle impact of this change is in NUMA interleaving - since commit
-> 88c91dc58582 ("mempolicy: migration attempt to match interleave nodes"),
-> migration heuristically tries to maintain interleaving behaviour matching
-> the policy using folio indices.
-> 
-> When doing migration of CoW'd MAP_PRIVATE-file backed ranges, the 'base'
-> upon which the interleaving behaviour is performed will vary for these
-> ranges. However the commit notes that ranges spanning multiple VMAs will
-> already cause varying bases, and that this is an acceptable approximation.
-> 
-> It is very unlikely real world use-cases will be impacted by
-> this (MAP_PRIVATE file-backed mappings are already an edge case), and all
-> that will happen is that such ranges will cause interleaving to be rotated
-> over the CoW'd range, with little to no impact.
-> 
-> This commit lays the foundations for future scalable CoW work which needs
-> to track some remaps, meaning that most remap tracking can be avoided, and
-> in nearly all cases the anonymous page offset will be able to be used to
-> quickly find the VMA in an mm.
-> 
-> Note that the need_rmap_locks check doesn't need to be updated, as any
-> remapping will offset both the anonymous and file-backed page offset, so it
-> suffices to check only one.
-> 
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> ---
+> Well that's what A-b is for ;)
+
+Assisted-by? Half-assed-by?
+
+;)
 
 Acked-by: David Hildenbrand (Arm) <david@kernel.org>
 
