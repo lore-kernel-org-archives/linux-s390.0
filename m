@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA7F52EEE6E;
-	Tue, 11 Aug 2026 16:53:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65CFB2C21F7;
+	Tue, 11 Aug 2026 16:54:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786467211; cv=none; b=s7DXfAeVs0nWBRBPSIKoLhlsXKbudV2pzuWsnqJFP3IFEk7ZqEg1CUNJT9kCAfQ8m/GdIXOI1gk/VCW8qxoiHLgH/a2cgBoJRiSNIZombZaLnbqd6SdWd8MuTAFmnOrz2Ch6xHdkhQh4/azWz7IqvdY5Xkjh8iYMTmyarLd0d3w=
+	t=1786467259; cv=none; b=LzsTH3dJvugEbkTVc5z9M+/tX1L0F54l/r+g9yYgalXU2SzSvNoohoyGFin1s3kBjdgxF4KkjgOrFhBGjcskPd260Z+db1hW+JRLYFtYLgK7A77ddCrV+PtPgMdWo4Id7N4H3Todx0XXwo379QcYxwZqSDM9/+jVsmASadSXhPM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786467211; c=relaxed/simple;
-	bh=AnrrjB6sLLkHvSD5ZezLD9oPyTY78L5uYGaT99YUEKY=;
+	s=arc-20240116; t=1786467259; c=relaxed/simple;
+	bh=SooY7rVRGE0my83ZSkvVTPnDIU/jFHIQSem85ktIy0g=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QhPZeTnM1q/gWrwg0dyIv5zEl7zpArwUX9GSRZAjM5CvkZRi11G3OiKcupr/gkhrdIyBi8FB3lgXXPlHElHNYF9rnZ844jfgm+gIUqN55Y5LLlLQYkp+ci/Vw/OE3vd6A5Wfdtt5fWPI0yaGRmqA65HNMkYkxF5rM1p49koczvQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eUWm7wHR; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=M6JyBGBuv5Wnbc5nyU1pZGF2CgbhxMGxw8t4XFy3VtBRqzHEmBRj5hYybKteOZtrsat2C8OXyasXhNWZomd9LP+tl6rZyuUJJG4lKw4grW9pLJTsbR6GTbi1SYWNnzl8cD6dQhoHnJBiBYrJSxefBeSEVz//vmQ17crnqK3AMs8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BVuTUgTS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eUWm7wHR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A3771F000E9;
-	Tue, 11 Aug 2026 16:53:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BVuTUgTS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE4F91F000E9;
+	Tue, 11 Aug 2026 16:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786467210;
-	bh=faCwjOaV4ggvOJTu3mQalUWdVzO14/xtKlYuKKC1bt0=;
+	s=k20260515; t=1786467258;
+	bh=iX4NIPlAP4xo5UV8mClruOl7gqvsKTG+5TRTfDvmpvk=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=eUWm7wHRfSiRbjXlRdDMhSWBZ3b07JcjXwAH0jW27Db5STdElQ2HbMmcXJJIJWxB6
-	 rQonhNQ2vaCyRhBsnC+l+mo1zquiuqCxJzBN3VK3rIoY6TZ4G4rylcsNz8n9S1Jte8
-	 Vig6qQBuHGVgLXbfojokmRbRMYVsYw2S5LPifQ7sYo91PavOCJGTq0fmkLW0CW0ScO
-	 cqPzHYg7kk056vo4x+1KmrgBj/y1Tj9MU8cVHSGE8iDAFhx6UO8066UB18RlrbypI4
-	 8GPIxF5CQMQxS/IphlkkNk8q8a1T+zsT20zMqIyWI79OWJKawdOWc5YfgoCRYML/Z9
-	 H3xJOE5glmQrA==
-Message-ID: <20f5b9eb-c4ad-4241-9556-e9bfce9ac715@kernel.org>
-Date: Tue, 11 Aug 2026 18:53:05 +0200
+	b=BVuTUgTS8NxWWwARaVJz/KRZzymf5VYlMfEogAS68Xd1KTjRCHgyCB9tlLuO/b1O0
+	 VvQTxUJzG8YLkm8kmQyQEBrnso7ux0wK9zUC4dX+58Aqm+yW2LY9CF02PAKMRjN13f
+	 nrMX349UIgxtoTLCUvDLeQSKDLXhy1CG3NjkZcqY6Vbu2ZTVfIKyendySzeb/TsKNF
+	 KM5gDZSj71VZtZkaoh+Jnapeku29oufgwAnkJSqa/MZnMp0U+5k5lyqAd5OilOD5LP
+	 ZXQrBMt0AKkjIcLnZLdsezUjqpQkYNgT0bhQfGppMx0atyu1LNUqDnH7O0i1DtnHfc
+	 czlElRvINGfZA==
+Message-ID: <cb6cb8c4-a8b7-463a-8ef5-75c99ff5638c@kernel.org>
+Date: Tue, 11 Aug 2026 18:53:53 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,9 +35,10 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 07/20] mm/vma: fix self-merge check in copy_vma()
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
+Subject: Re: [PATCH v4 15/20] tools/testing/vma: expand VMA merge tests to
+ assert anon pgoff
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>,
  "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
  Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
  Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>,
@@ -87,15 +88,15 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
  Oscar Salvador <osalvador@suse.de>, Chris Li <chrisl@kernel.org>,
  Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
  Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>,
- Youngjun Park <youngjun.park@lge.com>, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- linux-kselftest@vger.kernel.org, kvm@vger.kernel.org,
- linux-s390@vger.kernel.org, amd-gfx@lists.freedesktop.org,
- dri-devel@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
- linux-perf-users@vger.kernel.org, linux-trace-kernel@vger.kernel.org
+ Youngjun Park <youngjun.park@lge.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+ amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ intel-xe@lists.freedesktop.org, linux-perf-users@vger.kernel.org,
+ linux-trace-kernel@vger.kernel.org
 References: <20260806-b4-scalable-cow-virt-pgoff-v4-0-ab318a350404@kernel.org>
- <20260806-b4-scalable-cow-virt-pgoff-v4-7-ab318a350404@kernel.org>
- <3a0a9aaf-20f5-4f92-b848-00ab702e8fe2@kernel.org> <antTCpT9gXN7pSRn@gremlin>
+ <20260806-b4-scalable-cow-virt-pgoff-v4-15-ab318a350404@kernel.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -142,48 +143,19 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <antTCpT9gXN7pSRn@gremlin>
+In-Reply-To: <20260806-b4-scalable-cow-virt-pgoff-v4-15-ab318a350404@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 8/11/26 18:51, Lorenzo Stoakes (ARM) wrote:
-> On Tue, Aug 11, 2026 at 06:44:01PM +0200, David Hildenbrand (Arm) wrote:
->>>
->>> Since copy_vma_and_data() which calls copy_vma() intends to reference the
->>> old VMA after the merge, it must have this pointer updated.
->>>
->>> This kind of self-merge is not possible with a succeeding merge, as the
->>> merge always prefers to expand the preceding VMA if possible.
->>>
->>> copy_vma() accounts for this by explicitly checking to see if a self-merge
->>> occurred and updating the vmap pointer if so. However it incorrect did so
->>> even for a subsequent merge (this is simply a noop so it had no impact).
->>
->> Took me longer than it should to find out that this is no real fix ;)
->>
->>>
->>> So change this to only check for the case which matters - a backwards
->>> merge - and rearrange the parameters to make it clearer we're doing that -
->>> i.e. check new_vma->vm_start < old_vma_start (having already renamed
->>> vma_start to old_vma_start to make it clear this is the previous VMA).
->>>
->>> Also update the existing wall-of-text comment to be a lot clearer.
->>>
->>> While we're here, replace the VM_BUG_ON_VMA() with a VM_WARN_ON_ONCE_VMA()
->>> and update the VMA userland tests accordingly.
->>>
->>> No functional change intended.
->>>
->>> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
->>> ---
->> I skimmed over it, looks correct, but the merging stuff is way over my head to
->> confidentially give a RB tag her :)
+On 8/6/26 22:21, Lorenzo Stoakes (ARM) wrote:
+> Now we have introduced the VMA anonymous page offset attribute and update
+> it when VMAs are manipulated, update VMA merge tests to assert that the
+> anonymous page offset is as expected.
 > 
-> Well that's what A-b is for ;)
-
-Assisted-by? Half-assed-by?
-
-;)
+> Also update instances where we could use vma_start_pgoff() to do so.
+> 
+> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+> ---
 
 Acked-by: David Hildenbrand (Arm) <david@kernel.org>
 
