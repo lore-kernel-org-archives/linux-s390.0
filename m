@@ -1,126 +1,201 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CF8A38D3F9;
-	Tue, 11 Aug 2026 10:14:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 790853B634E
+	for <linux-s390@vger.kernel.org>; Tue, 11 Aug 2026 11:19:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786443244; cv=none; b=o1xWR25ui0LWBIjmfIYMo9RPTTLRlRijAS2A7L/4vl9jzx34Cehuep4cf6NdoSv4IyQnfVdiWNPh/V8/K5T+oYJPbBdU+JkGLm2E+XT4rcUP5BYDZ78rw5H+mUXOVHkPQLfoCcQWwW/xAh67RRFmF47VJis+BvV4SF6h8q7oyMI=
+	t=1786447188; cv=none; b=ZcWuo6o4ydqb8xIG32Jf0OqbZDr9/Nu0QXvprB385nNDPTZNKa1OAJy0L1R7ydLUgPwKNq9CPDypDVzLOVOQ6ZVhtkIhnCKkLFbpXd9NUdLkBdYyrbck8loj3pgne9DwcMb3M25zO1sQYhNx1U/kqSLlBMVh6yl+ZWXIa/mUNPI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786443244; c=relaxed/simple;
-	bh=BejbUcJjbW25ZxVE2vQlLocoggtLdXBB0JJ9ey071t4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sRAmUFTl2KinA/MlXi4qtrDxjqoBvxjPdinMypzqRnxuT1+iP/MxTylp5fW8IwMVbERcodsYhnMa3NjCVWop5a2x3lyboup72OMT5v0NMNEPKs8MLBqWL2L43/4BqQG1nR1E/uxcJgJsSbeFXVbYtlgIXwg4YzweCCwRae69QdY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=csLFFvVi; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786447188; c=relaxed/simple;
+	bh=1SHCK5t3ErZgbkd5/bMFTQiVvMK8i5VxwUfjw14JCqE=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=kRIEq6deuRX4Eqlo0Dg/OiTsh71MHJTWpmusUuKrLM1hMAhuUPL2P5sSAaEVskD3Tc+xUC6VoRX14S81zhsIvejnRrx3Z3UCgjRRQbmHTQi+vESVQuO9RTZexzdk5lipTLWK53mPBBW/+bQHLxmEJaN7sXKJse7SbovUkXBSmjA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=S2rxrJaR; arc=none smtp.client-ip=209.85.221.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="csLFFvVi"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67AN1tHS3000255;
-	Tue, 11 Aug 2026 10:14:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=0LWf2G
-	lSlP2WbCo8lhdyydGvBRDohCGN0Pgau+H8TPw=; b=csLFFvViyChgZtYWEqZHGh
-	OtbxMRzXwuguqbtjWd88q8W1OBctUAf17qGHKKpNmy4+17PQhRFOHDq08TdstEja
-	LBGG7UGlxxBgh1B+ymDWhhnNbMYjql+G7xmMVeUEuJedzmiDHkZZXhC1sMjozWXw
-	W5XGmTuOXZbUVyT1C89C+/WVqZw6zkHxlNJaLaa80N37aMZ/UkT9QDyI1f6yPThK
-	3gGATWHfWBK7xzPZeWgT897zLE4RmXml75kkazNZfLWrhniwSpLhgq8acqblPGcC
-	/nIO2/W5r8EG6VkTLOCV6b7zwYkgSJtCWt8qZl//3pDQbOkzflbJlRBeBsP2mSRg
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvnw3r34-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 10:14:01 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67BABFwN027092;
-	Tue, 11 Aug 2026 10:14:00 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxf5w0kg7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 11 Aug 2026 10:14:00 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67BADuiK51118348
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 11 Aug 2026 10:13:56 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7EF962004D;
-	Tue, 11 Aug 2026 10:13:56 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 418EE20040;
-	Tue, 11 Aug 2026 10:13:56 +0000 (GMT)
-Received: from [9.224.91.220] (unknown [9.224.91.220])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 11 Aug 2026 10:13:56 +0000 (GMT)
-Message-ID: <608b807e-5887-43eb-9598-2a87827350ee@linux.ibm.com>
-Date: Tue, 11 Aug 2026 12:13:55 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="S2rxrJaR"
+Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-47f93b2fe4cso1621671f8f.0
+        for <linux-s390@vger.kernel.org>; Tue, 11 Aug 2026 04:19:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786447185; x=1787051985; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=WpHpX3dMx1OmUziffO2NidzvFmW3rlX7MNbm6J/WhK0=;
+        b=S2rxrJaRRhZH/uITPBh/pasLsALBKQI5v8IfGdfU2m8kLw5IlGyZkMCp5cqNmfj1Wf
+         V3BFIXB9Hp5zY9kSwFgVLs0OLJ5t7yykxgN0dkg9GaW/vLqNaUl+USBmAkzqJlwT2eR9
+         nnrBYXAjqs1tZoqiHc5Pgbe/hct8/ZvtLC9K9csz7j80nRx8kjpczpY0mvKm090QdXl1
+         wmjiKAUVSj/I+tO0d3/WOUUtM8DFfhz8KzIzxBan+XGcUbRqV0A26M6ghh+DSGQx7cUg
+         bipk9Y6XuHKj9FF9Uzq1CEmtDxJ+h8f30elZkq4CINtLC6ULezdYmiwg02Wx0zrcZ5Va
+         6JiA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786447185; x=1787051985;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=WpHpX3dMx1OmUziffO2NidzvFmW3rlX7MNbm6J/WhK0=;
+        b=Ly+B2c7wA7BTGjAshXlxHlHWaYEUjvO8R9OEz/jCbdHdEL6EnrysoB/DtLOrC79F1c
+         EDmCmGRtW6bP5AJsEi9GZQpuGbQTtaR1kSqLnHXiVsU82zngbNnMGEXmIpyVnt78Pciy
+         SVnVMVGeOyVNLQvatJnGfUi0mIx+xKUdZP+Sxwdtld1dGgzSLXdS9gW2JTlp27JDT40K
+         vHukSzox9fBSAzdgWyCp5ifkVlPo8moaOm39HBJgBB3CGA0T2chrzpNilo79IVNxta86
+         2MrNJFVC3xK7r7skHFTkg1HLG/jEjoZQHjUQ1GjwI0zsUUR4wEmtnQgHU2qL4CEZzZ8X
+         BUEw==
+X-Forwarded-Encrypted: i=1; AHgh+RprhHN4ZCDpAwiYfVYABDHKi9lQBv/Tvnu9DpqDm45s554HBpUFP8zNLNSxpLu1ZrltEoRrfBoAVK9d@vger.kernel.org
+X-Gm-Message-State: AOJu0YxONjtfQcun65mepgX73OWFvzyALkTxwzN3uJFz3utpRM2wqTxG
+	TZhO73OQ6LDmwHeHL0jYGpR0sYKQqrdSayHHeCTe2Ny92dUO6r8znly/
+X-Gm-Gg: AR+sD11+xGaM2I5B8gcP6PdaIWgiK7a5k9JrIyNWem3//JiFLW3LybWHZrXAHbeNsEi
+	3Yn0geP1xHPlrHCQHm1fc4jUgD+ObKvH1Uta+5gUdIjZwG5h2+4Uf7ipk2i+ZcZFE+Mb/EJKAH/
+	VSczA0xUBLOgvm8EdSiTahGzEEI7WV9jOX6XSZRaFJWXwKRQMIO1Y0MrKBx3S6BR87FaFdmE0JG
+	MBxof0OL85sU8zz9KGUxr8UH4sfLolLoniq1sDFB8FwYm+dqJlle49WujHQe8V3Ck5vpXW5abxS
+	06Awr6E9hqlo1mi4PdkIWjKn7f3Jdj3ZKdm8quXF/KGuvqYId3PUhIq7+/hv6MPbFyWexV9AZ9e
+	GltsCqkQNT92G2RA18JGrS9G9yCz80n7TaQ7JUr2RbpLBIBnKWuC8eJTXU0z6c7FEHDSDsC9Kcp
+	MOpJfFAlkK7EMB8c41UsexY05BnH6YH4SMxnj4zPg5WyS+fUg27FQ31HJypg2ZXyl1ApZViiVb1
+	xgjADvDLD+o7Sqx5Dtle4hBEQ==
+X-Received: by 2002:a5d:5e8f:0:b0:47f:6f6a:6a7f with SMTP id ffacd0b85a97d-4814ad890fbmr4370323f8f.8.1786447184497;
+        Tue, 11 Aug 2026 04:19:44 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4814a5ac75dsm3318120f8f.7.2026.08.11.04.19.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Aug 2026 04:19:44 -0700 (PDT)
+Date: Tue, 11 Aug 2026 12:19:41 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Kevin Brodsky <kevin.brodsky@arm.com>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>, "Christophe Leroy (CS
+ GROUP)" <chleroy@kernel.org>, linux-mm@kvack.org, Andrew Morton
+ <akpm@linux-foundation.org>, Lorenzo Stoakes <ljs@kernel.org>, "Liam R.
+ Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, Mike
+ Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, Michal
+ Hocko <mhocko@suse.com>, Pasha Tatashin <pasha.tatashin@soleen.com>,
+ Russell King <linux@armlinux.org.uk>, Catalin Marinas
+ <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Ryan Roberts
+ <ryan.roberts@arm.com>, linux-arm-kernel@lists.infradead.org, Huacai Chen
+ <chenhuacai@kernel.org>, loongarch@lists.linux.dev, "James E.J. Bottomley"
+ <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>,
+ linux-parisc@vger.kernel.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, Paul
+ Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou
+ <aou@eecs.berkeley.edu>, linux-riscv@lists.infradead.org, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ linux-s390@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+ Andreas Larsson <andreas@gaisler.com>, sparclinux@vger.kernel.org, Richard
+ Weinberger <richard@nod.at>, Anton Ivanov
+ <anton.ivanov@cambridgegreys.com>, Johannes Berg
+ <johannes@sipsolutions.net>, linux-um@lists.infradead.org, Thomas Gleixner
+ <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
+ <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin"
+ <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra
+ <peterz@infradead.org>, Ning Sun <ning.sun@intel.com>, x86@kernel.org,
+ tboot-devel@lists.sourceforge.net, Ard Biesheuvel <ardb@kernel.org>, Ilias
+ Apalodimas <ilias.apalodimas@linaro.org>, linux-efi@vger.kernel.org, Vishal
+ Moola <vishal.moola@gmail.com>, Alistair Popple <apopple@nvidia.com>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+ linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 03/22] mm: introduce MMF_KERNEL flag and set it for
+ init_mm
+Message-ID: <20260811121941.4ca20b88@pumpkin>
+In-Reply-To: <643a624d-0106-44ed-a7f5-aaf9316f94fd@arm.com>
+References: <20260714-remove_pgtable_cdtor-v1-0-44be8a7685d7@arm.com>
+	<20260714-remove_pgtable_cdtor-v1-3-44be8a7685d7@arm.com>
+	<01f07ea2-8bdd-4450-8a49-548f8b646cfd@kernel.org>
+	<33fc9d31-2866-4315-9510-0004deb93994@kernel.org>
+	<20260811091016.5ca67143@pumpkin>
+	<643a624d-0106-44ed-a7f5-aaf9316f94fd@arm.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] s390/crypto: Explicit scrub temp buffer in AES ctr
- mode algorithm
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: fcallies@linux.ibm.com, ifranzki@linux.ibm.com, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        linux-crypto@vger.kernel.org
-References: <20260806084950.17679-1-freude@linux.ibm.com>
- <20260806084950.17679-3-freude@linux.ibm.com>
-From: Holger Dengler <dengler@linux.ibm.com>
-Content-Language: en-US, de-DE
-In-Reply-To: <20260806084950.17679-3-freude@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=RsP16imK c=1 sm=1 tr=0 ts=6a7af5e9 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=lyOGLLBlSGA56w-zKboA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=zZCYzV9kfG8A:10
-X-Proofpoint-GUID: YvywRbD1aIcqQVkgRxyTp-M4AYmKLMQe
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODExMDA4MyBTYWx0ZWRfX2k9YeU1fjHZ/
- 7PXDS9DHgoQ+BCoedzxCELD8jcjJpcZqk1tU9TS2eIrf7ECp5+/yBvvVImDfZ9bcqmcNb1EDloI
- mt5QGVmswUdTLh//rLYuLjYyI4JmbwwZL+8ki269VEOhIUBIzCA/p7RpkGArODilsgu1xOp58Ug
- jIN1XVXbSGd7CfwUPCGPEdBLgnESIBnXHVNqd1SOhSZYWORZUeDU5CbUpEhKiVq9M0/WdhBUXif
- j1s4GksXCDnxmrKIKOcaqsZHUMELCzMlbtvtwcl7X09NsEw2ZuO9hb1WY6gHr3Lh/d8E91C56mv
- zu0PWfWjl4twlDc6VaOry8ctNCf9U+U9beCWJIglGbermIfZmriin3d7AIL6CnHqTDDKwQxRkgg
- nWIJ2uZXFnjNaZYFL0VS8k9X3lNgYJ1nlpAF1tc7pMnV4z7uRmTBBgCihVOUm0pXQa2v7vZI8c+
- utiEW+fuq68+aOLiCVA==
-X-Proofpoint-ORIG-GUID: YvywRbD1aIcqQVkgRxyTp-M4AYmKLMQe
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODExMDA4MyBTYWx0ZWRfXw/AOXvAb7KvW
- WonEwvrpsIEYJxEVVCjqP/GB9UuYuBLxuSXWXpLS9Z3VpGg+wVgEiznH3qboftn4CA6EcbubwFt
- VWFJxtt2snzI2zBKFdfgTTYtF7J+J1E=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-10_06,2026-08-10_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 impostorscore=0 suspectscore=0 clxscore=1015 malwarescore=0
- phishscore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608110083
+Content-Transfer-Encoding: quoted-printable
 
-On 8/6/26 10:49, Harald Freudenberger wrote:
-> In function ctr_aes_crypt() there is a buffer used to process
-> remaining bytes < AES_BLOCK_SIZE. This buffer was not scrubbed and
-> thus could lead to expose of unwanted data.
-> 
-> When the buffer is used explicitly scrub it at the end of the code
-> block to avoid exposure of maybe sensitive data.
-> 
-> Fixes: d07f951903fa ("crypto: s390/aes - Fix buffer overread in CTR mode")
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> Cc: stable@vger.kernel.org # 6.8+
+On Tue, 11 Aug 2026 11:00:09 +0200
+Kevin Brodsky <kevin.brodsky@arm.com> wrote:
 
-Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
+> On 11/08/2026 10:10, David Laight wrote:
+> > On Wed, 5 Aug 2026 14:07:01 +0200
+> > "David Hildenbrand (Arm)" <david@kernel.org> wrote:
+> > =20
+> >> On 8/3/26 15:59, Christophe Leroy (CS GROUP) wrote: =20
+> >>>
+> >>> Le 14/07/2026 =C3=A0 16:03, Kevin Brodsky a =C3=A9crit=C2=A0:   =20
+> >>>> mm code often needs to know whether some mm represents a kernel or
+> >>>> user address space. This is currently done by comparing the mm
+> >>>> pointer with &init_mm; besides not being particularly elegant, this
+> >>>> ignores the fact that other mm's (e.g. efi_mm) may also represent
+> >>>> parts of the kernel address space.
+> >>>>
+> >>>> Introduce a new mm flag MMF_KERNEL and set it for init_mm.
+> >>>> Subsequent patches will use this flag to replace comparisons with
+> >>>> &init_mm. No functional change is introduced for now.   =20
+> >>> Did you consider performance impact ? This test is usually done in qu=
+ite
+> >>> critical memory handling functions.
+> >>>
+> >>> init_mm is known at link time. Before your patch 08/22 there is just a
+> >>> comparison of mm (r3) with a constant (loaded in r10):
+> >>>
+> >>> c0014048 <assert_pte_locked>:
+> >>> c0014048:=C2=A0=C2=A0=C2=A0 3d 40 c1 09=C2=A0=C2=A0=C2=A0=C2=A0 lis=
+=C2=A0=C2=A0=C2=A0=C2=A0 r10,-16119
+> >>> c001404c:=C2=A0=C2=A0=C2=A0 39 4a 03 98=C2=A0=C2=A0=C2=A0=C2=A0 addi=
+=C2=A0=C2=A0=C2=A0 r10,r10,920
+> >>> c0014050:=C2=A0=C2=A0=C2=A0 7c 03 50 00=C2=A0=C2=A0=C2=A0=C2=A0 cmpw=
+=C2=A0=C2=A0=C2=A0 r3,r10
+> >>> c0014054:=C2=A0=C2=A0=C2=A0 4d 82 00 20=C2=A0=C2=A0=C2=A0=C2=A0 beqlr
+> >>> ...
+> >>>
+> >>> After patch 08/22 we have, it first checks that mm is not 0, then it =
+loads the
+> >>> word located at mm+528 then AND it with 0x1. This load might be costl=
+y.
+> >>>
+> >>> c0014048 <assert_pte_locked>:
+> >>> c0014048:=C2=A0=C2=A0=C2=A0 2c 03 00 00=C2=A0=C2=A0=C2=A0=C2=A0 cmpwi=
+=C2=A0=C2=A0 r3,0
+> >>> c001404c:=C2=A0=C2=A0=C2=A0 7c 85 23 78=C2=A0=C2=A0=C2=A0=C2=A0 mr=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0 r5,r4
+> >>> c0014050:=C2=A0=C2=A0=C2=A0 41 82 00 10=C2=A0=C2=A0=C2=A0=C2=A0 beq=
+=C2=A0=C2=A0=C2=A0=C2=A0 c0014060 <assert_pte_locked+0x18>
+> >>> c0014054:=C2=A0=C2=A0=C2=A0 81 23 02 10=C2=A0=C2=A0=C2=A0=C2=A0 lwz=
+=C2=A0=C2=A0=C2=A0=C2=A0 r9,528(r3)
+> >>> c0014058:=C2=A0=C2=A0=C2=A0 71 29 00 01=C2=A0=C2=A0=C2=A0=C2=A0 andi.=
+=C2=A0=C2=A0 r9,r9,1
+> >>> c001405c:=C2=A0=C2=A0=C2=A0 4c 82 00 20=C2=A0=C2=A0=C2=A0=C2=A0 bnelr=
+   =20
+> >> Is that a real problem, though? =20
+> > The cost of the read is likely to matter most if the branch gets mispre=
+dicted.
+> > I'd also guess the mm isn't usually NULL - so that branch needs to stat=
+ically
+> > predicted correctly as well.
+> > I'd also not assume that the mm is in the cache (unless the surrounding=
+ code
+> > has already accessed it), the L1 data caches are small. =20
+>=20
+> You're right, I didn't think about this the right way round - in general
+> it may not be easy to predict that mm points to init_mm, and an
+> arbitrary user mm isn't guaranteed to be cached. Repeated calls to
+> mm_is_kernel(mm) in the same function shouldn't cost much though.
 
--- 
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
+Depends.
+If it is real function call the code will be in the I-cache and is likely
+to get predicted correctly by the third call.
+OTOH if inlined you've all the I-cache loads and that static branch
+prediction might get them all wrong.
+
+Oh, and saving the result in a local might cause a register spill.
+
+	David
+
+>=20
+> Would some (micro)benchmark be particularly relevant to measure the
+> overhead, if any?
+>=20
+> - Kevin
 
