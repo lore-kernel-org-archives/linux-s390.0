@@ -1,37 +1,37 @@
 Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E005480DCF;
-	Wed, 12 Aug 2026 17:39:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A69E9481256;
+	Wed, 12 Aug 2026 17:39:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786556350; cv=none; b=trOY1D41M2H5V+oGmDvUUsz6/cdio3GRzjME1Fmp+ER4tHKVSttgJfv4FP3NaB++LOv/gXOmsiM6IHV9rtIzEu7xdHtZe9wmErFgbvj0qhMgaCv4n6CWUxupGR0Yado30tGVKvjDEQXqPGXENLn6VoUsr0dLTFa9urjp9K+ArWs=
+	t=1786556356; cv=none; b=FphqTa49s5GiflTLcLpWO8EcG4kwMnxMJlUzZTmpm/8lqfRDBgXT2Kp+rqwzxN9OO3Q8waYGY2qWO/8S8rDwUYIXKwRQ8/SFRf+jfo03rYso+LnG+/Qdb5qht91HZSWkW6xuPZ7BxgimPvJBm7x2n61vABRNxwqF8XzxsCkclGk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786556350; c=relaxed/simple;
-	bh=PVPHT2xgmBGfsyPgCH5CICR2yH/ev4tBIXjXNny0t/U=;
+	s=arc-20240116; t=1786556356; c=relaxed/simple;
+	bh=Hk0/ONy1+wfcVbuX226G1454P37xrSu+QQLwIPDdBzU=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=OtkMsp5STSDt9j6iI77osxav3HMZ54a6Tp9VYQF5AubIYpxcXr/qLae1LvGNHx7mdoe0Eqj5HihOcEbhCV0yu3SftGC9FRsN9r2DyjTMeD7yftsPe3VsfIWTfqyKyNAiWVkoT6kD0oLWyab2D4pvBN/WzBFDvVo6qnfLckQzguI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=WQWWTqKX; arc=none smtp.client-ip=213.97.179.56
+	 In-Reply-To:To:Cc; b=CbCdau3ilczoKQQfih4glT4lD+SeAW/kA7h8eKXFPhwFEncrf9uY77c874MCT/oQGPXgc8LMXe0qf4bgh/e2LfD1wKMQme/j7IgRHEESAqf6C2E9G3KkS9JEF6nsrOjB43KKDIvQRTyuefTU7hHA18kc0wyMwhvZxzZyf0r3SQE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=LCR9uqad; arc=none smtp.client-ip=213.97.179.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="WQWWTqKX"
+	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="LCR9uqad"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
 	s=20170329; h=Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:
 	MIME-Version:Subject:Date:From:From:Reply-To;
-	bh=PQOwCdOEDFs2yQBWOu5zJe4VLula9k1JKawABGnhRRk=; b=WQWWTqKXyF3/sk3RF8/eKPrOIP
-	Lm1+dAFfdLwQpCquiAcxpdxkwK7k96jpQOxacaDWohPHWTCV318t6dMEJ3+3/xkv0TZzrozTAdTHZ
-	DjR2sZi5SD1D44gO3CLmxXEA+zEzxIWM0lfORsxJ2GBykaD1jTbXRB/fN5yjn+xFYT0DGtfw01O62
-	ABuX/EKKfjIgrdNis+wZzjnuau4xXGd2Zy/1hOrWwIHsdGuaCe0PgM/WZDyUO6x37Y99M+DH8KzoJ
-	mql9la1QRXnjzwsfmMdbuKkjlijtG6y3NgnicHFb1A1i7BLHfSPFwE3z7Y6v9WtJG4Fv/PbYZqW9b
-	Vm95Wx1w==;
+	bh=XBPgvQ2c/y/fzdlV2LZUHVTvHe67ml1zYAfUhMpHmNs=; b=LCR9uqadEoGwRZid3pOKiLzw5O
+	AQUPjTMLiIWYScZEi7Wx+xPoXykEwzWEAiHkvos+SFnowiPukxGAgLy8rSwtcxlfD7F2gXrABeNVk
+	a/ChcqDltn1vsybR48Uc4vo0NYIIYjS3uwvdmuSnEKDIcdypMZFt3BCfBpSmeZqeRYw1LICHgy3re
+	vX2/z9cTQACNsegUl/zMowITXhbQ4vG6o1usRaRxthVS+iSMjEImJRP714rjG2s7eXV4Atq6wNfuc
+	cuAEakAvf95SymVNjZuAWQvdlaLjgDP2CJeM2wXENTFmaLppXRWimzVO2zxZaz7oR2TxbKSE25rud
+	x5+eINMg==;
 Received: from [177.139.22.20] (helo=[192.168.15.100])
 	by fanzine2.igalia.com with esmtpsa 
 	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-	id 1wuCuu-000FR2-E5; Wed, 12 Aug 2026 19:39:04 +0200
+	id 1wuCux-000FR2-QI; Wed, 12 Aug 2026 19:39:08 +0200
 From: =?utf-8?q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
-Date: Wed, 12 Aug 2026 14:38:35 -0300
-Subject: [PATCH v5 04/13] arm: Use the common syscall table
+Date: Wed, 12 Aug 2026 14:38:36 -0300
+Subject: [PATCH v5 05/13] s390: Use the common syscall table
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -40,7 +40,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260812-tonyk-syscall_table-v5-4-3d383927c609@igalia.com>
+Message-Id: <20260812-tonyk-syscall_table-v5-5-3d383927c609@igalia.com>
 References: <20260812-tonyk-syscall_table-v5-0-3d383927c609@igalia.com>
 In-Reply-To: <20260812-tonyk-syscall_table-v5-0-3d383927c609@igalia.com>
 To: Masami Hiramatsu <mhiramat@kernel.org>, Arnd Bergmanon <arnd@arndb.de>
@@ -57,76 +57,57 @@ table.
 
 Signed-off-by: André Almeida <andrealmeid@igalia.com>
 ---
- arch/arm/tools/Makefile    | 10 +++++--
- arch/arm/tools/syscall.tbl | 68 ----------------------------------------------
- 2 files changed, 7 insertions(+), 71 deletions(-)
+ arch/s390/kernel/syscall.c            |  2 ++
+ arch/s390/kernel/syscalls/Makefile    |  8 ++++--
+ arch/s390/kernel/syscalls/syscall.tbl | 48 -----------------------------------
+ 3 files changed, 8 insertions(+), 50 deletions(-)
 
-diff --git a/arch/arm/tools/Makefile b/arch/arm/tools/Makefile
-index 28b6da8ac5f6..fd73bf6db3bf 100644
---- a/arch/arm/tools/Makefile
-+++ b/arch/arm/tools/Makefile
-@@ -12,6 +12,8 @@ syshdr := $(srctree)/scripts/syscallhdr.sh
- sysnr := $(src)/syscallnr.sh
- systbl := $(srctree)/scripts/syscalltbl.sh
+diff --git a/arch/s390/kernel/syscall.c b/arch/s390/kernel/syscall.c
+index 75d5a3cab14e..71bff05bc7b0 100644
+--- a/arch/s390/kernel/syscall.c
++++ b/arch/s390/kernel/syscall.c
+@@ -40,6 +40,8 @@
+ 
+ #include "entry.h"
+ 
++#define __SYSCALL_WITH_COMPAT(nr, native, compat)	__SYSCALL(nr, native)
++
+ #define __SYSCALL(nr, sym) long __s390x_##sym(struct pt_regs *);
+ #include <asm/syscall_table.h>
+ #undef __SYSCALL
+diff --git a/arch/s390/kernel/syscalls/Makefile b/arch/s390/kernel/syscalls/Makefile
+index d5fca0ca0890..dae9c17f5928 100644
+--- a/arch/s390/kernel/syscalls/Makefile
++++ b/arch/s390/kernel/syscalls/Makefile
+@@ -5,14 +5,18 @@ uapi := arch/$(SRCARCH)/include/generated/uapi/asm
+ $(shell mkdir -p $(uapi) $(kapi))
+ 
  syscall := $(src)/syscall.tbl
 +syscalltbl_common := $(srctree)/scripts/syscall_common.tbl
-+abis := common,clone3,32
- 
- gen-y := $(gen)/calls-oabi.S
- gen-y += $(gen)/calls-eabi.S
-@@ -38,11 +40,13 @@ $(kapi)/mach-types.h: $(src)/gen-mach-types $(src)/mach-types FORCE
- 	$(call if_changed,gen_mach)
+ syshdr := $(srctree)/scripts/syscallhdr.sh
+ systbl := $(srctree)/scripts/syscalltbl.sh
++abis := common,clone3,memfd_secret
  
  quiet_cmd_syshdr = SYSHDR  $@
--      cmd_syshdr = $(CONFIG_SHELL) $(syshdr) --abis common,$* \
-+      cmd_syshdr = $(CONFIG_SHELL) $(syshdr) --abis $(abis),$* \
-+		   --common-tbl $(syscalltbl_common) \
- 		   --offset __NR_SYSCALL_BASE $< $@
+-      cmd_syshdr = $(CONFIG_SHELL) $(syshdr) --emit-nr --abis common,$* $< $@
++      cmd_syshdr = $(CONFIG_SHELL) $(syshdr) --emit-nr --abis $(abis),$* \
++		   --common-tbl $(syscalltbl_common) $< $@
  
  quiet_cmd_systbl = SYSTBL  $@
 -      cmd_systbl = $(CONFIG_SHELL) $(systbl) --abis common,$* $< $@
 +      cmd_systbl = $(CONFIG_SHELL) $(systbl) --abis $(abis),$* \
 +		   --common-tbl $(syscalltbl_common) $< $@
  
- quiet_cmd_sysnr  = SYSNR   $@
-       cmd_sysnr  = $(CONFIG_SHELL) $(sysnr) $< $@
-@@ -50,7 +54,7 @@ quiet_cmd_sysnr  = SYSNR   $@
- $(uapi)/unistd-%.h: $(syscall) $(syshdr) FORCE
+ $(uapi)/unistd_%.h: $(syscall) $(syshdr) FORCE
  	$(call if_changed,syshdr)
- 
--$(kapi)/unistd-nr.h: $(syscall) $(sysnr) FORCE
-+$(kapi)/unistd-nr.h: $(syscalltbl_common) $(sysnr) FORCE
- 	$(call if_changed,sysnr)
- 
- $(gen)/calls-%.S: $(syscall) $(systbl) FORCE
-diff --git a/arch/arm/tools/syscall.tbl b/arch/arm/tools/syscall.tbl
-index 94351e22bfcf..d5bc0e7adf2f 100644
---- a/arch/arm/tools/syscall.tbl
-+++ b/arch/arm/tools/syscall.tbl
-@@ -418,71 +418,3 @@
- 400	common	migrate_pages		sys_migrate_pages
- 401	common	kexec_file_load		sys_kexec_file_load
- # 402 is unused
--403	common	clock_gettime64			sys_clock_gettime
--404	common	clock_settime64			sys_clock_settime
--405	common	clock_adjtime64			sys_clock_adjtime
--406	common	clock_getres_time64		sys_clock_getres
--407	common	clock_nanosleep_time64		sys_clock_nanosleep
--408	common	timer_gettime64			sys_timer_gettime
--409	common	timer_settime64			sys_timer_settime
--410	common	timerfd_gettime64		sys_timerfd_gettime
--411	common	timerfd_settime64		sys_timerfd_settime
--412	common	utimensat_time64		sys_utimensat
--413	common	pselect6_time64			sys_pselect6
--414	common	ppoll_time64			sys_ppoll
--416	common	io_pgetevents_time64		sys_io_pgetevents
--417	common	recvmmsg_time64			sys_recvmmsg
--418	common	mq_timedsend_time64		sys_mq_timedsend
--419	common	mq_timedreceive_time64		sys_mq_timedreceive
--420	common	semtimedop_time64		sys_semtimedop
--421	common	rt_sigtimedwait_time64		sys_rt_sigtimedwait
--422	common	futex_time64			sys_futex
--423	common	sched_rr_get_interval_time64	sys_sched_rr_get_interval
+diff --git a/arch/s390/kernel/syscalls/syscall.tbl b/arch/s390/kernel/syscalls/syscall.tbl
+index 09a7ef04d979..ce6d15260dd1 100644
+--- a/arch/s390/kernel/syscalls/syscall.tbl
++++ b/arch/s390/kernel/syscalls/syscall.tbl
+@@ -350,51 +350,3 @@
+ 400	common	msgsnd				sys_msgsnd
+ 401	common	msgrcv				sys_msgrcv
+ 402	common	msgctl				sys_msgctl
 -424	common	pidfd_send_signal		sys_pidfd_send_signal
 -425	common	io_uring_setup			sys_io_uring_setup
 -426	common	io_uring_enter			sys_io_uring_enter
@@ -150,7 +131,7 @@ index 94351e22bfcf..d5bc0e7adf2f 100644
 -444	common	landlock_create_ruleset		sys_landlock_create_ruleset
 -445	common	landlock_add_rule		sys_landlock_add_rule
 -446	common	landlock_restrict_self		sys_landlock_restrict_self
--# 447 reserved for memfd_secret
+-447	common	memfd_secret			sys_memfd_secret
 -448	common	process_mrelease		sys_process_mrelease
 -449	common	futex_waitv			sys_futex_waitv
 -450	common	set_mempolicy_home_node		sys_set_mempolicy_home_node
