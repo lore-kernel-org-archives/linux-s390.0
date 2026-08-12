@@ -1,109 +1,121 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3EEE39020C;
-	Wed, 12 Aug 2026 16:21:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86A1E38B7D4;
+	Wed, 12 Aug 2026 16:23:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786551714; cv=none; b=BHG5sxF1IbXR3miqVAgzy6AyiwF8BKSBfLsZMgQ46Gde5Ixji+IU7+3RKVrC3z7inG4hJgC0A/mwVAfcZ4l21u/KtJJx45N6d9X19IDUnRNMH7UaGsbFNgeyGlEzlOPhrrS8Rd4Gn2UNxAEe6WkIxJBd5AOg4CamLVaV2ASOlHo=
+	t=1786551790; cv=none; b=OesHc10F0YLkwfSS3wV/Rq3La/MgLBCpfTPmPQkCoX8hfrjR9rVigd3YETKsB/okwcU3zfVwndVydpcPJMJ/R/eQZ2new+nHE7Z53jLv5oqUs+iwGip9LN8m+GG0/RPGci6vObp2XvnlZ0hOXu9PDHg+IKFPOrlVc4mmDI2JiZQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786551714; c=relaxed/simple;
-	bh=d6gBnB0coIDMFI31oFdlIuFVAvpudF5x9g6TcUophBs=;
+	s=arc-20240116; t=1786551790; c=relaxed/simple;
+	bh=6GCoAqRbWhtlUXL2rzIyGDpxGYH7lLt29p/M4CltXXg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=dhfEPBT7YstHsHvTFRPFauDDzP2kaUI1mva0aeExkX5lWfQoiVw2ztjb7TwW2HcBLSwFjyoQFGlfCqF2aI3HPb06YrsyHqZ5hYX/CQTpATtNqeYFDERXyXwbFOhZ/QsJpXXzFWFqm5SuMK4Im1z/7EM6iwnzztS7lnQYbPQBbRc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UctMKPIU; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=TLHGk8O7rWwevs4LgTtj5y7VvtltZa9uL/74UeLezKNYXhuuVS8ghXhbqMxUsHWYFLmXwGHuE0B+nL7L5KNoOrpNfcKwC57A2669JTcpXEhABrSPTk2dmBiiX4GZaoQ8QgrHrn8oWb8qLju41cF115ZzjalUlyn/k+OvW/ogfrc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ASAjg6GK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UctMKPIU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF01C1F000E9;
-	Wed, 12 Aug 2026 16:21:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ASAjg6GK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 867BF1F000E9;
+	Wed, 12 Aug 2026 16:23:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786551712;
-	bh=NWb34c7wFH0xUNnIAmftCdQBySX2QkmwVQVBTE7TJjA=;
+	s=k20260515; t=1786551789;
+	bh=ZQlB65IJN8Vjj7WURMNIfDf0nshW3740sPSTWjufRLM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UctMKPIUd4jKNtanOcFaaq3GQUTeZTyYsSexwSWTF9OZmn3ZzcWCiNJpFpUK6PSJz
-	 +CQXpbykdIsVRdNaWNJaubMDwI9AorhbsLDyNUs0AjVmJFL6CvvVPX4XyjZxgDJrtZ
-	 boXVjC6OAADfqNC8JL/wUrFPguZ3W2Uh2QogFn6fDommPOeDRXtGU10TGlBzLCHs+s
-	 I704niA7zUYNwpo4q4LMw3rVPk2Hjr/6w8jIqQiwck3KCLXSdKEgGTxY9nDJ/AaDJ/
-	 0ClgLfnTs21dAXylFeqfkYTJElPkoXA4ejDYoOxXidoupe35pVXp7WRrfAUoJJ9zxH
-	 q7uhqCi+4bA9Q==
+	b=ASAjg6GKwIhDGJXMDFr1LEwzOKBXA2ss6m61ytJsjIygmQCL9MI2+MzUS7E3ln5Oa
+	 fAiWj2OB/V3r2AmJqVCK6UaFNlXXcTymC9cFe+iGianKBAQcjVrfkolA/3/9ANkiez
+	 WRJo4Iarl7EZIrQOttxGT4WSzkHK5A+E8NkPGDymZDHJvkJOJEfZvtLifa4OWQUM6C
+	 baMuk+Hsk6L4IFRHPZTrlAEsm7kIz8xVKLHzLNCjG+9MQxZ5VbbaID+KhaIfTK45N5
+	 OcpaLAGBowibZYe2jHnRHsZW2QQ/NugrqafLyKbjWXt6XIroMAQ8vHaN6/4c/PknWW
+	 s+zxzPQ7utSow==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 22/33] KVM: s390: Prepare KVM/s390 for a second KVM
- module
+Subject: Re: [PATCH v6 23/33] s390: Use arm64 headers
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Steffen Eiden" <seiden@linux.ibm.com>
-Cc: "Marc Zyngier" <maz@kernel.org>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, kvmarm@lists.linux.dev, "Oliver
- Upton" <oupton@kernel.org>, "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.vom>
-In-Reply-To: <20260812153631.3376090-23-seiden@linux.ibm.com>
+Cc: "Oliver Upton" <oupton@kernel.org>, kvm@vger.kernel.org, kvmarm@lists.linux.dev, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Marc Zyngier" <maz@kernel.org>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
+ Borntraeger" <borntraeger@linux.ibm.vom>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260812153631.3376090-24-seiden@linux.ibm.com>
 References: <20260812153631.3376090-1-seiden@linux.ibm.com>
- <20260812153631.3376090-23-seiden@linux.ibm.com>
+ <20260812153631.3376090-24-seiden@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 16:21:51 +0000
-Message-Id: <20260812162151.DF01C1F000E9@smtp.kernel.org>
+Date: Wed, 12 Aug 2026 16:23:08 +0000
+Message-Id: <20260812162308.867BF1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Low] The patch fails to provide all necessary stubs to make s390 KVM com=
-pile when merged with an arm64 KVM Kconfig, leading to undefined references=
- to functions like `kvm_get_dirty_log` and `kvm_arch_allow_write_without_ru=
-nning_vcpu`.
+- [Low] The header sharing mechanism generates sysreg-gen.h instead of sysr=
+eg.h, causing unresolved includes. esr.h is fully copied since it has no AR=
+M64_S390_COMMON markers, meaning its `#include <asm/sysreg.h>` is retained =
+and transformed to `#include <arm64/sysreg.h>`. However, because sysreg.h i=
+s mapped to sysreg-gen.h in ARM64_SHARED_HEADERS, the target file is genera=
+ted as arm64/sysreg-gen.h. As a result, the include in esr.h will fail to f=
+ind arm64/sysreg.h.
+- [Low] The Make rule for generating $(ARM64_TARGETS) uses `$(call cmd,gen_=
+arm_hdr)` without `if_changed` or `FORCE`. In Kbuild, files added to `targe=
+ts` must be generated using `if_changed` so that `.cmd` files are created t=
+o track command-line modifications. The omission of `if_changed` defeats th=
+is dependency tracking.
 --
 
---- Patch [22]: [PATCH v6 22/33] KVM: s390: Prepare KVM/s390 for a second K=
-VM module ---
-commit fb387e8f82c2198f5fffbab975b0cb04cd2ac49c
+--- Patch [23]: [PATCH v6 23/33] s390: Use arm64 headers ---
+commit 505a7f9c35b46d1872a2e9da2ab63e0bc5a7471f
 Author: Steffen Eiden <seiden@linux.ibm.com>
+s390: Use arm64 headers
 
-KVM: s390: Prepare KVM/s390 for a second KVM module
+This commit introduces a flexible system for sharing ARM64 headers with
+s390 KVM. It adds awk scripts to extract marked sections or copy full files,
+and transforms includes to ensure correct path resolution on s390.
 
-The second KVM module will have a different Kconfig set. When both
-modules are compiled the Kconfig sets get merged and the native s390 KVM
-needs to implement functionality required by the respective config
-options. Ensure that s390-KVM will still compile by implementing a stub
-for kvm_arch_vcpu_run_pid_change if CONFIG_HAVE_KVM_VCPU_RUN_PID_CHANGE
-is enabled and defining KVM_NO_MMIO to disable KVM_MMIO.
+> diff --git a/arch/s390/tools/Makefile.arm64h b/arch/s390/tools/Makefile.a=
+rm64h
+> new file mode 100644
+> index 0000000000000..3e033630470a1
+> --- /dev/null
+> +++ b/arch/s390/tools/Makefile.arm64h
+> @@ -0,0 +1,57 @@
 
-> diff --git a/arch/s390/kvm/s390/s390.c b/arch/s390/kvm/s390/s390.c
-> index 1d0d94f000f72..d1e736e1f06f2 100644
-> --- a/arch/s390/kvm/s390/s390.c
-> +++ b/arch/s390/kvm/s390/s390.c
-> @@ -5868,6 +5868,14 @@ bool kvm_unmap_gfn_range(struct kvm *kvm, struct k=
-vm_gfn_range *range)
->  	return gmap_unmap_gfn_range(kvm->arch.gmap, range->slot, range->start, =
-range->end);
->  }
-> =20
-> +#ifdef CONFIG_HAVE_KVM_VCPU_RUN_PID_CHANGE
-> +/* Make s390 compile if arm64-on-s390 is selected */
-> +int kvm_arch_vcpu_run_pid_change(struct kvm_vcpu *vcpu)
-> +{
-> +	return 0;
-> +}
-> +#endif /* CONFIG_HAVE_KVM_VCPU_RUN_PID_CHANGE */
+[ ... ]
+
+> +ARM64_SHARED_HEADERS :=3D \
+> +	brk-imm.h \
+> +	esr.h \
+> +	kvm_arm.h \
+> +	kvm_emulate-gen.h \
+> +	kvm_host.h \
+> +	ptrace-gen.h \
+> +	sysreg-gen.h \
 
 [Severity: Low]
-Are there other missing stubs required to make s390 KVM compile when merged
-with the arm64 KVM Kconfig?
+Will this result in an unresolved include when esr.h is compiled?
 
-If CONFIG_KVM_GENERIC_DIRTYLOG_READ_PROTECT and
-CONFIG_NEED_KVM_DIRTY_RING_WITH_BITMAP are enabled by the merged configs,
-could there be undefined references to functions like kvm_get_dirty_log() a=
-nd
-kvm_arch_allow_write_without_running_vcpu()?
+esr.h has no ARM64_S390_COMMON markers, so it is fully copied using
+copy-arm64h-full.awk. That script transforms #include <asm/sysreg.h> into
+#include <arm64/sysreg.h>. However, since ARM64_SHARED_HEADERS maps
+sysreg.h to sysreg-gen.h, the generated file will be arm64/sysreg-gen.h,
+and the include in esr.h will fail to find arm64/sysreg.h.
 
-For instance, s390_kvm_mmu_get_dirty_log() in arch/s390/kvm/gmap/kvm_mmu.c
-calls kvm_get_dirty_log(), which is omitted from virt/kvm/kvm_main.c when
-CONFIG_KVM_GENERIC_DIRTYLOG_READ_PROTECT is selected.
+[ ... ]
 
-Would adding stubs for these functions be needed to fully resolve the linker
-errors this patch aims to fix?
+> +ARM64_TARGETS :=3D $(sort $(foreach hdr,$(ARM64_SHARED_HEADERS),$(call a=
+rm64-dst,$(hdr))))
+> +
+> +$(ARM64_TARGETS):
+> +	$(call cmd,gen_arm_hdr)
+
+[Severity: Low]
+Should this use if_changed and FORCE instead of directly calling cmd?
+
+In Kbuild, files added to targets must be generated using if_changed so that
+.cmd files are created to track command-line modifications. Omitting
+if_changed here prevents automatic rebuilds if the command-line arguments
+or rules change.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812153631.3376=
-090-1-seiden@linux.ibm.com?part=3D22
+090-1-seiden@linux.ibm.com?part=3D23
