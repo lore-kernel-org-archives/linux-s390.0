@@ -1,146 +1,159 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B8E3417D7A;
-	Wed, 12 Aug 2026 11:03:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42FB1423A80;
+	Wed, 12 Aug 2026 11:08:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786532629; cv=none; b=cs6xVVZ+goYMw2FW/v9E2+BY9jK8U65sNJO/lyNENh2mqCkk7rOAeMAw7v5vvGvNc2WmLu6GBudV4Lrb3/CVX+fy4B6PB+RW8wZrhPcSOawEUQzFGhc1DqFAk12/mKl7941XkESMO3fLNItB2jciQXATHW7GHfor0JdNQiIymJU=
+	t=1786532898; cv=none; b=WtlbFoMWUy7PVKyiQdGVGqf86lrYmlgYD7/GtHw5K2xNWblL3GLZu44hMPapOIN9OYxBMeFmybJxcEopd6XlXO77K6UCVKyWJQsT3wsYKUZo7XmCJUWL7mkyI5U2a3c9I8AxlPIEtyv4NgArqNbBCLt0MkV57c+8lmg9i+pLxp0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786532629; c=relaxed/simple;
-	bh=gJJjNFsw+5rjxq6tJp+GEvy26KZat+p00I/ukg27dus=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FHDbn8sgQsGz8qDj7+4q4xMj46tZqxtpL+mvYH59toxJ5V62w+UGVlQxamcV4QgtVE6HZXdq+6BzR8A4biNaYdazBm9NkZ7mDY+p0uGPYUWO3aXLP1Qly88a7wcMvA1E3UVqbFyBQwwY0LekAEBFdV/hWc4H+C6jZ9OcGeOQHvw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com; spf=pass smtp.mailfrom=de.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dhfYr76Y; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=de.ibm.com
+	s=arc-20240116; t=1786532898; c=relaxed/simple;
+	bh=lzP/JY3aeuocCdWL/0uXP7CnjLsvHNNNeXnnQoQI6GQ=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=OgiiXTPVYMMuFyaQrXFtuZIeL+qZYNHVtAHwcn1ZQEYqJnSdrRn9G78ySH6j24FHS4dXenulrUXm+t0UtjO2IdIryVXv88qD0pwXA6oRA7zWLh3khyJbu2iHR4+EbMQnPUFP1l8N3tbVmIaWDVoNF/UqJKUHXsm6UW7hGfXEHYA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EkPSCeLD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dhfYr76Y"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67CB3icN1434178;
-	Wed, 12 Aug 2026 11:03:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=uP7ycs
-	iDv/nJkNDlAAAPQovIuq4eaAqKp9ZtHJ5HFXU=; b=dhfYr76YWmMK3tL/lm/qgz
-	CnASxId78WQ6plP1eno0E/C2kMR3wkZYkQA4HFkItXBgDky3w8FPt5OYh/KIMw4a
-	xEqAowRhSsGtfQhtIKqx/aAie5FL2SlYVOAsxXrGNtn7yoctoaljhRI3IFNn8rR8
-	TCeIydZOTxp5bdvRN5JpatMoxshqpHK8Ac6iTXGr0SE/SlvBDnQCSXAIyqPdItVe
-	KvPxsY9G7cEjrjFYHu0844nnHekKVKvA2AXHJIIyoKJ1hzUzP7QjblENf6w2xz1y
-	pKYbI16Qvx87veDs9K0UHc39Ymt2zVlni3jsZ+dJyFYIzpxiUrZjMDWnBhpNeOQg
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvk021j8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 12 Aug 2026 11:03:46 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67CAuKNB006233;
-	Wed, 12 Aug 2026 11:03:45 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxesq5u8a-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 12 Aug 2026 11:03:45 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67CB3f2b43647398
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 12 Aug 2026 11:03:41 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7BAF120040;
-	Wed, 12 Aug 2026 11:03:41 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3633720043;
-	Wed, 12 Aug 2026 11:03:41 +0000 (GMT)
-Received: from [9.224.77.173] (unknown [9.224.77.173])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 12 Aug 2026 11:03:41 +0000 (GMT)
-Message-ID: <48891afe-3d25-4a11-912c-4c2f7c86b0a2@de.ibm.com>
-Date: Wed, 12 Aug 2026 13:03:39 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EkPSCeLD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 332981F000E9;
+	Wed, 12 Aug 2026 11:08:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786532896;
+	bh=wrG8DuqyrTgTLnhCEF0YR7wirnsbC3EpRyGJXVbGCIU=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=EkPSCeLDP67zu3BNdozJVWmVgN/lwbl/w5cX6yfGYw9yVFjo6oPLCa0KuCgxJq/bJ
+	 KCRPGDosYj4GfgaVr2nyBLrLMQzyq56jcmCurtz+u98h44jUMGlYs5abspQ7HI6rsh
+	 QfoHCmaUDsxiRzdFLpT+tVjAjEYbE4nO23QHgxFCh00LDfMeQi+Ph7C2SSyb7vjFYB
+	 hmnKnnLtrOxIfLT7V/pLXlLtaxUOl4T+7oG8LNW7m3pliZ+JhFVaHDpU+gCrQUFKvh
+	 ITPhU3LDVqetWIWSsynW6Wc8ICVklFrAdPPAB/k0svEdGHBfo3zvurKffjxX4mpEdJ
+	 bjOpTJ9BJHYPw==
+X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
+From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
+To: Catalin Marinas <catalin.marinas@arm.com>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [RFC PATCH] dma: swiotlb: Size shared default pools for memory
+ encryption
+In-Reply-To: <anxEc8EHmJQywVI5@arm.com>
+References: <20260811134056.756015-1-aneesh.kumar@kernel.org>
+ <anxEc8EHmJQywVI5@arm.com>
+Date: Wed, 12 Aug 2026 16:38:03 +0530
+Message-ID: <yq5ajypvioks.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 4/9] KVM: s390: Fix dirty marking in
- adapter_indicators_set*()
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        david@kernel.org, seiden@linux.ibm.com, nrb@linux.ibm.com,
-        schlameuss@linux.ibm.com, gra@linux.ibm.com
-References: <20260812104436.109741-1-imbrenda@linux.ibm.com>
- <20260812104436.109741-5-imbrenda@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-In-Reply-To: <20260812104436.109741-5-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDA4OSBTYWx0ZWRfX7fS2pwnLGBO8
- NTeSFbKzrBj6ztCENdfqtLd9CEpI44UjdMbMngbx5T1u8GBO0Vzboov0+ZlsCDE4MRa14BPsAvN
- QUyq5myu51AEg2uh/LpNUzypzJto2t1WkXza+/rmN6orTbtfHPfRDHiQqX5s82CXetVCGWTsgc0
- gRNKppQSYe3yYIe0bkceZSk0Tz35J0X2+NfjwJ+fw0tQFnv2SppunLCQ1AxOQ595t/xlBNG2pqz
- 6JDs/lX0SUjlXJheMRGqa1adLwMe8hotJrn7NB3i5eIqDUPMNP3mEBcFrko1ELmCD3yexPRzSsI
- Ykn7ty1WebEZ5vGHjGwsQvUEmEDgYjlysBYuDXJ+jDruNck0x75K6Pj2Zi11NC6p/UMeJLnTRsu
- 2WerTxDs2zWVsC9UWFQJKBKaf6GUHktfsJowE1g8eR1DwpxB58oa/zeVEYlVZFzfkkCXOdwZezu
- 2v10XpifmplNaAIywyg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDA4OSBTYWx0ZWRfXyFN3BaHK9NQ8
- mw5jLucMSRK4P90kqUQIec6/CG0K+uYD+Edk0XIaB1wen8bBBBtAoS41NH5c2MSh/mbazU23K16
- vekZJkFZ2N3qZ/20SZI7L1pfOuLvG3Q=
-X-Authority-Analysis: v=2.4 cv=RqD16imK c=1 sm=1 tr=0 ts=6a7c5312 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=dqkYFeMuMrd_YR1dp64A:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: Yq0cSBPr2R9qAeLA9iWOg7lqQ4VrFjsi
-X-Proofpoint-ORIG-GUID: Yq0cSBPr2R9qAeLA9iWOg7lqQ4VrFjsi
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-12_03,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
- clxscore=1015 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608120089
+Content-Type: text/plain
 
+Catalin Marinas <catalin.marinas@arm.com> writes:
 
+> On Tue, Aug 11, 2026 at 07:10:56PM +0530, Aneesh Kumar K.V (Arm) wrote:
+>> Systems with memory encryption use swiotlb to provide shared or
+>> unencrypted buffers for device DMA. Confidential guests may route all
+>> DMA through these buffers, while SME hosts use them for devices that
+>> cannot address encrypted memory. The default swiotlb pool can therefore
+>> be exhausted under I/O-intensive workloads.
+>> 
+>> Let architectures mark the default swiotlb pool as shared before
+>> swiotlb_init().
+>
+> I thought we wanted even this decision to be moved out of the arch code.
+>
 
-Am 12.08.26 um 12:44 schrieb Claudio Imbrenda:
+Architectures may want to use an unencrypted swiotlb pool for different
+reasons, one of them being CC_ATTR_GUEST_MEM_ENCRYPT. x86 hosts also
+require unencrypted pool to support SME. We can cover both cases using
+CC_ATTR_MEM_ENCRYPT. However, pKVM does not want an unencrypted SWIOTLB
+pool. So I was thinking it would be much cleaner to let the architecture
+code drive that decision.
 
-> @@ -3017,26 +3017,30 @@ static int adapter_indicators_set_fast(struct kvm *kvm,
->   				       struct kvm_s390_adapter_int *adapter_int,
->   				       int setbit)
->   {
-> +	struct s390_map_info *ind_info, *summary_info;
->   	unsigned long bit;
->   	int summary_set;
-> -	struct s390_map_info *ind_info, *summary_info;
->   	void *map;
->   
-> -	spin_lock(&adapter->maps_lock);
-> +	guard(srcu)(&kvm->srcu);
-> +	guard(spinlock)(&adapter->maps_lock);
-> +
->   	ind_info = get_map_info(adapter, adapter_int->ind_addr);
-> -	if (!ind_info) {
-> -		spin_unlock(&adapter->maps_lock);
-> +	if (!ind_info)
->   		return -EWOULDBLOCK;
-> -	}
-> +
->   	map = page_address(ind_info->page);
->   	bit = get_ind_bit(ind_info->addr, adapter_int->ind_offset, adapter->swap);
-> -	if (setbit)
-> +	if (setbit) {
-> +		mark_page_dirty(kvm, gpa_to_gfn(adapter_int->ind_gaddr));
-> +		set_page_dirty(ind_info->page);
->   		set_bit(bit, map);
-> +	}
+>
+>> Move the existing x86 sizing policy into generic swiotlb
+>> code and add early pool marking for arm64 Realm guests, powerpc secure
+>> guests, s390 protected-virtualization guests, and x86 memory-encryption
+>> platforms. Use CC_ATTR_MEM_ENCRYPT on x86 to include host SME, whose
+>> swiotlb pool must also be decrypted for devices that cannot address
+>> encrypted memory.
+>
+> That's a functional change for x86. For now, I'd keep it to
+> CC_ATTR_GUEST_MEM_ENCRYPT.
+>
+> BTW, why does arm64 report CC_ATTR_MEM_ENCRYPT instead of the GUEST
+> option in realms?
+>
+>> Move the powerpc secure-guest swiotlb enablement before initialization
+>> so that the shared pool is allocated with the required flags. pKVM
+>> guests continue to use a restricted DMA pool instead of the default
+>> swiotlb pool.
+>> 
+>> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+>> ---
+>>  arch/arm64/mm/init.c                 |  6 ++-
+>>  arch/powerpc/mm/mem.c                |  7 +++
+>>  arch/powerpc/platforms/pseries/svm.c | 10 ----
+>>  arch/s390/mm/init.c                  |  2 +
+>>  arch/x86/mm/mem_encrypt.c            | 27 ++--------
+>>  include/linux/swiotlb.h              |  7 ++-
+>>  kernel/dma/swiotlb.c                 | 73 ++++++++++++++++++++++------
+>>  7 files changed, 82 insertions(+), 50 deletions(-)
+>> 
+>> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+>> index e308a7cabd12..4c022e8aed43 100644
+>> --- a/arch/arm64/mm/init.c
+>> +++ b/arch/arm64/mm/init.c
+>> @@ -338,8 +338,12 @@ void __init arch_setup_zero_pages(void)
+>>  void __init arch_mm_preinit(void)
+>>  {
+>>  	unsigned int flags = SWIOTLB_VERBOSE;
+>> +	/* pKVM uses restricted-dma-pool */
+>> +	bool cc_guest = is_realm_world();
+>>  
+>> -	if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
+>> +	if (cc_guest) {
+>> +		swiotlb_mark_default_cc_shared();
+>> +	} else if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
+>>  		/*
+>>  		 * If no bouncing needed for ZONE_DMA, reduce the swiotlb
+>>  		 * buffer for kmalloc() bouncing to 1MB per 1GB of RAM.
+>
+> With your other reworking, doesn't the core code know the swiotlb will
+> be shared? Can it not make the decision to resize at that point based
+> solely on CC_ATTR_GUEST_MEM_ENCRYPT?
+>
+> I also wonder whether we could address Will's pKVM request not to
+> allocate a bounce buffer once pKVM guests will start reporting
+> CC_ATTR_GUEST_MEM_ENCRYPT. Some simple heuristic: if a
+> restricted-dma-pool is advertised in DT (it will end up in
+> rmem_swiotlb_setup()), skip resizing the default swiotlb. It's not
+> perfect but the bounce buffer can be overridden on the command line.
+>
 
-This marks the indicator page dirty before writing it.
-The summary twenty lines below does it the other way round and so do both
-slow-path branches.
-The order matters because kvm_get_dirty_log_protect() harvests destructively.
+For the same reason I mentioned above, architectures may have different
+reasons for setting cc_shared = true. IMHO, it is cleaner to let the
+architecture code make that decision before swiotlb_init().
 
-
+-aneesh
