@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A536D335081;
-	Wed, 12 Aug 2026 17:18:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B00D248034B;
+	Wed, 12 Aug 2026 17:19:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786555082; cv=none; b=XGq4ZvqNNywrKbj+V2g8LFSx1UqHHrOVCerBF5bS/ZbWZYLXDSX0kA++2d2xdV50C1yklGNpn/bgRvMUGE3x/RNGBVOkZyhYoMLQce0OfJ/awWF+URUpAUsdCGFS0HzecLKHuRKLMmnj05qKHwPDqP3LNnN83YLFa+yCfAazaSs=
+	t=1786555158; cv=none; b=YrjU1GyR4EFP8qsVpvD1jJO0d1jUq2pdyRLGMrFZXKiTSlcLIhbEMrDtJjWHZX264rHroNpL9g1VIfwb6pQM06Exy+IStegaYzu1ydoVZAUkwkxXJXCftpQnkfiepdOGqCgK/cA3UuGzjAP3jiJatQVf8caeFYNg7hZO9OUyyng=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786555082; c=relaxed/simple;
-	bh=ACp1tSxvy83AukYQ6o5gKlf6nhg3hkatXYaabnPcJLQ=;
+	s=arc-20240116; t=1786555158; c=relaxed/simple;
+	bh=GYOAjHhYuitzQfTZJr4bgHpDP23FDcd0VUw8GxZhKJk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=adjEJka4jXaOxptVpeEXlM+mds4szD6pA3iOGmq034IDlA8czDCcisYPPor81dYvPnJGPo2ms/Ui2g7j1w8oKWj/PS4ycxscEVILmMWmJrZ6zuMhuq1zGCgMFB6q40x3Yt69f5K95SGgvYIk0ePFSNL0VJr9jH2H9XaCLqRZYqQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PqOPKr1U; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=t3VsySHuq8cH1brZfsjvb71S59AeI/QMlgS6xghxUoSLgd7i0nfthueumQPuB/N0x5EinXi2yFeNJnPZywikVhKBHVpFeSSvhl+XkXPjO5GQbrmVXtYYghFZbM8ozlNqIBA3VFz7f1kPa/KV+Rv5t0RwFKVY+E0Hz0nPPkPLcmo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hLWxCl64; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PqOPKr1U"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6AFE1F000E9;
-	Wed, 12 Aug 2026 17:17:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hLWxCl64"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40E471F000E9;
+	Wed, 12 Aug 2026 17:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786555080;
-	bh=ORVjW2+uzGEZ3P9C+o+jbVG9nyuLf1KgGswOIiDbPpU=;
+	s=k20260515; t=1786555157;
+	bh=8WxyeD/4K/o06qOFzP7l98EIPHkrp93Cvie3fdx+YOA=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=PqOPKr1U5/Zq/Agb3zTnII31kLHupSik1RfSnUbFYYJxc/LOWQA5OndnLSlUrwPNe
-	 TYSzKj9S+0Qdc2Q1gyaM4kyDT9CQBarGPj+5FLHb/JsSWspuQ8Pfc5iIUUiZ7+MXA1
-	 16JtkYXjjCOcDhxarJebImOL+ify/0dGzPawerSv91sViOfv2uYxFsF3632WBw9LMW
-	 is9aol95hYPNTHbXpseyT308oBoiSv1xSoEYR4GY5olBVeew0/AFjSHvgeC616xXK3
-	 zyED/ApTUhikIHDO1E9ansj2GKB5DZX6f0KX38OwbwEGfQusq4zozJXxxC6phj9ODs
-	 l1WxGP9jFFnlw==
-Message-ID: <5d1a35d2-8541-44d5-8958-1efa9773d7bb@kernel.org>
-Date: Wed, 12 Aug 2026 19:17:39 +0200
+	b=hLWxCl64FwqEYTiMqoHVw+thTGYp72pt2VffGqLy69crUuSqbNDx2idc8hBpx8w0J
+	 P3JAeDvIcyVd8+wRt0BAw61Hu6zDJOLsFFODqNhfCxEZsSTiJJN/2Y7LuwsSc8cLNb
+	 23NQDQc7YkGWiKnFaMI30ynO5fSaGB2yZ5FxirgtAYQpsvPUp6nIgZnNpkkp897Ovn
+	 wki1zPDK9TzVk+FQBO6+i7O13PJZeE0JzZQk+tKDMDirc7GfEZNVWzXyD3BCYeCmjV
+	 I8oFpfyH/8yCYBIBereVnICPY6/Yvq4V2ZyoWh25BXSNfIhIKtgzVZO3swyC/kPN12
+	 wnhjGkkwdbPgA==
+Message-ID: <cd7036f1-7efb-488d-8889-b61dcffd1b1f@kernel.org>
+Date: Wed, 12 Aug 2026 19:18:56 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -147,52 +147,48 @@ In-Reply-To: <20260806-b4-scalable-cow-virt-pgoff-v4-19-ab318a350404@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
+On 8/6/26 22:21, Lorenzo Stoakes (ARM) wrote:
+> Now we've made MAP_PRIVATE-mapped /dev/zero mappings truly anonymous, add a
+> VMA userland test to assert that this is the case and everything is as
+> we would expect for an anonymous mapping.
+> 
+> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+> ---
+>  tools/testing/vma/include/dup.h |  1 +
+>  tools/testing/vma/tests/mmap.c  | 50 +++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 51 insertions(+)
+> 
+> diff --git a/tools/testing/vma/include/dup.h b/tools/testing/vma/include/dup.h
+> index aee36707abdd..41203b1c2323 100644
+> --- a/tools/testing/vma/include/dup.h
+> +++ b/tools/testing/vma/include/dup.h
+> @@ -20,6 +20,7 @@ struct task_struct *get_current(void);
+>  
+>  #define MAJOR(dev)	((unsigned int) ((dev) >> MINORBITS))
+>  #define MINOR(dev)	((unsigned int) ((dev) & MINORMASK))
+> +#define MKDEV(ma, mi)	(((ma) << MINORBITS) | (mi))
+>  
+>  #define S_IFMT  00170000
+>  #define S_IFCHR  0020000
+> diff --git a/tools/testing/vma/tests/mmap.c b/tools/testing/vma/tests/mmap.c
+> index c85bc000d1cb..ebe01362e530 100644
+> --- a/tools/testing/vma/tests/mmap.c
+> +++ b/tools/testing/vma/tests/mmap.c
+> @@ -45,7 +45,57 @@ static bool test_mmap_region_basic(void)
+>  	return true;
+>  }
+>  
+> +static int dummy_mmap_prepare(struct vm_area_desc *desc)
+> +{
+> +	return 0;
+> +}
+> +
 > +static bool test_pure_anon_dev_zero(void)
 > +{
-> +	const vma_flags_t vma_flags = mk_vma_flags(VMA_READ_BIT, VMA_WRITE_BIT,
-> +			VMA_MAYREAD_BIT, VMA_MAYWRITE_BIT);
-> +	const struct file_operations f_op = {
-> +		.mmap_prepare = dummy_mmap_prepare,
-> +	};
-> +	struct inode inode = {
-> +		.i_mode = S_IFCHR,
-> +		.i_rdev = MKDEV(MEM_MAJOR, DEVZERO_MINOR),
-> +	};
-> +	struct file file = {
-> +		.f_inode = &inode,
-> +		.f_op = &f_op,
-> +	};
-> +	struct mm_struct mm = {};
-> +	struct vm_area_struct *vma;
-> +	unsigned long addr;
-> +	VMA_ITERATOR(vmi, &mm, 0);
-> +
 
-When we go with a zero_vm_ops this gets a bit simpler (see schloppedi-schlop).
+Ah, just one comment: should we call this something like
+"test_map_private_dev_zero", at least that'd be clearer for me.
 
-> +	current->mm = &mm;
-> +
-> +	/*
-> +	 * Map a MAP_PRIVATE-/dev/zero mapping at address 0x300000 with a page
-> +	 * offset of 0x10, which we expect to be reset to the anonymous page
-> +	 * offset.
-> +	 */
-> +	addr = __mmap_region(&file, 0x300000, 0x3000, vma_flags, 0x10, NULL);
-> +	ASSERT_EQ(addr, 0x300000);
-> +
-> +	/* Assert that it truly is an anonymous mapping. */
-> +	vma = vma_lookup(&mm, addr);
-> +	ASSERT_NE(vma, NULL);
-> +	ASSERT_TRUE(vma_is_anonymous(vma));
-> +	ASSERT_EQ(vma->vm_file, NULL);
-> +	ASSERT_EQ(vma->vm_private_data, NULL);
-> +	/* Expect anonymous page offsets. */
-> +	ASSERT_EQ(vma->vm_pgoff, 0x300);
-> +	ASSERT_EQ(vma_start_anon_pgoff(vma), 0x300);
-
-Yes, that looks good to me.
-
-Acked-by: David Hildenbrand (Arm) <david@kernel.org>
 
 -- 
 Cheers,
