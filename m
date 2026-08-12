@@ -1,161 +1,121 @@
-Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35EEF481A92;
-	Wed, 12 Aug 2026 17:39:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01D5547A86E
+	for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 17:43:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786556380; cv=none; b=FJtfl1IEUqyKnzMTeTF3Tflgly4OK06bQrF8SKVsiDfjkwPO47CcnU3MjsXHnmWIonztNAkF1HZcv9IG9UFBmEhhH+Jb+k+gL0uDh0QMU2VpudcpQKqLg3O+pk8an/1kxPCVQTO1v+8ru4F2CiHluyvN3sWO8fCCowQ5FmUOvhI=
+	t=1786556582; cv=none; b=obXQWggkcSkqENI7oMfSJocrobvlrXwdlR8UoqUcfSwb1S3tB7sV4lgRK7ICDrta9LLBCqgGMvtuEhdf32DeiWEaO8VU/TmoqddIGZ5FfpTi8MQZGKF1tEh7xxdxFGTKjcpNAG6ODWIbM/xt6bRG9V9Delc6C/dSeT9TmG5YZDs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786556380; c=relaxed/simple;
-	bh=T2C2IQIC8AENMabj+b1Yh+MlqE8tkw02mH6onEU6zqE=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=uFwesvZqTy7t2vhBByzEhzKsT2E4qtTy0uZgZDjewTa2aZSNipodO8umwdNOaPS7HASQoNcnKOzLHx49Y3xOuQRZ+ahVOnsr5ZT2D20uSDJRItVtp6VYfJYTNYLhdbxLWmtehf/tqKNRtm5Kkq7QWCSrkW3VPB2MmDYj2piS1kI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=JP3/SjcW; arc=none smtp.client-ip=213.97.179.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
+	s=arc-20240116; t=1786556582; c=relaxed/simple;
+	bh=R8K4AhpTTGabp/TpyA1fPLTe5/En+9HZcWa+J+NqaoY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oeSi58c8MQW4WCrOHsSMKM987cJ+1Wwb3qQ+hpkB8VoRpaUTV7Oi6+YnMmDH/38iyamGPW2eILR9Ep9Kq1nuolA7dkkzUB5ij363xKvy131WrZ11fa86pF2qFyjS/7is/w3e7zd/C6eZhM6E0BkgIeFPQn6SDLYSybG02iDKOvY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=HAet0nyA; arc=none smtp.client-ip=209.85.160.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="JP3/SjcW"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-	s=20170329; h=Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:
-	MIME-Version:Subject:Date:From:From:Reply-To;
-	bh=xw7jIcOsSg0tBd7gNAqEYhzUy1bQIgWLTtkuMdy3GPA=; b=JP3/SjcW4cYIiHFvmK39FYekco
-	BFV5gnZDe1H68KsQRgJCoy6+n1+XRiteVypBEdMePoev1w1TlXPKUg+66AOI0A5JapTk9c82qn2aB
-	lAP09cksFDK4OFjb0HZu5243s/sRJZzE7an339IC39SxIH4AxXwKOcZ78fXtdbtfoy6DwWEI++drJ
-	3rVAvcjqaqCJoucjUb2md8KaAsvGjpK5jerzNQ03wknc1C2Ne9wlhOig6URP5WCyp90F4rrG59KTi
-	redlI1duW7V7pEOikC3Qk0weyBSmoNoAZ2SemZJcjScwSgeEFV9CmQ5IKbA+44OGG/0l8yASFLRYq
-	vYA19Q/Q==;
-Received: from [177.139.22.20] (helo=[192.168.15.100])
-	by fanzine2.igalia.com with esmtpsa 
-	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-	id 1wuCvP-000FR2-6K; Wed, 12 Aug 2026 19:39:35 +0200
-From: =?utf-8?q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
-Date: Wed, 12 Aug 2026 14:38:44 -0300
-Subject: [PATCH v5 13/13] alpha: Use the common syscall table
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="HAet0nyA"
+Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-51c08df8513so9160371cf.3
+        for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 10:43:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1786556580; x=1787161380; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=RRy7TSLv7XgtK7yVOoP/4PPtFt0r1aZ67kTGnhbzw7Y=;
+        b=HAet0nyAadkR4pZmyOXbUhSqRehEHiZNaUea0AO5U3L+3IQpKTxHfvLg5DSbspSFPi
+         3AOnv5PnaVcuUoPVMoIJrq77QCKBSZwzgKYygbr6tf6c6K1pevOmLKTWgu7AjxiabXwo
+         rREelaDYSyR+yj3kQZtgwSzvU7rs5nevHAmbhehoRZGPaD7ntshCpr00YIHLwwz1bdg+
+         JRfFm/3v4NSrtvobYO3r7XfPz5c5j7QmqN2eUUix+YW1Bj/xXpyQr0gHkgZIuneIv12c
+         3wfOuK12Oc4p6QbQc40TjdiPFUfadlRwxgFbr/m5wEws0lyOTUgEpEIvR4+ntgDxnA3A
+         QpYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786556580; x=1787161380;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=RRy7TSLv7XgtK7yVOoP/4PPtFt0r1aZ67kTGnhbzw7Y=;
+        b=WcIgewkv6keQxsZOZr3t3pzXiSY/AXNhiHIXLaZY0Bzw5zFn+k9fT0bIEIMatEksT7
+         mi12wjvDqHju7y6IwnOfIPA9njj0/+M6Qywv2j3P//EzknnbsyEoiuQ6NXasN9H3v41w
+         uCKpH9o8dn/n7tCKfOXcmnJPJ6TaOHXjqBjOoAVK0QntM60GKbu0qXsKeYHyKJw6k3Ff
+         +86jzKrbiWS4wSgljYyneSmmMZ88se4SvHmnkpveVJOmPigIyvF23tOwBWMjxyzvmeWX
+         aXvMk+fV8rNlmQaiGqjQC4cQ6sSoMKZ/NgGFJVOdJ2iRKq1ORhM/U8A+nhwORFOq7D7c
+         ieDg==
+X-Forwarded-Encrypted: i=1; AHgh+RpH5JJNzdzUT2I5npqE3L+05UTNwP85IT2OS1cIlPyfGQOlrzxr7rzPujgyB2tmdxXWdYPCh/stA1T7@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy7BbcozZ2F2bMxo8+5YQAvKc1i2d38CRO8j9RLw8Pr5omhm3/u
+	csnpEeCSuUEeJ3YQ+a1TpaXygeoAbkAzFOXHusgxLsHUL7s3NY1WTJdAeeH7bb/dXZs=
+X-Gm-Gg: AR+sD10ogqTE58aA3ixPzpq7KRmC88CsdWykMJSKllpCegpKTvpLzFAsGzYDsoHUUQZ
+	anf5ty59xZjjwXS5rRl7QlEVncb1FGT1H4LyHBnMlykvwn9zhnt4tKAwPezCUSPd8ZiOZLbyqdm
+	vqF3wE4j8Z7UBY5T3/cCeSECjl3Q/5iR0DtxWjUB4BKkjYuNHvbyBrDEZeTmByI+9G3adB2lK5w
+	7W2xvQVoLbQscfkvZ5C+N6ZKO9GPkZUNJpP4E4Ry3iDdkkNOaexeomsfKeKXivLfUahmL8nCQl6
+	letJaYpKfIv4zDewe80FC16DVZA31IAHVYeE4Cx3wjAJH9YT9NGlC8FaWB5XoLrq0cR7NmERAqi
+	9ld4MYw0PPDLUxNpMBJOFmpoSDUNleLOAUcH5z4s0gNLagFwcAD2QRAulS4rNk6IfHWdJFU8l1n
+	QEfMmr1uNYJw8VH0uZYywLu7VLcetLwFGJhgzUXQ==
+X-Received: by 2002:a05:622a:145:b0:528:38b1:b54c with SMTP id d75a77b69052e-52d646a004amr57067221cf.2.1786556579927;
+        Wed, 12 Aug 2026 10:42:59 -0700 (PDT)
+Received: from ziepe.ca ([142.166.156.215])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52d61d91199sm22262711cf.14.2026.08.12.10.42.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 Aug 2026 10:42:59 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.97)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1wuCyg-00000003IL0-2V6p;
+	Wed, 12 Aug 2026 14:42:58 -0300
+Date: Wed, 12 Aug 2026 14:42:58 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Catalin Marinas <catalin.marinas@arm.com>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [RFC PATCH] dma: swiotlb: Size shared default pools for memory
+ encryption
+Message-ID: <20260812174258.GF662699@ziepe.ca>
+References: <20260811134056.756015-1-aneesh.kumar@kernel.org>
+ <anxEc8EHmJQywVI5@arm.com>
+ <yq5ajypvioks.fsf@kernel.org>
+ <anysnQFVTO_RAYxp@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20260812-tonyk-syscall_table-v5-13-3d383927c609@igalia.com>
-References: <20260812-tonyk-syscall_table-v5-0-3d383927c609@igalia.com>
-In-Reply-To: <20260812-tonyk-syscall_table-v5-0-3d383927c609@igalia.com>
-To: Masami Hiramatsu <mhiramat@kernel.org>, Arnd Bergmanon <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org, 
- kernel-dev@igalia.com, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
- linux-alpha@vger.kernel.org, linux-s390@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, soc@lists.linux.dev, 
- linux-mips@vger.kernel.org, parclinux@vger.kernel.org, 
- =?utf-8?q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
-X-Mailer: b4 0.15.2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <anysnQFVTO_RAYxp@arm.com>
 
-Remove some of the duplicated code by using the common syscall number
-table.
+On Wed, Aug 12, 2026 at 06:25:49PM +0100, Catalin Marinas wrote:
+> > > BTW, why does arm64 report CC_ATTR_MEM_ENCRYPT instead of the GUEST
+> > > option in realms?
+> 
+> It's still not clear to me why we went for CC_ATTR_MEM_ENCRYPT instead
+> of CC_ATTR_GUEST_MEM_ENCRYPT.
 
-Signed-off-by: André Almeida <andrealmeid@igalia.com>
----
- arch/alpha/kernel/syscalls/Makefile    | 10 +++++--
- arch/alpha/kernel/syscalls/syscall.tbl | 48 ----------------------------------
- arch/alpha/kernel/systbls.S            |  1 +
- 3 files changed, 9 insertions(+), 50 deletions(-)
+Yeah, this tune should be only for CC guests that have the
+shared/private issue.
 
-diff --git a/arch/alpha/kernel/syscalls/Makefile b/arch/alpha/kernel/syscalls/Makefile
-index b265e4bc16c2..18682418327b 100644
---- a/arch/alpha/kernel/syscalls/Makefile
-+++ b/arch/alpha/kernel/syscalls/Makefile
-@@ -7,12 +7,18 @@ $(shell mkdir -p $(uapi) $(kapi))
- syscall := $(src)/syscall.tbl
- syshdr := $(srctree)/scripts/syscallhdr.sh
- systbl := $(srctree)/scripts/syscalltbl.sh
-+systbl_common := $(srctree)/scripts/syscall_common.tbl
-+abis := common,__clone3
- 
- quiet_cmd_syshdr = SYSHDR  $@
--      cmd_syshdr = $(CONFIG_SHELL) $(syshdr) --emit-nr $< $@
-+      cmd_syshdr = $(CONFIG_SHELL) $(syshdr) --emit-nr \
-+		   --common-tbl $(systbl_common) --common-offset 110 \
-+		   --abis $(abis) $< $@
- 
- quiet_cmd_systbl = SYSTBL  $@
--      cmd_systbl = $(CONFIG_SHELL) $(systbl) $< $@
-+      cmd_systbl = $(CONFIG_SHELL) $(systbl) \
-+		   --common-tbl $(systbl_common) --common-offset 110 \
-+		   --abis $(abis) $< $@
- 
- $(uapi)/unistd_32.h: $(syscall) $(syshdr) FORCE
- 	$(call if_changed,syshdr)
-diff --git a/arch/alpha/kernel/syscalls/syscall.tbl b/arch/alpha/kernel/syscalls/syscall.tbl
-index 34151d1653d6..7066a3920899 100644
---- a/arch/alpha/kernel/syscalls/syscall.tbl
-+++ b/arch/alpha/kernel/syscalls/syscall.tbl
-@@ -463,51 +463,3 @@
- 532	common	getppid				sys_getppid
- # all other architectures have common numbers for new syscall, alpha
- # is the exception.
--534	common	pidfd_send_signal		sys_pidfd_send_signal
--535	common	io_uring_setup			sys_io_uring_setup
--536	common	io_uring_enter			sys_io_uring_enter
--537	common	io_uring_register		sys_io_uring_register
--538	common	open_tree			sys_open_tree
--539	common	move_mount			sys_move_mount
--540	common	fsopen				sys_fsopen
--541	common	fsconfig			sys_fsconfig
--542	common	fsmount				sys_fsmount
--543	common	fspick				sys_fspick
--544	common	pidfd_open			sys_pidfd_open
--545	common	clone3				__clone3
--546	common	close_range			sys_close_range
--547	common	openat2				sys_openat2
--548	common	pidfd_getfd			sys_pidfd_getfd
--549	common	faccessat2			sys_faccessat2
--550	common	process_madvise			sys_process_madvise
--551	common	epoll_pwait2			sys_epoll_pwait2
--552	common	mount_setattr			sys_mount_setattr
--553	common	quotactl_fd			sys_quotactl_fd
--554	common	landlock_create_ruleset		sys_landlock_create_ruleset
--555	common	landlock_add_rule		sys_landlock_add_rule
--556	common	landlock_restrict_self		sys_landlock_restrict_self
--# 557 reserved for memfd_secret
--558	common	process_mrelease		sys_process_mrelease
--559	common  futex_waitv                     sys_futex_waitv
--560	common	set_mempolicy_home_node		sys_set_mempolicy_home_node
--561	common	cachestat			sys_cachestat
--562	common	fchmodat2			sys_fchmodat2
--563	common	map_shadow_stack		sys_map_shadow_stack
--564	common	futex_wake			sys_futex_wake
--565	common	futex_wait			sys_futex_wait
--566	common	futex_requeue			sys_futex_requeue
--567	common	statmount			sys_statmount
--568	common	listmount			sys_listmount
--569	common	lsm_get_self_attr		sys_lsm_get_self_attr
--570	common	lsm_set_self_attr		sys_lsm_set_self_attr
--571	common	lsm_list_modules		sys_lsm_list_modules
--572	common  mseal				sys_mseal
--573	common	setxattrat			sys_setxattrat
--574	common	getxattrat			sys_getxattrat
--575	common	listxattrat			sys_listxattrat
--576	common	removexattrat			sys_removexattrat
--577	common	open_tree_attr			sys_open_tree_attr
--578	common	file_getattr			sys_file_getattr
--579	common	file_setattr			sys_file_setattr
--580	common	listns				sys_listns
--581	common	rseq_slice_yield		sys_rseq_slice_yield
-diff --git a/arch/alpha/kernel/systbls.S b/arch/alpha/kernel/systbls.S
-index 68f3e4f329eb..9a67d29f7818 100644
---- a/arch/alpha/kernel/systbls.S
-+++ b/arch/alpha/kernel/systbls.S
-@@ -7,6 +7,7 @@
- 
- #include <asm/unistd.h>
- 
-+#define __SYSCALL_WITH_COMPAT(nr, native, compat)        __SYSCALL(nr, native)
- #define __SYSCALL(nr, entry) .quad entry
- 	.data
- 	.align 3
+The AMD SME issue with the address width on bare metal is an entirely
+different problem that would need a different kind of tuning.
 
--- 
-2.55.0
-
+Jason
