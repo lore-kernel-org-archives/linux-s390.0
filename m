@@ -1,279 +1,361 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F071B351C2A;
-	Wed, 12 Aug 2026 07:11:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1F0935AC05;
+	Wed, 12 Aug 2026 07:15:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786518680; cv=none; b=lkeUc/cFOqUlJMsn5BBD0iaSZ+eG44QzAkK9ha/Tl7XB+9nvVgpAMCJ+qGbHXvOESPtaiYU8MRcEW7IJ9pGmsaiNEnrrooVo2eU01MKuzUSgdN4IuNQRUbzE8C9Kyl2Xic2hqiS4rBzRTO0Cc4RnLZJLQ3HfP3yLdoXffE+RxRs=
+	t=1786518943; cv=none; b=GNV/QuzHQ/gbkzb+7EZJPNnGQPz5tl/nEJv37C9od6864qG5sixU/y/5gMgwAzRGmmcDlph1haOE9WovDb3RvaA1j6+rztrvlE2hfmq0bvQ2aYKy+nqbaic42/iF0y7YkcGY7gQ8vPHuRY+M6F+iTe0NCK/khNo1ygtkHMLYRGI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786518680; c=relaxed/simple;
-	bh=7U+aCcXKhuBjbZ33CO9UhJem+aDViM6DBGjhOd/dMH4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=MCSdiKzkXz24KBU9zKn59eFS1B/k57ErGCzNjMdQ0WMeYjN3Z5Fhw7Ihae0CmtabEAn6k8aaAW0Z1pJoRgJrWSwxT865WU4/DxfaaNRj12Ev4kX7Hb7K15vJwsuG4Nvm1obTIXvmzZVMhVkI7LTl7QoCQtJyflXxanaf/XJwfzw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com; spf=pass smtp.mailfrom=de.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ezliiYVt; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=de.ibm.com
+	s=arc-20240116; t=1786518943; c=relaxed/simple;
+	bh=nfT96IomZZ4GSS26/IOLwQZi4WjSWb678Oi91uu2RMs=;
+	h=From:To:Cc:Subject:Content-Type:MIME-Version; b=f8VBXwTpSqjEgFuHEYoq/hh7oudrZUJLAbAqpdSKZ0EdqoAqQYOJiL7BOb1CKeemSk0c5yF9gqY7SQwvs2vnSX9NEzd7MiGgzX5RRyd8eZ5/+S4FGwmxgO+IMDqXM/jrK67CG+hr5T9qY4HE8tmc1KYbzjMxqJl2VITmCFL4+DY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=iKZ+B3Ch; arc=none smtp.client-ip=115.124.30.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ezliiYVt"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67C62gs92679117;
-	Wed, 12 Aug 2026 07:11:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=TjekMG
-	QHHpjZx5N5qygeo1Ozgm8PePbzLEyCOomLKME=; b=ezliiYVtOPUd9TbZ2dgLz4
-	2l9z/5sAGr9W9LqR0CVWuocPP5ugnPoqWx66M/WnUTvPhVt5JdEHGlSjpmN0ts4W
-	cTH/0voDdnbmJv1DhItyCkX5hiRkWMxVKthldeGLoOsZbtnJfSWSlZrUBMKHyklh
-	mDjEmGaCpMx8NXllpaQr1aY9oR5DKxZBMspVSWqCH/smdsKxURS6nXUjuzPT0LWy
-	A7b+DzK48+S4HjsFqZyB1AjiFXgVv7aQjjjIIkMIezc1JPUlUpR2tZ9BqsMupfQY
-	drKXt1mHas1mP50rUyGlibf4RUvB0MPuOn6dLKPLDpdLSIgH878U1iuKLK3RS4pQ
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvm9saaw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 12 Aug 2026 07:11:16 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67C7BF1V032363;
-	Wed, 12 Aug 2026 07:11:15 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxesq5483-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 12 Aug 2026 07:11:15 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67C7BBhZ38338986
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 12 Aug 2026 07:11:11 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AD46D2004B;
-	Wed, 12 Aug 2026 07:11:11 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7BC7620040;
-	Wed, 12 Aug 2026 07:11:11 +0000 (GMT)
-Received: from [9.224.77.173] (unknown [9.224.77.173])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 12 Aug 2026 07:11:11 +0000 (GMT)
-Message-ID: <6cc80fa3-f506-4fff-970a-2cbd66d9ce49@de.ibm.com>
-Date: Wed, 12 Aug 2026 09:11:11 +0200
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="iKZ+B3Ch"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1786518926; h=From:To:Subject:Content-Type:MIME-Version;
+	bh=W+AwKLGAXhRy3dxES5Ug8BEsiVjHWw2YdO+KGajb6bc=;
+	b=iKZ+B3ChBuXfZ+ZmZG+szNJrfQIsBjlzENp/mcC32TEaYPI+QYGY16u0rZ2Xm2vadUxGyqDhxYPSIFrH0A9d2FBi+f+DUkJCDHvr5YFye6l0X8lwEZ6YZFHOKLDRF51iAcDpjyXHFLPEt8S9hLGtupf2J1Ra4BJ22v+9DST0OGE=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R281e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037033178;MF=chuyf26@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0X8qjPBn_1786518925;
+Received: from x31j07255.sqa.na131(mailfrom:Chuyf26@linux.alibaba.com fp:SMTPD_---0X8qjPBn_1786518925 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 12 Aug 2026 15:15:26 +0800
+From: Chuyf26 <Chuyf26@linux.alibaba.com>
+To: alibuda@linux.alibaba.com
+Cc: dust.li@linux.alibaba.com, sidraya@linux.ibm.com, mjambigi@linux.ibm.com,
+ tonylu@linux.alibaba.com, guwen@linux.alibaba.com, netdev@vger.kernel.org,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: [PATCH] net/smc: release the internal TCP sock on IPPROTO_SMC socket
+ creation failure
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 03/11] KVM: s390: Fix get_all_floating_irqs()
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        david@kernel.org, seiden@linux.ibm.com, nrb@linux.ibm.com,
-        schlameuss@linux.ibm.com, gra@linux.ibm.com
-References: <20260811155641.219777-1-imbrenda@linux.ibm.com>
- <20260811155641.219777-4-imbrenda@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-In-Reply-To: <20260811155641.219777-4-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDA1NCBTYWx0ZWRfX0rgP9pieLQA9
- 5KA44ENBewZ8OPngdxrieqJ04nkYonsQeX2VDWaS8oJzaVqb/muE1EH8XdhMak5MZXklBNBUTt8
- D1QqCwYDJsbIBwYRhesKCs/TdC/EKvrbC6atWt0OIR6PEjvNAvc7N8oJHo+kYufeKXjXDE2bR+1
- 0aIasBCIPMw0HNG1X8uRJxt/1F9MPqWUh2JzzghRXVF6C2g1hXr/w+V1XN4gCvzLwwF6liwlK8F
- x/Sh3E/8h1N3hxcegfNb+pu0VdgYOfMoYXzFebDhMDlJk7S9X0o/p+vKUeb/DFvNl3nmVzWa1cJ
- loVK83uzsvxlip27yA5DHNAc5xMPiyIe2731Q7bHXIuOiy5zX/BVaSNKz/quGNJc/QAA0L/4cLt
- 216ILhZbooN4Ecik73mNOjgT072ZGmg05mSXY4LNHeKLaXYTDzLqsCG/xpT/d2vL5G1hwFkrlLI
- rJ8909wLyZblTWgduZQ==
-X-Proofpoint-ORIG-GUID: vdSyvfyDEq_zLzJySC5aI7GopwWz7OjH
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDA1NCBTYWx0ZWRfX6ECAPHZtWgMk
- 3RQ5fckuptZOB4rlGuOGoD3VKS1P7XjUaFRhNfQV9s5rA2jqx+iTAHoSaWd9h7Vw1GBJk38Gf9W
- TAxwZ/ToMyMiPu7OR38Sb3YiWESEdPY=
-X-Authority-Analysis: v=2.4 cv=IfK3n2qa c=1 sm=1 tr=0 ts=6a7c1c94 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=pAbas-_hZKfkuAVQ570A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: vdSyvfyDEq_zLzJySC5aI7GopwWz7OjH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-12_02,2026-08-10_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 impostorscore=0 bulkscore=0 clxscore=1015
- lowpriorityscore=0 adultscore=0 malwarescore=0 spamscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608120054
+Message-ID: <20260812071538.o7mdtMhZ1eOzDgQnKZduQfWlq0FhL7OCAPLjt9AA11w@z>
 
-Am 11.08.26 um 17:56 schrieb Claudio Imbrenda:
-> When attempting to report all pending floating interrupt to userspace,
-> the GISA IPM bits are atomically tested and cleared, and the
-> corresponding interrupt description is written in the output buffer. If
-> the output buffer is too small, an error is returned to userspace, but
-> the GISA IPM bits are now lost.
-> 
-> Fix by moving the GISA test at the end of the function, and keeping
-> track of which bits have been cleared. In case of error, set the bits
-> again, so they are not lost.
-> 
-> Fixes: 24160af6cb28 ("KVM: s390: add GISA interrupts to FLIC ioctl interface")
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+IPPROTO_SMC sockets wrap an internal TCP sock ("clcsock"), which is
+created by smc_inet_init_sock() via smc_create_clcsk() from the
+proto->init hook of inet_create()/inet6_create(). When socket
+creation fails after proto->init has succeeded - for example when a
+cgroup BPF program attached to BPF_CGROUP_INET_SOCK_CREATE denies the
+socket - inet_create() calls sk_common_release(), which only invokes
+sk_prot->destroy if it is set. Neither smc_inet_prot nor
+smc_inet6_prot defines .destroy, and the sock destructor smc_destruct()
+returns early unless sk_state is SMC_CLOSED (it is SMC_INIT here), so
+the internal TCP sock is never released.
 
-this looks too complicated for a fix. Now what is the semantic of this?
-This is used for migration purposes, and the doc says:
+As a result, every failing socket(AF_INET, SOCK_STREAM, IPPROTO_SMC)
+call leaks one tcp_sock. Any unprivileged task able to attach a
+deny-all BPF_CGROUP_INET_SOCK_CREATE program to its own cgroup (or a
+task confined by an LSM policy) can grow kernel memory unboundedly.
 
-Documentation/virt/kvm/devices/s390_flic.rst
+Reproduced on v7.2-rc7: with a deny-all BPF_CGROUP_INET_SOCK_CREATE
+program attached, a loop of socket(AF_INET, SOCK_STREAM, IPPROTO_SMC)
+calls fails with EPERM and kmemleak reports one unreferenced tcp_sock
+object per call.
 
-   KVM_DEV_FLIC_GET_ALL_IRQS
-     Copies all floating interrupts into a buffer provided by userspace.
-[...]
-     All interrupts remain pending, i.e. are not deleted from the list of
-     currently pending interrupts.
-[...]
+Add a .destroy hook to both IPPROTO_SMC protos that releases the
+clcsock via smc_clcsock_release(). That helper is safe here: it takes
+the clcsock_release_lock initialized by smc_sk_init() and skips a NULL
+clcsock, which is what smc_create_clcsk() leaves behind when creating
+the TCP sock fails. Also initialize clcsock to NULL at the start of
+smc_inet_init_sock(): the smc_sock slab is SLAB_TYPESAFE_BY_RCU, so
+recycled objects are not zeroed and stale memory must not be handed to
+sock_release().
 
-So even the success case is wrong. Why not simply add a new helper that
-reads the GISA without clearing the bits?
+The same behaviour is visible without any debugging option: on a
+plain kernel the slabinfo "TCP" active_objs count grows by one per
+failing socket() call and never shrinks.
 
-static inline int gisa_test_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
+With the fix, the same reproducer leaves no unreferenced objects in
+kmemleak and the "TCP" slabinfo count stays flat, and regular
+IPPROTO_SMC socket create/close cycles are unaffected
+(sk_common_release() from inet_release() also routes through the new
+.destroy, where the already-NULL clcsock is a no-op).
+
+Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Assisted-by: abaci:qwen3.8-max
+Signed-off-by: Chuyf26 <Chuyf26@linux.alibaba.com>
+---
+ net/smc/smc_inet.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/net/smc/smc_inet.c b/net/smc/smc_inet.c
+index a94084b..b94a194 100644
+--- a/net/smc/smc_inet.c
++++ b/net/smc/smc_inet.c
+@@ -15,13 +15,16 @@
+=20
+ #include "smc_inet.h"
+ #include "smc.h"
++#include "smc_close.h"
+=20
+ static int smc_inet_init_sock(struct sock *sk);
++static void smc_inet_destroy_sock(struct sock *sk);
+=20
+ static struct proto smc_inet_prot =3D {
+ 	.name		=3D "INET_SMC",
+ 	.owner		=3D THIS_MODULE,
+ 	.init		=3D smc_inet_init_sock,
++	.destroy	=3D smc_inet_destroy_sock,
+ 	.hash		=3D smc_hash_sk,
+ 	.unhash		=3D smc_unhash_sk,
+ 	.release_cb	=3D smc_release_cb,
+@@ -68,6 +71,7 @@ static struct proto smc_inet6_prot =3D {
+ 	.name		=3D "INET6_SMC",
+ 	.owner		=3D THIS_MODULE,
+ 	.init		=3D smc_inet_init_sock,
++	.destroy	=3D smc_inet_destroy_sock,
+ 	.hash		=3D smc_hash_sk,
+ 	.unhash		=3D smc_unhash_sk,
+ 	.release_cb	=3D smc_release_cb,
+@@ -109,6 +113,14 @@ static struct inet_protosw smc_inet6_protosw =3D {
+ static int smc_inet_init_sock(struct sock *sk)
+ {
+ 	struct net *net =3D sock_net(sk);
++	struct smc_sock *smc =3D smc_sk(sk);
++
++	/*
++	 * The smc_sock slab is SLAB_TYPESAFE_BY_RCU and recycled objects
++	 * are not zeroed. .destroy may run even if .init never completed,
++	 * so make sure smc_clcsock_release() sees a valid clcsock.
++	 */
++	smc->clcsock =3D NULL;
+=20
+ 	/* init common smc sock */
+ 	smc_sk_init(net, sk, IPPROTO_SMC);
+@@ -116,6 +128,17 @@ static int smc_inet_init_sock(struct sock *sk)
+ 	return smc_create_clcsk(net, sk, sk->sk_family);
+ }
+=20
++static void smc_inet_destroy_sock(struct sock *sk)
++{
++	/*
++	 * If inet_create()/inet6_create() fail after .init has created the
++	 * internal TCP sock (e.g. rejected by a cgroup BPF program),
++	 * sk_common_release() ends up here. Release the TCP sock, otherwise
++	 * it leaks on every failed IPPROTO_SMC socket() call.
++	 */
++	smc_clcsock_release(smc_sk(sk));
++}
++
+ int __init smc_inet_init(void)
+ {
+ 	int rc;
+--=20
+2.43.5
+
+Reproducer (no clang/bpftool needed, hand-assembled BPF via bpf(2));
+run as root on a cgroup-v2 system, needs CAP_BPF and CONFIG_CGROUP_BPF:
+
+  $ gcc -O2 -o smc_leak smc_leak.c
+  $ ./smc_leak 20000
+
+It attaches a deny-all BPF_CGROUP_INET_SOCK_CREATE program to a fresh
+cgroup, enters it and loops socket(AF_INET, SOCK_STREAM, IPPROTO_SMC).
+Before this patch every call fails with EPERM and the slabinfo "TCP"
+active_objs count grows by ~1 per call (20004 for 20000 iterations,
+never shrinking); with this patch the count stays flat.
+
+/* --- smc_leak.c --- */
+/*
+ * IPPROTO_SMC socket-creation leak reproducer (no clang/bpftool needed).
+ *
+ * 1. creates a cgroupv2 subgroup, loads a hand-assembled deny-all
+ *    BPF_CGROUP_INET_SOCK_CREATE prog via bpf(2), attaches it;
+ * 2. moves itself into that cgroup;
+ * 3. loops socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
+ * 4. prints slabinfo "TCP" delta and kmemleak report.
+ *
+ * Run as root on a cgroup-v2 system:
+ *   ./smc_leak 20000
+ * Expected on buggy kernel: every socket() fails with EPERM and leaks one
+ * TCP sock per call (slabinfo "TCP" active_objs grows by ~1 per iteration;
+ * with CONFIG_DEBUG_KMEMLEAK, unreferenced tcp_sock objects are reported).
+ * On a fixed kernel: no growth.
+ */
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <sys/mount.h>
+#include <sys/socket.h>
+#include <sys/syscall.h>
+#include <linux/bpf.h>
+#include <stdint.h>
+
+#ifndef IPPROTO_SMC
+#define IPPROTO_SMC 256
+#endif
+
+#define BPF_RAW(CODE, DST, SRC, OFF, IMM) ((struct bpf_insn){CODE, DST, SRC, =
+OFF, IMM})
+
+static int sys_bpf(int cmd, union bpf_attr *attr, unsigned int size)
 {
-       return test_bit_inv(IPM_BIT_OFFSET + gisc, (unsigned long *) gisa);
+	return syscall(__NR_bpf, cmd, attr, size);
 }
 
+static int load_deny_prog(void)
+{
+	/* r0 =3D 0 (deny); exit */
+	struct bpf_insn insns[] =3D {
+		BPF_RAW(BPF_ALU64 | BPF_MOV | BPF_K, BPF_REG_0, 0, 0, 0),
+		BPF_RAW(BPF_JMP | BPF_EXIT, 0, 0, 0, 0),
+	};
+	union bpf_attr attr;
+	memset(&attr, 0, sizeof(attr));
+	attr.prog_type =3D BPF_PROG_TYPE_CGROUP_SOCK;
+	attr.insns =3D (uint64_t)(unsigned long)insns;
+	attr.insn_cnt =3D 2;
+	attr.license =3D (uint64_t)(unsigned long)"GPL";
+	int fd =3D sys_bpf(BPF_PROG_LOAD, &attr, sizeof(attr));
+	if (fd < 0)
+		perror("BPF_PROG_LOAD");
+	return fd;
+}
 
+static int attach_prog(int prog_fd, const char *cgpath)
+{
+	int cg_fd =3D open(cgpath, O_RDONLY | O_DIRECTORY);
+	if (cg_fd < 0) {
+		perror("open cgroup");
+		return -1;
+	}
+	union bpf_attr attr;
+	memset(&attr, 0, sizeof(attr));
+	attr.link_create.prog_fd =3D prog_fd;
+	attr.link_create.target_fd =3D cg_fd;
+	attr.link_create.attach_type =3D BPF_CGROUP_INET_SOCK_CREATE;
+	int fd =3D sys_bpf(BPF_LINK_CREATE, &attr, sizeof(attr));
+	if (fd < 0) {
+		perror("BPF_LINK_CREATE");
+		close(cg_fd);
+		return -1;
+	}
+	return fd;
+}
 
+static long tcp_active_objs(void)
+{
+	FILE *f =3D fopen("/proc/slabinfo", "r");
+	char line[256];
+	long objs =3D -1;
 
-> ---
->   arch/s390/kvm/interrupt.c | 93 ++++++++++++++++++---------------------
->   1 file changed, 44 insertions(+), 49 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 6b3f97a7513b..30963e05e0e6 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
-> @@ -2211,15 +2211,14 @@ void kvm_s390_clear_float_irqs(struct kvm *kvm)
->   static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
->   {
->   	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
-> +	struct kvm_s390_irq *buf __free(kvfree) = NULL;
->   	struct kvm_s390_interrupt_info *inti;
->   	struct kvm_s390_float_interrupt *fi;
-> -	struct kvm_s390_irq *buf;
->   	struct kvm_s390_irq *irq;
-> +	unsigned int tmp = 0;
->   	int max_irqs;
-> -	int ret = 0;
->   	int n = 0;
->   	int i;
-> -	unsigned long flags;
->   
->   	if (len > KVM_S390_FLIC_MAX_BUFFER || len == 0)
->   		return -EINVAL;
-> @@ -2235,14 +2234,48 @@ static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
->   
->   	max_irqs = len / sizeof(struct kvm_s390_irq);
->   
-> +	fi = &kvm->arch.float_int;
-> +	scoped_guard(spinlock_irqsave, &fi->lock) {
-> +		for (i = 0; i < FIRQ_LIST_COUNT; i++) {
-> +			list_for_each_entry(inti, &fi->lists[i], list) {
-> +				/* signal userspace to try again */
-> +				if (n == max_irqs)
-> +					return -ENOMEM;
-> +				inti_to_irq(inti, &buf[n]);
-> +				n++;
-> +			}
-> +		}
-> +		if (test_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs) ||
-> +		    test_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs)) {
-> +			/* signal userspace to try again */
-> +			if (n == max_irqs)
-> +				return -ENOMEM;
-> +			irq = (struct kvm_s390_irq *)&buf[n];
-> +			irq->type = KVM_S390_INT_SERVICE;
-> +			irq->u.ext = fi->srv_signal;
-> +			n++;
-> +		}
-> +		if (test_bit(IRQ_PEND_MCHK_REP, &fi->pending_irqs)) {
-> +			/* signal userspace to try again */
-> +			if (n == max_irqs)
-> +				return -ENOMEM;
-> +			irq = (struct kvm_s390_irq *)&buf[n];
-> +			irq->type = KVM_S390_MCHK;
-> +			irq->u.mchk = fi->mchk;
-> +			n++;
-> +		}
-> +	}
->   	if (gi->origin && gisa_get_ipm(gi->origin)) {
->   		for (i = 0; i <= MAX_ISC; i++) {
->   			if (n == max_irqs) {
-> +				/* restore removed bits if returning failure */
-> +				__atomic_or(tmp, (void *)&gi->origin->ipm);
->   				/* signal userspace to try again */
-> -				ret = -ENOMEM;
-> -				goto out_nolock;
-> +				return -ENOMEM;
->   			}
->   			if (gisa_tac_ipm_gisc(gi->origin, i)) {
-> +				/* set aside the bits we cleared */
-> +				tmp |= 1 << (31 - i);
->   				irq = (struct kvm_s390_irq *) &buf[n];
->   				irq->type = KVM_S390_INT_IO(1, 0, 0, 0);
->   				irq->u.io.io_int_word = isc_to_int_word(i);
-> @@ -2250,53 +2283,15 @@ static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
->   			}
->   		}
->   	}
-> -	fi = &kvm->arch.float_int;
-> -	spin_lock_irqsave(&fi->lock, flags);
-> -	for (i = 0; i < FIRQ_LIST_COUNT; i++) {
-> -		list_for_each_entry(inti, &fi->lists[i], list) {
-> -			if (n == max_irqs) {
-> -				/* signal userspace to try again */
-> -				ret = -ENOMEM;
-> -				goto out;
-> -			}
-> -			inti_to_irq(inti, &buf[n]);
-> -			n++;
-> -		}
-> -	}
-> -	if (test_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs) ||
-> -	    test_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs)) {
-> -		if (n == max_irqs) {
-> -			/* signal userspace to try again */
-> -			ret = -ENOMEM;
-> -			goto out;
-> -		}
-> -		irq = (struct kvm_s390_irq *) &buf[n];
-> -		irq->type = KVM_S390_INT_SERVICE;
-> -		irq->u.ext = fi->srv_signal;
-> -		n++;
-> -	}
-> -	if (test_bit(IRQ_PEND_MCHK_REP, &fi->pending_irqs)) {
-> -		if (n == max_irqs) {
-> -				/* signal userspace to try again */
-> -				ret = -ENOMEM;
-> -				goto out;
-> -		}
-> -		irq = (struct kvm_s390_irq *) &buf[n];
-> -		irq->type = KVM_S390_MCHK;
-> -		irq->u.mchk = fi->mchk;
-> -		n++;
-> -}
->   
-> -out:
-> -	spin_unlock_irqrestore(&fi->lock, flags);
-> -out_nolock:
-> -	if (!ret && n > 0) {
-> -		if (copy_to_user(usrbuf, buf, sizeof(struct kvm_s390_irq) * n))
-> -			ret = -EFAULT;
-> +	if (n > 0 && copy_to_user(usrbuf, buf, sizeof(struct kvm_s390_irq) * n)) {
-> +		/* restore removed bits if returning failure */
-> +		if (tmp)
-> +			__atomic_or(tmp, (void *)&gi->origin->ipm);
-> +		return -EFAULT;
->   	}
-> -	vfree(buf);
->   
-> -	return ret < 0 ? ret : n;
-> +	return n;
->   }
->   
->   static int flic_ais_mode_get_all(struct kvm *kvm, struct kvm_device_attr *attr)
+	if (!f)
+		return -1;
+	while (fgets(line, sizeof(line), f)) {
+		char name[64];
+		long active;
+		if (sscanf(line, "%63s %ld", name, &active) =3D=3D 2 &&
+		    !strcmp(name, "TCP")) {
+			objs =3D active;
+			break;
+		}
+	}
+	fclose(f);
+	return objs;
+}
 
+static void kmemleak_scan(void)
+{
+	mkdir("/sys/kernel/debug", 0755);
+	mount("debugfs", "/sys/kernel/debug", "debugfs", 0, NULL);
+	FILE *f =3D fopen("/sys/kernel/debug/kmemleak", "w");
+	if (f) {
+		fputs("scan", f);
+		fclose(f);
+		sleep(3);
+		system("grep -c 'unreferenced object' /sys/kernel/debug/kmemleak 2>/dev/nul=
+l | sed 's/^/kmemleak unreferenced objects: /'");
+		system("head -60 /sys/kernel/debug/kmemleak 2>/dev/null");
+	} else {
+		printf("(kmemleak unavailable: %s)\n", strerror(errno));
+	}
+}
+
+int main(int argc, char **argv)
+{
+	const char *name =3D argc > 1 ? argv[1] : "smctest";
+	long iters =3D argc > 2 ? atol(argv[2]) : 20000;
+	char cgpath[256], path[280];
+	int prog_fd, link_fd;
+
+	if (access("/sys/fs/cgroup/cgroup.controllers", F_OK)) {
+		fprintf(stderr, "cgroup v2 required\n");
+		return 1;
+	}
+
+	snprintf(cgpath, sizeof(cgpath), "/sys/fs/cgroup/%s", name);
+	mkdir(cgpath, 0755);
+
+	prog_fd =3D load_deny_prog();
+	if (prog_fd < 0)
+		return 1;
+	link_fd =3D attach_prog(prog_fd, cgpath);
+	if (link_fd =3D=3D -1)
+		return 1;
+
+	snprintf(path, sizeof(path), "%s/cgroup.procs", cgpath);
+	FILE *f =3D fopen(path, "w");
+	if (!f) {
+		perror("open cgroup.procs");
+		return 1;
+	}
+	fprintf(f, "%d", getpid());
+	fclose(f);
+
+	long before =3D tcp_active_objs();
+	printf("TCP slab objs before: %ld\n", before);
+
+	long denied =3D 0, ok =3D 0, other =3D 0;
+	for (long i =3D 0; i < iters; i++) {
+		int fd =3D socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
+		if (fd >=3D 0) {
+			close(fd);
+			ok++;
+		} else if (errno =3D=3D EPERM) {
+			denied++;
+		} else {
+			if (!other)
+				printf("socket error: %s\n", strerror(errno));
+			other++;
+			break;
+		}
+	}
+	long after =3D tcp_active_objs();
+	printf("iterations=3D%ld denied(EPERM)=3D%ld ok=3D%ld other=3D%ld\n",
+	       iters, denied, ok, other);
+	printf("TCP slab objs after: %ld  (delta %+ld)\n", after, after - before);
+	if (denied && after - before > denied / 2)
+		printf("=3D> LEAK CONFIRMED: ~%ld TCP socks leaked on error path\n",
+		       after - before);
+
+	kmemleak_scan();
+
+	/* leave cgroup so it can be removed */
+	f =3D fopen("/sys/fs/cgroup/cgroup.procs", "w");
+	if (f) {
+		fprintf(f, "%d", getpid());
+		fclose(f);
+	}
+	if (link_fd >=3D 0)
+		close(link_fd);
+	rmdir(cgpath);
+	return 0;
+}
+/* --- end smc_leak.c --- */
