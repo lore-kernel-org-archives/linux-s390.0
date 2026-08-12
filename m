@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F22CE431A22;
-	Wed, 12 Aug 2026 11:16:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42C5D3EFFD1;
+	Wed, 12 Aug 2026 11:19:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786533380; cv=none; b=UjkOQMokUwEsAjcFbk0jgLHBYFQuAHAD7lcorw2qHBvEpcpVpGWmx5i3AoTQiPC1e7wlRpU9IyHNhG0es3l5b2S0oG+B1TmF3GYFF70Qy6xkON1g6L/ew8Qsu95wTfFyc7mxx5bYFCuXHjlcVaP9gZsiE9BqWkZBZFhy3UdjqY0=
+	t=1786533575; cv=none; b=ttAZ8ezR1cyPepiMZF3EHemPo3LZx4i27g5rF2q6hKK4ab1GFuTsQPKIU7vyjOndLozYAaBweFY6nMUdlePgWibOhXD59BUUquSQGax8u9mWfB8nsZ1hLGXa0lMrrFUaDzySLvJhWFaIv7FccMbsodiIpznMXatw+LMVAIR4svY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786533380; c=relaxed/simple;
-	bh=dRD5H6BLnaJMTjUmsqbdCCe5EnC7KJV6qIama9ltZaY=;
+	s=arc-20240116; t=1786533575; c=relaxed/simple;
+	bh=+EIHT5w7yhhLkjwsV/6HPJIJhbnmJ/BcHi36pQBqUWw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Jq7zKafBtEATdv2Eo/PrbD94b7FQMVeFmvKbQvGz+X2RP3jvXKhjC4pYSQ2aKVCGzy0+17v3eRijY1is5A9t6thwPsylyLvlQXp9eLvXj5J35U+VY+sYpfMIC6DqaHHUhp3EBZXmPvFKiaK3vO5bMhL5zMHMDxdgyVTnXmiR1uw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QpYnab0n; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=fRUhkIKnqlN46oaEegx6m+9CMRB+3gft8LjzJLEDosdqct/i4qhg/ugFJZaPojNbo4BMsUbp6qjMvgfkcoy/JK+KN8Vx5C1HNKgw+TIldr0h4USrdHv6FnrPfBmDFGFF/VNWox6mM6HIvV6es2d4JzSCXlt/OEQKvCMZr4JWlgQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lEqlYMMD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QpYnab0n"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67D991F000E9;
-	Wed, 12 Aug 2026 11:16:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lEqlYMMD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79C931F000E9;
+	Wed, 12 Aug 2026 11:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786533378;
-	bh=YkQoXb0oPuJag9CbgccsDCcg6lD66fmA+f0vn+2nKnc=;
+	s=k20260515; t=1786533573;
+	bh=l/Wc313GCSl3I+9bKCPbE8GI5lwCsPHIrZHzJG1vSW0=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=QpYnab0nUAcCJt+cGKDODAg3Qx17qgpheF1kaPKjsEoNN2gGuC0MuGrznO70IIyhN
-	 q50JvXDgyoCv5Jx5qqIDGxWfc6HKUhKU1cTL6H08Bu0/sTb+uVVkxHOr9rNxyxfXN+
-	 uTOwGwCn+zeXNrwSywo8TfLqLOj8YKABP/oehAVFpqhoXslPkdGl4cJu2E5FlZnHvd
-	 OHboyKwgV46xqG0UclX10xA1e/iuxKmzt5h+ORt+lsnPp3+vkZZha97q3G8FyC0e7Y
-	 cjS1vMXaxJ+pGqTfML7xuwxCWKh+43tBp3fxPKAcuInhN6x79dSPFwsyX+48ySeYf2
-	 SVT6YpwBVn8/Q==
-Message-ID: <ac5a912b-fc98-4b77-b453-2f9bd8f9e6db@kernel.org>
-Date: Wed, 12 Aug 2026 13:16:10 +0200
+	b=lEqlYMMDgeTWx8AQyeZDeNvVbDlKRIB4pQGJ6n2Dxbb98LpTz0OaCHQKEnqr3cLQO
+	 F8jABLEmGoA1eFi4yVM0INwhQZjWwbUYh7kTVOrw13k2eL3i2sW9WF2p60zuAyPddP
+	 niXXnwlds6idzM5cDHLT0T+ggPH9mu6eUdpb0cX2zrdJxENvwR165k34SkTa7s6aoc
+	 LFxIZtHzHee3VQz88+b0DgeVjRYMNM3AX4QyDpXnOJXq7kpjD9FuUCvETmfwaJFFh5
+	 2++70MQ443NWiphSX+NfcfZdMz1tERFm69ZeBbb67w/gKKmzYzzoK0vYS8YytEqOHW
+	 l6wOnqNizwyeQ==
+Message-ID: <e0ada89f-26b2-4e82-8273-8ea7b391c147@kernel.org>
+Date: Wed, 12 Aug 2026 13:19:25 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,8 +35,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC V2 2/6] parisc/mm: Directly use generic
- [pmd|pgd]_clear_bad()
+Subject: Re: [RFC V2 1/6] loongarch/mm: Stop using pte_ERROR()
 To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org,
  akpm@linux-foundation.org
 Cc: Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker
@@ -54,7 +53,7 @@ Cc: Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker
  linux-um@lists.infradead.org, linux-arch@vger.kernel.org,
  linux-kernel@vger.kernel.org
 References: <20260811042119.3652929-1-anshuman.khandual@arm.com>
- <20260811042119.3652929-3-anshuman.khandual@arm.com>
+ <20260811042119.3652929-2-anshuman.khandual@arm.com>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -101,24 +100,60 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260811042119.3652929-3-anshuman.khandual@arm.com>
+In-Reply-To: <20260811042119.3652929-2-anshuman.khandual@arm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 8/11/26 06:21, Anshuman Khandual wrote:
-> Drop [pmd|pgd]_ERROR() followed by [pmd|pgd]_clear() instances. But instead
-> directly use semantically equivalent generic helpers [pmd|pgd]_clear_bad()
-> in unmap_uncached_[pte|pmd]() which helps in dropping their corresponding
-> [pmd|pgd]_ERROR() macros across the tree.
+> Directly use pr_err() in __set_fixmap() and drop pte_ERROR() which helps in
+> eventually dropping pte_ERROR() macro across the tree. In this new printing
+> __FILE__ and __LINE__ has been dropped because they are always the same and
+> don't really add any value.
 > 
-> Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-> Cc: Helge Deller <deller@gmx.de>
-> Cc: linux-parisc@vger.kernel.org
+> Cc: Huacai Chen <chenhuacai@kernel.org>
+> Cc: WANG Xuerui <kernel@xen0n.name>
+> Cc: loongarch@lists.linux.dev
 > Cc: linux-kernel@vger.kernel.org
 > Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 > ---
+>  arch/loongarch/include/asm/pgtable.h | 2 --
+>  arch/loongarch/mm/init.c             | 2 +-
+>  2 files changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/arch/loongarch/include/asm/pgtable.h b/arch/loongarch/include/asm/pgtable.h
+> index 223528c04d73..a32a8fff70c1 100644
+> --- a/arch/loongarch/include/asm/pgtable.h
+> +++ b/arch/loongarch/include/asm/pgtable.h
+> @@ -128,8 +128,6 @@ struct vm_area_struct;
+>  #define ptep_get(ptep) READ_ONCE(*(ptep))
+>  #define pmdp_get(pmdp) READ_ONCE(*(pmdp))
+>  
+> -#define pte_ERROR(e) \
+> -	pr_err("%s:%d: bad pte %016lx.\n", __FILE__, __LINE__, pte_val(e))
+>  #ifndef __PAGETABLE_PMD_FOLDED
+>  #define pmd_ERROR(e) \
+>  	pr_err("%s:%d: bad pmd %016lx.\n", __FILE__, __LINE__, pmd_val(e))
+> diff --git a/arch/loongarch/mm/init.c b/arch/loongarch/mm/init.c
+> index 3407030f3e7a..be9b127daef2 100644
+> --- a/arch/loongarch/mm/init.c
+> +++ b/arch/loongarch/mm/init.c
+> @@ -203,7 +203,7 @@ void __init __set_fixmap(enum fixed_addresses idx,
+>  
+>  	ptep = populate_kernel_pte(addr);
+>  	if (!pte_none(ptep_get(ptep))) {
+> -		pte_ERROR(*ptep);
+> +		pr_err("bad pte %016lx\n", pte_val(*ptep));
+>  		return;
+>  	}
+>  
 
-Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
+Ah, I missed that we want to print actual values, I somehow thought that we
+would be printing pte_none() ...
+
+Maybe we should just be more verbose while at it?
+
+pr_err("unexpected set PTE at %ul in __set_fixmap: %016lx\n",
+       addr, pte_val(*ptep));
 
 -- 
 Cheers,
