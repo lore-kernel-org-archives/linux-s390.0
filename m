@@ -1,96 +1,116 @@
-Received: from angie.orcam.me.uk (angie.orcam.me.uk [78.133.224.34])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id D8D6543B3D1;
-	Wed, 12 Aug 2026 16:59:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=78.133.224.34
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FD2C359A68;
+	Wed, 12 Aug 2026 17:02:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786554000; cv=none; b=LyMYdu1s+2gl0GmWH3qPCO8z7Nbrn0Z3pAvwGuQi/vEDHXL/qq5e99FbHg5N/BpOtGdVqDWG3LOSdJetCLasYUi4tHFxb1Uz4Ie7kkX4ZGwMiXRxvxRov5GIEH/FL2TXhOkAZ+0Hook+wrEVG7Ssh/KLTiwxzCXGwKJXpE7V2Xk=
+	t=1786554165; cv=none; b=e+V7ZDj98TkBMrgsL2wtRq7l3YItCPFBlHvKBu1tG5AugJVabOCuRpGEDXaqr9QqYW0GVhPPS6braSNURokl/lyFlqR/ThGkoLPI88dgK3cW/WNWP6AwxQsmY/FTs2vwEActHLq7U+gzg9Ij79VgGVIUFVs7x7nC1tp4rvFW0oc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786554000; c=relaxed/simple;
-	bh=COsxPsgzygMQ/mDqla3VOTd+8FeyU7R8a94fdNIC43g=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=t+zPBIQaqNG4I5AYYwVNKbFtjyKFqYi6axdpDeczemJSXwfXvsIJ0PjbVZE7cojvg4vjiww4Fj73MGI0heMFqNL2lUjR9x9GmGh9IdBt6HMoVc3Q4QLrqkuT491VkNep7yqNcBscaN91sBPKYjuWcW74M+X6hk6lkhfaPYyfB5M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk; spf=none smtp.mailfrom=orcam.me.uk; arc=none smtp.client-ip=78.133.224.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=orcam.me.uk
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=orcam.me.uk
-Received: by angie.orcam.me.uk (Postfix, from userid 500)
-	id 1309092009D; Wed, 12 Aug 2026 18:59:54 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-	by angie.orcam.me.uk (Postfix) with ESMTP id 10DAB92009C;
-	Wed, 12 Aug 2026 17:59:54 +0100 (BST)
-Date: Wed, 12 Aug 2026 17:59:53 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@orcam.me.uk>
-To: Arnd Bergmann <arnd@arndb.de>
-cc: Danilo Krummrich <dakr@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
-    Niklas Schnelle <schnelle@linux.ibm.com>, 
-    Gerd Bayer <gbayer@linux.ibm.com>, Miguel Ojeda <ojeda@kernel.org>, 
-    Alice Ryhl <aliceryhl@google.com>, 
-    Daniel Almeida <daniel.almeida@collabora.com>, 
-    Vasily Gorbik <gor@linux.ibm.com>, 
-    Alexander Gordeev <agordeev@linux.ibm.com>, driver-core@lists.linux.dev, 
-    Christian Borntraeger <borntraeger@linux.ibm.com>, 
-    Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org, 
-    Linux-Arch <linux-arch@vger.kernel.org>, Boqun Feng <boqun@kernel.org>, 
-    Gary Guo <gary@garyguo.net>, 
-    =?UTF-8?Q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, 
-    Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, 
-    Trevor Gross <tmgross@umich.edu>, Tamir Duberstein <tamird@kernel.org>, 
-    Alexandre Courbot <acourbot@nvidia.com>, 
-    =?UTF-8?Q?Onur_=C3=96zkan?= <work@onurozkan.dev>, 
-    rust-for-linux@vger.kernel.org
-Subject: Re: `io{re,un}map()` build error in s390 under `!CONFIG_HAS_IOMEM`
-In-Reply-To: <3eeb0ece-42e9-49f2-9632-962793db8d4e@app.fastmail.com>
-Message-ID: <alpine.DEB.2.21.2608121731000.48788@angie.orcam.me.uk>
-References: <20260803180931.97202-1-ojeda@kernel.org> <fb2daae7-4eba-4ca1-95a5-60f8157eb66b@app.fastmail.com> <DKFKXA6YWW8R.1NDZ44Q13XFQH@kernel.org> <20260804071330.24760Aaf-hca@linux.ibm.com> <33ecacea-ed2a-409c-ab1c-a136e06b1b7a@app.fastmail.com>
- <DKG43HF7A2EN.PC1LBC0QUP93@kernel.org> <f0e0c069-23eb-443a-800d-267cfe4c2aa2@app.fastmail.com> <alpine.DEB.2.21.2608120349370.48788@angie.orcam.me.uk> <3eeb0ece-42e9-49f2-9632-962793db8d4e@app.fastmail.com>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+	s=arc-20240116; t=1786554165; c=relaxed/simple;
+	bh=6VOJNswuY6WkTHqE/hhD52A3XG+51+b8E1UzxLQGgm8=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=lEMdRkrkh6ZEqVMzYpi5bMDDFzoXv4OPbXYlSxzGeK5ai6/9uUrBV5+DHYu+rG3RNpe/JxOeFbHddFmPNeheAgv4DeQwnURxa9jUL8CElae61J3Bpx1k/E+rRZoiBjLfp/ByBACzCW04WTpQ4u189dvqROZjnQuK1bDrs1pwh3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZCFw9RdE; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZCFw9RdE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8088E1F000E9;
+	Wed, 12 Aug 2026 17:02:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786554163;
+	bh=HoNx70rDm0mHuzbLOF5mfgWsRSVNWaTC1Uw0GbmVGkk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ZCFw9RdEDGwqOr2iPY5uWJ0GgI9OWzpXl+5QsgmxVe+6W5O4kkazK7Uint2hRoxJI
+	 BPG1NZGYNA0IVHsDNR2oqnLXuGV6nszf9ebACEp9sfbpMX+lXG5KRy/SQwlG1HtYQz
+	 rrYBPL4dxH8MKz/1L63TsDMPq9rmlyUv4Z2DuxjuT9H8d7Uh8OnS+nCT7cvmuYKxgS
+	 ELbdk77HhUwJdhRksJ2P/6dOdvWx1AEK6dHWNoyEkOMhyCLp0dvjJL0NFAmvhJvNgk
+	 wrqum0KO1nkccosz2s+HGyxQzbR7MA+JKSkkxwlXVKvx8hx8J/A6xN1zlryb2QteJm
+	 oYYYoV+nnd0tg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4 18/20] KVM: s390: vsie: Add VSIE shadow stat counters
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.vom>, kvm@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260812-vsie-sigpi-v4-18-f19e49666315@linux.ibm.com>
+References: <20260812-vsie-sigpi-v4-0-f19e49666315@linux.ibm.com>
+ <20260812-vsie-sigpi-v4-18-f19e49666315@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 12 Aug 2026 17:02:43 +0000
+Message-Id: <20260812170243.8088E1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 
-On Wed, 12 Aug 2026, Arnd Bergmann wrote:
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] The `vsie_shadow_scb` statistic undercounts allocated shadow SCB=
+ pages if their initialization fails, and incorrectly categorizes subsequen=
+t uses as reuses.
+--
 
-> >  AFAICT HAS_IOMEM is all about just having peripherals located in the 
-> > CPU's regular memory addressing space.  All the DEC MIPS platforms fall 
-> > into this category, never seen PCI/ISA, some have no peripheral bus.
-> 
-> To me this is more about the driver model: On most architectures,
-> you can use portable drivers that use IORESOURCE_MEM resources
-> with ioremap() and the do readl()/writel() on those to access
-> little-endian registers.
+--- Patch [18]: [PATCH v4 18/20] KVM: s390: vsie: Add VSIE shadow stat coun=
+ters ---
+commit 30e90ae4cab73ef72cfd191918cda52ff46f4c0c
+Author: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
- Obviously I can't speak for the s390, but that's been my observation as 
-well -- it is a matter of coding style then rather than HAS_IOMEM being 
-inherently PCI/ISA.
+KVM: s390: vsie: Add VSIE shadow stat counters
 
-> s390 and um only support this conceptually for PCI devices,
-> and the HW implementation is different enough that the abstraction
-> breaks down in some cases (like memremap()). m68k Amiga is
-> similar to decstation I think, in that it has devices that are
-> memory mapped, but they are always visible in the kernel address
-> space and are accessed through their own abstraction instead of
-> readl()/writel(). m68k q40 does have ISA devices with both
-> port and memory accesses that can use portable drivers. I think
-> other m68k platforms use a mix of ioremap()/readl()/writel() 
-> and their own lower-level accessors based on the driver, but
-> none of those drivers are shared with another platform.
+This commit adds new statistics counters to track the allocation and reuse =
+of
+VSIE shadow SCBs and SCAs.
 
- On DECstation we actually have driver code shared between TURBOchannel 
-peripheral bus and PCI (and possibly EISA) and it obviously uses the 
-standard MMIO accessors consistently regardless of the bus binding.
+> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+> index 5f6dd4b9e9fd7..a1b679b4aa361 100644
+> --- a/arch/s390/kvm/vsie.c
+> +++ b/arch/s390/kvm/vsie.c
 
- Then there is code shared between TURBOchannel and platform stuff, also 
-with the system models that lack a peripheral bus too.  There is leftover 
-code using non-standard accessors still there, but that's really a matter 
-of resources needed to clean this up.
+[ ... ]
 
- For instance drivers/net/ethernet/amd/declance.c has now been high on my 
-priority list to clean up and properly convert from its current mess to a 
-regular TURBOchannel/platform device.  The only issue outstanding are MMIO 
-barriers, which have never been properly sorted out in a generic way; cf. 
-arch/mips/include/asm/io.h and the iobarrier_*() stuff there.
+> @@ -2042,6 +2047,7 @@ static struct vsie_page *get_vsie_page_cpu_nr(struc=
+t kvm_vcpu *vcpu, struct vsie
+>  		}
+>  	}
+>  	if (vsie_page !=3D vsie_page_new) {
+> +		vsie_page_is_new =3D false;
+>  		if (vsie_page_new)
+>  			free_vsie_page(vsie_page_new);
+> =20
+> @@ -2059,6 +2065,11 @@ static struct vsie_page *get_vsie_page_cpu_nr(stru=
+ct kvm_vcpu *vcpu, struct vsie
+>  			put_vsie_page(vsie_page);
+>  			return ERR_PTR(rc);
+>  		}
+> +
+> +		if (vsie_page_is_new)
+> +			vcpu->kvm->stat.vsie_shadow_scb++;
+> +		else
+> +			vcpu->kvm->stat.vsie_shadow_scb_reuse++;
+>  	}
+> =20
+>  	return vsie_page;
 
-  Maciej
+[Severity: Medium]
+Will this lead to an undercount of vsie_shadow_scb allocations if
+vsie_page_init() fails?
+
+If vsie_page_init() fails in get_vsie_page_cpu_nr(), it returns ERR_PTR(rc)
+and skips the stat increment here.
+
+However, the newly allocated page is already saved in vsie_sca->pages[cpu_n=
+r]
+earlier in the function. The next time this page is fetched from the array,
+vsie_page_is_new will evaluate to false, causing vsie_shadow_scb_reuse to be
+incremented instead of counting the initial allocation.
+
+Should the vsie_shadow_scb counter be incremented earlier upon successful
+allocation, or should the page be removed from vsie_sca->pages[cpu_nr] on
+error?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812-vsie-sigpi=
+-v4-0-f19e49666315@linux.ibm.com?part=3D18
