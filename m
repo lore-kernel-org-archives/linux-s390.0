@@ -1,154 +1,228 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E1F5495048;
-	Wed, 12 Aug 2026 22:45:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A371123ABB9
+	for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 23:20:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786574723; cv=none; b=gJoqgQT6uBcOqP5HklF/2fS0Y/CAfPaCj8r578loherYT+sABSs+VU1wvjc7K1yBTrIVycfQwWfdDwp6jVdtkV7yDkuXC1RDSieQFCe/BgIa/9M8MTgZZ/Btb1hO3PvWsBkGnjc9OToPxkHKkv1px4qhD0baEgPVzjydp+QvyPw=
+	t=1786576840; cv=none; b=RVCyV5u7DKY+1xo6FKHLX2fiTDMI6tywtXFszsYZacS9Yti6Ol+c+chSS5AkSINsGDAchPVyW1+3tQszS02Nl81X+HZlQpdaoN2/5sMxTrE8/tQYW3HyyrzH4Z63pCGkLzBVSKM8BVok92vYszi/Y4QA7e1G8blWQRFXlp65Q/E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786574723; c=relaxed/simple;
-	bh=OFk3M7NcIux2MetSoSsHMwmMs0ahxJOY2+dHLWvxYW0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ol+u8DK23FDWhRv7z27xKJ1EjZpjzHHhbzkTZrGDCpk75jc3hfQJb1vyXVaLwgcRQ+kNOlE2DDJ+Qm7nIdSUGPbfVlWY5t0J+mJ638sJMECSTjpojbfphJXe5f4FRn9jC8eRbYb5ASIHNwSmSoLkWhJT82d0Pf/O8hgT11Gn8lg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ALKamtKl; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786576840; c=relaxed/simple;
+	bh=tmqh3LFgkNMXZalZ2VZ1XUw8LMz5iUchP0gJfbVsIic=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=HStOxh6Q9fFBbw0vODYXUSCJsmkUAcwq6Sb0x7bJBgo7O/L5ABfaEgJXyF6A1Xuc2uKn5BTAVsmhj5mMCTxN3mfLFLu755jF/VxyDG/rLweIWqeJReyffJiKSvTnmckQO1VxGCOEEzDBX93+dFZNjCLBmjXviIEsTb/IcHt9HP0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fSr51A37; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ALKamtKl"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67CK2m8c292164;
-	Wed, 12 Aug 2026 22:45:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=gB6Nk+
-	l5JcfhBzVN8/vXCu+VApu9ZiINTS66znEri0E=; b=ALKamtKl+8BX4OhOK9HcrY
-	KY6Lu08qENK/n7hXtLFgsl8DajAcYyzprFPQ+fb3k3mcXk8EVWWs0hmlITeucDpw
-	Ky1qFVAf29k+n9pUXpTipu/I5dR53ypUQ0Mj0RYSsEOPZEaJDeZ/wvbH6S9q0iM9
-	Zlo6FkiuxQ1ZrWxfKu7xCuDA3X/zlfxueSIkKkv9WZd2fnBIdE/9Us/hK+qTyCeE
-	lz/g3Lbkz/gTnFQZNZp2klqzDQW2pOROMreI+EK+ZlbeBzH2PKWU72KwQrEuw0As
-	VkGXIvC/49v6FzpOC7+4bjjW7uUxQq8ZGrgEmB8QK4/awU47tDyk1FLlRiyhhIsQ
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvm9w6b7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 12 Aug 2026 22:45:17 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67CMfIpw017440;
-	Wed, 12 Aug 2026 22:45:16 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxfsk0e93-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 12 Aug 2026 22:45:16 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67CMjFFU22413880
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 12 Aug 2026 22:45:15 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7960758052;
-	Wed, 12 Aug 2026 22:45:15 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E737F5805A;
-	Wed, 12 Aug 2026 22:45:14 +0000 (GMT)
-Received: from [9.61.244.42] (unknown [9.61.244.42])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 12 Aug 2026 22:45:14 +0000 (GMT)
-Message-ID: <dc71d9c8-c499-437d-9b54-814604507953@linux.ibm.com>
-Date: Wed, 12 Aug 2026 15:45:14 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fSr51A37"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 245F61F000E9;
+	Wed, 12 Aug 2026 23:20:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786576838;
+	bh=KmonGLq5pWtJMl0ogxksqcCtyJbuNqxwNc7Xxat/6Nc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=fSr51A37bFwmZ1dABWThWpf+HfBK6kDD3kmuqLbLSsgKP0Op2NrkVH8i6ZD1ZYfcL
+	 N2efr7BdVnpX1HttqSc21uXVdvJ3mib3tfMdFo9+Ce6qrsAGu2luuGCJ+F/c9hIkOp
+	 aztJel24F2j23wf3YWwtxw8wUlRWKRWyCN1yZShhRxs3ycvXO02+gN9ksJZnBNdjjz
+	 VDnm17AqQrmay6I2jP3V7pYiJ5Vw0rawCZq4RgF/cz0JjLgv/Cp6VdK3VSJFIucREj
+	 a9EQMmFsJxKkjx6tW5rWdE2oOSUbh2zy9WNPLVrsO1ZCAoi00jgVFhz/SI4UfGj/Xc
+	 QOOUkEelZzURw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net v6 2/3] net/smc: bound the peer rkey counts in
+ SMC-Rv2 LLC messages
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Yehyeong Lee" <yhlee@isslab.korea.ac.kr>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
+ Borntraeger" <borntraeger@linux.ibm.vom>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260811231902.47089-3-yhlee@isslab.korea.ac.kr>
+References: <20260811231902.47089-1-yhlee@isslab.korea.ac.kr>
+ <20260811231902.47089-3-yhlee@isslab.korea.ac.kr>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 12 Aug 2026 23:20:37 +0000
+Message-Id: <20260812232038.245F61F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v23 4/5] PCI: Fail FLR when config space is inaccessible
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org, alex@shazbot.org, schnelle@linux.ibm.com,
-        mjrosato@linux.ibm.com, Benjamin Block <bblock@linux.ibm.com>
-References: <20260812223459.GA1087632@bhelgaas>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <20260812223459.GA1087632@bhelgaas>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDE4MiBTYWx0ZWRfX9cBu0BN/jY2I
- J8E9NPnpzcUvirX2XsNvcNhpNEU37Mfm8YxVQKiBA7UHV8uqA7gb9kQAEF7m+QtQYlJbYazf74r
- H0rXEGmFB+I+iajB/iC3jfos1SULXHAilLqXkOk+VRdkQbBemduHIHrDwWRXJGarlZ61W2JU0KW
- sHZyFBASsBFvChcJaS3Qa8ZsF6dwwUtnAJACion03gn4VCpsM7XSQACm8XP8rImL3tVh6LRAH9t
- Zdl71797pDKAZcqh/IgHdzQzxNGlbIju3WTMDxRltRnXDtoZYYafiiF56pOjjuBN6BrM9ZivGcR
- nsALQ5UUQ6aAcK3B3tQrqHC5WNUdZXFpGLEPWfipSVoh+WZOcUkQYNi/EqlrExX8ueG6wGP70sf
- auEcAqcItWYr45/XAEBT3v6CLGzBQqDhiKjxjr/j3K4tZiZ1klNNAAVjQ6h6GZ2XY0S/UrHvf+H
- BMbS/ho9KOxpnD/+6PQ==
-X-Proofpoint-ORIG-GUID: WdxHWTwsZ2oFYPcelFXc3BFyjt2Zxxsk
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDE4MiBTYWx0ZWRfX/i2A8mhhcGmK
- QMuKy7H9Bq/7exQjuQ1FWr1kR99Ebmy1xKBrFnwM/jVhrwwcnuM/cjXmeDVIFacjywkBMEjhxoi
- 6OnbnsdeVnN6vmHLPW0febF6pBjx89E=
-X-Authority-Analysis: v=2.4 cv=IfK3n2qa c=1 sm=1 tr=0 ts=6a7cf77d cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=rrzeS6hzJ0Wm-PAqi00A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: WdxHWTwsZ2oFYPcelFXc3BFyjt2Zxxsk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-12_06,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 impostorscore=0 bulkscore=0 clxscore=1015
- lowpriorityscore=0 adultscore=0 malwarescore=0 spamscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608120182
 
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
 
-On 8/12/2026 3:34 PM, Bjorn Helgaas wrote:
-> On Wed, Aug 05, 2026 at 09:55:17AM -0700, Farhan Ali wrote:
->> If a device is in an error state, then it's config space may not be
->> accssible. Add additional check to validate if a device's config space is
->> accessible before doing an FLR reset.
->>
->> Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
->> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
->> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
->> ---
->>   drivers/pci/pci.c | 3 +++
->>   1 file changed, 3 insertions(+)
->>
->> diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
->> index e8d7de77241a..9a9d021301c4 100644
->> --- a/drivers/pci/pci.c
->> +++ b/drivers/pci/pci.c
->> @@ -4384,6 +4384,9 @@ int pcie_flr(struct pci_dev *dev)
->>   {
->>   	int ret;
->>   
->> +	if (!pci_dev_config_accessible(dev, "FLR"))
->> +		return -ENOTTY;
-> I'm not really keen on this racy check to begin with (though I know I
-> acked it earlier :)), and also a little hesitant about doing it only
-> here and not in a more generic place, since several of the reset
-> methods are susceptible to the same issue.
->
-> But I guess in your use case, FLR is the typical method used and maybe
-> we can worry about the others later.
+New issues:
+- [High] The patch prevents an out-of-bounds read by skipping or clamping t=
+he parsing of SMC-Rv2 LLC message extensions when `max_recv_sge =3D=3D 1`, =
+but this severely breaks the SMC-Rv2 protocol.
 
-Yeah, I was also hesitant adding it to the other reset methods as I 
-don't have hardware to test it. One reason to have the 
-pci_dev_config_accessible() function was to be able to use it in other 
-reset methods if needed.
+Pre-existing issues:
+- [High] Hardware overwrite and unprotected mutation of shared SMC-Rv2 LLC =
+receive buffer `lgr->wr_rx_buf_v2` causes data corruption for concurrent or=
+ subsequent messages.
+- [High] The actual hardware payload length (`wc->byte_len`) is discarded, =
+allowing short packets to trigger parsing of uninitialized or stale data in=
+ the V2 extension buffer.
+- [High] Missing memory barriers in `smc_rtoken_delete()` when clearing rto=
+kens allows data races with `smc_rtoken_add()`.
+--
 
-Thanks for reviewing and merging the changes!
+--- Patch [2]: [PATCH net v6 2/3] net/smc: bound the peer rkey counts in SM=
+C-Rv2 LLC messages ---
+commit bfe2c3983098dc0afd1d51be57a1a079c74df3f7
+Author: Yehyeong Lee <yhlee@isslab.korea.ac.kr>
 
-Thanks
+net/smc: bound the peer rkey counts in SMC-Rv2 LLC messages
 
-Farhan
+This commit addresses an out-of-bounds read in SMC-Rv2 LLC messages when
+operating on a link with max_recv_sge =3D=3D 1. It prevents reading past the
+allocated 44-byte inline message by skipping the extension parsing when
+there is no shared v2 receive buffer and bounding the read loops.
 
+> diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+> index 7282f8ad7593d..f04e0392ec96c 100644
+> --- a/net/smc/smc_llc.c
+> +++ b/net/smc/smc_llc.c
+> @@ -1000,13 +1000,21 @@ static void smc_llc_save_add_link_rkeys(struct sm=
+c_link *link,
+>  					struct smc_link *link_new,
+>  					u8 *llc_msg)
+>  {
+> +	const u32 rt_off =3D offsetof(struct smc_llc_msg_add_link_v2_ext, rt);
+>  	struct smc_llc_msg_add_link_v2_ext *ext;
+>  	struct smc_link_group *lgr =3D link->lgr;
+>  	int max, i;
+> =20
+> +	/* Without a shared v2 receive buffer the extension is not copied
+> +	 * into the queue entry, so not even ext->num_rkeys is there.
+> +	 */
+> +	if (!smc_link_shared_v2_rxbuf(link))
+> +		return;
 
->
->>   	if (!pci_wait_for_pending_transaction(dev))
->>   		pci_err(dev, "timed out waiting for pending transaction; performing function level reset anyway\n");
->>   
->> -- 
->> 2.43.0
->>
+[Severity: High]
+Does skipping the extension completely when max_recv_sge =3D=3D 1 break the
+SMC-Rv2 protocol?
+
+Since smc_llc_enqueue() only copies 44 bytes into qentry->msg, any V2
+extension received when there is no shared receive buffer is discarded. By
+returning early here, it seems we completely skip saving the peer's rkeys,
+which would cause RDMA operations over the new link to fail.
+
+>  	ext =3D (struct smc_llc_msg_add_link_v2_ext *)(llc_msg +
+>  						     SMC_WR_TX_SIZE);
+
+[Severity: High]
+This is a pre-existing issue, but does reading this extension from the
+shared receive buffer cause data corruption for subsequent messages?
+
+When max_recv_sge =3D=3D 2, the completion tasklet smc_wr_rx_process_cqes()
+processes the CQE, copies only the first 44 bytes into the event queue,
+and immediately re-posts the receive WQE via smc_wr_rx_post().
+
+This hands ownership of lgr->wr_rx_buf_v2 back to the hardware before the
+workqueue smc_llc_event_work() processes the extension. If a subsequent
+message arrives, the hardware could silently overwrite the extension in
+lgr->wr_rx_buf_v2 while the worker thread is reading it here.
+
+>  	max =3D min_t(u8, ext->num_rkeys, SMC_LLC_RKEYS_PER_MSG_V2);
+
+[Severity: High]
+This is a pre-existing issue, but can this parse uninitialized or stale data
+if the packet was short?
+
+In smc_llc_rx_handler(), the code only verifies that the 44-byte base header
+was received:
+
+    if (wc->byte_len < sizeof(*llc))
+        return; /* short message */
+
+The actual hardware payload length (wc->byte_len) is discarded because
+smc_llc_enqueue() only copies the 44-byte structure into the event queue.
+When the worker thread runs, it unconditionally parses the V2 extension from
+lgr->wr_rx_buf_v2. If the peer sent a message that was exactly 44 bytes but
+specified a longer length_v2 in the header, wouldn't the hardware leave
+lgr->wr_rx_buf_v2 uninitialized or stale?
+
+> +	max =3D min_t(u32, max, (SMC_WR_BUF_V2_SIZE - SMC_WR_TX_SIZE - rt_off) /
+> +			      sizeof(ext->rt[0]));
+>  	down_write(&lgr->rmbs_lock);
+>  	for (i =3D 0; i < max; i++) {
+>  		smc_rtoken_set(lgr, link->link_idx, link_new->link_idx,
+
+[ ... ]
+
+> @@ -1811,17 +1819,25 @@ static void smc_llc_rmt_delete_rkey(struct smc_li=
+nk_group *lgr)
+>  	link =3D qentry->link;
+> =20
+>  	if (lgr->smc_version =3D=3D SMC_V2) {
+> +		const u32 rkey_off =3D
+> +			offsetof(struct smc_llc_msg_delete_rkey_v2, rkey);
+>  		struct smc_llc_msg_delete_rkey_v2 *llcv2;
+> +		u32 buf_len;
+> =20
+>  		if (smc_link_shared_v2_rxbuf(link)) {
+>  			memcpy(lgr->wr_rx_buf_v2, llc, sizeof(*llc));
+>  			llcv2 =3D (struct smc_llc_msg_delete_rkey_v2 *)lgr->wr_rx_buf_v2;
+
+[Severity: High]
+This is a pre-existing issue, but does mutating the shared hardware receive
+buffer cause data corruption?
+
+By using memcpy to write to lgr->wr_rx_buf_v2 without any synchronization,
+the code modifies memory that is actively mapped for DMA RX. If the hardware
+concurrently writes a new message into this shared buffer, could this corru=
+pt
+the incoming LLC messages?
+
+> +			buf_len =3D SMC_WR_BUF_V2_SIZE;
+>  		} else {
+>  			llcv2 =3D (struct smc_llc_msg_delete_rkey_v2 *)llc;
+> +			buf_len =3D sizeof(qentry->msg);
+>  		}
+>  		llcv2->num_inval_rkeys =3D 0;
+> =20
+>  		max =3D min_t(u8, llcv2->num_rkeys, SMC_LLC_RKEYS_PER_MSG_V2);
+> +		/* bound by the buffer llcv2 points at */
+> +		max =3D min_t(u32, max, (buf_len - rkey_off) /
+> +				      sizeof(llcv2->rkey[0]));
+
+[Severity: High]
+When max_recv_sge =3D=3D 1, buf_len is clamped to sizeof(qentry->msg) which=
+ is
+44 bytes. Does this artificially limit the number of deleted rkeys to 9?
+
+The peer might have sent up to 255 rkeys to delete, but any remaining rkeys
+would be silently ignored, causing a state mismatch with the peer.
+
+>  		for (i =3D 0; i < max; i++) {
+>  			if (smc_rtoken_delete(link, llcv2->rkey[i]))
+
+[Severity: High]
+This is a pre-existing issue, but does smc_rtoken_delete() lack memory
+barriers, causing data races with smc_rtoken_add()?
+
+In smc_rtoken_delete(), the rtoken fields are cleared and then clear_bit()
+is called:
+
+    lgr->rtokens[i][j].rkey =3D 0;
+    lgr->rtokens[i][j].dma_addr =3D 0;
+    clear_bit(i, lgr->rtokens_used_mask);
+
+Because clear_bit() does not imply a memory barrier, the CPU can reorder the
+bit clear before the zeroing stores.
+
+If another thread concurrently executes smc_rtoken_add() (for example, while
+processing a CLC accept/confirm message), it might observe the cleared bit,
+reserve the slot, and initialize it:
+
+    i =3D smc_rmb_reserve_rtoken_idx(lgr);
+    lgr->rtokens[i][lnk->link_idx].rkey =3D rkey;
+
+Could the delayed zeroing stores from smc_rtoken_delete() then silently
+overwrite these newly initialized fields?
+
+>  				llcv2->num_inval_rkeys++;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260811231902.4708=
+9-1-yhlee@isslab.korea.ac.kr?part=3D2
