@@ -1,62 +1,66 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 57A4A3EB81D;
-	Wed, 12 Aug 2026 10:01:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1766F3ACA7B
+	for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 10:11:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786528898; cv=none; b=ZVm/j8g7c0w11IJG8Q7PHaywYAM0juPMrHRwgxQkzmnFuNUr6uK2aMN+6n8iLqD6Cr9QHPzAoJ+tP74r/YGmQ40eswj3g+OUG+Qq3MkkjfQyxNZf3ocTR8V8mt4oI4G7cOlQ4ekD/HhILyps+nKlNg1VIhvWWuv24Kft8Rhldpc=
+	t=1786529482; cv=none; b=MHHid2Cu0qOoM50GEqzzMTFqqC2Wjy0cZgNyWJCcQO2gKLOzBX3abcLPzYC4yWmLFjr9PLBANhhH2hXnC2cKmGevoytFJby4CF/YqrjvE+JN9b3odVSP5FWXfAL75tMODb2PhSzm0UjimYfN2uTPWZEFaFNn4b82Y7hhjpLMQHo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786528898; c=relaxed/simple;
-	bh=laAQxkCDgu5rybBDPLSZxhaA8e2vicoqRxfv8eyBppg=;
+	s=arc-20240116; t=1786529482; c=relaxed/simple;
+	bh=5k3ehR2AD/7V1+GStuZTv20Oa1LzLUtOys8LXCummNI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RgzGA0468304u2JfeJpCffuOzl01cy9tSsA/1j8feT4EGu25isee5mpcamyP8lGZzYeBIN8FAx/dm+AG/6LhH3Juys8csV6ycb5Ns+eVv7iD4LTnrtyIMsD8anuya2CrZXLnjnTztyPNGV7Xpn3mHjUgqBAWOBlweq9Lukwc88E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=H9+Q3rwe; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=snAU5rSA1avp7aaXf4Y77okv+2V41HyHodRw8hkVkvftj4tudbXjnZ5GnBFu/JsgAs/lv23UIVrrqFnvtXo9hjB5fh1yEKPkutfUpxMcBRjZednTYKVu5IQFnlGY1Uj34H4qB6/VJasjCQ8FGp2zuUMz2A7igpPINrPfiKNIaL8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=d0aZQKF8; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="H9+Q3rwe"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B2BC51596;
-	Wed, 12 Aug 2026 03:01:30 -0700 (PDT)
-Received: from arm.com (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 58C893F632;
-	Wed, 12 Aug 2026 03:01:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1786528894; bh=laAQxkCDgu5rybBDPLSZxhaA8e2vicoqRxfv8eyBppg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=H9+Q3rweucDYcVESosYOqah1VsOK5/gZBmUDqRzZn63O1t3HEhDbFomEHapCTWR2C
-	 4HjayAQgmAUs2cjgjubPrIW3CeX2n+B9zHWT7RcBq9sIXEnzQmXnFEsazv1HuywPNi
-	 wqnvNT0Uoa+RgTsn5+EP2jUJQjbBJpJapx1rZX8o=
-Date: Wed, 12 Aug 2026 11:01:23 +0100
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [RFC PATCH] dma: swiotlb: Size shared default pools for memory
- encryption
-Message-ID: <anxEc8EHmJQywVI5@arm.com>
-References: <20260811134056.756015-1-aneesh.kumar@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="d0aZQKF8"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67CA1XnS1306552
+	for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 10:11:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=sNa0f+HVF29Ty/KybEDQ2pwMtTm2Sd
+	wwtREA3nkclpA=; b=d0aZQKF8ZNrGtvyaXVAX4uy+CBk/fGYr0Pwiq78C9tBduy
+	/PsNs1T8u3fB5ZRoduZwixx2pk2QVuDqh0PJpBhj117gpGjXTSyZCK04LCahqMB8
+	UK3B/NqFcU/pmW+LOXqcd2zTlxW3qPXDN83csS5XkL4xWJe037ByWCS0+MTbhaJZ
+	Hj17NmdZxpSxWaezc27cUIizFPjVJn0fEki7AKESPFpm5Gd79XdrxxgCkSKqo4W8
+	qOfHaTWSQoxMY+mtK44WgW9q2opiGd6otUCSSWn+JQDdXws1zHwn+wxBLfk2aKix
+	g6y8wlQ3Q9Ru+qt+y4CJXBiT+02RDBbI6gHJnEvg==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvk01vcx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 10:11:20 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67CABJPa023864
+	for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 10:11:19 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxg9h5f36-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 10:11:19 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67CABG2U35586440
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 12 Aug 2026 10:11:16 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F30F12004B;
+	Wed, 12 Aug 2026 10:11:15 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B85B020040;
+	Wed, 12 Aug 2026 10:11:15 +0000 (GMT)
+Received: from osiris (unknown [9.87.155.64])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 12 Aug 2026 10:11:15 +0000 (GMT)
+Date: Wed, 12 Aug 2026 12:11:14 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Ilya Leoshkevich <iii@linux.ibm.com>
+Subject: Re: [PATCH] s390/debug: Fix deadlock during unregister
+Message-ID: <20260812101114.18999A06-hca@linux.ibm.com>
+References: <20260812075319.2007940-1-oberpar@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -65,78 +69,58 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260811134056.756015-1-aneesh.kumar@kernel.org>
+In-Reply-To: <20260812075319.2007940-1-oberpar@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDA4MCBTYWx0ZWRfX/Dkecc+vUDHR
+ A1lE6+i5MQFXw3fSyNpZZddyG2TEssSONEQsD+EmRKEomH3RtBZmyqXcP0rLR4OIOcQaoWuMUTb
+ q8407QB2sq6XJL8lNT4naJoTEBtEhO0ZOHofVziREMRJ4591ryB7nCRPUePyqhsisUqj++vq7tp
+ Cxl/ww2SDqUCzxlsjBxjfZ7eTvXThHfikQs6mp+CxGucXs5jup656YOnAcAcHuPr1EH185TKF94
+ e1qmFSlk+qLReh5NrXhxQFvjo3rByply/PNBzhOfvxM/xutaPR85CWeVMlp19mYP30ES7MkP88B
+ TEXcZSsF7nDrxvEC6riVKDZU8NK0ye3r5MFBfcrJp7MGqferNU7vepUoUYflHizRpLcV6SPqmYr
+ l+lT1rUgludBAEHVnzmJRWxKJe77di8dB+OMkJql4UID3PsJU/blgjxXkvNPyTJ0bEU+/hpN/9m
+ pkLsQjWBvWuJvd6CN+w==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDA4MCBTYWx0ZWRfX/7QZpKCeFFiP
+ HSDqRggxFfgJ1o3gVtlpa0y4OAfZcfeXDCt5RVwtrOQr2fUe4Hm+6qiFuDhVUuXvTMXuwWpkq1q
+ Bc+MQuWzgrbf8ctR+QlWfofKhmbMLVQ=
+X-Authority-Analysis: v=2.4 cv=RqD16imK c=1 sm=1 tr=0 ts=6a7c46c8 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=3FgUlI-fcN_bYXtwy8IA:9 a=CjuIK1q_8ugA:10 a=ZXulRonScM0A:10
+X-Proofpoint-GUID: hETVr89k3xcznXyogxeXPvAOS2CfK8d0
+X-Proofpoint-ORIG-GUID: hETVr89k3xcznXyogxeXPvAOS2CfK8d0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-12_03,2026-08-10_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
+ clxscore=1015 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608120080
 
-On Tue, Aug 11, 2026 at 07:10:56PM +0530, Aneesh Kumar K.V (Arm) wrote:
-> Systems with memory encryption use swiotlb to provide shared or
-> unencrypted buffers for device DMA. Confidential guests may route all
-> DMA through these buffers, while SME hosts use them for devices that
-> cannot address encrypted memory. The default swiotlb pool can therefore
-> be exhausted under I/O-intensive workloads.
+On Wed, Aug 12, 2026 at 09:53:19AM +0200, Peter Oberparleiter wrote:
+> Unregistering an s390dbf debug area while one of the associated debugfs
+> files is being written to can cause a deadlock:
 > 
-> Let architectures mark the default swiotlb pool as shared before
-> swiotlb_init().
-
-I thought we wanted even this decision to be moved out of the arch code.
-
-> Move the existing x86 sizing policy into generic swiotlb
-> code and add early pool marking for arm64 Realm guests, powerpc secure
-> guests, s390 protected-virtualization guests, and x86 memory-encryption
-> platforms. Use CC_ATTR_MEM_ENCRYPT on x86 to include host SME, whose
-> swiotlb pool must also be decrypted for devices that cannot address
-> encrypted memory.
-
-That's a functional change for x86. For now, I'd keep it to
-CC_ATTR_GUEST_MEM_ENCRYPT.
-
-BTW, why does arm64 report CC_ATTR_MEM_ENCRYPT instead of the GUEST
-option in realms?
-
-> Move the powerpc secure-guest swiotlb enablement before initialization
-> so that the shared pool is allocated with the required flags. pKVM
-> guests continue to use a restricted DMA pool instead of the default
-> swiotlb pool.
+> $ echo >.../vmur/level    $ rmmod vmur
+> ===================================================
+> debugfs write
+> debugfs_file_get()
+>                           debug_unregister()
+>                           mutex_lock(debug_mutex)
+>                           debugfs_remove()
+>                           wait for debugfs_file_put()
+> debug_file_ops.write()
+> debug_input()
+> mutex_lock(debug_mutex) ==> DEADLOCK
 > 
-> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+> Fix this by splitting debug_unregister() into an s390dbf and debugfs
+> part, and running only the s390dbf part with debug_mutex locked.
+> 
+> Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
 > ---
->  arch/arm64/mm/init.c                 |  6 ++-
->  arch/powerpc/mm/mem.c                |  7 +++
->  arch/powerpc/platforms/pseries/svm.c | 10 ----
->  arch/s390/mm/init.c                  |  2 +
->  arch/x86/mm/mem_encrypt.c            | 27 ++--------
->  include/linux/swiotlb.h              |  7 ++-
->  kernel/dma/swiotlb.c                 | 73 ++++++++++++++++++++++------
->  7 files changed, 82 insertions(+), 50 deletions(-)
-> 
-> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-> index e308a7cabd12..4c022e8aed43 100644
-> --- a/arch/arm64/mm/init.c
-> +++ b/arch/arm64/mm/init.c
-> @@ -338,8 +338,12 @@ void __init arch_setup_zero_pages(void)
->  void __init arch_mm_preinit(void)
->  {
->  	unsigned int flags = SWIOTLB_VERBOSE;
-> +	/* pKVM uses restricted-dma-pool */
-> +	bool cc_guest = is_realm_world();
->  
-> -	if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
-> +	if (cc_guest) {
-> +		swiotlb_mark_default_cc_shared();
-> +	} else if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
->  		/*
->  		 * If no bouncing needed for ZONE_DMA, reduce the swiotlb
->  		 * buffer for kmalloc() bouncing to 1MB per 1GB of RAM.
+>  arch/s390/kernel/debug.c | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
 
-With your other reworking, doesn't the core code know the swiotlb will
-be shared? Can it not make the decision to resize at that point based
-solely on CC_ATTR_GUEST_MEM_ENCRYPT?
-
-I also wonder whether we could address Will's pKVM request not to
-allocate a bounce buffer once pKVM guests will start reporting
-CC_ATTR_GUEST_MEM_ENCRYPT. Some simple heuristic: if a
-restricted-dma-pool is advertised in DT (it will end up in
-rmem_swiotlb_setup()), skip resizing the default swiotlb. It's not
-perfect but the bounce buffer can be overridden on the command line.
-
--- 
-Catalin
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
