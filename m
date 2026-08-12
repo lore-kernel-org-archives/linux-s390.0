@@ -1,131 +1,134 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3A8732B111;
-	Wed, 12 Aug 2026 20:22:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB81F3469EE;
+	Wed, 12 Aug 2026 20:23:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786566139; cv=none; b=HWbM3+nJDkXNv5C8IINZL8ph4cwyIBEspa4n4HyxBS4hEZY9Ku4M7gxh4dxDfj1GYcGgFZU2MBbLn06z2M0pOPTkpA95Dei02grBLXz2vwok7CxrqRwAmGM7pcw54MLp8MyJUvj/xwTC/bs4Uyn/PfdYYFtIjT2zZCq0Gz45N0o=
+	t=1786566210; cv=none; b=PovT8HWsGrGd59GNhOJcz2rJc8MUgPLLnv2YrZ73U7uBzxL3ZedrI2itj9kFYu3Ia1tSX+xyC78V3BpAH67Ntf28CIlMwyixIHCGKYZqdE2fZjIywg4dJ0+X0MvBRMgvOTqV1JCU8hIx5jwrGc8RUXnKJ7nznsgXCswFDlmgC+U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786566139; c=relaxed/simple;
-	bh=UAeg2OtWZHH6zGW55wZUbeG5KmLWO15/MDn4n5pNV8M=;
+	s=arc-20240116; t=1786566210; c=relaxed/simple;
+	bh=g6oouuaiookZNCHaLLX0FsOdXQjpkqCRIaHfiUVVN3g=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=QiUJdlB5ixejTnyuEMIC6yyFeSrzCtt0ApEp2W7X/QMEi6ihQHT7bguhIgQzPExdMCPPjMMjvWGyy/DGUcp/mdq7Dwt08gajA8weFg1PxFwbqhJtwGfXrDozxM5AQUWa59mzDZ/BpNTCj24NRX4PPyGbKwT9AKGSwc0RvnAOkZ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RUaLqd8n; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Q7s3cIIWIGDKyoeN7xpwuT/fX4qnDcrIrHYlt42B3eteoETazgAb/p91rNyR5AoxIipz/PVjwuVvkJZemOSyzAUqCrveyGob6o5bPvUabNqLj13z/Fr/XN1AptqSuX4f0Va5f5a39K0bNHifzvaEyRKZgpXGBU4mYsZPo0UDDsk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KaihUdBF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RUaLqd8n"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED50B1F000E9;
-	Wed, 12 Aug 2026 20:22:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KaihUdBF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E901C1F000E9;
+	Wed, 12 Aug 2026 20:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786566138;
-	bh=FIZJ8/bxbbvVpII6P10sNdpC+l1i2JIJ8B3j6y/zClA=;
+	s=k20260515; t=1786566209;
+	bh=u8G5VrGlZJFlMkHIhmUSQiuxvbdI1KqBg5Wyz2z+JIA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RUaLqd8n4bNgNZulcJ6p87O8e8INXc5JFJletLnHcQAwVi0edCUUBsmHvtrGf1bTM
-	 YCpCpNaQKQY/CxUS/eDJjwTkHLS0OHVoeOpbXLI2f1Oxm3lhfoCrAhi2OvJxLTSuMe
-	 PPfvIuyi1b3CCIr02nZnYTVj2UlLn1ef10NYsSdLcrvy8lNz0xtl9yHStIg6bG8dFN
-	 dr3XQHCr2HY9hza0riEHKaFS8AvE9hcg07nY3J0eU8AvLYWYxY+lfnD/sH3ZBIegnY
-	 zBsmcAhF73dBBRqrnjrvY+hEgsnQQxATimj5n+gv8LYulzGfVLHOngzfLl6wXCuKjg
-	 BAB/Vts1nivsg==
+	b=KaihUdBFj2ZJRgJepfczbzwSSYvEinZ8zA3pAlSkcWNrda0ND/wlzjUHeDZw+mdNa
+	 fW9FYGQqbnQk2Se7+Rdz+MSVv9nKzIOHwnTTvWMqAoBZvdPSm0R0ORskPSE6bypm+m
+	 0rX+WdgWkDkhflb6KzZdnaiRmNG3JoyajkGwITXbqkn3ekg63KHUYA3H4c3a5GS24Q
+	 tNnkbmJsRXzjchqc1NCKpk3ndgMNISiEONS/teKBt5RwnmpVytlVXlIZpxKz/GuYVc
+	 5r/3uwD+ClVZ3OiKyLVGAKhkfHBHF5vdxuiGBs5fhHDuExvKwmC7ANitB7z7mMMw80
+	 vOwH+jffxmo7A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 8/9] s390/vfio-ap: Fix NULL deref in status_show()
- during queue probe
+Subject: Re: [PATCH v5 3/9] s390/vfio-ap: Fix missing lock required to
+ access list of ap_matrix_mdev objects
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Christian
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.vom>
-In-Reply-To: <20260812200240.818004-9-akrowiak@linux.ibm.com>
+In-Reply-To: <20260812200240.818004-4-akrowiak@linux.ibm.com>
 References: <20260812200240.818004-1-akrowiak@linux.ibm.com>
- <20260812200240.818004-9-akrowiak@linux.ibm.com>
+ <20260812200240.818004-4-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 20:22:17 +0000
-Message-Id: <20260812202217.ED50B1F000E9@smtp.kernel.org>
+Date: Wed, 12 Aug 2026 20:23:28 +0000
+Message-Id: <20260812202328.E901C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Missing synchronization for asynchronous reset work during device =
-removal leads to Use-After-Free.
+- [Critical] Registering the emulated IOMMU device before adding it to the =
+mdev list allows a race condition where multiple mdevs can be attached to t=
+he same KVM instance, bypassing the strict 1-to-1 isolation check.
+- [High] Eventfd context references (`req_trigger` and `cfg_chg_trigger`) a=
+re leaked if the VFIO device is closed or removed without explicitly unregi=
+stering the IRQs.
 --
 
---- Patch [8]: [PATCH v5 8/9] s390/vfio-ap: Fix NULL deref in status_show()=
- during queue probe ---
-commit 0bb399a6ce7f9a2aea3f2f595acfac62183158ba
+--- Patch [3]: [PATCH v5 3/9] s390/vfio-ap: Fix missing lock required to ac=
+cess list of ap_matrix_mdev objects ---
+commit 225a264b9dad5df5a833e518a4dd594cafd35d03
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-s390/vfio-ap: Fix NULL deref in status_show() during queue probe
+s390/vfio-ap: Fix missing lock required to access list of ap_matrix_mdev ob=
+jects
 
-This commit fixes a null pointer dereference in status_show() by checking
-if the driver data has been set before proceeding. It also adjusts lock
-acquisition during queue probe and simplifies the apqn assignment.
-
-Cc: stable@vger.kernel.org
+This commit fixes a locking issue where the mdev_list was accessed without
+holding the matrix_dev->guests_lock mutex. It ensures the lock is properly
+acquired during device probe and status show operations. Unnecessary NULL
+initializations for triggers are also removed.
 
 > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
 _ap_ops.c
-> index 16779cfc64e87..1edd0b7a3cce7 100644
+> index c6bee69cc22f6..f2d662e388bdc 100644
 > --- a/drivers/s390/crypto/vfio_ap_ops.c
 > +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -800,12 +800,17 @@ static int vfio_ap_mdev_probe(struct mdev_device *m=
+dev)
+>  	ret =3D vfio_register_emulated_iommu_dev(&matrix_mdev->vdev);
+>  	if (ret)
+>  		goto err_put_vdev;
 
-[ ... ]
+[Severity: Critical]
+This is a pre-existing issue, but does registering the emulated IOMMU
+device here expose it to userspace before it is added to the mdev list?
 
-> @@ -2472,8 +2492,13 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apd=
-ev)
->  	return ret;
-> =20
->  err_remove_group:
-> +	release_update_locks_for_mdev(matrix_mdev);
->  	sysfs_remove_group(&apdev->device.kobj, &vfio_queue_attr_group);
->  	return ret;
-> +
-> +err_release_locks:
-> +	release_update_locks_for_mdev(matrix_mdev);
-> +	return ret;
->  }
-> =20
->  void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
+If userspace concurrently opens the device and calls vfio_ap_mdev_set_kvm(),
+that function traverses the mdev list to check for duplicate KVM references.
+Since the device is not in the list yet, this check can succeed. Could this
+allow multiple mdevs to attach to the same KVM instance and bypass the
+isolation check?
+
+> -	matrix_mdev->req_trigger =3D NULL;
+> -	matrix_mdev->cfg_chg_trigger =3D NULL;
 
 [Severity: High]
-This is a pre-existing issue, but looking at the rest of=20
-vfio_ap_mdev_remove_queue() below this signature, is there a potential
-use-after-free if the queue is removed from the host config?
+This is a pre-existing issue, but does this code leak the eventfd contexts
+if userspace sets them and then closes the device without explicitly
+unregistering the IRQs?
 
-Further down in vfio_ap_mdev_remove_queue():
+When userspace sets triggers via VFIO_DEVICE_SET_IRQS, eventfd_ctx_fdget()
+takes a reference. If the device fd is later closed, the cleanup sequence
+happens:
 
-	if (test_bit_inv(apid, (unsigned long *)matrix_dev->info.apm) &&
-	    test_bit_inv(apqi, (unsigned long *)matrix_dev->info.aqm)) {
-		vfio_ap_mdev_reset_queue(q);
-		flush_work(&q->reset_work);
-	} else {
-		vfio_ap_free_aqic_resources(q);
-	}
+vfio_ap_mdev_close_device()
+vfio_ap_mdev_remove()
+   vfio_put_device(&matrix_mdev->vdev);
 
-done:
-	if (matrix_mdev)
-		vfio_ap_unlink_queue_fr_mdev(q);
+Neither function appears to release the req_trigger or cfg_chg_trigger
+references. Can this lead to an indefinite leak of the eventfd_ctx memory
+since there is no release callback to clean them up when the matrix_mdev
+is freed?
 
-	dev_set_drvdata(&apdev->device, NULL);
-	kfree(q);
-
-If an administrator hot-unplugs the ap adapter concurrently with a guest
-triggering a reset, the queue is no longer in the host's configuration.
-
-Because flush_work(&q->reset_work) is inside the conditional block, it is
-skipped in this scenario. The function then proceeds directly to kfree(q).
-
-Could the asynchronous reset worker thread (apq_reset_check) then execute
-and dereference the freed q object, resulting in a use-after-free?
-
-Should flush_work(&q->reset_work) be moved outside the condition to ensure
-any pending reset work completes before the queue memory is freed?
+> +
+> +	/*
+> +	 * Take the matrix_dev->guests_lock mutex before adding the matrix_mdev
+> +	 * to the mdev_list. All functions that traverse the list must also hold
+> +	 * this lock to guard against additions to or removals from the list
+> +	 * while it is being traversed.
+> +	 */
+> +	mutex_lock(&matrix_dev->guests_lock);
+>  	dev_set_drvdata(&mdev->dev, matrix_mdev);
+> -	mutex_lock(&matrix_dev->mdevs_lock);
+>  	list_add(&matrix_mdev->node, &matrix_dev->mdev_list);
+> -	mutex_unlock(&matrix_dev->mdevs_lock);
+> +	mutex_unlock(&matrix_dev->guests_lock);
+>  	return 0;
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812200240.8180=
-04-1-akrowiak@linux.ibm.com?part=3D8
+04-1-akrowiak@linux.ibm.com?part=3D3
