@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E268F37756A
-	for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 17:48:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC2FE395D8B
+	for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 17:49:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786556906; cv=none; b=oCVj8np22vUIGnVshwRrS6nHlNvPo6q8qjhwvFNSIVOzn+ZzdBwFPNf9zPF2Rg0G51Rd+h4iAGeU8qrwGBPp+rxl4IqeIOUadBeLZpiMqRVxL9I9USRE1IEX/jsho+aztV4B4fN5cnXtrjCXuPpth730U4xItZV7LPa5YT4ITis=
+	t=1786556952; cv=none; b=bf34FLzphRE5tZ+JJuKIWp6kRFI+bcph3jWnu+19gvY4INU087AR6J+qPLi0Q3CbWDvKJtF4DRz+hDYK3Rw0rgTqtSY/A7Oh0BLI7Q4SFQcx79MdC2GrrnCfFMtjvkhrfgi/uOgT+5pOMB/0LtGaQE5UW+fsLXWAijG7o7U5qqQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786556906; c=relaxed/simple;
-	bh=sBwCyvVQn3wFiro2LbOcyIZoAMjr4tl5XhyQbQO8CnI=;
+	s=arc-20240116; t=1786556952; c=relaxed/simple;
+	bh=Zc4/mOblbRWn3CSZCdaYYlJKm3oEABbvH/UvuNVMHHk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HL7t9qoGr1UfoU17Yln5OhgFdjx39Kz7s6gtUPZhYAp+EHc4Mvl374+UqzZoSurZ8tI2W0MK0rnZK537hnKfFCV5dzonHuE1CbWPqE4XX3aIX+lQqWW3tBJMcIITpa7tmYXabd9lPdTxR+lwONOSA8E8UbJJPnGtR/W91N3OZ8c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OgPMHExD; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=tQIcb4Hu0y7OI8Km4ChBm+Z1nJQxnrKmYXLet0IruwpM+1/UqORf/Mzw5c15maI6knxAWdL1XJK+BMSoJmc7h9Ywss2u55T42ofni1+L2U6V9S2EzmY61LS5N7oI7tnjnRObYF/i97ACZJlOUp1A2+EB4Vc4XJb5BDrGy/HG168=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FYu85xb8; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OgPMHExD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 443B81F000E9;
-	Wed, 12 Aug 2026 17:48:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FYu85xb8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 196D61F000E9;
+	Wed, 12 Aug 2026 17:49:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786556904;
-	bh=OQr8XDnHahclKnEEgpL2hsiJ/a9wnZoX0+NWF7msajk=;
+	s=k20260515; t=1786556950;
+	bh=TXu+as0S70J8fqm0gxE5kNNRp1HsvVY/Mas7WdeGTZc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OgPMHExDiCIDtx92kAiWEWrQsyKWhi0tuEzO23Q14v3o1ii2ro9Zu/yhcQnJQs8no
-	 7XNnC590SQdf7JgLwCGha2XnY2bN+GRrxtgKKB3xb1Xd4KfLuh1c2wgqbgWi5liRkY
-	 IS/9eCVHl/h2tYvgclCu/hOv9LBrwYBikTH7qGCXcAE4zzi35uQMciMF+qwSvM62zj
-	 kMtBbsoD8gvqmlC2OqvThvy8NSH6OzQBNkim0QD511sBUMbbprBAJ4ZwWuIxW3X1vK
-	 rtTO9rGQ0Ua08OF7h92mPwlnscnMQ27OBtpWilympePaa0KNYj+Hq71vDkiycUaXwb
-	 QX0R1TMz64qYg==
+	b=FYu85xb8/u6nXkyeJKv4Mbp4Nrex57Idu1HggSiO11wUNM4IyjDsA2AmIXqviaJ5F
+	 HKknO4HTW0tQ9WYFD2+YmCiyzTpFd6Uv4uXQjaZiiQTh3eWntJvrT2+qHNzuSLZaMo
+	 vp+NSeEC/SX8Ba3lFtnyhJpsT3NHGS7csPrNMZCHoblV9ORiNkVny7xCAeYmmZKkST
+	 kxyKBoJL+BDx7cGGyS3XW34uwnjxaWeVuslVssgHU6NwH2aKH3WtQ1rr1ml1MAzK97
+	 lRtRwpEf9oRgOg7TkGK+LRsHUi8yT/yELemGY2ASJLYaB1IuLROu8N6h+BFypLg7nb
+	 kHh+vHX8IiGqg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 06/13] sparc: Use the common syscall table
+Subject: Re: [PATCH v5 02/13] syscalls: Create unified partial table for all
+ archs
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?QW5kcsOpIEFsbWVpZGE=?= <andrealmeid@igalia.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.vom>, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260812-tonyk-syscall_table-v5-6-3d383927c609@igalia.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.vom>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260812-tonyk-syscall_table-v5-2-3d383927c609@igalia.com>
 References: <20260812-tonyk-syscall_table-v5-0-3d383927c609@igalia.com>
- <20260812-tonyk-syscall_table-v5-6-3d383927c609@igalia.com>
+ <20260812-tonyk-syscall_table-v5-2-3d383927c609@igalia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 17:48:23 +0000
-Message-Id: <20260812174824.443B81F000E9@smtp.kernel.org>
+Date: Wed, 12 Aug 2026 17:49:09 +0000
+Message-Id: <20260812174910.196D61F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,56 +48,84 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Low] Missing Makefile dependency on syscall_common.tbl causes stale buil=
-ds.
+- [High] The use of bash process substitution `< <(...)` in a `#!/bin/sh` s=
+cript will cause syntax errors on systems using strict POSIX shells like `d=
+ash`.
 --
 
---- Patch [6]: [PATCH v5 06/13] sparc: Use the common syscall table ---
-commit 3c949c999a9aab298b7fdff67ab7b414943dbcad
+--- Patch [2]: [PATCH v5 02/13] syscalls: Create unified partial table for =
+all archs ---
+commit 47d67094b1a192ac92926cb745138546b214b614
 Author: Andr=C3=A9 Almeida <andrealmeid@igalia.com>
 
-sparc: Use the common syscall table
+syscalls: Create unified partial table for all archs
 
-This commit updates the sparc architecture to use the common syscall number
-table to remove duplicated code. It modifies the Makefile to pass the common
-table to the syscall generation scripts.
+This commit introduces a shared syscall table for system calls common to all
+architectures. It also modifies the generation scripts to support combining=
+ a
+main table with the common table.
 
-> diff --git a/arch/sparc/kernel/syscalls/Makefile b/arch/sparc/kernel/sysc=
-alls/Makefile
-> index 8440c16dfb225..c6d6378f7aefc 100644
-> --- a/arch/sparc/kernel/syscalls/Makefile
-> +++ b/arch/sparc/kernel/syscalls/Makefile
+> diff --git a/scripts/syscallhdr.sh b/scripts/syscallhdr.sh
+> index bad1ab606a0fb..54e09d3e686c4 100755
+> --- a/scripts/syscallhdr.sh
+> +++ b/scripts/syscallhdr.sh
+
 [ ... ]
->  quiet_cmd_syshdr =3D SYSHDR  $@
-> -      cmd_syshdr =3D $(CONFIG_SHELL) $(syshdr) --emit-nr --abis common,$=
-* $< $@
-> +      cmd_syshdr =3D $(CONFIG_SHELL) $(syshdr) --emit-nr --abis $(abis),=
-$* \
-> +		   --common-tbl $(syscalltbl_common) $< $@
+
+> @@ -84,15 +111,20 @@ grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis" "$infile"=
+ | {
+>  		fi
 > =20
->  quiet_cmd_systbl =3D SYSTBL  $@
-> -      cmd_systbl =3D $(CONFIG_SHELL) $(systbl) --abis common,$* $< $@
-> +      cmd_systbl =3D $(CONFIG_SHELL) $(systbl) --abis $(abis),$* \
-> +		   --common-tbl $(syscalltbl_common) $< $@
+>  		echo "#define __NR_$prefix$name $nr"
+> -	done
 > =20
->  $(uapi)/unistd_%.h: $(syscall) $(syshdr) FORCE
->  	$(call if_changed,syshdr)
+> -	if [ -n "$emit_nr" ]; then
+> -		echo
+> -		echo "#ifdef __KERNEL__"
+> -		echo "#define __NR_${prefix}syscalls $(($max + 1))"
+> -		echo "#endif"
+> -	fi
+> +	done < <(grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis" "$input")
 
-[Severity: Low]
-Does this generation target need $(syscalltbl_common) added to its
-prerequisite list?
+[Severity: High]
+Does this < <(...) process substitution in gen_hdr() break POSIX shell
+compatibility?
 
-Since the syshdr and systbl scripts now read from $(syscalltbl_common), not
-including it as a prerequisite means the sparc syscall headers might not be
-rebuilt during an incremental build when scripts/syscall_common.tbl is upda=
-ted.
-The if_changed macro relies on explicit prerequisites to populate $? and
-detect changed input files.
+Because this script is executed with #!/bin/sh, using bashisms like < <(...)
+will cause a syntax error on systems where /bin/sh is a strict POSIX shell
+like dash, breaking the build.
 
-Would it make sense to add it here, and also for the $(kapi)/syscall_table_=
-%.h
-target just below it?
+> +}
+> =20
+
+[ ... ]
+
+> diff --git a/scripts/syscalltbl.sh b/scripts/syscalltbl.sh
+> index c4b1f85c2dd63..91c135143b22f 100755
+> --- a/scripts/syscalltbl.sh
+> +++ b/scripts/syscalltbl.sh
+
+[ ... ]
+
+> @@ -88,5 +97,13 @@ grep -E "^[0-9]+[[:space:]]+$abis" "$infile" | {
+>  			echo "__SYSCALL($nr, sys_ni_syscall)"
+>  		fi
+>  		nxt=3D$((nr + 1))
+> -	done
+> -} > "$outfile"
+> +
+> +	done < <(grep -E "^[0-9]+[[:space:]]+$abis" "$input")
+
+[Severity: High]
+Similarly, does this process substitution in gen_tbl() cause a syntax error=
+ on
+dash or other strict POSIX shells?
+
+> +
+> +}
+> +
+> +gen_tbl $infile  > "$outfile"
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812-tonyk-sysc=
-all_table-v5-0-3d383927c609@igalia.com?part=3D6
+all_table-v5-0-3d383927c609@igalia.com?part=3D2
