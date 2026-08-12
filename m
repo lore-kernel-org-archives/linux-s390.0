@@ -1,158 +1,210 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B60E5434E4F;
-	Wed, 12 Aug 2026 11:30:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A511E3F0AA9;
+	Wed, 12 Aug 2026 11:31:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786534228; cv=none; b=dfwvNj1MMlDRUBr5hZzRoAVeZPawVpj5vcrEmEd6huwZHwoUDjBA9AEqDIq/KkJTceoMD028DbfDSmquOQao5ybUj/i0MzUZzQITg69tWPlzBHWB8A24fZwwZSxUS5ZNX7p5sRduv2SS0fkQmWMoQgm/ExnIHdwXPrq5pdQHzMs=
+	t=1786534308; cv=none; b=XqhINwKFE60eDo+BLp4nHnyI69re32pkfzA1o+1r8tIWIKt9TQ8ssXWsTg6P5W1vWcxnlLq07ZnM2Yorz2VHAK2f9cBJuDeiUQRng0Qwcx7ViWrPswVQeiwyDycVzk9rs6d9pGyaVrX8DdTvePrapCt+MbVrvKBXDSPMNUfpfx8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786534228; c=relaxed/simple;
-	bh=vH8OPLLMEJcZgwNSmz7PIYpQoLfg9Ipq33UFS6Iu58M=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=W0X6gW4oiunLeNlmdvTHsXVGM4dU0Lys3fI4nLSkSW20MTezYDMzphCBvS7/WGOTu8OnT6OSiGdeq/BmqqhlXrO6H6XIdoEiZrzMuBYOFv4UugMMmEbISJ1bqe0CLDEpLWrhTF/pyubYrrWJbgyYnHrf2I8TaBg4E5Tf8c63ayE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EcSkezQ4; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786534308; c=relaxed/simple;
+	bh=prvfrk9gL+HqgXLDaAtA86obGKz2hkWS/KhX5m4Y2uI=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=MuMDbYPoF3pXtSIX2QLv21jAvYjGj4R/1eJMkLnZ3JhkQlmdWuBGMJlvn72cxcCA0bY7mPEKDOIAgfSreNaUoMs6w+yMxwWx9eV9bDVQXpWFDeorvjuBvMQMeDQBvSeM4knMSuBRPLMGm8zcZyKTW1QFNlOrlihIO3yMkuKG9k4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cvoNZLlJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EcSkezQ4"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67CB3ie21434178;
-	Wed, 12 Aug 2026 11:30:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=jhp4XZ
-	vfAxwiy/kCaruic7QmFjAvLrFB4jTL/Iw2Sy0=; b=EcSkezQ4kct12rWNwJpogv
-	sFHSKa2pwU3UVzFrHjTKiCFqL6D+IHG5xujsYQnWmXlffiI1DyydXTg+PMuG3AK3
-	R2Cwvnqpznlcaimkkrv4SCL3uHe1yqQNFr/dn7n3eKZ79iC6D9xMOj83kdMbpL+a
-	xtrg0DvQMF3jvcDGz5eVbGm7mf5sTd4DNzX//Pbw+dCM75PNGKMlMcvD6uS6Eezy
-	2rw/7BQgohibTlPEHb8/qcKXllqE7PmCJGYgk91hxB/qAers4CU+xV25kAYB8vj6
-	sI3OB7S+pk4W39Cj3PmZEX61Z15U3Se01yI02e/cG/Ry9xQCwRqFe4d+zeFZ78Pg
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvk024fy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 12 Aug 2026 11:30:24 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67CBBhdd020521;
-	Wed, 12 Aug 2026 11:30:23 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxf5w5v3e-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 12 Aug 2026 11:30:23 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67CBUKCL34406886
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 12 Aug 2026 11:30:20 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5B0C02004B;
-	Wed, 12 Aug 2026 11:30:20 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 38E4920043;
-	Wed, 12 Aug 2026 11:30:20 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.224.75.30])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Wed, 12 Aug 2026 11:30:20 +0000 (GMT)
-Date: Wed, 12 Aug 2026 13:30:01 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Janosch Frank <frankja@linux.ibm.com>, KVM <kvm@vger.kernel.org>,
-        David
- Hildenbrand <david@kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>
-Subject: Re: [PATCH 4/4] KVM: s390: Restore sigset on error path
-Message-ID: <20260812133001.0a7031fb@p-imbrenda>
-In-Reply-To: <20260811153738.206885-5-borntraeger@linux.ibm.com>
-References: <20260811153738.206885-1-borntraeger@linux.ibm.com>
-	<20260811153738.206885-5-borntraeger@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cvoNZLlJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47EF91F000E9;
+	Wed, 12 Aug 2026 11:31:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786534307;
+	bh=8R0bYt528y2mbivyUE1djUnRJwaalT2no2Rhah2uRgU=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=cvoNZLlJHW+4WOwYmevlbzkHPd7+Hbm9aTKER6k84q/k54rUk8JPdaAZtnxpqPlGh
+	 WBUIWjAoHCAfBrKR2k6VIIpyHPdYitk67obZ1E3ZqU0mj2wcu8OQaFMwuWv1Gc8pRn
+	 lGVsxICtRj7Pjsym6tNbO6xBq5x5xHZvdLvgC1NfkP22+Sr8s4yoJGpQaMusWOl6Wo
+	 TTlkiBlem5dh19IDXWOSxSjsWWSi3+UQ7dGyxBjXjtEnOwL8mPkqaYjAH37SBlFd3b
+	 ieLS7PaRTKrwBLLAqi7+ZIAmPBmvS1d+u3/VKi9x/bOU1+ohhYTujIU+5khH/iE0fR
+	 GUsUxWVBsS1lQ==
+X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
+From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
+To: Catalin Marinas <catalin.marinas@arm.com>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [RFC PATCH] dma: swiotlb: Size shared default pools for memory
+ encryption
+In-Reply-To: <anxEc8EHmJQywVI5@arm.com>
+References: <20260811134056.756015-1-aneesh.kumar@kernel.org>
+ <anxEc8EHmJQywVI5@arm.com>
+Date: Wed, 12 Aug 2026 17:01:33 +0530
+Message-ID: <yq5ah5kzinhm.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDA4OSBTYWx0ZWRfX1W+BlXZVmH9q
- tr8FlZXF12tMsRWtOfik2BSXvR10kPqaiME9i20dbC/Xrtf07OJ/90Z1sYyjHobigyt0fKwyxXf
- FDUBjGgDlw27z53lbFODeVVHViKXLWcFs9Cx/H2Uz0cuq/8fgK8SL+ea1r281aDbFXj+WJ0h2xs
- zfIIhcKvSPaNx0UQdRYiouttM+GMyWLaOcRm/ttQJjaE1lWJwgG11we+3Uvj88AQ3YehUI6TRV4
- raDUrv6QN7gyIw0t72WN5rU2UlBcQZHGIN2b1rQpG7Cv3NgOngGFj4HIN9i3GdDz8LfOyMnQq/Z
- x5RiSU/dUfPEaw4Wtd9TxxkYvWGL2CMwqY3z4eeVDb+xbHMGNa+eoLWuY1vBpZU+V7iMxoyM5FI
- 024fS67i1lTb+vQPTQ87eUj4WL3K3U5EF/cpd4M6fLYkJK9geDUF3CTfCPFN68VdFEvQ7ywxiw5
- Xph0nAAz/EbPhNItr1w==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDA4OSBTYWx0ZWRfX6ev7+aO5vX+E
- jgte1O50svx3q/UBmHwX93XNR3rpq9zrecPg2z5tZALrbVDJ0W35bodr/+aFJYA5r92vWJFSv53
- xRwfasUyxNpaB2uabG7NG/ugkAveh4M=
-X-Authority-Analysis: v=2.4 cv=RqD16imK c=1 sm=1 tr=0 ts=6a7c5950 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=RJqNCiz5LjKHqhFwxMMA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: bGOjeGhXKOCmyfMgEr49IhbM_w77epdl
-X-Proofpoint-ORIG-GUID: bGOjeGhXKOCmyfMgEr49IhbM_w77epdl
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-12_03,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
- clxscore=1015 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608120089
+Content-Type: text/plain
 
-On Tue, 11 Aug 2026 17:37:38 +0200
-Christian Borntraeger <borntraeger@linux.ibm.com> wrote:
+Catalin Marinas <catalin.marinas@arm.com> writes:
 
-> kvm_sigset_activate() installs vcpu->sigset via sigprocmask() and
-> stashes the caller's mask in current->real_blocked; only
-> kvm_sigset_deactivate() restores it.
-> 
-> For KVM_RUN on a STOPPED vcpu the error path will not restore the
-> userspace mask.  Re-arrange the error handling to also restore the
-> signal mask.
-> 
-> Fixes: 6352e4d2dd9a3 ("KVM: s390: implement KVM_(S|G)ET_MP_STATE for user space state control")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+>
+> I also wonder whether we could address Will's pKVM request not to
+> allocate a bounce buffer once pKVM guests will start reporting
+> CC_ATTR_GUEST_MEM_ENCRYPT. Some simple heuristic: if a
+> restricted-dma-pool is advertised in DT (it will end up in
+> rmem_swiotlb_setup()), skip resizing the default swiotlb. It's not
+> perfect but the bounce buffer can be overridden on the command line.
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+I have a follow-up cleanup patch where I switch the swiotlb
+initialization reason to a flag value. With that, we now have
+SWIOTLB_INIT_CC_SHARED.
 
-> ---
->  arch/s390/kvm/kvm-s390.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index f3814dd60184..608e40401554 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -5071,7 +5071,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
->  		pr_err_ratelimited("can't run stopped vcpu %d\n",
->  				   vcpu->vcpu_id);
->  		rc = -EINVAL;
-> -		goto out;
-> +		goto out_sigset;
->  	}
->  
->  	kernel_fpu_begin(&fpu, KERNEL_FPC | KERNEL_VXR);
-> @@ -5101,9 +5101,11 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
->  	store_regs(vcpu);
->  	kernel_fpu_end(&fpu, KERNEL_FPC | KERNEL_VXR);
->  
-> +	vcpu->stat.exit_userspace++;
-> +
-> +out_sigset:
->  	kvm_sigset_deactivate(vcpu);
->  
-> -	vcpu->stat.exit_userspace++;
->  out:
->  	vcpu_put(vcpu);
->  	return rc;
+The challenge is that it is still not clear when pKVM would want to use
+an unencrypted swiotlb pool for DMA bouncing. I would expect pKVM to
+have some additional condition based on which it chooses either the
+restricted-dma-pool or the default swiotlb pool.
 
+Using the presence of a restricted-dma-pool to decide whether the
+default swiotlb pool should be unencrypted is one option, but I am not
+sure that is the right abstraction.
+
+modified   arch/arm64/mm/init.c
+@@ -342,7 +342,7 @@ void __init arch_mm_preinit(void)
+ 	bool cc_guest = is_realm_world();
+ 
+ 	if (cc_guest)
+-		swiotlb_mark_default_cc_shared();
++		flags |= SWIOTLB_INIT_CC_SHARED;
+ 	else if (max_pfn > PFN_DOWN(arm64_dma_phys_limit))
+ 		flags |= SWIOTLB_INIT_ADDRESSING_LIMIT;
+ 
+modified   arch/powerpc/mm/mem.c
+@@ -289,9 +289,8 @@ void __init arch_mm_preinit(void)
+ #ifdef CONFIG_SWIOTLB
+ 	if (is_secure_guest()) {
+ 		/* The host can access DMA buffers only through the SWIOTLB. */
+-		swiotlb_mark_default_cc_shared();
+ 		ppc_swiotlb_enable = 1;
+-		ppc_swiotlb_flags |= SWIOTLB_ANY;
++		ppc_swiotlb_flags |= SWIOTLB_INIT_CC_SHARED | SWIOTLB_ANY;
+ 	}
+ 
+ 	/*
+modified   arch/s390/mm/init.c
+@@ -163,12 +163,10 @@ static void __init pv_init(void)
+ 	if (!is_prot_virt_guest())
+ 		return;
+ 
+-	swiotlb_mark_default_cc_shared();
+-
+ 	virtio_set_mem_acc_cb(virtio_require_restricted_mem_acc);
+ 
+ 	/* make sure bounce buffers are shared */
+-	swiotlb_init(SWIOTLB_VERBOSE);
++	swiotlb_init(SWIOTLB_VERBOSE | SWIOTLB_INIT_CC_SHARED);
+ 	swiotlb_update_mem_attributes();
+ }
+ 
+modified   arch/x86/mm/mem_encrypt.c
+@@ -14,6 +14,7 @@
+ #include <linux/mem_encrypt.h>
+ #include <linux/virtio_anchor.h>
+ 
++#include <asm/iommu.h>
+ #include <asm/sev.h>
+ 
+ /* Override for DMA direct allocation check - ARCH_HAS_FORCE_DMA_UNENCRYPTED */
+@@ -109,7 +110,7 @@ void __init mem_encrypt_setup_arch(void)
+ 		snp_fixup_e820_tables();
+ 
+ 	if (cc_platform_has(CC_ATTR_MEM_ENCRYPT))
+-		swiotlb_mark_default_cc_shared();
++		x86_swiotlb_flags |= SWIOTLB_INIT_CC_SHARED;
+ 
+ 	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
+ 		return;
+modified   include/linux/swiotlb.h
+@@ -18,6 +18,8 @@ struct scatterlist;
+ #define SWIOTLB_ANY	(1 << 1) /* allow any memory for the buffer */
+ /* Initialize a default-sized pool for devices with limited DMA addressing. */
+ #define SWIOTLB_INIT_ADDRESSING_LIMIT	(1 << 2)
++/* Initialize a shared default pool for confidential-computing systems. */
++#define SWIOTLB_INIT_CC_SHARED		(1 << 3)
+ 
+ /*
+  * Maximum allowable number of contiguous slabs to map,
+@@ -191,7 +193,6 @@ void swiotlb_dev_init(struct device *dev);
+ size_t swiotlb_max_mapping_size(struct device *dev);
+ bool is_swiotlb_allocated(void);
+ bool is_swiotlb_active(struct device *dev);
+-void __init swiotlb_mark_default_cc_shared(void);
+ void __init swiotlb_adjust_size(unsigned long size);
+ phys_addr_t default_swiotlb_base(void);
+ phys_addr_t default_swiotlb_limit(void);
+@@ -231,10 +232,6 @@ static inline bool is_swiotlb_active(struct device *dev)
+ 	return false;
+ }
+ 
+-static inline void swiotlb_mark_default_cc_shared(void)
+-{
+-}
+-
+ static inline void swiotlb_adjust_size(unsigned long size)
+ {
+ }
+modified   kernel/dma/swiotlb.c
+@@ -373,11 +373,6 @@ static void __init *swiotlb_memblock_alloc(unsigned long nslabs,
+ 	return tlb;
+ }
+ 
+-void __init swiotlb_mark_default_cc_shared(void)
+-{
+-	io_tlb_default_mem.cc_shared = true;
+-}
+-
+ static void __init swiotlb_adjust_cc_attributes(void)
+ {
+ 	unsigned long size;
+@@ -429,7 +424,7 @@ static bool __init swiotlb_should_init(unsigned int flags)
+ 	if (swiotlb_force_bounce)
+ 		return true;
+ 
+-	if (io_tlb_default_mem.cc_shared)
++	if (flags & SWIOTLB_INIT_CC_SHARED)
+ 		return true;
+ 
+ 	return false;
+@@ -451,6 +446,9 @@ void __init swiotlb_init_remap(unsigned int flags,
+ 	if (!swiotlb_should_init(flags))
+ 		return;
+ 
++	if (flags & SWIOTLB_INIT_CC_SHARED)
++		io_tlb_default_mem.cc_shared = true;
++
+ 	io_tlb_default_mem.force_bounce = swiotlb_force_bounce;
+ 
+ #ifdef CONFIG_SWIOTLB_DYNAMIC
