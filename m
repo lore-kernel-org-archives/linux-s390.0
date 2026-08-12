@@ -1,168 +1,240 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEE5E3644A2;
-	Wed, 12 Aug 2026 16:40:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C05CC3515FD;
+	Wed, 12 Aug 2026 16:41:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786552826; cv=none; b=K3a4a3j64Lu0SBBCYOquZQwoadqFZQSkaVIbcZsl7vLmClKkt2ywF0oO3itSJRc9FoyOjK9nFb6TLhN7LFHzliLcbhAh96ALnxF+ha1mzKbjEkZ2TnB+/AHNlov/9mf6JVGbS9AUJbtJb4Md0K1wXfRfsKCqdwcjyZifRjseUQ0=
+	t=1786552903; cv=none; b=Mvq2JXthm8L7atDsL8Sxie8N8U8KPRpaBJ6ZE45kM8I0Pu/UlZKZmJex27YVGh47A4OL4Mo0OJWjk8e55gCFohQoTdSY6vIEExFjapLXHkwul8SFJ6RR8B7YBogMb9IuclBzkXSHZcaD4IkO+gF5743kUF5ZzxxsrIDyrTBZDVQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786552826; c=relaxed/simple;
-	bh=OsTBiKu5UQS6ILOJcAqVh08RGY9BiQEz3iEp54M+VD4=;
+	s=arc-20240116; t=1786552903; c=relaxed/simple;
+	bh=D8FGi5ObNQbyVtlpTliLOfNlz/KUS8Q++cKptM4KhMQ=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Jf071qhq24RbIJsUa9K7rSNbWHg/AZuTCU6UKRLVMAwnLYGRTzKGCR3cV+FTQ7DjqJG/JOlMG9eh50Z7wHWrOuFudx+tj9dcasMEvnF8l6B1xRUOJKOQUjS8AUKyNycOIGT3xJhYo0W+W+Emzour99bQMLHMtpTLD3t8Hm4iXho=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YKVMRd0M; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=SWoOADBAjJypg1TaCeYvL5w/T1kNbPms6lbJLKcY5CDbTGNlELCBWtU0im6X+jpzt1XhpTOwB+wuNFbVqERDdjBq/UbcwLQRrMuB6/EKn6a4QQi64eyiEq7pZMK47UsdiXBZ0mt4xq0zBlvj4L1378J8+gxxGnn3Ndt/iDfyMcw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VV5h9lEn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YKVMRd0M"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 373B21F000E9;
-	Wed, 12 Aug 2026 16:40:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VV5h9lEn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DADFF1F000E9;
+	Wed, 12 Aug 2026 16:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786552824;
-	bh=qhuirGyo5h2ngsuvvVW+iNGrGd/+ZRmMyeOW6lzDCCs=;
+	s=k20260515; t=1786552901;
+	bh=oEGqIl9xKMDRuD7jt7p6plnnvYSi5uw7BSEu0Y2QZvY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=YKVMRd0MowdnwXfd6jL5MdSj969qRgSYEwWVT9Q9qqid2QVUzrm7EssZbuuZRmz1A
-	 UP34vs8xBPqfGFNukpUgCT9gOjjGw5O1CjhtonxSgDd/NBDihEkySnCyrvUtbnbYGS
-	 8qdv/mLDu8fSFIlXt0dm8Ja4ebX5I+GehO2JlEqTPO9Jl2Ek3jnXFYvcr8VEk6S1Lp
-	 ETAkc8aqX2r/cGKLXy7W0uKhxff8F6i/0Z0FjsXV6d8d0Y/I2jtmFEXA6MVZaUPiOD
-	 F1HxuxfUXWtuH+lgEkmu7Hd2a7mI9myc+n2C2qAi9t3vx7A81rspdA6XorMcpGwj/4
-	 OQcHDjjnN4bew==
+	b=VV5h9lEnwFbTeSAGaQhUzipdV/l66XjXHeqPGEGl7FtfT8K0kclxqraJYxGc/pCOv
+	 oZOyphuGgM4dGOHrWRznMLfURDmDluX+IgzBh1pHVi1BLc39RXNW0UL5W0q0bthKTP
+	 XbbISROaSMcJTyKnH7ld4zYczxjkPYXkLWo8j16SB29q9LkZSKtG97/K2Cj0c22X0O
+	 hnCIH3q1Cl9fnS4U2wSQWU8Jog4/9oXdO/goeUmSeqTiMlVp0ZCWkRJBifibgIxw1q
+	 uTwKZaQ39w7uSz/z42rUFxAJsBVWEbMQFxyalo9ZwDnrdmLA+s+zGmvcJ+l1Bo2gii
+	 01R8IFsG8gS0g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 16/20] KVM: s390: vsie: Allow guest-3 cpu add and
- remove with ssca
+Subject: Re: [PATCH v6 31/33] KVM: s390: arm64: Implement vCPU IOCTLs
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.vom>, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260812-vsie-sigpi-v4-16-f19e49666315@linux.ibm.com>
-References: <20260812-vsie-sigpi-v4-0-f19e49666315@linux.ibm.com>
- <20260812-vsie-sigpi-v4-16-f19e49666315@linux.ibm.com>
+To: "Steffen Eiden" <seiden@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, kvmarm@lists.linux.dev, "Marc Zyngier" <maz@kernel.org>, "Oliver
+ Upton" <oupton@kernel.org>, kvm@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.vom>
+In-Reply-To: <20260812153631.3376090-32-seiden@linux.ibm.com>
+References: <20260812153631.3376090-1-seiden@linux.ibm.com>
+ <20260812153631.3376090-32-seiden@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 16:40:23 +0000
-Message-Id: <20260812164024.373B21F000E9@smtp.kernel.org>
+Date: Wed, 12 Aug 2026 16:41:40 +0000
+Message-Id: <20260812164140.DADFF1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
 s) to consider:
-- [Critical] The main CPU's `vsie_page` is freed twice during `kvm_s390_vsi=
-e_destroy()`, leading to a fatal host double-free vulnerability.
-- [High] Removed CPUs are not cleared from the shadow system control area (=
-SSCA) during configuration changes, leaving stale active entries in hardwar=
-e.
-- [High] Failure to clear the VSIE_SCA_ESCA flag when transitioning from ES=
-CA to BSCA causes memory corruption and infinite re-shadow loops.
-- [High] Dynamically changing the SCA format from BSCA to ESCA fails to rep=
-in memory, triggering a guest-controllable host WARN_ON_ONCE.
+- [Critical] kvm_arch_vcpu_ioctl_run() fails to acquire the kvm->srcu read =
+lock, leading to a Use-After-Free when accessing memslots during guest abor=
+ts.
+- [High] Guest-reachable WARN_ONCE on SAE validity intercept enables a host=
+ DoS.
+- [High] Calling local_irq_enable() immediately after guest_enter_irqoff() =
+violates strict RCU extended quiescent state (EQS) rules.
+- [High] check_vcpu_requests() fails to handle critical KVM requests like K=
+VM_REQ_TLB_FLUSH and KVM_REQ_VM_DEAD.
+- [High] Missing IN_GUEST_MODE coordination in the vCPU run loop creates a =
+race condition that can delay or drop signals and KVM requests.
+- [High] Missing vcpu_load() and vcpu_put() around KVM IOCTLs that modify a=
+rchitectural state in kvm_arch_vcpu_ioctl.
 --
 
---- Patch [16]: [PATCH v4 16/20] KVM: s390: vsie: Allow guest-3 cpu add and=
- remove with ssca ---
-commit 73a8d58ca743bc97299afb560aeb506eff16cf44
-Author: Christoph Schlameuss <schlameuss@linux.ibm.com>
+--- Patch [31]: [PATCH v6 31/33] KVM: s390: arm64: Implement vCPU IOCTLs ---
+commit e43ea7af3ba7491497b01c2a0860a8b946aad58d
+Author: Steffen Eiden <seiden@linux.ibm.com>
 
-KVM: s390: vsie: Allow guest-3 cpu add and remove with ssca
+KVM: s390: arm64: Implement vCPU IOCTLs
 
-As we are shadowing the SCA we need to add and remove the pointers to
-the shadowed control blocks and sca entries whenever the mcn /
-processors in the configuration changes.
+This commit implements the required vCPU IOCTLs for the s390 arm64 KVM
+port. It provides the core structures for register access, lifecycle
+management, and the main vCPU execution loop.
 
-It is not expected that the mcn changes frequently for an already
-running guest-3 configuration. So we can simply fully re-init the ssca
-whenever the mcn changes.
-
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
+> diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
+> --- a/arch/s390/kvm/arm64/arm.c
+> +++ b/arch/s390/kvm/arm64/arm.c
 
 [ ... ]
 
-> @@ -2071,18 +2108,16 @@ static int _shadow_sca(struct kvm_vcpu *vcpu, str=
-uct vsie_page *vsie_page,
->  	struct vsie_page *vsie_page_n;
->  	hpa_t sca_o_entry_hpa;
->  	hva_t sca_o_entry_hva;
-> -	unsigned long *mcn;
->  	gpa_t scb_o_gpa;
->  	int rc;
-> =20
->  	if (is_esca)
-> -		mcn =3D phys_to_virt(sca_o_hpa(vsie_sca)) + offsetof(struct esca_block=
-, mcn);
-> -	else
-> -		mcn =3D phys_to_virt(sca_o_hpa(vsie_sca)) + offsetof(struct bsca_block=
-, mcn);
-> +		__set_bit(VSIE_SCA_ESCA, &vsie_sca->flags);
+> @@ -284,15 +309,15 @@
+> +static int check_vcpu_requests(struct kvm_vcpu *vcpu)
+> +{
+> +	if (kvm_request_pending(vcpu)) {
+> +		if (kvm_check_request(KVM_REQ_VCPU_RESET, vcpu))
+> +			kvm_reset_vcpu(vcpu);
+> +		/*
+> +		 * Clear IRQ_PENDING requests that were made to guarantee
+> +		 * that a VCPU sees new virtual interrupts.
+> +		 */
+> +		kvm_check_request(KVM_REQ_IRQ_PENDING, vcpu);
+> +	}
 
 [Severity: High]
-If the guest switches its SCA format from ESCA to BSCA, is_esca will
-be false, but does anything clear the VSIE_SCA_ESCA flag?
+Does this function properly handle all critical KVM requests?
 
-If the flag remains set, it seems subsequent functions like
-sca_mcn_copy() and get_sca_entry_addr() will incorrectly parse the BSCA
-using ESCA offsets. Could this lead to memory corruption or infinite
-re-shadowing loops since config_changed() would always return true?
+It appears to drop requests like KVM_REQ_TLB_FLUSH and KVM_REQ_VM_DEAD by
+not explicitly handling or clearing them. Can this bypass necessary TLB
+invalidations and dead VM checks?
 
-[Severity: High]
-When dynamically switching from BSCA to ESCA format, does the system
-need to repin memory for the additional SCA pages?
+> +
+> +	return 1;
+> +}
 
-If a guest starts with a BSCA (which pins 1-2 pages) and dynamically
-switches to ESCA while keeping the same SCA address, the VSIE_SCA_ESCA
-flag is set here but the additional pages (up to 5) are not pinned.
+[ ... ]
 
-Could this cause get_sca_entry_addr() to calculate a page index that
-exceeds sca_o_nr_pages:
-
-get_sca_entry_addr() {
-    ...
-    if (WARN_ON_ONCE(pn >=3D vsie_sca->sca_o_nr_pages))
-        return -EINVAL;
-    ...
-}
-
-tripping the guest-controllable host WARN_ON_ONCE at the bounds check?
-
-> +	sca_mcn_copy(vsie_sca, phys_to_virt(sca_o_hpa(vsie_sca)));
-> =20
->  	/* pin and make shadow for ALL scb in the sca */
->  	cpu_slots =3D is_esca ? KVM_S390_MAX_VSIE_VCPUS : KVM_S390_BSCA_CPU_SLO=
-TS;
-> -	for_each_set_bit_inv(cpu_nr, mcn, cpu_slots) {
-> +	for_each_set_bit_inv(cpu_nr, (unsigned long *)&vsie_sca->mcn, cpu_slots=
-) {
+> @@ -390,13 +415,13 @@
+> +static void arm_vcpu_run(struct kvm_vcpu *vcpu)
+> +{
+> +	struct kvm_sae_block *sae_block =3D &vcpu->arch.sae_block;
+> +
+> +	adjust_pc(vcpu);
+> +
+> +	local_irq_disable();
+> +	guest_enter_irqoff();
+> +	local_irq_enable();
 
 [Severity: High]
-Does this loop leave stale active entries in the shadow system control
-area (SSCA) when CPUs are removed?
+Does this sequence violate RCU extended quiescent state rules?
 
-If an unprivileged guest modifies the MCN mask to remove CPUs, this loop
-only iterates over the currently set bits in the new MCN mask.
+Calling local_irq_enable() immediately after guest_enter_irqoff() allows
+host interrupts to fire while RCU believes the CPU is idle.
 
-Since the SSCA entries for the removed CPUs are not cleared, won't
-hardware continue delivering SIGPIs to these stale entries because it
-uses a non-zero ssda to identify active CPUs?
+> +
+> +	sae_block->icptr =3D 0;
+> +
+> +	sae64a(sae_block);
+
+[ ... ]
+
+> @@ -436,15 +461,15 @@
+> +	ret =3D 1;
+> +	do {
+> +		if (signal_pending(current)) {
+> +			kvm_run->exit_reason =3D KVM_EXIT_INTR;
+> +			ret =3D -EINTR;
+> +			continue;
+> +		}
+> +
+> +		if (need_resched())
+> +			schedule();
+> +
+> +		if (ret > 0)
+> +			ret =3D check_vcpu_requests(vcpu);
+> +
+> +		vcpu->arch.sae_block.icptr =3D 0;
+> +
+> +		arm_vcpu_run(vcpu);
+
+[Severity: High]
+Could this loop race with concurrent IPI kicks?
+
+It executes arm_vcpu_run() without coordinating via vcpu->mode =3D IN_GUEST=
+_MODE.
+A concurrent request kick via kvm_vcpu_kick() might see OUTSIDE_GUEST_MODE
+and skip sending the IPI.
+
+> +
+> +		ret =3D handle_exit(vcpu);
 
 [Severity: Critical]
-Does storing the main CPU's vsie_page during this loop lead to a double-free
-during VM destruction?
+Does handle_exit() require SRCU protection here?
 
-When vsie_page->scb_o->icpua =3D=3D cpu_nr, vsie_sca_update() is called with
-the vsie_page. This vsie_page is already tracked in kvm->arch.vsie.pages[],
-and vsie_sca_update() also adds it to vsie_sca->pages[cpu_nr].
+The loop calls handle_exit() which routes synchronous exceptions to the gue=
+st
+abort handler. If the abort handler translates guest addresses and accesses
+active memslots without holding kvm->srcu, could a concurrent userspace
+operation like KVM_SET_USER_MEMORY_REGION trigger a use-after-free?
 
-When the VM is destroyed, kvm_s390_vsie_destroy() frees all pages in
-kvm->arch.vsie.pages[], and then iterates over vsie_sca->pages[], freeing
-those pages too. Will this blindly free the same main CPU's page twice?
+> +
+> +	} while (ret > 0);
 
->  		rc =3D get_sca_entry_addr(vcpu->kvm, vsie_sca, cpu_nr, NULL, &sca_o_en=
-try_hpa);
->  		if (rc)
->  			goto err;
+[ ... ]
+
+> @@ -515,15 +540,15 @@
+> +long kvm_arch_vcpu_ioctl(struct file *filp, unsigned int ioctl, unsigned=
+ long arg)
+> +{
+> +	struct kvm_vcpu *vcpu =3D filp->private_data;
+> +	void __user *argp =3D (void __user *)arg;
+> +	struct kvm_device_attr attr;
+> +	int ret;
+> +
+> +	switch (ioctl) {
+> +	case KVM_ARM_VCPU_INIT: {
+> +		struct kvm_vcpu_init init;
+
+[Severity: High]
+Are vcpu_load() and vcpu_put() required around these ioctls?
+
+Operations like KVM_SET_ONE_REG modify architectural state but do not acqui=
+re
+the vcpu_load locks, potentially bypassing preempt notifiers and physical-C=
+PU
+hardware state tracking hooks.
+
+> +
+> +		ret =3D -EFAULT;
+> +		if (copy_from_user(&init, argp, sizeof(init)))
+> +			break;
+
+[ ... ]
+
+> diff --git a/arch/s390/kvm/arm64/handle_exit.c b/arch/s390/kvm/arm64/hand=
+le_exit.c
+> --- a/arch/s390/kvm/arm64/handle_exit.c
+> +++ b/arch/s390/kvm/arm64/handle_exit.c
+
+[ ... ]
+
+> @@ -66,13 +78,13 @@
+> +int handle_exit(struct kvm_vcpu *vcpu)
+> +{
+> +	u8 icptr =3D vcpu->arch.sae_block.icptr;
+> +	int ret =3D 1;
+> +
+> +	switch (icptr) {
+> +	case SAE_ICPTR_SPURIOUS:
+> +		break;
+> +	case SAE_ICPTR_VALIDITY:
+> +		WARN_ONCE(true, "SAE: validity intercept. vir: 0x%04x",
+> +			  vcpu->arch.sae_block.vir);
+
+[Severity: High]
+Is it safe to use a guest-reachable WARN_ONCE here?
+
+An unprivileged userspace process configuring KVM could set malformed guest
+state via KVM_SET_ONE_REG, and the hardware would reject this during
+execution, returning a validity intercept. Should this return an error to
+userspace instead of triggering a host warning?
+
+> +		ret =3D -EINVAL;
+> +		break;
+
+[ ... ]
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812-vsie-sigpi=
--v4-0-f19e49666315@linux.ibm.com?part=3D16
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812153631.3376=
+090-1-seiden@linux.ibm.com?part=3D31
