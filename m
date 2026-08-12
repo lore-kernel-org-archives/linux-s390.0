@@ -1,135 +1,135 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 093BF3A6EF7
-	for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 20:30:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 984AF39E185;
+	Wed, 12 Aug 2026 20:35:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786566654; cv=none; b=c785UGhNP7IHHu5W98+a4GnZyxQnixOKb9/R838UKfRcSVv2X2smFlXjTafQwr/mEt3BRTonhoyryBfnoCcenIJ0+NMBEN2641aZJ/LvwBqEyKXg6+ayVrFsGc/IsrkVYCwd7QVVfJEV596jAVnSUW7R+JX3Cr9ZOCsThYBPHYk=
+	t=1786566926; cv=none; b=h6NIUvpSFyds0OF/pcJWuomOK7Ae6o2kkki9kB/eQyRL2LBSknzvsF9PGGQUVrgfGGetxbMHzbg+BM4xjL69/OeDrp/EKzrAIObvvEF46tlKvaLEbjK3/OIJJ2UtTqrtmLXoN2awkJTzuqPf66AvQ48Ea/Lo5Nt3w3N+3JAzMSs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786566654; c=relaxed/simple;
-	bh=LlJ6I9bvGmzRIaPyWdQfyz9C6oMMl+wo6V8c/miVHEI=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Pq3wA1B6IM8ka3kQ6rw9oxSou7xj0uAcvO0Ch527u3W6voFdZibAaqeyydicomFhtwZme3yIPkiLeyR4bqSCkthuOmNKXB+MdeW+ppYbE4WUOqcxufiSNC7eb7HzZbmwTiLjbKTkCzl8HDZguuS5RoL1vJ4o9hWN+XTr4py75Vo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iZkB4iT7; arc=none smtp.client-ip=209.85.128.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786566926; c=relaxed/simple;
+	bh=WVlsX+AAbNDTX3fIsWurK9hJtQNG5cVAAQ0WzmOhJO8=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=c84GK7gpr0LrOE28aZeBjypbfWKK6riutEzX22HChsN2Ha2Pc80xVYxpCt/RKr8bjXrGB1/68mEKygDzirrPcKX3zh9Z9SbYsWSe/P6+7v/dFMhI/NsXDYrq57TQcO+kDdpvgqRhrVnanTgMYxHHter9FuiNRvhZnQTb2tyHm4s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YaPehYib; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iZkB4iT7"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-493b966dd74so8946565e9.3
-        for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 13:30:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786566651; x=1787171451; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ay9eqpJSfXPclJqhj8WgHyKYU5OeiSUdDYoWzRdbrqg=;
-        b=iZkB4iT7barINWLKAfvNVhv/E02J9rCOMX0r0RLauBrEMT7FWpBsavGZq2S7bv3UdC
-         NTLxLdJQ8hDCytXNfE8Eh/V727DLrOMaEclaYKSdz2IVea+wkk5zWA+/jCI6J6F9tu2b
-         qNusBC9l7mbW5iMvC01XZk8LRu82akQTJ/2+3Ty+Sx2vZkdoda9ApDVmmc17jGBK3Lri
-         TSMH23DCtncjAVBq4tkaWSE32zjLbZWS1zAs836apqyQunfKAkhjwdDFnu/F/G48cyel
-         f9gpUozyPY9LMk6eTpTWcox2HR/bx+br1DSEEOxhvfTHTc8G060V2EY5ZFzUFIc20jxL
-         v5Bw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786566651; x=1787171451;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=ay9eqpJSfXPclJqhj8WgHyKYU5OeiSUdDYoWzRdbrqg=;
-        b=kJbC8JV2h/KHM6pZzvUkMcLjGKddolt53PMWy2igZGqQCbZM0QUVPKw4BS3gjSB6TF
-         1msDIDAo1J/L+OJlrYStJPFig/iZdQ12O4s3EBuPEmwsnYVPeIItneHEavDcnXQJ0Mqn
-         kHtwTD9bJp9Gx3Wi3J6de00yyQmEaf4xBVTMXBDQYrj9KiqhFsKY5oiVo8KrL8eKTDlD
-         I7nlF6mpzznu6MnRspNlEL50SblH7bkr+sJuIm7w/ND0XHryhL/7QNSoa3/5DAOj+kgR
-         LjZzq7Qr4QWpF9jONvjHpsqOXWQrmlZoS3+jd3dd78loC5OW+KkMo6rnIaHdsQRHigM2
-         lqZQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqSdCUL6U7AoPxot/XRhGjv8Uh7FWwzbRL8Hobqms38kQO1xP1GRT31/QY46+IWwRMSxyDGeVtl+LLQ@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyhyg/jEZD9Al4GbOEipIq3TcnJ+etWt79FOtVZLSkUx/3nxk/8
-	kxJ8bPK4XT3oW3zgl+W9oPVCQlSb0QJcQluik1g4VCk01cXFQK4M+7rt
-X-Gm-Gg: AR+sD12CCgngCwrSs2EVD2WrwkCO6wrRI0XmtJzrZ2woBZq+xBMCCqZ/rypE6BJCf6G
-	qB1p2QAygYkvtlDcE1sPlYzCL8XE//CjXMrX+oMoTE7J+6ZxtzXKtHbZbQ+xBnTjpYW2JM9r/qC
-	2d5MlvewUezgrXLilza+Dt5/c9k/o3p1NvIauIW2nJe9iEZfYA7YzDxw+VxUetGDqqR4jGSn9Sp
-	m3o4IewvRfkGKdQWeD57SpH6IN/v6KM6XZiMTgZBERdSYxIq9gA+wX8TWFLJyLz64v5rOqLeejY
-	nkGwfyKURKTopbegkELnnAlD02aHLjgJ3Ph6EtlwmPebthr7BoK05gl6xz9VEcOZUM/+mZBhCub
-	Dk8uP3as+rqToX1mLgnfZZLHTRts0NBtaagdNjVDRvxtCvi4P63AXx7nqUsIKRXIpPp9K1YYGt6
-	s2WFREe3rmOnqsoXiFbkImRJ1T4p1fui2wM5KTyP40jnoicsjb93rOx0RcMTDfiY5vGfXRa46NW
-	HxvTMUbsi1OKGOi2xSVgqpDVB2tFPVihJwxzUsNtiQOxvz16mokwhGVFirZqmMzQz+ceckZeDfO
-	3SHi/w1kLIW/UHQZzsU+V5JK5yEKrGMvnVgixCnXM2VzO9oNWvSvh6ovVB79LtMs0gxD
-X-Received: by 2002:a05:600c:4585:b0:499:5b04:6920 with SMTP id 5b1f17b1804b1-499821fe9ecmr2744625e9.16.1786566650998;
-        Wed, 12 Aug 2026 13:30:50 -0700 (PDT)
-Received: from localhost.localdomain (dynamic-2a02-3100-a869-c801-382b-4199-5518-da16.310.pool.telefonica.de. [2a02:3100:a869:c801:382b:4199:5518:da16])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49981e31783sm7640995e9.3.2026.08.12.13.30.48
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Wed, 12 Aug 2026 13:30:49 -0700 (PDT)
-From: Karl Mehltretter <kmehltretter@gmail.com>
-To: Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Karl Mehltretter <kmehltretter@gmail.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] s390/percpu: Fix MVIY_PERCPU() with older binutils
-Date: Wed, 12 Aug 2026 22:30:36 +0200
-Message-Id: <20260812203036.3018-1-kmehltretter@gmail.com>
-X-Mailer: git-send-email 2.39.5 (Apple Git-154)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YaPehYib"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C906C1F000E9;
+	Wed, 12 Aug 2026 20:35:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786566921;
+	bh=2aca4ym3jlhlnfvuA2Nd6UfV42/GOJXhPDCx2sEd1B8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=YaPehYibBg0KojgJoLYjCinumkLU8n+38DdUDGC+XRi3o4deBIpb0emZfKWKT7Cim
+	 QeDwq/loV53VEgTYc5pRHYpN8uJ7tfGGUWGdTyCDFQT81uEpqjRQHK03FfhJ+ciDU4
+	 ZsYf5QrP4ppea7wJg2PN2Jp93lXrorMiDct57sziM9NzewW51z/Eh4UKhLV3sLr4kz
+	 70r9RAmJbP5+12PM4WbeS9ahw5AsOPeU6RKgvUYOwgbxnBmfBc7TyWsiLs5RRlGBc1
+	 vAYsaQXpyYPmSq5+N6u22gN8kDrjV73Sk40B9VuNi3IQXI+uWEodc8fcJOwvZ0pCJL
+	 HkrQAKs1EAIwA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v5 9/9] s390/vfio-ap: Fix memory leak when queue removed
+ from host AP config
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.vom>, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260812200240.818004-10-akrowiak@linux.ibm.com>
+References: <20260812200240.818004-1-akrowiak@linux.ibm.com>
+ <20260812200240.818004-10-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 12 Aug 2026 20:35:20 +0000
+Message-Id: <20260812203520.C906C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Commit a737737cdb9c ("s390/percpu: Infrastructure for more efficient
-this_cpu operations") introduced MVIY_PERCPU(), which stringifies
-arguments that are already C string literals. This generates an
-assembler macro invocation with whitespace-separated quoted arguments:
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] Incomplete fix for resource leak: `vfio_ap_mdev_reset_queue()` doe=
+s not handle `AP_RESPONSE_Q_NOT_AVAIL` (0x01), causing KVM GISC/pinned memo=
+ry leaks and spurious WARN_ON stack traces.
+--
 
-  GEN_MVIY "459712" "%r3"
+--- Patch [9]: [PATCH v5 9/9] s390/vfio-ap: Fix memory leak when queue remo=
+ved from host AP config ---
+commit 6c8828db27ae24e9b17bf29e492fb4382c470413
+Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-GNU as versions prior to binutils 2.39 drop the separating whitespace
-between quoted macro arguments during input scrubbing. They
-consequently parse the invocation as a single argument and emit
-repeated warnings:
+s390/vfio-ap: Fix memory leak when queue removed from host AP config
 
-  Warning: missing closing `"'
+This patch aims to fix a memory leak of KVM GISC resources and pinned guest
+memory when an adapter or domain is removed from the host's AP configuratio=
+n.
+It bypasses the queue reset and directly frees the AQIC resources if the
+queue is no longer in the host config.
 
-The .ifc in GEN_MVIY never matches and GNU as exits successfully
-without emitting the mviy instruction. As a result, the interrupted
-per-CPU sequence is not marked in lowcore and the exception return
-path cannot repair the per-CPU address register after migration.
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
+_ap_ops.c
+> index 1edd0b7a3cce7..bd9d239caeba2 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -2533,12 +2533,15 @@ void vfio_ap_mdev_remove_queue(struct ap_device *=
+apdev)
+>  	/*
+>  	 * If the queue is not in the host's AP configuration, then resetting
+>  	 * it will fail with response code 01, (APQN not valid); so, let's make
+> -	 * sure it is in the host's config.
+> +	 * sure it is in the host's config. If it is not, then free the KVM GISC
+> +	 * resources.
+>  	 */
+>  	if (test_bit_inv(apid, (unsigned long *)matrix_dev->info.apm) &&
+>  	    test_bit_inv(apqi, (unsigned long *)matrix_dev->info.aqm)) {
+>  		vfio_ap_mdev_reset_queue(q);
+>  		flush_work(&q->reset_work);
+> +	} else {
+> +		vfio_ap_free_aqic_resources(q);
+[Severity: High]
+Can this still trigger a WARN_ON and leak KVM GISC and pinned memory if a g=
+uest
+shuts down or the mdev is removed before the physical queue is unbound?
 
-All MVIY_PERCPU() callers pass C string literals. Use them directly
-and separate the assembler macro arguments with an explicit comma. The
-resulting invocation is:
+When an adapter is removed from the host config, ap_zapq() returns 0x01
+(AP_RESPONSE_Q_NOT_AVAIL). If vfio_ap_mdev_reset_queue() receives this resp=
+onse
+(for example, during guest shutdown), it falls into the default case, logs a
+WARN, and skips freeing AQIC resources:
 
-  GEN_MVIY 459712, %r3
+drivers/s390/crypto/vfio_ap_ops.c:vfio_ap_mdev_reset_queue() {
+	...
+	default:
+		WARN(true,
+		     "PQAP/ZAPQ for %02x.%04x failed with invalid rc=3D%u\n",
+		     AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
+		     status.response_code);
+	...
+}
 
-This form is unambiguous for GNU as and LLVM's integrated assembler.
-This behavior was fixed in GNU as from binutils 2.39, but Linux
-supports binutils 2.30.
+The driver might then clear the kvm or q->matrix_mdev pointers. Later, when
+the physical queue is unbound and this else branch is reached,
+vfio_ap_free_aqic_resources(q) would hit the WARN_ON checks because the
+pointers are now NULL:
 
-Fixes: a737737cdb9c ("s390/percpu: Infrastructure for more efficient this_cpu operations")
-Assisted-by: Codex:gpt-5.6-sol
-Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
----
- arch/s390/include/asm/percpu.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+drivers/s390/crypto/vfio_ap_ops.c:vfio_ap_free_aqic_resources() {
+	...
+	if (q->saved_isc !=3D VFIO_AP_ISC_INVALID &&
+	    !WARN_ON(!(q->matrix_mdev && q->matrix_mdev->kvm))) {
+	...
+	if (q->saved_iova && !WARN_ON(!q->matrix_mdev)) {
+	...
+}
 
-diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
-index 1d955dd0defa3..feb58acf87d69 100644
---- a/arch/s390/include/asm/percpu.h
-+++ b/arch/s390/include/asm/percpu.h
-@@ -107,8 +107,8 @@
- 	"	.endif\n"							\
- 	".endr\n"								\
- 	".endm\n"								\
--	ALTERNATIVE("GEN_MVIY " __stringify(disp)    " " __stringify(reg) "\n",	\
--		    "GEN_MVIY " __stringify(dispalt) " " __stringify(reg) "\n",	\
-+	ALTERNATIVE("GEN_MVIY " disp    ", " reg "\n",				\
-+		    "GEN_MVIY " dispalt ", " reg "\n",				\
- 		    ALT_FEATURE(MFEATURE_LOWCORE))				\
- 	".purgem GEN_MVIY\n"
- 
--- 
-2.53.0
+Should vfio_ap_mdev_reset_queue() be updated to explicitly handle response
+code 0x01 and clean up resources there as well to ensure they are freed
+before the pointers are cleared?
 
+>  	}
+> =20
+>  done:
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812200240.8180=
+04-1-akrowiak@linux.ibm.com?part=3D9
