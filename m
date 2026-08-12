@@ -1,232 +1,159 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13070480942;
-	Wed, 12 Aug 2026 17:26:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71C31471263;
+	Wed, 12 Aug 2026 17:27:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786555588; cv=none; b=oi9q6ghd0564CRYsS0GElEp8JnjbAki4wqwKCrc2PW2hJu9ZqklwHH9zBOFCh/9xlMR3+s0OgPNHabpwrl1W+fYybRMZ9EbjEPRGW67ser6zlM6zI6YLbx9u3JZ+vYNXAqamQiVHeMdRdfeG0lElTvX9Tm8hnZgs4NeZGw+RAzs=
+	t=1786555655; cv=none; b=ZmBFXbLto4fUo9ESR/2AwPw5Y80DMb852J8JSrX0QvjkXZYjhtFjOgQWKyMHb5AGSUlaD2a3E3l5cYnSCeZXp4AbMVXe4eFbyh2hklx4nZy042l9SVaUiCfqYTug68x9jW5wxgI38mCz0HOi22WrlKP5C6D23l3h9jsuEX5LtMM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786555588; c=relaxed/simple;
-	bh=KE2m12XycHZEEhv7qv2JzW2kbZEA+TAz5aPV7pGkyT4=;
+	s=arc-20240116; t=1786555655; c=relaxed/simple;
+	bh=hKmn/F9N3cCzLvpx5n8DEU2Xez+ZDGrOvbq2JFzEWb4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=KiteIxsQ8942mnglDvxEXuyJlE/0ozkqM5haP+BUfeSBC01KI/joVcHrsB7rRmp2BLpF8V5D4nrEIpf8ckEy85zBE0JqA/kmCj5BuzHE8cHZCwY23lHQ6Ex2qh3kFGzdUOtOAzZzSx1rQy75TI/cBK2hoTriujnPYcVlwirDtTQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jmuTFOAm; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=SC20FnG712DbZqK4FHeD0B/E+JkcimPY1Ue+uQ9xjwnFcmAYCGWF1Ya4zQcBdaIL3KwWzvEvSakX93B9Ajk6bosONaJv7nhVdGDnkaDhqBL2Dupw425+lMjzlD9Qc+zp2rlBBEuQM60tcFd9iPlBX0tgd+4aqHrxSb/3scT4Bzw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mJ3IodLe; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jmuTFOAm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C6331F000E9;
-	Wed, 12 Aug 2026 17:26:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mJ3IodLe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABAF21F000E9;
+	Wed, 12 Aug 2026 17:27:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786555587;
-	bh=Var/ROzAVlg9AZn9u4bE8txMsoGKLKam5l4VhxJIMOY=;
+	s=k20260515; t=1786555654;
+	bh=dY223rn9levgmdfXC4IBgIB5AyUXkNPUQpfLasR3khg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jmuTFOAmtf6r/6Mkfqv61sb6PWxQBFDp1ToQCUADOU80CWOQ5aLsTUZOGwdxEDlJ2
-	 zrjevuAq3ShK/09vwfMbcclc4ZpfJC9RsOc8PC/EZShcdiGzVUZtTxTk3A7z1MA4Rw
-	 BMlGA8CwKLb7+fNBPjMh5FQF7cmB46em7AScp1YQLjOtV0vNujL0dJ9qe+AmKm86v/
-	 Xb4E14j6eL+k3lmqfSs+Qo1PbqZtlix3Qp1Hv6uvhUPTEi+KOf70FsZkzCkNDtsVbd
-	 9037Z/Sp4okq+p1JYGRx5dKOhTMoe++rerSWJAe+x9s/D2sw7Hrs3M14Jyck79W3t3
-	 nu6aKPlTUATqw==
+	b=mJ3IodLeM90QBZCElp6tROG4eq6vztyVpMWuD7DWhfqmZ5hUy4JcKDv3FhujXL8EO
+	 QCZnSV53NQ1Lkny/2vE7Jo+cpfJ5ysPpd8dQ82vN+MruX6J2zWs0tAnMw+HzJTvKHZ
+	 sdc7Epke5Fo9QX9fLE7+CNC0ozqO1FkkNb3stMQlN26unwlPwXqVwPPEIqC6BiaRRa
+	 yVeI7/J8AH3Z9sIWURKxRyigCoT5uNpS3EOQfRXKb8KEGb5hIQiR0TLCZf48zfNVSS
+	 yYA6hZs86ISUqhKqGGiqQxkumyGzGiqemYzNJ6zLaboFH6wTYVmXjkmVK+CZfSi0X0
+	 WY+inmkWY/AGA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 19/20] KVM: s390: vsie: Create minimal scb shadows
- for not running g3 blocks
+Subject: Re: [PATCH v4 8/9] s390/vfio-ap: Fix NULL deref in status_show()
+ during queue probe
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.vom>, kvm@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260812-vsie-sigpi-v4-19-f19e49666315@linux.ibm.com>
-References: <20260812-vsie-sigpi-v4-0-f19e49666315@linux.ibm.com>
- <20260812-vsie-sigpi-v4-19-f19e49666315@linux.ibm.com>
+To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.vom>, kvm@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260812170945.738351-9-akrowiak@linux.ibm.com>
+References: <20260812170945.738351-1-akrowiak@linux.ibm.com>
+ <20260812170945.738351-9-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 17:26:26 +0000
-Message-Id: <20260812172626.8C6331F000E9@smtp.kernel.org>
+Date: Wed, 12 Aug 2026 17:27:33 +0000
+Message-Id: <20260812172733.ABAF21F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
-New issues:
-- [High] Silent failure / Lost Validity Intercept on SCA Shadowing
-- [High] Cross-VM Data Leak / Stale TLB due to missing ihcpu initialization
-- [Medium] L2 Guest State Leak due to Uninitialized Shadow SCB
-
 Pre-existing issues:
-- [High] Guest State Corruption in unshadow_scb when prepare_cpuflags fails
+- [High] The patch attempts to fix a TOCTOU race by holding update locks du=
+ring sysfs group creation, but leaves the exact same race window open on th=
+e allocation error path, leading to a NULL pointer dereference.
+- [High] Missing flush or cancellation of `q->reset_work` in `vfio_ap_mdev_=
+remove_queue` leads to a Use-After-Free.
 --
 
---- Patch [19]: [PATCH v4 19/20] KVM: s390: vsie: Create minimal scb shadow=
-s for not running g3 blocks ---
-commit 5e715443b75203daf2ad2801d214c07f27b51bf4
-Author: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Subject: KVM: s390: vsie: Create minimal scb shadows for not running g3 blo=
-cks
+--- Patch [8]: [PATCH v4 8/9] s390/vfio-ap: Fix NULL deref in status_show()=
+ during queue probe ---
+commit 9b9dde366169d761a8888f77c5299cbff3f3b6ea
+Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-Instead of creating a full shadow for vSIE control blocks, this commit crea=
-tes
-a minimal shadow for SIGP purposes for currently not running guest-3 control
-blocks. This reduces the overhead of shadowing the entire guest-3 configura=
-tion.
-The shadow will be fully recreated later when a vSIE is entered with that S=
-CB.
+s390/vfio-ap: Fix NULL deref in status_show() during queue probe
 
-> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index a1b679b4aa361..3a7c58dddf22d 100644
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
-> @@ -709,6 +708,39 @@ static void unshadow_scb(struct kvm_vcpu *vcpu, stru=
-ct vsie_page *vsie_page)
->  		scb_o->ihcpu =3D scb_s->ihcpu;
+This commit acquires the update locks before calling sysfs_create_group()
+during queue probe to prevent a NULL pointer dereference in a concurrent
+read of the status attribute. It also optimizes APQN retrieval.
+
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
+_ap_ops.c
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+
+[ ... ]
+
+> @@ -2472,8 +2474,13 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apd=
+ev)
+>  	return ret;
+> =20
+>  err_remove_group:
+> +	release_update_locks_for_mdev(matrix_mdev);
+>  	sysfs_remove_group(&apdev->device.kobj, &vfio_queue_attr_group);
+>  	return ret;
+
+[Severity: High]
+This is a pre-existing issue, but does releasing the update locks before
+removing the sysfs group reopen the race window on the allocation error pat=
+h?
+
+If kzalloc_obj() fails, the error path releases guests_lock before calling
+sysfs_remove_group(). This immediately unblocks any concurrent readers of
+status_show() while the sysfs file still exists.
+
+Once unblocked, status_show() will retrieve NULL from dev_get_drvdata() and
+pass it to vfio_ap_mdev_for_queue(), which unconditionally dereferences it:
+
+vfio_ap_ops.c:status_show()
+    q =3D dev_get_drvdata(&apdev->device);
+    matrix_mdev =3D vfio_ap_mdev_for_queue(q);
+
+vfio_ap_ops.c:vfio_ap_mdev_for_queue()
+    unsigned long apid =3D AP_QID_CARD(q->apqn);
+
+Should sysfs_remove_group() be called before release_update_locks_for_mdev()
+here to prevent this NULL pointer dereference?
+
+> +
+> +err_release_locks:
+> +	release_update_locks_for_mdev(matrix_mdev);
+> +	return ret;
 >  }
 > =20
-> +static int shadow_scb_minimal(struct kvm_vcpu *vcpu, struct vsie_page *v=
-sie_page)
-> +{
-> +	struct kvm_s390_sie_block *scb_s =3D &vsie_page->scb_s;
-> +	struct kvm_s390_sie_block *scb_o =3D vsie_page->scb_o;
-> +	int rc;
-> +
-> +	/* make sure we don't have any leftovers when reusing the scb */
-> +	scb_s->icptcode =3D 0;
-> +	scb_s->eca =3D 0;
-> +	scb_s->ecb =3D 0;
-> +	scb_s->ecb2 =3D 0;
-> +	scb_s->ecb3 =3D 0;
-> +	scb_s->ecd =3D 0;
-> +	scb_s->fac =3D 0;
-> +	scb_s->fpf =3D 0;
-
-[Severity: Medium]
-Does this limited clearing leave stale L2 execution state in the shadow SCB?
-
-When get_vsie_page_cpu_nr() recycles a vsie_page, it doesn't clear the shad=
-ow
-SCB with memset().
-
-If shadow_scb_minimal() only clears these specific fields, could uninitiali=
-zed
-data from a previous nested guest (such as ipa and ipb) leak back to the L1
-hypervisor's memory when unshadow_scb() is called during an intercept?
-
-
-[Severity: High]
-Does this missing initialization also cause a stale TLB issue for the recyc=
-led
-SCB?
-
-Because get_vsie_page_cpu_nr() fails to set vsie_page->scb_s.ihcpu =3D 0xff=
-ffU,
-and shadow_scb_minimal() doesn't clear it either, a recycled SCB could reta=
-in a
-stale ihcpu value.
-
-If the L1 guest provides an scb_o->ihcpu that matches the host CPU, could
-hardware skip the TLB flush for the shadow SCB, leading to cross-VM memory
-access?
+>  void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
+>  {
 
 [ ... ]
 
-> @@ -728,17 +760,7 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct =
-vsie_page *vsie_page)
->  	unsigned long new_mso =3D 0;
->  	int rc;
+>  	if (test_bit_inv(apid, (unsigned long *)matrix_dev->info.apm) &&
+>  	    test_bit_inv(apqi, (unsigned long *)matrix_dev->info.aqm)) {
+>  		vfio_ap_mdev_reset_queue(q);
+>  		flush_work(&q->reset_work);
+>  	} else {
+>  		vfio_ap_free_aqic_resources(q);
+>  	}
 > =20
-> -	/* make sure we don't have any leftovers when reusing the scb */
-> -	scb_s->icptcode =3D 0;
-> -	scb_s->eca =3D 0;
-> -	scb_s->ecb =3D 0;
-> -	scb_s->ecb2 =3D 0;
-> -	scb_s->ecb3 =3D 0;
-> -	scb_s->ecd =3D 0;
-> -	scb_s->fac =3D 0;
-> -	scb_s->fpf =3D 0;
-> -
-> -	rc =3D prepare_cpuflags(vcpu, vsie_page);
-> +	rc =3D shadow_scb_minimal(vcpu, vsie_page);
->  	if (rc)
->  		goto out;
+>  done:
+>  	if (matrix_mdev)
+>  		vfio_ap_unlink_queue_fr_mdev(q);
+> =20
+>  	dev_set_drvdata(&apdev->device, NULL);
+>  	kfree(q);
 
 [Severity: High]
-This is a pre-existing issue, but does unshadow_scb() corrupt the L2 guest
-state if prepare_cpuflags() fails?
+This is a pre-existing issue, but does this conditional bypass of
+flush_work() create a use-after-free risk?
 
-In shadow_scb(), prepare_cpuflags() is evaluated (via shadow_scb_minimal)
-before the L2 guest state is copied from scb_o to scb_s:
+If a hardware hot-unplug races with a background reset operation, and the
+queue is not in the host's AP configuration, the teardown path skips flushi=
+ng
+the reset_work and frees the queue object.
 
-shadow_scb() {
-    rc =3D shadow_scb_minimal(vcpu, vsie_page);
-    if (rc)
-        goto out;
-   =20
-    // guest state is copied to scb_s here
+Meanwhile, the background worker continues executing and accesses the freed
+structure:
+
+vfio_ap_ops.c:apq_reset_check()
+    q =3D container_of(reset_work, struct vfio_ap_queue, reset_work);
+    memcpy(&status, &q->reset_status, sizeof(status));
     ...
-out:
-    if (rc)
-        unshadow_scb(vcpu, vsie_page);
-}
+    status =3D ap_tapq(q->apqn, NULL);
 
-If prepare_cpuflags() fails, shadow_scb() jumps to out and calls
-unshadow_scb(), which unconditionally overwrites the L2 guest state in scb_o
-with the data from scb_s.
-
-Since scb_s hasn't been populated with the guest state yet, does this corru=
-pt
-the L2 guest's state variables (CPU timer, clock comparator, PSW, etc.) in =
-the
-L1 memory?
-
-[ ... ]
-
-> @@ -2164,7 +2184,7 @@ static int _shadow_sca(struct kvm_vcpu *vcpu, struc=
-t vsie_page *vsie_page,
->  				rc =3D PTR_ERR(vsie_page_n);
->  			if (rc)
->  				goto err;
-> -			rc =3D shadow_scb(vcpu, vsie_page_n);
-> +			rc =3D shadow_scb_minimal(vcpu, vsie_page_n);
->  			vsie_sca_update(vsie_sca, cpu_nr, vsie_page_n, sca_o_entry_hpa);
->  			put_vsie_page(vsie_page_n);
->  			if (rc)
-
-[Severity: High]
-Can this error path bypass the validity intercept delivery?
-
-In _shadow_sca(), if shadow_scb_minimal() fails for a secondary vCPU, the
-function propagates the error without unshadowing:
-
-_shadow_sca() {
-    ...
-            rc =3D shadow_scb_minimal(vcpu, vsie_page_n);
-            vsie_sca_update(vsie_sca, cpu_nr, vsie_page_n, sca_o_entry_hpa);
-            put_vsie_page(vsie_page_n);
-            if (rc)
-                goto err;
-    ...
-}
-
-This error is returned to kvm_s390_handle_vsie(), which then jumps to out_p=
-ut:
-
-kvm_s390_handle_vsie() {
-    ...
-        rc =3D shadow_sca(vcpu, vsie_page, vsie_sca);
-        if (rc)
-            goto out_put;
-    ...
-out_put:
-    put_vsie_page(vsie_page);
-    ...
-}
-
-Because this bypasses out_unshadow for the primary vCPU, does this silently
-drop the ICPT_VALIDITY intercept code, causing the L1 hypervisor's SIE
-instruction to appear as if it completed successfully when it actually fail=
-ed?
+Should flush_work() or cancel_work_sync() be called unconditionally before
+kfree(q) to prevent this memory corruption?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812-vsie-sigpi=
--v4-0-f19e49666315@linux.ibm.com?part=3D19
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812170945.7383=
+51-1-akrowiak@linux.ibm.com?part=3D8
