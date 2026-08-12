@@ -1,361 +1,139 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1F0935AC05;
-	Wed, 12 Aug 2026 07:15:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC5813546C9;
+	Wed, 12 Aug 2026 07:23:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786518943; cv=none; b=GNV/QuzHQ/gbkzb+7EZJPNnGQPz5tl/nEJv37C9od6864qG5sixU/y/5gMgwAzRGmmcDlph1haOE9WovDb3RvaA1j6+rztrvlE2hfmq0bvQ2aYKy+nqbaic42/iF0y7YkcGY7gQ8vPHuRY+M6F+iTe0NCK/khNo1ygtkHMLYRGI=
+	t=1786519382; cv=none; b=IO5fdZEaSoLABkb3o4nF4Y0OXwhUbG2G6zq40UMVEVonkjNpDEaLfZazgBzHEooaiOlXcy8vBI1ZmZ5h397owPBVRfK6QVvBjL4KR9GHbWVXmYzhW+l+QJyV+/I6ulDJOk3i/JrZV4BkJph2lIKeDruL7i619UdbtfG0OMQhZPc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786518943; c=relaxed/simple;
-	bh=nfT96IomZZ4GSS26/IOLwQZi4WjSWb678Oi91uu2RMs=;
-	h=From:To:Cc:Subject:Content-Type:MIME-Version; b=f8VBXwTpSqjEgFuHEYoq/hh7oudrZUJLAbAqpdSKZ0EdqoAqQYOJiL7BOb1CKeemSk0c5yF9gqY7SQwvs2vnSX9NEzd7MiGgzX5RRyd8eZ5/+S4FGwmxgO+IMDqXM/jrK67CG+hr5T9qY4HE8tmc1KYbzjMxqJl2VITmCFL4+DY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=iKZ+B3Ch; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1786519382; c=relaxed/simple;
+	bh=tIDOgrfuWgVeLWalaknhV7rILDUTACYfLkx5XC2ZLY4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bPiBbHiVM7IeT+2eMIHo6EDbsn6DVXgSZ7jh6z6Qx15C7G+pMLNMHOczkQ7APZeUmPqoEIJw0izb0HcR0Iueomp7sWkKnq+3P0ZKql0KE3Dhb08/Mmg7BCpRM1ZgH410rBQNJDm+TAU4EUljkvWqiNgEyPhjeT2miyYAiroy2ao=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com; spf=pass smtp.mailfrom=de.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HFKJT9OH; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=de.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="iKZ+B3Ch"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1786518926; h=From:To:Subject:Content-Type:MIME-Version;
-	bh=W+AwKLGAXhRy3dxES5Ug8BEsiVjHWw2YdO+KGajb6bc=;
-	b=iKZ+B3ChBuXfZ+ZmZG+szNJrfQIsBjlzENp/mcC32TEaYPI+QYGY16u0rZ2Xm2vadUxGyqDhxYPSIFrH0A9d2FBi+f+DUkJCDHvr5YFye6l0X8lwEZ6YZFHOKLDRF51iAcDpjyXHFLPEt8S9hLGtupf2J1Ra4BJ22v+9DST0OGE=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R281e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037033178;MF=chuyf26@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0X8qjPBn_1786518925;
-Received: from x31j07255.sqa.na131(mailfrom:Chuyf26@linux.alibaba.com fp:SMTPD_---0X8qjPBn_1786518925 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 12 Aug 2026 15:15:26 +0800
-From: Chuyf26 <Chuyf26@linux.alibaba.com>
-To: alibuda@linux.alibaba.com
-Cc: dust.li@linux.alibaba.com, sidraya@linux.ibm.com, mjambigi@linux.ibm.com,
- tonylu@linux.alibaba.com, guwen@linux.alibaba.com, netdev@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: [PATCH] net/smc: release the internal TCP sock on IPPROTO_SMC socket
- creation failure
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HFKJT9OH"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67C62N6B2678430;
+	Wed, 12 Aug 2026 07:22:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=lLxc04
+	fBesdS5R7r0fnKGr/g2HwoqoXLMohUkng7Aqc=; b=HFKJT9OHbIqaT4S7iJ9j48
+	VqyPaI2mBBrj2dUQU9SA41fR4A5/E3orOMiMLmWw4RpgHNX2LW4X4lVfM+uQPdnj
+	qPBIroDodvEBgLERrxFrJSbIdG64aFHzF+hjMkK9hxWsBxCXMlbtYl9siipnZibW
+	sd7WFRm4/jEji/rWjd0bLjA+2XBwFrHsX/4gaUCFmQsUCqPl2GVZ/nTKN0BtQlzt
+	JNC7vCcRqMG7RJibSFjObACwuVH097kr1rnYkAOEwBhl+2n4f/9C+fZe7j8oV1MX
+	X3wo7ieHA8de6RgrUiJD/2/JU3Mami/g3j1ccVZKji1FKMkcnCJa4xLLdh4nSI7w
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvm9sbng-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 12 Aug 2026 07:22:58 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67C7BKTm032681;
+	Wed, 12 Aug 2026 07:22:57 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxesq55eh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 12 Aug 2026 07:22:57 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67C7MsC340763902
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 12 Aug 2026 07:22:54 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 012AC2004B;
+	Wed, 12 Aug 2026 07:22:54 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C195E20043;
+	Wed, 12 Aug 2026 07:22:53 +0000 (GMT)
+Received: from [9.224.77.173] (unknown [9.224.77.173])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 12 Aug 2026 07:22:53 +0000 (GMT)
+Message-ID: <7cca8c17-c849-42a8-a844-5db4c222d313@de.ibm.com>
+Date: Wed, 12 Aug 2026 09:22:53 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-ID: <20260812071538.o7mdtMhZ1eOzDgQnKZduQfWlq0FhL7OCAPLjt9AA11w@z>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 09/11] KVM: s390: Fix kvm_s390_clear_pv_state()
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
+        david@kernel.org, seiden@linux.ibm.com, nrb@linux.ibm.com,
+        schlameuss@linux.ibm.com, gra@linux.ibm.com
+References: <20260811155641.219777-1-imbrenda@linux.ibm.com>
+ <20260811155641.219777-10-imbrenda@linux.ibm.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+In-Reply-To: <20260811155641.219777-10-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDA1NCBTYWx0ZWRfX6dv8bJMkqDup
+ M79/b3/tReRie2PMdeuNRgNZX+2zrJh+yjAL7xHZnf3EuXlK0GZjZ2ab8vLILLx6AZCnGCXlpy0
+ O3F8Bct97odk/AEdQ9aMNVm8H7eFO5ibHtCMJV6RvA3LnsZaiZrw1thTj2a0yWjkse2ZgjW2HNQ
+ +r/umgqcF+Si4nEDBNbv7tx5AlKHGXRo03PRehH9rUkU3BZXelSfHwJJ6Eon90LYD7ynja7NIGu
+ 8zlS7QvFAozK8EkPSV/vjKxBu/KDkD/E7Cpr8waY5ka+yDtSr6wjKYaKVYMv/PC2M6PHb1ThU1V
+ wsP6/TvXTzpjVksJhADsbTI8Y4xfd26Nm78bXT0UKDS5WpIitOcs/MIugZ9tO3FN3um+1SVYfUV
+ vzzjHzaygW6qiZiTw4WRsrzozngX8TlHiYYPHgjCgESbQYYZAv7CEbpoAFqWMbAbJSRLmP0RK2V
+ NxAP22Zg0lTOQu1X6mw==
+X-Proofpoint-ORIG-GUID: e9pD7Rf5kjBWfijdTqSpcUgArSAMuc51
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDA1NCBTYWx0ZWRfX0qQb97uuCxuq
+ Gqw1C0HYGZeOrbEaJk1sjP2emGAvt+tRpk3fvSNYgGp7ymej2sapmTftLR/2PeDQr9VW84cugE1
+ hgSMvtUKKhaiYGNZx64EZcS6vvtBZ54=
+X-Authority-Analysis: v=2.4 cv=IfK3n2qa c=1 sm=1 tr=0 ts=6a7c1f52 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=z9yk2LTjqm7JGs_eJUgA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: e9pD7Rf5kjBWfijdTqSpcUgArSAMuc51
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-12_02,2026-08-10_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 priorityscore=1501 impostorscore=0 bulkscore=0 clxscore=1015
+ lowpriorityscore=0 adultscore=0 malwarescore=0 spamscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608120054
 
-IPPROTO_SMC sockets wrap an internal TCP sock ("clcsock"), which is
-created by smc_inet_init_sock() via smc_create_clcsk() from the
-proto->init hook of inet_create()/inet6_create(). When socket
-creation fails after proto->init has succeeded - for example when a
-cgroup BPF program attached to BPF_CGROUP_INET_SOCK_CREATE denies the
-socket - inet_create() calls sk_common_release(), which only invokes
-sk_prot->destroy if it is set. Neither smc_inet_prot nor
-smc_inet6_prot defines .destroy, and the sock destructor smc_destruct()
-returns early unless sk_state is SMC_CLOSED (it is SMC_INIT here), so
-the internal TCP sock is never released.
 
-As a result, every failing socket(AF_INET, SOCK_STREAM, IPPROTO_SMC)
-call leaks one tcp_sock. Any unprivileged task able to attach a
-deny-all BPF_CGROUP_INET_SOCK_CREATE program to its own cgroup (or a
-task confined by an LSM policy) can grow kernel memory unboundedly.
 
-Reproduced on v7.2-rc7: with a deny-all BPF_CGROUP_INET_SOCK_CREATE
-program attached, a loop of socket(AF_INET, SOCK_STREAM, IPPROTO_SMC)
-calls fails with EPERM and kmemleak reports one unreferenced tcp_sock
-object per call.
+Am 11.08.26 um 17:56 schrieb Claudio Imbrenda:
+> kvm_s390_clear_pv_state() needs to also clear the dumping flag, to
+> allow the protected VM to be started again (as non-protected, with all
+> protected state safely destroyed) after a forced reboot while a
+> protected dump was ongoing and not completed.
+> 
+> Fixes: e40df9efd68a ("KVM: s390: pv: clear the state without memset")
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-Add a .destroy hook to both IPPROTO_SMC protos that releases the
-clcsock via smc_clcsock_release(). That helper is safe here: it takes
-the clcsock_release_lock initialized by smc_sk_init() and skips a NULL
-clcsock, which is what smc_create_clcsk() leaves behind when creating
-the TCP sock fails. Also initialize clcsock to NULL at the start of
-smc_inet_init_sock(): the smc_sock slab is SLAB_TYPESAFE_BY_RCU, so
-recycled objects are not zeroed and stale memory must not be handed to
-sock_release().
 
-The same behaviour is visible without any debugging option: on a
-plain kernel the slabinfo "TCP" active_objs count grows by one per
-failing socket() call and never shrinks.
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-With the fix, the same reproducer leaves no unreferenced objects in
-kmemleak and the "TCP" slabinfo count stays flat, and regular
-IPPROTO_SMC socket create/close cycles are unaffected
-(sk_common_release() from inet_release() also routes through the new
-.destroy, where the already-NULL clcsock is a no-op).
 
-Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Assisted-by: abaci:qwen3.8-max
-Signed-off-by: Chuyf26 <Chuyf26@linux.alibaba.com>
----
- net/smc/smc_inet.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+> ---
+>   arch/s390/kvm/pv.c | 4 ++++
+>   1 file changed, 4 insertions(+)
+> 
+> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+> index b02e0159d3cd..98a9a57f71b9 100644
+> --- a/arch/s390/kvm/pv.c
+> +++ b/arch/s390/kvm/pv.c
+> @@ -242,6 +242,10 @@ static void kvm_s390_clear_pv_state(struct kvm *kvm)
+>   	kvm->arch.pv.guest_len = 0;
+>   	kvm->arch.pv.stor_base = 0;
+>   	kvm->arch.pv.stor_var = NULL;
+> +	if (kvm->arch.pv.dumping) {
+> +		kvm_s390_vcpu_unblock_all(kvm);
+> +		kvm->arch.pv.dumping = false;
+> +	}
+>   }
+>   
+>   static void kvm_s390_pv_dispose_cpu(struct kvm_vcpu *vcpu, bool free_stor_base)
 
-diff --git a/net/smc/smc_inet.c b/net/smc/smc_inet.c
-index a94084b..b94a194 100644
---- a/net/smc/smc_inet.c
-+++ b/net/smc/smc_inet.c
-@@ -15,13 +15,16 @@
-=20
- #include "smc_inet.h"
- #include "smc.h"
-+#include "smc_close.h"
-=20
- static int smc_inet_init_sock(struct sock *sk);
-+static void smc_inet_destroy_sock(struct sock *sk);
-=20
- static struct proto smc_inet_prot =3D {
- 	.name		=3D "INET_SMC",
- 	.owner		=3D THIS_MODULE,
- 	.init		=3D smc_inet_init_sock,
-+	.destroy	=3D smc_inet_destroy_sock,
- 	.hash		=3D smc_hash_sk,
- 	.unhash		=3D smc_unhash_sk,
- 	.release_cb	=3D smc_release_cb,
-@@ -68,6 +71,7 @@ static struct proto smc_inet6_prot =3D {
- 	.name		=3D "INET6_SMC",
- 	.owner		=3D THIS_MODULE,
- 	.init		=3D smc_inet_init_sock,
-+	.destroy	=3D smc_inet_destroy_sock,
- 	.hash		=3D smc_hash_sk,
- 	.unhash		=3D smc_unhash_sk,
- 	.release_cb	=3D smc_release_cb,
-@@ -109,6 +113,14 @@ static struct inet_protosw smc_inet6_protosw =3D {
- static int smc_inet_init_sock(struct sock *sk)
- {
- 	struct net *net =3D sock_net(sk);
-+	struct smc_sock *smc =3D smc_sk(sk);
-+
-+	/*
-+	 * The smc_sock slab is SLAB_TYPESAFE_BY_RCU and recycled objects
-+	 * are not zeroed. .destroy may run even if .init never completed,
-+	 * so make sure smc_clcsock_release() sees a valid clcsock.
-+	 */
-+	smc->clcsock =3D NULL;
-=20
- 	/* init common smc sock */
- 	smc_sk_init(net, sk, IPPROTO_SMC);
-@@ -116,6 +128,17 @@ static int smc_inet_init_sock(struct sock *sk)
- 	return smc_create_clcsk(net, sk, sk->sk_family);
- }
-=20
-+static void smc_inet_destroy_sock(struct sock *sk)
-+{
-+	/*
-+	 * If inet_create()/inet6_create() fail after .init has created the
-+	 * internal TCP sock (e.g. rejected by a cgroup BPF program),
-+	 * sk_common_release() ends up here. Release the TCP sock, otherwise
-+	 * it leaks on every failed IPPROTO_SMC socket() call.
-+	 */
-+	smc_clcsock_release(smc_sk(sk));
-+}
-+
- int __init smc_inet_init(void)
- {
- 	int rc;
---=20
-2.43.5
-
-Reproducer (no clang/bpftool needed, hand-assembled BPF via bpf(2));
-run as root on a cgroup-v2 system, needs CAP_BPF and CONFIG_CGROUP_BPF:
-
-  $ gcc -O2 -o smc_leak smc_leak.c
-  $ ./smc_leak 20000
-
-It attaches a deny-all BPF_CGROUP_INET_SOCK_CREATE program to a fresh
-cgroup, enters it and loops socket(AF_INET, SOCK_STREAM, IPPROTO_SMC).
-Before this patch every call fails with EPERM and the slabinfo "TCP"
-active_objs count grows by ~1 per call (20004 for 20000 iterations,
-never shrinking); with this patch the count stays flat.
-
-/* --- smc_leak.c --- */
-/*
- * IPPROTO_SMC socket-creation leak reproducer (no clang/bpftool needed).
- *
- * 1. creates a cgroupv2 subgroup, loads a hand-assembled deny-all
- *    BPF_CGROUP_INET_SOCK_CREATE prog via bpf(2), attaches it;
- * 2. moves itself into that cgroup;
- * 3. loops socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
- * 4. prints slabinfo "TCP" delta and kmemleak report.
- *
- * Run as root on a cgroup-v2 system:
- *   ./smc_leak 20000
- * Expected on buggy kernel: every socket() fails with EPERM and leaks one
- * TCP sock per call (slabinfo "TCP" active_objs grows by ~1 per iteration;
- * with CONFIG_DEBUG_KMEMLEAK, unreferenced tcp_sock objects are reported).
- * On a fixed kernel: no growth.
- */
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <sys/mount.h>
-#include <sys/socket.h>
-#include <sys/syscall.h>
-#include <linux/bpf.h>
-#include <stdint.h>
-
-#ifndef IPPROTO_SMC
-#define IPPROTO_SMC 256
-#endif
-
-#define BPF_RAW(CODE, DST, SRC, OFF, IMM) ((struct bpf_insn){CODE, DST, SRC, =
-OFF, IMM})
-
-static int sys_bpf(int cmd, union bpf_attr *attr, unsigned int size)
-{
-	return syscall(__NR_bpf, cmd, attr, size);
-}
-
-static int load_deny_prog(void)
-{
-	/* r0 =3D 0 (deny); exit */
-	struct bpf_insn insns[] =3D {
-		BPF_RAW(BPF_ALU64 | BPF_MOV | BPF_K, BPF_REG_0, 0, 0, 0),
-		BPF_RAW(BPF_JMP | BPF_EXIT, 0, 0, 0, 0),
-	};
-	union bpf_attr attr;
-	memset(&attr, 0, sizeof(attr));
-	attr.prog_type =3D BPF_PROG_TYPE_CGROUP_SOCK;
-	attr.insns =3D (uint64_t)(unsigned long)insns;
-	attr.insn_cnt =3D 2;
-	attr.license =3D (uint64_t)(unsigned long)"GPL";
-	int fd =3D sys_bpf(BPF_PROG_LOAD, &attr, sizeof(attr));
-	if (fd < 0)
-		perror("BPF_PROG_LOAD");
-	return fd;
-}
-
-static int attach_prog(int prog_fd, const char *cgpath)
-{
-	int cg_fd =3D open(cgpath, O_RDONLY | O_DIRECTORY);
-	if (cg_fd < 0) {
-		perror("open cgroup");
-		return -1;
-	}
-	union bpf_attr attr;
-	memset(&attr, 0, sizeof(attr));
-	attr.link_create.prog_fd =3D prog_fd;
-	attr.link_create.target_fd =3D cg_fd;
-	attr.link_create.attach_type =3D BPF_CGROUP_INET_SOCK_CREATE;
-	int fd =3D sys_bpf(BPF_LINK_CREATE, &attr, sizeof(attr));
-	if (fd < 0) {
-		perror("BPF_LINK_CREATE");
-		close(cg_fd);
-		return -1;
-	}
-	return fd;
-}
-
-static long tcp_active_objs(void)
-{
-	FILE *f =3D fopen("/proc/slabinfo", "r");
-	char line[256];
-	long objs =3D -1;
-
-	if (!f)
-		return -1;
-	while (fgets(line, sizeof(line), f)) {
-		char name[64];
-		long active;
-		if (sscanf(line, "%63s %ld", name, &active) =3D=3D 2 &&
-		    !strcmp(name, "TCP")) {
-			objs =3D active;
-			break;
-		}
-	}
-	fclose(f);
-	return objs;
-}
-
-static void kmemleak_scan(void)
-{
-	mkdir("/sys/kernel/debug", 0755);
-	mount("debugfs", "/sys/kernel/debug", "debugfs", 0, NULL);
-	FILE *f =3D fopen("/sys/kernel/debug/kmemleak", "w");
-	if (f) {
-		fputs("scan", f);
-		fclose(f);
-		sleep(3);
-		system("grep -c 'unreferenced object' /sys/kernel/debug/kmemleak 2>/dev/nul=
-l | sed 's/^/kmemleak unreferenced objects: /'");
-		system("head -60 /sys/kernel/debug/kmemleak 2>/dev/null");
-	} else {
-		printf("(kmemleak unavailable: %s)\n", strerror(errno));
-	}
-}
-
-int main(int argc, char **argv)
-{
-	const char *name =3D argc > 1 ? argv[1] : "smctest";
-	long iters =3D argc > 2 ? atol(argv[2]) : 20000;
-	char cgpath[256], path[280];
-	int prog_fd, link_fd;
-
-	if (access("/sys/fs/cgroup/cgroup.controllers", F_OK)) {
-		fprintf(stderr, "cgroup v2 required\n");
-		return 1;
-	}
-
-	snprintf(cgpath, sizeof(cgpath), "/sys/fs/cgroup/%s", name);
-	mkdir(cgpath, 0755);
-
-	prog_fd =3D load_deny_prog();
-	if (prog_fd < 0)
-		return 1;
-	link_fd =3D attach_prog(prog_fd, cgpath);
-	if (link_fd =3D=3D -1)
-		return 1;
-
-	snprintf(path, sizeof(path), "%s/cgroup.procs", cgpath);
-	FILE *f =3D fopen(path, "w");
-	if (!f) {
-		perror("open cgroup.procs");
-		return 1;
-	}
-	fprintf(f, "%d", getpid());
-	fclose(f);
-
-	long before =3D tcp_active_objs();
-	printf("TCP slab objs before: %ld\n", before);
-
-	long denied =3D 0, ok =3D 0, other =3D 0;
-	for (long i =3D 0; i < iters; i++) {
-		int fd =3D socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
-		if (fd >=3D 0) {
-			close(fd);
-			ok++;
-		} else if (errno =3D=3D EPERM) {
-			denied++;
-		} else {
-			if (!other)
-				printf("socket error: %s\n", strerror(errno));
-			other++;
-			break;
-		}
-	}
-	long after =3D tcp_active_objs();
-	printf("iterations=3D%ld denied(EPERM)=3D%ld ok=3D%ld other=3D%ld\n",
-	       iters, denied, ok, other);
-	printf("TCP slab objs after: %ld  (delta %+ld)\n", after, after - before);
-	if (denied && after - before > denied / 2)
-		printf("=3D> LEAK CONFIRMED: ~%ld TCP socks leaked on error path\n",
-		       after - before);
-
-	kmemleak_scan();
-
-	/* leave cgroup so it can be removed */
-	f =3D fopen("/sys/fs/cgroup/cgroup.procs", "w");
-	if (f) {
-		fprintf(f, "%d", getpid());
-		fclose(f);
-	}
-	if (link_fd >=3D 0)
-		close(link_fd);
-	rmdir(cgpath);
-	return 0;
-}
-/* --- end smc_leak.c --- */
