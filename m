@@ -1,121 +1,193 @@
-Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01D5547A86E
-	for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 17:43:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 873083644B3;
+	Wed, 12 Aug 2026 17:45:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786556582; cv=none; b=obXQWggkcSkqENI7oMfSJocrobvlrXwdlR8UoqUcfSwb1S3tB7sV4lgRK7ICDrta9LLBCqgGMvtuEhdf32DeiWEaO8VU/TmoqddIGZ5FfpTi8MQZGKF1tEh7xxdxFGTKjcpNAG6ODWIbM/xt6bRG9V9Delc6C/dSeT9TmG5YZDs=
+	t=1786556758; cv=none; b=gfgH2md/ETqVSZevathMmdJNIw+Xm6zouyNKVl1ghQcgnRnYf19ds2rkkOkXqx7i5HXfDiEdy0BOhMSVitiRw6n7bMkwADcEYUFAjmthFQG7rLW4MyJdN7Z2rLUcDY2d2jIIUg56z4SEIg1IfWZs4oKvNMhQzJYtgO9GxHR79KM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786556582; c=relaxed/simple;
-	bh=R8K4AhpTTGabp/TpyA1fPLTe5/En+9HZcWa+J+NqaoY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oeSi58c8MQW4WCrOHsSMKM987cJ+1Wwb3qQ+hpkB8VoRpaUTV7Oi6+YnMmDH/38iyamGPW2eILR9Ep9Kq1nuolA7dkkzUB5ij363xKvy131WrZ11fa86pF2qFyjS/7is/w3e7zd/C6eZhM6E0BkgIeFPQn6SDLYSybG02iDKOvY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=HAet0nyA; arc=none smtp.client-ip=209.85.160.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1786556758; c=relaxed/simple;
+	bh=wbY21i7M7Q/sZSQzHcOT3M3Pvh+fdzZZDGqvoN8kDkA=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=N4dqgyj6+RmTyyH4/f3uxaB2f5hmfMC2hESmQRhfz+cHoLnpGBc7FBZ8Z7u2aV9Bgdpl5Fstg4upuASK1EetAIF/bAU8q9JU7CSQ88oKdslJr8g+HSTLcMRowd6CfB9CCf7EXBbLkNrJVKmmxPenMnskuWm7v9T6/Rb2fUit9p0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ig6HBv6q; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="HAet0nyA"
-Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-51c08df8513so9160371cf.3
-        for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 10:43:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1786556580; x=1787161380; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=RRy7TSLv7XgtK7yVOoP/4PPtFt0r1aZ67kTGnhbzw7Y=;
-        b=HAet0nyAadkR4pZmyOXbUhSqRehEHiZNaUea0AO5U3L+3IQpKTxHfvLg5DSbspSFPi
-         3AOnv5PnaVcuUoPVMoIJrq77QCKBSZwzgKYygbr6tf6c6K1pevOmLKTWgu7AjxiabXwo
-         rREelaDYSyR+yj3kQZtgwSzvU7rs5nevHAmbhehoRZGPaD7ntshCpr00YIHLwwz1bdg+
-         JRfFm/3v4NSrtvobYO3r7XfPz5c5j7QmqN2eUUix+YW1Bj/xXpyQr0gHkgZIuneIv12c
-         3wfOuK12Oc4p6QbQc40TjdiPFUfadlRwxgFbr/m5wEws0lyOTUgEpEIvR4+ntgDxnA3A
-         QpYQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786556580; x=1787161380;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=RRy7TSLv7XgtK7yVOoP/4PPtFt0r1aZ67kTGnhbzw7Y=;
-        b=WcIgewkv6keQxsZOZr3t3pzXiSY/AXNhiHIXLaZY0Bzw5zFn+k9fT0bIEIMatEksT7
-         mi12wjvDqHju7y6IwnOfIPA9njj0/+M6Qywv2j3P//EzknnbsyEoiuQ6NXasN9H3v41w
-         uCKpH9o8dn/n7tCKfOXcmnJPJ6TaOHXjqBjOoAVK0QntM60GKbu0qXsKeYHyKJw6k3Ff
-         +86jzKrbiWS4wSgljYyneSmmMZ88se4SvHmnkpveVJOmPigIyvF23tOwBWMjxyzvmeWX
-         aXvMk+fV8rNlmQaiGqjQC4cQ6sSoMKZ/NgGFJVOdJ2iRKq1ORhM/U8A+nhwORFOq7D7c
-         ieDg==
-X-Forwarded-Encrypted: i=1; AHgh+RpH5JJNzdzUT2I5npqE3L+05UTNwP85IT2OS1cIlPyfGQOlrzxr7rzPujgyB2tmdxXWdYPCh/stA1T7@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy7BbcozZ2F2bMxo8+5YQAvKc1i2d38CRO8j9RLw8Pr5omhm3/u
-	csnpEeCSuUEeJ3YQ+a1TpaXygeoAbkAzFOXHusgxLsHUL7s3NY1WTJdAeeH7bb/dXZs=
-X-Gm-Gg: AR+sD10ogqTE58aA3ixPzpq7KRmC88CsdWykMJSKllpCegpKTvpLzFAsGzYDsoHUUQZ
-	anf5ty59xZjjwXS5rRl7QlEVncb1FGT1H4LyHBnMlykvwn9zhnt4tKAwPezCUSPd8ZiOZLbyqdm
-	vqF3wE4j8Z7UBY5T3/cCeSECjl3Q/5iR0DtxWjUB4BKkjYuNHvbyBrDEZeTmByI+9G3adB2lK5w
-	7W2xvQVoLbQscfkvZ5C+N6ZKO9GPkZUNJpP4E4Ry3iDdkkNOaexeomsfKeKXivLfUahmL8nCQl6
-	letJaYpKfIv4zDewe80FC16DVZA31IAHVYeE4Cx3wjAJH9YT9NGlC8FaWB5XoLrq0cR7NmERAqi
-	9ld4MYw0PPDLUxNpMBJOFmpoSDUNleLOAUcH5z4s0gNLagFwcAD2QRAulS4rNk6IfHWdJFU8l1n
-	QEfMmr1uNYJw8VH0uZYywLu7VLcetLwFGJhgzUXQ==
-X-Received: by 2002:a05:622a:145:b0:528:38b1:b54c with SMTP id d75a77b69052e-52d646a004amr57067221cf.2.1786556579927;
-        Wed, 12 Aug 2026 10:42:59 -0700 (PDT)
-Received: from ziepe.ca ([142.166.156.215])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-52d61d91199sm22262711cf.14.2026.08.12.10.42.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Aug 2026 10:42:59 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1wuCyg-00000003IL0-2V6p;
-	Wed, 12 Aug 2026 14:42:58 -0300
-Date: Wed, 12 Aug 2026 14:42:58 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, iommu@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-coco@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [RFC PATCH] dma: swiotlb: Size shared default pools for memory
- encryption
-Message-ID: <20260812174258.GF662699@ziepe.ca>
-References: <20260811134056.756015-1-aneesh.kumar@kernel.org>
- <anxEc8EHmJQywVI5@arm.com>
- <yq5ajypvioks.fsf@kernel.org>
- <anysnQFVTO_RAYxp@arm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ig6HBv6q"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B10CB1F000E9;
+	Wed, 12 Aug 2026 17:45:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786556757;
+	bh=JU6UOv+LgfIu7CXPqilPAwmbzoedJ7nnrH2mDnSEO0I=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Ig6HBv6qrEL9tUQu3C7tN1XJ96OqxGZI4ZmxFWEAFbJkbiDWhqAlubS1A84KuZmCN
+	 9NVSjHUhPnjAVP6kLC2NDLKX5kf7TFeUigl+gGNIzUHEGMEhSttPXRW32hHkd1lZ8J
+	 4q4D3t4H/BrlYA/POQoAq/W4PAuFUp5XwbS6rsMao2U/6aitglp3ncguKv5aPLd7dd
+	 C9b/0iz7HmZG9HbVoMoQMnJWXdiH1jexXWfT1PTsrvweL4LL11NvUVx75C8qqaFEK7
+	 8oPyjXWFB6ksMgjxWRLigvszfTlrmXaQdghpVjKuPIVc9jhEBXa2pJ87wkEoBFfx8V
+	 0kRje42RqLSzg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v4 20/20] KVM: s390: vsie: Enable use of VSIE SSCA
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.vom>
+In-Reply-To: <20260812-vsie-sigpi-v4-20-f19e49666315@linux.ibm.com>
+References: <20260812-vsie-sigpi-v4-0-f19e49666315@linux.ibm.com>
+ <20260812-vsie-sigpi-v4-20-f19e49666315@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 12 Aug 2026 17:45:56 +0000
+Message-Id: <20260812174556.B10CB1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <anysnQFVTO_RAYxp@arm.com>
 
-On Wed, Aug 12, 2026 at 06:25:49PM +0100, Catalin Marinas wrote:
-> > > BTW, why does arm64 report CC_ATTR_MEM_ENCRYPT instead of the GUEST
-> > > option in realms?
-> 
-> It's still not clear to me why we went for CC_ATTR_MEM_ENCRYPT instead
-> of CC_ATTR_GUEST_MEM_ENCRYPT.
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
+- [Critical] Guest-2 can trigger an out-of-bounds array access (both read a=
+nd write) in host kernel memory by supplying a malicious `icpua` value.
+- [High] The newly introduced VSIE SCA shadowing code contains multiple WAR=
+N_ON_ONCE assertions that can be triggered by a malicious guest, leading to=
+ a host kernel panic.
+- [High] VSIE unconditionally allows nested guests to use SSCA (SIGPI and S=
+RSI interpretation) if the host supports it, bypassing the guest-2's negoti=
+ated CPU model capabilities.
+- [High] Guest-triggerable QEMU/VM abort via invalid or unaligned SCA entry=
+ addresses.
+--
 
-Yeah, this tune should be only for CC guests that have the
-shared/private issue.
+--- Patch [20]: [PATCH v4 20/20] KVM: s390: vsie: Enable use of VSIE SSCA -=
+--
+commit 3bbd1f1a442d7f9a9ee468b6c61e02cb8392ba96
+Author: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
-The AMD SME issue with the address width on bare metal is an entirely
-different problem that would need a different kind of tuning.
+KVM: s390: vsie: Enable use of VSIE SSCA
 
-Jason
+This commit enables code paths configuring and using VSIE SIGPI and SRSI.
+It adds a new module parameter to globally disable SIGP, but defaults to
+enabled on supported hardware to improve guest-3 performance.
+
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index c21603f2745bf..59561d459a4f3 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+
+[ ... ]
+
+> @@ -477,6 +482,8 @@ static void __init kvm_s390_cpu_feat_init(void)
+>  		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_KSS);
+>  	if (sclp.has_astfleie2)
+>  		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_ASTFLEIE2);
+> +	if (sclp.has_vsie_interp_extf && ssca)
+> +		allow_cpu_feat(KVM_S390_VM_CPU_FEAT_SIGPIF);
+
+[Severity: High]
+Does this globally enable SSCA for the VM without verifying if the guest was
+provisioned with the feature?
+
+Looking at use_ssca() in arch/s390/kvm/vsie.c, it only checks the host-level
+flag kvm->arch.use_ssca:
+
+arch/s390/kvm/vsie.c:use_ssca() {
+    if (!kvm->arch.use_ssca)
+        return false;
+    ...
+}
+
+Would this allow a nested guest to use SSCA features even if QEMU explicitly
+disabled KVM_S390_VM_CPU_FEAT_SIGPIF for the CPU model, potentially breaking
+capability negotiation and live migration?
+
+[ ... ]
+
+> @@ -3389,7 +3393,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long=
+ type)
+> =20
+>  	kvm->arch.use_pfmfi =3D sclp.has_pfmfi;
+>  	kvm->arch.use_skf =3D sclp.has_skey;
+> -	kvm->arch.use_ssca =3D sclp.has_vsie_interp_extf;
+> +	kvm->arch.use_ssca =3D sclp.has_vsie_interp_extf && ssca;
+
+[Severity: Critical]
+Is there a potential out-of-bounds array access when validating the guest's
+icpua index now that these paths are being used?
+
+In kvm_s390_handle_vsie(), the bounds check compares scb_o->icpua against
+KVM_S390_MAX_VSIE_VCPUS:
+
+arch/s390/kvm/vsie.c:kvm_s390_handle_vsie() {
+    if (scb_o->icpua >=3D KVM_S390_MAX_VSIE_VCPUS) {
+        rc =3D kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+        goto out_unpin;
+    }
+    ...
+}
+
+Since icpua is a signed 16-bit integer, could a negative value bypass this
+check?
+
+Additionally, scb_o resides in guest memory. Is there a TOCTOU race where t=
+he
+guest could change icpua after the check, before it is read again for the
+array index in get_vsie_page_cpu_nr()?
+
+arch/s390/kvm/vsie.c:get_vsie_page_cpu_nr() {
+    ...
+    vsie_page =3D vsie_sca->pages[cpu_nr];
+    ...
+    WRITE_ONCE(vsie_sca->pages[cpu_nr], vsie_page_new);
+}
+
+Could this lead to host memory corruption if an untrusted guest supplies a
+malicious index?
+
+[Severity: High]
+Could enabling these code paths allow a guest to trigger host kernel panics
+via WARN_ON_ONCE assertions?
+
+For example, if a guest configures a nested guest with an unmapped SCA addr=
+ess,
+pin_guest_pages() or pin_scb() would return a negative error code (like
+-EFAULT). This error is assigned to sca_o_nr_pages and triggers a warning:
+
+arch/s390/kvm/vsie.c:pin_sca() {
+    ...
+    if (WARN_ON_ONCE(vsie_sca->sca_o_nr_pages !=3D nr_pages))
+    ...
+}
+
+Similar warnings exist in get_vsie_page_cpu_nr() and get_vsie_page() when
+vsie_page_init() fails. Since KVM guidelines advise against guest-reachable
+WARN_ON assertions, should these be converted to avoid host Denial of Servi=
+ce?
+
+[Severity: High]
+Could this also allow a guest to crash the hypervisor by supplying invalid
+nested SCB addresses?
+
+In _shadow_sca(), if the guest provides an unaligned address, it returns
+-EINVAL directly:
+
+arch/s390/kvm/vsie.c:_shadow_sca() {
+    if (scb_o_gpa & 0x1ffUL) {
+        rc =3D -EINVAL;
+        goto err;
+    }
+    ...
+}
+
+If the address is unmapped, get_vsie_page_cpu_nr() fails and returns -ENOME=
+M.
+These error codes appear to propagate up to the main instruction intercept
+handler. Will this cause KVM to exit to userspace with the error, aborting
+the QEMU process instead of injecting an architectural program exception in=
+to
+the guest?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812-vsie-sigpi=
+-v4-0-f19e49666315@linux.ibm.com?part=3D20
