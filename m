@@ -1,155 +1,198 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC5CD3E8695;
-	Wed, 12 Aug 2026 12:12:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63D4E4399EA;
+	Wed, 12 Aug 2026 12:12:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786536741; cv=none; b=k84mKJIRdMmSMzY3TLCbJ66U0jqFLLlx4h2lKCYoCsMCsBW/OQbyOJEKD7YLWoR+ZLgcnSdjQY8JlHzckGURret4Hv914eRk64dY27fzKCU/yhMcwroXtz8mGKtrFnUcf50GlKN78irO2zQFTFDX3rAu0Aqmee5ONO8h6oV2yfs=
+	t=1786536757; cv=none; b=YTBEQi4dZANjQOr1xd7ZujBhIPW8bIl/CXCgpdObhCFAmlMKUUjOfTbV/soVnS0hTqrdQOYp+njB5HZ9qGLhSpCqZH+GKgDloea9qW54xcSF/gyOjtXCgoYfH+5fa0IYN3cHUZ9kLNe+f48LcOMlxWTTjA0PaAjZcZJl63DnWV4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786536741; c=relaxed/simple;
-	bh=rlXFVdp++pMhm2oKfUqRU39BZCFItgdSZHIJsXSrTjw=;
+	s=arc-20240116; t=1786536757; c=relaxed/simple;
+	bh=g7r/+Wxk1bZLJrZ+0obMmUbIEiSh8CywKs20FmXPvsg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=E10B6JM2tsRXiJNQ0bRMNhNbkpnDfP8f6yiQ0PUtOYN4VzatVHJQwxMfKe2C9E6gBWBmOPsy2jU/wqK294QOEiNMnEiTItjQnrNM+bfA3FtCwnv4J4pNB+D0IRI6Yaa2LBj8dXR/mslwVtz9BG2xnBF7pHECRLzZkRP0FgLRw+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Qoqp5eJF; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=mzYm8wjDoKJA00DHQ6ZVFEXHk0HCaIdxqZHw5ppGaR1JgeeTPDif0oTe5Ze9AbsEoKBiOuA6Oty7SvYReVaQq5PSizM4UVMphDb09qbanhK8QMDG2XvAr+77Z2MX+b8LnpJTs2hzDn7ykQ2lv40a1CYBwDEcWdzSbxSK37FYAro=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ra2BezD3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Qoqp5eJF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E0161F000E9;
-	Wed, 12 Aug 2026 12:12:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ra2BezD3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ACDE1F000E9;
+	Wed, 12 Aug 2026 12:12:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786536739;
-	bh=cf9J7TH7XqEZHGiMlMsDNw9IHfO4YoT29P/bOZUuqvM=;
+	s=k20260515; t=1786536755;
+	bh=rOmY5GUXE8DqZvB7awURu6rs/GONxy3PX9VXOD+ItwU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Qoqp5eJFzyFlA0GYWfj4BADgkwPrk8iJL5xVQS5+0TJ5mnpdPDn64pad/7gPn+eOH
-	 hC7kdkkjF7+/QY3izjLaC/pXZZJKET2Hp7mqVSby67Ve8qhDMLHswiJ6r/U6R3qQCR
-	 Y4s4A6g8w+mlhep6ZH+OywM6MMra9hj5F+BNWQmrwK17Fz3jonl8hhDr6Z2/lYask6
-	 KArlx9VDMOqBXkYQuOyB/URa8IKxwZF/i5iEzFBNg8/t0cmuZfGYSLXqZh6AR/RIrl
-	 9wPgI/ivYWJ7l280gvwRTHhJfuQp6TD6mI1mj9D6tA63B3UdL91sWVu3vH46eIT9z5
-	 AAIS5yXtI6N3A==
+	b=Ra2BezD3MLFTEZNEOJ3yhESD1CVCdkfj73RCpNBH1dQfF0Ba5GfaxjXbrZ3BoFwG+
+	 OvzuZ9YiVlaST8QUBY3ebIUiRe4Rnvtv14EeDOgJuizbfZ9tKEl/KQj5km9xkfn7Kd
+	 nvWzG3sWTjqn0Rn2G3Lw/tgRgve5F8VWlg6NNIQaYlu98dKR0P5EjxKaijjGbw7BhT
+	 Au3H+rN4xC7fXvVXHGi/aY2iC1F9XD2SmTpezJAkwzCFppqdEwEUOOnXeNcpi5E3pt
+	 YTKDQp2vusIwnsECxnNpMxybs6GsyyCUGEBY9lri4cGKQdaoa8cIAW3lZdB0mSny1c
+	 SqSIeYo+MAYZQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/9] s390/vfio-ap: Fix dereference matrix_mdev->kvm
- without checking for NULL
+Subject: Re: [PATCH v3 1/9] s390/vfio-ap: Fix stale do_remove flag across
+ iterations in vfio_ap_mdev_cfg_remove
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.vom>
-In-Reply-To: <20260812115139.576303-3-akrowiak@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.vom>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260812115139.576303-2-akrowiak@linux.ibm.com>
 References: <20260812115139.576303-1-akrowiak@linux.ibm.com>
- <20260812115139.576303-3-akrowiak@linux.ibm.com>
+ <20260812115139.576303-2-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 12:12:18 +0000
-Message-Id: <20260812121219.0E0161F000E9@smtp.kernel.org>
+Date: Wed, 12 Aug 2026 12:12:35 +0000
+Message-Id: <20260812121235.8ACDE1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Uninitialized stack-allocated bitmap (`apm_filtered`) is passed to=
- `reset_queues_for_apids`.
-- [High] Missing matrix_dev->mdevs_lock acquisition in vfio_ap_mdev_cfg_add=
-() causing data race on matrix_mdev fields.
-- [High] Unsafe iteration over matrix_dev->mdev_list without holding mdevs_=
-lock.
+- [High] Data race due to iterating `mdev_list` without holding `mdevs_lock=
+` across the entire loop.
+- [High] Unconditional dereference of `matrix_mdev->kvm` when acquiring the=
+ KVM lock.
+- [High] Incorrect use of `bitmap_andnot` instead of `bitmap_and` for calcu=
+lating `cdrem` prevents control domains from being hot-unplugged.
+- [High] Misuse of `bitmap_andnot` return value causes missed and spurious =
+hotplug events in `vfio_ap_mdev_hot_unplug_cfg`.
+- [Medium] Incorrect bitmap size constants (`AP_DEVICES` vs `AP_DOMAINS`) p=
+assed to bitmap operations.
 --
 
---- Patch [2]: [PATCH v3 2/9] s390/vfio-ap: Fix dereference matrix_mdev->kv=
-m without checking for NULL ---
-commit adee11494c3d56eaa0ce36b3c479c7382d103cad
+--- Patch [1]: [PATCH v3 1/9] s390/vfio-ap: Fix stale do_remove flag across=
+ iterations in vfio_ap_mdev_cfg_remove ---
+commit 9ff3dc11652e82272549805f96671e76c090b814
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-s390/vfio-ap: Fix dereference matrix_mdev->kvm without checking for NULL
+s390/vfio-ap: Fix stale do_remove flag across iterations in vfio_ap_mdev_cf=
+g_remove
 
-This commit adds NULL checks for matrix_mdev->kvm before attempting to
-acquire the matrix_mdev->kvm->lock mutex in the configuration change and
-scan complete callbacks. This prevents a potential NULL pointer dereference
-if the kvm pointer has not been initialized.
+The do_remove flag in vfio_ap_mdev_cfg_remove() is initialized to zero but
+never reset at the start of each iteration. Because do_remove is accumulated
+with bitwise OR across iterations, a positive result from one mdev carries
+over to subsequent mdevs. This commit fixes the issue by setting the
+do_remove flag directly with the first call to bitmap_and.
 
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
+_ap_ops.c
+> index 44b3a1dcc1b36..845c86ba8bc30 100644
 > --- a/drivers/s390/crypto/vfio_ap_ops.c
 > +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -2606,7 +2606,13 @@ static void vfio_ap_mdev_cfg_remove(unsigned long =
-*ap_remove,
->  	int do_remove;
+> @@ -2603,15 +2603,15 @@ static void vfio_ap_mdev_cfg_remove(unsigned long=
+ *ap_remove,
+>  	DECLARE_BITMAP(aprem, AP_DEVICES);
+>  	DECLARE_BITMAP(aqrem, AP_DOMAINS);
+>  	DECLARE_BITMAP(cdrem, AP_DOMAINS);
+> -	int do_remove =3D 0;
+> +	int do_remove;
 > =20
 >  	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
 
 [Severity: High]
-This isn't a bug introduced by this patch, but is it safe to iterate over
-mdev_list holding only matrix_dev->guests_lock here?
+This is a pre-existing issue, but does iterating over mdev_list here while
+repeatedly dropping and reacquiring mdevs_lock inside the loop create a data
+race?
 
-Looking at vfio_ap_mdev_probe(), it appears new entries are added to
-this list holding only matrix_dev->mdevs_lock (without taking guests_lock).
+Because mdevs_lock is not held when the iterator advances, couldn't a
+concurrent call to vfio_ap_mdev_probe() modify mdev_list, leading to
+list corruption or use-after-free?
 
-Could concurrent probing during an AP bus scan modify the list while we are
-traversing it locklessly here, leading to list corruption?
+vfio_ap_mdev_probe() adds to this list holding only mdevs_lock:
 
-> -		mutex_lock(&matrix_mdev->kvm->lock);
-> +		/*
-> +		 * The mdevs_lock must be held to access fields within matrix_mdev,
-> +		 * and kvm->lock must be taken before mdevs_lock to satisfy the lock
-> +		 * ordering requirement and prevent a lockdep splat.
-> +		 */
-> +		if (matrix_mdev->kvm)
-> +			mutex_lock(&matrix_mdev->kvm->lock);
+vfio_ap_mdev_probe()
+    mutex_lock(&matrix_dev->mdevs_lock);
+    list_add(&matrix_mdev->node, &matrix_dev->mdev_list);
+    mutex_unlock(&matrix_dev->mdevs_lock);
+
+>  		mutex_lock(&matrix_mdev->kvm->lock);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but can matrix_mdev->kvm be NULL
+here?
+
+When an mdev is created via sysfs, matrix_mdev->kvm appears to be initializ=
+ed
+to NULL and is only assigned when the mdev is opened by KVM. If a host AP
+configuration change occurs before the mdev is attached to a guest, couldn't
+this unconditional dereference cause a host kernel panic?
+
+(Note: similar unconditional dereferences appear in
+vfio_ap_mdev_hot_plug_cfg)
+
 >  		mutex_lock(&matrix_dev->mdevs_lock);
-
-[Severity: High]
-This is a pre-existing issue, but does vfio_ap_mdev_cfg_add() also need
-matrix_dev->mdevs_lock protection like this?
-
-vfio_ap_mdev_cfg_add() is called right after vfio_ap_mdev_cfg_remove() from
-vfio_ap_on_cfg_changed(), which only holds matrix_dev->guests_lock. It
-modifies matrix_mdev->apm_add, aqm_add, and adm_add, and reads
-matrix_mdev->matrix.
-
-Could concurrent modifications race without mdevs_lock being held and
-corrupt the guest AP configuration bitmaps in vfio_ap_mdev_cfg_add()?
-
-[ ... ]
-> @@ -2821,9 +2828,6 @@ static void vfio_ap_mdev_hot_plug_cfg(struct ap_mat=
-rix_mdev *matrix_mdev)
->  	DECLARE_BITMAP(apm_filtered, AP_DEVICES);
->  	bool filter_domains, filter_adapters, filter_cdoms, do_hotplug =3D fals=
-e;
-
-[Severity: High]
-This is a pre-existing issue, but does apm_filtered need to be zeroed or
-initialized before use?
-
-If vfio_ap_on_scan_complete() is called with non-empty adm_add but empty
-apm_add and aqm_add, filter_adapters and filter_domains are set to false.
-This bypasses vfio_ap_mdev_filter_matrix(), which normally initializes
-apm_filtered.
-
-Then the uninitialized stack variable is passed down:
-
-    reset_queues_for_apids(matrix_mdev, apm_filtered);
-
-Could this cause reset_queues_for_apids() to iterate over random stack
-garbage bits and inadvertently reset arbitrary AP queues?
-
-[ ... ]
->  void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
-> @@ -2854,15 +2855,29 @@ void vfio_ap_on_scan_complete(struct ap_config_in=
-fo *new_config_info,
->  	mutex_lock(&matrix_dev->guests_lock);
 > =20
->  	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
+> -		do_remove |=3D bitmap_and(aprem, ap_remove,
+> -					  matrix_mdev->matrix.apm,
+> -					  AP_DEVICES);
+> +		do_remove =3D bitmap_and(aprem, ap_remove,
+> +				       matrix_mdev->matrix.apm,
+> +				       AP_DEVICES);
+>  		do_remove |=3D bitmap_and(aqrem, aq_remove,
+>  					  matrix_mdev->matrix.aqm,
+>  					  AP_DOMAINS);
 
 [Severity: High]
-This isn't a bug introduced by this patch, but similar to the loop in
-vfio_ap_mdev_cfg_remove() above, does this iteration also need
-matrix_dev->mdevs_lock to prevent list corruption against concurrent calls
-to vfio_ap_mdev_probe()?
+This is a pre-existing issue, but does the calculation for cdrem just below
+this diff use the wrong bitwise operation?
 
-[ ... ]
+    do_remove |=3D bitmap_andnot(cdrem, cd_remove,
+                               matrix_mdev->matrix.adm,
+                               AP_DOMAINS);
+
+By using bitmap_andnot (which computes cd_remove & ~matrix_mdev->matrix.adm=
+),
+isn't this incorrectly identifying domains removed from the host that are n=
+ot
+assigned to this guest? Shouldn't this be an intersection (bitmap_and) to
+identify assigned domains being removed, just like the calculations for apr=
+em
+and aqrem?
+
+
+[Severity: High]
+This isn't a bug introduced by this patch, but is the return value of
+bitmap_andnot() being misused in vfio_ap_mdev_hot_unplug_cfg()?
+
+    if (!bitmap_empty(aprem, AP_DEVICES)) {
+        do_hotplug |=3D bitmap_andnot(matrix_mdev->shadow_apcb.apm,
+                                    matrix_mdev->shadow_apcb.apm,
+                                    aprem, AP_DEVICES);
+    }
+
+The standard bitmap_andnot() function returns true if the resulting
+destination bitmap is non-empty, not whether bits were actually changed.
+
+If the last device is removed from the guest's shadow APCB, the resulting
+bitmap is empty, so bitmap_andnot() returns false and the guest is never
+notified. Conversely, if a device is removed that wasn't in the shadow APCB
+but the guest has other devices, it returns true, triggering a spurious
+update.
+
+
+[Severity: Medium]
+This is a pre-existing issue, but are the wrong size constants being passed=
+ to
+bitmap operations for domains?
+
+In vfio_ap_mdev_hot_unplug_cfg():
+
+    do_hotplug |=3D bitmap_andnot(matrix_mdev->shadow_apcb.aqm,
+                                matrix_mdev->shadow_apcb.aqm,
+                                aqrem, AP_DEVICES);
+
+And in vfio_ap_mdev_cfg_add():
+
+    bitmap_and(matrix_mdev->adm_add,
+               matrix_mdev->matrix.adm, adm_add, AP_DEVICES);
+
+Since aqm and adm represent domains, shouldn't these use AP_DOMAINS instead
+of AP_DEVICES? This could lead to out-of-bounds memory accesses if the
+definitions of AP_DEVICES and AP_DOMAINS ever diverge.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812115139.5763=
-03-1-akrowiak@linux.ibm.com?part=3D2
+03-1-akrowiak@linux.ibm.com?part=3D1
