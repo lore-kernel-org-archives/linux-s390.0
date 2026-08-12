@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 250E4341057;
-	Wed, 12 Aug 2026 11:28:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CB4D35DA6E;
+	Wed, 12 Aug 2026 11:28:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786534113; cv=none; b=JKnUhd/95YLf8AvRpfsSazP2wll464j6lL0U+8Lep9yhsIanh6PqRebIWLJJ6kGLHmxLkd5VirLx3KOgv1YVt/Qw6rZPMGC4tVg/kFt37dWzWb6tA5LYaB0JhNq3HpJC5zWLK1xW35FVmAXswS5oj1L8vmnWWThTyndAUVqpiQQ=
+	t=1786534136; cv=none; b=cTypiIAH+b9eQxZXYPmOQPloBrqwNvuqX3IeSQAxd/sz8MWNMrZ3U/A/VWsGWOzVklPEd0fm85gs1Q7L1zsOa4pzBGX0+xF2sieSutPXpgnjwRW0EEa0vByZDUSuuVLIonmYQWrVBlQ2hBhcFVUbO41FfDWi6bjtZhhdTP+q5jk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786534113; c=relaxed/simple;
-	bh=rCD/g927eY7TdUOKNub1rEc+CxwjFfilYGPKehry8A0=;
+	s=arc-20240116; t=1786534136; c=relaxed/simple;
+	bh=6BchBZb9qGDTmLumfFgofLBMiJFwTHyIaQcNpTfE7TE=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VoYUdlRSr7pVi7ZQoTrC5fNWL2gC+dLj0o8bd6RrgGUMppxcvJP2lGx7HgHVIY4o7q2MdPUei3pIoNF6lO0LngT9ftiXhKElJ4RaFgauDZzxc0QGqRddIM9MMCvH6/lZpetxL9y7ok0iz+kREDtf3xZAe8laPFXq7chm94834LM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R770ZzSz; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=uWDKS85SD/EXqd0blH8Ec/vp0lnWo3qlAHPIk2OdGUEtvpcrjLhKzgjikO1Y1Vra7ySZKXIGZMQVIqFLgNt2/vr6JtSQAQ5sEvag2X07BZ4W6rUOwDM8PLvjaQqGUsVoi8KdLZfHwuQIUvUAS0AFX9swfbEjUFWzxb2hqujDvjQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Spd7Z52S; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R770ZzSz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 022BA1F000E9;
-	Wed, 12 Aug 2026 11:28:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Spd7Z52S"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 662EA1F000E9;
+	Wed, 12 Aug 2026 11:28:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786534111;
-	bh=EG+9d2areJevimTNoL+CVRXPlsVq0h4r/7sK+coGE+g=;
+	s=k20260515; t=1786534133;
+	bh=FcnwOpb20k56OlzwMG66aE8z23tMLTn0GX7RmNBbTuo=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=R770ZzSzgdG86/NXMage81wzUFeS0CV8TJN+FTy3GqkZs91oKKb+UMP3HprpsS0ll
-	 0Wg7pTbwr86EN5F6uluXTEl+Pj1fSitU/XvpIx9ciPNyYlETh2LqI/+D2gDsppo6OD
-	 yB0zB3DtxgJOAm/4vvR0MKlV6fDYEwT1SPtfC+hetiB9t/IGN6ZuTReZewi6NTenyE
-	 vAMBpBqNVWCwPI0e2bxOG/EloArZkrD68ZAi1ERAwEkV3Qg0+K0lrcjS0HdYC6p9yB
-	 G+Ls0Si3VJrq7ZaFnE4H1CBwSfg75sQl53X9g+96xUtYtDwT8TDmYw2qMhkU3o2aBj
-	 CXwwy98HEtYrQ==
-Message-ID: <28c24991-590f-4980-a92e-26c89288cae7@kernel.org>
-Date: Wed, 12 Aug 2026 13:28:23 +0200
+	b=Spd7Z52S+anzxKYwnAgi/AtvjfESL5PwTKgIqubz4s2/gdBKPK1PBUL+UlGOLhMCN
+	 Gx9nQBExt2+4xzfpf19qghT7hdbZtU4r2pYjDOTTMKOgshUiKAvXf9X7JdXURMw0fH
+	 LgT83ZJzz7JUc2cD+zPnkxTRAw1/HGZPrammYkDmxGINgAjpR5xBV9YQn6w7l1PgnI
+	 4NNTDruHwZfVoRA+X5ZvwsdnHZZwvu2aICh2gWtdpmmvvDzh1VFJcxfUX/veCwqvAc
+	 0r7q5ksshsTKLeMxN29WYMJSFA8joiGkiYpaV39tgyHPTesTIKfhF8UTJiSXfjnGlQ
+	 dSxsr7d0sngOw==
+Message-ID: <7d8e17c2-9c9c-409e-ab4d-4e4fb0e51ec4@kernel.org>
+Date: Wed, 12 Aug 2026 13:28:44 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,7 +35,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC V2 3/6] sh/mm: Stop using pte_ERROR()
+Subject: Re: [RFC V2 5/6] sh/mm: Stop using pgd_ERROR()
 To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org,
  akpm@linux-foundation.org
 Cc: Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker
@@ -53,7 +53,7 @@ Cc: Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker
  linux-um@lists.infradead.org, linux-arch@vger.kernel.org,
  linux-kernel@vger.kernel.org
 References: <20260811042119.3652929-1-anshuman.khandual@arm.com>
- <20260811042119.3652929-4-anshuman.khandual@arm.com>
+ <20260811042119.3652929-6-anshuman.khandual@arm.com>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -100,15 +100,13 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260811042119.3652929-4-anshuman.khandual@arm.com>
+In-Reply-To: <20260811042119.3652929-6-anshuman.khandual@arm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 8/11/26 06:21, Anshuman Khandual wrote:
-> Directly use pr_err() in set_pte_phys() and drop pte_ERROR() which helps in
-> eventually dropping pte_ERROR() macro across the tree. In this new printing
-> __FILE__ and __LINE__ has been dropped because they are always the same and
-> don't really add any value.
+> Stop using pgd_ERROR() in __get_pte_phys() when page table entry is already
+> known to be empty.
 > 
 > Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
 > Cc: Rich Felker <dalias@libc.org>
@@ -117,62 +115,27 @@ On 8/11/26 06:21, Anshuman Khandual wrote:
 > Cc: linux-kernel@vger.kernel.org
 > Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 > ---
->  arch/sh/include/asm/pgtable_32.h |  5 -----
->  arch/sh/mm/init.c                | 11 ++++++++++-
->  2 files changed, 10 insertions(+), 6 deletions(-)
+>  arch/sh/mm/init.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
 > 
-> diff --git a/arch/sh/include/asm/pgtable_32.h b/arch/sh/include/asm/pgtable_32.h
-> index 5f51af18997b..c8eb9a7a4c4c 100644
-> --- a/arch/sh/include/asm/pgtable_32.h
-> +++ b/arch/sh/include/asm/pgtable_32.h
-> @@ -401,14 +401,9 @@ static inline unsigned long pmd_page_vaddr(pmd_t pmd)
->  #define pmd_page(pmd)		(virt_to_page(pmd_val(pmd)))
->  
->  #ifdef CONFIG_X2TLB
-> -#define pte_ERROR(e) \
-> -	printk("%s:%d: bad pte %p(%08lx%08lx).\n", __FILE__, __LINE__, \
-> -	       &(e), (e).pte_high, (e).pte_low)
->  #define pgd_ERROR(e) \
->  	printk("%s:%d: bad pgd %016llx.\n", __FILE__, __LINE__, pgd_val(e))
->  #else
-> -#define pte_ERROR(e) \
-> -	printk("%s:%d: bad pte %08lx.\n", __FILE__, __LINE__, pte_val(e))
->  #define pgd_ERROR(e) \
->  	printk("%s:%d: bad pgd %08lx.\n", __FILE__, __LINE__, pgd_val(e))
->  #endif
 > diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
-> index 110308bdef01..b3c7fd84ceb4 100644
+> index 0bb8555568a4..585012293632 100644
 > --- a/arch/sh/mm/init.c
 > +++ b/arch/sh/mm/init.c
-> @@ -78,13 +78,22 @@ static pte_t *__get_pte_phys(unsigned long addr)
->  	return pte_offset_kernel(pmd, addr);
->  }
+> @@ -52,10 +52,8 @@ static pte_t *__get_pte_phys(unsigned long addr)
+>  	pmd_t *pmd;
 >  
-> +static void print_bad_pte(pte_t pte)
-> +{
-> +#ifdef CONFIG_X2TLB
-> +	printk("bad pte %p(%08lx%08lx).\n", &pte, pte.pte_high, pte.pte_low);
-> +#else
-> +	printk("bad pte %08lx.\n", pte_val(pte));
-> +#endif
-
-I'd avoid that helper if possible, so we don't encourage new users.
-
-Shouldn't we just switch to pr_err() right away?
-
-> +}
-> +
->  static void set_pte_phys(unsigned long addr, unsigned long phys, pgprot_t prot)
->  {
->  	pte_t *pte;
+>  	pgd = pgd_offset_k(addr);
+> -	if (pgd_none(*pgd)) {
+> -		pgd_ERROR(*pgd);
+> +	if (pgd_none(*pgd))
+>  		return NULL;
+> -	}
 >  
->  	pte = __get_pte_phys(addr);
->  	if (!pte_none(*pte)) {
-> -		pte_ERROR(*pte);
-> +		print_bad_pte(*pte);
+>  	p4d = p4d_alloc(NULL, pgd, addr);
+>  	if (unlikely(!p4d))
 
-Maybe similar to my reply to patch #1, actually print something more useful than
-just "bad pte" ? And possibly also just use ptval_to_str().
+Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
 
 -- 
 Cheers,
