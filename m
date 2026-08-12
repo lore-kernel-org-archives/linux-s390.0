@@ -1,156 +1,126 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A87832B13B;
-	Wed, 12 Aug 2026 11:11:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F22CE431A22;
+	Wed, 12 Aug 2026 11:16:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786533089; cv=none; b=N9IunDoC1gutW+q/VyYgwWYkYoVIZT3Fyo79/VZFADaSR/LcaySZkON/5X1M2mQlRmj27HpsjcEAHeKT/6JG+grRsHZ4htc0ko3CIQdD4ESlY3MeM/qQUGT8fu6DuXjkRB72rPEnuoJv74SIDqhMyByrBm8Hk8sVfAd1keYVax0=
+	t=1786533380; cv=none; b=UjkOQMokUwEsAjcFbk0jgLHBYFQuAHAD7lcorw2qHBvEpcpVpGWmx5i3AoTQiPC1e7wlRpU9IyHNhG0es3l5b2S0oG+B1TmF3GYFF70Qy6xkON1g6L/ew8Qsu95wTfFyc7mxx5bYFCuXHjlcVaP9gZsiE9BqWkZBZFhy3UdjqY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786533089; c=relaxed/simple;
-	bh=txJFGU7J62L113n31e1G08aGE1X/fMjeuYreZn3fav0=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
-	 References:In-Reply-To; b=XyV3u3PUc0oxQf/FJHuZt7K04QNt5KS2qw1o4lDHkyI20sz8bCWtWscKhUk4s4+Mlcn4eqdJ+0gWJ1V1/pw2KLp9gMu30j3uolBssrmhixVkYMlexEZhAsSukhc03e9XIZ5/2vKN5M1OC/NXA5o1iehscEH/IYj+Kk6FRdJVGa4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Brj9CIPN; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786533380; c=relaxed/simple;
+	bh=dRD5H6BLnaJMTjUmsqbdCCe5EnC7KJV6qIama9ltZaY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Jq7zKafBtEATdv2Eo/PrbD94b7FQMVeFmvKbQvGz+X2RP3jvXKhjC4pYSQ2aKVCGzy0+17v3eRijY1is5A9t6thwPsylyLvlQXp9eLvXj5J35U+VY+sYpfMIC6DqaHHUhp3EBZXmPvFKiaK3vO5bMhL5zMHMDxdgyVTnXmiR1uw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QpYnab0n; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Brj9CIPN"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67CB3MZN3303955;
-	Wed, 12 Aug 2026 11:11:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=OYIBwu
-	rYlLQ1J9On8VqCNHGE0iXLscA34FwDPpJgszg=; b=Brj9CIPN6a+J3+az2+TW9o
-	0rKc6Coho0JyDkLb1sXyiBN8VxRrq3u9oR/lPt6j6k7fdcZEOsxRumAn+SOhLO0H
-	pQ1aTz0d8Y0ROzgfe3LECLGjtAbey2ZSH1Xg3OONIFdEcVw5QXhU9hr4k3XIWx+A
-	RGG1jhlMy1HO7kTAMAzU36lY3PBAxUCC1VOY1q0PTYDUhKKRYfWmxMe5DEqW9vSE
-	Tm7I5MqYrJrDHkGqTvPWhIeZVJJYS0IMsbqBITlnhGcvCapkWr2g0+zaoWXuK8/x
-	hDmkCHZ0sD2BKSaRy8LUq9X9zqAp9ZBCZbkKPwUSqeR4brOC/Oo234grphuDb4tw
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvm9t49r-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 12 Aug 2026 11:11:26 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67CAuJNj009600;
-	Wed, 12 Aug 2026 11:11:25 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxg9h5mnu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 12 Aug 2026 11:11:25 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67CBBLRB35979604
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 12 Aug 2026 11:11:22 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DC6CF2004B;
-	Wed, 12 Aug 2026 11:11:21 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C6D6520043;
-	Wed, 12 Aug 2026 11:11:21 +0000 (GMT)
-Received: from darkmoore (unknown [9.224.78.25])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 12 Aug 2026 11:11:21 +0000 (GMT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QpYnab0n"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67D991F000E9;
+	Wed, 12 Aug 2026 11:16:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786533378;
+	bh=YkQoXb0oPuJag9CbgccsDCcg6lD66fmA+f0vn+2nKnc=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=QpYnab0nUAcCJt+cGKDODAg3Qx17qgpheF1kaPKjsEoNN2gGuC0MuGrznO70IIyhN
+	 q50JvXDgyoCv5Jx5qqIDGxWfc6HKUhKU1cTL6H08Bu0/sTb+uVVkxHOr9rNxyxfXN+
+	 uTOwGwCn+zeXNrwSywo8TfLqLOj8YKABP/oehAVFpqhoXslPkdGl4cJu2E5FlZnHvd
+	 OHboyKwgV46xqG0UclX10xA1e/iuxKmzt5h+ORt+lsnPp3+vkZZha97q3G8FyC0e7Y
+	 cjS1vMXaxJ+pGqTfML7xuwxCWKh+43tBp3fxPKAcuInhN6x79dSPFwsyX+48ySeYf2
+	 SVT6YpwBVn8/Q==
+Message-ID: <ac5a912b-fc98-4b77-b453-2f9bd8f9e6db@kernel.org>
+Date: Wed, 12 Aug 2026 13:16:10 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC V2 2/6] parisc/mm: Directly use generic
+ [pmd|pgd]_clear_bad()
+To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org,
+ akpm@linux-foundation.org
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker
+ <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>, linux-alpha@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-um@lists.infradead.org, linux-arch@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260811042119.3652929-1-anshuman.khandual@arm.com>
+ <20260811042119.3652929-3-anshuman.khandual@arm.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <20260811042119.3652929-3-anshuman.khandual@arm.com>
 Content-Type: text/plain; charset=UTF-8
-Date: Wed, 12 Aug 2026 13:11:16 +0200
-Message-Id: <DKMX4D8DCKOD.O92YNFWFMTGQ@linux.ibm.com>
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-        <borntraeger@de.ibm.com>, <frankja@linux.ibm.com>, <david@kernel.org>,
-        <seiden@linux.ibm.com>, <nrb@linux.ibm.com>,
-        <schlameuss@linux.ibm.com>, <gra@linux.ibm.com>
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 5/9] KVM: s390: Fix pgste_get_trylock_multiple()
-X-Mailer: aerc 0.22.0
-References: <20260812104436.109741-1-imbrenda@linux.ibm.com>
- <20260812104436.109741-6-imbrenda@linux.ibm.com>
-In-Reply-To: <20260812104436.109741-6-imbrenda@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDA4OSBTYWx0ZWRfX85IUhb/+ugK/
- pKECE903e76qSne0z0khWrAcqTzkR2D8QDaKmo7dQVRtp2CohbS6uUYrMurXeHw2MYRjrRyT1oU
- AwbksvYktahbJNQcN4v7AXmATtCHwNZvLg0Gg5m2EPDvgZMYjWkLNApnT/ygOEALRO0Qz3IoV6B
- pQQuHnf4LYlYU2DhVsOLFa5fQ5nV7oUiYgwBJxgebeum9Wmvb2yyY+tIxyRcISoYFQiZbUrDOtr
- TpJfUfX1L+l0rzaOzc3zRwo0qqaqxK6hEf7yraFIRpTNhFZo1RTGKgkXQjWnu/QZQtmwIhoPeyx
- VYplKpq9ItHz1PXiM6E7hqij40R6Z0vPr4TMl5Qi8NCMiykvs2F3C7cM/dBL/gZ59nfVOmwWglx
- qDqLBCH1LOBcLAFxFAEQVMKSb9SvVq7gaA2xyQPx2Fo8Z4+MClP2qAiTfsZqHbU7Sc7WPT0HI5W
- xRBbuAIgW7bN6YvSd9A==
-X-Proofpoint-ORIG-GUID: gI7QksIn-XFEcY8rG_7tLUqEtnReMomA
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDA4OSBTYWx0ZWRfX8fWS0TREhQ2W
- dJizEWx2i9fV5O7/HqGn1fwgSCOYR6iIevP1MuGvSNyNNBhlAlLJ/PhNeEFwcI7r02JWRvHmCP+
- 7MOzxYlHdxUPPuNfXAnkwwgja7dZ5Zc=
-X-Authority-Analysis: v=2.4 cv=IfK3n2qa c=1 sm=1 tr=0 ts=6a7c54de cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=0R0jmd_GHOanYFiHbnAA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: gI7QksIn-XFEcY8rG_7tLUqEtnReMomA
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-12_03,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 impostorscore=0 bulkscore=0 clxscore=1015
- lowpriorityscore=0 adultscore=0 malwarescore=0 spamscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608120089
+Content-Transfer-Encoding: 7bit
 
-On Wed Aug 12, 2026 at 12:44 PM CEST, Claudio Imbrenda wrote:
-> In case of failure, pgste_get_trylock_multiple() will attempt to unlock
-> the locked PGSTEs based on whether the PCL is set. In some
-> circumstances this can lead to unlocking PGSTEs that were locked by
-> other threads.
->
-> Fix by unlocking the amount of PGSTEs that were actually locked,
-> ignoring the PCL bit in the array.
->
-> Fixes: 94fd9b16cc67 ("KVM: s390: KVM page table management functions: lif=
-ecycle management")
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-
-Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-
+On 8/11/26 06:21, Anshuman Khandual wrote:
+> Drop [pmd|pgd]_ERROR() followed by [pmd|pgd]_clear() instances. But instead
+> directly use semantically equivalent generic helpers [pmd|pgd]_clear_bad()
+> in unmap_uncached_[pte|pmd]() which helps in dropping their corresponding
+> [pmd|pgd]_ERROR() macros across the tree.
+> 
+> Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+> Cc: Helge Deller <deller@gmx.de>
+> Cc: linux-parisc@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 > ---
->  arch/s390/kvm/dat.c | 7 ++-----
->  1 file changed, 2 insertions(+), 5 deletions(-)
->
-> diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
-> index 165c704fcf29..f4dd6f783417 100644
-> --- a/arch/s390/kvm/dat.c
-> +++ b/arch/s390/kvm/dat.c
-> @@ -923,11 +923,8 @@ static void pgste_set_unlock_multiple(union pte *fir=
-st, int n, union pgste *pgst
->  {
->  	int i;
-> =20
-> -	for (i =3D 0; i < n; i++) {
-> -		if (!pgstes[i].pcl)
-> -			break;
-> +	for (i =3D 0; i < n; i++)
->  		pgste_set_unlock(first + i, pgstes[i]);
-> -	}
->  }
-> =20
->  static bool pgste_get_trylock_multiple(union pte *first, int n, union pg=
-ste *pgstes)
-> @@ -940,7 +937,7 @@ static bool pgste_get_trylock_multiple(union pte *fir=
-st, int n, union pgste *pgs
->  	}
->  	if (i =3D=3D n)
->  		return true;
-> -	pgste_set_unlock_multiple(first, n, pgstes);
-> +	pgste_set_unlock_multiple(first, i, pgstes);
->  	return false;
->  }
-> =20
 
+Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
 
+-- 
+Cheers,
+
+David
