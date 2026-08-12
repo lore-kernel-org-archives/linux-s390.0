@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C0D242379A;
-	Wed, 12 Aug 2026 12:16:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD35C334C3C;
+	Wed, 12 Aug 2026 12:34:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786537004; cv=none; b=EvT4YML+X6enEe8CIucxagPUnZuqgzSC323jtYRJL/FN1e1rAbBA5fzn5i4cQTYUZ+6/E48+Sc1ORcFLrCANEbw+CKMvXRTPPzSYlntpEfYqLBw8FjJRM8fYgDEbpssoG6NRYjwnbrm5qiybzB0hddxd73W8ZN6Icbqy4chGwIA=
+	t=1786538073; cv=none; b=t+7261M2iU9bLKV4RLrw0K6AFHXKldlgGUg9FN0KYqtrGZvJLeokQpXVkDIr+pkrA6sD3lO2NazfNAnFrnrdm0I3bXUzhYcr+vW8vxcSkrHOVRAHcc8/fZW5tUYBy2qRmWddSe5O9HVVFCnVAsevP0zhXTMU4j7TwppNOg3UXL8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786537004; c=relaxed/simple;
-	bh=Y5pNa2ZPZ7QOHTj6Z58dqlvKaeRh8BMGM3eywtqMoJs=;
+	s=arc-20240116; t=1786538073; c=relaxed/simple;
+	bh=DB7nQuVoyxIsDg9rBkKnW5lnJxI5yqWlS44mNgvpC9A=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=CFw7jWy9a8VdG5efRUZDoLZe1gd+LN/DfoeXVRw6+OuWEWPldPehbzTuthCH2pc2SsNP9RKUhMaYzFtRNdDaUD2hs+KqUi5EIPxZnIzsWyzDcLnWECD0WhsKz/59BLEkvUlPUKizpBqTF58xAtA4hTTg+2ccpq44gQCRRumLE08=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i9U25A74; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=mUzrQUt5vOtcSI3HYttsrGBfhseraD5kKtBieMLA2lq9J2S1cufgYUJkwwRrBFM8VGO1EXCdTUAV56HF2BxIh02Uo32LafFoBV9wyFq83GBI/KtlJIy0cCECjwJFJ2CyYB9LrtTnCwlldOqCMgV/liY4o443X4NZurUQCh1Iidc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ps2zKNmO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i9U25A74"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90CB51F000E9;
-	Wed, 12 Aug 2026 12:16:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ps2zKNmO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12BE01F000E9;
+	Wed, 12 Aug 2026 12:34:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786537000;
-	bh=4BnkytiivFlkjj/n+bqyy+yetlhSRKDyFGU72RBw26M=;
+	s=k20260515; t=1786538071;
+	bh=LXjB/Gq/5VBcb1pYlOQr6v+GbBBqEZXJtvKJojh1n9Y=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=i9U25A74ggnD1S0OLRn4/U5HnKAcWZyG3IeRtW597VepRK2L3o41dUU27APKbjnIG
-	 zAaIYNhb16vVlTQlBrQEKTTH/xR4m6NXGfhGS/BjhI5SrZ+VPLUX+6x3By9vb6EuwE
-	 AewW4hsnA/U8ON9AhuJKBDu2if2llQT0HbwmGHw4gMqtnEw6tL7W8U+slQmqF47QhV
-	 mZgkKK4AYqf69AkAH3BvoSdxNRrjZjwQd7qAqWl7e2qoZapLAZtf92P9DYGenUVQDs
-	 /+XFzSQW//4vlTrx4629vuCK563pGcYvGzecWI1KU5palwMtwWii5qfdZ+82uT3bZV
-	 0q0wmqhT9YiAA==
+	b=Ps2zKNmOb2Jrsk2H+bwDnd2UxJgrGo1Mz5r7QvBxNgF7bQdpktU/WXmTCWm4pY1Ry
+	 IxBqa9nqbb9evGalDIruTUBGBQNc4VsXrD9CU2JmJ+ohQqDddR7C82hDaFvePNZsxU
+	 r62QoaYzDROgkhDlip+3Hl76nLlWUBvgcZtwHJ7fMozFVAeRNJctDcn4c2xjoJ/5l+
+	 I6VuEqdzwP9qMDBJbSBN4wgqW1dZoFQrJ/2fGn63y5rR4cg+APs3xIByJ+89pOVqvq
+	 Ksa25PvM1nrFpBkJto5VuesHhNpjxOthd4iotNhxC2qW7HE4b8OQAOnYu5TMgNRcwX
+	 YhfXNZOGnZY9Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 8/9] s390/vfio-ap: Fix NULL deref in status_show()
- during queue probe
+Subject: Re: [PATCH v3 9/9] s390/vfio-ap: Fix memory leak when queue removed
+ from host AP config
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.vom>, kvm@vger.kernel.org
-In-Reply-To: <20260812115139.576303-9-akrowiak@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.vom>
+In-Reply-To: <20260812115139.576303-10-akrowiak@linux.ibm.com>
 References: <20260812115139.576303-1-akrowiak@linux.ibm.com>
- <20260812115139.576303-9-akrowiak@linux.ibm.com>
+ <20260812115139.576303-10-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 12:16:39 +0000
-Message-Id: <20260812121639.90CB51F000E9@smtp.kernel.org>
+Date: Wed, 12 Aug 2026 12:34:30 +0000
+Message-Id: <20260812123431.12BE01F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,79 +48,86 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] ABBA deadlock in the probe error path between kernfs active refere=
-nce and guests_lock.
+
+Pre-existing issues:
+- [High] Software resources (KVM GISC registration and pinned guest memory)=
+ are permanently leaked if hardware reset fails unexpectedly.
 --
 
---- Patch [8]: [PATCH v3 8/9] s390/vfio-ap: Fix NULL deref in status_show()=
- during queue probe ---
-commit dd5ddcd73e238630c53e21354f9251a158e8bee2
+--- Patch [9]: [PATCH v3 9/9] s390/vfio-ap: Fix memory leak when queue remo=
+ved from host AP config ---
+commit b591517cf03c156d327043d4900cb31e47ff080b
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-s390/vfio-ap: Fix NULL deref in status_show() during queue probe
+s390/vfio-ap: Fix memory leak when queue removed from host AP config
 
-This commit fixes a NULL pointer dereference in status_show() during queue
-probe by acquiring update locks before creating the sysfs attribute group.
-This ensures any concurrent read blocks until driver data is set and locks
-are released.
+When an adapter or domain is removed from the host's AP configuration,
+vfio_ap_mdev_remove_queue() can bypass resetting the queue. This patch fixes
+a leak of KVM GISC resources and pinned guest memory by calling
+vfio_ap_free_aqic_resources() if the adapter or domain is no longer in the
+matrix configuration.
 
 > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
 _ap_ops.c
-> index cb1e5db69d8a7..3652ba792be73 100644
+> index 3652ba792be73..faab5e9179ff1 100644
 > --- a/drivers/s390/crypto/vfio_ap_ops.c
 > +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -2419,14 +2419,17 @@ void vfio_ap_mdev_unregister(void)
-> =20
->  int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
->  {
-> -	int ret;
-> +	int ret, apqn;
->  	struct vfio_ap_queue *q;
->  	DECLARE_BITMAP(apm_filtered, AP_DEVICES);
->  	struct ap_matrix_mdev *matrix_mdev;
-> =20
-> +	apqn =3D to_ap_queue(&apdev->device)->qid;
-> +	matrix_mdev =3D get_update_locks_by_apqn(apqn);
-> +
->  	ret =3D sysfs_create_group(&apdev->device.kobj, &vfio_queue_attr_group);
->  	if (ret)
-> -		return ret;
-> +		goto err_release_locks;
-> =20
->  	q =3D kzalloc_obj(*q);
->  	if (!q) {
-> @@ -2434,11 +2437,10 @@ int vfio_ap_mdev_probe_queue(struct ap_device *ap=
-dev)
->  		goto err_remove_group;
->  	}
-[ ... ]
-> @@ -2468,6 +2470,8 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apde=
-v)
-> =20
->  err_remove_group:
->  	sysfs_remove_group(&apdev->device.kobj, &vfio_queue_attr_group);
+> @@ -2507,12 +2507,15 @@ void vfio_ap_mdev_remove_queue(struct ap_device *=
+apdev)
+>  	/*
+>  	 * If the queue is not in the host's AP configuration, then resetting
+>  	 * it will fail with response code 01, (APQN not valid); so, let's make
+> -	 * sure it is in the host's config.
+> +	 * sure it is in the host's config. If it is not, then free the KVM GISC
+> +	 * resources.
+>  	 */
+>  	if (test_bit_inv(apid, (unsigned long *)matrix_dev->info.apm) &&
+>  	    test_bit_inv(apqi, (unsigned long *)matrix_dev->info.aqm)) {
+>  		vfio_ap_mdev_reset_queue(q);
 
 [Severity: High]
-Does this create an ABBA deadlock on the error path?
+This is a pre-existing issue, but does vfio_ap_mdev_reset_queue() leak
+software resources (KVM GISC registration and pinned guest memory) if=20
+hardware reset fails unexpectedly?
 
-If kzalloc_obj() fails, we jump to err_remove_group and call
-sysfs_remove_group() while still holding matrix_dev->guests_lock (acquired
-via get_update_locks_by_apqn()).
+In vfio_ap_mdev_reset_queue(), if ap_zapq() returns an unexpected response
+code, the default case is hit:
 
-If a concurrent reader opens the 'status' sysfs file before we hit the error
-path, it acquires a kernfs active reference and blocks on:
+	default:
+		WARN(true,
+		     "PQAP/ZAPQ for %02x.%04x failed with invalid rc=3D%u\n",
+		     AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
+		     status.response_code);
+	}
 
-status_show()
-    mutex_lock(&matrix_dev->guests_lock);
+This default path returns without queuing the reset work or calling
+vfio_ap_free_aqic_resources().
 
-Then sysfs_remove_group() blocks in kernfs_drain() waiting for the reader to
-release its active reference, resulting in a deadlock.
+A similar situation occurs in the asynchronous worker thread apq_reset_chec=
+k()
+if ap_tapq() returns an unexpected response code:
 
-> +err_release_locks:
-> +	release_update_locks_for_mdev(matrix_mdev);
->  	return ret;
->  }
+		ret =3D apq_status_check(q->apqn, &status);
+		if (ret =3D=3D -EIO)
+			return;
+
+Since vfio_ap_mdev_remove_queue() continues on to call kfree(q) regardless =
+of
+the outcome of vfio_ap_mdev_reset_queue():
+
+	dev_set_drvdata(&apdev->device, NULL);
+	kfree(q);
+	release_update_locks_for_mdev(matrix_mdev);
+
+Are these resources permanently lost when this happens?
+
+>  		flush_work(&q->reset_work);
+> +	} else {
+> +		vfio_ap_free_aqic_resources(q);
+>  	}
+> =20
+>  done:
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812115139.5763=
-03-1-akrowiak@linux.ibm.com?part=3D8
+03-1-akrowiak@linux.ibm.com?part=3D9
