@@ -1,57 +1,57 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E80EC43747C;
-	Wed, 12 Aug 2026 11:51:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27705439004;
+	Wed, 12 Aug 2026 11:51:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786535518; cv=none; b=KXNTu1j1rhAfZmxLcmxRBl0g3oihn/M2YKxXakBcMmNLoTmDgBogWrBR+pY3JD0gt1WVTflo/4eYAh84eeCSJpDCsV54h8ni3Pw3Kkd0wEiLc321XZrBMlDqyCkno2EmCvG3UvbO8iQHzCxqbDWL9QPSHgKDCp/QB/CbIsQNpmM=
+	t=1786535520; cv=none; b=hx5S9P8QQE6yglA7PJ43nZWSvX+ykQDx8rBMRT35Y0cigXUWP77LY24ZqYVa8UmrjN/Tz+qF8fDdfrvDNbjurivBKjEwi/hrdnMWqsd7hgWU3qVd+3ff+gL3EZBksD8i+kdq+67lvvjjArqdLgWSREd4dSgiR6h8P3iAZRbSNHM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786535518; c=relaxed/simple;
-	bh=CTJmbt1Hm9qKIkgof5Goy8p/ON4bw5Ig8no4fCdx1Es=;
+	s=arc-20240116; t=1786535520; c=relaxed/simple;
+	bh=89X9lBVJkrEtQNYhrB11Xha54OaOwKBksVJ3c7tDCcM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HH4YQc4TLTy7TTTPgrQttHnAYwqgCw2VR9+z2gh7+lCqNZgbWrzGYHS4gC50Z4I+q1Z9DEAGlBUekSAPWBC7W0Cx+/wpx3c+NtWVYxPIgkqsHbe3yQTbJu6bCZD4+REhGKfrAsm6JboDZR1jl+bMyz/b8E/GGR38XFWM8odTDz4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=B0Sq4ojM; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=OjoqgT7nIp2sXDXTQFGdrHQ94mbYrMmfvvJYJ2MLmsxnLlw5a5eplOl6QNjfp+qZ6r9YVzD2lhGyWw0kZfyo9DEn4mooRd1mN3A9X0LOQcrcYdCpdUAP7a7KXqyMOkVh1cy5XAi9TQsfbhEcMlhQf8CZ6ITMHJvpZwcVx6jjRdY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=G5QNBmk6; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="B0Sq4ojM"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67CB3XCj3214191;
-	Wed, 12 Aug 2026 11:51:50 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="G5QNBmk6"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67CB41JJ2205708;
+	Wed, 12 Aug 2026 11:51:53 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=qJaVMk+sul4rMvzBc
-	/DXWNfa1ETKQ+5UxcebhCbYaQU=; b=B0Sq4ojMLmLFfvjH5kJ4l3jhyd7ErSy3T
-	rZkC4Zn6Td6P7IIuLiruAwesl/molR4qCIO3Naq/ookGXNhgEcgia3AzbSGDguE4
-	R12UbE92FLAIe8lCfh0f3/K+NS4Gh2N3Gw8HyDQ8zRHrRK9zIsZWNpxBATld36kG
-	pfS6c8KZC3YKvmp+bpzabTgMHtwW+Vz6HNk3XvHKOnar/oIPwIVwcHLAccvhziOD
-	/opkltqz/rlNzAHXwVMxlzu/8y0IceXQItMralC0IJ/oZfwgVWZ/kx1oqPplGsDM
-	xzhBznu2R6nWtpi0jHj+H3sMdL+HtPqAIcCR5796Y4vmbvD72QemQ==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvp31e80-1
+	:mime-version:references:subject:to; s=pp1; bh=rFapEubsnjwGtU3Ar
+	h0+/W2yhsuB69iyi1GqmPDY61k=; b=G5QNBmk6lm7yC9ymYeitEC6bVHUpxjO/F
+	utd2Qj3GG6GthimcSoybCp5SQXW5bj/Uket8pZaFmyAgGIPKWQbbBsPWVE3aQZnW
+	4aW/uyYvHL6BEGzncRmO4T+8f9PgmzinOjPBEkI9sF1rRDkO48dSrOs6wr1WyLAl
+	qnoU/wwQfCrDD1KqL6xYsRN5K6aw4H40evTRFmsJXCTt3OV4yITNFE5CGaCuFvCA
+	ZcqEKLfpB5f4Cb5tDw/+5UGNIV6fQdJsH2C+63GDT2vGpBF9Q1kcfdQA/eoKaBe8
+	4GhckKKPUUSCINXbKJvF1wojAKiA6fPBe5vS8UIhJut6sL0Jt3vWQ==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fyb23tsnt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 12 Aug 2026 11:51:50 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67CBfHt5026282;
-	Wed, 12 Aug 2026 11:51:49 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxesq5ytb-1
+	Wed, 12 Aug 2026 11:51:53 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67CBfIcv006387;
+	Wed, 12 Aug 2026 11:51:52 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxhfy5kxf-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 12 Aug 2026 11:51:49 +0000 (GMT)
+	Wed, 12 Aug 2026 11:51:52 +0000 (GMT)
 Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67CBpmWB48759286
+	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67CBpop326215076
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 12 Aug 2026 11:51:48 GMT
+	Wed, 12 Aug 2026 11:51:51 GMT
 Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0B1B75805F;
+	by IMSVA (Postfix) with ESMTP id B2A9358059;
+	Wed, 12 Aug 2026 11:51:50 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 438C45805D;
 	Wed, 12 Aug 2026 11:51:48 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 970D15805E;
-	Wed, 12 Aug 2026 11:51:45 +0000 (GMT)
 Received: from li-4c4c4544-004d-4810-8043-b7c04f423534.ibm.com.com (unknown [9.61.9.29])
 	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 12 Aug 2026 11:51:45 +0000 (GMT)
+	Wed, 12 Aug 2026 11:51:48 +0000 (GMT)
 From: Anthony Krowiak <akrowiak@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org
@@ -60,9 +60,9 @@ Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com,
         fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
         imbrenda@linux.ibm.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
         gor@linux.ibm.com, stable@vger.kernel.org
-Subject: [PATCH v3 2/9] s390/vfio-ap: Fix dereference matrix_mdev->kvm without checking for NULL
-Date: Wed, 12 Aug 2026 07:51:32 -0400
-Message-ID: <20260812115139.576303-3-akrowiak@linux.ibm.com>
+Subject: [PATCH v3 3/9] s390/vfio-ap: Fix missing lock required to access list of ap_matrix_mdev objects
+Date: Wed, 12 Aug 2026 07:51:33 -0400
+Message-ID: <20260812115139.576303-4-akrowiak@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260812115139.576303-1-akrowiak@linux.ibm.com>
 References: <20260812115139.576303-1-akrowiak@linux.ibm.com>
@@ -74,179 +74,117 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=AMtp2X5w c=1 sm=1 tr=0 ts=6a7c5e56 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Authority-Analysis: v=2.4 cv=XqfK/1F9 c=1 sm=1 tr=0 ts=6a7c5e59 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=7-PX2TBNVYp1iSTFOFgA:9
-X-Proofpoint-GUID: 3XZRV6i80eKFc-fKhi-rBlXtuT0sxII6
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDA5MyBTYWx0ZWRfX41/l8pTr3fXw
- 7ft3aPVdFDQRIvU+7V/dySi9nJOkR2it7XEgXWzGZQ4XZM8P1j8uW/ZFyPpCUoQRCUcOTE1rjKJ
- RU+Mmehg5vxWOBs6DgUxHtPbHtqwluvncEICEvd2oS1+bPS5KcDCrZ/Ts29jPY4+r8ShrsUqjVr
- np3Zx6o530ekvKCE0BNMRjkpvlkl0NtaLCTxGIjOEu4etPOj7FdysSYU8AxLndjb3g7Q0e2emsd
- 52xaB5YTxfxK+eZhtuZOydxqNQ+9Os3RMZyOq6g9SkhMXxYUr1zClVtFwY+mW1mgHe8oLtOzSiU
- uESNVjkilyEhiU0mJ5hu0EN025A5kH4ofO/bunu40UVyHG0B620O7VU0011LqiT9x1jy82E8g0n
- 8XBMqewoJ1jvIa51zNRnAscF1v6V5rI3G7E0z5mrxoWCw1zXinNlo7k9z4kpH96Tj2QE31+NLAg
- yR9UaozhwGv5OLNqbeA==
-X-Proofpoint-ORIG-GUID: 3XZRV6i80eKFc-fKhi-rBlXtuT0sxII6
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDA5MyBTYWx0ZWRfX2c60l+dBY+kX
- gIU72TtaghJlQ2MI1eu4rIsLNWu6OFSOfs3EvYb+JLUG82PUkqF8Ff+cgwQqPK9DISJJOc3sjY8
- A3j9UA/v3bhj6/kPQya/Mj+VbWtNpaI=
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=A59ciYRgiFgMSmRGxjkA:9 a=+jEqtf1s3R9VXZ0wqowq2kgwd+I=:19
+ a=0bXxn9q0MV6snEgNplNhOjQmxlI=:19
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDA5MyBTYWx0ZWRfX7nCs8XA5mT0X
+ 8I6f216k4JfxhMYCzeCkkK2z/FB7kSpa86VuV7rupvQ3emoaZVnXk9qi53KtIrV6TjyyZe1eYVC
+ OQ6bt6Bbn85p8PH294SCzVqhdMamTPOUg19jpve73i2x/cwtVXiuiLE4ni9oV4rIvxYY8kBKzRw
+ +nVOf+YabxTGrYYXu07rQEOqY+jWzsbJIz8Onpcv7czaT5IMLJoQreDyT/G+9w0UJCit5G1l+vX
+ 0itHVZKJMTlCt6ZKZJ79DcGxHC89YlNNCuy9iW5FAWpeRIBAMS9Oo+75fFnyVxtCT0qAdNhtLdd
+ vr2nwMvp/dRIAJ6A+/eEJOJ9q6z1kdnlUvcaqii8uRvTKRmxZUZWqcwiKnS9CAFN+h5KYYbxp1I
+ jerz+lBInCGav1Q36haSucWvwQ0zcNA4WlLFPx54wakSX3dYuZuSSOP1IRSWJu32x8qcU29jHPF
+ ED/kARWN2E1mQ6CbFhg==
+X-Proofpoint-ORIG-GUID: VMwSnsGx7ST3pqE32Jqw44tMwf4MRacq
+X-Proofpoint-GUID: VMwSnsGx7ST3pqE32Jqw44tMwf4MRacq
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDA5MyBTYWx0ZWRfX98GaJUkij5Hi
+ 0TSHG57+ds2A1mHcySLP6QjF5tVZKgnD6FdWeqO45v60dJxFPFL7CtoQlvdjbOYlm9Nu7jozcPA
+ GkiEeJC+kWR0jPKlBvm/8/ENzsR/OAc=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-12_03,2026-08-12_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
- priorityscore=1501 impostorscore=0 phishscore=0 spamscore=0 bulkscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608120093
+ lowpriorityscore=0 spamscore=0 adultscore=0 malwarescore=0 clxscore=1015
+ suspectscore=0 priorityscore=1501 impostorscore=0 phishscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608120093
 
-The ap_driver structure has two fields which are function pointers to
-callbacks:
+In order to traverse or add/remove ap_matrix_mdev objects in the
+matrix_dev->mdev_list, the matrix_dev->guests_lock mutex must be held.
+There are two functions that access the list without holding the mutex:
 
-* .on_config_changed: called at the start of the AP bus scan function to
-                      notify the device driver that the host AP
-                      configuration has changed and the associated AP
-                      devices will be added or removed accordingly. This
-                      gives the implementor a chance to evaluate the
-                      configuration changes and respond to them before
-                      the associated devices are added or removed.
+vfio_ap_mdev_probe function
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The vfio_ap_mdev_probe function uses the matrix_dev->mdevs_lock
+mutex to guard the add of a newly created ap_matrix_mdev object to the
+matrix_dev->mdev_list. This mutex does not protect list access; its purpose
+is to guard against concurrent access to fields contained in an
+ap_matrix_mdev object. This could lead to kernel memory corruption or
+use-after-free if another mdev is created or removed concurrently.
 
-* .on_scan_complete:  Called at the end of the AP bus scan function to
-                      notify the device driver that the host AP
-                      configuration has changed and the AP devices have
-                      been added or removed accordingly. This gives the
-                      implementor the opportunity to respond to the
-                      changes after the associated devices are added or
-                      removed.
+The adding of an ap_matrix_mdev object to matrix_dev->mdev_list
+is now guarded by the matrix_dev->guests_lock which is the correct
+way to protect against concurrent mdev_list access.
 
-These two callbacks are implemented in the vfio_ap device driver via the
-vfio_ap_on_cfg_changed and vfio_ap_on_scan_complete functions respectively.
+vfio_ap_mdev_for_queue function
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The status_show function that supports display of the status attribute of
+the devices in /sys/bus/ap/devices calls the vfio_ap_mdev_for_queue
+function which iterates the matrix_dev->mdev_list to find the object
+representing the queue device whose status is to be displayed. In order to
+traverse this list, the matrix_dev->guests_lock mutex must be held.
 
-Within the call stack of these two callback functions the
-matrix_mdev->kvm->lock mutex is taken without checking whether
-matrix_mdev->kvm is NULL or not. If matrix_mdev->kvm has never been set,
-trying to take the lock will trigger a NULL pointer dereference. This patch
-adds checks for matrix_mdev->kvm == NULL before taking the
-matrix_mdev->kvm->lock mutex.
+To fix this, the guests_lock mutex is taken prior to taking the
+matrix_dev->mdevs_lock mutex in the status_show function. It is taken
+there rather than the vfio_ap_mdev_for_queue function - where it is
+needed - because it must be taken prior to the mdevs_lock mutex in order to
+adhere to the proper locking order and prevent a lockdep splat; also
+because the mdevs_lock is needed there to access fields within
+the matrix_mdev object in that function.
 
-Note that the matrix_mdev->kvm->lock mutex taken in the
-vfio_ap_mdev_hot_plug_config function is moved to the calling function
-along with the matrix_dev->mdevs_lock which is needed there to access
-the fields of the matrix_mdev. It makes little sense to make the change
-the check for matrix_mdev->kvm there before taking the kvm->lock
-mutex only to have to move it out via another patch, so it is done in
-this patch.
+See the vfio-ap-locking.rst in the linux kernel tree.
 
-It is important to make note of the following:
-1. The matrix_dev->guests_lock is acquired at the start of both callback
-   functions. This ensures that matrix_mdev will not be removed via the
-   vfio_ap_mdev_remove function because it too takes matrix_dev_guests_lock
-   before removing the object; so, matrix_mdev will be available for the
-   duration of the callback functions.
-
-2. The matrix_dev->mdevs_lock mutex must be taken in order to access
-   fields within the matrix_mdev structure
-
-3. matrix_mdev->kvm->lock mutex must be taken before the
-   matrix_dev->mdevs_lock to prevent a lockdep splat.
-
-4: The kvm->lock must be held while plugging the guest's AP configuration
-   into its SIE state description via the vfio_ap_mdev_update_guest_apcb
-   function.
-
-5. The vfio_ap_mdev_update_guest_apcb checks matrix_mdev->kvm to verify it
-   is not NULL before doing the hot plug of the guest's AP configuration.
-
-Fixes: eeb386aeb5b7c ("s390/vfio-ap: handle config changed and scan complete notification")
+Fixes: 2c1ee8983aa3 ("s390/vfio-ap: prepare for dynamic update of guest's APCB on queue probe/remove")
 Cc: stable@vger.kernel.org
 Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 33 ++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 845c86ba8bc3..e382e5a1cb99 100644
+index e382e5a1cb99..5c14ded4fd8e 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -2606,7 +2606,13 @@ static void vfio_ap_mdev_cfg_remove(unsigned long *ap_remove,
- 	int do_remove;
- 
- 	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
--		mutex_lock(&matrix_mdev->kvm->lock);
-+		/*
-+		 * The mdevs_lock must be held to access fields within matrix_mdev,
-+		 * and kvm->lock must be taken before mdevs_lock to satisfy the lock
-+		 * ordering requirement and prevent a lockdep splat.
-+		 */
-+		if (matrix_mdev->kvm)
-+			mutex_lock(&matrix_mdev->kvm->lock);
- 		mutex_lock(&matrix_dev->mdevs_lock);
- 
- 		do_remove = bitmap_and(aprem, ap_remove,
-@@ -2624,7 +2630,8 @@ static void vfio_ap_mdev_cfg_remove(unsigned long *ap_remove,
- 						    cdrem);
- 
- 		mutex_unlock(&matrix_dev->mdevs_lock);
--		mutex_unlock(&matrix_mdev->kvm->lock);
-+		if (matrix_mdev->kvm)
-+			mutex_unlock(&matrix_mdev->kvm->lock);
- 	}
- }
- 
-@@ -2821,9 +2828,6 @@ static void vfio_ap_mdev_hot_plug_cfg(struct ap_matrix_mdev *matrix_mdev)
- 	DECLARE_BITMAP(apm_filtered, AP_DEVICES);
- 	bool filter_domains, filter_adapters, filter_cdoms, do_hotplug = false;
- 
--	mutex_lock(&matrix_mdev->kvm->lock);
+@@ -803,9 +803,9 @@ static int vfio_ap_mdev_probe(struct mdev_device *mdev)
+ 	matrix_mdev->req_trigger = NULL;
+ 	matrix_mdev->cfg_chg_trigger = NULL;
+ 	dev_set_drvdata(&mdev->dev, matrix_mdev);
 -	mutex_lock(&matrix_dev->mdevs_lock);
--
- 	filter_adapters = bitmap_intersects(matrix_mdev->matrix.apm,
- 					    matrix_mdev->apm_add, AP_DEVICES);
- 	filter_domains = bitmap_intersects(matrix_mdev->matrix.aqm,
-@@ -2841,9 +2845,6 @@ static void vfio_ap_mdev_hot_plug_cfg(struct ap_matrix_mdev *matrix_mdev)
- 		vfio_ap_mdev_update_guest_apcb(matrix_mdev);
- 
- 	reset_queues_for_apids(matrix_mdev, apm_filtered);
--
++	mutex_lock(&matrix_dev->guests_lock);
+ 	list_add(&matrix_mdev->node, &matrix_dev->mdev_list);
 -	mutex_unlock(&matrix_dev->mdevs_lock);
--	mutex_unlock(&matrix_mdev->kvm->lock);
- }
++	mutex_unlock(&matrix_dev->guests_lock);
+ 	return 0;
  
- void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
-@@ -2854,15 +2855,29 @@ void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
- 	mutex_lock(&matrix_dev->guests_lock);
+ err_put_vdev:
+@@ -2297,6 +2297,8 @@ static struct ap_matrix_mdev *vfio_ap_mdev_for_queue(struct vfio_ap_queue *q)
+ 	unsigned long apid = AP_QID_CARD(q->apqn);
+ 	unsigned long apqi = AP_QID_QUEUE(q->apqn);
  
++	lockdep_assert_held(&matrix_dev->guests_lock);
++
  	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
-+		/*
-+		 * The mdevs_lock must be held to access fields within matrix_mdev,
-+		 * and kvm->lock must be taken before mdevs_lock to satisfy the lock
-+		 * ordering requirement and prevent a lockdep splat.
-+		 */
-+		if (matrix_mdev->kvm)
-+			mutex_lock(&matrix_mdev->kvm->lock);
-+		mutex_lock(&matrix_dev->mdevs_lock);
-+
- 		if (bitmap_empty(matrix_mdev->apm_add, AP_DEVICES) &&
- 		    bitmap_empty(matrix_mdev->aqm_add, AP_DOMAINS) &&
- 		    bitmap_empty(matrix_mdev->adm_add, AP_DOMAINS))
--			continue;
-+			goto do_unlock;
+ 		if (test_bit_inv(apid, matrix_mdev->matrix.apm) &&
+ 		    test_bit_inv(apqi, matrix_mdev->matrix.aqm))
+@@ -2316,6 +2318,7 @@ static ssize_t status_show(struct device *dev,
+ 	struct ap_matrix_mdev *matrix_mdev;
+ 	struct ap_device *apdev = to_ap_dev(dev);
  
- 		vfio_ap_mdev_hot_plug_cfg(matrix_mdev);
- 		bitmap_clear(matrix_mdev->apm_add, 0, AP_DEVICES);
- 		bitmap_clear(matrix_mdev->aqm_add, 0, AP_DOMAINS);
- 		bitmap_clear(matrix_mdev->adm_add, 0, AP_DOMAINS);
-+
-+do_unlock:
-+		mutex_unlock(&matrix_dev->mdevs_lock);
-+		if (matrix_mdev->kvm)
-+			mutex_unlock(&matrix_mdev->kvm->lock);
++	mutex_lock(&matrix_dev->guests_lock);
+ 	mutex_lock(&matrix_dev->mdevs_lock);
+ 	q = dev_get_drvdata(&apdev->device);
+ 	matrix_mdev = vfio_ap_mdev_for_queue(q);
+@@ -2343,6 +2346,7 @@ static ssize_t status_show(struct device *dev,
  	}
  
- 	mutex_unlock(&matrix_dev->guests_lock);
+ 	mutex_unlock(&matrix_dev->mdevs_lock);
++	mutex_unlock(&matrix_dev->guests_lock);
+ 
+ 	return nchars;
+ }
 -- 
 2.53.0
 
