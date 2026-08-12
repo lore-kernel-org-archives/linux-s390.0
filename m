@@ -1,135 +1,102 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com [209.85.215.197])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F15A4307AB;
-	Wed, 12 Aug 2026 16:36:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8910345D5D0
+	for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 16:36:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786552578; cv=none; b=EfVeKU8LpouLdIscp2oX1hVJoamFI3yTMJif778lMupPzb7RQWBeuVh0W6cdd8qoFsNiR+GG8Jhp3nZzxB1W9d1o1DKCvyk+4XaGLVyimxeezqfSrFjpuiAJIYM4K1CnKfe/2j5bBqo/HGjRJKEXHJgir8mWfZQi0HHjtWCL0F0=
+	t=1786552591; cv=none; b=XkGi55CczHHtNSOHXHuLzc+1P1RIuYP2asYoHBkWbWYn26C65UCbiXC7HAkp23AUx+qFjO7KJt0Q67pQViRbOXTDHltYL4tDie8VRHk4rpy9KSIxnSim9+++fax4y9doeFddSifgt/W5hQdX7k4zWkOwXFqryFtyJtCkbLEj2xc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786552578; c=relaxed/simple;
-	bh=9LLYL4ONOE7WlZdSS452sIhub6jf7InboiawIVEIkNo=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=WtFXSsHRstyhiItpCaNjDuTpxytmjSxd8fBc0vdD4k4sdpM+hDmImE9jQCHvdy7JtLmBeCZI/8dwRPZm1VchqK0u6bHMEc8ZBbfZ/P3GI3EKwJzKXlOGqVazabxVPvQLxqm42/XqQx4XaECwL0Sy+TofS0tR6aIwS+isbiKr77A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fW1wbsAa; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786552591; c=relaxed/simple;
+	bh=KhAZhbhhBUhb1B9BeUG+w0byNG+wvU65xNilO2isf2Q=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=AOHnFw4d9cTxoUqlD4h6+c5W+JvYMHSSqn7bJK+4GYcaL2acoh7Qxr6pKswITZVgbLX16u8UtzgtrWG6CeLPBrv7AMMivgrJ9DEJWi+trttyPNed2H0Ql/nle8gKD+stkh7LKIVf6mM8e3FKMmEWgsVQ2lUpnIg7QfjOFqoFxGM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=mPA4fglX; arc=none smtp.client-ip=209.85.215.197
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fW1wbsAa"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5DD81F000E9;
-	Wed, 12 Aug 2026 16:36:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786552576;
-	bh=3vj0o0bAk1UQkVkJPKInL6dLED8LR6Mr0doThOhFkBY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fW1wbsAaOqZ6/z8uPb8jjxiScmUQ8FB+gd+5SaKrZpTF6Eg7a2B4rksv+kc151T6I
-	 spgawGztiKe7Tj/8muBnvgly1XaL0dI9HV73I7B4gGjne7oQctBJ2Bem0UF3gKPQYB
-	 ribzAPFBvwhGfHBmEgpvYDI7BlfBF8O6vzs+Lsn/7XbGxGXVa0IIP/52DR7XCsrkrC
-	 cE0jAl/cz+b4vxPdW+74RbOhTIThRnCzWjpHw8UOHlDPIapip9VOMatwdsV0NDXIYC
-	 XBC0B6uK6pJmRNMgpVTVqucATKsK07StnyW+KfUvjx4BJrjVO6+S2ZVryUjEwgJa1Y
-	 spDaEPao9eQFQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 29/33] KVM: s390: arm64: Implement required functions
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Steffen Eiden" <seiden@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.vom>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Oliver
- Upton" <oupton@kernel.org>, "Marc Zyngier" <maz@kernel.org>, kvmarm@lists.linux.dev, kvm@vger.kernel.org
-In-Reply-To: <20260812153631.3376090-30-seiden@linux.ibm.com>
-References: <20260812153631.3376090-1-seiden@linux.ibm.com>
- <20260812153631.3376090-30-seiden@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 16:36:15 +0000
-Message-Id: <20260812163615.B5DD81F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="mPA4fglX"
+Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-cbedc1899f7so825921a12.2
+        for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 09:36:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1786552587; x=1787157387; darn=vger.kernel.org;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=lulY/imNSY4kViCEFvXo2yMu2/ktyqgptsFx/K/KoVU=;
+        b=mPA4fglXj59Jq4mXjImgxdwqTH73Rdk7wSDkAA9+1xOsHDzZqFkOXiaTw3fIW/LIcr
+         3hl9cfGry1R6YJGYfierXkSma6dNN+tZ+1w7hA/S0WeAx1bgP787dgTggXqda3WdyICn
+         /H0MaFPMM+oxC2O56y/KgJrWydMTEQB00i+F+P88uSMiUdHLdYv+Avco75ubMO5V6Vin
+         sP8gmZuHMiET10EMtoFhU9JdT93mY1P8/xXDpDwpGH2RBX5WE7H1UnzuHduJlIo8zUxh
+         6O+o/jBbSOqbTVQAeLIOamZvoeAuQEOniW/V5YMGy1DjMp0rFH/udoq5i8a++A50gdMk
+         QGbQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786552587; x=1787157387;
+        h=content-type:cc:to:from:subject:message-id:references:mime-version
+         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=lulY/imNSY4kViCEFvXo2yMu2/ktyqgptsFx/K/KoVU=;
+        b=dqObBWA7S/v96MCuc3J0sssYCqIJ1kM6Zj3Oyyp60rMJFvaqb43q/ZISOXdCYyXrou
+         SOjSsFyy5tvkXNtZoa0qfpIbHo3A13B+lh6Kp1ImasXGR6Wa7a5gI3pPkfotnL3KQLrd
+         AyLbFUQGDIRCDoIRsnXbKPmJNZro9pbCKAThUCHB3KkXL2TCfjj19MOBuOuAo9IH0ulN
+         jC68Ztr8rDqwYTFQh2Xx4dsKHBOJCEMkJ5VUahNb9iuBklJ7hfD0+MLA3vOqObNLhq8p
+         3lGcei8LJ5kH7BIKS1v0ZzOlMC8ZRlAWiCuYTQ5tg2ZWjp0tGrMgBTjqLj9QUVoyYM18
+         uTvA==
+X-Forwarded-Encrypted: i=1; AHgh+RoD/pfrHznByT6J/7RAZOCfLZrOcnMUDbzKZOq4mWLHHsBaZwNpfRF6S263rc2VXRw99cDUFIwykJvF@vger.kernel.org
+X-Gm-Message-State: AOJu0YyMIEOvsbDvXyWcx+QtReHtacG2bt1m5lFfIs0SKmqiWORJyuZS
+	hdRtb1o7TFV3y40pmTtKjGhYUhYm2j0cIa1ODohX+ZwtaHgpCJ98njbAxq5UiBRcQ9l3xbINsnx
+	FQxz2Uw==
+X-Received: from pgkz26.prod.google.com ([2002:a63:a5a:0:b0:cbe:df3b:e024])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a21:b98:b0:3c3:a9e1:a819
+ with SMTP id adf61e73a8af0-3cc3f73ea48mr8503628637.24.1786552587302; Wed, 12
+ Aug 2026 09:36:27 -0700 (PDT)
+Date: Wed, 12 Aug 2026 09:36:26 -0700
+In-Reply-To: <cdb8b0bd-a15a-440b-9d7c-b532aeee6eb9@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+Mime-Version: 1.0
+References: <20260812153631.3376090-1-seiden@linux.ibm.com> <cdb8b0bd-a15a-440b-9d7c-b532aeee6eb9@linux.ibm.com>
+Message-ID: <anyhChQlOs37se4B@google.com>
+Subject: Re: [PATCH v6 00/33] KVM: s390: Introduce arm64 KVM
+From: Sean Christopherson <seanjc@google.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Steffen Eiden <seiden@linux.ibm.com>, kvm@vger.kernel.org, kvmarm@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
+	David Hildenbrand <david@kernel.org>, Friedrich Welter <fritz@linux.ibm.com>, Fuad Tabba <tabba@google.com>, 
+	Gautam Gala <ggala@linux.ibm.com>, Hariharan Mari <hari55@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Hendrik Brueckner <brueckner@linux.ibm.com>, 
+	Ilya Leoshkevich <iii@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Joey Gouly <joey.gouly@arm.com>, Marc Zyngier <maz@kernel.org>, Nico Boehr <nrb@linux.ibm.com>, 
+	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>, Oliver Upton <oupton@kernel.org>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Suzuki K Poulose <suzuki.poulose@arm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Zenghui Yu <yuzenghui@huawei.com>
+Content-Type: text/plain; charset="us-ascii"
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Uninitialized lock acquisition causes lockdep splat or kernel cras=
-h.
-- [High] Empty exception injection stubs cause infinite VCPU exit loops.
---
+On Wed, Aug 12, 2026, Christian Borntraeger wrote:
+> Am 12.08.26 um 17:35 schrieb Steffen Eiden:
+> 
+> > C) KVM/s390 reorganization (patches 12-22):
+> >     Prepare s390 for a second KVM module. Move existing s390 KVM code into
+> >     dedicated s390 and gmap subdirectories to make room for a second KVM
+> >     implementation. Refactor gmap to better integrate with the second KVM
+> >     implementation. GMAP hides a few features only required when managing s390
+> >     guests: Storage keys, CMMA, and prefix handling. Those are guarded behind an
+> >     #if KVM_S390_MANAGES_S390_GUEST. Only features which implementation would
+> >     break kvm-arm64 code are guarded. I leave the non-breaking stuff (like
+> >     shadow-gmaps or ucontrol) for the LTO.
+> 
+> I will likely take 12-21 for the next merge window so that we can minimize this
+> patch set.  sashiko and claude are happy. Mostly mechanical moves. I will review
+> those first and might do small fixups myself if necessary.
 
---- Patch [29]: [PATCH v6 29/33] KVM: s390: arm64: Implement required funct=
-ions ---
-commit 7893f22f5b221e3beeba9913544dc8c7efcfbfc0
-Author: Steffen Eiden <seiden@linux.ibm.com>
+Speaking of trimming down the patch set...
 
-KVM: s390: arm64: Implement required functions
-   =20
-Implement the mostly trivial functions that the shared arm64 (kvm)
-code & headers oblige s390 to implement.
-
-Implement a very basic smccc handler that (non-compliantly) is just able
-to stop a vcpu.
-
-> diff --git a/arch/s390/kvm/arm64/handle_exit.c b/arch/s390/kvm/arm64/hand=
-le_exit.c
-> new file mode 100644
-> --- /dev/null
-> +++ b/arch/s390/kvm/arm64/handle_exit.c
-[ ... ]
-> +static int kvm_smccc_call_handler(struct kvm_vcpu *vcpu)
-> +{
-> +	u32 func_id =3D vcpu_get_reg(vcpu, 0);
-> +	u64 val =3D PSCI_RET_NOT_SUPPORTED;
-> +	int ret =3D 1;
-> +
-> +	if (func_id =3D=3D PSCI_0_2_FN_SYSTEM_OFF) {
-> +		scoped_guard(spinlock, &vcpu->arch.mp_state_lock) {
-
-[Severity: High]
-Can this cause a lockdep splat or kernel crash?
-
-This lock is an arm64-specific state that does not appear to be initialized=
-=20
-via spin_lock_init() in the s390 VCPU creation path.=20
-
-If a guest triggers an SMC/HVC trap with func_id =3D=3D PSCI_0_2_FN_SYSTEM_=
-OFF,=20
-the host handles this in kvm_smccc_call_handler() and attempts to acquire=20
-vcpu->arch.mp_state_lock. Attempting to acquire the uninitialized lock here
-will cause a crash or lockdep warning.
-
-> +			WRITE_ONCE(vcpu->arch.mp_state.mp_state, KVM_MP_STATE_STOPPED);
-> +		}
-[ ... ]
-> diff --git a/arch/s390/kvm/arm64/inject_fault.c b/arch/s390/kvm/arm64/inj=
-ect_fault.c
-> new file mode 100644
-> --- /dev/null
-> +++ b/arch/s390/kvm/arm64/inject_fault.c
-[ ... ]
-> +void kvm_inject_undefined(struct kvm_vcpu *vcpu)
-> +{
-> +	/* Stub until s390 supports arm64 sysregs TODO sysregs*/
-> +}
-> +
-> +int kvm_inject_sea(struct kvm_vcpu *vcpu, bool iabt, u64 addr)
-> +{
-> +	/* Stub until s390 supports arm64 sysregs TODO sysregs*/
-> +	return 1;
-> +}
-
-[Severity: High]
-Do these empty stubs cause an infinite exit loop?
-
-If a guest executes an undefined instruction or accesses an unmapped memory=
-=20
-address, the host KVM code attempts to inject an exception via=20
-kvm_inject_undefined() or kvm_inject_sea().=20
-
-Because these functions are empty stubs, they do not advance the guest PC o=
-r=20
-alter its exception state. When the exit handler returns 1 to resume=20
-execution, the guest will immediately re-execute the exact same faulting=20
-instruction and trap again indefinitely. Any unprivileged guest process can=
-=20
-trigger this to cause a denial of service against the host and the VM.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812153631.3376=
-090-1-seiden@linux.ibm.com?part=3D29
+Steffen, can you post patch 1, "vfio: Use file-based reference counting for KVM",
+separately?  I'd love to get that merged sooner than later.
