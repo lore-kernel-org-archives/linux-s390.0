@@ -1,61 +1,61 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C98344AB6B;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D517F45A28C;
 	Wed, 12 Aug 2026 13:52:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786542773; cv=none; b=GOBM42ryC3tjZApBFXb+zLKKAx1hcq6xmRniPH9rsJYTkdXlI2s8JXI2MUn2qvEOEjRpU5jHbbVCD3DXSjrVo6tRTlc+pvyKp+cu4FVOosM5SzIJrUFIfuo/xxUmG1lHD2xp6md5ZLvuZYuzES5XkwqdTtXUQgy10XUDjkQCIqE=
+	t=1786542773; cv=none; b=bV3PKmQ7Udp2YxUwVc1+E3Ox7/ZsW8EY7a0jj4Mcx6H8SI6xv0n9Smwwpsv4lthS8dSrg39iuacALuqSnT+ZZ1eq43/EuiIF4BIchDzv0u9OxrQrtxM9gWv+4Hmyrc1rfKzRzzTmHNCNT5ZmFvPIJqZFldZ15m+V7OOFCqpsSLM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1786542773; c=relaxed/simple;
-	bh=wdRRCzn4k0wVqr7C2Cp1JywEk/vD1CtZQinktazj96M=;
+	bh=gt3oFXVsO9ZKmnbuTcmUbo2xjAXRTQ2Ryh6cdULM1CE=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=FoIaKWYNrBFLETfZdpPO5Ck0V2dzk3X943IKh2igTvEUSV/R3+S8wY8xHPyTVnt2qM9HioUSNeoHHp8Ue9Mk//vX5iYu1gX0V4P28/h5rvxxPfUaBsX76u7QfPHqO5Uf7NQsx93TcvmDG3yotzhn6ZB9A0zFnR8b082t/J4aPuI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qGFPh5G9; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:To:Cc; b=kgcArWNdFfJbahsWY8GV+9Ps+cE5bS/DhaRiysirhvbmgWy+vGb2Xw//uh9ChmDoxxeGcku0XhD/scRP4tsu1/ME3g1pLx9LEd2T+suMBYnchGmHsJk3C5mxf75Q6wPxll3d/2OZMCBC8B4yFjKQUnhVYsmBRQvQ45SnDmlG2tU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Q9eGeFH4; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qGFPh5G9"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67CB3P5c1433800;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Q9eGeFH4"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67CB3XHD3304229;
 	Wed, 12 Aug 2026 13:52:42 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=t/oPu3
-	mGYeHiCVt2HPDHDApuQ6QXhzHGBYRFYm8Xli8=; b=qGFPh5G9v/BjtLEQzpwSVW
-	bbi4U1GFi/Rsf0EDFtcK6I7Oic59H9mbbrqxyqq3w2VeB8db4QQ4B40xPFTkUutP
-	RuMvb1Q0xRT6YQa0oOLdpFzvsI5m1RzwH/F35/0q52z4iJV3+1J0uyy5NIFYEzer
-	lCkKBaykMkETFdvs3o72YLkFnPy0o8mP2090fTs+6XdMLfZFP354nJ+/OG9eh2I6
-	W/kRomH06rycAlvaaVWMtYkwSxPLejpM8Q3xa1aR3qf+DiX1eLdjlS08zOBCDKgr
-	eKhiw3mFL5dXd35IjhQb6hMYUY+L/RiDIhLoEBKdRTvkq9GkOIRNgy/LVulCyvHg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=UOKLS2
+	blBwvhyJFRg3UuOsYnC8xhL6ZlkBabsPInew8=; b=Q9eGeFH4mqEEsvh8aT/1KX
+	/HTZbxnVdBiquA+mpUHz9m89BVyBVw85D58JqexGYR0YsmQoRLdzWq6ZLmVneLBi
+	JIUgaBHS73GlHgvsP/PlkQ/60VPloA8n87iFYvKtINLHo6S1Nx/MvJjNlWPEyqDL
+	3LYR3ONyD0IZYogyemD4SJ31BYXlSuLpeFq/3AQNKl7zeEYbHs04AIZxDpsflFZi
+	JSfgmzADSljyG1XWfV9N9jlRD4NwBNf8zqzLSqvjbS0gS+L0wnH+1claqnCP6i/7
+	N5xeLxozOsQBtK0gyb7hpFQpBIfJ1pP+RO5LHGI+p0eRk0VXtER2JZk2qnDkCpMw
 	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvk02q0t-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvm9trn7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 12 Aug 2026 13:52:42 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67CDfi0I021303;
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67CDfd6D004194;
 	Wed, 12 Aug 2026 13:52:41 GMT
 Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxhfy61ux-1
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxf5w6c4f-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 12 Aug 2026 13:52:41 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67CDqbTN42009078
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67CDqbRL40894964
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 12 Aug 2026 13:52:38 GMT
+	Wed, 12 Aug 2026 13:52:37 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CDD7A2004B;
+	by IMSVA (Postfix) with ESMTP id 03B9920040;
 	Wed, 12 Aug 2026 13:52:37 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A1BB520043;
-	Wed, 12 Aug 2026 13:52:37 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id C983C2004B;
+	Wed, 12 Aug 2026 13:52:36 +0000 (GMT)
 Received: from [9.224.78.25] (unknown [9.224.78.25])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 12 Aug 2026 13:52:37 +0000 (GMT)
+	Wed, 12 Aug 2026 13:52:36 +0000 (GMT)
 From: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Date: Wed, 12 Aug 2026 15:52:34 +0200
-Subject: [PATCH v4 05/20] KVM: s390: vsie: Move pin/unpin_scb methods
+Date: Wed, 12 Aug 2026 15:52:30 +0200
+Subject: [PATCH v4 01/20] KVM: s390: vsie: Add SCAO read and write helpers
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -64,7 +64,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260812-vsie-sigpi-v4-5-f19e49666315@linux.ibm.com>
+Message-Id: <20260812-vsie-sigpi-v4-1-f19e49666315@linux.ibm.com>
 References: <20260812-vsie-sigpi-v4-0-f19e49666315@linux.ibm.com>
 In-Reply-To: <20260812-vsie-sigpi-v4-0-f19e49666315@linux.ibm.com>
 To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
@@ -78,136 +78,109 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Christoph Schlameuss <schlameuss@linux.ibm.com>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2507;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2181;
  i=schlameuss@linux.ibm.com; h=from:subject:message-id;
- bh=wdRRCzn4k0wVqr7C2Cp1JywEk/vD1CtZQinktazj96M=;
- b=owGbwMvMwCUmoqVx+bqN+mXG02pJDFk1VYuKvvtM/+xaFfmS3euk1dWXEc7aITVGUzS0Iw0dm
- U3jj0ztKGVhEONikBVTZKkWt86r6mtdOueg5TWYOaxMIEMYuDgFYCKXMxn+WQaJuhyrOP9BWkxj
- heCmB2w+95dcu/6LdwPfjboPDxs/FDH8d7rGe3FfNWeuL9PjtMftaY68vZrKc1e/eFXQ3nGxIXI
- VLwA=
+ bh=gt3oFXVsO9ZKmnbuTcmUbo2xjAXRTQ2Ryh6cdULM1CE=;
+ b=owGbwMvMwCUmoqVx+bqN+mXG02pJDFk1VYse/Dy2k/tpUePCTSKGfKVxGiUvM10dPFMNH0zbb
+ D1p3yrNjlIWBjEuBlkxRZZqceu8qr7WpXMOWl6DmcPKBDKEgYtTACbiu4qRYXrrZT/7DeZGc1h2
+ 2nAlGjTc4Kq32Ff2/1TjXW3PpD3c7owMM60NT7h0BZ9s2BiXdjwtfuK+lbvfJbff8y29y/Um6FI
+ LLwA=
 X-Developer-Key: i=schlameuss@linux.ibm.com; a=openpgp;
  fpr=0E34A68642574B2253AF4D31EEED6AB388551EC3
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDExMCBTYWx0ZWRfX35e98irYovYb
- MiYtvwi49fShI/50ORJ2nhLcAaVtmVC5bKpttTqwSoeHtJS5nIo98v4s6ZLJHUUTkmxEpxYy2ww
- 3bIbUXlKQAHjifG0NQddkAUXE/F7kZJtA23pNo+QQSI5BMi5cvdz6AeLQ7zK9Wotq4iQlSLT8fm
- h5tNMXfDGAaqwbAfN5xUKsKaCDWHdlOohPHMEnPNHqfLF/h+OkLJU84FKvALdPEqyufLj7k57fS
- 4qQSLaGkkQBVY5cuSJe8ily7PFIM5O1FxmTVVeCDDfLG9h1wZs8W0dUQiJ/6jaj1hwGRJy7QFT4
- fCuaY5kM5jz0sq2RJY7C4vUa2W2V+VEPP7uUD95fWcIUk9jlX1NRmvCut0SscvUBrdOh4fKM8wp
- encjt+G1lg4ueD0vZ/Yb24wR6pgrBKFx1XterjI17uwIRgBXTo/+2I4FY0gtC0G7+RNLJH6C404
- hGpqHjJ65uY+dTTBH8Q==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDExMCBTYWx0ZWRfX6l2ZV320QiCQ
- N5oJc20GwgDq29GiMpElNclh6wND6NrMjC5obQ3drE61e9XVnKDsMMjae7gzkPEmp1f7MLcwAgs
- TXuERbSJHC04KADi2nxcWJezzniR4Bs=
-X-Authority-Analysis: v=2.4 cv=RqD16imK c=1 sm=1 tr=0 ts=6a7c7aaa cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDExMCBTYWx0ZWRfX4Qj3lD0aBT29
+ 3wMoYUUrQjO0ubMQar7SW4W8AS+1Ydfi1YA855AtkVo78cwM0x3voyVrxfL8EZTh56GURLp3bDE
+ 7KQ78pTMCnPgxgLzfnaRe+E2wVCaw7pBlOZwu5PCIyzdtKuFXpPY82gpf0s6o4IioqjTpNFHzJl
+ zLNLSABBXw/QS+vYItnwRa9Y86NIam3q0QDI3fJ1AiHqtCBscmEIW9F0Lr22eXowHmmXcKYaEbs
+ xyOexm6kCJOUcX5gVw+1VQHnCH4e9v6Ty71dZ9DLirr5ZaarKFLTqEfaXnsNeZvxPTy1QiwCz92
+ IhpfBd7nTdfrGWOBGmFH90GphWa/ZUb550Y/FGk881kQueU+1IagyCNlDQ7szZVfvhPBeGccI42
+ Sma5lklsVD7qkCPpmjQbaPQ5je5pg8qsxPIYLVfugmHMbC7vMhdC3AWduEQyWMs8hW5xTUyZrTz
+ 5TiNUoe/3I1BYcKBkwg==
+X-Proofpoint-ORIG-GUID: kGmtFoxdGuUTBzybs4Pqdc4tqsiqHKS3
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDExMCBTYWx0ZWRfX7dCrDwD4shgD
+ gdFLWs9lo3DbfoR2yYnG8ZldY74IAlXwSW2ta0VHpHchvB7e9BT4R8t/YTYU4d40KRq/L0ZOW4y
+ XouIGuodvpr3y88GhBjNPU7vU7HGSes=
+X-Authority-Analysis: v=2.4 cv=IfK3n2qa c=1 sm=1 tr=0 ts=6a7c7aaa cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=7EIyOw4XjRUV76RzNM0A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: zNhPPQatKAv7G5C8pI3O1uMlRhQiHWe4
-X-Proofpoint-ORIG-GUID: zNhPPQatKAv7G5C8pI3O1uMlRhQiHWe4
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=Nr3O2JU5-Eb54A3yC_IA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: kGmtFoxdGuUTBzybs4Pqdc4tqsiqHKS3
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-12_03,2026-08-12_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
- clxscore=1015 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608120110
+ phishscore=0 priorityscore=1501 impostorscore=0 bulkscore=0 clxscore=1015
+ lowpriorityscore=0 adultscore=0 malwarescore=0 spamscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608120110
 
-Move {,un}pin_scb() up in preparation for the next patches.
-No change intended.
+Introduce some small helper functions to get and set the system control
+area origin address from the SIE control block.
 
 Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 ---
- arch/s390/kvm/vsie.c | 66 ++++++++++++++++++++++++++--------------------------
- 1 file changed, 33 insertions(+), 33 deletions(-)
+ arch/s390/kvm/vsie.c | 26 +++++++++++++++++++-------
+ 1 file changed, 19 insertions(+), 7 deletions(-)
 
 diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index eea670530acb..4b67bde0535f 100644
+index eea24562e7db..7bf3e921ca9a 100644
 --- a/arch/s390/kvm/vsie.c
 +++ b/arch/s390/kvm/vsie.c
-@@ -660,6 +660,39 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	return rc;
- }
+@@ -72,6 +72,22 @@ struct vsie_page {
  
-+/* unpin the scb provided by guest 2, marking it as dirty */
-+static void unpin_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
-+		      gpa_t gpa)
+ static_assert(sizeof(struct vsie_page) == PAGE_SIZE);
+ 
++static unsigned long read_scao(struct kvm *kvm, struct kvm_s390_sie_block *scb)
 +{
-+	hpa_t hpa = virt_to_phys(vsie_page->scb_o);
++	unsigned long vsie_sca = READ_ONCE(scb->scaol) & ~0xfUL;
 +
-+	if (hpa)
-+		unpin_guest_page(vcpu->kvm, gpa, hpa);
-+	vsie_page->scb_o = NULL;
++	if (test_kvm_cpu_feat(kvm, KVM_S390_VM_CPU_FEAT_64BSCAO))
++		vsie_sca |= (u64)READ_ONCE(scb->scaoh) << 32;
++
++	return vsie_sca;
 +}
 +
-+/*
-+ * Pin the scb at gpa provided by guest 2 at vsie_page->scb_o.
-+ *
-+ * Returns: - 0 if the scb was pinned.
-+ *          - > 0 if control has to be given to guest 2
-+ */
-+static int pin_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
-+		   gpa_t gpa)
++static void write_scao(struct kvm_s390_sie_block *scb, unsigned long hpa)
 +{
-+	hpa_t hpa;
-+	int rc;
-+
-+	rc = pin_guest_page(vcpu->kvm, gpa, &hpa);
-+	if (rc) {
-+		rc = kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
-+		WARN_ON_ONCE(rc);
-+		return 1;
-+	}
-+	vsie_page->scb_o = phys_to_virt(hpa);
-+	return 0;
++	scb->scaoh = (u32)((u64)hpa >> 32);
++	scb->scaol = (u32)(u64)hpa;
 +}
 +
- void kvm_s390_vsie_gmap_notifier(struct gmap *gmap, gpa_t start, gpa_t end)
- {
- 	struct vsie_page *cur, *next;
-@@ -910,39 +943,6 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 	return rc;
- }
+ /* trigger a validity icpt for the given scb */
+ static int set_validity_icpt(struct kvm_s390_sie_block *scb,
+ 			     __u16 reason_code)
+@@ -716,8 +732,7 @@ static void unpin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 	if (hpa) {
+ 		unpin_guest_page(vcpu->kvm, vsie_page->sca_gpa, hpa);
+ 		vsie_page->sca_gpa = 0;
+-		scb_s->scaol = 0;
+-		scb_s->scaoh = 0;
++		write_scao(scb_s, 0);
+ 	}
  
--/* unpin the scb provided by guest 2, marking it as dirty */
--static void unpin_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
--		      gpa_t gpa)
--{
--	hpa_t hpa = virt_to_phys(vsie_page->scb_o);
--
--	if (hpa)
--		unpin_guest_page(vcpu->kvm, gpa, hpa);
--	vsie_page->scb_o = NULL;
--}
--
--/*
-- * Pin the scb at gpa provided by guest 2 at vsie_page->scb_o.
-- *
-- * Returns: - 0 if the scb was pinned.
-- *          - > 0 if control has to be given to guest 2
-- */
--static int pin_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
--		   gpa_t gpa)
--{
--	hpa_t hpa;
--	int rc;
--
--	rc = pin_guest_page(vcpu->kvm, gpa, &hpa);
--	if (rc) {
--		rc = kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
--		WARN_ON_ONCE(rc);
--		return 1;
--	}
--	vsie_page->scb_o = phys_to_virt(hpa);
--	return 0;
--}
--
- /*
-  * Inject a fault into guest 2.
-  *
+ 	hpa = scb_s->itdba;
+@@ -771,9 +786,7 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 	gpa_t gpa;
+ 	int rc = 0;
+ 
+-	gpa = READ_ONCE(scb_o->scaol) & ~0xfUL;
+-	if (test_kvm_cpu_feat(vcpu->kvm, KVM_S390_VM_CPU_FEAT_64BSCAO))
+-		gpa |= (u64) READ_ONCE(scb_o->scaoh) << 32;
++	gpa = read_scao(vcpu->kvm, scb_o);
+ 	if (gpa) {
+ 		if (gpa < 2 * PAGE_SIZE)
+ 			rc = set_validity_icpt(scb_s, 0x0038U);
+@@ -790,8 +803,7 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		if (rc)
+ 			goto unpin;
+ 		vsie_page->sca_gpa = gpa;
+-		scb_s->scaoh = (u32)((u64)hpa >> 32);
+-		scb_s->scaol = (u32)(u64)hpa;
++		write_scao(scb_s, hpa);
+ 	}
+ 
+ 	gpa = READ_ONCE(scb_o->itdba) & ~0xffUL;
 
 -- 
 2.55.0
