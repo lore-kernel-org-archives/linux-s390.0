@@ -1,102 +1,181 @@
-Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com [209.85.215.197])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8910345D5D0
-	for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 16:36:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 519A3470EA2;
+	Wed, 12 Aug 2026 16:38:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786552591; cv=none; b=XkGi55CczHHtNSOHXHuLzc+1P1RIuYP2asYoHBkWbWYn26C65UCbiXC7HAkp23AUx+qFjO7KJt0Q67pQViRbOXTDHltYL4tDie8VRHk4rpy9KSIxnSim9+++fax4y9doeFddSifgt/W5hQdX7k4zWkOwXFqryFtyJtCkbLEj2xc=
+	t=1786552724; cv=none; b=Nm6w2EltILxfP+UfoHPs8yvGBb2+G47jmy8EbZoiPbLRbP9fW5NPgRnIPMBlwB9dxdAM+V7Usfa4a55utJshsOjVfiiV/NpeNYjTvIxwFzgWpRHdUFRSx+YVflgTM+XX54QHBqAGjBruOsL1MbvMV6k1/Yxz6JC/dHpP7cMa+UE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786552591; c=relaxed/simple;
-	bh=KhAZhbhhBUhb1B9BeUG+w0byNG+wvU65xNilO2isf2Q=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=AOHnFw4d9cTxoUqlD4h6+c5W+JvYMHSSqn7bJK+4GYcaL2acoh7Qxr6pKswITZVgbLX16u8UtzgtrWG6CeLPBrv7AMMivgrJ9DEJWi+trttyPNed2H0Ql/nle8gKD+stkh7LKIVf6mM8e3FKMmEWgsVQ2lUpnIg7QfjOFqoFxGM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=mPA4fglX; arc=none smtp.client-ip=209.85.215.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1786552724; c=relaxed/simple;
+	bh=CBcx1FXjxgV9xrEr51C5aAI3GA0VO4xvtbdHQrcJjuw=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=tuq41tBooxSUzohGdGrinRUWh+rZuuZZrieCT+tVQ3Rz4mdtkbe6zAtLMouZiPiQDHonYBmvlaLMD+v1qnqwmNVe7O1PyoI8zRpC2hIF4zh6h0FuwMpSpavTiREYaJXnU+Rwkv8o8YS8BmbQp2zVqNgm1icjMNiWQVE5rRolWxg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dYmxiS1u; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="mPA4fglX"
-Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-cbedc1899f7so825921a12.2
-        for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 09:36:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1786552587; x=1787157387; darn=vger.kernel.org;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=lulY/imNSY4kViCEFvXo2yMu2/ktyqgptsFx/K/KoVU=;
-        b=mPA4fglXj59Jq4mXjImgxdwqTH73Rdk7wSDkAA9+1xOsHDzZqFkOXiaTw3fIW/LIcr
-         3hl9cfGry1R6YJGYfierXkSma6dNN+tZ+1w7hA/S0WeAx1bgP787dgTggXqda3WdyICn
-         /H0MaFPMM+oxC2O56y/KgJrWydMTEQB00i+F+P88uSMiUdHLdYv+Avco75ubMO5V6Vin
-         sP8gmZuHMiET10EMtoFhU9JdT93mY1P8/xXDpDwpGH2RBX5WE7H1UnzuHduJlIo8zUxh
-         6O+o/jBbSOqbTVQAeLIOamZvoeAuQEOniW/V5YMGy1DjMp0rFH/udoq5i8a++A50gdMk
-         QGbQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786552587; x=1787157387;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=lulY/imNSY4kViCEFvXo2yMu2/ktyqgptsFx/K/KoVU=;
-        b=dqObBWA7S/v96MCuc3J0sssYCqIJ1kM6Zj3Oyyp60rMJFvaqb43q/ZISOXdCYyXrou
-         SOjSsFyy5tvkXNtZoa0qfpIbHo3A13B+lh6Kp1ImasXGR6Wa7a5gI3pPkfotnL3KQLrd
-         AyLbFUQGDIRCDoIRsnXbKPmJNZro9pbCKAThUCHB3KkXL2TCfjj19MOBuOuAo9IH0ulN
-         jC68Ztr8rDqwYTFQh2Xx4dsKHBOJCEMkJ5VUahNb9iuBklJ7hfD0+MLA3vOqObNLhq8p
-         3lGcei8LJ5kH7BIKS1v0ZzOlMC8ZRlAWiCuYTQ5tg2ZWjp0tGrMgBTjqLj9QUVoyYM18
-         uTvA==
-X-Forwarded-Encrypted: i=1; AHgh+RoD/pfrHznByT6J/7RAZOCfLZrOcnMUDbzKZOq4mWLHHsBaZwNpfRF6S263rc2VXRw99cDUFIwykJvF@vger.kernel.org
-X-Gm-Message-State: AOJu0YyMIEOvsbDvXyWcx+QtReHtacG2bt1m5lFfIs0SKmqiWORJyuZS
-	hdRtb1o7TFV3y40pmTtKjGhYUhYm2j0cIa1ODohX+ZwtaHgpCJ98njbAxq5UiBRcQ9l3xbINsnx
-	FQxz2Uw==
-X-Received: from pgkz26.prod.google.com ([2002:a63:a5a:0:b0:cbe:df3b:e024])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a21:b98:b0:3c3:a9e1:a819
- with SMTP id adf61e73a8af0-3cc3f73ea48mr8503628637.24.1786552587302; Wed, 12
- Aug 2026 09:36:27 -0700 (PDT)
-Date: Wed, 12 Aug 2026 09:36:26 -0700
-In-Reply-To: <cdb8b0bd-a15a-440b-9d7c-b532aeee6eb9@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dYmxiS1u"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76C071F00A3A;
+	Wed, 12 Aug 2026 16:38:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786552723;
+	bh=0+/9nol15K57ypPQ6svx7wYijNxYXJFNMqk5t1tn1fE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=dYmxiS1ultvHQC9pBXqpsmJXNzWXF0tR5H2DkyW0diEFt37oGajEwyYyzlAa4a/7b
+	 bCV8ge9sI1q1ht+niej0MDpzzio9zdgSjhmo6c4fJIK6ptcA7Jb9LjZeFczQ5sv71n
+	 cpRgxDrWKcdQpVsjH8Nmx/maHoRxdQ/TEXIp1lQka/FvZHoU0RrKzNI05v47a+qoJE
+	 x2ac4KII/IR9I+rH9l0dR+aUjYmhuD+TEXpW+o2sbUAqujrj2OxsswN8wIiSB+j+6z
+	 x6p7ZFqWoWL2Rf/g9I4kZo3USFNFP7LDvk5tcMQNAXCsYI1E1QJc49B9LjpG0CdOqx
+	 MDDHKDI3a6tqw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v6 30/33] KVM: s390: arm64: Implement vm/vcpu create
+ destroy.
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Steffen Eiden" <seiden@linux.ibm.com>
+Cc: "Oliver Upton" <oupton@kernel.org>, linux-s390@vger.kernel.org, kvmarm@lists.linux.dev, "Marc
+ Zyngier" <maz@kernel.org>, "Christian Borntraeger" <borntraeger@linux.ibm.vom>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260812153631.3376090-31-seiden@linux.ibm.com>
+References: <20260812153631.3376090-1-seiden@linux.ibm.com>
+ <20260812153631.3376090-31-seiden@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 12 Aug 2026 16:38:42 +0000
+Message-Id: <20260812163842.76C071F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260812153631.3376090-1-seiden@linux.ibm.com> <cdb8b0bd-a15a-440b-9d7c-b532aeee6eb9@linux.ibm.com>
-Message-ID: <anyhChQlOs37se4B@google.com>
-Subject: Re: [PATCH v6 00/33] KVM: s390: Introduce arm64 KVM
-From: Sean Christopherson <seanjc@google.com>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: Steffen Eiden <seiden@linux.ibm.com>, kvm@vger.kernel.org, kvmarm@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
-	David Hildenbrand <david@kernel.org>, Friedrich Welter <fritz@linux.ibm.com>, Fuad Tabba <tabba@google.com>, 
-	Gautam Gala <ggala@linux.ibm.com>, Hariharan Mari <hari55@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Hendrik Brueckner <brueckner@linux.ibm.com>, 
-	Ilya Leoshkevich <iii@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Joey Gouly <joey.gouly@arm.com>, Marc Zyngier <maz@kernel.org>, Nico Boehr <nrb@linux.ibm.com>, 
-	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>, Oliver Upton <oupton@kernel.org>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Suzuki K Poulose <suzuki.poulose@arm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Zenghui Yu <yuzenghui@huawei.com>
-Content-Type: text/plain; charset="us-ascii"
 
-On Wed, Aug 12, 2026, Christian Borntraeger wrote:
-> Am 12.08.26 um 17:35 schrieb Steffen Eiden:
-> 
-> > C) KVM/s390 reorganization (patches 12-22):
-> >     Prepare s390 for a second KVM module. Move existing s390 KVM code into
-> >     dedicated s390 and gmap subdirectories to make room for a second KVM
-> >     implementation. Refactor gmap to better integrate with the second KVM
-> >     implementation. GMAP hides a few features only required when managing s390
-> >     guests: Storage keys, CMMA, and prefix handling. Those are guarded behind an
-> >     #if KVM_S390_MANAGES_S390_GUEST. Only features which implementation would
-> >     break kvm-arm64 code are guarded. I leave the non-breaking stuff (like
-> >     shadow-gmaps or ucontrol) for the LTO.
-> 
-> I will likely take 12-21 for the next merge window so that we can minimize this
-> patch set.  sashiko and claude are happy. Mostly mechanical moves. I will review
-> those first and might do small fixups myself if necessary.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] Integer underflow in `kvm_max_guest_address()` bypassing KVM's IPA=
+ limits and causing Undefined Behavior.
+- [High] VM IPA size configuration is ignored for memory boundaries, and me=
+m_limit suffers from an off-by-one error.
+--
 
-Speaking of trimming down the patch set...
+--- Patch [30]: [PATCH v6 30/33] KVM: s390: arm64: Implement vm/vcpu create=
+ destroy. ---
+commit ac331802b4f3974b686910d63a6161cfc71cfae4
+Author: Steffen Eiden <seiden@linux.ibm.com>
 
-Steffen, can you post patch 1, "vfio: Use file-based reference counting for KVM",
-separately?  I'd love to get that merged sooner than later.
+KVM: s390: arm64: Implement vm/vcpu create destroy.
+
+Implement init and destroy IOCTLS for vcpu and vm.
+Implement arch vm IOCTL. Use s390 gmap and gmap plumbing.
+Implement function (stubs) required by gamp.
+
+> diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
+> index 8e17b7eef8131..69d43066f9e1a 100644
+> --- a/arch/s390/kvm/arm64/arm.c
+> +++ b/arch/s390/kvm/arm64/arm.c
+> @@ -53,6 +58,83 @@ static u64 kvm_max_guest_address(void)
+>  	return ALIGN_DOWN(max_addr + 1, 1 << 30) - 1;
+>  }
+
+[Severity: High]
+Does this underflow if the host is booted with less than 1GB of memory?
+
+If sclp.hamax is less than 1GB, max_addr + 1 is less than 1 << 30.
+ALIGN_DOWN would result in 0, and 0 - 1 would underflow to U64_MAX.
+
+[ ... ]
+
+> +static int kvm_vm_type_ipa_size_shift(unsigned long type)
+> +{
+> +	int phys_shift;
+> +
+> +	phys_shift =3D KVM_VM_TYPE_ARM_IPA_SIZE(type);
+> +	if (phys_shift) {
+> +		if (phys_shift > get_kvm_ipa_limit() ||
+> +		    phys_shift < ARM64_MIN_PARANGE_BITS)
+> +			return -EINVAL;
+
+[Severity: High]
+This seems to cascade from the potential underflow in kvm_max_guest_address=
+().
+
+If get_kvm_ipa_limit() computes fls64(0) - 1, it would return -1 as 0xFFFFF=
+FFF
+via u32. Could a malicious userspace then bypass this IPA size check since
+phys_shift > get_kvm_ipa_limit() would evaluate to false?
+
+[ ... ]
+
+> +int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+> +{
+> +	char debug_name[32];
+> +	int ret;
+> +
+> +	if (type & ~KVM_VM_TYPE_ARM_IPA_SIZE_MASK)
+> +		return -EINVAL;
+> +
+> +	ret =3D kvm_vm_type_ipa_size_shift(type);
+> +	if (ret < 0)
+> +		return ret;
+> +	kvm->arch.guest_phys_size =3D 1UL << ret;
+
+[Severity: High]
+If the check in kvm_vm_type_ipa_size_shift() is bypassed, the phys_shift va=
+lue
+(up to 255) would be used in this shift. Would this invoke undefined behavi=
+or
+since the shift amount could exceed the width of the type?
+
+[ ... ]
+
+> +	ret =3D kvm_gmap_init(kvm);
+> +	if (ret)
+> +		goto out_err;
+> +	kvm->arch.mem_limit =3D kvm_max_guest_address();
+
+[Severity: High]
+Is it intended that kvm->arch.mem_limit is hardcoded to the global host
+maximum instead of the VM's configured IPA size limit
+(kvm->arch.guest_phys_size)?
+
+If it uses the host's maximum, could userspace successfully map memory high=
+er
+than the configured VM IPA size limit?
+
+Also, kvm_max_guest_address() appears to return an inclusive limit, but when
+s390_kvm_mmu_prepare_memory_region() checks this limit:
+
+    if ((new->base_gfn + new->npages) * PAGE_SIZE > kvm->arch.mem_limit)
+
+it treats mem_limit as an exclusive boundary. Does this off-by-one prevent
+userspace from mapping the final page of the allowed memory region?
+
+[ ... ]
+
+> +int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
+> +{
+> +	struct kvm_sae_block *sae_block =3D &vcpu->arch.sae_block;
+> +	struct kvm_sae_save_area *save_area =3D &vcpu->arch.save_area;
+> +
+> +	spin_lock_init(&vcpu->arch.mp_state_lock);
+> +
+> +	/* Force users to call KVM_ARM_VCPU_INIT */
+> +	vcpu_clear_flag(vcpu, VCPU_INITIALIZED);
+> +
+> +	vcpu->arch.mc =3D kvm_s390_new_mmu_cache();
+> +	if (!vcpu->arch.mc)
+> +		return -ENOMEM;
+> +
+> +	sae_block->hbasce =3D vcpu->kvm->arch.gmap->asce.val;
+> +	sae_block->mso =3D 0L;
+> +	sae_block->msl =3D kvm_max_guest_address();
+
+[Severity: High]
+Does sae_block->msl also need to be scoped to the VM's requested size rather
+than the host maximum?
+
+Setting this to the host maximum might remove hardware emulation boundaries=
+ if
+the guest physical size was configured to be smaller.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812153631.3376=
+090-1-seiden@linux.ibm.com?part=3D30
