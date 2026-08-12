@@ -1,46 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E7123F0AA9;
-	Wed, 12 Aug 2026 12:04:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 991BE4334A0;
+	Wed, 12 Aug 2026 12:05:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786536299; cv=none; b=ZVvmMlcJ6pfwsY5KVcL31jIdRdq0LwS7i275pjlrY/jBmnPsbhGvfg1qACmWgD29jCte27LqGOcOxEe2OwAeXWzYUb+vh08aOZSqt9FPPNA7DILAqZyaWOrMiSItIbgq3NfPMjC2Ah7QzQ44p6u9MHxvE8SUOHUn4X2WqLHnYZo=
+	t=1786536316; cv=none; b=MtxojPYP6x/6ha2QmJXgpQa1K1KpT7NCy6BuA5ZHOB0UDoqQlwDipt9038oZFBah8Hk7bOBTVopIPQLgnNabOt4p/BhlYRBqY87aLy0PIvIYZR6/vsZhUhBBlH1Bi3zsLGaufo+nGfVcdAs0BvR7GcVamT8srR4n2aqMyeHWtTg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786536299; c=relaxed/simple;
-	bh=TxC0/JW/cYHlTRAFrH8Dpo1NMZh9Lm2rq7yhVW0bQLY=;
+	s=arc-20240116; t=1786536316; c=relaxed/simple;
+	bh=VXHT82yd6CsknE+4/O/DUZAbDplWzZmVtjc9ljKHtls=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=btaUOGTSikS9/XMesfagBtpaXJs7RNA1Mqt/EoXlDRXynHjx2jKbTmY307TmqUwMiAiBKIhuUjRIgSCELNr5Sk6O7PBlD3wNjVtdN0+Sm3zPEx15Ibdc18u34G/EPGb0TLhVmxJqa+nMZpGgek5rIXxIOPKWypI1x1mb9FgBecs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I0vZodDs; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=LLAJ0DOXMMe4oBDgV27zGvQbMRFdfATO7HJeD4j7ExAztWGi2fAptDnfsrCUCgedDmM/4MeB7VmtinScGo76BKuXD3EgQ8/2CibBfNFmFZFoEkpUP5GMcICN70LOoAnajeuwXX1CIKMhtAFLZOxZisOCDLUdQTkDz/CokjzBRE4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QZQOCgfH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I0vZodDs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25F3D1F000E9;
-	Wed, 12 Aug 2026 12:04:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QZQOCgfH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B48E1F000E9;
+	Wed, 12 Aug 2026 12:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786536297;
-	bh=pyUvfxVmKiG3dJEqSONJvxBh0t+g3hYb+6oTdeoKM2c=;
+	s=k20260515; t=1786536314;
+	bh=/fNILufjLsrRroxGDcnGt+oCDmIC1Yd6eDjQKSj3G/8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=I0vZodDsQeLQfpkYkEuZSXovPNl1DNqyTfZYLbs66jMzrZLG6Vyw2ApuadfHCMv8S
-	 Xnv+72Ln3FoqHAHImcHl+dmLUIm4O2Pl81m2kKp/DHyu64JzUx3kUczRYQRz2iw9CH
-	 YZfWnDHEyAFjM+a2vEQnoiTo4QiPSrdWOiEQLTpjOilQn+fkLRNTaI4ETdSHAKHuz1
-	 UHQDCBN6wwgNWHVs84Gt8v/aJL8eGCOVX4NqSze/1rCnvsac2MXc00G+NDrVufrtfh
-	 WmEZG6K2mUlvcXk5t1V82E8+p7lEImRhegLZ84kyUq+U5Bk9nW+vja5YfL0Vv3Qc3y
-	 slKEMVFqBnFPg==
+	b=QZQOCgfHxyW4VGg+Q7DIPKVH9l5q1MvZGws3uZFWhFzxG0+xGy6CWn3D7XNWcR4UC
+	 JxZ5YqwWloF4rrFsyuPMSlYOHitCyv0TuClKJAzta6vTdCwkozf/WacbGSLWfc9fWj
+	 wV9WuaBepI0D05u0Ca/JcWUM/Q9UrNCeZR1o1LTyFrwMz7AukAQHl/wgTDKLOxCYqQ
+	 5AihmVWhbSQ73yTjDi1twn8TbDCJKPsdOdEF+V0BtsY3rfRoUMlCvPEjJFuLnFWM8N
+	 Zi35t51bbKok0lY1Kly8Bb2hWoLX3pqZV9RTXN0owwqsfy/G4rhpjk9VITO0EjXW80
+	 T8IMeD/t21ACA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 6/9] s390/vfio-ap: fix potential use of uninitialized
- apm_filtered bitmap
+Subject: Re: [PATCH v3 5/9] s390/vfio-ap: Fix control domain removal in
+ vfio_ap_mdev_cfg_remove
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.vom>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260812115139.576303-7-akrowiak@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.vom>, linux-s390@vger.kernel.org
+In-Reply-To: <20260812115139.576303-6-akrowiak@linux.ibm.com>
 References: <20260812115139.576303-1-akrowiak@linux.ibm.com>
- <20260812115139.576303-7-akrowiak@linux.ibm.com>
+ <20260812115139.576303-6-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 12:04:56 +0000
-Message-Id: <20260812120457.25F3D1F000E9@smtp.kernel.org>
+Date: Wed, 12 Aug 2026 12:05:13 +0000
+Message-Id: <20260812120513.9B48E1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -51,74 +50,74 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Potential subsystem-wide hang due to an unbounded infinite loop in=
- `apq_reset_check()` while holding global mutexes.
+- [High] Unplugging the last AP adapter, domain, or control domain fails to=
+ update the KVM guest's APCB.
 --
 
---- Patch [6]: [PATCH v3 6/9] s390/vfio-ap: fix potential use of uninitiali=
-zed apm_filtered bitmap ---
-commit 54d6a10b5f4c5f98506b757af68f95ada615865b
+--- Patch [5]: [PATCH v3 5/9] s390/vfio-ap: Fix control domain removal in v=
+fio_ap_mdev_cfg_remove ---
+commit ac232781abc6c5d395fdb856a5975b162da68506
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-s390/vfio-ap: fix potential use of uninitialized apm_filtered bitmap
+s390/vfio-ap: Fix control domain removal in vfio_ap_mdev_cfg_remove
 
-This commit fixes a bug where the apm_filtered bitmap was used uninitialized
-if a hot plug configuration change only added control domains. It zeroes the
-bitmap using bitmap_zero() at the start of the function to prevent using
-stack garbage.
+This commit resolves an issue in vfio_ap_mdev_cfg_remove where the use of
+bitmap_andnot prevented explicitly unplugged control domains from being
+removed from the KVM guest. The fix correctly changes the bitwise operation
+to use bitmap_and instead.
 
 Cc: stable@vger.kernel.org
 
 > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
 _ap_ops.c
-> index b6d0c988cc810..cdc9bf5c5e53d 100644
+> index 8a1ecb8915044..b6d0c988cc810 100644
 > --- a/drivers/s390/crypto/vfio_ap_ops.c
 > +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -2840,6 +2840,8 @@ static void vfio_ap_mdev_hot_plug_cfg(struct ap_mat=
-rix_mdev *matrix_mdev)
->  	DECLARE_BITMAP(apm_filtered, AP_DEVICES);
->  	bool filter_domains, filter_adapters, filter_cdoms, do_hotplug =3D fals=
-e;
+> @@ -2625,9 +2625,9 @@ static void vfio_ap_mdev_cfg_remove(unsigned long *=
+ap_remove,
+>  		do_remove |=3D bitmap_and(aqrem, aq_remove,
+>  					  matrix_mdev->matrix.aqm,
+>  					  AP_DOMAINS);
+> -		do_remove |=3D bitmap_andnot(cdrem, cd_remove,
+> -					     matrix_mdev->matrix.adm,
+> -					     AP_DOMAINS);
+> +		do_remove |=3D bitmap_and(cdrem, cd_remove,
+> +					matrix_mdev->matrix.adm,
+> +					AP_DOMAINS);
 > =20
-> +	bitmap_zero(apm_filtered, AP_DEVICES);
-> +
+>  		if (do_remove)
+>  			vfio_ap_mdev_hot_unplug_cfg(matrix_mdev, aprem, aqrem,
 
 [Severity: High]
-This isn't a bug introduced by this patch, but can the subsystem hang if the
-hardware continuously returns -EBUSY?
+This is a pre-existing issue, but does this function call successfully
+update the KVM guest APCB when the very last hardware resource is
+unplugged?
 
-Looking at apq_reset_check(), there is a loop that continues indefinitely
-without a timeout bounds:
+Looking inside vfio_ap_mdev_hot_unplug_cfg(), it uses the return value of
+bitmap_andnot() to determine if an update is required:
 
-drivers/s390/crypto/vfio_ap_ops.c:apq_reset_check() {
-	while (true) {
-		msleep(AP_RESET_INTERVAL);
-		elapsed +=3D AP_RESET_INTERVAL;
-		status =3D ap_tapq(q->apqn, NULL);
-		ret =3D apq_status_check(q->apqn, &status);
-		if (ret =3D=3D -EIO)
-			return;
-		if (ret =3D=3D -EBUSY) {
-			pr_notice_ratelimited(WAIT_MSG, elapsed,...);
+drivers/s390/crypto/vfio_ap_ops.c:vfio_ap_mdev_hot_unplug_cfg() {
+    ...
+	if (!bitmap_empty(aprem, AP_DEVICES)) {
+		do_hotplug |=3D bitmap_andnot(matrix_mdev->shadow_apcb.apm,
+					    matrix_mdev->shadow_apcb.apm,
+					    aprem, AP_DEVICES);
+	}
+    ...
+	if (do_hotplug)
+		vfio_ap_mdev_update_guest_apcb(matrix_mdev);
 }
 
-If a user process triggers a reset, it queues a reset and subsequently waits
-for it using flush_work() while holding the global matrix_dev->mdevs_lock
-and matrix_dev->guests_lock:
+Because bitmap_andnot() returns false when the resulting bitmap is empty,
+clearing the final bit from the shadow APCB returns 0.
 
-drivers/s390/crypto/vfio_ap_ops.c:vfio_ap_mdev_reset_queues() {
-	hash_for_each(matrix_mdev->qtable.queues, loop_cursor, q, mdev_qnode) {
-		flush_work(&q->reset_work);
-}
+If the last AP adapter, domain, or control domain is unplugged, do_hotplug
+evaluates to 0 and the vfio_ap_mdev_update_guest_apcb() call is completely
+bypassed.
 
-Could this create a permanent kernel thread hang that persistently holds
-global locks if the hardware is unresponsive or repeatedly returns
-AP_RESPONSE_BUSY?
-
->  	filter_adapters =3D bitmap_intersects(matrix_mdev->matrix.apm,
->  					    matrix_mdev->apm_add, AP_DEVICES);
->  	filter_domains =3D bitmap_intersects(matrix_mdev->matrix.aqm,
+Could this allow a guest to retain architectural access to hardware that has
+been explicitly removed and potentially reassigned to another driver?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812115139.5763=
-03-1-akrowiak@linux.ibm.com?part=3D6
+03-1-akrowiak@linux.ibm.com?part=3D5
