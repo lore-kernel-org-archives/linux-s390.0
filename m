@@ -1,45 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC2FE395D8B
-	for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 17:49:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF34E2F39C2
+	for <linux-s390@vger.kernel.org>; Wed, 12 Aug 2026 17:49:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786556952; cv=none; b=bf34FLzphRE5tZ+JJuKIWp6kRFI+bcph3jWnu+19gvY4INU087AR6J+qPLi0Q3CbWDvKJtF4DRz+hDYK3Rw0rgTqtSY/A7Oh0BLI7Q4SFQcx79MdC2GrrnCfFMtjvkhrfgi/uOgT+5pOMB/0LtGaQE5UW+fsLXWAijG7o7U5qqQ=
+	t=1786556997; cv=none; b=gfE4QABhXst1AFvqwb/ZcqLKjAtBciQgMTic4Ri1ntY0FeoTqfMwF72vND/FNUrjpkDFjzgrurCkC/WALOdvlB6Z6DpZyauRxXm3yKCkPGV5VvgPsu6nZX3q6t1WECQKodUzju53p8YC0EIfc3ke0P6/OlQSwkg3dvydypVcfTQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786556952; c=relaxed/simple;
-	bh=Zc4/mOblbRWn3CSZCdaYYlJKm3oEABbvH/UvuNVMHHk=;
+	s=arc-20240116; t=1786556997; c=relaxed/simple;
+	bh=MKvCUl91dkiosKsLu6tAU7M2rJiXNFxENCHtkImgBLI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=tQIcb4Hu0y7OI8Km4ChBm+Z1nJQxnrKmYXLet0IruwpM+1/UqORf/Mzw5c15maI6knxAWdL1XJK+BMSoJmc7h9Ywss2u55T42ofni1+L2U6V9S2EzmY61LS5N7oI7tnjnRObYF/i97ACZJlOUp1A2+EB4Vc4XJb5BDrGy/HG168=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FYu85xb8; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=qUzeThB75Ly2Lv94R/wA83DjSrY1iSp9L5Rg12APpD3FV00dQFEFWd/C70DD57PUbLnNm78JmGbA6wMdV1rJhWKS4NgGUVuFj4mgfuyNhWg+I8x/cUgnuI9J/AFNEdjWj5ER4zxQhmsdOjAhLJ+ZNGpSgYpz+CquNTaDeDJ6mI8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HcJTd9DW; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FYu85xb8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 196D61F000E9;
-	Wed, 12 Aug 2026 17:49:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HcJTd9DW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A5031F000E9;
+	Wed, 12 Aug 2026 17:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786556950;
-	bh=TXu+as0S70J8fqm0gxE5kNNRp1HsvVY/Mas7WdeGTZc=;
+	s=k20260515; t=1786556996;
+	bh=pqJ04BE1gm3U/7SJuZBSYUG1nD5CDw3EX83ZspuPMEM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=FYu85xb8/u6nXkyeJKv4Mbp4Nrex57Idu1HggSiO11wUNM4IyjDsA2AmIXqviaJ5F
-	 HKknO4HTW0tQ9WYFD2+YmCiyzTpFd6Uv4uXQjaZiiQTh3eWntJvrT2+qHNzuSLZaMo
-	 vp+NSeEC/SX8Ba3lFtnyhJpsT3NHGS7csPrNMZCHoblV9ORiNkVny7xCAeYmmZKkST
-	 kxyKBoJL+BDx7cGGyS3XW34uwnjxaWeVuslVssgHU6NwH2aKH3WtQ1rr1ml1MAzK97
-	 lRtRwpEf9oRgOg7TkGK+LRsHUi8yT/yELemGY2ASJLYaB1IuLROu8N6h+BFypLg7nb
-	 kHh+vHX8IiGqg==
+	b=HcJTd9DWzqSfp/C6ouZxZCt1bwo/2FrWxr9rp67+Du9AWXN4RhY02XfwdEQfiUHNS
+	 devU94EUFInA9jGp1lzqICbKhzC5Qw8gXOpTrauw+/mZkbFFHUcugqz/bgmJ5pV+xF
+	 CrhTNDf5b4etw2u8sH8jlAGK/QaIfofIt1QvXDgTOx4/rVLF9UfI/8kpbFEcFl92G3
+	 pzeFBHQek9OPKNtTkXMBIw8y8sJB5oexnydXZc1/N9g09cnBhSvoDRgnBicmIRf+a5
+	 ICBRpjwvkJLkW9SwFzEnBUCenXRgGjLhdt0w+8k6STPFBu6/NpXARLG8nc4mOqSdQg
+	 hI+a4sZfUQMLQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 02/13] syscalls: Create unified partial table for all
- archs
+Subject: Re: [PATCH v5 08/13] mips: Get rid of custom mips ABIs for syscall
+ tables
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?QW5kcsOpIEFsbWVpZGE=?= <andrealmeid@igalia.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.vom>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260812-tonyk-syscall_table-v5-2-3d383927c609@igalia.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.vom>
+In-Reply-To: <20260812-tonyk-syscall_table-v5-8-3d383927c609@igalia.com>
 References: <20260812-tonyk-syscall_table-v5-0-3d383927c609@igalia.com>
- <20260812-tonyk-syscall_table-v5-2-3d383927c609@igalia.com>
+ <20260812-tonyk-syscall_table-v5-8-3d383927c609@igalia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 17:49:09 +0000
-Message-Id: <20260812174910.196D61F000E9@smtp.kernel.org>
+Date: Wed, 12 Aug 2026 17:49:55 +0000
+Message-Id: <20260812174956.0A5031F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,84 +49,54 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] The use of bash process substitution `< <(...)` in a `#!/bin/sh` s=
-cript will cause syntax errors on systems using strict POSIX shells like `d=
-ash`.
+- [Low] The patch modifies `arch/mips/kernel/syscalls/syscall_n64.tbl` (cha=
+nging the ABI string to `common`) but fails to synchronize the mirrored cop=
+y at `tools/perf/arch/mips/entry/syscalls/syscall_n64.tbl`.
 --
 
---- Patch [2]: [PATCH v5 02/13] syscalls: Create unified partial table for =
-all archs ---
-commit 47d67094b1a192ac92926cb745138546b214b614
+--- Patch [8]: [PATCH v5 08/13] mips: Get rid of custom mips ABIs for sysca=
+ll tables ---
+commit 0da0a7952278891a02bb3187b7d10490c780e9c7
 Author: Andr=C3=A9 Almeida <andrealmeid@igalia.com>
+Date:   Wed Aug 12 17:38:39 2026 +0000
 
-syscalls: Create unified partial table for all archs
+mips: Get rid of custom mips ABIs for syscall tables
 
-This commit introduces a shared syscall table for system calls common to all
-architectures. It also modifies the generation scripts to support combining=
- a
-main table with the common table.
+This commit replaces the MIPS-exclusive ABI names (n32, o32, n64) with
+"common" in the syscall tables. The goal is to simplify and unify the tables
+without introducing any functional changes.
 
-> diff --git a/scripts/syscallhdr.sh b/scripts/syscallhdr.sh
-> index bad1ab606a0fb..54e09d3e686c4 100755
-> --- a/scripts/syscallhdr.sh
-> +++ b/scripts/syscallhdr.sh
+> diff --git a/arch/mips/kernel/syscalls/syscall_n64.tbl b/arch/mips/kernel=
+/syscalls/syscall_n64.tbl
+> index 630aab9e54259..9acc68729e218 100644
+> --- a/arch/mips/kernel/syscalls/syscall_n64.tbl
+> +++ b/arch/mips/kernel/syscalls/syscall_n64.tbl
+> @@ -5,384 +5,384 @@
+>  # The format is:
+>  # <number> <abi> <name> <entry point>
+>  #
+> -# The <abi> is always "n64" for this file.
+> +# The <abi> is always "common" for this file.
+>  #
+> -0	n64	read				sys_read
+> +0	common	read				sys_read
 
-[ ... ]
+[Severity: Low]
+Will this trigger a "Kernel ABI header differences" warning during the perf
+build?
 
-> @@ -84,15 +111,20 @@ grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis" "$infile"=
- | {
->  		fi
-> =20
->  		echo "#define __NR_$prefix$name $nr"
-> -	done
-> =20
-> -	if [ -n "$emit_nr" ]; then
-> -		echo
-> -		echo "#ifdef __KERNEL__"
-> -		echo "#define __NR_${prefix}syscalls $(($max + 1))"
-> -		echo "#endif"
-> -	fi
-> +	done < <(grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis" "$input")
+The kernel ABI header was modified to use "common" instead of "n64" here, b=
+ut
+it looks like the mirrored copy at=20
+tools/perf/arch/mips/entry/syscalls/syscall_n64.tbl was not synchronized.
+When tools/perf/check-headers.sh runs during the perf build, it will detect
+that the two files are out of sync.
 
-[Severity: High]
-Does this < <(...) process substitution in gen_hdr() break POSIX shell
-compatibility?
-
-Because this script is executed with #!/bin/sh, using bashisms like < <(...)
-will cause a syntax error on systems where /bin/sh is a strict POSIX shell
-like dash, breaking the build.
-
-> +}
-> =20
+Should the tools/perf/ copies of the syscall tables be updated in this patch
+as well to prevent the build warning?
 
 [ ... ]
-
-> diff --git a/scripts/syscalltbl.sh b/scripts/syscalltbl.sh
-> index c4b1f85c2dd63..91c135143b22f 100755
-> --- a/scripts/syscalltbl.sh
-> +++ b/scripts/syscalltbl.sh
-
-[ ... ]
-
-> @@ -88,5 +97,13 @@ grep -E "^[0-9]+[[:space:]]+$abis" "$infile" | {
->  			echo "__SYSCALL($nr, sys_ni_syscall)"
->  		fi
->  		nxt=3D$((nr + 1))
-> -	done
-> -} > "$outfile"
-> +
-> +	done < <(grep -E "^[0-9]+[[:space:]]+$abis" "$input")
-
-[Severity: High]
-Similarly, does this process substitution in gen_tbl() cause a syntax error=
- on
-dash or other strict POSIX shells?
-
-> +
-> +}
-> +
-> +gen_tbl $infile  > "$outfile"
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812-tonyk-sysc=
-all_table-v5-0-3d383927c609@igalia.com?part=3D2
+all_table-v5-0-3d383927c609@igalia.com?part=3D8
