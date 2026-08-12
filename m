@@ -1,159 +1,156 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42FB1423A80;
-	Wed, 12 Aug 2026 11:08:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A87832B13B;
+	Wed, 12 Aug 2026 11:11:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786532898; cv=none; b=WtlbFoMWUy7PVKyiQdGVGqf86lrYmlgYD7/GtHw5K2xNWblL3GLZu44hMPapOIN9OYxBMeFmybJxcEopd6XlXO77K6UCVKyWJQsT3wsYKUZo7XmCJUWL7mkyI5U2a3c9I8AxlPIEtyv4NgArqNbBCLt0MkV57c+8lmg9i+pLxp0=
+	t=1786533089; cv=none; b=N9IunDoC1gutW+q/VyYgwWYkYoVIZT3Fyo79/VZFADaSR/LcaySZkON/5X1M2mQlRmj27HpsjcEAHeKT/6JG+grRsHZ4htc0ko3CIQdD4ESlY3MeM/qQUGT8fu6DuXjkRB72rPEnuoJv74SIDqhMyByrBm8Hk8sVfAd1keYVax0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786532898; c=relaxed/simple;
-	bh=lzP/JY3aeuocCdWL/0uXP7CnjLsvHNNNeXnnQoQI6GQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=OgiiXTPVYMMuFyaQrXFtuZIeL+qZYNHVtAHwcn1ZQEYqJnSdrRn9G78ySH6j24FHS4dXenulrUXm+t0UtjO2IdIryVXv88qD0pwXA6oRA7zWLh3khyJbu2iHR4+EbMQnPUFP1l8N3tbVmIaWDVoNF/UqJKUHXsm6UW7hGfXEHYA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EkPSCeLD; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786533089; c=relaxed/simple;
+	bh=txJFGU7J62L113n31e1G08aGE1X/fMjeuYreZn3fav0=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
+	 References:In-Reply-To; b=XyV3u3PUc0oxQf/FJHuZt7K04QNt5KS2qw1o4lDHkyI20sz8bCWtWscKhUk4s4+Mlcn4eqdJ+0gWJ1V1/pw2KLp9gMu30j3uolBssrmhixVkYMlexEZhAsSukhc03e9XIZ5/2vKN5M1OC/NXA5o1iehscEH/IYj+Kk6FRdJVGa4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Brj9CIPN; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EkPSCeLD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 332981F000E9;
-	Wed, 12 Aug 2026 11:08:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786532896;
-	bh=wrG8DuqyrTgTLnhCEF0YR7wirnsbC3EpRyGJXVbGCIU=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=EkPSCeLDP67zu3BNdozJVWmVgN/lwbl/w5cX6yfGYw9yVFjo6oPLCa0KuCgxJq/bJ
-	 KCRPGDosYj4GfgaVr2nyBLrLMQzyq56jcmCurtz+u98h44jUMGlYs5abspQ7HI6rsh
-	 QfoHCmaUDsxiRzdFLpT+tVjAjEYbE4nO23QHgxFCh00LDfMeQi+Ph7C2SSyb7vjFYB
-	 hmnKnnLtrOxIfLT7V/pLXlLtaxUOl4T+7oG8LNW7m3pliZ+JhFVaHDpU+gCrQUFKvh
-	 ITPhU3LDVqetWIWSsynW6Wc8ICVklFrAdPPAB/k0svEdGHBfo3zvurKffjxX4mpEdJ
-	 bjOpTJ9BJHYPw==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [RFC PATCH] dma: swiotlb: Size shared default pools for memory
- encryption
-In-Reply-To: <anxEc8EHmJQywVI5@arm.com>
-References: <20260811134056.756015-1-aneesh.kumar@kernel.org>
- <anxEc8EHmJQywVI5@arm.com>
-Date: Wed, 12 Aug 2026 16:38:03 +0530
-Message-ID: <yq5ajypvioks.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Brj9CIPN"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67CB3MZN3303955;
+	Wed, 12 Aug 2026 11:11:26 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=OYIBwu
+	rYlLQ1J9On8VqCNHGE0iXLscA34FwDPpJgszg=; b=Brj9CIPN6a+J3+az2+TW9o
+	0rKc6Coho0JyDkLb1sXyiBN8VxRrq3u9oR/lPt6j6k7fdcZEOsxRumAn+SOhLO0H
+	pQ1aTz0d8Y0ROzgfe3LECLGjtAbey2ZSH1Xg3OONIFdEcVw5QXhU9hr4k3XIWx+A
+	RGG1jhlMy1HO7kTAMAzU36lY3PBAxUCC1VOY1q0PTYDUhKKRYfWmxMe5DEqW9vSE
+	Tm7I5MqYrJrDHkGqTvPWhIeZVJJYS0IMsbqBITlnhGcvCapkWr2g0+zaoWXuK8/x
+	hDmkCHZ0sD2BKSaRy8LUq9X9zqAp9ZBCZbkKPwUSqeR4brOC/Oo234grphuDb4tw
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvm9t49r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 12 Aug 2026 11:11:26 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67CAuJNj009600;
+	Wed, 12 Aug 2026 11:11:25 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxg9h5mnu-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 12 Aug 2026 11:11:25 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67CBBLRB35979604
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 12 Aug 2026 11:11:22 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DC6CF2004B;
+	Wed, 12 Aug 2026 11:11:21 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C6D6520043;
+	Wed, 12 Aug 2026 11:11:21 +0000 (GMT)
+Received: from darkmoore (unknown [9.224.78.25])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 12 Aug 2026 11:11:21 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 12 Aug 2026 13:11:16 +0200
+Message-Id: <DKMX4D8DCKOD.O92YNFWFMTGQ@linux.ibm.com>
+From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+        <borntraeger@de.ibm.com>, <frankja@linux.ibm.com>, <david@kernel.org>,
+        <seiden@linux.ibm.com>, <nrb@linux.ibm.com>,
+        <schlameuss@linux.ibm.com>, <gra@linux.ibm.com>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2 5/9] KVM: s390: Fix pgste_get_trylock_multiple()
+X-Mailer: aerc 0.22.0
+References: <20260812104436.109741-1-imbrenda@linux.ibm.com>
+ <20260812104436.109741-6-imbrenda@linux.ibm.com>
+In-Reply-To: <20260812104436.109741-6-imbrenda@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDA4OSBTYWx0ZWRfX85IUhb/+ugK/
+ pKECE903e76qSne0z0khWrAcqTzkR2D8QDaKmo7dQVRtp2CohbS6uUYrMurXeHw2MYRjrRyT1oU
+ AwbksvYktahbJNQcN4v7AXmATtCHwNZvLg0Gg5m2EPDvgZMYjWkLNApnT/ygOEALRO0Qz3IoV6B
+ pQQuHnf4LYlYU2DhVsOLFa5fQ5nV7oUiYgwBJxgebeum9Wmvb2yyY+tIxyRcISoYFQiZbUrDOtr
+ TpJfUfX1L+l0rzaOzc3zRwo0qqaqxK6hEf7yraFIRpTNhFZo1RTGKgkXQjWnu/QZQtmwIhoPeyx
+ VYplKpq9ItHz1PXiM6E7hqij40R6Z0vPr4TMl5Qi8NCMiykvs2F3C7cM/dBL/gZ59nfVOmwWglx
+ qDqLBCH1LOBcLAFxFAEQVMKSb9SvVq7gaA2xyQPx2Fo8Z4+MClP2qAiTfsZqHbU7Sc7WPT0HI5W
+ xRBbuAIgW7bN6YvSd9A==
+X-Proofpoint-ORIG-GUID: gI7QksIn-XFEcY8rG_7tLUqEtnReMomA
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDA4OSBTYWx0ZWRfX8fWS0TREhQ2W
+ dJizEWx2i9fV5O7/HqGn1fwgSCOYR6iIevP1MuGvSNyNNBhlAlLJ/PhNeEFwcI7r02JWRvHmCP+
+ 7MOzxYlHdxUPPuNfXAnkwwgja7dZ5Zc=
+X-Authority-Analysis: v=2.4 cv=IfK3n2qa c=1 sm=1 tr=0 ts=6a7c54de cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=0R0jmd_GHOanYFiHbnAA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: gI7QksIn-XFEcY8rG_7tLUqEtnReMomA
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-12_03,2026-08-12_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 priorityscore=1501 impostorscore=0 bulkscore=0 clxscore=1015
+ lowpriorityscore=0 adultscore=0 malwarescore=0 spamscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608120089
 
-Catalin Marinas <catalin.marinas@arm.com> writes:
+On Wed Aug 12, 2026 at 12:44 PM CEST, Claudio Imbrenda wrote:
+> In case of failure, pgste_get_trylock_multiple() will attempt to unlock
+> the locked PGSTEs based on whether the PCL is set. In some
+> circumstances this can lead to unlocking PGSTEs that were locked by
+> other threads.
+>
+> Fix by unlocking the amount of PGSTEs that were actually locked,
+> ignoring the PCL bit in the array.
+>
+> Fixes: 94fd9b16cc67 ("KVM: s390: KVM page table management functions: lif=
+ecycle management")
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 
-> On Tue, Aug 11, 2026 at 07:10:56PM +0530, Aneesh Kumar K.V (Arm) wrote:
->> Systems with memory encryption use swiotlb to provide shared or
->> unencrypted buffers for device DMA. Confidential guests may route all
->> DMA through these buffers, while SME hosts use them for devices that
->> cannot address encrypted memory. The default swiotlb pool can therefore
->> be exhausted under I/O-intensive workloads.
->> 
->> Let architectures mark the default swiotlb pool as shared before
->> swiotlb_init().
->
-> I thought we wanted even this decision to be moved out of the arch code.
->
+Reviewed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
-Architectures may want to use an unencrypted swiotlb pool for different
-reasons, one of them being CC_ATTR_GUEST_MEM_ENCRYPT. x86 hosts also
-require unencrypted pool to support SME. We can cover both cases using
-CC_ATTR_MEM_ENCRYPT. However, pKVM does not want an unencrypted SWIOTLB
-pool. So I was thinking it would be much cleaner to let the architecture
-code drive that decision.
+> ---
+>  arch/s390/kvm/dat.c | 7 ++-----
+>  1 file changed, 2 insertions(+), 5 deletions(-)
+>
+> diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
+> index 165c704fcf29..f4dd6f783417 100644
+> --- a/arch/s390/kvm/dat.c
+> +++ b/arch/s390/kvm/dat.c
+> @@ -923,11 +923,8 @@ static void pgste_set_unlock_multiple(union pte *fir=
+st, int n, union pgste *pgst
+>  {
+>  	int i;
+> =20
+> -	for (i =3D 0; i < n; i++) {
+> -		if (!pgstes[i].pcl)
+> -			break;
+> +	for (i =3D 0; i < n; i++)
+>  		pgste_set_unlock(first + i, pgstes[i]);
+> -	}
+>  }
+> =20
+>  static bool pgste_get_trylock_multiple(union pte *first, int n, union pg=
+ste *pgstes)
+> @@ -940,7 +937,7 @@ static bool pgste_get_trylock_multiple(union pte *fir=
+st, int n, union pgste *pgs
+>  	}
+>  	if (i =3D=3D n)
+>  		return true;
+> -	pgste_set_unlock_multiple(first, n, pgstes);
+> +	pgste_set_unlock_multiple(first, i, pgstes);
+>  	return false;
+>  }
+> =20
 
->
->> Move the existing x86 sizing policy into generic swiotlb
->> code and add early pool marking for arm64 Realm guests, powerpc secure
->> guests, s390 protected-virtualization guests, and x86 memory-encryption
->> platforms. Use CC_ATTR_MEM_ENCRYPT on x86 to include host SME, whose
->> swiotlb pool must also be decrypted for devices that cannot address
->> encrypted memory.
->
-> That's a functional change for x86. For now, I'd keep it to
-> CC_ATTR_GUEST_MEM_ENCRYPT.
->
-> BTW, why does arm64 report CC_ATTR_MEM_ENCRYPT instead of the GUEST
-> option in realms?
->
->> Move the powerpc secure-guest swiotlb enablement before initialization
->> so that the shared pool is allocated with the required flags. pKVM
->> guests continue to use a restricted DMA pool instead of the default
->> swiotlb pool.
->> 
->> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
->> ---
->>  arch/arm64/mm/init.c                 |  6 ++-
->>  arch/powerpc/mm/mem.c                |  7 +++
->>  arch/powerpc/platforms/pseries/svm.c | 10 ----
->>  arch/s390/mm/init.c                  |  2 +
->>  arch/x86/mm/mem_encrypt.c            | 27 ++--------
->>  include/linux/swiotlb.h              |  7 ++-
->>  kernel/dma/swiotlb.c                 | 73 ++++++++++++++++++++++------
->>  7 files changed, 82 insertions(+), 50 deletions(-)
->> 
->> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
->> index e308a7cabd12..4c022e8aed43 100644
->> --- a/arch/arm64/mm/init.c
->> +++ b/arch/arm64/mm/init.c
->> @@ -338,8 +338,12 @@ void __init arch_setup_zero_pages(void)
->>  void __init arch_mm_preinit(void)
->>  {
->>  	unsigned int flags = SWIOTLB_VERBOSE;
->> +	/* pKVM uses restricted-dma-pool */
->> +	bool cc_guest = is_realm_world();
->>  
->> -	if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
->> +	if (cc_guest) {
->> +		swiotlb_mark_default_cc_shared();
->> +	} else if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
->>  		/*
->>  		 * If no bouncing needed for ZONE_DMA, reduce the swiotlb
->>  		 * buffer for kmalloc() bouncing to 1MB per 1GB of RAM.
->
-> With your other reworking, doesn't the core code know the swiotlb will
-> be shared? Can it not make the decision to resize at that point based
-> solely on CC_ATTR_GUEST_MEM_ENCRYPT?
->
-> I also wonder whether we could address Will's pKVM request not to
-> allocate a bounce buffer once pKVM guests will start reporting
-> CC_ATTR_GUEST_MEM_ENCRYPT. Some simple heuristic: if a
-> restricted-dma-pool is advertised in DT (it will end up in
-> rmem_swiotlb_setup()), skip resizing the default swiotlb. It's not
-> perfect but the bounce buffer can be overridden on the command line.
->
 
-For the same reason I mentioned above, architectures may have different
-reasons for setting cc_shared = true. IMHO, it is cleaner to let the
-architecture code make that decision before swiotlb_init().
-
--aneesh
