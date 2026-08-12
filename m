@@ -1,250 +1,147 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7765F471D0D;
-	Wed, 12 Aug 2026 15:28:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D4E345D5D0;
+	Wed, 12 Aug 2026 15:31:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786548505; cv=none; b=HgOLWBWyprIh+s4HdTZt6KdQqIKbqpxLpLuHUkcgQlRtDvLBxGzK8MRnWJozgqZGWBBepfVhTXEfBQ61XzNRE2eDboFwmzdxQH1ospZkvw7KsBwc8XNTPnN9HYF/scyWgur7uPu/GUXQATQSsoa7N/9S6vOi3J6BrVBU6vRfHqg=
+	t=1786548666; cv=none; b=XMmYcEj2cxFj07jUlCaFpsYRMNWNrrFouiO39pvmr6MazqjetaT8GVf+K2JMvhOtzUwpP0G6fDhDRrZ+9iAX9XF6zdOs3AT1oh+GoHDiXBH8Q+yDNrSVD5BB+ZbKT8qKiuA1EO901KBE/iyxsci5uQOXOciQxEVrQra8gDD+SBE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786548505; c=relaxed/simple;
-	bh=gRfOKRawTwQ0pOvxz82yPARS8ikKI9lrzjiHBdqwcwA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=AbCkiO+8ww/D2TxynlehxD5nRYhEqEL1eKkAStZeekWKiWrn8YHcEiz0x9Ojy2soC6ag9L2k8X3Mc4s+WBhWZleeaAcqhP1Xm/iHb6vqPL1gpUBfx89wdJt+dDgLFiNYZj/ZcdFtGA7iEfoKPO9kwKyoOrAN+qEKRmPBjuJk/BY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YizzQdPy; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786548666; c=relaxed/simple;
+	bh=TVxbkX+sPB4HzLaXUZbEcn3x49y4oOFBlIe4vZ8RX+s=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=buF6bskN7QJ93amT0xHyW7nQq+L5/Pz5LLWgqsw/Ong6dYG4k8AcK8O8AsQJ9YbVa3Uq8f89KPAkEfLGp1PgIGAVgtZW53yJt1kFvERWeVUObxl3jcEpVrqWJDdyV0+akqg6j4FBK/sCXEq/Vp3Cfg8iHTPyjMDco7Ntr0AfaFY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com; spf=pass smtp.mailfrom=de.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Lr8Rlc7N; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=de.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YizzQdPy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F392A1F000E9;
-	Wed, 12 Aug 2026 15:28:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786548490;
-	bh=zb7h1RJizXPQ212/6UlaktQkbrep/qEQKPjhc1YvRqY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=YizzQdPyf/Qtp43RCNq4RH113bUYeAvGSFmJNAL/pkip5RliD2rLFNNFWFIxSyAjj
-	 zwEK8sZjiQJnk+K7Fv857tCrzR4tsfcyVhZ8trAh5eZe9gFehpPt6Djit04Gup4OZU
-	 4RDYnC/gzl5sTgarghgTBrnW5nSHO/IUrIyR2Vv3frFKvfNZBOJW8McTL6J1lo7H69
-	 Wh6X92PeK8nrk7YUBt2F13ULcC6eimI9hFjuw5hBWLWo/xxKt2zeAV2UBJ4wvVyejf
-	 Wt4yxhC8fgk2WETdJNU0xTc8VCixT9efzRN42eG60gqCD0jYutRFDyaK1R1KNeouJ5
-	 /4Izk1xV/xIzg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 11/20] KVM: s390: vsie: Lazily keep original scb
- pinned after vsie exit
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.vom>, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260812-vsie-sigpi-v4-11-f19e49666315@linux.ibm.com>
-References: <20260812-vsie-sigpi-v4-0-f19e49666315@linux.ibm.com>
- <20260812-vsie-sigpi-v4-11-f19e49666315@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 15:28:09 +0000
-Message-Id: <20260812152809.F392A1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Lr8Rlc7N"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67CE1hJP1816625;
+	Wed, 12 Aug 2026 15:30:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=uzL9LP
+	cjhheg2W7+sVscYEgucggxDjrEbDeRJPhzSzQ=; b=Lr8Rlc7NVTx7q87IS7mrS/
+	Z04tM3nC42mNOOFEq7uUe/q+aszVbL4IN+bXzHmKbXnBCHG+o6f/Xtxu2QeV0kLQ
+	OA10RLLKqFV+kuwNAdbcyy+MY1UxUwRHLmc3RNWWxQ8BgL/dH6citehV41gazwQL
+	5Lh1M5gEQqIPPgBL5mChPZKu3k5SADtBywqnPCEYChkVWb4mIaR1UnWrfsgq1tVi
+	mWKzj7ngLUqa2fuP0WBEL/TjCdRKu2FFifZYOCABj7fmg0eEq1J8AuT0YMRoi8MS
+	KrDAe0L4EZk++l7SuHh0kw040IvjNPJIjGQYhXh2Kzdi64KXbpoDOehfWCelyPyA
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvk03706-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 12 Aug 2026 15:30:52 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67CFQP6m021756;
+	Wed, 12 Aug 2026 15:30:51 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxhfy6f8g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 12 Aug 2026 15:30:51 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67CFUlul38732256
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 12 Aug 2026 15:30:47 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 677932004D;
+	Wed, 12 Aug 2026 15:30:47 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BAB562004B;
+	Wed, 12 Aug 2026 15:30:46 +0000 (GMT)
+Received: from [9.111.47.51] (unknown [9.111.47.51])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 12 Aug 2026 15:30:46 +0000 (GMT)
+Message-ID: <14e82371-8e39-4af6-b220-6f0d1bdf25d4@de.ibm.com>
+Date: Wed, 12 Aug 2026 17:30:46 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 0/9] s390/vfio-ap: Fix bugs in vfio_ap device driver
+ callback functions
+To: Anthony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: jjherne@linux.ibm.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex@shazbot.org, kwankhede@nvidia.com, fiuczy@linux.ibm.com,
+        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
+        agordeev@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+References: <20260812115139.576303-1-akrowiak@linux.ibm.com>
+Content-Language: en-US
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+In-Reply-To: <20260812115139.576303-1-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEyMDEyMiBTYWx0ZWRfX9Ui27WPDKeZp
+ TLUp2qwz8x9I6aHV27jhszAawb/fG0MAt/fMUUkCKbVRh8WQyHkm+p5K+EiVMsJPJEKdYCTLZDe
+ bLycEPNE/trYKanddYaP+YsGX617dZ9Pr2gan4Vp4GYJAJUOPqYYl6DBS8Wg1xGuEvLo7ieDHeI
+ L/vyWxDoYmY9MSs7+WREMG+52C6ZnjyNoKBJznoHEE4jboGNqlMf9ZetInY1l8E/MoT+2OiRfRe
+ GH/E+UsNQPCcG/aUu3GjIYtMlis4anHE7i/EdJUuQng9GNzqme5TCc0k6NWvDsV18zLOfe42Ypz
+ 8OnOiLWjJAxUfNaetjZXAafCyPj6zU41Wm64RQ8bGZ06umNmxMf9Tf5k4gzxtePtvsMsYB0cmry
+ PdfZQK45sHpJ0MnfPDnR49T5clw32CnBLI6hIH/xinHj8t1sbW+PANtInSHold8czKLr2CPQiEs
+ IjegMhylSHoxfQCSdCA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODEyMDEyMiBTYWx0ZWRfX7UWeBTlOuzlN
+ BRrm05T26T4mmXiG5DYHcWzB2bs//Cj7tG6V4+NFc20F2UumQX0PQbZldZt/GdrmcuW50uHcjlS
+ zQp+2IOGTu7SzbkYQa3YxCGR09pKYm4=
+X-Authority-Analysis: v=2.4 cv=RqD16imK c=1 sm=1 tr=0 ts=6a7c91ac cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=JOdzOVN4DxgfuSgIMUAA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: k-nxs1ohh1P__QnurkYDMOEGGmgneiLx
+X-Proofpoint-ORIG-GUID: k-nxs1ohh1P__QnurkYDMOEGGmgneiLx
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-12_04,2026-08-12_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
+ clxscore=1015 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608120122
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
-- [High] Ignored `xa_insert` errors in `vsie_page_init` break architectural=
- double-use protection, cause XArray corruption, and expose a guest-trigger=
-able host `WARN_ON_ONCE`.
-- [High] Guest-triggerable `PGM_ADDRESSING` exceptions are incorrectly tran=
-slated into a host `-ENOMEM` error, aborting the VM.
-- [Medium] The intended lazy pinning optimization is completely defeated be=
-cause the SCB is unconditionally unpinned at the end of every VSIE executio=
-n.
-- [Medium] Non-atomic bitwise operations on `vsie_page->flags` violate docu=
-mented atomic requirements and create data races.
-- [Low] `SCB_ALIGNMENT_SHIFT` is not defined anywhere in the codebase, caus=
-ing a build failure.
---
 
---- Patch [11]: [PATCH v4 11/20] KVM: s390: vsie: Lazily keep original scb =
-pinned after vsie exit ---
-commit 987277adb095f19cd7aeacd230e5c42d67de0027
-Author: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Subject: KVM: s390: vsie: Lazily keep original scb pinned after vsie exit
+Am 12.08.26 um 13:51 schrieb Anthony Krowiak:
+> During review of patches by the Sashiko AI, several pre-existing bugs were
+> discovered. This 9-patch series fixes those bugs
+> 
+> Change log v2 => v3:
+> ~~~~~~~~~~~~~~~~~~~
+> Patch 3: Fix use of wrong lock in mdev probe function
+> Patch 7: Fix required lock not held during display of sysfs status
+> attribute
+> * Squashed these two patches into a new patch entitled "Fix missing lock
+>    required to access list of ap_matrix_mdev objects"
+> * Added two new patches that fix pre-existing bugs:
+>    ~ s390/vfio-ap: Fix NULL deref in status_show() during queue probe
+>    ~ s390/vfio-ap: Fix memory leak when queue removed from host AP config
+> 
+> Anthony Krowiak (9):
+>    s390/vfio-ap: Fix stale do_remove flag across iterations in
+>      vfio_ap_mdev_cfg_remove
+>    s390/vfio-ap: Fix dereference matrix_mdev->kvm without checking for
+>      NULL
+>    s390/vfio-ap: Fix missing lock required to access list of
+>      ap_matrix_mdev objects
+>    s390/vfio-ap: Fix required lock not held during update of
+>      ap_matrix_mdev object
+>    s390/vfio-ap: Fix control domain removal in vfio_ap_mdev_cfg_remove
+>    s390/vfio-ap: fix potential use of uninitialized apm_filtered bitmap
+>    s390/vfio-ap: Fix hot-unplug skipped when last AP adapter or domain
+>      removed
+>    s390/vfio-ap: Fix NULL deref in status_show() during queue probe
+>    s390/vfio-ap: Fix memory leak when queue removed from host AP config
+> 
+>   drivers/s390/crypto/vfio_ap_ops.c | 110 ++++++++++++++++++++----------
+>   1 file changed, 75 insertions(+), 35 deletions(-)
+> 
 
-This patch updates the nested virtualization code to cache the pinned
-original SCB for a vsie_page. It introduces pinning state flags and delays
-unpinning until the vsie_page is reused or the VM is destroyed.
 
-> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-> index d2582519b3ecc..490c29b369cd0 100644
-> --- a/arch/s390/kvm/vsie.c
-> +++ b/arch/s390/kvm/vsie.c
-[ ... ]
-> @@ -760,14 +761,18 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct=
- vsie_page *vsie_page)
->  }
-> =20
->  /* unpin the scb provided by guest 2, marking it as dirty */
-> -static void unpin_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
-> -		      gpa_t gpa)
-> +static void unpin_scb(struct kvm *kvm, struct vsie_page *vsie_page)
->  {
-> -	hpa_t hpa =3D virt_to_phys(vsie_page->scb_o);
-> +	hpa_t hpa;
-> +
-> +	if (!test_bit(VSIE_PAGE_SCB_PINNED, &vsie_page->flags))
-> +		return;
-> =20
-> +	hpa =3D virt_to_phys(vsie_page->scb_o);
->  	if (hpa)
-> -		unpin_guest_page(vcpu->kvm, gpa, hpa);
->  	vsie_page->scb_o =3D NULL;
-> +	__clear_bit(VSIE_PAGE_SCB_PINNED, &vsie_page->flags);
->  }
-
-[Severity: Medium]
-Does this introduce a data race on the flags field?=20
-
-The vsie_page struct documentation states that flags must be modified
-atomically. Since other threads might concurrently update the
-VSIE_PAGE_IN_USE bit using atomic operations like test_and_set_bit() in
-try_get_vsie_page(), using the non-atomic __clear_bit() here could
-overwrite those concurrent changes.
-
->  /*
-> @@ -776,19 +781,22 @@ static void unpin_scb(struct kvm_vcpu *vcpu, struct=
- vsie_page *vsie_page,
->   * Returns: - 0 if the scb was pinned.
->   *          - > 0 if control has to be given to guest 2
->   */
-> -static int pin_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
-> -		   gpa_t gpa)
-> +static int pin_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
->  {
->  	hpa_t hpa;
->  	int rc;
-> =20
-> -	rc =3D pin_guest_page(vcpu->kvm, gpa, &hpa);
-> +	if (test_bit(VSIE_PAGE_SCB_PINNED, &vsie_page->flags))
-> +		return 0;
-> +
-> +	rc =3D pin_guest_page(vcpu->kvm, vsie_page->scb_gpa, &hpa);
->  	if (rc) {
->  		rc =3D kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
->  		WARN_ON_ONCE(rc);
->  		return 1;
->  	}
->  	vsie_page->scb_o =3D phys_to_virt(hpa);
-> +	__set_bit(VSIE_PAGE_SCB_PINNED, &vsie_page->flags);
->  	return 0;
->  }
-
-[Severity: Medium]
-Similar to the unpin_scb() function above, should this be an atomic
-set_bit() to avoid racing with concurrent access to vsie_page->flags?
-
-[ ... ]
-> @@ -1529,17 +1537,45 @@ static struct vsie_page *alloc_vsie_page(struct k=
-vm *kvm)
->  	return vsie_page;
->  }
-> =20
-> +static int vsie_page_init(struct kvm_vcpu *vcpu, struct vsie_page *vsie_=
-page, unsigned long scb_gpa)
-> +{
-> +	struct kvm *kvm =3D vcpu->kvm;
-> +	int rc;
-> +
-> +	if (vsie_page->scb_gpa !=3D ULONG_MAX)
-> +		xa_erase(&kvm->arch.vsie.addr_to_page, vsie_page->scb_gpa >> SCB_ALIGN=
-MENT_SHIFT);
-
-[Severity: Low]
-Is SCB_ALIGNMENT_SHIFT defined in this tree?=20
-
-It doesn't appear to be defined anywhere in the codebase, which would
-cause a build failure here and in the xa_insert() and xa_load() calls
-below.
-
-> +	vsie_page->scb_gpa =3D scb_gpa;
-> +	rc =3D pin_scb(vcpu, vsie_page);
-> +	if (rc) {
-> +		vsie_page->scb_gpa =3D ULONG_MAX;
-> +		return -ENOMEM;
-> +	}
-
-[Severity: High]
-When pin_scb() fails due to an invalid guest physical address, it
-successfully queues a PGM_ADDRESSING exception for the guest and returns
-1.=20
-
-By returning -ENOMEM here, are we incorrectly escalating a guest-level
-addressing fault into a host-level memory allocation failure? This will
-propagate up to the run loop and abort the VM instead of just delivering
-the exception to the guest.
-
-> +
-> +	vsie_page->sca_gpa =3D read_scao(kvm, vsie_page->scb_o);
-> +	WARN_ON_ONCE(xa_insert(&kvm->arch.vsie.addr_to_page, scb_gpa >> SCB_ALI=
-GNMENT_SHIFT,
-> +			       vsie_page, GFP_KERNEL_ACCOUNT));
-
-[Severity: High]
-Could ignoring the error from xa_insert() here bypass the architectural
-double-use protection?=20
-
-If two nested vCPUs concurrently execute the SIE instruction with the same
-guest SCB address, the second one will fail to insert. By wrapping this in
-WARN_ON_ONCE and ignoring the failure, the guest can intentionally trigger
-a host warning.=20
-
-Furthermore, the second vCPU proceeds with the duplicate vsie_page, and
-when it is later reused, the xa_erase() at the top of vsie_page_init()
-will erase the valid XArray entry belonging to the first vCPU.
-
-> +
-> +	return 0;
-> +}
-[ ... ]
-> @@ -1552,53 +1588,69 @@ static struct vsie_page *get_vsie_page(struct kvm=
- *kvm, unsigned long addr)
-[ ... ]
-> +	rc =3D vsie_page_init(vcpu, vsie_page, addr);
-> +	mutex_unlock(&kvm->arch.vsie.mutex);
-> +	if (vsie_page_new)
-> +		free_vsie_page(vsie_page_new);
-> +	if (WARN_ON_ONCE(rc)) {
-> +		unpin_scb(kvm, vsie_page);
-> +		vsie_page->scb_gpa =3D ULONG_MAX;
->  		put_vsie_page(vsie_page);
-> -		mutex_unlock(&kvm->arch.vsie.mutex);
-> -		return NULL;
-> +		return ERR_PTR(rc);
->  	}
-
-[Severity: High]
-Following up on the vsie_page_init() return value, this WARN_ON_ONCE will
-be triggered if the guest provided an invalid SCB address. Does this
-result in a guest triggerable host warning before returning the -ENOMEM
-error?
-
-[ ... ]
-> @@ -1626,7 +1678,7 @@ int kvm_s390_handle_vsie(struct kvm_vcpu *vcpu)
-[ ... ]
->  out_unshadow:
->  	unshadow_scb(vcpu, vsie_page);
->  out_unpin_scb:
-> -	unpin_scb(vcpu, vsie_page, scb_addr);
-> +	unpin_scb(vcpu->kvm, vsie_page);
->  out_put:
->  	put_vsie_page(vsie_page);
-
-[Severity: Medium]
-Will this unconditional call to unpin_scb() at the end of every nested SIE
-execution defeat the lazy pinning optimization?=20
-
-Since every normal exit flows through out_unpin_scb, the
-VSIE_PAGE_SCB_PINNED flag is cleared and the SCB is unpinned immediately,
-bypassing the intended cache behavior.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812-vsie-sigpi=
--v4-0-f19e49666315@linux.ibm.com?part=3D11
+Sashiko has one new finding for patch8. Everything else is unrelated.
+Will you do a respin for this?
+I plan to take this for the next merge window.
