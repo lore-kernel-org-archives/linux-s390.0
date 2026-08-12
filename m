@@ -1,45 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 817E138E8BA;
-	Wed, 12 Aug 2026 17:24:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D796C335081;
+	Wed, 12 Aug 2026 17:24:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786555452; cv=none; b=sJDR4VATRycYM7Z3Fm5zYgI67vNvAPtjuBxUUqGYVTCZ2ehL344JGNLsu5wxep+Ilk2F/8fpRAjtbIi7kU6UDVVW0eBfWpbA01C1hhQKk81WI5lkr2JDQ+xfBIk2E4rnwZqNcMzp5flpWwGrvvrok+p55XdvFUES3XXKHHo96ro=
+	t=1786555484; cv=none; b=gCi2V7xNTmTjKugn4gOtijqGKP4+8igfxqafV1lowtjX7iZRKj6U9qjD2x1AQSPXVA/HWtZ9VpaqvgJ2MWo6gREeU7fXweP6xpJY0qUTCC4GcRoZ8Ofwvp4PxwXnXOQJxTKfcY66PYHnY4pCBOhmpIatHXtaQXo0yA7Vgx2sBD8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786555452; c=relaxed/simple;
-	bh=/8BZynyWj2yBD6DBzfTS1GxhyQQD2qzFP9Mwq2yOJTM=;
+	s=arc-20240116; t=1786555484; c=relaxed/simple;
+	bh=gdZZo5PnPTu1A38Xsm61bBsL34g39/Vq3FOkuP/WF0Y=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=QhWiPiHcbLZWytvWMfrVXDFhB5HvE98OGMEz8z8iGSyatGbNaE3fmxxkgc6FYZbYxKGsE84EOKGXyKHtUdSvArFhEUs+vB1fS2yQOquoE6xUDa0zJKOd7YUtxAhRyCK99GK9wAJVP7bozNCRZuGA2V5EnIxQZDJ82kCpTAIhz/Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dM59o8i6; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=gcAOvkfiWgl/O0LyadBW+vuR6F8LotmRbbW4nvWMRk8i9BvmyamzUf1oV2l0EP+I7Uhxhq1NBUoKu1w2Ji3GXwg80AvQJksYGLaFE/Y3P54IEc1VQYawH5ejHlMLlrWANYJDOBqgLoy8E97pnGKWBN9k6/i6g4ps3J2rlMbHI1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eQKNRlla; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dM59o8i6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 032A51F000E9;
-	Wed, 12 Aug 2026 17:24:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eQKNRlla"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BF551F00A3A;
+	Wed, 12 Aug 2026 17:24:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786555451;
-	bh=+NBa0T0J7sLgitLHG6Q+vJYHQk0bUcHb/On6Jv08cQI=;
+	s=k20260515; t=1786555483;
+	bh=fQJnLgEd0MC4IUFcUs6AZpm4YUEzvmAbagghdfDsPMo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dM59o8i6pFWSF+BBAs6e6mKx2cAOLSs7Efc6WnqKdniL3CodzfOjHaqtB3W+d2M+K
-	 P8p/nA+i1/Hf44eQ0vXdPgXKTeLVuVOH8lMOVLcak2fmX3AEiexMoaOhe+JOEZyrEw
-	 Gg6QZm+jU9ohS8Iw5/O6+jG4+iC9c7pgaQ1I9bVmm6e5y3Gz16cFrfXK/Cl4YIYJ+Y
-	 29homCope+xgrCZopReFghWVdYaw27kQ167KsrSCYExxBUpLN6UVJAajrERYHTcnaP
-	 x40CX1q6XZ8uTTe2kmD74AA+rY+ULOv13AvRkSUZm4bf+l5ruj9c/1pt7b82DAo+Es
-	 YKNIhaamc9GPw==
+	b=eQKNRlla9YjxbPQzqPQPjYKUW1r344BVNtlYAEKYmqhEvtjm9rXyrYsNs0JxT2cBe
+	 SDkTV3DxGU4G6dHEtVjtXEgiAZgkGHlQuvwJoLC/g0v98oqhqmto31gorzhf5MglwE
+	 18Ck0yx7HVkS+qxjluv/XE70Ki8I1IsoyS8Ixf9EO/HS6eV7W0IlB4/NzaCseYdsR9
+	 QdPpfHp5S2B3Z6pxdAHOqjsdxhyr9p+dT4H6M3q7VLrAvPxBfjvHjfJ1C3nz8GPMft
+	 rHYCcyjysGMTTS3cB/thoIM/yRb006hs5ujm0MGK4CELNvOM8FaGxJID1Rbz4HMNWF
+	 1hviUrGlYp90Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 7/9] s390/vfio-ap: Fix hot-unplug skipped when last
- AP adapter or domain removed
+Subject: Re: [PATCH v4 4/9] s390/vfio-ap: Fix required lock not held during
+ update of ap_matrix_mdev object
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.vom>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260812170945.738351-8-akrowiak@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.vom>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260812170945.738351-5-akrowiak@linux.ibm.com>
 References: <20260812170945.738351-1-akrowiak@linux.ibm.com>
- <20260812170945.738351-8-akrowiak@linux.ibm.com>
+ <20260812170945.738351-5-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 12 Aug 2026 17:24:10 +0000
-Message-Id: <20260812172411.032A51F000E9@smtp.kernel.org>
+Date: Wed, 12 Aug 2026 17:24:42 +0000
+Message-Id: <20260812172443.5BF551F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,74 +51,75 @@ Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Pinned NIB pages and KVM ISC registrations are permanently leaked =
-when an AP queue is removed from the host configuration.
+- [High] Hardware validation is skipped when an adapter is hotplugged witho=
+ut new domains, allowing unsupported hardware to be assigned.
 --
 
---- Patch [7]: [PATCH v4 7/9] s390/vfio-ap: Fix hot-unplug skipped when las=
-t AP adapter or domain removed ---
-commit b0a12cab04822e364a31d2095615141da73872b3
+--- Patch [4]: [PATCH v4 4/9] s390/vfio-ap: Fix required lock not held duri=
+ng update of ap_matrix_mdev object ---
+commit 6a90ea8f2f04defd282ac1432c8f5ff791b149f2
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-s390/vfio-ap: Fix hot-unplug skipped when last AP adapter or domain removed
+s390/vfio-ap: Fix required lock not held during update of ap_matrix_mdev ob=
+ject
 
-This commit fixes an issue where the guest APCB is not updated when the
-last AP adapter or domain is removed. It replaces the bitmap_andnot check
-with bitmap_intersects to properly detect overlaps and trigger the guest
-update.
-
-Cc: stable@vger.kernel.org
+This patch resolves a missing lock issue in vfio_ap_mdev_cfg_add(). It ensu=
+res
+that the mdevs_lock is held while modifying the apm_add, aqm_add, and adm_a=
+dd
+bitmap fields. This prevents race conditions with concurrent modifications =
+to
+the matrix device.
 
 > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
 _ap_ops.c
+> index f2d662e388bdc..21c502598f8ca 100644
 > --- a/drivers/s390/crypto/vfio_ap_ops.c
 > +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -2568,24 +2568,28 @@ static void vfio_ap_mdev_hot_unplug_cfg(struct ap=
-_matrix_mdev *matrix_mdev,
-[ ... ]
-> +	if (bitmap_intersects(matrix_mdev->shadow_apcb.adm, cdrem, AP_DOMAINS))=
- {
-> +		bitmap_andnot(matrix_mdev->shadow_apcb.adm,
-> +			      matrix_mdev->shadow_apcb.adm,
-> +			      cdrem, AP_DOMAINS);
-> +		do_hotplug =3D true;
-> +	}
-> =20
->  	if (do_hotplug)
->  		vfio_ap_mdev_update_guest_apcb(matrix_mdev);
->  }
+> @@ -2777,12 +2777,20 @@ static void vfio_ap_mdev_cfg_add(unsigned long *a=
+pm_add, unsigned long *aqm_add,
 
 [Severity: High]
-This is a pre-existing issue, but while reviewing the hot-unplug path I
-noticed a potential resource leak in vfio_ap_mdev_remove_queue().
+This isn't a bug introduced by this patch, but does=20
+vfio_ap_filter_apid_by_qtype() skip hardware validation if an adapter is=20
+hotplugged without new domains?
 
-When an AP adapter or domain is hot-unplugged, it is removed from
-matrix_dev->info during the configuration change. Later, when the AP bus
-calls vfio_ap_mdev_remove_queue(), it checks the matrix_dev->info bitmaps:
+In vfio_ap_filter_apid_by_qtype(), if aqm is empty:
 
-drivers/s390/crypto/vfio_ap_ops.c:vfio_ap_mdev_remove_queue() {
-        ...
-        if (test_bit_inv(apid, (unsigned long *)matrix_dev->info.apm) &&
-            test_bit_inv(apqi, (unsigned long *)matrix_dev->info.aqm)) {
-                vfio_ap_mdev_reset_queue(q);
-                flush_work(&q->reset_work);
-        }
+drivers/s390/crypto/vfio_ap_ops.c:vfio_ap_filter_apid_by_qtype() {
+...
+    for_each_set_bit_inv(apid, apm, AP_DEVICES) {
+        apid_cleared =3D false;
 
-done:
-        if (matrix_mdev)
-                vfio_ap_unlink_queue_fr_mdev(q);
-
-        dev_set_drvdata(&apdev->device, NULL);
-        kfree(q);
+        for_each_set_bit_inv(apqi, aqm, AP_DOMAINS) {
+            status =3D ap_test_queue(AP_MKQID(apid, apqi), 1, &info);
+...
 }
 
-Because the queue is already removed from matrix_dev->info by the time this
-is called, the test_bit_inv() checks evaluate to false.
+The inner loop iterating over aqm (which maps to aqm_add) will not execute
+if no domains were added during the config change. As a result, the hardware
+is never queried with ap_test_queue(), and unsupported older adapters (older
+than CEX4) are not filtered out from apm_add.
 
-Does this bypass vfio_ap_mdev_reset_queue() and permanently leak AQIC
-resources like NIB pinned pages and KVM ISC registrations before the queue
-is freed?
+Can this allow unsupported hardware to be assigned to a KVM guest if a host
+administrator hotplugs an older AP adapter without simultaneously hotpluggi=
+ng
+new domains?
+
+>  	 * called.
+>  	 */
+>  	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
+> +		/*
+> +		 * The mdevs_lock must be held in order to access fields
+> +		 * within matrix_mdev
+> +		 */
+> +		mutex_lock(&matrix_dev->mdevs_lock);
+> +
+>  		bitmap_and(matrix_mdev->apm_add,
+>  			   matrix_mdev->matrix.apm, apm_add, AP_DEVICES);
+
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260812170945.7383=
-51-1-akrowiak@linux.ibm.com?part=3D7
+51-1-akrowiak@linux.ibm.com?part=3D4
