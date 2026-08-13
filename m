@@ -1,118 +1,104 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B4F63203B6;
-	Thu, 13 Aug 2026 09:17:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 086373B47EB;
+	Thu, 13 Aug 2026 09:17:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786612631; cv=none; b=NhgVoH14Uq/TdtVXDPoPzIfKSHTD9DikiSNn6dST1jFDSJrUpOCG82lueNGP5uUeFL0c60AoWufkEBwMkDjxsijI5jo+xFE3dKUWX5mWTwwlBWfHaSbFoqvRii4KQCgcaAYUSZ1zuypuz8+M+bEalkvALtJu6Qa4CJ5hyTM7QmY=
+	t=1786612672; cv=none; b=eFnk/aTgIYuGtUctAGB6JZQBP/q6moqirlnZfCQYXh6OVy2ERoCXvuckUP301aGrjhIzMPrfF81ihlzkQWDVrx83TyO4VhFRW3OMWgPsp09R37iUTBLXxPpUBtvT6yRaofdsqZfyZQtx4gibgFKDz+6P/wsqb9sUaZhobMbOBP0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786612631; c=relaxed/simple;
-	bh=tUZaz1RCucVsEDGRvj9FHxX2OFB+nyLkOg9r9Nsl8oA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CGkPqkSbKH6M2BHFJWAObVGAq2DaVajjayZElmC7V5UQ/5HJg2ubqX7rT8bNrqYbgQa5vIqTR/DtKV5HTccmU698M7D/1aLxL3t0ZDPdnM6doOnX+47Sjp+fYZK0Mii3xHLtmAiZPUa7FX456mczBaUaB4xcUvGfidGI7fseULk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Co8TbmZi; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786612672; c=relaxed/simple;
+	bh=skgSVBXC3XlrQgS5glBZgqXv3+ee6DqmIaLk3dFOiyg=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=DYGoZsa2f/wxg7qdr1W+PW38kvzaj7gLSsKgKO/XV8qhPufDQ3GeSJdShuj/GQdkzQYu8BBrKQNSp+vZNP4UjLFHzSIRicmZn3fNPHREiehAzJm3Gw1Eb09j1hN/Ta0rFMUn7SIbYy+0vXEHkuAKQA89WCw1l17epfXqalzLe5g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IMXZwGBv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Co8TbmZi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E17951F000E9;
-	Thu, 13 Aug 2026 09:17:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IMXZwGBv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E85F81F000E9;
+	Thu, 13 Aug 2026 09:17:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786612630;
-	bh=OXYcJLVzLV7Uk2tqqHsfEiLorIcsxP0S7TQAHPjR1kM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Co8TbmZiW4OZ2AjU4gdPYrpgTlLVotasEYn52O+A5qhrueZsoh4R6nGNodE/Az2fI
-	 t5YlmPMZ0PGJQD0/RSjbHv2CfSRBRE7xU/4u7b7YkEtuOcJGk5HJ7ec3IrhcJ5jEcy
-	 u+azUcG9f0Mc48zVWPup2Wzbaurscmt0TIWj6vB6dCGKi1Pgm9p8rWTb/1Is4oZM0y
-	 Rlko7CdaRjxvcCVKunVvSjc3FMx8jRPUjcDMQHZd27etMemAfrIatOLOInYViyhVvl
-	 x7/0Jr/t904gU9HG886mqckl9sOWwkDO8eJ3qUvjsJSW8uoeFjCYbVwAduyf7mPd8J
-	 MgU/jbF2uU4xg==
-Date: Thu, 13 Aug 2026 10:17:02 +0100
-From: Simon Horman <horms@kernel.org>
-To: Joel Granados <joel.granados@kernel.org>
-Cc: "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	David Ahern <dsahern@kernel.org>, Ido Schimmel <idosch@nvidia.com>,
-	Pablo Neira Ayuso <pablo@netfilter.org>,
-	Florian Westphal <fw@strlen.de>, Phil Sutter <phil@nwl.cc>,
-	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-	Xin Long <lucien.xin@gmail.com>,
-	Steffen Klassert <steffen.klassert@secunet.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	"D. Wythe" <alibuda@linux.alibaba.com>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Wenjia Zhang <wenjia@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	Kuniyuki Iwashima <kuniyu@google.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	chia-yu.chang@nokia-bell-labs.com, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org, linux-sctp@vger.kernel.org,
-	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH v4 0/3] net: sysctl: Const Qualify sysctl ctl_table arrays
-Message-ID: <20260813091702.GA196815@horms.kernel.org>
-References: <20260810-jag-net_const_qualify-v4-0-77e888237c69@kernel.org>
+	s=k20260515; t=1786612668;
+	bh=SFa96UMPUKdPMFLMZa9e++7ab7lmWL1tMpa/ViaInoM=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=IMXZwGBv7s7z4J73JtHq94MBWzh8TJGMCPUSQz75YC/gWWn84liNir/y4SJXASOpA
+	 jIoeaVUfxaUcAI+x3HtDwvfuiK5FFM1b9cv3HfvOT6ED7GOmuwUYaVHufA6wqq0cgT
+	 veCPb6T4dr/Kfgs6HuGRtc4M5jra8VzoSveAr3c5ULUIo8nmsTJB+DqSUhsE6vd7u3
+	 Bc+aERd7JjqT3rtK5jisskUitZk3cNpOWp/rJAGBpuacn6efxYaRrXJenozbZ6AiQ3
+	 awuQlEjS6VLy0qkDrk76SvA43nC2/WqMU888f5pju/JXZ7AnEMFHfitZekSG0mdhaW
+	 nnjobiDh60Bxw==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <maz@kernel.org>)
+	id 1wuRZJ-0000000FGXk-45XV;
+	Thu, 13 Aug 2026 09:17:46 +0000
+Date: Thu, 13 Aug 2026 10:17:45 +0100
+Message-ID: <86ecg21irq.wl-maz@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: kvm@vger.kernel.org,
+	kvmarm@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Grapentin <gra@linux.ibm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@kernel.org>,
+	Friedrich Welter <fritz@linux.ibm.com>,
+	Fuad Tabba <tabba@google.com>,
+	Gautam Gala <ggala@linux.ibm.com>,
+	Hariharan Mari <hari55@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Hendrik Brueckner <brueckner@linux.ibm.com>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Joey Gouly <joey.gouly@arm.com>,
+	Nico Boehr <nrb@linux.ibm.com>,
+	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+	Oliver Upton <oupton@kernel.org>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Will Deacon <will@kernel.org>,
+	Zenghui Yu <yuzenghui@huawei.com>
+Subject: Re: [PATCH v6 05/33] arm64: ptrace: Use constants for compat register numbers
+In-Reply-To: <20260812153631.3376090-6-seiden@linux.ibm.com>
+References: <20260812153631.3376090-1-seiden@linux.ibm.com>
+	<20260812153631.3376090-6-seiden@linux.ibm.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260810-jag-net_const_qualify-v4-0-77e888237c69@kernel.org>
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, tabba@google.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, seanjc@google.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-On Mon, Aug 10, 2026 at 03:01:01PM +0200, Joel Granados wrote:
-> What?
-> =====
-> We do two things:
-> 1. Reject netns-unsafe: Replace warning and file permission change with
->    an error (reject registration) when an "unsafe" net sysctl
->    registration is detected.
-> 2. Const qualify: Const qualify network templated ctl_table arrays and
->    unconditional kmemdup'ed ctl_table arrays.
+On Wed, 12 Aug 2026 16:36:01 +0100,
+Steffen Eiden <seiden@linux.ibm.com> wrote:
 > 
-> Why?
-> ====
-> The main motivation for this is to continue with the const qualification
-> of the ctl_table arrays [1]. The permission change inside
-> ensure_safe_net_sysctl disallows cons qualifiaction as it basically
-> modifies the entries before running the sysctl registration.
+> Define an enum to determine the register number for the mapping from
+> AArch32 and AArch64 registers. This allows for a more flexible use of
+> the register mappings.
 > 
->       ent->mode &= ~0222;
-> 
-> On reject netns-unsafe?
-> =======================
-> * I believe that there is currently now way that the permission change
->   gets executed [2]
-> * I found one case where the warning message was posted to lore
->   (vsock_sysctl_register) [3], but it made its to mainline as part of
->   the second case in [2].
-> * We should error anyway because writing to the global sysctl value
->   through a child netns is indicative of a bug [4].
-> 
-> On Const qualification?
-> =======================
-> We can separate the places where network registers sysctl tables into
-> three groups:
-> 1. Static global: The unchanged global static arrays are passed along to
->    sysctl register.
-> 2. Always kmemdup: The global static arrays are always kmemdup'ed before
->    passing them along to sysctl register.
-> 3. Dynamic global: The global static array is changed in place before
->    passing it along to sysctl register.
-> 
-> This series handles case 1 and 2. It leaves 3 for a later point as
-> const qualifying those global ctl_tables is more involved.
-> 
-> I would be very thankful if you point me to anything that I have missed
-> in my analysis that shows that this cannot/shouldn't be done.
+> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 
-For the series:
+Reviewed-by: Marc Zyngier <maz@kernel.org>
 
-Reviewed-by: Simon Horman <horms@kernel.org>
+	M.
 
+-- 
+Without deviation from the norm, progress is not possible.
