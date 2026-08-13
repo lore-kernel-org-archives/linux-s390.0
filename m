@@ -1,45 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FCB332E151;
-	Thu, 13 Aug 2026 23:01:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D5D0329E55;
+	Thu, 13 Aug 2026 23:03:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786662069; cv=none; b=VSU8Gc9MDYxRiG4hECPMWTzY6J6MdTO9arUylEAlr09pwSXKlRMnw3dLNBAxp+ZFtYbv/n+TCk2eA1LESCGk1hxxKi0IL8BpK+NRljfSIKh/Ab/IlQNJu42tx3Mlxrt/t3RDTh1UK8nj//+I+Sf85xkRfEGNQN+o6i+w+O/nyNU=
+	t=1786662200; cv=none; b=VoeaEATh7xWFxARogAFOEtIg/IbOciC1IaMQ2sNWxPDgFxAtCQySgjS/On7gQJx+XloPkgZjMkEMrd3uRkP3CNObJLbpjSbzLbZlR7E9tIJayIA1zDsdnwy9R61VUyJrwVKzRhy9q2MV1eyDBWcBuclxJsP77KERUMop4fvHx58=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786662069; c=relaxed/simple;
-	bh=GAsgRMnWz8UoL5rOje3fwcF5A2QZZXdQeRTDnxyDoxc=;
+	s=arc-20240116; t=1786662200; c=relaxed/simple;
+	bh=syMWGcz+ujfjAPeME/DLpnRtK21TSryRpQr2l5yVB/U=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=l280BqdyjWfPVBm9/H2cnrWrNr7WDuQbjBG9TVuFfPjFFHkGw7yCD0TguVbSGO0RPUZ/cFSEOPGAyHExngwPteay8lOtNtxB/RJdCE4QVqanfYzvev1aRauNcL9sOhF9+NU/Qp3GvAPoq2UEvFKU9TSFZeU8fm/4TnPXNbC854E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=K2l/zfFq; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=im4UF4c8MIFKgr6RGbfDxnrDv+dRH0+8Msgd+ZGZKlFduSF5sGSb1xRLy296q0h3au3Ag7JzivtWo3FlpvgseM4b6JRjlHcb5wDZx+O098Vra/OleB11GVKGsTmlBZTYuq5lN35+JXYpMASfgj9868bMpV/x/dRbx7/bS93x/ms=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ba4QfRiK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="K2l/zfFq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99CA11F00A3A;
-	Thu, 13 Aug 2026 23:01:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ba4QfRiK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A87491F000E9;
+	Thu, 13 Aug 2026 23:03:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786662068;
-	bh=VhTIDfGcFAlgV0IxMBpanCzug3fm+uF81rfDUPeaWi4=;
+	s=k20260515; t=1786662199;
+	bh=bVtGflV63UhwOhybQadQ9fVabzrwDdQSHBSTFq57zFY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=K2l/zfFqy3aDhAVjL7lvXqVDh/F3E92H3gylkvFtRQvS2q1UUEWa/1yQMa758ll6l
-	 rF34xBGwqkODlSolHU6uNrDfOD5ULId4+OVsStnZuHqG9vzdscAM6P6TUvUnRe7UO7
-	 QO7qv2ZeTuPCGxNI/ILdVhw0ul50t4S6ykxJkkRoJmgan0Kky9P65JmkpSxVQtRxNX
-	 WXzfrsLixoZGYD3YMjMptfZ7WBMhPKsxljntQsC07uMHwxvIGA4wZYDG0HSnbeebs1
-	 +mI1IjYOm84qyeBLo0P7dM8ghgtuOFCb4VjrlHA9lLb0dkh1ZqEhHM8VBAILAm0LbS
-	 hxPSD9H6XpLTA==
+	b=ba4QfRiKp2IwE/G80O1GIPCrJg049MnivMt66il2UzmQSP+pR6rHwmZkJ1KFfcs+Z
+	 nwkDl7+DxCNBhHr4gTcx+FVNnXXaHqxGw/kMZHgm0fkboEj/eCt9R6bgAr81ZzeX5v
+	 NiB8Mtw8DjVeicW7VsokQ6FTBgz3nVr0gKS9hgT7iPtLx+1iC+ZtJqiJmqiz4vZAcq
+	 Yjt1elHrvL+ugKmyaw+lwmC1qGnFJMv1yAGt+3pKwHMmka45924hxnOTm4jY11O99U
+	 fZqjP/FyJvJ+DKlNZa9wB6H1BjuBlrPENK5bJILMwLRNuKrQO+4RnwDw/n1ZEcbXAl
+	 XUAxwY3ZLbw8A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 8/9] KVM: s390: vsie: Fix guest page tables
- protection
+Subject: Re: [PATCH 05/28] xor: move to lib/raid/
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.vom>, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260324174301.232921-9-imbrenda@linux.ibm.com>
-References: <20260324174301.232921-9-imbrenda@linux.ibm.com>
+To: "Christoph Hellwig" <hch@lst.de>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, linux-raid@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, dsterba@suse.cz, yukuai@fygo.io, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.vom>
+In-Reply-To: <20260327061704.3707577-6-hch@lst.de>
+References: <20260327061704.3707577-6-hch@lst.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 13 Aug 2026 23:01:07 +0000
-Message-Id: <20260813230107.99CA11F00A3A@smtp.kernel.org>
+Date: Thu, 13 Aug 2026 23:03:13 +0000
+Message-Id: <20260813230318.A87491F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,94 +47,41 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Critical] Uninitialized variable 'gl' used in condition, leading to skip=
-ped allocation and host kernel NULL pointer dereference.
+- [Low] The MAINTAINERS file was not updated to reflect the new location of=
+ the RAID XOR core code.
 --
 
---- Patch [8]: [PATCH v3 8/9] KVM: s390: vsie: Fix guest page tables protec=
-tion ---
-commit ff58b599b812f86d2edff5eab1c005a2ef716cc7
-Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
+--- Patch [5]: [PATCH 05/28] xor: move to lib/raid/ ---
+commit 521ed07e83a1bf1233d2291dd851539fa8fc5883
+Author: Christoph Hellwig <hch@lst.de>
 
-KVM: s390: vsie: Fix guest page tables protection
+xor: move to lib/raid/
 
-This patch adjusts the levels of guest page tables that are write-protected
-when shadowing, and avoids double protecting the last level. It also skips
-attempting to shadow the DAT tables when the nested guest is running in a
-real address space.
-
-> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-> index 0ac2d775d4c05..93a757749a6ee 100644
-> --- a/arch/s390/kvm/gaccess.c
-> +++ b/arch/s390/kvm/gaccess.c
-> @@ -1518,6 +1518,13 @@ static int _gaccess_do_shadow(struct kvm_s390_mmu_=
-cache *mc, struct gmap *sg,
->  	    (!ptep && crste_leaf(*table) && !table->h.i && table->h.p =3D=3D w-=
->p))
->  		return 0;
-> =20
-> +	/* In case of a real address space */
-> +	if (w->level <=3D LEVEL_MEM) {
-> +		l =3D TABLE_TYPE_PAGE_TABLE;
-> +		hl =3D TABLE_TYPE_REGION1;
-> +		goto real_address_space;
-> +	}
-> +
->  	gl =3D get_level(table, ptep);
+Move the RAID XOR code to lib/raid/ as it has nothing to do with the
+crypto API.
 
 [ ... ]
 
-> @@ -1542,6 +1549,7 @@ static int _gaccess_do_shadow(struct kvm_s390_mmu_c=
-ache *mc, struct gmap *sg,
->  	/* Get the smallest granularity */
->  	l =3D min3(gl, hl, w->level);
-> =20
-> +real_address_space:
->  	flags =3D DAT_WALK_SPLIT_ALLOC | (uses_skeys(sg->parent) ? DAT_WALK_USE=
-S_SKEYS : 0);
->  	/* If necessary, create the shadow mapping */
->  	if (l < gl) {
-                  ^^
-[Severity: Critical]
-Does this leave the variable gl uninitialized when taking the goto?
+> diff --git a/crypto/xor.c b/lib/raid/xor/xor-core.c
+> similarity index 100%
+> rename from crypto/xor.c
+> rename to lib/raid/xor/xor-core.c
 
-When a nested guest is running in a real address space, the new goto
-statement bypasses the initialization of gl:
+[Severity: Low]
+Should the MAINTAINERS file be updated to include the new directory?
 
-_gaccess_do_shadow() {
-    ...
-    if (w->level <=3D LEVEL_MEM) {
-        l =3D TABLE_TYPE_PAGE_TABLE;
-        hl =3D TABLE_TYPE_REGION1;
-        goto real_address_space;
-    }
-   =20
-    gl =3D get_level(table, ptep);
-    ...
-real_address_space:
-    ...
-    if (l < gl) {
+Looking at the SOFTWARE RAID (Multiple Disks) SUPPORT section in MAINTAINER=
+S,
+it currently includes:
 
-If the uninitialized stack value for gl causes the if (l < gl) condition
-to evaluate to false, the dat_entry_walk() call is skipped.=20
+F:	include/uapi/linux/raid/
+F:	lib/raid6/
 
-Since ptep was initialized to NULL at the start of _gaccess_do_shadow()
-and the initial dat_entry_walk() may have stopped early without setting it,
-ptep can remain NULL.=20
-
-Later in the function, _do_shadow_pte() is called with this NULL ptep,
-which could lead to a NULL pointer dereference in pgste_get_trylock() and
-a host kernel panic.
-       =20
-Is there a way to ensure gl is initialized before the jump, or provide a
-safe default when running in a real address space?
-
->  		rc =3D dat_entry_walk(mc, gpa_to_gfn(saddr), sg->asce, flags, l, &tabl=
-e, &ptep);
->  		if (rc)
->  			return rc;
->  	}
+The new lib/raid/xor/ directory is not covered by any maintainer entry. This
+omission will cause scripts/get_maintainer.pl to fail to route future patch=
+es
+touching these files to the appropriate subsystem maintainers.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260324174301.2329=
-21-1-imbrenda@linux.ibm.com?part=3D8
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260327061704.3707=
+577-1-hch@lst.de?part=3D5
