@@ -1,39 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 306F61624D5;
-	Thu, 13 Aug 2026 09:41:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8AED3161A1;
+	Thu, 13 Aug 2026 09:56:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786614077; cv=none; b=hCwfCLGrd7t/dUODBzoJyxIZfZLnEgKbi4IGS+lMLsWpT8NFYqnA8xAhusz2T7TFPkwE+8jF/qYvIOKOYlqxd75FEj8uU/e/Mbsm7L/V23Ls5NV09ExGOQiZQ4miS2qwkVtKLTS3FSRbnvuWozgAjkbP6fK77X5tA2wvVIxaQAE=
+	t=1786615002; cv=none; b=qNS9+soh4V8xyppPIp9QyZxY8FQEAS0a3IyXqtf6PO+U6nkd0eYcMgi1CIGGN5DnMEmzUmV1cojfqLDJVc83ezqr8mltOsTl+nV5HH8pQgA/IURJ2dTWR7tp4VSEg+YhLLJb1Ve8ttsVA+aE1DVDwzW2hHV6oK5ywFPInucUGKY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786614077; c=relaxed/simple;
-	bh=N0D9gLz963d/Cp6WvN+6A5yGNir/f9NUe+hy3ZN7HjA=;
+	s=arc-20240116; t=1786615002; c=relaxed/simple;
+	bh=1ukAlHmDH3w2RqK6Os7+Ms90DmlhG9iudSpZU/2jScs=;
 	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=smxUVROffOy8RM6nvdHrdjw3C42yfE1mTerbMIiY0+oN/pZfef54V4VHkvWMm4KCLjZChAK7wy9AXERD8FegtTkUNUvpYMw9RuVQA2bs8S8qgkSM8wHB7qnnTGRYWlUkKS3b3dowUmYfi5puuhXGNlKc+y8jzMlm4vIquCnOXhY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A8QOStqj; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=Tx5zOYiJ0i1nPMkstzsn6mnGXydSU1l8k4tTq8elxALkMaifEdQnSNaU3tkA84CDPvOHRbrYdg9YK2wyB6Y/dhxBfP8W3fHxnkV+NXEZuPU+Ji5UchzE4L6Jiq35YOTDSiPHZ1gSz9Deaw/t3jTElH22b7CtQTbz6hHYW6oL6DU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CHvYLdEt; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A8QOStqj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C73A61F000E9;
-	Thu, 13 Aug 2026 09:41:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CHvYLdEt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94CD41F000E9;
+	Thu, 13 Aug 2026 09:56:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786614075;
-	bh=J/D/nnVPnae3DtSOvXojVGmHq0ESlL55gCDIu3uYmKc=;
+	s=k20260515; t=1786615000;
+	bh=IsAhz04z4JOyOzRAwpcE4XqcGtm8zAE8zmEWF6NGCHw=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=A8QOStqjmH+T7ZH81ps3ErugiVOkQZUc/OJUk0cxItu9I4wHc/oiMPl/Fj4DUU32X
-	 bAEFRkOZIQFuaSBKOZ3zxuxPziInWTwXBOfY4O+a4oWGSVW/hNpxZ9ljcY0Q4u6UYF
-	 TVWKqeEYWCdDiV/dHcBsawdoTPbRsjD5ZglEZMsz1RDoM3N1gAy9/KYTUdERlKu3Ga
-	 R42ia6b0elHlJom1On6Tmm4hyYD/3OGgFDWx28GSKY02i0eKXxzKifY9MhP9s58C4Q
-	 iZNf5q884PugTL/F5h0TxJbcNvbspN7sM8sezLodbKAaBF7EfAiUnKtX/fXUgGg+F0
-	 NrfFz5ku36Wig==
+	b=CHvYLdEtqJyTYe8V+9uKUglx6hAV77Izcmz/KfrHc5PezB69iysXzbcuPR45KM+j6
+	 5wygXUSO513tUSdDGCLQ1NlwcdG2+ibziRnfIGrgJT30ajeTGGxcZ4swBevHRC0WhV
+	 LspYWILW/000KuXsgqEfm4NF2du2v3zyTdA4RV1sXpfBbrjo6Fc1WS3P+ZFMJzYDy5
+	 GXL0/C9omCKwExiAKALHor+YqFLC01Pkqo2PSKkbs7PEMkwI9vbJsNE2vTA5G7fQkB
+	 697gbftd+2qf5XawHF7BSLRPvbt0sUPuFqmI8efe6NPy6dX6GwNcugt/ajWtJbCUN+
+	 nWmuGbK3yNfxg==
 Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
 	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.98.2)
 	(envelope-from <maz@kernel.org>)
-	id 1wuRw1-0000000FH7U-3RpH;
-	Thu, 13 Aug 2026 09:41:13 +0000
-Date: Thu, 13 Aug 2026 10:41:13 +0100
-Message-ID: <86bjb61hom.wl-maz@kernel.org>
+	id 1wuSAw-0000000FHZg-1nGM;
+	Thu, 13 Aug 2026 09:56:38 +0000
+Date: Thu, 13 Aug 2026 10:56:37 +0100
+Message-ID: <86a4qq1gyy.wl-maz@kernel.org>
 From: Marc Zyngier <maz@kernel.org>
 To: Steffen Eiden <seiden@linux.ibm.com>
 Cc: kvm@vger.kernel.org,
@@ -68,10 +68,10 @@ Cc: kvm@vger.kernel.org,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Will Deacon <will@kernel.org>,
 	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v6 07/33] KVM: arm64: Access elements of vcpu_gp_regs individually
-In-Reply-To: <20260812153631.3376090-8-seiden@linux.ibm.com>
+Subject: Re: [PATCH v6 08/33] KVM: arm64: Use accessor functions for core regs
+In-Reply-To: <20260812153631.3376090-9-seiden@linux.ibm.com>
 References: <20260812153631.3376090-1-seiden@linux.ibm.com>
-	<20260812153631.3376090-8-seiden@linux.ibm.com>
+	<20260812153631.3376090-9-seiden@linux.ibm.com>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
  FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
  (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -87,24 +87,101 @@ X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux
 X-SA-Exim-Mail-From: maz@kernel.org
 X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-On Wed, 12 Aug 2026 16:36:03 +0100,
+On Wed, 12 Aug 2026 16:36:04 +0100,
 Steffen Eiden <seiden@linux.ibm.com> wrote:
 > 
-> While for arm64 the members of vcpu_gp_regs are allocated continuous
-> this is not necessarily true for other architectures implementing ARM.
-> 
-> Let vcpu_gp_regs() no longer return the address of the user_pt_regs in
-> the vcpu context but the address of the gp-register array field in the
-> user_pt_reg struct. Note, this change semantically excludes pc from the
-> GPRs.
-> 
-> No functional change.
-> 
-> Co-developed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> Instead of accessing the value directly use assessor function that
 
-Reviewed-by: Marc Zyngier <maz@kernel.org>
+s/assessor function/accessors/
+
+> abstract the actual location of the register values. Add a helper
+> function to reset fpsimd registers. Enable other KVM implementations to
+> reuse this code.
+
+to reuse this code by overloading the accessors.
+
+> 
+> No functional changes.
+> 
+> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> ---
+>  arch/arm64/include/asm/kvm_emulate.h | 34 ++++++++++++++++++++++++++--
+>  arch/arm64/kvm/guest.c               | 16 ++++++-------
+>  2 files changed, 40 insertions(+), 10 deletions(-)
+> 
+> diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
+> index 8603766c1b4d..b31d50bdf59e 100644
+> --- a/arch/arm64/include/asm/kvm_emulate.h
+> +++ b/arch/arm64/include/asm/kvm_emulate.h
+> @@ -141,6 +141,31 @@ static __always_inline unsigned long *vcpu_cpsr(const struct kvm_vcpu *vcpu)
+>  	return (unsigned long *)&vcpu->arch.ctxt.regs.pstate;
+>  }
+>  
+> +static __always_inline unsigned long *vcpu_sp_el0(struct kvm_vcpu *vcpu)
+> +{
+> +	return (unsigned long *)&vcpu->arch.ctxt.regs.sp;
+> +}
+> +
+> +static __always_inline u64 *vcpu_sp_el1(struct kvm_vcpu *vcpu)
+> +{
+> +	return __ctxt_sys_reg(&vcpu->arch.ctxt, SP_EL1);
+> +}
+> +
+> +static __always_inline __u128 *vcpu_vreg(struct kvm_vcpu *vcpu, int n)
+> +{
+> +	return &vcpu->arch.ctxt.fp_regs.vregs[n];
+> +}
+> +
+> +static __always_inline __u32 *vcpu_fpsr(struct kvm_vcpu *vcpu)
+> +{
+> +	return &vcpu->arch.ctxt.fp_regs.fpsr;
+> +}
+> +
+> +static __always_inline __u32 *vcpu_fpcr(struct kvm_vcpu *vcpu)
+> +{
+> +	return &vcpu->arch.ctxt.fp_regs.fpcr;
+> +}
+> +
+>  static __always_inline bool vcpu_mode_is_32bit(const struct kvm_vcpu *vcpu)
+>  {
+>  	return !!(*vcpu_cpsr(vcpu) & PSR_MODE32_BIT);
+> @@ -737,6 +762,11 @@ static inline void vcpu_set_hcrx(struct kvm_vcpu *vcpu)
+>  	}
+>  }
+>  
+> +static inline void kvm_reset_fpsimd(struct kvm_vcpu *vcpu)
+> +{
+> +	memset(&vcpu->arch.ctxt.fp_regs, 0, sizeof(vcpu->arch.ctxt.fp_regs));
+> +}
+> +
+>  /* Reset a vcpu's core registers. */
+>  static inline void kvm_reset_vcpu_core(struct kvm_vcpu *vcpu)
+>  {
+> @@ -752,8 +782,8 @@ static inline void kvm_reset_vcpu_core(struct kvm_vcpu *vcpu)
+>  	/* Reset core registers */
+>  	memset(vcpu_gp_regs(vcpu), 0, sizeof(vcpu_gp_regs(vcpu)));
+>  	*vcpu_pc(vcpu) = 0;
+> -	vcpu->arch.ctxt.regs.sp = 0;
+> -	memset(&vcpu->arch.ctxt.fp_regs, 0, sizeof(vcpu->arch.ctxt.fp_regs));
+> +	*vcpu_sp_el0(vcpu) = 0;
+> +	kvm_reset_fpsimd(vcpu);
+>  	vcpu->arch.ctxt.spsr_abt = 0;
+>  	vcpu->arch.ctxt.spsr_und = 0;
+>  	vcpu->arch.ctxt.spsr_irq = 0;
+> diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
+> index b01d6622b872..773f6c8e5026 100644
+> --- a/arch/arm64/kvm/guest.c
+> +++ b/arch/arm64/kvm/guest.c
+> @@ -134,19 +134,19 @@ static void *core_reg_addr(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
+>  	     KVM_REG_ARM_CORE_REG(regs.regs[30]):
+>  		off -= KVM_REG_ARM_CORE_REG(regs.regs[0]);
+>  		off /= 2;
+> -		return &vcpu->arch.ctxt.regs.regs[off];
+> +		return &vcpu_gp_regs(vcpu)[off];
+
+Doesn't this belong to the previous patch?
+
+Thanks,
 
 	M.
 
