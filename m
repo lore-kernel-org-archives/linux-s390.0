@@ -1,87 +1,121 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 861E6320CBE;
-	Thu, 13 Aug 2026 09:14:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D31AE3469EE;
+	Thu, 13 Aug 2026 09:17:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786612448; cv=none; b=KHV6ku4XVIxI3szqXhhC2wqhuVm15as/byMSRgGjH3Cv91EbvpiPMlsFNWvQmfcgWJDeqr/VLOsngxjhwoUvRKuJeKzQrY5xWNtKmfrYrc9I52k1BtAGyEtVJ25RTOfwJURBNEPJ7RzfRwSLPX6yuOcwcf2lNc8lamzneUdlz/s=
+	t=1786612621; cv=none; b=c1NM3/GM4KIZhDxoFxU4ojriBKS54vgQRLAGq9Vbos+224rIzsjXy8g0Q9thfzZG0LH5JakKImQDuE7SAbr0v+ujVS6cD1z+llJSxhziKwV6X1jQXevD93d1HmsQAxbl2DFo/tTV2eSloEA1KcBU9fTu2AEMKxBxg9LPDN3TJdU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786612448; c=relaxed/simple;
-	bh=h7qtTXObv9L5vYCuuZsxrO7Xm5oJlsWetDdqMc2HouM=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=YhpJGUIwmj7PhG3fCbVJhstd8RZFozVq0kwXtHUJMnsw9WmssODyjlfGxKkHD5lg+wetCbEu3IcVasys4JvFOWmAgiTOL9NNOnJQkL3osDf6Db98ZLX9z2Igzm+qC+tGaDqpD1M8d21LaOZtnNg2FKYUB8thjlWJOsRfsUOaKiM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Jb9o2WF4; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786612621; c=relaxed/simple;
+	bh=b25ziOub7qf/t1EvUCROjSiT75wsipG3UELqUR/WNvU=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=T405DcxHsvU1hdKSlvD1dZpUmFVh2m/RyeFpAWvECLT8VZ9g3LRIhJWroJnSZpj0yJRv3aXttZ7UgbLMojMj3ZKJxqy+JSRCPIrVREXT7T7jexdY0kWJSUK6372tL4nAzKDj1WBe1GISKWFx7IHrwZ6/9h6YZIs9mt0IuYfM6Lk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OSSlvxUS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Jb9o2WF4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 673031F00A3A;
-	Thu, 13 Aug 2026 09:13:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OSSlvxUS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75B4B1F000E9;
+	Thu, 13 Aug 2026 09:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786612447;
-	bh=zhJmZaJPWu2tGQu9cD5mC0NR8f5AZSYCs6/SZ99TC3M=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=Jb9o2WF4mJul7AfKWjZXxrn422eNlwV0OpD+YUFGaeWd6bV48nwOVrU7hqdRUi+C+
-	 MMx4opwElstv+v12Jm6nH90+reZr0lst/MhRIUedGK2xlbjCtlG9nXCuqjcbRYusO8
-	 X1lS+eSvLFUyqG9RQZpJPU1Dn9c9K3lMzwNnYQ/HvtF3Gfeh48zxH+XBa6Fb5Yyvvh
-	 hFmFH9g0W6IrqIJjg8vT3CnEkPq+B4NO/K7RPYK//Xj76c4UIu2t6NY3pE/WZCVSVx
-	 oHcTVrUCMzfVvoO0ByHsO9gTDpn6yo+uhhMAdcX6QxDcfH1IvdyynOvdpX89zJO1SY
-	 LEmdUB6XPzQKw==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
+	s=k20260515; t=1786612620;
+	bh=kIqhZs3FKvSwy1BNUsfQzjPnm36Ri75iiQox/jpOJyM=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=OSSlvxUSbp0ZqEsgL++LWTWwBHTmzBT1032P8TjwuzeK+iK9uuVVkUGjvZaPqR7Nh
+	 hee38iyq2KjVPfdHIWxYGjLH+hmTd+SUGz+fiI9u+bKJU+QnDWEPZuz7me6IyKaOAz
+	 n9ctp5xLatiB0hxTZRm7eMQIek19nSZikPGJiy4D3XXRj4p9HFaccMqZ3aHO8CN6bD
+	 0fChkItfWFo/T+7eXb7F5hCWuG6HVgBF30g+LFGZEK1OOnx0aB2wiexnTygt7Pa+Gp
+	 WlzrPy1SQGFP8zglcR/SSbjF+PYrcldsJH0bSHW0S700Eei023B3ZojbaEl0eV1F0Q
+	 eiwmA8J995IIA==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <maz@kernel.org>)
+	id 1wuRYY-0000000FGVs-0iOI;
+	Thu, 13 Aug 2026 09:16:58 +0000
+Date: Thu, 13 Aug 2026 10:16:57 +0100
+Message-ID: <86fr0i1it2.wl-maz@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: kvm@vger.kernel.org,
+	kvmarm@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
+	Andreas Grapentin <gra@linux.ibm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [RFC PATCH] dma: swiotlb: Size shared default pools for memory
- encryption
-In-Reply-To: <an2EoONjyp570tvB@arm.com>
-References: <20260811134056.756015-1-aneesh.kumar@kernel.org>
- <anxEc8EHmJQywVI5@arm.com> <yq5ajypvioks.fsf@kernel.org>
- <anysnQFVTO_RAYxp@arm.com> <yq5aecg2io0u.fsf@kernel.org>
- <an2EoONjyp570tvB@arm.com>
-Date: Thu, 13 Aug 2026 14:43:53 +0530
-Message-ID: <yq5abjb6idri.fsf@kernel.org>
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@kernel.org>,
+	Friedrich Welter <fritz@linux.ibm.com>,
+	Fuad Tabba <tabba@google.com>,
+	Gautam Gala <ggala@linux.ibm.com>,
+	Hariharan Mari <hari55@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Hendrik Brueckner <brueckner@linux.ibm.com>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Joey Gouly <joey.gouly@arm.com>,
+	Nico Boehr <nrb@linux.ibm.com>,
+	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+	Oliver Upton <oupton@kernel.org>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Will Deacon <will@kernel.org>,
+	Zenghui Yu <yuzenghui@huawei.com>
+Subject: Re: [PATCH v6 04/33] arm64: Use proper include variant
+In-Reply-To: <20260812153631.3376090-5-seiden@linux.ibm.com>
+References: <20260812153631.3376090-1-seiden@linux.ibm.com>
+	<20260812153631.3376090-5-seiden@linux.ibm.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, tabba@google.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, seanjc@google.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-Catalin Marinas <catalin.marinas@arm.com> writes:
+On Wed, 12 Aug 2026 16:36:00 +0100,
+Steffen Eiden <seiden@linux.ibm.com> wrote:
+> 
+> Use <> for including the sysreg header as it is not discoverable from
+> the current directory.
+> 
+> Fixes: c07d8017bceb ("arm64/sysreg: Enable automatic generation of system register definitions")
+> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> ---
+>  arch/arm64/include/asm/sysreg.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
+> index 7aa08d59d494..4bfdac9401bd 100644
+> --- a/arch/arm64/include/asm/sysreg.h
+> +++ b/arch/arm64/include/asm/sysreg.h
+> @@ -173,7 +173,7 @@
+>   * come from here. The header relies on the definition of sys_reg()
+>   * earlier in this file.
+>   */
+> -#include "asm/sysreg-defs.h"
+> +#include <asm/sysreg-defs.h>
+>  
+>  /*
+>   * System registers, organised loosely by encoding but grouped together
 
->> >> > BTW, why does arm64 report CC_ATTR_MEM_ENCRYPT instead of the GUEST
->> >> > option in realms?
->> 
->> This is getting fixed in  
->> https://lore.kernel.org/all/20260701054926.825925-9-aneesh.kumar@kernel.org/
->
-> You might want to bring this early together with the swiotlb adjustment
-> here.
->
+Acked-by: Marc Zyngier <maz@kernel.org>
 
-That is already part of dma -next tree.
+	M.
 
--aneesh
+-- 
+Without deviation from the norm, progress is not possible.
