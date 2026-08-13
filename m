@@ -1,61 +1,82 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AF2A7080D;
-	Thu, 13 Aug 2026 00:10:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 803335FDA7;
+	Thu, 13 Aug 2026 00:20:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786579828; cv=none; b=AyCuJK+J3WXIRFz3ycZYkeAAB9shmIHp0PuLWoQbk1nw77RpC+hQfiRL6zVffeTptFx38mKaM69W/4N/bAPqzbRO9Py+U5Vc6WmT2wI3DSPPAk5ctI0Oc80tI2Zp2kIJXKC6QRPP6wwZqqUbDoNUG948ltPBp//DGcV/ruWJgwg=
+	t=1786580452; cv=none; b=UzAG2bcV4w8KkRy16CMiB6kmVH7Qd9L5gIUqm3NcJcwj1sOOxEjoJch/PdK6nn1rH+wj8bZu+1MLxj1pNx1RpGsG+iymQmBGHnWsw0If0Ow5gALduc3cjH/x7SBuGG+VQsAXRYqBwRfR7j+Uumcmm9rd2ah/nf2IT7liyu6hAd8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786579828; c=relaxed/simple;
-	bh=1ppolaZ38RgTMkzoxVyxBClMPbQBiTZace7W0FmRdI4=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=eeofocATnFeqClF7+0h/11WbBhzTejADIfkfZMcIHW0dMdGPEhIQ+rgOcEPUT8d54mTuQtUw71en6UADs/cdz+3LJGeGeUtSw12tzQWlZ+X97QZOeFFIqQY1ILak/AntukIGM7t0njEDVfkdDCC+7Rd04nbvIzenfwbN9HuqR20=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eeyhQSdQ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786580452; c=relaxed/simple;
+	bh=OAuraHfr7QQWMvb6hWiiLwGpiEMETGBQZmyNaXAaRCc=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=H2r7QwkQKhnIJ6guDjMZSnHn1gvja/SD9kzY5q3kKTP1kKcFsNvoGPgSyxJZvqf7NFZz1i5oqirVR+YP190OKWx6NK39NpY0DpU6HUWVqLkC9CsbIOplfb3Di22jlHy+fF3sqWRQ3VwkUgjU1F2fZJJZqwgmHyZAzyGs2vAl3A0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HTvEWMWO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eeyhQSdQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D62021F000E9;
-	Thu, 13 Aug 2026 00:10:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HTvEWMWO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31AA61F000E9;
+	Thu, 13 Aug 2026 00:20:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786579827;
-	bh=1ppolaZ38RgTMkzoxVyxBClMPbQBiTZace7W0FmRdI4=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=eeyhQSdQ5jhCCmDh04oJ6nK9sqqlTW8Pwf/nDkLWkBttkyypOWtishuLxZkcJOYwJ
-	 5TY6SJCGKGvWcafR0DjxqojD7oxL7Pr/lHXnSM8O8owSwK9MWV/OBh52s98Bqtr8VC
-	 olTw9nIIzmusYQHHYr4+G1FyjPpk7V6poaJYJ25L5GDgdenHfFwNLpkEqFUUYwWAH9
-	 tadl1DR8LjveUTpFFQWAQJtHZueIzxiEHScHFVkngVogcbYw53RpUODfnO6rsFRBfE
-	 S7gUrPNl8IwLHsw6kpEFTds3tnPXYg1wn1Wb///nPXtRDokNVKXPds7JKOrEfvFtob
-	 X0+tFUVKNdBhw==
-Date: Wed, 12 Aug 2026 17:10:26 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>,
- Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond
- <sidraya@linux.ibm.com>, Wenjia Zhang <wenjia@linux.ibm.com>, "D. Wythe"
- <alibuda@linux.alibaba.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>, Tony
- Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>
-Cc: hexlabsecurity@proton.me, Paolo Abeni <pabeni@redhat.com>, "David S.
- Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- linux-kernel@vger.kernel.org, linux-rdma@vger.kernel.org,
- netdev@vger.kernel.org, Simon Horman <horms@kernel.org>,
- linux-s390@vger.kernel.org
-Subject: Re: [PATCH net v2 0/2] net/smc: close the SMC-D teardown window
- around the ghost send buffer
-Message-ID: <20260812171026.7f98785a@kernel.org>
-In-Reply-To: <20260808-b4-disp-22f119e6-v2-0-61647601a6f3@proton.me>
-References: <20260808-b4-disp-22f119e6-v2-0-61647601a6f3@proton.me>
+	s=k20260515; t=1786580451;
+	bh=oNiDOvlf2OwW3wKxa+Xf8Lvk413j+h2XVgOhF2YTeFk=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=HTvEWMWOOF/bxhv7av247Pki6jDP3M/z3i76QPgxOKzBuyz4UM+EZd3tuw3O76MOx
+	 nweNaSBNGTuTmWlSilTwdBqtZoI+GSHjhmBtecXQdcLA1q986zgirThpSD97o9c7kB
+	 7grAcHbbEM8AfrVLb3eJ18ZaF4QLw0uB9cUvqcxv4fx9fHWWjC+/Pf86FX4gc6zg42
+	 ZA36Ts9lI9GWKTNbRYqbQPO+CoqgMZHBdlYvdlV/GB6McqrFjsjZRGXM79DI2hCUMM
+	 cYLG3YA06nwXhxcYIuv+/qhwPh4yaI2tSngJ3GL77e+oGEWJLEH8vjJ818q/qRLtEU
+	 0nv9BPCTJfEag==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 939FE380CED0;
+	Thu, 13 Aug 2026 00:20:07 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] net/dibs: Correct freeing of dmb_clientid_arr
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <178658040641.2159598.1552033045335501888.git-patchwork-notify@kernel.org>
+Date: Thu, 13 Aug 2026 00:20:06 +0000
+References: <20260810111432.2334900-1-wintera@linux.ibm.com>
+In-Reply-To: <20260810111432.2334900-1-wintera@linux.ibm.com>
+To: Alexandra Winter <wintera@linux.ibm.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+ edumazet@google.com, andrew+netdev@lunn.ch, hidayath@linux.ibm.com,
+ dust.li@linux.alibaba.com, stable@vger.kernel.org, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+ svens@linux.ibm.com, horms@kernel.org
 
-On Sat, 08 Aug 2026 02:21:22 -0500 Bryam Vargas via B4 Relay wrote:
-> Both patches only matter on the SMC-D DMB-nocopy path, where the ghost send
-> buffer exists, and the only in-tree provider of support_mmapped_rdmb is
-> dibs_loopback. CONFIG_DIBS_LO is default n and its help calls it a testing aid,
-> so on a stock config neither bug is reachable.
+Hello:
 
-SMC maintainers, please TAL.
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Mon, 10 Aug 2026 13:14:32 +0200 you wrote:
+> A dibs device interrupt handler can be active after dibs_dev_del() and
+> may still access dmb_clientid_arr. (UAF)
+> 
+> In case of a failure in dibs_dev_add() being called by dibs_lo_dev_probe()
+> dmb_clientid_arr is freed twice (double free).
+> 
+> Free dmb_clientid_arr in dibs_dev_release() after last reference is gone.
+> Note that allocating in dibs_dev_add() instead of dibs_dev_alloc() is ok
+> for now, because no dmbs can be registered before dibs_dev_add().
+> 
+> [...]
+
+Here is the summary with links:
+  - [net] net/dibs: Correct freeing of dmb_clientid_arr
+    https://git.kernel.org/netdev/net/c/9e6869be4906
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
