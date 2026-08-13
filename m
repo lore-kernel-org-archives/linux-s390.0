@@ -1,114 +1,258 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from DM1PR04CU001.outbound.protection.outlook.com (mail-centralusazolkn19010007.outbound.protection.outlook.com [52.103.13.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCDCA495501;
-	Thu, 13 Aug 2026 16:43:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786639423; cv=none; b=CFXvCEvx3Ar1S2+eiP386bL26KblMH2zYsq/EsWo1Vwngb6uyFE7OCFWKvaKPsNy3u0vwO05oRklA87yY93S5ce3+cg2WoXKUpLQOVV84pcxR+AaM4ipSNqpbQY3iAb5krlC0OUoMWEp6YZ2hZYNPUkSloyUO4OcRC57Y+x7Ams=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786639423; c=relaxed/simple;
-	bh=1pFmfPJ/NS4woqYIYPZY2u5Z4FXyXNnoiEkLH8xPrCM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=p+P510zCWzKcWCA4K36jOkKhyaG+aJ1SWrL6llQ2sfA80BW/Jj7rxj2cQes9bYDKu0fILlOPG6PcCUi0S3NaZNfq7WI9M8EEEpXvgrCtUtKspjkLt31bmuyvSyCr3tvYatT4B+8jifkYFRoWng3dxqEPDO6eTWLace/ni1dHJ+g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TXj8ZcO5; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 242C2471CF8;
+	Thu, 13 Aug 2026 16:50:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.13.7
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786639837; cv=fail; b=iavhhss1pq8d9HD7dS1wCRUyUBJokhf8ZDu9unk/dmd2iIAqMoozuTLhp4S3rsCVYlx662SVi0E6xQFvzYiYI4RY5Zl6aRiYbnKViaHe+u2CVEElaIGrZkJ2ZENUbWsSS/PiBUU1yav44HLS9xoZUT3oVgCBfwdjUBRp+L18Auc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786639837; c=relaxed/simple;
+	bh=VJOqKFRybWOCZbFFEQzNLnLfFSqbPUu3RgThQ+DYU/o=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=D/ZfiFY5Z0BNmVIIOzh2kNmNF1L2mtPFzguaNukJoWvReWvhyC5wWOUqRxlqytJSVB/B7BTvzXmr7+gbp9JrAHYd+6yx5K7kmQ0NwRj75S7TCU1wqZ5US+F651xChC+7ghQSqlixSJNGhfqBrn7LH4dZ8VNrs8n9GvxnxApHjLw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=c/jvbjQH; arc=fail smtp.client-ip=52.103.13.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TXj8ZcO5"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67DFWg051629131;
-	Thu, 13 Aug 2026 16:43:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=mCu5XM
-	+/703dwdT+kC7YbRAuyNhk17M21ts/P/wSqb4=; b=TXj8ZcO5KayzNVRaqpzZEX
-	u5fgeSqp652cZ8pWdHAhj0cb6NEIO4CPVmunj+y7l3gFgc76EdkrDW5J0n2mA1pV
-	WLeZTBSdESyIs8eFVYeq2eNIIzoWdfXTUmRFmAlHtj6zMY0Dct9tcM2aVTaKnHNk
-	Ej0hdjahN+2wVcNBNhrQZlokJ9UjU+FKQHOJwrThhm4wvJZBvAEGtfd8u+19cYug
-	kj1tmPLWtm/gkV3Ksm4l293HVnO5XAz5TYEcosH3AgF0QWiwqtgKDO52Ev2H5G65
-	iphJeNtyPddgzBhN6hGdrduuVyzY3KBSpJUfJmLsplagX403pslz26KQFph4RnJw
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fyb24192h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Aug 2026 16:43:29 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67DGfK2c002548;
-	Thu, 13 Aug 2026 16:43:29 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxf5wbwbb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Aug 2026 16:43:29 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67DGhPBc38404370
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 13 Aug 2026 16:43:25 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2144520043;
-	Thu, 13 Aug 2026 16:43:25 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E385620040;
-	Thu, 13 Aug 2026 16:43:24 +0000 (GMT)
-Received: from [9.111.39.35] (unknown [9.111.39.35])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 13 Aug 2026 16:43:24 +0000 (GMT)
-Message-ID: <ac0193b2-f286-404b-b8e9-8f67e4489aa8@linux.ibm.com>
-Date: Thu, 13 Aug 2026 18:43:24 +0200
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="c/jvbjQH"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=JFnshT+OWTDHuVL+7Lt1qAsWwL4pNdEz6ONIL11jDuJ4PUWkzkR8citmdDceTeouBZp81DPDcdUOzAsx/6zm2J/zWsu3b81W/+26HudPUwWHm9Qo5/QwkAqOv+UR9Ew/q6wxpSTYpHlaQIdxKHaN6pYkJTqy0Iv3IbxV7jQeu+9zg+oQUod8jGQbOAK+WY8yEGHMZ5ebBr764TW6KPhJKk4XiD5dqdvLd0fR02fijRCzaZAEOR6vL65X4Dq2+Wb/XVbSpk/00A5SCGSKEfEfLwBcQY/dpHvtmJ8WrJTKmrXWTGDdwP+fN5RHGrHO96Voq8heqZAJxFKSIHIE3XX30w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=zs4P8vDNTUNtmD/TEiy4Yz1UhbnETWDibx19uQq+C8Q=;
+ b=f6eXM4o2Q2d63kgImN7cU64aCDUzXWxmiGoPv9pieHhlCnqQMPoXYlWzi+Qd82H0UFlJltZP/SyEprHxJJ1JxX9K9Sf+cO6Tc1CAl1FWMhDv+m0fjHRNYH6VkpKV3PKUDaQ3rAOXcb22GfCOPYNVKvsPyBoD3Y1gVateRgiSYakp0vNqY0YKz4jpZCh2QEJKfvX5SBzu0XWTCltH77ywFtJMKFVXx2nCwTAIvdqZc8TUjYjqZb7xnttuXFz6h0uRHHX6isigbVDomU9zMJvLjXItQtqisXuExVYOI5pMNKH4mpdvqmsN+Tfu0pAiv5I4RDZs43737ciTL/NRVevwTw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zs4P8vDNTUNtmD/TEiy4Yz1UhbnETWDibx19uQq+C8Q=;
+ b=c/jvbjQHJO2A44eSk3XIpOYBMNwHCSHQS7xLEd2Ux7QuMBWhnmRW2aDCrEnXTlGIQcTfBevmAhBALQn/ooIWnevGk5H7BVJkmpS7fna11bpBYEVS2tJ97Y9AXa5eGTjLiflN4S6s4jFtSkvZaGy8mK+VTJnEKZIzIXuNNYH4gXNQbTWqsSbHrrgA+Ti/yo+ZZlDKiH225xToS9DSDOClwURZw6RU6GMScPLyezqNDY9uUCMyttgOYFFhFNaQIZJqWfps/YFe9q8v2LQ8apyj4yzXs4FIVHS83c4eUDnsE0BQ5U+mnUc6p8kqTY3Sw3Hq1j8ItMKHcw7WsBGb5Inkhw==
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com (2603:10b6:805:33::23)
+ by BL3PR02MB8083.namprd02.prod.outlook.com (2603:10b6:208:35c::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.315.12; Thu, 13 Aug
+ 2026 16:50:29 +0000
+Received: from SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::900:1ccf:2b1e:52b6]) by SN6PR02MB4157.namprd02.prod.outlook.com
+ ([fe80::900:1ccf:2b1e:52b6%3]) with mapi id 15.21.0315.011; Thu, 13 Aug 2026
+ 16:50:28 +0000
+From: Michael Kelley <mhklinux@outlook.com>
+To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
+	"iommu@lists.linux.dev" <iommu@lists.linux.dev>,
+	"linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "linux-coco@lists.linux.dev"
+	<linux-coco@lists.linux.dev>
+CC: Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski
+	<m.szyprowski@samsung.com>, Will Deacon <will@kernel.org>, Marc Zyngier
+	<maz@kernel.org>, Steven Price <steven.price@arm.com>, Suzuki K Poulose
+	<Suzuki.Poulose@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Jiri
+ Pirko <jiri@resnulli.us>, Jason Gunthorpe <jgg@ziepe.ca>, Mostafa Saleh
+	<smostafa@google.com>, Petr Tesarik <ptesarik@suse.com>, Alexey Kardashevskiy
+	<aik@amd.com>, Xu Yilun <yilun.xu@linux.intel.com>,
+	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Madhavan
+ Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer
+	<gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily
+ Gorbik <gor@linux.ibm.com>, Christian Borntraeger
+	<borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+	"x86@kernel.org" <x86@kernel.org>
+Subject: RE: [RFC PATCH v2 2/2] dma: swiotlb: Initialize and size shared
+ default pools for memory encryption
+Thread-Topic: [RFC PATCH v2 2/2] dma: swiotlb: Initialize and size shared
+ default pools for memory encryption
+Thread-Index: AQFMX0hXOwboEy4POyg7moK7+petGgFejaX5t7LIybA=
+Date: Thu, 13 Aug 2026 16:50:27 +0000
+Message-ID:
+ <SN6PR02MB4157842A03CBC29155F1673CD4DB2@SN6PR02MB4157.namprd02.prod.outlook.com>
+References: <20260813102521.1367737-1-aneesh.kumar@kernel.org>
+ <20260813102521.1367737-3-aneesh.kumar@kernel.org>
+In-Reply-To: <20260813102521.1367737-3-aneesh.kumar@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SN6PR02MB4157:EE_|BL3PR02MB8083:EE_
+x-ms-office365-filtering-correlation-id: 7f757abe-79f3-45e5-dc78-08def95afaad
+x-microsoft-antispam:
+ BCL:0;ARA:14566002|51005399006|15080799012|8062599012|25010399006|19110799012|31061999003|8060799015|37011999003|13091999003|55001999006|41001999006|24021099003|40105399003|2607281247196008|102099032|3412199025|440099028;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?M9yz9AbZ1LjrXNG7vYtSAUfu26nMVj31n5apLy+t5HdgM569/5zw9EAFuYQY?=
+ =?us-ascii?Q?cyNuxtgiYce0XnofhhGFaUXrnZ6js5WyA4YddINc8kvelN3gzK7eyi4gKXI3?=
+ =?us-ascii?Q?XPoNvoXrNLyhi0GQeFlL/ooYeH/K1ju1poJK3EtcU+fwGTu/+O4CwAAWzc0g?=
+ =?us-ascii?Q?sOOxEaXBBxv7kgEnmwClv6J6kF8LEdgTbWmsQRrmpzjpFipyqQdKF9l1Lwar?=
+ =?us-ascii?Q?REJQur9vWq1gVEzJAS7p7nqitKNV56DpHxnaGVgCL//lhr7uF+ypbp8zjDRf?=
+ =?us-ascii?Q?+JaI26gxvOxTcyJAx+pi00nOI3RqUUONz01ZdWruVdiB9y7Yp88Ifn5NKPbz?=
+ =?us-ascii?Q?4OWTJXFFTnykMwXjileAOwRuKf8v2MaOQXkzRl5Ac68t14ktULNMDrobMcDT?=
+ =?us-ascii?Q?oxoBYThcIpAbc8PIYFYeh1oiH8uWROEP6me0n1G1weBg4+6JsGN6/8npslYx?=
+ =?us-ascii?Q?nGGBpuQIsuVyUKQR138Q5/HzawY64NIL8xgYrs3dDvov+ckrCBYQU7uoSnPA?=
+ =?us-ascii?Q?xPqacCooKkIxhVpbGuP472yJNlbWv9Pj/KwbWGy8kx3EdF+sk7qaKBmQIGCY?=
+ =?us-ascii?Q?8+cRV89KPYCMFAGdOW4Z3avz5k31MX2z/vpW6pHs3E/98e41O1OJR+z8bHBe?=
+ =?us-ascii?Q?SsmterNrqAATaZXaL5H5b8tSrvSujpp2t6IBYmwOipsiXDV9AGsg0fBQnOVD?=
+ =?us-ascii?Q?QstyD6K20rk0kzUH3IuSMiwpeScB7okR7mWivQ3Nbdsa3g3ylkqVuSlHfgHR?=
+ =?us-ascii?Q?IugSh6i7MCptOTQts9Fnhg0e+r+gNq9pn7TCKQCSpv3QjrGkaJ3kvhowOvZp?=
+ =?us-ascii?Q?W4eocdtUhedCGrEA+y8DVG31SjzOX2Rx3VMmilwNDw6L2q0LxkBZ+tfcJ4ga?=
+ =?us-ascii?Q?0yE+KdqtkKto/ARZg2kUU0oARipg46N2XeCvLVHqYClru/5D8WQeHLgCvtpM?=
+ =?us-ascii?Q?UUCpsQTeFFcLF5tqeolS3MYr0CCmKAqzDSldMs8SohpvJHPZ8grKI+3PDBfd?=
+ =?us-ascii?Q?11ma2uBLCHBh88NChnqlcmtPu9eU9Kv5dpi1E185sIqjzJL7JduWXzkq4Cld?=
+ =?us-ascii?Q?QmG9OmKV?=
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?Zwmv4irhY8F9+Hef9zuGDPRDdG+eAS+0TVNayNN35AJ65zPpOCaBa38H9us6?=
+ =?us-ascii?Q?S121//mU52byhPON1i53KzNnX6uixPY7ImYfFuxY6URjjzPlwL+RQK+Vu547?=
+ =?us-ascii?Q?XGjz5cR8xQlzYxc3Yb7hV3JkmMrX1WyW5i5WMU84TxMi+WiMde8AKBjDInc5?=
+ =?us-ascii?Q?rLM1tYDE+KxLGQHSsJ22XfDSjjjzpFEdfTZbj4lbYXkypWRK4B946NKq/dCi?=
+ =?us-ascii?Q?4Zx6znQGnmZoXdA9YwYqiwclc8InopBFRN5lGgYaK4UWRwfI3XTfS2lzqKai?=
+ =?us-ascii?Q?Bob7M3rKTIgz1MIKnPME+mOBFsmOnGQW0gxxvfe9DWIn4tmMkSmuvzURqj/Z?=
+ =?us-ascii?Q?arqulKQoBmFXHdYWQF2wQ6QINo+i0AVkGByKje5ZrJC68O6uOoJMJx0iYKsm?=
+ =?us-ascii?Q?623x3RV8AQWJJ0aYd3HfX4LOix31j7auzD9JmYxSvXU/ZXuxs4PF7ktePdIc?=
+ =?us-ascii?Q?zhU8BO11RBxrZ12nD4ezXbnLQPtiuA4IHsrIATRq3JiMgS24/y0H7YyrHytd?=
+ =?us-ascii?Q?wYMSUgPRLkNDqlVqtdi32FLWm6iulb28tQJcJSXheNmuYqyswSxxTJhsRxQE?=
+ =?us-ascii?Q?UzfFuzGl1szAdqxkxngM47cVYrqh3wT5F274KGF/xmR4Pl8fxVkDqS/OlTPq?=
+ =?us-ascii?Q?omap8HQRjAjhrkzSEZ2S2T88y7RQ7PzA+8XHKZDmIjPJJr+0RcOpUQaUJToA?=
+ =?us-ascii?Q?zxzoWexEnXMjVaJ8rjQhgUYJQT8j++qt8ybbRwATh5FFBuE3VeivApnbV25G?=
+ =?us-ascii?Q?3a7+v3ZSj2Nh2cmfDtNje8t9/e9EHZ2TWgw4movz8uAMpiHPp9Q3qwUCl4Fm?=
+ =?us-ascii?Q?5xQhCQEZ9AoIM2TTgUesx28EpXHCzyWZ0zMN4PJB5mYZ4ETYfnQUcZRv/KEm?=
+ =?us-ascii?Q?OSTLvyXqSzeeS6EicYK7/oZO/2qRev7lPlReXVfU5wzt7gpUsq3YddDJfyT3?=
+ =?us-ascii?Q?AaagkYf37AumcplytqI662o50rIZUv79jkBfRFpKX2/4tMaiOd8TYnoJ+SMx?=
+ =?us-ascii?Q?nSgfhOVX8xOjuvOlYI1VrVnw91MGwa/kH9wci6GL6uhUROMEj5D9QnkaFNq2?=
+ =?us-ascii?Q?thec3dHIPEUA4uDUKQTxtLSFAkXJlN/06zJROZD0BC/cr1821vIWyyaKly4S?=
+ =?us-ascii?Q?/RDaFzibRIjnvfmkuwOPNpahr7f9rC54xJZmF4yVwTPXKVLLJZr2JIWYM58v?=
+ =?us-ascii?Q?1FRkwThatNoepB50OrFj/ZmUpHCIBlxOQEFVMSbREEHs2+ZUQcKov8lAlbwY?=
+ =?us-ascii?Q?kaNR+yG/sxN9uSkcIR4oovrdJyfJIrA5lg5j0Q80WanI6Y8fIOmHG+yY4+ds?=
+ =?us-ascii?Q?5GLqpxDLinOZu3FBuLi1E1oicf0jZCwtHkULZ9sqIBTy07mlPGA0IlIHzrR+?=
+ =?us-ascii?Q?p4lwesY=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] kvm: s390: Improve floating IRQ injection behavior
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: imbrenda@linux.ibm.com, linux-s390@vger.kernel.org
-References: <20260813154040.73437-1-frankja@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20260813154040.73437-1-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=XqfK/1F9 c=1 sm=1 tr=0 ts=6a7df431 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=vhUChTvZ1_M9NrF1dGAA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEzMDExOSBTYWx0ZWRfXylf6wl5Z3kwo
- cSj2FDWspK12nlyeu/gktsg3sgLXitQx5SdYfaMXPhWu4hDRPVyrZQp7XeOpRL9hapfeU+sMoaE
- pJ3pvPUkB0ujFvHAWJFIb8XHjhyUFBUzwYheaU1PKm7WIzW/N8opOuRKzB6m9q5uwTNurdWxA0i
- vo7mxAm3qwxfM35vOorK2gue/gtu3WrOfMAXVhR6j/3FsMbDb9woDIIOGBmsflNIuDhHDfdcHMP
- vgehQOPulvrUpUQqq3qFeAnb5pRleWseUPigQ+i4Bi7kTjVzWkQU/K8aWMl+rxwF8L0iWD4Yxjt
- O1V7Rtdg6t0vyeLltHxKOT9Ave44hOPajrzMbe7RfU64A/2e2FWCyw9cjg23zsKf7TQUaR3b12+
- Jaw5ASdzp/eFa9OcrSfs9eUX4Cu2OZ4AyI2WEWhxxXni7D8khonzKNlPJ6O4zgMIK0QLXqK9bt0
- HmGMSnCxveJYSjPX8jw==
-X-Proofpoint-ORIG-GUID: 09UimnzEgnZiMvf7nGIp6Lsg3y0kSHGX
-X-Proofpoint-GUID: 09UimnzEgnZiMvf7nGIp6Lsg3y0kSHGX
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEzMDExOSBTYWx0ZWRfXyfel2LQg7H8Q
- BVeMiZY3xc7cow3WkEjAhaZxg08X+me4ql4ohrAFyqWRT0QKHO4jZZMBV829F3PCIX/JU8d+gc7
- OdX3FEIkiUhILxHZmRSdCvA2LZc1GaQ=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-13_05,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 spamscore=0 adultscore=0 malwarescore=0 clxscore=1015
- suspectscore=0 priorityscore=1501 impostorscore=0 phishscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608130119
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR02MB4157.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7f757abe-79f3-45e5-dc78-08def95afaad
+X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Aug 2026 16:50:28.0197
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR02MB8083
 
+From: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org> Sent: Thursday, Augu=
+st 13, 2026 3:25 AM
+>=20
+> Systems with memory encryption require shared or unencrypted buffers for
+> device DMA. Confidential guests may route all DMA through SWIOTLB, making
+> the default pool too small for I/O-intensive workloads. Host memory
+> encryption also requires a shared default pool when bouncing is needed,
+> but does not require the guest sizing policy.
+>=20
+> Move the existing x86 sizing policy into the SWIOTLB core. Detect memory
+> encryption before allocating the default pool so that it is initialized
+> and marked shared even without DMA addressing limitations. Increase the
+> pool size to 6% of guest memory, clamped between the default size and
+> 1 GiB, only for confidential guests.
+>=20
+> The core can determine the confidential-computing requirement directly,
+> so remove SWIOTLB_INIT_CC_SHARED and its architecture uses. Keep the
+> pseries secure-guest setup before swiotlb_init() so that the pool is
+> allocated with SWIOTLB_ANY and is not released later.
+>=20
+> A restricted DMA pool already supplies shared bounce buffers for its
+> devices. Record its presence during reserved-memory initialization and
+> avoid initializing or marking the default pool as shared solely because
+> memory encryption is enabled.
+>=20
+> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+> ---
+>  arch/arm64/mm/init.c      |  6 +---
+>  arch/powerpc/mm/mem.c     |  2 +-
+>  arch/s390/mm/init.c       |  2 +-
+>  arch/x86/mm/mem_encrypt.c | 28 ---------------
+>  include/linux/swiotlb.h   |  2 --
+>  kernel/dma/swiotlb.c      | 72 +++++++++++++++++++++++++++++----------
+>  6 files changed, 57 insertions(+), 55 deletions(-)
+>=20
 
+[snip]
 
-Am 13.08.26 um 16:56 schrieb Janosch Frank:
-  	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
-> @@ -1933,7 +1964,8 @@ static void __floating_irq_kick(struct kvm *kvm, u64 type)
->   	for (sigcpu = kvm->arch.float_int.last_sleep_cpu; ; sigcpu++) {
->   		sigcpu %= online_vcpus;
->   		dst_vcpu = kvm_get_vcpu(kvm, sigcpu);
-> -		if (!is_vcpu_stopped(dst_vcpu))
-> +		if (!is_vcpu_stopped(dst_vcpu) &&
-> +		    deliverable_irqs(dst_vcpu))
+>=20
+> +static void __init swiotlb_adjust_cc_attributes(void)
+> +{
+> +	unsigned long size;
+> +	phys_addr_t total_mem =3D memblock_phys_mem_size();
+> +
+> +	/* Do not resize for host memory encryption. */
+> +	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
+> +		return;
+> +
+> +	/*
+> +	 * For SEV and TDX and CCA, all DMA has to occur via
+> +	 * shared/unencrypted pages. Kernel uses SWIOTLB to make this
+> +	 * happen without changing device drivers. However, depending on
+> +	 * the workload being run, the default 64MB of SWIOTLB may not be
+> +	 * enough and SWIOTLB may run out of buffers for DMA, resulting in
+> +	 * I/O errors and/or performance degradation especially with high
+> +	 * I/O workloads.
+> +	 *
+> +	 * Adjust the default size of SWIOTLB using a percentage of guest
+> +	 * memory for SWIOTLB buffers. Also, as the SWIOTLB bounce buffer
+> +	 * memory is allocated from low memory, ensure that the adjusted
+> +	 * size is within the limits of low available memory.
+> +	 *
+> +	 * The percentage of guest memory used here for SWIOTLB buffers is
+> +	 * more of an approximation of the static adjustment which 64MB for
+> +	 * <1G, and ~128M to 256M for 1G-to-4G, i.e., the 6%
+> +	 */
+> +	size =3D total_mem * 6 / 100;
+> +	size =3D clamp_val(size, IO_TLB_DEFAULT_SIZE, SZ_1G);
+> +	swiotlb_adjust_size(size);
+> +
+> +	if (!IS_ENABLED(CONFIG_SWIOTLB_DYNAMIC))
+> +		pr_info("Consider enabling CONFIG_SWIOTLB_DYNAMIC for memory-encrypted=
+ systems\n");
 
-We have the type. Wouldnt it be better to actually check if type is deliverable?
+I'm not keen on this recommendation. The implementation of
+SWIOTLB_DYNAMIC has two limitations that make it problematic for
+large CoCo VMs. First, when swiotlb is unable to find sufficient space
+in the default pool allocated at boot time, SWIOTLB_DYNAMC creates a
+"transient" swiotlb pool that is allocated from the DMA atomic pool to
+satisfy the immediate request. Growing the overall swiotlb is kicked off
+asynchronously in the background. dma_unmap() frees the transient
+pool and the memory is returned to the DMA atomic pool, but a spike
+in swiotlb allocations in a big system still has substantial potential to
+exhaust the DMA atomic pool. Then you get the same mapping failure
+you'd get without SWIOTLB_DYNAMIC. The fundamental problem has
+only been moved around.
+
+Second, growing the swiotlb in the background adds a new pool, which
+requires allocating contiguous physical memory. That's at most a
+MAX_PAGE_ORDER allocation, so 4 MiB. The new pool is divided into
+"areas" of minimum size 256 KiB so swiotlb allocations can proceed
+in parallel under a per-area spin lock. 16 areas isn't too bad, but might
+still have more contention than the original default pool, which, for
+example, would have 64 areas on a 64 vCPU VM. But if memory is
+fragmented, and you can only get 512 KiB, you'll have only 2 areas,
+and substantially more contention. Contention for the swiotlb
+spin lock at high vCPU counts has been shown to be a substantial
+problem, which is why areas were introduced. But SWIOTLB_DYNAMIC
+often can't preserve the parallelism in the dynamically added pools
+because of the contiguous memory allocation limitations.
+
+Net, in smaller CoCo VMs, there's some marginal value in
+SWIOTLB_DYNAMIC, but that value diminishes as the VM gets
+larger and more swiotlb parallelism is needed. And in either case,
+there's still the potential of exhausting the DMA atomic pool due
+to a spike in demand, in which case you haven't solved anything.
+
+Michael
