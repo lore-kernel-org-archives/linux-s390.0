@@ -1,149 +1,149 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45A4A3CC314;
-	Thu, 13 Aug 2026 09:34:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C35A39B947;
+	Thu, 13 Aug 2026 09:34:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786613648; cv=none; b=VHWipVRM4AZgDNZZH8VnQaW3LIJ2IoMkYhaTanH4QFm0T2QPV0kMi0S4XI5wiUovoSi2AR6QrGv2rIYmaXUBPYYacduatFT8/+KvtEhMIqVvrRrDVyY0uF6MOwm2QzZAjlliW+hF6/zc8kGHNlfI2IQFuZZnRgntb9udHLHDH3c=
+	t=1786613687; cv=none; b=C8wkTEvJiovebDViKGW4fLng75Butd72uweCg3pUO0cLk7YpB17bDeyxVH5h3VBHRryImBUNpnB0rqyadC4XLgBMdsSphKLCEyJNu2vk8ucOa7/juMdOPt3YQmU0eVHnV/Z91dgiVgmN3HXAIaYTXaNlw257X0097Rpahl+4hjo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786613648; c=relaxed/simple;
-	bh=WZcKegKusGSYc+j1Wkf8jKtJ41TaZy/jhhpAMK5Js9Q=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=duWaH95pLnSUGAibeNsEqsyzs2Xo47lWMsxPtuS5hYQlSgtzjm+EMJZG/nLdkKuugdRtV8tyF1LUX0zn3cWT976qIr7HTikdW9Iac+LdWr+2WyYz0u7mNP0ZwV6J/vbI1O1hp3/EDz1IvQ7yh0yTwpPYmvdII/HTRiXEAdYU8Fs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bpJcrEAp; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786613687; c=relaxed/simple;
+	bh=8GGJeMXZjenStr/KzvJ5bvXYBWbaVtnV9BN6Q25mvnc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uRmARe2gcehSxd8nflLUy88EEikRIVwXkl5HOaaN2EKz8bfbKSqL71YBT0qmpTFvhDQQC7bfuUj5+VQAQq/nvYBPXPXzCBCDsGyMqtPq+xY9yvZiVw8HbsKEZf9RKSe+TreIGdPMFOrlUGxkkn+Lx5CmDRwV6sBQ6hinuv1Ch84=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bUE5dJPA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bpJcrEAp"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67D98vfb1949754;
-	Thu, 13 Aug 2026 09:34:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=128j5y
-	xQWpx+4Nfn3fGJu3UpPbXfHhXb3HJpm34WKW8=; b=bpJcrEApNS76irch0XiVze
-	zvywkgTvvPhOcAZayMwVefelhe5S7OGw8GtUf4Im5Dbes0fwOnMub9ZRrmPQBf5T
-	EEGTijZVeyUdBlpgy8d55HZgDMjPN2/wDf3/qkL58xrO8VpBjCmBLKyQ8n3XRgfx
-	L5Z91bBrzsyBSDjo9i0gm7ekUX23wtXphC6xBUbtKRcSidekVY6ogwnc5hBexjLB
-	ivy8icc5Lbkl5Kr4XMVJN9sJyaFhUeIzQ93l6JgVDZ8SOGKqmPbbYPW1uTGZVsfh
-	zHxLvKi8lyM0CiHJPLDBiHx4COYqKsaxxgOLIAkQht6I5IBAuR8dw6CcIdwERJLA
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvnwe83x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Aug 2026 09:34:04 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67D9QWa9022756;
-	Thu, 13 Aug 2026 09:34:04 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxg9hac1j-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Aug 2026 09:34:03 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67D9Y05l31981954
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 13 Aug 2026 09:34:00 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1C8C420043;
-	Thu, 13 Aug 2026 09:34:00 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E6E6020040;
-	Thu, 13 Aug 2026 09:33:59 +0000 (GMT)
-Received: from [9.224.77.157] (unknown [9.224.77.157])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 13 Aug 2026 09:33:59 +0000 (GMT)
-Message-ID: <e13682db-e68a-4196-807b-8c67bea68a2a@linux.ibm.com>
-Date: Thu, 13 Aug 2026 11:33:59 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bUE5dJPA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E2C21F00A3A;
+	Thu, 13 Aug 2026 09:34:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786613677;
+	bh=8GGJeMXZjenStr/KzvJ5bvXYBWbaVtnV9BN6Q25mvnc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=bUE5dJPAlkV0e3vT0h7pYlLJU5zXJxR2LXxBNspnyo1VD4QhHtGs98mt311XJsBdW
+	 NwB8Nq4PllboYzEJBi81NS4Znt7rwrq4KgMryMSE0C43kPgg4JZBe4YaD73IDj3Qhc
+	 hkISD3HoCeXW5N5BR+POiDBs1yZqmn+EUOSooN1tXl82a26xMjeWiPMpVvfYRQfG/x
+	 ZMtuu9DxIOMyxMhsNgoWAd1PzcOu+EcD2NUsikKPG7Mr3cJCZt6UfUjHm2RYLp+0Px
+	 1/SSm+fTyu/vmq45+SrPqFDYNWi/Yibqy+QbWRYX2IwQzUF1p8qhv0/ihpFi9UoHkc
+	 0QX0gdddlS7+w==
+Date: Thu, 13 Aug 2026 10:34:00 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Miaohe Lin <linmiaohe@huawei.com>, 
+	Naoya Horiguchi <nao.horiguchi@gmail.com>, Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, 
+	Lance Yang <lance.yang@linux.dev>, Kees Cook <kees@kernel.org>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>, 
+	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+	Usama Arif <usama.arif@linux.dev>, Matthew Brost <matthew.brost@intel.com>, 
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
+	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
+	Alistair Popple <apopple@nvidia.com>, Peter Xu <peterx@redhat.com>, Xu Xin <xu.xin16@zte.com.cn>, 
+	Chengming Zhou <chengming.zhou@linux.dev>, Arnd Bergmann <arnd@arndb.de>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Alex Deucher <alexander.deucher@amd.com>, 
+	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Boris Brezillon <boris.brezillon@collabora.com>, Steven Price <steven.price@arm.com>, 
+	Liviu Dudau <liviu.dudau@arm.com>, Huang Rui <ray.huang@amd.com>, 
+	Matthew Auld <matthew.auld@intel.com>, 
+	Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
+	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
+	Mark Rutland <mark.rutland@arm.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
+	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, 
+	Adrian Hunter <adrian.hunter@intel.com>, James Clark <james.clark@linaro.org>, 
+	Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>, 
+	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, Chris Li <chrisl@kernel.org>, 
+	Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, 
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
+	Youngjun Park <youngjun.park@lge.com>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-kselftest@vger.kernel.org, kvm@vger.kernel.org, 
+	linux-s390@vger.kernel.org, amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
+	intel-xe@lists.freedesktop.org, linux-perf-users@vger.kernel.org, 
+	linux-trace-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 18/20] mm/vma: make MAP_PRIVATE-mapped /dev/zero
+ mappings truly anonymous
+Message-ID: <an2PQD_pT-ZpSCvP@lucifer>
+References: <20260806-b4-scalable-cow-virt-pgoff-v4-0-ab318a350404@kernel.org>
+ <20260806-b4-scalable-cow-virt-pgoff-v4-18-ab318a350404@kernel.org>
+ <517ea018-d6a9-4c78-b0a6-4f002b3b72ca@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] s390/pai: Handle multiple PMU stop callback invocations
-To: sashiko-reviews@lists.linux.dev
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>
-References: <20260813070815.2692398-1-tmricht@linux.ibm.com>
- <20260813072156.9C4311F000E9@smtp.kernel.org>
-Content-Language: en-US
-From: Thomas Richter <tmricht@linux.ibm.com>
-Organization: IBM
-In-Reply-To: <20260813072156.9C4311F000E9@smtp.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=RsP16imK c=1 sm=1 tr=0 ts=6a7d8f8c cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
- a=_CkJLOUM1Kt26T3VhsEA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: -jr7y3OyPJoaeNEZmAZqNyzNu3SZ1tp2
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEzMDA2NiBTYWx0ZWRfX9ozMIUZ0Qz+n
- 1nDEgL13ElsSrxpbT5WA5ZoNy+qvGzJJVgdoLdTPbbhQ0mVJa9eS29QZaSZG/AP321n9Cwit4/M
- 9W7QOH4yZcIntxJIexiU945wpvz61WRcv+cuLw2rc6pJZA9osKfiQnBU6Hhn4S2tK9KXnCyWs64
- +wwE9cngF4RlBIZ02TEuvArDAyqBLcQN5ZKYTfJKgpL6fAWVFkntUNYTGDXSc0gPOwL19u/pTWv
- NwRTI0sRuJqKYlcF+Mp/MS3rwjmGArdtGOg+fXfw0c1rnIlkgq77AAO8swNSFRaVdzCDHxadaXj
- JWAg3UTbcCG5cRPJtZ3bSLdGs7UiV8VC+hny6stndvSV2BxRhPnT/bawZOWKOxqYHxvoVnHusg/
- mHxxsxFYWorNRH1IZ65OAauOlD29g+zvwbUoOFWoaORYiZFCA0QPDae/Mv9vXY8yL2dQ0PabLJx
- L25JebjIiyUAskhawyg==
-X-Proofpoint-ORIG-GUID: -jr7y3OyPJoaeNEZmAZqNyzNu3SZ1tp2
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEzMDA2NiBTYWx0ZWRfX4FHbjM9QdaUO
- ySAxdxkhTb472Gf1jUwf9ZLRtltE2KdJ97OHFSLRt3oLKT9/SXaTYVJ1gr/Rj9cgIb/mPsJHSVA
- /eJGIXiTsEtB74OmGzSYED96VDBvBvI=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-13_03,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 impostorscore=0 suspectscore=0 clxscore=1015 malwarescore=0
- phishscore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608130066
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <517ea018-d6a9-4c78-b0a6-4f002b3b72ca@kernel.org>
 
-On 8/13/26 09:21, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
-> 
-> Pre-existing issues:
-> - [High] Unsafe iteration over `cpump->syswide_list` in `pai_have_samples()` leads to a kernel crash (LIST_POISON dereference) if an event overflows and is synchronously throttled during the loop.
+On Thu, Aug 13, 2026 at 11:29:43AM +0200, David Hildenbrand (Arm) wrote:
+> On 8/6/26 22:21, Lorenzo Stoakes (ARM) wrote:
+> > When mapping /dev/zero with MAP_PRIVATE, one ends up with strange VMAs
+> > originating from Linux's distant past.
+> >
+> > These have vma->vm_file set but NULL vma->vm_ops, meaning they satisfy
+> > vma_is_anonymous() but otherwise resemble a file-backed VMA.
+> >
+> > The introduction of anonymous page offsets and their subsequent use as
+> > indexes for MAP_PRIVATE-file-backed mappings mean the rmap does the right
+> > thing with these but we are left with inconsistencies.
+> >
+> > The vma_start_pgoff(vma) == vma_start_anon_pgoff(vma) invariant is true for
+> > all other anonymous VMAs, but not these.
+> >
+> > These VMAs are also observable as files in /proc/<pid>/[maps, smaps,
+> > map_files] but otherwise behave like anonymous mappings.
+> >
+> > Therefore let's make these VMAs actually anonymous at mapping time which
+> > will activate the anonymous code path for mappings.
+> >
+> > This means we no longer have to account for this discrepancy anywhere and
+> > no longer have to think about these at all.
+> >
+> > This is user-observable, as MAP_PRIVATE-/dev/zero will no longer appear in
+> > procfs as a file-backed mapping, but the impact of this change should be
+> > low as likely nobody is relying upon this.
+>
+> As discussed off-list, it's best to discuss the impact with the wider community.
+> I'm afraid not many people made it to patch #18 in this series. :)
+>
+> I don't expect this to actually break something, but we should be clear that
+> doing a mmap("/dev/zero") will no longer indicate that as a file mapping in /proc/.
+>
+> You could mention that e.g., criu checks for "/dev/zero" mappings explicitly,
+> but will just keep doing the right thing once this is a proper anon mapping; we
+> expect similar use cases to do exactly that, and rather check for "/dev/zero"
+> only to conclude themselves "this is just an anon mapping".
+>
+> Doing some digging, AI raised that there is the potential of some workload
+> explicitly using "/dev/zero" to get an entry in map_files. I think that's
+> essentially what our selftests do that you have to modify. I cannot thing of a
+> good reason why someone would do that in their workload, and at least AI wasn't
+> able to easily identify any such users.
+
+I already fixed the self tests and yeah it's not very likely.
+
+But as discussed off-list, let's defer the /dev/zero stuff to the next cycle and
+get the core of this series in first. It's clear there's more discussion to be
+had there :)
+
+Will respin with the /dev/zero stuff peeled off!
+
+>
 > --
+> Cheers,
+>
+> David
 
-This can not happen. The syswide_list is anchored by per-CPU pai_map::syswide_list and tracks
-all events which are bound to that particular CPU. The event was installed only on that particular
-CPU and does not move with the process/task. Each CPU has its own list anchored by
- pai_map::syswide_list.
-
-The call chains are either
-
- paicrypt_sched_task() or paiext_sched_task
- +--> pai_have_samples() iterates over syswide_list and calls
-      +--> pai_have_sample
-
-or
- pai_stop()
- +--> list_del() to remove the event from that CPU.
-
- Since a CPU can only execute one given code path at any one time:
- - either schedule out
- - or stop the event
- both can not happen at the same time. PAI PMU does not install an interrupt handler,
- there is no supoprt for interrupts.
-
- I think this is safe or am I mistaken?
-
-
-...
-
--- 
-Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, Germany
 --
-IBM Deutschland Research & Development GmbH
-
-Vorsitzender des Aufsichtsrats: Wolfgang Wendt
-
-Geschäftsführung: David Faller
-
-Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
+Cheers, Lorenzo
