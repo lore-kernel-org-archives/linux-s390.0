@@ -1,39 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8AED3161A1;
-	Thu, 13 Aug 2026 09:56:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC6B830F924;
+	Thu, 13 Aug 2026 10:14:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786615002; cv=none; b=qNS9+soh4V8xyppPIp9QyZxY8FQEAS0a3IyXqtf6PO+U6nkd0eYcMgi1CIGGN5DnMEmzUmV1cojfqLDJVc83ezqr8mltOsTl+nV5HH8pQgA/IURJ2dTWR7tp4VSEg+YhLLJb1Ve8ttsVA+aE1DVDwzW2hHV6oK5ywFPInucUGKY=
+	t=1786616061; cv=none; b=JNs0pjeeZetpmbKe5TdUY6j0hq0U+A9eu4gs4I6C5/qoFepHZHBxmjOb99qhHdHJ3YTFLxOKEBvU+xBTJniD3Pdh+0KsNTBfUViSVlxdZ3dCbQrwJItH9u7Xh44znpJYfmrnGaRHh11Y9gbrUrEmsP4kGYxVV3o4kZTSJYw5wd8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786615002; c=relaxed/simple;
-	bh=1ukAlHmDH3w2RqK6Os7+Ms90DmlhG9iudSpZU/2jScs=;
+	s=arc-20240116; t=1786616061; c=relaxed/simple;
+	bh=fwftfs/h5D3dQzHoQQEOXNZ13Ld+SmY+4YAGAaVkPcU=;
 	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Tx5zOYiJ0i1nPMkstzsn6mnGXydSU1l8k4tTq8elxALkMaifEdQnSNaU3tkA84CDPvOHRbrYdg9YK2wyB6Y/dhxBfP8W3fHxnkV+NXEZuPU+Ji5UchzE4L6Jiq35YOTDSiPHZ1gSz9Deaw/t3jTElH22b7CtQTbz6hHYW6oL6DU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CHvYLdEt; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=aEUP0anvHwFp/xzWKba11RbOky/LAQoqnh0WA+JJQaj4Q34cWJMgLwDSPAGTvZw/XcqwkKlKq1q9TVocQmcDSTXzGFNyaVM5N6B/nscHGy07sMAt8/ESv3vACQXBO0NazU0XyGpWHCbdvB+hV5EXrW/QGWFOHYMC0c5aEtIUB+Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dPrRuqQ1; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CHvYLdEt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94CD41F000E9;
-	Thu, 13 Aug 2026 09:56:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dPrRuqQ1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 270771F000E9;
+	Thu, 13 Aug 2026 10:14:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786615000;
-	bh=IsAhz04z4JOyOzRAwpcE4XqcGtm8zAE8zmEWF6NGCHw=;
+	s=k20260515; t=1786616052;
+	bh=uSZUuVpg9SCc7RZSw/Ssreis2MVZVjsphaT0uMe4oMU=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=CHvYLdEtqJyTYe8V+9uKUglx6hAV77Izcmz/KfrHc5PezB69iysXzbcuPR45KM+j6
-	 5wygXUSO513tUSdDGCLQ1NlwcdG2+ibziRnfIGrgJT30ajeTGGxcZ4swBevHRC0WhV
-	 LspYWILW/000KuXsgqEfm4NF2du2v3zyTdA4RV1sXpfBbrjo6Fc1WS3P+ZFMJzYDy5
-	 GXL0/C9omCKwExiAKALHor+YqFLC01Pkqo2PSKkbs7PEMkwI9vbJsNE2vTA5G7fQkB
-	 697gbftd+2qf5XawHF7BSLRPvbt0sUPuFqmI8efe6NPy6dX6GwNcugt/ajWtJbCUN+
-	 nWmuGbK3yNfxg==
+	b=dPrRuqQ1x9D9rMkX+lbk4Bc/EbxPS/82Q06yoG3nI/BswMuRJt+Uj0EByx7DtjOVL
+	 RDFvp5EqiIPLEB0+7s7RAZdnKA96jfpzZT2ukcYPIuXOdVcG7LumUqLQddtBCpGV0x
+	 EXj0FidbNgYVDV1PMhNXsBdK43RLF3SWZvU3p+vlByll/WYbw9O0d86v8J5glnpel9
+	 Gs7KY1qHUAgdZy4TOiX7o/dxaTig5MFl+Kr6CQplVLfkp1219QWIUyL7Tu+fxF6okt
+	 iWowso/n+nG4czMd3mbqe3a+3gn1512ePCWN1tnyFktB0+MMSy98pm4r8HC4XQ2Daz
+	 461F1EoqUHHLw==
 Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
 	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.98.2)
 	(envelope-from <maz@kernel.org>)
-	id 1wuSAw-0000000FHZg-1nGM;
-	Thu, 13 Aug 2026 09:56:38 +0000
-Date: Thu, 13 Aug 2026 10:56:37 +0100
-Message-ID: <86a4qq1gyy.wl-maz@kernel.org>
+	id 1wuSRu-0000000FI7L-0X1r;
+	Thu, 13 Aug 2026 10:14:10 +0000
+Date: Thu, 13 Aug 2026 11:14:09 +0100
+Message-ID: <868q6a1g5q.wl-maz@kernel.org>
 From: Marc Zyngier <maz@kernel.org>
 To: Steffen Eiden <seiden@linux.ibm.com>
 Cc: kvm@vger.kernel.org,
@@ -68,10 +68,10 @@ Cc: kvm@vger.kernel.org,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Will Deacon <will@kernel.org>,
 	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v6 08/33] KVM: arm64: Use accessor functions for core regs
-In-Reply-To: <20260812153631.3376090-9-seiden@linux.ibm.com>
+Subject: Re: [PATCH v6 09/33] arm64: Prepare sharing arm64 headers with s390
+In-Reply-To: <20260812153631.3376090-10-seiden@linux.ibm.com>
 References: <20260812153631.3376090-1-seiden@linux.ibm.com>
-	<20260812153631.3376090-9-seiden@linux.ibm.com>
+	<20260812153631.3376090-10-seiden@linux.ibm.com>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
  FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
  (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -87,103 +87,140 @@ X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux
 X-SA-Exim-Mail-From: maz@kernel.org
 X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-On Wed, 12 Aug 2026 16:36:04 +0100,
+On Wed, 12 Aug 2026 16:36:05 +0100,
 Steffen Eiden <seiden@linux.ibm.com> wrote:
-> 
-> Instead of accessing the value directly use assessor function that
 
-s/assessor function/accessors/
+[...]
 
-> abstract the actual location of the register values. Add a helper
-> function to reset fpsimd registers. Enable other KVM implementations to
-> reuse this code.
-
-to reuse this code by overloading the accessors.
-
-> 
-> No functional changes.
-> 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
->  arch/arm64/include/asm/kvm_emulate.h | 34 ++++++++++++++++++++++++++--
->  arch/arm64/kvm/guest.c               | 16 ++++++-------
->  2 files changed, 40 insertions(+), 10 deletions(-)
-> 
-> diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
-> index 8603766c1b4d..b31d50bdf59e 100644
-> --- a/arch/arm64/include/asm/kvm_emulate.h
-> +++ b/arch/arm64/include/asm/kvm_emulate.h
-> @@ -141,6 +141,31 @@ static __always_inline unsigned long *vcpu_cpsr(const struct kvm_vcpu *vcpu)
->  	return (unsigned long *)&vcpu->arch.ctxt.regs.pstate;
->  }
+> diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
+> index 46c8d7928b3f..22770c1132cb 100644
+> --- a/arch/arm64/include/asm/kvm_host.h
+> +++ b/arch/arm64/include/asm/kvm_host.h
+> @@ -56,6 +56,36 @@
+>  #define KVM_REQ_MAP_L1_VNCR_EL2		KVM_ARCH_REQ(10)
+>  #define KVM_REQ_VGIC_PROCESS_UPDATE	KVM_ARCH_REQ(11)
 >  
-> +static __always_inline unsigned long *vcpu_sp_el0(struct kvm_vcpu *vcpu)
-> +{
-> +	return (unsigned long *)&vcpu->arch.ctxt.regs.sp;
-> +}
+> +/*
+> + * If we encounter a data abort without valid instruction syndrome
+> + * information, report this to user space.  User space can (and
+> + * should) opt in to this feature if KVM_CAP_ARM_NISV_TO_USER is
+> + * supported.
+> + */
+> +#define KVM_ARCH_FLAG_RETURN_NISV_IO_ABORT_TO_USER	0
+> +/* Memory Tagging Extension enabled for the guest */
+> +#define KVM_ARCH_FLAG_MTE_ENABLED			1
+> +/* At least one vCPU has ran in the VM */
+> +#define KVM_ARCH_FLAG_HAS_RAN_ONCE			2
+> +/* The vCPU feature set for the VM is configured */
+> +#define KVM_ARCH_FLAG_VCPU_FEATURES_CONFIGURED		3
+> +/* PSCI SYSTEM_SUSPEND enabled for the guest */
+> +#define KVM_ARCH_FLAG_SYSTEM_SUSPEND_ENABLED		4
+> +/* VM counter offset */
+> +#define KVM_ARCH_FLAG_VM_COUNTER_OFFSET			5
+> +/* Timer PPIs made immutable */
+> +#define KVM_ARCH_FLAG_TIMER_PPIS_IMMUTABLE		6
+> +/* Initial ID reg values loaded */
+> +#define KVM_ARCH_FLAG_ID_REGS_INITIALIZED		7
+> +/* Fine-Grained UNDEF initialised */
+> +#define KVM_ARCH_FLAG_FGU_INITIALIZED			8
+> +/* SVE exposed to guest */
+> +#define KVM_ARCH_FLAG_GUEST_HAS_SVE			9
+> +/* MIDR_EL1, REVIDR_EL1, and AIDR_EL1 are writable from userspace */
+> +#define KVM_ARCH_FLAG_WRITABLE_IMP_ID_REGS		10
+> +/* Unhandled SEAs are taken to userspace */
+> +#define KVM_ARCH_FLAG_EXIT_SEA				11
 > +
-> +static __always_inline u64 *vcpu_sp_el1(struct kvm_vcpu *vcpu)
-> +{
-> +	return __ctxt_sys_reg(&vcpu->arch.ctxt, SP_EL1);
-> +}
-> +
-> +static __always_inline __u128 *vcpu_vreg(struct kvm_vcpu *vcpu, int n)
-> +{
-> +	return &vcpu->arch.ctxt.fp_regs.vregs[n];
-> +}
-> +
-> +static __always_inline __u32 *vcpu_fpsr(struct kvm_vcpu *vcpu)
-> +{
-> +	return &vcpu->arch.ctxt.fp_regs.fpsr;
-> +}
-> +
-> +static __always_inline __u32 *vcpu_fpcr(struct kvm_vcpu *vcpu)
-> +{
-> +	return &vcpu->arch.ctxt.fp_regs.fpcr;
-> +}
-> +
->  static __always_inline bool vcpu_mode_is_32bit(const struct kvm_vcpu *vcpu)
->  {
->  	return !!(*vcpu_cpsr(vcpu) & PSR_MODE32_BIT);
-> @@ -737,6 +762,11 @@ static inline void vcpu_set_hcrx(struct kvm_vcpu *vcpu)
->  	}
->  }
->  
-> +static inline void kvm_reset_fpsimd(struct kvm_vcpu *vcpu)
-> +{
-> +	memset(&vcpu->arch.ctxt.fp_regs, 0, sizeof(vcpu->arch.ctxt.fp_regs));
-> +}
-> +
->  /* Reset a vcpu's core registers. */
->  static inline void kvm_reset_vcpu_core(struct kvm_vcpu *vcpu)
->  {
-> @@ -752,8 +782,8 @@ static inline void kvm_reset_vcpu_core(struct kvm_vcpu *vcpu)
->  	/* Reset core registers */
->  	memset(vcpu_gp_regs(vcpu), 0, sizeof(vcpu_gp_regs(vcpu)));
->  	*vcpu_pc(vcpu) = 0;
-> -	vcpu->arch.ctxt.regs.sp = 0;
-> -	memset(&vcpu->arch.ctxt.fp_regs, 0, sizeof(vcpu->arch.ctxt.fp_regs));
-> +	*vcpu_sp_el0(vcpu) = 0;
-> +	kvm_reset_fpsimd(vcpu);
->  	vcpu->arch.ctxt.spsr_abt = 0;
->  	vcpu->arch.ctxt.spsr_und = 0;
->  	vcpu->arch.ctxt.spsr_irq = 0;
-> diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
-> index b01d6622b872..773f6c8e5026 100644
-> --- a/arch/arm64/kvm/guest.c
-> +++ b/arch/arm64/kvm/guest.c
-> @@ -134,19 +134,19 @@ static void *core_reg_addr(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
->  	     KVM_REG_ARM_CORE_REG(regs.regs[30]):
->  		off -= KVM_REG_ARM_CORE_REG(regs.regs[0]);
->  		off /= 2;
-> -		return &vcpu->arch.ctxt.regs.regs[off];
-> +		return &vcpu_gp_regs(vcpu)[off];
 
-Doesn't this belong to the previous patch?
+I don't mind the move, but please add a comment indicating that these
+are bit indices for for kvm_arch::flags, as we have now lost locality.
 
-Thanks,
+And whilst we're at it, there is not reason why this has to be a set
+of #define, it can perfectly be an enum, as the numbers themselves
+have no particular meaning. Something like the untested hack below.
 
 	M.
+
+diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
+index 08b2f24dc3c79..402bbb5eb0d91 100644
+--- a/arch/arm64/include/asm/kvm_host.h
++++ b/arch/arm64/include/asm/kvm_host.h
+@@ -306,6 +306,39 @@ enum fgt_group_id {
+ 	__NR_FGT_GROUP_IDS__
+ };
+ 
++/* Bit indices for kvm_arch::flags */
++enum kvm_arch_flag_bits {
++	/*
++	 * If we encounter a data abort without valid instruction syndrome
++	 * information, report this to user space.  User space can (and
++	 * should) opt in to this feature if KVM_CAP_ARM_NISV_TO_USER is
++	 * supported.
++	 */
++	KVM_ARCH_FLAG_RETURN_NISV_IO_ABORT_TO_USER,
++	/* Memory Tagging Extension enabled for the guest */
++	KVM_ARCH_FLAG_MTE_ENABLED,
++	/* At least one vCPU has ran in the VM */
++	KVM_ARCH_FLAG_HAS_RAN_ONCE,
++	/* The vCPU feature set for the VM is configured */
++	KVM_ARCH_FLAG_VCPU_FEATURES_CONFIGURED,
++	/* PSCI SYSTEM_SUSPEND enabled for the guest */
++	KVM_ARCH_FLAG_SYSTEM_SUSPEND_ENABLED,
++	/* VM counter offset */
++	KVM_ARCH_FLAG_VM_COUNTER_OFFSET,
++	/* Timer PPIs made immutable */
++	KVM_ARCH_FLAG_TIMER_PPIS_IMMUTABLE,
++	/* Initial ID reg values loaded */
++	KVM_ARCH_FLAG_ID_REGS_INITIALIZED,
++	/* Fine-Grained UNDEF initialised */
++	KVM_ARCH_FLAG_FGU_INITIALIZED,
++	/* SVE exposed to guest */
++	KVM_ARCH_FLAG_GUEST_HAS_SVE,
++	/* MIDR_EL1, REVIDR_EL1, and AIDR_EL1 are writable from userspace */
++	KVM_ARCH_FLAG_WRITABLE_IMP_ID_REGS,
++	/* Unhandled SEAs are taken to userspace */
++	KVM_ARCH_FLAG_EXIT_SEA,
++};
++
+ struct kvm_arch {
+ 	struct kvm_s2_mmu mmu;
+ 
+@@ -338,35 +371,7 @@ struct kvm_arch {
+ 	/* Protects VM-scoped configuration data */
+ 	struct mutex config_lock;
+ 
+-	/*
+-	 * If we encounter a data abort without valid instruction syndrome
+-	 * information, report this to user space.  User space can (and
+-	 * should) opt in to this feature if KVM_CAP_ARM_NISV_TO_USER is
+-	 * supported.
+-	 */
+-#define KVM_ARCH_FLAG_RETURN_NISV_IO_ABORT_TO_USER	0
+-	/* Memory Tagging Extension enabled for the guest */
+-#define KVM_ARCH_FLAG_MTE_ENABLED			1
+-	/* At least one vCPU has ran in the VM */
+-#define KVM_ARCH_FLAG_HAS_RAN_ONCE			2
+-	/* The vCPU feature set for the VM is configured */
+-#define KVM_ARCH_FLAG_VCPU_FEATURES_CONFIGURED		3
+-	/* PSCI SYSTEM_SUSPEND enabled for the guest */
+-#define KVM_ARCH_FLAG_SYSTEM_SUSPEND_ENABLED		4
+-	/* VM counter offset */
+-#define KVM_ARCH_FLAG_VM_COUNTER_OFFSET			5
+-	/* Timer PPIs made immutable */
+-#define KVM_ARCH_FLAG_TIMER_PPIS_IMMUTABLE		6
+-	/* Initial ID reg values loaded */
+-#define KVM_ARCH_FLAG_ID_REGS_INITIALIZED		7
+-	/* Fine-Grained UNDEF initialised */
+-#define KVM_ARCH_FLAG_FGU_INITIALIZED			8
+-	/* SVE exposed to guest */
+-#define KVM_ARCH_FLAG_GUEST_HAS_SVE			9
+-	/* MIDR_EL1, REVIDR_EL1, and AIDR_EL1 are writable from userspace */
+-#define KVM_ARCH_FLAG_WRITABLE_IMP_ID_REGS		10
+-	/* Unhandled SEAs are taken to userspace */
+-#define KVM_ARCH_FLAG_EXIT_SEA				11
++	/* VM-wide flags, described in kvm_arch_flag_bits */
+ 	unsigned long flags;
+ 
+ 	/* VM-wide vCPU feature set */
 
 -- 
 Without deviation from the norm, progress is not possible.
