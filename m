@@ -1,202 +1,148 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D4E83B05A9;
-	Thu, 13 Aug 2026 06:25:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A751340283
+	for <linux-s390@vger.kernel.org>; Thu, 13 Aug 2026 07:08:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786602336; cv=none; b=MX/AZssF8EY0xOsaIg7bW2f03K2yGqRc3UWclb978o2XXol9bYz3JZKPJ5lrAe6P87R44Y4WoRcDTwQpVLqdvOAX6CExxhO1ycBQZvOMgBSfBA0HoZvVh+pG7RLrVpEhBeROzaPU5zma01N2hw2SccDcdGEdgWS37UQy3jUlrps=
+	t=1786604905; cv=none; b=ZU3Nk4AmwThwDgw9o3lhl87kdPftT2n+0FTSjwvKPIFOtwFoS30NZ8Y/fBOq4fjwu/vBcXBg7m0XU7txlR2qhRtflBK+WmnK6y763R5h6nOuDI5LeTaWyq2o3g75Wx5UC2yWbu2aIbimeP5HVnU8j/wum4An3VziiC+IunxpQFc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786602336; c=relaxed/simple;
-	bh=svxibkFDugFYlu9QZQNXaO7VDzJlKkHSVEUzwQo4D9Q=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LqZQ44m7NnP0LAPvgbO0Dfd01n/caVygIc2/kYMP5+h8tkfQz+WJW6vTGAdV0ytmh4FfNyj3TXf5DXOFCPSgxu3wnOTriQX+iL2g5xRCoWmJ1VNzjtyVKpFoWxTuSC1TxjHjC3oeEk1hhfEI50UxLM+UW5mMK4Y5vczm4OHieAA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gjn+ZrNz; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1786604905; c=relaxed/simple;
+	bh=MsQl/EDWzSbaa32n/Oa3nIdFU282jZEzjmGafcnrqvQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iSIJokgdR97Ryj/1Cvhwg0JJZtrf2OQc0ACkUzhQ/jVl0e3VIsd5XRTDpa0Y0ihD93qdeiH1tE53Mcu74RMyc7F3pcugcKQKZYKCxuw8ZrIPjZz/bNpaHp+EDpIDA5G/VRflIPTQy10wLdoSzUBTRZQ9Tzxsgt8274yA1/ABb94=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tipQDmY5; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gjn+ZrNz"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67D61aWB1476562;
-	Thu, 13 Aug 2026 06:25:34 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tipQDmY5"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67D61uhT1430825
+	for <linux-s390@vger.kernel.org>; Thu, 13 Aug 2026 07:08:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=2bJFtk
-	7IHCxsJ0zcnv89FCN+lwd2doS7mdHj/JpuX8U=; b=gjn+ZrNzBVthdGKCFwvBoQ
-	66BDr2tO71ZfZww20yQyJJxjqQU8XFGf0KmU/dbTVoxp9JRsSlGS9f1r8KGs+bD0
-	gQSByg6P0H4NdUFaLJeLbvkgJlBxGleEAtk+XJPBO5+k/StlWQYFcuJcPAlRppeK
-	uR2fTLU5w4KShjFMPsTEU9DWfE0RnVdvJO0fGpGVkrvXXhdPycEs/lW6+atvjW1M
-	B30g505PyFlu8uSbMvcifnAgwJ/GIU/F8d8cxbRk2nQ+w2+BVULmcebDtwGZvRJG
-	fVQWzUwr9kAfQUr5Az7gBiPdjX0SR7Z6dkr14yjPoT2zthwz9XjOuEok67k2GjTQ
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvq9pgsr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Aug 2026 06:25:34 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67D6BIF7030873;
-	Thu, 13 Aug 2026 06:25:33 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxhfy9mk5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 13 Aug 2026 06:25:33 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67D6PVFM44040568
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=41cYJv8CVQ0qlz5SKWrQpOGaY5/D6YloS0vsMUMG8
+	uQ=; b=tipQDmY5jDX6LwPjRww2ZGuVkz0V0H64BMbIzJvuZVcFtT+8lXJzSM7Nf
+	dHcdUio4Px1D2Vx39Di9s6hiulnHBE2Ipa7aph8lsW7ajUf09yAocuEly8SWm130
+	Sr6d9TfqpVKqWOda8mkI5tevpfVc4yUM53mXg5GdnLbc5WjXqRDwfEisFX+NV0dJ
+	lm70Qd5TnRwigSLmF4RNYG6z4PnaeilhcLrWvaYhS6aFI+lNMuO2y9hJL/Y2djeU
+	mMAkIUSaFxYNzf7LrTRCj0++LlUkYF4kkC5h7pEBL2uixpewIXzGIECm4sRt1Ier
+	E8QwNDmqwe/JTeuLFJU/ZvW3P2eng==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvp35rft-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Thu, 13 Aug 2026 07:08:22 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67D6uTCN018780
+	for <linux-s390@vger.kernel.org>; Thu, 13 Aug 2026 07:08:21 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxesqa4gc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Thu, 13 Aug 2026 07:08:21 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67D78HbK47055342
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 13 Aug 2026 06:25:31 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 61F4220043;
-	Thu, 13 Aug 2026 06:25:31 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AB89D20040;
-	Thu, 13 Aug 2026 06:25:29 +0000 (GMT)
-Received: from [9.123.7.41] (unknown [9.123.7.41])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 13 Aug 2026 06:25:29 +0000 (GMT)
-Message-ID: <def186fb-0eb9-4751-9e39-64eaa4828759@linux.ibm.com>
-Date: Thu, 13 Aug 2026 11:55:28 +0530
+	Thu, 13 Aug 2026 07:08:17 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 80E2F20043;
+	Thu, 13 Aug 2026 07:08:17 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6BC7820040;
+	Thu, 13 Aug 2026 07:08:17 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 13 Aug 2026 07:08:17 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-s390@vger.kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>
+Subject: [PATCH] s390/pai: Handle multiple PMU stop callback invocations
+Date: Thu, 13 Aug 2026 09:08:15 +0200
+Message-ID: <20260813070815.2692398-1-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] net/smc: release the internal TCP sock on IPPROTO_SMC
- socket creation failure
-To: Chuyf26 <Chuyf26@linux.alibaba.com>, alibuda@linux.alibaba.com
-Cc: dust.li@linux.alibaba.com, mjambigi@linux.ibm.com,
-        tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
-        netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20260812071538.o7mdtMhZ1eOzDgQnKZduQfWlq0FhL7OCAPLjt9AA11w@z>
- <5c80dd63-80bb-424b-894e-2f4ca3a5568b@linux.ibm.com>
- <202608130604.67D5j4VU1508130@pps.reinject>
-Content-Language: en-US
-From: Sidraya Jayagond <sidraya@linux.ibm.com>
-In-Reply-To: <202608130604.67D5j4VU1508130@pps.reinject>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: SBYSLgurU5WTwC2xFrb2mxNAsoVTR5JY
-X-Authority-Analysis: v=2.4 cv=PbDPQChd c=1 sm=1 tr=0 ts=6a7d635e cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=SRrdq9N9AAAA:8
- a=VnNF1IyMAAAA:8 a=j67ANBCWoueUEsnO-3cA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEzMDA0MCBTYWx0ZWRfX+ycxAa8jrfqW
- Sp2tffj7jiuZg/rSyhQQ9AfsnahFpIE8fguky9vpjztGPw98FXUsJp0LQijeWMJPleRR2QCJ01s
- VmR1I97B4BnzOe2QyIMTajpd8SBLS//hJqJ8CuMiaRoDxpvPz9T9mb/wscX/W0criVCQyfhskYN
- X5rLv8loCBPbxbwhavCTw5ZmbL6SJN+QUOR/GzvUVu/BFlwpta1bGHykE5eq91j0eMA49Aefa88
- Woh2HuPphwFIwJCU7l4NVqzKVZRppnYANJxQ9alviXt5FSdkqZTVX+un/I6VTzzJbS9Ywv0yP1E
- a9lhVGzaeQ8foyw8tu/20lrNofdPQwLGYDglGs8e0FmcHYq9oqXq6oJZp44wz3mGjw6smQ1GIeU
- llRzJXwG/yWNJHGHuJJVNHXfwiwKvGqdsS3/8M3/vHW2vrypT8SLGiKVagBtrob/umtZYpQLfn7
- tMHMlNmE0r8J8TU5Vdg==
-X-Proofpoint-ORIG-GUID: tooYW2aGgfQgEkQHhGN7pcdCTP5tWg6X
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODEzMDA0MCBTYWx0ZWRfX7RaF8vC1CwVw
- moXmqWBWcwzgYxV2oR5XcKwrLSJ7/Mns/M0L7xXN41Mq3KFCFlJQWgahbTPySCeur9Fkys1wQdG
- Wbk8c10C9PzPyiB3ELAYlMU3W9sJwT4=
+X-Authority-Analysis: v=2.4 cv=AMtp2X5w c=1 sm=1 tr=0 ts=6a7d6d66 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=b6_6n78pCtPly934600A:9
+X-Proofpoint-GUID: pM1peSR0c6Vxw3zqTvtvi6r_auxJiIqQ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODEzMDA0NyBTYWx0ZWRfX8VODgqpNxLIN
+ IV0CHOP41hwFqdNEb07t1aqOypsGM+1yGQAOFZgfUn4kFsdczclPsEpb0KEfpOxojCyPijTkO9i
+ wsRYf62F3OpPtYuzinNNlxjy/GGNJdRr8KtoVjkLKGFvkQWrmemYP973n015VqT91wJTFr9x+Mg
+ 5DXrShniutmQUwmrSeoUVw/3rQOPRFhhI7iqTG0oLGBZyPpoNrMo0Q5OpsuK+pDH6YFKEyCWOU7
+ 8Ng9E1p2JDLp18Y38AH1OM69VZXK7Jpqb+XpLKDNI2NHdEu7I7R/CuKhA6Y5PyVl8kwCzxJxqG7
+ 9kiidoh7ZncqqQet+lIwzsTf8b1GdluIlSI5L70UQu2usObbOqpVGt5yz5IVcEs/QX8jf2PcNoR
+ IJkoQNRcLCXFFL01JyV+3CqFy3hWoIw9xkG+Qg4+Xq/GFchT0LctomAxehQOXNjJi8QVsWjt5w4
+ uAkhE098n1T7T1hU8WA==
+X-Proofpoint-ORIG-GUID: pM1peSR0c6Vxw3zqTvtvi6r_auxJiIqQ
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODEzMDA0NyBTYWx0ZWRfX87egVBbTqj1a
+ rFz8KEMMkBy23VZlcjS0EwBCdiU5JB37R7wJVnxkP1m1zw5cntRwQbjbzU7Zi1qWSrlNfja5/d+
+ zVg4wTOiIpYxSCvkNERyDv/lNRosOAY=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-13_02,2026-08-12_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 bulkscore=0 impostorscore=0 malwarescore=0 adultscore=0
- clxscore=1015 priorityscore=1501 suspectscore=0 phishscore=0
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ suspectscore=0 adultscore=0 lowpriorityscore=0 clxscore=1015
+ priorityscore=1501 impostorscore=0 phishscore=0 spamscore=0 bulkscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608130040
+ definitions=main-2608130047
 
+Handle the following scenario:
+The kernel protects itself against a very high sampling load and
+throttles the sampling using:
 
+  perf_event_throttle() --> PMU->stop()
 
-On 13/08/26 11:34 am, Chuyf26 wrote:
-> IPPROTO_SMC sockets create an internal TCP sock ("clcsock") from the
-> proto->init hook. When socket creation fails after proto->init has
-> run - e.g. a cgroup BPF program attached to BPF_CGROUP_INET_SOCK_CREATE
-> denies the socket - sk_common_release() only invokes sk_prot->destroy
-> if it is set, but neither smc_inet_prot nor smc_inet6_prot defines it,
-> and smc_destruct() returns early unless sk_state is SMC_CLOSED. As a
-> result, every failing socket(AF_INET, SOCK_STREAM, IPPROTO_SMC) call
-> leaks one tcp_sock, so an unprivileged task able to attach a deny-all
-> BPF_CGROUP_INET_SOCK_CREATE program to its own cgroup can grow kernel
-> memory unboundedly.
-> 
-> Add a .destroy hook to both protos that releases the clcsock via
-> smc_clcsock_release(), which is safe here because it skips a NULL
-> clcsock under clcsock_release_lock. Also initialize clcsock to NULL
-> when setting the sock up: the smc_sock slab is SLAB_TYPESAFE_BY_RCU,
-> so recycled objects are not zeroed.
-> 
-> Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
-> Reported-by: Abaci <abaci@linux.alibaba.com>
-> Assisted-by: abaci:qwen3.8-max
-> Signed-off-by: Chuyf26 <Chuyf26@linux.alibaba.com>
-> ---
->  net/smc/smc_inet.c | 23 +++++++++++++++++++++++
->  1 file changed, 23 insertions(+)
-> 
-> diff --git a/net/smc/smc_inet.c b/net/smc/smc_inet.c
-> index a94084b..b94a194 100644
-> --- a/net/smc/smc_inet.c
-> +++ b/net/smc/smc_inet.c
-> @@ -15,13 +15,16 @@
->  
->  #include "smc_inet.h"
->  #include "smc.h"
-> +#include "smc_close.h"
->  
->  static int smc_inet_init_sock(struct sock *sk);
-> +static void smc_inet_destroy_sock(struct sock *sk);
->  
->  static struct proto smc_inet_prot = {
->  	.name		= "INET_SMC",
->  	.owner		= THIS_MODULE,
->  	.init		= smc_inet_init_sock,
-> +	.destroy	= smc_inet_destroy_sock,
->  	.hash		= smc_hash_sk,
->  	.unhash		= smc_unhash_sk,
->  	.release_cb	= smc_release_cb,
-> @@ -68,6 +71,7 @@ static struct proto smc_inet6_prot = {
->  	.name		= "INET6_SMC",
->  	.owner		= THIS_MODULE,
->  	.init		= smc_inet_init_sock,
-> +	.destroy	= smc_inet_destroy_sock,
->  	.hash		= smc_hash_sk,
->  	.unhash		= smc_unhash_sk,
->  	.release_cb	= smc_release_cb,
-> @@ -109,6 +113,14 @@ static struct inet_protosw smc_inet6_protosw = {
->  static int smc_inet_init_sock(struct sock *sk)
->  {
->  	struct net *net = sock_net(sk);
-> +	struct smc_sock *smc = smc_sk(sk);
-> +
-> +	/*
-> +	 * The smc_sock slab is SLAB_TYPESAFE_BY_RCU and recycled objects
-> +	 * are not zeroed. .destroy may run even if .init never completed,
-> +	 * so make sure smc_clcsock_release() sees a valid clcsock.
-> +	 */
-> +	smc->clcsock = NULL;
->  
->  	/* init common smc sock */
->  	smc_sk_init(net, sk, IPPROTO_SMC);
-> @@ -116,6 +128,17 @@ static int smc_inet_init_sock(struct sock *sk)
->  	return smc_create_clcsk(net, sk, sk->sk_family);
->  }
->  
-> +static void smc_inet_destroy_sock(struct sock *sk)
-> +{
-> +	/*
-> +	 * If inet_create()/inet6_create() fail after .init has created the
-> +	 * internal TCP sock (e.g. rejected by a cgroup BPF program),
-> +	 * sk_common_release() ends up here. Release the TCP sock, otherwise
-> +	 * it leaks on every failed IPPROTO_SMC socket() call.
-> +	 */
-> +	smc_clcsock_release(smc_sk(sk));
-> +}
-> +
->  int __init smc_inet_init(void)
->  {
->  	int rc;
+Shortly later the scheduler may terminate the task and removes it from the
+CPU. It again calls
 
-Thank you for fixing this.
-Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
+  PMU->stop()
+
+which results in two invocations of PMU->stop() called back to back.
+Protect against this and check the PERF_HES_STOPPED bit on function
+entry.  If it is already set return.
+Clear bit PERF_HES_STOPPED in PMU->start().
+
+ # Cc: stable@vger.kernel.org # v6.19+
+Fixes: ac03223f0723 ("s390/pai_crypto: Add common pai_stop() function")
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+---
+ arch/s390/kernel/perf_pai.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/arch/s390/kernel/perf_pai.c b/arch/s390/kernel/perf_pai.c
+index 1e5a1f1cc68a..f6790f658f21 100644
+--- a/arch/s390/kernel/perf_pai.c
++++ b/arch/s390/kernel/perf_pai.c
+@@ -484,6 +484,7 @@ static void pai_start(struct perf_event *event, int flags,
+ 			cpump->event = event;
+ 		}
+ 	}
++	event->hw.state &= ~PERF_HES_STOPPED;
+ }
+ 
+ static void paicrypt_start(struct perf_event *event, int flags)
+@@ -530,6 +531,13 @@ static void pai_stop(struct perf_event *event, int flags)
+ 	struct pai_mapptr *mp = this_cpu_ptr(pai_root[idx].mapptr);
+ 	struct pai_map *cpump = mp->mapptr;
+ 
++	/* Cope with multiple invocations:
++	 *   1. perf_event_throttle() --> PMU->stop()
++	 *   2. task schedules out --> PMU->stop()
++	 * Check for event already stopped.
++	 */
++	if (event->hw.state & PERF_HES_STOPPED)
++		return;
+ 	if (!event->attr.sample_period) {	/* Counting */
+ 		pai_pmu[idx].pmu->read(event);
+ 	} else {				/* Sampling */
+-- 
+2.55.0
+
