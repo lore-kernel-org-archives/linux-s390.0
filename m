@@ -1,164 +1,143 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EECE3EAC80;
-	Thu, 13 Aug 2026 05:32:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 361E9400DE8;
+	Thu, 13 Aug 2026 05:44:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786599155; cv=none; b=kCiu/a12jZErOffYRKmcPQACC1nFZ6aMax9rnYcY+6OIdVBEj4M47hO0fZga5p4x7/XypMj/esu6ukopfYY5UAFVD+a5C2rG8KMC09T+z/vs+fVbppKqDHnJPHSIFYhT/wRDkagZp8JO7lngF4HJRkfC7S0Flb6pLmsB6v8XUBU=
+	t=1786599894; cv=none; b=ltGhZwXZpS78/rC/dHbOOToEb21l7Whm1mmeCdfoE3k6pbMtNegXKCl3+BokvkuK4VJkKJoJYjCyKvxutkBhE605rXwALpVFwEAmL/ccxxrNzVNDFAJ7lrms54f86LMP0d4dO4zqntRikgCQGlkoMW2+eMe1qAf7+tF2hPQdJOI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786599155; c=relaxed/simple;
-	bh=PDLcwSnTv7PhVg76Tv5W2zcVBlxbUbLw7dv4p4yTRYQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=KJnTzMdSBHjRHzWaJZy0U22c3d0pF4uHIwdDXVGAZ25iQcqLdrxbWTPee+SktNnLR5sd7c3LO/W0b41XBI54vVmuT7AGg2ojutY5opwtbYAFUPlXaPtzLyQaUXN4uVGrJvVp0CcNjOenhdw1nvIVOVCowHSv+7Z3/AF2JMcFIUE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QzMCM7a7; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786599894; c=relaxed/simple;
+	bh=CoIN6guADWC+zDyPfhFO/S+t2cXcLfG3khdmtOUCkug=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=BVdesQZ/TzBZ1q3Mlo4LY84aFvc977g5/4WSGEDFSsn2DKgD8kmAmdQX7rKH+Flbs6oQ9TBBzxNnQv9nnjhpCgXuGlMpj3ypLdW1VXupMcEn34Zg7O57fhrGlLLUVmW6ujXKLtTisFN4S/jOGy+H4Os5owtys4KoK8sWfqo5WYY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=anxqrjk0; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QzMCM7a7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE4C71F000E9;
-	Thu, 13 Aug 2026 05:32:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786599150;
-	bh=Q7+1TgLjh64mc8wlI/+wRCUp/0uoB/o0TuwaP6ybUds=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=QzMCM7a7UPs+Up9SpbK9AGgUKNnJcq7JtJt2BxrN8xxedAYAC26wz140VuaR0ttCj
-	 WX0GXl6z9TOj1EBKf+69He9/9QCoTVnrFPKfCLybSPeVU41AxLSKWLoWH2sQ7Znjcl
-	 ScXog++R46Zku5P3HOzNfxdmnmW1RiX6j3Vhxcj5eDDHF8iHqZUAPIX4zAvuvzNPFv
-	 jc6a4ZURfR+w3exZGHROC5GXfdZs9mTmZ5olvt6Wak1wNuVVexb84hpqHJIDbrsLie
-	 HM5+LxMP45QmHLKFLcJCalkAYC2VyoVEAvEe+uOAp8up12PqmH0i/tC4Ji4cAc3zv6
-	 bO8Gu75D+lRQg==
-X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [RFC PATCH] dma: swiotlb: Size shared default pools for memory
- encryption
-In-Reply-To: <anysnQFVTO_RAYxp@arm.com>
-References: <20260811134056.756015-1-aneesh.kumar@kernel.org>
- <anxEc8EHmJQywVI5@arm.com> <yq5ajypvioks.fsf@kernel.org>
- <anysnQFVTO_RAYxp@arm.com>
-Date: Thu, 13 Aug 2026 11:02:17 +0530
-Message-ID: <yq5aecg2io0u.fsf@kernel.org>
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="anxqrjk0"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 708381516;
+	Wed, 12 Aug 2026 22:44:47 -0700 (PDT)
+Received: from localhost (a085714.arm.com [10.164.19.28])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A22393F673;
+	Wed, 12 Aug 2026 22:44:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1786599891; bh=CoIN6guADWC+zDyPfhFO/S+t2cXcLfG3khdmtOUCkug=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=anxqrjk0iLjQHV3BgBtB7FofiyVfbzxU/TOQyrqfHVrE3KY34mv1wfvSAdfZk8k+b
+	 NqfdwWG4Em+MP9I5C6wmSIbC3ZhVt828UvY5voXcU42QX/ayulcSospBc/5SlZ/BEt
+	 dTzsVhGl1W0qDqm43doqgOf533QinHxqjz/j8G+o=
+Date: Thu, 13 Aug 2026 11:14:48 +0530
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: linux-mm@kvack.org, akpm@linux-foundation.org, 
+	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, 
+	WANG Xuerui <kernel@xen0n.name>, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, 
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
+	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-um@lists.infradead.org, linux-arch@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [RFC V2 4/6] sh/mm: Stop using [p4d|pud|pmd]_ERROR()
+Message-ID: <3bruvrvxg5blgzuhqg2f27yvfjvvsycx6lmt3jcianvpuqcs5n@zdgzfhmmhvom>
+References: <20260811042119.3652929-1-anshuman.khandual@arm.com>
+ <20260811042119.3652929-5-anshuman.khandual@arm.com>
+ <94b52871-9cfc-42d6-b30f-545b722e71a0@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <94b52871-9cfc-42d6-b30f-545b722e71a0@kernel.org>
 
-Catalin Marinas <catalin.marinas@arm.com> writes:
+On Wed, Aug 12, 2026 at 01:21:28PM +0200, David Hildenbrand (Arm) wrote:
+> On 8/11/26 06:21, Anshuman Khandual wrote:
+> > Stop using [p4d|pud|pmd]_ERROR() in __get_pte_phys() as the pgtable entries
+> > are known to be NULL and hence could not really be accessed.
+> > 
+> > Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> > Cc: Rich Felker <dalias@libc.org>
+> > Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+> > Cc: linux-sh@vger.kernel.org
+> > Cc: linux-kernel@vger.kernel.org
+> > Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+> > ---
+> >  arch/sh/mm/init.c | 12 +++---------
+> >  1 file changed, 3 insertions(+), 9 deletions(-)
+> > 
+> > diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
+> > index b3c7fd84ceb4..0bb8555568a4 100644
+> > --- a/arch/sh/mm/init.c
+> > +++ b/arch/sh/mm/init.c
+> > @@ -58,22 +58,16 @@ static pte_t *__get_pte_phys(unsigned long addr)
+> >  	}
+> >  
+> >  	p4d = p4d_alloc(NULL, pgd, addr);
+> > -	if (unlikely(!p4d)) {
+> > -		p4d_ERROR(*p4d);
+> > +	if (unlikely(!p4d))
+> >  		return NULL;
+> > -	}
+> >  
+> >  	pud = pud_alloc(NULL, p4d, addr);
+> > -	if (unlikely(!pud)) {
+> > -		pud_ERROR(*pud);
+> > +	if (unlikely(!pud))
+> >  		return NULL;
+> > -	}
+> >  
+> >  	pmd = pmd_alloc(NULL, pud, addr);
+> > -	if (unlikely(!pmd)) {
+> > -		pmd_ERROR(*pmd);
+> > +	if (unlikely(!pmd))
+> >  		return NULL;
+> > -	}
+> >  
+> >  	return pte_offset_kernel(pmd, addr);
+> >  }
+> 
+> Do we want to print an error like "allocating p4d table failed"?
 
-> On Wed, Aug 12, 2026 at 04:38:03PM +0530, Aneesh Kumar K.V wrote:
->> Catalin Marinas <catalin.marinas@arm.com> writes:
->> > On Tue, Aug 11, 2026 at 07:10:56PM +0530, Aneesh Kumar K.V (Arm) wrote:
->> >> Systems with memory encryption use swiotlb to provide shared or
->> >> unencrypted buffers for device DMA. Confidential guests may route all
->> >> DMA through these buffers, while SME hosts use them for devices that
->> >> cannot address encrypted memory. The default swiotlb pool can therefore
->> >> be exhausted under I/O-intensive workloads.
->> >> 
->> >> Let architectures mark the default swiotlb pool as shared before
->> >> swiotlb_init().
->> >
->> > I thought we wanted even this decision to be moved out of the arch code.
->> 
->> Architectures may want to use an unencrypted swiotlb pool for different
->> reasons, one of them being CC_ATTR_GUEST_MEM_ENCRYPT. x86 hosts also
->> require unencrypted pool to support SME. We can cover both cases using
->> CC_ATTR_MEM_ENCRYPT.
->
-> Yes but in one case it did not do resizing. With your proposal, it now
-> does swiotlb resizing even for SME.
->
+Sure, will add error prints like the following.
 
-Isn't that a bug with x86 SME? I would expect both SME and SEV to
-require that swiotlb resize.
+--- a/arch/sh/mm/init.c
++++ b/arch/sh/mm/init.c
+@@ -56,16 +56,22 @@ static pte_t *__get_pte_phys(unsigned long addr)
+                return NULL;
 
+        p4d = p4d_alloc(NULL, pgd, addr);
+-       if (unlikely(!p4d))
++       if (unlikely(!p4d)) {
++               pr_err("allocating p4d table failed\n");
+                return NULL;
++       }
 
->
->> However, pKVM does not want an unencrypted SWIOTLB
->> pool. So I was thinking it would be much cleaner to let the architecture
->> code drive that decision.
->
-> Let's not single out pKVM but rather the reason it does not want one -
-> it relies heavily on restricted mem. If you started a pKVM guest
-> without rmem in DT, I assume it will need swiotlb to function properly.
-> It's not a great heuristic (devices may not use rmem) but it preserves
-> the current behaviour and can be overridden on the command line.
->
->> > BTW, why does arm64 report CC_ATTR_MEM_ENCRYPT instead of the GUEST
->> > option in realms?
+        pud = pud_alloc(NULL, p4d, addr);
+-       if (unlikely(!pud))
++       if (unlikely(!pud)) {
++               pr_err("allocating pud table failed\n");
+                return NULL;
++       }
 
+        pmd = pmd_alloc(NULL, pud, addr);
+-       if (unlikely(!pmd))
++       if (unlikely(!pmd)) {
++               pr_err("allocating pmd table failed\n");
+                return NULL;
++       }
 
-This is getting fixed in  
-https://lore.kernel.org/all/20260701054926.825925-9-aneesh.kumar@kernel.org/
+        return pte_offset_kernel(pmd, addr);
+ }
 
->
-> It's still not clear to me why we went for CC_ATTR_MEM_ENCRYPT instead
-> of CC_ATTR_GUEST_MEM_ENCRYPT.
->
-
-This is done for x86 to handle SME. SME also requires an unencrypted
-swiotlb pool
-
->
->> For the same reason I mentioned above, architectures may have different
->> reasons for setting cc_shared = true. IMHO, it is cleaner to let the
->> architecture code make that decision before swiotlb_init().
->
-> The arch code already reports cc_platform_has(), can we not rely on
-> this in the core code instead of specific is_realm_world() and a new
-> SWIOTLB_INIT_CC_SHARED flag or function call?
->
-> We have three different decisions that shouldn't be driven by a single
-> flag from the arch code:
->
-> 1. allocate default pool
-> 2. make default pool shared
-> 3. resize default pool
->
-> (1) is traditionally driven by arch code and that's fine. For (2), the
-> core code has the information via CC_ATTR_*. For (3), we can enlarge it
-> based on CC_ATTR_GUEST_MEM_ENCRYPT in combination with rmem (but not
-> CC_ATTR_MEM_ENCRYPT to keep the current x86 behaviour).
->
-
-Okay, if the presence of restricted-dma-pool is taken as a hint, we can
-definitely move that to generic code.
-
-I still think not resizing the swiotlb pool on the host for SME is an
-x86 bug. However, I'll keep it compatible with the current behavior and
-use CC_ATTR_GUEST_MEM_ENCRYPT for now. We can handle host SME in a
-separate patch if needed.
-
->
-> I think we should also move the reduction based on
-> CONFIG_DMA_BOUNCE_UNALIGNED_KMALLOC into the core code. Riscv copied the
-> same heuristic as arm64, so there's precedent for sharing.
-
-I already have a patch doing that.
-
--aneesh
+> 
+> Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
+> 
+> -- 
+> Cheers,
+> 
+> David
