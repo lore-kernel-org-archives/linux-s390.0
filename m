@@ -1,87 +1,63 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D5D0329E55;
-	Thu, 13 Aug 2026 23:03:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F773330301;
+	Thu, 13 Aug 2026 23:08:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786662200; cv=none; b=VoeaEATh7xWFxARogAFOEtIg/IbOciC1IaMQ2sNWxPDgFxAtCQySgjS/On7gQJx+XloPkgZjMkEMrd3uRkP3CNObJLbpjSbzLbZlR7E9tIJayIA1zDsdnwy9R61VUyJrwVKzRhy9q2MV1eyDBWcBuclxJsP77KERUMop4fvHx58=
+	t=1786662485; cv=none; b=iu5suQcAvrEK7D09Td0GyxpGae0kHa3Lj4W1NifjGdTRzdpKLi5NKykNv1sBRBL/bAskwmRzN+VvcA6Ap0NsIYMaw9uRtgju9W0NHS9dKwmaEHAoKfxMTuXROBzKGu6pnTVXzC7KtRYrVTp9U52IX+vaM5B7e0RG7mUhBrLlKzk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786662200; c=relaxed/simple;
-	bh=syMWGcz+ujfjAPeME/DLpnRtK21TSryRpQr2l5yVB/U=;
+	s=arc-20240116; t=1786662485; c=relaxed/simple;
+	bh=/WDdnGUJXBqqZqovujSnoIXubkHCv+sfY0h4Mw7+dtg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=im4UF4c8MIFKgr6RGbfDxnrDv+dRH0+8Msgd+ZGZKlFduSF5sGSb1xRLy296q0h3au3Ag7JzivtWo3FlpvgseM4b6JRjlHcb5wDZx+O098Vra/OleB11GVKGsTmlBZTYuq5lN35+JXYpMASfgj9868bMpV/x/dRbx7/bS93x/ms=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ba4QfRiK; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=qw1xUyPmyKM7aWTGT4Wrbl5haOb9+dlYA9qELQU+ek/I9kX0W0jFwAv3j4XE5G9aXviMLHQEU68lEkCLSPzEnv1gdtDw7D6yi8mqy9AY/4WIW3YJ7y9uU5iyiH9OBTNeLkKF7AAyBGrUeI+jY+u0Sy8Y0ZIOoH6hMbTEiv1JRVU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ly8NUml/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ba4QfRiK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A87491F000E9;
-	Thu, 13 Aug 2026 23:03:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ly8NUml/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68AD31F000E9;
+	Thu, 13 Aug 2026 23:08:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786662199;
-	bh=bVtGflV63UhwOhybQadQ9fVabzrwDdQSHBSTFq57zFY=;
+	s=k20260515; t=1786662483;
+	bh=/WDdnGUJXBqqZqovujSnoIXubkHCv+sfY0h4Mw7+dtg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ba4QfRiKp2IwE/G80O1GIPCrJg049MnivMt66il2UzmQSP+pR6rHwmZkJ1KFfcs+Z
-	 nwkDl7+DxCNBhHr4gTcx+FVNnXXaHqxGw/kMZHgm0fkboEj/eCt9R6bgAr81ZzeX5v
-	 NiB8Mtw8DjVeicW7VsokQ6FTBgz3nVr0gKS9hgT7iPtLx+1iC+ZtJqiJmqiz4vZAcq
-	 Yjt1elHrvL+ugKmyaw+lwmC1qGnFJMv1yAGt+3pKwHMmka45924hxnOTm4jY11O99U
-	 fZqjP/FyJvJ+DKlNZa9wB6H1BjuBlrPENK5bJILMwLRNuKrQO+4RnwDw/n1ZEcbXAl
-	 XUAxwY3ZLbw8A==
+	b=ly8NUml/qxbwzwPGb4I5ii/dBr4Xn1Qr+3DmYx/5Oq7vtBF95nk0j49JmTssUT2yP
+	 5Fyyr7E5g+R9q5oG+aCPiJ2u6d5CAegEbkFWb7yPqfIw8GhgBwmuvlhTfTiWZzZVDH
+	 HBHuOpNM3yheAmFbCVIcfud5ovhZHCuSyXG9/oSrfAUrMQxJxkD56B7vgc3E2a0lEr
+	 c3ZdzGSN5glir+UYkTsuHMoP2IQgxd00h2jvc3/TZKqW8nkhFPVMWzRt0VrpkLw2yG
+	 PE0ZYh0Wmod1T/xwhbjqCDeSb/fmblCBhqZLoIZhn1iRuUPy4jpzA6qyW/tPGgYysQ
+	 78BhjLMT8jHIw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 05/28] xor: move to lib/raid/
+Subject: Re: [PATCH v3 9/9] KVM: s390: Fix KVM_S390_VCPU_FAULT ioctl
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Christoph Hellwig" <hch@lst.de>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, linux-raid@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, dsterba@suse.cz, yukuai@fygo.io, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.vom>
-In-Reply-To: <20260327061704.3707577-6-hch@lst.de>
-References: <20260327061704.3707577-6-hch@lst.de>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.vom>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260324174301.232921-10-imbrenda@linux.ibm.com>
+References: <20260324174301.232921-10-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 13 Aug 2026 23:03:13 +0000
-Message-Id: <20260813230318.A87491F000E9@smtp.kernel.org>
+Date: Thu, 13 Aug 2026 23:08:02 +0000
+Message-Id: <20260813230803.68AD31F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] The MAINTAINERS file was not updated to reflect the new location of=
- the RAID XOR core code.
---
+> A previous commit changed the behaviour of the KVM_S390_VCPU_FAULT
+> ioctl. The current (wrong) implementation will trigger a guest
+> addressing exception if the requested address lies outside of a
+> memslot, unless the VM is UCONTROL.
+>=20
+> Restore the previous behaviour by open coding the fault-in logic.
+>=20
+> Fixes: 3762e905ec2e ("KVM: s390: use __kvm_faultin_pfn()")
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
---- Patch [5]: [PATCH 05/28] xor: move to lib/raid/ ---
-commit 521ed07e83a1bf1233d2291dd851539fa8fc5883
-Author: Christoph Hellwig <hch@lst.de>
-
-xor: move to lib/raid/
-
-Move the RAID XOR code to lib/raid/ as it has nothing to do with the
-crypto API.
-
-[ ... ]
-
-> diff --git a/crypto/xor.c b/lib/raid/xor/xor-core.c
-> similarity index 100%
-> rename from crypto/xor.c
-> rename to lib/raid/xor/xor-core.c
-
-[Severity: Low]
-Should the MAINTAINERS file be updated to include the new directory?
-
-Looking at the SOFTWARE RAID (Multiple Disks) SUPPORT section in MAINTAINER=
-S,
-it currently includes:
-
-F:	include/uapi/linux/raid/
-F:	lib/raid6/
-
-The new lib/raid/xor/ directory is not covered by any maintainer entry. This
-omission will cause scripts/get_maintainer.pl to fail to route future patch=
-es
-touching these files to the appropriate subsystem maintainers.
+Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260327061704.3707=
-577-1-hch@lst.de?part=3D5
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260324174301.2329=
+21-1-imbrenda@linux.ibm.com?part=3D9
+
