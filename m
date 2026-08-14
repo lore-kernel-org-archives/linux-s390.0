@@ -1,34 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48D4548094C;
-	Fri, 14 Aug 2026 15:29:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1148F47DFB0;
+	Fri, 14 Aug 2026 15:29:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786721376; cv=none; b=JcKMebLM3ihc8A7qHvc10uko1M3v6CHdTfW7qdNNFHL+vX5wMx5uWgbOPs2WZpdJ+HGRWAWj9xt/VBsrYYmt4HFcJjxTpt740NZ9yHywiNUWWsiDk7yfEmUUgUHWw6qFY4qTV2mUMsJLxvDGkK1ONQrdAcesoaJBr0ejNaV0Z9c=
+	t=1786721379; cv=none; b=hytQv9qGqZFUpOLm1DW0xfuXKP3/aGrUHERdYNcck2kHNkm8Nhm1aY1T6cZ+fytxWmUqb1nIihkutI14pXin2TkD4AZD2RAqnzCQJQEt4Q/YA4UKkDRkWCvbxB0h3VnnomNzQEwPSZE9gq1Rto6NuWs+aBSAM9dVjv4JnGUXBtk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786721376; c=relaxed/simple;
-	bh=ScjQCmJqu66W5maE8eMUSbpYSWVqT/TO89ycN7X6uU4=;
+	s=arc-20240116; t=1786721379; c=relaxed/simple;
+	bh=KZt42RcI2xZOV6ZL4xNzHGcUviEo1o5J+l+Mdce427o=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=u7+Bt13UsmwakuNlVDsU+/l4SZobraf8dcml9G9OH26vLY9om4jqQZl8fGDStwZSbjVP6pLexkFJxAyLuEETxZ49mddW9LEZgelHgttCkepxpgo6IswSbH7mSw7zTsGGOwyCu5N2L3vQmOaSfsbUWEa87ccVeufq3CZkW0TnSXM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mykojCV4; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=ZG896zWZbODJRzl8kC85T83IlJEpBzVBdT0aTxIVNFWjwiRJHnj8kv4XCECSPfJyqPqmeW+BTuqZhJFgUjwzosOAU7I0kELiX4PCRKrjzaS646RzvB+HdTu79Aq8uJOyhBOQ/gBUumRgFoaEU7/K2tbC8EchY5GO5nh1mt4DS40=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SQYinDf8; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mykojCV4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30CD91F000E9;
-	Fri, 14 Aug 2026 15:29:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SQYinDf8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 026D31F00A3A;
+	Fri, 14 Aug 2026 15:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786721374;
-	bh=Y3WFbhYTWczQCYOlTAjPPPmhWM8d8ALyu3lGu1XHIBs=;
+	s=k20260515; t=1786721377;
+	bh=eBlEuAoqOked/LKJu9mRAOEywcTF2CIu7f/dTPjyTCg=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=mykojCV41BnK/iJkPAguTL+RI2wDcQ1SD57YdKrUElibS4WSpDNQkBu8Lq6XGqMbH
-	 AJEDxQph7N0tUO1yZKMiCqSkemF85r/GGhbMYxb0aeE+KRQd39TMD9b+kvsRrnz5xt
-	 wKVJJaw8q6uX7xDp72PX21wYNvfErAR+O7dnDZ0OzAvuduZej9lnyatPlhJMF7U4gC
-	 B1RkD6dcmZTYgozHExhKtztI0OcvpGQ6vhBJbdhDZcNfLPR7II0LriCf4+DMxM4CrA
-	 qCECaLtdACBr6des5w3hCzwX8rPpHd1NgRUBGOKxQb9pPsAYLVzLCFrLcuijXBlTVg
-	 AXkAO1+ePa80Q==
+	b=SQYinDf84Qyd8J39yvDDkE+2yMa0qkyakiGRRmXf/fx0fg4kEyB3/sFc3snNGwS4a
+	 gZYSriilhL0IMm0YA0eTk+Fr6+tib5AjGC+psqwuOr58cPmjYAIuQzHxP0Ge6jse5c
+	 SYvbKj5F6GHpZyOthwjNwOz8ZbWANjEirhoY4Es1XYu7sKTCZsKE/pVkWklj/YJyCn
+	 1Kxbk35QjJ2mW8iRQFaDdfUyLz4khPYq4BpXf8zT3m4sYZxyiEfY2ONGzN2rFEwQDd
+	 9zml7Ja1+KceKUU1i9huNizcSLqzefA6V4HsIplKC9KeQgA7MEOtO96w4DwQS+9MES
+	 DZXezd2+lIsYw==
 From: Thierry Reding <thierry.reding@kernel.org>
-Date: Fri, 14 Aug 2026 17:29:09 +0200
-Subject: [PATCH v5 01/10] dt-bindings: reserved-memory: Document Tegra VPR
+Date: Fri, 14 Aug 2026 17:29:10 +0200
+Subject: [PATCH v5 02/10] dt-bindings: display: tegra: Document memory
+ regions
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,7 +38,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260814-tegra-vpr-v5-1-71832b5d0246@nvidia.com>
+Message-Id: <20260814-tegra-vpr-v5-2-71832b5d0246@nvidia.com>
 References: <20260814-tegra-vpr-v5-0-71832b5d0246@nvidia.com>
 In-Reply-To: <20260814-tegra-vpr-v5-0-71832b5d0246@nvidia.com>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -79,129 +80,124 @@ Cc: Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org,
  linux-mm@kvack.org, iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
  linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3632; i=treding@nvidia.com;
- h=from:subject:message-id; bh=lz5bdbUU9mR9/O2pGRVuSC+tGOj+4+d05JhFJg7QQcs=;
- b=owEBbQKS/ZANAwAKAd0jrNd/PrOhAcsmYgBqfzRX2YHaMFl/MMqaO8DjWshO3BEhug3DR5p3N
- KvPnok5eVqJAjMEAAEKAB0WIQSI6sMIAUnM98CNyJ/dI6zXfz6zoQUCan80VwAKCRDdI6zXfz6z
- oaazD/9psLx3MYjiBHriTuCoCIMM1/M4o4m1z3kY244q0OcagkN7WBcGKQQ8sh9qS9yPn+Wjokz
- lPnheeraE3S0jAjAs12Zaiqx68oWR3MPgzvELGc2Z5VDTmJKqBr/F4Rmy0fm6ImK3qS65Vdlkj9
- bTUd0elQ/+r1HMLfr0oQ9BRmq3LZ0L8ImlxOi929w5MzmELWrBp0TRsZSKcAj3t+CCEjPNpZkmH
- vSbyTz45epBGMEj8c243jPDCR8d40cQIGVy5aYb4Y1YTCIYEE2ih8UXQyvQTsuVHjEgtrB5tL6U
- Vxej6hfNTpYF1PUPWLZglt5aFbzaEqT/nyyCOYkCcrRKJq0Xi94XiEFr/sbYonwhYl85aG4jQ7m
- qoI9ScD34a2bjl+Ixnw7MsYZ7OARaXx53Ha29EDXM5r1P9s/EnQt7G/8Z4f/W1J1so7t4gQIuHK
- +J2bwazXCktsA1nG7wAsar1Cd6sQLebYKyqMKTvriFCxJUtJANWRhK1b96ytMINjHhxmibC3la8
- sSoFz2U45tFAt4BRLb0Yt+ZFOiXZBWemw+goe5l0uVCzkhCy+omPYPq8/35qiVRxl3OSYmA9RFE
- ZqKrsbrgwA6H6ASFWqT1cGW9trxnTVdQJt+oMnGqCpNb9XvLPFqTfxXw+SnkIar0ykHOLxHPdt/
- mwZmJ2pCIKIoSzw==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3649; i=treding@nvidia.com;
+ h=from:subject:message-id; bh=pBYGfO+OoRCfoGlySA1v5aSrpzUlJ6EhDp5j2u2Nips=;
+ b=owEBbQKS/ZANAwAKAd0jrNd/PrOhAcsmYgBqfzRXaRTeDiDu4YBKZoD7GNeMdeApLEEF/47+P
+ Qs7Dg4EFyCJAjMEAAEKAB0WIQSI6sMIAUnM98CNyJ/dI6zXfz6zoQUCan80VwAKCRDdI6zXfz6z
+ oUKBEACxEJAOL5zdS5PgXCqYYzzNGiLLXVhgFzk9U1eqr3vc0dKYuq2vq77WgkFBI5rq7KrvFNH
+ 9h3HArdCO4FtE5FqV3SMFXSGQgi45SAZ/XdBjP1goIG38+OdMbFWNyaOl9YPEvNDN1Yn7P9Xjvg
+ VrX6hTODGnRwC3W6pjviCz9yboRmRInlgIzCKkXCwYKMoH0Jru+o0ghVJ+EEuVUjG+92JbtTYRf
+ ISKuI3IJKNrZBVSEG7TmHBxpAbWMvPLrFyPR5GV1L8sQL/eR3VjObNlgyJ6fCXo66ArRvJXUoIn
+ 5JE4la8W3ApL+k4SCDAA9iSSdm5qpPhWD+xbbh5q57FsGCQliDaDBGt3j0iwRWrh5vboKT8Vy2L
+ iCnF1QDKpvsQgkZKor/kBAT0A+cS9EEvqyaPiVfnPr9MV4DM7rZLblI8afcRz+AlbF+SPprte76
+ InWAWIl0Y+51c4Sy6SDRSNjQfRxRTmP5DjmykikMD6ItCdY2igse1frokTOU9npaT0QZcLbuRiy
+ qEu5R3XiC+4VApabAOIRvpF2wKDaaBhtaUZuXb9C8A6fslgF/VvQUMsiI9R2P7+w3B5kxhUYgpa
+ rqyzS0AgP0wdt22bH0ObJuoXXTtOjm/ualj5F/PXaPsdAmBCavu2SzT89QueATL3Xdx8JV9IzeN
+ l2c2CdbqjX3XlyQ==
 X-Developer-Key: i=treding@nvidia.com; a=openpgp;
  fpr=88EAC3080149CCF7C08DC89FDD23ACD77F3EB3A1
 
 From: Thierry Reding <treding@nvidia.com>
 
-The Video Protection Region (VPR) found on NVIDIA Tegra chips is a
-region of memory that is protected from CPU accesses. It is used to
-decode and play back DRM protected content.
-
-It is a standard reserved memory region that can exist in two forms:
-static VPR where the base address and size are fixed (uses the "reg"
-property to describe the memory) and a resizable VPR where only the
-size is known upfront and the OS can allocate it wherever it can be
-accomodated.
+Add the memory-region and memory-region-names properties to the bindings
+for the display controllers and the host1x engine found on various Tegra
+generations. These memory regions are used to access firmware-provided
+framebuffer memory as well as the video protection region.
 
 Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
 Changes in v4:
-- move oneOf into allOf for a bit more tidiness
-- fix example "reg" property
+- typofix
 
 Changes in v3:
-- add examples for fixed and resizable VPR
+- document properties for VIC
 ---
- .../nvidia,tegra-video-protection-region.yaml      | 75 ++++++++++++++++++++++
- 1 file changed, 75 insertions(+)
+ .../devicetree/bindings/display/tegra/nvidia,tegra124-vic.yaml |  8 ++++++++
+ .../devicetree/bindings/display/tegra/nvidia,tegra186-dc.yaml  | 10 ++++++++++
+ .../devicetree/bindings/display/tegra/nvidia,tegra20-dc.yaml   | 10 +++++++++-
+ .../bindings/display/tegra/nvidia,tegra20-host1x.yaml          |  7 +++++++
+ 4 files changed, 34 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/reserved-memory/nvidia,tegra-video-protection-region.yaml b/Documentation/devicetree/bindings/reserved-memory/nvidia,tegra-video-protection-region.yaml
-new file mode 100644
-index 000000000000..862bfd391378
---- /dev/null
-+++ b/Documentation/devicetree/bindings/reserved-memory/nvidia,tegra-video-protection-region.yaml
-@@ -0,0 +1,75 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/reserved-memory/nvidia,tegra-video-protection-region.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra124-vic.yaml b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra124-vic.yaml
+index bdf981781bd5..fdd3fe9e2547 100644
+--- a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra124-vic.yaml
++++ b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra124-vic.yaml
+@@ -68,6 +68,14 @@ properties:
+       - const: dma-mem # read
+       - const: write
+ 
++  memory-region:
++    items:
++      - description: reference to the video protection memory region
 +
-+title: NVIDIA Tegra Video Protection Region (VPR)
++  memory-region-names:
++    items:
++      - const: protected
 +
-+maintainers:
-+  - Thierry Reding <thierry.reding@gmail.com>
-+  - Jon Hunter <jonathanh@nvidia.com>
+   dma-coherent: true
+ 
+ additionalProperties: false
+diff --git a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra186-dc.yaml b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra186-dc.yaml
+index ce4589466a18..881bfbf4764d 100644
+--- a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra186-dc.yaml
++++ b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra186-dc.yaml
+@@ -57,6 +57,16 @@ properties:
+       - const: dma-mem # read-0
+       - const: read-1
+ 
++  memory-region:
++    minItems: 1
++    maxItems: 2
 +
-+description: |
-+  NVIDIA Tegra chips have long supported a mechanism to protect a single,
-+  contiguous memory region from non-secure memory accesses. Typically this
-+  region is used for decoding and playback of DRM protected content. Various
-+  devices, such as the display controller and multimedia engines (video
-+  decoder) can access this region in a secure way. Access from the CPU is
-+  generally forbidden.
++  memory-region-names:
++    items:
++      enum: [ framebuffer, protected ]
++    minItems: 1
++    maxItems: 2
 +
-+  Two variants exist for VPR: one is fixed in both the base address and size,
-+  while the other is resizable. Fixed VPR can be described by just a "reg"
-+  property specifying the base address and size, whereas the resizable VPR
-+  is defined by a size/alignment pair of properties. For resizable VPR the
-+  memory is reusable by the rest of the system when it's unused for VPR and
-+  therefore the "reusable" property must be specified along with it. For a
-+  fixed VPR, the memory is permanently protected, and therefore it's not
-+  reusable and must also be marked as "no-map" to prevent any (including
-+  speculative) accesses to it.
+   nvidia,outputs:
+     description: A list of phandles of outputs that this display
+       controller can drive.
+diff --git a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-dc.yaml b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-dc.yaml
+index 69be95afd562..3bf06dcd6198 100644
+--- a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-dc.yaml
++++ b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-dc.yaml
+@@ -65,7 +65,15 @@ properties:
+     items:
+       - description: phandle to the core power domain
+ 
+-  memory-region: true
++  memory-region:
++    minItems: 1
++    maxItems: 2
 +
-+allOf:
-+  - $ref: reserved-memory.yaml
-+  - oneOf:
-+      - required:
-+          - compatible
-+          - reg
++  memory-region-names:
++    items:
++      enum: [ framebuffer, protected ]
++    minItems: 1
++    maxItems: 2
+ 
+   nvidia,head:
+     $ref: /schemas/types.yaml#/definitions/uint32
+diff --git a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.yaml b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.yaml
+index 8312b7699cbe..420a1fe5ee80 100644
+--- a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.yaml
++++ b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.yaml
+@@ -98,6 +98,13 @@ properties:
+     items:
+       - description: phandle to the HEG or core power domain
+ 
++  memory-region:
++    maxItems: 1
 +
-+      - required:
-+          - compatible
-+          - size
++  memory-region-names:
++    items:
++      - const: protected
 +
-+properties:
-+  compatible:
-+    const: nvidia,tegra-video-protection-region
-+
-+dependencies:
-+  size: [alignment, reusable]
-+  alignment: [size, reusable]
-+  reusable: [alignment, size]
-+
-+  reg: [no-map]
-+  no-map: [reg]
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    /* resizable VPR */
-+    protected {
-+      compatible = "nvidia,tegra-video-protection-region";
-+
-+      size = <0x0 0x70000000>;
-+      alignment = <0x0 0x100000>;
-+      reusable;
-+    };
-+
-+  - |
-+    /* fixed VPR */
-+    protected@a8000000 {
-+      compatible = "nvidia,tegra-video-protection-region";
-+
-+      /* fixed VPR */
-+      reg = <0xa8000000 0x70000000>;
-+      no-map;
-+    };
+ required:
+   - compatible
+   - interrupts
 
 -- 
 2.55.0
