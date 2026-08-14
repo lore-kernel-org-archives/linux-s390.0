@@ -1,209 +1,686 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8102642DFEA;
-	Fri, 14 Aug 2026 08:47:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03DE64570E2;
+	Fri, 14 Aug 2026 09:01:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786697260; cv=none; b=YmLlt8YhTQXpj5rIoKA49YM0dRkeEdOuaUgB2hJUyWSjvBBX/5rvtf6SUK9tLjr1W5Dxauh7pih0QaoKdU7ipjAOxqiYtM/xOUrDHIztJ0VYYHtraBQkA++PCiRlj+it67QAxbaHK3roU9siog0qUY/EBGCNuQFEZ5JH83hqk8k=
+	t=1786698111; cv=none; b=WMCpJMdfsuPV23h84IAkHMK2YsM/Hu6M9+rZz6nG2v91ZCaP2++9KJ1y9lA+Z6TkNmrBpRdaeF3sOvptMzgFHYylHKfDMNy5+U/BKK1U2PfC1rybiZ+SAUIw1QJdw9UW5vsKdm1erV0QqAKz/FFL3xDMkKk909jAx0ruOvAqZeM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786697260; c=relaxed/simple;
-	bh=FwhyIi628vNyQpC4YtXQXcKHt3ZMQSGC8sNJ7RfYS1M=;
-	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=Jy53/XR2aI+0xXXHtDoD7hNu57vL7+xOeQnJYOY70ZjCh/tSaQowk+fNlkAufLy72oP2SmccQ1yV5CNW+uLEdhsLLXPfnCZj32QBMiQ1YZUX1lAWJCjkbA/kQnoY5T7I5UMGwSzxE1hNlvciFFImNNg5KJyBhYj8zurHQGnZt2U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eHWkM7M/; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786698111; c=relaxed/simple;
+	bh=wQrEP4bSx4dqyhek7y3hPgAetuoW2yvsShjKH7dz/t0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Lyy21qjw/F09DR6Yga3QJxeIYqxtntoAmiyOB/o6LduxLUfT/eNYZY7+qly5qJbhA/zyix1mn2Yo+6jwUbQpmUiu+TbgiUwufhUgk7xPJn3GFcML/pDCBscjh20WdS6mV3BkBHf3CF003qNkFWFmTbyZodmvP00VqZRFTvh7uT8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eE2MY0m3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eHWkM7M/"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67E81dFT2902168;
-	Fri, 14 Aug 2026 08:47:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=9q2/RW
-	eDUjCi2EhMLkRX7e7VEodIhYTNN32xkNKSfyU=; b=eHWkM7M/mKvGKzDvSwzglx
-	SChoNhzWw91rqpujKpgmW0bjMF6hoGvJmbhXq+F14SV1RIfMfWiaSpoVkooMMMb6
-	+nJs4ESiRQMfU0mI+5wTbR4INDLyVOXOOzOfSRxEIg6QU4CrxKOs7y8GVGidXMWw
-	NMxcHaeH89couUyXVr9SY15mFXIHuxATfamqrzQY7zq7ZnbYlZQXqsXP5E7ZESFm
-	tGIlYZn3BYy5/DyBIWuUFalDz/CbhKDaX96uQ//cD0cqRyvsQjD6yTwIOsPXVXxj
-	sUqrCyChZvxHBPrGODvPyHprwkh4ksUOztxT+oxacraQvr64ZbOZYved4ldzgkuQ
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvk0by8y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 14 Aug 2026 08:47:33 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67E8fSvl006726;
-	Fri, 14 Aug 2026 08:47:32 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxh0gpg0r-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 14 Aug 2026 08:47:32 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67E8lVIh29033120
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 14 Aug 2026 08:47:31 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 37D075804E;
-	Fri, 14 Aug 2026 08:47:31 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4FCE558054;
-	Fri, 14 Aug 2026 08:47:29 +0000 (GMT)
-Received: from [9.111.8.241] (unknown [9.111.8.241])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 14 Aug 2026 08:47:29 +0000 (GMT)
-Message-ID: <c89ca6f9d0a996ab75c47cb62c57c50635a700bc.camel@linux.ibm.com>
-Subject: Re: [PATCH v23 2/5] PCI: Allow per function PCI slots to fix slot
- reset on s390
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Bjorn Helgaas <helgaas@kernel.org>, Farhan Ali <alifm@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org, alex@shazbot.org, mjrosato@linux.ibm.com,
-        stable@vger.kernel.org
-In-Reply-To: <20260813232546.GA1281281@bhelgaas>
-References: <20260813232546.GA1281281@bhelgaas>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 14 Aug 2026 10:46:28 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eE2MY0m3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE3461F000E9;
+	Fri, 14 Aug 2026 09:01:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786698109;
+	bh=aREJLXh0wxbb3nZihaVcXk40V52DY2xFz9pCSGYdLS4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=eE2MY0m32hJuAJFYme4vl6xadaHzNlx7iLEI2wSMiAd21SBP1eIWzPN+U5ISusgwy
+	 e/zxJKt4nezf6hE84mGfy0ZuybyP5UzegNNYXZ6BT9AzK7D0U6vOHfr2c1c6hIRMPS
+	 hT3bJaqpWyiCoaHEOaniC/rjigruTHbqpB21Pi/vv5QZaoFe4al/YHR19FLVcfX2Iw
+	 w6qfg7IMnwxe+YgpsxnEtiyH23zTEqpx7WJt3me3gGySq0b6/j1GJ7j/6sWlwZv5nz
+	 xxa0Kmn9MSnM0G+mBgUABW2FutzhEQM/cqUucU+HFsP10hCYBDEdRpuV0ZaFY8GRRP
+	 2kvAB58Y2ieIQ==
+Date: Fri, 14 Aug 2026 10:01:19 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: David Hildenbrand <david@kernel.org>, 
+	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Miaohe Lin <linmiaohe@huawei.com>, 
+	Naoya Horiguchi <nao.horiguchi@gmail.com>, Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, 
+	Lance Yang <lance.yang@linux.dev>, Kees Cook <kees@kernel.org>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>, 
+	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+	Usama Arif <usama.arif@linux.dev>, Matthew Brost <matthew.brost@intel.com>, 
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
+	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
+	Alistair Popple <apopple@nvidia.com>, Peter Xu <peterx@redhat.com>, Xu Xin <xu.xin16@zte.com.cn>, 
+	Chengming Zhou <chengming.zhou@linux.dev>, Arnd Bergmann <arnd@arndb.de>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Alex Deucher <alexander.deucher@amd.com>, 
+	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Boris Brezillon <boris.brezillon@collabora.com>, Steven Price <steven.price@arm.com>, 
+	Liviu Dudau <liviu.dudau@arm.com>, Huang Rui <ray.huang@amd.com>, 
+	Matthew Auld <matthew.auld@intel.com>, 
+	Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, 
+	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
+	Mark Rutland <mark.rutland@arm.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
+	Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>, 
+	Adrian Hunter <adrian.hunter@intel.com>, James Clark <james.clark@linaro.org>, 
+	Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>, 
+	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, Chris Li <chrisl@kernel.org>, 
+	Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, 
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
+	Youngjun Park <youngjun.park@lge.com>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-kselftest@vger.kernel.org, kvm@vger.kernel.org, 
+	linux-s390@vger.kernel.org, amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
+	intel-xe@lists.freedesktop.org, linux-perf-users@vger.kernel.org, 
+	linux-trace-kernel@vger.kernel.org, syzbot@syzkaller.appspotmail.com
+Subject: Re: [PATCH v5 00/16] mm/rmap: index MAP_PRIVATE file-backed folios
+ by anonymous pgoff
+Message-ID: <an7SkamROquJ7If0@lucifer>
+References: <20260813-b4-scalable-cow-virt-pgoff-v5-0-c21581c0c3c8@kernel.org>
+ <20260813115346.2aaad419a351341a4f5f3ae0@linux-foundation.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE0MDA2NSBTYWx0ZWRfX8EMhnPyJ2lid
- sT0RafpYJRDvyyCdWf7no/hF3Y7JTayH42RWRL8qsItPpK7JzTNzmwvMfpivxpqBaQOf7FF4MaB
- W0aWYX/uVfKAqHQ/9+uTzNJMh8OHE5kC5+4Msm/xRB+D0d+ff0awDVBFHjGluNlAWsSQyUmKqt1
- oGCxN2PEE5HC8pUSJNua9NNGmF3CewAUrS0K3k7KrVJIbsJBLdjocUX2oIXkSteCIloTtX/7j+y
- 4Qs2g9/J2dG0ognAy4cVbSydPVl3zrABneYFYX+G4SZHb427O+NPHVO6/wv5mqG/uhKWfXRFiHg
- h18Yg/9u/aOFyatnG8xcaeq6DJEht1pxZiQqjA1Es2LSdmudkPGHB3lpbNQtKTXGPlO5WFX8E6A
- a9iiwT+z64M+rFTJR1ogMp/KdKZ5u7F9qkKrdt9c70FNBloHN01hTp/BUGBasfhlf7t4ztZTeaK
- CD8VNsC/3yUngNew8kg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE0MDA2NSBTYWx0ZWRfX46vOIuNx7CKM
- StodyB6m6JsAuIfOXTyPJed3Iwa8kfqLUIy39eKuFc2S5VkmhIJymVNhVhaGwkLjRBz+7TRdg4O
- tf8/WNprYHhNcA2KCbEd8P0UZXfx8HM=
-X-Authority-Analysis: v=2.4 cv=RqD16imK c=1 sm=1 tr=0 ts=6a7ed625 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=kwLUSTLGlh9Pi2POkq4A:9
- a=QEXdDO2ut3YA:10 a=O8hF6Hzn-FEA:10
-X-Proofpoint-GUID: 2LMOONpX1V4ZES8ZNzjWI_AwGkp1AG2M
-X-Proofpoint-ORIG-GUID: 2LMOONpX1V4ZES8ZNzjWI_AwGkp1AG2M
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-14_03,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
- clxscore=1011 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608140065
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260813115346.2aaad419a351341a4f5f3ae0@linux-foundation.org>
 
-On Thu, 2026-08-13 at 18:25 -0500, Bjorn Helgaas wrote:
-> On Wed, Aug 05, 2026 at 09:55:15AM -0700, Farhan Ali wrote:
-> > On s390 systems, which use a machine level hypervisor, PCI devices are
-> > always accessed through a form of PCI pass-through which fundamentally
-> > operates on a per PCI function granularity. This is also reflected in t=
-he
-> > s390 PCI hotplug driver which creates hotplug slots for individual PCI
-> > functions. Its reset_slot() function, which is a wrapper for
-> > zpci_hot_reset_device(), thus also resets individual functions.
->=20
-> Sorry to come back to this yet again.  I understand the issue with
-> the wrong pci_slot being assigned for these s390 functions.
->=20
-> What I don't understand is why we would use slot_reset() in the first
-> place.  I would expect FLR instead.
->=20
-> The hotplug slot_reset() path is used by pci_reset_bus_function().
-> But given the order in pci_reset_fn_methods[], we would typically try
-> pcie_reset_flr() first, and we would only get to
-> pci_reset_bus_function() if FLR and the other resets are not
-> available.
->=20
-> Since these are actually multi-function devices, I'm surprised that
-> they wouldn't advertise FLR support.
->=20
+On Thu, Aug 13, 2026 at 11:53:46AM -0700, Andrew Morton wrote:
+> You'll be mortified to hear that Sashiko wasn't able to find anything
+> to which to apply this.
 
+:))
 
-Hi Bjorn,
+Well, when it's right it's useful, when it's wrong or suggesting unrelated
+what-nots it's less useful :>)
 
-Good question. The problem isn't that FLR isn't advertised or
-unsupported. Rather we end up needing to use the slot reset when the
-platform has put the PCI function in the architected error state which
-blocks both MMIO and DMA similar to DPC and which we can only get out
-of with the platform specific CLP Set PCI Function Disable/Enable
-hypercalls. FLR still works if you have a function that wasn't put in
-the error state but for most real world errors as well as some service
-scenarios we do end up in the error state where a FLR won't work.
+I do locally put things through claude + Chris Mason's prompts a lot, I
+don't always invoke local sashiko as it's very slow and token-heavy or has
+been so far, but am planning to do that more also in future.
 
-To give an example for a service scenario because it's pretty neat. We
-have up to 4 drawers of CPUs acting as a single SMP system as well as
-multiple I/O cages with the PCIe cards in them. Now each I/O cage is
-connected to two different PCIe root complexes on two different drawers
-with only one link active. So one thing we can do is to migrate all
-workload off a drawer and then swap over to the alternate root complex
-with a single error event and one such zpci_hot_reset_device(). Then
-with a CPU drawer evacuated you can actually replace CPUs without any
-downtime beyond that reset while staying within a single machine.
+>
+> Sashiko can be guided with a base-commit: tag but I'm not sure how to
+> tell it what tree/branch to try, or even if that's necessary.  Perhaps
+> someone can figure this out sometime.
 
-Thanks,
-Niklas
+b4 gives a base commit, but I think because the trees are rebased it ends
+up being the incorrect one.
+
+Not sure what the solution is!
+
+>
+> maybe
+>
+> hp2:/usr/src/linux-next> git log --oneline | grep "mm/vma: introduce VMA anon page offset field and add helpers"
+> 249646a587dc mm/vma: introduce VMA anon page offset field and add helpers
+>
+> base-commit: 249646a587dc^
+>
+> But that requires that Sashiko be able to poke around in linux-next
+> from previous days.
+>
+> > v5:
+> > * Accumulated tags (thanks everybody!)
+> > * Removed the final 4 patches to be handled later as there are nuances with
+> >   the /dev/zero stuff we need to figure out, as discussed with David.
+> > * Updated the cover letter to reflect this.
+> > * Added comments to vma_flags_is_cow_mapping(),
+> >   vma_[desc_]is_cow_mapping() as per Suren.
+> > * Correct typo as per Suren.
+> > * Reworded test comment in patch 16 from 'fault in' to 'trigger a CoW
+> >   fault' as per David.
+> > * Fix -> 75 char limit in patch 12's commit msg.
+>
+> Here's how v5 altered mm.git.  It's rather substantial, but mainly
+> selftests:
+
+Thanks for the diff, always useful!
+
+The noise it's mostly because of dropping the final 4 commits, and as you
+say mostly test stuff that will be sent with whichever approach we decide
+on for MAP_PRIVATE-/dev/zero in the next cycle.
+
+The actual changes elsewhere are rather trivial otherwise.
+
+What remains, targeting 2nd week of the merge window, is heavily tested +
+fully reviewed, so all is still very sane :)
+
+>
+>
+>  drivers/char/mem.c                                     |    8
+>  include/linux/mm.h                                     |   18 -
+>  include/linux/pagemap.h                                |    3
+>  mm/internal.h                                          |   17 -
+>  mm/vma.c                                               |   52 ----
+>  mm/vma.h                                               |    3
+>  mm/vma_internal.h                                      |    1
+>  tools/testing/selftests/mm/merge.c                     |  106 ----------
+>  tools/testing/selftests/proc/proc-self-map-files-001.c |    2
+>  tools/testing/selftests/proc/proc-self-map-files-002.c |    2
+>  tools/testing/vma/include/dup.h                        |   40 ---
+>  tools/testing/vma/tests/mmap.c                         |   50 ----
+>  12 files changed, 40 insertions(+), 262 deletions(-)
+>
+> --- a/drivers/char/mem.c~b
+> +++ a/drivers/char/mem.c
+> @@ -506,7 +506,11 @@ static int mmap_zero_prepare(struct vm_a
+>  	if (vma_desc_test(desc, VMA_SHARED_BIT))
+>  		return shmem_zero_setup_desc(desc);
+>
+> -	/* MAP_PRIVATE semantics are taken care for us by core mm. */
+> +	/*
+> +	 * This is a highly unique situation where we mark a MAP_PRIVATE mapping
+> +	 * of /dev/zero anonymous, despite it not being.
+> +	 */
+> +	vma_desc_set_anonymous(desc);
+>  	return 0;
+>  }
+>
+> @@ -694,7 +698,7 @@ static const struct memdev {
+>  #ifdef CONFIG_DEVPORT
+>  	[4] = { "port", &port_fops, 0, 0 },
+>  #endif
+> -	[DEVZERO_MINOR] = { "zero", &zero_fops, FMODE_NOWAIT, 0666 },
+> +	[5] = { "zero", &zero_fops, FMODE_NOWAIT, 0666 },
+>  	[7] = { "full", &full_fops, 0, 0666 },
+>  	[8] = { "random", &random_fops, FMODE_NOWAIT, 0666 },
+>  	[9] = { "urandom", &urandom_fops, FMODE_NOWAIT, 0666 },
+> --- a/include/linux/mm.h~b
+> +++ a/include/linux/mm.h
+> @@ -740,9 +740,6 @@ static inline bool fault_flag_allow_retr
+>  	{ FAULT_FLAG_INTERRUPTIBLE,	"INTERRUPTIBLE" }, \
+>  	{ FAULT_FLAG_VMA_LOCK,		"VMA_LOCK" }
+>
+> -/* /dev/zero minor device number. Special due to MAP_PRIVATE semantics. */
+> -#define DEVZERO_MINOR	5
+> -
+>  /*
+>   * vm_fault is filled by the pagefault handler and passed to the vma's
+>   * ->fault function. The vma's ->fault is responsible for returning a bitmask
+> @@ -1554,6 +1551,11 @@ static inline void vma_set_anonymous(str
+>  	vma->vm_ops = NULL;
+>  }
+>
+> +static inline void vma_desc_set_anonymous(struct vm_area_desc *desc)
+> +{
+> +	desc->vm_ops = NULL;
+> +}
+> +
+>  static inline bool vma_is_anonymous(const struct vm_area_struct *vma)
+>  {
+>  	return !vma->vm_ops;
+> @@ -2279,8 +2281,7 @@ void unpin_folios(struct folio **folios,
+>   * All mappings backed by anonymous folios (all anonymous mappings and most
+>   * MAP_PRIVATE-file backed ranges) are CoW mappings.
+>   *
+> - * All other mappings (including all writable MAP_SHARED mappings) are
+> - * non-CoW.
+> + * All other mappings (including all MAP_SHARED mappings) are non-CoW.
+>   *
+>   * The criteria are !VMA_SHARED_BIT, VMA_MAYWRITE_BIT.
+>   *
+> @@ -2317,7 +2318,7 @@ static inline bool vma_flags_is_cow_mapp
+>
+>  /**
+>   * vma_is_cow_mapping() - Is this VMA a CoW mapping?
+> - * @vma: The VMA to check.
+> + * @desc: The VMA to check.
+>   *
+>   * See vma_flags_is_cow_mapping() for details.
+>   *
+> @@ -4407,8 +4408,9 @@ static inline unsigned long vma_pages(co
+>   * If @vma is a MAP_PRIVATE file-backed mapping, then this returns the
+>   * page offset within the file.
+>   *
+> - * Edge cases: nommu does not abide by these and CoW MAP_PRIVATE-pfnmap regions
+> - * have their page offset set to the first PFN in the range.
+> + * Edge cases: nommu does not abide by these, MAP_PRIVATE-/dev/zero satisfies
+> + * vma_is_anonymous() but has file-backed page offset, and MAP_PRIVATE-pfnmap
+> + * regions have their page offset set to the first PFN in the range.
+>   *
+>   * Returns: The page offset of the start of @vma.
+>   */
+> --- a/include/linux/pagemap.h~b
+> +++ a/include/linux/pagemap.h
+> @@ -1128,7 +1128,8 @@ static inline pgoff_t linear_anon_page_i
+>  	const pgoff_t pgoff = __linear_anon_page_index(vma, address);
+>
+>  	VM_WARN_ON_ONCE(!vma_is_cow_mapping(vma));
+> -	if (vma_is_anonymous(vma))
+> +	/* Account for MAP_PRIVATE-/dev/zero which is only semi-anonymous. */
+> +	if (vma_is_anonymous(vma) && !vma->vm_file)
+>  		VM_WARN_ON_ONCE(pgoff != linear_page_index(vma, address));
+>
+>  	return pgoff;
+> --- a/mm/internal.h~b
+> +++ a/mm/internal.h
+> @@ -240,18 +240,15 @@ static inline int mmap_file(struct file
+>  {
+>  	int err = vfs_mmap(file, vma);
+>
+> +	if (likely(!err))
+> +		return 0;
+> +
+>  	/*
+> -	 * Either we tried to call the file hook for mmap() and an error arose
+> -	 * or a driver set vma->vm_ops = NULL intending there to be no VMA
+> -	 * operations.
+> -	 *
+> -	 * In the former case the VMA is in an inconsistent state and we mustn't
+> -	 * invoke any further hooks on it, in the latter case the hook actually
+> -	 * wanted no further hooks to be invoked, so fix both by setting dummy
+> -	 * VMA ops.
+> +	 * OK, we tried to call the file hook for mmap(), but an error
+> +	 * arose. The mapping is in an inconsistent state and we must not invoke
+> +	 * any further hooks on it.
+>  	 */
+> -	if (unlikely(err || !vma->vm_ops))
+> -		vma->vm_ops = &vma_dummy_vm_ops;
+> +	vma->vm_ops = &vma_dummy_vm_ops;
+>
+>  	return err;
+>  }
+> --- a/mm/vma.c~b
+> +++ a/mm/vma.c
+> @@ -2621,36 +2621,6 @@ static int __mmap_new_file_vma(struct mm
+>  	return 0;
+>  }
+>
+> -static bool map_is_dev_zero(const struct mmap_state *map)
+> -{
+> -	const struct file *file = map->file;
+> -	struct inode *inode;
+> -
+> -	if (!file)
+> -		return false;
+> -	inode = file_inode(file);
+> -	if (!S_ISCHR(inode->i_mode))
+> -		return false;
+> -	return imajor(inode) == MEM_MAJOR && iminor(inode) == DEVZERO_MINOR;
+> -}
+> -
+> -static void map_set_anon(struct mmap_state *map)
+> -{
+> -	map->file = NULL;
+> -	map->vm_ops = NULL;
+> -	map->pgoff = map->addr >> PAGE_SHIFT;
+> -}
+> -
+> -static bool map_is_private(const struct mmap_state *map)
+> -{
+> -	return !vma_flags_test(&map->vma_flags, VMA_SHARED_BIT);
+> -}
+> -
+> -static bool map_is_anon(const struct mmap_state *map)
+> -{
+> -	return map_is_private(map) && !map->file;
+> -}
+> -
+>  /*
+>   * __mmap_new_vma() - Allocate a new VMA for the region, as merging was not
+>   * possible.
+> @@ -2664,7 +2634,8 @@ static bool map_is_anon(const struct mma
+>  static int __mmap_new_vma(struct mmap_state *map, struct vm_area_struct **vmap,
+>  	struct mmap_action *action)
+>  {
+> -	const bool is_anon = map_is_anon(map);
+> +	const bool is_anon = !map->file &&
+> +		!vma_flags_test(&map->vma_flags, VMA_SHARED_BIT);
+>  	struct vma_iterator *vmi = map->vmi;
+>  	int error = 0;
+>  	struct vm_area_struct *vma;
+> @@ -2806,10 +2777,6 @@ static int call_mmap_prepare(struct mmap
+>  	if (err)
+>  		return err;
+>
+> -	/* Hooks cannot mark themselves anonymous. */
+> -	if (!desc->vm_ops)
+> -		return -EINVAL;
+> -
+>  	err = call_action_prepare(map, desc);
+>  	if (err)
+>  		return err;
+> @@ -2826,21 +2793,16 @@ static int call_mmap_prepare(struct mmap
+>  	map->vm_ops = desc->vm_ops;
+>  	map->vm_private_data = desc->private_data;
+>
+> -	/*
+> -	 * MAP_PRIVATE-/dev/zero mappings are an ancient way of getting
+> -	 * anonymous mappings. Rather than allowing these mappings to be odd
+> -	 * outliers, simply make them truly anonymous.
+> -	 */
+> -	if (map_is_private(map) && map_is_dev_zero(map))
+> -		map_set_anon(map);
+> -
+>  	return 0;
+>  }
+>
+>  static void set_vma_user_defined_fields(struct vm_area_struct *vma,
+>  		struct mmap_state *map)
+>  {
+> -	vma->vm_ops = map->vm_ops;
+> +	if (map->vm_ops)
+> +		vma->vm_ops = map->vm_ops;
+> +	else	/* Only /dev/zero should do this. */
+> +		vma_set_anonymous(vma);
+>  	vma->vm_private_data = map->vm_private_data;
+>  }
+>
+> @@ -2920,7 +2882,7 @@ static unsigned long __mmap_region(struc
+>  		allocated_new = true;
+>  	}
+>
+> -	if (have_mmap_prepare && !map_is_anon(&map))
+> +	if (have_mmap_prepare)
+>  		set_vma_user_defined_fields(vma, &map);
+>
+>  	__mmap_complete(&map, vma);
+> --- a/mm/vma.h~b
+> +++ a/mm/vma.h
+> @@ -267,6 +267,9 @@ static inline void assert_sane_pgoff(str
+>  	 */
+>  	if (!vma_is_anonymous(vma))
+>  		return;
+> +	/* MAP_PRIVATE-/dev/zero is anon, non-NULL vm_file, but has file pgoff. */
+> +	if (vma->vm_file)
+> +		return;
+>  	/* If faulted in, could have been remapped. */
+>  	if (vma->anon_vma)
+>  		return;
+> --- a/mm/vma_internal.h~b
+> +++ a/mm/vma_internal.h
+> @@ -23,7 +23,6 @@
+>  #include <linux/ksm.h>
+>  #include <linux/khugepaged.h>
+>  #include <linux/list.h>
+> -#include <linux/major.h>
+>  #include <linux/maple_tree.h>
+>  #include <linux/mempolicy.h>
+>  #include <linux/mm.h>
+> --- a/tools/testing/selftests/mm/merge.c~b
+> +++ a/tools/testing/selftests/mm/merge.c
+> @@ -1324,7 +1324,7 @@ TEST_F(merge, anon_and_page_offset_misma
+>  	ASSERT_NE(ptr, MAP_FAILED);
+>
+>  	/*
+> -	 * Map another separately and trigger a CoW fault, at page offset 5:
+> +	 * Map another separately and trigger a CoW fault at page offset 5:
+>  	 *
+>  	 * |-----------|           |---------|
+>  	 * | unfaulted |           | faulted |
+> @@ -1362,110 +1362,6 @@ TEST_F(merge, anon_and_page_offset_misma
+>  	ASSERT_EQ(procmap->query.vma_end, (unsigned long)ptr + 5 * page_size);
+>  }
+>
+> -TEST_F(merge, merge_map_private_dev_zero_unfaulted)
+> -{
+> -	struct procmap_fd *procmap = &self->procmap;
+> -	unsigned int page_size = self->page_size;
+> -	char *carveout = self->carveout;
+> -	char *ptr, *ptr2;
+> -	int fd_zero;
+> -
+> -	if (access("/dev/zero", F_OK))
+> -		SKIP(return, "No /dev/zero.");
+> -	fd_zero = open("/dev/zero", O_RDWR);
+> -	ASSERT_NE(fd_zero, -1);
+> -
+> -	/*
+> -	 * Map two MAP_PRIVATE-/dev/zero VMAs next to one another with offset 0
+> -	 * each.
+> -	 *
+> -	 * With these being made truly anonymous upon mapping, they will
+> -	 * merge. If they were file-backed VMAs the page offsets would prevent
+> -	 * merge:
+> -	 *
+> -	 * |-----||------|    |-------------|
+> -	 * | ptr || ptr2 | -> |     ptr     |
+> -	 * |-----||------|    |-------------|
+> -	 */
+> -	ptr = mmap(carveout, 5 * page_size, PROT_READ | PROT_WRITE,
+> -		   MAP_FIXED | MAP_PRIVATE, fd_zero, 0);
+> -	if (ptr == MAP_FAILED) {
+> -		close(fd_zero);
+> -		ASSERT_TRUE(false);
+> -	}
+> -	ptr2 = mmap(&carveout[5 * page_size], 5 * page_size,
+> -		   PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE, fd_zero, 0);
+> -	if (ptr2 == MAP_FAILED) {
+> -		close(fd_zero);
+> -		ASSERT_TRUE(false);
+> -	}
+> -	close(fd_zero);
+> -
+> -	/* Assert that they merged. */
+> -	ASSERT_TRUE(find_vma_procmap(procmap, ptr));
+> -	ASSERT_EQ(procmap->query.vma_start, (unsigned long)ptr);
+> -	ASSERT_EQ(procmap->query.vma_end, (unsigned long)ptr + 10 * page_size);
+> -}
+> -
+> -TEST_F(merge, merge_map_private_dev_zero_faulted_unfaulted)
+> -{
+> -	struct procmap_fd *procmap = &self->procmap;
+> -	unsigned int page_size = self->page_size;
+> -	char *carveout = self->carveout;
+> -	char *ptr, *ptr2;
+> -	int fd_zero;
+> -
+> -	if (access("/dev/zero", F_OK))
+> -		SKIP(return, "No /dev/zero.");
+> -	fd_zero = open("/dev/zero", O_RDWR);
+> -	ASSERT_NE(fd_zero, -1);
+> -
+> -	/*
+> -	 * Map a MAP_PRIVATE mapping of /dev/zero with page offset 0, then fault
+> -	 * it in:
+> -	 *
+> -	 * |-------------------------------|
+> -	 * |           faulted             |
+> -	 * |-------------------------------|
+> -	 */
+> -	ptr = mmap(carveout, 15 * page_size, PROT_READ | PROT_WRITE,
+> -		   MAP_FIXED | MAP_PRIVATE, fd_zero, 0);
+> -	if (ptr == MAP_FAILED) {
+> -		close(fd_zero);
+> -		ASSERT_TRUE(false);
+> -	}
+> -	memset(ptr, 'x', 15 * page_size);
+> -
+> -	/*
+> -	 * Unmap the middle:
+> -	 *
+> -	 * |---------|           |---------|
+> -	 * | faulted |           | faulted |
+> -	 * |---------|           |---------|
+> -	 */
+> -	ASSERT_EQ(munmap(&ptr[5 * page_size], 5 * page_size), 0);
+> -
+> -	/*
+> -	 * Map in a new unfaulted mapping in the middle with page offset 0 -
+> -	 * this should merge and would not if it were treated as a file rather
+> -	 * than pure anon:
+> -	 *
+> -	 * |---------|-----------|---------|
+> -	 * | faulted | unfaulted | faulted |
+> -	 * |---------|-----------|---------|
+> -	 */
+> -	ptr2 = mmap(&carveout[5 * page_size], 5 * page_size,
+> -		    PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE,
+> -		    fd_zero, 0);
+> -	close(fd_zero);
+> -	ASSERT_NE(ptr2, MAP_FAILED);
+> -
+> -	/* Assert that they merged. */
+> -	ASSERT_TRUE(find_vma_procmap(procmap, ptr));
+> -	ASSERT_EQ(procmap->query.vma_start, (unsigned long)ptr);
+> -	ASSERT_EQ(procmap->query.vma_end, (unsigned long)ptr + 15 * page_size);
+> -}
+> -
+>  TEST_F(merge_with_fork, mremap_faulted_to_unfaulted_prev)
+>  {
+>  	struct procmap_fd *procmap = &self->procmap;
+> --- a/tools/testing/selftests/proc/proc-self-map-files-001.c~b
+> +++ a/tools/testing/selftests/proc/proc-self-map-files-001.c
+> @@ -51,7 +51,7 @@ int main(void)
+>  	int fd;
+>  	unsigned long a, b;
+>
+> -	fd = open("/proc/self/exe", O_RDONLY);
+> +	fd = open("/dev/zero", O_RDONLY);
+>  	if (fd == -1)
+>  		return 1;
+>
+> --- a/tools/testing/selftests/proc/proc-self-map-files-002.c~b
+> +++ a/tools/testing/selftests/proc/proc-self-map-files-002.c
+> @@ -57,7 +57,7 @@ int main(void)
+>  	int fd;
+>  	unsigned long a, b;
+>
+> -	fd = open("/proc/self/exe", O_RDONLY);
+> +	fd = open("/dev/zero", O_RDONLY);
+>  	if (fd == -1)
+>  		return 1;
+>
+> --- a/tools/testing/vma/include/dup.h~b
+> +++ a/tools/testing/vma/include/dup.h
+> @@ -15,21 +15,6 @@ struct task_struct *get_current(void);
+>  #define MMF_HAS_MDWE	28
+>  #define current get_current()
+>
+> -#define MINORBITS	20
+> -#define MINORMASK	((1U << MINORBITS) - 1)
+> -
+> -#define MAJOR(dev)	((unsigned int) ((dev) >> MINORBITS))
+> -#define MINOR(dev)	((unsigned int) ((dev) & MINORMASK))
+> -#define MKDEV(ma, mi)	(((ma) << MINORBITS) | (mi))
+> -
+> -#define S_IFMT  00170000
+> -#define S_IFCHR  0020000
+> -
+> -#define S_ISCHR(m)	(((m) & S_IFMT) == S_IFCHR)
+> -
+> -#define MEM_MAJOR		1
+> -#define DEVZERO_MINOR	5
+> -
+>  /*
+>   * Define the task command name length as enum, then it can be visible to
+>   * BPF programs.
+> @@ -38,8 +23,6 @@ enum {
+>  	TASK_COMM_LEN = 16,
+>  };
+>
+> -typedef unsigned short		umode_t;
+> -
+>  /* PARTIALLY implemented types. */
+>  struct mm_struct {
+>  	struct maple_tree mm_mt;
+> @@ -62,10 +45,6 @@ struct address_space {
+>  	unsigned long		flags;
+>  	atomic_t		i_mmap_writable;
+>  };
+> -struct inode {
+> -	umode_t			i_mode;
+> -	dev_t			i_rdev;
+> -};
+>  struct file_operations {
+>  	int (*mmap)(struct file *, struct vm_area_struct *);
+>  	int (*mmap_prepare)(struct vm_area_desc *);
+> @@ -73,7 +52,6 @@ struct file_operations {
+>  struct file {
+>  	struct address_space	*f_mapping;
+>  	const struct file_operations	*f_op;
+> -	struct inode			*f_inode;
+>  };
+>  struct anon_vma_chain {
+>  	struct anon_vma *anon_vma;
+> @@ -1660,23 +1638,9 @@ static inline pgoff_t linear_anon_page_i
+>  	const pgoff_t pgoff = __linear_anon_page_index(vma, address);
+>
+>  	VM_WARN_ON_ONCE(!vma_is_cow_mapping(vma));
+> -	if (vma_is_anonymous(vma))
+> +	/* Account for MAP_PRIVATE-/dev/zero which is only semi-anonymous. */
+> +	if (vma_is_anonymous(vma) && !vma->vm_file)
+>  		VM_WARN_ON_ONCE(pgoff != linear_page_index(vma, address));
+>
+>  	return pgoff;
+>  }
+> -
+> -static inline struct inode *file_inode(const struct file *f)
+> -{
+> -	return f->f_inode;
+> -}
+> -
+> -static inline unsigned iminor(const struct inode *inode)
+> -{
+> -	return MINOR(inode->i_rdev);
+> -}
+> -
+> -static inline unsigned imajor(const struct inode *inode)
+> -{
+> -	return MAJOR(inode->i_rdev);
+> -}
+> --- a/tools/testing/vma/tests/mmap.c~b
+> +++ a/tools/testing/vma/tests/mmap.c
+> @@ -45,57 +45,7 @@ static bool test_mmap_region_basic(void)
+>  	return true;
+>  }
+>
+> -static int dummy_mmap_prepare(struct vm_area_desc *desc)
+> -{
+> -	return 0;
+> -}
+> -
+> -static bool test_pure_anon_dev_zero(void)
+> -{
+> -	const vma_flags_t vma_flags = mk_vma_flags(VMA_READ_BIT, VMA_WRITE_BIT,
+> -			VMA_MAYREAD_BIT, VMA_MAYWRITE_BIT);
+> -	const struct file_operations f_op = {
+> -		.mmap_prepare = dummy_mmap_prepare,
+> -	};
+> -	struct inode inode = {
+> -		.i_mode = S_IFCHR,
+> -		.i_rdev = MKDEV(MEM_MAJOR, DEVZERO_MINOR),
+> -	};
+> -	struct file file = {
+> -		.f_inode = &inode,
+> -		.f_op = &f_op,
+> -	};
+> -	struct mm_struct mm = {};
+> -	struct vm_area_struct *vma;
+> -	unsigned long addr;
+> -	VMA_ITERATOR(vmi, &mm, 0);
+> -
+> -	current->mm = &mm;
+> -
+> -	/*
+> -	 * Map a MAP_PRIVATE-/dev/zero mapping at address 0x300000 with a page
+> -	 * offset of 0x10, which we expect to be reset to the anonymous page
+> -	 * offset.
+> -	 */
+> -	addr = __mmap_region(&file, 0x300000, 0x3000, vma_flags, 0x10, NULL);
+> -	ASSERT_EQ(addr, 0x300000);
+> -
+> -	/* Assert that it truly is an anonymous mapping. */
+> -	vma = vma_lookup(&mm, addr);
+> -	ASSERT_NE(vma, NULL);
+> -	ASSERT_TRUE(vma_is_anonymous(vma));
+> -	ASSERT_EQ(vma->vm_file, NULL);
+> -	ASSERT_EQ(vma->vm_private_data, NULL);
+> -	/* Expect anonymous page offsets. */
+> -	ASSERT_EQ(vma->vm_pgoff, 0x300);
+> -	ASSERT_EQ(vma_start_anon_pgoff(vma), 0x300);
+> -
+> -	cleanup_mm(&mm, &vmi);
+> -	return true;
+> -}
+> -
+>  static void run_mmap_tests(int *num_tests, int *num_fail)
+>  {
+>  	TEST(mmap_region_basic);
+> -	TEST(pure_anon_dev_zero);
+>  }
+> _
+>
+
+--
+Cheers, Lorenzo
