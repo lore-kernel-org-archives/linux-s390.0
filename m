@@ -1,261 +1,276 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AFB4494A08
-	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 17:44:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.175
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786729442; cv=pass; b=vBSeOvN3mJWrd7CgtsqW3BVp7OQWucpTItv2+qNMH7q9HOa++mDtkKcQ9hZjdd6WFZX9tFzfK02ZzdSSJFiISjXkFBBsVmOwXZ8Vkb84e2t6aqEfcXJkUkqRrGwhWfF4TmRuo5+SS8tga28Ycvteqe0h329amLE21ZSRgHOxWCc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786729442; c=relaxed/simple;
-	bh=ThdoN2c7xpbfFPU2VKw49l55oAYgxAYpwp70uDUCIEM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NiGdWmP5egWXhOqnA+ytWbWEn9qE9OaYcK0cpjz85zypHsLejXl5vFbdGM7qQJV/YHYMT464cQWIIlt02DKruCGyjAYJZ+Cn9rbU+CitOth9ru9S+5KWg95xCxNrx1pEAlmBRKD7PJjnZNCWMn+pE1PTzkEs5pASJGgXAXLOY+8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=OKSQkD50; arc=pass smtp.client-ip=209.85.160.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8D8846F4A6;
+	Fri, 14 Aug 2026 18:20:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786731636; cv=none; b=N29nqQPCToZPlxcr4gz0MbXeETn6ivphcm5bMELb4MxFvvWR421ODSStZ33IhGAQg5qpuM+2lqef0ktnLFMVwXM37kuf8ZhXrrHIIXEfNB3jcwOELvSW02fVoeskEqYzdopxcOdUdxW5VelhWOjQ266TOQwgA3hSw2AM0M1stqA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786731636; c=relaxed/simple;
+	bh=Zqi40RXc8gr82zE1QBRvdP3A2MCFqLXwNTYOQ9x2OWE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PwQE9lPAIcH+0ABaK1ZPwaSjlmeOB8j4x6MMd2XBKDrTnMWzXsTTlxhxG5sVA92j472/obGGu2//8BITtin3wM7dSjNpsdYPe3pR/+WbjnFudMAgwKBZVUmUiqErXvxtxyB/NJdolLxeIKrDAJnV4HQXXiC5oPy1Yoi7j295kj0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cDWvycTd; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="OKSQkD50"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-51c01c79467so370441cf.0
-        for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 10:44:00 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1786729440; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Kpll/1MHMjbNn+42KFMCyrbP8SHwHi8fQNDxnu/Mkdvh7IJW7GNs2F8pJAbsb40TUb
-         M8TkwiAYtQW9rPqSB/lajf7bE1/0f/NOk3dRZeV6mtBWLJPvhW3iJoj5MUso9Ko3EkgZ
-         Gdvxar7Sye1GE3izZIplwP4A9LUf+7lNAPWYnEv6ML0aXEGwXPUaxfSsWvkXloV9WXHe
-         W7WwD2cV0GNlYhqqXYRHjK8QQOTecoT893iWR63Ti1YeQj2wakNcMnUBgQX0tJcJZC/W
-         xJmtnCRCE9cgZZyVD1JEY5R0UOe4RGVL82oHvLBxfxxOYMufT/QaUP+3l6JAjWOzvnGU
-         FLaQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=3XIa3oNqh9XbRNaEPeDhKo2IZftbtziRumFePLkBD7A=;
-        fh=tF5YpMKcyecg0iur4Sf3ZpsFvKsZ7+KLvoQpsB3U0y8=;
-        b=Z1KxvoJNEZeFU5CueQbry8EszM4AgkdFgcvFqkO4nIhsNgHrzwj3KOzBL8ZR8igzS9
-         1LEHGCoPgmZInxb5roFG2gNspej7xJ2o09dbdsgicEEyTxdYAnpRrxfPxoa10A8c9W7P
-         MCrbuesivFsaVLTTY+R4Y/qWUBsByZgZZrL5Ydn5KY8QtS9gyevDFNSddOXB26CVF+W2
-         KpIHiYpiYRvU+jyT6LBDsHLlacoqaVe41SdVDdiBNDQ7JBwoUI0ibY7hzl3WJuypWY/g
-         6Fqpso8OutEPshwgCJ9r6SzMdf7HOg2fTxx47NifFTDDnUQuoHx7lJgUAiqF5K2lnmmW
-         jNhA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1786729440; x=1787334240; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=3XIa3oNqh9XbRNaEPeDhKo2IZftbtziRumFePLkBD7A=;
-        b=OKSQkD50LRvbdaf70WWAggEH+UnRsyUKwFGwtmoxC+mMM6JycOqwbReoviTIkx1WkG
-         gtUhTfsniqQ7HGjespdSAOpOigIgMtaSC6bahQxweesUt+ZytiOBQFxV/nGUIfv7jL7K
-         elCZ5C5I72MYRCV4m86PPsfO/liVuY35bQ7otg+lWG8EH4SAv5qPsnbvPvneON9YUm7p
-         7PzfFCGWkYGQZjwb7dTBmJwSwCwV7hEuDm6PudeFpTxvDHTEXkTj64qSPLK9iK1CLvlx
-         5nfpEJPTXQ+Kz8viRw367azUaGIFS4wegNWKr0qw5ewIDYC4XOUgrISocgKTUyPwh7CR
-         LNcA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786729440; x=1787334240;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=3XIa3oNqh9XbRNaEPeDhKo2IZftbtziRumFePLkBD7A=;
-        b=GLo2G69NN6Yax7kMuHnQ5XUP7lWx8N3uhaz3LWwGsVRVLjYddmqLIRTHc5L4InXiyA
-         5Jp4jgqScKGJ152qQ/h6dP3k8R3CHn/P6UsDn8pvHbeDibuf0egYXlaq+h/lBiYQeeWc
-         g3Z1S+kicOhUYIlNk1iRnxfLnp3OuFrp7MiEm+5/LDlH/V1h+NkzeGJZ1FP9UJyxGK6A
-         LxGDEiLaJHAImtm54MScpWV/UvuDcAT3WbOXMrsj6ZagGly69XTY3p8quD1iyNrw2+RJ
-         +K0hN1KpanJcKrJtsSXjaX/GWmTpbJfi4ZgHPxm2v4ZGLEiDmo2fJmbmumYhZEeYxBKo
-         RVUg==
-X-Forwarded-Encrypted: i=1; AHgh+Rq27aI8WsJ1pMK0QKrBTHwVwwSHMfxAOWfkj9DzkRYC4QGw+petbabwf1YZKAtfkrc+IBkEELo7nLl4@vger.kernel.org
-X-Gm-Message-State: AOJu0YxcTozoTe9RcEwpJkXsTA6qXBa3qAel6syBcmPQkBGMltHGrU6M
-	PwoDEbHWInQsrfIze28KD/RnM3xu8sjqZeO0WcDKZ1hw8pvQBz9bss5f71ynlvYD1rwIyhyXFZo
-	ml4AqHU/cL+0b1InZTzROGoOD7FMpErdrb9vsGQFv
-X-Gm-Gg: AR+sD12IIbw7iyyTgiN/VisizwE9jCdtgYUBXK1tGwHThlmbAyoVG85dR3Y11ja5Ajm
-	siQ9BXuyVzGHb4NUYFnPA1aCLwVfXGIfqiqIfG6VA/GCm8fkdi8+zTVb5AeUCLmhoWMU2wac0Qy
-	uF7Fw6+heZ0QXSDJmvqsyEj5qR75fvYZtHZbJhiZWR0t3+2JpM50dW26/RBjVIU1+VAsauPsHt0
-	muKigR5YIBZdAiukmNXKjR2T+cN28aRE1LUcBBNBcKdWs9V8tEXoKYXLnkCyQEJHgqxD6F6aOEs
-	yaSU395NJbI+EgaG0Dw5xEAmym44jAY69t6tWnDpPMJ87w==
-X-Received: by 2002:ac8:5f8b:0:b0:50d:edb1:6bd1 with SMTP id
- d75a77b69052e-52d8631482dmr1548221cf.13.1786729439124; Fri, 14 Aug 2026
- 10:43:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cDWvycTd"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67EH1VcN1721711;
+	Fri, 14 Aug 2026 18:20:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=xZA/MR
+	feJzceC6/GoJWm4sCo4UKuD4jqCLRgsBHF8fE=; b=cDWvycTdZxZdY+w+GsQ4Te
+	2y+fWzszA9VnXyfFV2eojQDmzUiulgzmNk8rnFQZ5HT+KvZM616KIlkpw+5S7i9G
+	JU/029OwzJ5kviY0l04IS6JKzh1/snG60nkG9PwwFocd/PplxYVjGooXNAdxEpYX
+	qUQ0bJ2KBpgsRu915IqrV5mfvL8XcZcLYFlMevdM37rniTo0fTPm25sQOlAZ/S+y
+	Ae2yWKThKuydnS+y1lcZ+y79fgmiYpVqqwSpRNbaULVF/rhWaM+plJaUf8SyW/d5
+	RypHdDxOyBHYMcDaAojCzPiX9JaVbNJOAsD2uS1ZMvRu02Qb4A+PbQgUguPneNBg
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvma692k-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 14 Aug 2026 18:20:22 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67EIBYHs014599;
+	Fri, 14 Aug 2026 18:20:21 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxfsk8dku-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 14 Aug 2026 18:20:21 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67EIKJ8624969896
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 14 Aug 2026 18:20:20 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D7B3F5805C;
+	Fri, 14 Aug 2026 18:20:19 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A1A8B5805A;
+	Fri, 14 Aug 2026 18:20:14 +0000 (GMT)
+Received: from [9.124.211.136] (unknown [9.124.211.136])
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 14 Aug 2026 18:20:14 +0000 (GMT)
+Message-ID: <4abcf232-ae7a-4af0-920c-22febc9b88d4@linux.ibm.com>
+Date: Fri, 14 Aug 2026 23:50:12 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260807104913.1784943-1-jremus@linux.ibm.com>
- <CAP-5=fWqtWQ+vA5-8ieARsVWqt-D3pUc1+NdwqEJ1F=jCkK86Q@mail.gmail.com> <bfa64536-1c6a-417b-bb28-502ee25586a3@linux.ibm.com>
-In-Reply-To: <bfa64536-1c6a-417b-bb28-502ee25586a3@linux.ibm.com>
-From: Ian Rogers <irogers@google.com>
-Date: Fri, 14 Aug 2026 10:43:47 -0700
-X-Gm-Features: AUfX_myAQHv0Qecj4POBdsMTROB3j5EAzIXj6vRSVzm2q2sQLBtuAj2YR4LRrx0
-Message-ID: <CAP-5=fWa9iCadXAh4nU3XHRT7wS4BNbW6i+St-5a3pdVPzUx+Q@mail.gmail.com>
-Subject: Re: [PATCH] perf evsel: Improve frame pointer unwinding warning for s390
-To: Jens Remus <jremus@linux.ibm.com>
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Jan Polensky <japo@linux.ibm.com>, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, linux-kernel@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] net/smc: fix use-after-free in
+ smc_rx_pipe_buf_release()
+To: Simon Horman <horms@kernel.org>
+Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
+        sidraya@linux.ibm.com, mjambigi@linux.ibm.com, andrew+netdev@lunn.ch,
+        tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        pasic@linux.ibm.com, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org
+References: <20260810064041.720441-1-hidayath@linux.ibm.com>
+ <20260811121913.GD51943@horms.kernel.org>
+Content-Language: en-GB
+From: Hidayath Khan <hidayath@linux.ibm.com>
+In-Reply-To: <20260811121913.GD51943@horms.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE0MDEzOCBTYWx0ZWRfX38jvotbr1Smo
+ JNt7s1T5hZhB3YB+fVDph9tPvKCryAbwWQ/3bBf79Zf+WKKR/nV882US7+GMf6ZSI893gtCbf8t
+ SiDCmuA1Qbt+Z2PfR9HIdLK1LiWuXJi0/XrDvxcEiJeKxAhO29TpMUEFoF9EkgWu8GqN171A28j
+ efGsNCJ98nabY31SizrvowgITdn22OKTimBq3ChTQl7Zf74FZ2FcisF5E2GVXvdJNwk4YLrMnTx
+ tzQGbjIaE82DMxMwU6uw7yk8VjKYPCNXSbzSOvLNpn5tidC/qRjWA20GcsYAMilFb+Hjo7qcQ4m
+ 1q+iUK72e+dpiUImzqNvb+95KaVgNR9sU1xNCpxW1i6gYbMk6yyBo098gJZlLKCoQ1AY4kvk1rr
+ TX4FlbPxH5bAOWpXkZNiF60blWUOxXTRImbWIJKZpLZRblVNE1aOAn8EdxQY+HyPZ83KM9jlbmI
+ pujvAQGxuFLQAVU1DUg==
+X-Proofpoint-ORIG-GUID: WmQFtBgRB4iYl_I6RhNUxnbSzqChZ4L0
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE0MDEzOCBTYWx0ZWRfXwZq/5VtrPqkl
+ Fi5qW5ryLo7lqJC65AfrpTqm9BJYN0UFwilxB57GLPWfP2ZXaUBgBuVnU3a3XvrQALbUC96A72i
+ iuYtIFqsE3gwq9UKrH/IbXYH03GScNI=
+X-Authority-Analysis: v=2.4 cv=IfK3n2qa c=1 sm=1 tr=0 ts=6a7f5c67 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=9R54UkLUAAAA:8
+ a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=dVJtoKHjo9LuLFuDEWkA:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10 a=YTcpBFlVQWkNscrzJ_Dz:22
+X-Proofpoint-GUID: cIyRfu-vF8yTgHvp2bnYRCUMtciVDgJx
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-14_06,2026-08-12_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 priorityscore=1501 impostorscore=0 bulkscore=0 clxscore=1015
+ lowpriorityscore=0 adultscore=0 malwarescore=0 spamscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608140138
 
-On Tue, Aug 11, 2026 at 2:53=E2=80=AFAM Jens Remus <jremus@linux.ibm.com> w=
-rote:
->
-> Hi Ian!
->
-> On 8/8/2026 6:13 AM, Ian Rogers wrote:
-> > On Fri, Aug 7, 2026 at 3:49=E2=80=AFAM Jens Remus <jremus@linux.ibm.com=
-> wrote:
-> >>
-> >> On s390 the kernel uses s390 back chain instead of frame pointers for
-> >> stack tracing of user space since v6.7 commit aa44433ac4ee ("s390: add
-> >> USER_STACKTRACE support").  This is because frame pointers on s390
-> >> cannot be used for stack tracing. [1]
-> >>
-> >> This requires user space to maintain a s390 back chain.  For instance
-> >> user space to be built with compiler option '-mbackchain' (instead of
-> >> '-fno-omit-frame-pointer' used on other architectures, which should
-> >> better not be used on s390 [1]).
-> >>
-> >> Only few distributions and users built user space with '-mbackchain'.
-> >> Therefore '--call-graph fp' may not produce the expected results.
-> >>
-> >> Commit ca76fb67ebdd ("perf evlist: Improve default event for s390")
-> >> added a warning for s390 that wrongly claimed that "Framepointer
-> >> unwinding lacks kernel support".  Change the warning to hint at using
-> >> '--call-graph dwarf' if user space does not maintain a s390 back chain=
-.
-> >>
-> >> Note that '--call-graph fp' may also be useful for other applications,
-> >> such as OpenJDK maintaining a s390 back chain (does not require JVM
-> >> option '-XX:+PreserveFramePointer' on s390):
-> >>
-> >>   $ perf record --call-graph fp ... -- \
-> >>     java -XX:+UnlockDiagnosticVMOptions -XX:+DumpPerfMapAtExit ...
-> >>
-> >> [1]: s390: Stack tracing using Frame Pointer, Back Chain, and SFrame,
-> >>      https://conf.gnu-tools-cauldron.org/opo25/talk/Y3CVHY/
-> >>
-> >> Fixes: ca76fb67ebdd ("perf evlist: Improve default event for s390")
-> >> Signed-off-by: Jens Remus <jremus@linux.ibm.com>
-> >> ---
-> >>  tools/perf/util/evsel.c | 3 ++-
-> >>  1 file changed, 2 insertions(+), 1 deletion(-)
-> >>
-> >> diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-> >> index ea9fa04429f0..c4d67d1b35f3 100644
-> >> --- a/tools/perf/util/evsel.c
-> >> +++ b/tools/perf/util/evsel.c
-> >> @@ -1080,7 +1080,8 @@ static void __evsel__config_callchain(struct evs=
-el *evsel, const struct record_o
-> >>
-> >>         if (EM_HOST =3D=3D EM_S390 && param->record_mode =3D=3D CALLCH=
-AIN_FP) {
-> >>                 pr_warning_once(
-> >> -                       "Framepointer unwinding lacks kernel support. =
-Use '--call-graph dwarf'\n");
-> >> +                       "Use '--call-graph dwarf' if user space does n=
-ot maintain a s390 back chain "
-> >> +                       "(e.g. is not built with '-mbackchain').\n");
-> >
-> > Thanks Jens. The text was based on:
-> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree=
-/arch/s390/kernel/perf_cpum_sf.c#n853
-> > ```
-> > static int cpumsf_pmu_event_init(struct perf_event *event)
-> > ...
-> >  /* No support for callchain, stacks and registers */
-> > if (has_branch_stack(event) || is_callchain_event(event))
-> > return -EOPNOTSUPP;
-> > ```
->
-> According to Thomas, the s390 HW event 'cycles' does not support
-> callchains.  This is because on s390 it provides aggregated historical
-> data, making it impossible to associate a callchain to the sampled data.
-> Your referenced cpumsf_pmu_event_init() code applies specifically to the
-> CPU Measurement Sampling Facility (CPUMSF) PMU and therefore correctly
-> rejects callchains for those HW events.
->
-> On s390, callchains are therefore only supported with SW events.
->
-> Since your commit ca76fb67ebdd ("perf evlist: Improve default event for
-> s390") callchains on s390 default to (1) the SW event 'cpu-clock' (or
-> 'task-clock') and (2) 'dwarf'.  The kernel on s390 also supports 'fp'
-> callchains using s390 back chain since commit aa44433ac4ee ("s390: add
-> USER_STACKTRACE support").
->
-> Therefore the current warning on s390 for 'fp' is misleading.  Given
-> that on s390 a user must explicitly select 'fp', and that on other
-> architectures there is no warning about the requirement for user space
-> to maintain frame pointers (e.g. if they were not built with
-> '-fno-omit-frame-pointer' and '-mno-omoit-leaf-frame-pointer') it might
-> be preferable to remove the warning altogether.
->
-> We could document in the perf man pages that 'fp' on s390 relies on the
-> s390 back chain rather than frame pointers.
->
-> What do you think?
+Thanks for the review.
 
-So firstly, sorry for the misleading message and thanks for trying to
-fix it! Also, sorry for the delay in responding and dealing with some
-hospital things. Man page documentation sounds good to me, and having
-a good warning also sounds good. Since this is for s390 you guys are
-much smarter about what to do than I am. Since the function generating
-the warning has an evsel, we can get the PMU from the evsel and check
-things like:
-```
-if (evsel->pmu && perf_pmu__is_software(evsel->pmu))
-```
-By which I mean we can provide different warnings for hardware and
-software events. That said, as a hardware event will fail in the
-perf_event_open I'm not sure it is a useful distinction.
+Both findings are correct, and both come
+from the conn->rmb_desc = NULL store.  v2 drops that store instead of
+moving it, and tests conn->freed under the socket lock.
 
-> > The backchain option is never tested by perf or apparently in the
-> > kernel, but this warning is supposed to pre-warn about "not supported"
-> > being returned when frame pointer unwinding is requested. Of course,
-> > lacking an s390 I've never tested this. I can imagine the warning
-> > being overly broad, but my understanding is cpum_sf is the only PMU
-> > capable of sampling on s390.
-> >
-> > Perhaps what is needed is additional text after the "Use '--call-graph
-> > dwarf'". The existing initial text at least appears to match the
-> > kernel code. I'm not clear how the lack of back chains would be
-> > reported as an error code, and this could introduce confusion as we
-> > have lots of stack, chain and branch related terms in the perf
-> > codebase.
+On 11/08/26 5:49 pm, Simon Horman wrote:
+> On Mon, Aug 10, 2026 at 08:40:41AM +0200, Hidayath Khan wrote:
+>> smc_rx_splice() hands RMB pages to a pipe and takes a socket reference for
+>> each entry, so the smc_sock survives until the reader is done.  The
+>> connection does not: a close in between runs smc_conn_free(), which
+>> releases the link group and returns the receive buffer to the link group's
+>> pool.
+>>
+>> smc_rx_pipe_buf_release() tries to detect that by testing sk_state, but it
+>> does so before taking the socket lock, and then dereferences the connection
+>> anyway:
+>>
+>>          if (sk->sk_state == SMC_CLOSED || ...)
+>>                  goto out;
+>>          conn = &smc->conn;
+>>          lock_sock(sk);
+>>          smc_rx_update_cons(smc, priv->len);
+>>
+>> smc_rx_update_cons() reads conn->rmb_desc->len twice and then calls
+>> smc_tx_consumer_update(), which walks conn->lgr and conn->lnk.  The state
+>> can change between the test and the lock, and on the is_reg_err path
+>> smcr_buf_unuse() does not recycle the descriptor but frees it outright, so
+>> this is a use-after-free rather than a stale read.
+>>
+>> sk_state is also the wrong thing to test.  Take the socket lock first so
+>> the test and the cursor update cannot be separated, and test the receive
+>> buffer itself, which is what the code goes on to dereference.
+>>
+>> For that test to mean anything, smc_buf_unuse() has to stop leaving a
+>> pointer to a descriptor it has just released; clear conn->rmb_desc there.
+>> Nothing in smc_conn_free() reads it afterwards, and smc_ism_unset_conn()
+>> already returns early on a NULL rmb_desc, so an SMC-D teardown that reaches
+>> it twice becomes a no-op instead of indexing smcd->conn[] with a stale
+>> sba_idx.
+>>
+>> Fixes: 9014db202cb7 ("smc: add support for splice()")
+>> Cc: stable@vger.kernel.org
+>> Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
+>> Signed-off-by: Hidayath Khan <hidayath@linux.ibm.com>
+>> ---
+>>   net/smc/smc_core.c |  1 +
+>>   net/smc/smc_rx.c   | 10 ++++++----
+>>   2 files changed, 7 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+>> index c0027d2fe4e8..def65ebc0b53 100644
+>> --- a/net/smc/smc_core.c
+>> +++ b/net/smc/smc_core.c
+>> @@ -1248,6 +1248,7 @@ static void smc_buf_unuse(struct smc_connection *conn,
+>>   			WRITE_ONCE(conn->rmb_desc->used, 0);
+>>   		}
+>>   		SMC_STAT_RMB_SIZE(smc, is_smcd, true, false, bufsize);
+>> +		conn->rmb_desc = NULL;
+>>   	}
+>>   }
+> Hi,
 >
-> This is analogous to frame pointers on other architectures: the absence
-> of a maintained s390 back chain is not reported as an error.  There is
-> currently no mean to determine from and ELF binary whether it was built
-> to maintain a s390 back chain (i.e. no ELF attribute/flag).
-
-Thanks for the clarification! I think given this I'm happy to add my tag:
-
-Reviewed-by: Ian Rogers <irogers@google.com>
-
-Do you want the maintainers to move forward with this change, or would
-you prefer to add something to the man pages, etc. ?
-
-Thanks,
-Ian
-
-> >>         }
-> >>
-> >>         evsel__set_sample_bit(evsel, CALLCHAIN);
-> >>
-> >> base-commit: f9a2394a23482bfd330911e9c8295b71724feacd
-> >> --
-> >> 2.53.0
-> Regards,
-> Jens
-> --
-> Jens Remus
-> Linux on Z Development (D3303)
-> jremus@de.ibm.com / jremus@linux.ibm.com
+> The AI-generated review at [1] flags the following.
+> Could you take a look?
 >
-> IBM Deutschland Research & Development GmbH; Vorsitzender des Aufsichtsra=
-ts: Wolfgang Wendt; Gesch=C3=A4ftsf=C3=BChrung: David Faller; Sitz der Gese=
-llschaft: Ehningen; Registergericht: Amtsgericht Stuttgart, HRB 243294
-> IBM Data Privacy Statement: https://www.ibm.com/privacy/
+> [1] https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260810064041.720441-1-hidayath%40linux.ibm.com
+>
+> AI-generated review text:
+>
+>    Before this change conn->rmb_desc stayed non-NULL once it was set, so
+>    readers that never take the socket lock could only ever see a stale (still
+>    mapped) descriptor.  Can this new store turn those into NULL
+>    dereferences?
+>
+>    Two paths look exposed.  First, the SMC-R CDC receive path.  In
+>    smc_conn_free() the buffer is released before the conn leaves the link
+>    group:
+>
+>    net/smc/smc_core.c:smc_conn_free() {
+> 	...
+> 	if (!list_empty(&lgr->list)) {
+> 		smc_buf_unuse(conn, lgr); /* allow buffer reuse */
+> 		smc_lgr_unregister_conn(conn);
+> 	}
+> 	...
+>    }
+>
+>    So there is a window where the conn is still in lgr->conns_all with
+>    rmb_desc == NULL.  smc_cdc_rx_handler() finds it there, and
+>    smc_cdc_msg_recv() only takes bh_lock_sock():
+>
+>    net/smc/smc_cdc.c:smc_cdc_msg_recv() {
+> 	sock_hold(&smc->sk);
+> 	bh_lock_sock(&smc->sk);
+> 	smc_cdc_msg_recv_action(smc, cdc);
+> 	bh_unlock_sock(&smc->sk);
+> 	...
+>    }
+>
+>    bh_lock_sock() takes sk->sk_lock.slock and does not exclude a
+>    process-context lock_sock() owner running smc_release() ->
+>    __smc_release() -> smc_conn_free(), which is why
+>    smc_cdc_msg_recv_action() itself has to check sock_owned_by_user().  That
+>    same function then does:
+>
+>    net/smc/smc_cdc.c:smc_cdc_msg_recv_action() {
+> 	...
+> 	diff_prod = smc_curs_diff(conn->rmb_desc->len, &prod_old,
+> 				  &conn->local_rx_ctrl.prod);
+> 	...
+>    }
+>
+>    and on urgent data smc_cdc_handle_urg_data_arrival() does:
+>
+>    net/smc/smc_cdc.c:smc_cdc_handle_urg_data_arrival() {
+> 	base = (char *)conn->rmb_desc->cpu_addr + conn->rx_off;
+> 	if (conn->urg_curs.count)
+> 		conn->urg_rx_byte = *(base + conn->urg_curs.count - 1);
+> 	else
+> 		conn->urg_rx_byte = *(base + conn->rmb_desc->len - 1);
+> 	...
+>    }
+>
+>    Neither has a NULL check, and this runs in softirq/tasklet context.  Would
+>    it be safer to clear rmb_desc after smc_lgr_unregister_conn(), once the
+>    conn can no longer be found by the CDC handler?
+It would help, but it does not close the window: smc_cdc_rx_handler() drops
+conns_lock before calling smc_cdc_msg_recv(), so an in-flight handler still
+reaches the dereference.
+
+conn->freed avoids it instead.  smc_conn_free() sets it before releasing
+anything and with the socket lock held, every caller holds that lock, and
+smc_rx_pipe_buf_release() takes the same lock.  So the two exclude each
+other rather than racing.
+>
+>    Second, the sock_diag dump.  smc_diag_dump_proto() walks the sockets under
+>    read_lock(&prot->h.smc_hash->lock) only, never lock_sock(), and
+>    __smc_diag_dump() tests the pointer in the condition:
+>
+>    net/smc/smc_diag.c:__smc_diag_dump() {
+> 	...
+> 	if (smc_conn_lgr_valid(&smc->conn) && smc->conn.lgr->is_smcd &&
+> 	    (req->diag_ext & (1 << (SMC_DIAG_DMBINFO - 1))) &&
+> 	    !list_empty(&smc->conn.lgr->list) && smc->conn.rmb_desc) {
+> 	...
+> 		dinfo.token = conn->rmb_desc->token;
+> 	...
+>    }
+>
+>    Can a close on another CPU clear the pointer between that test and the
+>    conn->rmb_desc->token dereference?
+Yes, and it is not confined to rmb_desc -- conn->sndbuf_desc is already
+cleared on teardown and the diag dump tests it the same way, so this is in
+the tree already.  READ_ONCE() would stop the compiler reloading after
+the test, but it would not stop the descriptor being freed under the walker,
+so it needs its own patch.
+> 	.rmbe_size = conn->rmb_desc ? conn->rmb_desc->len : 0,
+>
+>    with no READ_ONCE, which the compiler may reload after the test.
+One dependency.  conn->freed shares a byte with killed and out_of_sync, and
+out_of_sync is written from the receive tasklet without the socket lock, so
+a read-modify-write there can drop a concurrent freed.  v2 therefore comes
+as a two patch series, with "net/smc: stop killed, freed and out_of_sync
+sharing a byte" as 1/2.
 >
