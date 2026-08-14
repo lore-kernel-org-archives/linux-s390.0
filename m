@@ -1,132 +1,197 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67C0B3C5833;
-	Fri, 14 Aug 2026 15:19:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B1DC47D95C;
+	Fri, 14 Aug 2026 15:29:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786720754; cv=none; b=FI0ioaPKJUUADYx0V/yPm26e0gPzN8DDkSnWoZzUCnRlg9ndy/KkMUTx3H1MFeesBI5ef3uehblsRqy2wpVVrw+mlRH0EbcR11pnXaPJXthZQsIDtnNn7SPDzIgh3N9MVmPDuE2N03Gdb4LnYHGftSPTVQx+0yjWmnNshWO2Mk4=
+	t=1786721373; cv=none; b=JID7VolZv8DRKUV7TlbD10YMYHhhx1g4l8fU+zbHNUYtxEWETdsc6Gi07FUkEMgpuVLF8l4LFdkDOusa1uq3RgtKvnA6+25ed4FeOPWMVtpvqf4txkuWIQb6zfSWsI1CZOAXafzOEXhEapzV3bVgCt42n0TUOxQYKkNkiowFN2s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786720754; c=relaxed/simple;
-	bh=qu3TN8PARvQwbNE7zw5aXxH50NXsnT8muCVR8ElOsWE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UEsqpO79D2gLm3fireKLzRnltMTLpDrkZ728LH8wQVR44mDS/oYePzztzmkifnycQ6VBP3nuqOLGfgICSDugfHZMciiSwCHfVg8tV1Xo3ugKiuIAAbQLnuWciZkPi1bZpRCeug4UtxNbe+bWYINf8o8mVu2tsno3lbWe4VdyhS4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DlyDR/hO; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786721373; c=relaxed/simple;
+	bh=gMV7V9QWmW7q2rCHWJwnibTkArPOm6BKbU2U84kG6iI=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=OnYEN+8z+fQe/2cpCKmZnRISn/yRMaghk/5U+mpiwZEgboKOUg+nBdfpQnTwQT0GgXFhQoWgMF9Iqa55b4yr3NYa/baAOqivZi4inm951UtwG7oEud4MEcX9mY7GcXfqe+dI6x/wWWhB64Zh22LTP5GlAyv4rgtxBtkaB/QxIx4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ALAqGlE6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DlyDR/hO"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67EE5l0M230400;
-	Fri, 14 Aug 2026 15:19:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=n3J942
-	P/eq0B1uSt3EEMGOQ1xzenCKdLSHay2td+42M=; b=DlyDR/hOdiG3LfJZoBHndQ
-	rZgD8YzoYC32r+l6WnkYISdzkZNzqoemo4bFR458ilcir5Z569Y1oqHDmRPE9KPS
-	2Es1fwozUDAUk5ZpeKTY0TsRzCxqE3lR4LWLFWt65m9GRT6JDd5LQNC0DriFGt+2
-	s1iV4IeNGQBQdS2yJKX2h9Ky1sTPXbsiB9HMi2NQGs3qOSzsOBCLopb22/Dmm9vK
-	RE/tyXnCrmkOd60lGYvw997GptiddZ4Lyfh5rPqnC8bpSLgd02imuj/tcnqlU2BJ
-	BbOU0U3sVJHBRunAi/tSN4JmWLrpqtiwvTr06TKfZGkxLjly9Ho4KGeh2lkURE8A
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fyb245ke1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 14 Aug 2026 15:19:09 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67EFBWKZ021450;
-	Fri, 14 Aug 2026 15:19:08 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxg9hfqu1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 14 Aug 2026 15:19:08 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67EFJ6gB47382988
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 14 Aug 2026 15:19:06 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 91EA920043;
-	Fri, 14 Aug 2026 15:19:06 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2AA8D20040;
-	Fri, 14 Aug 2026 15:19:06 +0000 (GMT)
-Received: from [9.224.77.173] (unknown [9.224.77.173])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 14 Aug 2026 15:19:06 +0000 (GMT)
-Message-ID: <95bcecaa-a5e3-48b0-a7d5-db6569370389@linux.ibm.com>
-Date: Fri, 14 Aug 2026 17:19:05 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ALAqGlE6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 617441F000E9;
+	Fri, 14 Aug 2026 15:29:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786721372;
+	bh=I5W/mlaNA8aWWG2YwoTdfe5O742aZlfNS32ROjwlwc0=;
+	h=From:Subject:Date:To:Cc;
+	b=ALAqGlE6Opa6bTMRjaG/9jXkqDM50K8dsxysIkI/dZQ0G1tjdusXToDszaQ9kOnsx
+	 i2sV5ja8B2bSp8UiRz61wIGlEwYtC4kYMG8ZoD3xc4rKD3JdtwY4p6rxopwdf9RCLn
+	 DGIQab8BuXX5zl22mUVhmPsJ9SImdpXnUBuUsdNatqugUEHga8mHcMFy54VMv86d09
+	 MOXzIHPVpMNzZ8JPTRTJQQBgo/gsHsbUu5qeyhcnkDP7bPowIKcQjurccA4yqALCoP
+	 41CshyCkKbLEyLuYj+Qxy5M72u1JYND86tLGmphNkZuuvzIdvQFrQgOy3iOw3uPyLg
+	 K1cF43mf/OFIg==
+From: Thierry Reding <thierry.reding@kernel.org>
+Subject: [PATCH v5 00/10] dma-buf: heaps: Add support for Tegra VPR
+Date: Fri, 14 Aug 2026 17:29:08 +0200
+Message-Id: <20260814-tegra-vpr-v5-0-71832b5d0246@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/1] s390x/css: Fix css stsch detection to go beyond 8192
- devices
-To: linux-btrfs@vger.kernel.org, Qu Wenruo <wqu@suse.com>
-Cc: David Sterba <dsterba@suse.com>, Chris Mason <clm@fb.com>,
-        Josef Bacik <josef@toxicpanda.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20260814151759.1831153-1-borntraeger@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20260814151759.1831153-1-borntraeger@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=XqfK/1F9 c=1 sm=1 tr=0 ts=6a7f31ed cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=icbd4pwFJuYQJSJ-mEUA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE0MDExNCBTYWx0ZWRfX/sYM2M42pjyn
- /kA5Tq1JMASn8wOG+Mqlk/dEso/0U/GgqSlpzaItzhLdgq56AIknWYUEg7EbXrayJlytrp0W0Cm
- jN/BNF9tKBtEboTldJ2IfXU5/xI65Gtkch38xGRww2rShCI49CkRFMVCv7aUqyemlMTEIdVF5NP
- P98zNxASqwvq0pBd1X5dJ+6rWXGMf7cmgJjKdhFATpAFiGIe5g82+I+BENgLFAhcproutLBgvbn
- 9HFx+X2RmxxUQzong9HrduV1ZfkT0w5Z53f2uV5ls3ut+duwhS0WUSFy96tyGKueLfffov9yzuW
- S2oKQB5CpcW3aCVAJwyWbP5JYY+oNJR7TDQUI6sNPZ5/RC5qMJpSdMZRvgl3wPa1JJWkdMb+ZNi
- tLFk7ehZEIUWUDnW4kDMG6XbUsj5QxmQuW6PCRrmUClkggOOjLT/9neoL1moB8VxqrZbhrGlBPT
- SbMxiwkyIt81d68Z8aQ==
-X-Proofpoint-ORIG-GUID: -dTYWqZdcDC-KqsZkz-jYZ9lvb81qo5G
-X-Proofpoint-GUID: -dTYWqZdcDC-KqsZkz-jYZ9lvb81qo5G
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE0MDExNCBTYWx0ZWRfX65ZeR1fa8aNp
- ijxcPX+4OxUxclJyz6OuxSXGqVEjSwwqQaKXTecrPPjgx3T3do6gybtabBuLnnw29oYVSCxUs0Z
- G9AmsGXxRaeTr+XYlYrYJriygeWmBe8=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-14_05,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 spamscore=0 adultscore=0 malwarescore=0 clxscore=1015
- suspectscore=0 priorityscore=1501 impostorscore=0 phishscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608140114
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/2WQQW6DMBBFrxJ5XaOxsY3pKveougB7gGkTEw3Ua
+ hRx90KiikZdfum/9zVzExMy4SReDzfBmGmiMa3BvhxEGJrUo6S4ZqFBO7BQyRl7bmS+sAzRtEF
+ bqIMJYu1fGDv6vrve3h95+mo/MMybYGsMNM0jX+9jWW29zbsaQCtrXAmFgVLX3kgl54GQ+VowR
+ kr9sT83dCrCeBabOutf2IHSWjkFUBeld9Z7/x/+RE54KkbuH3S50xWoPyflUoKMHrqq9ZVqW3N
+ MmSI1+7DZUf/0jWxW1FoFUbmm8zU+ocuy/ACApps0awEAAA==
+X-Change-ID: 20260507-tegra-vpr-cd4bc2509c4c
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Thierry Reding <thierry.reding@kernel.org>, 
+ Jonathan Hunter <jonathanh@nvidia.com>, David Airlie <airlied@gmail.com>, 
+ Simona Vetter <simona@ffwll.ch>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ Sowjanya Komatineni <skomatineni@nvidia.com>, 
+ Luca Ceresoli <luca.ceresoli@bootlin.com>, 
+ Mikko Perttunen <mperttunen@nvidia.com>, Yury Norov <yury.norov@gmail.com>, 
+ Rasmus Villemoes <linux@rasmusvillemoes.dk>, 
+ Russell King <linux@armlinux.org.uk>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>, 
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+ Michal Hocko <mhocko@suse.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
+ Robin Murphy <robin.murphy@arm.com>, Sumit Semwal <sumit.semwal@linaro.org>, 
+ Benjamin Gaignard <benjamin.gaignard@collabora.com>, 
+ Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>, 
+ "T.J. Mercier" <tjmercier@google.com>, 
+ =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+ Steven Rostedt <rostedt@goodmis.org>, 
+ Masami Hiramatsu <mhiramat@kernel.org>, 
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+ Chun Ng <chunn@nvidia.com>
+Cc: Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org, 
+ linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, 
+ linux-mm@kvack.org, iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
+ linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4363; i=treding@nvidia.com;
+ h=from:subject:message-id; bh=gMV7V9QWmW7q2rCHWJwnibTkArPOm6BKbU2U84kG6iI=;
+ b=owEBbQKS/ZANAwAKAd0jrNd/PrOhAcsmYgBqfzRUshXPvNzGurrRdDa58bB+jm4ijctGMnhc+
+ XNyVdMO/5OJAjMEAAEKAB0WIQSI6sMIAUnM98CNyJ/dI6zXfz6zoQUCan80VAAKCRDdI6zXfz6z
+ oaK/D/4jGYpr7dHqhpDVoasmIjy66BZEhY1/vby2/UXhJnn1RZ3DLsSwmUT2jMVwAD193uYAJ4s
+ LxecgvfXFkObnh3rG8o0a42l10wAnn5+ubRor0y6sIqiyVwxkmZ3WFkRATUlmepjDjtHnBIqEub
+ tbntxW+JzTqxHvnmXThnm64LnCtPFK8qq16z5wgJZppkfA6pzSOZqzj/lyFfpk8LFrFPQ/qelKK
+ INtyJIALZ6863s4BywHCCZVfQOc69wdZZLKFGbyjPLDU42jtJz7tYNBlY1tdpHb7kZbxcONFi1m
+ EY8jfyp4XgF+0cpQC0b4SExqJJKw3KWIXbN3/7MFds1rDlxlUkW7oKN5efSWg9wYN44ufu3s7lZ
+ yswICRgoiy3bX4/wruXQUbsKtTGL6yvMfX17x+tEFBOtjkY36V1MewN4VxM9StBYeg/M3FU4SwV
+ xnjxEyjtSU7tH9d7qYkfxuYBXyvW3Y1zBfoNN3emdthXOGxD6i28vrBmWJL+A86OsbYV+CqHgvH
+ F49TdVi07KGe0BmjR2sGCqQF/GXrLeVvuX+wz+cY3n8hCshLVHQ7ZaIi/nx7RYaZm9TwbLXqVMe
+ wUOAN/ugPYrQ+D1s/2qGYHngVs2ACOJ3TYnUTFoDHM+qchzDkiMeT6NZXS4OCspggbtKN+GSTaf
+ b4DzNQmznPws98A==
+X-Developer-Key: i=treding@nvidia.com; a=openpgp;
+ fpr=88EAC3080149CCF7C08DC89FDD23ACD77F3EB3A1
 
-Sorry for the noise, please ignore.
+This series adds support for the video protection region (VPR) used on
+Tegra SoC devices. It's a special region of memory that is protected
+from accesses by the CPU and used to store DRM protected content (both
+decrypted stream data as well as decoded video frames).
 
-Am 14.08.26 um 17:17 schrieb Christian Borntraeger:
-> find_last_bit expects a size in bits and not in words. the calculation
-> limits the number of guest devices to 8192.  This probably does not
-> matter in reality, its wrong anyway.
-> 
-> Fixes: df1fe5bb49241 ("s390: Virtual channel subsystem support")
-> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> ---
->   hw/s390x/css.c | 3 +--
->   1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/hw/s390x/css.c b/hw/s390x/css.c
-> index 3a67b670531..dedd39006bf 100644
-> --- a/hw/s390x/css.c
-> +++ b/hw/s390x/css.c
-> @@ -2023,8 +2023,7 @@ bool css_schid_final(int m, uint8_t cssid, uint8_t ssid, uint16_t schid)
->           return true;
->       }
->       set = channel_subsys.css[real_cssid]->sch_set[ssid];
-> -    return schid > find_last_bit(set->schids_used,
-> -                                 (MAX_SCHID + 1) / sizeof(unsigned long));
-> +    return schid > find_last_bit(set->schids_used,(MAX_SCHID + 1));
->   }
->   
->   unsigned int css_find_free_chpid(uint8_t cssid)
+Patches 1 through 3 add DT binding documentation for the VPR and add the
+VPR to the list of memory-region items for display, host1x and NVDEC.
+
+Patch 4 adds bitmap_allocate(), which is like bitmap_allocate_region()
+but works on sizes that are not a power of two.
+
+Patch 5 introduces new APIs needed by the Tegra VPR implementation that
+allow memory to be allocated at a fixed offset within a CMA area. Tegra
+VPR needs this in order to implement its own allocator on top of CMA to
+meet the strict hardware requirements. This replaces the dynamic CMA
+area creation patch from earlier versions.
+
+Patch 6 adds some infrastructure for DMA heap implementations to provide
+information through debugfs.
+
+The Tegra VPR implementation is added in patch 7. See its commit message
+for more details about the specifics of this implementation.
+
+Finally, patches 8-10 add the VPR placeholder node on Tegra234 and
+Tegra264 and hook it up to the host1x node so that it can make use of
+this region.
+
+Changes in v5:
+- use a single CMA area in combination with the new cma_alloc_at() API
+- drop dynamic CMA area allocation patch
+- various cleanups
+- Link to v4: https://patch.msgid.link/20260807-tegra-vpr-v4-0-5510d16af89e@nvidia.com
+
+Changes in v4:
+- Link to v3: https://patch.msgid.link/20260701-tegra-vpr-v3-0-d80f7b871bb4@nvidia.com
+- fully remove from linear map while chunks are active
+- address checkpatch.pl and Sashiko comments
+- improve error handling
+- remove freezer support
+
+Changes in v3:
+- Link to v2: https://patch.msgid.link/20260122161009.3865888-1-thierry.reding@kernel.org
+- introduce set_memory_device() and set_memory_normal()
+- rename VPR nodes to "protected"
+- add Tegra264 placeholder nodes
+
+Changes in v2:
+- Link to v1: https://patch.msgid.link/20250902154630.4032984-1-thierry.reding@gmail.com
+- Tegra VPR implementation is now more optimized to reduce the number of
+  (very slow) resize operations, and allows cross-chunk allocations
+- dynamic CMA areas are now trackd separately from static ones, but the
+  global number of CMA pages accounts for all areas
+
+Thierry
+
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+---
+Thierry Reding (10):
+      dt-bindings: reserved-memory: Document Tegra VPR
+      dt-bindings: display: tegra: Document memory regions
+      dt-bindings: gpu: host1x: Document memory-regions for NVDEC
+      bitmap: Add bitmap_allocate() function
+      mm/cma: Introduce cma_alloc_at() API
+      dma-buf: heaps: Add debugfs support
+      dma-buf: heaps: Add support for Tegra VPR
+      arm64: tegra: Add VPR placeholder node on Tegra234
+      arm64: tegra: Hook up VPR to host1x
+      arm64: tegra: Add VPR placeholder node on Tegra264
+
+ .../display/tegra/nvidia,tegra124-vic.yaml         |    8 +
+ .../bindings/display/tegra/nvidia,tegra186-dc.yaml |   10 +
+ .../bindings/display/tegra/nvidia,tegra20-dc.yaml  |   10 +-
+ .../display/tegra/nvidia,tegra20-host1x.yaml       |    7 +
+ .../bindings/gpu/host1x/nvidia,tegra234-nvdec.yaml |    8 +
+ .../nvidia,tegra-video-protection-region.yaml      |   75 ++
+ arch/arm64/boot/dts/nvidia/tegra234.dtsi           |   45 +
+ arch/arm64/boot/dts/nvidia/tegra264.dtsi           |   33 +
+ drivers/dma-buf/dma-heap.c                         |   52 +
+ drivers/dma-buf/heaps/Kconfig                      |   12 +
+ drivers/dma-buf/heaps/Makefile                     |    1 +
+ drivers/dma-buf/heaps/tegra-vpr.c                  | 1410 ++++++++++++++++++++
+ include/linux/bitmap.h                             |   25 +-
+ include/linux/cma.h                                |    4 +
+ include/linux/dma-heap.h                           |    2 +
+ include/trace/events/cma.h                         |   63 +
+ include/trace/events/tegra_vpr.h                   |   57 +
+ mm/cma.c                                           |  148 ++
+ 18 files changed, 1964 insertions(+), 6 deletions(-)
+---
+base-commit: 48ae42ae65bf76d723943c717044a09ba6666e56
+change-id: 20260507-tegra-vpr-cd4bc2509c4c
+
+Best regards,
+--  
+Thierry Reding <treding@nvidia.com>
 
