@@ -1,128 +1,146 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6062B47ACFB
-	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 14:41:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC621474262
+	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 14:44:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786718502; cv=none; b=Ov1GqhORAOWy/HFwzL6p/XxEQkQHwwU+LI3A5wVHfupOwxNTnZhvx3FEx79EGsR6UgInl87mpuZFaUi8DFHdbS23Cqi+7kgMJE78QL/gU1HE4mjW/56aRBWZTPD2tALlrhiHmKPEKJp3W4DxVjmV7L/F09LkxsV/ejsE9FAU2/E=
+	t=1786718646; cv=none; b=aTvKwt+DBZKq5tVrMTmtJOiBVSV2pMoQDa3uf4CBUS6x2sVVnxcP4yXWr3WcTYbKpnX+3rdVD4BdzGBsiQMV+XRpt7tRpu2tni0M3OZJkrquZYeeqWyTIwnv6Q7V/e9Pmuz68d2aoIw1F4IqsVi15rpNzXA1HfLSEWr7l2p2yNE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786718502; c=relaxed/simple;
-	bh=nykLhtkDorzGikFc+l+tun2q4Xq5nKqpMvtVJ8CiD7k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=enmzaoUhmt+YIgdg2U9+ltmoIBumEkKY9KgfKaPHVeUZpgMLqFCmLYOrgWNEam5eqY8BOrR8oqxPeO8ViIu6qqC0KO/vWr3khh32gFya+tItILCVEcI62NE2/fZpkE/tsgkoPQgW4WnkpLjMGOvC8CbE7PA6PQsoeGRjgLP7YYw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IawkhuNf; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786718646; c=relaxed/simple;
+	bh=uoEbTcU6zq78GVkKHEmb9/j2RYKm/+JvIeHqQL2sDbQ=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=ed5TYPqLzUFTE0PJiWWLnlhXmzbrLUF2xRi9KZmdsIL+k6qIqcYNa3EkLa2AljFerZmGpwscrk3uq3sBR2qOPTOoSClnluRDcCFg8vOBghdeUPmAPE50V7uk0P+N71r+DkjG5XlOhUIHmhxUyNTpSGsePm3QldKxUGoUi1oeVHw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VWSQOR4X; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IawkhuNf"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67EE5ngB1343028
-	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 14:41:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=7JWE71XjvOOtLigiTmeJ1keHL/zaC5
-	dWKeP4EDb5kQw=; b=IawkhuNfz/GBRiVsOAuCbhGGqjEYwN9DUFUdWQDYS92+f+
-	batjw5Z5r3WgC87cVkH176FROqtPftcsdulZNJGVotfxkE1rWaEybIhcDYK8NWKw
-	uNrs0WU/4HO5q3EY87ydGeMO/RU07ZiVNLOF07+2UZg11THqW6UiGEmogxpNVlxn
-	0Owgb7otvPSo3OR87bzpsNzY1PCWBt81zrMiXaFG6wXD3hhcHvv5O5bDZeyeb+LH
-	2pVcYLOhw7S2iCTzhSliVWc8MWwoGJV7x8w2zArYwRsrs3MSV/Nju4ou1LHzaasa
-	zvMJZdgw39EfMlY2WmQL872tWX5yF3ks5ZMJhx4w==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvma5b8n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 14:41:40 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67EEfI68001259
-	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 14:41:39 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fxh0gqhyk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 14:41:39 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67EEfZpl52363562
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 14 Aug 2026 14:41:36 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D30DC20043;
-	Fri, 14 Aug 2026 14:41:35 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9DE7B20040;
-	Fri, 14 Aug 2026 14:41:35 +0000 (GMT)
-Received: from osiris (unknown [9.111.40.200])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 14 Aug 2026 14:41:35 +0000 (GMT)
-Date: Fri, 14 Aug 2026 16:41:34 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Mikhail Zaslonko <zaslonko@linux.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH 1/2] s390/ipl: Fix NULL deref in kdump without re-IPL
- parm block
-Message-ID: <20260814144134.135106Adf-hca@linux.ibm.com>
-References: <c00-02.ttjpfvt@ub.hpns>
- <p01-02.g87de83845c5f.ttjpfvt@ub.hpns>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VWSQOR4X"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E91B71F000E9;
+	Fri, 14 Aug 2026 14:44:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786718645;
+	bh=FAXOBMY/ThXi2JuFqPQPQICl8kCOXebHaUGCN6K+diU=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=VWSQOR4XpRSZ7FkNBEFlIjczTMUlNK5VuMe9n7C6yi4fC9VZvAB+zir5SC5TQpDru
+	 wy/Q5SMyHFHcoJ6Be/NWTaGTcJxaEljGNmZtOu0JGHHsaMpj56wnQbnEwlumCwu8Gj
+	 EWPm7pHSaIW0IN3b43hpijdo1vqMuL4n54V9Tx3G0DNn6coulXz8m/zkPQLIB0Hvyh
+	 5vpHyxu2EDw06X4dbGmUIUUJr8yATpWX1hStPXZEHZMSmI+H4FyMPrvs7LHao97/tl
+	 SHnotE6gpqfRUPgis5ObTTJzSTxhmxYD+iFHA12bI+KI8cLXBNZgZyGn3JyEjvE2Nw
+	 if8qqZcGDGuxw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v1 3/3] s390/crypto: Fix use of mutex in atomic context
+ in PAES
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Harald Freudenberger" <freude@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20260814142200.65821-4-freude@linux.ibm.com>
+References: <20260814142200.65821-1-freude@linux.ibm.com>
+ <20260814142200.65821-4-freude@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 14 Aug 2026 14:44:04 +0000
+Message-Id: <20260814144404.E91B71F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p01-02.g87de83845c5f.ttjpfvt@ub.hpns>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE0MDExMSBTYWx0ZWRfX+A4RVnr9YkON
- T7Ez1GiYUthS2Wo8/fDUDMLoe+MtWB1A91I1IhqYt02eu19wWXHv3lqL/XNaggfUkDp0wuhFVsg
- pY573efaTMVNuuD5Kbc5ugSt4BO/nJ1vJZGfc9NiE7k9wlI+XhRQNab6pjRzP6KrOefxLMBw5f6
- FtcbalyQckBfaGabXIp+k8k5Vse5/IONQKRm2W2o87OGML2JA6mHxfOEab/13wvsGFSJKiX5WEe
- kgdmI6FkDCgTRBLKJ65nG2ndtWHTf+TtnSSm/EUDAE9pvUhf1PyNKt2RlnJdh4X5KjDI3x4V5w5
- LrAVTLB+PY0MmGSbqPrgmDO2bCFTthmL9pW2NN3mr2wMkDc/xG1PsiVq94c3UybZ+w7uwy8wbnm
- qlfXFcBQBhGFa6oIYzhWcp/xqkSsF6zs4HGISV2CAKTz0QCeRdm4NBd8LvC4AejVgUrqdvRZ1vf
- ZvxQir2SbG0Nq6kRmeA==
-X-Proofpoint-ORIG-GUID: 9SNSmtXsYIYhUhiQw1NfORbFjWbHyq4Y
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE0MDExMSBTYWx0ZWRfX48FoH2IUAoxs
- rM/eap7c474UHjYEbhFJh0jpJKlMHBSH3NYqzlK1fG2uTVINpRlZqxEJ5OHRijtt3mXBaGTBz8S
- LJBj8trusvBu86qnB+Fd4DrjIlAg/n4=
-X-Authority-Analysis: v=2.4 cv=IfK3n2qa c=1 sm=1 tr=0 ts=6a7f2924 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=wlvK-vJGsJdvzziIeEIA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: 9SNSmtXsYIYhUhiQw1NfORbFjWbHyq4Y
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-14_05,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 impostorscore=0 bulkscore=0 clxscore=1015
- lowpriorityscore=0 adultscore=0 malwarescore=0 spamscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608140111
 
-On Thu, Aug 13, 2026 at 01:06:54PM +0200, Vasily Gorbik wrote:
-> Some IPL types, like HMC FTP boot or QEMU direct kernel boot, might
-> not provide an IPL parameter block. In this case, reipl_type_init()
-> selects IPL_TYPE_UNKNOWN, and reipl_block_actual remains NULL.
-> 
-> kdump passes the re-IPL parameter block to the dump kernel through
-> os_info. Before commit 3b9678472bab ("s390/ipl: correct kdump reipl
-> block checksum calculation"), the os_info entry was added only for
-> IPL types which initialized reipl_block_actual. That commit moved the
-> os_info update to machine_crash_shutdown(), making it unconditional. As
-> a result, set_os_info_reipl_block() dereferences reipl_block_actual for
-> IPL_TYPE_UNKNOWN. This may happen to work by chance when address zero
-> contains readable lowcore data and the resulting empty os_info entry is
-> ignored by the dump kernel.
-> 
-> Skip the os_info update when no re-IPL parameter block is available.
-> Kdump then collect the dump and reboot without setting re-IPL parameter
-> block.
-> 
-> Fixes: 3b9678472bab ("s390/ipl: correct kdump reipl block checksum calculation")
-> Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-> ---
->  arch/s390/kernel/ipl.c | 2 ++
->  1 file changed, 2 insertions(+)
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Pre-existing issues:
+- [High] The patch fixes a mutex used in atomic context for PAES, but leave=
+s the exact same buggy pattern unfixed in the standard AES implementation.
+- [High] Cryptographic keys, plaintext, and ciphertext leak onto the kernel=
+ stack due to missing zeroization on error paths and tail-block processing.
+--
+
+--- Patch [3]: [PATCH v1 3/3] s390/crypto: Fix use of mutex in atomic conte=
+xt in PAES ---
+commit 80f788f92a13c083509e6350703c357c6460863b
+Author: Harald Freudenberger <freude@linux.ibm.com>
+
+s390/crypto: Fix use of mutex in atomic context in PAES
+
+This commit replaces a mutex with a binary semaphore for the PAES CTR
+implementation. This resolves an issue where the mutex was unsafe to use in
+atomic or interrupt contexts.
+
+Cc: stable@vger.kernel.org # 6.16+
+
+> diff --git a/arch/s390/crypto/paes_s390.c b/arch/s390/crypto/paes_s390.c
+> index 5a7dc46518854..4f65469d35fcd 100644
+> --- a/arch/s390/crypto/paes_s390.c
+> +++ b/arch/s390/crypto/paes_s390.c
+
+[Severity: High]
+This is a pre-existing issue, but does the standard AES implementation need
+the same fix?
+
+The commit message notes that the mutex is not safe to use in atomic or
+interrupt contexts. Looking at ctr_aes_crypt() in
+arch/s390/crypto/aes_s390.c, it continues to use mutex_trylock(&ctrblk_lock)
+in contexts where it may be called from softirq. Does that leave standard
+AES CTR broken in atomic environments in the exact same way?
+
+[ ... ]
+
+> @@ -1016,7 +1017,7 @@ static int ctr_paes_do_crypt(struct s390_paes_ctx *=
+ctx,
+>  		}
+>  	}
+>  	if (locked)
+> -		mutex_unlock(&ctrblk_lock);
+> +		up(&ctrblk_sem);
+> =20
+>  	/* final block may be < AES_BLOCK_SIZE, copy only nbytes */
+>  	if (nbytes) {
+>  		memset(buf, 0, AES_BLOCK_SIZE);
+>  		memcpy(buf, walk->src.virt.addr, nbytes);
+>  		while (1) {
+>  			if (cpacf_kmctr(ctx->fc, param, buf,
+>  					buf, AES_BLOCK_SIZE,
+>  					walk->iv) =3D=3D AES_BLOCK_SIZE)
+>  				break;
+>  			if (!maysleep) {
+>  				rc =3D -EKEYEXPIRED;
+>  				goto out;
+>  			}
+>  			rc =3D paes_convert_key(ctx, tested);
+>  			if (rc)
+>  				goto out;
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does this error path bypass
+the scrubbing of sensitive stack buffers?
+
+In ctr_paes_do_crypt(), if paes_convert_key() fails in the final block
+processing loop, the code jumps to the out label, completely bypassing
+memzero_explicit(buf, sizeof(buf)). Can this leave cryptographic material
+exposed on the kernel stack?
+
+There appear to be similar unscrubbed buffers in arch/s390/crypto/aes_s390.=
+c,
+such as ctr_aes_crypt() missing a memset on return entirely, and
+gcm_aes_crypt() returning -ENOMEM directly when a scatterlist mapping fails,
+which bypasses the zeroization of the master AES key.
+
+>  			spin_lock_bh(&ctx->pk_lock);
+>  			memcpy(param->key, ctx->pk.protkey, sizeof(param->key));
+>  			spin_unlock_bh(&ctx->pk_lock);
+>  		}
+>  		memcpy(walk->dst.virt.addr, buf, nbytes);
+>  		crypto_inc(walk->iv, AES_BLOCK_SIZE);
+>  		rc =3D skcipher_walk_done(walk, 0);
+>  		memzero_explicit(buf, sizeof(buf));
+>  	}
+>=20
+> out:
+>  	pr_debug("rc=3D%d\n", rc);
+>  	return rc;
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260814142200.6582=
+1-1-freude@linux.ibm.com?part=3D3
