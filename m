@@ -1,237 +1,261 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4FA4D4908DE;
-	Fri, 14 Aug 2026 17:34:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786728889; cv=none; b=pJdHeV92gcjzQObuDQjlgs9SPQOP287HS0gYD92lJ+YFptju3ajmKni1U5Vle7283cg/t6idrXK2+Lbm44gBf5jcoTUYFs4OZCNUfF5E9lM5TpN2NZgkmpIpIdQ+3cZ3CYlWBPK8TtvZiB4DoLv3Uk5tY5BsM77hvrXNDx6NUrQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786728889; c=relaxed/simple;
-	bh=u3T9edAxlh7yKorxUAb9VAjz6kQdSTTbvHmmGeDDHoU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ItsijMuInXjB+65qEkL8edpH8OKDxKwq3KEc7SP+nBkiogH3WYyKDeQ98Q1ck0Momdtr8NIdsVcP8HWOoouJnjhAmD8KH3hOram514euAfwVZqVcBzhD1mlIUwqPPEfUdNFQTUm9hO3IeGXjfXsPohtXXw6jx8/wjNu51aC3ifc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=ppm7pmp8; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AFB4494A08
+	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 17:44:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.175
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786729442; cv=pass; b=vBSeOvN3mJWrd7CgtsqW3BVp7OQWucpTItv2+qNMH7q9HOa++mDtkKcQ9hZjdd6WFZX9tFzfK02ZzdSSJFiISjXkFBBsVmOwXZ8Vkb84e2t6aqEfcXJkUkqRrGwhWfF4TmRuo5+SS8tga28Ycvteqe0h329amLE21ZSRgHOxWCc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786729442; c=relaxed/simple;
+	bh=ThdoN2c7xpbfFPU2VKw49l55oAYgxAYpwp70uDUCIEM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NiGdWmP5egWXhOqnA+ytWbWEn9qE9OaYcK0cpjz85zypHsLejXl5vFbdGM7qQJV/YHYMT464cQWIIlt02DKruCGyjAYJZ+Cn9rbU+CitOth9ru9S+5KWg95xCxNrx1pEAlmBRKD7PJjnZNCWMn+pE1PTzkEs5pASJGgXAXLOY+8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=OKSQkD50; arc=pass smtp.client-ip=209.85.160.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="ppm7pmp8"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7D9611516;
-	Fri, 14 Aug 2026 10:34:42 -0700 (PDT)
-Received: from arm.com (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3CB4D3F66F;
-	Fri, 14 Aug 2026 10:34:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1786728886; bh=u3T9edAxlh7yKorxUAb9VAjz6kQdSTTbvHmmGeDDHoU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ppm7pmp8E9oVikMGpVoQQWvjA2spsMWcUEwM5vXpRx2erTjnP16IFLrGmEifQQ7DC
-	 8sLEvBHanZyBCAqJAEiPNurm8WKYBKyyxL14TwTjEu5odWeJbfPbCk4dKh+9cwcRrg
-	 SHpUIcPXbrmDNJK4N0VK054T4ts//EmbcSpr6RgI=
-Date: Fri, 14 Aug 2026 18:34:39 +0100
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
-Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
-Subject: Re: [RFC PATCH v2 2/2] dma: swiotlb: Initialize and size shared
- default pools for memory encryption
-Message-ID: <an9RrwoaAsqJQ2vN@arm.com>
-References: <20260813102521.1367737-1-aneesh.kumar@kernel.org>
- <20260813102521.1367737-3-aneesh.kumar@kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="OKSQkD50"
+Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-51c01c79467so370441cf.0
+        for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 10:44:00 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786729440; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Kpll/1MHMjbNn+42KFMCyrbP8SHwHi8fQNDxnu/Mkdvh7IJW7GNs2F8pJAbsb40TUb
+         M8TkwiAYtQW9rPqSB/lajf7bE1/0f/NOk3dRZeV6mtBWLJPvhW3iJoj5MUso9Ko3EkgZ
+         Gdvxar7Sye1GE3izZIplwP4A9LUf+7lNAPWYnEv6ML0aXEGwXPUaxfSsWvkXloV9WXHe
+         W7WwD2cV0GNlYhqqXYRHjK8QQOTecoT893iWR63Ti1YeQj2wakNcMnUBgQX0tJcJZC/W
+         xJmtnCRCE9cgZZyVD1JEY5R0UOe4RGVL82oHvLBxfxxOYMufT/QaUP+3l6JAjWOzvnGU
+         FLaQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=3XIa3oNqh9XbRNaEPeDhKo2IZftbtziRumFePLkBD7A=;
+        fh=tF5YpMKcyecg0iur4Sf3ZpsFvKsZ7+KLvoQpsB3U0y8=;
+        b=Z1KxvoJNEZeFU5CueQbry8EszM4AgkdFgcvFqkO4nIhsNgHrzwj3KOzBL8ZR8igzS9
+         1LEHGCoPgmZInxb5roFG2gNspej7xJ2o09dbdsgicEEyTxdYAnpRrxfPxoa10A8c9W7P
+         MCrbuesivFsaVLTTY+R4Y/qWUBsByZgZZrL5Ydn5KY8QtS9gyevDFNSddOXB26CVF+W2
+         KpIHiYpiYRvU+jyT6LBDsHLlacoqaVe41SdVDdiBNDQ7JBwoUI0ibY7hzl3WJuypWY/g
+         6Fqpso8OutEPshwgCJ9r6SzMdf7HOg2fTxx47NifFTDDnUQuoHx7lJgUAiqF5K2lnmmW
+         jNhA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1786729440; x=1787334240; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=3XIa3oNqh9XbRNaEPeDhKo2IZftbtziRumFePLkBD7A=;
+        b=OKSQkD50LRvbdaf70WWAggEH+UnRsyUKwFGwtmoxC+mMM6JycOqwbReoviTIkx1WkG
+         gtUhTfsniqQ7HGjespdSAOpOigIgMtaSC6bahQxweesUt+ZytiOBQFxV/nGUIfv7jL7K
+         elCZ5C5I72MYRCV4m86PPsfO/liVuY35bQ7otg+lWG8EH4SAv5qPsnbvPvneON9YUm7p
+         7PzfFCGWkYGQZjwb7dTBmJwSwCwV7hEuDm6PudeFpTxvDHTEXkTj64qSPLK9iK1CLvlx
+         5nfpEJPTXQ+Kz8viRw367azUaGIFS4wegNWKr0qw5ewIDYC4XOUgrISocgKTUyPwh7CR
+         LNcA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1786729440; x=1787334240;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=3XIa3oNqh9XbRNaEPeDhKo2IZftbtziRumFePLkBD7A=;
+        b=GLo2G69NN6Yax7kMuHnQ5XUP7lWx8N3uhaz3LWwGsVRVLjYddmqLIRTHc5L4InXiyA
+         5Jp4jgqScKGJ152qQ/h6dP3k8R3CHn/P6UsDn8pvHbeDibuf0egYXlaq+h/lBiYQeeWc
+         g3Z1S+kicOhUYIlNk1iRnxfLnp3OuFrp7MiEm+5/LDlH/V1h+NkzeGJZ1FP9UJyxGK6A
+         LxGDEiLaJHAImtm54MScpWV/UvuDcAT3WbOXMrsj6ZagGly69XTY3p8quD1iyNrw2+RJ
+         +K0hN1KpanJcKrJtsSXjaX/GWmTpbJfi4ZgHPxm2v4ZGLEiDmo2fJmbmumYhZEeYxBKo
+         RVUg==
+X-Forwarded-Encrypted: i=1; AHgh+Rq27aI8WsJ1pMK0QKrBTHwVwwSHMfxAOWfkj9DzkRYC4QGw+petbabwf1YZKAtfkrc+IBkEELo7nLl4@vger.kernel.org
+X-Gm-Message-State: AOJu0YxcTozoTe9RcEwpJkXsTA6qXBa3qAel6syBcmPQkBGMltHGrU6M
+	PwoDEbHWInQsrfIze28KD/RnM3xu8sjqZeO0WcDKZ1hw8pvQBz9bss5f71ynlvYD1rwIyhyXFZo
+	ml4AqHU/cL+0b1InZTzROGoOD7FMpErdrb9vsGQFv
+X-Gm-Gg: AR+sD12IIbw7iyyTgiN/VisizwE9jCdtgYUBXK1tGwHThlmbAyoVG85dR3Y11ja5Ajm
+	siQ9BXuyVzGHb4NUYFnPA1aCLwVfXGIfqiqIfG6VA/GCm8fkdi8+zTVb5AeUCLmhoWMU2wac0Qy
+	uF7Fw6+heZ0QXSDJmvqsyEj5qR75fvYZtHZbJhiZWR0t3+2JpM50dW26/RBjVIU1+VAsauPsHt0
+	muKigR5YIBZdAiukmNXKjR2T+cN28aRE1LUcBBNBcKdWs9V8tEXoKYXLnkCyQEJHgqxD6F6aOEs
+	yaSU395NJbI+EgaG0Dw5xEAmym44jAY69t6tWnDpPMJ87w==
+X-Received: by 2002:ac8:5f8b:0:b0:50d:edb1:6bd1 with SMTP id
+ d75a77b69052e-52d8631482dmr1548221cf.13.1786729439124; Fri, 14 Aug 2026
+ 10:43:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260813102521.1367737-3-aneesh.kumar@kernel.org>
+References: <20260807104913.1784943-1-jremus@linux.ibm.com>
+ <CAP-5=fWqtWQ+vA5-8ieARsVWqt-D3pUc1+NdwqEJ1F=jCkK86Q@mail.gmail.com> <bfa64536-1c6a-417b-bb28-502ee25586a3@linux.ibm.com>
+In-Reply-To: <bfa64536-1c6a-417b-bb28-502ee25586a3@linux.ibm.com>
+From: Ian Rogers <irogers@google.com>
+Date: Fri, 14 Aug 2026 10:43:47 -0700
+X-Gm-Features: AUfX_myAQHv0Qecj4POBdsMTROB3j5EAzIXj6vRSVzm2q2sQLBtuAj2YR4LRrx0
+Message-ID: <CAP-5=fWa9iCadXAh4nU3XHRT7wS4BNbW6i+St-5a3pdVPzUx+Q@mail.gmail.com>
+Subject: Re: [PATCH] perf evsel: Improve frame pointer unwinding warning for s390
+To: Jens Remus <jremus@linux.ibm.com>
+Cc: Thomas Richter <tmricht@linux.ibm.com>, Jan Polensky <japo@linux.ibm.com>, 
+	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, linux-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 13, 2026 at 03:55:21PM +0530, Aneesh Kumar K.V (Arm) wrote:
-> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-> index 9f5b366d2086..c3188ca878f3 100644
-> --- a/arch/arm64/mm/init.c
-> +++ b/arch/arm64/mm/init.c
-> @@ -338,12 +338,8 @@ void __init arch_setup_zero_pages(void)
->  void __init arch_mm_preinit(void)
->  {
->  	unsigned int flags = SWIOTLB_VERBOSE;
-> -	/* pKVM uses restricted-dma-pool */
-> -	bool cc_guest = is_realm_world();
->  
-> -	if (cc_guest)
-> -		flags |= SWIOTLB_INIT_CC_SHARED;
-> -	else if (max_pfn > PFN_DOWN(arm64_dma_phys_limit))
-> +	if (max_pfn > PFN_DOWN(arm64_dma_phys_limit))
->  		flags |= SWIOTLB_INIT_ADDRESSING_LIMIT;
->  
->  	swiotlb_init(flags);
+On Tue, Aug 11, 2026 at 2:53=E2=80=AFAM Jens Remus <jremus@linux.ibm.com> w=
+rote:
+>
+> Hi Ian!
+>
+> On 8/8/2026 6:13 AM, Ian Rogers wrote:
+> > On Fri, Aug 7, 2026 at 3:49=E2=80=AFAM Jens Remus <jremus@linux.ibm.com=
+> wrote:
+> >>
+> >> On s390 the kernel uses s390 back chain instead of frame pointers for
+> >> stack tracing of user space since v6.7 commit aa44433ac4ee ("s390: add
+> >> USER_STACKTRACE support").  This is because frame pointers on s390
+> >> cannot be used for stack tracing. [1]
+> >>
+> >> This requires user space to maintain a s390 back chain.  For instance
+> >> user space to be built with compiler option '-mbackchain' (instead of
+> >> '-fno-omit-frame-pointer' used on other architectures, which should
+> >> better not be used on s390 [1]).
+> >>
+> >> Only few distributions and users built user space with '-mbackchain'.
+> >> Therefore '--call-graph fp' may not produce the expected results.
+> >>
+> >> Commit ca76fb67ebdd ("perf evlist: Improve default event for s390")
+> >> added a warning for s390 that wrongly claimed that "Framepointer
+> >> unwinding lacks kernel support".  Change the warning to hint at using
+> >> '--call-graph dwarf' if user space does not maintain a s390 back chain=
+.
+> >>
+> >> Note that '--call-graph fp' may also be useful for other applications,
+> >> such as OpenJDK maintaining a s390 back chain (does not require JVM
+> >> option '-XX:+PreserveFramePointer' on s390):
+> >>
+> >>   $ perf record --call-graph fp ... -- \
+> >>     java -XX:+UnlockDiagnosticVMOptions -XX:+DumpPerfMapAtExit ...
+> >>
+> >> [1]: s390: Stack tracing using Frame Pointer, Back Chain, and SFrame,
+> >>      https://conf.gnu-tools-cauldron.org/opo25/talk/Y3CVHY/
+> >>
+> >> Fixes: ca76fb67ebdd ("perf evlist: Improve default event for s390")
+> >> Signed-off-by: Jens Remus <jremus@linux.ibm.com>
+> >> ---
+> >>  tools/perf/util/evsel.c | 3 ++-
+> >>  1 file changed, 2 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
+> >> index ea9fa04429f0..c4d67d1b35f3 100644
+> >> --- a/tools/perf/util/evsel.c
+> >> +++ b/tools/perf/util/evsel.c
+> >> @@ -1080,7 +1080,8 @@ static void __evsel__config_callchain(struct evs=
+el *evsel, const struct record_o
+> >>
+> >>         if (EM_HOST =3D=3D EM_S390 && param->record_mode =3D=3D CALLCH=
+AIN_FP) {
+> >>                 pr_warning_once(
+> >> -                       "Framepointer unwinding lacks kernel support. =
+Use '--call-graph dwarf'\n");
+> >> +                       "Use '--call-graph dwarf' if user space does n=
+ot maintain a s390 back chain "
+> >> +                       "(e.g. is not built with '-mbackchain').\n");
+> >
+> > Thanks Jens. The text was based on:
+> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree=
+/arch/s390/kernel/perf_cpum_sf.c#n853
+> > ```
+> > static int cpumsf_pmu_event_init(struct perf_event *event)
+> > ...
+> >  /* No support for callchain, stacks and registers */
+> > if (has_branch_stack(event) || is_callchain_event(event))
+> > return -EOPNOTSUPP;
+> > ```
+>
+> According to Thomas, the s390 HW event 'cycles' does not support
+> callchains.  This is because on s390 it provides aggregated historical
+> data, making it impossible to associate a callchain to the sampled data.
+> Your referenced cpumsf_pmu_event_init() code applies specifically to the
+> CPU Measurement Sampling Facility (CPUMSF) PMU and therefore correctly
+> rejects callchains for those HW events.
+>
+> On s390, callchains are therefore only supported with SW events.
+>
+> Since your commit ca76fb67ebdd ("perf evlist: Improve default event for
+> s390") callchains on s390 default to (1) the SW event 'cpu-clock' (or
+> 'task-clock') and (2) 'dwarf'.  The kernel on s390 also supports 'fp'
+> callchains using s390 back chain since commit aa44433ac4ee ("s390: add
+> USER_STACKTRACE support").
+>
+> Therefore the current warning on s390 for 'fp' is misleading.  Given
+> that on s390 a user must explicitly select 'fp', and that on other
+> architectures there is no warning about the requirement for user space
+> to maintain frame pointers (e.g. if they were not built with
+> '-fno-omit-frame-pointer' and '-mno-omoit-leaf-frame-pointer') it might
+> be preferable to remove the warning altogether.
+>
+> We could document in the perf man pages that 'fp' on s390 relies on the
+> s390 back chain rather than frame pointers.
+>
+> What do you think?
 
-This looks fine. As I mentioned on patch 1, we might as well move this
-hunk over there and avoid the flag definition.
+So firstly, sorry for the misleading message and thanks for trying to
+fix it! Also, sorry for the delay in responding and dealing with some
+hospital things. Man page documentation sounds good to me, and having
+a good warning also sounds good. Since this is for s390 you guys are
+much smarter about what to do than I am. Since the function generating
+the warning has an evsel, we can get the PMU from the evsel and check
+things like:
+```
+if (evsel->pmu && perf_pmu__is_software(evsel->pmu))
+```
+By which I mean we can provide different warnings for hardware and
+software events. That said, as a hardware event will fail in the
+perf_event_open I'm not sure it is a useful distinction.
 
-> @@ -102,9 +101,6 @@ void __init mem_encrypt_init(void)
->  
->  void __init mem_encrypt_setup_arch(void)
->  {
-> -	phys_addr_t total_mem = memblock_phys_mem_size();
-> -	unsigned long size;
-> -
->  	/*
->  	 * Do RMP table fixups after the e820 tables have been setup by
->  	 * e820__memory_setup().
-> @@ -112,33 +108,9 @@ void __init mem_encrypt_setup_arch(void)
->  	if (cc_platform_has(CC_ATTR_HOST_SEV_SNP))
->  		snp_fixup_e820_tables();
->  
-> -	if (cc_platform_has(CC_ATTR_MEM_ENCRYPT))
-> -		x86_swiotlb_flags |= SWIOTLB_INIT_CC_SHARED;
-> -
->  	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
->  		return;
->  
-> -	/*
-> -	 * For SEV and TDX, all DMA has to occur via shared/unencrypted pages.
-> -	 * Kernel uses SWIOTLB to make this happen without changing device
-> -	 * drivers. However, depending on the workload being run, the
-> -	 * default 64MB of SWIOTLB may not be enough and SWIOTLB may
-> -	 * run out of buffers for DMA, resulting in I/O errors and/or
-> -	 * performance degradation especially with high I/O workloads.
-> -	 *
-> -	 * Adjust the default size of SWIOTLB using a percentage of guest
-> -	 * memory for SWIOTLB buffers. Also, as the SWIOTLB bounce buffer
-> -	 * memory is allocated from low memory, ensure that the adjusted size
-> -	 * is within the limits of low available memory.
-> -	 *
-> -	 * The percentage of guest memory used here for SWIOTLB buffers
-> -	 * is more of an approximation of the static adjustment which
-> -	 * 64MB for <1G, and ~128M to 256M for 1G-to-4G, i.e., the 6%
-> -	 */
-> -	size = total_mem * 6 / 100;
-> -	size = clamp_val(size, IO_TLB_DEFAULT_SIZE, SZ_1G);
-> -	swiotlb_adjust_size(size);
-> -
->  	/* Set restricted memory access for virtio. */
->  	virtio_set_mem_acc_cb(virtio_require_restricted_mem_acc);
->  }
+> > The backchain option is never tested by perf or apparently in the
+> > kernel, but this warning is supposed to pre-warn about "not supported"
+> > being returned when frame pointer unwinding is requested. Of course,
+> > lacking an s390 I've never tested this. I can imagine the warning
+> > being overly broad, but my understanding is cpum_sf is the only PMU
+> > capable of sampling on s390.
+> >
+> > Perhaps what is needed is additional text after the "Use '--call-graph
+> > dwarf'". The existing initial text at least appears to match the
+> > kernel code. I'm not clear how the lack of back chains would be
+> > reported as an error code, and this could introduce confusion as we
+> > have lots of stack, chain and branch related terms in the perf
+> > codebase.
+>
+> This is analogous to frame pointers on other architectures: the absence
+> of a maintained s390 back chain is not reported as an error.  There is
+> currently no mean to determine from and ELF binary whether it was built
+> to maintain a s390 back chain (i.e. no ELF attribute/flag).
 
-Credit to claude, it noticed a slight change in behaviour for x86 w.r.t.
-the crash kernel reservation. crash_low_size_default() reads the swiotlb
-size but the resizing now happens after arch_reserve_crashkernel().
-Maybe not an issue.
+Thanks for the clarification! I think given this I'm happy to add my tag:
 
-Alternatively, we could build the sizing logic into
-swiotlb_size_or_default() but I haven't checked whether we have the
-right information when this function is called.
+Reviewed-by: Ian Rogers <irogers@google.com>
 
-> @@ -382,12 +374,54 @@ static void __init *swiotlb_memblock_alloc(unsigned long nslabs,
->  	return tlb;
->  }
->  
-> +static void __init swiotlb_adjust_cc_attributes(void)
-> +{
-> +	unsigned long size;
-> +	phys_addr_t total_mem = memblock_phys_mem_size();
-> +
-> +	/* Do not resize for host memory encryption. */
-> +	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
-> +		return;
-> +
-> +	/*
-> +	 * For SEV and TDX and CCA, all DMA has to occur via
-> +	 * shared/unencrypted pages. Kernel uses SWIOTLB to make this
-> +	 * happen without changing device drivers. However, depending on
-> +	 * the workload being run, the default 64MB of SWIOTLB may not be
-> +	 * enough and SWIOTLB may run out of buffers for DMA, resulting in
-> +	 * I/O errors and/or performance degradation especially with high
-> +	 * I/O workloads.
-> +	 *
-> +	 * Adjust the default size of SWIOTLB using a percentage of guest
-> +	 * memory for SWIOTLB buffers. Also, as the SWIOTLB bounce buffer
-> +	 * memory is allocated from low memory, ensure that the adjusted
-> +	 * size is within the limits of low available memory.
-> +	 *
-> +	 * The percentage of guest memory used here for SWIOTLB buffers is
-> +	 * more of an approximation of the static adjustment which 64MB for
-> +	 * <1G, and ~128M to 256M for 1G-to-4G, i.e., the 6%
-> +	 */
-> +	size = total_mem * 6 / 100;
-> +	size = clamp_val(size, IO_TLB_DEFAULT_SIZE, SZ_1G);
-> +	swiotlb_adjust_size(size);
-> +
-> +	if (!IS_ENABLED(CONFIG_SWIOTLB_DYNAMIC))
-> +		pr_info("Consider enabling CONFIG_SWIOTLB_DYNAMIC for memory-encrypted systems\n");
+Do you want the maintainers to move forward with this change, or would
+you prefer to add something to the man pages, etc. ?
 
-I agree with Michael, let's drop this pr_info().
+Thanks,
+Ian
 
-> +}
-> +
->  static bool __init swiotlb_kmalloc_needs_bounce(void)
->  {
->  	return IS_ENABLED(CONFIG_DMA_BOUNCE_UNALIGNED_KMALLOC) &&
->  	       (dma_get_cache_alignment() > 1);
->  }
->  
-> +static bool __init swiotlb_default_pool_needs_cc_shared(void)
-> +{
-> +	/* A restricted DMA pool provides the shared buffers instead. */
-> +	return cc_platform_has(CC_ATTR_MEM_ENCRYPT) &&
-> +	       !restricted_dma_pool_present;
-> +}
-
-I don't think restricted_dma_pool_present should change the cc_shared
-attribute. The rmem pool is all about sizing the swiotlb, not disabling
-sharing.
-
-Thinking some more, if other archs don't like rmem pool influencing the
-default swiotlb size, we could add a flag (SWIOTLB_SKIP_IF_RMEM_POOL or
-some better name). But only if people dislike the heuristics.
-
-> @@ -437,9 +469,11 @@ void __init swiotlb_init_remap(unsigned int flags,
->  		io_tlb_default_mem.phys_limit = ARCH_LOW_ADDRESS_LIMIT;
->  #endif
->  
-> -	if (!(flags & (SWIOTLB_INIT_ADDRESSING_LIMIT |
-> -		       SWIOTLB_INIT_CC_SHARED)) &&
-> -	    swiotlb_kmalloc_needs_bounce()) {
-> +	if (swiotlb_default_pool_needs_cc_shared()) {
-> +		io_tlb_default_mem.cc_shared = true;
-> +		swiotlb_adjust_cc_attributes();
-> +	} else if (!(flags & SWIOTLB_INIT_ADDRESSING_LIMIT) &&
-> +		   swiotlb_kmalloc_needs_bounce()) {
-
-I think at a high level, we need (i.e. separate attributed from sizing):
-
-	if (cc_platform_has(CC_ATTR_MEM_ENCRYPT))
-		io_tlb_default_mem.cc_shared = true;
-
-	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT)) {
-		if (!restricted_dma_pool_present)
-			swiotlb_adjust_cc_size();	/* 6%, clamped */
-	} else if (!(flags & SWIOTLB_INIT_ADDRESSING_LIMIT) &&
-		   swiotlb_kmalloc_needs_bounce()) {
-		swiotlb_shrink_for_kmalloc();		/* 1MB per 1GB */
-	}
-
--- 
-Catalin
+> >>         }
+> >>
+> >>         evsel__set_sample_bit(evsel, CALLCHAIN);
+> >>
+> >> base-commit: f9a2394a23482bfd330911e9c8295b71724feacd
+> >> --
+> >> 2.53.0
+> Regards,
+> Jens
+> --
+> Jens Remus
+> Linux on Z Development (D3303)
+> jremus@de.ibm.com / jremus@linux.ibm.com
+>
+> IBM Deutschland Research & Development GmbH; Vorsitzender des Aufsichtsra=
+ts: Wolfgang Wendt; Gesch=C3=A4ftsf=C3=BChrung: David Faller; Sitz der Gese=
+llschaft: Ehningen; Registergericht: Amtsgericht Stuttgart, HRB 243294
+> IBM Data Privacy Statement: https://www.ibm.com/privacy/
+>
