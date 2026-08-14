@@ -1,34 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0F30484249;
-	Fri, 14 Aug 2026 15:29:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEB95486E40;
+	Fri, 14 Aug 2026 15:30:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786721399; cv=none; b=kgWkrMCnxiqFd/Xf9uPi/TFqNnPuucI1X2Hm2roqlCEOEZ4r7/DTmeNS0jXlG1ADfU+FRZrgWqrhopXfD48lZX1xzbcF+2e0Lb8Zv07YrmusuMI3emzOjeT99AzgHUIzuQcBSP+k3vY30xagyTU29ryxg96PCV26mlK5wntzHpA=
+	t=1786721403; cv=none; b=MwGIsZC45AVzZtAIMPCRT2zQuIaRH9VgYWEDbDhRW5CnRfbLU/uuEks6KWpRI68pzkbU6u2uo+MyVrgKMwPwBC3hENfyhYDRdT+zI8cOmf4dlqqONPhnq8nHnWMw2xMCrttPrKHdY49cGM+jjSYvHDCvn4bqyL1tHZxIQHIsoMY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786721399; c=relaxed/simple;
-	bh=M/R66TK9cvXJNZGsNZJnMU04s2BAQALQxYjf0kzv07A=;
+	s=arc-20240116; t=1786721403; c=relaxed/simple;
+	bh=tl4J5nZhsTsNnoEGHzqT7X31R2+FzAdmY+JzEZBZ/wI=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=EMv/oKvVaHVCDlw7DyYxH9aOFcx8O3QOdNhOSxDTupxYJu5W4GFTuanZMKB1d9C0yQSuevcTcmzxWUNgbS+AjL9x2nkuXfko0R4hFhZ2wDKsmaqB1iY+VOrjevUGJLtoCpiVF3dhvs6E07x5ubA1ScRCbUcJhQWullVgCAbnXnY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TlY9dOe/; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=bLZywGSmk4W1yDFGa9LWqCUfyHED97woPrjCj45b2QuQkyZ0I8f+eZd+ftE5eCpl1uVyELOsCSnDKzExFznlN+d/+oSAOQkcB1glkqPCtDVqqD05mShwHRNAnzJigtDx34Ja3/lvgRKWG65PfmsrUmCl52WVOHLHw42dcjDuKDE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dyLKd7df; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TlY9dOe/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA3671F000E9;
-	Fri, 14 Aug 2026 15:29:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dyLKd7df"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A70961F000E9;
+	Fri, 14 Aug 2026 15:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786721397;
-	bh=YsqfU4rnOxCjbdNELUfPy2EP2mOE10vhuCcFu2B7Ivw=;
+	s=k20260515; t=1786721400;
+	bh=uaLT8Pt+Su2uzISlW009doIM0VJ15n6/6fL5974J+dg=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=TlY9dOe/m49Es17ojXqtIC6JsPPLhB51fuiigq9mhO0OsfqU/dpS8ol9VSMirZnys
-	 N+Sz7Y0JvYdHmVXeGhp8lyOGBKXLCZRDGKUGk5Af1VVt5A0DxxrqHZrIW1wv7HVEuI
-	 Gk+W6MGpvoBmb3bQILgXFn225Y9gykLhrAfhdMmbi+FyWEntwqfXVZkEOkp7M44puc
-	 DdILQj4CoIG67RY/8F1SNui1WxkIqGgZT9PlkkXmIAnN0eqFymVnrX5PDfHaPLYabi
-	 jDEZUsxAYgC7oqJaLzWt+C0vDZoz/Gpks+B5Y/ifhVblSniSS/eCj9O87aYsKWHVt6
-	 c94JDdp63Kh4A==
+	b=dyLKd7dfiBNnwmTsFUCJeuYgeUh8Ew4Yy3vfvAWnGGsbpXhsuQXVd8XQ9w2HaM6Zu
+	 QgBFaTPJEssOx024yYFYiy0ikk8y+yf6M2aqF58IXU4qyJA374I2BXJ7LsBV6pl8DT
+	 5Xj+P2HKB2Pvpmjt6zEYOI340apfB0nAFJ7XkX9fme6Uj6Sja0Sl4FcAYaZnu8TMkU
+	 guyQVkgOZfVNqwCLYiPXu0ohVQDFkAnBDc0rCPHMOOb+6qmvJLpRHkLxEJw7lW+vos
+	 Ntys2s5CLDmS3/R8vkRNfeJVwr6Ss0RjKsCRj38cipYc0tgAJxcOXlAUDB4Z8VRD4s
+	 iGqg8t0wrurrw==
 From: Thierry Reding <thierry.reding@kernel.org>
-Date: Fri, 14 Aug 2026 17:29:17 +0200
-Subject: [PATCH v5 09/10] arm64: tegra: Hook up VPR to host1x
+Date: Fri, 14 Aug 2026 17:29:18 +0200
+Subject: [PATCH v5 10/10] arm64: tegra: Add VPR placeholder node on
+ Tegra264
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,7 +38,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260814-tegra-vpr-v5-9-71832b5d0246@nvidia.com>
+Message-Id: <20260814-tegra-vpr-v5-10-71832b5d0246@nvidia.com>
 References: <20260814-tegra-vpr-v5-0-71832b5d0246@nvidia.com>
 In-Reply-To: <20260814-tegra-vpr-v5-0-71832b5d0246@nvidia.com>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -79,57 +80,89 @@ Cc: Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org,
  linux-mm@kvack.org, iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
  linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1002; i=treding@nvidia.com;
- h=from:subject:message-id; bh=uOEc0ecGZ8h9g47cFlkUo3cheaRQXqI5mvM+m7jx2j8=;
- b=owEBbQKS/ZANAwAKAd0jrNd/PrOhAcsmYgBqfzRYQ9J+7I4U2eaXmCOV49EwtyF4cmPzXhSyC
- Tq+2quY1HaJAjMEAAEKAB0WIQSI6sMIAUnM98CNyJ/dI6zXfz6zoQUCan80WAAKCRDdI6zXfz6z
- oU/AD/0XRytJsEu68Ff0PfHtnK+eBBRHrioM9YqCgL5aBA80Zw/VnVUReuBPZZ6wyk2zAETMZGU
- I06nPkJi6TA/NwJwuc2pygr5F7fDVmL+rsO38ovw2JGgCdiCOciqpsd9cDqquDI59a5dwo1VULN
- LhvF8edxPjVFQlcCRihSuMvlOuhwngvYJ2or6ng0CLh4w4xrPsFCPTG9eh0hUvQQIdMeyIroGug
- K6+q4Y/za6Isw3zXh++Yb7elZScIp3dPC96xEpF67MVqJ5Zr+Hdt2BoC1OUWAX2vCNXn+ezHxLW
- CnjP4Y5h6zOC7WNnucPZGvecau6mMIU3EEXqKy/OehY0OFZujo6EsFJsopFibt1OIZ5L1oXcq8N
- TwU08UiHSX7OCL7SpcZ8vIG/093IzXWnkkZL8sfsc1Ygg1QL2oervYhf+zsLFMlHu7FMt4UqouL
- hNmstA9OD+5jBqNaSQ112uV2CINjMclaevNLLjm48+z6m363cfrD102Ybu9PjEibOoT/psH5Am2
- mLHTSjBZblYA78ADS4coEm/4O7B2/Nwu4Lv2dGanNcw5Ey1unUinkIQrexFKxH1rNu3GpEqyAGE
- SAy3sjcVNL3Paa25oMm2xMKJ+zD9mjY3+e/sYwrE6sW/OnXgp6X1KggP85+52DqrsX0GcezgMAk
- C3trgaesgMJRKPg==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2208; i=treding@nvidia.com;
+ h=from:subject:message-id; bh=db5pktqTEHmL7nm7eEWg8RTfTXMm0eSnWFgz4562xI4=;
+ b=owEBbQKS/ZANAwAKAd0jrNd/PrOhAcsmYgBqfzRZRCHM4P+QZFcsZdjlqbbApnEWVTk6Wm7E+
+ KnIdEu0AYmJAjMEAAEKAB0WIQSI6sMIAUnM98CNyJ/dI6zXfz6zoQUCan80WQAKCRDdI6zXfz6z
+ oSXAD/9osIn6vKwbtFrpb26y/g3b9z+UjI1W3E3npab2OW3Xl4zfKOoluxB7F9krSl7aDrrKhw9
+ uI7kMIHw32NFU50O6kjYGE1Zi6s89gv4UeeYqNiIPtYqyU3dVS6/wt2AN2eoQgD6y5y7lgsX+a2
+ b+TaC+idL5S+NJxjlha1/Ax3mH0kmL/NYjMVT2F+OWOfJDFbmYtwCkXa/bnlAJaExbFvVow52w3
+ lKV4KUg+Q1zuwcv9wWrrkcEOElranQ1b5jO/E27+zvhIle3MhK/RkJOKCiRlFR7g1/oAIVHCYVx
+ vLgtY9ifFDRxVuTQrWHpCJcq9q+YtSAZUiM4WjJutFgVF0fejgX7YDv23ar7NkoI7I+eiHqKv7r
+ KznaE0HyuGIGpGExgj3QeEEMVqz7I4xibixSV+MPk2EVlm16ZcqShTUu9ZaIadCxfAS1rcRqSz1
+ Cz/etrRh+A2EV+V+tgDcNBE5kmN6YvTZE826o1yVVtSAVlrf7S4s/rOnwfRHTxTH7Ek3OWUkdpR
+ kuXJlxiZ+xIKx4VQ9y03bVyg+FeLRphkOO952z6VQq5Gk13e02mBOUG2liVGPh70aWOmkoXVhtN
+ b268m+4V1J8PieinrHxibQ6o225G8PrDeNOSGlbNKkQf6afUzpcG51yPU2vS4//Wl7rnKmgE8qO
+ nrj9H5tdo/9uipA==
 X-Developer-Key: i=treding@nvidia.com; a=openpgp;
  fpr=88EAC3080149CCF7C08DC89FDD23ACD77F3EB3A1
 
 From: Thierry Reding <treding@nvidia.com>
 
-The host1x needs access to the VPR region, so make sure to reference it
-via the memory-region property.
+This node contains two sets of properties, one for the case where the
+VPR is resizable (in which case the VPR region will be dynamically
+allocated at boot time) and another case where the VPR is fixed in size
+and initialized by early firmware.
+
+The firmware running on the device is responsible for updating the node
+with the real physical address for the fixed VPR case and remove the
+properties needed only for resizable VPR. Similarly, if the VPR is
+resizable, the firmware should remove the "reg" property since it is no
+longer needed.
 
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
- arch/arm64/boot/dts/nvidia/tegra234.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+Changes in v3:
+- comment out fixed VPR properties, assume resizable by default
+- rename node to "protected"
+---
+ arch/arm64/boot/dts/nvidia/tegra264.dtsi | 33 ++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra234.dtsi b/arch/arm64/boot/dts/nvidia/tegra234.dtsi
-index 6c4739efc8a5..c6a5ced069e7 100644
---- a/arch/arm64/boot/dts/nvidia/tegra234.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra234.dtsi
-@@ -4479,6 +4479,9 @@ vic@15340000 {
- 				interconnect-names = "dma-mem", "write";
- 				iommus = <&smmu_niso1 TEGRA234_SID_VIC>;
- 				dma-coherent;
+diff --git a/arch/arm64/boot/dts/nvidia/tegra264.dtsi b/arch/arm64/boot/dts/nvidia/tegra264.dtsi
+index 31bd29df8e46..b3a8ea64aa37 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra264.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra264.dtsi
+@@ -24,6 +24,39 @@ shmem_bpmp: shmem@86070000 {
+ 			reg = <0x0 0x86070000 0x0 0x2000>;
+ 			no-map;
+ 		};
 +
-+				memory-region = <&vpr>;
-+				memory-region-names = "protected";
- 			};
- 
- 			nvdec@15480000 {
-@@ -4497,6 +4500,9 @@ nvdec@15480000 {
- 				iommus = <&smmu_niso1 TEGRA234_SID_NVDEC>;
- 				dma-coherent;
- 
-+				memory-region = <&vpr>;
-+				memory-region-names = "protected";
++		vpr: protected {
++			compatible = "nvidia,tegra-video-protection-region";
++			status = "disabled";
 +
- 				nvidia,memory-controller = <&mc>;
++			/*
++			 * Two variants exist for this. For fixed VPR, the
++			 * firmware is supposed to update the "reg" property
++			 * with the fixed memory region configured as VPR.
++			 *
++			 * For resizable VPR we don't care about the exact
++			 * address and instead want a reserved region to be
++			 * allocated with a certain size and alignment at
++			 * boot time.
++			 *
++			 * The below assumes resizable VPR by default. If the
++			 * firmwares sets up fixed VPR, it is responsible for
++			 * adding the missing "reg" property, removing any of
++			 * the unused properties, as well as adding a unit-
++			 * address matching the "reg" property.
++			 */
++
++			/* fixed VPR */
++			/*
++			reg = <0x0 0x0 0x0 0x0>;
++			no-map;
++			*/
++
++			/* resizable VPR */
++			size = <0x0 0x70000000>;
++			alignment = <0x0 0x100000>;
++			reusable;
++		};
+ 	};
  
- 				/*
+ 	/* SYSTEM MMIO */
 
 -- 
 2.55.0
