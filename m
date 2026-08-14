@@ -1,61 +1,85 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30C9E2F8EA5;
-	Fri, 14 Aug 2026 02:26:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2B493C09FA;
+	Fri, 14 Aug 2026 03:24:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786674398; cv=none; b=NZ9VaTmvkgHGerRZSmFoaMFIqxd5jSoIF6Bt60y1Or42Th65dWY5k0uAM24t4/0cQCnvO22ittyfUiUF7tqRksCzsfiNJVrX0Ga9hKyaa15LcEs9BT/SqlJC4zD82SsaeDC2N++68VBmdMnT8mah77tKx0XxmxQyzuQp2qrvVF0=
+	t=1786677878; cv=none; b=rV1aP2Y5F2otJCdLxY9yb0gBxXcAGz/TnrtZDD9w8F3H4u9dbUQujBOJOzzB2Om3oWCF9lZUCO2uxMdMS66wEEIirgLTKqT6c9YBliPJFhQI8i1j1v4CRhvJb+8lF+RRHtD2YMXg9b7X6QuuvMoBqNE4FEcWQC7LI1LeRdFFwos=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786674398; c=relaxed/simple;
-	bh=z8DS6XCve6v5wbnhikZbnUlwrT4lkvGlBeYv0TGsfAM=;
-	h=To:Cc:Subject:From:In-Reply-To:Message-ID:References:Date:
-	 MIME-Version:Content-Type; b=gOsRCqTD40AcPjRC/6+JZVryMayqXihEJvSfpDcSYWaFK4XVjmsuPxtHlWGcNGCsYyyTMLX+yHDBUIw33/tyKLdHcIL0dPrmfxEiAg0Zj/S3ACmSPomjnUQ4/V6++FAGWUKh3CC2v7rGWDKf8mDPIMTh3JHLpl/qKgsBeI99ZOw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MiH4m3Q5; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1786677878; c=relaxed/simple;
+	bh=dnK4XQbvn2aFJeQxuwDNkBWiLT7GGTskBeethO2SpsI=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=H1S61+9EqUgg797y1WuSv+XswtzRcXG4GcqbL7QmgXdWzpRNi5Ty5m+h7uhQRyYXpvpTdEh7jZN7Jm1MeFc9E3qBp9YnupzQoGrh8GTDsXRMvHTtOjEudv9/LN3gEgJP3MXtiSMFezKtOtn6RZyXB2I3yHbpI7AvNBbbQ9qWXcw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iVD7ugPf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MiH4m3Q5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB5A21F000E9;
-	Fri, 14 Aug 2026 02:26:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iVD7ugPf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A8491F000E9;
+	Fri, 14 Aug 2026 03:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786674397;
-	bh=io6LPOi8RyNkKPDOzUdSmPRj7b+Vc0KXnibJV631eAU=;
-	h=To:Cc:Subject:From:In-Reply-To:References:Date;
-	b=MiH4m3Q58wlggJ9coFwNAnW3VsWHAgFa5ylMIo5xq3j4gtDqkK23GhZtzXn2osdx+
-	 mmTo0+kv+PorQTQJu5TEqMsjDE5iu9s2CW27ZLqtmOMHFPZHmGjeG9h9Mc6pXN2uEa
-	 QKOE7qt+W6BA/No3bHfWpKFyFNeEOvMsGCI/slZo4vzOAwiAzrvp1MOG/zQVsnJeiA
-	 WLYhJ0rRfmKxviavsh70zsebfeTt8Ca5JZsw3vQMYPBpK8JuEoGL9YcFiUH/9d/DTu
-	 N9XBOW4n6UYuIaoiG5Leul2EMjhr60k5jldkByDHxLEnCbQZT41dohHq7TpiPAuSYy
-	 +y9XhrSHMNwvw==
-To: John Garry <john.g.garry@oracle.com>
-Cc: <James.Bottomley@HansenPartnership.com>,  <martin.petersen@oracle.com>,
-  <linux-scsi@vger.kernel.org>,  <bvanassche@acm.org>,
-  <linux-s390@vger.kernel.org>,  <linux-ide@vger.kernel.org>,
-  <linux-kernel@vger.kernel.org>,  <linuxppc-dev@lists.ozlabs.org>,
-  <linux-usb@vger.kernel.org>,  John Garry <john.garry@linux.dev>,  Damien
- Le Moal <dlemoal@kernel.org>
-Subject: Re: [PATCH v3] scsi: core: Drop Scsi_Host.default_lock
-From: "Martin K. Petersen (Oracle)" <mkp@kernel.org>
-In-Reply-To: <20260810145236.384239-1-john.g.garry@oracle.com> (John Garry's
-	message of "Mon, 10 Aug 2026 14:52:36 +0000")
-Message-ID: <yq15x1dtp3r.fsf@mail.kernel.org>
-References: <20260810145236.384239-1-john.g.garry@oracle.com>
-Date: Thu, 13 Aug 2026 22:26:35 -0400
+	s=k20260515; t=1786677877;
+	bh=gIEgBcAoeJ7+WVpGgtS9J+mhRvHVlB8sFCT9Z+i46BQ=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=iVD7ugPfb0FBtOaJyo6uAX8vK987ixi8cJwvSBJ2XigQ8x3PwSB1vruDavjCelg0V
+	 G1aoIXq2ZRnqBUbFcAG6G2XxRR/yD5cchO6uF1IeXGjR3tDDvHD+qsum4s6xIful8s
+	 960nsOlESE1eNpl0oAayJhZuKcfdzN2JzQvQLlWxrudW1mjkTO/PZLA7SsXZQZku2/
+	 FIIXBW9VpOSbzsBm/OZNHdVaSEB+XvduhuMll+UPcWA3isbkJAcYZMxMipstJh5uDB
+	 eHjH/tpz/9Oo9XlmfbfmZEgyZGk9ewVt7fNEUWsULUNV3HcgcFcANcXtYmeDDdkMbx
+	 20frBZUCHkUjQ==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id D0CA13810900;
+	Fri, 14 Aug 2026 03:23:52 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v2 0/2] net/smc: close the SMC-D teardown window
+ around
+ the ghost send buffer
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <178667783138.3150297.14142348032693681009.git-patchwork-notify@kernel.org>
+Date: Fri, 14 Aug 2026 03:23:51 +0000
+References: <20260808-b4-disp-22f119e6-v2-0-61647601a6f3@proton.me>
+In-Reply-To: <20260808-b4-disp-22f119e6-v2-0-61647601a6f3@proton.me>
+To: Bryam Vargas <hexlabsecurity@proton.me>
+Cc: dust.li@linux.alibaba.com, sidraya@linux.ibm.com, pabeni@redhat.com,
+ davem@davemloft.net, kuba@kernel.org, wenjia@linux.ibm.com,
+ alibuda@linux.alibaba.com, mjambigi@linux.ibm.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com, edumazet@google.com, linux-kernel@vger.kernel.org,
+ linux-rdma@vger.kernel.org, netdev@vger.kernel.org, horms@kernel.org,
+ linux-s390@vger.kernel.org
 
+Hello:
 
-Hi John!
+This series was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-> However, support for this has long been removed, so drop
-> Scsi_Host.default_lock and make Scsi_Host.host_lock as the actual
-> lock.
+On Sat, 08 Aug 2026 02:21:22 -0500 you wrote:
+> Both patches only matter on the SMC-D DMB-nocopy path, where the ghost send
+> buffer exists, and the only in-tree provider of support_mmapped_rdmb is
+> dibs_loopback. CONFIG_DIBS_LO is default n and its help calls it a testing aid,
+> so on a stock config neither bug is reachable.
+> 
+> v1 moved smcd_buf_detach() after the drain. Dust Li replied that it does not
+> fully eliminate the race and asked whether RCU is the better shape. He is right
+> about the first part; I built both and measured them.
+> 
+> [...]
 
-Clashes with Bart's context analysis series. Please rebase, thanks!
+Here is the summary with links:
+  - [net,v2,1/2] net/smc: unregister the connection before draining the rx tasklet
+    https://git.kernel.org/netdev/net/c/36cdf5d48ca1
+  - [net,v2,2/2] net/smc: do not dereference an unset send buffer on the SMC-D teardown path
+    https://git.kernel.org/netdev/net/c/b395dd319cea
 
+You are awesome, thank you!
 -- 
-Martin K. Petersen
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
