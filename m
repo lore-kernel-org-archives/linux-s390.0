@@ -1,152 +1,150 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D5893DA7C3
-	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 12:20:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BDA2411F96
+	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 12:27:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786710006; cv=none; b=QjOz+WMNnHMEGGCEndCjysDcRW3KAoJNxI7Fgq1lkW5/Yv6UV8V8qgpA6dYUjC32PJ2vIwsxO6B6ckIsRIwkxVgYxE49arYm1yC5gK+shpOc0CBHLYHOv9e4f3goFSxT1yqyXOkKOaJIVauGWiHjyI6t/W+ini6h8D+bSsEiEik=
+	t=1786710478; cv=none; b=MBerDT90/G6FyLDwSUR9Mw1DnA6RG6ds7tGySOp5sT3b2ae7tmoqJ0JinHqaRi+SzH2XKJUbHiTF4g1nG3lzjyPAi1kwRY0dEgD93gfcdtOM1SeWdH8Wr0kh6rcaE8bJbB3Uc/V+uNnKNCkKmkBXS3icbHr2nbEjSLfRYxx5QM8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786710006; c=relaxed/simple;
-	bh=5FbtwonHEWebeNTHxkengX8esPED8hhxd98jQbw5yy4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZBvSFnRHOn0IpFC5Mvmr2xC2KE+uEMXi19xY4iSYdI9uVOWzK10saFDZ2Toq4XGJ6IjFcqxAPQ3Fmy5ZRBk1l7Iby8j7yCKmFQ+KF3+3Tbnh3xwYWUFad5BwPQcLo4U7XzBZoYTJsGql1SfDH8JUSQe2MM+fO0OAuo/p2/9Gic0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KmpSVxmO; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786710478; c=relaxed/simple;
+	bh=Yl2q4Bvlhxqq38XtGit1SR6j+JvDpk+kPQjdE3tOKGc=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=hMgETQCCR14s6N/s1keVSq5EP4AvBGy6c5M8OZU/C5UygZ+5vvfwu6UHdSOdRpKYhCz4yoIurTmKXj7ecuOyHQx2rYaOhUPthQou55PQEK+IN3KgMxqrg+tVkwoxApoJvqbdZVIYzvTLvBejdc1CnSdU4/F26n0OzXlis6iKTpA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wjellaok; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KmpSVxmO"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67EB1jVP3273910
-	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 12:20:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=i50Ta8YEv09agBQLkp5J6wOmEdz4B4LPWBzwiq6n2
-	3A=; b=KmpSVxmOfmVOuiQMu9eD/BOotHK0QtNBU8L3kPkgSGeYuf/vQLy2bQ0bR
-	nEnYFKStAR1Z6zI3vOPj5twoTKwR/6qMnFT9VDjutYrz2U4a5rmJzKMBVMJmV+UF
-	prdwREG2Ms/VBnSA/FQMg+9np1UjC0vuXZfC2n/qmqeDR648o5Xj1q0IHVvY4ZeT
-	IdTJp2DoKiIJsF9J2nHUJ5pnZ2ME5hCmsDRpWs/endCd6MZh1cOuyFvdnBAnKXFb
-	GeA/TlISSRNsSaGpEivPidOMDrp6eDgjW0U1i3uG98i0Hgn0QtpYezVyUMTNOqz/
-	1jGHDbqM8CikppiDvgRsfkAPpTCKw==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvk0cp1w-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 12:20:04 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67ECBfhY018670
-	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 12:20:03 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g1rpv9y3m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 12:20:03 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67ECJx7s50004272
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 14 Aug 2026 12:19:59 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 93AEC2004B;
-	Fri, 14 Aug 2026 12:19:59 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 744BF20040;
-	Fri, 14 Aug 2026 12:19:59 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 14 Aug 2026 12:19:59 +0000 (GMT)
-From: Thomas Richter <tmricht@linux.ibm.com>
-To: linux-s390@vger.kernel.org, sumanthk@linux.ibm.com, japo@linux.ibm.com
-Cc: agordeev@linux.ibm.com, iii@linux.ibm.com, hca@linux.ibm.com,
-        Thomas Richter <tmricht@linux.ibm.com>
-Subject: [PATCH] s390/pai: Handle multiple PMU stop callback invocations
-Date: Fri, 14 Aug 2026 14:19:58 +0200
-Message-ID: <20260814121958.2408863-1-tmricht@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wjellaok"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6096B1F000E9;
+	Fri, 14 Aug 2026 12:27:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786710476;
+	bh=yB9qc+nbZXKbSaKWcwk/FyGCboOUY4QgVIeivbMo/KU=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Wjellaokzm48f6jyxdPTkpAxNvL+vehMKbR3GGaOUrm/xJXw58vKvAC7kPTYP5q4I
+	 BOqXTa+VSweM4sKlDfNiakABYfIoXjd3I0vNK+/x0my/PO6iwCGB4YoR1AGxFpL5iW
+	 20llcWhvpJBgeU3s3+qlFq8Cn1M02NVllqE2dTIKNCBOXvRUJlfbn+zxxLU2z52FKI
+	 tqDx2k3VIpfCu+j6U75zHoJxwkZV8xU8d6QlaWM4kQY1WcCI7can/AiMglDgMChiCu
+	 CFtm+ukWUN3uqkySuanxnVP3GQCK/6azRxzybG/5mUjXddmkmMMGzutKTet3drk2YO
+	 4y/72DKSOuPZg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3] s390/cpacf: Unpoison instruction results
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Ilya Leoshkevich" <iii@linux.ibm.com>
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.vom>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260814121559.1240939-1-iii@linux.ibm.com>
+References: <20260814121559.1240939-1-iii@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 14 Aug 2026 12:27:55 +0000
+Message-Id: <20260814122756.6096B1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE0MDA5MSBTYWx0ZWRfXxHfKJiiKXiht
- DDtOuA8ca/4vY/mzXC+1MnU5jXh1sdOX0+ms1zNrz0jQVvD1j8DxTt5/fhT6RKviChcgcUewYxa
- 7r3O3Ij0+id8kOQDCg7JRaYWS0eEfTCdj2GU292Th2ERb6JkMAV7C38NYLkJddjSsyM9vUGDXwG
- S0Kzks11+aIgzaOlLr+bbLOgTNsNOY+QINxoEkz1lytHfrBO1iWIP+zUjOMD6KLZDc+8Zd7brWb
- golvOhaVxQgSeDVWQapyv4ofdsDxSIKbhAqbg1kSKe2zntvo/jOm3wQsLbDiJmPie7vWdCKHQds
- /lrUBvdgCj/tbLch2kFRXLPpU1AgFDkeA26fB6aKHWZc5tv8mrOmgoik5rNs9P44oFAIHxEzFCz
- XzlRePuHQ2HAgQFEG9DJgQ35jL1JtJIx8aFVXMhtzF9hOpp4d24nxzEnZG1wplfVPqlpcBrIOQW
- 4R+zMbx79ZwIZIQ5hVA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE0MDA5MSBTYWx0ZWRfX+su8w6K2nNVz
- kbKCYs+L9GlPur8jb6k+smPKgbPxqP2m38TLkw2a5NRnvuw0dzvI7LP11z4ehVB9fyzkcw9SXFv
- QHXCy1hh1Z5Ldrx++FEnF/mPkDLB434=
-X-Authority-Analysis: v=2.4 cv=RqD16imK c=1 sm=1 tr=0 ts=6a7f07f4 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=b6_6n78pCtPly934600A:9
-X-Proofpoint-GUID: bm6XSrhvq9PSdJ_EVNWzkNMK0P5uzpjN
-X-Proofpoint-ORIG-GUID: bm6XSrhvq9PSdJ_EVNWzkNMK0P5uzpjN
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-14_04,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
- clxscore=1015 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608140091
 
-Handle the following scenario:
-The kernel protects itself against a very high sampling load and
-throttles the sampling using:
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
 
-  perf_event_throttle() --> PMU->stop()
+New issues:
+- [High] Unconditional KMSAN unpoisoning masks partial completions and info=
+rmation leaks.
 
-Shortly later the scheduler may terminate the task and removes it from the
-CPU. It again calls
+Pre-existing issues:
+- [Critical] Silent ignoring of PRNO and TRNG partial completions causes cr=
+itical information leaks.
+- [High] Silent ignoring of KMA operation failures causes cryptographic pro=
+tocol violations.
+--
 
-  PMU->stop()
+--- Patch [1]: [PATCH v3] s390/cpacf: Unpoison instruction results ---
+commit c65c87d6cf548eaef4bd0b06821cb0e68caaa4c3
+Author: Ilya Leoshkevich <iii@linux.ibm.com>
 
-which results in two invocations of PMU->stop() called back to back.
-Protect against this and check the PERF_HES_STOPPED bit on function
-entry.  If it is already set return.
-Clear bit PERF_HES_STOPPED in PMU->start().
+s390/cpacf: Unpoison instruction results
 
-Cc: stable@vger.kernel.org # v6.19+
-Fixes: 9f66572f2889 ("s390/pai_crypto: Enable per-task and system-wide sampling event")
-Fixes: 582cc1b28e8c ("s390/pai_ext: Enable per-task and system-wide sampling event")
+This commit suppresses KMSAN uninitialized memory warnings for CPACF
+outputs by adding kmsan_unpoison_memory() calls to multiple wrappers.
+It intentionally avoids modifying variable-length parameter blocks and
+the cpacf_kma() wrapper.
 
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
----
- arch/s390/kernel/perf_pai.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+> Also do not touch cpacf_kma(): this wrapper does not handle cc 1 and
+> cc2 at the moment and has to be reworked.
 
-diff --git a/arch/s390/kernel/perf_pai.c b/arch/s390/kernel/perf_pai.c
-index 1e5a1f1cc68a..f6790f658f21 100644
---- a/arch/s390/kernel/perf_pai.c
-+++ b/arch/s390/kernel/perf_pai.c
-@@ -484,6 +484,7 @@ static void pai_start(struct perf_event *event, int flags,
- 			cpump->event = event;
- 		}
- 	}
-+	event->hw.state &= ~PERF_HES_STOPPED;
- }
- 
- static void paicrypt_start(struct perf_event *event, int flags)
-@@ -530,6 +531,13 @@ static void pai_stop(struct perf_event *event, int flags)
- 	struct pai_mapptr *mp = this_cpu_ptr(pai_root[idx].mapptr);
- 	struct pai_map *cpump = mp->mapptr;
- 
-+	/* Cope with multiple invocations:
-+	 *   1. perf_event_throttle() --> PMU->stop()
-+	 *   2. task schedules out --> PMU->stop()
-+	 * Check for event already stopped.
-+	 */
-+	if (event->hw.state & PERF_HES_STOPPED)
-+		return;
- 	if (!event->attr.sample_period) {	/* Counting */
- 		pai_pmu[idx].pmu->read(event);
- 	} else {				/* Sampling */
--- 
-2.55.0
+[Severity: High]
+This is a pre-existing issue, but does silently falling through on Condition
+Code 1 and 2 in cpacf_kma() cause callers (like gcm_aes_crypt) to accept
+cryptographic errors?
 
+By returning void when the KMA instruction encounters an error (such as
+incorrect AAD/plaintext lengths or a hardware abort), callers have no way
+of knowing the operation failed. This could result in partially written or
+completely uninitialized ciphertext, plaintext, and tags being processed as
+valid data.
+
+
+> diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
+> index a83683169d98d..6174552d856dc 100644
+> --- a/arch/s390/include/asm/cpacf.h
+> +++ b/arch/s390/include/asm/cpacf.h
+
+[ ... ]
+
+> @@ -619,6 +624,7 @@ static inline void cpacf_prno(unsigned long func, voi=
+d *param,
+>  		: [fc] "d" (func), [pba] "d" ((unsigned long)param),
+>  		  [seed] "d" (s.pair), [opc] "i" (CPACF_PRNO)
+>  		: "cc", "memory", "0", "1");
+> +	kmsan_unpoison_memory(dest, dest_len);
+
+[Severity: High]
+Does unpoisoning the requested length (dest_len) instead of the written len=
+gth
+(dest_len - d.odd) mask partial completions?
+
+When cpacf_prno() terminates early (e.g., returning Condition Code 1 due to
+entropy exhaustion), the hardware only partially fills the destination buff=
+er.
+Unconditionally unpoisoning the requested length blinds KMSAN to the
+uninitialized tail of the buffer, potentially hiding active kernel memory
+information leaks.=20
+
+It appears the pre-existing cpacf_trng() wrapper suffers from the same
+issue, unpoisoning ucbuf_len and cbuf_len unconditionally.
+
+
+[Severity: Critical]
+This is a pre-existing issue, but does the silent exit on Condition Code 1
+in cpacf_trng() cause uninitialized kernel memory to be copied to userspace?
+
+Looking at cpacf_trng() in arch/s390/include/asm/cpacf.h, the assembly only
+loops on Condition Code 3:
+
+	asm volatile (
+		"	lghi	0,%[fc]\n"
+		"0:	.insn	rre,%[opc] << 16,%[ucbuf],%[cbuf]\n"
+		"	brc	1,0b"	  /* handle partial completion */
+		: [ucbuf] "+&d" (u.pair), [cbuf] "+&d" (c.pair)
+		: [fc] "K" (CPACF_PRNO_TRNG), [opc] "i" (CPACF_PRNO)
+		: "cc", "memory", "0");
+
+If hardware TRNG entropy is exhausted, it returns CC 1 and falls through,
+discarding the unwritten byte counters (c.odd) and returning void.
+
+Because the wrapper returns void, trng_read() in
+drivers/char/hw_random/s390-trng.c falsely assumes the entire buffer alloca=
+ted
+with kmalloc(..., GFP_KERNEL) was filled:
+
+	cpacf_trng(NULL, 0, p, n);
+	atomic64_add(n, &trng_dev_counter);
+	if (copy_to_user(ubuf, p, n)) {
+
+Can this sequence leak uninitialized kernel heap memory to any unprivileged
+local user reading from /dev/trng until entropy runs out?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260814121559.1240=
+939-1-iii@linux.ibm.com?part=3D1
