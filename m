@@ -1,35 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1148F47DFB0;
-	Fri, 14 Aug 2026 15:29:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE89148124F;
+	Fri, 14 Aug 2026 15:29:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786721379; cv=none; b=hytQv9qGqZFUpOLm1DW0xfuXKP3/aGrUHERdYNcck2kHNkm8Nhm1aY1T6cZ+fytxWmUqb1nIihkutI14pXin2TkD4AZD2RAqnzCQJQEt4Q/YA4UKkDRkWCvbxB0h3VnnomNzQEwPSZE9gq1Rto6NuWs+aBSAM9dVjv4JnGUXBtk=
+	t=1786721384; cv=none; b=cFwZWO0J3rvZ37SM7yWmv+6QjcDvYJeAlbulOJjwSKPJ9hYpFqs9e53tK2NPWEh9ED3NAOBi0jELQqkoJf+IRq/GZOrfWrkNg8UL1FqpUutAoo262WXcP41d75YFnGcRe7Mga8Gnj1xMXkvXV5cqQnY7/pEITcQq1h0zxEPuEGA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786721379; c=relaxed/simple;
-	bh=KZt42RcI2xZOV6ZL4xNzHGcUviEo1o5J+l+Mdce427o=;
+	s=arc-20240116; t=1786721384; c=relaxed/simple;
+	bh=D4Xh9zc5N/4RWPWjcg0XK0nxc0XsnOaquGDBNqbZDwM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ZG896zWZbODJRzl8kC85T83IlJEpBzVBdT0aTxIVNFWjwiRJHnj8kv4XCECSPfJyqPqmeW+BTuqZhJFgUjwzosOAU7I0kELiX4PCRKrjzaS646RzvB+HdTu79Aq8uJOyhBOQ/gBUumRgFoaEU7/K2tbC8EchY5GO5nh1mt4DS40=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SQYinDf8; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=ZLBd1J5gunPcBCmaCJDJyNoJ+7Yow28uTsutIRsL5gNTxjiPcdN0w9nMV+IYHe8+OcmPYlGZ/vccoyeNMnW3s0AVbjpCiW06BbckDysZJo5QBv5V9QmQl3NQXxejxrhgSP3S0rQXqy9XH8k8SbwJ+nW4wuZDIYpOJMXdTPgV8Po=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=flinAHY2; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SQYinDf8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 026D31F00A3A;
-	Fri, 14 Aug 2026 15:29:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="flinAHY2"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6F381F000E9;
+	Fri, 14 Aug 2026 15:29:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786721377;
-	bh=eBlEuAoqOked/LKJu9mRAOEywcTF2CIu7f/dTPjyTCg=;
+	s=k20260515; t=1786721380;
+	bh=hagYf35q6G2UhsHzty44d2izTZaC/NeM9Zitkk0WHRQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=SQYinDf84Qyd8J39yvDDkE+2yMa0qkyakiGRRmXf/fx0fg4kEyB3/sFc3snNGwS4a
-	 gZYSriilhL0IMm0YA0eTk+Fr6+tib5AjGC+psqwuOr58cPmjYAIuQzHxP0Ge6jse5c
-	 SYvbKj5F6GHpZyOthwjNwOz8ZbWANjEirhoY4Es1XYu7sKTCZsKE/pVkWklj/YJyCn
-	 1Kxbk35QjJ2mW8iRQFaDdfUyLz4khPYq4BpXf8zT3m4sYZxyiEfY2ONGzN2rFEwQDd
-	 9zml7Ja1+KceKUU1i9huNizcSLqzefA6V4HsIplKC9KeQgA7MEOtO96w4DwQS+9MES
-	 DZXezd2+lIsYw==
+	b=flinAHY2TCzAQp51/VofbBun1xlQT2bmsz0G1F/e/noxEOuSLeCum+o7maLYlpqmQ
+	 /fCNRK5u2pVUDff9WOpgjdwfv0VumaETvgyjBD4m7+9abjd9YoLuS7S3vH2wdng+V6
+	 uj7WjDBEYfLKM0HpZIxqjl1aAMkhgGMzLDS8HyEPqzQENhaojB43Nb+uGZYwrR+2S9
+	 AmOQ7kiZ37CH0EhkOYKjVh1rHWwCiz9CFNYIp+EQLcshpuHC8XmP2t6KaIqriIeuuk
+	 1mU79Rz9lLEOUmvrPQziSTmt4Y/uAz4fcbHpt43cs5nOKiBPHM6LWTWen7lsSUWhav
+	 YJb4sUfspUFpw==
 From: Thierry Reding <thierry.reding@kernel.org>
-Date: Fri, 14 Aug 2026 17:29:10 +0200
-Subject: [PATCH v5 02/10] dt-bindings: display: tegra: Document memory
- regions
+Date: Fri, 14 Aug 2026 17:29:11 +0200
+Subject: [PATCH v5 03/10] dt-bindings: gpu: host1x: Document memory-regions
+ for NVDEC
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -38,7 +38,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260814-tegra-vpr-v5-2-71832b5d0246@nvidia.com>
+Message-Id: <20260814-tegra-vpr-v5-3-71832b5d0246@nvidia.com>
 References: <20260814-tegra-vpr-v5-0-71832b5d0246@nvidia.com>
 In-Reply-To: <20260814-tegra-vpr-v5-0-71832b5d0246@nvidia.com>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -80,51 +80,41 @@ Cc: Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org,
  linux-mm@kvack.org, iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
  linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3649; i=treding@nvidia.com;
- h=from:subject:message-id; bh=pBYGfO+OoRCfoGlySA1v5aSrpzUlJ6EhDp5j2u2Nips=;
- b=owEBbQKS/ZANAwAKAd0jrNd/PrOhAcsmYgBqfzRXaRTeDiDu4YBKZoD7GNeMdeApLEEF/47+P
- Qs7Dg4EFyCJAjMEAAEKAB0WIQSI6sMIAUnM98CNyJ/dI6zXfz6zoQUCan80VwAKCRDdI6zXfz6z
- oUKBEACxEJAOL5zdS5PgXCqYYzzNGiLLXVhgFzk9U1eqr3vc0dKYuq2vq77WgkFBI5rq7KrvFNH
- 9h3HArdCO4FtE5FqV3SMFXSGQgi45SAZ/XdBjP1goIG38+OdMbFWNyaOl9YPEvNDN1Yn7P9Xjvg
- VrX6hTODGnRwC3W6pjviCz9yboRmRInlgIzCKkXCwYKMoH0Jru+o0ghVJ+EEuVUjG+92JbtTYRf
- ISKuI3IJKNrZBVSEG7TmHBxpAbWMvPLrFyPR5GV1L8sQL/eR3VjObNlgyJ6fCXo66ArRvJXUoIn
- 5JE4la8W3ApL+k4SCDAA9iSSdm5qpPhWD+xbbh5q57FsGCQliDaDBGt3j0iwRWrh5vboKT8Vy2L
- iCnF1QDKpvsQgkZKor/kBAT0A+cS9EEvqyaPiVfnPr9MV4DM7rZLblI8afcRz+AlbF+SPprte76
- InWAWIl0Y+51c4Sy6SDRSNjQfRxRTmP5DjmykikMD6ItCdY2igse1frokTOU9npaT0QZcLbuRiy
- qEu5R3XiC+4VApabAOIRvpF2wKDaaBhtaUZuXb9C8A6fslgF/VvQUMsiI9R2P7+w3B5kxhUYgpa
- rqyzS0AgP0wdt22bH0ObJuoXXTtOjm/ualj5F/PXaPsdAmBCavu2SzT89QueATL3Xdx8JV9IzeN
- l2c2CdbqjX3XlyQ==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1123; i=treding@nvidia.com;
+ h=from:subject:message-id; bh=96od8SnVSYMiavrRwbh7Ehk1YxWlsQuy9Uk4ZKu5YoI=;
+ b=owEBbQKS/ZANAwAKAd0jrNd/PrOhAcsmYgBqfzRXzzaJcNN7yh/4w8KOcdpo2zu6d8W+euiDX
+ mBrAATLPxSJAjMEAAEKAB0WIQSI6sMIAUnM98CNyJ/dI6zXfz6zoQUCan80VwAKCRDdI6zXfz6z
+ oTw8EACuc0eBM13PSAlDb5GHdm6QtW4MAiTJa1Pw+FwiKHMIRJpmpzbu0iIG0ZOdmChmnu2ClwP
+ s3gbqJ6YRrL9ruy46tyMj0RVjZmP+8itbMFX9Dzx1WQ20c6wSYZPljF4/NT2DncBSidJT9msAw/
+ Isipo/ka6MqadTIpfMi+veITAsnb1pJn0wugYxr/lecYT1Qqk8pwaBDtrh6QcceAiyT4XfUkuG/
+ V6wZv8UbLps/2wgNoUPKoxF2rAqYsH4936MxwWMKbqK9HdO39ObjyAvfkRyBoSyITu9IEC+Tvz7
+ VGGB576u4oSzVEUSJCQfgVFE1uvf4l1aOpmgYgzzp4PRcRg8nuu6eyjSjJ1TtNl+zU8SU6uthvC
+ zv49vGosmKrQ385BX94aSlQ356vW9xuaN96c66oAzrSwDFpyXthbnEQLJoOBaKQVQFbaQMfvGwX
+ CgTQD4FXkcZnm85qZr6J0K8TKMtlY/NPvtDpB9kMN93B/PVT5GASAQI2wE9uKDq1Tq30K+I68c3
+ zO9oJ9WO09izzerU9CXmI42KivHR3h5CUiTV4O0eeAE+LvA7T/kgD2XTTur3s7VQgqJhDK66iGI
+ lXeWljmZ6k5XjRnwmsNoncXTKdLTviNhoB4KcPTqULm8/kGAKhLCJD0fdHxTor05+AjZx3SixcW
+ eHXtvYBAnuEhCfw==
 X-Developer-Key: i=treding@nvidia.com; a=openpgp;
  fpr=88EAC3080149CCF7C08DC89FDD23ACD77F3EB3A1
 
 From: Thierry Reding <treding@nvidia.com>
 
-Add the memory-region and memory-region-names properties to the bindings
-for the display controllers and the host1x engine found on various Tegra
-generations. These memory regions are used to access firmware-provided
-framebuffer memory as well as the video protection region.
+The video protection region is a reserved memory region that can be used
+for secure video playback. NVDEC can access this region to decode images
+into securely.
 
 Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
-Changes in v4:
-- typofix
+ .../devicetree/bindings/gpu/host1x/nvidia,tegra234-nvdec.yaml     | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Changes in v3:
-- document properties for VIC
----
- .../devicetree/bindings/display/tegra/nvidia,tegra124-vic.yaml |  8 ++++++++
- .../devicetree/bindings/display/tegra/nvidia,tegra186-dc.yaml  | 10 ++++++++++
- .../devicetree/bindings/display/tegra/nvidia,tegra20-dc.yaml   | 10 +++++++++-
- .../bindings/display/tegra/nvidia,tegra20-host1x.yaml          |  7 +++++++
- 4 files changed, 34 insertions(+), 1 deletion(-)
-
-diff --git a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra124-vic.yaml b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra124-vic.yaml
-index bdf981781bd5..fdd3fe9e2547 100644
---- a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra124-vic.yaml
-+++ b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra124-vic.yaml
-@@ -68,6 +68,14 @@ properties:
-       - const: dma-mem # read
+diff --git a/Documentation/devicetree/bindings/gpu/host1x/nvidia,tegra234-nvdec.yaml b/Documentation/devicetree/bindings/gpu/host1x/nvidia,tegra234-nvdec.yaml
+index 4eb325cfd296..bcaaabca945d 100644
+--- a/Documentation/devicetree/bindings/gpu/host1x/nvidia,tegra234-nvdec.yaml
++++ b/Documentation/devicetree/bindings/gpu/host1x/nvidia,tegra234-nvdec.yaml
+@@ -60,6 +60,14 @@ properties:
+       - const: dma-mem
        - const: write
  
 +  memory-region:
@@ -135,69 +125,9 @@ index bdf981781bd5..fdd3fe9e2547 100644
 +    items:
 +      - const: protected
 +
-   dma-coherent: true
- 
- additionalProperties: false
-diff --git a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra186-dc.yaml b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra186-dc.yaml
-index ce4589466a18..881bfbf4764d 100644
---- a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra186-dc.yaml
-+++ b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra186-dc.yaml
-@@ -57,6 +57,16 @@ properties:
-       - const: dma-mem # read-0
-       - const: read-1
- 
-+  memory-region:
-+    minItems: 1
-+    maxItems: 2
-+
-+  memory-region-names:
-+    items:
-+      enum: [ framebuffer, protected ]
-+    minItems: 1
-+    maxItems: 2
-+
-   nvidia,outputs:
-     description: A list of phandles of outputs that this display
-       controller can drive.
-diff --git a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-dc.yaml b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-dc.yaml
-index 69be95afd562..3bf06dcd6198 100644
---- a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-dc.yaml
-+++ b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-dc.yaml
-@@ -65,7 +65,15 @@ properties:
-     items:
-       - description: phandle to the core power domain
- 
--  memory-region: true
-+  memory-region:
-+    minItems: 1
-+    maxItems: 2
-+
-+  memory-region-names:
-+    items:
-+      enum: [ framebuffer, protected ]
-+    minItems: 1
-+    maxItems: 2
- 
-   nvidia,head:
-     $ref: /schemas/types.yaml#/definitions/uint32
-diff --git a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.yaml b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.yaml
-index 8312b7699cbe..420a1fe5ee80 100644
---- a/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.yaml
-+++ b/Documentation/devicetree/bindings/display/tegra/nvidia,tegra20-host1x.yaml
-@@ -98,6 +98,13 @@ properties:
-     items:
-       - description: phandle to the HEG or core power domain
- 
-+  memory-region:
-+    maxItems: 1
-+
-+  memory-region-names:
-+    items:
-+      - const: protected
-+
- required:
-   - compatible
-   - interrupts
+   nvidia,memory-controller:
+     $ref: /schemas/types.yaml#/definitions/phandle
+     description:
 
 -- 
 2.55.0
