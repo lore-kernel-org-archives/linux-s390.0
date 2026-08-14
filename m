@@ -1,208 +1,237 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4086A42BC23;
-	Fri, 14 Aug 2026 17:04:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4FA4D4908DE;
+	Fri, 14 Aug 2026 17:34:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786727046; cv=none; b=H1qMJBQB+h9sE2Wq6iFnT8kIAep7YKJ36pjtTol2xh62/dAjapcf7B2AZcw5fl8HgEpmnZvh1pPW5Zytwnivc5Q7bHotrqU3yhUWCXZDhc1w8F5mJWhNCrcTurJIikUK8A6ZzV0m2iPG9zSc8fQFtcCi5qH6umHD0EyP/VVVi6E=
+	t=1786728889; cv=none; b=pJdHeV92gcjzQObuDQjlgs9SPQOP287HS0gYD92lJ+YFptju3ajmKni1U5Vle7283cg/t6idrXK2+Lbm44gBf5jcoTUYFs4OZCNUfF5E9lM5TpN2NZgkmpIpIdQ+3cZ3CYlWBPK8TtvZiB4DoLv3Uk5tY5BsM77hvrXNDx6NUrQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786727046; c=relaxed/simple;
-	bh=iOBUzIEVRjCS+26iaiIH80pmWAbjx0NfMI/Jlko6CkU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lJsNdzvqrAY+xG21UzeC9JZlYjE6+yVwXNRZ97T90iIV/Z6JX5oBkTC3hJ/O//wQJ+LBIAXkiAmfMoVcLa6sbw+q84p46dZ61GtMrHay5vAalww8/vhDBw0zmczJ1ZZXahQh7/Y0eSF52/FhPj52v23nM7VKtNL6q3Vx0NGVits=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bTAEqvK1; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786728889; c=relaxed/simple;
+	bh=u3T9edAxlh7yKorxUAb9VAjz6kQdSTTbvHmmGeDDHoU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ItsijMuInXjB+65qEkL8edpH8OKDxKwq3KEc7SP+nBkiogH3WYyKDeQ98Q1ck0Momdtr8NIdsVcP8HWOoouJnjhAmD8KH3hOram514euAfwVZqVcBzhD1mlIUwqPPEfUdNFQTUm9hO3IeGXjfXsPohtXXw6jx8/wjNu51aC3ifc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=ppm7pmp8; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bTAEqvK1"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67EH1bCP1669334;
-	Fri, 14 Aug 2026 17:03:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=gYLfP/
-	PRhG6aqeOHMFaP75LombQI/IVWfRjC4JjwMMg=; b=bTAEqvK1h3OC6PCYTWv/wq
-	gEyXkknrBG+5PE4V/SP80myBAmdLjU/oPpBsVA1yW97wfCGls+g5lnkxDH01asGT
-	RnXbtI2a8ys94HREe0JxSYVWM9/uLxebbW6hNyuHSHsdRBH0L9F2T290Ee8t0l0N
-	w9PueY7IdpP6j0bwHCTGU4u7zeE6jRBAgF/IRwVSZAgZ3s7d/uZ9+HUVPat9OseJ
-	aR15KCuneG1jbAH+TEXKak/oJA1hzRmR3fwgf1WtgaCzQWE8RhxDe0QpR50a0tMD
-	OVzTzkMHEKBzv7TPxjQgmNtQpFdo9D+FxUp8owNSiS23Zl2KBqgV1yUeH9Fg2Qeg
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvq9wts7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 14 Aug 2026 17:03:39 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67EGuhZQ019283;
-	Fri, 14 Aug 2026 17:03:38 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxfsk854n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 14 Aug 2026 17:03:38 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67EH3XjC51839358
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 14 Aug 2026 17:03:34 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E314B20065;
-	Fri, 14 Aug 2026 17:03:33 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 96A352005A;
-	Fri, 14 Aug 2026 17:03:33 +0000 (GMT)
-Received: from [9.111.161.149] (unknown [9.111.161.149])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 14 Aug 2026 17:03:33 +0000 (GMT)
-Message-ID: <5e38d51c-07bb-45f6-8f41-7ab9fca5eede@linux.ibm.com>
-Date: Fri, 14 Aug 2026 19:03:33 +0200
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="ppm7pmp8"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 7D9611516;
+	Fri, 14 Aug 2026 10:34:42 -0700 (PDT)
+Received: from arm.com (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3CB4D3F66F;
+	Fri, 14 Aug 2026 10:34:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1786728886; bh=u3T9edAxlh7yKorxUAb9VAjz6kQdSTTbvHmmGeDDHoU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ppm7pmp8E9oVikMGpVoQQWvjA2spsMWcUEwM5vXpRx2erTjnP16IFLrGmEifQQ7DC
+	 8sLEvBHanZyBCAqJAEiPNurm8WKYBKyyxL14TwTjEu5odWeJbfPbCk4dKh+9cwcRrg
+	 SHpUIcPXbrmDNJK4N0VK054T4ts//EmbcSpr6RgI=
+Date: Fri, 14 Aug 2026 18:34:39 +0100
+From: Catalin Marinas <catalin.marinas@arm.com>
+To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>, Jason Gunthorpe <jgg@ziepe.ca>,
+	Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [RFC PATCH v2 2/2] dma: swiotlb: Initialize and size shared
+ default pools for memory encryption
+Message-ID: <an9RrwoaAsqJQ2vN@arm.com>
+References: <20260813102521.1367737-1-aneesh.kumar@kernel.org>
+ <20260813102521.1367737-3-aneesh.kumar@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/iucv: only deliver HiperSockets frames to
- HiperSockets sockets
-To: hexlabsecurity@proton.me, "David S. Miller" <davem@davemloft.net>,
-        Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Thorsten Winkler <twinkler@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Hidayath Khan <hidayath@linux.ibm.com>,
-        Simon Horman <horms@kernel.org>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20260813-b4-disp-60433a46-v1-1-509e1200533e@proton.me>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20260813-b4-disp-60433a46-v1-1-509e1200533e@proton.me>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: 2jTEM7fBMJAor1LcVeQv0G5-9z3vo_ll
-X-Authority-Analysis: v=2.4 cv=PbDPQChd c=1 sm=1 tr=0 ts=6a7f4a6b cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=vvvX36JlOh_1kPUMCBsA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE0MDEzMCBTYWx0ZWRfX5aPuo47bsNn3
- bx/pViUA7eizUqzWKEJDDXppgvNXWshY2hNcxyWIJavct9bsr/4dI0iVOZzdpDtSYHGRwHqkHvt
- beW81OT9n8ufVbvwbsm8dtpgILu7Ap3H8a9MA+FQtdeCbJt/yMVLPu2mWqjL1nrstNDcYBJeX8x
- xOfhlQ2IvCRXkWB9b2Vay9YKUF2BN62HJXszoLfsILdu2jhxIVZA1aunfEt2A8NAly6Ba3CEiS+
- x6GqhzVrOoWsaGi/dWbD0ngWirlHw1CiKHaeMhkWdRtVfVUexy5D7yCbrd8ShYXKsKOBsJLPr+K
- jPlQq3xayd/O7Pppj54QxFy9eNyj6QqssCrocxL53iojG9PH1y3YqHWocZX/RJTIf+aZZGnsY+Q
- RFv+1bfPKPzIvXkDF9qcYUWyBB533tJvXP4fJ87HcMXZFC6WNVnjSBQsYq8nev/LQohzKioabox
- 1WSM7d1L94XcLlPF1bg==
-X-Proofpoint-ORIG-GUID: h7XnI_buJIoGpzcSUOJCQE8iPXYT55Uo
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE0MDEzMCBTYWx0ZWRfX+tPoo+dU/ZpD
- nWWwI8RmtFy2jSEfOLOMLMfzAYQNIoTEjExZsD0eEqrwOHahYZn7RWxSXnOZ8OdVqqt0UF3c/Oi
- 1/pKN7pfa5XJEBnR9PLrjy2QrBrG01E=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-14_06,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 bulkscore=0 impostorscore=0 malwarescore=0 adultscore=0
- clxscore=1015 priorityscore=1501 suspectscore=0 phishscore=0
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608140130
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260813102521.1367737-3-aneesh.kumar@kernel.org>
 
+On Thu, Aug 13, 2026 at 03:55:21PM +0530, Aneesh Kumar K.V (Arm) wrote:
+> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+> index 9f5b366d2086..c3188ca878f3 100644
+> --- a/arch/arm64/mm/init.c
+> +++ b/arch/arm64/mm/init.c
+> @@ -338,12 +338,8 @@ void __init arch_setup_zero_pages(void)
+>  void __init arch_mm_preinit(void)
+>  {
+>  	unsigned int flags = SWIOTLB_VERBOSE;
+> -	/* pKVM uses restricted-dma-pool */
+> -	bool cc_guest = is_realm_world();
+>  
+> -	if (cc_guest)
+> -		flags |= SWIOTLB_INIT_CC_SHARED;
+> -	else if (max_pfn > PFN_DOWN(arm64_dma_phys_limit))
+> +	if (max_pfn > PFN_DOWN(arm64_dma_phys_limit))
+>  		flags |= SWIOTLB_INIT_ADDRESSING_LIMIT;
+>  
+>  	swiotlb_init(flags);
 
+This looks fine. As I mentioned on patch 1, we might as well move this
+hunk over there and avoid the flag definition.
 
-On 13.08.26 14:51, Bryam Vargas via B4 Relay wrote:
-> From: Bryam Vargas <hexlabsecurity@proton.me>
-> 
-> afiucv_hs_rcv() selects a socket out of iucv_sk_list by the four name
-> fields alone, with no test on iucv->transport, so a frame arriving over
-> HiperSockets can be delivered to a socket bound to the classic z/VM IUCV
-> transport. iucv_sock_bind() makes that reachable rather than theoretical:
-> a bind to the local guest userid always takes the classic path, even on a
-> guest that also carries a HiperSockets device with the same identifier.
-> 
-> Skip sockets that are not on the HiperSockets transport. The two were
-> added as alternatives for environments assumed disjoint - IUCV under
-> z/VM, HiperSockets on LPAR - and this lookup still assumes a guest has
-> only one of them.
-> 
-> Fixes: 3881ac441f64 ("af_iucv: add HiperSockets transport")
-> Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
-> ---
-> The two transports were introduced as alternatives for environments the
-> 2011 series treated as disjoint. Its cover letter says so:
-> 
->   "The current transport mechanism for af_iucv (iucv) is only available
->    on VM. HiperSockets provide similar capabilities as iucv and are
->    available on LPAR."
-> 
->   https://lore.kernel.org/all/20110727161339.530894848@de.ibm.com/
-> 
-> That premise is the one to check, and it is yours to settle: on a z/VM guest
-> that also has a HiperSockets device both exist at once, and iucv_sock_bind()
-> resolves the local userid to the classic transport at the test against
-> iucv_userid. If a guest can never reach both, this patch is unnecessary and
-> I would rather know that than have it applied.
-> 
-> Reach is wider than the HiperSockets LAN, which is what decides how urgently
-> this is worth taking: iucv_packet_type sets no .dev, afiucv_hs_rcv() ignores
-> its dev argument, and nothing checks dev_net() -- net/x25/x25_dev.c and
-> net/ieee802154/socket.c both do at exactly that point. An AF_PACKET frame on
-> lo from any netns holding CAP_NET_RAW reaches these sockets.
-> 
-> Two consequences I traced on a classic socket that matches an inbound frame:
-> afiucv_hs_callback_synfin() and _fin() overwrite its sk_state, and
-> afiucv_hs_callback_syn() builds an accept-queue child with transport HIPER
-> but hs_dev NULL, which LL_RESERVED_SPACE() dereferences unguarded on the
-> first send. That read lands in mapped lowcore on a default kernel and
-> afiucv_hs_send() then returns -ENODEV, so I am not claiming a panic; it
-> faults with relocate_lowcore. By inspection; not reproduced. Compile-tested
-> for s390x.
-> 
-> One case where this patch is a regression: a device whose hsuid is set to
-> the same 8 characters as
-> the guest's z/VM userid. iucv_sock_bind() tests siucv_user_id against
-> iucv_userid before it scans for a HiperSockets device, so such a socket
-> becomes classic and today receives HiperSockets frames only because this
-> lookup does not filter. After this patch it stops receiving them. If that
-> configuration is one you support, then this is the wrong patch and the fix
-> belongs in the bind ordering.
-> ---
->  net/iucv/af_iucv.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-> index ea047bab65e7..5fb6793b9a64 100644
-> --- a/net/iucv/af_iucv.c
-> +++ b/net/iucv/af_iucv.c
-> @@ -2079,6 +2079,8 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
->  	sk = NULL;
->  	read_lock(&iucv_sk_list.lock);
->  	sk_for_each(sk, &iucv_sk_list.head) {
-> +		if (iucv_sk(sk)->transport != AF_IUCV_TRANS_HIPER)
-> +			continue;
->  		if (trans_hdr->flags == AF_IUCV_FLAG_SYN) {
->  			if ((!memcmp(&iucv_sk(sk)->src_name,
->  				     trans_hdr->destAppName, 8)) &&
-> 
-> ---
-> base-commit: 9006c116dd111d457bf5d074990210f70a4ad2c8
-> change-id: 20260813-b4-disp-60433a46-fcdca197129a
-> 
-> Best regards,
-> --  
-> Bryam Vargas <hexlabsecurity@proton.me>
+> @@ -102,9 +101,6 @@ void __init mem_encrypt_init(void)
+>  
+>  void __init mem_encrypt_setup_arch(void)
+>  {
+> -	phys_addr_t total_mem = memblock_phys_mem_size();
+> -	unsigned long size;
+> -
+>  	/*
+>  	 * Do RMP table fixups after the e820 tables have been setup by
+>  	 * e820__memory_setup().
+> @@ -112,33 +108,9 @@ void __init mem_encrypt_setup_arch(void)
+>  	if (cc_platform_has(CC_ATTR_HOST_SEV_SNP))
+>  		snp_fixup_e820_tables();
+>  
+> -	if (cc_platform_has(CC_ATTR_MEM_ENCRYPT))
+> -		x86_swiotlb_flags |= SWIOTLB_INIT_CC_SHARED;
+> -
+>  	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
+>  		return;
+>  
+> -	/*
+> -	 * For SEV and TDX, all DMA has to occur via shared/unencrypted pages.
+> -	 * Kernel uses SWIOTLB to make this happen without changing device
+> -	 * drivers. However, depending on the workload being run, the
+> -	 * default 64MB of SWIOTLB may not be enough and SWIOTLB may
+> -	 * run out of buffers for DMA, resulting in I/O errors and/or
+> -	 * performance degradation especially with high I/O workloads.
+> -	 *
+> -	 * Adjust the default size of SWIOTLB using a percentage of guest
+> -	 * memory for SWIOTLB buffers. Also, as the SWIOTLB bounce buffer
+> -	 * memory is allocated from low memory, ensure that the adjusted size
+> -	 * is within the limits of low available memory.
+> -	 *
+> -	 * The percentage of guest memory used here for SWIOTLB buffers
+> -	 * is more of an approximation of the static adjustment which
+> -	 * 64MB for <1G, and ~128M to 256M for 1G-to-4G, i.e., the 6%
+> -	 */
+> -	size = total_mem * 6 / 100;
+> -	size = clamp_val(size, IO_TLB_DEFAULT_SIZE, SZ_1G);
+> -	swiotlb_adjust_size(size);
+> -
+>  	/* Set restricted memory access for virtio. */
+>  	virtio_set_mem_acc_cb(virtio_require_restricted_mem_acc);
+>  }
 
-Hello Bryam,
-I agree with your analysis and I welcome your patch, thank you.
+Credit to claude, it noticed a slight change in behaviour for x86 w.r.t.
+the crash kernel reservation. crash_low_size_default() reads the swiotlb
+size but the resizing now happens after arch_reserve_crashkernel().
+Maybe not an issue.
 
-As you rightly point out the two transports were introduced as alternatives,
-and AF_IUCV over HiperSockets is not intended to work between z/VM guests.
+Alternatively, we could build the sizing logic into
+swiotlb_size_or_default() but I haven't checked whether we have the
+right information when this function is called.
 
-Actually we should prevent setting hsuid in z/VM guests, altogether. That
-would also be a good point in time to indicate to the user that they are
-doing something meaningless. We'll work on such a fix.
+> @@ -382,12 +374,54 @@ static void __init *swiotlb_memblock_alloc(unsigned long nslabs,
+>  	return tlb;
+>  }
+>  
+> +static void __init swiotlb_adjust_cc_attributes(void)
+> +{
+> +	unsigned long size;
+> +	phys_addr_t total_mem = memblock_phys_mem_size();
+> +
+> +	/* Do not resize for host memory encryption. */
+> +	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
+> +		return;
+> +
+> +	/*
+> +	 * For SEV and TDX and CCA, all DMA has to occur via
+> +	 * shared/unencrypted pages. Kernel uses SWIOTLB to make this
+> +	 * happen without changing device drivers. However, depending on
+> +	 * the workload being run, the default 64MB of SWIOTLB may not be
+> +	 * enough and SWIOTLB may run out of buffers for DMA, resulting in
+> +	 * I/O errors and/or performance degradation especially with high
+> +	 * I/O workloads.
+> +	 *
+> +	 * Adjust the default size of SWIOTLB using a percentage of guest
+> +	 * memory for SWIOTLB buffers. Also, as the SWIOTLB bounce buffer
+> +	 * memory is allocated from low memory, ensure that the adjusted
+> +	 * size is within the limits of low available memory.
+> +	 *
+> +	 * The percentage of guest memory used here for SWIOTLB buffers is
+> +	 * more of an approximation of the static adjustment which 64MB for
+> +	 * <1G, and ~128M to 256M for 1G-to-4G, i.e., the 6%
+> +	 */
+> +	size = total_mem * 6 / 100;
+> +	size = clamp_val(size, IO_TLB_DEFAULT_SIZE, SZ_1G);
+> +	swiotlb_adjust_size(size);
+> +
+> +	if (!IS_ENABLED(CONFIG_SWIOTLB_DYNAMIC))
+> +		pr_info("Consider enabling CONFIG_SWIOTLB_DYNAMIC for memory-encrypted systems\n");
 
-You patch is still good as a protection against malformed packets arriving
-at a HiperSockets L3 interface.
+I agree with Michael, let's drop this pr_info().
 
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+> +}
+> +
+>  static bool __init swiotlb_kmalloc_needs_bounce(void)
+>  {
+>  	return IS_ENABLED(CONFIG_DMA_BOUNCE_UNALIGNED_KMALLOC) &&
+>  	       (dma_get_cache_alignment() > 1);
+>  }
+>  
+> +static bool __init swiotlb_default_pool_needs_cc_shared(void)
+> +{
+> +	/* A restricted DMA pool provides the shared buffers instead. */
+> +	return cc_platform_has(CC_ATTR_MEM_ENCRYPT) &&
+> +	       !restricted_dma_pool_present;
+> +}
 
+I don't think restricted_dma_pool_present should change the cc_shared
+attribute. The rmem pool is all about sizing the swiotlb, not disabling
+sharing.
+
+Thinking some more, if other archs don't like rmem pool influencing the
+default swiotlb size, we could add a flag (SWIOTLB_SKIP_IF_RMEM_POOL or
+some better name). But only if people dislike the heuristics.
+
+> @@ -437,9 +469,11 @@ void __init swiotlb_init_remap(unsigned int flags,
+>  		io_tlb_default_mem.phys_limit = ARCH_LOW_ADDRESS_LIMIT;
+>  #endif
+>  
+> -	if (!(flags & (SWIOTLB_INIT_ADDRESSING_LIMIT |
+> -		       SWIOTLB_INIT_CC_SHARED)) &&
+> -	    swiotlb_kmalloc_needs_bounce()) {
+> +	if (swiotlb_default_pool_needs_cc_shared()) {
+> +		io_tlb_default_mem.cc_shared = true;
+> +		swiotlb_adjust_cc_attributes();
+> +	} else if (!(flags & SWIOTLB_INIT_ADDRESSING_LIMIT) &&
+> +		   swiotlb_kmalloc_needs_bounce()) {
+
+I think at a high level, we need (i.e. separate attributed from sizing):
+
+	if (cc_platform_has(CC_ATTR_MEM_ENCRYPT))
+		io_tlb_default_mem.cc_shared = true;
+
+	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT)) {
+		if (!restricted_dma_pool_present)
+			swiotlb_adjust_cc_size();	/* 6%, clamped */
+	} else if (!(flags & SWIOTLB_INIT_ADDRESSING_LIMIT) &&
+		   swiotlb_kmalloc_needs_bounce()) {
+		swiotlb_shrink_for_kmalloc();		/* 1MB per 1GB */
+	}
+
+-- 
+Catalin
