@@ -1,67 +1,64 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E5398632B;
-	Fri, 14 Aug 2026 12:16:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D5893DA7C3
+	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 12:20:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786709769; cv=none; b=S0Tkp0bUFeW0YBOnovSYHgnsp2PNL3ApBrvLY7OSh6v5SaeF0dRwiuYk9I1IIUtNJHP41sox7PN5toMV556+4IfoCzpOpbzQo+7wMaiNDzB2nYaS5ihaBcmQ7gaj0ypdS4xWtlVhjnnyFmGJkzwFWswi/owZpcYUIVCteIm3Vg0=
+	t=1786710006; cv=none; b=QjOz+WMNnHMEGGCEndCjysDcRW3KAoJNxI7Fgq1lkW5/Yv6UV8V8qgpA6dYUjC32PJ2vIwsxO6B6ckIsRIwkxVgYxE49arYm1yC5gK+shpOc0CBHLYHOv9e4f3goFSxT1yqyXOkKOaJIVauGWiHjyI6t/W+ini6h8D+bSsEiEik=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786709769; c=relaxed/simple;
-	bh=7vYVqkb7/gr0yqGHUQQVcTXGt2Qbp0FgMcVEkkSolKo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=i9qj/0XELGLtHG+7a6r8/ucV9bNQgNXZ3t9mYFjNLofhsIHS9EyEwxm65u+tCTniwGF1Tp2VmbaJp2drAzIp1b5o6OtVAUC57E30AFASeAJUcS0SD748fx8xby37tzWPgF7UVGogyaIs2PhUmEU2mBbYrp9BROKB/MvaBYS4jkE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GHMI3fkf; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1786710006; c=relaxed/simple;
+	bh=5FbtwonHEWebeNTHxkengX8esPED8hhxd98jQbw5yy4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZBvSFnRHOn0IpFC5Mvmr2xC2KE+uEMXi19xY4iSYdI9uVOWzK10saFDZ2Toq4XGJ6IjFcqxAPQ3Fmy5ZRBk1l7Iby8j7yCKmFQ+KF3+3Tbnh3xwYWUFad5BwPQcLo4U7XzBZoYTJsGql1SfDH8JUSQe2MM+fO0OAuo/p2/9Gic0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KmpSVxmO; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GHMI3fkf"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67EB1jhh984611;
-	Fri, 14 Aug 2026 12:16:07 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KmpSVxmO"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67EB1jVP3273910
+	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 12:20:04 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=+Spdl3Tafte+NIT5vMOT1LXRXYMbh5gefzgHLzPzQ
-	ak=; b=GHMI3fkf2xX4IwnGQDL6bjxpcUxsw3OLtrWYRnEaUqlNoPNWF0nv6AHMQ
-	E93Q8gONrKwuqgHNxCzBhOSqgbVbNTGpCbD2iyazj8Dv67iOA5sq61gGiCYDxckb
-	9OgLB8D0wXedRhu1fT8oyVE0vSeFKv7p3rbRq60f/sweguv+wFE0xckCJUv1yxcb
-	xsHGbEWRivHv7cnl0nYG48aCxAwAntpBAjLzZ0dxpITTWp8RpHich1s3ooWjzYJQ
-	ZRHVBw+p2RahiDNJf2M3njdpuqHmHbSL8rSXOHT93nDFhObOI4MaPTzjfVaa09LY
-	MEgE++ZATTZ3ZcDVWS1QSOAUTe+/g==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvnwkgx5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 14 Aug 2026 12:16:07 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67ECBHd7005706;
-	Fri, 14 Aug 2026 12:16:06 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fxg9hf510-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 14 Aug 2026 12:16:06 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67ECG2kJ31785706
+	:subject:to; s=pp1; bh=i50Ta8YEv09agBQLkp5J6wOmEdz4B4LPWBzwiq6n2
+	3A=; b=KmpSVxmOfmVOuiQMu9eD/BOotHK0QtNBU8L3kPkgSGeYuf/vQLy2bQ0bR
+	nEnYFKStAR1Z6zI3vOPj5twoTKwR/6qMnFT9VDjutYrz2U4a5rmJzKMBVMJmV+UF
+	prdwREG2Ms/VBnSA/FQMg+9np1UjC0vuXZfC2n/qmqeDR648o5Xj1q0IHVvY4ZeT
+	IdTJp2DoKiIJsF9J2nHUJ5pnZ2ME5hCmsDRpWs/endCd6MZh1cOuyFvdnBAnKXFb
+	GeA/TlISSRNsSaGpEivPidOMDrp6eDgjW0U1i3uG98i0Hgn0QtpYezVyUMTNOqz/
+	1jGHDbqM8CikppiDvgRsfkAPpTCKw==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fwvk0cp1w-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 12:20:04 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67ECBfhY018670
+	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 12:20:03 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g1rpv9y3m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Fri, 14 Aug 2026 12:20:03 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67ECJx7s50004272
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 14 Aug 2026 12:16:02 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6D1A02004B;
-	Fri, 14 Aug 2026 12:16:02 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0664220040;
-	Fri, 14 Aug 2026 12:16:02 +0000 (GMT)
-Received: from li-d2cd37cc-2ca3-11b2-a85c-84ed3706e5a0.ibm.com (unknown [9.111.12.156])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 14 Aug 2026 12:16:01 +0000 (GMT)
-From: Ilya Leoshkevich <iii@linux.ibm.com>
-To: Harald Freudenberger <freude@linux.ibm.com>,
-        Holger Dengler <dengler@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH v3] s390/cpacf: Unpoison instruction results
-Date: Fri, 14 Aug 2026 14:15:25 +0200
-Message-ID: <20260814121559.1240939-1-iii@linux.ibm.com>
-X-Mailer: git-send-email 2.55.0
+	Fri, 14 Aug 2026 12:19:59 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 93AEC2004B;
+	Fri, 14 Aug 2026 12:19:59 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 744BF20040;
+	Fri, 14 Aug 2026 12:19:59 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 14 Aug 2026 12:19:59 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-s390@vger.kernel.org, sumanthk@linux.ibm.com, japo@linux.ibm.com
+Cc: agordeev@linux.ibm.com, iii@linux.ibm.com, hca@linux.ibm.com,
+        Thomas Richter <tmricht@linux.ibm.com>
+Subject: [PATCH] s390/pai: Handle multiple PMU stop callback invocations
+Date: Fri, 14 Aug 2026 14:19:58 +0200
+Message-ID: <20260814121958.2408863-1-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -70,107 +67,86 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=RsP16imK c=1 sm=1 tr=0 ts=6a7f0707 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE0MDA5MSBTYWx0ZWRfXxHfKJiiKXiht
+ DDtOuA8ca/4vY/mzXC+1MnU5jXh1sdOX0+ms1zNrz0jQVvD1j8DxTt5/fhT6RKviChcgcUewYxa
+ 7r3O3Ij0+id8kOQDCg7JRaYWS0eEfTCdj2GU292Th2ERb6JkMAV7C38NYLkJddjSsyM9vUGDXwG
+ S0Kzks11+aIgzaOlLr+bbLOgTNsNOY+QINxoEkz1lytHfrBO1iWIP+zUjOMD6KLZDc+8Zd7brWb
+ golvOhaVxQgSeDVWQapyv4ofdsDxSIKbhAqbg1kSKe2zntvo/jOm3wQsLbDiJmPie7vWdCKHQds
+ /lrUBvdgCj/tbLch2kFRXLPpU1AgFDkeA26fB6aKHWZc5tv8mrOmgoik5rNs9P44oFAIHxEzFCz
+ XzlRePuHQ2HAgQFEG9DJgQ35jL1JtJIx8aFVXMhtzF9hOpp4d24nxzEnZG1wplfVPqlpcBrIOQW
+ 4R+zMbx79ZwIZIQ5hVA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE0MDA5MSBTYWx0ZWRfX+su8w6K2nNVz
+ kbKCYs+L9GlPur8jb6k+smPKgbPxqP2m38TLkw2a5NRnvuw0dzvI7LP11z4ehVB9fyzkcw9SXFv
+ QHXCy1hh1Z5Ldrx++FEnF/mPkDLB434=
+X-Authority-Analysis: v=2.4 cv=RqD16imK c=1 sm=1 tr=0 ts=6a7f07f4 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=4nVjCsc_dGox6U1-_OoA:9
-X-Proofpoint-GUID: VH_W5DtoAeH4dj6iHZ5HiApGtMuXmWAK
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE0MDA5MSBTYWx0ZWRfX4e0ODbUEJ+A1
- kGQIPDoa6V6g9c2XyJon/9IWBb6wKDuhWqiqZ3PyWo8skeJa+QToksIBox/aSCM8sAKVnvDuuUT
- aoaBmINrB5FqKPFvAHLIuenE3sCTJTpFaJPG4vYhSeelbq96an2GciWWU3/5YKzHPOFIYkcoErY
- iYQc2cJVvboc+ltL9UaFliIOOqC7UAqy24QfNrfCG9InzMVeRRWu+H0hTro35olmscEPQTf7G11
- K9HQcoUbVfnKjCcdziGsPGAwYUZ9le+0jehMeCnXl5BurSKRyZjcF1/q1qHaL6fQu3vJBD3MHbZ
- Vy/JFNK6GOlx6BHQhSksZbInDhMcQw7TnbotyyiwfLVQ91t6ByzCoaHJ0Hdnc+UBpsKVpwt2ei5
- ezbSdPn1A5H8kWrKjVngiSOimzDxZrYxOU0/UHuP27V6TSY34GBuz0HNZTsOF9GVG372rvsG5U6
- zOCAnt3HIRZSca20LGQ==
-X-Proofpoint-ORIG-GUID: VH_W5DtoAeH4dj6iHZ5HiApGtMuXmWAK
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE0MDA5MSBTYWx0ZWRfX9+GRq6FKERrw
- CNeflyRDDiUfzq+hFUUkJTf8lIXxikW7mcD/UTfSnBrnF/GCky44do1HR+ACK/j7Zxq/tTSCCGf
- FkPeaDahJrwZnaMTxE1xb+E8GfSHiT0=
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=b6_6n78pCtPly934600A:9
+X-Proofpoint-GUID: bm6XSrhvq9PSdJ_EVNWzkNMK0P5uzpjN
+X-Proofpoint-ORIG-GUID: bm6XSrhvq9PSdJ_EVNWzkNMK0P5uzpjN
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-14_04,2026-08-12_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 impostorscore=0 suspectscore=0 clxscore=1015 malwarescore=0
- phishscore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608140091
+ phishscore=0 priorityscore=1501 suspectscore=0 lowpriorityscore=0
+ clxscore=1015 adultscore=0 bulkscore=0 malwarescore=0 impostorscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608140091
 
-Stop KMSAN from complaining about CPACF outputs being uninitialized.
+Handle the following scenario:
+The kernel protects itself against a very high sampling load and
+throttles the sampling using:
 
-Do not unpoison variable-length parameter blocks: mapping function
-codes (like CPACF_KIMD_SHA_256) to lengths will be ugly. So let the
-callers do this once the need arises.
+  perf_event_throttle() --> PMU->stop()
 
-Also do not touch cpacf_kma(): this wrapper does not handle cc 1 and
-cc2 at the moment and has to be reworked.
+Shortly later the scheduler may terminate the task and removes it from the
+CPU. It again calls
 
-Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+  PMU->stop()
+
+which results in two invocations of PMU->stop() called back to back.
+Protect against this and check the PERF_HES_STOPPED bit on function
+entry.  If it is already set return.
+Clear bit PERF_HES_STOPPED in PMU->start().
+
+Cc: stable@vger.kernel.org # v6.19+
+Fixes: 9f66572f2889 ("s390/pai_crypto: Enable per-task and system-wide sampling event")
+Fixes: 582cc1b28e8c ("s390/pai_ext: Enable per-task and system-wide sampling event")
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Reviewed-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
 ---
+ arch/s390/kernel/perf_pai.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-v2: https://lore.kernel.org/all/20260807122132.3592583-1-iii@linux.ibm.com/
-v2 -> v3: Drop cpacf_kma() change, add R-b (Harald).
-
-v1: https://lore.kernel.org/linux-s390/20260806190223.3292580-1-iii@linux.ibm.com/
-v1 -> v2: Unpoison outputs of more instructions (Sashiko).
-
- arch/s390/include/asm/cpacf.h | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/arch/s390/include/asm/cpacf.h b/arch/s390/include/asm/cpacf.h
-index a83683169d98d..6174552d856dc 100644
---- a/arch/s390/include/asm/cpacf.h
-+++ b/arch/s390/include/asm/cpacf.h
-@@ -301,6 +301,7 @@ static __always_inline void __cpacf_query(unsigned int opcode,
- 					  cpacf_mask_t *mask)
- {
- 	__cpacf_query_insn(opcode, mask, CPACF_FC_QUERY);
-+	kmsan_unpoison_memory(mask, sizeof(*mask));
+diff --git a/arch/s390/kernel/perf_pai.c b/arch/s390/kernel/perf_pai.c
+index 1e5a1f1cc68a..f6790f658f21 100644
+--- a/arch/s390/kernel/perf_pai.c
++++ b/arch/s390/kernel/perf_pai.c
+@@ -484,6 +484,7 @@ static void pai_start(struct perf_event *event, int flags,
+ 			cpump->event = event;
+ 		}
+ 	}
++	event->hw.state &= ~PERF_HES_STOPPED;
  }
  
- static __always_inline int __cpacf_check_opcode(unsigned int opcode)
-@@ -370,6 +371,7 @@ static __always_inline int cpacf_query_func(unsigned int opcode,
- static __always_inline void __cpacf_qai(unsigned int opcode, cpacf_qai_t *qai)
- {
- 	__cpacf_query_insn(opcode, qai, CPACF_FC_QUERY_AUTH_INFO);
-+	kmsan_unpoison_memory(qai, sizeof(*qai));
- }
+ static void paicrypt_start(struct perf_event *event, int flags)
+@@ -530,6 +531,13 @@ static void pai_stop(struct perf_event *event, int flags)
+ 	struct pai_mapptr *mp = this_cpu_ptr(pai_root[idx].mapptr);
+ 	struct pai_map *cpump = mp->mapptr;
  
- /**
-@@ -422,6 +424,7 @@ static inline int cpacf_km(unsigned long func, void *param,
- 		  [opc] "i" (CPACF_KM)
- 		: "cc", "memory", "0", "1");
- 
-+	kmsan_unpoison_memory(dest, src_len - s.odd);
- 	return src_len - s.odd;
- }
- 
-@@ -454,6 +457,7 @@ static inline int cpacf_kmc(unsigned long func, void *param,
- 		  [opc] "i" (CPACF_KMC)
- 		: "cc", "memory", "0", "1");
- 
-+	kmsan_unpoison_memory(dest, src_len - s.odd);
- 	return src_len - s.odd;
- }
- 
-@@ -587,6 +591,7 @@ static inline int cpacf_kmctr(unsigned long func, void *param, u8 *dest,
- 		  [opc] "i" (CPACF_KMCTR)
- 		: "cc", "memory", "0", "1");
- 
-+	kmsan_unpoison_memory(dest, src_len - s.odd);
- 	return src_len - s.odd;
- }
- 
-@@ -619,6 +624,7 @@ static inline void cpacf_prno(unsigned long func, void *param,
- 		: [fc] "d" (func), [pba] "d" ((unsigned long)param),
- 		  [seed] "d" (s.pair), [opc] "i" (CPACF_PRNO)
- 		: "cc", "memory", "0", "1");
-+	kmsan_unpoison_memory(dest, dest_len);
- }
- 
- /**
++	/* Cope with multiple invocations:
++	 *   1. perf_event_throttle() --> PMU->stop()
++	 *   2. task schedules out --> PMU->stop()
++	 * Check for event already stopped.
++	 */
++	if (event->hw.state & PERF_HES_STOPPED)
++		return;
+ 	if (!event->attr.sample_period) {	/* Counting */
+ 		pai_pmu[idx].pmu->read(event);
+ 	} else {				/* Sampling */
 -- 
 2.55.0
 
