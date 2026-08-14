@@ -1,44 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DB50349CDD;
-	Fri, 14 Aug 2026 15:04:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEC033C0610;
+	Fri, 14 Aug 2026 15:05:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786719870; cv=none; b=GmDpXMNae/G9xTByQKWjzFuliPdM0Nm5INQbDOpo6ZYSTZFRVE5lWrv+ENp8u7YxKBY0sT+bjQDSBETChlSEBJ2xzQsXdGnf4FzjBHyR62nyiK6rMbRascif0pj5UyF+Crc6bcOKBF6AQkoSxuP1kS0YESblAm12Hd4pvJWXVsE=
+	t=1786719936; cv=none; b=n2L4pGe7qoLzTKZPYOC6kM2VC3vii88OSKGd/BHPU0EkIk11bsJcH6Nkjzup+hKpn2P98Ukx78X36wHiGOyYUyttEXywh6GNSqfoEyJMTot88zwJI1S7gSF+abc76fGJEaEi8hZ0XOI9f8i5QE06acVG/YhL1BU8qtWxjcedwE4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786719870; c=relaxed/simple;
-	bh=g0AIZkSslezYBDEK+qrQefCQGUI+idOb9Iy2hAHjnzo=;
+	s=arc-20240116; t=1786719936; c=relaxed/simple;
+	bh=SelrbgT+9DlX/QXLtlXRGP5vSK5N3U0L5Izp0m2ufMY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Hu5KRNGz96osp/b7yJUoyYVVSD8+XCe5kA3JMQlflhervw8nm4Duk6HAj8w1CweJfiyIHyBeDw+iGQm1D9CgYZNqqcrURbsQ4CX0MhvJR5ZlFpT8zmQYl0dodfJoJqHEPGp2LN0/LTy9ZCRHGFRTLWBpvUbsbGN4rrUo1di6HXY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EPSp3CNK; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Oe0mqu8rjr0/vfz1RJZ8xuhRMoYsThEn+BxpTD3F99VzA5TF9UbrlBHSQC/sml01tt9rrysj6gldsYzAWihGPVdlHd+2n/oC25B2/YAwXwYUhleVMf+W1gE/4T1E8Xe0pYIBiRVwsfR3O/FvzIzS6N+UTogmKstAmQbgX96q4sg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HzeQug0U; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EPSp3CNK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2FCC1F000E9;
-	Fri, 14 Aug 2026 15:04:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HzeQug0U"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE961F000E9;
+	Fri, 14 Aug 2026 15:05:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786719869;
-	bh=jjHWApxHeC41WBwSc4owswwF+UTuqKsLId0lLQw/57o=;
+	s=k20260515; t=1786719935;
+	bh=YdO5Cfjdsvaj0/XCKVQ1LYMZv68GR6T2IXrV/4p5dHA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=EPSp3CNKLP4/His82LFwK06CjHrC02ST3H2LokhIqy427jIh2uyLN/SZlWnqzAk6T
-	 Xg0iq2wjCBRaMyBn7ME+ahwGBTsNnCnKhyrKU9A8LkDjgQuBq5AcgSFG7EWjQzq0tY
-	 mVqEuOBwC78ApPpiuFOHemFXe/qb85u8z4N9PoKQpsl6KYVhqCy7/OonhseEYdp4zY
-	 GNbJhphj5ZB82E/IRHfnQSo2Sk+lG82vDa49uZ6Q/E43Ku+Rce4ZL8c+YBfyyHV6mB
-	 8jkIS8Vn5lVTaTRLRfqJGXUT/8BmMxUhJ0Vh4a9YKS+3QKxDeCc1ASu6OvfLWk7v7L
-	 DAfwBDeKqqqQw==
+	b=HzeQug0UkCY6mhdnLP4xXb23Uk8y4YW+7lLksxiW6y0BHSjKg2yOIcWBFd3tKrNjc
+	 Oxnizo0BCgGyWduh3t0D16dZRg+oxmdC83DYttU2/BL0zB/hBYt7jbMwfNrUDMY+CN
+	 1kEMyfiUMLzznI4iJMepRMWxEtwl+DZQ3y+Qo2vaw2JXQnkOWH4fGh+/HzkQVfZq6W
+	 RFVtY61HsNrJxuB/eeujelrHXaqaF9aWVFN+Ep0OPOliC4/cB/JMDFcjy/e3BY+LcD
+	 Dds0NHPHBVQrZtUMPwUZ/UXotsm0WYxVCvstijLaaJzyAu7BJUhg/zE6kkhlVVrep9
+	 m+0FlHRIggTpQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1 2/6] KVM: s390: Fix _gaccess_shadow_fault()
+Subject: Re: [PATCH v1 6/6] KVM: s390: Fix potential race in
+ dat_cond_set_storage_key()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260814144041.169025-3-imbrenda@linux.ibm.com>
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260814144041.169025-7-imbrenda@linux.ibm.com>
 References: <20260814144041.169025-1-imbrenda@linux.ibm.com>
- <20260814144041.169025-3-imbrenda@linux.ibm.com>
+ <20260814144041.169025-7-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 14 Aug 2026 15:04:28 +0000
-Message-Id: <20260814150428.E2FCC1F000E9@smtp.kernel.org>
+Date: Fri, 14 Aug 2026 15:05:34 +0000
+Message-Id: <20260814150534.EAE961F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -47,64 +48,93 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Critical] Accessing `sg->parent` outside of `children_lock` leads to a T=
-OCTOU NULL pointer dereference if the shadow gmap is concurrently unshadowe=
-d.
+
+Pre-existing issues:
+- [Critical] Identical TOCTOU vulnerabilities remain in `dat_set_storage_ke=
+y()`, `dat_reset_reference_bit()`, and `dat_get_storage_key()`.
 --
 
---- Patch [2]: [PATCH v1 2/6] KVM: s390: Fix _gaccess_shadow_fault() ---
-commit 64108760233a08b4a69c94be48f33b269ea23a85
+--- Patch [6]: [PATCH v1 6/6] KVM: s390: Fix potential race in dat_cond_set=
+_storage_key() ---
+commit 5e22031091ce720a5918edc8a96db1b780f83398
 Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-KVM: s390: Fix _gaccess_shadow_fault()
+KVM: s390: Fix potential race in dat_cond_set_storage_key()
 
-This commit addresses an issue where nested guest memory is not present in
-the parent guest gmap, causing dat_entry_walk() to return -ENOENT. It fixes
-this by manually calling gmap_link() on the nested guest's memory if the
-mapping is absent.
+This commit addresses a race window in dat_cond_set_storage_key() where a
+large page could be concurrently split between the page table walk and the
+dereferencing of the crste pointer. By reading the entry exactly once and
+checking if it is still a leaf, it prevents passing an invalid physical
+address to the storage key functions.
 
-> diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-> index 36102b2727fbf..0d5d46d4c66fd 100644
-> --- a/arch/s390/kvm/gaccess.c
-> +++ b/arch/s390/kvm/gaccess.c
-> @@ -1593,12 +1593,25 @@ static inline int ___gaccess_shadow_fault(struct =
-kvm_vcpu *vcpu, struct gmap *sg
->  	parent =3D READ_ONCE(sg->parent);
->  	if (!parent)
->  		return -EAGAIN;
-> +retry:
->  	scoped_guard(spinlock, &parent->children_lock) {
->  		if (READ_ONCE(sg->parent) !=3D parent)
->  			return -EAGAIN;
->  		sg->invalidated =3D false;
->  		rc =3D _gaccess_do_shadow(vcpu->arch.mc, sg, saddr, walk);
+> diff --git a/arch/s390/kvm/dat.c b/arch/s390/kvm/dat.c
+> index 7e5dd5a1eb1ef..b467b95689b21 100644
+> --- a/arch/s390/kvm/dat.c
+> +++ b/arch/s390/kvm/dat.c
+[ ... ]
+> @@ -725,7 +727,11 @@ int dat_cond_set_storage_key(struct kvm_s390_mmu_cac=
+he *mmc, union asce asce, gf
+>  	if (!ptep) {
+>  		if (!oldkey)
+>  			oldkey =3D &prev;
+> -		return page_cond_set_storage_key(large_crste_to_phys(*crstep, gfn), sk=
+ey, oldkey,
+> +		crste =3D READ_ONCE(*crstep);
+> +		/* A large page has been split concurrently, try again */
+> +		if (!crste_leaf(crste))
+> +			goto again;
+> +		return page_cond_set_storage_key(large_crste_to_phys(crste, gfn), skey=
+, oldkey,
+>  						 nq, mr, mc);
 >  	}
-> +	if (rc =3D=3D -ENOENT) {
-> +		struct kvm_memory_slot *slot;
-> +		struct guest_fault *entries;
-> +
-> +		entries =3D get_entries(walk);
-> +		slot =3D kvm_vcpu_gfn_to_memslot(vcpu, entries[LEVEL_MEM].gfn);
-> +		if (!slot)
-> +			return PGM_ADDRESSING;
-> +		rc =3D gmap_link(vcpu->arch.mc, sg->parent, entries + LEVEL_MEM, slot);
 
 [Severity: Critical]
-Could accessing sg->parent here lead to a NULL pointer dereference?
+This is a pre-existing issue, but do other functions in this file suffer fr=
+om
+the exact same TOCTOU race that this patch fixes?
 
-The scoped_guard block drops parent->children_lock before this code is
-reached. If another vCPU concurrently unshadows sg, sg->parent could be
-set to NULL. Because this passes sg->parent directly instead of using the
-cached parent variable, does this risk passing NULL into gmap_link() and
-causing a host kernel panic?
+Looking at dat_set_storage_key() in the same file, the pointer is dereferen=
+ced
+directly without a READ_ONCE() and leaf check:
 
-> +		if (!rc)
-> +			goto retry;
-> +	}
->  	if (!rc)
->  		kvm_s390_release_faultin_array(vcpu->kvm, walk->raw_entries, false);
->  	return rc;
+arch/s390/kvm/dat.c:dat_set_storage_key() {
+    ...
+    page_set_storage_key(large_crste_to_phys(*crstep, gfn), skey.skey, !nq);
+    ...
+}
+
+If a concurrent split occurs here, large_crste_to_phys() will return -1, wh=
+ich
+can result in an invalid physical address access.
+
+Similarly, in dat_reset_reference_bit(), *crstep is dereferenced a second t=
+ime:
+
+arch/s390/kvm/dat.c:dat_reset_reference_bit() {
+    ...
+    skey->skey =3D page_reset_referenced(large_crste_to_phys(*crstep, gfn))=
+ << 1;
+    ...
+}
+
+Does this TOCTOU window also pass -1 to page_reset_referenced() if a concur=
+rent
+split happens between the read and the usage?
+
+Finally, in dat_get_storage_key():
+
+arch/s390/kvm/dat.c:dat_get_storage_key() {
+    ...
+    crste =3D READ_ONCE(*crstep);
+    if (!crste.h.fc || !crste.s.fc1.pr)
+        return 0;
+    ...
+}
+
+Instead of retrying the walk via a goto loop like the fix in
+dat_cond_set_storage_key(), it returns 0. Could this silently give a false
+storage key to the guest if a race occurred?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260814144041.1690=
-25-1-imbrenda@linux.ibm.com?part=3D2
+25-1-imbrenda@linux.ibm.com?part=3D6
