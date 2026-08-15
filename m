@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 961A31D63E4;
-	Sat, 15 Aug 2026 15:43:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EFB1314A83;
+	Sat, 15 Aug 2026 16:04:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786808583; cv=none; b=nVoOICGDWd0vIMcZRs8dxntvwRdvhCHm39NtdIR7vThwa6K/3EOEe4p1pz8FRvTYVChxnq3YDnWVNxLek8vCtGDXsESp9afd2NhieBVnntU0wbOohHTQ0yx5LhFXZ3LVb64r5WNJHPtjGpcXiZPQTQIV2+Rk+jqNHWPdzKCJ1A4=
+	t=1786809886; cv=none; b=O+z6Ws9MzE5T62YsjR4lfo8jFUJdh7P5F9rH0Ry2mVg1EfTOZONuzrUyrcDfhdzQkR1UVxNmqKLhHCIWElKoB+3ZXM/Kx1Zq92x7Lbj9jvaQwHWsJxT7tdjJOp+PLsfP5qNktzVbYejBqOg4Mpc/xFbFoLW6LBtbLw6pMzVdmsQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786808583; c=relaxed/simple;
-	bh=BWCZ2X/1VT3PdM+LjY7UOytBkyHNl2/Fm1Z4pGlxvI0=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=aEAezmXE8tj7iRu5RdRwO5lWuAfuMtcKOQJybVB1UfJ/eLeTwxe3ob2nSBzetymowPKUu82HAUfc5dbKg870SNkWekaHyQvInVqIKz5L+dyIL7mwYUV8Wgi6Wa7ajemIgpNuWaPyUA8W0eYehiIkzp4mvMlYHSTKiGw/jpyu7Bc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mMK3FP5Y; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1786809886; c=relaxed/simple;
+	bh=DqnT8yFaOelu2ToDTUnhBtzASwZswokNdLgoGEj/vqw=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=jzxDpsacd0yxXq/7kOPs3u8/rmx52EXte8VBVNbs3+pNOVSix4ZG9EVsaEqwiSz0KpVEKpSB8tFRv+C5xwyCWk0KOo0kxvXstC1Zte1g6hND78sqp1oMRvxYvmb9Hru6VOW2T9Em8GsQ2HxNEyGchAeBwTewsulMKQy7XxzIt5g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZEU9x2Uo; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mMK3FP5Y"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id EC665C19425;
-	Sat, 15 Aug 2026 15:43:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZEU9x2Uo"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id AFD70C2BCC7;
+	Sat, 15 Aug 2026 16:04:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1786808583;
-	bh=BWCZ2X/1VT3PdM+LjY7UOytBkyHNl2/Fm1Z4pGlxvI0=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=mMK3FP5Y4vbrmCU+WnFv1p8zX+tw2lMmmOqufwYlB5L9JaB7oFK/B8zu/mq5yxJLm
-	 LU6NuxHsejRBWujs6j8NzR+HQljjrZDmEmpeJRP41JzGRQ7yMY9Sf+xClys+0UfjcC
-	 MAVpA4pKYutdpq4QrSMoWOpPuKiJ781222tR1qMsxUcpl+vfVge+817YDM/Yis+Whp
-	 ud/rxdhZes50KHVIMMywnL1CPFMHptKFupeOumYNl+OY3kg+Vv3mCp4jDwdqbrNn6S
-	 1HNkF/g36qTPCM89vColv08eLk7SV23Gsqd4RifjjLYgCikA3mI8iD6QuoaP6jCZ3k
-	 0qsg5RUAtygHw==
+	s=k20201202; t=1786809885;
+	bh=DqnT8yFaOelu2ToDTUnhBtzASwZswokNdLgoGEj/vqw=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=ZEU9x2UoOXldEMjY3CX3zg2V6+F+db3aoGIpsIlzZSyLKXW+tIc6J6n1ZFikMkLAh
+	 owcSwU+h4Jf80gHwo1wFh/GMEn13mcYriHZQXH5quzbyUVgKS0hpWqNebIuMH1rN7b
+	 PHi3byBvaXFL1vfZ9v3qrP3d4Rau9dxsK8UUKfgDQY6+1G7MLYoKVI08xPjF6ybXxU
+	 ZD1FeUeZCQF7sYSY52nUnkdHAdBHW9n9ssMJk8UwZmMzpU+5/dr4NGJdKzzZp1oiEq
+	 5tDO+6ikrSXmzzUbYGZ5sEQ6/IO8/tCfQlrR/v/zDUZPVwyE3gAwKx6xjSoOws1NSO
+	 t4hSwJF0r9ptQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C63F8C5DF67;
-	Sat, 15 Aug 2026 15:43:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FE07C5DF6A;
+	Sat, 15 Aug 2026 16:04:45 +0000 (UTC)
 From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
-Date: Sat, 15 Aug 2026 10:43:02 -0500
-Subject: [PATCH net] net/iucv: reconcile the socket state when connect()
- severs the path
+Date: Sat, 15 Aug 2026 11:04:45 -0500
+Subject: [PATCH net 1/2] net/iucv: only send the window update on
+ HiperSockets sockets
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -40,24 +41,22 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260815-b4-disp-e1faf4b7-v1-1-2a8a143a0055@proton.me>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yWMwQrCMBAFf6W8swtNaKz4K+KhyW50PcSSbUUo/
- XejHmdgZoNJVTGcuw1VXmr6LA3coUO6T+UmpNwYvvfH/uQCxYFYbSZxecpDHCkLM7swhpQ8WjZ
- Xyfr+LS8osuD6l7bGh6TlO8O+fwDkNDHQeQAAAA==
-X-Change-ID: 20260815-b4-disp-e1faf4b7-feddd1575cc2
-To: Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, 
+Message-Id: <20260815-b4-disp-8a791503-v1-1-fbae9a511144@proton.me>
+References: <20260815-b4-disp-8a791503-v1-0-fbae9a511144@proton.me>
+In-Reply-To: <20260815-b4-disp-8a791503-v1-0-fbae9a511144@proton.me>
+To: Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Thorsten Winkler <twinkler@linux.ibm.com>, 
  Alexandra Winter <wintera@linux.ibm.com>, 
- Thorsten Winkler <twinkler@linux.ibm.com>
-Cc: Hidayath Khan <hidayath@linux.ibm.com>, Simon Horman <horms@kernel.org>, 
- linux-kernel@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>, 
- netdev@vger.kernel.org, linux-s390@vger.kernel.org
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>
+Cc: netdev@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>, 
+ linux-s390@vger.kernel.org, Hidayath Khan <hidayath@linux.ibm.com>, 
+ Simon Horman <horms@kernel.org>, linux-kernel@vger.kernel.org
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1786808581; l=2023;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1786809884; l=1687;
  i=hexlabsecurity@proton.me; s=default; h=from:subject:message-id;
- bh=xg2T8X/93kYWUwtNOGjFli4SpGp2mm4ZLBCYx1XjSFA=;
- b=lSuE/MFy/O++A92aXw597sb0wJdNPWpSqh8l9FqDhTq89laeBcMKN1hnOeB55tTvLQH0qQ8HX
- pfvr1RVy8++Dl0IASIigHHL4T2zSBNbEvJEHvuVuQpl4zYPo5S+rT24
+ bh=WnxZgTaOhpPitiiiLaLvwFQWVkmqD2AinGJexdA9fUA=;
+ b=VfcjCeTe0PnK0zFvAdcxQaHl1YwL3Uz0N1TOdAxv+IXmfOkO+FtPu0L+C+ZT0589Af1aNDq0g
+ YdMd98ZoQrhCAdqOZJP+VbbQ+9cP4oVdJP0/bcogNK2uUJp09CwiV0E
 X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
  pk=xw1AhCtQdvuoQc+bOQIYy9o8G++cp4/VniI2G/tc3G8=
 X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
@@ -67,56 +66,43 @@ Reply-To: hexlabsecurity@proton.me
 
 From: Bryam Vargas <hexlabsecurity@proton.me>
 
-A connack can land between iucv_sock_wait() returning an error and the
-sever at the end of iucv_sock_connect(): iucv_callback_connack() writes
-IUCV_CONNECTED from the iucv tasklet with no socket lock, and lock_sock()
-does not exclude it. The sever clears iucv->path and leaves the state, so
-connect() fails on a socket still claiming a connection it no longer has,
-and a later sendmsg() reaches iucv->path->msglim through the NULL pointer
-inside iucv_below_msglim(). The sever runs on every failed classic
-connect, O_NONBLOCK included.
+iucv_sock_recvmsg() sends AF_IUCV_FLAG_WIN without testing the transport,
+but that flag exists only on HiperSockets. On a classic z/VM socket
+iucv->hs_dev is NULL and iucv_send_ctrl() sizes the skb from
+LL_RESERVED_SPACE(iucv->hs_dev), so the read goes through NULL;
+afiucv_hs_send() then returns -ENODEV and recvmsg() moves the socket to
+IUCV_DISCONN. Reaching it takes an application that sets SO_MSGLIMIT to 1
+on its own socket, since msg_recv is incremented only on the HiperSockets
+path, so this is a correctness fix rather than a security one.
 
-Reconcile only that case, so an ordinary failed connect still returns the
-socket to its pre-connect state. The sever is a barrier against a later
-connack: iucv_path_sever() clears the path from iucv_path_table[] under
-the lock the tasklet holds across dispatch.
+Test the transport. Three of the other four iucv_send_ctrl() callers do;
+the fourth, afiucv_netdev_event(), selects on hs_dev instead. Without
+relocate_lowcore the NULL read lands in mapped lowcore and the symptom is
+the spurious disconnect; with lowcore relocation it faults.
 
-Fixes: 18becbc5479f ("af_iucv: avoid left over IUCV connections from failing connects")
+Fixes: 3881ac441f64 ("af_iucv: add HiperSockets transport")
 Cc: stable@vger.kernel.org
 Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
 ---
- net/iucv/af_iucv.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ net/iucv/af_iucv.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index ea047bab65e7..6fb0041c4c98 100644
+index ea047bab65e7..0bc4a15f4b56 100644
 --- a/net/iucv/af_iucv.c
 +++ b/net/iucv/af_iucv.c
-@@ -778,8 +778,16 @@ static int iucv_sock_connect(struct socket *sock, struct sockaddr_unsized *addr,
- 	if (sk->sk_state == IUCV_DISCONN || sk->sk_state == IUCV_CLOSED)
- 		err = -ECONNREFUSED;
- 
--	if (err && iucv->transport == AF_IUCV_TRANS_IUCV)
-+	if (err && iucv->transport == AF_IUCV_TRANS_IUCV) {
- 		iucv_sever_path(sk, 0);
-+		/* A connack may have landed while the wait was unwinding; the
-+		 * path is gone, so the socket must not still claim it.
-+		 */
-+		if (sk->sk_state == IUCV_CONNECTED) {
-+			sk->sk_state = IUCV_DISCONN;
-+			sk->sk_state_change(sk);
-+		}
-+	}
- 
- done:
- 	release_sock(sk);
+@@ -1331,7 +1331,8 @@ static int iucv_sock_recvmsg(struct socket *sock, struct msghdr *msg,
+ 		if (skb_queue_empty(&iucv->backlog_skb_q)) {
+ 			if (!list_empty(&iucv->message_q.list))
+ 				iucv_process_message_q(sk);
+-			if (atomic_read(&iucv->msg_recv) >=
++			if (iucv->transport == AF_IUCV_TRANS_HIPER &&
++			    atomic_read(&iucv->msg_recv) >=
+ 							iucv->msglimit / 2) {
+ 				err = iucv_send_ctrl(sk, AF_IUCV_FLAG_WIN);
+ 				if (err) {
 
----
-base-commit: a59f57e2aa127c5354168d2ec4bac920df1be4f4
-change-id: 20260815-b4-disp-e1faf4b7-feddd1575cc2
-
-Best regards,
---  
-Bryam Vargas <hexlabsecurity@proton.me>
+-- 
+2.55.0
 
 
