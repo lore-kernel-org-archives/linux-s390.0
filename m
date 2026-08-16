@@ -1,150 +1,151 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1E332F8EBB
-	for <linux-s390@vger.kernel.org>; Sun, 16 Aug 2026 11:17:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CA6034250E
+	for <linux-s390@vger.kernel.org>; Sun, 16 Aug 2026 13:55:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786879048; cv=none; b=AxF9p88/KvC7krZDsCJP90U5BDi4sIeWVTVZ5BV3cFCWf6NdPjuaHtUy1rYXFzaTkc6euA6ksqrTeD6N6Gk/8ove3K+o+w/0lZrmR+YzaaAT30cDZHfupkfQSSGOjGxqbKxKf/WFvoNTPAtNzDp5Mm44HAIV3ve70gO4n9nfX4c=
+	t=1786888519; cv=none; b=Y+832/q+DpVzywsB7ZAAN0ZbHTu2dG3lFowIPVEcZgUIKRPujRmJXzIxtA3ZzjOxL89mcsppbl60qt0eRPwMVvTRXUOiipvPXI99g1mIpC4WO4dvoUhuYjZFt5oenm33mouzC4Y1Z37u9tbEUssZrEHT861hbNywfmS51Hzw7Sk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786879048; c=relaxed/simple;
-	bh=L+lxN5ljZneTkZXpLbyNs1Ubc8DrqkoWeZ+PgK6piGc=;
+	s=arc-20240116; t=1786888519; c=relaxed/simple;
+	bh=XQAEhA1c5F16fnM9McgpPO9psGvleFpXRX3BQJKUlGs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ccH+qS46WlElUeLpCirS+a3nDqnW6IyZxWl8GTyFsx2mXZmuWWRlZcW8bve4g4pVLChYHrZRnzFd2xBOU/pn0d4PK+mXDfvG+mPJGrJfLpEejJ6JTJtHPnmGlQTE2gRtD5Q/L/4eDB0YJxVAUyvt31UdqfPuC6AcjaVRJ1ABdus=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jj7yiLP7; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Twoxy4iLy6C652qEefhSC8gO6x+hNiSd9KbsBsZ52zU0i48WkCS5W610gdERAhKa3E43kS61KMRyY8wtkb+v1i7o+RmAtEMrp/ti6yUIvVpkY+zvRJZMZeIQTlKUIgzwkIEOFR2IRiNBStVyFers9yEhV3JKJHUMXgomKa1QOPo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BPe3XP6H; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jj7yiLP7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A6521F00A3D;
-	Sun, 16 Aug 2026 11:17:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BPe3XP6H"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 816271F000E9;
+	Sun, 16 Aug 2026 13:55:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786879047;
-	bh=ekLP6SHg/sipS4qjb40eZLmnIN0YCzCAnyVmSeUHfc4=;
+	s=k20260515; t=1786888517;
+	bh=HpN6PKFDSdqIsAHT59DxQF7uLed67spzKThjd03fT1Q=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jj7yiLP7xwg5ziySv/SjjPmngLAqxaJFdkSVavL62CvJu79GguAcj98SxEJ2EBGdp
-	 UxKd79YTl7e0PKLWdJsnLvmiV019YsH1XKOMiD+8ulMsiRNwaXBMGIEbs4SzqAvyIU
-	 8q8eH7w65Gw5wPvhebnw7uxf+vLv/pPT63e6rHGSLX8trHqWCCrIyh3IH7itH+16rL
-	 65olS+eq1wqwQP16WUKnCAg/uDZRHQ/ss+6rp93INBDKXPHxCkUk/LfZO/Ueok+VJz
-	 0I+gKddw960PzowIesbfDvIaZKu50D8jbxyCy7xlo1nLKIy2Enqiwxwl37WdRW831M
-	 vbZfQjObHEFaw==
+	b=BPe3XP6HA11bVp89hwgGLajZCf3QWmWxHc/ubyU7YPGlUslJu8ltaN31RCImcVi8t
+	 8jbbWeGoC/6qV1tN2SeYa+/HRdatsuFIpoZ7uXgnRAoFRRODQWAfEQkuFR47OWDmA3
+	 YgM74ans19SnzBLKaLV5dv4uHuZLptugn9ALqpa1OivNauJjGxeNMjL+FYcfsVLnUh
+	 aVlV6Ggdf7PD58B2M9+wdK2IOuGeL5GfeB3IoCpoMhOQDNARNgkz0Wcb8wxGwnSGbF
+	 AEPlx+dxafwxHj94Eqx86HfDXdxD8bBrPiEVhZMRzvMellU8z0FlKpuMFCm/bOUTeU
+	 YuYA6QgGamcyg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 5/6] mm/execmem: use VM_FLUSH_RESET_PERMS for ROX cache
- allocations
+Subject: Re: [PATCH net v2] net/iucv: descend into net/iucv independently of
+ IUCV
 Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?TWlrZSBSYXBvcG9ydCAoTWljcm9zb2Z0KQ==?= <rppt@kernel.org>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260816-execmem-set-vm-perms-v0-2-v1-5-90944a3ad43f@kernel.org>
-References: <20260816-execmem-set-vm-perms-v0-2-v1-0-90944a3ad43f@kernel.org>
- <20260816-execmem-set-vm-perms-v0-2-v1-5-90944a3ad43f@kernel.org>
+To: "Pengpeng Hou" <pengpeng@iscas.ac.cn>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20260815135456.53684-1-pengpeng@iscas.ac.cn>
+References: <20260815135456.53684-1-pengpeng@iscas.ac.cn>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 16 Aug 2026 11:17:26 +0000
-Message-Id: <20260816111727.0A6521F00A3D@smtp.kernel.org>
+Date: Sun, 16 Aug 2026 13:55:17 +0000
+Message-Id: <20260816135517.816271F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
+New issues:
+- [High] Unconditional descent into net/iucv/ causes a vmlinux linker error=
+ when CONFIG_AFIUCV=3Dy and CONFIG_IUCV=3Dm.
+
 Pre-existing issues:
-- [Critical] execmem_cache_clean() calls vfree() on partial or interior chu=
-nks of a larger vmalloc allocation, causing a use-after-free for actively u=
-sed regions.
-- [High] Unchecked return value of mas_store_gfp() during maple tree deleti=
-on can leave a dangling pointer in the free tree if deletion fails.
-- [Medium] Cache memory may never be freed because execmem_vmalloc() does n=
-ot guarantee PMD_SIZE alignment on all architectures, preventing execmem_ca=
-che_clean() from matching its alignment checks.
+- [High] Packet handler modifies and queues shared SKBs without ensuring ex=
+clusive ownership, causing list corruption and data corruption.
 --
 
---- Patch [5]: [PATCH 5/6] mm/execmem: use VM_FLUSH_RESET_PERMS for ROX cac=
-he allocations ---
-commit 32d82345ceeccc2881319ef4ff8f3be90e5de6df
-Author: Mike Rapoport (Microsoft) <rppt@kernel.org>
+--- Patch [1]: [PATCH net v2] net/iucv: descend into net/iucv independently=
+ of IUCV ---
+commit e7b1f87fb6bb063631fc940969ffda9c69434171
+Author: Pengpeng Hou <pengpeng@iscas.ac.cn>
 
-mm/execmem: use VM_FLUSH_RESET_PERMS for ROX cache allocations
-   =20
-Initially execmem removed direct map aliases for ROX cache allocations and
-restored them manually. This patch leverages vmalloc's VM_FLUSH_RESET_PERMS
-to handle these updates without splitting the direct map for PMD_SIZE chunk=
-s,
-removing the need for custom set_direct_map wrappers.
+net/iucv: descend into net/iucv independently of IUCV
 
-> diff --git a/mm/execmem.c b/mm/execmem.c
-> index 74a178a87e758..d35f1d0ea54a4 100644
-> --- a/mm/execmem.c
-> +++ b/mm/execmem.c
-[ ... ]
-> @@ -169,9 +148,6 @@ static void execmem_cache_clean(struct work_struct *w=
-ork)
-> =20
->  		if (IS_ALIGNED(size, PMD_SIZE) &&
->  		    IS_ALIGNED(mas.index, PMD_SIZE)) {
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AFIUCV can be enabled as either built-in or a module through QETH_L3 even
+when IUCV is disabled. The top-level net Makefile currently descends into
+net/iucv/ only under CONFIG_IUCV, so the valid configurations
+CONFIG_AFIUCV=3Dy/m with CONFIG_IUCV=3Dn never consider af_iucv.o.
 
-[Severity: Medium]
-This is a pre-existing issue, but does this strict alignment check prevent
-unaligned vmalloc allocations from ever being cleaned up?
-
-execmem_cache_populate_alloc() rounds the allocation size up to PMD_SIZE,
-but calls execmem_vmalloc() with vm_flags |=3D VM_ALLOW_HUGE_VMAP. If the
-architecture does not support arch_vmap_pmd_supported(PAGE_KERNEL),
-__vmalloc_node_range() falls back to PAGE_SIZE alignment.
-
-If the returned base address is not PMD_SIZE aligned, the free block's
-index will never be PMD-aligned, potentially permanently leaking the cache
-block even when it is completely empty.
-
-> -			struct vm_struct *vm =3D find_vm_area(area);
-> -
-> -			execmem_set_direct_map_valid(vm, true);
->  			mas_store_gfp(&mas, NULL, GFP_KERNEL);
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> diff --git a/net/Makefile b/net/Makefile
+> index 5b2dd7f07a85e..c0da946b281e1 100644
+> --- a/net/Makefile
+> +++ b/net/Makefile
+> @@ -45,7 +45,7 @@ obj-$(CONFIG_WIRELESS)		+=3D wireless/
+>  obj-$(CONFIG_MAC80211)		+=3D mac80211/
+>  obj-$(CONFIG_TIPC)		+=3D tipc/
+>  obj-$(CONFIG_NETLABEL)		+=3D netlabel/
+> -obj-$(CONFIG_IUCV)		+=3D iucv/
+> +obj-y				+=3D iucv/
 
 [Severity: High]
-This isn't a bug introduced by this patch, but what happens if
-mas_store_gfp() fails here?
+Does unconditionally descending into iucv/ cause a vmlinux linker error when
+CONFIG_AFIUCV=3Dy and CONFIG_IUCV=3Dm?
 
-Modifying a maple tree under RCU can require allocating a new node. If this
-node allocation fails and returns -ENOMEM, the entry is not removed from
-free_areas.=20
+Before this patch, Kbuild descended into net/iucv/ as a module (obj-m),
+compiling af_iucv.o as a module. With this change, af_iucv.o is compiled
+into vmlinux when CONFIG_AFIUCV=3Dy.
 
-Since the return value is ignored, the memory is subsequently freed via
-vfree(area), leaving a dangling pointer in the free tree that could be
-returned by a subsequent allocation.
+However, af_iucv.c contains:
 
->  			vfree(area);
-                        ^^^^^^^^^^^
-
-[Severity: Critical]
-This is a pre-existing issue, but does calling vfree() on a partial or
-interior chunk of a larger vmalloc allocation cause a use-after-free for
-actively used regions?
-
-If a multi-PMD block is allocated (e.g., 4MB) and an interior PMD_SIZE free
-block is formed (e.g., area =3D p + 2MB), execmem_cache_clean() blindly cal=
-ls
-vfree(area) on it.
-
-However, vfree() relies on find_unlink_vmap_area(), which matches any
-interior pointer to the containing vmap_area:
-
-mm/vmalloc.c:find_unlink_vmap_area() {
+net/iucv/af_iucv.c:afiucv_init() {
     ...
-    va =3D __find_vmap_area(addr, &vn->busy.root);
+    if (machine_is_vm() && IS_ENABLED(CONFIG_IUCV)) {
+        cpcmd("QUERY USERID", iucv_userid, sizeof(iucv_userid), &err);
+        ...
+        pr_iucv =3D &iucv_if;
+    }
+
+Because IS_ENABLED(CONFIG_IUCV) evaluates to 1 when CONFIG_IUCV=3Dm, the
+built-in afiucv_init() will emit an external reference to iucv_if (which
+resides in the iucv.ko module), leading to an undefined reference linker
+error.
+
+[Severity: High]
+This isn't a bug introduced by this patch, but while reviewing the IUCV
+code, I noticed a pre-existing issue in the AF_IUCV packet handlers.
+
+Could the packet handler corrupt memory by modifying and queuing shared SKBs
+without ensuring exclusive ownership?
+
+When a HiperSockets AF_IUCV packet is received by afiucv_hs_rcv() while a
+packet socket like tcpdump is concurrently active on the same interface,
+the network core passes a shared or cloned SKB to the handlers.
+
+afiucv_hs_rcv() and its callbacks modify the packet data in-place without
+calling skb_share_check() or skb_unshare():
+
+net/iucv/af_iucv.c:afiucv_hs_rcv() {
+    ...
+    EBCASC(trans_hdr->destAppName, sizeof(trans_hdr->destAppName));
+    EBCASC(trans_hdr->destUserID, sizeof(trans_hdr->destUserID));
     ...
 }
 
-Won't this completely unmap and free the entire original 4MB block,
-destroying the actively used portions alongside the free chunk? This could
-potentially be triggered by userspace loading and unloading BPF programs
-or kernel modules of specific sizes.
+The same happens in the callbacks before transmission:
 
->  		}
+net/iucv/af_iucv.c:afiucv_hs_callback_syn() {
+    ...
+    skb_push(skb, ETH_HLEN);
+    memset(skb->data, 0, ETH_HLEN);
+    ...
+}
+
+Furthermore, it enqueues the shared SKB directly into the backlog:
+
+net/iucv/af_iucv.c:afiucv_hs_callback_rx() {
+    ...
+    skb_queue_tail(&iucv->backlog_skb_q, skb);
+    ...
+}
+
+If the packet socket also enqueues the SKB, the SKB's next and prev
+pointers are concurrently overwritten, which can lead to list corruption
+and a kernel panic.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260816-execmem-se=
-t-vm-perms-v0-2-v1-0-90944a3ad43f@kernel.org?part=3D5
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260815135456.5368=
+4-1-pengpeng@iscas.ac.cn?part=3D1
