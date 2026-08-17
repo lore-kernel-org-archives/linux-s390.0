@@ -1,146 +1,144 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 969492BDC0F
-	for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2026 11:01:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E51EF3A8FE1
+	for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2026 11:15:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786964512; cv=none; b=V/6xLgP/QRlJHKXVzFFGTLYlQ+Yr5coSH61mIq3drWzsUWFcB0ZctgXSUsijkplQ6J4q7EWDEfhHp5QPyKqTkvMrfrYBvmD7/I2XyTRkuvq14nGlXxXvRPCkeSNtQIrKYESb4RIXgUYgbLa5ETFrRB4vEP4ShOjeb4qnDDb6LWw=
+	t=1786965317; cv=none; b=ejMw9ao9OXEUMEdPaZDKyQFH5hzbmaSV4eE4Z3/+uCP8D1px5iYrhXesuA0o/uS6X+vKWT8CW81Cth+zBEw+tqaMx5c1g58ttnKjEIfen9ZJXOd8kfvuqY43GvCHXRnkY0hfGL5+aWAnfiA9dr3qf14FSQPYwPbUtVO9Ban7fHk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786964512; c=relaxed/simple;
-	bh=H295ou4PaaiukmqRd/+cgeTH5SlzeAQdBTSu1JXbOMI=;
+	s=arc-20240116; t=1786965317; c=relaxed/simple;
+	bh=u61wzKqh37VRA5oq/xmqMY+0xmfva1N60dNCKSeA+6A=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=eXo5+pqEjn/rvu7U9T4yk7XuLL3p6nA77ivHQNmdi4Xcta9wM+DMNlncicmW6iGDEk1xvl7P21kuXE3NA/zhYWO44GCHLeQ4IzpGF487BDLNGZZtfz/W1ulegas3+MK4yE7ZhwtSPUwpzrleoiNYjjpDVqQuq3os+slmenHQ7C0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fdFQ+sAI; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=BxLzpI5ZxddRw7nKEdhy5AOfIE3VPDLabPV4tRnnYVz4SFNBbSBLBvU/diaNk5jJnT/xYtdUzde7VEmRTPjBcMaJ3otuED2SgvPRJAz1QMMSUXpXw/irB1P0hfIkgiGdnmSdTqNmzsy/JWC6I3onyPNcBPMH2goRzR0dZO5uLIo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AeVEDYDM; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fdFQ+sAI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7F5A1F000E9;
-	Mon, 17 Aug 2026 11:01:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AeVEDYDM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 149EB1F000E9;
+	Mon, 17 Aug 2026 11:15:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786964511;
-	bh=XdP95CiGSN8tsvgx1g7HnqR3uS3mvC/8vaSnZYII+rQ=;
+	s=k20260515; t=1786965315;
+	bh=Rao/wOXTYZO9PwzBe4otNi7R9Tr8PXQSD1cjyTZV/G0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fdFQ+sAIQ9hK3YB3P0S2K9Evo/JLma4eAqkFFiChQXsRQRCfRyre7MYy3UfYTHH3R
-	 CbppFATO4KsIcZCs8x+TfA53HqHPsFgYHfRk4VzZrqXJhu9fRFKWsrfGBTMH1NkJy/
-	 hN99SKJ/61M1b7GvhXdCjJfBCLsSS9nWUQx4WMjrezNO3DErBb+t1dtK78lp0sVoZ9
-	 zlWkE4urxrTb9G1EO7iM/kl4Yn9qqu/HFQSZkV/jnbaKNGc38Vv7QN7elKOd2GKDx+
-	 TeeRd//WKiv6dQOeMlh8PtYQNMLdCUNkxRW6/xOk+kHfBtT3Hotrux7eEX0Zqeb+U/
-	 6Cm/XWryiIAhg==
+	b=AeVEDYDMz+O/rhQgErbcp+R6ELsWr1v25HNexIX/lgNrY7WIl3zLUAIlWDw8ztU51
+	 sjHGg8gNNpG6ahZwfZlre8cUgdcwXUtZrkKiTNsxlYipTWE9WnlXUueOZ4Z+1x/9BF
+	 X1hg5LLptlOmSaBPsnCLX2+2lESpZmlTMyjXVaYZb971LUamjt6l6VZJwh3YED1hiy
+	 XLeazYwJ4CyeBu5ak5w76YkEY4SVrObSV7TBA24dmrOWrIhMuVtbmXjcbAOnp3zAvZ
+	 99Sc8BQaMxl4NuNO0nArGFUoXF8rqAHFvUwsLx7zeBRDU35vNJbX2rNB4pQ4Oo9b8E
+	 /SwbNilNIHxrA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/6] s390/crypto: Fix return code handling at
- skcipher_walk_done in PAES algorithms
+Subject: Re: [PATCH v3] s390/pai: Handle multiple PMU stop callback
+ invocations
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Harald Freudenberger" <freude@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260817104203.74033-2-freude@linux.ibm.com>
-References: <20260817104203.74033-1-freude@linux.ibm.com>
- <20260817104203.74033-2-freude@linux.ibm.com>
+To: "Thomas Richter" <tmricht@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260817105904.3933179-1-tmricht@linux.ibm.com>
+References: <20260817105904.3933179-1-tmricht@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 17 Aug 2026 11:01:50 +0000
-Message-Id: <20260817110150.D7F5A1F000E9@smtp.kernel.org>
+Date: Mon, 17 Aug 2026 11:15:14 +0000
+Message-Id: <20260817111515.149EB1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
+New issues:
+- [Medium] Unnecessarily enabled context switch callback for system-wide co=
+unting events.
+
 Pre-existing issues:
-- [Critical] The wrapper functions (e.g., ecb_paes_crypt) incorrectly treat=
- a return value of -EBUSY from crypto_transfer_skcipher_request_to_engine()=
- as an enqueue failure, leading to a Use-After-Free when the crypto engine =
-eventually processes the request.
-- [Critical] The async request handler returns an error code after already =
-finalizing the request, causing the crypto engine to complete the request a=
- second time.
+- [High] LIST_POISON dereference crash during list iteration due to group t=
+hrottling.
+- [High] Uninitialized list deletion causing a NULL pointer dereference.
 --
 
---- Patch [1]: [PATCH v2 1/6] s390/crypto: Fix return code handling at skci=
-pher_walk_done in PAES algorithms ---
-commit 8ebdb4de82e72b4c0a21b2b0f1f7cb80c8245b4f
-Author: Harald Freudenberger <freude@linux.ibm.com>
+--- Patch [1]: [PATCH v3] s390/pai: Handle multiple PMU stop callback invoc=
+ations ---
+commit 56c4e8b2eb99bf60f554c282666c15e39068225e
+Author: Thomas Richter <tmricht@linux.ibm.com>
 
-s390/crypto: Fix return code handling at skcipher_walk_done in PAES algorit=
-hms
+s390/pai: Handle multiple PMU stop callback invocations
 
-This commit adds immediate error checks after skcipher_walk_done()
-in PAES algorithms to prevent error masking. It also reworks how
-walk->nbytes is checked to avoid double de-allocation of walk resources.
+This commit handles back-to-back invocations of the PMU stop callback caused
+by perf_event_throttle() followed by the task scheduling out. It adds a che=
+ck
+for PERF_HES_STOPPED on entry to pai_stop(), and moves context switch callb=
+ack
+registration into pai_add() and pai_del(). It also attempts to fix an unsafe
+iteration in pai_have_samples().
 
-Cc: stable@vger.kernel.org # 6.16+
-
-> diff --git a/arch/s390/crypto/paes_s390.c b/arch/s390/crypto/paes_s390.c
-> index 8cfe6166c193c..ccc7da106c3a0 100644
-> --- a/arch/s390/crypto/paes_s390.c
-> +++ b/arch/s390/crypto/paes_s390.c
-
-[ ... ]
-
-> @@ -495,7 +498,7 @@ static int ecb_paes_crypt(struct skcipher_request *re=
-q, unsigned long modifier)
->  			atomic_dec(&ctx->via_engine_ctr);
->  	}
-> =20
-> -	if (rc !=3D -EINPROGRESS)
-> +	if (rc !=3D -EINPROGRESS && walk->nbytes)
->  		skcipher_walk_done(walk, rc);
-
-[Severity: Critical]
-This is a pre-existing issue, but does this code properly handle backlog
-queueing?
-
-If crypto_transfer_skcipher_request_to_engine() returns -EBUSY when the
-hardware queue reaches its soft limit, the request is still enqueued.
-
-Because -EBUSY !=3D -EINPROGRESS, this error path will execute and call
-skcipher_walk_done(), destroying the scatterlist walk and zeroing
-parameters.
-
-Since the engine will eventually process the enqueued request, could this
-result in a use-after-free when the engine accesses the destroyed walk
-structure? This pattern also appears in cbc_paes_crypt(), ctr_paes_crypt(),
-and xts_paes_crypt().
-
-> =20
->  out:
+> diff --git a/arch/s390/kernel/perf_pai.c b/arch/s390/kernel/perf_pai.c
+> index cdb8006220ca0..388941d9aec18 100644
+> --- a/arch/s390/kernel/perf_pai.c
+> +++ b/arch/s390/kernel/perf_pai.c
 
 [ ... ]
 
-> @@ -558,7 +561,7 @@ static int ecb_paes_do_one_request(struct crypto_engi=
-ne *engine, void *areq)
->  		cond_resched();
->  		pr_debug("rescheduling request\n");
->  		return -ENOSPC;
-> -	} else if (rc) {
-> +	} else if (rc && walk->nbytes) {
->  		skcipher_walk_done(walk, rc);
+> @@ -492,6 +491,9 @@ static int pai_add(struct perf_event *event, int flag=
+s)
+>  			local_ctl_set_bit(0, CR0_PAI_EXTENSION_BIT);
+>  		}
 >  	}
+> +	/* Enable context switch callback for system-wide sampling */
+> +	if (!(event->attach_state & PERF_ATTACH_TASK))
+> +		perf_sched_cb_inc(event->pmu);
+
+[Severity: Medium]
+When moving perf_sched_cb_inc() into pai_add(), the check for
+event->attr.sample_period was dropped. Does this unnecessarily enable the
+context switch callback for system-wide counting events?
+
+The core scheduler might pointlessly iterate over the callback list for eve=
+nts
+that do not need it, adding overhead on every context switch.
+
+>  	if (flags & PERF_EF_START)
+>  		pai_pmu[idx].pmu->start(event, PERF_EF_RELOAD);
+>  	event->hw.state =3D 0;
+
+[Severity: High]
+This is a pre-existing issue, but does setting event->hw.state =3D 0
+unconditionally bypass the new PERF_HES_STOPPED protection in pai_stop()?
+
+If PERF_EF_START is not passed (for instance, an inactive sibling in a group
+scheduled in via group_sched_in), the event is never added to syswide_list.
+
+When pai_stop() is called later, the early return check for PERF_HES_STOPPED
+fails, and list_del() is called on an uninitialized list head.
+
+[ ... ]
+
+> @@ -672,9 +683,9 @@ static void pai_have_samples(int idx)
+>  {
+>  	struct pai_mapptr *mp =3D this_cpu_ptr(pai_root[idx].mapptr);
+>  	struct pai_map *cpump =3D mp->mapptr;
+> -	struct perf_event *event;
+> +	struct perf_event *event, *e2;
 > =20
+> -	list_for_each_entry(event, &cpump->syswide_list, hw.tp_list)
+> +	list_for_each_entry_safe(event, e2, &cpump->syswide_list, hw.tp_list)
+>  		pai_have_sample(event, cpump);
 
-[Severity: Critical]
-This is a pre-existing issue, but does returning the error code at the end
-of this function cause the crypto engine to double-complete the request?
+[Severity: High]
+This isn't a bug introduced by this patch, but does this safe iteration
+protect against group throttling deleting the cached e2 element?
 
-In ecb_paes_do_one_request() and the other async handlers, if
-ecb_paes_do_crypt() returns a fatal error, the code finalizes the request
-and later returns the error code:
+Pushing a sample in pai_have_sample() can trigger perf_event_overflow(),
+which invokes perf_event_throttle_group(). This synchronously stops all
+siblings, calling pai_stop() on each.
 
-    crypto_finalize_skcipher_request(engine, req, rc);
-    local_bh_enable();
-    return rc;
-
-The crypto_pump_requests() loop in the engine framework interprets any
-returned error other than -ENOSPC as an execution failure and manually calls
-crypto_request_complete() a second time.
-
-Could this double completion lead to a use-after-free if the caller frees
-the request after the first callback?
+If the adjacent list sibling (e2) is in the same group, pai_stop() removes
+it from syswide_list via list_del(). When list_for_each_entry_safe() advanc=
+es
+to e2, its next pointer would be LIST_POISON1, potentially crashing the
+kernel.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260817104203.7403=
-3-1-freude@linux.ibm.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260817105904.3933=
+179-1-tmricht@linux.ibm.com?part=3D1
