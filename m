@@ -1,119 +1,160 @@
-Received: from mta1.migadu.com (out-184.mta1.migadu.com [95.215.58.184])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AD2C3C4171
-	for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2026 12:22:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.184
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FD553DA7DF;
+	Mon, 17 Aug 2026 12:28:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786969327; cv=none; b=kxhxMwMfjp/2VIXkUWXHLZiFBzRyiFu72Mq2pJ+YP8MBP4AuLkHSEyYzMpeN+B180h2YWMq5KDCR59A7ppbEgWEw23PhEygOwo3OnQ+RptXa5ljJkwm9Nog/ZxiWXfjmnRugImFG/LrENOQv/jsIMgt/88bOBD/ort4wvf3RL4o=
+	t=1786969731; cv=none; b=DLtJ1hnzScXA/u0zXq25MYF7tIaSA86CltAZJ6cxj+ZEGAjCugdRr023LTILilG3HcgY/T9Vns2lGxi7EGA+0QNNPR8T0L61cFRTEjuue93k3QhqRYQBOZjXQr/us+nS20+jCYk0IH/jvDm76rFE7x7pXX60URx0d/MC+dk7Q7I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786969327; c=relaxed/simple;
-	bh=XUz20HjX88HKc3zhTmA9XIj0WBNTBdnuMyd7s0rygf4=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=dOe04pf0t6Ahdo8Mx+PB0x5RHQ0efTnaUAco+oOOKk/A2/tmJyiFSkhbUvSAaQ+5OA6npmP5Z4SYw6ykDHoEz9wLbg4KdJJMQDpD4U/a0WqDnLgMkRmJ+kOJEDRMvlIXB37WYoQbOr6K2AH/vPMP6AcOUfXJW/oh2BsrlPRvtL4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=XkldS3CH; arc=none smtp.client-ip=95.215.58.184
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1786969731; c=relaxed/simple;
+	bh=Gyofv3sSO7lYqnHwkCFyoZgbVgblfnpQlRUFfS2Q5bQ=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=rkbBgl0drMgHoh4OZWmAQKX7YRx83LjV4QwabFbpS8aEKLrYBAXdCkOzDIP6VprjApyC+dYgvRDUbtdsVof8e41DQYFvBKbXZxcY3+dYLaNFBJazcYEwL6tveRCIKPM9D5EZ1IUiLITEkDyFMzmFvCbbth2mNzJnzbRPJD4wGgo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Gh1uzKKy; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="XkldS3CH"
-X-Envelope-To: linux-s390@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=XUz20HjX88HKc3zhTmA9XIj0WBNTBdnuMyd7s0rygf4=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1786969322; v=1; x=1787574122;
- b=XkldS3CHg9hCBivEOhkQQzkmUhdPITkRmMuNYQi3cCkftCjtJWWLDRiDP/+pw18b1esq4lNP
- slbcZxty0whFStgDGAoQnHGUK2wfA2IpllM//lyHcu35MfQ6dkOPY6w42V/iiNp8rSh+jXtT66Q
- Gkbjx9DvRnQfiagSi2bv5dsQ=
-X-Envelope-To: linux-s390@vger.kernel.org
-Received: from localhost (185.201.63.253)
-	by smtp.migadu.com with ESMTPS id ac101bf52cfc1249;
-	Mon, 17 Aug 2026 12:22:02 +0000
-X-Migadu-Flow: FLOW_OUT
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Gh1uzKKy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F8061F00A3A;
+	Mon, 17 Aug 2026 12:28:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786969730;
+	bh=3YD7sKPJXuQc3fWJwZrTJUwueIKAqqSiZgtgDHA80SI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Gh1uzKKyeV0EHOzHR81E4Pim/hvsThT1AiHMBWpBRPVBXv93l1NRUo+0i7bheCwYp
+	 GOq/FNnhoRR1Bx7l3xLBq4GFsAfRkxtpzOOJcmwkQMk6eVGzpmfWbIofvRqesPnZk/
+	 7XoP18bYTFntBmCRwVTSEkOqfBDIC3FX+/wTMD6kti6YrEkxQiu+Uu/8bkw0kCdJ9f
+	 pA4vLLG9HNHqmutrSQ9vrE5GedTa891QTJkKOF4008bzl5Nu0Av0yX/ae2LFc9Wzxe
+	 A6K4eBbGcpeFxXI5m4ZhK5M8SeOrcc2IUrBZfNflVMwpPsnB26jfNhFEHFpOepKxIC
+	 OhimMIStHO6vg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] KVM: s390: Improve floating IRQ injection behavior
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Janosch Frank" <frankja@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260817121631.159451-1-frankja@linux.ibm.com>
+References: <20260817121631.159451-1-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 17 Aug 2026 12:28:49 +0000
+Message-Id: <20260817122849.9F8061F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 17 Aug 2026 14:21:41 +0200
-Message-Id: <DKR7R0BECQXX.2FCNF36EFETS8@linux.dev>
-Cc: =?utf-8?q?Adrian_Barna=C5=9B?= <abarnas@google.com>, "Albert Ou"
- <aou@eecs.berkeley.edu>, "Alexander Gordeev" <agordeev@linux.ibm.com>,
- "Alexandre Ghiti" <alex@ghiti.fr>, "Andy Lutomirski" <luto@kernel.org>,
- "Borislav Petkov" <bp@alien8.de>, "Brendan Jackman"
- <brendan.jackman@linux.dev>, "Catalin Marinas" <catalin.marinas@arm.com>,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Dave Hansen"
- <dave.hansen@linux.intel.com>, "David Hildenbrand" <david@kernel.org>,
- "Gerald Schaefer" <gerald.schaefer@linux.ibm.com>, "Heiko Carstens"
- <hca@linux.ibm.com>, "Huacai Chen" <chenhuacai@kernel.org>, "Ingo Molnar"
- <mingo@redhat.com>, "Len Brown" <lenb@kernel.org>, "Palmer Dabbelt"
- <palmer@dabbelt.com>, "Paul Walmsley" <pjw@kernel.org>, "Pavel Machek"
- <pavel@kernel.org>, "Peter Zijlstra" <peterz@infradead.org>, "H. Peter
- Anvin" <hpa@zytor.com>, "Rafael J. Wysocki" <rafael@kernel.org>, "Ryan
- Roberts" <ryan.roberts@arm.com>, "Sven Schnelle" <svens@linux.ibm.com>,
- "Thomas Gleixner" <tglx@kernel.org>, "Uladzislau Rezki" <urezki@gmail.com>,
- "Vasily Gorbik" <gor@linux.ibm.com>, "WANG Xuerui" <kernel@xen0n.name>,
- "Will Deacon" <will@kernel.org>, <x86@kernel.org>,
- <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
- <linux-mm@kvack.org>, <linux-pm@vger.kernel.org>,
- <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
- <loongarch@lists.linux.dev>
-Subject: Re: [PATCH 4/6] mm/vmalloc: make set_area_direct_map HUGE_VMAP
- friendly
-From: "Brendan Jackman" <brendan.jackman@linux.dev>
-To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>, "Andrew Morton"
- <akpm@linux-foundation.org>
-X-Mailer: aerc 0.21.0
-References: <20260816-execmem-set-vm-perms-v0-2-v1-0-90944a3ad43f@kernel.org> <20260816-execmem-set-vm-perms-v0-2-v1-4-90944a3ad43f@kernel.org>
-In-Reply-To: <20260816-execmem-set-vm-perms-v0-2-v1-4-90944a3ad43f@kernel.org>
 
-On Sun Aug 16, 2026 at 12:59 PM CEST, Mike Rapoport (Microsoft) wrote:
-> set_area_direct_map() always updates direct map alias permissions in
-> single page increments.
->
-> For HUGE_VMAP areas it's suboptimal. Not only the loop in
-> set_area_direct_map() needlessly has more iterations (e.g times 512 on
-> x86), but it also causes fragmentation of the direct map that could be
-> avoided for the HUGE_VMAP areas populated with large pages.
->
-> All pages in an area are always of the same order: either same-order
-> large pages when VM_ALLOW_HUGE_VMAP is set and all huge pages were
-> successfully allocated, or order-0 page when VM_ALLOW_HUGE_VMAP is
-> cleared or when huge pages allocation fails and fallback path is taken.
->
-> Instead of updating the direct map permissions for every order-0 page in
-> an area, use the area's page_order as the loop increment and update the
-> large pages in one call to set_direct_map_{invalid,default}_noflush().
->
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> ---
->  mm/vmalloc.c | 13 ++++++++-----
->  1 file changed, 8 insertions(+), 5 deletions(-)
->
-> diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-> index fc7993db4152..11170d1ee5be 100644
-> --- a/mm/vmalloc.c
-> +++ b/mm/vmalloc.c
-> @@ -3361,12 +3361,15 @@ static inline void set_area_direct_map(const stru=
-ct vm_struct *area,
->  				       int (*set_direct_map)(struct page *page,
->  							     unsigned int nr))
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Critical] Use-After-Free of `inti` when injecting floating interrupts.
+- [High] Missed vCPU kick causes lost or delayed floating interrupts when a=
+ll vCPUs have masks closed.
+--
+
+--- Patch [1]: [PATCH v2] KVM: s390: Improve floating IRQ injection behavio=
+r ---
+commit e7cb031c2f46e8290e932cd848faad5eec943d11
+Author: Janosch Frank <frankja@linux.ibm.com>
+Subject: KVM: s390: Improve floating IRQ injection behavior
+
+Floating IRQs can be handled by any VCPU that opened its masks. The
+current design does not check if the mask is open when a floating IRQ
+is injected via the FLIC. It will wakeup the last VCPU that went
+sleeping hoping it's the correct one.
+
+> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+> index 8f24bcd1a6d36..e67cdedb5aece 100644
+> --- a/arch/s390/kvm/interrupt.c
+> +++ b/arch/s390/kvm/interrupt.c
+
+[ ... ]
+
+> @@ -1915,22 +1946,48 @@ static int __inject_io(struct kvm *kvm, struct kv=
+m_s390_interrupt_info *inti)
+
+[ ... ]
+
+>  /*
+>   * Find a destination VCPU for a floating irq and kick it.
+>   */
+> -static void __floating_irq_kick(struct kvm *kvm, u64 type)
+> +static void __floating_irq_kick(struct kvm *kvm, struct kvm_s390_interru=
+pt_info *inti)
 >  {
-> -	unsigned long i;
-> +	unsigned int nr =3D (1U << vm_area_page_order(area));
-> +
-> +	for (unsigned long i =3D 0; i < area->nr_pages; i +=3D nr) {
-> +		if (page_address(area->pages[i])) {
-> +			int err =3D set_direct_map(area->pages[i], nr);
+>  	struct kvm_vcpu *dst_vcpu;
+>  	int sigcpu, online_vcpus, nr_tries =3D 0;
+> +	u64 type =3D READ_ONCE(inti->type);
+> +	u64 irq_pend_mask;
 > =20
-> -	/* HUGE_VMALLOC passes small pages to set_direct_map */
-> -	for (i =3D 0; i < area->nr_pages; i++)
-> -		if (page_address(area->pages[i]))
-> -			set_direct_map(area->pages[i], 1);
-> +			WARN_ON_ONCE(err);
+>  	online_vcpus =3D atomic_read(&kvm->online_vcpus);
+>  	if (!online_vcpus)
+>  		return;
+> =20
+> +	irq_pend_mask =3D inti_to_irq_pend_mask(inti);
+>  	for (sigcpu =3D kvm->arch.float_int.last_sleep_cpu; ; sigcpu++) {
+>  		sigcpu %=3D online_vcpus;
+>  		dst_vcpu =3D kvm_get_vcpu(kvm, sigcpu);
+> -		if (!is_vcpu_stopped(dst_vcpu))
+> +		if (!is_vcpu_stopped(dst_vcpu) &&
+> +		    deliverable_irqs(dst_vcpu) & irq_pend_mask)
+>  			break;
+>  		/* avoid endless loops if all vcpus are stopped */
+>  		if (nr_tries++ >=3D online_vcpus)
+>  			return;
 
-Nit: Maybe worth a comment on why this is expected to always succeed?
-I.e. I think we are assuming the only failure mode is allocation but=20
-because we know vm_area_page_order() there shouldn't be any allocation?
+[Severity: High]
+Does this code drop the interrupt kick entirely if all vCPUs currently
+have their interrupt masks closed?
+
+If deliverable_irqs(dst_vcpu) & irq_pend_mask evaluates to 0 for all running
+vCPUs, this loop will exit via the nr_tries check and return early.
+
+Because it returns early, kvm_s390_set_cpuflags() and kvm_s390_vcpu_wakeup()
+are never executed, meaning no vCPU drops out of SIE and
+set_intercept_indicators() is not called.=20
+
+If the guest later unmasks the interrupt, could it remain undelivered since
+the hardware intercept was never set up?
+
+[ ... ]
+
+> @@ -1982,7 +2039,7 @@ static int __inject_vm(struct kvm *kvm, struct kvm_=
+s390_interrupt_info *inti)
+>  	if (rc)
+>  		return rc;
+> =20
+> -	__floating_irq_kick(kvm, type);
+> +	__floating_irq_kick(kvm, inti);
+
+[Severity: Critical]
+Does this cause a use-after-free when injecting GISA I/O adapter interrupts?
+
+When __inject_io() handles a GISA I/O interrupt, it frees the interrupt inf=
+o:
+
+arch/s390/kvm/interrupt.c:__inject_io() {
+    ...
+    if (gi->origin && inti->type & KVM_S390_INT_IO_AI_MASK) {
+        ...
+        kfree(inti);
+        return 0;
+    }
+    ...
+}
+
+Since it returns 0, __inject_vm() will proceed to call __floating_irq_kick()
+with the newly freed inti pointer, which then dereferences it when calling
+inti_to_irq_pend_mask(inti).
+
+Also, for non-GISA interrupts, inti is placed on a shared list where another
+vCPU might deliver and free it before __floating_irq_kick() runs.=20
+
+Should we avoid passing inti to the kick function?
+
+>  	return 0;
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260817121631.1594=
+51-1-frankja@linux.ibm.com?part=3D1
