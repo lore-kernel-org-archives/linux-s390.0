@@ -1,189 +1,194 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AD9A4B0497;
-	Mon, 17 Aug 2026 19:42:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6D88364959;
+	Mon, 17 Aug 2026 20:25:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786995731; cv=none; b=pGySoxvifv7IEu5CVvNNqMBXrS4N+rKgSo9jiDU+yEDWkoeJR86EUDtV4wcxzHAgqacucAaCKMAYN8SEWcVrclwAK9095HMq3tto+fWnxMlgHBvShruk668i6jOThPvcd8KhUWyAAKIzX/Kimn/kxLwtdFVw6a8uYWgcno33Dsg=
+	t=1786998340; cv=none; b=cI9hui1JkqD3CiQa9nnYzJYEfKTavOoKGPp5aKes/TjbvnDqa/EMy4kFwTdGloeb6uLR6w5fAcydPoV0Qgff9+lchzdLPsW60qFrKJn0/dWruBl/QOol4FzOAi7aTtjPPcE/cfXuBClP5rPzwIvF38evN3Cpc5cduT4pNj0u7rs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786995731; c=relaxed/simple;
-	bh=msaCP7P7zFsk3kOA4Xyn44FuBrLd+J03e70RcS9Yieo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GdvYAqM8if8YTbr3QXHJ0Xf8oXD9l5nfwksKf4X89vmGOjSzoKO9ovNtSBPIO9pHvM+zwZN0ohqrns0PtU/rZXPVdnfWhv8MIJsw0GVssbr6ja7K13Qe08CvU9IMDi9DDPRZN1ipMwztga+uhvBL0xKvsB5kIIEPNOUEoHuMCiM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JV+RvCiw; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786998340; c=relaxed/simple;
+	bh=j+m8FScNrw6S3HokBQxtCXfgWKNRDLKE8fVX42I3UE0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=GPPpTcrTv1nmMz2+qfdwJB7e3YjUeQ+/KGvF5/D6xZh9RuB+sYxN6eVBANGZ/XIap/5YimpwmiNcpfzfY2U+LtGqfVeeTAHCVcVOncX28gjrGHhNkmhDemFABvzCcrJHSxchRoaQkk13cnFxpCIB4llzuJOAsHJFaEm3qTpiFd8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=K9L6NIC5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JV+RvCiw"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67HIVuXH2219740;
-	Mon, 17 Aug 2026 19:41:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=zPCe7A
-	2QtQt6XRLidm5ze7lmVYujpyledUoYcfOY3Bo=; b=JV+RvCiwsNmTDb5Kgq7SUk
-	CmNETO4lZqkvQnxAQ+flz38dMfE7nA0V5koc4Uo34h9I4yZhG268A/wy569fBn4A
-	XPVus+bUtI8mvbYdprLxq41q0PbeW3jg5oYkygy6Sj2UCK8ZycSUutRoIyboz84V
-	y/KPmKRmhPfG2mE1SRHU8/L3XhvkrMrb3C/H8G+FzCxcdlu62RDLKG9R2ex2IDLi
-	IszGBy0srA5Qdg4ICjdi5EGyA8kvPg3gMzX7URvKmyLAxCcD5XhGrwU3+0dGzBJG
-	PZRHXWzRbzK1jBMyrgcBwOFc8QaE4Nqwj2tLByyCBvb88Il8lk8N15uaE5cRaIEw
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2frt3kg5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 17 Aug 2026 19:41:59 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67HJfICN007910;
-	Mon, 17 Aug 2026 19:41:58 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g34ng78e0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 17 Aug 2026 19:41:58 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67HJfuCn33358446
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 17 Aug 2026 19:41:57 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BE5315805D;
-	Mon, 17 Aug 2026 19:41:56 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ADEB958056;
-	Mon, 17 Aug 2026 19:41:55 +0000 (GMT)
-Received: from [9.61.135.106] (unknown [9.61.135.106])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 17 Aug 2026 19:41:55 +0000 (GMT)
-Message-ID: <a60a38fa-8aad-4cb6-ad42-5bdf8d9c132f@linux.ibm.com>
-Date: Mon, 17 Aug 2026 15:41:55 -0400
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="K9L6NIC5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A2A51F000E9;
+	Mon, 17 Aug 2026 20:25:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786998338;
+	bh=ek0FA+cvrSAiDanlRV/DKW5uqrXQgg5nOVKUL7iey9E=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=K9L6NIC5IHPF0/NzTLSEE5luHA78JEZR4hc2Z/ya/dIYXx4l+IrS0+Iv0JT9+sBTn
+	 +RsLnctVQk+C0YvIMq3e17XEJC7oeGXTcBikxt4eemrZgXQXM5M+qCaXv5ar+IV33k
+	 ynk7ZRyFdGY13Ksm0D1jGyGd694crrFBMeryqQgUeWEZUGQqqBG1i8jZ5TzG0bW8Ul
+	 4HCUxIM5o6NMgbBUveYfmo642L+HZeoV4CuZ2KAb57uojOAyMGbH/uFmGrMfwog5qv
+	 RGwmnYNbSTij/d9xVpEI2ahn0U/sJA2SvPGItTM9ifUN2tTbq3dk17SC3lyPB5+3dF
+	 rQmKHF6EjBjSQ==
+From: Jakub Kicinski <kuba@kernel.org>
+To: hexlabsecurity@proton.me
+Cc: Jakub Kicinski <kuba@kernel.org>,
+	wintera@linux.ibm.com,
+	davem@davemloft.net,
+	pabeni@redhat.com,
+	edumazet@google.com,
+	twinkler@linux.ibm.com,
+	linux-s390@vger.kernel.org,
+	hidayath@linux.ibm.com,
+	horms@kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net] net/iucv: only deliver HiperSockets frames to HiperSockets sockets
+Date: Mon, 17 Aug 2026 13:25:36 -0700
+Message-ID: <20260817202536.3590565-1-kuba@kernel.org>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260813-b4-disp-60433a46-v1-1-509e1200533e@proton.me>
+References: <20260813-b4-disp-60433a46-v1-1-509e1200533e@proton.me>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 9/9] s390/vfio-ap: Fix memory leak when queue removed
- from host AP config
-To: Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, pasic@linux.ibm.com,
-        alex@shazbot.org, kwankhede@nvidia.com, fiuczy@linux.ibm.com,
-        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        agordeev@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        stable@vger.kernel.org
-References: <20260812200240.818004-1-akrowiak@linux.ibm.com>
- <20260812200240.818004-10-akrowiak@linux.ibm.com>
- <3f1e1e96-fa32-407a-816a-d884b97b9961@linux.ibm.com>
-Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <3f1e1e96-fa32-407a-816a-d884b97b9961@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=OfaoyBTY c=1 sm=1 tr=0 ts=6a836407 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=-hAh2JgC421wSWjpc-oA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE3MDE0OSBTYWx0ZWRfX76DGHc03uf81
- BmhJaxfYiaMhUA0ev+zWw1mbcT5YrAeeF9kvbVyBvxKBHEWZAJdAu2757tch6PeqF9pFFQLG7IH
- vhohP8heBUkkCe/S9IX1uW8PFwChDG0=
-X-Proofpoint-GUID: aHroIs7fNnMxXA1q6k9Sm_SqqTDBotVM
-X-Proofpoint-ORIG-GUID: aHroIs7fNnMxXA1q6k9Sm_SqqTDBotVM
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE3MDE0OSBTYWx0ZWRfX6KGbx+yULaKd
- +J0PGQANLdpKv/m/M3OdZzMANT+cR9HnIyb+vAZVoBLeAfuUCNx1DoHVrfi8eMt9oRMlG6XISTq
- D1jLEUxGfw9NV+YPOMlmc9KaTTCRDGPsVi5S8AOyd+H8ns9hYGh0pd8Dp3a7UdIprS/8Gd52f+G
- VdNdlgllh+C1KwIZYR+dSgA7D8cU9KLxW6LzYvpJmpuitcb/TPr+sQRUt4ojRkv1rLdFWgYWSFo
- 7OoSpagC2j2PXtU27ohVzDgwu8Ghm0nYizRgFpHNbeeSyyTsdXrpTU+3BNLiCpMucwrkPpPzk+G
- KJKjY+NlGzZAYy3xAUBV6oWO4YxAgFbj8RrJII3sjjsbjRph22NdFSAwaJWXC52Gi07Z7o06HGn
- XNL7TzYbG+YVQiJUs+xsvQmnICB+W00abHd4CIRKYUlBxfD2tT9D6YvtqDBZup1L5c86xKQaqE8
- ykNncqftrOsQTG0ylbA==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-17_03,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 clxscore=1015 lowpriorityscore=0 impostorscore=0
- malwarescore=0 bulkscore=0 phishscore=0 priorityscore=1501 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608170149
+Content-Transfer-Encoding: 8bit
 
+This is an AI-generated review of your patch. The human sending this
+email says "Looks like other places need a fix, too. Please fix them
+in one patch, failing that in one series."
+---
+net/iucv: only deliver HiperSockets frames to HiperSockets sockets
 
+This adds a transport test to the socket lookup in afiucv_hs_rcv() so that
+an inbound HiperSockets frame skips sockets bound to the classic z/VM IUCV
+transport.  Selection previously used only the four 8-byte name fields from
+the frame header.
 
-On 8/12/26 5:12 PM, Matthew Rosato wrote:
-> On 8/12/26 4:02 PM, Anthony Krowiak wrote:
->> When an adapter or domain is removed from the host's AP configuration, the
->> AP bus invokes vfio_ap_on_cfg_changed() to notify the vfio_ap device
->> driver. For each ap_matrix_mdev object to which the adapter or domain
->> is assigned, vfio_ap_mdev_hot_unplug_cfg() is called and removes the
->> adapter or domain from the matrix_mdev->shadow_apcb (i.e., the guest's AP
->> configuration) and hot unplugs it if a guest is using it. The new host
->> AP configuration (sans adapter or domain) is then stored in
->> matrix_dev->info.
->>
->> When the AP bus subsequently unbinds the physical queue devices associated
->> with the adapter or domain that has been removed, it invokes
->> vfio_ap_mdev_remove_queue() for each queue removed. At this point, the
->> adapter or domain will no longer be assigned to the
->> matrix_mdev->shadow_apcb or the matrix_dev->info object because they would
->> have been removed by vfio_ap_on_cfg_changed(). Consequently,
->> vfio_ap_mdev_reset_queue(q) is bypassed and kfree(q) is called
->> without executing vfio_ap_free_aqic_resources(). This indefinitely pins
->> guest memory (q->saved_iova) and leaks KVM GISC resources (q->saved_isc).
->>
->> Note that resetting the queue would fail with an invalid APQN error due to
->> the fact the queue is not longer in the host's AP configuration; however,
->> it is still necessary to free the AQIC resources. The fix here is to call
->> vfio_ap_free_aqic_resources if the adapter or domain is neither in
->> matrix_mdev->shadow_apcb or matrix_dev->info.
->>
->> Fixes: b9bd10c43456d ("s390/vfio-ap: do not reset queue removed from host config")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
->> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
->> ---
->>   drivers/s390/crypto/vfio_ap_ops.c | 5 ++++-
->>   1 file changed, 4 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->> index 1edd0b7a3cce..bd9d239caeba 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->> @@ -2533,12 +2533,15 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
->>   	/*
->>   	 * If the queue is not in the host's AP configuration, then resetting
->>   	 * it will fail with response code 01, (APQN not valid); so, let's make
->> -	 * sure it is in the host's config.
->> +	 * sure it is in the host's config. If it is not, then free the KVM GISC
->> +	 * resources.
->>   	 */
->>   	if (test_bit_inv(apid, (unsigned long *)matrix_dev->info.apm) &&
->>   	    test_bit_inv(apqi, (unsigned long *)matrix_dev->info.aqm)) {
->>   		vfio_ap_mdev_reset_queue(q);
->>   		flush_work(&q->reset_work);
->> +	} else {
->> +		vfio_ap_free_aqic_resources(q);
-> Re: the Sashiko finding for this one:
->
-> [Severity: High]
-> Can this still trigger a WARN_ON and leak KVM GISC and pinned memory if
-> a guest shuts down or the mdev is removed before the physical queue is
-> unbound?
->
-> I think Sashiko has a point here...  At first I thought it was a
-> pre-existing issue (just another path that fails to free resources) but
-> I think this patch actually makes the described thread of execution a
-> bit worse:
->
-> Before this patch you would leak resources on the described path.
->
-> After this patch, you will leak the resources on that path, then reach
-> this new else statement and could potentially now WARN about the null
-> pointer(s) in vfio_ap_free_aqic_resources() and still not unregister the
-> gisc and/or unpin the saved_iova due to the null pointers.
+> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+> index ea047bab65e7c..5fb6793b9a64a 100644
+> --- a/net/iucv/af_iucv.c
+> +++ b/net/iucv/af_iucv.c
+> @@ -2079,6 +2079,8 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
+>  	sk = NULL;
+>  	read_lock(&iucv_sk_list.lock);
+>  	sk_for_each(sk, &iucv_sk_list.head) {
+> +		if (iucv_sk(sk)->transport != AF_IUCV_TRANS_HIPER)
+> +			continue;
 
-This is a legitimate concern. I will fix this via an individual patch since
-this 9/9 patch will not be included in the series for the pull request.
+[Severity: Medium]
 
->
->
+This isn't a bug introduced by this patch, but should the other lookup over
+iucv_sk_list get the same treatment?  iucv_callback_connreq(), which handles
+inbound classic z/VM IUCV connect requests, still matches on name alone:
 
+net/iucv/af_iucv.c:iucv_callback_connreq() {
+	sk_for_each(sk, &iucv_sk_list.head)
+		if (sk->sk_state == IUCV_LISTEN &&
+		    !memcmp(&iucv_sk(sk)->src_name, src_name, 8)) {
+			iucv = iucv_sk(sk);
+			break;
+		}
+}
+
+On the configuration the commit message describes (pr_iucv set and a
+HiperSockets device present, so both transports coexist), can a socket bound
+through the HIPER branch of iucv_sock_bind() be picked here?
+
+If so, the child it builds looks inconsistent:
+
+net/iucv/af_iucv.c:iucv_callback_connreq() {
+	niucv->transport = AF_IUCV_TRANS_IUCV;
+	...
+	memcpy(niucv->src_user_id, iucv->src_user_id, 8);
+}
+
+That is transport AF_IUCV_TRANS_IUCV with src_user_id copied from a HIPER
+parent, i.e. the device hsuid, while the vm_bind path of iucv_sock_bind() and
+iucv_sock_autobind() always set src_user_id to iucv_userid for classic
+sockets.
+
+After this change the two directions disagree about whether transport is part
+of the demux key.  Was making only the HiperSockets side transport-aware
+intentional?
+
+[Severity: High]
+
+This is a pre-existing issue, but since this hunk is the lookup in question:
+should the ingress device and its namespace also be checked here?
+
+afiucv_hs_rcv() never uses its dev or orig_dev arguments, and the handler is
+registered globally:
+
+net/iucv/af_iucv.c
+	static struct packet_type iucv_packet_type = {
+		.type = cpu_to_be16(ETH_P_AF_IUCV),
+		.func = afiucv_hs_rcv,
+	};
+	...
+	dev_add_pack(&iucv_packet_type);
+
+With no .dev and no .af_packet_net, ptype_head() files this in the global
+ptype_base[], and __netif_receive_skb_core() delivers ETH_P_AF_IUCV frames
+from any net_device in any namespace:
+
+net/core/dev.c:__netif_receive_skb_core() {
+	deliver_ptype_list_skb(skb, &pt_prev, orig_dev, type,
+			       &ptype_base[ntohs(type) &
+					   PTYPE_HASH_MASK]);
+}
+
+Meanwhile every AF_IUCV socket lives in init_net:
+
+net/iucv/af_iucv.c:iucv_sock_alloc() {
+	sk = sk_alloc(&init_net, PF_IUCV, prio, &iucv_proto, kern);
+}
+
+Comparable ptype handlers filter at exactly this point (net/x25/x25_dev.c and
+net/ieee802154/socket.c both test the namespace).
+
+After this patch, is the only selection criteria still transport plus the four
+attacker-supplied 8-byte header fields, with no comparison against
+iucv->hs_dev or sk->sk_bound_dev_if, both of which iucv_sock_bind() sets for
+HIPER sockets?
+
+	sk->sk_bound_dev_if = dev->ifindex;
+	iucv->hs_dev = dev;
+
+Two things seem to follow.  First, can a matching frame arriving on device B
+be delivered to a socket bound to device A, with afiucv_hs_callback_syn()
+then creating a child that inherits the listener's device and replies out
+through A?
+
+net/iucv/af_iucv.c:afiucv_hs_callback_syn() {
+	nsk->sk_bound_dev_if = sk->sk_bound_dev_if;
+	niucv->hs_dev = iucv->hs_dev;
+}
+
+Second, can a process holding CAP_NET_RAW in an unprivileged user and net
+namespace send a raw frame with ethertype 0xFBFB on its own lo and reach host
+HIPER sockets?  loopback_xmit() re-derives skb->protocol via
+eth_type_trans(), and a destination MAC of all zeros matches loopback's
+dev_addr so pkt_type is PACKET_HOST.  Reaching the callbacks would mean
+afiucv_hs_callback_synfin() and afiucv_hs_callback_fin() forcing
+sk_state = IUCV_DISCONN with sk_state_change(), afiucv_hs_callback_rx()
+queueing injected bytes on a connected socket:
+
+net/iucv/af_iucv.c:afiucv_hs_callback_rx() {
+	if (skb_queue_empty(&iucv->backlog_skb_q)) {
+		if (__sock_queue_rcv_skb(sk, skb))
+	...
+}
+
+plus afiucv_hs_callback_win() applying a caller-chosen window through
+atomic_sub() on iucv->msg_sent, and afiucv_hs_callback_syn() adding children
+to a listening socket's accept queue.
+
+Given the subject line says "only deliver HiperSockets frames to HiperSockets
+sockets", would it be worth either adding a dev_net(dev) and device test in
+the same loop, or noting in the commit message that this path stays open?
+
+The submission's own trailing notes rely on this vector when arguing that
+reach extends beyond the HiperSockets LAN, so the recorded message and the
+code appear to differ on what is being closed.
+-- 
+pw-bot: cr
