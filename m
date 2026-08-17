@@ -1,135 +1,147 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mta1.migadu.com (out-39.mta1.migadu.com [95.215.58.39])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C3C42EEE8C;
-	Mon, 17 Aug 2026 15:03:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8640F42FCA9
+	for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2026 15:14:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.39
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786979012; cv=none; b=Rb2mDh7kfoAclIkF13MFmmg4T6+BwO4rylwa6f1iR8V73vCrlFXLtf+aFUyhovUYSS4yYpSB4QATL2CxIZNPP9YYB6Wb4WEAtOSeBki0rmB/8YGu8L6SoyV0NSpYlAnCytQOOxGImuyxjhww0MzEv2d6A5sw2biPL+OcVLjHV3w=
+	t=1786979669; cv=none; b=PEu4ZXUd84QJ3lIZlra8hXm757QAJ0Ld7VnLTfZLdKP6dUwLe8HBRL2tJ74m3IiupkIaxNaKCdO/RI1b74plmWQPnCkGe92knOv9ld3ZbE7wB7t18/4SWuRPdnGpuK1eedrIpa156CfQ3gMpmRKSDX7/4RkCDZ9fgM0y7vhd8LM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786979012; c=relaxed/simple;
-	bh=72cBH1ogUFdWYYyhDfVvYFm94Xfqh7ns3CZ47s9n5F4=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=cN340VStNdFoarVr9Hont9Eh1IqYMlt1cREq9Evn/ylfFFCOx1uA2g3JpuSFiqVuomVhMXKlsqbx6gPedN6YfMNedCUEJlifWp7EsqOFzqBtKAAbe75+JG5EWmLsWQCs/Szvcoe9xySbQnaRqOZAhNwOJGIZ7p2mSTr3nuAOgRA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FtrMgFRQ; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786979669; c=relaxed/simple;
+	bh=/kpJHgkNpi750FH/SGpyKpVgqGqCSp4Wcpe2Zcb2oTU=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=d0rsIiXHHo8FMXL65+5fwLfYlRcmSEGOIvaQF0OHqfZ3ohiGLqulHRFKGajAYhRs6pZUww3fm/ax1ULYo53G4QpvQzmLYkK2uu9RX3CD9G2dh9uiIlZRwGVNhHD6gWNOG8wPlhHMYH8I0A1aZ+H51rgWHUhY7iReftQ2qqRv3e4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=uk6XiQ57; arc=none smtp.client-ip=95.215.58.39
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FtrMgFRQ"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67HCWMfu1349033;
-	Mon, 17 Aug 2026 15:03:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ICiuKD
-	woKeq56o8TiQa6AtaTew1A8yOUfniA2Z4g+Mg=; b=FtrMgFRQGx609lNp9QGQwV
-	49xHaJh0lRf8KXj1uEIm5QI8BRD2oGLrBq/BpnB9Gv7Noew9GHdv8URVQg6HG6/2
-	Zlm6vsw8VKLr44QMo14QI6W8D0wy6wxC2V7FYndYuXXEuEwz1Lw7wUEATZfnowYX
-	aZM4Mu572kQXmciZye8XThDMaujzZidg9cbc2WHRyVy8+ucO9E4HWoXSUpJNanPm
-	4Ypf4ZIVa62x4chcM118FVAh/US4fdZOGBWhnHHhb3tgFw4yVemepYs/0e4IWaZx
-	KhHKviBxNLuwpePo1FVv5Y4ewkytoxsQUMlxO16ZsUtywTBqa7YFh/fxrkbOw4uw
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2fm3jw4t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 17 Aug 2026 15:03:22 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67HEuQIi026618;
-	Mon, 17 Aug 2026 15:03:22 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g32epxnm5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 17 Aug 2026 15:03:21 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67HF3Iln38470142
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 17 Aug 2026 15:03:18 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 52EBA2004B;
-	Mon, 17 Aug 2026 15:03:18 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2290620043;
-	Mon, 17 Aug 2026 15:03:18 +0000 (GMT)
-Received: from [9.224.90.36] (unknown [9.224.90.36])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 17 Aug 2026 15:03:18 +0000 (GMT)
-Message-ID: <2edbc943-1485-4cfd-80a6-165271463dc0@linux.ibm.com>
-Date: Mon, 17 Aug 2026 17:03:17 +0200
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="uk6XiQ57"
+X-Envelope-To: linux-s390@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=/kpJHgkNpi750FH/SGpyKpVgqGqCSp4Wcpe2Zcb2oTU=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1786979664; v=1; x=1787584464;
+ b=uk6XiQ57o1D6iibPFn5TKPWCDhnmKhFXuHkfhwAfmPyXniTm8i72E8hoRSgSS6FxCFvtJatD
+ kUmnfMkBx9oLsAHHiig6ksIVwQO3iIA/8ohr2/mwK3ZKLP8lPZNwYrmBTas2k/yJBioKWe+JgDx
+ DjSVklLEX0StH/n1O0kQZ3Bc=
+X-Envelope-To: linux-s390@vger.kernel.org
+Received: from localhost (212.133.41.51)
+	by smtp.migadu.com with ESMTPS id b6551f00886cde4e;
+	Mon, 17 Aug 2026 15:14:23 +0000
+X-Migadu-Flow: FLOW_OUT
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2] net/iucv: descend into net/iucv independently of
- IUCV
-From: Alexandra Winter <wintera@linux.ibm.com>
-To: sashiko-reviews@lists.linux.dev, Pengpeng Hou <pengpeng@iscas.ac.cn>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        netdev <netdev@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-        Eric Dumazet <edumazet@google.com>
-References: <20260815135456.53684-1-pengpeng@iscas.ac.cn>
- <20260816135517.816271F000E9@smtp.kernel.org>
- <4fb902b2-bd5e-48b0-aca0-07e51a80d8c7@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <4fb902b2-bd5e-48b0-aca0-07e51a80d8c7@linux.ibm.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: GsTb4p3M3CnjROCUTirXHjUB4K97tP2j
-X-Proofpoint-ORIG-GUID: wlHiJJWO5oOuvCGmwrVyhCI7bd9XDcUq
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE3MDExNSBTYWx0ZWRfX0NzH2Fa9m9UQ
- rabN91v8jTfp4IybeXHmbIilVVwXpsm0xSYFqhOa0MsgeCCX3HE1iAf3VuxLHWi5Q4++b4cR/rE
- A85JIN+DLLrc5lFCGDeVwfNjLEwvCSw=
-X-Authority-Analysis: v=2.4 cv=WtQb99fv c=1 sm=1 tr=0 ts=6a8322bb cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
- a=hsW9paApf2v-0O2tkuYA:9 a=QEXdDO2ut3YA:10 a=zZCYzV9kfG8A:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE3MDExNSBTYWx0ZWRfX7ru5f9Mzx9qL
- eeSaK967D52DjolBkQO4Ux3UZ3fLdAue8yPoJ+Vgm1KQe24eWlrOnZJwRDxIsrZGE+evjQGms9s
- Oxu8j9pRPK8oz6VOjBKru/wFoGi4/vY00Mvim5leP0DwwXGhNN/twR4dtYloBAx9ii90o6JnksN
- QkCEtLifJ9YqdHYN2IPbS0mbz7BYkZ2VJ2OuDRVjFzZoFwvFB5gKialnbFNAnp+iYD1IGs4OJjS
- PaQJUQwPbZ/qYJbX11dfBb0YVl2210HvhQGmTj9Lp5BE94Fy6zTMx+OBz7iwu+lWNCKR9Y87y0P
- rHtoTCkFNUGiiKrXeMkRBcoiYZ0DN2VFLA+X6Lpry0qwnCeE4ZlsQ0Fkj/cSc7RswF0exwJP1f2
- tVtcBxLBIBcmK6dkxBIg9RBzQ8asGP7aRBT+0H8vOSwhvtyBnef96ZfnLx7oFvABEHiKodQ/bE6
- Vhy94JmG1X/mH4R85nw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-17_01,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 spamscore=0 malwarescore=0 suspectscore=0 phishscore=0
- lowpriorityscore=0 clxscore=1015 adultscore=0 priorityscore=1501
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608170115
+Date: Mon, 17 Aug 2026 17:14:19 +0200
+Message-Id: <DKRBF6LQY1L7.13CIBHAU0A87D@linux.dev>
+Cc: =?utf-8?q?Adrian_Barna=C5=9B?= <abarnas@google.com>, "Albert Ou"
+ <aou@eecs.berkeley.edu>, "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ "Alexandre Ghiti" <alex@ghiti.fr>, "Andy Lutomirski" <luto@kernel.org>,
+ "Borislav Petkov" <bp@alien8.de>, "Brendan Jackman"
+ <brendan.jackman@linux.dev>, "Catalin Marinas" <catalin.marinas@arm.com>,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Dave Hansen"
+ <dave.hansen@linux.intel.com>, "David Hildenbrand" <david@kernel.org>,
+ "Gerald Schaefer" <gerald.schaefer@linux.ibm.com>, "Heiko Carstens"
+ <hca@linux.ibm.com>, "Huacai Chen" <chenhuacai@kernel.org>, "Ingo Molnar"
+ <mingo@redhat.com>, "Len Brown" <lenb@kernel.org>, "Palmer Dabbelt"
+ <palmer@dabbelt.com>, "Paul Walmsley" <pjw@kernel.org>, "Pavel Machek"
+ <pavel@kernel.org>, "Peter Zijlstra" <peterz@infradead.org>, "H. Peter
+ Anvin" <hpa@zytor.com>, "Rafael J. Wysocki" <rafael@kernel.org>, "Ryan
+ Roberts" <ryan.roberts@arm.com>, "Sven Schnelle" <svens@linux.ibm.com>,
+ "Thomas Gleixner" <tglx@kernel.org>, "Uladzislau Rezki" <urezki@gmail.com>,
+ "Vasily Gorbik" <gor@linux.ibm.com>, "WANG Xuerui" <kernel@xen0n.name>,
+ "Will Deacon" <will@kernel.org>, <x86@kernel.org>,
+ <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+ <linux-mm@kvack.org>, <linux-pm@vger.kernel.org>,
+ <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+ <loongarch@lists.linux.dev>, <yosry@kernel.org>
+Subject: Re: [PATCH 6/6] Revert "arch: introduce
+ set_direct_map_valid_noflush()"
+From: "Brendan Jackman" <brendan.jackman@linux.dev>
+To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>, "Andrew Morton"
+ <akpm@linux-foundation.org>
+X-Mailer: aerc 0.21.0
+References: <20260816-execmem-set-vm-perms-v0-2-v1-0-90944a3ad43f@kernel.org> <20260816-execmem-set-vm-perms-v0-2-v1-6-90944a3ad43f@kernel.org>
+In-Reply-To: <20260816-execmem-set-vm-perms-v0-2-v1-6-90944a3ad43f@kernel.org>
 
+On Sun Aug 16, 2026 at 12:59 PM CEST, Mike Rapoport (Microsoft) wrote:
+> Commit 0c6378a71574 ("arch: introduce set_direct_map_valid_noflush()")
+> added set_direct_map_valid_noflush() to allow updating the direct map
+> for a physically contiguous range in execmem.
+>
+> As Brendan recently pointed out [1], this API is confusing because on
+> arm64 it means that is sets VALID bit in ptes, while on other
+> architectures it is an analog of set_direct_map_default_noflush().
+>
+> The only user of set_direct_map_valid_noflush() was execmem's ROX cache
+> freeing path and it was switched to utilize VM_FLUSH_RESET_PERMS for
+> resetting permissions of the direct map alias.
+>
+> With the last user gone and with set_direct_map_{invalid,default}_noflush=
+()
+> accepting number of pages as a parameter, set_direct_map_valid_noflush()
+> become a copy of set_memory_valid() on arm64 and a duplicate of
+> set_direct_map_{invalid,default}_noflush() on other architecture, it is
+> safe to remove set_direct_map_valid_noflush().
+>
+> Also drop a stale comment in arm64::__kernel_map_pages() that Linus
+> bothered to add when merging changes containing set_direct_map_valid_nofl=
+ush()
+> to his tree.
+>
+> This reverts commit 0c6378a71574daa6cd1534ad42a956e3262756c7.
+>
+> [1] https://lore.kernel.org/all/DJ69RCVRBO0Y.3JCYSW50IC4RC@linux.dev
+>
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 
+Quick dump of my understanding (ignoring the NG bit on arm64)
 
-On 17.08.26 14:06, Alexandra Winter wrote:
-> 
-> 
-> On 16.08.26 15:55, sashiko-bot@kernel.org wrote:
->> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
->>
->> New issues:
->> - [High] Unconditional descent into net/iucv/ causes a vmlinux linker error when CONFIG_AFIUCV=y and CONFIG_IUCV=m.
-> 
-> @Pengpeng Hou,
-> if it easier, you can also fix this issue by making CONFIG_AFIUCV depend on CONFIG_IUCV.
-> I see no practical scenario where we would want AFIUCV without IUCV.
-> 
+- set_direct_map_invalid_noflush():
 
+    x86: clear P and RW (and DIRTY)
+    arm64: clear VALID
 
-And I agree with Sashiko. I did not verify this combination with your initial RFC, sorry.
-So I propose to depend AFIUCV on IUCV instead of your patch.
-Do you want to send such a patch, or do you want me to do that?
+  So these look out of sync to me
 
+- set_direct_map_default_noflush():
 
+    x86: set P and RW
+    arm64: set VALID and WRITE, clear RDONLY
+
+- set_direct_map_valid_noflush(..., true):
+
+    x86: exactly the same as set_direct_map_default_noflush()
+         (but with a `nr` arg)
+    arm64: set VALID
+
+- set_direct_map_valid_noflush(..., false):
+
+    both archs: exactly the same as set_direct_map_invalid_noflush()
+         (but with a `nr` arg)
+
+So basically the big issue here is specifically that
+set_direct_map_valid_noflush(..., true) is special on arm64 and not x86.
+
+And we fix that by jut deleting the API. SGTM!
+
+The other issue I can see here is that set_direct_map_invalid_noflush()
+clears RW on x86 but doesn't set RDONLY on arm64. So if you unmap
+something using set_direct_map_invalid_noflush(), then map it again
+using something other than set_direct_map_default_noflush(), you get
+different behaviour between the archs.
+
+I think the answer to that is probably: doing that is a bug, i.e.
+_invalid_noflush() and _default_noflush() are a pair that you have to
+use together. But I haven't checked if this is currently the case. Maybe
+it would still make sense to just align these fully?
+
+Anyway, aside from all this yapping, getting rid of _valid_noflush()
+seems like an unambiguous win here so thanks for the cleanup!
+
+Reviewed-by: Brendan Jackman <brendan.jackman@linux.dev>
