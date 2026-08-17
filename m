@@ -1,180 +1,123 @@
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57849468C2C
-	for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2026 17:31:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FED543711C;
+	Mon, 17 Aug 2026 17:34:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786987884; cv=none; b=k0ewXwYR88WK2GPkKQo8yUIOEalzp7UoL/pdrCuIVlML31rnk2dYfrgMzM4pNIOXN/6HgpafIY070OoBhMjsfT3JsypmPJh/SoGs4LyPEb8G34YdOTU2zM04kQr+SsmojgAdWQRAehVle/nUPcTX3sRquiSVgHXllOrxz+mr5m0=
+	t=1786988062; cv=none; b=YhJc+4Em1V96lHU3/0hPR/n/RuXXlkcQv1JVTYswh+ob4FkopK5exFaH+9+JCHOr8jf7MtArvBCzXq4gWlrqhlAVEt+baZZTS4T4KeetztvOq2ooTXVBMq5GNhRsS493R7GICQLS6oTsPl6SvtGxCuNEDU5viNc3aETEZGLiwWM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786987884; c=relaxed/simple;
-	bh=XuQIGnNEgl05hW1Pt/SRDZrKnxVKWtgOYyJNVYljJJk=;
-	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=V3xcx1ADkkbFtyL/CRGr5E+6ZD+PhX2Wcb4iT4hNLCOESwoc7XygejbYYvMbu797kfrml8CwJLqhoVW+zBZsw0UMY5GopKqfT+2ptPfsFsQBiCDDNJIwvh0di3FY5NJBUdILJop7W5GEpDJZ4sZokZssquGFj8Wd7NMAL011FAw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eTw2vNHr; arc=none smtp.client-ip=209.85.167.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786988062; c=relaxed/simple;
+	bh=gXMaFw8QCFCQbh6WGMD0FbsLBzH6F1Bvr5ruS6vLOQQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tM0hVFHpTDEb9sEe4QK2f3DTZ2oDfEnRqCmfOnI2Bx1ruqOEFHl3w0mCK45eOAg/KYXHWYrQH5QSwGia4xsA9Brb4QdJPK1C5D7r3F88b+IOCBIVrR64SLq/j4PqvtwVqeYXtHAE1nfzeQY+CYOxRXoszfZWMAmldKsjqfIvCtM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=k7Yyxo1J; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eTw2vNHr"
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5b0117dda13so3476461e87.0
-        for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2026 10:31:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786987880; x=1787592680; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:date:from:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=gdAST+PW7bd2DD1v0YjadB8+zi0iamo4AznH2c9tOUI=;
-        b=eTw2vNHrPGyIV9SJRUFkqft+N4BJxLtAlV0iNfsuJt5IWSQfnFhP8uRxuMkrT9ZZsY
-         8o1MUhFKKYlyBvH+51JaxIK4APixLSZ3J7q8nE7YeatdCCWCdhZ7+ZPaN8Tvbls6Icaw
-         Q6eKucOBcQ3Qkpz6PMIn1OXUTlDh3tjkT6hZK/2YJ29ODCxfUsIYma2jB8ZtBeeYNFZN
-         ID4shGj2VzFEF2T+GvXDdCfcj3IOGVJjQgL16l2cyNicnipDO5jJy7xCi6rvaGruKrP/
-         f9mOusaNP7k/nQZ+x19zuyOFNxNwBzJRJOcx+v9BhX7dKYcf9VAT80GF4OQ3FfMezryH
-         AWDw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786987880; x=1787592680;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=gdAST+PW7bd2DD1v0YjadB8+zi0iamo4AznH2c9tOUI=;
-        b=XjrgiEb5gE94FDGj+4WtTkmwtoXrJt7pg9K9YcS82IJmtBBljqA56lQqSRxCZfBs7s
-         ePDx2248SjUin90fjoftBfu/g/vWrm+0eTo6M4NICZxfHlrRNsFw9/fXNG3L5YD/x/LN
-         aBVX/vyX8KgD8HiwFhh81fjQzb1aj5043cA3nc67t7YfnL3yepdW9wRGJGtDWlVaGo5W
-         iX8Q88coYBiMxBey0tVIBaPPEqYa+KCZlTQ6zMhh3pMPcCx5HrHpw9LvXMylezqV5Q5y
-         R47yEm4aje5YpE8TXu4Kkod/eQSoDQ2gx5uXytd0uRNb4L2olHp+HBlvi5ZEeNAqPl1O
-         fVJw==
-X-Forwarded-Encrypted: i=1; AHgh+Rp+hjMd2TaMTLik9brbIHIvne1CswvtqQac008n29D8BAYrv7cuCSIEk4UsleVHpeun1iLAUCREjBxD@vger.kernel.org
-X-Gm-Message-State: AOJu0YxxORaMwoMlEJHB9HvPkvuTvN0rbKPNNKmVnG32XrxkQRAIFV7b
-	pA5eTb5IQIFa0BOqmNCM4/xyhCVtd/OGNMsCI6FSWq7InOf4ACG4iR3Z
-X-Gm-Gg: AR+sD11MjU/v0mQp5h0wYyKnkxSrH1Qt+2Z/MjXR82JqKwswV3eb2iX+t3ZnCaNV/4q
-	FhMvS/pwsbr/EtVD0l4mWbnWdEspJOVgt2y8O+DUeWARhf/upfk5vUHX5NBaQ08iGsM+ySpbEBX
-	oqJyhRbyLh7lI5MTWuGoH9mvmCta/U5CwV/ImuEXgnEQI1EBz34qiv7WzUW/YriYE8WBiZ9vySu
-	RxkzyIL8WMdFDSeLQavWYp/FaDI6PPOBwJxy+3RPTSNPuF6v+iRMIsuZWXUSNI8M6noBcv+8MjF
-	0HO/4OO4AAo3wHQR9f3uxv0Zrzvrzs2lXp18/c+GVZDjHZPjCTmVhIPVblX7xV4G6n67rlRdGjI
-	03hHxYJVXg2jbJ9isgg57Z/YL7J61FCOhtLK4ApxK+QMZdJcROUJuG5zexy2pd8ejK+Omtymr42
-	Rr+5fr6XSBvqLp/NwGwjO/0DAaOQ==
-X-Received: by 2002:a05:6512:1284:b0:5b2:9358:b854 with SMTP id 2adb3069b0e04-5b459142afbmr3869031e87.42.1786987880080;
-        Mon, 17 Aug 2026 10:31:20 -0700 (PDT)
-Received: from milan ([2001:9b1:d5a0:a500::24b])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3a16b1f1852sm5885691fa.38.2026.08.17.10.31.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Aug 2026 10:31:19 -0700 (PDT)
-From: Uladzislau Rezki <urezki@gmail.com>
-X-Google-Original-From: Uladzislau Rezki <urezki@milan>
-Date: Mon, 17 Aug 2026 19:31:17 +0200
-To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Adrian =?utf-8?Q?Barna=C5=9B?= <abarnas@google.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Alexandre Ghiti <alex@ghiti.fr>, Andy Lutomirski <luto@kernel.org>,
-	Borislav Petkov <bp@alien8.de>,
-	Brendan Jackman <brendan.jackman@linux.dev>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	David Hildenbrand <david@kernel.org>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Len Brown <lenb@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Paul Walmsley <pjw@kernel.org>, Pavel Machek <pavel@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Ryan Roberts <ryan.roberts@arm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Uladzislau Rezki <urezki@gmail.com>,
-	Vasily Gorbik <gor@linux.ibm.com>, WANG Xuerui <kernel@xen0n.name>,
-	Will Deacon <will@kernel.org>, x86@kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, linux-pm@vger.kernel.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	loongarch@lists.linux.dev
-Subject: Re: [PATCH 2/6] mm/vmalloc: set area's page_order after allocation
- succeeds
-Message-ID: <aoNFZU_QzghDBgbZ@milan>
-References: <20260816-execmem-set-vm-perms-v0-2-v1-0-90944a3ad43f@kernel.org>
- <20260816-execmem-set-vm-perms-v0-2-v1-2-90944a3ad43f@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="k7Yyxo1J"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67HFffa61851476;
+	Mon, 17 Aug 2026 17:34:18 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=MBaaej68c9fH0nMkBFLbUg5CaH2K6E
+	orYltBdIK0Bc0=; b=k7Yyxo1J00iv5o306p1gDdgwNNuCxbWof23Ah3ICaDAfdq
+	L8gOM2rLSl3yX63eCrAfzSezRD31CqLJ4nyaP1BRkSrv+Vsq+AEXvTf5C1NlI1X2
+	UCxf8/LuHN2jrbknUaFei5wqxbPf4/77VHmWgFMwTu/dT6cCnHMnwaDnUfEiGrs9
+	2EV1L20cqOBkeaoUtE2oMsfKp0HqNJ/RGYQIAI422rGGXOKXze/X7Jw3OzxMx3E4
+	RffhkjTaKYlhJJQIX87ENWp+B+RQBEJRE+sZxF2gH66HmwHoQOeWxSHjhBGD04m8
+	N5Kfz7UCgvB0iXHheOE27f8OpVJYGYkmvZsfNQYw==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2frt34kj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 17 Aug 2026 17:34:17 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67HHQQTv013804;
+	Mon, 17 Aug 2026 17:34:16 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g32epy761-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 17 Aug 2026 17:34:16 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67HHYD2M51118458
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 17 Aug 2026 17:34:13 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1AB6F2004B;
+	Mon, 17 Aug 2026 17:34:13 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B54FE20043;
+	Mon, 17 Aug 2026 17:34:12 +0000 (GMT)
+Received: from localhost (unknown [9.111.2.7])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 17 Aug 2026 17:34:12 +0000 (GMT)
+Date: Mon, 17 Aug 2026 19:34:11 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Harald Freudenberger <freude@linux.ibm.com>,
+        Holger Dengler <dengler@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-crypto@vger.kernel.org
+Subject: Re: [PATCH 0/3] s390/crypto: Enable CONTEXT_ANALYSIS
+Message-ID: <ttjxcsz@ub.hpns>
+References: <20260804113736.1423667-1-hca@linux.ibm.com>
+ <ttjx5j8@ub.hpns>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260816-execmem-set-vm-perms-v0-2-v1-2-90944a3ad43f@kernel.org>
+In-Reply-To: <ttjx5j8@ub.hpns>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=OfaoyBTY c=1 sm=1 tr=0 ts=6a834619 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=RMK1aKcjqRy0yH2gV-oA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE3MDEzNCBTYWx0ZWRfXw5qSJ0Ls5DXO
+ WZgqdcDp9Qls5j+B0GVutgzFP9nUKNhPuTgrppNlxLuXwSwe+M7uZwxvKmWkBb3G74GOX8HLsfA
+ sC5DP0Few16keVDxzc7x8nJUwBmHh2c=
+X-Proofpoint-GUID: IVSQwXQR0K_hH0Z7UHpVx6WPhMAz5FQO
+X-Proofpoint-ORIG-GUID: IVSQwXQR0K_hH0Z7UHpVx6WPhMAz5FQO
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE3MDEzNCBTYWx0ZWRfXxzUhffF3eguN
+ aT09mZeAjeliMsuHIw+0YvYXyo7wCFsFREAK8EHauPy30RzUE2GSBbTFG+2iwg98vSDQxAsDWc5
+ /2x7On2l3V5WeeHu9ip/vojd/3NoCO5PYsGthLT7PnolxvriOyRfVhUaGfLbggJRFHVMGsKcRiT
+ Oe3MwYLKtgCU7ynjBrtPXI2R60WLkdCcJPmOOGSF/P09yxl2XDsuAvKyui5pDVBXZLzuhHpw1S3
+ nmlYIk4MTWmseZzVSUD0QuWsXAlwChn3bdr6bcxcqtbBr0CGwkZlNWSeWUG8Gq1OOA/1xX7W7MA
+ G42aeP5kQ56EyDyndmBbk9a5nCa744NsKgXxFlbpE6n/fLw4MslFZpPKBpcVOk/Z2aGTj6eMdAV
+ Q37fOd7VKBfQ3fMfog8Jhl72urS+mwa2X5Js/I8B+/ANtdw88GX2EzEMi56IxbEgcQXVmGz14VL
+ 4hBi+krltRq68jN5R9w==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-17_02,2026-08-12_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 adultscore=0 clxscore=1015 lowpriorityscore=0 impostorscore=0
+ malwarescore=0 bulkscore=0 phishscore=0 priorityscore=1501 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608170134
 
-On Sun, Aug 16, 2026 at 01:59:25PM +0300, Mike Rapoport (Microsoft) wrote:
-> __vmalloc_area_node() calls set_vm_area_page_order() to set area's
-> page_order before actually allocating pages to populate the area.
+On Mon, Aug 17, 2026 at 04:57:08PM +0200, Vasily Gorbik wrote:
+> On Tue, Aug 04, 2026 at 01:37:33PM +0200, Heiko Carstens wrote:
+> > Enable CONTEXT_ANALYSYS for s390's crypto code.
+...
+> > Heiko Carstens (3):
+> >   s390/crypto: Rework ctr_aes_crypt() to remove conditional locking
+> >   s390/crypto: Rework ctr_paes_do_crypt() to remove conditional locking
+> >   s390/crypto: Enable CONTEXT_ANALYSIS
+> > 
+> >  arch/s390/crypto/Makefile    |   2 +
+> >  arch/s390/crypto/aes_s390.c  |  54 +++++++++++-------
+> >  arch/s390/crypto/paes_s390.c | 104 ++++++++++++++++++++---------------
+> >  3 files changed, 97 insertions(+), 63 deletions(-)
 > 
-> If allocation of large pages in HUGE_VMAP case fails midway, this leaves
-> the area with elevated page_order throughout the cleanup path.
-> 
-> There is no actual issue with this because the only place that currently
-> relies on area->page_order on the cleanup path is the loop calculating
-> the direct map alias range in vm_reset_perms() and it anyway skips
-> unpopulated pages.
-> 
-> But having set_vm_area_page_order() in the middle of __vmalloc_area_node()
-> makes things very obscure, hard to reason about and error prone against
-> future changes of the cleanup path.
-> 
-> Move the call to set_vm_area_page_order() after __vmalloc_area_node()
-> succeeded where page order is guaranteed.
-> 
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> ---
->  mm/vmalloc.c | 11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
-> 
-> diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-> index 22566e0b6e38..6822f0fe9583 100644
-> --- a/mm/vmalloc.c
-> +++ b/mm/vmalloc.c
-> @@ -3901,8 +3901,7 @@ static void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
->  		goto fail;
->  	}
->  
-> -	set_vm_area_page_order(area, page_shift - PAGE_SHIFT);
-> -	page_order = vm_area_page_order(area);
-> +	page_order = page_shift - PAGE_SHIFT;
->  
->  	/*
->  	 * High-order nofail allocations are really expensive and
-> @@ -4106,6 +4105,14 @@ void *__vmalloc_node_range_noprof(unsigned long size, unsigned long align,
->  	if (!ret)
->  		goto fail;
->  
-> +	/*
-> +	 * Set area->page_order once it's known exactly that the order of the
-> +	 * pages the area contains.
-> +	 * Even if we succeeded to partially populate the area with large pages,
-> +	 * still treat the area as populated with order-0 pages.
-> +	 */
-> +	set_vm_area_page_order(area, shift - PAGE_SHIFT);
-> +
->  	/*
->  	 * Mark the pages as accessible, now that they are mapped.
->  	 * The condition for setting KASAN_VMALLOC_INIT should complement the
-> 
-> -- 
-> 2.53.0
-> 
-OK, can we just set it right after the:
+> Applied, thank you!
 
-	area->nr_pages = vm_area_alloc_pages(
-			vmalloc_gfp_adjust(gfp_mask, page_order), node,
-			page_order, nr_small_pages, area->pages);
-
-
-succeeds?
-
-I am not sure there is a good reason to move it out of the
-__vmalloc_area_node().
-
---
-Uladzislau Rezki
+This series was applied too early. Harald's rework should go in first, so I'm dropping this for now.
