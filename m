@@ -1,118 +1,117 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from fout-b1-smtp.messagingengine.com (fout-b1-smtp.messagingengine.com [202.12.124.144])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4FC646C4B4
-	for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2026 17:37:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50B88393DDB;
+	Mon, 17 Aug 2026 17:38:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.144
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786988247; cv=none; b=Jmc78dfUVsmzEIzWWBG9P1mdwxcbFnOOYkBwmIBM73LaSGyDEbBBe6gSgYGzNUwOUOGRqGQU3ge+s1kWsWVE1nY7MKnfPORLqR1Fo0RFJK8lOaiMQkjlui9iPgETmlJOhPxyAS5VrJX/NoEkrv5GY45VuenGWOMYetFufdCjkzc=
+	t=1786988319; cv=none; b=IV9E7DDzse0z0Lz+n2ZU8I+SmlaPROSqPNZfZbj2FqptVpT0fcOtVfhuzCiP/BsrHmsQN/lj9xOfQ227PYaK4i+qWTwWQrnxL8IkV3foIE93rjQuSYz3Z4XGbbdEUJVEzkSsj1ZrtHQAhml4IvWkgo5oxYPOYttCjMbEfhJhXmo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786988247; c=relaxed/simple;
-	bh=KZex0Q79Tnha1lugF2nwJREa0EQmsUmSA+GbuXdIuXA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PA8mIAOeqSura0DUHLN5CNhUeB9tlVx28EyCoSqlS8N+9EtNSseoXXdCY9oTAjrkScLBGxNMSmGAzVsLzT+9aJW0bxjVfpAf5fNIa4MVV8jIoID32lWe7ZHtREkTpwvUnaU1z860W9+UALuDqnYoDla8ce8o9LSsrymgRe2A/c4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JBh67Zop; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1786988319; c=relaxed/simple;
+	bh=Qbt1o0wMycTwJ1GL5oZ9HxzAVrSrIUG8nNgx5BoO0t8=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Stbor301F9b8JFWMn02kMIYvxlCFX9XfDHKXkGrjCjlSYESjx1gNhnOqq6Tzl80g9qJiU2Wy+Z9PKhV4wd40ElZVyKTOLwqvNUjbTriWwZm1hk/tAshs7MrlJFbjLHnq1KPsclEEaXnNFZOCqMbyek3SuZGFphTDu6iZVVPUP4c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=iEphzg4Z; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=kI1hBIfM; arc=none smtp.client-ip=202.12.124.144
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JBh67Zop"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67HFfWf44133352
-	for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2026 17:37:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=+PvGTjIho67rfRcE+AnjDbqYgzkmMI
-	Yux+CsQympSm8=; b=JBh67ZopbPKJV/grLtMXkWKCMJ7raP78oDwbsRIIvmcOwk
-	L/anI5E4medBiUlSzKBiF68lyggmvO3Y/coBU/D7M27QLMSSPlqjpQ/UJEd5rOqQ
-	2bd8+uB9VBbWX24bVDCzgbskLh0PJExUr1LAyvTzP6jNEEPBN5B6XlJVAzhEf3Tk
-	UkJogPPRINIqE1YeBF0wZoR0R7ian9HMqYPXKwdHJggoa1VtJxeZTpiPUtO+/PiB
-	PsJ3Dg+21bHCwNAlm/5BYpn4Y3pqxD3dIGxCVVNWI4vH96EHSAFyNWU3KNSPOXUb
-	yGkgbyfJ4RtpLCT3lNibynbSrUJjvD59qGs1Zc7Q==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2fsqkja8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2026 17:37:23 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67HHQI9Y005766
-	for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2026 17:37:22 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33xgy10t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2026 17:37:22 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67HHbIDb52756892
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 17 Aug 2026 17:37:18 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2524320043;
-	Mon, 17 Aug 2026 17:37:18 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E24D020040;
-	Mon, 17 Aug 2026 17:37:17 +0000 (GMT)
-Received: from localhost (unknown [9.111.2.7])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 17 Aug 2026 17:37:17 +0000 (GMT)
-Date: Mon, 17 Aug 2026 19:37:16 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: Mikhail Zaslonko <zaslonko@linux.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Subject: Re: [PATCH 0/2] s390/ipl: Fix missing re-IPL parm blocks handling in
- dump paths
-Message-ID: <ttjxcy4@ub.hpns>
-References: <c00-02.ttjpfvt@ub.hpns>
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="iEphzg4Z";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="kI1hBIfM"
+Received: from phl-compute-01.internal (phl-compute-01.internal [10.202.2.41])
+	by mailfout.stl.internal (Postfix) with ESMTP id 263F71D000CA;
+	Mon, 17 Aug 2026 13:38:36 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-01.internal (MEProxy); Mon, 17 Aug 2026 13:38:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1786988316;
+	 x=1787074716; bh=3DAjjQb1sVBvzUBxcb++grv68IomJr+QSHNKRlV19VY=; b=
+	iEphzg4ZhHOjAfOkGX3besjejUtPYhEcdTSSYQc8o6r/S4zqSL41LhJ2DBkvPfWP
+	VW6OIqApINrx88BsBkaArkKLmvqdm83x8gxJNMKgp18InyRmxP4jn9Bt4ZnXb5vm
+	zyN3xEDDKWjGb0hKyC5EhlF/Pa4DIie9DBSFKfRqWjO6gikPs8VWK589T23LG/uJ
+	nju0S9uiwJcbwk3YDcJTgnOficw3b1HC7e2fGUAdHt8D1E7M3PLSYJMpZAmXoRp8
+	dX2hJLEH0si3Fm0YCzZBpAnWfvQhgUao8S8DZzqyKrf91VCLX7QsLPlxkuOcbrgf
+	KxqpahQKDQ6hbM0scLLHSA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1786988316; x=
+	1787074716; bh=3DAjjQb1sVBvzUBxcb++grv68IomJr+QSHNKRlV19VY=; b=k
+	I1hBIfMszWYGbpOJxXC83sKBBBASOFj9mzNC47IKgTDH2af7VZs7LvLtQTKUt+LV
+	NrgjRwqiCUf5D2stuKmdTN9ZBd7Ls+yRfFLhiu5DW+N+bVKRJF/f+IbkIWwMhILZ
+	okX0RRDbV0n7C0aEqp16cp0g6dG5/p+JIhhLfLaSHqBMdi0cL1PKypZlxPpsGRK3
+	1gM2k0so7cZKMlcSpk9UBoLYZ2rjmp5XWDp789yr9AAPXFb0JzXqirqWqdcIx4HN
+	sPC80Reup9l16KxzgF4JdZkZARfb/TNwIhdF9s7Xp5he8aAgm4MP7bU6FWA2B7XP
+	LCzhgEdhNRwlTwuZCrC7A==
+X-ME-Sender: <xms:G0eDai7U-iU-eMkm5ShwEVZ6fWEVoYzzXuSV4bEqpKDbI2eF1THJcg>
+    <xme:G0eDaten3M1MG5IYK-c6dkAY_BDVNzUz4bopwgKYGhQQgUUG2zzqeCobub1tBbUg2
+    N-osOkbi36vSc1Iv3Unaou8mENfWsb6okJ95ro2hhLPHg_NVaHPFJo>
+X-ME-Received: <xmr:G0eDanyHvolmUdhPZCukHwCDSFbVDOyQ4XxrprT5nwAp5JLNKfSfMUoYQ-ZMGw>
+X-ME-Proxy-Cause: dmFkZTEUs5+Z6RTwXDFwlRbeEZQpPZd7HyiQhBCpOcR+tKedYEs4GVWuJWvSyRCEqf1F5t
+    WJcbK7jEqr/wPqbBbDl1SHLxk6Pm1ILnKBATdqim5tklQQRxc0oNBQH0YZWKrbmpCv5y1C
+    Q4uibz6iB8sqDi1I2olnx9jo2jGTu5xL84HnLknbukoDhqpaaGROYxq4GgNOCbFbcZPNHs
+    nnDRQhfxhE53ZPlbBSTOGQYoDpmazBn6EmWCvsU1zOfG0RMZnDX1t6ovfe8z9/eUzazIqS
+    Cj9JMQGnP6VZyYUdR/pMVttqFD1SFX0SNsGkk10wIvNhaGm53nKr6FDTB08E6lVG8aOpNx
+    to+FLRuHeNDzVKm8sDkt/T3kJ0hu/puyUg2jsgi5kS9exzVa7r7GJdQ79vj9ALCM5w+g0U
+    0JlnsLyBdBQwTzYszRXloLu4XUAL6Gs49S8XlJs2XYpgdD7CGLBh92FZPleLUT2rQpanQE
+    qkXDD4IP8JyHrKC8kwNaBGy5lHjWDWxBeifhWCKX0Q26NyOgoQQjQuOvawnuXAz2BVa1BB
+    rN8qpGCEkkcQrDcyB0/yxfUEGzWmPeR0totLxfJFi5nedB2vFMEBj23lMiuVQo0KIpB1Ki
+    T91V0olkJ2BLQRuhmkcLPxc4vsaNkcggaEmPbFH+a9E6NFi62vanD7CCse+A
+X-ME-Proxy: <xmx:G0eDaq9Qz7VgFkNrL_GSjigoackTdzj1IvlE0nIyEJr389ASWvfiNw>
+    <xmx:G0eDatyVi__Zlk-toGbzDY_1PI4kzQ6rzDPSAHPmksLOcf3h1JoHoQ>
+    <xmx:G0eDaqpOAILo5vvInK6g-K7znk82ru00ezoPwTwpDfEvrLnJviDZBA>
+    <xmx:G0eDauqxiGrq5_zms3T2Ho0xY5ZYd_vdvWKX93Rdq5f0wiKkEfY_qw>
+    <xmx:HEeDakly2mybasK09Sn2wFjJBuNV_X7E9S0YTgI9XFs28IeIBjWUx6MG>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 17 Aug 2026 13:38:35 -0400 (EDT)
+Date: Mon, 17 Aug 2026 11:38:32 -0600
+From: Alex Williamson <alex@shazbot.org>
+To: Farhan Ali <alifm@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-pci@vger.kernel.org, helgaas@kernel.org, schnelle@linux.ibm.com,
+ mjrosato@linux.ibm.com, alex@shazbot.org
+Subject: Re: [PATCH v20 2/3] vfio-pci/zdev: Add a device feature for error
+ information
+Message-ID: <20260817113832.08878292@shazbot.org>
+In-Reply-To: <ade2ea72-9491-4c03-8b67-08011c2c7328@linux.ibm.com>
+References: <20260630165553.725-1-alifm@linux.ibm.com>
+	<20260630165553.725-3-alifm@linux.ibm.com>
+	<20260717152650.3cfc2d10@shazbot.org>
+	<ade2ea72-9491-4c03-8b67-08011c2c7328@linux.ibm.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <c00-02.ttjpfvt@ub.hpns>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE3MDEzNCBTYWx0ZWRfX0UGvbD3cYID6
- cmoALKUM/wBUcGPStLYIDcRdCEn8yajkF9W5tLVeeicFrKLjUMBmD80vV7CkvL79WNM4UKq1RMz
- 2Mlys38cbI+S7JeXoy/hKJjnZoHerBhjqfjkq81CJ6uOS9ghkioLj5rim7XzTBLt9Meot4ivOs+
- WAeC2NP34qkl8I2S0mtnGnrUSSjsrJOXw7xEZlfv81RwcSvRDicTH9g8LBjVOKJeAH0AutnD8po
- jYK4Vr6inwFjzlBmNZQi0L0DhZBeRXT1wtXPt0D4/yMGzhDMeNNt9LoOfBIBUC9OMaqKcWJBwXx
- DgbMURM7cKr1aufJz4HaItmKE9zI5qfeeOItzP8ps6WpRHZ3QSwtmFTtw2guZZvrBul8Nu9VSwv
- cvcBLCOxjXkZRYr0TV8hSZocWoPPOGobRz5i71ZDEUNSBbQFVLviIrfqtdnBuFMCHKMevWjTleU
- zgleko9j85NUHgp2nhg==
-X-Proofpoint-ORIG-GUID: 7o4uLmbnMKmBtJbhlW5rXCoSfR2QDDLK
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE3MDEzNCBTYWx0ZWRfX0LqRQ11BGYtE
- Lnps7PrZDjHCAHULJ5GJOztkx38wXVufuwVH3KB/BiosRaNc20te4h2/ELI2MCWjJFlRt1AHHkF
- cw7dp0U5dOFd09/Y3E7DuLlS7xJHbdE=
-X-Authority-Analysis: v=2.4 cv=DJe/JSNb c=1 sm=1 tr=0 ts=6a8346d3 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=_wmGLrF05a6c7XaiEVkA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: 7o4uLmbnMKmBtJbhlW5rXCoSfR2QDDLK
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-17_02,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 spamscore=0 clxscore=1015 bulkscore=0
- suspectscore=0 malwarescore=0 phishscore=0 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608170134
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, Aug 13, 2026 at 01:06:52PM +0200, Vasily Gorbik wrote:
-> HMC FTP boot and QEMU direct kernel boot do not provide an IPL parameter
-> block. This can lead to NULL pointer dereferences during kdump and
-> stand-alone dump processing.
+On Thu, 13 Aug 2026 09:26:14 -0700
+Farhan Ali <alifm@linux.ibm.com> wrote:
+> On 7/17/2026 2:26 PM, Alex Williamson wrote:
+> >
+> > Otherwise LGTM and I can drop the initialization on commit if there's
+> > no other reason for respin.  I think we just need a branch from Bjorn
+> > to base this on once he's happy with the PCI series.  Thanks,
+> >
+> > Alex  
 > 
-> Fix the kdump and stand-alone dump paths separately. kdump continues
-> without a re-IPL parameter block, while the stand-alone dumper completes
-> the dump and halts.
+> Hi Alex,
 > 
-> Vasily Gorbik (2):
->   s390/ipl: Fix NULL deref in kdump without re-IPL parm block
->   s390/ipl: Fix NULL deref in dump_reipl without re-IPL parm block
-> 
->  arch/s390/kernel/ipl.c | 12 +++++++++---
->  1 file changed, 9 insertions(+), 3 deletions(-)
+> Bjorn has accepted the PCI patches and merged it to his pci/slot 
+> tree[1]. Would you be able to merge the vfio patches? I was able to 
+> apply these patches on 7.2-rc7 and didn't have any conflicts. But let me 
+> know if you need me to respin.
 
-Applied
+It wasn't clear that the pci/slot branch was going to get merged into
+pci/next given the discussion last week, but that has finally occurred.
+I merged Bjorn's branch, applied this, and pushed it out to the vfio
+next branch as hopefully the last changes for v7.3.  Thanks,
+
+Alex
