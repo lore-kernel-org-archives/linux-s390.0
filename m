@@ -1,194 +1,262 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6D88364959;
-	Mon, 17 Aug 2026 20:25:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786998340; cv=none; b=cI9hui1JkqD3CiQa9nnYzJYEfKTavOoKGPp5aKes/TjbvnDqa/EMy4kFwTdGloeb6uLR6w5fAcydPoV0Qgff9+lchzdLPsW60qFrKJn0/dWruBl/QOol4FzOAi7aTtjPPcE/cfXuBClP5rPzwIvF38evN3Cpc5cduT4pNj0u7rs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786998340; c=relaxed/simple;
-	bh=j+m8FScNrw6S3HokBQxtCXfgWKNRDLKE8fVX42I3UE0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GPPpTcrTv1nmMz2+qfdwJB7e3YjUeQ+/KGvF5/D6xZh9RuB+sYxN6eVBANGZ/XIap/5YimpwmiNcpfzfY2U+LtGqfVeeTAHCVcVOncX28gjrGHhNkmhDemFABvzCcrJHSxchRoaQkk13cnFxpCIB4llzuJOAsHJFaEm3qTpiFd8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=K9L6NIC5; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 567CD3E833E
+	for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2026 22:11:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.49
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1787004710; cv=pass; b=rS40aywztwnA3UF0bq/AP5DdU7MdNwi6Cr+5Ki1ha8vl8WW7S8rcyirZ4INCeFXDkdyBktA35p6diJ9pVI7HH59m/i2WwXkg00KA5Ny40vG5qrPNRaBRiRbM6Y/veUtviiexSD74fI2CFmfUGtZdq7+4SUUHfSgGoLBets8VcW0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1787004710; c=relaxed/simple;
+	bh=JuqRk2XlPGw6lxDyvK2jCFY+Vi0UuVT6u0VrH8mtBjY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=IjSOEinQ9xDQzzvQ1NkYcwhbpW+Bd2zITD/KocjCGkKg/bSt3DsHIH/7K+d3eTDb7jT2vNdJW4xW9+9Dtt9ZfZmIeFQ4v54n1PJNAIq1Yz85Z/8LVOnGdl9Mg6pZMqi/H7Yrqrao20HgtxVQknDksT0KrNh6ra+b47wQm9dRZec=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=acp5qJdP; arc=pass smtp.client-ip=209.85.221.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="K9L6NIC5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A2A51F000E9;
-	Mon, 17 Aug 2026 20:25:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1786998338;
-	bh=ek0FA+cvrSAiDanlRV/DKW5uqrXQgg5nOVKUL7iey9E=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=K9L6NIC5IHPF0/NzTLSEE5luHA78JEZR4hc2Z/ya/dIYXx4l+IrS0+Iv0JT9+sBTn
-	 +RsLnctVQk+C0YvIMq3e17XEJC7oeGXTcBikxt4eemrZgXQXM5M+qCaXv5ar+IV33k
-	 ynk7ZRyFdGY13Ksm0D1jGyGd694crrFBMeryqQgUeWEZUGQqqBG1i8jZ5TzG0bW8Ul
-	 4HCUxIM5o6NMgbBUveYfmo642L+HZeoV4CuZ2KAb57uojOAyMGbH/uFmGrMfwog5qv
-	 RGwmnYNbSTij/d9xVpEI2ahn0U/sJA2SvPGItTM9ifUN2tTbq3dk17SC3lyPB5+3dF
-	 rQmKHF6EjBjSQ==
-From: Jakub Kicinski <kuba@kernel.org>
-To: hexlabsecurity@proton.me
-Cc: Jakub Kicinski <kuba@kernel.org>,
-	wintera@linux.ibm.com,
-	davem@davemloft.net,
-	pabeni@redhat.com,
-	edumazet@google.com,
-	twinkler@linux.ibm.com,
-	linux-s390@vger.kernel.org,
-	hidayath@linux.ibm.com,
-	horms@kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net] net/iucv: only deliver HiperSockets frames to HiperSockets sockets
-Date: Mon, 17 Aug 2026 13:25:36 -0700
-Message-ID: <20260817202536.3590565-1-kuba@kernel.org>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260813-b4-disp-60433a46-v1-1-509e1200533e@proton.me>
-References: <20260813-b4-disp-60433a46-v1-1-509e1200533e@proton.me>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="acp5qJdP"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-47ddf7b09e5so3982008f8f.1
+        for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2026 15:11:48 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1787004706; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Xq1BFNaFVwA4c2fPkSoKppIjw2kAoQVq1YLRGxvIHmDO7GJ2jEWgrsNjisejbDwz8I
+         Ceo38z09FbcaoE3VbPUR88vHsltyeKUWNS97zzMfKWIiNt/NsiVOMUIUD7gqt6hvjyQ5
+         14IdvU16vcYIC8nkZlv28Hh4O1tWayT5yuiolDHnPvpXXOSIdPJn3fswMlN8aTR9rKU4
+         oqfIGLQlLsizrL/w4ymAkjVpDbk0PuvJIhTDc/r5PygBohuoHBQ5/WR5bL+yqAqukac4
+         +b8CGPdYqv7kbwaAC3G2KUDbCZYI1o/6FBfxkANY/pBLwSKqw0DinJa221nuSQ89J1n5
+         HBSg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=MuUlcuNt+uC+rzkXIVye+jGcsTwTkO/x89Y77r9f6y4=;
+        fh=a8qsJ4/+N1Zs1f3FKXhGYoPmgQp5CtmsWN2c0LOSMx0=;
+        b=Wx5YIZzd8n5S+CQctUSMuCOFicXb7YeJFvjFb/2gKxqoRR8PFhlpI7QRploN9/Sk4Q
+         S9RBOsBNn4pBM4h/t97ZlXySIS+iFNLT2RxSgrwsKH1qViynr9ZNQAtucUyk4885pvb8
+         Yke3KRHvREx2QWnDVw8NprIZMVPxcZRFJyIgVf81mykPWzDug2N/IMO92AZzNgsQcWsc
+         q3MIstvFz/7HUTGw0OA8+ynXwOhC9bj5a0zHX+ID7QGEOim+WnCtGzWWXLUKbbAuL2pY
+         GbR46U0m75VKIAGG+TDcUQyJRlWUi8bDNimmIAZ5n1nKoJYb5wR2OokRX2BFwTGQhcrS
+         1Vtw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787004706; x=1787609506; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=MuUlcuNt+uC+rzkXIVye+jGcsTwTkO/x89Y77r9f6y4=;
+        b=acp5qJdPLxfQw0fGR6vrJB5qTe1crZ/PhOMuUKOfbQILgFp3b02RC8NY7eKExWhwlW
+         b8Q8ZrHP/O/qBtOTxCg3OxjzljUN5peTdkS2VdpFaYKTPc+3m62og/9M+XBCDdSYfkJ5
+         DOanS5cMwfGaoriVSMH1V2ur9DiBPKdnkWhURMDV6NtRWjTD+zZQAGiKWX8BAPY0wCyc
+         w+P6ytHzpy/+Vq+/gvcXpU8+BrFlriNxuFMCWwmT3dpXcHC6TeLexcdmN8W1+y/I4eLR
+         cdfYFWE6Vr6en8Yq60rK84Ju8mRTu3VNS+qF22aZD+VyhfwcEYp4qW1RQYruCTu8bR9h
+         jpxQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787004706; x=1787609506;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=MuUlcuNt+uC+rzkXIVye+jGcsTwTkO/x89Y77r9f6y4=;
+        b=Wd97KZKdSO5v2ghiv1sAuGUm8IDMqgajwXr911pTtcMfYTkpTPXG0oFNAZM2s7aYnx
+         I2mBKhQ0eEmao+7ZeFkLeE9FPNF0MaVo/lA0lBdWux87kmZAP+4zNdWAdhjcEKlvyi72
+         C5dmWH+Cybg9Dc63oWIHER6gP4//p8sVHP9fxZLf7RD6SjFBoJmYZ58n9rHveBGwSwDu
+         3uTR4xAUf84m/Xorcnxy5dTD4JaTtryezxqxY9tA6Lf8wZrbU8c1Wbw/zdNRQF/NlWPl
+         OjuQn46ZGPcCrqkQznNiJ9TEtKjMrRCYC1g4H48/TKueuecgGvegJNHM0BYfkOA9BLmp
+         aafg==
+X-Forwarded-Encrypted: i=1; AHgh+Rpg3ZPLfReajXXTDBBXv1SIoHQmxpQiHuPwx6Zbz7YTFAIcfqjWveh2zLfB7bZk+19ewd6Ic0/xSSRU@vger.kernel.org
+X-Gm-Message-State: AOJu0YydmyDiT2FLTsanD5DM3FCo61R7yndcGJBb9I6J8/J7aWnx+koz
+	B5o94evgT8qMusb2TtBdDsE0QbYOJVhXn015mUXGMx8zFbp+yHMsSyr7Gj0jX0MyIUfDou+kGGg
+	8huOfH/lPdWArVxXU+T+d9EgZrgshSF0=
+X-Gm-Gg: AR+sD10XeIUHERrSq/bzV8s3YTe78ZN1OsjCwIf+ZS/1ixIKSWax4Xj8VeLZmCFHZHL
+	OSrqd3jqB1UcM4TkzN/+AhcbeMnk/LVMRrO8IurwWdHnTyO7aYFqn143nMR55R4jbsH7fAYUVu7
+	UpZHU2xzF6HUDGmEB+jwq0q4ZVDwWG3F/iCeSLtZDGbt00emraiBBpqCswXJOPUU+v19KRFJSFb
+	awTa8lSWH9GBMQw34TgX2jAfO+7qcVg76JlJezo/pyNEFXJx9Jzz+WRp1xc4Q/NnkjreKOGfKLL
+	dBxiRyRK+Uog1pc3zHS2AowzxU4kWALDlfhKHnP8KSTdMa4VkNcggSPvhIi54r1JENfkL7bNbT9
+	NTgU=
+X-Received: by 2002:a05:6000:230f:b0:47f:f1ab:9075 with SMTP id
+ ffacd0b85a97d-4816074ccd8mr39569778f8f.20.1787004706313; Mon, 17 Aug 2026
+ 15:11:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <cover.1786956464.git.agordeev@linux.ibm.com> <52c9be0cf71a8896a5d76c148c38fb24a2005dd9.1786956464.git.agordeev@linux.ibm.com>
+In-Reply-To: <52c9be0cf71a8896a5d76c148c38fb24a2005dd9.1786956464.git.agordeev@linux.ibm.com>
+From: Andrey Konovalov <andreyknvl@gmail.com>
+Date: Tue, 18 Aug 2026 00:11:34 +0200
+X-Gm-Features: AcwNN1UPAiqWXSnHKbEWgYvXv-PgfhXyzAJo9d_a04N2AaWGsS3uQiqqfo9-6Eo
+Message-ID: <CA+fCnZfMkPDVyy0t9W-3d55M2ba9wXoRyzj2EWWYLEW=QO3zWg@mail.gmail.com>
+Subject: Re: [PATCH v7 3/4] mm/kasan: Introduce helpers for lazy MMU mode sanitizer
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrey Ryabinin <ryabinin.a.a@gmail.com>, 
+	linux-s390@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+	kasan-dev@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This is an AI-generated review of your patch. The human sending this
-email says "Looks like other places need a fix, too. Please fix them
-in one patch, failing that in one series."
----
-net/iucv: only deliver HiperSockets frames to HiperSockets sockets
+On Mon, Aug 17, 2026 at 1:33=E2=80=AFPM Alexander Gordeev
+<agordeev@linux.ibm.com> wrote:
+>
+> Provide helpers that allow architectures implement
+> illegitimate PTE direct accesses while the lazy MMU
+> mode is enabled, such as:
+>
+>         pte_t pte =3D *ptep;
+>         *ptep =3D pte;
+>
+> By contrast, these would have to be:
+>
+>         pte_t pte =3D ptep_get(ptep);
+>         set_pte(ptep, pte);
+>
+> The direct PTE accesses pose a real issue on s390.
+>
+> Suggested-by: Ilya Leoshkevich <iii@linux.ibm.com>
+> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> ---
+>  include/linux/kasan.h     | 19 +++++++++++++++++--
+>  mm/kasan/common.c         | 14 ++++++++++++++
+>  mm/kasan/kasan.h          |  2 ++
+>  mm/kasan/report_generic.c |  3 +++
+>  4 files changed, 36 insertions(+), 2 deletions(-)
+>
+> diff --git a/include/linux/kasan.h b/include/linux/kasan.h
+> index bf233bde68c7..1aa4d9dd2485 100644
+> --- a/include/linux/kasan.h
+> +++ b/include/linux/kasan.h
+> @@ -6,6 +6,7 @@
+>  #include <linux/kasan-enabled.h>
+>  #include <linux/kasan-tags.h>
+>  #include <linux/kernel.h>
+> +#include <linux/pgtable.h>
+>  #include <linux/static_key.h>
+>  #include <linux/types.h>
+>
+> @@ -35,8 +36,6 @@ typedef unsigned int __bitwise kasan_vmalloc_flags_t;
+>
+>  #if defined(CONFIG_KASAN_GENERIC) || defined(CONFIG_KASAN_SW_TAGS)
+>
+> -#include <linux/pgtable.h>
+> -
+>  /* Software KASAN implementations use shadow memory. */
+>
+>  #ifdef CONFIG_KASAN_SW_TAGS
+> @@ -134,6 +133,20 @@ static __always_inline void kasan_poison_slab(struct=
+ slab *slab)
+>                 __kasan_poison_slab(slab);
+>  }
+>
+> +void __kasan_poison_pte(pte_t *pte, int nr);
+> +static __always_inline void kasan_poison_pte(pte_t *pte, int nr)
+> +{
+> +       if (kasan_enabled())
+> +               __kasan_poison_pte(pte, nr);
+> +}
+> +
+> +void __kasan_unpoison_pte(pte_t *pte, int nr);
+> +static __always_inline void kasan_unpoison_pte(pte_t *pte, int nr)
+> +{
+> +       if (kasan_enabled())
+> +               __kasan_unpoison_pte(pte, nr);
+> +}
+> +
+>  void __kasan_unpoison_new_object(struct kmem_cache *cache, void *object)=
+;
+>  /**
+>   * kasan_unpoison_new_object - Temporarily unpoison a new slab object.
+> @@ -414,6 +427,8 @@ static inline bool kasan_unpoison_pages(struct page *=
+page, unsigned int order,
+>         return false;
+>  }
+>  static inline void kasan_poison_slab(struct slab *slab) {}
+> +static inline void kasan_poison_pte(pte_t *pte, int nr) {}
+> +static inline void kasan_unpoison_pte(pte_t *pte, int nr) {}
+>  static inline void kasan_unpoison_new_object(struct kmem_cache *cache,
+>                                         void *object) {}
+>  static inline void kasan_poison_new_object(struct kmem_cache *cache,
+> diff --git a/mm/kasan/common.c b/mm/kasan/common.c
+> index b7d05c2a6d93..94d106094989 100644
+> --- a/mm/kasan/common.c
+> +++ b/mm/kasan/common.c
+> @@ -163,6 +163,20 @@ void __kasan_poison_slab(struct slab *slab)
+>                      KASAN_SLAB_REDZONE, false);
+>  }
+>
+> +void __kasan_poison_pte(pte_t *pte, int nr)
+> +{
+> +       if (IS_ALIGNED(sizeof(*pte), KASAN_GRANULE_SIZE))
+> +               kasan_poison(pte, sizeof(*pte) * nr, KASAN_LAZY_MMU_PTE, =
+false);
+> +}
+> +EXPORT_SYMBOL_GPL(__kasan_poison_pte);
+> +
+> +void __kasan_unpoison_pte(pte_t *pte, int nr)
+> +{
+> +       if (IS_ALIGNED(sizeof(*pte), KASAN_GRANULE_SIZE))
+> +               kasan_unpoison(pte, sizeof(*pte) * nr, false);
+> +}
+> +EXPORT_SYMBOL_GPL(__kasan_unpoison_pte);
+> +
+>  void __kasan_unpoison_new_object(struct kmem_cache *cache, void *object)
+>  {
+>         kasan_unpoison(object, cache->object_size, false);
+> diff --git a/mm/kasan/kasan.h b/mm/kasan/kasan.h
+> index fc9169a54766..1a2d18cdb21d 100644
+> --- a/mm/kasan/kasan.h
+> +++ b/mm/kasan/kasan.h
+> @@ -144,12 +144,14 @@ static inline bool kasan_requires_meta(void)
+>  #define KASAN_PAGE_REDZONE     0xFE  /* redzone for kmalloc_large alloca=
+tion */
+>  #define KASAN_SLAB_REDZONE     0xFC  /* redzone for slab object */
+>  #define KASAN_SLAB_FREE                0xFB  /* freed slab object */
+> +#define KASAN_LAZY_MMU_PTE     0xFD  /* direct pte access in lazy mmu mo=
+de */
+>  #define KASAN_VMALLOC_INVALID  0xF8  /* inaccessible space in vmap area =
+*/
+>  #else
+>  #define KASAN_PAGE_FREE                KASAN_TAG_INVALID
+>  #define KASAN_PAGE_REDZONE     KASAN_TAG_INVALID
+>  #define KASAN_SLAB_REDZONE     KASAN_TAG_INVALID
+>  #define KASAN_SLAB_FREE                KASAN_TAG_INVALID
+> +#define KASAN_LAZY_MMU_PTE     KASAN_TAG_INVALID
+>  #define KASAN_VMALLOC_INVALID  KASAN_TAG_INVALID /* only used for SW_TAG=
+S */
+>  #endif
+>
+> diff --git a/mm/kasan/report_generic.c b/mm/kasan/report_generic.c
+> index f5b8e37b3805..489d4a8d6902 100644
+> --- a/mm/kasan/report_generic.c
+> +++ b/mm/kasan/report_generic.c
+> @@ -113,6 +113,9 @@ static const char *get_shadow_bug_type(struct kasan_r=
+eport_info *info)
+>         case KASAN_SLAB_FREE_META:
+>                 bug_type =3D "slab-use-after-free";
+>                 break;
+> +       case KASAN_LAZY_MMU_PTE:
+> +               bug_type =3D "lazy-mmu-pte-access";
+> +               break;
+>         case KASAN_ALLOCA_LEFT:
+>         case KASAN_ALLOCA_RIGHT:
+>                 bug_type =3D "alloca-out-of-bounds";
+> --
+> 2.53.0
+>
+> --
+> You received this message because you are subscribed to the Google Groups=
+ "kasan-dev" group.
+> To unsubscribe from this group and stop receiving emails from it, send an=
+ email to kasan-dev+unsubscribe@googlegroups.com.
+> To view this discussion visit https://groups.google.com/d/msgid/kasan-dev=
+/52c9be0cf71a8896a5d76c148c38fb24a2005dd9.1786956464.git.agordeev%40linux.i=
+bm.com.
 
-This adds a transport test to the socket lookup in afiucv_hs_rcv() so that
-an inbound HiperSockets frame skips sockets bound to the classic z/VM IUCV
-transport.  Selection previously used only the four 8-byte name fields from
-the frame header.
+Hi Alexander,
 
-> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-> index ea047bab65e7c..5fb6793b9a64a 100644
-> --- a/net/iucv/af_iucv.c
-> +++ b/net/iucv/af_iucv.c
-> @@ -2079,6 +2079,8 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
->  	sk = NULL;
->  	read_lock(&iucv_sk_list.lock);
->  	sk_for_each(sk, &iucv_sk_list.head) {
-> +		if (iucv_sk(sk)->transport != AF_IUCV_TRANS_HIPER)
-> +			continue;
+Should all this be limited to only s390?
 
-[Severity: Medium]
-
-This isn't a bug introduced by this patch, but should the other lookup over
-iucv_sk_list get the same treatment?  iucv_callback_connreq(), which handles
-inbound classic z/VM IUCV connect requests, still matches on name alone:
-
-net/iucv/af_iucv.c:iucv_callback_connreq() {
-	sk_for_each(sk, &iucv_sk_list.head)
-		if (sk->sk_state == IUCV_LISTEN &&
-		    !memcmp(&iucv_sk(sk)->src_name, src_name, 8)) {
-			iucv = iucv_sk(sk);
-			break;
-		}
-}
-
-On the configuration the commit message describes (pr_iucv set and a
-HiperSockets device present, so both transports coexist), can a socket bound
-through the HIPER branch of iucv_sock_bind() be picked here?
-
-If so, the child it builds looks inconsistent:
-
-net/iucv/af_iucv.c:iucv_callback_connreq() {
-	niucv->transport = AF_IUCV_TRANS_IUCV;
-	...
-	memcpy(niucv->src_user_id, iucv->src_user_id, 8);
-}
-
-That is transport AF_IUCV_TRANS_IUCV with src_user_id copied from a HIPER
-parent, i.e. the device hsuid, while the vm_bind path of iucv_sock_bind() and
-iucv_sock_autobind() always set src_user_id to iucv_userid for classic
-sockets.
-
-After this change the two directions disagree about whether transport is part
-of the demux key.  Was making only the HiperSockets side transport-aware
-intentional?
-
-[Severity: High]
-
-This is a pre-existing issue, but since this hunk is the lookup in question:
-should the ingress device and its namespace also be checked here?
-
-afiucv_hs_rcv() never uses its dev or orig_dev arguments, and the handler is
-registered globally:
-
-net/iucv/af_iucv.c
-	static struct packet_type iucv_packet_type = {
-		.type = cpu_to_be16(ETH_P_AF_IUCV),
-		.func = afiucv_hs_rcv,
-	};
-	...
-	dev_add_pack(&iucv_packet_type);
-
-With no .dev and no .af_packet_net, ptype_head() files this in the global
-ptype_base[], and __netif_receive_skb_core() delivers ETH_P_AF_IUCV frames
-from any net_device in any namespace:
-
-net/core/dev.c:__netif_receive_skb_core() {
-	deliver_ptype_list_skb(skb, &pt_prev, orig_dev, type,
-			       &ptype_base[ntohs(type) &
-					   PTYPE_HASH_MASK]);
-}
-
-Meanwhile every AF_IUCV socket lives in init_net:
-
-net/iucv/af_iucv.c:iucv_sock_alloc() {
-	sk = sk_alloc(&init_net, PF_IUCV, prio, &iucv_proto, kern);
-}
-
-Comparable ptype handlers filter at exactly this point (net/x25/x25_dev.c and
-net/ieee802154/socket.c both test the namespace).
-
-After this patch, is the only selection criteria still transport plus the four
-attacker-supplied 8-byte header fields, with no comparison against
-iucv->hs_dev or sk->sk_bound_dev_if, both of which iucv_sock_bind() sets for
-HIPER sockets?
-
-	sk->sk_bound_dev_if = dev->ifindex;
-	iucv->hs_dev = dev;
-
-Two things seem to follow.  First, can a matching frame arriving on device B
-be delivered to a socket bound to device A, with afiucv_hs_callback_syn()
-then creating a child that inherits the listener's device and replies out
-through A?
-
-net/iucv/af_iucv.c:afiucv_hs_callback_syn() {
-	nsk->sk_bound_dev_if = sk->sk_bound_dev_if;
-	niucv->hs_dev = iucv->hs_dev;
-}
-
-Second, can a process holding CAP_NET_RAW in an unprivileged user and net
-namespace send a raw frame with ethertype 0xFBFB on its own lo and reach host
-HIPER sockets?  loopback_xmit() re-derives skb->protocol via
-eth_type_trans(), and a destination MAC of all zeros matches loopback's
-dev_addr so pkt_type is PACKET_HOST.  Reaching the callbacks would mean
-afiucv_hs_callback_synfin() and afiucv_hs_callback_fin() forcing
-sk_state = IUCV_DISCONN with sk_state_change(), afiucv_hs_callback_rx()
-queueing injected bytes on a connected socket:
-
-net/iucv/af_iucv.c:afiucv_hs_callback_rx() {
-	if (skb_queue_empty(&iucv->backlog_skb_q)) {
-		if (__sock_queue_rcv_skb(sk, skb))
-	...
-}
-
-plus afiucv_hs_callback_win() applying a caller-chosen window through
-atomic_sub() on iucv->msg_sent, and afiucv_hs_callback_syn() adding children
-to a listening socket's accept queue.
-
-Given the subject line says "only deliver HiperSockets frames to HiperSockets
-sockets", would it be worth either adding a dev_net(dev) and device test in
-the same loop, or noting in the commit message that this path stays open?
-
-The submission's own trailing notes rely on this vector when arguing that
-reach extends beyond the HiperSockets LAN, so the recorded message and the
-code appear to differ on what is being closed.
--- 
-pw-bot: cr
+Thanks!
