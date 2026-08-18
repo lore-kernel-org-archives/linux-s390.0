@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC2FA47DF95;
-	Tue, 18 Aug 2026 17:25:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BD2447D93E;
+	Tue, 18 Aug 2026 17:25:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787073918; cv=none; b=nVWYLUiRN2AFeqBKZMYz19/zfXiOLgqoHl6vpNi7IU83/3kFoKhyv8otYEN+M5gieImURYwI2VLsOocuflqZbiSsy3nVkl9KvxyEB0JOqdaetXS/ejETA/rP+zUL6qdMI6iGz2uTPM0SoOUTO7QCjsplQhFI7SPLcFx/lI329MY=
+	t=1787073944; cv=none; b=T/WIeh/4KawO5bRzOhgrH/kwXNEWQHmuJ1KJs3x3f4OR6Ec5VwC3NI+W27TCaI1Yz+SLd/j8CPRs3iIBK5PyfMmFCCzZCl0V7ADMSvwW0eMTurP5CRul6Jnk8NwKDt7C0DjxmymnUSxaThiB7Hs9RglMgpRcSd/el975/LxrHC8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787073918; c=relaxed/simple;
-	bh=UsyiP6uczL8lxNasR7yxPsTKZ8/aZxcPz1JoV+Bk3Dc=;
+	s=arc-20240116; t=1787073944; c=relaxed/simple;
+	bh=4xEjqrHME0Rdv4ZSHCAyk0TvYpiG26ykLcQ95PV/iO0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=vB2F/pkPkQ1efKM0zYJZeZMJhX/vrBOnHRMEnemg1UMDe+rkstSRM3YsmV5uf31/UU+3ISuM+HR/5HMnMr173tZ6SryFh+no60bzj+Xzk9GGql4biG+Vzf+7CHt9D5nSL+ZwEzCZhKYIN4PQ8mrohGhuRhaSW10C8vIDBtZ76RQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HHYuHZuq; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=q36MYw7LXXOk1dbtJ83yaARHygP4+IGVFxNtrW9SXCJavRDbDNVKi4LSzq8xUEegwT3JrQQVErgio9wPGSS9rUnwFHaMescjFrYRpIF+vdiTT0vaE1f278XiQw0bhgGrZFvKS50YRDVQGy41naoIDAcAbUBBpd5qAiGAfobJJgg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KKnREi4q; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HHYuHZuq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A28E1F00A3A;
-	Tue, 18 Aug 2026 17:25:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KKnREi4q"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE5371F000E9;
+	Tue, 18 Aug 2026 17:25:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787073917;
-	bh=AShWrs852J7IkStssEoEst3JiywPYlSikQUVe7RTkRk=;
+	s=k20260515; t=1787073942;
+	bh=/tRX5gadGxF2TDYvvyHApdMb0Nud4dCL15xxVLvrQqs=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=HHYuHZuq5zMXG+8OeZcsNEd1kunHyn8X+QRRdpazCD+PrQnY2MD+Ve9C7MoKwru4x
-	 dbBzkW2cGWbBN3m3D8evXSCxOc8q2AyH3nSXNiWo+xrK2TdFxAIivDqioG1XAtwxtF
-	 aMCegUXmfY55bD/l0MdwxRF/+47ynTjAj26vHT4KSJZRH0qcQ7HSLgqNnkGJ4K3+/W
-	 crGr6GNfZ3DAGAYgRt1N7RBfRYxh3dfuxofB0XlSNCLCsppsmpUwmMlxXD5gurFGnn
-	 9/OAXbxSo02M2icN//fOoDQwicorrXfhbp04ZPJhViHl6uwc6nkSncuJyuWweMLpgg
-	 uyhaHGoSxMwtA==
-Message-ID: <55d92b3e-ad3f-464f-b2db-a2552353223e@kernel.org>
-Date: Tue, 18 Aug 2026 19:25:07 +0200
+	b=KKnREi4qVhs1cPQdDtJRXNlNIIncHan3KC3+WcJvTRXesZ3TH9rRU+AWP9o/oNQFs
+	 84EN3gCly/2lP52XrRxXa1qYmuDx9pw6ENIhBrPcvWTYd0pbpgmxCS0C+tcYK8+4C3
+	 ET/WibVzGpu1HEF0tcPFrhW973ScvbeeQjiUrk/GaODsKh8hTeTIhJpKjwg7vWSh1F
+	 G87Nz/h1O/fLChNcDf4BKW2aleDSySJSp6StLJjzJ+pM5Yjter/WD50Dh3WNP/GnV3
+	 59faTBhguy6JJXCyJpd6kTBJVxLJPOHtnW1HjFbm02talOyJARmlStEWzG7OXfrxqt
+	 aqVzSoiBKdy5Q==
+Message-ID: <a467da8f-7a84-47c0-8172-4f2e23093f79@kernel.org>
+Date: Tue, 18 Aug 2026 19:25:31 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,7 +35,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC V3 1/8] mm: Make ptrval_to_str() generally available
+Subject: Re: [RFC V3 2/8] mm: Stop using pxd_ERROR()
 To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org,
  akpm@linux-foundation.org
 Cc: Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker
@@ -53,7 +53,7 @@ Cc: Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker
  linux-um@lists.infradead.org, linux-arch@vger.kernel.org,
  linux-kernel@vger.kernel.org, Lorenzo Stoakes <ljs@kernel.org>
 References: <20260818040041.1891769-1-anshuman.khandual@arm.com>
- <20260818040041.1891769-2-anshuman.khandual@arm.com>
+ <20260818040041.1891769-3-anshuman.khandual@arm.com>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -100,14 +100,19 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260818040041.1891769-2-anshuman.khandual@arm.com>
+In-Reply-To: <20260818040041.1891769-3-anshuman.khandual@arm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 8/18/26 06:00, Anshuman Khandual wrote:
-> Move ptrval_to_str() inside a header thus making the helper more generally
-> available for new users which are being added later. While here, also move
-> another related string size macro PTVAL_STR_MAX inside the header as well.
+> pxd_ERROR() has been used in generic mm just to print the page table entry
+> in pxd_clear_bad() before clearing those out with pxd_clear() later. These
+> pxd_ERROR() macros have been provided by all platforms which basically did
+> the same thing.
+> 
+> Make pxd_clear_bad() use recently added ptval_to_str() instead for printing
+> page table entries thus completely dropping dependency on platform provided
+> pxd_ERROR() macros which can then be dropped off later on.
 > 
 > Cc: Andrew Morton <akpm@linux-foundation.org>
 > Cc: David Hildenbrand <david@kernel.org>
@@ -116,9 +121,6 @@ On 8/18/26 06:00, Anshuman Khandual wrote:
 > Cc: linux-kernel@vger.kernel.org
 > Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 > ---
-
-I would have placed that into include/linux/pgtable.h. Any particular reason for
-mm_types?
 
 Acked-by: David Hildenbrand (Arm) <david@kernel.org>
 
