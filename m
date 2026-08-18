@@ -1,173 +1,187 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C80F377558
-	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 16:24:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13D2447D44A;
+	Tue, 18 Aug 2026 16:25:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787070287; cv=none; b=b74NuUjEVJvsD4nkjYk9IL0Xs+P3FlFjDRBPvpLyu9U1uKw0ygoPJhrHqbvk0VsRIADCckxjEZfg4AfWF6G1DzIKq9NYsRbcFSdPnGBoxjrC0BOyPX6OPSe56xqUA5JLMGWRGuJIH2mCz3oz+Z2VG1oCp3q9dMnob0Dm58IerWo=
+	t=1787070326; cv=none; b=STpVPakYKqYVZXfua8F5mY/htz2gJdsINb7sgHwoNYhvxD+tbzDSirZroBn3LdE2FsV2n4pHDVKIjVi+1aeYhAPcqaKqcGajYP40h4wQ8dCnJJXBmB8kANaLH//VtNr5ixasV8DO9KPtHWvEDKuvp+imwR12+csxXL66lNm2Vak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787070287; c=relaxed/simple;
-	bh=ZZWOVL8y3TaiImGmQvdq0ahw2oFgElS4OpjexRVVOfk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OQcuLK03DXFxA9A3IQZ0yU9R9kbGnKwWki3kPiROPf1+JK/rkDSTDmT87rAnzwh9+I0hDmuqIVXAbWSoXbWXt7wSEiRqVmCmPhfHncXhKFLaQPXbmjFTFedA5imnH9L3BAd3cpsXXqwDz+qP8+XND0uD2UFsWBnid4Nb2MeiHD0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rmqbXWFa; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1787070326; c=relaxed/simple;
+	bh=I4L4uDLHcDem7WX9mfgTUIIEsDETW1137wzmuRDy8sM=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=iPmdy9bmgJ2UzpCia0KYuIwkijx317vlLP+Li286efl8WsEHJznXGDBs1+4aX644nisZm1XbKAZFOUOeDNn5jwVJTKt4/4Uq13X8VC9wJXjw4SROY6Awewy0HypxQlJEbcMeexuTxHeNDe1Ef96JUnL0ZXus2ZajbpVQciwpL4k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i96ySK8i; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rmqbXWFa"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IE3ko92831516
-	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 16:24:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=5lhl/FV5TPRon2wQJDXGeErzEBMeFvHv80EYRWZwZ
-	T4=; b=rmqbXWFas+l+iTooWXxS5NaScdIWfVSW0imM0DfD9WUL8J0tVmkfiv5Gp
-	+XhcA8QBBzlt2UtVMC73uCTUTzeFdRnyV/qMcE2tIRoRQY7gOQIziuNDXqISl+Oi
-	JGxSUtzkpDLAT08mZXNDF9psOKVTeTDOGehMBGgfQaPL/E23U5iIk/8fy2HH8mg9
-	uRjNIuKsr7eoGqS1fw708M0gkRWOMdgYyuC8NTNnYSrfMJFAGzkR7y3MHDt0Q1Tl
-	X9bZ07OgF9DIDg4l8u4ci0F7I+TEkozEwVH6c5GIazhWe7OdIbAJ9FM/Y3Ak/n8E
-	i5TY28Fs5ImpbFovTDmuvlrD7+1jg==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2fsqsdpe-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 16:24:45 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IGBKa5015172
-	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 16:24:44 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g34ngbyd7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 16:24:44 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IGObGA51970348
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 18 Aug 2026 16:24:37 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BD31620043;
-	Tue, 18 Aug 2026 16:24:37 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9EB4E20040;
-	Tue, 18 Aug 2026 16:24:37 +0000 (GMT)
-Received: from b315lp23.lnxne.boe (unknown [9.87.84.240])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 18 Aug 2026 16:24:37 +0000 (GMT)
-From: Joseph Cathcart <josephc@linux.ibm.com>
-To: linux-s390@vger.kernel.org
-Cc: eoin.mcnamara@ibm.com, iii@de.ibm.com,
-        Joseph Cathcart <josephc@linux.ibm.com>
-Subject: [PATCH v2] s390/iomem: register initrd as an iomem resource when retain_initrd is set
-Date: Tue, 18 Aug 2026 18:24:36 +0200
-Message-ID: <20260818162436.12383-1-josephc@linux.ibm.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i96ySK8i"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABCEE1F000E9;
+	Tue, 18 Aug 2026 16:25:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787070324;
+	bh=7Y7qqLPkyUuMi6qyL5GxK2thHtwUGv3GHWTN3DmEezQ=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=i96ySK8irJGN7kDYSuR6/cyVpTEYRyD3PKF3scrOjjIRHJ+N2kjkfZ6fIZ+bheu/D
+	 ASWOhbis+NFeMN1heh2njYn5ieZr8Y5YihY+SfAoDMBwJK3mU4fd+mLxs78wF1grzb
+	 IEkJeah/FmcJxhBCAWWrPYngt8B9vVtAd+52gzP0iY1lLLhHpNoNmgXq/ZRGoMjGPF
+	 OBEmA8pM4o8B+Ht8nnkZ++bK2iyypb/sJi8eC+sHnRAdte59oB73SURtIdq7XyDynN
+	 aV05OG+tiyBlMPX8TFzSMfvLMBoKKyby+7HP6DQWmOWkSZ3AblzsrzCat/yBwFIiM4
+	 G1SR5rgls4D8w==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <maz@kernel.org>)
+	id 1wwMcs-0000000GhVj-1n64;
+	Tue, 18 Aug 2026 16:25:22 +0000
+Date: Tue, 18 Aug 2026 17:25:21 +0100
+Message-ID: <867bln5rbi.wl-maz@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: kvm@vger.kernel.org,
+	kvmarm@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Grapentin <gra@linux.ibm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@kernel.org>,
+	Friedrich Welter <fritz@linux.ibm.com>,
+	Fuad Tabba <tabba@google.com>,
+	Gautam Gala <ggala@linux.ibm.com>,
+	Hariharan Mari <hari55@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Hendrik Brueckner <brueckner@linux.ibm.com>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Joey Gouly <joey.gouly@arm.com>,
+	Nico Boehr <nrb@linux.ibm.com>,
+	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+	Oliver Upton <oupton@kernel.org>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Will Deacon <will@kernel.org>,
+	Zenghui Yu <yuzenghui@huawei.com>
+Subject: Re: [PATCH v6 10/33] arm64: Share arm64 headers with s390
+In-Reply-To: <20260818140901.21865-F-seiden@linux.ibm.com>
+References: <20260812153631.3376090-1-seiden@linux.ibm.com>
+	<20260812153631.3376090-11-seiden@linux.ibm.com>
+	<865x1e17kb.wl-maz@kernel.org>
+	<20260818140901.21865-F-seiden@linux.ibm.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDExOCBTYWx0ZWRfX+J/6H1uondFC
- iw+wG7BLNbKtn3GHHdBszkqIgY0XZnj3fuZC6JFmSrt4bzemiKBAdz7DIwO6tNNTPtMKXORIy/7
- e/p66BtZ0v7BWMMNQdo4yjVlu5J2oc/BdrZr7L6uUib6VDyebVqZVJFNuhBCo/tfIcIcrLbuA/M
- 9xi37dLdwQMaP9zq94Csvhwnd3oMj6nxrZJZzXJy54p7EZFbdhRHEghThj28b9DW1uTwOlQfAgi
- cMJwTDvTJHgMpJhfuv3+UHwjGqZchEqcXQBoJ43P70HkHyVMr4+i/dRQ9CAK8H5YD9W556rkdKW
- DxTiVpQ1Zz9BmMUzaPymSEORuMOLSzpv+3fjUUrT+I5CH9gLwRmKM3X8usa/mVznAWwcQNwMl4G
- dve4PKsHbe4JdbRgIEF+8txwHKxjSF6DLPNczgQxow6NMNlbpSu8qtHQmxMuMz3MiXwVcBzZz0M
- 8B21aJJNcd92Tbmf2SQ==
-X-Proofpoint-ORIG-GUID: YBqcV4-W-MIr3NtEJwOjMA_BZSjg8r6d
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDExOCBTYWx0ZWRfX2WBXGBwAnff9
- 0TOT5LuIpLLIlZSRw/sMKtTvyLE4aUGfiy4j4nFU1GYNswUqBZxfw5JUv/03782lu1N0Cn9RHju
- MzBlkV/oWvxTiEAtNtSNMOP36zP9Ia4=
-X-Authority-Analysis: v=2.4 cv=DJe/JSNb c=1 sm=1 tr=0 ts=6a84874d cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=kAqIDUJJv3-bWE_SvTMA:9
-X-Proofpoint-GUID: YBqcV4-W-MIr3NtEJwOjMA_BZSjg8r6d
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-18_02,2026-08-18_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 spamscore=0 clxscore=1015 bulkscore=0
- suspectscore=0 malwarescore=0 phishscore=0 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608180118
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, tabba@google.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, seanjc@google.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-Currently, /proc/iomem contains no reference to initrd memory, even
-when initrd is retained and still held in RAM. This makes the memory
-ranges invisible from userspace, and unusable to programs such as
-kexec. (A sysfs bin file is created for initrd, but this doesn't
-help programs which need the explicit memory ranges)
+On Tue, 18 Aug 2026 15:09:01 +0100,
+Steffen Eiden <seiden@linux.ibm.com> wrote:
+> 
+> On Thu, Aug 13, 2026 at 02:19:48PM +0100, Marc Zyngier wrote:
+> > I'm curious about the reasons for skipping a bunch of architectural
+> > helpers:
+> > 
+> > - kvm_vcpu_trap_is_permission_fault()
+> we need the s390 state for this function -> we overload it
+> the only use is in shared arm64 code for is_write_fault
+> > - kvm_vcpu_trap_is_translation_fault()
+> > - kvm_vcpu_trap_get_perm_fault_granule()
+> > - kvm_vcpu_abt_issea()
+> as s390 mm works differntly in comparison to ARMs (suprise :) )
+> we do not need those
+> 
+> 
+> > - kvm_vcpu_sys_get_rt()
+> I'll add using this function in the next series (sysreg enablement)
+> I can do that now - It reduces the churn to the next series.
+> 
+> > 
+> > I really think you should include anything that is exclusively derived
+> > from architectural state, specially that these helpers are strictly
+> > dependent on stuff you already include.
+> > 
+> > Any particular reason why this isn't the case?
+> 
+> These functions operate right at the border where the s390 architectural
+> state (host view) and the arm64 architectural state (guest view) meet.
+> 
+> Especially, for the memory management of the guest we need to use
+> s390 based guest memory management (gmap) as the host only knows s390
+> (+SAE & friends to actually run an arm64 guest)
+> 
+> The s390 host work here is to convert the s390-state into arm64 state
+> for the guest. e.g. convert a s390 translation fault into a data abort (if
+> applicable)
 
-Add initrd to standard_resources[] unconditionally. Add initrd as a
-child of iomem_resources only if retain_initrd is specified.
+Exactly. Which is why I was expecting that the s390 code would
+populate the copy of the ESR_EL2 register in the vcpu structure, and
+let the arm64 code do the talking. But evidently, that's not what is
+happening (or at least not that way).
 
-strstr() could match substrings like "retain_initrd=0" or
-"no_retain_initrd", but this is how PPC chose to check for
-"retain_initrd" param too. (arch/powerpc/kexec/ranges.c)
+> 
+> The code in the second series should make this more
+> clear. As we now are clear on the code-sharing concept I will sent a
+> respin of the second series using the new sharing approach ASAP.
+>
+> 
+> > 
+> > >  static inline bool kvm_is_write_fault(struct kvm_vcpu *vcpu)
+> > >  {
+> > >  	if (kvm_vcpu_abt_iss1tw(vcpu)) {
+> > > @@ -546,6 +556,8 @@ static inline bool kvm_is_write_fault(struct kvm_vcpu *vcpu)
+> > >  	return kvm_vcpu_dabt_iswrite(vcpu);
+> > >  }
+> > >  
+> > > +#endif /* ARM64_S390_COMMON */
+> > > +
+> > >  static inline unsigned long kvm_vcpu_get_mpidr_aff(struct kvm_vcpu *vcpu)
+> > >  {
+> > >  	return __vcpu_sys_reg(vcpu, MPIDR_EL1) & MPIDR_HWID_BITMASK;
+> > > @@ -587,6 +599,7 @@ static inline bool kvm_vcpu_is_be(struct kvm_vcpu *vcpu)
+> > >  	return vcpu_read_sys_reg(vcpu, r) & bit;
+> > >  }
+> > >  
+> > > +#ifdef ARM64_S390_COMMON
+> > 
+> > Similarly, you have dropped
+> > 
+> > - kvm_vcpu_set_be()
+> > 
+> > - kvm_vcpu_is_be()
+> > 
+> > I suspect that your implementation is LE only (it'd better be, as
+> > we're dropping BE support right now), but it would make a lot more
+> > sense if you could rely on the guest architectural state (which must
+> > be accurate) rather than short-cutting things in your own
+> > implementation.
+> 
+> Yes, you are right we are LE only. Therefore, I defined the function to
+> false such that the compiler/linker can optimize-out unreachable code.
+> This is true for a couple of function-shortcuts.
+> 
+> I would like to keep it that way if this is no show stopper for you.
 
-Signed-off-by: Joseph Cathcart <josephc@linux.ibm.com>
----
- arch/s390/kernel/setup.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+Not a show-stopper, but I think we'll eventually want to work more at
+the architecture level rather than solely at the "code sharing" level.
 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index b60284328fe3..cd61e286628a 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -481,15 +481,22 @@ static struct resource bss_resource = {
- 	.flags = IORESOURCE_BUSY | IORESOURCE_SYSTEM_RAM,
- };
- 
-+static struct resource initrd_resource = {
-+	.name = "initrd",
-+	.flags = IORESOURCE_BUSY | IORESOURCE_SYSTEM_RAM,
-+};
-+
- static struct resource __initdata *standard_resources[] = {
- 	&code_resource,
- 	&data_resource,
- 	&bss_resource,
-+	&initrd_resource,
- };
- 
- static void __init setup_resources(void)
- {
- 	struct resource *res, *std_res, *sub_res;
-+	bool retain_initrd = false;
- 	phys_addr_t start, end;
- 	int j;
- 	u64 i;
-@@ -501,6 +508,19 @@ static void __init setup_resources(void)
- 	bss_resource.start = __pa_symbol(__bss_start);
- 	bss_resource.end = __pa_symbol(__bss_stop) - 1;
- 
-+	if (strstr(boot_command_line, "retain_initrd"))
-+		retain_initrd = true;
-+	if (IS_ENABLED(CONFIG_BLK_DEV_INITRD) && retain_initrd) {
-+		unsigned long initrd_addr, initrd_size;
-+	
-+		if (get_physmem_reserved(RR_INITRD, &initrd_addr, &initrd_size)) {
-+			initrd_resource.start = initrd_addr;
-+			initrd_resource.end = initrd_resource.start + initrd_size - 1;
-+		} else {
-+			retain_initrd = false;
-+		}
-+	}
-+
- 	for_each_mem_range(i, &start, &end) {
- 		res = memblock_alloc_or_panic(sizeof(*res), 8);
- 		res->flags = IORESOURCE_BUSY | IORESOURCE_SYSTEM_RAM;
-@@ -517,6 +537,8 @@ static void __init setup_resources(void)
- 
- 		for (j = 0; j < ARRAY_SIZE(standard_resources); j++) {
- 			std_res = standard_resources[j];
-+			if (std_res == &initrd_resource && !retain_initrd)
-+				continue;
- 			if (std_res->start < res->start ||
- 			    std_res->start > res->end)
- 				continue;
+I expect it would make things a bit simpler to follow.
+
+	M.
+
 -- 
-2.55.0
-
-base commit: 0f23d56f17fdfc7db69d51f64c8b91bbab947aa9
+Without deviation from the norm, progress is not possible.
