@@ -1,129 +1,125 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2FE33368A7;
-	Tue, 18 Aug 2026 07:32:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ED882E7F3A
+	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 07:32:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787038335; cv=none; b=qB8oMYR/W4mgxkmrBJFQre/35m4b+0fY8wQdFWDprqaGKwduy2dlL4EprP1YwJAcbBKbGB1r9Vc5zCU5pO3Izp6WjD/HVK+/KH23Mfd/kVq4UARFmvC/abnBTwqf7BP98UwnPmUcWCvKTfkWuUBCfRZIxEhy4RvZ6iper/+I100=
+	t=1787038335; cv=none; b=NWsMP3DIQvwiEyr2LMALpcU0AdszYx8+NSi2GV1qivSNIyJkvx4P+R7kwyxrcHiD6qENpLKEkSN872VEWm0eBks2gZce5hj7/NSplQS+4nmggM/Ur8cprQKzNpkcLAjBU3ffKEi/s5HszVZLQhQf9GJCBZpsH0R8uEtua3rVTCo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1787038335; c=relaxed/simple;
-	bh=PovKqV1wR6YVqWMIKbAT2E2RHFpdbvh0HTPSHDXxDpg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HvwRdCbD0Mqc754pOls7EQqhZfgESRFrfN+5WhVPc/oj66cel2svhduST2Ya7L+AMw7xTnNLYfKRn6qW2YccscM2wMn8IkcLYtC2sX7te/oOd5L8MyxMIafiVaiN09wQ9wt4zxExeBD4u30Vl8N34hSu2GKEvHYkemiXdWPsX24=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GdejFXTg; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	bh=TfjiOCbrVeiQ7FKcAcFUsQcN3uo2M+bO3SMnL1fpgWY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ai/SVLoIKRM3E/83ab+tilA5cEY1iqvHIRxfpTjHDNts8W4vvJELOZSY8olUaGxLHGp7i9xUAeDTjITcAgIeYa87WYWQeoIUZGpmryoGojkDdDHpEOdqk0RAMLWzGPDUL+RfpfzywrBS7quwbu02x2EF4dLYDCLLH/UiVaNpBFk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Rl1DQ7YD; arc=none smtp.client-ip=209.85.215.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GdejFXTg"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67HM22Rb2527318;
-	Tue, 18 Aug 2026 07:32:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=4/A7sk
-	cYOhJ1SGgd2S3BoFXlEOW7ERoEKZ1Pp2MgNY4=; b=GdejFXTgTZKHiCop1yumHl
-	kUPQv44Eep+jXNDG5qM3Z/kK4DMZRxgiKpZ2Gju635fWEQYKHhXC2+x4TWlqe0qQ
-	F94fz7u1Bjil8UPYrkufnGni6YWHJXLhsxgZOEJrjWMslBOdb14K+uqijDkZYY9v
-	qyfWclTivCL1xBW5fPKkIw3jdvaNAzKym5CKnbY35COuZC8c8zS83cBt9y2T1HVW
-	0hdh+VTAB7Mpe2V17riLi658I6uFGKNLOiheIkPQaW4TeYVzVWcEuF4kpTjqy4xb
-	mrLH+y/ZKCS+pX4J726dKbsZd2qjOKnT3oS1aWIl4+X1WSF1eLbj0mDj7nePtT9A
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2dhkxmk5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 07:32:12 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67I7QMHY025787;
-	Tue, 18 Aug 2026 07:32:12 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33xh1y0k-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 07:32:11 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67I7W7ib45547976
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 18 Aug 2026 07:32:08 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D8DA620043;
-	Tue, 18 Aug 2026 07:32:07 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A56A920040;
-	Tue, 18 Aug 2026 07:32:07 +0000 (GMT)
-Received: from [9.224.91.220] (unknown [9.224.91.220])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 18 Aug 2026 07:32:07 +0000 (GMT)
-Message-ID: <aa6f0aee-2ecb-4426-b281-698ccf29e890@linux.ibm.com>
-Date: Tue, 18 Aug 2026 09:32:07 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rl1DQ7YD"
+Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-cb5b8572b70so5139030a12.2
+        for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 00:32:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787038333; x=1787643133; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=LRXxlJ+/F37gt73zWnOLTZBqT2VhJb2gCFxX84MkoKY=;
+        b=Rl1DQ7YD5sQkLBzp7B3KhI5gzT/p9M2EFo7t4aze+hmkh8ahT99m+VpLpEyl0AdlJ7
+         0LzbmXSzCWS2eLyjb1t54HrKY05huZRurszbzmXJEc6LCmjBi77Y1wwOWascTG+pujqw
+         NQUsqAsKyUbNt020dSb87SBcdhHDEqOfrdOZw9yDgO7UMi+fGbJjsQVFvJKLkn3fYaNf
+         sKO+kvFOCH7Xf3R0rXJo48udyzhx9erFyG2y2nekyLYERntldrnLD2kfvff8gRwGMpuu
+         uMSHgpOVKbCcp/x8J+HkWcM4BIuJc0kTQGVUc4fHSCsA0ajPGApLB8rAyLRDDh7NjGlC
+         13Og==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787038333; x=1787643133;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=LRXxlJ+/F37gt73zWnOLTZBqT2VhJb2gCFxX84MkoKY=;
+        b=o+mzSULjhjuorIE5FjtZONPjZ8L8GDk8GYbAngJPN/zPjj50yT6zXXxgs355WC54CP
+         c0RVPraXbwMHDMQPC6ENyLzbbPn98wrCaxm9DP3iSfsC04U5g80k/HPvX8RoTij9lfg9
+         pUebgUmqU9olNA35AMci48NvCrI58YrH+68e6V5o0AfUCq0C8IvjANM4dqo3S0M4l5e4
+         vGSjRdMzan71mm/udtEgVmADoLHzGzKEpzHU/cWqbUI4q0VS8AKInzgCvpiqLEJirMuo
+         YGVSuRJQTXYFGs+ov42KNW4H4cm1MmUYWRUGIKKy+iG3h8OxqeVz99+jQyHH1gGbE1SN
+         WC3Q==
+X-Forwarded-Encrypted: i=1; AHgh+Rpv1GK1gNoP7FldWzBzKj1layUdfLzZKgIgONPTVNrTNdWnH/OlrhNhCNjp44ssTSV22SNw98ZE8d1P@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz84tmaHaZGC4ek5ywLoZk5ybYZahEZLyq4OkICXaDbIb14dlpw
+	HMFy/FVs1IlQRb9qoXY0y4Rl2sHtjGMbuj7HK6q5TQDZgw/WN9D6uaE=
+X-Gm-Gg: AR+sD13abOqUG9/mHbYNMme3y+g3jWFc3KhyrCpNz12Bhn5owBOAEUGLBoE6sbIGZl/
+	C/AAvDFCJ/UAmT4QvMv2kSrdFK8PuaUVMvtITxPXrVB2O7KmLljeFVHSpb2evg2+wJW0U5Y2TX1
+	nUrWkE9DSh1JKo8Oc/BuPy9Mi556S0hOzWGwVvYm7lgA2wyyHcOvrfbV7vgxnpBCghBG9+zXtBn
+	F5FfdjTkwiE5ZAoyxCcfoStmjJw5ElzMmr4waLUnWBX7cGmitNALbJ5XpUe1XXd2RGaClJfF4Kx
+	HpHV9QeMblbbyGzj14L3f4JO3NZ8XygP7Zx1Hfme02qIoOoUpZZ6mXmTgJ4UOCD/Kt8Q4k2XAov
+	NdrDkUgl/AccsJxc87ulZWMKIpnkmBLa/xJWfvMMTt3eMGoSeJFKflfOJK+AjLfWNhGJ3RBtWy3
+	7/wmcS/Leo/HL8pkrNedHzsKj0QtG7+nyEIkq+y+8E1E0Z2VjH/AqE32XdAT02S5q92M/fkQF9w
+	A==
+X-Received: by 2002:a05:6a00:847:b0:84f:a82e:d32f with SMTP id d2e1a72fcca58-851b8744335mr7423155b3a.3.1787038333483;
+        Tue, 18 Aug 2026 00:32:13 -0700 (PDT)
+Received: from DL2XHKPB4.dl.net ([103.63.104.162])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-851b6fc1740sm1193362b3a.49.2026.08.18.00.32.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Aug 2026 00:32:13 -0700 (PDT)
+From: Triet Hoang <triet.hoang.dev@gmail.com>
+To: hca@linux.ibm.com
+Cc: gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Triet Hoang <triet.hoang.dev@gmail.com>
+Subject: [PATCH v2] s390: raw3270: Handle allocation failures
+Date: Tue, 18 Aug 2026 14:32:05 +0700
+Message-ID: <20260818073205.1669781-1-triet.hoang.dev@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/6] s390/crypto: Fix missing scrub of temp buffers
- with PAES algorithm
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: fcallies@linux.ibm.com, ifranzki@linux.ibm.com, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        linux-crypto@vger.kernel.org
-References: <20260817141654.77940-1-freude@linux.ibm.com>
- <20260817141654.77940-3-freude@linux.ibm.com>
-From: Holger Dengler <dengler@linux.ibm.com>
-Content-Language: en-US, de-DE
-In-Reply-To: <20260817141654.77940-3-freude@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDA1NSBTYWx0ZWRfXz9aOhHlYrIzw
- BvnFRHKiuzS9GPP7qwt87nzrPFNEKp9r96mcCWT+EndIZd/WdVQ3s3HKyXAERAKBXjCWccO6/Hj
- rD9Uq3cXJ6AtiewkNPXt6nRj6MnUsHxKv4FfalPDWekry/Z1v2NYDKZDQAhO3IKlcx1M+v8rgMC
- 8ZyhRTNFC/gBE4nN+AXSnRav/7qq/v2C01QU03oCC7EXfjiS2I1rwD60wqCxWtZk79wFhzZeGeA
- 8B0zIzB2MT1TkqS4u7lp/SS510xcHlxjwtUZ8gt7nw3kCG5+j0aSbN8UJJKQ8Ocl69GAxLpN+2D
- 6fP2Q0PvA78IQ5H2PX6s4laeFXv1dw9hbF0YP0CadjZggqvrxBO7fEl4mp2bVfWKzV5r0mx7hmC
- omsLusu+8MGspgXly14JGET98qshnV++TBRKTPhDuPsxmBZ1FNcpNOWXJ0ElE79PuWmWXHM2nHk
- qTnGEDq5udw62HaDcVA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDA1NSBTYWx0ZWRfX0D/VRgKHqKBI
- xzdREronXVxSxsPGSfJzEpeR0M2ypp/YNBGehyBn8js8fUbQtf9Si1k19jaqg+b8fDvGJnPFEG7
- ySdP/BjxvGbeniGlh80bgSfLfHVILBE=
-X-Authority-Analysis: v=2.4 cv=JKkLdcKb c=1 sm=1 tr=0 ts=6a840a7c cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=w1AT7bSVAAv4mFVDG_gA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=zZCYzV9kfG8A:10
-X-Proofpoint-ORIG-GUID: HrXgx7_tRgrXkqGjeRIrvrgT2DX37Rdb
-X-Proofpoint-GUID: HrXgx7_tRgrXkqGjeRIrvrgT2DX37Rdb
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-17_04,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 bulkscore=0 malwarescore=0 priorityscore=1501
- lowpriorityscore=0 clxscore=1015 adultscore=0 impostorscore=0 spamscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608180055
 
-On 8/17/26 16:16, Harald Freudenberger wrote:
-> In function ctr_paes_do_crypt() there is a buffer used to process
-> remaining bytes < AES_BLOCK_SIZE. This buffer was not scrubbed and
-> thus could lead to expose of unwanted data. Rework the code to
-> explicitly scrub the buffer at the end of the function to avoid
-> exposure of maybe sensitive data.
-> 
-> In function __xts_2keys_prep_param() change the existing scrub to
-> clean the whole param block instead of just the key field.
-> 
-> Fixes: 6cd87cb5ef6c ("s390/crypto: Rework protected key AES for true asynch support")
-> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> Cc: stable@vger.kernel.org # 6.16+
+Check the return values of kzalloc_obj() and kzalloc() before using the
+allocated memory. Free the allocated resources on subsequent initialization
+failures to avoid leaking memory.
 
-Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
+Signed-off-by: Triet Hoang <triet.hoang.dev@gmail.com>
+---
+Changes in v2:
+- Destroy the console device on allocation failure.
+- Do not free rp after raw3270_setup_device() success.
+---
+ drivers/s390/char/raw3270.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
+index aa9c4d81225c..ff397396b440 100644
+--- a/drivers/s390/char/raw3270.c
++++ b/drivers/s390/char/raw3270.c
+@@ -814,10 +814,23 @@ struct raw3270 __init *raw3270_setup_console(void)
+ 		return ERR_CAST(cdev);
+ 
+ 	rp = kzalloc_obj(*rp, GFP_KERNEL | GFP_DMA);
++	if (!rp) {
++		ccw_device_destroy_console(cdev);
++		return ERR_PTR(-ENOMEM);
++	}
+ 	ascebc = kzalloc(256, GFP_KERNEL);
++	if (!ascebc) {
++		ccw_device_destroy_console(cdev);
++		kfree(rp);
++		return ERR_PTR(-ENOMEM);
++	}
+ 	rc = raw3270_setup_device(cdev, rp, ascebc);
+-	if (rc)
++	if (rc) {
++		ccw_device_destroy_console(cdev);
++		kfree(rp->ascebc);
++		kfree(rp);
+ 		return ERR_PTR(rc);
++	}
+ 	set_bit(RAW3270_FLAGS_CONSOLE, &rp->flags);
+ 
+ 	rc = ccw_device_enable_console(cdev);
 -- 
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
+2.53.0
 
