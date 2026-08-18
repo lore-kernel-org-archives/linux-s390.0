@@ -1,57 +1,56 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F0A33AD53F;
-	Tue, 18 Aug 2026 14:50:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 878F03AE6F7;
+	Tue, 18 Aug 2026 14:50:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787064641; cv=none; b=EUhJVt+0mpaR8JJJyARhY46Hqa2Y4vVuGmBlmVP4dp9d1xH//0VbkfskZ8cuY6JjSTetrWMvKKW1IzUOZLpxhDaehbSpHJ67LiqhzpPS9219251Rpj/oncaC1SK9K1OOUShVwYMm0BVcW/8cTJ209xQOT+FIyXgaO7i9+ub7zd0=
+	t=1787064642; cv=none; b=RnQhct6cKv+nAxlE2fl4P1LbUCYkVcdF0fNmcrLq1THQHhNeKpZZ7l54ZoSPdGws7JJEr4YgQCxEjy8ZwO2JQmF0TVWG31uUFQbVjdwz7tmNvDLAwbD7oMyDzfWRMqiYfh0VVFZNPJdoJl0Sq3Q3OPhHcTu8TG3GHk5e4bT+YuA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787064641; c=relaxed/simple;
-	bh=URzcqcKildsNvgSpR2lLGV/p+z/i7pvGxHXc8UvWV84=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KuBCUSIuSeY/9Cof+5Jwif4jgRTuPmEDc4wmIRAQXstpGwB+yjy2tgZm3DQc0ZX77lsGBAhhRO7bqtw+Os8yZuPrVowdSvAupMCcUg6sVzohbUDkP29LV2C3UZMVeiuUF0STxtzwvGqj+u+6iTrUjITzkG6Hri9YLak5wfHb1MM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VSqo18AB; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1787064642; c=relaxed/simple;
+	bh=h3qTOaV/7PqhhZLwJ0MOMoM4PCLPVIbSIOLP5vBLoL0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NpJE131xJbV3Sc/uPhlgKAM7JH8+5Z1v/rE4wVtga+muH2hWrK6+SXSmHTLHYPaFROTvDK3uDPYFjcOLTGwAulqX6mLU/0PSPufyoESpX73XP6KshEDaTPReSn2s82dVGI1o4pDEm+l2lGDfSXnwYZ34hjwYVmZ3t+Bz//aD5Xk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MWgd5eti; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VSqo18AB"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IE3rD03582829;
-	Tue, 18 Aug 2026 14:50:03 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MWgd5eti"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IE3ojj401823;
+	Tue, 18 Aug 2026 14:50:02 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=gD+wy2WOXKDmawHxG
-	A2GRaC0ZcIOI/WUyr9zsMyBQes=; b=VSqo18ABFmlZVT78D5lhAcdqMy2jAVJdC
-	MWZXHL9OB8cXo3NQ5SJ0h7mqQsL/dsMpKe26jLE8b+XQq9pTfb09owkmzSJz4L+d
-	gnb5uzCT1p0Oa7qBd53GheI6ie9m62vwgsgccStNpnJpAayU3w4O/BDmyt/+hmhz
-	Fc0C9/fAaTknubK7dA9+/lsCvlYT7XOym0snyOvLorIqC7Xl0cYIVB7rATvntM3L
-	OHXqx2BLS6CqIjaalK1m5q3KxEvX/PtcA/FsaUofbPbOERchbgyJIu9s3Z0YL/zX
-	JUWw6ZdO67nEPQIakG7v8MDggDWs0x2WXf5jq9x3qZbw1bohWiKgQ==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2ehe8h08-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=/n+auYKE9uB0RZuyP3DkyBBuOCd8abQj2NEkNcElB
+	CI=; b=MWgd5etiPQx7MkdrARy+BY+VScKTGfm1gCS5dogwvbdBp1S9rn61vr62a
+	jIeAZVPCdwL05/9rucwiu0CWBCt0L72jTg8BUJT8NNouasrmVqsQX9cKyZjUY0m9
+	mEwSyYB/3Lu5kN2e2n4O2QXzeNB1cnPLqi3Gbytw6kPX01x3zLQG1tPgCEGyQVJK
+	iExregt8nwVPvddMbYp9VMAeb7YUJeG8S14ED9MHGy3ju0T1u0aExIi2FYALRvQf
+	FEP/3vab3SpR1aQ9TSyfqdF4rqPsrRySKKRcPjXP4udQi+xkW0g1ivVvIhHsNRb3
+	uHNG1CQNJkkyb883WtefSxeULtlXA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2dhm0qm2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 18 Aug 2026 14:50:02 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IEfMvI032436;
-	Tue, 18 Aug 2026 14:50:02 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g354ybgbp-1
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IEfOd5014762;
+	Tue, 18 Aug 2026 14:50:01 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33ek3r6m-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 18 Aug 2026 14:50:01 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IEnwQs43450644
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IEnvfE47448322
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 18 Aug 2026 14:49:58 GMT
+	Tue, 18 Aug 2026 14:49:57 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EB28A20043;
-	Tue, 18 Aug 2026 14:49:57 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id EEDA620040;
+	Tue, 18 Aug 2026 14:49:56 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A0C442004D;
-	Tue, 18 Aug 2026 14:49:57 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 97EED20043;
+	Tue, 18 Aug 2026 14:49:56 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 18 Aug 2026 14:49:57 +0000 (GMT)
+	Tue, 18 Aug 2026 14:49:56 +0000 (GMT)
 From: Jens Remus <jremus@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, x86@kernel.org,
@@ -69,12 +68,10 @@ Cc: Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
         "H. Peter Anvin" <hpa@zytor.com>, Namhyung Kim <namhyung@kernel.org>,
         Andrii Nakryiko <andrii@kernel.org>, Kees Cook <kees@kernel.org>,
         Sam James <sam@gentoo.org>
-Subject: [RFC PATCH v1 03/25] unwind_user: Enable archs that pass RA in a register
-Date: Tue, 18 Aug 2026 16:49:32 +0200
-Message-ID: <20260818144954.2320378-4-jremus@linux.ibm.com>
+Subject: [RFC PATCH v1 00/25] unwind_user: Implement .eh_frame handling
+Date: Tue, 18 Aug 2026 16:49:29 +0200
+Message-ID: <20260818144954.2320378-1-jremus@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260818144954.2320378-1-jremus@linux.ibm.com>
-References: <20260818144954.2320378-1-jremus@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -84,137 +81,303 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfX9D7QzlJzNNWQ
- Q7jTN6AM5BGt/Oj8UPtmrGIAuNszgRp+bf53wC6DTWHvSralC6Cc9vKgC6uNcJ/l54c21LoBDlt
- pZ9++Ry+Tfv8kUzxM3Z+kGmQW3muXQ7D0/SeSqwnr2cpux2khkRaG6QbuEwr2X8wN5DpAwv6BWL
- vwWoL8gXCu84aui+VwEeG3ErkOyFDCXKM/FsfI7sYvqmD7kSyS3d8tAIu2OuV1KhGX4yOU+b8TZ
- ltTiwyUz2E03luVidwA41veYud27I64kL3bSAOkqCnYVOgBXX/MXU809U4HOl+kqX4pyuy7KvTO
- RBVDlpqAJhRdLJqOLcK+02mkXRqZBciI0MjgZ5ar5ORHwB8xeFoQUPRH99XDXZgpvo+FoVDq+DC
- kV++7wSgmH+urvts4cQDJvuL6xFFDXQZ9ipXO8gb80xyzUe5txf4p6aGcLh8D3vx963NZoMMnF2
- yZtiqErDTzapMm+2WQA==
-X-Authority-Analysis: v=2.4 cv=DY8nbPtW c=1 sm=1 tr=0 ts=6a84711b cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfXw6Uupl7d42VH
+ kj3CBIUkRLa8gG0W/CHJVSRGGFPOGCIDAJciusyfizCyN0Yav7QtgsabTqclGyVVe2eyltqJK0j
+ QI2gYx6SNCrWKqvOIjdOzhYsRwDN+vX4nZQrn37BDoCbdSdxYXe120nl2MGXst/5POAMr4V+YLU
+ WkVolS3XvWlfO5rbXPAMpLLUNg/cTmjybg5scvye5moRc9/S2X8SlLlysJ2vdBduXUG8UOIpV+f
+ Rdse+JaRlTE8/AZrHfFyT6fhzdzUigNw2GT23xmYlGjurTDuMaR65u+0cG0sCKbwaUaCsMhLGmy
+ HZ0guYfhufqujWY0B1gV0u8jUm41NT9QZcaEw/QCICZzuVWfY7tsJl44dRn2FtUOFiJWdx1DuCf
+ 4wI/JWnrnNq5zvWctDv48uGgfLKX4JsHx4HyKG40LTyw7/fVrlKqJ+NO/zfpzkk/swrxJgD1w0F
+ paqFhKihFjH/PO9HcYw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfX8hKQ/lhauD+L
+ KCV+4FtcaaOhwCOv1cBHnXHHt53Wsl+YNGbgdeQEeVqnPoKckqpPmTswnwbYx69GfjwRUboeaTq
+ 5h3z6opsNW1SmutBpJlLfHHoPavbfYQ=
+X-Authority-Analysis: v=2.4 cv=JKkLdcKb c=1 sm=1 tr=0 ts=6a84711a cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=pGLkceISAAAA:8
- a=lmaF1edk6S-LLGGX4wsA:9
-X-Proofpoint-ORIG-GUID: Fudr4d5TOv1TC2mZhNZSW_il2A9ovbc6
-X-Proofpoint-GUID: p3H-jH2f_7fiOQMXqfiP0tlFV2B7VZR_
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfX/IE7IFnUMmb3
- MGRJ+xcs+TdUd+glWqKuWQrX5JmMD8VWLpIa2hInh9esNLIMAfe//YomuZ08e63H9u71D9R6W2c
- 2EThFgDnrud2/nU4T2LP4Ix7H5mQcy0=
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=pGLkceISAAAA:8
+ a=07d9gI8wAAAA:8 a=D19gQVrFAAAA:8 a=P7Ta51c5GujNzcITEm4A:9
+ a=e2CUPOnPG4QKp8I52DXD:22 a=W4TVW4IDbPiebHqcZpNg:22
+X-Proofpoint-ORIG-GUID: 12yVQgKEy3yY38yvEZxlHaKDz4SLOFB0
+X-Proofpoint-GUID: XB3DrbyunYPNAQ6jjw0JNFgrmmJ76dkM
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-18_02,2026-08-18_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 clxscore=1015 spamscore=0 malwarescore=0 priorityscore=1501
- impostorscore=0 lowpriorityscore=0 phishscore=0 suspectscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608180107
+ suspectscore=0 bulkscore=0 malwarescore=0 priorityscore=1501
+ lowpriorityscore=0 clxscore=1011 adultscore=0 impostorscore=0 spamscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608180107
 
-Not all architectures/ABIs pass the return address (RA) on the stack on
-function entry, like x86-64 does due to its CALL instruction pushing
-the RA onto the stack.  Architectures/ABIs, such as s390, also do not
-require the RA to be saved on the stack in the function prologue.  In
-particular, the RA may never be saved to the stack at all, such as in
-leaf functions.  Unwinding must therefore not assume the presence of a
-RA saved on stack for the topmost frame.
+This series adds support for parsing DWARF Call Frame Information (CFI)
+from the .eh_frame_hdr and .eh_frame sections of user space ELF files.
 
-Treat a RA offset from CFA of zero as indication that the RA is not
-saved (on the stack).  For the topmost frame treat it as indication that
-the RA is in the link/RA register, such as on arm64 and s390, and obtain
-it from there.  For non-topmost frames treat it as error, as the RA must
-be saved.
+The code is based on the deferred unwind user work originally done for
+SFrame by Josh, Steven, and myself:
 
-Additionally allow the SP to be unchanged in the topmost frame, for
-architectures where SP at function entry == SP at call site, such as
-arm64 and s390.
+  v4 : https://lore.kernel.org/all/cover.1737511963.git.jpoimboe@kernel.org/
+  v10: https://lore.kernel.org/all/20250827201548.448472904@kernel.org/
+  v16: https://lore.kernel.org/all/20260521142546.3908498-1-jremus@linux.ibm.com/
 
-Note that treating a RA offset from CFA of zero as indication that
-the RA is not saved on the stack additionally allows for architectures,
-such as s390, where the frame pointer (FP) may be saved without the RA
-being saved as well.  Provided that such architectures represent this
-in SFrame by encoding the "missing" RA offset using a padding RA offset
-with a value of zero.
+The goal is to make user space stack traces available in-kernel without
+requiring frame pointers and without copying large parts of the user
+stack for later processing.
 
-Reviewed-by: Indu Bhagat <ibhagatgnu@gmail.com>
-Signed-off-by: Jens Remus <jremus@linux.ibm.com>
----
+Today, reliable user stack traces from the kernel generally requires
+frame pointers.  Otherwise, profilers such as perf have to copy large
+amounts of user space stack into the kernel ring buffer and process it
+later.  Frame pointers are simple and robust, but enabling them for
+all executables and libraries has a performance cost.
 
-Notes (jremus):
-    Cherry-picked from "[PATCH v16 00/20] unwind_deferred: Implement sframe
-    handling" series:
-    https://lore.kernel.org/all/20260521142546.3908498-14-jremus@linux.ibm.com/
+Another issue is that the frame layout can vary between compilers and
+architectures, and on architectures such as s390 there is no defined
+frame layout which allows reliable frame-pointer based stack tracing.
+The only way to perform user space profiling on there architectures is
+to copy the user space into the kernel buffer.
 
- include/linux/unwind_user.h | 10 ++++++++++
- kernel/unwind/user.c        | 20 ++++++++++++++++----
- 2 files changed, 26 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/unwind_user.h b/include/linux/unwind_user.h
-index 64618618febd..941cef652435 100644
---- a/include/linux/unwind_user.h
-+++ b/include/linux/unwind_user.h
-@@ -23,6 +23,16 @@ static inline bool unwind_user_at_function_start(struct pt_regs *regs)
- #define unwind_user_at_function_start unwind_user_at_function_start
- #endif
- 
-+#ifndef unwind_user_get_ra_reg
-+static inline int unwind_user_get_ra_reg(unsigned long *val)
-+{
-+	pr_debug("%s (%d): %s() not implemented\n",
-+		 current->comm, current->pid, __func__);
-+	return -EINVAL;
-+}
-+#define unwind_user_get_ra_reg unwind_user_get_ra_reg
-+#endif
-+
- int unwind_user(struct unwind_stacktrace *trace, unsigned int max_entries);
- 
- #endif /* _LINUX_UNWIND_USER_H */
-diff --git a/kernel/unwind/user.c b/kernel/unwind/user.c
-index 28091ece830c..f8a97d4167f0 100644
---- a/kernel/unwind/user.c
-+++ b/kernel/unwind/user.c
-@@ -2,6 +2,9 @@
- /*
- * Generic interfaces for unwinding user space
- */
-+
-+#define pr_fmt(fmt)	"unwind_user: " fmt
-+
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/sched/task_stack.h>
-@@ -47,8 +50,12 @@ static int unwind_user_next_common(struct unwind_user_state *state,
- 	}
- 	cfa += frame->cfa_off;
- 
--	/* Make sure that stack is not going in wrong direction */
--	if (cfa <= state->sp)
-+	/*
-+	 * Make sure that stack is not going in wrong direction.  Allow SP
-+	 * to be unchanged for the topmost frame, by subtracting topmost,
-+	 * which is either 0 or 1.
-+	 */
-+	if (cfa <= state->sp - state->topmost)
- 		return -EINVAL;
- 
- 	/* Make sure that the address is word aligned */
-@@ -56,8 +63,13 @@ static int unwind_user_next_common(struct unwind_user_state *state,
- 		return -EINVAL;
- 
- 	/* Get the Return Address (RA) */
--	if (get_user_word(&ra, cfa, frame->ra_off, state->ws))
--		return -EINVAL;
-+	if (frame->ra_off) {
-+		if (get_user_word(&ra, cfa, frame->ra_off, state->ws))
-+			return -EINVAL;
-+	} else {
-+		if (!state->topmost || unwind_user_get_ra_reg(&ra))
-+			return -EINVAL;
-+	}
- 
- 	/* Get the Frame Pointer (FP) */
- 	if (frame->fp_off && get_user_word(&fp, cfa, frame->fp_off, state->ws))
+The .eh_frame section is already emitted by most toolchains on most
+architectures unless explicitly disabled.  It contains DWARF CFI
+describing how to recover the caller state at any point in a function.
+The .eh_frame_hdr section provides a binary search table for looking
+up the Frame Description Entry (FDE) for a given instruction pointer
+(IP).
+
+Because the .eh_frame_hdr and .eh_frame sections live in the ELF file,
+they need to be faulted in when used.  This means that walking the user
+space stack requires being in a faultable context.  As profilers like
+perf request a stack trace in interrupt or NMI context, the walking
+cannot be done when requested.  This series reuses the deferred unwind
+user framework, that performed the actual user stack trace is later in
+a faultable context, before the task returns to user space.
+
+This series implements .eh_frame[_hdr] support for the deferred unwind
+user code and enables it for x86-64 and s390.
+
+It intentionally not implement a complete DWARF unwinder.  It evaluates
+only the subset of DWARF CFI needed for stack tracing:
+
+  - Call Frame Address (CFA):  Using rule from DWARF CFI.
+
+  - Stack pointer (SP):  Using an implicit rule based on the CFA
+    definition (SP = CFA for most architectures).
+
+  - Frame pointer (FP):  Using rule from DWARF CFI.
+
+  - Return address (RA):  Using rule from DWARF CFI.
+
+Unsupported CFI instructions, unsupported expressions, invalid data, or
+user memory faults stop the stack tracing safely and results in a partial
+stack trace.
+
+
+This series applies on top of v7.2 tag:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git  v7.2
+
+The to be stack-traced user space executables and libraries need to
+contain .eh_frame_hdr and .eh_frame sections as well as a GNU_EH_FRAME
+PHDR.
+
+Namhyung Kim's related perf tools deferred callchain support can be used
+for testing, for example:
+
+  perf record --call-graph fp,defer ...
+  perf report
+  perf script
+
+
+Why .eh_frame?
+
+This series is not meant to replace or undermine the SFrame work.
+SFrame remains the simpler and more purpose-built format for user stack
+tracing.  The motivation for .eh_frame support is pragmatic:  .eh_frame
+is already widely deployed today.
+
+- Availability and maturity:  .eh_frame is already present in most ELF
+  binaries for C++ exception handling.  It has been used in production
+  for decades for exception handling and debugger stack unwinding.
+
+- Toolchain support:  .eh_frame is supported across all major compilers
+  and architectures today, whereas .sframe adoption is still emerging.
+
+- Size:  .sframe would be added in addition to existing .eh_frame[_hdr]
+  rather than replacing it, increasing the ELF file size. [1]
+
+
+Addressing historical DWARF concerns:
+
+Using DWARF for kernel unwinding has a bad history.  Previous attempts
+were complex, fragile, slow, and hard to maintain.  Hand-written
+assembly and the complexity of the DWARF state machine were among the
+reasons the simpler ORC kernel unwind format was developed. [2,3,4]
+
+However, this implementation for user space stack tracing differs from
+those problematic kernel unwinding attempts:
+
+- It stack traces user space, not kernel.
+
+- It runs in a deferred, faultable context, not in NMI, interrupt, or
+  oops context.
+
+- It may return partial stack traces.  Bad CFI, unsupported operations,
+  invalid user memory, or faults are allowed to terminate the unwind.
+
+- It implements only the CFI subset needed for stack tracing, not a
+  general DWARF unwinder.
+
+- It does not include a general-purpose DWARF expression VM.  Expression
+  size is bounded.  Only a small number of pattern-matched expressions
+  is supported (e.g. DRAP and PLT expressions on x86).  Unsupported
+  expressions cause stack tracing to fail safely.
+
+- All user memory access uses [unsafe_]get_user() with proper bounds
+  checking and fault handling.
+
+- Corruption detection with automatic section removal on invalid
+  .eh_frame prevents further stack tracing attempts.
+
+
+Limitations and future work:
+
+- CIE version 1 support only and no DWARF64 support, as I have not run
+  into either during my testing.
+
+- Signal frames are not handled yet.  An architecture hook could support
+  unwinding through FDEs whose CIE augmentation contains 'S' (signal
+  frame), similar to Glibc's SFrame backtrace() support.  See also my
+  "[RFC PATCH v1 0/5] s390: Signal frame user space unwinding". [5]
+
+- x86-32, x86-x32, and 32-bit compat mode support not implemented yet.
+
+- CIE caching would be useful.  Reading an FDE requires reading its
+  referenced CIE first to obtain the FDE encoding.  Most .eh_frame
+  sections have only a very small number of CIEs, often one default
+  CIE shared by most FDEs and possibly one signal frame CIE.  Caching
+  the last CIE per section, together with the initial CFA, FP, and RA
+  rules, would avoid repeated CIE parsing and initial CFI instruction
+  processing.
+
+
+[1]: https://lore.kernel.org/all/CAN30aBFVDxeoXApn_g_Hw0Ayhi4V=m7CcX8UDO6ZDTi6xA-3Pg@mail.gmail.com/
+[2]: https://lwn.net/Articles/727553/
+[3]: https://lkml.org/lkml/2012/2/10/356
+[4]: https://lkml.org/lkml/2017/5/20/165
+[5]: https://lore.kernel.org/all/20260127153331.2902504-1-jremus@linux.ibm.com/
+
+
+Patches 1-6 add base functionality to unwind user to support .eh_frame-
+based (or .sframe-based) unwinding.  Patches originate from my latest
+.sframe patch series.
+
+Patches 7-10 add the basic infrastructure for reading .eh_frame_hdr and
+.eh_frame sections and storing them in a per-mm maple tree.
+
+Patches 11-14 wire up the eh_frame infrastructure to the unwind user
+framework and add error handling and debugging support.
+
+Patch 15 duplicates registered .eh_frame_hdr section data on clone/fork.
+
+Patch 16 adds an experimental linear .eh_frame search fallback, for the
+rare case, that .eh_frame_hdr does not contain a binary search table.
+
+Patch 17 improves .eh_frame DWARF CFI instruction processing.
+
+Patch 18 enables architectures to implement selected DWARF expressions
+in CFI instructions.
+
+Patches 19-22 enable .eh_frame unwinding on x86-64 with minimal DWARF
+expression support for DRAP and PLT expressions.
+
+Patches 23-24 enable .eh_frame unwinding on s390.
+
+Patch 25 adds a prctl() interface for (un)registering .eh_frame_hdr
+sections for shared libraries.  I will send a related test-patch for
+Glibc separately.
+
+
+Regards,
+Jens
+
+
+Jens Remus (24):
+  unwind_user: Add generic and arch-specific headers to MAINTAINERS
+  unwind_user: Stop when reaching an outermost frame
+  unwind_user: Enable archs that pass RA in a register
+  unwind_user: Flexible FP/RA recovery rules
+  unwind_user: Flexible CFA recovery rules
+  unwind_user: Enable archs that define CFA = SP_callsite + offset
+  unwind_user/eh_frame: Add support for reading .eh_frame_hdr section
+  unwind_user/eh_frame: Store .eh_frame_hdr section data in per-mm maple
+    tree
+  unwind_user/eh_frame: Add support for reading .eh_frame section
+  unwind_user/eh_frame: Detect .eh_frame_hdr sections in executables
+  unwind_user/eh_frame: Wire up unwind_user to eh_frame
+  unwind_user/eh_frame: Remove .eh_frame[_hdr] section on detected
+    corruption
+  unwind_user/eh_frame: Show file name in debug output
+  unwind_user/eh_frame: Add .eh_frame[_hdr] validation option
+  unwind_user/eh_frame: Duplicate registered .eh_frame[_hdr] section
+    data on clone/fork
+  unwind_user/eh_frame: Add linear .eh_frame search fallback
+  unwind_user/eh_frame: Ignore DW_CFA_GNU_args_size
+  unwind_user/eh_frame: Add support for DWARF expressions
+  unwind_user/eh_frame/x86: Enable eh_frame unwinding on x86
+  unwind_user/eh_frame/x86: Handle PLT expressions
+  unwind_user/eh_frame/x86: Handle DRAP expressions
+  s390/ptrace: Provide frame_pointer()
+  unwind_user/eh_frame/s390: Enable eh_frame unwinding on s390
+  unwind_user/eh_frame: Add prctl() interface for (un)registering
+    .eh_frame_hdr sections
+
+Josh Poimboeuf (1):
+  x86/uaccess: Add unsafe_copy_from_user() implementation
+
+ MAINTAINERS                                  |    5 +
+ arch/Kconfig                                 |   35 +
+ arch/s390/Kconfig                            |    1 +
+ arch/s390/include/asm/ptrace.h               |    6 +
+ arch/s390/include/asm/unwind_user.h          |   71 +
+ arch/s390/include/asm/unwind_user_eh_frame.h |   24 +
+ arch/x86/Kconfig                             |    1 +
+ arch/x86/include/asm/mmu.h                   |    2 +-
+ arch/x86/include/asm/uaccess.h               |   39 +-
+ arch/x86/include/asm/unwind_user.h           |   77 +-
+ arch/x86/include/asm/unwind_user_eh_frame.h  |  153 ++
+ fs/binfmt_elf.c                              |   49 +-
+ include/asm-generic/Kbuild                   |    1 +
+ include/asm-generic/unwind_user_eh_frame.h   |   84 +
+ include/linux/eh_frame.h                     |  104 +
+ include/linux/mm_types.h                     |    3 +
+ include/linux/unwind_user.h                  |   20 +
+ include/linux/unwind_user_eh_frame_types.h   |   41 +
+ include/linux/unwind_user_types.h            |   51 +-
+ include/uapi/linux/eh_frame.h                |   14 +
+ include/uapi/linux/prctl.h                   |    4 +
+ kernel/fork.c                                |   10 +
+ kernel/sys.c                                 |   11 +
+ kernel/unwind/Makefile                       |    3 +-
+ kernel/unwind/eh_frame.c                     | 1771 ++++++++++++++++++
+ kernel/unwind/eh_frame.h                     |   83 +
+ kernel/unwind/eh_frame_debug.h               |   71 +
+ kernel/unwind/user.c                         |  142 +-
+ mm/init-mm.c                                 |    2 +
+ mm/mmap.c                                    |    5 +
+ 30 files changed, 2842 insertions(+), 41 deletions(-)
+ create mode 100644 arch/s390/include/asm/unwind_user.h
+ create mode 100644 arch/s390/include/asm/unwind_user_eh_frame.h
+ create mode 100644 arch/x86/include/asm/unwind_user_eh_frame.h
+ create mode 100644 include/asm-generic/unwind_user_eh_frame.h
+ create mode 100644 include/linux/eh_frame.h
+ create mode 100644 include/linux/unwind_user_eh_frame_types.h
+ create mode 100644 include/uapi/linux/eh_frame.h
+ create mode 100644 kernel/unwind/eh_frame.c
+ create mode 100644 kernel/unwind/eh_frame.h
+ create mode 100644 kernel/unwind/eh_frame_debug.h
+
+
+base-commit: 8d3ae59288f1e7d58d76558a6ee96d533bc5019f
 -- 
 2.53.0
 
