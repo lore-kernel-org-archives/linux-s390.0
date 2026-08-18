@@ -1,70 +1,70 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85EB137B40E
-	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 23:22:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E35DF239E80
+	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 23:23:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787095376; cv=none; b=e/qlrXlUtDQD2GA+sD+GteUoERcKOpzYkIvIkrnX1jp9xzRJ5u6ctZ+taZBeGgspbfUe8eUkGrPReigJGwaXuJfE5MRK9RaApAHd+BzX7vUlu1vUh8yWdPHFaAmHkltkfVQCo0iCNHdgqbRoAsPT1mPvMT8cVYhnUEu0pTbfPbw=
+	t=1787095397; cv=none; b=OcSmkRBKaYMgsVf7LQzLPCN/ct1cQaecDzWd3MA+FossSne3Wu06s/a8xR3zdUWSHTOf3JGwmn4CpxRowFu4HhrX7koHL+Cg8+qgOxJZGKaNyqq9/M2izgkZ3iDN8Hs+IH2XdfDVEF+ddy5FntqbbFKT9V5l4owV7/DzmwZmkMU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787095376; c=relaxed/simple;
-	bh=srDL0764oRX28u5FkTXgSISko2j2IHuuZwgQfu/d2H0=;
+	s=arc-20240116; t=1787095397; c=relaxed/simple;
+	bh=m/OUWnEvSebqd3L8nG+IHsD0fFmOely+Z0k0eJ10J4s=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=vFyHAj7Cedww+hdmOxXzo9Pskh+OcFPmJmo9+whVXKKlTADdPo7VRHXeqWaTq8NwlppYOExSufSZAYN0WM9ybZYOTxaK5v0fhAXNlUMc7f3AwswCUcK2wKeV/6jv6cmb+Trq+ZY6ecefnjAohJqhX0iwmeEr6DYH4gLN1dyiugA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BVUhtA7O; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Evw+trGjSxHAhNb7SiG4T/3MuxJ1FopGMsaFRzVC1ryztAUSPaQglkKVowtJd1lcKzt+3bJKtg/ikh6jCEt1NffltJATO5IN6kmqLV/QvUiKLxcwoqGyhWkz+0aXqi43Opw2fhZZTZmTP+5B7tryVCOvGvpsWk6Jx8KbmW9naJg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ohVLzluA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BVUhtA7O"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E42F11F000E9;
-	Tue, 18 Aug 2026 23:22:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ohVLzluA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99F631F000E9;
+	Tue, 18 Aug 2026 23:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787095375;
-	bh=srDL0764oRX28u5FkTXgSISko2j2IHuuZwgQfu/d2H0=;
+	s=k20260515; t=1787095395;
+	bh=m/OUWnEvSebqd3L8nG+IHsD0fFmOely+Z0k0eJ10J4s=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BVUhtA7OAmCsQHmHjH6DCIuJEkjYSYee32vWLwzDm/dPEUmmMjlzd+mLTdcCQD6tf
-	 Jxlz5iXqGcKQ+qtTw7V68jXDZWcoxgsweIwvb0AQtEGPU0TMGcl7ZkEm8DMeRMhnsB
-	 36XTr4da18LiBura18Tb3Xu+b8hGB4BV3Zg8odaHB2CZVI91Y6Ibr2iSnoaxJZ6wHq
-	 We/kjbNur2qZseyQQomYb/YhRy1a3Yq3fIX0lrHVdY1h8o6pew/WXjEOtdZ2D6vU80
-	 qngNbPGYRhV8K9BU+AGZg1NMQZdmCCU/qjufdgGlgd3vqZ2fUR78VvZ24tMUq7RUXv
-	 TUwGrcizmojdA==
+	b=ohVLzluAVT+0CE2HvaA9drYYXswCWVVq/N2m42tbzZ1NYxf58nLRr30b7ItbNHXIU
+	 rvRXnoXeDlEODpxp0C79UUPQ3NGkybVjUPhzRbLnSUfy4CjgA/SJulX8KQ3Jxm0rV/
+	 nhPdDNSMrFppnsW6zxrSUgVAVj3mprRx+u7MgWMnhd9XShSHQ742dcVkU/NccwkNAq
+	 1SibimJrOMuFo7FnO6m6INEG1Xq5zYSAs6fmI5RtsJI5yUZfyx2SJqJzNI/huJV3zc
+	 mrdnnyaq0Aw56DA2IJX3xeVaMG80safDMSAh4ht2hBOvyOl1wd87f8QnC/jUso9TpP
+	 6asdPA+LJv0ag==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/2] init/Kconfig: make config INIT_ENV_ARG_LIMIT
- user-configurable
+Subject: Re: [PATCH v2 1/2] init, arch: make CONFIG_COMMAND_LINE_SIZE
+ globally configurable
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Wilson Felipe Pereira" <wfelipe@google.com>
-Cc: linux-s390@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
  Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260818231646.804507-3-wfelipe@google.com>
+In-Reply-To: <20260818231646.804507-2-wfelipe@google.com>
 References: <20260818231646.804507-1-wfelipe@google.com>
- <20260818231646.804507-3-wfelipe@google.com>
+ <20260818231646.804507-2-wfelipe@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 18 Aug 2026 23:22:54 +0000
-Message-Id: <20260818232254.E42F11F000E9@smtp.kernel.org>
+Date: Tue, 18 Aug 2026 23:23:15 +0000
+Message-Id: <20260818232315.99F631F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> INIT_ENV_ARG_LIMIT is defined without a prompt string (`int`), making it
-> a hidden Kconfig symbol that defaults to 32 (or 128 for UML) and cannot
-> be configured in `make menuconfig`.
+> Currently, s390 has the ability to configure the maximum kernel command
+> line size via Kconfig (CONFIG_COMMAND_LINE_SIZE). Other architectures
+> define a hardcoded COMMAND_LINE_SIZE macro in their setup.h headers.
 >=20
-> Now that CONFIG_COMMAND_LINE_SIZE is configurable across all architecture=
-s,
-> users who select larger kernel command lines (e.g., 4096 bytes) may pass
-> more than 32 command-line arguments or environment variables (`foo=3Dbar`=
-) to
-> `/sbin/init`. If INIT_ENV_ARG_LIMIT remains hardcoded at 32, any argument
-> after the 32nd sets the panic_later flag and causes a hard kernel panic
-> on boot.
+> In some use cases, such as netboot kernels, rootfs configurations, or
+> larger initramfs setups, a larger command line size is required. While
+> for embedded workloads, it can be reduced to save memory.
 >=20
-> Add a prompt string ("Maximum number of kernel command line arguments") a=
-nd
-> a `range 32 4096` to `config INIT_ENV_ARG_LIMIT` so that users can
-> configure their init argument and environment variable limit when needed,
-> while preserving the existing default of 32 for standard builds.
+> Move CONFIG_COMMAND_LINE_SIZE out of arch/s390/Kconfig and into
+> init/Kconfig under General setup, and update every architecture's setup.h
+> header to define COMMAND_LINE_SIZE as CONFIG_COMMAND_LINE_SIZE.
+>=20
+> For user-space API (uapi) headers, wrap the definition in an
+> `#ifdef __KERNEL__` guard and retain the historical hardcoded default in
+> the `#else` block. When user-space headers are installed via
+> [ ... ]
+> architectures are capped at 4096 bytes to prevent unreasonable
+> allocations.
 >=20
 > Signed-off-by: Maciej =C5=BBenczykowski <maze@google.com>
 > Signed-off-by: Wilson Felipe Pereira <wfelipe@google.com>
@@ -73,5 +73,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260818231646.8045=
-07-1-wfelipe@google.com?part=3D2
+07-1-wfelipe@google.com?part=3D1
 
