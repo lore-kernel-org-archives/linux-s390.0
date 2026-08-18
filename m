@@ -1,145 +1,132 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94C6B275AFD
-	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 07:08:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ACC14B048C;
+	Tue, 18 Aug 2026 07:11:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787036940; cv=none; b=V++/9goN1yIQqxvAJgRfCbW6wsJ3GgsTJ6ZPDb4bc2RO29iPWDNPDZVHEjIZ2d0YpMporeBxuqT5ZETYDpUZeRD8FNn7bC25Y2gkkcWWi6E9ZAh0ff0BIvJucSKGj563On6zT+kiLEniWGr+l5dB7hrwE164iao1x29jxhx1u54=
+	t=1787037108; cv=none; b=O4G8w3HvPe/mN/mQjwUtgvs6vTk2LqR2JwuDtTphhG3ncR+16bBUTtMCdEbr8pMsagIBwuTqXHjJfF8FJFMTjNzEK/OKdh/o/vydYRZr1MYc7pcB43zU4lYS2kqIP7kkWHejo6hCRGDRTrb4PwsF2z7o5KcWWR9xnS1Es6iGSWE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787036940; c=relaxed/simple;
-	bh=fC3NdcpwjAOQH9HFbAFd2k0YcWK8lJB39E/zzm7ZsHU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=SF38PT90zARBFPZxrcVrVqMXhAPEJHPG9z9N76CKs9DLxOTdgR5uiYB4wf8xyI7mdFv087qeM3lftmBYNSR7pTenRBA6i1Zmi3K7UmEVdcQU+xRDnhx6QGQarx950dJlX4Ucmp6aRL1Xm9ymUlnPmefmDOpKaP3cEIKDye+G1IQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JgGJ7ffe; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787037108; c=relaxed/simple;
+	bh=J7ACfF6RypKB13iQCO82k0NWpsRWhh7YMW1/jcG1xkk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=uGkqyh9nNJ798tMdOhS7t7KLjjiZOCzWwVeTgr1S6h16O/OMW7VmRQ27lUXd3XU+m0r2UEhSmyyhSrdgI4gI4hdmINxje5GBghw7VA7R5l2L2fL7iErr2G/o1ppuxulfnYTA70euaGb0FX9I0EnhujvSD1O5KZHj6fbEucbNvBw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=npeEkTwY; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JgGJ7ffe"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5DE81F000E9;
-	Tue, 18 Aug 2026 07:08:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787036939;
-	bh=cCQdLdqwKmBEvVC0FmpsDusAXP2UAQT4qDILXng3WBc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JgGJ7ffeVg6TgLDtUeo4iG3luZSQq/4ekxQ6Sa/jrQraNl1TTr13qG90voW08MucU
-	 oYya4XYoVUVjmQgV2V1iSXXt8TV4PbMcBOGpBC57Myc8fbOCSABYlJJeQZ+HeQTUqX
-	 c8GcexjdTJdbE2PISPMBB4TAUb+ijF7FJPxtTc2gqbV9boQRABWJZ+X76B2LmCL/ze
-	 v6aqBrXjG/7QBFpilAceiQr7gaPb4zgG2ZvgYFTm6utMWTyzg+NAtoCSzauk6uE1rQ
-	 jpMS6Pydq58Se7hqCJPSLpMLMW2Vu155luWahFw5mh22ot/2LqOZx9cdT6rg/yNrt/
-	 ytmbNgqF4Xxhg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] s390: raw3270: Handle allocation failures
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Triet Hoang" <triet.hoang.dev@gmail.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260818070023.1654606-1-triet.hoang.dev@gmail.com>
-References: <20260818070023.1654606-1-triet.hoang.dev@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 18 Aug 2026 07:08:58 +0000
-Message-Id: <20260818070858.D5DE81F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="npeEkTwY"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67HM1WUM758632;
+	Tue, 18 Aug 2026 07:11:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=dnD2eY
+	GRY06SEFxEmVSmqU1vYcLVXwx6S++ATCDN53A=; b=npeEkTwY6P7SJ0CNF4eLLA
+	zZY60ac++RMLwN7k/huT2Q0Zm6hsoCyU0DtmLPGN/IGmGmz/seiqxEAUqqXGijdZ
+	7GMJDqjuVMnE/k2hBidzXQwdZnNljKZ/ENmpXn4hsdBHE2wQ6vj1JLCrCkxZ7Eip
+	2479FT/VjGsCYgT4uneSc6uLoVxwwHGh1FZ1GeKkW0sBAJiSEtrRbSAnfJuTlbXJ
+	34pFZCTa6OjKO6CahHm5Sr0bP4W/UeaUQREjcPqPJTKn2Wh/5q/YdY3GdhJ7sMcf
+	ch3sAmWzZeEiFlzXXONFcvPs20emuDLVcMvWOIjC70dqkTurfYECURhyaYd48E3A
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2fsqpmxf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 18 Aug 2026 07:11:46 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67I7BN6g015186;
+	Tue, 18 Aug 2026 07:11:45 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g354y9nqm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 18 Aug 2026 07:11:45 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67I7Bfwf42402094
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 18 Aug 2026 07:11:41 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AB3DF20043;
+	Tue, 18 Aug 2026 07:11:41 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7A11920040;
+	Tue, 18 Aug 2026 07:11:41 +0000 (GMT)
+Received: from [9.224.91.220] (unknown [9.224.91.220])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 18 Aug 2026 07:11:41 +0000 (GMT)
+Message-ID: <70657af2-a5ef-4d09-be35-37fd6f4a9f67@linux.ibm.com>
+Date: Tue, 18 Aug 2026 09:11:41 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 1/6] s390/crypto: Fix return code handling at
+ skcipher_walk_done in PAES algorithms
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: fcallies@linux.ibm.com, ifranzki@linux.ibm.com, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        linux-crypto@vger.kernel.org
+References: <20260817141654.77940-1-freude@linux.ibm.com>
+ <20260817141654.77940-2-freude@linux.ibm.com>
+From: Holger Dengler <dengler@linux.ibm.com>
+Content-Language: en-US, de-DE
+In-Reply-To: <20260817141654.77940-2-freude@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDA1MSBTYWx0ZWRfX0cYAquRxSOnq
+ qSmH1BiVXY9rwozh+zUM+p91jk+doCQoHcsrUMZsZaTKKsrfyaJYh4h5tI7eTKvZTji3xXyypeB
+ VpzJ7vsvVIIJjmuuFlaS8h5XM3+LJAf97bgh8kZoHftKkqTg5NLDdr7sRu2fWAMY3p+KCNDqGwm
+ Iqk/gVJikGwKHwjGFiGewspB3CehTY5nfZ40sOLKKGVPbErmZDb/nGqh+/GLg8UC37FzV0g91wg
+ jSCleGTHibrUicOEZZyaNDk4JxgMGBoEMMAwkN3H+3VXSZw1zzqRSC6JkbDvI6gleOHDJe2aUfY
+ rHPP/KatSQ5y/ORoXf5YMLNS6/fhwKVrSz2xfKRS0fO6C+WaX8vdJgh7vQ3ZjCHOWYLJzAHR2TZ
+ LJblcR+HAfVE0gBrI5ZtCzx+dt+h1VWvOukCO0D761ApOptN097VYPpQx+wmeeE1nZj/9xQX4NN
+ zsp0oCcbFRwZQnW0RZQ==
+X-Proofpoint-ORIG-GUID: DaWreHJ_581a-knkw2x6MMZcPy0y1hLH
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDA1MSBTYWx0ZWRfX8IyXAmtJ7v0c
+ QX6evTSf6P/td31FIFVV+VQ8W7xgLhP2P4cfd8kCeaiwYhtaz/v6BUC1K9i1LyUhOzhdATqwHlz
+ rA7D2TudTkpsm6DpQgqgQkdhIbBRG2A=
+X-Authority-Analysis: v=2.4 cv=DJe/JSNb c=1 sm=1 tr=0 ts=6a8405b2 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=VwQbUJbxAAAA:8 a=mGMtxAEF_H-nh_TH674A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: DaWreHJ_581a-knkw2x6MMZcPy0y1hLH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-17_04,2026-08-12_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 impostorscore=0 spamscore=0 clxscore=1015 bulkscore=0
+ suspectscore=0 malwarescore=0 phishscore=0 adultscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608180051
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] Freeing `rp` on the `ccw_device_enable_console()` error path leave=
-s a dangling pointer in the global `raw3270_devices` list.
-- [Medium] The newly added allocation error paths leak the previously creat=
-ed `cdev` console device.
-- [Medium] Adding complex memory allocation failure handling to an `__init`=
- function is unnecessary and violates early boot guidelines.
---
+On 8/17/26 16:16, Harald Freudenberger wrote:
+> All the 4 PAES cipher processing loops were not checking the return
+> value of skcipher_walk_done() immediately after calling it. This could
+> lead to error masking when both the walk operation failed and a
+> subsequent key conversion was needed (k < n condition).
+> 
+> Add immediate error checks after skcipher_walk_done() in all main
+> processing loops (ECB, CBC, CTR, XTS modes) to ensure walk errors are
+> properly propagated and not masked by subsequent operations.
+> 
+> With that comes a slight rework around the skcipher_walk_done()
+> invocation. It is now necessary to check if the walk has already been
+> finalized (walk->nbytes is then 0) or not to avoid double
+> de-allocation of resources held by the walk.
+> 
+> Fixes: 6cd87cb5ef6c ("s390/crypto: Rework protected key AES for true asynch support")
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+> Cc: stable@vger.kernel.org # 6.16+
 
---- Patch [1]: [PATCH] s390: raw3270: Handle allocation failures ---
-commit 461fe23d860b7a48d2ce561a29cd0a5780d12446
-Author: Triet Hoang <triet.hoang.dev@gmail.com>
+Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
 
-s390: raw3270: Handle allocation failures
+-- 
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
 
-This commit adds return value checks for memory allocations in
-raw3270_setup_console() to prevent NULL pointer dereferences. It also
-adds error handling to free allocated resources on subsequent failures.
-
-> diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
-> index aa9c4d81225cb..69e0f69a3e149 100644
-> --- a/drivers/s390/char/raw3270.c
-> +++ b/drivers/s390/char/raw3270.c
-> @@ -814,15 +814,26 @@ struct raw3270 __init *raw3270_setup_console(void)
->  		return ERR_CAST(cdev);
-> =20
->  	rp =3D kzalloc_obj(*rp, GFP_KERNEL | GFP_DMA);
-> +	if (!rp)
-> +		return ERR_PTR(-ENOMEM);
-> +	ascebc =3D kzalloc(256, GFP_KERNEL);
-> +	if (!ascebc) {
-> +		kfree(rp);
-> +		return ERR_PTR(-ENOMEM);
-> +	}
-
-[Severity: Medium]
-Since raw3270_setup_console() is an __init function executed early during
-boot, is it necessary to handle these memory allocation failures?
-
-Usually, at this stage, if the system is out of memory it cannot boot anywa=
-y.
-Adding complex error handling to early init paths can introduce dead code or
-accidental regressions.
-
-[Severity: Medium]
-If this error handling is kept, does returning ERR_PTR(-ENOMEM) directly he=
-re
-leak the console device (cdev) that was created earlier in the function?
-
-ccw_device_create_console() allocates cdev at the start of
-raw3270_setup_console(). It looks like ccw_device_destroy_console(cdev)
-should be called before returning here to avoid leaking the device and its
-associated resources.
-
->  	rc =3D raw3270_setup_device(cdev, rp, ascebc);
-> -	if (rc)
-> +	if (rc) {
-> +		kfree(rp->ascebc);
-> +		kfree(rp);
->  		return ERR_PTR(rc);
-> +	}
->  	set_bit(RAW3270_FLAGS_CONSOLE, &rp->flags);
-> =20
->  	rc =3D ccw_device_enable_console(cdev);
->  	if (rc) {
->  		ccw_device_destroy_console(cdev);
-> +		kfree(rp->ascebc);
-> +		kfree(rp);
->  		return ERR_PTR(rc);
->  	}
-
-[Severity: High]
-Does freeing rp here leave a dangling pointer in the global raw3270_devices
-list?
-
-In raw3270_setup_device(), the successfully initialized rp is linked into t=
-he
-global list:
-
-drivers/s390/char/raw3270.c:raw3270_setup_device() {
-    ...
-    if (rp->minor =3D=3D -1 && minor < RAW3270_MAXDEVS + RAW3270_FIRSTMINOR=
-) {
-        rp->minor =3D minor;
-        list_add_tail(&rp->list, &raw3270_devices);
-    }
-    ...
-}
-
-If ccw_device_enable_console(cdev) subsequently fails, the added error path
-calls kfree(rp) without first acquiring raw3270_mutex and unlinking rp with
-list_del(). On the next list iteration, this will cause memory corruption a=
-nd
-a kernel panic.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260818070023.1654=
-606-1-triet.hoang.dev@gmail.com?part=3D1
