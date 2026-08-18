@@ -1,57 +1,57 @@
-Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com [209.85.210.200])
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com [209.85.210.198])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA55A387345
-	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 23:17:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E207A386425
+	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 23:17:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787095048; cv=none; b=FhAyPkaV2D9q6U/Ov6eDtDs7x6e0PXRp/DjFXsy3fQmtFXKBPFzIpHxFerKkVNX/YJdShBUgc+SYVit6sHBipbrqOFCY3zCHHRL766r08rtZ9mXrfoEWnbaGpybj7Ue7fMv2LxpEHUvoGLdkIbIbUbfGHYDuy8/xtefP0NIjfZQ=
+	t=1787095052; cv=none; b=Q6qTnc8CE9FfMCCI0xCRI0b5NBHkkE9L9RbCOY+Bx7kT3ILywI6vZ7QEco9mzGUWvGYZCTF0cVq/oprEA/Cu37AWEA/x4nbOKIcqUAYlEnXyUtbwrdy4Yz0AjYJkhCtnq1JSuXDlyUqfiYun1wwLspaznzot+AGw5WyEfiMCPLU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787095048; c=relaxed/simple;
-	bh=zsQTRvQjt9bdnNmhTuMAFKOKF4rtZOj0YK4Iq/PG6CY=;
+	s=arc-20240116; t=1787095052; c=relaxed/simple;
+	bh=vU6FrvWE607k5Xzh7SdBC7CeruR6Eky4BvR/CT7/VBA=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=OGtpJlWEa6PgNorHewRHnggDTVtc7gDVMWGhFjPK0KAtjyvZe6CELnlBsqvms6jUZjyZLeAZUcviBYbl1DTyrtHEuCTwiKRWde8cfzlbTp+wyTJ0pdWslylQqtIUlthmheDA+dAHW15dNWd8ZCLRKmJmmy+HS7ItO4yJ6tolVtw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--wfelipe.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=udB85CbB; arc=none smtp.client-ip=209.85.210.200
+	 To:Cc:Content-Type; b=jxrUDxJaCorn58XmO2EJp/eiuKyE4HPh1Py7Tc/+oEwYpYsQR7b2FskkXlMFH59msC6bXjPHM7A+zG/mlLhxwqptVF3v5g1m4w8sGTFIzsJV7uj6e7iw2yctPe5CHPI4GxUVdYd/kheXLd8O8Q319GQfQ5FCvC+hE34liBrMo4M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--wfelipe.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=CAbgUXvx; arc=none smtp.client-ip=209.85.210.198
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--wfelipe.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="udB85CbB"
-Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-84e3d575d6eso716396b3a.3
-        for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 16:17:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="CAbgUXvx"
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-8485d853b08so656628b3a.1
+        for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 16:17:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1787095046; x=1787699846; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1787095050; x=1787699850; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:from:subject
          :message-id:references:mime-version:in-reply-to:date:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=rjXE14dAOBmOI2yVIo34QsX8GPMTNdDLCrynw/1qs2g=;
-        b=udB85CbB1agg2vYB8eQbys/Cx2IA458ydAWq9MzU2fIvTxb94aL0JVZfyZm4AjyrN7
-         mvlpRd1QQmLEx89Uhn+SJYb3jRLmUXW5EHX3XEGk0bGZ2RHnonRm6W78MM1qTmIO4YPe
-         VbhZJVnQBagBqwXfKuxlDr+sRw+y61UESBgIW3mS8c593VIHo2I/lfmFJ8smO2w3tT7Y
-         jjfpRGn7GhA42VKzxffaLf2dDG246k8O9vR6S4G+2i7reUDWgeaZKsR9hxCap5tkLBee
-         ur0Zt1LTC6pj5UbrZ1Y3UgGd7xlkUGMqrG8mMC/BkDWEwdwd9/LfMBjLZMEhI7fL/pbY
-         2IQQ==
+        bh=isOvqMF/5WA0EHYdsGtLtHCnG1u9xSNeKPU4MxGk99M=;
+        b=CAbgUXvxTpNuxY+eyi6HCcnOmFUxIfc7K1tUDQw1U6bFF66oO3TMq3xA+HFKl7WlN9
+         NVtUPuOgcpGpXuuoZKSqBB+bwwScGKXKc4mJsOl5BqHv0oAkmFUXigouylNwW1f4DNWF
+         wNfEoDfyQ4b0yIhr1PblQ3DeAvCMJJZYdxjNe3nU5gKg60o5Z4SNHaUgr1WHPrxW5K5V
+         dOhZ3EkyB15W+LFWJeddZM/zhR6sM2/jBRSKL/EMS1gIXV+2djtDk97ztkYOxhQeaK2V
+         zcs3hlZmWXB4+lcKH4qeeI7ApGgJ+rS6dUOfsawv7YTkj8ySIp5fG7/x3Yf13l9/BV+S
+         Wwkg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787095046; x=1787699846;
+        d=1e100.net; s=20251104; t=1787095050; x=1787699850;
         h=content-transfer-encoding:content-type:cc:to:from:subject
          :message-id:references:mime-version:in-reply-to:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=rjXE14dAOBmOI2yVIo34QsX8GPMTNdDLCrynw/1qs2g=;
-        b=mb5KWcL6Y1KnIw4RZXblciYaZuyJ28j2aFR/+ncmemNy6/PoLyATwxgTt5BjeDAc3n
-         uUZR/QxiQFEktJ/0m40ABsHuiQH1jNHYRSqe1TJzxy1QEuRCHVLUq6mrQsUVKKPowdPj
-         9kTf9N3AMaFyyoNuMUk73WH6/Sw13lD99AYhlkAx0rujGWLW1vXn4Tju0MqgP3GkpdEX
-         sFW6V4U/5iqwDOKMM1zNl4+fUO9dbxWz8Y4bzxNWiZ2Q+xzyQqf4kd9Xh1YLXawKQI5k
-         0zaDmxTUvNONIqiLpbi17g67ZpHaC1wb2CquEQlCvS4AyTbr8s0e4jIo2ZtfNF5fi509
-         +v5g==
-X-Forwarded-Encrypted: i=1; AHgh+RosvdQ1T6/hI9wBDWL6TxaZD0F1SBxCwz3rQIIOo6t6LUgFOS5kkCrhwUXWMGAUmYtPZV6+8u2lMlNl@vger.kernel.org
-X-Gm-Message-State: AOJu0YxOC8Dn7TNDsiJ/mCCV58pMLKAB8wDJJ1ijKVzoRvCe763bTVIx
-	W7JVNoZVw1jxNGvqb7Pd2NOoJTAVKFqCP33Y7OLkatz6I0LEJzbGnTsuxaO7d5KiRYB6+1bKarJ
-	uLda1FtZ+xA==
-X-Received: from pglg36.prod.google.com ([2002:a63:1124:0:b0:cc1:522f:464c])
- (user=wfelipe job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:807:b0:84e:7ec:aa42
- with SMTP id d2e1a72fcca58-851d3929f58mr305529b3a.10.1787095045945; Tue, 18
- Aug 2026 16:17:25 -0700 (PDT)
-Date: Tue, 18 Aug 2026 23:16:32 +0000
+        bh=isOvqMF/5WA0EHYdsGtLtHCnG1u9xSNeKPU4MxGk99M=;
+        b=Ozew4tg6F96sUDEL2fxK8RAyC2BKq/IGnNFGNAJiym4PxcS3t9Zx36g7ICOmOQ/lEV
+         1a2QasOoHyJQYTrtTeeT599NU9gcbmYX1C8CKGakqJDPVyBn/aDKQSm1Z6OR6wO9l7Ul
+         rdJ40OolrTko6MbWJ4IlcO4owMGFfGpUMV6UKwaF+u7ws/01FOQDYmAX+haR1TAgeu4a
+         sF4NERpoSrtegg58Bpoe3Bo7QuuYP0oaM/EwJB4pZS1xKizJeECsFsrxFedSSEo2WCkE
+         TL1hocRRdDcQ0YCECfA0oFkznc6EV5pRdHyiQkjV6M2nbzq48gvqytDXOQZx5dTC4NXA
+         1vkw==
+X-Forwarded-Encrypted: i=1; AHgh+RqsSEC8ouh8p3zO/KdfhUui0gF8GobWEEaSa9hMsXhG0e5pDliPX5AQLMCQ7J+A8hF4wtHcm3AJaAZw@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw0B8h7sNCdsY1Y4A2cFItYRoVyWbt+KPbkK37aqc/oUVIYyRod
+	uWxtzaL1U2VpzTgHDwWDkmXoL1fpRx0seMd+5yS0hUxYD6bO9CEn+bZANPZ8RpMh9cC9YpdzYMv
+	8aNEhNulX6A==
+X-Received: from pfblb8.prod.google.com ([2002:a05:6a00:4f08:b0:845:4da8:56a5])
+ (user=wfelipe job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:23c3:b0:848:3f07:c5a2
+ with SMTP id d2e1a72fcca58-851d38399c0mr327599b3a.4.1787095050148; Tue, 18
+ Aug 2026 16:17:30 -0700 (PDT)
+Date: Tue, 18 Aug 2026 23:16:33 +0000
 In-Reply-To: <20260818231646.804507-1-wfelipe@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -61,8 +61,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20260818231646.804507-1-wfelipe@google.com>
 X-Mailer: git-send-email 2.55.0.737.g08866a6d13-goog
-Message-ID: <20260818231646.804507-2-wfelipe@google.com>
-Subject: [PATCH v2 1/2] init, arch: make CONFIG_COMMAND_LINE_SIZE globally configurable
+Message-ID: <20260818231646.804507-3-wfelipe@google.com>
+Subject: [PATCH v2 2/2] init/Kconfig: make config INIT_ENV_ARG_LIMIT user-configurable
 From: Wilson Felipe Pereira <wfelipe@google.com>
 To: Andrew Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>
 Cc: "=?UTF-8?q?Maciej=20=C5=BBenczykowski?=" <maze@google.com>, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
@@ -75,368 +75,45 @@ Cc: "=?UTF-8?q?Maciej=20=C5=BBenczykowski?=" <maze@google.com>, Paul Walmsley <p
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Currently, s390 has the ability to configure the maximum kernel command
-line size via Kconfig (CONFIG_COMMAND_LINE_SIZE). Other architectures
-define a hardcoded COMMAND_LINE_SIZE macro in their setup.h headers.
+INIT_ENV_ARG_LIMIT is defined without a prompt string (`int`), making it
+a hidden Kconfig symbol that defaults to 32 (or 128 for UML) and cannot
+be configured in `make menuconfig`.
 
-In some use cases, such as netboot kernels, rootfs configurations, or
-larger initramfs setups, a larger command line size is required. While
-for embedded workloads, it can be reduced to save memory.
+Now that CONFIG_COMMAND_LINE_SIZE is configurable across all architectures,
+users who select larger kernel command lines (e.g., 4096 bytes) may pass
+more than 32 command-line arguments or environment variables (`foo=3Dbar`) =
+to
+`/sbin/init`. If INIT_ENV_ARG_LIMIT remains hardcoded at 32, any argument
+after the 32nd sets the panic_later flag and causes a hard kernel panic
+on boot.
 
-Move CONFIG_COMMAND_LINE_SIZE out of arch/s390/Kconfig and into
-init/Kconfig under General setup, and update every architecture's setup.h
-header to define COMMAND_LINE_SIZE as CONFIG_COMMAND_LINE_SIZE.
-
-For user-space API (uapi) headers, wrap the definition in an
-`#ifdef __KERNEL__` guard and retain the historical hardcoded default in
-the `#else` block. When user-space headers are installed via
-`make headers_install`, unifdef strips out the kernel section, ensuring
-the same value as before for user-space applications including
-`<asm/setup.h>`.
-
-For S390, the range is kept the same, but other architectures have varying
-constraints. S390 requires a minimum of 896 bytes to protect legacy
-bootloaders from overwriting the .text section. ARM, M68K, and NIOS2
-allocate the command line directly on severely constrained decompressor
-stacks, so their ranges are strictly capped at 2048 bytes to prevent
-deterministic stack exhaustion and boot panics. PowerPC (PPC) boot
-wrappers silently truncate arguments past 2048 bytes, so it is also
-capped at 2048 to prevent silent parameter loss.
-
-The SuperH (SUPERH) boot parameter page allocates exactly PAGE_SIZE
-(typically 4096 bytes), and placing a 4096-byte command line starting
-at offset 256 would cause strscpy() to read out of bounds; it is
-capped at 3840 bytes. Alpha physically limits its boot parameter block
-to 256 bytes, so its limit is strictly locked to 256. All other
-architectures are capped at 4096 bytes to prevent unreasonable
-allocations.
+Add a prompt string ("Maximum number of kernel command line arguments") and
+a `range 32 4096` to `config INIT_ENV_ARG_LIMIT` so that users can
+configure their init argument and environment variable limit when needed,
+while preserving the existing default of 32 for standard builds.
 
 Signed-off-by: Maciej =C5=BBenczykowski <maze@google.com>
 Signed-off-by: Wilson Felipe Pereira <wfelipe@google.com>
 ---
- arch/alpha/include/uapi/asm/setup.h      |  4 ++++
- arch/arc/include/asm/setup.h             |  2 +-
- arch/arm/include/uapi/asm/setup.h        |  6 +++++-
- arch/arm64/include/uapi/asm/setup.h      |  4 ++++
- arch/loongarch/include/uapi/asm/setup.h  |  4 ++++
- arch/m68k/include/uapi/asm/setup.h       |  6 +++++-
- arch/microblaze/include/uapi/asm/setup.h |  4 ++++
- arch/mips/include/uapi/asm/setup.h       |  4 ++++
- arch/parisc/include/uapi/asm/setup.h     |  4 ++++
- arch/powerpc/include/uapi/asm/setup.h    |  4 ++++
- arch/riscv/include/uapi/asm/setup.h      |  4 ++++
- arch/s390/Kconfig                        |  8 --------
- arch/sparc/include/uapi/asm/setup.h      | 10 +++++++---
- arch/um/include/asm/setup.h              |  2 +-
- arch/x86/include/asm/setup.h             |  2 +-
- arch/xtensa/include/uapi/asm/setup.h     |  4 ++++
- include/uapi/asm-generic/setup.h         |  4 ++++
- init/Kconfig                             | 16 ++++++++++++++++
- 18 files changed, 76 insertions(+), 16 deletions(-)
+ init/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/alpha/include/uapi/asm/setup.h b/arch/alpha/include/uapi/=
-asm/setup.h
-index f881ea5947cb..169f743ef765 100644
---- a/arch/alpha/include/uapi/asm/setup.h
-+++ b/arch/alpha/include/uapi/asm/setup.h
-@@ -2,6 +2,10 @@
- #ifndef _UAPI__ALPHA_SETUP_H
- #define _UAPI__ALPHA_SETUP_H
-=20
-+#ifdef __KERNEL__
-+#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
-+#else
- #define COMMAND_LINE_SIZE	256
-+#endif
-=20
- #endif /* _UAPI__ALPHA_SETUP_H */
-diff --git a/arch/arc/include/asm/setup.h b/arch/arc/include/asm/setup.h
-index 1c6db599e1fc..60e158d58cec 100644
---- a/arch/arc/include/asm/setup.h
-+++ b/arch/arc/include/asm/setup.h
-@@ -9,7 +9,7 @@
- #include <linux/types.h>
- #include <uapi/asm/setup.h>
-=20
--#define COMMAND_LINE_SIZE 256
-+#define COMMAND_LINE_SIZE CONFIG_COMMAND_LINE_SIZE
-=20
- /*
-  * Data structure to map a ID to string
-diff --git a/arch/arm/include/uapi/asm/setup.h b/arch/arm/include/uapi/asm/=
-setup.h
-index 8e50e034fec7..4aa93558af1e 100644
---- a/arch/arm/include/uapi/asm/setup.h
-+++ b/arch/arm/include/uapi/asm/setup.h
-@@ -17,7 +17,11 @@
-=20
- #include <linux/types.h>
-=20
--#define COMMAND_LINE_SIZE 1024
-+#ifdef __KERNEL__
-+#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
-+#else
-+#define COMMAND_LINE_SIZE	1024
-+#endif
-=20
- /* The list ends with an ATAG_NONE node. */
- #define ATAG_NONE	0x00000000
-diff --git a/arch/arm64/include/uapi/asm/setup.h b/arch/arm64/include/uapi/=
-asm/setup.h
-index 5d703888f351..2236890175a5 100644
---- a/arch/arm64/include/uapi/asm/setup.h
-+++ b/arch/arm64/include/uapi/asm/setup.h
-@@ -22,6 +22,10 @@
-=20
- #include <linux/types.h>
-=20
-+#ifdef __KERNEL__
-+#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
-+#else
- #define COMMAND_LINE_SIZE	2048
-+#endif
-=20
- #endif
-diff --git a/arch/loongarch/include/uapi/asm/setup.h b/arch/loongarch/inclu=
-de/uapi/asm/setup.h
-index d46363ce3e02..03c7bfa1e5d9 100644
---- a/arch/loongarch/include/uapi/asm/setup.h
-+++ b/arch/loongarch/include/uapi/asm/setup.h
-@@ -3,6 +3,10 @@
- #ifndef _UAPI_ASM_LOONGARCH_SETUP_H
- #define _UAPI_ASM_LOONGARCH_SETUP_H
-=20
-+#ifdef __KERNEL__
-+#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
-+#else
- #define COMMAND_LINE_SIZE	4096
-+#endif
-=20
- #endif /* _UAPI_ASM_LOONGARCH_SETUP_H */
-diff --git a/arch/m68k/include/uapi/asm/setup.h b/arch/m68k/include/uapi/as=
-m/setup.h
-index 25fe26d5597c..2d5b24a5345f 100644
---- a/arch/m68k/include/uapi/asm/setup.h
-+++ b/arch/m68k/include/uapi/asm/setup.h
-@@ -12,6 +12,10 @@
- #ifndef _UAPI_M68K_SETUP_H
- #define _UAPI_M68K_SETUP_H
-=20
--#define COMMAND_LINE_SIZE 256
-+#ifdef __KERNEL__
-+#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
-+#else
-+#define COMMAND_LINE_SIZE	256
-+#endif
-=20
- #endif /* _UAPI_M68K_SETUP_H */
-diff --git a/arch/microblaze/include/uapi/asm/setup.h b/arch/microblaze/inc=
-lude/uapi/asm/setup.h
-index 16c56807f86a..e4b253064c7d 100644
---- a/arch/microblaze/include/uapi/asm/setup.h
-+++ b/arch/microblaze/include/uapi/asm/setup.h
-@@ -12,6 +12,10 @@
- #ifndef _UAPI_ASM_MICROBLAZE_SETUP_H
- #define _UAPI_ASM_MICROBLAZE_SETUP_H
-=20
-+#ifdef __KERNEL__
-+#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
-+#else
- #define COMMAND_LINE_SIZE	256
-+#endif
-=20
- #endif /* _UAPI_ASM_MICROBLAZE_SETUP_H */
-diff --git a/arch/mips/include/uapi/asm/setup.h b/arch/mips/include/uapi/as=
-m/setup.h
-index 7d48c433b0c2..8d6c474835ae 100644
---- a/arch/mips/include/uapi/asm/setup.h
-+++ b/arch/mips/include/uapi/asm/setup.h
-@@ -2,7 +2,11 @@
- #ifndef _UAPI_MIPS_SETUP_H
- #define _UAPI_MIPS_SETUP_H
-=20
-+#ifdef __KERNEL__
-+#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
-+#else
- #define COMMAND_LINE_SIZE	4096
-+#endif
-=20
-=20
- #endif /* _UAPI_MIPS_SETUP_H */
-diff --git a/arch/parisc/include/uapi/asm/setup.h b/arch/parisc/include/uap=
-i/asm/setup.h
-index 78b2f4ec7d65..cfa77e84205d 100644
---- a/arch/parisc/include/uapi/asm/setup.h
-+++ b/arch/parisc/include/uapi/asm/setup.h
-@@ -2,6 +2,10 @@
- #ifndef _PARISC_SETUP_H
- #define _PARISC_SETUP_H
-=20
-+#ifdef __KERNEL__
-+#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
-+#else
- #define COMMAND_LINE_SIZE	1024
-+#endif
-=20
- #endif /* _PARISC_SETUP_H */
-diff --git a/arch/powerpc/include/uapi/asm/setup.h b/arch/powerpc/include/u=
-api/asm/setup.h
-index c54940b09d06..daa15ac4e94c 100644
---- a/arch/powerpc/include/uapi/asm/setup.h
-+++ b/arch/powerpc/include/uapi/asm/setup.h
-@@ -2,6 +2,10 @@
- #ifndef _UAPI_ASM_POWERPC_SETUP_H
- #define _UAPI_ASM_POWERPC_SETUP_H
-=20
-+#ifdef __KERNEL__
-+#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
-+#else
- #define COMMAND_LINE_SIZE	2048
-+#endif
-=20
- #endif /* _UAPI_ASM_POWERPC_SETUP_H */
-diff --git a/arch/riscv/include/uapi/asm/setup.h b/arch/riscv/include/uapi/=
-asm/setup.h
-index eb4f0209c696..a6c1f4b0987e 100644
---- a/arch/riscv/include/uapi/asm/setup.h
-+++ b/arch/riscv/include/uapi/asm/setup.h
-@@ -3,6 +3,10 @@
- #ifndef _UAPI_ASM_RISCV_SETUP_H
- #define _UAPI_ASM_RISCV_SETUP_H
-=20
-+#ifdef __KERNEL__
-+#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
-+#else
- #define COMMAND_LINE_SIZE	2048
-+#endif
-=20
- #endif /* _UAPI_ASM_RISCV_SETUP_H */
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 378fcd2b6181..a9b09d5ff8b8 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -512,14 +512,6 @@ endchoice
- config 64BIT
- 	def_bool y
-=20
--config COMMAND_LINE_SIZE
--	int "Maximum size of kernel command line"
--	default 4096
--	range 896 1048576
--	help
--	  This allows you to specify the maximum length of the kernel command
--	  line.
--
- config SMP
- 	def_bool y
-=20
-diff --git a/arch/sparc/include/uapi/asm/setup.h b/arch/sparc/include/uapi/=
-asm/setup.h
-index 3c208a4dd464..7054f5249a3a 100644
---- a/arch/sparc/include/uapi/asm/setup.h
-+++ b/arch/sparc/include/uapi/asm/setup.h
-@@ -6,10 +6,14 @@
- #ifndef _UAPI_SPARC_SETUP_H
- #define _UAPI_SPARC_SETUP_H
-=20
--#if defined(__sparc__) && defined(__arch64__)
--# define COMMAND_LINE_SIZE 2048
-+#ifdef __KERNEL__
-+# define COMMAND_LINE_SIZE CONFIG_COMMAND_LINE_SIZE
- #else
--# define COMMAND_LINE_SIZE 256
-+# if defined(__sparc__) && defined(__arch64__)
-+#  define COMMAND_LINE_SIZE 2048
-+# else
-+#  define COMMAND_LINE_SIZE 256
-+# endif
- #endif
-=20
-=20
-diff --git a/arch/um/include/asm/setup.h b/arch/um/include/asm/setup.h
-index 80ada899f254..bc83dc4d467d 100644
---- a/arch/um/include/asm/setup.h
-+++ b/arch/um/include/asm/setup.h
-@@ -6,6 +6,6 @@
-  * command line, so this choice is ok.
-  */
-=20
--#define COMMAND_LINE_SIZE 4096
-+#define COMMAND_LINE_SIZE CONFIG_COMMAND_LINE_SIZE
-=20
- #endif		/* SETUP_H_INCLUDED */
-diff --git a/arch/x86/include/asm/setup.h b/arch/x86/include/asm/setup.h
-index 914eb32581c7..b73caf64f219 100644
---- a/arch/x86/include/asm/setup.h
-+++ b/arch/x86/include/asm/setup.h
-@@ -4,7 +4,7 @@
-=20
- #include <uapi/asm/setup.h>
-=20
--#define COMMAND_LINE_SIZE 2048
-+#define COMMAND_LINE_SIZE CONFIG_COMMAND_LINE_SIZE
-=20
- #include <linux/linkage.h>
- #include <asm/page_types.h>
-diff --git a/arch/xtensa/include/uapi/asm/setup.h b/arch/xtensa/include/uap=
-i/asm/setup.h
-index 5356a5fd4d17..dcf33a403527 100644
---- a/arch/xtensa/include/uapi/asm/setup.h
-+++ b/arch/xtensa/include/uapi/asm/setup.h
-@@ -12,6 +12,10 @@
- #ifndef _XTENSA_SETUP_H
- #define _XTENSA_SETUP_H
-=20
-+#ifdef __KERNEL__
-+#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
-+#else
- #define COMMAND_LINE_SIZE	256
-+#endif
-=20
- #endif
-diff --git a/include/uapi/asm-generic/setup.h b/include/uapi/asm-generic/se=
-tup.h
-index 88ac5100df35..b8d06e6d56bd 100644
---- a/include/uapi/asm-generic/setup.h
-+++ b/include/uapi/asm-generic/setup.h
-@@ -2,6 +2,10 @@
- #ifndef __ASM_GENERIC_SETUP_H
- #define __ASM_GENERIC_SETUP_H
-=20
-+#ifdef __KERNEL__
-+#define COMMAND_LINE_SIZE	CONFIG_COMMAND_LINE_SIZE
-+#else
- #define COMMAND_LINE_SIZE	512
-+#endif
-=20
- #endif	/* __ASM_GENERIC_SETUP_H */
 diff --git a/init/Kconfig b/init/Kconfig
-index 10f2013b5321..d03d42ecb0e9 100644
+index d03d42ecb0e9..bdd66dc7f628 100644
 --- a/init/Kconfig
 +++ b/init/Kconfig
-@@ -1569,6 +1569,22 @@ config BOOT_CONFIG_EMBED_FILE
- 	  This bootconfig will be used if there is no initrd or no other
- 	  bootconfig in the initrd.
+@@ -231,9 +231,10 @@ config BROKEN_ON_SMP
+ 	default y
 =20
-+config COMMAND_LINE_SIZE
-+	int "Maximum size of kernel command line"
-+	default 4096 if S390 || LOONGARCH || MIPS || UML
-+	default 2048 if X86 || ARM64 || PPC || SPARC64 || RISCV
-+	default 1024 if ARM || PARISC
-+	default 256 if ALPHA || ARC || M68K || MICROBLAZE || SPARC32 || XTENSA
-+	default 512
-+	range 896 1048576 if S390
-+	range 256 2048 if ARM || M68K || NIOS2 || PPC
-+	range 256 3840 if SUPERH
-+	range 256 256 if ALPHA
-+	range 256 4096
-+	help
-+	  This allows you to specify the maximum length of the kernel command
-+	  line.
-+
- config CMDLINE_LOG_WRAP_IDEAL_LEN
- 	int "Length to try to wrap the cmdline when logged at boot"
- 	default 1021
+ config INIT_ENV_ARG_LIMIT
+-	int
++	int "Maximum number of kernel command line arguments"
+ 	default 32 if !UML
+ 	default 128 if UML
++	range 32 4096
+ 	help
+ 	  Maximum of each of the number of arguments and environment
+ 	  variables passed to init from the kernel command line.
 --=20
 2.55.0.737.g08866a6d13-goog
 
