@@ -1,57 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EC603A9D9A;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 757AB3A9DB9;
 	Tue, 18 Aug 2026 14:50:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787064638; cv=none; b=Gr5eTVvgRfDyoY99tQ9Xp5669nwlPCS6uQBofdNcv+Cknv3x+51MSc2JTQMKvUpDVY7NpA9Lfzfy+HeNC028nNk+/MNl+t5lJSN8L+Z/7JpGVp+cu2vyOLfKpSKw/88UjMKAiJTH+X1WNBEGHbmZS3O5C36LMyxOd5nb6FPz4/I=
+	t=1787064639; cv=none; b=CIlOGTjIFJdsl8brmt5dJydK19SfYZ1Qr7brukGSYpvcxGKedDIXf8iUtyduVpj040pH5CosrjmqPJzJQsn0JObhhiteTqbheFqKORm8aVFp6U8XIdnXNle9mWoN/jzy4aoqnkHXFVPMkuWgy3G9gCRoHgzlHuZTzxfhKeCDRws=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787064638; c=relaxed/simple;
-	bh=VxkjHAblvepLIgb9AXIOQ4663CYXn8d6zZ9kO2Cgr1c=;
+	s=arc-20240116; t=1787064639; c=relaxed/simple;
+	bh=JS5uSnbG868SLb/wLoTn7Q6qYF10jvEGD5NkM11gFyo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NxgXguC2HCd7suwigL/wdcTrrX3wBobuVGza8UGLO6jTDupT7uPlHyLf5OgGRgOnjc6y1G5hXT7VWJMOALCtpR3dKHQuu9TdZyn6W51Opg8InIv40uHaFdf2Q/xFNgG5frv4mzijmXZb8H9tsV5tZizHfgGKvjtKnumcTPa89Wc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kHjfTbZr; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=mohzH4ByWrBNXol8lZYu7lb9Rfs1gS4qfz2hq1mM5PCpIWNgYJDKiVxF7au4A35cIQ4HnxOUrWUhp+ije07KwTkDgnvuXRN1sLKMmvnO9iJnzRf6SrrplbzCAG3WRWHunTkm3nnaL7sa6IRIlwzNDLFtpSoROTrYkV+xMuOO8jk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=g/Gk6R2V; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kHjfTbZr"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IE3bEW505269;
-	Tue, 18 Aug 2026 14:50:04 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="g/Gk6R2V"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IE3hew542571;
+	Tue, 18 Aug 2026 14:50:06 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=vy5v0kow8OvVBCKPE
-	knTW3YVcH8+BOGq/wDD2Ax/0dc=; b=kHjfTbZrUHcOeLys3+kP+S9d6JUqDKkGn
-	x50jPyVfl64Xd2Tnfg9LcZP81Qg3Hdl4xZ87Q7iyROHhghHtQ5nj2ZRztA74d1i+
-	+jKQ5nJtgd3AdtYEjl11QgrUsdGyuewgoqniidD23N2yoUYmZp0hHvfrXMqMkN/x
-	e8LEOCGWE8ekmos74jnnhN0PusetRZwQ8emaJ1G73GxK9C2VpN7S8Vn0wLm+cfJA
-	W/yQ35isNi+uCeEBq/NWirho4Y/r3a40RPvkAhTKapftNaNbZI5milfJFhdsBVSS
-	yUqsEe7Vr+MGIgtPKFzVqqXsQVC+I5LAIEjJloLBqxFYte0zee2sQ==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2fu4rx1v-1
+	:mime-version:references:subject:to; s=pp1; bh=DmYJosP7a3ctaCAQA
+	fHKDxfDl8a84/TUZQJY7oZBI/0=; b=g/Gk6R2VkPT/P5s/lBesST2ujS9SgAosl
+	c/P0hGAyskWeE/obNjyr2ND+gsPAvVinL3FyiY4GNjSuhGAjeJgdAfRvVSfpUseB
+	Us2tphKcSOYdx4OrIKpULkQIKOTEvW8E5euGuk85BpLziY0BxPgs3vIfAG5mZEAv
+	i++JkcN1JYCW6+4rloANMy4g+gNpZvHDeOYEueF+ni/V6XMd8gWY6PDWrpctas0X
+	b3TU9xeEOANaiY6UaEq3YSu7O21CQrzYz/DArbxk1Ndvqh5Tb9+9ilwReGLctXl1
+	AZopf+3kBO7zhfIug0mrQneb30gPwgrbqLOehVddEbcmoDOsnvpoQ==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2frt8bsv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 18 Aug 2026 14:50:05 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IEfMpX025410;
+	Tue, 18 Aug 2026 14:50:04 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33xh3q58-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 18 Aug 2026 14:50:04 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IEfM2m014736;
-	Tue, 18 Aug 2026 14:50:03 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33ek3r6s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 14:50:02 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IEnxCS43712876
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IEo0Mk29819540
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 18 Aug 2026 14:49:59 GMT
+	Tue, 18 Aug 2026 14:50:00 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E7AA720040;
-	Tue, 18 Aug 2026 14:49:58 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 15B0120043;
+	Tue, 18 Aug 2026 14:50:00 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A0B0F2004B;
-	Tue, 18 Aug 2026 14:49:58 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id ABAC420040;
+	Tue, 18 Aug 2026 14:49:59 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 18 Aug 2026 14:49:58 +0000 (GMT)
+	Tue, 18 Aug 2026 14:49:59 +0000 (GMT)
 From: Jens Remus <jremus@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, x86@kernel.org,
@@ -69,9 +69,9 @@ Cc: Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
         "H. Peter Anvin" <hpa@zytor.com>, Namhyung Kim <namhyung@kernel.org>,
         Andrii Nakryiko <andrii@kernel.org>, Kees Cook <kees@kernel.org>,
         Sam James <sam@gentoo.org>
-Subject: [RFC PATCH v1 06/25] unwind_user: Enable archs that define CFA = SP_callsite + offset
-Date: Tue, 18 Aug 2026 16:49:35 +0200
-Message-ID: <20260818144954.2320378-7-jremus@linux.ibm.com>
+Subject: [RFC PATCH v1 09/25] unwind_user/eh_frame: Add support for reading .eh_frame section
+Date: Tue, 18 Aug 2026 16:49:38 +0200
+Message-ID: <20260818144954.2320378-10-jremus@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260818144954.2320378-1-jremus@linux.ibm.com>
 References: <20260818144954.2320378-1-jremus@linux.ibm.com>
@@ -84,144 +84,1243 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: WK31jflkumh_TAB4r2GSlR-3b_SAKDab
-X-Authority-Analysis: v=2.4 cv=NLLlPU6g c=1 sm=1 tr=0 ts=6a84711c cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Authority-Analysis: v=2.4 cv=OfaoyBTY c=1 sm=1 tr=0 ts=6a84711d cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=ejlfquudVdD-DdDf6fkA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfXzDFRDG15wH3i
- 4L0Ft9lfO6tczkGnVIAfi0Qa/ud9OEoLw3KVcHEdWEVfpejDzYnPHLehmHnuwTzCVBRKAM0abr4
- DWGVDdCo0/HXB9GMBWWuFQYvFowsRGw=
-X-Proofpoint-ORIG-GUID: AlszMMSDSTmDmd0BmEaJdjLfPUN__UIC
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfX8eD8O8XQ6j2Z
- /r0OlZV4ng9uK6FWJ21J7EAUvhZnHbLpsnETMvz503q20pcTQj8s+r6vClFcGcc8A7BBm+R3yWw
- iIdNg2BzH+dLDK72xvwwsnBnDlTJ97gre0hg2uOkbPUiKQcl2sogqzXC9y/PjovP0CTp+d+Y7zk
- xDUCxTI0ZZ401D68WG8JgyQUWtIji2qJUGOn4fGe9v5W7K/Z2TZMP220HDNzZ/DzsSUBGbCrFp+
- aQl/43Ys6TUz6fTCQYIbzSP9YsjQMBzJEAhVjpVLSd5n0gcH24UjTklUc1mWheOTWXxFPkoLDgA
- Z8sKRx99Rt9aaxujXV6wxsSMfe4QUWB7gwHz34xk3S1UdIC3Wzpw8mV8WfBHsBqUUnhKGFvr5MV
- MwVkTRhDHMKQH7ATf/2it7c0y15nz3r/7qsBSS6LvCu8C84EM/xucVie/+6CT+nhYWYD50wG5jP
- F6Dmczvn9FyiTWTAvdg==
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=meVymXHHAAAA:8
+ a=QVDTdSu5COzsizyIqpwA:9 a=2JgSa4NbpEOStq-L5dxp:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfXz3hHHTXQTRA+
+ S+xySZS2yY0+hmGaP5rI/86abLhPYCia6BncWmDFjWJTq9Jp8gw37MpKCe/dKb2hq5HIIQ5Wcjf
+ tobAQV5yFI6mqMzfgAoRBMKTXkZd9so=
+X-Proofpoint-GUID: Sj404Q0MiNBn0FwaH2wqTEh8EbHWLnrc
+X-Proofpoint-ORIG-GUID: KmOuiz5-03_xp7Ka98iBBFWzT_Cel-G4
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfX6+aZ25vaPCmO
+ qnFHaJ4AN8xAj3jpmM6FxzuKkT17SofkqnZ5tpzhBERI8HXlT2+Jk/tWASp+0SjMITs3/OT6JWs
+ u0onwHGl2UVttl1YqZvkm82ACFTrd8+EcSUD6GrL+KQCRA3ag8KdcNKknb7GfYhueGm6Vc2xCUv
+ TofqWKFG3KIpAE3cKL7GFnKZXQmetvIlzcjqPmy5ddn6F2RMUco6rGEq3oIw+r63Cb3B1nYW2J4
+ 1Hv68JznCdG1sW5pzZARMTRkUWai1hfTQ1bP2lGXBCpQexkBtSoTHm0xwA/J/cg1g6uvivP0lAR
+ 6i5r/nwvS4pGWtj5pyTky44d1Wrp67LwZdnEWZXNKBvantBSBzFsDP4AB+88cc6CyrZok4zChuO
+ ncrlPedBUH91KdHZHma9YG/bnMktEpEnAcYovKhgGA7x0JkNWV9juG4HbZyX0MedoDrOAepOfhE
+ RqFVP/M/yaxQ1z17R9g==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-18_02,2026-08-18_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 spamscore=0 lowpriorityscore=0 phishscore=0 impostorscore=0
- malwarescore=0 suspectscore=0 clxscore=1015 adultscore=0 priorityscore=1501
+ suspectscore=0 adultscore=0 clxscore=1015 lowpriorityscore=0 impostorscore=0
+ malwarescore=0 bulkscore=0 phishscore=0 priorityscore=1501 spamscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608180107
 
-Most architectures define their CFA as the value of the stack pointer
-(SP) at the call site in the previous frame, as suggested by the DWARF
-standard.  Therefore the SP at call site can be unwound using an
-implicitly assumed value offset from CFA rule with an offset of zero:
+In preparation for using .eh_frame to unwind user space stacks, add an
+eh_frame_find() interface for finding the .eh_frame[_hdr] information
+associated with a given text address.
 
-  .cfi_val_offset <SP>, 0
+The implementation parses DWARF Call Frame Information (CFI) from the
+.eh_frame section, including:
+- Common Information Entries (CIEs) that define default unwinding rules,
+- Frame Description Entries (FDEs) that describe unwinding for specific
+  function address ranges, and
+- DWARF CFI instructions that specify how to restore registers.
 
-As a result the SP at call site computes as follows:
+For performance, use user_read_access_begin() and the corresponding
+unsafe_*() accessors.  Note that use of pr_debug() in uaccess-enabled
+regions would break noinstr validation, so there aren't any debug
+messages yet.  That will be added in a subsequent commit.
 
-  SP = CFA
-
-Enable unwinding of user space for architectures, such as s390, which
-define their CFA as the value of the SP at the call site in the previous
-frame with an offset.  Do so by enabling architectures to override the
-default SP value offset from CFA of zero with an architecture-specific
-one:
-
-  .cfi_val_offset <SP>, offset
-
-So that the SP at call site computes as follows:
-
-  SP = CFA + offset
+Based on Josh Poimboeuf's, Steven Rostedt's, and my unwind user sframe
+implementation.
 
 Signed-off-by: Jens Remus <jremus@linux.ibm.com>
 ---
+ MAINTAINERS                                |   2 +
+ include/asm-generic/Kbuild                 |   1 +
+ include/asm-generic/unwind_user_eh_frame.h |  43 +
+ include/linux/eh_frame.h                   |   7 +
+ kernel/unwind/eh_frame.c                   | 943 ++++++++++++++++++++-
+ kernel/unwind/eh_frame.h                   |  38 +
+ kernel/unwind/eh_frame_debug.h             |  19 +
+ 7 files changed, 1048 insertions(+), 5 deletions(-)
+ create mode 100644 include/asm-generic/unwind_user_eh_frame.h
+ create mode 100644 kernel/unwind/eh_frame_debug.h
 
-Notes (jremus):
-    Cherry-picked from "[PATCH v4 00/12] s390: SFrame user space unwinding"
-    series and adjusted to .eh_frame:
-    https://lore.kernel.org/all/20260127151926.2805123-6-jremus@linux.ibm.com/
-
- arch/x86/include/asm/unwind_user.h |  2 ++
- include/linux/unwind_user_types.h  |  1 +
- kernel/unwind/user.c               | 11 ++++++-----
- 3 files changed, 9 insertions(+), 5 deletions(-)
-
-diff --git a/arch/x86/include/asm/unwind_user.h b/arch/x86/include/asm/unwind_user.h
-index f38f7c5ff1de..c96645c824d1 100644
---- a/arch/x86/include/asm/unwind_user.h
-+++ b/arch/x86/include/asm/unwind_user.h
-@@ -32,6 +32,7 @@ static inline int unwind_user_word_size(struct pt_regs *regs)
- 		.rule		= UNWIND_USER_RULE_CFA_OFFSET_DEREF,\
- 		.offset		= -2*(ws),		\
- 			},				\
-+	.sp_off		= 0,				\
- 	.outermost	= false,
+diff --git a/MAINTAINERS b/MAINTAINERS
+index f19f5bb87f00..d5f46f26996f 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -28202,7 +28202,9 @@ M:	Josh Poimboeuf <jpoimboe@kernel.org>
+ M:	Steven Rostedt <rostedt@goodmis.org>
+ S:	Maintained
+ F:	arch/*/include/asm/unwind_user.h
++F:	arch/*/include/asm/unwind_user_eh_frame.h
+ F:	include/asm-generic/unwind_user.h
++F:	include/asm-generic/unwind_user_eh_frame.h
+ F:	include/linux/eh_frame.h
+ F:	include/linux/unwind*.h
+ F:	kernel/unwind/
+diff --git a/include/asm-generic/Kbuild b/include/asm-generic/Kbuild
+index 15df9dcb42a5..bd031eb6adc4 100644
+--- a/include/asm-generic/Kbuild
++++ b/include/asm-generic/Kbuild
+@@ -62,6 +62,7 @@ mandatory-y += topology.h
+ mandatory-y += trace_clock.h
+ mandatory-y += uaccess.h
+ mandatory-y += unwind_user.h
++mandatory-y += unwind_user_eh_frame.h
+ mandatory-y += vermagic.h
+ mandatory-y += vga.h
+ mandatory-y += video.h
+diff --git a/include/asm-generic/unwind_user_eh_frame.h b/include/asm-generic/unwind_user_eh_frame.h
+new file mode 100644
+index 000000000000..e6d207597206
+--- /dev/null
++++ b/include/asm-generic/unwind_user_eh_frame.h
+@@ -0,0 +1,43 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_GENERIC_UNWIND_USER_EH_FRAME_H
++#define _ASM_GENERIC_UNWIND_USER_EH_FRAME_H
++
++#ifndef EH_FRAME_MAX_CIE_LENGTH
++#define EH_FRAME_MAX_CIE_LENGTH 128
++#endif
++
++#ifndef EH_FRAME_MAX_AUGSTR_LENGTH
++#define EH_FRAME_MAX_AUGSTR_LENGTH 16
++#endif
++
++#ifndef EH_FRAME_MAX_STATE_STACK
++#define EH_FRAME_MAX_STATE_STACK 8
++#endif
++
++#ifndef EH_FRAME_MAX_CODE_ALIGN
++#define EH_FRAME_MAX_CODE_ALIGN 8
++#endif
++
++#ifndef EH_FRAME_MIN_DATA_ALIGN
++#define EH_FRAME_MIN_DATA_ALIGN -8
++#endif
++
++#ifndef EH_FRAME_MAX_DATA_ALIGN
++#define EH_FRAME_MAX_DATA_ALIGN -1
++#endif
++
++#ifndef EH_FRAME_SP_VAL_OFFSET
++/* Most archs/ABIs define CFA as SP at call site, so that SP = CFA + 0 */
++#define EH_FRAME_SP_VAL_OFFSET 0
++#endif
++
++#ifndef eh_frame_reject_sp_rule
++static inline bool eh_frame_reject_sp_rule(void)
++{
++	return true;
++}
++#define eh_frame_reject_sp_rule eh_frame_reject_sp_rule
++#endif
++
++#endif /* _ASM_GENERIC_UNWIND_USER_EH_FRAME_H */
++
+diff --git a/include/linux/eh_frame.h b/include/linux/eh_frame.h
+index 95df4911fd23..e33041e4f9c0 100644
+--- a/include/linux/eh_frame.h
++++ b/include/linux/eh_frame.h
+@@ -4,6 +4,7 @@
  
- #define ARCH_INIT_USER_FP_ENTRY_FRAME(ws)		\
-@@ -46,6 +47,7 @@ static inline int unwind_user_word_size(struct pt_regs *regs)
- 	.fp		= {				\
- 		.rule		= UNWIND_USER_RULE_RETAIN,\
- 			},				\
-+	.sp_off		= 0,				\
- 	.outermost	= false,
+ #include <linux/mm_types.h>
+ #include <linux/srcu.h>
++#include <linux/unwind_user_types.h>
  
- static inline bool unwind_user_at_function_start(struct pt_regs *regs)
-diff --git a/include/linux/unwind_user_types.h b/include/linux/unwind_user_types.h
-index 670ac860ae76..4da058096259 100644
---- a/include/linux/unwind_user_types.h
-+++ b/include/linux/unwind_user_types.h
-@@ -67,6 +67,7 @@ struct unwind_user_frame {
- 	struct unwind_user_cfa_rule_data cfa;
- 	struct unwind_user_rule_data ra;
- 	struct unwind_user_rule_data fp;
-+	s32 sp_off;
- 	bool outermost;
- };
+ #ifdef CONFIG_HAVE_UNWIND_USER_EH_FRAME
  
-diff --git a/kernel/unwind/user.c b/kernel/unwind/user.c
-index 9df5040df9b3..830c620fe453 100644
---- a/kernel/unwind/user.c
-+++ b/kernel/unwind/user.c
-@@ -43,7 +43,7 @@ get_user_word(unsigned long *word, unsigned long base, int off, unsigned int ws)
- static int unwind_user_next_common(struct unwind_user_state *state,
- 				   const struct unwind_user_frame *frame)
+@@ -32,6 +33,7 @@ extern int eh_frame_add_section(unsigned long eh_frame_hdr_start,
+ 				unsigned long text_start,
+ 				unsigned long text_end);
+ extern int eh_frame_remove_section(unsigned long eh_frame_hdr_start);
++extern int eh_frame_find(unsigned long ip, struct unwind_user_frame *frame);
+ 
+ static inline bool current_has_eh_frame(void)
  {
--	unsigned long cfa, fp, ra;
-+	unsigned long cfa, sp, fp, ra;
+@@ -58,6 +60,11 @@ static inline int eh_frame_remove_section(unsigned long eh_frame_hdr_start)
+ 	return -ENOSYS;
+ }
  
- 	/* Stop unwinding when reaching an outermost frame. */
- 	if (frame->outermost) {
-@@ -77,16 +77,17 @@ static int unwind_user_next_common(struct unwind_user_state *state,
- 	    get_user_word(&cfa, cfa, 0, state->ws))
- 		return -EINVAL;
++static inline int eh_frame_find(unsigned long ip, struct unwind_user_frame *frame)
++{
++	return -ENOSYS;
++}
++
+ static inline bool current_has_eh_frame(void) { return false; }
  
-+	/* Get the Stack Pointer (SP) */
-+	sp = cfa + frame->sp_off;
- 	/*
- 	 * Make sure that stack is not going in wrong direction.  Allow SP
- 	 * to be unchanged for the topmost frame, by subtracting topmost,
- 	 * which is either 0 or 1.
- 	 */
--	if (cfa <= state->sp - state->topmost)
-+	if (sp <= state->sp - state->topmost)
- 		return -EINVAL;
+ #endif /* CONFIG_HAVE_UNWIND_USER_EH_FRAME */
+diff --git a/kernel/unwind/eh_frame.c b/kernel/unwind/eh_frame.c
+index 7bdf7589466a..5ef8fef06a80 100644
+--- a/kernel/unwind/eh_frame.c
++++ b/kernel/unwind/eh_frame.c
+@@ -13,14 +13,83 @@
+ #include <linux/string_helpers.h>
+ #include <linux/eh_frame.h>
+ #include <linux/unwind_user_types.h>
++#include <asm/unwind_user_eh_frame.h>
+ 
+ #include "eh_frame.h"
 -
- 	/* Make sure that the address is word aligned */
--	if (cfa & (state->ws - 1))
-+	if (sp & (state->ws - 1))
- 		return -EINVAL;
+-#define dbg(fmt, ...)							\
+-	pr_debug("%s (%d): " fmt, current->comm, current->pid, ##__VA_ARGS__)
++#include "eh_frame_debug.h"
++
++/* Register state for CFI interpreter */
++enum eh_frame_cfa_rule {
++	CFA_UNDEFINED,		/* unrecoverable */
++	CFA_REG_OFFSET,		/* CFA = reg + offset */
++};
++
++enum eh_frame_reg_rule {
++	REG_UNDEFINED_IMPLICIT,	/* reg = reg */
++	REG_UNDEFINED_EXPLICIT,	/* unrecoverable; RA: outermost frame */
++	REG_SAME_VALUE,		/* reg = reg; TODO: reset to CIE initial CFI */
++	REG_OFFSET,		/* reg = *(CFA + offset) */
++	REG_VAL_OFFSET,		/* reg = CFA + offset */
++	REG_REGISTER,		/* reg = other_reg */
++};
++
++enum eh_frame_reg_index {
++	FP_IDX,			/* frame pointer (FP) */
++	RA_IDX,			/* return address (RA) */
++	NR_REGS
++};
++
++struct eh_frame_reg_state {
++	/* CFA recovery rule */
++	enum eh_frame_cfa_rule cfa_rule;
++	unsigned long cfa_regnum;
++	long cfa_offset;
++
++	/* FP and RA recovery rules (SP uses implicit recovery) */
++	enum eh_frame_reg_rule reg_rule[NR_REGS];
++	unsigned long reg_regnum[NR_REGS];
++	long reg_offset[NR_REGS];
++};
++
++struct eh_frame_cfi_context {
++	struct eh_frame_reg_state state;
++	struct eh_frame_reg_state stack[EH_FRAME_MAX_STATE_STACK];
++	int stack_depth;
++};
++
++struct eh_frame_cie {
++	unsigned long cfi_insn_start;
++	unsigned long cfi_insn_end;
++	int data_align;
++	unsigned int code_align;
++	u8 fde_addr_enc;		/* from CIE 'R' augmentation */
++	bool aug_data_present;		/* from CIE 'z' augmentation */
++	bool signal_frame;		/* from CIE 'S' augmentation */
++};
++
++struct eh_frame_fde {
++	unsigned long func_addr;
++	unsigned long func_size;
++	unsigned long cfi_insn_start;
++	unsigned long cfi_insn_end;
++
++	struct eh_frame_cie cie;	/* referenced CIE*/
++};
  
- 	/* Get the Return Address (RA) */
-@@ -149,7 +150,7 @@ static int unwind_user_next_common(struct unwind_user_state *state,
- 		return -EINVAL;
+ DEFINE_STATIC_SRCU(eh_frame_srcu);
  
- 	state->ip = ra;
--	state->sp = cfa;
-+	state->sp = sp;
- 	state->fp = fp;
- 	state->topmost = false;
- 	return 0;
++#define GET_USER_INC(to, from, end)					\
++({									\
++	typeof(to) __to;						\
++	int ret;							\
++	if (from + sizeof(__to) > end)					\
++		return -EINVAL;						\
++	ret = get_user(__to, (typeof(to) __user *)from);		\
++	from += sizeof(__to);						\
++	to = __to;							\
++	ret;								\
++})
++
+ #define UNSAFE_GET_USER_INC(to, from, end, label)			\
+ ({									\
+ 	typeof(to) __to;						\
+@@ -111,6 +180,7 @@ static __always_inline int encoded_pointer_size(u8 encoding)
+ }
+ 
+ static __always_inline int read_encoded_pointer(struct eh_frame_section *sec,
++						struct eh_frame_fde *fde,
+ 						unsigned long *addr,
+ 						unsigned long end,
+ 						u8 encoding,
+@@ -140,6 +210,10 @@ static __always_inline int read_encoded_pointer(struct eh_frame_section *sec,
+ 		result = sec->text_start;
+ 		break;
+ 	case DW_EH_PE_funcrel:
++		if (!fde)
++			return -EINVAL;
++		result = fde->func_addr;
++		break;
+ 	case DW_EH_PE_aligned:
+ 		return -EOPNOTSUPP;
+ 	default:
+@@ -219,6 +293,865 @@ static __always_inline int read_encoded_pointer(struct eh_frame_section *sec,
+ 	return -EFAULT;
+ }
+ 
++static __always_inline int __read_cie(struct eh_frame_section *sec,
++				      unsigned long cie_addr,
++				      struct eh_frame_cie *cie)
++{
++	void __user *cie_ptr = (void __user *)cie_addr;
++	unsigned long cur = cie_addr, end;
++	u32 length, cie_id;
++	u8 version;
++	char aug_str[EH_FRAME_MAX_AUGSTR_LENGTH];
++	int aug_idx;
++	unsigned long code_align;
++	long data_align;
++	u8 ra_reg;
++	bool aug_data_present = false;
++	unsigned long aug_data_len, aug_data_end = cie_addr;
++	u8 fde_addr_enc = DW_EH_PE_absptr;
++	bool signal_frame = false;
++	int ret;
++
++	/* Read CIE length */
++	ret = GET_USER_INC(length, cur, sec->eh_frame_vma_end);
++	if (ret)
++		return ret;
++	if (!length || length == EH_FRAME_DWARF64_LENGTH || length > EH_FRAME_MAX_CIE_LENGTH)
++		return -EINVAL;
++	end = cie_addr + 4 + length;
++	if (end > sec->eh_frame_vma_end)
++		return -EFAULT;
++
++	scoped_user_read_access_size(cie_ptr, 4 + length, Efault) {
++		/* Read CIE_ID (must be 0 for CIE; FDE otherwise) */
++		UNSAFE_GET_USER_INC(cie_id, cur, end, Efault);
++		if (cie_id != EH_FRAME_CIE_ID)
++			return -EINVAL;
++
++		/* Read version */
++		UNSAFE_GET_USER_INC(version, cur, end, Efault);
++		if (version != 1)
++			return -EOPNOTSUPP;
++
++		/* Read augmentation string */
++		for (aug_idx = 0; aug_idx < sizeof(aug_str); aug_idx++) {
++			UNSAFE_GET_USER_INC(aug_str[aug_idx], cur, end, Efault);
++			if (aug_str[aug_idx] == '\0')
++				break;
++		}
++		if (aug_idx >= sizeof(aug_str))
++			return -EINVAL;
++
++		/* Read code alignment factor */
++		ret = read_uleb128(&cur, end, &code_align);
++		if (ret)
++			return ret;
++		if (!code_align || code_align > EH_FRAME_MAX_CODE_ALIGN)
++			return -EINVAL;
++
++		/* Read data alignment factor */
++		ret = read_sleb128(&cur, end, &data_align);
++		if (ret)
++			return ret;
++		if (!data_align || (data_align < EH_FRAME_MIN_DATA_ALIGN ||
++				    data_align > EH_FRAME_MAX_DATA_ALIGN))
++			return -EINVAL;
++
++		/* Read return address register number */
++		UNSAFE_GET_USER_INC(ra_reg, cur, end, Efault);
++		if (ra_reg != EH_FRAME_REG_RA)
++			return -EOPNOTSUPP;
++
++		/* Parse augmentation string and read augmentation data if present */
++		for (aug_idx = 0; aug_str[aug_idx]; aug_idx++) {
++			switch (aug_str[aug_idx]) {
++			case 'z':
++				/* Augmentation data present - must be first character */
++				if (aug_idx != 0)
++					return -EINVAL;
++				aug_data_present = true;
++				ret = read_uleb128(&cur, end, &aug_data_len);
++				if (ret)
++					return ret;
++				aug_data_end = cur + aug_data_len;
++				if (aug_data_end > end)
++					return -EINVAL;
++				break;
++			case 'L': {
++				/* LSDA encoding - skip */
++				u8 lsda_enc;
++				if (!aug_data_present)
++					return -EINVAL;
++				UNSAFE_GET_USER_INC(lsda_enc, cur, aug_data_end, Efault);
++				break;
++			}
++			case 'P': {
++				/* Personality encoding and routine - skip */
++				u8 personality_enc;
++				unsigned long personality_rtn;
++				if (!aug_data_present)
++					return -EINVAL;
++				UNSAFE_GET_USER_INC(personality_enc, cur, aug_data_end, Efault);
++				/*
++				 * Clear indirect flag to avoid user read from
++				 * arbitrary address; still skip field.
++				 */
++				personality_enc &= ~DW_EH_PE_indirect;
++				ret = read_encoded_pointer(sec, NULL, &cur, aug_data_end,
++							   personality_enc, &personality_rtn);
++				if (ret)
++					return ret;
++				break;
++			}
++			case 'R':
++				/* FDE encoding */
++				if (!aug_data_present)
++					return -EINVAL;
++				UNSAFE_GET_USER_INC(fde_addr_enc, cur, aug_data_end, Efault);
++				break;
++			case 'S':
++				/* Signal frame */
++				signal_frame = true;
++				break;
++			default:
++				/* Unknown augmentation */
++				return -EOPNOTSUPP;
++			}
++		}
++	}
++
++	cie->code_align		= code_align;
++	cie->data_align		= data_align;
++	cie->fde_addr_enc	= fde_addr_enc;
++	cie->aug_data_present	= aug_data_present;
++	cie->signal_frame	= signal_frame;
++	cie->cfi_insn_start	= cur;
++	cie->cfi_insn_end	= end;
++
++	return 0;
++
++Efault:
++	return -EFAULT;
++}
++
++static __always_inline int __read_fde(struct eh_frame_section *sec,
++				      unsigned long fde_addr,
++				      struct eh_frame_fde *fde)
++{
++	void __user *fde_ptr = (void __user *)fde_addr;
++	unsigned long cur = fde_addr, end;
++	u32 length, cie_offset;
++	unsigned long cie_addr, func_addr, func_size;
++	int ret;
++
++	/* Read FDE length */
++	ret = GET_USER_INC(length, cur, sec->eh_frame_vma_end);
++	if (ret)
++		return ret;
++	if (!length || length == EH_FRAME_DWARF64_LENGTH)
++		return -EINVAL;
++	end = fde_addr + 4 + length;
++	if (end > sec->eh_frame_vma_end)
++		return -EFAULT;
++
++	scoped_user_read_access_size(fde_ptr, 4 + length, Efault) {
++		/* Read CIE pointer (offset from current position) */
++		UNSAFE_GET_USER_INC(cie_offset, cur, end, Efault);
++		cie_addr = cur - 4 - cie_offset;
++		if (cie_addr + EH_FRAME_CIE_MIN_LENGTH > fde_addr)
++			return -EINVAL;
++		if (cie_addr < sec->eh_frame_start)
++			return -EINVAL;
++	}
++
++	/* Read the CIE to populate alignment factors, RA register, and FDE encoding */
++	ret = __read_cie(sec, cie_addr, &fde->cie);
++	if (ret)
++		return ret;
++
++	scoped_user_read_access_size(fde_ptr, 4 + length, Efault) {
++		/* Read PC begin (function start address) */
++		ret = read_encoded_pointer(sec, fde, &cur, end, fde->cie.fde_addr_enc, &func_addr);
++		if (ret)
++			return ret;
++		if (func_addr < sec->text_start || func_addr >= sec->text_end)
++			return -EINVAL;
++
++		/* Read PC range (function size) using PE format only */
++		u8 range_enc = DW_EH_PE_format(fde->cie.fde_addr_enc);
++		ret = read_encoded_pointer(sec, fde, &cur, end, range_enc, &func_size);
++		if (ret)
++			return ret;
++		if (func_addr + func_size > sec->text_end)
++			return -EINVAL;
++
++		/* Skip augmentation data if present */
++		if (fde->cie.aug_data_present) {
++			unsigned long aug_data_len;
++
++			ret = read_uleb128(&cur, end, &aug_data_len);
++			if (ret)
++				return ret;
++			if (cur + aug_data_len > end)
++				return -EINVAL;
++			cur += aug_data_len;
++		}
++	}
++
++	fde->func_addr		= func_addr;
++	fde->func_size		= func_size;
++	fde->cfi_insn_start	= cur;
++	fde->cfi_insn_end	= end;
++
++	return 0;
++
++Efault:
++	return -EFAULT;
++}
++
++
++static __always_inline int __find_fde(struct eh_frame_section *sec,
++				      unsigned long ip,
++				      struct eh_frame_fde *fde)
++{
++	void __user *table_start_ptr;
++	unsigned long table_size;
++	u8 table_enc;
++	int entry_size;
++	unsigned long low, high;
++	unsigned long found_cur = 0, found_func_addr;
++	unsigned long fde_addr;
++	int ret;
++
++	if (!sec->fde_count)
++		return -ENOENT;
++
++	table_enc = sec->binary_search_table_enc;
++	entry_size = 2 * encoded_pointer_size(table_enc);
++	if (!entry_size)
++		return -EINVAL;
++
++	table_start_ptr = (void __user *)sec->binary_search_table_start;
++	table_size = sec->binary_search_table_end - sec->binary_search_table_start;
++	scoped_user_read_access_size(table_start_ptr, table_size, Efault) {
++		/*
++		 * Binary search in .eh_frame_hdr table using half-open
++		 * interval [low, high) to avoid underflow of high if
++		 * target IP is lower than first entry.
++		 */
++		low = 0;
++		high = sec->fde_count;
++		while (low < high) {
++			unsigned long mid, cur, func_addr;
++
++			mid = low + ((high - low) / 2);
++			cur = sec->binary_search_table_start + mid * entry_size;
++
++			/* Read function start address from table */
++			ret = read_encoded_pointer(sec, NULL, &cur, sec->binary_search_table_end,
++						   table_enc, &func_addr);
++			if (ret)
++				return ret;
++
++			if (ip >= func_addr) {
++				found_cur = cur;
++				found_func_addr = func_addr;
++				low = mid + 1;
++			} else {
++				high = mid;
++			}
++		}
++
++		if (!found_cur)
++			return -ENOENT;
++
++		/* Read FDE address from table */
++		ret = read_encoded_pointer(sec, NULL, &found_cur, sec->binary_search_table_end,
++					   table_enc, &fde_addr);
++		if (ret)
++			return ret;
++		if (fde_addr < sec->eh_frame_start)
++			return -EINVAL;
++	}
++
++	ret = __read_fde(sec, fde_addr, fde);
++	if (ret)
++		return ret;
++	if (found_func_addr != fde->func_addr)
++		return -EINVAL;
++
++	/* Make sure it is not a gap */
++	if (ip < fde->func_addr || ip >= fde->func_addr + fde->func_size)
++		return -ENOENT;
++
++	return 0;
++
++Efault:
++	return -EFAULT;
++}
++
++/* Helper to convert DWARF register number to index (FP=0, RA=1) */
++static inline int reg_to_index(unsigned int reg)
++{
++	if (reg == EH_FRAME_REG_FP)
++		return 0;
++	if (reg == EH_FRAME_REG_RA)
++		return 1;
++	return -1;
++}
++
++static __always_inline int __do_cfi_insn(struct eh_frame_section *sec,
++					 struct eh_frame_fde *fde,
++					 unsigned long *cur_ptr,
++					 unsigned long end,
++					 unsigned long *ip_ptr,
++					 unsigned long target_ip,
++					 struct eh_frame_cfi_context *ctx)
++{
++	unsigned long cur = *cur_ptr;
++	unsigned long ip = *ip_ptr;
++	u8 opcode;
++	int ret;
++
++	UNSAFE_GET_USER_INC(opcode, cur, end, Efault);
++
++	switch (DW_CFA_opcode(opcode)) {
++	case DW_CFA_advance_loc: {
++		unsigned long offset = DW_CFA_operand(opcode) * fde->cie.code_align;
++
++		ip += offset;
++		break;
++	}
++
++	case DW_CFA_offset: {
++		u8 reg = DW_CFA_operand(opcode);
++		long offset;
++		int idx;
++
++		ret = read_uleb128(&cur, end, &offset);
++		if (ret)
++			return ret;
++		offset *= fde->cie.data_align;
++
++		if (reg == EH_FRAME_REG_SP && eh_frame_reject_sp_rule())
++			return -EOPNOTSUPP;
++
++		idx = reg_to_index(reg);
++		if (idx >= 0) {
++			ctx->state.reg_rule[idx] = REG_OFFSET;
++			ctx->state.reg_offset[idx] = offset;
++		}
++		break;
++	}
++
++	case DW_CFA_restore: {
++		u8 reg = DW_CFA_operand(opcode);
++		int idx;
++
++		idx = reg_to_index(reg);
++		if (idx >= 0)
++			ctx->state.reg_rule[idx] = REG_UNDEFINED_IMPLICIT;
++		break;
++	}
++
++	case 0: /* Extended opcodes */
++		switch (opcode) {
++		case DW_CFA_nop:
++			break;
++
++		case DW_CFA_advance_loc1: {
++			unsigned long offset;
++			u8 delta;
++
++			UNSAFE_GET_USER_INC(delta, cur, end, Efault);
++			offset = delta * fde->cie.code_align;
++			ip += offset;
++			break;
++		}
++
++		case DW_CFA_advance_loc2: {
++			unsigned long offset;
++			u16 delta;
++
++			UNSAFE_GET_USER_INC(delta, cur, end, Efault);
++			offset = delta * fde->cie.code_align;
++			ip += offset;
++			break;
++		}
++
++		case DW_CFA_advance_loc4: {
++			unsigned long offset;
++			u32 delta;
++
++			UNSAFE_GET_USER_INC(delta, cur, end, Efault);
++			offset = delta * fde->cie.code_align;
++			ip += offset;
++			break;
++		}
++
++		case DW_CFA_def_cfa: {
++			unsigned long reg, offset;
++
++			ret = read_uleb128(&cur, end, &reg);
++			if (ret)
++				return ret;
++			ret = read_uleb128(&cur, end, &offset);
++			if (ret)
++				return ret;
++
++			if (offset > LONG_MAX)
++				return -EOPNOTSUPP;
++
++			ctx->state.cfa_rule = CFA_REG_OFFSET;
++			ctx->state.cfa_regnum = reg;
++			ctx->state.cfa_offset = offset;
++			break;
++		}
++
++		case DW_CFA_def_cfa_sf: {
++			unsigned long reg;
++			long offset;
++
++			ret = read_uleb128(&cur, end, &reg);
++			if (ret)
++				return ret;
++			ret = read_sleb128(&cur, end, &offset);
++			if (ret)
++				return ret;
++			offset *= fde->cie.data_align;
++
++			ctx->state.cfa_rule = CFA_REG_OFFSET;
++			ctx->state.cfa_regnum = reg;
++			ctx->state.cfa_offset = offset;
++			break;
++		}
++
++		case DW_CFA_def_cfa_register: {
++			unsigned long reg;
++
++			ret = read_uleb128(&cur, end, &reg);
++			if (ret)
++				return ret;
++
++			ctx->state.cfa_rule = CFA_REG_OFFSET;
++			ctx->state.cfa_regnum = reg;
++			break;
++		}
++
++		case DW_CFA_def_cfa_offset: {
++			unsigned long offset;
++
++			ret = read_uleb128(&cur, end, &offset);
++			if (ret)
++				return ret;
++
++			if (offset > LONG_MAX)
++				return -EOPNOTSUPP;
++
++			ctx->state.cfa_offset = offset;
++			break;
++		}
++
++		case DW_CFA_def_cfa_offset_sf: {
++			long offset;
++
++			ret = read_sleb128(&cur, end, &offset);
++			if (ret)
++				return ret;
++			offset *= fde->cie.data_align;
++
++			ctx->state.cfa_offset = offset;
++			break;
++		}
++
++		case DW_CFA_undefined: {
++			unsigned long reg;
++			int idx;
++
++			ret = read_uleb128(&cur, end, &reg);
++			if (ret)
++				return ret;
++
++			if (reg == EH_FRAME_REG_SP)
++				return -EOPNOTSUPP;
++
++			idx = reg_to_index(reg);
++			if (idx >= 0)
++				ctx->state.reg_rule[idx] = REG_UNDEFINED_EXPLICIT;
++			break;
++		}
++
++		case DW_CFA_same_value: {
++			unsigned long reg;
++			int idx;
++
++			ret = read_uleb128(&cur, end, &reg);
++			if (ret)
++				return ret;
++
++			if (reg == EH_FRAME_REG_SP && eh_frame_reject_sp_rule())
++				return -EOPNOTSUPP;
++
++			idx = reg_to_index(reg);
++			if (idx >= 0)
++				ctx->state.reg_rule[idx] = REG_SAME_VALUE;
++			break;
++		}
++
++		case DW_CFA_offset_extended: {
++			unsigned long reg, _offset;
++			long offset;
++			int idx;
++
++			ret = read_uleb128(&cur, end, &reg);
++			if (ret)
++				return ret;
++			ret = read_uleb128(&cur, end, &_offset);
++			if (ret)
++				return ret;
++			offset = _offset * fde->cie.data_align;
++
++			if (reg == EH_FRAME_REG_SP && eh_frame_reject_sp_rule())
++				return -EOPNOTSUPP;
++
++			idx = reg_to_index(reg);
++			if (idx >= 0) {
++				ctx->state.reg_rule[idx] = REG_OFFSET;
++				ctx->state.reg_offset[idx] = offset;
++			}
++			break;
++		}
++
++		case DW_CFA_offset_extended_sf: {
++			unsigned long reg;
++			long offset;
++			int idx;
++
++			ret = read_uleb128(&cur, end, &reg);
++			if (ret)
++				return ret;
++			ret = read_sleb128(&cur, end, &offset);
++			if (ret)
++				return ret;
++			offset *= fde->cie.data_align;
++
++			if (reg == EH_FRAME_REG_SP && eh_frame_reject_sp_rule())
++				return -EOPNOTSUPP;
++
++			idx = reg_to_index(reg);
++			if (idx >= 0) {
++				ctx->state.reg_rule[idx] = REG_OFFSET;
++				ctx->state.reg_offset[idx] = offset;
++			}
++			break;
++		}
++
++		case DW_CFA_val_offset: {
++			unsigned long reg, _offset;
++			long offset;
++			int idx;
++
++			ret = read_uleb128(&cur, end, &reg);
++			if (ret)
++				return ret;
++			ret = read_uleb128(&cur, end, &_offset);
++			if (ret)
++				return ret;
++			offset = _offset * fde->cie.data_align;
++
++			if (reg == EH_FRAME_REG_SP && offset != EH_FRAME_SP_VAL_OFFSET)
++				return -EOPNOTSUPP;
++
++			idx = reg_to_index(reg);
++			if (idx >= 0) {
++				ctx->state.reg_rule[idx] = REG_VAL_OFFSET;
++				ctx->state.reg_offset[idx] = offset;
++			}
++			break;
++		}
++
++		case DW_CFA_val_offset_sf: {
++			unsigned long reg;
++			long offset;
++			int idx;
++
++			ret = read_uleb128(&cur, end, &reg);
++			if (ret)
++				return ret;
++			ret = read_sleb128(&cur, end, &offset);
++			if (ret)
++				return ret;
++			offset *= fde->cie.data_align;
++
++			if (reg == EH_FRAME_REG_SP && offset != EH_FRAME_SP_VAL_OFFSET)
++				return -EOPNOTSUPP;
++
++			idx = reg_to_index(reg);
++			if (idx >= 0) {
++				ctx->state.reg_rule[idx] = REG_VAL_OFFSET;
++				ctx->state.reg_offset[idx] = offset;
++			}
++			break;
++		}
++
++		case DW_CFA_register: {
++			unsigned long reg1, reg2;
++			int idx;
++
++			ret = read_uleb128(&cur, end, &reg1);
++			if (ret)
++				return ret;
++			ret = read_uleb128(&cur, end, &reg2);
++			if (ret)
++				return ret;
++
++			if (reg1 == EH_FRAME_REG_SP && eh_frame_reject_sp_rule())
++				return -EOPNOTSUPP;
++
++			idx = reg_to_index(reg1);
++			if (idx >= 0) {
++				ctx->state.reg_rule[idx] = REG_REGISTER;
++				ctx->state.reg_regnum[idx] = reg2;
++			}
++			break;
++		}
++
++		case DW_CFA_expression:
++		case DW_CFA_val_expression: {
++			unsigned long reg, expr_len;
++
++			ret = read_uleb128(&cur, end, &reg);
++			if (ret)
++				return ret;
++			ret = read_uleb128(&cur, end, &expr_len);
++			if (ret)
++				return ret;
++
++			if (cur + expr_len > end)
++				return -EINVAL;
++
++			if (reg == EH_FRAME_REG_SP || reg == EH_FRAME_REG_FP || reg == EH_FRAME_REG_RA)
++				return -EOPNOTSUPP;
++
++			cur += expr_len;
++			break;
++		}
++
++		case DW_CFA_remember_state:
++			if (ctx->stack_depth >= EH_FRAME_MAX_STATE_STACK)
++				return -EINVAL;
++			ctx->stack[ctx->stack_depth++] = ctx->state;
++			break;
++
++		case DW_CFA_restore_state:
++			if (ctx->stack_depth <= 0)
++				return -EINVAL;
++			ctx->state = ctx->stack[--ctx->stack_depth];
++			break;
++
++		default:
++			return -EOPNOTSUPP;
++		}
++		break;
++
++	default:
++		return -EOPNOTSUPP;
++	}
++
++	*cur_ptr = cur;
++	*ip_ptr = ip;
++	return 0;
++
++Efault:
++	return -EFAULT;
++}
++
++static __always_inline int __do_cfi_program(struct eh_frame_section *sec,
++					    struct eh_frame_fde *fde,
++					    unsigned long target_ip,
++					    struct eh_frame_cfi_context *ctx)
++{
++	void __user *cfi_ptr;
++	unsigned long cfi_size;
++	unsigned long ip = fde->func_addr;
++	unsigned long cur;
++	int ret;
++
++	/* Initialize state */
++	ctx->state.cfa_rule = CFA_UNDEFINED;
++	ctx->state.reg_rule[FP_IDX] = REG_UNDEFINED_IMPLICIT;
++	ctx->state.reg_rule[RA_IDX] = REG_UNDEFINED_IMPLICIT;
++	ctx->stack_depth = 0;
++
++	/* Process CIE initial CFI instructions (if any) */
++	cfi_ptr = (void __user *)fde->cie.cfi_insn_start;
++	cfi_size = fde->cie.cfi_insn_end - fde->cie.cfi_insn_start;
++	scoped_user_read_access_size(cfi_ptr, cfi_size, Efault) {
++		cur = fde->cie.cfi_insn_start;
++		while (cur < fde->cie.cfi_insn_end) {
++			ret = __do_cfi_insn(sec, fde, &cur, fde->cie.cfi_insn_end, &ip, target_ip, ctx);
++			if (ret)
++				return ret;
++		}
++	}
++
++	/* Do not allow remember/restore between CIE and FDE */
++	ctx->stack_depth = 0;
++
++	/* Process FDE CFI instructions up to target IP */
++	cfi_ptr = (void __user *)fde->cfi_insn_start;
++	cfi_size = fde->cfi_insn_end - fde->cfi_insn_start;
++	scoped_user_read_access_size(cfi_ptr, cfi_size, Efault) {
++		cur = fde->cfi_insn_start;
++		while (cur < fde->cfi_insn_end && ip <= target_ip) {
++			ret = __do_cfi_insn(sec, fde, &cur, fde->cfi_insn_end, &ip, target_ip, ctx);
++			if (ret)
++				return ret;
++		}
++	}
++
++	return 0;
++
++Efault:
++	return -EFAULT;
++}
++
++static __always_inline int __find_frame_row(struct eh_frame_section *sec,
++					    struct eh_frame_fde *fde,
++					    unsigned long ip,
++					    struct unwind_user_frame *frame)
++{
++	struct eh_frame_cfi_context ctx;
++	int ret;
++
++	/* TODO: Signal frame - not supported yet */
++	if (fde->cie.signal_frame)
++		return -EOPNOTSUPP;
++
++	ret = __do_cfi_program(sec, fde, ip, &ctx);
++	if (ret)
++		return ret;
++
++	/* Convert CFA rule */
++	if (ctx.state.cfa_rule != CFA_REG_OFFSET)
++		return -EINVAL;
++
++	if (ctx.state.cfa_regnum == EH_FRAME_REG_SP)
++		frame->cfa.rule = UNWIND_USER_CFA_RULE_SP_OFFSET;
++	else if (ctx.state.cfa_regnum == EH_FRAME_REG_FP)
++		frame->cfa.rule = UNWIND_USER_CFA_RULE_FP_OFFSET;
++	else {
++		if (ctx.state.cfa_regnum > UINT_MAX)
++			return -EINVAL;
++		frame->cfa.rule = UNWIND_USER_CFA_RULE_REG_OFFSET;
++		frame->cfa.regnum = ctx.state.cfa_regnum;
++	}
++
++	if (ctx.state.cfa_offset < INT_MIN ||
++	    ctx.state.cfa_offset > INT_MAX)
++		return -EOPNOTSUPP;
++	frame->cfa.offset = ctx.state.cfa_offset;
++
++	/* Convert RA rule */
++	frame->outermost = false;
++	switch (ctx.state.reg_rule[RA_IDX]) {
++	case REG_UNDEFINED_IMPLICIT:
++		frame->ra.rule = UNWIND_USER_RULE_RETAIN;
++		break;
++	case REG_UNDEFINED_EXPLICIT:
++		frame->outermost = true;
++		break;
++	case REG_SAME_VALUE:
++		frame->ra.rule = UNWIND_USER_RULE_RETAIN;
++		break;
++	case REG_OFFSET:
++		if (ctx.state.reg_offset[RA_IDX] < INT_MIN ||
++		    ctx.state.reg_offset[RA_IDX] > INT_MAX)
++			return -EOPNOTSUPP;
++		frame->ra.rule = UNWIND_USER_RULE_CFA_OFFSET_DEREF;
++		frame->ra.offset = ctx.state.reg_offset[RA_IDX];
++		break;
++	case REG_VAL_OFFSET:
++		if (ctx.state.reg_offset[RA_IDX] < INT_MIN ||
++		    ctx.state.reg_offset[RA_IDX] > INT_MAX)
++			return -EOPNOTSUPP;
++		frame->ra.rule = UNWIND_USER_RULE_CFA_OFFSET;
++		frame->ra.offset = ctx.state.reg_offset[RA_IDX];
++		break;
++	case REG_REGISTER:
++		if (ctx.state.reg_regnum[RA_IDX] > UINT_MAX)
++			return -EINVAL;
++		frame->ra.rule = UNWIND_USER_RULE_REG_OFFSET;
++		frame->ra.regnum = ctx.state.reg_regnum[RA_IDX];
++		frame->ra.offset = 0;
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	/* Convert FP rule */
++	switch (ctx.state.reg_rule[FP_IDX]) {
++	case REG_UNDEFINED_IMPLICIT:
++	case REG_UNDEFINED_EXPLICIT:
++		frame->fp.rule = UNWIND_USER_RULE_RETAIN;
++		break;
++	case REG_SAME_VALUE:
++		frame->fp.rule = UNWIND_USER_RULE_RETAIN;
++		break;
++	case REG_OFFSET:
++		if (ctx.state.reg_offset[FP_IDX] < INT_MIN ||
++		    ctx.state.reg_offset[FP_IDX] > INT_MAX)
++			return -EOPNOTSUPP;
++		frame->fp.rule = UNWIND_USER_RULE_CFA_OFFSET_DEREF;
++		frame->fp.offset = ctx.state.reg_offset[FP_IDX];
++		break;
++	case REG_VAL_OFFSET:
++		if (ctx.state.reg_offset[FP_IDX] < INT_MIN ||
++		    ctx.state.reg_offset[FP_IDX] > INT_MAX)
++			return -EOPNOTSUPP;
++		frame->fp.rule = UNWIND_USER_RULE_CFA_OFFSET;
++		frame->fp.offset = ctx.state.reg_offset[FP_IDX];
++		break;
++	case REG_REGISTER:
++		if (ctx.state.reg_regnum[FP_IDX] > UINT_MAX)
++			return -EINVAL;
++		frame->fp.rule = UNWIND_USER_RULE_REG_OFFSET;
++		frame->fp.regnum = ctx.state.reg_regnum[FP_IDX];
++		frame->fp.offset = 0;
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	/* SP offset from CFA used in implicit CFA rule */
++	frame->sp_off = EH_FRAME_SP_VAL_OFFSET;
++
++	return 0;
++}
++
++int eh_frame_find(unsigned long ip, struct unwind_user_frame *frame)
++{
++	struct mm_struct *mm = current->mm;
++	struct eh_frame_section *sec;
++	struct eh_frame_fde fde;
++	int ret;
++
++	if (!mm)
++		return -EINVAL;
++
++	guard(srcu)(&eh_frame_srcu);
++
++	sec = mtree_load(&mm->eh_frame_mt, ip);
++	if (!sec)
++		return -ENOENT;
++
++	ret = __find_fde(sec, ip, &fde);
++	if (!ret)
++		ret = __find_frame_row(sec, &fde, ip, frame);
++
++	return ret;
++}
++
+ static void free_section(struct eh_frame_section *sec)
+ {
+ 	kfree(sec);
+@@ -258,13 +1191,13 @@ static int eh_frame_read_header(struct eh_frame_section *sec)
+ 			return -EINVAL;
+ 
+ 		/* Read pointer to .eh_frame */
+-		ret = read_encoded_pointer(sec, &cur, end,
++		ret = read_encoded_pointer(sec, NULL, &cur, end,
+ 					   eh_frame_ptr_enc, &eh_frame_start);
+ 		if (ret)
+ 			return ret;
+ 
+ 		/* Read FDE count */
+-		ret = read_encoded_pointer(sec, &cur, end,
++		ret = read_encoded_pointer(sec, NULL, &cur, end,
+ 					   fde_count_enc, &fde_count);
+ 		if (ret)
+ 			return ret;
+diff --git a/kernel/unwind/eh_frame.h b/kernel/unwind/eh_frame.h
+index 77eda5376dfb..9a0c71102742 100644
+--- a/kernel/unwind/eh_frame.h
++++ b/kernel/unwind/eh_frame.h
+@@ -2,6 +2,38 @@
+ #ifndef _EH_FRAME_H
+ #define _EH_FRAME_H
+ 
++/* DWARF CFI opcodes */
++#define DW_CFA_advance_loc		0x40
++#define DW_CFA_offset			0x80
++#define DW_CFA_restore			0xc0
++#define DW_CFA_nop			0x00
++#define DW_CFA_set_loc			0x01
++#define DW_CFA_advance_loc1		0x02
++#define DW_CFA_advance_loc2		0x03
++#define DW_CFA_advance_loc4		0x04
++#define DW_CFA_offset_extended		0x05
++#define DW_CFA_restore_extended		0x06
++#define DW_CFA_undefined		0x07
++#define DW_CFA_same_value		0x08
++#define DW_CFA_register			0x09
++#define DW_CFA_remember_state		0x0a
++#define DW_CFA_restore_state		0x0b
++#define DW_CFA_def_cfa			0x0c
++#define DW_CFA_def_cfa_register		0x0d
++#define DW_CFA_def_cfa_offset		0x0e
++#define DW_CFA_def_cfa_expression	0x0f
++#define DW_CFA_expression		0x10
++#define DW_CFA_offset_extended_sf	0x11
++#define DW_CFA_def_cfa_sf		0x12
++#define DW_CFA_def_cfa_offset_sf	0x13
++#define DW_CFA_val_offset		0x14
++#define DW_CFA_val_offset_sf		0x15
++#define DW_CFA_val_expression		0x16
++
++/* Helpers for CFI opcodes */
++#define DW_CFA_opcode(insn)		((insn) & 0xc0)
++#define DW_CFA_operand(insn)		((insn) & 0x3f)
++
+ /* DWARF exception header pointer encodings */
+ #define DW_EH_PE_omit			0xff
+ /* Formats */
+@@ -27,4 +59,10 @@
+ #define DW_EH_PE_format(encoding)	((encoding) & 0x0f)
+ #define DW_EH_PE_application(encoding)	((encoding) & 0x70)
+ 
++/* CIE/FDE constants */
++#define EH_FRAME_CIE_ID			0
++#define EH_FRAME_DWARF64_LENGTH		0xffffffff
++#define EH_FRAME_CIE_MIN_LENGTH		13
++#define EH_FRAME_FDE_MIN_LENGTH		10
++
+ #endif /* _EH_FRAME_H */
+diff --git a/kernel/unwind/eh_frame_debug.h b/kernel/unwind/eh_frame_debug.h
+new file mode 100644
+index 000000000000..5a3e4e7f065a
+--- /dev/null
++++ b/kernel/unwind/eh_frame_debug.h
+@@ -0,0 +1,19 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _EH_FRAME_DEBUG_H
++#define _EH_FRAME_DEBUG_H
++
++#include <linux/eh_frame.h>
++#include "eh_frame.h"
++
++#ifdef CONFIG_DYNAMIC_DEBUG
++
++#define dbg(fmt, ...)							\
++	pr_debug("%s (%d): " fmt, current->comm, current->pid, ##__VA_ARGS__)
++
++#else /* !CONFIG_DYNAMIC_DEBUG */
++
++#define dbg(args...)			no_printk(args)
++
++#endif /* !CONFIG_DYNAMIC_DEBUG */
++
++#endif /* _EH_FRAME_DEBUG_H */
 -- 
 2.53.0
 
