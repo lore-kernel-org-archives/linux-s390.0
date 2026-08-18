@@ -1,150 +1,165 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B41135C197;
-	Tue, 18 Aug 2026 07:40:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 574A6331ED7
+	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 07:45:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787038810; cv=none; b=owyzZUlM2ZBCTYcrm7dPZWH63tuQiqZW7+w/tOf38xIMRVo5aedXeoMty8cOAP4mvRO8meRfwXq4vJwXHe3G1CfN0ygon9oW0BzHULsmHRdspWWN1k+PuxmLAx334U5UhaF3uA3CgtnIqBtcYV0+ZwTTIrYmxZ7s7U1lilVEiHo=
+	t=1787039111; cv=none; b=HpB8iaMDxKBr92FTe0Xvyx99xafio55tuDunaRuTmvhwqzKOlSznzztjji+Ist+0FqIOKITQ6lRUqp2hxJXt/Ww35hThwqpr5Pa2sHwaVkjQMy3E38wMpswRfsGMi0wkAeo/yIyN57kpnPRFAhcluI7wVd1Czkjwsfj3NItKEmM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787038810; c=relaxed/simple;
-	bh=kZmL5XFXWVsXLWyVPoB8FjsGgAnrpfuTdMMeGphnzTw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Fvb1OX9zGxgaqtb/7mt21l1EMAjoyDbuZq5D0Klt96IB3fiZpMdAScbLTd/JW2ZQpRA/bZZSoWa+2Nac4UEuiqJJQN6b9OX+fktq+mGF2PNz6sF13h2AJPRdW1p6R0Z6joMf2QYLJoon8DhHj2esYhdhrSMkfE05T3JzaIn6KMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=lC3w/65K; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1787039111; c=relaxed/simple;
+	bh=Am/lQvZ7mtGa18JkfiOjkf0IecCq8+4RSyWj+lixg/0=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=K4E8Nj/Jf+SwcfnT35vZfFIfcfxs5ylkzHoJ5pILyYrwjEbIVZmYipG3f0j58uYHsvFIn+7hre3kMrP4sHYGSD22rtIllmH12qTOpwU3WYpMiuzSPuZnRhNrG2guu+2RPtyU3rja+GGehxZa9CRugZxfrYfjB5l2gtK8GJH0qds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hLgaBUIO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="lC3w/65K"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67HM1U3K758608;
-	Tue, 18 Aug 2026 07:39:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=Ep/A7CsX0iLhBlPjioxMOkaFb+NG6KD5degpWGJR9
-	y0=; b=lC3w/65KyU1V2J9TlKyX0MD7rOczgrkfkaIwv1+zOY5Lelcj9ell1kNG/
-	UKMUCvI1Miq6bovXbXKx31QiRVM5x8bdLG+T2dL1xCi/1uIso8W6w69hedvisfRb
-	+06XADw7HJ+zKBdEKxILDdzZhx61kXbuHCUvuBCtmy9qc1/fBz+2QFlr7KTbGfsM
-	QuoFzla6xIkRFiwHw2Jr1XjnY9f+y+UYO9wc5Lzz9LosxI3ww2AYO7giajCHUyCr
-	uhB3RbPZZtDgsP/LdLlXjsY2/JnSLfQ5Pr43HKlKALzNpmA2xMDQ2YrTFUc5Z1NY
-	nQ1OR9qgNbP7uXQDeEfEMxtS8dIjA==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2fsqprtf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 07:39:56 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67I7QMIa030618;
-	Tue, 18 Aug 2026 07:39:55 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g34ng9t69-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 07:39:55 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67I7dpmm45613464
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 18 Aug 2026 07:39:51 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6863C2004D;
-	Tue, 18 Aug 2026 07:39:51 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 25C6A20043;
-	Tue, 18 Aug 2026 07:39:51 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Tue, 18 Aug 2026 07:39:51 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 56341)
-	id 0837416113B; Tue, 18 Aug 2026 09:39:51 +0200 (CEST)
-From: Mahanta Jambigi <mjambigi@linux.ibm.com>
-To: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
-        dust.li@linux.alibaba.com, sidraya@linux.ibm.com
-Cc: pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
-        guwen@linux.alibaba.com, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, Mahanta Jambigi <mjambigi@linux.ibm.com>,
-        Hidayath Khan <hidayath@linux.ibm.com>
-Subject: [PATCH net] net/smc: free pending qentry in smc_llc_flow_stop() before memset
-Date: Tue, 18 Aug 2026 09:39:43 +0200
-Message-ID: <20260818073943.1108383-1-mjambigi@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hLgaBUIO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62FAC1F000E9;
+	Tue, 18 Aug 2026 07:45:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787039106;
+	bh=ZRQslazirwRU7sX2Q6/GfNN+M9DWDjCGZAFW/+iic34=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=hLgaBUIOsYjeHw4u+m54QFLNCtUBwCxmrmqsePWmez8HdnQC6Nn/9gAkMx9Y7/bgf
+	 l1CFnhy8H/c8eNMA+FtRkwdpNth+SvSZzLlcyWSxserVhhEQlXAkMkyxsV4g6/F0e8
+	 sRLc1URRCAnwRz/W+xkAYLbMsRdxn4popSUKf1CAbDzaFE0qkukHXRdvi4SqqjGCS+
+	 rzUWsfT+DR7hqN7CDhg3r5jkhptcVFVXfn1xtAmkEgA4Cb5LV+PlIiTjyhYLkJfhHZ
+	 tTNu21VAbCI6kdSaJvj/wZdrsLv8MIORB91Bp2juGTkO9SKGyADQX4GZxQUS+FfrTR
+	 FN5N4MacEPHlA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] s390: raw3270: Handle allocation failures
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Triet Hoang" <triet.hoang.dev@gmail.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260818073205.1669781-1-triet.hoang.dev@gmail.com>
+References: <20260818073205.1669781-1-triet.hoang.dev@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 18 Aug 2026 07:45:05 +0000
+Message-Id: <20260818074506.62FAC1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDA1NSBTYWx0ZWRfXy5AWnLEe7sU1
- lb/LWOMvqwUTZzt5pK1otmtomSCqBYRQjzN9eH++Iz2IULGD1rIe7i9ZlaiUL3obyPiDG+a9P06
- bJ5nvxJOnCcxV2zvuC5/j8d8jQXfriB92iAPyVAL06Zgh/XtEvehR9kZIRf0dDsnl6XGc1CrKzZ
- f+ECkDdHuXXssSKU7nFtlmNIFh1aQMtaurVDg+YzXw5skKIhI+FV83WMsXiL0f10SPq2DEmhTy0
- 42Q0VlHAUWl7E3eHZ1qzSJVF5tggUtyvuUWb7erU16Ks1jrUE05Ko2Amquodr5Np9F9TfV1jHEx
- 3FlkebgF3IaZmw8HHq9q4YlRQNllL3C1qAYIHMtN35YPTH3uNxDFqrChikd/sS2gdLfHwr57IMc
- 2tFoiWyjNVyvaY+vAI7JVU+ncKdXqiQ6CezRWy7bf6bCq3YkazT41KBBCh4Ioeh5dgguAinoBHq
- kZlAkEsWcz96JQXkbYQ==
-X-Proofpoint-ORIG-GUID: wByyKPmcAxNmeKZMAKVkESVzQx4vfR1l
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDA1NSBTYWx0ZWRfX04TwbjViSozD
- ioaRoGPbYFY9jZkfsnwdeBcfNJ03lGp4KWZA9JOZIa/LoHAfH5wxFT0EZXsOU83hkO06SiDpjuA
- i3EHIfqcUUggDBkYPB5riz87AO58oGw=
-X-Authority-Analysis: v=2.4 cv=DJe/JSNb c=1 sm=1 tr=0 ts=6a840c4c cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=jWMLYlMGGp7ONIserkcA:9
-X-Proofpoint-GUID: z7-EWK6eSRIvgfhhgVi-RhfylLYiq2CT
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-17_04,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 spamscore=0 clxscore=1015 bulkscore=0
- suspectscore=0 malwarescore=0 phishscore=0 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608180055
 
-smc_llc_flow_stop() resets a flow struct with a blind memset:
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-	spin_lock_bh(&lgr->llc_flow_lock);
-	memset(flow, 0, sizeof(*flow));
-	flow->type =3D SMC_LLC_FLOW_NONE;
-	spin_unlock_bh(&lgr->llc_flow_lock);
+Pre-existing issues:
+- [High] Dangling pointer and Use-After-Free if `ccw_device_enable_console(=
+)` fails in `raw3270_setup_console()`.
+- [High] Device reference count leak in `raw3270_create_device()` on error =
+path.
+--
 
-If flow->qentry is non-NULL at this point the pointer is overwritten with=
-out the
-allocation being freed, leaking one kmalloc object.
+--- Patch [1]: [PATCH v2] s390: raw3270: Handle allocation failures ---
+commit 0dc799bc2a1ab261a4df0f1061360db8eed525e2
+Author: Triet Hoang <triet.hoang.dev@gmail.com>
 
-A late-arriving duplicate CONFIRM_LINK or ADD_LINK_CONT message can set
-flow->qentry after the legitimate message has been consumed by the waiter=
- via
-smc_llc_flow_qentry_clr() (which NULLs the pointer but leaves flow->type
-non-zero) but before the flow completes and smc_llc_flow_stop() runs.  In=
- that
-window the duplicate is stashed into flow->qentry, and then lost when
-smc_llc_flow_stop() zeros the struct.
+s390: raw3270: Handle allocation failures
 
-Call smc_llc_flow_qentry_del() inside the lock before the memset.
-smc_llc_flow_qentry_del() already checks flow->qentry before freeing, so =
-the
-normal case where no entry is pending is a no-op.
+Check the return values of kzalloc_obj() and kzalloc() before using the
+allocated memory. Free the allocated resources on subsequent initialization
+failures to avoid leaking memory.
 
-Fixes: 555da9af827d ("net/smc: add event-based llc_flow framework")
-Reviewed-by: Hidayath Khan <hidayath@linux.ibm.com>
-Signed-off-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
----
- net/smc/smc_llc.c | 1 +
- 1 file changed, 1 insertion(+)
+> diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
+> index aa9c4d81225cb..ff397396b440e 100644
+> --- a/drivers/s390/char/raw3270.c
+> +++ b/drivers/s390/char/raw3270.c
+> @@ -814,10 +814,23 @@ struct raw3270 __init *raw3270_setup_console(void)
+>  		return ERR_CAST(cdev);
+> =20
+>  	rp =3D kzalloc_obj(*rp, GFP_KERNEL | GFP_DMA);
+> +	if (!rp) {
+> +		ccw_device_destroy_console(cdev);
+> +		return ERR_PTR(-ENOMEM);
+> +	}
+>  	ascebc =3D kzalloc(256, GFP_KERNEL);
+> +	if (!ascebc) {
+> +		ccw_device_destroy_console(cdev);
+> +		kfree(rp);
+> +		return ERR_PTR(-ENOMEM);
+> +	}
+>  	rc =3D raw3270_setup_device(cdev, rp, ascebc);
+> -	if (rc)
+> +	if (rc) {
+> +		ccw_device_destroy_console(cdev);
+> +		kfree(rp->ascebc);
+> +		kfree(rp);
+>  		return ERR_PTR(rc);
+> +	}
+>  	set_bit(RAW3270_FLAGS_CONSOLE, &rp->flags);
+> =20
+>  	rc =3D ccw_device_enable_console(cdev);
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 954b2ff1815c..fa1ff543638f 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -320,6 +320,7 @@ int smc_llc_flow_initiate(struct smc_link_group *lgr,
- void smc_llc_flow_stop(struct smc_link_group *lgr, struct smc_llc_flow *=
-flow)
- {
- 	spin_lock_bh(&lgr->llc_flow_lock);
-+	smc_llc_flow_qentry_del(flow);
- 	memset(flow, 0, sizeof(*flow));
- 	flow->type =3D SMC_LLC_FLOW_NONE;
- 	spin_unlock_bh(&lgr->llc_flow_lock);
+[Severity: High]
+This isn't a bug introduced by this patch, but if ccw_device_enable_console=
+()
+fails just below this context:
+
+drivers/s390/char/raw3270.c:raw3270_setup_console() {
+    ...
+	rc =3D ccw_device_enable_console(cdev);
+	if (rc) {
+		ccw_device_destroy_console(cdev);
+		return ERR_PTR(rc);
+	}
+    ...
+}
+
+This error path destroys the cdev but fails to unlink rp from
+raw3270_devices or free it.
+
+Because raw3270_setup_device() previously added rp to the global list here:
+
+drivers/s390/char/raw3270.c:raw3270_setup_device() {
+    ...
+    if (rp->minor =3D=3D -1 && minor < RAW3270_MAXDEVS + RAW3270_FIRSTMINOR=
+) {
+        rp->minor =3D minor;
+        list_add_tail(&rp->list, &raw3270_devices);
+    }
+    ...
+}
+
+Does leaving it linked in raw3270_devices create a dangling pointer where
+rp->cdev points to the destroyed console device?
+
+Later, when raw3270_init() iterates over this list, it could dereference
+rp->cdev->dev, causing a use-after-free.
+
+I also noticed a pre-existing resource leak in the same file:
+
+drivers/s390/char/raw3270.c:raw3270_create_device() {
+    ...
+	rc =3D raw3270_setup_device(cdev, rp, ascebc);
+	if (rc) {
+		kfree(rp->ascebc);
+		kfree(rp);
+		rp =3D ERR_PTR(rc);
+	}
+	/* Get reference to ccw_device structure. */
+	get_device(&cdev->dev);
+	return rp;
+}
+
+[Severity: High]
+This is a pre-existing issue, but does this leak a device reference count w=
+hen
+raw3270_setup_device() fails?
+
+If raw3270_setup_device() fails, the function continues to unconditionally
+execute get_device(&cdev->dev) before returning the error pointer.
+
+The caller, raw3270_set_online(), receives the error and returns immediatel=
+y,
+meaning put_device() is never called to balance it.
+
+Can this permanently leak a reference to the ccw_device, preventing the
+physical device's structures from being freed even if hot-removed?
+
 --=20
-2.50.1 (Apple Git-155)
-
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260818073205.1669=
+781-1-triet.hoang.dev@gmail.com?part=3D1
