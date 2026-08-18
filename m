@@ -1,57 +1,57 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53166473C96;
-	Tue, 18 Aug 2026 14:50:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B9CD47ACC9;
+	Tue, 18 Aug 2026 14:50:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787064644; cv=none; b=KGJkIw/CJ5xxwAqYSIVF4K0LzS6AZf4ZskQEjAo40fYPQvTiuMY0b3cIxNDuXo/UXVFxNzx9jpLlPhyqUGCbrMPO9w0+M/GVXOylfCUgHbceg5Xrm3nXj+pyx+zNp1wmwUeEiSqvVZB3TfXHk3qwIICrt9e4Rpm+iCLg2/i8buQ=
+	t=1787064647; cv=none; b=YxGAOzNumnIhc2sbyAZI0kPg2qkRcQl7eVJm5+KbkcggUs4gR8YbClQSE+QhK9z+heFK5R0u3V2F+yTV/fqTRQgoolrkAgQjHQYgDLnagVSIRpE+Kb2FAPhH4GGxJy9wHvhYZCYVPzD5o73BZ7ULpCcyvu6fCf4pkI+l4liW2rk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787064644; c=relaxed/simple;
-	bh=afu24jH0sWWbgxeRigYWVfRJowKKSgx1IkkKxjAfxp8=;
+	s=arc-20240116; t=1787064647; c=relaxed/simple;
+	bh=HgqXTNjaQkQm6cTE23s1ZwUulek57QMHF4KLFCYhnfY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DC/iOuiZaGLQvMNaswJvlSLem7nCh87cTjEE2WMhFNbYuzMLsb4Vn44G3PXS+dz82EV23VFB8pWewwe8+VWdNqBVC+/TOoW1/Nk/xovLuZIGXPVUXVesVqV9F1OHgyySCIwvUAKddPzwxoLvJeVM19rDZiBoGu+OkGNHUmBQ9J0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QXgPdgZc; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=rvN1k/EkxUU2plHYslMHdHuaGnYzefnkktJgoH+P0Kv0ATfKRfjT2lyAuBggBT/d4HLmHMbwfUAVrdW9oGWnuoIkPW9Q2Oi+eO1ugDyA9nOJEjlzE+S2UXjz3AJfvNnMa9F2RwGqbeNJVSdNU/AKDgYBpLlgJUjasb8pRC8aUvQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gMYa67pl; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QXgPdgZc"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IE3emL542458;
-	Tue, 18 Aug 2026 14:50:10 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gMYa67pl"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IE40bx402137;
+	Tue, 18 Aug 2026 14:50:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=trqYxbRZC1GE+GBw0
-	4BAIlb5GAbXbEmvr0rCES1W8EM=; b=QXgPdgZcLT41YvNbvAES00LSQZwShYX3Y
-	sP7lQbOgxhXdqwiCTQ5zjCzqf859iCZ2GBztJKJQdlM/IW6HOd+gS5BbKgn5I7P+
-	P0pEaORze57RC4IOiabwNEwmKdOrq69R9agL2NoIyIoOE2TNDX0OJ6dDFJNrGjd2
-	FUuzdv/ZzBfaD+8WH2uIVB91gT5PueUFDDAFEhhVM4JBC3FGW4ggaHtB3wZR/xIe
-	WDQJ2Ol8qVUHYE6ucckICUIPd3CS3bjAGsAE6/HCNypk1Htf/QdyYJHvazIZTP7K
-	YSg24C8reGJqzWu/T5OHvTru4dbOxndhQArfQyCx5xQnW1UrdIFKQ==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2frt8btj-1
+	:mime-version:references:subject:to; s=pp1; bh=O1e6CFxOxf9L/LPXN
+	k3gG+iLkTQ1jjXbDycl/x4C2sA=; b=gMYa67plXprhf+mJtIQ6utlr9ZPXKuTaG
+	jv/txmyYMXynu3C2wCs5EGqLGjxsyuHc2TobDsiPzaIQq7kzgKqb2EcY4QRZD4uX
+	CJGQHCpasMRSZ44x+skMNuPHkoHxRgrUYVZcbXoP77AtNa56zEInpMY/BBAjdnYb
+	kU6J6PNw8AnOd7vBEXUxsN35Y8vWU+BH15GiHbq+248HbKWOrZpbOQOYCc9W5FET
+	qscgyFdtSChzpd9RWiHEWA+WX5lRSXo9tYYJFM1kwzz+xwrUcPaLtmuNjcnkIU5e
+	QJn8RACqc28j8n8lUoR4ORq5tC4Jzs9Y7KMlnkq/7ELdzWN2OD0uw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2dhm0qn2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 14:50:09 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IEfIRj032411;
-	Tue, 18 Aug 2026 14:50:08 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g354ybgch-1
+	Tue, 18 Aug 2026 14:50:06 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IEfMTA025400;
+	Tue, 18 Aug 2026 14:50:06 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33xh3q5m-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 14:50:08 +0000 (GMT)
+	Tue, 18 Aug 2026 14:50:05 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IEo4Ds27590918
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IEo1Xb50397634
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 18 Aug 2026 14:50:04 GMT
+	Tue, 18 Aug 2026 14:50:01 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 650C22004B;
-	Tue, 18 Aug 2026 14:50:04 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id B830320040;
+	Tue, 18 Aug 2026 14:50:01 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 144652004D;
-	Tue, 18 Aug 2026 14:50:04 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 705B02004D;
+	Tue, 18 Aug 2026 14:50:01 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 18 Aug 2026 14:50:04 +0000 (GMT)
+	Tue, 18 Aug 2026 14:50:01 +0000 (GMT)
 From: Jens Remus <jremus@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, x86@kernel.org,
@@ -69,9 +69,9 @@ Cc: Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
         "H. Peter Anvin" <hpa@zytor.com>, Namhyung Kim <namhyung@kernel.org>,
         Andrii Nakryiko <andrii@kernel.org>, Kees Cook <kees@kernel.org>,
         Sam James <sam@gentoo.org>
-Subject: [RFC PATCH v1 22/25] unwind_user/eh_frame/x86: Handle DRAP expressions
-Date: Tue, 18 Aug 2026 16:49:51 +0200
-Message-ID: <20260818144954.2320378-23-jremus@linux.ibm.com>
+Subject: [RFC PATCH v1 14/25] unwind_user/eh_frame: Add .eh_frame[_hdr] validation option
+Date: Tue, 18 Aug 2026 16:49:43 +0200
+Message-ID: <20260818144954.2320378-15-jremus@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260818144954.2320378-1-jremus@linux.ibm.com>
 References: <20260818144954.2320378-1-jremus@linux.ibm.com>
@@ -84,241 +84,213 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=OfaoyBTY c=1 sm=1 tr=0 ts=6a847121 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfXxdiWQUmGpLmF
+ Es+Ul7Ut05h3BxA9bQWZ+ESdQm7nnAUvuFNQv0wmGgK9pqVM+Yezu0ECEpmqBeMnexGwnrDRCCr
+ 0NaLChYxner/I5kHidyszNRcuTtL2Yz5wrLY0v8DEGghMSgW9qL1ETzkIrrKdUSkfWHrmuwb3V1
+ mWvnQy8qb5hFBdVFM+s6aENB63MDq7hOxH5OhsUROfLAIt3tp0fBGqd8o51r6M5zR90MZjVUoCH
+ +UBnMSykVJExnv0nHIven2rAe19NAx8MXUO4FrGdEW7G3q5kAHNO3q+dh8m5u3n03EA2oG/pawD
+ JWs89I/elbQ8PAktF0FgJTcFtktVvKf73v+8HdDaEQylOPFEk1FH1hmqmR8mBggIEk4jT5LT3AI
+ KOif6LQ/W1iYnvRBkW5TPshvCaoHE69eiZN23cdoZcH2lUcDwtllyVrAtzZUkosyjlHA5h7AegS
+ dpfnllP9xJOP1J1uU/g==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfX0CGjpXFcH5yb
+ L38p9xrKWEazqqMkubPUNXxYBEszDe0D4+SCBCSCgOuKMv6ad2BlbbY1SCbryH866lza5C+MZ8+
+ 8W//oX++KwStq54LTtT+raBdp+cx09U=
+X-Authority-Analysis: v=2.4 cv=JKkLdcKb c=1 sm=1 tr=0 ts=6a84711f cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=CAsaE8RiOkJQvnkcRxMA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfXwMlI6J5YNSJf
- keo8VDSIyZMezkdaQxf9nHT137R7w7biRm0XGYofsd0C3rNGikZiC7bdZeG4j936qxwdulNvQwG
- t5sI1fzKjRnONetq4PYj/bULdEjfYiI=
-X-Proofpoint-GUID: sCeSAK8Xmfdb5zoF9XMtps2esQF0FcnV
-X-Proofpoint-ORIG-GUID: 2pbdLbsdkSudkokjWPPKIUtu8cGvk_vC
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfX0fq23L5yxkCN
- Q3xNg2pRaS9uK82v0iD9bh7oEYsOcu8s2OR7MyOkLB/Aa81UUHnYqwnMQXjcEJAVvGuPrydRLwR
- Csfno/qHFRsT/lyQPAcNpUvMFUwRtIdJQjyg3YtT34mtpwTVjqPxsWxETAf8r6jvxSf5xq9G9H+
- bVMvmkQjOuiFnGOytw8iSml+w118pnX3vv0QAtGEkKUo2ulU4aUw6doKqmi7naCv67IJSG8D976
- rLfaAJNv9dCk1tzPumIDsuqtvWi1uuR+P0mOpIHT9Jw9f41ziJEagN4HKSrG74amYjZvD0N26Y6
- 3sBsrlPCgMcmT32+fvCQoqnFFixv70VMqqcH15fmHsjTcrmQxlp/BxqWWAnPCENb3kZEdopJKcj
- B0XzSJIF/BttEIZDSHBw5ITMyLfFwl50hrAuF8j3EkA0uIELGq+xCIVSGuVoDQByK0fR/TFh90N
- R+6K9YX8HzSRS6tffXQ==
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=rU79QueooZ11dTUg0tsA:9
+X-Proofpoint-ORIG-GUID: EMpV_nXwfK9MoGn3zsJoPwCjhCYNKNRx
+X-Proofpoint-GUID: rzNcgYVZdpiVLSneaMjv_Zb9H1zW4w4i
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-18_02,2026-08-18_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 clxscore=1015 lowpriorityscore=0 impostorscore=0
- malwarescore=0 bulkscore=0 phishscore=0 priorityscore=1501 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608180107
+ suspectscore=0 bulkscore=0 malwarescore=0 priorityscore=1501
+ lowpriorityscore=0 clxscore=1015 adultscore=0 impostorscore=0 spamscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608180107
 
-GCC uses DRAP (Dynamic Realign Argument Pointer) when the stack needs
-to be dynamically realigned (e.g. for aligned local variables).  This
-uses DWARF expressions to describe how to unwind through such frames.
-
-Add x86-specific handling for the CFA and FP expressions patterns:
-
-1. CFA expression (DW_OP_breg<FP> + offset, DW_OP_deref):
-   - Semantics: CFA = *(FP + offset)
-   - Restores the CFA from the saved SP at FP-4 (i386) or FP-8 (x86-64).
-
-2. FP expression (DW_OP_breg<FP> +0):
-   - Semantics: FP = *(FP + 0)
-   - Restores FP from DRAP location (FP+0).
-
-The implementation uses mask-based pattern matching similar to the
-existing x86 PLT expression support.
+Add a debug feature to validate all .eh_frame[_hdr] sections when first
+loading the file rather than on demand.
 
 Signed-off-by: Jens Remus <jremus@linux.ibm.com>
 ---
- arch/x86/include/asm/unwind_user_eh_frame.h | 65 +++++++++++++++++++++
- include/linux/unwind_user_eh_frame_types.h  |  4 ++
- kernel/unwind/eh_frame.c                    | 57 ++++++++++++++----
- 3 files changed, 115 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/include/asm/unwind_user_eh_frame.h b/arch/x86/include/asm/unwind_user_eh_frame.h
-index 8268eb1a0ff5..670740cdbd8c 100644
---- a/arch/x86/include/asm/unwind_user_eh_frame.h
-+++ b/arch/x86/include/asm/unwind_user_eh_frame.h
-@@ -79,10 +79,75 @@ static inline int eh_frame_do_def_cfa_expression(const char *expr,
- 		return 0;
- 	}
+Notes (jremus):
+    FIXME: dbg*() with UACCESS enabled.
+
+ arch/Kconfig                   | 22 ++++++++
+ kernel/unwind/eh_frame.c       | 93 ++++++++++++++++++++++++++++++++++
+ kernel/unwind/eh_frame_debug.h |  4 ++
+ 3 files changed, 119 insertions(+)
+
+diff --git a/arch/Kconfig b/arch/Kconfig
+index ea969811f798..30d9e876f28a 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -490,6 +490,28 @@ config HAVE_UNWIND_USER_EH_FRAME
+ 	bool
+ 	select UNWIND_USER
  
-+	/*
-+	 * DRAP (Dynamic Realignment Pointer) CFA expression:
-+	 *
-+	 * DW_OP_breg<FP> + <FP_offset>	// 5 (EBP) - 4 or 6 (RBP) - 8
-+	 * DW_OP_deref
-+	 *
-+	 * CFA = *(FP + FP_offset)
-+	 */
-+	static const char drap_expr[] = {0x70, 0x00, 0x06};
-+	static const char drap_mask[] = {0xf0, 0x80, 0xff};
++config EH_FRAME_VALIDATION
++	bool "Enable .eh_frame[_hdr] section debugging"
++	depends on HAVE_UNWIND_USER_EH_FRAME
++	depends on DYNAMIC_DEBUG
++	help
++	  When adding an .eh_frame_hdr section for a test, validate the
++	  entire section and its referenced entrire .eh_frame section
++	  immediately rather than on demand.
 +
-+	if (size == sizeof(drap_expr) &&
-+	    !memcmp_masked(expr, drap_expr, drap_mask, sizeof(drap_expr))) {
-+		unsigned char fp_reg = DW_OP_breg_register(expr[0]);
-+		unsigned char fp_offset_byte = expr[1];
-+		long fp_offset;
++	  This is a debug feature which is helpful for rooting out
++	  .eh_frame[_hdr] section issues.  If the .eh_frame[_hdr]
++	  section is corrupt, it will fail to load immediately, with
++	  more information provided in dynamic printks.
 +
-+		if (fp_reg != EH_FRAME_REG_FP)
-+			return -EOPNOTSUPP;
++	  This has a significant page cache footprint due to its reading
++	  of the entire .eh_frame[_hdr] sections for every loaded executable
++	  and shared library.  Also, it's done for all processes, even those
++	  which don't get stack traced by the kernel.  Not recommended for
++	  general use.
 +
-+		fp_offset = (long)(fp_offset_byte);
-+		if (fp_offset_byte & 0x40)
-+			fp_offset |= -(1L << 7);	/* Sign extend */
++	  If unsure, say N.
 +
-+		/* CFA = *(FP + offset) */
-+		reg_state->cfa_rule = CFA_REG_OFFSET_DEREF;
-+		reg_state->cfa_regnum = EH_FRAME_REG_FP;
-+		reg_state->cfa_offset = fp_offset;
-+		return 0;
-+	}
-+
- 	return -EOPNOTSUPP;
- }
- #define eh_frame_do_def_cfa_expression eh_frame_do_def_cfa_expression
- 
-+static inline int eh_frame_do_expression(unsigned int reg,
-+					 const char *expr,
-+					 int size,
-+					 unsigned long ip,
-+					 struct eh_frame_reg_state *reg_state)
-+{
-+	/*
-+	 * DRAP (Dynamic Realignment Pointer) FP expression:
-+	 *
-+	 * DW_OP_breg<FP> +0	// 5 (EBP) or 6 (RBP)
-+	 *
-+	 * FP = *(FP + 0)
-+	 */
-+	static const char drap_fp_expr[] = {0x70, 0x00};
-+	static const char drap_fp_mask[] = {0xf0, 0xff};
-+
-+	if (reg == EH_FRAME_REG_FP && size == sizeof(drap_fp_expr) &&
-+	    !memcmp_masked(expr, drap_fp_expr, drap_fp_mask, sizeof(drap_fp_expr))) {
-+		unsigned char fp_reg = DW_OP_breg_register(expr[0]);
-+
-+		if (fp_reg != EH_FRAME_REG_FP)
-+			return -EOPNOTSUPP;
-+
-+		/* FP = *(FP + 0) */
-+		reg_state->reg_rule[FP_IDX] = REG_REGISTER_OFFSET_DEREF;
-+		reg_state->reg_regnum[FP_IDX] = EH_FRAME_REG_FP;
-+		reg_state->reg_offset[FP_IDX] = 0;
-+		return 0;
-+	}
-+
-+	return -EOPNOTSUPP;
-+}
-+#define eh_frame_do_expression eh_frame_do_expression
-+
- #include <asm-generic/unwind_user_eh_frame.h>
- 
- #endif /* _ASM_X86_UNWIND_USER_EH_FRAME_H */
-diff --git a/include/linux/unwind_user_eh_frame_types.h b/include/linux/unwind_user_eh_frame_types.h
-index e9f9d1abb76f..9547e963bb5f 100644
---- a/include/linux/unwind_user_eh_frame_types.h
-+++ b/include/linux/unwind_user_eh_frame_types.h
-@@ -5,6 +5,8 @@
- enum eh_frame_cfa_rule {
- 	CFA_UNDEFINED,		/* unrecoverable */
- 	CFA_REG_OFFSET,		/* CFA = reg + offset */
-+	/* CFA expressions rules */
-+	CFA_REG_OFFSET_DEREF,	/* CFA = *(reg + offset) */
- };
- 
- enum eh_frame_reg_rule {
-@@ -14,6 +16,8 @@ enum eh_frame_reg_rule {
- 	REG_OFFSET,		/* reg = *(CFA + offset) */
- 	REG_VAL_OFFSET,		/* reg = CFA + offset */
- 	REG_REGISTER,		/* reg = other_reg */
-+	/* expressions rules */
-+	REG_REGISTER_OFFSET_DEREF,	/* reg = *(other_reg + offset) */
- };
- 
- enum eh_frame_reg_index {
+ config HAVE_UNWIND_USER_FP
+ 	bool
+ 	select UNWIND_USER
 diff --git a/kernel/unwind/eh_frame.c b/kernel/unwind/eh_frame.c
-index 19e2bc96ddbc..49e8a3e8d794 100644
+index 46ffb535ca53..c9161229196c 100644
 --- a/kernel/unwind/eh_frame.c
 +++ b/kernel/unwind/eh_frame.c
-@@ -1120,18 +1120,33 @@ static __always_inline int __find_frame_row(struct eh_frame_section *sec,
- 		return ret;
+@@ -1163,6 +1163,95 @@ int eh_frame_find(unsigned long ip, struct unwind_user_frame *frame)
+ 	return ret;
+ }
  
- 	/* Convert CFA rule */
--	if (ctx.state.cfa_rule != CFA_REG_OFFSET)
-+	switch (ctx.state.cfa_rule) {
-+	case CFA_REG_OFFSET:
-+		if (ctx.state.cfa_regnum == EH_FRAME_REG_SP)
-+			frame->cfa.rule = UNWIND_USER_CFA_RULE_SP_OFFSET;
-+		else if (ctx.state.cfa_regnum == EH_FRAME_REG_FP)
-+			frame->cfa.rule = UNWIND_USER_CFA_RULE_FP_OFFSET;
-+		else {
-+			if (ctx.state.cfa_regnum > UINT_MAX)
++#ifdef CONFIG_EH_FRAME_VALIDATION
++
++static int eh_frame_validate_section(struct eh_frame_section *sec)
++{
++	void __user *table_start_ptr;
++	unsigned long table_size;
++	u8 table_enc;
++	int entry_size;
++	unsigned long prev_func_addr;
++	unsigned int i;
++
++	if (!sec->has_binary_search_table)
++		return 0;
++
++	if (!sec->fde_count) {
++		dbg_sec(".eh_frame_hdr: invalid FDE count\n");
++		return -EINVAL;
++	}
++
++	table_enc = sec->binary_search_table_enc;
++	entry_size = 2 * encoded_pointer_size(table_enc);
++	if (!entry_size) {
++		dbg_sec(".eh_frame_hdr: invalid binary search table entry size\n");
++		return -EINVAL;
++	}
++	table_start_ptr = (void __user *)sec->binary_search_table_start;
++	table_size = sec->binary_search_table_end - sec->binary_search_table_start;
++
++	for (i = 0; i < sec->fde_count; i++) {
++		struct eh_frame_fde fde;
++		unsigned long cur;
++		unsigned long func_addr, fde_addr;
++		int ret;
++
++		cur = sec->binary_search_table_start + i * entry_size;
++
++		scoped_user_read_access_size(table_start_ptr, table_size, Efault) {
++			/* Read function start address from table */
++			ret = read_encoded_pointer(sec, NULL, &cur,
++						   sec->binary_search_table_end,
++						   table_enc, &func_addr);
++			if (ret) {
++				dbg_sec_ehfh(cur, "table[%u]: failed to read function start address\n", i);
++				return ret;
++			}
++			if (i && func_addr <= prev_func_addr) {
++				dbg_sec(".eh_frame_hdr: table[%u]: not sorted\n", i);
 +				return -EINVAL;
-+			frame->cfa.rule = UNWIND_USER_CFA_RULE_REG_OFFSET;
-+			frame->cfa.regnum = ctx.state.cfa_regnum;
-+		}
-+		break;
-+	case CFA_REG_OFFSET_DEREF:
-+		if (ctx.state.cfa_regnum == EH_FRAME_REG_SP)
-+			frame->cfa.rule = UNWIND_USER_CFA_RULE_SP_OFFSET_DEREF;
-+		else if (ctx.state.cfa_regnum == EH_FRAME_REG_FP)
-+			frame->cfa.rule = UNWIND_USER_CFA_RULE_FP_OFFSET_DEREF;
-+		else {
-+			if (ctx.state.cfa_regnum > UINT_MAX)
++			}
++			prev_func_addr = func_addr;
++
++			/* Read FDE address from table */
++			ret = read_encoded_pointer(sec, NULL, &cur,
++						   sec->binary_search_table_end,
++						   table_enc, &fde_addr);
++			if (ret) {
++				dbg_sec_ehfh(cur, "table[%u]: failed to read FDE pointer\n", i);
++				return ret;
++			}
++			if (fde_addr < sec->eh_frame_start) {
++				dbg_sec(".eh_frame_hdr: table[%u]: invalid FDE address\n", i);
 +				return -EINVAL;
-+			frame->cfa.rule = UNWIND_USER_CFA_RULE_REG_OFFSET_DEREF;
-+			frame->cfa.regnum = ctx.state.cfa_regnum;
++			}
 +		}
-+		break;
-+	default:
- 		return -EINVAL;
--
--	if (ctx.state.cfa_regnum == EH_FRAME_REG_SP)
--		frame->cfa.rule = UNWIND_USER_CFA_RULE_SP_OFFSET;
--	else if (ctx.state.cfa_regnum == EH_FRAME_REG_FP)
--		frame->cfa.rule = UNWIND_USER_CFA_RULE_FP_OFFSET;
--	else {
--		if (ctx.state.cfa_regnum > UINT_MAX)
--			return -EINVAL;
--		frame->cfa.rule = UNWIND_USER_CFA_RULE_REG_OFFSET;
--		frame->cfa.regnum = ctx.state.cfa_regnum;
- 	}
++
++		ret = __read_fde(sec, fde_addr, &fde);
++		if (ret) {
++			dbg_sec(".eh_frame_hdr: table[%u]: failed to read FDE at .eh_frame+%#lx\n",
++				i, fde_addr - sec->eh_frame_start);
++			return ret;
++		}
++		if (func_addr != fde.func_addr) {
++			dbg_sec(".eh_frame_hdr: table[%u]: function start address mismatch\n", i);
++			return -EINVAL;
++		}
++	}
++
++	return 0;
++
++Efault:
++	return -EFAULT;
++}
++
++#else /* !CONFIG_EH_FRAME_VALIDATION */
++
++static int eh_frame_validate_section(struct eh_frame_section *sec) { return 0; }
++
++#endif /* !CONFIG_EH_FRAME_VALIDATION */
++
+ static void free_section(struct eh_frame_section *sec)
+ {
+ 	dbg_free(sec);
+@@ -1299,6 +1388,10 @@ int eh_frame_add_section(unsigned long eh_frame_hdr_start,
+ 	if (ret)
+ 		goto err_free;
  
- 	if (ctx.state.cfa_offset < INT_MIN ||
-@@ -1172,6 +1187,16 @@ static __always_inline int __find_frame_row(struct eh_frame_section *sec,
- 		frame->ra.regnum = ctx.state.reg_regnum[RA_IDX];
- 		frame->ra.offset = 0;
- 		break;
-+	case REG_REGISTER_OFFSET_DEREF:
-+		if (ctx.state.reg_regnum[RA_IDX] > UINT_MAX)
-+			return -EINVAL;
-+		if (ctx.state.reg_offset[RA_IDX] < INT_MIN ||
-+		    ctx.state.reg_offset[RA_IDX] > INT_MAX)
-+			return -EOPNOTSUPP;
-+		frame->ra.rule = UNWIND_USER_RULE_REG_OFFSET_DEREF;
-+		frame->ra.regnum = ctx.state.reg_regnum[RA_IDX];
-+		frame->ra.offset = ctx.state.reg_offset[RA_IDX];
-+		break;
- 	default:
- 		return -EINVAL;
- 	}
-@@ -1206,6 +1231,16 @@ static __always_inline int __find_frame_row(struct eh_frame_section *sec,
- 		frame->fp.regnum = ctx.state.reg_regnum[FP_IDX];
- 		frame->fp.offset = 0;
- 		break;
-+	case REG_REGISTER_OFFSET_DEREF:
-+		if (ctx.state.reg_regnum[FP_IDX] > UINT_MAX)
-+			return -EINVAL;
-+		if (ctx.state.reg_offset[FP_IDX] < INT_MIN ||
-+		    ctx.state.reg_offset[FP_IDX] > INT_MAX)
-+			return -EOPNOTSUPP;
-+		frame->fp.rule = UNWIND_USER_RULE_REG_OFFSET_DEREF;
-+		frame->fp.regnum = ctx.state.reg_regnum[FP_IDX];
-+		frame->fp.offset = ctx.state.reg_offset[FP_IDX];
-+		break;
- 	default:
- 		return -EINVAL;
- 	}
++	ret = eh_frame_validate_section(sec);
++	if (ret)
++		goto err_free;
++
+ 	ret = mtree_insert_range(eh_frame_mt, sec->text_start, sec->text_end - 1,
+ 				 sec, GFP_KERNEL_ACCOUNT);
+ 	if (ret) {
+diff --git a/kernel/unwind/eh_frame_debug.h b/kernel/unwind/eh_frame_debug.h
+index 40a80861d4d4..bcb2d03ab9ab 100644
+--- a/kernel/unwind/eh_frame_debug.h
++++ b/kernel/unwind/eh_frame_debug.h
+@@ -14,6 +14,9 @@
+ #define dbg_sec(fmt, ...)						\
+ 	dbg("%s: " fmt, sec->filename, ##__VA_ARGS__)
+ 
++#define dbg_sec_ehfh(addr, fmt, ...)					\
++	dbg_sec(".eh_frame_hdr+%#lx: " fmt, ((addr) - sec->eh_frame_hdr_start), ##__VA_ARGS__)
++
+ static inline void dbg_init(struct eh_frame_section *sec)
+ {
+ 	struct mm_struct *mm = current->mm;
+@@ -47,6 +50,7 @@ static inline void dbg_free(struct eh_frame_section *sec)
+ 
+ #define dbg(args...)			no_printk(args)
+ #define dbg_sec(args...)		no_printk(args)
++#define dbg_sec_ehfh(args...)		no_printk(args)
+ 
+ static inline void dbg_init(struct eh_frame_section *sec) {}
+ static inline void dbg_free(struct eh_frame_section *sec) {}
 -- 
 2.53.0
 
