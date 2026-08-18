@@ -1,118 +1,174 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7787247DFA5
-	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 16:33:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 218DA47D458
+	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 16:39:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787070812; cv=none; b=stYiu8sJ28so0filAbL/ckvSGZ8AZGSfvV6YQN0/qGoES60iM96N7l5IqKR0NrN9j18wVJgZqPn/07nO9Url0HyFLtlVAQugvaVIKY0/GjlwRRq/s3w0gKWZSstneoJ0mKqwjrPmZ8FpPabP2Cpj1isPYXTgs6/XbPrrX5SDlSE=
+	t=1787071156; cv=none; b=uH7UIJThpHxDnjzRUhH2oE7pr6HSI3f3e+D3pHj0Vu8jlUCMIr2daOeMgGtP+4NUIfePbhDM6l7MQKzDzPw1n0BpNBLOzU+woEcxCpgFe1oMX8EejMiuaCUzLkguNeU6trdLkWhHBWp7fo2BzS4bBrnbbUPkUdBfaJyhOkU1cWg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787070812; c=relaxed/simple;
-	bh=/GFd5uz0Vltj1UsW7aRzbt+FaJgIbEHg8a8NngjH/Uc=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nhBVQCjXaP2AZSSLczTwUI/H6GSGrT4oMKBpVBGuFlkKiyJB7BbpMVr5aeGv5lDPb8UDlqRxFr5E6hYPkTR7JligKFaL9z17VXcbJS83xF0V/go2DjRvDfDyKAktsDgFo6y82CXmOshFM/idlPe7ZLk6E94+eAXYanSNFI0yGY0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kxem3yHA; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787071156; c=relaxed/simple;
+	bh=ytUDgpB2ABHnkmWsqfPem9i0VDyUyFkllyj7MeemYiw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=CfjF7qtbgE1VeT4ZOfe0aERyaaSLSbNQxsa0+kIErukmmoH4d5amIRB8otbHgCzK2JszMNmW3dcffZLaS3GAXCjOuagITe7C6c6o9kqnkGICn6832nKZwsHiHlEpiYDQuR9Ak9zxpmardcJsIkHPP71Uz/2Lvh/vzC8fCcoYb+c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RbPOKt4n; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kxem3yHA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C82221F000E9;
-	Tue, 18 Aug 2026 16:33:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787070811;
-	bh=QAM3x8PfP6v65FRYAPuOolpVBlG7VTT4xwHyDuBW6GE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kxem3yHAm9SWg3v5Ge5sT3jJT6e91FVrCludA1pC1HiDu1GvGru+r/p8o6vOyjdTl
-	 Yy+8LmLvho1UgvoLRtB2DJ+AZCnhDRM9ir0yhlojnwD7eLm1eher9r6S/yzRYunK0Q
-	 +j9QMBsba6YClI1QcUn+xDzAwgaW+iqBbVBXtM4SZOErs9zorvc0wRHW4uA4e5rEdb
-	 3pJe49gKEeHfe9mj+h5R09RTS8jOAMMtvgVJ9BVvXeFe906n4RerKrQPq1Yn7+Vioy
-	 cdOmcahBfhDdcCUOt+BKMj2wprrcqdyrPnDXDgx6Bn3fpTJkaJUOKIObbyJeT4l9QN
-	 NaHMsAXZXyrgA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] s390/iomem: register initrd as an iomem resource
- when retain_initrd is set
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Joseph Cathcart" <josephc@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260818162436.12383-1-josephc@linux.ibm.com>
-References: <20260818162436.12383-1-josephc@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 18 Aug 2026 16:33:30 +0000
-Message-Id: <20260818163330.C82221F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RbPOKt4n"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IE3evH455218
+	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 16:39:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=CZV0abSICgTV1urwPf7doEfYRmLNI5GkJ6hAdef+r
+	fk=; b=RbPOKt4nx3k5XuBd0T2L/PgAVXbuknr4zrbvYbdno5z+EPngLcU4pBhgU
+	4hp9ybe57JyhRzSytcJIEX2Eb4j3BEFMLFUThjB4ZkNGlGEGUPGmuvqQdzEPNOc7
+	oZx701FmxXf7Q41VgaGyGHprEYTXDUwfwdTzGIXDzc5OOCfEwc4hAYzHQqIjTJ3I
+	+ltVVo9z87NtNzXK82N3pwjcUB7MKuQSh+7BWc0NwRYrPhybLj0y5uHQ1qXSYxB/
+	zqaGWiIJs6y8fswtiisYs4ewtWRA/8DSt/cRWvS8KIDqXVFq/YrN/uNDRKk3esgt
+	B0XGhGDJCVFGxSk/DF5UGY1xwVO9A==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2fm3sh0s-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 16:39:13 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IGQOiE022448
+	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 16:39:12 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33ek489w-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 16:39:12 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IGd6Z450856418
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 18 Aug 2026 16:39:06 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6403020043;
+	Tue, 18 Aug 2026 16:39:06 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4688620040;
+	Tue, 18 Aug 2026 16:39:06 +0000 (GMT)
+Received: from b315lp23.lnxne.boe (unknown [9.87.84.240])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 18 Aug 2026 16:39:06 +0000 (GMT)
+From: Joseph Cathcart <josephc@linux.ibm.com>
+To: linux-s390@vger.kernel.org
+Cc: eoin.mcnamara@ibm.com, iii@de.ibm.com,
+        Joseph Cathcart <josephc@linux.ibm.com>
+Subject: [PATCH v3] s390/iomem: register initrd as an iomem resource when retain_initrd is set
+Date: Tue, 18 Aug 2026 18:39:02 +0200
+Message-ID: <20260818163902.14422-1-josephc@linux.ibm.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: h6tjUmlZpt-hOD4Usi1WiL-ZEJ1zVd5R
+X-Proofpoint-ORIG-GUID: h6tjUmlZpt-hOD4Usi1WiL-ZEJ1zVd5R
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDEyMiBTYWx0ZWRfX7RhP0WB8EULz
+ /IYdpaPOQOLPAsML7cOqhg9cH9HPgNBR3WaqE25Zt14W6y73Hn4j81fzuZbYQqWlMevz+HMx2j3
+ Lvn0BKLK9Q7JXB1caje30N5rYLvWtQ0=
+X-Authority-Analysis: v=2.4 cv=WtQb99fv c=1 sm=1 tr=0 ts=6a848ab1 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=kAqIDUJJv3-bWE_SvTMA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDEyMiBTYWx0ZWRfXyK+d8G4+YYn/
+ hPj2M2X54aIAo9fDPJ+Tz6IqhRk6O28ljr83TGLhVLRaKi5mu1Cr87lZBWwuoprP8Az1/HpSN5u
+ la3G3TV+jZELUZAHD8JzGqwC6GXKokJCEawNTQblEh4z9dR+kQagAuKdhe1pJta5LyzP5/v2yRX
+ YlgDXe9HQoJ327J7iK0y1mgMrF0WsdAoEMUZ12em5GT8x2X3Z+qzRANQs498FELwca7CdIXD5fB
+ NlPEdPOxxCuU02E2WP0Glm10+WgaVFCZ8SCV5/O00Uf0wBzOi3o0eA+/AZ4wKx7KTI+8UfhLuVh
+ zye7uNwPPpS7p7qd/I/q52tcX/UbqDdxtFEf5L0K0/rIi2Kbhf8sovyWF0KvyU8kGjsBF7iyq4A
+ NDmBbd2/PGeH1PoOpUgWNwBKAhBinihxwIadQHvcmnZFYZwijGANDtTuWYltEYDCf2ZPPm4/8Ms
+ i6+yZO4cQ61Kjf4a3eQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-18_02,2026-08-18_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 spamscore=0 malwarescore=0 suspectscore=0 phishscore=0
+ lowpriorityscore=0 clxscore=1015 adultscore=0 priorityscore=1501
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608180122
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Medium] Imprecise substring matching for 'retain_initrd' creates a split=
--brain state with the core kernel, causing freed initrd memory to remain fa=
-lsely marked as BUSY in the iomem resource map.
-- [Medium] When CONFIG_BLK_DEV_INITRD is disabled, a bogus 1-byte initrd re=
-source at address 0x0 is incorrectly registered if 'retain_initrd' matches =
-in the boot command line.
---
+Currently, /proc/iomem contains no reference to initrd memory, even
+when initrd is retained and still held in RAM. This makes the memory
+ranges invisible from userspace, and unusable to programs such as
+kexec. (A sysfs bin file is created for initrd, but this doesn't
+help programs which need the explicit memory ranges)
 
---- Patch [1]: [PATCH v2] s390/iomem: register initrd as an iomem resource =
-when retain_initrd is set ---
-commit 0f4223b27c45aff988c662d5fb36a4161cc6901c
-Author: Joseph Cathcart <josephc@linux.ibm.com>
+Add initrd to standard_resources[] unconditionally. Add initrd as a
+child of iomem_resources only if retain_initrd is specified.
 
-s390/iomem: register initrd as an iomem resource when retain_initrd is set
+strstr() could match substrings like "retain_initrd=0" or
+"no_retain_initrd", but this is how PPC chose to check for
+"retain_initrd" param too. (arch/powerpc/kexec/ranges.c)
 
-This patch unconditionally adds initrd to the standard_resources array and
-conditionally registers it as an iomem resource if the retain_initrd boot
-parameter is present.
+Signed-off-by: Joseph Cathcart <josephc@linux.ibm.com>
+---
+ arch/s390/kernel/setup.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-> diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-> index b60284328fe3d..cd61e286628a0 100644
-> --- a/arch/s390/kernel/setup.c
-> +++ b/arch/s390/kernel/setup.c
-[ ... ]
-> @@ -501,6 +508,19 @@ static void __init setup_resources(void)
->  	bss_resource.start =3D __pa_symbol(__bss_start);
->  	bss_resource.end =3D __pa_symbol(__bss_stop) - 1;
-> =20
-> +	if (strstr(boot_command_line, "retain_initrd"))
-> +		retain_initrd =3D true;
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index b60284328fe3..45b0e19bdab2 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -481,15 +481,22 @@ static struct resource bss_resource = {
+ 	.flags = IORESOURCE_BUSY | IORESOURCE_SYSTEM_RAM,
+ };
+ 
++static struct resource initrd_resource = {
++	.name = "initrd",
++	.flags = IORESOURCE_BUSY | IORESOURCE_SYSTEM_RAM,
++};
++
+ static struct resource __initdata *standard_resources[] = {
+ 	&code_resource,
+ 	&data_resource,
+ 	&bss_resource,
++	&initrd_resource,
+ };
+ 
+ static void __init setup_resources(void)
+ {
+ 	struct resource *res, *std_res, *sub_res;
++	bool retain_initrd = false;
+ 	phys_addr_t start, end;
+ 	int j;
+ 	u64 i;
+@@ -501,6 +508,19 @@ static void __init setup_resources(void)
+ 	bss_resource.start = __pa_symbol(__bss_start);
+ 	bss_resource.end = __pa_symbol(__bss_stop) - 1;
+ 
++	if (IS_ENABLED(CONFIG_BLK_DEV_INITRD) && retain_initrd) {
++		unsigned long initrd_addr, initrd_size;
++	
++		if (strstr(boot_command_line, "retain_initrd"))
++			retain_initrd = true;
++		if (get_physmem_reserved(RR_INITRD, &initrd_addr, &initrd_size)) {
++			initrd_resource.start = initrd_addr;
++			initrd_resource.end = initrd_resource.start + initrd_size - 1;
++		} else {
++			retain_initrd = false;
++		}
++	}
++
+ 	for_each_mem_range(i, &start, &end) {
+ 		res = memblock_alloc_or_panic(sizeof(*res), 8);
+ 		res->flags = IORESOURCE_BUSY | IORESOURCE_SYSTEM_RAM;
+@@ -517,6 +537,8 @@ static void __init setup_resources(void)
+ 
+ 		for (j = 0; j < ARRAY_SIZE(standard_resources); j++) {
+ 			std_res = standard_resources[j];
++			if (std_res == &initrd_resource && !retain_initrd)
++				continue;
+ 			if (std_res->start < res->start ||
+ 			    std_res->start > res->end)
+ 				continue;
+-- 
+2.55.0
 
-[Severity: Medium]
-Is this substring match too broad? If a user passes "retain_initrd=3D0" or
-"no_retain_initrd" on the command line, this will still evaluate to true.
-
-The core kernel will correctly evaluate the exact parameter and free the
-initrd memory, but s390 setup might then register the freed memory as an
-IORESOURCE_BUSY initrd resource in /proc/iomem.=20
-
-Will this leave a dangling resource entry covering memory that is actively
-reused by the buddy allocator?
-
-> +	if (IS_ENABLED(CONFIG_BLK_DEV_INITRD) && retain_initrd) {
-> +		unsigned long initrd_addr, initrd_size;
-> +=09
-> +		if (get_physmem_reserved(RR_INITRD, &initrd_addr, &initrd_size)) {
-> +			initrd_resource.start =3D initrd_addr;
-> +			initrd_resource.end =3D initrd_resource.start + initrd_size - 1;
-> +		} else {
-> +			retain_initrd =3D false;
-> +		}
-> +	}
-
-[Severity: Medium]
-What happens here if CONFIG_BLK_DEV_INITRD is disabled and retain_initrd
-matched in the boot command line?
-
-Since this block is skipped entirely, retain_initrd is never reset to
-false. Won't the subsequent standard resources loop then process an
-uninitialized initrd_resource (which defaults to 0-bounds), resulting in
-a bogus 1-byte initrd resource registered at physical address 0x0?
-
-> +
->  	for_each_mem_range(i, &start, &end) {
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260818162436.1238=
-3-1-josephc@linux.ibm.com?part=3D1
+base commit: 0f23d56f17fdfc7db69d51f64c8b91bbab947aa9
