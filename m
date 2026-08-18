@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19815429033;
-	Tue, 18 Aug 2026 17:26:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F49348423C;
+	Tue, 18 Aug 2026 17:26:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787073965; cv=none; b=DB/c+O7rRl00l6/eNNs0jIKTPzfuzyqieEy0C0DNL7irfFv08YiGSgHSXvMb0cfN8KN3om7NFrB8ztHgG5DT0/7nmNwUoCGUo5Y2IW6txot4UEurdVR4JPblF84Jw31ueNuqtfKdjWPOhsFliGd3DH99FYWDfD/lftCuelU2cTE=
+	t=1787074003; cv=none; b=gHotBTSQZFB62s/o0KRaSbZAgjwizsv6/JBGiw/vVh2vvbQ4ZzD4sQKSteEpWcy2c6+6ZxlvgxnHDABM4xZYZmVSGj04snPDUkusngaMZroutbdjzq3X72seta2ejZ4MbjHe8QZ5PBDBOLhAfAeFygflqnAnxm84/ja3YbZmPzI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787073965; c=relaxed/simple;
-	bh=zyEQNAT0LvCVeEO4oIsyPkdovbijJa/pNpyteIhTKac=;
+	s=arc-20240116; t=1787074003; c=relaxed/simple;
+	bh=jp2713h2oMw9XjVz6OOo4Pe4aGZlGxGQMiGwU3SzlIQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WCJ8yaKjBQXVpOV3u/lqg1RxmK0rbza1eCQrHSNatshkfL1rLniMOgJYLWqL/h8S5/7FjeU5pnOlU1ifmQKMnOEm5kqEijyzdvm1t0KUEWlJF/yEI3ZdPipsTnxtSiix7f2uZbRQBoHX9HFxi6kakvYhG2Dku9HP9au1j5E0F/I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Hd4zZqYl; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=qW9cVquKvvnLA6N+9G7s+PtjkarRqocgA7jVe83RkvuuUC85MBUfZbzrye+AJ835//lsVjLDT7185lxTSdbmGDIRZnDDTC28u/dddn6oR2y5GnYdoH3t7mHA5fMPjnoO2AmPbsitiEqUyX0+V6aX1pPTvQIAcjsU6HqRhVPtQq4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VkTka9sB; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Hd4zZqYl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7EAE1F000E9;
-	Tue, 18 Aug 2026 17:25:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VkTka9sB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B62471F000E9;
+	Tue, 18 Aug 2026 17:26:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787073964;
-	bh=bVsmR2M21o1vKJ3cy/12UmIutLddLn3TpoYg5BwFDD0=;
+	s=k20260515; t=1787074001;
+	bh=rnEdMRtIz89oIwbynNL9OjJWy1tOvB6Av/Ys5ptNXPk=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Hd4zZqYlsGKEx/jhtQpqKkSx9RTUboWG40nyZZJHu3aMW61Z87euXiGJSy0ADtjyR
-	 m66jdF1q+357id1bqIreIhbEdpZ/sgMPUxHsRL5upT0UyFGrvM6HyCS9SVpJA4TU+d
-	 gassLD90Xeh6KMJaO1fqTs+OebEDB8HnsqsPPn/z3u5gxAPalXv3a4gb1hT5xHadHh
-	 fdg8S8VR8ZQvXv6NBUwwaSAUrE12u/ZJCbhBwd6+Psh5v0mgM7k+65hSQgJg6UjjKK
-	 hdN0pPR0VYT1k9eqEIiOxYwmelrWgOV0PAZslwiEj/BEKTam2bKJR5YLAScDZA3fpC
-	 RmKBXcclg5XyA==
-Message-ID: <1de1adf1-84a6-4247-98c1-406686233d3f@kernel.org>
-Date: Tue, 18 Aug 2026 19:25:53 +0200
+	b=VkTka9sBrgxZBjvuWUfpq/xlYMQqt4vpe7baWUl2zn2trNJ8rpzrhrpwL6vtjm3qW
+	 wbBqpaxiu9lVfp57KyMZOJ7kiRQV+cpJAlq/k/zDZfJLSvyZUzi/0CTmFciWw53seW
+	 vhjcZ7sV12pjEumpOcvCJzxXwMSMqf/WGil9kIw7Tu+AxtV8233UXYJIJiJB2/EHVb
+	 WniMIdls6pU17tb/SWmZ8ViqAqCUJqJ72muZNyGzWteYnFUePKPv7MWye28Hnrbr6t
+	 XqELe+93riD5Sw2O3gRt+a1tqkyKyasmmoOMQSHfaI6RV28GMzsXnPLYB2jq1hl07U
+	 mMfTEguOfeKeg==
+Message-ID: <12829f76-f577-4305-abe6-319405bf8dc6@kernel.org>
+Date: Tue, 18 Aug 2026 19:26:31 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,7 +35,7 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC V3 3/8] loongarch/mm: Stop using pte_ERROR()
+Subject: Re: [RFC V3 5/8] sh/mm: Stop using pte_ERROR()
 To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org,
  akpm@linux-foundation.org
 Cc: Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker
@@ -53,7 +53,7 @@ Cc: Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker
  linux-um@lists.infradead.org, linux-arch@vger.kernel.org,
  linux-kernel@vger.kernel.org
 References: <20260818040041.1891769-1-anshuman.khandual@arm.com>
- <20260818040041.1891769-4-anshuman.khandual@arm.com>
+ <20260818040041.1891769-6-anshuman.khandual@arm.com>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -100,21 +100,22 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260818040041.1891769-4-anshuman.khandual@arm.com>
+In-Reply-To: <20260818040041.1891769-6-anshuman.khandual@arm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 8/18/26 06:00, Anshuman Khandual wrote:
-> Directly use pr_err() in __set_fixmap() and drop pte_ERROR() which helps in
+> Directly use pr_err() in set_pte_phys() and drop pte_ERROR() which helps in
 > eventually dropping pte_ERROR() macro across the tree. In this new printing
 > __FILE__ and __LINE__ has been dropped because they are always the same and
-> don't really add any value. The new ptval_to_str() helper is being used for
-> converting pgtable entry value into a string. The error message itself has
-> been cleaned up as well.
+> don't really add any value. Besides ptrval_to_str() has been able to handle
+> different PTE representation with and without CONFIG_X2TLB, which helped in
+> unifying error message printing.
 > 
-> Cc: Huacai Chen <chenhuacai@kernel.org>
-> Cc: WANG Xuerui <kernel@xen0n.name>
-> Cc: loongarch@lists.linux.dev
+> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> Cc: Rich Felker <dalias@libc.org>
+> Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+> Cc: linux-sh@vger.kernel.org
 > Cc: linux-kernel@vger.kernel.org
 > Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 > ---
