@@ -1,115 +1,188 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3898B35BDC2;
-	Tue, 18 Aug 2026 02:50:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id F39CA3AFB18;
+	Tue, 18 Aug 2026 04:00:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787021418; cv=none; b=gLGGS5FZ0yYv9kYIDSyL9WA1HtdZLL6b3t9cU2YioxTZOYU6w3WEQXB6+Pl3PkKIPLJJb++nxqqiwCtQiUgSxb2t/0AqUsapdiJ/JhGyG/T3QanbbjP3d83iw6KinH4XDloTwyn4aZShs+WGJFiy5Q348+4TTBiGTbYLgLqqFkU=
+	t=1787025650; cv=none; b=Fib8xTYK3kGT1yqSalNS96kXUfDw1tP65gmiqhYdg4xRE7Eg9Pd7TO2+Rx0YwAWezpKLwu5Ian+lI460/j6tehk+xJZvFLV4+twn31DrEnL6uFqCTp/e8xxX76QSlFR6Iq+pSG2scj8Be0JIKcczaihftow72Z0irUbY4fQWcYA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787021418; c=relaxed/simple;
-	bh=g6uhDJXu+B7EWCWejoCODzvTHMgp+/bQtfPxf9plNXA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=V8t2ipJtKJEkYJdi8cj/Hj9Up/5rCCrBSgp1Rbq0ypLKzn1qUzc8Fw/TeQNYjlgqPKpi48bVtLSvW2rxb0jY5wMVUAy+KOzBhUfmnXANxhRLB4fPiQaC+wmRELdjhIY7EcF9vwlFxmCdmcjh/gfwcxrmUztr3/1rHYWjkcfNF8c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Gw4Hvt1B; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1787025650; c=relaxed/simple;
+	bh=LRR2JW96qzLG8uXgU1+MfoOsPimHhtCsmfw/iXX8kB4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=E7BrJZ0DGKPsvdoknoe78OSNsuI3shVTMV/bj1XDXzkMOXRFLjVver7CwxlosaOQMTZwyni6M3DBER51LBhgQx/L20fhYN4joNAtdmPwPPCZfpYaXE1k321+U633VlHrOwlb6tIodRA/N3idWpR/Qw/kV3V+hF+gI298NbMEd9s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=NtFRXij4; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Gw4Hvt1B"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67HM1mlC1515108;
-	Tue, 18 Aug 2026 02:49:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=g6uhDJ
-	Xu+B7EWCWejoCODzvTHMgp+/bQtfPxf9plNXA=; b=Gw4Hvt1BzPq7UBW0A0ve7m
-	NdQHfVvaQSSc2VRb+skosqlFPntGg9ie6AS2tHmH2xG6pn5YflsKuRmwE1k/lwUu
-	5BuG6t3tQK/dCLGyHhZwXPFZi8PyzOFneIvYVcOPq9jjw1J5BzeHbP9sKS3YEmnQ
-	lr8tpeaT84aa+0500awWIDEJbLB/PiOU0hCd6ZSs1OBGv9DnFU1hHmVEqVmJDq+U
-	11wreWcm5tID01prsG6kfzBdEEA7c2eAKwyUEDISNC0ShsxTw4G0696sxBsbdIbF
-	WUVQNUXw3XF32rXnOFhMq+lb1kdL+97R8lCx5o6voeBF1wksbeRkRbnBVupHTDQw
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2ehe5can-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 02:49:58 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67I2fIrK023633;
-	Tue, 18 Aug 2026 02:49:57 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33ek10jf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 02:49:57 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67I2nrrG44761580
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 18 Aug 2026 02:49:53 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9D01020043;
-	Tue, 18 Aug 2026 02:49:53 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1D47420040;
-	Tue, 18 Aug 2026 02:49:48 +0000 (GMT)
-Received: from [9.39.19.127] (unknown [9.39.19.127])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 18 Aug 2026 02:49:47 +0000 (GMT)
-Message-ID: <f69f1585-06a8-4e5f-b9f3-d2167f9d05d5@linux.ibm.com>
-Date: Tue, 18 Aug 2026 08:19:46 +0530
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="NtFRXij4"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 46004153B;
+	Mon, 17 Aug 2026 21:00:41 -0700 (PDT)
+Received: from localhost (a085714.arm.com [10.164.19.28])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6E5453F66F;
+	Mon, 17 Aug 2026 21:00:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1787025645; bh=LRR2JW96qzLG8uXgU1+MfoOsPimHhtCsmfw/iXX8kB4=;
+	h=From:To:Cc:Subject:Date:From;
+	b=NtFRXij4Uhwnlv72AF85fJYzj/aymvsPMmb1FV54uYlLFKg3t/C+cIPPz6W0jsHV1
+	 9J4gARXAWELXnskJwPs+BnDvgT6ZNx/a8ZwzPVKYIGTlZF5fGPZRP4qKo2lnT7Fr1w
+	 ur0UrDi2dMsXj4xyEnxA47CkAD4o6o2g2lJDsONI=
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+To: linux-mm@kvack.org,
+	akpm@linux-foundation.org,
+	david@kernel.org
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	Helge Deller <deller@gmx.de>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	linux-alpha@vger.kernel.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org,
+	linux-openrisc@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-arch@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [RFC V3 0/8] mm: Drop pxd_ERROR()
+Date: Tue, 18 Aug 2026 09:30:33 +0530
+Message-ID: <20260818040041.1891769-1-anshuman.khandual@arm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] s390/ctcm: Prevent XID null dereference
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: davem@davemloft.net, pabeni@redhat.com, edumazet@google.com,
-        andrew+netdev@lunn.ch, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, wintera@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, horms@kernel.org,
-        jeff@garzik.org, stable@vger.kernel.org
-References: <20260809105536.541453-1-aswin@linux.ibm.com>
- <20260817174148.3456594-1-kuba@kernel.org>
-Content-Language: en-US
-From: Aswin Karuvally <aswin@linux.ibm.com>
-In-Reply-To: <20260817174148.3456594-1-kuba@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDAxNiBTYWx0ZWRfX5VuM6HOXc1RZ
- QprAVbQ9k/jleJoDesOiDdayF4pUGx+B3VH+b3rVZ8h7vZjqE4YiQeCPDiTQGdy/6GuXEXyl0RB
- QCHW7AeQ0G5pwf43j4p+TmKuwglzJeqIcrsfegMVa/FlVdS/uGer075VbzMn1ypkeLIlTx8HFpY
- cYPD7sSKZNn4DHVvjmTMgZnhgzWpHi2wMiN/bCMsvU9WMHFA41rYBxLbex7/K/URWDAmiiktkI3
- G47m8aMcmQZjA5Ab3fBgnKy8decsEnhrC3PhnvLcxWdy9pRtgqWHKHxc4abM90ROrkI5wib7qWZ
- HD/88I93sImx4oqcnkF6arV/YWoPXRyGPleNaYdZF5q1CQgk/5yCAtWtKjcovG/359TZQfoT55t
- zJrxXU+2ml5i7huRgXniuTdy6I3zFddtkvInCt4ItaM0MIL2bB3mOdgDxAHvGWrDvsCmmfNTcbx
- v8ddkBixuDx4BExPsmg==
-X-Authority-Analysis: v=2.4 cv=DY8nbPtW c=1 sm=1 tr=0 ts=6a83c856 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=F2m9J7YYG7PLqnBJ6x4A:9
- a=QEXdDO2ut3YA:10 a=QYH75iMubAgA:10
-X-Proofpoint-ORIG-GUID: VBQxeEyNz0PK-EOKuVpZJvJLReC_nUYP
-X-Proofpoint-GUID: 67GPWOJqxRugK6TtLPpJPF4ZCnP-8y5E
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDAxNiBTYWx0ZWRfX/oleWyQJ/HHN
- NBEiufdAFqbVKsgmLWiookKGMIlIX4N5SOKh888gYhOuJ+VeMG8WK2o3TLzJWjMISEXEOvHgxG+
- VTyrzGIDyA7Gwid1vnDsqsMPZk7rPXg=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-17_04,2026-08-12_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 clxscore=1015 spamscore=0 malwarescore=0 priorityscore=1501
- impostorscore=0 lowpriorityscore=0 phishscore=0 suspectscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608180016
+Content-Transfer-Encoding: 8bit
 
-On 17/08/26 23:11, Jakub Kicinski wrote:
-> This is an AI-generated review of your patch. The human sending this
-> email has considered the AI review valid, or at least plausible.
-Hi Jakub,
-Terribly sorry about the delay. Our team is working on the issues
-highlighted in the Sashiko review, will be sending out the patches
-ASAP.
+pxd_ERROR() macros have been provided by all platforms, which are very much
+identical and can be dropped off completely if these pgtable printing could
+be moved to callers in generic MM aka all pxd_clear_bad().
+
+But first cleanups and re-organizations are required in some platforms that
+are using these macros internally. Afterwards [pte|pmd|pud|p4d|pgd]_ERROR()
+macros have been completely dropped from the entire tree.
+
+This series is based on v7.2 after the following patch and has also been
+built tested on multiple platforms.
+
+https://lore.kernel.org/all/20260709044334.1741263-1-anshuman.khandual@arm.com/
+
+Changes in RFC V3:
+
+- Moved ptrval_to_str() as header in a separate patch
+- Stopped using pxd_ERROR() in generic MM in a separate patch
+- Dropped pxd_ERRO() macros from all platforms in a separate patch
+- Dropped print_bad_pte() and also cleaned up set_pte_phys()
+- Added some pr_error() messages in __get_pte_phys()
+- Cleaned up error messages and used ptrval_to_str() in platforms
+
+Changes in RFC V2:
+
+https://lore.kernel.org/all/20260811042119.3652929-1-anshuman.khandual@arm.com/
+
+- Added clean up patches for platforms with existing pxd_ERROR() usage
+- Dropped __FILE__ and __LINE__ from all print sections per David
+
+Changes in RFC V1:
+
+https://lore.kernel.org/all/20260806080639.1916749-1-anshuman.khandual@arm.com/
+
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Huacai Chen <chenhuacai@kernel.org>
+Cc: WANG Xuerui <kernel@xen0n.name>
+Cc: linux-alpha@vger.kernel.org
+Cc: linux-snps-arc@lists.infradead.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-csky@vger.kernel.org
+Cc: linux-hexagon@vger.kernel.org
+Cc: loongarch@lists.linux.dev
+Cc: linux-m68k@lists.linux-m68k.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-openrisc@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+Cc: linux-um@lists.infradead.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org
+
+Anshuman Khandual (8):
+  mm: Make ptrval_to_str() generally available
+  mm: Stop using pxd_ERROR()
+  loongarch/mm: Stop using pte_ERROR()
+  parisc/mm: Directly use generic [pmd|pgd]_clear_bad()
+  sh/mm: Stop using pte_ERROR()
+  sh/mm: Stop using [p4d|pud|pmd]_ERROR()
+  sh/mm: Stop using pgd_ERROR()
+  mm: Drop pxd_ERROR()
+
+ arch/alpha/include/asm/pgtable.h              |  7 -------
+ arch/arc/include/asm/pgtable-levels.h         | 11 ----------
+ arch/arm/include/asm/pgtable.h                |  7 -------
+ arch/arm/kernel/traps.c                       | 17 ---------------
+ arch/arm64/include/asm/pgtable.h              | 15 -------------
+ arch/csky/include/asm/pgtable.h               |  4 ----
+ arch/hexagon/include/asm/pgtable.h            |  3 ---
+ arch/loongarch/include/asm/pgtable.h          | 13 ------------
+ arch/loongarch/mm/init.c                      |  4 +++-
+ arch/m68k/include/asm/mcf_pgtable.h           |  6 ------
+ arch/m68k/include/asm/motorola_pgtable.h      |  8 -------
+ arch/m68k/include/asm/sun3_pgtable.h          |  7 -------
+ arch/microblaze/include/asm/pgtable.h         |  7 -------
+ arch/mips/include/asm/pgtable-32.h            | 10 ---------
+ arch/mips/include/asm/pgtable-64.h            | 13 ------------
+ arch/nios2/include/asm/pgtable.h              |  7 -------
+ arch/openrisc/include/asm/pgtable.h           |  7 -------
+ arch/parisc/include/asm/pgtable.h             |  9 --------
+ arch/parisc/kernel/pci-dma.c                  |  6 ++----
+ arch/powerpc/include/asm/book3s/32/pgtable.h  |  2 --
+ arch/powerpc/include/asm/book3s/64/pgtable.h  |  7 -------
+ arch/powerpc/include/asm/nohash/32/pgtable.h  |  2 --
+ .../include/asm/nohash/64/pgtable-4k.h        |  3 ---
+ arch/powerpc/include/asm/nohash/64/pgtable.h  |  5 -----
+ arch/riscv/include/asm/pgtable-64.h           |  9 --------
+ arch/riscv/include/asm/pgtable.h              |  4 ----
+ arch/s390/include/asm/pgtable.h               | 11 ----------
+ arch/sh/include/asm/pgtable-3level.h          |  3 ---
+ arch/sh/include/asm/pgtable_32.h              | 13 ------------
+ arch/sh/mm/init.c                             | 16 +++++++-------
+ arch/sparc/include/asm/pgtable_32.h           |  3 ---
+ arch/sparc/include/asm/pgtable_64.h           | 10 ---------
+ arch/um/include/asm/pgtable-2level.h          |  7 -------
+ arch/um/include/asm/pgtable-4level.h          | 13 ------------
+ arch/x86/include/asm/pgtable-2level.h         |  5 -----
+ arch/x86/include/asm/pgtable-3level.h         | 11 ----------
+ arch/x86/include/asm/pgtable_64.h             | 18 ----------------
+ arch/xtensa/include/asm/pgtable.h             |  4 ----
+ include/asm-generic/pgtable-nop4d.h           |  1 -
+ include/asm-generic/pgtable-nopmd.h           |  1 -
+ include/asm-generic/pgtable-nopud.h           |  1 -
+ include/linux/mm_types.h                      | 15 +++++++++++++
+ mm/memory.c                                   | 16 ++------------
+ mm/pgtable-generic.c                          | 21 +++++++++++++++----
+ 44 files changed, 48 insertions(+), 314 deletions(-)
+
+-- 
+2.43.0
+
