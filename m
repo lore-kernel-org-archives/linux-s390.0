@@ -1,60 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 760253D25D2
-	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 11:31:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E262237CD53;
+	Tue, 18 Aug 2026 11:55:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787052717; cv=none; b=J8kvGWB0UPNQ5XiHpkKKcAG1+gCa3x8sKor4qRGihj55sslMOAs6c7zm/y4gim0igOWZlkE6empKx9kWs8ETMn96XPj54aSqHEGCHs5FlvXwJ+GLtJDaF+YkY0t7L/WdvTzopA9ftKlskLmW3df8s5TMLW5koj++orPjBkY3RM0=
+	t=1787054125; cv=none; b=eqL25WBd0fcqc/kGD3cPx9O6NBptAxBPJ5Zkupzvr8o+uXgKFJgEdILcLHqbMAEkW1acw/mQzt2VpGhJxjEfUB64fcoFkoEhTEQBNgKAtaSR9hz2UUseolK3JD+zCnaAZPc89t7F6W+TZYpg1oEBPoQzCkCoLJFDlFZXAuZq3BE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787052717; c=relaxed/simple;
-	bh=Ok41hEWvU/WeK76BOumTunhOCMPYEJizmV9ilcoXQRE=;
+	s=arc-20240116; t=1787054125; c=relaxed/simple;
+	bh=DAcZOgekyBYGUxWvSUAZsquyriuqTLGFM/xGjWhl7wU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=tbPK7DOOn6E/B0R8beW3cHCi0tAKfxf1WuRS2FykPHy2WbTqKHnmon5SmNKgUtz25gQ1QIN3m/l6oxLU6vZGLfFDIkV+JOhpXKfrjL+7rsSh5U02PzNu/wVw4w19MC9O8P2CYehuQS087/U649QZmnM6ABYwnU2tY/nIwPbwj2M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VtFnzjNy; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=lv9+yOYXQQ4rmP13UDwSbOty+YAorgfr2JuvI+awHpWoHKG7KtXmAu9meE1IJeclR2gkCUANrCE6ZfLhOHhUx7d7eFpTzfZ7LyscnlX8k4StGYo2FWcRLS1G6L2qjmbp2rYdSwuwoYUzXzlL6X+Fi27Nmn2bUiVOyCJWOmlBoDQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VWSmwCg0; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VtFnzjNy"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VWSmwCg0"
 Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IAVdFQ028671;
-	Tue, 18 Aug 2026 11:31:44 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IAVYVJ028643;
+	Tue, 18 Aug 2026 11:55:09 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=wY+2an
-	M7Ppk+kUeUku3ZLhZJ+XWCOjSZzLxN8H15F0Q=; b=VtFnzjNyNKIjTulWe9ZGtx
-	65x2jOmEVoRRXDhybgKMXt3NYkJlNdwGmRfR3LPbzYTAUAXTneUBTMaorVPpAs23
-	8rIBHuN2CiXuEG3HtxaRLSfawnUqZPXEANQ5f+u1D1IiSefDubWPPECoGkqNFD5R
-	1actAzru1g9uZiiUs/5up5i86He60/zG87xnWa5JpKRLSYDb1Ozo/y119IeaxkL+
-	CkI7axxJyqqWGlx2Df4Coi/7kaQS70jnpMKgrPXtgZYbrwocmDgXwHxTrkf15vWs
-	73Z5ccPg5qVx+qJ9C6s7UID8H6jaaVDrPlw2iZLmt/HvEbLSe/rOiG4gw8uX1sBQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=BBb1yW
+	HOQff7aU5CXi9LTJZf1nzEWWrC8SAD7ji0EUE=; b=VWSmwCg0EeFkJlMCFrTged
+	KvjBpzyV9e/Q4R+5bXlF/5az8m3PYy+d3O+m6y3Slj7KL1FZvVhEkqy3UKMCRyKK
+	LEGWumwOToY3eMV36R1iOg0pFD6dtt6JQzVDFR70W7eXPdl7KvpCdhEt7FvDETzH
+	ibrrwOTerA8IZCIgg1QNXKs60J6agPiqyHets1PvJjhzfkIKka9GW5dgob3xSAhS
+	zq/rdcDE2rLbooi86fZrgNm/eKmXq4S+kFSbQRaRqubjOnG3zfuK7uqnp/GWwhM6
+	kJHoh6WWKeb5yWPtVxuN6cR/szypedZMUFFXfFzlN5SKjidoVmmTMz6IVY/noLKQ
 	==
 Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2fu4qv01-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2fu4qy6a-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 11:31:43 +0000 (GMT)
+	Tue, 18 Aug 2026 11:55:08 +0000 (GMT)
 Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IBQNVE005925;
-	Tue, 18 Aug 2026 11:31:42 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33xh2wg9-1
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IBfM5E024089;
+	Tue, 18 Aug 2026 11:55:07 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33xh305k-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 11:31:42 +0000 (GMT)
+	Tue, 18 Aug 2026 11:55:06 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IBVcbY45875522
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IBt2eA17760592
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 18 Aug 2026 11:31:38 GMT
+	Tue, 18 Aug 2026 11:55:03 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9118020043;
-	Tue, 18 Aug 2026 11:31:38 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id C6F0F2004B;
+	Tue, 18 Aug 2026 11:55:02 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3076620040;
-	Tue, 18 Aug 2026 11:31:38 +0000 (GMT)
-Received: from [0.0.0.0] (unknown [9.111.12.156])
+	by IMSVA (Postfix) with ESMTP id 7795E20043;
+	Tue, 18 Aug 2026 11:55:02 +0000 (GMT)
+Received: from [9.111.161.182] (unknown [9.111.161.182])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 18 Aug 2026 11:31:38 +0000 (GMT)
-Message-ID: <8452a841-9bb8-4a88-83ab-f97297401c13@linux.ibm.com>
-Date: Tue, 18 Aug 2026 13:31:37 +0200
+	Tue, 18 Aug 2026 11:55:02 +0000 (GMT)
+Message-ID: <5f368349-a417-42b9-9ee3-d9996a949bb2@linux.ibm.com>
+Date: Tue, 18 Aug 2026 13:55:02 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,43 +62,43 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v14 07/19] target/s390x: Support AES ECB for cpacf km
- instruction
-To: freude@linux.ibm.com
-Cc: richard.henderson@linaro.org, david@kernel.org, thuth@redhat.com,
-        berrange@redhat.com, qemu-s390x@nongnu.org, qemu-devel@nongnu.org,
-        linux-s390@vger.kernel.org, dengler@linux.ibm.com,
-        borntraeger@linux.ibm.com, fcallies@linux.ibm.com, cohuck@redhat.com
-References: <20260806151302.26846-1-freude@linux.ibm.com>
- <20260806151302.26846-8-freude@linux.ibm.com>
- <e95ee364-3e48-44c4-8c7b-5d306f417c16@linux.ibm.com>
- <192e2ce59d17947e5556dc54e3b3c781@linux.ibm.com>
- <145b0ed2-8b3b-48d5-97a7-a5addcdf6481@linux.ibm.com>
- <4dfa9e976a6485dd2b1ffa93f04e1bd7@linux.ibm.com>
+Subject: Re: [PATCH net 2/2] net/iucv: take a private, writable frame before
+ rewriting it in place
+To: hexlabsecurity@proton.me, Thorsten Winkler <twinkler@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Ursula Braun <ursula.braun@de.ibm.com>,
+        Simon Horman <horms@kernel.org>,
+        Hidayath Khan <hidayath@linux.ibm.com>, linux-s390@vger.kernel.org
+References: <20260815-b4-disp-dc82fde4-v1-0-e83b10b22ce9@proton.me>
+ <20260815-b4-disp-dc82fde4-v1-2-e83b10b22ce9@proton.me>
 Content-Language: en-US
-From: Ilya Leoshkevich <iii@linux.ibm.com>
-In-Reply-To: <4dfa9e976a6485dd2b1ffa93f04e1bd7@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20260815-b4-disp-dc82fde4-v1-2-e83b10b22ce9@proton.me>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Pk00rHtvPe7yU1ZqTgUMjwyHsFGHEdA3
-X-Authority-Analysis: v=2.4 cv=NLLlPU6g c=1 sm=1 tr=0 ts=6a84429f cx=c_pps
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: fzNSHg4pHK4rJpOE2pEL6LU-CYQxiMin
+X-Authority-Analysis: v=2.4 cv=NLLlPU6g c=1 sm=1 tr=0 ts=6a84481c cx=c_pps
  a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=W2MhfUumii-zuiLuurUA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDA4NSBTYWx0ZWRfX1ddaLIqMeZ8M
- b4A7QUQlGnmxIzVwqdvUtaCXo2IIlnDkSd8YDKYE62AhdSEnQQ4CodR6CLD5FVlT7aJ/bJ+ifYu
- xclHU52ICjqV+sJvuBjlxL2ppnhx9nM=
-X-Proofpoint-ORIG-GUID: Pk00rHtvPe7yU1ZqTgUMjwyHsFGHEdA3
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDA4NSBTYWx0ZWRfXz+WJtxHjJcsw
- T3afe7SQn5uTjx9lxfBJLnqP/KFtlJxpLH1zP/4VGAktSSz4Ivjp2i9hs5W41CJ7QRNvecGUovd
- 1VWH7xkzfFThyFIVBN+6q27kxmPPp3rNyqutldnoDRwniesvR6O/JBGM28ME9cJE10ZSL5dFQvr
- 0Rk7QlVtrPmhVLuKj8HsLPd0c0jL69/I9ky4jQMw6DNRkQ0xFUdFVaGrfh09mkkAYFAhaypHW7p
- UjSzPnNztqCodim1gktiu7DN9dQMxENGCUkpDykzw5EonMlmadm0LnTyWYPkxddC7FY+bZgTVYB
- 9ji7TjGEgthqQB2DmZCckun1RZNp1t+B0kdpvUAcOBFmSE/MkseTkg6xRhpw292fAUW4ngdjMfX
- Qp6cSUTbULKbZyxmbKlAffVGZa9owL0nGMln8fCpHQPM/mtnaDkGDTqpbOXeuvEAAEWdQWWTUwY
- evvu8Ot7SeXK5ZtKAFw==
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=c92rfblmAAAA:8
+ a=n0wzrGaTUaOUoIqzI10A:9 a=QEXdDO2ut3YA:10 a=GvGzcOZaWPEFPQC_NcjD:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDA4NSBTYWx0ZWRfX9pYINKpS3LRb
+ lC2ml0YF0it6RKpeFI7i9HyDcZvndLfc0kGKjsm+wLWUTb1wtwKQnC9cXJ8P26LNc0LGjsB9Idr
+ gcQjXfMbWdaRIza5Gxg4icsx/CsjK1g=
+X-Proofpoint-ORIG-GUID: jJn9qDmstb6XYeILrrY4Awdkrhkgm1FK
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDA4NSBTYWx0ZWRfX1aG9ibzWstYm
+ 8rtmuMZVCyDrUVkah5FMcRSL3AQyLong2miQCr24nwbhUJsZrVDyZUosWArUGA7ZvhmbCz5dcfr
+ pHFShO8/1G9bR+G/Gc9mhRi4ZIIZS9XC4Z+5dhojuJ1xe4pDWBA2g5xIATjPpj7bXMo18/hJBE8
+ LYO7tnVe+X7nDBP4qQn5BNWQtd9KKDoNjXnjhAjalYzEvVADmf5yE3EljZfrabpiqazWvlkvzW1
+ FmQ31yntPbD4/Qkzjq9R/c1L3hbzJfS7OkgCE14xFqW6WodTVplfrMXugFjRW/TtSDR8m6EvO4R
+ 6bNnIGM9CfkoRiqug1xfxZrMiXu1MXqI+BZKGvkqT70v6seS/CSN2qK842/OWvOUzJVIOgEQOrd
+ UZDjwxHJDqlraTlMebuLWXMJtyh7+k+xC4shsEIqCGSt5yHzrSRPFnA3Ykh51METCqPNyiG892L
+ oclZoOS0jHO90nn8tCg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-18_01,2026-08-12_01,2025-10-01_01
@@ -110,113 +110,69 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
 
 
 
-On 8/18/26 12:34, Harald Freudenberger wrote:
-> On 2026-08-17 17:00, Ilya Leoshkevich wrote:
->> On 8/17/26 16:23, Harald Freudenberger wrote:
->>> On 2026-08-17 11:17, Ilya Leoshkevich wrote:
->>>> On 8/6/26 17:12, Harald Freudenberger wrote:
->>>>> Support the subfunctions CPACF_KM_AES_128, CPACF_KM_AES_192
->>>>> and CPACF_KM_AES_256 for the cpacf km instruction.
->>>>>
->>>>> Tested-by: Holger Dengler <dengler@linux.ibm.com>
->>>>> Reviewed-by: Finn Callies <fcallies@linux.ibm.com>
->>>>> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
->>>>> ---
->>>>>   target/s390x/gen-features.c      |   3 +
->>>>>   target/s390x/tcg/cpacf.h         |   6 ++
->>>>>   target/s390x/tcg/cpacf_aes.c     | 107 ++++++++++++++++++++++++++ 
->>>>> +++++
->>>>>   target/s390x/tcg/crypto_helper.c |  24 +++++++
->>>>>   target/s390x/tcg/meson.build     |   1 +
->>>>>   5 files changed, 141 insertions(+)
->>>>>   create mode 100644 target/s390x/tcg/cpacf_aes.c
->>>>
->>>> [...]
->>>>
->>>>> +int cpacf_aes_ecb(CPUS390XState *env, const int mmu_idx, uintptr_t 
->>>>> ra,
->>>>> +                  uint64_t param_addr, uint64_t *dst_ptr_reg,
->>>>> +                  uint64_t *src_ptr_reg, uint64_t *src_len_reg,
->>>>> +                  uint32_t type, uint8_t fc, uint8_t mod)
->>>>> +{
->>>>> +    enum { MAX_BLOCKS_PER_RUN = 8192 / AES_BLOCK_SIZE };
->>>>> +    uint8_t in[AES_BLOCK_SIZE], out[AES_BLOCK_SIZE];
->>>>> +    uint64_t len = *src_len_reg, done = 0;
->>>>> +    int i, keysize, addr_reg_size = 64;
->>>>> +    uint8_t key[32];
->>>>> +    AES_KEY exkey;
->>>>> +
->>>>> +    g_assert(type == S390_FEAT_TYPE_KM);
->>>>> +    switch (fc) {
->>>>> +    case CPACF_KM_AES_128:
->>>>> +        keysize = 16;
->>>>> +        break;
->>>>> +    case CPACF_KM_AES_192:
->>>>> +        keysize = 24;
->>>>> +        break;
->>>>> +    case CPACF_KM_AES_256:
->>>>> +        keysize = 32;
->>>>> +        break;
->>>>> +    default:
->>>>> +        g_assert_not_reached();
->>>>> +    }
->>>>> +
->>>>> +    if (!(env->psw.mask & PSW_MASK_64)) {
->>>>> +        len = (uint32_t)len;
->>>>> +        addr_reg_size = (env->psw.mask & PSW_MASK_32) ? 32 : 24;
->>>>> +    }
->>>>
->>>> Just noticed something, here and in all other patches. POp says:
->>>>
->>>>
->>>> In the 24-bit addressing mode, the contents of bit
->>>> positions 40-63 of general registers R1 and R2 consti-
->>>> tute the addresses of the first and second operands,
->>>> respectively, and the contents of bit positions 0-39
->>>> are ignored; bits 40-63 of the updated addresses
->>>> replace the corresponding bits in general registers R1
->>>> and R2, carries out of bit position 40 of the updated
->>>> address are ignored, and the contents of bit positions
->>>> 32-39 of general registers R1 and R 2 are set to zeros.
->>>>
->>>>
->>>> Seems like we are not zeroing out bits 32-39?
->>>>
->>>
->>> Do we support 24 bit mode? Isn't that ditched some years ago?
->>> At least we definitely do not support s390 kernel in 24 bit mode.
->>> Maybe userspace is valid.
->>
->> No, userspace doesn't support it either.
->> So neither qemu-user nor qemu-system + Linux will need it.
->> Some weird non-Linux setup might, I'm not sure if we want to go out of
->> our way to support them. I think we should either drop it or
->> implement it correctly.
->>
->> [...]
+On 15.08.26 18:07, Bryam Vargas via B4 Relay wrote:
+> From: Bryam Vargas <hexlabsecurity@proton.me>
 > 
-> It it ok then to assume 32 bit mode if not 64 bit? Like this snippet:
+> afiucv_hs_rcv() rewrites the frame in place -- EBCASC() converts four name
+> fields in the transport header, afiucv_swap_src_dest() swaps them and
+> pushes an Ethernet header back on -- without taking a private, writable
+> copy. It sits on the global ptype_base[], so a packet socket (tcpdump is
+> enough) has packet_rcv() clone every frame first, and net/core/dev.c has
+> warned since 1998 that such a handler "is not able to sense, that packet
+> is cloned and should be copied-on-write".
 > 
-> int cpacf_aes_ecb(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
->                    uint64_t param_addr, uint64_t *dst_ptr_reg,
->                    uint64_t *src_ptr_reg, uint64_t *src_len_reg,
->                    uint32_t type, uint8_t fc, uint8_t mod)
-> {
->      ...
->      int i, keysize, addr_reg_size = 64;
->      ...
+> Unshare, then cow the head, in that order: skb_cow_head() can reach
+> pskb_expand_head(), which has BUG_ON(skb_shared()). Asking for ETH_HLEN
+> also covers the unchecked push in afiucv_swap_src_dest() --
+> eth_type_trans() has already pulled that much on the ordinary path, so the
+> call compares and returns.
 > 
->      ...
+> Fixes: 3881ac441f64 ("af_iucv: add HiperSockets transport")
+> Closes: https://sashiko.dev/#/patchset/20260813-b4-disp-60433a46-v1-1-509e1200533e@proton.me?part=1
+> Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+> ---
+
+Thank you for this patch Bryam. Actually Hidayath proposed the same fix to me for the same Sashiko finding
+and I asked him to clarify in the description what the consequences of today's problem are.
+
+"My current understanding: You use an AF_PACKET ring reader to analyze the skbs received by HS L3 interface and
+complain, that the skb is changed afterwards when af_iucv processes it.
+Is that correct?
+What could be the bad consequences? (I cannot think of any)"
+
+Excuse my ignorance, if it is obvious to other readers, but is the worst thing that the output of tcpdump
+is not correct? Is this really a problem fix then? Or should it go to net-next?
+
+
+
+
+>  net/iucv/af_iucv.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
 > 
->      if (!(env->psw.mask & PSW_MASK_64)) {
->          len = (uint32_t)len;
->          addr_reg_size = 32;
->      }
-> 
->      ...
-> 
-> Or check for 32 bit and if that is also not the case abort() or something ?
+> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+> index e3ec965d96ca..10cfc5e82f04 100644
+> --- a/net/iucv/af_iucv.c
+> +++ b/net/iucv/af_iucv.c
+> @@ -2069,11 +2069,20 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
+>  		return NET_RX_SUCCESS;
+>  	}
+>  
+> +	skb = skb_share_check(skb, GFP_ATOMIC);
+> +	if (!skb)
+> +		return NET_RX_SUCCESS;
+> +
+>  	if (!pskb_may_pull(skb, sizeof(*trans_hdr))) {
+>  		kfree_skb(skb);
+>  		return NET_RX_SUCCESS;
+>  	}
+>  
+> +	if (skb_cow_head(skb, ETH_HLEN)) {
+> +		kfree_skb(skb);
+> +		return NET_RX_SUCCESS;
+> +	}
+> +
+>  	trans_hdr = iucv_trans_hdr(skb);
+>  	EBCASC(trans_hdr->destAppName, sizeof(trans_hdr->destAppName));
+>  	EBCASC(trans_hdr->destUserID, sizeof(trans_hdr->destUserID));
 > 
 
-I would raise a program interrupt, like you already do for, for example,
-non-zero block number in one of your patches.
