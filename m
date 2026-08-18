@@ -1,60 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00A7333ADB0;
-	Tue, 18 Aug 2026 19:06:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 589F247D92B;
+	Tue, 18 Aug 2026 19:07:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787079962; cv=none; b=QcKf7btqZpV08PsoMGVpI1RxajYkoK3vHAwpG3ADBXwUGAhWAd95y7ucP6IxIC1tPHAoz+/jMx4gJJpgRcGYmGphFEXZ/6QZx0EvfbpOWqVEGQC2Qb6X3vAlH4bMf0UT5Mo32BdCk0rRaAvH0oLzsZZ5kk5codQdwUJS1X41Gtk=
+	t=1787080042; cv=none; b=g3IV+5QnXWFLkm15yv6Xrc30PAVEhcNFCn1C2a3OLLgRe1lK+lApQrwUuK/nR+ULOTw6BdiVgEhzkIjkLDZFxYEAQHglLLhaoPwzjB8z56JSGeVeAvBEwxMECM9AVFvprAV6qX6Kpzw+X/ePTL8ISH39fWtCmyHKLUAyryC9jhk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787079962; c=relaxed/simple;
-	bh=aiscIuQtFNFYY/Wvks0OzKhxLX/zIouZoZFM/d65tuI=;
+	s=arc-20240116; t=1787080042; c=relaxed/simple;
+	bh=DIC3ogbwlRw5DIplTh4dM5qo/YRRPy9RCpRbYf1ghrc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fy/9JHNvU+T2sJfKTKKm0ZyKP05nddUlfmfUnN71Tyc7c+qykd8uspCs3lHp0ZkWItKH1/T2FjfwGWlLFnodNbBIGk6vcg8wJiaAP50baOdtt3EcRziJLS5Lg/WgPnsmAKO5LfCg7TncryxFIgsAFWkZLjmimSvEJ50GRWoKcG8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=M5XwPf9S; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=CtQJRJ7L/xUNKIweVXRGt7cd579pLYRbBNG+sftWLiNNFOlYhjcohHPumnZnsqX8qdawhw0yrUzpJxJmO7DXlZZ2V0o0Mm4mFTzJRJMmUXRVNe8QJZlJ7cfbxWgdxR2h6hXeC78w7wGeLp2uJVhOTNXSNpFRjnygLGKZIrqjJus=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XhM0sP9I; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="M5XwPf9S"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IHVlWq982645;
-	Tue, 18 Aug 2026 19:06:00 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XhM0sP9I"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IHWAG2933882;
+	Tue, 18 Aug 2026 19:07:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=wbF0km
-	4NTj97TqwIvm01sqHzxHnOk9lpPo+H4sB5VZM=; b=M5XwPf9Sdwj75THAGx83wI
-	SV6sc3DPBczGaDUgtzMe4fWar16fLv5mbsBwM4o+3xXj3xygEMabF2Cwmsowxhwo
-	kQjm8Uq78empOGyWkqqfiD/uA+Jb+1gTVlJHRp2n7ztPuW1aJVmD7cbcQqk3mUCB
-	A4NY3WFKcs/f3OhLI7qCpYfE7MtXfTWUrxbzzCr+iP/ikYyMlE7Myzz9NRtPI6H5
-	RAt2vDuAkWadluZubsvjTy4ArJqtrCz7acdlAEbfh9H1r55wiNWATu9xfTwfwCqD
-	sIE0Krd2CCQWk4qLBEW85DdME2KFWOgjV3UtEMx9GQ+2+bGGmyIozwIjxCzvPMRg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=SGNvsa
+	l9Toue1p95iBIox5/cECFkuAf1F2NW5w2DLuw=; b=XhM0sP9IOpETl8k5U8vr41
+	DH8ZN0gtwlhHqXonAA2EqIWT9rzP470DRfuLxPCKUxNh9G5seW73Q0vtQauAICSu
+	/jcCALeq9owwjaWGgrC078T/zYQV9ilPPfUaQCPqi6GYBLRQROQ1qZlP218g2/Mc
+	XWE/nVdcPCqfu+aLRpSRKhvRpqy52r9qqIMsTK9NW9CptwQZTZ3PGnziHDhbaWWP
+	2Fo+kSV8P+ipfvfBrcV0n48m/wH9olMZiszanwDnYo79sdkFjechXTAFsxEWfCrn
+	NSt7vu4YsnRQTNPr+mgC6oaDJEwlKTihOkZQ8uppKNrvvfPRycf4LjNfXoR14saQ
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2fu4tctu-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2fm3tbyk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 19:06:00 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IIuLi8017540;
-	Tue, 18 Aug 2026 19:05:59 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g32eq54x3-1
+	Tue, 18 Aug 2026 19:07:13 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IIuKju010617;
+	Tue, 18 Aug 2026 19:07:12 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g354ycqp5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 19:05:59 +0000 (GMT)
+	Tue, 18 Aug 2026 19:07:12 +0000 (GMT)
 Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IJ5wcK31719950
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IJ7Bhw29426318
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 18 Aug 2026 19:05:58 GMT
+	Tue, 18 Aug 2026 19:07:11 GMT
 Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3472E58056;
-	Tue, 18 Aug 2026 19:05:58 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 91E3D58065;
+	Tue, 18 Aug 2026 19:07:11 +0000 (GMT)
 Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7A4B558052;
-	Tue, 18 Aug 2026 19:05:57 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 617EE58052;
+	Tue, 18 Aug 2026 19:07:10 +0000 (GMT)
 Received: from [9.61.26.94] (unknown [9.61.26.94])
 	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 18 Aug 2026 19:05:57 +0000 (GMT)
-Message-ID: <09433bc2-6a62-41ee-b9c0-f6eaa63546a5@linux.ibm.com>
-Date: Tue, 18 Aug 2026 15:05:57 -0400
+	Tue, 18 Aug 2026 19:07:10 +0000 (GMT)
+Message-ID: <fb03ed1a-3da3-4d82-a8b9-92c135d747f7@linux.ibm.com>
+Date: Tue, 18 Aug 2026 15:07:09 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -63,233 +63,133 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH] s390/vfio-ap: Fix leak of KVM GISC resources
-To: sashiko-reviews@lists.linux.dev
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>, kvm@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>
+To: Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, pasic@linux.ibm.com,
+        alex@shazbot.org, kwankhede@nvidia.com, fiuczy@linux.ibm.com,
+        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
+        agordeev@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        stable@vger.kernel.org
 References: <20260818115819.1656595-1-akrowiak@linux.ibm.com>
- <20260818121503.06E571F000E9@smtp.kernel.org>
+ <a45d4bbe-21d3-43c3-9618-bea56667ca17@linux.ibm.com>
 Content-Language: en-US
 From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20260818121503.06E571F000E9@smtp.kernel.org>
+In-Reply-To: <a45d4bbe-21d3-43c3-9618-bea56667ca17@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: SIQnc_hAw4THzf6KtwMkyOaaxBLVoaaj
-X-Authority-Analysis: v=2.4 cv=NLLlPU6g c=1 sm=1 tr=0 ts=6a84ad18 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-GUID: Ym7k2CPXtnxz_IWR8uYAxbRPAS-8bZnP
+X-Proofpoint-ORIG-GUID: Ym7k2CPXtnxz_IWR8uYAxbRPAS-8bZnP
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDE0MCBTYWx0ZWRfXyp2dAcNEh2RU
+ SCtUYB8q5GJgwnGyRjawB41If2njBztHfF6CgeK2GEc0lhcj+L/XWI0J9ve59E5VHFQM0usTdtJ
+ bV8C3yIZiXt6ABmj7xYDNUYzAaJU2Ng=
+X-Authority-Analysis: v=2.4 cv=WtQb99fv c=1 sm=1 tr=0 ts=6a84ad61 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=4QoMDG2x3sYJ-FFMaSgA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDE0MCBTYWx0ZWRfX/6R3q9UgNyie
- hwx3RAmCGSMktuDr6hvz9gA4bD/WlE4OANcxLYkz/Ghom2l5CSc9pZMYK8MIAR5B7G88dkbX4LB
- YFZk1u/dMWkSiX+oalgDEKIrFmOkRxk=
-X-Proofpoint-ORIG-GUID: SIQnc_hAw4THzf6KtwMkyOaaxBLVoaaj
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDE0MCBTYWx0ZWRfX7wj2roYt9s24
- WSZyBdn3jVlTSuEGdvWhXuY/2crrcdsNo+dM8ObnkmPgeDEPM1eVBy1aoP4Kkxy0A4t67ruxbwA
- OSJU7y/L05Fz9E8Qa5D9MsmzRmBTtisAXScfOuHoKZcFOtnfh0sE6pYok7FpVNlNcX4p0z7nsNb
- dEva34NKmnR6d+pjRGHpJSqIHwxbqfCzItSN8tDD/2BEb7TvJUEQN7AMFw0EcMyKxSL7/zd109/
- N438EShfACgi43+zim1Rhs9AyzFoCNnv2+XF9swd3KqPFbM0frxLJ5DmcP2JRIvCeJF/v74Bk1a
- 1/duY2IFSrF8C/KbJGwm+PcK71D9nzP1dRW4xDqx43FQRWI3L9Op3ihJ3OCUnAdbLXebkl1SuZ5
- ZAbb41hCTNQeS250lEg4DtI8eHxDmqGpHz+MOCoGhNfQp0ygTlLeYRRy0qvKu7YdtF3dBr5pmc5
- F9nynX2v80pbEwqJb2A==
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=P5o94yUMNGGiSLQdnMsA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDE0MCBTYWx0ZWRfX2O8U4k3QJIyj
+ 4oWr0nnVKtCknVyN465AQoKbkgM5wqFly2g/50gKtP3qY4W6bZjiY98oU9+mWhJum/WXzICQANB
+ FcARI3oiopdUiffHF1ymqBShq+qqybfyUJiqoPlJ/XcHnXJAqoGUTGziaLAvkaiOvUB23OFe+49
+ 97GTEJqhMwve28lQFILRPZUe3ZTqMJorFv67qee2IPjJDUW4IOXwodR/XlbRZT0ivbD+55tJg0T
+ 1DpoVf7GuJ6mU0VkbnedAz/eXVzwNjD76xanPPRajg2IbRXQAdm1TC71BUkf0okOBVly1WypOyj
+ CJNOj66hxJw2wmAuoEQUKyaZknqrNH2ESA2b8xg6OAm21D1jvFI0nSIZS+0hEwM5gbZNKCHElEU
+ goZwS8xOy94gNy865DIgjmmJNo3hsBo5M8uHBuXjX1a7Hon4s7ILNeODdVWx3KRsFfPvYJoBg/F
+ NyIDl1E9mysjfo1d05w==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-18_03,2026-08-18_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 spamscore=0 lowpriorityscore=0 phishscore=0 impostorscore=0
- malwarescore=0 suspectscore=0 clxscore=1015 adultscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608180140
+ bulkscore=0 spamscore=0 malwarescore=0 suspectscore=0 phishscore=0
+ lowpriorityscore=0 clxscore=1015 adultscore=0 priorityscore=1501
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608180140
 
 
 
-On 8/18/26 8:15 AM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
+On 8/18/26 1:32 PM, Matthew Rosato wrote:
+> On 8/18/26 7:58 AM, Anthony Krowiak wrote:
+>> s390/vfio-ap: fix KVM GISC and page leak when queue removed from host config
+>>
+>> Two related problems exist in the handling of KVM interrupt and page
+>> resources when a queue is removed from the host's AP configuration
+>> while assigned to a mediated device (mdev).
+>>
+>> Problem 1: AP_RESPONSE_Q_NOT_AVAIL not handled in
+>> vfio_ap_mdev_reset_queue()
+>>
+>> When the AP bus removes a queue device whose adapter or domain has
+>> been removed from the host's AP configuration,
+>> vfio_ap_mdev_remove_queue() is called. If the queue is still in the
+>> host's AP configuration at that point, it calls
+>> vfio_ap_mdev_reset_queue(), which issues a PQAP(ZAPQ). Since the
+>> adapter is already gone from the host configuration, ap_zapq() returns
+>> AP_RESPONSE_Q_NOT_AVAIL (0x01). This response code is not handled in
+>> vfio_ap_mdev_reset_queue()'s switch statement and falls through to
+>> the default case, which issues a WARN but does not call
+>> vfio_ap_free_aqic_resources(). As a result, if IRQ handling was
+>> enabled for the queue by the guest, the KVM GISC registration and
+>> the pinned guest page holding the notification indicator byte (NIB)
+>> are both leaked.
+>>
+>> This is fixed by adding AP_RESPONSE_Q_NOT_AVAIL to the same case as
+>> AP_RESPONSE_DECONFIGURED and AP_RESPONSE_CHECKSTOPPED in
+>> vfio_ap_mdev_reset_queue(). Like those response codes, Q_NOT_AVAIL
+>> indicates the queue is not operational and no further reset attempts
+>> are possible; the correct action is to free the IRQ resources
+>> immediately.
+>>
+>> Problem 2: vfio_ap_free_aqic_resources() leaks saved_isc when
+>> kvm is NULL
+>>
+>> vfio_ap_free_aqic_resources() guards the call to
+>> kvm_s390_gisc_unregister() with:
+>>
+>>      if (q->saved_isc != VFIO_AP_ISC_INVALID &&
+>>          !WARN_ON(!(q->matrix_mdev && q->matrix_mdev->kvm)))
+>>
+>> If matrix_mdev->kvm is NULL -- which can happen when
+>> vfio_ap_mdev_unset_kvm() has already run and cleared kvm before a
+>> subsequent cleanup path reaches this function -- the WARN_ON fires
+>> and the entire block is skipped. This leaves q->saved_isc set to a
+>> non-invalid value, creating a potential double-free on any subsequent
+>> call to this function.
+>>
+>> When kvm is NULL the KVM guest is already torn down, so
+>> kvm_s390_gisc_unregister() need not and cannot be called; however,
+>> q->saved_isc must always be cleared. Fix this by separating the
+>> kvm_s390_gisc_unregister() call from the q->saved_isc reset. The
+>> WARN_ON now guards only the genuinely impossible case of matrix_mdev
+>> being NULL. A NULL kvm is handled gracefully by skipping only the
+>> unregister call, and q->saved_isc = VFIO_AP_ISC_INVALID is set
+>> unconditionally whenever saved_isc was not already invalid.
+>>
+>> Additionally, add an else clause to the host-config check in
+>> vfio_ap_mdev_remove_queue() to call vfio_ap_free_aqic_resources()
+>> directly when the queue is not in the host's AP configuration. This
+>> serves as a backstop: when the AP bus fires the driver .remove
+>> callback after an adapter is removed from the host config, the queue
+>> is by definition no longer addressable, so vfio_ap_mdev_reset_queue()
+>> would always return Q_NOT_AVAIL. The else clause handles this case
+>> directly without the unnecessary ap_zapq() call, and ensures cleanup
+>> occurs even if kvm has already been set to NULL by a prior call to
+>> vfio_ap_mdev_unset_kvm().
+>>
+>> Fixes: b9bd10c43456d ("s390/vfio-ap: do not reset queue removed from host config")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+>> ---
+> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 >
-> Pre-existing issues:
-> - [Critical] Use-After-Free of `q->matrix_mdev` due to dangling pointer left after unassigning an adapter or domain for a queue not present in shadow_apcb.
-> - [High] The patch fixes KVM GISC and NIB page leaks when a queue is synchronously reset by handling AP_RESPONSE_Q_NOT_AVAIL, but it misses the asynchronous reset polling path, leading to the same resource leaks.
-> - [High] The apq_reset_check workqueue function loops indefinitely without a timeout while waiting for an AP queue reset to complete, causing a KVM process deadlock if hardware fails.
-> --
+> For archive purposes, this is a continuation of
 >
-> --- Patch [1]: [PATCH] s390/vfio-ap: Fix leak of KVM GISC resources ---
-> commit c19d4565d7b440cb8eddb06c5a8a375c867d24ea
-> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+> [PATCH v5 9/9] s390/vfio-ap: Fix memory leak when queue removed from host AP config
 >
-> s390/vfio-ap: Fix leak of KVM GISC resources
->
-> Two related problems exist in the handling of KVM interrupt and page
-> resources when a queue is removed from the host's AP configuration
-> while assigned to a mediated device (mdev). This patch addresses the
-> AP_RESPONSE_Q_NOT_AVAIL response from ap_zapq() and fixes the
-> vfio_ap_free_aqic_resources() cleanup.
->
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->> index 44b3a1dcc1b36..e277062e92bea 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> [ ... ]
->> @@ -2004,6 +2004,7 @@ static void vfio_ap_mdev_reset_queue(struct vfio_ap_queue *q)
->>   		break;
->>   	case AP_RESPONSE_DECONFIGURED:
->>   	case AP_RESPONSE_CHECKSTOPPED:
->> +	case AP_RESPONSE_Q_NOT_AVAIL:
->>   		vfio_ap_free_aqic_resources(q);
->>   		break;
->>   	default:
-> [Severity: High]
-> This isn't a bug introduced by this patch, but does the same resource leak
-> happen when the asynchronous polling path in apq_reset_check() encounters an
-> AP_RESPONSE_Q_NOT_AVAIL response?
->
-> When an adapter or domain is removed from the host config while a reset is
-> asynchronously polling, ap_tapq() can return AP_RESPONSE_Q_NOT_AVAIL. The
-> helper apq_status_check() falls through to its default case and returns -EIO:
->
-> drivers/s390/crypto/vfio_ap_ops.c:apq_status_check() {
->      ...
->      default:
->          WARN(true,
->               "failed to verify reset of queue %02x.%04x: TAPQ rc=%u\n",
->               AP_QID_CARD(apqn), AP_QID_QUEUE(apqn),
->               status->response_code);
->          return -EIO;
-> }
->
-> This causes apq_reset_check() to exit immediately, skipping the cleanup:
+> https://lore.kernel.org/linux-s390/20260812200240.818004-10-akrowiak@linux.ibm.com/
 
-This is a legitimate concern that needs to be fixed. While this bug was not
-introduced by this patch, the fix is related to the purpose of this
-patch, so a v2 will be posted.
-
->
-> drivers/s390/crypto/vfio_ap_ops.c:apq_reset_check() {
->      ...
->          ret = apq_status_check(q->apqn, &status);
->          if (ret == -EIO)
->              return;
->      ...
-> }
->
-> Does the default case in vfio_ap_mdev_reset_queue() also need to call
-> vfio_ap_free_aqic_resources() to prevent a leak on an unhandled ZAPQ
-> response?
-
-This covers truly invalid/unexpected response codes — it would not be
-appropriate to unconditionally free resources in that case without
-knowing the queue state. I might also add that this should never
-happen as all response codes expected by the architecture are
-covered by the cases in the switch statement - except for response
-code 03 which will be captured in v2 of this patch - so the default
-case is handled correctly.
-
->
->>   		WARN(true,
->>   		     "PQAP/ZAPQ for %02x.%04x failed with invalid rc=%u\n",
->>   		     AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
->>   		     status.response_code);
->>   	}
->>   }
-> [ ... ]
->
-> [Severity: Critical]
-> This is a pre-existing issue, but is there a use-after-free of q->matrix_mdev
-> if an adapter is unassigned that is not passed through to a guest?
->
-> If an adapter is unassigned, its bit is cleared from matrix.apm and
-> vfio_ap_mdev_unlink_adapter() removes the queue from the mdev's hash table.
-> However, if the queue's bit is not set in shadow_apcb, it is skipped from
-> qlist:
->
-> drivers/s390/crypto/vfio_ap_ops.c:vfio_ap_mdev_unlink_adapter() {
->      ...
->          if (q && qlist) {
->              if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm) &&
->                  test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
->                  list_add_tail(&q->reset_qnode, qlist);
->          }
->      ...
-> }
->
-> Because it is missing from qlist, vfio_ap_mdev_hot_unplug_adapters() skips
-> calling vfio_ap_unlink_mdev_fr_queue(q):
->
-> drivers/s390/crypto/vfio_ap_ops.c:vfio_ap_mdev_hot_unplug_adapters() {
->      ...
->      list_for_each_entry_safe(q, tmpq, &qlist, reset_qnode) {
->          vfio_ap_unlink_mdev_fr_queue(q);
->          list_del(&q->reset_qnode);
->      }
-> }
->
-> This leaves q->matrix_mdev dangling. Later, when the AP bus queue device is
-> removed, get_update_locks_for_queue() dereferences the freed pointer:
->
-> drivers/s390/crypto/vfio_ap_ops.c:get_update_locks_for_queue() {
->      ...
->      if (q->matrix_mdev && q->matrix_mdev->kvm)
->          mutex_lock(&q->matrix_mdev->kvm->lock);
->      ...
-> }
->
-> Can this lead to a kernel panic during normal operational reconfiguration?
->
->
-> [Severity: High]
-> This is a pre-existing issue, but will apq_reset_check() poll indefinitely
-> without a timeout if the hardware wedges?
->
-> drivers/s390/crypto/vfio_ap_ops.c:apq_reset_check() {
->      ...
->      while (true) {
->          msleep(AP_RESET_INTERVAL);
->          elapsed += AP_RESET_INTERVAL;
->          status = ap_tapq(q->apqn, NULL);
->          ret = apq_status_check(q->apqn, &status);
->          if (ret == -EIO)
->              return;
->          if (ret == -EBUSY) {
->              pr_notice_ratelimited(...);
->          } else {
->              ...
->              if (q->reset_status.response_code == AP_RESPONSE_RESET_IN_PROGRESS ||
->                  ...
->                  ret == -EAGAIN) {
->                  status = ap_zapq(q->apqn, 0);
->                  ...
->                  continue;
->              }
->              ...
->              break;
->          }
->      }
-> }
->
-> Operations like vfio_ap_mdev_reset_queues() schedule this work and synchronously
-> wait for it while holding global locks:
->
-> drivers/s390/crypto/vfio_ap_ops.c:vfio_ap_mdev_reset_queues() {
->      ...
->      hash_for_each(matrix_mdev->qtable.queues, loop_cursor, q, mdev_qnode) {
->          flush_work(&q->reset_work);
->
->          if (q->reset_status.response_code)
->              ret = -EIO;
->      }
->      ...
-> }
->
-> If the queue is stuck in hardware and continuously returns AP_RESPONSE_BUSY or
-> AP_RESPONSE_RESET_IN_PROGRESS, will this permanently block the locks and
-> deadlock the host driver and KVM process?
-
-This may be a legitimate concern, I'll look into it and post a patch if 
-determined
-to be necessary.
+I meant to version this one, but it slipped my mind by the time I created
+this patch.
 
 >
 
