@@ -1,68 +1,124 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 216132772D
-	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 04:20:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3111384CC3
+	for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 07:00:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787026828; cv=none; b=rZuQbL9SF1RNfQSDWf37DnAwbn8htIm60qOhJfZWU3wXedjy64MNa+q7POXGHiOXPQZuSs9NOZ2Vv9K4JIp8WRIiLSR3xqioxiwK3CWrh7nWyPCN2UyyAQDH1cCeUDr/MeeHcYMaRlFc7NLeFy2Ktf+fdjTnUU80NAN7BVAn+tQ=
+	t=1787036436; cv=none; b=LyrOjsTHERwwX3dmBrrRlMkwbJF6f0J0+wxqLHaASNm9MalyuDRlKo5DB0TBSnS22+WS8sL6/vq9xuMRlpX+jWc2YkcEwG0iM3/jW+sgUjNygl3JSj480P3Xql4O1p0TVyRbqtoYqeLZMXgaLzjjga53ceS8CBC8yJm9z9E71Gg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787026828; c=relaxed/simple;
-	bh=N20ZG65i4OU+Eyb8TlA+9x1YoxyfgnlF/YYE+at91U0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=IfnGby9JmNjMZGp1O9ThLAh7Q6HyMriGiyp0O6LpxcK8/tvEh2URNP9zFnN2A8lAJiMgsCTJqikOZ89LV7Ji59t0Wfe3GwJ6Hy+xAYTB58LtkUeo566kOAfyasgOtVHD/aagKCDwI+Yz6Kc73PKcFetOnPG1zRfa6OVICAcWlxk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NOa8KMH4; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787036436; c=relaxed/simple;
+	bh=RmPMf2iX9Bi2ScNYsp8JG1JZjtJHkkgj20FjkZIt+uw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IhqrIcyVd97osfSl3WMFuW0J+kObg2yn8rXAceGFAnfpDEKmWXphTIW4TPM0flITCdyADkj+fhNEjQT0CRVAsby8+HzeWg5gpqHLERFnZrkzKUtXKL7GwdCBO+zd/GPRVWNLou94qcsqt38vuWZCsHsckM7UdGC56KnPbDj/SUA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e99rpUfO; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NOa8KMH4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0CA61F000E9;
-	Tue, 18 Aug 2026 04:20:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787026827;
-	bh=N20ZG65i4OU+Eyb8TlA+9x1YoxyfgnlF/YYE+at91U0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NOa8KMH4tL/Fc/pKVTcI5ixKZLjXWAagZ8wEJn5QdPDhr0qjIUrL7ho0mClGNCI2o
-	 blP9tnDEvxQg7dfbGPhIBzWbOX3ToNx8Fk99/V+EDdnwmt/avF4U1kXulrFWtsj9pU
-	 CIR8zMSOneKlCMAXAwX/+FCEBojI4GzVXI1POr8xmlbifmXi3CBvou3k6dJL2Bb47N
-	 aMfr+r8KK0G3/9ZRHf9P7E4Untygfsp2KCt1rOcusLNo65X0JZRsP8ia0flJQ8KTG0
-	 o+Sc0SdkvPfPBmpCdIuIJb/HkRq3wtnE3tqeBTYZZqbrAN6mZaBMS8IkRwX2Xp8HVM
-	 g6WxlDQ2JdxUQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [RFC V3 4/8] parisc/mm: Directly use generic
- [pmd|pgd]_clear_bad()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Anshuman Khandual" <anshuman.khandual@arm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260818040041.1891769-5-anshuman.khandual@arm.com>
-References: <20260818040041.1891769-1-anshuman.khandual@arm.com>
- <20260818040041.1891769-5-anshuman.khandual@arm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 18 Aug 2026 04:20:26 +0000
-Message-Id: <20260818042026.A0CA61F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e99rpUfO"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2cc891373e0so55726175ad.2
+        for <linux-s390@vger.kernel.org>; Tue, 18 Aug 2026 00:00:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787036430; x=1787641230; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=R7tQNnTq6jHzOznuQxy1ZNm9UkJ7DFP3G0U0MlM8C7U=;
+        b=e99rpUfOHI4h53KRH1lGv9I6gMv3e7ti1vG2sm/Ue5d49jwODVdNjjLiIDNQEnLkAL
+         nJJntmE5wIgt0ZnFF4/sD2HerAfdTrVkRp4HBxp7y+t3W3xv9ASR6ieXCI0sbpzYDcYn
+         iUdkiKRWI3uIZsa1uhJhqBlG5nW/i5KuSgjzQ639zRrWCjQqyNZLhNXzdH0MAnvI4YK2
+         m7HX17jrugpLJNM72GY5hjrRwB9aXJ7u5rqxXYSUn/MVtwLPsbcphh21OFrXsaX2Cu6n
+         u/y0zrm0mNhKnrSuk1ic5SeImpCi+i5id0OYsyzL2dy3LI+19mtk/5fw9EH8L6043Esb
+         RstQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787036430; x=1787641230;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=R7tQNnTq6jHzOznuQxy1ZNm9UkJ7DFP3G0U0MlM8C7U=;
+        b=gl7NfaiFU2UqbDzIUyLdncjXApxNxUdQHyeqIg5tN8RqZT3EjLc0xGr6f3vp6OTDsK
+         tUM39SMbdmV+mcmTcktZdMdcrnfmra5NWWNNcf9Hy1/QJ0BUdPen6j4bBmBQDDXDDKVn
+         Lmkrl7oJKh+AGcrapAwKedgwOU63B74ipzdYL22ftL38vj6OjO0th74iDQaMzAMX/R68
+         jCHleoAda9RcjAHxXGDQ9W2Y4C66uRofDMCz8eFE62052AmU7lozAOIVA6ym++qT/aQ5
+         ywN4baDSZ6NugI2KmXM67ecMJiNIGfUxzJ1ewIXGSLPBPbiQ/qlYlC3Y/Zf91WxYTZ+3
+         N0iA==
+X-Forwarded-Encrypted: i=1; AHgh+RqkbZkAykB5V2XgFEr5ix+i91uSpolYbXo61zNYRt4UADxBd+bErELXwigDGW+EQEmjdeb7HUvQH76Q@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz4JwaICqJR1byIzPnNqzqtkKCgCA3aoSrhER2/NGEt09ky3lQF
+	6KqdwvaB5YpYMfKotOxuUsMZ9DXiEufJ9fHnvvs+ZAfBKduvTnrko74=
+X-Gm-Gg: AR+sD121mTJG+unsILpSdk6EjP6lhvSisQrhNy4KZT1PJPzGKD1aNvu6m3KZ8x8Eonx
+	44dEh1ai9eFSbgqXq8/ykiRYBliTxAeqUj9v4W17v8L4mUXe8HWKdE4jh9jZquYVWaea5sBPLmm
+	Dib1HDLSUDKFIUOqpEjHGdiQleUcJQRwWtfb0bKmHbMYRAFtDVhBqEtH32McCc+W6Q1p5lNaxZ1
+	ls8V9oBn6badan4mba5sZdHcxP6meVnmB2ihna+WCE1eLpZtH0rIQFIgueEHYRTDqqWc1TwOOkI
+	ib9whGTPvJc2nTVyNwZMLpddb1HgoFIYlv+9nTx0YE1JlWypUlnXA3CUraJmFo13OaO5Kvvjq8i
+	DBkkqgiyh1IR/FtdmJ09PFrZOLFB9bH2AIY2DjcIzgk85Xq8NNQNBebrXkyZbl9OfWkRvibDoYc
+	y27Yp8xNF5M39J61AwZcOaejHomCYjFTEvJTKBB4r7Ty13H7/ahxDQ4NQS2wShurXHAVz8zTiRb
+	A==
+X-Received: by 2002:a17:903:2312:b0:2ca:ec6f:aeca with SMTP id d9443c01a7336-2d3b0dbbf0cmr317491465ad.8.1787036430183;
+        Tue, 18 Aug 2026 00:00:30 -0700 (PDT)
+Received: from DL2XHKPB4.dl.net ([103.63.104.162])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d5c1ed8b3esm10804285ad.73.2026.08.18.00.00.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Aug 2026 00:00:29 -0700 (PDT)
+From: Triet Hoang <triet.hoang.dev@gmail.com>
+To: hca@linux.ibm.com
+Cc: gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Triet Hoang <triet.hoang.dev@gmail.com>
+Subject: [PATCH] s390: raw3270: Handle allocation failures
+Date: Tue, 18 Aug 2026 14:00:23 +0700
+Message-ID: <20260818070023.1654606-1-triet.hoang.dev@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-> Drop [pmd|pgd]_ERROR() followed by [pmd|pgd]_clear() instances. But inste=
-ad
-> directly use semantically equivalent generic helpers [pmd|pgd]_clear_bad()
-> in unmap_uncached_[pte|pmd]() which helps in dropping their corresponding
-> [pmd|pgd]_ERROR() macros across the tree.
->=20
-> Cc: James E.J. Bottomley <James.Bottomley@HansenPartnership.com>
-> Cc: Helge Deller <deller@gmx.de>
-> Cc: linux-parisc@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Check the return values of kzalloc_obj() and kzalloc() before using the
+allocated memory. Free the allocated resources on subsequent initialization
+failures to avoid leaking memory.
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+Signed-off-by: Triet Hoang <triet.hoang.dev@gmail.com>
+---
+ drivers/s390/char/raw3270.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260818040041.1891=
-769-1-anshuman.khandual@arm.com?part=3D4
+diff --git a/drivers/s390/char/raw3270.c b/drivers/s390/char/raw3270.c
+index aa9c4d81225c..69e0f69a3e14 100644
+--- a/drivers/s390/char/raw3270.c
++++ b/drivers/s390/char/raw3270.c
+@@ -814,15 +814,26 @@ struct raw3270 __init *raw3270_setup_console(void)
+ 		return ERR_CAST(cdev);
+ 
+ 	rp = kzalloc_obj(*rp, GFP_KERNEL | GFP_DMA);
++	if (!rp)
++		return ERR_PTR(-ENOMEM);
+ 	ascebc = kzalloc(256, GFP_KERNEL);
++	if (!ascebc) {
++		kfree(rp);
++		return ERR_PTR(-ENOMEM);
++	}
+ 	rc = raw3270_setup_device(cdev, rp, ascebc);
+-	if (rc)
++	if (rc) {
++		kfree(rp->ascebc);
++		kfree(rp);
+ 		return ERR_PTR(rc);
++	}
+ 	set_bit(RAW3270_FLAGS_CONSOLE, &rp->flags);
+ 
+ 	rc = ccw_device_enable_console(cdev);
+ 	if (rc) {
+ 		ccw_device_destroy_console(cdev);
++		kfree(rp->ascebc);
++		kfree(rp);
+ 		return ERR_PTR(rc);
+ 	}
+ 
+-- 
+2.53.0
 
