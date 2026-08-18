@@ -1,200 +1,148 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9BAD3A5E64;
-	Tue, 18 Aug 2026 15:17:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C87E93AB5C7;
+	Tue, 18 Aug 2026 15:18:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787066249; cv=none; b=j4yOFbuv5tazlkLLXNdHBYawCypVFMbJzNl5MwdzIjMLc0hYlSvg0GOSmhVi83Bc8W8172obWyPdWt/j4f0Vr46TrJBGM5TJm19JTZA2pPSwhhOUTE3xUtWHINWHRTzYo6cBNEqtTC8DUx+bwLI68oKMThgekhTCG5Re+1zhpe0=
+	t=1787066304; cv=none; b=XO3jR6VgX3910pnmMOmOxpUSPks3wPwjBK9MPBvSf+5m/ilEaOwhNQvKrhhtUmR+TTlsmKkWi7746U+yFbd2fH2XIXsH+NjBCv+LczjPKrZovVaninuy5Y7Az2TZiCtIKlg+6vT6CKhhAfgaVevmwl0BuD9UKAlHSyhzAANfoBQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787066249; c=relaxed/simple;
-	bh=IKg6OJyB0BWcGQigd2VjM4SWO5FbhNLGHRtbrkslX1A=;
+	s=arc-20240116; t=1787066304; c=relaxed/simple;
+	bh=R5tM4gAjDW+eaR/dLTZOP+e2n8FmfEseVDpTWc22KuQ=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=V21owgoPd1L9zr+gmRTOy5oBjQh58+Z6ylvsAWmkw1KbSgK2djSgkJ8sDmigIxNNfBZde5hews+mtVwWeDr2p6wOCj/tdUwxWXXs8yGftzFRgMdUB42pJo5SGJtrTTbqclzUHMIqvPEaF1HjxbfOZTx6DtsoVxdP61qqmTccZtI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iPybfmYI; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=UZJy4X935mMNqS+sNgM3i8kLNxXh655jUtHJPRRNKebP6L884oZGSTFRULMX4v3/Zcsmh2x+UCoP5PKd1VXp1apKIeAQAzjCxJpDQFtS/0IeAKqZ0+X1nnbqZkAqtKfX8zRQbKJ+4ADt38lDYSjQSQSd+LrgMAabja4cDEG9Go8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gWCPmpdi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iPybfmYI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D4C51F000E9;
-	Tue, 18 Aug 2026 15:17:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gWCPmpdi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18F161F000E9;
+	Tue, 18 Aug 2026 15:18:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787066247;
-	bh=CvHrVjgWFEIUQKT5S4FlgUrBvP4UIf9ZgjvANuWzdGo=;
+	s=k20260515; t=1787066303;
+	bh=4/ER9l30bxbqF71G3U/TBPJvk0ITrzfhWzVQG6UdLxY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iPybfmYIBZdfeVrdjUPO3t79h2wdO8eC7QVgEOy1DPXhmP35N1IOO897zH5W56gqE
-	 pjvZ1H3aoIIAuCIxABFiiOh8FmYqpbrVxpsMfwxaq5lh2v2hUl05rUc+xG2+NZb7da
-	 hp3R0U/ldJrOelPUhGGZPAeshXueHcdBBW/wXsfHZ0qfS5o8dNenDTcrBcVN4a/YZf
-	 ghgXDXTY6EIJhTfUruy9E1wbgzbhHOSDKjvA+nHF8z2XD6t5s5I8hiUsCNCrqkrsxc
-	 wpoHdVOYqkIVVkqfQKR+raeuLNOZsyjFMsQPhGwXa4Ft3qLHk9CfGzUIpf9zePy2mo
-	 1qyVq7a69II3A==
+	b=gWCPmpdiPwr8RlTT9aF2QaVoPaZ6xRfzxXYwIcMQAVyMn3ywCQ/ZZp2OHVTVrxMOP
+	 S+A6IsbeLkiUeIIKW8bxYp/Wsh06FSEJirkmuSP8GUO6pxLcKwSHFeQ6oSgstSw/p4
+	 LZgYzlXYnG7AlCP5P7BK82SIHUDdl5Vx/yFI7pkGghUqK7cDHSJrImsduCSkgap/JN
+	 qmoC5mpl95WOuu78R3pcSiawfTrwQmsT1HqbGFcmllsV7e9Wc/e3BMYy2L50G40N02
+	 KCfM/Qh33KXd0Yre3Q5VuMwOONxcDkmVtrID0qvaSXspHNUEDIA4i3KSbl8a0uVo2e
+	 DRAamYCvl/Bcw==
 From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v1 25/25] unwind_user/eh_frame: Add prctl()
- interface for (un)registering .eh_frame_hdr sections
+Subject: Re: [RFC PATCH v1 10/25] unwind_user/eh_frame: Detect .eh_frame_hdr
+ sections in executables
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jens Remus" <jremus@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org
-In-Reply-To: <20260818144954.2320378-26-jremus@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-trace-kernel@vger.kernel.org, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260818144954.2320378-11-jremus@linux.ibm.com>
 References: <20260818144954.2320378-1-jremus@linux.ibm.com>
- <20260818144954.2320378-26-jremus@linux.ibm.com>
+ <20260818144954.2320378-11-jremus@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 18 Aug 2026 15:17:26 +0000
-Message-Id: <20260818151727.1D4C51F000E9@smtp.kernel.org>
+Date: Tue, 18 Aug 2026 15:18:22 +0000
+Message-Id: <20260818151823.18F161F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Critical] Race condition in `__eh_frame_remove_section()` leads to doubl=
-e-free, memory leak, and SRCU list corruption.
-- [Critical] Unwinder error path triggers hard deadlock and NMI-safety viol=
-ations by calling `eh_frame_remove_section()`.
-- [Medium] Strict size matching in prctl handlers rejects UAPI structure ex=
-tensions, breaking forward compatibility.
-- [Medium] Silent data truncation of 64-bit `eh_frame_hdr_start` in `eh_fra=
-me_unregister()` on 32-bit platforms.
+- [High] Missing duplication of eh_frame_mt during fork() leaves child proc=
+esses without stack unwind capability.
+- [Medium] Executable segments with a trailing BSS section silently fail .e=
+h_frame_hdr registration.
 --
 
---- Patch [25]: [RFC PATCH v1 25/25] unwind_user/eh_frame: Add prctl() inte=
-rface for (un)registering .eh_frame_hdr sections ---
-commit 04469d758625968e94108e567fd1bac500c0f41d
+--- Patch [10]: [RFC PATCH v1 10/25] unwind_user/eh_frame: Detect .eh_frame=
+_hdr sections in executables ---
+commit e178ff4c7b227a1dcb3db08f8923210e443187ac
 Author: Jens Remus <jremus@linux.ibm.com>
 
-unwind_user/eh_frame: Add prctl() interface for (un)registering .eh_frame_h=
-dr sections
+unwind_user/eh_frame: Detect .eh_frame_hdr sections in executables
 
-This patch adds two new prctl options to allow dynamic linkers to register
-and unregister .eh_frame_hdr sections with the kernel. It introduces the
-eh_frame_setup structure to pass section bounds from userspace and adds the
-corresponding handlers.
+This commit modifies the ELF loader to automatically detect .eh_frame_hdr
+sections during binary and interpreter loading. It associates these sections
+with the mm_struct to support user-space stack unwinding.
 
-Link: https://lore.kernel.org/all/20260528151023.00f5ec4e@gandalf.local.hom=
-e/
+> When loading an ELF executable, automatically detect .eh_frame_hdr
+> sections and associate them with the mm_struct.
 
-> diff --git a/kernel/unwind/eh_frame.c b/kernel/unwind/eh_frame.c
-> index 49e8a3e8d794a..12279f02381d0 100644
-> --- a/kernel/unwind/eh_frame.c
-> +++ b/kernel/unwind/eh_frame.c
+[Severity: High]
+Are these eh_frame sections properly preserved for child processes during
+fork()?
+
+When a process forks, dup_mm() creates a new mm_struct and calls mm_init(),
+which appears to initialize eh_frame_mt as an empty maple tree:
+
+kernel/fork.c:mm_init_eh_frame() {
+    ...
+    mt_init(&mm->eh_frame_mt);
+    ...
+}
+
+Is there any subsequent logic that duplicates the parent's eh_frame_mt
+entries during dup_mm()? If not, won't child processes inherit correctly
+duplicated VMAs but an empty eh_frame_mt, resulting in a complete loss of
+stack unwinding capabilities for all children?
+
+> diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+> index 16a56b6b3f6ca..8c1cdd8318c53 100644
+> --- a/fs/binfmt_elf.c
+> +++ b/fs/binfmt_elf.c
 
 [ ... ]
 
-> @@ -1723,3 +1724,48 @@ void eh_frame_free_mm(struct mm_struct *mm)
-> =20
->  	mtree_destroy(&mm->eh_frame_mt);
+> @@ -637,6 +638,23 @@ static inline int make_prot(u32 p_flags, struct arch=
+_elf_state *arch_state,
+>  	return arch_elf_adjust_prot(prot, arch_state, has_interp, is_interp);
 >  }
-> +
-> +int eh_frame_register(struct eh_frame_setup __user *user_data, __kernel_=
-size_t size)
+> =20
+> +static void elf_add_eh_frame(const struct elf_phdr *text,
+> +			     const struct elf_phdr *eh_frame,
+> +			     unsigned long base_addr)
 > +{
-> +	struct eh_frame_setup data;
-> +	unsigned long eh_frame_hdr_end, text_end;
+> +	unsigned long eh_frame_start, eh_frame_end,
+> +		      text_start, text_end;
 > +
-> +	if (!user_data && !size)
-> +		return -EINVAL;
+> +	eh_frame_start =3D base_addr + eh_frame->p_vaddr;
+> +	eh_frame_end   =3D eh_frame_start + eh_frame->p_memsz;
 > +
-> +	if (size !=3D sizeof(data))
-> +		return -EINVAL;
+> +	text_start   =3D base_addr + text->p_vaddr;
+> +	text_end     =3D text_start + text->p_memsz;
 
 [Severity: Medium]
-Could this strict size check prevent future UAPI extensions from being hand=
-led
-properly by older kernels?
+Will this silently fail to register .eh_frame_hdr for segments with a
+trailing BSS section?
 
-If a newer userspace binary passes a legitimately extended eh_frame_setup
-struct to an older kernel, it looks like it will be rejected with -EINVAL.
+When an ELF executable segment has p_memsz > p_filesz crossing a page
+boundary, the loader maps the file-backed portion and creates a separate
+anonymous VMA for the BSS.
 
-Would it be better to use copy_struct_from_user() here to safely handle
-zero-padded extensions?
+Because text_end is calculated using p_memsz, it may extend beyond the
+file-backed VMA boundary. When this is passed to eh_frame_add_section(),
+it uses vma_lookup() and checks if the entire segment resides in a single
+VMA:
 
-> +
-> +	if (copy_from_user(&data, user_data, sizeof(data)))
-> +		return -EFAULT;
-
-[ ... ]
-
-> +int eh_frame_unregister(struct eh_frame_setup __user *user_data, __kerne=
-l_size_t size)
-> +{
-> +	struct eh_frame_setup data;
-> +
-> +	if (!user_data && !size)
-> +		return -EINVAL;
-> +
-> +	if (size !=3D sizeof(data))
-> +		return -EINVAL;
-
-[Severity: Medium]
-As with eh_frame_register(), does this strict size comparison break forward
-compatibility for future struct extensions?
-
-> +
-> +	if (copy_from_user(&data, user_data, sizeof(data)))
-> +		return -EFAULT;
-> +
-> +	/* Unregister only uses eh_frame_hdr_start */
-> +	if (data.eh_frame_hdr_size || data.text_start || data.text_size)
-> +		return -EINVAL;
-> +
-> +	return eh_frame_remove_section(data.eh_frame_hdr_start);
-
-[Severity: Medium]
-Does this code silently truncate the 64-bit parameter on 32-bit platforms,
-potentially causing the wrong section to be unregistered?
-
-The data.eh_frame_hdr_start parameter is a __u64, but it is passed directly
-into eh_frame_remove_section() which takes an unsigned long. If userspace
-provides an out-of-bounds 64-bit value on a 32-bit system, it appears it
-would be implicitly truncated to a valid 32-bit address rather than being
-rejected.
-
-Looking at the underlying implementation of eh_frame_remove_section() that =
-is
-exposed by this new prctl, is there a race condition in
-__eh_frame_remove_section() that could lead to a double-free?
-
-kernel/unwind/eh_frame.c:__eh_frame_remove_section() {
+kernel/unwind/eh_frame.c:eh_frame_add_section() {
     ...
-    if (!mtree_erase(&mm->eh_frame_mt, sec->text_start)) {
-        dbg_sec("mtree_erase failed: text=3D%lx\n", sec->text_start);
+    if (!text_vma ||
+        !(text_vma->vm_flags & VM_EXEC) ||
+        text_end > text_vma->vm_end) {
         return -EINVAL;
-    }
-   =20
-    call_srcu(&eh_frame_srcu, &sec->rcu, eh_frame_free_srcu);
     ...
 }
 
-[Severity: Critical]
-If a thread unregisters the section and a third thread immediately registers
-a new section at the exact same address, would mtree_erase() erase and retu=
-rn
-the new section instead?
+Since the file-backed VMA ends before text_end in this scenario, won't the
+text_end > text_vma->vm_end check fail and terminate registration?
 
-Because the code evaluates the return value simply as non-NULL, it seems it
-would proceed to call call_srcu() on the old section again, potentially
-causing a double-free and SRCU list corruption.
-
-Also, regarding the interaction with the unwinder fast path in eh_frame_fin=
-d():
-
-kernel/unwind/eh_frame.c:eh_frame_find() {
-    ...
-    if (ret && (ret !=3D -ENOENT && ret !=3D -EOPNOTSUPP)) {
-        dbg_sec("removing bad .eh_frame[_hdr] section\n");
-        if (eh_frame_remove_section(sec->eh_frame_hdr_start))
-    ...
-}
-
-[Severity: Critical]
-Can this sequence cause a hard deadlock or NMI-safety violation?
-
-Stack unwinding is frequently invoked from NMI or IRQ contexts. If
-eh_frame_find() encounters a parsing error, it unconditionally calls
-eh_frame_remove_section(). This attempts to acquire the mtree_lock spinlock
-and invokes call_srcu(), both of which are forbidden in NMI/IRQ contexts.
+> +
+> +	/* Ignore return value, eh_frame[_hdr] section isn't critical */
+> +	eh_frame_add_section(eh_frame_start, eh_frame_end, text_start, text_end=
+);
+> +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260818144954.2320=
-378-1-jremus@linux.ibm.com?part=3D25
+378-1-jremus@linux.ibm.com?part=3D10
