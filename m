@@ -1,174 +1,151 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3895E3812D1;
-	Tue, 18 Aug 2026 14:29:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7E7A34D3BE;
+	Tue, 18 Aug 2026 14:32:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787063399; cv=none; b=IZNxwCgNCexa9w7xWk1aSHxhPUZf5enZGv2QCvEdFDLv6jc550L7GE2W/TEMz266ojwQjg8hixDNb/awexBApn+QI2wHjvheaJolEAG85K5PFHzrXmQAlG6Yb9S9mTTbX/IKVWqItsobSY4bt2bPUhwA79ZGVBJn44XbfilUktI=
+	t=1787063555; cv=none; b=UVbwvCaY5b55XN4GdHbeRAbKt83V/2NSZpRo3nPRhArqFB1UBZIc5pZm3sL4bZO6nQom9iu35DrsfEPyaPpgNW5QAS6ZDFTbHb2yRoN/9QencPDuiBB5zcj3v7Pyi7FBzf+GyNcqMBzMPSbEKofXtS///pnfq+7dudGQn0WBUAo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787063399; c=relaxed/simple;
-	bh=Z2Zpn0mMP5umwZgoTWvF2T+J67srfo/UyfNCeRpk0T8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mNzitLSaIQ37Au4dbaSaZHTCVy//iL2OAkNO1Hf1CpsvdKpJdUpnG5DXNxG7mPcWKwqQZTwJ0Y119rMBgFM6E2mJDyPzjzjDo45g9Sa4WjdcaZWNlfRw752e4lxSrmKNNvNTC4/bHcgk5FZ4xp0AIvot2D91t8YTPbpfM9kD9HM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RWVwh/Vv; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1787063555; c=relaxed/simple;
+	bh=Nu4ar1tjItLX9SqqtXy6c4Ll4Jn0MfM2dez1G0XkrXA=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=C5SJXEps4sgLN3e2r9k6TgqbmhpJ3g7YPpB7apqMHOqtvZjmXUuym8jKPFn9YWbgSJM/UfNoynxwsCvxZrGa8T6k6OxwXjfZgrTy6+/L91VSx3mFcJKTde850vTLQ7Js2mmLpGDZu9BnEodGpf/wKkFimc8a3AosBx/W8UwtCrg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PAAHb7P+; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RWVwh/Vv"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IE3ffe542523;
-	Tue, 18 Aug 2026 14:29:38 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PAAHb7P+"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IE3rMv2831771;
+	Tue, 18 Aug 2026 14:32:33 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=Q4Ux+/QWCkRJg2MxE2yY8qzYqHCrz3
-	TmVY+vbgce/Xw=; b=RWVwh/VvvXlls5dH7wvJ3j00r2j4SyKTzO3VZmiIPcIy50
-	tOGXXtcdikNr/VzbxPfgwbfPIdYfd3Ug4vzkA0tTcba4tZW+RPSW2AzJUvAWKDxd
-	jhfGokTFUhg4zyz7UdA6phuw9E1SY+fjMNuIoHhcCvCoLzCjuoI9aJAjy2xPJsKL
-	YJ2QpERhsCloi86UHfQfLINbokEbIbfol+tusUc68cpkoUTCC+NQwcB4qBn6ozDq
-	0/cIUEy/EUxcQ2Zat9Epm2ty6lpGDprtAlh0XX8rOs+2edu8AcBLeuwrIM2Frnj1
-	oLoo2II/kYFSpNjAF2Qxb++wElX29GemY3ecratA==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2frt88gt-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=k0GNVx
+	WYMe6//F4MMZIk2UTC2p+ujC79wXYMitDFsm0=; b=PAAHb7P+qHB/32G8MUgTGr
+	SOTN97MaaECqF/8T7zREU9UOT2ZcnK4cQ6QmNo2E+yETLf5YhIoK4ulVEHmVFPbt
+	zRdBBqyrBG/aLolEpvtSERU6ciidnlggX/Q3OxXVDtKNqngytIizYWB+jQxPUV+m
+	5N6i9jLo/FoH6UfIZO/d8YHRUW5S4sT1eKSZ4LEFyJsXuAin8dxI/zaQsd5B11fA
+	VgikmKWi/o7EXCi1lvNFqvkBos6E/S3pQqQXoBQJd5gSX388xhkpkC514SENHihy
+	hlmcDl7FNWmVouVy3KR30Q9uOdngnSvywsNVx+LNqBk3yJQBB7GvigDOxxmacpcA
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2fsqrss6-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 14:29:37 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IEQeEg020014;
-	Tue, 18 Aug 2026 14:29:37 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g32eq3ts3-1
+	Tue, 18 Aug 2026 14:32:33 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IEQKbP011306;
+	Tue, 18 Aug 2026 14:32:32 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g34ngbff7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 14:29:36 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IETXuM42009038
+	Tue, 18 Aug 2026 14:32:32 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IEWS9Q44171664
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 18 Aug 2026 14:29:33 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ED8402004B;
-	Tue, 18 Aug 2026 14:29:32 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8DE7920049;
-	Tue, 18 Aug 2026 14:29:32 +0000 (GMT)
-Received: from osiris (unknown [9.224.76.185])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 18 Aug 2026 14:29:32 +0000 (GMT)
-Date: Tue, 18 Aug 2026 16:29:31 +0200
-From: Steffen Eiden <seiden@linux.ibm.com>
-To: Marc Zyngier <maz@kernel.org>
-Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Friedrich Welter <fritz@linux.ibm.com>, Fuad Tabba <tabba@google.com>,
-        Gautam Gala <ggala@linux.ibm.com>,
-        Hariharan Mari <hari55@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
-        Nico Boehr <nrb@linux.ibm.com>,
-        Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-        Oliver Upton <oupton@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
-        Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v6 08/33] KVM: arm64: Use accessor functions for core regs
-Message-ID: <20260818142931.21865-G-seiden@linux.ibm.com>
-References: <20260812153631.3376090-1-seiden@linux.ibm.com>
- <20260812153631.3376090-9-seiden@linux.ibm.com>
- <86a4qq1gyy.wl-maz@kernel.org>
- <20260818092924.21865-C-seiden@linux.ibm.com>
- <86ecfv613k.wl-maz@kernel.org>
+	Tue, 18 Aug 2026 14:32:28 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2FFF920043;
+	Tue, 18 Aug 2026 14:32:28 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 920BE20040;
+	Tue, 18 Aug 2026 14:32:27 +0000 (GMT)
+Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.111.2.143])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Tue, 18 Aug 2026 14:32:27 +0000 (GMT)
+Date: Tue, 18 Aug 2026 16:32:26 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: sashiko-reviews@lists.linux.dev, Janosch Frank <frankja@linux.ibm.com>,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+        Vasily Gorbik
+ <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko
+ Carstens <hca@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
+        Michael
+ Mueller <mimu@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Matthew
+ Rosato <mjrosato@linux.ibm.com>
+Subject: Re: [PATCH v2] KVM: s390: Improve floating IRQ injection behavior
+Message-ID: <20260818163226.68c6bea4.pasic@linux.ibm.com>
+In-Reply-To: <3562788b-150c-4387-a840-60d9e6b6e49d@linux.ibm.com>
+References: <20260817121631.159451-1-frankja@linux.ibm.com>
+	<20260817122849.9F8061F00A3A@smtp.kernel.org>
+	<3562788b-150c-4387-a840-60d9e6b6e49d@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <86ecfv613k.wl-maz@kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=OfaoyBTY c=1 sm=1 tr=0 ts=6a846c52 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfXxiaz0YapN5jl
+ sFtxj6UhLRCIFO42QLy9UiQYvRABnl/zhSXBhKxqkjX9X6GDucm+V1LUiR2IM1KZzLjHoyO2IOL
+ lJCs+ZY/IlBmOaYU70+G+AqTKjd7O5s1+22hRIrWOfK1mGzABKe6i2m5SDYXJw8/6npvB5G5CZh
+ UmH4icZW4otD8FHXawBZfbWT7D+F9eaKyOIpqHeoFcHhezIbqYeayik25wpF+qYDF0RFNlCD6nj
+ XmgdMnH/zENvASTL+GM6zsRMMcy/+FwZeP8Toe++PGoyan5aUPfxKRkyRd+187LHha+ifqkPVhX
+ DPrU55GzbjIhICuld6EdZLAotMMmZgdx3s544XQ/oiF5Z7RHriVuY0ZNypsLgq5+2C4HrcItFng
+ rg/07ZRyRXMOsgc/1BgDqqyTsfjEz/Sy6kVFU7eogmTWAgr2X96NZKujkSVJXgTDhf9cVVb2VCf
+ 7/m66zQDJw/5XoEqVZg==
+X-Proofpoint-ORIG-GUID: yzPUUrhW7yuQ74atz1oUDne8npCXOR_B
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfX9lSeU8+pX1hb
+ MDtVZXonRBM/sTBPgxyfx258P4HR29lw0ncsndXvb9g8XgpfUHDGUD9oHS1F1WNm2rufWJxaNxs
+ zqklFvxIvGy+9fOUpouzK2JXQjNuSYA=
+X-Authority-Analysis: v=2.4 cv=DJe/JSNb c=1 sm=1 tr=0 ts=6a846d01 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=v8CuuPHm0S7VpODZ9BkA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDEwMyBTYWx0ZWRfX+NVez4jOsbpG
- godyTBBEaM0PrH1ZZzKoPyxEiSsG5XX8DiV1/X3t4jBzQFjdzJPIkJUewzswzoJoWFgwB/EED4H
- WICgLAmS5wNH/M3LXQL0K48xhvGGsf8=
-X-Proofpoint-GUID: ibFV31CahW-cnJdkL25DpOaeaRym7fEh
-X-Proofpoint-ORIG-GUID: 7vXRAGfGpAKRcPWjy_33qur8DqEHUmHs
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDEwMyBTYWx0ZWRfX/Yyr2tRG5nTs
- vzLAP3kp2L1nLG9boP1NJI61AQkTpCz2JLJDnwuCCkRMUjplnpaZKbjWFy2EFSC02jnjkLKOvT8
- H3brincHUwbwXe5xs9kMaTwcgkxZPGACQysqxW2Qo4h1pIPx3cHK05r+piP/bEhTQHAypVO9Rt4
- tescpu0HW/OeBJnbd2lKPuuH+eqkvGsbFfk415nH0442qMMOrp3LuCWjiuH6N1R+g69zIeu/vzy
- ch0e8QUETSXWhL5f17CYUDMk2GqzGKtPCu5QTV678rlsk3tMEsa/V7DvF9fk/+NNJqScq1r8bBy
- qQJRWey+5PZyGQdgG/DYZHmlrblxmu7z9GnUvZpfDDHvqXyjzTXKN+u85Vq0SXHJ4h8qAZb/ioq
- Qrc8kNba0IXedPI0heqhouUZusm4W/l3e9oVkXEv9sOOaupAh8LHcRwOWdIqFJkrm8u4FqqqMOx
- Dn3r+qmLQRi9eYzNlXw==
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=3RURawJg7slDEgzNLLoA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: yzPUUrhW7yuQ74atz1oUDne8npCXOR_B
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-18_02,2026-08-18_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 clxscore=1015 lowpriorityscore=0 impostorscore=0
- malwarescore=0 bulkscore=0 phishscore=0 priorityscore=1501 spamscore=0
+ priorityscore=1501 impostorscore=0 spamscore=0 clxscore=1011 bulkscore=0
+ suspectscore=0 malwarescore=0 phishscore=0 adultscore=0 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608180103
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608180107
 
-On Tue, Aug 18, 2026 at 01:54:07PM +0100, Marc Zyngier wrote:
-> On Tue, 18 Aug 2026 10:29:24 +0100,
-> Steffen Eiden <seiden@linux.ibm.com> wrote:
+On Mon, 17 Aug 2026 15:22:41 +0200
+Christian Borntraeger <borntraeger@linux.ibm.com> wrote:
+
+> >> +	irq_pend_mask = inti_to_irq_pend_mask(inti);
+> >>   	for (sigcpu = kvm->arch.float_int.last_sleep_cpu; ; sigcpu++) {
+> >>   		sigcpu %= online_vcpus;
+> >>   		dst_vcpu = kvm_get_vcpu(kvm, sigcpu);
+> >> -		if (!is_vcpu_stopped(dst_vcpu))
+> >> +		if (!is_vcpu_stopped(dst_vcpu) &&
+> >> +		    deliverable_irqs(dst_vcpu) & irq_pend_mask)
+> >>   			break;
+> >>   		/* avoid endless loops if all vcpus are stopped */
+> >>   		if (nr_tries++ >= online_vcpus)
+> >>   			return;  
 > > 
-> > On Thu, Aug 13, 2026 at 10:56:37AM +0100, Marc Zyngier wrote:
-> > > On Wed, 12 Aug 2026 16:36:04 +0100,
-> > > Steffen Eiden <seiden@linux.ibm.com> wrote:
-> > > >
+> > [Severity: High]
+> > Does this code drop the interrupt kick entirely if all vCPUs currently
+> > have their interrupt masks closed?  
 > 
-> [...]
-> 
-> > > > diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
-> > > > index b01d6622b872..773f6c8e5026 100644
-> > > > --- a/arch/arm64/kvm/guest.c
-> > > > +++ b/arch/arm64/kvm/guest.c
-> > > > @@ -134,19 +134,19 @@ static void *core_reg_addr(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
-> > > >  	     KVM_REG_ARM_CORE_REG(regs.regs[30]):
-> > > >  		off -= KVM_REG_ARM_CORE_REG(regs.mregs[0]);
-> > > >  		off /= 2;
-> > > > -		return &vcpu->arch.ctxt.regs.regs[off];
-> > > > +		return &vcpu_gp_regs(vcpu)[off];
-> > > 
-> > > Doesn't this belong to the previous patch?
-> > > 
-> > 
-> > My thoughts about positioning this change in this patch:
-> > 
-> > The previous patch changes the semantics of vcpu_gp_regs and just
-> > touched the part where the old semantic of the function was used.
-> > This is mainly done by not using vcpu_gp_regs where it was used before
-> > as it cannot be used to access e.g. pstate anymore.
-> > 
-> > This patch then introduces and *uses* new accessor functions for
-> > abstractions (and uses the vcpu_gp_regs abstraction where it was not
-> > used before). 
-> > -> The patch changes direct accesses to using accessor functions.
-> > 
-> > However, I have no strong feelings for this. If you want this in the
-> > previous patch, I can do that.
-> 
-> I think it'd make more sense. You can capture this in the commit
-> message to make it clear.
+> I think this is a corner case but still a valid finding. We can probably consider this
+> slowpath and wakeup/set cpuflags for ALL cpus? maybe after doing 2 rounds instead of one?
 
-Just that we are on the same page: you want me to move the change to the
-previous patch?
+With GISA, I think the FW is supposed to deliver the floating interrupts
+without dropping the vCPU out of SIE. I'm not 100% sure but I think we
+can rely on that mechanism for the CPUs that are in SIE. Without GISA,
+I think, it is reasonable to assume that vCPUs don't keep running for
+ever. It has been a while since I have looked at this code, but I think
+the SIE exit path would catch this. If that is true we would not really
+lose initiative, but just see delayed interrupt delivery.
 
-	Steffen
+Sleeping vCPUs on the other hand are not of interest in this context, I
+think.
 
+Opinions?
+
+Regards,
+Halil
