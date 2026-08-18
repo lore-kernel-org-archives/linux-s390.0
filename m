@@ -1,57 +1,57 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E63663A6EF1;
-	Tue, 18 Aug 2026 14:50:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 756963A9852;
+	Tue, 18 Aug 2026 14:50:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787064635; cv=none; b=gycN40MVUJY5f/ZaS8wTiJCwqWshadtt+8joF1gPkK5iFZFlAKeeVSJYrr8H0gnK7gJYHaN7e7ZDGTkFw8Kat0unVjKPb0x+ZxPaYOcfO4/m6KgTFhXbAwjQIpNw2c5f7bh76HXRQu8KktSpld4XKYm4fkKHz4yhgDTv1ro4JbI=
+	t=1787064636; cv=none; b=rKfE43YNgD4hcq7soBKHcyj6GVwWFFb4jrm3ZO4huP/Ah0bnhlQC+mZ9r7gA91a6+eCDWxTNduJO8jlJdXx/d85HSJZ/7zpyPOLWFES9Ij2lGOZVm9tr/KEyBFD6iZ/r/XJHVX+09MoIIGETOBRVbQtnjIv3LnQzldxhXyQcq6Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787064635; c=relaxed/simple;
-	bh=qpBGjOnxWJLwyFcNvJwhqaVYz+desv9IYZrg0vuSDec=;
+	s=arc-20240116; t=1787064636; c=relaxed/simple;
+	bh=lN8qqQ8zjEDTAgZ6kjHsMFZvNSfXO+JEbPkn4/MI/ds=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=j3mMMssLrpO+IFHDR4MTQdYquZ8VQCzW9ScBZvJ01LL5buftfwYWazSGxMNuftZKd014xVUiwKmhL+ms6zLCoaszAGpZFQj76DPGdCC5rlkHawgHoBOA9tdylayQk1l6aeV+36HE8nUZx3eRb4kumDrFRKfYQJgPMkZmw+XClHE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=p/AOatu/; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=dHxEdKysmqfndJLrj2zjb6AqWp/WYtV6SfVMf4TesxAmxK616PmyEOWM/DzkaaUCFam3VaIi3EQfSsGnHvHhdjSPj+EuAdiw7OGZpntpVZyHBhxA/pIFmD6Jxa4KLN/QNyWegXw1MrfujqgFcP8E/VBZZLoSDI0/JcJzqAzrwA8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qTm2wqnr; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="p/AOatu/"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IE3e4V542451;
-	Tue, 18 Aug 2026 14:50:08 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qTm2wqnr"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67IE3xUG402127;
+	Tue, 18 Aug 2026 14:50:05 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=g/+KIf6HT7LAHqydz
-	XWIC4dBo6t+5n60IaqJJ2BxEOc=; b=p/AOatu/sVYTYKHcQCFF/FvKhal8zkRNz
-	75zdHM30v9FT3T33oYIfYgFg5Zw6/gXhnzrnwJR6v6j0CgfTiQzp9AsROBJAHfY4
-	s/W/CFBKJj5xIQuux0aAJKl6L3eswXA964w8/Kj71vAWQwl8hAdC3JTDz5mN3KkU
-	QK2KLSgxpGBW/z8WYeEcOQQp6GpgkgIpR+qsfRyYiwERyx/6eo58rCxx1Mo6GLy0
-	nD53bfgFI3ZZ+tOOQ2puwxsPuog91jPntgAnnGdZ+xxHwnJRvCYqrawCe1h1shIm
-	CQT/dxi7sdm+pSQpiZ9iOV1QU4THNDLZkOkrheembKRVe7DSmCaLQ==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2frt8bt7-1
+	:mime-version:references:subject:to; s=pp1; bh=pKBz1o/p432NUkHla
+	qpUldZsAKwtSbndl7l42QkqzZo=; b=qTm2wqnr2CDTSw0peLuJGva+F0mBSzazq
+	dR0gI6/8xCoIcmqs8oWkyhtZxKa5lqMg0P++LUaf8fiCynxcx5QkENh3K6wCdAiO
+	pLniU8PF+gnIvmap6rRtOL+UR1ftf3pwg6xR+yCTcGxtbtP/UPgd4uzG2Pq6IHHp
+	CeWp0VmiW5bNe6UKx5NwYl3r/KO9Ky7kUC7j4avJ9k6AKCvaut6UHwv3X6OT9G4X
+	zZa6pCneO7z2OwzO+0Qs8dhZuYVTnoGWntiCEbGTyPA1VAU3c5Kbphs5WpefQ5Q6
+	oI2uoYbSUS+2lhIJTxX26/NDTbtdcjusxXY7Eep2siSSaAuOw1f7g==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g2dhm0qmm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 14:50:07 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IEfH1K032407;
-	Tue, 18 Aug 2026 14:50:06 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g354ybgc7-1
+	Tue, 18 Aug 2026 14:50:04 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67IEfOqE029642;
+	Tue, 18 Aug 2026 14:50:03 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g34ngbhgk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 18 Aug 2026 14:50:06 +0000 (GMT)
+	Tue, 18 Aug 2026 14:50:03 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IEo2Dp51577226
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67IEnx9943712888
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 18 Aug 2026 14:50:02 GMT
+	Tue, 18 Aug 2026 14:49:59 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6889C20040;
-	Tue, 18 Aug 2026 14:50:02 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id A4BEA20043;
+	Tue, 18 Aug 2026 14:49:59 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 194E32004B;
-	Tue, 18 Aug 2026 14:50:02 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 51D582004B;
+	Tue, 18 Aug 2026 14:49:59 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 18 Aug 2026 14:50:02 +0000 (GMT)
+	Tue, 18 Aug 2026 14:49:59 +0000 (GMT)
 From: Jens Remus <jremus@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, x86@kernel.org,
@@ -69,9 +69,9 @@ Cc: Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
         "H. Peter Anvin" <hpa@zytor.com>, Namhyung Kim <namhyung@kernel.org>,
         Andrii Nakryiko <andrii@kernel.org>, Kees Cook <kees@kernel.org>,
         Sam James <sam@gentoo.org>
-Subject: [RFC PATCH v1 16/25] unwind_user/eh_frame: Add linear .eh_frame search fallback
-Date: Tue, 18 Aug 2026 16:49:45 +0200
-Message-ID: <20260818144954.2320378-17-jremus@linux.ibm.com>
+Subject: [RFC PATCH v1 08/25] unwind_user/eh_frame: Store .eh_frame_hdr section data in per-mm maple tree
+Date: Tue, 18 Aug 2026 16:49:37 +0200
+Message-ID: <20260818144954.2320378-9-jremus@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260818144954.2320378-1-jremus@linux.ibm.com>
 References: <20260818144954.2320378-1-jremus@linux.ibm.com>
@@ -84,388 +84,295 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=OfaoyBTY c=1 sm=1 tr=0 ts=6a84711f cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfXzI0waxrwv2MS
+ 5IDPuEW8JbHj05nrFWvNRPvtP4ZbfQlasvyw1/F1PlAX64H2dgXQZ9gBuqtSF+5HNcpFWHVvV6r
+ zRGZE+KXQ0NbxqQ1kCHGJn5jG/SpcBEGhMQ+NThJdvJhAtOB8qkja/wz9k5BMB8JYz8G/bF8SUl
+ rzEMfS/SWlBJSLFR63gZpaT+GrAkcwz4Ywiqou+cjZ04RfvgtQThi5W5Vwf359u5haJ9pMC97fB
+ 1K/OW6KziDh2F5VbFaMEnNORpAXAROc7JkkFCuipKhJ6L8eH7oD1tlpz6YfR5ke385l0l5oIWyq
+ T82Pn2o3T6F/5DiGm60OVS1siHnXXZYD2Bwm+B810NBbfPm5J/wrrKZsPnqdhBuhY/MmXdI5/zz
+ 9qoQzZSLi2ELz3yVdSjFQ4j8lxIDnnWABx+n5UDKt5I0xhIV/L6oMXL9ykLDqASwajABwoWiDOh
+ t+K1Jf/Uw6GfBZZvtOQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfX+rjEIIw/UUnO
+ PgGQh5TxKeUFH7DdGrHKHK31kktoKPX+Sqkd0c7zBVt0mbm3PHJLNBhNMmvJrFZWXkDKLuz3c7P
+ lQwie2OZJCJzla7P/m5carbEt/NL9FQ=
+X-Authority-Analysis: v=2.4 cv=JKkLdcKb c=1 sm=1 tr=0 ts=6a84711c cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=JWffoVpnokn7fAIjgvMA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfX58kMGnRX9DxH
- J29qCD6Zt8FCCJcCNvfx+NxaP7RstjEPHr6iiOV+RHCtQM/K3vXX0jURK3JDZaQanEbwFRteClA
- QRlXE+0rxpHzXu4SMHHN9maI5HzvmPg=
-X-Proofpoint-GUID: jlny5mab30eI5TDpItJVE9F8eGd83IqE
-X-Proofpoint-ORIG-GUID: 3IrNanoOas1yxJNJWARNXtw9jGYIUlfv
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE4MDEwNyBTYWx0ZWRfX+plWV7bkeD8F
- iucRRXNXqCV5TXdHOQK9oWYvgCcpVCgjvgvxjTQQhioKdZ/bBdDLOW1uiDKCGvmaKQzZoyzls4N
- 5tWVziIj5rypWDFRcKRehb/N8uv9t1u6FUn5GI8q1hD3k4amkU5RkAakC9LLdKUsqtmdvEtkRNw
- 6be/yD5+dDe1OrdLTCEYT3YhERq5e3JPj8a2xcBfzYTx1OE/zOhwET/Kqqxp1OcmcWw3jWvHCh8
- JsMCxNValS3GU23TCP8JooQEGoPfGD8XMqglyuR8r9NoN/NvPN8/ZOdHlK2scLP2+7wOnEd4Nxw
- Lh0Hl2gweQErB99lBmyYLM3vAwrh9cqmDsDam+rpbKCcD++Y/zooRfhPkWYhg+9kcD+f0zLH/Ux
- OvwbOZBn2fTqoT0bfsdwyW4SRmKOu4naGSuSZji2FLPvj1evFpPxaFIKhtsWoMMQJPza0MD9cpJ
- MC2Lsr1yqAKVQPsHcpA==
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=XnyXtB0bseTY-2eMiq0A:9
+X-Proofpoint-ORIG-GUID: FMU4cVuGnC3VDc_ukz2lE8oE7K8IE1Cu
+X-Proofpoint-GUID: OWzBhcfdd0mD-kIJgwxxQIXbHIVGLM86
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-18_02,2026-08-18_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 clxscore=1015 lowpriorityscore=0 impostorscore=0
- malwarescore=0 bulkscore=0 phishscore=0 priorityscore=1501 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608180107
+ suspectscore=0 bulkscore=0 malwarescore=0 priorityscore=1501
+ lowpriorityscore=0 clxscore=1015 adultscore=0 impostorscore=0 spamscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608180107
 
-Fallback to a linear .eh_frame search when .eh_frame_hdr does not
-contain a binary search table.  Add validation of the referenced
-.eh_frame section as well.
+Associate .eh_frame_hdr sections with their mm by adding them to a
+per-mm maple tree which is indexed by the corresponding text address
+range.  A single .eh_frame_hdr section can be associated with multiple
+text ranges.
 
-While testing the .eh_frame validation, it was observed that many
-ELF binaries contain .eh_frame sections without a zero terminator
-("ZERO terminator" in readelf -wf output).
-
-For linear search, this is problematic because .eh_frame_hdr only
-provides a pointer to the start of the .eh_frame section and does
-not describe its extent.  In the absence of a zero terminator,
-__find_fde_lsearch() may walk beyond the end of the section when
-there is no FDE for the IP.  This was discovered, as it causes the
-added validation logic in eh_frame_validate_eh_frame() to read past
-the section boundary.
-
-Therefore linear .eh_frame search is guarded by config option
-EH_FRAME_LINEAR_SEARCH.
+Based on Josh Poimboeuf's, Steven Rostedt's, and my unwind user sframe
+implementation.
 
 Signed-off-by: Jens Remus <jremus@linux.ibm.com>
 ---
+ arch/x86/include/asm/mmu.h |  2 +-
+ include/linux/eh_frame.h   | 20 +++++++++++
+ include/linux/mm_types.h   |  3 ++
+ kernel/fork.c              | 10 ++++++
+ kernel/unwind/eh_frame.c   | 68 ++++++++++++++++++++++++++++++++++++--
+ mm/init-mm.c               |  2 ++
+ 6 files changed, 101 insertions(+), 4 deletions(-)
 
-Notes (jremus):
-    This patch highlights a potential issue in the linear .eh_frame search
-    path:  FDE iteration may read beyond the bounds of the section if it
-    lacks a zero terminator.
-    
-    That said, .eh_frame_hdr sections without a binary search table do not
-    appear to exist in practice, so I currently favor dropping this patch
-    in a follow-up revision.
-    
-    It is not clear under what circumstances .eh_frame is generated without
-    a zero terminator.  There have been several GNU linker commits related
-    to the .eh_frame zero terminator over the years, including:
-    - f60e73e9fc09 ("Drop unwanted zero terminators")
-    - 4de1599bcf04 ("ld -r abort in _bfd_elf_write_section_eh_frame")
-    - 2e0ce1c84d32 ("Align eh_frame FDEs according to their encoding")
-    - af471f828cc7 ("PR22048, Incorrect .eh_frame section in libc.so")
-    - 9866ffe25a0f ("Remove .eh_frame zero terminators")
-    
-    Perhaps the zero terminator is expected to originate from crtend.o,
-    though this remains to be verified.
-    
-    IIUC, GCC's libgcc unwinder appears exhibit similar out-of-bounds
-    behavior in its linear .eh_frame search path, if the zero terminator
-    is absent.
-
- arch/Kconfig                   |   9 ++
- include/linux/eh_frame.h       |   1 +
- kernel/unwind/eh_frame.c       | 183 +++++++++++++++++++++++++++++++--
- kernel/unwind/eh_frame_debug.h |   4 +
- 4 files changed, 188 insertions(+), 9 deletions(-)
-
-diff --git a/arch/Kconfig b/arch/Kconfig
-index 30d9e876f28a..191baf01e948 100644
---- a/arch/Kconfig
-+++ b/arch/Kconfig
-@@ -490,6 +490,15 @@ config HAVE_UNWIND_USER_EH_FRAME
- 	bool
- 	select UNWIND_USER
+diff --git a/arch/x86/include/asm/mmu.h b/arch/x86/include/asm/mmu.h
+index 0fe9c569d171..227a32899a59 100644
+--- a/arch/x86/include/asm/mmu.h
++++ b/arch/x86/include/asm/mmu.h
+@@ -87,7 +87,7 @@ typedef struct {
+ 	.context = {							\
+ 		.ctx_id = 1,						\
+ 		.lock = __MUTEX_INITIALIZER(mm.context.lock),		\
+-	}
++	},
  
-+config EH_FRAME_LINEAR_SEARCH
-+	bool "Enable .eh_frame linear search fallback"
-+	depends on HAVE_UNWIND_USER_EH_FRAME
-+	help
-+	  When a .eh_frame_hdr section has no binary search table, fallback
-+	  to linear search of the .eh_frame section for a FDE for an IP.
-+
-+	  If unsure, say N.
-+
- config EH_FRAME_VALIDATION
- 	bool "Enable .eh_frame[_hdr] section debugging"
- 	depends on HAVE_UNWIND_USER_EH_FRAME
+ void leave_mm(void);
+ #define leave_mm leave_mm
 diff --git a/include/linux/eh_frame.h b/include/linux/eh_frame.h
-index 65f87c2714d8..de68f21e1050 100644
+index aaac2dd663d5..95df4911fd23 100644
 --- a/include/linux/eh_frame.h
 +++ b/include/linux/eh_frame.h
-@@ -27,6 +27,7 @@ struct eh_frame_section {
- 	unsigned long	binary_search_table_end;
- 	unsigned long	fde_count;
+@@ -2,9 +2,14 @@
+ #ifndef _LINUX_EH_FRAME_H
+ #define _LINUX_EH_FRAME_H
+ 
++#include <linux/mm_types.h>
++#include <linux/srcu.h>
++
+ #ifdef CONFIG_HAVE_UNWIND_USER_EH_FRAME
+ 
+ struct eh_frame_section {
++	struct rcu_head	rcu;
++
+ 	unsigned long	eh_frame_hdr_start;
+ 	unsigned long	eh_frame_hdr_end;
+ 	unsigned long	text_start;
+@@ -19,14 +24,27 @@ struct eh_frame_section {
  	u8		binary_search_table_enc;
-+	bool		has_binary_search_table;
  };
  
- #define INIT_MM_EH_FRAME .eh_frame_mt = MTREE_INIT(eh_frame_mt, 0),
++#define INIT_MM_EH_FRAME .eh_frame_mt = MTREE_INIT(eh_frame_mt, 0),
++extern void eh_frame_free_mm(struct mm_struct *mm);
++
+ extern int eh_frame_add_section(unsigned long eh_frame_hdr_start,
+ 				unsigned long eh_frame_hdr_end,
+ 				unsigned long text_start,
+ 				unsigned long text_end);
+ extern int eh_frame_remove_section(unsigned long eh_frame_hdr_start);
+ 
++static inline bool current_has_eh_frame(void)
++{
++	struct mm_struct *mm = current->mm;
++
++	return mm && !mtree_empty(&mm->eh_frame_mt);
++}
++
+ #else /* !CONFIG_HAVE_UNWIND_USER_EH_FRAME */
+ 
++#define INIT_MM_EH_FRAME
++static inline void eh_frame_free_mm(struct mm_struct *mm) {}
++
+ static inline int eh_frame_add_section(unsigned long eh_frame_hdr_start,
+ 				       unsigned long eh_frame_hdr_end,
+ 				       unsigned long text_start,
+@@ -40,6 +58,8 @@ static inline int eh_frame_remove_section(unsigned long eh_frame_hdr_start)
+ 	return -ENOSYS;
+ }
+ 
++static inline bool current_has_eh_frame(void) { return false; }
++
+ #endif /* CONFIG_HAVE_UNWIND_USER_EH_FRAME */
+ 
+ #endif /* _LINUX_EH_FRAME_H */
+diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+index b18c2b2e7d2c..ac51d6212e86 100644
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -1404,6 +1404,9 @@ struct mm_struct {
+ #ifdef CONFIG_MM_ID
+ 		mm_id_t mm_id;
+ #endif /* CONFIG_MM_ID */
++#ifdef CONFIG_HAVE_UNWIND_USER_EH_FRAME
++		struct maple_tree eh_frame_mt;
++#endif
+ 	} __randomize_layout;
+ 
+ 	/*
+diff --git a/kernel/fork.c b/kernel/fork.c
+index f0e2e131a9a5..c0d71818e197 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -111,6 +111,7 @@
+ #include <linux/tick.h>
+ #include <linux/unwind_deferred.h>
+ #include <linux/pgalloc.h>
++#include <linux/eh_frame.h>
+ #include <linux/uaccess.h>
+ 
+ #include <asm/mmu_context.h>
+@@ -738,6 +739,7 @@ void __mmdrop(struct mm_struct *mm)
+ 	mm_pasid_drop(mm);
+ 	mm_destroy_cid(mm);
+ 	percpu_counter_destroy_many(mm->rss_stat, NR_MM_COUNTERS);
++	eh_frame_free_mm(mm);
+ 
+ 	free_mm(mm);
+ }
+@@ -1082,6 +1084,13 @@ static void mmap_init_lock(struct mm_struct *mm)
+ #endif
+ }
+ 
++static void mm_init_eh_frame(struct mm_struct *mm)
++{
++#ifdef CONFIG_HAVE_UNWIND_USER_EH_FRAME
++	mt_init(&mm->eh_frame_mt);
++#endif
++}
++
+ static struct mm_struct *mm_init(struct mm_struct *mm, struct task_struct *p)
+ {
+ 	mt_init_flags(&mm->mm_mt, MM_MT_FLAGS);
+@@ -1109,6 +1118,7 @@ static struct mm_struct *mm_init(struct mm_struct *mm, struct task_struct *p)
+ 	mm->pmd_huge_pte = NULL;
+ #endif
+ 	mm_init_uprobes_state(mm);
++	mm_init_eh_frame(mm);
+ 	hugetlb_count_init(mm);
+ 	futex_mm_init(mm);
+ 
 diff --git a/kernel/unwind/eh_frame.c b/kernel/unwind/eh_frame.c
-index 7f572d1711d3..ac288cec8021 100644
+index 8d2b638145bd..7bdf7589466a 100644
 --- a/kernel/unwind/eh_frame.c
 +++ b/kernel/unwind/eh_frame.c
-@@ -509,10 +509,9 @@ static __always_inline int __read_fde(struct eh_frame_section *sec,
- 	return -EFAULT;
- }
+@@ -19,6 +19,8 @@
+ #define dbg(fmt, ...)							\
+ 	pr_debug("%s (%d): " fmt, current->comm, current->pid, ##__VA_ARGS__)
  
--
--static __always_inline int __find_fde(struct eh_frame_section *sec,
--				      unsigned long ip,
--				      struct eh_frame_fde *fde)
-+static __always_inline int __find_fde_bsearch(struct eh_frame_section *sec,
-+					      unsigned long ip,
-+					      struct eh_frame_fde *fde)
++DEFINE_STATIC_SRCU(eh_frame_srcu);
++
+ #define UNSAFE_GET_USER_INC(to, from, end, label)			\
+ ({									\
+ 	typeof(to) __to;						\
+@@ -307,6 +309,7 @@ int eh_frame_add_section(unsigned long eh_frame_hdr_start,
+ 			 unsigned long text_start,
+ 			 unsigned long text_end)
  {
- 	void __user *table_start_ptr;
- 	unsigned long table_size;
-@@ -590,6 +589,82 @@ static __always_inline int __find_fde(struct eh_frame_section *sec,
- 	return -EFAULT;
- }
- 
-+#ifdef CONFIG_EH_FRAME_LINEAR_SEARCH
-+
-+static __always_inline int __find_fde_lsearch(struct eh_frame_section *sec,
-+					      unsigned long ip,
-+					      struct eh_frame_fde *fde)
-+{
-+	unsigned long start = sec->eh_frame_start;
-+	unsigned long vma_end = sec->eh_frame_vma_end;
-+	unsigned long cur;
-+	int ret;
-+
-+	/* Linear search through .eh_frame */
-+	cur = start;
-+	while (cur >= start && cur < vma_end) {
-+		unsigned long entry_start = cur, entry_end;
-+		u32 length, cie_id;
-+		struct eh_frame_fde _fde;
-+
-+		/* Read CIE/FDE length */
-+		ret = GET_USER_INC(length, cur, vma_end);
-+		if (ret)
-+			return ret;
-+		if (!length)
-+			break;			/* End marker */
-+		if (length == EH_FRAME_DWARF64_LENGTH)
-+			return -EINVAL;		/* DWARF64, remove .eh_frame */
-+		entry_end = entry_start + 4 + length;
-+		if (entry_end > vma_end)
-+			return -EFAULT;
-+
-+		/* Read CIE ID / FDE CIE pointer */
-+		ret = GET_USER_INC(cie_id, cur, entry_end);
-+		if (ret)
-+			return ret;
-+		if (cie_id == EH_FRAME_CIE_ID) {
-+			/* This is a CIE, skip it */
-+			cur = entry_end;
-+			continue;
-+		}
-+
-+		/* This is an FDE, check if it covers the IP */
-+		ret = __read_fde(sec, entry_start, &_fde);
-+		if (ret)
-+			return ret;
-+		if (ip >= _fde.func_addr && ip < _fde.func_addr + _fde.func_size) {
-+			*fde = _fde;
-+			return 0;
-+		}
-+
-+		cur = entry_end;
-+	}
-+
-+	return -ENOENT;
-+}
-+
-+#else /* !CONFIG_EH_FRAME_LINEAR_SEARCH */
-+
-+static __always_inline int __find_fde_lsearch(struct eh_frame_section *sec,
-+					      unsigned long ip,
-+					      struct eh_frame_fde *fde)
-+{
-+	return 0;
-+}
-+
-+#endif /* !CONFIG_EH_FRAME_LINEAR_SEARCH */
-+
-+static __always_inline int __find_fde(struct eh_frame_section *sec,
-+				      unsigned long ip,
-+				      struct eh_frame_fde *fde)
-+{
-+	if (sec->has_binary_search_table)
-+		return __find_fde_bsearch(sec, ip, fde);
-+	else
-+		return __find_fde_lsearch(sec, ip, fde);
-+}
-+
- /* Helper to convert DWARF register number to index (FP=0, RA=1) */
- static inline int reg_to_index(unsigned int reg)
- {
-@@ -1165,7 +1240,7 @@ int eh_frame_find(unsigned long ip, struct unwind_user_frame *frame)
- 
- #ifdef CONFIG_EH_FRAME_VALIDATION
- 
--static int eh_frame_validate_section(struct eh_frame_section *sec)
-+static int eh_frame_validate_eh_frame_hdr(struct eh_frame_section *sec)
- {
- 	void __user *table_start_ptr;
- 	unsigned long table_size;
-@@ -1246,6 +1321,90 @@ static int eh_frame_validate_section(struct eh_frame_section *sec)
- 	return -EFAULT;
- }
- 
-+static int eh_frame_validate_eh_frame(struct eh_frame_section *sec)
-+{
-+	unsigned long start = sec->eh_frame_start;
-+	unsigned long vma_end = sec->eh_frame_vma_end;
-+	unsigned long cur;
-+	int ret;
-+
-+	cur = start;
-+	while (cur >= start && cur < vma_end) {
-+		struct eh_frame_cie cie;
-+		struct eh_frame_fde fde;
-+		unsigned long entry_start = cur, entry_end;
-+		u32 length, cie_id;
-+
-+		/* Read CIE/FDE length */
-+		ret = GET_USER_INC(length, cur, vma_end);
-+		if (ret) {
-+			dbg_sec_ehf(cur, "failed to read CIE/FDE length\n");
-+			return ret;
-+		}
-+		if (!length)
-+			break;			/* End marker */
-+		else if (length == EH_FRAME_DWARF64_LENGTH) {
-+			dbg_sec_ehf(cur, "invalid CIE/FDE length (DWARF64)\n");
-+			return -EINVAL;
-+		}
-+		entry_end = entry_start + 4 + length;
-+
-+		/* Read CIE ID / FDE CIE pointer */
-+		ret = GET_USER_INC(cie_id, cur, entry_end);
-+		if (ret) {
-+			dbg_sec_ehf(cur, "failed to read CIE ID / FDE CIE pointer\n");
-+			return ret;
-+		}
-+
-+		if (cie_id == EH_FRAME_CIE_ID) {
-+			/* This is a CIE */
-+			ret = __read_cie(sec, entry_start, &cie);
-+			if (ret) {
-+				dbg_sec_ehf(entry_start, "failed to read CIE\n");
-+				return ret;
-+			}
-+
-+		} else {
-+			/* This is a FDE */
-+			ret = __read_fde(sec, entry_start, &fde);
-+			if (ret) {
-+				dbg_sec_ehf(entry_start, "failed to read FDE\n");
-+				return ret;
-+			}
-+		}
-+
-+		cur = entry_end;
-+	}
-+
-+	return 0;
-+}
-+
-+static int eh_frame_validate_section(struct eh_frame_section *sec)
-+{
-+	int ret;
-+
-+	/*
-+	 * Validate .eh_frame_hdr binary search table
-+	 * (incl. all referenced FDE and CIE in .eh_frame).
-+	 */
-+	ret = eh_frame_validate_eh_frame_hdr(sec);
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * Validate .eh_frame CIE and FDE.  Skip if linear search
-+	 * is disabled, as many .eh_frame sections lack a zero
-+	 * terminator and the section end if unknown.
-+	 */
-+	if (IS_ENABLED(CONFIG_EH_FRAME_LINEAR_SEARCH)) {
-+		ret = eh_frame_validate_eh_frame(sec);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	return 0;
-+}
-+
- #else /* !CONFIG_EH_FRAME_VALIDATION */
- 
- static int eh_frame_validate_section(struct eh_frame_section *sec) { return 0; }
-@@ -1266,6 +1425,7 @@ static int eh_frame_read_header(struct eh_frame_section *sec)
- 	unsigned long eh_frame_start, eh_frame_vma_end, table_start, table_end;
- 	u8 version, eh_frame_ptr_enc, fde_count_enc, table_enc;
- 	unsigned long fde_count;
-+	bool has_table = false;
- 	int entry_size;
- 	int ret;
- 
-@@ -1287,16 +1447,17 @@ static int eh_frame_read_header(struct eh_frame_section *sec)
- 		UNSAFE_GET_USER_INC(fde_count_enc, cur, end, Efault);
- 		UNSAFE_GET_USER_INC(table_enc, cur, end, Efault);
- 
--		/* .eh_frame_hdr without binary search table is not supported */
--		if (fde_count_enc == DW_EH_PE_omit || table_enc == DW_EH_PE_omit)
--			return -EINVAL;
--
- 		/* Read pointer to .eh_frame */
- 		ret = read_encoded_pointer(sec, NULL, &cur, end,
- 					   eh_frame_ptr_enc, &eh_frame_start);
- 		if (ret)
- 			return ret;
- 
-+		/* Handle binary search table if provided */
-+		if (fde_count_enc == DW_EH_PE_omit || table_enc == DW_EH_PE_omit)
-+			goto end;
-+		has_table = true;
-+
- 		/* Read FDE count */
- 		ret = read_encoded_pointer(sec, NULL, &cur, end,
- 					   fde_count_enc, &fde_count);
-@@ -1327,6 +1488,9 @@ static int eh_frame_read_header(struct eh_frame_section *sec)
- 
- 	sec->eh_frame_start		= eh_frame_start;
- 	sec->eh_frame_vma_end		= eh_frame_vma_end;
-+	sec->has_binary_search_table	= has_table;
-+	if (!has_table)
-+		return 0;
- 	sec->binary_search_table_start	= table_start;
- 	sec->binary_search_table_end	= table_end;
- 	sec->binary_search_table_enc	= table_enc;
-@@ -1464,6 +1628,7 @@ static void __eh_frame_dup_section(struct eh_frame_section *sec,
- 	sec->binary_search_table_end	= oldsec->binary_search_table_end;
- 	sec->fde_count			= oldsec->fde_count;
- 	sec->binary_search_table_enc	= oldsec->binary_search_table_enc;
-+	sec->has_binary_search_table	= oldsec->has_binary_search_table;
- 
- 	dbg_dup(sec, oldsec);
- }
-diff --git a/kernel/unwind/eh_frame_debug.h b/kernel/unwind/eh_frame_debug.h
-index e72e011ba539..e03fc8bfed86 100644
---- a/kernel/unwind/eh_frame_debug.h
-+++ b/kernel/unwind/eh_frame_debug.h
-@@ -17,6 +17,9 @@
- #define dbg_sec_ehfh(addr, fmt, ...)					\
- 	dbg_sec(".eh_frame_hdr+%#lx: " fmt, ((addr) - sec->eh_frame_hdr_start), ##__VA_ARGS__)
- 
-+#define dbg_sec_ehf(addr, fmt, ...)					\
-+	dbg_sec(".eh_frame+%#lx: " fmt, ((addr) - sec->eh_frame_start), ##__VA_ARGS__)
-+
- static inline void dbg_init(struct eh_frame_section *sec)
- {
++	struct maple_tree *eh_frame_mt = &current->mm->eh_frame_mt;
  	struct mm_struct *mm = current->mm;
-@@ -57,6 +60,7 @@ static inline void dbg_free(struct eh_frame_section *sec)
- #define dbg(args...)			no_printk(args)
- #define dbg_sec(args...)		no_printk(args)
- #define dbg_sec_ehfh(args...)		no_printk(args)
-+#define dbg_sec_ehf(args...)		no_printk(args)
+ 	struct eh_frame_section *sec;
+ 	int ret;
+@@ -349,15 +352,74 @@ int eh_frame_add_section(unsigned long eh_frame_hdr_start,
+ 	if (ret)
+ 		goto err_free;
  
- static inline void dbg_init(struct eh_frame_section *sec) {}
- static inline void dbg_dup(struct eh_frame_section *sec, struct eh_frame_section *oldsec) {}
+-	/* TODO nowhere to store it yet - just free it and return an error */
+-	ret = -ENOSYS;
++	ret = mtree_insert_range(eh_frame_mt, sec->text_start, sec->text_end - 1,
++				 sec, GFP_KERNEL_ACCOUNT);
++	if (ret) {
++		dbg("mtree_insert_range failed: text=%lx-%lx\n",
++		    sec->text_start, sec->text_end);
++		goto err_free;
++	}
++
++	return 0;
+ 
+ err_free:
+ 	free_section(sec);
+ 	return ret;
+ }
+ 
++static void eh_frame_free_srcu(struct rcu_head *rcu)
++{
++	struct eh_frame_section *sec = container_of(rcu, struct eh_frame_section, rcu);
++
++	free_section(sec);
++}
++
++static int __eh_frame_remove_section(struct mm_struct *mm,
++				     struct eh_frame_section *sec)
++{
++	if (!mtree_erase(&mm->eh_frame_mt, sec->text_start)) {
++		dbg("mtree_erase failed: text=%lx\n", sec->text_start);
++		return -EINVAL;
++	}
++
++	call_srcu(&eh_frame_srcu, &sec->rcu, eh_frame_free_srcu);
++
++	return 0;
++}
++
+ int eh_frame_remove_section(unsigned long eh_frame_hdr_start)
+ {
+-	return -ENOSYS;
++	struct mm_struct *mm = current->mm;
++	struct eh_frame_section *sec;
++	unsigned long index = 0;
++	bool found = false;
++	int ret = 0;
++
++	guard(srcu)(&eh_frame_srcu);
++
++	mt_for_each(&mm->eh_frame_mt, sec, index, ULONG_MAX) {
++		if (sec->eh_frame_hdr_start == eh_frame_hdr_start) {
++			found = true;
++			ret |= __eh_frame_remove_section(mm, sec);
++		}
++	}
++
++	if (!found || ret)
++		return -EINVAL;
++
++	return 0;
++}
++
++void eh_frame_free_mm(struct mm_struct *mm)
++{
++	struct eh_frame_section *sec;
++	unsigned long index = 0;
++
++	if (!mm)
++		return;
++
++	mt_for_each(&mm->eh_frame_mt, sec, index, ULONG_MAX)
++		free_section(sec);
++
++	mtree_destroy(&mm->eh_frame_mt);
+ }
+diff --git a/mm/init-mm.c b/mm/init-mm.c
+index 3e792aad7626..25c26341fc4f 100644
+--- a/mm/init-mm.c
++++ b/mm/init-mm.c
+@@ -11,6 +11,7 @@
+ #include <linux/atomic.h>
+ #include <linux/user_namespace.h>
+ #include <linux/iommu.h>
++#include <linux/eh_frame.h>
+ #include <asm/mmu.h>
+ 
+ #ifndef INIT_MM_CONTEXT
+@@ -48,6 +49,7 @@ struct mm_struct init_mm = {
+ #endif
+ 	.flexible_array	= MM_STRUCT_FLEXIBLE_ARRAY_INIT,
+ 	INIT_MM_CONTEXT(init_mm)
++	INIT_MM_EH_FRAME
+ };
+ 
+ void setup_initial_init_mm(void *start_code, void *end_code,
 -- 
 2.53.0
 
