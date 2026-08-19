@@ -1,60 +1,60 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8E9F2DC76A;
-	Wed, 19 Aug 2026 12:57:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6214B337BA4;
+	Wed, 19 Aug 2026 13:00:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787144252; cv=none; b=JAFSLEHiYkpD5yY6D8xGrIgJ39tpM6IivsIwNYfAkVmdzlHtkMB1lGbQBXbmijtYz2S0gY5/SC8/WJ7lRoovTBXlRRGNdBBK+Md5fldh3bDXNWtz91uw2sI8K0bHc6iXZcGzA3TCaXfXrvAzA6fi1Tc5BA842YLj4bWaPWJCCpc=
+	t=1787144412; cv=none; b=Xn+636CAkE+psEOAAo5RQtvUXR09gcUSGKjBXJpWyw+AXp5myXlv5ugNit9TJWriohhJp1fVqsiq+PePIHM7fNZBDrHJfZ0W3gfo/yUhyULFZze5PPPuJC7IJ+vd4zmy/RjJLfoRc8Ib41GxWKSElAD2DNy3D4Zab686U7xJQOE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787144252; c=relaxed/simple;
-	bh=WV6/+lhv6TRuTHevXktPrcrgEWzJmvnj1i/h3kNJHdM=;
+	s=arc-20240116; t=1787144412; c=relaxed/simple;
+	bh=aYlkVRPCilvPCuY4Bv/YkUHeNjUWb2kK1BT1pZH+P4k=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UkmRFgzxyrDX6ODVciAmpLfyktztnS0Dspk/eV1sCgqkWiHdk4K4f3IsjrSiY83YQqseSwC+VmM/LtGgfYXASIuxZd9kr6eRjmFzdLIQqGEOCy1RinWqq2qs3spZIOxFV3v5vMtZBdU429y9+6xwV3p2R1ckenXDXW26Ld+TthM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mCKOKwZI; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=lgld7j3FZxWmt8j+v/3lSx3ujMj+u0ZGNm/rvaCJfOXXn4xQnwM70KSLLdqo47YYMFcdjF1nKhielGEtvvT+iWxgh6TeIy27IRX1rBHa9/x26QpE++bluMJYvAkGRDAIoEB5kdelCSR79mGr0UDbn+963xNx85TJh0PtmLfhznU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=p6BJyW69; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mCKOKwZI"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67JAWAQD3192395;
-	Wed, 19 Aug 2026 12:57:30 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="p6BJyW69"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67JAViEC3085597;
+	Wed, 19 Aug 2026 13:00:09 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=KgeNqT
-	tkTHBZEiOBX/odEZ/5qIL4OWHZZ6aJJTHY28k=; b=mCKOKwZI1JpWsqv9mylaKa
-	ft+UUFGpWdXjyUss5yzIzi4kDaHaXtAiX2mAHfXTGZ1BaoAoTO7AAy/VGTo7mFap
-	VFR/iOxI3h0HBEqrC2wq+5ph4Ucz+zcHJOWtLBYrtyYmALWRNQPFHvyYVd0BmkeB
-	SrCqTYFMFk8yEF8vRe20W+B0QmxvwCED8GSb4tbu4sRzK5r5F1ZP21RH/jB+eNZz
-	TZbuHpM4q3yT+kVn2lCmwLEiCoNWY03G/3WnhKv44J85vO2dC2GUGqicuta550D6
-	m4+OpxE2PKCTgPLE3Yg6MLf8M1n9DX0UQ11oqBlWhb+1bqncvMyMwZpF0G6zkLxg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=MvbE2i
+	lmO2j95849Uz9dV/kEVwiKmVCUEjwCg0QHoPc=; b=p6BJyW69IujAcf45B47q3F
+	GxZS6GpvDsQEtepx6qr5IVJEZfaFmBbW2PZ5a623+L21OtytQmQ9DpmkpoFAGhl4
+	TvRzWBN2LVvf+JQubV0NI8UxqJn7aU6VMZX4vhf5q8dT7dIkKf5EiWG5A7HCyBKi
+	wF/pDexz2yppUWhicmxU/2kE3lkKPYimRib+fF7CaGM0qjjnXwrhdS4vHnou6RrV
+	EVjMSrwFdXziiT59gkA7uPl/AviZjgmXFWs86YJ9WBplCR3EcFHPJUyeDqlI1exl
+	Ik0d9zSxAtcGjRU+MirmRygpW/tkxZKsW+yop+EEV+KJVPEzcpfUjzY4xrUSYUlg
 	==
 Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu0brv7-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu43q6v-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Aug 2026 12:57:29 +0000 (GMT)
+	Wed, 19 Aug 2026 13:00:08 +0000 (GMT)
 Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67JCufA7024009;
-	Wed, 19 Aug 2026 12:57:28 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g32tw92f2-1
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67JCuuHr024651;
+	Wed, 19 Aug 2026 13:00:08 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g32tw92t5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Aug 2026 12:57:28 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67JCvOpr44433822
+	Wed, 19 Aug 2026 13:00:08 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67JD06gt43319694
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 19 Aug 2026 12:57:24 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 87DF620043;
-	Wed, 19 Aug 2026 12:57:24 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2915020040;
-	Wed, 19 Aug 2026 12:57:24 +0000 (GMT)
-Received: from [9.111.16.238] (unknown [9.111.16.238])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 19 Aug 2026 12:57:24 +0000 (GMT)
-Message-ID: <f4f4f72d-981c-43b8-a72a-e5ce26734277@linux.ibm.com>
-Date: Wed, 19 Aug 2026 14:57:23 +0200
+	Wed, 19 Aug 2026 13:00:06 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 73F2758062;
+	Wed, 19 Aug 2026 13:00:06 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B5E0C5805E;
+	Wed, 19 Aug 2026 13:00:05 +0000 (GMT)
+Received: from [9.61.25.66] (unknown [9.61.25.66])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 19 Aug 2026 13:00:05 +0000 (GMT)
+Message-ID: <5db518eb-8bde-4a04-b552-80bd444037c9@linux.ibm.com>
+Date: Wed, 19 Aug 2026 09:00:05 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,127 +62,177 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] KVM: s390: Improve floating IRQ injection behavior
-To: Janosch Frank <frankja@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: sashiko-reviews@lists.linux.dev, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Michael Mueller <mimu@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
+Subject: Re: [PATCH v5 4/9] s390/vfio-ap: Fix required lock not held during
+ update of ap_matrix_mdev object
+To: sashiko-reviews@lists.linux.dev
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.vom>, kvm@vger.kernel.org,
+        Jason Herne <jjherne@linux.ibm.com>,
         Matthew Rosato <mjrosato@linux.ibm.com>
-References: <20260817121631.159451-1-frankja@linux.ibm.com>
- <20260817122849.9F8061F00A3A@smtp.kernel.org>
- <3562788b-150c-4387-a840-60d9e6b6e49d@linux.ibm.com>
- <20260818163226.68c6bea4.pasic@linux.ibm.com>
- <4f233ae1-2a30-4498-bd5d-2a001c96b2d8@linux.ibm.com>
- <20260818185850.0a522630.pasic@linux.ibm.com>
- <30016a7a-85e8-4a66-99e1-a1545f7fe323@linux.ibm.com>
+References: <20260812200240.818004-1-akrowiak@linux.ibm.com>
+ <20260812200240.818004-5-akrowiak@linux.ibm.com>
+ <20260812201845.076301F000E9@smtp.kernel.org>
 Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <30016a7a-85e8-4a66-99e1-a1545f7fe323@linux.ibm.com>
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <20260812201845.076301F000E9@smtp.kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=MthiLWae c=1 sm=1 tr=0 ts=6a85a839 cx=c_pps
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE5MDA5NyBTYWx0ZWRfX3WZyQRgJuR5A
+ QuYfxpkX95oCIMgldgdXPb7SU4192BuJe2ScsA539GrQqWWG03fOoUgAOMhRrnnLoRHUfPxPbIB
+ EIMsFwlTVgGEujOG896U0epBd1SLeuw=
+X-Proofpoint-GUID: A0Cl-UMp0qwalz2pbq-1n8ZXNrvXJY7M
+X-Proofpoint-ORIG-GUID: A0Cl-UMp0qwalz2pbq-1n8ZXNrvXJY7M
+X-Authority-Analysis: v=2.4 cv=RPmD2Yi+ c=1 sm=1 tr=0 ts=6a85a8d8 cx=c_pps
  a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=xfipzss6hLhKbsZSbpMA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: WewK6kkK3O1uMf-TFT8is359xBy2cERe
-X-Proofpoint-GUID: WewK6kkK3O1uMf-TFT8is359xBy2cERe
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE5MDA5NyBTYWx0ZWRfX+VJndvnaLnYx
- UM6FSmq2OTonGU5YsYp8xVrJlj3yWe+tKLBfxDR8nhTTNdXVSxOeAOyYZAcDpxMTzNYIALGcYHs
- FXUpYvoJk65K4jwb/RQhJuzjab1w7y8=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE5MDA5NyBTYWx0ZWRfX29MDhw1ueBax
- G9QGJRmEx2TU8zbfgdMmSQH70PweBIqj594KhzwqXRoJtb0+aMkpyBfScM5OvcshLiueAh3QxT6
- Wf2hrfSo8GDzwWfb7Ssm+3zuT8NzfT3615gCVynF3o17nrd7HKKlyQPcJJU/0xutFpvZr/HLUHz
- zP5AFDPsazNNzsThFW+Zg8VU8qxX40T/pVeArn5KMwSfANeDG6GAbTnl9S+efB5O7FQ5M41WrvW
- xUy2Ak8UeaeUbWkg+z9JomqYW1zm8XtzwxiucSe45ShOCMIQP/pgXQeOj6FcMd0h8h5Buoj2cf9
- 1lRaIiiLkzSK9k+rmIqXHJ192El2BSBpMIV3oG02lopClV2xjyRK4S2JoQ/OoVloll+BTMPXCXx
- gBJjiEmEwxDzNLHyeOdgegeCv32xxJFCIa37jS5s1VBm5lUqNVGAia64ZTVt7A/D1Mlo81JVyHz
- 0Bgx7PDW0Z12ffHKEsw==
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=JEP08AD3klR8GEedPp0A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE5MDA5NyBTYWx0ZWRfX05L5s3d6Ffk+
+ MkrpnvIdPd2fB+GLmjpu36gRzh0eowJfk6Q4arA5EmwlqZNLIQjuNYLm6fHdJP2RtidtHBkT8KG
+ MF6HXQfHgvfWRoAQp7Y8e3RhXXhNopawnX0oOuXX4vyv8yatM/e2/oFyuH1c6TYvQLEQuNcXJhc
+ x/mU8coY5bN0rDJt9pmw7o58RannU9SOkG/Vydc/e5PaMHt9liYEGAb1Eja1xs5WvvGzvqsDXEF
+ nPIbKYRmmex+p6do6vAFT5FGf4562Fux7yvmdAJoQC2Po++X4wWJ+CmLz6yMbp0wSqW5xeP3G+W
+ 9zleDo0EWo/szbJvvWipEwCuOTS86CITbu3QzDjmufZQaaWZzi+V1CxclXK1UBGh+eTF88j9tna
+ 7x80SNe1GZ/GB2sjSOnGVaZ0Hd/RyzFJpr1G871bIYekFfx9L6dZge8LnRx/D9OFBROyn22eCBc
+ lRt/qt2uYz5lanX7TOA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-19_03,2026-08-18_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 impostorscore=0 bulkscore=0 phishscore=0 clxscore=1015
- spamscore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
+ clxscore=1015 phishscore=0 adultscore=0 spamscore=0 priorityscore=1501
+ bulkscore=0 impostorscore=0 malwarescore=0 lowpriorityscore=0 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608190097
 
 
 
-Am 19.08.26 um 14:54 schrieb Janosch Frank:
-> On 8/18/26 6:58 PM, Halil Pasic wrote:
->> On Tue, 18 Aug 2026 17:14:52 +0200
->> Christian Borntraeger <borntraeger@linux.ibm.com> wrote:
->>
->>> Am 18.08.26 um 16:32 schrieb Halil Pasic:
->>>> On Mon, 17 Aug 2026 15:22:41 +0200
->>>> Christian Borntraeger <borntraeger@linux.ibm.com> wrote:
->>>>>>> +    irq_pend_mask = inti_to_irq_pend_mask(inti);
->>>>>>>         for (sigcpu = kvm->arch.float_int.last_sleep_cpu; ; sigcpu++) {
->>>>>>>             sigcpu %= online_vcpus;
->>>>>>>             dst_vcpu = kvm_get_vcpu(kvm, sigcpu);
->>>>>>> -        if (!is_vcpu_stopped(dst_vcpu))
->>>>>>> +        if (!is_vcpu_stopped(dst_vcpu) &&
->>>>>>> +            deliverable_irqs(dst_vcpu) & irq_pend_mask)
->>>>>>>                 break;
->>>>>>>             /* avoid endless loops if all vcpus are stopped */
->>>>>>>             if (nr_tries++ >= online_vcpus)
->>>>>>>                 return;
->>>>>>
->>>>>> [Severity: High]
->>>>>> Does this code drop the interrupt kick entirely if all vCPUs currently
->>>>>> have their interrupt masks closed?
->>>>>
->>>>> I think this is a corner case but still a valid finding. We can probably consider this
->>>>> slowpath and wakeup/set cpuflags for ALL cpus? maybe after doing 2 rounds instead of one?
->>>>
->>>> With GISA, I think the FW is supposed to deliver the floating interrupts
->>>> without dropping the vCPU out of SIE. I'm not 100% sure but I think we
->>>> can rely on that mechanism for the CPUs that are in SIE. Without GISA,
->>>> I think, it is reasonable to assume that vCPUs don't keep running for
->>>> ever. It has been a while since I have looked at this code, but I think
->>>> the SIE exit path would catch this. If that is true we would not really
->>>> lose initiative, but just see delayed interrupt delivery.
->>>>
->>>> Sleeping vCPUs on the other hand are not of interest in this context, I
->>>> think.
->>> This is all corner case handling. Imagine one CPU running with IO disabled
->>> and all other CPUs sleeping. If now the "opportunistic" wakeup fails the
->>> GISA IO interrupt will never be delivered unless there is another wakeup.
->>> In reality this is a will not happen, but see the latest kvm unit test
->>> patch from Janosch and it might also create latencies, the "pick one CPU
->>> to deliver and wake it up if normal processing does not work" obviously
->>> has a hole in specific cases.
->>
->> Right, but that is not the "if all vCPUs currently have their interrupt
->> masks closed" case that Sashiko is talking about. Or did I misunderstand
->> that?
->>
->> Yes, I agree there are holes, and I was hoping to contribute to a better
->> understanding on where the holes actually are and what are the
->> implications of those holes.
->>
-> Yesterday I managed to find the actual problem behind this code for PV guests:
+On 8/12/26 4:18 PM, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
+>
+> Pre-existing issues:
+> - [High] Hot-plug add state is overwritten instead of accumulated, potentially dropping hot-plug events.
+> - [High] Pinned page and GISC registration leak in vfio_ap_irq_enable() when ap_aqic() returns a default error code.
+> --
+>
+> --- Patch [4]: [PATCH v5 4/9] s390/vfio-ap: Fix required lock not held during update of ap_matrix_mdev object ---
+> commit 65680656f25b3ea60807c838ba28f8d65cca5a45
+> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+>
+> s390/vfio-ap: Fix required lock not held during update of ap_matrix_mdev object
+>
+> This commit adds the missing matrix_dev->mdevs_lock in vfio_ap_mdev_cfg_add()
+> to guard against race conditions when modifying the ap_matrix_mdev object's
+> fields.
+>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>> index f2d662e388bdc..21c502598f8ca 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -2777,12 +2777,20 @@ static void vfio_ap_mdev_cfg_add(unsigned long *apm_add, unsigned long *aqm_add,
+>>   	 * called.
+>>   	 */
+>>   	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
+>> +		/*
+>> +		 * The mdevs_lock must be held in order to access fields
+>> +		 * within matrix_mdev
+>> +		 */
+>> +		mutex_lock(&matrix_dev->mdevs_lock);
+>> +
+>>   		bitmap_and(matrix_mdev->apm_add,
+>>   			   matrix_mdev->matrix.apm, apm_add, AP_DEVICES);
+>>   		bitmap_and(matrix_mdev->aqm_add,
+>>   			   matrix_mdev->matrix.aqm, aqm_add, AP_DOMAINS);
+>>   		bitmap_and(matrix_mdev->adm_add,
+>>   			   matrix_mdev->matrix.adm, adm_add, AP_DEVICES);
+> [Severity: High]
+> This isn't a bug introduced by this patch, but does this overwrite the
+> hot-plug addition state instead of accumulating it?
+>
+> If multiple AP configuration change events occur before the AP bus scan
+> completes, it appears that vfio_ap_mdev_cfg_add() unconditionally overwrites
+> the deferred hot-plug bitmaps with the delta of the most recent event.
+>
+> Should this logic use a temporary intersection followed by bitmap_or() to
+> accumulate the pending additions so that hot-plug events aren't dropped?
 
-Thanks for digging through that.> 
-> Non-ev Service IRQs are not allowed to be injected on re-entry when SCLP emulation has finished. They can only be injected when we receive the instruction notification for SCLP.
-> 
-> So having wakeups for service IRQs in the flic is useless. At the time they are injected (after SCLP processing and before SIE re-entry) there's no way to make one pending for a PV cpu.
-> 
-> I've since created a patch to kick cpus in the handling of the sclp instruction notification and that "fixes" the problems with the firq test.
-> 
-> 
-> 
-> For Linux we'll see delayed delivery at most since the masks are open most of the time. My guess is that the IRQ injection actually happens pretty fast. There are other OSs which might benefit though and we should generally ask ourselves if good enough for Linux is the right answer.
-> 
-> The stat counter did actually trigger a couple hundred times on an IPL so we're hitting the redistribution code path. Let's see what insights we can get from the performance measurements.
+Looking at ap_scan_bus(), the entire execution is strictly sequential and
+single-threaded under ap_scan_bus_mutex:
 
-there are also ideas about disabling IO interrupts on some CPUs (e.g. vertical low)
-and other OSes like zOS have the concept of CPUs excplictely disabled for IO
-interrupts. So we better have a least a KVM implementation that works in those
-situations.
+1. ap_get_configuration() is called once — a single PQAP(QCI)
+    captures the snapshot of the configuration delta for the entire scan.
+
+2. If config_changed, notify_config_changed() is called once — this
+     fires vfio_ap_on_cfg_changed -> vfio_ap_mdev_cfg_add exactly once 
+per scan.
+
+3. The adapter loop runs.
+
+4. If config_changed, notify_scan_complete() is called once — this
+     fires vfio_ap_on_scan_complete exactly once per scan.
+
+Both notify_config_changed and notify_scan_complete are also guarded by
+ap_scan_bus_mutex which ensures the entire callback pair is an
+atomic unit from the perspective of any concurrent scan attempt.
+The mutex_trylock(ap_scan_bus_mutex) is used, so a concurrent scan
+request is simply dropped if one is already in progress, not queued 
+behind it.
+
+So the scenario the that two on_cfg_changed firings accumulating
+in the bitmaps before on_scan_complete clears them is structurally 
+impossible.
+Each scan atomically fires on_cfg_changed (at most once) and 
+on_scan_complete
+(at most once) as an inseparable pair, with no mechanism for a second 
+scan to
+interleave. The comment is not valid.
+
+>
+>> +
+>> +		mutex_unlock(&matrix_dev->mdevs_lock);
+>>   	}
+>>   }
+> While reviewing the file, I noticed a pre-existing issue in
+> vfio_ap_irq_enable():
+>
+>> drivers/s390/crypto/vfio_ap_ops.c:vfio_ap_irq_enable() {
+>> 	...
+>> 	default:
+>> 		pr_warn("%s: apqn %04x: response: %02x\n", __func__, q->apqn,
+>> 			status.response_code);
+>> 		vfio_ap_irq_disable(q);
+>> 		break;
+>> 	}
+>> 	...
+>> }
+> [Severity: High]
+> This is a pre-existing issue, but does this default error path leak the
+> newly pinned nib and registered nisc?
+>
+> When ap_aqic() returns an unexpected error falling into the default case,
+> vfio_ap_irq_disable() is called. However, it seems vfio_ap_irq_disable()
+> only cleans up the previously successfully saved configuration, bypassing
+> the newly pinned nib and isc held in local variables.
+>
+> Can a malicious KVM guest repeatedly issue the PQAP(AQIC) instruction with
+> configurations that trigger this error path, causing unbounded memory pinning
+> on the host?
+
+This one is a real pre-existing bug. By the time the default case is
+reached:
+
+1. The nib has been pinned
+2. The nisc has been registered
+
+Neither has been saved to q->saved_iova / q->saved_isc yet, so when
+vfio_ap_irq_disable(q) calls vfio_ap_free_aqic_resources(q), it releases
+whatever is in q->saved_iova and q->saved_isc; the old resources from a
+prior call. The newly pinned nib page and newly registered nisc are never
+freed.
+
+A fix patch is forthcoming.
+
+>
 
