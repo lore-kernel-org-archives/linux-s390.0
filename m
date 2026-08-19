@@ -1,65 +1,68 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF435432E91
-	for <linux-s390@vger.kernel.org>; Wed, 19 Aug 2026 09:17:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA3644334AE
+	for <linux-s390@vger.kernel.org>; Wed, 19 Aug 2026 09:17:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787131081; cv=none; b=S5r2Ise3zvFCytWHkjdjFriISyAMD/MpN4pCNna7qGVXBSXkB2WdKm4sjYqZOt1HCcVAmwyZz4rvt7HA96Hhb1DNpjXv3Z7P3FHnos+MW0AVqJzKlYlUqgTHper2UL9Tfy+BscNLSBzCMslYzVHQdhVzMwjVfJ5Nv0b+kgCZqyc=
+	t=1787131081; cv=none; b=YSxYRi1pBh0vV/Sgm5mZP+havs98yd6vBfJnft6ZEbJgptVvqvsYgwNPoHQTHNHG8/Zxxlb/ZtNrNXKAGEZIvOvwQVGLS7nAO/fycIEZDPuGL0Emxls4RJ2q/BtvXyOpqNbVClTzgRjLov7wecaYtr8glRMpY318rskxXDgRRmE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1787131081; c=relaxed/simple;
-	bh=9Yd/KIjV4WduYgJdwqh6ChTW5egtgK4niAvvFUt4Uzs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PCqFGk3x8tg2dZ6HgTxiWmX6ZF5Hd2BfjuCeXPuqAOpwLWoNg184uqM90BPU76Dwqw2RnVoIwG0pgH+qeD71aPgOfwy8y7sOmMdQmuNqhVWY29dRHlTOgx3t2JQOmSkJ9eVF06m6vRsFxk9ZtHdgmp8OJSGog5lgEZM1MG1rCec=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Se7O1pJC; arc=none smtp.client-ip=148.163.156.1
+	bh=wB6wo1RvlUkrH8GRvtR985R/r7zjPis9B7FzipyUru4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=W+D/EvAWBIwNTQ78HMVI1KY9Y+/i1j3U3OYa4Leby0gK6Rv6bNRasL/vtpEdTidmegmsY9nf3nPj7cm0pVVasSx1gl7ohFxrftXcdGP2mzAtXfklwkOjs4s51K8QfS+rAvoq/FYID1h4EXzCKBzVl/ov8xqgGTkuISv0VDr8ZQI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Mn9Cs6DS; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Se7O1pJC"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67J6VjKV2621738
-	for <linux-s390@vger.kernel.org>; Wed, 19 Aug 2026 09:17:40 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Mn9Cs6DS"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67J6VrJO2666938
+	for <linux-s390@vger.kernel.org>; Wed, 19 Aug 2026 09:17:41 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=OaVdSPenhzx1PUm2FdL5oYRsWiy5jxl0MqJjO+J0i
-	as=; b=Se7O1pJCi/OTJHkE3I1fPrMKms8IMFOoI+BJWH7kJ5eZNAD8GCWBgnOtW
-	OdPQPeps8UyMporNiTcidzrS6ToNUCg/jgVLcCgygj4m3jDkoxDwJdjJZFltJjAh
-	42p8+jz2TyjoAgE6JVZOXnGDF9TLcm/JWoa+QipTjiqGxVQu3ui1h0fjrBlVHiAd
-	S3iVDactsIxnSmwZME5Xv1pf6u2pPH/K8yBpLQzcqn0xg5u2Z2c0lwkHPLqPtVQz
-	55b9rk+ngN3MmrW1DXtKe5Z50+qZTXzier6RmLCG9RNE2O3tLozygh632spb/0aQ
-	U/ge7/RPjr6pYxkJjDyrgwmyznErw==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu1ar77-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=QALlL4qViwL70xEBo
+	i7josYGnciZHVZb4rGQPohkuvo=; b=Mn9Cs6DS/7f5jNGPaPGmlPc54B+KVmIPd
+	GEP14nsNZW2WZ3f5630BSQ3hg3dV5rWhHsW0MdI518iZx2cBvqjEx5EE6RMdQmo4
+	dXSBEi/kjrKSyGAXPhyXtR4GPOeU1lufedILFweI9pQkp2LAzdVYDRCOjA/fpqTk
+	YYLtDhhz3ksNgL3VVvynP21XTjLapSsvmOp0T/CMMcLG99c+mUa+9OAukvwmljcJ
+	KXF742YMTx8/2vzJziOTtS8qjUktDbesC+MOt+XqbQXepLHxAiLcPnmJ4O/H3kje
+	mpOpyElNzKPcfcWLsm7ge0mb57DTwy1xV0wvfj0VoqBTqoMjrEGFA==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu0ar8y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Wed, 19 Aug 2026 09:17:41 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67J9BJV0032659
+	for <linux-s390@vger.kernel.org>; Wed, 19 Aug 2026 09:17:40 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g34ngfwtq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
 	for <linux-s390@vger.kernel.org>; Wed, 19 Aug 2026 09:17:40 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67J9BLj3001819
-	for <linux-s390@vger.kernel.org>; Wed, 19 Aug 2026 09:17:39 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g32tw87xt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 19 Aug 2026 09:17:39 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67J9HZNq51315076
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67J9Haaa44892640
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 19 Aug 2026 09:17:35 GMT
+	Wed, 19 Aug 2026 09:17:36 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 40BC82004D;
-	Wed, 19 Aug 2026 09:17:35 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2EB392004D;
+	Wed, 19 Aug 2026 09:17:36 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1E7CB20043;
-	Wed, 19 Aug 2026 09:17:35 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0DA5B20043;
+	Wed, 19 Aug 2026 09:17:36 +0000 (GMT)
 Received: from funtu2.ibm.com (unknown [9.111.129.41])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 19 Aug 2026 09:17:35 +0000 (GMT)
+	Wed, 19 Aug 2026 09:17:36 +0000 (GMT)
 From: Harald Freudenberger <freude@linux.ibm.com>
 To: dengler@linux.ibm.com, fcallies@linux.ibm.com, ifranzki@linux.ibm.com
 Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org,
         Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH v4 0/7] Fixes and rework for paes_s390 and phmac_s390
-Date: Wed, 19 Aug 2026 11:17:27 +0200
-Message-ID: <20260819091734.7331-1-freude@linux.ibm.com>
+Subject: [PATCH v4 6/7] s390/crypto: Fix handling of EBUSY in PHMAC when req is pushed to crypto engine
+Date: Wed, 19 Aug 2026 11:17:33 +0200
+Message-ID: <20260819091734.7331-7-freude@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260819091734.7331-1-freude@linux.ibm.com>
+References: <20260819091734.7331-1-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -68,85 +71,143 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=LsCiDHdc c=1 sm=1 tr=0 ts=6a8574b4 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Authority-Analysis: v=2.4 cv=MthiLWae c=1 sm=1 tr=0 ts=6a8574b5 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=bXAP_PYkuvYdcVEYZgwA:9
-X-Proofpoint-GUID: DYVBRv1NfJygmRg2QpovjGCIQtibRjAn
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE5MDA2OCBTYWx0ZWRfX8ctEz8pLt1jT
- 0mK45ZsoYRas658Us7pSzRmt7O1i0ZNv+7Nxwe0ExewrXiILT+7Wi5PIBq/LuzRNeiX87KmwBPL
- roCfTukmdDZ0YYotu2ejCz1xxJdwF0M=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE5MDA2OCBTYWx0ZWRfX4s826lFHNYtn
- 2yjo/xt9N/xemIJg4YH3zKQugLjSqfC7eKZlzVM+ykFXXyaQG4zim9tU7pxYJP6v/H0G35t15ng
- 5CPixDjpweCaYjI1lRZAe5jihFdY0C4aPQw4X+RWi5Vof6wUqBO6YK5TP0NeAUJzvDV5YuJfYhJ
- 2M/kL6g8rwuxN8SDrdJWTDnHln0jzpkGXgTUdDZeJSKcLa5Ew7g5qvVXXfIx+h2J9QZwiJ5r5oN
- 1fyfmhet8LkMCBk5D59kKu0OuqwM2Inf3Pi1m5b3ffSqWhV6yNO/GOYG48FFbT1Z6n2/0X7GCZM
- vwqkI7Ll1ws62gEffbIBOO2s+XaF5PeAvVQHMUQqAZjQS7iuK6K9Ct5cE9uj7XfPVJt5M4AjoFL
- sSfk5b2EFKl0xS1nPD5k+2q323cfccIfA0qvaIg+sh7bQDHFKJ6ETmUPrHYOSgSuFWe/BlA6P05
- UVp79KBVD+hVL4oOZew==
-X-Proofpoint-ORIG-GUID: DYVBRv1NfJygmRg2QpovjGCIQtibRjAn
+ a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=qxvTYN98PGHahdRChkcA:9
+X-Proofpoint-ORIG-GUID: 8K1h_JgPOniaHjrYB83YN9pAD7GP4pI2
+X-Proofpoint-GUID: 8K1h_JgPOniaHjrYB83YN9pAD7GP4pI2
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE5MDA2OCBTYWx0ZWRfX/txVvTvlU5Jd
+ hutYohf9mjlA5ChOAgqB+hD+4Arfs+eev+LZiafp6+FpIMf56Oh8AZM3QYRfOIv7ytqB5iuDQb7
+ XjMb7cSi97gE6HVZtuAb9SQFu6VyHoY=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE5MDA2OCBTYWx0ZWRfX5kKlPifLTJb3
+ lwWiM5gES0IeMsR/0BRatmn8mqNNTXCfF+bf+7bSe65FXEl2oClzTCXuLKkcgmmZJnWDYZMIu2b
+ mxyKdFn5JgQrg0An7HBHS3ilXIhVVv2kH/kwTnHaefOVQv9SyhpsdcT+/++qlQw+kgSDPDWBgei
+ zTXyCiYn01YfONopkZlK4hpi3ldRWYDjOMZtRmWk8BeUN45CbdEiV2RsHPw9YNvSDy2Ea+xTHRX
+ l97XWsu3uJtzs0J0WZMWi4plUjqiq9cUQLCRRxoNgv+X0eC4BOILlUx1tQcNtFSW3q+byDZoXRq
+ tLUOHLcpmmmV+/+jSI19ZWrGNiv83do8ni0ehnTLfYwEGhKpiie7RT4YRwjYaCPduuj+9Oo77g0
+ V3FpY9Dp0SZZD18uWsicgiCdLcEW7V1WztkcAKUk1f6OeBjd+wJFBSQK9JTrU9fh97pbUBTlLRE
+ gWRnVlCBPrK/Coh1W3g==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-19_02,2026-08-18_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 spamscore=0 priorityscore=1501 lowpriorityscore=0 bulkscore=0
- adultscore=0 suspectscore=0 impostorscore=0 clxscore=1015 phishscore=0
+ malwarescore=0 impostorscore=0 bulkscore=0 phishscore=0 clxscore=1015
+ spamscore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608190068
 
-Fix and rework some issues around arch/s390/paes_s390.c and
-arch/s390/phmac_s390.c:
+When a request is transferred to the engine via
+crypto_transfer_hash_request_to_engine() there are two return codes
+signaling a successful transfer: EINPROGRESS and EBUSY. However the
+correct handling of EBUSY was missing and has been added as a return
+code indicating a successful transfer to the crypto engine.
 
-- Fix skcipher_walk return code handling in paes_s390
-- Add scrub of some temp buffers
-- Shift from using a mutex to using a semaphore in PAES CTR
-  Surprisingly clang code analysis is able to deal with semaphores and
-  thus the shift also fixes the issue with CONTEXT_ANALYSIS enabled.
-- And some more fixes related to paes and phmac (see changelog).
+Fixes: cbbc675506cc ("crypto: s390 - New s390 specific protected key hash phmac")
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Cc: stable@vger.kernel.org # 6.17+
+---
+ arch/s390/crypto/phmac_s390.c | 30 +++++++++++++++++++++---------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
 
-For more details please see patch headers.
-
-Changelog:
-
-v1: initial version - however, all these patches are follow up patches
-    from a similar patch queue for aes_s390.c
-v2: - On one error path in the CTR implementation the scrubbing of a
-      temp buffer could be bypassed. Also checked Sashikos claim about
-      possible double free but this is not the case.
-    - All paes algorithms did not set any base.cra_flags. So now set
-      the ASYNC and the NO_FALLBACK flag.
-    - If a request is pushed to the crypto engine there is another
-      return code EBUSY also indicating success but the code handled
-      this as a failure.
-    - The very same was with the phmac implementation. So corrected
-      the return code handling there as well.   
-v3: - Reworked the -EBUSY handling in paes and phmac again. The
-      synchronous path could have emitted -EBUSY also and would have
-      triggered the failure handling. So map -EBUSY to -EINPROGRESS.
-v4: - Mapping EBUSY to EINPROGRESS is not the right approach. So
-      reworked again more thoroughly.
-    - There came another reply from Sashiko about a possible double
-      processing maybe even double free as a result of wrongly
-      returning a failure code in the callback functions back to the
-      engine when a request has been completed. The callback must
-      return 0 - so another patch for this.
-
-Harald Freudenberger (7):
-  s390/crypto: Fix return code handling at skcipher_walk_done in PAES
-    algorithms
-  s390/crypto: Fix missing scrub of temp buffers with PAES algorithm
-  s390/crypto: Fix use of mutex in atomic context in PAES
-  s390/crypto: Fix missing cra_flags in paes_s390
-  s390/crypto: Fix handling of EBUSY in PAES when req is pushed to
-    crypto engine
-  s390/crypto: Fix handling of EBUSY in PHMAC when req is pushed to
-    crypto engine
-  s390/crypto: Fix wrong return code to engine in asynch callbacks
-
- arch/s390/crypto/paes_s390.c  | 96 ++++++++++++++++++++++++-----------
- arch/s390/crypto/phmac_s390.c | 32 ++++++++----
- 2 files changed, 87 insertions(+), 41 deletions(-)
-
---
+diff --git a/arch/s390/crypto/phmac_s390.c b/arch/s390/crypto/phmac_s390.c
+index 03ca33ffe6cc..30c8a59af1a4 100644
+--- a/arch/s390/crypto/phmac_s390.c
++++ b/arch/s390/crypto/phmac_s390.c
+@@ -62,8 +62,10 @@ static inline int hwh_prepare(struct ahash_request *req,
+  */
+ static inline int hwh_advance(struct hash_walk_helper *hwh, int n)
+ {
+-	if (n < 0)
++	if (n < 0) {
++		hwh->walkbytes = n;
+ 		return crypto_hash_walk_done(&hwh->walk, n);
++	}
+ 
+ 	hwh->walkbytes -= n;
+ 	hwh->walkaddr += n;
+@@ -606,6 +608,7 @@ static int phmac_update(struct ahash_request *req)
+ 	struct phmac_tfm_ctx *tfm_ctx = crypto_ahash_ctx(tfm);
+ 	struct kmac_sha2_ctx *kmac_ctx = &req_ctx->kmac_ctx;
+ 	struct hash_walk_helper *hwh = &req_ctx->hwh;
++	bool cleanup = true;
+ 	int rc;
+ 
+ 	/* prep the walk in the request context */
+@@ -629,12 +632,15 @@ static int phmac_update(struct ahash_request *req)
+ 		req_ctx->async_op = OP_UPDATE;
+ 		atomic_inc(&tfm_ctx->via_engine_ctr);
+ 		rc = crypto_transfer_hash_request_to_engine(phmac_crypto_engine, req);
+-		if (rc != -EINPROGRESS)
++		if (rc == -EINPROGRESS || rc == -EBUSY)
++			cleanup = false;
++		else
+ 			atomic_dec(&tfm_ctx->via_engine_ctr);
+ 	}
+ 
+-	if (rc != -EINPROGRESS) {
+-		hwh_advance(hwh, rc);
++	if (cleanup) {
++		if (hwh->walkbytes > 0)
++			hwh_advance(hwh, rc);
+ 		memzero_explicit(kmac_ctx, sizeof(*kmac_ctx));
+ 	}
+ 
+@@ -649,6 +655,7 @@ static int phmac_final(struct ahash_request *req)
+ 	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
+ 	struct phmac_tfm_ctx *tfm_ctx = crypto_ahash_ctx(tfm);
+ 	struct kmac_sha2_ctx *kmac_ctx = &req_ctx->kmac_ctx;
++	bool cleanup = true;
+ 	int rc = 0;
+ 
+ 	/* Try synchronous operation if no active engine usage */
+@@ -667,12 +674,14 @@ static int phmac_final(struct ahash_request *req)
+ 		req_ctx->async_op = OP_FINAL;
+ 		atomic_inc(&tfm_ctx->via_engine_ctr);
+ 		rc = crypto_transfer_hash_request_to_engine(phmac_crypto_engine, req);
+-		if (rc != -EINPROGRESS)
++		if (rc == -EINPROGRESS || rc == -EBUSY)
++			cleanup = false;
++		else
+ 			atomic_dec(&tfm_ctx->via_engine_ctr);
+ 	}
+ 
+ out:
+-	if (rc != -EINPROGRESS)
++	if (cleanup)
+ 		memzero_explicit(kmac_ctx, sizeof(*kmac_ctx));
+ 	pr_debug("rc=%d\n", rc);
+ 	return rc;
+@@ -685,6 +694,7 @@ static int phmac_finup(struct ahash_request *req)
+ 	struct phmac_tfm_ctx *tfm_ctx = crypto_ahash_ctx(tfm);
+ 	struct kmac_sha2_ctx *kmac_ctx = &req_ctx->kmac_ctx;
+ 	struct hash_walk_helper *hwh = &req_ctx->hwh;
++	bool cleanup = true;
+ 	int rc;
+ 
+ 	/* prep the walk in the request context */
+@@ -716,15 +726,17 @@ static int phmac_finup(struct ahash_request *req)
+ 		/* req->async_op has been set to either OP_FINUP or OP_FINAL */
+ 		atomic_inc(&tfm_ctx->via_engine_ctr);
+ 		rc = crypto_transfer_hash_request_to_engine(phmac_crypto_engine, req);
+-		if (rc != -EINPROGRESS)
++		if (rc == -EINPROGRESS || rc == -EBUSY)
++			cleanup = false;
++		else
+ 			atomic_dec(&tfm_ctx->via_engine_ctr);
+ 	}
+ 
+-	if (rc != -EINPROGRESS)
++	if (cleanup && hwh->walkbytes > 0)
+ 		hwh_advance(hwh, rc);
+ 
+ out:
+-	if (rc != -EINPROGRESS)
++	if (cleanup)
+ 		memzero_explicit(kmac_ctx, sizeof(*kmac_ctx));
+ 	pr_debug("rc=%d\n", rc);
+ 	return rc;
+-- 
 2.43.0
 
