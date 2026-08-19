@@ -1,127 +1,148 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 756FC427FA8;
-	Wed, 19 Aug 2026 08:42:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5197244692;
+	Wed, 19 Aug 2026 08:51:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787128930; cv=none; b=rIDSrLvm3pcOYwU4PLQPgPV4rmb16jJAb8q2QKFj9ub2UEFDBOpecz1mk8ikPQDW8ZHSmBzbN/7ZiJMum5nj6kAIfNyYD3LB9B3k4Hvj8ebOm0BtXFqK8psu4TKCb02a6hyay7tHCwPzB+LxUkOsADD4R6YPypmmmSEaYAF7q/M=
+	t=1787129475; cv=none; b=rYYfuiRILXAOgQgZmRCqRmXv8a1p98ddchAwFovbKpbPWJWhD9lhhdcWW52AExf6nLu3/4ptV4R/xSuxMbZwPucmO4qDuqjGbgjDg8fLP5hZojdysEynzafqa63n3QZcSvvaEpM1SOMXNagElfaMOhVsECs2lqSDQaVwRH0lniE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787128930; c=relaxed/simple;
-	bh=TWLtTb8jRScNf+y1G90YtjWpB28XymlvuAIHkwmXSwc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=N5xpndJGM6RwpJpyhPVSixDhWoEV1vV4Tp45L6cZphW2DolERify8e4BPSJYWKOfF6pXYkcpG8LBgpWDitxlgPlU7T/5n9Fg+ly++ERBEvcjMPTyZAqKE5WkaEFcRPlENBMwEJ23QmGoCuXDaY8DuBz4/j0pGGMUwcYKQkt/wSA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com; spf=pass smtp.mailfrom=de.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Pc/l0HRZ; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=de.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=de.ibm.com
+	s=arc-20240116; t=1787129475; c=relaxed/simple;
+	bh=WctqrLEAZWzKfYg+EOvKS8CdQ0/iuFD9GoYTN73wdhM=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=lU57Vjt+SN6IvjnTEg/VHjZbPZfic9WYSHLlmwYMD+qK5GK/qm/7/DwQFlrubGJT0xT8dUVi1itmn4JSYwtmhNyKPb3/1nLNKK5RE9W7ye8O+c15+0t7zis8ImQ0vO5eHu1v9pgVRjepOgviPFGSmR5CTcpFy/lwJLXd6IEOk64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=irGyLVmK; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Pc/l0HRZ"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="irGyLVmK"
 Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67J6Vt3v2666949;
-	Wed, 19 Aug 2026 08:41:55 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67J6VlEn2666835;
+	Wed, 19 Aug 2026 08:51:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=7+1LgX
-	zLC0du4jC2lHT7AfmJCchjHYHe18U44h+4bZI=; b=Pc/l0HRZ5U3OXa5926HgsI
-	QZISQcgbMAttQ5kas91WA7x7V0Ce5deiXy8lJ8uK8pZD2UlkCA50Wuqh5PcLfU2t
-	sId3hVIsGmRyDoNteWvY73m+HzkaZ0yOYaGw83u2ADDP7zHQdjiKC+UNZcR4mEAc
-	k+tLUrlREhQrMoAAXQ8qYsHKVBaUJ2/ENKTaN0If4xR+APOilJbQDWoDAlK6BTt/
-	0NdYpa0vBOLmn63BESXx4iwA1+KKPj+nw5wCkZ6wWkmKb0gJz+LD+duVSh5i0pcx
-	aZltbTQcmoGa8FBPgS0Faq6OQDcvQxkcMncKXRQZs1TX5puTQFJoYs2EWXmpqsHA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=IGeXpM
+	2K+U9rHRxIh7xZlp7tfxxYPblF6nobaKUiKfY=; b=irGyLVmKNIgGsGg1wvI9X9
+	NTplPLw9ZCliMZvGi1C32qNy8IeegIgQcu2Ps6QHE3mA/CejoBYY+pM8HBXEkSie
+	27u4AqHVh0cfxHq+9v1ZJBkqIL691Swej24HReEMWoztdryk6EUr8RJSuaET7JJz
+	oDcZcMvH+cxTcO+DFq6joWsglweYwify8f5ovbgOgLsD7+h9yDNwxG8yIpjLMDjd
+	KJM+Z0YLKOyqhXFDqWRCw4nWCqzBl4nnD/HEcHeIFlv8DLsFqhsOda9cr37ehMf1
+	MtVTFAjePhtUoSaNTtB0ETsW0rrmVFN0n0C2J9B6EubOYprV6JeoONcuXScnhhBg
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu0ak3v-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu0amgy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Aug 2026 08:41:55 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67J8fMuV028863;
-	Wed, 19 Aug 2026 08:41:54 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g32tw83tc-1
+	Wed, 19 Aug 2026 08:51:12 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67J8fHVb028355;
+	Wed, 19 Aug 2026 08:51:12 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g354yfruc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Aug 2026 08:41:54 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67J8fn2j41746894
+	Wed, 19 Aug 2026 08:51:12 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67J8p8rl46006574
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 19 Aug 2026 08:41:49 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BDEA620049;
-	Wed, 19 Aug 2026 08:41:49 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3094520040;
-	Wed, 19 Aug 2026 08:41:49 +0000 (GMT)
-Received: from [9.111.16.238] (unknown [9.111.16.238])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 19 Aug 2026 08:41:49 +0000 (GMT)
-Message-ID: <bfd4751e-8ed6-41fd-9141-e841d594e4fa@de.ibm.com>
-Date: Wed, 19 Aug 2026 10:41:48 +0200
+	Wed, 19 Aug 2026 08:51:08 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 564B220043;
+	Wed, 19 Aug 2026 08:51:08 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2095D2004D;
+	Wed, 19 Aug 2026 08:51:08 +0000 (GMT)
+Received: from [127.0.1.1] (unknown [9.87.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 19 Aug 2026 08:51:08 +0000 (GMT)
+From: Tobias Schumacher <ts@linux.ibm.com>
+Date: Wed, 19 Aug 2026 10:50:54 +0200
+Subject: [PATCH 1/7] s390/pci: fix double-free in zpci MSI cleanup
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 0/1] Fix leak of KVM GISC resources
-To: Anthony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex@shazbot.org, kwankhede@nvidia.com, fiuczy@linux.ibm.com,
-        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        agordeev@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
-References: <20260818193349.1877940-1-akrowiak@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-In-Reply-To: <20260818193349.1877940-1-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20260819-s390_irq_domain_fixes-v1-1-826ff27b6e97@linux.ibm.com>
+References: <20260819-s390_irq_domain_fixes-v1-0-826ff27b6e97@linux.ibm.com>
+In-Reply-To: <20260819-s390_irq_domain_fixes-v1-0-826ff27b6e97@linux.ibm.com>
+To: Niklas Schnelle <schnelle@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>, Farhan Ali <alifm@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Tobias Schumacher <ts@linux.ibm.com>,
+        stable@vger.kernel.org
+X-Mailer: b4 0.14.3
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=MthiLWae c=1 sm=1 tr=0 ts=6a856c53 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Authority-Analysis: v=2.4 cv=MthiLWae c=1 sm=1 tr=0 ts=6a856e81 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
  a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=FMayTVvSb3CAZEfDvYIA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: vpR5yzKatNyjbQBOrvSWZOgSbWSURA80
-X-Proofpoint-GUID: vpR5yzKatNyjbQBOrvSWZOgSbWSURA80
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE5MDA2MyBTYWx0ZWRfXwNLYrw96+xo+
- EwNY/Uir/tfFxaFdpNRu7j0dv/pWEyRowL/WFtXg5AyOpmYPnqNXyLJRdi32VpB9uqFxbaBtOBy
- puSHygTFFRoZ70+hmTH8S4MzDTPIy9E=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE5MDA2MyBTYWx0ZWRfX7urdkWcWFW6q
- 2mCvdARQabkNCXlmbhQr5Wd0+HTtA3SHrIBTZnufzyupv8iBimrMGtP84j+8i5WgPjrOJAvNhkF
- kknUPUvcrT//T9S+8eexMwo4LK+wCrvWIZ1xSqhRVHL5nCUnrym7XCjEwOnEnyKDkeqic7l8zNZ
- e7b6ibe9dMYocqWpN1diUTvVA9I+df6asVVY88Em/cyEmObw1TyCa7b4Vh3/mJJHb1Gr8xpqDdu
- fF7uZg9Hyt67VhmBrzCm3Nl5soSz1nRsVrP+ulhHtdsJSX3uY26cvTBhjnYs7lS/3gFsPGtqpVv
- nNU/2kcjrqfnoip61eg3ns+bC9SPcxVES5rmryMnQ0DYMqUt5O1246/hKLv8p5hX/J7ugqtaBD/
- ZFnLqJ/p490waiPTV7XU5Vr3DSvabqCI3p2JioJYi4rOnRA5MxWnLDUeJZ/vKq1QfywEy0NJXqF
- PUQZmcZCti6osbAOLmw==
+ a=VnNF1IyMAAAA:8 a=n6EUqp7IjLKcVj1b1CMA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: Cr771B-kUzzUDyObvkj0LSHAeylhJgtP
+X-Proofpoint-GUID: Cr771B-kUzzUDyObvkj0LSHAeylhJgtP
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE5MDA2MyBTYWx0ZWRfX3Cs2rIBtsCLS
+ lIk5VqFhVqdoZ/BVzz3ioVEC/pGRZuH6pAx73f60WIt8arOQAOE5iJCENh35sBd+/fbPO6Zns+e
+ pAiE/SR7DrurLAU3cDomAS8ZTY8Q0Z4=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE5MDA2MyBTYWx0ZWRfX1oLkeaDZvPlv
+ 2uTy634QSQ0xIkps5jeu2ut4q3NkGZ9kSeq+wcWVmTtN7SHMY1XfyagoAuI+h03EF+iimrhs1k6
+ O4JUsd6/PkxhspRMlyvUL5XEupcrUheXquGSUuNTl47t/Kosp3rHJyNO7kQ3DmAFhqYpXBRFCqH
+ 33JMogn7n94F4pr2Z3Vm1q1JxHHWVbH//dLVo3Gu5Lw1FVOz/Evuy6ktXWkevRdlm/VGUFJYit6
+ QBLHSodhG6tEjR3QAJG7H5KwQG39U5w0ft+guFj/kxZC+vjZM5WwuscWhC7DtQBH4JRwiCIKNSD
+ XtmNX4zHWKqp1TrzBStQC7re/P5r7475jYiPa2uMwcB03TqE9J50jF22p8GDktlvCufQkz8WGR4
+ xjDR0ROoduNDE1QGvDQYbHybLt3NQyFYnwQf4HYobBrIVm5OP/D2jt1qOBHbfOoz3WdBsSSmBdG
+ a26pLfYrr9h5h7jg4XQ==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-19_02,2026-08-18_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 impostorscore=0 bulkscore=0 phishscore=0 clxscore=1015
+ malwarescore=0 impostorscore=0 bulkscore=0 phishscore=0 clxscore=1011
  spamscore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608190063
 
-Am 18.08.26 um 21:33 schrieb Anthony Krowiak:
-> This is a continuation of the following patch:
-> [PATCH v5 9/9] s390/vfio-ap: Fix memory leak when queue removed from host
->                 AP config
-> 
-> https://lore.kernel.org/linux-s390/20260812200240.818004-10-akrowiak@linux.ibm.com/
-> 
-> That patch was posted with a series of patches, but was no part of the pull
-> request for the series due to some code review comments that needed to be
-> addressed. The first 8/9 patches were part of a pull request to make the
-> merge window which was about to close; so the referenced patch is posted on
-> its own for review.
-> 
-> Anthony Krowiak (1):
->    s390/vfio-ap: fix KVM GISC and page leak when queue removed from host
->      config
-> 
->   drivers/s390/crypto/vfio_ap_ops.c | 18 ++++++++++++++----
->   1 file changed, 14 insertions(+), 4 deletions(-)
-> 
+zpci_remove_parent_msi_domain() can be called multiple times on the
+same zbus, causing a double-free. This occurs when pci_create_root_bus()
+fails after successful MSI domain creation in zpci_bus_create_pci_bus():
+the error path calls zpci_remove_parent_msi_domain() to clean up, but
+doesn't NULL the pointer. Later, when zpci_bus_release() is called via
+kref_put(), it calls zpci_remove_parent_msi_domain() again, attempting
+to free the already-freed domain and fwnode.
 
-Thanks, applied
+Add NULL check at function entry and NULL the pointer after cleanup to
+make the function idempotent and safe for multiple calls.
+
+Fixes: f770950a4709 ("s390/pci: Migrate s390 IRQ logic to IRQ domain API")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tobias Schumacher <ts@linux.ibm.com>
+---
+ arch/s390/pci/pci_irq.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
+index 9c9ed3d8d959..c9520a16ca75 100644
+--- a/arch/s390/pci/pci_irq.c
++++ b/arch/s390/pci/pci_irq.c
+@@ -533,9 +533,13 @@ void zpci_remove_parent_msi_domain(struct zpci_bus *zbus)
+ {
+ 	struct fwnode_handle *fn;
+ 
++	if (!zbus->msi_parent_domain)
++		return;
++
+ 	fn = zbus->msi_parent_domain->fwnode;
+ 	irq_domain_remove(zbus->msi_parent_domain);
+ 	irq_domain_free_fwnode(fn);
++	zbus->msi_parent_domain = NULL;
+ }
+ 
+ static void __init cpu_enable_directed_irq(void *unused)
+
+-- 
+2.53.0
+
