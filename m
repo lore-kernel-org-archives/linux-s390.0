@@ -1,68 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27C8B2F549F;
-	Wed, 19 Aug 2026 07:01:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 186B731E852;
+	Wed, 19 Aug 2026 07:03:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787122902; cv=none; b=aMQqvJraTBt46mT0ej0gPC2vpgZBaQodiIg1HG/OJc3YcxpLbatez6ixlGyG/8mJJCCKwnatd5ZIcYFTE6Vb+08OSpIOEOOB41OXXojHDc/rZXmk4W1OTK+yC4u7neBaZ8YoZ14obDY1pIwfOWXdY0UYwkhgqRKrRj2XRWTekQs=
+	t=1787123005; cv=none; b=hJrk0oGTlzBR9MpiIjFGQ0hUCMIU9wIrgUlIfudip6JiiTuOfkPbdTHRnDir6fXCyrLjo2988VPPtxuwVrm0aCExBLJRBU1EFSEXANOdh7ImoAhMTdHVJ9NXIkiy/YnpPOfUt04QjbG4F62RoFB/33AIdhLhTSXMeuCTxwSloKY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787122902; c=relaxed/simple;
-	bh=Hj4Wel8J4WuqBVGvWrT9ncwHdXK0JXgeZUnIar7dycU=;
+	s=arc-20240116; t=1787123005; c=relaxed/simple;
+	bh=kogiabQex8ceO4jBfTbGi2eSZBGKffmzWtkrc/8gn9g=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VhdgO3bPA5y5KfLSC4rlHaW/OpqkKvXG8/thj6R1SjqH4lHa7pmhU55saJsuEQV52SDYzeq2u+LQ58z7AJzy4UbkXjxs9EN0OtfGDb6GcEvAcOJq70+oNyXp4gVgqzBAggeWwU8BNTwfXJ8wHBJqxJYvrvkFp3utYRAPvwZDXSE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W218OjmE; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=UrZWSBFixnGYAMAVNCa5jrmprMWRiSEsg/Z8Mnd4AJCTWyMzf8Ci7tsG1PD+ha8IkPBCpCsCtuLogn5AgvzHqMq+MmyOe+oFYOt6t6Vbj51zV63y6kZwBGd3zLMRaWSoen44XGdpAQfwVM+AiQ27tO1Z3JSkipkH7IhfiTesETY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lP+RwyhK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W218OjmE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0E0F1F000E9;
-	Wed, 19 Aug 2026 07:01:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lP+RwyhK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 806741F000E9;
+	Wed, 19 Aug 2026 07:03:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787122900;
-	bh=aMKxJGzD04KmpYdtuo6wR1wjBXa3j2PKTFpPFdjXzYU=;
+	s=k20260515; t=1787123003;
+	bh=0dah2MZp38/3Li3hSx/lwDyI7CxaUkx606L5S0i7Muk=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=W218OjmEyHpxk8/viVdeC99qw0slMQEIeb88kkfoCArZxB5b+ptrrTJCAevq6VxDC
-	 vMLWsCTCZofQBaxR8oOPqWS3kHD49USp31sbZl8DRPCFt4KACVCCQrNyM/PgNyaQHR
-	 VkV0HOObXqdXGCJvNJhTxaqj9fmO35W5uT1jdRtJNLUOb/HjegZxblTMNGIV/GVRRM
-	 flhucOwsPBVMpfnwxRKIG1ToXGaPjBMWqxwbx+olsHHxa7QcV4g0KWxIkN0N9mv8Xz
-	 L8AUvX3FOqiw4smqbYXS27a0Eeumx4rnsMmynElmR0J9GQkX0rxY+csbE6hJYTSs4X
-	 O/LT5KmkF12xg==
-Date: Wed, 19 Aug 2026 10:01:25 +0300
+	b=lP+RwyhKAIpRG5lS47j2c+l1rdHP+0qhlYNqRooGsJcG+u91AUYg5Z5dfPimN8Txb
+	 mJVqarLe7Qj8ldqvBUVR7TB5YrVnUPEO50Ol3sDeZkyEGOOxnk4G+CGQ56mODhxF7a
+	 aeyZhH3LwHUE7tq8YcbPzPEcstv5CHI/epISHGClFcaDE/PIp+j3GznLbxScO19LGc
+	 UHnw7fsDmhGuC5gASggSxDWKrNX/3HGhLCk8CTP/zaMPinLpamf6VbjdMTIO2l/4Ox
+	 LrtHgvPi2poylI5EnjezNWD/G4MufvcOtT9JAxXDUYWcI/D6mtvQczmvRS4DSgtVjC
+	 +r1FLpqOpY+WQ==
+Date: Wed, 19 Aug 2026 10:03:17 +0300
 From: Mike Rapoport <rppt@kernel.org>
-To: Brendan Jackman <brendan.jackman@linux.dev>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Adrian =?utf-8?Q?Barna=C5=9B?= <abarnas@google.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Alexandre Ghiti <alex@ghiti.fr>, Andy Lutomirski <luto@kernel.org>,
-	Borislav Petkov <bp@alien8.de>,
-	Catalin Marinas <catalin.marinas@arm.com>,
+To: sashiko-reviews@lists.linux.dev
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	David Hildenbrand <david@kernel.org>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Len Brown <lenb@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Paul Walmsley <pjw@kernel.org>, Pavel Machek <pavel@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Ryan Roberts <ryan.roberts@arm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Uladzislau Rezki <urezki@gmail.com>,
-	Vasily Gorbik <gor@linux.ibm.com>, WANG Xuerui <kernel@xen0n.name>,
-	Will Deacon <will@kernel.org>, x86@kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, linux-pm@vger.kernel.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	loongarch@lists.linux.dev
-Subject: Re: [PATCH 4/6] mm/vmalloc: make set_area_direct_map HUGE_VMAP
- friendly
-Message-ID: <aoVUxU8NJuxP21tk@kernel.org>
+	Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 5/6] mm/execmem: use VM_FLUSH_RESET_PERMS for ROX cache
+ allocations
+Message-ID: <aoVVNXbXvWarDkSR@kernel.org>
 References: <20260816-execmem-set-vm-perms-v0-2-v1-0-90944a3ad43f@kernel.org>
- <20260816-execmem-set-vm-perms-v0-2-v1-4-90944a3ad43f@kernel.org>
- <DKR7R0BECQXX.2FCNF36EFETS8@linux.dev>
+ <20260816-execmem-set-vm-perms-v0-2-v1-5-90944a3ad43f@kernel.org>
+ <20260816111727.0A6521F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -71,59 +47,18 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <DKR7R0BECQXX.2FCNF36EFETS8@linux.dev>
+In-Reply-To: <20260816111727.0A6521F00A3D@smtp.kernel.org>
 
-On Mon, Aug 17, 2026 at 02:21:41PM +0200, Brendan Jackman wrote:
-> On Sun Aug 16, 2026 at 12:59 PM CEST, Mike Rapoport (Microsoft) wrote:
-> > set_area_direct_map() always updates direct map alias permissions in
-> > single page increments.
-> >
-> > For HUGE_VMAP areas it's suboptimal. Not only the loop in
-> > set_area_direct_map() needlessly has more iterations (e.g times 512 on
-> > x86), but it also causes fragmentation of the direct map that could be
-> > avoided for the HUGE_VMAP areas populated with large pages.
-> >
-> > All pages in an area are always of the same order: either same-order
-> > large pages when VM_ALLOW_HUGE_VMAP is set and all huge pages were
-> > successfully allocated, or order-0 page when VM_ALLOW_HUGE_VMAP is
-> > cleared or when huge pages allocation fails and fallback path is taken.
-> >
-> > Instead of updating the direct map permissions for every order-0 page in
-> > an area, use the area's page_order as the loop increment and update the
-> > large pages in one call to set_direct_map_{invalid,default}_noflush().
-> >
-> > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> > ---
-> >  mm/vmalloc.c | 13 ++++++++-----
-> >  1 file changed, 8 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-> > index fc7993db4152..11170d1ee5be 100644
-> > --- a/mm/vmalloc.c
-> > +++ b/mm/vmalloc.c
-> > @@ -3361,12 +3361,15 @@ static inline void set_area_direct_map(const struct vm_struct *area,
-> >  				       int (*set_direct_map)(struct page *page,
-> >  							     unsigned int nr))
-> >  {
-> > -	unsigned long i;
-> > +	unsigned int nr = (1U << vm_area_page_order(area));
-> > +
-> > +	for (unsigned long i = 0; i < area->nr_pages; i += nr) {
-> > +		if (page_address(area->pages[i])) {
-> > +			int err = set_direct_map(area->pages[i], nr);
-> >  
-> > -	/* HUGE_VMALLOC passes small pages to set_direct_map */
-> > -	for (i = 0; i < area->nr_pages; i++)
-> > -		if (page_address(area->pages[i]))
-> > -			set_direct_map(area->pages[i], 1);
-> > +			WARN_ON_ONCE(err);
+On Sun, Aug 16, 2026 at 11:17:26AM +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
 > 
-> Nit: Maybe worth a comment on why this is expected to always succeed?
-> I.e. I think we are assuming the only failure mode is allocation but 
-> because we know vm_area_page_order() there shouldn't be any allocation?
+> Pre-existing issues:
+> - [Critical] execmem_cache_clean() calls vfree() on partial or interior chunks of a larger vmalloc allocation, causing a use-after-free for actively used regions.
+> - [High] Unchecked return value of mas_store_gfp() during maple tree deletion can leave a dangling pointer in the free tree if deletion fails.
+> - [Medium] Cache memory may never be freed because execmem_vmalloc() does not guarantee PMD_SIZE alignment on all architectures, preventing execmem_cache_clean() from matching its alignment checks.
 
-The assumption we relying on is more involved, but yeah, I can add a
-comment. 
+Noted, will check which of those are real and address them with separate
+patches.
 
 -- 
 Sincerely yours,
