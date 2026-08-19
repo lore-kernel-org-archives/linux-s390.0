@@ -1,223 +1,158 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C50F8440627;
-	Wed, 19 Aug 2026 19:19:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B504306779;
+	Wed, 19 Aug 2026 21:30:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787167172; cv=none; b=bwDCIwVSQWJnLnnkQxttIm8TCObvNBwU2MErZoJfY6u5ERyd14gDp2qllv2AA88vae+sl+URb+V5Vr2IYgTIp8HRrO3omfeP7dDqfOtso5ndWPieCRh/mpkN2kQDdWHtylr4hin1XK77H2X7Tx6MsqqoLKyy5wsDIG/xbu5OhmY=
+	t=1787175026; cv=none; b=SOzYpN0C9m6pEOLx3DGDkC0cap+Wwk3bqJ21LET5r8aVqyT8U4UTkpKCHMDzG/7jjKqJf9purvHun+wd7xdpnG0tMWMvNGNwyxW8ZEQN5YEGtJ86vnBjf7qO4Y2grEpfqma2weUD+n4V1yZkulWQtxbVNKmAVP3SAnYIv4gLkxQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787167172; c=relaxed/simple;
-	bh=Rjs9CI3raqkOJy3xif1kNygJqcpZjwBZXmRd0EMZ9Xw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=QxbgYcU4wiBv+c03wI/fPdpqiDKy9Od/uz41guz/HEgQPeXFTFThJvEocNufNsbfD/CLm/lvEHwDSsckHjmVb9+ID5mfj0KkAt+DfMFSBE9CZ1/Mivgh40nRuQGGY9dvkpY8GD99Dvva3QwR85TasVTBJTbWYZBOEDuHlEf55oU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WKbsu2Rp; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787175026; c=relaxed/simple;
+	bh=Jh+HdtL7skpgi+alYWJ5zQIUz4Hp4L47BgHV0bYJcdE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Rfq7hKlXMtlK9rec7REQ9wKvSiksydKnrw7/GnkPmCaXgig6BXyWWCtqFrV2MUrNVshW7P2fcufsNHLRQrvLD6SUvIDY8Gw82oMUi0MZht1bDIECjV5jM1UeGqLHWTSZ85sNI9/eWBoIjRJPM5JFQI/T8RG3rrhfIrFL0aK+1jw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mLjD/qBy; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WKbsu2Rp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A2BA1F000E9;
-	Wed, 19 Aug 2026 19:19:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787167170;
-	bh=KSb5d8UM4n7K+FzxGUKoTN33UqORrvstH7YcpY5Ea0w=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WKbsu2RpoduczHdme0NAdYcOZ1IyX8ci0iYoEvwagMoVlyeweFExQWXYmEyE0ogfV
-	 skCYhOoXJrCptwglUvQeAf9vCQH9KRxMPjh4x5wfzazvQ4gfTG339NAJQMCLxrMADC
-	 L5eMiiqHGl5NlViQ7o5EH+50ELGdBR/gDkzh7kxY2JbIEWb8QLkLvMrN12GtmSq9QS
-	 0L1niAR8HaVZFQWwbLkAxe2AoEtg8BV9Wi6QtfU2syuPSTvfOb0N8+Qrfg/mLOGnPL
-	 MmZDBUOo71GvgymMPHthB1iL5xS6lIiQm+E5pYB+75Hut7MU4/e7j/ehiaKYtAHxq4
-	 dC01KavLuOpEg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 2/3] KVM: s390: Kick PV cpus at the right time for
- service irqs
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Janosch Frank" <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260819190408.247843-3-frankja@linux.ibm.com>
-References: <20260819190408.247843-1-frankja@linux.ibm.com>
- <20260819190408.247843-3-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 19 Aug 2026 19:19:29 +0000
-Message-Id: <20260819191930.1A2BA1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mLjD/qBy"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67JI1gXq3087376;
+	Wed, 19 Aug 2026 21:30:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Svbu+Y
+	5bEzK1Yn2/TBFoeIt6yJ1rLLCrn1bSQdbkqUI=; b=mLjD/qByausjzof46IiX8r
+	O1Zkj4XPSfTB2AJKIjNIFFw41S9QXI7FJKBWNpcxkg8PrnHO5BgpHgyuD3K6Dlpq
+	0xmdF4ifEM9W4iEWO6LDA6ZTIwYSgybDgk+MZuqfJAHbluzDwMtBaJbqHwG9wk7B
+	QeG8Ms9pXKFYkEAbwv4K0zDNV0UNxF47J1QfdROquANBOV/VBHvWnZR6j0vPozSw
+	aSsZWmoDMrdKc+NViwd9KZootAtj+QeYDKjmgLwYOqBMUtLPSzl5jpJtUpmqV+4Y
+	r4iO8d+0peRbjwIxuHPN/yLuEbcSl1hClIYTOv+O9aHyT6b8CLHLhMK9nghZGPVg
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu266kk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Aug 2026 21:30:24 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67JLQJtl012206;
+	Wed, 19 Aug 2026 21:30:23 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g354yjr6j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Aug 2026 21:30:23 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67JLULxQ4915818
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 19 Aug 2026 21:30:21 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BB68258052;
+	Wed, 19 Aug 2026 21:30:21 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A156B5806D;
+	Wed, 19 Aug 2026 21:30:20 +0000 (GMT)
+Received: from [9.61.242.204] (unknown [9.61.242.204])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 19 Aug 2026 21:30:20 +0000 (GMT)
+Message-ID: <2d699043-d415-4ba5-907f-393ba481ba20@linux.ibm.com>
+Date: Wed, 19 Aug 2026 14:30:18 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/2] s390/pci: Extend device lock to cover
+ zpci_report_status()
+To: Niklas Schnelle <schnelle@linux.ibm.com>,
+        Gerd Bayer <gbayer@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Ramesh Errabolu <ramesh@linux.ibm.com>,
+        Tobias Schumacher <ts@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260819-fix_zpci_report_status_pdev_leak-v2-0-da0c4aa7c0ca@linux.ibm.com>
+ <20260819-fix_zpci_report_status_pdev_leak-v2-2-da0c4aa7c0ca@linux.ibm.com>
+Content-Language: en-US
+From: Farhan Ali <alifm@linux.ibm.com>
+In-Reply-To: <20260819-fix_zpci_report_status_pdev_leak-v2-2-da0c4aa7c0ca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=AdqB2XXG c=1 sm=1 tr=0 ts=6a862070 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=1Lu78BW-BsQnypBMslMA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: OufyXLFBSsyPpjkj5pH_wVo_XIayCKyk
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE5MDE2MiBTYWx0ZWRfX0NmyigtabJRY
+ aINJU2kRDrhmzCwcVB8O2NBBdi6uMT38VqVGKRhr5gsIhftIKyg0oHZ9lk8KtPAy4qgHjBpDqwS
+ pZMj4jDZevhceDR/K6tZRyQXFbUvb+FJMT6lBEbZtSD0dpF4R7puGQ02G/hZwt2ojmqX2Wq3Pxs
+ wrbAEtU1HImHf8BGTDrCaVaGChGThGhF5r3TMEBJI2z8bnopVhsWNKEjD7IxPTNoYyn+NQHtNOk
+ HgQvgt6BUu7JGbUlT7FqdGErdSvWIpNUWX4oGm1AmeTXfo9UZYNyYrPucWVbtVdQZp9oTSg1iZ5
+ gosWKk85QSvKkvtLwIWvYCm951JosITKX4rhjJM2PFnVSRxBFS6AC+o6lcMtOSDsfLWeOEycSId
+ VzDOhF+rt9ePI+AFM3i1wyLQ4OxRSm1m8CgW2afBL6kitqOIhY74v/XKMGvFIgoVcYbfQLXD/z/
+ 8YbWQksaz/+folx57AA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE5MDE2MiBTYWx0ZWRfX4/OkORVpHlaf
+ HQ3jOE3TCuE3Puz0A7s3xwDpmPEwG3M2o4A3u7CpLmUdsxNw8EsUGBv3oSVsalAh1TBNkiEPXQp
+ ZDeMWZYHmYhb1MKnqcBY538ZtmE7K48=
+X-Proofpoint-ORIG-GUID: OufyXLFBSsyPpjkj5pH_wVo_XIayCKyk
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-19_05,2026-08-19_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 priorityscore=1501 suspectscore=0 malwarescore=0
+ impostorscore=0 adultscore=0 bulkscore=0 lowpriorityscore=0 phishscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608190162
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
-- [Critical] Unconditional acquisition of a sleeping lock (`mutex_lock(&kvm=
-->lock)`) in the floating interrupt injection hot-path causes a system BUG =
-when called from atomic context.
-- [Critical] Acquiring `kvm->lock` inside `__floating_irq_kick()` violates =
-the KVM locking hierarchy, creating ABBA deadlocks with `vcpu->mutex` and `=
-kvm->srcu`.
-- [High] In `kvm_s390_pv_sclp_kick()`, `IRQ_PEND_EXT_SERVICE` is incorrectl=
-y used as a bitmask instead of a bit index, causing the kick condition to e=
-valuate incorrectly.
-- [High] `inti_to_irq_pend_mask()` returns an unshifted bit index instead o=
-f a bitmask for I/O interrupts and double-converts the ISC value, breaking =
-IO floating IRQ routing.
-- [Medium] The local variable `parm` is passed by value uninitialized to `_=
-_floating_irq_kick()` for several interrupt types, triggering Undefined Beh=
-avior and KMSAN warnings.
---
 
---- Patch [2]: [PATCH v3 2/3] KVM: s390: Kick PV cpus at the right time for=
- service irqs ---
-commit a45baf236c563050e29f20187e5498732692fe4c
-Author: Janosch Frank <frankja@linux.ibm.com>
+On 8/19/2026 2:58 AM, Niklas Schnelle wrote:
+> As zpci_report_status() accesses the device's driver the device lock
+> needs to be held. Extend the critical section to cover the
+> zpci_report_status() call.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: 4ec6054e7321 ("s390/pci: Report PCI error recovery results via SCLP")
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> ---
+>   arch/s390/pci/pci_event.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
+> index 839bd91c056e..48c150d6ba81 100644
+> --- a/arch/s390/pci/pci_event.c
+> +++ b/arch/s390/pci/pci_event.c
+> @@ -256,8 +256,8 @@ static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev)
+>   		driver->err_handler->resume(pdev);
+>   	pci_uevent_ers(pdev, PCI_ERS_RESULT_RECOVERED);
+>   out_unlock:
+> -	device_unlock(&pdev->dev);
+>   	zpci_report_status(zdev, "recovery", status_str);
+> +	device_unlock(&pdev->dev);
+>   
+>   	return ers_res;
+>   }
 
-KVM: s390: Kick PV cpus at the right time for service irqs
+AFAICT this change is correct, but should we also add a lockdep_assert 
+in zpci_report_status()? Since this is the only placed its called, it 
+maybe fine as is. I just fear that we could miss on getting the lock if 
+we were to re-use zpci_report_status().
 
-Service call handling is a two stage process for PV vms. First we
-receive the secure instruction intercept and then the secure
-instruction notification intercept.
+Either way
+Reviewed-by: Farhan Ali<alifm@linux.ibm.com>
 
-> diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-> index 3af060ec5be8e..53ba74a749e8a 100644
-> --- a/arch/s390/kvm/interrupt.c
-> +++ b/arch/s390/kvm/interrupt.c
+Thanks
 
-[ ... ]
+Farhan
 
-> @@ -1998,10 +1995,49 @@ static void __floating_irq_kick(struct kvm *kvm, =
-u64 type, int isc)
->  	vcpu_intervention_kick(dst_vcpu, type);
->  }
-> =20
-> +void kvm_s390_pv_sclp_kick(struct kvm_vcpu *vcpu)
-> +{
-> +	/*
-> +	 * The cpu that called sclp likely will also take the IRQ, no
-> +	 * need to kick anyone.
-> +	 */
-> +	if (likely(deliverable_irqs(vcpu) & IRQ_PEND_EXT_SERVICE))
-> +		return;
 
-[Severity: High]
-Is IRQ_PEND_EXT_SERVICE missing a BIT() macro here?
-
-The deliverable_irqs() function returns a bitmask, but IRQ_PEND_EXT_SERVICE
-is an enum value (15). Doesn't this evaluate the bitwise AND against 15
-(0b1111) rather than checking bit 15? This could result in false negatives
-and lost wakeups for target vCPUs waiting for service interrupts.
-
-> +
-> +	/*
-> +	 * For the other cases we might have sleeping cpus with open
-> +	 * masks. Time to find and kick them.
-> +	 */
-> +	kick_cpu_irq(vcpu->kvm, KVM_S390_INT_SERVICE, -1);
-> +}
-> +
-> +/*
-> + * Find a destination VCPU for a floating irq and kick it.
-> + */
-> +static void __floating_irq_kick(struct kvm *kvm, u64 type, u64 parm)
-> +{
-> +	int prot;
-> +
-> +	mutex_lock(&kvm->lock);
-> +	prot =3D kvm_s390_pv_is_protected(kvm);
-> +	mutex_unlock(&kvm->lock);
-
-[Severity: Critical]
-Can acquiring this sleeping lock cause a 'scheduling while atomic' bug?
-
-When called via the interrupt injection path, this can execute in an atomic
-context:
-
-kvm_arch_set_irq_inatomic()
-   spin_lock(&fi->ais_lock);
-   kvm_s390_inject_vm()
-      __inject_vm()
-         __floating_irq_kick()
-            mutex_lock(&kvm->lock);
-
-[Severity: Critical]
-Does taking kvm->lock here also create an ABBA deadlock?
-
-During standard I/O interrupt reinjection:
-
-vcpu_run()
-   handle_tpi()
-      kvm_s390_reinject_io_int()
-         __inject_vm()
-            __floating_irq_kick()
-
-In this path, vcpu->mutex is already held by KVM_RUN, and the vCPU is inside
-an SRCU read-side critical section. Acquiring kvm->lock while holding these
-violates the KVM locking hierarchy.
-
-> +	/*
-> +	 * No need to kick on non-ev service IRQs for PV VMs, we're
-> +	 * not allowed to inject anyway. We need to wait for the sclp
-> +	 * instruction notification AFTER re-entry of the vcpu that
-> +	 * handled the instruction intercept.
-> +	 */
-> +	if (prot && type =3D=3D KVM_S390_INT_SERVICE &&
-> +	    !(parm & SCCB_EVENT_PENDING))
-> +		return;
-> +
-> +	kick_cpu_irq(kvm, type, parm);
-> +}
-> +
->  static int __inject_vm(struct kvm *kvm, struct kvm_s390_interrupt_info *=
-inti)
->  {
->  	u64 type =3D READ_ONCE(inti->type);
-> -	int isc =3D -1;
-> +	u64 parm;
->  	int rc;
-> =20
->  	switch (type) {
-
-[ ... ]
-
->  	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
->  		/* Grab isc here since __inject_io() might free inti */
-> -		isc =3D isc_to_irq_type(int_word_to_isc(inti->io.io_int_word));
-> +		parm =3D isc_to_irq_type(int_word_to_isc(inti->io.io_int_word));
-
-[Severity: High]
-Does this result in a double-conversion of the ISC value?
-
-Down in inti_to_irq_pend_mask(), the switch case for I/O interrupts does:
-
-    case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
-        return isc_to_irq_type(isc);
-
-Since parm is already converted here and passed into inti_to_irq_pend_mask()
-as the isc parameter, it looks like it gets processed through
-isc_to_irq_type() a second time. It also appears to lack a BIT() macro
-wrapper, returning a raw integer (0-7) instead of a bitmask.
-
->  		rc =3D __inject_io(kvm, inti);
->  		break;
->  	default:
-> @@ -2028,7 +2065,7 @@ static int __inject_vm(struct kvm *kvm, struct kvm_=
-s390_interrupt_info *inti)
->  	if (rc)
->  		return rc;
-> =20
-> -	__floating_irq_kick(kvm, type, isc);
-> +	__floating_irq_kick(kvm, type, parm);
-
-[Severity: Medium]
-Does parm get passed uninitialized here for certain interrupt types?
-
-For cases like KVM_S390_MCHK, KVM_S390_INT_VIRTIO, and
-KVM_S390_INT_PFAULT_DONE, parm is never assigned a value in the switch
-statement above. Passing it by value to __floating_irq_kick() causes an
-uninitialized read that triggers KMSAN warnings.
-
->  	return 0;
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260819190408.2478=
-43-1-frankja@linux.ibm.com?part=3D2
