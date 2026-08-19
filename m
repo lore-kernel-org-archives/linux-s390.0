@@ -1,65 +1,65 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E5763A48CA;
-	Wed, 19 Aug 2026 13:23:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A88D036654C;
+	Wed, 19 Aug 2026 14:03:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787145801; cv=none; b=kwpaFWXfgnWyoN4tarlzmHibzz2yq2LUuuS3xuJ9uJ0DnnNWt9gLIg+t4qdzi8HC2LydEc03kk6tu4X36dpWH4/YMXXSkPV4P95tYP6V9VBE27FQcvRfLDfcIfyDEP9rcSmwnCSoZonij8PsF50txB78f5QkjstN9WzuX0Va5ao=
+	t=1787148191; cv=none; b=UWIvvGMs/p6u3XjCWrU1zBwyHwhASqLt/OF+3qn+WNM0wSmoAuWoRkMlYeGn/3OQ5WSua3aTdaWaHoGLod67/ZdasPZ/qy169XjShZASs5NqHxHrGC4bMyMwXKNYsL3GF+0/j3ddS3dfm0Rp1iLUO2+5pPZAqi+Saxow6JOnKQM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787145801; c=relaxed/simple;
-	bh=16vdKvHSdIJF+eemIURO1Y7j7obp9td9Ff72DRecJs4=;
+	s=arc-20240116; t=1787148191; c=relaxed/simple;
+	bh=LCro2tYiBscS5issuaQUV6QpN7NWXpP6qzms4eecEDY=;
 	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=Tq2aQCAcMTwVrS1yS9VA2QdqtPo12DVXyZq950P4bNVBwjqrKUoczwDVex+LsSVq9DY3V09zfwv5WBgsWy5ju6xQ3J5c+QrwcT2Gd7SvXD3/EgrjOebRE3Y6X8Wq8+NZ7myq/eTeVHuoFI24KaLmiH2J9HAJK6H5ITNCv59rSjA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bf5D1WgW; arc=none smtp.client-ip=148.163.158.5
+	 Message-ID:Content-Type; b=k5+cs5H06YtNzezetsky0/WZI+COyrj71feWt8YezhcJRdaIpbWXbgyq9f+4AC7yCUyOvszfv3BQUEgg7FxnBJxQui6taTye6eqwc/x2jq7O4nWWwCVq3RQRVg9tdfpxoER0Wk2z8RmOYgUleW+SMAC44LCKedusROVzxTlR91U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=s2fzv68a; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bf5D1WgW"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67JD1YKO2405773;
-	Wed, 19 Aug 2026 13:23:12 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="s2fzv68a"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67JD1WPl3480027;
+	Wed, 19 Aug 2026 14:03:09 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:reply-to:subject:to; s=pp1;
-	 bh=Js6KbFWQjFgjZKzT+PsegcoRRbCZMVKE75H+7oDSexo=; b=bf5D1WgWkkfi
-	Umwl5iy+0lnYcqs2oyvR+b8ao5h4RNk6UUS1+YnhXpHkVenWJyvIImzt05elwA5C
-	ZI5N2HQY2y3fY/3D9nqqzX98gUdLqYHQUk9NAPIt7DLFF53fQ0Q2ct7XwbrolZec
-	SJwXMEKUPjZdiWZ7FSs0TBqS3hR7yh9PIchziB9gEOjA4onG0dlQZrbbo6DYvn3W
-	C1OL0heKWBMNyUGMQczSiousKn9C4otgJMX1dK9LgNemgg7gxz5YxRIzyaEp7FUZ
-	jbq+BNAk+pIjtl0tIJoVGh+YtFoJvZCayZqc9XEOGMqau/jS2HcwfSh1za4orGEH
-	WDYajSHmiA==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu23uwc-1
+	 bh=zEbypElYEwL0PY2qHrfil0IYvxeMSmOeS+L3sP8XU2k=; b=s2fzv68aEEvm
+	v/sEr9PIOCAbbNAm4AiLyCbysjhAzxV88Gq01XVMaoUOsZ444F2tjG/8TXc9SFgv
+	4OMkbFj1rI17EYb3dgIGx2AAsVVKcyEyfV7CkaPmxiHwWeY2Nm76b1g/61VYOKro
+	EpL4FGPuOtPi8MWO8rDm1tAmTY9sK9EiNHpDFviWbVRHk1aHYmkrmm8VpTzzb86R
+	KR3y12Sw3J8o8rotGNWnTV8P1CSafcR0NQY9jgMAFngHCK/UIH2dUCYUV1zr3kmY
+	9YJkgr6fNOVAQXLByw0G6tBiBxCBWJ8rFbjYcIwBUquNhR4UuPyOLe2oa9e/QHQK
+	840qvF3pWQ==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu1c5gv-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Aug 2026 13:23:11 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67JDBHGb022993;
-	Wed, 19 Aug 2026 13:23:11 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g32eq983e-1
+	Wed, 19 Aug 2026 14:03:08 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67JDuLOE003513;
+	Wed, 19 Aug 2026 14:03:07 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g34ngh276-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Aug 2026 13:23:11 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67JDNAlH22872670
+	Wed, 19 Aug 2026 14:03:07 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67JE36IT20251324
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 19 Aug 2026 13:23:10 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3E35558057;
-	Wed, 19 Aug 2026 13:23:10 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D902458061;
-	Wed, 19 Aug 2026 13:23:09 +0000 (GMT)
+	Wed, 19 Aug 2026 14:03:06 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9836058058;
+	Wed, 19 Aug 2026 14:03:06 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E91555805B;
+	Wed, 19 Aug 2026 14:03:05 +0000 (GMT)
 Received: from ltc.linux.ibm.com (unknown [9.5.196.140])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 19 Aug 2026 13:23:09 +0000 (GMT)
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 19 Aug 2026 14:03:05 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Wed, 19 Aug 2026 15:23:09 +0200
+Date: Wed, 19 Aug 2026 16:03:05 +0200
 From: Harald Freudenberger <freude@linux.ibm.com>
 To: sashiko-reviews@lists.linux.dev
 Cc: linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
@@ -75,39 +75,38 @@ In-Reply-To: <20260819093709.52A491F000E9@smtp.kernel.org>
 References: <20260819091734.7331-1-freude@linux.ibm.com>
  <20260819091734.7331-7-freude@linux.ibm.com>
  <20260819093709.52A491F000E9@smtp.kernel.org>
-Message-ID: <cf1644a4ca745c763a041f5a8a54c836@linux.ibm.com>
+Message-ID: <9c6a24923189fd72dc20aa1bd539d73b@linux.ibm.com>
 X-Sender: freude@linux.ibm.com
 Content-Type: text/plain; charset=US-ASCII;
  format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=AdqB2XXG c=1 sm=1 tr=0 ts=6a85ae40 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Authority-Analysis: v=2.4 cv=LsCiDHdc c=1 sm=1 tr=0 ts=6a85b79c cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
  a=VnNF1IyMAAAA:8 a=m3xwgEX8F2NfDoi_QdUA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: VZEba92-6PCBrDKS-vPlnd0z-APUTwb7
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE5MDEwMSBTYWx0ZWRfX5J9QGT/TQ+UG
- 1sQoy5s0cOSoaZk+yjVKS6wo0ABkwPA+8Lfc7Yp43PebrM7R+F9yMuWnJ7ACfq0cR1bwqY6NHCm
- E5D6LzuhIF1m2HQLeLnS8YBqtvaSQENFe2Nb8rWL1BI6MdTzE4OdolJ6sy5vJF3v/bobndNnsr2
- MaIxkqcMtPD0BDe21QalEV0gqiWUrEcj+X5uZBNRgdcBMmQ5ARg0hyRSuaO2zeh0eLENIRLY8hC
- slLw+OBoLoDC4am7bh1oBzwx/AqOcYxSrU1XubqC7Y4FIt7jhSYRvmIFL/grLkJDw8REHgcxlJC
- DPtUDzrdCCmAZVx6MrR+p/kOyZ3dCqVxOsWF/cuXvPwb1Jo2nXFdAwxsOrMDZHBC9L5jHtrVXV7
- sbzPXOapkx5Mz2R5DDsh29TNh7rUn47v/bBDq5PZHpf+XO6eq9GQ1OZflxW7mjBiP8yx/ClSmB4
- sNCEEeC/uuWxRLFiPvg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE5MDEwMSBTYWx0ZWRfX9dkT060jmbJr
- ukc81ahINp/G6xCEY5KYP6VZ/3XlKViJPeI3SMzfjD23/pneikcMpmFatYZq8r6nExN7A41jjfl
- uYCVQQfqGZquavyaVvoixtn1DFwryzk=
-X-Proofpoint-ORIG-GUID: VZEba92-6PCBrDKS-vPlnd0z-APUTwb7
+X-Proofpoint-GUID: CyJj3yhzngg6aC0OMEd7772pGRFJybzs
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE5MDEwOSBTYWx0ZWRfX++P/cBUWzW/b
+ hnkKvhjWr9+MLw/Hj6dtqtowKqTf3iLSWIdJXM4dO2gjC5sQpLNuKZw2y34IIBM6mkQ+Z8+XfX6
+ DMTkI56qR21HH84FElxnVheunVWI63U=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE5MDEwOSBTYWx0ZWRfX96QuXlCeTEaG
+ HpoPYiDgcWzFMH9BUHxvqfFJtzUL1svXVmdPieiBm/6FHGZO0icnqYoVgj08o2t+z79Eo2kn3un
+ aH16/1k4EU2Om7OFsti7Uk1K9Fye/U95aEedMT+HA4fL0cO+JFLg+pguTn+sSYQe7RwHVKRtyp9
+ kzSm4urKWbo5YGRzLbCLCpzTKGpsOSkBo9+yOylNbzJUzDRk1DtbaTudBnJMFMGc14neUEKXfeJ
+ pHZe6M78yM9QaSSJ64bI2j1fDiA36Xe24BoW749ea1jUkBhsDAOjh4xaxHV2WmHu3fDfJmuKfz7
+ Xr8ICYh3IdSD5xTop1rp8JUNRy2KN/GF4ZiYmX/W9PKN2xw2V5l6BAkas1vKo0LOANKq68LU58f
+ 9RZXa2MNZBl8IN57c7JayTL0wMiAKlmWKoNfwPuYFg3OVlY9YOhDdHUvCHeD/OlbyxU6gujxOVR
+ ZTZQOoC3CyVk/R7+aiQ==
+X-Proofpoint-ORIG-GUID: CyJj3yhzngg6aC0OMEd7772pGRFJybzs
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-19_03,2026-08-19_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 priorityscore=1501 suspectscore=0 malwarescore=0
- impostorscore=0 adultscore=0 bulkscore=0 lowpriorityscore=0 phishscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608190101
+ malwarescore=0 spamscore=0 priorityscore=1501 lowpriorityscore=0 bulkscore=0
+ adultscore=0 suspectscore=0 impostorscore=0 clxscore=1015 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608190109
 
 On 2026-08-19 11:37, sashiko-bot@kernel.org wrote:
 > Thank you for your contribution! Sashiko AI review found 3 potential
@@ -179,25 +178,6 @@ On 2026-08-19 11:37, sashiko-bot@kernel.org wrote:
 > requirements of
 > kmap_local_page()?
 > 
-
-This is not exactly true. On s390 CONFIG_HIGHMEM is NOT set.
-
- From /ext/git/s390-linux/include/crypto/scatterwalk.h:
-
-   static inline void scatterwalk_map(struct scatter_walk *walk)
-   {
-      if (IS_ENABLED(CONFIG_HIGHMEM)) {
-          // Uses kmap_local_page() - THREAD-LOCAL
-          addr = kmap_local_page(page) + offset;
-      } else {
-          // Direct mapping - NO thread restrictions
-          addr = page_address(base_page) + offset;
-      }
-   }
-
-So there is no thread restriction on s390 and paes and phmac are both 
-only s390.
-
 >> +		else
 >>  			atomic_dec(&tfm_ctx->via_engine_ctr);
 >>  	}
@@ -245,6 +225,9 @@ only s390.
 > -EBUSY prevents the final completion callback from firing. Could this 
 > cause
 > callers using crypto_wait_req() to block forever?
+
+Yep, this may be an issue - never complete a request with -EBUSY.
+
 > 
 >> +		else
 >>  			atomic_dec(&tfm_ctx->via_engine_ctr);
@@ -293,3 +276,5 @@ only s390.
 > fallback crypto_request_complete() that invokes the user's completion 
 > callback
 > a second time?
+
+Fixed in patch #8 of this series.
