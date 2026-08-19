@@ -1,167 +1,223 @@
-Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com [209.85.208.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AD26471CFD
-	for <linux-s390@vger.kernel.org>; Wed, 19 Aug 2026 11:50:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84F7A2E7398;
+	Wed, 19 Aug 2026 11:58:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787140210; cv=none; b=pmiS4U0dHT6IM7msQ5YI3wL8e5v2CN+7Z3k+maSBWycOGpjHk0pHLT7q92QVTzVo325ZvKIQk9pKvzruk+37LfI0joqb0YauHtm3pQ3q4FI71eDuqNUaRhlZ/0eXCBoMJUBhaQsGPLW2zQjHnYBH7GvMafxOsz9Y0a8oXh6H9JM=
+	t=1787140705; cv=none; b=SEY+VDS+8wbGtzxZ3uRtMW42mtg2/wRHfFU+G5uzD44vFrUFhSGcckHFyZzm7JQsHRQm51u5uJPCppLD3gDqgBVJE8V19NPA+6QnJ007+lt0F/GH/UxO1lXhRLuz1i53rCBJfrp5JSef+rIF0NOKtpakV/h8qOCg3UDGY7znkoI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787140210; c=relaxed/simple;
-	bh=dLbO/KZ9p8AfNKJwP2FWUdac1cvSGmTwIke+Nm9losM=;
-	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XH6tC+mlBpPxQJDKkQOo/HObM2icyIv4lUNG7gySybekhwSy4q7FC6pkH/T9w4ncWjX1F7iT+9TZXuZB2F0G3Hz/Z2PT/mDr3YfpAjk4bNw9px+wqeP3Ld4l9FBuLxiWGO4RjHtgtVY+Td1VoJzLs2Vrz9yV70LZt1+Qq6R4LMU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AL5UHIHA; arc=none smtp.client-ip=209.85.208.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1787140705; c=relaxed/simple;
+	bh=hFuYhj37RgPSTE75v5qEsIt7jSXtnAUhE70e8kBZ7VY=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=oc7sq/bzwQ/QFnVXANBIgzO8AV9g9cKSvjgiM5mpMJt9hvkKo/5l/PIAxapPucmcVtz17AQE29+X+pGfbinyb3nKJ1dPYAeSqSu4yt0V3bYuzRA4CJ/NjQYBMr3nqUS+F/swFFKarwHcvFmp5GLY7uPRUh9nN7aosOkqIET86Gw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y7sCLHr+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AL5UHIHA"
-Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-39f1ac13687so6139741fa.0
-        for <linux-s390@vger.kernel.org>; Wed, 19 Aug 2026 04:50:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1787140204; x=1787745004; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:date:from:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=qb8vbO35I9ReDoy08LYZaOcpJWIqiGdFJcRUGNTu904=;
-        b=AL5UHIHAef6lcN8kJ5xWmpUSc6DfKmb5R5GES6ugTd4YzL9tFeF25Oqj696fCo5iMk
-         4iNI+IK4qfOa+KtCsR3TQjcAsNqWGen9z0sLlnIKNmF7g+7bG1DB0yGMy7lnpZM2sJFC
-         HR2uemSYF23n6jDeQBdNgmzjIXgCLfGkPKOuKJVpod9z6jIoLWSyh7V6sk3vcxX2KIwx
-         FoSWHZX21uaCSAlF8LLnjmoHg4zP8tyoGJ5IArD8snEWxgb4lmjpv4qFCimSTFi9Q2uD
-         uEnxGT8IeWExka3oNuUTcb1wnn6stWEyhkQ4Hce2XGOj0GV9xNHh2uIS+tHhO6fUV0HZ
-         NDIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787140204; x=1787745004;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=qb8vbO35I9ReDoy08LYZaOcpJWIqiGdFJcRUGNTu904=;
-        b=sfUpwuae2A9eraLS7IyVYnqr0rtNmbZ+kgX2WbJYuA6TxTg2hBkIei3MX/eHQgcyHx
-         /sadyWVOdCuo/SXp7Ja1dvEYt8pw8FO5ujOxMl2I2UWEIxv3w4vwEwVHcf5YRUGabGHr
-         cp8hFt3OOjxjzK1xzXwj0xUWs8FvarNxvR6MFZkg7h7ZL0lRHYzAG7aL+/Rz1Aj78ISu
-         Pw8FU+Sh68su8txMs/0tjQ8WwH/0LxvlZVe3uQUD/LwoGQQGqn8onDmwJnEx8KLgaLcA
-         pb1oKBwltESCcPJw4z3JSvl+MUAX1SkIjMxGZmCw2s55oUcT1pnsCoFQG0T14Fc2oONk
-         XbXQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpDvi6deY5LgHWQLyg7EMl+ddP2Bq9w5qjPhAhtBEhhDg7a71RXvaI5eG1h/yN8xvn4WVrdWC0UjL5D@vger.kernel.org
-X-Gm-Message-State: AOJu0YxkPChRnzS4ySGjOAUcKCOY85FRX79FVSNTaDYvW/avpWbjGUzd
-	b3W0C7o1UDtPVbBp8cDi7NVFY7S2/G6lU8VjpFJHplBb+xTaoqj8UyJA
-X-Gm-Gg: AR+sD13y/OTfesABF98Pii+vkpoWrXNLAOBgD2lls9E1YYhchFO8wO36qyu1YFqVt0w
-	slH7HfJCtS0+6rdhImLNTI1iWwcTAF0V/Bjvg1yC2VV4UNhVBa6cZCwNki7gbrZa/YK+UcZjij7
-	blB9RShsmr6USbnfxj9iE1Y1G1bxY4thfhkD48HWW3LWOlcYUcjZwU4iJGbrF+yc7Ch1Vzhc0na
-	ESCGdEy8bQBTUTHCi4hiGu1mDRgAlDAY5KJ4OBV6W2V0wdP7tj3SHhjTpJhf5FuEIc5yJQOv/ma
-	CEbuK5wRj81mMTYgiDQDb0poBcxzZNNdIrjNuoORSutXSO6bL4kD3N1eNwECzeT30BMni6plqn2
-	k+6nZStarYiDob44vvD8C4Vpv5jIXbFko/OC/Cx3d/O8gkPPZIMaQneuIDCn20gUuzJhhut3VaN
-	rjo77ykXMK/wyrWrYzi/J9N4IOVCgca8pczsNB2ac4bGLhC+njVISs3t48ATxA/RgyuYyEuxUOD
-	5G99BZ57XMN/DnKmJU=
-X-Received: by 2002:a05:651c:3135:b0:39b:48c1:8cd4 with SMTP id 38308e7fff4ca-3a18996bd7dmr7858151fa.7.1787140203900;
-        Wed, 19 Aug 2026 04:50:03 -0700 (PDT)
-Received: from pc636 (host-95-193-137-165.mobileonline.telia.com. [95.193.137.165])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3a18a8e8579sm4123321fa.0.2026.08.19.04.50.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Aug 2026 04:50:03 -0700 (PDT)
-From: Uladzislau Rezki <urezki@gmail.com>
-X-Google-Original-From: Uladzislau Rezki <urezki@pc636>
-Date: Wed, 19 Aug 2026 13:49:58 +0200
-To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Adrian =?utf-8?Q?Barna=C5=9B?= <abarnas@google.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y7sCLHr+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE7111F000E9;
+	Wed, 19 Aug 2026 11:58:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787140701;
+	bh=EXxZGZEywjxNurZeESjYxxLymZy1CGZALFo9AOoKV8Y=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=Y7sCLHr++lEfDPrDldeMn1qW7IddWaOx5VMdOckO2EN3I1bH3mDY61TxArZ3GTMQz
+	 75hGvcLct/UjSyyAOj1B/b0VdGQf17N2DqMtWlk79/oUc2pz1ZxORtokWoIAfT0Ws2
+	 nbdiwbTr6aL1k6EUtD64Eue71PmdLZ26H5l1LHP2nfN/EcMH2go06a8I1Gd/yR5Efo
+	 yqCeaTlLSC7dHGkteiKOQZ/s2d63g8LjWQ0lmSP23ksfhJ+xpLBpXXvthjS3W0afiZ
+	 ONOi9ReMFSLV0Z79QD/T5x5/eYR53dkbgBIQ3+hhEyQSu6dKqmD4uJhs46SqA4DPu4
+	 EYGNkQLMTgSpg==
+X-Mailer: emacs 30.2 (via feedmail 11-beta-1 I)
+From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
+To: Catalin Marinas <catalin.marinas@arm.com>
+Cc: iommu@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Alexandre Ghiti <alex@ghiti.fr>, Andy Lutomirski <luto@kernel.org>,
-	Borislav Petkov <bp@alien8.de>,
-	Brendan Jackman <brendan.jackman@linux.dev>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	David Hildenbrand <david@kernel.org>,
 	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
 	Heiko Carstens <hca@linux.ibm.com>,
-	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Len Brown <lenb@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Paul Walmsley <pjw@kernel.org>, Pavel Machek <pavel@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Ryan Roberts <ryan.roberts@arm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Uladzislau Rezki <urezki@gmail.com>,
-	Vasily Gorbik <gor@linux.ibm.com>, WANG Xuerui <kernel@xen0n.name>,
-	Will Deacon <will@kernel.org>, x86@kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, linux-pm@vger.kernel.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	loongarch@lists.linux.dev
-Subject: Re: [PATCH 3/6] mm/vmalloc: constify vm parameter of
- get_vm_area_page_order()
-Message-ID: <aoWYZk7xNfjwuzQ_@pc636>
-References: <20260816-execmem-set-vm-perms-v0-2-v1-0-90944a3ad43f@kernel.org>
- <20260816-execmem-set-vm-perms-v0-2-v1-3-90944a3ad43f@kernel.org>
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, x86@kernel.org
+Subject: Re: [RFC PATCH v2 2/2] dma: swiotlb: Initialize and size shared
+ default pools for memory encryption
+In-Reply-To: <an9RrwoaAsqJQ2vN@arm.com>
+References: <20260813102521.1367737-1-aneesh.kumar@kernel.org>
+ <20260813102521.1367737-3-aneesh.kumar@kernel.org>
+ <an9RrwoaAsqJQ2vN@arm.com>
+Date: Wed, 19 Aug 2026 17:28:03 +0530
+Message-ID: <yq5aecfuiapg.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260816-execmem-set-vm-perms-v0-2-v1-3-90944a3ad43f@kernel.org>
+Content-Type: text/plain
 
-On Sun, Aug 16, 2026 at 01:59:26PM +0300, Mike Rapoport (Microsoft) wrote:
-> get_vm_area_page_order() and vm_area_page_order() do not need to modify
-> struct vm_struct passed to them.
-> 
-> Constify the parameter.
-> 
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> ---
->  mm/vmalloc.c | 4 ++--
->  mm/vmalloc.h | 2 +-
->  2 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-> index 6822f0fe9583..fc7993db4152 100644
-> --- a/mm/vmalloc.c
-> +++ b/mm/vmalloc.c
-> @@ -3124,7 +3124,7 @@ EXPORT_SYMBOL(vm_map_ram);
->  
->  static struct vm_struct *vmlist __initdata;
->  
-> -static inline unsigned int vm_area_page_order(struct vm_struct *vm)
-> +static inline unsigned int vm_area_page_order(const struct vm_struct *vm)
->  {
->  #ifdef CONFIG_HAVE_ARCH_HUGE_VMALLOC
->  	return vm->page_order;
-> @@ -3133,7 +3133,7 @@ static inline unsigned int vm_area_page_order(struct vm_struct *vm)
->  #endif
->  }
->  
-> -unsigned int get_vm_area_page_order(struct vm_struct *vm)
-> +unsigned int get_vm_area_page_order(const struct vm_struct *vm)
->  {
->  	return vm_area_page_order(vm);
->  }
-> diff --git a/mm/vmalloc.h b/mm/vmalloc.h
-> index 8866ddcff668..211869f36509 100644
-> --- a/mm/vmalloc.h
-> +++ b/mm/vmalloc.h
-> @@ -12,7 +12,7 @@ void __init vmalloc_init(void);
->  int __must_check vmap_pages_range_noflush(unsigned long addr, unsigned long end,
->  		pgprot_t prot, struct page **pages,
->  		unsigned int page_shift, gfp_t gfp_mask);
-> -unsigned int get_vm_area_page_order(struct vm_struct *vm);
-> +unsigned int get_vm_area_page_order(const struct vm_struct *vm);
->  #else
->  static inline void vmalloc_init(void) {}
->  
-> 
-> -- 
-> 2.53.0
-> 
-LGTM:
+Catalin Marinas <catalin.marinas@arm.com> writes:
 
-Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
+> On Thu, Aug 13, 2026 at 03:55:21PM +0530, Aneesh Kumar K.V (Arm) wrote:
+>> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+>> index 9f5b366d2086..c3188ca878f3 100644
+>> --- a/arch/arm64/mm/init.c
+>> +++ b/arch/arm64/mm/init.c
+>> @@ -338,12 +338,8 @@ void __init arch_setup_zero_pages(void)
+>>  void __init arch_mm_preinit(void)
+>>  {
+>>  	unsigned int flags = SWIOTLB_VERBOSE;
+>> -	/* pKVM uses restricted-dma-pool */
+>> -	bool cc_guest = is_realm_world();
+>>  
+>> -	if (cc_guest)
+>> -		flags |= SWIOTLB_INIT_CC_SHARED;
+>> -	else if (max_pfn > PFN_DOWN(arm64_dma_phys_limit))
+>> +	if (max_pfn > PFN_DOWN(arm64_dma_phys_limit))
+>>  		flags |= SWIOTLB_INIT_ADDRESSING_LIMIT;
+>>  
+>>  	swiotlb_init(flags);
+>
+> This looks fine. As I mentioned on patch 1, we might as well move this
+> hunk over there and avoid the flag definition.
+>
+>> @@ -102,9 +101,6 @@ void __init mem_encrypt_init(void)
+>>  
+>>  void __init mem_encrypt_setup_arch(void)
+>>  {
+>> -	phys_addr_t total_mem = memblock_phys_mem_size();
+>> -	unsigned long size;
+>> -
+>>  	/*
+>>  	 * Do RMP table fixups after the e820 tables have been setup by
+>>  	 * e820__memory_setup().
+>> @@ -112,33 +108,9 @@ void __init mem_encrypt_setup_arch(void)
+>>  	if (cc_platform_has(CC_ATTR_HOST_SEV_SNP))
+>>  		snp_fixup_e820_tables();
+>>  
+>> -	if (cc_platform_has(CC_ATTR_MEM_ENCRYPT))
+>> -		x86_swiotlb_flags |= SWIOTLB_INIT_CC_SHARED;
+>> -
+>>  	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
+>>  		return;
+>>  
+>> -	/*
+>> -	 * For SEV and TDX, all DMA has to occur via shared/unencrypted pages.
+>> -	 * Kernel uses SWIOTLB to make this happen without changing device
+>> -	 * drivers. However, depending on the workload being run, the
+>> -	 * default 64MB of SWIOTLB may not be enough and SWIOTLB may
+>> -	 * run out of buffers for DMA, resulting in I/O errors and/or
+>> -	 * performance degradation especially with high I/O workloads.
+>> -	 *
+>> -	 * Adjust the default size of SWIOTLB using a percentage of guest
+>> -	 * memory for SWIOTLB buffers. Also, as the SWIOTLB bounce buffer
+>> -	 * memory is allocated from low memory, ensure that the adjusted size
+>> -	 * is within the limits of low available memory.
+>> -	 *
+>> -	 * The percentage of guest memory used here for SWIOTLB buffers
+>> -	 * is more of an approximation of the static adjustment which
+>> -	 * 64MB for <1G, and ~128M to 256M for 1G-to-4G, i.e., the 6%
+>> -	 */
+>> -	size = total_mem * 6 / 100;
+>> -	size = clamp_val(size, IO_TLB_DEFAULT_SIZE, SZ_1G);
+>> -	swiotlb_adjust_size(size);
+>> -
+>>  	/* Set restricted memory access for virtio. */
+>>  	virtio_set_mem_acc_cb(virtio_require_restricted_mem_acc);
+>>  }
+>
+> Credit to claude, it noticed a slight change in behaviour for x86 w.r.t.
+> the crash kernel reservation. crash_low_size_default() reads the swiotlb
+> size but the resizing now happens after arch_reserve_crashkernel().
+> Maybe not an issue.
+>
+> Alternatively, we could build the sizing logic into
+> swiotlb_size_or_default() but I haven't checked whether we have the
+> right information when this function is called.
+>
 
---
-Uladzislau Rezki
+IIUC, the current code can still get a different value from
+crash_low_size_default() than the final swiotlb size we end up using.
+This is because crash_low_size_default() is computed early, before
+default_nareas, which is derived from num_possible_cpus(), has been set.
+
+If we are okay with keeping this consistent with the existing behavior,
+moving sizing logic to swiotlb_adjusted_size() looks like a clean option.
+
+>
+>> @@ -382,12 +374,54 @@ static void __init *swiotlb_memblock_alloc(unsigned long nslabs,
+>>  	return tlb;
+>>  }
+
+...
+
+>> +static bool __init swiotlb_default_pool_needs_cc_shared(void)
+>> +{
+>> +	/* A restricted DMA pool provides the shared buffers instead. */
+>> +	return cc_platform_has(CC_ATTR_MEM_ENCRYPT) &&
+>> +	       !restricted_dma_pool_present;
+>> +}
+>
+> I don't think restricted_dma_pool_present should change the cc_shared
+> attribute. The rmem pool is all about sizing the swiotlb, not disabling
+> sharing.
+>
+> Thinking some more, if other archs don't like rmem pool influencing the
+> default swiotlb size, we could add a flag (SWIOTLB_SKIP_IF_RMEM_POOL or
+> some better name). But only if people dislike the heuristics.
+>
+>> @@ -437,9 +469,11 @@ void __init swiotlb_init_remap(unsigned int flags,
+>>  		io_tlb_default_mem.phys_limit = ARCH_LOW_ADDRESS_LIMIT;
+>>  #endif
+>>  
+>> -	if (!(flags & (SWIOTLB_INIT_ADDRESSING_LIMIT |
+>> -		       SWIOTLB_INIT_CC_SHARED)) &&
+>> -	    swiotlb_kmalloc_needs_bounce()) {
+>> +	if (swiotlb_default_pool_needs_cc_shared()) {
+>> +		io_tlb_default_mem.cc_shared = true;
+>> +		swiotlb_adjust_cc_attributes();
+>> +	} else if (!(flags & SWIOTLB_INIT_ADDRESSING_LIMIT) &&
+>> +		   swiotlb_kmalloc_needs_bounce()) {
+>
+> I think at a high level, we need (i.e. separate attributed from sizing):
+>
+> 	if (cc_platform_has(CC_ATTR_MEM_ENCRYPT))
+> 		io_tlb_default_mem.cc_shared = true;
+>
+> 	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT)) {
+> 		if (!restricted_dma_pool_present)
+> 			swiotlb_adjust_cc_size();	/* 6%, clamped */
+> 	} else if (!(flags & SWIOTLB_INIT_ADDRESSING_LIMIT) &&
+> 		   swiotlb_kmalloc_needs_bounce()) {
+> 		swiotlb_shrink_for_kmalloc();		/* 1MB per 1GB */
+> 	}
+>
+
+But pKVM wants to reduce the swiotlb size based on
+kmalloc_needs_bounce() when it is using a restricted-dma-pool.
+
+ie,
+	if (cc_platform_has(CC_ATTR_MEM_ENCRYPT))
+		io_tlb_default_mem.cc_shared = true;
+..
+
+	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
+	    !restricted_dma_pool_present) {
+		swiotlb_adjust_cc_attributes();
+	} else if (!(flags & SWIOTLB_INIT_ADDRESSING_LIMIT) &&
+		   swiotlb_kmalloc_needs_bounce()) {
+
+-aneesh
