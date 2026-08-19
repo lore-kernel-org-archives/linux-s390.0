@@ -1,159 +1,121 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A89EA17A309;
-	Wed, 19 Aug 2026 15:06:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2ACD2FF66A;
+	Wed, 19 Aug 2026 16:24:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787151994; cv=none; b=kyHjiZdn2fi7Buqc4uJ53ROj0qkuSdgKTeuFwEvb5ARZdEIvr9rNDeJWaOWMa1tLDyDJlihzJckQLzuSNQ+pMGsOWB1W1mq9N5Mxl7e2jAyK6EHX0qsRvLys5YUtqjYYuIxCK18LTn6rLDdxHyV2z77uoBc9wXQpETA3UdNbqqA=
+	t=1787156700; cv=none; b=KoUBDc7RZnfLS69wodpnnBH8LNKx4NxxYL0go2AQHUA3w31AyMu2VflkKM3ZdYxH6nZvqAdlQoZzrLYVUy3ZrHkzg8RQ1NYhyswrqSgpcttnWG9ejSiN/qsr5BhzX2NUlS8O8SI70xMFH4ZayI1/Pgqc77DqclO+RuJGmnyKfUQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787151994; c=relaxed/simple;
-	bh=5sdPBUaN1lsmf1sKLUWh3QLKgHHuaH8OyINn64kMVQs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jXAyzTXz5OBoODovdYEAMPxm+qkFRq8tj+YeV1c8SO2fihCNoMaTd3ffXaJf4hhGWJyb8d03+LVNfHODFcHVjFGCt/p+dpx1ZWfhWe+zwgJHIdZmLIPmQ+ST8xfZFcyU0UkwleAUGDaxzP7+5RUXZSMTZv4iN+KJ7J2l4I3Hma0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GSXVXgGE; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1787156700; c=relaxed/simple;
+	bh=tiUkh4CXcgWdb8T5QjHF78jxJUt0AICUL9u1PZGDpJU=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=pkUdH8G0lF7vbMJ5SwBbADAdn3XZ2sOUmLxQR/4OKX/U5RDGBsTJ3/oQZ098AOdFjKw3s7p/M+oyvdOqdY5wLlAJsV6O9muBPPAx7CuGLN3xMCl9lreONd0WVp4dc6Wtdqif/UFt5PS2iN6u3kQjHAWwyz+zsNd7ICfuufjIXRA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=PD979zmA; arc=none smtp.client-ip=213.97.179.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GSXVXgGE"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67JF1qcm3696167;
-	Wed, 19 Aug 2026 15:06:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ZM+v+N
-	KgZSFOp/186iCKsEpFvluvLPrkSmIr4NoFbv4=; b=GSXVXgGEFpLuuSfYZwvo+F
-	myK5alEoUGAAtexvO3jm/g6mehQjgKXwq3oQLF9kHcIzBfnmV5rTbXfXTd04wvC6
-	BTCkgvw+fHt+87rse29SBBZTRTjX3+oRqbzpYdEA8wnf2GuFu5beS9Bbo38q2TgZ
-	Y6Xplmof7Bh6PMlMnKXXtGcyBxsG4sQZ4pWx1W1w6ew59d1ZnypbXiC+iqsYU6pY
-	0OegdaNbrSQTmxnoNoS8jgXwkZOd+WS3tedFEUF0dVbNN9+YVuz8CM80TskX6uC1
-	AHO7ciM6V5MpPPlNhKTOcrFPb9bOlr1QB562kiZuXSkzcWQoy5L2QiBcmSYC5bPA
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu44ejc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Aug 2026 15:06:15 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67JEuPPO012462;
-	Wed, 19 Aug 2026 15:06:14 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33xh9g5u-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Aug 2026 15:06:14 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67JF69Mw50135536
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 19 Aug 2026 15:06:09 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5630820043;
-	Wed, 19 Aug 2026 15:06:09 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 26E3120040;
-	Wed, 19 Aug 2026 15:06:09 +0000 (GMT)
-Received: from [9.224.90.36] (unknown [9.224.90.36])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 19 Aug 2026 15:06:09 +0000 (GMT)
-Message-ID: <e42b30ee-f7cc-4f65-8fe6-1bc6888829f2@linux.ibm.com>
-Date: Wed, 19 Aug 2026 17:06:08 +0200
+	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="PD979zmA"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+	s=20170329; h=Content-Transfer-Encoding:Content-Type:Message-ID:Subject:Cc:To
+	:From:Date:MIME-Version:From:Reply-To;
+	bh=ieH8yXwVQoecHWb1KauxcH1NWtDhTmFX9Ha642wE9dU=; b=PD979zmAMQvSR/X0nScgdA6RXG
+	99oYYjuceAJ+2px8dVClqYbnckWNYMfg5kLb5sGA8xrCRevHaKnd4F4jz1VrVELJwe6gWxPxWLHvG
+	rqp5W1iPjvO4UUdhOiGlk+hihGE5DNe5v38K6aOIOjzjfP9NVGR/d3oZbEURm05RS8Ka9tixVku0+
+	kgdYCZgAMB49ksJwNtNNog3pXxiB+1Di+biqIsbnjyNXYQItZRxeuggXT9vzNwdODTaqjqBpEpM3T
+	c/Nzm10baaANKWpjlm4auYOIlqT4rN1epduV82oe7438NmlQqcK4nelCXaTV/xLOhnSQG+E+94Fx2
+	O7wK9OyA==;
+Received: from maestria.local.igalia.com ([192.168.10.14] helo=mail.igalia.com)
+	by fanzine2.igalia.com with esmtps 
+	(Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
+	id 1wwj60-006Bn2-5N; Wed, 19 Aug 2026 18:24:56 +0200
+Received: from webmail.service.igalia.com ([192.168.21.45])
+	by mail.igalia.com with esmtp (Exim)
+	id 1wwj5z-00EYVP-8F; Wed, 19 Aug 2026 18:24:56 +0200
+Received: from localhost ([127.0.0.1] helo=webmail.igalia.com)
+	by webmail.service.igalia.com with esmtp (Exim 4.98.2)
+	(envelope-from <mfo@igalia.com>)
+	id 1wwj5z-000000027F1-0r6f;
+	Wed, 19 Aug 2026 18:24:55 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 1/2] net/iucv: drop HiperSockets frames from other
- network namespaces
-To: hexlabsecurity@proton.me, Thorsten Winkler <twinkler@linux.ibm.com>,
-        Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Ursula Braun <ursula.braun@de.ibm.com>,
-        Simon Horman <horms@kernel.org>,
-        Hidayath Khan <hidayath@linux.ibm.com>, linux-s390@vger.kernel.org
-References: <20260815-b4-disp-dc82fde4-v1-0-e83b10b22ce9@proton.me>
- <20260815-b4-disp-dc82fde4-v1-1-e83b10b22ce9@proton.me>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20260815-b4-disp-dc82fde4-v1-1-e83b10b22ce9@proton.me>
-Content-Type: text/plain; charset=UTF-8
+Date: Wed, 19 Aug 2026 13:24:55 -0300
+From: Mauricio Faria de Oliveira <mfo@igalia.com>
+To: sashiko-reviews@lists.linux.dev
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+ linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, Alexander
+ Gordeev <agordeev@linux.ibm.com>, mptcp@lists.linux.dev, Vasily Gorbik
+ <gor@linux.ibm.com>, bpf@vger.kernel.org
+Subject: Re: [PATCH RFC v2 02/13] proc: add config option
+ SYSCTL_MODULE_ALIASES
+In-Reply-To: <20260819023701.5197B1F000E9@smtp.kernel.org>
+References: <20260818-sysctl-module-aliases-v2-0-d5a69dae5798@igalia.com>
+ <20260818-sysctl-module-aliases-v2-2-d5a69dae5798@igalia.com>
+ <20260819023701.5197B1F000E9@smtp.kernel.org>
+Message-ID: <253d5572bd8c3020775b61e8ac9eb675@igalia.com>
+X-Sender: mfo@igalia.com
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE5MDExNyBTYWx0ZWRfX1zixpkayPCYS
- 1OM2+0fjZkIWVbaaW0FW89w4POLrUnqcsvSVnKRDjIQrTszrTExHNSGmhhCrMoA/UIQbkOSfBx7
- jVr8Czv6M7RV7LhKF3vyUhA4NEdZUHA=
-X-Proofpoint-GUID: KknbWgtzUbLtEUql3OzgqyQciCqQJhx3
-X-Proofpoint-ORIG-GUID: ftEpIKnhj9ZsyEAOfY4f8FqSLRKmyzSE
-X-Authority-Analysis: v=2.4 cv=RPmD2Yi+ c=1 sm=1 tr=0 ts=6a85c667 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
- a=r-z8vWJoZE4dHoqjCw4A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE5MDExNyBTYWx0ZWRfXw3YUfIHhkXrs
- xXhSe8b73TZ9yeFU6G/yIub9XsGyV2zNUFLZTqNYXVMZTMJ9lvK8BcEyqFw8I8pcNxdrV5uX5J7
- i6JhiBu3Zl3W7K77AYID4QzWXTIpvQn/F04WZ7qeEWCvL7k411t3TmPN8qs3PjBVgHmnyXZ1Viy
- 6eHHIACtLpjjkeLLFdT/vj9jeFbuSOTEbbzcrlopLdCaqQjJKAw55Xayzwgn9FoOZiWIlT2wsKA
- VyyvD1Hs295oFGdR7NyWcuG91LArCXZCxI4m1jYA/seTYeW/HSAXZW3Q+30uUTEETotrvaYvhU+
- 7bx7xCJCMng/gUnLhN+RJl76wNzCmooD/m1SOMA6DM27zHoy3WLiTyiRBZdmPze21UQSuCJESwj
- GAG8foamSkGRIM/o3Xn4MvLT7B41uUwIoenMwOkcAuBDLa6k9lVUxUJKyb0CRwJDNdAVOqjAJwu
- cKh7AZfDB5BoU1aEKVg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-19_04,2026-08-19_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 phishscore=0 adultscore=0 spamscore=0 priorityscore=1501
- bulkscore=0 impostorscore=0 malwarescore=0 lowpriorityscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608190117
+X-Spam-Report: NO, Score=-2.1, Tests=ALL_TRUSTED=-3,BAYES_50=0.8,KAM_DMARC_NONE=0.125,KAM_DMARC_STATUS=0.005
+X-Spam-Score: -20
+X-Spam-Bar: --
 
+On 2026-08-18 23:37, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
+> - [Low] The Kconfig option `SYSCTL_MODULE_ALIASES` is introduced but never used in the codebase.
 
+It's used in later patches; apparently not a problem.
 
-On 15.08.26 18:07, Bryam Vargas via B4 Relay wrote:
-> From: Bryam Vargas <hexlabsecurity@proton.me>
-> 
-> iucv_packet_type sets neither .dev nor .af_packet_net, so it lands in the
-> machine-global ptype_base[] that __netif_receive_skb_core walks for every
-> frame in every namespace, and afiucv_hs_rcv() ignores its dev argument.
-> An ETH_P_AF_IUCV frame sent from any namespace holding CAP_NET_RAW is
-> therefore matched against the global iucv_sk_list and can move a socket
-> owned by the initial namespace: afiucv_hs_callback_synfin() and _fin()
-> overwrite its sk_state, and _syn() builds an accept-queue child.
-> 
-> Filter on the namespace. The core does not do it for ptype_base[] --
-> net/core/dev.c leaves namespace filtering to the ptype owner -- and
-> net/x25/x25_dev.c and net/ieee802154/socket.c both test dev_net(dev) at
-> exactly this point.
-> 
-> Fixes: 3881ac441f64 ("af_iucv: add HiperSockets transport")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
-> ---
->  net/iucv/af_iucv.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-> index ea047bab65e7..e3ec965d96ca 100644
-> --- a/net/iucv/af_iucv.c
-> +++ b/net/iucv/af_iucv.c
-> @@ -2064,6 +2064,11 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struct net_device *dev,
->  	int err = NET_RX_SUCCESS;
->  	char nullstring[8];
->  
-> +	if (!net_eq(dev_net(dev), &init_net)) {
-> +		kfree_skb(skb);
-> +		return NET_RX_SUCCESS;
-> +	}
-> +
->  	if (!pskb_may_pull(skb, sizeof(*trans_hdr))) {
->  		kfree_skb(skb);
->  		return NET_RX_SUCCESS;
-> 
+> - [Low] Grammatical error in the Kconfig help text: 'This options adds' should be 'This option adds'.
 
-I am wondering whether a check of
-+		if (iucv_sk(sk)->hs_dev != dev)
-+			continue;
+Fixed.
 
-would cover a broader range of issues.
-I'll try to send a proper patch proposal.
+> --
+> 
+> --- Patch [2]: [PATCH RFC v2 02/13] proc: add config option SYSCTL_MODULE_ALIASES ---
+> commit 931fa1a5261f1467829ad7b64b387a4e318eb177
+> Author: Mauricio Faria de Oliveira <mfo@igalia.com>
+> 
+> proc: add config option SYSCTL_MODULE_ALIASES
+> 
+> Add a config option for the 'sysctl:' module aliases feature.
+> 
+>> diff --git a/fs/proc/Kconfig b/fs/proc/Kconfig
+>> index 24f5a36f45df8..e6591ec4bcf0a 100644
+>> --- a/fs/proc/Kconfig
+>> +++ b/fs/proc/Kconfig
+>> @@ -98,6 +98,19 @@ config SYSCTL
+>>  	  building a kernel for install/rescue disks or your system is very
+>>  	  limited in memory.
+>> 
+>> +config SYSCTL_MODULE_ALIASES
+>> +	bool "'sysctl:' module aliases (EXPERIMENTAL)"
+> 
+> [Severity: Low]
+> Is this config option fully implemented in this commit? The
+> SYSCTL_MODULE_ALIASES option is being introduced here, but it doesn't look
+> like CONFIG_SYSCTL_MODULE_ALIASES is referenced anywhere else in the C code,
+> Makefiles, or scripts.
+> 
+>> +	depends on SYSCTL && MODULES
+>> +	default n
+>> +	help
+>> +	  The /proc/sys files registered by a module do not exist until the
+>> +	  module is loaded; meanwhile, userspace cannot find or access them.
+>> +
+>> +	  This options adds 'sysctl:*/<path>/<file>' module aliases for the
+> 
+> [Severity: Low]
+> This isn't a bug, but there is a typo in the help text: "This options adds"
+> should likely be "This option adds".
+> 
+>> +	  /proc/sys files registered by modules, so modules for nonexistent
+>> +	  files can be loaded with 'modprobe sysctl:/proc/sys/<path>/<file>'
+>> +	  by userspace when needed.
+
+-- 
+Mauricio
