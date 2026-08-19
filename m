@@ -1,133 +1,198 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72959357D10;
-	Wed, 19 Aug 2026 11:40:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91D4B3F54DD;
+	Wed, 19 Aug 2026 11:45:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787139646; cv=none; b=lu+44+zjQBgIWz/LPgY4TrA0aVxRegroEFKn2BIt1gV7+MhmAmRlpuJYLTUuohphhCp9t84rBRc03DYc1E0r2buk16FMTOfRD2F2Smean9A87hGQAff+8IopWuHtvxPdwWX3H5kEQOL6KsMcyVJHLmPuArBxTq9PeN2K6GhR5H0=
+	t=1787139952; cv=none; b=gByWzwBKqbC3+rwLKc1o7PeEeRaDbKCS4UFa2eSxtt8ZxtKYqBRMQZjbF85fz9f2/fTcQ4HsB0TmmufpiLn269tQkWSK9lhSqN6vPwWAtw2iALRRTtc/IPoRsPA8sQqWENaIv3XrbNt9Z16UMFLiOyRILUBkZiYx6B4scLunn3g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787139646; c=relaxed/simple;
-	bh=r9TNEQtg86en8rlSGP7PDYC32L2IrLWyUBPQsCHV3ck=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=gipsSWbtRbMdv8mBbuluwIJRNGBu6I6+F2DDzRE1RX1CHK8ovtVu40OeLiK1upFWy1bkAjdxK5M0txl7k7LoxnxCLyA915yy9NuRdvDveh91ruM1Bl34yS+BHDkOPYf8XZLV6fyyrp/updvWZCkhbUdwPW8aABTH5A/l9dDJNgA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kFlcQ7D9; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1787139952; c=relaxed/simple;
+	bh=sYs6Sg8z01QB2GLvk6s1IsC5i9DXzY/sN5SmRfsk5+k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=k5r0CPgjIg20/5SIiuFmCWLcaFDR7nwjr+Gbw03XPTOlL2appxyv15MQz8o8HCnceSOht7gCnOrzdBVhnDlt0jdJjko3TYSwSFaP1BY8G2+QHJapfk9RKxJ04VrB085qH5gSkh22KOwtTL3qw1G7HNaTILi2sosj0m0YkQQq/QY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=pass smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=HXS1k7ZS; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kFlcQ7D9"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67JAVjUX3228291;
-	Wed, 19 Aug 2026 11:40:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=ukg47i
-	7KvmIA6RseooDPi8jZv0ZiBYLTZtw1/r4wpz0=; b=kFlcQ7D99ZX2tRM6IMxgxE
-	IV3tZk3GNK0+yKAn5Z0WkkJtEcIE9M7u0FB39Jhul+sV8NqNfTNQGJkjAe+CFeyV
-	LLcwV4hv2oOCD9+/Fryxquwdg/4YWALIskQv/ECKwJLPK6nVmpVuB/un6NToWdA4
-	QqCLBIeaCbMHdN+jfQvkVoD7rSMkPURQD9K+iSiJ1vaoTfegCFJHflKLS7Pv8bef
-	J8/h+REtUWImrGk4Apb1/ERa5OOy3bmzhe12LEjUxq3pQddah2IVKVFM6xE6lUZK
-	t/ThOWQCA2X9WuUVOC91a82LAjv/+zg2yWnsJtWQZXjSCkvlf1Vkxf012swsZlyg
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu43aa9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Aug 2026 11:40:40 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67JBQLwL006718;
-	Wed, 19 Aug 2026 11:40:39 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33xh8mb2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Aug 2026 11:40:39 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67JBeZ5942205440
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 19 Aug 2026 11:40:35 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8EFBA20043;
-	Wed, 19 Aug 2026 11:40:35 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A4DAB20040;
-	Wed, 19 Aug 2026 11:40:34 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.87.134.55])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Wed, 19 Aug 2026 11:40:34 +0000 (GMT)
-Date: Wed, 19 Aug 2026 13:40:33 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Anthony Krowiak <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, jjherne@linux.ibm.com, borntraeger@de.ibm.com,
-        mjrosato@linux.ibm.com, alex@shazbot.org, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, stable@vger.kernel.org,
-        Halil Pasic
- <pasic@linux.ibm.com>
-Subject: Re: [PATCH v5 7/9] s390/vfio-ap: Fix hot-unplug skipped when last
- AP adapter or domain removed
-Message-ID: <20260819134033.535fc52e.pasic@linux.ibm.com>
-In-Reply-To: <20260812200240.818004-8-akrowiak@linux.ibm.com>
-References: <20260812200240.818004-1-akrowiak@linux.ibm.com>
-	<20260812200240.818004-8-akrowiak@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="HXS1k7ZS"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=hLfRj57yEBsc06jH6wJGVAOT1OrEjp5Uv/NlEfdHEFo=; b=HXS1k7ZSluuCyn35A5gwjfUD/w
+	9F/0n8m6v/PowEwOmU0kT6F9mthptoEdQAt61/C/XKOaUTOCoDmVUqrLqRV2Lao6z5GU2Qj3qnRWM
+	Y4tQXz9sYqTtsvMCEq7WTwbqrNWfBg8608si2oZKm0vKXJUozo0waSslYl7lBq4S0R54l/ZvtwrX7
+	Q1aiArQ1aNa0xggKtzponuNJ8V8XOVDMCW1BJoQ9N9fVWqwKzwUlrcmED0u6+e1It4E26jyfsD9LO
+	4YH0E/05mC01I+QkBKW74NBMbLKhmtC10pjkrogLxN94myoWtSLS6sXpuM79n/IJQMTpuW9Nl1MAf
+	q+T1naDg==;
+Received: from authenticated-user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.96)
+	(envelope-from <leitao@debian.org>)
+	id 1wwejd-009ldD-1x;
+	Wed, 19 Aug 2026 11:45:34 +0000
+Date: Wed, 19 Aug 2026 04:45:26 -0700
+From: Breno Leitao <leitao@debian.org>
+To: Yehyeong Lee <yhlee@isslab.korea.ac.kr>
+Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, 
+	sidraya@linux.ibm.com, wenjia@linux.ibm.com, kuba@kernel.org, davem@davemloft.net, 
+	edumazet@google.com, pabeni@redhat.com, horms@kernel.org, mjambigi@linux.ibm.com, 
+	tonylu@linux.alibaba.com, guwen@linux.alibaba.com, guangguan.wang@linux.alibaba.com, 
+	kees@kernel.org, gustavoars@kernel.org, netdev@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, linux-hardening@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH net v7 1/3] net/smc: fix use-after-free of the LLC qentry
+ in smc_llc_srv_add_link()
+Message-ID: <aoWXR103vbYblTNp@gmail.com>
+References: <20260819023306.644849-1-yhlee@isslab.korea.ac.kr>
+ <20260819023306.644849-2-yhlee@isslab.korea.ac.kr>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=CpuPtH4D c=1 sm=1 tr=0 ts=6a859638 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=Gm9r7fe_Tw3zQ87jZCMA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: stXROtBFUUAg5YgqItTK5zeFD5MQ-OcE
-X-Proofpoint-GUID: stXROtBFUUAg5YgqItTK5zeFD5MQ-OcE
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE5MDA4OSBTYWx0ZWRfXwXW4BG0GiNba
- Gg9AqOmK5pYObF1e9V5529Uqh6g5rKsotUao+cSfLCE6nElNyiB1f3mxdp5rUAiFz8Ggo3/WZPe
- 8QiQ3J9tRrL2kY4HzdgYY62TzHIYoNQ=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE5MDA4OSBTYWx0ZWRfX3Tn6ws+i7nQ+
- 6zlzctdOJp5vHVUupRxvlUMqqoR1teSa1M/zcT1KnV2deOlUb1AVLhRF85cZCBP6tdfLjI4m4F1
- 2sSTjgv95/cLmPQwj/LOqOBpmk0oImmwASLEymGQYC9zqwvMMfjFx/Bukjbdef4JJ3n2O+cxMN0
- 2Vn82NvNttL3FH8wsyicVE8H1AXCvGcC/V57xtFupbhrJ7oxguObXWdpeLMHh0BG/yI07s3EQhE
- cSCelQqhWdMvwLDH8qvbhORQ13ntNHrh7Vf85+sXNZHumRCMT5YnYTk9EXqGAAtvSVLJ8WhKli1
- QXkjJqRSKS5exrf6xrEjJBQlEqfJbZIW267fXGuf1ydVhH/HjfHPGOz91fayFqCEf5VrQ0i4xzM
- vzjWOBk9L5+L1KD40mENwoU3WeG1ssZtRBCnlkfbdNzIc5bzDP2A9VFACW7eWnVtfrTT4UPjXkf
- NVncn97G/CKTuIQSwtQ==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-19_03,2026-08-18_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 adultscore=0 bulkscore=0 malwarescore=0 phishscore=0
- lowpriorityscore=0 spamscore=0 clxscore=1015 priorityscore=1501
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608190089
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260819023306.644849-2-yhlee@isslab.korea.ac.kr>
+X-Debian-User: leitao
 
-On Wed, 12 Aug 2026 16:02:38 -0400
-Anthony Krowiak <akrowiak@linux.ibm.com> wrote:
+On Wed, Aug 19, 2026 at 11:33:04AM +0900, Yehyeong Lee wrote:
+> smc_llc_srv_add_link() keeps add_llc pointing into the queue entry:
+> 
+>   add_llc = &qentry->msg.add_link;			smc_llc.c:1482
+>   ...
+>   smc_llc_save_add_link_info(link_new, add_llc);	smc_llc.c:1494
+>   smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);		smc_llc.c:1495
+>   ...
+>   u8 *llc_msg = smc_link_shared_v2_rxbuf(link) ?
+> 	(u8 *)lgr->wr_rx_buf_v2 : (u8 *)add_llc;	smc_llc.c:1504
+>   smc_llc_save_add_link_rkeys(link, link_new, llc_msg);	smc_llc.c:1506
+> 
+> smc_llc_flow_qentry_del() kfree()s the entry, so on a link without a shared
+> v2 receive buffer the pointer handed to smc_llc_save_add_link_rkeys() is
+> already freed. Before the Fixes: commit that branch always used
+> lgr->wr_rx_buf_v2 and add_llc was not used after the free.
+> 
+> Reproduced on an unpatched tree over rxe, with KASAN, kasan_multi_shot
+> and a link forced to max_recv_sge == 1: the entry is freed and read by
+> the same call, and the freeing frame is smc_llc_srv_add_link() itself.
+> 
+>   [    2.523161] BUG: KASAN: slab-use-after-free in smc_llc_save_add_link_rkeys+0x333/0x350
+>   [    2.523499] Read of size 2 at addr ffff8880052194de by task kworker/0:1/11
+>   [    2.523789] 
+>   [    2.523862] CPU: 0 UID: 0 PID: 11 Comm: kworker/0:1 Not tainted 7.2.0-rc5-p0-g2c9dd296545d #35 PREEMPT(lazy) 
+>   [    2.523865] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+>   [    2.523866] Workqueue: smc_hs_wq smc_listen_work
+>   [    2.523869] Call Trace:
+>   [    2.523870]  <TASK>
+>   [    2.523871]  dump_stack_lvl+0x53/0x70
+>   [    2.523872]  print_report+0xd0/0x630
+>   [    2.523874]  ? __pfx__raw_spin_lock_irqsave+0x10/0x10
+>   [    2.523876]  ? smc_llc_save_add_link_rkeys+0x333/0x350
+>   [    2.523878]  kasan_report+0xce/0x100
+>   [    2.523879]  ? smc_llc_save_add_link_rkeys+0x333/0x350
+>   [    2.523881]  smc_llc_save_add_link_rkeys+0x333/0x350
+>   [    2.523883]  ? smcr_buf_reg_lgr+0x2a4/0x660
+>   [    2.523885]  smc_llc_srv_add_link+0xaa2/0x1e50
+>   [    2.523888]  ? _printk+0xba/0xf0
+>   [    2.523897]  ? __pfx_smc_llc_srv_add_link+0x10/0x10
+>   [    2.523899]  ? down_write+0xb0/0x130
+>   [    2.523903]  ? __pfx_down_write+0x10/0x10
+>   [    2.523905]  smc_listen_work+0x489e/0x4d00
+>   [    2.523907]  ? kmem_cache_free+0x1c6/0x3a0
+>   [    2.523911]  ? __pfx_smc_listen_work+0x10/0x10
+>   [    2.523913]  ? release_sock+0x148/0x1d0
+>   [    2.523915]  ? smc_tcp_listen_work+0xb4f/0xfc0
+>   [    2.523917]  ? _raw_spin_lock_irq+0x80/0xe0
+>   [    2.523918]  ? __pfx__raw_spin_lock_irq+0x10/0x10
+>   [    2.523920]  process_one_work+0x633/0x1030
+>   [    2.523922]  ? assign_work+0x11d/0x370
+>   [    2.523924]  worker_thread+0x45b/0xd10
+>   [    2.523926]  ? __pfx_worker_thread+0x10/0x10
+>   [    2.523928]  ? __pfx_worker_thread+0x10/0x10
+>   [    2.523929]  kthread+0x2c6/0x3b0
+>   [    2.523931]  ? recalc_sigpending+0x15c/0x1e0
+>   [    2.523934]  ? __pfx_kthread+0x10/0x10
+>   [    2.523935]  ret_from_fork+0x36e/0x5a0
+>   [    2.523937]  ? __pfx_ret_from_fork+0x10/0x10
+>   [    2.523938]  ? __switch_to+0x572/0xdd0
+>   [    2.523943]  ? __pfx_kthread+0x10/0x10
+>   [    2.523944]  ret_from_fork_asm+0x1a/0x30
+>   [    2.523947]  </TASK>
+>   [    2.523948] 
+>   [    2.531253] Allocated by task 48:
+>   [    2.531399]  kasan_save_stack+0x33/0x60
+>   [    2.531570]  kasan_save_track+0x14/0x30
+>   [    2.531737]  __kasan_kmalloc+0x8f/0xa0
+>   [    2.531905]  __kmalloc_cache_noprof+0x158/0x370
+>   [    2.532100]  smc_llc_enqueue+0x72/0x560
+>   [    2.532268]  smc_wr_rx_tasklet_fn+0x474/0xa80
+>   [    2.532491]  tasklet_action_common+0x20f/0x8a0
+>   [    2.532714]  handle_softirqs+0x18e/0x590
+>   [    2.532886]  do_softirq+0x3b/0x60
+>   [    2.533036]  __local_bh_enable_ip+0x61/0x70
+>   [    2.533221]  __alloc_skb+0x732/0x890
+>   [    2.533384]  rxe_init_packet+0x16b/0x4f0
+>   [    2.533567]  prepare_ack_packet+0xb8/0x830
+>   [    2.533760]  rxe_receiver+0x495/0x96e0
+>   [    2.533933]  do_work+0x144/0x470
+>   [    2.534078]  process_one_work+0x633/0x1030
+>   [    2.534257]  worker_thread+0x45b/0xd10
+>   [    2.534424]  kthread+0x2c6/0x3b0
+>   [    2.534569]  ret_from_fork+0x36e/0x5a0
+>   [    2.534737]  ret_from_fork_asm+0x1a/0x30
+>   [    2.534907] 
+>   [    2.534980] Freed by task 11:
+>   [    2.535112]  kasan_save_stack+0x33/0x60
+>   [    2.535279]  kasan_save_track+0x14/0x30
+>   [    2.535444]  kasan_save_free_info+0x3b/0x60
+>   [    2.535625]  __kasan_slab_free+0x43/0x70
+>   [    2.535798]  kfree+0x121/0x380
+>   [    2.535935]  smc_llc_srv_add_link+0x9a8/0x1e50
+>   [    2.536128]  smc_listen_work+0x489e/0x4d00
+>   [    2.536305]  process_one_work+0x633/0x1030
+>   [    2.536482]  worker_thread+0x45b/0xd10
+>   [    2.536652]  kthread+0x2c6/0x3b0
+>   [    2.536794]  ret_from_fork+0x36e/0x5a0
+>   [    2.536958]  ret_from_fork_asm+0x1a/0x30
+>   [    2.537133] 
+>   [    2.537205] The buggy address belongs to the object at ffff888005219480
+>   [    2.537205]  which belongs to the cache kmalloc-96 of size 96
+>   [    2.537719] The buggy address is located 94 bytes inside of
+>   [    2.537719]  freed 96-byte region [ffff888005219480, ffff8880052194e0)
+>   [    2.538216] 
+>   [    2.538289] The buggy address belongs to the physical page:
+>   [    2.538524] page: refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x5219
+>   [    2.538857] flags: 0x100000000000000(node=0|zone=1)
+>   [    2.539066] page_type: f5(slab)
+>   [    2.539210] raw: 0100000000000000 ffff888001041280 dead000000000122 0000000000000000
+>   [    2.539534] raw: 0000000000000000 0000000000200020 00000000f5000000 0000000000000000
+>   [    2.539863] page dumped because: kasan: bad access detected
+>   [    2.540098] 
+>   [    2.540170] Memory state around the buggy address:
+>   [    2.540379]  ffff888005219380: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>   [    2.540684]  ffff888005219400: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>   [    2.540988] >ffff888005219480: fa fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
+>   [    2.541291]                                                     ^
+>   [    2.541548]  ffff888005219500: 00 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc
+>   [    2.541857]  ffff888005219580: 00 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc
+> 
+> The offset is past the 72-byte queue entry because the out-of-bounds read
+> fixed by the next patch is on the same line; what this patch removes is the
+> free at smc_llc_srv_add_link+0x9a8 happening before the read at +0xaa2.
+> 
+> Detach the entry instead of freeing it there, and free it at the single
+> exit label. The reject path has to detach as well, otherwise it would be
+> freed twice.
+> 
+> This changes only the lifetime of the entry. The same read still runs past
+> its end until the next two patches bound it, so a backport wants all three.
+> 
+> Fixes: 27ef6a9981fe ("net/smc: support SMC-R V2 for rdma devices with max_recv_sge equals to 1")
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
+> Signed-off-by: Yehyeong Lee <yhlee@isslab.korea.ac.kr>
 
-> @@ -2568,24 +2568,28 @@ static void vfio_ap_mdev_hot_unplug_cfg(struct ap_matrix_mdev *matrix_mdev,
->  					unsigned long *aqrem,
->  					unsigned long *cdrem)
->  {
-> -	int do_hotplug = 0;
-> +	bool do_hotplug = false;
->  
-
-Nit: The name is IMHO somewhat misleading. If we are already touching
-all uses of the variable and its type maybe we can use the opportunity
-to change it's name as well.
-
-Some ideas: update_apcb, changed, matrix_changed.
-
-[..]
->  
->  	if (do_hotplug)
->  		vfio_ap_mdev_update_guest_apcb(matrix_mdev);
-> -- 
+Reviewed-by: Breno Leitao <leitao@debian.org>
