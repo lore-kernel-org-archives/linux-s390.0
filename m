@@ -1,62 +1,61 @@
 Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A16A83515F6;
-	Wed, 19 Aug 2026 16:26:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E59438AC6A;
+	Wed, 19 Aug 2026 16:29:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787156766; cv=none; b=ChKVe2hoUdy7JKFPFT1CCNB9kaVwAeIDk6PKKvx1OztA+mlTAlGCs/3H+QZLRTkPhm+A+IPXy9+fhbENuf+ihY8OE3QFhh6jjKLo1nvL6pkQHxgb5oLw2V6SfPPYsCgaG9DknauKkh3ruOBQeuk36SF13ppqOJY/VGUy61yF3Ks=
+	t=1787156969; cv=none; b=TEPb5MfH2/0J2M5qCjRT5+Z+jvHXvNdypX7yiO/Zs/LPiLb1eNgvPiZ3whxJg9n2onkw3eDiZReX2SWOJFIr2dFV7ZxJPXP2/ccEwrRJPpjeOe73P4e4Lr0kdiHCMxX9UMD6JqTj8m0nJaEEhrgj/PM0B82pA3f47kx0wblQxCg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787156766; c=relaxed/simple;
-	bh=GRC+AsBbQTKpT20sTVsNN4fmntUm185V1dttY25FveI=;
+	s=arc-20240116; t=1787156969; c=relaxed/simple;
+	bh=EMyKPnso3CwtM5fWkxY91QYA3svonXDGJFqOhkFsRWQ=;
 	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=BLr8KhxGBh7ZyP6s98Xd4tC+Q3ZVFKOk+B7h0OpcMpP3nliXXW6sXrXbkL68Jo/TsKolb0FB7xTrhkdFVM5wNwoYSMdtNOrv/xS+NaJR6sarjYOgJZC4GfxsHB/jkRVavdg7RaVC4M09L8goU14YOCAcpRKdAcI6GG6hJsm7n+0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=pBHr+X/C; arc=none smtp.client-ip=213.97.179.56
+	 Message-ID:Content-Type; b=YWCYsaEn67GrRvh31w0NTWKdQq/Vua2/AkKyenvtikHcvxowtsPJU9RrUqfcL2yFRYvjnqdkLZ+2S3LSld/JlGGwEOg1meQqBWWZhGfCkuCrrByhApeU9hoqVf09Vr0kjeukjOj1olJ7aSRH4Fe+j3oNjz8hgnEc9TsgTi5jFuk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=sy6YzwhY; arc=none smtp.client-ip=213.97.179.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="pBHr+X/C"
+	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="sy6YzwhY"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
 	s=20170329; h=Content-Transfer-Encoding:Content-Type:Message-ID:Subject:Cc:To
 	:From:Date:MIME-Version:From:Reply-To;
-	bh=RbFyeba0ncl6pHDcIloDhb/TokSF02n8VJcj2OpB7Tw=; b=pBHr+X/CPPhtV6N4/65ZRIhtFO
-	D6t51UQBYVmyQrzrTWDBwRgCbnQ7gTI66WZLZJaG0FLxwY9tVJlgkwgydXp3XTizapZSr3GTOJ427
-	tde+FBq3Wwr55kQZCGVtBzJBeKyAgOU8G5fFOuAzfnh15zkt7KEJ9+sd5QqCiuOR2bxKuDIhdV8/W
-	JQpH39bZ1qbo4cy4NPKr2KFz4EqZQZW+YsfDypZVvLYBAWvIOrEB0l2P+HK/Gv1xpGE0qKx9hZbaA
-	Fvgq7HFiGDzSBuSKR6FeIQlM/NQKONYANk8nhVBqG5QT6xbN0a+6R26mW7h1crQLs+ptvwPX0JVpe
-	KLgMvdTg==;
+	bh=yhqm2gd3OUOrLM3numVaJNibQOvWu36QavMvOKL7fiY=; b=sy6YzwhY6rArSkojS4kjVyhBGT
+	y6HSjOhcCU73FaQGbG/YjCosEMlPezpPyBm43zm3VawGVPwHj7gWAXd61wU0v17XwgbsqRBZ0EhDL
+	4XEiOIsSf091Rf1CYorZiimVkcLJuSeic3G6WA39pVJm2mvw5n/MxDVENKeOMzpLhGDGkusHL9+X9
+	7GTdLJaOfcn5uYSSs2GmIqA5tGNGty/Ult3pHhOUWTGBgjyn4c3pGco7SW6h9XHbyjg7b/F/gfH+l
+	bAzZBIO2aty5etDdV+mo3rhBS/MHTyPD2cddMTlGg44KwD0zxQiD+uAiDr39PWiVF2MVr7rayNCNX
+	fqej+boQ==;
 Received: from maestria.local.igalia.com ([192.168.10.14] helo=mail.igalia.com)
 	by fanzine2.igalia.com with esmtps 
 	(Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-	id 1wwj74-006Bp3-88; Wed, 19 Aug 2026 18:26:02 +0200
+	id 1wwjAL-006BtD-Oq; Wed, 19 Aug 2026 18:29:25 +0200
 Received: from webmail.service.igalia.com ([192.168.21.45])
 	by mail.igalia.com with esmtp (Exim)
-	id 1wwj72-00EYcA-Ql; Wed, 19 Aug 2026 18:26:02 +0200
+	id 1wwjAK-00EYpN-FS; Wed, 19 Aug 2026 18:29:25 +0200
 Received: from localhost ([127.0.0.1] helo=webmail.igalia.com)
 	by webmail.service.igalia.com with esmtp (Exim 4.98.2)
 	(envelope-from <mfo@igalia.com>)
-	id 1wwj72-000000027Gi-3HEZ;
-	Wed, 19 Aug 2026 18:26:00 +0200
+	id 1wwjAK-000000027JE-1oLu;
+	Wed, 19 Aug 2026 18:29:24 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Wed, 19 Aug 2026 13:26:00 -0300
+Date: Wed, 19 Aug 2026 13:29:24 -0300
 From: Mauricio Faria de Oliveira <mfo@igalia.com>
 To: sashiko-reviews@lists.linux.dev
-Cc: Heiko Carstens <hca@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org,
- bpf@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
- mptcp@lists.linux.dev, Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: Re: [PATCH RFC v2 03/13] sysctl, mod_devicetable: add macro
- MODULE_SYSCTL_TABLE
-In-Reply-To: <20260819024055.91F891F00A3A@smtp.kernel.org>
+Cc: bpf@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Alexander
+ Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens
+ <hca@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ mptcp@lists.linux.dev
+Subject: Re: [PATCH RFC v2 13/13] modpost: handle MODULE_SYSCTL_TABLE symbols
+In-Reply-To: <20260819024854.392F71F000E9@smtp.kernel.org>
 References: <20260818-sysctl-module-aliases-v2-0-d5a69dae5798@igalia.com>
- <20260818-sysctl-module-aliases-v2-3-d5a69dae5798@igalia.com>
- <20260819024055.91F891F00A3A@smtp.kernel.org>
-Message-ID: <602c77077b1497d9270874d96432b081@igalia.com>
+ <20260818-sysctl-module-aliases-v2-13-d5a69dae5798@igalia.com>
+ <20260819024854.392F71F000E9@smtp.kernel.org>
+Message-ID: <10d22abac939ce0b2c8784cd84e9c073@igalia.com>
 X-Sender: mfo@igalia.com
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -64,194 +63,140 @@ X-Spam-Report: NO, Score=-2.1, Tests=ALL_TRUSTED=-3,BAYES_50=0.8,KAM_DMARC_NONE=
 X-Spam-Score: -20
 X-Spam-Bar: --
 
-On 2026-08-18 23:40, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 6 potential issue(s) to consider:
-> - [High] The file2alias.c handler for sysctl device tables is entirely missing from the patch, resulting in no module aliases being generated.
+On 2026-08-18 23:48, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 4 potential issue(s) to consider:
+> - [High] Double addition of `sym->st_value` causes `modpost` to read sysctl table pointers from incorrect offsets on ARM and other architectures utilizing `SHT_REL`.
 
-This is handled in a later patch.
+The cross-compile tests had consistent output between e.g., ARM and
+other architectures. I'll take a look later.
 
-> - [High] `__UNIQUE_ID` is used without arguments, preventing its expansion and causing redefinition compiler errors.
+> - [Medium] The sysctl table entries processing aborts iteration upon encountering a relocation offset beyond the table's bounds, invalidly assuming ELF relocations are strictly sorted.
+
+The cross-compile tests had consistent output among all architectures,
+thus this doesn't seem to be a problem. Assuming that table entries
+might have non-sequential/non-sorted relocations would probably incur
+significant design changes, which doesn't seem worth it or required at
+this point.
+
+> - [Low] The string replacement loop in `do_sysctl_entry()` skips the character immediately following a '%' without bounds checking, leading to an out-of-bounds read.
 
 Fixed.
 
-> - [High] Pointers in device table structs cannot be dereferenced by modpost without relocation resolution.
-> - [High] modpost cannot parse `struct ctl_table` due to randomized layout and nested pointers.
-> - [High] Macro generates a single struct, but modpost expects a NULL-terminated array.
-
-These are handled in later patches.
-
-> - [Medium] The MODULE_SYSCTL_TABLE macro silently accepts pointers instead of arrays, resulting in an invalid table_size.
+> - [Low] The `entry_size` field parsed from the ELF file is used as a divisor without zero verification, allowing a malformed module to trigger a division-by-zero crash in `modpost`.
 
 Fixed.
-
-Note: this case has been checked during design, and it fails due to
-pointers not being constant but used as static initializers (must be
-constant); however, there's indeed a exposure with constant pointers
-(e.g., 'static const struct ctl_table *const ptr' -- not seen in
-practice, but theoretically possible).
-
 
 > --
 > 
-> --- Patch [3]: [PATCH RFC v2 03/13] sysctl, mod_devicetable: add macro MODULE_SYSCTL_TABLE ---
-> commit 4b00a2bf658ca058127bbaaa61c3c168a3a4574c
+> --- Patch [13]: [PATCH RFC v2 13/13] modpost: handle MODULE_SYSCTL_TABLE symbols ---
+> commit 75e261ee7e3ce69bb021a98d7b4574fdc959ec34
 > Author: Mauricio Faria de Oliveira <mfo@igalia.com>
 > 
-> sysctl, mod_devicetable: add macro MODULE_SYSCTL_TABLE
+> modpost: handle MODULE_SYSCTL_TABLE symbols
 > 
-> This commit adds the MODULE_SYSCTL_TABLE macro to emit a struct
-> module_sysctl_table variable containing pointers to a sysctl table's path
-> and entries. It also adds the necessary struct definitions and field
-> offsets for modpost integration.
+> Update file2alias.c to handle 'mod_devicetable' symbols with type 'sysctl'.
+> The key operation is to iterate over relocation entries and add module aliases
+> for each entry.
 > 
->> diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
->> index a397213bedace..818a4a53448db 100644
->> --- a/include/linux/mod_devicetable.h
->> +++ b/include/linux/mod_devicetable.h
-> 
-> [ ... ]
-> 
->> @@ -78,4 +78,11 @@ struct cpu_feature {
->>  	__u16	feature;
->>  };
->> 
->> +struct module_sysctl_table {
->> +	kernel_ulong_t path;
->> +	kernel_ulong_t table;
-> 
-> [Severity: High]
-> Does modpost know how to read these external pointers?
-> 
-> Modpost's file2alias.c extracts raw bytes from the struct and typically
-> does not resolve relocations to dereference .rodata or .data pointers. Will
-> this prevent modpost from actually reading the path or table strings/data
-> from unlinked ELF object files (.o)?
-> 
->> +	__u16 table_size;
->> +	__u16 entry_size;
->> +};
->> +
->>  #endif /* LINUX_MOD_DEVICETABLE_H */
->> diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
->> index e5d7226ab6f5a..6960fe22c50bf 100644
->> --- a/include/linux/sysctl.h
->> +++ b/include/linux/sysctl.h
+>> diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+>> index 8d36c74dec2d5..797cfc2f478e2 100644
+>> --- a/scripts/mod/file2alias.c
+>> +++ b/scripts/mod/file2alias.c
+>> @@ -1531,6 +1531,231 @@ static const struct devtable devtable[] = {
 > 
 > [ ... ]
 > 
->> @@ -293,6 +293,48 @@ struct ctl_table_root {
->>  	int (*permissions)(struct ctl_table_header *head, const struct ctl_table *table);
->>  };
->> 
->> +/*
->> + * Creates a symbol so file2alias.c can find the sysctl table.
->> + *
->> + * MODULE_SYSCTL_TABLE() is the sysctl equivalent of MODULE_DEVICE_TABLE(),
->> + * with pointers to a sysctl table's path and entries, and table/entry sizes.
->> + *
->> + * The parameters 'path' and 'table' must be static (e.g., string literal or
->> + * static char[]; static struct ctl_table[]) as both are used as initializer
->> + * elements for a static struct variable.
->> + *
->> + * The generated symbol name contains 'table' by default. However, if 'table'
->> + * is a struct field (contains '.' or '->'), in order to avoid syntax errors,
->> + * define the macro SYSCTL_MODULE_ALIASES_UNIQUE_ID.
->> + *
->> + * Define the macro SYSCTL_MODULE_ALIASES_DISABLE to disable this.
->> + */
->> +#if defined(CONFIG_SYSCTL_MODULE_ALIASES) && defined(MODULE) &&			\
->> +    !defined(SYSCTL_MODULE_ALIASES_DISABLE)
+>> +// Looks like: sysctl:*/path/procname
+>> +static void do_sysctl_entry(const char *procname, const char *path,
+>> +			    struct module *mod)
+>> +{
+>> +	const char *src;
+>> +	char *dst, buf[256], *end = buf + sizeof(buf) - 1; /* -1 for NUL byte */
 >> +
->> +#include <linux/module.h>
->> +#include <linux/mod_devicetable.h>
+>> +	/* Replace '%s' from path template with '*' for wildcard in modprobe. */
+>> +	for (src = path, dst = buf; *src && dst < end; src++, dst++)
+>> +		*dst = (*src == '%') ? (src++, '*') : *src;
+> 
+> [Severity: Low]
+> Does this loop advance past the end of the string if the path ends exactly
+> with a '%' character?
+> 
+> If *src is '%', the inline ternary operator does a src++. Then the loop's
+> update step does another src++, which would skip the NUL terminator and lead
+> to an out-of-bounds read on the next iteration.
+> 
+>> +	*dst = '\0';
 >> +
->> +#if defined(SYSCTL_MODULE_ALIASES_UNIQUE_ID)
->> +#define __MODULE_SYSCTL_TABLE_NAME(table)					\
->> +	__mod_device_table(sysctl, __UNIQUE_ID)
+>> +	module_alias_printf(mod, false, "sysctl:*/%s/%s", buf, procname);
+>> +}
 > 
-> [Severity: High]
-> Does this use of __UNIQUE_ID work correctly without an argument?
+> [ ... ]
 > 
-> Since __UNIQUE_ID is a function-like macro, using it without parentheses
-> prevents its expansion. This could result in the preprocessor treating it
-> as a literal token, generating a variable name like ...__sysctl____UNIQUE_ID
-> and causing redefinition errors if invoked multiple times in the same file.
-> 
->> +#else
->> +#define __MODULE_SYSCTL_TABLE_NAME(table)					\
->> +	__mod_device_table(sysctl, table)
->> +#endif
+>> +static bool do_sysctl_entries(struct elf_info *elf, Elf_Shdr *sechdr, Elf_Sym *sym,
+>> +			      Elf_Addr r_offset, Elf_Addr r_addend, void *data)
+>> +{
+>> +	struct sysctl_entries *sysctl_entries = (struct sysctl_entries *) data;
 >> +
->> +#define MODULE_SYSCTL_TABLE(path, table)					\
->> +	static struct module_sysctl_table __used				\
->> +		__MODULE_SYSCTL_TABLE_NAME(table) = {				\
-> 
-> [Severity: High]
-> Will this work with modpost's do_table() logic?
-> 
-> This macro generates a single struct instance, but modpost expects all
-> __mod_device_table symbols to point to an array terminated by an all-zero
-> element. Scanning this single struct could cause a build-time
-> "not terminated with a NULL entry" error when it sees non-zero bytes.
-> 
->> +			(kernel_ulong_t) path,					\
->> +			(kernel_ulong_t) table,					\
-> 
-> [Severity: High]
-> If modpost attempts to parse struct ctl_table through this pointer, how does
-> it handle a randomized struct layout?
-> 
-> Since struct ctl_table can be marked with __randomize_layout when
-> CONFIG_RANDSTRUCT is enabled, a host tool like modpost cannot reliably extract
-> information from these entries without having the field offsets explicitly
-> exported in devicetable-offsets.c.
-> 
->> +			(u16) sizeof(table),					\
+>> +	/* Skip until .table starts */
+>> +	if (r_offset < sysctl_entries->table_offset)
+>> +		return false;
+>> +
+>> +	/* Stop after .table ends */
+>> +	if (r_offset >= sysctl_entries->table_offset + sysctl_entries->table_size)
+>> +		return true;
 > 
 > [Severity: Medium]
-> Can this silently evaluate to a pointer size instead of the array size?
+> Is it safe to assume that relocation entries in the ELF section are strictly
+> sorted by r_offset?
 > 
-> If a pointer to a ctl_table is passed instead of a static array, sizeof(table)
-> evaluates to the pointer size, leading to an incorrect table size being
-> emitted. Could this be protected using __must_be_array(table)?
+> By returning true here, the loop over relocation entries is aborted. The ELF
+> specification does not guarantee strict sorting by offset. If a linker emits
+> an out-of-order relocation entry earlier in the section but pointing past the
+> table, could this prematurely abort the traversal and miss valid entries?
 > 
->> +			(u16) sizeof(const struct ctl_table)			\
->> +		}
->> +#else
->> +#define MODULE_SYSCTL_TABLE(path, table)
->> +#endif
 >> +
->>  #define register_sysctl(path, table)	\
->>  	register_sysctl_sz(path, table, ARRAY_SIZE(table))
->> 
->> diff --git a/scripts/mod/devicetable-offsets.c b/scripts/mod/devicetable-offsets.c
->> index b4178c42d08f5..e3b8855e6ebcf 100644
->> --- a/scripts/mod/devicetable-offsets.c
->> +++ b/scripts/mod/devicetable-offsets.c
+>> +	/* Check for alignment with an array entry (.procname at offset zero) */
+>> +	if ((r_offset - sysctl_entries->table_offset) % sysctl_entries->entry_size == 0) {
+> 
+> [Severity: Low]
+> Can entry_size be zero here?
+> 
+> Since entry_size is parsed directly from the ELF module, a malformed module
+> with a size of 0 could trigger a division-by-zero crash in modpost.
+> 
+>> +
+>> +		/* The symbol for .procname points to a string */
+>> +		const char *procname = (const char *)
+>> +				       sym_get_data_addend(elf, sym, r_addend);
 > 
 > [ ... ]
 > 
->> @@ -284,5 +284,11 @@ int main(void)
->>  	DEVID(coreboot_device_id);
->>  	DEVID_FIELD(coreboot_device_id, tag);
+>> diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
+>> index d18a87b882a67..10eb7273cdd81 100644
+>> --- a/scripts/mod/modpost.c
+>> +++ b/scripts/mod/modpost.c
+>> @@ -340,6 +340,13 @@ void *sym_get_data(const struct elf_info *info, const Elf_Sym *sym)
+>>  				      sym->st_value);
+>>  }
 >> 
->> +	DEVID(module_sysctl_table);
+>> +void *sym_get_data_addend(const struct elf_info *info, const Elf_Sym *sym,
+>> +			  Elf_Addr r_addend)
+>> +{
+>> +	return sym_get_data_by_offset(info, get_secindex(info, sym),
+>> +				      sym->st_value + r_addend);
+>> +}
 > 
 > [Severity: High]
-> Where is the file2alias.c handler for sysctl device tables?
+> Does this result in adding sym->st_value twice on architectures like ARM
+> that use SHT_REL?
 > 
-> The commit message mentions this symbol will be handled by file2alias.c,
-> but the patch does not appear to add the corresponding entry in the
-> devtable[] array to actually parse the new struct. Will this result in
-> no module aliases being generated at all?
+> In for_each_reloc(), r_addend is calculated using addend_rel(). On ARM,
+> addend_rel() already returns the instruction value plus sym->st_value.
 > 
->> +	DEVID_FIELD(module_sysctl_table, path);
->> +	DEVID_FIELD(module_sysctl_table, table);
->> +	DEVID_FIELD(module_sysctl_table, table_size);
->> +	DEVID_FIELD(module_sysctl_table, entry_size);
->> +
->>  	return 0;
->>  }
+> If sym->st_value is added again here (and in the manual table_offset
+> calculation in do_sysctl_table()), modpost will read from the wrong
+> offset, silently failing to extract .procname and missing the module
+> aliases.
 
 -- 
 Mauricio
