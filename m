@@ -1,154 +1,139 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31757429CF4
-	for <linux-s390@vger.kernel.org>; Wed, 19 Aug 2026 09:14:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01F3B42F704;
+	Wed, 19 Aug 2026 09:15:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787130868; cv=none; b=MMMHNX/aDSANLpLHt1+HDE3NYGXu0w0d1r80fmB7VnHph2DX2/l4aB9WlzjTrghm+uBE+kLDI6rDF4z4jFMqE5ymFGfp9XOMon6Zp4B420t40tMFZmo495oO8mfhy51kMK3yfKYVdxtrQ3itJ1BGk8h8WFCz3lYCQFlS78HRdFE=
+	t=1787130919; cv=none; b=NVWgEfw7wfV9i0Fe2axfWHVTwOFOLErPg+s0+vuLb+6Z1ga9pWDZFSS+p14l6o+3gXaUu4hT07UUWilFExjdP0XZEdAgy2RAJSw7ODz2C6zzPHcohEtWabBYDuwv6zIm4s8IVsenkteSAx9cdu58KQa/0zHarhoz1JMnbZhkxtE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787130868; c=relaxed/simple;
-	bh=ULme9yamJgIh/stQ5LwNFkwv04IfMvxTcbtLvChFwv4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=JGy4ONN7JdzoPHM3GQU/AEH6cbhoQo36gX0GXRV2YQGx643Ow1SF5d/J8lmG8omMxrIdVQOcm9bmT3AAK6TzwVORCpHHvPjLDAJ6jpbY0fbTWKvSPnIGefcX58SaDKaPQQqG+if8kIdLzKTjF7UU0lsTCLlJNUGWNG7l8hlF2Zw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IUJ5tlvZ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787130919; c=relaxed/simple;
+	bh=dFDJEPNPLMmkLrEwejO7JMa+mG91YcxBSLi9fOH6VGg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=CL96X8Qnj/aRvzS9nMHedmQCTjqdnQwJdJH4lzdCi1meDMQTub5c7M9Ms8jH6CN8jbwlOdhNLAaeiafVKzbRh7fGicwG1BW3DkmMvIOlkrvzQDNt+RjCkedv8rBB6CyW2BU2kvaxpPTPGNNXAw19vx4pczup18Qema54uiLDlRE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=G1Me53+m; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IUJ5tlvZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F6FD1F000E9;
-	Wed, 19 Aug 2026 09:14:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787130866;
-	bh=2wVQ9lvAIFCIDftOs6OlNwtMjTyTvKs7+rr9HThZBk8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IUJ5tlvZjRczJgUxeatRXT3qql/cCJyMRokXZfkm/epOTPxKSQcukLw1XlgQNiJQB
-	 bq/qXacASFZXf0dMpF1xhha7csnEtI+HBM7pOd+zffvMVEHIad9c7lTQ18rakhOX9h
-	 w8RDtuYojCNBddt+gZEY+4ngoy0+S2W1efIcz3X4c7r03K3U631/8QGjsTs56bHRSU
-	 mOjWUrqK/ETp4aM+dL6ho61gDYzKOPuL44UR1z18BjqwBlX+wzbYUeAO4DiBk6jPUk
-	 myRVTuhkhYhZ9Gau7lu4Pxijln7Rsd1NwVYQ4TsFBKPxO2yrfXtYHzIWweShPf4U2c
-	 aF9ulVF6m+Z9g==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 5/7] s390/pci: add NULL check in zpci_msi_clear_airq()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Tobias Schumacher" <ts@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260819-s390_irq_domain_fixes-v1-5-826ff27b6e97@linux.ibm.com>
-References: <20260819-s390_irq_domain_fixes-v1-0-826ff27b6e97@linux.ibm.com>
- <20260819-s390_irq_domain_fixes-v1-5-826ff27b6e97@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 19 Aug 2026 09:14:25 +0000
-Message-Id: <20260819091426.3F6FD1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="G1Me53+m"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67J6Vkun797607;
+	Wed, 19 Aug 2026 09:15:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=acuVZX
+	kyEx/fnXMuZiHmZ4fxwClh6TJ3nC60rWRoyQI=; b=G1Me53+m7kBhoBzj8FbioQ
+	S4zLZuQ4eGlCBsk8WbIeJUHhVT2caD0fO37MBiMF0RniVjE7pg5qK1IK9UxtW6x2
+	O4LSYeZAdMf0tiTogCJH/UYf21tSpDZpk+mO1nH8jcuTO/Ty0uv67TiGbzGMJoyp
+	wLaTzoDBEvh5f1Ry07oQENUCzcp8S+pN3RvR/6DgRKb7PUQmEq6DHfLiY+MC1kgS
+	wRKTHvWh7lO462CbSkE4olWnTfJuGPq7+PwUHYE9W3HCKHAuyftck2QFMP3MuzyG
+	nWZKfsAtsqx5clxz03T0U4qtK+hUn0OSQGN4kdARhE03mCVvuL8o5OEv3u+vQ4KA
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu02qt5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Aug 2026 09:15:07 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67J9BSKg032723;
+	Wed, 19 Aug 2026 09:15:07 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g34ngfwjf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Aug 2026 09:15:07 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67J9F3d742009080
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 19 Aug 2026 09:15:03 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3A1D820043;
+	Wed, 19 Aug 2026 09:15:03 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0CF7D2004B;
+	Wed, 19 Aug 2026 09:15:03 +0000 (GMT)
+Received: from [9.224.77.157] (unknown [9.224.77.157])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 19 Aug 2026 09:15:03 +0000 (GMT)
+Message-ID: <3dadc544-5836-4472-9365-90d91a0c2618@linux.ibm.com>
+Date: Wed, 19 Aug 2026 11:15:02 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4] s390/pai: Handle multiple PMU stop callback
+ invocations
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>
+References: <20260819055855.1001578-1-tmricht@linux.ibm.com>
+ <20260819061147.9E2851F00ACA@smtp.kernel.org>
+Content-Language: en-US
+From: Thomas Richter <tmricht@linux.ibm.com>
+Organization: IBM
+In-Reply-To: <20260819061147.9E2851F00ACA@smtp.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: JrTHG1paNPar3rm3whWVUcRMM4HLJIcq
+X-Proofpoint-GUID: JrTHG1paNPar3rm3whWVUcRMM4HLJIcq
+X-Authority-Analysis: v=2.4 cv=RoX16imK c=1 sm=1 tr=0 ts=6a85741c cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=vNTNgnaILCbdAc7DXJgA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODE5MDA2OCBTYWx0ZWRfXz1eb4S+lzw5m
+ 3/WZkgNNMqL3Qjhz0gObptNsChI4evm78he6a5sa7mWis5+LMqVSmlCq8jRMQAMuhATuDgbi4Qd
+ KPun7YnCKUSG9ehRHFBDjgRCCq72KLk=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE5MDA2OCBTYWx0ZWRfX/Vq2r2TE7pme
+ kDsLycO3JDLTpvGta2LAfh1Cav3g7aZ87Ebqw94RPeGrsSdEeCUhMD9KX5yGaI0zbXs38J+TxM2
+ 2rdX5BZuyEjXgNmz9BehWZysetI1oIOKjV/LkmtVpFgx44QcqyPy8unYKSFIBdzlh/70IREogDy
+ EtnJp0nOMjeTlOyYH8Ge553ve5rXbl17KCDWanLlYcUnA7Jlo7SLiJhhALG7M8tNoe1NVnpXPoR
+ ykQMHdtLZDz6jutxaE5htJF8BKMaCn4uiQZLZBgXjBlrGDu9kdzEYfsqQcxp/0cru6dpTzg9PGN
+ CTZb3V/1h5SzgF0Ur2+c7Cv42LfG2e7LQQZ8W3uNxiaXpQrjT1dOytBXidFnzQFOPqmz9YzEnhk
+ JBay0C/qKgDY72jVE6gXb3CvBpuxMBE5tyatRQx6F3SzHZ98UnAQBWCXiTL2rGkPpkuvhvIirW9
+ C2oMV2anilcjZL8ZtQQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-19_02,2026-08-18_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 impostorscore=0 suspectscore=0 malwarescore=0 adultscore=0
+ clxscore=1015 phishscore=0 spamscore=0 bulkscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608190068
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+On 8/19/26 08:11, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
+> 
+> Pre-existing issues:
+> - [Medium] `list_for_each_entry_safe` in `pai_have_samples()` is insufficient to prevent list corruption (dereferencing `LIST_POISON1`) when group throttling removes sibling events concurrently.
 
-New issues:
-- [Medium] The patch introduces dead code by adding NULL checks for impossi=
-ble scenarios due to a misunderstanding of the MSI irqdomain lifecycle.
+perf_event_throttle_group() walks a different list anchored
+by perf_event::sibling_list. The list anchored by cpuhw::syswide
+is a complete different list using different nodes.
+Since events CRYPTO_ALL and NNPA_ALL are single sampling events
+and the only sampling event for each PAI PMU, it makes no sense
+to group the same event. Events of different PMUS can not be grouped
+anyway.
 
-Pre-existing issues:
-- [Critical] Double addition of the loop index `i` in `zpci_msi_clear_airq(=
-)` causes a heap out-of-bounds write during multi-MSI teardown.
-- [High] Missing device teardown in `pci_base_init()` error path creates a =
-Use-After-Free condition, which the added NULL checks silently evaluate.
+> - [Medium] The patch fails to prohibit setting `event_limit`, leaving the unsupported `pai_stop()` invocation pathway open via `PERF_EVENT_IOC_REFRESH`.
+> --
+> 
+This needs to be addressed in a follow-on patch, the invocation of perf_event_refresh() can not
+be blocked right now. Maybe add a new PMU call back.
+
+
+-- 
+Thomas Richter, Dept 3303, IBM s390 Linux Development, Boeblingen, Germany
 --
+IBM Deutschland Research & Development GmbH
 
---- Patch [5]: [PATCH 5/7] s390/pci: add NULL check in zpci_msi_clear_airq(=
-) ---
-commit a9e3adc4d04b20107c5f8c48da92688566d873e6
-Author: Tobias Schumacher <ts@linux.ibm.com>
-s390/pci: add NULL check in zpci_msi_clear_airq()
+Vorsitzender des Aufsichtsrats: Wolfgang Wendt
 
-This commit adds null checks for the interrupt vector pointers in
-zpci_msi_clear_airq() for both DIRECTED and FLOATING modes. It attempts
-to prevent crashes during error cleanup and shutdown paths if the pointers
-are already freed.
+Geschäftsführung: David Faller
 
-> In FLOATING mode, zdev->aibv can be NULL if:
-> - zpci_msi_prepare() fails after __alloc_airq() but before setting
->   up the device's AIBV, and zpci_msi_domain_free() is called during
->   error cleanup
-> - The device is being torn down and zpci_msi_teardown_floating()
->   has already released the AIBV
-
-[Severity: Medium]
-Is this description accurate?
-
-If the .msi_prepare callback fails, it returns an error and the MSI core
-halts allocation without invoking .alloc. Consequently, the .free callback
-is never invoked for this device, so zpci_msi_clear_airq() wouldn't
-execute on this error path.
-
-During normal device teardown, the MSI core guarantees that .free is invoked
-per-IRQ strictly before the domain is destroyed and .msi_teardown is invoke=
-d.
-Since zpci_msi_teardown_floating() is the only function that sets zdev->aibv
-to null, zdev->aibv should be valid whenever zpci_msi_clear_airq() executes.
-
-> diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
-> index e9eda846cb2d2..1515d8d7460ea 100644
-> --- a/arch/s390/pci/pci_irq.c
-> +++ b/arch/s390/pci/pci_irq.c
-> @@ -465,12 +465,16 @@ static void zpci_msi_clear_airq(struct irq_data *d,=
- int i)
-> =20
->  	if (irq_delivery =3D=3D DIRECTED) {
->  		for_each_possible_cpu(cpu) {
-> -			airq_iv_set_ptr(zpci_ibv[cpu], bit + i, 0);
-> -			airq_iv_set_data(zpci_ibv[cpu], bit + i, 0);
-> +			if (zpci_ibv[cpu]) {
-
-[Severity: High]
-This is a pre-existing issue, but does checking zpci_ibv[cpu] here lead to a
-use-after-free read?
-
-In pci_base_init(), if zpci_fw_sysfs_init() fails, it jumps to out_find and
-calls zpci_irq_exit(). This frees the zpci_ibv array via kfree(), but leaves
-active PCI devices registered.
-
-When drivers later bind to these devices and tear them down,
-zpci_msi_clear_airq() will execute. Checking the freed zpci_ibv array point=
-er
-will likely evaluate to true, causing a use-after-free read and subsequent
-write when it is dereferenced.
-
-> +				airq_iv_set_ptr(zpci_ibv[cpu], bit + i, 0);
-> +				airq_iv_set_data(zpci_ibv[cpu], bit + i, 0);
-
-[Severity: Critical]
-This is a pre-existing issue, but does this code write out of bounds during=
- a
-multi-MSI teardown?
-
-Earlier in zpci_msi_clear_airq(), the local variable bit is computed as
-zdev->msi_first_bit + msi_index. The hwirq of the irq_data d was already
-initialized as base_hwirq + i during allocation, so msi_index already
-includes the offset i.
-
-Passing bit + i to the airq_iv_set_ptr() and airq_iv_set_data() macros means
-the index evaluated is zdev->msi_first_bit + desc->msi_index + 2 * i. For
-any index greater than zero, this skips the intended target and writes 0 out
-of bounds. This same calculation impacts both the zpci_ibv and zdev->aibv
-array writes in this function.
-
-> +			}
->  		}
->  	} else {
-> -		airq_iv_set_ptr(zdev->aibv, bit + i, 0);
-> -		airq_iv_set_data(zdev->aibv, bit + i, 0);
-> +		if (zdev->aibv) {
-> +			airq_iv_set_ptr(zdev->aibv, bit + i, 0);
-> +			airq_iv_set_data(zdev->aibv, bit + i, 0);
-> +		}
->  	}
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260819-s390_irq_d=
-omain_fixes-v1-0-826ff27b6e97@linux.ibm.com?part=3D5
+Sitz der Gesellschaft: Böblingen / Registergericht: Amtsgericht Stuttgart, HRB 243294
