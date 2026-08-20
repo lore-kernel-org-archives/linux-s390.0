@@ -1,126 +1,122 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B39C27A47F;
-	Wed, 19 Aug 2026 22:14:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A670C2FD1AA
+	for <linux-s390@vger.kernel.org>; Thu, 20 Aug 2026 02:33:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787177669; cv=none; b=fvzjTMYdkPqSqw30TMAX6fJTl8s2gkj8JSwisVsid9rSPi20y09VjXMiVxXVl3WOOjvnau1lHknA+RM2xJ4jzuKjUJBtacRanLhJDDR2ckjrLKARiz6GG6Ht+I0Z0N+YwpXxhPaGzaqftkBb4lwYL4G59Wx51WJHAq8E/x5JNqQ=
+	t=1787193228; cv=none; b=Hdbf1d2j9n2K2y1FhglsObYIS9yeWz0oZ9zEbcg2hI3uQW+OMbFCNpFfjC8jBfIAXpKnL9Pu5u6pOpX2D9aV1B7vpIcowoKRUtjem+4Q+zZKQEgJiNF+3TC1rlWpE31AWsDT/SV+8Ns3APIgPpgWv6p5mMEiPdIpq2ni0npZa5s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787177669; c=relaxed/simple;
-	bh=X7N0jP/4Zo0fuBcNYaPsv3rzAZmRBC9xYf7+1ItNJs0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kgHBVXWLEppHuCbcpydjHoiL8LYU6Kttz27/lz9jfC23Q0mB8e4pE6HfA7ujIyfJhCKSG6P/s6mXauc9mK46D+SeeLxXnWRSCXRPrZwOxv1Hi8mLVCFTtqUS5uuFc8HcPBbQ88N7FDtDjeUXAyooa9mU8GDx6jKyAUsLpfGYu1U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=An0CTbzy; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1787193228; c=relaxed/simple;
+	bh=0jqq/oER4MCv5P2KflF9//SSkraKzNZVhf6IAxvpCC0=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=tnNoqRBhiKgRpre5IKP+0LUKx0YczRuGqyBmCvYnN6umMZ73hehBXrBZFSGShRNxrCg93D0EMWshgf16sS0v2L00tAgHlck7qJTZvzYZMM8UgMz1Efu6pBJmEWN+Jrfv8R37pNH5xfd0HLI0Qlzu3Ww2KU6CIYxVu7tRSoC4xJY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=J6iqAFrX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="An0CTbzy"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67JLVevP2794857;
-	Wed, 19 Aug 2026 22:14:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=M0+9eJi8trhXUB+Swi3LsPp0hqiqZu
-	dk+XeoUhViuKo=; b=An0CTbzyONnhrvK/IcXo8gFU8bt0ziAaOxfBqZ5ePwC7Up
-	EA88xU05oJ5yFBLRt7sO4Jf8sngIk8mOuT8stC/lUsAnmNtd4YMFHawfDsXoxst7
-	1znk2QfZAK5ZceDlUcUenlIwszBuk4gWISJbbfdt3He9dcozFmC5qWLz/33H46Ox
-	eqpulXRsdPa5hFYzxLYmztEWUExbYVjY8bvxVelLnmak6ctssRce+QV+gKiOjFH2
-	PZa1LXsAULK+tTF04Dau/CBNMomlMLbaOwHM8rlganXwc76R9h1q9F0fwTj4hort
-	4brS3mG2w3Nn78LZkulD6D557RlPW8XcS4/iGrlg==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu06fwn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Aug 2026 22:14:27 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67JMBJYK011551;
-	Wed, 19 Aug 2026 22:14:26 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g32twb8p4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Aug 2026 22:14:26 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67JMEMkI49414540
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 19 Aug 2026 22:14:22 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3E65320076;
-	Wed, 19 Aug 2026 22:14:22 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DC7B220075;
-	Wed, 19 Aug 2026 22:14:21 +0000 (GMT)
-Received: from localhost (unknown [9.111.46.147])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 19 Aug 2026 22:14:21 +0000 (GMT)
-Date: Thu, 20 Aug 2026 00:14:20 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Harald Freudenberger <freude@linux.ibm.com>,
-        Holger Dengler <dengler@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] s390/cpacf: Unpoison instruction results
-Message-ID: <ttk1f3w@ub.hpns>
-References: <20260814121559.1240939-1-iii@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J6iqAFrX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E15131F000E9;
+	Thu, 20 Aug 2026 02:33:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787193226;
+	bh=/CxYjS/SvHKqzBez7goepdz04FG2xb387JwKvbPs/Dc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=J6iqAFrXwV7G8ZY+QmybERO1o8r78MlW4uAnXpQZST46wFJFDI6eocmWdDethK3KW
+	 QFkC9IEa3cqfDXn53DGE4F9Ur3+GdwkB36SPwar84eKEKsr2e6a5r28Sxak8y88ine
+	 SGvycNAdDrgpdY02TidspJLP0qOwIKTw8wiIq4oYxh4mU/uli+lnQftVdaKpja3nuq
+	 WbxofkaFjjpqXQDg0SOt5I2RUy5rh7cO22LfuNwoZMUXnwhff3LxAH9wCXf9WlLuMT
+	 vEbEqQKatwMvhgu1qjSWWV1HzMas4x29wSzsmjgY3qNi+4q4MW6MEdNWZcXsOW+bP2
+	 qOHK3lZ5rT9bg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net v7 1/3] net/smc: fix use-after-free of the LLC
+ qentry in smc_llc_srv_add_link()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Yehyeong Lee" <yhlee@isslab.korea.ac.kr>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260819023306.644849-2-yhlee@isslab.korea.ac.kr>
+References: <20260819023306.644849-1-yhlee@isslab.korea.ac.kr>
+ <20260819023306.644849-2-yhlee@isslab.korea.ac.kr>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 20 Aug 2026 02:33:45 +0000
+Message-Id: <20260820023345.E15131F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260814121559.1240939-1-iii@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 1oVJ2675mdEXZeM-If5477Wlc546x54n
-X-Proofpoint-GUID: 1oVJ2675mdEXZeM-If5477Wlc546x54n
-X-Authority-Analysis: v=2.4 cv=RoX16imK c=1 sm=1 tr=0 ts=6a862ac3 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=a_y6WA_M5nSlKu-xcuEA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODE5MDE3MCBTYWx0ZWRfX48HMOA3VGtfY
- 3FvB3OEJ+VTaf6XEOP1cl2AOBq5Hm4hX0MrVxzz5VMmOl0SHCOMaTUDuvF3fI6m5MBdLePagrCJ
- GGKZmY9EL4AvcHHPitMPUwrJwLj0kRk=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODE5MDE3MCBTYWx0ZWRfX1MR77CtorS+G
- QTHDp4wQKmAq/KswP1xnBFbwcKox5byanM4q+CuFL+MkJ8col+JAhOm06o5kl+YRHjXx7EirWIf
- 1DrLxnsIIVRVD0QmiPYwHZCtFIVwnZK0KzC6ibYlXHZNEdIZTFNNSyIDDpoAkh9+PKgbbhc6MpB
- 4tvXCxN4LcKlowSpj+ek+Wr4yEFj+AXzgI1H/a9Oxan5OgxmL7mMmsAFRVgd7KAWzCfNoKNigME
- reOPf0tBLLZBxbp2lSEqWgHc5fMZmmOruDLg/xKfbJsIWptHwXgqb4wHF+/nc+ROvVdNA4TmfYJ
- YJOCH0oqBjpN4fv0x0uxk81tqSn8HBYwHhRWRAuWK21qC4qjJ2gEnpoRtMsog+dlewZ9pSiei1p
- bolzc4JI89TgT/PbNTKEHn2MnsWBhIBUZ3rpIEDohb5kIvkAY4xwInArL4vCdT7AYjWU34kldW3
- CW/lh5eemWhTjgQl5ew==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-19_06,2026-08-19_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 suspectscore=0 malwarescore=0 adultscore=0
- clxscore=1015 phishscore=0 spamscore=0 bulkscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608190170
 
-On Fri, Aug 14, 2026 at 02:15:25PM +0200, Ilya Leoshkevich wrote:
-> Stop KMSAN from complaining about CPACF outputs being uninitialized.
-> 
-> Do not unpoison variable-length parameter blocks: mapping function
-> codes (like CPACF_KIMD_SHA_256) to lengths will be ugly. So let the
-> callers do this once the need arises.
-> 
-> Also do not touch cpacf_kma(): this wrapper does not handle cc 1 and
-> cc2 at the moment and has to be reworked.
-> 
-> Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-> ---
-> 
-> v2: https://lore.kernel.org/all/20260807122132.3592583-1-iii@linux.ibm.com/
-> v2 -> v3: Drop cpacf_kma() change, add R-b (Harald).
-> 
-> v1: https://lore.kernel.org/linux-s390/20260806190223.3292580-1-iii@linux.ibm.com/
-> v1 -> v2: Unpoison outputs of more instructions (Sashiko).
-> 
->  arch/s390/include/asm/cpacf.h | 6 ++++++
->  1 file changed, 6 insertions(+)
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-Applied, thank you!
+Pre-existing issues:
+- [High] Out-of-bounds read of flexible array `body` in `smc_llc_save_add_l=
+ink_rkeys()` because `qentry` is allocated without space for the LLC messag=
+e extension.
+--
+
+--- Patch [1]: [PATCH net v7 1/3] net/smc: fix use-after-free of the LLC qe=
+ntry in smc_llc_srv_add_link() ---
+commit 97e6f986183048b52faebfd70a6a129b35a4ad20
+Author: Yehyeong Lee <yhlee@isslab.korea.ac.kr>
+
+net/smc: fix use-after-free of the LLC qentry in smc_llc_srv_add_link()
+
+This commit fixes a use-after-free of the LLC queue entry by detaching the
+entry instead of freeing it early. The free is moved to the exit label.
+
+Cc: stable@vger.kernel.org
+
+> diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+> index aa6d83af55eda..7282f8ad7593d 100644
+> --- a/net/smc/smc_llc.c
+> +++ b/net/smc/smc_llc.c
+[ ... ]
+> @@ -1492,7 +1492,8 @@ int smc_llc_srv_add_link(struct smc_link *link,
+>  		lgr_new_t =3D SMC_LGR_ASYMMETRIC_PEER;
+>  	}
+>  	smc_llc_save_add_link_info(link_new, add_llc);
+> -	smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
+> +	/* add_llc still points into qentry, so only detach it here */
+> +	smc_llc_flow_qentry_clr(&lgr->llc_flow_lcl);
+
+[Severity: High]
+This isn't a bug introduced by this patch, but does this allocation
+and usage pattern result in an out-of-bounds read?
+
+The commit message mentions an out-of-bounds read is fixed by a later
+patch, but since it is present here, could this allocation in
+smc_llc_enqueue() truncate the message?
+
+net/smc/smc_llc.c:smc_llc_enqueue()
+    qentry =3D kmalloc_obj(*qentry, GFP_ATOMIC);
+
+This allocates the base size without space for the flexible array body.
+Later in smc_llc_srv_add_link() when max_recv_sge =3D=3D 1, it passes this
+truncated queue entry downward:
+
+net/smc/smc_llc.c:smc_llc_srv_add_link()
+    u8 *llc_msg =3D smc_link_shared_v2_rxbuf(link) ?
+        (u8 *)lgr->wr_rx_buf_v2 : (u8 *)add_llc;
+    smc_llc_save_add_link_rkeys(link, link_new, llc_msg);
+
+When smc_link_shared_v2_rxbuf is false, add_llc is used. Inside
+smc_llc_save_add_link_rkeys(), it appears to calculate the extension past
+the truncated bounds to access the number of routing keys:
+
+net/smc/smc_llc.c:smc_llc_save_add_link_rkeys()
+    ext =3D (struct smc_llc_msg_add_link_v2_ext *)(llc_msg + SMC_WR_TX_SIZE=
+);
+    max =3D min_t(u8, ext->num_rkeys, SMC_LLC_RKEYS_PER_MSG_V2);
+
+Can this lead to reading uninitialized or adjacent slab memory, resulting
+in KASAN crashes or the registration of garbage memory as RDMA keys?
+
+> =20
+>  	rc =3D smc_ib_ready_link(link_new);
+>  	if (rc)
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260819023306.6448=
+49-1-yhlee@isslab.korea.ac.kr?part=3D1
