@@ -1,120 +1,153 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 075D63793CE
-	for <linux-s390@vger.kernel.org>; Thu, 20 Aug 2026 15:50:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A753237DEBE
+	for <linux-s390@vger.kernel.org>; Thu, 20 Aug 2026 16:07:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787241011; cv=none; b=AxYJZQ/Lk3Sl6focRXYEqh1/jNOTWECyC3Fe514J/QuTUtzgvs5PlDmQVfmSCaS5gh87d8lLqiPgOwceVGorzkYhzddUCwh7gpdTsBC8a7Bi7ljla2JmJAWfanoAYrjdhl9LOyOkyT7Bach/UWDBIyffGNEvAgNbnkrlh3i4L74=
+	t=1787242070; cv=none; b=Mz9rnWhD64qKwzSPPhGcrNpYqFBUzXOqVD+OagQ/a+kGecYZ5c4xk8tlTHCyS23bE4j0Rh7B/7PLCiyquOhE4Zig97KNM+46bZn/+gvJoJQLGg55avcgbkGQF3UkBXAG3AirnmwMKIpzB8QXTUQSJrnCCIJQq5yjfWIK74fhJsw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787241011; c=relaxed/simple;
-	bh=N2w9hBbdHSdHNBJuXf/PLoutU2rt/nztOB8UsGIgLIQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KjJkF9YjbLNCJkYDDdMuyNjd2wNzkkJ0Uv6UXK/FBy5glZJkk1qpl/Hzu7wKBhl0lkQVCaUaV72lYCXEkIHmiYmFBCtBubdc5QkuC7M1NHBUSFItDGuNieuFcZRU9iv+6onTSQqxTQxtIbS/23onOkSFSO2tVlEf2s/QCVUDZAo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HiUt88jN; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1787242070; c=relaxed/simple;
+	bh=oPyg5lYQ1i5GgmIiJifc9n+kWrwvIP6CZDFqWe3EYoY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=G4o3diaKV/wKs4hBwpWYf3rzhYWca30AIliHafo9RoD2RpN9CstkoguTxRuae2M6x4x9NJAYMBcLmQuRCOjPV+C4yj358w49FOrxOPBytYoW5R1KhSH914WCO1oVNCc06MG/w1svKA/lKEbFzdTmk7u9uQTIhaZO8P5zrMZZooU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gzLDQfXG; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HiUt88jN"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67KEVfMa1618845
-	for <linux-s390@vger.kernel.org>; Thu, 20 Aug 2026 15:50:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=pshriybAZbe8nxpx1La0yf4rYFsux+ZQXQQ5NGwMS
-	/w=; b=HiUt88jNE1dTSGKrwK4rXmWrLmJvVkwlKFffNSB0n4UWt/khS9ic90nSl
-	t4lTHG2hdNypVfb4PSIBFfOXN2wjXsxDLu63+ocU77iJCa6mAIVbuyI27fQEFq6k
-	7N+aRPHAxw2cCIwDj/qyKMNwj6etzkAvciHJtwo6L3MJ7RXBh2GBve0+A8NsoWRo
-	RzGBrO1LAi0ci93vW3Ijmbou8D3cgatUqSYWgo/AvgHaAZmtr0ruAhgOq3YWtmS9
-	+3i9pyoe2LBYJnjqC37C8aeqgE5FiOB3Wmv6LaYq/xqOZLfQehUNGZBOgCnTjAGN
-	RZArIrYly+BHKQENT+hiUir765lGg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu2b84u-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Thu, 20 Aug 2026 15:50:08 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67KFfHLr026993
-	for <linux-s390@vger.kernel.org>; Thu, 20 Aug 2026 15:50:08 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33xhfcbb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Thu, 20 Aug 2026 15:50:08 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67KFo42r41419146
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 20 Aug 2026 15:50:04 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ED0FC20043;
-	Thu, 20 Aug 2026 15:50:03 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C3B9320040;
-	Thu, 20 Aug 2026 15:50:03 +0000 (GMT)
-Received: from ibm.com (unknown [9.224.91.220])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 20 Aug 2026 15:50:03 +0000 (GMT)
-From: Holger Dengler <dengler@linux.ibm.com>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: dengler@linux.ibm.com, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Ingo Franzki <ifranzki@linux.ibm.com>
-Subject: [PATCH v2 0/1] s390/zcrypt: Validate length information in reply
-Date: Thu, 20 Aug 2026 17:50:02 +0200
-Message-ID: <20260820155003.945837-1-dengler@linux.ibm.com>
-X-Mailer: git-send-email 2.55.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gzLDQfXG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42EF51F000E9;
+	Thu, 20 Aug 2026 16:07:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787242069;
+	bh=2bFlTQ9t1sSRaMYTWNaXiWvSJ+R9HwH5ADrtvQ4sW04=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=gzLDQfXGRtkoYigR73KLnhDeTwBW7nRd1TPMYC22WxtfsTquMhIrIu+exF9dC9xAR
+	 EuU9NeVUy2mORaGBX7L6nP0mw86IVg02k1OkE9nlBVKXXW5F66ITZ6zF70MeZ699fL
+	 cp2fywvVpvOP0IXeqjnat0F/tT4AD6MzUL+bDRLza/RdnwVJLt/fo7CCcOofxnzcXL
+	 ixI/TAREwWz4+/oJHh+hOpyEhyl8yqg9G5uC6H0dJPaUS4ygt08SpgiiqlEWHu3NfR
+	 CwcvhxlNAnPTz/PnJXwqMxD30TwpJhhOKtZgQhC9FnpFLidCkDly1OW4cmvNimS7gg
+	 qjjwrZFo1dS3w==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 1/1] s390/zcrypt: Validate length in reply before
+ using it
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Holger Dengler" <dengler@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260820155003.945837-2-dengler@linux.ibm.com>
+References: <20260820155003.945837-1-dengler@linux.ibm.com>
+ <20260820155003.945837-2-dengler@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 20 Aug 2026 16:07:48 +0000
+Message-Id: <20260820160749.42EF51F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=AdqB2XXG c=1 sm=1 tr=0 ts=6a872230 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=3FdhuFNONZsipLxNYqAA:9
-X-Proofpoint-GUID: Sf94reO3QPUtLxch_o5Mb0GCeUdAKYJ-
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIwMDExNyBTYWx0ZWRfX5DvLeVRxjTRE
- T0B9oQLBqPOLG/zUwutbeulQm7UqKSGikJR550s8Z1IsVo/QAXAxSN3kRLIjszMaJoi71/+kZcf
- e5ViHRKkU08Y94aQ1AhhJfaFkpdOHAH8RxFhkF8kSkV6dOihh0P5f6ZrOz7IRCXGt1LAPDZ2NN2
- 4oDSCquPOjRvJImjyDD3Ksyf5rfHL0Sf9Wh7kzn9qXlRUjI5Wlh+8mjX9bcJlTGBPFGJgvQEkgF
- 6BB/epTkZudhmFi2MStH7YbSanOeQATBCFvEI+6ONEm02jN2sbx4NywdGXdUoDdydZOcerL61pq
- zayBsvRBMMUa92ekNduMk2PKb6ivanghHg2ABb3UYnCETP/Ew3gK1GwRJ85RDsQAxyLsNEnbZdJ
- kz9a9HvceAYSEj5ru47BW9Xp3O6mx5vFi8M2Em0XPhQTKmVGjInFuyJ+SFXqaatguC8VAijXEdJ
- hRb1hjV6rhpoHFchmyA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODIwMDExNyBTYWx0ZWRfX8ayHHQc5U2q5
- tutgY3TaTXsxf73359GQn9+R4XxtXhbrT0kzOBFXShlZD5BtvXUZWQs+SgMZDqErGV9Yk+CDtOp
- jDmdUD47sbgS6vrgqEhDQ+Yh6pIXSNA=
-X-Proofpoint-ORIG-GUID: Sf94reO3QPUtLxch_o5Mb0GCeUdAKYJ-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-19_06,2026-08-20_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 priorityscore=1501 suspectscore=0 malwarescore=0
- impostorscore=0 adultscore=0 bulkscore=0 lowpriorityscore=0 phishscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608200117
 
-This series contains adds validation of a length information in a
-hardware reply, to prevent buffer over-read/over-write in case of a
-broken/modified replies.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-Changes since v1:
-- fix subject line in cover-letter
-- fix typo
-- pick R-b
+Pre-existing issues:
+- [High] Missing upper bounds check on `prepparm->kb.tlv1.len` in `cca_genc=
+ipherkey` allows massive kernel memory leak.
+- [High] Unvalidated array lengths in `cca_query_crypto_facility` can cause=
+ out-of-bounds pointer arithmetic and memory accesses.
+--
 
-This series applies on-top of Linus' master branch.
+--- Patch [1]: [PATCH v2 1/1] s390/zcrypt: Validate length in reply before =
+using it ---
+commit eab8ad18f4433da6c81f9cb5f87967a1dc92a89b
+Author: Holger Dengler <dengler@linux.ibm.com>
 
-Holger Dengler (1):
-  s390/zcrypt: Validate length in reply before using it
+    s390/zcrypt: Validate length in reply before using it
 
- drivers/s390/crypto/zcrypt_ccamisc.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+This patch addresses a potential buffer over-read and over-write in
+_ip_cprb_helper() by validating the key token length in the CPRB reply
+against the previously validated parameter block length.
+
+> diff --git a/drivers/s390/crypto/zcrypt_ccamisc.c b/drivers/s390/crypto/z=
+crypt_ccamisc.c
+> index d4ce6352b5b2e..19909bf43dc91 100644
+> --- a/drivers/s390/crypto/zcrypt_ccamisc.c
+> +++ b/drivers/s390/crypto/zcrypt_ccamisc.c
+> @@ -1158,8 +1158,21 @@ static int _ip_cprb_helper(u16 cardnr, u16 domain,
+> =20
+>  	/* do not check the key here, it may be incomplete */
+> =20
+> -	/* copy the vlsc key token back */
+> +	/*
+> +	 * Copy the vlsc key token back.
+> +	 * The available space in the destination (key_token) and the source
+> +	 * (t) buffer is always larger as the valid range of prepparm->kb.len.
+> +	 * Validate t->len by comparing it with the length information in the
+> +	 * param block of the request (prepparm->kb.len)
+> +	 * The value range of prepparm->kb.len has been checked above.
+> +	 */
+>  	t =3D (struct cipherkeytoken *)prepparm->kb.tlv1.key_token;
+> +	if (t->len !=3D prepparm->kb.len - 3 * sizeof(uint16_t)) {
+> +		ZCRYPT_DBF_ERR("%s reply with invalid key_token length %u\n",
+> +			       __func__, t->len);
+> +		rc =3D -EIO;
+> +		goto out;
+> +	}
+
+[Severity: High]
+This isn't a bug introduced by this patch, but since we are fixing reply
+length validations here, does cca_gencipherkey() have a similar missing
+upper bounds check?
+
+In drivers/s390/crypto/zcrypt_ccamisc.c:cca_gencipherkey():
+
+	keybuflen =3D prepparm->kb.tlv1.len - 2 * sizeof(uint16_t);
+	rc =3D cca_check_secaescipherkey(zcrypt_dbf_info, DBF_ERR,
+				       prepparm->kb.tlv1.gen_key,
+				       keybuflen, keybitsize, 1);
+	// ...
+	if (keybuf) {
+		if (*keybufsize >=3D keybuflen)
+			memcpy(keybuf, t, keybuflen);
+
+The prepparm->kb.tlv1.len field comes from the device reply. It is checked =
+for
+a minimum bound, but it doesn't seem to be checked against the total parame=
+ter
+block size. Could a corrupted or malfunctioning hardware crypto adapter (or=
+ a
+spoofed virtual device) return a valid kb.len but a forged large tlv1.len?
+
+If so, could this unbounded length drive an out-of-bounds memcpy() read from
+the cprbmem allocation into keybuf, potentially leaking unrelated kernel da=
+ta
+to userspace?
 
 
-base-commit: 59e6295fac26b8e85c1ea859cdd89fa1e47519d7
--- 
-2.55.0
+[Severity: High]
+This is a pre-existing issue, but I see another area where unvalidated
+reply lengths might cause memory access issues.
 
+In drivers/s390/crypto/zcrypt_ccamisc.c:cca_query_crypto_facility():
+
+		ptr +=3D len;
+	}
+	/* check and possible copy reply var array */
+	len =3D *((u16 *)ptr);
+
+The untrusted len is added directly to ptr without bounds validation. If a
+malicious or malfunctioning crypto adapter returns a CPRB reply payload with
+a very large len field (e.g., 65535) for the rule or variable array, wouldn=
+'t
+the subsequent dereference read from an unvalidated memory location?
+
+Could this out-of-bounds pointer arithmetic and memory access trigger a
+kernel panic via a page fault on unmapped memory?
+
+>  	memcpy(key_token, t, t->len);
+>  	*key_token_size =3D t->len;
+>
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260820155003.9458=
+37-1-dengler@linux.ibm.com?part=3D1
