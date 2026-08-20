@@ -1,220 +1,152 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 780B63B71A8;
-	Thu, 20 Aug 2026 07:43:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBE98388E61;
+	Thu, 20 Aug 2026 07:46:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787211839; cv=none; b=lpImXw/tULWuJ5BjDtczaHIoAFdJA9GZwjsX+jpn7ieqZO9uCg0VxiDXFxJR362ykWHjVgoTcFmFakTecSfN+i2lefBOxLk+J4o+CFEf1ZSkeWInAmCHkKkThsflplZWH64m7wxm5zcYbVjKxdpR/mMnM2izlju1hVMTdx1kYyI=
+	t=1787212017; cv=none; b=SgRoN11JiHn+AY2Ce2GeXH3HVRzfrCcAxo0xUmHgPZgxSxPNiB2gIeEV+KuGI+WZzuV+L7AZzYJuyu5rHWbL8jNtQTBFvsWjotpvQstlfxbZrhCxJJA49MVdyYqYU8TzZLvvbB3e62oA5lTpzh6yIxs4ALgKK3z7jiVb0ZdkZXU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787211839; c=relaxed/simple;
-	bh=N9L+3Nr+7eM5gkpqfodrEi1p7rKCajzBe8qO3GEISF8=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=u9FbXmpE0MbM0enPGX5lrfUkWS74ooqK8MikZV1ogHwEibQlPjBcZSdRqZVpoutJ2/L5RKdwspteQtMpeXdY5/YpvshsjToFJhmnp5Ny8G9bvaKYosFquWJ3OXyJGvXZA+pkcWJIHpPAwEyB8JijQaKi72D0lQpxWr/QxspxUO4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bbPTcGeR; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1787212017; c=relaxed/simple;
+	bh=ZDs8qeOzQQQP63I+x2vxVjc5XEeEGjTpOeZbCbXWzAI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ByFCFg10GHdtBOQiX1kNvDQhAN1I3L6vVJ3+vmXgBvSXbGuxTcqe61E8HhMWhZuXUGhcCa9zXnzB2GyU09mmWTXg8JNCgcoqpIn6Qen+sW6Q5+bmAA9QXXOk6yeHWHyHdW5eUcRwovvHO8Ct0WgIk+Ce/wD4WtrZ1h1Qf6Uj7Js=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JuCF3fJi; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bbPTcGeR"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67JLW2u2363307;
-	Thu, 20 Aug 2026 07:43:57 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JuCF3fJi"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67JLW4Df424851;
+	Thu, 20 Aug 2026 07:46:48 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=pYkKM5
-	DjqXjEHuQ1VpBCmOxwphFoRPtjjni+PPq+cTM=; b=bbPTcGeR6bJDhxRtfoZdZh
-	qT2Zg+ptkzHpJUBb1DpMp4G04jhaEbjVEbaKGkh9oGlaf9Vqu/YB0SsSK+IxHvB8
-	gSg/OVgXdO9Ng06pcP6wLXkTw1OIK7t7DJIgsvZ1rX/HB5UkvszPR2B8ssAkY1Wl
-	pVHns5afm0vzP65PiP8BnKuNLPya4Do28u7D/OKXj0mGxOSRnLdJvnGq3rj2EtDg
-	7PqfDgN4ekkGNh+J0ysyhXUucnyEbCS3RYCWu+OC3Y7crWM95LIt0pGUoiI4f/yi
-	qWv5NURYQ5T1+knr7fZL9W5nJOodt3+Pix+4crib6QAn3s8wkNgxH1aSJWGNKPwA
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu48nuj-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=BN1K/n6JpoBV1479W
+	VRv4ajiQogMB2MfE959YKhtyqo=; b=JuCF3fJihcrvQdGlfyHdp9BKTq8T4oPWN
+	+cUC2KmNJE6C/6Ga965Ssplg7oiJ6miYG8GfPAT/AG9W1/O35ieASpcGbgZUGpEz
+	g8Vw94H8RNFt+NdidBOeWNe/fihaspVI8fgPIADXOPlA6K/Zu7P4DdE2KZNzrEAy
+	sqOu3gX6LKOTdked3k5vTGNGhuipLN0uZ+pYfl1ygEhh/8xrR5W+4C6/jqztRK0z
+	7LwtN8BNTmOIJw8LP+xVNFTHTR+Tuw9rbMC7NL3ilKrMgNQmIZMcSn4LtfTVYx6I
+	vdY8EvdHgTuwDrdMWJew/WF1X1R7WLKLr2qRqjrFsgrxSY8trpCzw==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu1gs8s-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Aug 2026 07:43:56 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67K7fJu5024149;
-	Thu, 20 Aug 2026 07:43:56 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33xhd7nx-1
+	Thu, 20 Aug 2026 07:46:48 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67K7fHfS026485;
+	Thu, 20 Aug 2026 07:46:47 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g32eqddvt-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Aug 2026 07:43:56 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67K7hqiO53543256
+	Thu, 20 Aug 2026 07:46:47 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67K7khhs28770918
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 20 Aug 2026 07:43:52 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2D9D92004B;
-	Thu, 20 Aug 2026 07:43:52 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D1C0C20040;
-	Thu, 20 Aug 2026 07:43:51 +0000 (GMT)
-Received: from localhost (unknown [9.111.13.52])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 20 Aug 2026 07:43:51 +0000 (GMT)
+	Thu, 20 Aug 2026 07:46:43 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 79F8120040;
+	Thu, 20 Aug 2026 07:46:43 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 46A8C2004B;
+	Thu, 20 Aug 2026 07:46:43 +0000 (GMT)
+Received: from t83lp68.lnxne.boe (unknown [9.87.84.240])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 20 Aug 2026 07:46:43 +0000 (GMT)
+From: Hidayath Khan <hidayath@linux.ibm.com>
+To: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
+        sidraya@linux.ibm.com, mjambigi@linux.ibm.com, andrew+netdev@lunn.ch
+Cc: tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        horms@kernel.org, pasic@linux.ibm.com, hidayath@linux.ibm.com,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH net v2 1/2] net/smc: stop killed, freed and out_of_sync sharing a byte
+Date: Thu, 20 Aug 2026 09:46:41 +0200
+Message-ID: <20260820074642.966856-2-hidayath@linux.ibm.com>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260820074642.966856-1-hidayath@linux.ibm.com>
+References: <20260820074642.966856-1-hidayath@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 20 Aug 2026 09:43:51 +0200
-Message-Id: <DKTLPWZ1MPXE.1DT0YM08L0LQP@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>,
-        "Christian Borntraeger"
- <borntraeger@linux.ibm.com>,
-        <linux-s390@vger.kernel.org>,
-        "Alexander
- Gordeev" <agordeev@linux.ibm.com>,
-        "Vasily Gorbik" <gor@linux.ibm.com>
-Subject: Re: [PATCH 3/7] s390/pci: fix resource leak in zpci MSI setup
-From: "Tobias Schumacher" <ts@linux.ibm.com>
-To: <sashiko-reviews@lists.linux.dev>, "Tobias Schumacher"
- <ts@linux.ibm.com>
-X-Mailer: aerc 0.22.0
-References: <20260819-s390_irq_domain_fixes-v1-0-826ff27b6e97@linux.ibm.com>
- <20260819-s390_irq_domain_fixes-v1-3-826ff27b6e97@linux.ibm.com>
- <20260819090550.8B3EF1F00A3A@smtp.kernel.org>
-In-Reply-To: <20260819090550.8B3EF1F00A3A@smtp.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODIwMDA1MyBTYWx0ZWRfX7dU8sRYSLFD0
- rFbsAP9xFog0uYvm6xM2/de+dNFYFXGqHS48QG0cI1rNd0ngs5S8+NTxLchi2G9U4nbwc50YyOv
- eFAQCX/7hqTDmYkPTmWQ+XQKWSxo15c=
-X-Proofpoint-GUID: eXTAt8xoBKuspKzDF61MoC7csoyZsDzt
-X-Proofpoint-ORIG-GUID: eXTAt8xoBKuspKzDF61MoC7csoyZsDzt
-X-Authority-Analysis: v=2.4 cv=RPmD2Yi+ c=1 sm=1 tr=0 ts=6a86b03c cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=pgdORQlDl8DRY_nvvskA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIwMDA1MyBTYWx0ZWRfX2mrcfFBY6BA6
- N/nk4n4twiOieZt+iE48B+HcDYn7eWEvZsQvBJz38d7Z7n1ELurWtjtNYffRKlgTagA+pyZN8g9
- 32KZagBhtOgCJivy88PRlH3QeVtG62bGeF7R15tiKxFGP+nQ+wREezL8kHn+jsh+q0HYcf2TU68
- /WSqX4AFSTHqDvB4u0YqYNbn9bdO/ZrngP7vHLoPaQgjFdaLOyyK05c629svjHNja6mI/Dqs7XM
- bso1YivbGXISaIfoQVOMrnUttc/gTHFsNypNAP9Vkcs04N4YZsI+ChDZWinNrZ9LOfGWWLULhy7
- e6LCWmRfHKXvvb2YWohdwXcWOxp18YSTI5L+VfQ3pcPQNkI4xz9ZDqmjEv0VEr5dJGy2CRqofZ4
- OeEjZ8VUhr68wZZV/1etGaOhbXPKKuwyhIwUVcbxIUwbufOwbIjhYa/IMkrGe9LY9Dye8yejUtM
- JWYCZ9+M4PDjQdtrSOw==
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=LsCiDHdc c=1 sm=1 tr=0 ts=6a86b0e8 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=GTcdQ6rE3tqjsuqwFHkA:9
+X-Proofpoint-GUID: quY30RAjYBlCH_ZsBMwCZ4dAvys-Rg0k
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODIwMDA1MyBTYWx0ZWRfX4J/F8q2kXSQJ
+ OIEUa671A30GHlWG2ucXxqqXWm6Drrbg5mZSvH0XT6GNv6XdXJKfHdtGCKJ3D4u3D9EV5XjqjFs
+ 0bH0AGPxlGvHX1uCDX/noG59sCGdRCA=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIwMDA1MyBTYWx0ZWRfX7pHneQ6YxfCb
+ VS0YcyD7OanFh4udk26F2oL25s95kcSk5sR5DGSR3zI0e8VjFmA8oR/maHpRo9q2GAjOcERQgYX
+ w+QUrUaDSQ1PtpGPvUe3v4Ei6A5YmzZ7kxPVDFsp7LCxwsMoMLgAdFu2KG9sVGOYitmMldso4Xu
+ yiMh6U9yEhMxGs0J12yJhgpAfTAhqFWdJ8AZ7XwOfRk4+UUSWTpJYUP3KE8166La3mjc4DEZiKi
+ 1qKIaKsmXANxFLAWgaUbgm4E/onblND6CY9gVEdEH7R3wA7kk4Yo4sZnJBG71o5WktQqK33oupO
+ bgxHRylntBm1CymXHu3+DdlC+0tJ8/DfWf4HWoFTQ+tKrdjQrY3LDfx2BBaCRJmsDHnH3Fxejt2
+ dBPJDJXBts+usOqkuPZZQJOVm3lYJDze6DjfPc1fUKdfPIIj7/ReZRW1u60eYPi2rcW0wyStvhI
+ ouQT4Bl5IBD4W19hBEQ==
+X-Proofpoint-ORIG-GUID: 5Tka3A-1cbhhcx2D3DsjtfBgDFC0MwpV
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-19_06,2026-08-19_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 phishscore=0 adultscore=0 spamscore=0 priorityscore=1501
- bulkscore=0 impostorscore=0 malwarescore=0 lowpriorityscore=0 suspectscore=0
+ malwarescore=0 spamscore=0 priorityscore=1501 lowpriorityscore=0 bulkscore=0
+ adultscore=0 suspectscore=0 impostorscore=0 clxscore=1015 phishscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608200053
 
-On Wed Aug 19, 2026 at 11:05 AM CEST, sashiko-bot wrote:
+The three connection state flags are single-bit bitfields, so they occupy
+one byte of struct smc_connection and every store to one is a
+read-modify-write of the other two:
 
--- snip --
+    u8  killed : 1;
+    u8  freed : 1;
+    u8  out_of_sync : 1;
 
-> --- Patch [3]: [PATCH 3/7] s390/pci: fix resource leak in zpci MSI setup =
+They are not written under a common lock. smc_cdc_msg_validate() sets
+out_of_sync from the receive tasklet, while smc_conn_kill() sets killed
+from process context under lock_sock(), and the receive path does not defer
+to the backlog when the socket is owned -- smc_cdc_msg_recv() takes only
+bh_lock_sock().
+
+Give each flag its own byte so a store no longer touches its neighbours.
+All readers test them as booleans and are unchanged. struct smc_connection
+grows by two bytes.
+
+Fixes: b286a0651e44 ("net/smc: handle incoming CDC validation message")
+Cc: stable@vger.kernel.org
+Reviewed-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
+Signed-off-by: Hidayath Khan <hidayath@linux.ibm.com>
 ---
-> commit ac232ab92e1500cdc9f0a1a221f03f9be96fffe4
-> Author: Tobias Schumacher <ts@linux.ibm.com>
->
-> s390/pci: fix resource leak in zpci MSI setup
->
-> If airq_iv_create() fails in __alloc_airq(), the zpci_sbv bit allocated
-> by airq_iv_alloc_bit() is never freed. This permanently leaks one of the
-> ZPCI_NR_DEVICES summary bits (~128 total), reducing system capacity with
-> each failed device hotplug.
->
->> diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
->> index 94b03d16006ba..5e934ac990ac1 100644
->> --- a/arch/s390/pci/pci_irq.c
->> +++ b/arch/s390/pci/pci_irq.c
->> @@ -320,8 +320,11 @@ static int __alloc_airq(struct zpci_dev *zdev, int =
-msi_vecs,
->>  		zdev->aibv =3D airq_iv_create(msi_vecs,
->>  					    AIRQ_IV_PTR | AIRQ_IV_DATA | AIRQ_IV_BITLOCK,
->>  					    NULL);
->> -		if (!zdev->aibv)
->> +		if (!zdev->aibv) {
->> +			airq_iv_free_bit(zpci_sbv, *bit);
->> +			zdev->aisb =3D -1UL;
->>  			return -ENOMEM;
->> +		}
->>
->>  		/* Wire up shortcut pointer */
->>  		zpci_ibv[*bit] =3D zdev->aibv;
->
-> [Severity: High]
-> This isn't a bug introduced by this patch, but does this direct assignmen=
-t
-> need a memory barrier?
->
-> This pointer is published to the globally visible zpci_ibv array.
-> Concurrently, the asynchronous hardware interrupt handler
-> zpci_floating_irq_handler() locklessly reads this array using
-> rcu_dereference(zpci_ibv[si]).
->
-> Without an rcu_assign_pointer() or equivalent release barrier, could the
-> reader observe the aibv pointer before its internal memory regions are
-> globally visible, leading to an invalid pointer dereference?
+New in v2.
 
-Duplicate finding already answered for Patch 2, yes, will fix this.
+ net/smc/smc.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-> [Severity: High]
-> This is a pre-existing issue, but does zpci_msi_teardown_directed() free
-> vectors owned by unrelated PCI devices?
->
-> When a driver requests fewer IRQs than its maximum capability, __alloc_ai=
-rq()
-> dynamically allocates exactly msi_vecs bits. However, the teardown blindl=
-y
-> frees max_msi bits:
->
-> arch/s390/pci/pci_irq.c:zpci_msi_teardown_directed() {
->     ...
-> 	airq_iv_free(zpci_ibv[0], zdev->msi_first_bit, zdev->max_msi);
->     ...
-> }
->
-> Will this cause memory corruption by freeing trailing vectors that might =
-have
-> been allocated to another device? Should this free zdev->msi_nr_irqs inst=
-ead?
-
-This is what Patch 4 addresses.
-
-> [Severity: High]
-> This is a pre-existing issue, but does zpci_msi_clear_airq() double-count
-> the iteration index and write out of bounds?
->
-> In zpci_msi_domain_free(), it iterates over nr_irqs and passes the loop i=
-ndex
-> i to zpci_msi_clear_airq():
->
-> arch/s390/pci/pci_irq.c:zpci_msi_domain_free() {
->     ...
-> 	for (i =3D 0; i < nr_irqs; i++) {
-> 		d =3D irq_domain_get_irq_data(domain, virq + i);
-> 		zpci_msi_clear_airq(d, i);
->     ...
-> }
->
-> Inside zpci_msi_clear_airq(), the hwirq already reflects the correct inde=
-x.
-> The bit is calculated, but then i is added again:
->
-> arch/s390/pci/pci_irq.c:zpci_msi_clear_airq() {
->     ...
-> 	msi_index =3D zpci_decode_hwirq_msi_index(d->hwirq);
-> 	bit =3D zdev->msi_first_bit + msi_index;
->     ...
-> 		airq_iv_set_ptr(zdev->aibv, bit + i, 0);
->     ...
-> }
->
-> If nr_irqs is greater than 1, doesn't this skip the intended elements and
-> corrupt pointers in unrelated active IRQs while failing to clear the
-> target vectors?
-
-Good catch, will fix this.
-
-Tobias
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index 52145df83f6e..427b6d63b993 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -277,9 +277,9 @@ struct smc_connection {
+ 						 * 0 for SMC-R, 32 for SMC-D
+ 						 */
+ 	u64			peer_token;	/* SMC-D token of peer */
+-	u8			killed : 1;	/* abnormal termination */
+-	u8			freed : 1;	/* normal termination */
+-	u8			out_of_sync : 1; /* out of sync with peer */
++	u8			killed;		/* abnormal termination */
++	u8			freed;		/* normal termination */
++	u8			out_of_sync;	/* out of sync with peer */
+ };
+ 
+ struct smc_sock {				/* smc sock container */
+-- 
+2.52.0
 
