@@ -1,151 +1,72 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06C1C46D54A
-	for <linux-s390@vger.kernel.org>; Thu, 20 Aug 2026 14:20:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFFAF476056
+	for <linux-s390@vger.kernel.org>; Thu, 20 Aug 2026 14:26:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787235648; cv=none; b=G0l3sjnK16KLru9UQ2EYUFJxTgzA6ub/bBqJlkcse6Q77KWK2z+1JslCe/7/kaNcqkh8HaUZs0ioopONv10QEckXZuLoFjnbYNpelnOoT0e5rjj+16w0G0ThR3bcJpXTazWjT0VbGWk/z8p0YffaRAfspO8i60eTShoN9ZqqOxI=
+	t=1787235994; cv=none; b=WJJqZkxtQfXcF3GPetcEzeqpFnu/eLA0AzEkUqwEHJ1oYXe+lDRva5byTsvk6szbVLzktK8Txd0lImBP1SZWlXCSU99Uin/tEG9PvvY/NjyXIHXaSG5dJMom8eobghj+I610wVqs3k/Qtz5ALMysaF2vTodR+qfKBE/l0KcbkZ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787235648; c=relaxed/simple;
-	bh=hjkSmNF/dRTpU/5xT17Xsm0DTpOoXvb66O6U3xy5xyA=;
+	s=arc-20240116; t=1787235994; c=relaxed/simple;
+	bh=MmIcykLc8RZnWhJVzUhOCLGPNKjHZx+oLvob503O+dY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=OId+oD3ddmE59FqB5hsJfAnGlLwAYe5KGFVfAwO3S9bbf6yY5jNTdeBsQOSypUio0DLRFinnTaeHi1mfBG1aoMDHeY+1gyAZZNwKPlvaEoNBWpfC9ExG/7HrfcpIv2Gphlr7VJnx6H1qKb3cOkTriFYQaE4sXL5knxw9GTidv+c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Rvicwre6; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=SKCt62qCbCitjvNRZByWcxzqJkKuo3xLkeneveHjmfOBGn/W9Fm1d2oGepX3oHTRhPh7S85nLtmeDj6pZQiwzC/g+24RKUAyYJIfN63Q36mrbvK77awpUenG6mi41o9LSrMOcw0CofAA7IcPzJd9VcZRTMt+2+Tbd1lraym4XQ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SbVWnxb4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Rvicwre6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F40931F000E9;
-	Thu, 20 Aug 2026 14:20:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SbVWnxb4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 292031F000E9;
+	Thu, 20 Aug 2026 14:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787235644;
-	bh=qLDBFmSOw3rtC/+1xkLaH8rI7OmFKOEnGY7FtUoyTAc=;
+	s=k20260515; t=1787235992;
+	bh=MmIcykLc8RZnWhJVzUhOCLGPNKjHZx+oLvob503O+dY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Rvicwre6oX8VLR4E+qN1hYdC40B5ZEvu/xoA1G/mFxxcFTAP6dBYP8yAgDNPxt4j3
-	 w7+Wg4f1CbM0jDM6cci8wCZ9KzuScBpt5xRrI+TJ8bt8CSzAbZVGTNuLkAmUMnt9Vr
-	 PYazZAAW3b3G+L4iD/fA3mtsUAje4ViT+ASSmLWWqSVD8fODeidkw2cmVsmAf9oRQ6
-	 /gtOZcZAvjC0xxYw+gZFgaKwMbZQ92yAr6k0dpKF2WTEnJoAxmedwZp4DIz7U0+h+z
-	 l+1sLiF3d8Ey5xTTLndaiLil/4MyUo5Ooc3xy+SQv7eEFdAcP9rd2jKfnP/MZnl9FP
-	 kuROZodt+tM3A==
+	b=SbVWnxb48nGKmOHDXW7nVlObwW7O2m+EXvHRTGJPdXIzhlqVMcCqlgWO8lJZYkpUG
+	 81wMbewAkWa14LLEo9cxoLqo2xqZ0972j6edguXnI6zrJTUBfKEH6rggJBTtZ7yjgi
+	 HNWA3GFqE6hownzj6/LgmPYOFSjrZ/Rsrt+ABdIu02k5UIRRhq/53AttXEXLG/KY+0
+	 alOaeYTfReK4oREFpxp3/291OOKAArBm0j9+eWD8MglgUeeBso7m6n2zntbIiwH3ke
+	 8e6/5AtkwYBA3sg/0BJnbDSHnkQmnxYElzZDpUWzoYabLldIZ39PsNB2HWzzJoAbj/
+	 ChpFPDs8+547A==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v1 1/1] s390/zcrypt: Validate length in reply before
- using it
+Subject: Re: [PATCH v5 7/8] s390/crypto: Fix wrong return code to engine in
+ asynch callbacks
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Holger Dengler" <dengler@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260820140439.892324-2-dengler@linux.ibm.com>
-References: <20260820140439.892324-1-dengler@linux.ibm.com>
- <20260820140439.892324-2-dengler@linux.ibm.com>
+To: "Harald Freudenberger" <freude@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260820141957.19091-8-freude@linux.ibm.com>
+References: <20260820141957.19091-1-freude@linux.ibm.com>
+ <20260820141957.19091-8-freude@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 20 Aug 2026 14:20:43 +0000
-Message-Id: <20260820142043.F40931F000E9@smtp.kernel.org>
+Date: Thu, 20 Aug 2026 14:26:31 +0000
+Message-Id: <20260820142632.292031F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+> When crypto_finalize_hash_request() or
+> crypto_finalize_skcipher_request() explicitly completes a request, the
+> do_one_request callback must return 0 to indicate successful
+> handling. Returning a negative error code causes the crypto engine to
+> assume the driver failed to take ownership and triggers a second
+> completion via crypto_request_complete(), resulting in a double
+> completion. This pattern occurs in paes_s390.c 4 times and once in
+> phmac_s390.c.
+>=20
+> Fixed in phmac_do_one_request() and all four paes do_one_request
+> callbacks (ecb, cbc, ctr, xts) by returning 0 after explicit
+> finalization instead of propagating the error code.
+>=20
+> Fixes: 6cd87cb5ef6c ("s390/crypto: Rework protected key AES for true asyn=
+ch support")
+> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
 
-Pre-existing issues:
-- [High] The patch fixes an out-of-bounds read in `_ip_cprb_helper()` but m=
-isses identical vulnerabilities in `cca_gencipherkey()` and `_ep11_genaeske=
-y()`.
-- [High] Unvalidated length fields in the CPRBX response payload are used t=
-o advance a memory pointer, causing severe out-of-bounds reads in `cca_quer=
-y_crypto_facility()`.
---
-
---- Patch [1]: [PATCH v1 1/1] s390/zcrypt: Validate length in reply before =
-using it ---
-commit 3fcaad86f04a2a9419691d5f1a54cc873f326675
-Author: Holger Dengler <dengler@linux.ibm.com>
-
-s390/zcrypt: Validate length in reply before using it
-
-The length information in the reply is used to copy the key token to
-the target buffer. An invalid information in t->len of the reply may
-cause an over-read of the target buffer and also a over-write of the
-target buffer. To prevent that, check t->len before using it.
-
-> diff --git a/drivers/s390/crypto/zcrypt_ccamisc.c b/drivers/s390/crypto/z=
-crypt_ccamisc.c
-> index d4ce6352b5b2e..54b8edd1dfc74 100644
-> --- a/drivers/s390/crypto/zcrypt_ccamisc.c
-> +++ b/drivers/s390/crypto/zcrypt_ccamisc.c
-> @@ -1158,8 +1158,21 @@ static int _ip_cprb_helper(u16 cardnr, u16 domain,
-> =20
->  	/* do not check the key here, it may be incomplete */
-> =20
-> -	/* copy the vlsc key token back */
-> +	/*
-> +	 * Copy the vlsc key token back.
-> +	 * The available space in the destination (key_token) and the source
-> +	 * (t) buffer is always larger as the valid range of prepparm->kb.len.
-> +	 * Validate t->len ba comparing it with the length information in the
-> +	 * param block of the request (prepparm->kb.len)
-> +	 * The value range of prepparm->kb.len has been checked above.
-> +	 */
->  	t =3D (struct cipherkeytoken *)prepparm->kb.tlv1.key_token;
-> +	if (t->len !=3D prepparm->kb.len - 3 * sizeof(uint16_t)) {
-> +		ZCRYPT_DBF_ERR("%s reply with invalid key_token length %u\n",
-> +			       __func__, t->len);
-> +		rc =3D -EIO;
-> +		goto out;
-> +	}
->  	memcpy(key_token, t, t->len);
->  	*key_token_size =3D t->len;
-
-[Severity: High]
-This isn't a bug introduced by this patch, but since you are fixing the
-unvalidated length field from the device reply here, should similar validat=
-ion
-be added to cca_gencipherkey() and _ep11_genaeskey()?
-
-In drivers/s390/crypto/zcrypt_ccamisc.c:cca_gencipherkey(), the code reads
-the generated token length directly from the untrusted reply and calculates
-the copy length without checking bounds against the structure size:
-
-    keybuflen =3D prepparm->kb.tlv1.len - 2 * sizeof(uint16_t);
-    ...
-    if (keybuf) {
-        if (*keybufsize >=3D keybuflen)
-            memcpy(keybuf, t, keybuflen);
-
-Could a malicious or compromised device return an inflated length, causing
-memcpy() to read thousands of bytes out-of-bounds from the cprbmem
-allocation and potentially leak kernel memory to userspace?
-
-A similar unvalidated copy appears in
-drivers/s390/crypto/zcrypt_ep11misc.c:_ep11_genaeskey(), which relies entir=
-ely
-on the untrusted device data length:
-
-    memcpy(keybuf, rep_pl->data, rep_pl->data_len);
-
-[Severity: High]
-This is a pre-existing issue, but does a similar vulnerability exist in
-drivers/s390/crypto/zcrypt_ccamisc.c:cca_query_crypto_facility() where the
-unvalidated length field is used to advance a memory pointer?
-
-In that function, the code blindly advances ptr using an unchecked length
-provided by the device payload:
-
-    len =3D *((u16 *)ptr);
-    if (len > sizeof(u16)) {
-        ...
-        ptr +=3D len;
-    }
-
-If the hardware returns a corrupt or malicious length, could ptr advance
-far beyond the cprbmem buffer bounds, leading to an out-of-bounds dereferen=
-ce
-on the next iteration or exposing arbitrary kernel memory during the
-subsequent memcpy()?
+Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260820140439.8923=
-24-2-dengler@linux.ibm.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260820141957.1909=
+1-1-freude@linux.ibm.com?part=3D7
+
