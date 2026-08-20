@@ -1,64 +1,64 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB07643D4EC;
-	Thu, 20 Aug 2026 12:15:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2159A43D4ED;
+	Thu, 20 Aug 2026 12:16:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787228161; cv=none; b=i3mFgGBum93jqzU7pERp/Nf1gkUthy56LqU1E8+czaJfmd56K0bcUYfHhY7d1c6UDGj1vYeKCfoE5wTaqRSlTUG6S6RGw6JIOry17W5mbfKodUbt2KM3DHDLiTvuewg/1N9O7vyOGZZVn6EVZzIiV74xL3pbnCdEWQH1JBAZwHM=
+	t=1787228161; cv=none; b=WRPmS0S6fjxCsoKaxbSS+KxgZGmr0hp/57RrBqLzI+tZ3CqmXll51SkkLeulppKGpBlVVpsGX4N7FzChU0TcAnr8fM4YyTgDhsdDDrYInlBUwaLj6Q+DhSslYqWPRMvuf7oOcvf2H2OacG12Jb9l8GaB5lgUYBIMUAb9ploV92c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1787228161; c=relaxed/simple;
-	bh=Vb96AKU11dTD8LoFEIhgDi398bKdhDxkXbvEcAQAVhA=;
+	bh=vK3gfPOHVrUDOTG/m2jO3/UPt78UkFZDy77OppRHJaM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PWyL4EJ7Ia4dLIeY0GoHFbT/dg4l2O8JDGs0qNaJtITErKfUGbP/jNQrfG51eRaYXdfPW+UUJAY85YjAAfiQ68U1y+bU3i4yP99GsotMPDGHdDgKht0Yy5FGy59VZCO8IHRayp64uNZaCLBa7+CBBixK/EK0Ukm0SXN9/hq5SgY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=l3xObP8R; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=WKVvJ9IRQ8UmCXoeukN9r+/hglJqv/ecemIl2MuBZP1aRhbECbG1+Ds5wtW291SdBnwPRZ+kCNQdwwlyKS3p3PDX/l1VGWMZgfseNM2+8g4MiDkOu3K598AUvbsa+izguL1+APY5YpkQxLKTtCeFB9DpefYD8Uu/nH5HJn6B1cs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=AX/8+ZFL; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="l3xObP8R"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67K8PGYh471252;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AX/8+ZFL"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67K9Ih4B504471;
 	Thu, 20 Aug 2026 12:15:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=Yxw7CrE7qOlNB+vNB
-	maV1/xEAF5E9aB1pBaLv4vhn18=; b=l3xObP8RxxNRCnep9uYOcEMJVpyos5FV7
-	mV7/QHhQGzHblu2plMVbFTLqwrA+lAiuwsV1DV9b6lX/MwXt0ELUC5sJunB7GtHe
-	OcoONdQW8HisxtybpOw7TDZrBWS91Tluz7qOaXWtzX0S8CGpr3F4o7y4iRe8vrjN
-	oz45wD/4cgTZUTWc0Oji18onAF8CznmNSAV3dCPksn6JP+oSFEr5cPb6kgUaK44n
-	X3XP8513Hs9LKeYVTAkTnFBpfOSskTq4eFTNL37fYb+9WPPJCXUe2SRf5D9xqGoe
-	ZvLg6LQTaWzafAPaUnRl3smWw6H2slY8GmB6WPfaLMjltMEI1GUeg==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu0j68m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Aug 2026 12:15:59 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67KCBHR9019295;
-	Thu, 20 Aug 2026 12:15:58 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g32eqejwu-1
+	:mime-version:references:subject:to; s=pp1; bh=xzfP3piekfkW22Wgg
+	3wDzzhSqEDXppn3VaikouoD/78=; b=AX/8+ZFLbe0xTbMVxNuQHrbe845Mjo5RP
+	arik1gnqfsc63K5ADD1Kd2Ycs8Pew29DyimOuhr4+TdhSm+htQDOBnLlGSXwwt/G
+	DvSplds7h7fNGCG4nzrFbSZ1J5SfMHUz8wI0QRGwNYCOFHB2fvYjQSjM3/nSqqxF
+	V28C+xxxQzh01vLwIzHVQ9h+KsHwFStAtV+IWllT6+nfxQd3cmXzA1ziJ+5ZAbSJ
+	81/7uh+aKG8xp7jtUv14nB2SPiDYRqE7mHYkDAx9SD9PnHq62MJSJB8YHzeFu2uS
+	vyqGIt1Rdjwx0aKm06ryenHEVGWYmFt42p0Bxe7o6hk1B8T8wiDZA==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu49yre-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Thu, 20 Aug 2026 12:15:58 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67KCBNqU007938;
+	Thu, 20 Aug 2026 12:15:58 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g34ngp6wt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 20 Aug 2026 12:15:57 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67KCFsus28443056
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67KCFsNd28443052
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Thu, 20 Aug 2026 12:15:54 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5848E20040;
+	by IMSVA (Postfix) with ESMTP id 1BFA520040;
 	Thu, 20 Aug 2026 12:15:54 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3BEF42004B;
-	Thu, 20 Aug 2026 12:15:54 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id F308D2004B;
+	Thu, 20 Aug 2026 12:15:53 +0000 (GMT)
 Received: from b46lp25.lnxne.boe (unknown [9.87.84.240])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 20 Aug 2026 12:15:54 +0000 (GMT)
+	Thu, 20 Aug 2026 12:15:53 +0000 (GMT)
 From: Janosch Frank <frankja@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: imbrenda@linux.ibm.com, linux-s390@vger.kernel.org,
         borntraeger@linux.ibm.com, pasic@linux.ibm.com
-Subject: [PATCH v4 3/3] KVM: s390: Add opportunistic floating IRQ injection
-Date: Thu, 20 Aug 2026 12:12:18 +0000
-Message-ID: <20260820121546.24694-4-frankja@linux.ibm.com>
+Subject: [PATCH v4 1/3] KVM: s390: Improve floating IRQ injection behavior
+Date: Thu, 20 Aug 2026 12:12:16 +0000
+Message-ID: <20260820121546.24694-2-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260820121546.24694-1-frankja@linux.ibm.com>
 References: <20260820121546.24694-1-frankja@linux.ibm.com>
@@ -70,131 +70,185 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=MthiLWae c=1 sm=1 tr=0 ts=6a86efff cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Authority-Analysis: v=2.4 cv=CpuPtH4D c=1 sm=1 tr=0 ts=6a86effe cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=ceVPMvoHt_UTMoFkilYA:9
-X-Proofpoint-ORIG-GUID: fvO7uhiM1p0Y_xkw8MfesxvVdeCNyOYz
-X-Proofpoint-GUID: fvO7uhiM1p0Y_xkw8MfesxvVdeCNyOYz
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODIwMDA4OSBTYWx0ZWRfX2SrxhDHK/1ZD
- ojBY2DeSYdbjOpK6CjmOy714piq0hbdnTTXkZiPS9gF3iKVPvuCEwbzaE5yi5qAS/EEmC30cv/F
- Do64I+dxscmLpvy135tCrk7Wq25P0jk=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIwMDA4OSBTYWx0ZWRfX8Nfp/PbEZqbD
- /A11xd3HIFfjxEXGA4+O1TPgcLxV3RrS27iguUdZHJFEyMPz+PpJBC3IMlo58rUPnki1WYLVflw
- gk1WKmX4bkvqZ11ifHmq5/IMbKjinpIMO/JMZStr1+b2MPXALFojrdMabRywLGcfEbZP09RHu5W
- 1QTHI6GxOMGPr3JbG8bKHC66uFTzPhAKKmKvnqEb4Zpop6lGjmjuBurWdzyV84nmAAJH6T96zFb
- VV9PTQeq3pHK6E8AWE0eCqCJyheH0AueKFg/f9eWG7fGMt4F5JbQO8zHFRprLs/L4x0WPPwGAzU
- GD1syudOgUQp79QVDiz5sJd1qBtT/gYQ4dkUMVW9bdVyaizToEQdFGq1Mbx4M3Y6JMgG8zCKZMS
- vKTFH7m1tgz8cdILHqhPb10a/HsaVyaKpkhy/6i3tSsXMP41zITrnt++Tb6rNUOS3q9w0SvPORw
- tTD+mGXBgLotC7gNccA==
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=mNrvo4Ka_OWIiVjgUZwA:9
+X-Proofpoint-ORIG-GUID: sV23ySkh-HNGoJ9AM3LKavM0mzUoEpm1
+X-Proofpoint-GUID: sV23ySkh-HNGoJ9AM3LKavM0mzUoEpm1
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODIwMDA4OSBTYWx0ZWRfX2JBB6OkGYDix
+ 3XddHjB/KAlG7ogagsEZhNG9TiqENGnEqJjhpZhHOls68xTOilmRibcy0XBK8nJbPCFAIpb6qg5
+ LXlpLLkrS6kkHXm5wCMxp03OwTA2kB4=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIwMDA4OSBTYWx0ZWRfX1hCJfG4olpjr
+ s3WWqhtFznaNhR4ghjSafruD8eSInTVD4wIFo1NJYQIZpH0NXuMNVVyW4IRwgfi6dbcdDng4BLV
+ I8JCyU7M8rubeW99SXhuk75Kboh0bBOM3Q4lM8A4Lw2o6Se9nCZpzsUBzUdyUWKbj5ta58JAcu8
+ S46PSY1Gnrq8Mz5PuWPA6uyMcj51zPyOYXB/eaX2viywVq/RWk8O0+1dwI2Nr2wzWI7/ZPBc4RX
+ L5KCCPnimvqHQ2XpyZiD9cH5xbtvdG6Mro3HZNwQdJUpY2u1x1c+Z2/CtdEohdgfBRFCCDaJqud
+ p78dkzgoyPdsy7NXB+6nsvdf3sx+Wm2pMiEKA2ycFguczRdykY2QEqObYhw6qqHpSwCu/vQi7Zo
+ 7tqp5tZAQemmytyFXz8MfeYimtmyMWeq/HIr+co/hlAvzTEBOeDLGdclTKVHRzrOAm+FYRP2ieO
+ 3pGNKfze71PKIfAcybA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-19_06,2026-08-19_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 impostorscore=0 bulkscore=0 phishscore=0 clxscore=1015
- spamscore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608200089
+ impostorscore=0 adultscore=0 bulkscore=0 malwarescore=0 phishscore=0
+ lowpriorityscore=0 spamscore=0 clxscore=1015 priorityscore=1501
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608200089
 
-Try to distribute floating IRQs which haven't been taken by a VCPU yet
-to sleeping VCPUs. This lowers the risk of floating IRQs not being
-delivered.
+Floating IRQs can be handled by any VCPU that opened its masks. The
+current design does not check if the mask is open when a floating IRQ
+is injected via the FLIC. It will wakeup the last VCPU that went
+sleeping hoping it's the correct one.
+
+Improve this by checking if the VCPU has pending IRQs and if not try
+to find another VCPU which can take the IRQ.
+
+This is not the final fix around this topic but we'll eventually
+inject a pending IRQ. The current code can easily deadlock a VM and
+with this fix we work around that.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |  1 +
- arch/s390/kvm/interrupt.c        | 31 +++++++++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.c         |  3 +++
- arch/s390/kvm/kvm-s390.h         |  1 +
- 4 files changed, 36 insertions(+)
+ arch/s390/kvm/interrupt.c | 86 ++++++++++++++++++++++++++++++---------
+ 1 file changed, 66 insertions(+), 20 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index b4182ca4435f..1d62bdd7aca5 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -467,6 +467,7 @@ struct kvm_vm_stat {
- 	u64 gmap_shadow_r3_entry;
- 	u64 gmap_shadow_sg_entry;
- 	u64 gmap_shadow_pg_entry;
-+	u64 inject_redist;
- };
- 
- struct kvm_arch_memory_slot {
 diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index b3e4bfeacff2..54f20347f553 100644
+index 8f24bcd1a6d3..87caad037765 100644
 --- a/arch/s390/kvm/interrupt.c
 +++ b/arch/s390/kvm/interrupt.c
-@@ -367,6 +367,37 @@ static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu)
- 	return active_mask;
+@@ -1915,49 +1915,93 @@ static int __inject_io(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
+ 	return 0;
  }
  
-+void distribute_float_irqs(struct kvm *kvm)
++static u64 inti_to_irq_pend_mask(u64 type, int isc)
 +{
-+	struct kvm_vcpu *dst_vcpu;
-+	int sigcpu, online_vcpus;
-+
-+	if (!READ_ONCE(kvm->arch.float_int.pending_irqs))
-+		return;
-+
-+	online_vcpus = atomic_read(&kvm->online_vcpus);
-+
-+	/*
-+	 * Not too worried about synchronization for idle_mask. We
-+	 * might burn too many cycles but apart from that waking a
-+	 * vcpu is not harmful.
-+	 */
-+	sigcpu = find_first_bit(kvm->arch.idle_mask, online_vcpus);
-+	/* Well nobody's sleeping so someone will likely take the IRQ soon */
-+	if (sigcpu == online_vcpus)
-+		return;
-+
-+	do {
-+		dst_vcpu = kvm_get_vcpu(kvm, sigcpu);
-+		if (deliverable_irqs(dst_vcpu)) {
-+			kvm->stat.inject_redist++;
-+			kvm_s390_vcpu_wakeup(dst_vcpu);
-+			break;
-+		}
-+		sigcpu = find_next_bit(kvm->arch.idle_mask, online_vcpus, ++sigcpu);
-+	} while (sigcpu < online_vcpus);
++	switch (type) {
++	case KVM_S390_MCHK:
++		/* Only repressible machine checks are floating */
++		return BIT(IRQ_PEND_MCHK_REP);
++	case KVM_S390_INT_VIRTIO:
++		return BIT(IRQ_PEND_VIRTIO);
++	case KVM_S390_INT_SERVICE:
++		return BIT(IRQ_PEND_EXT_SERVICE) |
++		       BIT(IRQ_PEND_EXT_SERVICE_EV);
++	case KVM_S390_INT_PFAULT_DONE:
++		return BIT(IRQ_PEND_PFAULT_DONE);
++	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
++		return BIT(isc_to_irq_type(isc));
++	default:
++		return 0;
++	}
 +}
 +
- static void __set_cpu_idle(struct kvm_vcpu *vcpu)
- {
- 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 518a69c55e85..d6d46688d980 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -86,6 +86,7 @@ const struct kvm_stats_desc kvm_vm_stats_desc[] = {
- 	STATS_DESC_COUNTER(VM, gmap_shadow_r3_entry),
- 	STATS_DESC_COUNTER(VM, gmap_shadow_sg_entry),
- 	STATS_DESC_COUNTER(VM, gmap_shadow_pg_entry),
-+	STATS_DESC_COUNTER(VM, inject_redist),
- };
- 
- const struct kvm_stats_header kvm_vm_stats_header = {
-@@ -4572,6 +4573,8 @@ static int vcpu_pre_run(struct kvm_vcpu *vcpu)
- 		rc = kvm_s390_deliver_pending_interrupts(vcpu);
- 		if (rc || guestdbg_exit_pending(vcpu))
- 			return rc;
++/*
++ * Setup intervention masks to catch running vcpus that hopefully open
++ * their masks soonish and kick sleeping vcpus to motivate them to
++ * take IRQs.
++ */
++static void vcpu_intervention_kick(struct kvm_vcpu *vcpu, u64 type)
++{
++	/* make the VCPU drop out of the SIE, or wake it up if sleeping */
++	switch (type) {
++	case KVM_S390_MCHK:
++		kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOP_INT);
++		break;
++	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
++		if (!(type & KVM_S390_INT_IO_AI_MASK &&
++		      vcpu->kvm->arch.gisa_int.origin) ||
++		      kvm_s390_pv_cpu_get_handle(vcpu))
++			kvm_s390_set_cpuflags(vcpu, CPUSTAT_IO_INT);
++		break;
++	default:
++		kvm_s390_set_cpuflags(vcpu, CPUSTAT_EXT_INT);
++		break;
++	}
++	kvm_s390_vcpu_wakeup(vcpu);
++}
 +
-+		distribute_float_irqs(vcpu->kvm);
+ /*
+  * Find a destination VCPU for a floating irq and kick it.
+  */
+-static void __floating_irq_kick(struct kvm *kvm, u64 type)
++static void __floating_irq_kick(struct kvm *kvm, u64 type, int isc)
+ {
+ 	struct kvm_vcpu *dst_vcpu;
+ 	int sigcpu, online_vcpus, nr_tries = 0;
++	u64 irq_pend_mask;
++	unsigned long i;
+ 
+ 	online_vcpus = atomic_read(&kvm->online_vcpus);
+ 	if (!online_vcpus)
+ 		return;
+ 
++	irq_pend_mask = inti_to_irq_pend_mask(type, isc);
+ 	for (sigcpu = kvm->arch.float_int.last_sleep_cpu; ; sigcpu++) {
+ 		sigcpu %= online_vcpus;
+ 		dst_vcpu = kvm_get_vcpu(kvm, sigcpu);
+-		if (!is_vcpu_stopped(dst_vcpu))
++		if (!is_vcpu_stopped(dst_vcpu) &&
++		    deliverable_irqs(dst_vcpu) & irq_pend_mask)
+ 			break;
+ 		/* avoid endless loops if all vcpus are stopped */
+-		if (nr_tries++ >= online_vcpus)
+-			return;
++		if (nr_tries++ >= online_vcpus * 2) {
++			dst_vcpu = NULL;
++			break;
++		}
  	}
  
- 	rc = kvm_s390_handle_requests(vcpu);
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 8e886bcef4a0..7115a8f5b188 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -376,6 +376,7 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu);
- void kvm_s390_clear_local_irqs(struct kvm_vcpu *vcpu);
- void kvm_s390_clear_float_irqs(struct kvm *kvm);
- void kvm_s390_pv_sclp_kick(struct kvm_vcpu *vcpu);
-+void distribute_float_irqs(struct kvm *kvm);
- int __must_check kvm_s390_inject_vm(struct kvm *kvm,
- 				    struct kvm_s390_interrupt *s390int,
- 				    struct kvm_s390_interrupt_info *inti);
+-	/* make the VCPU drop out of the SIE, or wake it up if sleeping */
+-	switch (type) {
+-	case KVM_S390_MCHK:
+-		kvm_s390_set_cpuflags(dst_vcpu, CPUSTAT_STOP_INT);
+-		break;
+-	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
+-		if (!(type & KVM_S390_INT_IO_AI_MASK &&
+-		      kvm->arch.gisa_int.origin) ||
+-		      kvm_s390_pv_cpu_get_handle(dst_vcpu))
+-			kvm_s390_set_cpuflags(dst_vcpu, CPUSTAT_IO_INT);
+-		break;
+-	default:
+-		kvm_s390_set_cpuflags(dst_vcpu, CPUSTAT_EXT_INT);
+-		break;
++	/* Nobody was enabled, time to wake all of them */
++	if (!dst_vcpu) {
++		kvm_for_each_vcpu(i, dst_vcpu, kvm)
++			vcpu_intervention_kick(dst_vcpu, type);
++		return;
+ 	}
+-	kvm_s390_vcpu_wakeup(dst_vcpu);
++
++	vcpu_intervention_kick(dst_vcpu, type);
+ }
+ 
+ static int __inject_vm(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
+ {
+ 	u64 type = READ_ONCE(inti->type);
++	int isc = -1;
+ 	int rc;
+ 
+ 	switch (type) {
+@@ -1974,6 +2018,8 @@ static int __inject_vm(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
+ 		rc = __inject_pfault_done(kvm, inti);
+ 		break;
+ 	case KVM_S390_INT_IO_MIN...KVM_S390_INT_IO_MAX:
++		/* Grab isc here since __inject_io() might free inti */
++		isc = int_word_to_isc(inti->io.io_int_word);
+ 		rc = __inject_io(kvm, inti);
+ 		break;
+ 	default:
+@@ -1982,7 +2028,7 @@ static int __inject_vm(struct kvm *kvm, struct kvm_s390_interrupt_info *inti)
+ 	if (rc)
+ 		return rc;
+ 
+-	__floating_irq_kick(kvm, type);
++	__floating_irq_kick(kvm, type, isc);
+ 	return 0;
+ }
+ 
 -- 
 2.53.0
 
