@@ -1,64 +1,50 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B7DE443ABC;
-	Thu, 20 Aug 2026 12:40:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 205F943C7B9;
+	Thu, 20 Aug 2026 12:47:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787229617; cv=none; b=Y9vp7rFanEYoiRbDTmH/YaNE1GNqgzXeUEfrmKOfkm9kOkDSJ7wDALsUGmYEDiN4TmAkgKShTNec5ME1yvH68D0J8oSo1lCsmUkSdwnwrgfIKH96/B7JKF+h5TQZqoalSqCNw9p+EPNu74xkCRBx7719EPOBljI+ZCCYGgf/16Q=
+	t=1787230043; cv=none; b=AhaY9QMXe/XC+4L+BPSTfbT8Wx+iI3pNhgUOrnj3QT6D02bzB5KYtrYa5WtkfdjeW9oRTnBR+hYrjKMhThe75Un73aXN+q+M8nr2zb3XDPU6NjGabtFFq/EGAJVDQm5/u1FT6+Wz22uNmdVrO3dys20VShd8SR/HbNQj2K9fYdA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787229617; c=relaxed/simple;
-	bh=NhsvfGLHd/fhjTxGANUguG71YeC2Afb3/dUOF3wjDC4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XdrX3N56spMcHxoLAxtLix7RERcd9VAlrgbofmk5VoRqP670m88PL/XfNzw+3Zq/+3BO5db4OJUOLZrMe3fD4LK+TlVEE5261ZkYeuRMB2lWR985Bl/dEwJM4mJcoX+KTfI9pk9VUipRJsPAPYz0QNQprGwOOQoeWO2iG3R60p0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KJxZlQMq; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1787230043; c=relaxed/simple;
+	bh=NXijLyNzW1j6rL2xoxWLuHFGErliw/0/bKGsdxIOr7M=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LZSqLJGi7/ITPH+6Ed8TqkKYrnXArROpY3YEp9E3lYiHu4mnMzkYMQV9VQ32sv/LGmNu4dF5X3vBYmQ8+mvbs0KL0oJQ2JA+sKzNAFU72imziTTyfhlAvfGcGnp8c/Pyoweut62rSQMd7lhFw4YY+vPDvt+RYeiU2TkVhl4lmWQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=jAoL6d8g; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=Bdc1s8pj; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KJxZlQMq"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67K8hXUJ503913;
-	Thu, 20 Aug 2026 12:40:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=yCO/+kwGsXaDN4jIraW/e7CegfUev0faDwZ7zdP5D
-	JY=; b=KJxZlQMqoZ0YgVM9cZHL6qXL8y8BtLWQJztsjBorhG0JDvd9scD7MQPPf
-	aGjgVgxc1I5ApzSDgyg0Pw81ODyNmPemyF9UQwdqlPWPes31LFqY5YK/yoa/99vd
-	/G2I21F/X/3tvpFVJ1Ue0QzHTpR9feo42BUmkMvmx3km3OO+pUVj0+E/tIHpQs9s
-	PAezuEyC1NWbbSkQEtrYgmNiyreM5G5C4McXIDJL+cvcXpXTsD0QZqmE8U5pru/U
-	YwTfPy5YlX5sp3yPz4qFOWqblNB9Ak5gcErf1/o6i5lmFeqKfLS/cfAOB/97x9wT
-	dYNQmi8bjJBFZA7yjLH4f6Y98voYQ==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu4a4gr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Aug 2026 12:40:13 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67KCQP9N007840;
-	Thu, 20 Aug 2026 12:40:13 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33ekehj2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Aug 2026 12:40:13 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67KCe9Yj44630282
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 20 Aug 2026 12:40:09 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0FCE62004E;
-	Thu, 20 Aug 2026 12:40:09 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E7ED62004D;
-	Thu, 20 Aug 2026 12:40:08 +0000 (GMT)
-Received: from b46lp25.lnxne.boe (unknown [9.87.84.240])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 20 Aug 2026 12:40:08 +0000 (GMT)
-From: Janosch Frank <frankja@linux.ibm.com>
-To: kvm@vger.kernel.org
-Cc: imbrenda@linux.ibm.com, linux-s390@vger.kernel.org,
-        borntraeger@linux.ibm.com
-Subject: [PATCH] KVM: s390: selftests: Add IRQ injection selftests
-Date: Thu, 20 Aug 2026 12:20:35 +0000
-Message-ID: <20260820123728.26284-2-frankja@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="jAoL6d8g";
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="Bdc1s8pj"
+Received: from kunlun.suse.cz (unknown [IPv6:2a07:de40:b306:2000::2])
+	by smtp-out2.suse.de (Postfix) with ESMTP id C5F0B3EFD;
+	Thu, 20 Aug 2026 12:47:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1787230036; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=hBzZv2yl4kbAvlurVLFuOr66YVEI3TpPTChso4lrfJs=;
+	b=jAoL6d8gym4kdR82GnDa2JYxsho93mm3OhG3upXICV4UPqaFQrKCs9cLF0jWY5viyQFuVU
+	GkmM0oJaFNPRRmWKoDbEWQfGoaD7YN+0hQGxXp9ZdtXjRu91wMeu6wyYC+kVryPgDYiDae
+	ohryYZ5cVNSlgh1MPj70TtKWn8SgY14=
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.com header.s=susede1 header.b=Bdc1s8pj
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1787230031; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=hBzZv2yl4kbAvlurVLFuOr66YVEI3TpPTChso4lrfJs=;
+	b=Bdc1s8pjzt3d4u/uUdVjPTbYBqzF0kEG7CjoDfIzCAoJBeKlk99ivOQiu5o0CdwKpgPpuz
+	zDmNeZuaU3O/Q9z1E6ndZjGt9AqlxUkle5LNqHOnOEelxbBeNywRIPE4td2F55twEOPxJh
+	rL3xSv4IqyOvMwmSTZOMeqa/ats6tFc=
+From: Anthony Iliopoulos <ailiop@suse.com>
+To: Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] s390: remove unused setup_profiling_timer function
+Date: Thu, 20 Aug 2026 14:46:46 +0200
+Message-ID: <20260820124649.143863-1-ailiop@suse.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -66,151 +52,114 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=CpuPtH4D c=1 sm=1 tr=0 ts=6a86f5ad cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=HrADI_whcFcx6oX9QEwA:9
-X-Proofpoint-ORIG-GUID: ryzR7hAINnYRaSpS3rY9ULmZjheBqnJK
-X-Proofpoint-GUID: ryzR7hAINnYRaSpS3rY9ULmZjheBqnJK
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODIwMDA5MyBTYWx0ZWRfXzjvuFV3o/qFy
- +oVCKhkvA/mdb6HEwTZILzu4LhNQEJUIFcx54zmzCksPKyxzEiNB+y3i10fP/yuSB2G5rJ6AfJi
- R44Ho5+1dTd7XFnOB9ay1rtgMsU26CU=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIwMDA5MyBTYWx0ZWRfX+HyemUoAsSUR
- ENwrM220xPk+fGUXhY/EypASAQME6A2nefOpMZujBxlAsh65rZFY+SjyXSZp9ZvU9QCRxCHioDW
- Moj4r3LCh17xn6PPe3E7O2JoQdzILO4iFJa0lLYJlvH76naJUX3gcGQ+MU85RBHtycOQXAaSFZU
- iTc/ncNTbQbYKj180K7ldRJMKTdY5Yui2ivvhQ0/nTcAqAWkVv8Nnnb/EgoDS+T0aDWPs27H9hH
- GID/6I2L5t+v8bvb50nBidu4DwFUwrBTT+xYaNrTlEnUwUduo6POIXBXyie/2QLCp6146vmUjTO
- LtzJHHflMIX12DUq9p/89i1eHQ4kVMZSwlplrjhtBms7x0mkgmA4wJFzXuMoF4uwDzCBXTJtSEr
- /nUp7EvGXrSK4JZc8Lc/UPCH4GTZZlkgC6VaGZ+fXW21h2VBb1KGCMZ3RhDfw5g60oCV1sqf2Vr
- rJzDo1H0lbZPGcE+8PQ==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-19_06,2026-08-19_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 adultscore=0 bulkscore=0 malwarescore=0 phishscore=0
- lowpriorityscore=0 spamscore=0 clxscore=1011 priorityscore=1501
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608200093
+X-Spamd-Result: default: False [16.69 / 50.00];
+	SPAM_FLAG(5.00)[];
+	NEURAL_SPAM_LONG(3.50)[1.000];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_SPAM_SHORT(3.00)[0.999];
+	HFILTER_HOSTNAME_UNKNOWN(2.50)[];
+	RDNS_NONE(2.00)[];
+	ONCE_RECEIVED(1.20)[];
+	HFILTER_HELO_IP_A(1.00)[kunlun.suse.cz];
+	MID_CONTAINS_FROM(1.00)[];
+	R_MISSING_CHARSET(0.50)[];
+	HFILTER_HELO_NORES_A_OR_MX(0.30)[kunlun.suse.cz];
+	R_DKIM_ALLOW(-0.20)[suse.com:s=susede1];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	RCVD_COUNT_ZERO(0.00)[0];
+	DIRECT_TO_MX(0.00)[git-send-email 2.55.0];
+	ARC_NA(0.00)[];
+	TO_DN_SOME(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:mid,suse.com:email,suse.com:dkim];
+	FROM_HAS_DN(0.00)[];
+	DKIM_SIGNED(0.00)[suse.com:s=susede1];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b306:2000::2:from];
+	DKIM_TRACE(0.00)[suse.com:+];
+	RCPT_COUNT_FIVE(0.00)[5]
+X-Spam-Score: 16.69
+X-Spam-Level: ****************
+X-Spamd-Bar: ++++++++++++++++
+X-Rspamd-Queue-Id: C5F0B3EFD
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spam-Flag: YES
+X-Rspamd-Action: add header
+X-Spam: Yes
 
-From: Gabriella Seifert <gseifert@linux.ibm.com>
+setup_profiling_timer() is not used by any code at this point. Since a
+default weak implementation exists, there is no need to keep this
+arch-specific definition around. Remove it along with the now-redundant
+profile header includes.
 
-The IRQ injection selftests haven't been added to the selftests yet so
-let's do that now. We start off with a couple simple error checks for
-invalid data.
-
-Signed-off-by: Gabriella Seifert <gseifert@linux.ibm.com>
-[frankja@linux.ibm.com: Improved formatting and wording]
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Anthony Iliopoulos <ailiop@suse.com>
 ---
+ arch/s390/kernel/entry.h |  1 -
+ arch/s390/kernel/irq.c   |  1 -
+ arch/s390/kernel/smp.c   | 11 -----------
+ arch/s390/kernel/time.c  |  1 -
+ 4 files changed, 14 deletions(-)
 
-Written by Gabriela in her internship as a side project. Unfortunately
-she wasn't able to send it out herself due to a bit of time crunch.
-She did prepare additional code that's more in-depth with guest side
-checks but didn't have the time to fully test and clean it up. We'll
-see if and when that code will be posted.
-
-I have her permission to fix up review comments and she's in bcc.
-
----
- tools/testing/selftests/kvm/Makefile.kvm      |  1 +
- .../selftests/kvm/s390/irq_injection.c        | 74 +++++++++++++++++++
- 2 files changed, 75 insertions(+)
- create mode 100644 tools/testing/selftests/kvm/s390/irq_injection.c
-
-diff --git a/tools/testing/selftests/kvm/Makefile.kvm b/tools/testing/selftests/kvm/Makefile.kvm
-index 6fc34e9bf8e1..423c0cb6f17d 100644
---- a/tools/testing/selftests/kvm/Makefile.kvm
-+++ b/tools/testing/selftests/kvm/Makefile.kvm
-@@ -215,6 +215,7 @@ TEST_GEN_PROGS_s390 += rseq_test
- TEST_GEN_PROGS_s390 += s390/irq_routing
- TEST_GEN_PROGS_s390 += mmu_stress_test
- TEST_GEN_PROGS_s390 += pre_fault_memory_test
-+TEST_GEN_PROGS_s390 += s390/irq_injection
+diff --git a/arch/s390/kernel/entry.h b/arch/s390/kernel/entry.h
+index dc84ab497251..144a72ad7dc6 100644
+--- a/arch/s390/kernel/entry.h
++++ b/arch/s390/kernel/entry.h
+@@ -45,7 +45,6 @@ void do_ext_irq(struct pt_regs *regs);
+ void do_restart(void *arg);
+ void __init startup_init(void);
+ void die(struct pt_regs *regs, const char *str);
+-int setup_profiling_timer(unsigned int multiplier);
  
- TEST_GEN_PROGS_riscv = $(TEST_GEN_PROGS_COMMON)
- TEST_GEN_PROGS_riscv += riscv/sbi_pmu_test
-diff --git a/tools/testing/selftests/kvm/s390/irq_injection.c b/tools/testing/selftests/kvm/s390/irq_injection.c
-new file mode 100644
-index 000000000000..75e0528f9b01
---- /dev/null
-+++ b/tools/testing/selftests/kvm/s390/irq_injection.c
-@@ -0,0 +1,74 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Test for KVM_S390_IRQ - s390x IRQ injection API
-+ *
-+ * Verifies that VM-level interrupt types are correctly rejected when
-+ * injected via the vCPU file descriptor, and that invalid arguments
-+ * to vCPU-level interrupts are also rejected.
-+ *
-+ * Copyright IBM Corp. 2026
-+ * Author: Gabriella Seifert <gseifert@linux.ibm.com>
-+ */
-+#include <errno.h>
-+#include <fcntl.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <sys/ioctl.h>
-+#include "kvm_util.h"
-+#include "test_util.h"
-+#include <linux/kvm.h>
-+
-+static void test_vm_irq_on_vcpu_fails(struct kvm_vcpu *vcpu, __u64 type)
-+{
-+	struct kvm_s390_irq irq = { .type = type };
-+	int rc;
-+
-+	rc = __vcpu_ioctl(vcpu, KVM_S390_IRQ, &irq);
-+	ksft_test_result(rc == -1 && errno == EINVAL,
-+			 "VM on VCPU IRQ type 0x%llx: expected %d, got %d\n",
-+			 type, EINVAL, errno);
-+}
-+
-+static void test_vcpu_irq_bad_param_fails(struct kvm_vcpu *vcpu,
-+					  struct kvm_s390_irq *irq)
-+{
-+	int rc;
-+
-+	rc = __vcpu_ioctl(vcpu, KVM_S390_IRQ, irq);
-+	ksft_test_result(rc == -1 && errno == EINVAL,
-+			 "VCPU IRQ bad param type 0x%llx: expected %d got %d\n",
-+			 irq->type, EINVAL, errno);
-+}
-+
-+int main(void)
-+{
-+	struct kvm_s390_irq irq;
-+	struct kvm_vcpu *vcpu;
-+	struct kvm_vm *vm;
-+
-+	ksft_print_header();
-+	ksft_set_plan(6);
-+	vm = vm_create_with_one_vcpu(&vcpu, NULL);
-+
-+	test_vm_irq_on_vcpu_fails(vcpu, KVM_S390_INT_VIRTIO);
-+	test_vm_irq_on_vcpu_fails(vcpu, KVM_S390_INT_SERVICE);
-+	test_vm_irq_on_vcpu_fails(vcpu, KVM_S390_INT_IO_MIN);
-+
-+	memset(&irq, 0, sizeof(irq));
-+	irq.type = KVM_S390_INT_EMERGENCY;
-+	irq.u.emerg.code = 0xffff;
-+	test_vcpu_irq_bad_param_fails(vcpu, &irq);
-+
-+	memset(&irq, 0, sizeof(irq));
-+	irq.type = KVM_S390_INT_EXTERNAL_CALL;
-+	irq.u.extcall.code = 0xffff;
-+	test_vcpu_irq_bad_param_fails(vcpu, &irq);
-+
-+	memset(&irq, 0, sizeof(irq));
-+	irq.type = 0xdeadbeef;
-+	test_vcpu_irq_bad_param_fails(vcpu, &irq);
-+
-+	kvm_vm_free(vm);
-+	ksft_finished();
-+}
+ struct s390_mmap_arg_struct;
+ struct fadvise64_64_args;
+diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
+index c923496aa7b4..319e4e5bc9fe 100644
+--- a/arch/s390/kernel/irq.c
++++ b/arch/s390/kernel/irq.c
+@@ -13,7 +13,6 @@
+ #include <linux/interrupt.h>
+ #include <linux/seq_file.h>
+ #include <linux/proc_fs.h>
+-#include <linux/profile.h>
+ #include <linux/export.h>
+ #include <linux/kernel.h>
+ #include <linux/ftrace.h>
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index 167c72803ccf..d5e58329a24b 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -980,17 +980,6 @@ void __init smp_setup_processor_id(void)
+ 	lc->spinlock_index = 0;
+ }
+ 
+-/*
+- * the frequency of the profiling timer can be changed
+- * by writing a multiplier value into /proc/profile.
+- *
+- * usually you want to run this on all CPUs ;)
+- */
+-int setup_profiling_timer(unsigned int multiplier)
+-{
+-	return 0;
+-}
+-
+ static ssize_t cpu_configure_show(struct device *dev,
+ 				  struct device_attribute *attr, char *buf)
+ {
+diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
+index 2b989bebd220..66191fdef101 100644
+--- a/arch/s390/kernel/time.c
++++ b/arch/s390/kernel/time.c
+@@ -32,7 +32,6 @@
+ #include <linux/init.h>
+ #include <linux/smp.h>
+ #include <linux/types.h>
+-#include <linux/profile.h>
+ #include <linux/timex.h>
+ #include <linux/notifier.h>
+ #include <linux/clockchips.h>
 -- 
-2.53.0
+2.55.0
 
