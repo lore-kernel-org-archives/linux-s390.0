@@ -1,160 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A065943E9FC
-	for <linux-s390@vger.kernel.org>; Fri, 21 Aug 2026 11:04:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16ECA34E74D;
+	Fri, 21 Aug 2026 11:17:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787310244; cv=none; b=Y7hrwDNCmslSaBkwsmrgeE4E7499X4Fd+G0ilUjKiRseM3XZxz+gnN9D5g8Z2Ek3NfusFcjwcqQtNDydx+R5Tm5Byoos4IJwKLrhQMU5k4dOvouBMXmkczcQjCuOBHOGnPaJG4DIfV+wCErzN8cZ6u+Fcvt8yS3YweAhwTRc/Qg=
+	t=1787311052; cv=none; b=Sfw80+TXbH/zazUy5jEDWYzK/kCZ0URBxyA3WY8wYXh6Qef+HpwtOxaTGr2mmq3txrDLRB5rABMpa8/k5qU6DQyxLB9VlfKcPCLQ/m6BsTHvx4+Uc1E2nk59wJfBqFcZuNDJ0ZCGMNhAs2I18Tga+uG65xb31WgH0wTqeiLhJRQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787310244; c=relaxed/simple;
-	bh=L0Q3fG4q5Rr0AL7gU+KnPf4GVBW4NfLQkcd2Snd95/s=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=WawSxQljpH+DHtqnJm7JWx0DPYgGiVyWqTuAiCYpSL28S41xmHJr6QKJgFJT/V6U9VPqFAiVuSupQ78Vu0ahtDoUcW97B4ott8rSCPJrTbzAh2XE4Tf98sirgdjbUhdlJsj4OL9Sbmis/Bb2b4JdBrhAWMGfFcB3tzSyIaEu8YA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HSmuXlNd; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787311052; c=relaxed/simple;
+	bh=Nu2JeDV/y1/Xw7IaWFoFTL48x7/HeuqtMJGkdk7Z1rg=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=X4WlmthWaDX/90r2KUGWBfjUQWFw+pGtXNwniwg69d+n/SKzIEVY+So74FMbqEL33k87oatIe4KTwWmTDVoh30pRbNOgMJ4vmuMBAoOcubGsTMdZTFSRJ6aNIOw8McikIZljSrwnzy0q6wlk8FSB1AdJUjFOXleREA/3aCe39tI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YBO+mtKa; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HSmuXlNd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3FEE1F00A3F;
-	Fri, 21 Aug 2026 11:04:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787310242;
-	bh=G46iQ1OCSZjkMNx88ev9CnDJPCx7SMfuEnPANe34sd8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=HSmuXlNdSQVorMHCAtaQAnV2TqRaTzyzvrU+0OwYXUEIA+CYLj3FOK1ZzEmw5u1Um
-	 OWVwJgP8RxEOfbqbV/PvCUfsz+6VozhlsMnyOhOE1lEJRoqShMLIa9HF9+kFYVXXAr
-	 THm1buR0eOPE153zNzehvSGzQqJPyL+6/L7MmPPRSwnDryy1XaeWKwmQMTk1HLVdCa
-	 8zaq7dpiAmoBo+P7A5d49SwzXFDo401hnYnQraqAOy7BXESL0zZTMVwjZca3SgxzZi
-	 E6RZo4HB6xzptsQ6TKBENPRnbjQIolgip5WRtxPB3h3IeQnisNACV66UnQUHYA9EMe
-	 a0cxSWjIVT1Pw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 5.15] net/smc: reject CHID-0 ACCEPT that matches an
- empty ism_dev slot
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Andrey Troshin" <drtrosh@yandex-team.ru>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260820110310.2090-1-drtrosh@yandex-team.ru>
-References: <20260820110310.2090-1-drtrosh@yandex-team.ru>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 21 Aug 2026 11:04:01 +0000
-Message-Id: <20260821110401.F3FEE1F00A3F@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YBO+mtKa"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 9EB31C19425;
+	Fri, 21 Aug 2026 11:17:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1787311051;
+	bh=Nu2JeDV/y1/Xw7IaWFoFTL48x7/HeuqtMJGkdk7Z1rg=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=YBO+mtKadAV4f2DRB9EI479AsxYXBz6IEYu4pHGMYXYkwQK4gybDrLYIa489FyccM
+	 ClM9DqtwjPok7Ex8vjnrj3M9NwfgwsgiNcCKFrbKUNFbfcibZHjE/lAleY18brOuSx
+	 l/CERgRsRPtvOqJDjm1bj+zBlPP4EWM0SbVhC27QdhBSevLamdsWOJsRWWsVoG812y
+	 g3w+oCqcSSX61f1Mk64uqxUu3WQA5p+bwiZHIOd1KAQ8IhIcTxbpfNy90hiqOtCYHS
+	 WPX9qXsh+FJKXaCYKNY7OgCFpcI6DI7kp7rCOSebGQAV7psBYhT5HRsC8NIZ239sKp
+	 jyO5Pwjm3Rbmw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7569AC5DF89;
+	Fri, 21 Aug 2026 11:17:31 +0000 (UTC)
+From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
+Subject: [PATCH net v2 0/3] net/iucv: fix the recvmsg window update
+Date: Fri, 21 Aug 2026 06:17:30 -0500
+Message-Id: <20260821-b4-disp-3a6e8695-v2-0-37597ff723a8@proton.me>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yWMQQqDMBAAvyJ77kIS7WL8SukhxrXdHqJktQji3
+ 03tcQZmdlDOwgpdtUPmr6hMqYC7VRDfIb0YZSgMzjgyrbPYNziIzlgH4pb8HaMdm0CGvCUPJZs
+ zj7JdywckXuD5l7r2H47LbwbHcQLabbVqeQAAAA==
+X-Change-ID: 20260821-b4-disp-3a6e8695-c1f4a6069169
+To: Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Alexandra Winter <wintera@linux.ibm.com>, 
+ Thorsten Winkler <twinkler@linux.ibm.com>, 
+ "David S. Miller" <davem@davemloft.net>
+Cc: Hidayath Khan <hidayath@linux.ibm.com>, Simon Horman <horms@kernel.org>, 
+ linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+ linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1787311050; l=2736;
+ i=hexlabsecurity@proton.me; s=default; h=from:subject:message-id;
+ bh=Nu2JeDV/y1/Xw7IaWFoFTL48x7/HeuqtMJGkdk7Z1rg=;
+ b=6ZEmyByWVIMrRZ5NfFmULHfnVb0bK9PeBX9ZZzBzfGFXAS8H+w85W2ofKlz64n4bBIEOFZTfq
+ SdvxNj3fMIlBg0G9cxq0EDS8/JvSh2dmoAac/KXWr+UHqs5kqrr4GGA
+X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
+ pk=xw1AhCtQdvuoQc+bOQIYy9o8G++cp4/VniI2G/tc3G8=
+X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
+ auth_id=893
+X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
+Reply-To: hexlabsecurity@proton.me
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+v2 answers Jakub's reviews of v1 with changes rather than replies.
 
-Pre-existing issues:
-- [High] Unvalidated offsets and lengths in SMC CLC proposals allow arbitra=
-ry out-of-bounds heap memory reads.
-- [High] Use-after-free of `smcd_dev` and `smc_ib_device` across a sleep du=
-e to missing reference tracking.
-- [High] Unauthenticated NULL pointer dereference when processing SMC-D CLC=
- proposals with missing v2 extensions.
-- [High] Remote heap buffer overflow in `ini->ism_dev` array during ISM dev=
-ice matching.
---
+1/3 keeps its hunk and states the impact properly. SO_MSGLIMIT accepts 1,
+which makes msglimit / 2 zero, and msg_recv never leaves zero on a classic
+socket, so the NULL read is one recvmsg() away for an unprivileged process
+on a socket of its own. With relocate_lowcore it faults.
 
---- Patch [1]: [PATCH 5.15] net/smc: reject CHID-0 ACCEPT that matches an e=
-mpty ism_dev slot ---
-commit 1aa51e986bc9d6f2f903ebb0f760865b75c754f4
-Author: Xiang Mei <xmei5@asu.edu>
+Its Fixes: tag was wrong as well. The unconditional send does date to
+3881ac441f64, but iucv_send_ctrl() sized the skb with a constant ETH_HLEN
+until 238965b71b96, so before that it just returned -ENODEV. Backport
+window is v5.3, not v3.1.
 
-net/smc: reject CHID-0 ACCEPT that matches an empty ism_dev slot
+2/3 is new. v1 admitted it widened the msg_recv race and left it open,
+which isn't good enough under Cc: stable. afiucv_hs_send() samples the
+counter and settles it after dev_queue_xmit(); sendmsg reaches that under
+lock_sock() and recvmsg reaches it under no socket lock, so the two don't
+exclude each other and both can subtract the same value. Negative counter,
+WARN_ON, and the same credit advertised twice to a peer whose
+afiucv_hs_callback_win() subtracts the wire value from msg_sent unchecked.
 
-On the SMC-D client, slot 0 of ini->ism_dev[]/ini->ism_chid[] is
-reserved for an SMC-Dv1 device. smc_find_ism_v2_device_clnt()
-populates V2 entries starting at index 1, so when no V1 device is
-selected slot 0 is left in its kzalloc()'ed state.
+Taking the socket lock around the deferred send would close it too, since
+recvmsg is the only unlocked side. I didn't: recvmsg has never held that
+lock, and making it do so changes the receive path for every caller. That
+belongs in the locking rework, not in a stable fix.
 
-Link: https://patch.msgid.link/20260511062138.2839584-1-xmei5@asu.edu
-Link: https://nvd.nist.gov/vuln/detail/CVE-2026-64048
+The claim sits after the last error exit rather than in the header build,
+so the counter reads zero only while the transmit is in flight, and a
+concurrent sender isn't talked out of its own update.
 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 78b663dbfa1f9..dd2a338eb6efe 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -869,7 +869,8 @@ smc_v2_determine_accepted_chid(struct smc_clc_msg_acc=
-ept_confirm_v2 *aclc,
-[ ... ]
-> -		if (ini->ism_chid[i] =3D=3D ntohs(aclc->chid)) {
-> +		if (ini->ism_dev[i] &&
-> +			ini->ism_chid[i] =3D=3D ntohs(aclc->chid)) {
->  			ini->ism_selected =3D i;
->  			return 0;
->  		}
+3/3 is v1's patch, and it must not be applied without 2/3: hoisting the
+send out of message_q.lock drops the serialisation that lock gave two
+concurrent recvmsg(). Backported alone it recreates what 2/3 fixes. Both
+changelogs say so.
 
-> net/smc/smc_clc.c:smc_clc_msg_prop_valid()
-> (hdr->typev2 !=3D SMC_TYPE_N ?
-> 	sizeof(*v2_ext) +
-> 	v2_ext->hdr.eid_cnt * SMC_MAX_EID_LEN : 0) +
+Litmus test under LKMM: the counter reaches -2 before 2/3 and cannot after.
+No hardware run; I have no IBM Z, and CONFIG_AFIUCV is s390-only.
 
-[Severity: High]
-This isn't a bug introduced by this patch, but does this pointer calculation
-validate that the offset is within the bounds of the allocated buffer?
+The unlocked hs_dev and sk_shutdown window, the unbounded backlog_skb_q and
+the WARN_ON a flooding peer can reach are pre-existing and wider than this
+series. They belong with the locking rework Alexandra has open.
 
-It appears that in smc_get_clc_v2_ext(), the pointer is constructed using
-an offset without bounds checking:
+Thanks for the reviews.
 
-> net/smc/smc_clc.h:smc_get_clc_v2_ext()
-> return (struct smc_clc_v2_extension *)
->        ((u8 *)prop_smcd +
->        offsetof(struct smc_clc_msg_smcd, v2_ext_offset) +
->        sizeof(prop_smcd->v2_ext_offset) +
->        ntohs(prop_smcd->v2_ext_offset));
+---
+Bryam Vargas (3):
+      net/iucv: only send the window update on HiperSockets sockets
+      net/iucv: claim the receive credit atomically
+      net/iucv: send the window update outside message_q.lock
 
-Could this read beyond the heap allocation if the offset is too large?
+ net/iucv/af_iucv.c | 42 +++++++++++++++++++++++++-----------------
+ 1 file changed, 25 insertions(+), 17 deletions(-)
+---
+base-commit: 746fc0787f616da418ffc04a110296fe95d53491
+change-id: 20260821-b4-disp-3a6e8695-c1f4a6069169
 
-[Severity: High]
-This is a pre-existing issue, but if v2_ext_offset is explicitly 0,
-smc_get_clc_v2_ext() returns NULL. Does this code safely handle a NULL
-return for v2_ext? It looks like v2_ext->hdr.eid_cnt is unconditionally
-dereferenced when hdr->typev2 indicates an SMC-D proposal.
+Best regards,
+--  
+Bryam Vargas <hexlabsecurity@proton.me>
 
-> net/smc/af_smc.c:smc_find_ism_v2_device_clnt()
-> ini->ism_dev[i] =3D smcd;
 
-[Severity: High]
-This isn't a bug introduced by this patch, but is it possible for the device
-to be unregistered and freed during a sleep in smc_clc_wait_msg()?
-
-The device pointer is stored without taking a reference count to pin its
-lifetime. Later, the potentially freed device pointer is dereferenced after
-waking up:
-
-> net/smc/smc_core.c:smc_conn_create()
-> lgr_list =3D ini->is_smcd ? &ini->ism_dev[ini->ism_selected]->lgr_list :
->                           &smc_lgr_list.list;
-
-Would acquiring a reference count prevent a dangling pointer here?
-
-> net/smc/af_smc.c:smc_find_ism_v2_device_serv()
-> for (i =3D 1; i <=3D smc_v2_ext->hdr.ism_gid_cnt; i++) {
-> 	smc_check_ism_v2_match(ini,
-> 			       ntohs(smcd_v2_ext->gidchid[i - 1].chid),
-> 			       ntohll(smcd_v2_ext->gidchid[i - 1].gid),
-> 			       &matches);
-> }
-
-[Severity: High]
-This is a pre-existing issue, but is there a bounds check preventing matches
-from exceeding the size of the ini->ism_dev array?
-
-The loop executes based on ism_gid_cnt, and each unique match increments
-matches and stores the device pointer:
-
-> net/smc/af_smc.c:smc_check_ism_v2_match()
-> ini->ism_peer_gid[*matches] =3D proposed_gid;
-> ini->ism_dev[*matches] =3D smcd;
-> (*matches)++;
-
-Could this write past the end of the array if there are many ISM devices?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260820110310.2090=
--1-drtrosh@yandex-team.ru?part=3D1
