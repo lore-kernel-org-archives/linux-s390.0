@@ -1,60 +1,60 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDC3D43F4B7;
-	Fri, 21 Aug 2026 19:42:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1A9229CE9;
+	Fri, 21 Aug 2026 19:52:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787341323; cv=none; b=f6PvS6O/p3OW4pKmgq8G6qC+q38AzfUBsI5OowxBBVAor3iWHfH47/RlPx0oK/skPTSKpaoTVYvlKRpB+UPbWWl33W602Bgp9jVb/0MbJ25FEVhVQyI3U0HSoGJuw9p0UdMRJyM39TJSNTpZkOO2WDl+9vAxHHdTovnxDqc9U1o=
+	t=1787341928; cv=none; b=XsbWo0nZ/RgwCZKY9LBmqyM+qS7DxkuMtL9lSEdoV5uCDmZ1kys+0neEvs5GGKKHc8WbZLtGct90zEFyANtazRDvCxmTjDaw6+WTcjZskRVsMtrYHFy/3NI6vVbQBqSbEpX7sQUheBo7pZBWXzrkxAdypLMC8AzpcA5GTRBgdBo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787341323; c=relaxed/simple;
-	bh=LDotAO2qFNLBTJP+ewkhg+DlqWWHL/K/vUWbC85vctE=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=KgvaPaEG2ZIO3EK+9/zUoCNFaRBkOBB9ix5iCb4ahcIEkYFR91y4lUuqAp3WOlv/+C1L7C7k1+jfhyaugVnZ5nkG1Upv7TEF6pT+5nF0mlHQY4ozoOLoEZfMoV8GWTb0t8MBVgJWw722qrPiTiLDvOl5SKO8Isxml8fPm1LclEI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SdlZPD72; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1787341928; c=relaxed/simple;
+	bh=raM7edroxA4BTCvcNmyqen1I4l9zNC25hgRTTYSyLUU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ICxiXbfvtsBECLr5cEQwesB8LUU+Eda0K6Y3ADSFMR8uNCJnyhRbNuKrBtjxZi5lf95WxnDWSuswjCFwlxBgEgXPmI/9q39HxZfb2VLD5Fp66nVBPPdfy8joqSIRq/2w2ipusV04K0MggKBIseWFIYlhsfWP2wnqP5pIOK5nZDU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=p9qb2VB8; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SdlZPD72"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67LIVpWH2387807;
-	Fri, 21 Aug 2026 19:41:58 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="p9qb2VB8"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67LIVt552315324;
+	Fri, 21 Aug 2026 19:51:38 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=YUeUuT
-	QZafZ9YDEHPQegVTAX2bLSddDU8Fn7z2tPMA8=; b=SdlZPD72VCOKaadqy4pTNS
-	s5kiK1gq6f1fH52EPivPHfM+RNzc3JeoemOnPZ6c1Yu+jHnrc0q+exFH5Nj6HGLk
-	jsi48C9BLc03yOF3JL3L9VFNPSmFKuruYcaBQU0o7lLg1p5lLoFpzpV+xnBfFkwS
-	3MgfROzsOhkScIrWclvCqPCuMlbY53C6JDjDdK1DYcBEsv/6DckJS5a/T4B5bjFg
-	i8914wWDoTOyvb6f5SFTYxsj0DMUAVd+fTlXjoAo7YCRNifey+PVMnb1nt++jrKF
-	ZJieXFG3k7kMbQBx3kpabnA9FzqxUzZWLoKxg/NIXoh+tg8HF+tTLX1AJlLfMziQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=oLekv4
+	kGz94dzwTHWVX5EP2JJ3+XqCBUQM8dXklBW4M=; b=p9qb2VB8EMBmpfOsBq3d1+
+	SLtLTlDtAwi/FdDkuhHHUQKFUscXXX0qNGCdQQvOleCRzRK04LNPWaF8I8aHeEJS
+	vmWngk26XR23/Rh9DgRjtday2phOC930giFGtdTwgJ+7HNW3rnKiYJX2mQG6kBH8
+	ruMhXi+isJ9MxboeA9SG2Zgpi0IgGiqGZvUN2AeVuG+i5t1EWa/IrGwKsTwNgRWq
+	5hV4oayzeYVwKL1gfb7JOrp1HuZmxVxhGzV2Uc7owWacfOKqGyhHIpr8igdZt00W
+	kmmTnTxJi8R3SVdGWNa61DwX1hzA7zuhqwrfRy6RIvU8Zm5jeJitQ3/HxmeLvanw
 	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu4kkhr-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu1ut5q-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Aug 2026 19:41:58 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67LJfHs3008701;
-	Fri, 21 Aug 2026 19:41:57 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g354yxbre-1
+	Fri, 21 Aug 2026 19:51:37 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67LJfKXW023504;
+	Fri, 21 Aug 2026 19:51:36 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g32twpr21-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Aug 2026 19:41:57 +0000 (GMT)
+	Fri, 21 Aug 2026 19:51:36 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67LJfrbA10420676
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67LJpW8v52101388
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 21 Aug 2026 19:41:53 GMT
+	Fri, 21 Aug 2026 19:51:32 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C03772004E;
-	Fri, 21 Aug 2026 19:41:53 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 1509A20043;
+	Fri, 21 Aug 2026 19:51:32 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5739520040;
-	Fri, 21 Aug 2026 19:41:53 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4485A20040;
+	Fri, 21 Aug 2026 19:51:30 +0000 (GMT)
 Received: from [9.111.132.173] (unknown [9.111.132.173])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 21 Aug 2026 19:41:53 +0000 (GMT)
-Message-ID: <bf5c2515-d908-4b08-8ae8-45c1502df3de@linux.ibm.com>
-Date: Fri, 21 Aug 2026 21:41:53 +0200
+	Fri, 21 Aug 2026 19:51:30 +0000 (GMT)
+Message-ID: <61ff69a3-63fd-4f16-9546-793d21160a90@linux.ibm.com>
+Date: Fri, 21 Aug 2026 21:51:30 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,183 +62,196 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-From: Jens Remus <jremus@linux.ibm.com>
-Subject: Re: [RFC PATCH v1 25/25] unwind_user/eh_frame: Add prctl() interface
- for (un)registering .eh_frame_hdr sections
-To: sashiko-reviews@lists.linux.dev, Steven Rostedt <rostedt@goodmis.org>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+Subject: Re: [RFC PATCH v1 00/25] unwind_user: Implement .eh_frame handling
+To: Steven Rostedt <rostedt@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        linux-s390@vger.kernel.org, x86@kernel.org,
+        Josh Poimboeuf <jpoimboe@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
         Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Indu Bhagat <ibhagatgnu@gmail.com>, Thomas Gleixner <tglx@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Namhyung Kim <namhyung@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>, Kees Cook <kees@kernel.org>,
+        Sam James <sam@gentoo.org>
 References: <20260818144954.2320378-1-jremus@linux.ibm.com>
- <20260818144954.2320378-26-jremus@linux.ibm.com>
- <20260818151727.1D4C51F000E9@smtp.kernel.org>
+ <20260818132113.737ae646@robin>
 Content-Language: en-US
+From: Jens Remus <jremus@linux.ibm.com>
 Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20260818151727.1D4C51F000E9@smtp.kernel.org>
+In-Reply-To: <20260818132113.737ae646@robin>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=CpuPtH4D c=1 sm=1 tr=0 ts=6a88aa06 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=LsCiDHdc c=1 sm=1 tr=0 ts=6a88ac4a cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=AirpqK9rLEaivpbpGasA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: djzNX1Og1TZMDnrqsraDecR3x9v8ocSa
-X-Proofpoint-GUID: djzNX1Og1TZMDnrqsraDecR3x9v8ocSa
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODIxMDE1NSBTYWx0ZWRfX1OCxrAELi9V1
- VAjNr0NddWpIV9MRaD/Z86vlkSAuN6Q5qYUmEPB7g/p4P1IdHzmoFcBZsVS6nl5DiNAzBMaPtZq
- /9Kzj0wgtSXpQc7Bc+XCVEXyvu5MMvg=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIxMDE1NSBTYWx0ZWRfX1TvpOxKhrX3f
- t7V4io5WjZDJml+T3brcBrnaNw43l1SMPZmvRSFxmHB1CRNXcbqN8np1FIixWLBh4OylMmgXImJ
- iVFTze1mqoo/bB0qXSf4Gl31SW2VsLYP8uN6PlxBHqsf0742c+lFWageLyFLpbeQ2QAGrXAoKT/
- tlAm28ExFPTAKjXrurMsi6MqaL/f574IorX89z+Z5eH1yVpS5kawHs5pK35Jg+g68MF7pp3SB4e
- Z5vPsN7yBGYUpT6O+gTT4N3tJj7Z/xGuAPxZl+z/iYKS5iYCNk3Qk3H4KzonnthkJjREeWQ4tC3
- Ro83p43zJ5LL75y0qi17NjCBnBQ4mhYSL0S5v/b1M4cipMsEkOglMJwyWcOcIsPG9d70ZF3+AVV
- 8IbuoSYF/3vw4THtFfdKqWzZoyB5NNhEl0iS+zD/bP9te1LHS69DxJ7kzXRsEd2k9r7kHJmjrHC
- 003THFgtvrC5s8KWk7w==
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=mWN4hPR01vCUSsCsGC4A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: zPTohlV01kibFUXh60AMuety6aFPKTXJ
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODIxMDE1NSBTYWx0ZWRfXympanK3kngLb
+ ehsXQ6eNvcDaBDeBNfxJowMlZdAExi9yCJJxDmLmyfHBb4qORoAHZbxNw08O8laRurEDjdLkols
+ CLcHoPOlcbtxCZ9jLReH+dhar+OF8xI=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIxMDE1NSBTYWx0ZWRfX7ejXnbjKsNxN
+ pDKurvkdzeNROG+RsmW97GkWOB1m89KzCaD4cZso22/3tfaPA3TnX2Tono/J4ZBDoRgLr5TDE1T
+ BgkaRa9y/WCuKM58G8xLLB3Zcnb6FRzD9T4HMcmCXts5pRyEGvelAVEimpLT2RCY5WuFm/9LjLX
+ 2CzBCtxButh59uCCJ5A/OSfeCn8ObmMdYqngfWobv08b0kFHWYiqhVm5xfZ3tSZBC615hOqqOf4
+ ADEYY21V++edsErRCN2XTT1aUZt8PbrZjd5S2zLNHzi0dwoJvP6xvZYjzTpziSLQx2YiMRSd55k
+ VlOiuf+cyfsi0YVWA7wwE0f6Tay/jy8kMH1tzmL/zdCU5ajC8I4OAG0LZyB+cML5j9kK24iRImd
+ bB46JIxd9f3rrnnFhyae9efQS9fRCelUwacn3/k7pc7hQp0XaRILGySj9lf8NXE4BmAmEcVp9pJ
+ ARzxwxKbTI1Mu/46ZdQ==
+X-Proofpoint-ORIG-GUID: aFQEHKneQAlXEJ__7IjoIA07Bm_IK_E1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-21_06,2026-08-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 adultscore=0 bulkscore=0 malwarescore=0 phishscore=0
- lowpriorityscore=0 spamscore=0 clxscore=1015 priorityscore=1501
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608210155
+ malwarescore=0 spamscore=0 priorityscore=1501 lowpriorityscore=0 bulkscore=0
+ adultscore=0 suspectscore=0 impostorscore=0 clxscore=1015 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608210155
 
-On 8/18/2026 5:17 PM, sashiko-bot@kernel.org wrote:
-> This patch adds two new prctl options to allow dynamic linkers to register
-> and unregister .eh_frame_hdr sections with the kernel. It introduces the
-> eh_frame_setup structure to pass section bounds from userspace and adds the
-> corresponding handlers.
+Hello Steven!
 
->> diff --git a/kernel/unwind/eh_frame.c b/kernel/unwind/eh_frame.c
-
->> +int eh_frame_register(struct eh_frame_setup __user *user_data, __kernel_size_t size)
->> +{
->> +	struct eh_frame_setup data;
->> +	unsigned long eh_frame_hdr_end, text_end;
->> +
->> +	if (!user_data && !size)
->> +		return -EINVAL;
->> +
->> +	if (size != sizeof(data))
->> +		return -EINVAL;
+On 8/18/2026 7:21 PM, Steven Rostedt wrote:
+> On Tue, 18 Aug 2026 16:49:29 +0200
+> Jens Remus <jremus@linux.ibm.com> wrote:
 > 
-> [Severity: Medium]
-> Could this strict size check prevent future UAPI extensions from being handled
-> properly by older kernels?
+>> This series adds support for parsing DWARF Call Frame Information (CFI)
+>> from the .eh_frame_hdr and .eh_frame sections of user space ELF files.
 > 
-> If a newer userspace binary passes a legitimately extended eh_frame_setup
-> struct to an older kernel, it looks like it will be rejected with -EINVAL.
-> 
-> Would it be better to use copy_struct_from_user() here to safely handle
-> zero-padded extensions?
+> Very nice! I don't have time this week to look at it, but I just
+> applied the series and tried it out with:
 
-Steven, IIRC you got similar review feedback on your stacktrace syscall
-and rejected it.  Why wouldn't we copy sizeof(data) and check that any
-additional size - sizeof(data) bytes of user data are zero?
+Thanks!
 
 > 
->> +
->> +	if (copy_from_user(&data, user_data, sizeof(data)))
->> +		return -EFAULT;
+>   perf record --call-graph fp,defer trace-cmd report ~/trace.dat
 > 
-> [ ... ]
+> And did a: perf -D script
 > 
->> +int eh_frame_unregister(struct eh_frame_setup __user *user_data, __kernel_size_t size)
->> +{
->> +	struct eh_frame_setup data;
->> +
->> +	if (!user_data && !size)
->> +		return -EINVAL;
->> +
->> +	if (size != sizeof(data))
->> +		return -EINVAL;
+> And found this:
 > 
-> [Severity: Medium]
-> As with eh_frame_register(), does this strict size comparison break forward
-> compatibility for future struct extensions?
+> 264990534603 0x19370 [0x78]: PERF_RECORD_CALLCHAIN_DEFERRED(IP, 0x2): 1165/1165: 0x105700000005
+> ... FP chain: nr:10
+> .....  0: 00007f5feafd362a
+> .....  1: 00007f5feb249781
+> .....  2: 00007f5feb2498de
+> .....  3: 000055935526fbdc
+> .....  4: 00005593552649e6
+> .....  5: 000055935523c2d0
+> .....  6: 000055935523d24c
+> .....  7: 0000559355227bfe
+> .....  8: 00007f5feaef9f75
+> .....  9: 00007ffdaf879d38
+>  ... thread: trace-cmd:1165
+>  ...... dso: /proc/kcore
+> trace-cmd    1165   264.990473:     395990 cpu/cycles/P: 
+>         ffffffff8477d8d3 check_preemption_disabled+0x13 ([kernel.kallsyms])
+>         ffffffff819aa495 rcu_is_watching+0x15 ([kernel.kallsyms])
+>         ffffffff816dbcff unwind_next_frame+0x45f ([kernel.kallsyms])
+>         ffffffff81642e91 arch_stack_walk+0xa1 ([kernel.kallsyms])
+>         ffffffff81a2e633 stack_trace_save+0x93 ([kernel.kallsyms])
+>         ffffffff82251210 kasan_save_stack+0x30 ([kernel.kallsyms])
+>         ffffffff822541b0 kasan_record_aux_stack+0xb0 ([kernel.kallsyms])
+>         ffffffff819c1e2a __call_rcu_common+0xca ([kernel.kallsyms])
+>         ffffffff821be05f kmem_cache_free+0x2ef ([kernel.kallsyms])
+>         ffffffff8233e4a7 vfs_fstatat+0x57 ([kernel.kallsyms])
+>         ffffffff8233e573 __do_sys_newfstatat+0x83 ([kernel.kallsyms])
+>         ffffffff84772a8e do_syscall_64+0x7e ([kernel.kallsyms])
+>         ffffffff8100012f entry_SYSCALL_64_after_hwframe+0x76 ([kernel.kallsyms])
+>             7f5feafd362a __GI___fstatat64+0xa (/usr/lib/x86_64-linux-gnu/libc.so.6)
+>             7f5feb249781 tep_load_plugins_hook+0xd1 (/usr/local/lib64/libtraceevent.so.1.9.0)
+>             7f5feb2498de tep_load_plugins+0x35 (/usr/local/lib64/libtraceevent.so.1.9.0)
+>             55935526fbdc tcmd_load_plugins+0x85 (/usr/local/bin/trace-cmd)
+>             5593552649e6 tracecmd_alloc_fd+0x2da (/usr/local/bin/trace-cmd)
+>             55935523c2d0 read_trace_header+0x62 (/usr/local/bin/trace-cmd)
+>             55935523d24c trace_report+0x869 (/usr/local/bin/trace-cmd)
+>             559355227bfe main+0x90 (/usr/local/bin/trace-cmd)
+>             7f5feaef9f75 __libc_start_call_main+0x75 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+>             7ffdaf879d38 [unknown] ([unknown])
+> 
+> I injected trace_printk() into the code to make sure it was using the
+> eh_frame unwinding:
+> 
+> diff --git a/kernel/unwind/user.c b/kernel/unwind/user.c
+> index 85fc82252af1..585f022bcabe 100644
+> --- a/kernel/unwind/user.c
+> +++ b/kernel/unwind/user.c
+> @@ -200,6 +200,7 @@ static int unwind_user_next(struct unwind_user_state *state)
+>  		case UNWIND_USER_TYPE_EH_FRAME:
+>  			switch (unwind_user_next_eh_frame(state)) {
+>  			case 0:
+> +				trace_printk("USE EH_FRAME\n");
+>  				return 0;
+>  			case -ENOENT:
+>  				continue;	/* Try next method. */
+> @@ -208,8 +209,9 @@ static int unwind_user_next(struct unwind_user_state *state)
+>  			}
+>  			break;
+>  		case UNWIND_USER_TYPE_FP:
+> -			if (!unwind_user_next_fp(state))
+> -				return 0;
+> +			if (!unwind_user_next_fp(state)) {
+> +				trace_printk("USE FRAME POINTER\n");
+> +				return 0; }
+>  			continue;
+>  		default:
+>  			WARN_ONCE(1, "Undefined unwind bit %d", bit);
+> 
+> And have this:
+> 
+> # trace-cmd show
+> [..]
+>        trace-cmd-1136    [001] .....   239.482498: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.482501: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.482504: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.482507: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.482821: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.482825: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.482828: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.482831: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.482834: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.483004: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.483007: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.483010: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.483013: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.483016: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.483230: unwind_user: USE FRAME POINTER
+>        trace-cmd-1136    [001] .....   239.483234: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.483238: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.483240: unwind_user: USE EH_FRAME
+>        trace-cmd-1136    [001] .....   239.483243: unwind_user: USE EH_FRAME
+> [..]
 
-Likewise.
+Thanks for giving it a spin!
 
+> Note, the compile had one warning (with all patches applied):
 > 
->> +
->> +	if (copy_from_user(&data, user_data, sizeof(data)))
->> +		return -EFAULT;
->> +
->> +	/* Unregister only uses eh_frame_hdr_start */
->> +	if (data.eh_frame_hdr_size || data.text_start || data.text_size)
->> +		return -EINVAL;
->> +
->> +	return eh_frame_remove_section(data.eh_frame_hdr_start);
-> 
-> [Severity: Medium]
-> Does this code silently truncate the 64-bit parameter on 32-bit platforms,
-> potentially causing the wrong section to be unregistered?
-> 
-> The data.eh_frame_hdr_start parameter is a __u64, but it is passed directly
-> into eh_frame_remove_section() which takes an unsigned long. If userspace
-> provides an out-of-bounds 64-bit value on a 32-bit system, it appears it
-> would be implicitly truncated to a valid 32-bit address rather than being
-> rejected.
+>   vmlinux.o: warning: objtool: eh_frame_find+0x270c: call to eh_frame_do_expression.isra.0() with UACCESS enabled
 
-Steven, do you have any suggestion?
+I need to resolve those objtool warnings after my vacation.  Any idea
+how to get around the arch eh_frame_do_expression() callback issue?
+Is there a mean to temporarily give up the UACCESS if it is within a
+scoped guard region?
 
+> I'll try to get time when I get back from my travels next week to look
+> at each of the patches.
 > 
-> Looking at the underlying implementation of eh_frame_remove_section() that is
-> exposed by this new prctl, is there a race condition in
-> __eh_frame_remove_section() that could lead to a double-free?
+> I also do not think this makes sframe obsolete. I believe there's holes
+> with eh_frame and some may not like the complexity of it. But this
+> gives us an honest look at what options are available to us.
+> 
+> Thanks for doing this!
 
-This should be resolved by the fixes to "[RFC PATCH v1 08/25] unwind_user/
-eh_frame: Store .eh_frame_hdr section data in per-mm maple tree".
+It was fun and I learned quite a bit about .eh_frame, .eh_frame_hdr,
+and GNU_EH_FRAME doing so.
 
-> 
-> kernel/unwind/eh_frame.c:__eh_frame_remove_section() {
->     ...
->     if (!mtree_erase(&mm->eh_frame_mt, sec->text_start)) {
->         dbg_sec("mtree_erase failed: text=%lx\n", sec->text_start);
->         return -EINVAL;
->     }
->     
->     call_srcu(&eh_frame_srcu, &sec->rcu, eh_frame_free_srcu);
->     ...
-> }
-> 
-> [Severity: Critical]
-> If a thread unregisters the section and a third thread immediately registers
-> a new section at the exact same address, would mtree_erase() erase and return
-> the new section instead?
-> 
-> Because the code evaluates the return value simply as non-NULL, it seems it
-> would proceed to call call_srcu() on the old section again, potentially
-> causing a double-free and SRCU list corruption.
-
-Likewise fixed in other patch.
-
-> 
-> Also, regarding the interaction with the unwinder fast path in eh_frame_find():
-> 
-> kernel/unwind/eh_frame.c:eh_frame_find() {
->     ...
->     if (ret && (ret != -ENOENT && ret != -EOPNOTSUPP)) {
->         dbg_sec("removing bad .eh_frame[_hdr] section\n");
->         if (eh_frame_remove_section(sec->eh_frame_hdr_start))
->     ...
-> }
-> 
-> [Severity: Critical]
-> Can this sequence cause a hard deadlock or NMI-safety violation?
-> 
-> Stack unwinding is frequently invoked from NMI or IRQ contexts. If
-> eh_frame_find() encounters a parsing error, it unconditionally calls
-> eh_frame_remove_section(). This attempts to acquire the mtree_lock spinlock
-> and invokes call_srcu(), both of which are forbidden in NMI/IRQ contexts.
-
-Deferred unwinding of user space does not run in NMI/IRQ context.
-
-Thanks and regards,
+Regards,
 Jens
 -- 
 Jens Remus
