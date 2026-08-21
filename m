@@ -1,106 +1,170 @@
-Received: from mail-106120.protonmail.ch (mail-106120.protonmail.ch [79.135.106.120])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B385046F4A7
-	for <linux-s390@vger.kernel.org>; Fri, 21 Aug 2026 11:42:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.120
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6326C397942;
+	Fri, 21 Aug 2026 12:32:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787312548; cv=none; b=J1HUGSWa/eGi9sEK4Y4p9Ws6isQgXWkT4t7rrGckOJTYFJ4K6T0Z/4FA2NCgxemqJW7m5rw46SsXLXOkqVT2sYcqB+DqXvTv3G8zvgIdwc31kYjuof7G+iqONVW+KB4sop3lHrdSN/f2WqvlKeavmw20JcT8GCd0YsuKUPWyGUY=
+	t=1787315558; cv=none; b=MpY+mH08jKQ/hPmzabF69hdAcZseFhYuGQXvlYxcn+Osn8yemMkZq2WNTSsuVrGx1Qgc/dJOLl4e8WzZuy3WsNiLl4wi5pUWG+8mQ96EuJgK+fPqjwte3mhmE6PYjoHGuHnAoVsbjMjmsU3uD9Ts2+CDY6XlBB52G66yKCurEmY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787312548; c=relaxed/simple;
-	bh=t6spRM5ARh3PqgiSyOH7ty3+/8rnZwWx7PPHGCZaKJU=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=obdqzkuBka+KFjCfCilN5UHcd42gwPggP3+vFDL2u8H0PaWvoVD/UuL5i97m8iPCsCeO1ExxsaHUCNzbQCuBxrODyVxUIqbhNd3mkAyPRkcIZzBvufMaPckKiADVlBJUXozyvOXkLwXfzrwkxUhMp4MhFxJiPJcIiNfZO9Lr6SI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=ZkIQ3pV5; arc=none smtp.client-ip=79.135.106.120
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
+	s=arc-20240116; t=1787315558; c=relaxed/simple;
+	bh=AR30WyUVjx395FMs7M9sxLIbjyK7VCQKbkb3GDFFxmU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VJ3Ju1mTUJhWnc2nTpsNvkzRp75Qkum/dbYwmK2y+FgcFidn/KR47ngPqsB7+y0y9SiGjNPY18/nix+/+39JfWU6lP1KOYPMnL8qqRhv2JZ51N0LOQCfwYFKtmuDAAc3bTqqwKT8t58NEDNNCgEj4mxflAcmXPOKV2/cSkB0Lys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pR2Gr/56; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="ZkIQ3pV5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=protonmail; t=1787312534; x=1787571734;
-	bh=t6spRM5ARh3PqgiSyOH7ty3+/8rnZwWx7PPHGCZaKJU=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=ZkIQ3pV5v9waFSm7wSIuLHFuJFJU7eDYDWbv+zaJWidRBf+6GbTfuoaHTPgEP2Y+f
-	 jmlJEwfmXVm5uaNQ7uroHCoDqbTmd5QlClkcHiHnEnOIJtgZwjss7nhYZXYON1hKhP
-	 nnzYJFQhEfUo3LAycspt4PI61RPhzvKyrThRtID2naeNhEY8SLvHLcbuBd15a64uL7
-	 +QvDa8lL9fWXRFvgqQKJldfo7pjzlI2QjURve0CpDvdHkD5JSClO6Lhd/oeHmunkaP
-	 8ZTIT2bkitk4scs52Ia3tBa/U+WanH8jDXeUPOSCHG6kcewl6M1H+A/yJ2dyn5WvKU
-	 2EQm0NdpOLR/w==
-Date: Fri, 21 Aug 2026 11:42:07 +0000
-To: Alexandra Winter <wintera@linux.ibm.com>, Thorsten Winkler <twinkler@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, "David S . Miller" <davem@davemloft.net>
-From: Bryam Vargas <hexlabsecurity@proton.me>
-Cc: Hidayath Khan <hidayath@linux.ibm.com>, Simon Horman <horms@kernel.org>, Ursula Braun <ursula.braun@de.ibm.com>, linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net 2/2] net/iucv: take a private, writable frame before rewriting it in place
-Message-ID: <20260821114155.430473-1-hexlabsecurity@proton.me>
-In-Reply-To: <5f368349-a417-42b9-9ee3-d9996a949bb2@linux.ibm.com>
-References: <20260815-b4-disp-dc82fde4-v1-0-e83b10b22ce9@proton.me> <20260815-b4-disp-dc82fde4-v1-2-e83b10b22ce9@proton.me> <5f368349-a417-42b9-9ee3-d9996a949bb2@linux.ibm.com>
-Feedback-ID: 199661219:user:proton
-X-Pm-Message-ID: 85ab4f0a2e45dc681bcdb0f2ce15c5d1355724b0
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pR2Gr/56"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67LC1ZAV3766824;
+	Fri, 21 Aug 2026 12:32:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:sender:subject:to; s=pp1;
+	 bh=z5bHq8JesBx1oHhzXxWcoeCHFW9iAoMojuf9zCuZM8c=; b=pR2Gr/56CELZ
+	kKwd7cEOwuNbyYWhQRapqy7/Vpi7OX6tat2HY7i/hhySegX7opEeb6wD47pY9/xA
+	So/rL6fQkvAB2MKStqPk+YGqDtWXBXzr5QvYn8fxhRUzyLUIZtDYPlVXTe5+oFtL
+	EheYKBIeHLQ3jiKZVAe0y2ye1EbMmGarschmU8CWOjzV8XEaZCWRrX6lisA9t5Gk
+	TkMzzXsEfMTniaAL4edLoF/LtIScIe10BB04/n6rsFqJWlFXgjz57IuqjoQVtc6M
+	dNBIjOF/p1kn5FxruH0c8u198XPqDjXEDCzxFkIvTXyq6i6BR8t71zj7JYQw2tRs
+	9H2NHIdADg==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu0hd9x-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 21 Aug 2026 12:32:36 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67LCQHOQ032537;
+	Fri, 21 Aug 2026 12:32:35 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33xhmkqw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 21 Aug 2026 12:32:35 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67LCWVLN16384302
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 21 Aug 2026 12:32:31 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 40CD42004B;
+	Fri, 21 Aug 2026 12:32:31 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2DB0920043;
+	Fri, 21 Aug 2026 12:32:31 +0000 (GMT)
+Received: from p14sgen6-pf6akexs (unknown [9.224.70.27])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 21 Aug 2026 12:32:31 +0000 (GMT)
+Received: from bblock by p14sgen6-pf6akexs with local (Exim 4.99.5)
+	(envelope-from <bblock@linux.ibm.com>)
+	id 1wxOQA-00000000h1z-3eaN;
+	Fri, 21 Aug 2026 14:32:30 +0200
+Date: Fri, 21 Aug 2026 14:32:30 +0200
+From: Benjamin Block <bblock@linux.ibm.com>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Gerd Bayer <gbayer@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Ramesh Errabolu <ramesh@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>,
+        Tobias Schumacher <ts@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] s390/pci: Fix leak of uninitialized kernel data in
+ SCLP report
+Message-ID: <20260821123230.GA18339@p14sgen6-pf6akexs.ehn-de.ibm.com>
+References: <20260806-fix_pci_sclp_length_check-v2-1-9ee9428e659f@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260806-fix_pci_sclp_length_check-v2-1-9ee9428e659f@linux.ibm.com>
+Sender: Benjamin Block <bblock@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Ko7PSslX0vMaBfDZdGocJ8vWNUxRMwxV
+X-Proofpoint-GUID: Ko7PSslX0vMaBfDZdGocJ8vWNUxRMwxV
+X-Authority-Analysis: v=2.4 cv=RoX16imK c=1 sm=1 tr=0 ts=6a884564 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=8nJEP1OIZ-IA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=LAaq5wv8XjvTlIZLZ18A:9 a=3ZKOabzyN94A:10 a=wPNLvfGTeEIA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODIxMDA5NiBTYWx0ZWRfX+/+pIth5veW+
+ AV/jwbUeiswdxaB2YUFeJdaWl64QLlat58Efo92416fZKZVeBSROF2zxghmTyyGZjzH9rdniqHj
+ yt5U1Nz7tMG/iOEa1wgya8ReLmCkIbY=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIxMDA5NiBTYWx0ZWRfX9Oykqk8QVfDy
+ Agm6eUTqmRQwKnyYGkrfeZaZZ3XX2V8Xg0luV353ucMgHT1B6Nvc7gHve6UmrqzJ1kWkQeDCtvx
+ PGlMKdyEYilzBtzKhPzt89ow6rUJxaNdIh6aAVKppIX2xmeiZvbPdA2egnC6EA7LYhfAVfzV1FR
+ V3F/+6gQounZLhLwdkdUsGTYdc4Jw9mnGlbfwAhlIdF5YbybGqUu1qop4XieyUANO7E+tO8Dqka
+ jOHJ+EpatXtlO4em2+AGWhtZuyzJ8bpP6urc+lSb1LdC8A35U/V1hUH8URq3AdnxFVIrrHX7u6R
+ 6B66PXXsy169FU2MBEOB0wOuXHf7gd5ABy2HrDy95D8s7Hh80w994u3ApNfE2Y6MzUXTef0ZWbc
+ 9AyzyYuxsKulC+LGb6aiIIldh/zLnWgWgcMubLZUgkZcrnMLSMCn8ko2+nVQDx2CxCBaGLC8cLI
+ sBexx94m8ADzL2txzFg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-21_04,2026-08-21_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 impostorscore=0 suspectscore=0 malwarescore=0 adultscore=0
+ clxscore=1015 phishscore=0 spamscore=0 bulkscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608210096
 
-Alexandra,
+On Thu, Aug 06, 2026 at 11:43:39AM +0200, Niklas Schnelle wrote:
+> While report_error_write() checks that the provided buffer is at least
+> as large as the header struct, but not that it is large enough to
+> contain the report with the length claimed by report->length. If
+> user-space provides a short buffer, meaning a larger report->length than
+> the actually written payload, up to around 4K of kernel data from past
+> the kmalloc(len + 1) sized buffer allocated in kernfs_fop_write_iter()
+> will leak into the SCLP report.
+> 
+> However, as the entity processing the SCLP is privileged and able to
+> access at least the page including the report, this does not leak data
+> that entity could not access but it is still an out of bounds read and
+> a malformed error report that should be rejected.
+> 
+> Fixes: 368704a65be8 ("s390/pci: add report_error attribute")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> ---
+> Changes in v2:
+> - Changed subsystem prefix to s390/pci
+> - Added Fixes tag and Cc stable
+> - Improved commit message
+> - Link to v1: https://lore.kernel.org/r/20260805-fix_pci_sclp_length_check-v1-1-d125cb415bc3@linux.ibm.com
+> ---
+>  arch/s390/pci/pci_sysfs.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/arch/s390/pci/pci_sysfs.c b/arch/s390/pci/pci_sysfs.c
+> index d98d97df792a..bbb76113a4d0 100644
+> --- a/arch/s390/pci/pci_sysfs.c
+> +++ b/arch/s390/pci/pci_sysfs.c
+> @@ -153,6 +153,9 @@ static ssize_t report_error_write(struct file *filp, struct kobject *kobj,
+>  	if (off || (count < sizeof(*report)))
+>  		return -EINVAL;
+>  
+> +	if (count < (report->length + sizeof(*report)))
+> +		return -EINVAL;
+> +
+>  	ret = sclp_pci_report(report, zdev->fh, zdev->fid);
+>  
+>  	return ret ? ret : count;
 
-> Excuse my ignorance, if it is obvious to other readers, but is the worst
-> thing that the output of tcpdump is not correct?
+Looks good to me.
 
-Not obvious, and my description is why: it led with tcpdump, which is the
-mildest end of this.
 
-The order is the other way round. __netif_receive_skb_core() walks
-ptype_base[] at net/core/dev.c:6160, before net->ptype_specific (:6169)
-and orig_dev->ptype_specific (:6173). iucv_packet_type sets no .dev and no
-.af_packet_net, so it sits in ptype_base[] while a packet socket for
-ETH_P_AF_IUCV lands in one of the later lists. af_iucv runs first, and the
-AF_PACKET reader gets the frame after EBCASC() has rewritten the four name
-fields. The capture is wrong, but it was already wrong before the reader
-was reached.
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
 
-That isn't what I'd defend the patch on. Because af_iucv isn't the last
-matching handler in that configuration, deliver_ptype_list_skb() hands it
-over through deliver_skb(), which does refcount_inc(&skb->users) before
-calling us (dev.c:2492, :2507). We run with users =3D=3D 2, and on that skb=
- we
-rewrite the header in place, skb_push() 14 bytes in afiucv_swap_src_dest()
-and pass the same skb to dev_queue_xmit() (af_iucv.c:1876, :1888, :1914) --
-including for a frame that matched no socket (:1872).
-
-What hides it in review is a guard asymmetry. deliver_skb() leaves
-users =3D=3D 2 with skb->cloned =3D=3D 0, so skb_shared() is true while
-skb_cloned() is false, and the copy-on-write guards all test skb_cloned()
--- __pskb_pull_tail() at skbuff.c:2886 among them -- so they read the skb
-as already writable. The one that does test it is BUG_ON(skb_shared(skb))
-at the top of pskb_expand_head() (skbuff.c:2305); skb_expand_head() carries
-"/* pskb_expand_head() might crash, if skb is shared. */" (:2456) for the
-same reason.
-
-What I don't have is a panic. On the qeth geometry the first
-pskb_may_pull() finds enough tailroom in the napi_get_frags() head and
-copies out of the frags without expanding, so it doesn't reach
-pskb_expand_head that way. By inspection; not reproduced.
-
-> Is this really a problem fix then? Or should it go to net-next?
-
-If the bar is a failure I can show you, net-next is right. I sent it to net
-because a handler that writes a shared skb and then gives it to the
-transmit path is a rule violation with a BUG_ON behind it, not because I
-can fire that BUG_ON. Your call either way, and net-next is fine by me.
-
-Worth having in the record: reaching the shared state costs one syscall --
-socket(AF_PACKET, SOCK_RAW, htons(0xFBFB)), no bind, no ETH_P_ALL -- since
-ptype_base[] is walked before the per-namespace list.
-
-If Hidayath's version is further along, take his. I'd rather the check land
-than land mine.
-
-Thanks,
-Bryam
-
+-- 
+Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
+IBM Deutschland Research & Development GmbH    /   https://www.ibm.com/privacy
+Vors. Aufs.-R.: Wolfgang Wendt         /        Geschäftsführung: David Faller
+Sitz der Ges.: Ehningen     /     Registergericht: AmtsG Stuttgart, HRB 243294
