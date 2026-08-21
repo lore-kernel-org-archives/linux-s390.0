@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16ECA34E74D;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16E2023AE87;
 	Fri, 21 Aug 2026 11:17:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787311052; cv=none; b=Sfw80+TXbH/zazUy5jEDWYzK/kCZ0URBxyA3WY8wYXh6Qef+HpwtOxaTGr2mmq3txrDLRB5rABMpa8/k5qU6DQyxLB9VlfKcPCLQ/m6BsTHvx4+Uc1E2nk59wJfBqFcZuNDJ0ZCGMNhAs2I18Tga+uG65xb31WgH0wTqeiLhJRQ=
+	t=1787311052; cv=none; b=dGE85BVXh6piXmtJV6x4/925XyGSr1nM6eK6xd/fv7nZ5iukJl9MAZk9ImwzVOZNH9oaAmdGn0smwIcvZUvvW3cu3ORysYrz0gwmAJMUEEaRzqQZpsH/EYCPCRIp6nv80bZbwde9PxgKyO+b/+lF3cesJ1RMGWCSDrJcJwxtlvI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1787311052; c=relaxed/simple;
-	bh=Nu2JeDV/y1/Xw7IaWFoFTL48x7/HeuqtMJGkdk7Z1rg=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=X4WlmthWaDX/90r2KUGWBfjUQWFw+pGtXNwniwg69d+n/SKzIEVY+So74FMbqEL33k87oatIe4KTwWmTDVoh30pRbNOgMJ4vmuMBAoOcubGsTMdZTFSRJ6aNIOw8McikIZljSrwnzy0q6wlk8FSB1AdJUjFOXleREA/3aCe39tI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YBO+mtKa; arc=none smtp.client-ip=10.30.226.201
+	bh=Z2qkCOW6uOoE4Tcm2xkjLfssvPh/evtQRuReVm29Y1s=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=W1FwKZhxYPGJVvUAbVBWu9h336SGOSADWE8f+ZiemnUX8seIqgXSAefhCUAQ+3WYPJK1LBCRp0tNiIjS4K0buXMqxUy78JwXAL85sa6e2deq6ulZLngBBtpaSKvRMEtcXNCjQvjTTcZgmnLXAhkHcvtf8PJPErb/49L/5nNKvkU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T2EQMrOW; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YBO+mtKa"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 9EB31C19425;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T2EQMrOW"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id C12D6C2BCF6;
 	Fri, 21 Aug 2026 11:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1787311051;
-	bh=Nu2JeDV/y1/Xw7IaWFoFTL48x7/HeuqtMJGkdk7Z1rg=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=YBO+mtKadAV4f2DRB9EI479AsxYXBz6IEYu4pHGMYXYkwQK4gybDrLYIa489FyccM
-	 ClM9DqtwjPok7Ex8vjnrj3M9NwfgwsgiNcCKFrbKUNFbfcibZHjE/lAleY18brOuSx
-	 l/CERgRsRPtvOqJDjm1bj+zBlPP4EWM0SbVhC27QdhBSevLamdsWOJsRWWsVoG812y
-	 g3w+oCqcSSX61f1Mk64uqxUu3WQA5p+bwiZHIOd1KAQ8IhIcTxbpfNy90hiqOtCYHS
-	 WPX9qXsh+FJKXaCYKNY7OgCFpcI6DI7kp7rCOSebGQAV7psBYhT5HRsC8NIZ239sKp
-	 jyO5Pwjm3Rbmw==
+	bh=Z2qkCOW6uOoE4Tcm2xkjLfssvPh/evtQRuReVm29Y1s=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=T2EQMrOWrgXqTt3S7iNddF3R1H0t/Tt/l2N7LOxdV6S3pUZzR2mc6FWd9mu4kOc3Y
+	 4tLvVRgB4WLPj8pwOKIsqUSjzQIRDgplzw2U/QFXt8R1IGB2MR7u3gczqUGKc7KDNx
+	 nPfgUL/JvIMhhP7cs70ENhhOO93vthbFKhpsYAcELbg7wl6g8u1a/DwlyKt5ogzw5p
+	 AvSfsIKEKh9mW3tWihc8UH5s+AHYRSg6sA09ntUkVfklSzJhPf89ZUnO+igxzcs/YR
+	 mBm/jTxOsuXHlVeDQTAeYZAZMEf+XfyLXr8nvds3D6Oy+CxYa9lKJNsRUKiAci1sCQ
+	 fQP+HfzAkWuoQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7569AC5DF89;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A04C6C5DF87;
 	Fri, 21 Aug 2026 11:17:31 +0000 (UTC)
 From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
-Subject: [PATCH net v2 0/3] net/iucv: fix the recvmsg window update
-Date: Fri, 21 Aug 2026 06:17:30 -0500
-Message-Id: <20260821-b4-disp-3a6e8695-v2-0-37597ff723a8@proton.me>
+Date: Fri, 21 Aug 2026 06:17:32 -0500
+Subject: [PATCH net v2 2/3] net/iucv: claim the receive credit atomically
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -40,10 +40,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yWMQQqDMBAAvyJ77kIS7WL8SukhxrXdHqJktQji3
- 03tcQZmdlDOwgpdtUPmr6hMqYC7VRDfIb0YZSgMzjgyrbPYNziIzlgH4pb8HaMdm0CGvCUPJZs
- zj7JdywckXuD5l7r2H47LbwbHcQLabbVqeQAAAA==
-X-Change-ID: 20260821-b4-disp-3a6e8695-c1f4a6069169
+Message-Id: <20260821-b4-disp-3a6e8695-v2-2-37597ff723a8@proton.me>
+References: <20260821-b4-disp-3a6e8695-v2-0-37597ff723a8@proton.me>
+In-Reply-To: <20260821-b4-disp-3a6e8695-v2-0-37597ff723a8@proton.me>
 To: Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, 
  Jakub Kicinski <kuba@kernel.org>, Alexandra Winter <wintera@linux.ibm.com>, 
  Thorsten Winkler <twinkler@linux.ibm.com>, 
@@ -52,11 +51,11 @@ Cc: Hidayath Khan <hidayath@linux.ibm.com>, Simon Horman <horms@kernel.org>,
  linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
  linux-s390@vger.kernel.org, Ursula Braun <ursula.braun@de.ibm.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1787311050; l=2736;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1787311050; l=2680;
  i=hexlabsecurity@proton.me; s=default; h=from:subject:message-id;
- bh=Nu2JeDV/y1/Xw7IaWFoFTL48x7/HeuqtMJGkdk7Z1rg=;
- b=6ZEmyByWVIMrRZ5NfFmULHfnVb0bK9PeBX9ZZzBzfGFXAS8H+w85W2ofKlz64n4bBIEOFZTfq
- SdvxNj3fMIlBg0G9cxq0EDS8/JvSh2dmoAac/KXWr+UHqs5kqrr4GGA
+ bh=gdWnKR2zta/pTzLbRUr1dcaH2AxxQQj7YNfOq5qNvR4=;
+ b=zqGOlGCSiF/k0bUYBWLokM3x49KYfuMD+pmlbvhvcEII4VXlHTl0qCJo0NIbd5XnvkfOp8YJ/
+ EFnXIm3r+q4AZxHrn3GA3SNQsI59sg8NHDGkBTGUKAUY5qtboegyOn1
 X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
  pk=xw1AhCtQdvuoQc+bOQIYy9o8G++cp4/VniI2G/tc3G8=
 X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
@@ -64,63 +63,73 @@ X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
 X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
 Reply-To: hexlabsecurity@proton.me
 
-v2 answers Jakub's reviews of v1 with changes rather than replies.
+From: Bryam Vargas <hexlabsecurity@proton.me>
 
-1/3 keeps its hunk and states the impact properly. SO_MSGLIMIT accepts 1,
-which makes msglimit / 2 zero, and msg_recv never leaves zero on a classic
-socket, so the NULL read is one recvmsg() away for an unprivileged process
-on a socket of its own. With relocate_lowcore it faults.
+afiucv_hs_send() samples msg_recv, advertises it to the peer as the window,
+and subtracts it once dev_queue_xmit() has returned. Nothing owns the
+counter across the two: iucv_sock_sendmsg() reaches it under lock_sock()
+and iucv_sock_recvmsg() reaches it under no socket lock, so an unprivileged
+process running both on one socket can have them subtract the same value.
+msg_recv goes negative and trips the WARN_ON(); the same interleaving puts
+that credit on the wire twice, and the peer's afiucv_hs_callback_win()
+subtracts the wire value from msg_sent unchecked.
 
-Its Fixes: tag was wrong as well. The unconditional send does date to
-3881ac441f64, but iucv_send_ctrl() sized the skb with a constant ETH_HLEN
-until 238965b71b96, so before that it just returned -ENODEV. Backport
-window is v5.3, not v3.1.
+Claim it with atomic_xchg(), after the last error exit so the counter reads
+zero only while the transmit is in flight, and hand it back if that fails.
+Nothing subtracts now, so the WARN_ON() goes too.
 
-2/3 is new. v1 admitted it widened the msg_recv race and left it open,
-which isn't good enough under Cc: stable. afiucv_hs_send() samples the
-counter and settles it after dev_queue_xmit(); sendmsg reaches that under
-lock_sock() and recvmsg reaches it under no socket lock, so the two don't
-exclude each other and both can subtract the same value. Negative counter,
-WARN_ON, and the same credit advertised twice to a peer whose
-afiucv_hs_callback_win() subtracts the wire value from msg_sent unchecked.
-
-Taking the socket lock around the deferred send would close it too, since
-recvmsg is the only unlocked side. I didn't: recvmsg has never held that
-lock, and making it do so changes the receive path for every caller. That
-belongs in the locking rework, not in a stable fix.
-
-The claim sits after the last error exit rather than in the header build,
-so the counter reads zero only while the transmit is in flight, and a
-concurrent sender isn't talked out of its own update.
-
-3/3 is v1's patch, and it must not be applied without 2/3: hoisting the
-send out of message_q.lock drops the serialisation that lock gave two
-concurrent recvmsg(). Backported alone it recreates what 2/3 fixes. Both
-changelogs say so.
-
-Litmus test under LKMM: the counter reaches -2 before 2/3 and cannot after.
-No hardware run; I have no IBM Z, and CONFIG_AFIUCV is s390-only.
-
-The unlocked hs_dev and sk_shutdown window, the unbounded backlog_skb_q and
-the WARN_ON a flooding peer can reach are pre-existing and wider than this
-series. They belong with the locking rework Alexandra has open.
-
-Thanks for the reviews.
-
+Fixes: 3881ac441f64 ("af_iucv: add HiperSockets transport")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
 ---
-Bryam Vargas (3):
-      net/iucv: only send the window update on HiperSockets sockets
-      net/iucv: claim the receive credit atomically
-      net/iucv: send the window update outside message_q.lock
+ net/iucv/af_iucv.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
- net/iucv/af_iucv.c | 42 +++++++++++++++++++++++++-----------------
- 1 file changed, 25 insertions(+), 17 deletions(-)
----
-base-commit: 746fc0787f616da418ffc04a110296fe95d53491
-change-id: 20260821-b4-disp-3a6e8695-c1f4a6069169
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index 0bc4a15f4b56..492a45bb2bba 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -210,12 +210,6 @@ static int afiucv_hs_send(struct iucv_message *imsg, struct sock *sock,
+ 	phs_hdr->flags = flags;
+ 	if (flags == AF_IUCV_FLAG_SYN)
+ 		phs_hdr->window = iucv->msglimit;
+-	else if ((flags == AF_IUCV_FLAG_WIN) || !flags) {
+-		confirm_recv = atomic_read(&iucv->msg_recv);
+-		phs_hdr->window = confirm_recv;
+-		if (confirm_recv)
+-			phs_hdr->flags = phs_hdr->flags | AF_IUCV_FLAG_WIN;
+-	}
+ 	memcpy(phs_hdr->destUserID, iucv->dst_user_id, 8);
+ 	memcpy(phs_hdr->destAppName, iucv->dst_name, 8);
+ 	memcpy(phs_hdr->srcUserID, iucv->src_user_id, 8);
+@@ -250,13 +244,22 @@ static int afiucv_hs_send(struct iucv_message *imsg, struct sock *sock,
+ 	}
+ 	skb->protocol = cpu_to_be16(ETH_P_AF_IUCV);
+ 
++	/* Claim the receive credit here, not while building the header: every
++	 * way this frame can be dropped has now been ruled out, so the window
++	 * is zeroed only for as long as the transmit itself takes.
++	 */
++	if (flags == AF_IUCV_FLAG_WIN || !flags) {
++		confirm_recv = atomic_xchg(&iucv->msg_recv, 0);
++		phs_hdr->window = confirm_recv;
++		if (confirm_recv)
++			phs_hdr->flags = phs_hdr->flags | AF_IUCV_FLAG_WIN;
++	}
++
+ 	atomic_inc(&iucv->skbs_in_xmit);
+ 	err = dev_queue_xmit(skb);
+ 	if (net_xmit_eval(err)) {
+ 		atomic_dec(&iucv->skbs_in_xmit);
+-	} else {
+-		atomic_sub(confirm_recv, &iucv->msg_recv);
+-		WARN_ON(atomic_read(&iucv->msg_recv) < 0);
++		atomic_add(confirm_recv, &iucv->msg_recv);
+ 	}
+ 	return net_xmit_eval(err);
+ 
 
-Best regards,
---  
-Bryam Vargas <hexlabsecurity@proton.me>
+-- 
+2.55.0
 
 
