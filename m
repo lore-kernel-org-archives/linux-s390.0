@@ -1,124 +1,166 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 487CE33B6F1;
-	Fri, 21 Aug 2026 20:17:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11AFA396B68;
+	Fri, 21 Aug 2026 20:18:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787343451; cv=none; b=bfJHJ44veSNzwV/x3Mq4t4ua4wpDcx6BAJwYsBl21rSg0910P9/cYvITlsrxT6P7XwRq2PjK0ZlneR8FkLXgyQ5Z9H+ALl5cIh7m+9y7bQ0rO9d1+VpLyVOSTcRp/Uu0dz8P0EXUyzwnXOOclCQX9rYyQLyEHX0cbn9boROG4eM=
+	t=1787343504; cv=none; b=KSvqo4gQfUH5ST+X0RujR+XqRU/Fy+HqXPppoJubUD+O6kvRSzJ0uTw8pA5hU22ICBCXJWBSPpPsBpPW5b0kEorCJ2YbmbNH6WH62ebz3FGF4AEBh1KgQc5sFf03vjWMxMuBVLnT0nQoj/tUH/W7DUs8ritc+lxLVEzoDwxhRWQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787343451; c=relaxed/simple;
-	bh=iajGyT4+vc2zjWIyN2hTpCLLK/SPGlJwvJdHohEBBW4=;
+	s=arc-20240116; t=1787343504; c=relaxed/simple;
+	bh=Bmni72FBigp05Qk3FlR0uoXb5ptpo7Cq2JzeNLAOGc8=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=K130hFYZQPqdQmuYEhFPMT/ADVmekm7L3AeLXCCKs1HLM31dDHhZTFkm0C55i60QBSmA9fgcp5hni9m2lFJsWzK4MKhn6lVRqf+/WoE4SEi8fVFsRok0cgrzbW0ZhKu8bW1PSB2Z9KP2b2w2ZVLSMIxGWW+teJuULWvanm/Yg8Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MyGYagxw; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=BI7LZSbIOSEW+YMfmusj7OZn85QsENCAK6Gyuj7CFjOjSVhUf7ymKBxyl0cB/Ba9qH4R3aTdGL4V9+XQfYq46YWMsu4ETiVMTf2/LuD3aG+3SoyU5UHLiOdFxP4vAVJJKMMsBES7koQIc7lJBDZNCcHOocxG7qrarc+WQLwCSsE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eIcrOmPO; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MyGYagxw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E3351F000E9;
-	Fri, 21 Aug 2026 20:17:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eIcrOmPO"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81B8D1F000E9;
+	Fri, 21 Aug 2026 20:18:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787343449;
-	bh=k+xCCO7L6vhPicMuM7S294gMFTEzcKn693T6m0vEl0g=;
+	s=k20260515; t=1787343500;
+	bh=7zPthHLJ5M0pXfnJcxALHsANPRtljH3ZF3R8Fyhe8o4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MyGYagxwuMFlv5Dp8ij9rvunjFUyJNmnOQlbTGuuLvgs43SDt2S21w9ws8r3Rzjlx
-	 q4fP8L68VJzTxS0vPOg+usQMSzv2eK16AulJ/dCs6g6WdbNMcIg4UEDaPxadCUe+HS
-	 6dKFb8BTdTjxqtIzDQv1FuxxVlQ0l0+F5scex2HkaZg6hZv2o8sP75KLCkVH/Oab/h
-	 rSMyWx59uQKorAzJYlV8Tlm4vRSz31S/IbLGCraDEu9sT6GefFaO7Rgga7BBxWkBEF
-	 AwWq3GpgHNxmtCDhQ7WyJXGj4DadG/tchMvxx6olN3pOloOFU7xSh7vF/Oy4i1bWD9
-	 OEouUwE4zHcMw==
+	b=eIcrOmPOTKCcDPfN3jcm+AlD69AwJaBA4Zz0y01QDIxtLkou5Fb8TMPkSfJJjgVje
+	 o2hNnvuanwiBmUx5+0JUiXKOy17IDIEpvfijDvdhMrOcQNy3+eLdKvVWxxNvFl1EW5
+	 t7coQQAId9VeYb9sv/MAjPcUHrBfnfFOTdB2dHx0D9h69PX4lOe8FblcBf6cV3k80k
+	 zS1WWORxdmUR6Jeoc4jjt7hWXRGoNVW9ralQihau0Tfkqu025xzruPcei+jItvtcD7
+	 1XDk4gXceAwI1EsrKWCiC4rSkoduLnl1FifwLLtan9Lyd3FCLKDDUyuMuB7s9Y/tqJ
+	 8CKpXvVNlAogA==
 From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v2 20/24] unwind_user/eh_frame/x86: Handle PLT
- expressions
+Subject: Re: [RFC PATCH v2 12/24] unwind_user/eh_frame: Remove
+ .eh_frame[_hdr] section on detected corruption
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jens Remus" <jremus@linux.ibm.com>
-Cc: linux-trace-kernel@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-trace-kernel@vger.kernel.org, linux-s390@vger.kernel.org, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260821195259.2688377-21-jremus@linux.ibm.com>
+In-Reply-To: <20260821195259.2688377-13-jremus@linux.ibm.com>
 References: <20260821195259.2688377-1-jremus@linux.ibm.com>
- <20260821195259.2688377-21-jremus@linux.ibm.com>
+ <20260821195259.2688377-13-jremus@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 21 Aug 2026 20:17:29 +0000
-Message-Id: <20260821201729.9E3351F000E9@smtp.kernel.org>
+Date: Fri, 21 Aug 2026 20:18:20 +0000
+Message-Id: <20260821201820.81B8D1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [Medium] The patch claims to support i386 PLT unwinding but fundamentally=
- breaks it by hardcoding x86-64 DWARF register macros.
+
+New issues:
+- [High] A Time-of-Check to Time-of-Use (TOCTOU) race condition allows the =
+kernel to erroneously unregister a valid, newly loaded .eh_frame section du=
+e to address reuse.
+- [High] The unwinder conflates actual memory corruption with kernel-impose=
+d safety limits, permanently disabling unwinding for valid libraries.
+
+Pre-existing issues:
+- [Critical] Unchecked error from mas_erase() leads to freeing a maple tree=
+ section while it remains active in the tree, causing a Use-After-Free (UAF=
+).
+- [High] Lock drop and reacquire inside mas_erase() during mas_for_each() i=
+teration causes a TOCTOU race and memory leak.
 --
 
---- Patch [20]: [RFC PATCH v2 20/24] unwind_user/eh_frame/x86: Handle PLT e=
-xpressions ---
-commit 75d2af7b6df62f61cc44905f96f37d91b80e466a
+--- Patch [12]: [RFC PATCH v2 12/24] unwind_user/eh_frame: Remove .eh_frame=
+[_hdr] section on detected corruption ---
+commit 14251b7471659003e9517d814ad704b284ed18df
 Author: Jens Remus <jremus@linux.ibm.com>
 
-unwind_user/eh_frame/x86: Handle PLT expressions
+unwind_user/eh_frame: Remove .eh_frame[_hdr] section on detected corruption
 
-This commit adds x86-specific support for handling the CFA expression
-found in GNU linker generated .eh_frame for PLT. It intends to enable
-unwinding through GNU linker generated PLT entries on both i386 and
-x86-64.
+This commit adds logic to unregister .eh_frame or .eh_frame_hdr sections on
+demand when corruption is detected during lookup. This prevents repeated
+attempts to parse bad unwind sections by removing them immediately upon an
+error return.
 
-> diff --git a/arch/x86/include/asm/unwind_user_eh_frame.h b/arch/x86/inclu=
-de/asm/unwind_user_eh_frame.h
-> index fdccbda2fe4b1..8268eb1a0ff5a 100644
-> --- a/arch/x86/include/asm/unwind_user_eh_frame.h
-> +++ b/arch/x86/include/asm/unwind_user_eh_frame.h
-[ ... ]
-> @@ -15,7 +17,71 @@
->  #define EH_FRAME_MIN_DATA_ALIGN -8
->  #define EH_FRAME_MAX_DATA_ALIGN -1
+> diff --git a/kernel/unwind/eh_frame.c b/kernel/unwind/eh_frame.c
+> index 21f40805b417f..327849ea4a692 100644
+> --- a/kernel/unwind/eh_frame.c
+> +++ b/kernel/unwind/eh_frame.c
+> @@ -1202,6 +1202,15 @@ int eh_frame_find(unsigned long ip, struct unwind_=
+user_frame *frame)
+>  	if (!ret)
+>  		ret =3D __find_frame_row(sec, &fde, ip, frame);
 > =20
-> -#endif
-> +#endif /* CONFIG_X86_64 */
-[ ... ]
-> +static inline int eh_frame_do_def_cfa_expression(const char *expr,
-> +						 int size,
-> +						 unsigned long ip,
-> +						 struct eh_frame_reg_state *reg_state)
-> +{
-[ ... ]
-> +		if (!DW_OP_is_breg(sp_op) || !DW_OP_is_breg(ip_op))
-> +			return -EOPNOTSUPP;
+> +	/*
+> +	 * Unregister .eh_frame[_hdr] in case of an error,
+> +	 * e.g. EINVAL (corrupted) or EFAULT (inaccessible).
+> +	 * Keep if ENOENT (not found) or EOPNOTSUPP (unsupported CFI).
+> +	 */
+> +	if (ret && (ret !=3D -ENOENT && ret !=3D -EOPNOTSUPP))
+> +		if (eh_frame_remove_section(sec->eh_frame_hdr_start))
+> +			dbg("eh_frame_remove_section() failed\n");
 > +
-> +		sp_reg =3D DW_OP_breg_register(sp_op);
-> +		ip_reg =3D DW_OP_breg_register(ip_op);
-> +		if (sp_reg !=3D EH_FRAME_REG_SP || ip_reg !=3D EH_FRAME_REG_RA)
-> +			return -EOPNOTSUPP;
 
-[Severity: Medium]
-The commit message mentions enabling unwinding for both i386 and x86-64,
-but does this check inadvertently break i386 support?
+[Severity: High]
+Does this introduce a race condition with memory unmapping and mapping?
 
-EH_FRAME_REG_SP and EH_FRAME_REG_RA are defined under CONFIG_X86_64 and
-correspond to x86-64 DWARF register numbers (7 and 16). For i386, the DWARF
-register numbers are different (ESP is 4, EIP is 8).
+If a thread is delayed after retrieving sec in eh_frame_find(), another
+thread could unmap the library and map a new library at the exact same
+virtual address, registering it with the same eh_frame_hdr_start. When the
+first thread resumes and fails to parse against the new memory, passing the
+virtual address sec->eh_frame_hdr_start to eh_frame_remove_section() seems
+like it would unintentionally remove the newly loaded, valid library's
+section.
 
-When unwinding an i386 PLT expression, such as for a 32-bit compat process
-running under a 64-bit kernel, will this check unconditionally reject the
-expression and return -EOPNOTSUPP because 4 does not equal 7?
+[Severity: High]
+Is it safe to assume -EINVAL always means corruption?
 
-Also, if this code is compiled natively for 32-bit, would this cause a build
-failure because the EH_FRAME_REG_SP and EH_FRAME_REG_RA macros are not
-defined outside of the CONFIG_X86_64 block?
+Looking at __do_cfi_program(), it also returns -EINVAL when kernel limits
+are hit, such as exceeding EH_FRAME_CFI_INSN_LIMIT or
+EH_FRAME_MAX_CODE_ALIGN.
 
-> +
-> +		/* CFA =3D (SP + SP_offset) + (((IP & 0xf) >=3D N) << shift) */
-> +		reg_state->cfa_rule =3D CFA_REG_OFFSET;
-> +		reg_state->cfa_regnum =3D EH_FRAME_REG_SP;
-> +		reg_state->cfa_offset =3D sp_offset + (((ip & 15) >=3D n) << shift);
-> +		return 0;
-> +	}
-> +
-> +	return -EOPNOTSUPP;
-> +}
+If a valid library simply has a complex function that hits these limits,
+wouldn't this code globally and permanently disable unwinding for it by
+removing its section?
+
+[Severity: High]
+This is a pre-existing issue, but looking at eh_frame_remove_section()
+which is called here, is there a memory leak if mas_erase() drops the lock?
+
+eh_frame_remove_section() holds mtree_lock and iterates via mas_for_each().
+It calls __eh_frame_remove_section(), which calls mas_erase().
+
+If mas_erase() needs to allocate memory via mas_nomem(mas, GFP_KERNEL), it
+can drop the tree lock. If a concurrent thread inserts a new section
+covering the same range during this unlocked window, mas_erase() retries,
+erases the new section, and returns it.
+
+__eh_frame_remove_section() then sees the returned entry doesn't match sec,
+returns -EINVAL, and skips call_srcu(), potentially leaking the new section.
+
+[Severity: Critical]
+This is a pre-existing issue, but looking at __eh_frame_remove_section()
+called by eh_frame_remove_section(), can a memory allocation failure lead
+to a use-after-free?
+
+If mas_nomem() fails to allocate memory during mas_erase(), it sets an
+error state and aborts without removing the node, but still returns the
+original sec:
+
+__eh_frame_remove_section() {
+    ...
+    if (mas_erase(mas) !=3D sec) {
+        return -EINVAL;
+    }
+    call_srcu(&eh_frame_srcu, &sec->rcu, eh_frame_free_srcu);
+    ...
+}
+
+Because __eh_frame_remove_section() only checks if the return value does
+not equal sec, it misses the error state completely. It then calls
+call_srcu() to free the section while the node remains active in the maple
+tree. Could subsequent calls to eh_frame_find() load and access this freed
+memory?
+
+>  	return ret;
+>  }
+>
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821195259.2688=
-377-1-jremus@linux.ibm.com?part=3D20
+377-1-jremus@linux.ibm.com?part=3D12
