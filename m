@@ -1,57 +1,57 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91FE140926C;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA7E140EB9D;
 	Fri, 21 Aug 2026 19:53:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787342021; cv=none; b=eL5UmItAB0fI/RL2SB9v8n9T73CVanjDaDVb3RrRn5nGj6MUGtvWwix9BQ+ppN5n23nDGTSq5ZXGZapgzOwntosj1pcsIhFuF3eUt1fy5dYxqs2CgjGDCQhiA/bPxvJiIqbdLi01G6wBMu/mEeNHY75FEWySU0kft3yb9Z0JixA=
+	t=1787342021; cv=none; b=mwW2+rzCJI46NTh+yQGgUVqKgdOatzIQPUK5qpyIIiO+rTERB7aCmYBKKvwqSjSoMzlqtojw1EoS5IfZxMQTnexiljRD/Z3Yq+3XY/FWRLmL4cuSoUrnTe8/xtyGIOw6zWpmpGjzcKqXPuhRxRrTvyZ5YfUx3WswS7Xv2pq/U8Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1787342021; c=relaxed/simple;
-	bh=CXyGtsG81Jje362NCcX1DJbpQJ04vztCnyVvNnO2UEk=;
+	bh=zfkrCG/grEsqBerQEjKKNJBX6y9+FEaLBw9oftt91nw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mNcLlmMahWwcdHLQIHlMdp+ImC+yCHVt/QJVh7X8/RNNp/zEqRWkeIdiODtadOUp2v/hxKQ2/Az2IybXJdvSdojsCReQcyM9uKE+LkNlKruv+rtdM6+OTgLrVEeW8pVFSbt2t6nKEi15sTWHcdp1f2f0RY1c3FyV8P2T4W8wgr8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TIoNWO2p; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=mvzCL49P/FlBj2vUgotqjsWzZbqkfGMa4TvBjyuRjLWE/uTG+TBual9UB2pm6zdN5Ml5/cT9jjgxGBgetJYmOpniDdCA0/F7ck8G8XgBOdiwi8qIpAEzess18Nd/zJUwLAtCK1URuDD52zgj3yjApCT9/5dD7+o6Rkm+WmEO8+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=T7vlRFjM; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TIoNWO2p"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67LIVYr22363665;
-	Fri, 21 Aug 2026 19:53:10 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="T7vlRFjM"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67LIVjs3491844;
+	Fri, 21 Aug 2026 19:53:15 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=nr3NDJBPuN6JMZiT2
-	70FS3PTS8cjMVDUb7jnJwSlxDk=; b=TIoNWO2pXEQQcx41cG6G1cZc6AsIDSIGn
-	Wb6VvrB85FB8kZ7ovAwdGGphjCJid3rnhHlEMn+Bp+fuTnGJrejFhF3yRm52cKs6
-	iICVYtlLYoxdjgFpfaqbXio70MXg605Ob2kmx2RGVvkoMg6zaoaXxa5RWvVoDHRA
-	aBNy6a9FV+bX43A1EbVxh8uxl88u3UQef8cwBrEcFCakVw38nVNHx/M+T3gD1ux3
-	nVlbUNg/xLQ5YYYgYh4qGvd9jJDYcFPtk3i4fqcOW/3/iB2CzI9ctwtNG7BoxRoM
-	tNo4KG7NDYekoZIgt3rGOS6iihYsx0xyA8TE/UTkbyrI6jtDMa3zw==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu0uxke-1
+	:mime-version:references:subject:to; s=pp1; bh=0slGNflhrASa31G14
+	eLJHOXwNvhEtUH0F5bLRdVkFUs=; b=T7vlRFjM1inAGfvxdtdyJHpzun/EHxP3+
+	lY1uWqgJ4Jo4AQb0l4g3YJiNDULwN7BsJ2LmjvvKfr4KEAGt3SFZHB+0VP3+3xTt
+	oCRLz//RuisXnltwhn+OUStZ6JbT/9eev6Z0nWiv6SxpXKhwBRkl4eaLgwxbMT0E
+	bdW6UnubT61ghw5jqCueOtXN6IQMldfFSvviP9EW95XMPMdWPK0jUQed7S96dKS6
+	6Dralb1yQZ1OsxIq5RYSaxtzyqSGUJyUILBgKMZW9zYHm5oDP+HZbhMzZuSDHNwh
+	VVdfI3OUU7R+dNUF80ZhJuXEszpM7u+BvZDEqwi4O//nyn3Zbj7Kg==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu0kvcy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Aug 2026 19:53:10 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67LJfGQ8006048;
-	Fri, 21 Aug 2026 19:53:09 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g34ngxff6-1
+	Fri, 21 Aug 2026 19:53:14 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67LJfRI5016689;
+	Fri, 21 Aug 2026 19:53:13 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g33xhpnkq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Aug 2026 19:53:09 +0000 (GMT)
+	Fri, 21 Aug 2026 19:53:12 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67LJr5pE41746866
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67LJr8d542861032
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 21 Aug 2026 19:53:05 GMT
+	Fri, 21 Aug 2026 19:53:09 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 60A1220040;
-	Fri, 21 Aug 2026 19:53:05 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id D7F0320040;
+	Fri, 21 Aug 2026 19:53:08 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1D6652004E;
-	Fri, 21 Aug 2026 19:53:05 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 999722004B;
+	Fri, 21 Aug 2026 19:53:08 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 21 Aug 2026 19:53:05 +0000 (GMT)
+	Fri, 21 Aug 2026 19:53:08 +0000 (GMT)
 From: Jens Remus <jremus@linux.ibm.com>
 To: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, x86@kernel.org,
@@ -68,11 +68,10 @@ Cc: Jens Remus <jremus@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
         Dave Hansen <dave.hansen@linux.intel.com>,
         "H. Peter Anvin" <hpa@zytor.com>, Namhyung Kim <namhyung@kernel.org>,
         Andrii Nakryiko <andrii@kernel.org>, Kees Cook <kees@kernel.org>,
-        Sam James <sam@gentoo.org>, Fangrui Song <i@maskray.me>,
-        Dylan Hatch <dylanbhatch@google.com>
-Subject: [RFC PATCH v2 01/24] unwind_user: Add generic and arch-specific headers to MAINTAINERS
-Date: Fri, 21 Aug 2026 21:52:36 +0200
-Message-ID: <20260821195259.2688377-2-jremus@linux.ibm.com>
+        Sam James <sam@gentoo.org>, Fangrui Song <i@maskray.me>
+Subject: [RFC PATCH v2 13/24] unwind_user/eh_frame: Show file name in debug output
+Date: Fri, 21 Aug 2026 21:52:48 +0200
+Message-ID: <20260821195259.2688377-14-jremus@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260821195259.2688377-1-jremus@linux.ibm.com>
 References: <20260821195259.2688377-1-jremus@linux.ibm.com>
@@ -85,64 +84,171 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=MthiLWae c=1 sm=1 tr=0 ts=6a88aca6 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-ORIG-GUID: 2CbATQqS6hTrEGGwpRM1UyfOT3Gf12eC
+X-Proofpoint-GUID: G937tc7y73pR_qeBgyYIJ355qus_8-MH
+X-Authority-Analysis: v=2.4 cv=RoX16imK c=1 sm=1 tr=0 ts=6a88acaa cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=1XWaLZrsAAAA:8
- a=meVymXHHAAAA:8 a=bzoO1hpTG78L7GYmDxgA:9 a=2JgSa4NbpEOStq-L5dxp:22
-X-Proofpoint-ORIG-GUID: SDI9-EQ6q2zXx7KhuSOxwYIW8s8LHpr7
-X-Proofpoint-GUID: 98p9ebAjyeYBcw4dCaW3l22uQLA9C8rx
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODIxMDE1NSBTYWx0ZWRfX+KHyiTHHWc6k
- r+4czlToVkZUn3bf6sW7iYZsjct9bCLlG873nuru3BwZ7k6bNmOKbUaR7bue+bOGwRf1rQo2LwQ
- TSWWOfngO6F0Lj2kHBe6/Gj2Jf+PxmQ=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIxMDE1NSBTYWx0ZWRfX7f8sPk2P6Kmm
- BMmgb58gY2DWezemeHzZ+82U0mQB9iY9/0Rk2t80YXZraB6ezuryEV9Phe/uJBaolOWp1sqfQd3
- MY7gM/Vawl6ulEcjl+nGyJCcNuQGDMEyRwnf8FRqXnT9Jm5UKFPaZsn2UcC7OaYpiWnKko4TgEW
- CGObfbw9FJg5K+MZZeK/G+OeQQrlMpRHyJp0+Oj5ElbxfO7cq0h3ArtWJHGq1Td9dpfBUuAcuGx
- BfZOEMbDduIjjTsbT9dr66MtxPacdnrImE8PL6O+lvJpAqBwRXxqL8eJXOAiZeZ3KMldmkg8oPm
- jfGV9x61TQHMkDxs8K+ARuvSrfBNHswYQUMmTaVBlbV4WEm/bJsz6LsIksXjbFwUDXAf0J/nSt7
- qMWusBx1fgOfgnJGX7NX+O9y08Ru1AGdygjLVqTLh5KKNkEUIjoYcYNbdzHmPr0mL2STgn08mLD
- cJB2rfV6QWBkotTWgfg==
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=FE0x1-_S9R1QEdhOvlkA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODIxMDE1NSBTYWx0ZWRfXwJRuihnlj8Wf
+ ForN2vrzsiGNmDI9ObJzVCi67VkA2TaRuigxfeCZfHA3SLLCp+3UQdowz4fWa73m83b4oWwEhFi
+ 3xFYwYNsvUgjBkfR7RcdyqVkS8Gljc0=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIxMDE1NSBTYWx0ZWRfX5UP4lLFVF8nE
+ drB90e9PbFqfohlCi7WCl+vVbbM3i0Im4guFMHmcZrt1Hb2IJzOULvrbVTgK4EIdgDzsoxRvEqa
+ 184e90aGvy5cDucAd5XyNKELUbrEEGZd3ay3m9ucLxlV4oquVbaS1qD48k63tn7MRH8AbeqBsQU
+ ImxqLTnCQj8EVG9ywWIZtz/dzxuah8DNHg/8cazgKj+L7GbE1AE2ERliMIXRhH8kCSNkQA2W/Hi
+ l1KS3YpA40dmHZPiVcoaSYDC6PSTlmIjY0RYWpKf5iLXZhb6UFFmvsZwuJTgpQK3ax28XzlfL7j
+ tGB1bUdFoYw+ELkyGGtEOYo2RCXsgE81qcKMd5z8bbTZxhQUVK04rSdH/pNgbD0UO78TTCSmdp1
+ 2fDfdNXqk+OFhl4lPsdilBRM4JSIZhRlRX8qPfuCP9CqH2DORtOT/MXqTPswjYNvkXUdqDMy6+w
+ PD/J3HpzHq1GztSOo6w==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-21_06,2026-08-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 impostorscore=0 bulkscore=0 phishscore=0 clxscore=1011
- spamscore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501 suspectscore=0
+ priorityscore=1501 impostorscore=0 suspectscore=0 malwarescore=0 adultscore=0
+ clxscore=1015 phishscore=0 spamscore=0 bulkscore=0 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608210155
 
-Commit 71753c6ed2bf ("unwind_user: Add user space unwinding API with
-frame pointer support") introduced include/asm-generic/unwind_user.h
-without adding it to MAINTAINERS, as well as any future arch-specific
-versions such as the one added by commit 49cf34c0815f
-("unwind_user/x86: Enable frame pointer unwinding on x86") which
-introduced arch/x86/include/asm/unwind_user.h.
+When debugging eh_frame issues, the error messages aren't all that helpful
+without knowing what file a corresponding .eh_frame[_hdr] section belongs
+to.  Prefix debug output strings with the file name.
 
-Suggested-by: Dylan Hatch <dylanbhatch@google.com>
+Based on Josh Poimboeuf's, Steven Rostedt's, and my unwind user sframe
+implementation.
+
 Signed-off-by: Jens Remus <jremus@linux.ibm.com>
 ---
+ include/linux/eh_frame.h       |  4 ++++
+ kernel/unwind/eh_frame.c       | 13 ++++++++----
+ kernel/unwind/eh_frame_debug.h | 37 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 50 insertions(+), 4 deletions(-)
 
-Notes (jremus):
-    Cherry-picked from "[PATCH v16 00/20] unwind_deferred: Implement sframe
-    handling" series:
-    https://lore.kernel.org/all/20260521142546.3908498-2-jremus@linux.ibm.com/
-
- MAINTAINERS | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 8014b9f8253e..e5738a250d63 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -28201,6 +28201,8 @@ USERSPACE STACK UNWINDING
- M:	Josh Poimboeuf <jpoimboe@kernel.org>
- M:	Steven Rostedt <rostedt@goodmis.org>
- S:	Maintained
-+F:	arch/*/include/asm/unwind_user.h
-+F:	include/asm-generic/unwind_user.h
- F:	include/linux/unwind*.h
- F:	kernel/unwind/
+diff --git a/include/linux/eh_frame.h b/include/linux/eh_frame.h
+index 740316b19df3..70b4f9d12828 100644
+--- a/include/linux/eh_frame.h
++++ b/include/linux/eh_frame.h
+@@ -11,6 +11,10 @@
+ struct eh_frame_section {
+ 	struct rcu_head	rcu;
+ 
++#ifdef CONFIG_DYNAMIC_DEBUG
++	const char	*filename;
++#endif
++
+ 	unsigned long	eh_frame_hdr_start;
+ 	unsigned long	eh_frame_hdr_end;
+ 	unsigned long	text_start;
+diff --git a/kernel/unwind/eh_frame.c b/kernel/unwind/eh_frame.c
+index 327849ea4a69..96237a96d263 100644
+--- a/kernel/unwind/eh_frame.c
++++ b/kernel/unwind/eh_frame.c
+@@ -1207,15 +1207,18 @@ int eh_frame_find(unsigned long ip, struct unwind_user_frame *frame)
+ 	 * e.g. EINVAL (corrupted) or EFAULT (inaccessible).
+ 	 * Keep if ENOENT (not found) or EOPNOTSUPP (unsupported CFI).
+ 	 */
+-	if (ret && (ret != -ENOENT && ret != -EOPNOTSUPP))
++	if (ret && (ret != -ENOENT && ret != -EOPNOTSUPP)) {
++		dbg_sec("removing bad .eh_frame[_hdr] section\n");
+ 		if (eh_frame_remove_section(sec->eh_frame_hdr_start))
+ 			dbg("eh_frame_remove_section() failed\n");
++	}
+ 
+ 	return ret;
+ }
+ 
+ static void free_section(struct eh_frame_section *sec)
+ {
++	dbg_free(sec);
+ 	kfree(sec);
+ }
+ 
+@@ -1342,6 +1345,8 @@ int eh_frame_add_section(unsigned long eh_frame_hdr_start,
+ 	sec->text_start		= text_start;
+ 	sec->text_end		= text_end;
+ 
++	dbg_init(sec);
++
+ 	ret = eh_frame_read_header(sec);
+ 	if (ret)
+ 		goto err_free;
+@@ -1349,8 +1354,8 @@ int eh_frame_add_section(unsigned long eh_frame_hdr_start,
+ 	ret = mtree_insert_range(eh_frame_mt, sec->text_start, sec->text_end - 1,
+ 				 sec, GFP_KERNEL_ACCOUNT);
+ 	if (ret) {
+-		dbg("mtree_insert_range failed: text=%lx-%lx\n",
+-		    sec->text_start, sec->text_end);
++		dbg_sec("mtree_insert_range failed: text=%lx-%lx\n",
++			sec->text_start, sec->text_end);
+ 		goto err_free;
+ 	}
+ 
+@@ -1372,7 +1377,7 @@ static int __eh_frame_remove_section(struct ma_state *mas,
+ 				     struct eh_frame_section *sec)
+ {
+ 	if (mas_erase(mas) != sec) {
+-		dbg("mas_erase failed: text=%lx\n", sec->text_start);
++		dbg_sec("mas_erase failed: text=%lx\n", sec->text_start);
+ 		return -EINVAL;
+ 	}
+ 
+diff --git a/kernel/unwind/eh_frame_debug.h b/kernel/unwind/eh_frame_debug.h
+index 5a3e4e7f065a..40a80861d4d4 100644
+--- a/kernel/unwind/eh_frame_debug.h
++++ b/kernel/unwind/eh_frame_debug.h
+@@ -3,6 +3,7 @@
+ #define _EH_FRAME_DEBUG_H
+ 
+ #include <linux/eh_frame.h>
++#include <linux/mm.h>
+ #include "eh_frame.h"
+ 
+ #ifdef CONFIG_DYNAMIC_DEBUG
+@@ -10,9 +11,45 @@
+ #define dbg(fmt, ...)							\
+ 	pr_debug("%s (%d): " fmt, current->comm, current->pid, ##__VA_ARGS__)
+ 
++#define dbg_sec(fmt, ...)						\
++	dbg("%s: " fmt, sec->filename, ##__VA_ARGS__)
++
++static inline void dbg_init(struct eh_frame_section *sec)
++{
++	struct mm_struct *mm = current->mm;
++	struct vm_area_struct *vma;
++	const char *name;
++
++	guard(mmap_read_lock)(mm);
++	vma = vma_lookup(mm, sec->eh_frame_hdr_start);
++	if (!vma)
++		sec->filename = kstrdup("(vma gone???)", GFP_KERNEL_ACCOUNT);
++	else if (vma_is_anonymous(vma))
++		 sec->filename = kstrdup("(anonymous)", GFP_KERNEL_ACCOUNT);
++	else if (vma->vm_file)
++		sec->filename = kstrdup_quotable_file(vma->vm_file, GFP_KERNEL_ACCOUNT);
++	else if (vma->vm_ops && vma->vm_ops->name && (name = vma->vm_ops->name(vma)))
++		sec->filename = kstrdup(name, GFP_KERNEL_ACCOUNT);
++	else if (arch_vma_name(vma))
++		sec->filename = kstrdup(arch_vma_name(vma), GFP_KERNEL_ACCOUNT);
++	else if (!vma->vm_mm)
++		sec->filename = kstrdup("(vdso)", GFP_KERNEL_ACCOUNT);
++	else
++		sec->filename = kstrdup("(vma unknown???)", GFP_KERNEL_ACCOUNT);
++}
++
++static inline void dbg_free(struct eh_frame_section *sec)
++{
++	kfree(sec->filename);
++}
++
+ #else /* !CONFIG_DYNAMIC_DEBUG */
+ 
+ #define dbg(args...)			no_printk(args)
++#define dbg_sec(args...)		no_printk(args)
++
++static inline void dbg_init(struct eh_frame_section *sec) {}
++static inline void dbg_free(struct eh_frame_section *sec) {}
+ 
+ #endif /* !CONFIG_DYNAMIC_DEBUG */
  
 -- 
 2.53.0
