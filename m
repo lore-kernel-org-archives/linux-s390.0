@@ -1,217 +1,230 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B9EB38837C;
-	Fri, 21 Aug 2026 20:22:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 085D43AAF56
+	for <linux-s390@vger.kernel.org>; Fri, 21 Aug 2026 20:44:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787343755; cv=none; b=SPh7pC6dGv0dXZNmE+MyzTgoUzhEEPhLw6IZjW4oaI+vDdfobNgqUXXgLTYvgJAr7Tujzev17c8EElmoSp/vt0bDkbV2oSLU3gvBYZDWRMLxRSH0XSRP6TAJQWg+svOYcrbzyhrRnwzmE73aFbCuzQTPcYKa62jO8zLXaeiWPwE=
+	t=1787345098; cv=none; b=gCqssQnqM/xqZD/cnWBufZzysNscsyrN/YtOq2pexD9KJZLpCY8hUUSkdqVILB485px9vlzPr/yGDNpogPtC6OhpB4Kv9P5/XAXcQwv5zlsauuWn+bGBbWFYXzF3FTq6NfHbZMECzz2x/9Wcy66AEFsqKNgjO66IvGt5I4lHPos=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787343755; c=relaxed/simple;
-	bh=oIo3zJ//UsK89bMjv1EMj+4KEFTcgRwTTvA5D+ihX5c=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=XfE+u5bl9M8FizAPCk6Y4VWxXxbRLeVlNg16XUGf0D3e4B9MnQkOsVFqnSE+JsGSPsUErj1hoVoODqGBdfZQ8kwt8DGg5ylryqSYxp9FboAyHF5gS2pAlqWhd+wTlFKwui0iSBbF7kJYs71+CZmwm4xe/h9i4vVXU4BDvOxHZq0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RVcoiEDs; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787345098; c=relaxed/simple;
+	bh=VLZNTb6sD+keLS3qr1GL0XKLbH4bPo17f2sE+RknAB8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=TLCW5QwLYTwYH12G9lf5sgQ4qlWkRYpx7b2UCeGl0vmfdwibbn3vamgp3KBKZzmBa4sNw4nYIalBceTJwKSZhIjMddG0ItVnosnFQNW8ZIU9yhRO1Kv25sDZ0R67nXuc3nyoGszhZDGxI93xTdsqIOZ+se/qL6plZO2+yUCnPx4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=X/bUI86S; arc=none smtp.client-ip=209.85.128.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RVcoiEDs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF04A1F00A3A;
-	Fri, 21 Aug 2026 20:22:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787343754;
-	bh=02eUuBhKlD2TKLOHqlf8m8InkhYdRJs2+qasigko2P8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RVcoiEDsq7xhZ4i+UOz1uFthhGSNA3k0O3pyJULqq4hgzHWQw8uVg2rwTusqzRscC
-	 q8GiKOOwcmAcy8DD36kp/pQCFNOyTjj2JSu7/VdFvvh2rouO2hJuiK2nIWwLFnnuTB
-	 4bl3OkjSYcdmazQdumxUMGG4nEVqS5PI59ywIbQ9HHwzKftoFBMSPxEC/EntwGULFg
-	 QAER6St0qeg4lz+IgpeZm7q+Grr2iXmkxR2d+bwAwON0wL6llIt72rgVs4+1V2U728
-	 rSqPhbG8M33W7gOkttbu9C5KEKc6cJycPUeWDIW+qSh/pIZecJ7810atr8kDOCkcCp
-	 i1/di6O9JMCxg==
-From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v2 24/24] unwind_user/eh_frame: Add prctl()
- interface for (un)registering .eh_frame_hdr sections
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jens Remus" <jremus@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-trace-kernel@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260821195259.2688377-25-jremus@linux.ibm.com>
-References: <20260821195259.2688377-1-jremus@linux.ibm.com>
- <20260821195259.2688377-25-jremus@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 21 Aug 2026 20:22:33 +0000
-Message-Id: <20260821202233.CF04A1F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="X/bUI86S"
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-4956869750eso9757875e9.2
+        for <linux-s390@vger.kernel.org>; Fri, 21 Aug 2026 13:44:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1787345094; x=1787949894; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=QzsO6bXfVkXRG/aUxfAmIkKsE+Fa964GVFQS62WZABw=;
+        b=X/bUI86SGym0+rZ5lmIk8DrXgwhbl3fpeHY9RAMxr7k/gJAqeXBePXc+Jm0Do7Nl0a
+         +NVcJEsXhr5mf9l2lnEJj7Gj45RSXiQOkLhOkZiadpSoWYcsQC4ZQLYpbAmBDic80S5V
+         p7FDWGGPGyFJLFSyKEe/CZSx92KBjNNRVvg8mV0Yjz0QBFKqkkhBe2Ko635HSKqe0TWB
+         bVv7x9ZnADLUg60HiWy9cHQBp3THgxQsYDCQL9u0mZn7Hmo0e193EvRomo+Sypsr/7xN
+         wn07yUEFJJDYqFnZZf1NV4o9i/HhNBcKUkGOSvAmH61E+JnuAe2i8K4MkoDAeqnhwR30
+         Uaxw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787345094; x=1787949894;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=QzsO6bXfVkXRG/aUxfAmIkKsE+Fa964GVFQS62WZABw=;
+        b=KjuSo7k+i/UVfg2ig4lKM+lpx9UK0+LSqfsy0sHWDsa3Zebx9KtQPZzMYnzp79O3Is
+         D7jz+r/+vQ8+ZjQysriGBOFNp1NE04SwWyw3NA9vr6ZrZp0fhhnUSO+hwMbUCXIykk9q
+         PCjmW2i7qrlUGPOCoOjNKZAedxiTmbE+O4cIebwhjBKZPIVt3eLa0pHink3fH/iYNy1m
+         iIFjFbjeL7usHKzs412FkEuzXfNO839iHA1/qUpQBKKgNx0hMqLQdNUocjqHPZ4RJGuF
+         Wc/KvuqyKGDAYlqGAcRImiqbuZljsAdIYykCWuO2vLMBAkBk0tRPHZnCIaQamMrOuhBz
+         bbLA==
+X-Forwarded-Encrypted: i=1; AHgh+RoJNsL/AiHL9xlI2aOJzJFNCwUu8f9ZDV6SX0qfc8N9c/wheyeFJUmkrYMb5jTyqdG9MUsINfrdz7bT@vger.kernel.org
+X-Gm-Message-State: AFuF++nSU/8KW0aKIFK2DDQcx1SPyXhnmgO2JcLaRq6vrAQXLrhhj+cy
+	EAe2qnI7keOPBHA5Hms/pUjdoquZVXh32A5g0j6m/ksdvySXL85ux3ShkYynV+QebQ==
+X-Gm-Gg: AR+sD12RVc7dhoYcn/d6WENRXpAG0QrNyh/phQRAEvUJPugIF9SxJID3/VSaf8T20vf
+	+HmfyOsOslYP4RT+uAPZVjG4rI83V6thOR2PBi33pupKLISjuwIW5kiDuWpqEspBuuD1S1MMztE
+	sw7yAcgG2ZqfbNua6KzojCRGP8pEEE1ewfUA7wiYPplUeWifoQ7go4c7l1T0Q05hYWvh1YJ298+
+	DCm+I3tYkJ6tq+NKz0LlAiX4lAaFiKiJrpo91sN/XYkSA4KVYvDlHzARpyBXSUdnTS1zw1Zy411
+	jGj0iYM2eahdn+75a3H3U4+kC9ooskXuQ0SqIfj8mQfK9QTLQsBaP8asAolfiYcansBpr3wor/K
+	wkJ/4FX6qj3MqCTHsEAza6BdgCX+lLWdrbtx/Yv/2aclWxJOXvP7coQ4XIsfeWWRsTi+utzBvx2
+	jPnGWGxGlx+aPhMSgLaLT61L2uXZWGGo3CCU2YSkTplIsQESLRP9570UM6TAcNLj93ILQE9v3rI
+	KL6sa7B5bpyyHaEynvbvLU+SCJUcnUO
+X-Received: by 2002:a05:600c:548c:b0:499:8aff:59b6 with SMTP id 5b1f17b1804b1-499c19f514emr11324295e9.14.1787345093778;
+        Fri, 21 Aug 2026 13:44:53 -0700 (PDT)
+Received: from google.com (135.91.155.104.bc.googleusercontent.com. [104.155.91.135])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-499b911584bsm40454845e9.14.2026.08.21.13.44.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 Aug 2026 13:44:52 -0700 (PDT)
+Date: Fri, 21 Aug 2026 21:44:49 +0100
+From: Vincent Donnefort <vdonnefort@google.com>
+To: Thierry Reding <thierry.reding@kernel.org>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Sowjanya Komatineni <skomatineni@nvidia.com>,
+	Luca Ceresoli <luca.ceresoli@bootlin.com>,
+	Mikko Perttunen <mperttunen@nvidia.com>,
+	Yury Norov <yury.norov@gmail.com>,
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	Russell King <linux@armlinux.org.uk>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	David Hildenbrand <david@kernel.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Sumit Semwal <sumit.semwal@linaro.org>,
+	Benjamin Gaignard <benjamin.gaignard@collabora.com>,
+	Brian Starkey <Brian.Starkey@arm.com>,
+	John Stultz <jstultz@google.com>,
+	"T.J. Mercier" <tjmercier@google.com>,
+	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Chun Ng <chunn@nvidia.com>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	devicetree@vger.kernel.org, linux-tegra@vger.kernel.org,
+	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-mm@kvack.org,
+	iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org,
+	linux-trace-kernel@vger.kernel.org,
+	Thierry Reding <treding@nvidia.com>, pavan.kondeti@oss.qualcomm.com
+Subject: Re: [PATCH v4 07/10] dma-buf: heaps: Add support for Tegra VPR
+Message-ID: <aoi4wZJIutMWu9Ux@google.com>
+References: <20260807-tegra-vpr-v4-0-5510d16af89e@nvidia.com>
+ <20260807-tegra-vpr-v4-7-5510d16af89e@nvidia.com>
+ <an4MEI7lkc2p3nKI@google.com>
+ <an8K2gb1pIqbDj6-@orome>
+ <aoNDRTKCUkzd2n5G@google.com>
+ <aoQ1lhZojzsSkWHQ@orome>
+ <aoVy8dj8f3ll5-M4@google.com>
+ <aobOs0ZidWzgoHut@orome>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aobOs0ZidWzgoHut@orome>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+[...]
 
-New issues:
-- [High] The strict `size !=3D sizeof(data)` check completely breaks UAPI b=
-ackward and forward compatibility for extensible structs.
-- [Medium] Silent truncation of the 64-bit `eh_frame_hdr_start` address to =
-a 32-bit `unsigned long` during unregistration on 32-bit architectures.
+> > > Interesting. I had been thinking more along the lines of adding this
+> > > directly into memblock using a new entry in enum memblock_flags. None of
+> > > the existing ones seem to do what we need here, though some are closely
+> > > related. MEMBLOCK_SECURE or MEMBLOCK_PROTECTED are quite specific and
+> > > don't necessarily mean that we need the mapping to be page-granular, so
+> > > MEMBLOCK_PAGE_GRANULAR is perhaps clearer.
+> > 
+> > I thought it would be interesting to not have to modify memblock since it is
+> > used for all architectures, while the DT is at least slightly less widespread.
+> 
+> This isn't something that is DT specific. On the Tegra side, I suspect
+> we might need this on ACPI platforms eventually, too. And it's not an
+> ARM specific feature either. Other platforms could use shared carveouts,
+> too.
 
-Pre-existing issues:
-- [High] If `mas_erase` fails due to an out-of-memory condition, it returns=
- the target entry but leaves it in the maple tree. `__eh_frame_remove_secti=
-on` fails to check `mas_is_err(mas)`, freeing the entry while it remains ac=
-cessible in the tree.
-- [High] The unregister prctl triggers an unbounded iteration over the mapl=
-e tree while holding a spinlock, allowing an unprivileged user to cause a C=
-PU soft lockup.
---
+Agreed, and actually I have tried the memblock version and it looks quite neat!
 
---- Patch [24]: [RFC PATCH v2 24/24] unwind_user/eh_frame: Add prctl() inte=
-rface for (un)registering .eh_frame_hdr sections ---
-commit 51adfd3b1e2795e1bc35c760119a8842b4e76983
-Author: Jens Remus <jremus@linux.ibm.com>
+I will share what I have after the merge-window.
 
-unwind_user/eh_frame: Add prctl() interface for (un)registering .eh_frame_h=
-dr sections
+> 
+> > Also, cma_init_reserved_mem() could use an order 9. In that case PTE-level isn't
+> > necessary and we could just use PMD-level. Extending that support would be more
+> > cumbersome with a memblock flag than with a callback.
+> > 
+> > rmem_cma_setup() hardcoding an order 0, perhaps this isn't really a problem at
+> > the moment?
+> 
+> How so? memblock is really just used as a way of backing the CMA. How
+> CMA subdivides it doesn't really matter, right?
+> 
+> Or are you suggesting that if we use an entire PMD as granularity, we
+> could equally well remove the entire PMD from the linear mapping instead
+> of doing it page-by-page? I think that'd work really well for at least
+> VPR, since it is 1 MiB aligned anyway. Using a granularity of 2 MiB is
+> easily doable.
 
-This commit adds prctl interfaces to register and unregister .eh_frame_hdr
-sections. It allows dynamic linkers to notify the kernel about the location
-of these sections using a new eh_frame_setup structure.
+Yes, that is what I meant. We could easily force a PMD-level mapping instead of
+PTE-level one. But then that means declaring another memblock flag. 
 
-Link: https://lore.kernel.org/all/20260528151023.00f5ec4e@gandalf.local.hom=
-e/
+> 
+> For anything that doesn't require a single contiguous area to be
+> protected this might be a bit more challenging since it potentially
+> wastes a lot of memory. On the other hand, a lot of this is heavily
+> custom code anyway, so the entire stack could be modified to make
+> efficient use of this (i.e. userspace could allocate a larger chunk
+> for a pool of buffers, etc.).
+> 
+> > But yeah, the alternative is to create a "memblock_mark_forcepte" (it seems
+> > memblock_setclr_flag does split memblocks) and let of_reserved_mem call that
+> > function. Finally the arm64 mmu code can simply check for the flag before
+> > calling __map_memblock. Perhaps it isn't that bad in the end?
+> 
+> It sounds like the right level of abstraction to me. But I'm not too
+> familiar with this code, so it'd be good to hear from the MM and/or ARM
+> maintainers what they think about this.
+> 
+> [...]
+> > I had in mind to extend "shared-dma-pool" to handle
+> > set_direct_map_invalid_noflush()/set_direct_map_default_noflush() based on an
+> > option. But perhaps it is better to create another separate driver. And VPR
+> > needing a specific dma-heap driver anyway, it could call the direct-map
+> > functions there too without relying on CMA to do anything?
+> 
+> I think it'd be nice to have separate APIs for this case where we know
+> the memory region is already page-granular (or, I suppose, PMD granular)
+> and removing from (or adding back to) the linear mapping is safe. That
+> way we could avoid the checks for can_set_direct_map() for each page.
+> 
+> It'd also be nice to have a version that can update the protection bits
+> for a range of pages (would map directly to update_range_prot()) instead
+> of having to manually iterate over each page in a range.
+>
 
-> diff --git a/kernel/unwind/eh_frame.c b/kernel/unwind/eh_frame.c
-> --- a/kernel/unwind/eh_frame.c
-> +++ b/kernel/unwind/eh_frame.c
+How about?
 
-[ ... ]
+  /* True if can_set_direct_map() or [start, end) is mapped at PTE-level */
+  can_set_direct_map_range(phys_addr_t start, phys_addr_t end); 
 
-> @@ -1609,3 +1610,48 @@ void eh_frame_free_mm(struct mm_struct *mm)
-> =20
->  	mtree_destroy(&mm->eh_frame_mt);
->  }
-> +
-> +int eh_frame_register(struct eh_frame_setup __user *user_data, __kernel_=
-size_t size)
-> +{
-> +	struct eh_frame_setup data;
-> +	unsigned long eh_frame_hdr_end, text_end;
-> +
-> +	if (!user_data || !size)
-> +		return -EINVAL;
-> +
-> +	if (size !=3D sizeof(data))
-> +		return -EINVAL;
+  /* Must check can_set_direct_map() or can_set_direct_map_range() first */
+  __set_direct_map_invalid_noflush(phys_addr_t start, phys_addr_t end)
+  __set_direct_map_default_noflush(phys_addr_t start, phys_addr_t end)
 
-[Severity: High]
-Does this strict size check prevent future UAPI extensions? Since this
-is a new UAPI structure, rejecting sizes that do not exactly match the
-kernel's structure size prevents extending the structure later without
-breaking backward compatibility. Would it be better to use
-copy_struct_from_user() here to handle size mismatches by verifying
-trailing zeroes?
+> A good middle-ground might be to have helpers that do the grunt work and
+> they can then be called from VPR and the shared-dma-pool drivers to have
+> pages removed from the linear mapping. VPR and similar can then perform
+> the hardware protection bits on top of that.
 
-> +
-> +	if (copy_from_user(&data, user_data, sizeof(data)))
-> +		return -EFAULT;
-> +
-> +	if (check_add_overflow(data.eh_frame_hdr_start, data.eh_frame_hdr_size,
-> +			       &eh_frame_hdr_end))
-> +		return -EINVAL;
-> +
-> +	if (check_add_overflow(data.text_start, data.text_size, &text_end))
-> +		return -EINVAL;
-> +
-> +	return eh_frame_add_section(data.eh_frame_hdr_start, eh_frame_hdr_end,
-> +				    data.text_start, text_end);
-> +}
-> +
-> +int eh_frame_unregister(struct eh_frame_setup __user *user_data, __kerne=
-l_size_t size)
-> +{
-> +	struct eh_frame_setup data;
-> +
-> +	if (!user_data || !size)
-> +		return -EINVAL;
-> +
-> +	if (size !=3D sizeof(data))
-> +		return -EINVAL;
+I believe between the reserved-memory attribute to force the last-level mappings
+and the direct map functions above, there's enough for the VPR driver?
 
-[Severity: High]
-Is this strict size check similarly going to cause extensibility issues
-for the unregister path? Like the register function, could this use
-copy_struct_from_user() to safely allow future modifications?
+-- 
+Vincent
 
-> +
-> +	if (copy_from_user(&data, user_data, sizeof(data)))
-> +		return -EFAULT;
-> +
-> +	/* Unregister only uses eh_frame_hdr_start */
-> +	if (data.eh_frame_hdr_size || data.text_start || data.text_size)
-> +		return -EINVAL;
-> +
-> +	return eh_frame_remove_section(data.eh_frame_hdr_start);
-
-[Severity: Medium]
-Will data.eh_frame_hdr_start be silently truncated on 32-bit architectures?
-The user provides a 64-bit __u64 address, but eh_frame_remove_section()
-expects an unsigned long. If the upper 32 bits are set by userspace on a
-32-bit architecture, this could truncate into a valid 32-bit address without
-any bounds validation.
-
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does exposing this function
-to userspace via prctl allow an unprivileged user to cause a CPU soft locku=
-p?
-
-Looking at eh_frame_remove_section(), it performs an unbounded iteration ov=
-er
-the maple tree while holding a spinlock:
-
-kernel/unwind/eh_frame.c:eh_frame_remove_section() {
-    ...
-    mtree_lock(&mm->eh_frame_mt);
-    mas_for_each(&mas, sec, ULONG_MAX) {
-        if (sec->eh_frame_hdr_start =3D=3D eh_frame_hdr_start) {
-            found =3D true;
-            ret |=3D __eh_frame_remove_section(&mas, sec);
-        }
-    }
-    mtree_unlock(&mm->eh_frame_mt);
-    ...
-}
-
-Could an attacker register a massive number of non-overlapping sections and
-then trigger a long unbounded loop with preemption disabled?
-
-
-[Severity: High]
-This is also a pre-existing issue, but the new prctl makes it trivially
-reachable by unprivileged userspace, which could lead to a use-after-free.
-
-When __eh_frame_remove_section() attempts to remove a section:
-
-kernel/unwind/eh_frame.c:__eh_frame_remove_section() {
-    ...
-    if (mas_erase(mas) !=3D sec) {
-        dbg_sec("mas_erase failed: text=3D%lx\n", sec->text_start);
-        return -EINVAL;
-    }
-
-    call_srcu(&eh_frame_srcu, &sec->rcu, eh_frame_free_srcu);
-    ...
-}
-
-If mas_erase() fails due to an out-of-memory condition, it can set an error
-state and return the target entry without removing it from the tree. Because
-the code does not check mas_is_err(mas), it frees the entry while it remains
-accessible in the maple tree. Should this verify mas_is_err() before freeing
-the section?
-
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821195259.2688=
-377-1-jremus@linux.ibm.com?part=3D24
+> 
+> Thierry
