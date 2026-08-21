@@ -1,60 +1,60 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B872412279;
-	Fri, 21 Aug 2026 19:41:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 823EE414A21;
+	Fri, 21 Aug 2026 19:41:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787341291; cv=none; b=iZFJfVPdteOeJzIBG2k4RVgsrLLoTmvqO+fT1dUqqZTTAONsId/IYsCTi2nWupYX6VbgN1zzX2UKRYQApFytcKQ7aywqj6m/K6yJyMUIV0cikkNBdP1nzJxecflbPahEmFQ+oKaYVd2pl+9924M+MO11ePZ3XkyO/p77wTN9jjU=
+	t=1787341292; cv=none; b=ry8BJiLalPEwPaPvP6JY4FDLVOKR692IWTE4FpyMgWDv+7imyP1fv7H9P18nizW41917yZGYdKvR8l1hvLbMOYMtbDkmWzForPgD1HZJDeTNyOo1gfalgBbAUc61mVI3ZPaEHftUxaQ1JIkJrpFn2RP/83xnl7JBmkYMyDmAUbQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787341291; c=relaxed/simple;
-	bh=2mZSChKe2jaCnmnjlyVPEJ3MMlfBO1ZSwkUSNJc4tkc=;
+	s=arc-20240116; t=1787341292; c=relaxed/simple;
+	bh=SMso42hd+frfuXR5H6F5iiFt3RWLQjWskBwH8B6nask=;
 	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=DxzONhtyXVkC/zuNqbovIDpUZuSsIWc7pWAwtH3peJCutLYgoC8cw62Es93/KJoXP9BvMZDybFWofHi+xCKQByqCYcENdYyO+Q5R5AVSvP/yDdzr+z/+YdB0HqckaTaaFhNsOQTeXi9Gy2o+KW+iFJUJ1QXkUk2WOdkGkLQBdwU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hiBw6EkR; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:Content-Type; b=YCo77j6RD8eR6FvVCVnTu7ILf7cxg96YeIBItYkn2Q0U8LZyElEtBlpRF++mHnQRvSSFftX87+5sNkwmayKimAiSURE+t8b2Tt5pTnCxCVkhXq5bBNPfWK5861GonW3P6DtWaw0dmWZ8G9rYgeO75M1DJH3ZHRacWxXcJ0rneLM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FIAiMlbm; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hiBw6EkR"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67LIVdOX1237148;
-	Fri, 21 Aug 2026 19:41:21 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FIAiMlbm"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67LIVt3j2315324;
+	Fri, 21 Aug 2026 19:41:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=3kQ7wU
-	RzWlMAZAA6IfSbykHOrE/QE2RmXZhBjKFXgY8=; b=hiBw6EkRL+ZvgchyXiqIRl
-	WwPWvS6Mh8l6xqX9AEJaRHgRCPzE+q5OQt5rIfCwTsYllKltbTIwSb6hNT8PO8Ay
-	ZX3hy2fWHrEpG5K12NGEWgbCjb0C0Ce39T6AyvMIamMQohV9Ti7/4lrXh8RG4RNM
-	AhOUalKY+Orep22tHxlcCjfcad5EjXBUlLBb1tXHASFC82zKVKpPdSbqjOl900s+
-	YQFjzABwoOLB9SFeHS/OfeP0/UfCab0vSBDqr+s0VitaQBrwWOCEMiat85U9cwvS
-	c82GPpdrfkTZ8if0pTZOZTzzeoN0aYUcnQENqX52deS+YJco5O4rXgAwUHAtthxA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=fFOEC5
+	Qp6Y0AsYOgNN88oD4YS3GYVMoVGB4jXLvKG74=; b=FIAiMlbmTPDj14mmCVIvy3
+	Vpap1j50YnjjtfRFCAZI3HRlTgR7jcbRPKhGDDyieR2pFqaMASbMmnoZ0eF3j8ql
+	OcSDW3wsBOIi2X8AXOs7O5R3ph4MeTjCAprYDJNw/7srPNw6x4vu7KspDxnjYuys
+	bn8R4cL5jfBGzNQiWEa9geM6RTpZVihpCX3bGl7RFi0Q9bPILJaJVcJaaJ/VRWQv
+	AYidL9LB5OrigNsr8uRMOloKQjkwcGnHUqQfEWtGHESEL9Plz7KB8iFLsoC4jxSj
+	BVxC1AXFm/PX9p1pfrA3AXZkyPQL6PfIkt2IM/Echafkex0LX0QwSx8Zjy4YnJMg
 	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu2knqr-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g4yu1ur7r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Aug 2026 19:41:20 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67LJfJ0b006078;
-	Fri, 21 Aug 2026 19:41:20 GMT
+	Fri, 21 Aug 2026 19:41:28 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67LJfHLp023485;
+	Fri, 21 Aug 2026 19:41:27 GMT
 Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g34ngxd5m-1
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g32twpp4r-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 21 Aug 2026 19:41:20 +0000 (GMT)
+	Fri, 21 Aug 2026 19:41:27 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67LJfGId52035862
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67LJfNOs48234790
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 21 Aug 2026 19:41:16 GMT
+	Fri, 21 Aug 2026 19:41:23 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6BE9D2004F;
-	Fri, 21 Aug 2026 19:41:16 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 58E5120063;
+	Fri, 21 Aug 2026 19:41:23 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E0A932004B;
-	Fri, 21 Aug 2026 19:41:15 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0529320043;
+	Fri, 21 Aug 2026 19:41:23 +0000 (GMT)
 Received: from [9.111.132.173] (unknown [9.111.132.173])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 21 Aug 2026 19:41:15 +0000 (GMT)
-Message-ID: <2324ecf7-212d-4127-928f-2f801a91f9c9@linux.ibm.com>
-Date: Fri, 21 Aug 2026 21:41:16 +0200
+	Fri, 21 Aug 2026 19:41:22 +0000 (GMT)
+Message-ID: <59c6b807-03c7-432b-92a1-0bfe1742411c@linux.ibm.com>
+Date: Fri, 21 Aug 2026 21:41:23 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -63,110 +63,58 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 From: Jens Remus <jremus@linux.ibm.com>
-Subject: Re: [RFC PATCH v1 10/25] unwind_user/eh_frame: Detect .eh_frame_hdr
- sections in executables
-To: sashiko-reviews@lists.linux.dev, Josh Poimboeuf <jpoimboe@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        linux-trace-kernel@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [RFC PATCH v1 12/25] unwind_user/eh_frame: Remove .eh_frame[_hdr]
+ section on detected corruption
+To: sashiko-reviews@lists.linux.dev
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik
+ <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-trace-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>
 References: <20260818144954.2320378-1-jremus@linux.ibm.com>
- <20260818144954.2320378-11-jremus@linux.ibm.com>
- <20260818151823.18F161F000E9@smtp.kernel.org>
+ <20260818144954.2320378-13-jremus@linux.ibm.com>
+ <20260818151058.D6E9F1F000E9@smtp.kernel.org>
 Content-Language: en-US
 Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20260818151823.18F161F000E9@smtp.kernel.org>
+In-Reply-To: <20260818151058.D6E9F1F000E9@smtp.kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=AdqB2XXG c=1 sm=1 tr=0 ts=6a88a9e1 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Authority-Analysis: v=2.4 cv=LsCiDHdc c=1 sm=1 tr=0 ts=6a88a9e8 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=LFt20mCCc4CE-LtB3JUA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: WBmAbrGhqh1Q4WOWoagr8c93-05RzzTf
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIxMDE1NSBTYWx0ZWRfX7yHkNY7vh88Q
- vZnMFhgRecWHcpxF8xtpbqhnTyOLJryYMaOyuUuyv/pTEsBXU8/tpmGfyL+S4g5EazR54+c2E+M
- M8CMxyxhVjEycqUoFMpxcO+iaScMuc1OD3knSCmVYuwyYQOTYmRbE+9cmfS7gm5cWBylIl4f1eA
- PRt2umcqJ73GvYkeKarOvYJC7HpOY7VefBHomyEwLZPazEr+MMcaXqBvHhDxwNqy3qu5PTRZoXb
- oHNW5FHKI11t9ZVjXqsCcuVZM41taBPrakYjFvzGpjQo8gS+lxNqOuuT+0D4as5zRNw6AWkYM22
- XvIkLu0FGPHEbmR8J/HO0CdA7K8uNWTiR2T0cXnlX4El5uZUBmVaNCi5Gz9hcpumWpzmgh+HOE9
- 9DrR2sv+ZXeMU4JVKq0ZrAulTxGOGQB1zG1x+QGlsrhKSWvSEwftNETIjJKevswpdSXRo7/mz5p
- u6gMDHAX3GJTC9knZyQ==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODIxMDE1NSBTYWx0ZWRfX1pQmm9ypW916
- ifswf7l+3mwZqmhBPEbgS0cx7VtYyJvcBkw4PolHvpA/cMqtbsS2/bo3L3HLtfvFb0xTjuxhaxN
- NbgQ5++OvqMxxlV4IPKv6pnwlj8Emm4=
-X-Proofpoint-ORIG-GUID: WBmAbrGhqh1Q4WOWoagr8c93-05RzzTf
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=VwQbUJbxAAAA:8 a=dw_N4WaJLLYh494Sxd8A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: wdQqbYKywM_rN6dD9OWLAYkQHIqcYdLN
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODIxMDE1NSBTYWx0ZWRfX9A4+2r2BTvxa
+ ewQSBy0YcTUNDeWXPxJfnnk7Lxb6nTvpmuomoujDzYUO6+LekhE6/N67Unb7vP4fxtmdbbYmxKp
+ J90NUDdKm4GaeMZ/Dem0CoTOoLPfDI4=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODIxMDE1NSBTYWx0ZWRfXzUURSPBEXUIv
+ R8zszJH3cyQYcbzhFb5jWryvjd1kmIYLoP8fiIWU1YvBWyiIEWKWeAeCOjy/r8raLrL/r3Wdcev
+ xYoGFUnB3VS2ZBgwabyB0OLnkbFwlhdihF8druPgBfPZsaTzok62O7N67Hki/75P+ljTRzYgHZX
+ tbIgRVv9nVklUlOGEaowK6RP6b7/W8YjEVZfnIV04vpXQxDCef6T0rgxRsHP1EJTODP2d36Vnkb
+ Wfw2+otD8A9T9fFOl4JRZo8wqSyk+XO8gu6Jz717qrLsBhJNIaC7zlYJyFNa/ULM5kBa2EW9plG
+ FgNgDn8gBkLv52/8SZDhTfZuk1L5eh6R+zvb0Ipr/6kTlYMPcS1x8msYD6BYpE3hYDF2cWzbgDl
+ 2uHYZZfEGKmuun7HZ43GzJXtB3GdP0IQIyYt5E3ksywHZIzEIAxqOYzt9ZHhH9Ad1JsDh7jlwL7
+ Sz5CmRb1MqdpT948dbQ==
+X-Proofpoint-ORIG-GUID: wdQqbYKywM_rN6dD9OWLAYkQHIqcYdLN
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-21_06,2026-08-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 priorityscore=1501 suspectscore=0 malwarescore=0
- impostorscore=0 adultscore=0 bulkscore=0 lowpriorityscore=0 phishscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608210155
+ malwarescore=0 spamscore=0 priorityscore=1501 lowpriorityscore=0 bulkscore=0
+ adultscore=0 suspectscore=0 impostorscore=0 clxscore=1015 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608210155
 
-On 8/18/2026 5:18 PM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
-> - [High] Missing duplication of eh_frame_mt during fork() leaves child processes without stack unwind capability.
+On 8/18/2026 5:10 PM, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+> - [High] Lockless maple tree traversal races with concurrent in-place updates due to missing MT_FLAGS_USE_RCU.
 
-This is resolved by subsequent patch "unwind_user/eh_frame: Duplicate
-registered .eh_frame[_hdr] section data on clone/fork".
+Resolved in next version of preceding "[RFC PATCH v1 08/25] unwind_user/
+eh_frame: Store .eh_frame_hdr section data in per-mm maple tree".
 
-> - [Medium] Executable segments with a trailing BSS section silently fail .eh_frame_hdr registration.
-
-Josh, Steven, any thoughts?
-
->> diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
-
->> +static void elf_add_eh_frame(const struct elf_phdr *text,
->> +			     const struct elf_phdr *eh_frame,
->> +			     unsigned long base_addr)
->> +{
->> +	unsigned long eh_frame_start, eh_frame_end,
->> +		      text_start, text_end;
->> +
->> +	eh_frame_start = base_addr + eh_frame->p_vaddr;
->> +	eh_frame_end   = eh_frame_start + eh_frame->p_memsz;
->> +
->> +	text_start   = base_addr + text->p_vaddr;
->> +	text_end     = text_start + text->p_memsz;
-> 
-> [Severity: Medium]
-> Will this silently fail to register .eh_frame_hdr for segments with a
-> trailing BSS section?
-> 
-> When an ELF executable segment has p_memsz > p_filesz crossing a page
-> boundary, the loader maps the file-backed portion and creates a separate
-> anonymous VMA for the BSS.
-> 
-> Because text_end is calculated using p_memsz, it may extend beyond the
-> file-backed VMA boundary. When this is passed to eh_frame_add_section(),
-> it uses vma_lookup() and checks if the entire segment resides in a single
-> VMA:
-> 
-> kernel/unwind/eh_frame.c:eh_frame_add_section() {
->     ...
->     if (!text_vma ||
->         !(text_vma->vm_flags & VM_EXEC) ||
->         text_end > text_vma->vm_end) {
->         return -EINVAL;
->     ...
-> }
-> 
-> Since the file-backed VMA ends before text_end in this scenario, won't the
-> text_end > text_vma->vm_end check fail and terminate registration?
-> 
->> +
->> +	/* Ignore return value, eh_frame[_hdr] section isn't critical */
->> +	eh_frame_add_section(eh_frame_start, eh_frame_end, text_start, text_end);
->> +}
-> 
-
-Thanks and regards,
+Regards,
 Jens
 -- 
 Jens Remus
