@@ -1,166 +1,162 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11AFA396B68;
-	Fri, 21 Aug 2026 20:18:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 359A2396B68;
+	Fri, 21 Aug 2026 20:18:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787343504; cv=none; b=KSvqo4gQfUH5ST+X0RujR+XqRU/Fy+HqXPppoJubUD+O6kvRSzJ0uTw8pA5hU22ICBCXJWBSPpPsBpPW5b0kEorCJ2YbmbNH6WH62ebz3FGF4AEBh1KgQc5sFf03vjWMxMuBVLnT0nQoj/tUH/W7DUs8ritc+lxLVEzoDwxhRWQ=
+	t=1787343539; cv=none; b=g5MbSrx4OBytRV9IsuR6Qb1h8LQ65Oca36OpprJPb8MvFM+FEzT9lmqX2NWWh2lliOccpmgpaJWZZbpwua+esyyYOUwOJFAJQBrphoQ0t3mixdQRnuu5x0Cd2H6rSry5SXe5cXR3YNYsx7iHGblR0Vt/C1XBwFx/Yww3gKh1fIw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787343504; c=relaxed/simple;
-	bh=Bmni72FBigp05Qk3FlR0uoXb5ptpo7Cq2JzeNLAOGc8=;
+	s=arc-20240116; t=1787343539; c=relaxed/simple;
+	bh=8yZEyxapgmB01v9Ae5J4Z7oDLAweI+XMfcSwhzlUW5Q=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BI7LZSbIOSEW+YMfmusj7OZn85QsENCAK6Gyuj7CFjOjSVhUf7ymKBxyl0cB/Ba9qH4R3aTdGL4V9+XQfYq46YWMsu4ETiVMTf2/LuD3aG+3SoyU5UHLiOdFxP4vAVJJKMMsBES7koQIc7lJBDZNCcHOocxG7qrarc+WQLwCSsE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eIcrOmPO; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=S9PLhMbBSiijLIVwFBSQ3Z7AocqN1gTPAgBWgDMlOOLTnae5yip+QJz4OZPvZrpSnfoJ6iqPertmX6ypCqZyX1gKXW9srVWsd1Ql57TtbAxVgVdIoBeRfGgwG95d3UvZwPmMFx8QISuPzSA8/iO83GmkOOPd1CQMogfP9FpN58A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cMtmexZM; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eIcrOmPO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81B8D1F000E9;
-	Fri, 21 Aug 2026 20:18:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cMtmexZM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 706821F000E9;
+	Fri, 21 Aug 2026 20:18:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787343500;
-	bh=7zPthHLJ5M0pXfnJcxALHsANPRtljH3ZF3R8Fyhe8o4=;
+	s=k20260515; t=1787343536;
+	bh=IuEwlOoOYniV6mSsiQC1T3qKIxjhdj28RuIO3pz53K8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eIcrOmPOTKCcDPfN3jcm+AlD69AwJaBA4Zz0y01QDIxtLkou5Fb8TMPkSfJJjgVje
-	 o2hNnvuanwiBmUx5+0JUiXKOy17IDIEpvfijDvdhMrOcQNy3+eLdKvVWxxNvFl1EW5
-	 t7coQQAId9VeYb9sv/MAjPcUHrBfnfFOTdB2dHx0D9h69PX4lOe8FblcBf6cV3k80k
-	 zS1WWORxdmUR6Jeoc4jjt7hWXRGoNVW9ralQihau0Tfkqu025xzruPcei+jItvtcD7
-	 1XDk4gXceAwI1EsrKWCiC4rSkoduLnl1FifwLLtan9Lyd3FCLKDDUyuMuB7s9Y/tqJ
-	 8CKpXvVNlAogA==
+	b=cMtmexZMDoge7yPAsGxNC1wrUVws7uRwlWYC0m01YH6rrQQrKFi9uObBeAZ0ZzeWP
+	 sHYCOP0+SlMK3svXI/qOKbqUrJTgTerzC7H2lutQuGjUcxEpglX2dNa/IuUzP9fitX
+	 CQ67tMn+wgjfIlg0epdpvbrbTYymY+IrSJ0k0GB3Ft6BOm28sx20CXjiPwCPdiKYZk
+	 t1KLPLEeA1epf5n7I++jDEDRtYAyxKZdxA6IwROEqd3sw4d65AOdeF/8jlYqUOLXpr
+	 qQpPvQ2nefMFEBZAUF7jX4ZZUi5rp3Mr72i6tA5ZxWy15wlR0M+rO4E6M4DOkO+kIt
+	 lMhnJOf07wyhQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v2 12/24] unwind_user/eh_frame: Remove
- .eh_frame[_hdr] section on detected corruption
+Subject: Re: [RFC PATCH v2 17/24] unwind_user/eh_frame: Add support for
+ DWARF expressions
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jens Remus" <jremus@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-trace-kernel@vger.kernel.org, linux-s390@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260821195259.2688377-13-jremus@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-trace-kernel@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260821195259.2688377-18-jremus@linux.ibm.com>
 References: <20260821195259.2688377-1-jremus@linux.ibm.com>
- <20260821195259.2688377-13-jremus@linux.ibm.com>
+ <20260821195259.2688377-18-jremus@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 21 Aug 2026 20:18:20 +0000
-Message-Id: <20260821201820.81B8D1F000E9@smtp.kernel.org>
+Date: Fri, 21 Aug 2026 20:18:56 +0000
+Message-Id: <20260821201856.706821F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-
-New issues:
-- [High] A Time-of-Check to Time-of-Use (TOCTOU) race condition allows the =
-kernel to erroneously unregister a valid, newly loaded .eh_frame section du=
-e to address reuse.
-- [High] The unwinder conflates actual memory corruption with kernel-impose=
-d safety limits, permanently disabling unwinding for valid libraries.
-
-Pre-existing issues:
-- [Critical] Unchecked error from mas_erase() leads to freeing a maple tree=
- section while it remains active in the tree, causing a Use-After-Free (UAF=
-).
-- [High] Lock drop and reacquire inside mas_erase() during mas_for_each() i=
-teration causes a TOCTOU race and memory leak.
+- [Low] Unaligned stack buffer passed to unsafe_copy_from_user() causes und=
+efined behavior
 --
 
---- Patch [12]: [RFC PATCH v2 12/24] unwind_user/eh_frame: Remove .eh_frame=
-[_hdr] section on detected corruption ---
-commit 14251b7471659003e9517d814ad704b284ed18df
+--- Patch [17]: [RFC PATCH v2 17/24] unwind_user/eh_frame: Add support for =
+DWARF expressions ---
+commit 38e0b8657cdb2bd1e95dd3bc74b1aa71e0063c9a
 Author: Jens Remus <jremus@linux.ibm.com>
 
-unwind_user/eh_frame: Remove .eh_frame[_hdr] section on detected corruption
-
-This commit adds logic to unregister .eh_frame or .eh_frame_hdr sections on
-demand when corruption is detected during lookup. This prevents repeated
-attempts to parse bad unwind sections by removing them immediately upon an
-error return.
+    unwind_user/eh_frame: Add support for DWARF expressions
+   =20
+    Enable architectures to handle DWARF expressions in DWARF CFI
+    instructions DW_CFA_def_cfa_expression, DW_CFA_expression, and
+    DW_CFA_val_expression. Limit the maximum expression length to a
+    reasonable size, while enabling architectures to override the
+    limit.
 
 > diff --git a/kernel/unwind/eh_frame.c b/kernel/unwind/eh_frame.c
-> index 21f40805b417f..327849ea4a692 100644
+> index d185187b0c34e..a98804dbe5886 100644
 > --- a/kernel/unwind/eh_frame.c
 > +++ b/kernel/unwind/eh_frame.c
-> @@ -1202,6 +1202,15 @@ int eh_frame_find(unsigned long ip, struct unwind_=
-user_frame *frame)
->  	if (!ret)
->  		ret =3D __find_frame_row(sec, &fde, ip, frame);
+> @@ -803,6 +772,27 @@ static __always_inline int __do_cfi_insn(struct eh_f=
+rame_section *sec,
+>  			break;
+>  		}
 > =20
-> +	/*
-> +	 * Unregister .eh_frame[_hdr] in case of an error,
-> +	 * e.g. EINVAL (corrupted) or EFAULT (inaccessible).
-> +	 * Keep if ENOENT (not found) or EOPNOTSUPP (unsupported CFI).
-> +	 */
-> +	if (ret && (ret !=3D -ENOENT && ret !=3D -EOPNOTSUPP))
-> +		if (eh_frame_remove_section(sec->eh_frame_hdr_start))
-> +			dbg("eh_frame_remove_section() failed\n");
+> +		case DW_CFA_def_cfa_expression: {
+> +			unsigned long expr_len;
+> +			char expr[EH_FRAME_MAX_EXPRESSION_LENGTH];
+> +
+> +			ret =3D read_uleb128(&cur, end, &expr_len);
+> +			if (ret)
+> +				return ret;
+> +
+> +			if (cur + expr_len < cur || cur + expr_len > end)
+> +				return -EINVAL;
+> +
+> +			if (expr_len > sizeof(expr))
+> +				return -EOPNOTSUPP;
+> +			unsafe_copy_from_user(&expr, (void __user *)cur, expr_len, Efault);
+
+[Severity: Low]
+Does this unaligned stack buffer passed to unsafe_copy_from_user() cause
+undefined behavior?
+
+Passing a 1-byte aligned char array to unsafe_copy_from_user() violates C
+alignment rules. In architecture-specific implementations, the macro
+explicitly casts the destination pointer to larger integer types (e.g.,
+u64 *) to perform optimized word-sized memory assignments. Dereferencing
+an unaligned pointer is Undefined Behavior in C.
+
+While x86 hardware gracefully handles unaligned memory accesses, the
+compiler's optimizer is legally allowed to assume u64 * is 8-byte aligned
+and could emit trapping instructions. Furthermore, if this generic .eh_frame
+code is later enabled on architectures with strict hardware alignment
+enforcement, it will immediately trigger alignment exceptions.
+
+Could this buffer be declared with __aligned(8) or as an array of u64?
+
+> +			ret =3D eh_frame_do_def_cfa_expression(expr, expr_len, target_ip, &ct=
+x->state);
+> +			if (ret)
+> +				return ret;
+> +			cur +=3D expr_len;
+> +			break;
+> +		}
 > +
 
-[Severity: High]
-Does this introduce a race condition with memory unmapping and mapping?
+[ ... ]
 
-If a thread is delayed after retrieving sec in eh_frame_find(), another
-thread could unmap the library and map a new library at the exact same
-virtual address, registering it with the same eh_frame_hdr_start. When the
-first thread resumes and fails to parse against the new memory, passing the
-virtual address sec->eh_frame_hdr_start to eh_frame_remove_section() seems
-like it would unintentionally remove the newly loaded, valid library's
-section.
+> @@ -970,12 +960,22 @@ static __always_inline int __do_cfi_insn(struct eh_=
+frame_section *sec,
+>  			if (ret)
+>  				return ret;
+> =20
+> -			if (cur + expr_len > end)
+> +			if (cur + expr_len < cur || cur + expr_len > end)
+>  				return -EINVAL;
+> =20
+> -			if (reg =3D=3D EH_FRAME_REG_SP || reg =3D=3D EH_FRAME_REG_FP || reg =
+=3D=3D EH_FRAME_REG_RA)
+> -				return -EOPNOTSUPP;
+> +			if (reg =3D=3D EH_FRAME_REG_SP || reg =3D=3D EH_FRAME_REG_FP || reg =
+=3D=3D EH_FRAME_REG_RA) {
+> +				char expr[EH_FRAME_MAX_EXPRESSION_LENGTH];
+> =20
+> +				if (expr_len > sizeof(expr))
+> +					return -EOPNOTSUPP;
+> +				unsafe_copy_from_user(&expr, (void __user *)cur, expr_len, Efault);
 
-[Severity: High]
-Is it safe to assume -EINVAL always means corruption?
+[Severity: Low]
+Is this the same alignment issue as above?
 
-Looking at __do_cfi_program(), it also returns -EINVAL when kernel limits
-are hit, such as exceeding EH_FRAME_CFI_INSN_LIMIT or
-EH_FRAME_MAX_CODE_ALIGN.
+Could this buffer also be declared with __aligned(8) or as an array of u64?
 
-If a valid library simply has a complex function that hits these limits,
-wouldn't this code globally and permanently disable unwinding for it by
-removing its section?
-
-[Severity: High]
-This is a pre-existing issue, but looking at eh_frame_remove_section()
-which is called here, is there a memory leak if mas_erase() drops the lock?
-
-eh_frame_remove_section() holds mtree_lock and iterates via mas_for_each().
-It calls __eh_frame_remove_section(), which calls mas_erase().
-
-If mas_erase() needs to allocate memory via mas_nomem(mas, GFP_KERNEL), it
-can drop the tree lock. If a concurrent thread inserts a new section
-covering the same range during this unlocked window, mas_erase() retries,
-erases the new section, and returns it.
-
-__eh_frame_remove_section() then sees the returned entry doesn't match sec,
-returns -EINVAL, and skips call_srcu(), potentially leaking the new section.
-
-[Severity: Critical]
-This is a pre-existing issue, but looking at __eh_frame_remove_section()
-called by eh_frame_remove_section(), can a memory allocation failure lead
-to a use-after-free?
-
-If mas_nomem() fails to allocate memory during mas_erase(), it sets an
-error state and aborts without removing the node, but still returns the
-original sec:
-
-__eh_frame_remove_section() {
-    ...
-    if (mas_erase(mas) !=3D sec) {
-        return -EINVAL;
-    }
-    call_srcu(&eh_frame_srcu, &sec->rcu, eh_frame_free_srcu);
-    ...
-}
-
-Because __eh_frame_remove_section() only checks if the return value does
-not equal sec, it misses the error state completely. It then calls
-call_srcu() to free the section while the node remains active in the maple
-tree. Could subsequent calls to eh_frame_find() load and access this freed
-memory?
-
->  	return ret;
->  }
->
+> +				if (opcode =3D=3D DW_CFA_expression)
+> +					ret =3D eh_frame_do_expression(reg, expr, expr_len, target_ip, &ctx=
+->state);
+> +				else
+> +					ret =3D eh_frame_do_val_expression(reg, expr, expr_len, target_ip, =
+&ctx->state);
+> +				if (ret)
+> +					return ret;
+> +			}
+>  			cur +=3D expr_len;
+>  			break;
+>  		}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821195259.2688=
-377-1-jremus@linux.ibm.com?part=3D12
+377-1-jremus@linux.ibm.com?part=3D17
