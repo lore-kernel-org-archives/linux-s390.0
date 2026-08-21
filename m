@@ -1,172 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f52.google.com (mail-ua1-f52.google.com [209.85.222.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EAA340F74A
-	for <linux-s390@vger.kernel.org>; Fri, 21 Aug 2026 06:44:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4D0E355F57
+	for <linux-s390@vger.kernel.org>; Fri, 21 Aug 2026 07:38:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787294678; cv=none; b=FspG3jmiv3YL2Di4hLBR4JAhYe3+eaZHciWvHzFZzDzuzSkBIYx2rkRIJm0WQXmL/9TUWADL68OSTk/5pL7V1GInRaCM/37eYL8NYQ13/mTJIHiJSRI8h+O+JJSDTn/q8TduZoaN8aEuOW2+VMCwUPl+dBembRtNRZDrUTSR+tE=
+	t=1787297937; cv=none; b=mtnaiVGjaKvik5C3idN5EYM9hvdxIvpGN+s8JEe9z184OUO/TPhjxUnec3PC6he77ENJ+nfWSpLmT7+uyZcvdAjXfl7YvIxv8ybyFAq/sHtQQw8J6Jyj2WeobtVkABvqbiVF5++8e8tm1sqS9SfKz1Zw8Nzy2Pg6pPzsZGO6SfM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787294678; c=relaxed/simple;
-	bh=6M4mxpuM0hxTo4Ry5+mkcjkCvXkLB0/Ao6T5KDLDwwE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=klPPTBy7i3/LtGc1f2D1OZhnQfvtUwucqgpYG/ziI8uk91qmml+FZEyJznv4ikyOFXdAXEXIPb8ZjTP2vUGIeeXfjQCFG7SBxx0ft5Nk3PGIXxVbEwyNvWbZ0w4yofp1sRxjBg32PlGgVbemoxS2iIWbhGmQK2AC+Wbr3VN8sjk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z1v3WHfm; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z1v3WHfm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEEE41F000E9;
-	Fri, 21 Aug 2026 06:44:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787294677;
-	bh=ylYPB6++M44bj0T+yqkSNmaazJhsWv1SwAqO4ZRd/bU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Z1v3WHfmlsgY1SFL624UgJLuWGZCZRHfSj0LDIsYww76/6VFtu/ulnJso61yUEz6Y
-	 sA7xnn9bXCswcqRi01GfTdWx7WFHi0NBcZDC2lHGC+6tPWcTzwVvf0BYWhf0hUKMZ4
-	 PsU8r/r/iL0V+NjinMRyelVPHDnKPrShPzdj/z39B7w9b0MUadpej5wcS7eq6bW3kV
-	 6fWK8N9R2ikPoNdeiaMeociJbyomN39nH68ni45VMr3nJYPaLX102KbcAad+oJKHXJ
-	 wbdT/kQk2DKG6DVneA51WrRLMSu/w/aLDsXASGE3GhvQVo9uIztFd0wR7vGPjqOvbz
-	 s1IsJbbsOL/oA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 5.10] net/smc: reject CHID-0 ACCEPT that matches an
- empty ism_dev slot
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Andrey Troshin" <drtrosh@yandex-team.ru>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260820064415.2061-1-drtrosh@yandex-team.ru>
-References: <20260820064415.2061-1-drtrosh@yandex-team.ru>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 21 Aug 2026 06:44:36 +0000
-Message-Id: <20260821064436.AEEE41F000E9@smtp.kernel.org>
+	s=arc-20240116; t=1787297937; c=relaxed/simple;
+	bh=VCOkteLiKt0ZZORXwOZNq9+Pti3s405UXxblWwP6SOk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ZDiNhECNjwNWMCxqowVMKe3D9pxvo51FjgKN58JgbfLZo41grp9jBJTsnT8yKwAqAoRl2OVR9TjUGMP0443hjfKVMkRQGO7uNxfLSLIYkI2rx8tj5C7Ci7yh7Ek/Abr8XdVucOwsYFfFpwz0+ooCAYRuZvz8lpRCjMc5Ko1//i4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.222.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-ua1-f52.google.com with SMTP id a1e0cc1a2514c-9674d727c0aso1502309241.1
+        for <linux-s390@vger.kernel.org>; Fri, 21 Aug 2026 00:38:53 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787297932; x=1787902732;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=YxslOCxTsNpYWz0xH5p+/EHLwQRWaj5GV5I5Lejizuk=;
+        b=nGdt0Z9l0ixSPtlK4hB9Mh4L6myuecGfheJgIDcGXG+30ZONCTou9Fnr0vkzJ838GO
+         cvnbkhVA+hUHfCAPg/iUhT3eH9m0VWyptNFlKCwoCmH6aW72kPvRz++gHDpVCWdb7t3C
+         /G3dvUbWau6MIcD39BvAmXQxh+evvglJ6yZc2+F+srLjkOSqiJEywbF8Ixs2eg1btxjH
+         nsMGxW1fJ22IqaOGGqoBqBOxsWNvyyNeYCkIWtuRE4l6I+8jeISAsG759Pmw5BvLBTbl
+         lKIVRVGP9M0IqsE5Ibt0fMBZmnUfkXSdgxqqnnAwujmFaqdODbROuBaMkzqyZYT/t7Ei
+         t+6g==
+X-Forwarded-Encrypted: i=1; AHgh+RooyUs2ABC1dPEo+/pYL30lvenRKdwveaJwxeVj8gSglUDGH6t3ddVBA2238glSCCpgpihT6gj4/Jp9@vger.kernel.org
+X-Gm-Message-State: AFuF++lieyJJEGkWRDyYnagu1YrK1cs/p221SaukDq2ixgWuI4wazhtS
+	aQw6qdG/NAH4PxTc9me6vkJ28rQU5nS5Sb4u2dwg+PY2IvXDIUK7bIQtJ/cJBgM5
+X-Gm-Gg: AR+sD10wlpSg/O1xvUf6YzwcYhgOg/cmGff1g2ZSJWtqVtsrkzb2jcszvVv3JLthfT2
+	3IwH74pwPOWm3wh/x1n4Gr5GQxvEtUE75PjJkw9SQ4OR1pEFu60gZf3/2K7VG53AisYP5HwINze
+	yzDM0u74O3pvYW1hWYixnXokZg7OXe6r5NS2UiXDzAdsmT7dAU6T/83UA35U4tnL/bbEkH1nOFc
+	tknthkf9oMuhjAIYUVgbiNcpPbpPSo+afOHIOMcehyO1gki3LgVnpl4d5j04RuKoOEPmbXQtF9/
+	lgjZsLy3Go2MmxFtbXKb9HNjVO7R/2ehAMPZ0i9IId3kCbCkIucM1wRsJEnQJ/owCs0taFDTMR7
+	Vq0HzZq9gBNxwVsX1PDAZhbHwC/gJkgzvtPZ5OTd8Ae8Ey0gkeH0ZDNL5+DjrjeAdIY4crSZlvc
+	ogDaB8Ch+zx89Uq8NXdgbIE2XiKityQ2+xb0pFsXUCGwTtlv9tZ1Q+iAK0PsrrgcaO4qjPWziko
+	lvYI9YGx1bG/00IegCR3iIrwMw6OPw=
+X-Received: by 2002:a05:6102:325c:20b0:745:3eb9:8de8 with SMTP id ada2fe7eead31-778f37da7bamr2394168137.17.1787297931977;
+        Fri, 21 Aug 2026 00:38:51 -0700 (PDT)
+Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com. [209.85.217.47])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-97c4e7dd648sm8411032241.6.2026.08.21.00.38.51
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 21 Aug 2026 00:38:51 -0700 (PDT)
+Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-7737a1f65c0so565279137.1
+        for <linux-s390@vger.kernel.org>; Fri, 21 Aug 2026 00:38:51 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RrrTK3t7LFcbnhXhADhXM95BN2guVSuQCLNKcrysa+4ZEVIKE6bOJ08MB7hJTEVWRawPhIbBUS6efuH@vger.kernel.org
+X-Received: by 2002:a67:e018:0:20b0:773:2805:4ad1 with SMTP id
+ ada2fe7eead31-778f2cd6fd7mr2276810137.11.1787297931367; Fri, 21 Aug 2026
+ 00:38:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260820124649.143863-1-ailiop@suse.com>
+In-Reply-To: <20260820124649.143863-1-ailiop@suse.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 21 Aug 2026 09:38:40 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdXyk=FUX0747qoONU3XFXF-4ijM_HZnS=9=gtzxaVqdrg@mail.gmail.com>
+X-Gm-Features: AcwNN1WGpochy-1GGMYjutXPFFLovKue_EC8XsygPRAbcLxb2rhu9D3jNDQFOfg
+Message-ID: <CAMuHMdXyk=FUX0747qoONU3XFXF-4ijM_HZnS=9=gtzxaVqdrg@mail.gmail.com>
+Subject: Re: [PATCH] s390: remove unused setup_profiling_timer function
+To: Anthony Iliopoulos <ailiop@suse.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+Hi Anthony,
 
-Pre-existing issues:
-- [Critical] Missing bounds checks on offsets and array counts (e.g., `ism_=
-gid_cnt`) in SMC CLC proposal message parsing allows out-of-bounds heap rea=
-ds and unbounded array writes in `smc_check_ism_v2_match`, leading to heap =
-buffer overflow.
-- [High] Missing reference counting for ISM (`smcd_dev`) and RoCE (`smc_ib_=
-device`) devices in `smc_init_info` across blocking network calls leads to =
-Use-After-Free vulnerabilities.
---
+Thanks for your patch!
 
---- Patch [1]: [PATCH 5.10] net/smc: reject CHID-0 ACCEPT that matches an e=
-mpty ism_dev slot ---
-commit 970c1e9eb76354e20020ef1c7e5ec94d92578af6
-Author: Xiang Mei <xmei5@asu.edu>
+On Fri, 21 Aug 2026 at 08:05, Anthony Iliopoulos <ailiop@suse.com> wrote:
+> setup_profiling_timer() is not used by any code at this point. Since a
 
-net/smc: reject CHID-0 ACCEPT that matches an empty ism_dev slot
+It is used by write_profile()
+https://elixir.bootlin.com/linux/v7.2/source/kernel/profile.c#L202
 
-This commit fixes a null-pointer dereference in the SMC-D client. It preven=
-ts
-a malicious peer from matching an empty ism_dev slot by replying with a CHI=
-D=20
-of 0, which previously caused a crash when accessing the link group lock.
+> default weak implementation exists, there is no need to keep this
+> arch-specific definition around. Remove it along with the now-redundant
+> profile header includes.
+>
+> Signed-off-by: Anthony Iliopoulos <ailiop@suse.com>
 
-Link: https://patch.msgid.link/20260511062138.2839584-1-xmei5@asu.edu
-Link: https://nvd.nist.gov/vuln/detail/CVE-2026-64048
+> --- a/arch/s390/kernel/smp.c
+> +++ b/arch/s390/kernel/smp.c
+> @@ -980,17 +980,6 @@ void __init smp_setup_processor_id(void)
+>         lc->spinlock_index = 0;
+>  }
+>
+> -/*
+> - * the frequency of the profiling timer can be changed
+> - * by writing a multiplier value into /proc/profile.
+> - *
+> - * usually you want to run this on all CPUs ;)
+> - */
+> -int setup_profiling_timer(unsigned int multiplier)
+> -{
+> -       return 0;
 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index 5dd4faaf7d6e5..72fa6d40916b8 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -831,7 +831,8 @@ smc_v2_determine_accepted_chid(struct smc_clc_msg_acc=
-ept_confirm_v2 *aclc,
->  	int i;
-> =20
->  	for (i =3D 0; i < ini->ism_offered_cnt + 1; i++) {
-> -		if (ini->ism_chid[i] =3D=3D ntohs(aclc->chid)) {
-> +		if (ini->ism_dev[i] &&
-> +			ini->ism_chid[i] =3D=3D ntohs(aclc->chid)) {
+Just like on SH, this returns zero (success), while the default weak
+implementation returns -EINVAL, so your change breaks write_profile().
+https://elixir.bootlin.com/linux/v7.2/source/kernel/profile.c#L181
 
-[Severity: Critical]
-This isn't a bug introduced by this patch, but is there an out-of-bounds re=
-ad=20
-and write when parsing SMC CLC proposal messages?
+> -}
+> -
+>  static ssize_t cpu_configure_show(struct device *dev,
+>                                   struct device_attribute *attr, char *buf)
+>  {
 
-When reading the packet in net/smc/smc_clc.c:smc_clc_wait_msg():
+Gr{oetje,eeting}s,
 
-    recvlen =3D datlen > SMC_CLC_RECV_BUF_LEN ? SMC_CLC_RECV_BUF_LEN : datl=
-en;
-    iov_iter_kvec(&msg.msg_iter, READ, &vec, 1, recvlen);
+                        Geert
 
-The data length is truncated to fit the fixed-size buffer. However, when=20
-extracting the v2 extension in net/smc/smc_clc.h:smc_get_clc_v2_ext():
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-    return (struct smc_clc_v2_extension *)
-           ((u8 *)prop_smcd +
-           offsetof(struct smc_clc_msg_smcd, v2_ext_offset) +
-           sizeof(prop_smcd->v2_ext_offset) +
-           ntohs(prop_smcd->v2_ext_offset));
-
-Does this calculate an out-of-bounds pointer because the unvalidated=20
-v2_ext_offset is not checked against the truncated buffer boundary?
-
-This appears to lead to an out-of-bounds read when checking array counts li=
-ke=20
-ism_gid_cnt in net/smc/smc_clc.c:smc_clc_msg_prop_valid().
-
-Furthermore, in net/smc/af_smc.c:smc_find_ism_v2_device_serv(), the loop=20
-iterates up to this unvalidated ism_gid_cnt:
-
-    for (i =3D 1; i <=3D smc_v2_ext->hdr.ism_gid_cnt; i++) {
-        smc_check_ism_v2_match(ini,
-                               ntohs(smcd_v2_ext->gidchid[i - 1].chid),
-                               ntohll(smcd_v2_ext->gidchid[i - 1].gid),
-                               &matches);
-    }
-
-Inside net/smc/af_smc.c:smc_check_ism_v2_match():
-
-    ini->ism_peer_gid[*matches] =3D proposed_gid;
-    ini->ism_dev[*matches] =3D smcd;
-    (*matches)++;
-
-Can this overflow the fixed-size ini->ism_peer_gid and ini->ism_dev arrays=
-=20
-if the remote side controls ism_gid_cnt or repeatedly matches the same devi=
-ce,=20
-since *matches is not bounds-checked against SMC_MAX_ISM_DEVS?
-
-[Severity: High]
-This is a pre-existing issue, but does this code lack reference counting fo=
-r=20
-ISM devices across blocking network calls?
-
-In net/smc/af_smc.c:smc_find_ism_v2_device_clnt(), raw device pointers are=
-=20
-collected in the ini struct without a reference count:
-
-    ini->ism_dev[i] =3D smcd;
-    ini->ism_chid[i] =3D chid;
-
-The system then goes to sleep waiting for network data:
-net/smc/af_smc.c:__smc_connect() -> smc_connect_clc()
-
-When it resumes, the device pointer is dereferenced in=20
-net/smc/smc_core.c:smc_conn_create():
-
-    smcd =3D ini->ism_dev[ini->ism_selected];
-    lgr_list =3D &smcd->lgr_list;
-    lgr_lock =3D &smcd->lgr_lock;
-
-If a hardware hotplug event unregisters the device while blocked in=20
-smc_connect_clc(), could this lead to a use-after-free when smc_conn_create=
-()=20
-accesses the freed pointer?
-
->  			ini->ism_selected =3D i;
->  			return 0;
->  		}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260820064415.2061=
--1-drtrosh@yandex-team.ru?part=3D1
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
