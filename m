@@ -1,172 +1,115 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4553A353A91;
-	Fri, 21 Aug 2026 20:13:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51F2E381EA2;
+	Fri, 21 Aug 2026 20:15:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787343220; cv=none; b=ZY7hwDLBzHSmfrEz+CVoZ/gW5wi+Bnllumlc97rfdVXLdFJWfDv3AnPF/xZo+uWKGx/gjwZ8h32e/fYAXYxUdfzvlHEccDGvwM83wSM9aoN7iAz6V3gR1UZbj7BewxzRLPM+j9LTVILZf6UX3nvYAvS5EYplr6AMxXZN4bcU6/Y=
+	t=1787343312; cv=none; b=oo0iVlgUAtGG/Gupu5LLoHMIRFPJwiZfrH3+z/CHwRRHe6EKKCi0xLXRYYdTOrdEFx7wywAYPc/tSOiWi1jC8D7Q6KP6bdvVHUZfrtN7VCD/RF1hBn7hhFvb3qu2X9lrstR5Cj6kFp5waNr9MC/RZwF0rqXbydewIYNM38OmXmc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787343220; c=relaxed/simple;
-	bh=ynlUrqc3dY8P00mA3z+SbNe+S+mvotQU5mcQHOYtmZ0=;
+	s=arc-20240116; t=1787343312; c=relaxed/simple;
+	bh=vTAW6aePFHznFWM51eOCvF8SOTdWSFCLGk6LGyeMb0s=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=JETBrwq2HuWOcXNZsbtXKjWbz4TtQw0zSHsyT1FTxMlFLZnI7pTohUU2/j3XUMFEgIXrL9DCKAjvjzjPJxGvp2dQ4f/vd5OtYoRBtEKJacKuGDI1peg/n6mn34vnOcBjDNZahlvCd9Dx2CvrkEdqoP6+sZbgL6pUd2rkPmN66nY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AGbRfXKx; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Qro7cj6+zRN3rO5WJeeG33kp3ujKYgO+2nK3e5VZ3TRb3R+iT7c6bvxL8Zp1hwFmPZGv+3hrTa/a+xvcQ4bjfQoJGIYnVXfedDqy0kvuO8NhZABg6CRgshLC+h8tI7eValY8JA8SL0koDbLvAOrxLT4uMMlDp/6toXVS0pMn7TY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=da9dUjtL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AGbRfXKx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86FF71F000E9;
-	Fri, 21 Aug 2026 20:13:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="da9dUjtL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4285E1F000E9;
+	Fri, 21 Aug 2026 20:15:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787343218;
-	bh=HxgBGrATYxO22YAcZVsj8yVFPx5my9CwVN/eMfp225Q=;
+	s=k20260515; t=1787343310;
+	bh=XEhmYloVQMvizsPafldvM98GumTbyJkKEZLAw0ngVVQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AGbRfXKxiUv06nKNyfUNDabno/WUPggt6LbE2l+85efdZ/RwggMPbyOrBq98YcHpo
-	 MdvEWkcHQ21uodX9SM2HnqX8qZ0DpkbsSScf6sattjlLPEtHQ6q0oPEETtMcerYH6k
-	 tjjU1SmyveaO+br7CFeDy5UYZwYk73WQUp5QoYpa6J9KBrPcB2j1YatQW5hw8zMpCe
-	 DZ/pY3QVDckK96RG1wZ9STwicMKjRrf34MZBsSjYvECWqS06rBAI4FBI5nFsk33hAF
-	 PxckM6XnzUMCZo+t7Z35NP3fd2b+9hJXki6pz+Mf+rcRjuUqhagaINAVBwSQ/Rt4fG
-	 keXnCwifn05ng==
+	b=da9dUjtLSeQXD0CUwBfKPOk2ro2Zkb7yY7Tm5FAvqObhOcA76AZdK9rvPHHLgHaUE
+	 iYr4VEPsa1/NyU7J9a51dASH9b1qPg8bmrZR3wWap62Zmvmkbr1m7Bl+5MlOOl+pgp
+	 nejmHeJHTCXyQgXqncxUHZI4EmrOCWmMwS7o72QH/xQVAlZc+4BRfnKNTeARDYYI4D
+	 xWjcF8K7vSvOpY8uyDAUU0txRg2SbC5eCHyx3e1LPsHDpdNgkcFa6yGGW7TsF5/e8u
+	 Nn6j4QyKcAi2+sEK+IEXe3lLu35X4v9CdsW7MsdpaX1NkG7kG6Uu5KNxQLBE1jF2l7
+	 3aRl9bkt2ping==
 From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v2 08/24] unwind_user/eh_frame: Store .eh_frame_hdr
- section data in per-mm maple tree
+Subject: Re: [RFC PATCH v2 21/24] unwind_user/eh_frame/x86: Handle DRAP
+ expressions
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jens Remus" <jremus@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, linux-trace-kernel@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260821195259.2688377-9-jremus@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-trace-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+In-Reply-To: <20260821195259.2688377-22-jremus@linux.ibm.com>
 References: <20260821195259.2688377-1-jremus@linux.ibm.com>
- <20260821195259.2688377-9-jremus@linux.ibm.com>
+ <20260821195259.2688377-22-jremus@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 21 Aug 2026 20:13:38 +0000
-Message-Id: <20260821201338.86FF71F000E9@smtp.kernel.org>
+Date: Fri, 21 Aug 2026 20:15:09 +0000
+Message-Id: <20260821201510.4285E1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Critical] If mas_erase() fails due to an Out-Of-Memory (OOM) condition, =
-it leaves the entry in the tree but __eh_frame_remove_section() still frees=
- it via call_srcu().
-- [Medium] Mixing `goto`-based error handling with scope-based cleanup help=
-ers in the same function.
-- [Low] `efi_mm` is missing the `INIT_MM_EH_FRAME` initializer.
+- [Medium] The newly added DRAP DWARF expression handling for the Frame Poi=
+nter (FP) uses a generic register rule that unconditionally fails for non-t=
+opmost frames, causing premature stack trace truncation.
 --
 
---- Patch [8]: [RFC PATCH v2 08/24] unwind_user/eh_frame: Store .eh_frame_h=
-dr section data in per-mm maple tree ---
-commit 428d78732477ec23211b2b4732a9923dae762c55
+--- Patch [21]: [RFC PATCH v2 21/24] unwind_user/eh_frame/x86: Handle DRAP =
+expressions ---
+commit a27cd1aa620d26189650492016f14beeb35a7207
 Author: Jens Remus <jremus@linux.ibm.com>
 
-unwind_user/eh_frame: Store .eh_frame_hdr section data in per-mm maple tree
+unwind_user/eh_frame/x86: Handle DRAP expressions
 
-This commit associates .eh_frame_hdr sections with their mm_struct by
-adding them to a per-mm maple tree. The tree is indexed by the
-corresponding text address ranges.
+This commit adds x86-specific handling for DRAP CFA and FP expressions.
+It supports unwinding through frames with dynamically realigned stacks by
+parsing the corresponding DWARF expressions.
 
 > diff --git a/kernel/unwind/eh_frame.c b/kernel/unwind/eh_frame.c
-> index f25a0923e315b..8cf19c5298fde 100644
 > --- a/kernel/unwind/eh_frame.c
 > +++ b/kernel/unwind/eh_frame.c
 
 [ ... ]
 
-> @@ -352,15 +355,76 @@ int eh_frame_add_section(unsigned long eh_frame_hdr=
-_start,
->  	if (ret)
->  		goto err_free;
-> =20
-> -	/* TODO nowhere to store it yet - just free it and return an error */
-> -	ret =3D -ENOSYS;
-> +	ret =3D mtree_insert_range(eh_frame_mt, sec->text_start, sec->text_end =
-- 1,
-> +				 sec, GFP_KERNEL_ACCOUNT);
-> +	if (ret) {
-> +		dbg("mtree_insert_range failed: text=3D%lx-%lx\n",
-> +		    sec->text_start, sec->text_end);
-> +		goto err_free;
-> +	}
-> +
-> +	return 0;
-> =20
->  err_free:
+> @@ -1184,6 +1209,16 @@ static __always_inline int __find_frame_row(struct=
+ eh_frame_section *sec,
+>  		frame->fp.regnum =3D ctx.state.reg_regnum[FP_IDX];
+>  		frame->fp.offset =3D 0;
+>  		break;
+> +	case REG_REGISTER_OFFSET_DEREF:
+> +		if (ctx.state.reg_regnum[FP_IDX] > UINT_MAX)
+> +			return -EINVAL;
+> +		if (ctx.state.reg_offset[FP_IDX] < INT_MIN ||
+> +		    ctx.state.reg_offset[FP_IDX] > INT_MAX)
+> +			return -EOPNOTSUPP;
+> +		frame->fp.rule =3D UNWIND_USER_RULE_REG_OFFSET_DEREF;
+> +		frame->fp.regnum =3D ctx.state.reg_regnum[FP_IDX];
+> +		frame->fp.offset =3D ctx.state.reg_offset[FP_IDX];
+> +		break;
 
 [Severity: Medium]
-Is it intentional to mix goto-based error handling with scope-based cleanup
-helpers in the same function?
+Will this generic register rule cause stack trace truncation for non-topmost
+frames?
 
-The eh_frame_add_section function uses scoped_guard for the mmap lock but
-retains a goto err_free label for allocation cleanup on failure.
+Looking at unwind_user_next_common(), UNWIND_USER_RULE_REG_OFFSET_DEREF is
+unconditionally rejected unless it's the topmost frame:
 
-The cleanup subsystem guidelines suggest that a function should either conv=
-ert
-all resources to scope-based cleanup or convert none of them to avoid
-confusing ownership semantics.
+kernel/unwind/user.c:unwind_user_next_common() {
+    ...
+    case UNWIND_USER_RULE_REG_OFFSET_DEREF:
+        if (!state->topmost || unwind_user_get_reg(&fp, frame->fp.regnum))
+            return -EINVAL;
+    ...
+}
 
->  	free_section(sec);
->  	return ret;
->  }
+Because EH_FRAME_REG_FP is tracked across frames, could this use a dedicated
+FP rule to avoid aborting the stack trace when encountering a DRAP frame th=
+at
+isn't the innermost frame?
 
-[ ... ]
-
-> +static int __eh_frame_remove_section(struct ma_state *mas,
-> +				     struct eh_frame_section *sec)
-> +{
-> +	if (mas_erase(mas) !=3D sec) {
-> +		dbg("mas_erase failed: text=3D%lx\n", sec->text_start);
-> +		return -EINVAL;
-> +	}
-> +
-> +	call_srcu(&eh_frame_srcu, &sec->rcu, eh_frame_free_srcu);
-
-[Severity: Critical]
-Can this cause a use-after-free if the maple tree erase operation fails?
-
-If mas_erase fails due to memory exhaustion (for example, during tree
-rebalancing), it leaves the entry in the tree, sets mas_is_err(mas), and
-returns the pointer to the entry.
-
-Because it returns the entry pointer, the condition mas_erase(mas) !=3D sec
-will evaluate to false, skipping the error block.
-
-The code would then proceed to call call_srcu and free the section while
-it remains linked in the maple tree, potentially causing a crash when the
-tree is traversed later. Should this check mas_is_err(mas) instead?
-
-> +
-> +	return 0;
-> +}
-
-[ ... ]
-
-> diff --git a/mm/init-mm.c b/mm/init-mm.c
-> index 3e792aad76261..25c26341fc4fb 100644
-> --- a/mm/init-mm.c
-> +++ b/mm/init-mm.c
-
-[ ... ]
-
-> @@ -48,6 +49,7 @@ struct mm_struct init_mm =3D {
->  #endif
->  	.flexible_array	=3D MM_STRUCT_FLEXIBLE_ARRAY_INIT,
->  	INIT_MM_CONTEXT(init_mm)
-> +	INIT_MM_EH_FRAME
->  };
-
-[Severity: Low]
-Does efi_mm in drivers/firmware/efi/efi.c also need this initializer?
-
-When a new initializer like INIT_MM_EH_FRAME is added to init_mm, it usually
-needs to be added to all static mm_struct definitions.
-
-Leaving it out means the eh_frame_mt maple tree inside efi_mm remains
-zero-initialized rather than properly initialized with MTREE_INIT, which
-might lead to lock splats or crashes if accessed.
+>  	default:
+>  		return -EINVAL;
+>  	}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821195259.2688=
-377-1-jremus@linux.ibm.com?part=3D8
+377-1-jremus@linux.ibm.com?part=3D21
