@@ -1,229 +1,146 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D4C72DCF61
-	for <linux-s390@vger.kernel.org>; Sat, 22 Aug 2026 12:55:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6B8D3803DD
+	for <linux-s390@vger.kernel.org>; Sat, 22 Aug 2026 13:41:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787403325; cv=none; b=Ow21BAbWTiU8FHoF1jXBcIqQtUI5WPa83ocwMf2hlmaIUdehyT0+lsTVl5r3gIj8GF5Q29Wr8uJ4nIFuN+f0Nweo2oVfV53Z3j4qGXNV9jy1HcId9sasFgaK1NNhOarH86aiesQGMav6S3fsLa5Qz2lnI84/8dnviJ3Nah9gl0w=
+	t=1787406119; cv=none; b=KhIbMGt6uyYsdW/jq1oxV59vjO2t5g357C0j0wnmApeJ0Vo+06BMIS4KiyPiHHkqZMD1mREiw/v/RxTmd1oV7BczeGvwHrjGo0NrERrnoYNX0YFEhjbSJK3RRV/zyrSSx8R6ESAvNMKUtMLy529q75ZCiE8djfZOSY8WmGzKIZw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787403325; c=relaxed/simple;
-	bh=1FVGeEDQE3pTfGRwjwHLyevKqUMhuFwkuBJ3BQ7krfI=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=TQEBvLRAMqSdHccI8d0oEfJptJ79pG4KNfiZEt4O9xjnFj1J/iFpWOKTTVoUXoySwJvnY/CgD0kcUqNrIaC5stKr2PlAqCtkQXACgYCdASIcod04XAEV0ZVKFxnHGrATL/qWUEeiEHtCiWocbAcDirDR1Zmja1QGivfW/3b9pw4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oKdxockT; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787406119; c=relaxed/simple;
+	bh=ShtTkIU3ezbFJIydaBLYCMvhC/wGsulze2uz5bQe5G4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fqDGkBcvOV4xbBLMGAdU9fQ/H4OYs+AUyAr5vrXzmzHlJh6M3cM3CnGETa4CKEGlmqOPRQHCA5iklS+YDBwu5uV259R72NbUwG40arytROg8JR2kTc5KBXKjXq7kPfyKIRsTYEV/uFHZsUx6GidjKkOBNPIK3P2tIF+1ucutFFY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=NWr95Y6+; arc=none smtp.client-ip=209.85.218.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oKdxockT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4822C1F000E9;
-	Sat, 22 Aug 2026 12:55:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787403324;
-	bh=r9+JDApt6DaCyIru+Qi1SfzwcGZrS/PDvYqMz9G8Cew=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oKdxockT6ljol7pOpcgE4KCLpy0kjNdjuq/Efhu4YpcJOhB12GoAIqivyGjuGYXc/
-	 WZPYKHCBZQ0ZUDjVGniGhLW8GJ7dE1SD87rBVaYYEJAyYA/bGDpms/jPfogl5IBLTE
-	 QW9mN9BMy5zQeKpuQBSQO7UIUxgYyUkVxxnnm66KXkylPAu1R681MIJkNegnvhEZFc
-	 LUGLwcu853AFT3OOUJxHAAbe8RLpFKH/pdCLzoC5d6AoYHvJGLrCWw9kuqissaRicu
-	 ijnA2Cckmee+yuNbOVt2tMZ3UbN8orC4JX8+7W1U//PW7/H9n3iLGbsf5wbq9UFQ3K
-	 aroiKZDbH/EZg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net] net/iucv: filter frames in afiucv_hs_rcv() by
- ingress device
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Alexandra Winter" <wintera@linux.ibm.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260821125501.3718748-1-wintera@linux.ibm.com>
-References: <20260821125501.3718748-1-wintera@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 22 Aug 2026 12:55:23 +0000
-Message-Id: <20260822125524.4822C1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="NWr95Y6+"
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-c15d3cd51b2so308586966b.3
+        for <linux-s390@vger.kernel.org>; Sat, 22 Aug 2026 06:41:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1787406114; x=1788010914; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Aj3ZYubTvLgnR11pZYHVat4EVUJdKX6AnHgTVge4+Wc=;
+        b=NWr95Y6+8gr1dd6kImBWVKkc9Ow7+W1hOqUbome1tczYJ0l7VolXq0eP+XhSlE2lop
+         cfrU27AzjWjNSHtmZZ6RuHDw63H/Aw3j1SR3ZUJxRQSBgNqaamZlv7pWt8qP16vXkNr8
+         RFuxFu+K2wzi5JQkrBzAM56wOg7B0Pw6h7m1cwa5fQL+1N4vZ9VmnU0fSvXmiMFSSbLp
+         PwxvZznnm7VHgzn3KPh0fvhzv105HloBofPB+0hansRG9f8EL4WMC1/pwoxYuig5g5ac
+         rHPjkA9B4VHQUiuu3DSUboCniUrCCNStbMPToZGTj1YRemJ0JduZoppZNUOsUtWyRRr6
+         6eqA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787406114; x=1788010914;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Aj3ZYubTvLgnR11pZYHVat4EVUJdKX6AnHgTVge4+Wc=;
+        b=YhKVrI2smvlrppmcNbueXsfcJOlHxvT7VHJMlI2us5LX/HHKlGty167zc5Hs9iLyxk
+         gpZO+2WyvxGqS222UVDsup6ONPGqifMZgypXUZwYHkLIsmGE/zIq/y//B/TC6gP8mLxP
+         dVR1OHGKLNsRfF8tsQvD/1CUc0UwJevIZGWUSIMJrMZ9IheRaOXoAIxnG7Tz4aEDtGSm
+         INMnqMXMVdBpaO+wLkWm7huUUwZosD5LHHZ/P4bx3tW5UYmrRMhQeoeO5Z13FLFkT71A
+         q4V5bhzZ/2I6jQiX+4R+9D92VEdfH+0uOC3X0+yHoFiKJ842hpaUh6zNIwFoUtfNPePE
+         8ZDg==
+X-Forwarded-Encrypted: i=1; AHgh+RqL7+FQMC0FR6WLQERGZRWAqHM44+Zj2LBfj5nF/wRwKt4j7cPBKUAkM+rBRb+7pHvPaDgAVWS52HMg@vger.kernel.org
+X-Gm-Message-State: AFuF++kSJBKiVBgADzeZ+U8x3inOONFE48beeMS+dmgXI83P5fgpk6oQ
+	iSdEr/AV5xt3lGcjhsrRYGF4/+CSIH3EN1IqSZ+2fy4rVTThWC4gk2cQYkhzdrTOTrc=
+X-Gm-Gg: AR+sD108tAI1BJFLKV1Fy6O/PalJE198WC328TrAuYfjOhlb8T/6E843Pm4J9KxB375
+	51jXfjEa9kfH+kNBUFw1AxJji31NGQZXG9af2eTRwtrUdvaY2zmw2sLji0WEYTieiizVcG/0hZD
+	W2RugoCvcTE6vQSHHagZ+SAU50Zny869FdI0pvTJj8+wIlkbriMLwf9opY7RkzPGlYqfppPKqFq
+	zfHAHFR6czh4TBIhHO0IhRC2GDjMET8OJhHAkQsGCkcvo9FRl9+s/0ll5U4rQXux5S9M0xpSEwp
+	Y7fOnP492hDentnFrTIw6RUpXS6sjX7l56qTAD1JQTOpIF5XYo6PxxJPD7Ln7/Gz39ALjkBhQJ+
+	r/IlIfzc0s7cAHEjTJ+EDdJyhvshoIRqRjiI38meHnkROFray0Saz/Bq2EghgSuShDhpUWuDQVO
+	AsgNHzwapMWS52izviGeX2PoIiUZb4THWoCHpoImDNhTE5JJoWGMWYWPdd0HNNrRL7MA==
+X-Received: by 2002:a17:907:8908:b0:c21:35d0:f435 with SMTP id a640c23a62f3a-c24924db408mr547750766b.10.1787406113365;
+        Sat, 22 Aug 2026 06:41:53 -0700 (PDT)
+Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
+        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-c249606a8fasm387614266b.8.2026.08.22.06.41.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 22 Aug 2026 06:41:52 -0700 (PDT)
+Date: Sat, 22 Aug 2026 15:41:50 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: Mauricio Faria de Oliveira <mfo@igalia.com>
+Cc: Kees Cook <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>, 
+	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	kernel-dev@igalia.com, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	fsverity@lists.linux.dev, keyrings@vger.kernel.org, bpf@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-wpan@vger.kernel.org, lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+	coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-s390@vger.kernel.org, bridge@lists.linux.dev, mptcp@lists.linux.dev, 
+	rds-devel@oss.oracle.com, virtualization@lists.linux.dev
+Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
+ MODULE_SYSCTL_TABLE
+Message-ID: <aomlfGJM61qZKxx2@monoceros>
+References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
+ <20260819-sysctl-module-aliases-v3-3-aab90569365d@igalia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="akn7oxv4v2qk2wdq"
+Content-Disposition: inline
+In-Reply-To: <20260819-sysctl-module-aliases-v3-3-aab90569365d@igalia.com>
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
 
-Pre-existing issues:
-- [High] In-place modification of a potentially shared or cloned SKB withou=
-t unsharing corrupts memory for concurrent readers.
-- [High] Blind reuse of RX SKB for TX without verifying headroom causes skb=
-_under_panic (DoS) and malformed frames.
-- [High] Unprotected list traversal in afiucv_netdev_event() risks list cor=
-ruption and use-after-free.
-- [High] Socket and netdev reference leak during incoming connection errors=
- causes unbounded memory consumption and device unregister hangs.
-- [High] AF_IUCV RX handlers modify socket state from SoftIRQ context witho=
-ut checking if the socket is currently owned by the user.
-- [High] Unprivileged processes in restricted network namespaces can create=
- AF_IUCV sockets bound to host interfaces, bypassing network isolation.
---
+--akn7oxv4v2qk2wdq
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
+ MODULE_SYSCTL_TABLE
+MIME-Version: 1.0
 
---- Patch [1]: [PATCH net] net/iucv: filter frames in afiucv_hs_rcv() by in=
-gress device ---
-commit c0a4d18765a00aae7fc517041e61031313bfee8c
-Author: Alexandra Winter <wintera@linux.ibm.com>
+Hello,
 
-net/iucv: filter frames in afiucv_hs_rcv() by ingress device
+On Wed, Aug 19, 2026 at 03:16:16PM -0300, Mauricio Faria de Oliveira wrote:
+> The MODULE_SYSCTL_TABLE macro emits a struct module_sysctl_table variable
+> with pointers to a sysctl table's path and entries, and table/entry sizes.
 
-This commit fixes several issues in afiucv_hs_rcv() where frames arriving
-on any net_device could be delivered to an AF_IUCV socket purely based on
-transport header fields. It resolves problems with delivering HiperSockets
-frames to classic z/VM IUCV sockets, cross-device injection, and network
-namespace isolation bypass by strictly checking the ingress device against
-the socket's bound device.
+That new struct doesn't seem to contain any pointer?
 
-Link: https://lore.kernel.org/netdev/20260813-b4-disp-60433a46-v1-1-509e120=
-0533e@proton.me/ [1]
-Link: https://lore.kernel.org/netdev/20260815-b4-disp-dc82fde4-v1-1-e83b10b=
-22ce9@proton.me/ [2]
+> That symbol will be handled by file2alias.c (modpost) with the changes in
+> mod_devicetable.h and devicetable-offsets.c.
+>=20
+> The option macros MODULE_SYSCTL_TABLE_{DISABLE,UNIQUE_ID} can be used on
+> a per-file basis to disable the macro and change the symbol name pattern.
+>=20
+> Signed-off-by: Mauricio Faria de Oliveira <mfo@igalia.com>
+> ---
+>  include/linux/mod_devicetable.h   |  7 +++++++
+>  include/linux/sysctl.h            | 42 +++++++++++++++++++++++++++++++++=
+++++++
+>  scripts/mod/devicetable-offsets.c |  6 ++++++
+>  3 files changed, 55 insertions(+)
 
-> Third, all AF_IUCV sockets live in init_net, as iucv_sock_alloc() calls
-> sk_alloc(&init_net, ...). But even frames arriving on netdev devices in a
-> namespace can be delivered to an IUCV socket. So a process in an
-> unprivileged user and network namespace holding only the CAP_NET_RAW
-> capability valid within that namespace can send a raw ETH_P_AF_IUCV frame
-> on its own lo device and have it matched against init_net sockets.
+Please put the new struct in a separate header. Apart from not being
+about a device table, I'm currently work on removing
+<linux/mod_devicetable.h>. See commit
+ad428f5811bd7fb3d91fa002174de533f9da94d7 for more details.
 
-[Severity: High]
-This is a pre-existing issue, but does creating the socket directly in
-init_net without validating the caller's namespace allow unprivileged
-processes to escape isolation?
+Best regards
+Uwe
 
-In iucv_sock_create(), the socket is allocated unconditionally in init_net:
+--akn7oxv4v2qk2wdq
+Content-Type: application/pgp-signature; name="signature.asc"
 
-sk =3D iucv_sock_alloc(sock, protocol, GFP_KERNEL, kern);
+-----BEGIN PGP SIGNATURE-----
 
-Then in iucv_sock_bind(), it scans and allows binding to devices in
-init_net regardless of the caller's actual namespace:
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmqJpxsACgkQj4D7WH0S
+/k5bfgf9HJoNnVEr9RCdAghOTP5QqFmH5ae7Kbmnodv6c6Pi9JGIjjGbeT5eKw3e
+JkSKqdEnlVMrLoKrhneRsxwTDGPrZvrLZrPLdZwJmPWZn5Fg+kkOO9yFAGPeMsPX
+S6UP1NY9kaCiBtlcsGT9EvMWz0jWVAWX1xb7Y2WcVZJsCWdcPhvWc3/lIbw3E4o7
+PqLtSFblkQmtGl2OL4WkP6xhEPH6qQO9BAmhLVKKZwFW5/l4sHmXRrpgSJlroR3b
+iH3liIeS6wxFp/fMYuFRryGHNMXn6gC447OnOCTmGNEj7+7Y3COwSGivgubcRIzI
+RkmxkMf2Iuntnwp4oQzCbipE5EiKGA==
+=SPY4
+-----END PGP SIGNATURE-----
 
-for_each_netdev_rcu(&init_net, dev) {
-
-Could this allow an unprivileged container to create an AF_IUCV socket
-and bind it to a physical host device?
-
-> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-> index ea047bab65e7c..4e5cc9da6e068 100644
-> --- a/net/iucv/af_iucv.c
-> +++ b/net/iucv/af_iucv.c
-> @@ -2079,6 +2079,8 @@ static int afiucv_hs_rcv(struct sk_buff *skb, struc=
-t net_device *dev,
->  	sk =3D NULL;
->  	read_lock(&iucv_sk_list.lock);
->  	sk_for_each(sk, &iucv_sk_list.head) {
-> +		if (iucv_sk(sk)->hs_dev !=3D dev)
-> +			continue;
->  		if (trans_hdr->flags =3D=3D AF_IUCV_FLAG_SYN) {
->  			if ((!memcmp(&iucv_sk(sk)->src_name,
->  				     trans_hdr->destAppName, 8)) &&
-
-[Severity: High]
-This is a pre-existing issue, but does afiucv_hs_rcv() modify a potentially
-shared or cloned SKB in-place without unsharing it?
-
-Earlier in afiucv_hs_rcv(), the payload is modified directly:
-
-net/iucv/af_iucv.c:afiucv_hs_rcv() {
-    ...
-    trans_hdr =3D iucv_trans_hdr(skb);
-    EBCASC(trans_hdr->destAppName, sizeof(trans_hdr->destAppName));
-    ...
-}
-
-Since this SKB is received from packet_type delivery, could modifying it
-without calling skb_unshare() or skb_cow() corrupt data for concurrent
-readers like packet sniffers?
-
-Furthermore, afiucv_swap_src_dest() also prepends data using skb_push()
-and memset() on this same SKB.
-
-[Severity: High]
-This is another pre-existing issue, but is there a risk of an
-skb_under_panic when rejecting a connection?
-
-When an incoming SYN frame is rejected, the unmodified RX SKB is passed
-to afiucv_swap_src_dest() via afiucv_hs_callback_syn():
-
-net/iucv/af_iucv.c:afiucv_swap_src_dest() {
-    ...
-    skb_push(skb, ETH_HLEN);
-    ...
-}
-
-If the incoming frame was crafted with zero or limited headroom, could
-this skb_push() without checking skb_headroom() cause a kernel panic?
-The SKB is then handed directly to dev_queue_xmit() without further
-scrubbing.
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does afiucv_netdev_event()
-traverse the socket list safely?
-
-When a netdev event occurs, the list is traversed without a lock:
-
-net/iucv/af_iucv.c:afiucv_netdev_event() {
-    ...
-    sk_for_each(sk, &iucv_sk_list.head) {
-    ...
-}
-
-Since other threads can concurrently modify this list during socket
-creation or destruction, could this unprotected traversal lead to a
-use-after-free or list corruption?
-
-[Severity: High]
-This is a pre-existing issue, but does rejecting an incoming connection
-result in a socket and netdev reference leak?
-
-If afiucv_hs_callback_syn() rejects a connection, it attempts to clean up:
-
-net/iucv/af_iucv.c:afiucv_hs_callback_syn() {
-    ...
-    if (nsk)
-        iucv_sock_kill(nsk);
-    ...
-}
-
-However, the new socket was initialized with the SOCK_ZAPPED flag cleared,
-which causes iucv_sock_kill() to exit early:
-
-net/iucv/af_iucv.c:iucv_sock_kill() {
-    ...
-    if (!sock_flag(sk, SOCK_ZAPPED) || sk->sk_socket)
-        return;
-    ...
-}
-
-Could this early return skip unlinking the socket and dropping references,
-leading to unbounded memory consumption and preventing device
-unregistration?
-
-[Severity: High]
-This is a pre-existing issue, but do the AF_IUCV RX handlers safely
-mutate socket state from SoftIRQ context?
-
-Callbacks like afiucv_hs_callback_synack() acquire the bottom-half lock
-and change the state directly:
-
-net/iucv/af_iucv.c:afiucv_hs_callback_synack() {
-    ...
-    bh_lock_sock(sk);
-    ...
-    sk->sk_state =3D IUCV_CONNECTED;
-    sk->sk_state_change(sk);
-    bh_unlock_sock(sk);
-    ...
-}
-
-If a user process is concurrently calling close() and holding lock_sock(),
-could mutating the state here without checking sock_owned_by_user()
-corrupt the state machine?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821125501.3718=
-748-1-wintera@linux.ibm.com?part=3D1
+--akn7oxv4v2qk2wdq--
