@@ -1,166 +1,174 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9674346E67
-	for <linux-s390@vger.kernel.org>; Sat, 22 Aug 2026 11:17:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4DEE23EAA6
+	for <linux-s390@vger.kernel.org>; Sat, 22 Aug 2026 11:17:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787397460; cv=none; b=n15AsPvFiLBPq6YC3sgJCvk0zieeBqnzC+XOVa22y1yjiDuauPcKY2HUf2R6JD7WworM0HEStgHqC/Pj1PX3DKtSc91Nb8kOyyubY8BxT6v5W4Ljdde/4tZj01yvEWRMNLuvC1whPqGVDPEoxollkfuxt/RAI4BlQPhVrFgNKcY=
+	t=1787397461; cv=none; b=cdgG4Ly+KqdJ7DF2hSEgpODJwSfdEk/rUCKEhXBimSKeUiW+tyCHNBLPbF7JDXKJ1+tOkPb982xdCGW25NdMUmXvRQJ2m3bD3eMGVgYpm11P/J8kou85ZN+AevQGuYbth826cH9FUtY04xDKFxNJ4v1s2sI5m6EZx1YuFqpDTQI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787397460; c=relaxed/simple;
-	bh=hc2njnwhE2BdZC8uozgVpCjCArniERp3f7lqh49oDfI=;
+	s=arc-20240116; t=1787397461; c=relaxed/simple;
+	bh=8F9jBCdNuuCW3GroKIcFWWCsIG+dkpA96nsNkzeTBBk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nBC+1w6Oyx3TZpgj9YZq2ivZv9In1+QSpd70LvjbFJyuXCNrYbmgj+ySs3xJAewADDK9lxLyUU25/8dOkuVuxKzRN5CB0BZZpXHs5DyO1S12jU95+pkrzTPluE7f3pdgVPMOXq1GZOqbAMNVbIHpEuW1Yo9me5zMKtz90QtqXqw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TuTu9v0i; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=UXOXuCDywY+/xzzDJYpRDPp8NVfLgvnrr7z1kmHIAS5CDUertoWnZAy5arEXlfoJrBjq/pJzDcICD4PXygIK1kF9DIMLAYKamx4JKZPZPxl2sjbLpAVU59W+p0zxVVX46mqcwEfDJet7xmUIDuMtaJlTNVD14vLfxxa1qmaKPx4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=INhkN/8m; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TuTu9v0i"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62E771F00A3A;
-	Sat, 22 Aug 2026 11:17:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="INhkN/8m"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37A491F00A3D;
+	Sat, 22 Aug 2026 11:17:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787397458;
-	bh=YmsDItaIZ54Xm30EjytbsgtAKKpmWMl8X7UNJSILHJk=;
+	s=k20260515; t=1787397459;
+	bh=UMLPKT2pINNpP/YqIaFIdVDcE0K6gfpqwrR3S8YCPbY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=TuTu9v0is4xYU59ZwP4196VDLJOVSNB+dtRZB1ZoduyFWzEtymGlC5/eScLx8ia30
-	 2BUEn8/hy4re11rKQHlbiE4beehtZ7wrgVoOC1D0ZXR88+5dNGOKcm0YZVla1jpbBz
-	 j7NjzdVZSBKkBGEgHkUNRdhie18Siu6pqSM3nm2FNMrlaDa9udPq8l7FpaULwaA4ZZ
-	 xil4H0xZWds/kGfo4u7XgZtwQQXS9Wcv1+wbZlMRWlyMlnZGI63NVJ21XcRdCCh77R
-	 /FTpsRBtiKEkHV3HElHBaGsxA/x7JUHYqPwDXGgJ/OchUtu9VQNJlYfQvAlN9rXUqH
-	 JSOry8k9uvEfg==
+	b=INhkN/8mZxOnskUWCSo5rGxNQ1Fod6AnIHD+RATWrtsGqgOt9wl2GryvNkSHlw0Zd
+	 pu7OhiDGXeOpVMgQXU6Ftiu+46ex5/9kIqmqck3s03cxgx9F/e6dpC04ftidMfhYIV
+	 xJXpXmOO8qnF6tbKZ6ATKqDxC+Y+D0y/nrPZDsgPVnai87b9qkLb3J09PMKLSbNqDe
+	 oqKXxNMAGZOSjNUVZVBwgBM8xh+MPpKTd/O79CXuAXOD4uGEnmDcfoA/4I8tjbJIA/
+	 t8OTtrP76vcZj3b7BLsbAvlc8vNLhsdp0nq7xMPntFQUwlvHZVwVsam4W2uhEejPm1
+	 3A0/ii8B3tUyA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v2 2/3] net/iucv: claim the receive credit
- atomically
+Subject: Re: [PATCH net v2 1/3] net/iucv: only send the window update on
+ HiperSockets sockets
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Bryam Vargas" <hexlabsecurity@proton.me>
-Cc: linux-s390@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260821-b4-disp-3a6e8695-v2-2-37597ff723a8@proton.me>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260821-b4-disp-3a6e8695-v2-1-37597ff723a8@proton.me>
 References: <20260821-b4-disp-3a6e8695-v2-0-37597ff723a8@proton.me>
- <20260821-b4-disp-3a6e8695-v2-2-37597ff723a8@proton.me>
+ <20260821-b4-disp-3a6e8695-v2-1-37597ff723a8@proton.me>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Date: Sat, 22 Aug 2026 11:17:38 +0000
-Message-Id: <20260822111738.62E771F00A3A@smtp.kernel.org>
+Message-Id: <20260822111739.37A491F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Positive network drop errors leak to userspace as partial success
-- [High] Silent data loss for SOCK_STREAM when packet length exceeds MTU
+- [High] `iucv_sock_recvmsg` and `iucv_send_ctrl` perform unprotected read-=
+modify-restore operations on `sk->sk_shutdown`, clobbering concurrent state=
+ changes from `shutdown()`.
+- [High] Concurrent execution within `iucv_sock_recvmsg()` can cause a data=
+ race leading to a NULL pointer dereference of `iucv->hs_dev`.
+- [High] Iterating over `iucv_sk_list.head` without acquiring the associate=
+d lock leads to race conditions and potential use-after-free or list corrup=
+tion.
 --
 
---- Patch [2]: [PATCH net v2 2/3] net/iucv: claim the receive credit atomic=
-ally ---
-commit 20117da9fdf439cdc2d9a9928d88d8e19d4f0e83
+--- Patch [1]: [PATCH net v2 1/3] net/iucv: only send the window update on =
+HiperSockets sockets ---
+commit 50e666866fa1b6d2153e6efa369820e5171cf305
 Author: Bryam Vargas <hexlabsecurity@proton.me>
 
-net/iucv: claim the receive credit atomically
+net/iucv: only send the window update on HiperSockets sockets
 
-This commit addresses a race condition in the af_iucv HiperSockets
-transport where the receive credit counter could be subtracted multiple tim=
-es.
-It modifies the code to claim the window using atomic_xchg() right before
-queueing the packet to ensure the counter reads zero while the transmit
-is in flight.
+This commit fixes an issue where an unconditional window update on classic
+z/VM sockets can result in a spurious disconnect or a fault. It adds a check
+to only send the window update if the transport is HiperSockets.
+
+Cc: stable@vger.kernel.org
 
 > diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-> index 0bc4a15f4b565..492a45bb2bba6 100644
+> index ea047bab65e7c..0bc4a15f4b565 100644
 > --- a/net/iucv/af_iucv.c
 > +++ b/net/iucv/af_iucv.c
-
-[ ... ]
-
-> @@ -250,13 +244,22 @@ static int afiucv_hs_send(struct iucv_message *imsg=
-, struct sock *sock,
->  	}
->  	skb->protocol =3D cpu_to_be16(ETH_P_AF_IUCV);
-
-[Severity: High]
-This isn't a bug introduced by this patch, but I noticed a potential issue =
-with
-the MTU check just above this line in afiucv_hs_send():
-
-	if (skb->len > skb->dev->mtu) {
-		if (sock->sk_type =3D=3D SOCK_SEQPACKET) {
-			err =3D -EMSGSIZE;
-			goto err_free;
-		}
-		err =3D pskb_trim(skb, skb->dev->mtu);
-		if (err)
-			goto err_free;
-	}
-
-For SOCK_STREAM sockets, if the packet is larger than the MTU, the skb is
-silently truncated via pskb_trim().
-
-However, iucv_sock_sendmsg() isn't aware of this truncation and returns the=
- full
-original length to userspace on success:
-
-	err =3D afiucv_hs_send(&txmsg, sk, skb, 0);
-	...
-	release_sock(sk);
-	return len;
-
-Does this result in silent data loss, since userspace believes the entire b=
-uffer
-was successfully sent?
-
-> =20
-> +	/* Claim the receive credit here, not while building the header: every
-> +	 * way this frame can be dropped has now been ruled out, so the window
-> +	 * is zeroed only for as long as the transmit itself takes.
-> +	 */
-> +	if (flags =3D=3D AF_IUCV_FLAG_WIN || !flags) {
-> +		confirm_recv =3D atomic_xchg(&iucv->msg_recv, 0);
-> +		phs_hdr->window =3D confirm_recv;
-> +		if (confirm_recv)
-> +			phs_hdr->flags =3D phs_hdr->flags | AF_IUCV_FLAG_WIN;
-> +	}
-> +
->  	atomic_inc(&iucv->skbs_in_xmit);
->  	err =3D dev_queue_xmit(skb);
->  	if (net_xmit_eval(err)) {
->  		atomic_dec(&iucv->skbs_in_xmit);
-> -	} else {
-> -		atomic_sub(confirm_recv, &iucv->msg_recv);
-> -		WARN_ON(atomic_read(&iucv->msg_recv) < 0);
-> +		atomic_add(confirm_recv, &iucv->msg_recv);
->  	}
->  	return net_xmit_eval(err);
+> @@ -1331,7 +1331,8 @@ static int iucv_sock_recvmsg(struct socket *sock, s=
+truct msghdr *msg,
+>  		if (skb_queue_empty(&iucv->backlog_skb_q)) {
+>  			if (!list_empty(&iucv->message_q.list))
+>  				iucv_process_message_q(sk);
+> -			if (atomic_read(&iucv->msg_recv) >=3D
+> +			if (iucv->transport =3D=3D AF_IUCV_TRANS_HIPER &&
+> +			    atomic_read(&iucv->msg_recv) >=3D
+>  							iucv->msglimit / 2) {
+>  				err =3D iucv_send_ctrl(sk, AF_IUCV_FLAG_WIN);
 
 [Severity: High]
-This is a pre-existing issue, but I wanted to ask about the return value he=
-re.
+This is a pre-existing issue, but could concurrent execution within
+iucv_sock_recvmsg() cause a data race leading to a NULL pointer dereference
+of iucv->hs_dev?
 
-When dev_queue_xmit() drops a packet, it returns NET_XMIT_DROP (0x01).
-net_xmit_eval() translates NET_XMIT_DROP to 1, and returning this positive =
-value
-propagates to iucv_sock_sendmsg().
+If multiple threads execute recvmsg() concurrently on the same socket, they
+can dequeue packets and increment iucv->msg_recv without mutual exclusion
+earlier in the function:
 
-Since iucv_sock_sendmsg() passes positive error codes back to the socket la=
-yer:
+    if (atomic_read(&iucv->msg_recv) > iucv->msglimit) {
+        WARN_ON(1);
+        iucv_sock_close(sk);
+        return -EFAULT;
+    }
 
-	err =3D afiucv_hs_send(&txmsg, sk, skb, 0);
-	if (err) {
-		atomic_dec(&iucv->msg_sent);
-		goto out;
-	}
+Calling iucv_sock_close() acquires the socket lock, drops the device
+reference, and sets iucv->hs_dev =3D NULL.
 
-Could sys_sendmsg interpret the return value of 1 as 1 byte successfully se=
-nt,
-causing userspace to incorrectly assume partial success and potentially ent=
-er
-an infinite loop retrying the remaining data?
+Another concurrent thread executing recvmsg() might evaluate the send_win
+condition as true and subsequently call iucv_send_ctrl(sk, AF_IUCV_FLAG_WIN=
+).
 
-Should this be returning net_xmit_errno(err) instead of net_xmit_eval(err)?
+Since iucv_send_ctrl() accesses iucv->hs_dev via LL_RESERVED_SPACE() without
+holding the socket lock:
+
+    blen =3D sizeof(struct af_iucv_trans_hdr) +
+           LL_RESERVED_SPACE(iucv->hs_dev);
+
+wouldn't this dereference NULL if the first thread nullified the device
+pointer?
+
+[Severity: High]
+This is a pre-existing issue, but is it possible for concurrent updates to
+sk_shutdown to be lost?
+
+Looking at iucv_sock_recvmsg(), we modify sk_shutdown directly without
+holding the socket lock:
+
+    if (!rlen)
+        sk->sk_shutdown =3D sk->sk_shutdown | RCV_SHUTDOWN;
+
+Additionally, in iucv_send_ctrl(), the stale state is saved, modified, and
+blindly restored without locking:
+
+    shutdown =3D sk->sk_shutdown;
+    sk->sk_shutdown &=3D RCV_SHUTDOWN;
+    ...
+    if (shutdown)
+        sk->sk_shutdown =3D shutdown;
+
+If Thread A executes recvmsg() while Thread B concurrently executes shutdow=
+n(),
+could Thread A overwrite and erase the flags (e.g., SEND_SHUTDOWN) set by
+Thread B?
+
+[Severity: High]
+This is a pre-existing issue, but does iterating over iucv_sk_list.head
+without acquiring the associated lock in afiucv_netdev_event() lead to
+race conditions?
+
+net/iucv/af_iucv.c:afiucv_netdev_event() {
+    ...
+    case NETDEV_GOING_DOWN:
+        sk_for_each(sk, &iucv_sk_list.head) {
+            iucv =3D iucv_sk(sk);
+            if ((iucv->hs_dev =3D=3D event_dev) &&
+    ...
+}
+
+Concurrently, if a socket is created (iucv_sock_bind) or destroyed
+(iucv_sock_kill), the list is mutated under write_lock_bh(&iucv_sk_list.loc=
+k).
+
+Could this lockless traversal dereference invalid pointers or freed socket
+structures during a NETDEV_GOING_DOWN or NETDEV_REBOOT event?
+
+>  				if (err) {
+>  					sk->sk_state =3D IUCV_DISCONN;
+>  					sk->sk_state_change(sk);
+>  				}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260821-b4-disp-3a=
-6e8695-v2-0-37597ff723a8@proton.me?part=3D2
+6e8695-v2-0-37597ff723a8@proton.me?part=3D1
