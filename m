@@ -1,187 +1,142 @@
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E9373AFB06
-	for <linux-s390@vger.kernel.org>; Sun, 23 Aug 2026 22:12:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5511B355F46;
+	Mon, 24 Aug 2026 02:29:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787523166; cv=none; b=fpbTR7CjAT5DzknrgbeF9HPggbyutMqLFQ/rqPpoybGIq5zLGyER+O81tvuELrYTPtC3hWFsEs/ByBdL9UTsF8bTDwLMAo7Fo695XWLnSFIEArHKDgjU5aOnwi/+mhsbRC6bK5NVvyaCRD66HR69ZgRIu8+iEemdwBTYtbKBgaA=
+	t=1787538549; cv=none; b=bD0bNVYkFVhbCHxF5/ibQThPuHjNGufO4rw4E2L5GEeK7es01Z+MY56inQ4y7/ZJYnOyUHt9LUHTceit1FJCvwVMT+sIqTl3or59JFO7HPrtCfeTfI5+HJGjJepPI0t2RjDVIpLadlPJvOHmL/R0OiVtg2pCskkQsfdjxPOeoRI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787523166; c=relaxed/simple;
-	bh=GqPg7liRNMqrm8j4qggfPJWb6w6iifsnP6+v+SgJcSk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Tktkz8hN48s+x/SYH6gt1WgyQW13pnCJIXiCAYHqqh6EpBLjxbBIBSUeBXaHmVEaunLoZl3+1bC5N4ewd6lRKNRm+esywWl7Mpvou7Pw+MT/IpJKEHqUOcdCX56Fnjny2lolgmcmuUb4jncF0/EB4dR8RTH1zsNk7n4o0e3lfgo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=HtAiPHmN; arc=none smtp.client-ip=209.85.208.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1787538549; c=relaxed/simple;
+	bh=wfhrvztMUc4WC1jtDFqlzkk/W9KNkCIfnC44B1Tk+3Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=GECcr3gdq6sMyYvLHEtc9DTaGRxqzVzw5UymK6mO54qS+74S8Jr4BiJEPxIP0f0gS+xPLQ9hqGdGJi2H9xSdTFgHmTwLR5+V/dmvV1UpsLVXw9nqpwklmur4vCZcB3HKIwy3UpsviAMeOGe3t7kZ/oi4xXdXmJIG1Aw2Cp6pMo4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=M8sxHZ1V; arc=none smtp.client-ip=115.124.30.119
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="HtAiPHmN"
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-6a378f90555so4621435a12.3
-        for <linux-s390@vger.kernel.org>; Sun, 23 Aug 2026 15:12:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1787523160; x=1788127960; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=//7iEXuM0dwaErrYwlxiIsbco7Xb10BSWAJJRQqIeEQ=;
-        b=HtAiPHmN2cDwcdR57+nVPm79Bqmt5EFmrechceL9eOdPqvtm7XlhCdN90EfvrYvC30
-         xyiSqLbWFXgRVJ2uF7cDWOuOSFM/OtpL9Jq06wbBN9U7hl0Z1+3VDXlwRWJA1JGakqoF
-         GF5k0u5gF97lYRquh2NIOw3Jj6kZTKKJbn9W1dujbFmfFlYKMGyWLz7i98bVU34bfhD9
-         FKug+jvyVP1TCFBby0MAFYlfcWF7S2nPMhtwgA1iLzf7NwHw5j3a3vdbQVKQGzaaeqVE
-         UAmGHSVqkpdxdl8cqRT18mdu9gBcHZrbPXo/N9A9zPnVIflAQ5qUJyxZlOEMu5wwzbod
-         89ng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787523160; x=1788127960;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=//7iEXuM0dwaErrYwlxiIsbco7Xb10BSWAJJRQqIeEQ=;
-        b=a/VlUod5y8QGthUpuqK6axhwlmYuUsrpPMdYX7CHSiWIishAFOAhhxqdDb0fDME3Qm
-         8MqoQ02X7ztnVYJqW9MBgboMEoyoUo5bU2TR1yK0L5QfECHzIOll8ZcOVS+otOXEXMw1
-         ndoWUZIYjFF/SKPYkbAG9fLmxSUKGU7VQcau2OPGypGBnBtyw/imKYOXwhMff/tOEMTq
-         3X9fSOCNLKMJvEFLXZhp9IGEAek69aizyXkW9LSTLkBy1gQDKpMQUE5WrlIK9PdD0Eo6
-         yPViqL1RNgV0HF0tkrdxLs6NIwoQx4HssvKI7r1lYwL6iCDPS+2f5IR4ZTMyYG1CoKrh
-         pccw==
-X-Forwarded-Encrypted: i=1; AHgh+RqCl9aOnT7a329LXMB7+6eEWZzo5sWV95N8nenkf+PesGj0yGhh0l5KNa5QTcxRd7iAkIGqMaJ384xi@vger.kernel.org
-X-Gm-Message-State: AFuF++la4NTC+UBpYVdQidXiH+rVqlkp65+FKYrgoDCUvxbBFVmovt4q
-	8Xffm3tyNOvJlCxa7VLsJ7rCoJ5j26o4/eD1wGv5V+NjyudC2y7zDQHltbGM695aLpo=
-X-Gm-Gg: AR+sD11PprAr5oNLUz9lOt2xPAGubVrcKVlr4pRevvj6WIGu4GIpG04lxNQZqCRpJLH
-	herooFe/bMf1vKyzf2gD2V99bTHNkX99rAP+BGM9VnWS3dYzIVDzT2a7h7/Cewxz3bT9QaHZb/i
-	+vuBxeb1pfvG618uHiNH3Rzqlgf6UVXhrF7iFKiYxI6kJ5KGtY60g4QwQcwKV8Mb/duJT4oe+gZ
-	GUqCF7YW4+RpoWO5Csh4rBYI0XPS3lrQOSAxiYLhVEJKs9wMzpSpmL2n57/B5ckzs9tHG5vNCcO
-	xKLochSpfA6s1mVP2sK9B/ArexhPYOw3NA/udTGHMtV4EvA70SJnmVcxHNXa/M4CFBIxkng4J2i
-	ln9vm2D83qFtLFg+4/txElCjCJR477eZWyF4YOHwOp+yz6hwSOoDRR9piX6fieVkv3uDqKZj6ro
-	w0NFKxvH0gb1Tlx41y0IO8Z0ioH2j0GH1kjGfDE8QbYm5JK1oAtIG7RJN/Lu1ZrPiwlC7L4ruaf
-	hot
-X-Received: by 2002:a05:6402:505b:b0:69c:811f:8f5 with SMTP id 4fb4d7f45d1cf-6a42f1b9325mr25356134a12.6.1787523160405;
-        Sun, 23 Aug 2026 15:12:40 -0700 (PDT)
-Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
-        by smtp.gmail.com with UTF8SMTPSA id 4fb4d7f45d1cf-6a59e00108asm7547158a12.2.2026.08.23.15.12.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 23 Aug 2026 15:12:39 -0700 (PDT)
-Date: Mon, 24 Aug 2026 00:12:38 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Mauricio Faria de Oliveira <mfo@igalia.com>
-Cc: Kees Cook <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>, 
-	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	kernel-dev@igalia.com, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	fsverity@lists.linux.dev, keyrings@vger.kernel.org, bpf@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-wpan@vger.kernel.org, lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, 
-	coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-rdma@vger.kernel.org, 
-	linux-s390@vger.kernel.org, bridge@lists.linux.dev, mptcp@lists.linux.dev, 
-	rds-devel@oss.oracle.com, virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
- MODULE_SYSCTL_TABLE
-Message-ID: <aotteDcc588iwC6g@monoceros>
-References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
- <20260819-sysctl-module-aliases-v3-3-aab90569365d@igalia.com>
- <aomlfGJM61qZKxx2@monoceros>
- <4e3eaf1d3419e808be046035f114bf6c@igalia.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="M8sxHZ1V"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1787538538; h=From:To:Subject:Date:Message-ID:Content-Type:MIME-Version;
+	bh=4UXhK0/ZS+/QUhzyQrN4gXQO89r+IvUDRSmnUdprPco=;
+	b=M8sxHZ1V+ZHotzmMD2pdXU2qjk3Ryno5ZsIH4NFweLKoEBRcEiGAmpHkKy+FGmymaabrZsBL7PM8sL8fekjn6QCcBC8Ex8KJcfbHFE6/tyIcR+9pZnBuScFtldPl419s7wtNf19uZ2EYtqo/98FSG3evLM8lpwj5QKtfsG4+RrU=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R801e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037026112;MF=chuyf26@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0X9Rf1Qe_1787538536;
+Received: from x31j07255.sqa.na131(mailfrom:Chuyf26@linux.alibaba.com fp:SMTPD_---0X9Rf1Qe_1787538536 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 24 Aug 2026 10:28:57 +0800
+From: Yifei Chu <Chuyf26@linux.alibaba.com>
+To: alibuda@linux.alibaba.com
+Cc: dust.li@linux.alibaba.com, sidraya@linux.ibm.com, mjambigi@linux.ibm.com,
+ kuba@kernel.org, pabeni@redhat.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com, netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org
+Subject: [PATCH v4] net/smc: release the internal TCP sock on IPPROTO_SMC
+ socket creation failure
+Date: Mon, 24 Aug 2026 10:27:19 +0800
+Message-ID: <178753843966.342810.566471390946765094@linux.alibaba.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="6dsww6grbwx7uy7i"
-Content-Disposition: inline
-In-Reply-To: <4e3eaf1d3419e808be046035f114bf6c@igalia.com>
 
+IPPROTO_SMC sockets create an internal TCP sock ("clcsock") from the
+proto->init hook. When socket creation fails after proto->init has
+run - e.g. a cgroup BPF program attached to BPF_CGROUP_INET_SOCK_CREATE
+denies the socket - sk_common_release() only invokes sk_prot->destroy
+if it is set, but neither smc_inet_prot nor smc_inet6_prot defines it,
+and smc_destruct() returns early unless sk_state is SMC_CLOSED. As a
+result, every failing socket(AF_INET, SOCK_STREAM, IPPROTO_SMC) call
+leaks one tcp_sock, so an unprivileged task able to attach a deny-all
+BPF_CGROUP_INET_SOCK_CREATE program to its own cgroup can grow kernel
+memory unboundedly.
 
---6dsww6grbwx7uy7i
-Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
- MODULE_SYSCTL_TABLE
-MIME-Version: 1.0
+Add a .destroy hook to both protos that releases the clcsock via
+smc_clcsock_release(). smc_sk_init() hashes the sock into the smc
+hashinfo before the clcsock is created, and smc_diag dumps walk that
+hash dereferencing smc->clcsock without taking clcsock_release_lock,
+while sk_common_release() calls .destroy before .unhash. Unhash the
+sock before releasing the clcsock, as __smc_release() does, so a
+concurrent dump cannot observe the release; the second unhash in
+sk_common_release() is a no-op.
 
-Hello Mauricio,
+Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Assisted-by: abaci:qwen3.8-max
+Signed-off-by: Yifei Chu <Chuyf26@linux.alibaba.com>
+---
+Changes since v3:
+- no code change: use full name in Author and Signed-off-by, resend
+  as a new thread instead of a reply, as requested. Previous thread:
+  https://lore.kernel.org/all/20260813060456.b48HqF9m6NTfFXvq_PL9w_Ih493OogqA=
+qxfAHAfU74A@z/
 
-On Sat, Aug 22, 2026 at 01:57:24PM -0300, Mauricio Faria de Oliveira wrote:
-> On 2026-08-22 10:41, Uwe Kleine-K=F6nig wrote:
-> > On Wed, Aug 19, 2026 at 03:16:16PM -0300, Mauricio Faria de Oliveira wr=
-ote:
-> >> The MODULE_SYSCTL_TABLE macro emits a struct module_sysctl_table varia=
-ble
-> >> with pointers to a sysctl table's path and entries, and table/entry si=
-zes.
-> >=20
-> > That new struct doesn't seem to contain any pointer?
->=20
-> The struct module_sysctl_table fields .path and .table are pointers,
-> although with kernel_ulong_t type so that the same 32/64-bit size is
-> used in file2alias.c based on KERNEL_ELFCLASS (and not on the host,
-> which might differ with CROSS_COMPILE).
+Changes since v2 (answering the review):
+- dropped the smc->clcsock =3D NULL store: sk_alloc() zeroes the sock
+  (__GFP_ZERO / sk_prot_clear_nulls()), so it is already NULL. The
+  mutex concern does not apply either: .destroy only runs after
+  smc_sk_init() initialized clcsock_release_lock.
+- unhash the sock before releasing the clcsock in .destroy so a
+  concurrent smc_diag dump cannot observe the release
+  (sk_common_release() calls .destroy before .unhash); the second
+  unhash is a no-op. Tested on a KASAN+SMC_DIAG kernel: the v2
+  version hits a KASAN report in __smc_diag_dump() when a diag dump
+  races with failing IPPROTO_SMC socket creation, v3 stays clean
+  under the same stress.
 
-Cross compilation isn't an issue for the already existing device id
-structures; many of them also contain pointers.
-(While modpost doesn't use the pointers, the size of the structures must
-be known to correctly interpret the arrays.)
-Also sizeof(long) differs between architectures and I can compile for
-arm(32) just fine on amd64.
+ net/smc/smc_inet.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-Additionally there is hardware out there that has sizeof(void *) =3D 16
-but sizeof(long) =3D 8. Up until recently I worked on mainlining that (and
-it has business reasons only I stopped, so I guess and hope I will
-continue at some point in the future). See
-https://lwn.net/Articles/1037974/ for some details if you're interested.
-
-I would be great if your series didn't introduce a new obstacle for
-that.
-
-> >> That symbol will be handled by file2alias.c (modpost) with the changes=
- in
-> >> mod_devicetable.h and devicetable-offsets.c.
-> >>=20
-> >> The option macros MODULE_SYSCTL_TABLE_{DISABLE,UNIQUE_ID} can be used =
-on
-> >> a per-file basis to disable the macro and change the symbol name patte=
-rn.
-> >>=20
-> >> Signed-off-by: Mauricio Faria de Oliveira <mfo@igalia.com>
-> >> ---
-> >>  include/linux/mod_devicetable.h   |  7 +++++++
-> >>  include/linux/sysctl.h            | 42 ++++++++++++++++++++++++++++++=
-+++++++++
-> >>  scripts/mod/devicetable-offsets.c |  6 ++++++
-> >>  3 files changed, 55 insertions(+)
-> >=20
-> > Please put the new struct in a separate header. Apart from not being
-> > about a device table, I'm currently work on removing
-> > <linux/mod_devicetable.h>. See commit
-> > ad428f5811bd7fb3d91fa002174de533f9da94d7 for more details.
->=20
-> Sure; I looked at that earlier (thanks for the instructive commit
-> message, by the way) and found the new struct to be similar to "struct
-> cpu_feature isn't really a device_id struct" (not moved), but apparently
-> missed the trailing "fow now", which is clearer now. Fixed for v4.
-
-Yeah, I didn't move that because it was an outlier in the header as it's
-not a device id. IMHO it should go to something like
-include/linux/cpu_feature.h.
-
-Best regards
-Uwe
-
---6dsww6grbwx7uy7i
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmqLcFMACgkQj4D7WH0S
-/k74fgf+L2E+C5s7/Uv60MggM8SluqqYOIYVRQMrJ0YZ292Po2lSpcrxuhUuQU2B
-oXhO4fsc1HgZsK331x/O/bMuTOPLltQaKOsxLiMi24UglNQqmujyzSUFLnsr9NlL
-1xjI1icd6tMaie8k1PK7ynotnvtfYE9Fbl/52MAUgNFbTbWqnaXhNv+fzm/C72Cc
-xjp+GuDi0DimbriiFBYP3aUccUEUCgsrwh3Zwss3iQSaV2gZ3Y+jYlUBB3YlBSZQ
-+m5a8ZWC4FeqCD+8NXyqc01adbOF9gkilqmoa2KsUhRY9+jPqn0pQhpfPxEl6Lf9
-/YNG96sk855Er0BHcQ1R8Pg+AcsRrg==
-=t37g
------END PGP SIGNATURE-----
-
---6dsww6grbwx7uy7i--
+diff --git a/net/smc/smc_inet.c b/net/smc/smc_inet.c
+index a94084b4a498..520b666fdd8f 100644
+--- a/net/smc/smc_inet.c
++++ b/net/smc/smc_inet.c
+@@ -15,13 +15,16 @@
+=20
+ #include "smc_inet.h"
+ #include "smc.h"
++#include "smc_close.h"
+=20
+ static int smc_inet_init_sock(struct sock *sk);
++static void smc_inet_destroy_sock(struct sock *sk);
+=20
+ static struct proto smc_inet_prot =3D {
+ 	.name		=3D "INET_SMC",
+ 	.owner		=3D THIS_MODULE,
+ 	.init		=3D smc_inet_init_sock,
++	.destroy	=3D smc_inet_destroy_sock,
+ 	.hash		=3D smc_hash_sk,
+ 	.unhash		=3D smc_unhash_sk,
+ 	.release_cb	=3D smc_release_cb,
+@@ -68,6 +71,7 @@ static struct proto smc_inet6_prot =3D {
+ 	.name		=3D "INET6_SMC",
+ 	.owner		=3D THIS_MODULE,
+ 	.init		=3D smc_inet_init_sock,
++	.destroy	=3D smc_inet_destroy_sock,
+ 	.hash		=3D smc_hash_sk,
+ 	.unhash		=3D smc_unhash_sk,
+ 	.release_cb	=3D smc_release_cb,
+@@ -116,6 +120,18 @@ static int smc_inet_init_sock(struct sock *sk)
+ 	return smc_create_clcsk(net, sk, sk->sk_family);
+ }
+=20
++static void smc_inet_destroy_sock(struct sock *sk)
++{
++	/* The sock is hashed and smc_diag dumps dereference smc->clcsock
++	 * without clcsock_release_lock, while sk_common_release() calls
++	 * .destroy before .unhash. Unhash first, as __smc_release() does,
++	 * so no dump can observe the clcsock being released; the second
++	 * unhash is a no-op.
++	 */
++	sk->sk_prot->unhash(sk);
++	smc_clcsock_release(smc_sk(sk));
++}
++
+ int __init smc_inet_init(void)
+ {
+ 	int rc;
+--=20
+2.43.5
