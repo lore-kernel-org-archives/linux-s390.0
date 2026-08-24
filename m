@@ -1,78 +1,113 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6208F31F98A;
-	Mon, 24 Aug 2026 14:09:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7668D426694;
+	Mon, 24 Aug 2026 14:11:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787580560; cv=none; b=mnsUPotr4Tu+I0sorc3bOcmpDWzRNevaRvJMWfrH/GXKGRzwKxrldKvunNxNd0IhNbeS6LHgy8S3PjmB3kAT2QtX1O89jlpWLfr2tr30/2Rqe6WfDGiURLYXLrZti1iF6olpNJlpaXMPY0KsWrbZxBTsUPW5Fs5/xmtWdnk+mEM=
+	t=1787580681; cv=none; b=G9hlDr8Q955j3bIq31930ZR/ziabwrz5369yJEq1crMyTI49JSDtkH77LUWn2Zodjn8yr7TvmR7ZKqE3/dHVkxwdEOpOUBaV9+HpP4Y4/wn4vMcFRItUcBO8We+Exxv5wz7BqHznupkyEDuuiCzkKF64f8QXK7OCGgId5Pn5WIQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787580560; c=relaxed/simple;
-	bh=jtIYIYekmgbcmbY4EDH5+L9GrVLl0uau1JL10jmNV2I=;
+	s=arc-20240116; t=1787580681; c=relaxed/simple;
+	bh=b6SyPvcoegecL/KFupWyxjc3SsV/5j8jK2wnErHOLFM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=eKfzxabjAvZGjwdcbwyiDvgLbh7TwPrHsrIPKUNc8quOzd2JG/7Mo/2S2Gsu/86CGu0ol5aXfErFrcmR3ru5lPYV2MbIJerTYUElE81VPfn1I1530VkcC/MDwFfJJG+bvDvzZJdWuPNHX4DaHtjdxis7Cv2bLSWd8W9aFuabAdY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q6yGEAU7; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=X3ZYNiIUoeAjI6ckd/8il1Xdct2qyV69NSN0QHBoVgIQUbXnwsDR9wg+W9uEsw1ciygEz8xvX5ffmKaWWTFuJIIykEO7oFYDx3BxmndfgilNRflKCSG//M4TUl8gloVd0Sz4bn9j3+XVvHRlWo+puY0YHf/VghNZ2KPnLZpV8qE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c1B9IY7b; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q6yGEAU7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A20CA1F000E9;
-	Mon, 24 Aug 2026 14:09:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c1B9IY7b"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C19C1F000E9;
+	Mon, 24 Aug 2026 14:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787580559;
-	bh=/j90z4ZMjcqkw+7dwX/IPG4/jd3v3Ftki/OxTnKuLRg=;
+	s=k20260515; t=1787580679;
+	bh=0dRQeo9YyeRQLXjoo+W0U0NYvjaGkUKnDorZkkWZPJU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Q6yGEAU7HsMbRoT+F0Sh0Sb3N7x2RiFpkCJinOHRclmpqPtUEbsW3QD0M8pMfUbWX
-	 8V5u8EKdffR52qqwoBs6lwDpuKFXzXZxcJZ8350WCfv7WRg5TYSIW4L9EScb3GCiNw
-	 HSsXzCvlQt5nmbPBGfX7+HsUC8cXBlDSAKFv9zXlORfn8IrQByAPttLbPKW7K1T8tV
-	 asoz1g0FDW6npz4ygcP0HdOpxhW8Iqo9s2F1on1fBE6NQYUQWI70UVGQJ/UuFtDg2L
-	 EkxdsX+yBSAD2K/DoGL7wG58o0/lsAOsFnuw/dS3IyGaGm0RmnYpTeAcmoFPemONv2
-	 Gb74UL7wRuV/w==
+	b=c1B9IY7bLV6aCKcyFoA8Od3DYxzToD7/HtoZyNuuuRrJYtTVFKWew1SLAxCeCrZxt
+	 asRtvof8qDKUuJYVVp+eZGNmLrQiCu6wRdsY00JxzcXgySbcj268vvEP5F5S7wQCxq
+	 Mrj9olWhzbuxrLxQzBVLr8t5FOoVO0j3YKaLt5E6FjBh8SxAQy2yzhE8JtxIThwlrO
+	 QFI5/RmnuvLsB82LE5RIZcnmXYU6WjjIIwrmUDIcOweYr859vDIQWYC2hOCKli680o
+	 OApSMapE6hDeLOLbxgZcfMS+tafvaRu4RINxjTShq7+m+lykhvS6wYUL0rGfbONtwh
+	 LBFityRYDGTQQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/4] s390/vfio-ap: Fix failure to release IRQ
- notification eventfd contexts
+Subject: Re: [PATCH 4/4] s390/vfio-ap: Use AP_DOMAINS for adm_add bitmap
+ size in vfio_ap_mdev_cfg_add()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260824135850.503728-3-akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260824135850.503728-5-akrowiak@linux.ibm.com>
 References: <20260824135850.503728-1-akrowiak@linux.ibm.com>
- <20260824135850.503728-3-akrowiak@linux.ibm.com>
+ <20260824135850.503728-5-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 24 Aug 2026 14:09:18 +0000
-Message-Id: <20260824140918.A20CA1F000E9@smtp.kernel.org>
+Date: Mon, 24 Aug 2026 14:11:19 +0000
+Message-Id: <20260824141119.9C19C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> When userspace registers IRQ notification eventfds via the
-> VFIO_DEVICE_SET_IRQS ioctl, vfio_ap_set_request_irq() and
-> vfio_ap_set_cfg_change_irq() each call eventfd_ctx_fdget(), which
-> takes a reference on the eventfd_ctx and stores it in
-> matrix_mdev->req_trigger and matrix_mdev->cfg_chg_trigger
-> respectively.
->=20
-> These references are dropped only when userspace explicitly replaces
-> or clears them via a subsequent SET_IRQS call.  If the device is
-> closed without that explicit teardown - because the guest exits,
-> the VM process crashes, or the device file is simply closed -
-> neither vfio_ap_mdev_close_device() nor the remove path releases
-> these references.  The eventfd_ctx backing objects and their
-> associated file references therefore leak for the lifetime of the
-> kernel.
-> [ ... ]
-> releasing the device file before invoking close_device().
->=20
-> Fixes: bf48961f6f48e ("s390/vfio-ap: realize the VFIO_DEVICE_SET_IRQS ioc=
-tl")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+Pre-existing issues:
+- [High] Incomplete Fix / Latent Stack Buffer Overflow due to Inconsistent =
+Constant Usage
+--
+
+--- Patch [4]: [PATCH 4/4] s390/vfio-ap: Use AP_DOMAINS for adm_add bitmap =
+size in vfio_ap_mdev_cfg_add() ---
+commit 35cf2442d556c90b8b97a43b8f409fe51d21bae0
+Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+
+s390/vfio-ap: Use AP_DOMAINS for adm_add bitmap size in vfio_ap_mdev_cfg_ad=
+d()
+
+This commit changes the bitmap size constant from AP_DEVICES to AP_DOMAINS
+in vfio_ap_mdev_cfg_add() for the adm_add bitmap. The change prevents future
+issues if the constants' values ever diverge.
+
+>     Control domains are indexed by AP queue index (APQI) and their
+>     bitmaps are sized by AP_DOMAINS, not AP_DEVICES. The two
+>     constants are both 256 today so there is no functional impact,
+>     but the wrong constant is inconsistent with the two bitmap_and()
+>     calls immediately above it and with every other operation on
+>     adm/aqm bitmaps in the file, all of which correctly use
+>     AP_DOMAINS.
+
+[Severity: High]
+This is a pre-existing issue, but does every other operation correctly use
+AP_DOMAINS?
+
+Looking at vfio_ap_mdev_on_cfg_remove(), it appears AP_DEVICES is still used
+for domain masks sized by AP_DOMAINS:
+
+drivers/s390/crypto/vfio_ap_ops.c:vfio_ap_mdev_on_cfg_remove() {
+...
+	do_remove |=3D bitmap_andnot(aqrem,
+				   (unsigned long *)prev_config_info->aqm,
+				   (unsigned long *)cur_config_info->aqm,
+				   AP_DEVICES);
+	do_remove |=3D bitmap_andnot(cdrem,
+				   (unsigned long *)prev_config_info->adm,
+				   (unsigned long *)cur_config_info->adm,
+				   AP_DEVICES);
+...
+}
+
+Similarly, in vfio_ap_mdev_hot_unplug_domain():
+
+drivers/s390/crypto/vfio_ap_ops.c:vfio_ap_mdev_hot_unplug_domain() {
+...
+	DECLARE_BITMAP(apqis, AP_DOMAINS);
+
+	bitmap_zero(apqis, AP_DEVICES);
+...
+}
+
+If the constants AP_DEVICES and AP_DOMAINS ever diverge, could these
+operations cause out-of-bounds stack memory accesses?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260824135850.5037=
-28-1-akrowiak@linux.ibm.com?part=3D2
-
+28-1-akrowiak@linux.ibm.com?part=3D4
