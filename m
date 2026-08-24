@@ -1,172 +1,240 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25E897262A
-	for <linux-s390@vger.kernel.org>; Mon, 24 Aug 2026 12:59:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D6B8321457
+	for <linux-s390@vger.kernel.org>; Mon, 24 Aug 2026 13:07:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787576341; cv=none; b=nwt8cXFsvwSJmJmwHJtZbAAzXnPWY1Gap+2H0BXjVTJkNTd6D9GBu/JZxM4bcB7lFyd/IV2ftXpqehibQyK9FVh2+iFp4YmI6vtoxCmd9zoGrmC5fty+v6LbuuXZYh4ttUQMR+1R71mUwCvuISfFKOc1EPrWzxiiRWrMMC7vOPs=
+	t=1787576853; cv=none; b=MssBGXAj8FySZHriW4fmw2io3uzNSuSnbEdSiSXoJYZloa7EdUVrx9nFXr84q762dG+s2XVVroB4kZeFeOgnT6b26Gz/utzfS7XfJW3MLtOc8zuK8PK1VFnZYWmY50Mv4e9JxMYKuJmTWT8Ns3nMRyVkAD3FqXE4l5aZLBvvrrY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787576341; c=relaxed/simple;
-	bh=OfUCBHpV4KCJ5FY/vsm6RRGjTZCfCaE3wh7fqAjmDEI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=F5u3hSMyPOP63oAcmlkpvKv1Y4IDV72dA0h/gNdlnRlck46vsEZz3JND3ri0zOqH+QTwfBrkROI1wVcr5Hbvtje/eS7U55D9nNae3GMiU7PC40aFCuADRM0RQq+4+YwBnKku+M2/tDrrW55vWKrB/gObjYeo0/rcHopnIoDOIlM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NxHMhYzT; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1787576853; c=relaxed/simple;
+	bh=u5ihNkizXxWzyF5GSE/VjUlcZrXmF+6zr4JEzwJ38CA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Tr09R+3Yp4+U2TcCtAKSaH/MWkskNN2pthPwDtZwHFitrUUggAtYxdg7aXPT/ukrxOckyJ4ZwuH4NO8xe2jshWE0Bjm3Q/PHl0LDEph3RoQK1BokpGJM/Gc/ueSWEFnPwJRkFTKqZuSDGv771IoVzwdTfhvd5NlpyKa5/woFtP0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=VasDoPJ+; arc=none smtp.client-ip=209.85.221.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NxHMhYzT"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67OBVdwl1753046;
-	Mon, 24 Aug 2026 12:58:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Rl9UDe
-	uKmNise3hWbdcqR+XkfRMVwu2m6cIX4b1aLeo=; b=NxHMhYzT5K07GDUyGDPvid
-	KYXeesaIMlnqZKYO+6ZZim07pngaTjbiMfCE2MoBRvvse12mhtYuOqOfgygrbrZ+
-	SFsHj5+XbiIMa1utc0ROzJLYJhhkRt77UkB6jkgx/W+nMRiLiUJe4DFScjsA9N/N
-	dXDSzFCaHktfiS1h6bmwJZyHq5tzM8cGLoe/b4AeiG5gYe3p7FSN8cXVIalMPOcB
-	SML4RRAss+JGHUwcOTpj5TIydumssMmfG1gtVtXF1Dz/b2C+F1T2G5AKaPfoCVyJ
-	H9SupXHOIN5R4EZLJz1WrCAisUiBqkwEpTdNscYpNHWdatbNoZceam8p6WJkGczg
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g73g4hc66-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Aug 2026 12:58:47 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67OCvIcs004112;
-	Mon, 24 Aug 2026 12:58:46 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g7q3jnxxb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Aug 2026 12:58:45 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67OCwfcG21627564
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 24 Aug 2026 12:58:41 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F15B320043;
-	Mon, 24 Aug 2026 12:58:40 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CC2BC20040;
-	Mon, 24 Aug 2026 12:58:40 +0000 (GMT)
-Received: from [9.224.90.36] (unknown [9.224.90.36])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 24 Aug 2026 12:58:40 +0000 (GMT)
-Message-ID: <732e3384-34a6-4309-b3ae-a8f3eccc7dad@linux.ibm.com>
-Date: Mon, 24 Aug 2026 14:58:40 +0200
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="VasDoPJ+"
+Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-47f703a9d05so1670566f8f.0
+        for <linux-s390@vger.kernel.org>; Mon, 24 Aug 2026 06:07:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1787576849; x=1788181649; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=II0EHdpiWVifHn+uIz31c6Jp5mdC3hunRFCnEAwNy/g=;
+        b=VasDoPJ+9W3n6kop+crjHXP7TptzbDGsgfbm9Uk4NKXGd6OGSugla7VlitMZw98TK9
+         NVgdy1g8rya6Yqv+lAwmQAA7dqQjHTRt75BtuIha0W9mgx+ggKWWMmmUisJSlAMrinEf
+         e3/R/ELvI9YYRlq7rCg1cATN/Ub4gE0rcWwcfO9hgfAQupcKHPbzKdmaIZZ0D9++h+oY
+         dgvGtWeYGOvPvZVQeL6A7w6M0zsypu09XmYrqR3Iwv/cCfnEnCvT+xc+/+KUwzYHtU8o
+         EpfP/3KzoKSiw0GhTSCSkj4lZZjidkJLF+3SH2bAzDuzawyPRDr7Y4fQ0iJXmjmixqg9
+         8Dog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787576849; x=1788181649;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=II0EHdpiWVifHn+uIz31c6Jp5mdC3hunRFCnEAwNy/g=;
+        b=NhcxFOdHBOddxpt3JfIej5vqzeDLFCRf0jRhX1jkPH4fhgmza9D8eTHhagw4QEd8/I
+         ciD9V96NPb0fO6wgRCgPfiSIYzauBknHT2jrCUSxJhJGz47Sv4GYgPjEt3byu+KIYy4h
+         Sx0j7U/MD0wbhVd1A9Io9piO72XqZmdQhMaXtDi0Tio41Y+jbnwmDtV/o8ZQpVZnIKr+
+         Iu6sRGxUpemFeUXGdL20AqtRGvrl7zNrrfagmZurD9XkHmQc5z089U+J7m5R58DMB/dp
+         V9VpN7RMskMwzTEYKDtMbh2fYJTjZk0iceqPwcTlaKAJC6WKv1yRvmpk85kW4zvrMh/M
+         X7Mw==
+X-Forwarded-Encrypted: i=1; AHgh+RrqcJBtYV/xBOBpA0yVjwfzvRBKAF0UxeorUMaOX+NYIf8NjZdRFLPePIHVmESzhdc41uQxi6Klb8Er@vger.kernel.org
+X-Gm-Message-State: AFuF++lD7WjgnhC38XTD1QLmPzI9PaJATrgpZa/16AWwYJUPScR1TE8L
+	gfNBjaVVsqubDsw7JwpqXqsonWH8K9mwqjFnY/3TsL98AWJxwY4ZFvdkUyJzs6X+iw==
+X-Gm-Gg: AR+sD118SnZBE/QMzoFzBU/UW1s2LSaPwayXEg2FbdCOGK5z66dmcHbE8rcEu9zJ8vN
+	ukOeZ6nzX7Tg6hGaefUVskyamHvtrUOU7QAppoeoLwOzow0TpT1tdFm4xnMF8+pXGYAhtYVpl+B
+	V5ojmNsMqgkrjabX1yrBpY3m37uZQlb2mjheVeGxI04iZa+m2rYo2GhUlwyi2s2E8FPdIMlEDZ1
+	O+LJWX81Bq0QPYVe9Tq27bC3rJEVRhO4HkpGUciEDOaWWpBAHNr0X4b8umuuGqwmNnv/rVLqNG5
+	Z5loUQ/djDuRVEMMLx8losi3AYREbA3idYiRUB/iFJRkBNLRQ2vkBct3XF1aVDVZltiPVDFR9Gc
+	HBIdzSUidg9HFGKbhg76l/t9mnTCBDOD6oU+E+bPF6mj/nxU2TWjRsS+SK4TY4SsJ2Nj6K5GnEx
+	lClJJ20d/AJpJwVoI/KoBklS6Fqx5xbHwpFWMmLWhXKLfXp3BwCT2rRygI57XkHxCOofUHx56oN
+	aSVLV+m5Zrj16I/LrdN9EfULn9N/CEq
+X-Received: by 2002:a05:600c:8b76:b0:499:8c68:a3aa with SMTP id 5b1f17b1804b1-499b8475133mr350361245e9.13.1787576848494;
+        Mon, 24 Aug 2026 06:07:28 -0700 (PDT)
+Received: from google.com (135.91.155.104.bc.googleusercontent.com. [104.155.91.135])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-499c355e1ddsm85389525e9.5.2026.08.24.06.07.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Aug 2026 06:07:27 -0700 (PDT)
+Date: Mon, 24 Aug 2026 14:07:23 +0100
+From: Vincent Donnefort <vdonnefort@google.com>
+To: Thierry Reding <thierry.reding@kernel.org>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Jonathan Hunter <jonathanh@nvidia.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Sowjanya Komatineni <skomatineni@nvidia.com>,
+	Luca Ceresoli <luca.ceresoli@bootlin.com>,
+	Mikko Perttunen <mperttunen@nvidia.com>,
+	Yury Norov <yury.norov@gmail.com>,
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	Russell King <linux@armlinux.org.uk>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	David Hildenbrand <david@kernel.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Sumit Semwal <sumit.semwal@linaro.org>,
+	Benjamin Gaignard <benjamin.gaignard@collabora.com>,
+	Brian Starkey <Brian.Starkey@arm.com>,
+	John Stultz <jstultz@google.com>,
+	"T.J. Mercier" <tjmercier@google.com>,
+	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Chun Ng <chunn@nvidia.com>,
+	Thierry Reding <thierry.reding@gmail.com>,
+	devicetree@vger.kernel.org, linux-tegra@vger.kernel.org,
+	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-s390@vger.kernel.org, linux-mm@kvack.org,
+	iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org,
+	linux-trace-kernel@vger.kernel.org,
+	Thierry Reding <treding@nvidia.com>, pavan.kondeti@oss.qualcomm.com
+Subject: Re: [PATCH v4 07/10] dma-buf: heaps: Add support for Tegra VPR
+Message-ID: <aoxCC1yPFdutU5vB@google.com>
+References: <20260807-tegra-vpr-v4-0-5510d16af89e@nvidia.com>
+ <20260807-tegra-vpr-v4-7-5510d16af89e@nvidia.com>
+ <an4MEI7lkc2p3nKI@google.com>
+ <an8K2gb1pIqbDj6-@orome>
+ <aoNDRTKCUkzd2n5G@google.com>
+ <aoQ1lhZojzsSkWHQ@orome>
+ <aoVy8dj8f3ll5-M4@google.com>
+ <aobOs0ZidWzgoHut@orome>
+ <aoi4wZJIutMWu9Ux@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2 3/3] net/iucv: send the window update outside
- message_q.lock
-To: sashiko-reviews@lists.linux.dev, Bryam Vargas <hexlabsecurity@proton.me>
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
-References: <20260821-b4-disp-3a6e8695-v2-0-37597ff723a8@proton.me>
- <20260821-b4-disp-3a6e8695-v2-3-37597ff723a8@proton.me>
- <20260822111737.8DB721F000E9@smtp.kernel.org>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20260822111737.8DB721F000E9@smtp.kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3vD741B9jDb-JhKtm3kEK5dH6uvXLQTQ
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI0MDEwNSBTYWx0ZWRfX/71rpmWQdB40
- sWMC6CbmMEHWIWO3gHUv5Nwr+2cAKsEuovRFA2nlLsKyaUamdJ/IbU5JB9xq2cSnpgJ0+P/cYPs
- RKUJtv9dhUoX355rR3gj9HTq4QbPbqw=
-X-Proofpoint-GUID: 3vD741B9jDb-JhKtm3kEK5dH6uvXLQTQ
-X-Authority-Analysis: v=2.4 cv=JZyMa0KV c=1 sm=1 tr=0 ts=6a8c4007 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=UJCqotb1N0z-pNp_86gA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI0MDEwNSBTYWx0ZWRfXwhax+VZfa/vW
- 4RHdZYrYixLYxL0Ve6z9+7Z0fwEoZztBIEi22A5gTog6SC1snNm7vrZIOwIjx6rMNBw9McVWcAj
- ptHRWgBQ87s3jd5NEwHrPnCLUsNftAi2AZaSStu428i4yHBpkCWIxa97I78E9I1I94MoY2GRPzp
- A1bDcebs7Boch1mijudFUJa8U7eEa88yxW0MripkDvyebmp8d2MEBcml6hnKbr5mmYcfnc6TXgm
- dQCJrenUxrKOFhhYFeuUHLshgjZi9fAErFhDWG+CeTay6iXbQLzf7lwiUE3iZ9Homxy9z6pvrf3
- UCN/3sR55PmZABL2U9KasVwWPu8f0KN9qdL83GBCUKwb3CFEQQPMh7KUuxTGbGkOYW2EPuzNjiz
- VyZlp+h8o+J58V8IkmhcKxc6z3wSNTdl5MwwwK6r1+TV+OKRP1KHq5R5ztWIktqDiwmfKffGdXI
- w3kIfgBf//nh9dt4Nzg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-24_03,2026-08-24_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 clxscore=1015 adultscore=0 priorityscore=1501 impostorscore=0
- malwarescore=0 bulkscore=0 lowpriorityscore=0 suspectscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608240105
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aoi4wZJIutMWu9Ux@google.com>
 
-
-
-On 22.08.26 13:17, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 4 potential issue(s) to consider:
+On Fri, Aug 21, 2026 at 09:44:49PM +0100, Vincent Donnefort wrote:
+> [...]
 > 
-> New issues:
-> - [High] Redundant concurrent window updates cause spurious socket disconnections due to transient errors.
-> - [High] Lockless modification of `sk->sk_state` to `IUCV_DISCONN` in error path corrupts the socket state machine.
+> > > > Interesting. I had been thinking more along the lines of adding this
+> > > > directly into memblock using a new entry in enum memblock_flags. None of
+> > > > the existing ones seem to do what we need here, though some are closely
+> > > > related. MEMBLOCK_SECURE or MEMBLOCK_PROTECTED are quite specific and
+> > > > don't necessarily mean that we need the mapping to be page-granular, so
+> > > > MEMBLOCK_PAGE_GRANULAR is perhaps clearer.
+> > > 
+> > > I thought it would be interesting to not have to modify memblock since it is
+> > > used for all architectures, while the DT is at least slightly less widespread.
+> > 
+> > This isn't something that is DT specific. On the Tegra side, I suspect
+> > we might need this on ACPI platforms eventually, too. And it's not an
+> > ARM specific feature either. Other platforms could use shared carveouts,
+> > too.
 > 
-> Pre-existing issues:
-> - [Critical] Concurrent execution of `iucv_sock_recvmsg` and `iucv_sock_close` can lead to a NULL pointer dereference of `iucv->hs_dev`.
-> - [High] Lockless read-modify-write sequence on `sk->sk_shutdown` in `iucv_send_ctrl` permanently loses concurrent state updates.
-> --
+> Agreed, and actually I have tried the memblock version and it looks quite neat!
 > 
-> --- Patch [3]: [PATCH net v2 3/3] net/iucv: send the window update outside message_q.lock ---
-> commit 38dc50c2f4dfcebf699da12476bf1a5fb529484e
-> Author: Bryam Vargas <hexlabsecurity@proton.me>
+> I will share what I have after the merge-window.
 > 
-> net/iucv: send the window update outside message_q.lock
+> > 
+> > > Also, cma_init_reserved_mem() could use an order 9. In that case PTE-level isn't
+> > > necessary and we could just use PMD-level. Extending that support would be more
+> > > cumbersome with a memblock flag than with a callback.
+> > > 
+> > > rmem_cma_setup() hardcoding an order 0, perhaps this isn't really a problem at
+> > > the moment?
+> > 
+> > How so? memblock is really just used as a way of backing the CMA. How
+> > CMA subdivides it doesn't really matter, right?
+> > 
+> > Or are you suggesting that if we use an entire PMD as granularity, we
+> > could equally well remove the entire PMD from the linear mapping instead
+> > of doing it page-by-page? I think that'd work really well for at least
+> > VPR, since it is 1 MiB aligned anyway. Using a granularity of 2 MiB is
+> > easily doable.
 > 
-> This patch moves the window update control message dispatch outside the
-> message_q.lock in iucv_sock_recvmsg(). It avoids sleeping in atomic context
-> since iucv_send_ctrl() performs a GFP_KERNEL allocation. A boolean flag is
-> used to defer the send until after the lock is released.
+> Yes, that is what I meant. We could easily force a PMD-level mapping instead of
+> PTE-level one. But then that means declaring another memblock flag. 
 > 
->> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
->> --- a/net/iucv/af_iucv.c
->> +++ b/net/iucv/af_iucv.c
-> [ ... ]
->> @@ -1336,15 +1337,18 @@ static int iucv_sock_recvmsg(struct socket *sock, struct msghdr *msg,
->>  				iucv_process_message_q(sk);
->>  			if (iucv->transport == AF_IUCV_TRANS_HIPER &&
->>  			    atomic_read(&iucv->msg_recv) >=
->> -							iucv->msglimit / 2) {
->> -				err = iucv_send_ctrl(sk, AF_IUCV_FLAG_WIN);
->> -				if (err) {
->> -					sk->sk_state = IUCV_DISCONN;
->> -					sk->sk_state_change(sk);
->> -				}
->> -			}
->> +							iucv->msglimit / 2)
->> +				send_win = true;
->>  		}
->>  		spin_unlock_bh(&iucv->message_q.lock);
->> +
->> +		if (send_win) {
->> +			err = iucv_send_ctrl(sk, AF_IUCV_FLAG_WIN);
+> > 
+> > For anything that doesn't require a single contiguous area to be
+> > protected this might be a bit more challenging since it potentially
+> > wastes a lot of memory. On the other hand, a lot of this is heavily
+> > custom code anyway, so the entire stack could be modified to make
+> > efficient use of this (i.e. userspace could allocate a larger chunk
+> > for a pool of buffers, etc.).
+> > 
+> > > But yeah, the alternative is to create a "memblock_mark_forcepte" (it seems
+> > > memblock_setclr_flag does split memblocks) and let of_reserved_mem call that
+> > > function. Finally the arm64 mmu code can simply check for the flag before
+> > > calling __map_memblock. Perhaps it isn't that bad in the end?
+> > 
+> > It sounds like the right level of abstraction to me. But I'm not too
+> > familiar with this code, so it'd be good to hear from the MM and/or ARM
+> > maintainers what they think about this.
+> > 
+> > [...]
+> > > I had in mind to extend "shared-dma-pool" to handle
+> > > set_direct_map_invalid_noflush()/set_direct_map_default_noflush() based on an
+> > > option. But perhaps it is better to create another separate driver. And VPR
+> > > needing a specific dma-heap driver anyway, it could call the direct-map
+> > > functions there too without relying on CMA to do anything?
+> > 
+> > I think it'd be nice to have separate APIs for this case where we know
+> > the memory region is already page-granular (or, I suppose, PMD granular)
+> > and removing from (or adding back to) the linear mapping is safe. That
+> > way we could avoid the checks for can_set_direct_map() for each page.
+> > 
+> > It'd also be nice to have a version that can update the protection bits
+> > for a range of pages (would map directly to update_range_prot()) instead
+> > of having to manually iterate over each page in a range.
+> >
 > 
-> [Severity: High]
-> Because atomic_read(&iucv->msg_recv) is checked inside the lock, but the
-> counter is reset later inside afiucv_hs_send() without holding
-> message_q.lock, can multiple concurrent calls to iucv_sock_recvmsg() set
-> send_win to true and trigger redundant window updates?
+> How about?
 > 
+>   /* True if can_set_direct_map() or [start, end) is mapped at PTE-level */
+>   can_set_direct_map_range(phys_addr_t start, phys_addr_t end); 
+> 
+>   /* Must check can_set_direct_map() or can_set_direct_map_range() first */
+>   __set_direct_map_invalid_noflush(phys_addr_t start, phys_addr_t end)
+>   __set_direct_map_default_noflush(phys_addr_t start, phys_addr_t end)
+> 
+> > A good middle-ground might be to have helpers that do the grunt work and
+> > they can then be called from VPR and the shared-dma-pool drivers to have
+> > pages removed from the linear mapping. VPR and similar can then perform
+> > the hardware protection bits on top of that.
+> 
+> I believe between the reserved-memory attribute to force the last-level mappings
+> and the direct map functions above, there's enough for the VPR driver?
+> 
+> -- 
+> Vincent
+> 
+> > 
+> > Thierry
 
-No, because of the previous patch that is mentioned as a precondition.
+I have pushed a first version here [1]. I am waiting for the merge window to end
+before posting anything on the list, but let me know if you have any comment.
 
+[1] https://android-kvm.googlesource.com/linux/+/refs/heads/vdonnefort/ffa-lend-pool
 
-> If redundant updates are sent, could transient send buffer exhaustion cause
-> the socket to unintentionally hit the error path below and disconnect?
-
-I'm not sure I understand the question. But I think this works as designed.
-
-
-
+-- 
+Vincent
