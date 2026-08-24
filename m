@@ -1,60 +1,60 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FC253859E9;
-	Mon, 24 Aug 2026 19:26:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DAAD36308E;
+	Mon, 24 Aug 2026 19:39:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787599620; cv=none; b=UyUZzLqx83RHEPJqsjLj3U8ob4jwL/fF9RKHl2mmZ4bnWUiiIRjiCtI9wTSlcalWqjtAmKFSUm5h/z4OnEoU7+bwL0P90ZDbuk0hrQYTAoCWI+1Xn4aVCG9jc9/uQx2UP+cvZpK0C8EvgQ5faUEdsSlIIDeNuKtahkInXgLgoGc=
+	t=1787600367; cv=none; b=MXHOvq6ciJcBRo9jtFQYWhvXhaVFCm7Xqijurh9nKbZZRCjdxYfx6hKKHMyq2XVO6x+PnppJmxJ8TpuWwxZsWO/Z7AR/eWa819KkeV+z1fV/TcD4UtQHtUDTKYiTbt8wR8cA5CLiubTTJvPd8F9UX38LHxAUCkw7A/X2TUA3eYs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787599620; c=relaxed/simple;
-	bh=Gcw5UP4gGC4F289qTbPeGhJ8G0BIK5Z3mLupp8P2Fo8=;
+	s=arc-20240116; t=1787600367; c=relaxed/simple;
+	bh=ePef0YIcfKv9kA1goDXyGTRATLgMpyXqvviayrA9k18=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=e6Fj7GosuTrFoLSxLz0Gc6bLRIg2DWoTXZ6ITWPyh2pzkTSzDd6/R2eLldn3d/GmWlXdunmnO9uUmyMc68UglPexASi8FjWuMf5VJOKIlfzcH0iE223AoMDiOdzM+i0/eKZxuSgov4wZZAXAT7K1UKcWELkiCyEwOqpigMSGZG0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DalAbQri; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:Content-Type; b=ukdhaJi2GS+6pFrLwxn5fk9vkZUXwHfxnkBktAPO6ZJJkiPxnYPHeOdh8XfJifwLTp0SKZ0vsvK6I/GURsrJ42ILxkzvGKcUJ/OFND7kp5zowyKRhGBijsPiQNZTe1SFDEdEwql4GT0JCaGF6wwSG3TBpykYSmMV7PpTbe4JjuA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pGU2YGkY; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DalAbQri"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67OG1gVj2418100;
-	Mon, 24 Aug 2026 19:26:54 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pGU2YGkY"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67OJVnhg985218;
+	Mon, 24 Aug 2026 19:39:20 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=+VMZVr
-	X/Ikrt3ZCzeinXPpUUFGPbvYQ41HoGVYdLfww=; b=DalAbQri4vigtX382j4cdZ
-	w8sO1buY5Wek9sZTHlqyfGBycTfnAqOkY1Ovz5LCn4yvozTwmWIkf6l4tf78ofHc
-	5vI8k8MCoBRL20p3JV4IiceIAMJ4hYHcOb2Zc7aeyc9CBRgyl1p26cHFaopzHUT0
-	ouHtV9V3KLM5bxfpoi7xmkWsllq1rFK/IgkiPWVyvNyCsgGbIhXf57GQ/e2gmehi
-	MQgnwdeaTXpBNAsYU5XDnr2BvgpB8HlmPEBNvO9IQMh5jCa1CTnO/8WuQLybRZCu
-	NvtdfkXlHmHpdBBDMn/9M3CDjYsYR73KSP8N60ZFKBYDGlQ0ksRRcZcJ0ZMtyT5g
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Wr3upw
+	Lw/dmhJ6s5+p0hiUa2rl+PwOQ8qfF+k7Ypcvc=; b=pGU2YGkYi1wGx49WZQPq4F
+	YLGZg3XE/7mBjeQNksABf+/J4efKSPGZpp3uDZg3AfcccCdbtbL6UNBYAlg1paT5
+	Bt88ZeZZ3B89y1/YT322Kdhmu9As51GYSwOztg9Ydb4IDKfKC9Xocw7cxzTmXfhp
+	ryZ1ODH2ErsiOevGYQxz8zDxE/sFm8d4zexYZZwNU0ctc2+ft5SjVESaw4ntqRSL
+	6FxoYIt/2npQY686NtUruRyQ9sfj2mQlXdYJ0IjNsyAaT6i5+q2EeGx+fVwWch0+
+	WGNohJ3ZGwjyDF1Fa83Xny/HXQ03xbcCZthcFSSPS4sOgeGpAyXdYllwNgzjRnGw
 	==
 Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g73dx3gcj-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g73eqkr6e-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Aug 2026 19:26:54 +0000 (GMT)
+	Mon, 24 Aug 2026 19:39:20 +0000 (GMT)
 Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67OJQjST026591;
-	Mon, 24 Aug 2026 19:26:53 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g7rag7w7e-1
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67OJR40C026723;
+	Mon, 24 Aug 2026 19:39:19 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g7rag7xud-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Aug 2026 19:26:53 +0000 (GMT)
+	Mon, 24 Aug 2026 19:39:19 +0000 (GMT)
 Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67OJQp7l59507102
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67OJcba323593504
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 24 Aug 2026 19:26:51 GMT
+	Mon, 24 Aug 2026 19:38:38 GMT
 Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4DF9358051;
-	Mon, 24 Aug 2026 19:26:51 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 57C525805A;
+	Mon, 24 Aug 2026 19:39:17 +0000 (GMT)
 Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0A5FC5805A;
-	Mon, 24 Aug 2026 19:26:50 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 1A9865805F;
+	Mon, 24 Aug 2026 19:39:16 +0000 (GMT)
 Received: from [9.61.96.163] (unknown [9.61.96.163])
 	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 24 Aug 2026 19:26:49 +0000 (GMT)
-Message-ID: <88a04bb8-76f1-4805-af42-558e6499f841@linux.ibm.com>
-Date: Mon, 24 Aug 2026 15:26:49 -0400
+	Mon, 24 Aug 2026 19:39:16 +0000 (GMT)
+Message-ID: <4bc189fa-ade2-46a9-a749-c9c8067f347a@linux.ibm.com>
+Date: Mon, 24 Aug 2026 15:39:15 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -78,35 +78,34 @@ Content-Language: en-US
 From: Anthony Krowiak <akrowiak@linux.ibm.com>
 In-Reply-To: <adecc2df-d2c2-48d6-a80a-c84ab9779322@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI0MDE2MSBTYWx0ZWRfXxZEqJk3+u1i/
- Fbs/vw7K5rv/KClxOrt64hDA7BAhO87KSEKmp9EvuR2DXHkRKz1gK6IQipM9yLRO4ZHfOC0JP9q
- y+D6PKO0uGspEuQvbjJ3XpEsqE3TgJ8=
-X-Authority-Analysis: v=2.4 cv=AYuB2XXG c=1 sm=1 tr=0 ts=6a8c9afe cx=c_pps
+X-Proofpoint-GUID: ATfjQQBdy1L70HFhYHe164-8UVn5C-H1
+X-Proofpoint-ORIG-GUID: ATfjQQBdy1L70HFhYHe164-8UVn5C-H1
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI0MDE2NSBTYWx0ZWRfX6DiF8jXiBZ7v
+ OwW5PxbdObpmzZ4iMncSYoL/GpJwzLEVfLplJIiHzyx0YRv79EnsZWYYUmNTD1k/YxHiYL/4+Eo
+ S/Oq4iLXD/Cn7Pynx+HR70IDuwzlIXwdyQM+bfnMA0iQy5IIFPYnnAMu8NwtNUwZ5A+Lr+UbZx8
+ JzYT6uZi/kAp04ms2qd3MGhdq0LJCoKNwdxX0SI5IHyVU1LXTg46ccMZy9c2qkoLVvNQXJ1upPY
+ VNnBKfme5PcP8pL+oXFznTKsSBojGctrKEJQnzttngvzqz/7pXn4RgPVwtJPlHW3u7pEkoZyHOY
+ nLJtfyA8LxDhXGYfSYdKQDy1vdBorfjB3Kgf4mRxMsmeJBdb3TjqqdDOb2Y7NHNxxMG1Njw+vK4
+ 0kvVELrMb/U/J7Kuug6epvm969XPOcqiRsROZnRnw9sg3XKwCGLLw/8qvuWPpBDrhagrbNccl4Y
+ huJEiSLBFfxRXccXCjA==
+X-Authority-Analysis: v=2.4 cv=QsRuG1yd c=1 sm=1 tr=0 ts=6a8c9de8 cx=c_pps
  a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=oJhS4qge3_J52AN1xGYA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: ufc8smyBS976Xa_pMSkZPHGHY9vJpJO7
-X-Proofpoint-GUID: ufc8smyBS976Xa_pMSkZPHGHY9vJpJO7
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI0MDE2MSBTYWx0ZWRfXzbzp3f2oU08s
- k2hF+00LG8b5+TMy1UGq1vf9K08ZdMXFlQRkzk97SpiVP5PlSqkwkIXa5DsojoTyPL1y6n2Y1VD
- 3P23BeMj7TLFm1/vXrDxkm9fANjAf40a/CvbI0cM/bmWo0YvwWMCEjE35Hkr4lNT1bfx+jq/22r
- Qd7GHf36uecCBRJVKfUqNeptYFYvEqalHM8zqKg22Y1HYeHCJ9xmKuAKXa1II5ixhoap8Az/o3X
- fVNrrCu1bNY/c0XYBUoNXVdzqb81wjOxSywf9P4W6cbtK9Qw8FYFOChOPqJJBtoXRMAWGE20Q+M
- dPe/+arExFbAA0ZzO3wd8xWV54IN7Ddtuir4WHy29Yo7YYCn8vTfTOLwjIJdzNMhZlAz2DPWA4L
- LpFuZ2WtLZw2Tkp86fMrZCa3raMp2Nu0uAOEqwiBk1BlW2bXiZOkGNb1bLNELyhZp6P4WLrdtR5
- TQd+rzOmOZPP5pMjOEg==
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=oJhS4qge3_J52AN1xGYA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI0MDE2NSBTYWx0ZWRfX1avNBySAe4V1
+ Ec291qXlldWQEN9wawEbt0r5D4CwIeZUf0v5kKvafY7HS4yLQ2VxczdFPRMuNsZnXGVkZnQ3Ds4
+ e20oMg6ctXPslEIBdialnc32EgGZVwQ=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-24_05,2026-08-24_01,2025-10-01_01
+ definitions=2026-08-24_06,2026-08-24_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 phishscore=0 clxscore=1015 adultscore=0 bulkscore=0
- impostorscore=0 priorityscore=1501 lowpriorityscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608240161
+ malwarescore=0 adultscore=0 suspectscore=0 priorityscore=1501 impostorscore=0
+ spamscore=0 lowpriorityscore=0 clxscore=1015 bulkscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608240165
 
 
 
@@ -165,8 +164,11 @@ On 8/24/26 12:57 PM, Matthew Rosato wrote:
 > Since you're touching it already, do you think it makes sense to switch
 > to pr_warn_ratelimited with this patch?
 
-I think it makes more sense to switch to VFIO_AP_DBF_WARN which all other
-guest-triggered warning paths in  this function already use.
+Since this is a pre-existing problem not introduced with this patch and 
+there is
+likewise another related problem not introduced by this patch, I am 
+going to
+post a separated series with fixes to those two related issues.
 
 >
 >> +		/* We could not modify IRQ settings: clear new configuration */
