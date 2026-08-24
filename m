@@ -1,215 +1,239 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C35434071F3;
-	Mon, 24 Aug 2026 10:41:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CBCC282F12;
+	Mon, 24 Aug 2026 10:48:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787568062; cv=none; b=mEAN6S7eTmJNGuIPbpkZbNsGMctMqmEm42UkNr6z4P4Yqzx6mtErMCb1qieZvqN0+6Lwoela6q3FUYkaOgySvP+LaWRmZMxbkTmdICSKlArdq7MkXB2BbD4gnlN63v/JnyNGCqcXNNT6yMMRH0LaaATz7i9dJE2c4oX1aPF1p6Q=
+	t=1787568500; cv=none; b=hjiL5F/8BJQfDdFfFTRm/8YW/NP+hkP+EHBioZjGGFs7k6Y3oNictqwsQpu2EfCAlsSguIHGlUQiYQi2xrXsy8pNZuKIz/qkD7xb5tV9tsWBzEXssbdoIHbNduUh+G6uALTKLiQbtGn378k9tTqTKpfPVrEBV2ehiU0s1/w5WC4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787568062; c=relaxed/simple;
-	bh=KGgkeNPdi53vM2GkJU8IDCr8dLz5rP5iKs6wtp+gwnM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QjkqVEHZpFfxnAJf+QfycLkOzZNJTLJ81LCzOkC2BjVI1Y3FR7jlTO3a3u8bVG8M5vt2GX+zjsX4T4gzpMt3So+0jJwH4930fNWOaMyL56KRVlp4WCdxLwzM9KfQ1D6Cptsg4muRoYFimimtYY4pAalAqL4F3wr91nzB/x2U/9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XOZpugly; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1787568500; c=relaxed/simple;
+	bh=3pKZFIZxyHU3J2HBiqbS+ZyNEU0HBe1zGRt4594yt/4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=rE8Xl6pKsu4OHWP1g8LM7KWQOP7r1pLZ358bWMyuKjqkKD+K7sLbRLhjmxuirFNMtwm4au7bxyR/EnWh0coW3r6J1Stbo6014xfV3/KrMerYboqnOJ3l2PshYQhDpK66qEdyy5Y+Axw2Uha3PpxFZv6jQG+/e7avu3NC5btjR4M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ReKdi9bJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XOZpugly"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67O9VgPI1464568;
-	Mon, 24 Aug 2026 10:40:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=3/T14l5efVCoI0cNX+jlXD2DWZPGJ8
-	26RLHgjN99Qbw=; b=XOZpuglywHT95XDBkKH2XQOlca9MSJeRjAzN+AGZkRni0J
-	GKKIyWOfrXPYglVth7B14eijjpKHCosOILho3RmiiFsnEMvIGm3L6ETwcgDpvHFU
-	iw4AZYuTz6+hO9OLNw1MtIuOgE/g5QR2pOyWRpe8dtpPJ6Uqup8IaX2hWhJw1VnX
-	/ybg2Se5FI9ted+4HDlTLUZ+oVV94xCJbmtSsweejythg9pM9vGPlSCuWQ8hvNuJ
-	lbv6z8SczAZ9zhX82cc/Gkezik/Q6XQ3FT7iFQeS7HWmMRAXmoaoBqTEHJhKkl7H
-	uACwheCeyVvXMzq79QA+0zyTaVRoXSSfgEhOLtpw==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g7393rpe0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Aug 2026 10:40:55 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67OAQIXS006700;
-	Mon, 24 Aug 2026 10:40:54 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g7pfvwebe-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Aug 2026 10:40:54 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67OAeouP49545566
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 24 Aug 2026 10:40:50 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7698920043;
-	Mon, 24 Aug 2026 10:40:50 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 197B720040;
-	Mon, 24 Aug 2026 10:40:50 +0000 (GMT)
-Received: from osiris (unknown [9.111.89.201])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 24 Aug 2026 10:40:50 +0000 (GMT)
-Date: Mon, 24 Aug 2026 12:40:48 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>, linux-s390@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        kasan-dev@googlegroups.com
-Subject: Re: [PATCH v7 2/4] s390/mm: Batch PTE updates in lazy MMU mode
-Message-ID: <20260824104048.11040Cdc-hca@linux.ibm.com>
-References: <cover.1786956464.git.agordeev@linux.ibm.com>
- <d7fd78377a7278108ef501cf76571e80caef5968.1786956464.git.agordeev@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ReKdi9bJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF6871F000E9;
+	Mon, 24 Aug 2026 10:48:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787568498;
+	bh=Un2ivzOvq2zhROxjhe67/b4g3gW2MziKJw+Dc4KeLN0=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=ReKdi9bJXuq0h49PbAdCSfn0gk02tVvq5Fito3GCMAiQF1TZ1VOenyVHOIrY1Fo4W
+	 PT4AONuYDyxb340ohDyITd1eSbjwdDmyJ3tUX+mNzKQN4fzNifTCfk1G67QjMY8xAZ
+	 oEVjap7xbznBtoQPu4NP6DQAIgxXtR7b7/wF7jfspCkUb7pD4Af9irSUv1miMN/5tB
+	 AfBupKIrVCWINho7JhBa1Nge985rPzaUgWVCUb9D22uCePklJwh1/qGRIY5nf9o7Lc
+	 N2O5riPkX6x0zkjV3RP9EM+wjReOP7dq7FoURf5BT1SqS2uIJ3o7+6o0A1i22WOXDW
+	 GziwhonA6qQ1g==
+From: Simon Horman <horms@kernel.org>
+To: hidayath@linux.ibm.com
+Cc: Simon Horman <horms@kernel.org>,
+	alibuda@linux.alibaba.com,
+	dust.li@linux.alibaba.com,
+	sidraya@linux.ibm.com,
+	mjambigi@linux.ibm.com,
+	andrew+netdev@lunn.ch,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	pasic@linux.ibm.com,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net] net/smc: do not credit bytes that splice() did not take
+Date: Mon, 24 Aug 2026 11:47:58 +0100
+Message-ID: <20260824104758.996259-1-horms@kernel.org>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260820085543.967490-1-hidayath@linux.ibm.com>
+References: <20260820085543.967490-1-hidayath@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d7fd78377a7278108ef501cf76571e80caef5968.1786956464.git.agordeev@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: aBBJq1sYD2QAF3RL4IeZXSVPpP4Tbh5_
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI0MDA4OCBTYWx0ZWRfX75fqlJoYpcj3
- VuqvoN6MREkDOZWVmhgOKtEejDguKYrGKaX9WC9AmF/wtqG8x7StZnzXT4BcbYBgGA8UABHpXmJ
- 6wSYvObgT69cn9Jv6xAb75oznLJq47zhjnY9977yWYApGudVgUctPn6Y7OJZjeoSPIwcU/Ea8De
- T6P/+lsJzcs/+pxENUZy4+DBpnsNlrj2KFAIUh97shE564PTUUDkneqLqxITgHTMijXVrVcO3ks
- O4TG0uke1SaDl06qgaReqwLzagGSiZCJFYDrOHd+6hLIHcFt9okYDGvg2KLD1rUAId/6e+yKooC
- 6e+0p4zyRzxUjpEKWfFolIfU+3xYGIUwikgrUu6lKGTSY3giO5Ot05NH1X7pQ8tonVxYl1pmoI3
- 6P4qtlRs0kAq1OfJllzCSCHmcrPeORSuWksFtBuok0CpQpGzyfLuiMfTKH3G/OTrxNJQrwNuz3V
- wwg/uL9ILC3aXn8wVNA==
-X-Authority-Analysis: v=2.4 cv=Y/nIdBeN c=1 sm=1 tr=0 ts=6a8c1fb8 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=sTYtNOhqI-yrCGmzPWoA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI0MDA4OCBTYWx0ZWRfX5Hr10v06l+bM
- vkQF72efrd/jPqOK1fLCWjVi1yDhxFlUin2rVbLlo5/YRl7U4igHaW3UBmquiQAI1ENXrabks0e
- R0f3d4+bbSCHpIsuJ8aeF4sNQzlPJuA=
-X-Proofpoint-ORIG-GUID: 5v_eDg43mIjksVXOeUwea4TJK2IWPwVm
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-24_03,2026-08-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 impostorscore=0 priorityscore=1501 adultscore=0 bulkscore=0
- suspectscore=0 malwarescore=0 clxscore=1015 lowpriorityscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608240088
+Content-Transfer-Encoding: 8bit
 
-On Mon, Aug 17, 2026 at 01:33:00PM +0200, Alexander Gordeev wrote:
-> diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
-> index 3b3ecc647993..dba236664da9 100644
-> --- a/arch/s390/include/asm/lowcore.h
-> +++ b/arch/s390/include/asm/lowcore.h
-> @@ -163,7 +163,7 @@ struct lowcore {
->  	__s32	preempt_count;			/* 0x03a8 */
->  	__u32	spinlock_lockval;		/* 0x03ac */
->  	__u32	spinlock_index;			/* 0x03b0 */
-> -	__u8	pad_0x03b4[0x03b8-0x03b4];	/* 0x03b4 */
-> +	__s32	lazy_mmu_count;			/* 0x03b4 */
+This is an AI-generated review of your patch. The human sending this
+email has considered the AI review valid, or at least plausible.
+Full review at: https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260820085543.967490-1-hidayath@linux.ibm.com?part=1
+---
+net/smc: do not credit bytes that splice() did not take
 
-Why is this signed? Can it get negative?
+The patch adds a short-count path to the chunk loop in smc_rx_recvmsg()
+so that only the number of bytes splice_to_pipe() actually accepted is
+credited to copylen, read_remaining and read_done.  It also adds a
+zero-count path that returns -EAGAIN when nothing was taken.
 
-> +static __always_inline bool is_lazy_mmu_active(void)
-> +{
-> +	if (__is_defined(__DECOMPRESSOR))
-> +		return false;
-> +	if (!get_lowcore()->lazy_mmu_count)
-> +		return false;
+>     A pipe that is not empty is enough to hit this; SPLICE_F_NONBLOCK on a
+>     full pipe produces the zero case.
 
-I guess there is opportunity to generate better code here using an
-alternative and using a flag output constraint too.
+[Severity: Low]
+Is "A pipe that is not empty is enough to hit this" accurate?  A non-zero
+short return from splice_to_pipe() requires smc_rx_splice() to submit more
+than one page:
 
-> --- a/arch/s390/kernel/setup.c
-> +++ b/arch/s390/kernel/setup.c
-> @@ -77,6 +77,7 @@
->  #include <asm/maccess.h>
->  #include <asm/uv.h>
->  #include <asm/asm-offsets.h>
-> +#include <asm/lazy_mmu.h>
->  #include "entry.h"
->  
->  /*
-> @@ -1012,5 +1013,6 @@ void __init setup_arch(char **cmdline_p)
->  
->  void __init arch_cpu_finalize_init(void)
->  {
-> +	lazy_mmu_online_boot_cpu();
->  	sclp_init();
->  }
+net/smc/smc_rx.c:smc_rx_splice() {
+	nr_pages = !lgr->is_smcd && smc->conn.rmb_desc->is_vm ?
+		   PAGE_ALIGN(len + offset) / PAGE_SIZE : 1;
 
-What makes this code so special that an explicit call from
-arch_cpu_finalize_init() is required? This is really the last resort if
-everything else fails. To me it looks like the code can be changed to use a
-new static key, and add a generic early (pre-smp) initcall to allocate
-memory for cpu 0, and if that succeeds enable the static key.
+For SMC-D and for SMC-R with physically contiguous RMBs nr_pages is 1 and
+the single pipe_buffer carries partial[0].len == len, so the transfer is
+all-or-nothing.  Together with wait_for_space() in splice_file_to_pipe()
+guaranteeing at least one free slot on entry, doesn't the short-count case
+only occur for SMC-R with is_vm RMBs?
 
-> --- a/arch/s390/kernel/smp.c
-> +++ b/arch/s390/kernel/smp.c
-> @@ -59,6 +59,7 @@
->  #include <asm/topology.h>
->  #include <asm/vdso.h>
->  #include <asm/maccess.h>
-> +#include <asm/lazy_mmu.h>
->  #include "entry.h"
->  
->  enum {
-> @@ -866,6 +867,11 @@ int __cpu_up(unsigned int cpu, struct task_struct *tidle)
->  	rc = pcpu_alloc_lowcore(pcpu, cpu);
->  	if (rc)
->  		return rc;
-> +	rc = lazy_mmu_online_cpu(GFP_KERNEL, cpu);
-> +	if (rc) {
-> +		pcpu_free_lowcore(pcpu, cpu);
-> +		return rc;
-> +	}
->  	/*
->  	 * Make sure global control register contents do not change
->  	 * until new CPU has initialized control registers.
-> @@ -921,6 +927,7 @@ void __cpu_die(unsigned int cpu)
->  	pcpu = per_cpu_ptr(&pcpu_devices, cpu);
->  	while (!pcpu_stopped(pcpu))
->  		cpu_relax();
-> +	lazy_mmu_offline_cpu(cpu);
+Would it help to name that configuration in the changelog so backporters
+know what to test?
 
-Same here: what makes this code so special that this needs to be open-coded
-into the low level cpu hotplug code? Everybody who needs to change this
-code in future will wonder why the mmu code is so special that it needs to
-be directly handled here, and then needs to understand the mmu code.
-And the answer is: there is no reason.
+> diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+> index 5c9e4d8b57de4..d951dbe8eec3c 100644
+> --- a/net/smc/smc_rx.c
+> +++ b/net/smc/smc_rx.c
+> @@ -488,6 +488,24 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
+>  						read_done = -EFAULT;
+>  					goto out;
+>  				}
 
-Please use a generic cpu hotplug notifier to avoid that maintenance get's
-more expensive.
+[Severity: High]
+This isn't a bug introduced by this patch, but since the patch reworks
+exactly this accounting: does this pre-existing exit leak bytes_to_rcv on
+a wrapped read?
 
-> +static void leave_ipte_range(void)
-> +{
-> +	pte_t *ptep, *start, *start_cache, *cache;
-> +	unsigned long start_addr, addr;
-> +	struct ipte_range *range;
-> +	int start_idx;
-> +
-> +	if (!test_facility(13))
-> +		return;
-> +
-> +	local_bh_disable();
-> +
-> +	lockdep_assert_preemption_disabled();
-> +	range = this_cpu_read(ipte_range);
+For a read that wraps the ring, chunk 0 can succeed and chunk 1 fail.
+smc_rx_splice() has already committed chunk 0:
 
-Why is it required to disable bottom halves? A comment would be helpful.
-Or a hint in the commit message - this is not obvious.
+net/smc/smc_rx.c:smc_rx_splice() {
+	bytes = splice_to_pipe(pipe, &spd);
+	if (bytes > 0)
+		atomic_add(bytes, &smc->conn.splice_pending);
 
-Also at least for !PREEMPT_RT (which is always true for s390)
-lockdep_assert_preemption_disabled() is quite pointless, since
-local_bh_disable() just one line above disables preemption.
+and the queued buffers advance the consumer cursor when the reader drains
+them:
 
-I guess you wanted to add that check above local_bh_disable()?
-If not you could as well remove it
+net/smc/smc_rx.c:smc_rx_pipe_buf_release() {
+	lock_sock(sk);
+	smc_rx_update_cons(smc, priv->len);
+	release_sock(sk);
+
+Chunk 1 then finds the pipe full.  fs/splice.c:splice_to_pipe() converts
+no progress to an error rather than 0:
+
+	if (!ret)
+		ret = -EAGAIN;
+
+so control takes the quoted "if (rc < 0) ... goto out" with read_done ==
+chunk 0 length, jumping past the only debit site in smc_rx_recvmsg():
+
+	atomic_sub(copylen, &conn->bytes_to_rcv);
+
+Doesn't that leave cons advanced by the delivered bytes while
+bytes_to_rcv still counts them?  smc_rx_data_available() reads
+atomic_read(&conn->bytes_to_rcv) - peeked, so would a subsequent
+recvmsg()/splice() start at the advanced cursor and copy that many bytes
+of stale RMB content from past the producer position?
+
+Also, can the documented invariant "0 <= bytes_to_rcv <= rmb_desc->len"
+be violated if this repeats?
+
+> +				/* splice_to_pipe() takes only what the pipe
+> +				 * has room for, which may be less than was
+> +				 * offered, or nothing. Account what it took
+> +				 * and stop: crediting the whole chunk would
+> +				 * advance the consumer past data the reader
+> +				 * never received.
+> +				 */
+> +				if (!msg && rc < chunk_len) {
+> +					if (!rc) {
+> +						if (!read_done)
+> +							read_done = -EAGAIN;
+> +						goto out;
+> +					}
+
+[Severity: Medium]
+Can rc ever be 0 here?  splice_to_pipe() returns 0 only for
+spd->nr_pages == 0, and otherwise ends with:
+
+fs/splice.c:splice_to_pipe() {
+	if (!ret)
+		ret = -EAGAIN;
+
+smc_rx_splice() always builds nr_pages >= 1 and returns the
+splice_to_pipe() value unchanged, so the "took nothing" case arrives as
+-EAGAIN and is consumed by the pre-existing block above, which reports
+-EFAULT to userspace.  Does that make this "if (!rc)" arm unreachable,
+and the changelog claim
+
+     When it took nothing, return -EAGAIN instead of reporting a length
+     that was not delivered.
+
+not take effect?
+
+On the same note, does "SPLICE_F_NONBLOCK on a full pipe produces the
+zero case" hold?  splice_file_to_pipe() calls wait_for_space() before
+do_splice_read():
+
+fs/splice.c:wait_for_space() {
+		if (!pipe_is_full(pipe))
+			return 0;
+		if (flags & SPLICE_F_NONBLOCK)
+			return -EAGAIN;
+
+so a completely full pipe fails before smc_splice_read() is entered.
+Should the comment block above also be reworded, since it describes a
+callee returning zero that splice_to_pipe() does not do?
+
+> +					copylen = chunk_len_sum - chunk_len + rc;
+> +					read_remaining -= rc;
+> +					read_done += rc;
+> +					break;
+> +				}
+>  			}
+>  			read_remaining -= chunk_len;
+>  			read_done += chunk_len;
+
+[Severity: High]
+This is a pre-existing issue outside the diff, but this patch depends on
+the invariant it breaks, so it may be worth mentioning: in
+smc_rx_pipe_buf_release() the cursor advance happens under the socket
+lock while the splice_pending decrement happens after it is dropped:
+
+net/smc/smc_rx.c:smc_rx_pipe_buf_release() {
+	lock_sock(sk);
+	smc_rx_update_cons(smc, priv->len);
+	release_sock(sk);
+	if (atomic_sub_and_test(priv->len, &conn->splice_pending))
+		smc_rx_wake_up(sk);
+
+smc_rx_recvmsg() assumes cons plus splice_pending marks the start of
+unread data:
+
+	splbytes = atomic_read(&conn->splice_pending);
+	...
+	smc_curs_copy(&cons, &conn->local_tx_ctrl.cons, conn);
+	...
+	if (splbytes)
+		smc_curs_add(conn->rmb_desc->len, &cons, splbytes);
+
+In the window between release_sock() and atomic_sub_and_test(), cons
+already includes priv->len and splice_pending still counts the same
+bytes.  Can a concurrent splice on the same socket then start priv->len
+bytes too far, skipping unread data and handing stale ring content to the
+pipe?
+
+The recvmsg() path looks protected because it waits while splice_pending
+is non-zero:
+
+		if (!readable || (msg && splbytes)) {
+
+but the splice path (msg == NULL) is not gated on splice_pending.  The
+pipe mutex doesn't serialize this either, since splice_file_to_pipe()
+holds only the destination pipe's lock, so draining pipe A can race with
+splicing the same socket into pipe B.
+
+Would moving the atomic_sub_and_test() before release_sock() make cons
+and splice_pending change together with respect to the socket lock?
