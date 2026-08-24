@@ -1,66 +1,66 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C2B541A921;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF8EC43C05E;
 	Mon, 24 Aug 2026 14:38:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787582308; cv=none; b=T8WgqG/KQwpcpNx0K0lZqGOmfCCXtFafS/jlSxBGRsmttpvtjsNjVs/4EKN5QpWHoQ0TQOaq5krQO2wxpJqL7mpr1Jmim4pXrI8+7TjZkx3RjUPiB0MlKCjpZ6NVMwfw3QMEh6IUUNIDhydX6UlcRhbMPB7fQ0kqUGYcGWjbyyA=
+	t=1787582308; cv=none; b=sbsqEKjNZzWz3XgyM5AIZwUj6PqV8LU2LXBLamF+gft4r5yg5t3mwP4VtCzrg/bV5tWFIdc/mUSOCIXX1M7UOb2FH5lkihjjsaOkmjxF+QgiTTnRY5sILrLz/hc4hvhsPEiPwjBvVWZon6LFDD1zaur258O9SRhmBhuKXC2nDVY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1787582308; c=relaxed/simple;
-	bh=lKXDd/NnOmoSYPSve2ky6ZBuvd7bvdwEvy2GK/i3jn0=;
+	bh=FMHFWB8GkXN6dRqP3iHRcP/Pq1sGzAbeJ4jPmDt4Ii0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fIGasyq8oVuyIlMtrlHO9HBGE0ubXxb9jlHt2wr9aSt0hqe8CK3a/PcHe2X390WR+lNw3JBnZXnYUxcG/7zwqr6iwCvGUWz5W5doBtahUVRNMZGpLr/C78f0wM95cXLPKL8nTKFYnrylzW98595E+T78zrHMz0+mBddOkEeeoA0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ALVKBRh7; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=JB43eqg6HPy2gk+m+8T+KmT/FUxtAKE1B2sEPQYGEP5SlGXM6JUX4lOiihwtMELlrAeivfLYY0a0COn3YoBYJNSzHMikXBotbMk35hZkD1PeMUvwEUxhe7hKlD+QPKyr5InLDAOx0R+ktgKKuo3aM7JXBfp4KectFZlO98/qSJA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BY4oTqT3; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ALVKBRh7"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BY4oTqT3"
 Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67OD1ZRY1935896;
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67OD1Y5D1935890;
 	Mon, 24 Aug 2026 14:38:24 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=+ANcOhC0eu6NLgDtE
-	UxvoiANMVNLVlXEj/JKhwDaxtQ=; b=ALVKBRh720qQjoxVw79b2oCW163++LEnS
-	UuysYqWaaCZP+csAe4TUDvAWWktpx65jEAJnS67cqWqWv5/lz9fgrXj7Y5CWJnmQ
-	LwpkVIv+EIV1C9HREp3zILWYJfdOsrk9Jgbbgs81Y+LI+UizsFCcYjM3rC+haBGT
-	u+JDj2YUrN3+sFHWE2SA3jbMIH4mCZlvTBsaD1Kdn78DV+hjcEj1P947Ukvua/+M
-	EOblptryopTvI32tplBR0e1mipxu0uCZMuYJRz8auPHuuL5zitU/TYqkKViKcU/d
-	dR3ctCvQPnox5kcHAua6QegtD2IGwHdeiWBhmBVofMcj5/5DE4lHA==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g7393t1py-1
+	:mime-version:references:subject:to; s=pp1; bh=BZVHUYpD3MMuP9+xo
+	o3+zI6z4+yhzl9SNwk5OI2LsEk=; b=BY4oTqT3qUvFpE+Qf+DUmgeXQvcvIOGC3
+	bLoQW4WIPmGR8KBIQx5Fc2x4TU5yJ8PIxt1y4BIWOul3kn/ljUvvYVC1mwGMYR7i
+	TtvSz3IVknQxG8KCyENxUKTtRDsNLyIIV2J/YteOebXLjuFCmvkTFvhNMquuAvme
+	x59bvW69igbeBrfEtOiA8br3ztTOYTDHGzVxDTUsE1MFlFxXcgdphW1qWbnCKj7A
+	TIU2he4o68oPooEmT8aW17J4ZraVfChANI4yiwpHtRTOXcPmMv/mgTk1SQSIMV4X
+	7xBSxMFMI/IGnEYD9USt87XbIDD2uU4Ej2a5gvCovyUZcW6j8ioJA==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g7393t1q0-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 24 Aug 2026 14:38:24 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67OEQH8i029709;
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67OEQI7d001403;
 	Mon, 24 Aug 2026 14:38:23 GMT
 Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g7q3jpj51-1
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g7pfvxnqg-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 24 Aug 2026 14:38:22 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67OEcHtZ33620302
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67OEcHVs37683532
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Mon, 24 Aug 2026 14:38:17 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0997820043;
+	by IMSVA (Postfix) with ESMTP id 2F4A32004E;
 	Mon, 24 Aug 2026 14:38:17 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DCA622004E;
-	Mon, 24 Aug 2026 14:38:16 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0DDB32004D;
+	Mon, 24 Aug 2026 14:38:17 +0000 (GMT)
 Received: from b46lp25.lnxne.boe (unknown [9.87.84.240])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 24 Aug 2026 14:38:16 +0000 (GMT)
+	Mon, 24 Aug 2026 14:38:17 +0000 (GMT)
 From: Janosch Frank <frankja@linux.ibm.com>
 To: pbonzini@redhat.com
 Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, borntraeger@linux.ibm.com,
         linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, thuth@redhat.com,
-        Nina Schoetterl-Glausch <nsg@linux.ibm.com>,
-        Christoph Schlameuss <schlameuss@linux.ibm.com>
-Subject: [kvm-unit-tests GIT PULL 09/13] s390x: sclp: Add detection of alternate STFLE facilities
-Date: Mon, 24 Aug 2026 14:35:41 +0000
-Message-ID: <20260824143740.291583-10-frankja@linux.ibm.com>
+        Christoph Schlameuss <schlameuss@linux.ibm.com>,
+        Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+Subject: [kvm-unit-tests GIT PULL 10/13] s390x: Add test for STFLE interpretive execution (format-2)
+Date: Mon, 24 Aug 2026 14:35:42 +0000
+Message-ID: <20260824143740.291583-11-frankja@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260824143740.291583-1-frankja@linux.ibm.com>
 References: <20260824143740.291583-1-frankja@linux.ibm.com>
@@ -72,23 +72,23 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: kAlivt2imKLSl79BwrHKesmYfCsv-hfX
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI0MDEyMiBTYWx0ZWRfX5Ei2UXJ1aQMO
- z9Ne/tJuIefqzXhMcqvpRk7Qpq+ufe69T32PMc4wn35ZFzDxswNsi6tbJU/wDCUZt8hCtYIw+tu
- G20lSjq24Utc0+O/RVc0lasMjSiyOXQJhxTpfvpH9oyuYkzgWe6O7bUCn9Sca6tcSq/c/xuQ/l3
- nrqxhmpgTKQJr5ftxiQkLKc2mfMcg5p9Y4RncgzEXLX07nr9QAtO0eueAfqPWP9YHcCy0Z8PaBU
- 0ST4eeVZjGWS/9WdieZgvVaQ5f3aTSEn2NO1A4AocA7n09CPkDUW+NnJkWC/FNYHtnbFC+YqbBx
- xYZNoAGMT1aM+vYQZHRMrT8DxEK/fjH9UyOuDdCeYhkNPNtOWkt8SWCqVZDnSp3K+oJeZawcbHE
- nPuwhF1sKdLOfR7HGV3eseFlUswY8mJ98YrBpNf1O27092c/dScni+Zj+cfUvU7CdaGNIoJH1iH
- IAGxFStgxmmTOKMQIkA==
+X-Proofpoint-GUID: 2-G08ZwvXlleweqwit5LrZTM8rhicUCG
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI0MDEyMiBTYWx0ZWRfX98PTc0xG0iJV
+ cPZdNAwZXHxIWr9d2Cc0BX0HysTUfTlaENI0Wi0nrxLxDLD/8Mpgi6X17S9tu1rnFJq3EhgTdv8
+ wesbyXcs8LrBuMhoZo+q5Vtr6oK5+FrhXe22MLSBoLbEXn4LhXc7vTbRJjeqnW9WMCixQs35POx
+ mFhg0g6iDRuzT3StF5Kh5J2+T6n+Ft+ICZOXfZJ6jpb/i6bVjr0ws39wHPVU0GEQNQlaJfXBKyE
+ 1DAR54WE/O392epHeMXRTtupv+HXjIvLaX0Ar/iMnAXto9/Lw9D0nMtisnncGEYXJRSHNtrrbk6
+ 54PX3whHlnqIrMWsFOtDS+WjnJNvbiMrQ4i+WKLaQZacS6iOvZ7cX9it7Om1iwVNpCJhLzRtzPS
+ xIBrrt6Ogo5efTEu53NgZwDyz3jDOx9eak8RRYqtoMoZlJ2hHOWaGV75qfHBbLfG/2utVMinvAO
+ tlifWkZm8BFNUo87XXQ==
 X-Authority-Analysis: v=2.4 cv=Y/nIdBeN c=1 sm=1 tr=0 ts=6a8c5760 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=jhiYOCp1ZGrQtAn_9xAA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI0MDEyMiBTYWx0ZWRfX5+TgZNZ2Or7Q
- 78HvyBGstkRwEsOW+4Zy6xbo6tJw2JIT2+oioP4Eq/ybTHsJIpb7S5GIcSJyAUssMt0gP3J0MI8
- DE+0manrzTwfj+w16ifdj7UqzjtWetU=
-X-Proofpoint-ORIG-GUID: kAlivt2imKLSl79BwrHKesmYfCsv-hfX
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=XzANROlTOifqWwnuM_MA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI0MDEyMiBTYWx0ZWRfX1iY2OCuIbtwB
+ U51rlJ8PM/Frhwk0iCMSE+F6BR3uDnIsa0uvzs2JGUvl9yIBzTlT0BxvaULSPXdlbKNWlL3zLVr
+ SVEhXvI8GGUKIWO3svfaaxckygsFNLU=
+X-Proofpoint-ORIG-GUID: 2-G08ZwvXlleweqwit5LrZTM8rhicUCG
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-24_04,2026-08-24_01,2025-10-01_01
@@ -98,67 +98,180 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608240122
 
-From: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
+From: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
-Detect availability of alternate STFLE interpretive execution facilities
-1 and 2.
+The STFLE instruction indicates installed facilities.
+SIE has facilities for the interpretive execution of STFLE.
+There are multiple possible formats for the control block.
+Use a snippet guest executing STFLE to get the result of
+interpretive execution and check the result.
+With the addition of the format-2 control block invalid format
+specifiers are now possible.
+Test for the occurrence of optional validity intercepts.
 
+Move prefixes into main method to improve the readability of the
+log by having prefixes for reports by tests called from multiple
+places.
+
+Co-developed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-Co-developed-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- lib/s390x/sclp.c | 2 ++
- lib/s390x/sclp.h | 4 ++++
- 2 files changed, 6 insertions(+)
+ lib/s390x/sie.c   | 11 ++++++++
+ lib/s390x/sie.h   |  1 +
+ s390x/stfle-sie.c | 72 +++++++++++++++++++++++++++++++++++++++++++----
+ 3 files changed, 79 insertions(+), 5 deletions(-)
 
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index 9d9fd3cb..850cf432 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -162,11 +162,13 @@ void sclp_facilities_setup(void)
- 	sclp_facilities.has_esop = sclp_feat_check(85, SCLP_FEAT_85_BIT_ESOP);
- 	sclp_facilities.has_kss = sclp_feat_check(98, SCLP_FEAT_98_BIT_KSS);
- 	sclp_facilities.has_cmma = sclp_feat_check(116, SCLP_FEAT_116_BIT_CMMA);
-+	sclp_facilities.has_astfleie1 = sclp_feat_check(116, SCLP_FEAT_116_BIT_ASTFLEIE1);
- 	sclp_facilities.has_64bscao = sclp_feat_check(116, SCLP_FEAT_116_BIT_64BSCAO);
- 	sclp_facilities.has_esca = sclp_feat_check(116, SCLP_FEAT_116_BIT_ESCA);
- 	sclp_facilities.has_ibs = sclp_feat_check(117, SCLP_FEAT_117_BIT_IBS);
- 	sclp_facilities.has_pfmfi = sclp_feat_check(117, SCLP_FEAT_117_BIT_PFMFI);
- 	sclp_facilities.has_diag318 = sclp_feat_check(134, SCLP_FEAT_134_BIT_DIAG318);
-+	sclp_facilities.has_astfleie2 = sclp_feat_check(139, SCLP_FEAT_139_BIT_ASTFLEIE2);
+diff --git a/lib/s390x/sie.c b/lib/s390x/sie.c
+index ad1f2ade..99089dc3 100644
+--- a/lib/s390x/sie.c
++++ b/lib/s390x/sie.c
+@@ -43,6 +43,17 @@ void sie_check_validity(struct vm *vm, uint16_t vir_exp)
+ 	report(vir_exp == vir, "VALIDITY: %x", vir);
+ }
  
- 	for (i = 0; i < read_info->entries_cpu; i++, cpu++) {
- 		/*
-diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-index 87af429b..eb574350 100644
---- a/lib/s390x/sclp.h
-+++ b/lib/s390x/sclp.h
-@@ -129,9 +129,11 @@ struct sclp_facilities {
- 	uint64_t has_cmma : 1;
- 	uint64_t has_64bscao : 1;
- 	uint64_t has_esca : 1;
-+	uint64_t has_astfleie1 : 1;
- 	uint64_t has_kss : 1;
- 	uint64_t has_pfmfi : 1;
- 	uint64_t has_ibs : 1;
-+	uint64_t has_astfleie2 : 1;
- };
++void sie_check_optional_validity(struct vm *vm, uint16_t vir_exp)
++{
++	uint16_t vir = sie_get_validity(vm);
++
++	if (vir == 0xffff)
++		report_pass("optional VALIDITY: no");
++	else
++		report(vir_exp == vir, "optional VALIDITY: %x", vir);
++	vm->validity_expected = false;
++}
++
+ void sie_handle_validity(struct vm *vm)
+ {
+ 	if (vm->sblk->icptcode != ICPT_VALIDITY)
+diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
+index 85d691d5..e5970f36 100644
+--- a/lib/s390x/sie.h
++++ b/lib/s390x/sie.h
+@@ -51,6 +51,7 @@ void sie(struct vm *vm);
+ void sie_expect_validity(struct vm *vm);
+ uint16_t sie_get_validity(struct vm *vm);
+ void sie_check_validity(struct vm *vm, uint16_t vir_exp);
++void sie_check_optional_validity(struct vm *vm, uint16_t vir_exp);
+ void sie_handle_validity(struct vm *vm);
  
- /* bit number within a certain byte */
-@@ -142,9 +144,11 @@ struct sclp_facilities {
- #define SCLP_FEAT_116_BIT_64BSCAO	0
- #define SCLP_FEAT_116_BIT_CMMA		1
- #define SCLP_FEAT_116_BIT_ESCA		4
-+#define SCLP_FEAT_116_BIT_ASTFLEIE1	7
- #define SCLP_FEAT_117_BIT_PFMFI		1
- #define SCLP_FEAT_117_BIT_IBS		2
- #define SCLP_FEAT_134_BIT_DIAG318	0
-+#define SCLP_FEAT_139_BIT_ASTFLEIE2	1
+ static inline bool sie_is_pv(struct vm *vm)
+diff --git a/s390x/stfle-sie.c b/s390x/stfle-sie.c
+index 8df1185c..3697e1ae 100644
+--- a/s390x/stfle-sie.c
++++ b/s390x/stfle-sie.c
+@@ -42,6 +42,7 @@ static struct guest_stfle_res run_guest(void)
+ 	uint64_t guest_stfle_addr;
+ 	uint64_t reg;
  
- typedef struct ReadInfo {
- 	SCCBHeader h;
++	reset_guest(&vm);
+ 	sie(&vm);
+ 	assert(snippet_is_force_exit_value(&vm));
+ 	guest_stfle_addr = snippet_get_force_exit_value(&vm);
+@@ -56,7 +57,6 @@ static void test_stfle_format_0(void)
+ {
+ 	struct guest_stfle_res res;
+ 
+-	report_prefix_push("format-0");
+ 	for (int j = 0; j < stfle_size(); j++)
+ 		WRITE_ONCE((*fac)[j], prng64(&prng_s));
+ 	vm.sblk->fac = (uint32_t)(uint64_t)fac;
+@@ -64,6 +64,47 @@ static void test_stfle_format_0(void)
+ 	report(res.len == stfle_size(), "stfle len correct");
+ 	report(!memcmp(*fac, res.mem, res.len * sizeof(uint64_t)),
+ 	       "Guest facility list as specified");
++}
++
++static void test_stfle_format_2(void)
++{
++	const int max_stfle_len = 8;
++	int guest_max_stfle_len = 0;
++	struct guest_stfle_res res;
++	bool saturated = false;
++
++	for (int i = 1; i <= max_stfle_len; i++) {
++		report_prefix_pushf("max STFLE len %d", i);
++
++		WRITE_ONCE((*fac)[0], i - 1);
++		for (int j = 0; j < i; j++)
++			WRITE_ONCE((*fac)[j + 1], prng64(&prng_s));
++		vm.sblk->fac = (uint32_t)(uint64_t)fac | 2;
++		res = run_guest();
++		/* len increases up to maximum (machine specific) */
++		if (res.len < i)
++			saturated = true;
++		if (saturated) {
++			report(res.len == guest_max_stfle_len, "stfle len correct");
++		} else {
++			report(res.len == i, "stfle len correct");
++			guest_max_stfle_len = i;
++		}
++		report(!memcmp(&(*fac)[1], res.mem, guest_max_stfle_len * sizeof(uint64_t)),
++		       "Guest facility list as specified");
++
++		report_prefix_pop();
++	}
++}
++
++static void test_no_stfle_format(int format)
++{
++	report_prefix_pushf("no-stfle");
++	reset_guest(&vm);
++	vm.sblk->fac = (uint32_t)(uint64_t)fac | format;
++	sie_expect_validity(&vm);
++	sie(&vm);
++	sie_check_optional_validity(&vm, 0x1330);
+ 	report_prefix_pop();
+ }
+ 
+@@ -119,20 +160,41 @@ static struct args parse_args(int argc, char **argv)
+ int main(int argc, char **argv)
+ {
+ 	struct args args = parse_args(argc, argv);
+-	bool run_format_0 = test_facility(7);
+ 
+ 	if (!sclp_facilities.has_sief2) {
+ 		report_skip("SIEF2 facility unavailable");
+ 		goto out;
+ 	}
+-	if (!run_format_0)
++	if (!test_facility(7)) {
+ 		report_skip("STFLE facility not available");
++		goto out;
++	}
+ 
+ 	report_info("PRNG seed: 0x%lx", args.seed);
+ 	prng_s = prng_init(args.seed);
+ 	setup_guest();
+-	if (run_format_0)
+-		test_stfle_format_0();
++
++	report_prefix_pushf("format-0");
++	test_stfle_format_0();
++	report_prefix_pop();
++
++	report_prefix_pushf("format-1");
++	if (!sclp_facilities.has_astfleie1)
++		test_no_stfle_format(1);
++	report_prefix_pop();
++
++	report_prefix_pushf("format-2");
++	if (!sclp_facilities.has_astfleie2) {
++		test_no_stfle_format(2);
++		report_skip("alternate STFLE interpretive-execution facility 2 not available");
++	} else {
++		test_stfle_format_2();
++	}
++	report_prefix_pop();
++
++	report_prefix_pushf("format-3");
++	test_no_stfle_format(3);
++	report_prefix_pop();
+ 
+ 	snippet_destroy_guest(&vm);
+ out:
 -- 
 2.53.0
 
