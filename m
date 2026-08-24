@@ -1,64 +1,64 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2283022A817
-	for <linux-s390@vger.kernel.org>; Mon, 24 Aug 2026 12:23:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C20336895D
+	for <linux-s390@vger.kernel.org>; Mon, 24 Aug 2026 12:23:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787574202; cv=none; b=F3MQT+P7FEWG1zwwsSJy/bU7Of0nd9edvZbjHVVWn2vpDisMTzDgmLy02RieOQpfKMdHEOjeuyMOp8nUvJxWPrGvh7TmE+Y8iGF9pG5XnD1WXXLROuuJz8JcG5HdPrY2fhj4+EdNxJrBUxzLMvZ3DtBxeFnFbOlXexrrxHMApMk=
+	t=1787574203; cv=none; b=BuTfSmzk+N7M52Lx1k9utyU3dHcm9fM8A+ZyFQkZOjCqCgiAGr1EM3BBvmLd3zmccvZd9XjmEC9ste3hsYQVf9+WENGvQ2HKXfkoBNG/OpmyZJmRftTvkEnBMbyxgBasZvNBc9XKKgY3xDuyHA3RK0oCpUOsSMziuARvEn6YEiI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787574202; c=relaxed/simple;
-	bh=rU+j6YACAuMAHIZTs7NfxWIvdaWmI/d+WrYgdnbLT44=;
+	s=arc-20240116; t=1787574203; c=relaxed/simple;
+	bh=eQ6Ip39Q1b4sDOZ/rNVAlC6gvqu/jwziTL08iyHMs+s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lFDZg++f8Nx4lfg84vzXivTUtL8SOCfnRTfdsaCwrADmiita0SoriqUcOPgofkSKCfC2WKxJFizJkOYacc3k+omjtkWCWMzuKeTf02i6U85IxUMFcRK9z22ZBRNN0QPwyozBYsIzhr8rix0I9m2xswDg/p+XZ2TEr6aSqOw6888=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MX3ZPhBI; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=APbiitsdIJgGftkaU4rYWu1d+jyyNzpiPW2zyNKVSl0BIBY6FMKigJi39onoIuaE+M+o/ghBG7Cu/MQ+R4o01WECO653q9YNy1fzVBSQkfkx4hALXaWmnrSdPgWSRf4h3JbnLmb0DecGiqEcJDkn7MyDLq6XarlUMlcROLdSDVM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rMoprX5C; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MX3ZPhBI"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67OBVW2t1799443
-	for <linux-s390@vger.kernel.org>; Mon, 24 Aug 2026 12:23:20 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rMoprX5C"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67OBVgvq1753128
+	for <linux-s390@vger.kernel.org>; Mon, 24 Aug 2026 12:23:21 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=HQyui/JwuWYPFnahe
-	NbM8NIJ4++vJ0MM14qn1GPbEeM=; b=MX3ZPhBISIxFPryNl8/JwmEItHPIwh5JQ
-	yaanta6OMIv18DlTfaJhKhgs1cHV05cLQTovxlrAynERTZrpmejGEnn5tV/NnOJ4
-	4Z2p8qb7fw0Ngl+SF+9zZdmSp7UxXxCVdohxrGOCf1EkorzWHL0UF4Ic9E5B4MnH
-	C4UnN4RERVqxzJ6PMrZVA/uqELBf+/SmXcqh+PoXyr9lO8t4XQPMlCluUDV+I+RU
-	KYq5cvg6qqey+wK/pP5zcGV+vQIebxLXnLWOaEBXSPWp+lqhhYYf+xacV2PjqvPN
-	Jhjs/rK+F5iLWZlSuBX7//rfFjOuBQyg8wq7IGRRxhpk0ERueioDg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g73dx115a-1
+	:mime-version:references:subject:to; s=pp1; bh=NMibR4teOYdYkghrk
+	XCTY3hUZuOnevJOiLyz9Oe7WJg=; b=rMoprX5CMw4Z4DwD39FoOerXfTZuW9EpY
+	cfaQz6FTnycyMZ/+bgIbr68jqghMnmM3Am7hLH6rYeLSu7ZqqK45Dl+SD+UaF6OC
+	gEIl1EmkC6QGnxI8Bss2zJdFvXrQOyGrRl7BRGxnXHECD6UGTj4qtYtMliNuwbpO
+	NK7avUtjmIEl+b+VoZcOYKaPcqXUCigKKNhRtxx1ELsmkVoDtvN839pIQGbgGSXn
+	GDWv8swIMVldJbtuN1JqY6zcgE1071uXaYqr3g6x4nq1PJLnE4h9EsptgZYwnQ21
+	ysO0oDZPmJ2KzszY/0Koxf4OYRyuCoMvRe3PzBv7U2XHk/czxd0xw==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g73g4h60b-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Mon, 24 Aug 2026 12:23:19 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67OCBNwP010776
-	for <linux-s390@vger.kernel.org>; Mon, 24 Aug 2026 12:23:19 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g7qkgwqe7-1
+	for <linux-s390@vger.kernel.org>; Mon, 24 Aug 2026 12:23:21 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67OCBHT9009488
+	for <linux-s390@vger.kernel.org>; Mon, 24 Aug 2026 12:23:20 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g7q3jnsws-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Mon, 24 Aug 2026 12:23:19 +0000 (GMT)
+	for <linux-s390@vger.kernel.org>; Mon, 24 Aug 2026 12:23:20 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67OCNFVt47514096
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67OCNGgF44630272
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 24 Aug 2026 12:23:15 GMT
+	Mon, 24 Aug 2026 12:23:16 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 324722004E;
-	Mon, 24 Aug 2026 12:23:15 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 57C302004B;
+	Mon, 24 Aug 2026 12:23:16 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 19F832004B;
-	Mon, 24 Aug 2026 12:23:15 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 3F73320043;
+	Mon, 24 Aug 2026 12:23:16 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 24 Aug 2026 12:23:15 +0000 (GMT)
+	Mon, 24 Aug 2026 12:23:16 +0000 (GMT)
 From: Thomas Richter <tmricht@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 Cc: Thomas Richter <tmricht@linux.ibm.com>,
         Sumanth Korikkar <sumanthk@linux.ibm.com>
-Subject: [PATCH 1/3] s390/pai: Use PAI PMU index as parameter replacing event
-Date: Mon, 24 Aug 2026 14:23:05 +0200
-Message-ID: <20260824122307.86133-2-tmricht@linux.ibm.com>
+Subject: [PATCH 2/3] s390/pai: Move locking to event init and delete
+Date: Mon, 24 Aug 2026 14:23:06 +0200
+Message-ID: <20260824122307.86133-3-tmricht@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260824122307.86133-1-tmricht@linux.ibm.com>
 References: <20260824122307.86133-1-tmricht@linux.ibm.com>
@@ -70,36 +70,33 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI0MDEwMSBTYWx0ZWRfX1tw5VBLqwjCg
- 6qfRocG0elX2VAOLhJavAi1p4199p4HH+6NXFtDqML93PdhfgeCPqljG/qUl/VXCvzjfFUizAO9
- jjKpf1jYYg6D7ExxARX8bZw/qLk4lP8=
-X-Authority-Analysis: v=2.4 cv=AYuB2XXG c=1 sm=1 tr=0 ts=6a8c37b7 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-ORIG-GUID: FmEWSHP_kEHgDkt91FAsM7HkJ9YC6Qr1
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI0MDEwMSBTYWx0ZWRfXxKJWUrVHPmU5
+ LfhUrb577fPatyZjfUlbXH7pLfHisohFw7iI0AErC9d6CYlsRjUVYq5MHDU+9qUNnF0Wo/gC4KT
+ 2kfeae5mwMrMFY9v71Icjc2ht1vP8Pk=
+X-Proofpoint-GUID: FmEWSHP_kEHgDkt91FAsM7HkJ9YC6Qr1
+X-Authority-Analysis: v=2.4 cv=JZyMa0KV c=1 sm=1 tr=0 ts=6a8c37b9 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=JMlX-6JAepFCzwN66roA:9
-X-Proofpoint-ORIG-GUID: TVF5VEnRYKo6C0xOv4rtstg3KpMJYtJT
-X-Proofpoint-GUID: TVF5VEnRYKo6C0xOv4rtstg3KpMJYtJT
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI0MDEwMSBTYWx0ZWRfXwcxBk6MvxKae
- A2yy9UXp+PiW+Vz4qK44CRHfKhRjS/OAzjl/3wtlIxg6dODkn2vB/G+Nb0TEjxjWGHGYM7fKmQb
- V3fxF23s4wGAk1Sab1qnA40Cq+4QBk2g6NtBdQNN0lgKqKPLLpiWBEK2ZIM0MRVBusZrtX5IB7Q
- kDImkhS7dJOrtC8BsubyrGTGBNLKcbeT4N26m6QDHVfUwImll29mBeFfhGb1oEXhmlgkOeqP+il
- glElH9h5iCKhX/PK9Sj51Zn/3PjLxik0pwK9zJo5e0furtLCU302knKmRJ8rzaHoXvb6Pvhk6PX
- qvnMNWPeodQcDeAL/eV8gXtHVALNp9XJy2pG8chzwqT/CNxBrf5ZsVNjs7vW3ZQTtq8HVd0S/tP
- jayNmQdM22XnjceMwAGjTn1WUXYxN0hs88S6DcssTD2FnoO0UADe2xq1WNVHbTIwKFlX2+AIQIB
- 1re3lvfkCgfX3WrFz/A==
+ a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=X5N5VOIQNw_dEAXGeB4A:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI0MDEwMSBTYWx0ZWRfXznhUbwhD/Xya
+ aArmHB5pGnyNjOl6/K4VsUMZXbZBRHHEu6oKDrmSVMy4a85ccGIyRP6DX6LrZ4iDrJWmWE+Nd4I
+ VUNnFQ+qgOfQjJmVR6KWt6rRwgkEJfmnnRXpDjIshXQJsvsMTjeb4PnU/AIhdRyqllFFqmSEZmU
+ 3pBntGVrG+fBWOcRVoBuSajhmUQtUw9gtYqAHzOdiq+Xg56G3SyjtI2TUjxrCByNd6U/XlgoqvP
+ 5317cYGTY9Jh5lCQ2Ny8buqSd1VNDsYCy6lx5l40OC1ziE6BF087zFVY4GbxmeH17kl+9ck6n5F
+ y1XpgXnAzPUm2ewtgRNmRtQQ9zUJE0YL3bQr1hF9U5Ei13BrNm9MKlD2Raa90h8B8aCQeWzsNXj
+ prK0qsU3R+bRVVyRp7IsQW0XpY3PtwtlDEbqx6+QgLZr8/0vEeWJ9jf+KoItwEzUELTJoi/ayGL
+ m++YYdpZYTvQ49ImdhA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-24_03,2026-08-24_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 phishscore=0 clxscore=1015 adultscore=0 bulkscore=0
- impostorscore=0 priorityscore=1501 lowpriorityscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608240101
+ spamscore=0 clxscore=1015 adultscore=0 priorityscore=1501 impostorscore=0
+ malwarescore=0 bulkscore=0 lowpriorityscore=0 suspectscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608240101
 
-Use PAI PMU index value as function argument instead of pointer
-to struct perf_event. Only that index value is used inside
-functions pai_alloc_cpu() and pai_event_destroy_cpu().
+Move mutex locking from per CPU allocation to event allocation.
 No functional change.
 
 Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
@@ -109,95 +106,106 @@ Reviewed-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
  1 file changed, 12 insertions(+), 13 deletions(-)
 
 diff --git a/arch/s390/kernel/perf_pai.c b/arch/s390/kernel/perf_pai.c
-index cdb8006220ca..7c13f5586c79 100644
+index 7c13f5586c79..52d9f654346a 100644
 --- a/arch/s390/kernel/perf_pai.c
 +++ b/arch/s390/kernel/perf_pai.c
-@@ -140,16 +140,14 @@ static void pai_free(struct pai_mapptr *mp)
+@@ -138,21 +138,19 @@ static void pai_free(struct pai_mapptr *mp)
+ }
+ 
  /* Adjust usage counters and remove allocated memory when all users are
-  * gone.
+- * gone.
++ * gone. Called under mutex_lock.
   */
--static void pai_event_destroy_cpu(struct perf_event *event, int cpu)
-+static void pai_event_destroy_cpu(int idx, int cpu)
+ static void pai_event_destroy_cpu(int idx, int cpu)
  {
--	int idx = PAI_PMU_IDX(event);
  	struct pai_mapptr *mp = per_cpu_ptr(pai_root[idx].mapptr, cpu);
  	struct pai_map *cpump = mp->mapptr;
  
- 	mutex_lock(&pai_reserve_mutex);
--	debug_sprintf_event(paidbg, 5, "%s event %#llx idx %d cpu %d users %d "
--			    "refcnt %u\n", __func__, event->attr.config, idx,
--			    event->cpu, cpump->active_events,
-+	debug_sprintf_event(paidbg, 5, "%s users %d refcnt %u\n",
-+			    __func__, cpump->active_events,
+-	mutex_lock(&pai_reserve_mutex);
+ 	debug_sprintf_event(paidbg, 5, "%s users %d refcnt %u\n",
+ 			    __func__, cpump->active_events,
  			    refcount_read(&cpump->refcnt));
  	if (refcount_dec_and_test(&cpump->refcnt))
  		pai_free(mp);
-@@ -159,17 +157,17 @@ static void pai_event_destroy_cpu(struct perf_event *event, int cpu)
+ 	pai_root_free(idx);
+-	mutex_unlock(&pai_reserve_mutex);
+ }
  
  static void pai_event_destroy(struct perf_event *event)
- {
--	int cpu;
-+	int cpu = 0, idx = PAI_PMU_IDX(event);
+@@ -160,6 +158,7 @@ static void pai_event_destroy(struct perf_event *event)
+ 	int cpu = 0, idx = PAI_PMU_IDX(event);
  
  	free_page(PAI_SAVE_AREA(event));
++	mutex_lock(&pai_reserve_mutex);
  	if (event->cpu == -1) {
  		struct cpumask *mask = PAI_CPU_MASK(event);
  
- 		for_each_cpu(cpu, mask)
--			pai_event_destroy_cpu(event, cpu);
-+			pai_event_destroy_cpu(idx, cpu);
- 		kfree(mask);
+@@ -169,6 +168,7 @@ static void pai_event_destroy(struct perf_event *event)
  	} else {
--		pai_event_destroy_cpu(event, event->cpu);
-+		pai_event_destroy_cpu(idx, event->cpu);
+ 		pai_event_destroy_cpu(idx, event->cpu);
  	}
++	mutex_unlock(&pai_reserve_mutex);
  }
  
-@@ -241,12 +239,12 @@ static u64 paicrypt_getall(struct perf_event *event)
-  *
-  * Allocate the memory for the event.
+ static void paicrypt_event_destroy(struct perf_event *event)
+@@ -232,12 +232,10 @@ static u64 paicrypt_getall(struct perf_event *event)
+ 	return sum;
+ }
+ 
+-/* Check concurrent access of counting and sampling for crypto events.
+- * This function is called in process context and it is save to block.
+- * When the event initialization functions fails, no other call back will
+- * be invoked.
+- *
+- * Allocate the memory for the event.
++/* Allocate all per-CPU data structures. This function is called in
++ * process context and can block. In case of error all partly allocated
++ * memory is released and the reference counters adjusted correctly.
++ * Called under mutex_lock.
   */
--static int pai_alloc_cpu(struct perf_event *event, int cpu)
-+static int pai_alloc_cpu(int idx, int cpu)
+ static int pai_alloc_cpu(int idx, int cpu)
  {
--	int rc, idx = PAI_PMU_IDX(event);
- 	struct pai_map *cpump = NULL;
- 	bool need_paiext_cb = false;
+@@ -246,11 +244,10 @@ static int pai_alloc_cpu(int idx, int cpu)
  	struct pai_mapptr *mp;
-+	int rc;
+ 	int rc;
  
- 	mutex_lock(&pai_reserve_mutex);
+-	mutex_lock(&pai_reserve_mutex);
  	/* Allocate root node */
-@@ -318,6 +316,7 @@ static int pai_alloc_cpu(struct perf_event *event, int cpu)
+ 	rc = pai_root_alloc(idx);
+ 	if (rc)
+-		goto unlock;
++		goto out;
  
+ 	/* Allocate node for this event */
+ 	mp = per_cpu_ptr(pai_root[idx].mapptr, cpu);
+@@ -308,12 +305,12 @@ static int pai_alloc_cpu(int idx, int cpu)
+ 		 */
+ 		pai_root_free(idx);
+ 	}
+-unlock:
+-	mutex_unlock(&pai_reserve_mutex);
++out:
+ 	/* If rc is non-zero, no increment of counter/sampler was done. */
+ 	return rc;
+ }
+ 
++/* Called under mutex_lock */
  static int pai_alloc(struct perf_event *event)
  {
-+	int idx = PAI_PMU_IDX(event);
- 	struct cpumask *maskptr;
- 	int cpu, rc = -ENOMEM;
- 
-@@ -326,10 +325,10 @@ static int pai_alloc(struct perf_event *event)
- 		goto out;
- 
- 	for_each_online_cpu(cpu) {
--		rc = pai_alloc_cpu(event, cpu);
-+		rc = pai_alloc_cpu(idx, cpu);
- 		if (rc) {
- 			for_each_cpu(cpu, maskptr)
--				pai_event_destroy_cpu(event, cpu);
-+				pai_event_destroy_cpu(idx, cpu);
- 			kfree(maskptr);
- 			goto out;
+ 	int idx = PAI_PMU_IDX(event);
+@@ -390,10 +387,12 @@ static int pai_event_init(struct perf_event *event, int idx)
  		}
-@@ -392,7 +391,7 @@ static int pai_event_init(struct perf_event *event, int idx)
  	}
  
++	mutex_lock(&pai_reserve_mutex);
  	if (event->cpu >= 0)
--		rc = pai_alloc_cpu(event, event->cpu);
-+		rc = pai_alloc_cpu(idx, event->cpu);
+ 		rc = pai_alloc_cpu(idx, event->cpu);
  	else
  		rc = pai_alloc(event);
++	mutex_unlock(&pai_reserve_mutex);
  	if (rc) {
+ 		free_page(PAI_SAVE_AREA(event));
+ 		goto out;
 -- 
 2.55.0
 
