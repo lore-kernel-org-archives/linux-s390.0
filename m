@@ -1,317 +1,345 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 113E13A961B
-	for <linux-s390@vger.kernel.org>; Mon, 24 Aug 2026 08:32:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 721803ACEFE
+	for <linux-s390@vger.kernel.org>; Mon, 24 Aug 2026 08:32:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787560349; cv=none; b=egNknbNwNT03VQef780zfpiRpMTganSXuLCChK72XeejU7kX0l9Nq+E/4/uCKGKm0JRxB68uxiXI2+pF3/FGjHgq/JlJ1JkvMmI8I0iPHi5ZQ0PVnfok5kipB1ZZMNX4FJUNO8mTJ+xqL1RPlBYOxLkrHPq7S5cfLj6Kynk2LHI=
+	t=1787560350; cv=none; b=tf/J8Shl6UNcOxhHdpc6n9eDPHnIfMnYeJXeJppr+vVrkVsn8hQw9VrbJ0ASG9QQIFz/lB0KIw366R0NwVDCJT7pnWCH/mj/Wb9jwLlW4PobACD+WSntfcQ6Zhhp2cCqfdO/UcAbajKVnp1b4YVbQ/HrVXHbfgSxusPC/33sUtE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787560349; c=relaxed/simple;
-	bh=nIWCg2YJrfMZyWlK418PBZvm2Eu0Lhr9P+AJCPX626Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Oi7cCXgcR3u6TAa7g3m9jehrsTAsCodNMNkD/M+6Mf03PXN7Kr1mcEksZ/le3G7J2FmdmdJcoTpuw6ggFynVpmeRmIgXzh+K+c8zWF2aH3WOorR7oH79G6jbjX5tF3cEPBHCLyavlAeon6xIe67o8+F20yDHdiBNiXVNKYEx+V8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=niWM91RR; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1787560350; c=relaxed/simple;
+	bh=bYarBI5oso3WNa7jHSxYhBWBLiCedFL4ojztWnLvyI8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=QF+BQM0eoJ9DHqb0tI46UqV4vHmacw6EzULhhqOncmPaZ3SiraTjPbqES6tjLhu2O5OacivScXzGOkW9+vq3ZiZ1mgaSpDErSQ2cUiP6BQeYOfuLyiZNQ/RDnA+IKLrfejo6v3gQHO5Xd+/9Pfp5goJBauGH+wccDw607hhfM20=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oeNM7OJQ; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="niWM91RR"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67O5VgFG856894;
-	Mon, 24 Aug 2026 08:32:10 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oeNM7OJQ"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67O5VTLI3283289;
+	Mon, 24 Aug 2026 08:32:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pp1; bh=Od4ffgQCivmDGx1Tja57ZPvzriun
-	QcbB8u0SN1PR9GA=; b=niWM91RRn+fX5/FrDaSCWVBpG3c2U8/cCsIkj064laEd
-	beNLkRYadE+3hJSmGdaLi0waxuFPPJlH+01Y+esKZs6N3sCZLG9A5vSc9UsxYxbX
-	v8bke4n/kEzHh/qfaylJ4sdvV4y6RZNZ2lp19DeC/BO8s9HJS7VQNSrNbauJ1m52
-	PUGHZBVDC44QC+W+2pS5uS6w+C3YxEsVTvKyROc2u51uRXaeJ39O4gBYtR3GFSZM
-	no3BON1YNjMg+g432ptHAtZtptRBVwF1g+aT6CWLYCGbKWhr+uks2fUxZRCPP2yh
-	g9MjjuL2+2t58kUk0ykUPXPl4C4kUq/oL8F3vnbVOw==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g716hgax0-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=0cFbESRi+4x9srjcR
+	0pKHeX6AMVMkZnPqn5LNu3qFWI=; b=oeNM7OJQ3U8plSl2yAKQjUYDuEdA/xMkH
+	5WsKrpf1MrMR6eZqfso6yswvRXquVBd4Wi5fgSl9a4mppf+gHJwG6yCBdh3NgVmU
+	B8f+TK8Pw97dpfEevnMbDp3bKvDZT7aq+ZbTOirWDIl3AwOa0dd+jfhhSEQPqD+M
+	lN1vw09CG3XDQLWDfzPlvtsc34qbPbwthxLkTrA+lmicUyuUS3RzX+3XqpPI8Jn9
+	q6mv3qJLUNjF0ZaT6jQEf4Jbls9E9mFVyrgocOHoQi6raO3Dz0NSRjgs8ZUZ3/wd
+	UR0V1gUl6uW7zcqb0YzF8JmxiJlAycCok4tV779C76qENTOcPpU3w==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g73eqg1x3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Aug 2026 08:32:10 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67O8QLcN018136;
-	Mon, 24 Aug 2026 08:32:09 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g7qkgvr3a-1
+	Mon, 24 Aug 2026 08:32:12 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67O8QQ6Z019343;
+	Mon, 24 Aug 2026 08:32:11 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g7pfvvx0b-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 24 Aug 2026 08:32:09 +0000 (GMT)
+	Mon, 24 Aug 2026 08:32:11 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67O8W5LC28312102
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67O8W7Aq45744444
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 24 Aug 2026 08:32:05 GMT
+	Mon, 24 Aug 2026 08:32:07 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4DB732004B;
-	Mon, 24 Aug 2026 08:32:05 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 50E3E20043;
+	Mon, 24 Aug 2026 08:32:07 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1768C20043;
-	Mon, 24 Aug 2026 08:32:05 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 187A62004B;
+	Mon, 24 Aug 2026 08:32:07 +0000 (GMT)
 Received: from funtu2.ibm.com (unknown [9.111.131.174])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 24 Aug 2026 08:32:05 +0000 (GMT)
+	Mon, 24 Aug 2026 08:32:07 +0000 (GMT)
 From: Harald Freudenberger <freude@linux.ibm.com>
 To: richard.henderson@linaro.org, iii@linux.ibm.com, david@kernel.org,
         thuth@redhat.com, berrange@redhat.com
 Cc: qemu-s390x@nongnu.org, qemu-devel@nongnu.org, linux-s390@vger.kernel.org,
         dengler@linux.ibm.com, borntraeger@linux.ibm.com,
         fcallies@linux.ibm.com, cohuck@redhat.com
-Subject: [PATCH v16 00/20] Extend qemu CPACF support
-Date: Mon, 24 Aug 2026 10:31:44 +0200
-Message-ID: <20260824083204.40877-1-freude@linux.ibm.com>
+Subject: [PATCH v16 08/20] target/s390x: Support AES ECB for cpacf km instruction
+Date: Mon, 24 Aug 2026 10:31:52 +0200
+Message-ID: <20260824083204.40877-9-freude@linux.ibm.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260824083204.40877-1-freude@linux.ibm.com>
+References: <20260824083204.40877-1-freude@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI0MDA3NCBTYWx0ZWRfX8VpUaCQqhi6x
- 4Y7+PMt/hMeI45kbubZ95uweQUH7YkUTrTx/yhvKh64TgTrcfHZPLYN4K4YlRBKhvi7/9SIKZWZ
- /KBmlCsHHoku4uekpqdsnJmSmUJgASE=
-X-Proofpoint-GUID: gMJfv7T_Wb48Ysc24HDi4QKJ-xEzTLIg
-X-Proofpoint-ORIG-GUID: gMJfv7T_Wb48Ysc24HDi4QKJ-xEzTLIg
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI0MDA3NCBTYWx0ZWRfX2DeEalyUwZQw
- OjTCrXxfs2yn3Sz3CKITiQMSpeIiQGCyQLwRmRX8DXroSxkSKXqcbTj+M7+4sMIIb8+StUjafic
- gCAhOQEjKq7IbKZDjkhF+oOwlk4A0j2v09NjvB6cjC87WeIGq6Jrsu4dVoPS9Wsjo03y4AWuZfo
- rvOFSIHQ/sHyzJSiEEBNjqRg2rvUHNljEvUCGmnsHADshC4dEC9fPjE20rCzFO8ctWC2NYyuv8s
- /zH7ZHahetaF7kETTSm4hApZrBy4pA0YwoCPhO+HlauGtvLlNRCU91dAz+V3hBk29N7lKPM23Xi
- E5ediy5eWz9r9m1ruywn6vkFgX38mE1yq2GrOPTL2Yke4plAuTeNxpTZjQBvyQ2HqWGZgvJgLWU
- JDRbNL5FgAeeISCKx8SHcl+eyykQBlsIBYSSiWsrz1hkVpHVG+V+MZ6NJAG7uA4Z/koXv9HOgcw
- zzgCUALfDKFPPnrWOfQ==
-X-Authority-Analysis: v=2.4 cv=H7brBeYi c=1 sm=1 tr=0 ts=6a8c018a cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=ND9ciUkhDXhB3UggpQcA:9
- a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: E95hyxwO89l9lP4rIb5jVBop929U_MXj
+X-Proofpoint-ORIG-GUID: E95hyxwO89l9lP4rIb5jVBop929U_MXj
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI0MDA3NCBTYWx0ZWRfXwpw+z5ZstYtK
+ iFg/REvy6677P3/spJmSm7nK2XlzlxRCwGISh8YoUSla5kOJ9FSCjDPnKW4y7hhPXclbSxR6i+S
+ dJEud+k8RQeQvVeuRz+COmYVXF4dpExlSqdDdgE8ZvxQ1aIAenTcuZQSJie3Oq04JlQHydBzlcb
+ EVPY5YA1+aJEYNM+r4fG3RkyKs/bl/tfdsf2mZ0A/yZrbwjeGH/GhqlSdqkcyMydz3FhzHJRU4c
+ mAzyxD1hxwlcJOwlM/+h4LeJHt0gY9lQJDgr4HOi6Zmx3ca+3V78GJiBteOWt1zVmFV8XJzmKFN
+ AAgKQPWJV9nkbBroQGCUvLc8T+H3pRYz6DC4v8OJ4aeIxclqZwESYrg51p7/iAJ0GmlAypwvp2u
+ TrZAPsiIFiAj90PL3wzq45XZclrgEUmCqlH9Ty35irqmLpLeMLHUmHy93ELTFccU1ep8QeydXhV
+ IY0+P29QHvFBYVsdMYQ==
+X-Authority-Analysis: v=2.4 cv=QsRuG1yd c=1 sm=1 tr=0 ts=6a8c018c cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=UeJqcyLMtA2A8E2_xXgA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI0MDA3NCBTYWx0ZWRfX6FVxWM7w8gSo
+ lq1eRsJ7K7HIPJAQ2z0bwSFsrzhi7ffHMiyTEGIMz2oXoSGgh/ywnRisaFQJDRjtXo2IRdF1OqP
+ 7X0ZyJC2Q2TqNu2/klYWLJoxwMZddVI=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-24_02,2026-08-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 malwarescore=0 lowpriorityscore=0 impostorscore=0 spamscore=0
- bulkscore=0 adultscore=0 priorityscore=1501 clxscore=1015 phishscore=0
+ malwarescore=0 adultscore=0 suspectscore=0 priorityscore=1501 impostorscore=0
+ spamscore=0 lowpriorityscore=0 clxscore=1015 bulkscore=0 phishscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608240074
 
-This patch series extends the s390 qemu CPACF support to be able to
-run a subset of the CPACF instruction cross platform. There have been
-requests on the kernel crypto mailing list about a way to test
-s390 specific crypto implementations. For example a way to test
-s390 CPACF exploitation code like the s390_aes.ko kernel module.
+Support the subfunctions CPACF_KM_AES_128, CPACF_KM_AES_192
+and CPACF_KM_AES_256 for the cpacf km instruction.
 
-So here now is a set of patches verified on x86 and s390 which
-over (slow but working) support for a subset of the subfunctions of
-some of the CPACF instructions.
-
-Test: There are some very basic tests included with this patch series
-suitable for some CI run. Better test coverage can be done by running
-a full blown Linux and use for example the in-kernel crypto modules.
-The 'usual' in-kernel crpyto modules will be automatically loaded
-which run a bunch of test cases. So there is now support for these
-kernel modules:
-* sha256_s390x (autoloaded, sha256)
-* sha512_s390x (autoloaded, sha512)
-* aes_s390x (autoloaded, clear key aes ecb, cbc, ctr, xts)
-* pkey_pckmo (autoloaded, derive AES protected key from clear key)
-* paes_s390x (not autoloaded, protected key aes ecb, cbc, ctr, xts)
-All these modules run selftests if configured by the kernel (which is
-enabled by default). Failures are reported via syslog. Additionally
-the aes testcases from libica can be run either inside such an qemu
-environment or with a static build executed with the qemu tcg
-application qemu-s390x --cpu max <static-build-libica-test>.
-
-Changelog:
-v1: Initial version with
-    - Related code restructured
-    - Support KIMD SHA512 and thus SHA256
-    - Support KMC AES-128, AES-192 and AES-256 and thus have basic AES
-      support (ECB mode) enabled.
-    - Support PCC Compute-XTS-Parameter-AES-128 and
-      Compute-XTS-Parameter-AES-256 but only for block sequence number
-      0. This is a requirement for the next step:
-    - Support KM XTS-AES-128 and KM XTS-AES-256. Together with the
-      minimal PCC support this enables AES-XTS CPACF acceleration.
-v2: - Basic PCKMO support to be able to 'derive' an AES protected key
-      from clear key. See header details.
-    - Support protected key AES-ECB.
-    - Support protected key AES-CBC.
-    - Minimal protected key AES-XTS support for CPACF PCC.
-    - Support protected key AES-XTS.
-    - Support AES-CTR.
-    - Support protected key AES-CTR.
-v3: - Reordered patches as suggested by Finn.
-    - One small bug fix in CPACF_aes.c related to address translation.
-v4: - Rename of the parameters based on feedback from Janosch to
-      make clear these are registers or ptrs to registers.
-      Added Tested by from Holger. Fixed typo "face" -> "fake".
-v5: - Add documentation file docs/system/s390x/cpacf.rst which
-      describes the state of the CPACF instructions and which
-      functions are covered when this series is applied.
-      First version sent to public mailing list qemu-s390x.
-v6: - Rebase/rework to build on current qemu head.
-    - Add docs/system/s390x/cpacf.rst to target-s390x.rst
-    - New file crypto/aes-helpers.c with some simple
-      functions to support AES modes CBC, CTR and XTS.
-    - Slight rewrite of the s390x CPACF implementations to
-      use these generic AES mode implementations.
-v7: - Update on docs/system/s390x/cpacf.rst to mention
-      the zArchicteture Principles of Operation document
-      which describes all these CPACF instructions.
-v8: - Add a fix which deals with incorrect address handling
-      in the sha512 implementation related to fetch and push
-      data from/to memory.
-    - Slight rework around the capcf function implementation and
-      exception generation.
-    - Added some more details to the new cpacf.rst file.
-    - Fixed some typos and added some suggestions from Finn.
-    - Fixed cc handling on return of PCKMO (must not update cc).
-    Missing: simple test cases to verify that the implemented and not
-    implemented cpacf functions and subfunctions work as expected. But
-    see the statement about tests at the header.
-v9: - Add simple tests for all the implemented CPACF instructions but
-      pckmo (which is a privileged instruction).
-    - Reworked the Fix for wrong address to call the wrap function
-      inline; rephrased commit header.
-    - Improve the header file cpacf.h to hold defines for all the
-      cpacf instruction functions and use them in the code.
-    - one new commit comprising the base protected key support with
-      exposing the xor pattern and wkvp and en/decrypt key functions
-      via cpacf.h. So the testcases can use this header file.
-    - one new commit which reworks the fetch memory and store memory
-      from and to guest (suggested by Ilya Leoshkevich).
-v10: - Fixed v9 patch 3 (cpacf_sha512.c was missing)
-     Please note that patch #10 "target/s390x: Base support for cpacf
-     protected keys" produces a build warning ("unused function"). As
-     by default the qemu build has warnings=errors enabled, this one
-     patch does not build on it's own. If this is not acceptable, the
-     hunk introducing the two functions may be moved to the next
-     commit; another solution would be to merge with patch #11.
-v11: Fixed nearly all checkpatch findings - only the warnings about
-     Maintainers may need update is still there.
-v12: - Very first patch is integrated in master and thus removed from
-       this series.
-     - New header file include/crypto/aes-headers.h as suggested by
-       Daniel. Moved the patch which introduces the aes helpers before
-       the actual AES cpacf implementations and reworked all the code
-       to use these helpers.
-     - Merged together "Base support for cpacf protected keys" and
-       "Support pckmo encrypt AES subfunctions" to fix the broken
-       build caused by unused functions.
-     - Merged the changes from patch "Improve fetch and store mem from
-       and to guest" directly into the code where it is introduced.
-v13: - reworked the helper functions to copy memory from and to
-       guest. These are now inline functions located in
-       target/s390x/tcg/crypto_helper.h and have been renamed and
-       extended for u32 and u64 as well. Also the both sha
-       implementations have been reworked to use these helper
-       functions. See patch #4 for details.
-     - fixed the wrong list of parameters docu in patch #5
-     - added some Reviewed-by tags.
-     - reworked the testcases to run (more or less) on real s390
-       hardware. However this does not and can not work with protected
-       keys.
-     - rebased to current master head.
-v14: - fixed one wrong constant in target/s390x/tcg/cpacf.h
-     - added 1 patch (patch #1) which fixes the missing privileged
-       flag with the PCKMO instruction.
-     - added a simple testcase for the PCKMO instruction (see
-       tests/s390x/tcg/cpacf-pckmo.c for details).
-v15: - rebased to current master
-     - new patch reworking the addressing mode check in the both
-       sha256 and sha512 implementations. Also added early bail out.
-     - In a similar way rework the checking for addressing mode in
-       cpacf_aes.c (comes in with each algo implementation).
-     - bail out early on length zero for the cpacf aes algs.
-     - As suggested by Ilya splitted the cpacf.h into two header
-       files cpacf-arch.h and cpacf.h.
-v16: - Fixed some places with wrong indentation.
-     - Fix regression introduced with v15: sha256 and sha512 must bail
-       out for KIMD only, but not for KLMD.
-     - AI screening: PCKMO still clobbered CC. So fixed this.
-     - AI screening: KDSA lacked the r2 even/nonzero check - fixed.
-     - Updated cpacf docu to clearly state for KMA, KMF, KMO and KDSA
-       which exception happens on which condition.
-
-Harald Freudenberger (20):
-  target/s390x: Fix missing privileged flag at PCKMO instruction
-  target/s390x: Rework s390 cpacf implementations
-  target/s390x: Move cpacf sha512 code into a new file
-  target/s390x: Support cpacf sha256
-  target/s390x: Add helper functions for copy memory to and from guest
-  target/s390x: Adjust addressing mode checks for sha512 and sha256
-  crypto: Add aes-helpers file to support some AES modes
-  target/s390x: Support AES ECB for cpacf km instruction
-  target/s390x: Support AES CBC for cpacf kmc instruction
-  target/s390x: Support AES CTR for cpacf kmctr instruction
-  target/s390x: Minimal AES XTS support for cpacf pcc instruction
-  target/s390x: Support AES XTS for cpacf km instruction
-  target/s390x: Base support for cpacf protected keys and pckmo
-  target/s390x: Support protected key AES ECB for cpacf km instruction
-  target/s390x: Support protected key AES CBC for cpacf kmc instruction
-  target/s390x: Support protected key AES CTR for cpacf kmctr
-    instruction
-  target/s390x: Minimal protected key AES XTS support for cpacf pcc
-    instruction
-  target/s390x: Support protected key AES XTS for cpacf km instruction
-  docs/s390: Document CPACF instructions support
-  tests/tcg/s390x: Add tests for CPACF instructions
-
- crypto/aes-helpers.c             | 106 ++++
- crypto/meson.build               |   1 +
- docs/system/s390x/cpacf.rst      | 143 +++++
- docs/system/target-s390x.rst     |   1 +
- include/crypto/aes-helpers.h     | 109 ++++
- target/s390x/gen-features.c      |  31 +
- target/s390x/tcg/cpacf-arch.h    | 251 ++++++++
- target/s390x/tcg/cpacf.h         |  63 ++
- target/s390x/tcg/cpacf_aes.c     | 986 +++++++++++++++++++++++++++++++
- target/s390x/tcg/cpacf_sha256.c  | 197 ++++++
- target/s390x/tcg/cpacf_sha512.c  | 211 +++++++
- target/s390x/tcg/crypto_helper.c | 445 +++++++-------
- target/s390x/tcg/crypto_helper.h | 100 ++++
- target/s390x/tcg/insn-data.h.inc |   3 +-
- target/s390x/tcg/meson.build     |   3 +
- target/s390x/tcg/translate.c     |  16 +-
- tests/tcg/s390x/Makefile.target  |  10 +
- tests/tcg/s390x/cpacf-kdsa.c     |  58 ++
- tests/tcg/s390x/cpacf-kimd.c     | 166 ++++++
- tests/tcg/s390x/cpacf-klmd.c     | 206 +++++++
- tests/tcg/s390x/cpacf-km.c       | 590 ++++++++++++++++++
- tests/tcg/s390x/cpacf-kmac.c     |  58 ++
- tests/tcg/s390x/cpacf-kmc.c      | 351 +++++++++++
- tests/tcg/s390x/cpacf-kmctr.c    | 360 +++++++++++
- tests/tcg/s390x/cpacf-pcc.c      | 245 ++++++++
- tests/tcg/s390x/cpacf-pckmo.c    |  45 ++
- tests/tcg/s390x/cpacf-prno.c     | 131 ++++
- tests/tcg/s390x/cpacf.h          | 570 ++++++++++++++++++
- 28 files changed, 5230 insertions(+), 226 deletions(-)
- create mode 100644 crypto/aes-helpers.c
- create mode 100644 docs/system/s390x/cpacf.rst
- create mode 100644 include/crypto/aes-helpers.h
- create mode 100644 target/s390x/tcg/cpacf-arch.h
- create mode 100644 target/s390x/tcg/cpacf.h
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Tested-by: Holger Dengler <dengler@linux.ibm.com>
+Reviewed-by: Finn Callies <fcallies@linux.ibm.com>
+Reviewed-by: Ilya Leoshkevich <iii@linux.ibm.com>
+---
+ target/s390x/gen-features.c      |   3 +
+ target/s390x/tcg/cpacf.h         |   6 ++
+ target/s390x/tcg/cpacf_aes.c     | 137 +++++++++++++++++++++++++++++++
+ target/s390x/tcg/crypto_helper.c |  24 ++++++
+ target/s390x/tcg/meson.build     |   1 +
+ 5 files changed, 171 insertions(+)
  create mode 100644 target/s390x/tcg/cpacf_aes.c
- create mode 100644 target/s390x/tcg/cpacf_sha256.c
- create mode 100644 target/s390x/tcg/cpacf_sha512.c
- create mode 100644 target/s390x/tcg/crypto_helper.h
- create mode 100644 tests/tcg/s390x/cpacf-kdsa.c
- create mode 100644 tests/tcg/s390x/cpacf-kimd.c
- create mode 100644 tests/tcg/s390x/cpacf-klmd.c
- create mode 100644 tests/tcg/s390x/cpacf-km.c
- create mode 100644 tests/tcg/s390x/cpacf-kmac.c
- create mode 100644 tests/tcg/s390x/cpacf-kmc.c
- create mode 100644 tests/tcg/s390x/cpacf-kmctr.c
- create mode 100644 tests/tcg/s390x/cpacf-pcc.c
- create mode 100644 tests/tcg/s390x/cpacf-pckmo.c
- create mode 100644 tests/tcg/s390x/cpacf-prno.c
- create mode 100644 tests/tcg/s390x/cpacf.h
 
-
-base-commit: 9696bf5dc5a5bf0b4a9d05b6cdfe5f13990f97aa
---
+diff --git a/target/s390x/gen-features.c b/target/s390x/gen-features.c
+index 78f71c6c7b..c8ba5107d7 100644
+--- a/target/s390x/gen-features.c
++++ b/target/s390x/gen-features.c
+@@ -922,6 +922,9 @@ static uint16_t qemu_MAX[] = {
+     S390_FEAT_KLMD_SHA_256,
+     S390_FEAT_KLMD_SHA_512,
+     S390_FEAT_PRNO_TRNG,
++    S390_FEAT_KM_AES_128,
++    S390_FEAT_KM_AES_192,
++    S390_FEAT_KM_AES_256,
+ };
+ 
+ /****** END FEATURE DEFS ******/
+diff --git a/target/s390x/tcg/cpacf.h b/target/s390x/tcg/cpacf.h
+index 67b8368e4d..49630bab5e 100644
+--- a/target/s390x/tcg/cpacf.h
++++ b/target/s390x/tcg/cpacf.h
+@@ -18,4 +18,10 @@ int cpacf_sha512(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
+                  uint64_t param_addr, uint64_t *message_reg, uint64_t *len_reg,
+                  uint32_t type);
+ 
++/* from cpacf_aes.c */
++int cpacf_aes_ecb(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
++                  uint64_t param_addr, uint64_t *dst_ptr_reg,
++                  uint64_t *src_ptr_reg, uint64_t *src_len_reg,
++                  uint32_t type, uint8_t fc, uint8_t mod);
++
+ #endif /* S390X_CPACF_H */
+diff --git a/target/s390x/tcg/cpacf_aes.c b/target/s390x/tcg/cpacf_aes.c
+new file mode 100644
+index 0000000000..d87da18c19
+--- /dev/null
++++ b/target/s390x/tcg/cpacf_aes.c
+@@ -0,0 +1,137 @@
++/*
++ * SPDX-License-Identifier: GPL-2.0-or-later
++ *
++ * s390 cpacf aes
++ *
++ * Authors:
++ *   Harald Freudenberger <freude@linux.ibm.com>
++ */
++
++#include "qemu/osdep.h"
++#include "s390x-internal.h"
++#include "tcg_s390x.h"
++#include "accel/tcg/cpu-ldst-common.h"
++#include "accel/tcg/cpu-mmu-index.h"
++#include "crypto/aes.h"
++#include "crypto/aes-helpers.h"
++#include "target/s390x/tcg/cpacf-arch.h"
++#include "target/s390x/tcg/cpacf.h"
++#include "target/s390x/tcg/crypto_helper.h"
++
++/*
++ * read exactly one AES block from guest memory into a local buffer
++ */
++static inline void aes_read_block(CPUS390XState *env, const int mmu_idx,
++                                  const uintptr_t ra, uint64_t guest_addr,
++                                  uint8_t *buf)
++{
++    read_guest_wrap_u8(env, mmu_idx, ra, guest_addr, buf, AES_BLOCK_SIZE);
++}
++
++/*
++ * write exactly one AES block from local buffer to guest memory
++ */
++static void aes_write_block(CPUS390XState *env, const int mmu_idx,
++                            const uintptr_t ra, uint64_t guest_addr,
++                            uint8_t *buf)
++{
++    write_guest_wrap_u8(env, mmu_idx, ra, guest_addr, buf, AES_BLOCK_SIZE);
++}
++
++/*
++ * Helper function returning the bitsize of the address mode.
++ * Within this file only 64 bit and 32 bit are supported and
++ * thus this function returns either 64 or 32 or 0.
++ */
++static int get_address_bitsize(CPUS390XState *env)
++{
++    if (env->psw.mask & PSW_MASK_64) {
++        return 64;
++    } else if (env->psw.mask & PSW_MASK_32) {
++        return 32;
++    } else {
++        /* unknown or unsupported here */
++        return 0;
++    }
++}
++
++int cpacf_aes_ecb(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
++                  uint64_t param_addr, uint64_t *dst_ptr_reg,
++                  uint64_t *src_ptr_reg, uint64_t *src_len_reg,
++                  uint32_t type, uint8_t fc, uint8_t mod)
++{
++    enum { MAX_BLOCKS_PER_RUN = 8192 / AES_BLOCK_SIZE };
++    uint8_t in[AES_BLOCK_SIZE], out[AES_BLOCK_SIZE];
++    uint64_t len = *src_len_reg, done = 0;
++    int i, keysize, addr_reg_size;
++    uint8_t key[32];
++    AES_KEY exkey;
++
++    g_assert(type == S390_FEAT_TYPE_KM);
++    switch (fc) {
++    case CPACF_KM_AES_128:
++        keysize = 16;
++        break;
++    case CPACF_KM_AES_192:
++        keysize = 24;
++        break;
++    case CPACF_KM_AES_256:
++        keysize = 32;
++        break;
++    default:
++        g_assert_not_reached();
++    }
++
++    /* check addressing mode, raise exception if not supported here */
++    addr_reg_size = get_address_bitsize(env);
++    switch (addr_reg_size) {
++    case 64:
++        break;
++    case 32:
++        len = (uint32_t)len;
++        break;
++    default:
++        tcg_s390_program_interrupt(env, PGM_SPECIFICATION, ra);
++    }
++
++    /* early bail out if length is zero */
++    if (!len) {
++        return 0;
++    }
++
++    /* length has to be properly aligned. */
++    if (!QEMU_IS_ALIGNED(len, AES_BLOCK_SIZE)) {
++        tcg_s390_program_interrupt(env, PGM_SPECIFICATION, ra);
++    }
++
++    /* fetch key from param block */
++    read_guest_wrap_u8(env, mmu_idx, ra, param_addr, key, keysize);
++
++    /* expand key */
++    if (mod) {
++        AES_set_decrypt_key(key, keysize * 8, &exkey);
++    } else {
++        AES_set_encrypt_key(key, keysize * 8, &exkey);
++    }
++
++    /* process up to MAX_BLOCKS_PER_RUN aes blocks */
++    for (i = 0; i < MAX_BLOCKS_PER_RUN && len >= AES_BLOCK_SIZE; i++) {
++        aes_read_block(env, mmu_idx, ra, *src_ptr_reg + done, in);
++        if (mod) {
++            AES_decrypt(in, out, &exkey);
++        } else {
++            AES_encrypt(in, out, &exkey);
++        }
++        aes_write_block(env, mmu_idx, ra, *dst_ptr_reg + done, out);
++        len -= AES_BLOCK_SIZE;
++        done += AES_BLOCK_SIZE;
++    }
++
++    *src_ptr_reg = deposit64(*src_ptr_reg, 0, addr_reg_size,
++                             *src_ptr_reg + done);
++    *dst_ptr_reg = deposit64(*dst_ptr_reg, 0, addr_reg_size,
++                             *dst_ptr_reg + done);
++    *src_len_reg -= done;
++
++    return !len ? 0 : 3;
++}
+diff --git a/target/s390x/tcg/crypto_helper.c b/target/s390x/tcg/crypto_helper.c
+index 27decdda63..534498173c 100644
+--- a/target/s390x/tcg/crypto_helper.c
++++ b/target/s390x/tcg/crypto_helper.c
+@@ -98,6 +98,27 @@ static int cpacf_klmd(CPUS390XState *env, const int mmu_idx, const uintptr_t ra,
+     return rc;
+ }
+ 
++static int cpacf_km(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
++                    uint32_t r1, uint32_t r2, uint32_t r3,
++                    uint8_t fc, uint8_t mod)
++{
++    int rc = 0;
++
++    switch (fc) {
++    case CPACF_KM_AES_128:
++    case CPACF_KM_AES_192:
++    case CPACF_KM_AES_256:
++        rc = cpacf_aes_ecb(env, mmu_idx, ra, env->regs[1],
++                           &env->regs[r1], &env->regs[r2], &env->regs[r2 + 1],
++                           S390_FEAT_TYPE_KM, fc, mod);
++        break;
++    default:
++        tcg_s390_program_interrupt(env, PGM_SPECIFICATION, ra);
++    }
++
++    return rc;
++}
++
+ static int cpacf_ppno(CPUS390XState *env, const int mmu_idx, uintptr_t ra,
+                       uint32_t r1, uint32_t r2, uint32_t r3, uint8_t fc)
+ {
+@@ -166,6 +187,9 @@ uint32_t HELPER(msa)(CPUS390XState *env, uint32_t r1, uint32_t r2, uint32_t r3,
+     case S390_FEAT_TYPE_KLMD:
+         rc = cpacf_klmd(env, mmu_idx, ra, r1, r2, r3, fc);
+         break;
++    case S390_FEAT_TYPE_KM:
++        rc = cpacf_km(env, mmu_idx, ra, r1, r2, r3, fc, mod);
++        break;
+     case S390_FEAT_TYPE_PPNO:
+         rc = cpacf_ppno(env, mmu_idx, ra, r1, r2, r3, fc);
+         break;
+diff --git a/target/s390x/tcg/meson.build b/target/s390x/tcg/meson.build
+index 8ae8da9708..6f2e75764b 100644
+--- a/target/s390x/tcg/meson.build
++++ b/target/s390x/tcg/meson.build
+@@ -5,6 +5,7 @@ s390x_ss.add(when: 'CONFIG_TCG', if_true: files(
+ ))
+ s390x_common_ss.add(when: 'CONFIG_TCG', if_true: files(
+   'cc_helper.c',
++  'cpacf_aes.c',
+   'cpacf_sha256.c',
+   'cpacf_sha512.c',
+   'crypto_helper.c',
+-- 
 2.43.0
 
