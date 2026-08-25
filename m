@@ -1,178 +1,136 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 484A63DDAFE
-	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 08:24:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9705A3D331E
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 09:49:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787646260; cv=none; b=QfNIlKlQJbazgZ+by0LA8bnAm9xj4pCOyAImmIvFeSNGOVSY52cQC/eUWn5ZuldoOAn2dlTT304UqN4WoxrFRH86Nw+9bvTeCncvhQbxODyk/0y+NiAn5Cn2bTuDwU6ZUvGtRV2TTiv+cHY/dcTIBdal3iNcdfyvwm0AC1+PsNY=
+	t=1787651373; cv=none; b=Ck9iwPNuqgOJHoyr1Gvj9X/A/UeTJlVDtturFqreo4U2X5KyH9mFd6/n1puHu/jEs8MwIo5pnsO6Djr9fISzryMyE8vLxrtiN1TmGLvpV/m/GONM4bsrM2lZOsOiU40d4RtBcqW1T3IhBP7ng+jfLfphhd1Ao86Pbd6yZp9POjM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787646260; c=relaxed/simple;
-	bh=DZQvgMF9MtoSMKn9/xxgPT3t+kYxUHeBLkPFZwmxGy0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RYWa2HC3r+LZAhZmp5WNOjmTu6+EBVFXIcrPD62XfSdZWFKM06uFX9VJbzlfzvfdZSwlYTd/onNGQIeYL1WqpDrblJK2yFZFBMZR5ALu8Hq3gn5ie4azgh58CrO1wb0IKvF2ryBYdwk/IW+ksqDvpFpqeQ7AXt/8QG/CTw9z8DM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=BFeqlQ0q; arc=none smtp.client-ip=209.85.208.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1787651373; c=relaxed/simple;
+	bh=oAAbIGJB8P9w3IY6LHmChMzTT7YK3Zxk1NALn/yMeWY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gqK5TH2LQxrvxnUFd7Sis/Lshc9jDQ6Gt9zB77Cr51PPJHv9rBeXEGrhGKsNeJ1NOuxE77u633nILNBGgZpkHrsQvgi/+jkNDsVt9pgZZehgcyZ4zZaN4SnFQSCx2pHBJJGN60REN3iQWXRd4HJwZIyucfVhtBYN5Zz89igVEOc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=R8YqjTj0; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="BFeqlQ0q"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-6a20319d030so6697401a12.2
-        for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 01:24:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1787646255; x=1788251055; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=DZQvgMF9MtoSMKn9/xxgPT3t+kYxUHeBLkPFZwmxGy0=;
-        b=BFeqlQ0q/iI/Y9xCCyZW9DcLrNuxdKfN+Y+//0GtDmUjYy2yEe/So/1C91iOhFggaa
-         w+PoJMpJllcqUOV1XX00bD7B84xNhMcsllE/0Nmh9dN8tZqJJBTNzbShKDQnxPsEmaEB
-         ADAFZ+g3kLKRuXMS8OJko/112mNWDH4sfjFIo4ughfQq/cnFDH/p9Dc0K0AtS70+B4FM
-         F9fsHPDaiztrmyZ3lyUZT3jElm9oP2eZVU4cOzQu3ucYmiskPZDEWm9d/KJQ6ZtJ4Xeu
-         uIa0swNl0ttsWWPbGXJPM6SHTBQ7jF+5mcgT6fWzV+zAaPzszidX3t44XfJa0Wfi3HSP
-         gdqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1787646255; x=1788251055;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=DZQvgMF9MtoSMKn9/xxgPT3t+kYxUHeBLkPFZwmxGy0=;
-        b=Bj4RijmQplGKcO2j/q2h9R167ywSbbYf9E7/atYYNqpQIOEcIP5CFJdWdFFcEavypL
-         XNVPk9MtzO75XdKAeCVXYiQO1tDAJyUbP8OGtvtnhk8x4GsJycfZi+SKkgPl3d8PSEEu
-         o10wdOXhjgEjhOCSpEuMXuANh9Ro9dNfh7H1ZIrOdELrVoAzBZFiaNtxejpDMmSIQ6uR
-         TjYWXYRnS4V33BmADWSxCz022+W1sctip625YkOe7a6GSjkWmIdfQbgRic8btQV7MLGe
-         3T8UrwIjQEU5k3AfMEqr329SKMRBIhKRj1nBmRNvZbUo2wgFyij1KgJRTYCDNB2gXvkc
-         MY2w==
-X-Forwarded-Encrypted: i=1; AHgh+Rp/w4buU4+BU08ufrvcAR9pHrrq8HtX6QxEz8DzYbTXT3ngDETj7FrlCD+Wx+yIhl8b7Y4l8irO67j+@vger.kernel.org
-X-Gm-Message-State: AFuF++mgOGX9h1XnqBsXzn+iIHElyEgI/j2PPWQ37vlFlc05y+6Q+4gg
-	peL2sgL73evVpLrf+W+DwSytcOWC2vPgf25YpHqKwqP/W6xjJFolAW274fXvtNT9C54=
-X-Gm-Gg: AR+sD11bv0qVhTIKruxzlZaDq421VnmtDJ33rHBCD2INYJ6NF2oBqkLVwPUCSen2ec5
-	dx6C5sMmqjXnYT5uIEJaiEKGOCaHqy8D3qy1Jb2cDxcUHJ6mYx/y9t3v9NIUWyy4ZrNdRXVqhfn
-	q2/b1MfPKoErj3ghPuTXAlfjKsoOkpjw6nzCafnjvJHS9ZOk9/TjDQbUJBvO4WY0h4JqZqGVu9x
-	d9xd7kNwKqbqsTQsveYLpgiouLxW5Xe9GI596RZzYxGovILKwlr68ug9AL0fx2pjhvUsmXRivoG
-	G04p25CG6L0Jo6jA5U569agcuoigcrKQnKD2MrTdSFzlj0/Sua6vBrqM6pBtlLQh8ATwSFhaW9F
-	xtDBDvQeEJiQILbWgNZZafyywpSRUsS49bLInnjoBAqWXq7EgIxhRk0u6/sryZt7sCThe+3vl/b
-	2WDcR8uPn9IZp2G4Ij+YJAjZTa+Bi++6F5ZYV6suEn8UZAbCKZ2VNnF5rv7LSQf9Heob3q6ZIq0
-	BjOMy0gtO4YeM4SPSy8JevaiD9D/IAGO++NBqNCtwLaiEKosA==
-X-Received: by 2002:a17:907:1c07:b0:c15:f26a:3438 with SMTP id a640c23a62f3a-c24e5c1ffd3mr497229766b.24.1787646255345;
-        Tue, 25 Aug 2026 01:24:15 -0700 (PDT)
-Received: from localhost (p200300f65f19a904037016a565660d5e.dip0.t-ipconnect.de. [2003:f6:5f19:a904:370:16a5:6566:d5e])
-        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-c24966f9cbcsm1874351966b.29.2026.08.25.01.24.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Aug 2026 01:24:14 -0700 (PDT)
-Date: Tue, 25 Aug 2026 10:24:12 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-To: Mauricio Faria de Oliveira <mfo@igalia.com>
-Cc: Kees Cook <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>, 
-	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	kernel-dev@igalia.com, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	fsverity@lists.linux.dev, keyrings@vger.kernel.org, bpf@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-wpan@vger.kernel.org, lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, 
-	coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-rdma@vger.kernel.org, 
-	linux-s390@vger.kernel.org, bridge@lists.linux.dev, mptcp@lists.linux.dev, 
-	rds-devel@oss.oracle.com, virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
- MODULE_SYSCTL_TABLE
-Message-ID: <ao1P_mEJdyRExG3v@monoceros>
-References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
- <20260819-sysctl-module-aliases-v3-3-aab90569365d@igalia.com>
- <aomlfGJM61qZKxx2@monoceros>
- <4e3eaf1d3419e808be046035f114bf6c@igalia.com>
- <aotteDcc588iwC6g@monoceros>
- <4aa22e41e8ff4bab6638cf0baaa9d07b@igalia.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="R8YqjTj0"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67P8Vt3l3390832
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 09:49:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=s31fTtojiZPu6qoyf6UXKUr/A+tHq67RGFgNmxgAu
+	70=; b=R8YqjTj0aB2P0VR/K2zSQ8Uc1yMoxUxk2+rmg9M+MzYE3hdiXkXDyETiv
+	vXagaMzHter1ma4MwkNG4XO5p7rldgfXwEvak31eAZGIZq/04bvqVv4t0rm+WHP+
+	2RI+Ob1X7DunoGxQFbyV9jnBvZ/GP+IhQ5p2C2+hojfM1hSN/7i/ja2Au/uff3io
+	OjUi8wDXlbCY+4HhdgEuS/1/nkbZFPeMG6YlzyRUv8k17XSZMZ1enDZTcCPmzD1a
+	PPUb9kBAi3hSz2M4KVHDzxFDRjyEZwGSuhXcB5vNL5okXuu/BghaVu0Jp7lehyLf
+	7vI5Fo6NzY8yQa96cK8WIcdsqf5Gg==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g726efadm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 09:49:30 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67P9fGOP026169
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 09:49:29 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g7ragbc7p-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 09:49:29 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67P9nPmc45613464
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 25 Aug 2026 09:49:25 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 80A7E20043;
+	Tue, 25 Aug 2026 09:49:25 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5B4072004E;
+	Tue, 25 Aug 2026 09:49:25 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 25 Aug 2026 09:49:25 +0000 (GMT)
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Thomas Richter <tmricht@linux.ibm.com>, Jan Polensky <japo@linux.ibm.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Subject: [PATCH] s390/pai: Reduce excessive debug feature size
+Date: Tue, 25 Aug 2026 11:49:25 +0200
+Message-ID: <20260825094925.1791807-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="ajsyed3ibfmsggn6"
-Content-Disposition: inline
-In-Reply-To: <4aa22e41e8ff4bab6638cf0baaa9d07b@igalia.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=TfimcxQh c=1 sm=1 tr=0 ts=6a8d652a cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=EuNfoUzsaLC0kSwvaWYA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI1MDA4MCBTYWx0ZWRfX2jXhzElceg2/
+ QiXR5s6D4DvJ42GUMCinApH68ZdAAfPMFYrobQpDtFoU/0AHwMJSr9k0AHMdB4iWr6j2ogL0fXC
+ +2tSB+bRqa3obK8yTyRHMXMDK6n9xU4=
+X-Proofpoint-GUID: FTd1iZ03MGQDl03SBSvX-6qP1xOBGQQc
+X-Proofpoint-ORIG-GUID: FTd1iZ03MGQDl03SBSvX-6qP1xOBGQQc
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI1MDA4MCBTYWx0ZWRfXyb4C6PErcMms
+ CEVSQUxG8+5QpwngtUC/0NUMQKIsG815uK+nxeG+2pTtVQtzFhRqsD3A1REoXG7jVVJdZM5ljQt
+ cAyn+u2AtpClpqLUWYwct0SAbijUJocLsvfAustaRuMAEdPVx6Z7yF1q6QlFHXffne++7E4XH2X
+ jrY60WiU7UBMGubAMUcGv6QZiSOF/wnlqh7ZE4aom8BnMgmW6E403ooI1Q4LnjC7nt/EuLVwxcj
+ CWkbbsNsll56jXYTpxf1Swc4ilT8DijGkAf4v3edwcxZcnvAK/2jgGha90UteSnvrbeP1mNJxey
+ MxO/F72WmctYnPKJ9pvRjVGuqRaFchJUAIGR6G9dpueeoth7x+PF10OBwSgTD17KBejomVxF0VT
+ XNbzhA4WuGjgG96ycE7Ju/F3+8xlFpLOFtXRLrJlVQYWuizCu3WOiGDSQgNswYlLswQ9JUZjC2B
+ 87ZJnM39wwHcGn+R/yg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-25_02,2026-08-24_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 spamscore=0 bulkscore=0 malwarescore=0 priorityscore=1501
+ lowpriorityscore=0 clxscore=1015 phishscore=0 impostorscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608250080
 
+The pai debug feature is registered with 256 areas, where each area
+contains 32 pages. This sums up to a total of 32MiB. The code does not use
+any debug exceptions, which means that 255 of those areas are never
+used. In addition all existing debug feature calls have a lower level (5)
+than the default level (3).
 
---ajsyed3ibfmsggn6
-Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
- MODULE_SYSCTL_TABLE
-MIME-Version: 1.0
+This in turn means that without user interaction the debug feature is
+unused.
 
-Hello,
+Reduce the number of areas to 1, and also reduce the number of pages for
+the remaining area to 1. Since user interaction is required, the user can
+also increase the size of the remaining area, instead of wasting memory by
+default.
 
-On Mon, Aug 24, 2026 at 06:04:03PM -0300, Mauricio Faria de Oliveira wrote:
-> On 2026-08-23 19:12, Uwe Kleine-K=F6nig wrote:
-> > On Sat, Aug 22, 2026 at 01:57:24PM -0300, Mauricio Faria de Oliveira wr=
-ote:
-> >> On 2026-08-22 10:41, Uwe Kleine-K=F6nig wrote:
-> >> > On Wed, Aug 19, 2026 at 03:16:16PM -0300, Mauricio Faria de Oliveira=
- wrote:
-> >> >> The MODULE_SYSCTL_TABLE macro emits a struct module_sysctl_table va=
-riable
-> >> >> with pointers to a sysctl table's path and entries, and table/entry=
- sizes.
-> >> >=20
-> >> > That new struct doesn't seem to contain any pointer?
-> >>=20
-> >> The struct module_sysctl_table fields .path and .table are pointers,
-> >> although with kernel_ulong_t type so that the same 32/64-bit size is
-> >> used in file2alias.c based on KERNEL_ELFCLASS (and not on the host,
-> >> which might differ with CROSS_COMPILE).
-> >=20
-> > Cross compilation isn't an issue for the already existing device id
-> > structures; many of them also contain pointers.
-> > (While modpost doesn't use the pointers, the size of the structures must
-> > be known to correctly interpret the arrays.)
->=20
-> Indeed. I missed some device_id structures with pointers, and that
-> devicetable-offsets.c is cross-compiled to generate
-> devicetable-offsets.h for file2alias.c to use offsets and sizes of the
-> target architecture.
->=20
-> I'll change .path and .table to pointers in the next version.
+This reduces the total size of the debug feature to 4KiB.
 
-I *think* the existing device-id structs use char[] for strings that are
-relevant for modpost. I look forward to you finding out if there is
-still a justification for that :-D
+Fixes: a3f8423622ef ("s390/pai_crypto: Add PAI crypto characteristics table for parameters")
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/kernel/perf_pai.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> > I would be great if your series didn't introduce a new obstacle for
-> > [CHERI].
->=20
-> Absolutely. I'll be happy to adjust the series and testing for that.
->=20
-> Could you please confirm one should just follow [1], which uses [2] to
-> build the LLVM toolchain, and use it to build the kernel [3]?
->=20
-> [1] https://github.com/cheri-linux#building-and-running
-> [2] https://github.com/cheri-linux/buildroot
-> [3] https://github.com/CHERI-Alliance/linux/tree/codasip-cheri-riscv-7.1
+diff --git a/arch/s390/kernel/perf_pai.c b/arch/s390/kernel/perf_pai.c
+index cdb8006220ca..ab76ed7ad791 100644
+--- a/arch/s390/kernel/perf_pai.c
++++ b/arch/s390/kernel/perf_pai.c
+@@ -1221,7 +1221,7 @@ static int __init paipmu_setup(void)
+ static int __init pai_init(void)
+ {
+ 	/* Setup s390dbf facility */
+-	paidbg = debug_register("pai", 32, 256, 128);
++	paidbg = debug_register("pai", 1, 1, 128);
+ 	if (!paidbg) {
+ 		pr_err("Registration of s390dbf pai failed\n");
+ 		return -ENOMEM;
+-- 
+2.53.0
 
-I used
-https://github.com/CHERI-Alliance/meta-cheri/tree/codasip-scarthgap and
-didn't care about toolchain and rootfs. It also has qemu integrated, so
-you can actually test it.
-
-Best regards
-Uwe
-
---ajsyed3ibfmsggn6
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmqNUSoACgkQj4D7WH0S
-/k5rHwf/eQKyjSm4dfYOnpO+kyESzhGSDXacrU0BK/nrQ7Z3BN+QipNdHe9BZ4f7
-k+3uxaB8pZmyHeh98alfg/5Bq9HBt62YSsVo0f1LrxdEuw+otojZstZ5BajlC1fB
-uCZWsGYJ1lROqcGUkm3WTuwmO+VkI4no1e0+OMnKjMkIdarwm+SRxroNmGXPxjFS
-0c5XzO8ufI4T330xBhTtUCfIGtmOib0XeyZT/dCtT8wNoKlznA36ojMl4ZOArWgW
-VYBN9/JdmoDGTZxdbWqXoETzY//dT0yaCQF2J8+eM7vMW+ay0vkBIpxXkR9QmIGF
-KIDH4l3txv82X35T5GJP5y9myooT6g==
-=Ph6i
------END PGP SIGNATURE-----
-
---ajsyed3ibfmsggn6--
