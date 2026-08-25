@@ -1,204 +1,133 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BCED3921D1;
-	Mon, 24 Aug 2026 22:11:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0FAC3D0BE4
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 07:29:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787609490; cv=none; b=Gu07h+xB4dBlnYOCDJuE6rkWjs01e91m9xfscFC55Qoq9f00kWb/bIJs5A9EXcEQgLVQgxXldTeB/nG5ieZ2512rfpFGi4UvnkWRFHqeYkIT++XBzrO3U8n1otZdR/4GA8hrYNxkBDel+I4YG1CTAFLZP/3BVpLS4GshnXe7di4=
+	t=1787642984; cv=none; b=P2YWNs7I+3HRv8V8KvNC0IYYQo3E9OkLl7Exfai8CRtfHcPnlMxel7rnQX0mSP+GKCYObH+FTpYhjgbcsDiDeH5qFvHPXRD4OZJqiA7RYhith6Dyhq/UV7oI85PgzfzabEzNxp+pIGmMT6TgEjmxYlM0XwpZMXmQvmst+yRNWpA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787609490; c=relaxed/simple;
-	bh=QgAJYynJHPMCFH16dmZknvrCHMGU134ieOJBzZA8TUg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=onnxUrjF+yes79lRUzEZGR8/XDE7+i+YdEsWxjBno83/MOBl71oQAoi1jpCFEXvu8CDKxDj1nZz3ahs/50LIBbGJPlrXdqhXykuUXZGSCHx/It6fI4I6Z7Ig2gXeEnku+S/x/uLmGVMgssLTAQoN0YrFHIyemn4sSCeXlXeF4Ig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jeP7kCww; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787642984; c=relaxed/simple;
+	bh=OTKG3wYXCPqetdR/k3cAsdl9d1ma4AEE/Vb/s1NsdEM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=h9p4jbwpg8EI/crDd4leZjhIr6MoCp89Z6ul86dlcaSssW/IhXY8Ae52CyDcKQsZKfCmLIkDRznKZcf3awCMQy6ihnvjvzSaoTBuO4cKy+8ESN9HSQG9Tvx4ni9DIovRle5FDAuAeED2D5lz3PbyEv8gRMPa5RlbWFIIRPep+Uo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JIH9+p8e; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jeP7kCww"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 891FB1F000E9;
-	Mon, 24 Aug 2026 22:11:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787609488;
-	bh=cDO+eKVgZXd3XdGFXti8nFkINeQKsZcJEbgNizM8i40=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jeP7kCwwjmeaiKN12TpM5r2zJliXgeAeEYfpV9umc2Lin7VUyphVqwnq1TwYmEzNU
-	 lBeUN4h4OA9AL1al7gHuxEHrby0MYhQTd8GbE3HwedJ85/U9oi8R8Lj6ljRfmmr91F
-	 m2TSaDpRZXFQ/AgrvLVGzeoDPbXK7w3QaviThwMOBJZql5W2bydCGucjS7tKzXj4YZ
-	 xdAmxQ8zcvEBwD6dWoAER5HPJcgZEU7n7kx7owOf359HbbGTwC/c0+L4iV2ycIRg6A
-	 7rQOnrHkWwOPozmYaO9hbM/atgZF8frg+IZE85PpWQ+KJopfpofGr5afN3XD3EpIw0
-	 Q1E806QKhkU1g==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/4] s390/vfio-ap: Fix unbounded loop in
- apq_reset_check()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
-In-Reply-To: <20260824215603.819379-4-akrowiak@linux.ibm.com>
-References: <20260824215603.819379-1-akrowiak@linux.ibm.com>
- <20260824215603.819379-4-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 24 Aug 2026 22:11:28 +0000
-Message-Id: <20260824221128.891FB1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JIH9+p8e"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67P2Vhit2619348
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 07:29:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=NdG/qTI9efLmXaRtIK804bWnMzczdGpCupZf+Xc59
+	68=; b=JIH9+p8e9ery//NaXf0VuFrDoYrSMDSwAVxLJk0B4N2J4DIGKSrijrdT4
+	6avfFXJjM7bgpBFUoozKPZwQNY20F+1cSv8zc9vjWFEuGHP5+Z8A2+eAxqxCNbtg
+	euy2LfAAv/FMBCkY6ZKvCjkEiUg8IfqJladRTay14cPGU9DkYCEKBayRsayDvds1
+	IyzISs9XHH5H519FAdl+eabboZ6VLDdIOgr+snMg/l+qvlnDSHQOa1rbp3KojEjo
+	BeKwnz25ip8AkgssHrvZGPK/dqzqIBLn+/66bDYHiyMIWLgrZQEbavaoVAKw/tJ5
+	WqqCYBHFrAvrzopukOHOq/6QleA8w==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g726eekhh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 07:29:41 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67P7QI9j029522
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 07:29:41 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g7qkh2s9p-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 07:29:40 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67P7Ta5547186298
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 25 Aug 2026 07:29:36 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B86A82004B;
+	Tue, 25 Aug 2026 07:29:36 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A4EE620049;
+	Tue, 25 Aug 2026 07:29:36 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 25 Aug 2026 07:29:36 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-s390@vger.kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>
+Subject: [PATCH 0/3 v6] Add CPU hotplug support for PAI PMU
+Date: Tue, 25 Aug 2026 09:29:28 +0200
+Message-ID: <20260825072931.3738180-1-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=TfimcxQh c=1 sm=1 tr=0 ts=6a8d4465 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=lQW9TJnzQ4aT2Au-fZ0A:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI1MDA1OCBTYWx0ZWRfX9PE0qiRixWPM
+ ZlK5rec1mk4EyFBa5zYLn9pbXOpnYbj6DkTXVi4dYVIXfSCnd+prSvnEd/50T3j+mb377d4gTGd
+ NpNtLuDso195H8pUxWXGsF97gVYtgz0=
+X-Proofpoint-GUID: nS779Y-Un9VjBP3SB1BOo9TFSjb-97rV
+X-Proofpoint-ORIG-GUID: nS779Y-Un9VjBP3SB1BOo9TFSjb-97rV
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI1MDA1OCBTYWx0ZWRfX4/amIhZR+Sbe
+ dpYDw0dIpdzqo77OIpC3BzBig0HdUCH3e69RUZn4wfLqFdxZRmd/I1CmBuMrw24oC3Jakx9JsiJ
+ yNqYY7OwOR+6aiMWSwgY90Dtiok14GW5t9nwt6qWfva1pZDGstJaGvcilDAR4B4Y3sTIQiFQWT1
+ SjmtM2klAAh05oYjFUJO3pUvBoWVsbdtHt5Nhbp0km/MUwwJfEPm1ZbJV+b0TuBJBX/j8GUW55E
+ EZOFEnz2z+k+88NcxNhNsK06zHEMJTXyOxpHa3UQGeuGYpbpAf4S/dwh+m/k4nVBBy3WJAkJTYf
+ 3BshIyxr6+nJXkkcdjWhku+bmo3NMgJ1WeDbXzisvpFXN2u+8NxJPefU2iQ4szKEbqGaZfw+RQ6
+ 2CIiEu2Hky3WD8nVGVbPDzjaeeWKRu8qPWO4vecSROs6ZGMjsCMN7evdSUTxpkQaCRgO2PHZL0P
+ NDy1cnDvypmXID7A8rg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-25_01,2026-08-24_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 spamscore=0 bulkscore=0 malwarescore=0 priorityscore=1501
+ lowpriorityscore=0 clxscore=1015 phishscore=0 impostorscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608250058
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
+V6: Add findings from Sashiko
+    - Remove cpus_read_lock() and cpus_read_unlock() invocations
+      from CPU hotplug handlers in patch 3.
 
-New issues:
-- [Critical] The timeout mechanism intentionally skips unpinning the NIB pa=
-ge to avoid a driver-level UAF, but fails to realize the VFIO core will aut=
-omatically unpin and free the page when the device is closed, resulting in =
-a critical hardware DMA Use-After-Free.
-- [Critical] The timeout handler leaves `q->saved_iova` and `q->saved_isc` =
-populated with the old guest's state, leading to cross-guest resource corru=
-ption when the queue is assigned to a new mdev.
-- [High] The timeout error path deliberately leaks the registered guest ISC=
- and pinned NIB page, which permanently exhausts ISCs and directly causes a=
- host kernel WARN when the KVM guest terminates.
-- [High] The worker can still loop indefinitely because the new timeout che=
-ck is bypassed in the 'else' branch when retrying the reset via ap_zapq().
-- [Medium] The commit message explicitly claims that AQIC resources are fre=
-ed on the early exit path, but the code does the exact opposite.
+V5: Add findings from Sashiko
+    - Add cpus_read_lock() and cpus_read_unlock() in patch 3.
 
-Pre-existing issues:
-- [High] The worker returns early on `-EIO` without writing the final hardw=
-are status back to `q->reset_status`.
---
+V4: Add findings from Sumanth and updated patch 3/3.
+    - Fix reference count for CPU hotplug remove while multiple
+      per-task events are active.
 
---- Patch [3]: [PATCH v2 3/4] s390/vfio-ap: Fix unbounded loop in apq_reset=
-_check() ---
-commit 84304c1f304fd7bd597c0aa370c7ee8ddc904d98
-Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+V3: Add findings from Sumanth and updated patch 3/3.
+    - Refined Fixes: commit id and messages
+    - Handle cpuhp_setup_state() failure
 
-s390/vfio-ap: Fix unbounded loop in apq_reset_check()
+V2: Add findings from Sumanth and updated patch 3/3.
+    - handle possible NULL pointer dereference in pai_event_destroy_cpu()
+    - handle possibe memory allocation failure in pai_online_cpu()
+    - add Reviewed-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+      to patch 1/3 and patch 2/3.
 
-This commit introduces a maximum wait timeout in the apq_reset_check worker
-to prevent indefinite loops when the hardware continuously returns a busy
-response. On timeout, the function writes the busy status back and breaks o=
-ut
-of the loop.
+Add support for CPU hotplug add and remove for PAI PMU.
 
-> Fix this by introducing AP_RESET_MAX_WAIT (2000ms) and breaking out
-> of the poll loop when elapsed time reaches that threshold. On
-> timeout the final busy status is written back to q->reset_status
-> so that callers inspecting reset_status.response_code after
-> flush_work() see a non-zero value and can return an appropriate
-> error. vfio_ap_free_aqic_resources() is called before returning
-> to release any KVM ISC registration and pinned NIB page,
-> consistent with all other early-exit paths in the function.
+Patch 1: Change function argument list
+Patch 2: Move locking from CPU scope to event scope
+Patch 3: Add CPU hotplug handler
 
-[Severity: Medium]
-Is this description accurate? The code in the patch explicitly omits calling
-vfio_ap_free_aqic_resources() on the timeout path and includes a large
-comment explaining why it must leak these resources.
+Thomas Richter (3):
+  s390/pai: Use PAI PMU index as parameter replacing event
+  s390/pai: Move locking to event init and delete
+  s390/pai: Support CPU hotplug for PMU PAI
 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
-_ap_ops.c
-> index 3f99b239fa959..7a9b5448e90a0 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-[ ... ]
-> @@ -1971,6 +1972,27 @@ static void apq_reset_check(struct work_struct *re=
-set_work)
->  					      status.response_code,
->  					      status.queue_empty,
->  					      status.irq_enabled);
+ arch/s390/include/asm/pai.h |   1 -
+ arch/s390/kernel/perf_pai.c | 182 +++++++++++++++++++++++++-----------
+ 2 files changed, 128 insertions(+), 55 deletions(-)
 
-[Severity: High]
-This is a pre-existing issue, but does the early return on -EIO just above
-this block need to update q->reset_status before returning?
+-- 
+2.55.0
 
-If ap_zapq() initially succeeded, q->reset_status.response_code would be 0.
-If a subsequent ap_tapq() results in an -EIO from apq_status_check(), the
-function returns immediately. Will the caller vfio_ap_mdev_reset_queues()
-incorrectly assume the reset was successful because it sees a 0 response co=
-de?
-
-> +			if (elapsed >=3D AP_RESET_MAX_WAIT) {
-> +				/*
-> +				 * Timed out waiting for reset to complete.
-> +				 *
-> +				 * The AQIC resources associated with this queue - the pinned page
-> +				 * containing the NIB and the registered guest ISC - cannot be freed
-> +				 * here. The NIB is the active DMA target for AP interrupt delivery
-> +				 * until the reset completes; freeing the pinned page while the
-> +				 * hardware may still write to it would result in a use-after-free
-> +				 * kernel crash.
-
-[Severity: Critical]
-The comment mentions leaking the NIB page to avoid a use-after-free, but do=
-es
-the driver hold an independent reference to the page?
-
-When the user process terminates and the VFIO container is closed, the VFIO
-core automatically unpins tracked pages. Will the physical page be returned=
- to
-the buddy allocator while the active hardware can still perform a DMA write=
- to
-it, potentially corrupting memory reallocated to other processes?
-
-> +				 *
-> +				 * If the reset eventually completes, interrupts will be terminated
-> +				 * and the pinned NIB page and ISC registration will be leaked. This
-
-[Severity: High]
-By intentionally skipping vfio_ap_free_aqic_resources(),
-kvm_s390_gisc_unregister() is never called. Does this mean KVM ISCs are
-permanently depleted for the guest?
-
-Also, when the KVM guest is torn down, will kvm_s390_gisa_destroy() trigger=
- a
-host kernel WARN due to the non-zero alert mask?
-
-> +				 * is preferable to either a use-after-free or waiting indefinitely:
-> +				 * apq_reset_check() holds the matrix_dev->mdevs_lock mutex, which
-> +				 * serializes access to all mdev objects system-wide, so blocking
-> +				 * here would stall all other guests using AP queues.
-> +				 */
-> +				memcpy(&q->reset_status, &status, sizeof(status));
-> +				return;
-> +			}
-
-[Severity: Critical]
-If the timeout handler leaves q->saved_iova and q->saved_isc populated, what
-happens when this queue is assigned to a new mdev?
-
-When the new guest enables interrupts, vfio_ap_free_aqic_resources() will
-process the old guest's saved IOVA and ISC using the new guest's KVM and
-VFIO container. Could this unpin an active page in the new guest or corrupt
-its GISA state?
-
->  		} else {
->  			if (q->reset_status.response_code =3D=3D AP_RESPONSE_RESET_IN_PROGRES=
-S ||
->  			    q->reset_status.response_code =3D=3D AP_RESPONSE_BUSY ||
->  			    q->reset_status.response_code =3D=3D AP_RESPONSE_STATE_CHANGE_IN_=
-PROGRESS ||
->  			    ret =3D=3D -EAGAIN) {
->  				status =3D ap_zapq(q->apqn, 0);
->  				memcpy(&q->reset_status, &status, sizeof(status));
->  				continue;
->  			}
-
-[Severity: High]
-Does this bypass the timeout check entirely if apq_status_check() returns
--EAGAIN?
-
-The loop will drop into this else block, re-issue ap_zapq(), update the
-status, and continue without evaluating the elapsed time. Will the worker
-spin indefinitely if the hardware continuously returns a state that triggers
--EAGAIN?
-
->  			if (q->saved_isc !=3D VFIO_AP_ISC_INVALID)
->  				vfio_ap_free_aqic_resources(q);
->  			break;
->  		}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260824215603.8193=
-79-1-akrowiak@linux.ibm.com?part=3D3
