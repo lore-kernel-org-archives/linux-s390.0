@@ -1,142 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10ECC332638
-	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 15:20:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D0C833C198
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 16:02:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787671209; cv=none; b=f80J7bCjuKvLYvoXTGi0r6E5L3EcJxsvf8gig/xBECNSU618o8WWm/s2Wn8G6RQa51xI6gwn5V+zwjSM03dbeoiAGBlTqbyT+ijII7LzDPPoDb2YTc+faUC801ewSMmSLZr046ug1AufGElU0jrd3/2f7RKipRZ37/26U+WqB64=
+	t=1787673722; cv=none; b=LDEY/ik2ZHdi4nQ8f04M05w2aN62rHdiRRgztwplXK+5jTVgbMW+dc3pQi+ELkTyxinrnjGLeB+cDu2JV9kwqgrp5De1ecAQK6EsTXWi1YbAVcpNBuvYPze98/RwYvt4cZPKx+mXQ1/jbAN5hhf3LYqSDT8MLInMLkiWAvZzjNo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787671209; c=relaxed/simple;
-	bh=VDrwnziu51LCx5yHrcRQF/ZBJnNXph2Vz2yEJ2Xb4CU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=rY+gploHCDhnvyuca5IkMrC1je/QAA+JWfK2mXQoJ8F45WFAGWlW1ZH44mJ4527QF7i2dEzDMZOAWJTY0Jj/4RRYDsEM79L+V4pyEbJoMO0wAiJZBy/XXS1+FYwjtzlsBcGK9Sm2x8arT7EEGTmgSjMfjAoJgFmb9xTSR0sTnKc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Om/cEYJo; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787673722; c=relaxed/simple;
+	bh=EVQ2AcfQMPnCQU0CgvOOiyJmBF7cm5Tq5Hc77uf5n/4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WYBaaKHZPyivcYydoOgAkleabHMTb2Xv6xpmMAv2HeqmPQoGc/4/5ahI0DuQj1/b7H6UZvGzzJ/HCJN31VSEIQC0qzlyG1zGr/ke9gtF8Qp9fn7sArmXhwq2BiHw9FHr8T+ehpUWNkajbSG1q8hJK6GmvJq++uJMPf0xAR5Epso=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DQ8WrLzC; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Om/cEYJo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C71E1F000E9;
-	Tue, 25 Aug 2026 15:20:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787671207;
-	bh=H3xIa8ay/0Zno098RrFRI2/lS8i3ct1fJnsq+JdJbso=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Om/cEYJoNSrcCIFVYjYQR4Yqj2gEVQJIOJ9NWWX9iu3kDoab/VHmJu6Uk6m1CacQ9
-	 UAmM4YtCxwRTXJ/mEi9lBvcGTqPXsE/zpjFH6gyIesrCasOt+KZ1ZURJWkEnBZ6ifn
-	 d9Jfyqeei/+CGkxnSBi00hSWBGjk6RIPF6VBx7iyopcpRX1oloVbk/FlxGvJrUivqU
-	 Xla10+6Qhp8FP5LvIw/opcQRQ5xo/u8bnsiaCRPpM8/DcBURYQzEZONhQa9rrXWEIo
-	 G7eUr8VFRy5M8tFA7Sz+VNVl2N+dUIyxjN1jgfpyykfBRTXTIFWlehC/HYaAbzxnvr
-	 OBXGwd7vMCJbA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] s390: Warn if kernel command line contains
- non-printable EBCDIC characters
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ilya Leoshkevich" <iii@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260825150840.537653-1-iii@linux.ibm.com>
-References: <20260825150840.537653-1-iii@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 25 Aug 2026 15:20:06 +0000
-Message-Id: <20260825152007.4C71E1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DQ8WrLzC"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67PEYwJv1024702
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 16:01:59 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=omOdrmaKbWC6K01sqoPSxrPU5Pd0mlJfrZIFvYcs6
+	1g=; b=DQ8WrLzCSi9XFZ1vms8zyTcxX6kwY7gyy7+rIujN6HcTsAgCHVRuGoV9O
+	lvLYguH5qIkAJuV6/MJSI1jbJuoK2D/XhWkwIvzmSWtko4FdzEg281Wkr7yfbHlv
+	p7vWhuLuZ9GRnechtjyDS/sNSmkFI9xJCsm5CyiYWO0ki2qINAd+X1Bp2XiBscZG
+	9oY/TTGRNPN98CQJLMeG7GVHjizOqFA7X27SqQAlc6FjTh7SCA0BypJtL9ohdOfz
+	H5B9y2P8tX1fL1s4SG2V7fNnQCvDHnn4x1TpTUO5fROc5o/GU/VIi/rSUpMeewTK
+	jJEOclK9IgYfrlLyee0lsq9hOfTuA==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g716hsat5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 16:01:59 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67PFuJFl011302
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 16:01:58 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g7rsy4sn3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 16:01:58 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67PG1tdi44040488
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 25 Aug 2026 16:01:55 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 30CE92004F;
+	Tue, 25 Aug 2026 16:01:55 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0E08A20043;
+	Tue, 25 Aug 2026 16:01:55 +0000 (GMT)
+Received: from funtu2.ibm.com (unknown [9.111.133.174])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 25 Aug 2026 16:01:55 +0000 (GMT)
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: dengler@linux.ibm.com, fcallies@linux.ibm.com, ifranzki@linux.ibm.com
+Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: [PATCH v1 0/1] zcrypt crt and me fixes
+Date: Tue, 25 Aug 2026 18:01:53 +0200
+Message-ID: <20260825160154.106501-1-freude@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI1MDEzNiBTYWx0ZWRfX0ZFQcZgg447T
+ wCeFJyvZ4rNAxq/h5NcV3JkH1pGLTd0vYQfsxk4R5OAuimSkew+wV6fI7OmtK8d+tKyqPllh7Of
+ MOdg2ZLOLSznzbXx0GQh7yIc7gy4c8Y=
+X-Proofpoint-GUID: PgK8XWzX2Zh2A2a7akGTzK3jzUPBiGxG
+X-Proofpoint-ORIG-GUID: PgK8XWzX2Zh2A2a7akGTzK3jzUPBiGxG
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI1MDEzNiBTYWx0ZWRfXzoG8yi3gV6cB
+ fHSChCNU3M8JIUyE+5VrC3QDRvtHM4BdBVGAt1HolDLe8qFSrYcIJ4+yBOkcRj7tmu01Or+5vYT
+ oIGTJmakpzIggzzqjdLYjhmAsv7ddQ1xuNYokHcfHcymk+Zy5I2igK5i9+2uTIKfl3HF7CRLEYP
+ gEY2ZOmV6LUuG30r1U4dT0WPWJw4N9ZbCDu9K9P4YjRGWsJJDNT7JD0+SKDCL/kgSZkxx6MR4ml
+ k02wx5zrBVArpl60BDDRr1Wa1WLVWjy5PuU5ar+T8ysoOjDk6UZ2ccpV5hsT+BOXxom1U+ZhMrZ
+ +b5OW67bRc+26xW/xORNnKdezXkUULHAezjQt+WUuZiuCs3Pu4RR5TDQ5dDdp1FaBeWwI6a7YfI
+ l6lSs3RWhOHkV3is+1boy7pvKZFrW5T8CSJGsgXU3CVC7t0iYgCQbv82ml3PWfCl1cLPSRb8tFi
+ m5Qc2lKW9yWCf77q7OQ==
+X-Authority-Analysis: v=2.4 cv=H7brBeYi c=1 sm=1 tr=0 ts=6a8dbc77 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=xCxzSRWVkvkmEhUwKioA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-25_04,2026-08-24_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 malwarescore=0 lowpriorityscore=0 impostorscore=0 spamscore=0
+ bulkscore=0 adultscore=0 priorityscore=1501 clxscore=1015 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608250136
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
+Fixes related to type50 and type6 with RSA CRT and ME.
 
-Pre-existing issues:
-- [High] Integer underflow in size calculation leads to out-of-bounds write=
- when appending IPL block parameters to a maximum-length kernel command lin=
-e.
+Changelog:
+v0: Just one patch fixes an AI finding with padding when a CRT
+    CPRB for CCA cards is constructed. Details see patch header.
+
+Harald Freudenberger (1):
+  s390/zcrypt: Fix uninitialized padding in CRT key structure
+
+ drivers/s390/crypto/zcrypt_cca_key.h | 1 +
+ 1 file changed, 1 insertion(+)
+
 --
+2.43.0
 
---- Patch [1]: [PATCH] s390: Warn if kernel command line contains non-print=
-able EBCDIC characters ---
-commit 0d3635825635bf3ebe41f7b2b8024aab279b4f38
-Author: Ilya Leoshkevich <iii@linux.ibm.com>
-
-s390: Warn if kernel command line contains non-printable EBCDIC characters
-
-This commit adds a warning if the kernel command line contains non-printable
-characters after being converted from EBCDIC to ASCII. This helps detect
-accidentally pasted multi-byte UTF-8 sequences in zipl.conf that would
-otherwise render the entire command line unusable.
-
-> diff --git a/arch/s390/boot/ipl_parm.c b/arch/s390/boot/ipl_parm.c
-> index 6bc950b92be76..71c0c26d56bba 100644
-> --- a/arch/s390/boot/ipl_parm.c
-> +++ b/arch/s390/boot/ipl_parm.c
-
-[ ... ]
-
-> @@ -173,12 +173,29 @@ static inline int has_ebcdic_char(const char *str)
->  void setup_boot_command_line(void)
->  {
->  	parmarea.command_line[COMMAND_LINE_SIZE - 1] =3D 0;
->  	/* convert arch command line to ascii if necessary */
-> -	if (has_ebcdic_char(parmarea.command_line))
-> +	if (has_ebcdic_char(parmarea.command_line)) {
->  		EBCASC(parmarea.command_line, COMMAND_LINE_SIZE);
-> +		if (has_nonprintable_char(parmarea.command_line))
-> +			boot_warn("Kernel command line was treated as EBCDIC, but contains no=
-n-printable characters\n");
-> +	}
->  	/* copy arch command line */
->  	strscpy(early_command_line, strim(parmarea.command_line));
-> =20
-
-[Severity: High]
-This is a pre-existing issue, but since we are dealing with the bounds of
-the command line buffer here, could a maximally long command line trigger
-a buffer overflow shortly after this point?
-
-Right after the quoted code, setup_boot_command_line() calls
-append_ipl_block_parm(), which calculates the remaining space in the buffer:
-
-arch/s390/boot/ipl_parm.c:append_ipl_block_parm() {
-    ...
-    len =3D strlen(early_command_line);
-
-    delim =3D early_command_line + len;    /* '\0' character position */
-    parm =3D early_command_line + len + 1; /* append right after '\0' */
-    ...
-    rc =3D ipl_block_get_ascii_vmparm(
-        parm, COMMAND_LINE_SIZE - len - 1, &ipl_block);
-    ...
-}
-
-If early_command_line is filled to its maximum capacity (COMMAND_LINE_SIZE =
-- 1),
-the remaining size passed to ipl_block_get_ascii_vmparm() evaluates to 0.
-
-Inside ipl_block_get_ascii_vmparm(), the size calculation underflows:
-
-arch/s390/kernel/ipl_vmparm.c:ipl_block_get_ascii_vmparm() {
-    ...
-    len =3D min_t(size_t, size - 1, ipb->ccw.vm_parm_len);
-    memcpy(dest, ipb->ccw.vm_parm, len);
-}
-
-Because size is 0 and size_t is unsigned, size - 1 underflows to SIZE_MAX.
-This bypasses the bounds check and allows the memcpy() to write out of boun=
-ds.
-
-The same underflow pattern appears in ipl_block_get_ascii_scpdata():
-
-arch/s390/boot/ipl_parm.c:ipl_block_get_ascii_scpdata() {
-    ...
-    count =3D min(size - 1, scpdata_length(scp_data, scp_data_len));
-    ...
-    memcpy(dest, scp_data, count);
-}
-
-Should there be a check ensuring size > 0 before calling these functions,
-or a safeguard within the get_ascii functions to prevent the underflow?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260825150840.5376=
-53-1-iii@linux.ibm.com?part=3D1
