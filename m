@@ -1,126 +1,178 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 665293890EC;
-	Tue, 25 Aug 2026 07:50:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 484A63DDAFE
+	for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 08:24:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787644243; cv=none; b=H4Zbq94+2RT5nQPddTbsEKxBwc7yfUoc+g2vVguFNEs7vsPvoRn0ep+K3BTsjVRioMkHKdi27TJNCiz+w3h/hFtw/9j5IXqPdFUaiQw9JrBY0uKXB56MPCSZGM40Oqoq68Zvd77qCVXPxGZtX7DOOgsObBWbik7EwSMz/sRhnNY=
+	t=1787646260; cv=none; b=QfNIlKlQJbazgZ+by0LA8bnAm9xj4pCOyAImmIvFeSNGOVSY52cQC/eUWn5ZuldoOAn2dlTT304UqN4WoxrFRH86Nw+9bvTeCncvhQbxODyk/0y+NiAn5Cn2bTuDwU6ZUvGtRV2TTiv+cHY/dcTIBdal3iNcdfyvwm0AC1+PsNY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787644243; c=relaxed/simple;
-	bh=ifmUMZR/oPkQdshlF8CNyPaunysagZHj1jt9Fyo62Sc=;
+	s=arc-20240116; t=1787646260; c=relaxed/simple;
+	bh=DZQvgMF9MtoSMKn9/xxgPT3t+kYxUHeBLkPFZwmxGy0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iCzEwgOAobVvgc9Ug+2uzoLLHiApI8P1ezzunMgeAr3N2bfqoOh1r20sy6XW1bRCuf+dHintqfNlqKj4CVc7UNy8xYDQkX2TlvtmuwCQdZj8P57kKsXg4Bmx7k1EOXE/Vb6xdOkF7wQvTdMS6iWYw5vAnjaSlw/wtG/weC7XvWQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=c58WFFYK; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=RYWa2HC3r+LZAhZmp5WNOjmTu6+EBVFXIcrPD62XfSdZWFKM06uFX9VJbzlfzvfdZSwlYTd/onNGQIeYL1WqpDrblJK2yFZFBMZR5ALu8Hq3gn5ie4azgh58CrO1wb0IKvF2ryBYdwk/IW+ksqDvpFpqeQ7AXt/8QG/CTw9z8DM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=BFeqlQ0q; arc=none smtp.client-ip=209.85.208.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="c58WFFYK"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67P2WC062619881;
-	Tue, 25 Aug 2026 07:50:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=8M1RtMP5dGDh7WaM7pLyX+UNoVUR6v
-	tG5dGbHWHRrz0=; b=c58WFFYK9KM178PdMhMSiBOgXiSkNVmR4zI6/FiW0pfetO
-	Qn0EICfLuEB2+blm1HU9Q0rPbm51ucxRcJf7jxA2wwkM8IQWZunOAb/yAfmEZUcv
-	h1GyFbYOsw7uICwEjp1LAoODpoOFUZJ6DszkQWyy9Vn5QVS6KzuQeYh8DpQwIa8i
-	zSeBTC7kM+xGWFv+8TMN0DTzwTrrwgP447/GRHccUcb95nn7vQ0Upy2OuN9OkBV0
-	7+FKUcsEFeAdLa1t58R6W+FJYmzMCskn5Im1UDqDPeMYKVxBVD181eYdjsVbuFDY
-	62eUePdxhnrlMGeQvkPXIlOTzjSEpy/4UVkUZHlA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g726eepc2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Aug 2026 07:50:37 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67P7fJbJ015238;
-	Tue, 25 Aug 2026 07:50:36 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g7qkh2urp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 25 Aug 2026 07:50:36 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67P7oWCw53215572
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 25 Aug 2026 07:50:32 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6709120040;
-	Tue, 25 Aug 2026 07:50:32 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DE67620043;
-	Tue, 25 Aug 2026 07:50:31 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.111.94.220])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 25 Aug 2026 07:50:31 +0000 (GMT)
-Date: Tue, 25 Aug 2026 09:50:30 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>, linux-s390@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        kasan-dev@googlegroups.com
-Subject: Re: [PATCH v7 3/4] mm/kasan: Introduce helpers for lazy MMU mode
- sanitizer
-Message-ID: <c4ea355b-9807-4a9d-8f90-246b4e650684-agordeev@linux.ibm.com>
-References: <cover.1786956464.git.agordeev@linux.ibm.com>
- <52c9be0cf71a8896a5d76c148c38fb24a2005dd9.1786956464.git.agordeev@linux.ibm.com>
- <CA+fCnZfMkPDVyy0t9W-3d55M2ba9wXoRyzj2EWWYLEW=QO3zWg@mail.gmail.com>
- <20260818120130.1411942A70-agordeev@linux.ibm.com>
- <20260824095635.11040Be5-hca@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="BFeqlQ0q"
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-6a20319d030so6697401a12.2
+        for <linux-s390@vger.kernel.org>; Tue, 25 Aug 2026 01:24:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1787646255; x=1788251055; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=DZQvgMF9MtoSMKn9/xxgPT3t+kYxUHeBLkPFZwmxGy0=;
+        b=BFeqlQ0q/iI/Y9xCCyZW9DcLrNuxdKfN+Y+//0GtDmUjYy2yEe/So/1C91iOhFggaa
+         w+PoJMpJllcqUOV1XX00bD7B84xNhMcsllE/0Nmh9dN8tZqJJBTNzbShKDQnxPsEmaEB
+         ADAFZ+g3kLKRuXMS8OJko/112mNWDH4sfjFIo4ughfQq/cnFDH/p9Dc0K0AtS70+B4FM
+         F9fsHPDaiztrmyZ3lyUZT3jElm9oP2eZVU4cOzQu3ucYmiskPZDEWm9d/KJQ6ZtJ4Xeu
+         uIa0swNl0ttsWWPbGXJPM6SHTBQ7jF+5mcgT6fWzV+zAaPzszidX3t44XfJa0Wfi3HSP
+         gdqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787646255; x=1788251055;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=DZQvgMF9MtoSMKn9/xxgPT3t+kYxUHeBLkPFZwmxGy0=;
+        b=Bj4RijmQplGKcO2j/q2h9R167ywSbbYf9E7/atYYNqpQIOEcIP5CFJdWdFFcEavypL
+         XNVPk9MtzO75XdKAeCVXYiQO1tDAJyUbP8OGtvtnhk8x4GsJycfZi+SKkgPl3d8PSEEu
+         o10wdOXhjgEjhOCSpEuMXuANh9Ro9dNfh7H1ZIrOdELrVoAzBZFiaNtxejpDMmSIQ6uR
+         TjYWXYRnS4V33BmADWSxCz022+W1sctip625YkOe7a6GSjkWmIdfQbgRic8btQV7MLGe
+         3T8UrwIjQEU5k3AfMEqr329SKMRBIhKRj1nBmRNvZbUo2wgFyij1KgJRTYCDNB2gXvkc
+         MY2w==
+X-Forwarded-Encrypted: i=1; AHgh+Rp/w4buU4+BU08ufrvcAR9pHrrq8HtX6QxEz8DzYbTXT3ngDETj7FrlCD+Wx+yIhl8b7Y4l8irO67j+@vger.kernel.org
+X-Gm-Message-State: AFuF++mgOGX9h1XnqBsXzn+iIHElyEgI/j2PPWQ37vlFlc05y+6Q+4gg
+	peL2sgL73evVpLrf+W+DwSytcOWC2vPgf25YpHqKwqP/W6xjJFolAW274fXvtNT9C54=
+X-Gm-Gg: AR+sD11bv0qVhTIKruxzlZaDq421VnmtDJ33rHBCD2INYJ6NF2oBqkLVwPUCSen2ec5
+	dx6C5sMmqjXnYT5uIEJaiEKGOCaHqy8D3qy1Jb2cDxcUHJ6mYx/y9t3v9NIUWyy4ZrNdRXVqhfn
+	q2/b1MfPKoErj3ghPuTXAlfjKsoOkpjw6nzCafnjvJHS9ZOk9/TjDQbUJBvO4WY0h4JqZqGVu9x
+	d9xd7kNwKqbqsTQsveYLpgiouLxW5Xe9GI596RZzYxGovILKwlr68ug9AL0fx2pjhvUsmXRivoG
+	G04p25CG6L0Jo6jA5U569agcuoigcrKQnKD2MrTdSFzlj0/Sua6vBrqM6pBtlLQh8ATwSFhaW9F
+	xtDBDvQeEJiQILbWgNZZafyywpSRUsS49bLInnjoBAqWXq7EgIxhRk0u6/sryZt7sCThe+3vl/b
+	2WDcR8uPn9IZp2G4Ij+YJAjZTa+Bi++6F5ZYV6suEn8UZAbCKZ2VNnF5rv7LSQf9Heob3q6ZIq0
+	BjOMy0gtO4YeM4SPSy8JevaiD9D/IAGO++NBqNCtwLaiEKosA==
+X-Received: by 2002:a17:907:1c07:b0:c15:f26a:3438 with SMTP id a640c23a62f3a-c24e5c1ffd3mr497229766b.24.1787646255345;
+        Tue, 25 Aug 2026 01:24:15 -0700 (PDT)
+Received: from localhost (p200300f65f19a904037016a565660d5e.dip0.t-ipconnect.de. [2003:f6:5f19:a904:370:16a5:6566:d5e])
+        by smtp.gmail.com with UTF8SMTPSA id a640c23a62f3a-c24966f9cbcsm1874351966b.29.2026.08.25.01.24.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Aug 2026 01:24:14 -0700 (PDT)
+Date: Tue, 25 Aug 2026 10:24:12 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: Mauricio Faria de Oliveira <mfo@igalia.com>
+Cc: Kees Cook <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>, 
+	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	kernel-dev@igalia.com, linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	fsverity@lists.linux.dev, keyrings@vger.kernel.org, bpf@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-wpan@vger.kernel.org, lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+	coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	linux-s390@vger.kernel.org, bridge@lists.linux.dev, mptcp@lists.linux.dev, 
+	rds-devel@oss.oracle.com, virtualization@lists.linux.dev
+Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
+ MODULE_SYSCTL_TABLE
+Message-ID: <ao1P_mEJdyRExG3v@monoceros>
+References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
+ <20260819-sysctl-module-aliases-v3-3-aab90569365d@igalia.com>
+ <aomlfGJM61qZKxx2@monoceros>
+ <4e3eaf1d3419e808be046035f114bf6c@igalia.com>
+ <aotteDcc588iwC6g@monoceros>
+ <4aa22e41e8ff4bab6638cf0baaa9d07b@igalia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="ajsyed3ibfmsggn6"
 Content-Disposition: inline
-In-Reply-To: <20260824095635.11040Be5-hca@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=TfimcxQh c=1 sm=1 tr=0 ts=6a8d494d cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=UUUDspzaHmeMqvLuHH4A:9
- a=CjuIK1q_8ugA:10 a=zZCYzV9kfG8A:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI1MDA2MyBTYWx0ZWRfX1UHCLV5+e1ku
- Bgn8RhOV7C6kM93dO+8ZojEFJxd3UxNobEmy2rwhytC1uQf9w9+9o88eWRIR3m+FXdMYpAxtc/g
- 3jIYLqLjXuVFEOeYLLkZkIF9hKjrvls=
-X-Proofpoint-GUID: cHEBOSUK2gjUGPKucThiW1yn6xPnJ6ye
-X-Proofpoint-ORIG-GUID: QUiBDcHGUMJNuhKLd6qzRIM5vSKsBumz
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI1MDA2MyBTYWx0ZWRfX5XNKnD3AcB/l
- 60zzrpu3M/nJBAHn1S4j77pylmm2Xv3rLRsy8PoSsYbPmmJzM1P1hoRVSaPppyLrV6I3VRxtnvC
- Qyvez7nqN9ADdnyFMj//rnSfACuWt14MrGZ841V5Ao0xKjXk7wwEU4XOp+OfefjP2JHXFLJjwsw
- j8oz3tZ8APPuNMCeNElUo8uy0jUf9Fj0hlDq0Y6VZ9aeFuzGpDyqvuNDkPtBss1V0vx+b0sgItO
- CbrFZts6mH24N6J+a9Rix2nmdPnhPPLF/tF7t+165IpYGijcCQDHB674W9WnKyWASMV+DLFpKCy
- i7+mPGaV9neTj4e7cexQjKXoHQZg7blcC+XqkCU5DfyWUqLkrMin/pPimkZa7tJ8d6GadSXSjVs
- IhvJlzVRSWtqZ+z45I+OmfUL44AOZf/zVA+OO5R60eJ9aXoZn/QpbPVeC6Yo97F/P24fskG1lDD
- NsehB+v/fYx1i/CGJlw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-25_01,2026-08-24_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 spamscore=0 bulkscore=0 malwarescore=0 priorityscore=1501
- lowpriorityscore=0 clxscore=1015 phishscore=0 impostorscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608250063
+In-Reply-To: <4aa22e41e8ff4bab6638cf0baaa9d07b@igalia.com>
 
-On Mon, Aug 24, 2026 at 11:56:35AM +0200, Heiko Carstens wrote:
-> On Tue, Aug 18, 2026 at 02:01:30PM +0200, Alexander Gordeev wrote:
-> > On Tue, Aug 18, 2026 at 12:11:34AM +0200, Andrey Konovalov wrote:
-> > ...
-> > > Hi Alexander,
-> > > 
-> > > Should all this be limited to only s390?
-> > 
-> > The idea is to allow any architecture to opt-in. Once [1] is accepted
-> > this may look redundant, but I still see the benefit in having it.
-> 
-> What would be the benefit if [1] is accepted?
 
-Just another mechanism for verification, and pretty cheap one.
-I would dare to say [1] does not rule out an invalid access completely.
+--ajsyed3ibfmsggn6
+Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
+ MODULE_SYSCTL_TABLE
+MIME-Version: 1.0
+
+Hello,
+
+On Mon, Aug 24, 2026 at 06:04:03PM -0300, Mauricio Faria de Oliveira wrote:
+> On 2026-08-23 19:12, Uwe Kleine-K=F6nig wrote:
+> > On Sat, Aug 22, 2026 at 01:57:24PM -0300, Mauricio Faria de Oliveira wr=
+ote:
+> >> On 2026-08-22 10:41, Uwe Kleine-K=F6nig wrote:
+> >> > On Wed, Aug 19, 2026 at 03:16:16PM -0300, Mauricio Faria de Oliveira=
+ wrote:
+> >> >> The MODULE_SYSCTL_TABLE macro emits a struct module_sysctl_table va=
+riable
+> >> >> with pointers to a sysctl table's path and entries, and table/entry=
+ sizes.
+> >> >=20
+> >> > That new struct doesn't seem to contain any pointer?
+> >>=20
+> >> The struct module_sysctl_table fields .path and .table are pointers,
+> >> although with kernel_ulong_t type so that the same 32/64-bit size is
+> >> used in file2alias.c based on KERNEL_ELFCLASS (and not on the host,
+> >> which might differ with CROSS_COMPILE).
+> >=20
+> > Cross compilation isn't an issue for the already existing device id
+> > structures; many of them also contain pointers.
+> > (While modpost doesn't use the pointers, the size of the structures must
+> > be known to correctly interpret the arrays.)
+>=20
+> Indeed. I missed some device_id structures with pointers, and that
+> devicetable-offsets.c is cross-compiled to generate
+> devicetable-offsets.h for file2alias.c to use offsets and sizes of the
+> target architecture.
+>=20
+> I'll change .path and .table to pointers in the next version.
+
+I *think* the existing device-id structs use char[] for strings that are
+relevant for modpost. I look forward to you finding out if there is
+still a justification for that :-D
+
+> > I would be great if your series didn't introduce a new obstacle for
+> > [CHERI].
+>=20
+> Absolutely. I'll be happy to adjust the series and testing for that.
+>=20
+> Could you please confirm one should just follow [1], which uses [2] to
+> build the LLVM toolchain, and use it to build the kernel [3]?
+>=20
+> [1] https://github.com/cheri-linux#building-and-running
+> [2] https://github.com/cheri-linux/buildroot
+> [3] https://github.com/CHERI-Alliance/linux/tree/codasip-cheri-riscv-7.1
+
+I used
+https://github.com/CHERI-Alliance/meta-cheri/tree/codasip-scarthgap and
+didn't care about toolchain and rootfs. It also has qemu integrated, so
+you can actually test it.
+
+Best regards
+Uwe
+
+--ajsyed3ibfmsggn6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmqNUSoACgkQj4D7WH0S
+/k5rHwf/eQKyjSm4dfYOnpO+kyESzhGSDXacrU0BK/nrQ7Z3BN+QipNdHe9BZ4f7
+k+3uxaB8pZmyHeh98alfg/5Bq9HBt62YSsVo0f1LrxdEuw+otojZstZ5BajlC1fB
+uCZWsGYJ1lROqcGUkm3WTuwmO+VkI4no1e0+OMnKjMkIdarwm+SRxroNmGXPxjFS
+0c5XzO8ufI4T330xBhTtUCfIGtmOib0XeyZT/dCtT8wNoKlznA36ojMl4ZOArWgW
+VYBN9/JdmoDGTZxdbWqXoETzY//dT0yaCQF2J8+eM7vMW+ay0vkBIpxXkR9QmIGF
+KIDH4l3txv82X35T5GJP5y9myooT6g==
+=Ph6i
+-----END PGP SIGNATURE-----
+
+--ajsyed3ibfmsggn6--
