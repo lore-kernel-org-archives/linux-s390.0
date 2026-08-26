@@ -1,193 +1,201 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57CA32D94BA;
-	Wed, 26 Aug 2026 14:34:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 934BF3F9A12;
+	Wed, 26 Aug 2026 15:05:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787754877; cv=none; b=bh2wzUlA/YgZzTYm2GKnXZqcvTTAHPY1W/qOfFh9tIbtS5rUDVXgMabdLGbIVxAGBqgu4rxd9PseBKiHCb0DktfCWhnT81w/2z4rXwmaVwwt4Q8AgMpPHiQLMqnvUnqTI/4Cy3xNxGiDNCZoBcb1GmHttcFtzS5ertiJ3sj8XJw=
+	t=1787756727; cv=none; b=NjXtoNBIveHxXWGiTIT6Zn7fIHGJmfIGvNASRLmjV3e0fH8jpCLcoaKl/m26mgj7A91AAnt5Omz/cvurkh24H+8JC/X5xWLL2Rw7S2SHCkLRIqjOqL+buIeAXSd8YQVpuNBZM4pbOX4k7HReNCB/SR64D8I6CRv5SSjPdM63RjA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787754877; c=relaxed/simple;
-	bh=gz+Hy7py4G6i+BjnVLhoWdAJAkXvlOV2a2SeuO1tl2g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=C6g6MiTTBBSarRoEN4Gom6xTBbopJB/9oR7YsGRKN3xYS6lUqQ1P7liyYdPGxJTwNOYStysI5ElAwFTMg9DBJ0aJdXRwuT+8lD2ieiDA0HeBCgO6Dqv0jD4jCDrilhj+Ema9nyYb8zPxmdKLjBnmeL+i+afuS8S1PtHX9JdiR3A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qdrLHCsW; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1787756727; c=relaxed/simple;
+	bh=pv23s7eg4VCeiAZxy8aJaqVYnlXsMEqvKuhSWy10NkE=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=GZapGva/SbKCRS+v/TGt9LTPXYjEtEQhjok8gKCQIniqIFvgUhTd+u/jhCj1c9BECKRa5mIqG+Hc6qffmShsWHj8jeRjGbTeKjSFz0IU/6uqO4rNHOgCkI7DHLTGGRhcD5Oib5pdZY6tJyT35EK5C0EwUYm6SA5fC+Y90BUm7zk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=me9UpQ0S; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qdrLHCsW"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67QE1fbN4099742;
-	Wed, 26 Aug 2026 14:34:32 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="me9UpQ0S"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67QE1ZgY2333854;
+	Wed, 26 Aug 2026 15:05:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=NCQEfP03PfJyPuRoO/iAqztIvak9OZ
-	7A+2JPlREf114=; b=qdrLHCsWghVqJz0MzEk+TWhTMkJWdrRSLHvBr7FH8g2UWe
-	sBMrrSN8sQrxtQggzYXgB474vU/8zOgEmpY/TArD6LsgeQkJeppj+pZ8QDu0CSXd
-	nb/mTWDM133xVaDzl0co89KVYOD8jMXTSpukHCSRRWeYa8EEXFk0jjOitBLKve5e
-	8pZ4kSKb+2FVmQ93HjQPBgWlpqkU41wpMHXWYR5oClPjgVZE6Ga/hhrpodq7NV8j
-	HUxDCtBEFD1mFR1YbLKy+XPjiYymBkvhby14b3l40QOw3hVi+L2q5kyFAPG6Azpm
-	qadoMH5dCvrReLDrS7u78rFT564Oy8gM22kOG7DQ==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g716hyc08-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=GJO6uB
+	IZfuzTXKTpIIF8KxmB96batrTQ72bc7rvet0o=; b=me9UpQ0Sj51SJUpGhn7qez
+	Xx7tLjdeRpVmN+mofT6RL4zFI+N/yOy1CRhdoVnFg8dNjvf/CdAXz0NGfbBD8Cd5
+	+hX2h6MdYDHD9y+9j1qDBgOVGm3Zc/5hIcYMxpr9/st980/X7OWTPqm3eF0XGXp+
+	ILq+eWdCGCxv7LZrEo37Irc/9j482jAJDiHX2/aeL2M6ue7bApOc7RCpfESBwCm3
+	wi2rCPZlFjl7Wsg5Vokq/bS6d84GXYfXE+20kpFh7SzF/wDAYdzDzpeID4BYvitg
+	7BgwVAffA8OzA1YZHtCKRSAWFNwhpeSHWFX6HMVIWC9584lYhP74AroBJLmgzH/w
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g73eqycfq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 26 Aug 2026 14:34:31 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67QEQHbp026273;
-	Wed, 26 Aug 2026 14:34:30 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g7rsya6gd-1
+	Wed, 26 Aug 2026 15:05:22 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67QEuRpE000780;
+	Wed, 26 Aug 2026 15:05:21 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g7ragjedg-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 26 Aug 2026 14:34:30 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67QEYQnm47382976
+	Wed, 26 Aug 2026 15:05:21 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67QF5ILn33292780
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 26 Aug 2026 14:34:26 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C37422004B;
-	Wed, 26 Aug 2026 14:34:26 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9C7F220040;
-	Wed, 26 Aug 2026 14:34:26 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.224.92.206])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 26 Aug 2026 14:34:26 +0000 (GMT)
-Date: Wed, 26 Aug 2026 16:34:25 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>, linux-s390@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        kasan-dev@googlegroups.com
-Subject: Re: [PATCH v7 2/4] s390/mm: Batch PTE updates in lazy MMU mode
-Message-ID: <87a3147f-e993-4629-b0dd-a54aefbf20b1-agordeev@linux.ibm.com>
-References: <cover.1786956464.git.agordeev@linux.ibm.com>
- <d7fd78377a7278108ef501cf76571e80caef5968.1786956464.git.agordeev@linux.ibm.com>
- <20260824104048.11040Cdc-hca@linux.ibm.com>
- <73a0a916-b39f-4ebe-bffe-448928b13bef-agordeev@linux.ibm.com>
- <20260826130257.21444B1a-hca@linux.ibm.com>
+	Wed, 26 Aug 2026 15:05:18 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EA85020040;
+	Wed, 26 Aug 2026 15:05:17 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BD0E82004B;
+	Wed, 26 Aug 2026 15:05:17 +0000 (GMT)
+Received: from [9.224.78.25] (unknown [9.224.78.25])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 26 Aug 2026 15:05:17 +0000 (GMT)
+From: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Date: Wed, 26 Aug 2026 17:05:07 +0200
+Subject: [PATCH v5 05/21] KVM: s390: vsie: Move pin/unpin guest page
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260826130257.21444B1a-hca@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260826-vsie-sigpi-v5-5-cf471edb46b2@linux.ibm.com>
+References: <20260826-vsie-sigpi-v5-0-cf471edb46b2@linux.ibm.com>
+In-Reply-To: <20260826-vsie-sigpi-v5-0-cf471edb46b2@linux.ibm.com>
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>, Nico Boehr <nrb@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        Sean Christopherson <seanjc@google.com>,
+        Christoph Schlameuss <schlameuss@linux.ibm.com>
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2649;
+ i=schlameuss@linux.ibm.com; h=from:subject:message-id;
+ bh=pv23s7eg4VCeiAZxy8aJaqVYnlXsMEqvKuhSWy10NkE=;
+ b=owGbwMvMwCUmoqVx+bqN+mXG02pJDFn9DKsir1//+0Epj+fBJMUF24+9l2y/OveNYdTpJB2Ti
+ N2VF16EdZSyMIhxMciKKbJUi1vnVfW1Lp1z0PIazBxWJpAhDFycAjCR3VMZ/gdJLKrqdY9/MOtS
+ TY9UUdVr2bVGezr+aH/dfn7G2tz/xyQYGfp/LDk288nEY/F5La+eBPFV3P/zoPLE0qcfv3hLbOn
+ ZtYIbAA==
+X-Developer-Key: i=schlameuss@linux.ibm.com; a=openpgp;
+ fpr=0E34A68642574B2253AF4D31EEED6AB388551EC3
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI2MDEyMSBTYWx0ZWRfX9d0D4fznnW9a
- dTrhFYqWYFysmfgSZ1txZuW6iXZDoIJarDIoVq86gmVpjGrAbjDS0To3u+4gTkEAy/M1WshVaH6
- c39yTFfj+xq+++UAA5ZNRMYpXkO+cC8=
-X-Proofpoint-GUID: wYHuOR7MKgKkRlRWI8pHiU2wMZ88MTiq
-X-Proofpoint-ORIG-GUID: _aZxFR0LsBp_ue5V73CXJzLqrAptb0CQ
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI2MDEyMSBTYWx0ZWRfX1R4p72y7Hl9c
- Y7etrjktOF7GCy01TJgymVg7ANPeWwQ14gvKJKrseK6x43+BPLSzUIJ8x4wPRp2Eymw8ON1bTan
- BJ+WVecuVX2dJP5ug58w2lphe8lZuV3hbyb0PWQ8S/JVsY4abgYQe9js+XWVkaveUzDWKHKkgr8
- Wh05TXsvfJmupwo2m5/wlRRcVFe1p12841x3cUprI9uSNkr2x3u5a7RTXfW8ub8vZKgv2uWOtsJ
- dGriXF6B+escX/NB9g5hxr16BWjsKhOjhYb/VEzTtFxzo2el8lkm0nIlCL5H94ZVa4eOszCnar8
- v0su8oZTg7ZnYErwZFazo3oQe6O7PZ46JAsJU3lgYAtY5cnCtIRTP6kEtEjw8OJT1k0gDXck4//
- HCYAeABUS1h3Tno8Q8dH1n4fr2c0DRpJYYBd914aXlULa991qy7UdeXCeUMFWXKMQm7Jv0pTraX
- +IH7Nv2GgcNQbZPbbhg==
-X-Authority-Analysis: v=2.4 cv=H7brBeYi c=1 sm=1 tr=0 ts=6a8ef977 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=SZl-skA7I6m2z5b9x0oA:9
- a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: bQ0Rtrlt8K5vGGSLn_MpPfmVEL3A8mTk
+X-Proofpoint-ORIG-GUID: PAZz3c5iykNWwPed90JkAwXPbAwoiKuq
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI2MDEyNSBTYWx0ZWRfX0+UPlOQHADsz
+ 4N7tKE6dU8NjB3gDGLoJFg6grh3bsAZN6xv903PaoGt4RSn3GyDDFXi3Y0Jb25ifXjsk1cZvUHT
+ eJuRgUC15F32aSr9ihTLz4fHJJh/2o4O8BByvn3eNeLdKLLAst6w0vyDsWeucDw16pT2PtsA1Nb
+ d7sKzRMlysITBtqqEdOYF7L3A1EEn/kcS0cCqqshRUr/WPd5vlhWVPG9ZF1VEe98dfd8PDzX1++
+ dbA4/8hOE9s7zuq8gx6GjeD6j0P013ssow9ndnVC86CamrJM4QE+bqFs4OwzHSJPqyMJV7rTanG
+ KBfzLOPOaFoEXIFPYW5ENtz33Yfe7VTrLAHGIRK4dRUaLW7V6Y0jGmyXPySccjfj+nn2YGFsRFT
+ U3YgWWfnVAcCHeH+QAfYZj7eVkTXAWfJKKGjXksrBCAKcSiij8Uellpybk5bGnVpxVNKO4HCAI6
+ S9uk5g1a6ELk1U3ewjA==
+X-Authority-Analysis: v=2.4 cv=QsRuG1yd c=1 sm=1 tr=0 ts=6a8f00b2 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=PzVfekSpv1mMiI4dbA8A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI2MDEyNSBTYWx0ZWRfX6zYC6U7myIxS
+ RqEEl6GV73M9puUnFfhVD7zZeD2nSm3ccd61rFE3HNSFfcktWc4E6Rt6Y9cNRpXw2Dho0SLM0qU
+ 5l5lyRgGRzH7cN+63cHeJoFvY2QxgZE=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-26_04,2026-08-26_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 malwarescore=0 lowpriorityscore=0 impostorscore=0 spamscore=0
- bulkscore=0 adultscore=0 priorityscore=1501 clxscore=1015 phishscore=0
+ malwarescore=0 adultscore=0 suspectscore=0 priorityscore=1501 impostorscore=0
+ spamscore=0 lowpriorityscore=0 clxscore=1015 bulkscore=0 phishscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608260121
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608260125
 
-On Wed, Aug 26, 2026 at 03:02:57PM +0200, Heiko Carstens wrote:
-> On Wed, Aug 26, 2026 at 02:00:35PM +0200, Alexander Gordeev wrote:
-> > On Mon, Aug 24, 2026 at 12:40:48PM +0200, Heiko Carstens wrote:
-> > > On Mon, Aug 17, 2026 at 01:33:00PM +0200, Alexander Gordeev wrote:
-> > > > diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
-> > > > index 3b3ecc647993..dba236664da9 100644
-> > > > --- a/arch/s390/include/asm/lowcore.h
-> > > > +++ b/arch/s390/include/asm/lowcore.h
-> > > > @@ -163,7 +163,7 @@ struct lowcore {
-> > > >  	__s32	preempt_count;			/* 0x03a8 */
-> > > >  	__u32	spinlock_lockval;		/* 0x03ac */
-> > > >  	__u32	spinlock_index;			/* 0x03b0 */
-> > > > -	__u8	pad_0x03b4[0x03b8-0x03b4];	/* 0x03b4 */
-> > > > +	__s32	lazy_mmu_count;			/* 0x03b4 */
-> > > 
-> > > Why is this signed? Can it get negative?
-> > 
-> > For the same reason preempt_count is signed, I guess.
-> 
-> Check again, preempt_count is now unsigned and 64 bit ;)
+Move {,un}pin_guest_page() up in preparation for the next patch.
+No change intended.
 
-D'oh :)
+Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+---
+ arch/s390/kvm/s390/vsie.c | 52 +++++++++++++++++++++++------------------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
 
-...
+diff --git a/arch/s390/kvm/s390/vsie.c b/arch/s390/kvm/s390/vsie.c
+index 04cb38aad33c..e867d96917dd 100644
+--- a/arch/s390/kvm/s390/vsie.c
++++ b/arch/s390/kvm/s390/vsie.c
+@@ -149,6 +149,32 @@ static int prefix_is_mapped(struct vsie_page *vsie_page)
+ 	return !(atomic_read(&vsie_page->scb_s.prog20) & PROG_REQUEST);
+ }
+ 
++/*
++ * Pin the guest page given by gpa and set hpa to the pinned host address.
++ * Will always be pinned writable.
++ *
++ * Returns: - 0 on success
++ *          - -EINVAL if the gpa is not valid guest storage
++ */
++static int pin_guest_page(struct kvm *kvm, gpa_t gpa, hpa_t *hpa)
++{
++	struct page *page;
++
++	page = gfn_to_page(kvm, gpa_to_gfn(gpa));
++	if (!page)
++		return -EINVAL;
++	*hpa = (hpa_t)page_to_phys(page) + (gpa & ~PAGE_MASK);
++	return 0;
++}
++
++/* Unpins a page previously pinned via pin_guest_page, marking it as dirty. */
++static void unpin_guest_page(struct kvm *kvm, gpa_t gpa, hpa_t hpa)
++{
++	kvm_release_page_dirty(pfn_to_page(phys_to_pfn(hpa)));
++	/* mark the page always as dirty for migration */
++	mark_page_dirty(kvm, gpa_to_gfn(gpa));
++}
++
+ /* copy the updated intervention request bits into the shadow scb */
+ static void update_intervention_requests(struct vsie_page *vsie_page)
+ {
+@@ -720,32 +746,6 @@ static int map_prefix(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page, struct
+ 	return rc;
+ }
+ 
+-/*
+- * Pin the guest page given by gpa and set hpa to the pinned host address.
+- * Will always be pinned writable.
+- *
+- * Returns: - 0 on success
+- *          - -EINVAL if the gpa is not valid guest storage
+- */
+-static int pin_guest_page(struct kvm *kvm, gpa_t gpa, hpa_t *hpa)
+-{
+-	struct page *page;
+-
+-	page = gfn_to_page(kvm, gpa_to_gfn(gpa));
+-	if (!page)
+-		return -EINVAL;
+-	*hpa = (hpa_t)page_to_phys(page) + (gpa & ~PAGE_MASK);
+-	return 0;
+-}
+-
+-/* Unpins a page previously pinned via pin_guest_page, marking it as dirty. */
+-static void unpin_guest_page(struct kvm *kvm, gpa_t gpa, hpa_t hpa)
+-{
+-	kvm_release_page_dirty(pfn_to_page(phys_to_pfn(hpa)));
+-	/* mark the page always as dirty for migration */
+-	mark_page_dirty(kvm, gpa_to_gfn(gpa));
+-}
+-
+ /* unpin all blocks previously pinned by pin_blocks(), marking them dirty */
+ static void unpin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ {
 
-> > > >  void __init arch_cpu_finalize_init(void)
-> > > >  {
-> > > > +	lazy_mmu_online_boot_cpu();
-> > > >  	sclp_init();
-> > > >  }
-> > > 
-> > > What makes this code so special that an explicit call from
-> > > arch_cpu_finalize_init() is required? This is really the last resort if
-> > > everything else fails. To me it looks like the code can be changed to use a
-> > > new static key, and add a generic early (pre-smp) initcall to allocate
-> > > memory for cpu 0, and if that succeeds enable the static key.
-> > 
-> > I had exactly similar variant, but failed to resolve a race when a secondary
-> > CPU callback was called before the CPU0's one. Probably, used a wrong event.
-> > Will look into it again.
-> 
-> early_initcall() should do the trick.
+-- 
+2.55.0
 
-Yep, early_initcall() + CPUHP_BP_PREPARE_DYN seems to be flying ;)
-
-> > > > +	local_bh_disable();
-> > > > +
-> > > > +	lockdep_assert_preemption_disabled();
-> > > > +	range = this_cpu_read(ipte_range);
-> > > 
-> > > Why is it required to disable bottom halves? A comment would be helpful.
-> > > Or a hint in the commit message - this is not obvious.
-> > 
-> > When an interrupt arrives in the middle of enter|leave_ipte_range()
-> > the chain pcpu_addr_to_page() -> vmalloc_to_page() -> ptep_get()
-> > decides ptep_get() is called in lazy mode, while the per-cpu state
-> > not yet (de-)initialized (AKA inconsistent). That led to crashes:
-> 
-> So, I don't know what exactly lead to the crash, but I guess the
-> problem is an only partially initialized ipte_range struct, while the
-> lazy_mmu_count has been incremented already? Isn't it possible to
-
-Exactly.
-
-> solve that problem without disabling bottom halves by reordering
-> sequences in enter_ipte_range() and leave_ipte_range()?
-
-I guess you mean setting|unsetting the lazy mmu flag after|before the
-state is initialized? I will think about it, though I keep the door
-open for a possible lazy_mmu_mode_pause()|resume() implementation,
-which I am unable to predict how such rework would fit: lazy_mmu_count
-would have to stay non-zero in such a case.
-
-> Would be nice if we could avoid the not so obvious local_bh_disable()
-> and local_bh_enable() pairs.
-
-Calling ptep_get() from BH context was certainly unexpected, but the way
-local_bh_enable|disable() pairs are used is actually straightforward.
-This is a slow path anyway, so I would think the simplicity prevails in
-this case.
-
-But again, I will try to avoid that.
-
-Thanks!
