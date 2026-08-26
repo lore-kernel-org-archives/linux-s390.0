@@ -1,80 +1,81 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B8D539D3D3;
-	Wed, 26 Aug 2026 07:42:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 692833BA232;
+	Wed, 26 Aug 2026 09:11:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787730178; cv=none; b=acmGf53Pm47GZitzdzbKjriubjNb9B1VWnwPK5h2PJr+leZPowFKoPQkcxotriU0Ai2O/SB7Y83ane5Tu08UGlPZStq724x2DM+hnUruA5uDpmRKHb0cZYEtrR+ZjJKd3r2L5Fno+XDbQeFYj35gU2qN45/2Iye4tdYPRRQIcw4=
+	t=1787735474; cv=none; b=ePe/N8VEKUCKmJ8BofCdUdJZPCUmt/w3Ffw4Bc98sZCH8wCGJ/nI9T4SD/NVQOcYOjkQnPR05k4aSIWFoC9C5SXTEsKl9tWsLFau95TdZZ27bCq8PbrUNLafbwPu5p6+7WfsbRo+c6ORGvxEcS+q+CCwENUE7c367JIcXx76f4Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787730178; c=relaxed/simple;
-	bh=ceupSl+HG+4+99koEvi/7l9ZGEHV5mrxj1j8iGg8UbQ=;
+	s=arc-20240116; t=1787735474; c=relaxed/simple;
+	bh=887TfgrNgGSFJL+6j0nIa0G1yh7kl1GtEYcn1+PmB/4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fO6P6Udlf2CJjWdRJOL4YZKEPyks21rrBaK8lgSG1Wu8Ul/Fn6vNA0Mg22pjlvHzHcse5Cnh3TrNxJv8e4CrhZOn4KwMAMyaYhwltiBbLS0i38IWTcAAWQAt/hHmil0ae3cvwDvBxoiWfM5zocBpT+Rx1OzV0lXL7QEOcI4d6tc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=FlS5K0ns; arc=none smtp.client-ip=115.124.30.110
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=XT/9oMTARXfGk3neaW83cbg8u4wJEdoAXxTei/Sf1ER6DLD7QVo2N6yZ4Y9TRnLgWMgxgWq52o93f2CWnNHYquTIfozXu2NsIHqaWSPKb/qZDJ2jYquQcJbNcb6SRoX6Z8CdJSyCn5nNz3EcGHixcHOi4dfg9YYEmcaC9UyX14U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Oo9OgNi9; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="FlS5K0ns"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1787730166; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=ceupSl+HG+4+99koEvi/7l9ZGEHV5mrxj1j8iGg8UbQ=;
-	b=FlS5K0nsS2plQEiyGYi6vVxOdEdZ9VPDayetjz5QtQrcTE1sjDT0N5RU9CjVXWr1d1CmIG4vsyWcrJurP4W9A4JtgCV0hZg+8O8xMZBMoH9onby1Cdj9HVpXdewX4CW2ZlYDxQbK/echXJQtSbBeAYsjRA06FlWiT1Bu9kpDXy4=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032089153;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0X9gH55O_1787730164;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X9gH55O_1787730164 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 26 Aug 2026 15:42:45 +0800
-Date: Wed, 26 Aug 2026 15:42:44 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Yifei Chu <Chuyf26@linux.alibaba.com>, alibuda@linux.alibaba.com
-Cc: sidraya@linux.ibm.com, mjambigi@linux.ibm.com, kuba@kernel.org,
-	pabeni@redhat.com, tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com, netdev@vger.kernel.org,
-	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v4] net/smc: release the internal TCP sock on IPPROTO_SMC
- socket creation failure
-Message-ID: <ao6Y9P24-tnV3VVo@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <178753843966.342810.566471390946765094@linux.alibaba.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Oo9OgNi9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12A1C1F000E9;
+	Wed, 26 Aug 2026 09:11:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1787735473;
+	bh=eI5nqmCk3yvwNEmwIcySN9wJ2Go1ErbxMWytjOmKfOY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=Oo9OgNi9WTr0hNaGqcw8R+zfiOATQ5UHUfuHHYQe5M6Hx+RbJDBcmtGvPjQpwsuGv
+	 3AFqRnMm5NJxS0WxRT3l4sV/IoA1JFBxKRWxz8c+MGLBdEOrej8HGoGJj3MJ/L1BIq
+	 RVLVl2p+cGnOY6l1ONpMX7ocL56cEnfyofLT4XWNuzhrHJB+7C4iIoo1qbZF/B9934
+	 jLnEleKlrjWkE4LwJi7og5J9A6e7htWVTcO+9EkIuGK5GkTVl1EZtx6sEPXBtnbkGi
+	 fri6mP7J9pthJ+jTHTwhaVg8D2Se41kgH9LL5qkbMfJT9DbelJHZzVgYRqQ9u6lLjS
+	 DB7FhQbMSgDmA==
+Date: Wed, 26 Aug 2026 10:11:07 +0100
+From: Simon Horman <horms@kernel.org>
+To: Markus Elfring <Markus.Elfring@web.de>
+Cc: Qi Zhang <marsy12010123@gmail.com>,
+	Chengfeng Ye <nicoyip.dev@gmail.com>, netdev@vger.kernel.org,
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>, stable@vger.kernel.org,
+	LKML <linux-kernel@vger.kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>
+Subject: Re: [PATCH net v2] net/smc: prevent device removal during connection
+ setup
+Message-ID: <20260826091107.GA22033@horms.kernel.org>
+References: <20260823071908.93212-1-marsy12010123@gmail.com>
+ <cfd7450e-0098-42e3-af4f-d5b47e842d23@web.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <178753843966.342810.566471390946765094@linux.alibaba.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <cfd7450e-0098-42e3-af4f-d5b47e842d23@web.de>
 
-On 2026-08-24 10:27:19, Yifei Chu wrote:
->IPPROTO_SMC sockets create an internal TCP sock ("clcsock") from the
->proto->init hook. When socket creation fails after proto->init has
->run - e.g. a cgroup BPF program attached to BPF_CGROUP_INET_SOCK_CREATE
->denies the socket - sk_common_release() only invokes sk_prot->destroy
->if it is set, but neither smc_inet_prot nor smc_inet6_prot defines it,
->and smc_destruct() returns early unless sk_state is SMC_CLOSED. As a
->result, every failing socket(AF_INET, SOCK_STREAM, IPPROTO_SMC) call
->leaks one tcp_sock, so an unprivileged task able to attach a deny-all
->BPF_CGROUP_INET_SOCK_CREATE program to its own cgroup can grow kernel
->memory unboundedly.
->
->Add a .destroy hook to both protos that releases the clcsock via
->smc_clcsock_release(). smc_sk_init() hashes the sock into the smc
->hashinfo before the clcsock is created, and smc_diag dumps walk that
->hash dereferencing smc->clcsock without taking clcsock_release_lock,
->while sk_common_release() calls .destroy before .unhash. Unhash the
->sock before releasing the clcsock, as __smc_release() does, so a
->concurrent dump cannot observe the release; the second unhash in
->sk_common_release() is a no-op.
->
->Fixes: d25a92ccae6b ("net/smc: Introduce IPPROTO_SMC")
->Reported-by: Abaci <abaci@linux.alibaba.com>
->Assisted-by: abaci:qwen3.8-max
->Signed-off-by: Yifei Chu <Chuyf26@linux.alibaba.com>
+On Sun, Aug 23, 2026 at 11:37:17AM +0200, Markus Elfring wrote:
+> …
+> > This change is limited to the reported SMCR lifetime race. SMC-D device
+> > selection has a similar pre-existing borrowed-pointer lifetime issue and
+> > requires a separate fix.
+> 
+> May lock guards be applied?
+> https://elixir.bootlin.com/linux/v7.2/source/include/linux/mutex.h#L253
 
-Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+This approach seems fine to me.
 
-Best regards,
-Dust
+Quoting the documentation:
+
+  Use of guard() is discouraged within any function longer than 20 lines,
+  scoped_guard() is considered more readable. Using normal lock/unlock is
+  still (weakly) preferred.
+
+  Link: https://docs.kernel.org/process/maintainer-netdev.html#using-device-managed-and-cleanup-h-constructs
+
+Reviewed-by: Simon Horman <horms@kernel.org>
 
