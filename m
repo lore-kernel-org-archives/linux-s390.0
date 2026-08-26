@@ -1,99 +1,103 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC1981862;
-	Wed, 26 Aug 2026 14:17:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57CA32D94BA;
+	Wed, 26 Aug 2026 14:34:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787753835; cv=none; b=H0IvC9PrkhU5mtqXttqbNkR0fC3rBWmNpyG6e235mpjXOIIZePtNYvDdWNn+BJ9zJAxbIbUIRszRmu60qJBeu+CJGWhUEP/mgO5n2wHlFHPl5TIGcTqHrnPxYWrCm3LEnNZFmj4t6m7VSSNGKEmGE0CNygB2kfotBD+O+sQZsqU=
+	t=1787754877; cv=none; b=bh2wzUlA/YgZzTYm2GKnXZqcvTTAHPY1W/qOfFh9tIbtS5rUDVXgMabdLGbIVxAGBqgu4rxd9PseBKiHCb0DktfCWhnT81w/2z4rXwmaVwwt4Q8AgMpPHiQLMqnvUnqTI/4Cy3xNxGiDNCZoBcb1GmHttcFtzS5ertiJ3sj8XJw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787753835; c=relaxed/simple;
-	bh=IaEb10TQ5OWYQYAU3mIUhp0bBZ57wG1p8VomUDVxNfo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=S4mEb/1aNQGk50JBKw+kY4Mk+Rz9qkNNpscbCsJvY8SWyjiiDQQoLWG6tzryLZPK73FmWksFJcbAwQGanK8B1VwpklbrIR23Go0tUJvKlMai36k+Z6EEcd9XkRiqxYu6i6l9me5eqmDUdNV7kbJ38CQrhPhlUqIp0VuQ4d+txAA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=R5JA68Cc; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1787754877; c=relaxed/simple;
+	bh=gz+Hy7py4G6i+BjnVLhoWdAJAkXvlOV2a2SeuO1tl2g=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=C6g6MiTTBBSarRoEN4Gom6xTBbopJB/9oR7YsGRKN3xYS6lUqQ1P7liyYdPGxJTwNOYStysI5ElAwFTMg9DBJ0aJdXRwuT+8lD2ieiDA0HeBCgO6Dqv0jD4jCDrilhj+Ema9nyYb8zPxmdKLjBnmeL+i+afuS8S1PtHX9JdiR3A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qdrLHCsW; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="R5JA68Cc"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qdrLHCsW"
 Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67QE1geJ4099748;
-	Wed, 26 Aug 2026 14:17:12 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67QE1fbN4099742;
+	Wed, 26 Aug 2026 14:34:32 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=BHCyza
-	+e6EhJNQpRwxXX/D7csOEUvRFkDlHPfbyEHn8=; b=R5JA68CcwasJmK5+70ohBn
-	yDSU6OeGHyGUhHQHbRM35JuAVfHwGV78BCc+5qTH0RZxqRbjzmhWON5OFYnxrjxH
-	EJzqxyZ06AWIcIjQJZmHTwcsNQzdGj+dl2pwrtcIBYeVUF1aDtr885m8EUTTjATh
-	H5rcOtSGkjF1cNtthfFr43TyzZ0bZKM60ZGUZV++Hlv0l7hfu+tSUsITvv+iHRXQ
-	c24JSthS6hzUDPncBb520dSntmepb6wp1gcfvZ/RH19xTQzz1v6f9WRKbGWHYPLT
-	nYx2HNBXarKweyrybNkzyh9OqFfbkgTePT/vDOS8nQAVOBbw7tTxjtyQt5LznCHQ
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g716hy99b-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=NCQEfP03PfJyPuRoO/iAqztIvak9OZ
+	7A+2JPlREf114=; b=qdrLHCsWghVqJz0MzEk+TWhTMkJWdrRSLHvBr7FH8g2UWe
+	sBMrrSN8sQrxtQggzYXgB474vU/8zOgEmpY/TArD6LsgeQkJeppj+pZ8QDu0CSXd
+	nb/mTWDM133xVaDzl0co89KVYOD8jMXTSpukHCSRRWeYa8EEXFk0jjOitBLKve5e
+	8pZ4kSKb+2FVmQ93HjQPBgWlpqkU41wpMHXWYR5oClPjgVZE6Ga/hhrpodq7NV8j
+	HUxDCtBEFD1mFR1YbLKy+XPjiYymBkvhby14b3l40QOw3hVi+L2q5kyFAPG6Azpm
+	qadoMH5dCvrReLDrS7u78rFT564Oy8gM22kOG7DQ==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g716hyc08-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 26 Aug 2026 14:17:12 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67QEBKGD007597;
-	Wed, 26 Aug 2026 14:17:11 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g7ragj7d2-1
+	Wed, 26 Aug 2026 14:34:31 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67QEQHbp026273;
+	Wed, 26 Aug 2026 14:34:30 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g7rsya6gd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 26 Aug 2026 14:17:11 +0000 (GMT)
+	Wed, 26 Aug 2026 14:34:30 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67QEH71715991128
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67QEYQnm47382976
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 26 Aug 2026 14:17:07 GMT
+	Wed, 26 Aug 2026 14:34:26 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7649C20043;
-	Wed, 26 Aug 2026 14:17:07 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id C37422004B;
+	Wed, 26 Aug 2026 14:34:26 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4102F20040;
-	Wed, 26 Aug 2026 14:17:07 +0000 (GMT)
-Received: from [0.0.0.0] (unknown [9.111.55.210])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 26 Aug 2026 14:17:07 +0000 (GMT)
-Message-ID: <485c5bb3-ca8a-4591-827c-09d23f4280a2@linux.ibm.com>
-Date: Wed, 26 Aug 2026 16:17:07 +0200
+	by IMSVA (Postfix) with ESMTP id 9C7F220040;
+	Wed, 26 Aug 2026 14:34:26 +0000 (GMT)
+Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.224.92.206])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 26 Aug 2026 14:34:26 +0000 (GMT)
+Date: Wed, 26 Aug 2026 16:34:25 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>, linux-s390@vger.kernel.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        kasan-dev@googlegroups.com
+Subject: Re: [PATCH v7 2/4] s390/mm: Batch PTE updates in lazy MMU mode
+Message-ID: <87a3147f-e993-4629-b0dd-a54aefbf20b1-agordeev@linux.ibm.com>
+References: <cover.1786956464.git.agordeev@linux.ibm.com>
+ <d7fd78377a7278108ef501cf76571e80caef5968.1786956464.git.agordeev@linux.ibm.com>
+ <20260824104048.11040Cdc-hca@linux.ibm.com>
+ <73a0a916-b39f-4ebe-bffe-448928b13bef-agordeev@linux.ibm.com>
+ <20260826130257.21444B1a-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] s390: Warn if kernel command line contains non-printable
- EBCDIC characters
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20260825150840.537653-1-iii@linux.ibm.com>
- <20260826092916.21444Ab3-hca@linux.ibm.com>
-Content-Language: en-US
-From: Ilya Leoshkevich <iii@linux.ibm.com>
-In-Reply-To: <20260826092916.21444Ab3-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260826130257.21444B1a-hca@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI2MDExNiBTYWx0ZWRfX98hEewjzWKAA
- 1Ngr2T/sqRgKewhWz3eaRcDkwt0oTab2fSnxYYiAOvTIccOESYiH6UB1ZN7LGTdXecefa4vOCI6
- Ie1OjZ16prRo30h/t8EGVk/juqR2oBQ=
-X-Proofpoint-GUID: PituprqXM9O2sbPkbuU6m5FcJLYbinxb
-X-Proofpoint-ORIG-GUID: PituprqXM9O2sbPkbuU6m5FcJLYbinxb
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI2MDExNiBTYWx0ZWRfX+BbX7J7+jmh3
- ZSZ3TTEzYLhPIHFTrrj+44gDfDmvFCRZO4+omq1CvKKz9JRZYKiOzs6bgTUscB5iy793Y7hEzCD
- s0rOB2MltY94MpmiW5P1FIFimZBUORDgD/Se7Q63TKIb2eEkhXbwXjlCuZpY7RLK8oQiZ+tcPn/
- 1hCMGPBHLiaE6K/ykjetKOqII4tD3t97cYGC+Gnj5eQwkr12AWjrRzaERO2/iL+LMTetuZ4nxA5
- C020a7rbokgNkJGF3QqJUaVeg+cDJCyez84v0V6bRbcL9ZYS/2qr73lxhsj4v0a67aCvhiHAJkd
- A/QKQYXP/J/G+9yRrLwJuFoTejhOXaqkKr5UUFwBDAvG4rX4P3zrbnUCGGRCitRZrCoBOYrHf5V
- jnQzztRArbu0H3qYRB7FdCjWwiQV+GILdOV/vMW7kJtBVkyi9vQf6gLuuYr5mOJpN5onuA4rkr4
- k/EDzxHkoRkddlhsARQ==
-X-Authority-Analysis: v=2.4 cv=H7brBeYi c=1 sm=1 tr=0 ts=6a8ef568 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=A3Q8tPC8mmVFCRH0wo0A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI2MDEyMSBTYWx0ZWRfX9d0D4fznnW9a
+ dTrhFYqWYFysmfgSZ1txZuW6iXZDoIJarDIoVq86gmVpjGrAbjDS0To3u+4gTkEAy/M1WshVaH6
+ c39yTFfj+xq+++UAA5ZNRMYpXkO+cC8=
+X-Proofpoint-GUID: wYHuOR7MKgKkRlRWI8pHiU2wMZ88MTiq
+X-Proofpoint-ORIG-GUID: _aZxFR0LsBp_ue5V73CXJzLqrAptb0CQ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI2MDEyMSBTYWx0ZWRfX1R4p72y7Hl9c
+ Y7etrjktOF7GCy01TJgymVg7ANPeWwQ14gvKJKrseK6x43+BPLSzUIJ8x4wPRp2Eymw8ON1bTan
+ BJ+WVecuVX2dJP5ug58w2lphe8lZuV3hbyb0PWQ8S/JVsY4abgYQe9js+XWVkaveUzDWKHKkgr8
+ Wh05TXsvfJmupwo2m5/wlRRcVFe1p12841x3cUprI9uSNkr2x3u5a7RTXfW8ub8vZKgv2uWOtsJ
+ dGriXF6B+escX/NB9g5hxr16BWjsKhOjhYb/VEzTtFxzo2el8lkm0nIlCL5H94ZVa4eOszCnar8
+ v0su8oZTg7ZnYErwZFazo3oQe6O7PZ46JAsJU3lgYAtY5cnCtIRTP6kEtEjw8OJT1k0gDXck4//
+ HCYAeABUS1h3Tno8Q8dH1n4fr2c0DRpJYYBd914aXlULa991qy7UdeXCeUMFWXKMQm7Jv0pTraX
+ +IH7Nv2GgcNQbZPbbhg==
+X-Authority-Analysis: v=2.4 cv=H7brBeYi c=1 sm=1 tr=0 ts=6a8ef977 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=SZl-skA7I6m2z5b9x0oA:9
+ a=CjuIK1q_8ugA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-26_04,2026-08-26_02,2025-10-01_01
@@ -101,67 +105,89 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  suspectscore=0 malwarescore=0 lowpriorityscore=0 impostorscore=0 spamscore=0
  bulkscore=0 adultscore=0 priorityscore=1501 clxscore=1015 phishscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608260116
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608260121
 
-
-
-On 8/26/26 11:29, Heiko Carstens wrote:
-> On Tue, Aug 25, 2026 at 05:08:08PM +0200, Ilya Leoshkevich wrote:
->> Users may accidentally add multi-byte UTF-8 characters to zipl.conf
->> parmline, for example, by copying snippets containing non-breaking
->> spaces (\xC2\xA0) from web pages.
->>
->> The kernel will then interpret the entire command line as EBCDIC,
->> making it unusable. Distinguish this situation from the legitimate
->> EBCDIC conversion by looking for non-printable characters and issue
->> a warning.
->>
->> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
->> ---
->>   arch/s390/boot/ipl_parm.c | 19 ++++++++++++++++++-
->>   1 file changed, 18 insertions(+), 1 deletion(-)
->>
->> diff --git a/arch/s390/boot/ipl_parm.c b/arch/s390/boot/ipl_parm.c
->> index 6bc950b92be76..71c0c26d56bba 100644
->> --- a/arch/s390/boot/ipl_parm.c
->> +++ b/arch/s390/boot/ipl_parm.c
->> @@ -173,12 +173,29 @@ static inline int has_ebcdic_char(const char *str)
->>   	return 0;
->>   }
->>   
->> +static inline int has_nonprintable_char(const char *str)
->> +{
->> +	int i;
->> +
->> +	for (i = 0; str[i]; i++) {
->> +		unsigned char c = (unsigned char)str[i];
->> +
->> +		/* isprint() is Latin-1, and we need ASCII here */
->> +		if (c < 0x20 || c > 0x7e)
->> +			return 1;
+On Wed, Aug 26, 2026 at 03:02:57PM +0200, Heiko Carstens wrote:
+> On Wed, Aug 26, 2026 at 02:00:35PM +0200, Alexander Gordeev wrote:
+> > On Mon, Aug 24, 2026 at 12:40:48PM +0200, Heiko Carstens wrote:
+> > > On Mon, Aug 17, 2026 at 01:33:00PM +0200, Alexander Gordeev wrote:
+> > > > diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
+> > > > index 3b3ecc647993..dba236664da9 100644
+> > > > --- a/arch/s390/include/asm/lowcore.h
+> > > > +++ b/arch/s390/include/asm/lowcore.h
+> > > > @@ -163,7 +163,7 @@ struct lowcore {
+> > > >  	__s32	preempt_count;			/* 0x03a8 */
+> > > >  	__u32	spinlock_lockval;		/* 0x03ac */
+> > > >  	__u32	spinlock_index;			/* 0x03b0 */
+> > > > -	__u8	pad_0x03b4[0x03b8-0x03b4];	/* 0x03b4 */
+> > > > +	__s32	lazy_mmu_count;			/* 0x03b4 */
+> > > 
+> > > Why is this signed? Can it get negative?
+> > 
+> > For the same reason preempt_count is signed, I guess.
 > 
-> Hm, I guess the comment refers to a different implementation than the
-> kernel internal one? Since isprint() (see include/linux/ctype.h) is
-> true for exactly the range you open-coded, as far as I can tell.
+> Check again, preempt_count is now unsigned and 64 bit ;)
 
-Unfortunately isprint() matches some extra ASCII upper-half characters,
-e.g.:
+D'oh :)
 
-   const unsigned char _ctype[] = {
-   [...]
-   _P,_P,_P,_P,_P,_P,_P,_P,_P,_P,_P,_P,_P,_P,_P,_P,        /* 176-191 */
+...
 
-> Furthermore kernel command line parsing also allows for all sorts of
-> spaces, tabs, and line feeds (see e.g. next_arg()). So I guess the
-> above should be changed (and shortened :) ) to something like:
+> > > >  void __init arch_cpu_finalize_init(void)
+> > > >  {
+> > > > +	lazy_mmu_online_boot_cpu();
+> > > >  	sclp_init();
+> > > >  }
+> > > 
+> > > What makes this code so special that an explicit call from
+> > > arch_cpu_finalize_init() is required? This is really the last resort if
+> > > everything else fails. To me it looks like the code can be changed to use a
+> > > new static key, and add a generic early (pre-smp) initcall to allocate
+> > > memory for cpu 0, and if that succeeds enable the static key.
+> > 
+> > I had exactly similar variant, but failed to resolve a race when a secondary
+> > CPU callback was called before the CPU0's one. Probably, used a wrong event.
+> > Will look into it again.
+> 
+> early_initcall() should do the trick.
 
-I completely forgot about newlines, thanks!
+Yep, early_initcall() + CPUHP_BP_PREPARE_DYN seems to be flying ;)
 
-> static inline int has_nonprintable_char(const char *str)
-> {
-> 	for (int i = 0; str[i]; i++) {
-> 		if (isprint(str[i]) || isspace(str[i]))
-> 			return 1;
-> 	}
-> 	return 0;
-> }
+> > > > +	local_bh_disable();
+> > > > +
+> > > > +	lockdep_assert_preemption_disabled();
+> > > > +	range = this_cpu_read(ipte_range);
+> > > 
+> > > Why is it required to disable bottom halves? A comment would be helpful.
+> > > Or a hint in the commit message - this is not obvious.
+> > 
+> > When an interrupt arrives in the middle of enter|leave_ipte_range()
+> > the chain pcpu_addr_to_page() -> vmalloc_to_page() -> ptep_get()
+> > decides ptep_get() is called in lazy mode, while the per-cpu state
+> > not yet (de-)initialized (AKA inconsistent). That led to crashes:
+> 
+> So, I don't know what exactly lead to the crash, but I guess the
+> problem is an only partially initialized ipte_range struct, while the
+> lazy_mmu_count has been incremented already? Isn't it possible to
+
+Exactly.
+
+> solve that problem without disabling bottom halves by reordering
+> sequences in enter_ipte_range() and leave_ipte_range()?
+
+I guess you mean setting|unsetting the lazy mmu flag after|before the
+state is initialized? I will think about it, though I keep the door
+open for a possible lazy_mmu_mode_pause()|resume() implementation,
+which I am unable to predict how such rework would fit: lazy_mmu_count
+would have to stay non-zero in such a case.
+
+> Would be nice if we could avoid the not so obvious local_bh_disable()
+> and local_bh_enable() pairs.
+
+Calling ptep_get() from BH context was certainly unexpected, but the way
+local_bh_enable|disable() pairs are used is actually straightforward.
+This is a slow path anyway, so I would think the simplicity prevails in
+this case.
+
+But again, I will try to avoid that.
+
+Thanks!
