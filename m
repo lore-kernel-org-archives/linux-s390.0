@@ -1,59 +1,65 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A52444A3F9;
-	Wed, 26 Aug 2026 15:17:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6390223DC6
+	for <linux-s390@vger.kernel.org>; Wed, 26 Aug 2026 15:18:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787757469; cv=none; b=q3Qq30/2pk+sZYLizzcnAihomL2kj2NhE34IOgx+esHfn7Bi4jN2iCg/+Dh3u09Z70QmeiuSKX2B9SaeBfF/f0Fdos4m+WLVFxmTQpC/HxtkCl2Tc9lOrmeUmhA4NiVhS4SnoTC25wl1kxgDq1stSMvMKtiVCXdQLw/+wBuZRtQ=
+	t=1787757541; cv=none; b=hnB7L9iSeEk6MH79VTRbGW5U8FhDKlv9thSqyKod60qlwPL+3/BpTUfbAW7fT4bDKqegcp2TN6BCrXo6+z+HIORueRMJXE0veeRsJX7Io3tELzEAKb67hwgqwWGACCCTQzf+IxEmgO6A5VY5PisflL+AHbmHcMpQn15C9bqrs4k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787757469; c=relaxed/simple;
-	bh=zMgNshBIWr83ID//ZSKIWqe7cofbW9umoVXxArEh/qM=;
+	s=arc-20240116; t=1787757541; c=relaxed/simple;
+	bh=BPAHkvhpz6pwsS7TpWoVllhafDaVyBc0DTMlMCW81xI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=N4xpq65/OId3zsuN5vq+FEL4tH56rkiOkcS9ELWxv64AGGpmsrUCPnqWEobSEg/hgHDxFpzJi1j2kXHXIvX5pASvpeZXa6z5kkC9yPuym3rWdvPdannLY10epeJKxWHfvO3xYKqYzxMWYZXH9UV6pBmqnpCpMyX+Qm0UCnHEMUw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Pe1tfigw; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=MuD7LhlM0T5Exe6WQw7xbBhq/xEg1Y+Hp7jpVfPPzpjA4o7YnJrmTM0exFyCuusqyxN38xVBTX9BscQI3U8tyTFzAWY/KPqRxE0+k7w4Va3hUcfRbEeuPejxMzWxpR0qsqU9MamSYgDraQxMUa1X10v64hHnzy4F46od6aQi/JM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z9CMAr81; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Pe1tfigw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAD541F00A3A;
-	Wed, 26 Aug 2026 15:17:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z9CMAr81"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03CFC1F00A3A;
+	Wed, 26 Aug 2026 15:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787757467;
-	bh=zMgNshBIWr83ID//ZSKIWqe7cofbW9umoVXxArEh/qM=;
+	s=k20260515; t=1787757539;
+	bh=BPAHkvhpz6pwsS7TpWoVllhafDaVyBc0DTMlMCW81xI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Pe1tfigwAHtZfMG6vk97juND7OfurvUsHMIM+3Q9lYd3NAgu07hZ/imc+USR/Avit
-	 8fADGV8byTl74PiSNCP2ejdRKsYdELAcNT/RNIq3C8M+xBKcxLWLJHm06W/F58cH4u
-	 3fun0jC+XMu6YnWdSK4GW6xq6w2DuQWjDxZOeaGrMjME8kcqe2/cSfbExnk5tcBP/2
-	 4k+7pQ7ju697z3akefEpbMrG6l/XJO0HKdh9SzyDtuzi7vFGIMU02vEVWyWHWREd4R
-	 Tz+Xq+CRMjBvD9uz5MAL9MbxhZO3HrSYhO1LraTRxDQKfDeR8/kPcgPckAkbSP0Ooj
-	 Ish9lPPXDHNKA==
+	b=Z9CMAr81ASJCO85qKoFKf5wDgH8rvSrK7r6wsRf5ZpFQHGToBUfer4W7WS0fLOlC7
+	 FKg+NLvfeOTfZaaZoPyuPHACsXYXy8Kphi5z21qocuMr/ifok2w2DNeeQ5ZdPvBpdp
+	 XwW1n3FH8Pf73nfM1RNv743HeSs1yvabt1oRauEoG4XKrtKWk8Zdrz+x0Locla7j/F
+	 +r5Yv9JOMYHwAQ1G+go4+Trlo7QVXmiuIrr27d9LomGSD45UeIMxXLkIpo3b5p/3f3
+	 XmNX1W098Qkkj4cvIc2kDwnoKc7lA6x1E96jrSG+7JTcB7yPi1tQ1j7v1viOoSALvV
+	 LxgYVuR/8Dbbg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 05/21] KVM: s390: vsie: Move pin/unpin guest page
+Subject: Re: [PATCH v2] s390: Warn if kernel command line contains
+ non-printable EBCDIC characters
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260826-vsie-sigpi-v5-5-cf471edb46b2@linux.ibm.com>
-References: <20260826-vsie-sigpi-v5-0-cf471edb46b2@linux.ibm.com>
- <20260826-vsie-sigpi-v5-5-cf471edb46b2@linux.ibm.com>
+To: "Ilya Leoshkevich" <iii@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260826150702.949956-1-iii@linux.ibm.com>
+References: <20260826150702.949956-1-iii@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 26 Aug 2026 15:17:46 +0000
-Message-Id: <20260826151746.EAD541F00A3A@smtp.kernel.org>
+Date: Wed, 26 Aug 2026 15:18:58 +0000
+Message-Id: <20260826151859.03CFC1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> Move {,un}pin_guest_page() up in preparation for the next patch.
-> No change intended.
+> Users may accidentally add multi-byte UTF-8 characters to zipl.conf
+> parmline, for example, by copying snippets containing non-breaking
+> spaces (\xC2\xA0) from web pages.
 >=20
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+> The kernel will then interpret the entire command line as EBCDIC,
+> making it unusable. Distinguish this situation from the legitimate
+> EBCDIC conversion by looking for non-printable characters and issue
+> a warning.
+>=20
+> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260826-vsie-sigpi=
--v5-0-cf471edb46b2@linux.ibm.com?part=3D5
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260826150702.9499=
+56-1-iii@linux.ibm.com?part=3D1
 
