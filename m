@@ -1,200 +1,122 @@
-Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8533A3B6BFE;
-	Tue, 25 Aug 2026 19:10:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 434DE1EFF93;
+	Wed, 26 Aug 2026 03:18:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787685054; cv=none; b=MBPFQ3JgaDmKBiwp2KDEEb4ecL+mLtph2ZDH5dUDq281tYFeEFrYTLqmj0fBsymWglvCHWxzIyTDZH9MReokSD6fJm8HvhUVSdj64YaC6gFEul3gP+c1AhtP9aAPtjK4OhXlImrdGrh8yAEgF7mDS3GGgLhWgOKsl1c6AF3TeI4=
+	t=1787714318; cv=none; b=pu+zAUM8CKaQtj+xr7OqkkF9+ElNrfFyCrgh735DGBgAaJeAsTktFvks/FdvoEJviofIz0I6Cm+LMlJQK6SwC6L54i+c0edzftV+lF51cQ1kCBV9utMWpZWRE0ZQOG2mUEZYanHiVmiXOkHkwxWuUn9FkmMxTL2XEFaiFdc9/Bk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787685054; c=relaxed/simple;
-	bh=OtchHb6GBRRv68k/gioU/7xbxZ19B8WsvvWJaYWNtpk=;
-	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
-	 Message-ID:Content-Type; b=ipvLNwRYVe5qMCdwNi3DiLYUr8wa3BDCTTRR0oDbzguPyZv8t4cUzxHe9TeftT02dHk+LbW69SxsAwO7zSBhor2O9024k3t1P3Jqc+SNVIrIC9YItyp7L0nInMqvVzRwIKyPuzRPy4Mm4VQ7gBGxSu1mtANzzbw4nfK7j1dIW1A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=RHvx1Ado; arc=none smtp.client-ip=213.97.179.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
+	s=arc-20240116; t=1787714318; c=relaxed/simple;
+	bh=h8msQHr+CXsejwj0Tg9mxPlXdG/lbLNOfIaOqLqNyqY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rYpYQXBj5ymfH6MQhNnZfv/Vab41SvOvT2dUh/HpNT5rs8yQekj6APqYbvW2cEcqhGquT85GsypDWlNQvNSNBvL42eZqHwekCuTMp+hWiQjGR11eG6+eaB0aISV6AECS4bcifET1dekpUJ60biw7neSkhfN/hRpf90jJrPDufaA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=c0m3KFNY; arc=none smtp.client-ip=115.124.30.97
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="RHvx1Ado"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-	s=20170329; h=Content-Transfer-Encoding:Content-Type:Message-ID:Subject:Cc:To
-	:From:Date:MIME-Version:From:Reply-To;
-	bh=elAJm2a/yvCuwNZQN8cT8iWBlOljI1OpyGvFLYC11uo=; b=RHvx1Ado+WH9EzbHIOX+ZddNR4
-	p497xG/usjgdtyDE/kA/xbjOpyLIBJuOI92EZRwc1yOZOItUmNe5+oSRd4oxCZHOSJIg77xqmE+Tc
-	K5PFV0rWFpwnhQ6m9KAj6Aq1yxVDoopN2BKsaUVqLC48h9H3wG5IGBXSnMlrjvxadR17ZpA62zFv6
-	qnk+hsPSnk1nJmmcLcs7OjTT5cXXOefE42zyl0b94RK82DSvgwElUXWEAW9MTO2l5NBp9Zejkwn6T
-	YNgx8l8tDqfY2WGCtiFY0jVvYc0jEiv34rN7tch6qSf2TkOPn3XRxDKM1uTJZIDi4f2h9zACbsB7B
-	9kW+H63w==;
-Received: from maestria.local.igalia.com ([192.168.10.14] helo=mail.igalia.com)
-	by fanzine2.igalia.com with esmtps 
-	(Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-	id 1wywXL-009BHb-A7; Tue, 25 Aug 2026 21:10:19 +0200
-Received: from webmail.service.igalia.com ([192.168.21.45])
-	by mail.igalia.com with esmtp (Exim)
-	id 1wywXJ-00530G-Og; Tue, 25 Aug 2026 21:10:19 +0200
-Received: from localhost ([127.0.0.1] helo=webmail.igalia.com)
-	by webmail.service.igalia.com with esmtp (Exim 4.98.2)
-	(envelope-from <mfo@igalia.com>)
-	id 1wywXJ-00000003he5-2ugE;
-	Tue, 25 Aug 2026 21:10:17 +0200
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="c0m3KFNY"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1787714312; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=Kyr8+8isRvv+cr0uQOk3l0k7AzeaOzG44yM3F3HZ2c0=;
+	b=c0m3KFNY4Hm/pnCxvfqBZf3rLOzi7KTM7d9ar/g3RdQ8Wz9xUF5d2cmJGSt2Icu6wrfPHoWq5NTRCs580nKqq9LiDtpQklodK042xdUBxKnSCI2GJHyJ3KnZ0lDVd2iAiu5nwhuoBsFS6a3lqoRfzjBvS7awORNGt8jvtoTXDms=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045098064;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0X9fbpz2_1787714311;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0X9fbpz2_1787714311 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 26 Aug 2026 11:18:31 +0800
+Date: Wed, 26 Aug 2026 11:18:31 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Mahanta Jambigi <mjambigi@linux.ibm.com>, andrew+netdev@lunn.ch,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, alibuda@linux.alibaba.com, sidraya@linux.ibm.com,
+	hidayath@linux.ibm.com
+Cc: pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com, netdev@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH net] net/smc: serialize clcsock teardown in
+ smc_accept_dequeue
+Message-ID: <ao5bB9OCbJ5PQbEp@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20260824065851.1070988-1-mjambigi@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Tue, 25 Aug 2026 16:10:17 -0300
-From: Mauricio Faria de Oliveira <mfo@igalia.com>
-To: =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-Cc: Kees Cook <kees@kernel.org>, Joel Granados <joel.granados@kernel.org>,
- Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon
- Horman <horms@kernel.org>, kernel-dev@igalia.com,
- linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
- fsverity@lists.linux.dev, keyrings@vger.kernel.org, bpf@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org,
- netdev@vger.kernel.org, linux-wpan@vger.kernel.org,
- lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, linux-sctp@vger.kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com,
- virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v3 03/13] sysctl, mod_devicetable: add macro
- MODULE_SYSCTL_TABLE
-In-Reply-To: <ao1P_mEJdyRExG3v@monoceros>
-References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
- <20260819-sysctl-module-aliases-v3-3-aab90569365d@igalia.com>
- <aomlfGJM61qZKxx2@monoceros> <4e3eaf1d3419e808be046035f114bf6c@igalia.com>
- <aotteDcc588iwC6g@monoceros> <4aa22e41e8ff4bab6638cf0baaa9d07b@igalia.com>
- <ao1P_mEJdyRExG3v@monoceros>
-Message-ID: <4a7925a800f0c9b36078a70bf35e960d@igalia.com>
-X-Sender: mfo@igalia.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Report: NO, Score=-2.1, Tests=ALL_TRUSTED=-3,BAYES_50=0.8,KAM_DMARC_NONE=0.125,KAM_DMARC_STATUS=0.005
-X-Spam-Score: -20
-X-Spam-Bar: --
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260824065851.1070988-1-mjambigi@linux.ibm.com>
 
-On 2026-08-25 05:24, Uwe Kleine-König wrote:
-> Hello,
-> 
-> On Mon, Aug 24, 2026 at 06:04:03PM -0300, Mauricio Faria de Oliveira wrote:
->> On 2026-08-23 19:12, Uwe Kleine-König wrote:
->> > On Sat, Aug 22, 2026 at 01:57:24PM -0300, Mauricio Faria de Oliveira wrote:
->> >> On 2026-08-22 10:41, Uwe Kleine-König wrote:
->> >> > On Wed, Aug 19, 2026 at 03:16:16PM -0300, Mauricio Faria de Oliveira wrote:
->> >> >> The MODULE_SYSCTL_TABLE macro emits a struct module_sysctl_table variable
->> >> >> with pointers to a sysctl table's path and entries, and table/entry sizes.
->> >> >
->> >> > That new struct doesn't seem to contain any pointer?
->> >>
->> >> The struct module_sysctl_table fields .path and .table are pointers,
->> >> although with kernel_ulong_t type so that the same 32/64-bit size is
->> >> used in file2alias.c based on KERNEL_ELFCLASS (and not on the host,
->> >> which might differ with CROSS_COMPILE).
->> >
->> > Cross compilation isn't an issue for the already existing device id
->> > structures; many of them also contain pointers.
->> > (While modpost doesn't use the pointers, the size of the structures must
->> > be known to correctly interpret the arrays.)
->> 
->> Indeed. I missed some device_id structures with pointers, and that
->> devicetable-offsets.c is cross-compiled to generate
->> devicetable-offsets.h for file2alias.c to use offsets and sizes of the
->> target architecture.
->> 
->> I'll change .path and .table to pointers in the next version.
-> 
-> I *think* the existing device-id structs use char[] for strings that are
-> relevant for modpost. I look forward to you finding out if there is
-> still a justification for that :-D
+On 2026-08-24 08:58:51, Mahanta Jambigi wrote:
+>smc_accept_dequeue() open-codes clcsock teardown for SMC_CLOSED child sockets
+>without taking clcsock_release_lock:
+>
+>  new_sk->sk_prot->unhash(new_sk);
+>  if (isk->clcsock) {
+>      sock_release(isk->clcsock);
+>      isk->clcsock = NULL;
+>  }
+>
+>This bypasses the clcsock_release_lock discipline used elsewhere in SMC clcsock
+>lifetime handling. In particular, other paths serialize clcsock access and
+>updates with clcsock_release_lock, but this local teardown path does not.
+>
+>Fix it by taking clcsock_release_lock around the local teardown and by storing
+>NULL before sock_release(), matching the established ordering used by other
+>clcsock teardown paths.
+>
+>Fixes: 127f49705823 ("net/smc: release clcsock from tcp_listen_worker")
+>Reviewed-by: Hidayath Khan <hidayath@linux.ibm.com>
+>Signed-off-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
+>---
+> net/smc/af_smc.c | 12 ++++++++----
+> 1 file changed, 8 insertions(+), 4 deletions(-)
+>
+>diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+>index 00403175b740..bbf8269876ee 100644
+>--- a/net/smc/af_smc.c
+>+++ b/net/smc/af_smc.c
+>@@ -1833,10 +1833,14 @@ struct sock *smc_accept_dequeue(struct sock *parent,
+> 		smc_accept_unlink(new_sk);
+> 		if (new_sk->sk_state == SMC_CLOSED) {
+> 			new_sk->sk_prot->unhash(new_sk);
+>-			if (isk->clcsock) {
+>-				sock_release(isk->clcsock);
+>-				isk->clcsock = NULL;
+>-			}
+>+			mutex_lock(&isk->clcsock_release_lock);
+>+			if (isk->clcsock) {
+>+				struct socket *clcsock = isk->clcsock;
+>+
+>+				isk->clcsock = NULL;
+>+				sock_release(clcsock);
+>+			}
+>+			mutex_unlock(&isk->clcsock_release_lock);
 
-AFAICT, an array is simpler to read in file2alias as it is stored
-directly in the symbol:
+Why not call smc_clcsock_release() here ?
 
-For example:
+After looking deeper into this issue, I found smc_diag_msg_common_fill()/
+smc_getname() and many other branches hasn't hold lock_sock() and may also
+have the race issue ? For example, smc_getname() calling smc->clcsock->ops->getname()
+while the other workqueue is releasing the clcsock.
 
-@ include/linux/device-id/of.h 
+Since SMC has long been plagued by this kind of locking issue, I think we
+should consider a long-term solution to address it.
 
-	struct of_device_id {
-	...
-		char compatible[128];
-	...
+What about stop releasing the clcsock early and tie its lifetime to the SMC
+socket itself. The early paths don't really need to release it ??? a
+kernel_sock_shutdown()/tcp_abort() is enough to stop it, and calling them more
+than once is safe because the TCP layer already handles that.  sock_release()
+is different: it frees the socket, so it must happen exactly once. If we move
+this single release to the final teardown of the SMC socket, no user can exist
+at that point anymore (fd users are gone after smc_release(), and every
+work/accept-queue context holds a sock reference), which makes both
+clcsock_release_lock and all the if (smc->clcsock) NULL checks removable.
 
-@ drivers/net/ethernet/korina.c
+Ideas ?
 
-	static const struct of_device_id korina_match[] = {
-		{
-		        .compatible = "idt,3243x-emac",
-	...
-	MODULE_DEVICE_TABLE(of, korina_match);
-
-which builds
-
-	$ objdump -t drivers/net/ethernet/korina.o | grep __mod_device_table
-	0000000000001020 l     O .rodata	0000000000000190
-__mod_device_table__kmod_korina__of__korina_match
-
-	$ objdump -s -j .rodata --start-address=0x1020
---stop-address=$((0x1020+0x190)) drivers/net/ethernet/korina.o
-	...
-	 1020 00000000 00000000 00000000 00000000  ................
-	 1030 00000000 00000000 00000000 00000000  ................
-	 1040 00000000 00000000 00000000 00000000  ................
-	 1050 00000000 00000000 00000000 00000000  ................
-	 1060 6964742c 33323433 782d656d 61630000  idt,3243x-emac..
-	 1070 00000000 00000000 00000000 00000000  ................
-	...
-
-@ scripts/mod/file2lias.c
-
-	#define DEF_FIELD_ADDR(m, devid, f) \
-		typeof(((struct devid *)0)->f) *f = ((m) + OFF_##devid##_##f)
-
-	static void do_of_entry(struct module *mod, void *symval)
-	{
-	...
-		DEF_FIELD_ADDR(symval, of_device_id, compatible);
-	...
-	
-void handle_moddevtable(struct module *mod, struct elf_info *info,
-                        Elf_Sym *sym, const char *symname)
-{
-        void *symval;
-...
-                symval = sym_get_data(info, sym);
-
-On the other hand, a pointer is stored indirectly through a relocation
-in the symbol, which is not as simple to read (i.e., 1. find the
-relocation section for the symbol's section; 2. find the relocation in
-that section by matching relocation offsets with an offset in the symbol
-+ symbol address; 3. finally read the relocation's target).
-
->> > I would be great if your series didn't introduce a new obstacle for
->> > [CHERI].
->> 
->> Absolutely. I'll be happy to adjust the series and testing for that.
->> 
->> Could you please confirm one should just follow [1], which uses [2] to
->> build the LLVM toolchain, and use it to build the kernel [3]?
->> 
->> [1] https://github.com/cheri-linux#building-and-running
->> [2] https://github.com/cheri-linux/buildroot
->> [3] https://github.com/CHERI-Alliance/linux/tree/codasip-cheri-riscv-7.1
-> 
-> I used
-> https://github.com/CHERI-Alliance/meta-cheri/tree/codasip-scarthgap and
-> didn't care about toolchain and rootfs. It also has qemu integrated, so
-> you can actually test it.
-
-I'll take a look; thanks!
-
-cheers,
-
-> 
-> Best regards
-> Uwe
-
--- 
-Mauricio
+Best regards,
+Dust
