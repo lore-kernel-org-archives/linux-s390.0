@@ -1,60 +1,39 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85E7930FC26;
-	Thu, 27 Aug 2026 20:04:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61CF73D1A82;
+	Thu, 27 Aug 2026 22:26:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787861091; cv=none; b=kGLjy2FfO0DXX9ULsj3Hhqg9fsec/0iMSXeOOtUzAafFl/Asy8GJB7Eid3PtD8KcaWpEGCeSRxapO9stubMY8NP89T0QmxPfZ8e3nwJW7uQMICeebjTwKmY1l6AvalmKrvLcIw+34fqA6QyUKJhYYQeyVg3FzTdDGY49mnk06g0=
+	t=1787869621; cv=none; b=MV78mr1AoLNkFXlueNWdldYotg7te/7uVWGduEqHT/8kqjDKqWEQzA++qMhh7ZMIIyqDLXuBr47sBJ5qhVdYyFbS7yFw7/NlxZgUf35h/+mlg6B04CQ9AufD5JVql7C0DV4oh6IWbORulG0S1u1sN8tS8s5/xtKC6DDzI0XQvoI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787861091; c=relaxed/simple;
-	bh=1il3nJbdBJw952zYQSTsRc3RMGT5iPsRTZkbafYZ+QI=;
+	s=arc-20240116; t=1787869621; c=relaxed/simple;
+	bh=buHnmQymPi87tWxLV9bJoqqjddf8IU7h0AJjfltUS1M=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GRg8AEMHDh8chtnd48COFxi0hzndskWqTvU2bohFXrsCJgvRWOkkczX+u3d2Bjs0zXPDSMEYx6uoWzGlYXUTy+KLu2gvBOPuCYRfX9G9AuagzIGdyayaFwPDtzKdUI+BWVuJPEHMN+azF6+26R9wsTYFeRZPRnCsf3AdxZfCIFw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gqURWQ7z; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=uXWB/5o/te2BUHxMA+Wq3KOX4GwexZfwKqLDXw+/wfjLSDtIg4UeZ30KoDvuaHNC/u2yrd/9MJ+Q0eWk1FgUqr4dSo9gYipFrD1eLLgXF//PgheiGtFKIdNoXdzW5NmKeLcvKDNaINDtgDxypClVJyVRKfIrQCiyM2aArGWI5BQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=gNMC6j97; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gqURWQ7z"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67RJVVNJ3940290;
-	Thu, 27 Aug 2026 20:04:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=CsgVab
-	weD5B0k3oqK+TvQ7ye6YOVkWb9TXW1DSzp3Zk=; b=gqURWQ7zpmXgYl0n02MY3I
-	sYBdTK9gYrgr4RQZBV4+d32u2LGxJTTfCXMKqPJdm/c46apdrRK8NWt4TuxMzfVu
-	Asa62MAZHrUA8PmK2A0OIzrNokvrvdVghyOsYpm6wwkSVv/UvzhRC/iW9E0RqfF+
-	UpUpT5LyInSpa0J5ZXiAWZKM8Rr0D7raK1XxB+8JOV30cCQkjzs9yPEi0TVo8ftn
-	6cRusrlx1YqLDyge+IsBmi4ma4BXE31iYli/4/6dHZknYpxYuTffdSJfIaIotJuQ
-	RjjE5V4CHokRe+lx2p/41dC7/XRwYYjvsqRhI6iN+k4Vwj7mlm0ePNIvYC/a88lg
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g7394fsuk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Aug 2026 20:04:48 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67RJuGqO028392;
-	Thu, 27 Aug 2026 20:04:47 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g7rsyhuad-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Aug 2026 20:04:47 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67RK4kI932309972
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 27 Aug 2026 20:04:46 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6BD5458051;
-	Thu, 27 Aug 2026 20:04:46 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A24FC5805E;
-	Thu, 27 Aug 2026 20:04:45 +0000 (GMT)
-Received: from [9.61.15.38] (unknown [9.61.15.38])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 27 Aug 2026 20:04:45 +0000 (GMT)
-Message-ID: <b8449e09-945c-4e43-bf6c-abb6d87c63b4@linux.ibm.com>
-Date: Thu, 27 Aug 2026 16:04:45 -0400
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="gNMC6j97"
+Received: from [IPV6:2601:646:8081:8d71:abf3:5091:f2d1:704c] ([IPv6:2601:646:8081:8d71:abf3:5091:f2d1:704c])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 67RMMfVr1791603
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Thu, 27 Aug 2026 15:22:41 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 67RMMfVr1791603
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2026072801; t=1787869372;
+	bh=LZKaCTEQCsGwD2GMVqaYbcSqk2BZFOtph9TUIqgES9Q=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=gNMC6j97IhbcMMgbmy2ny/QcgirAYDsXNjEkUGVM1Znjxud9QCneQ+NaB5oSLG7gQ
+	 v5jvb30334qIMdinwHRV9Mkm1vAkB5dFCtDPrhTExA9+mhWKMhkyyY7pwNNDXV+nYa
+	 ZIUdNM5QoTekGZ7e8HvCcyeQNddaLDAOWN/Jvy8Uxxv9wNTihWITw7TCmVqP1EgGTN
+	 kCIbtTmc82Op/HsTj3eTn45BlM2A5KPVDP0EK2g3yw1TIdDnwOqpIsCW0Ta4Fd3LkB
+	 DEHUft1fSZPVoc0UzuPw3ALg0KFFm7VuvuV0p1CXapd4uXhsjXORgINVOEreyDf3f9
+	 wBqVK82EaU2Nw==
+Message-ID: <ed8b99e6-4d90-4622-9d43-451bf6a8db2c@zytor.com>
+Date: Thu, 27 Aug 2026 15:22:35 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,148 +41,179 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/4] s390/vfio-ap: Fix unbounded loop in
- apq_reset_check()
-To: sashiko-reviews@lists.linux.dev
-Cc: Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Matthew Rosato
- <mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-References: <20260827132441.555866-1-akrowiak@linux.ibm.com>
- <20260827132441.555866-4-akrowiak@linux.ibm.com>
- <20260827134318.D34871F000E9@smtp.kernel.org>
-Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20260827134318.D34871F000E9@smtp.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re: [patch 00/18] entry: Consolidate and rework syscall entry
+ handling
+To: Thomas Gleixner <tglx@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Shrikanth Hegde <sshegde@linux.ibm.com>, linuxppc-dev@lists.ozlabs.org,
+        Kees Cook <kees@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+        loongarch@lists.linux.dev, Paul Walmsley <pjw@kernel.org>,
+        Palmer Dabbelt <palmer@dabbelt.com>, linux-riscv@lists.infradead.org,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+        x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Jinjie Ruan <ruanjinjie@huawei.com>, Andy Lutomirski <luto@kernel.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Richard Henderson <richard.henderson@linaro.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Helge Deller
+ <deller@gmx.de>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Richard Weinberger <richard@nod.at>, Chris Zankel <chris@zankel.net>,
+        linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
+        linux-csky@vger.kernel.org, linux-m68k@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-sh@vger.kernel.org, linux-um@lists.infradead.org,
+        Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>,
+        Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>,
+        Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Andreas Larsson <andreas@gaisler.com>,
+        linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org,
+        linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-arch@vger.kernel.org,
+        =?UTF-8?Q?Michal_Such=C3=A1nek?= <msuchanek@suse.de>,
+        Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org
+References: <20260707181957.433213175@kernel.org>
+Content-Language: en-US, sv-SE
+From: "H. Peter Anvin" <hpa@zytor.com>
+In-Reply-To: <20260707181957.433213175@kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: e2gQngnGlkfolhfMqVsyYzs2VHDt6Duc
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI3MDE2OSBTYWx0ZWRfX7L1F3kCtCRA6
- Qh7AgdTQbhHSPXnNskwUf1lSOfh/41NcdNdyCuqq5YVrR3AacGLremKVqmA5RrcwCI0bpcb8nRZ
- MRZkdQ2x/E5oBbrYA+vkmK+L6e3UiQ4/0QNnE5Tx8lijHreD+ivgEeUKS8pbTSiCNkjzDwrAMG+
- sZIjXxmJGpUo55Z/kBm6cbnrMFITCmsPYVNLe+eSmuPeiKPwx12w96egB3LvBWeSpHf3lNHXD3F
- 36tO35dX9kovIMThWvdf4dXMnizUljf6z1b6KzSTadjb9Ihx9ngePK7av1+TRXVNLM6Uuh/67Jr
- gygfKFIF5u7J2mSH8mTd+HKkZzFsnM9ReDkW+pS6k2lBIxL6ZZg6Iv0YZq5ORsEN0OPRThhSMvv
- dyw/rmfIN/GorqR5jVm2/H28QgLzmCbPYU5OztTWx+vLnXw9iBrZLf+6urAey124gMChFzW2yae
- UTULeFzRpT3dE0G7Gxg==
-X-Authority-Analysis: v=2.4 cv=Y/nIdBeN c=1 sm=1 tr=0 ts=6a909860 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=wW7R1OCKvlurdSdFt8YA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI3MDE2OSBTYWx0ZWRfX+YhLLkkzrBic
- fbOWWwqJeFuZ1H9WSWsoFpoZeQLTh/EdMZ/93GxMAjoeXqkDgM/+V0ZPPzeKKvYRJge2QfosW60
- sQoLma2dHRzYL9Hi9O9hEYJ1BpVWnz8=
-X-Proofpoint-ORIG-GUID: e2gQngnGlkfolhfMqVsyYzs2VHDt6Duc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-27_08,2026-08-27_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 impostorscore=0 priorityscore=1501 adultscore=0 bulkscore=0
- suspectscore=0 malwarescore=0 clxscore=1015 lowpriorityscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608270169
 
+On 2026-07-07 12:05, Thomas Gleixner wrote:
+> Sorry for the long CC list, but this is a treewide change.
+> 
+> Michal recently posted a RFC patch to separate the potential syscall number
+> modifications in syscall_enter_user_mode_work() from the information
+> whether the syscall should be processed and the return value modified:
+> 
+>   https://lore.kernel.org/lkml/CE1qW@kunlun.suse.cz
+> 
+> The existing logic is:
+> 
+> arch_syscall()
+> 	regs->result = -ENOSYS;
+> 
+> 	syscallnr = syscall_enter_from_user_mode(regs, syscall);
+> 
+> 	if (syscallnr != -1L)
+> 		regs->result = invoke_syscall(regs, syscall;
+> 
+> syscall_enter_from_user_mode() invokes ptrace, seccomp and
+> tracing/BPF/Probes. All of them can modify the syscall number.
+> 
+> ptrace and seccomp explicitly set the syscall number to -1L to indicate
+> that the syscall invocation needs to be skipped and the result has not to
+> be modified as it might have been modified by ptrace or seccomp. The
+> tracer/BPF/Probes mechanism can modify the syscall number as well and
+> relies implicitly on the -1L logic.
+> 
+> This can obviously not be differentiated from a syscall invocation where
+> userspace provided -1 as syscall number.
+> 
+> The general agreement of the discussion was that the current mechanism,
+> while functionally correct is non-intuitive and something like Michals
+> proposal would make that code clearer and easier to handle on the
+> architecture side:
+> 
+> arch_syscall()
+> 	regs->result = -ENOSYS;
+> 
+> 	if (syscall_enter_from_user_mode(regs, &syscall)) 
+> 		regs->result = invoke_syscall(regs, syscall;
+> 
+> That discussion made me look deeper into the related code and as usual
+> there were a lot of other things to discover.
+> 
+>   1) Stack randomization
+> 
+>      add_random_kstack_offset() can only be invoked after
+>      enter_from_user_mode() established proper state as it calls into
+>      instrumentable code.
+> 
+>      PowerPC got that wrong and the other architectures either invoke it
+>      after enter_from_user_mode() or after syscall_enter_from_user_mode().
+> 
+>      The latter is suboptimal as the randomization takes place after all
+>      the user mode entry work. Aside of that add_random_kstack_offset()
+>      uses get/put_cpu_var(), which makes it usable in preemptible code, but
+>      when invoked in the interrupt disabled region that's pointless
+>      overhead.
+> 
+>   2) As discussed in the above thread just changing the function signature
+>      of syscall_enter_from_user_mode[_work]() so they take a pointer
+>      argument for the syscall and then return 0 on success is not really
+>      intuitive either. Aside of that this breaks the implicit assumption of
+>      the tracer when setting the syscall number to -1.
+> 
+>   3) The x86 entry code has some historically accumulated oddities
+> 
+> The following series addresses this by:
+> 
+>   1) Providing new [syscall_]enter_from_user_mode() variants, which include
+>      stack randomization and utilize a new add_random_kstack_offset_irqsoff()
+>      variant, which avoids the get/put_cpu_var() overhead and converting all
+>      usage sites over
+> 
+>   2) Picking up Jinjie's seccomp patch from:
+> 
+>      https://lore.kernel.org/lkml/20260629130616.642022-2-ruanjinjie@huawei.com
+> 
+>      and addressing the feedback (renaming the seccomp functions)
+> 
+>   3) Making the ptrace and tracer related functions return a boolean value
+>      to indicate syscall permission
+> 
+>   4) Addressing the x86 oddities
+> 
+>   5) Converting the tree over to the new scheme
+> 
+> With that all architectures using the generic syscall entry code follow the
+> same scheme, apply stack randomization at the correct and earliest possible
+> place and skip syscall processing depending on the boolean return value of
+> syscall_enter_from_user_mode[_work]().
+> 
+> There should be no functional changes, at least there are none intended.
+> 
+> The resulting text size for the syscall entry code on x8664 is slightly
+> smaller than before these changes.
+> 
+> Testing syscall heavy workloads and micro benchmarks shows a small
+> performance gain for the general rework, but the last patch, which changes
+> the logic to be more understandable has no measurable impact in either
+> direction.
+> 
+> The series applies on Linus tree and is also available from git:
+> 
+>         git://git.kernel.org/pub/scm/linux/kernel/git/tglx/devel.git entry-rework-v1
+> 
+Hi,
 
+It looks like I didn't get a personal Cc: on this one and so I missed it (it
+happened just before I found out I would be departing Intel, so I can make the
+excuse that I was just a bit distracted.)
 
-On 8/27/26 9:43 AM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
-> - [High] The timeout condition is evaluated before checking for a successful reset, causing the driver to falsely report success while skipping required resource cleanup if success occurs exactly at the timeout boundary.
-> - [High] The timeout path fails to clear `q->saved_isc`, leading to Cross-VM KVM interrupt routing corruption when the queue is reassigned to a new guest.
-> --
->
-> commit bdd9b4236348c839f4b1d25d5fe39d6e047b2068
-> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
->
-> s390/vfio-ap: Fix unbounded loop in apq_reset_check()
->
-> This commit introduces a 2000ms maximum wait time for AP queue resets in
-> apq_reset_check() to prevent indefinite spinning. If the reset times out,
-> the function breaks out of the loop and leaves the AQIC resources pinned to
-> avoid use-after-free issues.
->
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->> index 4c32fd6eaaa63..a9a33f4949a0e 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> [ ... ]
->> @@ -2016,8 +2017,32 @@ static void apq_reset_check(struct work_struct *reset_work)
->>   		elapsed += AP_RESET_INTERVAL;
->>   		status = ap_tapq(q->apqn, NULL);
->>   		ret = apq_status_check(q->apqn, &status);
->> -		if (ret == -EIO)
->> +		if (ret == -EIO) {
->> +			memcpy(&q->reset_status, &status, sizeof(status));
->>   			return;
->> +		}
->> +		if (elapsed >= AP_RESET_MAX_WAIT) {
->> +		/*
->> +		 * Timed out waiting for reset to complete.
->> +		 *
->> +		 * The AQIC resources associated with this queue - the pinned page
->> +		 * containing the NIB and the registered guest ISC - cannot be freed
->> +		 * here. The NIB is the active DMA target for AP interrupt delivery
->> +		 * until the reset completes; freeing the pinned page while the
->> +		 * hardware may still write to it would result in a use-after-free
->> +		 * kernel crash.
->> +		 *
->> +		 * If the reset eventually completes, interrupts will be terminated
->> +		 * and the pinned NIB page and ISC registration will be leaked. This
->> +		 * is preferable to either a use-after-free or waiting indefinitely:
->> +		 * the caller of apq_reset_check() holds mdevs_lock while flush_work()
->> +		 * blocks holds the matrix_dev->mdevs_lock mutex, which
->> +		 * serializes access to all mdev objects system-wide, so blocking
->> +		 * here would stall all other guests using AP queues.
->> +		 */
->> +			memcpy(&q->reset_status, &status, sizeof(status));
->> +			return;
-> [Severity: High]
-> Does this code falsely report success while skipping required resource cleanup
-> if the reset succeeds exactly at the timeout boundary?
->
-> Because this timeout condition is evaluated before checking if the response is
-> successful, if ap_tapq() returns AP_RESPONSE_NORMAL on the exact iteration
-> where elapsed reaches AP_RESET_MAX_WAIT (2000ms), it is treated as a timeout.
->
-> The loop exits without calling vfio_ap_free_aqic_resources(), but copies the
-> success status into q->reset_status, meaning the caller thinks the reset
-> fully succeeded.
+This series is a great cleanup, but it did make me concerned on one count: it
+ends up making it universal that the syscall number is always stored and
+fetched from memory. I'm worried that this may have undesirable effects on
+future CPUs which incorporate data speculation, which is probably something
+that will happen at some point (this is a general statement, not in any way
+related to any former employers of mine.)
 
-Ironically I was just reviewing this code and drew that same conclusion.
-We need to check the return code from the call to apq_reset_check()
-and if it 0, bail out of the wait loop.
+As such, I was looking at changing that to *always* keep the system call
+number in a register, to allow the CPU to consistently maintain a "chain of
+custody" of this value.
 
-Regarding copying the status into q->reset_status, that should only be
-done prior to entering the loop and on ret == -EAGAIN after the
-AQIC instruction is executed.
+This isn't a hard thing to solve in any way: replacing the pointer argument
+with a two-element structure return would do the trick. As far as I know,
+*all* architectures that support Linux support returning structures with two
+register-sized values in registers.
 
->
-> [Severity: High]
-> Does this timeout path fail to clear q->saved_isc, leading to cross-vm kvm
-> interrupt routing corruption when the queue is reassigned to a new guest?
->
-> When apq_reset_check() times out, it skips vfio_ap_free_aqic_resources() to
-> leak the memory, but leaves q->saved_isc populated since the vfio_ap_queue
-> struct persists across mdev assignments.
->
-> When a new guest later enables AP interrupts, vfio_ap_free_aqic_resources()
-> uses the stale q->saved_isc to call:
->
->      kvm_s390_gisc_unregister(new_kvm, q->saved_isc);
->
-> This unregisters the stale ISC against the new guest's KVM object,
-> decrementing the new guest's ISC reference count and wrongly disabling alerts
-> for that ISC.
+However, before digging into this I would like to hear people's opinions.
 
-If the return code from apq_status_check() returns 0, the
-AQIC resources need to be freed.
-
->
->> +		}
->>   		if (ret == -EBUSY) {
+	-hpa
 
