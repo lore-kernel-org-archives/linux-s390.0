@@ -1,130 +1,132 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C5823C584B;
-	Thu, 27 Aug 2026 08:12:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C37E13E49CC
+	for <linux-s390@vger.kernel.org>; Thu, 27 Aug 2026 08:32:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787818332; cv=none; b=jwQ+8Kk88XPU6dRNIXxK61ZRG59Q6WaUecvb+YbLGtK2qxkUOKG71GwnTRXaRdo174ZuFJyu+zOeH/3MbUCuNzugmw37eZQjkxRkJ1S0/jepdslndz3kgywz7jE0db+2H6Dsm0yq6+hYiaGberXQqknkFaYHcEp7aymBf1ZKOvo=
+	t=1787819551; cv=none; b=DeIzi7NFFqYD61Pt/rsI3b6a3hwb/IMwjBFH4WFNpFZBEhaV8AAdMeptjiA2MiPqKiWVFxe1JMAxKQNPxEelopnPxTOcjTqtx/LCMM+XU788OsTYlNXXUmowyDXqBYibhZS3fhoghnUJ6mgbBeQ7Ez1iK4TBdcgCVysGIGvtHtA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787818332; c=relaxed/simple;
-	bh=SCkXs2+3TkkNbo4ZdlFtyM63RsmZSKjMwWRxz/7tFC8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GGGoM3aJqWGsWY3uFENy+W/rlOTx43WRUqKnn8K9x/Q6b2wD5GnT6jVqfxUVXxwEWt2JP2FHnOFW4MN12/MMM6HfX3FwB5uRw7GRnUGhTwgkxaZNUPxb57xZTw2j8IonaNizqsIus2cz/iuUvUFY2n/OhLRKEptYbLtifudBSKc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=auqNg6O3; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1787819551; c=relaxed/simple;
+	bh=rZzR+yf93K+PnGtMcoNVsRJRZznBLNBzioI9OxXIhjM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=GpujRF0nK3qvL4BNNW7TpGFI7yy9kRG8HQhi5Frl6G/AX/z+dHGu+3iS2yh60Eo55fBufO0SZotexGHeRPlNGzMIdBrdiOUVvnd8PCa2W1c93K/zjy1CtCUgI1IX+Mdev3kym3GWakMtngmU6a6+mD1TSM9WICjBxdzZIvkzI8E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gxGuUZQw; arc=none smtp.client-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="auqNg6O3"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67R6VW9L2209844;
-	Thu, 27 Aug 2026 08:12:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=azSgAeer7HRO/y/U3A+QKwgdoguOnt
-	nnwySyUoZBNDs=; b=auqNg6O3BoLY8+feEtcc2xFRkm19PMjBOKm4OtVE0ZWujg
-	ySY2mojk/B+hzG6VRnvQR5FqMMcyiRUPZl//l9PFCmWGbqBIvQb68TfYOPy3hHo0
-	uI4E2JUgdep4YM9uWwi2S4faYRFrGeG6Xct2SK5t4CIOxBJ9Vovb5prBt6arNOjn
-	txhTKBurWez3SZQSbMe6h6dbsT5zIYUi3l7jnyW86B6mMXCdUWRNzHusd4mkBgD7
-	Eyq5HvX6xRc2i132SvwUPPedMuj22HbfQ8a+2P8V1yMTxZj5QPVxJ1jqKUSMOxZE
-	l5iHg/NFyCX4EEtowXniH9NMedHIPcmZALktczOQ==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g73g544a0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Aug 2026 08:12:03 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67R8BHVM003782;
-	Thu, 27 Aug 2026 08:12:02 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g7ragprt5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 27 Aug 2026 08:12:02 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67R8BwMf50201076
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 27 Aug 2026 08:11:58 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4DAA02004D;
-	Thu, 27 Aug 2026 08:11:58 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0884820043;
-	Thu, 27 Aug 2026 08:11:58 +0000 (GMT)
-Received: from osiris (unknown [9.87.85.9])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 27 Aug 2026 08:11:57 +0000 (GMT)
-Date: Thu, 27 Aug 2026 10:11:56 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>, linux-s390@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        kasan-dev@googlegroups.com
-Subject: Re: [PATCH v7 2/4] s390/mm: Batch PTE updates in lazy MMU mode
-Message-ID: <20260827081156.3869103Abc-hca@linux.ibm.com>
-References: <cover.1786956464.git.agordeev@linux.ibm.com>
- <d7fd78377a7278108ef501cf76571e80caef5968.1786956464.git.agordeev@linux.ibm.com>
- <20260824104048.11040Cdc-hca@linux.ibm.com>
- <73a0a916-b39f-4ebe-bffe-448928b13bef-agordeev@linux.ibm.com>
- <20260826130257.21444B1a-hca@linux.ibm.com>
- <87a3147f-e993-4629-b0dd-a54aefbf20b1-agordeev@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gxGuUZQw"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-49b0dd3c9a0so5679685e9.1
+        for <linux-s390@vger.kernel.org>; Thu, 27 Aug 2026 01:32:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1787819546; x=1788424346; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=fx0k7lUgkRvvHF5rIziI+hAaGi/yRir90ddwCyh01Zo=;
+        b=gxGuUZQwvCxQZfMarmbsSOw4q0Ovm1xLaQ5E8wm8xdDl2jzw9SIc3n4P6CFakmEPob
+         VX4OfYtV7fXCZGh8NhmHq5Ltx5VzJXaaBv81F0gj8gV953K6F9QuH/QKRZR+AVFUl/Dg
+         8FcdHbpkxYD1prGNb9i7FFNDp5Jfn514YdGNuxk1mToaAH9aKb/hU5ixdEpMzEDvicwd
+         SVydjQrcR0jE4l/n8HZ9hI154vc2z2e/UrreZlXAnF0ZYI9qOOmb1pdxhQE0/mV7E3fC
+         lkAtMQtXhxjXNpjVwuEKxCJ3CBH4DY58PzNenru/3jFOdLfWmWUks6P0BRWpvE5M956V
+         0qww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1787819546; x=1788424346;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=fx0k7lUgkRvvHF5rIziI+hAaGi/yRir90ddwCyh01Zo=;
+        b=E95bbLjlvRnL71owseprXftvyjxHx2+Aoy7MMN8rr97lmIGdPuQfeyN8QBi/p4S5io
+         BbOz9GnoYtQKEx7qc1dKUDCsfFBDpFH/019/Lu+f/ROBnVtk+5aJh6PoWChCl9HjHIXB
+         0KHdCTCpdbuRTrrBQja2G7BKr4w/sIpB4VBtKYFGT0YVaAvSahEBlSXOiYZO0ArKy/oU
+         8o63lYssLTn+f7U874imBo6g5q9fuVTCkwwPaUSFagmG1cwDp6mkqWUGJeZDIw4dIGA8
+         hHlgPlZFxnVPFflm/VIdqrKtQ0GKry8qiqRjuVQuboca2dvAg5Cede7TmrIiUyQ9V1zu
+         7efg==
+X-Forwarded-Encrypted: i=1; AHgh+RoqcepzWG6CJB2NIZ9iwJbMkezdE6eGdcL8VfWVoFTYepqT5HqwHrhiAyNQLRmkwzEji41KtQc+r+0w@vger.kernel.org
+X-Gm-Message-State: AFuF++npL2JdGUlPcuAiFVEOh+YTdbsPhTjfV6PlAoIjHCG6g8ttGzmC
+	R+tn33SCq8P4BQfoFKFIrzW7QDR/w9zmXoYlmlZbxHIvCv4cJiu2r/YN
+X-Gm-Gg: AR+sD116AReQ+W50mY9NbIz/Y0aI9rOOmvvciGmvmbElA72UcR/nTJTnAelOGT3TEKQ
+	3rdFbPWxc/33o+og5675ugEZcIrtJ7svdhAzdciYMGC1MpKeO/YGWvsQUvGXu+e/ScPJ1hZQK5o
+	5y5rMxJV3nYoFsctnVs2Si+85aMbWzA1AlJ0kwG5SSmGRFtczOj2vyeg5TQnx9ssCTWPHuhdCno
+	kYxlRe44pq/yqFlvjMkbvtDtt/PFLArRivcCo8JS1MFSXugJmdm8KsvsmbfX/YXQ/paW6HvAwn0
+	UTI/RFyQAYZdubKlLZQOGUbk+3h7uEeextagzjEZADPGgZWK8eoEJdykfMPVha30JnJdoMIuIUs
+	3KSBr28QCNCt+sbHTQvH31OwG9jjWVSsoFmuNv4VpiQcB6VMuYWCCGIZIAKors7DfdI9FZkYtQT
+	Zrc5OXCZkpDtnC53Nf1VGM2R3Q+lvidYvC86XDuqdJ3BdkyM8ReJ+V4DOOWZNT/1sNCZpuWNbNc
+	j65Gy6KNGKA1WJfi36cZMBWeA==
+X-Received: by 2002:a05:600c:8518:b0:499:a5c8:c6f3 with SMTP id 5b1f17b1804b1-499dc6e998cmr161660475e9.3.1787819546000;
+        Thu, 27 Aug 2026 01:32:26 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49b4c3211e1sm32616955e9.9.2026.08.27.01.32.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Aug 2026 01:32:25 -0700 (PDT)
+Date: Thu, 27 Aug 2026 09:32:24 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390: Warn if kernel command line contains
+ non-printable EBCDIC characters
+Message-ID: <20260827093224.6d4b1971@pumpkin>
+In-Reply-To: <4ed90c1e-0edf-4d12-b4d7-d439a8113669@linux.ibm.com>
+References: <20260825150840.537653-1-iii@linux.ibm.com>
+	<20260826145129.204b6517@pumpkin>
+	<4ed90c1e-0edf-4d12-b4d7-d439a8113669@linux.ibm.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87a3147f-e993-4629-b0dd-a54aefbf20b1-agordeev@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: RMz3UEJ-r8qieNoHL4ycj93WaDCZbMla
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODI3MDA2NSBTYWx0ZWRfXxDOK4nNPsJ0x
- N8pNfaJzpB9X32TcR8mWrpXp/Px3HuuZuYx1BsQm6Zy8KPzmK6dtck4yDmQygbewzt1gzBQnROc
- 0IQgPcFHarz21BoDZ01g3zdkD7F6sPk=
-X-Proofpoint-GUID: jmFqgWxCJxbuJbgYxAqSnoMOcsSUPEsa
-X-Authority-Analysis: v=2.4 cv=JZyMa0KV c=1 sm=1 tr=0 ts=6a8ff153 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=tYSU0nxKdXOZT8UyD_gA:9
- a=CjuIK1q_8ugA:10 a=zZCYzV9kfG8A:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI3MDA2NSBTYWx0ZWRfXzOMYH3+JQgpk
- SERRZa/ETk+hqzm3M4JrFS+PKizommTCwb8ejt4dfPqJ9knc/mfyRBhYVQtGnYz+Q83ta4aeJ68
- XefgdioHOI8gqY8HC3xA//2gLsQ18py6CAWYAwMQ7KBsmfDuS2qNt6NhZmDgARLfqN7YlGXgPS8
- IXo9YUgXe8QjEpsxJAxaKye32U0Ljn6NeQK3lHmH4kaYhkq03wZUDw/QuGqLxn3UAuoJwEdX7sO
- UUkO3aHlHKZvm//sNZauHXP96H6yIwQqKoyZiV8zPGTm31RiCLxtzXdO9OpUCtlgA+hIsJMqevQ
- Dexqa8W5PlrVQjJOZizISywylE3D7PhTIHL4QdkMxbhPehw5DVwANokoAV0IJ7gvbcATviLqv/3
- xFwhu8doL4RX7BoGC+nF2BWNwi7URtJvcolHpHf/IFSapfpCzBAHhsqijbOvXmFB949LWPM3FTl
- O25+Hqzwf/gsZunLkqw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-27_03,2026-08-26_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 clxscore=1015 adultscore=0 priorityscore=1501 impostorscore=0
- malwarescore=0 bulkscore=0 lowpriorityscore=0 suspectscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608270065
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, Aug 26, 2026 at 04:34:25PM +0200, Alexander Gordeev wrote:
-> On Wed, Aug 26, 2026 at 03:02:57PM +0200, Heiko Carstens wrote:
-> > Would be nice if we could avoid the not so obvious local_bh_disable()
-> > and local_bh_enable() pairs.
+On Wed, 26 Aug 2026 16:08:50 +0200
+Ilya Leoshkevich <iii@linux.ibm.com> wrote:
+
+> On 8/26/26 15:51, David Laight wrote:
+> > On Tue, 25 Aug 2026 17:08:08 +0200
+> > Ilya Leoshkevich <iii@linux.ibm.com> wrote:
+> >   
+> >> Users may accidentally add multi-byte UTF-8 characters to zipl.conf
+> >> parmline, for example, by copying snippets containing non-breaking
+> >> spaces (\xC2\xA0) from web pages.
+> >>
+> >> The kernel will then interpret the entire command line as EBCDIC,
+> >> making it unusable. Distinguish this situation from the legitimate
+> >> EBCDIC conversion by looking for non-printable characters and issue
+> >> a warning.  
+> > 
+> > Would it be better to check for the entire line being printable ebcdic?
+> > All of EBCDIC a-zA-Z0-9 have the 0x80 bit set and most of 0x20..0x7f
+> > are invalid or control characters (or punctuation).
+> > 
+> > David  
 > 
-> Calling ptep_get() from BH context was certainly unexpected, but the way
-> local_bh_enable|disable() pairs are used is actually straightforward.
-> This is a slow path anyway, so I would think the simplicity prevails in
-> this case.
+> I actually started with that, but this required introducing a new
+> _ctype-like table (unfortunately it's not as simple as checking a
+> couple ranges), so I decided against that and took a shortcut via
+> ASCII.
+
+Could you get the conversion function to return an error if it found
+invalid EBCDIC characters?
+If there is a single UTF8 character (eg non-breaking space) you really
+want to treat the line as ASCII.
+Actually you could count the number of characters with the 0x80 bit set.
+If more than 1/2 assume EBCDIC (all of 0-9a-zA-Z have the bit set).
+
+(I didn't realise anyone still used EBCDIC.
+I guess the unix implementation(s) use ASCII (otherwise too much code
+is broken) but the old IBM OS uses EBCDIC.
+I worked for ICL for a while, their old 1900 series (from the early
+1970s) used 6bit characters (4 in a 24bit word) that were ACSII codes
+32-95. The replacement 2900 series (very late 1970s) used EBCDIC internally
+(I guess because IBM used it...) but all the peripherals were ASCII.)
+
+David
+
 > 
-> But again, I will try to avoid that.
+> [...]
 
-I do agree that ptep_get() being called from BH context is not what I
-would have expected too. But then again, nothing prevents people from
-doing that from irq context too, no matter if that is sane or not.
-
-Imho the "final" version should either be implemented that it can go
-without disabling bottom halves, or, if that is not worth the effort,
-even disable interrupts, just to avoid other surprises.
-Plus a comment why it is needed, please.
