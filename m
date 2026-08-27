@@ -1,92 +1,148 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 996253624D3;
-	Thu, 27 Aug 2026 06:06:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C031E332601;
+	Thu, 27 Aug 2026 06:34:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787810795; cv=none; b=cY4cv+G8fEGGat+QHOVm2qBQvSgRvAh0w7Ipzf2suSz1PG2MpGinyE50YMZo9SMlRYne8cRzjtI7CLs6m8Y3Ix5SDRDEV+lGziAjjUQ4KAjB18t8tExYx7SHwqVWJjqsZui/ddUaSNMGIa0bVRAqrD4MGGMZFvrj6D+ih0bUGik=
+	t=1787812463; cv=none; b=qTf2rISQqFHoRr1dRt7LreD7kqMrTbDrpj+45Mf8eFYEF1RuyamjzVo/JQhjoC9Mh/WB0K/r5FrXOGFeKw6HpIVFhOjtGYOU2sjl5KisQjhBSjy4sr6eHGbGy8Amv0fi6BVRsI6FziR17lVkmUV8fT8CfKF7XpjBj/I4T0sVw1c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787810795; c=relaxed/simple;
-	bh=4MEVYAYSJL4cEovvPaUuVnqFB51awZSJxYddF6SWzro=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Gq69hnNIJU8hblxeQF44JDGZK894+0A1Zq6M7EGp5TZlkeO/rUOU5CvHk3nZYVLwgnaXloamI/89YEfmm0aekwfrTJ3vQsRyCTzTrP41zHStOV/G61uFMa55Fca2tjpvKMqwaExkSpqcayHxqBzq1fY3dTpcbrX5FP0o2lyzXSA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=atxvd2MB; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	s=arc-20240116; t=1787812463; c=relaxed/simple;
+	bh=xJc+PFbYXZlDDxBThfzDJhi4RR2IJmSUnfUaEbcKXzk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Mr0evGwzG6kLNOTzZ2k5hecd7uMzsFW5uiu+OISTOIFMimHEFnSnq2Wy/GWm/X8WG6HZ+hUOsx7yLXMrIq06er8Dw32wB4EkNtgy1u+0G7XJspXX2QEm0cRF74AHzDXoMVx9lW/SHVHu1mU5fiefCFPjqQtIFnlOadlRIvhX96Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qiMKPu92; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="atxvd2MB"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 343D01691;
-	Wed, 26 Aug 2026 23:06:29 -0700 (PDT)
-Received: from localhost (a085714.arm.com [10.164.19.28])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 46D2D3F85F;
-	Wed, 26 Aug 2026 23:06:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1787810793; bh=4MEVYAYSJL4cEovvPaUuVnqFB51awZSJxYddF6SWzro=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=atxvd2MBYeFEkKGg88c3L5GRhXIVBg8ao3BgsUAsWkYA7ds0RiLYyyyMKGlCqEe4v
-	 MOEpEcQqGd8VjOnqn4rLw1NEKggOUfl9biN2Je1oGa1rmznEcLbhjXu1/IkCtDfkV+
-	 TlSm0YogFKVAPwPubmvtzGJxMq025DHHeIV/tBH0=
-Date: Thu, 27 Aug 2026 11:36:29 +0530
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-To: Samuel Holland <samuel.holland@sifive.com>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>, 
-	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
-	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, linux-alpha@vger.kernel.org, 
-	linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, 
-	linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, 
-	linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, 
-	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Lorenzo Stoakes <ljs@kernel.org>, 
-	linux-mm@kvack.org, akpm@linux-foundation.org, david@kernel.org
-Subject: Re: [RFC V3 1/8] mm: Make ptrval_to_str() generally available
-Message-ID: <xj6w5re27lbtih3lxksk2jxv6kvnpek25urjjcoobwj5pgfqtr@z5loauvsw3jj>
-References: <20260818040041.1891769-1-anshuman.khandual@arm.com>
- <20260818040041.1891769-2-anshuman.khandual@arm.com>
- <029cfde8-74fc-4437-bc18-b1b53d44cab2@sifive.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qiMKPu92"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67R6Vd4E2210175;
+	Thu, 27 Aug 2026 06:34:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=Ucz1NzMG7UG1Ra9zk0/01qWlK+f/HZv573tGt0HO1
+	ec=; b=qiMKPu926FcTEGyqxbzXEbs69pLR3pFGjZ04enEhRRg2Fh4aWpTb4hyox
+	ei5n1F11A3U78xXtNXpmlDyJs8ivBpkyuWqSb7rv00RN1zGwC8PYcGFeRF2CDhxL
+	bwjskWDb0E03wxVlI1wJOMfr2RDgpJ9Im8kSqwaaPHpK8whQY2UTHykZNtp4nKq6
+	52i73yMMq4oa39DRNZcbadSY6iprMdQqZa9/BJXN52ZzhfQf/DhezHA31tUlxsXI
+	mTzNFm8NZSuC9l+t1WtrYAhATz/09tTvNDNLxuFOyKGh5Ngy3OU0r3OdJ9ZUxMvR
+	h1rG+okdZycq3EWiUONXBNYcnxSuw==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g73g53pkt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Aug 2026 06:34:13 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67R6Qfw2028939;
+	Thu, 27 Aug 2026 06:34:13 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4g7rsye96g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 27 Aug 2026 06:34:12 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67R6Y94B47382904
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 27 Aug 2026 06:34:09 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1FD1020043;
+	Thu, 27 Aug 2026 06:34:09 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D339020040;
+	Thu, 27 Aug 2026 06:34:08 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 27 Aug 2026 06:34:08 +0000 (GMT)
+From: Aswin Karuvally <aswin@linux.ibm.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH net v2] s390/ctcm: Prevent XID null dereference
+Date: Thu, 27 Aug 2026 08:34:08 +0200
+Message-ID: <20260827063408.2168914-1-aswin@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <029cfde8-74fc-4437-bc18-b1b53d44cab2@sifive.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: 762s6FFUaum0lzydxH7_aC0VwQ_7nxTh
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI3MDA1MiBTYWx0ZWRfX+EJCg15VLrsJ
+ s6nNOcFjveuvQZMHOElkVVAkqEnJ4DNiOS1Pf3SPl+5yPDCBQCyAOC6COdvODQVD/e4+HIPhc1e
+ HBXtocShl2Rxf81A5zlhkB+O3AIBbyA=
+X-Proofpoint-GUID: xeY1t9zm4bbETlLclys8avAOd8CZdbBa
+X-Authority-Analysis: v=2.4 cv=JZyMa0KV c=1 sm=1 tr=0 ts=6a8fda66 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=OtRM_J3iQteCy_yeMqoA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI3MDA1MiBTYWx0ZWRfX7OytTd7l2ozB
+ zCMfqgcHE0KQr9y/RhsSC29TlD23zXiJQJxduO9jJ7S+FZhioAgyACl1Wb/3s119Y3IiXiaJmG3
+ R1rbSD3v8AdNIyVsChJpE8r/eVB5HovD3lOp6ciLskpUpmnKhdzefUcf1osrwMOwNTrMXzAst9l
+ HA98mNMnZP0kfdQG2yAZ5fUWoj1EhYkEcoZZYrMATt3dOFIN3N1A+PX34I0aKCgnbWb04P+eYlr
+ ybWCRYAWp+YNsye020YINESg0HX6TVAvSX6xX9fdleROB5lmvO36t1wUT3raTPrizX7dBLxUQOQ
+ Bl4ktFzjqcijUPyXNZ84QYf437h1NRN29Y/0CYUJykulvktU+lP0x+pqYUEDxdFS66xrxXOmz7F
+ BEj4TAQCJEnKj75WkpsysNlVDbR9QjecqAwd1bgXL03zDFD+YIFX4pW3F/xinHDdqY4ZcXJbcOk
+ fhYu1kQ/OmvfkSS1fPA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-27_03,2026-08-26_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 clxscore=1015 adultscore=0 priorityscore=1501 impostorscore=0
+ malwarescore=0 bulkscore=0 lowpriorityscore=0 suspectscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2608270052
 
-On Mon, Aug 24, 2026 at 10:45:09AM -0500, Samuel Holland wrote:
-> On 2026-08-17 11:00 PM, Anshuman Khandual wrote:
-> > Move ptrval_to_str() inside a header thus making the helper more generally
-> 
-> Typo here and in subject: ptrval -> ptval
+The mpc_validate_xid() function sets grp->saved_xid2->xid2_flag2 to 0x40
+to signal XID validation error. If peer XID is NULL or r/w channel
+pairing mismatch happens, grp->saved_xid2 is never initialized. An
+attempt to set the flag in such case leads to NULL dereference.
 
-Fixed.
+Fix this by using the always available priv->xid->xid2_flag2 instead of
+grp->saved_xid2->xid2_flag2 for validation errors.
 
-> 
-> > available for new users which are being added later. While here, also move
-> > another related string size macro PTVAL_STR_MAX inside the header as well.
-> > 
-> > Cc: Andrew Morton <akpm@linux-foundation.org>
-> > Cc: David Hildenbrand <david@kernel.org>
-> > Cc: Lorenzo Stoakes <ljs@kernel.org>
-> > Cc: linux-mm@kvack.org
-> > Cc: linux-kernel@vger.kernel.org
-> > Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> > ---
-> >  include/linux/mm_types.h | 15 +++++++++++++++
-> >  mm/memory.c              | 16 ++--------------
-> >  2 files changed, 17 insertions(+), 14 deletions(-)
-> > 
-> > diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-> > index b18c2b2e7d2c..a5b514e55dd7 100644
-> > --- a/include/linux/mm_types.h
-> > +++ b/include/linux/mm_types.h
-> > @@ -2001,4 +2001,19 @@ static inline unsigned long mmf_init_legacy_flags(unsigned long flags)
-> >  	return flags & MMF_INIT_LEGACY_MASK;
-> >  }
-> >  
-> > +void ptval_bytes_to_hex_str(char *buf, size_t buf_size, const void *entry, size_t entry_size);
-> > +
-> > +#define ptval_to_str(buf, val)								\
-> >...
+Fixes: 293d984f0e36 ("ctcm: infrastructure for replaced ctc driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Aswin Karuvally <aswin@linux.ibm.com>
+---
+Changes in v2:
+* Ensure FSM goes to INOP for XID validation failure of either channel
+
+ drivers/s390/net/ctcm_mpc.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/s390/net/ctcm_mpc.c b/drivers/s390/net/ctcm_mpc.c
+index 08e36685e578..61c88fe853c5 100644
+--- a/drivers/s390/net/ctcm_mpc.c
++++ b/drivers/s390/net/ctcm_mpc.c
+@@ -826,7 +826,7 @@ static void mpc_action_go_ready(fsm_instance *fsm, int event, void *arg)
+ 
+ 	fsm_deltimer(&grp->timer);
+ 
+-	if (grp->saved_xid2->xid2_flag2 == 0x40) {
++	if (priv->xid->xid2_flag2 == 0x40) {
+ 		priv->xid->xid2_flag2 = 0x00;
+ 		if (grp->estconnfunc) {
+ 			grp->estconnfunc(grp->port_num, 1,
+@@ -1636,7 +1636,6 @@ static int mpc_validate_xid(struct mpcg_info *mpcginfo)
+ 			"The XID used in the MPC protocol is not valid, "
+ 			"rc = %d\n", rc);
+ 		priv->xid->xid2_flag2 = 0x40;
+-		grp->saved_xid2->xid2_flag2 = 0x40;
+ 	}
+ 
+ 	return rc;
+
+base-commit: f967455fb2a5a2079b9eb5823e9ccf359174bf9f
+-- 
+2.53.0
+
