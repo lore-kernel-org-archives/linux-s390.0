@@ -1,217 +1,164 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CA3F3749E8
-	for <linux-s390@vger.kernel.org>; Fri, 28 Aug 2026 06:34:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 576BC3CF02B;
+	Fri, 28 Aug 2026 06:55:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787898868; cv=none; b=EIZx9SkFsx1Xh9NO9ryYQcSTKUndfYlr2n4e1Jn3P0cbbr2e2ei+9vUGrBWji9d53dbH3rJMhvSAzPXHUW0GWJ5IrdOfJZnglpEm7E2lmoXwDZacCD8eRBOxp7IRouaWHxLGdksXgZebr7c3pGk/TTBFu1fYu6BPt3u4ydF+fsI=
+	t=1787900105; cv=none; b=RSqsYZbL+CdzpU4I/6LksFjt4+/LfWwhFwZXg2qK7lUIn8C5QaZoH9k3c2/kVRebi9wRuDE/toTt0T1Q7QtJ9VD+0IMvI++DWpPdkAzm0tCftgi8L1L0nLqVoAXJ47KloDUG779t0JI+iO4h4GgJq5Se1kLzLwXniHNtFqyT4AA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787898868; c=relaxed/simple;
-	bh=Z9v0s0DECC35iyjVL/msr9CJmJ9WC7sgJLU6YPXEx5c=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Dlkdk8Q7I/LUUcza3OWRoq5nYtNXv0UzhOEouPsi/ro1jwbQkrNp+FXLe3I9H1GSxg4XlfFIzmp1VkX2OKCoXD1awN4tCJ2or8Uqg0cApeyj2q1hvXmJlPVSlvJB7k9PWC0DblagGpkOvOnRZ1imuk3nvN2darkz6yOvNr5/VV0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HuBLqvz7; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1787900105; c=relaxed/simple;
+	bh=l41zUspAh+qmhn7uwJLvG+3Y7/5ZXAUzEciuqKYPDsk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Rk0DD4C7cRk+a7iLOUOvzlD3q2JsIzJo1jfG6dWRjiFgpctGzkBU2X0KaJh1Pt06aw8pAXKrUhlog20wTO3Zhbe3yzkvfqmU2KQupMEIFT0HXOtoa9QFKhxdx31TUso4uQdKcgS3wnLTYzL/RSBBaSpV+baEutNnJNXmFeQAb9U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UBxaa5YD; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HuBLqvz7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6745F1F000E9;
-	Fri, 28 Aug 2026 06:34:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787898866;
-	bh=2BD1wAUrqsj+qVkoS0m5nIYRdDq1c8Dsubd/v4TCIYQ=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=HuBLqvz7qEiSjdAUGx19sVMsC3nAW3nmljL7h32u33j96SoQFPWvWI+BecXDMlwlT
-	 MQFV7QLk87DciKGpRscXB7CUf8HZxtUqPjPQn3AyAEqRtigjQbfzzbRAGl7dcxQvR6
-	 LvgVeySjQfD61UTiV9ANRkgSrohA2FNiu2odZM9Rp16cJlc86/8oQRIKsx/AmJMMbN
-	 +iNpmB+kMuIKJgvZoGiBxGm/8bh9UwWkhBhDros8BVi22M2RfQ7T1Gjbx4gTFjUtRW
-	 OavkHhW1Js+E/uv/sytySlVRnS6ji9+/BaNUdDWdOragtSCHJCngzAmbFb3+XgfnEx
-	 iD6afU8/EQkpw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v2] s390/ctcm: Prevent XID null dereference
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Aswin Karuvally" <aswin@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260827063408.2168914-1-aswin@linux.ibm.com>
-References: <20260827063408.2168914-1-aswin@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 28 Aug 2026 06:34:25 +0000
-Message-Id: <20260828063426.6745F1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UBxaa5YD"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67S6VkgV1265489;
+	Fri, 28 Aug 2026 06:54:56 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=HHYkdyg73wJgmX64yNGfYkgX35vMJPxiVSXVO/W+w
+	kg=; b=UBxaa5YDXEAyuxJrzRkMf2Yyb1Fa25wUsv/2WWZoz77yR96B9+eG6vh00
+	BHzYyp37hLTxpEcgKytBKSY+Nf1uAZ0SDVkZ4XeetBPDQYlk/BeqpxQuFJbX1uUS
+	gH0/eZFnLvqQNutj5Txx2LbTPUXIqPsCr+aSjlRPhnWlPVnVLptxvOOBkmyhP/1K
+	WsB74T/QLv4Np2/i8UDDZcd6VPtwqGDUUTkUIPOix32fHUqGgxgGwL3lgAex0Ag0
+	OLzh/TutEjLpGgoFa3bXtaJW8t5I5M6XjsB/SYqk048oEiEL1mS+jSr1m//XSpu/
+	6/x5nIOcmepp8+rRPndbbHSvXU/Vw==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4g73dxt6e7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 28 Aug 2026 06:54:55 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67S6fH7b010764;
+	Fri, 28 Aug 2026 06:54:55 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4g7q3kcsa8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 28 Aug 2026 06:54:54 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67S6sovt39977424
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 28 Aug 2026 06:54:50 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9EE9A20049;
+	Fri, 28 Aug 2026 06:54:50 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6A0A920040;
+	Fri, 28 Aug 2026 06:54:50 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Fri, 28 Aug 2026 06:54:50 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 56341)
+	id 506C016161F; Fri, 28 Aug 2026 08:54:50 +0200 (CEST)
+From: Mahanta Jambigi <mjambigi@linux.ibm.com>
+To: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
+        dust.li@linux.alibaba.com, sidraya@linux.ibm.com,
+        hidayath@linux.ibm.com
+Cc: pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
+        guwen@linux.alibaba.com, stable@vger.kernel.org,
+        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-rdma@vger.kernel.org, Mahanta Jambigi <mjambigi@linux.ibm.com>
+Subject: [PATCH net v2 0/2] net/smc: fix diag dump lifetime races
+Date: Fri, 28 Aug 2026 08:54:37 +0200
+Message-ID: <20260828065439.3582783-1-mjambigi@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODI4MDA1NCBTYWx0ZWRfX819p3qPm1mpH
+ uANQwbH71rAvICOdoBNAFk5uMWzcRDiGUJda7DSstTZcRLxUGC1ay4Oe9K/yrhjRE6uXPIAJBA2
+ uM/AlFK2WIuXiO1TMA610+/nE/SA1II=
+X-Authority-Analysis: v=2.4 cv=AYuB2XXG c=1 sm=1 tr=0 ts=6a9130c0 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=ehLVjgcsvBZ5JExnJ7cA:9
+X-Proofpoint-ORIG-GUID: IlQBeDv2NyJWc6MfDU9_ByVg0UMjRF-C
+X-Proofpoint-GUID: 04OZQBG-dxKnRPr96Hcdi1oMCmBbKPBQ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODI4MDA1NCBTYWx0ZWRfX478x3ZuU/cgw
+ y62bCUqspcAYQqoCStIXIMqyD8e5K1OX5OTa3ZTm8wNMzhRBgv7VVGQEz7zp2dsOMcNQgxK9BON
+ jC8JKk4gyBY556zus2uKrfAzLMUlBI2w1mpMxUW2QFrcNO7F2yAUOPXwltWjId1Al20EaoU+9ID
+ Ob59r1lfB2ySboX6ykjwDo0yAmxDBJS5yLxnDpkVU/riXoWA4nPOefxyKllPoUy3PgYzo2Caywv
+ KnoaoveR8xvONlnxyPJrnElWdRbc2XUvkzNLymUgtQBSzHz6ni2YltTe+30IiDuSseZUE8Pe0GP
+ tkPVbAgGOz0KlCnlGWcQS1n2jxX1BKuqslVaF1e/bSibc3vBqFnRDh9vGG6lLM7zSReRhr7hnXP
+ izwPYMoXBh6HW6cyrFTRBpLJegq5PlFcSG/Zd9VKMV7P+1mueerQocw/i0mQvIhn7wksvaEWfFZ
+ 6k8alS1yYXfZzcZV5yQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-28_02,2026-08-27_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 phishscore=0 clxscore=1015 adultscore=0 bulkscore=0
+ impostorscore=0 priorityscore=1501 lowpriorityscore=0 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608280054
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
-s) to consider:
+This series fixes multiple lifetime races in the SMC diag dump path.
 
-Pre-existing issues:
-- [Critical] Integer underflow when parsing XID buffer length in `mpc_valid=
-ate_xid()` leads to bounds check bypass and an erroneously large maximum bu=
-ffer size, causing `skb_over_panic` DoS.
-- [High] Calling kfree() on `priv->xid` causes slab allocator corruption be=
-cause it is an interior pointer to an SKB data buffer.
-- [High] Active timers are not safely canceled during device removal, leadi=
-ng to Use-After-Free.
-- [High] The MPC group finite state machine (grp->fsm) and its associated s=
-tate are accessed and modified concurrently from multiple contexts without =
-any locking, leading to data races.
-- [Medium] The `ch->xid_skb` buffer is leaked during MPC device removal/shu=
-tdown.
-- [Medium] Copying uninitialized channel receive buffer memory into a new S=
-KB when receiving short packets.
---
+The first patch adds the basic infrastructure needed to synchronize diag =
+readers
+against connection-owned conn->lgr/conn->lnk updates. It introduces a
+per-connection spinlock and uses it in the link switch and connection fre=
+e
+handoff paths. conn->lgr and conn->lnk are NULLed under the lock before t=
+he
+borrowed references are released, so a non-NULL conn->lgr seen under the =
+lock
+guarantees the lgr object is alive. The diag reader can rely on this inva=
+riant
+without borrowing any extra reference.
 
-commit a7c53ce617cb2637fa08d34df71dac23170822fd
-Author: Aswin Karuvally <aswin@linux.ibm.com>
+The second patch fixes two races in smc_diag itself:
 
-s390/ctcm: Prevent XID null dereference
+- serialize clcsock field access against smc_clcsock_release() with
+  mutex_trylock()
+- take conn->lgr_lnk_lock when reading conn->lgr and conn->lnk; use
+  smc_conn_lgr_valid() inside the lock to check that the connection is
+  still registered, then snapshot all required fields and call nla_put()
+  after releasing the lock
 
-This commit fixes a NULL pointer dereference in mpc_validate_xid() by
-using priv->xid instead of grp->saved_xid2 for error signaling.
-
-> diff --git a/drivers/s390/net/ctcm_mpc.c b/drivers/s390/net/ctcm_mpc.c
-> index 08e36685e5788..61c88fe853c55 100644
-> --- a/drivers/s390/net/ctcm_mpc.c
-> +++ b/drivers/s390/net/ctcm_mpc.c
-[ ... ]
-> @@ -1636,7 +1636,6 @@ static int mpc_validate_xid(struct mpcg_info *mpcgi=
-nfo)
->  			"The XID used in the MPC protocol is not valid, "
->  			"rc =3D %d\n", rc);
->  		priv->xid->xid2_flag2 =3D 0x40;
-
-[Severity: High]
-This is a pre-existing issue, but I noticed this lockless write to
-priv->xid->xid2_flag2. Since FSM events for the group (grp->fsm) are
-dispatched via the lockless fsm_event() function and can be triggered
-concurrently from different tasklets or timer softirqs, can this
-modification race with other contexts reading or writing this state?
-
-A similar pattern occurs when grp->outstanding_xid7 is decremented
-locklessly in mpc_action_rcvd_xid7().
-
-> -		grp->saved_xid2->xid2_flag2 =3D 0x40;
->  	}
-> =20
->  	return rc;
-
-While reviewing this subsystem, I also noticed a few other pre-existing
-issues in the surrounding code:
-
-
-drivers/s390/net/ctcm_mpc.c:mpc_validate_xid() {
-    ...
-    if (xid->xid2_dlc_type =3D=3D XID2_READ_SIDE) {
-        ...
-        if (grp->group_max_buflen =3D=3D 0 || grp->group_max_buflen >
-                        xid->xid2_buf_len - len)
-            grp->group_max_buflen =3D xid->xid2_buf_len - len;
-    }
-    ...
-}
-
-[Severity: Critical]
-This isn't a bug introduced by this patch, but does this buffer length
-calculation suffer from an integer underflow?
-
-The len variable is an int evaluated to 32. If a peer sends a small
-xid2_buf_len (e.g., 16), the subtraction evaluates to a negative int.
-Since grp->group_max_buflen is a __u16, the comparison bypasses the
-bounds check, and the assignment casts the negative integer to a large
-positive value (e.g., 65520).=20
-
-Could this cause an skb_over_panic later in ctcmpc_chx_txdone() by
-enqueuing more data than the allocated SKB can hold?
-
-
-drivers/s390/net/ctcm_main.c:ctcm_free_netdevice() {
-    ...
-        if (grp->xid_skb)
-            dev_kfree_skb(grp->xid_skb);
-    ...
-    if (priv->xid) {
-        kfree(priv->xid);
-        priv->xid =3D NULL;
-    }
-}
-
-[Severity: High]
-This is a pre-existing issue, but does calling kfree() on priv->xid
-cause slab allocator corruption?=20
-
-In ctcmpc_init_mpc_group(), grp->xid is initialized via
-skb_tail_pointer(grp->xid_skb) which is an interior offset within the
-SKB's data buffer, and priv->xid is assigned this value. Passing a
-pointer that aliases the interior of an already-freed SKB to kfree()
-appears to be an invalid free and a use-after-free.
-
-
-drivers/s390/net/ctcm_main.c:channel_remove() {
-    ...
-        fsm_deltimer(&ch->timer);
-        if (IS_MPC(ch))
-            fsm_deltimer(&ch->sweep_timer);
-
-        kfree_fsm(ch->fsm);
-    ...
-        kfree(ch);
-}
-
-[Severity: High]
-This isn't a bug introduced by this patch, but are active timers safely
-canceled here during device removal?=20
-
-The fsm_deltimer() routine uses an asynchronous timer_delete(). If the
-timer handler is executing concurrently on another CPU, would immediately
-freeing the fsm and ch structures lead to a use-after-free?=20
-
-Similarly, in ctcm_free_netdevice(), grp is freed without canceling
-grp->timer.
-
-
-drivers/s390/net/ctcm_main.c:channel_remove() {
-    ...
-        if (IS_MPC(ch)) {
-            tasklet_kill(&ch->ch_tasklet);
-            tasklet_kill(&ch->ch_disc_tasklet);
-            kfree(ch->discontact_th);
-        }
-        kfree(ch->ccw);
-        kfree(ch->irb);
-        kfree(ch);
-}
-
-[Severity: Medium]
-This is a pre-existing issue, but does this teardown path leak the
-ch->xid_skb buffer?=20
-
-For MPC devices, ctcm_shutdown_device() calls ctcm_close(), which is a
-no-op, and channel_free() does not trigger DEV_EVENT_RXDOWN. Because the
-event isn't sent to the device FSM, mpc_channel_action() isn't called to
-properly free the MPC structures, and channel_remove() appears to leave
-the SKB leaked.
-
-
-drivers/s390/net/ctcm_fsms.c:mpc_action_dopacket() {
-    ...
-    default:
-        len =3D TH_HEADER_LENGTH + XID2_LENGTH + 4;
-        ...
-        skb_put_data(new_skb, skb->data, len);
-}
-
-[Severity: Medium]
-This isn't a bug introduced by this patch, but does unconditionally
-copying ~270 bytes into the new SKB cause an out-of-bounds read when
-receiving short packets?=20
-
-If the actual received length from the CCW is shorter, this would copy
-uninitialized channel receive buffer memory or stale data from previous
-packets into the new SKB.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260827063408.2168=
-914-1-aswin@linux.ibm.com?part=3D1
+Signed-off-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
+---
+Changes in v2:
+- this is v2 of the series; the earlier submission was mislabelled
+  [PATCH v3] but was in fact the first version sent to the list
+- split into a 2-patch series; patch 1/2 adds per-connection lgr_lnk_lock
+  infrastructure to smc_core, patch 2/2 fixes the diag dump path using it
+- dropped lock_sock()/release_sock() from __smc_diag_dump(); v1 held the
+  socket lock across all lgr/lnk dereferences, requiring the hash read_lo=
+ck
+  to be dropped and re-acquired around each socket
+- dropped the restart-from-head loop in smc_diag_dump_proto(); the new
+  design does not drop the hash read_lock mid-walk so the hlist truncatio=
+n
+  concern no longer applies
+- dropped refcount_inc_not_zero() socket pinning from the dump loop for t=
+he
+  same reason: the hash read_lock is now held for the full walk
+- added per-connection lgr_lnk_lock spinlock to struct smc_connection;
+  conn->lgr and conn->lnk are NULLed under this lock in smc_conn_free()
+  before borrowed references are released, establishing the invariant: a
+  non-NULL conn->lgr seen under lgr_lnk_lock guarantees the lgr is alive
+- added lgr_lnk_lock to smc_switch_link_and_count() to protect the conn->=
+lnk
+  pointer swap from concurrent diag readers
+- replaced mutex_lock() on clcsock_release_lock in smc_diag_msg_common_fi=
+ll()
+  with mutex_trylock(); mutex_lock() was valid in v1 because the hash
+  spinlock had been dropped, but the new design holds the hash read_lock
+  throughout so only a non-sleeping trylock is safe; a failed trylock lea=
+ves
+  address fields zeroed, which is acceptable for a monitoring tool
+- all conn->lgr and conn->lnk accesses in __smc_diag_dump() use a
+  snapshot-then-use pattern: fields are copied into local stack variables
+  under lgr_lnk_lock and nla_put() is called after releasing the lock,
+  avoiding any sleeping operation under the spinlock
