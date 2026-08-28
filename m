@@ -1,64 +1,71 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F84843CE79;
-	Fri, 28 Aug 2026 12:08:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE2C93D5C0C;
+	Fri, 28 Aug 2026 12:08:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787918914; cv=none; b=FBfM9f4ub6YqPUAxz8kgQW+SKmSZax7bKHYLP+GqeLYlU/HP1qBQ12jRBsQu752PauYI58HImnL2F20KCW9mtNmjs4Qh5o+/+YGkD8f5RnWmISBDC/Lj9kPnpyemtkuUPbrKqxX6sKZD7fshfW+7lbLmyGRkJHWrYdlZBO0PmdE=
+	t=1787918924; cv=none; b=I4dENxeEGIbFpl9N7DA0dX/6KhnfnQmmv0u7MjL+i5g+RpWtcSK25kwV5ifhdJYOs4iX+o9GiCUribmPsj2o/7vL3qkh4dzEfKMDEsYMC0n2zDJX6clY43hPBTQUTWFWyOnc4gFNRJaE9UFzs5ag2WbIHD8mfcVEaIcYodOpS5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787918914; c=relaxed/simple;
-	bh=JnHFzlS6+aJEn8qXlALaxzt6DpkLytyDhs8tN6vzHWo=;
+	s=arc-20240116; t=1787918924; c=relaxed/simple;
+	bh=YvjScUDLuGELTLeXe7hM/Ch8d0osbR9VZOK+tgCFquo=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=L2sO8TCyjPkejbJ1c+MVh3YZImkFuJDh3KGDIjh9zKS4GbjNvC8IwLbdDOeZK5Wr4WlQSjZ+flvbDCbvP/3oYz7iXU+UFVRImfbhS2vuQ75RhlQ1lCzd+6Lu4xss1EZT+SUzLrm4ffdwRETFEVP/ccTlUeUrUWSDEP7enZ9J2wI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fAuKSMCI; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ltq7ABCYqEjby0VfZmeDAfnvK6KBCnvju+DMUHDr8X8n8sm62dsWTqBgIyugGNA77q9ohlHgrg693H6dvZFmYsUrdtx9PB98/uZgxImFJBDNT9aB3PkDZl8zQv8nOduqzI42jg6zc/Dt6QQB3AgA2kh+ZzPAqzimX6d0hSJ1NNA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ie6FPtPu; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fAuKSMCI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1EBB1F00A3E;
-	Fri, 28 Aug 2026 12:08:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ie6FPtPu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF9CD1F000E9;
+	Fri, 28 Aug 2026 12:08:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787918903;
-	bh=JnHFzlS6+aJEn8qXlALaxzt6DpkLytyDhs8tN6vzHWo=;
+	s=k20260515; t=1787918919;
+	bh=YvjScUDLuGELTLeXe7hM/Ch8d0osbR9VZOK+tgCFquo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fAuKSMCIIgzRR5eKO7duogSTD0Wyq//ZFkUi2ITzN1H9BXuKQ8DG9lrVF7oYKs6Yt
-	 pB7j3pjqHjJHGJNU1gTbYoFeheMK+fLNv6z2BuHP+w2bWSLa9PYy8pklHkk2dN1b+g
-	 Q5F7c6miqQzLEkdTw7Dly89MA0pkJV1hoRxbKapwQPwXb/uBB4fEhR4xfb6lvPS/U8
-	 3RFC0n4KWjnPAL9QJAF+vqZl5S2FH97s97OnTbSbTV/6fW6FMtJLqgObB537puZ1qs
-	 yL6db9Ecu534uLHu95DdZbLoLfHWU3xZMwgDVCZxk7m1ffYsd57rM+H5W0gV+06VTw
-	 dy6uOzc79kccQ==
+	b=ie6FPtPupOdKxYslItOYnYR366NDW2EwnneUYEM5yiTgfOwqvVQVfnRcj54Ctw9gU
+	 tFonZFTgyYWxd1qGwHjK0BDme0v2WnmYxMcukfZ2lnyZ62oasjSHucZVGLNWZ/SSEB
+	 c62Y7fDy7gSB/nLjwDg9id5ibKzVxF5/dbM1A+CKBtNk4bN/pI7zCWVKrt7B+A6BTr
+	 Cb9Kw/k3cpL4AWVACTJoWpvXxil6lQT33NVHN9//MzDiNszbH3SKZS+YakOPqvrTFV
+	 EVnwORBiuDY4Ck42BNF8ctZb2n4SztxNHTOtlroa7qzWmXGgBSWY/w4j16RpIiddIY
+	 P1CME9D4fQ5UA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 3/8] KVM: s390: Fix _gaccess_shadow_fault()
+Subject: Re: [PATCH v3 1/8] KVM: s390: Fix dirty marking in
+ adapter_indicators_set*()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, kvm@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260828115439.145885-4-imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20260828115439.145885-2-imbrenda@linux.ibm.com>
 References: <20260828115439.145885-1-imbrenda@linux.ibm.com>
- <20260828115439.145885-4-imbrenda@linux.ibm.com>
+ <20260828115439.145885-2-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 28 Aug 2026 12:08:22 +0000
-Message-Id: <20260828120822.D1EBB1F00A3E@smtp.kernel.org>
+Date: Fri, 28 Aug 2026 12:08:38 +0000
+Message-Id: <20260828120838.AF9CD1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> In some circumstances, it is possible that the page of nested guest
-> memory that is being shadowed is not present at all in the parent guest
-> gmap. dat_entry_walk() will not find any leaf entry and return with
-> -ENOENT, which will erroneously be propagated all the way to userspace.
+> When the indicator and/or summary bits are set in the guest, the
+> accessed page was only marked dirty in KVM if the access was performed
+> using the slow path; accesses through the new kvm_arch_set_irq_inatomic
+> fast inject path would not mark the page as dirty.
 >=20
-> Fix by manually calling gmap_link() on the memory of the nested guest
-> that is being shadowed if the mapping was not already present.
+> Fix by adding/moving the missing calls to mark_page_dirty(). Note that
+> for the inatomic path set_page_dirty{,_lock}() is not needed as the
+> page stays pinned; the unpin path correctly marks it as dirty.
 >=20
-> Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
+> Opportunistically reorder the local variables to be in reverse
+> Christmas tree order and refactor to use guard().
+>=20
+> Fixes: 1e95e3bc6b05 ("KVM: s390: Enable adapter_indicators_set to use map=
+ped pages")
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260828115439.1458=
-85-1-imbrenda@linux.ibm.com?part=3D3
+85-1-imbrenda@linux.ibm.com?part=3D1
 
