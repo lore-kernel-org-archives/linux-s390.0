@@ -1,149 +1,115 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3531181334
-	for <linux-s390@vger.kernel.org>; Fri, 28 Aug 2026 23:32:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7BF41397
+	for <linux-s390@vger.kernel.org>; Fri, 28 Aug 2026 23:34:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787959962; cv=none; b=ERqzOFhz/weMUFQ7KSwJ6QTsCAq+kHoW2YSw/NnuPCaydAA1beIovvUZjBm6EjBujLzf2yI+87g5rJImW725ZeaV4lcb8ulIqS7lXupFVV6TvlpoAuIXtXkiRCCc2JqeEFdce5u4jhmzINVjJ4hEe6jIsJgpGFGKr+gJKp5+BOk=
+	t=1787960068; cv=none; b=LwgYOyd/GJCIUugxVvDfe+sPoDgScVD/K1vWIrsIp4bKM/egGmyPQNBk3+yZ9OmkXV5tzxwPo+kWynI9+PdP/xJImE4QBXvWpak1MmfdOzDyjJhc7xqZJj2PsC2AZNH+vI0PYuOc/bzSNdDX0md/xR0Ry9AR5W9IJpRwsw5OTOU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787959962; c=relaxed/simple;
-	bh=iiyySwJHCzOxfnhxgPpfCNuYqVigd7v4mwqhtJXshSE=;
+	s=arc-20240116; t=1787960068; c=relaxed/simple;
+	bh=mPxWLCf8MNko0nKEwyDoBQDyfHUUWYqS96fK35e2+PA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=qTv2o1+8lBrBhQSYngFEf5LsSImtiUwVD6N8E0flWJlYHblBLLVbtQ1Oat7rM83tUCR1zL9MBLsnjbPrmQDpaED9Nfy72cZvDGTIyc1TDJS1pkXf4l2tsNv04AEComLK5oLWgiEpx7TnZny4CGaI/9aDJlwk3X/lLdDE2FthdOM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jTyMqr+J; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=b3R9JbxWEV9He+B5TIC26fLBqNujfT4HMV2m4FRNOT8bHuhhY7BooOe9oxhpeClFlsOcBe6vcm7xfsYlbVYt8NeVlhrbt+q0czFKsfSuFzwkCkSqQ9k+2P4tCzO05H1O7axVh80zi4R4x6oY7cgHBkHTIRzJraj5zU3qKMgun3c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z+5utl7B; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jTyMqr+J"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DAA31F000E9;
-	Fri, 28 Aug 2026 23:32:41 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z+5utl7B"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 100041F000E9;
+	Fri, 28 Aug 2026 23:34:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787959961;
-	bh=5eqHgHYe9xVKWL7IX8wPBGDDswBT/wWfb0s8TjUZpO8=;
+	s=k20260515; t=1787960067;
+	bh=4zqRtqbBdijHx++seyX8g5IKP8m1nteY2C1o0btI16w=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jTyMqr+JfbxMCW4ficVFFSfcp9uwjMkdn8q9AUv4dPCk61H2ehKKfYFxkIFFfQ9aV
-	 wMTV9DSJmQYX1x44/NXQurx55yvQMeif5CEHDPJRcMdKCU7TKkMBUn/PgVL3WjGhnL
-	 LeIRtUUxTF7+2g+QBNqaHV8iHZwkSaq9qh9CAlW+fDWKPuXtZQves6wRCNSQW0lVH0
-	 6MVBTxlYJFraCMFIHyFK6UUHLn2mHc+mRPccVkfwdqo6ELDG8m2xtKuPLI7I0nOWxI
-	 bqNnsEzgeWWk8BbPKCCNtCTSIewwqm8Or3D4zr+2ncco03hs6wWM/YjNlK5j/nvvAh
-	 u7qIqg7S9gbjA==
+	b=Z+5utl7BFXt05Nsf6CTxET8Gu2ICttFMk2YCDvT6SiCPYJSah0ES3zQ7G5h1WlvJy
+	 HGaypyOT1ukavz2v8WKw5nd0fl3jNu5kgcw3yRQpBrLCyUCTWe/RIA7xzTgSIEOu2Y
+	 VyZEeYs2TF+raRNS47DZlWnEJZXovg0izIzPc89bCHm7EWb2od13agq9dOS4WK8bMQ
+	 NVlUSz3eZRc8fdVoazWR69VKla+FHN5zcLmR/8fc6HXkp2C8ZUrQaMfsLDkmnFipcE
+	 IVRzJ7vVulkgqn2ozPYnTe3sigjFcdeiHB7NL5avonI6ibB//6RRlYJK7aJFyHelru
+	 EGGlpyqqfAGnQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 03/13] scripts/syscall.tbl: Use the common table
+Subject: Re: [PATCH v6 10/13] syscalls: Add an option for offsetting the
+ common table
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?QW5kcsOpIEFsbWVpZGE=?= <andrealmeid@igalia.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260828-tonyk-syscall_table-v6-3-fdd358456cf1@igalia.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260828-tonyk-syscall_table-v6-10-fdd358456cf1@igalia.com>
 References: <20260828-tonyk-syscall_table-v6-0-fdd358456cf1@igalia.com>
- <20260828-tonyk-syscall_table-v6-3-fdd358456cf1@igalia.com>
+ <20260828-tonyk-syscall_table-v6-10-fdd358456cf1@igalia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 28 Aug 2026 23:32:40 +0000
-Message-Id: <20260828233241.1DAA31F000E9@smtp.kernel.org>
+Date: Fri, 28 Aug 2026 23:34:26 +0000
+Message-Id: <20260828233427.100041F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] The perf tool's copy of `scripts/syscall.tbl` is left out of syn=
-c, and its syscall generator is unaware of the new common table.
-- [Low] The use of `mktemp -p .` in build scripts is a GNU extension causin=
-g build failures on BSD-based hosts, and temporary files are leaked on erro=
-r paths.
+- [Low] The script `scripts/syscalltbl.sh` inadvertently includes dead code=
+ checking for an uninitialized `$offset` variable, which can break the buil=
+d if inherited from the environment.
 --
 
-commit 81fbe53cf08247610dc3aa87d8f9c9e8106a9994
+commit 4e263c69abbb8a963d9217a6ad52a5803ed295f2
 Author: Andr=C3=A9 Almeida <andrealmeid@igalia.com>
 
-scripts/syscall.tbl: Use the common table
+syscalls: Add an option for offsetting the common table
 
-Remove some of the duplicated code by using the common syscall number
-table.
+This commit adds a --common-offset option to the scripts generating syscall
+headers and tables. This allows the common syscall table to be offset by a
+specified value. It is intended to help architectures like alpha reuse the
+common table.
 
-> diff --git a/scripts/Makefile.asm-headers b/scripts/Makefile.asm-headers
-> index b38931314ad7c..e81d3ef8938ca 100644
-> --- a/scripts/Makefile.asm-headers
-> +++ b/scripts/Makefile.asm-headers
+> diff --git a/scripts/syscalltbl.sh b/scripts/syscalltbl.sh
+> index f5b95b19ac92d..eaad7be4c3936 100755
+> --- a/scripts/syscalltbl.sh
+> +++ b/scripts/syscalltbl.sh
 [ ... ]
-> @@ -57,14 +58,14 @@ quiet_cmd_remove =3D REMOVE  $(unwanted)
->        cmd_remove =3D rm -f $(unwanted); find $(obj) -type d -empty -dele=
-te
+> @@ -59,14 +64,23 @@ outfile=3D"$2"
 > =20
->  quiet_cmd_syshdr =3D SYSHDR  $@
-> -      cmd_syshdr =3D $(CONFIG_SHELL) $(syshdr) \
-> +      cmd_syshdr =3D $(CONFIG_SHELL) $(syshdr) --common-tbl $(syscalltbl=
-_common) \
+>  nxt=3D0
+> =20
+> -# gen_tbl(infile)
+> +# gen_tbl(infile, offset_nr)
+>  gen_tbl() {
+>  	input=3D$1
+>  	tmpfile=3D$(mktemp -p .)
+> +	offset_nr=3D$2
+> =20
+>  	grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis" "$input" > $tmpfile
+>  	while read nr abi name native compat noreturn; do
+> =20
+> +                if [ -n "$offset_nr" ]; then
+> +                        nr=3D$((nr + offset_nr))
+> +                fi
+> +
+> +		if [ -n "$offset" ]; then
+> +			nr=3D"($offset + $nr)"
+> +		fi
 
 [Severity: Low]
-Does this build script rely on a GNU-specific extension?
+Does this code inadvertently use an uninitialized $offset variable?
 
-While not modified directly in this diff, scripts/syscallhdr.sh uses
-mktemp -p ., which is a GNU extension:
+The script scripts/syscalltbl.sh does not initialize the $offset variable
+like scripts/syscallhdr.sh does. If an offset environment variable happens
+to be exported by the user or CI, this condition evaluates to true, and nr
+is modified into a string.
 
-scripts/syscallhdr.sh:gen_hdr() {
-    ...
-    tmpfile=3D$(mktemp -p .)
-    ...
-}
+The subsequent check [ $nxt -gt $nr ] strictly requires an integer and would
+fail with a shell syntax error, halting the build.
 
-This will cause build failures on non-GNU hosts (such as macOS or FreeBSD)
-where their mktemp implementations do not support the -p flag.
+Was this block copied from scripts/syscallhdr.sh by mistake?
 
-Additionally, if the script exits early via exit 1 in scripts/syscalltbl.sh
-within gen_tbl(), the temporary file is permanently leaked in the build tree
-because cleanup relies on a direct rm at the end instead of a shell trap:
-
-scripts/syscalltbl.sh:gen_tbl() {
-    ...
-    tmpfile=3D$(mktemp -p .)
-    ...
-    exit 1
-    ...
-}
-
->  		   $(if $(syshdr-args-$*),$(syshdr-args-$*),$(syshdr-args)) \
->  		   $(if $(syscall_compat),--prefix "compat$*_") \
->  		   --abis $(subst $(space),$(comma),$(strip $(syscall_abis_$*))) \
->  		   $< $@
-[ ... ]
-> diff --git a/scripts/syscall.tbl b/scripts/syscall.tbl
-> index 0ab5316051202..ee828d03094ed 100644
-> --- a/scripts/syscall.tbl
-> +++ b/scripts/syscall.tbl
-> @@ -344,72 +344,3 @@
->  293	common	rseq				sys_rseq
->  294	common	kexec_file_load			sys_kexec_file_load
->  # 295 through 402 are unassigned to sync up with generic numbers don't u=
-se
-> -403	32	clock_gettime64			sys_clock_gettime
-
-[Severity: Medium]
-Will this removal break perf's syscall resolution for architectures relying
-on the generic syscall table?
-
-By removing syscalls 403-472 from scripts/syscall.tbl, perf trace may fail
-to resolve these syscalls by name (mapping them to unknown) because perf's
-generator script is unaware of the new common table.
-
-Looking at tools/perf/trace/beauty/syscalltbl.sh, the build_tables function
-relies solely on scripts/syscall.tbl and has not been updated to include
-scripts/syscall_common.tbl:
-
-tools/perf/trace/beauty/syscalltbl.sh:build_tables() {
-    ...
-    build_tables "$tools_dir/scripts/syscall.tbl" "$outfile" common,32,risc=
-v,memfd_secret EM_RISCV
-    ...
-}
-
-This will also cause the perf build to emit warnings due to
-tools/scripts/syscall.tbl being out of sync with scripts/syscall.tbl.
-
-> -404	32	clock_settime64			sys_clock_settime
-[ ... ]
+> +
+>  		if [ $nxt -gt $nr ]; then
+>  			echo "error: $input: syscall table is not sorted or duplicates the sa=
+me syscall number" >&2
+>  			exit 1
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260828-tonyk-sysc=
-all_table-v6-0-fdd358456cf1@igalia.com?part=3D3
+all_table-v6-0-fdd358456cf1@igalia.com?part=3D10
