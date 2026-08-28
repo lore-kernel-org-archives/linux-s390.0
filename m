@@ -1,203 +1,190 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 258A5397323;
-	Fri, 28 Aug 2026 21:57:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F48C346E44;
+	Fri, 28 Aug 2026 22:02:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787954271; cv=none; b=Mx6PX0Y/dZrE6ySsU+JgUfthbdUzN6TNoZpnRFKcj5hYvV7V2wMOPzfqP6djZNYBMYAEyh84/NeiuHLRPQMJYPY7OSGNv9zaWhrSa3803yOo/Uk0spsx68pkzPjvNZnonuODkZi7IxfE8x4ZSlxNS0EBplvHE44bFrIImmxfnHE=
+	t=1787954523; cv=none; b=APyDxYoxhKPsm7s3lmNpBvbVQc/YWgLYUxbHlF2POPa0RmhJQu4gQqrj70yJLE0jfkzcdMy5qBKbKOYAKFMbEPXzcq2MRBH84YZ47ABwey42xp4Kvw86zE0hqfLHFh1b8CMhlNR7dfKseFoYlJJnFeAnd9POHxrxz48jQWbNaTQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787954271; c=relaxed/simple;
-	bh=rhsLJCNjyXGlDKQ64aa5cLUmX/tjksW8Lb6OlBUXSRI=;
+	s=arc-20240116; t=1787954523; c=relaxed/simple;
+	bh=lUuqIWp2rYxyPbykwb/OElU//npe3EP43EBvCgs6NpA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=XNWbO3Ey2A7+4tNeZ6Ko9lpFO/BkHFSVbWd9I9pfiHe/JZKynXORcPr+uTZYx/GqAnwwyZCoT/mOby9PjhojLeyCmnrG7XjEGiC6B3gSOc24mt8sYPB0izwMrm5RAIMt979GGOzzHrRtwup5TpYtoviWWtPFzEfyWEAVkfPKHuk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QBLOjm6z; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=BS8JkSGnx9stYPU/x1wl5m8MuIIYpaln3/cf8/eTRUP54S2qbQRK38a2iq33e91XBtbRCGwOnCDoFveXloO7m6l8GCZSnFQa9+C023XM9Rjs9vtrQ/f39Km/mUz2BHVrbtCin2BEPeb2YLypHaAOzkbpn4NvmHmZqDta8/vBGKU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D5rAIdeT; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QBLOjm6z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B3EA1F000E9;
-	Fri, 28 Aug 2026 21:57:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D5rAIdeT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 595A81F000E9;
+	Fri, 28 Aug 2026 22:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1787954269;
-	bh=HBODWS9CJermAsFNAWIOB0VwgAz0tbzd/2wjsY8YGG0=;
+	s=k20260515; t=1787954521;
+	bh=kNWk+WSHitRxuWneJYCylhPrq7BRvstaVo1bj+oAMpI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QBLOjm6zo8e2VHJFYqCv5rlYnGGtZ9phuAUpbE0fFcWe3+bgaUg5EqeT0UxkuM9Q8
-	 T+7nhG2bAgGwHVLfbe4pOKXfMJU9VBJDz8Ww7OUiNQ4/TnnI+Z/3kxz+TnpMXnwMOD
-	 p6UMmmWWI3LG7rePFxnqWEx9KsrPIVZbtIMo2wwwOZfw8tofZsvZwc6FF7IVxwKL1q
-	 siPYsjfSIxk5aR5iL0ZiAXUBOpcG3CyOLf57Xw+nHSKttOMz73Z7NDPAXrLerOfO5K
-	 ATq6HEShXjbO92yjqf1khcC5165b3O/WnDGggNKHkYdT71ewqJI7FHrjIUcHmTMsVB
-	 WpgGVR3OzRtFQ==
+	b=D5rAIdeThG1c8eIHx+1rA1UQ7ddKFsSwCu2NPtcp0QVh7RZWWvBpGKT8sWWG+YSsi
+	 Eo2lWZSbtJ/6JafBVeYDPqrx43F6IYmEUsCEdwHpDF8P3CiY+8RkhpEWptRRbCLdX7
+	 fzMsTjs8CHIvWEXrH5ldRRHoafhrrMq4OTXOVsJdStXw2qcqwn6/VzPOxdD6viilkf
+	 FBXPF3YxMaeozKNcj+Ht0QMOh+FbhwfgJB3DLDjwUHX1ei5eY1aaSDiSpjFY+DcBad
+	 wsuiXdXqFJI/9FMhKi98MFjN4zE4GeCipjArdThxYvtZvjStKDH7ae5ZuzXALFdtu2
+	 /a2QWQ+4f7/cA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 1/4] s390/vfio-ap: Fix leak of pinned NIB and
- registered NISC in vfio_ap_irq_enable/disable()
+Subject: Re: [PATCH v4 3/4] s390/vfio-ap: Fix unbounded loop in
+ apq_reset_check()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260828214653.1087009-2-akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260828214653.1087009-4-akrowiak@linux.ibm.com>
 References: <20260828214653.1087009-1-akrowiak@linux.ibm.com>
- <20260828214653.1087009-2-akrowiak@linux.ibm.com>
+ <20260828214653.1087009-4-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 28 Aug 2026 21:57:48 +0000
-Message-Id: <20260828215749.5B3EA1F000E9@smtp.kernel.org>
+Date: Fri, 28 Aug 2026 22:02:00 +0000
+Message-Id: <20260828220201.595A81F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-
-New issues:
-- [Critical] Prematurely unpinning the new NIB page on a hardware timeout i=
-n `vfio_ap_irq_enable` causes a host use-after-free and wild DMA write if t=
-he hardware later completes the asynchronous interrupt configuration.
-
-Pre-existing issues:
-- [High] Guest-reachable `WARN_ONCE` in `vfio_ap_wait_for_irqstate` and `vf=
-io_ap_irq_disable` violates KVM subsystem guidelines and creates a denial o=
-f service vector on `panic_on_warn` systems.
+- [Critical] The timeout path incorrectly treats an idle queue state as a c=
+ompleted reset, bypassing the necessary zeroize command and causing Use-Aft=
+er-Free.
+- [High] The reset operation silently reports success to callers when the r=
+eset times out, masking the failure and misleading userspace.
+- [Medium] The `elapsed` timer is not reset when a new reset command is iss=
+ued, causing subsequent resets to prematurely time out.
 --
 
-commit f514ef27dfc693d5c326ffed4fd1a9985acce1d0
+commit 3ef072206a03ac06e2b0604371727e31f5cba1a8
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
-Subject: s390/vfio-ap: Fix leak of pinned NIB and registered NISC in vfio_a=
-p_irq_enable/disable()
 
-This commit addresses resource leaks by restructuring how the AQIC
-instruction responses are handled for AP queues. It introduces a polling
-mechanism to wait and confirm asynchronous hardware transitions before free=
-ing
-resources.
+s390/vfio-ap: Fix unbounded loop in apq_reset_check()
+
+This commit introduces a 2000ms timeout for queue reset operations in
+apq_reset_check() to prevent indefinite blocking in the worker thread.
+Upon timeout, it skips freeing AQIC resources to avoid a use-after-free,
+leaking them instead.
+
+Fixes: dd174833e44e ("s390/vfio-ap: remove upper limit on wait for queue re=
+set to complete")
+Cc: stable@vger.kernel.org
+
+The commit message states:
+
+>    Note that on timeout, q->reset_status will hold the status from the mo=
+st
+>    recent reset operation so that callers inspecting
+>    q->reset_status.response_code after flush_work() will see the value
+>    and can return an appropriate return code.
+
+Is this description accurate?
 
 > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
 _ap_ops.c
-> index 940c0ff668bee..24e93fb7f81a2 100644
+> index 363d9e53e2490..3f5b012be450c 100644
 > --- a/drivers/s390/crypto/vfio_ap_ops.c
 > +++ b/drivers/s390/crypto/vfio_ap_ops.c
-
-[ ... ]
-
-> @@ -245,8 +259,8 @@ static void vfio_ap_wait_for_irqclear(int apqn)
->  		switch (status.response_code) {
->  		case AP_RESPONSE_NORMAL:
->  		case AP_RESPONSE_RESET_IN_PROGRESS:
-> -			if (!status.irq_enabled)
-> -				return;
-> +			if (status.irq_enabled =3D=3D ir)
-> +				return true;
->  			fallthrough;
->  		case AP_RESPONSE_BUSY:
->  			msleep(20);
-> @@ -257,12 +271,15 @@ static void vfio_ap_wait_for_irqclear(int apqn)
->  		default:
->  			WARN_ONCE(1, "%s: tapq rc %02x: %04x\n", __func__,
->  				  status.response_code, apqn);
-> -			return;
-> +			return true;
->  		}
->  	} while (--retry);
-> =20
-> -	WARN_ONCE(1, "%s: tapq rc %02x: %04x could not clear IR bit\n",
-> -		  __func__, status.response_code, apqn);
-> +	WARN_ONCE(1, "%s: tapq rc %02x: timed out waiting for interrupts %s for=
- %02x.%04x\n",
-> +		  __func__, status.response_code,
-> +		  ir ? "enabled" : "disabled",
-> +		  AP_QID_CARD(apqn), AP_QID_QUEUE(apqn));
-> +	return false;
->  }
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does this guest-reachable
-warning violate KVM subsystem guidelines?
-
-A malicious guest can intentionally manipulate AP queue states or rapidly
-spam PQAP instructions to stall the hardware, triggering these warnings on
-non-operational states or polling timeouts. On systems configured with
-panic_on_warn, this creates a host denial of service vector.
-
-Could these be converted to rate-limited debug messages or dropped entirely?
-
-[ ... ]
-
-> @@ -326,18 +365,46 @@ static struct ap_queue_status vfio_ap_irq_disable(s=
-truct vfio_ap_queue *q)
->  		case AP_RESPONSE_Q_NOT_AVAIL:
->  		case AP_RESPONSE_DECONFIGURED:
->  		case AP_RESPONSE_CHECKSTOPPED:
-> +			/* AP not operational; no further interrupts possible */
-> +			WARN_ONCE(1, "%s: ap_aqic status %d\n", __func__,
-> +				  status.response_code);
-> +			goto end_free;
->  		case AP_RESPONSE_INVALID_ADDRESS:
->  		default:
-> -			/* All cases in default means AP not operational */
+> @@ -2067,6 +2068,37 @@ static void apq_reset_check(struct work_struct *re=
+set_work)
+>  		ret =3D apq_status_check(q->apqn, &status);
+>  		if (ret =3D=3D -EIO)
+>  			return;
+> +		if (elapsed >=3D AP_RESET_MAX_WAIT) {
 > +			/*
-> +			 * The AQIC disable was rejected; IRQ is still enabled
-> +			 * and the hardware still holds the NIB address. Do not
-> +			 * free resources.
+> +			 * If the status check determined that the reset completed
+> +			 * successfully or the queue is not operational, clean up
+> +			 * the AQIC resources because queue reset disables
+> +			 * interrupts, or because interrupts are not possible on a
+> +			 * non-operational queue.
 > +			 */
->  			WARN_ONCE(1, "%s: ap_aqic status %d\n", __func__,
->  				  status.response_code);
-> -			goto end_free;
-> +			goto end_fail;
->  		}
-
-[Severity: High]
-This is also a pre-existing issue, but can this similarly be triggered by=20
-an unprivileged guest manipulating the queue into an unavailable state duri=
-ng
-a disable attempt?
-
-[ ... ]
-
-> @@ -489,13 +557,49 @@ static struct ap_queue_status vfio_ap_irq_enable(st=
-ruct vfio_ap_queue *q,
->  	status =3D ap_aqic(q->apqn, aqic_gisa, h_nib);
->  	switch (status.response_code) {
->  	case AP_RESPONSE_NORMAL:
-> -		/* See if we did clear older IRQ configuration */
-> +		/*
-> +		 * AQIC initiates an asynchronous process; however, AP_RESPONSE_NORMAL
-> +		 * does not guarantee the IR bit is set yet.  Wait to confirm before
-> +		 * committing the new NIB and freeing the old resources.
-> +		 */
-> +		if (!vfio_ap_wait_for_irqstate(q->apqn, AP_IRQ_ENABLED)) {
-> +			/*
-> +			 * Timed out: the hardware may not have accepted the new
-> +			 * NIB.  Clean up the new resources and return
-> +			 * OTHERWISE_CHANGED to signal the guest to retry.
-> +			 */
-> +			ret =3D kvm_s390_gisc_unregister(kvm, isc);
-> +			if (ret) {
-> +				msg =3D "%s: kvm_s390_gisc_unregister: rc=3D%d isc=3D%d, apqn=3D%#04=
-x\n";
-> +				VFIO_AP_DBF_WARN(msg, __func__, ret, isc, q->apqn);
-> +			}
-> +			vfio_unpin_pages(&q->matrix_mdev->vdev, nib, 1);
-> +			memset(&status, 0, sizeof(status));
-> +			status.response_code =3D AP_RESPONSE_OTHERWISE_CHANGED;
-> +			break;
-> +		}
+> +			if (!ret)
+> +				goto done;
 
 [Severity: Critical]
-Does unpinning the new NIB page here introduce a race that could lead to a
-wild DMA write and host memory corruption?
+Does this incorrectly treat an idle queue as a successfully reset queue?
 
-Because ap_aqic() returned AP_RESPONSE_NORMAL, the hardware accepted the
-asynchronous request. If the hardware is merely stalled (e.g., due to a
-malicious guest spamming instructions) and vfio_ap_wait_for_irqstate() times
-out, the hardware might still eventually complete the transition and write
-interrupt status bytes to the new NIB.
+If the queue is continuously busy for 2000ms, the initial ap_zapq() command
+is rejected (returning AP_RESPONSE_BUSY). On the exact iteration where
+elapsed reaches AP_RESET_MAX_WAIT (2000ms), if the queue finally stops being
+busy, ap_tapq() returns 0.
 
-If vfio_unpin_pages() is called here, that physical page could be reallocat=
-ed
-by the host kernel for a different purpose before the delayed hardware DMA
-write completes.
+Could this misinterpret the 0 as a completed reset, jump to done, and free
+the AQIC resources? Since the queue was never actually zeroized, interrupts
+remain enabled. Can this lead to a host kernel use-after-free if the hardwa=
+re
+writes to the freed NIB page?
+
+> +			/*
+> +			 * Timed out without being able to verify reset completed.
+> +			 *
+> +			 * The AQIC resources associated with this queue - the pinned page
+> +			 * containing the NIB and the registered guest ISC - cannot be freed
+> +			 * here. The NIB is the active DMA target for AP interrupt delivery
+> +			 * until the reset completes; freeing the pinned page while the
+> +			 * hardware may still write to it would result in a use-after-free
+> +			 * kernel crash.
+> +			 *
+> +			 * If the reset eventually completes, interrupts will be terminated
+> +			 * and the pinned NIB page and ISC registration will be leaked. This
+> +			 * is preferable to either a use-after-free or waiting indefinitely:
+> +			 * the caller of apq_reset_check() holds mdevs_lock while flush_work()
+> +			 * blocks holds the matrix_dev->mdevs_lock mutex, which
+> +			 * serializes access to all mdev objects system-wide, so blocking
+> +			 * here would stall all other guests using AP queues.
+> +			 */
+> +
+> +			return;
+
+[Severity: High]
+Does this return early on timeout without updating q->reset_status to indic=
+ate
+a failure?
+
+If the queue reset times out and q->reset_status.response_code was 0 from t=
+he
+initial accepted command, it remains unmodified.
+
+Would callers like vfio_ap_mdev_reset_queues() check this unmodified respon=
+se
+code, incorrectly assume the reset succeeded, and mislead userspace into
+believing the VFIO device was successfully reset while the hardware is still
+operational?
+
+[ ... ]
+
+> @@ -2083,11 +2115,13 @@ static void apq_reset_check(struct work_struct *r=
+eset_work)
+>  				memcpy(&q->reset_status, &status, sizeof(status));
+>  				continue;
+
+[Severity: Medium]
+Is the elapsed timer supposed to be reset when a new reset command is issued
+here?
+
+If the queue is initially busy, takes time (e.g., 1980ms) to become idle, a=
+nd
+requires a retry of the ap_zapq() command, the next loop iteration will
+instantly hit the 2000ms limit because elapsed was not cleared.
+
+Could this prematurely time out subsequent legitimate reset operations and
+result in resource leaks?
+
+>  			}
+> -			if (q->saved_isc !=3D VFIO_AP_ISC_INVALID)
+> -				vfio_ap_free_aqic_resources(q);
+> -			break;
+> +			goto done;
+>  		}
+>  	}
+> +
+> +done:
+> +	if (q->saved_isc !=3D VFIO_AP_ISC_INVALID)
+> +		vfio_ap_free_aqic_resources(q);
+>  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260828214653.1087=
-009-1-akrowiak@linux.ibm.com?part=3D1
+009-1-akrowiak@linux.ibm.com?part=3D3
