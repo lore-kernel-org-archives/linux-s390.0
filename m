@@ -1,134 +1,173 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BDCB21CC5A;
-	Sat, 29 Aug 2026 10:48:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 374253191D3
+	for <linux-s390@vger.kernel.org>; Sat, 29 Aug 2026 19:07:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788000522; cv=none; b=QSXiSR8m3HgA5mrNhnyLlHG5P54Vs4PD+b61mcKICOhQvT0LgT0AT10WyYtfxlxpJ/7n5B427quQ0gjIWuIb5zY5McFDYv2xdg4YPjkaln8Tn0pKjwy6Cp/eFbdsKUvUrT6xIcZrn26xRZ9dLMxbHb1v3zStp+DK1/x8zs8v6pI=
+	t=1788030471; cv=none; b=QYr55KGcFpA2gsBDmPwqYih/79t9l7P1mF5wr1MqrVGiZCWw2hQdhIu92ACIZvVa6ZyADGboOt0O5ySuV9Sd2Z8k4fNj/XBa9zQYexizPYF90vA48mzsVHgTVJ7aGxT2N88ufMh0KhRZKWLY2tWVT2L97JmZSxECFbuxSk7VSY4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788000522; c=relaxed/simple;
-	bh=3F/+YtJTPXmp2oYrKToOY/XGOwgYSjO/cwvzuDz7TQg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZPnUQC2nFox9tkyLjFwOPRFxqv/ONsfFz4jm+u4bzzJtySEtOJVgzyhhJnL+MOULmKPsznu3JUVnvhTr8rQGQQzPgaAd/0Q45AWMLNMT+LFi/IgbJQgvvQ9ucsnHXHNnQWdcnFMTgUkPqlBND0w6T7+ROpt6596GiVB6/+ol6oc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LWRmvwZ5; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788030471; c=relaxed/simple;
+	bh=J6950hmevqv1yXDeqV9X8RlEx+5a2FtVOylELNxhF8w=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=CEwWi+h8C9Ekt2TPwa/vvqORILcuP2DImoqdpUdMX+BZI7eTsqlWSx1DfFK7KQ2CMBiTHxOEgPkCfDS+4CvZEOJpBxCTseLheBii7nqK8Iv3n5LbPBwW+ier6YdoV0ZODwML2QnJ17PNzlxNpgIDd5sbmy+ImRuWxuvBuaZFTao=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kpBp++ba; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LWRmvwZ5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4C6B1F000E9;
-	Sat, 29 Aug 2026 10:48:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kpBp++ba"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81C471F000E9;
+	Sat, 29 Aug 2026 19:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788000520;
-	bh=KFZ1nhGEZbR6O/VCAicWb32eNrolFHOIlFtmV4ujfk4=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=LWRmvwZ5mPls4Z+BaiG1qXwR10+CBxW+bUOShLfZyRmLMeWBsXFZbiPwmkePznqr5
-	 RDgCI5JSJI/PnwyJzmrjiTTIt4pQEyHh4ig4dGZIGujt3YWBOXTXM28p4gyqeJwbxf
-	 WsaqKftKKe5VsQ0VW/PEX8SxuQhw1GHVsePh+UKddYUexwRXUbdmDfNrJmoD2ZI1v6
-	 YA0GuLxzRK2viPxmPZf5a9S7TnaLyvMWbeiiVwoWcOVI5CYLFrXFWBc0Jr3YfAzGPD
-	 ENSQxCrpJykei+zA/nljjaxyFx/CEE02iM1psN14xjNoYwJ+aBxdLXjvTaTWkcJoke
-	 quOJdXXFQrxWg==
-Date: Sat, 29 Aug 2026 13:48:28 +0300
-From: Mike Rapoport <rppt@kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Adrian =?utf-8?Q?Barna=C5=9B?= <abarnas@google.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Alexandre Ghiti <alex@ghiti.fr>, Andy Lutomirski <luto@kernel.org>,
-	Borislav Petkov <bp@alien8.de>,
-	Brendan Jackman <brendan.jackman@linux.dev>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	David Hildenbrand <david@kernel.org>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Huacai Chen <chenhuacai@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Len Brown <lenb@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Paul Walmsley <pjw@kernel.org>, Pavel Machek <pavel@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Ryan Roberts <ryan.roberts@arm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Uladzislau Rezki <urezki@gmail.com>,
-	Vasily Gorbik <gor@linux.ibm.com>, WANG Xuerui <kernel@xen0n.name>,
-	Will Deacon <will@kernel.org>, x86@kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, linux-pm@vger.kernel.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	loongarch@lists.linux.dev
-Subject: Re: [PATCH v2 0/6] arch, mm/execmem: resolve confusion about
- set_direct_map_valid_noflush()
-Message-ID: <apK4_MgCtPFlDwoc@kernel.org>
-References: <20260823-execmem-set-vm-perms-v0-2-v2-0-b013a37d84b3@kernel.org>
- <20260827223947.c773e6a7324eaf3fe0d8362f@linux-foundation.org>
+	s=k20260515; t=1788030469;
+	bh=BeOCESbWifaPhKE/aYUIFn2tlbwgdumqMPFH12Zlk2c=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=kpBp++bad79PO+YR3WWPfcH0I4hq4LqyHKy6FLMQtYuTaMd7zwYwBh9oxXIRLflQd
+	 Utx0THlwnD8CDha0Rjpfn0lRF1wACbmWt9R/qDTb8NU1KKx3p4T9zkSr4e0Z7Z1MEE
+	 bQYqn77GR2/YWUKDvbz00lMWuu+cu4BvVE45LBp6R1SLFxsCdOVXVqycmQnR+yU+wJ
+	 4CoJs7x4vyZ17SAHsK4+detsAize58lm5efBhyHK3fa3AWxo1ELiJaHSgwp4IX5Xjt
+	 uQLG8WlT8x4M1d1AGIijBe7Anm1NaMaIeDaUgLn4yIj02b+yhRwD+PLhAcQJmXv1Uw
+	 pe5KBlw2eFNGw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net v3] net/iucv: fix the recvmsg window update
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Bryam Vargas" <hexlabsecurity@proton.me>
+Cc: linux-s390@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260828-b4-disp-33fac0ed-v3-1-e6d061880ee0@proton.me>
+References: <20260828-b4-disp-33fac0ed-v3-1-e6d061880ee0@proton.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Sat, 29 Aug 2026 19:07:49 +0000
+Message-Id: <20260829190749.81C471F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260827223947.c773e6a7324eaf3fe0d8362f@linux-foundation.org>
 
-On Thu, Aug 27, 2026 at 10:39:47PM -0700, Andrew Morton wrote:
-> On Sun, 23 Aug 2026 14:46:11 +0300 "Mike Rapoport (Microsoft)" <rppt@kernel.org> wrote:
-> 
-> > Recent discussion about implementation of execmem's ROX caches on arm64
-> 
-> I'm assuming a "[1]" reference was intended here.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
 
-Yes :)
- 
-> > revealed a confusion about how set_direct_map_valid_noflush()
-> > implemented on different architectures.
-> > 
-> > On arm64 it sets or clears the PTE_VALID bit marking a PTE as present or
-> > not present.
-> > 
-> > On other architectures it's a range version of
-> > set_direct_map_invalid_noflush() and set_direct_map_default_noflush()
-> > 
-> > Unlike arm64::set_direct_map_valid_noflush(),
-> > set_direct_map_default_noflush() not only marks PTE as present, but also
-> > sets its default protection mode.
-> > 
-> > Other than that, initial design of execmem ROX caches didn't rely on
-> > restoration of large mappings that's now available on x86, but
-> > completely removed the memory allocated for the ROX cache from the
-> > direct map to ensure that large mappings are not split. This precluded
-> > usage of VM_FLUSH_RESET_PERMS for the ROX cache allocations and required
-> > execmem to implement manipulation of the direct map alias.
-> > 
-> > Current implementation of ROX caches does not remove the direct map
-> > alias but simply calls set_memory_rox() that updates the permissions in
-> > both vmalloc address space and the direct map and relies on
-> > collapse_large_pages() in x86 CPA to keep large mappings.
-> > 
-> > This allow using VM_FLUSH_RESET_PERMS for execmem ROX cache allocations
-> > with small adjustments to set_direct_map APIs and vmalloc::reset_perms()
-> > behaviour: adding number of pages parameter to set_direct_map APIs and
-> > making resetting of the direct map permissions in vmalloc VMAP_HUGE
-> > friendly.
-> > 
-> > Implement these adjustments, make execmem always use
-> > VM_FLUSH_RESET_PERMS and revert set_direct_map_valid_noflush() changes.
-> > 
-> > [1] https://lore.kernel.org/all/20260611130144.1385343-4-abarnas@google.com
-> 
-> The patchset is perhaps a little green but I tossed it in there, thanks.
-> 
-> I hit a few rejects in arch/x86/mm/pat/set_memory.c, but minor stuff.
-> 
-> I trust you've seen Sashiko's incidental oh-btw comments.
-> 
-> 	https://sashiko.dev/#/patchset/20260823-execmem-set-vm-perms-v0-2-v2-0-b013a37d84b3@kernel.org
+Pre-existing issues:
+- [High] Lockless modification of sk->sk_shutdown and sk->sk_state leads to=
+ data races and lost state updates.
+- [High] Silent data truncation for SOCK_STREAM over HiperSockets when mess=
+age size exceeds MTU.
+--
 
-Yeah, it did discover something fishy with the fallbacks handling.
-I'm looking into it.
- 
+commit 9ec78889adee8ffda3665e319fc36af7e52f542f
+Author: Bryam Vargas <hexlabsecurity@proton.me>
 
--- 
-Sincerely yours,
-Mike.
+    net/iucv: fix the recvmsg window update
+
+    This commit attempts to fix a spurious disconnect in HiperSockets by
+    properly checking the transport before sending an AF_IUCV_FLAG_WIN
+    message. It also addresses a counter race by claiming the window credit
+    after ruling out error exits.
+
+> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+> index 4e5cc9da6e068..db261ecd19af1 100644
+> --- a/net/iucv/af_iucv.c
+> +++ b/net/iucv/af_iucv.c
+> @@ -250,13 +244,22 @@ static int afiucv_hs_send(struct iucv_message *imsg=
+, struct sock *sock,
+>  	}
+>  	skb->protocol =3D cpu_to_be16(ETH_P_AF_IUCV);
+
+[Severity: High]
+This is a pre-existing issue, but just above this point in afiucv_hs_send(),
+large buffers are silently truncated:
+
+	if (skb->len > skb->dev->mtu) {
+		if (sock->sk_type =3D=3D SOCK_SEQPACKET) {
+			err =3D -EMSGSIZE;
+			goto err_free;
+		}
+		err =3D pskb_trim(skb, skb->dev->mtu);
+		if (err)
+			goto err_free;
+	}
+
+If pskb_trim() succeeds for a SOCK_STREAM socket, afiucv_hs_send() returns
+success. Does iucv_sock_sendmsg() then return the full original requested
+length to user-space instead of the truncated length, masking the truncation
+and causing silent data loss?
+
+> +	/* Claim the receive credit here, not while building the header: every
+> +	 * way this frame can be dropped has now been ruled out, so the window
+> +	 * is zeroed only for as long as the transmit itself takes.
+> +	 */
+> +	if (flags =3D=3D AF_IUCV_FLAG_WIN || !flags) {
+> +		confirm_recv =3D atomic_xchg(&iucv->msg_recv, 0);
+> +		phs_hdr->window =3D confirm_recv;
+> +		if (confirm_recv)
+> +			phs_hdr->flags =3D phs_hdr->flags | AF_IUCV_FLAG_WIN;
+> +	}
+> +
+>  	atomic_inc(&iucv->skbs_in_xmit);
+>  	err =3D dev_queue_xmit(skb);
+
+[ ... ]
+
+> @@ -1331,16 +1335,20 @@ static int iucv_sock_recvmsg(struct socket *sock,=
+ struct msghdr *msg,
+>  		if (skb_queue_empty(&iucv->backlog_skb_q)) {
+>  			if (!list_empty(&iucv->message_q.list))
+>  				iucv_process_message_q(sk);
+> -			if (atomic_read(&iucv->msg_recv) >=3D
+> -							iucv->msglimit / 2) {
+> -				err =3D iucv_send_ctrl(sk, AF_IUCV_FLAG_WIN);
+> -				if (err) {
+> -					sk->sk_state =3D IUCV_DISCONN;
+> -					sk->sk_state_change(sk);
+> -				}
+> -			}
+> +			if (iucv->transport =3D=3D AF_IUCV_TRANS_HIPER &&
+> +			    atomic_read(&iucv->msg_recv) >=3D
+> +							iucv->msglimit / 2)
+> +				send_win =3D true;
+>  		}
+>  		spin_unlock_bh(&iucv->message_q.lock);
+> +
+> +		if (send_win) {
+> +			err =3D iucv_send_ctrl(sk, AF_IUCV_FLAG_WIN);
+
+[Severity: High]
+This is a pre-existing issue, but does calling iucv_send_ctrl() here without
+holding lock_sock() cause data races?
+
+In net/iucv/af_iucv.c:iucv_send_ctrl():
+
+	if (sk->sk_shutdown & SEND_SHUTDOWN) {
+		/* controlling flags should be sent anyway */
+		shutdown =3D sk->sk_shutdown;
+		sk->sk_shutdown &=3D RCV_SHUTDOWN;
+	}
+[ ... ]
+	if (shutdown)
+		sk->sk_shutdown =3D shutdown;
+
+Could this lockless temporary modification overwrite concurrent updates to
+sk_shutdown (e.g., losing a RCV_SHUTDOWN flag set by shutdown()), leading to
+an application hanging indefinitely in recvmsg?
+
+> +			if (err) {
+> +				sk->sk_state =3D IUCV_DISCONN;
+
+[Severity: High]
+This is also a pre-existing issue, but is it safe to update sk_state lockle=
+ssly
+here? This appears to violate core socket locking rules, potentially corrup=
+ting
+the state machine.
+
+> +				sk->sk_state_change(sk);
+> +			}
+> +		}
+>  	}
+> =20
+>  done:
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260828-b4-disp-33=
+fac0ed-v3-1-e6d061880ee0@proton.me?part=3D1
