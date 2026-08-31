@@ -1,196 +1,229 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04089303A04;
-	Mon, 31 Aug 2026 19:40:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EB4237DE8D;
+	Mon, 31 Aug 2026 19:46:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788205231; cv=none; b=cXlcyJQnLHQVrU/n6NzEccScjK8lcWADy2XenMmaPCfOc656OYfJ3Sa2yuvgpKld2BvrzVdVct+JanPmByJ6Pk0rlXDQMy7Hv2UZLofRG4kT75czoJEGUIylcnDhPZCzreKWLxYJlI2TjFU96ZHhfl5au4fMFObSQ8VZ6F1w5gU=
+	t=1788205616; cv=none; b=EdUPMGYNnwoqNo/IvFw8UyHWPvnWsiOUu1FpPzzJwDFEIRsXGB1pgSZDFf3lNaXPb7KaW9SgAhlfCJ+KM4xzme/V5YbOSghtuAoe7seAXG3KUjweQwHk/gAE54VpbfolWO7uB8dBiyuKIPnT00hKolk2C5Ah8RgVYtoq4HliiGs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788205231; c=relaxed/simple;
-	bh=72cD1Nbh4dKv36yBPjpip2kvDJhlxVJIYnfAlFhLEcw=;
+	s=arc-20240116; t=1788205616; c=relaxed/simple;
+	bh=42/7gMgSmV/LE2c35J8YuO+9eeCCrYo0oTkboCh/Iu4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jnjIOTonhvuPSZPwoTMaexpT3W9jM2cisn2Exs40D4pLSg40wu0Rm5L7+Oy/Br9jz/Qj8X4sBKFO3adwrq7PKPNsQmXgIKV690QgoZ05nXxgqghZesEpmLdMTonv9NNaGIiL8B5JHtYGejjuWbqbd4+94dcPFFWOFiywSZlz9tg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OwgQHgI8; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Lg75v14LNxkn5R2lA2EZ2lt2LKe2ayNPqpXdRXtuxdCQtpRyarsUlvWhH2qXpfSBaBNSGjA1N4bucfxTf8o/A5FFYhJdri0wmcyvTz3MCTBydC47rLAqpheC8dwJOI72re9DZzywP1o88Ud99fEHEfbXT7Zrp+VZIpXALZbeqAc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZtKMDser; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OwgQHgI8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3896A1F000E9;
-	Mon, 31 Aug 2026 19:40:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZtKMDser"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39B451F000E9;
+	Mon, 31 Aug 2026 19:46:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788205229;
-	bh=fbkjsdrw2eDIEVU/17r0jVjUn3btLt+aoZWmpzC5IW0=;
+	s=k20260515; t=1788205614;
+	bh=4uIN6dioUmlAEUyjrkI7d0TgMBo9zHi6OwDbMT4mFSw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OwgQHgI8EC1frxf9i168Mg3bpAdoIJJp0uCtzRiBii2G61MdadvQHrMGkWBzGeV/Y
-	 tv0nVVcwOpk1CCa6q+zpfBZvgliu7DsLWLugW19SnWhai2jL2JACd9cw6oY6nkL0+m
-	 NPayvJrfDQIfO3UkD4pm0yD7cgqlLCcQtrR8W/IQy4d3wwjs02EOFWaPzg3LZ+UtSe
-	 GCIcsEzw5dN+6h8jSpr9/CDidZOKwucNCLZg0FOXZ33M2nITEdj3MmM2/fOQV3CRDC
-	 EAGctfn2IbeuSWNiSKHzJC6hv6nUg5cpYnP3VFSaAhxSB9/5UMPyMqmsHpwYV8CqlO
-	 03WiK3qhgTQZw==
+	b=ZtKMDserjcOqZ6QZXUc9HajxElI8pjkUPEjTeOcLl8uSjx7Jp2S4CpD4btlukQiN/
+	 MN2Sw4cvqfLoEyB2tL6gOSrPbDUntdHc4EtpErWfERmUd+9zoI5pvoYuMgg6qd/rmr
+	 AW54CpGSbICeiKY8EFTwql9LNgIZsAg8WsssR7LNyZDwkeqzK5YTrOxfpqtRTb9XSg
+	 HCDxf7KEVGz+gT++9mroD0LVPe7sVJ0nWNHr0iYA7Bs2u/r0mzzUtCU+9exrEI9s4I
+	 moySRFL8sXot/gCZNZcBBGk8lg0x7sHIqgq013xd6JPSP4ylfRL/7a4Dy7CO4UKh6Z
+	 6VQgDzz3BVazg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 1/4] s390/vfio-ap: Fix leak of pinned NIB and
- registered NISC in vfio_ap_irq_enable/disable()
+Subject: Re: [PATCH v2 11/20] KVM: s390: arm64: Query Available Arm features
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260831171443.222225-2-akrowiak@linux.ibm.com>
-References: <20260831171443.222225-1-akrowiak@linux.ibm.com>
- <20260831171443.222225-2-akrowiak@linux.ibm.com>
+To: "Steffen Eiden" <seiden@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Oliver Upton" <oupton@kernel.org>, kvmarm@lists.linux.dev, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Marc
+ Zyngier" <maz@kernel.org>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260831145536.913567-12-seiden@linux.ibm.com>
+References: <20260831145536.913567-1-seiden@linux.ibm.com>
+ <20260831145536.913567-12-seiden@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 31 Aug 2026 19:40:28 +0000
-Message-Id: <20260831194029.3896A1F000E9@smtp.kernel.org>
+Date: Mon, 31 Aug 2026 19:46:53 +0000
+Message-Id: <20260831194654.39B451F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-
-New issues:
-- [High] Unbounded memory leak of newly pinned NIB pages and GISC registrat=
-ions when `vfio_ap_irq_enable` times out.
-
-Pre-existing issues:
-- [High] Guest-triggerable WARN_ONCE introduces a host-side denial of servi=
-ce risk.
+- [Critical] The EX_TABLE entry in the `qaaf` inline assembly incorrectly p=
+laces the exception fixup label on the non-faulting `lhi` instruction inste=
+ad of the potentially faulting `.insn` instruction, which will cause unhand=
+led hardware exceptions to panic the kernel.
+- [High] `aef_sysfs_init()` unconditionally calls `aef_init_save_area()`, f=
+ailing to skip it when the AEF facility is not present, causing a crash on =
+older hardware.
+- [High] Off-by-two index error when accessing the QAAF registers array in =
+`kvm_qaaf_read_ftr_reg()`, causing KVM to read incorrect memory offsets for=
+ all features.
+- [High] If QAAF initialization fails, the global capability flag `info.arm=
+_guest_supp` is not cleared, leading KVM to initialize using uninitialized =
+hardware capability data.
 --
 
-commit 82e69024e1f94318c978aa31bed7a9d1888b87e2
-Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+commit a7cb3705acf7ea96c94b5937368fbc6655fb99e7
+Author: Steffen Eiden <seiden@linux.ibm.com>
 
-s390/vfio-ap: Fix leak of pinned NIB and registered NISC in vfio_ap_irq_ena=
-ble/disable()
+KVM: s390: arm64: Query Available Arm features
 
-This commit modifies the cleanup of pinned NIBs and registered NISCs after
-PQAP(AQIC) instructions are executed. It introduces a wait loop to verify t=
+This commit introduces the QAAF (Query Available Arm Features) instruction
+support for s390 hosts. It allows KVM to query machine-supported ARM featur=
+es
+and provides an initialized save area for running ARM guests.
+
+> diff --git a/arch/s390/include/asm/kvm_host_arm64_types.h b/arch/s390/inc=
+lude/asm/kvm_host_arm64_types.h
+> index 2c922ef478d13..93fd649a26f47 100644
+> --- a/arch/s390/include/asm/kvm_host_arm64_types.h
+> +++ b/arch/s390/include/asm/kvm_host_arm64_types.h
+[ ... ]
+> +/* QAAF Query Model Capabilities */
+> +struct qaaf_qmc_block {
+> +	u64	_0000;			/* 0x0000 */
+> +	u8	ssdf;			/* 0x0008 */
+> +	u8	_0009;			/* 0x0009 */
+> +	u8	ssaf;			/* 0x000a */
+> +	u8	_000b[3];		/* 0x000b */
+> +	u16	maxncpu;		/* 0x000e */
+> +	u64	regs[0x1fe];		/* 0x0010 */
+> +} __aligned(PAGE_SIZE);
+
+[ ... ]
+> +enum {
+> +	QAAF_REG_MIDR_EL1		=3D 0x02,
+[ ... ]
+> +};
+
+[ ... ]
+> diff --git a/arch/s390/include/asm/sae.h b/arch/s390/include/asm/sae.h
+> index 6580536544eef..f88d15b8f1e90 100644
+> --- a/arch/s390/include/asm/sae.h
+> +++ b/arch/s390/include/asm/sae.h
+[ ... ]
+> +static __always_inline int qaaf(u64 gr0, union qaaf_block *qaaf_block)
+> +{
+> +	int exception =3D 1;
+> +
+> +	asm volatile(
+> +		"	lgr	0,%[r0]\n"
+> +		"	.insn	rre,0xb9ad0000,%[r1],0\n"
+> +		"0:	lhi	%[exc],0\n"
+> +		"1:\n"
+> +		EX_TABLE(0b, 1b)
+> +		: "=3Dm"(*qaaf_block), [exc] "+d"(exception)
+> +		: [r1] "a"(qaaf_block), [r0] "d"(gr0)
+> +		: "r0"
+> +	);
+> +
+> +	return exception;
+> +}
+> +
+
+[Severity: Critical]
+Does the exception table entry point to the wrong instruction?=20
+
+The EX_TABLE(0b, 1b) targets the `lhi` instruction at label `0:`, but the
+instruction that would actually fault is the preceding `.insn` instruction.
+If this executes on hardware without the AEF feature, won't this result in
+an unhandled hardware exception and a kernel panic?
+
+[ ... ]
+> diff --git a/arch/s390/kernel/aef.c b/arch/s390/kernel/aef.c
+> new file mode 100644
+> index 0000000000000..825e2643a8921
+> --- /dev/null
+> +++ b/arch/s390/kernel/aef.c
+[ ... ]
+> +static int  __init aef_query_info(void)
+> +{
+> +	int ret;
+> +
+> +	if (IS_ENABLED(CONFIG_KVM_S390_ARM64)) {
+> +		info.sae_avail =3D sclp.has_aef;
+> +		info.ptff_avail =3D ptff_query(PTFF_QAGTO) &&
+> +				  ptff_query(PTFF_QAGPT);
+> +		info.arm_guest_supp =3D info.sae_avail && info.ptff_avail;
+> +	}
+> +	if (!info.sae_avail)
+> +		return 0;
+> +
+> +	ret =3D qaaf(QAAF_FC_QMC, (union qaaf_block *)&qmc);
+> +	if (ret)
+> +		return ret;
+
+[Severity: High]
+If the qaaf instruction fails and returns an error here, `info.arm_guest_su=
+pp`
+remains set to true.
+
+Because aef_sysfs_init() is called via an arch_initcall, the initialization
+failure is ultimately ignored by the kernel. Later, kvm_s390_arm64_init()
+checks `aef_info()->arm_guest_supp` and will proceed to initialize KVM using
+the uninitialized `qmc` block.
+
+Should `info.arm_guest_supp` be cleared before returning when qaaf() fails?
+
+[ ... ]
+> +static int __init aef_sysfs_init(void)
+> +{
+> +	int rc =3D -ENOMEM;
+> +
+> +	if (!IS_ENABLED(CONFIG_KVM_S390_ARM64))
+> +		return 0;
+> +
+> +	rc =3D aef_query_info();
+> +	if (rc)
+> +		return rc;
+> +
+> +	rc =3D aef_init_save_area();
+> +	if (rc)
+> +		return rc;
+
+[Severity: High]
+Will this execute the new qaaf instruction unconditionally on all hardware?
+
+aef_query_info() correctly returns 0 if the AEF facility is absent (since
+`info.sae_avail` would be false). However, aef_init_save_area() is called
+immediately after without checking if the facility is actually supported.
+
+Could this trigger an operation exception on older hardware?
+
+[ ... ]
+> diff --git a/arch/s390/kvm/arm64/qaaf.c b/arch/s390/kvm/arm64/qaaf.c
+> new file mode 100644
+> index 0000000000000..c3124d38afc23
+> --- /dev/null
+> +++ b/arch/s390/kvm/arm64/qaaf.c
+> @@ -0,0 +1,69 @@
+> +// SPDX-License-Identifier: GPL-2.0-only
+> +
+> +#include <linux/kvm_host.h>
+> +#include <asm/aef.h>
+> +#include "qaaf.h"
+> +
+> +#define _qaaf_reg_case(id) case SYS_##id: return aef_qmc()->regs[QAAF_RE=
+G_##id]
+
+[Severity: High]
+Does this index into the regs array using the wrong offset?
+
+Looking at struct qaaf_qmc_block in asm/kvm_host_arm64_types.h, the regs
+array already starts at offset 0x0010:
+
+    u64 regs[0x1fe];        /* 0x0010 */
+
+However, the QAAF_REG_* enums represent the absolute doubleword offset from=
+ the
+start of the block (e.g., QAAF_REG_MIDR_EL1 is 0x02, which represents byte
+offset 0x0010).
+
+By using the enum to index into the regs array, doesn't this double-apply t=
 he
-asynchronous completion of the interrupt state transition before allowing
-the release of older resources.
-
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
-_ap_ops.c
-> index 940c0ff668bee..8fb0476e3d397 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-[ ... ]
-> +static bool vfio_ap_wait_for_irqstate(int apqn, int ir)
->  {
->  	struct ap_queue_status status;
->  	int retry =3D 5;
-[ ... ]
-> -	WARN_ONCE(1, "%s: tapq rc %02x: %04x could not clear IR bit\n",
-> -		  __func__, status.response_code, apqn);
-> +	WARN_ONCE(1, "%s: tapq rc %02x: timed out waiting for interrupts %s for=
- %02x.%04x\n",
-> +		  __func__, status.response_code,
-> +		  ir ? "enabled" : "disabled",
-> +		  AP_QID_CARD(apqn), AP_QID_QUEUE(apqn));
-> +	return false;
->  }
-
-[Severity: High]
-This is a pre-existing issue, but does this WARN_ONCE introduce a guest-dri=
-ven
-host denial of service risk?
-
-If a guest issues a PQAP(AQIC) instruction and the hardware takes longer th=
-an
-expected to transition states, this wait loop times out and triggers a warn=
-ing.
-Because the KVM subsystem strictly forbids guest-reachable WARN_ON macros,
-could a malicious guest artificially induce these delays (for instance, by
-spamming requests) to intentionally panic the host kernel if panic_on_warn
-is enabled?
-
-[ ... ]
-> @@ -317,8 +334,30 @@ static struct ap_queue_status vfio_ap_irq_disable(st=
-ruct vfio_ap_queue *q)
->  		switch (status.response_code) {
-[ ... ]
->  		case AP_RESPONSE_INVALID_ADDRESS:
->  		default:
-> -			/* All cases in default means AP not operational */
-> +			/*
-> +			 * The AQIC disable was rejected; IRQ is still enabled
-> +			 * and the hardware still holds the NIB address. Do not
-> +			 * free resources.
-> +			 */
->  			WARN_ONCE(1, "%s: ap_aqic status %d\n", __func__,
->  				  status.response_code);
-> -			goto end_free;
-> +			goto end_fail;
->  		}
->  	} while (retries--);
-
-[Severity: High]
-This is a pre-existing issue, but does this WARN_ONCE pose the same guest-
-driven denial of service risk?
-
-If the hardware returns an unexpected status code in response to a guest-
-initiated disable request, this warning is hit. Can an untrusted guest
-intentionally induce unexpected hardware states to trigger this warning and
-crash the host?
-
-[ ... ]
-> @@ -489,13 +557,49 @@ static struct ap_queue_status vfio_ap_irq_enable(st=
-ruct vfio_ap_queue *q,
->  	status =3D ap_aqic(q->apqn, aqic_gisa, h_nib);
->  	switch (status.response_code) {
->  	case AP_RESPONSE_NORMAL:
-> -		/* See if we did clear older IRQ configuration */
-> +		/*
-> +		 * AQIC initiates an asynchronous process; however, AP_RESPONSE_NORMAL
-> +		 * does not guarantee interrupts are enabled yet (i.e., IR bit (7)
-> +		 * is set). Wait to confirm before committing the new NIB and
-> +		 * freeing the old resources.
-> +		 */
-> +		if (!vfio_ap_wait_for_irqstate(q->apqn, AP_IRQ_ENABLED)) {
-> +			/*
-> +			 * Timed out waiting to verify IRQs are enabled. If the
-> +			 * hardware is merely stalled, it might eventually complete
-> +			 * and write interrupt status bytes to the new NIB.
-> +			 *
-> +			 * If the NIB page is unpinned and freed here, this delayed
-> +			 * hardware write would result in a host use-after-free/wild
-> +			 * DMA write and a host kernel crash.
-> +			 *
-> +			 * To prevent this, we must leak the new resources (leave the
-> +			 * NIB page pinned and Guest ISC registered) and return
-> +			 * AP_RESPONSE_OTHERWISE_CHANGED to signal the guest to retry.
-> +			 */
-> +			msg =3D "%s: Timed out waiting to verify IRQs enabled for apqn=3D%#04=
-x\n";
-> +			VFIO_AP_DBF_WARN(msg, __func__, q->apqn);
-> +			memset(&status, 0, sizeof(status));
-> +			status.response_code =3D AP_RESPONSE_OTHERWISE_CHANGED;
-> +			break;
-> +		}
-
-[Severity: High]
-Will this timeout path result in an unbounded memory leak?
-
-When vfio_ap_wait_for_irqstate() times out, the code breaks out of the swit=
-ch
-statement without storing the newly pinned 'nib' and registered 'isc' into
-q->saved_iova or q->saved_isc. These local variables appear to be permanent=
-ly
-orphaned.
-
-Because a guest controls the PQAP calls, could an untrusted guest VM repeat=
-edly
-trigger this timeout to deliberately leak pinned host pages and KVM GISC
-registrations until host memory is exhausted?
-
-Additionally, this seems to contradict the commit message which states:
-"The fix is to unregister the NISC and an unpin the NIB used in the AQIC
-call in the default case of the switch statement..."
-Here the code explicitly notes "we must leak the new resources". Is this
-omission of cleanup intentional?
+0x0010 offset, causing KVM to read incorrect values for all feature registe=
+rs?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260831171443.2222=
-25-1-akrowiak@linux.ibm.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260831145536.9135=
+67-1-seiden@linux.ibm.com?part=3D11
