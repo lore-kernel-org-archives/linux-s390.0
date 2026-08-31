@@ -1,74 +1,145 @@
-Received: from 013.lax.mailroute.net (013.lax.mailroute.net [199.89.1.16])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB0974A0133;
-	Mon, 31 Aug 2026 16:34:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=199.89.1.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C2A6282F13
+	for <linux-s390@vger.kernel.org>; Mon, 31 Aug 2026 17:11:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788194095; cv=none; b=JVHOkyUDQkgMm0PvMvJr1vrRhJO57w6hk3vD/X3OlQ2q8SXk5ggsjQq2q2/hP30HgBQHwZt2pH4lbopWL9+hnCA+24JqDkm3VPqrHuZZICXr6UONqcEA7Grue3IXDUvrkhnUZXsw1XXwSvu4OCiX/gMo29gO4hWjrOWzQO4T26M=
+	t=1788196283; cv=none; b=mgsEbEl74QOpaBlcDd/+eovLMt2gJqEHF21LJ6wEkHDabBbyYxHgWK8p0Rd9Z1esPtyuVpBAK0JOVyH6JmAEp+DIo5l4HwZLJM9eBl/SUVNYukcVqpK8MIQi355R+qZrkIarrtHbLUhCKYtfQQWFeSGk8sy6ZW7pSOGrsNErhW8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788194095; c=relaxed/simple;
-	bh=lgCoZHIIMHoV0moUguW+p/nrHAa/1bjZoE2R+p37zyk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=M++3Z5wbTK+xnqZ2KQES3rQDRQ1PwKsdaTR6vZR2CluLETXd8XpWmJOixtu0/pbVq6zU0zGC9V9F1ieSSCrILhN35Y+g2EF4+AlOOYMS+cPXSRtVAt0kijt2NulyYWbLuBVosE2Q11GDwyLpAKJoJ5CiDzBayiyzFgUuSe/X4Fw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org; spf=pass smtp.mailfrom=acm.org; dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b=qPrrX9NC; arc=none smtp.client-ip=199.89.1.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=acm.org
+	s=arc-20240116; t=1788196283; c=relaxed/simple;
+	bh=WQvmfCGnbKxjF5LaXvvW4nWnluX51lFIA16cGZjnJV0=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=GbZLMn1HGGr9QW3yM5Jq3BGuWy23v22pAfjd8kbZ7iG3Y+LO2GIONPb3fVUFsW21xeg63Lv8VWoHyII/9QHFa8xESAXXNwtDMtGUC0dYvJupdpj578s4tLGI3XfImqSIxkf5LxPZa5xQXEYDDNt35edTLAMOnU+aB89wKw1OZxo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ECfB3r8j; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b="qPrrX9NC"
-Received: from localhost (localhost [127.0.0.1])
-	by 013.lax.mailroute.net (Postfix) with ESMTP id 4hYZMw3s3Mzlfvps;
-	Mon, 31 Aug 2026 16:34:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=acm.org; h=
-	content-transfer-encoding:content-type:content-type:in-reply-to
-	:from:from:content-language:references:subject:subject
-	:user-agent:mime-version:date:date:message-id:received:received;
-	 s=mr01; t=1788194087; x=1790786088; bh=lgCoZHIIMHoV0moUguW+p/nr
-	HAa/1bjZoE2R+p37zyk=; b=qPrrX9NCFby35myPe7Cu21zwEKQ2qPnX46Ok6USx
-	bHoaPc7/klv1oRXagRVzdxe+FCyynBj9VWJI6p+l//lL7JjjQPBNnTBrA4qqqGS2
-	j6J2kOYPmSfa/as5AYpv6bjcdMGsvLUZV0CZdTzENrD+uYLTTFNtCktPI6hsNOpy
-	a6toGqDhsneCR/8Wxv18t0chma3KNh92S0YPmmyIkFfWYNY1US0RADATrnnYEcTF
-	pW7NOG3+VAeARh3KftqTN8RgPQgLayViQJOEP1u73yqWpC0G1gGar25fAnTJavZp
-	czq+FP1P/AbGa0CC6gGads4xAX38Hc+JQ+toR1sE6dihmQ==
-X-Virus-Scanned: by MailRoute
-Received: from 013.lax.mailroute.net ([127.0.0.1])
- by localhost (013.lax [127.0.0.1]) (mroute_mailscanner, port 10029) with LMTP
- id WkPBcNu41mxN; Mon, 31 Aug 2026 16:34:47 +0000 (UTC)
-Received: from [IPV6:2a00:79e0:2ed2:d:a104:ffdc:9983:687c] (unknown [104.135.182.40])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: bvanassche@acm.org)
-	by 013.lax.mailroute.net (Postfix) with ESMTPSA id 4hYZMm63R4zlfvpM;
-	Mon, 31 Aug 2026 16:34:44 +0000 (UTC)
-Message-ID: <6aefc443-b86b-491b-a9b3-363ac2c01b9f@acm.org>
-Date: Mon, 31 Aug 2026 09:34:43 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ECfB3r8j"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E24F1F000E9;
+	Mon, 31 Aug 2026 17:11:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788196281;
+	bh=M6aMUPAS6F4tZOhTeT67Z1JpL25ED4xTNWeXWvZ1XxU=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ECfB3r8juWR+cXRikOjj45VKBrGFrREIwicN35qVoZ3LJhCWiKBo1BnbzGYNZ4YmD
+	 2vw8PMOlJrxHWn2hjmbnKwRY298CB27ODz/x3QtlMeWUgP0f8sZoMg1cMTe/PD8PRV
+	 /EiNLhYSLBCEaaBhYEDdIGjTA/Illo1jsxuUu+TToQxkh3iAkzKx0jvSc80kgYRNP2
+	 mlaRWgJ5uNHfk81bJGmh0M9bUB6mxmCo34oDqxiSu8o33S7TpYntyNgWj1QiOpBM8T
+	 ewrNaH5qftoUkxlWLlckMHItYouf1DEK0JttCBKcV7lLJqhMQfsehg8cfpydG2OC9s
+	 EHVIkHuTyxtoQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH AUTOSEL 6.18-5.15] s390/cio: Purge based on the cdev's
+ online status
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Sasha Levin" <sashal@kernel.org>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260831133314.4125787-536-sashal@kernel.org>
+References: <20260831133314.4125787-1-sashal@kernel.org>
+ <20260831133314.4125787-536-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 31 Aug 2026 17:11:20 +0000
+Message-Id: <20260831171121.5E24F1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5] scsi: core: Drop Scsi_Host.default_lock
-To: sashiko-reviews@lists.linux.dev, John Garry <john.g.garry@oracle.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
- Vasily Gorbik <gor@linux.ibm.com>, dlemoal@kernel.org, cassel@kernel.org,
- linux-ide@vger.kernel.org, Christian Borntraeger
- <borntraeger@linux.ibm.com>, linux-scsi@vger.kernel.org
-References: <20260831095821.3486994-1-john.g.garry@oracle.com>
- <20260831102141.7FD301F000E9@smtp.kernel.org>
-Content-Language: en-US
-From: Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <20260831102141.7FD301F000E9@smtp.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-On 8/31/26 3:21 AM, sashiko-bot@kernel.org wrote:
-> - [High] Interrupt state corruption in `blogic_qcmd_lck` due to mismatched spinlock APIs.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] Purging devices in intermediate FSM recognition states leads to a =
+use-after-free when un-canceled FSM timers expire.
+- [High] The `cdev->online` check in `purge_fn()` introduces a race conditi=
+on with active device offlining, leading to a NULL pointer dereference.
+--
 
-Since this is a pre-existing issue it should not block adoption of this
-patch. Anyway, I plan to post a patch soon that will fix this complaint.
+commit 78ddd0e46a2cf7d853e46c6adaa8bbe4677d971f
+Author: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-Bart.
+s390/cio: Purge based on the cdev's online status
+
+This commit updates the purging logic to rely on the online variable in
+the cdev structure rather than the internal FSM state, ensuring offline
+devices are purged correctly.
+
+> diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+> index 4b2dae6eb3760..7f8f78b1f8aea 100644
+> --- a/drivers/s390/cio/device.c
+> +++ b/drivers/s390/cio/device.c
+> @@ -1329,7 +1329,7 @@ static int purge_fn(struct subchannel *sch, void *d=
+ata)
+> =20
+>  	cdev =3D sch_get_cdev(sch);
+>  	if (cdev) {
+> -		if (cdev->private->state !=3D DEV_STATE_OFFLINE)
+> +		if (cdev->online)
+
+[Severity: High]
+Can this change introduce a use-after-free for devices in intermediate
+recognition states?
+
+If a device is in an intermediate state like DEV_STATE_SENSE_ID (where
+cdev->online =3D=3D 0), is blacklisted, and a purge is triggered via
+/proc/cio_ignore, this new check allows the purge to proceed. Since sysfs
+is not holding the onoff atomic, purge schedules CDEV_TODO_UNREG.
+
+This leads to the device memory being freed because it hasn't been added
+yet, bypassing device_del():
+
+drivers/s390/cio/device.c:ccw_device_release() {
+	...
+	kfree(cdev->private);
+	kfree(cdev);
+}
+
+However, the pending FSM timer is never canceled before freeing. When it
+later expires, can it dereference the freed memory?
+
+drivers/s390/cio/device_fsm.c:ccw_device_timeout() {
+	struct ccw_device_private *priv =3D timer_container_of(priv, t, timer);
+	struct ccw_device *cdev =3D priv->cdev;
+
+	spin_lock_irq(cdev->ccwlock);
+	...
+}
+
+[Severity: High]
+Could this also introduce a race condition with active device offlining,
+leading to a NULL pointer dereference?
+
+When a driver initiates ccw_device_set_offline(), it clears cdev->online
+early, drops locks, and waits for the FSM to transition to an offline state.
+
+If a purge is concurrently triggered during this window, purge_fn() now sees
+cdev->online =3D=3D 0, grabs the onoff atomic, and schedules unregistration=
+. The
+workqueue then unlinks the device:
+
+drivers/s390/cio/device.c:ccw_device_todo() {
+	...
+	sch_set_cdev(sch, NULL);
+}
+
+When the offlining thread wakes up and calls io_subchannel_quiesce(), it
+fetches the now-NULL cdev and attempts to dereference its handler:
+
+drivers/s390/cio/device.c:io_subchannel_quiesce() {
+	cdev =3D sch_get_cdev(sch);
+	...
+	if (cdev->handler)
+		cdev->handler(cdev, cdev->private->intparm, ERR_PTR(-EIO));
+}
+
+Can this result in a kernel panic if the purge occurs during the offlining
+race window?
+
+>  			goto unlock;
+> =20
+>  		if (atomic_cmpxchg(&cdev->private->onoff, 0, 1) !=3D 0)
+>  			goto unlock;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260831133314.4125=
+787-536-sashal@kernel.org?part=3D1
