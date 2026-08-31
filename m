@@ -1,31 +1,31 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 88A3C3CC7CD;
-	Mon, 31 Aug 2026 05:43:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 24D4C3CF022;
+	Mon, 31 Aug 2026 05:43:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788155035; cv=none; b=ZEXOCVvDtk079dXOKUOWK+2Fs1U9/jn1KkBjSbOFBUUb27SYR8obtUhlfiLBRlEDq4AuvegS/Sz+jLQjSshc8EA7+eVsH2UI+yHqgmP7q5WUSrZS34+pmTZFllbGrlaOG8GJgpwWIFHHAEM4NtNcQx9TUkwPgR68/QybsDaADW0=
+	t=1788155039; cv=none; b=WSNoqkiV566Su6i57NRriCAE00ciwEjKhx8b4kYAHmOjPZr+Nhljf7YK6ELz99yyNBUd8zJPrqz7+C20vMRZtNJ5r1RnoA5lZxX4o9IuA2ZNmsHUpk+soytbfPlDatwpa18nw2dT+wjmU81aF7JrrD2BBJaHKmHThgdGgjDxxe4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788155035; c=relaxed/simple;
-	bh=bACj7yeD3kQHNtaEo3qPM/7pYVMQxld/GWsQ0raGU14=;
+	s=arc-20240116; t=1788155039; c=relaxed/simple;
+	bh=tv5DjbtfmXjBBuL3EGYgZEMiDxUCxKafhP8IwXphMBE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YOniXaPt7FxZfKML0QP4oPitCniG5EFLBzkrdp9sWkn8Mfjyn+jaMFQF33bd4rufyfEoigJn8wx5LWZsUPs9MsSTFau9CHckvAkCHzm91Egu+zLgaXNw9TIjrtU3B+JZlAluFVnF9ZF5hOozOQ+7WnHDdKispndp1hctP5iAoyE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=jTd9KjtS; arc=none smtp.client-ip=217.140.110.172
+	 MIME-Version; b=NIq7G+nDpnYiUAHvnmMU4FrriZGPFDLzb9Tfa5uHj3acfS+U7TtPwPKHkyuOc6yAis9EtdPHEsIKwz/dpAD6bP+CQjzzHaYc47mOwlX4XdYMUae4PZQmce5/6GQLtTiLIVAM3SxXUYvsCsUgurZTGUbUPeoDUELOrkt1RoeUpaA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=mexQGEwh; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="jTd9KjtS"
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="mexQGEwh"
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 394E31A00;
-	Sun, 30 Aug 2026 22:43:49 -0700 (PDT)
-Received: from localhost (a085714.arm.com [10.164.19.28])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 4094F3F85F;
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CE4A51A2D;
 	Sun, 30 Aug 2026 22:43:52 -0700 (PDT)
+Received: from localhost (a085714.arm.com [10.164.19.28])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CE08E3F85F;
+	Sun, 30 Aug 2026 22:43:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1788155033; bh=bACj7yeD3kQHNtaEo3qPM/7pYVMQxld/GWsQ0raGU14=;
+	t=1788155036; bh=tv5DjbtfmXjBBuL3EGYgZEMiDxUCxKafhP8IwXphMBE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=jTd9KjtSO47ZSa6Eegu9Jg3Egpfu6bTxJIeCEbbBs9lqVrJh/QwBdWqQGOEmVP0OA
-	 hcTTxkZT6fAeEx8haq4FYbspEuUlfOA+P6q6eaBD4749BBYDUsR3ASLkC8OBZT5DoQ
-	 0XYYCcDmZkZUnHFkXTJfrC1qadu+n2mdWf7vuxCU=
+	b=mexQGEwhHQAlOrXrZQ25kdw0Ek/wBEDGfOAXtdmcIVany4CjdRHDvTRCAQnRszXkF
+	 brFCVNYJ3wXIMOzy/m82CHQbQfsZL/9752QXUP8CK+p/FFq6WUSn/ton2ZHgaAcI4A
+	 mipdr60mJO12jxZ7sxfPTPRFfT7MvotJi5x09tSk=
 From: Anshuman Khandual <anshuman.khandual@arm.com>
 To: linux-mm@kvack.org
 Cc: samuel.holland@sifive.com,
@@ -59,9 +59,9 @@ Cc: samuel.holland@sifive.com,
 	linux-um@lists.infradead.org,
 	linux-arch@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 5/8] sh/mm: Stop using pte_ERROR()
-Date: Mon, 31 Aug 2026 11:13:27 +0530
-Message-ID: <20260831054331.625505-6-anshuman.khandual@arm.com>
+Subject: [PATCH 6/8] sh/mm: Stop using [p4d|pud|pmd]_ERROR()
+Date: Mon, 31 Aug 2026 11:13:28 +0530
+Message-ID: <20260831054331.625505-7-anshuman.khandual@arm.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260831054331.625505-1-anshuman.khandual@arm.com>
 References: <20260831054331.625505-1-anshuman.khandual@arm.com>
@@ -73,60 +73,46 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Directly use pr_err() in set_pte_phys() and drop pte_ERROR() which helps in
-eventually dropping pte_ERROR() macro across the tree. In this new printing
-__FILE__ and __LINE__ has been dropped because they are always the same and
-don't really add any value. Besides ptrval_to_str() has been able to handle
-different PTE representation with and without CONFIG_X2TLB, which helped in
-unifying error message printing.
+Stop using [p4d|pud|pmd]_ERROR() in __get_pte_phys() as the pgtable entries
+are known to be NULL and hence could not really be accessed.
 
 Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
 Cc: Rich Felker <dalias@libc.org>
 Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
 Cc: linux-sh@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
-Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
 Acked-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- arch/sh/include/asm/pgtable_32.h | 5 -----
- arch/sh/mm/init.c                | 6 +++++-
- 2 files changed, 5 insertions(+), 6 deletions(-)
+ arch/sh/mm/init.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/sh/include/asm/pgtable_32.h b/arch/sh/include/asm/pgtable_32.h
-index 5f51af18997b..c8eb9a7a4c4c 100644
---- a/arch/sh/include/asm/pgtable_32.h
-+++ b/arch/sh/include/asm/pgtable_32.h
-@@ -401,14 +401,9 @@ static inline unsigned long pmd_page_vaddr(pmd_t pmd)
- #define pmd_page(pmd)		(virt_to_page(pmd_val(pmd)))
- 
- #ifdef CONFIG_X2TLB
--#define pte_ERROR(e) \
--	printk("%s:%d: bad pte %p(%08lx%08lx).\n", __FILE__, __LINE__, \
--	       &(e), (e).pte_high, (e).pte_low)
- #define pgd_ERROR(e) \
- 	printk("%s:%d: bad pgd %016llx.\n", __FILE__, __LINE__, pgd_val(e))
- #else
--#define pte_ERROR(e) \
--	printk("%s:%d: bad pte %08lx.\n", __FILE__, __LINE__, pte_val(e))
- #define pgd_ERROR(e) \
- 	printk("%s:%d: bad pgd %08lx.\n", __FILE__, __LINE__, pgd_val(e))
- #endif
 diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
-index 110308bdef01..9466ae6f9f16 100644
+index 9466ae6f9f16..8d65e60688dc 100644
 --- a/arch/sh/mm/init.c
 +++ b/arch/sh/mm/init.c
-@@ -84,7 +84,11 @@ static void set_pte_phys(unsigned long addr, unsigned long phys, pgprot_t prot)
+@@ -59,19 +59,19 @@ static pte_t *__get_pte_phys(unsigned long addr)
  
- 	pte = __get_pte_phys(addr);
- 	if (!pte_none(*pte)) {
--		pte_ERROR(*pte);
-+		char str[PTVAL_STR_MAX];
-+
-+		ptval_to_str(str, pte_val(*pte));
-+		pr_err("unexpected set PTE at %lx in %s: bad pte %p(%s).\n",
-+			addr, __func__, pte, str);
- 		return;
+ 	p4d = p4d_alloc(NULL, pgd, addr);
+ 	if (unlikely(!p4d)) {
+-		p4d_ERROR(*p4d);
++		pr_err("allocating p4d table failed\n");
+ 		return NULL;
+ 	}
+ 
+ 	pud = pud_alloc(NULL, p4d, addr);
+ 	if (unlikely(!pud)) {
+-		pud_ERROR(*pud);
++		pr_err("allocating pud table failed\n");
+ 		return NULL;
+ 	}
+ 
+ 	pmd = pmd_alloc(NULL, pud, addr);
+ 	if (unlikely(!pmd)) {
+-		pmd_ERROR(*pmd);
++		pr_err("allocating pmd table failed\n");
+ 		return NULL;
  	}
  
 -- 
