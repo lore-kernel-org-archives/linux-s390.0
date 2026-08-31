@@ -1,145 +1,127 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C2A6282F13
-	for <linux-s390@vger.kernel.org>; Mon, 31 Aug 2026 17:11:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44E394252B1;
+	Mon, 31 Aug 2026 17:14:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788196283; cv=none; b=mgsEbEl74QOpaBlcDd/+eovLMt2gJqEHF21LJ6wEkHDabBbyYxHgWK8p0Rd9Z1esPtyuVpBAK0JOVyH6JmAEp+DIo5l4HwZLJM9eBl/SUVNYukcVqpK8MIQi355R+qZrkIarrtHbLUhCKYtfQQWFeSGk8sy6ZW7pSOGrsNErhW8=
+	t=1788196496; cv=none; b=aPY64Qyc83nmjXYriCda2+mPJ5offzbhT1qOtG3GtwCGkwOMziS0fwyCEB5FCpfKbJpdV/lWEduiy4XL9dg1zFAilXGqdR9H73mVb7eY5seaKUWqi3ENK/Ow/XVI8Ofa8x3uP2mquZTN3FGJ7U/5+qC2QNgIIFwmvKJL80XpB6E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788196283; c=relaxed/simple;
-	bh=WQvmfCGnbKxjF5LaXvvW4nWnluX51lFIA16cGZjnJV0=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=GbZLMn1HGGr9QW3yM5Jq3BGuWy23v22pAfjd8kbZ7iG3Y+LO2GIONPb3fVUFsW21xeg63Lv8VWoHyII/9QHFa8xESAXXNwtDMtGUC0dYvJupdpj578s4tLGI3XfImqSIxkf5LxPZa5xQXEYDDNt35edTLAMOnU+aB89wKw1OZxo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ECfB3r8j; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788196496; c=relaxed/simple;
+	bh=LPbMypSF7JhMLbVLvz9qixDWAqBcFNtb0jTY8hd3MOo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=H2Elq18kFsvb+MBefY7TH4y9n96guhwa1zMjPTzCm14tIw2wn6hsjoZo7UriaV3+OpDxiBynnowKA1hynkxtnsLQEukx2zlsrXhRIrIVLtNntg2YWW6VEmR55U3qNpRTZbEICUu03h3u0yOev8xa7+nRdg3ZsOlgtbvDSlkeBMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VryzBJMP; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ECfB3r8j"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E24F1F000E9;
-	Mon, 31 Aug 2026 17:11:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788196281;
-	bh=M6aMUPAS6F4tZOhTeT67Z1JpL25ED4xTNWeXWvZ1XxU=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ECfB3r8juWR+cXRikOjj45VKBrGFrREIwicN35qVoZ3LJhCWiKBo1BnbzGYNZ4YmD
-	 2vw8PMOlJrxHWn2hjmbnKwRY298CB27ODz/x3QtlMeWUgP0f8sZoMg1cMTe/PD8PRV
-	 /EiNLhYSLBCEaaBhYEDdIGjTA/Illo1jsxuUu+TToQxkh3iAkzKx0jvSc80kgYRNP2
-	 mlaRWgJ5uNHfk81bJGmh0M9bUB6mxmCo34oDqxiSu8o33S7TpYntyNgWj1QiOpBM8T
-	 ewrNaH5qftoUkxlWLlckMHItYouf1DEK0JttCBKcV7lLJqhMQfsehg8cfpydG2OC9s
-	 EHVIkHuTyxtoQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH AUTOSEL 6.18-5.15] s390/cio: Purge based on the cdev's
- online status
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Sasha Levin" <sashal@kernel.org>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260831133314.4125787-536-sashal@kernel.org>
-References: <20260831133314.4125787-1-sashal@kernel.org>
- <20260831133314.4125787-536-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 31 Aug 2026 17:11:20 +0000
-Message-Id: <20260831171121.5E24F1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VryzBJMP"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67VG1amF2749161;
+	Mon, 31 Aug 2026 17:14:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=fZ6PoTCN8CVnMv0ktRWDHC8baSKTJMs7VT3HlD+gW
+	QQ=; b=VryzBJMPfSfjgJlKWEmSNoan8IfBw41By7r+6iCEhb/1YTxm/ohFZSiyx
+	JiEB5EabjaCfUJ4HPxG/Yo9U4CK91gZpuvR+eZ8YKGuvZ61tS+zXuiQoM6tyhNYB
+	xDRvK99IzhZ4q/J+HthBLQdnFBQWvr2f+Ip5ERpetWOQ/RTlw7wNaq21D7k/6+6y
+	76/Q/Xn1KShAwKxOckG9sbEvmrEMDfcZtkR9o0AXnQT+SoCxfFKcIAZp/VAdmZwh
+	61DPZ+UmQP6XWxtFOl2DLlS4mUnJQ4adKuPIxrHVGtSmb41oZCO5a6NwQXfNkh1o
+	6tjhzd3onFg8CFbgqOnL/1v9Ed0qQ==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbpx5at4t-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 31 Aug 2026 17:14:47 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67VHBJhK018791;
+	Mon, 31 Aug 2026 17:14:46 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gcb8h72dw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 31 Aug 2026 17:14:46 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67VHEjgC14287482
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 31 Aug 2026 17:14:45 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 77DF75805F;
+	Mon, 31 Aug 2026 17:14:45 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D536A5805A;
+	Mon, 31 Aug 2026 17:14:43 +0000 (GMT)
+Received: from li-4c4c4544-004d-4810-8043-b7c04f423534.ibm.com.com (unknown [9.61.29.117])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 31 Aug 2026 17:14:43 +0000 (GMT)
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com,
+        pasic@linux.ibm.com, alex@shazbot.org, kwankhede@nvidia.com,
+        fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com
+Subject: [PATCH v5 0/4] s390/vfio-ap: Fix pre-existing bugs in vfio_ap device driver
+Date: Mon, 31 Aug 2026 13:14:39 -0400
+Message-ID: <20260831171443.222225-1-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=PPc/P/qC c=1 sm=1 tr=0 ts=6a95b687 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=fuWVWdFGajcpH1A5QwgA:9 a=zZCYzV9kfG8A:10
+X-Proofpoint-GUID: aQ9Ps0GB3wtjcUFBphSpUdHZdJvK74wz
+X-Proofpoint-ORIG-GUID: aQ9Ps0GB3wtjcUFBphSpUdHZdJvK74wz
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODMxMDE0NyBTYWx0ZWRfX0ROdQGd8MxYb
+ XzrMSCBlnUsqaEICF8buctKTQ3AYmyNVKAFcAbuxjWcluXDhFonPXkDlKB/A28Em3gBu2GXmnDV
+ tuyO6qxL2mK+brEjg5ksyJWGtaXQyI8=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODMxMDE0NyBTYWx0ZWRfX7t/PapOxYDQT
+ YETi+F1ozDVzIWz5tE5WVp3TQaC2Q6VOPNDRI8CZExGAHllFTjKHY9uUKhbycfOaVhSQYm5CKBC
+ AHlTiOuQ2otE7wZOw1TVW3UHcTfED7rviT7Po3vN3OzFQI917+kluPsZE6k7XS9urNe4GHS7DPS
+ mSxQZllVUTdXnsC3NSiKosBnCRroOMlCGE0iZd0hryeOR+YoMkFFcRa5iXrZrfFlDsQHUA0/rMo
+ WI8KCagxA1sA6h4hZMo5ZlMsp2NIVF+6yrBmz5ZuH2ckYQDQWhc7tK56t4/byUG0C/6Yzm0GeOy
+ k+opymO3sVy1ga3NPFS19+aZ7jFidMTFyQRYWebMBPvgf/6r49qApP5rSMtL+4SZ51cos7Uhjvq
+ cAPp4ULN9SZy9u0jNnGPeGIu5qFjrehBnyudtZSMpHS1rYrvc1UTzaT9veIU+Jm1t0dw6UrPOmg
+ c2+yFofmgaDvH+yGdig==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-31_05,2026-08-31_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 phishscore=0 adultscore=0 suspectscore=0 bulkscore=0
+ spamscore=0 priorityscore=1501 impostorscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2608310147
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] Purging devices in intermediate FSM recognition states leads to a =
-use-after-free when un-canceled FSM timers expire.
-- [High] The `cdev->online` check in `purge_fn()` introduces a race conditi=
-on with active device offlining, leading to a NULL pointer dereference.
---
+The sashiko AI reported several pre-existing bugs in the vfio_ap device
+driver code while reviewing unrelated patches. This series fixes four
+such bugs.
 
-commit 78ddd0e46a2cf7d853e46c6adaa8bbe4677d971f
-Author: Vineeth Vijayan <vneethv@linux.ibm.com>
+Change log v4 => v5:
+~~~~~~~~~~~~~~~~~~~
+Patch 1/4: Fix leak of pinned NIB and registered NISC in vfio_ap_irq_enable
+* Fixed bug in vfio_ap_irq_enable() whereby the AQIC resources are freed
+  when vfio_ap_wait_for_irq_state() returns false.
 
-s390/cio: Purge based on the cdev's online status
+Patch 3/4: Fix unbounded loop in apq_reset_check()
+* Refactored apq_status_check() to verify the queue was zeroized.
 
-This commit updates the purging logic to rely on the online variable in
-the cdev structure rather than the internal FSM state, ensuring offline
-devices are purged correctly.
+Anthony Krowiak (4):
+  s390/vfio-ap: Fix leak of pinned NIB and registered NISC in
+    vfio_ap_irq_enable/disable()
+  s390/vfio-ap: Fix failure to release IRQ notification eventfd contexts
+  s390/vfio-ap: Fix unbounded loop in apq_reset_check()
+  s390/vfio-ap: Use AP_DOMAINS for adm_add bitmap size in
+    vfio_ap_mdev_cfg_add()
 
-> diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-> index 4b2dae6eb3760..7f8f78b1f8aea 100644
-> --- a/drivers/s390/cio/device.c
-> +++ b/drivers/s390/cio/device.c
-> @@ -1329,7 +1329,7 @@ static int purge_fn(struct subchannel *sch, void *d=
-ata)
-> =20
->  	cdev =3D sch_get_cdev(sch);
->  	if (cdev) {
-> -		if (cdev->private->state !=3D DEV_STATE_OFFLINE)
-> +		if (cdev->online)
+ drivers/s390/crypto/vfio_ap_ops.c | 273 ++++++++++++++++++++++++++----
+ 1 file changed, 243 insertions(+), 30 deletions(-)
 
-[Severity: High]
-Can this change introduce a use-after-free for devices in intermediate
-recognition states?
+-- 
+2.53.0
 
-If a device is in an intermediate state like DEV_STATE_SENSE_ID (where
-cdev->online =3D=3D 0), is blacklisted, and a purge is triggered via
-/proc/cio_ignore, this new check allows the purge to proceed. Since sysfs
-is not holding the onoff atomic, purge schedules CDEV_TODO_UNREG.
-
-This leads to the device memory being freed because it hasn't been added
-yet, bypassing device_del():
-
-drivers/s390/cio/device.c:ccw_device_release() {
-	...
-	kfree(cdev->private);
-	kfree(cdev);
-}
-
-However, the pending FSM timer is never canceled before freeing. When it
-later expires, can it dereference the freed memory?
-
-drivers/s390/cio/device_fsm.c:ccw_device_timeout() {
-	struct ccw_device_private *priv =3D timer_container_of(priv, t, timer);
-	struct ccw_device *cdev =3D priv->cdev;
-
-	spin_lock_irq(cdev->ccwlock);
-	...
-}
-
-[Severity: High]
-Could this also introduce a race condition with active device offlining,
-leading to a NULL pointer dereference?
-
-When a driver initiates ccw_device_set_offline(), it clears cdev->online
-early, drops locks, and waits for the FSM to transition to an offline state.
-
-If a purge is concurrently triggered during this window, purge_fn() now sees
-cdev->online =3D=3D 0, grabs the onoff atomic, and schedules unregistration=
-. The
-workqueue then unlinks the device:
-
-drivers/s390/cio/device.c:ccw_device_todo() {
-	...
-	sch_set_cdev(sch, NULL);
-}
-
-When the offlining thread wakes up and calls io_subchannel_quiesce(), it
-fetches the now-NULL cdev and attempts to dereference its handler:
-
-drivers/s390/cio/device.c:io_subchannel_quiesce() {
-	cdev =3D sch_get_cdev(sch);
-	...
-	if (cdev->handler)
-		cdev->handler(cdev, cdev->private->intparm, ERR_PTR(-EIO));
-}
-
-Can this result in a kernel panic if the purge occurs during the offlining
-race window?
-
->  			goto unlock;
-> =20
->  		if (atomic_cmpxchg(&cdev->private->onoff, 0, 1) !=3D 0)
->  			goto unlock;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260831133314.4125=
-787-536-sashal@kernel.org?part=3D1
