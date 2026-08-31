@@ -1,31 +1,31 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 24D4C3CF022;
-	Mon, 31 Aug 2026 05:43:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4F7403B14CE;
+	Mon, 31 Aug 2026 05:44:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788155039; cv=none; b=WSNoqkiV566Su6i57NRriCAE00ciwEjKhx8b4kYAHmOjPZr+Nhljf7YK6ELz99yyNBUd8zJPrqz7+C20vMRZtNJ5r1RnoA5lZxX4o9IuA2ZNmsHUpk+soytbfPlDatwpa18nw2dT+wjmU81aF7JrrD2BBJaHKmHThgdGgjDxxe4=
+	t=1788155043; cv=none; b=B9AFwL5F+FBbgHWK/G71xUtIk0WpwF/pTk/9ZzpHW/SpSeH7uuTVyZ1Zwnlo83pxEkIURAuFtxUdjjjOgYeN1674aP4aU5SyMvduNfuOf+N1dLFhR2wBPju/pn0uUFwdV+k8GKxHWF3ykmE+Gl3jjOtpGIZaEGjsA7lf7XpFo6o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788155039; c=relaxed/simple;
-	bh=tv5DjbtfmXjBBuL3EGYgZEMiDxUCxKafhP8IwXphMBE=;
+	s=arc-20240116; t=1788155043; c=relaxed/simple;
+	bh=19JNL2aQ1m2bgjsQFbzvNHwUtw8tQlkca/Xxp7GPwo8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NIq7G+nDpnYiUAHvnmMU4FrriZGPFDLzb9Tfa5uHj3acfS+U7TtPwPKHkyuOc6yAis9EtdPHEsIKwz/dpAD6bP+CQjzzHaYc47mOwlX4XdYMUae4PZQmce5/6GQLtTiLIVAM3SxXUYvsCsUgurZTGUbUPeoDUELOrkt1RoeUpaA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=mexQGEwh; arc=none smtp.client-ip=217.140.110.172
+	 MIME-Version; b=SuVFcXBYf8SkDnte2mFAmJM8sBosp1h9dLeBejifQYDnk860Z4V91auQw7537Jj/M4TPjx8qUCUN401OltsveWRP09qpKrOZfQhFn43LWNQdHld5rbgR3T36LS5m7MIYrLinlIRathohfXfuYh7q+Ju/zIUqvmdYG7wZPXL0GPg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=U0L19rtb; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="mexQGEwh"
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="U0L19rtb"
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CE4A51A2D;
-	Sun, 30 Aug 2026 22:43:52 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9CF061A32;
+	Sun, 30 Aug 2026 22:43:56 -0700 (PDT)
 Received: from localhost (a085714.arm.com [10.164.19.28])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CE08E3F85F;
-	Sun, 30 Aug 2026 22:43:55 -0700 (PDT)
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6785C3F85F;
+	Sun, 30 Aug 2026 22:43:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1788155036; bh=tv5DjbtfmXjBBuL3EGYgZEMiDxUCxKafhP8IwXphMBE=;
+	t=1788155040; bh=19JNL2aQ1m2bgjsQFbzvNHwUtw8tQlkca/Xxp7GPwo8=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=mexQGEwhHQAlOrXrZQ25kdw0Ek/wBEDGfOAXtdmcIVany4CjdRHDvTRCAQnRszXkF
-	 brFCVNYJ3wXIMOzy/m82CHQbQfsZL/9752QXUP8CK+p/FFq6WUSn/ton2ZHgaAcI4A
-	 mipdr60mJO12jxZ7sxfPTPRFfT7MvotJi5x09tSk=
+	b=U0L19rtbEHy9Bp2X2iUVLKKtbExFWVCCT5piVe9NpoUB1AFhA8YHZQbH1wlPAPfX4
+	 Ay2S64IR505XEPoJ0IN4Oh6nslmTu7PwulMz8Lw7NqgU8iCXl/uxnUPMxcESRtkCpw
+	 mWcDca7zBkcW4qfWA9izm/4P351I4KVkwzyARqd8=
 From: Anshuman Khandual <anshuman.khandual@arm.com>
 To: linux-mm@kvack.org
 Cc: samuel.holland@sifive.com,
@@ -59,9 +59,9 @@ Cc: samuel.holland@sifive.com,
 	linux-um@lists.infradead.org,
 	linux-arch@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 6/8] sh/mm: Stop using [p4d|pud|pmd]_ERROR()
-Date: Mon, 31 Aug 2026 11:13:28 +0530
-Message-ID: <20260831054331.625505-7-anshuman.khandual@arm.com>
+Subject: [PATCH 7/8] sh/mm: Stop using pgd_ERROR()
+Date: Mon, 31 Aug 2026 11:13:29 +0530
+Message-ID: <20260831054331.625505-8-anshuman.khandual@arm.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260831054331.625505-1-anshuman.khandual@arm.com>
 References: <20260831054331.625505-1-anshuman.khandual@arm.com>
@@ -73,8 +73,8 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Stop using [p4d|pud|pmd]_ERROR() in __get_pte_phys() as the pgtable entries
-are known to be NULL and hence could not really be accessed.
+Stop using pgd_ERROR() in __get_pte_phys() when page table entry is already
+known to be empty.
 
 Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
 Cc: Rich Felker <dalias@libc.org>
@@ -85,36 +85,25 @@ Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
 Acked-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- arch/sh/mm/init.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/sh/mm/init.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
-index 9466ae6f9f16..8d65e60688dc 100644
+index 8d65e60688dc..93921109f4e6 100644
 --- a/arch/sh/mm/init.c
 +++ b/arch/sh/mm/init.c
-@@ -59,19 +59,19 @@ static pte_t *__get_pte_phys(unsigned long addr)
+@@ -52,10 +52,8 @@ static pte_t *__get_pte_phys(unsigned long addr)
+ 	pmd_t *pmd;
+ 
+ 	pgd = pgd_offset_k(addr);
+-	if (pgd_none(*pgd)) {
+-		pgd_ERROR(*pgd);
++	if (pgd_none(*pgd))
+ 		return NULL;
+-	}
  
  	p4d = p4d_alloc(NULL, pgd, addr);
  	if (unlikely(!p4d)) {
--		p4d_ERROR(*p4d);
-+		pr_err("allocating p4d table failed\n");
- 		return NULL;
- 	}
- 
- 	pud = pud_alloc(NULL, p4d, addr);
- 	if (unlikely(!pud)) {
--		pud_ERROR(*pud);
-+		pr_err("allocating pud table failed\n");
- 		return NULL;
- 	}
- 
- 	pmd = pmd_alloc(NULL, pud, addr);
- 	if (unlikely(!pmd)) {
--		pmd_ERROR(*pmd);
-+		pr_err("allocating pmd table failed\n");
- 		return NULL;
- 	}
- 
 -- 
 2.43.0
 
