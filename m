@@ -1,128 +1,226 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 020D2391E76;
-	Mon, 31 Aug 2026 20:29:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD3E4383C93;
+	Mon, 31 Aug 2026 20:33:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788208168; cv=none; b=sGIAQQTFBhDWwUmGLDh+5y1uE3cyFjiAxEZ36nL4/qQToZQite2gFTQ0o1rxe92FD2BAAqdfBiZ1Fuv2SmZGJ8Wv3PwnsuTg92RvBe7hafvDpEamSWaecN9Mz9YX9gp2bj6tpYUk+JKEHCU3+h2Uo7jKltorTO0m90JO3NQkXyI=
+	t=1788208434; cv=none; b=ByI7ipBv67SF7gS+nnumEgjJhTxsWcliBnwlZjGSx7Te1ui3Dm49mnFOQ8eenutrcNpdSuNWdZjBjRM1zzu3BVjQ9IE9mB/7FkZjb5EX2T9Pzl5X5D1AMA+Er2/wBqu3sNRoii1SbzveLETIKjiprlu1wTC1+62nhhNEEgGMX3g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788208168; c=relaxed/simple;
-	bh=WFVDwjE9O2uWrPGQOAGacJFSOMNqQC01giKdgn1dtNc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YdVVdCTAoh0uB4ulMgtRTcesHH4VQy34kQsCPq3AS6BpFxKMuEUa/i4bnP3X+5asj7FdSltarovW8Nc38OIn5hdsDhSdYEJ5rfa6pOzRWvEBhwipLC6DV5dR1w7olDjIj2vHLcc0Cdv3S2j9o+GYYQGYMf/tKyhqBO71D/O08mU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XseQCoZn; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1788208434; c=relaxed/simple;
+	bh=rqvLRQLW2C/hl9nVjV9avJvcx/aCjWNjx0MQv+OFJ0A=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=jTTccAMGVRfEfubSpHkiwC8vvKUwdtkBmXPFrdgPz2evIf7OkTDigojyxq8BDG3LyHhqnItxv80qoy3g2Bl9JZgR+oOKEYFevfQbdcKJrNwJDupTr9kBsZbyNFci0AVO5Z49utXFRZiV2ith9qEEHpAWuQF2bPpBnNMd+tnZeqQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V+IguxIc; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XseQCoZn"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67VIVsFT3116274;
-	Mon, 31 Aug 2026 20:29:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=DNEUVo
-	nEoLJO8yGoiSjOLIT/OaTS60DPRp33Yoes9HY=; b=XseQCoZnQ97QGRFXAWeo5q
-	yNKX7Ekxo5d0gN0KDWuzucfss8lQaXcJCdm+ruYVU989PMsi69r2KKLoTlk+TnPt
-	/9gdZJGStyL9lqpmXkRj0EFl8e6F5QhwO2r6N6tZ1sPXHA7vSwagk4SxDwSX5s08
-	BPMmzANf9OSnpyiacba4077ZPdfBagsWFuGJeMXGR1+LNK9zCQRbMBdKnS38TsO5
-	G5KVI6feMchXd9SnAzTm/RcB6mu6Kn6FO3mvYLzltIRza0oCfqcxVTPnhCkYzR37
-	f0vYN1M+u/ipXsZN+LvpjJlD5S8UvpCrTLfTTUWOFkU7VH23keXyKWLNwBdewHxg
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbpx5bqd8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 31 Aug 2026 20:29:19 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67VKQJmW021841;
-	Mon, 31 Aug 2026 20:29:18 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gcbyg7s5c-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 31 Aug 2026 20:29:18 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67VKTH1f25887460
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 31 Aug 2026 20:29:17 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1DE5658056;
-	Mon, 31 Aug 2026 20:29:17 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 167DF58052;
-	Mon, 31 Aug 2026 20:29:16 +0000 (GMT)
-Received: from [9.61.36.99] (unknown [9.61.36.99])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 31 Aug 2026 20:29:15 +0000 (GMT)
-Message-ID: <e8f89dd1-9c19-49b2-8e8b-879ddd7ca3cb@linux.ibm.com>
-Date: Mon, 31 Aug 2026 16:29:15 -0400
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V+IguxIc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0892C1F000E9;
+	Mon, 31 Aug 2026 20:33:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788208432;
+	bh=EOQF6go/RnMqwxHLJugdPRjze0XZP/oR0HcQxThjwxw=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=V+IguxIcEFTjBj2zeg/+xd2xI4S5Tpwv4Ftwpvl8veGYacXSOLBvsQqm1SIs6iR7L
+	 JXU6Tt1Vh2ghXXf2j1jzWqnWJeXP6P5RAfpMwNwheP6ccWpW3KFCrXlq5o1dGvkR8X
+	 uJBCcN5jKSWtKBIeSxE0xFnMjmpkiWQqlYsSVHy0yfCeX/fYjPyyB57ho54ow7MRMy
+	 KTzlE2TG5RM3XXQqonOT/wUb4CKSPH/CDefRwowOhqyHH+wKSvtMVrHF1JdH1Y5G9N
+	 J55ORMyOKJ4v0rtsP1GHx45hFAdp58busmxcG9lBQP3nY8HL6DAOznFIAGcw4R5CPN
+	 z6DyCnYQ91okw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 13/20] KVM: s390: arm64: Implement arm sysreg
+ managing infrastructure
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Steffen Eiden" <seiden@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Oliver
+ Upton" <oupton@kernel.org>, kvmarm@lists.linux.dev, "Heiko Carstens" <hca@linux.ibm.com>, "Marc
+ Zyngier" <maz@kernel.org>, kvm@vger.kernel.org
+In-Reply-To: <20260831145536.913567-14-seiden@linux.ibm.com>
+References: <20260831145536.913567-1-seiden@linux.ibm.com>
+ <20260831145536.913567-14-seiden@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 31 Aug 2026 20:33:51 +0000
+Message-Id: <20260831203352.0892C1F000E9@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 4/4] s390/vfio-ap: Use AP_DOMAINS for adm_add bitmap
- size in vfio_ap_mdev_cfg_add()
-To: Anthony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, pasic@linux.ibm.com,
-        alex@shazbot.org, kwankhede@nvidia.com, fiuczy@linux.ibm.com,
-        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
-        agordeev@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
-References: <20260831171443.222225-1-akrowiak@linux.ibm.com>
- <20260831171443.222225-5-akrowiak@linux.ibm.com>
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <20260831171443.222225-5-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=PPc/P/qC c=1 sm=1 tr=0 ts=6a95e41f cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=wJl0czCw-TtCaqEsIisA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: GBFTDa5OctdBMuTXizaunHjwSYHKgc29
-X-Proofpoint-ORIG-GUID: GBFTDa5OctdBMuTXizaunHjwSYHKgc29
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODMxMDE3MyBTYWx0ZWRfX/GU9SkenRKIm
- dLFZRfM7NJ+fcFBfm/BmHgZCaEI/ZDdOcnQJi79rAiM4LK7+5uo0LhucicZ+GBNRrbsrbb/UWxa
- iuW5dzd8dfAsMInTLvDkGkS6iidQS7E=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODMxMDE3MyBTYWx0ZWRfX1Of2xjowW/Nr
- kvAMt13/aC/dPDTzfim9jwEdZBGX9W2x9yx9hgx0kfGiNuTcBp4mjbhAjZLGBCqFLdBNtN+fKOD
- /YunHqsn9WXqcKNAcGXMKbFT5Ce2OH3aVbGcwGSN1B9/zuZw4BPydd89d5/m460LVlsBzw7tA5e
- rezem8cHDtfj527WEIsfuJAqp90WBAX6VaLIBhJpzd112utEv/Fh5R+rvTGFAo+OyrdY+uFehw0
- GDHwvtBFerHrpRD12MCmqwFuWwXl9Xwa2M2Yw//bKgqibP7K/tQXmUBjCa0VXWMgkl02WmVv7aL
- NG6l1N0xASiysnuNJ10VQiZJSPM/ADv3eUDxSqJGta8s1/y2eauShDo2k9auJ0pEdqxacwi819W
- 8XWobAlCKBE7pYiZgBGQmY/iXH0/xk6uzMwyzF8BlZFmGlifZILK+wYHLRbhiZ1AxqysiXlMaVN
- g4xRJJ1I87NvV4bO8MA==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-08-31_06,2026-08-31_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 phishscore=0 adultscore=0 suspectscore=0 bulkscore=0
- spamscore=0 priorityscore=1501 impostorscore=0 malwarescore=0
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2608310173
 
-On 8/31/26 1:14 PM, Anthony Krowiak wrote:
-> Domain and control domain bitmaps are sized by the AP_DOMAINS constant, not
-> AP_DEVICES. The two constants are both 256 today so there is no functional
-> impact, but using the wrong constant is inconsistent with every operation
-> on aqm/adm bitmaps.
-> 
-> Use AP_DOMAINS to keep the code consistent and correct in case
-> the two constants ever diverge.
-> 
-> Note:
-> This patch was submitted in response to a sashiko review comment pointing
-> out there are other functions besides vfio_ap_mdev_cfg_add(), so there are
-> fixes included here for those also. The subject line was kept the same
-> since this is in v2 of this patch.
-> 
-> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
+- [Critical] The s390-specific definition of `__vcpu_rmw_sys_reg` incorrect=
+ly swaps the register ID (`R`) and value (`V`) parameters compared to the s=
+hared ARM64 implementation.
+- [Critical] Time-of-Check to Time-of-Use (TOCTOU) race with vCPU preemptio=
+n and illegal use of `smp_processor_id()` in a preemptible context causes a=
+ host `BUG_ON` panic.
+- [High] Missing trap handler for `MIDR_EL1` causes guest crashes with an U=
+NDEF exception on boot.
+- [High] Guest-reachable `WARN(true)` in `kvm_handle_sys_reg` allows a mali=
+cious guest to spam the host kernel log.
+--
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+commit 1e6a91a5668b6ea306fd97aa5d57b2154d91120f
+Author: Steffen Eiden <seiden@linux.ibm.com>
+KVM: s390: arm64: Implement arm sysreg managing infrastructure
 
+This commit implements the infrastructure for the s390 host to manage arm64
+guest system registers. It allows the host to read and write non-ID system
+registers using new EASR/SASR instructions, while trapping and handling gue=
+st
+accesses to ID registers.
 
+> diff --git a/arch/s390/include/asm/kvm_host_arm64.h b/arch/s390/include/a=
+sm/kvm_host_arm64.h
+> --- a/arch/s390/include/asm/kvm_host_arm64.h
+> +++ b/arch/s390/include/asm/kvm_host_arm64.h
+> @@ -221,4 +244,183 @@ static inline void kvm_arch_async_page_present_queu=
+ed(struct kvm_vcpu *vcpu)
+> =20
+>  #define kvm_supports_32bit_el0() false
+> =20
+> +#define __vcpu_sys_reg(__vcpu, __reg) \
+> +	vcpu_read_sys_reg(__vcpu, __reg)
+> +
+> +#define __vcpu_assign_sys_reg(__vcpu, __reg, __val) \
+> +	vcpu_write_sys_reg(__vcpu, __val, __reg)
+> +
+> +#define __vcpu_rmw_sys_reg(C, V, OP, R)		\
+> +({						\
+> +	u64 __val =3D vcpu_read_sys_reg(C, R);	\
+> +	__val OP V;				\
+> +	vcpu_write_sys_reg(C, __val, R);	\
++})
+
+[Severity: Critical]
+Does this override transpose the register ID and value arguments compared t=
+o the
+shared ARM64 implementation?
+
+The shared ARM64 code expects this macro to receive (vcpu, reg, op, val).
+This s390 override defines it as (C, V, OP, R). Any read-modify-write system
+register operation using this macro (for instance, PMU updates) will attemp=
+t to
+read from a register ID equal to the bitmask value, and use the actual regi=
+ster
+ID as the bitmask, causing data corruption and host crashes.
+
+> +/**
+> + * _vcpu_read_sys_reg() - read a guest sysreg with easr
+> + * - R - sysreg id; must be readable by easr; must be compile time const=
+ant
+> + *
+> + *   if SYSREGS_ON_CPU: proceed with flags =3D 0
+> + *   otherwise:         proceed with either
+> + *                         read:  flags =3D EASR_FLAG_SA
+> + *                         write: flags =3D SASR_FLAG_INITIALIZED
+> + *
+> + */
+> +#define _vcpu_read_sys_reg(C, R) \
+> +	({	BUILD_BUG_ON(!__builtin_constant_p((R))); \
+> +		BUG_ON(vcpu_is_loaded(C) && smp_processor_id() !=3D (C)->cpu); \
+> +		(vcpu_is_loaded(C)) \
+> +			? __vcpu_read_sr((C), (R), 0) \
+> +			: __vcpu_read_sr((C), (R), EASR_FLAG_SA); })
+> +
+> +/**
+> + * _vcpu_write_sys_reg() - write a guest sysreg with sasr
+> + * - R - sysreg id; must be readable by sasr; must be compile time const=
+ant
+> +
+> + *   if SYSREGS_ON_CPU: proceed with flags =3D 0
+> + *   otherwise:         proceed with either
+> + *                         read:  flags =3D EASR_FLAG_SA
+> + *                         write: flags =3D SASR_FLAG_INITIALIZED
+> + */
+> +#define _vcpu_write_sys_reg(C, V, R) \
+> +	({	BUILD_BUG_ON(!__builtin_constant_p((R))); \
+> +		BUG_ON(vcpu_is_loaded(C) && smp_processor_id() !=3D (C)->cpu); \
+> +		(vcpu_is_loaded(C)) \
+> +			? __vcpu_write_sr((C), (V), (R), 0) \
+> +			: __vcpu_write_sr((C), (V), (R), SASR_FLAG_INITIALIZED); })
+
+[Severity: Critical]
+Is it safe to call smp_processor_id() in these macros?
+
+These macros are invoked by kvm_handle_sys_reg(), which executes in a
+preemptible context. Calling smp_processor_id() here will trigger a kernel
+warning.
+
+Furthermore, if the vCPU thread is preempted and migrated between evaluating
+smp_processor_id() and checking (C)->cpu, this BUG_ON() will panic the host=
+. A
+guest could repeatedly trigger sysreg exits to intentionally cause a host d=
+enial
+of service.
+
+[ ... ]
+
+> diff --git a/arch/s390/kvm/arm64/sys_regs.c b/arch/s390/kvm/arm64/sys_reg=
+s.c
+> --- /dev/null
+> +++ b/arch/s390/kvm/arm64/sys_regs.c
+> @@ -0,0 +1,750 @@
+
+[ ... ]
+
+> +static const struct sys_reg_desc sys_reg_descs[] =3D {
+> +	/* Op0 =3D 2 */
+> +	{ SYS_DESC(SYS_OSLAR_EL1), trap_oslar_el1 },
+> +	{ SYS_DESC(SYS_OSLSR_EL1), trap_oslsr_el1, reset_oslsr_el1, OSLSR_EL1,
+> +	  OSLSR_EL1_OSLM_IMPLEMENTED, NULL, set_oslsr_el1 },
+> +
+> +	/* Op0 =3D 3 */
+> +	/* Op1 =3D 0 */
+> +	/* CRn =3D 0 */
+> +	/* CRm =3D 0 */
+> +
+> +	{ SYS_DESC(SYS_MIDR_EL1), NULL, reset_midr, 0, GENMASK_ULL(31, 0),
+> +	  get_id_reg, set_imp_id_reg },
+
+[Severity: High]
+Does this missing access handler cause guest boot failures?
+
+The access handler here is set to NULL instead of access_imp_id_reg. When a
+guest reads MIDR_EL1 (which Linux does early in boot), kvm_handle_sys_reg()=
+ uses
+perform_access(). Since the handler is NULL, this will fall back to bad_tra=
+p(),
+injecting an undefined instruction exception into the guest and printing a
+WARN_ONCE on the host.
+
+[ ... ]
+
+> +int kvm_handle_sys_reg(struct kvm_vcpu *vcpu)
+> +{
+> +	const struct sys_reg_desc *desc =3D NULL;
+> +	struct sys_reg_params params;
+> +	unsigned long esr =3D kvm_vcpu_get_esr(vcpu);
+> +	int Rt =3D kvm_vcpu_sys_get_rt(vcpu);
+> +
+> +	trace_kvm_handle_sys_reg(esr);
+> +
+> +	params =3D esr_sys64_to_params(esr);
+> +	params.regval =3D vcpu_get_reg(vcpu, Rt);
+> +
+> +	/* System registers have Op0=3D=3D{2,3}, as per DDI487 J.a C5.1.2 */
+> +	if (params.Op0 =3D=3D 2 || params.Op0 =3D=3D 3)
+> +		desc =3D find_reg(&params, sys_reg_descs, num_sys_reg_descs);
+> +	else
+> +		WARN(true, "system instruction handling not supported");
+
+[Severity: High]
+Can a malicious guest trigger this warning to flood the host kernel log?
+
+If a guest intentionally executes a trapped cache maintenance instruction
+(like DC CIVAC), it generates an exception with Op0 =3D=3D 1. This hits the
+unconditional WARN() here, violating KVM guidelines against guest-reachable
+assertions and allowing a denial of service via log spam.
+
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260831145536.9135=
+67-1-seiden@linux.ibm.com?part=3D13
