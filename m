@@ -1,57 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91477509F0B;
-	Mon, 31 Aug 2026 15:01:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B4FE50AC18;
+	Mon, 31 Aug 2026 15:01:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788188475; cv=none; b=oHUF39zuYiOI1POGBMpM8d0X6Kx6+b4h6qZGSRN5wNTPOA8rU6MswMO+34RVZIK1DbwvfgIlFt8Z2idRY7vahEIQstb77EbqgWYDvU6j6iYHlQX9CbWN7KfDFwmMGbCP4wKBTJaqGueyIuIPP73GRlcUCqrmK0oVe7kcX8cVuC0=
+	t=1788188479; cv=none; b=qYRkaTTbIJ59NvgA3B3kGRMszcc3BIj1at2RDYBkLC5ZIXTUDSRyoS5weAjxxfw+PjskxxNTbmxSRbRGGZuRV0c0TlyTXx9XH4FTTcnba6JksN7W/PEjF1rmrpbTDkALV3/xAO2VrWS2se3V753VWVhqXlEthI5KUTr50c4Kk8U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788188475; c=relaxed/simple;
-	bh=UD6JzfeJFW1+g4mq8CI1sGLpq5rXAfC3urPwGzLQqXU=;
+	s=arc-20240116; t=1788188479; c=relaxed/simple;
+	bh=cXbjAr3/cFqBz8xIm0fvIZOEqQfBNmD15mzUs6Xu7vw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Yyx06e+wemzK1VYf37C7zjyMw3xZ5HQEFUHhYJYTIzEoOXPO66Eg8ozFdocTcfcsZR/db+B/tLeHKgqc3J9Mgvq77eFovlXDjwB4+4ARmeIxRUGTbbTr0qTZebaBHmlJXf4dFw8ruhlcINJxp2L2U/RQ6RxG2EILod6K2YJ5C7g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ZvqWwe4l; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=tlJL7DDs/7N5WWzQOulNXCBrKbQc9JAIj2bur1nGR43ifQI4ji5WhwhRHElG+vm9by5Fm3oFAHbDLsrpzmGQvZ3RmcElWw4+WGbiBeL9VTCSVZt9i7RIFD4AbdZf8OF5UBGz0bbJv0XPEGmomSpppVUnPnbq8Tg+m4hNYmLDZdM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MswAUQPU; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ZvqWwe4l"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67VEZ4g02530222;
-	Mon, 31 Aug 2026 14:55:49 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MswAUQPU"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 67VEZMYp1398414;
+	Mon, 31 Aug 2026 14:55:55 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=ZQ6/rBl2AXAKC3/js
-	pod2HkSOUm4OUYWybZdHfBRsUE=; b=ZvqWwe4lDukSdH3NqX3qq4JQMPXZcYwcu
-	stvon5Z3aVB5znTFnGnizBDSpoxp33mc8UipXqY+bpYE34lmdwH9gsMav16+dIeV
-	bjSLF8/DwNyGRx2UT7ASo3yR+J76VVbMAD+ollLNTZhixo1cvkq5zLm47FkTTte0
-	Rm6Dzog6QgUDne4Ie+TdrFMO5SDyyGxLl9JMOwjkQpN1gxU9znlBbdI6OLBlwdy9
-	VCzICiVCMrveLWBrs/lxy0VhgtOWprk4A8aiv3xQiJAX9kdxHSWdccWse3s60Iyj
-	yKhBRLIlbeQLSo8/D8bJjEZVzgQITF/LTePs+j9NtLOuFkwY0xbLA==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbpx5a1u6-1
+	:mime-version:references:subject:to; s=pp1; bh=MmNBAaSP10njDEMdV
+	ZMQ4XCdAiOoaIKg1V9E56+33X0=; b=MswAUQPUygQGaQ8vGlocoWdRdNj1XajXw
+	7gkvwOiHuIxKp7z0KygxWEMcbXS8TgoUoTuoHAofM30hL+zgfd1j85LJc8gA3yeD
+	q115LHLyncqaBAgBe2CXoz0gfwWUWxSbUs0i0oRdmpOkq1JqyE53QaLBWrvM1dH1
+	LjgyOExgv7FaDhFFHzyTAOiajO3lgxBgCRNZWm5e4NdATHtcQy5Rb51hMCMaLBRM
+	uasQI2SPD2++Ikg0NRTz7gtZvIz2DhXSUdXG7q+5QqBrf5f+0ZwczASyKIoyi8KU
+	OawaXrn32mZRegm+mln0nl/RdrQn5rVvCUTIN3DYYrwHrYPPR2tOw==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbnudj18k-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 31 Aug 2026 14:55:49 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67VEff4Z015566;
-	Mon, 31 Aug 2026 14:55:48 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gc9rq6nby-1
+	Mon, 31 Aug 2026 14:55:54 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 67VEfcEX029530;
+	Mon, 31 Aug 2026 14:55:53 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gccexx8v5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 31 Aug 2026 14:55:48 +0000 (GMT)
+	Mon, 31 Aug 2026 14:55:53 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67VEtfpE39190924
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 67VEtkgH49086974
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 31 Aug 2026 14:55:41 GMT
+	Mon, 31 Aug 2026 14:55:46 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 74C4020040;
-	Mon, 31 Aug 2026 14:55:41 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 193BF20040;
+	Mon, 31 Aug 2026 14:55:46 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 04D7820043;
-	Mon, 31 Aug 2026 14:55:41 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 9C4112004D;
+	Mon, 31 Aug 2026 14:55:45 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 31 Aug 2026 14:55:40 +0000 (GMT)
+	Mon, 31 Aug 2026 14:55:45 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -77,9 +77,9 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
         Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v2 08/20] s390: tools: Allow sharing arm64/kvm headers
-Date: Mon, 31 Aug 2026 16:55:23 +0200
-Message-ID: <20260831145536.913567-9-seiden@linux.ibm.com>
+Subject: [PATCH v2 17/20] KVM: s390: arm64: Finalize page fault handling
+Date: Mon, 31 Aug 2026 16:55:32 +0200
+Message-ID: <20260831145536.913567-18-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260831145536.913567-1-seiden@linux.ibm.com>
 References: <20260831145536.913567-1-seiden@linux.ibm.com>
@@ -92,70 +92,181 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=PPc/P/qC c=1 sm=1 tr=0 ts=6a9595f5 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-GUID: hZjDaTtAfeAICy-xgzvXSwbI66Vtr1TP
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODMxMDEyNSBTYWx0ZWRfX6cDYM6nRgIso
+ gMUtvnOyN6rAokb0HxDWp8kBI9v9ocaaWKuBGXpu1JnHlEAXatxbMj/Zi8dGKFe1buY3nVz+rGP
+ jZdhmf8UUpXZW/jzvs/wQ/f4vWlna7dYfWG0Byg2E/xkAdYf+lTx5p8ZPt6kIxoiIZnDPeT3fh0
+ gqK/klvnZOa6ontAjBI/xXKywVGeesgKsQDxjLwc0F1ni5moTUAgb88RpBXcOs3KiZWgwtE/LJ9
+ n9FAKW6QSWfL7gHMhHwI6gS5LNaRT3v6LhxME4imPCaSrk/3zxXGEyHT0zdnySfFbr7PDRCE66k
+ cxQtnaXbErFzjHl1NcCyjOT85+XG2PnkOdJTbf7GbOOYZlpGKiw1/Abf7MVjGChPBcwAkmhwrMg
+ P5vbW6GxinAb5uLnQNQAWgO2g6rNIpyU1eAdO6jy1vJJQPBJutsFtygK5ITOlZdGUhlvxqIn0tv
+ JtgsEACYRdPb3Nert0g==
+X-Proofpoint-ORIG-GUID: upSeR6PoHmbjotaSlhTZxboIidNTVjRE
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODMxMDEyNSBTYWx0ZWRfX3BhtkiMLLJ1Z
+ uIjDmch94OgUgODmGmC6liW3qzyysCYvlLi+dO2R9trDR7ZpgVgbYszcOjnyPg82fGxe/WLPua0
+ jWJBxwXj2ZiY0jN/NxOmzd4/GoELdCI=
+X-Authority-Analysis: v=2.4 cv=B92JFutM c=1 sm=1 tr=0 ts=6a9595fa cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=PHJEzuVwBb3QFcunwvkA:9
-X-Proofpoint-GUID: UMNWpMJk2ENAtM0MjfA3-fXfYTTATyY_
-X-Proofpoint-ORIG-GUID: KQSLgSP_zQtd4TJFxuGZ9mrgsqOh9Mo8
-X-Proofpoint-Spam-Info: AW1haW4tMjYwODMxMDEyNSBTYWx0ZWRfX+sqHJLXVhD57
- bU8L4eI9jE/WLIvlGgHJEsLT1UAA+ZV7b82MFIt5YqDLefsoPqFo1Ro4hrm8mMxNUftDcggp+je
- u7LB+Q9xAdFSjImMyul5tRUX2d2ISo8=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODMxMDEyNSBTYWx0ZWRfX0sjm01PStajR
- pzRuszUOTBSDwpU+H07PoFwdR0Fcqy/UP2Y3BIC6bIMnnitmiaNkVowK52zK3RyXB8MdE2uXFWZ
- xac5H7mlzHfUz79h31FUdP1e6bJ4gZi3nIACvScekyTJpc4aSWuQk5dX/Gack7vo3JnP+MAvApc
- i0de8HCiNqVRwX3HNhy4QyvC961S8ZaWJ7yMncU+4Lmi9Wbp1DXty5eEzALNvl1YvKHpi9XxehA
- kgVcRxWPODW56t0Xj6RhwRbhZBFfXAspbLLUcFIzBkxeVvIFgMamp/w1grKC7xNl39C4Cf5PwxA
- fw6fqQT1xHl7qbqOHcoprE3pxR9EDmENkv9QtZJDIQ8VOOymGuMcPoj8qjg/Jz6BgrpC3tWUejh
- tYImISK7tKXXzfTaLt9ziNYJ/lALn6OCnkUj5Q3WY8U2LKIs5Viaqd968B5rwRzGlw8L9BEoFpm
- xO9dHFCTMan7zHnYGNg==
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=LtHRyupC2uTP9dkk8LUA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-08-31_05,2026-08-27_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 phishscore=0 adultscore=0 suspectscore=0 bulkscore=0
- spamscore=0 priorityscore=1501 impostorscore=0 malwarescore=0
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ adultscore=0 spamscore=0 clxscore=1015 suspectscore=0 phishscore=0
+ lowpriorityscore=0 bulkscore=0 priorityscore=1501 impostorscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
  definitions=main-2608310125
 
-In addition to sharing headers in arch/arm64/include/{asm, uapi/asm}
-also allow to share headers in arch/arm64/kvm which provide local KVM
-definitions.
+Complete the page fault handling implementation by replacing temporary
+error returns with proper ARM64 exception injection.
 
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/s390/tools/Makefile.arm64h | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/kvm_host_arm64.h |  1 +
+ arch/s390/kvm/arm64/arm.c              |  6 +++
+ arch/s390/kvm/arm64/mmu.c              | 68 ++++++++++++++++++--------
+ 3 files changed, 54 insertions(+), 21 deletions(-)
 
-diff --git a/arch/s390/tools/Makefile.arm64h b/arch/s390/tools/Makefile.arm64h
-index 069473ea335d..49f344636e83 100644
---- a/arch/s390/tools/Makefile.arm64h
-+++ b/arch/s390/tools/Makefile.arm64h
-@@ -7,10 +7,11 @@ arm64api := $(objtree)/arch/$(ARCH)/include/generated/arm64
- arm64uapi := $(objtree)/arch/$(ARCH)/include/generated/uapi/arm64
+diff --git a/arch/s390/include/asm/kvm_host_arm64.h b/arch/s390/include/asm/kvm_host_arm64.h
+index 16a378b68c8a..c0e8fbddc9dc 100644
+--- a/arch/s390/include/asm/kvm_host_arm64.h
++++ b/arch/s390/include/asm/kvm_host_arm64.h
+@@ -427,5 +427,6 @@ static inline bool has_broken_cntvoff(void)
+ }
  
- # List of ARM64 headers to share with s390 KVM
--# Format: [uapi:]header.h or header-gen.h
-+# Format: [uapi:|kvm:]header.h or header-gen.h
- #
- # * header.h - from arch/arm64/include/asm/ to arm64/
- # * uapi:header.h - from arch/arm64/include/uapi/asm/ to uapi/arm64/
-+# * kvm:header.h - from arch/arm64/kvm/ to arm64/
- # * header-gen.h - generated as header-gen.h from ARM64 header header.h
- # If a header contains partial markers (#ifdef ARM64_S390_COMMON) only this part will be copied.
- # If the file does not contain any markers the whole file will be copied.
-@@ -37,7 +38,9 @@ arm64-type = $(firstword $(subst :, ,$(1)))
- arm64-base = $(or $(word 2,$(subst :, ,$(1))),$(1))
- arm64-src-base = $(patsubst %-gen.h,%.h,$(call arm64-base,$(1)))
+ void kvm_adjust_pc(struct kvm_vcpu *vcpu);
++size_t kvm_parange_to_address_sanitized(u32 id_parange);
  
--arm64-src = $(srctree)/arch/arm64/include/$(if $(filter uapi,$(call arm64-type,$(1))),uapi/)asm/$(call arm64-src-base,$(1))
-+arm64-src = $(if $(filter kvm,$(call arm64-type,$(1))),\
-+		$(srctree)/arch/arm64/kvm/$(call arm64-src-base,$(1)),\
-+		$(srctree)/arch/arm64/include/$(if $(filter uapi,$(call arm64-type,$(1))),uapi/)asm/$(call arm64-src-base,$(1)))
- arm64-dst = $(if $(filter uapi,$(call arm64-type,$(1))),$(arm64uapi),$(arm64api))/$(call arm64-base,$(1))
+ #endif /* ASM_KVM_HOST_ARM64_H */
+diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
+index 89984c6a5b64..d2ff69422217 100644
+--- a/arch/s390/kvm/arm64/arm.c
++++ b/arch/s390/kvm/arm64/arm.c
+@@ -62,9 +62,15 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
  
- $(foreach hdr,$(ARM64_SHARED_HEADERS),\
+ static u64 kvm_max_guest_address(void)
+ {
++	u64 mmfr0 = read_sanitised_ftr_reg(SYS_ID_AA64MMFR0_EL1);
++	u64 id_pa_addr;
+ 	u64 max_addr;
+ 
++	id_pa_addr = kvm_parange_to_address_sanitized(
++		SYS_FIELD_GET(ID_AA64MMFR0_EL1, PARANGE, mmfr0));
++
+ 	max_addr = min_t(u64, TASK_SIZE_MAX, sclp.hamax);
++	max_addr = min_t(u64, max_addr, id_pa_addr);
+ 	max_addr = max_t(u64, max_addr, SZ_1G - 1);
+ 	return ALIGN_DOWN(max_addr + 1, SZ_1G) - 1;
+ }
+diff --git a/arch/s390/kvm/arm64/mmu.c b/arch/s390/kvm/arm64/mmu.c
+index bf3442d3609b..b5f1dc3ca0d2 100644
+--- a/arch/s390/kvm/arm64/mmu.c
++++ b/arch/s390/kvm/arm64/mmu.c
+@@ -30,12 +30,14 @@ static int user_mem_abort(struct kvm_vcpu *vcpu, gpa_t fault_ipa,
+ 	ret = kvm_s390_faultin_gfn(vcpu, NULL, &f);
+ 	if (ret <= 0)
+ 		return ret;
+-	if (ret == PGM_ADDRESSING)
++	if (ret == PGM_ADDRESSING) {
+ 		/*
+-		 * Without the relevant sysregs we cannot do anything for now.
+-		 * Go back to userspace with an error. TODO sysreg handling
++		 * There is no page with the requested address. Inject size fault
++		 * which is the closest arm match to PGM-addressing
+ 		 */
+-		return -ENOEXEC;
++		kvm_inject_size_fault(vcpu);
++		return 1;
++	}
+ 	KVM_BUG_ON(ret, vcpu->kvm);
+ 	return -EINVAL;
+ }
+@@ -68,6 +70,33 @@ static int kvm_handle_pic(struct kvm_vcpu *vcpu, bool *translation)
+ 	return 0;
+ }
+ 
++size_t kvm_parange_to_address_sanitized(u32 id_parange)
++{
++	static u32 ranges_map[6] = {
++		[ID_AA64MMFR0_EL1_PARANGE_32] = 32,
++		[ID_AA64MMFR0_EL1_PARANGE_36] = 36,
++		[ID_AA64MMFR0_EL1_PARANGE_40] = 40,
++		[ID_AA64MMFR0_EL1_PARANGE_42] = 42,
++		[ID_AA64MMFR0_EL1_PARANGE_44] = 44,
++		[ID_AA64MMFR0_EL1_PARANGE_48] = 48,
++	};
++	u32 parange;
++
++	/*
++	 * Future values must be higher than we know already.
++	 * See ARM DDI 0487C.a. Return a safe limit.
++	 */
++	parange = ranges_map[min(id_parange, ID_AA64MMFR0_EL1_PARANGE_48)];
++	return BIT_ULL(parange);
++}
++
++static size_t kvm_get_pa_address(struct kvm *kvm)
++{
++	u32 id_parange = get_idreg_field_enum(kvm, ID_AA64MMFR0_EL1, PARANGE);
++
++	return kvm_parange_to_address_sanitized(id_parange);
++}
++
+ int kvm_handle_guest_abort(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_memory_slot *memslot;
+@@ -97,16 +126,17 @@ int kvm_handle_guest_abort(struct kvm_vcpu *vcpu)
+ 	}
+ 
+ 	if (translation) {
+-		/*
+-		 * For both cases:
+-		 * Without the relevant sysregs we cannot do anything for now.
+-		 * Go back to userspace with an error. TODO sysreg handling
+-		 */
+-		if (fault_ipa >= BIT_ULL(get_kvm_ipa_limit()))
+-			return -ENOEXEC;
++		/* Beyond sanitised PA range (which is the IPA limit) */
++		if (fault_ipa >= kvm_get_pa_address(vcpu->kvm)) {
++			kvm_inject_size_fault(vcpu);
++			return 1;
++		}
+ 
+-		if (fault_ipa >= vcpu->kvm->arch.guest_phys_size)
+-			return -ENOEXEC;
++		/* Falls between the IPA range and the PA range? */
++		if (fault_ipa >= vcpu->kvm->arch.guest_phys_size) {
++			fault_ipa |= kvm_vcpu_get_hfar(vcpu) & GENMASK(11, 0);
++			return kvm_inject_sea(vcpu, is_iabt, fault_ipa);
++		}
+ 	}
+ 
+ 	idx = srcu_read_lock(&vcpu->kvm->srcu);
+@@ -122,18 +152,14 @@ int kvm_handle_guest_abort(struct kvm_vcpu *vcpu)
+ 		 * The guest has put either its instructions or its page-tables
+ 		 * somewhere it shouldn't have. Userspace won't be able to do
+ 		 * anything about this (there's no syndrome for a start).
+-		 *
+-		 * Without the relevant sysregs we cannot do anything for now.
+-		 * Go back to userspace with an error. TODO sysreg handling
+ 		 */
+-		if (is_iabt)
++		if (is_iabt) {
++			ret = kvm_inject_sea_iabt(vcpu, kvm_vcpu_get_hfar(vcpu));
+ 			goto out_unlock;
++		}
+ 
+ 		if (kvm_vcpu_abt_iss1tw(vcpu)) {
+-			/*
+-			 * Without the relevant sysregs we cannot do anything for now.
+-			 * Go back to userspace with an error. TODO sysreg handling
+-			 */
++			ret = kvm_inject_sea_dabt(vcpu, kvm_vcpu_get_hfar(vcpu));
+ 			goto out_unlock;
+ 		}
+ 
 -- 
 2.53.0
 
