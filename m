@@ -1,39 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 151BC381E82;
-	Tue,  1 Sep 2026 08:15:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C758B1DF980;
+	Tue,  1 Sep 2026 08:28:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788250511; cv=none; b=S/IeWH3hYRXHJ5LEjPAkv2cpzO9hkP1wZZF0Bb44vwazaPAZUvbGtG0xtAjMiD/dg7h0q5swpeEER1x/f2ghU7WzQ93kdP552+xZvHtumQaiE/TaWHcsp7HmbOiZKCtO2S/XzeoERnp0zk0CKgD3AJcwPihEfnw1oSeViOoSeKg=
+	t=1788251292; cv=none; b=PhEolCcdGlxLMn0MyMtsQTgiP87ttukLCoPVnFaco6Ffyw5mEpI0tbP/4O8l0v+6kkRODD4gEeSOSrdIOOP47AfreG0FaHHQixyUVgy+7b4aP86HpoVCnIwUtJ8PSR+DdIfJzZTrSmI4ND5SR4bwYQNLwDOAvfOxG7PT9i4hGI0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788250511; c=relaxed/simple;
-	bh=STBvtDN7yMgntfEDSmdAGiB1Lo86GJRJ68hoouetrkE=;
+	s=arc-20240116; t=1788251292; c=relaxed/simple;
+	bh=OqAOUNBTRJ6Nxf+QfYPH8EV0QrQsTK1olJ7qjjS3yRk=;
 	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=bxIEcKDCPGQM6JweS/V8tDRu0rVHbsBnCC4i6HbPt0fTYiNe9To6U5/1Mu8sFbTVFW0epqWnojtPcDWbWydhL1C5k8HqSWnS25fWLRJYuwnCuh4zllf2GA5y0+YVO83FmT+2B2KP3RazE5XaOb6YETA6Up6ECFp0xsufvqva/cQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f+04YShf; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=HOiQg8HVQJU0PKdFiLyjFV163w7vRrIZMAsNSROJioQ6QvXygZtKMT4KM0f4fRKmfArCE22GYIUTTgJMVFMDjYyUHCD12ZhW4PldJtIkA42pfrzTqDY7BP3u+HEHzk+zaxITTP1B8M75K6R1G+STmG65YbRnA60uQ+SCccyA3Mo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LUbLR8I/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f+04YShf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B8591F00A3D;
-	Tue,  1 Sep 2026 08:15:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LUbLR8I/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3F7B1F000E9;
+	Tue,  1 Sep 2026 08:28:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788250509;
-	bh=5bF2Zr22zF1ExN0EBKh2uA/sdQi5I3Kk26013OME4S8=;
+	s=k20260515; t=1788251290;
+	bh=NFMGPc5SrnGwaCZ7sUtMBJVB/X1XYqXdBON1UU2MYc4=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=f+04YShfVti8/cuhke4D7kJFqxFJsy/0WRmPZoRm44J/TpyaVrsuMUilYuEv57qF7
-	 BxRAuZFlcvpDPWvntn24KOWxVebGYNMdSnDwR1mkGXmS9wNdP9O+EdoBAdCI31jrDj
-	 +9xLtopMsYpAgaj5iVi2ZxnpUShZGJM9qRmAcipKVozKCN9W2nyaKbwVWjPeWj/1c1
-	 bPlME1pRoOkF63nMYGjx+W16Cvduj0k5orLtVRXRVQXaTiqDMxsyPdZvrsk07BSz5/
-	 GPYhd2lRaYFEnfbM3yHn3HiGYVu/rgEcfzYtg3XB6EgNc5cHxfqGnVaLylF3antfL+
-	 e/4CrboZha/Fg==
+	b=LUbLR8I/AqanKIO8TlOgWzWlfplmYbMrAWrTt8eA/g8nYlLcJfGGR7Vut046WYyax
+	 WOI0S2W14PVYgXuR3JE8eDs6cPtK7LZeur8FYqHq5XzED9iQnNFLkVR6iYK/aCK1cF
+	 3eaJcKMy4EAaSf1hxX/1TYPorf2dIt4Wb0+UCVvgmAsLzcEffzFkhB41D39M8urbvR
+	 mrxxaDl6B5YoWtZEb7J1oP8t6BiTKsPvJxQGDsTc7EdJZCW6d3dmURR7EjU8hCv+tl
+	 WNEJjKWG0/7ulI4wOmUqfSaf1pCvcHibFAqXP+0MveYwQKYWqCJVA+0rJLqPINAD9M
+	 DPlb0NyfWby9Q==
 Received: from sofa.misterjones.org ([185.219.108.64] helo=lobster-girl.misterjones.org)
 	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.98.2)
 	(envelope-from <maz@kernel.org>)
-	id 1x1Je7-00000003CMj-1bxe;
-	Tue, 01 Sep 2026 08:15:07 +0000
-Date: Tue, 01 Sep 2026 09:17:39 +0100
-Message-ID: <87pkyxmllo.wl-maz@kernel.org>
+	id 1x1Jqh-00000003Cie-3E0s;
+	Tue, 01 Sep 2026 08:28:07 +0000
+Date: Tue, 01 Sep 2026 09:30:40 +0100
+Message-ID: <87o6ehmkzz.wl-maz@kernel.org>
 From: Marc Zyngier <maz@kernel.org>
 To: Steffen Eiden <seiden@linux.ibm.com>
 Cc: kvm@vger.kernel.org,
@@ -67,10 +67,10 @@ Cc: kvm@vger.kernel.org,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Will Deacon <will@kernel.org>,
 	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v2 06/20] KVM: arm64: Prepare sys_regs.c for sharing with s390
-In-Reply-To: <20260831145536.913567-7-seiden@linux.ibm.com>
+Subject: Re: [PATCH v2 07/20] KVM: arm64: Share more arm64 code with s390
+In-Reply-To: <20260831145536.913567-8-seiden@linux.ibm.com>
 References: <20260831145536.913567-1-seiden@linux.ibm.com>
-	<20260831145536.913567-7-seiden@linux.ibm.com>
+	<20260831145536.913567-8-seiden@linux.ibm.com>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
  FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
  (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -86,194 +86,326 @@ X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux
 X-SA-Exim-Mail-From: maz@kernel.org
 X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-On Mon, 31 Aug 2026 15:55:21 +0100,
+On Mon, 31 Aug 2026 15:55:22 +0100,
 Steffen Eiden <seiden@linux.ibm.com> wrote:
 > 
-> Prepare sharing of sys_regs.c with s390 by moving functions to another
-> location inside sys_regs.c. This reduces the number of shared regions.
+> Mark functions that s390 can use to implement arm on s390 as shared
+> functions.
+
+More of what? For what purpose? What is the logic behind exposing
+snippets of code to S390? This patch tags some PAuth stuff, a bunch of
+SVE definitions, and a whole lot of sysreg helpers.
+
+What is the rationale for this organisation? I can't see any, and it
+just looks like a very random approach to the problem.
+
+I want to see logic, a progression. Something I can follow.
+
 > 
 > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 > ---
->  arch/arm64/kvm/sys_regs.c | 100 +++++++++++++++++++-------------------
->  arch/s390/kvm/arm64/arm.c |   2 +
->  2 files changed, 52 insertions(+), 50 deletions(-)
+>  arch/arm64/kvm/arm.c      |  3 +++
+>  arch/arm64/kvm/guest.c    | 11 +++++++----
+>  arch/arm64/kvm/sys_regs.c | 36 ++++++++++++++++++++++++++++++++++++
+>  3 files changed, 46 insertions(+), 4 deletions(-)
 > 
-> diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
-> index 7d0047b542f4..53d096803d9d 100644
-> --- a/arch/arm64/kvm/sys_regs.c
-> +++ b/arch/arm64/kvm/sys_regs.c
-> @@ -2043,13 +2043,6 @@ static inline bool is_vcpu_ftr_id_reg(u32 id)
->  	return is_feature_id_reg(id) && !is_vm_ftr_id_reg(id);
+> diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+> index 6b92a3c1d490..62e8b32ee74e 100644
+> --- a/arch/arm64/kvm/arm.c
+> +++ b/arch/arm64/kvm/arm.c
+> @@ -340,6 +340,7 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+>  	kvm_arm_teardown_hypercalls(kvm);
 >  }
 >  
-> -static inline bool is_aa32_id_reg(u32 id)
-> -{
-> -	return (sys_reg_Op0(id) == 3 && sys_reg_Op1(id) == 0 &&
-> -		sys_reg_CRn(id) == 0 && sys_reg_CRm(id) >= 1 &&
-> -		sys_reg_CRm(id) <= 3);
-> -}
-> -
->  static unsigned int id_visibility(const struct kvm_vcpu *vcpu,
->  				  const struct sys_reg_desc *r)
+> +#ifdef ARM64_S390_COMMON
+>  static bool kvm_has_full_ptr_auth(void)
 >  {
-> @@ -2065,20 +2058,6 @@ static unsigned int id_visibility(const struct kvm_vcpu *vcpu,
+>  	bool apa, gpa, api, gpi, apa3, gpa3;
+> @@ -374,6 +375,8 @@ static bool kvm_has_full_ptr_auth(void)
+>  		(apa + api + apa3) == 1);
+>  }
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+
+This could have been done much earlier.
+
+>  int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  {
+>  	int r;
+> diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
+> index 6ca5a9f357cd..e978b2fbeb76 100644
+> --- a/arch/arm64/kvm/guest.c
+> +++ b/arch/arm64/kvm/guest.c
+> @@ -307,12 +307,12 @@ static int set_core_reg(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
+>  	return err;
+>  }
+>  
+> -#endif /* ARM64_S390_COMMON */
+> -
+>  #define vq_word(vq) (((vq) - SVE_VQ_MIN) / 64)
+>  #define vq_mask(vq) ((u64)1 << ((vq) - SVE_VQ_MIN) % 64)
+>  #define vq_present(vqs, vq) (!!((vqs)[vq_word(vq)] & vq_mask(vq)))
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+
+Pointless churn.
+
+>  static int get_sve_vls(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
+>  {
+>  	unsigned int max_vq, vq;
+> @@ -383,6 +383,7 @@ static int set_sve_vls(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
 >  	return 0;
 >  }
 >  
-> -static unsigned int aa32_id_visibility(const struct kvm_vcpu *vcpu,
-> -				       const struct sys_reg_desc *r)
-> -{
-> -	/*
-> -	 * AArch32 ID registers are UNKNOWN if AArch32 isn't implemented at any
-> -	 * EL. Promote to RAZ/WI in order to guarantee consistency between
-> -	 * systems.
-> -	 */
-> -	if (!kvm_supports_32bit_el0())
-> -		return REG_RAZ | REG_USER_WI;
+> +#ifdef ARM64_S390_COMMON
+>  #define SVE_REG_SLICE_SHIFT	0
+>  #define SVE_REG_SLICE_BITS	5
+>  #define SVE_REG_ID_SHIFT	(SVE_REG_SLICE_SHIFT + SVE_REG_SLICE_BITS)
+> @@ -399,6 +400,8 @@ static int set_sve_vls(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
+>  #define KVM_SVE_ZREG_SIZE KVM_REG_SIZE(KVM_REG_ARM64_SVE_ZREG(0, 0))
+>  #define KVM_SVE_PREG_SIZE KVM_REG_SIZE(KVM_REG_ARM64_SVE_PREG(0, 0))
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+>  /*
+>   * Number of register slices required to cover each whole SVE register.
+>   * NOTE: Only the first slice every exists, for now.
+> @@ -595,8 +598,6 @@ static unsigned long num_core_regs(const struct kvm_vcpu *vcpu)
+>  	return copy_core_reg_indices(vcpu, NULL);
+>  }
+>  
+> -#endif /* ARM64_S390_COMMON */
 > -
-> -	return id_visibility(vcpu, r);
-> -}
-> -
->  static unsigned int raz_visibility(const struct kvm_vcpu *vcpu,
->  				   const struct sys_reg_desc *r)
+>  static unsigned long num_sve_regs(const struct kvm_vcpu *vcpu)
 >  {
-> @@ -2099,6 +2078,27 @@ static bool access_id_reg(struct kvm_vcpu *vcpu,
->  	return true;
+>  	const unsigned int slices = vcpu_sve_slices(vcpu);
+> @@ -658,6 +659,8 @@ static int copy_sve_reg_indices(const struct kvm_vcpu *vcpu,
+>  	return num_regs;
 >  }
 >  
-> +static unsigned int aa32_id_visibility(const struct kvm_vcpu *vcpu,
-> +				       const struct sys_reg_desc *r)
-> +{
-> +	/*
-> +	 * AArch32 ID registers are UNKNOWN if AArch32 isn't implemented at any
-> +	 * EL. Promote to RAZ/WI in order to guarantee consistency between
-> +	 * systems.
-> +	 */
-> +	if (!kvm_supports_32bit_el0())
-> +		return REG_RAZ | REG_USER_WI;
-> +
-> +	return id_visibility(vcpu, r);
-> +}
-> +
-> +static inline bool is_aa32_id_reg(u32 id)
-> +{
-> +	return (sys_reg_Op0(id) == 3 && sys_reg_Op1(id) == 0 &&
-> +		sys_reg_CRn(id) == 0 && sys_reg_CRm(id) >= 1 &&
-> +		sys_reg_CRm(id) <= 3);
-> +}
-> +
->  /* Visibility overrides for SVE-specific control registers */
->  static unsigned int sve_visibility(const struct kvm_vcpu *vcpu,
->  				   const struct sys_reg_desc *rd)
-> @@ -2553,29 +2553,6 @@ void kvm_set_vm_id_reg(struct kvm *kvm, u32 reg, u64 val)
->  	*p = val;
->  }
->  
-> -static int get_raz_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
-> -		       u64 *val)
-> -{
-> -	*val = 0;
-> -	return 0;
-> -}
-> -
-> -static int set_wi_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
-> -		      u64 val)
-> -{
-> -	return 0;
-> -}
-> -
-> -static bool access_ctr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
-> -		       const struct sys_reg_desc *r)
-> -{
-> -	if (p->is_write)
-> -		return write_to_read_only(vcpu, p, r);
-> -
-> -	p->regval = kvm_read_vm_id_reg(vcpu->kvm, SYS_CTR_EL0);
-> -	return true;
-> -}
-> -
->  static bool access_clidr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
->  			 const struct sys_reg_desc *r)
->  {
-> @@ -2684,6 +2661,29 @@ static bool access_ccsidr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
->  	return true;
->  }
->  
-> +static int get_raz_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
-> +		       u64 *val)
-> +{
-> +	*val = 0;
-> +	return 0;
-> +}
-> +
-> +static int set_wi_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
-> +		      u64 val)
-> +{
-> +	return 0;
-> +}
-> +
-> +static bool access_ctr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
-> +		       const struct sys_reg_desc *r)
-> +{
-> +	if (p->is_write)
-> +		return write_to_read_only(vcpu, p, r);
-> +
-> +	p->regval = kvm_read_vm_id_reg(vcpu->kvm, SYS_CTR_EL0);
-> +	return true;
-> +}
-> +
->  static unsigned int mte_visibility(const struct kvm_vcpu *vcpu,
->  				   const struct sys_reg_desc *rd)
->  {
-> @@ -4855,12 +4855,6 @@ static bool check_sysreg_table(const struct sys_reg_desc *table, unsigned int n,
->  	return true;
->  }
->  
-> -int kvm_handle_cp14_load_store(struct kvm_vcpu *vcpu)
-> -{
-> -	kvm_inject_undefined(vcpu);
-> -	return 1;
-> -}
-> -
->  static void perform_access(struct kvm_vcpu *vcpu,
->  			   struct sys_reg_params *params,
->  			   const struct sys_reg_desc *r)
-> @@ -4944,6 +4938,12 @@ static void unhandled_cp_access(struct kvm_vcpu *vcpu,
->  	kvm_inject_undefined(vcpu);
->  }
->  
-> +int kvm_handle_cp14_load_store(struct kvm_vcpu *vcpu)
-> +{
-> +	kvm_inject_undefined(vcpu);
-> +	return 1;
-> +}
+> +#endif /* ARM64_S390_COMMON */
 > +
 >  /**
->   * kvm_handle_cp_64 -- handles a mrrc/mcrr trap on a guest CP14/CP15 access
+>   * kvm_arm_num_regs - how many registers do we present via KVM_GET_ONE_REG
+>   * @vcpu: the vCPU pointer
+> diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+> index 53d096803d9d..b167f9d06fd4 100644
+> --- a/arch/arm64/kvm/sys_regs.c
+> +++ b/arch/arm64/kvm/sys_regs.c
+> @@ -45,6 +45,7 @@
+>   * 64bit interface.
+>   */
+>  
+> +#ifdef ARM64_S390_COMMON
+>  static u64 sys_reg_to_index(const struct sys_reg_desc *reg);
+>  static int set_id_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+>  		      u64 val);
+> @@ -82,6 +83,8 @@ static bool write_to_read_only(struct kvm_vcpu *vcpu,
+>  			"sys_reg write to read-only register");
+>  }
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+>  enum sr_loc_attr {
+>  	SR_LOC_MEMORY	= 0,	  /* Register definitely in memory */
+>  	SR_LOC_LOADED	= BIT(0), /* Register on CPU, unless it cannot */
+> @@ -428,6 +431,7 @@ void vcpu_write_sys_reg(struct kvm_vcpu *vcpu, u64 val, enum vcpu_sysreg reg)
+>  	__vcpu_assign_sys_reg(vcpu, reg, val);
+>  }
+>  
+> +#ifdef ARM64_S390_COMMON
+>  /* CSSELR values; used to index KVM_REG_ARM_DEMUX_ID_CCSIDR */
+>  #define CSSELR_MAX 14
+>  
+> @@ -533,6 +537,8 @@ static bool access_rw(struct kvm_vcpu *vcpu,
+>  	return true;
+>  }
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+>  /*
+>   * See note at ARMv7 ARM B1.14.4 (TL;DR: S/W ops are not easily virtualized).
+>   */
+> @@ -800,6 +806,7 @@ static bool access_gicv5_ppi_enabler(struct kvm_vcpu *vcpu,
+>  	return true;
+>  }
+>  
+> +#ifdef ARM64_S390_COMMON
+>  static bool trap_raz_wi(struct kvm_vcpu *vcpu,
+>  			struct sys_reg_params *p,
+>  			const struct sys_reg_desc *r)
+> @@ -853,6 +860,8 @@ static bool trap_oslsr_el1(struct kvm_vcpu *vcpu,
+>  	return true;
+>  }
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+>  static int set_oslsr_el1(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+>  			 u64 val)
+>  {
+> @@ -1011,6 +1020,7 @@ static u64 reset_actlr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r)
+>  	return actlr;
+>  }
+>  
+> +#ifdef ARM64_S390_COMMON
+>  static u64 reset_mpidr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r)
+>  {
+>  	u64 mpidr = kvm_calculate_mpidr(vcpu);
+> @@ -1019,6 +1029,8 @@ static u64 reset_mpidr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r)
+>  	return mpidr;
+>  }
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+>  static unsigned int hidden_visibility(const struct kvm_vcpu *vcpu,
+>  				      const struct sys_reg_desc *r)
+>  {
+> @@ -1922,6 +1934,7 @@ static u8 pmuver_to_perfmon(u8 pmuver)
+>  	}
+>  }
+>  
+> +#ifdef ARM64_S390_COMMON
+>  static u64 sanitise_id_aa64pfr0_el1(const struct kvm_vcpu *vcpu, u64 val);
+>  static u64 sanitise_id_aa64pfr1_el1(const struct kvm_vcpu *vcpu, u64 val);
+>  static u64 sanitise_id_aa64pfr2_el1(const struct kvm_vcpu *vcpu, u64 val);
+> @@ -2078,6 +2091,8 @@ static bool access_id_reg(struct kvm_vcpu *vcpu,
+>  	return true;
+>  }
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+>  static unsigned int aa32_id_visibility(const struct kvm_vcpu *vcpu,
+>  				       const struct sys_reg_desc *r)
+>  {
+> @@ -2127,6 +2142,7 @@ static unsigned int fp8_visibility(const struct kvm_vcpu *vcpu,
+>  	return REG_HIDDEN;
+>  }
+>  
+> +#ifdef ARM64_S390_COMMON
+>  static u64 sanitise_id_aa64pfr0_el1(const struct kvm_vcpu *vcpu, u64 val)
+>  {
+>  	if (!vcpu_has_sve(vcpu))
+> @@ -2288,6 +2304,8 @@ static int set_id_aa64dfr0_el1(struct kvm_vcpu *vcpu,
+>  	return set_id_reg(vcpu, rd, val);
+>  }
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+>  static u64 read_sanitised_id_dfr0_el1(struct kvm_vcpu *vcpu,
+>  				      const struct sys_reg_desc *rd)
+>  {
+> @@ -2332,6 +2350,7 @@ static int set_id_dfr0_el1(struct kvm_vcpu *vcpu,
+>  	return set_id_reg(vcpu, rd, val);
+>  }
+>  
+> +#ifdef ARM64_S390_COMMON
+>  static int set_id_aa64pfr0_el1(struct kvm_vcpu *vcpu,
+>  			       const struct sys_reg_desc *rd, u64 user_val)
+>  {
+> @@ -2661,6 +2680,8 @@ static bool access_ccsidr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
+>  	return true;
+>  }
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+>  static int get_raz_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+>  		       u64 *val)
+>  {
+> @@ -2764,6 +2785,7 @@ static bool bad_redir_trap(struct kvm_vcpu *vcpu,
+>  	SYS_REG_USER_FILTER(name, access_arch_timer, reset_val, 0, \
+>  			    arch_timer_get_user, arch_timer_set_user, vis)
+>  
+> +#ifdef ARM64_S390_COMMON
+>  /*
+>   * Since reset() callback and field val are not used for idregs, they will be
+>   * used for specific purposes for idregs.
+> @@ -2840,6 +2862,8 @@ static bool bad_redir_trap(struct kvm_vcpu *vcpu,
+>  	.val = 0,				\
+>  }
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+>  static bool access_sp_el1(struct kvm_vcpu *vcpu,
+>  			  struct sys_reg_params *p,
+>  			  const struct sys_reg_desc *r)
+> @@ -3212,6 +3236,7 @@ static void init_imp_id_regs(void)
+>  	boot_cpu_aidr_val = read_sysreg(aidr_el1);
+>  }
+>  
+> +#ifdef ARM64_S390_COMMON
+>  static u64 reset_imp_id_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r)
+>  {
+>  	switch (reg_to_encoding(r)) {
+> @@ -3269,6 +3294,8 @@ static int set_imp_id_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r,
+>  	.val = mask,					\
+>  	}
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+>  static u64 reset_mdcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r)
+>  {
+>  	__vcpu_assign_sys_reg(vcpu, r->reg, vcpu->kvm->arch.nr_pmu_counters);
+> @@ -4833,6 +4860,7 @@ static const struct sys_reg_desc cp15_64_regs[] = {
+>  	{ SYS_DESC(SYS_AARCH32_CNTVCTSS),     access_arch_timer },
+>  };
+>  
+> +#ifdef ARM64_S390_COMMON
+>  static bool check_sysreg_table(const struct sys_reg_desc *table, unsigned int n,
+>  			       bool reset_check)
+>  {
+> @@ -4882,6 +4910,8 @@ static void perform_access(struct kvm_vcpu *vcpu,
+>  		kvm_incr_pc(vcpu);
+>  }
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+>  /*
+>   * emulate_cp --  tries to match a sys_reg access in a handling table, and
+>   *                call the corresponding trap handler.
+> @@ -5340,6 +5370,7 @@ void kvm_sys_regs_create_debugfs(struct kvm *kvm)
+>  			    &sr_resx_fops);
+>  }
+>  
+> +#ifdef ARM64_S390_COMMON
+>  static void reset_vm_ftr_id_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *reg)
+>  {
+>  	u32 id = reg_to_encoding(reg);
+> @@ -5360,6 +5391,8 @@ static void reset_vcpu_ftr_id_reg(struct kvm_vcpu *vcpu,
+>  	reg->reset(vcpu, reg);
+>  }
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+>  /**
+>   * kvm_reset_sys_regs - sets system registers to reset value
 >   * @vcpu: The VCPU pointer
-> diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
-> index 3caa72f780a5..2740ee3b703e 100644
-> --- a/arch/s390/kvm/arm64/arm.c
-> +++ b/arch/s390/kvm/arm64/arm.c
-> @@ -9,6 +9,7 @@
->  #include <linux/kvm_host.h>
->  #include <linux/cleanup.h>
->  #include <linux/fpu.h>
-> +#include <linux/bitfield.h>
+> @@ -5432,6 +5465,7 @@ int kvm_handle_sys_reg(struct kvm_vcpu *vcpu)
+>  	return 1;
+>  }
 >  
->  #include <asm/access-regs.h>
+> +#ifdef ARM64_S390_COMMON
+>  /******************************************************************************
+>   * Userspace API
+>   *****************************************************************************/
+> @@ -5753,6 +5787,8 @@ int kvm_arm_copy_sys_reg_indices(struct kvm_vcpu *vcpu, u64 __user *uindices)
+>  	return write_demux_regids(uindices);
+>  }
 >  
-> @@ -25,6 +26,7 @@
->  #include "trace.h"
->  
->  static unsigned long system_supported_vcpu_features(void);
-> +#define read_sanitised_ftr_reg(_id) 0
->  
->  #define __INCL_GEN_ARM_FILE
->  #include "generated/arm.inc"
+> +#endif /* ARM64_S390_COMMON */
+> +
+>  #define KVM_ARM_FEATURE_ID_RANGE_INDEX(r)			\
+>  	KVM_ARM_FEATURE_ID_RANGE_IDX(sys_reg_Op0(r),		\
+>  		sys_reg_Op1(r),					\
 
-Please split this. arm64 refactor and S390 changes should not be part
-of the same patch.
+The way you pick and chose random helpers feels *VERY* wrong. I really
+want to understand the rationale for not using most of it, *including*
+the sysreg arrays as a whole. Everything in this file is (or at leats
+aims to be) architectural, and should be directly reused.
+
+It should only be a matter of providing the required indirection to
+access the S390 representation of the arm64 state.
 
 	M.
 
