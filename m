@@ -1,35 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D2033812C7;
-	Tue,  1 Sep 2026 11:05:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B042025B08E;
+	Tue,  1 Sep 2026 11:05:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788260743; cv=none; b=hQZvOyxMM+/pgMI4wbXckeJExWiEzGzukVkgXY+vWXDg7RFnNXDUTyvj6KZW25rR45OGeQxnxnmiUye6jGptbRgliXMntTmO+xpJm1iwAsDuOOygix4JIVRfy9fXAUcASJRfQ6l3dPk0u+0AwZYIqTb6228/gZhSEfDqp8FDphA=
+	t=1788260758; cv=none; b=qkqecIGu9yPY45r18SGq5gOzn6p5H3IT8yd57kOZ50miTAmEHb56pWbVaRzmHmMKItGZN08F/deBRtgNZ3wAfhDyiAksevqRXqRPplndW/DD5oirSQ32ZDF+FjsR6ZU3pIajVCsYRSUQbH2NuFz9S0wa9RNnLtT3TomvqSuifvs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788260743; c=relaxed/simple;
-	bh=yQUOoL+4VfJjLW5MASkaQAQ+ZTfTJR7/6HJ0TBTi3s0=;
+	s=arc-20240116; t=1788260758; c=relaxed/simple;
+	bh=mgr1uJE8DIP+D2hAcn/4VQ8oaO28pfdyIohSciDSfkU=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=A3jDKqj/5KLKTSKmGxiX+7vidxOv2VSy+f4Ps1Rq6PakC9RpU6Z3tSR+woKyra/pAvr2erQxWz3oKLo5r8AP+KSITIF8IU6ocO02QjhfO3QPnBmc07ldOpw9JQiDZZ490ITSDAUGw/5ywRrVIMwgQaVnP3+vFmrqIAB8vWXBuE0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L3y3kV7x; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=OL5CtzpTe8liqMhBo36WP0PYw8itemLeBOk9IIw3u5lD36DR0teRaxGxV5muEiewNoYhlrfZYYa43pUPE/AEnJqjYKwUPpILCl/0B8qtYwPapMrx4TtW1UDF3b+HnV5UnqcX/XjCMNgNl0jTUz3i9mmAfoEEuoxIODvH/47DrAc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eoW+Vg+q; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L3y3kV7x"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C2071F00A3E;
-	Tue,  1 Sep 2026 11:05:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eoW+Vg+q"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8662C1F00A3F;
+	Tue,  1 Sep 2026 11:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788260742;
-	bh=hla1P//jUaEzl3P+0ure5xER+YPzVxn4O3sMhLZO6MY=;
+	s=k20260515; t=1788260757;
+	bh=+MMfaleDm2ce+ucIbxA7OEsrjCLcZrtuUhG+cgJq5Q4=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=L3y3kV7xP4GUQ6JyAP1rkMfIJXYsMZuVy5QNWrVPBCCzYr1m/zRVW74DSR8ResTEo
-	 WECSOQnrU2KwpiuxpnTE1UA4d0FuoyXQN0d9YE8EolumEfUnyTDwNtfcIDlVt7KloM
-	 Stb30O4xGLB71yHukiz+OKGtLc6cEZomjcvLv5MGQtofBh9wawUjL0jBb3Msd7sAAZ
-	 UQV3deK3RVrSb71bdlxmKN+UU8YmueQsNT1pLtnZXPue42MCyLg+NcShK8lTEjZWG1
-	 n1ra/YYdx3fQ7xc+3cCJ2jrd3TuuBiCegbd5mwrOkD16uT7hXFpLqmM3fEm53lwmes
-	 8rubg+iwF6wZw==
+	b=eoW+Vg+qz0TYTuS8zmuLmeUVjLD9WlshmY+ZenPXLM12mbhI0Hz+5CrJFrOV2T9L2
+	 DfnwpLRVXPJIJ5xaVjBq5RrsmTcN5BVQ+4BxNS3PRVo6vCXz2hTT7eoedZk9XGRGQ1
+	 /Hkasly2r7zC5IrTB2wqqw1uFHDxP3VbX2vsjVwcbFzeA3v77TJUj0jUSwZmvH037w
+	 jo6A6EKvKBWWSb6p1boQBBN0eCIMaDEglu0JysxZO8jL0TOkjZDk8qLhnPrFePf9QW
+	 ZIEhpZKTn+4p45kDejAkDB20sutoUd3Rvy2sOql5HOjF+6fSnPjp3wrlW5fxVmRFG7
+	 lIqFWgBbg/hiA==
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Date: Tue, 01 Sep 2026 12:01:22 +0100
-Subject: [PATCH 02/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for most
- 2-level architectures
+Date: Tue, 01 Sep 2026 12:01:23 +0100
+Subject: [PATCH 03/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU riscv
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -38,7 +37,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260901-rcu-pagetable-freeing-v1-2-5456a81c8212@kernel.org>
+Message-Id: <20260901-rcu-pagetable-freeing-v1-3-5456a81c8212@kernel.org>
 References: <20260901-rcu-pagetable-freeing-v1-0-5456a81c8212@kernel.org>
 In-Reply-To: <20260901-rcu-pagetable-freeing-v1-0-5456a81c8212@kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, 
@@ -101,116 +100,57 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  linux-um@lists.infradead.org, Hugh Dickins <hughd@google.com>, 
  Qi Zheng <qi.zheng@linux.dev>, "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3562; i=ljs@kernel.org;
- h=from:subject:message-id; bh=yQUOoL+4VfJjLW5MASkaQAQ+ZTfTJR7/6HJ0TBTi3s0=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLKmbXQPXtAV0qUlJhy9XffShy3TVrz3O6nqNue9t23Bu
- r/Of/03dJSyMIhxMciKKbI8/yK+P0gkbF7nBX83mDmsTCBDGLg4BWAiOzMZ/vBU++3nub25tjfv
- Qf2t/WUP0zW8N+9MaBTdWsl+irnghQEjw/S+adZz8t7f50p6sVxQLcWQN5PVj/VIc+/dA5+L/rS
- GsAIA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1550; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=mgr1uJE8DIP+D2hAcn/4VQ8oaO28pfdyIohSciDSfkU=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLKmbXSXiAr54Z2+e3/IyQLbrwq3pEWNe54fXRhv7c9z+
+ eHq5ZPvd5SyMIhxMciKKbI8/yK+P0gkbF7nBX83mDmsTCBDGLg4BWAi810YGZ473c5+lTTPzG3p
+ jyPOr7IEs8NnOJ08pckTV658qObJoxkM/ywtf19cV6htlbYgf/Gc6bMXCRs1LRUv98tOtcrY+Va
+ nnAEA
 X-Developer-Key: i=ljs@kernel.org; a=openpgp;
  fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-Commit e3ecf7c7d082 ("mm: pgtable: convert some architectures to use
-tlb_remove_ptdesc()") updated a number of architectures from using
-pagetable_dtor() + tlb_remove_page_ptdesc() to using tlb_remove_ptdesc() in
-__pte_free_tlb().
+Currently riscv gates MMU_GATHER_RCU_TABLE_FREE on CONFIG_SMP and
+CONFIG_MMU.
 
-This is meaningful as tlb_remove_ptdesc() allows for RCU page table
-freeing if CONFIG_MMU_GATHER_RCU_TABLE_FREE is specified.
+Commit 69be3fb111e7 ("riscv: enable MMU_GATHER_RCU_TABLE_FREE for SMP &&
+MMU") enabled CONFIG_MMU_GATHER_RCU_TABLE_FREE for CONFIG_SMP, CONFIG_MMU
+riscv builds.
 
-The csky, hexagon, nios2, openrisc, sh (except X2) and m68k-sun3
-architectures all have 2 levels of page tables, so the only page tables
-ever freed by mmu_gather are PTEs, so this update suffices to ensure that
-every page table freed by the mmu_gather mechanism is freed under RCU.
+This is expressly for the safety of GUP-fast walkers (CONFIG_HAVE_GUP_FAST
+is enabled if CONFIG_MMU is enabled).
 
-Therefore, update all of these architectures to select
-CONFIG_MMU_GATHER_RCU_TABLE_FREE.
+Naturally a single core system does not encounter issues with software page
+table walkers being correctly synchronised across cores, as there is only a
+single core.
+
+However, CONFIG_PREEMPT_RCU is still available on a riscv UP system, so for
+a future RCU-only page table walker, this guarantee is required to prevent
+concurrent page table teardown.
+
+All page table freeing is already done via tlb_remove_ptdesc() so the
+conditions of CONFIG_MMU_GATHER_RCU_TABLE_FREE are already met.
 
 This forms part of an overall effort to switch every architecture to this
 mode.
 
 Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 ---
- arch/csky/Kconfig     | 1 +
- arch/hexagon/Kconfig  | 1 +
- arch/m68k/Kconfig     | 1 +
- arch/nios2/Kconfig    | 1 +
- arch/openrisc/Kconfig | 1 +
- arch/sh/Kconfig       | 1 +
- 6 files changed, 6 insertions(+)
+ arch/riscv/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
-index 4331313a42ff..80f89ef1d962 100644
---- a/arch/csky/Kconfig
-+++ b/arch/csky/Kconfig
-@@ -96,6 +96,7 @@ config CSKY
- 	select HAVE_SYSCALL_TRACEPOINTS
- 	select HOTPLUG_CORE_SYNC_DEAD if HOTPLUG_CPU
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 505eed4af932..3529ed1861ce 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -208,7 +208,7 @@ config RISCV
+ 	select IRQ_FORCED_THREADING
+ 	select KASAN_VMALLOC if KASAN
  	select LOCK_MM_AND_FIND_VMA
-+	select MMU_GATHER_RCU_TABLE_FREE
- 	select MAY_HAVE_SPARSE_IRQ
+-	select MMU_GATHER_RCU_TABLE_FREE if SMP && MMU
++	select MMU_GATHER_RCU_TABLE_FREE if MMU
  	select MODULES_USE_ELF_RELA if MODULES
  	select OF
-diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-index b48491140013..d9b3fb86556b 100644
---- a/arch/hexagon/Kconfig
-+++ b/arch/hexagon/Kconfig
-@@ -23,6 +23,7 @@ config HEXAGON
- 	# select HAVE_CLK
- 	select GENERIC_ATOMIC64
- 	select HAVE_PERF_EVENTS
-+	select MMU_GATHER_RCU_TABLE_FREE
- 	# GENERIC_ALLOCATOR is used by dma_alloc_coherent()
- 	select GENERIC_ALLOCATOR
- 	select GENERIC_IRQ_PROBE
-diff --git a/arch/m68k/Kconfig b/arch/m68k/Kconfig
-index 11835eb59d94..e29610fd1240 100644
---- a/arch/m68k/Kconfig
-+++ b/arch/m68k/Kconfig
-@@ -36,6 +36,7 @@ config M68K
- 	select HAVE_MOD_ARCH_SPECIFIC
- 	select HAVE_UID16
- 	select MMU_GATHER_NO_RANGE if MMU
-+	select MMU_GATHER_RCU_TABLE_FREE if MMU && SUN3
- 	select MODULES_USE_ELF_REL
- 	select MODULES_USE_ELF_RELA
- 	select NO_DMA if !MMU && !COLDFIRE
-diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
-index 9c0e6eaeb005..b0ccfc3b7a7e 100644
---- a/arch/nios2/Kconfig
-+++ b/arch/nios2/Kconfig
-@@ -19,6 +19,7 @@ config NIOS2
- 	select HAVE_PAGE_SIZE_4KB
- 	select IRQ_DOMAIN
- 	select LOCK_MM_AND_FIND_VMA
-+	select MMU_GATHER_RCU_TABLE_FREE
- 	select MODULES_USE_ELF_RELA
- 	select OF
  	select OF_EARLY_FLATTREE
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index 5eb995c13074..d90b24dd3bce 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -35,6 +35,7 @@ config OPENRISC
- 	select GENERIC_ATOMIC64
- 	select GENERIC_CLOCKEVENTS_BROADCAST
- 	select GENERIC_SMP_IDLE_THREAD
-+	select MMU_GATHER_RCU_TABLE_FREE
- 	select MODULES_USE_ELF_RELA
- 	select HAVE_DEBUG_STACKOVERFLOW
- 	select OR1K_PIC
-diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
-index d60f1d5a94c0..204f64912f0e 100644
---- a/arch/sh/Kconfig
-+++ b/arch/sh/Kconfig
-@@ -61,6 +61,7 @@ config SUPERH
- 	select HAVE_SYSCALL_TRACEPOINTS
- 	select IRQ_FORCED_THREADING
- 	select LOCK_MM_AND_FIND_VMA
-+	select MMU_GATHER_RCU_TABLE_FREE if MMU && !X2TLB
- 	select MODULES_USE_ELF_RELA
- 	select NEED_SG_DMA_LENGTH
- 	select NO_DMA if !MMU && !DMA_COHERENT
 
 -- 
 2.55.0
