@@ -1,117 +1,199 @@
-Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07C5939C632;
-	Tue,  1 Sep 2026 13:02:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CE462253B0;
+	Tue,  1 Sep 2026 13:20:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788267733; cv=none; b=YvGconoHpkvbwILQy2a4Tb+VDFiiwKHX5556JpHQlBpv5hnHFzo2MALUORmdf2461xyBziXoU/JyY09YTndcWRFgfrbcn93fch/EvG07P0rC2aP+dps2A/9fYbv50gdw3QH75/4IJ/9TcZ/CryE5rtkOSg1U9kp0YbYVU9pio4Q=
+	t=1788268801; cv=none; b=IC23seYrJ7cyjgTFK8D01By6dZUfP6gMILtZDaYJNYkIiNO3KkoxWKZr0e75Ss7ZLEslw5V713gFBUE7k5x90IvqrnHe1itwGzr8nCN/aaW/IxcurfPTNY8BJAPIO+RCjcdSFujyYykb2MowMgvcqiLGgjTAAleFy+cAV/PRjso=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788267733; c=relaxed/simple;
-	bh=pZUMlEwtsaEeH7TVMF5qsqoi7Zgr+VsMU0EuwmAA45I=;
+	s=arc-20240116; t=1788268801; c=relaxed/simple;
+	bh=eT1V0pLUlVeZdaUVekYBHkCNyU6motoBz9FKZ1+NLWk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CvLD2iVaTMaBtyeB/9D4Dtis87qSYaGhdUj/rKDVcy9V/zWqjc8MJxtJGsOHo5Wcsze10J2TycgkLQqOTs9xA9Oibypo/6Zusvq/5dfaWbwPbDDW9TlOgMGnI3DJcQXMNXolKqPAL1e4WuBsZJ4Il8L20PG8qJ8Lecu7kitm+gw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=c9fTC4u0; arc=none smtp.client-ip=115.124.30.97
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=oCxTQTD/bLU0cQ3MKB+5qqrj12FKo+PDMFXMX5gs8vCxdqbZWALV9lA/VgamKpyjHh7QFc6/3UHqmweY6Ci1Z9X8Y8A7jnmxcjDHQQrbiWwqRAi0d4gONST3N0jsqghCkj17Hy0/QuPyg8TiJ4/S4jBzy3ad5XEUY8Ew/LNkmR4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YqlxnTL4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="c9fTC4u0"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1788267722; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=ppWzcSYLfmdmUEwetfWNeyyHnWXusGFRwvVsm+qIFG8=;
-	b=c9fTC4u0sW16Jw5RG5bR+SGcvOCz98cMeG47wuP+Fal/Qmi0bYCPBBP2EAaofMHbEm9WM/fljcDHMilifyl4WmxWoFnFiWQZqucrmCNV8jue7OSqrYtUelxCdvz8jUKHr/dFyiTt4isfGe0qF7LJ465OZW6G+7CZj9nFWa0wPPI=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045098064;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0XA8SIPL_1788267721;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0XA8SIPL_1788267721 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 01 Sep 2026 21:02:01 +0800
-Date: Tue, 1 Sep 2026 21:02:00 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Mahanta Jambigi <mjambigi@linux.ibm.com>, andrew+netdev@lunn.ch,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, alibuda@linux.alibaba.com, sidraya@linux.ibm.com,
-	hidayath@linux.ibm.com
-Cc: pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com, stable@vger.kernel.org,
-	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net v2 0/2] net/smc: fix diag dump lifetime races
-Message-ID: <apbMyLc0IhLMKwwA@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20260828065439.3582783-1-mjambigi@linux.ibm.com>
- <apWEzobrZ3QR3IfN@linux.alibaba.com>
- <4f303f9f-fd20-475a-8004-1a670dfd34df@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YqlxnTL4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54EDE1F00ADB;
+	Tue,  1 Sep 2026 13:19:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788268800;
+	bh=4K0ioKV5pbE4Ef4e+GKU9dV30pSsLWe3AR7B9Tx4qSs=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=YqlxnTL4ZXmobuSbpyRbXRaHmJXWSr3W9S3fcHAQ0A64HKpv85oM1qZK2+YmvUvmX
+	 F58x05VyzJYN/ehjx84LayGDjCm89bCZy9RfuLUb8NqUyxcbr9KSjAD7QTUHRx4NVA
+	 SoSOA+O7pMM4NVb6lwFVSiLVY7WqF93wNaiihVLU6y3nKc7QxUce7krnh8dgfvs94k
+	 0gP0OnpjgUfxjGix0oUv3ET+yBkangnR8aMbv/tXRBgHWmspAzwQj3ZBh6JGCuThDl
+	 /sHbYwK7it1rmRovUE4A3nUFyNfmYuPu4cSJld/l2Muk1ALJZosrerqCy7wX6bCqMt
+	 8INe4tGpbDM2Q==
+Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
+	by mailfauth.ams.internal (Postfix) with ESMTP id 2F80A1980077;
+	Tue,  1 Sep 2026 09:19:40 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-06.internal (MEProxy); Tue, 01 Sep 2026 09:19:54 -0400
+X-ME-Sender: <xms:69CWaij5CIKvTS9JuyLleD9s3d7G5S5Cj7oKCUXn13hGseHouuUSag>
+    <xme:69CWalGYd0dc4bcEB3etN9RaYjD7HYzO3v8zVyh93Vx39I_dw7XkZfKP4mbB2pf7a
+    yCC0ABYtDzS2RhTTaZ8dfYsqjhrn_rW7zK2cNPqftkFgUuGuUM2EbU>
+X-ME-Received: <xmr:69CWakpbzJqHJeJRbHpsk7ongNC4txO1ZIIt3gTXSf5VUVWH2Pd6FvJ1H9I>
+X-ME-Proxy-Cause: dmFkZTED3aWKojbGUYTqgDI4X4V0F1d+uDC9XUKSeGM5bAtqyf5WoNCcWI8qt7irq+Ycdg
+    bP5uMN9J8wue1zj+h4Z5VdmIt5CyC8BtMot40mK2bNoOWP05XNwub7F63HzCejIFCNIwU/
+    RwHR/oPnELuI/pgmRue+HPnpkTdxXI2tXXPwQ2XhlfjvZIyZNXMaGXgwL56LFN8ekEPBpX
+    QHxLvpjiYjeppSsNC9jkLgljlvJ1f2Rzug/Wzpp30FOzo3biGRK3SJKG4JlcSiSKZV9ApN
+    zrblGjeaDfaFoFocDCMSOSTBkwTuSjYQbyrO3U+OcC3IfSEQwCfo2jZutbaEZD8ORHkhOE
+    WPvmJHx9cOwRkRzLLHMzt61/y2dH4FBScykL+eQjNlgsUwsdGo8YayjIDE2cNUryQs77Zd
+    37yui7ur2Ub4PTGWPTH9vPA/z72KJMVvxVCmJnutZO95zEQmQXdIrYDwRwD/10g1bSXWZv
+    5p+rN+4d/l5/jwP9h6pMcwNHnHfrSrfKBvZnNqJN04rROPvVro5LWQHKMqJWCKH7KIqXhO
+    kz5cBC197p3oqrUj3bWQUgF9WsFamkEjWJi6OvK/8e1HSfRwBSOXnE0kOoNrxeox4eX16r
+    l1yAPWeATBw9u3K+ZxIBaBaFYwt+eQJwZRgzLVYgXvtgrAI3wFtXeAw7uu+A
+X-ME-Proxy: <xmx:69CWajFHifz_SIwkxD4BIVpzvuUpvQr-YiTHagPH4og2FD21YdNJgQ>
+    <xmx:69CWaoqTHEsNOtjshNsJ3CUngn2ZISAQFdZ45ashJ5fK9S2FYQS66w>
+    <xmx:69CWagU-DnjgEXTEnpw6CxzSrHONzOkLH3mSJLYWP1eBStWX0ICgLw>
+    <xmx:69CWaoLp9cwfEDd-J-UDdiyYEdkf-I-D6oSdqcqGEGBYulbHTZ9FeA>
+    <xmx:69CWap2dwNlx9UBv3N5Z9oAH2VG7dOj0tP6mz8BbcIQFsrC4b0Y4wIoG>
+Feedback-ID: i10464835:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 1 Sep 2026 09:19:37 -0400 (EDT)
+Date: Tue, 1 Sep 2026 14:19:36 +0100
+From: Kiryl Shutsemau <kas@kernel.org>
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+ 	David Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>,
+ 	Baolin Wang <baolin.wang@linux.alibaba.com>,
+ "Liam R. Howlett" <liam@infradead.org>,
+ 	Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>,
+ Dev Jain <dev.jain@arm.com>, 	Barry Song <baohua@kernel.org>,
+ Lance Yang <lance.yang@linux.dev>, 	Usama Arif <usama.arif@linux.dev>,
+ Guo Ren <guoren@kernel.org>, Brian Cain <bcain@kernel.org>,
+ 	Geert Uytterhoeven <geert@linux-m68k.org>,
+ Dinh Nguyen <dinguyen@kernel.org>,
+ 	Simon Schuster <schuster.simon@siemens-energy.com>,
+ Jonas Bonn <jonas@southpole.se>,
+ 	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+ Stafford Horne <shorne@gmail.com>,
+ 	Yoshinori Sato <ysato@users.sourceforge.jp>,
+ Rich Felker <dalias@libc.org>,
+ 	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ Paul Walmsley <pjw@kernel.org>, 	Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, 	Alexandre Ghiti <alex@ghiti.fr>,
+ Russell King <linux@armlinux.org.uk>, 	Vineet Gupta <vgupta@kernel.org>,
+ Michal Simek <monstr@monstr.eu>, Chris Zankel <chris@zankel.net>,
+ 	Max Filippov <jcmvbkbc@gmail.com>, Will Deacon <will@kernel.org>,
+ 	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+ Nick Piggin <npiggin@gmail.com>, 	Peter Zijlstra <peterz@infradead.org>,
+ "David S. Miller" <davem@davemloft.net>,
+ 	Andreas Larsson <andreas@gaisler.com>,
+ Richard Henderson <richard.henderson@linaro.org>,
+ 	Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>,
+ 	Catalin Marinas <catalin.marinas@arm.com>,
+ Mark Rutland <mark.rutland@arm.com>,
+ 	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
+ 	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+ 	Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ 	Michael Ellerman <mpe@ellerman.id.au>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ 	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ 	Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ 	Sven Schnelle <svens@linux.ibm.com>,
+ Richard Weinberger <richard@nod.at>,
+ 	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ 	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>,
+ 	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>, 	Arnd Bergmann <arnd@arndb.de>,
+ Vlastimil Babka <vbabka@kernel.org>, 	Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, 	Michal Hocko <mhocko@suse.com>,
+ Jason Gunthorpe <jgg@ziepe.ca>, 	John Hubbard <jhubbard@nvidia.com>,
+ Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
+ 	linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, 	linux-m68k@lists.linux-m68k.org,
+ linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
+ 	linux-riscv@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+ 	linux-snps-arc@lists.infradead.org, linux-arch@vger.kernel.org,
+ sparclinux@vger.kernel.org, 	linux-alpha@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+ 	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, 	linux-um@lists.infradead.org,
+ Hugh Dickins <hughd@google.com>, Qi Zheng <qi.zheng@linux.dev>
+Subject: Re: [PATCH 01/12] mm/huge_memory: zap deposited page tables after an
+ RCU grace period
+Message-ID: <apbOlyF77yDCV4cF@thinkstation>
+References: <20260901-rcu-pagetable-freeing-v1-0-5456a81c8212@kernel.org>
+ <20260901-rcu-pagetable-freeing-v1-1-5456a81c8212@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4f303f9f-fd20-475a-8004-1a670dfd34df@linux.ibm.com>
+In-Reply-To: <20260901-rcu-pagetable-freeing-v1-1-5456a81c8212@kernel.org>
 
-On 2026-08-31 20:27:38, Mahanta Jambigi wrote:
->
->
->On 31/08/26 7:12 pm, Dust Li wrote:
->> On 2026-08-28 08:54:37, Mahanta Jambigi wrote:
->>> This series fixes multiple lifetime races in the SMC diag dump path.
->>>
->>> The first patch adds the basic infrastructure needed to synchronize diag readers
->>> against connection-owned conn->lgr/conn->lnk updates. It introduces a
->>> per-connection spinlock and uses it in the link switch and connection free
->>> handoff paths. conn->lgr and conn->lnk are NULLed under the lock before the
->>> borrowed references are released, so a non-NULL conn->lgr seen under the lock
->>> guarantees the lgr object is alive. The diag reader can rely on this invariant
->>> without borrowing any extra reference.
->>>
->>> The second patch fixes two races in smc_diag itself:
->>>
->>> - serialize clcsock field access against smc_clcsock_release() with
->>>  mutex_trylock()
->>> - take conn->lgr_lnk_lock when reading conn->lgr and conn->lnk; use
->>>  smc_conn_lgr_valid() inside the lock to check that the connection is
->>>  still registered, then snapshot all required fields and call nla_put()
->>>  after releasing the lock
->> 
->> Hi Mahanta,
->> 
->> As discussed in the other thread, I think we should defer the release of
->> smc->clcsock and remove clcsock_release_lock.
->> 
->> In that case, we should no longer need these two patches. Also,
->> introducing more locks in SMC is the last thing I want to do :)
->
->Thanks for the new series "[RFC net-next 0/7] net/smc: tie clcsock
->lifetime to the smc socket and remove clcsock_release_lock" — once it
->lands, we can drop the mutex_trylock() fix for Race 1 (clcsock).
->
->However, Race 2 remains open. Your series does not touch smc_core.c or
->smc_cdc.c, so smc_conn_free(), smc_switch_link_and_count(), and
->smc_cdc_msg_validate() still write conn->lgr/conn->lnk with no
->synchronization against the diag reader.
+On Tue, Sep 01, 2026 at 12:01:21PM +0100, Lorenzo Stoakes (ARM) wrote:
+> When an anonymous mapping is collapsed for THP, a PTE page table is
+> 'deposited' with the installed PMD entry.
+> 
+> This is done in order that a split can be performed without needing to
+> allocate additional memory.
+> 
+> The freeing occurs in zap_deposited_table() and is done directly without
+> any delay via pte_free().
+> 
+> This is currently not a problem as existing page table walks are protected
+> by the mmap or anon rmap lock.
+> 
+> However this becomes problematic in a future where RCU-only page table
+> walkers exist, as there is nothing to prevent a page table walker that
+> started the walk prior to collapse having its PTE table freed underneath
+> it.
+> 
+> Commit 13cf577e6b66 ("mm/pgtable: add pte_free_defer() for pgtable as
+> page") already provides us the mechanism by which to solve this -
+> pte_free_defer().
+> 
+> Therefore, as a prerequisite to a future commit which will permit fully RCU
+> page table walks, update zap_deposited_table() to use pte_free_defer()
+> rather than pte_free().
+> 
+> Note that the IPI sync in collapse_huge_page() is still required to ensure
+> refcount correctness against a GUP-fast operation.
+> 
+> This is because GUP-fast might increment refcount, but
+> __collapse_huge_page_isolate() determines whether it is safe to proceed by
+> checking folio_ref_count() against folio_expected_ref_count(), so the two
+> must be mutually excluded.
+> 
+> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+> ---
+>  mm/huge_memory.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+> index 54494c3fa983..505f7b62ff28 100644
+> --- a/mm/huge_memory.c
+> +++ b/mm/huge_memory.c
+> @@ -2476,7 +2476,7 @@ static inline void zap_deposited_table(struct mm_struct *mm, pmd_t *pmd)
+>  	pgtable_t pgtable;
+>  
+>  	pgtable = pgtable_trans_huge_withdraw(mm, pmd);
+> -	pte_free(mm, pgtable);
+> +	pte_free_defer(mm, pgtable);
 
-Hi Mahanta,
+Hm. So it is call_rcu() on each PMD. It might be costly, especially for
+zap_huge_pmd() path: 512 call_rcu() per-GB of unmapped THPs.
 
-Thanks for the detailed explanation. You are right that a per-connection
-spinlock can work here, and I agree none of the lock sites are on the
-per-message hot path. But I think we can also do the same thing we did with
-clcsock_release_lock: instead of adding a lock, tie the lifetime of
-conn->lgr/conn->lnk to the point where the connection stops being observable,
-and remove the need for synchronization altogether.
+Do we want leverage mmu_gather if caller has it?
 
-For lgr/lnk, that point is the hash table. Once the connection is unhashed, the
-diag dump (which iterates under the hash read_lock) can no longer reach it. So
-if we make sure the connection-owned references are only dropped after unhash,
-the invariant becomes: holding the hash read_lock and seeing a non-NULL
-conn->lgr implies it is safe to dereference. The diag path then reduces to
-`hold hash read_lock -> read conn->lgr -> if non-NULL, use it -> done` with no
-new lock, no extra reference, and no trylock. The invariant is carried by
-object lifetime rather than by a lock, which I find easier to keep correct over
-time.
+>  	mm_dec_nr_ptes(mm);
+>  }
+>  
+> 
+> -- 
+> 2.55.0
+> 
 
-Best regards,
-Dust
-
+-- 
+  Kiryl Shutsemau / Kirill A. Shutemov
