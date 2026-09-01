@@ -1,154 +1,142 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF9AA24501D
-	for <linux-s390@vger.kernel.org>; Tue,  1 Sep 2026 11:52:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D0B8CA6B
+	for <linux-s390@vger.kernel.org>; Tue,  1 Sep 2026 12:33:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788263539; cv=none; b=qOW9yQ5v5cIA/+dstfQwmum4uov+1kf3QbgQmz4kQRu/zt3t6AYZRQWumtiqW5iKkGa2N/lPRd3utxnbCNu8FatTLkoqniAih7duRELaSDL4wuz46VbS6K4RAGU8YC+imKolSC/s2As1Pyzh7h9Iudxz8y8IEk0gFfo9F4xiWuc=
+	t=1788266014; cv=none; b=SRNS//nDACjKYTv+AV1uJb4F3ZNjGJgUabq3ghIfRe0SH0OUdmez8WXp8PQ2X14YgAY/FkoRxoO+W1ZAf6aJTFMZ8zEM8jqY9aekrVP9BNjRDWcyv9PNt4eJ9nInT430S+MIH3l7hYcSDwQkw90nuBhKbEUHcDDTzdAM2WdvQuo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788263539; c=relaxed/simple;
-	bh=UbTkIDbJA4IZ4ug51keZzex2+CG1MS6afqQ9X44DWwk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NaWc07WCZhFycpnQezuteTrmWDxHlGwxOC464r9dpe3I6ZN2w9WzNaY5JOuDo/QY5eyU0yRRCp4U6QrGssCs3EvY6G1Z82U0J15DMg0U+WMmCXCAZYoMfiTfZDLFFv84hY0dOgnblnOs8af7CyUY2McXbkIMVQ89zjhLe29iZUY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kzQXpjn4; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788266014; c=relaxed/simple;
+	bh=/I4iAei1m4+ZpqrLXIeR1nzVlKhlgFbrx0F6sjXcDio=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Nj4qygK7gLxU6zxiy9AuUVd9Ao72QAz/GshpP4j5MiauzN6/g2FMGABMzay1MNxrqeH6KB2cWmumvlSxomfW62Q5w8ZIhJK6Cjg5CqLpHfI53X0fd4kPl3VuXOsnDjenEP9Qc4xX7YIQ+DNKflxVzbARrYybrgycFRPuRcOQ7ag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NZ5n94EH; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kzQXpjn4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73B4D1F000E9;
-	Tue,  1 Sep 2026 11:52:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788263537;
-	bh=wmQGR4Hf2WLqGx7rU95jefzTV5TaAtI/X0Q4sAW8aq4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kzQXpjn4l9g33Yqs7JeWDRbNcpkf7mil4uX0syecSSNTDWDe3q6mQArgybkzWeIAJ
-	 ioi3lZqibouNJSDZHmTP7cRJA7HU657PNakLpoV0YarRZLFLsvDds/JkeHGN+jDDdc
-	 FY8wztZ69RmUsFVly3t8O95GJdaoqd/o1d2W+7MZNLTe0Zy/JuFUTvu1mXgNGNDE1g
-	 Ok6Eza28yddoKslM1kz3oad3G5puol98+lZkwA3wRI5xF09brkYqLS9LTJAoissuj+
-	 qWVLrIGb6PTfMBJvzgas/BzUQRT2E8nMPPpseqKUMN2Lx4VBK//7E5HErvNN8DHL25
-	 0DjsoF5wr//ww==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 11/12] mm: make userland page table freeing RCU-safe
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?TG9yZW56byBTdG9ha2VzIChBUk0p?= <ljs@kernel.org>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260901-rcu-pagetable-freeing-v1-11-5456a81c8212@kernel.org>
-References: <20260901-rcu-pagetable-freeing-v1-0-5456a81c8212@kernel.org>
- <20260901-rcu-pagetable-freeing-v1-11-5456a81c8212@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 01 Sep 2026 11:52:16 +0000
-Message-Id: <20260901115217.73B4D1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NZ5n94EH"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 681AVeYM4009803
+	for <linux-s390@vger.kernel.org>; Tue, 1 Sep 2026 12:33:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=4owOEO3Ge8QxABZrLKdjEVW0Xl5lDMUzqo+ffHup5
+	Go=; b=NZ5n94EHAu6r2KmDFlDYMjlW1cRACE4+EsshM1qj3/GcsQdIwCs9Vhcth
+	Tlj7Ac21CrAcDhBEoadSSoyljpvIZzjuW5ixmFDUvAxJru52DAtp1p8sWPbaC5hE
+	U50rsxqF8+PQT5jMWl0NuypneXPhFT3eWDeCIovHSABqA0qV2MWaQNv3lUNUocq+
+	vzUg84cbEVjlIqEWoYfLr5eu2aPuKofDpMFJ9qtVr7iQsSj7+SMPDtimO0H1nIUj
+	agZkTuj8ec5rcqWn2z7nJl/BgtsXN9yfX6EaWAj6u5/3M56BmwMbmuXIyfeKZXJM
+	SuNEEk3xjOl+Z9+RwUxz4GbGgTL9g==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbnudqme1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 01 Sep 2026 12:33:31 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 681CQJWT014750
+	for <linux-s390@vger.kernel.org>; Tue, 1 Sep 2026 12:33:30 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gccey3ej1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 01 Sep 2026 12:33:30 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 681CXR4D46399988
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 1 Sep 2026 12:33:27 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1CA1E20049;
+	Tue,  1 Sep 2026 12:33:26 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0967020040;
+	Tue,  1 Sep 2026 12:33:26 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  1 Sep 2026 12:33:25 +0000 (GMT)
+From: Thomas Richter <tmricht@linux.ibm.com>
+To: linux-s390@vger.kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>
+Subject: [PATCH v9 0/3] Add CPU hotplug support for PAI PMU
+Date: Tue,  1 Sep 2026 14:33:17 +0200
+Message-ID: <20260901123320.670897-1-tmricht@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: seHQKGBYe6VkI26cJNXI3ShcPBhp-1CL
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAxMDExMSBTYWx0ZWRfXxrXf6yGRr2Gm
+ CgpYOX76WnXAVHoRQL/QVd18ZzbVvZRQtgUvio2dOTpuDg9maBAFPiJCrfEWplExzeHLq5Bpgu5
+ +WCLWEZy1zkkEBN5Ffn950EZ/d7cgaJwPZAa0jSIeDgAQp5gRimG2GW6Fbjdg+sXKrD4m6H+fZ8
+ 48Fk1Ks3oxFzonNHCFn2Q1isWk6eBsT0GVOenF+hhJKkwZqVe5cBE0g8iVmBO4LquT+LwyThRPJ
+ Cyw+GlQl/mDyxmDR1AJh3pjAEtCBn3ayki8DwfqO/1FzsfrASNustcXqnqhF8bRywjBY9b5zXaC
+ lU/ckgxoK9Gx4CZMdqoBst9hzyf5mYMsRlD3Okzh/3W14syKSxvmmcjrQkje3PY+KrPe6BcuHZg
+ DDlqtLDNyI1jkkyxW8vSNhBVkbYH0NIjJSLnyDhEoWnpxwGftt0BNKHaANrX5WXeof2WGyvEm6w
+ vHLD3PKvpUPnC32rtoA==
+X-Proofpoint-ORIG-GUID: seHQKGBYe6VkI26cJNXI3ShcPBhp-1CL
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAxMDExMSBTYWx0ZWRfX3EdnpWEdhpjA
+ nb+YIh5EuSKdFQRIZrCE6DUlHab57hE/TvewNVlrgZ4/r30KIezFhmfbWvCalOjqD2Rw99GS7LG
+ WBk9PhAAeF8YTIhWF015ylCpCUPupcc=
+X-Authority-Analysis: v=2.4 cv=B92JFutM c=1 sm=1 tr=0 ts=6a96c61b cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=b1OuvuXAq8WmgBgwFWAA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-01_03,2026-08-31_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 spamscore=0 clxscore=1015 suspectscore=0 phishscore=0
+ lowpriorityscore=0 bulkscore=0 priorityscore=1501 impostorscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2609010111
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+V9: Added suggestions from Heiko Carsten
+    - Changed coding style in patch 3.
 
-Pre-existing issues:
-- [Critical] try_collapse_pte_mapped_thp accesses page tables under mmap_re=
-ad_lock without excluding per-VMA locks, allowing concurrent MADV_DONTNEED =
-to clear PMDs, leading to a UAF/Panic.
-- [High] Page walk callbacks return ACTION_AGAIN infinitely when encounteri=
-ng migration entries.
---
+V8: Add patch version 8 (v8) to each subject line
 
-commit 2921a41442d23274b78e2a0ab1dcfe01ec2fff5f
-Author: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-mm: make userland page table freeing RCU-safe
+V7: Add findings from Jan Polensky
+    - Fixed spelling in code and commit messages.
+    - Added correct Cc: stable tag.
 
-This commit removes the configuration option for RCU table freeing, as all
-architectures now support it, and cleans up dead code. It establishes a
-kernel policy that all page tables are freed after an RCU grace period,
-ensuring safe unconditional page table walks under RCU.
+V6: Add findings from Sashiko
+    - Remove cpus_read_lock() and cpus_read_unlock() invocations
+      from CPU hotplug handlers in patch 3.
 
-> With this change in place the kernel policy is now that all page tables a=
-re
-> freed after an RCU grace period, and thus it is now safe to unconditional=
-ly
-> perform page table walks under RCU, safe in the knowledge that page tables
-> will not be freed underneath the walker.
->=20
-> This is all that is guaranteed, however, so naturally it is still incumbe=
-nt
-> upon page table walkers to ensure that the page table entries are as
-> expected.
+V5: Add findings from Sashiko
+    - Add cpus_read_lock() and cpus_read_unlock() in patch 3.
 
-[Severity: High]
-This is a pre-existing issue, but will these page walk callbacks spin
-forever if they encounter a migration entry?
+V4: Add findings from Sumanth and updated patch 3/3.
+    - Fix reference count for CPU hotplug remove while multiple
+      per-task events are active.
 
-For example, in fs/proc/task_mmu.c:clear_refs_pte_range():
+V3: Add findings from Sumanth and updated patch 3/3.
+    - Refined Fixes: commit id and messages
+    - Handle cpuhp_setup_state() failure
 
-	pte =3D pte_offset_map_lock(vma->vm_mm, pmd, addr, &ptl);
-	if (!pte) {
-		walk->action =3D ACTION_AGAIN;
-		return 0;
-	}
+V2: Add findings from Sumanth and updated patch 3/3.
+    - handle possible NULL pointer dereference in pai_event_destroy_cpu()
+    - handle possibe memory allocation failure in pai_online_cpu()
+    - add Reviewed-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+      to patch 1/3 and patch 2/3.
 
-Since pte_offset_map_lock() returns NULL non-transiently for migration
-entries, walk_pmd_range() handles ACTION_AGAIN by looping back to again:
-immediately without a scheduling point. Could an unprivileged user
-triggering THP migration concurrently with a /proc/pid/clear_refs read
-cause a CPU soft lockup here?
+Add support for CPU hotplug add and remove for PAI PMU.
 
-The same pattern appears to exist in smaps_pte_range() in the same file,
-and queue_folios_pte_range() in mm/mempolicy.c.
+Patch 1: Change function argument list
+Patch 2: Move locking from CPU scope to event scope
+Patch 3: Add CPU hotplug handler
 
-[Severity: Critical]
-This is a pre-existing issue, but does try_collapse_pte_mapped_thp() in
-mm/khugepaged.c properly exclude per-VMA locks to prevent concurrent
-MADV_DONTNEED from clearing PMDs?
+Thomas Richter (3):
+  s390/pai: Use PAI PMU index as parameter replacing event
+  s390/pai: Move locking to event init and delete
+  s390/pai: Support CPU hotplug for PMU PAI
 
-When checking the page tables under mmap_read_lock(), the pmd_same() check
-is nested inside the if (ptl !=3D pml) block:
+ arch/s390/include/asm/pai.h |   1 -
+ arch/s390/kernel/perf_pai.c | 182 +++++++++++++++++++++++++-----------
+ 2 files changed, 128 insertions(+), 55 deletions(-)
 
-mm/khugepaged.c:try_collapse_pte_mapped_thp() {
-	...
-	/* step 4: remove empty page table */
-	if (!pml) {
-		pml =3D pmd_lock(mm, pmd);
-		if (ptl !=3D pml) {
-			spin_lock_nested(ptl, SINGLE_DEPTH_NESTING);
-			if (unlikely(!pmd_same(pgt_pmd, pmdp_get_lockless(pmd)))) {
-				flush_tlb_mm(mm);
-				goto unlock;
-			}
-		}
-	}
-	...
-}
-
-If the system has ptl =3D=3D pml, this bypasses the pmd_same() check entire=
-ly.
-A concurrent MADV_DONTNEED running under the VMA lock could trigger
-PT_RECLAIM and clear the PMD, freeing the PTE page.
-
-Later in the same function:
-
-mm/khugepaged.c:try_collapse_pte_mapped_thp() {
-	...
-	pgt_pmd =3D pmdp_collapse_flush(vma, haddr, pmd);
-	pmdp_get_lockless_sync();
-	pte_unmap_unlock(start_pte, ptl);
-	if (ptl !=3D pml)
-		spin_unlock(pml);
-
-	mmu_notifier_invalidate_range_end(&range);
-
-	mm_dec_nr_ptes(mm);
-	page_table_check_pte_clear_range(mm, haddr, pgt_pmd);
-	pte_free_defer(mm, pmd_pgtable(pgt_pmd));
-	...
-}
-
-Does this result in pmdp_collapse_flush() being called on a cleared PMD,
-passing a garbage PFN to pte_free_defer() and potentially causing a kernel
-panic?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260901-rcu-pageta=
-ble-freeing-v1-0-5456a81c8212@kernel.org?part=3D11
+-- 
+2.55.0
