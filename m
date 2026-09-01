@@ -1,68 +1,85 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7E0A34A3BF
-	for <linux-s390@vger.kernel.org>; Tue,  1 Sep 2026 15:30:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55B783126C0;
+	Tue,  1 Sep 2026 15:45:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788276647; cv=none; b=RSUZrCD4/aE1BRCIxCepRQTK6+26JH4LQo+KP0lcg7R4swA7PbtUb3d3pIXgLqJXCWyR1r1s5hiVrqamKyLrwvWohQcPYy7spQoIP7j2LsIFk+Bacu4n+/GY9D6+OJP0i50UC2devfFrszgl6KIEOWqheJbAlFzXpN0+UUCBHfA=
+	t=1788277543; cv=none; b=TeaT/O1G0OHDJPbX7de0VIele6umU2bkywEKKEfxMUxfGR9UyS/ekRxzLcsIR28pKK6a1IrJXyqHfn1WJkvNH0J5qHk0UzdhnUZQdb8n8ojkXk57xgY1r/6TkurExKNgWaA04HzD2JPPyYoC5+Cgcish2ovFRso6Fxx0+W6YFFs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788276647; c=relaxed/simple;
-	bh=DICtfJA4KpyZe/66qXsbU/kgGHleIoZYIAH3ZgbUQV0=;
+	s=arc-20240116; t=1788277543; c=relaxed/simple;
+	bh=HWL5uQi6ZjL9y2su0pXktcZNDZQqHFNWopXQfp3zxGE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=n2jEIX12gtSNeZBSjfDX82An8xDTBSwc9svXcjTaZ2fyCcvr8GEvQwlokOWsN8Z13EgTufPo2pkCbdbvQDwtxtuFuA6bfk0ZSQhUoYLDuBQEv2mxzvWQX/YcHW9T2hmI3m+IduefmsH+6kk++64/d4NK1UpCHJoH1ejDptZG4oE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PaBaXYb4; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Zmcw8hIIkYQ7Wwj65uKA9eEc4H8u+DhPI87Rp+W+ZwxRZvssgTzpxeMtOpXSqUzwwI+il4n6vCqLqclbTcrFDn9+8s9rJlez9NE90UaXMmpa7a4DnOrSVkrHMQRw8F2/qaeXEPdOumvuYc7jo4knyUmb8QM51BygNNvM79S7vdk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZTvYdEaL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PaBaXYb4"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 681EVft41340874
-	for <linux-s390@vger.kernel.org>; Tue, 1 Sep 2026 15:30:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=fMSCpDuhpF1DoOwsvRjmXZJmHl8I7o
-	eerDhO+RRfaJE=; b=PaBaXYb4y3FM1Xl6DdZMdqrYqXocrRQ873+5DARlSjTGq6
-	vuRZPTIpkM0/bAV3pEGlvqfo5OAo09zVv0qks3O8rjvc7kSSxEHEtcqXpqZ5eAuP
-	fsMHmr4f7iuKWx9vvzjlaWNGP3kFWmAAjv0tZ7pggr4aa/WeySIQ8hMTwjV7uzyk
-	l15VY8YW7MqAZvzUl76Pnpu0hh6Hv/q4KKqhALF5zK62Ij6YCSyCSk/ESpzeF+Ho
-	JbL8MNNqugG230iRm+IW0omozEZooWFMBWnWhyYw0lLoApZVI4eIfcrez9U/m/6g
-	8ARowZgVVq9y+Muo75HW86h6rfLmmT2eanPb5RkA==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbmuhrsgf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 01 Sep 2026 15:30:44 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 681FQKiK007457
-	for <linux-s390@vger.kernel.org>; Tue, 1 Sep 2026 15:30:44 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gca4w4h9p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 01 Sep 2026 15:30:43 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 681FUdt650594074
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 1 Sep 2026 15:30:40 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CB2DF2004F;
-	Tue,  1 Sep 2026 15:30:39 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 89C372004E;
-	Tue,  1 Sep 2026 15:30:39 +0000 (GMT)
-Received: from osiris (unknown [9.111.45.16])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  1 Sep 2026 15:30:39 +0000 (GMT)
-Date: Tue, 1 Sep 2026 17:30:38 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Mete Durlu <meted@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org
-Subject: Re: [PATCH] s390/topology: Enable ASYM_PACKING to establish cpu
- priority
-Message-ID: <20260901153038.152550B9b-hca@linux.ibm.com>
-References: <20260901-s390_sd_flags-v1-1-6755ba191d5a@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZTvYdEaL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 951D41F00A3A;
+	Tue,  1 Sep 2026 15:45:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788277542;
+	bh=UVHtz6Elr1SZh1A7h5PnNFYa2TvXIJLXLTfOMhtO9T0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=ZTvYdEaL17Xe57XD8vyZST14VBPRctjf28yyFGBI5rdY8BhdwP/dFY55tWjPYAROH
+	 wHw1cZaETEpdGFMWKgfrhKvyrIXd6bJDtcydcX3/fPqK8Kfi5IfzcyNr//cMw16txd
+	 HFiCeAX5f/1+Nu/YL3SO5aPns4ylRzukBeENUY24mi7KCFX+k7s14AOxgxiOOtHlum
+	 W6G9F88xDUVcAEipO83iD5JtJTIZcqLoGsvrFg6C9MQ0JUePRMRswDgKmoAF/Vk71T
+	 gM3PMpQT/NErJ7UkLFICeRZsY2Bjhj6d+sZWTtE2+9Pnuydiw13BrWhOWFQOR8QNap
+	 Lu8bcy8/bQcbQ==
+Date: Tue, 1 Sep 2026 16:45:14 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: Kiryl Shutsemau <kas@kernel.org>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>, 
+	Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, "Liam R. Howlett" <liam@infradead.org>, 
+	Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, 
+	Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, 
+	Usama Arif <usama.arif@linux.dev>, Guo Ren <guoren@kernel.org>, Brian Cain <bcain@kernel.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, Dinh Nguyen <dinguyen@kernel.org>, 
+	Simon Schuster <schuster.simon@siemens-energy.com>, Jonas Bonn <jonas@southpole.se>, 
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Stafford Horne <shorne@gmail.com>, 
+	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, Paul Walmsley <pjw@kernel.org>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Alexandre Ghiti <alex@ghiti.fr>, Russell King <linux@armlinux.org.uk>, 
+	Vineet Gupta <vgupta@kernel.org>, Michal Simek <monstr@monstr.eu>, Chris Zankel <chris@zankel.net>, 
+	Max Filippov <jcmvbkbc@gmail.com>, Will Deacon <will@kernel.org>, 
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, 
+	Peter Zijlstra <peterz@infradead.org>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Richard Henderson <richard.henderson@linaro.org>, 
+	Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, 
+	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Richard Weinberger <richard@nod.at>, 
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Arnd Bergmann <arnd@arndb.de>, Vlastimil Babka <vbabka@kernel.org>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org, 
+	linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org, 
+	linux-sh@vger.kernel.org, linux-riscv@lists.infradead.org, 
+	linux-arm-kernel@lists.infradead.org, linux-snps-arc@lists.infradead.org, linux-arch@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-alpha@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-s390@vger.kernel.org, linux-um@lists.infradead.org, Hugh Dickins <hughd@google.com>, 
+	Qi Zheng <qi.zheng@linux.dev>
+Subject: Re: [PATCH 01/12] mm/huge_memory: zap deposited page tables after an
+ RCU grace period
+Message-ID: <apbvoN6ttgHfI_xg@gremlin>
+References: <20260901-rcu-pagetable-freeing-v1-0-5456a81c8212@kernel.org>
+ <20260901-rcu-pagetable-freeing-v1-1-5456a81c8212@kernel.org>
+ <apbOlyF77yDCV4cF@thinkstation>
+ <apbcoMTVlL42G5tg@gremlin>
+ <20260901142408.GA56830@ziepe.ca>
+ <apbiB51hjm-9pRzf@gremlin>
+ <apbuO_QveZNAz3ns@thinkstation>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -71,75 +88,100 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260901-s390_sd_flags-v1-1-6755ba191d5a@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: MMqcw0zE_LL6qiiKYnl4a2xrOzsZyDI7
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAxMDEzMyBTYWx0ZWRfX9rfjqiBRodlP
- zUS5lNGkOb0FnKn2RI4vRko8wGlBEEQqKfjtqdtqMKuT8+/xC09mjm90Dq/oN5fWdDoKyw9po4y
- IH6pdRmH8qoYUPXxUgdPCoVbvZoLiuiD2goBqLiWKxWsjegFfvgtW2xwKvaRIZZyk+fpnXX9S55
- hUNgbgm7OC1PjXeTUhp+GruWUCiOaXEv0HiB4hUBA07ZzsTQTWHzoyQ94uNYGw6hnyZhmbhYeqT
- F84/0mcr62vjN7tdMefGe1Ue3GKBQWa28bDwIzOvEbQtp1RdLkY2m4cjneafCnNMTdadHVXguZ/
- KPGW/Oe9OpGYJNNlNsclghiyrtFuakd9EXLHXwqMhBSYxeniaPWlKDdSi4uwDBaYYbfDRtJEUCM
- yyOb7OWnFBylzdTpJ5DAmJzJUdNCdkDxnbjY1CF6JdTHcQ1fuaMVY+5S5UWBYeAPXgJ2Oe7z07+
- Q0FK6XwXJ03AgoMwtbg==
-X-Authority-Analysis: v=2.4 cv=Osl/DS/t c=1 sm=1 tr=0 ts=6a96efa4 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=SobATKYv8Q94nUhh9LkA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAxMDEzMyBTYWx0ZWRfX8gV88XzaiS5u
- rwk27QKcMkVY5V2Oa1jKMIaHy+ac0S7Xielcxvpq5Ujxsz2UED85gctGz3zrw94MrFzOLvPLOxd
- p+DYwy9KYrXqOtrghgkDTwrjpRFONME=
-X-Proofpoint-ORIG-GUID: MMqcw0zE_LL6qiiKYnl4a2xrOzsZyDI7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-01_04,2026-09-01_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 malwarescore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0
- adultscore=0 impostorscore=0 phishscore=0 clxscore=1015 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609010133
+In-Reply-To: <apbuO_QveZNAz3ns@thinkstation>
 
-On Tue, Sep 01, 2026 at 04:40:26PM +0200, Mete Durlu wrote:
-> On s390 LPARs the hypervisor assigns varying CPU runtime capacities
-> under vertical polarization, making CPUs unequal. Add SD_ASYM_PACKING
-> into topology level flag callbacks so the scheduler keeps busier
-> scheduling groups packed onto higher-capacity CPUs.
-> Implement arch_asym_cpu_priority() using smp_cpu_get_capacity() as
-> the decision factor.
+On Tue, Sep 01, 2026 at 04:28:48PM +0100, Kiryl Shutsemau wrote:
+> On Tue, Sep 01, 2026 at 03:41:17PM +0100, Lorenzo Stoakes (ARM) wrote:
+> > On Tue, Sep 01, 2026 at 11:24:08AM -0300, Jason Gunthorpe wrote:
+> > > On Tue, Sep 01, 2026 at 03:12:45PM +0100, Lorenzo Stoakes (ARM) wrote:
+> > >
+> > > > It won't be costly at the time of the calls obviously as its deferred. Maybe
+> > > > increase some time spent in softirq but again is 512x that big of a deal?
+> > > >
+> > > > I'm not sure how you'd both defer the free and somehow utilise mmu_gather here
+> > > > either really, certainly not without it becoming extremely messy.
+> > >
+> > > The less costly version is to thread the page to be freed onto the
+> > > mmu_gather through a linked list in the struct page memory. This is
+> > > super cheap since it is just a singly linked list operation.
+> > >
+> > > Then when the mmu_gather is flushed it does a single call_rcu using
+> > > the rcu head of the struct page of the head of the list. The callback
+> > > clears the entire linked list of pages.
+> > >
+> > > Since you have to tlb flush anyhow, it makes sense to always use the
+> > > mmu_gather. For example the design I ended up with for iommupt
+> > > accumulates all the invalidations and all the free-able memory into a
+> > > gather then invalidates and frees.
+> > >
+> > > This allows maximizing the tlbi efficiency too. You can't do call_srcu
+> > > until you flush the tlb and if you call once per table then you are
+> > > also tlb flushing once per table too.
+> > >
+> > > So if the kernel really does want to clear out 512 leaf tables the
+> > > optimal implementation is one range tlbi for 512 entries followed by
+> > > one call_rcu to free the memory. Hence the gather..
+> >
+> > I think there's some confusion here.
+> >
+> > This isn't the path in which a page table is being freed, the _deposited_
+> > table is zapped, in zap_deposited_table().
+> >
+> > That is, the page table kept in reserve for THP split, that is not
+> > currently mapped.
+> >
+> > It amounts to a __free_pages() call.
+> >
+> > The TLB operations are in e.g. zap_huge_pmd() etc. and nobody has
+> > complained about inefficiencies there.
+> >
+> > So, unless I'm missing something here, TLB flushes play no role in this
+> > whatsoever.
+> >
+> > The issue Kiryl raised was that instead of immediately freeing page tables,
+> > they are now batched up individually by call_rcu().
+> >
+> > I personally find it difficult to imagine the numbers here would be
+> > problematic or certainly cause anything observable beyond what is
+> > observable now.
+> >
+> > So I'm going to have to say, unless it can be clearly demonstrated this is
+> > problematic, I don't think there's any reason to add additional complexity
+> > here.
+>
+> It would be nice to measure munmap() overhead here.
+>
+> I am worried about hitting DEFAULT_MAX_RCU_BLIMIT and trigger
+> rcu_force_quiescent_state() which can be disruptive to the system.
+>
+> DEFAULT_MAX_RCU_BLIMIT is 10K, so it is ~20G of THP unmapped on x86.
+>
+> munmap() of 64G worth of THP should be enough to demonstrate the
+> problem.
 
-...
-> Subtract the CPU number so that the CPUs with lower ids are prioritized.
+I mean you're going to hit that from RCU freeing page tables already, which
+most architectures already do right?
 
-Why?
+So if RCU saturation is a problem, that problem already exists, but I've
+not heard of that being a problem at all?
 
-> Only enabled on LPAR level as other guest levels either do not have
-> vertical polarization (which causes asymmetric CPUs), or machine backed
-> topology.
+So you're going to have to demonstrate why this situation is markedly
+different from that. And it's the same scale.
 
-...
+Overall I think freeing 64 GiB of mapped memory all at once will inevitably
+be a slow operation, freeing them directly will also be a lengthily process.
 
-> +static int s390_core_flags(void)
-> +{
-> +	int flags = cpu_core_flags();
-> +
-> +	if (machine_is_lpar())
-> +		flags |= SD_ASYM_PACKING;
-> +	return flags;
-> +}
+And also it seems to me that RCU mishandling heavy load to the point of
+causing system instability should a bug filed with RCU no?
 
-Why is this machine_is_lpar()? This should actually test if cpu
-polarization is available to make this independent of some random
-environment test.
+Also note pte_free_defer() is already used in retract_page_tables() so a large
+collapse could also hit this problem?
 
-Furthermore to me this reads like the above only makes sense in case of
-vertical polarization. What happens in case of horizontal polarization?
-Does SD_ASYM_PACKING have any negative impact for that case?
+I'm not sure I'm convinced there's an issue here.
 
-> +int arch_asym_cpu_priority(int cpu)
-> +{
-> +	return smp_cpu_get_capacity(cpu) - cpu;
-> +}
+>
+> --
+>   Kiryl Shutsemau / Kirill A. Shutemov
 
-As commented above. The rationale for this needs to documented.
-Does this make sense for horizontal polarization?
+--
+Cheers, Lorenzo
