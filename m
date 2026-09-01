@@ -1,59 +1,59 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CFB237E5D8;
-	Tue,  1 Sep 2026 13:33:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BEA32FE056;
+	Tue,  1 Sep 2026 13:57:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788269620; cv=none; b=mpV7BCQFcgpcvb/LRHYUgl9RJyr6urEOd44UEgyc2EfLiR/G6XsvZPTkrZS4QsoyiHufA0E+Os0QZ7+ZgRFR3U26tccfnnNrozxk5kn1o3JHK4TTOtFFava9H3luwxFcWqPgCcWViWlwmBXcq2VSz3+IpMa1M4qPRSBo0XlJn8o=
+	t=1788271059; cv=none; b=EqbgLmxtWZqT+a0goi8WhgprKjfGajLILhL81Hhv1o3hPd/7E7oxvB1vg3lIQBK5RB/NebjPq6nsOogb8G43brOS7mytkTiNjvEIGUkZ/5tNNXdANJY8RUhJaaQxRes071gRHj9Y8FRDQe/ybDr5SamRFpewCsrcAMWS+mK4eBo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788269620; c=relaxed/simple;
-	bh=L8mffahwowpqu6th6laYccc721TU8H9CSNOMIhSy280=;
+	s=arc-20240116; t=1788271059; c=relaxed/simple;
+	bh=vQJN3L8QE+wxcL6G2WtfOxFtjWZb296SnVM4PYTTqKs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FcAB4+cnEBbj0sspr64CU7s5kdYcGx3uubQiXWH8/AkAmXJTFwwKJT/FndjE6Z/t4KlCRHeafAx/qwBUX6X/BE6+4jxBA691C/8kSKmPTVaPvrOKQbCzetdv6cBdgdDv2Z4n+lo6WQdi+IiXgyfokYovBfpyHhV0laAB85AiKPs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EhPUjdjb; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=JMmYbqDGXIS2yzFOhULDd+lJ/+N1yFYX0BnS4UBHf6FLqmO88o/FmhBuz6fuXytJXFEtykMfe336/3O6B7UxXsNr7TmD+TLxWc+11RuRqeb8dMYvyogqopb55X3kpmdg8Lgk9iHktoASKdGAigRJ++ODj0ACPTMuI8OBvrZ7ilY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MtJhN/fn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EhPUjdjb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E7D61F00A3D;
-	Tue,  1 Sep 2026 13:33:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MtJhN/fn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 391A71F00A3D;
+	Tue,  1 Sep 2026 13:57:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788269619;
-	bh=jcbNqyZ4CJOFUcx+fZWWPKksNhyQwz/xPjmgvkWytSE=;
+	s=k20260515; t=1788271058;
+	bh=agwo4ogI1pqxdy5iNzHZWMq9fgC/4O+9PRQpyNWft68=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=EhPUjdjbePHeKrlhJaT/qdk8eCghU/xkjFLX2ZSOrSJgzGKxnfymBRLvRLIAB+lil
-	 LtyBPDuXQdS+62s8eoQup2ev8Bz3o3XBhF4l4zD/nMnmup/sePSt7atgjkAu6O47mQ
-	 f2pkabp2vmMejJeXGz6/yuYsn3G6A/J1getiSJCPN/ClVN7b9CEtMwGWDPDP0Lx5KX
-	 KDSEashxYtrPeaO0yRDcNqCrSU92Y7B6PwssrqM9VvmutoLso969XjnVariqlE82JI
-	 M0UCUlJLZx9XB2ca5ppcTYmrYgGfMIeWQa7fJQmKFlwQewkP2LNLsro6qKNlMDG7ry
-	 DkQIRfv8jHEFA==
-Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
-	by mailfauth.ams.internal (Postfix) with ESMTP id 57E291980064;
-	Tue,  1 Sep 2026 09:33:18 -0400 (EDT)
+	b=MtJhN/fnwJpQ0jDMdX9aHpHd1KWLdoQ8RNyZmmbTur0MWWXkmPyj3DHXvlsvmWwoM
+	 iSU3lqn5xllXqxFm2mSgQzIn8ghlKSIaO0g5Rmtqs9Znc70lZf3Af0QFtWE66UeMmD
+	 hqK7yAgo/u0x5eWbnXk7HhHlszEZwZ6B3Xb9J9B/Y3l/S+1652MVDWGO7/3KgSHbSA
+	 t7TKwr333d6Pek6ziq9tPkoZLuqMJqbrsiIWEM5cbbXgrruzzallxiqLoLW6sxnjAx
+	 oNcctNxr/JWwdomR51woir0FpdUhsXHafeDZzCiqTZzSoXNrhOjyF05PMcuMDQvUYs
+	 x8tUh8Jwj5I+g==
+Received: from phl-compute-08.internal (phl-compute-08.internal [10.202.2.48])
+	by mailfauth.ams.internal (Postfix) with ESMTP id 177151980075;
+	Tue,  1 Sep 2026 09:57:17 -0400 (EDT)
 Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-02.internal (MEProxy); Tue, 01 Sep 2026 09:33:33 -0400
-X-ME-Sender: <xms:HdSWar0zDxM1rzMXPVKSiiHY4KJJXKW9_dKFmXqdbTa_fmaDqPnrAQ>
-    <xme:HdSWasJnHNfyfuCbnPXJ41QnOfMcQ3IsJbdR3mnGKXr-4wj9FELqFm8ZdfeRPj7fy
-    bnm6jh3UIcKaloZqTodN2-BguOMyRSr9poABUPkwGcmSl04lFepx8g>
-X-ME-Received: <xmr:HdSWamc0hBDzYeZ6meHT1N8NrjNwQDlG7ndA51A5p6yJYm1erjaIFQqZ_aA>
-X-ME-Proxy-Cause: dmFkZTE7XYI88DUY2gRkJOK6+ZyCIFoNn8bzP7pT6CkwBKHBvKWUe6kvcLZyJKqoR/mFua
-    tnuce/0i36y0TC7Im4WvZyoy/crD2rPu16GAU43MkToFESYNa+q/dgDmYeFoLAKy++6ZgW
-    8jn2vUxLTK4d+JU7NpIMhvmFWN+lBL6CrhfWBNMDXcQ2eFN5VMfwvgG7wpe8357MD3J5gK
-    7xFBRFrqPTsz4yMLY+EEChvmjl1qNNrFzTmc4wdkVOaUc1KRt3nz4X6b9lgB4AP7QFsDWQ
-    tYyrUQvI3wO8SrGFb+1aGvYLJgVsklk3Kc0+LAmLAEM6pSFrAQvRZGfFtBIFEXt5smoDZ8
-    0sIIODp3p+XbaMM1IQmfCvE2+2bbjw/rRlbPqyxvx3AWjW0wx69YF5Ocr+JktO0nTZOok2
-    HEw0ft0H3myd2V1s6FmW7lpkinX5D+jdOQrkC/osJIL3mBMTcjL7XfwqTbI8tt3mank0qt
-    BcT630GiS2PTitGfmJ6/iVLTorQObFhmiWUpu/4o8m4w+lLom0XGtnouU3SvS4FcugWWNZ
-    7nEECz0GGK+6YbBSmEMxBhw/vyLb4HqtpoQS+cM14FfTsm1gjY737Jmi4qjcP7ghw4NaMo
-    mSjmk0LJqLELQl49SSqDTw86/FRQj/i6o2/Z7vFbf6wnUbIU1mKMMzFy+Xyw
-X-ME-Proxy: <xmx:HdSWaorGnJV8X3w6RQ6-yTLBHwkt_MBfkV8RsDaiRQlkH0hCDXuTig>
-    <xmx:HdSWam_C35Dm2JBzL0A5fzPuG5ZvMut58CN7trPjhfIb_5hDuszCGQ>
-    <xmx:HdSWaobzZlmDe5Y-27Rtv7XIlXhpki_IJYzJN_lp2MB6mY3t1TeGow>
-    <xmx:HdSWam8XuaM7yobHeA1s3aD4FW-Jnsz8789jiGSamkl6EtIN7IErBA>
-    <xmx:HdSWaoYZmoLC2txSUqseUpEqs0XigJd8k-YHiiGmmzkLSGyss1bakguf>
+  by phl-compute-08.internal (MEProxy); Tue, 01 Sep 2026 09:57:31 -0400
+X-ME-Sender: <xms:vNmWahMoRfGHJylVp69tkl0ZxHuyu14twTOMSzDVmUdqODOOFCaOUA>
+    <xme:vNmWamC04sA7HLbhLFXFetRTQirQ4BCq3h9mf_X9eZoWhHHweJXfeNQnDFEkN-eZU
+    TNHprwg5j4bwG2-RtgLS24xR65NPMHQ58PhK4w0lkjNf7M__AtigCJf>
+X-ME-Received: <xmr:vNmWaq3HcGhSb341ukDeOtyXnIIR93_LM4ZWQrR0RvGyHQIkedHYy9DG-ho>
+X-ME-Proxy-Cause: dmFkZTGhE4xc2F35+/cH9QWJSP+T2sSz31kKWkLnMEla92oo5cnqKuXMLiYgktGt0fz0/P
+    1nAHqKz2XC4RLt0sZBuXgNoB+I3Lv5/lZeidGsyd69PUr2tNaXTbLl4Hq1jVnQD2pxKsB5
+    RUmimEN9ymjBpSBDK05+FgJk8e63uei569IciHBQw1D9FCH5SBdcJBtIvv01IcUYKhgTIS
+    f90WviMk+GkUmSBdkywQGyAi+Kb+Qs4cZvbCzXW86phJx62/9vfGS9f/B1vGm3MjEXgufi
+    xD125CxPznssp42WHeX1rGj2+Px0NTxJU25KbS651lVg+nwXVCAiD9QMRn4oxFx34KkMYx
+    /ylDM1rHu63l41H8z2zMGbuFg+bbu5OoPfGY964XH8pFkw0h2B5akZ5tb7ZRd15sBoxvJ5
+    9ZPlIQHmBss5JGvVitt5oDAdab0/sDuOhYj6IGcWNKZc4l5IguhFNv0eBdiZ2XkP48/xyz
+    q6bQQrm1dnGYKm/bGEuYX/jvKq3w6ZA5D0pVnRf58fwOUna5/8IR1fgu8jrX3MTvyrkxwQ
+    2WRtxks1DmwJsWM60SDXg8t4yPY+L4AyFb79enpcuanRGGerAd74MDz5L2Upjp9/rU+vza
+    OvhtVRTr2CvEdlW0VE/ceLVnrcS0aqrnoB++f7ZsN6y8Joe2E6rYjhbsCAXw
+X-ME-Proxy: <xmx:vNmWalhfMApERZzjpc7TJG7GtCgdX_4w67qtsX1G62pSARN2GZWDIw>
+    <xmx:vNmWaiXm6FAPUBkUzXVBQI0eO7tHb2vPP-rixD6Ad7WIkQTws5E-Kg>
+    <xmx:vNmWagSsKBNh9mcPCUFna8QpbE6wA1vVhKB8VhCwB5se-N496qRphw>
+    <xmx:vNmWahXZHR9XIJgivKj91oeRT0NDLSv9qe3xafv6It9647nhJIe3lw>
+    <xmx:vNmWajSxgwuhyjaLfEEt6Ejf2oTMeCpXSZHSN-d4vScBLmiRwr-9557Q>
 Feedback-ID: i10464835:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 1 Sep 2026 09:33:15 -0400 (EDT)
-Date: Tue, 1 Sep 2026 14:33:14 +0100
+ 1 Sep 2026 09:57:14 -0400 (EDT)
+Date: Tue, 1 Sep 2026 14:57:13 +0100
 From: Kiryl Shutsemau <kas@kernel.org>
 To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>,
@@ -117,10 +117,11 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
  	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
  linux-s390@vger.kernel.org, 	linux-um@lists.infradead.org,
  Hugh Dickins <hughd@google.com>, Qi Zheng <qi.zheng@linux.dev>
-Subject: Re: [PATCH 11/12] mm: make userland page table freeing RCU-safe
-Message-ID: <apbSaL0YaQqtO9XB@thinkstation>
+Subject: Re: [PATCH 12/12] mm: change the contract for free_pgtables(),
+ update docs
+Message-ID: <apbUpMDJglS99_yK@thinkstation>
 References: <20260901-rcu-pagetable-freeing-v1-0-5456a81c8212@kernel.org>
- <20260901-rcu-pagetable-freeing-v1-11-5456a81c8212@kernel.org>
+ <20260901-rcu-pagetable-freeing-v1-12-5456a81c8212@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -129,19 +130,46 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260901-rcu-pagetable-freeing-v1-11-5456a81c8212@kernel.org>
+In-Reply-To: <20260901-rcu-pagetable-freeing-v1-12-5456a81c8212@kernel.org>
 
-On Tue, Sep 01, 2026 at 12:01:31PM +0100, Lorenzo Stoakes (ARM) wrote:
-> With this change in place the kernel policy is now that all page tables are
+On Tue, Sep 01, 2026 at 12:01:32PM +0100, Lorenzo Stoakes (ARM) wrote:
+> diff --git a/mm/pgtable-generic.c b/mm/pgtable-generic.c
+> index b91b1a98029c..ff8ff3706485 100644
+> --- a/mm/pgtable-generic.c
+> +++ b/mm/pgtable-generic.c
+> @@ -386,9 +386,21 @@ pte_t *pte_offset_map_rw_nolock(struct mm_struct *mm, pmd_t *pmd,
+>   * be read-only/read-write protected.
+>   *
+>   * Note that free_pgtables(), used after unmapping detached vmas, or when
+> - * exiting the whole mm, does not take page table lock before freeing a page
+> - * table, and may not use RCU at all: "outsiders" like khugepaged should avoid
+> - * pte_offset_map() and co once the vma is detached from mm or mm_users is zero.
+> + * exiting the whole mm, does not take the page table lock before freeing a
+> + * table.
+> + *
+> + * However, the PMD entry is cleared first, and the table freed only after
+> + * an RCU grace period, so a walker that mapped the table under
+> + * rcu_read_lock() stays safe, and the pmd_same() recheck in
+> + * pte_offset_map_lock() detects the teardown.
+> + *
+> + * Therefore it is safe for "outsiders" like khugepaged to use
+> + * pte_offset_map() and co. for VMAs that might be undergoing page table
+> + * teardown.
 
-s/all/userspace/ as subject implies?
+Is it strictly true?
 
-BTW, what is your take on kernel page tables? Do we want the same policy
-there. pagetable_free_kernel() is not RCU-safe as it is.
+free_pte_range() clears the pmd without taking the PTL, so the
+pmd_same() recheck in pte_offset_map_lock() can pass and the pmd gets
+cleared right after.
 
-> freed after an RCU grace period, and thus it is now safe to unconditionally
-> perform page table walks under RCU, safe in the knowledge that page tables
-> will not be freed underneath the walker.
+Readers are fine -- __pte_offset_map() holds rcu_read_lock() until
+pte_unmap(), so the table cannot go away.
+
+khugepaged is an odd example here. collapse_pte_mapped_thp() and
+retract_page_tables() don't rely on this recheck -- they take pmd_lock()
+plus the ptl and do their own pmd_same() under both.
+
+Can we say walks are safe and leave the write rule where it is?
 
 -- 
   Kiryl Shutsemau / Kirill A. Shutemov
