@@ -1,456 +1,117 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from out30-97.freemail.mail.aliyun.com (out30-97.freemail.mail.aliyun.com [115.124.30.97])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF1483C81B2;
-	Tue,  1 Sep 2026 12:33:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07C5939C632;
+	Tue,  1 Sep 2026 13:02:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.97
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788266019; cv=none; b=oadNCYYeupNwkeSeIb8HY+0/B06suYK/DtQiGHTv46kTxNhMEcmngHYrNkqxaW+f1jvj+UyrFANndo9SjXjLL96piwFAtJcCaKw1vL2z/dRF3V2wLoG3bLCNo0KGDoG/kzGepInb10EYpuhHMXlKJstDZO2CskSKzB4bl5OtxL8=
+	t=1788267733; cv=none; b=YvGconoHpkvbwILQy2a4Tb+VDFiiwKHX5556JpHQlBpv5hnHFzo2MALUORmdf2461xyBziXoU/JyY09YTndcWRFgfrbcn93fch/EvG07P0rC2aP+dps2A/9fYbv50gdw3QH75/4IJ/9TcZ/CryE5rtkOSg1U9kp0YbYVU9pio4Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788266019; c=relaxed/simple;
-	bh=M5YKnWf+MkaXNp+vdcCMT/dfj45UVrQfAsMc620mCqM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EiIYQhRwzGlkrrox/S6tPmd7tWm9DkKM9rUTlNXVXD/nx3mPxvk5GOUp1A3RT46iJm1QSE3kIVZpf4ZpQCFCpe/a/KF8VQGy2BN0iFX8j7ZGT8zRW8oOVweaWYh6YhN2v9w8RFoNuKlM+uihWvdNB/cIID/FL1Bx78eyNiAP00M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CGp3JTGW; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1788267733; c=relaxed/simple;
+	bh=pZUMlEwtsaEeH7TVMF5qsqoi7Zgr+VsMU0EuwmAA45I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CvLD2iVaTMaBtyeB/9D4Dtis87qSYaGhdUj/rKDVcy9V/zWqjc8MJxtJGsOHo5Wcsze10J2TycgkLQqOTs9xA9Oibypo/6Zusvq/5dfaWbwPbDDW9TlOgMGnI3DJcQXMNXolKqPAL1e4WuBsZJ4Il8L20PG8qJ8Lecu7kitm+gw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=c9fTC4u0; arc=none smtp.client-ip=115.124.30.97
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CGp3JTGW"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 681AVeYN4009803;
-	Tue, 1 Sep 2026 12:33:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=468zhKTyToJvxbrVI
-	oEclU5ChkOlsQmpl3cH045T9hA=; b=CGp3JTGWpZdKF2p9DV7+Spz4ZWnLo2iWd
-	c6uHYfdXvzWmzSqraZCXYnGTNiZiJJkXMfii4KJ6hDN0l6wQCyvuHWFd5fY646dw
-	iE55bNF4HPm5qjHdHaEaccHc7PfD6l8LXonbFpdXYQgJlm+kn5i7E4A/utWzAYXv
-	hEUGo7Tw5TePDllEISpHQxwbAPJn5Gytdfy0ClNqICYygi0sxeItvJz8DBaqUWJA
-	tIxyRRCjlpAZqjJ1+3IVlqbRWakLCkgV2bLf5nwRlaZlFtzZ23jwS42Q0bpNXZdu
-	yKPMUBEqNJvmzphoKOa4seM4doXfaz3RvNongc28wI7J8UXgsxFDQ==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbnudqmec-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Sep 2026 12:33:36 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 681CQP9A032274;
-	Tue, 1 Sep 2026 12:33:35 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gca4w3q9s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Sep 2026 12:33:35 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 681CXVnq39780728
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 1 Sep 2026 12:33:31 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B89762004D;
-	Tue,  1 Sep 2026 12:33:31 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 96F4820040;
-	Tue,  1 Sep 2026 12:33:31 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  1 Sep 2026 12:33:31 +0000 (GMT)
-From: Thomas Richter <tmricht@linux.ibm.com>
-To: linux-s390@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, stable@vger.kernel.org,
-        Jan Polensky <japo@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH v9 3/3] s390/pai: Support CPU hotplug for PMU PAI
-Date: Tue,  1 Sep 2026 14:33:20 +0200
-Message-ID: <20260901123320.670897-4-tmricht@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260901123320.670897-1-tmricht@linux.ibm.com>
-References: <20260901123320.670897-1-tmricht@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="c9fTC4u0"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1788267722; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=ppWzcSYLfmdmUEwetfWNeyyHnWXusGFRwvVsm+qIFG8=;
+	b=c9fTC4u0sW16Jw5RG5bR+SGcvOCz98cMeG47wuP+Fal/Qmi0bYCPBBP2EAaofMHbEm9WM/fljcDHMilifyl4WmxWoFnFiWQZqucrmCNV8jue7OSqrYtUelxCdvz8jUKHr/dFyiTt4isfGe0qF7LJ465OZW6G+7CZj9nFWa0wPPI=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045098064;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0XA8SIPL_1788267721;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0XA8SIPL_1788267721 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 01 Sep 2026 21:02:01 +0800
+Date: Tue, 1 Sep 2026 21:02:00 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Mahanta Jambigi <mjambigi@linux.ibm.com>, andrew+netdev@lunn.ch,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, alibuda@linux.alibaba.com, sidraya@linux.ibm.com,
+	hidayath@linux.ibm.com
+Cc: pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com, stable@vger.kernel.org,
+	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net v2 0/2] net/smc: fix diag dump lifetime races
+Message-ID: <apbMyLc0IhLMKwwA@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20260828065439.3582783-1-mjambigi@linux.ibm.com>
+ <apWEzobrZ3QR3IfN@linux.alibaba.com>
+ <4f303f9f-fd20-475a-8004-1a670dfd34df@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: 9V2fW3ckCs5_3UQkPhclO1kRVYDFgVU0
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAxMDExMSBTYWx0ZWRfX/INlx9tqFj34
- f3ro0d/9A4LAmfMwyHAetBDeS7FnQKcHmyIeXqx5+Q5AvEoTe7ql9FaH+7PqKVVMAqqJ3I/b4D+
- vgPyHb5dprav5p9BSxdAsD6QHdyFBHNyRfQZ8u7d4br0/S/jv7Vw8SgVt4yq/VeoGCFcB0NfkuU
- VaA9DFv8D82kI8r2vE5S2Wte2Z2VAGatRvyDnQ69VleRkdV2nvAjgEnhxZdZKg8WhGjmVkFmFH+
- m49bpLG1JmXb0oqb/CsTukt3q07n4acYALYwT0WkNu2NWijHFL3bRFi3nqVcbIVC/kICGjea6nb
- SMnbW6AKHH6PyS2S2UFhvDz+i/5IeNcQ1p+YawWQAaQlqCAAt/KkJo1ndUhZHl4TVj7yatHwEh0
- YNnvr0CJCcyjhY6k1nhF6yyUYm/j8vqKeMLSebtlDWTXhfR8QTykJ6yz1aoAMNDq8fqiPoTcXAp
- MVtYPNNuT13uvjHF0cw==
-X-Proofpoint-ORIG-GUID: 9V2fW3ckCs5_3UQkPhclO1kRVYDFgVU0
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAxMDExMSBTYWx0ZWRfXzhFi8xJkEISP
- N04NIfv2sNFyjo5HwakJYCaCAbPylJVBdDegJwaKin4eCltPA46bjTDcA9kVb+JZhmmDhWYEN52
- zzUpWrCjKQDxVrV47s15+aMeWmu21v0=
-X-Authority-Analysis: v=2.4 cv=B92JFutM c=1 sm=1 tr=0 ts=6a96c620 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=jMXAtiaY6crg4VwQvokA:9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-01_03,2026-08-31_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 spamscore=0 clxscore=1015 suspectscore=0 phishscore=0
- lowpriorityscore=0 bulkscore=0 priorityscore=1501 impostorscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2609010111
+In-Reply-To: <4f303f9f-fd20-475a-8004-1a670dfd34df@linux.ibm.com>
 
-The command 'perf stat -e pai_crypto/CRYPTO_ALL/ -- <command>'
-crashes the kernel when CPUs are hotplug added during that run.
+On 2026-08-31 20:27:38, Mahanta Jambigi wrote:
+>
+>
+>On 31/08/26 7:12 pm, Dust Li wrote:
+>> On 2026-08-28 08:54:37, Mahanta Jambigi wrote:
+>>> This series fixes multiple lifetime races in the SMC diag dump path.
+>>>
+>>> The first patch adds the basic infrastructure needed to synchronize diag readers
+>>> against connection-owned conn->lgr/conn->lnk updates. It introduces a
+>>> per-connection spinlock and uses it in the link switch and connection free
+>>> handoff paths. conn->lgr and conn->lnk are NULLed under the lock before the
+>>> borrowed references are released, so a non-NULL conn->lgr seen under the lock
+>>> guarantees the lgr object is alive. The diag reader can rely on this invariant
+>>> without borrowing any extra reference.
+>>>
+>>> The second patch fixes two races in smc_diag itself:
+>>>
+>>> - serialize clcsock field access against smc_clcsock_release() with
+>>>  mutex_trylock()
+>>> - take conn->lgr_lnk_lock when reading conn->lgr and conn->lnk; use
+>>>  smc_conn_lgr_valid() inside the lock to check that the connection is
+>>>  still registered, then snapshot all required fields and call nla_put()
+>>>  after releasing the lock
+>> 
+>> Hi Mahanta,
+>> 
+>> As discussed in the other thread, I think we should defer the release of
+>> smc->clcsock and remove clcsock_release_lock.
+>> 
+>> In that case, we should no longer need these two patches. Also,
+>> introducing more locks in SMC is the last thing I want to do :)
+>
+>Thanks for the new series "[RFC net-next 0/7] net/smc: tie clcsock
+>lifetime to the smc socket and remove clcsock_release_lock" — once it
+>lands, we can drop the mutex_trylock() fix for Race 1 (clcsock).
+>
+>However, Race 2 remains open. Your series does not touch smc_core.c or
+>smc_cdc.c, so smc_conn_free(), smc_switch_link_and_count(), and
+>smc_cdc_msg_validate() still write conn->lgr/conn->lnk with no
+>synchronization against the diag reader.
 
-Root cause is the missing allocation of per-CPU data structures
-for that new CPU. The allocation is dynamic and the first
-event that has task context creates such a structure for
-each online CPU. This is not sufficient. CPUs may be offline
-during event creation and can be set online during the
-perf run time. For example commands
+Hi Mahanta,
 
- # echo 0 > /sys/devices/system/cpu/cpu1/online
- # perf stat -e cycles -i -- stress-ng -t10s --matrix X
- # sleep 1
- # echo 1 > /sys/devices/system/cpu/cpu1/online
+Thanks for the detailed explanation. You are right that a per-connection
+spinlock can work here, and I agree none of the lock sites are on the
+per-message hot path. But I think we can also do the same thing we did with
+clcsock_release_lock: instead of adding a lock, tie the lifetime of
+conn->lgr/conn->lnk to the point where the connection stops being observable,
+and remove the need for synchronization altogether.
 
-Currently without a CPU hotplug handler, that new CPU has no
-per-CPU data infrastructure. The scheduler runs PMU call back
-function pai_add() to install the PMU support for that CPU before
-the task is being scheduled on that new CPU.
-In pai_add() instructions
+For lgr/lnk, that point is the hash table. Once the connection is unhashed, the
+diag dump (which iterates under the hash read_lock) can no longer reach it. So
+if we make sure the connection-owned references are only dropped after unhash,
+the invariant becomes: holding the hash read_lock and seeing a non-NULL
+conn->lgr implies it is safe to dereference. The diag path then reduces to
+`hold hash read_lock -> read conn->lgr -> if non-NULL, use it -> done` with no
+new lock, no extra reference, and no trylock. The invariant is carried by
+object lifetime rather than by a lock, which I find easier to keep correct over
+time.
 
-    mp = this_cpu_ptr(pai_root[idx].mapptr);
-    cpump = mp->mapptr;
-
-return a NULL pointer and the result is a kernel panic as variable
-cpump is used inside that function.
-
-Add CPU hotplug support for CPU add and delete and create
-the necessary per-CPU data infrastructure during CPU hotplug
-add processing. Same for CPU hotplug remove.
-This is done when the CPU is offline to ensure the data structures
-are available when CPU is made online and tasks are scheduled on it.
-
-Cc: stable@vger.kernel.org # v6.19
-Fixes: 582cc1b28e8c ("s390/pai_ext: Enable per-task and system-wide sampling event")
-Fixes: 9f66572f2889 ("s390/pai_crypto: Enable per-task and system-wide sampling event")
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: Jan Polensky <japo@linux.ibm.com>
-Suggested-by: Heiko Carstens <hca@linux.ibm.com>
----
- arch/s390/include/asm/pai.h |   1 -
- arch/s390/kernel/perf_pai.c | 173 ++++++++++++++++++++++++++----------
- 2 files changed, 126 insertions(+), 48 deletions(-)
-
-diff --git a/arch/s390/include/asm/pai.h b/arch/s390/include/asm/pai.h
-index 534d0320e2aa..a3456a36aaa7 100644
---- a/arch/s390/include/asm/pai.h
-+++ b/arch/s390/include/asm/pai.h
-@@ -76,7 +76,6 @@ static __always_inline void pai_kernel_exit(struct pt_regs *regs)
- }
- 
- #define PAI_SAVE_AREA(x)	((x)->hw.event_base)
--#define PAI_CPU_MASK(x)		((x)->hw.addr_filters)
- #define PAI_PMU_IDX(x)		((x)->hw.last_tag)
- #define PAI_SWLIST(x)		(&(x)->hw.tp_list)
- 
-diff --git a/arch/s390/kernel/perf_pai.c b/arch/s390/kernel/perf_pai.c
-index c333158cc945..dcea8f76ad61 100644
---- a/arch/s390/kernel/perf_pai.c
-+++ b/arch/s390/kernel/perf_pai.c
-@@ -67,6 +67,7 @@ struct pai_mapptr {
- 
- static struct pai_root {		/* Anchor to per CPU data */
- 	refcount_t refcnt;		/* Overall active events */
-+	atomic_t tskctx;		/* Overall per-task events */
- 	struct pai_mapptr __percpu *mapptr;
- } pai_root[PAI_PMU_MAX];
- 
-@@ -93,14 +94,15 @@ struct pai_pmu {			/* Define PAI PMU characteristics */
- static struct pai_pmu pai_pmu[];	/* Forward declaration */
- 
- /* Free per CPU data when the last event is removed. */
--static void pai_root_free(int idx)
-+static void pai_root_free(int idx, int tasks)
- {
--	if (refcount_dec_and_test(&pai_root[idx].refcnt)) {
-+	if (refcount_sub_and_test(tasks, &pai_root[idx].refcnt)) {
- 		free_percpu(pai_root[idx].mapptr);
- 		pai_root[idx].mapptr = NULL;
- 	}
--	debug_sprintf_event(paidbg, 5, "%s root[%d].refcount %d\n", __func__,
--			    idx, refcount_read(&pai_root[idx].refcnt));
-+	debug_sprintf_event(paidbg, 5, "%s root[%d].refcount %d tskctx %d\n",
-+			    __func__, idx, refcount_read(&pai_root[idx].refcnt),
-+			    atomic_read(&pai_root[idx].tskctx));
- }
- 
- /*
-@@ -137,20 +139,36 @@ static void pai_free(struct pai_mapptr *mp)
- 	mp->mapptr = NULL;
- }
- 
--/* Adjust usage counters and remove allocated memory when all users are
-- * gone. Called under mutex_lock.
-- */
--static void pai_event_destroy_cpu(int idx, int cpu)
-+/* Called under mutex_lock */
-+static void pai_event_destroy_cpu(int idx, int cpu, bool hotplug)
- {
--	struct pai_mapptr *mp = per_cpu_ptr(pai_root[idx].mapptr, cpu);
--	struct pai_map *cpump = mp->mapptr;
-+	struct pai_mapptr *mp;
-+	struct pai_map *cpump;
-+	int tasks = 1;
- 
--	debug_sprintf_event(paidbg, 5, "%s users %d refcnt %u\n",
--			    __func__, cpump->active_events,
--			    refcount_read(&cpump->refcnt));
--	if (refcount_dec_and_test(&cpump->refcnt))
-+	/* Check reference count and return when all gone.
-+	 * 1. An event is installed on online CPU X.
-+	 * 2. CPU x is offlined and the per-CPU data is removed.
-+	 * 3. Event is destroyed via close system call.
-+	 */
-+	if (!refcount_read(&pai_root[idx].refcnt))
-+		return;			/* No events at all */
-+	mp = per_cpu_ptr(pai_root[idx].mapptr, cpu);
-+	if (!mp || !mp->mapptr)		/* No events on that CPU */
-+		return;
-+
-+	/* When hotplug is true, invocation is from CPU hotplug callback.
-+	 * Delete per-CPU resource and adjust refcnt when per-task events
-+	 * are currently active. This can be more than one.
-+	 * In this case adjust counters.
-+	 */
-+	if (hotplug)
-+		tasks = atomic_read(&pai_root[idx].tskctx);
-+
-+	cpump = mp->mapptr;
-+	if (refcount_sub_and_test(tasks, &cpump->refcnt))
- 		pai_free(mp);
--	pai_root_free(idx);
-+	pai_root_free(idx, tasks);
- }
- 
- static void pai_event_destroy(struct perf_event *event)
-@@ -158,17 +176,17 @@ static void pai_event_destroy(struct perf_event *event)
- 	int cpu = 0, idx = PAI_PMU_IDX(event);
- 
- 	free_page(PAI_SAVE_AREA(event));
-+	cpus_read_lock();
- 	mutex_lock(&pai_reserve_mutex);
- 	if (event->cpu == -1) {
--		struct cpumask *mask = PAI_CPU_MASK(event);
--
--		for_each_cpu(cpu, mask)
--			pai_event_destroy_cpu(idx, cpu);
--		kfree(mask);
-+		atomic_dec(&pai_root[idx].tskctx);
-+		for_each_online_cpu(cpu)
-+			pai_event_destroy_cpu(idx, cpu, false);
- 	} else {
--		pai_event_destroy_cpu(idx, event->cpu);
-+		pai_event_destroy_cpu(idx, event->cpu, false);
- 	}
- 	mutex_unlock(&pai_reserve_mutex);
-+	cpus_read_unlock();
- }
- 
- static void paicrypt_event_destroy(struct perf_event *event)
-@@ -232,17 +250,25 @@ static u64 paicrypt_getall(struct perf_event *event)
- 	return sum;
- }
- 
--/* Allocate all per-CPU data structures. This function is called in
-- * process context and can block. In case of error all partly allocated
-- * memory is released and the reference counters adjusted correctly.
-- * Called under mutex_lock.
-- */
--static int pai_alloc_cpu(int idx, int cpu)
-+/* Called under mutex_lock */
-+static int pai_alloc_cpu(int idx, int cpu, bool hotplug)
- {
- 	struct pai_map *cpump = NULL;
- 	bool need_paiext_cb = false;
- 	struct pai_mapptr *mp;
--	int rc;
-+	int tasks = 1, rc = 0;
-+
-+	/* When hotplug is true, invocation is from CPU hotplug callback.
-+	 * Allocate per-CPU resource when per-task events are currently active.
-+	 * This can be more than one. In this case adjust all reference
-+	 * counters. Otherwise return, this ensures memory is only allocated
-+	 * when needed.
-+	 */
-+	if (hotplug) {
-+		tasks = atomic_read(&pai_root[idx].tskctx);
-+		if (!tasks)
-+			goto out;
-+	}
- 
- 	/* Allocate root node */
- 	rc = pai_root_alloc(idx);
-@@ -291,26 +317,42 @@ static int pai_alloc_cpu(int idx, int cpu)
- 			goto undo;
- 		}
- 		INIT_LIST_HEAD(&cpump->syswide_list);
--		refcount_set(&cpump->refcnt, 1);
-+		refcount_set(&cpump->refcnt, tasks);
- 		rc = 0;
- 	} else {
--		refcount_inc(&cpump->refcnt);
-+		refcount_add(tasks, &cpump->refcnt);
- 	}
-+	/* If tasks is greater than 1, we are called from CPU hotplug path
-+	 * and need to adjust the pai_root[idx].refcnt by the number of
-+	 * per-process events. Function pai_root_alloc(idx) already
-+	 * incremented by one. Adjust for the rest.
-+	 */
-+	if (tasks > 1)
-+		refcount_add(tasks - 1, &pai_root[idx].refcnt);
- 
- undo:
- 	if (rc) {
- 		/* Error in allocation of event, decrement anchor. Since
- 		 * the event in not created, its destroy() function is never
- 		 * invoked. Adjust the reference counter for the anchor.
-+		 * The failure happened in the case of variable
-+		 * cpump == NULL branch above. The pai_root[XXX].refcnt has
-+		 * been incremented by one. Then the per-CPU allocation
-+		 * failed, so decrement it by one, regardless of tasks.
- 		 */
--		pai_root_free(idx);
-+		pai_root_free(idx, 1);
- 	}
- out:
- 	/* If rc is non-zero, no increment of counter/sampler was done. */
- 	return rc;
- }
- 
--/* Called under mutex_lock */
-+/* Check concurrent access of counting and sampling for PAI events.
-+ * This function is called in process context and it is safe to block.
-+ * When the event initialization functions fails, no other call back will
-+ * be invoked.
-+ * Called under mutex_lock.
-+ */
- static int pai_alloc(struct perf_event *event)
- {
- 	int idx = PAI_PMU_IDX(event);
-@@ -322,24 +364,20 @@ static int pai_alloc(struct perf_event *event)
- 		goto out;
- 
- 	for_each_online_cpu(cpu) {
--		rc = pai_alloc_cpu(idx, cpu);
-+		rc = pai_alloc_cpu(idx, cpu, false);
- 		if (rc) {
- 			for_each_cpu(cpu, maskptr)
--				pai_event_destroy_cpu(idx, cpu);
--			kfree(maskptr);
--			goto out;
-+				pai_event_destroy_cpu(idx, cpu, false);
-+			goto undo;
- 		}
- 		cpumask_set_cpu(cpu, maskptr);
- 	}
- 
--	/*
--	 * On error all cpumask are freed and all events have been destroyed.
--	 * Save of which CPUs data structures have been allocated for.
--	 * Release them in pai_event_destroy call back function
--	 * for this event.
--	 */
--	PAI_CPU_MASK(event) = maskptr;
- 	rc = 0;
-+	/* Trace per-task events for CPU hotplug. */
-+	atomic_inc(&pai_root[idx].tskctx);
-+undo:
-+	kfree(maskptr);
- out:
- 	return rc;
- }
-@@ -387,12 +425,14 @@ static int pai_event_init(struct perf_event *event, int idx)
- 		}
- 	}
- 
-+	cpus_read_lock();
- 	mutex_lock(&pai_reserve_mutex);
- 	if (event->cpu >= 0)
--		rc = pai_alloc_cpu(idx, event->cpu);
-+		rc = pai_alloc_cpu(idx, event->cpu, false);
- 	else
- 		rc = pai_alloc(event);
- 	mutex_unlock(&pai_reserve_mutex);
-+	cpus_read_unlock();
- 	if (rc) {
- 		free_page(PAI_SAVE_AREA(event));
- 		goto out;
-@@ -1237,8 +1277,35 @@ static int __init paipmu_setup(void)
- 	return install_ok;
- }
- 
-+static int pai_online_cpu(unsigned int cpu)
-+{
-+	int rc;
-+
-+	mutex_lock(&pai_reserve_mutex);
-+	rc = pai_alloc_cpu(PAI_PMU_CRYPTO, cpu, true);
-+	if (rc)
-+		goto out;
-+	rc = pai_alloc_cpu(PAI_PMU_EXT, cpu, true);
-+	if (rc)
-+		pai_event_destroy_cpu(PAI_PMU_CRYPTO, cpu, true);
-+out:
-+	mutex_unlock(&pai_reserve_mutex);
-+	return rc;
-+}
-+
-+static int pai_offline_cpu(unsigned int cpu)
-+{
-+	mutex_lock(&pai_reserve_mutex);
-+	pai_event_destroy_cpu(PAI_PMU_CRYPTO, cpu, true);
-+	pai_event_destroy_cpu(PAI_PMU_EXT, cpu, true);
-+	mutex_unlock(&pai_reserve_mutex);
-+	return 0;
-+}
-+
- static int __init pai_init(void)
- {
-+	int rc;
-+
- 	/* Setup s390dbf facility */
- 	paidbg = debug_register("pai", 1, 1, 128);
- 	if (!paidbg) {
-@@ -1247,13 +1314,25 @@ static int __init pai_init(void)
- 	}
- 	debug_register_view(paidbg, &debug_sprintf_view);
- 
-+	/* CPUHP_BP_PREPARE_DYN --> before CPU is brought online */
-+	rc = cpuhp_setup_state(CPUHP_BP_PREPARE_DYN, "perf/pai:prepare",
-+			       pai_online_cpu, pai_offline_cpu);
-+	if (rc < 0)
-+		goto out_debug;
-+
- 	if (!paipmu_setup()) {
- 		/* No PMU registration, no need for debug buffer */
--		debug_unregister_view(paidbg, &debug_sprintf_view);
--		debug_unregister(paidbg);
--		return -ENODEV;
-+		rc = -ENODEV;
-+		goto out_cpuhp;
- 	}
- 	return 0;
-+
-+out_cpuhp:
-+	cpuhp_remove_state(rc);
-+out_debug:
-+	debug_unregister_view(paidbg, &debug_sprintf_view);
-+	debug_unregister(paidbg);
-+	return rc;
- }
- 
- device_initcall(pai_init);
--- 
-2.55.0
+Best regards,
+Dust
 
