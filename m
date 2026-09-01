@@ -1,39 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEC12371887;
-	Tue,  1 Sep 2026 07:46:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DA5835F182;
+	Tue,  1 Sep 2026 07:48:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788248781; cv=none; b=tTwemuk5mYzb69Yh0xO80sNPPMfQHlE0FKlYDvb44lFJbMDOz0LoAC9dkzr4D0JE45A+Xi31O2QGInbk67rHKjv8Nz4da3SbycunJoDbH8hPLjYKqPVw4sNnnr7j8W2ZJQIaTVO5sM2u0EJ9oH9DmZVDpU2PqRPqlmBNLwwk+QQ=
+	t=1788248915; cv=none; b=BYbTNjk/T4iPJmMuGjjz4fENCi8MOmODqoNQjNycuKICwNncbX6XNvIeiqfW++Lg7p4fdSVwOuUxNtetcKEtz95HWaNb3B0vZUxf+oWFTyoatfwpmp4eZSh04Jf1pV6cbSNW7pmzPw4kRQtFP9aKfuW6ZWK8r8b6OByIRn7BnWU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788248781; c=relaxed/simple;
-	bh=+YV2Crc/2Pkj3Cgew2GC2h9KLioi59DQ7h35aF3CIdY=;
+	s=arc-20240116; t=1788248915; c=relaxed/simple;
+	bh=KPd50IAnmwgANUxRuXWXFO4sxkhqAQMPAoJdkTX6r7k=;
 	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=KWYyQ00+rO62iDTgwuJIMjIC+mbYmjpvw/eJu9I044WZeNITubrxJqOKpakBtafmRGFhL4a8ZPn9xL5dKDF8uybt6FD1U9sR2a2FrkyiF8pV7KAWt6zg0YMYsgocpDgkBw25NNoa03AjyJoLFuifxP1MSUUguIitNqEX/oaYNWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kgcra3RW; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=SUNVvDHMZ5PwwbolngtE7hhLsTxf0ViPn3UUDfDyH1MKSgXU1DV6+Mp5qpfL+QHqgqBu3XA+43PbhrZ+z408SyGKtuV043fUV1xHzSyIANrSUxz4opT1E/B+BDKwJrRayBdckwfQclwGPaPN3Q0Wc6ZyonCOyxqMGXNwxBPlGec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bTKw+OT/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kgcra3RW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 417FC1F000E9;
-	Tue,  1 Sep 2026 07:46:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bTKw+OT/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA9311F000E9;
+	Tue,  1 Sep 2026 07:48:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788248780;
-	bh=ppvYUZdPBmuaBv1YdwpjusxCdqJckL+Q48S47VSYESw=;
+	s=k20260515; t=1788248913;
+	bh=UZB1OLP7prA7rwlGLIa5XRKyBZ1d7kf5fm2V6ZP76JY=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=kgcra3RW2Y0FmlVVaIMjCWPhG9oH8mn5lyDloXP2WiFqGhcpLyawUZasaZOBc6uCB
-	 b88wljyLeHQ4I8ratx5Tst/lzkCEP3KIqKfIhr4xslhdhAQIE4rP6mJI5x/ld9h9u9
-	 ZGuslPT4fCuVzTd8PE1bthyv6MkQ+r7MxgfI7nS2I6oR6bvwOXEBk2dL0/C+0tCxL+
-	 d8/X3DaIXIRma8/N6PDEmUoUm5pAV4mQ94qhZ/o7O3RCdTiaBU5aiWN7XvuSjnRCnK
-	 +EcSYt5WXqSutjqgiX6jYDANj0GnkapvxB2t25MEvuK/LBRYPRBc7VoMrWiilOgoI3
-	 v+mtzXfI8IpfQ==
+	b=bTKw+OT/UwTVuABIiuKZ7SaC+N5dRiEp901CPG1h28Un6ph5XDeSJrrqZexbEoyWj
+	 90e61JGRfKsjntjQTGfLb9PR/jv5MKl8yTjXcS0cL39Dd/yAREBnTvqp4a6BVYhEXw
+	 XmlferqV+KPuveBHwgmdzWcMRNcyUhW/angxzNOFzAuIC4EDJEummrPZAl4QhYYIuX
+	 /M19kvrhdwA/aNR6//g/+g2mEagXzkR6szUgjwldGHyesUdoLHyxpBnxaHmr5LumvQ
+	 Y8vqCT2XdMhpAPvnYnLZc1SphxJQXWGXlS93oP3xxA6Lmf/psUZGmD/v4mC+CdrZrN
+	 ibng9DxMTFC0g==
 Received: from sofa.misterjones.org ([185.219.108.64] helo=lobster-girl.misterjones.org)
 	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.98.2)
 	(envelope-from <maz@kernel.org>)
-	id 1x1JCD-00000003BOj-2WY3;
-	Tue, 01 Sep 2026 07:46:17 +0000
-Date: Tue, 01 Sep 2026 08:48:50 +0100
-Message-ID: <87wlt5mmxp.wl-maz@kernel.org>
+	id 1x1JEN-00000003BRD-3HQ7;
+	Tue, 01 Sep 2026 07:48:31 +0000
+Date: Tue, 01 Sep 2026 08:51:04 +0100
+Message-ID: <87v78pmmtz.wl-maz@kernel.org>
 From: Marc Zyngier <maz@kernel.org>
 To: Steffen Eiden <seiden@linux.ibm.com>
 Cc: kvm@vger.kernel.org,
@@ -67,10 +67,10 @@ Cc: kvm@vger.kernel.org,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Will Deacon <will@kernel.org>,
 	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v2 02/20] KVM: arm64: Extract number of sys_reg_desc into a constant
-In-Reply-To: <20260831145536.913567-3-seiden@linux.ibm.com>
+Subject: Re: [PATCH v2 03/20] arm64: sysreg: Define OSLSR_EL1_OSLK_MASK
+In-Reply-To: <20260831145536.913567-4-seiden@linux.ibm.com>
 References: <20260831145536.913567-1-seiden@linux.ibm.com>
-	<20260831145536.913567-3-seiden@linux.ibm.com>
+	<20260831145536.913567-4-seiden@linux.ibm.com>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
  FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
  (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -86,25 +86,29 @@ X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux
 X-SA-Exim-Mail-From: maz@kernel.org
 X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-On Mon, 31 Aug 2026 15:55:17 +0100,
+On Mon, 31 Aug 2026 15:55:18 +0100,
 Steffen Eiden <seiden@linux.ibm.com> wrote:
 > 
-> Define the constant `num_sys_reg_descs` which stores the number of
-> elements in the sys_reg_descs array. Replace all occurrences of
-> ARRAY_SIZE(sys_reg_descs) with the new constant.
+> Define the missing mask for the OLSK field of OSLSR_EL1 which is
+> required to safely write a value to that field.
 > 
-> This refactoring eases the integration of handling system registers for
-> arm on s390.
+> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> ---
+>  arch/arm64/include/asm/sysreg.h | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
+> index 1c5c4df260be..5a439853b721 100644
+> --- a/arch/arm64/include/asm/sysreg.h
+> +++ b/arch/arm64/include/asm/sysreg.h
+> @@ -200,6 +200,7 @@
+>  #define OSLSR_EL1_OSLM_NI		0
+>  #define OSLSR_EL1_OSLM_IMPLEMENTED	BIT(3)
+>  #define OSLSR_EL1_OSLK			BIT(1)
+> +#define OSLSR_EL1_OSLK_MASK		BIT(1)
 
-How? What is so different in the way you are handling the sysreg array
-that you need some arbitrary constant that is not the array size? Why
-is this the only array you care about? Why not the sys_insn_descs
-array, for example?
-
-It feels like you are papering over some other design issue, and I'd
-like to understand that.
-
-Thanks,
+Just move the required sysregs to the sysreg file, with the full bit
+description. This will sort this once and for all.
 
 	M.
 
