@@ -1,269 +1,201 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from bombadil.infradead.org (bombadil.infradead.org [198.137.202.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 710F543D4FE;
-	Tue,  1 Sep 2026 15:53:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB41A43CE56;
+	Tue,  1 Sep 2026 15:55:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788278040; cv=none; b=HlajUzr1Lz3kngPSYTz7VJ+8BxkkSLImPQde2+GuD6kc3GQP3AM2xUUK7frfrZPvmwZI5/zP86MGixAMBhe57xA8yERotC4SXR1Y7Ae4s9+ODpu51/IbKwbFSP9Fo4wOJiKBV5TrDQ+8ARscsUonxuQhbcxw+P9I8xSE+u6j2M0=
+	t=1788278149; cv=none; b=byEnhNbaesqahDogHNHELOSYJ6H6ePIzi9cioZNUuqrZlgOWUcthRsRVnS5cfA4j1CYaBoAO/srkN36K+wSgt+mhodny4z+jZRaWu0pjoC/yFE/9s4SpU3jyZUInJv1R+i/l5PBuN0izoOSS/RDbds8DPzqqWapSqqoHxI+O+5Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788278040; c=relaxed/simple;
-	bh=D9K9rUaHU5Ntv+qgCkH68mUA8L7kD97agGHAlGkWj0w=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=eF7/HOxTUcOH1o1XYjb0PoiFj9MXslSBpkRhDwhu2bb0V6t8Gbj1fC6rrtClPoblr0XGHkYwehSGg40HrjRf6g/KrxpOV270WomUcoRQJfhJZIehhRRbvfr2VjS6SkrzX1Wpkxce5mbTrfXHI7JmPH6I8WslkhSeWiBgPJiVj6c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rmv+tiH0; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1788278149; c=relaxed/simple;
+	bh=qqNtHA4CTMpPgpg0tTomw2NNo+hq2OSef3C+KNnMj9Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UHUgSS+toLt1PlP/BX0xG1nWn7hWhwa8GUBPOA9xWc5kMKjtlAERahgr4yuAYi5UJgL5JmBfZuZ0Ln6Qthz5Kk/fyxaqT8uXims26T6MXqF5h6FIWk7slstF061ottvckkgiqXknd22Uobktofh0puduYflpkMj2GX6vtvWoUFk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=VuetgL2D; arc=none smtp.client-ip=198.137.202.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rmv+tiH0"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 681EVinf1462414;
-	Tue, 1 Sep 2026 15:53:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=zi21NaMcvyQBlOpcSU1kjAxKwrJ51JcIsyzbbAht5
-	34=; b=rmv+tiH0wu7SyExtFqJjh5/b9NiwQiootnGDfRh0fbQqKwxPZtjZ1Nu6C
-	fYnyFzv+avALYroy5GQLH75ETPbMAVLlfs6X9S7BHM6kcLefeZA9FyodY5v7H1y/
-	OwSDkdpAXgwKEqo2we05mrBDsCCcPdPxpa/zeqSBK1GQjToKUL2XvmwZHx4eg8VJ
-	1jyxT6hFp1FN0/9JDUaSnv5/nTUGs5VyW5+lIxg0Y9hj41M0gUaVQpJk+QcHJ3iG
-	mTdggndexbpuj4uZGXNqr1bI929k4GNI5Yecwfl+iJUFce2UlX8zg2jsR/kqobB8
-	64+fY7ItRmYnFOMwFp7Xij2CNAWvA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbpx5gwy7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Sep 2026 15:53:51 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 681Ffe9q029048;
-	Tue, 1 Sep 2026 15:53:50 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gcb8hcgf9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 01 Sep 2026 15:53:50 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 681Frj7848431520
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 1 Sep 2026 15:53:45 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2978D2004D;
-	Tue,  1 Sep 2026 15:53:45 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D282C2004B;
-	Tue,  1 Sep 2026 15:53:44 +0000 (GMT)
-Received: from t83lp71.lnxne.boe (unknown [9.87.84.240])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  1 Sep 2026 15:53:44 +0000 (GMT)
-From: Nagamani PV <nagamani@linux.ibm.com>
-To: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com
-Cc: wintera@linux.ibm.com, pasic@linux.ibm.com, aswin@linux.ibm.com,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        Eugene.Crosser@ru.ibm.com, ubraun@linux.vnet.ibm.com,
-        netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH net] s390/qeth: allow bridgeport queries despite OS_MISMATCH
-Date: Tue,  1 Sep 2026 17:53:44 +0200
-Message-ID: <20260901155344.3561483-1-nagamani@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="VuetgL2D"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
+	:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=QVII+cUuHDdwf9Z3P2TCkoJU717I3TDa444aSejj2Fk=; b=VuetgL2DlX2s22gGISfExiPA9t
+	9DR1WYg6YZMiQdCRfQ+bclFFmqJlamray7mTao+UhH5uHuDqMjg0If3EcpdK8CT6uAbV8Evx6e3qN
+	9LKEiBOSP64GFOxx0Cep1mNRyBIuVmmcKSTv8HQZQ9qWi8T/h/J5gA+nhMhRR79oe1SuMqDRuJhz9
+	pRpKL7TL03xwEzunbCrbhKOYuAtJaLW6NfzQtbWbRGbuZxvcEga7a6JSS4BRz+hheJF51YvaJp+Zr
+	D/J641qvz7Z+tlxTfhJCmdiErtoEU9UpGW4Y1LUR3UybIWIjAgSbUj4dMePbLb0JYsVZUKGih4aiC
+	1qamG5Tw==;
+Received: from [38.23.173.23] (helo=localhost)
+	by bombadil.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1x1Qp4-0000000CazZ-3xgl;
+	Tue, 01 Sep 2026 15:54:55 +0000
+Date: Tue, 1 Sep 2026 11:54:47 -0400
+From: "Liam R. Howlett" <liam@infradead.org>
+To: Kiryl Shutsemau <kas@kernel.org>
+Cc: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, 
+	Jason Gunthorpe <jgg@ziepe.ca>, Andrew Morton <akpm@linux-foundation.org>, 
+	David Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
+	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, Guo Ren <guoren@kernel.org>, 
+	Brian Cain <bcain@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, 
+	Dinh Nguyen <dinguyen@kernel.org>, Simon Schuster <schuster.simon@siemens-energy.com>, 
+	Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
+	Stafford Horne <shorne@gmail.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
+	Russell King <linux@armlinux.org.uk>, Vineet Gupta <vgupta@kernel.org>, 
+	Michal Simek <monstr@monstr.eu>, Chris Zankel <chris@zankel.net>, 
+	Max Filippov <jcmvbkbc@gmail.com>, Will Deacon <will@kernel.org>, 
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, 
+	Peter Zijlstra <peterz@infradead.org>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Richard Henderson <richard.henderson@linaro.org>, 
+	Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, 
+	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Richard Weinberger <richard@nod.at>, 
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Arnd Bergmann <arnd@arndb.de>, Vlastimil Babka <vbabka@kernel.org>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org, 
+	linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org, 
+	linux-sh@vger.kernel.org, linux-riscv@lists.infradead.org, 
+	linux-arm-kernel@lists.infradead.org, linux-snps-arc@lists.infradead.org, linux-arch@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-alpha@vger.kernel.org, loongarch@lists.linux.dev, 
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-s390@vger.kernel.org, linux-um@lists.infradead.org, Hugh Dickins <hughd@google.com>, 
+	Qi Zheng <qi.zheng@linux.dev>
+Subject: Re: [PATCH 01/12] mm/huge_memory: zap deposited page tables after an
+ RCU grace period
+Message-ID: <kasi4mkjkt56wxsrmphm5o2qfg2lwsdxf3tlmzx5tq6t7uez74@kozleoavd6r2>
+References: <20260901-rcu-pagetable-freeing-v1-0-5456a81c8212@kernel.org>
+ <20260901-rcu-pagetable-freeing-v1-1-5456a81c8212@kernel.org>
+ <apbOlyF77yDCV4cF@thinkstation>
+ <apbcoMTVlL42G5tg@gremlin>
+ <20260901142408.GA56830@ziepe.ca>
+ <apbiB51hjm-9pRzf@gremlin>
+ <apbuO_QveZNAz3ns@thinkstation>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=PPc/P/qC c=1 sm=1 tr=0 ts=6a96f50f cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=etSfBHcFTwiMQAIEi6YA:9
-X-Proofpoint-GUID: 8rCF-BgCzlouFX6B1TNtTCR1hbYQm1ca
-X-Proofpoint-ORIG-GUID: RsZIeUJ5aMq8cOnYhJBM1PnF0_n-xcQU
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAxMDEzNyBTYWx0ZWRfX/zKN8bJncDai
- H4u9dlHPgb70tB7+5zpHrfoUhFFl+jGC30W/OQSHQo2Wguznm9jLF+Yx1vlWDhyNrO4GTQAIea5
- fIY0YmvVjItWX4+jSedaBU2WrF4tnRg=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAxMDEzNyBTYWx0ZWRfX4IaKs4Xe9Pt0
- eB1SpcBopYAiiPz16sBUKC5fGCUAN2teP86E7DV0ZIIhnci2lKhy/+utrb978t4x0JpLvfVoHQe
- Iwe9Y6RYO82mu/kVNK58n4hP82306yTEWRGYLL/McTz1qSGthgUsBKIUEWOXqSXwOhaeYcPq7W6
- 0UiaP75qYfIDj7/Qmv2fRrRSMyZ/1dLCi8fjmdTRrMx5ABRAfxQqgQGp4r4UIdYoAk+W3liP0h4
- i6ehx8qOkDYhTQiM2IlCjCh2MNWN6U/krn6JAUpBgSXISpWf980vylNFqPNrzyNyrHW0akT+nXv
- V1DP6brvX43/ekI+GsKW4Y/i1GnS4mllXFEskkTEapcCa++D0Ao9Zd81Fdg7hM+SLHYnRoQCXlo
- s3h2lTij66w2T4wyHB6o9cLxjYs9EUD0gbuWLz2Gf9Svmxz9oOTT7712aP9jpa1c7VzhXNBNcQV
- A8UVodqJEnNQHLPmr/Q==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-01_04,2026-09-01_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 phishscore=0 adultscore=0 suspectscore=0 bulkscore=0
- spamscore=0 priorityscore=1501 impostorscore=0 malwarescore=0
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2609010137
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <apbuO_QveZNAz3ns@thinkstation>
 
-When HiperSockets interfaces on the same VCHID span different OS
-families, reads of the sysfs attributes bridge_role and bridge_state
-fail with -EPERM if bridge port ownership belongs to another OS family.
+On 26/09/01 04:28PM, Kiryl Shutsemau wrote:
+> On Tue, Sep 01, 2026 at 03:41:17PM +0100, Lorenzo Stoakes (ARM) wrote:
+> > On Tue, Sep 01, 2026 at 11:24:08AM -0300, Jason Gunthorpe wrote:
+> > > On Tue, Sep 01, 2026 at 03:12:45PM +0100, Lorenzo Stoakes (ARM) wrote:
+> > >
+> > > > It won't be costly at the time of the calls obviously as its deferred. Maybe
+> > > > increase some time spent in softirq but again is 512x that big of a deal?
+> > > >
+> > > > I'm not sure how you'd both defer the free and somehow utilise mmu_gather here
+> > > > either really, certainly not without it becoming extremely messy.
+> > >
+> > > The less costly version is to thread the page to be freed onto the
+> > > mmu_gather through a linked list in the struct page memory. This is
+> > > super cheap since it is just a singly linked list operation.
+> > >
+> > > Then when the mmu_gather is flushed it does a single call_rcu using
+> > > the rcu head of the struct page of the head of the list. The callback
+> > > clears the entire linked list of pages.
 
-As a result, userspace tools such as 'lszdev -ii' cannot retrieve
-bridge_role and bridge_state, even though firmware returns valid bridge
-port data for QUERY_BRIDGE_PORTS requests.
+If you are going through the trouble of doing this on your side with a
+custom rcu callback, it might be better to pack the pointers in a way
+that does not need to pointer chase through a linked list.
 
-The firmware reports IPA_RC_SBP_IQD_OS_MISMATCH (0x0010) to indicate
-that bridge port ownership belongs to a different OS family. For
-QUERY_BRIDGE_PORTS operations, firmware still returns valid bridge port
-data (role=none, state=inactive) together with a primary return code of
-0x0000 (success).
+> > >
+> > > Since you have to tlb flush anyhow, it makes sense to always use the
+> > > mmu_gather. For example the design I ended up with for iommupt
+> > > accumulates all the invalidations and all the free-able memory into a
+> > > gather then invalidates and frees.
+> > >
+> > > This allows maximizing the tlbi efficiency too. You can't do call_srcu
+> > > until you flush the tlb and if you call once per table then you are
+> > > also tlb flushing once per table too.
+> > >
+> > > So if the kernel really does want to clear out 512 leaf tables the
+> > > optimal implementation is one range tlbi for 512 entries followed by
+> > > one call_rcu to free the memory. Hence the gather..
+> > 
+> > I think there's some confusion here.
+> > 
+> > This isn't the path in which a page table is being freed, the _deposited_
+> > table is zapped, in zap_deposited_table().
+> > 
+> > That is, the page table kept in reserve for THP split, that is not
+> > currently mapped.
+> > 
+> > It amounts to a __free_pages() call.
+> > 
+> > The TLB operations are in e.g. zap_huge_pmd() etc. and nobody has
+> > complained about inefficiencies there.
+> > 
+> > So, unless I'm missing something here, TLB flushes play no role in this
+> > whatsoever.
+> > 
+> > The issue Kiryl raised was that instead of immediately freeing page tables,
+> > they are now batched up individually by call_rcu().
+> > 
+> > I personally find it difficult to imagine the numbers here would be
+> > problematic or certainly cause anything observable beyond what is
+> > observable now.
+> > 
+> > So I'm going to have to say, unless it can be clearly demonstrated this is
+> > problematic, I don't think there's any reason to add additional complexity
+> > here.
+> 
+> It would be nice to measure munmap() overhead here.
+> 
+> I am worried about hitting DEFAULT_MAX_RCU_BLIMIT and trigger
+> rcu_force_quiescent_state() which can be disruptive to the system.
+> 
+> DEFAULT_MAX_RCU_BLIMIT is 10K, so it is ~20G of THP unmapped on x86.
+> 
+> munmap() of 64G worth of THP should be enough to demonstrate the
+> problem.
 
-Allow QUERY_BRIDGE_PORTS requests to return the bridge port data
-provided by the firmware despite OS_MISMATCH. To make the OS family
-mismatch visible to userspace, represent the firmware-reported role
-"none" as "none (OS family mismatch)" while preserving the reported
-bridge_state.
+I'm not sure what that would prove besides checking if your number is
+correct?  You'll see a slow down once you hit 10K of objects in the rcu
+linked list.  And that will depend on what the system is doing as well,
+so there will be a slow down since other things are happening on the
+system before 20GB of THP is unleashed towards munmap().
 
-The behavior for non-QUERY bridge port commands is unchanged; SET
-operations continue to return -EPERM when another OS family owns the
-bridge port.
+One of these does use 5.12% of the RCU items that need to wait for a
+grace period to be released, but testing it would be rather tricky and
+the numbers won't really show much..?
 
-This restores readability of bridge_role and bridge_state.
+Form my understanding and experience with rcu and freeing massive
+numbers of objects, you gain more from the lower lock contention than
+you lose when you hit 10K objects.
 
-Fixes: 1b05cf6285c1 ("qeth: Include error message for "OS Mismatch"")
-Cc: stable@vger.kernel.org
-Suggested-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Nagamani PV <nagamani@linux.ibm.com>
----
- drivers/s390/net/qeth_l2.h      |  3 ++-
- drivers/s390/net/qeth_l2_main.c | 26 ++++++++++++++++++++++----
- drivers/s390/net/qeth_l2_sys.c  |  7 ++++++-
- 3 files changed, 30 insertions(+), 6 deletions(-)
+The trade off is in the Android setup, where they have restricted RCU to
+a slower core.  Combined with another RCU setting, it was causing slow
+down when we overwhelmed the queue multiple times.
 
-diff --git a/drivers/s390/net/qeth_l2.h b/drivers/s390/net/qeth_l2.h
-index 7c646e2fed7e..f94975e970ca 100644
---- a/drivers/s390/net/qeth_l2.h
-+++ b/drivers/s390/net/qeth_l2.h
-@@ -13,7 +13,8 @@ extern const struct attribute_group *qeth_l2_attr_groups[];
- 
- int qeth_bridgeport_query_ports(struct qeth_card *card,
- 				enum qeth_sbp_roles *role,
--				enum qeth_sbp_states *state);
-+				enum qeth_sbp_states *state,
-+				bool *os_mismatch);
- int qeth_bridgeport_setrole(struct qeth_card *card, enum qeth_sbp_roles role);
- int qeth_bridgeport_an_set(struct qeth_card *card, int enable);
- 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index a9e7d1d637a2..2935c2ecc314 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -1158,7 +1158,7 @@ static void qeth_l2_setup_bridgeport_attrs(struct qeth_card *card)
- 		qeth_bridgeport_setrole(card, card->options.sbp.role);
- 		/* Let the callback function refresh the stored role value. */
- 		qeth_bridgeport_query_ports(card, &card->options.sbp.role,
--					    NULL);
-+					    NULL, NULL);
- 	}
- 	if (card->options.sbp.hostnotification) {
- 		if (qeth_bridgeport_an_set(card, 1))
-@@ -1545,6 +1545,7 @@ struct _qeth_sbp_cbctl {
- 		struct {
- 			enum qeth_sbp_roles *role;
- 			enum qeth_sbp_states *state;
-+			bool *os_mismatch;
- 		} qports;
- 	} data;
- };
-@@ -1721,10 +1722,19 @@ static int qeth_bridgeport_query_ports_cb(struct qeth_card *card,
- 	struct qeth_ipa_cmd *cmd = (struct qeth_ipa_cmd *) data;
- 	struct _qeth_sbp_cbctl *cbctl = (struct _qeth_sbp_cbctl *)reply->param;
- 	struct qeth_sbp_port_data *qports;
-+	u16 sbp_rc;
- 	int rc;
- 
- 	QETH_CARD_TEXT(card, 2, "brqprtcb");
--	rc = qeth_bridgeport_makerc(card, cmd);
-+	sbp_rc = cmd->data.sbp.hdr.return_code;
-+
-+	/* on OS family mismatch, query still returns valid port data;
-+	 * treat as success
-+	 */
-+	if (sbp_rc == IPA_RC_SBP_IQD_OS_MISMATCH && !cmd->hdr.return_code)
-+		rc = 0;
-+	else
-+		rc = qeth_bridgeport_makerc(card, cmd);
- 	if (rc)
- 		return rc;
- 
-@@ -1740,6 +1750,9 @@ static int qeth_bridgeport_query_ports_cb(struct qeth_card *card,
- 		if (cbctl->data.qports.state)
- 			*cbctl->data.qports.state = qports->entry[0].state;
- 	}
-+	if (cbctl->data.qports.os_mismatch)
-+		*cbctl->data.qports.os_mismatch =
-+			(sbp_rc == IPA_RC_SBP_IQD_OS_MISMATCH);
- 	return 0;
- }
- 
-@@ -1748,13 +1761,17 @@ static int qeth_bridgeport_query_ports_cb(struct qeth_card *card,
-  * @card:			   qeth_card structure pointer.
-  * @role:   Role of the port: 0-none, 1-primary, 2-secondary.
-  * @state:  State of the port: 0-inactive, 1-standby, 2-active.
-+ * @os_mismatch: if non-NULL, set to true when firmware reports
-+ *		 OS family mismatch.
-  *
-  * Returns negative errno-compatible error indication or 0 on success.
-  *
-- * 'role' and 'state' are not updated in case of hardware operation failure.
-+ * 'role', 'state' and 'os_mismatch' are not updated in case of
-+ * hardware operation failure.
-  */
- int qeth_bridgeport_query_ports(struct qeth_card *card,
--	enum qeth_sbp_roles *role, enum qeth_sbp_states *state)
-+	enum qeth_sbp_roles *role, enum qeth_sbp_states *state,
-+	bool *os_mismatch)
- {
- 	struct qeth_cmd_buffer *iob;
- 	struct _qeth_sbp_cbctl cbctl = {
-@@ -1762,6 +1779,7 @@ int qeth_bridgeport_query_ports(struct qeth_card *card,
- 			.qports = {
- 				.role = role,
- 				.state = state,
-+				.os_mismatch = os_mismatch,
- 			},
- 		},
- 	};
-diff --git a/drivers/s390/net/qeth_l2_sys.c b/drivers/s390/net/qeth_l2_sys.c
-index 7f592f912517..7101be62eb1d 100644
---- a/drivers/s390/net/qeth_l2_sys.c
-+++ b/drivers/s390/net/qeth_l2_sys.c
-@@ -15,6 +15,7 @@ static ssize_t qeth_bridge_port_role_state_show(struct device *dev,
- {
- 	struct qeth_card *card = dev_get_drvdata(dev);
- 	enum qeth_sbp_states state = QETH_SBP_STATE_INACTIVE;
-+	bool os_mismatch = false;
- 	int rc = 0;
- 	char *word;
- 
-@@ -25,7 +26,7 @@ static ssize_t qeth_bridge_port_role_state_show(struct device *dev,
- 	if (qeth_card_hw_is_reachable(card) &&
- 					card->options.sbp.supported_funcs)
- 		rc = qeth_bridgeport_query_ports(card,
--			&card->options.sbp.role, &state);
-+			&card->options.sbp.role, &state, &os_mismatch);
- 	if (!rc) {
- 		if (show_state)
- 			switch (state) {
-@@ -52,6 +53,10 @@ static ssize_t qeth_bridge_port_role_state_show(struct device *dev,
- 		if (rc)
- 			QETH_CARD_TEXT_(card, 2, "SBP%02x:%02x",
- 				card->options.sbp.role, state);
-+		else if (!show_state &&
-+			 card->options.sbp.role == QETH_SBP_ROLE_NONE &&
-+			 os_mismatch)
-+			rc = sysfs_emit(buf, "%s (OS family mismatch)\n", word);
- 		else
- 			rc = sysfs_emit(buf, "%s\n", word);
- 	}
--- 
-2.53.0
+So this should actually be faster unless you are doing 20GB of THP
+unmapping on Android or a device configured the same way.  Considering
+the cost of RAM, we should be okay for a few phone iterations.
+
+Do you have munmap() performance dependent workload that you are
+concerned about regressing?
+
+Thanks,
+Liam
+
+
 
