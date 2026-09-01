@@ -1,190 +1,283 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4533B39023C
-	for <linux-s390@vger.kernel.org>; Tue,  1 Sep 2026 10:42:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A277F31A55B;
+	Tue,  1 Sep 2026 11:05:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788259363; cv=none; b=HG+prLcvr9QwHpe8mu0wKKdKV32GLG0AirvpGgz1JMpOjsbs63nIldK4bOMfv55oek4Ny1kx4SOTW9vdbfxSBpnbV1HKlcmkzJl5E74tME93e8dxGsmHFpyJo/Nt627goZW3/E4Yvgkyjj6rVRvruawz34jz9nm89FoaxO0Eph8=
+	t=1788260713; cv=none; b=K7zv/w7EQBoBLu1zMhAo1s6sCTQDSTG8wOPe8nb6aus3v9oQ4RVwsMWAQSxudnbuoJnC3PGKGaBiQ91vdmZqhUkVDX5hZQpPTc2Q4XI2LRlMWZu7dQorPrgetJUgyfAsQDac4HMA4CCplWQL/29/jlpO4F7OQoYoCVbLQmlchwQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788259363; c=relaxed/simple;
-	bh=5O+j9wbFBpPbABPZwMc+CxUM1+W1NQGeIUyuBPXWDGs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=scyc7Hhj/5nfbUdCoppUrvjPBdirVS7QuOR4VlGS5sja69l8K4scyxh0mnkv2FOAfgWAoJmpJlnhKNQ6s6d0JQSsMwNVhmzfdrTQDh6HCHX0Ty1TU3NB5T8WB4Boa9Qw1jyZO6rH363opkx3vC1ah52dS9bFfYPx6een6eXD/sM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=J+0hYKNw; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1788260713; c=relaxed/simple;
+	bh=nOobssw3s2ybzz17WgTPwcFF0UlLF/ay3MomYWqGLy4=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=GHPvCWvShmHMdx1EWwn6nzvJsPH2nDvbDr3wPVGKF8BdmsPs5mXyZsDeejJqQcfJrlij2AWtCIYbYQghyeo7b+/7EXrj4Fb+Ttyq95Qes01Lpu6HeKdA4kezTOEoX/mIKJ05o4/v9oVzBipgSj801ApQ2OL7EBuMZRmH/nJMQ/k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aocYUNqM; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="J+0hYKNw"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 681AVbCR831333
-	for <linux-s390@vger.kernel.org>; Tue, 1 Sep 2026 10:42:41 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=t3OAZB4N/5e4tTzWJ4csscL4+/OPqC
-	svxtt+8TC8jqg=; b=J+0hYKNwfr5FgNcIDDTAfWJMKyk1f5i9NJZ9H+1sZUYFgU
-	O0djlsQbYEAsq7Se0FAxno0I4FmfhSWG1ekFznxVsHS+rktqG0TnzToL2m4Q+27e
-	DcZX8ruPUGyiBqBbkqeMn2pPQhwxa6ongsLXLVMc7My8pfI17wjM2MXRMC7qqlRR
-	Wl0aPUM7May2G4VhPr8c7rVcQRhTtt5P6MOGZDFZRQGXRux2VeLLjQmr9Mwu9a4Y
-	8c60n1Zk38edFlLM1qYPyXWJX0fkxJJlynKep6kDoKfxMNVvWsPVg0BxAlEaGafO
-	QSZ2dOQyJh2LuakPsod3Do/2/flGnC84QuzzSTTg==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbmuhq7wb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 01 Sep 2026 10:42:41 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 681AfJHg032726
-	for <linux-s390@vger.kernel.org>; Tue, 1 Sep 2026 10:42:40 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gc9rqbc19-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 01 Sep 2026 10:42:40 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 681AgaS334341224
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 1 Sep 2026 10:42:36 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 81A0620043;
-	Tue,  1 Sep 2026 10:42:36 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3FA5520040;
-	Tue,  1 Sep 2026 10:42:36 +0000 (GMT)
-Received: from osiris (unknown [9.111.45.16])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  1 Sep 2026 10:42:36 +0000 (GMT)
-Date: Tue, 1 Sep 2026 12:42:34 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Aleksei Nikiforov <aleksei.nikiforov@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Juergen Christ <jchrist@linux.ibm.com>
-Subject: Re: [PATCH] kmsan: fix false warnings in return_address on s390
-Message-ID: <20260901104234.14482A96-hca@linux.ibm.com>
-References: <20260831152811.3817938-2-aleksei.nikiforov@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aocYUNqM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 188E71F000E9;
+	Tue,  1 Sep 2026 11:04:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788260711;
+	bh=gRmiVdG7zWf/GvbotLfM+46aH1AfJWGnO1OGWRPxU9E=;
+	h=From:Subject:Date:To:Cc;
+	b=aocYUNqMRbNIbR6s7Rg9UHR1UN1/ebvPynn8GpuDG2QdVDakyem/wqr3PXG73lTrw
+	 LRwJV+WxkKceCXprisvIxR3VWfUEANDIb29r9bo9cxnwu1RT88h7/r2oNGO6i4DLfA
+	 /1H00YbDEOwscD5LsRcrichbczg0w+PRJI3ol5M4Acd/RMmHVJ82SDlNk7qRSKQ6fv
+	 yZgIP4l8yq1hjJzoNIjNVErJih9+CIYXFkubFhrXJBYOwhfyQUHWcWiVYCHurHrUdp
+	 5I376A6qXa8usdLRXcRLGYqkpNqZlPMrocSBYL9TMfz13c76O+Hpawt3iY9CtV9EP1
+	 gw7MT7SmcXBiA==
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Subject: [PATCH 00/12] mm: make userland page table freeing RCU-safe
+Date: Tue, 01 Sep 2026 12:01:20 +0100
+Message-Id: <20260901-rcu-pagetable-freeing-v1-0-5456a81c8212@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260831152811.3817938-2-aleksei.nikiforov@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: EiI9YziBIQTOuelj0Vodgk4ceKJg63FV
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAxMDA5MyBTYWx0ZWRfX+swLFc9H7UU/
- s+XDXa6z9GBoymErKM1tXBFoFilBoE+3vgzsSgioX4i0Cwg07rDdqVIHdPGN2pR2EF0YPCzBfH6
- pY2CJCGQrXck0sAO3kKlNNivZ2Tx5VWbaGhbVoyytFnIEzIhhOB22XEDhHMXmOQkHYaU34+4Qm/
- 68uuaQaO/IilFkaUf6i/1JRazuyrqzQyk1C/PSqS+eetKwBZDUsGteOHZVutXE7869i1AGKkkzx
- OwT4/gUdTPsLCZLZlENI1q7IABnLLbwv7sIxWwKfVHO5vP1ezUljsQKvcrGWz7WHlKx8v7KU7hO
- e8Cd7GtAfGG0edD9qOdWAX9p/DrCIVpkvb1iABH9UTsytBT2oMd2ePnNeV+B8iFTWv41UYnqor1
- DtqAzv7+0cTzaGsldYrqBOq6Frf0sKe/3cbWk7QRLM/5tgb1NodeMOjK+DAX6aykfBQVAlBvrFf
- HN/o589JX3klc9ivosw==
-X-Authority-Analysis: v=2.4 cv=Osl/DS/t c=1 sm=1 tr=0 ts=6a96ac21 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=pAONFi0PjJ7zOFmF0UAA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAxMDA5MyBTYWx0ZWRfX3ljG6ga3gaLi
- KqbDPvvHcjlVMxsBjWg9UnPRpfzEJ/JV3oAGnYIoQKbf6Wz+0mwUikhB2DvLBk4ty4KEkFqQIVX
- TrdtDs7fg7txLrpDdWA9ScWLt0DfMkU=
-X-Proofpoint-ORIG-GUID: EiI9YziBIQTOuelj0Vodgk4ceKJg63FV
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-01_03,2026-08-31_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 malwarescore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0
- adultscore=0 impostorscore=0 phishscore=0 clxscore=1015 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609010093
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAICwlmoC/yXMQQqDMBBG4avIrDsQY5HQq0gXSfobR0qUiZaCe
+ Pem7fJbvHdQgQoK3ZqDFC8psuSK9tJQnHxOYHlUkzW2N65rWePOq0/YfHiCRwUkJ3bX0Ae4zsA
+ aqu2qGOX9+w73v8seZsTtO6Pz/AAWVW4teQAAAA==
+X-Change-ID: 20260831-rcu-pagetable-freeing-84b6be830e20
+To: Andrew Morton <akpm@linux-foundation.org>, 
+ David Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>, 
+ Baolin Wang <baolin.wang@linux.alibaba.com>, 
+ "Liam R. Howlett" <liam@infradead.org>, Nico Pache <nico.pache@linux.dev>, 
+ Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, 
+ Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, 
+ Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>, 
+ Guo Ren <guoren@kernel.org>, Brian Cain <bcain@kernel.org>, 
+ Geert Uytterhoeven <geert@linux-m68k.org>, 
+ Dinh Nguyen <dinguyen@kernel.org>, 
+ Simon Schuster <schuster.simon@siemens-energy.com>, 
+ Jonas Bonn <jonas@southpole.se>, 
+ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
+ Stafford Horne <shorne@gmail.com>, 
+ Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
+ Russell King <linux@armlinux.org.uk>, Vineet Gupta <vgupta@kernel.org>, 
+ Michal Simek <monstr@monstr.eu>, Chris Zankel <chris@zankel.net>, 
+ Max Filippov <jcmvbkbc@gmail.com>, Will Deacon <will@kernel.org>, 
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
+ Nick Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Andreas Larsson <andreas@gaisler.com>, 
+ Richard Henderson <richard.henderson@linaro.org>, 
+ Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>, 
+ Catalin Marinas <catalin.marinas@arm.com>, 
+ Mark Rutland <mark.rutland@arm.com>, Huacai Chen <chenhuacai@kernel.org>, 
+ WANG Xuerui <kernel@xen0n.name>, 
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+ Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+ Michael Ellerman <mpe@ellerman.id.au>, 
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Richard Weinberger <richard@nod.at>, 
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+ Johannes Berg <johannes@sipsolutions.net>, 
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+ Arnd Bergmann <arnd@arndb.de>, Vlastimil Babka <vbabka@kernel.org>, 
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+ Michal Hocko <mhocko@suse.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
+ John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
+ linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org, 
+ linux-sh@vger.kernel.org, linux-riscv@lists.infradead.org, 
+ linux-arm-kernel@lists.infradead.org, linux-snps-arc@lists.infradead.org, 
+ linux-arch@vger.kernel.org, sparclinux@vger.kernel.org, 
+ linux-alpha@vger.kernel.org, loongarch@lists.linux.dev, 
+ linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+ linux-um@lists.infradead.org, Hugh Dickins <hughd@google.com>, 
+ Qi Zheng <qi.zheng@linux.dev>, "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=7724; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=nOobssw3s2ybzz17WgTPwcFF0UlLF/ay3MomYWqGLy4=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLKmbXRPzZlRe2dXWOSN5VOqw0LTPl0Mv/7n0cOKu9vTL
+ j4St330uqOUhUGMi0FWTJHl+Rfx/UEiYfM6L/i7wcxhZQIZwsDFKQATOfiUkWFF16YP/Tyvz6vt
+ NXmiVXQwt/+G8BbtXWvMJyYvqkt1jd7ByLDI/qRK5V1pmT/yjf2L/kXdcliok3bDpfT2pNb26wH
+ 9TxkB
+X-Developer-Key: i=ljs@kernel.org; a=openpgp;
+ fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-On Mon, Aug 31, 2026 at 05:28:12PM +0200, Aleksei Nikiforov wrote:
-> Function return_address manually traverses stack frames
-> using backchain on s390.
-> Stack frames are written to stack in function prologues
-> and are not marked as written for kmsan.
-> This may lead to previous mark being used.
-> 
-> Let's assume that there was an unitialized area on stack.
-> Later backchain and other information is written there
-> in function prologue.
-> kmsan markings are unchanged in prologue.
-> That means data is actually initialized but incorrectly marked.
-> And when data is read, a false warning is emitted.
-> 
-> It might be possible to fix marking data written in prologue of function,
-> but it may be somewhat complex, especially in leaf functions
-> where no stack for next function call is allocated yet
-> and new function call would be required for kmsan helper function.
-> 
-> Other approach is to mark return_address function as noinstr
-> to skip kmsan checks there. That's approach in this patch.
-> 
-> When kmsan is enabled, a special noinstr wrapper function is used.
-> Since one more function call is introduced,
-> depth n of backtrace is incremented to account for this function call.
-...
-> Signed-off-by: Aleksei Nikiforov <aleksei.nikiforov@linux.ibm.com>
-> ---
->  arch/s390/include/asm/ftrace.h | 6 ++++++
->  arch/s390/kernel/stacktrace.c  | 8 ++++++++
->  2 files changed, 14 insertions(+)
-...
-> +
-> +#ifdef CONFIG_KMSAN
-> +unsigned long return_address_noinstr(unsigned int n);
-> +#define ftrace_return_address(n) return_address_noinstr(n)
-> +#else
->  #define ftrace_return_address(n) return_address(n)
-> +#endif
-...
-> +#ifdef CONFIG_KMSAN
-> +noinstr unsigned long return_address_noinstr(unsigned int n)
-> +{
-> +	/* Add 1 to account for call of uninlined function return_address_noinstr */
-> +	return return_address(n+1);
-> +}
-> +#endif
+The majority of architectures in the kernel defer page table freeing until
+an RCU grace period has elapsed, this series converts all remaining
+architectures to do so too and eliminates CONFIG_MMU_GATHER_RCU_TABLE_FREE
+altogether.
 
-Thinking about this again. Wouldn't READ_ONCE_NOCHECK() solve this too?
-Otherwise I guess we have the same problem in the normal stack unwinder too.
+This is important because it enables safe lockless page table walking under
+RCU alone.
 
-Something like this:
+Doing so allows for reduced lock contention, avoids lock ordering concerns
+and enables fast, efficient and correct page table walking as a result.
 
-diff --git a/arch/s390/include/asm/ftrace.h b/arch/s390/include/asm/ftrace.h
-index 692c484ec163..4a2c46341b86 100644
---- a/arch/s390/include/asm/ftrace.h
-+++ b/arch/s390/include/asm/ftrace.h
-@@ -17,11 +17,11 @@ static __always_inline unsigned long return_address(unsigned int n)
- 
- 	sf = (struct stack_frame *)current_frame_address();
- 	do {
--		sf = (struct stack_frame *)sf->back_chain;
-+		sf = (struct stack_frame *)READ_ONCE_NOCHECK(sf->back_chain);
- 		if (!sf)
- 			return 0;
- 	} while (--n);
--	return sf->gprs[8];
-+	return READ_ONCE_NOCHECK(sf->gprs[8]);
- }
- #define ftrace_return_address(n) return_address(n)
+Additionally it removes a bunch of code and architecture-specific behaviour
+which is always a beneficial thing to do.
 
-But that might also generate an additional stack frame due to an
-out-of-line call. If that doesn't help we _may_ need to come up with
-an inline assembly which hides the memory access. E.g. something like
-this:
+There has been much recent work on this:
 
-static __always_inline long ___read(void *ptr)
-{
-	long val;
+* In 2023 Hugh Dickins RCU-deferred khugepaged page table retraction in
+  commit 13cf577e6b66 ("mm/pgtable: add pte_free_defer() for pgtable as
+  page").
 
-	asm volatile(
-		"	lg	%[val],0(%[ptr])"
-		: [val] "=d" (val) : [ptr] "a" (ptr));
-	return val;
-}
+* Qi Zheng has done most of the work that made this possible starting with
+  the critical commit 718b13861d22 ("x86: mm: free page table pages by RCU
+  instead of semi RCU").
 
-and use ___read() instead of READ_ONCE_NOCHECK() within return_address().
+* Qi then went on to convert a large number of architectures in commit
+  e3ecf7c7d082 ("mm: pgtable: convert some architectures to use
+  tlb_remove_ptdesc()"), commit 44b079583f7d ("alpha: mm: enable
+  MMU_GATHER_RCU_TABLE_FREE") and the series to which it belongs.
 
-Opinions?
+* Qi then introduced the important CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE
+  option in commit 086498aed3f6 ("mm: convert __HAVE_ARCH_TLB_REMOVE_TABLE
+  to CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE config").
+
+* Finally, and critically, Lance Yang then converted the batch allocation
+  fallback case to be RCU-safe in commit 1fb3d8c20bfa ("mm/mmu_gather:
+  replace IPI with synchronize_rcu() when batch allocation fails").
+
+The work I do here is only possible due to the work Hugh, Qi, Lance and
+others have done previously.
+
+An initial task this series addresses is to zap deposited page tables after
+an RCU grace period. Not doing so is currently safe, but for page table
+walkers relying on RCU alone, it would not be.
+
+The changes are largely mechanical - the majority of arches already have
+the machinery required to support CONFIG_MMU_GATHER_RCU_TABLE_FREE and
+simply needed configuration changes or small implementation changes to
+switch over.
+
+However some arches required extra attention - sh-X2, m68k-motorola and
+sparc32.
+
+sh-X2 allocates PMDs from the slab allocator and PTEs as normal. Therefore
+CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE is set to customise page table freeing
+and the LSB is used to encode which page table level is used, with
+__tlb_remove_table() doing the right thing depending on this.
+
+This pattern is repeated for m68k-motorola and sparc32 to account for
+different page table levels. In each case, the page tables are aligned such
+that sufficient bits are available in each case for encoding this
+information.
+
+m68k-motorola required the biggest change - since RCU page table freeing
+uses call_rcu(), this means page table freeing can arise from softirq
+context.
+
+This was fixed with an IRQ-safe spin lock used in both get_pointer_table()
+and free_pointer_table().
+
+As part of this change, the logic for allocation of a new pointer table was
+separated out into add_pointer_table() to make the locking more obviously
+correct.
+
+Finally, sparc32 was similar to m68k-motorola in that locking was required,
+however this was already implemented via a spinlock, and only had to be
+updated to be IRQ-safe.
+
+Additionally, the nocache pool's bit_map lock was updated to be IRQ-safe
+for softirq frees.
+
+Separately, the PTE path can't take mm->page_table_lock from softirq (no mm
+there), which is fine because the page reference count transitions are
+atomic and fully ordered.
+
+The series finally removes CONFIG_MMU_GATHER_RCU_TABLE_FREE and all related
+configurations and code that supported !CONFIG_MMU_GATHER_RCU_TABLE_FREE.
+
+As a result, page table walks can now be performed safely under RCU without
+any risk of page tables being freed underneath a walker.
+
+However, this is the only guarantee that this work provides - page table
+walkers must still ensure that page table entries are as expected
+throughout.
+
+All changes have been build tested. As most of the conversions are simply
+utilising existing mechanics that are known to work, this suffices for most
+cases.
+
+However those arches where significant changes have been made -
+m68k-motorola, sparc32 and sh-X2 - have been tested further.
+
+For each of these a boot test and stress test has been performed - fork 400
+children, each mmap()'ing 2 MiB and touching every page then partially
+munmap()'ing then exiting to trigger as much page table freeing as
+possible.
+
+All were found to be working correctly.
+
+Note that sparc32 LEON SMP is not emulated, Andreas - do you have a means
+of testing this?
+
+Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+---
+Lorenzo Stoakes (ARM) (12):
+      mm/huge_memory: zap deposited page tables after an RCU grace period
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for most 2-level architectures
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU riscv
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU arm
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for arc, microblaze, xtensa
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for sparc64
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for m68k-coldfire
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for sh-X2
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for m68k-motorola
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for sparc32
+      mm: make userland page table freeing RCU-safe
+      mm: change the contract for free_pgtables(), update docs
+
+ Documentation/mm/process_addrs.rst       |   6 ++
+ arch/Kconfig                             |   8 --
+ arch/alpha/Kconfig                       |   1 -
+ arch/arc/include/asm/pgalloc.h           |   6 +-
+ arch/arm/Kconfig                         |   1 -
+ arch/arm64/Kconfig                       |   1 -
+ arch/loongarch/Kconfig                   |   1 -
+ arch/m68k/Kconfig                        |   1 +
+ arch/m68k/include/asm/mcf_pgalloc.h      |   5 +-
+ arch/m68k/include/asm/motorola_pgalloc.h |   9 ++-
+ arch/m68k/mm/motorola.c                  | 121 ++++++++++++++++++++-----------
+ arch/microblaze/include/asm/pgalloc.h    |   2 +-
+ arch/mips/Kconfig                        |   1 -
+ arch/parisc/Kconfig                      |   1 -
+ arch/powerpc/Kconfig                     |   1 -
+ arch/riscv/Kconfig                       |   1 -
+ arch/s390/Kconfig                        |   1 -
+ arch/sh/Kconfig                          |   1 +
+ arch/sh/include/asm/pgalloc.h            |   6 +-
+ arch/sh/mm/pgtable.c                     |  20 +++++
+ arch/sparc/Kconfig                       |   4 +-
+ arch/sparc/include/asm/pgalloc_32.h      |   7 +-
+ arch/sparc/include/asm/pgalloc_64.h      |   8 --
+ arch/sparc/include/asm/tlb_64.h          |   2 -
+ arch/sparc/lib/bitext.c                  |  14 ++--
+ arch/sparc/mm/srmmu.c                    |  26 ++++++-
+ arch/um/Kconfig                          |   1 -
+ arch/x86/Kconfig                         |   1 -
+ arch/xtensa/include/asm/tlb.h            |   2 +-
+ include/asm-generic/tlb.h                |  66 +++--------------
+ mm/Kconfig                               |   2 +-
+ mm/gup.c                                 |   5 +-
+ mm/huge_memory.c                         |   2 +-
+ mm/mmu_gather.c                          |  30 ++------
+ mm/pgtable-generic.c                     |  18 ++++-
+ 35 files changed, 194 insertions(+), 188 deletions(-)
+---
+base-commit: 88297631d4d42f6004cb39c0ba3da7d2d10a616f
+change-id: 20260831-rcu-pagetable-freeing-84b6be830e20
+
+Cheers,
+-- 
+Lorenzo Stoakes (ARM) <ljs@kernel.org>
+
