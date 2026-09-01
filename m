@@ -1,189 +1,191 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B3F343BDA9
-	for <linux-s390@vger.kernel.org>; Tue,  1 Sep 2026 16:06:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDC2C47ECF2;
+	Tue,  1 Sep 2026 16:36:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788278781; cv=none; b=XmGg06VD6OO9eKnVUw/5rMcr+jYyZMlmTTgykz1OsXfO1iqfPTIUAw3X4C9QPGQjNCPlfNmtAgcECrKTGrEt+ZZnW1H//eN/HjILq1QxoHia+slCUId4BtjfSTooEnj15RPo8dLlQ2PNWzcszhG42zp9O05uOAOfiU8/FYK+j3w=
+	t=1788280620; cv=none; b=qmD/DkWyLv6/hAQOqlYqoqNy5JPCIaZPcVCWlDuHkT3HFoXtrvGrmUJa3weK01TrrPXhvqFuzSSy3PuClJ98E6Xkh7I65OEoM+v2FwgaQ+B+qRneYhWRPGgRYR02/Gf9oL9PyF5rPnfsCsEEGyRP/3RkLVLQyMcBbBUNxBLF/BI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788278781; c=relaxed/simple;
-	bh=m9GF6BVXJghb0t0TACX7Y0SpJfQTXPLs06gu6gZAn2Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jNgYRB2OQU5EPOS9+A+GghoXiUWzVzADi9Q1aNQNmH3EqBrfqEGHw9ADD0iowAWBV7c7SmqSOsMO6x231Tu//QgHOUKG0tOusY4ZpOVSCteHtdFee6uuZ+z1a2Za8yV7cHVilezPaDlnKMg+98XfEHyqQntNeJQQq/Bfm9Cy+us=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca; spf=pass smtp.mailfrom=ziepe.ca; dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b=BQcWIcoV; arc=none smtp.client-ip=209.85.222.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
+	s=arc-20240116; t=1788280620; c=relaxed/simple;
+	bh=PEvc8SXX018fS9mzHoNC3+i0cxEFrJwr2pGmrc+qz1k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=d6ZSn9VdVHR96lhZet2jwdMC2iFrVPtj53kIuN5IiAe0scki7Uri8m3ms+E+khwZTT82S5JA3il4mTQYJPWdr3hvdWXqD6QZ4T3339Ip5wYMcN9SWzP/NU2+4PwIctY11wZd55gwWZAduXauYf/fKE2P3JV/OXPPAmtxByWmFQY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=X8icXGKh; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="BQcWIcoV"
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-936cda0e3fbso8102285a.3
-        for <linux-s390@vger.kernel.org>; Tue, 01 Sep 2026 09:06:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1788278778; x=1788883578; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=wqCXc1d2wL50duIrdszOJfzq0EqANvFRgXietPv5nSU=;
-        b=BQcWIcoV7P3Hr2LDZpO5LnlyE0+kl7BJcY/963/R3GpW+crY1co2xJ0VB/jrCBT5U+
-         sUWQ0qhCyeJNxHtT6geZRvpMmyBGAmAqykF3LtaV2i1XYHstPYbbJwP2CNyvATO0fX7+
-         qdAzbkhHzNaFhbaje/y8wVWDOoJ+O8NTGXOplwJne+lpwuLVz4/mIJkeh0+/O1qhaoSZ
-         0L8++LEs2lMFVe4zBAmvRmxeNtGBbF6AWtXQKKjSUg79N+3uZkVTZ45yKLBp848ccCNt
-         HkWwtQY+zmVRVYj7zfVvYfJ9ZFsctneRdffIWTYUSyHt/PGBfVimfMFQZCKGETAmlej3
-         AErQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788278778; x=1788883578;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=wqCXc1d2wL50duIrdszOJfzq0EqANvFRgXietPv5nSU=;
-        b=VmPC2/G5sih1pEum2bMGSEcwCjohmR/0HJ1WJ4j91Xvj2Pa5hCb3YiDdomw7tQ4Srx
-         g+uk898W43y4xH3E69Ed0rf93OnU6RWRC6sHHxgmdlcNTFObpt+OO5983W47oJBfnL4S
-         WIdn5aZaW7D7UB5s3gNYyVDYc5QQe7k/56m0myQ7YFsI5e6oylE2ZAqI2qCUmiW4QsNL
-         QyDNKeIWHlk6bdXr35sIf8zLcb+EONDLTpoTQi79dwyQcGdrrxl2VPJd/yu7LmSBqhOJ
-         Q/N85CZAOg0edK/NlxHDunJYkIpcnuCKwcUJptfDezhunLecyxz3BmcUcfHaBSm/O0Xg
-         mpzQ==
-X-Forwarded-Encrypted: i=1; AHgh+RoP/ZBmWkq+o2x8cXXrBbh8kNE5sVvz4T0z46MKi07wVuooP4zK+vraA0MUHrGOuT6yt0NBd3ruMpAY@vger.kernel.org
-X-Gm-Message-State: AFuF++kTSDnC/3K1P7xoFdl/uapzJt0o9b2TaWwfX3+gdHNjSZGvYiYU
-	6aumSqtXQJ+ARE6GkHGUDq2SHo8nqxgqZHSEj2uGyuzwBWE636spujl1xWa+sM0O15U=
-X-Gm-Gg: AR+sD124B7EO8d+piSCXzKGnLvaPjdhpb0PvUj4jrTqBBpIy0nf48WGhKibsjup16Gr
-	fGdCk/4eF5WOVEz0bn2MkhpeejwZQT2Sqq67uWcd0PZHGPpd+r8Gj1hcIQdBzIs1C8LuakwOxNS
-	xBhlGcfojRVK9iDUSuEy35i5etWiSr7vAdVBG5O2YBM2hLLN2jJZChjQmfPcfI3V0FJgTVdW03v
-	gue+XLUDvDIE8zhh5raRoeAUkG3dxijh8g/TkrVgfTM3qU53xCtGK5N0gQRkTNbSAfty0OjEmtO
-	hai/x4fckaN0vvPZ6bNcCwChYwTB3PO0MH9l1LsPAYC0LhGCTBxX6UMi9PYU7H0JVwjbCMfpGc9
-	IxAvYQq8TQb9FpCvyxjFQzYCDXssS6eDx+XYLVHwjoJjVYoMp20+a7h4G9bu/OJ9XZgVJJ3RkS6
-	/GJi9YCYjsrOuq+D6LvKNv26EIcMszhnG7Ra3LWqrKfBmCyugv6nwenItEkozAVJdEeKRV1rd5Z
-	TmzgmZ80DLO0PfYuJBxXS2vW91UA/K7CEb7Y/f5aroeEw==
-X-Received: by 2002:a05:620a:21d2:b0:936:ea0d:ffc3 with SMTP id af79cd13be357-939139002d3mr3178331885a.22.1788278777843;
-        Tue, 01 Sep 2026 09:06:17 -0700 (PDT)
-Received: from ziepe.ca (hlfxns010zw-159-2-239-150.pppoe-dynamic.high-speed.ns.bellaliant.net. [159.2.239.150])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-93922e5278fsm886283685a.14.2026.09.01.09.06.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Sep 2026 09:06:17 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.97)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1x1R04-0000000BtB8-1Fgr;
-	Tue, 01 Sep 2026 13:06:16 -0300
-Date: Tue, 1 Sep 2026 13:06:16 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: "Liam R. Howlett" <liam@infradead.org>
-Cc: Kiryl Shutsemau <kas@kernel.org>,
-	"Lorenzo Stoakes (ARM)" <ljs@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	David Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <nico.pache@linux.dev>,
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
-	Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
-	Usama Arif <usama.arif@linux.dev>, Guo Ren <guoren@kernel.org>,
-	Brian Cain <bcain@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Dinh Nguyen <dinguyen@kernel.org>,
-	Simon Schuster <schuster.simon@siemens-energy.com>,
-	Jonas Bonn <jonas@southpole.se>,
-	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
-	Stafford Horne <shorne@gmail.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Russell King <linux@armlinux.org.uk>,
-	Vineet Gupta <vgupta@kernel.org>, Michal Simek <monstr@monstr.eu>,
-	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
-	Will Deacon <will@kernel.org>,
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
-	Nick Piggin <npiggin@gmail.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>, John Hubbard <jhubbard@nvidia.com>,
-	Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
-	linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-snps-arc@lists.infradead.org, linux-arch@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-alpha@vger.kernel.org,
-	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
-	Hugh Dickins <hughd@google.com>, Qi Zheng <qi.zheng@linux.dev>
-Subject: Re: [PATCH 01/12] mm/huge_memory: zap deposited page tables after an
- RCU grace period
-Message-ID: <20260901160616.GD56830@ziepe.ca>
-References: <20260901-rcu-pagetable-freeing-v1-0-5456a81c8212@kernel.org>
- <20260901-rcu-pagetable-freeing-v1-1-5456a81c8212@kernel.org>
- <apbOlyF77yDCV4cF@thinkstation>
- <apbcoMTVlL42G5tg@gremlin>
- <20260901142408.GA56830@ziepe.ca>
- <apbiB51hjm-9pRzf@gremlin>
- <apbuO_QveZNAz3ns@thinkstation>
- <kasi4mkjkt56wxsrmphm5o2qfg2lwsdxf3tlmzx5tq6t7uez74@kozleoavd6r2>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="X8icXGKh"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 681EVeHN1340849;
+	Tue, 1 Sep 2026 16:36:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=+zgrLl
+	1Jg1/788LUVf6lxZA+1xgrpYI+fljhWRtn+qI=; b=X8icXGKhW9Vmjgxcyse4IW
+	VKckBkVd219Uwqx1K/SivAng9DYxwgERiflwbprimWQLq3nC9UWdgRpV5P5SO4wz
+	1GN7ix+qLnkKgt2Eb0p8JRpKIatYKZaBHdZjkOd9LCHU7RVTeEgL32MQaOscp5ss
+	3P0bHHqB7WifkGB7GCiTA7weyfIi6yxI4h71vweHLmqBDkI89cgYmN5XrOPbqHY4
+	ScgN1ks5jN8Fd0ds3SLRH4R2TnNh7FYMLICh+XQ0Lg9mBC8BcTygbXDNzv4AMhP9
+	xUHYLhtdeRR2wmQqMSACsxfJ6NoZaCrA8wemhKgBVURwTI7XaJ4g1lQRClHPH3jA
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbmuhs52e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 01 Sep 2026 16:36:55 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 681GQK5J019988;
+	Tue, 1 Sep 2026 16:36:54 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gca4w4tvw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 01 Sep 2026 16:36:54 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 681Gao5r51249470
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 1 Sep 2026 16:36:50 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B0EB02004D;
+	Tue,  1 Sep 2026 16:36:50 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6BAC62004F;
+	Tue,  1 Sep 2026 16:36:50 +0000 (GMT)
+Received: from [9.111.65.156] (unknown [9.111.65.156])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  1 Sep 2026 16:36:50 +0000 (GMT)
+Message-ID: <b840a492-f8ba-4a43-9b29-3359cfc98fa3@linux.ibm.com>
+Date: Tue, 1 Sep 2026 18:36:50 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <kasi4mkjkt56wxsrmphm5o2qfg2lwsdxf3tlmzx5tq6t7uez74@kozleoavd6r2>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 11/20] KVM: s390: arm64: Query Available Arm features
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: sashiko-reviews@lists.linux.dev,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Oliver Upton
+ <oupton@kernel.org>, kvmarm@lists.linux.dev,
+        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        Marc Zyngier <maz@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+References: <20260831145536.913567-1-seiden@linux.ibm.com>
+ <20260831145536.913567-12-seiden@linux.ibm.com>
+ <20260831194654.39B451F000E9@smtp.kernel.org>
+ <d6fcf081-7613-4d3a-ab62-6c4f9a42816b@linux.ibm.com>
+ <20260901142550.231001-C-seiden@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20260901142550.231001-C-seiden@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: hlG0lcVX2bCztWFUfNTiH8_GRXfE7goW
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAxMDE0NiBTYWx0ZWRfXwAsKvBCUH3xo
+ G0GZ3Du+Wgp4SxfFwkaOTHtmbqV9VxnYhslSDyxbUaXqbewqXinB9HCUqNFIY9w0hy32VNOzfHj
+ tedL3TACDIS5i+/U/OeUJaXnBZeGiPVC15V1TWm2oDJmYhFy6vDYjtDwnpMwfp1RIu8MH6qIdms
+ WgZfuR9zLheJ72n6tcSLF+G/GtlbvrwVyDBXwLWb5oa01z1FYbb1P48d221b1CFMJ7w7b7YzJ0C
+ gtF6MGLmG621f8B9mHu3+lCjb+WUKBCjZ6ZKEM+MRTkKze2ZVfVptj+g7zou2sZzsb8t0ueMful
+ 7KY9MHWaJgYyKlHvnv3O0HJ6SUDuvwXhJrSJXwcrqZ6a7+PHx2XbNSuxnlMoOj5+uD9fmLA2gro
+ QRzVhUoa4ojqkBI2xtIMzI4V+wyPdAEOIfTL0WR6ZBE/3hyIdKfv4/hiB5PV2cW8OnhZccN5Kgk
+ OjlB1dum7Web0JU2JUg==
+X-Authority-Analysis: v=2.4 cv=Osl/DS/t c=1 sm=1 tr=0 ts=6a96ff27 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
+ a=KgNF-AsUkJmxFTXnebwA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAxMDE0NiBTYWx0ZWRfXx+2vpM9qnmDB
+ ZMXOLIQN+Ln298hIIGbDt8btcrM+ENguseIBL0K7bqElSM4CKtMKHg0nLBrgBR1LHKpgJzXHVEX
+ DVkUZCJ67d/ZK9S6aWLx4W8AfHTNQTg=
+X-Proofpoint-ORIG-GUID: hlG0lcVX2bCztWFUfNTiH8_GRXfE7goW
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-01_04,2026-09-01_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 malwarescore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0
+ adultscore=0 impostorscore=0 phishscore=0 clxscore=1015 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609010146
 
-On Tue, Sep 01, 2026 at 11:54:47AM -0400, Liam R. Howlett wrote:
-> On 26/09/01 04:28PM, Kiryl Shutsemau wrote:
-> > On Tue, Sep 01, 2026 at 03:41:17PM +0100, Lorenzo Stoakes (ARM) wrote:
-> > > On Tue, Sep 01, 2026 at 11:24:08AM -0300, Jason Gunthorpe wrote:
-> > > > On Tue, Sep 01, 2026 at 03:12:45PM +0100, Lorenzo Stoakes (ARM) wrote:
-> > > >
-> > > > > It won't be costly at the time of the calls obviously as its deferred. Maybe
-> > > > > increase some time spent in softirq but again is 512x that big of a deal?
-> > > > >
-> > > > > I'm not sure how you'd both defer the free and somehow utilise mmu_gather here
-> > > > > either really, certainly not without it becoming extremely messy.
-> > > >
-> > > > The less costly version is to thread the page to be freed onto the
-> > > > mmu_gather through a linked list in the struct page memory. This is
-> > > > super cheap since it is just a singly linked list operation.
-> > > >
-> > > > Then when the mmu_gather is flushed it does a single call_rcu using
-> > > > the rcu head of the struct page of the head of the list. The callback
-> > > > clears the entire linked list of pages.
-> 
-> If you are going through the trouble of doing this on your side with a
-> custom rcu callback, it might be better to pack the pointers in a way
-> that does not need to pointer chase through a linked list.
+On 9/1/26 4:25 PM, Steffen Eiden wrote:
+> On Tue, Sep 01, 2026 at 01:44:09PM +0200, Janosch Frank wrote:
+>> On 8/31/26 9:46 PM, sashiko-bot@kernel.org wrote:
+>>> Thank you for your contribution! Sashiko AI review found 4 potential issue(s) to consider:
+>>> - [Critical] The EX_TABLE entry in the `qaaf` inline assembly incorrectly places the exception fixup label on the non-faulting `lhi` instruction instead of the potentially faulting `.insn` instruction, which will cause unhandled hardware exceptions to panic the kernel.
+>>> - [High] `aef_sysfs_init()` unconditionally calls `aef_init_save_area()`, failing to skip it when the AEF facility is not present, causing a crash on older hardware.
+>>> - [High] Off-by-two index error when accessing the QAAF registers array in `kvm_qaaf_read_ftr_reg()`, causing KVM to read incorrect memory offsets for all features.
+>>> - [High] If QAAF initialization fails, the global capability flag `info.arm_guest_supp` is not cleared, leading KVM to initialize using uninitialized hardware capability data.
+>>> --
+>>
+>> [...]
+>>
+>>>> diff --git a/arch/s390/kernel/aef.c b/arch/s390/kernel/aef.c
+>>>> new file mode 100644
+>>>> index 0000000000000..825e2643a8921
+>>>> --- /dev/null
+>>>> +++ b/arch/s390/kernel/aef.c
+>>> [ ... ]
+>>>> +static int  __init aef_query_info(void)
+>>>> +{
+>>>> +	int ret;
+>>>> +
+>>>> +	if (IS_ENABLED(CONFIG_KVM_S390_ARM64)) {
+>>>> +		info.sae_avail = sclp.has_aef;
+>>>> +		info.ptff_avail = ptff_query(PTFF_QAGTO) &&
+>>>> +				  ptff_query(PTFF_QAGPT);
+>>>> +		info.arm_guest_supp = info.sae_avail && info.ptff_avail;
+>>>> +	}
 
-Well, I have 8 bytes of memory in a struct page and can't allocate in
-these paths, so IDK there is another option..
+Wait, aef_sysfs_init() already early returns if !enabled.
+We'll never end up in this function if !enabled.
 
-Jason
+Generally I'd like to keep it similar to the kernel UV code.
+If QAAF is available create the sysfs files and provide qaaf data.
+
+KVM support is separate from the QAAF data.
+I'll have a second look tomorrow.
