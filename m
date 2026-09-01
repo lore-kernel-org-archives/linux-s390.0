@@ -1,39 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2307745D1BF;
-	Tue,  1 Sep 2026 08:13:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 151BC381E82;
+	Tue,  1 Sep 2026 08:15:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788250406; cv=none; b=EoEo+hNDu40kCOMIfybZVcHo0voFzbqAdhbIHdeBlM3gYalczq+Ga5lXwar9UZ+43PX4K4B3JYft6SKvrgApsL8dwktDHezHBaja+StgJAQVzir9bqa7HSple0iYqNYS/mO19nbpqXu57S0PXJUImNCb8j+PliMdv5jU6jrCKLk=
+	t=1788250511; cv=none; b=S/IeWH3hYRXHJ5LEjPAkv2cpzO9hkP1wZZF0Bb44vwazaPAZUvbGtG0xtAjMiD/dg7h0q5swpeEER1x/f2ghU7WzQ93kdP552+xZvHtumQaiE/TaWHcsp7HmbOiZKCtO2S/XzeoERnp0zk0CKgD3AJcwPihEfnw1oSeViOoSeKg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788250406; c=relaxed/simple;
-	bh=EzayhaknGbZa7kB1j0z9Vrfnb8Jw2AzgUjvuwUTPy9I=;
+	s=arc-20240116; t=1788250511; c=relaxed/simple;
+	bh=STBvtDN7yMgntfEDSmdAGiB1Lo86GJRJ68hoouetrkE=;
 	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=JkFgGb8FHdQt11zUojZZHPKGPgfJgjdgsja7AMjDTv/2U3oVwiIbkBlR5uXjO2+YaFdMLsfJRSDzEyz4XMmIJbBgv4RQNPp+5n+OgVAYL5x1nN81QOd5uXZsZPNDcmoLvUPsnUc/2rz5TsEesNT8y7uyWKQ/vkQ9orQxM/cigfg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R8bH0lfP; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=bxIEcKDCPGQM6JweS/V8tDRu0rVHbsBnCC4i6HbPt0fTYiNe9To6U5/1Mu8sFbTVFW0epqWnojtPcDWbWydhL1C5k8HqSWnS25fWLRJYuwnCuh4zllf2GA5y0+YVO83FmT+2B2KP3RazE5XaOb6YETA6Up6ECFp0xsufvqva/cQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f+04YShf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R8bH0lfP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1ECD1F000E9;
-	Tue,  1 Sep 2026 08:13:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f+04YShf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B8591F00A3D;
+	Tue,  1 Sep 2026 08:15:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788250404;
-	bh=RtYB9BO3uYLJOfsvA24/61gyZKkfp08ohm5Tw24wHek=;
+	s=k20260515; t=1788250509;
+	bh=5bF2Zr22zF1ExN0EBKh2uA/sdQi5I3Kk26013OME4S8=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=R8bH0lfPGwqcK+ymswX5R+fn4Vu/FwdLcyhunW1aBF/LTwZTCSUs+5qAyW9DBco4w
-	 FrzXyuCcTmJD//aBhofrN8Yb4DKqpG5CkT6yOB8B1k8ZCUB9b94/8XPOQIfAzP05qm
-	 vT++M8zEIsv2NgUVWRQ1Ws2FrQe6MYEr9HiJ9mtC0tA0lvxIIRuq4ApEJxhhCuS/K1
-	 PCRXdT1yvVdoUrgzSUtJunXIQrhw2o2eVb2dT2WPSl0DDRSjg7KJ/PYzFEXN7S6c7f
-	 DmjZ0pqRV2lPjDNAXBi2FP/t4Uqlal5FCd2sjLnYRFqRShhesZ7BhcGPBtWNr79B+Z
-	 gVh6bq4sV7FBA==
+	b=f+04YShfVti8/cuhke4D7kJFqxFJsy/0WRmPZoRm44J/TpyaVrsuMUilYuEv57qF7
+	 BxRAuZFlcvpDPWvntn24KOWxVebGYNMdSnDwR1mkGXmS9wNdP9O+EdoBAdCI31jrDj
+	 +9xLtopMsYpAgaj5iVi2ZxnpUShZGJM9qRmAcipKVozKCN9W2nyaKbwVWjPeWj/1c1
+	 bPlME1pRoOkF63nMYGjx+W16Cvduj0k5orLtVRXRVQXaTiqDMxsyPdZvrsk07BSz5/
+	 GPYhd2lRaYFEnfbM3yHn3HiGYVu/rgEcfzYtg3XB6EgNc5cHxfqGnVaLylF3antfL+
+	 e/4CrboZha/Fg==
 Received: from sofa.misterjones.org ([185.219.108.64] helo=lobster-girl.misterjones.org)
 	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.98.2)
 	(envelope-from <maz@kernel.org>)
-	id 1x1JcQ-00000003CIx-3MYv;
-	Tue, 01 Sep 2026 08:13:22 +0000
-Date: Tue, 01 Sep 2026 09:15:55 +0100
-Message-ID: <87qzjdmlok.wl-maz@kernel.org>
+	id 1x1Je7-00000003CMj-1bxe;
+	Tue, 01 Sep 2026 08:15:07 +0000
+Date: Tue, 01 Sep 2026 09:17:39 +0100
+Message-ID: <87pkyxmllo.wl-maz@kernel.org>
 From: Marc Zyngier <maz@kernel.org>
 To: Steffen Eiden <seiden@linux.ibm.com>
 Cc: kvm@vger.kernel.org,
@@ -67,10 +67,10 @@ Cc: kvm@vger.kernel.org,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Will Deacon <will@kernel.org>,
 	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v2 05/20] KVM: s390: arm64: Prepare for sharing more arm64 code
-In-Reply-To: <20260831145536.913567-6-seiden@linux.ibm.com>
+Subject: Re: [PATCH v2 06/20] KVM: arm64: Prepare sys_regs.c for sharing with s390
+In-Reply-To: <20260831145536.913567-7-seiden@linux.ibm.com>
 References: <20260831145536.913567-1-seiden@linux.ibm.com>
-	<20260831145536.913567-6-seiden@linux.ibm.com>
+	<20260831145536.913567-7-seiden@linux.ibm.com>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
  FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
  (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -86,18 +86,194 @@ X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux
 X-SA-Exim-Mail-From: maz@kernel.org
 X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-On Mon, 31 Aug 2026 15:55:20 +0100,
+On Mon, 31 Aug 2026 15:55:21 +0100,
 Steffen Eiden <seiden@linux.ibm.com> wrote:
 > 
-> Add required SVE definitions to the arm64 on s390 host code. The
-> definitions are required to be able to build shared SVE related code.
+> Prepare sharing of sys_regs.c with s390 by moving functions to another
+> location inside sys_regs.c. This reduces the number of shared regions.
 > 
 > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> ---
+>  arch/arm64/kvm/sys_regs.c | 100 +++++++++++++++++++-------------------
+>  arch/s390/kvm/arm64/arm.c |   2 +
+>  2 files changed, 52 insertions(+), 50 deletions(-)
+> 
+> diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+> index 7d0047b542f4..53d096803d9d 100644
+> --- a/arch/arm64/kvm/sys_regs.c
+> +++ b/arch/arm64/kvm/sys_regs.c
+> @@ -2043,13 +2043,6 @@ static inline bool is_vcpu_ftr_id_reg(u32 id)
+>  	return is_feature_id_reg(id) && !is_vm_ftr_id_reg(id);
+>  }
+>  
+> -static inline bool is_aa32_id_reg(u32 id)
+> -{
+> -	return (sys_reg_Op0(id) == 3 && sys_reg_Op1(id) == 0 &&
+> -		sys_reg_CRn(id) == 0 && sys_reg_CRm(id) >= 1 &&
+> -		sys_reg_CRm(id) <= 3);
+> -}
+> -
+>  static unsigned int id_visibility(const struct kvm_vcpu *vcpu,
+>  				  const struct sys_reg_desc *r)
+>  {
+> @@ -2065,20 +2058,6 @@ static unsigned int id_visibility(const struct kvm_vcpu *vcpu,
+>  	return 0;
+>  }
+>  
+> -static unsigned int aa32_id_visibility(const struct kvm_vcpu *vcpu,
+> -				       const struct sys_reg_desc *r)
+> -{
+> -	/*
+> -	 * AArch32 ID registers are UNKNOWN if AArch32 isn't implemented at any
+> -	 * EL. Promote to RAZ/WI in order to guarantee consistency between
+> -	 * systems.
+> -	 */
+> -	if (!kvm_supports_32bit_el0())
+> -		return REG_RAZ | REG_USER_WI;
+> -
+> -	return id_visibility(vcpu, r);
+> -}
+> -
+>  static unsigned int raz_visibility(const struct kvm_vcpu *vcpu,
+>  				   const struct sys_reg_desc *r)
+>  {
+> @@ -2099,6 +2078,27 @@ static bool access_id_reg(struct kvm_vcpu *vcpu,
+>  	return true;
+>  }
+>  
+> +static unsigned int aa32_id_visibility(const struct kvm_vcpu *vcpu,
+> +				       const struct sys_reg_desc *r)
+> +{
+> +	/*
+> +	 * AArch32 ID registers are UNKNOWN if AArch32 isn't implemented at any
+> +	 * EL. Promote to RAZ/WI in order to guarantee consistency between
+> +	 * systems.
+> +	 */
+> +	if (!kvm_supports_32bit_el0())
+> +		return REG_RAZ | REG_USER_WI;
+> +
+> +	return id_visibility(vcpu, r);
+> +}
+> +
+> +static inline bool is_aa32_id_reg(u32 id)
+> +{
+> +	return (sys_reg_Op0(id) == 3 && sys_reg_Op1(id) == 0 &&
+> +		sys_reg_CRn(id) == 0 && sys_reg_CRm(id) >= 1 &&
+> +		sys_reg_CRm(id) <= 3);
+> +}
+> +
+>  /* Visibility overrides for SVE-specific control registers */
+>  static unsigned int sve_visibility(const struct kvm_vcpu *vcpu,
+>  				   const struct sys_reg_desc *rd)
+> @@ -2553,29 +2553,6 @@ void kvm_set_vm_id_reg(struct kvm *kvm, u32 reg, u64 val)
+>  	*p = val;
+>  }
+>  
+> -static int get_raz_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+> -		       u64 *val)
+> -{
+> -	*val = 0;
+> -	return 0;
+> -}
+> -
+> -static int set_wi_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+> -		      u64 val)
+> -{
+> -	return 0;
+> -}
+> -
+> -static bool access_ctr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
+> -		       const struct sys_reg_desc *r)
+> -{
+> -	if (p->is_write)
+> -		return write_to_read_only(vcpu, p, r);
+> -
+> -	p->regval = kvm_read_vm_id_reg(vcpu->kvm, SYS_CTR_EL0);
+> -	return true;
+> -}
+> -
+>  static bool access_clidr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
+>  			 const struct sys_reg_desc *r)
+>  {
+> @@ -2684,6 +2661,29 @@ static bool access_ccsidr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
+>  	return true;
+>  }
+>  
+> +static int get_raz_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+> +		       u64 *val)
+> +{
+> +	*val = 0;
+> +	return 0;
+> +}
+> +
+> +static int set_wi_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+> +		      u64 val)
+> +{
+> +	return 0;
+> +}
+> +
+> +static bool access_ctr(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
+> +		       const struct sys_reg_desc *r)
+> +{
+> +	if (p->is_write)
+> +		return write_to_read_only(vcpu, p, r);
+> +
+> +	p->regval = kvm_read_vm_id_reg(vcpu->kvm, SYS_CTR_EL0);
+> +	return true;
+> +}
+> +
+>  static unsigned int mte_visibility(const struct kvm_vcpu *vcpu,
+>  				   const struct sys_reg_desc *rd)
+>  {
+> @@ -4855,12 +4855,6 @@ static bool check_sysreg_table(const struct sys_reg_desc *table, unsigned int n,
+>  	return true;
+>  }
+>  
+> -int kvm_handle_cp14_load_store(struct kvm_vcpu *vcpu)
+> -{
+> -	kvm_inject_undefined(vcpu);
+> -	return 1;
+> -}
+> -
+>  static void perform_access(struct kvm_vcpu *vcpu,
+>  			   struct sys_reg_params *params,
+>  			   const struct sys_reg_desc *r)
+> @@ -4944,6 +4938,12 @@ static void unhandled_cp_access(struct kvm_vcpu *vcpu,
+>  	kvm_inject_undefined(vcpu);
+>  }
+>  
+> +int kvm_handle_cp14_load_store(struct kvm_vcpu *vcpu)
+> +{
+> +	kvm_inject_undefined(vcpu);
+> +	return 1;
+> +}
+> +
+>  /**
+>   * kvm_handle_cp_64 -- handles a mrrc/mcrr trap on a guest CP14/CP15 access
+>   * @vcpu: The VCPU pointer
+> diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
+> index 3caa72f780a5..2740ee3b703e 100644
+> --- a/arch/s390/kvm/arm64/arm.c
+> +++ b/arch/s390/kvm/arm64/arm.c
+> @@ -9,6 +9,7 @@
+>  #include <linux/kvm_host.h>
+>  #include <linux/cleanup.h>
+>  #include <linux/fpu.h>
+> +#include <linux/bitfield.h>
+>  
+>  #include <asm/access-regs.h>
+>  
+> @@ -25,6 +26,7 @@
+>  #include "trace.h"
+>  
+>  static unsigned long system_supported_vcpu_features(void);
+> +#define read_sanitised_ftr_reg(_id) 0
+>  
+>  #define __INCL_GEN_ARM_FILE
+>  #include "generated/arm.inc"
 
-The ordering feels wrong. Please keep the KVM/arm64 as a prefix for
-the S390 patches as much as possible.
-
-Thanks,
+Please split this. arm64 refactor and S390 changes should not be part
+of the same patch.
 
 	M.
 
