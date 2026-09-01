@@ -1,59 +1,59 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CE462253B0;
-	Tue,  1 Sep 2026 13:20:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CFB237E5D8;
+	Tue,  1 Sep 2026 13:33:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788268801; cv=none; b=IC23seYrJ7cyjgTFK8D01By6dZUfP6gMILtZDaYJNYkIiNO3KkoxWKZr0e75Ss7ZLEslw5V713gFBUE7k5x90IvqrnHe1itwGzr8nCN/aaW/IxcurfPTNY8BJAPIO+RCjcdSFujyYykb2MowMgvcqiLGgjTAAleFy+cAV/PRjso=
+	t=1788269620; cv=none; b=mpV7BCQFcgpcvb/LRHYUgl9RJyr6urEOd44UEgyc2EfLiR/G6XsvZPTkrZS4QsoyiHufA0E+Os0QZ7+ZgRFR3U26tccfnnNrozxk5kn1o3JHK4TTOtFFava9H3luwxFcWqPgCcWViWlwmBXcq2VSz3+IpMa1M4qPRSBo0XlJn8o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788268801; c=relaxed/simple;
-	bh=eT1V0pLUlVeZdaUVekYBHkCNyU6motoBz9FKZ1+NLWk=;
+	s=arc-20240116; t=1788269620; c=relaxed/simple;
+	bh=L8mffahwowpqu6th6laYccc721TU8H9CSNOMIhSy280=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oCxTQTD/bLU0cQ3MKB+5qqrj12FKo+PDMFXMX5gs8vCxdqbZWALV9lA/VgamKpyjHh7QFc6/3UHqmweY6Ci1Z9X8Y8A7jnmxcjDHQQrbiWwqRAi0d4gONST3N0jsqghCkj17Hy0/QuPyg8TiJ4/S4jBzy3ad5XEUY8Ew/LNkmR4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YqlxnTL4; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=FcAB4+cnEBbj0sspr64CU7s5kdYcGx3uubQiXWH8/AkAmXJTFwwKJT/FndjE6Z/t4KlCRHeafAx/qwBUX6X/BE6+4jxBA691C/8kSKmPTVaPvrOKQbCzetdv6cBdgdDv2Z4n+lo6WQdi+IiXgyfokYovBfpyHhV0laAB85AiKPs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EhPUjdjb; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YqlxnTL4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54EDE1F00ADB;
-	Tue,  1 Sep 2026 13:19:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EhPUjdjb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E7D61F00A3D;
+	Tue,  1 Sep 2026 13:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788268800;
-	bh=4K0ioKV5pbE4Ef4e+GKU9dV30pSsLWe3AR7B9Tx4qSs=;
+	s=k20260515; t=1788269619;
+	bh=jcbNqyZ4CJOFUcx+fZWWPKksNhyQwz/xPjmgvkWytSE=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=YqlxnTL4ZXmobuSbpyRbXRaHmJXWSr3W9S3fcHAQ0A64HKpv85oM1qZK2+YmvUvmX
-	 F58x05VyzJYN/ehjx84LayGDjCm89bCZy9RfuLUb8NqUyxcbr9KSjAD7QTUHRx4NVA
-	 SoSOA+O7pMM4NVb6lwFVSiLVY7WqF93wNaiihVLU6y3nKc7QxUce7krnh8dgfvs94k
-	 0gP0OnpjgUfxjGix0oUv3ET+yBkangnR8aMbv/tXRBgHWmspAzwQj3ZBh6JGCuThDl
-	 /sHbYwK7it1rmRovUE4A3nUFyNfmYuPu4cSJld/l2Muk1ALJZosrerqCy7wX6bCqMt
-	 8INe4tGpbDM2Q==
-Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
-	by mailfauth.ams.internal (Postfix) with ESMTP id 2F80A1980077;
-	Tue,  1 Sep 2026 09:19:40 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-06.internal (MEProxy); Tue, 01 Sep 2026 09:19:54 -0400
-X-ME-Sender: <xms:69CWaij5CIKvTS9JuyLleD9s3d7G5S5Cj7oKCUXn13hGseHouuUSag>
-    <xme:69CWalGYd0dc4bcEB3etN9RaYjD7HYzO3v8zVyh93Vx39I_dw7XkZfKP4mbB2pf7a
-    yCC0ABYtDzS2RhTTaZ8dfYsqjhrn_rW7zK2cNPqftkFgUuGuUM2EbU>
-X-ME-Received: <xmr:69CWakpbzJqHJeJRbHpsk7ongNC4txO1ZIIt3gTXSf5VUVWH2Pd6FvJ1H9I>
-X-ME-Proxy-Cause: dmFkZTED3aWKojbGUYTqgDI4X4V0F1d+uDC9XUKSeGM5bAtqyf5WoNCcWI8qt7irq+Ycdg
-    bP5uMN9J8wue1zj+h4Z5VdmIt5CyC8BtMot40mK2bNoOWP05XNwub7F63HzCejIFCNIwU/
-    RwHR/oPnELuI/pgmRue+HPnpkTdxXI2tXXPwQ2XhlfjvZIyZNXMaGXgwL56LFN8ekEPBpX
-    QHxLvpjiYjeppSsNC9jkLgljlvJ1f2Rzug/Wzpp30FOzo3biGRK3SJKG4JlcSiSKZV9ApN
-    zrblGjeaDfaFoFocDCMSOSTBkwTuSjYQbyrO3U+OcC3IfSEQwCfo2jZutbaEZD8ORHkhOE
-    WPvmJHx9cOwRkRzLLHMzt61/y2dH4FBScykL+eQjNlgsUwsdGo8YayjIDE2cNUryQs77Zd
-    37yui7ur2Ub4PTGWPTH9vPA/z72KJMVvxVCmJnutZO95zEQmQXdIrYDwRwD/10g1bSXWZv
-    5p+rN+4d/l5/jwP9h6pMcwNHnHfrSrfKBvZnNqJN04rROPvVro5LWQHKMqJWCKH7KIqXhO
-    kz5cBC197p3oqrUj3bWQUgF9WsFamkEjWJi6OvK/8e1HSfRwBSOXnE0kOoNrxeox4eX16r
-    l1yAPWeATBw9u3K+ZxIBaBaFYwt+eQJwZRgzLVYgXvtgrAI3wFtXeAw7uu+A
-X-ME-Proxy: <xmx:69CWajFHifz_SIwkxD4BIVpzvuUpvQr-YiTHagPH4og2FD21YdNJgQ>
-    <xmx:69CWaoqTHEsNOtjshNsJ3CUngn2ZISAQFdZ45ashJ5fK9S2FYQS66w>
-    <xmx:69CWagU-DnjgEXTEnpw6CxzSrHONzOkLH3mSJLYWP1eBStWX0ICgLw>
-    <xmx:69CWaoLp9cwfEDd-J-UDdiyYEdkf-I-D6oSdqcqGEGBYulbHTZ9FeA>
-    <xmx:69CWap2dwNlx9UBv3N5Z9oAH2VG7dOj0tP6mz8BbcIQFsrC4b0Y4wIoG>
+	b=EhPUjdjbePHeKrlhJaT/qdk8eCghU/xkjFLX2ZSOrSJgzGKxnfymBRLvRLIAB+lil
+	 LtyBPDuXQdS+62s8eoQup2ev8Bz3o3XBhF4l4zD/nMnmup/sePSt7atgjkAu6O47mQ
+	 f2pkabp2vmMejJeXGz6/yuYsn3G6A/J1getiSJCPN/ClVN7b9CEtMwGWDPDP0Lx5KX
+	 KDSEashxYtrPeaO0yRDcNqCrSU92Y7B6PwssrqM9VvmutoLso969XjnVariqlE82JI
+	 M0UCUlJLZx9XB2ca5ppcTYmrYgGfMIeWQa7fJQmKFlwQewkP2LNLsro6qKNlMDG7ry
+	 DkQIRfv8jHEFA==
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailfauth.ams.internal (Postfix) with ESMTP id 57E291980064;
+	Tue,  1 Sep 2026 09:33:18 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-02.internal (MEProxy); Tue, 01 Sep 2026 09:33:33 -0400
+X-ME-Sender: <xms:HdSWar0zDxM1rzMXPVKSiiHY4KJJXKW9_dKFmXqdbTa_fmaDqPnrAQ>
+    <xme:HdSWasJnHNfyfuCbnPXJ41QnOfMcQ3IsJbdR3mnGKXr-4wj9FELqFm8ZdfeRPj7fy
+    bnm6jh3UIcKaloZqTodN2-BguOMyRSr9poABUPkwGcmSl04lFepx8g>
+X-ME-Received: <xmr:HdSWamc0hBDzYeZ6meHT1N8NrjNwQDlG7ndA51A5p6yJYm1erjaIFQqZ_aA>
+X-ME-Proxy-Cause: dmFkZTE7XYI88DUY2gRkJOK6+ZyCIFoNn8bzP7pT6CkwBKHBvKWUe6kvcLZyJKqoR/mFua
+    tnuce/0i36y0TC7Im4WvZyoy/crD2rPu16GAU43MkToFESYNa+q/dgDmYeFoLAKy++6ZgW
+    8jn2vUxLTK4d+JU7NpIMhvmFWN+lBL6CrhfWBNMDXcQ2eFN5VMfwvgG7wpe8357MD3J5gK
+    7xFBRFrqPTsz4yMLY+EEChvmjl1qNNrFzTmc4wdkVOaUc1KRt3nz4X6b9lgB4AP7QFsDWQ
+    tYyrUQvI3wO8SrGFb+1aGvYLJgVsklk3Kc0+LAmLAEM6pSFrAQvRZGfFtBIFEXt5smoDZ8
+    0sIIODp3p+XbaMM1IQmfCvE2+2bbjw/rRlbPqyxvx3AWjW0wx69YF5Ocr+JktO0nTZOok2
+    HEw0ft0H3myd2V1s6FmW7lpkinX5D+jdOQrkC/osJIL3mBMTcjL7XfwqTbI8tt3mank0qt
+    BcT630GiS2PTitGfmJ6/iVLTorQObFhmiWUpu/4o8m4w+lLom0XGtnouU3SvS4FcugWWNZ
+    7nEECz0GGK+6YbBSmEMxBhw/vyLb4HqtpoQS+cM14FfTsm1gjY737Jmi4qjcP7ghw4NaMo
+    mSjmk0LJqLELQl49SSqDTw86/FRQj/i6o2/Z7vFbf6wnUbIU1mKMMzFy+Xyw
+X-ME-Proxy: <xmx:HdSWaorGnJV8X3w6RQ6-yTLBHwkt_MBfkV8RsDaiRQlkH0hCDXuTig>
+    <xmx:HdSWam_C35Dm2JBzL0A5fzPuG5ZvMut58CN7trPjhfIb_5hDuszCGQ>
+    <xmx:HdSWaobzZlmDe5Y-27Rtv7XIlXhpki_IJYzJN_lp2MB6mY3t1TeGow>
+    <xmx:HdSWam8XuaM7yobHeA1s3aD4FW-Jnsz8789jiGSamkl6EtIN7IErBA>
+    <xmx:HdSWaoYZmoLC2txSUqseUpEqs0XigJd8k-YHiiGmmzkLSGyss1bakguf>
 Feedback-ID: i10464835:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 1 Sep 2026 09:19:37 -0400 (EDT)
-Date: Tue, 1 Sep 2026 14:19:36 +0100
+ 1 Sep 2026 09:33:15 -0400 (EDT)
+Date: Tue, 1 Sep 2026 14:33:14 +0100
 From: Kiryl Shutsemau <kas@kernel.org>
 To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>,
@@ -117,11 +117,10 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
  	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
  linux-s390@vger.kernel.org, 	linux-um@lists.infradead.org,
  Hugh Dickins <hughd@google.com>, Qi Zheng <qi.zheng@linux.dev>
-Subject: Re: [PATCH 01/12] mm/huge_memory: zap deposited page tables after an
- RCU grace period
-Message-ID: <apbOlyF77yDCV4cF@thinkstation>
+Subject: Re: [PATCH 11/12] mm: make userland page table freeing RCU-safe
+Message-ID: <apbSaL0YaQqtO9XB@thinkstation>
 References: <20260901-rcu-pagetable-freeing-v1-0-5456a81c8212@kernel.org>
- <20260901-rcu-pagetable-freeing-v1-1-5456a81c8212@kernel.org>
+ <20260901-rcu-pagetable-freeing-v1-11-5456a81c8212@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -130,70 +129,19 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260901-rcu-pagetable-freeing-v1-1-5456a81c8212@kernel.org>
+In-Reply-To: <20260901-rcu-pagetable-freeing-v1-11-5456a81c8212@kernel.org>
 
-On Tue, Sep 01, 2026 at 12:01:21PM +0100, Lorenzo Stoakes (ARM) wrote:
-> When an anonymous mapping is collapsed for THP, a PTE page table is
-> 'deposited' with the installed PMD entry.
-> 
-> This is done in order that a split can be performed without needing to
-> allocate additional memory.
-> 
-> The freeing occurs in zap_deposited_table() and is done directly without
-> any delay via pte_free().
-> 
-> This is currently not a problem as existing page table walks are protected
-> by the mmap or anon rmap lock.
-> 
-> However this becomes problematic in a future where RCU-only page table
-> walkers exist, as there is nothing to prevent a page table walker that
-> started the walk prior to collapse having its PTE table freed underneath
-> it.
-> 
-> Commit 13cf577e6b66 ("mm/pgtable: add pte_free_defer() for pgtable as
-> page") already provides us the mechanism by which to solve this -
-> pte_free_defer().
-> 
-> Therefore, as a prerequisite to a future commit which will permit fully RCU
-> page table walks, update zap_deposited_table() to use pte_free_defer()
-> rather than pte_free().
-> 
-> Note that the IPI sync in collapse_huge_page() is still required to ensure
-> refcount correctness against a GUP-fast operation.
-> 
-> This is because GUP-fast might increment refcount, but
-> __collapse_huge_page_isolate() determines whether it is safe to proceed by
-> checking folio_ref_count() against folio_expected_ref_count(), so the two
-> must be mutually excluded.
-> 
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> ---
->  mm/huge_memory.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-> index 54494c3fa983..505f7b62ff28 100644
-> --- a/mm/huge_memory.c
-> +++ b/mm/huge_memory.c
-> @@ -2476,7 +2476,7 @@ static inline void zap_deposited_table(struct mm_struct *mm, pmd_t *pmd)
->  	pgtable_t pgtable;
->  
->  	pgtable = pgtable_trans_huge_withdraw(mm, pmd);
-> -	pte_free(mm, pgtable);
-> +	pte_free_defer(mm, pgtable);
+On Tue, Sep 01, 2026 at 12:01:31PM +0100, Lorenzo Stoakes (ARM) wrote:
+> With this change in place the kernel policy is now that all page tables are
 
-Hm. So it is call_rcu() on each PMD. It might be costly, especially for
-zap_huge_pmd() path: 512 call_rcu() per-GB of unmapped THPs.
+s/all/userspace/ as subject implies?
 
-Do we want leverage mmu_gather if caller has it?
+BTW, what is your take on kernel page tables? Do we want the same policy
+there. pagetable_free_kernel() is not RCU-safe as it is.
 
->  	mm_dec_nr_ptes(mm);
->  }
->  
-> 
-> -- 
-> 2.55.0
-> 
+> freed after an RCU grace period, and thus it is now safe to unconditionally
+> perform page table walks under RCU, safe in the knowledge that page tables
+> will not be freed underneath the walker.
 
 -- 
   Kiryl Shutsemau / Kirill A. Shutemov
