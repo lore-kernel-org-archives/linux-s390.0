@@ -1,39 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1818E35E92B;
-	Tue,  1 Sep 2026 08:11:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2307745D1BF;
+	Tue,  1 Sep 2026 08:13:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788250288; cv=none; b=oejYKuixL61/fmKz21xftJUpKVuzIxN5DqwdtaFt6lcmmMQXohPdkS5Sc5uuDbPd1RGAWRX23YZw3YpelTIBAtmC4NCLrj8jMRs1W94GyRSU3TyJ+yhCP5p+mkqZmxTyB3x9tLYN4HquIt1H881F8HNg4gL5yZCFvluFqL4Qaoo=
+	t=1788250406; cv=none; b=EoEo+hNDu40kCOMIfybZVcHo0voFzbqAdhbIHdeBlM3gYalczq+Ga5lXwar9UZ+43PX4K4B3JYft6SKvrgApsL8dwktDHezHBaja+StgJAQVzir9bqa7HSple0iYqNYS/mO19nbpqXu57S0PXJUImNCb8j+PliMdv5jU6jrCKLk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788250288; c=relaxed/simple;
-	bh=G8hLI7gbSXa7//WMLcSR43Vk6mpoTvFK7obJmBM7HvU=;
+	s=arc-20240116; t=1788250406; c=relaxed/simple;
+	bh=EzayhaknGbZa7kB1j0z9Vrfnb8Jw2AzgUjvuwUTPy9I=;
 	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=d7iWRBqIdG/VnIa6skWyECPGQna5BnFvQttRVNMzGb9C8nbTzskU23+tT0/E+kIhLfd/bIa06kcljRodPRnWvz/aqPT0boLj7I8MrR0f4ZIKsD6xouXjUAYVZ22G1ZKAcPZSqSabs18W8/qqw5BhjsVs05MX9A6hc8E75Q73GSs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XqlwvypW; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=JkFgGb8FHdQt11zUojZZHPKGPgfJgjdgsja7AMjDTv/2U3oVwiIbkBlR5uXjO2+YaFdMLsfJRSDzEyz4XMmIJbBgv4RQNPp+5n+OgVAYL5x1nN81QOd5uXZsZPNDcmoLvUPsnUc/2rz5TsEesNT8y7uyWKQ/vkQ9orQxM/cigfg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R8bH0lfP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XqlwvypW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6FC71F000E9;
-	Tue,  1 Sep 2026 08:11:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R8bH0lfP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1ECD1F000E9;
+	Tue,  1 Sep 2026 08:13:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788250286;
-	bh=Mffh+xsJ2ZCU31yMautmtE9YEjEsip5NwA60eZbTZ/M=;
+	s=k20260515; t=1788250404;
+	bh=RtYB9BO3uYLJOfsvA24/61gyZKkfp08ohm5Tw24wHek=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=XqlwvypWheYSFoa4uTcqlrpd0ImB0sJMQAEPOLerzwmH6wHmvRrzg41eM8cyc8tyg
-	 mko/ggm7eN88UclRZVlY4XIzcApIWbXmC10fW7MTdMwlOU6pe81WSGZ0IcTB9tDVeD
-	 xfFXM3flFzX5qfk3wSTgCUk02rxNjj7tGwxreFEtqWWvkyte0r//saL2H7yI3SZPhK
-	 PjvzCng6d6+EQikN7N+EHskMyi9bT8SPmjVtUMBJDt/bbFqLGU26NlBTD7dDNb+rvR
-	 1tqHpvWBkPaG4fohiDusTOLAGwWxjxLw12436HRhzJKSuD/YT+3fS/AnwENHLXW7qi
-	 swEIhya6rzBwA==
+	b=R8bH0lfPGwqcK+ymswX5R+fn4Vu/FwdLcyhunW1aBF/LTwZTCSUs+5qAyW9DBco4w
+	 FrzXyuCcTmJD//aBhofrN8Yb4DKqpG5CkT6yOB8B1k8ZCUB9b94/8XPOQIfAzP05qm
+	 vT++M8zEIsv2NgUVWRQ1Ws2FrQe6MYEr9HiJ9mtC0tA0lvxIIRuq4ApEJxhhCuS/K1
+	 PCRXdT1yvVdoUrgzSUtJunXIQrhw2o2eVb2dT2WPSl0DDRSjg7KJ/PYzFEXN7S6c7f
+	 DmjZ0pqRV2lPjDNAXBi2FP/t4Uqlal5FCd2sjLnYRFqRShhesZ7BhcGPBtWNr79B+Z
+	 gVh6bq4sV7FBA==
 Received: from sofa.misterjones.org ([185.219.108.64] helo=lobster-girl.misterjones.org)
 	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.98.2)
 	(envelope-from <maz@kernel.org>)
-	id 1x1JaW-00000003CEo-19GZ;
-	Tue, 01 Sep 2026 08:11:24 +0000
-Date: Tue, 01 Sep 2026 09:13:56 +0100
-Message-ID: <87se3tmlrv.wl-maz@kernel.org>
+	id 1x1JcQ-00000003CIx-3MYv;
+	Tue, 01 Sep 2026 08:13:22 +0000
+Date: Tue, 01 Sep 2026 09:15:55 +0100
+Message-ID: <87qzjdmlok.wl-maz@kernel.org>
 From: Marc Zyngier <maz@kernel.org>
 To: Steffen Eiden <seiden@linux.ibm.com>
 Cc: kvm@vger.kernel.org,
@@ -61,17 +61,16 @@ Cc: kvm@vger.kernel.org,
 	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
 	Oliver Upton <oupton@kernel.org>,
 	Paolo Bonzini <pbonzini@redhat.com>,
-	Sean Christopherson <seanjc@google.com>,
 	Suzuki K Poulose <suzuki.poulose@arm.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
 	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Will Deacon <will@kernel.org>,
 	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v7 11/23] KVM: arm64: Share arm64 code with s390
-In-Reply-To: <20260831144802.834315-12-seiden@linux.ibm.com>
-References: <20260831144802.834315-1-seiden@linux.ibm.com>
-	<20260831144802.834315-12-seiden@linux.ibm.com>
+Subject: Re: [PATCH v2 05/20] KVM: s390: arm64: Prepare for sharing more arm64 code
+In-Reply-To: <20260831145536.913567-6-seiden@linux.ibm.com>
+References: <20260831145536.913567-1-seiden@linux.ibm.com>
+	<20260831145536.913567-6-seiden@linux.ibm.com>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
  FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
  (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -83,129 +82,22 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
 Content-Type: text/plain; charset=US-ASCII
 X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, tabba@google.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, seanjc@google.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
+X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, tabba@google.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
 X-SA-Exim-Mail-From: maz@kernel.org
 X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-On Mon, 31 Aug 2026 15:47:48 +0100,
+On Mon, 31 Aug 2026 15:55:20 +0100,
 Steffen Eiden <seiden@linux.ibm.com> wrote:
 > 
-> Mark functions that s390 can use to implement arm on s390 as shared
-> functions.
-> 
-> No functional change.
+> Add required SVE definitions to the arm64 on s390 host code. The
+> definitions are required to be able to build shared SVE related code.
 > 
 > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
->  arch/arm64/kvm/arm.c         | 3 +++
->  arch/arm64/kvm/guest.c       | 6 ++++++
->  arch/arm64/kvm/handle_exit.c | 6 ++++++
->  arch/arm64/kvm/mmio.c        | 2 ++
->  4 files changed, 17 insertions(+)
-> 
-> diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-> index 8b080804bc90..6b92a3c1d490 100644
-> --- a/arch/arm64/kvm/arm.c
-> +++ b/arch/arm64/kvm/arm.c
-> @@ -1603,6 +1603,7 @@ static unsigned long system_supported_vcpu_features(void)
->  	return features;
->  }
->  
-> +#ifdef ARM64_S390_COMMON
->  static int kvm_vcpu_init_check_features(struct kvm_vcpu *vcpu,
->  					const struct kvm_vcpu_init *init)
->  {
-> @@ -1656,6 +1657,8 @@ static bool kvm_vcpu_init_changed(struct kvm_vcpu *vcpu,
->  			     KVM_VCPU_MAX_FEATURES);
->  }
->  
-> +#endif /* ARM64_S390_COMMON */
-> +
->  static int kvm_setup_vcpu(struct kvm_vcpu *vcpu)
->  {
->  	struct kvm *kvm = vcpu->kvm;
-> diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
-> index 773f6c8e5026..6ca5a9f357cd 100644
-> --- a/arch/arm64/kvm/guest.c
-> +++ b/arch/arm64/kvm/guest.c
-> @@ -62,6 +62,7 @@ const struct kvm_stats_header kvm_vcpu_stats_header = {
->  		       sizeof(kvm_vcpu_stats_desc),
->  };
->  
-> +#ifdef ARM64_S390_COMMON
->  static bool core_reg_offset_is_vreg(u64 off)
->  {
->  	return off >= KVM_REG_ARM_CORE_REG(fp_regs.vregs) &&
-> @@ -306,6 +307,8 @@ static int set_core_reg(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
->  	return err;
->  }
->  
-> +#endif /* ARM64_S390_COMMON */
-> +
->  #define vq_word(vq) (((vq) - SVE_VQ_MIN) / 64)
->  #define vq_mask(vq) ((u64)1 << ((vq) - SVE_VQ_MIN) % 64)
->  #define vq_present(vqs, vq) (!!((vqs)[vq_word(vq)] & vq_mask(vq)))
-> @@ -543,6 +546,7 @@ int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
->  	return -EINVAL;
->  }
->  
-> +#ifdef ARM64_S390_COMMON
->  static int copy_core_reg_indices(const struct kvm_vcpu *vcpu,
->  				 u64 __user *uindices)
->  {
-> @@ -591,6 +595,8 @@ static unsigned long num_core_regs(const struct kvm_vcpu *vcpu)
->  	return copy_core_reg_indices(vcpu, NULL);
->  }
->  
-> +#endif /* ARM64_S390_COMMON */
-> +
->  static unsigned long num_sve_regs(const struct kvm_vcpu *vcpu)
->  {
->  	const unsigned int slices = vcpu_sve_slices(vcpu);
-> diff --git a/arch/arm64/kvm/handle_exit.c b/arch/arm64/kvm/handle_exit.c
-> index db37678dcb05..6e59a7b12d40 100644
-> --- a/arch/arm64/kvm/handle_exit.c
-> +++ b/arch/arm64/kvm/handle_exit.c
-> @@ -213,6 +213,7 @@ static int kvm_handle_guest_debug(struct kvm_vcpu *vcpu)
->  	return 0;
->  }
->  
-> +#ifdef ARM64_S390_COMMON
->  static int kvm_handle_unknown_ec(struct kvm_vcpu *vcpu)
->  {
->  	u64 esr = kvm_vcpu_get_esr(vcpu);
-> @@ -224,6 +225,8 @@ static int kvm_handle_unknown_ec(struct kvm_vcpu *vcpu)
->  	return 1;
->  }
->  
-> +#endif /* ARM64_S390_COMMON */
-> +
->  /*
->   * Guest access to SVE registers should be routed to this handler only
->   * when the system doesn't support SVE.
-> @@ -404,6 +407,7 @@ static exit_handle_fn arm_exit_handlers[] = {
->  	[ESR_ELx_EC_GCS]	= kvm_handle_gcs,
->  };
->  
-> +#ifdef ARM64_S390_COMMON
->  static exit_handle_fn kvm_get_exit_handler(struct kvm_vcpu *vcpu)
->  {
->  	u64 esr = kvm_vcpu_get_esr(vcpu);
-> @@ -439,6 +443,8 @@ static int handle_trap_exceptions(struct kvm_vcpu *vcpu)
->  	return handled;
->  }
->  
-> +#endif /* ARM64_S390_COMMON */
 
-Why the exit handler, and not the EC handlers aside from the UNKNOWN
-one? Yes, you probably aren't there yet in this series, but I can tell
-you are going to add more and more of these.
+The ordering feels wrong. Please keep the KVM/arm64 as a prefix for
+the S390 patches as much as possible.
 
-But the EC array is absolutely architectural, and there is no good
-reason to maintain your own.
-
-So instead of this, why not keep the EC array altogether, and
-implement stubs for the ECs you don't support?
+Thanks,
 
 	M.
 
