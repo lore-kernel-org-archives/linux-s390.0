@@ -1,142 +1,123 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 167C637881D;
-	Wed,  2 Sep 2026 06:28:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CD4A33BBCF;
+	Wed,  2 Sep 2026 07:38:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788330489; cv=none; b=qjgPOU2BH7FNo8A/f7AOL6EWBqMNB9cZEiIlkybyZqyFnt3JtiF+ib6ePSSWB9LZKF1AtIAxfsqZt1anpA7oUPjuukyaL8rru3AqShRFaBefzMztxjl6Lo8oDupgOFw2DHetRhsB+JVDimqXbmmVpSJBmXWd+GyESJMOBijOziU=
+	t=1788334738; cv=none; b=hZuDUPfuzKn7d2BhqH+WsZrhhsOALzKeOsd1ga/vRxyWf9WTZkOefbhG0TfJw1ttcDeECb6xV3U/herg69x7Suiy+7IFXc9wLzEQdMGn3X2IQmdqmdTLxJANf4tLmuaGH42watCJewrcrKNbQJKL9JfKKjic6jE8qx0qBxuCAro=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788330489; c=relaxed/simple;
-	bh=q2I5CDQh9TA+VI9hf8JYsPR6dSyaNpmEaREbJExDekg=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=YeY8acl0O5a4RoQ2jpYrkiWThCvLQZKKFZZQhRhwIQa0wAo9jMhwbRiQVK6bGgtj0upfDS1hsEGIwz+Y2xoiL/4PgG8tkE69Nj9D8sWM0Lz4JQFt7ndb3Aa20aEmrV+BVXgXWqyXOIql6MMHSioiLe6FHeHCfXHxkR7y0W+hJzs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oTTVaP5e; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788334738; c=relaxed/simple;
+	bh=peNBa6XWTvXD5voM6K/4tnfDdD3edZYStWDuoe7amfw=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=LU05H30fXIb8RIGKzFndwZtNmrJMDWNi5K7pIEbQz8t6e28GHVORjiJ8YiSBm3/OaDcHhen3Mqa1S70kvSlGFSGMsqIuB7fDneqB1qSp9MYnmovzIrDiRTeTgc7pChgrr0tSxAkU5EON2evf8tf7FtJtUm5pb0WP6XOLMtc8el4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AXX26wr8; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oTTVaP5e"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25D381F000E9;
-	Wed,  2 Sep 2026 06:28:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AXX26wr8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1729D1F00A3A;
+	Wed,  2 Sep 2026 07:38:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788330487;
-	bh=zUgCURL6YmB+rlRFNdTFkS/+ZDRj2unAWpWo6zKpA7M=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oTTVaP5el2Gq0AyaLbIhh31hssUGpFcncdv/+/Pnx66K2j7rL8s0obZltiLGOyYdM
-	 Uyzrw6pvbUgdmDeMFUHiL0axxR7GGG6k/X9mOuwhWXAy2dXGRh5xrRvJFH3CYNgJxt
-	 /5BZCbzAJzVmxaCAusLk6LeNNbQNKDi+LJ7KbBp/uEHJMzQOzWUq4/9KVat7J+e+LM
-	 I172LX+wGcrssD2ExBW4cGosRSgQ8MLA1L3mSp+d/JyCF6A9yuDBf8oHz9czZTGQBs
-	 pufVbO6Fgzsz6nH7YPcsBQ2QxQddTgN6uaVsHrUwLQRYqjS1NAjdL382kFSXXRVCDY
-	 NNAXLl0PfKeoQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/4] KVM: s390: Replace get_zeroed_page() with kzalloc()
- for the GIB
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?TWlrZSBSYXBvcG9ydCAoTWljcm9zb2Z0KQ==?= <rppt@kernel.org>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260902-s390-kvm-v1-3-3bc0986550b1@kernel.org>
-References: <20260902-s390-kvm-v1-0-3bc0986550b1@kernel.org>
- <20260902-s390-kvm-v1-3-3bc0986550b1@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 02 Sep 2026 06:28:06 +0000
-Message-Id: <20260902062807.25D381F000E9@smtp.kernel.org>
+	s=k20260515; t=1788334737;
+	bh=NtFIjwHWOM2KySxyK2jN5lsJXS7iV2NXSRl0dq3VPfM=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=AXX26wr8KvCG2QZcfUAqR2Dpzs2Uuq6jgvM57rxgHHBUtsTqCueEKpUbANEZmZDcM
+	 maq551oR8ZMENXN+/udtxaaNwWLPAMcz1DLsYO37wcn8/w72gxqB75vH876jegGJ9P
+	 AJd/kV4r9rvIFxqaZ4UBIio+HPnyaEk8XCnCdk3xtZzH+OAmqoa9slxW78NNWmwprJ
+	 gxQexz9Bc8W/nS0fGe6RtQOv9hUMKVB15b0LP9HocvJFUgBOL59wjsBXW65X9/qPHi
+	 PsucUsjIgB1FR5GAVA38qCBibV7U8Np8iXZl4NqDfL24T62E9A2crzNh43+4fSdjc5
+	 hOZqttRyWIbBA==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=lobster-girl.misterjones.org)
+	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <maz@kernel.org>)
+	id 1x1fYc-00000003lb4-2BeN;
+	Wed, 02 Sep 2026 07:38:54 +0000
+Date: Wed, 02 Sep 2026 08:41:27 +0100
+Message-ID: <87mru0m76g.wl-maz@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: kvm@vger.kernel.org,
+	kvmarm@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Grapentin <gra@linux.ibm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@kernel.org>,
+	Friedrich Welter <fritz@linux.ibm.com>,
+	Fuad Tabba <tabba@google.com>,
+	Gautam Gala <ggala@linux.ibm.com>,
+	Hariharan Mari <hari55@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Hendrik Brueckner <brueckner@linux.ibm.com>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Joey Gouly <joey.gouly@arm.com>,
+	Nico Boehr <nrb@linux.ibm.com>,
+	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+	Oliver Upton <oupton@kernel.org>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Will Deacon <will@kernel.org>,
+	Zenghui Yu <yuzenghui@huawei.com>
+Subject: Re: [PATCH v7 11/23] KVM: arm64: Share arm64 code with s390
+In-Reply-To: <20260901084037.185345-C-seiden@linux.ibm.com>
+References: <20260831144802.834315-1-seiden@linux.ibm.com>
+	<20260831144802.834315-12-seiden@linux.ibm.com>
+	<87se3tmlrv.wl-maz@kernel.org>
+	<20260901084037.185345-C-seiden@linux.ibm.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, tabba@google.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, seanjc@google.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Tue, 01 Sep 2026 09:40:37 +0100,
+Steffen Eiden <seiden@linux.ibm.com> wrote:
+> 
+> On Tue, Sep 01, 2026 at 09:13:56AM +0100, Marc Zyngier wrote:
+> > Why the exit handler, and not the EC handlers aside from the UNKNOWN
+> > one? Yes, you probably aren't there yet in this series, but I can tell
+> > you are going to add more and more of these.
+> > 
+> > But the EC array is absolutely architectural, and there is no good
+> > reason to maintain your own.
+> > 
+> > So instead of this, why not keep the EC array altogether, and
+> > implement stubs for the ECs you don't support?
+> > 
+> > 	M.
+> > 
+> 
+> There was no specific reasson to define our own EC array as far as I
+> remember. I will try reusing the array and find out if there are any
+> issues with that. But I do not expect any. 
+> 
+> I assume the stubs probably just forward to handle_unknown_ec, or do you
+> have a different suggestion?
 
-Pre-existing issues:
-- [Critical] Hardware Use-After-Free due to missing `chsc_sgib(0)` on `kvm_=
-s390_pci_aen_init` failure path.
-- [High] Race condition in `kvm_s390_gib_init()` error path leading to a NU=
-LL pointer dereference.
---
+Probably. This is an indication of something being deeply wrong in the
+implementation (HW or SW). On reflection, kvm_handle_unknown_ec()
+should result in a KVM_BUG().
 
-commit b7e0a2c7fc946fc151e2d875aa6df00a71151750
-Author: Mike Rapoport (Microsoft) <rppt@kernel.org>
-Subject: KVM: s390: Replace get_zeroed_page() with kzalloc() for the GIB
+	M.
 
-This commit replaces the use of get_zeroed_page() with kzalloc() and
-free_page() with kfree() for the guest information block (GIB) allocation.
-It notes that kmalloc() guarantees page alignment for power-of-two sizes,
-making it suitable for this buffer without requiring direct page allocator
-access.
-
-Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redh=
-at.com
-
-> diff --git a/arch/s390/kvm/s390/interrupt.c b/arch/s390/kvm/s390/interrup=
-t.c
-> index 0381ae9817035..02065fb8d053e 100644
-> --- a/arch/s390/kvm/s390/interrupt.c
-> +++ b/arch/s390/kvm/s390/interrupt.c
-
-[ ... ]
-
-> @@ -3722,7 +3722,7 @@ int __init kvm_s390_gib_init(u8 nisc)
->  	gib_origin =3D virt_to_phys(gib);
->  	if (chsc_sgib(gib_origin)) {
->  		pr_err("Associating the GIB with the AIV facility failed\n");
-> -		free_page((unsigned long)gib);
-> +		kfree(gib);
->  		gib =3D NULL;
-
-[Severity: High]
-This is a pre-existing issue, but I noticed a potential race condition in
-this error path in kvm_s390_gib_init().
-
-When chsc_sgib() fails, the code frees gib and sets it to NULL. However,
-this happens before calling unregister_adapter_interrupt(&gib_alert_irq) at
-the out_unreg_gal label.
-
-Since the interrupt handler is still registered and active, if another devi=
-ce
-sharing the same ISC triggers an interrupt during this window, could
-the gib_alert_irq_handler execute and call process_gib_alert_list()?=20
-If it does, it looks like it will unconditionally dereference the NULL gib
-pointer.
-
->  		rc =3D -EIO;
->  		goto out_unreg_gal;
-
-[ ... ]
-
-> @@ -3742,7 +3742,7 @@ int __init kvm_s390_gib_init(u8 nisc)
->  out_unreg_gal:
->  	unregister_adapter_interrupt(&gib_alert_irq);
->  out_free_gib:
-> -	free_page((unsigned long)gib);
-> +	kfree(gib);
-
-[Severity: Critical]
-This is also a pre-existing issue, but does this cleanup path result in a
-hardware use-after-free if kvm_s390_pci_aen_init() fails?
-
-In kvm_s390_gib_init(), if the GIB is successfully registered with the
-hardware via chsc_sgib(gib_origin), but the subsequent call to
-kvm_s390_pci_aen_init() fails, the code jumps to out_unreg_gal:
-
-	if (kvm_s390_pci_interp_allowed()) {
-		if (kvm_s390_pci_aen_init(nisc)) {
-			pr_err("Initializing AEN for PCI failed\n");
-			rc =3D -EIO;
-			goto out_unreg_gal;
-		}
-	}
-
-This skips calling chsc_sgib(0) to tear down the hardware registration.
-When we reach out_free_gib and free the memory backing the GIB, doesn't
-the hardware AIV facility still retain the physical pointer to the freed
-memory?
-
->  	gib =3D NULL;
->  out:
->  	return rc;
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260902-s390-kvm-v=
-1-0-3bc0986550b1@kernel.org?part=3D3
+-- 
+Jazz isn't dead. It just smells funny.
