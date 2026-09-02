@@ -1,35 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E560B390609;
-	Wed,  2 Sep 2026 06:15:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2094938E8DC;
+	Wed,  2 Sep 2026 06:15:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788329735; cv=none; b=tAujlfnNYWhqLali2/sfXvgeVZPnjNcJldg6oZ26pX9h9jrhszdWYZ2nrRFPlxGYTQgk9fpnXIF2AJ6WtFLmwwWu4sqaCP+Z5vaVnWdlZCPeyhoFBDxyyss9CjN1FfF4ZPmwPUYrF+IjxOuPWQddWo63wCXOMV9MvlvraAMoJms=
+	t=1788329742; cv=none; b=jbdEI3n/6e2idQbUUTmmKCa657qNb0dwkeNcn2KySP912RMqI7tQJRP5UmAj4qXOCXzvW6VuJbYRxql6a/6BDJoGaQgQnpnX1Hr3lVrSYmQDIK1AMQAKkOx7S33lg7AK7jVmpTQve7pe7CfVmUWRgskyykgXKmC+lSvEVvamrFU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788329735; c=relaxed/simple;
-	bh=8U95+oHeCA/rmJkgUT/fvmjP+gRFb78XsoMfKDHsIVI=;
+	s=arc-20240116; t=1788329742; c=relaxed/simple;
+	bh=KjSvS6cVarz2EGcjO+qgUC/Z3Ug9TAUlDU9fkjFomJM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=OoDPb2UtwDnjI+cC93yHObrpewl47ysmr71lvgV4w+KPFFn4+byjd669L2ir1lbqIA3CN3bjyq07T3M9jsKCIZTct/qE/g3jg5I/kWD7NkV+0vYV+p+4z7te2WBoHV2vAQcN69wnyBj//dbZdX2stIZpnyGj9Pg3IPGkDePjg64=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RyCC6K3+; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=gTYhlirMuq/q7ouiOCcDnLPgrtLDuf+Uq9Sts2zFWNwilyg2+sp1Tqr0E1Zunsk+aJoBmB0wb4JliI7zruwiKj81nBSEd26b4OUoEyn32kKTu2IEmoiSzwxIg9bwn08b/4TvPBz5jpAm+0pZDge7u5YZTzKIqUEP5MKvpNBqN90=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WvNXHcrx; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RyCC6K3+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B38201F00A3A;
-	Wed,  2 Sep 2026 06:15:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WvNXHcrx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 587011F000E9;
+	Wed,  2 Sep 2026 06:15:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788329733;
-	bh=rZDmOJa3lKJg3q4J0vxXiCwo1usJZY0dSBwZL2xaIK4=;
+	s=k20260515; t=1788329737;
+	bh=YsA6hNpdDuoXhmxFeC3uv8uIXxR1ksQ/iBUtdB1feUs=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=RyCC6K3+yoBVj6HOL+jhCmJspI1rOOtMlmlJ09dU7HJTzqEQmvW2aI/S1sfTHPfj6
-	 ZHYdLXxvZEV213yRt6hcyicUWOkk/fmtKZ2RbcigWIVDgqKvgU4dQNyaPa3tdhRynn
-	 UmyYgIsw6J0sWUvzPkXwjZYh+twK/i+vDC+6T4STp0EIiC0Lknuutak3P8VrbsKjOT
-	 9jh7aG7AnlP2sL5unVXGeaY3Dzug0feoyhj1sILuc+230lbhU7aXqxUVJGiXrHlVt2
-	 nsi5FDvTfJt+DSOgof/YYHzGjA6EsF0FFHUoTrVFeq7ELA2DJhEqGbMzj/f0c2ZSy4
-	 nk9//iAEyiEjQ==
+	b=WvNXHcrxV8JKaRtt3T+TgHowGmPOJ4H4MgCw7LvVDttuAHoV8YajbSc586+Rw1gFT
+	 1fgWfos2HoEwwgGmf2fwT7rUv/cZnEG6lheWHkQhjlrHRPyeM6CgQ35aBMGDOlIDQb
+	 /fcMnjoLLunKuouuieMHEpD/HuxY9/fPUdnP1LS1tlXNxz4gZriv8nN3DIKHWLT+BK
+	 C9qIfJouDe3OtAGA5Rqgs8L3WfXmxVGyHhfOx0HskVeGN/LsdbVntcaw3cwgRNjaAs
+	 eydF7OqQZjyyls4A7K32MsYBafb4e24W6+SewzgGWol4DaaEcQIGEkf/29pCIx6ML/
+	 Ts5YBGxnhGnGw==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Wed, 02 Sep 2026 09:15:13 +0300
-Subject: [PATCH 1/4] KVM: s390: Replace get_zeroed_page() with kzalloc()
- for the STHYI buffer
+Date: Wed, 02 Sep 2026 09:15:14 +0300
+Subject: [PATCH 2/4] KVM: s390: Replace get_zeroed_page() with kzalloc()
+ for the STSI buffer
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -38,7 +38,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260902-s390-kvm-v1-1-3bc0986550b1@kernel.org>
+Message-Id: <20260902-s390-kvm-v1-2-3bc0986550b1@kernel.org>
 References: <20260902-s390-kvm-v1-0-3bc0986550b1@kernel.org>
 In-Reply-To: <20260902-s390-kvm-v1-0-3bc0986550b1@kernel.org>
 To: Christian Borntraeger <borntraeger@linux.ibm.com>, 
@@ -52,8 +52,8 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
  linux-s390@vger.kernel.org
 X-Mailer: b4 0.17-dev
 
-handle_sthyi() allocates the buffer that receives the STHYI response
-block before it is copied to the guest.
+handle_stsi() allocates the buffer that receives the STSI response block
+before it is copied to the guest.
 
 This buffer can be allocated with kmalloc() as there's nothing special
 about it to go directly to the page allocator.
@@ -68,6 +68,8 @@ fast path allocations.
 For the slow path the performance is anyway determined by the amount of
 reclaim involved rather than by what allocator is used.
 
+While on it, make the buffer a void pointer to get rid of the casts.
+
 Replace use of get_zeroed_page() with kzalloc() and free_page() with
 kfree().
 
@@ -75,53 +77,84 @@ Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.co
 Assisted-by: copilot:claude-opus
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- arch/s390/kvm/s390/intercept.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/s390/kvm/s390/priv.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/arch/s390/kvm/s390/intercept.c b/arch/s390/kvm/s390/intercept.c
-index ca1205dfac8b0..aaf9828d1f44d 100644
---- a/arch/s390/kvm/s390/intercept.c
-+++ b/arch/s390/kvm/s390/intercept.c
-@@ -11,6 +11,7 @@
- #include <linux/kvm_host.h>
- #include <linux/errno.h>
- #include <linux/pagemap.h>
+diff --git a/arch/s390/kvm/s390/priv.c b/arch/s390/kvm/s390/priv.c
+index b3cb2c2c3aa71..856939acf012f 100644
+--- a/arch/s390/kvm/s390/priv.c
++++ b/arch/s390/kvm/s390/priv.c
+@@ -14,6 +14,7 @@
+ #include <linux/mm_types.h>
+ #include <linux/pgtable.h>
+ #include <linux/io.h>
 +#include <linux/slab.h>
- 
  #include <asm/asm-offsets.h>
- #include <asm/irq.h>
-@@ -438,13 +439,13 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
- 	if (!kvm_s390_pv_cpu_is_protected(vcpu) && (addr & ~PAGE_MASK))
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
- 
--	sctns = (void *)get_zeroed_page(GFP_KERNEL_ACCOUNT);
-+	sctns = kzalloc(PAGE_SIZE, GFP_KERNEL_ACCOUNT);
- 	if (!sctns)
- 		return -ENOMEM;
- 
- 	cc = sthyi_fill(sctns, &rc);
- 	if (cc < 0) {
--		free_page((unsigned long)sctns);
-+		kfree(sctns);
- 		return cc;
+ #include <asm/facility.h>
+ #include <asm/current.h>
+@@ -869,7 +870,7 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+ 	int fc = (vcpu->run->s.regs.gprs[0] & 0xf0000000) >> 28;
+ 	int sel1 = vcpu->run->s.regs.gprs[0] & 0xff;
+ 	int sel2 = vcpu->run->s.regs.gprs[1] & 0xffff;
+-	unsigned long mem = 0;
++	void *mem = NULL;
+ 	u64 operand2;
+ 	int rc = 0;
+ 	u8 ar;
+@@ -911,19 +912,19 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+ 	switch (fc) {
+ 	case 1: /* same handling for 1 and 2 */
+ 	case 2:
+-		mem = get_zeroed_page(GFP_KERNEL_ACCOUNT);
++		mem = kzalloc(PAGE_SIZE, GFP_KERNEL_ACCOUNT);
+ 		if (!mem)
+ 			goto out_no_data;
+-		if (stsi((void *) mem, fc, sel1, sel2))
++		if (stsi(mem, fc, sel1, sel2))
+ 			goto out_no_data;
+ 		break;
+ 	case 3:
+ 		if (sel1 != 2 || sel2 != 2)
+ 			goto out_no_data;
+-		mem = get_zeroed_page(GFP_KERNEL_ACCOUNT);
++		mem = kzalloc(PAGE_SIZE, GFP_KERNEL_ACCOUNT);
+ 		if (!mem)
+ 			goto out_no_data;
+-		handle_stsi_3_2_2(vcpu, (void *) mem);
++		handle_stsi_3_2_2(vcpu, mem);
+ 		break;
+ 	case 15: /* fc 15 is fully handled in userspace */
+ 		insert_stsi_usr_data(vcpu, operand2, ar, fc, sel1, sel2);
+@@ -931,10 +932,10 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+ 		return -EREMOTE;
  	}
+ 	if (kvm_s390_pv_cpu_is_protected(vcpu)) {
+-		memcpy(sida_addr(vcpu->arch.sie_block), (void *)mem, PAGE_SIZE);
++		memcpy(sida_addr(vcpu->arch.sie_block), mem, PAGE_SIZE);
+ 		rc = 0;
+ 	} else {
+-		rc = write_guest(vcpu, operand2, ar, (void *)mem, PAGE_SIZE);
++		rc = write_guest(vcpu, operand2, ar, mem, PAGE_SIZE);
+ 	}
+ 	if (rc) {
+ 		rc = kvm_s390_inject_prog_cond(vcpu, rc);
+@@ -945,14 +946,14 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
+ 		rc = -EREMOTE;
+ 	}
+ 	trace_kvm_s390_handle_stsi(vcpu, fc, sel1, sel2, operand2);
+-	free_page(mem);
++	kfree(mem);
+ 	kvm_s390_set_psw_cc(vcpu, 0);
+ 	vcpu->run->s.regs.gprs[0] = 0;
+ 	return rc;
+ out_no_data:
+ 	kvm_s390_set_psw_cc(vcpu, 3);
  out:
-@@ -454,13 +455,13 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
- 		} else {
- 			r = write_guest(vcpu, addr, reg2, sctns, PAGE_SIZE);
- 			if (r) {
--				free_page((unsigned long)sctns);
-+				kfree(sctns);
- 				return kvm_s390_inject_prog_cond(vcpu, r);
- 			}
- 		}
- 	}
+-	free_page(mem);
++	kfree(mem);
+ 	return rc;
+ }
  
--	free_page((unsigned long)sctns);
-+	kfree(sctns);
- 	vcpu->run->s.regs.gprs[reg2 + 1] = rc;
- 	kvm_s390_set_psw_cc(vcpu, cc);
- 	return r;
 
 -- 
 2.53.0
