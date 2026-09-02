@@ -1,195 +1,196 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+Received: from CWXP265CU008.outbound.protection.outlook.com (mail-ukwestazon11020124.outbound.protection.outlook.com [52.101.195.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55ED147CA8A;
-	Wed,  2 Sep 2026 12:17:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788351427; cv=none; b=rWZl7VLVXxM7rWSVG9NhvGUo2aYpNX534NNZDyKscTV3X93cf9XAahXTv6TS39mt6xTlFieSX3iGghE+BQOb66Sr5hUCrLsyQVFBvDMAMb4fq7NK41IWhnbE7PLoNStH71wt7JGo0Q5oW8t+S4ZvH4/eHHDEJ8jSa5lDH5pgjZE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788351427; c=relaxed/simple;
-	bh=vonAWKRarr/Xacwj0baC+2XrgM/fgSt+w0/JmiE22uQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GcN/7XY3XEJVGC9WxzYKit5SSkCjxlZ87mXPwC3FJBa1hZLnWHZKVtcNQM51clyRzCO2uVmcii/8ldYHY0bOJ4WaK9LyQFqxBWnHUNd34//gUyrjo7j11Uu5JkBptvZytzAQz4rwt3gfRbmkU1MS16aoRn0ZiIv/beXbCclel+o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=S1Z2KU/P; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="S1Z2KU/P"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1788351421; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=R+lWUm8CAIRBN3Lmcj0B3BaLuE9DzBK0k1/wahQa3Vc=;
-	b=S1Z2KU/P0bfzlp9DUkzWGgQ/MSNJEdZNLZrSp70/xQbc4y5o7PAiz0UC2m55M2JSRBjlFjZ6P/rNQ/FttQwfnUoUHUWknrjNJ/4eoU0Zt9+vzw7IjGvIICp+2CSAiTrA4qCPpJ03PMxHQWeRLnpIiAn38k7FGBZ8LcUJU6SbdWA=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R481e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037026112;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0XACYNUb_1788351419;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0XACYNUb_1788351419 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 02 Sep 2026 20:17:00 +0800
-Date: Wed, 2 Sep 2026 20:16:59 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Mahanta Jambigi <mjambigi@linux.ibm.com>, andrew+netdev@lunn.ch,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, alibuda@linux.alibaba.com, sidraya@linux.ibm.com,
-	hidayath@linux.ibm.com
-Cc: pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com, stable@vger.kernel.org,
-	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net v2 0/2] net/smc: fix diag dump lifetime races
-Message-ID: <apgTu9dRGIQE6tm3@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20260828065439.3582783-1-mjambigi@linux.ibm.com>
- <apWEzobrZ3QR3IfN@linux.alibaba.com>
- <4f303f9f-fd20-475a-8004-1a670dfd34df@linux.ibm.com>
- <apbMyLc0IhLMKwwA@linux.alibaba.com>
- <85fa9f02-7516-4595-b5a8-4ae4ca845121@linux.ibm.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71BAA440656;
+	Wed,  2 Sep 2026 12:18:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.195.124
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788351539; cv=fail; b=iIkRNpEUHhGSN/DWPAkfgZ7KdDzgW/bqtlCWwNZM74ODkQ3HWCU4aWYF+mJq3tXOg7MklEU4YX3caLwLCLedwnl/UKdN1vOFDEZNbJUET72HeTmbSD+S6iP3cSIPCRGpqvjD55UpgADds2xnYXnDQ9FJqBcD4nGU0Jh+V40h+3k=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788351539; c=relaxed/simple;
+	bh=+wNDtvzM3d/ADXog8+g7dJ0Fp3+syWoV8y+nqSUt0c4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=eViIS/aLYHNzW3XUTmiQGVeyaptsUXITxFHz/XYRPvDPQJ1LZWIXzLt9rstBPe58VZhJvP0zYoIl/JIRgczXAIqcRoFhvAANb9YCZaQAFx0Rd6HbAykvBi2+CgX2dLvDYo3yvq4tF1HEWYb4gRMMVqPWuwBOgv/0BHMt56Fz+/U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com; spf=pass smtp.mailfrom=atomlin.com; arc=fail smtp.client-ip=52.101.195.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=atomlin.com
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=BSmIRPkXPh2ZChb4Hg90ISyyAGSr1XhzP1O7+PKTs5Z/yx9ZW4LHkqYUjP1I3tJp3MSg+92iZps1rvISPZUih8RrC1CFsXy+Z0QXC1W7P1OO37J7cJQ3wMj4UtlT2U+4ijvWUyKQk7T0JlcDoWAmioAecBufhGSTDeh6OFpDwhelp6aNuCyk0zibDZQt93iRglAzSIAawVKkTogauH4kH072yDOodHC3PxJu/BWtETxiwgNgX0ziXxJHyVrS2l9fjlgPsFEn3r65kFsKDk8LSLAl6ULDzcEClOJaRiP4uqpbPfWVVCtTAd1vAiO3sXq7Pv2Z1eX6ZvBhZp/7c9GiVg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001; h=From:Date:Subject:Message-ID:MIME-Version;
+ bh=IPggiN7nVwebrQ2mxG6QALJjUMRG/OUnAKQXUQfKONI=;
+ b=gKzi6e3r9yR1qGZnKoFYxgsMjAGZC+ENR9FSpLAipUNdHIIhuQYgks0ju0aeJa7Z3ulbNGXHP63VMFgWCwzamtmkgjwJNqsdkMbFTrxpbQzMgbsJhAIJ02zIH5clxgXsfkiDxIwwwrN3cW1HnvcXvNteGoIkiE6vwVAxp7X0bVlQUEoteBQpMA/1Yax62RzEGYc0/ab1zsE20rEVNUaEcyFnkXiUNK4OZHFaGoPws37TneFtC8YFfzpz39pZYqlw+WZA9ts4DHfW8f15AD9s7yDQ4j1ysJuQch334vJ+oZ5iYzgDLOr8IalrnxA5ItsF8ghzTXgvr2KkQB92FzayPA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=atomlin.com; dmarc=pass action=none header.from=atomlin.com;
+ dkim=pass header.d=atomlin.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=atomlin.com;
+Received: from LO6P123MB6616.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:2b2::11)
+ by LOYP123MB2703.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:f0::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.382.10; Wed, 2 Sep
+ 2026 12:18:52 +0000
+Received: from LO6P123MB6616.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::3975:c5e7:bc1a:f383]) by LO6P123MB6616.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::3975:c5e7:bc1a:f383%4]) with mapi id 15.21.0360.008; Wed, 2 Sep 2026
+ 12:18:52 +0000
+Date: Wed, 2 Sep 2026 08:18:47 -0400
+From: Aaron Tomlin <atomlin@atomlin.com>
+To: Thomas Richter <tmricht@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, acme@kernel.org, namhyung@kernel.org, irogers@google.com, 
+	agordeev@linux.ibm.com, iii@linux.ibm.com, sumanthk@linux.ibm.com, hca@linux.ibm.com, 
+	japo@linux.ibm.com
+Subject: Re: [PATCH] perf test: perf stat tests fails on s390
+Message-ID: <rlsu7drdktf63ciklftjzv7akwnt7v3ti7rd4bnxxjge2t36od@2epugpq6xara>
+References: <20260902115218.2977412-1-tmricht@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260902115218.2977412-1-tmricht@linux.ibm.com>
+X-ClientProxiedBy: BN9PR03CA0968.namprd03.prod.outlook.com
+ (2603:10b6:408:109::13) To CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:400:183::5)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <85fa9f02-7516-4595-b5a8-4ae4ca845121@linux.ibm.com>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LO6P123MB6616:EE_|LOYP123MB2703:EE_
+X-MS-Office365-Filtering-Correlation-Id: 17e7252e-0c4a-42c8-83fd-08df08ec595d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|376014|23010399003|366016|1800799024|10067099003|6133799003|3023799007|18002099003|22082099003|56012099006;
+X-Microsoft-Antispam-Message-Info:
+	wKOekGtwolht+HMKresFdZSAkY5Lc6WctJmNDOlZP1oNCdh0DqnBX49EdF/FDcDqjBmDjzWU9VchUswMktV8XjSKiVSXho+drIWNEoR5vsaD9RC+zvvJ2ZqzCBSEk7pBYw7uK8AutOAHJdtdD0vZ2fUkoA+pRnd4+q5tYxLRhZdjfvVlTqs/Ev149dUbtfQr0avHIqZIN6mQn/3Uw45ElMC+TPExO6e4y83Gnru/BbPL8oRCTE/FoNDowvVrmWPgMO80908QyuXkLbaxYJL4LU1xY2fGo0FkInV74xMILmz9UlDS5YKhK5thOcVz6GO12j8OK54hnHYKvDblLyVXkUUmdg5ak8/1s3cVwaYFmTGtnPMISlGAWe1YliPJ4+ovammJ8VSSK/+SafoxAETjfYLicEX/cJI8WnraeyjCIey7J7G/+tgcqhhUkX4Hge+I5aWY7gBFmw7FImK9Nsn6y6/LoL6LGGxqwQZby6D7m1hEROcmX7+x1zQjE4b3BFsisKE5OYH6yghVs4yXlu7Fgra/TRDmBorqYiODH4aqquMAlpINS/gZ3k15iaauVmWznyorjH+Ir4LmjwXRUPoSX+C64ZbdGwPPfauLdwN3FYI=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LO6P123MB6616.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(23010399003)(366016)(1800799024)(10067099003)(6133799003)(3023799007)(18002099003)(22082099003)(56012099006);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?OEx1ck1HVnVPNXJoc3dTMitOeHB6dnlqSjNRQ2FTUkN5T3ZnM0h1RUducGJp?=
+ =?utf-8?B?U1Q5ZTA2Z3JkMkRka0pobFZpRnhJajN3V3o2aTVyZlJIcVRVOVFEZ1FSaGVM?=
+ =?utf-8?B?LzJkcDdWdVVxcGd5c1dueWVkOGtSU0VmMk9hT0N2T28xd2g3aUV3eDIzSU94?=
+ =?utf-8?B?Y0VRcTZBUjVrRjRZblNQektLbHRmZnk4dlNLVUFMaklFK3NERmlUeG1vRWY1?=
+ =?utf-8?B?SHV0NDRhQ3laMWxKOU9SelZMb1BoSGRCMmY2bEVtMTdidTd5Sk1wcVQvb1RH?=
+ =?utf-8?B?cUpROVhWbUZkeGFBcGxTUFkvRDI2Ylp4UHlYSGlhdXhFR1lJRTZKakR4QWFW?=
+ =?utf-8?B?OEtHOHg2MEczR2FiTTkrUEdlTGtLUkEyMG1VSnhQNE40Qk5DcW9CZ2FuQTRP?=
+ =?utf-8?B?OE1iU2lVVVdRUGJWQm11NzBrT1hoQVNGUEZKMWZpNDhJQVY3QnlnYnczcmps?=
+ =?utf-8?B?UWVaYzlCbkJkYXNqT1JUWTRUUDZxcUUra3hsWllpK3ZoZStUem5BYmdKQ21i?=
+ =?utf-8?B?bkFpVXA3QkxIQ3d6a3lCWDdvSkdvc0h6cTNJU0htTWJQejdqQ0pnT3JsbGFt?=
+ =?utf-8?B?THE0L1Uwci91TktHUTQxdHVPcjNoblVGVEN3dThuYUVDa2wvK0FqbVBDVWhz?=
+ =?utf-8?B?MkdrZ09jekhmUVZrcitFQW9HcUw4Uk1IUjJibGtuV3FOSVIzVllTbW1POFY3?=
+ =?utf-8?B?KzdBVDVGY21lRktFMGZvcC8vcUcxQ3k3RWx4RnRnMEIwMVcxVmlKZ1Q3amtP?=
+ =?utf-8?B?dkJnYzREZ3lUTEtQbHh0d3hNbUdnN3Y5SnhOSzFneTBDK3VOaitJV3NPeVFZ?=
+ =?utf-8?B?Q0tBSmJLQkQ4aTdOby9lZytKdTFvU21JRWZXVUozSGtzdkxib2YrV0tjSlZH?=
+ =?utf-8?B?SUM4Y1Y2YnlxY09sR1VmUjNOaEF6a1BqK2tzV2lrSjdGdzlsR0tFMXZOL3dO?=
+ =?utf-8?B?RDdId1RQV1MyazJ1VnBUU056TndYTkk3K3RkdXBPOWl0K1ZLOEtpM1FkYlJT?=
+ =?utf-8?B?SnM4MHFLVG11R1VEVGZBRlhRQkVpZ2dvRVg2by9nbTBTdUY4cmg1bmphREVX?=
+ =?utf-8?B?TEx4Rmk1bTkvb0pFNm5CSzJXRHRwUUxHcWFXMVZiejhJdVh1YU9oVUE4bThR?=
+ =?utf-8?B?TXNDZjJWWnRtTU1FRDRrZ05ES0xGclErTFNnMlNNdEozOVg2Qk9mdTQzbzRT?=
+ =?utf-8?B?RForVzUxVWlXQXRhSjZKRDV6anRuVzVVSVcwRUtyZ1FXSEJnODVoT0d1TG42?=
+ =?utf-8?B?am5YVHgyd1JNRUcwcDIrZjZwWTBqWVNQUUp3d2FreVRBaDJiNEd4Z3ZDM3p4?=
+ =?utf-8?B?OVdrR2I0NDJPeGdiRVlVZ1lUL01NQ1JieFhDem5pSE1VMFpFUmMwd1YxcVJs?=
+ =?utf-8?B?SVI5aHpiaUJJblhmUERVUjVLM1lLVnR0K0Z6QUhTaFFiU0FnZWZSK01kdUJU?=
+ =?utf-8?B?Tm42NGhYZlFLV3VGc1NCeHU0MytQWHhXQ25xNG8rSG8yd2l0Yld5Z3VkUlhR?=
+ =?utf-8?B?ekZFWXVTZ1NoamV4QUFFRDBuZ1lBQ3c4cEpwNklzZDhhTlgvQ1o0REZ1dkd3?=
+ =?utf-8?B?enVUSXgyOWg5MFNEUW1DMjVwQlVEcmtMZ2xKekxOSmtkaEgxWUR4SWxSVzZ6?=
+ =?utf-8?B?NDRCQWp0R2JnN2hpdWVOVjh2RUx3RFU3K29JOWtacWdPQjh5Wm5URXhwcHZs?=
+ =?utf-8?B?VGg4OEdTSllaaWQwZFBHb2krblpsN0VJd01GdjFLWGlOOEtPWEkvVFRtOWpo?=
+ =?utf-8?B?Q0hJV1NIRkxvUDVldHBGWWlEUUJEVVZCNnVLQTRNQ3A1SHVJREZscnhhK0I5?=
+ =?utf-8?B?TkJ4cVUvY2V1QTlxQUNzUFoza01TTmVYVEpXc2w1WnpFWTI0SFlIaERwVVZh?=
+ =?utf-8?B?bnFtbk1SSmdLU3lkRnlBWERRcXYwVlJVZGRLbjNZSHhhRFBIdWlFeEl6dDdk?=
+ =?utf-8?B?dmtRc2tIUDdpMXJzdmM1aVFqdUZWU3J6VUlFTzVYdm1EUGJFandJNXFpc043?=
+ =?utf-8?B?Rk43bzJud1p0RCtGbDJNeE9LMXlLYkRJL1l2NnlSQi94OWxEam5GZ081Q00r?=
+ =?utf-8?B?NjdCY0JkWWR0MFk3ZE12VmJUTnU3Ymlmb0tXMUwwRm8zb0Fub0orVENvTnpE?=
+ =?utf-8?B?Z2ZKNEk3RzNpQXRNd0dQRHJ5emhHZ0RaMklKQ1F1NkJHNFlWYmlKdkhUNkdU?=
+ =?utf-8?B?TkdlN2ZIZlM3MDBERDNUYStDL3NQd1NDc25SWm9jOHhJY1NXYVVCSkVxSnNk?=
+ =?utf-8?B?YmlPOGNKYzVSeC9zWGZ5b2F5Zjk4VmxuMVFQK0RPL2h0WDRNRDdzWjdiZTBV?=
+ =?utf-8?B?dGllL3dsOVRFVlpKMXlYUkNlSXpkUWpsUXpHQU9oYnY0YndaNWt3Zz09?=
+X-OriginatorOrg: atomlin.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 17e7252e-0c4a-42c8-83fd-08df08ec595d
+X-MS-Exchange-CrossTenant-AuthSource: CWLP123MB6607.GBRP123.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Sep 2026 12:18:51.8475
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: e6a32402-7d7b-4830-9a2b-76945bbbcb57
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: rTh5kmXx2H7Vpozp19vhBS+XHqaUv3frIdIui3lbvvpregdZCwJEj7klxNk/XVtOdeeYbTrG1aEaDvs0++kM4g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LOYP123MB2703
 
-On 2026-09-01 20:43:11, Mahanta Jambigi wrote:
->
->
->On 01/09/26 6:32 pm, Dust Li wrote:
->> On 2026-08-31 20:27:38, Mahanta Jambigi wrote:
->>>
->>>
->>> On 31/08/26 7:12 pm, Dust Li wrote:
->>>> On 2026-08-28 08:54:37, Mahanta Jambigi wrote:
->>>>> This series fixes multiple lifetime races in the SMC diag dump path.
->>>>>
->>>>> The first patch adds the basic infrastructure needed to synchronize diag readers
->>>>> against connection-owned conn->lgr/conn->lnk updates. It introduces a
->>>>> per-connection spinlock and uses it in the link switch and connection free
->>>>> handoff paths. conn->lgr and conn->lnk are NULLed under the lock before the
->>>>> borrowed references are released, so a non-NULL conn->lgr seen under the lock
->>>>> guarantees the lgr object is alive. The diag reader can rely on this invariant
->>>>> without borrowing any extra reference.
->>>>>
->>>>> The second patch fixes two races in smc_diag itself:
->>>>>
->>>>> - serialize clcsock field access against smc_clcsock_release() with
->>>>>  mutex_trylock()
->>>>> - take conn->lgr_lnk_lock when reading conn->lgr and conn->lnk; use
->>>>>  smc_conn_lgr_valid() inside the lock to check that the connection is
->>>>>  still registered, then snapshot all required fields and call nla_put()
->>>>>  after releasing the lock
->>>>
->>>> Hi Mahanta,
->>>>
->>>> As discussed in the other thread, I think we should defer the release of
->>>> smc->clcsock and remove clcsock_release_lock.
->>>>
->>>> In that case, we should no longer need these two patches. Also,
->>>> introducing more locks in SMC is the last thing I want to do :)
->>>
->>> Thanks for the new series "[RFC net-next 0/7] net/smc: tie clcsock
->>> lifetime to the smc socket and remove clcsock_release_lock" — once it
->>> lands, we can drop the mutex_trylock() fix for Race 1 (clcsock).
->>>
->>> However, Race 2 remains open. Your series does not touch smc_core.c or
->>> smc_cdc.c, so smc_conn_free(), smc_switch_link_and_count(), and
->>> smc_cdc_msg_validate() still write conn->lgr/conn->lnk with no
->>> synchronization against the diag reader.
->> 
->> Hi Mahanta,
->> 
->> Thanks for the detailed explanation. You are right that a per-connection
->> spinlock can work here, and I agree none of the lock sites are on the
->> per-message hot path. But I think we can also do the same thing we did with
->> clcsock_release_lock: instead of adding a lock, tie the lifetime of
->> conn->lgr/conn->lnk to the point where the connection stops being observable,
->> and remove the need for synchronization altogether.
->> 
->> For lgr/lnk, that point is the hash table. Once the connection is unhashed, the
->> diag dump (which iterates under the hash read_lock) can no longer reach it. So
->> if we make sure the connection-owned references are only dropped after unhash,
->> the invariant becomes: holding the hash read_lock and seeing a non-NULL
->> conn->lgr implies it is safe to dereference. The diag path then reduces to
->> `hold hash read_lock -> read conn->lgr -> if non-NULL, use it -> done` with no
->> new lock, no extra reference, and no trylock. The invariant is carried by
->> object lifetime rather than by a lock, which I find easier to keep correct over
->> time.
->
->I looked carefully at the new design and found one remaining gap.
->
->The *unhash* invariant — "any socket in the hash has its
->connection-owned lgr/lnk refs held" — protects against smc_conn_free()
->dropping refs while the socket is still hashed. However it does not
->protect the conn->lnk->smcibdev->ibdev->name access in the
->SMC_DIAG_LGRINFO block in smc_diag.c file.
->
->The gap is in *smc_switch_link_and_count*(). It is called under
->send_lock (not under any hash-related lock) and calls
->smcr_link_put(conn->lnk) on the old link before reassigning conn->lnk.
->If that put drops the last reference, __smcr_link_clear() runs
->immediately, doing memset(lnk, 0, sizeof(struct smc_link)) which zeroes
->lnk->smcibdev. The socket remains hashed throughout — so the *unhash*
->invariant is not violated — but the diag reader can hold a stale pointer
->to the old link and race this memset. The timeline:
->
->diag reader [hash read_lock held]:
->    conn->lnk → old_lnk (non-NULL, socket hashed ✓)
->    [about to read old_lnk->smcibdev->ibdev->name]
->
->smc_switch_link_and_count() [send_lock held]:
->    smcr_link_put(old_lnk) → last ref → __smcr_link_clear()
->        memset(old_lnk, 0, ...) ← smcibdev = NULL
->
->diag reader:
->    old_lnk->smcibdev->ibdev->name ← NULL deref
->
->The *unhash* invariant says nothing about the link a connection used to
->point at before *smc_switch_link_and_count*() swapped it. Hash
->membership of the socket provides no protection here because the socket
->is still hashed — the link pointer simply changed underneath the diag
->reader.
->
->Any ideas on this?
+On Wed, Sep 02, 2026 at 01:52:18PM +0200, Thomas Richter wrote:
+> The test case 'perf stat tests' fails on s390 z/VM machines. The
+> root cause is the unsupported CPU measurement facility on z/VM.
+> Therefore the events cycles and instructions do not exist and
+> are unsupported. This cause the subtest
+>   Hide zero events stat test
+> to fail.
+> 
+> Output before:
+>  # perf test 116
+>  116: perf stat tests  : FAILED!
+> 
+>  === Test Summary ===
+>  Passed main tests : 0
+>  Passed subtests   : 0
+>  Skipped tests     : 0
+>  Failed tests      : 1
+>  List of failed tests:
+>   116: perf stat tests
+>  #
+> 
+> Output after:
+>  # ./perf test 116
+>  116: perf stat tests  : Ok
+> 
+>  === Test Summary ===
+>  Passed main tests : 1
+>  Passed subtests   : 0
+>  Skipped tests     : 0
+>  Failed tests      : 0
+>  #
+> 
+> Fixes: 64724095a33f ("perf stat: Add --hide-zero-events option to suppress zero-count events")
+> Cc: Aaron Tomlin <atomlin@atomlin.com>
+> Cc: Ian Rogers <irogers@google.com>
+> Cc: Namhyung Kim <namhyung@kernel.org>
+> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+> ---
+>  tools/perf/tests/shell/stat.sh | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/tools/perf/tests/shell/stat.sh b/tools/perf/tests/shell/stat.sh
+> index 298ce454b45a..41bac99300a1 100755
+> --- a/tools/perf/tests/shell/stat.sh
+> +++ b/tools/perf/tests/shell/stat.sh
+> @@ -583,6 +583,11 @@ test_hide_zero_events_stat() {
+>    # Check that --metric-only works with --hide-zero-events
+>    if ! perf stat --hide-zero-events --metric-only -e instructions,cycles true > "${stat_output}" 2>&1
+>    then
+> +    grep -q 'No supported events found' "${stat_output}"
+> +    if [ $? -eq 0 ]; then
+> +      echo "Hide zero events stat test [Skipped - events not supported]"
+> +      return
+> +    fi
+>      echo "Hide zero events stat test [Failed - metric-only command failed]"
+>      err=1
+>      return
+> -- 
+> 2.55.0
+> 
 
-Good catch ! You are right that the "unhash invariant" as stated
-does not cover the stale-conn->lnk race through a link switch + clear.
+Hi Thomas,
 
-I think we can close this window by holding the SMC hash table lock in
-smcr_link_clear()? As the diag walker captures and dereferences the stale
-pointer within a single read_lock hold on the SMC hash table. Since
-smc_link_clear() is a cold path, and the region where we hold the SMC hash
-table lock is small, the overhead should be negligible.
+This makes sense.
 
+However, please see the valid feedback from Sashiko [1]. Otherwise:
 
-Something like this:
+Reviewed-by: Aaron Tomlin <atomlin@atomlin.com>
 
-```diff
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 5af55abece57..ca3030f02e70 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1361,6 +1361,18 @@ static void __smcr_link_clear(struct smc_link *lnk)
-        struct smc_ib_device *smcibdev;
- 
-        smc_wr_free_link_mem(lnk);
- 
-+       write_lock_bh(&smc_v4_hashinfo.lock);
-+       write_lock_bh(&smc_v6_hashinfo.lock);
-        smc_ibdev_cnt_dec(lnk);
-        put_device(&lnk->smcibdev->ibdev->dev);
-        smcibdev = lnk->smcibdev;
-@@ -1368,6 +1380,9 @@ static void __smcr_link_clear(struct smc_link *lnk)
-        lnk->state = SMC_LNK_UNUSED;
-        if (!atomic_dec_return(&smcibdev->lnk_cnt))
-                wake_up(&smcibdev->lnks_deleted);
-+       write_unlock_bh(&smc_v6_hashinfo.lock);
-+       write_unlock_bh(&smc_v4_hashinfo.lock);
-```
+[1]: https://sashiko.dev/#/patchset/20260902115218.2977412-1-tmricht%40linux.ibm.com
 
-What do you think ?
-
-Best regards,
-Dust
+Kind regards,
+-- 
+Aaron Tomlin
