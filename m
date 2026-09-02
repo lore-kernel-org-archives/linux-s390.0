@@ -1,35 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75E9D386C3D;
-	Wed,  2 Sep 2026 06:15:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05F5639150B;
+	Wed,  2 Sep 2026 06:15:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788329743; cv=none; b=pN90J5kFb+XKd2bGrWD5SNpLGPFugPNJlCyJGEzXJG3Sgy6/6V22m2HsyomJmwUgPbV449JEDWwi8BUoZ6tQ5edvQrVbSRLjVX1LlxSXx65OikHJQThplTbnYnsd0PK5LflBK5dWyQfOVzrToG6JGiLr/7dGX/vkEBzGn1sd2Bw=
+	t=1788329748; cv=none; b=PUBsy3Hb+QMa/FgccHdJg2QlG1mxVhQYVmJovBfMJmj6O7bv+eT806b8xXGtuzxFOTqnBBxm/HMYZY/A/oVmdlAlL+RUI2h61cSwNzpeQ3ZVuOEyv688M7AGkrYmSVS7PDjWT6rY6x92684Ot3Sv9HEy51cWt8rLQZy2gSGZxMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788329743; c=relaxed/simple;
-	bh=3Kxvl3vX0xOruGJqXO47tS1ILmPa2NLsdEexPXqkiRw=;
+	s=arc-20240116; t=1788329748; c=relaxed/simple;
+	bh=eYs7PvvK7m/4Bc+5SPo3ABQ7DJyDZT859glz5SE+vWQ=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=k4GwghO/Lmq8dmWmxinraCHGyrniZKLmXb2aXiV3sbHSiLv+0UKA0GsKXkCVEuq6RpDRdSMKwBu1da7Jndy50nrXuVXPFKov6uEKf8CPqWIVuL66a/jbQiKsMBJBCQ434vd6o9eU/DYlkL3Rhs6YFPrn9nbo12Y5CwioGjej6cA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G85a2JdO; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=uGOxyDe08EAWvE/ypL1NxwAOX1RiCgBI22lM8LEhSun+uf+b71zWaT1UiblOC24xMr5+LLVkQ10BR7ONizltHDBZvaWY86DOVumaPZghyRpBSHPLcZRcIu92E5rurR8aFACLIsApmPe3UBx/gccbq6rAx0GwLmE8qQIxzYfGBJs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LB8X6Imi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G85a2JdO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F17D11F00A3A;
-	Wed,  2 Sep 2026 06:15:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LB8X6Imi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 986D31F00A3F;
+	Wed,  2 Sep 2026 06:15:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788329741;
-	bh=JMHG+THezrVqv+LxM1LlqqUzwwh90wkGAEXs+OQ+QKU=;
+	s=k20260515; t=1788329744;
+	bh=C0109/Wqd8Wh+hWY6seDc3gIIuk1v7uuHz7s+qR/LBc=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=G85a2JdOCh9i7kPV4oxSIFO3tRpnuXjL1+Hkbcz/GdOjbU+cATqvnUEkvo+HovQFS
-	 mDAzWVrbtoC2INqMSDc5cVraa5h+T8JwuKw8CFCVCv4kC99pg5ZSdTINyqVGt7mO8T
-	 vpktFiYmdzQe6eB+Ea7sfDCe1iPmcTKYvXmQ/EvrslTcD3T5Y7o5ZdCJmAXOPR5nTz
-	 PAGU1hcL9SqAe6Fkit46TtmSyAZOG6CbPSDHIwih9DekxMjW2G+sf4bHSDG85j1cI8
-	 MGqs2jB1aBYz995A+yEML7RoaZgubgy92NM7kGvNO9htDihdnaOyYpoNzZVlqfRlLq
-	 h3DYFXRms4igQ==
+	b=LB8X6ImiwS+pRQhGYycXxWsTA/zbb8cKaDcKn7YY1YKr2eugSoSh8+GdnbU8Hm97m
+	 FiQzurLzDonqCYHy6zm2G6/LjiwrvFvk7hfm5tTxrdrmbmYGOGDTSdgoNb0r8l8ycw
+	 7ULkXAgHk0+8nXyq2/BFo5fzyfI9gyQgfcBNj88H8uPF4CCODMBCEzlyvKyPE/mmKj
+	 oo8CZGVdYQMpVr1NgWCBveFt9ua7AkWHky6f0DmhzE8vepYpQl4m151HINIhTHBris
+	 SXMfxdDFveWSrSeRL/G+vWD2zz1/0Is5/lWKXpqNmO2r7UQBhyfpaO2tDPrxpwe7F/
+	 xTZgbOC/BjT4Q==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Wed, 02 Sep 2026 09:15:15 +0300
-Subject: [PATCH 3/4] KVM: s390: Replace get_zeroed_page() with kzalloc()
- for the GIB
+Date: Wed, 02 Sep 2026 09:15:16 +0300
+Subject: [PATCH 4/4] KVM: s390: Replace get_zeroed_page() with kzalloc()
+ for sie_page2 and CMMA
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -38,7 +38,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260902-s390-kvm-v1-3-3bc0986550b1@kernel.org>
+Message-Id: <20260902-s390-kvm-v1-4-3bc0986550b1@kernel.org>
 References: <20260902-s390-kvm-v1-0-3bc0986550b1@kernel.org>
 In-Reply-To: <20260902-s390-kvm-v1-0-3bc0986550b1@kernel.org>
 To: Christian Borntraeger <borntraeger@linux.ibm.com>, 
@@ -52,14 +52,17 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
  linux-s390@vger.kernel.org
 X-Mailer: b4 0.17-dev
 
-kvm_s390_gib_init() allocates the guest information block (GIB). The GIB
-is passed to the hardware as a physical address and must be page aligned.
+kvm_arch_init_vm() allocates struct sie_page2 that holds the facility
+list and the crypto control block of a VM and kvm_s390_vcpu_setup_cmma()
+allocates the CMMA collaborative memory management block referenced by
+the SIE control block. Both are passed to the hardware as physical
+addresses and must be page aligned.
 
 kmalloc() guarantees that a power of two sized allocation is aligned to
 its size, so a PAGE_SIZE allocation is page aligned as well.
 
-This buffer can be allocated with kmalloc() as there's nothing special
-about it to go directly to the page allocator.
+These buffers can be allocated with kmalloc() as there's nothing special
+about them to go directly to the page allocator.
 
 kmalloc() provides a better API that does not require ugly casts and
 kfree() does not need to know the size of the freed object.
@@ -71,6 +74,10 @@ fast path allocations.
 For the slow path the performance is anyway determined by the amount of
 reclaim involved rather than by what allocator is used.
 
+The sie_page allocated in kvm_arch_vcpu_create() is left alone because it
+is mapped to userspace with virt_to_page() in kvm_arch_vcpu_fault() and
+therefore really needs a struct page.
+
 Replace use of get_zeroed_page() with kzalloc() and free_page() with
 kfree().
 
@@ -78,49 +85,58 @@ Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.co
 Assisted-by: copilot:claude-opus
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- arch/s390/kvm/s390/interrupt.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/s390/kvm/s390/s390.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/kvm/s390/interrupt.c b/arch/s390/kvm/s390/interrupt.c
-index 0381ae9817035..02065fb8d053e 100644
---- a/arch/s390/kvm/s390/interrupt.c
-+++ b/arch/s390/kvm/s390/interrupt.c
-@@ -3689,7 +3689,7 @@ void kvm_s390_gib_destroy(void)
- 	}
- 	chsc_sgib(0);
- 	unregister_adapter_interrupt(&gib_alert_irq);
--	free_page((unsigned long)gib);
-+	kfree(gib);
- 	gib = NULL;
+diff --git a/arch/s390/kvm/s390/s390.c b/arch/s390/kvm/s390/s390.c
+index b0839e887221e..8ec505060f8c0 100644
+--- a/arch/s390/kvm/s390/s390.c
++++ b/arch/s390/kvm/s390/s390.c
+@@ -3273,8 +3273,8 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 		goto out_err;
+ 
+ 	BUILD_BUG_ON(sizeof(struct sie_page2) != 4096);
+-	kvm->arch.sie_page2 =
+-	     (struct sie_page2 *) get_zeroed_page(GFP_KERNEL_ACCOUNT | GFP_DMA);
++	kvm->arch.sie_page2 = kzalloc_obj(*kvm->arch.sie_page2,
++					  GFP_KERNEL_ACCOUNT | GFP_DMA);
+ 	if (!kvm->arch.sie_page2)
+ 		goto out_err;
+ 
+@@ -3369,7 +3369,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+ 
+ 	return 0;
+ out_err:
+-	free_page((unsigned long)kvm->arch.sie_page2);
++	kfree(kvm->arch.sie_page2);
+ 	debug_unregister(kvm->arch.dbf);
+ 	sca_dispose(kvm);
+ 	KVM_EVENT(3, "creation of vm failed: %d", rc);
+@@ -3427,7 +3427,7 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+ 		mmu_notifier_unregister(&kvm->arch.pv.mmu_notifier, kvm->mm);
+ 
+ 	debug_unregister(kvm->arch.dbf);
+-	free_page((unsigned long)kvm->arch.sie_page2);
++	kfree(kvm->arch.sie_page2);
+ 	kvm_s390_destroy_adapters(kvm);
+ 	kvm_s390_clear_float_irqs(kvm);
+ 	kvm_s390_vsie_destroy(kvm);
+@@ -3657,13 +3657,13 @@ static void kvm_s390_vcpu_crypto_setup(struct kvm_vcpu *vcpu)
+ void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu)
+ {
+ 	if (vcpu->arch.sie_block->cbrlo)
+-		free_page((unsigned long)phys_to_virt(vcpu->arch.sie_block->cbrlo));
++		kfree(phys_to_virt(vcpu->arch.sie_block->cbrlo));
+ 	vcpu->arch.sie_block->cbrlo = 0;
  }
  
-@@ -3703,7 +3703,7 @@ int __init kvm_s390_gib_init(u8 nisc)
- 		goto out;
- 	}
+ int kvm_s390_vcpu_setup_cmma(struct kvm_vcpu *vcpu)
+ {
+-	void *cbrlo_page = (void *)get_zeroed_page(GFP_KERNEL_ACCOUNT);
++	void *cbrlo_page = kzalloc(PAGE_SIZE, GFP_KERNEL_ACCOUNT);
  
--	gib = (struct kvm_s390_gib *)get_zeroed_page(GFP_KERNEL_ACCOUNT | GFP_DMA);
-+	gib = kzalloc(PAGE_SIZE, GFP_KERNEL_ACCOUNT | GFP_DMA);
- 	if (!gib) {
- 		rc = -ENOMEM;
- 		goto out;
-@@ -3722,7 +3722,7 @@ int __init kvm_s390_gib_init(u8 nisc)
- 	gib_origin = virt_to_phys(gib);
- 	if (chsc_sgib(gib_origin)) {
- 		pr_err("Associating the GIB with the AIV facility failed\n");
--		free_page((unsigned long)gib);
-+		kfree(gib);
- 		gib = NULL;
- 		rc = -EIO;
- 		goto out_unreg_gal;
-@@ -3742,7 +3742,7 @@ int __init kvm_s390_gib_init(u8 nisc)
- out_unreg_gal:
- 	unregister_adapter_interrupt(&gib_alert_irq);
- out_free_gib:
--	free_page((unsigned long)gib);
-+	kfree(gib);
- 	gib = NULL;
- out:
- 	return rc;
+ 	if (!cbrlo_page)
+ 		return -ENOMEM;
 
 -- 
 2.53.0
