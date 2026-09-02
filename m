@@ -1,39 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CD4A33BBCF;
-	Wed,  2 Sep 2026 07:38:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A7172DF156;
+	Wed,  2 Sep 2026 07:47:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788334738; cv=none; b=hZuDUPfuzKn7d2BhqH+WsZrhhsOALzKeOsd1ga/vRxyWf9WTZkOefbhG0TfJw1ttcDeECb6xV3U/herg69x7Suiy+7IFXc9wLzEQdMGn3X2IQmdqmdTLxJANf4tLmuaGH42watCJewrcrKNbQJKL9JfKKjic6jE8qx0qBxuCAro=
+	t=1788335227; cv=none; b=HiH2TXgnnFSQXIOxCcslVk5fsuqL+N/x0airQWxsJ03kxy2y/Y2VLFhfH1UBtO8EZKe4q5kAHzpQ1esG+P5CIqH67qhiS7KWVwIlnbw4L7umgYiDOv4QFHN0PINFrMsFRxydin7g3a0JgwCJB9mqKPyhnf8MRawEnNYdcWIwMmU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788334738; c=relaxed/simple;
-	bh=peNBa6XWTvXD5voM6K/4tnfDdD3edZYStWDuoe7amfw=;
+	s=arc-20240116; t=1788335227; c=relaxed/simple;
+	bh=GRZlElthwAaKzvZ/FHWHV1BMeCYeXxgkQIz3UzAzEsc=;
 	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=LU05H30fXIb8RIGKzFndwZtNmrJMDWNi5K7pIEbQz8t6e28GHVORjiJ8YiSBm3/OaDcHhen3Mqa1S70kvSlGFSGMsqIuB7fDneqB1qSp9MYnmovzIrDiRTeTgc7pChgrr0tSxAkU5EON2evf8tf7FtJtUm5pb0WP6XOLMtc8el4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AXX26wr8; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=qGOWtjEdEkbwm6nmi9I8WDklJH8OMtFQb2n5oHrRXlH2iSxGepJVbKCaD0OqNeZS5+en1MNZ/4FdF7zmtBEjGtP11vrLZm7A6Bb1yPoCWoOAcYGmVhhUg9qiu7dRqKhUnajglEBLc0wZj1V0KhO1Nl5reHKXB4puN1M6XUxPYP8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kmWx0i1N; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AXX26wr8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1729D1F00A3A;
-	Wed,  2 Sep 2026 07:38:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kmWx0i1N"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D9C31F000E9;
+	Wed,  2 Sep 2026 07:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788334737;
-	bh=NtFIjwHWOM2KySxyK2jN5lsJXS7iV2NXSRl0dq3VPfM=;
+	s=k20260515; t=1788335226;
+	bh=HMrRYkbF5OZt+EYuQBRlyrF86w/zMKZa5CwvbhvSVgQ=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=AXX26wr8KvCG2QZcfUAqR2Dpzs2Uuq6jgvM57rxgHHBUtsTqCueEKpUbANEZmZDcM
-	 maq551oR8ZMENXN+/udtxaaNwWLPAMcz1DLsYO37wcn8/w72gxqB75vH876jegGJ9P
-	 AJd/kV4r9rvIFxqaZ4UBIio+HPnyaEk8XCnCdk3xtZzH+OAmqoa9slxW78NNWmwprJ
-	 gxQexz9Bc8W/nS0fGe6RtQOv9hUMKVB15b0LP9HocvJFUgBOL59wjsBXW65X9/qPHi
-	 PsucUsjIgB1FR5GAVA38qCBibV7U8Np8iXZl4NqDfL24T62E9A2crzNh43+4fSdjc5
-	 hOZqttRyWIbBA==
+	b=kmWx0i1NgJvsbl7HVHwHOHUrzI7dPQ8T/ayJKlDyUU/WXndfT4LTsi34pD8oCMJwW
+	 LCeYnse+v9023DMTMpO3TYaWx2TztOJTuP1Knjb3yiuj4ZweZqdFJ3b6dvOsIed9ZL
+	 MFc2q9nn7rferIqHBLii9tMX8z0IJmfR32q1fVDwW9cGyQcY/i+iz5AFUi0oW55rAo
+	 BAcd2sMaWjXJ8IPb/iP9toIkpV2PYNDruENhzsi9SGxXH/ouzmwATwuUz77HR6r1QO
+	 EsLNO5rwzI+IL7qBCE+IpMe324knTkP44Y92J2raQrqhy9Eli2Y/SBLf+I9H2/htTp
+	 WeDczrwosL6+w==
 Received: from sofa.misterjones.org ([185.219.108.64] helo=lobster-girl.misterjones.org)
 	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.98.2)
 	(envelope-from <maz@kernel.org>)
-	id 1x1fYc-00000003lb4-2BeN;
-	Wed, 02 Sep 2026 07:38:54 +0000
-Date: Wed, 02 Sep 2026 08:41:27 +0100
-Message-ID: <87mru0m76g.wl-maz@kernel.org>
+	id 1x1fgV-00000003lmO-22FI;
+	Wed, 02 Sep 2026 07:47:03 +0000
+Date: Wed, 02 Sep 2026 08:49:36 +0100
+Message-ID: <87ld9km6sv.wl-maz@kernel.org>
 From: Marc Zyngier <maz@kernel.org>
 To: Steffen Eiden <seiden@linux.ibm.com>
 Cc: kvm@vger.kernel.org,
@@ -61,19 +61,18 @@ Cc: kvm@vger.kernel.org,
 	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
 	Oliver Upton <oupton@kernel.org>,
 	Paolo Bonzini <pbonzini@redhat.com>,
-	Sean Christopherson <seanjc@google.com>,
 	Suzuki K Poulose <suzuki.poulose@arm.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
 	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Will Deacon <will@kernel.org>,
 	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v7 11/23] KVM: arm64: Share arm64 code with s390
-In-Reply-To: <20260901084037.185345-C-seiden@linux.ibm.com>
-References: <20260831144802.834315-1-seiden@linux.ibm.com>
-	<20260831144802.834315-12-seiden@linux.ibm.com>
-	<87se3tmlrv.wl-maz@kernel.org>
-	<20260901084037.185345-C-seiden@linux.ibm.com>
+Subject: Re: [PATCH v2 03/20] arm64: sysreg: Define OSLSR_EL1_OSLK_MASK
+In-Reply-To: <20260901092552.231001-A-seiden@linux.ibm.com>
+References: <20260831145536.913567-1-seiden@linux.ibm.com>
+	<20260831145536.913567-4-seiden@linux.ibm.com>
+	<87v78pmmtz.wl-maz@kernel.org>
+	<20260901092552.231001-A-seiden@linux.ibm.com>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
  FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
  (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -85,37 +84,76 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
 Content-Type: text/plain; charset=US-ASCII
 X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, tabba@google.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, seanjc@google.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
+X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, tabba@google.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
 X-SA-Exim-Mail-From: maz@kernel.org
 X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-On Tue, 01 Sep 2026 09:40:37 +0100,
+On Tue, 01 Sep 2026 10:25:52 +0100,
 Steffen Eiden <seiden@linux.ibm.com> wrote:
 > 
-> On Tue, Sep 01, 2026 at 09:13:56AM +0100, Marc Zyngier wrote:
-> > Why the exit handler, and not the EC handlers aside from the UNKNOWN
-> > one? Yes, you probably aren't there yet in this series, but I can tell
-> > you are going to add more and more of these.
+> On Tue, Sep 01, 2026 at 08:51:04AM +0100, Marc Zyngier wrote:
+> > On Mon, 31 Aug 2026 15:55:18 +0100,
+> > Steffen Eiden <seiden@linux.ibm.com> wrote:
+> > > 
+> > > Define the missing mask for the OLSK field of OSLSR_EL1 which is
+> > > required to safely write a value to that field.
+> > > 
+> > > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> > > ---
+> > >  arch/arm64/include/asm/sysreg.h | 1 +
+> > >  1 file changed, 1 insertion(+)
+> > > 
+> > > diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
+> > > index 1c5c4df260be..5a439853b721 100644
+> > > --- a/arch/arm64/include/asm/sysreg.h
+> > > +++ b/arch/arm64/include/asm/sysreg.h
+> > > @@ -200,6 +200,7 @@
+> > >  #define OSLSR_EL1_OSLM_NI		0
+> > >  #define OSLSR_EL1_OSLM_IMPLEMENTED	BIT(3)
+> > >  #define OSLSR_EL1_OSLK			BIT(1)
+> > > +#define OSLSR_EL1_OSLK_MASK		BIT(1)
 > > 
-> > But the EC array is absolutely architectural, and there is no good
-> > reason to maintain your own.
-> > 
-> > So instead of this, why not keep the EC array altogether, and
-> > implement stubs for the ECs you don't support?
-> > 
-> > 	M.
-> > 
+> > Just move the required sysregs to the sysreg file, with the full bit
+> > description. This will sort this once and for all.
 > 
-> There was no specific reasson to define our own EC array as far as I
-> remember. I will try reusing the array and find out if there are any
-> issues with that. But I do not expect any. 
+> You mean to the tools/syreg file to generate the descriptions?
 > 
-> I assume the stubs probably just forward to handle_unknown_ec, or do you
-> have a different suggestion?
+> I wanted to do that but OSLSR has a split field (OSLM in bit 3 and 0)
+> which the generation tooling cannot handle. (right?)
 
-Probably. This is an indication of something being deeply wrong in the
-implementation (HW or SW). On reflection, kvm_handle_unknown_ec()
-should result in a KVM_BUG().
+Composite fields are nothing new. We have those everywhere (page
+tables, for a start).
+
+> 
+> Now that I am rethinking this:
+> 
+> I could move the stuff to the tools/sysregs and in addtion define the
+> OSLM field here manually but this time using the generated constansts.
+> probably sth. like: 
+> 
+> #define OSLSR_EL1_OSLM_MASK		(OSLSR_EL1_OSLM0_MASK | OSLSR_EL1_OSLM3_MASK)
+> #define OSLSR_EL1_OSLM_NI		OSLSR_EL1_OSLM0_NI
+> #define OSLSR_EL1_OSLM_IMPLEMENTED	OSLSR_EL1_OSLM3_IMPLEMENTED
+> 
+> Shall I do this?
+
+Yes. Except that OSLM3 should really be OSLM1, being bit 1 of the OSLM
+field. And it would make a lot more sense to express NI and
+IMPLEMENTED in terms of the two bits, just like the JSON describes it:
+
+OSLSR_EL1       [2,0,1,1,4]     MRS
+# Reg cond: IsFeatureImplemented(FEAT_AA64)
+Res0    63:4
+UnsignedEnum    3       OSLM
+UnsignedEnum    0       OSLM
+        0b00    VAL_00
+        0b10    VAL_10
+EndEnum
+UnsignedEnum    2       nTT
+EndEnum
+Field   1       OSLK
+
+Thanks,
 
 	M.
 
