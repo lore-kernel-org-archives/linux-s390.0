@@ -1,219 +1,194 @@
-Received: from flow-a8-smtp.messagingengine.com (flow-a8-smtp.messagingengine.com [103.168.172.143])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58163383987;
-	Wed,  2 Sep 2026 20:19:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.143
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FB9241168B;
+	Wed,  2 Sep 2026 21:24:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788380362; cv=none; b=T2HPVX3St+2/ypHlDGB99qsTO5BtALUcS6E/DIVa95/3jDc8zn6Bb1NH7T1C2NBhCncBFUt1cMdJwq22JxktzbcwklJxtAwEkgL6VQf37TAtIVY9tbsra7Z6CbgpAaFFjMAMp0Bsq4ltmHqte5gE4PO6eMhsKKALpgVfzpTBDV0=
+	t=1788384256; cv=none; b=pjkLprSunLIHpwU+IAJJBHMX8vPCqyBRuMTmvU54lAbbzPetYjZ3qjlQAsYm25aU+bCWJMQYyqNAXhgIVlBkGz7bLeLxcO3yvRzV31YvxfyJ/GUmk2wevchqzpdADBiITyHygnDeIh2XHZk/5cQZF06UiRviUal1lzePrxa7GcA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788380362; c=relaxed/simple;
-	bh=vXyA8eKvyWRBp/K6V0k9Rd35E94JwkahGZdlw+yf8dQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Rl6pp/INgyiBVOTSi71R8vrS0xbXVD1ugjSkZTCk+2oLPHXDRMZB3Xcu6sG+S/IOMyS5yk7YFrJDB4reAkCAAruUTlP0fqVu4qW2x0erETFlJK9vyTslYy4yEohI9PU6+GLoQ4NklNHD+grb5OCuXNi+D1y+ZDcd44ZgvoFTUC8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=ZZ/oL0fF; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=YOQKMyi3; arc=none smtp.client-ip=103.168.172.143
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	s=arc-20240116; t=1788384256; c=relaxed/simple;
+	bh=EIYUOMUuFfVPzOXzfY5JHb/TW2WSq/PkUFIT084qqxI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=kAao9Iw19OYV5if/u9cVypN2DrH/u1bPYtftFrZhUfn6eVsJ3HCnj/Y2cE4T/0MvvmMB20cups03YLHpfrAD9/pTZLSgzP7rhe6KpkdTU2mruBoKEVH2S0k+/eLdwLy+5F56bBvs02NTdomd80+ftXJ0JGVeoLB9JwcoQRqfwkI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JOurh/Gk; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="ZZ/oL0fF";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="YOQKMyi3"
-Received: from phl-compute-12.internal (phl-compute-12.internal [10.202.2.52])
-	by mailflow.phl.internal (Postfix) with ESMTP id 38C7A13802B7;
-	Wed,  2 Sep 2026 16:19:18 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-12.internal (MEProxy); Wed, 02 Sep 2026 16:19:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1788380358;
-	 x=1788387558; bh=Vz9quh9nvRJcQM3CzvMjGEPr3bSdixOFEm0bNlRkrO0=; b=
-	ZZ/oL0fFJfM06bLBWKqfF51tay77Ozbj7KUCYvnDD4aesbtfsdJtamNItiA5OUGa
-	UFyReTB76y4MCbK4iHVlSTFiw5MQNnxmlYIHapPZ6q9WXF6kFNvj/YLbrHJqK0+0
-	dhNmUYO4wzskV1G9rLf9az60taKzXf/nTTxlssOL7sMPBCLvBKXu0VMThkTrhMoa
-	o5IaATe7jEEU4Hk9LYuDBKfJMU21F5L6xtGSoatpeibfGF9U4wrT64V64erwseJx
-	3gP+gPwbp9fY5WlyawY2k+F7H83ZOCOXRGpRCAk1O+M6esgN32DrXYtRzLZ3DKTZ
-	SHTymqJTAblPS+XTUGZNQA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1788380358; x=
-	1788387558; bh=Vz9quh9nvRJcQM3CzvMjGEPr3bSdixOFEm0bNlRkrO0=; b=Y
-	OQKMyi311nAd/mqiNJV6ioXgS/xGjTVNeyqQsE4VmGMopFRWAHngL/AOkxB9Itzf
-	6mwnzWMquSoAsDnWJ4OTlPt2pVTFb5Ktd7k0zvhdDwuFW/V6AJ2jjnNosD9OdILE
-	7lnoXF3znzUqXW6UPmZWBXn9iICK432x1ceiTbqje09tR/jzVAP6TAgkfIJcl+nS
-	i1fmxgWPK6XRPv/Ta8iRjUhbBjdEh9DbsXw33NGPQPmKPGuE0gFX41MPWS8dgbeu
-	ZEPe9bF0mvNyixzMh9Vm8nmoN9OxypgC/orN4F7hEH/G7Y1cvGfHXUjMABd+x40+
-	B6tN9G0KkB4lUQt8Ak9jg==
-X-ME-Sender: <xms:xYSYasVMGSFZUbc_xKp1d80iKJUf8oOAnOEOedjXKkCp52QiP-V2zg>
-    <xme:xYSYak16gkAaPFj_Lo0-ZDnPg5y7qYZCftlSltamu6EPPddeRsk3bC1VdFyZp9SF3
-    S3zb2k0vh2x5MtUK5N0pWca-wJpsG2ITaqSieDy2bqrHlZmG99kt9U>
-X-ME-Received: <xmr:xYSYatX4UkC3b5W2nBs5WM5QEbktFpS05n1MTj86HXSGEOgiYuo1TCljn6ifnw>
-X-ME-Proxy-Cause: dmFkZTFDPnGKjj96XPPfptgd57/UcEhtbx2v3FA1uJyozmap57p8WrmU6i68nMmSieeH6C
-    2QfQhdON/c0RpQshQ9lDgC4CqOne/nSPw5my63jFMyB92Lhrwhb/mBbVRgQQfY3wpx0oaf
-    T4bGrvxjMYkHDvjmA9MCbxPninh1qk4D92ZSL3HcI+USIIdNQO0in5ZhgMvm3tNNoAZujN
-    MTv88bmpvyrFbeHcleUhdPLwslNEI1ELKI+99Hw5XXj6CjQLLZTOFcBalFQMi4T6w2A0hU
-    U85ttGNB4nOYeH2GbGypnletvvGxPMxzoeijCMzhJ+lr6tDwvHd8g0BCJT0e9mP03uWdeo
-    Q3MJZah/5/AAE3fgKFhhd/+NP8EmKKAJtH8mv02acvChwOdMue4ysS6GPHrmQtCNawMXGB
-    kdc+eFiMciyhhKI5z6SyXJRIj8F/cFJ9FHWAAs4I8P+I4Tcu3LpeOZs5pLg22OJRDz2Mvt
-    Rg5fFIdA1rrbwlkw+xn85h2Lj+Bxu9Wv90qTD1qXCsfvtMnz4UPbfYI4YOxkjSe38zutpA
-    bICCrDiT+omIUXz8Px9EBW65T8wDt26i7FzX5uVdjQB1Wldo5cuQ3j1a4Up8cQ51Cg87Kz
-    OIJGrygxD6OryfiOWU/mURjE0iumH8cqH0o5EVzIHXn+SKHjHLy2iL3a9SOg
-X-ME-Proxy: <xmx:xYSYaqDRzuyHC1aCzKRyrUdEW_rKlHeQ3r9XAHizO0sptxPUtE7Kgw>
-    <xmx:xYSYagpMw66uCsmInbiPbyfC3PPZTwydQJYNI-h_WbqwdFZT6GFTjw>
-    <xmx:xYSYam14BWIxLjQy6Y8Q7DlY_qMUDaqbfx1KiJ1Qt5SCOOVS1LIsHQ>
-    <xmx:xYSYan2Z5YTqhysqaK0h18Cz6CD01-aEEcDpoYpOFb31SSyRIqhXVA>
-    <xmx:xoSYavBGO8yOzmhhBz-FRvWc6LYzXx4mufSs4DYR60NXNYTtO90oZwks>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 2 Sep 2026 16:19:15 -0400 (EDT)
-Date: Wed, 2 Sep 2026 14:19:14 -0600
-From: Alex Williamson <alex@shazbot.org>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: Sean Christopherson <seanjc@google.com>,
- Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, Tony Krowiak <akrowiak@linux.ibm.com>,
- Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>,
- Harald Freudenberger <freude@linux.ibm.com>,
- Holger Dengler <dengler@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Matthew Rosato <mjrosato@linux.ibm.com>,
- Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- Jason Gunthorpe <jgg@ziepe.ca>, alex@shazbot.org
-Subject: Re: [PATCH] vfio: Use file-based reference counting for KVM
-Message-ID: <20260902141914.15a30449@shazbot.org>
-In-Reply-To: <20260812-vfio-v1-1-5cfe0b1fa4e7@linux.ibm.com>
-References: <20260812-vfio-v1-1-5cfe0b1fa4e7@linux.ibm.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JOurh/Gk"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 682KW4Lb1049322;
+	Wed, 2 Sep 2026 21:24:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=jgA8r6HOYLo5NgvJU
+	ow5NjWaY0Sn1DM1UKfiiXLJ3DI=; b=JOurh/GkMYn+vnm2mE37gTQqzxbhAnLiU
+	5zGZRqqy+acNsT8AgOPZZR0BddhhAGgIMkiLa3cF4b4kvkAnvlm/nhoemqCI/49X
+	B/KGcF3BOz+3EDPrb1rV35h9VYDp+egUYQ2EtubZIxOGl6azTRDT8yQ0cWwiYyAs
+	lbBw0Kk2xeMGjeLyQXG5WpmL9ArwoV2Q1FEmt7x4zZFkgia95j1p2tCLKopo+U4Q
+	kmhamrQpTiCYoE13yGB0ZzC/NuKHSzg/KabT+pZB96T0H4g1wx03olUHZe93BunS
+	dBA87w2Pmi+hIW2YMwNMROjB4Nbnm5aFyp4SnqJzjIjZaJXg3lr7A==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbq551mrt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 02 Sep 2026 21:24:07 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 682LBEDi019727;
+	Wed, 2 Sep 2026 21:24:06 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gcceyc9qb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 02 Sep 2026 21:24:06 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 682LO3lE46334374
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 2 Sep 2026 21:24:03 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2983D2004B;
+	Wed,  2 Sep 2026 21:24:03 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C1A6F20040;
+	Wed,  2 Sep 2026 21:24:02 +0000 (GMT)
+Received: from li-d2cd37cc-2ca3-11b2-a85c-84ed3706e5a0.ibm.com (unknown [9.87.158.224])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  2 Sep 2026 21:24:02 +0000 (GMT)
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: David Laight <david.laight.linux@gmail.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>
+Subject: [PATCH v4 1/2] s390/ebcdic: Add character classes for the ASCII subset of EBCDIC
+Date: Wed,  2 Sep 2026 23:20:17 +0200
+Message-ID: <20260902212400.674450-2-iii@linux.ibm.com>
+X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260902212400.674450-1-iii@linux.ibm.com>
+References: <20260902212400.674450-1-iii@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAyMDE4NiBTYWx0ZWRfX94lQgPw1SmCD
+ 8hMoSDP/n3bN8j9hX6Ls9E9LzuO3BE+zYzT/zjcaE/maQlcAtZ0Kge9O1ZIB10Tp7Mj4ddwpvrl
+ /k4xrbea91Khe/gDo4SlX9Pp2yR6TcTvb8PMuf9ddVnvqApdO0R81mbcsE83rwp5NXIrmZ+DmTh
+ UV5SSf4VgqnvfLdaqMPscFwX2WQcRWMbUgPfI9fpiK+/Aw5a34woUZ4UkwktJHPhO5Twu7dAflq
+ m4hSc2NWDYFF+dw0MH2+U3ZgTP67DSxQtnA815DN/TMpKLk2oxe5QF4w0+vPXaEJ/RUftvZDpFl
+ tEhxXKs9gw4dWF4d9BU3+S09Pzx8zMwbN0kooUt8lB0DSlj3+L/vrqTh9xZx82Vh1pIQGdMaDhL
+ K8xQEzM8Y58PaOrBHWs8jjV7bGLaQHjUkyDQqRW1K+IcwkchciCTfNZkGrb3eZT5y6PmsZ7Cbhc
+ Zl1g0knJ5GXYp/c84bg==
+X-Proofpoint-ORIG-GUID: yy4GExU2H3sdcFt1gciTjcKT1GgY8ET_
+X-Authority-Analysis: v=2.4 cv=CNgamxrD c=1 sm=1 tr=0 ts=6a9893f8 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=U7nrCbtTmkRpXpFmAIza:22 a=8pif782wAAAA:8 a=VnNF1IyMAAAA:8
+ a=lou5dwPg_VZd3XMStWsA:9
+X-Proofpoint-GUID: vqNzDz0GMpDrlKJYUgdeK2lnMKejTL4m
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAyMDE4NiBTYWx0ZWRfX3dKOIly3AUdL
+ lmk6FGEsXsoqvCWU/2KbY3Oxl1ORBS7YQiic1JhcritbiLSj05F75lHdNliX0Gx1j9Vyn59e7Rb
+ QtaatBpsjl/zy/HTECX04Jn8HmyzPF8=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-02_05,2026-09-02_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 bulkscore=0 suspectscore=0 phishscore=0 lowpriorityscore=0
+ priorityscore=1501 clxscore=1015 impostorscore=0 adultscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609020186
 
-On Wed, 12 Aug 2026 20:55:30 +0200
-Steffen Eiden <seiden@linux.ibm.com> wrote:
+Add _ctype-like array for EBCDIC characters. Mark only those that also
+exist in ASCII, loosely based on invariant subset of EBCDIC [1], but
+with cent, broken bar, not sign, and plus-minus sign, left out.
 
-> Replace manual module reference counting with file-based reference
-> counting for KVM integration. Previously, VFIO used symbol_get() to
-> obtain function pointers for kvm_get_kvm_safe() and kvm_put_kvm(),
-> then manually tracked module references through these symbols. This
-> approach required storing the put_kvm function pointer in each device
-> and carefully managing symbol references. Remove the put_kvm field in
-> struct vfio_device as is it no longer used.
-> 
-> Pass struct file pointers instead of struct kvm pointers throughout the
-> VFIO-KVM interface. This leverages the kernel's existing file reference
-> counting mechanism via get_file()/get_file_active() and fput(),
-> eliminating the need for manual module reference tracking. The
-> file->private_data field provides access to the underlying struct kvm
-> when needed.
-> 
-> group->kvm and df->kvm hold a reference of their own, taken when the
-> pointer is stored and dropped when it is overwritten or cleared. They
-> have to: the kvm-vfio device fd holds a VM reference of its own, so the
-> VM file can be closed and released while the kvm-vfio device is still
-> alive and still pointing at it. filp_cachep is SLAB_TYPESAFE_BY_RCU, so
-> a stale pointer left in those slots could be made to reference a
-> recycled, unrelated file.
-> 
-> kvm->file itself carries no reference, so that it does not pin the VM.
-> It is only ever read with get_file_active(), which is safe because
-> kvm_vm_release() clears it, i.e. before the struct file is freed.
-> 
-> This simplifies the code and removes all remaining externally exported
-> symbols for KVM, paving the path for a second concurrent KVM module.
-> 
-> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-> Co-developed-by: Sean Christopherson <seanjc@google.com>
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
-> This is a spin-off for the arm-on-s390 series for fast-lane merging
-> requested by sean[0]. It is based on patch 1 [1] of the v6 of the
-> arm-on-s390 series but with some fixes for some issues pointed out by
-> sashiko. The useless rcu protection of kvm->file is removed and
-> the getting-the-file-handle process is streamlined.
+[1] https://en.wikipedia.org/wiki/EBCDIC#Code_page_layout
 
-We'll need a shared branch to merge this across two subsystems and the
-vfio-ap driver.  Based on $Subject and LoC I can volunteer to provide
-that once we're settled.  A couple minor issues below...
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+---
+ arch/s390/include/asm/ebcdic.h |  6 +++++
+ arch/s390/kernel/ebcdic.c      | 40 +++++++++++++++++++++++++++++++++-
+ 2 files changed, 45 insertions(+), 1 deletion(-)
 
-> diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
-> index 0990fdb146b7..d3a110101353 100644
-> --- a/drivers/vfio/pci/vfio_pci_zdev.c
-> +++ b/drivers/vfio/pci/vfio_pci_zdev.c
-> @@ -144,6 +144,7 @@ int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
->  int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
->  {
->  	struct zpci_dev *zdev = to_zpci(vdev->pdev);
-> +	struct kvm *kvm;
->  
->  	if (!zdev)
->  		return -ENODEV;
-> @@ -151,8 +152,12 @@ int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev)
->  	if (!vdev->vdev.kvm)
->  		return 0;
->  
-> +	kvm = vdev->vdev.kvm->private_data;
-> +	if (!kvm)
-> +		return -ENOENT;
-> +
->  	if (zpci_kvm_hook.kvm_register)
-> -		return zpci_kvm_hook.kvm_register(zdev, vdev->vdev.kvm);
-> +		return zpci_kvm_hook.kvm_register(zdev, kvm);
+diff --git a/arch/s390/include/asm/ebcdic.h b/arch/s390/include/asm/ebcdic.h
+index 7164cb6584355..78d2e37e985d3 100644
+--- a/arch/s390/include/asm/ebcdic.h
++++ b/arch/s390/include/asm/ebcdic.h
+@@ -10,6 +10,7 @@
+ #ifndef _EBCDIC_H
+ #define _EBCDIC_H
+ 
++#include <linux/ctype.h>
+ #include <linux/types.h>
+ 
+ extern __u8 _ascebc_500[256];   /* ASCII -> EBCDIC 500 conversion table */
+@@ -18,6 +19,11 @@ extern __u8 _ascebc[256];   /* ASCII -> EBCDIC conversion table */
+ extern __u8 _ebcasc[256];   /* EBCDIC -> ASCII conversion table */
+ extern __u8 _ebc_tolower[256]; /* EBCDIC -> lowercase */
+ extern __u8 _ebc_toupper[256]; /* EBCDIC -> uppercase */
++extern const __u8 _ebctype_asc[256]; /* EBCDIC -> character classes */
++
++#define __ismask_ebc_asc(x)	(_ebctype_asc[(int)(unsigned char)(x)])
++#define isprint_ebc_asc(c)	((__ismask_ebc_asc(c)&(_P|_U|_L|_D|_SP)) != 0)
++#define isspace_ebc_asc(c)	((__ismask_ebc_asc(c)&(_S)) != 0)
+ 
+ static inline void
+ codepage_convert(const __u8 *codepage, volatile char *addr, unsigned long nr)
+diff --git a/arch/s390/kernel/ebcdic.c b/arch/s390/kernel/ebcdic.c
+index 0e51fa537262b..815b90ef520c0 100644
+--- a/arch/s390/kernel/ebcdic.c
++++ b/arch/s390/kernel/ebcdic.c
+@@ -392,10 +392,48 @@ __u8 _ebc_toupper[256] =
+ 	0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
+ };
+ 
++/*
++ * ASCII subset of EBCDIC -> character classes
++ */
++const __u8 _ebctype_asc[256] = {
++	_C,     _C,    _C,    _C,    _C,    _C|_S, _C,    _C,	/* 0x00-0x07 */
++	_C,     _C,    _C,    _C|_S, _C|_S, _C|_S, _C,    _C,	/* 0x08-0x0f */
++	_C,     _C,    _C,    _C,    _C,    _C|_S, _C,    _C,	/* 0x10-0x17 */
++	_C,     _C,    _C,    _C,    _C,    _C,    _C,    _C,	/* 0x18-0x1f */
++	_C,     _C,    _C,    _C,    _C,    _C|_S, _C,    _C,	/* 0x20-0x27 */
++	_C,     _C,    _C,    _C,    _C,    _C,    _C,    _C,	/* 0x28-0x2f */
++	0,      0,     _C,    _C,    _C,    _C,    _C,    _C,	/* 0x30-0x37 */
++	_C,     _C,    _C,    _C,    _C,    _C,    0,     _C,	/* 0x38-0x3f */
++	_S|_SP, 0,     0,     0,     0,     0,     0,     0,	/* 0x40-0x47 */
++	0,      0,     0,     _P,    _P,    _P,    _P,    _P,	/* 0x48-0x4f */
++	_P,     0,     0,     0,     0,     0,     0,     0,	/* 0x50-0x57 */
++	0,      0,     _P,    _P,    _P,    _P,    _P,    0,	/* 0x58-0x5f */
++	_P,     _P,    0,     0,     0,     0,     0,     0,	/* 0x60-0x67 */
++	0,      0,     0,     _P,    _P,    _P,    _P,    _P,	/* 0x68-0x6f */
++	0,      0,     0,     0,     0,     0,     0,     0,	/* 0x70-0x77 */
++	0,      _P,    _P,    _P,    _P,    _P,    _P,    _P,	/* 0x78-0x7f */
++	0,      _L|_X, _L|_X, _L|_X, _L|_X, _L|_X, _L|_X, _L,	/* 0x80-0x87 */
++	_L,     _L,    0,     0,     0,     0,     0,     0,	/* 0x88-0x8f */
++	0,      _L,    _L,    _L,    _L,    _L,    _L,    _L,	/* 0x90-0x97 */
++	_L,     _L,    0,     0,     0,     0,     0,     0,	/* 0x98-0x9f */
++	0,      _P,    _L,    _L,    _L,    _L,    _L,    _L,	/* 0xa0-0xa7 */
++	_L,     _L,    0,     0,     0,     0,     0,     0,	/* 0xa8-0xaf */
++	_P,     0,     0,     0,     0,     0,     0,     0,	/* 0xb0-0xb7 */
++	0,      0,     _P,    _P,    0,     0,     0,     0,	/* 0xb8-0xbf */
++	_P,     _U|_X, _U|_X, _U|_X, _U|_X, _U|_X, _U|_X, _U,	/* 0xc0-0xc7 */
++	_U,     _U,    0,     0,     0,     0,     0,     0,	/* 0xc8-0xcf */
++	_P,     _U,    _U,    _U,    _U,    _U,    _U,    _U,	/* 0xd0-0xd7 */
++	_U,     _U,    0,     0,     0,     0,     0,     0,	/* 0xd8-0xdf */
++	_P,     0,     _U,    _U,    _U,    _U,    _U,    _U,	/* 0xe0-0xe7 */
++	_U,     _U,    0,     0,     0,     0,     0,     0,	/* 0xe8-0xef */
++	_D,     _D,    _D,    _D,    _D,    _D,    _D,    _D,	/* 0xf0-0xf7 */
++	_D,     _D,    0,     0,     0,     0,     0,     _C,	/* 0xf8-0xff */
++};
++
+ EXPORT_SYMBOL(_ascebc_500);
+ EXPORT_SYMBOL(_ebcasc_500);
+ EXPORT_SYMBOL(_ascebc);
+ EXPORT_SYMBOL(_ebcasc);
+ EXPORT_SYMBOL(_ebc_tolower);
+ EXPORT_SYMBOL(_ebc_toupper);
+-
++EXPORT_SYMBOL(_ebctype_asc);
+-- 
+2.55.0
 
-There are conflicts here with Farhan's 9f240376d034 ("s390/pci: Store
-PCI error information for passthrough devices"), we need to maintain
-the error exit funnel through stop mediation.
-  
->  	return -ENOENT;
->  }
-> diff --git a/drivers/vfio/vfio.h b/drivers/vfio/vfio.h
-> index 7728bc99b63d..f76504d707e1 100644
-> --- a/drivers/vfio/vfio.h
-> +++ b/drivers/vfio/vfio.h
-> @@ -23,7 +23,7 @@ struct vfio_device_file {
->  	u8 access_granted;
->  	u32 devid; /* only valid when iommufd is valid */
->  	spinlock_t kvm_ref_lock; /* protect kvm field */
-> -	struct kvm *kvm;
-> +	struct file *kvm;
->  	struct iommufd_ctx *iommufd; /* protected by struct vfio_device_set::lock */
->  };
->  
-> @@ -88,7 +88,7 @@ struct vfio_group {
->  #endif
->  	enum vfio_group_type		type;
->  	struct mutex			group_lock;
-> -	struct kvm			*kvm;
-> +	struct file			*kvm;
->  	struct file			*opened_file;
->  	struct iommufd_ctx		*iommufd;
->  	spinlock_t			kvm_ref_lock;
-> @@ -107,7 +107,7 @@ void vfio_device_group_unuse_iommu(struct vfio_device *device);
->  void vfio_df_group_close(struct vfio_device_file *df);
->  struct vfio_group *vfio_group_from_file(struct file *file);
->  bool vfio_group_enforced_coherent(struct vfio_group *group);
-> -void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm);
-> +void vfio_group_set_kvm(struct vfio_group *group, struct file *kvm);
->  bool vfio_device_has_container(struct vfio_device *device);
->  int __init vfio_group_init(void);
->  void vfio_group_cleanup(void);
-
-There's a stub in the !CONFIG_VFIO_GROUP set of declarations below this
-that isn't updated to the new prototype, build breaks.  Thanks,
-
-Alex
