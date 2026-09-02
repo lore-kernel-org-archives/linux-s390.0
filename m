@@ -1,34 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CBDB3822BE;
-	Wed,  2 Sep 2026 06:15:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E560B390609;
+	Wed,  2 Sep 2026 06:15:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788329731; cv=none; b=axAwFOdnqIwp5kcVa981b+DetpHsRaF9dWOqs2qzxZ2f4nD6SEhir/6GjrInJEGS7lk11m9ahZ201vK0R4z14Yk0FHRK4quaMWeX4iYtUjfCSReyGvbxhV8YR513SQWnHahdAWgPi1+/dvzr2r9yv44CA2xUerkz3Y+F+J6X+50=
+	t=1788329735; cv=none; b=tAujlfnNYWhqLali2/sfXvgeVZPnjNcJldg6oZ26pX9h9jrhszdWYZ2nrRFPlxGYTQgk9fpnXIF2AJ6WtFLmwwWu4sqaCP+Z5vaVnWdlZCPeyhoFBDxyyss9CjN1FfF4ZPmwPUYrF+IjxOuPWQddWo63wCXOMV9MvlvraAMoJms=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788329731; c=relaxed/simple;
-	bh=qCPmEOizwwxPSEOajJk71IyfzkrCx0rBoPyriTWIfnI=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=NAfiUofrLONQaLreXa9aF/R7OXc+vLqeT4r04wHr7esyzQnHB6kraM6LK5P9gtwjEAVLpfl8UAR74MGztHXW02RCNmUx3d6md5r9/xGFL4oE4TFjfhwHx4mYRdlMdtIRPJ3iixWmHCozQ07YPmFU/a7b+ISChXG+VNwMlKdR/wI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=drZbWKHP; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788329735; c=relaxed/simple;
+	bh=8U95+oHeCA/rmJkgUT/fvmjP+gRFb78XsoMfKDHsIVI=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=OoDPb2UtwDnjI+cC93yHObrpewl47ysmr71lvgV4w+KPFFn4+byjd669L2ir1lbqIA3CN3bjyq07T3M9jsKCIZTct/qE/g3jg5I/kWD7NkV+0vYV+p+4z7te2WBoHV2vAQcN69wnyBj//dbZdX2stIZpnyGj9Pg3IPGkDePjg64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RyCC6K3+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="drZbWKHP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 195291F000E9;
-	Wed,  2 Sep 2026 06:15:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RyCC6K3+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B38201F00A3A;
+	Wed,  2 Sep 2026 06:15:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788329730;
-	bh=GmSsU1jxZJ3K3cHXPdQ2pwKw5aWYndJA6ll/0Ff4QV8=;
-	h=From:Subject:Date:To:Cc;
-	b=drZbWKHPEVv1/wUpkmlyciVkocNy5ez0dMGtcuXpx5sJbb1MQ1ZxrtbDujmpD065R
-	 e402b22GtB3geWHpTHo56KoLzNEi+2eLEW9lOYqIQZ4dpxiIMqzkFyl3RTEk5x+huf
-	 WQBKX/4jZv/Bc+QxkHuU7ofEwn8DyOSBncnPRHXV75QENbucfUoTaOn6ui9+4F4Ukx
-	 M//UQjTFAuG+ebFeGq3aBvx0sr0LcHTEydaJpubgXCUE5qnbb0k2+IETFHMTIrgWHW
-	 fmDRDvCcBcp+Pb+ezYSY9XZbCnKURk1wjDGCOigfDEKfA2E8JRiZPoyEX8LZyrZ5O4
-	 n2Lv0DESNwnOw==
+	s=k20260515; t=1788329733;
+	bh=rZDmOJa3lKJg3q4J0vxXiCwo1usJZY0dSBwZL2xaIK4=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=RyCC6K3+yoBVj6HOL+jhCmJspI1rOOtMlmlJ09dU7HJTzqEQmvW2aI/S1sfTHPfj6
+	 ZHYdLXxvZEV213yRt6hcyicUWOkk/fmtKZ2RbcigWIVDgqKvgU4dQNyaPa3tdhRynn
+	 UmyYgIsw6J0sWUvzPkXwjZYh+twK/i+vDC+6T4STp0EIiC0Lknuutak3P8VrbsKjOT
+	 9jh7aG7AnlP2sL5unVXGeaY3Dzug0feoyhj1sILuc+230lbhU7aXqxUVJGiXrHlVt2
+	 nsi5FDvTfJt+DSOgof/YYHzGjA6EsF0FFHUoTrVFeq7ELA2DJhEqGbMzj/f0c2ZSy4
+	 nk9//iAEyiEjQ==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Subject: [PATCH 0/4] KVM: s390: replace page allocator calls with kzalloc()
-Date: Wed, 02 Sep 2026 09:15:12 +0300
-Message-Id: <20260902-s390-kvm-v1-0-3bc0986550b1@kernel.org>
+Date: Wed, 02 Sep 2026 09:15:13 +0300
+Subject: [PATCH 1/4] KVM: s390: Replace get_zeroed_page() with kzalloc()
+ for the STHYI buffer
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,10 +38,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMwQ7CIBAE0F9p9uwaoFGqv2I8wLLa1YiG1cak6
- b8L9fgmMzODchFWOHYzFJ5E5Zkr7KYDGkO+MkqqBmfc3gxuQO0PBu/TA52xu2iS9z4R1Pqr8EW
- +69Xp/Ld+4o3p3fatEYMyxhIyjS1a6bc9FrKwLD9kkKdyiwAAAA==
-X-Change-ID: 20260828-s390-kvm-2015b0d777dc
+Message-Id: <20260902-s390-kvm-v1-1-3bc0986550b1@kernel.org>
+References: <20260902-s390-kvm-v1-0-3bc0986550b1@kernel.org>
+In-Reply-To: <20260902-s390-kvm-v1-0-3bc0986550b1@kernel.org>
 To: Christian Borntraeger <borntraeger@linux.ibm.com>, 
  Claudio Imbrenda <imbrenda@linux.ibm.com>, 
  Janosch Frank <frankja@linux.ibm.com>
@@ -52,56 +52,77 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
  linux-s390@vger.kernel.org
 X-Mailer: b4 0.17-dev
 
-This is a (small) part of larger work of replacing page allocator calls
-with kmalloc.
+handle_sthyi() allocates the buffer that receives the STHYI response
+block before it is copied to the guest.
 
-My initial intention a few month ago was to remove ugly casts [1], but then
-willy pointed out that Linus objected to something like this [2] and it
-looks like more than a decade old technical debt.
+This buffer can be allocated with kmalloc() as there's nothing special
+about it to go directly to the page allocator.
 
-Largely, anything that doesn't need struct page (or a memdesc in the
-future) should just use kmalloc() or kvmalloc() to allocate memory.
-kmalloc() guarantees alignment, physical contiguity and working
-virt_to_phys() and beside nicer API that returns void * on alloc and
-doesn't require to know the allocation size on free, kmalloc() provides
-better debugging capabilities than page allocator.
+kmalloc() provides a better API that does not require ugly casts and
+kfree() does not need to know the size of the freed object.
 
-Another thing is that touching these allocation sites gives the reviewers
-opportunity to see if a PAGE_SIZE buffer is actually needed or maybe
-another size is appropriate.
+Performance difference between kmalloc() and __get_free_pages() is not
+measurable as both allocators take an object/page from a per-CPU list for
+fast path allocations.
 
-For larger allocations that don't need physically contiguous memory
-kvmalloc() can be a better option that __get_free_pages() because under
-memory pressure it's is easier to allocate several order-0 pages than a
-physically contiguous chunk with the same number of pages.
+For the slow path the performance is anyway determined by the amount of
+reclaim involved rather than by what allocator is used.
 
-And last, but not least, removing needless calls to page allocator should
-help with memdesc (aka project folio) conversion. There will be way less
-places to audit to see if the user was actually using struct page.
+Replace use of get_zeroed_page() with kzalloc() and free_page() with
+kfree().
 
-Also in git:
-https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git gfp-to-kmalloc/s390-kvm
-
-[1] https://lore.kernel.org/all/20251018093002.3660549-1-rppt@kernel.org/
-[2] https://lore.kernel.org/all/CA+55aFwp4iy4rtX2gE2WjBGFL=NxMVnoFeHqYa2j1dYOMMGqxg@mail.gmail.com/
-
+Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
+Assisted-by: copilot:claude-opus
+Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
-Mike Rapoport (Microsoft) (4):
-      KVM: s390: Replace get_zeroed_page() with kzalloc() for the STHYI buffer
-      KVM: s390: Replace get_zeroed_page() with kzalloc() for the STSI buffer
-      KVM: s390: Replace get_zeroed_page() with kzalloc() for the GIB
-      KVM: s390: Replace get_zeroed_page() with kzalloc() for sie_page2 and CMMA
+ arch/s390/kvm/s390/intercept.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
- arch/s390/kvm/s390/intercept.c |  9 +++++----
- arch/s390/kvm/s390/interrupt.c |  8 ++++----
- arch/s390/kvm/s390/priv.c      | 19 ++++++++++---------
- arch/s390/kvm/s390/s390.c      | 12 ++++++------
- 4 files changed, 25 insertions(+), 23 deletions(-)
----
-base-commit: cee9395acd8043be0644b25c34bfa86623f2b935
-change-id: 20260828-s390-kvm-2015b0d777dc
+diff --git a/arch/s390/kvm/s390/intercept.c b/arch/s390/kvm/s390/intercept.c
+index ca1205dfac8b0..aaf9828d1f44d 100644
+--- a/arch/s390/kvm/s390/intercept.c
++++ b/arch/s390/kvm/s390/intercept.c
+@@ -11,6 +11,7 @@
+ #include <linux/kvm_host.h>
+ #include <linux/errno.h>
+ #include <linux/pagemap.h>
++#include <linux/slab.h>
+ 
+ #include <asm/asm-offsets.h>
+ #include <asm/irq.h>
+@@ -438,13 +439,13 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
+ 	if (!kvm_s390_pv_cpu_is_protected(vcpu) && (addr & ~PAGE_MASK))
+ 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+ 
+-	sctns = (void *)get_zeroed_page(GFP_KERNEL_ACCOUNT);
++	sctns = kzalloc(PAGE_SIZE, GFP_KERNEL_ACCOUNT);
+ 	if (!sctns)
+ 		return -ENOMEM;
+ 
+ 	cc = sthyi_fill(sctns, &rc);
+ 	if (cc < 0) {
+-		free_page((unsigned long)sctns);
++		kfree(sctns);
+ 		return cc;
+ 	}
+ out:
+@@ -454,13 +455,13 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
+ 		} else {
+ 			r = write_guest(vcpu, addr, reg2, sctns, PAGE_SIZE);
+ 			if (r) {
+-				free_page((unsigned long)sctns);
++				kfree(sctns);
+ 				return kvm_s390_inject_prog_cond(vcpu, r);
+ 			}
+ 		}
+ 	}
+ 
+-	free_page((unsigned long)sctns);
++	kfree(sctns);
+ 	vcpu->run->s.regs.gprs[reg2 + 1] = rc;
+ 	kvm_s390_set_psw_cc(vcpu, cc);
+ 	return r;
 
---
-Sincerely yours,
-Mike.
+-- 
+2.53.0
 
