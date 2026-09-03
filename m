@@ -1,150 +1,173 @@
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BE294F0553
-	for <linux-s390@vger.kernel.org>; Thu,  3 Sep 2026 17:20:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.198
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69D05377AA7;
+	Thu,  3 Sep 2026 17:24:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788456043; cv=none; b=lUGY/WBXoWyP7/Dg8g9oOfjbSQlv8IRGU12X+vVlE917rDCwxFJ2unCmZOY22IcwWtQi8t71owtUEKMZpUc/Vv5PzML1jlD/q/B/MUOv5IssSNUBYAKogXLuael7TytnsRLMrl+OVlP5fptGN0r/RQDCLtTQIHgrHr+U4YpqMd8=
+	t=1788456268; cv=none; b=Cgkz668umvRh0vWzTXOF2WCxhh3rXbUMbv/haATDHDFn67Nf0f+4OlVjo/IHEFq3SSa7mh9tHznOx0WcT+Kj28nHZC0kb4T9oFEWVU2taZGE8s4B48Xujel5ZzgKF/NasJUjbTT+bisFoJ1oUwrPm91mSu873H77yHXcs/Pk6zw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788456043; c=relaxed/simple;
-	bh=/OTLAlcDX/VYmq2Sx2Hf2JVMKnw2hyeEfeoAFuc3tlM=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=CJ7rcu2MlrFTZjFlpGQbzboSFd+bv+NNeCnDEthbs+1tmhkljHfVTOv7sRrOB7p2WQ9x5X5vZu/3VePtxdGf+QWJBC3MGrpiOSlquMuURNtu851ohmjA0Y2dFTFd6IbUPTSFcEa4jM2+BBXfH5ZKt/cyE5zY0MoujUhY/Kytty0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ipg3pJPQ; arc=none smtp.client-ip=209.85.214.198
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1788456268; c=relaxed/simple;
+	bh=bUWo3Ln1yQQwc4kuTS4Fy6LaJyFVsXeAYcWf/2KMuzA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bPHcy667915R0OEjDMMzlmcHUdjkFvqgLZ6RkY6WzR/rSMgUmpwr2Me/SCiXzrygTcMXk8AFR79kTBT8V8JiBEQGgP1x8RHKoWIa4DCwp583RfAiNS33nrb5iO8aOLP9DmiIrE7pfAbKMY8kPTPQxO1FXMcFn6utBHOVyAnguB4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=tk0w+1ML; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ipg3pJPQ"
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2db0a41434bso1239765ad.0
-        for <linux-s390@vger.kernel.org>; Thu, 03 Sep 2026 10:20:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1788456041; x=1789060841; darn=vger.kernel.org;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=abT7Pvw9efwpChS8BOp+LMmzEtc1Cbt9UKhqN1YGeyU=;
-        b=ipg3pJPQKLjDGM+FglLiVy7Ss2oYHCoCctsTQobNxb3Qc4Dkkh8aJ9xAvBQlSdBvDv
-         pYshF6iOJga6p9tAtmem+4PvOLbfY7pSR7XXk9Veq8Odt1pzsZA+hNgcSNe+8ykoj9Ne
-         KyB9d8pzXYikWQ8iO0y2SIPGIPPJX0UNDL40KcNWuh02vpAfq89HHXLR1beeSL8W3Zd1
-         t281jLXKqk1Nsb9IrlkvJHzUA8LMns6ew9Jxt8W1KwgcQ7NWME/rhO9n+YAOTuy8Gn3x
-         9zUkn4rQeEV85kn0WyOQr4jpe52DOyiXgb/vPCEVmYZd2TAf5XITn3uDjr2z7DVgdY0+
-         Wwqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788456041; x=1789060841;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=abT7Pvw9efwpChS8BOp+LMmzEtc1Cbt9UKhqN1YGeyU=;
-        b=Db2F/g1SmKoqVaeKzf434ZTGK27a2sFslR+olHqfSLnJisLryYa3qXfMS2heAg5zcS
-         /zFagTezwq8kEbMCZ/tA2MZoKP/Pc1ud/eupWu/ZvcgEVOyKLyOj0v8VoiYG8HoXQr2r
-         ohRKqv6SWrE09ntR5UTQ9PNTPcsqKUkXttX+VON9HB6IjJ6P+YmC879haQlapH79mEfd
-         4juzvJzmJ8KICkJSBcqwXK/O074p1ScJcnfs5HW9rYmJS+/HTtMXZcD4bzOJ5H+4n2Ew
-         UZZVnUfa+lpfe4NGnQivwAOdMuoKkj8B0Pd+3rzFFrZlrSglMlw2SHr+ndAM8qPfLb5D
-         hZ/Q==
-X-Forwarded-Encrypted: i=1; AKwUvBxCLUgAt/KT60zxE3KkmAXpBMAItPskKPiuoBQMrTyY8SiROU6jRHUMMYIQaqNhnr4cCaXrxgtdXzaU@vger.kernel.org
-X-Gm-Message-State: AFuF++mFNyhPdfbyI1OTeosOlAcHbEIiU52Zz60baihLG/J2EV+pzRKQ
-	C0Bg+W4urqT87wDwkZ/wkrXYIHdguea0MXOZCUGAhZXp0pjeYMUoEQdMAWzHY6hwfXTGb4py9V+
-	FgBnqJg==
-X-Received: from plhz14.prod.google.com ([2002:a17:902:d9ce:b0:2d8:fd05:fde6])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:37d0:b0:2d7:344f:4a6f
- with SMTP id d9443c01a7336-2db1248d2f8mr7559625ad.8.1788456040506; Thu, 03
- Sep 2026 10:20:40 -0700 (PDT)
-Date: Thu, 3 Sep 2026 10:20:39 -0700
-In-Reply-To: <20260903-vfio-v2-1-ef4cd4190ae7@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="tk0w+1ML"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 683G2rPP2292349;
+	Thu, 3 Sep 2026 17:24:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=c8TO/7OmvWGnMMLtgzx+QJ5ne/qqbr
+	RqrQI/qIvKOcY=; b=tk0w+1ML1WzdAiMfCAeYriFWIVLZ77ViBxJCSohQ/igM7/
+	TndfhwZ0gfXTbzKiElVuR3mGNcDARpxUjzbU3BULh/+iBCtisedKz/RNRJZRpr5D
+	wwhq6cfQcKlkYrimI4102g356kN/JFqudtRTAuwrQ/PGrm1JnJ2P8LgOv+xw43Bs
+	iNzXdpbuFmcu2hSvs3Emdzu3ROf4Bwu0q7pYYkUpPxzMu4LLHVKQdD58b71g4KjC
+	7uK3rfY9WQofhSDC0pcNvVfyPPr4l2BrhOCRTa206KUsFrQ11SyFU2//mY3JZjzC
+	Ez6X2VsXbeeDYbXLr/d++JMkEVFMcPfcFXdPM9kw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbnue5qy4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 03 Sep 2026 17:24:24 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 683HBM3d027423;
+	Thu, 3 Sep 2026 17:24:23 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gcbygrhjj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 03 Sep 2026 17:24:23 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 683HOJYP49021252
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 3 Sep 2026 17:24:19 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 99E7720040;
+	Thu,  3 Sep 2026 17:24:19 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3E81420043;
+	Thu,  3 Sep 2026 17:24:19 +0000 (GMT)
+Received: from osiris (unknown [9.87.144.233])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu,  3 Sep 2026 17:24:19 +0000 (GMT)
+Date: Thu, 3 Sep 2026 19:24:17 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/8] KVM: s390: pv: Use VM_SPARSE area for guest
+ variable storage area
+Message-ID: <20260903172417.12158Bf0-hca@linux.ibm.com>
+References: <20260720085834.898025-1-hca@linux.ibm.com>
+ <20260720085834.898025-2-hca@linux.ibm.com>
+ <e9449c63-b8d2-4ed9-a184-7dcab3e8dfce-agordeev@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20260903-vfio-v2-1-ef4cd4190ae7@linux.ibm.com>
-Message-ID: <apmsZ3j0mtZq4Lp9@google.com>
-Subject: Re: [PATCH v2] vfio: Use file-based reference counting for KVM
-From: Sean Christopherson <seanjc@google.com>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-s390@vger.kernel.org, x86@kernel.org, 
-	Alex Williamson <alex@shazbot.org>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Andreas Grapentin <gra@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, Eric Farman <farman@linux.ibm.com>, 
-	Farhan Ali <alifm@linux.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>, Halil Pasic <pasic@linux.ibm.com>, 
-	Harald Freudenberger <freude@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Holger Dengler <dengler@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, 
-	Janosch Frank <frankja@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, 
-	Matthew Rosato <mjrosato@linux.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>, 
-	Tony Krowiak <akrowiak@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Jason Gunthorpe <jgg@ziepe.ca>
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e9449c63-b8d2-4ed9-a184-7dcab3e8dfce-agordeev@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: lQ87t9wGFaNarBH5O1a7QAehJ9p8v979
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAzMDE0OCBTYWx0ZWRfX+aHlm7/7Ulja
+ sKxgI46hpg0f+mLQmGtgUkqUK0i50Yfjz91D4cQrayKNXj5gXKviMLX0CKyBMPW0np/DZk0XaUl
+ xhzkvtOifBDbQdKelV1C/D4mCWuzlFz0Za76D+3mJpno9BuH6l37FmV46/H74haH7w0ccIASGpG
+ 7SIjr3KFBgoHlRI4YSSG0dpgTAgMEyJFX0/8+10yJ9sbcHy500Pez8iZtIUsJWJivYUAzyXSC0Q
+ sQc1z+0mjZHe6ClHBcWvA+nnDDw5f/HvEp0ZgzYU70Iy0DXoveM0PXy7FOixyCSvjb//roK0O62
+ TiRXU8GGS5a3sOR3yihvnGvlTbOJA9KRDQg0X3RbtuZim1CMShvCQdWOX2pm4jLW78M7h1PjTKR
+ 1OhjGK1tmvelk76RaKv77eqMWziZaxtfFFotULF6UMbNRc+HKMuEK0fV+9Eh6tqASWpnzDv6oef
+ JGPjZGxKWy9Y+Bw9vqQ==
+X-Proofpoint-ORIG-GUID: lQ87t9wGFaNarBH5O1a7QAehJ9p8v979
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAzMDE0OCBTYWx0ZWRfX5Runrt85YE4E
+ YmHEMmZGOTNoemowEE7qxp+pZZOxEsQRX5Xc6IeWiqnTFnMKNdE3e1qMqKwWuodfgcm2S7AHs3L
+ FdFMAJYv5y4rAVGbd/9fmDielhiOODo=
+X-Authority-Analysis: v=2.4 cv=B92JFutM c=1 sm=1 tr=0 ts=6a99ad48 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=G1NG3s6dxYr6cGAu9j0A:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-03_05,2026-09-03_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 spamscore=0 clxscore=1015 suspectscore=0 phishscore=0
+ lowpriorityscore=0 bulkscore=0 priorityscore=1501 impostorscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2609030148
 
-On Thu, Sep 03, 2026, Steffen Eiden wrote:
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 65eb26a0520d..34b4c43908b3 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -1314,7 +1314,7 @@ void kvm_get_kvm(struct kvm *kvm)
->  {
->  	refcount_inc(&kvm->users_count);
->  }
-> -EXPORT_SYMBOL_GPL(kvm_get_kvm);
-> +EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_get_kvm);
+On Thu, Sep 03, 2026 at 02:28:35PM +0200, Alexander Gordeev wrote:
+> On Mon, Jul 20, 2026 at 10:58:27AM +0200, Heiko Carstens wrote:
+> ...
+> > This assumes that s390 will gain full support for lazy_mmu_mode_enable()
+> > and lazy_mmu_mode_disable() in the future, since as of now the used
+> > ptep_get_and_clear() in vunmap_pte_range() does indeed invalidate and
+> > flush every single pte entry, but only for s390.
+> ...
+> > +static int uv_alloc_range_cb(pte_t *ptep, unsigned long addr, void *data)
+> > +{
+> > +	struct page *page;
+> > +	pte_t pte;
+> > +
+> > +	page = alloc_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO);
+> 
+> In lazy mode this callback is called with preemption disabled, so it leads to:
+> 
+>     [  138.709287] BUG: sleeping function called from invalid context at ./include/linux/sched/mm.h:322
+>     [  138.709535] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 6092, name: qemu-kvm
+
+...
+
+Any chance you missed to provide an important detail: this can only
+happen with your not-yet upstream series, but as of now there is no
+upstream problem?
+
+Is this correct?
+
+> This could be solved using the below fixup:
+> 
+> @@ -247,7 +247,9 @@ static int uv_alloc_range_cb(pte_t *ptep, unsigned long addr, void *data)
+>  	struct page *page;
+>  	pte_t pte;
 >  
->  /*
->   * Make sure the vm is not during destruction, which is a safe version of
-> @@ -1324,14 +1324,14 @@ bool kvm_get_kvm_safe(struct kvm *kvm)
->  {
->  	return refcount_inc_not_zero(&kvm->users_count);
->  }
-> -EXPORT_SYMBOL_GPL(kvm_get_kvm_safe);
-> +EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_get_kvm_safe);
->  
->  void kvm_put_kvm(struct kvm *kvm)
->  {
->  	if (refcount_dec_and_test(&kvm->users_count))
->  		kvm_destroy_vm(kvm);
->  }
-> -EXPORT_SYMBOL_GPL(kvm_put_kvm);
-> +EXPORT_SYMBOL_FOR_KVM_INTERNAL(kvm_put_kvm);
+> +	lazy_mmu_mode_pause();
+>  	page = alloc_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO);
+> +	lazy_mmu_mode_resume();
+>  	if (!page)
+>  		return -ENOMEM;
+>  	pte = __pte(page_to_phys(page) | pgprot_val(PAGE_KERNEL));
+> 
+> The downside is lazy_mmu_mode_resume() does not really re-enable
+> the caching and the performance will stay the same even when the
+> lazy mode is supported on s390.
+> 
+> This is the same pattern as kasan_populate_vmalloc_pte() - which
+> was the only occurrence so far.
+> 
+> Alternatively, the page could be allocated atomically, but I think
+> that is less preferrable.
 
-Please isolate the export changes.  They don't *need* to happen at the same time
-as the VFIO changes, i.e. can be done on top.
+I guess the real fix is to pre-allocate all pages, keep the pointers
+to the struct pages in an array, and populate with a different
+mechanism. Similar like the vmalloc code is doing.
+I wanted to keep this code as simple as possible, but...
 
->  /*
->   * Used to put a reference that was taken on behalf of an object associated
-> @@ -1352,6 +1352,8 @@ static int kvm_vm_release(struct inode *inode, struct file *filp)
->  
->  	kvm_irqfd_release(kvm);
->  
-> +	WRITE_ONCE(kvm->file, NULL);
+> > +	if (apply_to_page_range(&init_mm, addr, size, uv_alloc_range_cb, NULL))
+> 
+> lazy_mmu_mode_enable_with_ptes() called from apply_to_pte_range()
+> disables preemption.
 
-Please move tracking the file in "struct kvm" to its own patch as well.
+There is no lazy_mmu_mode_enable_with_ptes() upstream, nor does s390
+select ARCH_HAS_LAZY_MMU_MODE until now. Therefore my question above.
 
-> +
->  	kvm_put_kvm(kvm);
->  	return 0;
->  }
-> @@ -5496,6 +5498,15 @@ bool file_is_kvm(struct file *file)
->  }
->  EXPORT_SYMBOL_FOR_KVM_INTERNAL(file_is_kvm);
->  
-> +struct kvm *file_to_kvm(struct file *file)
-> +{
-> +	if (!file_is_kvm(file))
-
-file_is_kvm() should exist at the end of this series.  The only reason to ever
-use file_is_kvm() is in advance of getting at "struct kvm", i.e. this should be
-open coded in file_to_kvm().  Though as I suggested in the other subtread, it
-woudl be kvm_file_to_kvm_fn(), i.e. kvm_file_to_kvm_x86() or kvm_file_to_kvm_s390().
-
-And those changes can and should be done as prep work, i.e. in separate patches,
-e.g. to end up with something like:
-
-  1. Add kvm_file_to_kvm_fn() and use it on x86, i.e. replace the use of
-     file_is_kvm() in arch/x86/kvm/svm/sev.c.
-  2. Add kvm->file tracking.
-  3. Switch VFIO to tracking the file.
-  4. s/EXPORT_SYMBOL_GPL/EXPORT_SYMBOL_FOR_KVM_INTERNAL on the get/put APIs.
-  5. Enable kvm_file_to_kvm_fn() on s390 and use kvm_file_to_kvm_s390() in the
-     relevant code to prepare for s390+arm64.
+I guess my assumption above is correct and there is real urgency to
+fix this.
