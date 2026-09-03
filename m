@@ -1,53 +1,53 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A73AA4A206D
-	for <linux-s390@vger.kernel.org>; Thu,  3 Sep 2026 13:07:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 862344AC156
+	for <linux-s390@vger.kernel.org>; Thu,  3 Sep 2026 13:07:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788440870; cv=none; b=K+kIkYQrzNMwTpuEf5aNUppVH/dCfhlUnEA+4JyvN8eMQ3c5TK8oWqU4HXsn5p782sHW5VtvleJ0EP0oaFaQdcAXqwXcEnHCiKldlPxB+plMne9vub2aGXqdFXrYQA2VGfrLvoAwscCCABiNSpq55g37zxSKgLmtCEenJnbpohc=
+	t=1788440873; cv=none; b=GGv7RFc4DQSsUNvU7ssEHO2Xi1cYBkHHLbV3FGNeASXSdpgKBKx+I95cM40uZQV7UCQ+TSgwH33opQGykikylyoXjsEEV2qFgTKWxK/sCnAIOEJ0rarkWC7jCWJftdoKfLTG4jaJHXy5KntR/PZ0deuZgDyBFfnzjhGzHYLNcI8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788440870; c=relaxed/simple;
-	bh=m8oF7vXxL6MUm7NkEafU5P4EfygfyLOisgPHac3VQ9w=;
+	s=arc-20240116; t=1788440873; c=relaxed/simple;
+	bh=0TlZCCwbbmL1m9eVqBX4p6ZqUHmpi26rJ2lesIccUiI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=R1hR/FpSOzVMtQ90EqquLCtO8NH/vXyeiWcauxyNu1/zencl/XRSJ+Dmq4eAAbwzFfwRMb0Vz7pzSJzLldy/UUez9nRcZWfdf5o1/MlBeuJvt50LqOUu3ZJpGLe6vS1H2jkxTi4uf29yM7mizAuW9dmHe6EluB32RI9tzHR3OLE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qtBZPqnj; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=kG0nBklbvNDErj/X0u/kxHBNkObXSkDJWBlTuUMqf1qoD329nh9Gsi3VFYVEFv17vMPr/iav0UEDtqMDg66SVMZpFsOUxCRt+s60QM7hmJ4XPQtFJDeYYR8wFkYqF/7053diYn4AlmblGI6mHRVZN4KzJoLrq1laThCHg8NFtNo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=r6GSkD5Y; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qtBZPqnj"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 683AVXtV862447
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="r6GSkD5Y"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 683AVjTQ2617806
 	for <linux-s390@vger.kernel.org>; Thu, 3 Sep 2026 13:07:39 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=7b2vpWQCiaOr82rW5
-	1Es/xPSUl+UVeDdicVdj3UhcnE=; b=qtBZPqnjMCgakZJgLfzYS2CmXp8HBKu1A
-	pZ4onBCZGAdtA9DSeP7Zxc6foT9f9N+0SsTbAK1TDmHe8iyFMUA17H8eh48Oio0o
-	/0fyvxsl9mQC8AGDM/0myBmjqYEB+ibyIEXSzTjtHzFuPV0l97A60ANRkQwNixm7
-	ZCdUuxJN4yrEqEQj3i8iHxgAmR98sZTdvg+BX6Uzrm/xxIogQz/buqjx9OP5DVwV
-	jHuk+8rcW8d5U9VVg3UpFQUPmVE/EAVBhXH1O6ExCOAqZhur8L0fpvlNxz+byva4
-	x4ICFfV2yx/rin+Sr7eSTj0+iUbGJyz1esVuCXsG6Yjlu6iVqLang==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbq3rmxr7-1
+	:mime-version:references:subject:to; s=pp1; bh=N0Oo7Wpwk4bnGH/ic
+	1rk8kr5F39VSO2Zp8aeuMQ8gUM=; b=r6GSkD5YMMELH2S4sEudhM5Lew/62HKc3
+	fr3AZ4ChZW7aRjeRpTVsacqfUfjU8HTVPw/Pl5glvQwbOLlDaS7yWaL8jyrVX2sN
+	OL9D79aldhcujrWEsjG7XByPpv9pBL8MdZ3VTNGb9YZdacX7jt9UiEoTEIZeD/r9
+	HFNGXfdd48AOj0YkPXk31H6F8uRWiIM2sjOQi13mIdHSc5EtVm11RNobymFC7LxO
+	3Z1Rlw33cxc10S0QD8nk5BwPi6j/KkOp544z+xMCDZf3wq+VPyA7mGaQJKnYKspV
+	VXAUmLA8NEbXjgHgN3V3OfmQrwx0sPR3NmBVjfDT9JmentVZ9/9ow==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbmuj4qkw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Thu, 03 Sep 2026 13:07:38 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 683CfJ8x007441
+	for <linux-s390@vger.kernel.org>; Thu, 03 Sep 2026 13:07:39 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 683CuHV8024960
 	for <linux-s390@vger.kernel.org>; Thu, 3 Sep 2026 13:07:38 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gcceyfjje-1
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gcb8hqpp2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
 	for <linux-s390@vger.kernel.org>; Thu, 03 Sep 2026 13:07:38 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 683D7Y4g32113220
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 683D7YFt26477258
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Thu, 3 Sep 2026 13:07:34 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 466AD20043;
+	by IMSVA (Postfix) with ESMTP id 647E420040;
 	Thu,  3 Sep 2026 13:07:34 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2B6F72004B;
+	by IMSVA (Postfix) with ESMTP id 4A17A2004D;
 	Thu,  3 Sep 2026 13:07:34 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -59,9 +59,9 @@ Cc: Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>,
         Peter Oberparleiter <oberpar@linux.ibm.com>
-Subject: [PATCH v3 1/3] s390/debug: Fix NULL pointer dereference in debug_set_level()
-Date: Thu,  3 Sep 2026 15:07:31 +0200
-Message-ID: <20260903130733.709001-2-zaslonko@linux.ibm.com>
+Subject: [PATCH v3 2/3] s390/debug: Do not repeat parameter override notice on debug_set_level()
+Date: Thu,  3 Sep 2026 15:07:32 +0200
+Message-ID: <20260903130733.709001-3-zaslonko@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260903130733.709001-1-zaslonko@linux.ibm.com>
 References: <20260903130733.709001-1-zaslonko@linux.ibm.com>
@@ -73,72 +73,125 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=EIc2FVZC c=1 sm=1 tr=0 ts=6a99711b cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-GUID: oMg-q-OH-7eKfxc7OY9cs8eh6UIzpFs_
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAzMDExMyBTYWx0ZWRfX5waBwJyxO557
+ EmyiARZhTJfuWzj+NL7LEy9HjltsZl0JWnAcIbZhRWUUmUwM9R6W4nxuggfAlPmpWyb434v581d
+ 1BPHuv3LfD9CsrzrNJhSwG00u/zrNqG7kvte7RyvJf5aVRhmhUVpZu0/WjVQzeDv9gBkjj/gRCP
+ 4M/RgD5Xw1Xzi++AzMnZYz/+MomcRlK7xB6GFTFZ45smyRVBG8y1ndLU7TPF8qiUOQkuxpOqApf
+ TdTT8bnsKXG6MTvxRwznZxT7omZVgCZ2YfVL/ZBdAfmVlQYEoj4i+pHghBcMcfW9sGN/710Lv+7
+ nDQEsXdrEhC+9LDtpcmoX6Lu1Y9KM3tOxwpWx3ZCqFDr09/NSbObbkFiB2Ewq54ymWOvv8onWYX
+ /rxmh4wPlYVUTFoU2s5S2jAqN2bzM78Z/YBRQttuq2lDICCZDXYy2sWXkTRSazTvnQO5wPaClZw
+ phlzP5Y2wLLJ0r24uXg==
+X-Authority-Analysis: v=2.4 cv=Osl/DS/t c=1 sm=1 tr=0 ts=6a99711b cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=rWNA1FonZI2w8RDMTWgA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAzMDExMyBTYWx0ZWRfX2PZJKVgOI6v3
- hWYS9CC6TjcUrag8+AAHEAOX1cgYZli/YHuRoE320dnPTpkS8m3EZFK8DBl6w+Cj5h/Ykrl/wqx
- XetFziwStjgqUzYw3ggr4X2isUsDAi1cg/Dyx/A9wj8yWepcR5RAbet0E3iGhrA8NFcQrV2hKos
- lhjhc2qSgpSsomwENlfI30mIE3KpQZESteT/kUgno4TASo8qXkcvQttRLzvMQHo9/UzTnObNynX
- vCSYXP9k6JzRpy4iwIC2WWZZMycLFTrd6XGZwrOOOOtXqOGA0gf9LCVEdjVIGxGxDArULKbbztP
- RulvzO8WJONPs315uuRZUbvqmpVdq31RNecmJYmkWGczYCozqAJtyF9r0chFD2LMhPr3zzMy4ZL
- AXDWZhZ0RJqEG6QpO5T1iKVdDFQjMlqZ39GprTTu01TslauVllGLu8c8Kc9JnymYfJW82jXk6nL
- zsfvqSHgkPM+kCVWEMg==
-X-Proofpoint-GUID: nNKNexFCcQdndz-qDW7ZubZJZaqzzu8k
-X-Proofpoint-ORIG-GUID: nNKNexFCcQdndz-qDW7ZubZJZaqzzu8k
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAzMDExMyBTYWx0ZWRfX5QGOrE8l5p41
- s+taPIY1oWh0jWM2YGIQo1z753RUpbh3HTa7+5cyJdU+pFE1Y8QOHFe5hCtIPXJBxwii8p7ZUvk
- N39JVl4dp0lm+SuCXR0sSRG1EaChOUM=
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=Uf4yk4d_HpTkD3D5FP0A:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAzMDExMyBTYWx0ZWRfX7c8nmUYbCct2
+ GihIzOBtF7IjYNwoPDaF12+2H3gzmCR8fEuXnQBp1hSKGoHiUTLxaSqTBQm9bks2ajDrZlb66tS
+ EQtB7qsq92AcsAVx9sSsiMDZ8ORTY88=
+X-Proofpoint-ORIG-GUID: oMg-q-OH-7eKfxc7OY9cs8eh6UIzpFs_
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-03_03,2026-09-03_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 impostorscore=0 suspectscore=0 priorityscore=1501 clxscore=1015
- phishscore=0 spamscore=0 adultscore=0 lowpriorityscore=0 malwarescore=0
+ spamscore=0 malwarescore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0
+ adultscore=0 impostorscore=0 phishscore=0 clxscore=1015 priorityscore=1501
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609030113
 
-Commit a2cec6863709 ("s390/debug: Add s390dbf kernel parameter")
-incorrectly removed a null-id check from debug_set_level(), introducing
-a possible NULL pointer dereference for debug-API users that put
-debug_register() results unchecked into debug_set_level().
+Commit a2cec6863709 ("s390/debug: Add s390dbf kernel parameter") calls
+debug_get_param() from both debug_info_create() and debug_set_level().
+Since debug_get_param() emits the override notice unconditionally, and
+drivers typically call debug_set_level() right after debug_register(),
+the same line is printed twice per debug area:
 
-Fix this by moving the check from the internal _debug_set_level()
-variant back to the external debug_set_level() wrapper.
+  s390dbf: 0.0.1234: override level to 6
+  s390dbf: 0.0.1234: override level to 6
 
-Fixes: a2cec6863709 ("s390/debug: Add s390dbf kernel parameter")
+For areas registered per device this is multiplied by the device count.
+With 's390dbf=0.0.*:6' a system with many DASDs emits a large number of
+redundant lines during boot.
+
+Add a quiet parameter to debug_get_param() and pass quiet=true from
+debug_set_level(), where the override has already been announced during
+registration. The remaining callers keep printing the notice.
 
 Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
 Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
 ---
- arch/s390/kernel/debug.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/s390/kernel/debug.c | 21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
 diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
-index 14d2b58ad093..e06abf1dbc21 100644
+index e06abf1dbc21..cf411f203571 100644
 --- a/arch/s390/kernel/debug.c
 +++ b/arch/s390/kernel/debug.c
-@@ -1074,9 +1074,6 @@ static void _debug_set_level(debug_info_t *id, int new_level)
- {
- 	unsigned long flags;
+@@ -182,7 +182,7 @@ static struct debug_param_t {
+ static int debug_param_num;
  
--	if (!id)
--		return;
--
- 	if (new_level == DEBUG_OFF_LEVEL) {
- 		pr_info("%s: switched off\n", id->name);
- 	} else if ((new_level > DEBUG_MAX_LEVEL) || (new_level < 0)) {
-@@ -1101,6 +1098,9 @@ static void _debug_set_level(debug_info_t *id, int new_level)
-  */
- void debug_set_level(debug_info_t *id, int new_level)
+ /* functions */
+-static void debug_get_param(const char *name, int *level, int *pages)
++static void debug_get_param(const char *name, int *level, int *pages, bool quiet)
  {
-+	if (!id)
-+		return;
-+
- 	/* Level specified via kernel parameter takes precedence */
- 	debug_get_param(id->name, &new_level, NULL);
+ 	struct debug_param_t *p;
+ 	int i;
+@@ -192,11 +192,13 @@ static void debug_get_param(const char *name, int *level, int *pages)
+ 		if (!glob_match(p->name, name))
+ 			continue;
+ 		if (level && p->level != PARAM_UNSET) {
+-			pr_info("%s: override level to %d\n", name, p->level);
++			if (!quiet)
++				pr_info("%s: override level to %d\n", name, p->level);
+ 			*level = p->level;
+ 		}
+ 		if (pages && p->pages != PARAM_UNSET) {
+-			pr_info("%s: override pages to %d\n", name, p->pages);
++			if (!quiet)
++				pr_info("%s: override pages to %d\n", name, p->pages);
+ 			*pages = p->pages;
+ 		}
+ 	}
+@@ -251,7 +253,7 @@ static int __init s390dbf_parse(char *arg)
+ 	 * regular memory allocations are possible.
+ 	 */
+ 	for (i = 0, id = __s390dbf_info; &id[i] < __s390dbf_info_end; i++)
+-		debug_get_param(id[i]->name, &id[i]->level, NULL);
++		debug_get_param(id[i]->name, &id[i]->level, NULL, false);
  
+ 	return rc;
+ }
+@@ -395,7 +397,7 @@ static debug_info_t *debug_info_create(const char *name, int pages_per_area,
+ 	int level = DEBUG_DEFAULT_LEVEL;
+ 	debug_info_t *rc;
+ 
+-	debug_get_param(name, &level, &pages_per_area);
++	debug_get_param(name, &level, &pages_per_area, false);
+ 	rc = debug_info_alloc(name, pages_per_area, nr_areas, buf_size, level, ALL_AREAS);
+ 	if (!rc)
+ 		goto out;
+@@ -960,7 +962,7 @@ void debug_register_static(debug_info_t *id, int pages_per_area, int nr_areas)
+ 		return;
+ 	}
+ 
+-	debug_get_param(id->name, &id->level, &pages_per_area);
++	debug_get_param(id->name, &id->level, &pages_per_area, false);
+ 	copy = debug_info_alloc("", pages_per_area, nr_areas, id->buf_size,
+ 				id->level, ALL_AREAS);
+ 	if (!copy) {
+@@ -1101,8 +1103,11 @@ void debug_set_level(debug_info_t *id, int new_level)
+ 	if (!id)
+ 		return;
+ 
+-	/* Level specified via kernel parameter takes precedence */
+-	debug_get_param(id->name, &new_level, NULL);
++	/*
++	 * Level specified via kernel parameter takes precedence. The override
++	 * was already announced during registration, so stay quiet here.
++	 */
++	debug_get_param(id->name, &new_level, NULL, true);
+ 
+ 	_debug_set_level(id, new_level);
+ }
 -- 
 2.55.0
 
