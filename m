@@ -1,169 +1,190 @@
-Received: from esa3.hgst.iphmx.com (esa3.hgst.iphmx.com [216.71.153.141])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F324F423A9B;
-	Thu,  3 Sep 2026 11:55:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=216.71.153.141
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788436522; cv=fail; b=WFAO4kHVC+OTVlb+AAzjLcxQLe8k0YD4v4zohTA44QmYHM29gh3uiatnQF+bOgHMFia3H7PebgUsWWOrzzHo4xlLgkzxJh5GJipPpkdbr3GxJAJZqVqsRMqh4DbNsyz/48IQA+s5GsNEoEEkCUu+MyOoavLBf4BtCNKNF0aevyI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788436522; c=relaxed/simple;
-	bh=9svgEblQQ1efgy47JKZ4aqokODemduYEMnwLlIvKkho=;
-	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=CPzZG9uJXngDM03eO7tTCWiDiBp4LNPKs+tpGoPt/C+srrkoOsUwKPYrvUuNKxsrPsfNxUVShJhkogDjSFP1WNO78DY4WZhDiZD1azpCx7kc140nsRV7qvaeE4V6PveSkUYW/OWuvnSJhYj0xQVgWYSVwwXENti9MFoLz413nc8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=Q7Cn64OO; dkim=pass (1024-bit key) header.d=sharedspace.onmicrosoft.com header.i=@sharedspace.onmicrosoft.com header.b=HE99fo2A; arc=fail smtp.client-ip=216.71.153.141
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C80044A0EFE
+	for <linux-s390@vger.kernel.org>; Thu,  3 Sep 2026 12:10:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788437443; cv=none; b=DwH2tD/J7/EMme3c+EJ68vDUX5PS6GrbzZFuAfPpWZDw7fUzg0WDu7bPo6gsl6NBSgq4WMbLxZ6RrfT3LqnOjW7jVNgX6W7AVheicnQHRcq/RekMJVA0VNen1vBiWkVT8DVK//C0EvvXc8VOVpLXWsOmE5kYT5mr1S1dLuFKhRk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788437443; c=relaxed/simple;
+	bh=5C1CP0+JFZkqxN4iy0WE+C4EmMcHYy0FuvuZVgw4kSA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=K6h5/OCOBmPgw/LRRMDI57GnuHy3C19imVIj0+TKZOrwdadOAnCFQ6z/rJkKAHQQ3wyF1LStHP9J71RC71xMP/pZQTGJ68F+yhNs2E7h/sQGarLKPkGws9tEkDRKvdNOXgzLSYfxyJP34vTbMQpduzl53YlnMHAp39iK7BuULL0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FhsGjfhb; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="Q7Cn64OO";
-	dkim=pass (1024-bit key) header.d=sharedspace.onmicrosoft.com header.i=@sharedspace.onmicrosoft.com header.b="HE99fo2A"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1788436518; x=1819972518;
-  h=message-id:date:subject:to:references:from:in-reply-to:
-   content-transfer-encoding:mime-version;
-  bh=9svgEblQQ1efgy47JKZ4aqokODemduYEMnwLlIvKkho=;
-  b=Q7Cn64OOajx4NLvsIqzrKJKurSVNlxyK1hFWrbdrlhD3h4MrviAo9AmK
-   XUURutRe7Yi0LLv08Q+pusIKeAtqXuRIZo/+VASvBL+FxuKISIquuycD/
-   5JZCHxvtP7GUTMHfRa0FG7/k3n5woDUBGbWm69BDfEfjXo4Bo6LhkkoTE
-   vqlrppQiUphcehyXpEWDfoOQUPtTTCBT/dqlT6ryPJadEjbi7Grkm4irm
-   M9+F2FahVvYbLjvYC7d3eQT78Q1s2hH1eikjdKP+U21Qvr4eC4NIGCxUC
-   fzWmH4ynfWTcHHBEKU2I8ezgvo4UjX32wAYADsgvj4yDhXcG/o9FeuQ0E
-   g==;
-X-CSE-ConnectionGUID: MFLLcXYuRy+S9B/Cl4ABxw==
-X-CSE-MsgGUID: +zRXhroPSKW2ZdrsQPAQ7g==
-X-IronPort-AV: E=Sophos;i="6.25,260,1779120000"; 
-   d="scan'208";a="154870880"
-Received: from mail-centralusazon11011044.outbound.protection.outlook.com (HELO DM5PR21CU001.outbound.protection.outlook.com) ([52.101.62.44])
-  by ob1.hgst.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 03 Sep 2026 19:55:08 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=jjmwAButEilQAuKKqUBysakPqQTrwrGjN/NfJxxhz5QZnUMO+DmSaxlnWICF0Okou9HwH9DFryyohJkZkpqEdIpKlzv74wGyEfwRnAUZ16Szom8t+jS93/KLiufHBR7jYFy4aA2swAM8kYKvoI58yZyaQvS6aIX2GyD73lcV14wtxDiJWHPsG83xel8vJvNbZLZfHEps67wvKl0uCCVWkGpqd2I9HCY0hWpol+orzE2ExA68nZ9xo7GyU+udnffnjJmmB/BcLeYtyzgKlc38EwzU11kmYihTEQPIE1Wd/vSxMlxOuQGwqQYHeASGOoRUy0DwupdY10+uXm5L6UApBQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=9svgEblQQ1efgy47JKZ4aqokODemduYEMnwLlIvKkho=;
- b=B2b1cHZUDvhADkMY9Na0tBJq1Ms2XNpgLqKBff0aKjYoZihEQ18LIBPuoHPRGYFKCUwDquJtKYoiykJOH8JhuzWGKAVoIo6FFX2IrMRYYgCSmYFbtEakL/ZAqU40UoKc00H4xhSgd8O/cakHCkugflui2+1oBkBSrISYF8+ROHu6isRN79VrhxTs9F1TAJvIzf0hWTGZ8kJPUhGqaEhy21MAajDvxibyUyj5TUNq3A39Vdw0SjMGgaGwgBDJgOTWKNxpSPGcGoL1Kp3kUArh0AwoiFaJzccJ+JIBnGUqD5WmaDm1vKfykDjCO94XocE9n7Lr5ADcgtDfg7FanD/+ag==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9svgEblQQ1efgy47JKZ4aqokODemduYEMnwLlIvKkho=;
- b=HE99fo2AWliDYsNnPsU7GDrENO4y1Ml7l3GCVemDkH6dJZ05QHXiMQvsmo55H5C8gfHSMHwfhY68L9MKF9kifjMkwy0gdShkmUotJET9skCzsWbTV+sLH1q7eac1iIGkwtnadLQkda+isEg8WC9hfjBuBo3SdoZ89Br3GgJBNgs=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=wdc.com;
-Received: from SA6PR04MB9447.namprd04.prod.outlook.com (2603:10b6:806:436::21)
- by BY5PR04MB6392.namprd04.prod.outlook.com (2603:10b6:a03:1ed::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.13; Thu, 3 Sep
- 2026 11:55:03 +0000
-Received: from SA6PR04MB9447.namprd04.prod.outlook.com
- ([fe80::14c6:1c14:485f:1825]) by SA6PR04MB9447.namprd04.prod.outlook.com
- ([fe80::14c6:1c14:485f:1825%6]) with mapi id 15.21.0360.008; Thu, 3 Sep 2026
- 11:55:03 +0000
-Message-ID: <f9faafaf-176e-4bf8-a4a5-0520dc317b07@wdc.com>
-Date: Thu, 3 Sep 2026 13:54:59 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 01/40] scsi: define all additional sense codes and
- their qualifiers
-To: Damien Le Moal <dlemoal@kernel.org>,
- "Martin K . Petersen" <martin.petersen@oracle.com>,
- "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
- linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
- Niklas Cassel <cassel@kernel.org>, linux-usb@vger.kernel.org,
- Alan Stern <stern@rowland.harvard.edu>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org,
- Heiko Carstens <hca@linux.ibm.com>
-References: <20260903034201.112211-1-dlemoal@kernel.org>
- <20260903034201.112211-2-dlemoal@kernel.org>
-Content-Language: en-US
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-In-Reply-To: <20260903034201.112211-2-dlemoal@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: FR4P281CA0026.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:c9::11) To SA6PR04MB9447.namprd04.prod.outlook.com
- (2603:10b6:806:436::21)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FhsGjfhb"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 683AWPjt2619348;
+	Thu, 3 Sep 2026 12:10:40 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=UJnBih
+	Jq3E4aXdGX77j+QuKcKKS00SMRxVxEr4pShbI=; b=FhsGjfhbbBYBz7XF/71BZk
+	ygX0+YKrwL5yWybVL7hwk5POlG+Wdii8Gmm3V57T3RfLTQZTF3ZynGNv3DcvQgsG
+	iBUPMAGKFxll21gqNuCidW9iq/soYYESZayBv+5phUDLvQQS8dRWlpAbelbybdKm
+	4fmmUMMOn+n5vCZunkt+uBila3oKMEu6lKJOYrVcoEQfc/+G0jcuLP7Vdqo6Y2K6
+	HKgYTWM9sB1ZLXrSfG8RzX6aLdHeJaZ0AVCjancldgNtaCGTjF6eGTxgmMy89z2U
+	QYStM36HMuScLE1A25ph1AI5UUtX6k8yFHS+ylJ9hVy6M6Be8m1KNJ7Qif9DIVew
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbmuj4f82-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 03 Sep 2026 12:10:40 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 683BuFb0015055;
+	Thu, 3 Sep 2026 12:10:39 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gecjaqx27-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 03 Sep 2026 12:10:39 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 683CAZDE33685766
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 3 Sep 2026 12:10:35 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0267B2004E;
+	Thu,  3 Sep 2026 12:10:35 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DA5302004B;
+	Thu,  3 Sep 2026 12:10:34 +0000 (GMT)
+Received: from [9.224.90.205] (unknown [9.224.90.205])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  3 Sep 2026 12:10:34 +0000 (GMT)
+Message-ID: <cffc6734-19c8-439d-a55b-79bdedd54eab@linux.ibm.com>
+Date: Thu, 3 Sep 2026 14:10:34 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA6PR04MB9447:EE_|BY5PR04MB6392:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2b0510d0-54a7-44b5-e38c-08df09b230b0
-WDCIPOUTBOUND: EOP-TRUE
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|7416014|366016|19092799006|10070799003|1800799024|23010399003|10067099003|11063799006|22082099003|18002099003|56012099006|4143699003|921020;
-X-Microsoft-Antispam-Message-Info:
-	6+Jubc/XC3SMalFzRl611sZCOQlz1ypI9P8HyJGxIu8lmLQhTkQiUUErEPPCJVzHxsNKMZ5VuvSDGh3s0bJYJXFk3CpBB745WTyL8KOMOBZcmjyfjGJBKudzLzbKQDd7JjLZ5CPmR/kQEOCwLQc7ReSYtpNBmjmdDGL1ESh5m4zzdHs38DOPSvX4dktFfMddeUEIeR2fMvoXGyvhs64K2Mqgl5d8qvGs64jyccPM3LTvqh2bbQK998/gQSavY2sQ01ZZhT9xb2L4pDCHc5Q8W/mGdSfw0U8MS8uSZ8ic19pVXXMpklxQKGadWhfsBOS8Ru9+SuGYocXh/hmDror6FLn7FV2Zkvuh2cjDbfmjJzjewUzFNK7PuCT6IA6YOiakov0K+JBf3MTlHElQvtD9r/FWODM3yEFOuazuPKXtbyH5KZN6bIxQ+9otdcA0oXGi8yrYXt0iueBONaz3Nw/iM1ZCFKhuJH64+h3D4zAko3EJjezTDQVD3KwvxwZpWYKCMmn0FmNCGePm/CbVfqXX3fpNbsiVdHZ5eSutjgrI1nsifRqdp9VccPqh0YyE8VpiyYbLZMain+ctqYZDFZu6wb5/6WOULG052ZzCEyAADYqp+Qf6A0wPS+jorfPQXSgzeJJyLCo+WKNniRbTWKc97dS/deKffGIjcGQEDkz/6KXw0q4uEYLeZFwdHDS+ck2kzTg3RZahvokxqMqaGs2JPw==
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA6PR04MB9447.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(19092799006)(10070799003)(1800799024)(23010399003)(10067099003)(11063799006)(22082099003)(18002099003)(56012099006)(4143699003)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 2
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?NFptVWc0dVFSeGlPRithTGljT24zMGtmcjdsaXpEL0VwVmlMWHNlT2wrM2tv?=
- =?utf-8?B?dUREMkJxVXBUU0J6NWxpcXA4UUpoS0hKYTd5OUxsVEZ3ck1nalRNNWxSN2Uy?=
- =?utf-8?B?S0pCSC9YenZuR1dSdWlmSXB2UitSQUo3djNWL0RMNTVZSHQwZ2ZNTlB3cHpu?=
- =?utf-8?B?VUdYVTUxWlljcGZ5ck51b2FWTTFMK1l6dU1OaitpYjlmY0p2b0NSeFB2dlp3?=
- =?utf-8?B?eUhXcFdoR0VnRmcrd04vVHZWS1NwWXdEdXNUYklZMzl2a0VQUklnQzRDMDRP?=
- =?utf-8?B?NFhzWWg2MXUzRVd5Z2JTNzlvWmxzR3pFSWF6ejVUTEdSOVRMMUp2Z3Y5Rm9X?=
- =?utf-8?B?NnN4SXpySUdhNEZ3S1RMZ0lqVkZsMlFPSXNyY3FwcTQyMDRYQ2dQa3R5ejJq?=
- =?utf-8?B?U3hsTGFhcS9vYkxoS0NnUjBBbnFzWHpiZGxtTEFuUjFmd1ZCcGU0UEZjWWNN?=
- =?utf-8?B?bjhVbkxFY1VSK1EwMmVzOU1XMjlMOVdJRHJLV3NxYlNIaXFiNjJsSWpKM0ho?=
- =?utf-8?B?bThQTmF6NjE5QW9QRExDcEY5LzVWRWtDRStnMm5UbHNoWGZPZzNzOXV3Q0Nn?=
- =?utf-8?B?ZG5mMDRWVHZESW1RUkJoU3ZiTFVlUnZ1Q0ZEQ2dDSWk1ZTY5TGhtQXl0RGpV?=
- =?utf-8?B?NjFSckRyS05URHM1c2lzaDR2WGdOcHNUeThMdkdodUc1b3o5anR2aS9GS3lM?=
- =?utf-8?B?QUsyc2pJaFhGTzBrbVQ1eFFwSEVVV1hKUGt4eFVvR2lNSExYUlRnY2pzenNz?=
- =?utf-8?B?bHQvc1cwUUpsUXIzL3pPMUloSGhjblJmSG1iN2s1NjN0T21PT0tCSVdUdlN4?=
- =?utf-8?B?SUJ4aFJRVXJITzFCS2FjcklMdzBqRzRMWm43OG4wUk9hbFJ0SnFBMUdxUCs3?=
- =?utf-8?B?Zm42WjRRUG44dmVtVEZrVFpvU2xYcFNxSVRHZFdaNkdHRHk0S2trWXFBTWR3?=
- =?utf-8?B?amVGL2JpWnBHYWFQeXM2b2IrUWVQNll4N2RsT05sOGVBbGRxMkNIV1c4YXpu?=
- =?utf-8?B?L1lHbFZFeVpEVkJIYmQ3N2ZtbmMra1JNZm9uQVV2SE0wZDB3V3IyeTdrYnFp?=
- =?utf-8?B?SEpwTGpscjJGQjQrQ3IwRGpodFovVXVFWkZaL3BoaC8rbDFZWDZlbFNLNkRm?=
- =?utf-8?B?WGNucEtIL2F5TlJoVjlWQmhUdmFCT1NXL1ZkTUgzenZyVmt3S2tST25jdmhk?=
- =?utf-8?B?UkgzeVFSTUFNS250dHFsdVVCTmxsSjlvRlM4ZUJHb2xnREEzZGJudk9kUHRL?=
- =?utf-8?B?ejhaUVIydXVWSjUzVXRzNHZSV1kvbEVFNUdQeGVKU2ZhYWNTSGJiWHMxbjYx?=
- =?utf-8?B?ZFpFNnllWEE4Y0dJb04xb3dCaVFTamh3UUkybEMzNGF2Y2crWXNsMHh4UVp3?=
- =?utf-8?B?eWFyRUl6NmMxaTc1TCtkQmdIUGJsWVN5WmVZYmY2VXNuSjU1Nm9xcVFLQm5Q?=
- =?utf-8?B?dmVlZjhCMm1pUFRPK3ZtZEVsZng0TTc0TmtmcFVNZk1aWkFUSWdnbU9rTWta?=
- =?utf-8?B?clB6QVlydlY1eXk2VGQ4cGdZY1JKQ1V2aHlCU1FYTEFlcXcwbHcwRGxsblNH?=
- =?utf-8?B?VzNCaitycG4rd1VRVWtpMm8wMEY0M1VGUmRZKy9UcTZ6dkE4SWN2ZDUyVGJu?=
- =?utf-8?B?K0l0ZFV1UUhlMEtSMW43K1RlMUZJL2h0Q3k5VmVJNEtDc0J3bWJwcXNaMTdx?=
- =?utf-8?B?UzljUHNPcTN4bkcwa2QxdGRqWVYrOEhwQW02YzZXTlliY09nZ01OQnlQUUFr?=
- =?utf-8?B?RVpDUmY2UkNKSUFtVS9XZHRnaitPcmpoZ1dVNEdTbnhSVm5SK1pZMG1OMmxV?=
- =?utf-8?B?Vkl2Wk5IT1Q1NmoyODFMTmpacGNkOEloVnlCMkVuZk5tbGRJNytUc3NrV1pL?=
- =?utf-8?B?WlJmRE5TVHlYVHBlNnQ4NG43b3Ivc1pLcjVGdjRjTmc4eTBydFJ0SjdJZFFJ?=
- =?utf-8?B?aXdpVmlscnUxc3FVRnlpOFUwenFaWTJIemtDVVJMcURRbXFKSTV6U3B5OWJS?=
- =?utf-8?B?Tk1wT2N2S0lReE9wU1g4Rk50RGdlQWNocVZ2S0tJeU5KeGV2UDVGM29CUUdZ?=
- =?utf-8?B?SmdyMURSM2pPeGMrcURzdkJ4SmpJM1h2Z1duVmZjMXRJKy9WNW43N0lRbGpl?=
- =?utf-8?B?TnVGS3BTeWVQMisyYytZUVN2ZjR0UzNQMFhXYnk0ZzBPUFc1clNrdWlvSjk2?=
- =?utf-8?B?SnNhNG9vZitkRytNZnBDbFJqQ2tISFF0aDNpSDc5a3IxSzAzRExGajlQck9X?=
- =?utf-8?B?Q0x0ZWFGenU2VmF6MVlNY2FuRXlGcTB2U2tJdmo2V0UwelV5c0hUdFFhTVEx?=
- =?utf-8?B?ck9yNE53anVkL0VRKzZqS0FidnpKWEZIbW1BcjNyUngvVE55dzN6MU0zMllX?=
- =?utf-8?Q?fMSWXD/KrrawOYmodHdk7LtFubcXKPMt/nMw+MyciRgpK?=
-X-MS-Exchange-AntiSpam-MessageData-1: cxyUoKm5Dm0oD5OM1LYB2G752fTDqAvOE4U=
-X-Exchange-RoutingPolicyChecked:
-	Pk1y624XNAANIsP0UyHQ7F5P/SkWk058MHQSCYXCS9whjiCizBRyghMq5tHYk3uPqymLZ9HdyMGdDabfh7dtdi9PCIyRPKOjRCUh87DlAph9iiuPi7jT02Uf0wDxBVadTcVmtJ+Wz6rqq7Ae0iynGl5H5ckoSRRsMLFFYJVxUHbo6taVgE57AHzKZdEsrZG9nyWs7HcUn8kj89/NWm0At02piYKTWiIrHMA9SJP72pdOBvYvKWYAOrjVWW9qDrjh27wHFRpiobKgY8slg8pypFMJCUAGrJ/GxitRCovxrDnTiC2omHnij5IJA6S6z3joTdlt/zmcfBjgwOlEcrSLLw==
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	aZrOrHI1q7DM6RqpYqWNz/7JmkXiB2c4bPY4ttIbtIJk9yX+sJf4GP5BlHPRhhi3/1b37qQP1k1snkQYA7h1w/NT0R2q4HxIuQrkoO/w6Y+Es4HsSfD2sHg6KNgE+71hXzSgeXXsJYW0BvQjOBWBIx+STVmqb3fdf9ow+3anVkoFMJ/WJKy4b27VldUw4Ka4evoGc3Bt/HzHwCr/iJfLTip8fHq0YU50xIOCOmVAlkpnl5/HuEN4p021GOhepWtrkv9rIMer2irQXnolA1avDk3F94M/yH+hmgcqSzxrvZ4sRNCMj6xmYuy2J5bryHGUK2Of+bZNMTI+d29/jolszrBw+B6MbZ9ygZm5C7I0eiJ9j+T+vzJWWGjfdZr45ACus+azhMeREpASPB/hRzyNhXSBmzy+ho/QwTQRoU3bR+DcPmRpvfmBa3+EO3wc57yU6BRfwOvU1wK+ZTpgQHf3PVmqx5iPO5CJiMSN2ctqTf0rL3WR6EGq8blE04QUkDIFcSF790eQC/6VSTYdLWWWhACjZtkDJqsFeWvxWL0dniYVdvV3ngJDUvM3wiXFRzmGrDm5UzpiEhchbEU7UU2grHTHOaiPyYuTRmWClyyL0gVmK6QewnDGnc4/6buwnBvg
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2b0510d0-54a7-44b5-e38c-08df09b230b0
-X-MS-Exchange-CrossTenant-AuthSource: SA6PR04MB9447.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Sep 2026 11:55:03.7968
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: niaD57B6iiVUEC/zX5GiGw+k21AIYeX7TPp9+vB/tS43tsKsojOR/wNNjBIVY+HCElGrnBJK7XS6lAjXl2MT5RGB9q5iRWKZ9UFQo58Xi2Y=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR04MB6392
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] s390/stp: Drop CLOCK_SYNC_STP
+To: Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik
+ <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.vom>
+References: <20260814072223.2218864-1-svens@linux.ibm.com>
+ <20260814073450.908631F000E9@smtp.kernel.org>
+Content-Language: en-US
+From: Stefan Haberland <sth@linux.ibm.com>
+In-Reply-To: <20260814073450.908631F000E9@smtp.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: WEYdQSRSuy7rc2g2jh3q3FAi88PF94TK
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAzMDEwNCBTYWx0ZWRfX2Jzaha4nZxZZ
+ jgaK6xq9mJkAPGwdCPkRkTeA+3BEyaKZWBgmKC24UZ3634pGflHr6nDWBTZEWJqGKiTbsHAfpZx
+ fm5rQj7zA57faqv1lciO+zNTtd5umHlQf+NyZkNbMJ8IJE4Zdre/A2gWlvYRL38ND8lrgYA1nQt
+ FYcIz930ZAUk0rwoi+JRGOWh9/QPf0+JFYzmWvm0Ona6f0nZhr1cZ/4uossERIjKPd1LnNDlAHM
+ X4g383IUfhJGupw99aWik0tMRB/uUPWzIbFmCbQcuCPz1cCPARo1Oar3a79c5hdG990TzceDyGv
+ kn/Yr9XWMzbnJQuzqK+8mvNjgpfsZFgNDOj+TfhJ/Aq0ByW4+oyx9IrqHK3vAWCyuYyya11g2h9
+ vwPE+CqwmTPR6rP6KfMqDridexVfYZY69wvar9V6O2jThV27U7nqSpyeV2SxMS8F4fmXVXQrSaI
+ jhOTFAKMt1zpBUzbs5w==
+X-Authority-Analysis: v=2.4 cv=Osl/DS/t c=1 sm=1 tr=0 ts=6a9963c0 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=Y8nHDs0X6_NWWUcUHKQA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAzMDEwNCBTYWx0ZWRfX+vkNA+RIyIil
+ zRfJsoap8Olv4E6UKVHHayYlAyWz9Ws21G6qjr3oFI+cjWAE4D5ie0R337rYh13zNtMJX9grQsm
+ TR0+xTZf+92BtlZdZIafA/sD+jlyfaE=
+X-Proofpoint-ORIG-GUID: WEYdQSRSuy7rc2g2jh3q3FAi88PF94TK
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-03_03,2026-09-03_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 malwarescore=0 suspectscore=0 bulkscore=0 lowpriorityscore=0
+ adultscore=0 impostorscore=0 phishscore=0 clxscore=1011 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609030104
 
-Looks good (I think)
+Am 14.08.26 um 09:34 schrieb sashiko-bot@kernel.org:
+> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
+> - [High] Booting on systems with XRC-capable DASDs but no active STP network will hang indefinitely due to an unhandled -EAGAIN loop.
+> - [Low] Lockless plain read/write of `stp_online` introduces a formal data race.
+> --
+> 
+> --- Patch [1]: [PATCH] s390/stp: Drop CLOCK_SYNC_STP ---
+> commit 39bb08d28d4e120a87017a08eb301d774dd6baa2
+> Author: Sven Schnelle <svens@linux.ibm.com>
+> 
+> s390/stp: Drop CLOCK_SYNC_STP
+> 
+> This commit removes the CLOCK_SYNC_STP flag in favor of using the stp_online
+> boolean directly. This change prevents get_phys_clock() from returning -EACCES
+> when the kernel command line option stp=1 is used or STP is enabled by default.
+> 
+>> diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
+>> index 2b989bebd220a..de80e2a316ba7 100644
+>> --- a/arch/s390/kernel/time.c
+>> +++ b/arch/s390/kernel/time.c
+> [ ... ]
+>> @@ -299,7 +299,7 @@ int get_phys_clock(unsigned long *clock)
+>>  		return 0;
+>>  	if (!test_bit(CLOCK_SYNC_HAS_STP, &clock_sync_flags))
+>>  		return -EOPNOTSUPP;
+>> -	if (!test_bit(CLOCK_SYNC_STP, &clock_sync_flags))
+>> +	if (!stp_online)
+> 
+> [Severity: Low]
+> Does this introduce a formal data race under the LKMM?
+> 
+> get_phys_clock() now performs a lockless plain read of stp_online.
+> Meanwhile, online_store() modifies it concurrently via a plain write:
+> 
+> arch/s390/kernel/time.c:online_store() {
+>     ...
+>     mutex_lock(&stp_mutex);
+>     stp_online = value;
+>     ...
+> }
+> 
+> Could this trigger KCSAN warnings when userspace toggles the sysfs
+> online attribute while get_phys_clock() is executing?
+> 
+>>  		return -EACCES;
+>>  	return -EAGAIN;
+>>  }
+> 
+> [Severity: High]
+> Could this change cause a boot hang on systems with XRC-capable DASDs
+> but no active STP network?
+> 
+> Because stp_online is initialized to true, if the machine supports the
+> STP facility but is not connected to a usable STP time source, time
+> synchronization won't occur and stp_online will remain true.
+> 
+> With stp_online remaining true, get_phys_clock() will continuously fall
+> through and return -EAGAIN, rather than safely returning -EACCES as it
+> did prior to this patch.
+> 
+> The DASD driver ignores -EACCES but propagates -EAGAIN:
+> 
+> drivers/s390/block/dasd_eckd.c:set_timestamp() {
+>     ...
+> 	if ((rc && !private->rdc_data.facilities.XRC_supported) ||
+> 	    rc == -EOPNOTSUPP || rc == -EACCES)
+> 		return 0;
+>     ...
+> }
+> 
+> If -EAGAIN is propagated up, will the block layer endlessly retry the I/O,
+> resulting in a complete hang during boot?
+> 
 
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+From what I see, Sashiko is right. This will break how the DASD driver
+actually checks if the clock is enabled and in sync.
 
+The DASD driver relies on -EACCES to know that the clock exists but STP
+sync is not online/applicable which in turn will skip it, whereas
+-EAGAIN means the clock does exist but is not in sync yet and we should
+wait and retry, which in turn leads to endless loop of request never
+being built because we never get a valid timestamp.
+
+So I guess we will still need a third bit to differentiate those states.
