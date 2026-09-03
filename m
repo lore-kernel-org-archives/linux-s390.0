@@ -1,76 +1,104 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBD9D43BDC8;
-	Thu,  3 Sep 2026 07:38:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6040B42BEA4;
+	Thu,  3 Sep 2026 07:41:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788421136; cv=none; b=ULHvOzAxgyRaDE1L17C03ZQjyCx3H8JGsUxh2Hs7RM+OHbIQ1o4qonkQtIPHyBC+uj9zlF20N2gecKo7SyFM9wtIWA3tbgAnHNBSy8kJBQQBqJC9xSrZFklcu92oK+93fdhfZ84vG+e2IlwVzcGC8a2xp/MDp8Fx/Z84s2YZvwU=
+	t=1788421290; cv=none; b=tyoqpiBxSE/+S/3k7lwSjdec6qYH1mBR35+tI+L/ga0PASZbMJtyV1wJG5gyxR6/hJm7Oe+u9i68uYIxiFpccwnrmvNSe63scAYHifRpzzkYeipCJMn9npWN1snvI6cIrR9xw4OzLfdmQUOcscL0u5HEdwp9y1fw+KyB1eYbWPI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788421136; c=relaxed/simple;
-	bh=5Tps3Xo9A6ITXYjrQ6jCcfsBhSaD6gq3xi2rXZ2ajL8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jfWSC+3ZAmh3kHnB3MGh2vcDc8plSVQEIokU9X5qE6lTj8COPl9CVfDu3LRqKvOfAnUA+W9pHMN7ZOfGFGAqyweSJMlKdpiu3Iy5cdxHZCkDrwyXwgpFjTB9bLHBmmVJRVxsKNKUWCu6ABWO2aQO9rVUPYFj3LuBhtTqJ5EEEpo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nj6cB51K; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788421290; c=relaxed/simple;
+	bh=Nm/6hJEAPks30y7LVA2Wwufq3vVlMHx1IoW0kUFRRys=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=Z4wJztjUsiFoleCM4/mOfvpF7QccTiAhgd8VCf3RkQ6pbIEfgkqDWq4HILfByPXiKXuPIN9SbKit242iA8JUA/BDl803Ve2+yyP0QSztl2qo+VFMHCAvHKyVH0g5ffecm7tR9DUkXAz80bn9lnUCvhw6pwcATk3dDaMzPgD3E4E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=zc+fw1vP; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=rh+ETLVc; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nj6cB51K"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35D5F1F000E9;
-	Thu,  3 Sep 2026 07:38:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788421135;
-	bh=k8zKI6BLy+Yfs6FHOdNHufYvwQuFn9IxdcH9SYlPwjw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Nj6cB51K8OWQ/O7hLG+l0FQZeZXAUXrLa6yjldbSTOEJm6zNBDWmFqk9l/MQHa9uZ
-	 rDFHIDtENi+3H3+zWtWevbyvCoUbb3oroJFPizjbn08Xj1vrgrTeE91QtxEfp5sJY7
-	 ZtC5PGzHlfVz6CliUMcLIw5b/iZ1Z2uk2ns9wqy3PlvAIEhoh2WHBx4aHzF+PsfCA3
-	 bLnIPDs+CAH+F79uFN8vAkv6tqsiOG2+XPi14ceAqmVBbyBfXWDFKeLK1dwTxoNT4w
-	 zV/JIWbGme4aMbrjB+rzPg5ct9X2E8PAFlinJ2bWwHIa6PuV/GIpO2zGlG+lWKbJv3
-	 SD4gAKuAerrNQ==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] perf test: perf stat tests fails on s390
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Thomas Richter" <tmricht@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260903073554.1300334-1-tmricht@linux.ibm.com>
-References: <20260903073554.1300334-1-tmricht@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 03 Sep 2026 07:38:54 +0000
-Message-Id: <20260903073855.35D5F1F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="zc+fw1vP";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="rh+ETLVc"
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1788421287;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HcMZPcEqwvVMhaVCt8MkUvZh7YAwKSLLYydvmnNx69g=;
+	b=zc+fw1vPS28yXzWhjuVq688bLTlDJP+PQOO2TZg5QcxVNPZStsrnS4EMvXTkuI9WChAUF6
+	e98Za95kruhvUKHM3/b34Kuksc7kVeCyI/v89gq/la6051sO7iVJiyemzT0SlIcVMLtp3V
+	LBVntQcEnLcQP4mEFAOmRCGnVFjObZYQoy8t1OzlP6lakHcsrKvjUzVXe8XXr5xuJfGQOC
+	1qK1oo84uH3RvHqkEN4CnRtgprm3+1bwVoDYK5JM2mCOVa3NMbngliORKzy3gImZ0p3Mdn
+	KA4/eGPfFEVefv27hiUMV5YSZZf9/EbNiLhBwaHSRIcgEWjR+hD3IjTxfTw0+w==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1788421287;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HcMZPcEqwvVMhaVCt8MkUvZh7YAwKSLLYydvmnNx69g=;
+	b=rh+ETLVcunE+DHaXRlcjbRGQypXlRas7Gz8RSxyOEQznbIdmSjOOp7xhZp8qA1klyLJlHr
+	4QVBYU6drJOyTJAg==
+Date: Thu, 03 Sep 2026 09:41:16 +0200
+Subject: [PATCH v2 01/15] MAINTAINERS: exec: Add more auxvec.h variants
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20260903-at-vector-size-arch-v2-1-5bc32a71e3d8@linutronix.de>
+References: <20260903-at-vector-size-arch-v2-0-5bc32a71e3d8@linutronix.de>
+In-Reply-To: <20260903-at-vector-size-arch-v2-0-5bc32a71e3d8@linutronix.de>
+To: Kees Cook <kees@kernel.org>, Arnd Bergmann <arnd@arndb.de>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+ linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-riscv@lists.infradead.org, loongarch@lists.linux.dev, 
+ linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+ linux-mips@vger.kernel.org, sparclinux@vger.kernel.org, 
+ linux-sh@vger.kernel.org, linux-alpha@vger.kernel.org, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1788421286; l=977;
+ i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
+ bh=Nm/6hJEAPks30y7LVA2Wwufq3vVlMHx1IoW0kUFRRys=;
+ b=qmIl+ksPTFbWALcvC6gLtF0MRDI5uk7fAOGtmCm6fQ86AWfo/5KOuP/P3VXL2cXkfCyJKwCbQ
+ KGGjiCPlRFCAaRujs1d1gu5uZskagQtGmtcqSJJWjBWfEVKN728cCnc
+X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
+ pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-> The test case 'perf stat tests' fails on s390 z/VM machines. The
-> root cause is the unsupported CPU measurement facility on z/VM.
-> Therefore the events cycles and instructions do not exist and
-> are unsupported. This cause the subtest
->   Hide zero events stat test
-> to fail.
->=20
-> Output before:
->  # perf test 116
->  116: perf stat tests  : FAILED!
->=20
->  =3D=3D=3D Test Summary =3D=3D=3D
->  Passed main tests : 0
->  Passed subtests   : 0
->  Skipped tests     : 0
-> [ ... ]
-> Fixes: 64724095a33f ("perf stat: Add --hide-zero-events option to suppres=
-s zero-count events")
-> Cc: Aaron Tomlin <atomlin@atomlin.com>
-> Cc: Ian Rogers <irogers@google.com>
-> Cc: Namhyung Kim <namhyung@kernel.org>
-> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+There are quite a few auxvec.h headers. Mark all of them maintained
+as part of 'EXEC & BINFMT API, ELF'.
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+Reviewed-by: Kees Cook <kees@kernel.org>
+---
+ MAINTAINERS | 3 +++
+ 1 file changed, 3 insertions(+)
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260903073554.1300=
-334-1-tmricht@linux.ibm.com?part=3D1
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 3a19da74d00c..42715aea210b 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9808,13 +9808,16 @@ L:	linux-mm@kvack.org
+ S:	Supported
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git for-next/execve
+ F:	Documentation/userspace-api/ELF.rst
++F:	arch/*/include/uapi/asm/auxvec.h
+ F:	fs/*binfmt_*.c
+ F:	fs/Kconfig.binfmt
+ F:	fs/exec.c
+ F:	fs/tests/binfmt_*_kunit.c
+ F:	fs/tests/exec_kunit.c
++F:	include/linux/auxvec.h
+ F:	include/linux/binfmts.h
+ F:	include/linux/elf.h
++F:	include/uapi/asm-generic/auxvec.h
+ F:	include/uapi/linux/auxvec.h
+ F:	include/uapi/linux/binfmts.h
+ F:	include/uapi/linux/elf.h
+
+-- 
+2.55.0
 
