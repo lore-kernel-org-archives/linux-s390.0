@@ -1,77 +1,121 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C02B397940
-	for <linux-s390@vger.kernel.org>; Wed,  2 Sep 2026 21:36:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB9062F9D82
+	for <linux-s390@vger.kernel.org>; Thu,  3 Sep 2026 01:35:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788384975; cv=none; b=DMwiKvoza52HYFLlcbjbDpDq1FKaNgNQOSa81g3tCAgSZcRngLhJ3h8Yvsg1lz4Dc6MgAYVCem0RB/xl7qnf0wxROWneULu2UWJxdg+xG70r4zHhJkF9zMKOtraijTqHxdtXopDA166UHq8ojh5duEm6VvI4mpWtjgFPdIEYokc=
+	t=1788399321; cv=none; b=jqz34PPmaSE4LXd1TzP+BIi5D4L4gTfJnGed2JjG5bfHX59mf02kfrrG5kvKrv93PaWKeFS3tDxT5WvYBqa8uzu6WPsiUeKtf9txlMHXP5ZNRn65kKdz80Mni/4/iBduHaSTtFDJc6REVTRFxxnT3JCXgTQTbYQ273/1LsMqUAk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788384975; c=relaxed/simple;
-	bh=bQikBTOYzzDpfmFcyk8kAEF8gB17aS6oG+n1+F8cqIE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BcD0X+fjwznag2HKLiiG7uAGsjntm4DVyv/Vc8hohueLbeokLxrnrAbxSn0mhRn0arrCaZRAxGpfPE9RPL4sTf/LSU9HjKTtSrHnhGN18JJt0imNhmrQ/gvP0zD/PuxM+zhIsNC2A7v98DuBZE4Mf1ThysuW42Q2bbsPfgh04+U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kjrP1ecp; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788399321; c=relaxed/simple;
+	bh=BiclmM8iw6AMEgvSeIq0Hkwnb1G9XjDo4lHjSIYyXNM=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=taMSPXG4M0fn07PTYYXsHAMBN/dmBGjun95Pap8SRFzVs+FV25rmWdg7Hbo/mpa0ZENCUrL9477aCpHhCmBLQabYsiGFfzVCEUeJmlS2SNE3X1o7Y74TnbsT/FU6uQw0HxKBi9Sfc8rbLKdN15ZIIFBhK3It5U2CIISUMaz9zoc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=EBYSlifH; arc=none smtp.client-ip=198.175.65.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kjrP1ecp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99A001F000E9;
-	Wed,  2 Sep 2026 21:36:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788384967;
-	bh=J/KXfR9JIdxQCsYLW7TM0WVANpZJtgl+0uLg7BsaOF4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kjrP1ecpyEDltgavgxFPyyJ96TpCXJY7pIZo03+G+KXI4gtKzZpf5BINkCYy8qgXj
-	 F+14hKapYVHgpTMahafZezyPeD0ET/2lFhTXi5qjrhw4cnYDiaYw5JfnHsFavK/GWP
-	 Br3UmZUcpbJvcuM0eQfTsrpeVp/x5P6k6qY057d524O8vU3z1s9c5pDMjd26F0Y8iK
-	 EMvRyxwQ26Fj8f1KyRashgdN+nfsQH0BaqGy/pDewbhnkF4VZ5C5oiKlhD5T/lju6j
-	 XdkExe0URJH13Z3VsZOJOiiEsP6CjodZBI4fbifzGLSRsaot/6yIwP691jym1UbkD/
-	 DhIcC7FB/HDWg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 2/2] s390: Warn if kernel command line contains
- non-printable EBCDIC characters
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ilya Leoshkevich" <iii@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260902212400.674450-3-iii@linux.ibm.com>
-References: <20260902212400.674450-1-iii@linux.ibm.com>
- <20260902212400.674450-3-iii@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 02 Sep 2026 21:36:07 +0000
-Message-Id: <20260902213607.99A001F000E9@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="EBYSlifH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1788399318; x=1819935318;
+  h=date:from:to:cc:subject:message-id;
+  bh=BiclmM8iw6AMEgvSeIq0Hkwnb1G9XjDo4lHjSIYyXNM=;
+  b=EBYSlifH6MSlmtyLlNdm+M8/Fn1a/oGL/hrqCuYBce/NWpbmdx7ogJZX
+   7UM+S1L1QHGzJKmX3GQrjDSeiIo87VznB6wdfW30TnRwN+otEkN1JCMiu
+   RmguRUTvc6ALVcFPR7AQZgHb1KsEMV15S1jgOzjRMVNSrvzZmvLgDx5aW
+   PMcOR69c25GuGpYxZjtZalE3TOHHSYAI3mes9iRJmrhcQP4tztukkSDTb
+   3Lu1A8sdoQ9dmFq5b+WZGgxrSdqvZWJTYL5SMlXTQuzBbd4QVn4M6AlDe
+   f/3x9Et5DTJFgfPRb+TZ0iPfafNAgYM4/huN6tLFvZiwAoiQsZbIykiDn
+   g==;
+X-CSE-ConnectionGUID: NQhYDKfzSOeU82uhGF7pPw==
+X-CSE-MsgGUID: kV9Flk1GScKpTPVc3MdP0A==
+X-IronPort-AV: E=McAfee;i="6800,10657,11894"; a="88902799"
+X-IronPort-AV: E=Sophos;i="6.25,258,1779174000"; 
+   d="scan'208";a="88902799"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Sep 2026 18:35:17 -0700
+X-CSE-ConnectionGUID: mlhbUa6OT12nQKyzN6/4Bg==
+X-CSE-MsgGUID: nhWirXL+RDOA6g1ahJq2yQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,258,1779174000"; 
+   d="scan'208";a="299439800"
+Received: from lkp-server01.sh.intel.com (HELO bfac249b2189) ([10.239.97.150])
+  by orviesa002.jf.intel.com with ESMTP; 02 Sep 2026 18:35:16 -0700
+Received: from kbuild by bfac249b2189 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1x1wMD-000000003aC-13CH;
+	Thu, 03 Sep 2026 01:35:13 +0000
+Date: Thu, 03 Sep 2026 09:34:27 +0800
+From: kernel test robot <lkp@intel.com>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: oe-kbuild-all@lists.linux.dev, linux-s390@vger.kernel.org,
+ Sean Christopherson <seanjc@google.com>,
+ "Jason J. Herne" <jjherne@linux.ibm.com>
+Subject: [kvms390:sae 1/43] drivers/vfio/vfio_main.c:1554:29: error:
+ incompatible pointer types passing 'struct file *' to parameter of type
+ 'struct kvm *'
+Message-ID: <202609030916.sgfe1yXN-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> Users may accidentally add multi-byte UTF-8 characters to zipl.conf
-> parmline, for example, by copying snippets containing non-breaking
-> spaces (\xC2\xA0) from web pages.
->=20
-> The kernel will then interpret the entire command line as EBCDIC,
-> making it unusable. Distinguish this situation from the legitimate
-> EBCDIC conversion by looking for non-printable characters and issue
-> a warning.
->=20
-> Accept the following tradeoffs:
->=20
-> * Do not make this a hard failure, there may be a very small number
->   of users who put characters with diacritics on their EBCDIC-encoded
->   command lines.
-> * Do not use heuristics with arbitrary thresholds, these may fail
->   intermittently on, e.g., punctuation-heavy command lines, and having
->   to tune thresholds in subsequent patches is not desirable.
-> * Use the ASCII subset of EBCDIC to determine whether characters are
->   printable: the vast majority of command lines will contain characters
->   only from this subset.
->=20
-> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git sae
+head:   e3cbc45b3834d68c7e45ba1562f45af312c99d81
+commit: 457efc947019e9f93ce012b857f567189b9d382d [1/43] vfio: Use file-based reference counting for KVM
+config: hexagon-randconfig-r063-20260903 (https://download.01.org/0day-ci/archive/20260903/202609030916.sgfe1yXN-lkp@intel.com/config)
+compiler: clang version 19.1.7 (https://github.com/llvm/llvm-project cd708029e0b2869e80abe31ddb175f7c35361f90)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260903/202609030916.sgfe1yXN-lkp@intel.com/reproduce)
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202609030916.sgfe1yXN-lkp@intel.com/
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260902212400.6744=
-50-1-iii@linux.ibm.com?part=3D2
+All errors (new ones prefixed by >>):
 
+>> drivers/vfio/vfio_main.c:1554:29: error: incompatible pointer types passing 'struct file *' to parameter of type 'struct kvm *' [-Werror,-Wincompatible-pointer-types]
+    1554 |                 vfio_group_set_kvm(group, kvm);
+         |                                           ^~~
+   drivers/vfio/vfio.h:168:77: note: passing argument to parameter 'kvm' here
+     168 | static inline void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
+         |                                                                             ^
+   1 error generated.
+
+
+vim +1554 drivers/vfio/vfio_main.c
+
+34aeeecdb3357f Yi Liu        2023-07-18  1539  
+b1a59be8a2b64d Yi Liu        2023-07-18  1540  /**
+b1a59be8a2b64d Yi Liu        2023-07-18  1541   * vfio_file_set_kvm - Link a kvm with VFIO drivers
+457efc947019e9 Steffen Eiden 2026-08-12  1542   * @vfio_file: VFIO group file or VFIO device file
+457efc947019e9 Steffen Eiden 2026-08-12  1543   * @kvm: KVM file to link
+b1a59be8a2b64d Yi Liu        2023-07-18  1544   *
+b1a59be8a2b64d Yi Liu        2023-07-18  1545   * When a VFIO device is first opened the KVM will be available in
+b1a59be8a2b64d Yi Liu        2023-07-18  1546   * device->kvm if one was associated with the file.
+b1a59be8a2b64d Yi Liu        2023-07-18  1547   */
+457efc947019e9 Steffen Eiden 2026-08-12  1548  void vfio_file_set_kvm(struct file *vfio_file, struct file *kvm)
+b1a59be8a2b64d Yi Liu        2023-07-18  1549  {
+b1a59be8a2b64d Yi Liu        2023-07-18  1550  	struct vfio_group *group;
+b1a59be8a2b64d Yi Liu        2023-07-18  1551  
+457efc947019e9 Steffen Eiden 2026-08-12  1552  	group = vfio_group_from_file(vfio_file);
+b1a59be8a2b64d Yi Liu        2023-07-18  1553  	if (group)
+b1a59be8a2b64d Yi Liu        2023-07-18 @1554  		vfio_group_set_kvm(group, kvm);
+34aeeecdb3357f Yi Liu        2023-07-18  1555  
+457efc947019e9 Steffen Eiden 2026-08-12  1556  	if (vfio_device_from_file(vfio_file))
+457efc947019e9 Steffen Eiden 2026-08-12  1557  		vfio_device_file_set_kvm(vfio_file, kvm);
+b1a59be8a2b64d Yi Liu        2023-07-18  1558  }
+b1a59be8a2b64d Yi Liu        2023-07-18  1559  EXPORT_SYMBOL_GPL(vfio_file_set_kvm);
+b1a59be8a2b64d Yi Liu        2023-07-18  1560  
+
+:::::: The code at line 1554 was first introduced by commit
+:::::: b1a59be8a2b64d00409dc7c9d523572ed32bcff8 vfio: Refine vfio file kAPIs for KVM
+
+:::::: TO: Yi Liu <yi.l.liu@intel.com>
+:::::: CC: Alex Williamson <alex.williamson@redhat.com>
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
