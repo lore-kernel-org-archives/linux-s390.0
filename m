@@ -1,215 +1,168 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F9024A387D;
-	Thu,  3 Sep 2026 12:28:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788438527; cv=none; b=mYDl1PIeZwYu9XH+p6HVSw7yqrpBGdhUJIWWSSd2C+Su+WrhF22svJU28oF+CejnMHCGu/lEie9BBfqfvwyq/xspcV7+xbToMmEE0QjWgkZamasFV0VfYKzzli2bnYR2ziA1jZeAg83qZZeh2UvbwGCwlJngYqB/S5STf+u/ItA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788438527; c=relaxed/simple;
-	bh=mxpFQ7Fku0XjRddYxhF3O5BmE/oiXOEJ35+NZFjBMsM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WdqQ8NTuvnZnnA0xGji0YpcfvvCohsTC7JAOH0384D2ScDdemqPtv/Er67UcY68hUYDQXQKfVcd+1UgJsLiTCeSfwn1QQkw2yo2ZVeiIV88ZFWKC+szMMApV3L1CAvDVGnYm4rN/oXVlYsCWx0QHYmoyuWaUNp0pi4kxUSzjylA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=L0pPpjQ+; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CA9549C4C8;
+	Thu,  3 Sep 2026 12:36:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=68.232.143.124
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788438965; cv=fail; b=Jd/EZRM4YdWNt7VbtSfYTZh0/wpYZ7WbvM+3fdReLDz7i3Fua7YaflO6LMS+gHHQQs/Ldq7BMHEsDKywBghL9+Ll1roIRnjxz/uGn3/JFKFwWViOyYhFp7PAcj55/81bZ9b0lqrHBTsfnqaMEFyldeWTegzmSODjs+6QlmF6j3o=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788438965; c=relaxed/simple;
+	bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
+	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=Oub3AnZGKF8EI2iuEWorrjbJckPZ0XwAFZt0iC+V7WnPX5R+sWTjDPZNQvL8ykPMj158Lok70n0wUzV/MNCpuVJTFj+zgqlwUBeUFrdoaWun1CYG5ziw5mX6h5yx3ul0r97IFzmw8e6VJ1sBrWU3iJdGbf3FqJ2KW3QYECdl+Zs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=GQ25DibP; dkim=pass (1024-bit key) header.d=sharedspace.onmicrosoft.com header.i=@sharedspace.onmicrosoft.com header.b=QgYqAVac; arc=fail smtp.client-ip=68.232.143.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="L0pPpjQ+"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 683AVeEn2788680;
-	Thu, 3 Sep 2026 12:28:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=Tjig2EjrkegzTZQAgoCAYy9TfX09W8
-	IbBPO777lKb3g=; b=L0pPpjQ+kvQeW1aWAf9xaiYx89nCCKA7LyjjZHQAWOB2AP
-	NddjGHtVjZ8wyEKpjR/t9Fqmjqh8ZzuswjZCv5S5cKaSB72O1sLAblW0Um24Rwu7
-	cvQVUWMQ76UHEaztICB1ViYRi/jrHcBP9Ut1KagSwhR2qwnD6guBQMzmqQ4OJesx
-	LqtwmjNboM8tn2K/q5xJbFrMH7v938a8gUBrUo0AhTI8Iogf2NV2QinrlNp6Q1WF
-	ChqijvZ7EfUw0KmyZI7wY9WwApHxSF7w4Z8N6nzg2yRgjCRXU8oRSr38D9n6RdAe
-	zp09C0bz+L3dglLrRNaM56hFi/nQj2peHL2AgTyA==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbq2tm6dg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 03 Sep 2026 12:28:42 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 683CQFr0004042;
-	Thu, 3 Sep 2026 12:28:41 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gcbygqem9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 03 Sep 2026 12:28:41 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 683CSb4c44171702
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 3 Sep 2026 12:28:37 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 59A5E2004D;
-	Thu,  3 Sep 2026 12:28:37 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DB76220043;
-	Thu,  3 Sep 2026 12:28:36 +0000 (GMT)
-Received: from li-008a6a4c-3549-11b2-a85c-c5cc2836eea2.ibm.com (unknown [9.111.85.212])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  3 Sep 2026 12:28:36 +0000 (GMT)
-Date: Thu, 3 Sep 2026 14:28:35 +0200
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 1/8] KVM: s390: pv: Use VM_SPARSE area for guest
- variable storage area
-Message-ID: <e9449c63-b8d2-4ed9-a184-7dcab3e8dfce-agordeev@linux.ibm.com>
-References: <20260720085834.898025-1-hca@linux.ibm.com>
- <20260720085834.898025-2-hca@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="GQ25DibP";
+	dkim=pass (1024-bit key) header.d=sharedspace.onmicrosoft.com header.i=@sharedspace.onmicrosoft.com header.b="QgYqAVac"
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1788438968; x=1819974968;
+  h=message-id:date:subject:to:references:from:in-reply-to:
+   content-transfer-encoding:mime-version;
+  bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
+  b=GQ25DibPs7U7CbbVzFgHITbpzxU9mGoMtHudgHUuaF1zhE8PWBYuOn1+
+   0qvIyYBJ60Qr+MN5MAY/W+sZv2UjU/3XJjvTz84+qzP67pCoOxbfcqsVN
+   7cT/l6q4CmHN2pCfG/lMRt3oK+TVzpEYjkcHCp6Njm+NYai0/uwIX2YrY
+   TWr+S44useEVZvFmpEW/I/aYeQVKMEaqM54bl1a2RS9AXhLLwPYjHZyFQ
+   pvwnFxZhPMvqQd5MGr8xAt/TiQ8SM1jxDa7KuW62QTjMV/NMF9dnFKRbo
+   ZvlsJ91F1zQPuHLiR3yYf8zxi/u5G1Cp7NnYsPy1BVZvSJyCipv9Exn1O
+   g==;
+X-CSE-ConnectionGUID: NuxEoElcTlueR7jH8xlaZw==
+X-CSE-MsgGUID: +Q/U4e96REeK80upn1YlCg==
+X-IronPort-AV: E=Sophos;i="6.25,260,1779120000"; 
+   d="scan'208";a="155795274"
+Received: from mail-westcentralusazon11010054.outbound.protection.outlook.com (HELO CY7PR03CU001.outbound.protection.outlook.com) ([40.93.198.54])
+  by ob1.hgst.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 03 Sep 2026 20:36:01 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=sP5VuJiOFowATdvXznDIa4fr/7oJzxoCjstiqh03SveIrnfb7We2EAsxAOy7bQvqqXzEFOyyk2KgMfx4IZ3P9dzyvP8hgtS0kBuhSfSFQnKfOAKHTyGgHMeuNxXybvnMN3lap43+wcdAOLc7eyrIYwFpeMZOJLlMjMFiqNkeZvwbmh18Lg8ekDn1oG/ibRz1rEgQDx3xoINOG0zZ37M0REjYwkEKZ5cYnlyEk8xmAS3dVMHC1ZtmRoWX0eb8QMIADmT0hM7S90v32WsMQCEN6kUxiOG3q6Iw/618C2bIKwjq841EzBFco5kBZdLzg5DL8dJj1ZS+/i5ZPvuwAZG4Og==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
+ b=JNMZxNA8i2T1Jj8i3oGSgUKC9g4tmsyGGrXyUCUPVnwqOyQJcguo0RmunS1w0w/pGP3ztyAM7lFbXkJPTmpHAJQtrYqM1h0PzZ5VPl758zoeF7u1G6lrIHhAnQIymVsadmsmVuipPexNRJlDY26A1K7Png9zjHGHctOmEuB0qqVpNCoIwaGqvRs/tuEZD34jRo00i/4Sg0rUuKw4+aFKyj35oUiE9pyqO9sl5yL+lrnKZ7cepQeq1l7Yln12pKpOowZmJRTIzC0xUtLXBjbF8EMAEGX/2Xt0f77PCFsdiX0zDha436C/K8p1qyIFN/GOjmriZ5iYH6CWVx21+NC9hw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
+ b=QgYqAVacLEEz9eGoUTnS/DnVt6sImTxkwj9zACv8w3ewQueKkmsZxZwGl7AQw7v2F404ABA56un84o0dgZo/Y6qDUpXqoG2tFIPl75zhvMSMm/5hKsnqyYOR9Cij0bMtXnSuvJgLn3i0lZVa2eLx+MAPP8PFAVk2SLPZsg3G8gE=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=wdc.com;
+Received: from SA6PR04MB9447.namprd04.prod.outlook.com (2603:10b6:806:436::21)
+ by PH0PR04MB7656.namprd04.prod.outlook.com (2603:10b6:510:54::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.382.10; Thu, 3 Sep
+ 2026 12:35:55 +0000
+Received: from SA6PR04MB9447.namprd04.prod.outlook.com
+ ([fe80::14c6:1c14:485f:1825]) by SA6PR04MB9447.namprd04.prod.outlook.com
+ ([fe80::14c6:1c14:485f:1825%6]) with mapi id 15.21.0360.008; Thu, 3 Sep 2026
+ 12:35:55 +0000
+Message-ID: <047678f2-3d11-4d29-adbe-4eb251300488@wdc.com>
+Date: Thu, 3 Sep 2026 14:35:49 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 02/40] scsi: constants: use defined sense codes
+To: Damien Le Moal <dlemoal@kernel.org>,
+ "Martin K . Petersen" <martin.petersen@oracle.com>,
+ "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+ linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
+ Niklas Cassel <cassel@kernel.org>, linux-usb@vger.kernel.org,
+ Alan Stern <stern@rowland.harvard.edu>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org,
+ Heiko Carstens <hca@linux.ibm.com>
+References: <20260903034201.112211-1-dlemoal@kernel.org>
+ <20260903034201.112211-3-dlemoal@kernel.org>
+Content-Language: en-US
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+In-Reply-To: <20260903034201.112211-3-dlemoal@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: FR0P281CA0238.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:b2::13) To SA6PR04MB9447.namprd04.prod.outlook.com
+ (2603:10b6:806:436::21)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260720085834.898025-2-hca@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=bc1bluPB c=1 sm=1 tr=0 ts=6a9967fa cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=i5A-BJ900ua4diBeuZoA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAzMDEwNCBTYWx0ZWRfXwT8BfzoTpEKQ
- HNtuYPfwMeHPwDuEV2VIneP+z4AoFhh3Io/H0MCI7/kzvsHq/ZahqfHqTOPbKw5itI3BJL1mK6Y
- v49zaii6nAOUlAH+xShblKtY/o6LQs8=
-X-Proofpoint-ORIG-GUID: zIQ7rN4JDY_oicJfZhIn0p4srajAxBHh
-X-Proofpoint-GUID: zIQ7rN4JDY_oicJfZhIn0p4srajAxBHh
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAzMDEwNCBTYWx0ZWRfXyqlO7cSwo/Gg
- P+nXJIA4Rewz7uijPOdxFfQxRIPP9KcNgwmvk3I6dvCXxupcT39sn7KtsVpQ8IZHdsjRQC9mE8p
- Ts6eBE3+pK9kezw8IHHUodWtYaLGGU3d7QDnWoF+i0mzCtlusG1I/lEEMWUZF6lnfWq94GpQKD8
- vRji2dGStAgJZHEf9KHdjvCaFk8YX6qEYKlT3JilRmIk9fD3XXVWRv/Y4mHrPuZ8PrmMsKm6aS8
- x3650SSzg73OdsFzukyaX4eCZyue9u4Dcyxo4hc6WAUI//KtHL5o8aTL7esVF5uSNOX3nSlrTLy
- RpBoFhkqLJh8zcStEPzuCqhNyJbR/HyUzMVkcjqewJGeiOAnhlUXyRV82LYuN16iR/nwmgYn4BX
- puJpqpONhz+Wjyv0ZYzxctaYli+M+ajvVULuhZ5Xc6jlUPI/qy3wT4vrpScRAswcNErrjBsaYJp
- DDUKkznhT0ImXZK4meQ==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-03_03,2026-09-03_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 suspectscore=0 adultscore=0 malwarescore=0 spamscore=0
- lowpriorityscore=0 phishscore=0 clxscore=1015 priorityscore=1501
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2609030104
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA6PR04MB9447:EE_|PH0PR04MB7656:EE_
+X-MS-Office365-Filtering-Correlation-Id: fb19ed5b-699d-4a57-8150-08df09b7e5a8
+WDCIPOUTBOUND: EOP-TRUE
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|10070799003|1800799024|7416014|19092799006|23010399003|366016|4143699003|10067099003|56012099006|11063799006|22082099003|18002099003|921020;
+X-Microsoft-Antispam-Message-Info:
+	/YogmlMcFN04pThqjeDUkiV/TQJv1kfUT6KIoo/BeD++sKj19QdbbqNoQs7Qmx6BTXpwD4exoWSpzKo6eFTNFGzJ7t+xruPpg8xR418HbdYgETLDMYsOCLsGR/zE5XjSoUWnVFL2sr1Vu00zrQ+dwqnNGRp3wJS0bJZXnydTlBM9lBJSHOhupxZEgIQrm1QF74/6UYbKmmBH5Lr6CN4G2QbOvysb8M2WtCCfffE2z8IgNiFp1DYBmvfPEi0iD5pf1lett7hrhomNt8gFAtwMI+5Z8Rw+IVBmaFBFTaDGpXj4i2l/snKbE1W7trDeCcXU6vT8skP13UYRyjSg5VHbRS0OFSUgiXGNe1FXTy8u4PfwqeERQtLqlODx7WmQQ9sloBxG52yk+wzEFjrYwzNsSgvq45QibHHVO47zq/chKm+HAm9DFc8epU6AIHOzDVQoiYLzSl2ooqWCijSQGD4Hyn8bgJWmkiPzEW4jz1WFClV0q6XBJRtKe0X2g0rPTFWWzqQ+A5a1XL8l+2yPMk9Tv6Z+nJYe4nnSjFzms6eHLahz8fkGvaKf+6Vfn/0g2XTUvx4DJPPeIwdfWjSxaM/HtGWC0TnQ7SPMpNo1M1R+qq0c6toy25uEfcaYve0RW/XDYpLg4Hmnq8CHkHgLK9mFAesje+XmLh3QH9uodcmFY2xC9Qf0jT2sP9mw1xd7otGDh8BGpeocXSSBL5bVkUDGBg==
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA6PR04MB9447.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(10070799003)(1800799024)(7416014)(19092799006)(23010399003)(366016)(4143699003)(10067099003)(56012099006)(11063799006)(22082099003)(18002099003)(921020);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 2
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?MDdkMzA4VzAwL3NWSHprL2JKdVQ3ak8vUGRFa2U2NzN5Y2VLeWpvbkpUcEJa?=
+ =?utf-8?B?M2dlUkVqZ29kdmFLV3h1RWRveGQyZ0JGL2grZE9JcTZPSGVyYzJRUG5SRFdH?=
+ =?utf-8?B?cjR0RGxPTndVM1hPejFDc0ZwUmVBQXVaNzA5bnBnOGtlWEh2c1FRaWlYWGYx?=
+ =?utf-8?B?S0VPZlg4NHFiUHdUcVFSQnprYmdXd2JuQVZFNXJVMWhJZFJqc2pBcUp2OVhp?=
+ =?utf-8?B?UXNhU1QzSVBHK2NSNS9TUXFvOTFxUGtPQjdZTDdWT3FDTllFeHlpMHc0NytS?=
+ =?utf-8?B?SityZXRMZGUwU2tLOTR4L3dVcEtiemtjcCtySEhwM1Uxb1UzWFU4bUptM2dR?=
+ =?utf-8?B?aDNucVBzOGd1QTlzTVFUN2dIeUIzNExoVjRaTElYMkZQSlFqYnp5T3ZMNmdE?=
+ =?utf-8?B?cURYcW81QmZyWVZaU2lQekl3M09LR05TaVNoYUlxUUtUWkZaczlTQ1NqV3Qy?=
+ =?utf-8?B?UCtGbUEyL1N6Nktpd2src1ZBbFRLcy9ZTWd3amxEZGNYbWtFZUhnY2Y2SGJG?=
+ =?utf-8?B?WVpIejl6WFZWbnM5TEFadHBybnhtanNZczNFZXNyYzJaTXFvTFUvTnR0SEZ6?=
+ =?utf-8?B?VXl4YTdzaTRBb0o2U3dhR0E3L1hoZU5DRmtIL1hvd05FWm41UGxjL1NGdVhM?=
+ =?utf-8?B?Sk1aRFh5RnhBZzRrcnNRMkpteTMxRVI1YjAwVTNRRlRubHdZS3drU25aaVBK?=
+ =?utf-8?B?OGRlTXNFRlpteTlrbFdoY2w5SEtFbm5WcEJMdy9OZnNEdUJwdGlzTEtZdEp3?=
+ =?utf-8?B?K3lLZTIrQ0Q2WWJmU2p4cFlxUCt6ZExrWHhQQStvb0hTdW5BS3pBazg5bFR0?=
+ =?utf-8?B?RU5idVV2UUdqdUo1SjQyWWFnZ29WS0VmUndoTVFpK3hiTlJ5d0pGQVdLQXl3?=
+ =?utf-8?B?VkJLblhlN1EyT1F0ZFFOalZvZVlNZjZ1K1VKQzRSQ3dXUmdJZEszTUM4cWZr?=
+ =?utf-8?B?bFRmZnpsbGdiN1RrdVdIQzEyVW5QNlRZeFA4SUFiTlBCQm5PYlQ1cmVEMWUw?=
+ =?utf-8?B?WWl3TDVBU244WmpaaXptYjFxVk9lVXd1SXBuYk5WdlRYSWRQdmZTN1RwbUlE?=
+ =?utf-8?B?L1M0QlRZZFhJenVmbWM5S1BFQ3R6dXd3UTl6VE5INWMvSklSVWJRYjl4OWN0?=
+ =?utf-8?B?TlFnaUVPM1RwQ29vMExrOWlGTEVLZTM3d01pUlNDMWtFNHZLVk5IVUgyMzBK?=
+ =?utf-8?B?WGpMcUlSaVFyR2ZKS25zM25QMGRIbkNyZVFwZ0hxZjd6R1RrUVA2ZFg1K05q?=
+ =?utf-8?B?a3Myd2Z0eExPZGZUcEZSMjdUZEtDZWl2WnlPSUNHZ3BGcTgvWTNhWHlRejFa?=
+ =?utf-8?B?dS9JbzVzL3FmTnhyV214ZnFFZE1wb2g3N20yZWhBUUkyc0g3ejZZSFQrcXV3?=
+ =?utf-8?B?TDU1aHNBSkRSRUx0NG1rdlIxeml0emswNVI3NHVjYlRwMHF5NU1ONWhPeHZp?=
+ =?utf-8?B?WjBZT3c2Z28zNnE0aG4wTW9hczEwMjhrQWxlVFNTTXNtN0liRGUwU3lmT2s4?=
+ =?utf-8?B?SE1BemExZVNmVUcxNUZtU1IwZS9PVXBCSDIxZkZaZzRlRm4xaVNPUkw1OEFa?=
+ =?utf-8?B?aVg1RktLcTBURmxrQjJLUDI0SmVNa2RycHZXTUk1VmN1L3ZEK2VyVlRDck9G?=
+ =?utf-8?B?ZlAyNitYZnl3VFptRTc2SEJDY2xrR1hFbWVoUE9qTGhndUlHOEwyMnM3Nk11?=
+ =?utf-8?B?RFZlRjF4UmRsL3B2RndhZEFoVDR6YjN2UVJYWWFHNWpTSTVTUGJ5L3NDTEZy?=
+ =?utf-8?B?RDdxa0VydGgxWnI1MFV3a2VqRHpianJpa09rSmxtZlVZZzdnMlY0d2U5NlpW?=
+ =?utf-8?B?M09USG9YbEtDL2tWY2w2QnViaGpId3dHd0Z5TmV2RXJCeWdENE5FV2Y4b1l3?=
+ =?utf-8?B?NU5iTGN0eVdVUE0zdlIxQThKTUlZR3d1MWtMc09pOEVNa1pVOWZTVm9EMHpa?=
+ =?utf-8?B?NFlWaEFBVUxCY2d6ZUpKSC9xVW5xYXowN0c0YURxVVFPaElSR0gxQnRyZ1NM?=
+ =?utf-8?B?VnFIREs2b29kRFBRUGVobU9QODk3M0drc2Q0bkVmOVEraHNLTEV1WGNtaTlR?=
+ =?utf-8?B?OENpRjVkaWFqYWIxMzc0K1J1aDR1SjZNaGxCSDFITHpDZGxXOGYzZ2FnMXJ2?=
+ =?utf-8?B?VEhiSDZqUnFBUmF2RWg3MTcvb0puM0ErNU9XS1IxbktNT0x0QndLQXo4N09Z?=
+ =?utf-8?B?Z3lKSE1sZW1PdlFxbS9qcDhCL2pYMGlubXhrWWFxQjJwVFg3WVZJd2l2ZmdQ?=
+ =?utf-8?B?ZWdxNFlHdnZNa3F1b1ozUFJrWTlXTjFXTy9UUDQ0dmEwR1YrMFBUc29lbXgv?=
+ =?utf-8?B?M2JKWjNtWm5pWEl5c1JXZjZlcW8xWGtYUDZCeGtzL2IyZ0lHR2hwTjZHejNm?=
+ =?utf-8?Q?G2LZqi3Lp9BNT10+QMj3/m3WEo+WUZaRJzgp5uqrnOq6a?=
+X-MS-Exchange-AntiSpam-MessageData-1: 9xbADSFmR+iaICBCKfVQEfoRTT912LKlkvM=
+X-Exchange-RoutingPolicyChecked:
+	Wm5wu/ak4SqZ03rSYdblpfw05guqkMlwmLXr7sIa5mN4a14w14nA/5lmSwmoGjx6JQdWvadEjZqQ9h2T66wRTmai3Z9D7+6hxRgdePn0KpkvPI+JVzFgao7JLy13wU9LkmC8B7XYvBHr0EROUYdCwN72YCm0ty+Zal6RVPAPiX4VNZiocRTRgiQ4heK7iClEtNbaRylaenx77f7VvZBVvxdJ66sO5XBF5xcBUz9ONFhGnwciytzt/MguHXZBCOc5oZ+ue1Muq2frVMVYypVqgMjjCvAA7w0BdlIPBCvFuCtbKeRy/LIe0qjLu5/jPsIfn9FcGJO4y65u4RtEGuAE8w==
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	eOvzOOCoYeVZJPAjet648sYaMDnqRuDHG3MYU92PCeGTBhVWEp1ojiE4tqsip5I9qfuKIsr8y34V6wHfyPWhyoIVmc5FKnavpfmJg74zO/d4s7JZOKoZlVer6YyFJ0U/mTprRYVGoud6O+kUgCL7bLw2bCVrpaEloqGnG/npqq68EHIj8daM87ZD1pjPdIm1W7cbmeTnOrYVlWtKRP64eeV299cjxzv7sxnJfAg0f8s0Fs9kQibpAbokED6aLIu7Y2KJmFP4G5fEP+D+IwL74/a/aJLFsVjeAsDa4QNWyMN5y2d18bc0EsDTugGPLa680LIdI/dmocWo7f0tplzocl5aUhoh1o3NFWddZqztedG1p9ARX/RaH5w4CvBFKB1FEe2MoYMhIeCS5gINIkyhVxctwahu6QgkIZPgpWpxWb5SbD9o1ppcW46NKrVUs19Sr2rR8KfsQsPe8UkCfNoG80qLve621B1VhmmTd/bgsPP6ZY0A72NuGBrsRqa0GDeBqbp8fqXFd9bFVdP9efHMNkyQqD1VToj+QDmCzuIhFB0cKkEil+gWP+TgdfyWwknLCMVDhABA8rU2QZgRgDAg3gqEo73VnPiSm1fDMX0hhrpn0d8ZRY2D73ooebq+AI0/
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: fb19ed5b-699d-4a57-8150-08df09b7e5a8
+X-MS-Exchange-CrossTenant-AuthSource: SA6PR04MB9447.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Sep 2026 12:35:54.9197
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: sZ6GNoidsSjqf07QOVjji8udOfg/s48pXRLv7vdsYbmJLQCcCcWtT4qdLaySTnIkCb6LliaV+KwzUrf0Cuz4IUNwrfzB4WOIKJ6GBinnY4w=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR04MB7656
 
-On Mon, Jul 20, 2026 at 10:58:27AM +0200, Heiko Carstens wrote:
-...
-> This assumes that s390 will gain full support for lazy_mmu_mode_enable()
-> and lazy_mmu_mode_disable() in the future, since as of now the used
-> ptep_get_and_clear() in vunmap_pte_range() does indeed invalidate and
-> flush every single pte entry, but only for s390.
-...
-> +static int uv_alloc_range_cb(pte_t *ptep, unsigned long addr, void *data)
-> +{
-> +	struct page *page;
-> +	pte_t pte;
-> +
-> +	page = alloc_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO);
+Looks good,
 
-In lazy mode this callback is called with preemption disabled, so it leads to:
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-    [  138.709287] BUG: sleeping function called from invalid context at ./include/linux/sched/mm.h:322
-    [  138.709535] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 6092, name: qemu-kvm
-    [  138.709540] preempt_count: 1, expected: 0
-    [  138.709545] RCU nest depth: 0, expected: 0
-    [  138.709549] locks held by qemu-kvm/6092: 1, last CPU#1:
-    [  138.709554]  #0: 00000162368b8ba8 (&kvm->lock){+.+.}-{3:3}, at: kvm_s390_handle_pv+0x7c/0xf70 [kvm]
-    [  138.709612] Preemption disabled at:
-    [  138.709614] [<000002690b609a76>] enter_ipte_range.part.0+0x36/0xb0
-    [  138.709627] CPU: 1 UID: 107 PID: 6092 Comm: qemu-kvm Not tainted 7.3.0-20260901.rc1.git22.7cbe5e7f09fc.300.mm.fc44.s390x+debug #1 PREEMPT
-    [  138.709629] Hardware name: IBM 3931 A01 701 (LPAR)
-    [  138.709630] Call Trace:
-    [  138.709631]  [<000002690b5d0d4e>] dump_stack_lvl+0xae/0x108
-    [  138.709634]  [<000002690b67bbde>] __might_resched+0x1de/0x2f0
-    [  138.709637]  [<000002690ba1d23a>] prepare_alloc_pages+0x1ba/0x220
-    [  138.709641]  [<000002690ba1f936>] __alloc_frozen_pages_noprof+0xc6/0x390
-    [  138.709643]  [<000002690ba6e9d6>] alloc_pages_mpol+0xe6/0x220
-    [  138.709647]  [<000002690ba6f1dc>] alloc_frozen_pages_noprof+0x5c/0x80
-    [  138.709649]  [<000002690ba6f222>] alloc_pages_noprof+0x22/0x80
-    [  138.709652]  [<000002690b5ef6a0>] uv_alloc_range_cb+0x30/0x300
-    [  138.709655]  [<000002690b9d22fa>] apply_to_pte_range+0x11a/0x3b0
-    [  138.709656]  [<000002690b9dbf5a>] apply_to_pmd_range+0x13a/0x250
-    [  138.709658]  [<000002690b9dcef2>] __apply_to_page_range+0x232/0x4d0
-    [  138.709660]  [<000002690b9dd1b8>] apply_to_page_range+0x28/0x40
-    [  138.709662]  [<000002690b5eebfe>] uv_alloc_stor_var+0x5e/0x90
-    [  138.709664]  [<000002688b73ffe8>] kvm_s390_pv_alloc_vm+0x118/0x1e0 [kvm]
-    [  138.709685]  [<000002688b741274>] kvm_s390_pv_init_vm+0x84/0x2e0 [kvm]
-    [  138.709705]  [<000002688b71cf92>] kvm_s390_handle_pv+0x502/0xf70 [kvm]
-    [  138.709726]  [<000002688b71fd44>] kvm_arch_vm_ioctl+0x234/0xdd0 [kvm]
-    [  138.709747]  [<000002688b7070fa>] kvm_vm_ioctl+0x33a/0x890 [kvm]
-    [  138.709765]  [<000002690bb046ca>] __s390x_sys_ioctl+0xfa/0x130
-    [  138.709767]  [<000002690c78cffc>] __do_syscall+0x1fc/0x700
-    [  138.709772]  [<000002690c7a21e2>] system_call+0x72/0x90
-    [  138.709774] locks held by qemu-kvm/6092: 1, last CPU#1:
-    [  138.709775]  #0: 00000162368b8ba8 (&kvm->lock){+.+.}-{3:3}, at: kvm_s390_handle_pv+0x7c/0xf70 [kvm]
-
-This could be solved using the below fixup:
-
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index 8ea9dd7704ff..9af0358aa7f2 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -247,7 +247,9 @@ static int uv_alloc_range_cb(pte_t *ptep, unsigned long addr, void *data)
- 	struct page *page;
- 	pte_t pte;
- 
-+	lazy_mmu_mode_pause();
- 	page = alloc_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO);
-+	lazy_mmu_mode_resume();
- 	if (!page)
- 		return -ENOMEM;
- 	pte = __pte(page_to_phys(page) | pgprot_val(PAGE_KERNEL));
-
-The downside is lazy_mmu_mode_resume() does not really re-enable
-the caching and the performance will stay the same even when the
-lazy mode is supported on s390.
-
-This is the same pattern as kasan_populate_vmalloc_pte() - which
-was the only occurrence so far.
-
-Alternatively, the page could be allocated atomically, but I think
-that is less preferrable.
-
-> +	if (!page)
-> +		return -ENOMEM;
-> +	pte = __pte(page_to_phys(page) | pgprot_val(PAGE_KERNEL));
-> +	set_pte(ptep, pte);
-> +	return 0;
-> +}
-> +
-> +void *uv_alloc_stor_var(unsigned long size)
-> +{
-> +	struct vm_struct *area;
-> +	unsigned long addr;
-> +
-> +	size = PAGE_ALIGN(size);
-> +	area = get_vm_area(size, VM_SPARSE);
-> +	if (!area)
-> +		return NULL;
-> +	addr = (unsigned long)area->addr;
-> +	if (apply_to_page_range(&init_mm, addr, size, uv_alloc_range_cb, NULL))
-
-lazy_mmu_mode_enable_with_ptes() called from apply_to_pte_range()
-disables preemption.
-
-> +		goto out;
-> +	return area->addr;
-> +out:
-> +	uv_free_stor_var(area->addr);
-> +	return NULL;
-> +}
-> +EXPORT_SYMBOL_FOR_MODULES(uv_alloc_stor_var, "kvm");
-
-Thanks!
