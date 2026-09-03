@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D64637EFF1;
-	Thu,  3 Sep 2026 03:43:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DD42380FEE;
+	Thu,  3 Sep 2026 03:43:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788406990; cv=none; b=aeFm7BCMz2o+n6liu9vH/huaDSL0P3QGzTGFoyQqI1dKoM5YcBguXXXpG8PPvosZfAMil41WKmq24iPcbQiUaoRgniLfSPLMIaksCCaPS2IxIvd8y+U1tjCDIZHx/asYPEamUtpVzwPcoEFX+Tmk5M2s/dLOnXAnyWtntaFy+aw=
+	t=1788406993; cv=none; b=qTX4sU6ZrXaTy1JEofDiYxTuubmFX5tGLntWsyEAFDlUpZP/JTO022fdJ7C8iLVUnxrKIKbFX3WA3p3szlAF6LZiHb7hS7O2Nl75Y9dpxk0I0Jk4yBWIVb3PfEUe8741hMv+a1tH7T+T6Td+aR9yyui+6O3U99dlR3zAS/O4xco=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788406990; c=relaxed/simple;
-	bh=gcjMW3ubVT6P31ovg6jJSK0VI7MAZ31/Nf0v7YPd+dI=;
+	s=arc-20240116; t=1788406993; c=relaxed/simple;
+	bh=/mW41zqDDqdpOsgXHkPmsVI/0GS/DDbcEJiTrCb2nMc=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Y8k4Pxs6ya/G9OTzuiMu3abj2HKNM5LEHsDsHhEx6ZpxYPK0lHE0FhIqEbXcLmkbG4FJIA2ym8C3QlyJL6kLcHBxKqoELiX9Cc6FYXsnWdsJTPWcU2l4Iijk0H6T4667bwl1ZW3mvIfO/2B7EApyU078OAQvuubXwuLLaHqXVdE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DWKc4aio; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=ABeo8TKV6kF6JsFkq4pBldE4xmRfKoQWP7hhNrXwdkVhsghvh44eRFQ6ge742l5maKEiUiF/lUr/Rzbk+ltwMn8ell3Padm+YJp9a0B0iNFM+eXXvxePOoqbiwuNiJePGKkYQVL9zX3Hr5VdMZhRDii8Y/FBb9vaCgXO2sH7q08=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PRwHqlPX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DWKc4aio"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6377C1F00ACA;
-	Thu,  3 Sep 2026 03:42:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PRwHqlPX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97FA51F00A3E;
+	Thu,  3 Sep 2026 03:43:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788406980;
-	bh=kAYHHp/LsBL3rsDwvCzc9nieAEGXN6oNnsCLaWoi958=;
+	s=k20260515; t=1788406988;
+	bh=ezZo3cIeZob5n0jUfDw8efAraNLL9XA404n3FNk6lwA=;
 	h=From:To:Subject:Date:In-Reply-To:References;
-	b=DWKc4aioUEEtXwPsvRaAYU7E5U9RiMnruEvJfn0fhBd+MkKZmGU6APwIPMl4whjDr
-	 cM9kptFVRfjrzBf922r1pilMDLHknGxs5IkzeHXJlGr5NGtJEudCViy3zKLBTeBYbo
-	 6mONZVGecsxyFAJxrl8kVXMmI8dYf+6NZgi/2bfPpOP5SEraVQKo1P3abhqhzkbwT3
-	 8j5VC2HdarZOQgi5YlqR/a6q4rag2umTKm1P9CJ8jCh9h08VOmHkD6j8loX8f72387
-	 7wZ62i/BtDKN2cUAuWNlRrrGZCZOu17S4LJ1wpjUP2/jxtdc2lmbs2n7FpZ6YmhAdY
-	 F7njuOwq7vvMw==
+	b=PRwHqlPXhMh/VIbmmoc0NZJWwXnkRqsZmOBBQ0CRO7ecKcUVLh4fdD+0zl5Oa+2BG
+	 gwV3ZKHFBPjGyNqZ0IeZXcKGETrAnylQ0kcxSfGQM+G6I8uD0qcZUAUHzl7t5fQLD5
+	 yU7RPq6OAEzfZwV1/+PAUW8eAGaQVqbUbUFIcSon4SLNrkVJn8HKtmvwY9FNqPKOUE
+	 RuhdmkxIbtCgMP4eozg51zD/lryWISzGQGnqdivAqhcnkxN9OUNwwhvDqidrVs+ePU
+	 6UxPFjnwvHoCFwJbQnXrLMXcdJtajMDgwgN4X1w7vIByqj3ugR8zKl6Y2puNyHdzBQ
+	 PNtn1xTo/l9BA==
 From: Damien Le Moal <dlemoal@kernel.org>
 To: "Martin K . Petersen" <martin.petersen@oracle.com>,
 	"James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
@@ -37,9 +37,9 @@ To: "Martin K . Petersen" <martin.petersen@oracle.com>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	linux-s390@vger.kernel.org,
 	Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH v2 25/40] scsi: ps3rom: use 16-bits defined sense codes
-Date: Thu,  3 Sep 2026 12:41:46 +0900
-Message-ID: <20260903034201.112211-26-dlemoal@kernel.org>
+Subject: [PATCH v2 29/40] scsi: libiscsi: use 16-bits defined sense codes
+Date: Thu,  3 Sep 2026 12:41:50 +0900
+Message-ID: <20260903034201.112211-30-dlemoal@kernel.org>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260903034201.112211-1-dlemoal@kernel.org>
 References: <20260903034201.112211-1-dlemoal@kernel.org>
@@ -51,42 +51,32 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Refactor the PS3 DVD driver to use scsi_set_sense() and replace all
-hard-coded additional sense codes and additional sense code qualifiers
-with the enum values defined in include/scsi/scsi_sense.h. This helps with
-code clarity as the sense codes being processed are easier to test and
-self-documented.
+Refactor libiscsi to use scsi_set_sense() and replace all hard-coded
+additional sense codes and additional sense code qualifiers with the enum
+values defined in include/scsi/scsi_sense.h. This helps with code clarity
+as the sense codes being processed are easier to test and self-documented.
 
 No functional change intended.
 
 Signed-off-by: Damien Le Moal <dlemoal@kernel.org>
 ---
- drivers/scsi/ps3rom.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/libiscsi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ps3rom.c b/drivers/scsi/ps3rom.c
-index a9c727d22931..c63c581b493c 100644
---- a/drivers/scsi/ps3rom.c
-+++ b/drivers/scsi/ps3rom.c
-@@ -233,7 +233,8 @@ static enum scsi_qc_status ps3rom_queuecommand_lck(struct scsi_cmnd *cmd)
- 	}
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index 5cbc51899de0..7637aacd6037 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -892,7 +892,8 @@ static void iscsi_scsi_cmd_rsp(struct iscsi_conn *conn, struct iscsi_hdr *hdr,
  
- 	if (res) {
--		scsi_build_sense(cmd, 0, ILLEGAL_REQUEST, 0, 0);
-+		scsi_set_sense(cmd, 0, ILLEGAL_REQUEST,
-+			       NO_ADDITIONAL_SENSE_INFORMATION);
- 		cmd->result = res;
- 		priv->curr_cmd = NULL;
- 		scsi_done(cmd);
-@@ -316,7 +317,7 @@ static irqreturn_t ps3rom_interrupt(int irq, void *data)
- 		goto done;
- 	}
- 
--	scsi_build_sense(cmd, 0, sense_key, asc, ascq);
-+	scsi_set_sense(cmd, 0, sense_key, scsi_sense_code(asc, ascq));
- 
- done:
- 	priv->curr_cmd = NULL;
+ 		ascq = session->tt->check_protection(task, &sector);
+ 		if (ascq) {
+-			scsi_build_sense(sc, 1, ILLEGAL_REQUEST, 0x10, ascq);
++			scsi_set_sense(sc, 1, ILLEGAL_REQUEST,
++				scsi_sense_code(ASC_ID_CRC_OR_ECC_ERROR, ascq));
+ 			scsi_set_sense_information(sc->sense_buffer,
+ 						   SCSI_SENSE_BUFFERSIZE,
+ 						   sector);
 -- 
 2.55.0
 
