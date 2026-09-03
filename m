@@ -1,35 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE4BD44C4EA;
-	Thu,  3 Sep 2026 09:29:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49389411A0E;
+	Thu,  3 Sep 2026 09:29:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788427760; cv=none; b=USH4aDbcvODQx+iwM5RK42eMa57pQmGYT+8jLYc1ajmQ4Lxnbn5gZiCwXjCfwulsYZUm3ViOPGFNgxsH6dtv2RreuizevXJyVw5a6+TjM1f3eC5KEfJBdquGT5dQhp/pG+CFIL8YXx5Lo9mclWdgAI1GOKWyULaIE7F1xIcQOHs=
+	t=1788427769; cv=none; b=NTMN+7SBMBlyB2GqjnzHZ/qwm4Ldrvgoo24s1F6ZecchMDNN+xhqXsTknoRV51/PzAeCLwjuOdu4YcuD5gIXe7gu0n7y4g1gx1wWaMApgA+ZRGz2BQ7LKb6QzP3diqlei65mabKah3Mt1IDpN3wIHEguFIBA/MUCjngzscCWxnM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788427760; c=relaxed/simple;
-	bh=nn6iME8vaNp2UgCAoNFVxRTydFn/sut+ZKMPmrBTGcY=;
+	s=arc-20240116; t=1788427769; c=relaxed/simple;
+	bh=GANaTsmhBJhv32/yhc8gi7G+dYWfdszS5LlzA2ScMKE=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=JFqEdqNuqbbWYIt0trpJgSH7RWt3SUVk74dD+hRpZ8XeV6oOZOxdWesijVUzX8cxdMxMbpa163C9WkgbowKbaHr6q6viGZatumWSTKe6VbQDyk7wvbqooxzOdPYnQdC/ZC63NjfrP5wFerrx+1Nh7eCenvt8lzM76AZ+E6hJKRc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Dc6BWw33; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=jBW3oH5olc7MjzWVXWUeZbCZhqdr5A9c0bqyIGj7xK12MLIX7GQZEERGoNDlAwx8h8u/IFpEcFv1pvkWMo+J7ieRc/RrwPKe/ziQ1sISf4Amx5E7xZ80zIYCqhUU694go7a/S0FnbVBJQUhaIvKbXDGDu/7o3UnB0lqblseDD2g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VrdwkTOy; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Dc6BWw33"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68CC71F00A3A;
-	Thu,  3 Sep 2026 09:29:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VrdwkTOy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD30A1F00A3D;
+	Thu,  3 Sep 2026 09:29:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788427758;
-	bh=Vh6C9475l7fwGbJW046+hBcY6H+bSMsG/gNT4fxLjjs=;
+	s=k20260515; t=1788427767;
+	bh=9taLyiYqD93JJjaXvNS2H0Tq/XxgRc4w/Y2D/omzLAc=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=Dc6BWw33eFqwAnKvbc/2ePznb+TuDl0/311Ux4UcmLpxp+Q7abEWleHxCmOOjQISw
-	 oxCvkgwUnvtbnN1PkSRcDoVvsxlVhC+tVD0ujqYa0LKTnJBa1Lxkpx/clqx1AifPrg
-	 89KPF1umm9Vn3HD8boxt8mlCJEBKSPLFszutpFOFbMTY0woer4WLnp/ulHkGjUvo65
-	 byO2lSGgdZd2gn6wbRjX2cmc6YakGRyG6RGGlMcDzz4zQ3AjxSuDeNrUrFMYvkfXow
-	 Ssj5NCfXrndepmRJnJTTmdkwbXvvAPcREhb15+xSkqIijaAybqP3yKMoF8SGTPEpxF
-	 QgQ0M0o4xuRvg==
+	b=VrdwkTOyGAsb/ezHXc+RSd05q9lbZbkXr7tUSHsqn9+YHwi+EFYdLGxBjm5CEXVMa
+	 5auPqef474FyEjKgj8ThRoUCvfHGgYnQrQthDskjPXuoECP/k/VPsudCaoY75xMYPe
+	 xtW1Ik2FAt0F+TbQfVXOeFkTvnDfu7oeMBf1BzIBXeP6yqK6YCQrNsfEBrCap0Tjnd
+	 AEHtUNOOUJvwzM8VRrjFghlSTKBiJJS98np8SWdOVL7n9OzZ0N5F+VXzsoYuEgNsT0
+	 CrJbqG/BJ0ZyOoKN5/1tIx4deMMBTz6zHMCQzDcQyqbkmPUr9RlGTsoj/fbb33i1/Z
+	 M4WhiG9yMbmJw==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Thu, 03 Sep 2026 12:28:30 +0300
-Subject: [PATCH v3 4/6] mm/vmalloc: make set_area_direct_map HUGE_VMAP
- friendly
+Date: Thu, 03 Sep 2026 12:28:31 +0300
+Subject: [PATCH v3 5/6] mm/execmem: use VM_FLUSH_RESET_PERMS for ROX cache
+ allocations
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -38,7 +38,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260903-execmem-set-vm-perms-v0-2-v3-4-949b64a9f755@kernel.org>
+Message-Id: <20260903-execmem-set-vm-perms-v0-2-v3-5-949b64a9f755@kernel.org>
 References: <20260903-execmem-set-vm-perms-v0-2-v3-0-949b64a9f755@kernel.org>
 In-Reply-To: <20260903-execmem-set-vm-perms-v0-2-v3-0-949b64a9f755@kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>
@@ -68,53 +68,111 @@ Cc: =?utf-8?q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
  loongarch@lists.linux.dev
 X-Mailer: b4 0.17-dev
 
-set_area_direct_map() always updates direct map alias permissions in
-single page increments.
+Initially execmem completely removed direct map alias for the memory
+allocated for the ROX cache in PMD_SIZE chunks. When that memory was
+freed, its direct map was restored also in PMD_SIZE chunks to avoid
+fragmentation of the direct map caused by vmalloc::vm_reset_perms().
 
-For HUGE_VMAP areas it's suboptimal. Not only the loop in
-set_area_direct_map() needlessly has more iterations (e.g times 512 on
-x86), but it also causes fragmentation of the direct map that could be
-avoided for the HUGE_VMAP areas populated with large pages.
+This required execmem to implement the wrappers for set_direct_map APIs for
+proper sequencing of removal and restoration of the direct map aliases.
 
-All pages in an area are always of the same order: either same-order
-large pages when VM_ALLOW_HUGE_VMAP is set and all huge pages were
-successfully allocated, or order-0 page when VM_ALLOW_HUGE_VMAP is
-cleared or when huge pages allocation fails and fallback path is taken.
+Since then x86's CPA gained support for collapsing the direct map page
+tables for ROX pages and execmem switched from removing ROX caches from the
+direct map to making them ROX there, so execmem only needs to update direct
+map alias permissions when freeing the ROX cache memory.
 
-Instead of updating the direct map permissions for every order-0 page in
-an area, use the area's page_order as the loop increment and update the
-large pages in one call to set_direct_map_{invalid,default}_noflush().
+vmalloc already handles those updates for areas with VM_FLUSH_RESET_PERMS
+set and vmalloc::vm_reset_perms() does not force split of the direct map
+for PMD_SIZE chunks.
+
+Set the area permissions with set_vm_flush_reset_perms() when populating
+the execmem cache just before flipping the area to ROX.
+
+This way freeing an allocated area on an error path won't incur two
+updates of the direct map alias of that area and TLB flushing in
+vm_reset_perms().
 
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- mm/vmalloc.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ mm/execmem.c | 40 +++++++---------------------------------
+ 1 file changed, 7 insertions(+), 33 deletions(-)
 
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 5506b180f5c27..6ed6c160abed7 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -3367,12 +3367,15 @@ static inline void set_area_direct_map(const struct vm_struct *area,
- 				       int (*set_direct_map)(struct page *page,
- 							     unsigned int nr))
- {
--	unsigned long i;
-+	unsigned int nr = (1U << vm_area_page_order(area));
-+
-+	for (unsigned long i = 0; i < area->nr_pages; i += nr) {
-+		if (page_address(area->pages[i])) {
-+			int err = set_direct_map(area->pages[i], nr);
- 
--	/* HUGE_VMALLOC passes small pages to set_direct_map */
--	for (i = 0; i < area->nr_pages; i++)
--		if (page_address(area->pages[i]))
--			set_direct_map(area->pages[i], 1);
-+			WARN_ON_ONCE(err);
-+		}
-+	}
+diff --git a/mm/execmem.c b/mm/execmem.c
+index 74a178a87e758..ad07cae9ed585 100644
+--- a/mm/execmem.c
++++ b/mm/execmem.c
+@@ -113,28 +113,6 @@ static inline unsigned long mas_range_len(struct ma_state *mas)
+ 	return mas->last - mas->index + 1;
  }
  
- /*
+-static int execmem_set_direct_map_valid(struct vm_struct *vm, bool valid)
+-{
+-	unsigned int nr = (1 << get_vm_area_page_order(vm));
+-	unsigned int updated = 0;
+-	int err = 0;
+-
+-	for (int i = 0; i < vm->nr_pages; i += nr) {
+-		err = set_direct_map_valid_noflush(vm->pages[i], nr, valid);
+-		if (err)
+-			goto err_restore;
+-		updated += nr;
+-	}
+-
+-	return 0;
+-
+-err_restore:
+-	for (int i = 0; i < updated; i += nr)
+-		set_direct_map_valid_noflush(vm->pages[i], nr, !valid);
+-
+-	return err;
+-}
+-
+ static int execmem_force_rw(void *ptr, size_t size)
+ {
+ 	unsigned int nr = PAGE_ALIGN(size) >> PAGE_SHIFT;
+@@ -169,9 +147,6 @@ static void execmem_cache_clean(struct work_struct *work)
+ 
+ 		if (IS_ALIGNED(size, PMD_SIZE) &&
+ 		    IS_ALIGNED(mas.index, PMD_SIZE)) {
+-			struct vm_struct *vm = find_vm_area(area);
+-
+-			execmem_set_direct_map_valid(vm, true);
+ 			mas_store_gfp(&mas, NULL, GFP_KERNEL);
+ 			vfree(area);
+ 		}
+@@ -301,6 +276,8 @@ static void *execmem_cache_populate_alloc(struct execmem_range *range, size_t si
+ 	/* fill memory with instructions that will trap */
+ 	execmem_fill_trapping_insns(p, alloc_size);
+ 
++	set_vm_flush_reset_perms(p);
++
+ 	err = set_memory_rox((unsigned long)p, vm->nr_pages);
+ 	if (err)
+ 		goto err_free_mem;
+@@ -312,18 +289,15 @@ static void *execmem_cache_populate_alloc(struct execmem_range *range, size_t si
+ 	 */
+ 	mutex_lock(mutex);
+ 	err = execmem_cache_add_locked(p, alloc_size, GFP_KERNEL);
+-	if (err)
+-		goto err_reset_direct_map;
+-
+-	p = execmem_cache_alloc_locked(range, size);
+-
++	if (!err)
++		p = execmem_cache_alloc_locked(range, size);
+ 	mutex_unlock(mutex);
+ 
++	if (err)
++		goto err_free_mem;
++
+ 	return p;
+ 
+-err_reset_direct_map:
+-	mutex_unlock(mutex);
+-	execmem_set_direct_map_valid(vm, true);
+ err_free_mem:
+ 	vfree(p);
+ 	return NULL;
 
 -- 
 2.53.0
