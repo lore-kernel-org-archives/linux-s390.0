@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0221D46D579;
-	Fri,  4 Sep 2026 10:45:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4383547DD72;
+	Fri,  4 Sep 2026 10:45:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788518741; cv=none; b=I+rgngM0CDH680/1/nYHCheuwOkcFgu2a1JXymbez7XoCzBB7mkbBIOZ4gz2I5vF3ohpU3Lht2iTFsKzB8vo7K+P3EUZA1+e7jpithdyl14V/efoMgefZDbIFGpSgTN6f2nCV7eF8nE9ry3HpHdaaXBKw9OtZS5EZp+wIOwMUM0=
+	t=1788518743; cv=none; b=mzTY2cBA4HWiudfxQtdxbkg5T74fScGzcqb+elYCbJXYZ+lbqfHKhDj8Y6zx7hsQkZgxNpUuTosLWTObvhxHWbczHAd9Wb4XuHo3UlSyKCrOBqyIrjvYarDRG7ysiEtBhPmMP9lZiVXZZG56QYEcVg20rzvv0+KOcVslYxx8S58=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788518741; c=relaxed/simple;
-	bh=HmDZm2lDx5I7ds4AUc/GlLZK1YHhHb4aHjuyJlBvC1Q=;
+	s=arc-20240116; t=1788518743; c=relaxed/simple;
+	bh=jgi1JGrUvwRr0PDo4wjIkRwRy5XaraZLoXWlTBSaki0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=iNd9Qov89iU5N36NTEB/yrSJThXnBiGV5pn2KhaZljvcXmzDe4ZKDid5t7PKlz3MMPtjiW+EJZ3qHGl++HPTIM2PLCxeuTAcLLpLWjXr1FCxkyyvH9wRluLeE2tqYecrROACknPCTs+xEtzlFDcrfKay6zgEA+qsIcEmWpTFuPk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IPOmoLYA; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=B8I5sy97f/0YE2jmD6lBaXfICzYdn9L/ydUNc5Q+BgSmRSrkjYdNzSSAlRrnd2KPcEGYbwYwmj1s2NzCBVHK5/E7CU7MjYaQNBw8+A19BXMyhEWva+Wqylb9US0qzjDDILXguX5UMsUHRqZO4SQlEI0auSY3Y8SyrouJADfErgw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MJ07LRTm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IPOmoLYA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51F3B1F00ACA;
-	Fri,  4 Sep 2026 10:45:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MJ07LRTm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16AF31F00A3D;
+	Fri,  4 Sep 2026 10:45:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788518738;
-	bh=5vNNvzKdHsOvV9OyhJTU/lOueTFevJJO4XmoYOQ+eTg=;
+	s=k20260515; t=1788518740;
+	bh=URDYUrqbvoFrys39J8mEIELRy5W+29S6/Co77OGahWQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=IPOmoLYAsIj3FJJW1IqX+/l6C4WsfKJvtAb4ioQHEWQimGrkjT3/UDN9eS/XSsazP
-	 QnpcT5dLz251vFGtth6XVSzuO3S8HHwoQkmScXOo/yrpOo18RNAPMpKZ6t8TjfChEO
-	 927FWdOsqLjOJJV7pYWYy7x0tqhx03vfSemHrrCMDtsQiLu1MtFPi8e2JmOUclWhH8
-	 5yXFANh7s+CEDhUPH0kgrTyLpa0aegEyCiQdE2X1tJ4EWEqcUge3+dH+ARHfjM4UTS
-	 k/ongUpu3rtV2/rM+1xv7P7fnLD517TXmoy8XL9bFVoXS8BzDjr0AWoKXwsvvKqwNt
-	 hJqFW0ow9F6OA==
+	b=MJ07LRTmfws8dXur0isr7LB/HULUxkMqgSEAyRbIOmKqouVwpQ60B2f+U8uXM5gcN
+	 0e4rmcdkfnZ1f/cgp+89IGLqQeroCxFS7+p8ooIVtBQV/gxf7yM0MorJ/2W3l60ERD
+	 SqPP8/rtWDfUGWUZdJEkAnHQEBxvRcWfTbEdpPj1xkmjAEcmQ84sXaM03P15lX2dIN
+	 5VIPwRCT2W5u7oHyh+uqVSCN8zxCw71ovjataEu9cUYRGZv4qUUVuiVPd8YliRaimJ
+	 8n32Ozp6KtRjSV9ii433WdtqaxYPsEu3Oguidc0Wr4taDVXHAvxPHnJRkbEh+VmmwD
+	 jWI3To2QfeVRQ==
 From: Thierry Reding <thierry.reding@kernel.org>
-Date: Fri, 04 Sep 2026 12:44:58 +0200
-Subject: [PATCH v6 07/12] mm/cma: Introduce cma_alloc_at() API
+Date: Fri, 04 Sep 2026 12:44:59 +0200
+Subject: [PATCH v6 08/12] dma-buf: heaps: Add debugfs support
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,7 +37,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260904-tegra-vpr-v6-7-79042cfa8de5@nvidia.com>
+Message-Id: <20260904-tegra-vpr-v6-8-79042cfa8de5@nvidia.com>
 References: <20260904-tegra-vpr-v6-0-79042cfa8de5@nvidia.com>
 In-Reply-To: <20260904-tegra-vpr-v6-0-79042cfa8de5@nvidia.com>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -80,367 +80,145 @@ Cc: Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org,
  linux-mm@kvack.org, iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
  linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=11699; i=treding@nvidia.com;
- h=from:subject:message-id; bh=g3+Web5AipUed1NoZ7SwnVTMq8b6YiuYb269+8LMDXw=;
- b=owEBbQKS/ZANAwAKAd0jrNd/PrOhAcsmYgBqmqE6zic+A28EOvvjRlHYgr0bkc1hg/XFjhwuR
- 58+1xN4tUeJAjMEAAEKAB0WIQSI6sMIAUnM98CNyJ/dI6zXfz6zoQUCapqhOgAKCRDdI6zXfz6z
- oUbcD/4+HDzO44GDVKd8Xfif1Nth0zgLdLG9tJ7rK14JFcNlVH+y/LTxAjade3W5hl3uKhaIOdc
- qso8AWeMpzAse9Scgy+/AWG39dtQ7GclINBLTE7jg9HkAdTAPePfeJC2jvNMzbPfGfVgflwzDgo
- /pTjUcDN257WOqkZtx1dbh7NtC5Llej64onoQXse5ucTIuylefWWrK/6d7peF7ZMP3vNFqSSeT2
- FjgcZDBJA9o6KeTc/TlFcjGR8+stmDjOgt2OD/Bm5izczhwyPtsSqbiDVSgM/G17lSmGv7ZeduH
- anjq5SF4geSTVLaiE0++gi8pc9cuvUzc4TyJzgD/kc1ybjFRmpdhfkkPvlGOeY1gzvQVGea6NT3
- 7vGw7wuAVZM80T4JJJJTrluFCrfYeCv7g9Y/pI9MEeuPauS3FlwpBYnUTOGk5nz/QQKQZo0fylm
- r+UIv3vnK5jQ7ozx0XX+f06q8acg5ei1qSKrtGRL/4LQ6lisPOPInpMC83qANdxwz3/Mk9s/kSa
- kJ356dsAQqFG05EOyQOyritpq+mdv0zTcR3lDfyyRx+URbNXUPiVQddq2lcUWoJRiOi4p3bewF5
- x7qpq9Z8tE2ljsepTBYvxNJUreNddRCXHRrymarty6Jb6t2ZaHQbHyZhyM018vOFFHQz/Ck8fuV
- TPBoSmPG44LYgtA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3268; i=treding@nvidia.com;
+ h=from:subject:message-id; bh=PTbCupvjHWmMcXwEcqCBr5NgDg7Tooca+dUOmGKhZ1w=;
+ b=owEBbQKS/ZANAwAKAd0jrNd/PrOhAcsmYgBqmqE6C4dwHTnCbC5FbKmwaT00Do0hU8YNS/+jY
+ a0Lv2wvQJmJAjMEAAEKAB0WIQSI6sMIAUnM98CNyJ/dI6zXfz6zoQUCapqhOgAKCRDdI6zXfz6z
+ od3iEACHrxrMF5hDeTgSv/upZk6DbDhcOknfUoMDoE7ao2NckqEMBYrL7W4jHqK4OEK7Zz+Dy56
+ l74sJCpjbOE+EkqXP/sHP7Dcowfz3/rUTKNLWMrH4GjEGlu7zCzUfqe9PlPOhT/f5oe6tVL3Q+l
+ 4fnwRm1olqNLtZKAaffoZQDNLjIFBhQaOkiSocS72I+SMAGt3LOPJmfGNW8bruRDtRjbPbhwrFM
+ WqgBdknbnk87TQzuuv/Zudx5uvzXPtUuPjijyUjN+8gaRNGNhWwHmP99qSG5d/B5fdFRKj+I5QI
+ dTZRvzzxb/PUNF880+qE3wRTxd/6djnnZtAnFfPGRiDbcN12cApJdAYSaVOm5kRCMx0A6V11rQR
+ uDMvgB/adcG3P3T5x6/CVrw+KXHOR/VCGHa16YGbjq/ajwJsGyl6NAVG9vtaG5LfS6pcjlH6HRh
+ m6VudFk+pfDpMD0nWlqiHyk1i1i3f3N17D3B0rtg2YGGRqWhikWK9gci3YyCRCr21+wBfRL9zMv
+ qlj3Zcw1JoK3hGRi76bXm+p0EULU2PMdnR+MA7z83OdT7phjtBsH8aJTKXrKZIGuBDwClD5mp2h
+ 9YZqhM/c6XIMG0xogYOIiMIxQZuqifr6ZvL2iC3/JdsepRVwO+hgJzwNBTj6zC5KHqX60d1rizd
+ XXb+4oFnVut6Zsw==
 X-Developer-Key: i=treding@nvidia.com; a=openpgp;
  fpr=88EAC3080149CCF7C08DC89FDD23ACD77F3EB3A1
 
 From: Thierry Reding <treding@nvidia.com>
 
-This API can be used to allocate a number of CMA pages starting at a
-fixed offset. This is useful, for example, if the CMA area is used as
-backing storage for a nested allocator that has stricter requirements
-than CMA itself.
+Add a callback to struct dma_heap_ops that heap providers can implement
+to show information about the state of the heap in debugfs. A top-level
+directory named "dma_heap" is created in debugfs and individual files
+will be named after the heaps.
 
-In order to reuse most of the existing code, the cma_range_alloc()
-function is enhanced to take as inputs a range of pages to look for a
-free region. If this range encompasses the entire CMA range, the
-behavior is as before, but the range can also be specified to match
-the offset and size passed in from cma_alloc_at(), in which case that
-is the range that will be allocated (or allocation will fail if the
-range is not available).
-
-Suggested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Maxime Ripard <mripard@kernel.org>
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
-Changes in v6:
-- refactor cma_range_alloc() so it can be reused for _at() code paths
+Changes in v5:
+- fix failure handling during debugfs root directory creation
+- add more cleanup to the newly introduced dma_heap_exit()
 ---
- include/linux/cma.h        |  4 +++
- include/trace/events/cma.h | 77 ++++++++++++++++++++++++++++++++++++++--
- mm/cma.c                   | 88 +++++++++++++++++++++++++++++++++++-----------
- 3 files changed, 146 insertions(+), 23 deletions(-)
+ drivers/dma-buf/dma-heap.c | 52 ++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/dma-heap.h   |  2 ++
+ 2 files changed, 54 insertions(+)
 
-diff --git a/include/linux/cma.h b/include/linux/cma.h
-index 8555d38a97b1..844404459a42 100644
---- a/include/linux/cma.h
-+++ b/include/linux/cma.h
-@@ -49,11 +49,15 @@ extern int cma_init_reserved_mem(phys_addr_t base, phys_addr_t size,
- 					struct cma **res_cma);
- extern struct page *cma_alloc(struct cma *cma, unsigned long count, unsigned int align,
- 			      bool no_warn);
-+extern struct page *cma_alloc_at(struct cma *cma, unsigned long offset,
-+				 unsigned long count, bool no_warn);
- extern bool cma_release(struct cma *cma, const struct page *pages, unsigned long count);
+diff --git a/drivers/dma-buf/dma-heap.c b/drivers/dma-buf/dma-heap.c
+index 8a6c2b6e0cc6..65c80dac6500 100644
+--- a/drivers/dma-buf/dma-heap.c
++++ b/drivers/dma-buf/dma-heap.c
+@@ -7,6 +7,7 @@
+  */
  
- struct page *cma_alloc_frozen(struct cma *cma, unsigned long count,
- 		unsigned int align, bool no_warn);
- struct page *cma_alloc_frozen_compound(struct cma *cma, unsigned int order);
-+struct page *cma_alloc_at_frozen(struct cma *cma, unsigned long offset,
-+				 unsigned long count, bool no_warn);
- bool cma_release_frozen(struct cma *cma, const struct page *pages,
- 		unsigned long count);
- 
-diff --git a/include/trace/events/cma.h b/include/trace/events/cma.h
-index 37195edf2498..4e0ab63e303f 100644
---- a/include/trace/events/cma.h
-+++ b/include/trace/events/cma.h
-@@ -38,13 +38,17 @@ TRACE_EVENT(cma_release,
- 
- TRACE_EVENT(cma_alloc_start,
- 
--	TP_PROTO(const char *name, unsigned long request_count, unsigned long available_count,
-+	TP_PROTO(const char *name, unsigned long start, unsigned long end,
-+		unsigned long request_count, unsigned long available_count,
- 		unsigned long total_count, unsigned int align),
- 
--	TP_ARGS(name, request_count, available_count, total_count, align),
-+	TP_ARGS(name, start, end, request_count, available_count, total_count,
-+		align),
- 
- 	TP_STRUCT__entry(
- 		__string(name, name)
-+		__field(unsigned long, start)
-+		__field(unsigned long, end)
- 		__field(unsigned long, request_count)
- 		__field(unsigned long, available_count)
- 		__field(unsigned long, total_count)
-@@ -53,14 +57,18 @@ TRACE_EVENT(cma_alloc_start,
- 
- 	TP_fast_assign(
- 		__assign_str(name);
-+		__entry->start = start;
-+		__entry->end = end;
- 		__entry->request_count = request_count;
- 		__entry->available_count = available_count;
- 		__entry->total_count = total_count;
- 		__entry->align = align;
- 	),
- 
--	TP_printk("name=%s request_count=%lu available_count=%lu total_count=%lu align=%u",
-+	TP_printk("name=%s start=%lu end=%lu request_count=%lu available_count=%lu total_count=%lu align=%u",
- 		  __get_str(name),
-+		  __entry->start,
-+		  __entry->end,
- 		  __entry->request_count,
- 		  __entry->available_count,
- 		  __entry->total_count,
-@@ -132,6 +140,69 @@ TRACE_EVENT(cma_alloc_busy_retry,
- 		  __entry->align)
- );
- 
-+TRACE_EVENT(cma_alloc_at_start,
-+
-+	TP_PROTO(const char *name, unsigned long pfn,
-+		 unsigned long request_count, unsigned long available_count,
-+		 unsigned long total_count),
-+
-+	TP_ARGS(name, pfn, request_count, available_count, total_count),
-+
-+	TP_STRUCT__entry(
-+		__string(name, name)
-+		__field(unsigned long, pfn)
-+		__field(unsigned long, request_count)
-+		__field(unsigned long, available_count)
-+		__field(unsigned long, total_count)
-+	),
-+
-+	TP_fast_assign(
-+		__assign_str(name);
-+		__entry->pfn = pfn;
-+		__entry->request_count = request_count;
-+		__entry->available_count = available_count;
-+		__entry->total_count = total_count;
-+	),
-+
-+	TP_printk("name=%s pfn=%lx, request_count=%lu available_count=%lu total_count=%lu",
-+		  __get_str(name),
-+		  __entry->pfn,
-+		  __entry->request_count,
-+		  __entry->available_count,
-+		  __entry->total_count)
-+);
-+
-+TRACE_EVENT(cma_alloc_at_finish,
-+
-+	TP_PROTO(const char *name, unsigned long pfn, const struct page *page,
-+		 unsigned long count, int errorno),
-+
-+	TP_ARGS(name, pfn, page, count, errorno),
-+
-+	TP_STRUCT__entry(
-+		__string(name, name)
-+		__field(unsigned long, pfn)
-+		__field(const struct page *, page)
-+		__field(unsigned long, count)
-+		__field(int, errorno)
-+	),
-+
-+	TP_fast_assign(
-+		__assign_str(name);
-+		__entry->pfn = pfn;
-+		__entry->page = page;
-+		__entry->count = count;
-+		__entry->errorno = errorno;
-+	),
-+
-+	TP_printk("name=%s pfn=0x%lx page=%p count=%lu errorno=%d",
-+		  __get_str(name),
-+		  __entry->pfn,
-+		  __entry->page,
-+		  __entry->count,
-+		  __entry->errorno)
-+);
-+
- #endif /* _TRACE_CMA_H */
- 
- /* This part must be outside protection */
-diff --git a/mm/cma.c b/mm/cma.c
-index a10ea37a261d..f92d3a188209 100644
---- a/mm/cma.c
-+++ b/mm/cma.c
-@@ -783,25 +783,32 @@ static void cma_debug_show_areas(struct cma *cma)
- 	spin_unlock_irq(&cma->lock);
+ #include <linux/cdev.h>
++#include <linux/debugfs.h>
+ #include <linux/device.h>
+ #include <linux/dma-buf.h>
+ #include <linux/dma-heap.h>
+@@ -225,6 +226,40 @@ const char *dma_heap_get_name(struct dma_heap *heap)
  }
+ EXPORT_SYMBOL_NS_GPL(dma_heap_get_name, "DMA_BUF_HEAP");
  
-+/*
-+ * Searches the CMA memrange, from @start to @end, for a free region of
-+ * @count bits. If @end is less or equal to @start, will search the entire
-+ * memrange.
-+ */
- static int cma_range_alloc(struct cma *cma, struct cma_memrange *cmr,
--				unsigned long count, unsigned int align,
--				struct page **pagep, gfp_t gfp)
-+			   unsigned long start, unsigned long end,
-+			   unsigned long count, unsigned int align,
-+			   struct page **pagep, gfp_t gfp)
- {
- 	unsigned long bitmap_maxno, bitmap_no, bitmap_count;
--	unsigned long start, pfn, mask, offset;
--	int ret = -EBUSY;
-+	unsigned long pfn, mask, offset;
- 	struct page *page = NULL;
-+	int ret = -EBUSY;
- 
- 	mask = cma_bitmap_aligned_mask(cma, align);
- 	offset = cma_bitmap_aligned_offset(cma, cmr, align);
--	bitmap_maxno = cma_bitmap_maxno(cma, cmr);
-+	bitmap_maxno = (end > start) ? end : cma_bitmap_maxno(cma, cmr);
- 	bitmap_count = cma_bitmap_pages_to_bits(cma, count);
- 
- 	if (bitmap_count > bitmap_maxno)
- 		goto out;
- 
--	for (start = 0; ; start = bitmap_no + mask + 1) {
-+	while (true) {
- 		spin_lock_irq(&cma->lock);
++#ifdef CONFIG_DEBUG_FS
++static int dma_heap_debug_show(struct seq_file *s, void *unused)
++{
++	struct dma_heap *heap = s->private;
++	int err = 0;
 +
- 		/*
- 		 * If the request is larger than the available number
- 		 * of pages, stop right away.
-@@ -810,6 +817,7 @@ static int cma_range_alloc(struct cma *cma, struct cma_memrange *cmr,
- 			spin_unlock_irq(&cma->lock);
- 			break;
- 		}
++	if (heap->ops && heap->ops->show)
++		err = heap->ops->show(s, heap);
 +
- 		bitmap_no = bitmap_find_next_zero_area_off(cmr->bitmap,
- 				bitmap_maxno, start, bitmap_count, mask,
- 				offset);
-@@ -835,10 +843,11 @@ static int cma_range_alloc(struct cma *cma, struct cma_memrange *cmr,
- 
- 		bitmap_set(cmr->bitmap, bitmap_no, bitmap_count);
- 		cma->available_count -= count;
++	return err;
++}
++DEFINE_SHOW_ATTRIBUTE(dma_heap_debug);
 +
- 		/*
--		 * It's safe to drop the lock here. We've marked this region for
--		 * our exclusive use. If the migration fails we will take the
--		 * lock again and unmark it.
-+		 * It's safe to drop the lock here. We've marked this region
-+		 * for our exclusive use. If the migration fails we will take
-+		 * the lock again and unmark it.
- 		 */
- 		spin_unlock_irq(&cma->lock);
- 
-@@ -856,37 +865,45 @@ static int cma_range_alloc(struct cma *cma, struct cma_memrange *cmr,
- 			 __func__, pfn, page);
- 
- 		trace_cma_alloc_busy_retry(cma->name, pfn, page, count, align);
-+		start = bitmap_no + mask + 1;
- 	}
++static struct dentry *dma_heap_debugfs_dir;
 +
- out:
- 	if (!ret)
- 		*pagep = page;
-+
- 	return ret;
- }
- 
--static struct page *__cma_alloc_frozen(struct cma *cma,
--		unsigned long count, unsigned int align, gfp_t gfp)
-+static struct page *__cma_alloc_frozen(struct cma *cma, unsigned long start,
-+				       unsigned long end, unsigned long count,
-+				       unsigned int align, gfp_t gfp)
- {
- 	struct page *page = NULL;
- 	int ret = -ENOMEM, r;
- 	unsigned long i;
--	const char *name = cma ? cma->name : NULL;
-+
-+	/* cma_alloc_at() and friends will only work with single-range CMA */
-+	if (WARN_ON_ONCE(start > 0 && cma->nranges != 1))
-+		return page;
- 
- 	if (!cma || !cma->count)
- 		return page;
- 
--	pr_debug("%s(cma %p, name: %s, count %lu, align %d)\n", __func__,
--		(void *)cma, cma->name, count, align);
-+	pr_debug("%s(cma %p, name: %s, start %lu, end %lu, count %lu, align %d)\n",
-+		 __func__, (void *)cma, cma->name, start, end, count, align);
- 
- 	if (!count)
- 		return page;
- 
--	trace_cma_alloc_start(name, count, cma->available_count, cma->count, align);
-+	trace_cma_alloc_start(cma->name, start, end, count,
-+			      cma->available_count, cma->count, align);
- 
- 	for (r = 0; r < cma->nranges; r++) {
- 		page = NULL;
- 
--		ret = cma_range_alloc(cma, &cma->ranges[r], count, align,
--				       &page, gfp);
-+		ret = cma_range_alloc(cma, &cma->ranges[r], start, end,
-+				      count, align, &page, gfp);
- 		if (ret != -EBUSY || page)
- 			break;
- 	}
-@@ -908,7 +925,7 @@ static struct page *__cma_alloc_frozen(struct cma *cma,
- 	}
- 
- 	pr_debug("%s(): returned %p\n", __func__, page);
--	trace_cma_alloc_finish(name, page ? page_to_pfn(page) : 0,
-+	trace_cma_alloc_finish(cma->name, page ? page_to_pfn(page) : 0,
- 			       page, count, align, ret);
- 	if (page) {
- 		count_vm_event(CMA_ALLOC_SUCCESS);
-@@ -926,14 +943,22 @@ struct page *cma_alloc_frozen(struct cma *cma, unsigned long count,
- {
- 	gfp_t gfp = GFP_KERNEL | (no_warn ? __GFP_NOWARN : 0);
- 
--	return __cma_alloc_frozen(cma, count, align, gfp);
-+	return __cma_alloc_frozen(cma, 0, 0, count, align, gfp);
- }
- 
- struct page *cma_alloc_frozen_compound(struct cma *cma, unsigned int order)
- {
- 	gfp_t gfp = GFP_KERNEL | __GFP_COMP | __GFP_NOWARN;
- 
--	return __cma_alloc_frozen(cma, 1 << order, order, gfp);
-+	return __cma_alloc_frozen(cma, 0, 0, 1 << order, order, gfp);
++static void dma_heap_init_debugfs(void)
++{
++	dma_heap_debugfs_dir = debugfs_create_dir("dma_heap", NULL);
 +}
 +
-+struct page *cma_alloc_at_frozen(struct cma *cma, unsigned long offset,
-+				 unsigned long count, bool no_warn)
++static void dma_heap_exit_debugfs(void)
 +{
-+	gfp_t gfp = GFP_KERNEL | (no_warn ? __GFP_NOWARN : 0);
++	debugfs_remove_recursive(dma_heap_debugfs_dir);
++}
++#else
++static void dma_heap_init_debugfs(void)
++{
++}
 +
-+	return __cma_alloc_frozen(cma, offset, offset + count, count, 0, gfp);
++static void dma_heap_exit_debugfs(void)
++{
++}
++#endif
++
+ /**
+  * dma_heap_add - adds a heap to dmabuf heaps
+  * @exp_info: information needed to register this heap
+@@ -299,6 +334,13 @@ struct dma_heap *dma_heap_add(const struct dma_heap_export_info *exp_info)
+ 
+ 	/* Add heap to the list */
+ 	list_add(&heap->list, &heap_list);
++
++#ifdef CONFIG_DEBUG_FS
++	if (heap->ops && heap->ops->show)
++		debugfs_create_file(heap->name, 0444, dma_heap_debugfs_dir,
++				    heap, &dma_heap_debug_fops);
++#endif
++
+ 	mutex_unlock(&heap_list_lock);
+ 
+ 	return heap;
+@@ -335,6 +377,16 @@ static int dma_heap_init(void)
+ 	}
+ 	dma_heap_class->devnode = dma_heap_devnode;
+ 
++	dma_heap_init_debugfs();
++
+ 	return 0;
  }
+ subsys_initcall(dma_heap_init);
++
++static void __exit dma_heap_exit(void)
++{
++	dma_heap_exit_debugfs();
++	class_destroy(dma_heap_class);
++	unregister_chrdev_region(dma_heap_devt, NUM_HEAP_MINORS);
++}
++__exitcall(dma_heap_exit);
+diff --git a/include/linux/dma-heap.h b/include/linux/dma-heap.h
+index 648328a64b27..1c9bed1f4dde 100644
+--- a/include/linux/dma-heap.h
++++ b/include/linux/dma-heap.h
+@@ -12,6 +12,7 @@
+ #include <linux/types.h>
+ 
+ struct dma_heap;
++struct seq_file;
  
  /**
-@@ -959,6 +984,29 @@ struct page *cma_alloc(struct cma *cma, unsigned long count,
- }
- EXPORT_SYMBOL_GPL(cma_alloc);
+  * struct dma_heap_ops - ops to operate on a given heap
+@@ -24,6 +25,7 @@ struct dma_heap_ops {
+ 				    unsigned long len,
+ 				    u32 fd_flags,
+ 				    u64 heap_flags);
++	int (*show)(struct seq_file *s, struct dma_heap *heap);
+ };
  
-+/**
-+ * cma_alloc_at() - allocate pages from contiguous area at fixed offset
-+ * @cma:     Contiguous memory region for which the allocation is performed.
-+ * @offset:  Index of the first page to allocate.
-+ * @count:   Requested number of pages (in PAGE_SIZE order).
-+ * @no_warn: Avoid printing message about failed allocation.
-+ *
-+ * This function allocates a part of the contiguous memory on a specific
-+ * contiguous memory area.
-+ */
-+struct page *cma_alloc_at(struct cma *cma, unsigned long offset,
-+			  unsigned long count, bool no_warn)
-+{
-+	struct page *page;
-+
-+	page = cma_alloc_at_frozen(cma, offset, count, no_warn);
-+	if (page)
-+		set_pages_refcounted(page, count);
-+
-+	return page;
-+}
-+EXPORT_SYMBOL_GPL(cma_alloc_at);
-+
- static struct cma_memrange *find_cma_memrange(struct cma *cma,
- 		const struct page *pages, unsigned long count)
- {
+ /**
 
 -- 
 2.55.0
