@@ -1,296 +1,188 @@
-Received: from BN8PR05CU002.outbound.protection.outlook.com (mail-eastus2azon11011038.outbound.protection.outlook.com [52.101.57.38])
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8A743905F5;
-	Fri,  4 Sep 2026 15:15:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.57.38
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788534947; cv=fail; b=kb+3m6utlxMvRuxUcf/MO0MzdyjthRshXG8henoSwVBl9zEGv2xJuUVdAXKvtCa0hXJtzaC3kuZoOc67KchIHnjs5T6/YTVLTj2H/SaLI+GY0+QCWtPEFLwpXUtwHVhaMi6lUIuvA+EGcjcXBR8/SEyhcQokb62rlzDS2yyB9W8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788534947; c=relaxed/simple;
-	bh=qUB4Jae69nX6vnt/y+gA++6iHeenU+wx33NMtxn6KRg=;
-	h=From:To:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=c72E6pJpDN0TkuxSaCmilBPkaL94cwQCKT3X0YC5zFfWPuYXai5q+HqixQ9HGyN5TxHjVt1Qyetn29qA6pvodlobLosCwgspcPKkuUFQkXk3w6b/3GtZR3AfBdHyLhd6i7EiuYlqdOLwY95lOs7jq8gpaSqcd60cZCdtsBqBPBo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com; spf=pass smtp.mailfrom=microchip.com; dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b=vXuOBvZ2; arc=fail smtp.client-ip=52.101.57.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microchip.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24CC0474247;
+	Fri,  4 Sep 2026 15:21:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788535318; cv=none; b=MOX7wCZx9ryV3L8l4GZsdMg4aNzu0+84hFcvUZMSm16VzphMpJDIrtVJoh42sjPJ+8B3oY0RLxS8deZRwFD/ZBtlVOzv6C8zFQhrAUXXocSsIjOAJfK5X3yuezcQ1LL+/xXr5x29Mzh4nPKwVW4iHIpXX/htT1iyJiqI4v6mJPg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788535318; c=relaxed/simple;
+	bh=PJ/iaFn65SbkWEpJ+KcHytetjVJYyvroM9gBmN3nDXI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=n3KSScUfgNgS2bL43+7OuK4xuI4M9mzW0EZRy/CZhXKbQ1KLdeSjKKVHrke8KlZbL4r5jD4LS25FIRVzpiLK1+R8m+VlCaezZdNFfnokg5zPrAnvddrOm1XqyX/kg54mgk/+DH1okSBMLxSrZU0mdhife9Y+D9rfsVUnR3FGNvw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=O5fVMovz; arc=none smtp.client-ip=115.124.30.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="vXuOBvZ2"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=TNy5h5rBYOOQZ7Qzm9DuwTlJpivXf45jRi5RswINO38pLlV0ABC7ByP0bMsdN6M2wOLH0si8ok/+89strDS/cuwQz+7k6a4xKvyIN0BOLYrBM+NWp8n3JhmAZSCTvOpe4TbhIvcgDu1z3pjCm99wWpiCXErJdvWNHrJjI++v5AImiXTc9pbaSx5j0Uw2gzpLDmM75q7OMVMK/t8H+NaVGDKEFf0zuytUYxuuaWIQP8BWtaa87OH5YVhJ2iCDROtclkc27kxJCY/g/lLwvPNs33xaA8kWnZPsk6mN6PjJO1hEWIYhaef68KxdjNHMYlc6P1XdeYgGdKqOZJBriFIhMw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qUB4Jae69nX6vnt/y+gA++6iHeenU+wx33NMtxn6KRg=;
- b=vcsyG2L2V09bnxKljdBpLa96qa08kZSUNIJ/LgptqO+7a+ZaKu22bKtcahBGmchRJ7BgoAQV1EeGDK0Y59WcgUB5kAm/axQOWxOo+dwwe/ZAjadbzBSfDScXSkEVSbeOvu3FkynV4PSGoCwh3vWW/fxLcEDrjYqDGjKO5zMm/0nI2Bc89Kfz19LuCtpcXLOj146EKEwnizRhc0peFlKKT3INRdEvS5sN0tLp99zqRzhgWEpxMoeG7ww4zzr1H9Z4Fefw4w+nmEfFYXgOTot94dyqPNsIqe2R2AUhDWiF4/TLZ36uRyz6AP+/39OSwtnRrL24t+adPbHRar3KqbgBZA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microchip.com; dmarc=pass action=none
- header.from=microchip.com; dkim=pass header.d=microchip.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microchip.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qUB4Jae69nX6vnt/y+gA++6iHeenU+wx33NMtxn6KRg=;
- b=vXuOBvZ2hPoGS3hF/SxtNEW9yGjUWIGsH/FXoSkWyrfYo9EZgPyV10nd4vhmTboXjBgouCXwpROCeufykEhpJXx96+IG8OLvAFpXWpWZhGxO+BOVkohlG8Fr7zfNkidmo77ABHcPixfOOPUiimkA3R7bWpYL3ZpVaKsJIOr/FHGJ01kuQlyMgOWL6OrJb7KfmXTZq+YlB2KY2Q8pPVN6sDOhJzrXm150h6FKgfYuSU4XqXFAw/uDrcziyPE8I9fK8disByHKVH5lQd/nTalWoUSE2wwx61feZOcsDI9H6aeIUTXDdJEkWqHK6Xr0jLHQ85utmBFe4BPHoDJR3J6+NA==
-Received: from SJ2PR11MB8369.namprd11.prod.outlook.com (2603:10b6:a03:53d::16)
- by DS0PR11MB7736.namprd11.prod.outlook.com (2603:10b6:8:f1::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.13; Fri, 4 Sep
- 2026 15:15:35 +0000
-Received: from SJ2PR11MB8369.namprd11.prod.outlook.com
- ([fe80::6777:e753:dd60:983b]) by SJ2PR11MB8369.namprd11.prod.outlook.com
- ([fe80::6777:e753:dd60:983b%4]) with mapi id 15.21.0360.008; Fri, 4 Sep 2026
- 15:15:34 +0000
-From: <Don.Brace@microchip.com>
-To: <dlemoal@kernel.org>, <martin.petersen@oracle.com>,
-	<James.Bottomley@HansenPartnership.com>, <linux-scsi@vger.kernel.org>,
-	<linux-ide@vger.kernel.org>, <cassel@kernel.org>,
-	<linux-usb@vger.kernel.org>, <stern@rowland.harvard.edu>,
-	<gregkh@linuxfoundation.org>, <linux-s390@vger.kernel.org>,
-	<hca@linux.ibm.com>
-Subject: Re: [PATCH v3 23/40] scsi: smartpqi: use 16-bits defined sense codes
-Thread-Topic: [PATCH v3 23/40] scsi: smartpqi: use 16-bits defined sense codes
-Thread-Index: AQHdPAR1+loG+loI60SSNTqTCsJ227a+h5aN
-Date: Fri, 4 Sep 2026 15:15:34 +0000
-Message-ID:
- <SJ2PR11MB8369F086768CD321855436C6E1B52@SJ2PR11MB8369.namprd11.prod.outlook.com>
-References: <20260904002644.157668-1-dlemoal@kernel.org>
- <20260904002644.157668-24-dlemoal@kernel.org>
-In-Reply-To: <20260904002644.157668-24-dlemoal@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-msip_labels:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=microchip.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SJ2PR11MB8369:EE_|DS0PR11MB7736:EE_
-x-ms-office365-filtering-correlation-id: 6f381d36-2189-42c7-8021-08df0a975e4f
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|376014|23010399003|7416014|366016|1800799024|38070700021|921020|4143699003|10067099003|11063799006|56012099006|22082099003|18002099003;
-x-microsoft-antispam-message-info:
- TccbC6l33VZ6KqlBx6tj4vQoqBGTtwXEj3AaJYHkp9FE0er4/6mZNmkWVFTZiwtETil/4H8iCvwM1/k9Dg/bSd6Wryrdl6tuHBlLC3psrHLQAWI2Udaju8PQ1er0D3Z81Cx3Q0p/bwJAwX2jWZfDiLNHWmez/VoKosTF6u9ykZAJ87qkylE8shfy1GywYnYPkmq9XRwOA5XhIdj57JQAPMV09/hLPMLa2vQ9jnF835N4kbqiKYYYXgdvEed97i9+EKqOlUqSALNHqQg8ZKdmzDgfeMA8+bo9vMaKQAJ0OwbYrV0qXqx2aV+obioXiV7xwVIvy3SsmpU8g1PtGtYqpw/M6xYn3jkAC4uTWi/6fZFlQ+SZBtd+N+h/fk9wWRYppfIAJuTYkXyUiFHrQx79HG6JeYTWk3qgzNhBiU7GiP9xHF98Zq4y5ipaG7skBcM1tX33whtH2rBcnSOKFDffS6gZVOcu0y2o8zVVIhhH8JH1yKXlV49ShNmXwrT6YbSOHSBdqgS6kjUhq83Z2HSV7xioLqeKcMLv+Xb3RlLR2TpJSRUFvh6HwHdXMiKxV19kGxtY1Bpd05iN2tnKEufqVIG0KMXPWfHc6BIeJvomfu9jMqF+Swqrgmy0rhfbHx2JLhtjccn9MoJ1B10uw/9I0Do98e8Ay2qcjLg1G3mRCQpXpoSL/AF7CLmvy4uveQIj
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ2PR11MB8369.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(23010399003)(7416014)(366016)(1800799024)(38070700021)(921020)(4143699003)(10067099003)(11063799006)(56012099006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?iso-8859-1?Q?IvRUxXX9Je4cwR4r14Y0B1SQeyPP5KjkE2e+qajbPZOnlm1uvnhmgzw8rq?=
- =?iso-8859-1?Q?uesjpauI637CDYyUsMC1UF/OpAaOlugaqn1371H5sBO36OApfNXHZtmh8Q?=
- =?iso-8859-1?Q?3Kp5nyzrjoz/A0RPshE4nc3/ReSe5HFixJOC25lypzBX/YAWWI7uH0jro7?=
- =?iso-8859-1?Q?Ue9iCDvUHEWV2iaY5+s/ovuCa79gjKwnsSoPZV0pXoi6GqEiaCm9l4PPW6?=
- =?iso-8859-1?Q?4P5OjsB3D+NeRIsImH8Lv5aL+jr5gSTL7uVFOZV5iDl+bmcUlWwPaf78Nj?=
- =?iso-8859-1?Q?4Ju1sh4gBPcsh7X04xOx9WBSmk8H9aG+h6HwkMwVLXjPvz5kLPzbBCXHl1?=
- =?iso-8859-1?Q?mgaOdSeQjE/a3Ng680UDO4xotq32PASo8wlm3mjc/DLu4PGe2lnzK7wkJ/?=
- =?iso-8859-1?Q?irZPtgwCCBnnBnTP4JXYs0+NFCy2cE9ci0qYeFqmYiKiIFUD1kvF12t7Wh?=
- =?iso-8859-1?Q?d7CI+VKzlsiu8Zt5PNJq7+e2kRGl1xj8sKjFiLZpeSoSTbt8RPi4tyJIQ4?=
- =?iso-8859-1?Q?30b2GZrFWoX/5mOQ9X/MYGFm0YMT/4ihpwZnfDjStE/WEVP+CyMRy10ywZ?=
- =?iso-8859-1?Q?2nkW6fmSIHXTXMyxyLg1qUj23SbQ3Ij4RmZ+hTR20944yK9PTzSD/e6KOa?=
- =?iso-8859-1?Q?b831Ee0luEUomi7SyWuXByJLjqzf3o5yLun48b4r0K0W7u4DoSB4fqWjPS?=
- =?iso-8859-1?Q?BHkUvFhq4nSRXQTrK5fd+7Emm7bZzIDeZwagoCHGO89lMpF5/G8/QwiDGq?=
- =?iso-8859-1?Q?e0wkb3gEeK+hbctXmAoX6xa0ZqO5KRinktRK8WnczMJy7MZeNH8Eh6wfc+?=
- =?iso-8859-1?Q?j/8/wzKA+TSWoJ6wMzKFbchOeEc60OJPxy9IykCF07vY4e9OhejumL4pL/?=
- =?iso-8859-1?Q?XPssImTHb252KOJYQhBMwHO+V/ih6IwEKImudkKrgjteFTH8+gOOhq1fIM?=
- =?iso-8859-1?Q?/Adc3xVjAVEhgXla1/j9ZwfehpRa103H0SPql1qcJyDqH7hjVQ9JeIKWIL?=
- =?iso-8859-1?Q?AIc6MYUhH0nhuBVUvF1aY7koCdRmPwUB+S9d0IVopa1jOwo3jvPIgT6GwJ?=
- =?iso-8859-1?Q?xZMhJbpMEsbrDBJWIFNfitFxPc9HGfC+KG4EcxxUYZTl04PsxhkJ9JdxZa?=
- =?iso-8859-1?Q?vDiGQ+/0Ra5J9nybI/HI8yGrvCSUqwhFhAwsAdyeXzYVluDN6APQHxXVXD?=
- =?iso-8859-1?Q?DBZZeyMInPJygZPlK/yZU9eKXGb9lKvO7wVq17L7Z6bzdkjG5vWZ41xJRP?=
- =?iso-8859-1?Q?OzgHIQNNwpeAtyGgviMvUaU3POMRH/zW4vTY3sj/FDZlhsq+tb17EWj/yN?=
- =?iso-8859-1?Q?x4TyEtQ6tAdk1BMT5c5kcaAf35zMp/iC3b9Qv1jWit6k/Jv/vmvpphZ4ds?=
- =?iso-8859-1?Q?q1mhaMamQTeUgOE6WWuMbtHiMZrcKR5l5yfUZoHvdezr56CAMQ8F+OWKIh?=
- =?iso-8859-1?Q?zzYhMi3cVT5xgrvdcMvK2ryT/cCXrFbZAq2vy8kMMK/z9OdY2XVlEKgcQD?=
- =?iso-8859-1?Q?Rh72EfuZhnW1uIZVeUCWXo98iLEoWa0FztWfRl+t6INtd5bdpzsTxpHUS/?=
- =?iso-8859-1?Q?PzLOr32Mo64ymdEZ30buxa/zCzCQLz/WHE9s6K4sh77M6TCVZuMFFQXMd4?=
- =?iso-8859-1?Q?qcCNorOVfniADRXAQGbcYYDoc8O4Z66Yyp8S2tnvdoEGqb7m5q113z5ndN?=
- =?iso-8859-1?Q?15TXtb9zSsbP8GkjJw3sohsbwp9IrIVjeRXVRp2keqkZI22bBGk5lRoSCU?=
- =?iso-8859-1?Q?TpXJvW6SJf97yyBttABgQ0lAfyp7fpCsomxyufdvubgQWClPhK6MagZ75V?=
- =?iso-8859-1?Q?fhzLJXXQ0g=3D=3D?=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="O5fVMovz"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1788535310; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=j9m5ViHj7Wr5tcjqUghEvku+z8E9B+JmWiAOPmmoD3g=;
+	b=O5fVMovzXr8OsEtQ/AC9hTWRqOaPsNNxhfM5sj0x3qs3nwrsowuuFhDjAHGlGSu17bRQDVhC4P3xg4Lyqjcl0U3mxI3XzlHCeUYsgC6IUaX5N5Nv6a0QyP2He0cLEyOSAed2J9b0lvoMDDT9b6WqWRcUbD1PHtCddGERQqHMm8w=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R941e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045133197;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0XAJ1SQ-_1788535309;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0XAJ1SQ-_1788535309 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Fri, 04 Sep 2026 23:21:50 +0800
+Date: Fri, 4 Sep 2026 23:21:49 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Mahanta Jambigi <mjambigi@linux.ibm.com>, andrew+netdev@lunn.ch,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, alibuda@linux.alibaba.com, sidraya@linux.ibm.com,
+	hidayath@linux.ibm.com
+Cc: pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com, stable@vger.kernel.org,
+	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+	linux-rdma@vger.kernel.org
+Subject: Re: [PATCH net v2 0/2] net/smc: fix diag dump lifetime races
+Message-ID: <apriDec7yHBkQgNv@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20260828065439.3582783-1-mjambigi@linux.ibm.com>
+ <apWEzobrZ3QR3IfN@linux.alibaba.com>
+ <4f303f9f-fd20-475a-8004-1a670dfd34df@linux.ibm.com>
+ <apbMyLc0IhLMKwwA@linux.alibaba.com>
+ <85fa9f02-7516-4595-b5a8-4ae4ca845121@linux.ibm.com>
+ <apgTu9dRGIQE6tm3@linux.alibaba.com>
+ <899816c9-c908-4d64-8f5c-ba35619f78f2@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-OriginatorOrg: microchip.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SJ2PR11MB8369.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6f381d36-2189-42c7-8021-08df0a975e4f
-X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Sep 2026 15:15:34.8345
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 3f4057f3-b418-4d4e-ba84-d55b4e897d88
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: nt9qvvbd20+5/uz6WIAPn/hIfEgrZtvId4WtX8pKrZBHx/tBZKdwx+mBAKj/6U3Fdz5qk/7V/cSqOgc3hvYwgQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB7736
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <899816c9-c908-4d64-8f5c-ba35619f78f2@linux.ibm.com>
 
-=0A=
-_______________________________________=0A=
-From: Damien Le Moal <dlemoal@kernel.org>=0A=
-Sent: Thursday, September 3, 2026 7:26 PM=0A=
-To: Martin K . Petersen <martin.petersen@oracle.com>; James E . J . Bottoml=
-ey <James.Bottomley@HansenPartnership.com>; linux-scsi@vger.kernel.org <lin=
-ux-scsi@vger.kernel.org>; linux-ide@vger.kernel.org <linux-ide@vger.kernel.=
-org>; Niklas Cassel <cassel@kernel.org>; linux-usb@vger.kernel.org <linux-u=
-sb@vger.kernel.org>; Alan Stern <stern@rowland.harvard.edu>; Greg Kroah-Har=
-tman <gregkh@linuxfoundation.org>; linux-s390@vger.kernel.org <linux-s390@v=
-ger.kernel.org>; Heiko Carstens <hca@linux.ibm.com>=0A=
-Subject: [PATCH v3 23/40] scsi: smartpqi: use 16-bits defined sense codes=
-=0A=
-=A0=0A=
-EXTERNAL EMAIL: Do not click links or open attachments unless you know the =
-content is safe=0A=
-=0A=
-Refactor the smartpqi driver to use the 16-bits sense_code field of=0A=
-struct scsi_sense_hdr and replace all hard-coded additional sense codes=0A=
-and additional sense code qualifiers with the enum values defined in=0A=
-include/scsi/scsi_sense.h. This helps with code clarity as the sense codes=
-=0A=
-being processed are easier to test and self-documented.=0A=
-=0A=
-No functional change intended.=0A=
-=0A=
-Signed-off-by: Damien Le Moal <dlemoal@kernel.org>=0A=
-=0A=
-Acked-by: Don Brace <don.brace@microchip.com>=0A=
-Thanks for your patch.=0A=
----=0A=
-=A0drivers/scsi/smartpqi/smartpqi_init.c | 31 ++++++++++++++++-----------=
-=0A=
-=A01 file changed, 18 insertions(+), 13 deletions(-)=0A=
-=0A=
-diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/=
-smartpqi_init.c=0A=
-index 140e8a6addbe..d8d0fe915805 100644=0A=
---- a/drivers/scsi/smartpqi/smartpqi_init.c=0A=
-+++ b/drivers/scsi/smartpqi/smartpqi_init.c=0A=
-@@ -3249,15 +3249,15 @@ static void pqi_process_raid_io_error(struct pqi_io=
-_request *io_request)=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sense=
-_data_length =3D sizeof(error_info->data);=0A=
-=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if (scsi_status =3D=3D SAM_ST=
-AT_CHECK_CONDITION &&=0A=
--=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_no=
-rmalize_sense(error_info->data,=0A=
--=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0 sense_data_length, &sshdr) &&=0A=
--=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0 sshdr.sense_key =3D=3D HARDWARE_ERROR &&=0A=
--=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0 sshdr.asc =3D=3D 0x3e) {=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_normalize_sens=
-e(error_info->data,=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sense_data_length, &sshdr) &&=
-=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sshdr.sense_key =3D=
-=3D HARDWARE_ERROR &&=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_sense_asc(&ssh=
-dr) =3D=3D ASC_LU_HAS_NOT_SELF_CONFIGURED_YET) {=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 struc=
-t pqi_ctrl_info *ctrl_info =3D shost_to_hba(scmd->device->host);=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 struc=
-t pqi_scsi_dev *device =3D scmd->device->hostdata;=0A=
-=0A=
--=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 switch =
-(sshdr.ascq) {=0A=
--=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 case 0x=
-1: /* LOGICAL UNIT FAILURE */=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 switch =
-(sshdr.sense_code) {=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 case LU=
-_FAILURE:=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0 if (printk_ratelimit())=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scmd_printk(KERN_ERR, scmd, "rec=
-eived 'logical unit failure' from controller for scsi %d:%d:%d:%d\n",=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ctrl_inf=
-o->scsi_host->host_no, device->bus, device->target, device->lun);=0A=
-@@ -3265,10 +3265,15 @@ static void pqi_process_raid_io_error(struct pqi_io=
-_request *io_request)=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0 host_byte =3D DID_NO_CONNECT;=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0 break;=0A=
-=0A=
--=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 default=
-: /* See http://www.t10.org/lists/asc-num.htm#ASC_3E */=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 default=
-:=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0 /* include/scsi/scsi_sense.h */=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0 if (printk_ratelimit())=0A=
--=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scmd_printk(KERN_ERR, scmd, "rec=
-eived unhandled error %d from controller for scsi %d:%d:%d:%d\n",=0A=
--=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sshdr.as=
-cq, ctrl_info->scsi_host->host_no, device->bus, device->target, device->lun=
-);=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scmd_printk(KERN_ERR, scmd,=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "receive=
-d unhandled error %d from controller for scsi %d:%d:%d:%d\n",=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_sen=
-se_ascq(&sshdr),=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ctrl_inf=
-o->scsi_host->host_no,=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 device->=
-bus, device->target,=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 device->=
-lun);=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0 break;=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 }=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 }=0A=
-@@ -3286,11 +3291,11 @@ static void pqi_process_raid_io_error(struct pqi_io=
-_request *io_request)=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sense_data_length &&=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_normalize_sense(error_info->data, se=
-nse_data_length, &sshdr) &&=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sshdr.sense_key =3D=3D ILLEGAL_REQUEST &&=
-=0A=
--=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sshdr.asc =3D=3D 0x26 &&=0A=
--=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sshdr.ascq =3D=3D 0x0) {=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sshdr.sense_code =3D=3D INVALID_FIELD_IN_PA=
-RAMETER_LIST) {=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 host_byte =3D DID_NO_CONNECT;=
-=0A=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 pqi_take_device_offline(scmd-=
->device, "AIO");=0A=
--=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_build_sense_buffer(0, scmd=
-->sense_buffer, HARDWARE_ERROR, 0x3e, 0x1);=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_set_sense_buffer(0, scmd->=
-sense_buffer, HARDWARE_ERROR,=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 LU_FAILURE);=0A=
-=A0=A0=A0=A0=A0=A0=A0 }=0A=
-=0A=
-=A0=A0=A0=A0=A0=A0=A0 scmd->result =3D scsi_status;=0A=
-@@ -3380,7 +3385,7 @@ static void pqi_process_aio_io_error(struct pqi_io_re=
-quest *io_request)=0A=
-=A0=A0=A0=A0=A0=A0=A0 }=0A=
-=0A=
-=A0=A0=A0=A0=A0=A0=A0 if (device_offline && sense_data_length =3D=3D 0)=0A=
--=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_build_sense(scmd, 0, HARDW=
-ARE_ERROR, 0x3e, 0x1);=0A=
-+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_set_sense(scmd, 0, HARDWAR=
-E_ERROR, LU_FAILURE);=0A=
-=0A=
-=A0=A0=A0=A0=A0=A0=A0 scmd->result =3D scsi_status;=0A=
-=A0=A0=A0=A0=A0=A0=A0 set_host_byte(scmd, host_byte);=0A=
---=0A=
-2.55.0=0A=
-=0A=
+On 2026-09-03 13:26:30, Mahanta Jambigi wrote:
+> On 02/09/26 5:46 pm, Dust Li wrote:
+> > I think we can close this window by holding the SMC hash table lock in
+> > smcr_link_clear()? [...]
+>
+> Hi Dust,
+>
+> After debugging further, I believe that __smcr_link_clear() cannot be
+> called from smc_switch_link_and_count() because
+> refcount_dec_and_test(&lnk->refcnt) is always false on that path — the
+> initial ref (set in smcr_link_init(), released only in
+> smcr_link_clear()) is always held while the switch executes. So there is
+> no UAF from that path. The only consequence is that the diag reader may
+> observe a stale conn->lnk pointer value — pointing to the old link which
+> is still fully live — and read the old link's ibport/link_id/ibname from it.
+
+Hi Mahanta,
+
+Sorry for the late reply. I've done some more thinking on this topic.
+
+That's true, but strictly I think there is still a small gap. The old link is
+memset later, in smcr_link_clear() after all connections have migrated, so a
+reader that loaded conn->lnk just before its own connection was switched has a
+few-instruction window before it dereferences. In practice this window is
+really narrow: the clear path runs the whole switch + LLC + QP teardown, orders
+of magnitude longer than the reader's load+deref.
+
+> The real UAF is via smc_conn_free(): it drops both the connection-owned
+> conn->lnk reference via smcr_link_put() and the connection-owned
+> conn->lgr reference via smc_lgr_put(), while the socket is still visible
+> in the hash table. [...] The current patch tries to fix this using
+> lgr_lnk_lock. Since you suggested we fix it with *unhash-before-free*, I
+> thought about it and here is my proposal.
+>
+> Proposed fix (high level):
+>
+> Introduce a smc_conn_unhash() helper with a per-connection unhashed flag
+> that ensures the socket is removed from the hash table exactly once.
+> Call it at the top of smc_conn_free(), before any lgr/lnk references are
+> dropped.
+>
+> This establishes the invariant: any socket still visible to the diag
+> reader under read_lock(hash->lock) has valid conn->lgr and conn->lnk
+> pointers. [...]
+>
+> Does this design look reasonable to you?
+
+Yes, I think it's the right fix and we can go ahead and fix it this way first.
+
+> There is a separate minor issue — smc_switch_link_and_count() updates
+> conn->lnk under send_lock while the diag reader loads it without any
+> lock, which can cause stale ibport/link_id/ibname in *smcss -R* during a
+> failover event. This is a data race but not a safety issue since the
+> link struct is always live at that point.
+>
+> This race is very rare in practice [...] Even when it occurs, the effect
+> is transient: one dump may show the old link's ibport/link_id/ibname, and
+> the next dump will show the correct values.
+
+I think this is acceptable.
+
+---
+
+I've been re-thinking this a bit more. We've been plagued by SMC's tangled
+locks and ad-hoc lifetime handling for years — every fix adds another lock or
+another ordering rule. I think it's time to step back and refactor this area as
+a whole, and set up some rules for how we use locks/refcounts in SMC, instead of
+keeping patching individual races. Below are some rough thoughts.
+
+1. Object layering
+
+SMC really has three lifetime tiers, and the top one has to be split the way
+TCP splits struct socket from struct sock:
+
+- the file (struct socket) — lifetime tied to fput;
+- the connection sock (smc_sock, with conn embedded) — lifetime tied to
+  sk_refcnt; like a TCP sock it can be orphaned and outlive the file. On an
+  active close, close(fd) orphans it first, but it stays alive — still bound to
+  the transport — to finish the close handshake;
+- the shared transport (lgr / link / device) — lifetime by refcount, multiplexed
+  across connections.
+
+It's the socket/sock split, plus one more tier because our transport is shared
+(TCP's sock is 1:1, our lgr/link is not). Today smc_conn_free() mixes all three
+and is called from the transport layer while the socket is still hashed —
+that's exactly where these races come from.
+
+With the tiers separated, teardown becomes two independent, idempotent steps
+rather than one:
+
+- orphan (file <-> sock): at fput, via sock_orphan();
+- transport-detach (sock <-> transport): the connection drops its lgr/link
+  refs. On an active close this happens later, after the handshake completes;
+  on a transport fault it happens immediately.
+
+The sock is freed only once it is orphaned, transport-detached, and the last
+sock_put lands; the order of the two steps just depends on who initiates
+teardown (app close vs. transport fault).
+
+2. Lifetime & boundary contract
+
+Give each tier the right tool, and a clear boundary between them:
+
+- ownership by kref; traversal by RCU (conn->lgr / conn->lnk become RCU
+  pointers, the lgr is freed with kfree_rcu); fd-visible objects (clcsock)
+  released only after the last fput; and no in-place mutation of a published
+  object (stop memset()ing a link — mark it dead and reclaim it with the lgr
+  after a grace period);
+
+- boundary rule: on a transport fault the lower layer only signals and
+  transport-detaches; it never orphans, unhashes, or frees the sock.
+  - signal = wake the app with an error (sk_err + wakeup);
+  - transport-detach = publish rcu_assign_pointer(conn->lgr/lnk, NULL), then
+    drop the usage references (smc_lgr_put / smcr_link_put). The transport
+    object itself is reclaimed later by its own refcount + kfree_rcu; the sock
+    is left untouched.
+  Handle-side teardown (orphan, unhash, clcsock release, final sock_put)
+  belongs to the connection/file side and is driven by close — never by the
+  transport layer.
+
+With that, a diag reader under rcu_read_lock is guaranteed the link/lgr
+outlives its critical section, so the per-connection lgr_lnk_lock is no longer
+needed and smc_conn_unhash() can be retired too. (clcsock_release_lock goes
+away separately, via the clcsock lifetime series.) It's a larger, mostly
+mechanical change and would take a lot of careful rework, so I'd do it as a
+follow-up. Your smc_conn_unhash() is the right fix to take now (and for
+stable); the rework, if we agree on this direction, would retire it afterwards.
+
+Best regards,
+Dust
