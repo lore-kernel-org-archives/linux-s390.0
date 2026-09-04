@@ -1,155 +1,274 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3916D4EA394;
-	Fri,  4 Sep 2026 20:33:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89482339872;
+	Fri,  4 Sep 2026 21:39:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788554035; cv=none; b=RqfOwo6MoojiQFbR+wKXmutyL6CcPHWSnGurFruSzoKy08h4MFH7SadgK/R8odDYxXMZscAyzBSMQPIKyTi0vw20jLscHV/FKUu8xhoPRwja40tTht86qtfwfFMwPweUrhJw5SVFDLF6TPeL4kzrVsYw1abZXa0md5XLKTtbQJ8=
+	t=1788557963; cv=none; b=A3WG6AUkGb+kafFc/P7m7mW8BHfd0GuQEC0XjP6PiVT7cZDMa2ZQya97FhYiPC6oKmNVUjK/wNk3FCDbTYsDRn6oetHTO05YJ75xCu2z+L820YsoJsxxfv3WR9YiQiIy64YzZGqcjN3/ah6rHSOWodmL+PV7xhD3Kt/gZ7uI3No=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788554035; c=relaxed/simple;
-	bh=jvYCLIPJv5nyeQkLvI5m84SZ/oFLyU61j1EB/iX187A=;
-	h=Content-Type:MIME-Version:Message-Id:In-Reply-To:References:
-	 Subject:From:To:Cc:Date; b=nTvKaRZdAFg+aHPnSHp6/2YcJBowBN9rT0WkY3MgRl2oMD09NlhYF6yGaclYujXsUpybxvNujXxrBCUcgBlgWlTKjciRQZwI/RRAEvS9tQSczvnvtq88obGwJ7c0ygTydJkXu9ISpkGtJYyOdP750z0WeWIYP4qNMdmhjv1ZgVc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nw1B/cic; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788557963; c=relaxed/simple;
+	bh=OUwSaXr08wTC7jqw1xEkbt9To7BxmBfaB/sEqteCQq8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZRZOLRdBfVH98QWe9BH3DSg1MkDMeEMOUAvgRpuqgroodbP9TvutPK+pH5nY1Fatste+U/THJ7EP214B3ff+LWpC3F6Ssr9Nu/AcOQdHpTOIhfppWKrbZ02JRT7MPDBtXjr+JNCTZEQBl7sD2LR6eb/NXE4XBiaaPzXpQmPd7oc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kTCxqETr; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nw1B/cic"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6881E1F00A3E;
-	Fri,  4 Sep 2026 20:33:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788554025;
-	bh=8aB1i9jJLG+tSKTCm+1ryvh5nYTDSP1C/YxKnVYbkFo=;
-	h=In-Reply-To:References:Subject:From:To:Cc:Date;
-	b=Nw1B/cic15PV8GvcJBDU3KgUvAJCEDg1ovQi0JHYn+ONAlYGy+dGN7nC8R1VMhzVU
-	 P6y5s2cNwlnf2En8vgDUM+4WRjVWAnVv6qum4rdKSFpd7PElGXT//ley+6mZ9avApz
-	 tJzpPov8X0+v5xlfa32tgkywVgKAXqV8DpeW1knJ3W3e8vE6Hbl0rKHdxh6Ng0FPpO
-	 NrAtWI7NNT6jI4Y/iHu+4v6QSWwO/+VnLbQsD5V0dzxi7/myWyg/ifUrh/kPYXOdBI
-	 P3d230pecJL0TTFmWIqlWxhBmt9vkqZrtYef58g8CQ3yGu2eZlzPkoZ6h+X8PjhWUe
-	 xnGC3xZiiySKQ==
-Content-Type: multipart/mixed; boundary="===============0649529080789511206=="
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kTCxqETr"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 684L1eYi2820180;
+	Fri, 4 Sep 2026 21:39:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=LY3vF4
+	cox+CKHCdxwQhVexrOp7JB8pARJLeOtt6z6QU=; b=kTCxqETroGMW/yq0wMsB6k
+	qRUaBjLKa+a7Rn7mVTRaYpKvm2B4M2U9kMqjk2Ql6ST1v3bxCrjicGHvmN44SFRn
+	LujW1xy6MATR/lxRUyo1dVZcSofdPZKAZwF8znrlEUAsVnteMcaU4MIQrtebcZjP
+	IRwnX4Hm1bvXCCRWp/QAE+Fh8yxORy6Zy6IVkooUHiO3rHqMmGFiIn0xP2tpNy6a
+	PhDWF5Z4dJx4XNqTJVvXXm1NQ+DbaorxOvy7yhaocrh/i/Hl9/Gce0ogjYUgbX/d
+	S9CdXoaNqqVPnKDUx7pj/I8GjNwL6yvrbegaVJ4oSTdiafoacg2Ah3lgzn/sL4og
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbq55dfxr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 04 Sep 2026 21:39:20 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 684LQVg2019569;
+	Fri, 4 Sep 2026 21:39:18 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gcb8hyb02-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 04 Sep 2026 21:39:18 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 684LdHkB24642246
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 4 Sep 2026 21:39:17 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 55C7758056;
+	Fri,  4 Sep 2026 21:39:17 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CF58A58052;
+	Fri,  4 Sep 2026 21:39:16 +0000 (GMT)
+Received: from [9.61.80.215] (unknown [9.61.80.215])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  4 Sep 2026 21:39:16 +0000 (GMT)
+Message-ID: <cb135f03-85ef-4077-9371-4f7c7f1eda25@linux.ibm.com>
+Date: Fri, 4 Sep 2026 17:39:16 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <4866144aa416a8491c9874325394e88f5dc2e66259212baa56032e0428f0772b@mail.kernel.org>
-In-Reply-To: <20260904195132.141068-3-sidchintamaneni@gmail.com>
-References: <20260904195132.141068-3-sidchintamaneni@gmail.com>
-Subject: Re: [PATCH bpf-next v1 2/7] bpf, x86: Use resolved pointer for timed may_goto
-From: bot+bpf-ci@kernel.org
-To: sidchintamaneni@gmail.com,bpf@vger.kernel.org
-Cc: sidchintamaneni@gmail.com,jeremy.jean@oss.cyber.gouv.fr,ast@kernel.org,daniel@iogearbox.net,john.fastabend@gmail.com,andrii@kernel.org,eddyz87@gmail.com,memxor@gmail.com,martin.lau@linux.dev,song@kernel.org,yonghong.song@linux.dev,jolsa@kernel.org,emil@etsalapatis.com,ihor.solodrai@linux.dev,a.s.protopopov@gmail.com,puranjay@kernel.org,linuxppc-dev@lists.ozlabs.org,linux-s390@vger.kernel.org,linux-riscv@lists.infradead.org,rlmenge@gmail.com,hargar@linux.microsoft.com,apais@microsoft.com,ast@kernel.org,andrii@kernel.org,daniel@iogearbox.net,martin.lau@kernel.org,eddyz87@gmail.com,yonghong.song@linux.dev,mason@kernel.org,ihor.solodrai@linux.dev
-Date: Fri,  4 Sep 2026 20:33:44 +0000 (UTC)
-
---===============0649529080789511206==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 5/5] s390/vfio-ap: fix queue state leakage to guest and
+ host
+To: sashiko-reviews@lists.linux.dev
+Cc: kvm@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+References: <20260904093435.1161402-1-akrowiak@linux.ibm.com>
+ <20260904093435.1161402-6-akrowiak@linux.ibm.com>
+ <20260904095329.EEF6E1F00A3D@smtp.kernel.org>
+Content-Language: en-US
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <20260904095329.EEF6E1F00A3D@smtp.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTA0MDE5OSBTYWx0ZWRfXwE0aDhZXQCud
+ z+KgalBJStzGecHB6hVAw2zC2jBKRbryCg6fRfVuSKJF+SttQPS9gS1vaBNhNJivjiWWAk5WWkS
+ GB8X7eEFOoPohUz+2f4VESxOyrzxSG4a++WjzfYcYmXzyN4qGjk4p43pWoH2cHRRQjrSBWmWt5c
+ X0G9PkFtWtzfa7E8QiGzW8jpz1a7s9dic9t5Ch+fYUVGydfkC26X308wFAVhDZ2+EnvLZFjJhkR
+ pEAIkD/fih3kgiuCXkyzbYporEFelMLR/Eh0vF/4eClEhu7DhhabkplSBESxtJXZvc+1955a9QY
+ XYoH5Mf+32cl1ER0kGUvicMDuG8ASGBVAWk8kBJDDGkVZtPV4zkaY93dbdze7FWwL8eCzrWocm+
+ Dd3ghrE2X2PZazBNVbse1znR4Ir4h3UJzYBddsFPaRZMSbXS0W5Ol68AjxJeqi4/R/dZhCLwWVe
+ taARVQkgK9UTxxFs8aA==
+X-Proofpoint-ORIG-GUID: 50_q1klq6mREviMgGmQzRbH9PO0muS9h
+X-Authority-Analysis: v=2.4 cv=CNgamxrD c=1 sm=1 tr=0 ts=6a9b3a88 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=9-yERIUudiUxDrmFHcIA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: 50_q1klq6mREviMgGmQzRbH9PO0muS9h
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTA0MDE5OSBTYWx0ZWRfX8DbDyVWkK5XL
+ LeF2bTOD7g2uS9RMGybegRtCmhRWtvFUhZBqwIUiorYfBZhBiVYG+/eu491wFTdvagyzj5ggv/I
+ 5vqHHo01nS5iohQOX7KESwV9urfGvS0=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-04_06,2026-09-03_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 bulkscore=0 suspectscore=0 phishscore=0 lowpriorityscore=0
+ priorityscore=1501 clxscore=1015 impostorscore=0 adultscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609040199
 
-> diff --git a/arch/x86/net/bpf_timed_may_goto.S b/arch/x86/net/bpf_timed_may_goto.S
-> index 54c690cae190..6e9d9e7c2b1d 100644
-> --- a/arch/x86/net/bpf_timed_may_goto.S
-> +++ b/arch/x86/net/bpf_timed_may_goto.S
-> @@ -11,12 +11,6 @@
->  SYM_FUNC_START(arch_bpf_timed_may_goto)
->  	ANNOTATE_NOENDBR
+
+
+On 9/4/26 5:53 AM, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 4 potential issue(s) to consider:
 >
-> -	/*
-> -	 * r10 passes us stack depth, load the pointer to count and timestamp
-> -	 * into r10 by adding it to BPF frame pointer.
-> -	 */
-> -	leaq (%rbp, %r10, 1), %r10
-> -
-
-A subsystem pattern flags this as potentially concerning: This commit
-changes the x86 trampoline to the new 'pointer in BPF_REG_AX' ABI, but the
-producer side of that ABI was changed one commit earlier, in d8319a04dafc
-("bpf: Fix timed may_goto stack pointer for private stacks"), which
-rewrote kernel/bpf/fixups.c to emit:
-
-    insn_buf[4] = BPF_MOV64_REG(BPF_REG_AX, BPF_REG_FP);
-    insn_buf[5] = BPF_ALU64_IMM(BPF_ADD, BPF_REG_AX, stack_off_cnt);
-
-At commit d8319a04dafc (i.e. HEAD~1), does x86 still execute
-'leaq (%rbp, %r10, 1), %r10' on a register that already holds a resolved
-pointer, producing r10 = rbp + (frame_ptr + stack_off_cnt) -- roughly
-2*rbp, a non-canonical address?
-
-bpf_check_timed_may_goto() then reads and writes p->timestamp / p->count
-through it (kernel/bpf/core.c:3410). Would any BPF program containing
-may_goto oops on x86_64 at that commit?
-
-The same window exists for arm64, riscv, powerpc64 and s390, whose
-trampolines are only converted in the four later commits d35642770d98,
-7053db7d3c0d, 6e03227c5677 and 20356163d51e. Is the tree bisectable across
-the series?
-
-The two halves carry different Fixes: tags (this one 2fb761823ead, the
-fixups.c one e723608bf428), which invites a partial stable backport that
-reintroduces exactly this wild-pointer write. Would squashing the fixups.c
-ABI change with the arch trampoline updates, or ordering all arch updates
-before the generic change, address the bisectability concern?
-
->  	/* Setup frame. */
->  	pushq %rbp
->  	movq %rsp, %rbp
-
-The x86-only __xlated expectations for the timed may_goto expansion in
-tools/testing/selftests/bpf/progs/verifier_bpf_fastcall.c were never
-updated for the new 7-insn -> 8-insn sequence. The test expects:
-
-    __xlated("7: if r12 == 0x0 goto pc+6")
-    __xlated("8: r12 -= 1")
-    __xlated("9: if r12 != 0x0 goto pc+2")
-    __xlated("10: r12 = -24")
-    __xlated("11: call unknown")
-    __xlated("12: *(u64 *)(r10 -24) = r12")
-
-Does this test fail on x86_64 for the whole series? Every line from index
-7 onward is now wrong: the first branch becomes 'goto pc+7' (insn->off + 6
-instead of insn->off + 5), the second becomes 'goto pc+3' instead of
-'pc+2', 'r12 = -24' is replaced by the pair 'r12 = r10' / 'r12 += -24',
-and the trailing indices shift by one ('call unknown' at 12, the store at
-13, then 14 and 15).
-
-git log 28bd77eb835b..8dc5c7d5340d shows the only selftest commit in the
-series is 8dc5c7d5340d ("selftests/bpf: Test timed may_goto with private
-stacks"), which adds new coverage but does not touch
-verifier_bpf_fastcall.c. Note the original x86 JIT enablement commit
-2fb761823ead -- the commit this patch lists in its Fixes: tag -- adjusted
-this very test for the same reason, so the update belongs with the ABI
-change.
-
-> commit 28bd77eb835bc1a95190315e93afbc6bb186b9ff
-> Author: Siddharth Chintamaneni <sidchintamaneni@gmail.com>
+> New issues:
+> - [High] `apq_reset_check()` fails to update `q->reset_status` on successful completion, breaking queue assignment and state tracking.
+> - [High] `matrix_mdev` is accessed after its protecting locks are released in `vfio_ap_mdev_remove_queue()`, leading to a UAF.
+> - [Medium] Unconditional queue resets during probe and removal bypass the host configuration check, triggering unhandled kernel WARNINGs.
 >
->     bpf, x86: Use resolved pointer for timed may_goto
+> Pre-existing issues:
+> - [High] Early return on `-EIO` in `apq_reset_check()` bypasses freeing AQIC resources, leading to a resource leak and Use-After-Free.
+> --
 >
->     The timed may_goto fixup now passes the resolved counter pointer through
->     BPF_REG_AX instead of a stack offset.
+> commit 0e38aebd52e81cf78709732210a4726b0f1c0dfa
+> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 >
->     Use the pointer directly rather than adding it to RBP. This preserves the
->     private-stack address selected by the JIT through R9.
+> s390/vfio-ap: fix queue state leakage to guest and host
 >
->     Fixes: 2fb761823ead ("bpf, x86: Add x86 JIT support for timed may_goto")
-                 ^^^^^^^^^^^
+> This patch modifies the queue reset logic to prevent state leakage to guests
+> and hosts. It changes the passable state for queues to strictly require
+> AP_RESPONSE_NORMAL, introduces a variable maximum wait time for resets, and
+> ensures queues are properly reset and verified during probe and removal.
+>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>> index 6a964f82c8e89..e054fd4a94970 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -2113,7 +2113,7 @@ static void apq_reset_check(struct work_struct *reset_work)
+>>   		ret = apq_status_check(q->apqn, &status);
+>>   		if (ret == -EIO)
+>>   			return;
+> [Severity: High]
+> This isn't a bug introduced by this patch, but does returning early on -EIO
+> here bypass resource cleanup at the done: label?
 
-The existing Fixes: tag points to commit 2fb761823ead, which is not an
-ancestor of this fix and is on a different branch (bpf-next/res_spin_lock).
+The AQIC resources need to be freed here.
 
-The bug was actually introduced by commit 47ab38f3f4d9 in this branch's
-history, which added the incorrect code 'leaq (%rbp, %r10, 1), %r10' that
-overwrites r10 instead of preserving it.
+>
+> If a hardware failure causes an unrecognized response code,
+> vfio_ap_free_aqic_resources() is skipped here and in the default switch case of
+> vfio_ap_mdev_reset_queue(), but q is eventually freed.
+>
+> Can the guest's gmap notifier remain registered, holding a pointer to q,
+> resulting in a use-after-free when the notifier dereferences the freed q
+> pointer?
+>
+>> -		if (elapsed >= AP_RESET_MAX_WAIT) {
+>> +		if (q->reset_max_wait && elapsed >= q->reset_max_wait) {
+>>   			/*
+>>   			 * Zeroization confirmed (ret == 0): the TAPQ status bits
+>>   			 * indicate the async portion of the ZAPQ completed
+> [ ... ]
+>
+>> @@ -2161,6 +2161,8 @@ static void apq_reset_check(struct work_struct *reset_work)
+>>   
+>>   			return;
+>>   		}
+>> +		if (!ret || ret == -ENODEV)
+>> +			goto done;
+> [Severity: High]
+> Does this early exit skip updating the queue's reset_status with the actual
+> final state?
+>
+> If apq_reset_check() loops until ap_tapq() indicates successful zeroization
+> (ret == 0), but jumps to done without updating q->reset_status to
+> AP_RESPONSE_NORMAL, does this mean _queue_passable() will incorrectly reject
+> successfully zeroized queues?
+>
+> Furthermore, could this cause the new logic in vfio_ap_mdev_remove_queue() to
+> evaluate q->reset_status.response_code != AP_RESPONSE_NORMAL to true,
+> triggering an incorrect redundant reset that blocks indefinitely?
 
-Should this use:
+These are valid concerns.
 
-  Fixes: 47ab38f3f4d9 ("adding ci files")
+The cases that result in verifying completion of the ZAPQ on a work 
+queue are:
+AP_RESPONSE_NORMAL
+AP_RESPONSE_RESET_IN_PROGRESS
+AP_RESPONSE_STATE_CHANGE_IN_PROGRESS
 
+That is what will be in the q->reset_status.response_code. The NORMAL is 
+fine,
+but the others are not. For ret == 0, the response code needs to be set to
+AP_RESPONSE_NORMAL; for ret = -ENODEV, it should be set to whatever
+response code was returned from TAPQ in apq_status_check().
 
----
-AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
-See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
+>
+>>   		if (ret == -EBUSY) {
+>>   			pr_notice_ratelimited(WAIT_MSG, elapsed,
+>>   					      AP_QID_CARD(q->apqn),
+> [ ... ]
+>
+>> @@ -2675,8 +2675,10 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
+>>   
+>>   	q->apqn = apqn;
+>>   	q->saved_isc = VFIO_AP_ISC_INVALID;
+>> -	memset(&q->reset_status, 0, sizeof(q->reset_status));
+>> +	q->reset_max_wait = AP_RESET_MAX_WAIT;
+>>   	INIT_WORK(&q->reset_work, apq_reset_check);
+>> +	vfio_ap_mdev_reset_queue(q);
+>> +	flush_work(&q->reset_work);
+> [Severity: Medium]
+> Will this unconditional reset during probe trigger a WARN if the probed device
+> is not in the host's AP configuration?
 
-CI run summary: https://github.com/kernel-patches/bpf/actions/runs/33914557238
---===============0649529080789511206==--
+The queue is probed by the vfio_ap driver precisely because the AP bus
+scan detected it in the host's AP configuration, so ap_zapq() returning
+AP_RESPONSE_Q_NOT_AVAIL at probe time is not possible
+
+>
+> When an AP device is bound to the vfio_ap driver but is not present in the
+> host's AP configuration, ap_zapq() fails with response code 0x01.
+>
+> Does this feed the 0x01 response code into vfio_ap_mdev_reset_queue(), which
+> falls through to the default switch case and triggers a WARN?
+>
+>>   
+>>   	if (matrix_mdev) {
+>>   		vfio_ap_mdev_link_queue(matrix_mdev, q);
+> [ ... ]
+>
+>> @@ -2759,8 +2761,19 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
+>>   		vfio_ap_unlink_queue_fr_mdev(q);
+>>   
+>>   	dev_set_drvdata(&apdev->device, NULL);
+>> -	kfree(q);
+>>   	release_update_locks_for_mdev(matrix_mdev);
+>> +
+>> +	if (q->reset_status.response_code != AP_RESPONSE_NORMAL) {
+> [Severity: High]
+> Are the locks protecting matrix_mdev dropped before the blocking reset
+> operations, exposing it to concurrent freeing?
+>
+> vfio_ap_unlink_queue_fr_mdev() unlinks the queue but leaves the dangling
+> pointer q->matrix_mdev intact.
+>
+> If flush_work() blocks indefinitely and a concurrent unbind tears down the
+> mdev and frees matrix_mdev, will vfio_ap_free_aqic_resources() dereference
+> q->matrix_mdev->kvm, resulting in a use-after-free?
+
+Yes. This will be removed. There is also concern with hanging the function
+indefinitely.
+
+>
+>> +		/*
+>> +		 * Loop until zeroization of queue is verified so we don't leak
+>> +		 * the internal state of the queue to the caller.
+>> +		 */
+>> +		q->reset_max_wait = 0;
+>> +		vfio_ap_mdev_reset_queue(q);
+>> +		flush_work(&q->reset_work);
+> [Severity: Medium]
+> Does this fallback reset completely ignore the test_bit_inv() host
+> configuration check present earlier in this function, hitting the same WARN on
+> unbind if the device is not in the host's AP configuration?
+
+That will go away too.
+
+>
+>> +	}
+>> +
+>> +	kfree(q);
+>>   }
+>>   
+>>   /**
+
