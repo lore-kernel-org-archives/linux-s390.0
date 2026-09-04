@@ -1,228 +1,70 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16D993E7BA0;
-	Fri,  4 Sep 2026 10:19:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFB2946AA62
+	for <linux-s390@vger.kernel.org>; Fri,  4 Sep 2026 10:31:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788517176; cv=none; b=deWbnssEFl2UbwEDFFBPz/du6j+MvCu/BPZxlYQfXhao/iTEQ7P3sBMm9SvxKQu4C1ymKEqXAF5Kmpp50ZioHevSxooBC1SuX+u0v+sVHnavpIuMGdQ7c9TGwebop62H8PVUlOeunX0Tpgc/1mIbVcokedxoU7xT8uzVPaiUTNY=
+	t=1788517913; cv=none; b=ub8+OHEVMgb17vYdgsO9CojzlGyqU3Hw/qGkbk0t6phvWhBpOAjQ90BnX3F/4fshx8VUrd4UcRGwBY48ZqSd6QRMoYpZGrMM+ZIjlJOZO45xLCG4g0tT3kQlsTfvzru2C8myraW7E6WtHthsxgh/HMnZgqd8RpFCmbAkH3WBmxM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788517176; c=relaxed/simple;
-	bh=e+2C/GXVQE723YGDM2YvxWMx6NVoWmgrtOxNKOFfzdE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=eehlV5o6e4SkwS1CCTVfUUZWPbxpWljIp6sFUmmmFUxUJYBbZK0z0U3hWt1U2BXRaQAgg/H80OjMLR1u/57nGk//BruGVmIRR+/YTvK2TqPZtuzwUivqGsGL/BlneObjHykUOPa8Rf9oQiE2ZcE30dhVR1g+86/BmURZtGT8iJk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DDJwGiQQ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788517913; c=relaxed/simple;
+	bh=wRsBtWdhGN6Z0mpC4E0PYkbQ0frfFT8ePZpetNVOoQo=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Jiy/G2w3s+82QrTIomTmZJSoLdiS0eSX73lVD6LdkZCTD7A3ujUmG/lyS/lITP95TxoqTJOPWdQzZQ3GE9EIMv3au+bvcjfk5P0sWElHhnKjASvdfU+Y0Iy7TAC/joj34gr+mHLAu6oCMocegn5wCIV83Z6EvvKzTUCN3wiGZ2U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M226hEQN; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DDJwGiQQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89C2D1F00A3D;
-	Fri,  4 Sep 2026 10:19:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M226hEQN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64C6B1F00A3D;
+	Fri,  4 Sep 2026 10:31:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788517169;
-	bh=zHj7Jl4ER2+DUDGeXhri9eyZ/g0x3N0pfswy8RuEkQ0=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=DDJwGiQQcGBuD0sr5QOJBi+FgIhBc6LUaQyqvxbdxT16FlQzs1rjs6WEKus4Lnn6A
-	 j60NR7rPgDsW/izsP6g8SwYmgeQcWtkQnzsA17fbOjIpNNwqwDIKSGawoO5zUcrd6P
-	 ROEwa06rDkQUmdUdxMhLSZU43vk2Qwv+Y6pEHSqySVc34BQFt+oam7yM7iIuC4h62s
-	 nlfQok5mVyqLOw4VBO9dCWVtya4Z27wHZi1BX3rnDSQd/dMW6ETJiOZdH5ae15CtD9
-	 55bF4NAMgiET9n38B/U1Z9dQGEFPES5opWTgNAAcPm5CYWSddF/U9QOWcd+tKSmTHF
-	 24urd22gLAZuA==
-From: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
-To: iommu@lists.linux.dev
-Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Will Deacon <will@kernel.org>,
-	Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Jiaxun Yang <jiaxun.yang@flygoat.com>,
-	Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-mips@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org,
-	linux-s390@vger.kernel.org,
-	x86@kernel.org
-Subject: [PATCH v3 4/4] dma: swiotlb: Remove SWIOTLB_ANY
-Date: Fri,  4 Sep 2026 15:48:10 +0530
-Message-ID: <20260904101810.1193505-5-aneesh.kumar@kernel.org>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260904101810.1193505-1-aneesh.kumar@kernel.org>
+	s=k20260515; t=1788517911;
+	bh=wRsBtWdhGN6Z0mpC4E0PYkbQ0frfFT8ePZpetNVOoQo=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=M226hEQNN2KzcCAb+T6Dgor5qm4auCS08UdLpW/WTup6XSOsACUwncpqNuqyNFCJ1
+	 NZtrxn8IAKgIpixEkzi/jkrYH7NsEia1bxbdYlToywBXkuXtLlaH370k2qlhRw09Jc
+	 IKwSVnBnn6GIT0pXIEyyism7F6xd7h/6goLtmZur8+lQGuFF0CQf5XGX6Jgwe4YO4G
+	 m46FSxxPT3+WmhGCsdsPN/W1mTA1TGzy+nMGZLaaqEUVuL1xy/2ftYqlcub6pcsKTE
+	 ZkwJJ2uQUxMALUYfaNY4tR3tuPYiPZcoTGUEFfGkc0TwzM/X9fjxb6PFPhiPflDFlN
+	 5MGZXnPqCLPBw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 2/4] dma: swiotlb: Centralize minimal pool sizing
+Reply-To: sashiko-reviews@lists.linux.dev
+To: =?utf-8?b?QW5lZXNoIEt1bWFyIEsuViAoQXJtKQ==?= <aneesh.kumar@kernel.org>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20260904101810.1193505-3-aneesh.kumar@kernel.org>
 References: <20260904101810.1193505-1-aneesh.kumar@kernel.org>
+ <20260904101810.1193505-3-aneesh.kumar@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 04 Sep 2026 10:31:50 +0000
+Message-Id: <20260904103151.64C6B1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-SWIOTLB_ANY permits the swiotlb pool to be allocated outside the
-architecture's low address limit. This is already implied when
-SWIOTLB_INIT_ADDRESSING_LIMIT is not set, making SWIOTLB_ANY redundant.
+> A default SWIOTLB pool used only for unaligned kmalloc bouncing can be
+> smaller than one required for limited DMA addressing. Arm64 and RISC-V
+> currently implement this sizing independently, using 1 MiB of SWIOTLB
+> space per GiB of RAM.
+>=20
+> The SWIOTLB core now identifies this case with SWIOTLB_POOL_MINIMAL.
+> Size that policy in swiotlb_adjust_pool_size() and remove the
+> architecture-specific adjustments.
+>=20
+> Explicit swiotlb=3D sizing remains unchanged because swiotlb_adjust_size()
+> preserves a user-configured size.
+>=20
+> NOTE: We lose the RISC-V SWIOTLB_ANY setting in this patch. It will be
+> reinstated in a follow-up patch where we make SWIOTLB_ANY redundant.
+>=20
+> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
 
-Use SWIOTLB_INIT_ADDRESSING_LIMIT as the sole indication that the
-default pool and any dynamically allocated pools must reside below
-ARCH_LOW_ADDRESS_LIMIT. Otherwise, allow the pools to use any directly
-mapped memory.
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
----
- Documentation/core-api/swiotlb.rst |  8 ++++----
- arch/powerpc/mm/mem.c              |  6 ++++--
- arch/s390/mm/init.c                |  2 +-
- arch/x86/kernel/pci-dma.c          |  2 +-
- include/linux/swiotlb.h            |  5 ++---
- kernel/dma/swiotlb.c               | 17 ++++++-----------
- 6 files changed, 18 insertions(+), 22 deletions(-)
-
-diff --git a/Documentation/core-api/swiotlb.rst b/Documentation/core-api/swiotlb.rst
-index 71b4e4c27eb5..06d9f88fdf7b 100644
---- a/Documentation/core-api/swiotlb.rst
-+++ b/Documentation/core-api/swiotlb.rst
-@@ -148,10 +148,10 @@ may also be adjusted
- due to other conditions, such as running in a CoCo VM, as described above. If
- CONFIG_SWIOTLB_DYNAMIC is enabled, additional pools may be allocated later in
- the life of the system. Each pool must be a contiguous range of physical
--memory. The default pool is allocated below the 4 GiB physical address line so
--it works for devices that can only address 32-bits of physical memory (unless
--architecture-specific code provides the SWIOTLB_ANY flag). In a CoCo VM, the
--pool memory must be decrypted before swiotlb is used.
-+memory. The default pool is allocated below the architecture's low address
-+limit when it is needed for devices with limited DMA addressing. Otherwise,
-+it may be allocated anywhere in directly mapped memory. In a CoCo VM, the pool
-+memory must be decrypted before swiotlb is used.
- 
- Each pool is divided into "slots" of size IO_TLB_SIZE, which is 2 KiB with
- current definitions. IO_TLB_SEGSIZE contiguous slots (128 slots) constitute
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index 006ed41097e9..1bdea6c03848 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -295,9 +295,11 @@ void __init arch_mm_preinit(void)
- 		/*
- 		 * Since the guest memory is inaccessible to the host,
- 		 * devices always need to use the SWIOTLB buffer for DMA
--		 * even if dma_capable() says otherwise.
-+		 * even if dma_capable() says otherwise. The hypervisor has
-+		 * no addressing limitation, so the buffer may be allocated
-+		 * anywhere.
- 		 */
--		ppc_swiotlb_flags |= SWIOTLB_ANY;
-+		ppc_swiotlb_flags &= ~SWIOTLB_INIT_ADDRESSING_LIMIT;
- 	}
- 
- 	/*
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index 78f507e24ceb..ce10292447f1 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -166,7 +166,7 @@ static void __init pv_init(void)
- 	virtio_set_mem_acc_cb(virtio_require_restricted_mem_acc);
- 
- 	/* make sure bounce buffers are shared */
--	swiotlb_init(SWIOTLB_VERBOSE | SWIOTLB_ANY);
-+	swiotlb_init(SWIOTLB_VERBOSE);
- 	swiotlb_update_mem_attributes();
- }
- 
-diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
-index 3c82ebb5b6e0..e472631a5bd7 100644
---- a/arch/x86/kernel/pci-dma.c
-+++ b/arch/x86/kernel/pci-dma.c
-@@ -84,7 +84,7 @@ static void __init pci_xen_swiotlb_init(void)
- 	x86_swiotlb_enable = true;
- 	/* Xen can use a SWIOTLB pool anywhere in directly mapped memory. */
- 	x86_swiotlb_flags &= ~SWIOTLB_INIT_ADDRESSING_LIMIT;
--	x86_swiotlb_flags |= SWIOTLB_INIT_REMAP | SWIOTLB_ANY;
-+	x86_swiotlb_flags |= SWIOTLB_INIT_REMAP;
- 	swiotlb_init_remap(x86_swiotlb_flags, xen_swiotlb_fixup);
- 	dma_ops = &xen_swiotlb_dma_ops;
- 	if (IS_ENABLED(CONFIG_PCI))
-diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
-index be3962a33fc6..b3da751a81dd 100644
---- a/include/linux/swiotlb.h
-+++ b/include/linux/swiotlb.h
-@@ -15,11 +15,10 @@ struct page;
- struct scatterlist;
- 
- #define SWIOTLB_VERBOSE	(1 << 0) /* verbose initialization */
--#define SWIOTLB_ANY	(1 << 1) /* allow any memory for the buffer */
- /* Initialize a default-sized pool for devices with limited DMA addressing. */
--#define SWIOTLB_INIT_ADDRESSING_LIMIT	(1 << 2)
-+#define SWIOTLB_INIT_ADDRESSING_LIMIT	(1 << 1)
- /* Initialize a default-sized pool that requires architecture remapping. */
--#define SWIOTLB_INIT_REMAP		(1 << 3)
-+#define SWIOTLB_INIT_REMAP		(1 << 2)
- 
- /*
-  * Maximum allowable number of contiguous slabs to map,
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index c4611b2c4540..2715833a21f8 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -448,15 +448,10 @@ static void __init *swiotlb_memblock_alloc(unsigned long nslabs,
- 	size_t bytes = PAGE_ALIGN(nslabs << IO_TLB_SHIFT);
- 	void *tlb;
- 
--	/*
--	 * By default allocate the bounce buffer memory from low memory, but
--	 * allow to pick a location everywhere for hypervisors with guest
--	 * memory encryption.
--	 */
--	if (flags & SWIOTLB_ANY)
--		tlb = memblock_alloc(bytes, PAGE_SIZE);
--	else
-+	if (flags & SWIOTLB_INIT_ADDRESSING_LIMIT)
- 		tlb = memblock_alloc_low(bytes, PAGE_SIZE);
-+	else
-+		tlb = memblock_alloc(bytes, PAGE_SIZE);
- 
- 	if (!tlb) {
- 		pr_warn("%s: Failed to allocate %zu bytes tlb structure\n",
-@@ -598,10 +593,10 @@ void __init swiotlb_init_remap(unsigned int flags,
- #ifdef CONFIG_SWIOTLB_DYNAMIC
- 	if (!remap)
- 		io_tlb_default_mem.can_grow = true;
--	if (flags & SWIOTLB_ANY)
--		io_tlb_default_mem.phys_limit = virt_to_phys(high_memory - 1);
--	else
-+	if (flags & SWIOTLB_INIT_ADDRESSING_LIMIT)
- 		io_tlb_default_mem.phys_limit = ARCH_LOW_ADDRESS_LIMIT;
-+	else
-+		io_tlb_default_mem.phys_limit = virt_to_phys(high_memory - 1);
- #endif
- 
- 	/* if we have host or guest memory encryption */
--- 
-2.43.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260904101810.1193=
+505-1-aneesh.kumar@kernel.org?part=3D2
 
