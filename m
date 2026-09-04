@@ -1,77 +1,62 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BED14266B2;
-	Fri,  4 Sep 2026 06:22:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4032C422556;
+	Fri,  4 Sep 2026 06:23:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788502980; cv=none; b=ChCSYVL91JGFTPy05Z4yCNDkD+EEo0I52su18fiCwo5QcraUW8jd+09VW4L2k2MMcAgl193SOzh7VUD0vLsGeuKprn9XXuV1OBefaZian+phTTZwFoJxcUAJ9bEEK325loSLtnihZQj3qsDpxdT5mqqeuzLRr+R6fNjiP1SF4sA=
+	t=1788502991; cv=none; b=AO0altnpw3HsWS0d3doV96+YKqlN/xphqw/wb3PPJIVm++Hja5efFP7h6/vy6Bmym7Afn6mSgnvO1nvBJAHqLf4WL36PAjoagaGjA4jON7BzRtIx32Vyk1but83IftEEpbCn8I0qSXPlKt+GlqWeBXLHuV2sNAJxyG3ki/SmwLA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788502980; c=relaxed/simple;
-	bh=T0LhlU1QMVcS4luBoUixXELPuh5hhjhtLeKplKPmm/Q=;
+	s=arc-20240116; t=1788502991; c=relaxed/simple;
+	bh=RBhaHhn/FBdnfAJamfgeTWChnj93Sd2SYp5mohCYvfM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=OratAWudKv33TJEUgOjbO08LRYgqJUEQCSEmMqlNrRM/WidsnLmN+iY8z7rxGMkokyaqslF2wZt4ySuVVQ3cvhY6UteNoUTlkxatKnNOYYXuVq/SVpQgTkcRbDGwkJt63WHIMN+c7liDS/I1JjOz9MJb6i0MK8Ad7laAauwFqrc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CUiogX0x; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=nEL+H6oeHSvcc6ZtuFsDqoXsbh46oTNNDM2Rph30fVQZ/Zd9uRMOH1TwxJudG4CiTp9q8BTEw+3V7deJXr/aG1ngt5DoH6jDCidhY9zn6RLucvAVyQ8m+LdLxP3+N270XJYS3gMXWf+f0nt0+FqkqdBecSsiyIA7BPGwuhkyhLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fsY2j3j7; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CUiogX0x"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8973D1F00A3E;
-	Fri,  4 Sep 2026 06:22:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fsY2j3j7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A30431F00A3E;
+	Fri,  4 Sep 2026 06:23:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788502979;
-	bh=T0LhlU1QMVcS4luBoUixXELPuh5hhjhtLeKplKPmm/Q=;
+	s=k20260515; t=1788502990;
+	bh=RBhaHhn/FBdnfAJamfgeTWChnj93Sd2SYp5mohCYvfM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CUiogX0x5wg3FvtBQOmaAAtLNhVag2wAhb7LG5U49loPGfMkAyMCy0Hl+z9yZMDrM
-	 AP89kxXq3cPV812yMHRIE1OyYj+0/+LuwgTVd2Ywmyk7UUEbAxDgqI4TScwN5b0xkF
-	 CJZgniwhqJQbY9sbbLva/9Qk9KQkHcmwnOikvUAA9NEp0f7lnrnrymFc4FGpZn1UmA
-	 HZtXm44RHNlVEV2P31bS/C03aS56H2yrhFMXzvAgoLybnw0xz2xY4X+OtN1ZuufKew
-	 /iM8nq39E9Udm1Gzjb0EW/l/UOIYQLhKKPaVLjcAunZlg/Ihu4zdyN7om3U59P2B5w
-	 ON4tWOBOeQd0A==
+	b=fsY2j3j7CtJIJxIc8FBKY2uwdyERCh4HDO+TSRoC7+Cu9RLLqWVlb5/ayOuHTiZU3
+	 hDvshzSEWdjqx/LzGl5dQLH9Y/iaQMvuMNFJGLdHqMEgJV3kSeNNRZRpTCCx9ftZZV
+	 tsE4WqIJzZ9wzVv0K3Qoi/ZUeAwK8jZ5AOuJm7C8J7PnP8MpG5RLsC0cUsfChZlIlE
+	 RpqvwGDOC9AZqsZYZAbWieaEXJhP8AVWEoRdX3/7Ar4Z/51t4jPrwazwMQTPPNo99R
+	 Y1HJLJOFwC7Ek6aza0bkhSAM8Z8BdQUDi+p+7YcBDurGDgLWm/To94zRDE5TTZ6vhQ
+	 yTFoEHUhhuLRg==
 From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL v1 09/11] s390/vfio-ap: fix KVM GISC and page leak
- when queue removed from host config
+Subject: Re: [GIT PULL v1 04/11] KVM: s390: Refactor dat_set_slot()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260904060647.562443-10-imbrenda@linux.ibm.com>
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+In-Reply-To: <20260904060647.562443-5-imbrenda@linux.ibm.com>
 References: <20260904060647.562443-1-imbrenda@linux.ibm.com>
- <20260904060647.562443-10-imbrenda@linux.ibm.com>
+ <20260904060647.562443-5-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 04 Sep 2026 06:22:58 +0000
-Message-Id: <20260904062258.8973D1F00A3E@smtp.kernel.org>
+Date: Fri, 04 Sep 2026 06:23:09 +0000
+Message-Id: <20260904062309.A30431F00A3E@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> From: Anthony Krowiak <akrowiak@linux.ibm.com>
+> Refactor dat_set_slot(), _dat_slot_pte(), _dat_slot_crste(). Now they
+> only take a struct kvm_s390_mmu_cache as priv. For dat_delete_slot(),
+> mc is NULL, as no allocations should take place.
 >=20
-> Three related problems exist in the handling of KVM interrupt and page
-> resources when a queue is removed from the host's AP configuration
-> while assigned to a mediated device (mdev).
+> This is needed as a prerequisite to move gmap DAT table setup from
+> kvm_arch_commit_memory_region() to kvm_arch_prepare_memory_region().
 >=20
-> Problem 1:
-> ~~~~~~~~~
-> AP_RESPONSE_Q_NOT_AVAIL not handled in vfio_ap_mdev_reset_queue()
->=20
-> When the AP bus removes a queue device whose adapter or domain has
-> been removed from the host's AP configuration,
-> vfio_ap_mdev_remove_queue() is called. If the queue is still in the
-> host's AP configuration at that point, it calls
-> vfio_ap_mdev_reset_queue(), which issues a PQAP(ZAPQ). Since the
-> [ ... ]
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
-> Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-> Acked-by: Halil Pasic <pasic@linux.ibm.com>
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260904060647.5624=
-43-1-imbrenda@linux.ibm.com?part=3D9
+43-1-imbrenda@linux.ibm.com?part=3D4
 
