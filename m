@@ -1,46 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 933EC24886E;
-	Fri,  4 Sep 2026 11:13:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AE21448B84;
+	Fri,  4 Sep 2026 11:21:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788520415; cv=none; b=nrYyxgIPIFAfHbB8dIN9C5UefbuVr+aqYzCjyWJ9VyVe+hQ6XzJfNqoUg/62zFw/6JA6SpR2y6knvJULeSTkz20OKaWR16sL4H5Emnt21LFtMMQPnw5sIYjGYhQPdYwH/NxdvxhJBFQ982IOSjjkxAPtoWRucSWx9ECxt+184PE=
+	t=1788520912; cv=none; b=Trkoxbj1R4pz7qoCFsKLnN6kDah6hoygNsqYP970ZoAFaJtZuxiCr3QX1nMn86AR/ONgdO1t3otguGGPM9xidcd4ENIjI5ZzCzX2pT589TR6tEyBu+j4iY6A94gVNxWtAiGUPjCd7E6zEwJZcanxTwoykC/a+CmTuhuyFztkM0U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788520415; c=relaxed/simple;
-	bh=eXIStnHC7na2DqRA8H91kfYMTTmO7v3IjJXALVu4tbY=;
+	s=arc-20240116; t=1788520912; c=relaxed/simple;
+	bh=hwzDcPMFWdUV2GphYi2BnmUFqG3KANLJRukzDcqfbZQ=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Ryi9GYZ6ld3tvASGqnHnESw6wR2yCJ4uMvNqGEc/K53V4q6xcQs4d7TevVk8r67ecbLqtHMM6BdAu93oVYaeFwj22Rrnq8jj4fa/To6x+B4F9V5Z7fLNU1Nsf64ILz51ANPz8rqrfSvoyHexnZ8cfS7Kp+JAcfMDGBMQAfKh+eQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OuQIZkfX; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Mb/3KV4fUg24HrrEr5niIS1850aAkFMomzARDnwhld+vEmIO5gl35PLyyG3JrG++x51xdgfwA8+BJrq6FZ/eNcD1CR6FYn3f5Db7jU5Axxdq6KPK/Lceppyy7NOdTmUR9eWZufUgvXxKZMUOAGSbuhPj85SnCF706YwCQs2RyEI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FMBp0wjt; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OuQIZkfX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66EBC1F00A3D;
-	Fri,  4 Sep 2026 11:13:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FMBp0wjt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CBFB1F00A3D;
+	Fri,  4 Sep 2026 11:21:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788520414;
-	bh=oC3JhfNXqmbr7pWk1waSdlAOzIRwht3YQZAve2wPy2M=;
+	s=k20260515; t=1788520911;
+	bh=/KF3xIMezszoztZEf/AbVIn9xAa0yrrHaiMLrWyR4VM=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OuQIZkfXLcmO6qCcBiyaOYr2UCwnNzfUJJQ5gluIeMk5tZbI//O2gRXPm22LUh6t8
-	 kt2pCmiCxd2k77fc7FEtNByHIhRc0Yj0BEhqPEIOuPFYrZWIbd6ywzHuXcllqcgPEa
-	 t5jtk6XD0Lujxu88uzDVv6aQqAobDkZo45KWv52nfSp7Nfl0Ikqul42PG/UPR3WMyc
-	 iJn58g93TB5SCs/Jvdk+D5sPAR80wwyBGL/c3wOUM5dCRYjgajMOvZC16EfBs6Mifk
-	 fe8TeNPXu+SP6cFQrsgk+xgZojP6YRE2pY640Uiv3pQmg/0b/tgAObCyiZcebsPYDV
-	 nKdZA5//00ssA==
+	b=FMBp0wjtBsDxxH7kMkMJhyGyNRoWWvc3eBHpHZcVhuM+mliKNO5VAlUPiLxQSxnwm
+	 YIJEUjPlSNVKIKvvTwbFUZTDdajSlDfp1bQ8ULRwG/GGUguJ4nDwX7ppr14R9z8KNp
+	 M6k7sVO4VKYjhjQf+30n1/LMqFX9cDQe6Cp5Xvf38fc+X01w7mJMJPH5CkOnqB/tnO
+	 2ZTXNrZa/38ZeNZVhcfZu95/Nsf82Lewi3RnP+0M65ftEAiYPqGD+V8Mz+axs3ZveX
+	 quxLslG1pCFWra3rrVdFyMglvQH5FDwaESD0L/TMgtSxjqI7u2ARvDQH0YzLKVwdFz
+	 KXtz0lLQFaRXw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 04/12] arm64/mm: Export set_direct_map_*_noflush()
- APIs
+Subject: Re: [PATCH v6 06/12] of: Export of_node_to_nid()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Thierry Reding" <thierry.reding@kernel.org>
-Cc: conor+dt@kernel.org, linux-s390@vger.kernel.org, devicetree@vger.kernel.org, linux-trace-kernel@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, dri-devel@lists.freedesktop.org, media-ci@linuxtv.org, robh@kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260904-tegra-vpr-v6-4-79042cfa8de5@nvidia.com>
+Cc: devicetree@vger.kernel.org, media-ci@linuxtv.org, dri-devel@lists.freedesktop.org, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, robh@kernel.org, conor+dt@kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-trace-kernel@vger.kernel.org
+In-Reply-To: <20260904-tegra-vpr-v6-6-79042cfa8de5@nvidia.com>
 References: <20260904-tegra-vpr-v6-0-79042cfa8de5@nvidia.com>
- <20260904-tegra-vpr-v6-4-79042cfa8de5@nvidia.com>
+ <20260904-tegra-vpr-v6-6-79042cfa8de5@nvidia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 04 Sep 2026 11:13:33 +0000
-Message-Id: <20260904111333.66EBC1F00A3D@smtp.kernel.org>
+Date: Fri, 04 Sep 2026 11:21:50 +0000
+Message-Id: <20260904112150.9CBFB1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,75 +49,35 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Exporting `set_direct_map_*_noflush` APIs without exporting `can_s=
-et_direct_map` forces loadable modules to silently fail to protect memory o=
-n ARM64, breaking security guarantees.
+- [Low] Missing #include <linux/export.h> for EXPORT_SYMBOL macro.
 --
 
-commit 6a5f6422ed6de263b9c669919e175cc7d1ac6c09
+commit 44baf41b1565a3ea5c2669a320dc9b29217d32c3
 Author: Thierry Reding <treding@nvidia.com>
 
-arm64/mm: Export set_direct_map_*_noflush() APIs
+of: Export of_node_to_nid()
 
-Drivers that use this may want to be built as a module, so export them.
+This commit exports of_node_to_nid() so that drivers buildable as modules=20
+can use it.
 
-> diff --git a/arch/arm64/mm/pageattr.c b/arch/arm64/mm/pageattr.c
-> index 132938b32eb16..9253c529f8aa5 100644
-> --- a/arch/arm64/mm/pageattr.c
-> +++ b/arch/arm64/mm/pageattr.c
-> @@ -262,6 +262,7 @@ int set_direct_map_invalid_noflush(struct page *page,=
- unsigned int numpages)
->  	return update_range_prot((unsigned long)page_address(page),
->  				 PAGE_SIZE * numpages, set_mask, clear_mask);
->  }
-> +EXPORT_SYMBOL(set_direct_map_invalid_noflush);
-
-[Severity: High]
-Are loadable modules going to silently fail to protect memory when using th=
-is
-exported API?
-
-If the kernel boots with a configuration where can_set_direct_map() is false
-(e.g., rodata_full and debug_pagealloc are disabled),=20
-set_direct_map_invalid_noflush() returns 0 without modifying the page table=
-s:
-
-arch/arm64/mm/pageattr.c:set_direct_map_invalid_noflush() {
-	...
-	if (!can_set_direct_map())
-		return 0;
-	...
-}
-
-Because can_set_direct_map() is not exported, a module cannot check this
-capability itself. The module will receive 0 (success) and mistakenly assume
-the memory was successfully isolated.
-
-For security features, this means content-protected memory remains accessib=
-le
-in the kernel's linear mapping. This can break DRM guarantees by allowing t=
-he
-CPU to read protected memory, or cause a kernel panic if the hardware enfor=
-ces
-protection but the CPU speculatively accesses the region via stale linear m=
-ap
-PTEs.
-
+> diff --git a/drivers/of/of_numa.c b/drivers/of/of_numa.c
+> index 230d5f628c1b4..da2e9bd1717c2 100644
+> --- a/drivers/of/of_numa.c
+> +++ b/drivers/of/of_numa.c
+> @@ -171,6 +171,7 @@ int of_node_to_nid(struct device_node *device)
 > =20
->  int set_direct_map_default_noflush(struct page *page, unsigned int numpa=
-ges)
->  {
-> @@ -274,6 +275,7 @@ int set_direct_map_default_noflush(struct page *page,=
- unsigned int numpages)
->  	return update_range_prot((unsigned long)page_address(page),
->  				 PAGE_SIZE * numpages, set_mask, clear_mask);
+>  	return NUMA_NO_NODE;
 >  }
-> +EXPORT_SYMBOL(set_direct_map_default_noflush);
+> +EXPORT_SYMBOL(of_node_to_nid);
 
-[Severity: High]
-Does this apply the same silent failure logic when a module attempts to
-restore the mapping?
+[Severity: Low]
+Should this file explicitly include <linux/export.h> or <linux/module.h>?
+
+Using EXPORT_SYMBOL without explicitly including its defining header relies
+on transitive includes. This could potentially cause build failures=20
+if those implicit includes change in the future on certain configurations
+or architectures.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260904-tegra-vpr-=
-v6-0-79042cfa8de5@nvidia.com?part=3D4
+v6-0-79042cfa8de5@nvidia.com?part=3D6
