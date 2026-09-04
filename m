@@ -1,64 +1,64 @@
-Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F02BC39FCC8
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 211333BE174
 	for <linux-s390@vger.kernel.org>; Fri,  4 Sep 2026 19:51:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788551501; cv=none; b=XS2u+EFrnCLlzkO0hUaHlpJwhtrbnVCAKDjkyp96StNcHYzktkI0lkTwqmCnFjY/4xswhhawZy4snVE3/UTVYn0SHJnyfbW1xKkXtvaMTl5tRK+w4RyxofAiEJVo3Cqoxhz8EAre3epSG9UcRXbgEkEc9MAa5n+B5Xe0bob9xQM=
+	t=1788551502; cv=none; b=WbMbjQ1Uv2KDiJmd8egrlruh60drgurEHXw6llO4g4v1aN5ablMm7LB39LK6beL/LIO2b8b7blHUvekwSDS8T6Xi5KJU5EHsQ+hCWLe9vhr78iCGPxMbDr9/X87FD9q/zPHpQGSha5h1mbCh5ZIhNi7MqTzs1O7vGbpyNXJ05y0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788551501; c=relaxed/simple;
-	bh=dI1AE9WdbQKr87RUO/gc2ngcTAh4FhPd4AAMBS/OIu4=;
+	s=arc-20240116; t=1788551502; c=relaxed/simple;
+	bh=Jp46YtN9R/imYbaeHst5myObtgXA5/fwhYDAR9XdoVs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Ntpg5JZkBI3GBOCxM4aJTkpclYfyy+kTi5nLQwSWNRG9CM/dvSThU3rro3KK4GROjUa5gIA+F+ZsxDFYhB0k1h0U5ssn1Idt+IhJdcYWpJD7SCSx1sLxQDXFxLhlnOHxIUqx6dlvtrtyHls4uX1BQ/d2RlrssBhGw4+Cxk1S1QE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nsVEQ/Oy; arc=none smtp.client-ip=209.85.210.173
+	 MIME-Version; b=ezGSGvgVYPhbzZ4l8oqAHY01XirLwE3eEFTqsGagx8c4Wepsu+8qp36xtA1VTSF7j7RujuacW1oH+Yn0Npi/b97LhLiTq79T3GHGorhuMsl0Di+NsOSo6+URUYXPQ6ugHzRFnxCCuvfrztP70dn6EZFuPobwhvw1COrRNF0J5BA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D/u+8D+J; arc=none smtp.client-ip=209.85.210.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nsVEQ/Oy"
-Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-853c07a76adso1276411b3a.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D/u+8D+J"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-85377c8bc96so1278668b3a.3
         for <linux-s390@vger.kernel.org>; Fri, 04 Sep 2026 12:51:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788551496; x=1789156296; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788551497; x=1789156297; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Tq4f0YItm8Nzb37FYEFxDW+SOlv8AsSzRVHLQA1+cF4=;
-        b=nsVEQ/OyBxO1uyW7OhZsJ/d//WgQi1NJTAUbmBvgGN+5s189oajK+Yq8B2a/G8bVXz
-         nva2vnfFv4LfxelPwnv7AKuyPsJIsUzuzhPEbdkFexx5/7tRIlsW+JfqH3IXz/H56KVA
-         Z/1Ofm3gYezZloZWyeWXTFo4cDvaOh7lCGKf4hh5sBDDqLHdmrK2l5YjwlmgCHzu7ZJo
-         rc1D8Ce3pdqQQUC4IW41ygsFORayW1WqDMdAQ31vTQ/Bb328tCYBWX43Zy5AEXsjjiYU
-         iFraTT096SalYC/1zEn7B9u9A/H1dsAkaEwCWlgfsidUHaIkUgpjv39fnLhhRPvwi1m+
-         glzg==
+        bh=+qDNedZBe5IOgOVXUT3YGJ7aNww3Lf+ZOsFiBHpPGIg=;
+        b=D/u+8D+JIiQfe3DJMNRgrsB+YnnnGVlgn0waHPAIS/HyNT1ywY5UIJrxyiJPP89Aiw
+         3kCCc/W89QT5C9SXNQme8IA1EQq07/vQA8WOTTnkIr195uZZIRe0UuRVlFx8KO6yuEAs
+         rHSgAr+053sSlzasJ9yUNHeXtExYO1bOAP3eq4sQkH2KTozxD39S0PQtugRNV6GmFw2T
+         8H1jAYYy2nkMqoWzemUWnblc1XZgnQ2NM3QVXoiRYYfeGsCCdPR3iABNMEhDW/JsGtno
+         McyXwuVENinkGJkIgh1CXC0gtNLXy1WVCnNuNgvyjl5C4csHhHx2vxkntXxGdn9KdvAH
+         WAlw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788551496; x=1789156296;
+        d=1e100.net; s=20251104; t=1788551497; x=1789156297;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Tq4f0YItm8Nzb37FYEFxDW+SOlv8AsSzRVHLQA1+cF4=;
-        b=EbFlMNlPtRR2xqyEht1eOKti58EYRm4CDLfTFZl/62DcIzqqTYnYuDGe+UeIFI/6z4
-         qgr8/AIRumfETnyiz9eBl/FHSmO/laWojqaKHRJNlbip4X0m8XnnOvcs4iQ+huAZ43C5
-         DoTTqOdT4M4KsOtCeFjXvNr3XS4m/qIMZN84R5ZQzzYzrsQdWC/FD4HWrK48qJJzOjsm
-         Zet65Nc3wud5QrdgWeEgzxXztuZQPshlF83q5isp6atWbgEiyBDgoXLZktLGkR2bjb3T
-         qWpdLVJPYYa73BU5oapwi/UD+Qhk6LxD6AdVOTnT6LbSd/tDWOeNn1kRNDho7K/klfKT
-         6rWQ==
-X-Forwarded-Encrypted: i=1; AKwUvBz703N+KuQMZczKI2uUZpsM5xfXIo5kA01t0zoSJP0FN0lfWQEaX4ZdN/Wtk8W50UkQie9Wq3q3h2OU@vger.kernel.org
-X-Gm-Message-State: AFuF++ka8igmviNLBZSrejG/rIohujRZsQlrAtv2h+/WHMPuVcSjq8qs
-	BwtwJ8EP9uEYvh8Me5KBwcop+MCd1KhH4dLnoRbgqW6EhlKUA6NV1AjL
-X-Gm-Gg: AYBFou2r6EFkAbMLx74ARq3KY1zLunn/7C0fqFSQAEmh5Xx7e8S8qiFL/Dv/yubR7ie
-	2BV9Ta6EY/H9KBseqq6QiUpLyudxvkwQy0SwkZA0oqJ4V8ZzdZQjcpsN8qYbJkN4hQHQbsl8eHi
-	1X8xc5NLi7S70ycyg5LcndLmtT1RpM+r/WRJsD8ahAn0E20LIun/tOqUxMhMqoOZOgNxM6KAjSD
-	zsSkPs3SMjJSZKfe58k/J0LGGVKEPIIoirRKfijaLinGoWYjP+BwMFNmSEokkG766yCQH7+hQSt
-	7qc89vF+Q7tE4UhtmA2L52jmwfYrTTaZlw5OB85Y5UBzkGmcpK7SPcl45P6qd/Kc0LJ3Nbt6tmh
-	Ubkw+AYnZMYoGBa/auEG4gKlLHbwpziQnokbPVZRXkBQ1X/xU6eET/HfjVEBQlXi1ju3s0GvPPK
-	s/vqjY0OCJYSWgSXeskAqH0OMuBOCgYc/gWkZYhmaP00lNJarQLKNUVq0u/i80kCXTnjwuMm3bd
-	T9Efooj7axAmzc5tQB3iM3d/8f8IHWSwvg5HQAoewu5NvUKYhf+Z+8mVbSE9AhY5OpHHv2m0jOL
-	DxJDQYl7hHszjJmI2nH85lBSOkd6Zpv63BgXJRSWD7GkQQ3HMwK4HFgxUFXLRFECgTN5xmPRwdw
+        bh=+qDNedZBe5IOgOVXUT3YGJ7aNww3Lf+ZOsFiBHpPGIg=;
+        b=OmvhtdjHkN7kcDWoG2zZRYRrT+Jf66RqrXDvuW1FBAqxpNwx+1eKRPTGyZmjbIwdh3
+         cXtjJJTmnvRrt6IhVOH9sVFhhz234JHs7PGaGu/4vPTHPqVe3TvQoNZ/sXWAuR/Yx6Nm
+         Di5gTrQbzNyTTSYetYl+n2mSpqLrX9+wCrvYwvWLnx2hNMT6Nix/iW8NUF5/EQs60EsK
+         RYucmmTrkg5ZQqQL7um7/6buzUTtrsKdzFmryaO8S9SnlAaxlabjLpYNEKCskST46Fwu
+         zF3L68fSqO/atP4uCwVh1kRwYZ9/QLsw/e8e8+sNAW0AyPh+yEHLG8PcGbd7At3bbksv
+         PUNg==
+X-Forwarded-Encrypted: i=1; AKwUvBxx3lZKeCuzotA9wAi/mWeP2/NKOBjZ1Di/6hGqJlHQJU5sxZOIQDWdmi0nYLa7TJpjxhxrOF8BlFIw@vger.kernel.org
+X-Gm-Message-State: AFuF++khn/jL2CyvndFpNrG25AbMRg8yjw2kB6xmRcSN0LvcQjzzcouJ
+	jdiW5x3hEnV56OPY9iPIfuAGRP7PS66y4qQmIyl4aUG9jAoGbGfwI9In
+X-Gm-Gg: AYBFou1d174BJKXXfMukk8E6rCQhPQm8zrtCKUCHyC8aVY6Xs7BIrf3wO1oqcBlMDCu
+	ryTzuqRoM0ct6pqpwtq1oZvH4Ab1ongPyfkELbSmnB/74auw40OtN9MElXN3gRggN316pcV3svN
+	mNd0GYdBiSXdNNAcgHCd9F0iDvXmYJe0aknoYCa6bYleSSdKtpfe//Kb64C8WCpMvhq0lH1fIpg
+	5LTCrqa5VMqVtF2X6jL/qAbEkw2mk+eEYsvMx/GNZYWYvYrKjKyk3rMeVnnyzMo8sLYrqyWWFVT
+	geEUUBBfQqL7BOLM2OvU+xgDmd9BIEGuDflALokKfqI6sWdGcUtanE4Kuh9YKHVtv8TRlX/+3uW
+	DYMJKWNQy5OoL6QT8skNn4WHxyb6EX2srb1ctjP9YBfXVDo6fFi/T1DtKs6eVmrEHtugfs7QGRX
+	E5lKPl8tXqqzL7hTXge9bqyTlgeV60dsgtADbG7HqKYPlZz4cZbme1c52CjnqYf/CWEawjTP6Io
+	MyJJgny48zsPKURd/QFMieceIhVaDPOQ7vhBdQ1JAjmQjLzt6dixJEq3p+t+uHUoW586U8g+Pir
+	Rm+LNeLVn+ztt7x41S493lY85qyL8W0NMEdtsr+Cr3Kuajun/QWMKO6ud63DfK3tIYuVDVWsSPU
 	=
-X-Received: by 2002:aa7:88c2:0:b0:861:1acf:6915 with SMTP id d2e1a72fcca58-861676aa87cmr9593446b3a.11.1788551496447;
-        Fri, 04 Sep 2026 12:51:36 -0700 (PDT)
+X-Received: by 2002:a05:6a00:3007:b0:846:4d4c:23f8 with SMTP id d2e1a72fcca58-861662d4c34mr11674869b3a.1.1788551497395;
+        Fri, 04 Sep 2026 12:51:37 -0700 (PDT)
 Received: from sid-dev-env.cgrhrlrrq2nuffriizdlnb1x4b.xx.internal.cloudapp.net ([4.155.54.158])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8615404876fsm1497684b3a.59.2026.09.04.12.51.35
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8615404876fsm1497684b3a.59.2026.09.04.12.51.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Fri, 04 Sep 2026 12:51:36 -0700 (PDT)
 From: Siddharth Chintamaneni <sidchintamaneni@gmail.com>
@@ -85,9 +85,9 @@ Cc: Siddharth Chintamaneni <sidchintamaneni@gmail.com>,
 	rlmenge@gmail.com,
 	hargar@linux.microsoft.com,
 	apais@microsoft.com
-Subject: [PATCH bpf-next v1 1/7] bpf: Fix timed may_goto stack pointer for private stacks
-Date: Fri,  4 Sep 2026 19:51:26 +0000
-Message-ID: <20260904195132.141068-2-sidchintamaneni@gmail.com>
+Subject: [PATCH bpf-next v1 2/7] bpf, x86: Use resolved pointer for timed may_goto
+Date: Fri,  4 Sep 2026 19:51:27 +0000
+Message-ID: <20260904195132.141068-3-sidchintamaneni@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260904195132.141068-1-sidchintamaneni@gmail.com>
 References: <20260904195132.141068-1-sidchintamaneni@gmail.com>
@@ -99,60 +99,36 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-timed may_goto passes a stack offset to the architecture trampoline,
-which reconstructs the counter pointer from its BPF frame pointer. This
-breaks when the JIT uses a private stack with a different frame pointer.
+The timed may_goto fixup now passes the resolved counter pointer through
+BPF_REG_AX instead of a stack offset.
 
-Resolve the counter pointer in the fixup using BPF_REG_FP and pass the
-pointer through BPF_REG_AX. Account for the extra instruction in the
-internal branch offsets.
+Use the pointer directly rather than adding it to RBP. This preserves the
+private-stack address selected by the JIT through R9.
 
-Fixes: e723608bf428 ("bpf: Add verifier support for timed may_goto")
+Fixes: 2fb761823ead ("bpf, x86: Add x86 JIT support for timed may_goto")
 Reported-by: Jeremy Jean <jeremy.jean@oss.cyber.gouv.fr>
 Link: https://lore.kernel.org/all/20260824213158.3755932-2-Jeremy.Jean@oss.cyber.gouv.fr/
 Signed-off-by: Siddharth Chintamaneni <sidchintamaneni@gmail.com>
 ---
- kernel/bpf/fixups.c | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ arch/x86/net/bpf_timed_may_goto.S | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/kernel/bpf/fixups.c b/kernel/bpf/fixups.c
-index 65b441e4a351..dc59501a32bb 100644
---- a/kernel/bpf/fixups.c
-+++ b/kernel/bpf/fixups.c
-@@ -1797,20 +1797,20 @@ int bpf_do_misc_fixups(struct bpf_verifier_env *env)
- 			stack_depth_extra = 16;
- 			insn_buf[0] = BPF_LDX_MEM(BPF_DW, BPF_REG_AX, BPF_REG_10, stack_off_cnt);
- 			if (insn->off >= 0)
--				insn_buf[1] = BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, insn->off + 5);
-+				insn_buf[1] = BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, insn->off + 6);
- 			else
- 				insn_buf[1] = BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, insn->off - 1);
- 			insn_buf[2] = BPF_ALU64_IMM(BPF_SUB, BPF_REG_AX, 1);
--			insn_buf[3] = BPF_JMP_IMM(BPF_JNE, BPF_REG_AX, 0, 2);
-+			insn_buf[3] = BPF_JMP_IMM(BPF_JNE, BPF_REG_AX, 0, 3);
- 			/*
--			 * AX is used as an argument to pass in stack_off_cnt
--			 * (to add to r10/fp), and also as the return value of
--			 * the call to arch_bpf_timed_may_goto.
-+			 * AX is used to pass FP + stack_off_cnt as the argument to
-+			 * arch_bpf_timed_may_goto(), and also holds its return value.
- 			 */
--			insn_buf[4] = BPF_MOV64_IMM(BPF_REG_AX, stack_off_cnt);
--			insn_buf[5] = BPF_EMIT_CALL(arch_bpf_timed_may_goto);
--			insn_buf[6] = BPF_STX_MEM(BPF_DW, BPF_REG_10, BPF_REG_AX, stack_off_cnt);
--			cnt = 7;
-+			insn_buf[4] = BPF_MOV64_REG(BPF_REG_AX, BPF_REG_FP);
-+			insn_buf[5] = BPF_ALU64_IMM(BPF_ADD, BPF_REG_AX, stack_off_cnt);
-+			insn_buf[6] = BPF_EMIT_CALL(arch_bpf_timed_may_goto);
-+			insn_buf[7] = BPF_STX_MEM(BPF_DW, BPF_REG_10, BPF_REG_AX, stack_off_cnt);
-+			cnt = 8;
+diff --git a/arch/x86/net/bpf_timed_may_goto.S b/arch/x86/net/bpf_timed_may_goto.S
+index 54c690cae190..6e9d9e7c2b1d 100644
+--- a/arch/x86/net/bpf_timed_may_goto.S
++++ b/arch/x86/net/bpf_timed_may_goto.S
+@@ -11,12 +11,6 @@
+ SYM_FUNC_START(arch_bpf_timed_may_goto)
+ 	ANNOTATE_NOENDBR
  
- 			new_prog = bpf_patch_insn_data(env, i + delta, insn_buf, cnt);
- 			if (!new_prog)
-@@ -2661,4 +2661,3 @@ int bpf_remove_fastcall_spills_fills(struct bpf_verifier_env *env)
- 
- 	return 0;
- }
+-	/*
+-	 * r10 passes us stack depth, load the pointer to count and timestamp
+-	 * into r10 by adding it to BPF frame pointer.
+-	 */
+-	leaq (%rbp, %r10, 1), %r10
 -
+ 	/* Setup frame. */
+ 	pushq %rbp
+ 	movq %rsp, %rbp
 -- 
 2.43.0
