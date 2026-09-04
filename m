@@ -1,68 +1,69 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 716084F30D8;
-	Fri,  4 Sep 2026 19:57:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9998D373C12;
+	Fri,  4 Sep 2026 19:58:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788551874; cv=none; b=KKH1cITpZ+ubyAxozVUMOnZ44BmGPZhy4XwNazmT+JvDg9NcmmdaZ6ezlF++TwyRSQ1QpAxngolxBxRM8ki/FTh+aZoZrAkrlszqLrj79ZFA/R5ESKLxZNKsbOeHPLt3EuzLWJK+YxH6rvMbcXWOMFH+aDDSZfeOhO87zgM4HLg=
+	t=1788551904; cv=none; b=eG28HIF+7ImJj1RuMZEEaxgT8WVwUKTgGY9pgedbPXkWLIgdXvwIpZivsrBBghBwqAN8lojKixdHQDffwrSJkdRIecqYfV+zujmfkfiA0zzsq8kqvDj4yaSaOAJhsjwuQiwIh1w/fvp7IzSLiXEjhTCBw/qADzlkzPKfWuslAe0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788551874; c=relaxed/simple;
-	bh=ZcyztBr4wzwLoQbv2OBsHRj30lObM4lDl0BHcHBHuVM=;
+	s=arc-20240116; t=1788551904; c=relaxed/simple;
+	bh=XZcu0+1uHt3QaVATjA/t5+CbBemxQdzqDwiQ6gxgeYI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=djTbbZjZRirQvGkbakTLKqxmGjMKZq5hMkRmbLtHmorCbSoTDnotPwsbtZsx38d5Cd6zaAu5LzSA3hmTzvUc4FeOYelrpwWjlD2ZR3lw+IsS7qOWQgW3kW46efGOr/7LP8LOuZ4evgO9jBzqW3Wl0JpEe0vHuYQ3kBxUDNC8NHY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cs8X0Vda; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=p4V9oE4xo45BRgiAs+bQtiBEW//ddGP0nB3PFnrWUbtphvXziYiEsXk8FMB/JlNbjI1g0qXCeuNRmOHDP0T9GQWQTmzbsGnq3bJSMLIGYT167pFnDIeYWgORHG0O60asvgRdwP2mDP1FqIMlzXP/3dtQOr18qCwymc6IqLDZFRA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lIfh4bkz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cs8X0Vda"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE9451F00AC4;
-	Fri,  4 Sep 2026 19:57:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lIfh4bkz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBC5E1F00A3D;
+	Fri,  4 Sep 2026 19:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788551864;
-	bh=ZcyztBr4wzwLoQbv2OBsHRj30lObM4lDl0BHcHBHuVM=;
+	s=k20260515; t=1788551900;
+	bh=XZcu0+1uHt3QaVATjA/t5+CbBemxQdzqDwiQ6gxgeYI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Cs8X0Vda/JvuB26WmpbmanFQv4TFi4XVDLWvLz7vL9oqM7WZSvBm5GOnvP80F4E06
-	 sltN19bcwmIY3GvPOQKtSTMpaD1cc16oSOUmoMI3jBlA1NBH9GavMMGjsCEtv4Bh3V
-	 HYj4KLjy3qN8cdoLQCwjCor4RARDiJRo9ScbCOXMECBmuBZwSu159tMpcpa9I4ApuV
-	 pNMWNzNmRBi2j85JWYs5y0Ls52zdBVjqNEx4BvaF0HAyDG8yJZW2BloSdwasBossk2
-	 xu77l7/51AqyWEoDU/oYrohkmqDhGwl6jX+qxxY5Flrxmfbs99gVw2oS5XaW8KP88h
-	 o6MW5aamJ9/rw==
+	b=lIfh4bkzVma6eJfboapXPDDLe1sO67YDYPauyTXQ8jvIgoEggfotO2mipsyDufcRM
+	 nvm70TXTpC/eKuGPM07arwtG7d31603/HHRQ/qsGEM8ZENrSoDCwkwR8/M8Kj2NmBw
+	 dC6uHQLuJ9iGy+svaZUC4r+gbDo2S1yAM5Rmqik0wsN0ihrLX/aY2l0MveqKA4Q5yZ
+	 Kptb9PaKtoNY++cL4SA8bB4r1+wHVRYrCm15EjJs6s0nPqW/DGxA6QsMBAHcKFnUE0
+	 7Za+0wXIRX1z7TaHHQjfDZEqEAI9DLp7clhxHwhN07y9U9eHyEKudCD5IHK3vzpERO
+	 1pwJRU7su3yyw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH bpf-next v1 5/7] bpf, riscv: Use resolved pointer for
- timed may_goto
+Subject: Re: [PATCH bpf-next v1 1/7] bpf: Fix timed may_goto stack pointer
+ for private stacks
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Siddharth Chintamaneni" <sidchintamaneni@gmail.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, bpf@vger.kernel.org
-In-Reply-To: <20260904195132.141068-6-sidchintamaneni@gmail.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, bpf@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260904195132.141068-2-sidchintamaneni@gmail.com>
 References: <20260904195132.141068-1-sidchintamaneni@gmail.com>
- <20260904195132.141068-6-sidchintamaneni@gmail.com>
+ <20260904195132.141068-2-sidchintamaneni@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 04 Sep 2026 19:57:43 +0000
-Message-Id: <20260904195743.EE9451F00AC4@smtp.kernel.org>
+Date: Fri, 04 Sep 2026 19:58:19 +0000
+Message-Id: <20260904195819.DBC5E1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> The timed may_goto fixup now passes the resolved counter pointer through
-> BPF_REG_AX instead of a stack offset.
+> timed may_goto passes a stack offset to the architecture trampoline,
+> which reconstructs the counter pointer from its BPF frame pointer. This
+> breaks when the JIT uses a private stack with a different frame pointer.
 >=20
-> Copy the pointer directly into the first argument register rather than
-> adding it to the BPF frame pointer again.
+> Resolve the counter pointer in the fixup using BPF_REG_FP and pass the
+> pointer through BPF_REG_AX. Account for the extra instruction in the
+> internal branch offsets.
 >=20
-> Fixes: 6ef8ff20c30b ("bpf, riscv: Add support for timed may_goto")
+> Fixes: e723608bf428 ("bpf: Add verifier support for timed may_goto")
 > Reported-by: Jeremy Jean <jeremy.jean@oss.cyber.gouv.fr>
 > Link: https://lore.kernel.org/all/20260824213158.3755932-2-Jeremy.Jean@os=
 s.cyber.gouv.fr/
-> Assisted-by: Copilot:gpt-5.6-sol
 > Signed-off-by: Siddharth Chintamaneni <sidchintamaneni@gmail.com>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260904195132.1410=
-68-1-sidchintamaneni@gmail.com?part=3D5
+68-1-sidchintamaneni@gmail.com?part=3D1
 
