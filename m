@@ -1,103 +1,102 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1841951A751;
-	Fri,  4 Sep 2026 18:30:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A05DE47012F;
+	Fri,  4 Sep 2026 18:53:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788546629; cv=none; b=tpKRpk6NFlMrKC167G2Zvnai7grYt0Gt/NGyGf+/d4j+f2Qvb8MF8D2xhmtHsrBoqiHg2CTE9ARgM6azoAs+ChemaoKxRji1NuIswcrdbuxYVjX9aAlnDAwRCFQPZvJMHzRyiRn//682i4mr3Nt0bwHIOZJGqZhnrUrPpCHCZD4=
+	t=1788548028; cv=none; b=hFhP8Eeqt0l/vc/lGpyWu4JC7NtRG4H56/uHKuqcKyVCCJBQY29dxrYnuC78hk/VSzTZlYTG5JBsMgcHyO2vOJMN+FachC7xQgcBUKLZg2e/VvhFx5YPwPdCMZEIGB/EXF81Lgwq+KZHHiEjbXCF2UqYYyCxIMFJ7LeqtUGAYWA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788546629; c=relaxed/simple;
-	bh=M2vlvbqRWV+Xw+3jTt9UAjlcZl7+IruDbCiA5qjhmKc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GtY3tg+nptbdnYpPnNuYnip147ptac90RS8CBxUm/0ERKsUnioEs8WWodmqYF9aR3bRKe49K/A5AMOc2tYSdBKRwFADrptzeFExWdiizs3kP97pG4GfshaGIOa2ciOKZy+5ljBXhIy3IYlTbfubV3wkCyUEsJ8qf2asisREpD7A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bvATyraG; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1788548028; c=relaxed/simple;
+	bh=5WwT2se2C5BKcfWyQRgRRFTui6yDZ8Fy6f3eNRBaT+0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gQoI6+aMQMlfCfHbxp0HEvhLMGzDhclpBqp7UVxrDsJzgJ52dvUWMbOUMtjYC82dtZczzkFPjR4g4vxfkML4nS7gvThau6z2xIIjVSEN7ZJbdqDz53uqfrgbhcgcXANnBCVALwSL7keK4gfEKa/hluhuvFtwKBHHz3g+FPLypqQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eZOXJo/Q; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bvATyraG"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eZOXJo/Q"
 Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 684HWEVA1236999;
-	Fri, 4 Sep 2026 18:30:25 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 684HW8CC1236969;
+	Fri, 4 Sep 2026 18:53:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Cuu3MZ
-	daGvzuxmWskN/PqNsPVmmgkPsY77OJwg3BoiI=; b=bvATyraGfJj4p5w1iT7dbW
-	vsYCUL1y9tP9SHmO8ydRSStirU10l+naDNDmSE02Q0sqYN9AFnJGPAQ+0rhCZXlJ
-	ybZ7/1TG/qb8GBNN9+gnM/1vC/dgsuittmPXAfPwGLf6HrEYHwbKfpyY5H/19DuT
-	s+VkaNRiqT+aWazOapfdSHmU/jxhTpfQNSX5rSbWskmWlf5BoewdKvlGFRohUp+i
-	O2sGkKeDn1EjhUBt4/qy0qDmQVp0Kp0XMVyePncwxVfo9MsM83MJ+ULK/35JPXh8
-	WjqiZ0tgRMrrRp2FtuLeA7eSJQlD6Rk3kq12gw9iqHGmTRYL5cL7yedkR9our6aQ
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbnuec1ph-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=X1+Z8AI69TDyxVwJ/blHCjlvFDPkqi
+	nfbKPZNACCHEc=; b=eZOXJo/Qz4qgOgP20grGq+eSFH9MdXlCqz7UftyGk1fkWY
+	sQntgoG2M7mzZu63/YizGIgPCC4BK8WddeCXpSFuJI8aeF5KiOiqtUZRAZb4bYTx
+	GoPBHUOsCLWWqjSCRlWVmAjcREljg/bHIuT7Nnai0zRQ0vHG0ao192AdJr/3gUf+
+	BT00HnlFzu40/vyjD+k2ZoQV9eWtBPjVWWpRZO3h9NLjYo/cSZGnT+fc/z8Pc4g4
+	MuykIOyJMGyAvnmHd9mG1kjC/tjRiqpWLZMkeWHmZ/wvPYwfb1u/qApLBYUu8vgS
+	EhPpeK20AzcyC7cteNpjzW6poIBCdmOmW8qBdDuw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbnuec5km-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 04 Sep 2026 18:30:25 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 684IQGwc014499;
-	Fri, 4 Sep 2026 18:30:23 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gcarkpmd6-1
+	Fri, 04 Sep 2026 18:53:43 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 684IfIAX019507;
+	Fri, 4 Sep 2026 18:53:42 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gecjay44s-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 04 Sep 2026 18:30:23 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 684IUML432178796
+	Fri, 04 Sep 2026 18:53:42 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 684IrcqN30737140
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 4 Sep 2026 18:30:22 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7623458056;
-	Fri,  4 Sep 2026 18:30:22 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E192758062;
-	Fri,  4 Sep 2026 18:30:21 +0000 (GMT)
-Received: from [9.61.80.215] (unknown [9.61.80.215])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  4 Sep 2026 18:30:21 +0000 (GMT)
-Message-ID: <386bc4c0-6693-4612-8103-11f919fed342@linux.ibm.com>
-Date: Fri, 4 Sep 2026 14:30:21 -0400
+	Fri, 4 Sep 2026 18:53:38 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6E5E920043;
+	Fri,  4 Sep 2026 18:53:38 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0A96220040;
+	Fri,  4 Sep 2026 18:53:38 +0000 (GMT)
+Received: from osiris (unknown [9.111.64.215])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri,  4 Sep 2026 18:53:37 +0000 (GMT)
+Date: Fri, 4 Sep 2026 20:53:36 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 1/8] KVM: s390: pv: Use VM_SPARSE area for guest
+ variable storage area
+Message-ID: <20260904185336.35458Aff-hca@linux.ibm.com>
+References: <20260720085834.898025-1-hca@linux.ibm.com>
+ <20260720085834.898025-2-hca@linux.ibm.com>
+ <e9449c63-b8d2-4ed9-a184-7dcab3e8dfce-agordeev@linux.ibm.com>
+ <20260903172417.12158Bf0-hca@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 3/5] s390/vfio-ap: Fix unbounded loop in
- apq_reset_check()
-To: sashiko-reviews@lists.linux.dev
-Cc: Heiko Carstens <hca@linux.ibm.com>, kvm@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org
-References: <20260904093435.1161402-1-akrowiak@linux.ibm.com>
- <20260904093435.1161402-4-akrowiak@linux.ibm.com>
- <20260904094839.1E72F1F00A3D@smtp.kernel.org>
-Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20260904094839.1E72F1F00A3D@smtp.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260903172417.12158Bf0-hca@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: -WFZ2K9iVmQYT9WoxtusHiwsKpvPAMwS
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTA0MDE2NCBTYWx0ZWRfX3FCg3gvLoG8B
- 1N65VbvmneLwlFZNHH9LK4AbpAFD4l5r+V8GmjQv6bICf57r3wzzptp8JijKcg7vTY718/b6/A9
- J6vgibXowTG2S1xz2J1ijNYGl65fTmJMUkLhTy7YoEsFLpHOjB5jqmHC5F5qJFlu+cdwZFcEYFf
- hz7L5xhsRVjXpKBgeIgpneeW5Bx39e/vyf9AS5PYWL+IkpE4k3L5uuxXQzInR9BlmWXnrJJMjBd
- YvuXBOvD0Huhf2qpgHyP8KtN2SOt1/ccJgrn7b71tqTu9al9sDMHtR58K2ewFWDwmFwyhfI3hTI
- D9hBKjEci0Ih+NfjATbI1tLmTjDoFOi9xM8yPg7+pNBoBl+2vZPoFngMjq3hgQopP6iBysdX07L
- r3vaAkaTO+nwYbY5NRFfuhccEumGzIGTSAkNnxKhgjfHKArygFlvHApwy8a9WLZb49tXKHXmsNc
- uafFfT+2raluioj/yIw==
-X-Proofpoint-ORIG-GUID: -WFZ2K9iVmQYT9WoxtusHiwsKpvPAMwS
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTA0MDE2NCBTYWx0ZWRfX6ODom1UYE6Rm
- ss8UKx3eJjrvkmaRV8FCOkJNU0PR1wDuq0CwEk4d0OD7PlAdMC3lcbAY3jOQtEzjY9vucbbKai5
- R3DddPHrB/x06sR65uiH2DZZDQuhmcI=
-X-Authority-Analysis: v=2.4 cv=B92JFutM c=1 sm=1 tr=0 ts=6a9b0e41 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=l8z-qHihChIYEk0EtGUA:9 a=QEXdDO2ut3YA:10 a=O8hF6Hzn-FEA:10
+X-Proofpoint-GUID: B8-sr14wvFmj_iXMjmFsbuZcb4vL5BuM
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTA0MDE2OSBTYWx0ZWRfXyGzrPD2/PZ9r
+ IhjIXwBrhICxqzg3Vrzh5cA0bzsb3UyqEukDVAExx9Ts+Md/pGXJ6lT+05SpyN/mMU+8IjFoJjc
+ SAZgMnBwEX0mzSU2RfJNwfKMJdePxmRIxZ1h3tt1OrnbXdeOK9aGHcNFr+z29hUIeu9SPvwowpx
+ K0uSp32SiVE/ACxHnmiafTa+qKz8l7hci0JOish2b+FfQhl5Az/e5XuxhS4VWWDWuzGvMgesy/y
+ iOHHLyF1oYwH/vVOY/yG+HVmTbBo901aO5Ed3yNIFDeAxRvf6YNtF5nlxlVDJZ7Fuv7pltHvmmc
+ PZNcntyQ7rUckTa5W4LyJsiMRKhOTxh6vLCZBDl0vJ0uzdDF9cvV//XwSH8B/6yrKf/IGj+zWHn
+ Bw4dWt3IJF2oPzLk4Z84nkScteMsteRTT5pmWyndEuljyCLHs0C1eSZq9JxFe+DFTaxT+sF2E3Y
+ OsZ9XLB3b95HXCe5iNQ==
+X-Proofpoint-ORIG-GUID: B8-sr14wvFmj_iXMjmFsbuZcb4vL5BuM
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTA0MDE2OSBTYWx0ZWRfX4qp6e3oviYdb
+ eN9aMiZhnLdq63eCw2Vup0cRtJirQpRX9nE60W5W+s5k1HXYLIMBZsI8cq+Hd9qlp36JT4iqk15
+ c6ihRBf6RQUPIKenI+YOdI7NRB+vbsQ=
+X-Authority-Analysis: v=2.4 cv=B92JFutM c=1 sm=1 tr=0 ts=6a9b13b7 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VhaxTpYug_F9V7xzWmYA:9
+ a=CjuIK1q_8ugA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-04_05,2026-09-03_01,2025-10-01_01
@@ -106,141 +105,146 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  lowpriorityscore=0 bulkscore=0 priorityscore=1501 impostorscore=0
  malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2609040164
+ definitions=main-2609040169
 
+On Thu, Sep 03, 2026 at 07:24:17PM +0200, Heiko Carstens wrote:
+> On Thu, Sep 03, 2026 at 02:28:35PM +0200, Alexander Gordeev wrote:
+> > On Mon, Jul 20, 2026 at 10:58:27AM +0200, Heiko Carstens wrote:
+> > This could be solved using the below fixup:
+> > 
+> > @@ -247,7 +247,9 @@ static int uv_alloc_range_cb(pte_t *ptep, unsigned long addr, void *data)
+> >  	struct page *page;
+> >  	pte_t pte;
+> >  
+> > +	lazy_mmu_mode_pause();
+> >  	page = alloc_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO);
+> > +	lazy_mmu_mode_resume();
+> >  	if (!page)
+> >  		return -ENOMEM;
+> >  	pte = __pte(page_to_phys(page) | pgprot_val(PAGE_KERNEL));
+> > 
+> > The downside is lazy_mmu_mode_resume() does not really re-enable
+> > the caching and the performance will stay the same even when the
+> > lazy mode is supported on s390.
+> > 
+> > This is the same pattern as kasan_populate_vmalloc_pte() - which
+> > was the only occurrence so far.
+> > 
+> > Alternatively, the page could be allocated atomically, but I think
+> > that is less preferrable.
+> 
+> I guess the real fix is to pre-allocate all pages, keep the pointers
+> to the struct pages in an array, and populate with a different
+> mechanism. Similar like the vmalloc code is doing.
+> I wanted to keep this code as simple as possible, but...
 
+Actually addressing this makes the code even simpler.
+Something like the below should do (untested).
 
-On 9/4/26 5:48 AM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
->
-> New issues:
-> - [High] Dangling AQIC resources after a reset timeout cause arbitrary IOVA unpinning in a subsequent guest's VFIO container.
->
-> Pre-existing issues:
-> - [High] Early return on an unknown hardware response code (-EIO) silently leaks AQIC resources and fails to update the queue's reset status.
-> --
->
-> commit fec86a42ae1833abad22bf816bcbaaa29965a88e
-> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
-> s390/vfio-ap: Fix unbounded loop in apq_reset_check()
->
-> This commit fixes an unbounded loop in the queue reset worker by introducing a
-> maximum wait time of 2000ms. It also adds logic to verify the asynchronous
-> completion of queue zeroization and intentionally leaks AQIC resources on
-> timeout to avoid a potential host crash from wild DMA writes.
->
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->> index ea0625f10c7e8..32b80d91a6431 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> [ ... ]
->
->> @@ -2050,6 +2113,54 @@ static void apq_reset_check(struct work_struct *reset_work)
->>   		ret = apq_status_check(q->apqn, &status);
->>   		if (ret == -EIO)
->>   			return;
-> [Severity: High]
-> This is a pre-existing issue, but does this early return on an unknown
-> hardware response code (-EIO) silently leak AQIC resources?
+---
+ arch/s390/kernel/uv.c | 59 ++++++++++++++++++-------------------------
+ 1 file changed, 24 insertions(+), 35 deletions(-)
 
-This will be fixed in patch 1 of the next (v6) of the patch series.
-
->
-> By returning immediately, this path bypasses the resource cleanup in
-> vfio_ap_free_aqic_resources(). This leaves q->saved_iova dangling and fails
-> to update q->reset_status.response_code.
->
-> Since the status remains 0 (AP_RESPONSE_NORMAL), callers might incorrectly
-> believe the queue is securely zeroed. If the queue is then reassigned to a
-> new guest, could the next successful reset unpin the old IOVA from the new
-> guest's IOMMU domain and corrupt memory?
->
->> +		if (elapsed >= AP_RESET_MAX_WAIT) {
->> +			/*
->> +			 * Zeroization confirmed (ret == 0): the TAPQ status bits
->> +			 * indicate the async portion of the ZAPQ completed
->> +			 * successfully. Free AQIC resources and return.
->> +			 *
->> +			 * Queue non-operational (ret == -ENODEV): the queue is
->> +			 * deconfigured or checkstopped; interrupts are not
->> +			 * possible so AQIC resources can be safely freed.
->> +			 * Zeroization cannot be confirmed in this state, but the
->> +			 * queue cannot generate interrupts, so the NIB page is
->> +			 * no longer a DMA target and it is safe to free it.
->> +			 */
->> +			if (!ret || ret == -ENODEV)
->> +				goto done;
->> +			/*
->> +			 * Timed out without being able to verify zapq completed.
->> +			 *
->> +			 * The AQIC resources associated with this queue - the pinned
->> +			 * page containing the NIB and the registered guest ISC -
->> +			 * cannot be freed here. The NIB is the active DMA target
->> +			 * for AP interrupt delivery until the reset completes;
->> +			 * freeing the pinned page while the hardware may still
->> +			 * write to it would result in a wild DMA write that could
->> +			 * corrupt host memory.
->> +			 *
->> +			 * If the reset eventually completes, interrupts will be
->> +			 * terminated and the pinned NIB page and ISC registration
->> +			 * will be leaked. This is preferable to either a wild DMA
->> +			 * write or waiting indefinitely: flush_work() callers hold
->> +			 * the matrix_dev->mdevs_lock mutex which serializes access
->> +			 * to all mdev objects system-wide, so blocking here would
->> +			 * hang all guests to which those mdevs are attached.
->> +			 */
->> +			report_aqic_resource_leak(q);
->> +			/*
->> +			 * Report the actual non-zero hardware response code, or
->> +			 * synthesize AP_RESPONSE_RESET_IN_PROGRESS if TAPQ
->> +			 * completed normally but the status bits failed to
->> +			 * transition to their post-reset states.
->> +			 */
->> +			if (status.response_code == AP_RESPONSE_NORMAL)
->> +				q->reset_status.response_code = AP_RESPONSE_RESET_IN_PROGRESS;
->> +			else
->> +				q->reset_status.response_code = status.response_code;
->> +
->> +			return;
->> +		}
-> [Severity: High]
-> Does this early return on timeout leave dangling AQIC resources that could
-> cause arbitrary IOVA unpinning in a subsequent guest's VFIO container?
->
-> When the worker exits on timeout without clearing the dangling q->saved_iova
-> field, and the adapter is unassigned from the current guest and hot-plugged
-> into a new guest, q->matrix_mdev is updated to the new guest.
->
-> When the new guest successfully resets the queue, vfio_ap_free_aqic_resources()
-> will be called. Because q->matrix_mdev is now the new guest's mdev and
-> q->saved_iova is still the old guest's IOVA, it seems this would erroneously
-> unpin an arbitrary IOVA from the new guest's VFIO container:
-
-The scenario described cannot occur. When the adapter is
-unassigned from the mdev, unassign_adapter_store() calls
-vfio_ap_mdev_hot_unplug_adapter() which calls
-vfio_ap_mdev_hot_unplug_adapters(). That function calls
-vfio_ap_mdev_unlink_adapter(), which removes the queue from
-the mdev's hash table, but q->matrix_mdev is not set to NULL
-until vfio_ap_unlink_mdev_fr_queue() is called later. Before
-that, vfio_ap_mdev_reset_qlist() is called, which issues a
-fresh ZAPQ for the queue while q->matrix_mdev is still valid.
-If that ZAPQ completes successfully, vfio_ap_free_aqic_resources()
-will correctly unpin the old NIB page and unregister the ISC
-using the still-valid q->matrix_mdev. So while the reviewer
-is correct that the AQIC resources are leaked by the timeout
-path, they will be cleaned up by the ZAPQ issued during the
-unassign, provided the reset succeeds at that point.
-
->
-> vfio_ap_free_aqic_resources() {
->      ...
->      if (q->saved_iova && !WARN_ON(!q->matrix_mdev)) {
->          vfio_unpin_pages(&q->matrix_mdev->vdev, q->saved_iova, 1);
->          q->saved_iova = 0;
->      }
-> }
->
-> [ ... ]
->
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index 8ea9dd7704ff..8dea30a1166b 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -14,8 +14,8 @@
+ #include <linux/memblock.h>
+ #include <linux/pagemap.h>
+ #include <linux/swap.h>
+-#include <linux/pagewalk.h>
+ #include <linux/backing-dev.h>
++#include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <asm/facility.h>
+ #include <asm/sections.h>
+@@ -210,62 +210,51 @@ int uv_convert_from_secure_pte(pte_t pte)
+ 	return uv_convert_from_secure_folio(pfn_folio(pte_pfn(pte)));
+ }
+ 
+-static int uv_free_range_cb(pte_t *ptep, unsigned long addr, void *data)
+-{
+-	pte_t pte = ptep_get(ptep);
+-
+-	if (!pte_present(pte))
+-		return 0;
+-	/*
+-	 * Note: do not update the pte here, since there is no code which
+-	 * accesses the memory range, besides bugs. The invalidation of ptes
+-	 * and TLB flushing is deferred like for regular vfree() calls.
+-	 */
+-	__free_page(pte_page(pte));
+-	return 0;
+-}
+-
+ void uv_free_stor_var(void *stor_var)
+ {
+-	unsigned long addr, size;
+ 	struct vm_struct *area;
++	unsigned long i;
+ 
+ 	if (!stor_var)
+ 		return;
+ 	area = find_vm_area(stor_var);
+ 	if (WARN_ON_ONCE(!area || !(area->flags & VM_SPARSE)))
+ 		return;
+-	size = get_vm_area_size(area);
+-	addr = (unsigned long)area->addr;
+-	apply_to_existing_page_range(&init_mm, addr, size, uv_free_range_cb, NULL);
++	/*
++	 * Do not update PTEs. There is no code which accesses the memory
++	 * range, besides bugs. The invalidation of PTEs and TLB flushing
++	 * is deferred like for regular vfree() calls.
++	 */
++	for (i = 0; i < area->nr_pages; i++)
++		__free_page(area->pages[i]);
++	kvfree(area->pages);
++	area->pages = NULL;
+ 	free_vm_area(area);
+ }
+ EXPORT_SYMBOL_FOR_MODULES(uv_free_stor_var, "kvm");
+ 
+-static int uv_alloc_range_cb(pte_t *ptep, unsigned long addr, void *data)
+-{
+-	struct page *page;
+-	pte_t pte;
+-
+-	page = alloc_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO);
+-	if (!page)
+-		return -ENOMEM;
+-	pte = __pte(page_to_phys(page) | pgprot_val(PAGE_KERNEL));
+-	set_pte(ptep, pte);
+-	return 0;
+-}
+-
+ void *uv_alloc_stor_var(unsigned long size)
+ {
++	unsigned long i, nr_pages, addr;
+ 	struct vm_struct *area;
+-	unsigned long addr;
+ 
+ 	size = PAGE_ALIGN(size);
++	nr_pages = size >> PAGE_SHIFT;
+ 	area = get_vm_area(size, VM_SPARSE);
+ 	if (!area)
+ 		return NULL;
+ 	addr = (unsigned long)area->addr;
+-	if (apply_to_page_range(&init_mm, addr, size, uv_alloc_range_cb, NULL))
++	area->pages = kvcalloc(nr_pages, sizeof(struct page *), GFP_KERNEL_ACCOUNT);
++	if (!area->pages)
++		goto out;
++	for (i = 0; i < nr_pages; i++) {
++		area->nr_pages = i;
++		area->pages[i] = alloc_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO);
++		if (!area->pages[i])
++			goto out;
++	}
++	area->nr_pages = nr_pages;
++	if (vm_area_map_pages(area, addr, addr + size, area->pages))
+ 		goto out;
+ 	return area->addr;
+ out:
+-- 
+2.53.0
 
