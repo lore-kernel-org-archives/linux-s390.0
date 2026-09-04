@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53A1E47A892;
-	Fri,  4 Sep 2026 10:45:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5CC346F4BB;
+	Fri,  4 Sep 2026 10:45:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788518735; cv=none; b=PqSlHSvwcqt3CCMgGz3zaQykbNIJIrUFCcPAkssHWhXS+MWGXWH/RG5ABlzXihmYLeLNvKJwljR/Gh/Pyq8vF9Kxajn1TwCglhAkDF+H8LH8iyOddfFvLA18328pVe0ae+NKnCqT34qTFYgRvvf2NwGQ7wXLNkvPzxijElMCPT8=
+	t=1788518737; cv=none; b=qdBKee5JvVZ2koVYn7Jl6IR93qvoan7MkMoADMLmgdK1TiJO3Q9Q1wodxnjRaqr0vmDFaU+vatyluGzH7/ejz/DA1qdzTeYoxhiOrCR8Y87qhP1zE5wiLIlmyCTjt/HUP8ljQubMxBBqUWHDfGWT1xEYFjqtvWDNMPFBZvnotx8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788518735; c=relaxed/simple;
-	bh=oJmc2yMjXHZBAgsG3MI/UFS/Acfo/2sOqteRP01Z7dM=;
+	s=arc-20240116; t=1788518737; c=relaxed/simple;
+	bh=A2htvo3cu/cGMuF45yPyefAhCfBrP0w5q4RQKQbR6vM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=TM5TaUuHFREHUHMZrR3osZU1gls9PhG4a9tTEJu5A1TYdwvUPUPcp5+RQZCIjY6eQIYKX1YahoIDAGxSykQZViMg0ueMHCq6h2utg7z6fEteo/BvI1Ia1XuiYg1IBSZFWFxCQnnMIh/4zIQqTNmA6dEcM7bMDxwFQFTY+AKUDPQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=isV2IgZu; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=Ye1udRtLOv96fc2AJYwU1aLCaCgekHvUt3eYg2KOMSdUZEgUWOKfYTpfIf+1gWeMp3Y9EA0jTl+i3jQ/jTAcD0G5p9qFJjLMdEKvJB86MGSx1WYKTjCLJ6bOOqs/H+q3cuFs5X19JinlxGYddu77FSbFJ1kbYeOb+cahBf32vB4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SP5bfIG8; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="isV2IgZu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BACE11F00A3F;
-	Fri,  4 Sep 2026 10:45:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SP5bfIG8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 836DA1F00A3E;
+	Fri,  4 Sep 2026 10:45:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788518732;
-	bh=tvyd01m5FmUtu3q6l/t0/X1UQi3FbzSuZHwJCHFz3QM=;
+	s=k20260515; t=1788518735;
+	bh=kC3CPrr3PAY7P/aChmlLF9PhF6B4gfio4q7V2fdfYsc=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=isV2IgZuqaEj8L6w5TATquMIISnjgvRvBLrttVMb2J3/qELjt9chFPiUY34MdPhYP
-	 U28wPbZT8ogHrGtyUr5RJLQSczYHZExyBqdqMTuDI4gEZeqEhLhF7nUfxbbgN5LSLg
-	 WpGf0U5aqCH3nfFsuGuAY5TAdMaRGNYw4DPjF1ZLmFN3bIn6UXfe4cqWr+MNfTnNvu
-	 S6KbiqTp0Jv0ibjBYHeuTnW7BAKozymnTvHSpJwEHw8uX/NLpZSTc44eFq0eoqawMc
-	 D9BkZU83noFXqptzh6Me0L7ADkDCNvLNKqKkWO6JZ37eeSuyw+i+hWbz0qXVlN6AGu
-	 3HNhAB4yeUGRQ==
+	b=SP5bfIG8u6MRQNywxnJUOh6EF6Ed7XpEvhzfAE1agnxOQUrgZenSUyYiBRrnUlZbM
+	 jeabei0jiWAmeF7c3Gn9saxPOUP7pZ5iqkH7ZmyYIEpQJjpbHja2MhP5Dpj/oGo/TQ
+	 Rb6q1b6xAq4lsrzhFgI/p3pwuefX/K175ft/Eztv+5FOn1sLQD23M1mmOYKhL1J0jj
+	 wMDfTyZ1rBdn4BFr6lAPrAzM5Blm6BxHxXkx4Hy0m+wanRE30eEj+UBbsUUL/taWGT
+	 gZBJEclpTDXns6tyVt2TiBet4agLrRtaQneYUTIzCZmGqmQL7OE/IXk0IixV1Pb34i
+	 Tyhus9nqR5Cww==
 From: Thierry Reding <thierry.reding@kernel.org>
-Date: Fri, 04 Sep 2026 12:44:56 +0200
-Subject: [PATCH v6 05/12] bitmap: Add bitmap_allocate() function
+Date: Fri, 04 Sep 2026 12:44:57 +0200
+Subject: [PATCH v6 06/12] of: Export of_node_to_nid()
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,7 +37,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260904-tegra-vpr-v6-5-79042cfa8de5@nvidia.com>
+Message-Id: <20260904-tegra-vpr-v6-6-79042cfa8de5@nvidia.com>
 References: <20260904-tegra-vpr-v6-0-79042cfa8de5@nvidia.com>
 In-Reply-To: <20260904-tegra-vpr-v6-0-79042cfa8de5@nvidia.com>
 To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -80,88 +80,44 @@ Cc: Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org,
  linux-mm@kvack.org, iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
  linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2300; i=treding@nvidia.com;
- h=from:subject:message-id; bh=wRtcGoPPtBVnuqzylzx/Ya02XdoWLRjgy09wPiiWfTU=;
- b=owEBbQKS/ZANAwAKAd0jrNd/PrOhAcsmYgBqmqE6FB7y46zRAFj+W91sU31vLRZ9vxOWfwPV5
- Zl4kuw26HOJAjMEAAEKAB0WIQSI6sMIAUnM98CNyJ/dI6zXfz6zoQUCapqhOgAKCRDdI6zXfz6z
- oeAMEACJJndPxZkKMt6p/5hvrc40QBNDQZ+kF6WmhtnFd/6EVpvs0pjUb8O3if3mkq4TtTKowKz
- kIuYwA01ot+/ztJA5scT5H/tCqLx/Qds237aUUTv/IzEoq2K4YW/FlTvmXelPijG5HS9T+GeFXV
- RxODMakq1BUp1WBx0Fvx3tiI40Ukv9zyhQFgNYpIld1ACRlTawrq/ce0NYFwF5wGFaPKkbsEIO3
- SOwvT5W5s5BuxLJknJq4AaldPvitW5S1LIvagCvP3/wQcvXSXufgOm2MlU3JOi4viyWwRu/L2+C
- u50xLPvsNEVbWot1lKc75AvkNCcJCtowBhIl8x4HKN+ilKWv8A3go2jvHFSqTIOLCbJmV1DCO5F
- RTJIpj0JWZPUkl6xqHfiWzgFvJJTmV/So6PtCwG/dbYDI5ngKGDvuEB0RCu4aOfMpiQuiyRs18f
- SN4t3ERyRKbWzjXimIPHFupQdwDQVNb/5niYY7HikDSTPJCaZTf0B+qjNaNhchJg+AbXBtp+LWN
- P1a8VilssiEkbeQ8/uw8IMefrUeaSKo9DQyKqMeWYyGE7jWqGUaTQxkTCPSmW+oxhEOq+xpjKac
- +RjQa8xpetUONC0UCwaBtDLZywDwGF1t7Itd05IGfD+dCnNPAW/gg0w+Wz2AIRM2lKYSNKwYNJx
- MloyP4fy9QyiMYw==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=531; i=treding@nvidia.com;
+ h=from:subject:message-id; bh=XVM1jxgviVEtDinHenIJ2Kw8sOhFectSaf+1DVtDVAo=;
+ b=owEBbQKS/ZANAwAKAd0jrNd/PrOhAcsmYgBqmqE6BHc3U4JQE7eU7NgsnGt5czLULWf+jkgKq
+ OsJ4G0rIHSJAjMEAAEKAB0WIQSI6sMIAUnM98CNyJ/dI6zXfz6zoQUCapqhOgAKCRDdI6zXfz6z
+ oZMoD/9xguhdwCrD8iOdtsVTh6dfItXp4r9Hbp1ZfBZm4OHIQI81YR3MZrSb2bzObPQJoXC4dRy
+ ZIYhPvqOvoILsZRMwWhqyyJXQRnmIDPlqWdvNybGETu1FibVSDZxMnudxPMRKtEBRG2es5Vt///
+ s7wdiWgHfZzbpnobQGL0B1q6ZLLcxoK2kkAKKKzEbMnrPameUnFH66Yi8tyqRG1XlNz6JEwt8z0
+ NXNjwPRMwYMiqVSATbrGIa51QKepW1D0NeQtsAXGk/WDjMaXbdly0QpUt7RANZcBjUtNvA0Ko2N
+ pe5d7gaALs7yKIUTgy/AC0WmqCkC6s2jaYTcZ+/cHl7P3+tsvIox+SfFKW5/bGSZOwAZ9hLDu4w
+ d68AplnyPNl8NsOCcwDct6dphMpBzWFuOO2z44y6Ee7CJrcOMqaT8eRU3SUhQttDVB/pCVAcU3y
+ rHmnZZgQwAnjDHNl+Sk8APIDNYxsv/m+KNLs2gPv2ezugy6xYbkHwnLf2j+fnaP6gTlKewgZA2Z
+ 4d8idRFEPqFLEYXsKG3rVDE+bywdW/uY33dz1euxG81qYT9tZKrGxRvCtWG/oQ9mWoogNlUTqvt
+ OY8mocLptFLj7WMCtzyy7tPXOeq7oT4GS2flTTf+lc2cgg3pX7Rpg1QesoC5/nD7fEZFe3GyOGL
+ 6CeFVyhYcyTff3g==
 X-Developer-Key: i=treding@nvidia.com; a=openpgp;
  fpr=88EAC3080149CCF7C08DC89FDD23ACD77F3EB3A1
 
 From: Thierry Reding <treding@nvidia.com>
 
-This is similar to bitmap_allocate_region() but allows allocation of
-non-power of two pages/bits.
-
-While at it, reimplement bitmap_allocate_region() in terms of this new
-helper to remove a sliver of code duplication.
+Drivers buildable as a module may want to use this, so export it.
 
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 ---
- include/linux/bitmap.h | 25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+ drivers/of/of_numa.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
-index 7df1573a409c..c2ab02985b5f 100644
---- a/include/linux/bitmap.h
-+++ b/include/linux/bitmap.h
-@@ -716,10 +716,10 @@ void bitmap_release_region(unsigned long *bitmap, unsigned int pos, int order)
- }
+diff --git a/drivers/of/of_numa.c b/drivers/of/of_numa.c
+index 230d5f628c1b..da2e9bd1717c 100644
+--- a/drivers/of/of_numa.c
++++ b/drivers/of/of_numa.c
+@@ -171,6 +171,7 @@ int of_node_to_nid(struct device_node *device)
  
- /**
-- * bitmap_allocate_region - allocate bitmap region
-+ * bitmap_allocate - allocate bitmap region
-  *	@bitmap: array of unsigned longs corresponding to the bitmap
-  *	@pos: beginning of bit region to allocate
-- *	@order: region size (log base 2 of number of bits) to allocate
-+ *	@len: number of bits to allocate
-  *
-  * Allocate (set bits in) a specified region of a bitmap.
-  *
-@@ -727,16 +727,31 @@ void bitmap_release_region(unsigned long *bitmap, unsigned int pos, int order)
-  * free (not all bits were zero).
-  */
- static __always_inline
--int bitmap_allocate_region(unsigned long *bitmap, unsigned int pos, int order)
-+int bitmap_allocate(unsigned long *bitmap, unsigned int pos, unsigned int len)
+ 	return NUMA_NO_NODE;
+ }
++EXPORT_SYMBOL(of_node_to_nid);
+ 
+ int __init of_numa_init(void)
  {
--	unsigned int len = BIT(order);
--
- 	if (find_next_bit(bitmap, pos + len, pos) < pos + len)
- 		return -EBUSY;
- 	bitmap_set(bitmap, pos, len);
- 	return 0;
- }
- 
-+/**
-+ * bitmap_allocate_region - allocate bitmap region
-+ *	@bitmap: array of unsigned longs corresponding to the bitmap
-+ *	@pos: beginning of bit region to allocate
-+ *	@order: region size (log base 2 of number of bits) to allocate
-+ *
-+ * Allocate (set bits in) a specified region of a bitmap.
-+ *
-+ * Returns: 0 on success, or %-EBUSY if specified region wasn't
-+ * free (not all bits were zero).
-+ */
-+static __always_inline
-+int bitmap_allocate_region(unsigned long *bitmap, unsigned int pos, int order)
-+{
-+	return bitmap_allocate(bitmap, pos, BIT(order));
-+}
-+
- /**
-  * bitmap_find_free_region - find a contiguous aligned mem region
-  *	@bitmap: array of unsigned longs corresponding to the bitmap
 
 -- 
 2.55.0
