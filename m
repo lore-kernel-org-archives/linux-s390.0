@@ -1,70 +1,69 @@
-Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
+Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0175A3B27C3
-	for <linux-s390@vger.kernel.org>; Fri,  4 Sep 2026 19:51:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 206A33D34B1
+	for <linux-s390@vger.kernel.org>; Fri,  4 Sep 2026 19:51:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788551508; cv=none; b=GGYzcyytVFa9wR90VN+CXg2UBeEUtD6Vv1EP4Ubfe2TDx+D80GNrDPfD7xQYFZ4jdXvpLnU4o3cKWHAFHPzWkcw7DFureZp/5isBcS4PC7UkkmZ48kIa1i597XNW2OYAibXXFvR08Vs9Dmpoh4q3EFbENUEBMNgqYQhvikebfok=
+	t=1788551508; cv=none; b=Nrt/N88SDH3FsIVVDaypcEPUriyhYtGOCoLIzBVpI+HkkK7iqfRYBEpFfhkLKE0m8DIWYyiKf7A8iHUqjvNBlOEFAOj4SD4HlY3v8ODUyB0pFb0STQRha3PEUwwVpOX+G1CLFz361MGO86Y499/yjOC3s8mgEqJP+ld1BKSi9Os=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1788551508; c=relaxed/simple;
-	bh=7B1nbhpmBWLmPjG/0jbHLb3RgyBVGkoDinhLmCcp2wE=;
+	bh=WtpKffk3cusl9Qtu7bcBmG20buJHAHab36M3KdSl+vA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=b+rNn1+AXKiN3BEN3wqGfphwuG3TVPCm93SzhjLDMqJGJB0n2BLYYTJTefalXtI+Xws797Koxesa4zd1JoX2A1/EqrhBlHHQBkHiDoPyu22S6ZurXWEFv0os98umPazU4pYddP6oJ2eLZHFTGpcC43HJauVtlPh25FMcGq6am6c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gX28FTNs; arc=none smtp.client-ip=209.85.210.171
+	 MIME-Version; b=E/H/EoQ+jWMGehFHNfiztUkmpLwMGVg6J3NiOvE2ONEEJ/GNBBaC/rbaNEddXmwX/E6KfMdsnH0f/jdkh64YoDcL2o/Soc6fPD4MSnlUECj9oOlkGEKoQvG5GXBpF5TUsKREUCP+6YLmkQu6L2gTz50rzSUN9m2OAfYNq7rsD9w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aPeUyygg; arc=none smtp.client-ip=209.85.210.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gX28FTNs"
-Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-862815e2683so572602b3a.2
-        for <linux-s390@vger.kernel.org>; Fri, 04 Sep 2026 12:51:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aPeUyygg"
+Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-8485b358552so1220580b3a.2
+        for <linux-s390@vger.kernel.org>; Fri, 04 Sep 2026 12:51:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20251104; t=1788551502; x=1789156302; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=yVBsoFTvre1N55biXZd8wIwrI+sXnvIOODIR/1bsh18=;
-        b=gX28FTNsWgriqxF27as6e/N4RLgetAMKvKEJBswYBr0pyjVguaLz7DskNO3z8cxJp5
-         Ki39bMyZjhI6GuGwLpswaHSOdb831sCg9cAF2Fn5VJQEbRkCc+fECxzsDBhxp2TQM3NI
-         sOt8TPs4twOUA5Xa5kSekJG6e/+TcUWmnn5wlH75fPZEmiFjiem5l5WujT10akJT11Dq
-         FfarvdnRvkTvNlrw4oYvh8VSt9XirfRWM2vFI0L5MW4q5PBCyqvyA6533TCO4st0I22A
-         VziDpQSmHqEFsrHZLcaZsag5jjOYHyyERPc4X+MQxsgQ1m8sd5X3Fh4emL3VCf79wLgq
-         ogDw==
+        bh=DQCTqvUlSwcygaUD7WF/GhyApu6o4em2Qqn+xndUeoE=;
+        b=aPeUyygg9NMw7KGknp/o3qWN1vdM6PedAEuTS4r0IyO37qSn1AuYGSzbqxMVXLSlPr
+         7RlkMNd39h43pDBoNTJQpctNDbEg4PM8IOw+uFdqupKcUdUbvKZt1ksDuK2XTSmI9kS/
+         Uhd5O/VPPytxGkoezGTj7D0pfCUZJmJkaumMo1MRPpYCIerBXIHiZl6KW5ygFoQpMUZM
+         1HH9tc64NpcxMOrib6kGDWWhDVPt3x5fjnv8aUppkghd5xYThJZZhCynshPP8DVmaZeN
+         pNBF/n9mfeWkcwQfBmdSldyfaDVOjt/W2/scBlo1ZS5Iz+RB+GZPHkroAhmzc7cbwdfS
+         PGSw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20251104; t=1788551502; x=1789156302;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=yVBsoFTvre1N55biXZd8wIwrI+sXnvIOODIR/1bsh18=;
-        b=sbQr+lu1F8juZ8eyGV3Ju3mxdxni3kyTk6t6Lsj3WFXlU1MHYZKM8y1ep6FUNcOlZH
-         iaVEThF7N6/6dotOEEs88amroDSuuxcTEFKgwzCO45xhfdEBHl9T7nB2BT9Qdu3vM+9N
-         OszQGw2qTl/4Y9djH2R0DXEvXfOEgBnAdlEoNVfp2+gViWx+07wvPA7yRgQIcrQkUCto
-         7ZcE2IkOwFdjMGHwo+n58qNEocxBkHnVJK3RQWvp7YLRrhURWgJF+9CwJn9uUCjqP7fw
-         MS4KKMtoheXWQ7rXaCf1Q8PJLCYsgjgY8005FowGXIemQWKG8VLpxn3xCD6IG2zBbl9b
-         YMvw==
-X-Forwarded-Encrypted: i=1; AKwUvBzggmxGLhcXgLJvVXd6aMDmrfuXgnDwSFu4E/yK2Q0amEBhDV0oVlm75DN27xg651EiiZQlNpGDBNiN@vger.kernel.org
-X-Gm-Message-State: AFuF++nsCe/mQpCYlkvxjdy/veDeDbKKB+L6DRpzwhJGxnkc0WNobyG+
-	zXf7leL1aIk0N4u0I2yc1V5yWFOJkHwthmkeh0hx8aetgUFGLmHRa6fl
-X-Gm-Gg: AYBFou1qOctV0NUFfHIzLh5LTDwg9V/ce3n+EcqxbtJVsainhuSAetMfp7xZwrr7b2W
-	HyRSSRy5ty6gAqK2RSPvnxOvP4uQKXDiXpA3F1qmYkzv9v74tJGCjJQiP0joA/fdq0xkNNNohQa
-	WijEeoWVSooPdgzaFZw+3I8O/PHLIWsrfuL+hCqGjwusW/bVcnbTjdh0hXleWZ2m0MuoWGnOtGd
-	6u+jqpd2oc3Atejo1IuR90C4+ott6FT0xtuFp0Qbk9pSM6B2J3DA4R69E5f4HLSLkli/TbihH6l
-	iGfKz5CGuu5UIYX2F2qzVFwOEoBU+WmVDlriIbWhFbh6BKwSAue4DXBwrwRk7syldiaYjfQ/JNN
-	fEZy91G59QhR+3fihEiourd1yAq8o2V9Gr+8p4r5qb8RjmQ3t4I3hx2/pWwZw0qvnFs/2kY2joh
-	HfjYDcsF4ehq7BU6adxogI/Rx35TMijsYwmmeM7So1YE7emEbcQtDZt+tXhqrKL0V7HPEes0faf
-	Ebbf9M/LP4h/+P90zES5Ex9ccE5J55Tq6RGeqZGL3efaXIFOfJPOhZ0ZrWT/N0OGsrkMJBl+apS
-	bUfz29FGsWNgQIWmNjHXyutDvv+6lNHE9oMXMgCfUT/MY4TX7zlqyN5BJPqw19qwhCIgbgCinpV
-	d8cHtwXGAkiE=
-X-Received: by 2002:a05:6a00:2994:b0:857:7384:b5fc with SMTP id d2e1a72fcca58-86169f6cbcbmr14428608b3a.24.1788551501408;
-        Fri, 04 Sep 2026 12:51:41 -0700 (PDT)
+        bh=DQCTqvUlSwcygaUD7WF/GhyApu6o4em2Qqn+xndUeoE=;
+        b=U0ySh+/rfkZC2I78/u1JkL1sWjfAYroNg4eYFBgEl996+0mwpWtL9om0nVQsJnQPMX
+         BvD2gu16E+LRTB4VfRaDoBSSHjs0D9lC28x+wIk0VUg6+tYwWfaQNE4tRnUYnPlHCB/m
+         0L27We7bmlPSUmH6XGHQVb6kARwSuSxkvKu6iWwsT7fDm0BysZrQ7E0gVaXyBG9WYjmQ
+         OPfvuYAbVyI1j23nAwDVrtr5hTGiqbU75ZUU4PIL3tOlC/vQy5NhwW93SuxCXyQqQLgC
+         nqE4aRG+uBnfSqpJ16d2iVSWqXp3pnHLhr0zppucsuT9iE2lyH37U+P6EB5LoAyCAmsA
+         odnw==
+X-Forwarded-Encrypted: i=1; AKwUvBwB6Xd02QDXOF4SLHwW/IZnvYR5Vt0+3JSnOKs1sjzU5FvwGn3qjBumfDfUv5PDYLpt64JQg4nlB9Fe@vger.kernel.org
+X-Gm-Message-State: AFuF++kZqFbUh0jdZA5CEnFfgrHM2cPDwYSG2/0fljS0lqxP505kfxvE
+	ulAHeDP5wc4Z7tRNwAh4P5fcsfc3rCiPHOzyBwBsQtDj/yij1I0ZGaz3
+X-Gm-Gg: AYBFou0hxr9rsY+2L78vKsrQ8tggQ2GnjZCjEY5zMdqCOKAKgAkrB63J0TSVACENvWN
+	wIn4ZoVzBE42h78bpZSdX5GKyOT6Vn8oCXEFGOgfydmfSYvShnos1OUOytO7+64/GtKYDvxxgWz
+	JAoCYLxl2DT53+a2H+elUcMC4zfbohQhxc2HznkCGHBUyOTgXgyVamvQtskIl7vXiTqNO1E4Z7d
+	vFqAq43Yt55gjlbJXG9mOesDevlKRBXPFDY1OxiwSIE2dgZZeDOsigim+iV1ZzJDdB+ZooAbcHw
+	2xj8aXJ8rQPeZNLiol+hJWZabTuNUhu4YCeK+ogCumdaSA85HI8voYfv1BfPjQ6P0hLbCrvo352
+	0UjO7WmuC5Kw5WR4cnhKC2PtGgOpkTOmWc8rTcM48ZxDO4t0mi3+AuM3/6LRREC0UDIYiVkrVcr
+	SFAx74d0mNJwa6dgIkYRjefm+iW2JYeexxh9se2i6h63rn5P46AfX0hFPepJuLtvTqOUyxzpunW
+	jShE9VjumGT2eBZDNJzvk96VxFg/45IcKgBFj4cbKQIJ0Y6uBFfX2vPkt8mLNVBIa/+PFTvimMm
+	dlsxihROLpVhCZGNJqqvKvIf9TNMISYkrRQtLnqdJlr07w/TUBaJ5AxRJHMrlhDysMnkThEqml0
+	=
+X-Received: by 2002:a05:6a00:ac8a:b0:857:726d:2e9c with SMTP id d2e1a72fcca58-8616b560a78mr11539240b3a.25.1788551502338;
+        Fri, 04 Sep 2026 12:51:42 -0700 (PDT)
 Received: from sid-dev-env.cgrhrlrrq2nuffriizdlnb1x4b.xx.internal.cloudapp.net ([4.155.54.158])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8615404876fsm1497684b3a.59.2026.09.04.12.51.40
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8615404876fsm1497684b3a.59.2026.09.04.12.51.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Fri, 04 Sep 2026 12:51:41 -0700 (PDT)
 From: Siddharth Chintamaneni <sidchintamaneni@gmail.com>
 To: bpf@vger.kernel.org
 Cc: Siddharth Chintamaneni <sidchintamaneni@gmail.com>,
-	Jeremy Jean <jeremy.jean@oss.cyber.gouv.fr>,
 	Alexei Starovoitov <ast@kernel.org>,
 	Daniel Borkmann <daniel@iogearbox.net>,
 	John Fastabend <john.fastabend@gmail.com>,
@@ -85,9 +84,9 @@ Cc: Siddharth Chintamaneni <sidchintamaneni@gmail.com>,
 	rlmenge@gmail.com,
 	hargar@linux.microsoft.com,
 	apais@microsoft.com
-Subject: [PATCH bpf-next v1 6/7] bpf, s390: Use resolved pointer for timed may_goto
-Date: Fri,  4 Sep 2026 19:51:31 +0000
-Message-ID: <20260904195132.141068-7-sidchintamaneni@gmail.com>
+Subject: [PATCH bpf-next v1 7/7] selftests/bpf: Test timed may_goto with private stacks
+Date: Fri,  4 Sep 2026 19:51:32 +0000
+Message-ID: <20260904195132.141068-8-sidchintamaneni@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260904195132.141068-1-sidchintamaneni@gmail.com>
 References: <20260904195132.141068-1-sidchintamaneni@gmail.com>
@@ -99,64 +98,132 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The timed may_goto fixup now passes the resolved counter pointer through
-BPF_REG_AX instead of a stack offset and BPF frame pointer pair.
+Add private_stack_timed_may_goto() with enough stack usage to select a
+private stack. Check that the JIT uses the private-stack frame pointer
+when constructing the pointer passed to the architecture trampoline.
 
-Copy the pointer directly into the first argument register and update the
-special calling convention documentation.
+Update the translated instruction expectations in may_goto_batch_2(),
+may_goto_interaction_x86_64(), and may_goto_interaction() for the
+additional pointer construction instruction and adjusted branch offsets.
 
-Fixes: b8efa810c1db ("s390/bpf: Add s390 JIT support for timed may_goto")
-Reported-by: Jeremy Jean <jeremy.jean@oss.cyber.gouv.fr>
-Link: https://lore.kernel.org/all/20260824213158.3755932-2-Jeremy.Jean@oss.cyber.gouv.fr/
-Assisted-by: Copilot:gpt-5.6-sol
 Signed-off-by: Siddharth Chintamaneni <sidchintamaneni@gmail.com>
 ---
- arch/s390/net/bpf_jit_comp.c       | 6 +++---
- arch/s390/net/bpf_timed_may_goto.S | 8 ++++----
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ .../bpf/progs/verifier_bpf_fastcall.c         | 30 ++++++++++---------
+ .../selftests/bpf/progs/verifier_may_goto_1.c | 17 ++++++-----
+ .../bpf/progs/verifier_private_stack.c        | 19 ++++++++++++
+ 3 files changed, 44 insertions(+), 22 deletions(-)
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index c46872b071ce..4098c3377c21 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -1872,9 +1872,9 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp,
- 		if ((void *)func == arch_bpf_timed_may_goto) {
- 			/*
- 			 * arch_bpf_timed_may_goto() has a special ABI: the
--			 * parameters are in BPF_REG_AX and BPF_REG_10; the
--			 * return value is in BPF_REG_AX; and all GPRs except
--			 * REG_W0, REG_W1, and BPF_REG_AX are callee-saved.
-+			 * parameter and return value are in BPF_REG_AX; all
-+			 * GPRs except REG_W0, REG_W1, and BPF_REG_AX are
-+			 * callee-saved.
- 			 */
+diff --git a/tools/testing/selftests/bpf/progs/verifier_bpf_fastcall.c b/tools/testing/selftests/bpf/progs/verifier_bpf_fastcall.c
+index 328cf630210a..c5996d9dc8cc 100644
+--- a/tools/testing/selftests/bpf/progs/verifier_bpf_fastcall.c
++++ b/tools/testing/selftests/bpf/progs/verifier_bpf_fastcall.c
+@@ -635,15 +635,16 @@ __xlated("4: r0 = &(void __percpu *)(r0)")
+ __xlated("...")
+ /* may_goto expansion starts */
+ __xlated("6: r12 = *(u64 *)(r10 -24)")
+-__xlated("7: if r12 == 0x0 goto pc+6")
++__xlated("7: if r12 == 0x0 goto pc+7")
+ __xlated("8: r12 -= 1")
+-__xlated("9: if r12 != 0x0 goto pc+2")
+-__xlated("10: r12 = -24")
+-__xlated("11: call unknown")
+-__xlated("12: *(u64 *)(r10 -24) = r12")
++__xlated("9: if r12 != 0x0 goto pc+3")
++__xlated("10: r12 = r10")
++__xlated("11: r12 += -24")
++__xlated("12: call unknown")
++__xlated("13: *(u64 *)(r10 -24) = r12")
+ /* may_goto expansion ends */
+-__xlated("13: *(u64 *)(r10 -8) = r1")
+-__xlated("14: exit")
++__xlated("14: *(u64 *)(r10 -8) = r1")
++__xlated("15: exit")
+ __success
+ __naked void may_goto_interaction_x86_64(void)
+ {
+@@ -676,15 +677,16 @@ __xlated("2: r1 = 1")
+ __xlated("3: call bpf_get_smp_processor_id")
+ /* may_goto expansion starts */
+ __xlated("4: r12 = *(u64 *)(r10 -24)")
+-__xlated("5: if r12 == 0x0 goto pc+6")
++__xlated("5: if r12 == 0x0 goto pc+7")
+ __xlated("6: r12 -= 1")
+-__xlated("7: if r12 != 0x0 goto pc+2")
+-__xlated("8: r12 = -24")
+-__xlated("9: call unknown")
+-__xlated("10: *(u64 *)(r10 -24) = r12")
++__xlated("7: if r12 != 0x0 goto pc+3")
++__xlated("8: r12 = r10")
++__xlated("9: r12 += -24")
++__xlated("10: call unknown")
++__xlated("11: *(u64 *)(r10 -24) = r12")
+ /* may_goto expansion ends */
+-__xlated("11: *(u64 *)(r10 -8) = r1")
+-__xlated("12: exit")
++__xlated("12: *(u64 *)(r10 -8) = r1")
++__xlated("13: exit")
+ __success
+ __naked void may_goto_interaction(void)
+ {
+diff --git a/tools/testing/selftests/bpf/progs/verifier_may_goto_1.c b/tools/testing/selftests/bpf/progs/verifier_may_goto_1.c
+index db7e30da234f..1721897160dc 100644
+--- a/tools/testing/selftests/bpf/progs/verifier_may_goto_1.c
++++ b/tools/testing/selftests/bpf/progs/verifier_may_goto_1.c
+@@ -90,15 +90,16 @@ __arch_loongarch
+ __xlated("0: *(u64 *)(r10 -16) = 65535")
+ __xlated("1: *(u64 *)(r10 -8) = 0")
+ __xlated("2: r12 = *(u64 *)(r10 -16)")
+-__xlated("3: if r12 == 0x0 goto pc+6")
++__xlated("3: if r12 == 0x0 goto pc+7")
+ __xlated("4: r12 -= 1")
+-__xlated("5: if r12 != 0x0 goto pc+2")
+-__xlated("6: r12 = -16")
+-__xlated("7: call unknown")
+-__xlated("8: *(u64 *)(r10 -16) = r12")
+-__xlated("9: r0 = 1")
+-__xlated("10: r0 = 2")
+-__xlated("11: exit")
++__xlated("5: if r12 != 0x0 goto pc+3")
++__xlated("6: r12 = r10")
++__xlated("7: r12 += -16")
++__xlated("8: call unknown")
++__xlated("9: *(u64 *)(r10 -16) = r12")
++__xlated("10: r0 = 1")
++__xlated("11: r0 = 2")
++__xlated("12: exit")
+ __success
+ __naked void may_goto_batch_2(void)
+ {
+diff --git a/tools/testing/selftests/bpf/progs/verifier_private_stack.c b/tools/testing/selftests/bpf/progs/verifier_private_stack.c
+index 3d9994a52464..639b53363c9a 100644
+--- a/tools/testing/selftests/bpf/progs/verifier_private_stack.c
++++ b/tools/testing/selftests/bpf/progs/verifier_private_stack.c
+@@ -70,6 +70,25 @@ __naked void no_private_stack_nested(void)
+ "	::: __clobber_all);
+ }
  
- 			/* brasl %r0,func */
-diff --git a/arch/s390/net/bpf_timed_may_goto.S b/arch/s390/net/bpf_timed_may_goto.S
-index 06f567a460d7..e34c99982c4a 100644
---- a/arch/s390/net/bpf_timed_may_goto.S
-+++ b/arch/s390/net/bpf_timed_may_goto.S
-@@ -21,9 +21,9 @@
- 
- SYM_FUNC_START(arch_bpf_timed_may_goto)
- 	/*
--	 * This function has a special ABI: the parameters are in %r12 and
--	 * %r13; the return value is in %r12; all GPRs except %r0, %r1, and
--	 * %r12 are callee-saved; and the return address is in %r0.
-+	 * This function has a special ABI: the parameter and return value are
-+	 * in %r12; all GPRs except %r0, %r1, and %r12 are callee-saved; and
-+	 * the return address is in %r0.
- 	 */
- 	stmg %r2,%r5,FRAME_OFF+R2_OFF(%r15)
- 	stg %r14,FRAME_OFF+R14_OFF(%r15)
-@@ -33,7 +33,7 @@ SYM_FUNC_START(arch_bpf_timed_may_goto)
- 	lay %r15,-FRAME_SIZE(%r15)
- 	stg %r1,__SF_BACKCHAIN(%r15)
- 
--	lay %r2,0(%r12,%r13)
-+	lgr %r2,%r12
- 	brasl %r14,bpf_check_timed_may_goto
- 	lgr %r12,%r2
- 
++SEC("fentry/bpf_fentry_test9")
++__description("Private stack, timed may_goto")
++__success __retval(0)
++__arch_x86_64
++__jited("	movabsq	$0x{{.*}}, %r9")
++__jited("...")
++__jited("	movq	%r9, %r10")
++__arch_arm64
++__jited("	mov	x9, x25")
++int private_stack_timed_may_goto(void)
++{
++	volatile __u64 stack_space[16] = {};
++
++	while (can_loop)
++		;
++
++	return stack_space[0];
++}
++
+ __used
+ __naked static void cumulative_stack_depth_subprog(void)
+ {
 -- 
 2.43.0
+
