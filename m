@@ -1,206 +1,296 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from BN8PR05CU002.outbound.protection.outlook.com (mail-eastus2azon11011038.outbound.protection.outlook.com [52.101.57.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2C2C4A1DE8;
-	Fri,  4 Sep 2026 13:41:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788529286; cv=none; b=H9EmPDx8oMcGvDWXOdj5ac4izD0UfDi3JjNy6lTv2D747VzViCDjRt6CF9UIhRBMZw3Er9EuzIGcPYz2c+2CbuLd5FeX7hMT4G98bBy5cRsFqXz8hh2LbXyFV9PHe8KvhcNUy1pfK9gxJIUk81eBDB2FvhrhdVwa8AHEB+9uTYw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788529286; c=relaxed/simple;
-	bh=XpJfIMIhQlpWkBS3G8YydbBP5+NYWNB6n3UR3QCht1w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IFfaoYEPtHUkJvOJmefWFUbviSf3neTRZt014Ta5t7PUF0dNvVqnmtPy23xbwOUJSuhWsjIggeA0LV86zPXew/9IBnVtLxvhDHLEVA6ltC6+/RTXzHC1JmA6zYRKHj8eyOLytXndt/WEyN3T0r4bGjK+kOorsV37waGjaCpCEsg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Tl3HNtlX; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8A743905F5;
+	Fri,  4 Sep 2026 15:15:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.57.38
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788534947; cv=fail; b=kb+3m6utlxMvRuxUcf/MO0MzdyjthRshXG8henoSwVBl9zEGv2xJuUVdAXKvtCa0hXJtzaC3kuZoOc67KchIHnjs5T6/YTVLTj2H/SaLI+GY0+QCWtPEFLwpXUtwHVhaMi6lUIuvA+EGcjcXBR8/SEyhcQokb62rlzDS2yyB9W8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788534947; c=relaxed/simple;
+	bh=qUB4Jae69nX6vnt/y+gA++6iHeenU+wx33NMtxn6KRg=;
+	h=From:To:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=c72E6pJpDN0TkuxSaCmilBPkaL94cwQCKT3X0YC5zFfWPuYXai5q+HqixQ9HGyN5TxHjVt1Qyetn29qA6pvodlobLosCwgspcPKkuUFQkXk3w6b/3GtZR3AfBdHyLhd6i7EiuYlqdOLwY95lOs7jq8gpaSqcd60cZCdtsBqBPBo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com; spf=pass smtp.mailfrom=microchip.com; dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b=vXuOBvZ2; arc=fail smtp.client-ip=52.101.57.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microchip.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Tl3HNtlX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0867A1F00A3E;
-	Fri,  4 Sep 2026 13:41:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788529284;
-	bh=sdodzR4Na8Sqljw2U9YzO1/rhfdn+6lstjf3xmHL5yY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Tl3HNtlXjcpki9vJTKEAAdlO/sey7IATDkDXoGNKQfG6pfaXr4LGdJJGRG8VQgzou
-	 M2pMGSsjenEtPt2HYbit8AGm+zwRYU5v9RbQSzJXr8V0rQyNFsminbBOzSV0N/aKVy
-	 T4tc0TMfejuONmEj3jri/Jm7C22kCrbauJZDyv4yvs6lFrYeqtaQ8mYSZwNVYPTehg
-	 cT52vtqmWpeUlt6o2nazGP1yTRVmu/xV1wgVt7M30HHfVo+7BRpk5YyYZU+0oqF4Pn
-	 MWvpnb80OGvr0tGNxDUJrHuklEe72v1ymZTXWjhbrsp5Xlo+jUMr6KkZv93KHG7u4Z
-	 HKQTZQoMlaj1A==
-Date: Fri, 4 Sep 2026 15:41:09 +0200
-From: Joel Granados <joel.granados@kernel.org>
-To: Mauricio Faria de Oliveira <mfo@igalia.com>
-Cc: Kees Cook <kees@kernel.org>, Nathan Chancellor <nathan@kernel.org>, 
-	Nicolas Schier <nsc@kernel.org>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, kernel-dev@igalia.com, 
-	linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org, fsverity@lists.linux.dev, 
-	keyrings@vger.kernel.org, bpf@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-kbuild@vger.kernel.org, netdev@vger.kernel.org, linux-wpan@vger.kernel.org, 
-	lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, 
-	linux-sctp@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
-	bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com, 
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v3 00/13] sysctl: add module aliases
-Message-ID: <mokz5pdtwswkyab4byfq7q7m6ac2g6ceoi6jflyxmaszaibzqa@su6m4kamtdpy>
-References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
- <bpnqwggtidgiec5akns3fa5edbsvl7xf55dxabtwng2xspy4pn@ue554aii2ngk>
- <53155340c897560bfc67e61ba9568fd6@igalia.com>
+	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="vXuOBvZ2"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=TNy5h5rBYOOQZ7Qzm9DuwTlJpivXf45jRi5RswINO38pLlV0ABC7ByP0bMsdN6M2wOLH0si8ok/+89strDS/cuwQz+7k6a4xKvyIN0BOLYrBM+NWp8n3JhmAZSCTvOpe4TbhIvcgDu1z3pjCm99wWpiCXErJdvWNHrJjI++v5AImiXTc9pbaSx5j0Uw2gzpLDmM75q7OMVMK/t8H+NaVGDKEFf0zuytUYxuuaWIQP8BWtaa87OH5YVhJ2iCDROtclkc27kxJCY/g/lLwvPNs33xaA8kWnZPsk6mN6PjJO1hEWIYhaef68KxdjNHMYlc6P1XdeYgGdKqOZJBriFIhMw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=qUB4Jae69nX6vnt/y+gA++6iHeenU+wx33NMtxn6KRg=;
+ b=vcsyG2L2V09bnxKljdBpLa96qa08kZSUNIJ/LgptqO+7a+ZaKu22bKtcahBGmchRJ7BgoAQV1EeGDK0Y59WcgUB5kAm/axQOWxOo+dwwe/ZAjadbzBSfDScXSkEVSbeOvu3FkynV4PSGoCwh3vWW/fxLcEDrjYqDGjKO5zMm/0nI2Bc89Kfz19LuCtpcXLOj146EKEwnizRhc0peFlKKT3INRdEvS5sN0tLp99zqRzhgWEpxMoeG7ww4zzr1H9Z4Fefw4w+nmEfFYXgOTot94dyqPNsIqe2R2AUhDWiF4/TLZ36uRyz6AP+/39OSwtnRrL24t+adPbHRar3KqbgBZA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microchip.com; dmarc=pass action=none
+ header.from=microchip.com; dkim=pass header.d=microchip.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microchip.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qUB4Jae69nX6vnt/y+gA++6iHeenU+wx33NMtxn6KRg=;
+ b=vXuOBvZ2hPoGS3hF/SxtNEW9yGjUWIGsH/FXoSkWyrfYo9EZgPyV10nd4vhmTboXjBgouCXwpROCeufykEhpJXx96+IG8OLvAFpXWpWZhGxO+BOVkohlG8Fr7zfNkidmo77ABHcPixfOOPUiimkA3R7bWpYL3ZpVaKsJIOr/FHGJ01kuQlyMgOWL6OrJb7KfmXTZq+YlB2KY2Q8pPVN6sDOhJzrXm150h6FKgfYuSU4XqXFAw/uDrcziyPE8I9fK8disByHKVH5lQd/nTalWoUSE2wwx61feZOcsDI9H6aeIUTXDdJEkWqHK6Xr0jLHQ85utmBFe4BPHoDJR3J6+NA==
+Received: from SJ2PR11MB8369.namprd11.prod.outlook.com (2603:10b6:a03:53d::16)
+ by DS0PR11MB7736.namprd11.prod.outlook.com (2603:10b6:8:f1::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.360.13; Fri, 4 Sep
+ 2026 15:15:35 +0000
+Received: from SJ2PR11MB8369.namprd11.prod.outlook.com
+ ([fe80::6777:e753:dd60:983b]) by SJ2PR11MB8369.namprd11.prod.outlook.com
+ ([fe80::6777:e753:dd60:983b%4]) with mapi id 15.21.0360.008; Fri, 4 Sep 2026
+ 15:15:34 +0000
+From: <Don.Brace@microchip.com>
+To: <dlemoal@kernel.org>, <martin.petersen@oracle.com>,
+	<James.Bottomley@HansenPartnership.com>, <linux-scsi@vger.kernel.org>,
+	<linux-ide@vger.kernel.org>, <cassel@kernel.org>,
+	<linux-usb@vger.kernel.org>, <stern@rowland.harvard.edu>,
+	<gregkh@linuxfoundation.org>, <linux-s390@vger.kernel.org>,
+	<hca@linux.ibm.com>
+Subject: Re: [PATCH v3 23/40] scsi: smartpqi: use 16-bits defined sense codes
+Thread-Topic: [PATCH v3 23/40] scsi: smartpqi: use 16-bits defined sense codes
+Thread-Index: AQHdPAR1+loG+loI60SSNTqTCsJ227a+h5aN
+Date: Fri, 4 Sep 2026 15:15:34 +0000
+Message-ID:
+ <SJ2PR11MB8369F086768CD321855436C6E1B52@SJ2PR11MB8369.namprd11.prod.outlook.com>
+References: <20260904002644.157668-1-dlemoal@kernel.org>
+ <20260904002644.157668-24-dlemoal@kernel.org>
+In-Reply-To: <20260904002644.157668-24-dlemoal@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=microchip.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SJ2PR11MB8369:EE_|DS0PR11MB7736:EE_
+x-ms-office365-filtering-correlation-id: 6f381d36-2189-42c7-8021-08df0a975e4f
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|376014|23010399003|7416014|366016|1800799024|38070700021|921020|4143699003|10067099003|11063799006|56012099006|22082099003|18002099003;
+x-microsoft-antispam-message-info:
+ TccbC6l33VZ6KqlBx6tj4vQoqBGTtwXEj3AaJYHkp9FE0er4/6mZNmkWVFTZiwtETil/4H8iCvwM1/k9Dg/bSd6Wryrdl6tuHBlLC3psrHLQAWI2Udaju8PQ1er0D3Z81Cx3Q0p/bwJAwX2jWZfDiLNHWmez/VoKosTF6u9ykZAJ87qkylE8shfy1GywYnYPkmq9XRwOA5XhIdj57JQAPMV09/hLPMLa2vQ9jnF835N4kbqiKYYYXgdvEed97i9+EKqOlUqSALNHqQg8ZKdmzDgfeMA8+bo9vMaKQAJ0OwbYrV0qXqx2aV+obioXiV7xwVIvy3SsmpU8g1PtGtYqpw/M6xYn3jkAC4uTWi/6fZFlQ+SZBtd+N+h/fk9wWRYppfIAJuTYkXyUiFHrQx79HG6JeYTWk3qgzNhBiU7GiP9xHF98Zq4y5ipaG7skBcM1tX33whtH2rBcnSOKFDffS6gZVOcu0y2o8zVVIhhH8JH1yKXlV49ShNmXwrT6YbSOHSBdqgS6kjUhq83Z2HSV7xioLqeKcMLv+Xb3RlLR2TpJSRUFvh6HwHdXMiKxV19kGxtY1Bpd05iN2tnKEufqVIG0KMXPWfHc6BIeJvomfu9jMqF+Swqrgmy0rhfbHx2JLhtjccn9MoJ1B10uw/9I0Do98e8Ay2qcjLg1G3mRCQpXpoSL/AF7CLmvy4uveQIj
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ2PR11MB8369.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(23010399003)(7416014)(366016)(1800799024)(38070700021)(921020)(4143699003)(10067099003)(11063799006)(56012099006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?iso-8859-1?Q?IvRUxXX9Je4cwR4r14Y0B1SQeyPP5KjkE2e+qajbPZOnlm1uvnhmgzw8rq?=
+ =?iso-8859-1?Q?uesjpauI637CDYyUsMC1UF/OpAaOlugaqn1371H5sBO36OApfNXHZtmh8Q?=
+ =?iso-8859-1?Q?3Kp5nyzrjoz/A0RPshE4nc3/ReSe5HFixJOC25lypzBX/YAWWI7uH0jro7?=
+ =?iso-8859-1?Q?Ue9iCDvUHEWV2iaY5+s/ovuCa79gjKwnsSoPZV0pXoi6GqEiaCm9l4PPW6?=
+ =?iso-8859-1?Q?4P5OjsB3D+NeRIsImH8Lv5aL+jr5gSTL7uVFOZV5iDl+bmcUlWwPaf78Nj?=
+ =?iso-8859-1?Q?4Ju1sh4gBPcsh7X04xOx9WBSmk8H9aG+h6HwkMwVLXjPvz5kLPzbBCXHl1?=
+ =?iso-8859-1?Q?mgaOdSeQjE/a3Ng680UDO4xotq32PASo8wlm3mjc/DLu4PGe2lnzK7wkJ/?=
+ =?iso-8859-1?Q?irZPtgwCCBnnBnTP4JXYs0+NFCy2cE9ci0qYeFqmYiKiIFUD1kvF12t7Wh?=
+ =?iso-8859-1?Q?d7CI+VKzlsiu8Zt5PNJq7+e2kRGl1xj8sKjFiLZpeSoSTbt8RPi4tyJIQ4?=
+ =?iso-8859-1?Q?30b2GZrFWoX/5mOQ9X/MYGFm0YMT/4ihpwZnfDjStE/WEVP+CyMRy10ywZ?=
+ =?iso-8859-1?Q?2nkW6fmSIHXTXMyxyLg1qUj23SbQ3Ij4RmZ+hTR20944yK9PTzSD/e6KOa?=
+ =?iso-8859-1?Q?b831Ee0luEUomi7SyWuXByJLjqzf3o5yLun48b4r0K0W7u4DoSB4fqWjPS?=
+ =?iso-8859-1?Q?BHkUvFhq4nSRXQTrK5fd+7Emm7bZzIDeZwagoCHGO89lMpF5/G8/QwiDGq?=
+ =?iso-8859-1?Q?e0wkb3gEeK+hbctXmAoX6xa0ZqO5KRinktRK8WnczMJy7MZeNH8Eh6wfc+?=
+ =?iso-8859-1?Q?j/8/wzKA+TSWoJ6wMzKFbchOeEc60OJPxy9IykCF07vY4e9OhejumL4pL/?=
+ =?iso-8859-1?Q?XPssImTHb252KOJYQhBMwHO+V/ih6IwEKImudkKrgjteFTH8+gOOhq1fIM?=
+ =?iso-8859-1?Q?/Adc3xVjAVEhgXla1/j9ZwfehpRa103H0SPql1qcJyDqH7hjVQ9JeIKWIL?=
+ =?iso-8859-1?Q?AIc6MYUhH0nhuBVUvF1aY7koCdRmPwUB+S9d0IVopa1jOwo3jvPIgT6GwJ?=
+ =?iso-8859-1?Q?xZMhJbpMEsbrDBJWIFNfitFxPc9HGfC+KG4EcxxUYZTl04PsxhkJ9JdxZa?=
+ =?iso-8859-1?Q?vDiGQ+/0Ra5J9nybI/HI8yGrvCSUqwhFhAwsAdyeXzYVluDN6APQHxXVXD?=
+ =?iso-8859-1?Q?DBZZeyMInPJygZPlK/yZU9eKXGb9lKvO7wVq17L7Z6bzdkjG5vWZ41xJRP?=
+ =?iso-8859-1?Q?OzgHIQNNwpeAtyGgviMvUaU3POMRH/zW4vTY3sj/FDZlhsq+tb17EWj/yN?=
+ =?iso-8859-1?Q?x4TyEtQ6tAdk1BMT5c5kcaAf35zMp/iC3b9Qv1jWit6k/Jv/vmvpphZ4ds?=
+ =?iso-8859-1?Q?q1mhaMamQTeUgOE6WWuMbtHiMZrcKR5l5yfUZoHvdezr56CAMQ8F+OWKIh?=
+ =?iso-8859-1?Q?zzYhMi3cVT5xgrvdcMvK2ryT/cCXrFbZAq2vy8kMMK/z9OdY2XVlEKgcQD?=
+ =?iso-8859-1?Q?Rh72EfuZhnW1uIZVeUCWXo98iLEoWa0FztWfRl+t6INtd5bdpzsTxpHUS/?=
+ =?iso-8859-1?Q?PzLOr32Mo64ymdEZ30buxa/zCzCQLz/WHE9s6K4sh77M6TCVZuMFFQXMd4?=
+ =?iso-8859-1?Q?qcCNorOVfniADRXAQGbcYYDoc8O4Z66Yyp8S2tnvdoEGqb7m5q113z5ndN?=
+ =?iso-8859-1?Q?15TXtb9zSsbP8GkjJw3sohsbwp9IrIVjeRXVRp2keqkZI22bBGk5lRoSCU?=
+ =?iso-8859-1?Q?TpXJvW6SJf97yyBttABgQ0lAfyp7fpCsomxyufdvubgQWClPhK6MagZ75V?=
+ =?iso-8859-1?Q?fhzLJXXQ0g=3D=3D?=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="f2bekayrv5kknxjs"
-Content-Disposition: inline
-In-Reply-To: <53155340c897560bfc67e61ba9568fd6@igalia.com>
+X-OriginatorOrg: microchip.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SJ2PR11MB8369.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6f381d36-2189-42c7-8021-08df0a975e4f
+X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Sep 2026 15:15:34.8345
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 3f4057f3-b418-4d4e-ba84-d55b4e897d88
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: nt9qvvbd20+5/uz6WIAPn/hIfEgrZtvId4WtX8pKrZBHx/tBZKdwx+mBAKj/6U3Fdz5qk/7V/cSqOgc3hvYwgQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB7736
 
-
---f2bekayrv5kknxjs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Aug 20, 2026 at 06:22:13PM -0300, Mauricio Faria de Oliveira wrote:
-> On 2026-08-20 09:51, Joel Granados wrote:
-> > On Wed, Aug 19, 2026 at 03:16:13PM -0300, Mauricio Faria de Oliveira wr=
-ote:
-> >> This series adds 'sysctl:' aliases to modules that register sysctl tab=
-les; e.g.:
-> >>=20
-> >>         $ modinfo ./mpls_router.ko  | grep sysctl:
-> >>         alias:          sysctl:*/net/mpls/conf/*/input
-> >>         alias:          sysctl:*/net/mpls/default_ttl
-> >>         alias:          sysctl:*/net/mpls/ip_ttl_propagate
-> >>         alias:          sysctl:*/net/mpls/platform_labels
-> >>=20
-> >> It provides a trivial way to map /proc/sys files to modules (not trivi=
-al today),
-> >> and for userspace to handle nonexistent /proc/sys files (e.g., procps'=
-s sysctl
-> >> and systemd-sysctl applying tunables) with "modprobe sysctl:<...>" and=
- a retry.
-> >>=20
-> >> This is done almost automatically with register_sysctl(), register_net=
-_sysctl()
-> >> and friends as wrappers of MODULE_SYSCTL_TABLE (similar to MODULE_DEVI=
-CE_TABLE),
-> >> which emits symbols for file2alias/modpost to find and parse the sysct=
-l tables.
-> >>=20
-> >> The big exception to 'almost' are sysctl tables and paths allocated or=
- defined
-> >> at runtime (e.g., per-namespace or per-device), as all information is =
-required
-> >> at build-time. Fortunately, such tables and paths are often based on '=
-templates'
-> >> which are static and can be used.
-> >>=20
-> >> This is done by plumbing the template table/path as optional arguments=
- (macros
-> >> with default values as default_gfp()), so not to create functions for =
-all cases:
-> >>=20
-> >>         register_sysctl(path, table [, table_tmpl [, path_tmpl]]);
-> >>         register_net_sysctl(net, path, table [, table_tmpl[, path_tmpl=
-]]);
-> >>         register_net_sysctl_sz(net, path, table, size [, table_tmpl[, =
-path_tmpl]]);
-> >=20
-> > The "what" is described but I'm missing more clarity on the "why". Why
-> > does this need to be trivial? Where is it that you will know the sysctl
-> > file path of a module and not the module name or alias?
->=20
-> Thanks for looking at this.
->=20
-> The problem this feature addresses is sysctl settings not applied
-> because modules aren't yet loaded when systemd-sysctl/procps's sysctl
-> runs on boot, and the usage of /etc/modules as a workaround.
-
-Sorry for insisting, but is it not possible to set the sysctls after the
-modules have been loaded? Why is the order to first set the sysctl and
-then load the module?
-
->=20
-> This can be addressed with a way for sysctl tools to load the module for
-> a non-existent sysctl file path.
-> For that, the mapping between a sysctl file path (known) and its module
-> (unknown) needs to be trivial.
-This touches on my question. How is the file path known and the module
-not known? The module is the one providing the paths, not the other way
-around. Why choose to just work with sysctl path lists and not include
-the modules that go with them?
-
->=20
-> It may not seem serious at first, but I've seen this consume significant
-> engineering time and impact production systems, in a previous technical
-> support job.
-> An example: cloud deployments with non-scalable network routing
-> performance due to nf_conntrack_max not applied after reboot or an
-> upgrade because the component which turned out to help with the
-> /etc/modules workaround had its placement changed from network router
-> nodes.
-This is more understandable to me. The issue is that you loose the
-relationship between sysctl paths and modules on updates. Are there
-other cases where the module would not be loaded?
-
-And doesn't it create another problem where you will load modules that
-you don't expect (on the update)?
-
->=20
-> > Additionally, sysctls are not module specific; they are a way to
-> > read/write kernel variables. Putting a module specific aspect in the
-> > function arguments (that needs to be ignored in non-module cases) seems
-> > wrong. Why not use the module subsys to add sysctl alias instead of the
-> > sysctl subsys?
->=20
-> Fair point. The current design has 2 reasons:
->=20
-> 1) Use the 'path' argument (raised in [1]), only available in the
-> register sysctl functions.
-> 2) Use a more implicit/transparent approach, instead of more
-> explicit/declarative approach.=20
-
-I get that the data is there and you would be able to do it, but it
-still seems misplaced. Additionally, are you planning to move all the
-modules to this scheme? If not, does that mean that some modules would
-work and some wouldn't? And how would you make sure that modules would
-use the correct call moving forward?
-
->=20
-> I guess that a different design could use MODULE_SYSCTL_TABLE() as
-> MODULE_DEVICE_TABLE(), declared per table instead of wrapped into
-> register sysctl functions.
-> However, it seems to require moving the value of the path argument (or
-> its template) into the macro and still referencing it in the function
-> (or its instantiation of the template), which adds obfuscation, to all
-> callers.=20
->=20
-> What do you think?
-It might be that having it inside the module subsys is more work, but I
-believe that there is the right place to have it. I still don't see that
-adding a module specific arg to the sysctl register is a good thing.
-
-
-Best
-
---f2bekayrv5kknxjs
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmqaymwACgkQupfNUreW
-QU+lGQv9G3M3cE2j6nFu2ajfmqXn/HK3F13D57StjtuTwbNUrTKJAl5NYfXzFtv/
-WI0RRjBuOJKO4tZwqjX37MLUYJqa3GYA6eoQ8efnCCygEUInpicx3wittaZqtnv0
-TGnCLpyb4BHmtJRx6lEoZFyU4juYti6APKn4p2+CBQN9jPCn2RbFf8fRCql2G7F2
-LpM/O+tkXTZ8iY6iGjkROFdKmbNXq0JO5m6dOOgtyJt/m4dLF+ivs7HxExEvaAdq
-0vMjANmTDelElI17ouGEstSU8WLY1R+rMEzMbm5Y5lTWK0MxCkReBjJSEx/yAQEZ
-ecNJej849cFo1mun6yzEB6+3tiB1IGZaTerj7LfxHm+Ku9nVZ4p29/emoQ0UzWdd
-SkWXhwUZbVGehFGYaCTT7KVDcv5fZiCr2WBM0POFIXhmSIk0CSLezhFr6JDElVov
-R12dzrMN46WspdvHiWrBWBGMtUh+8hxByKgR+YduWJfKyeKBoQnsai2u+4zJ7Ayp
-sBanGs6K
-=SHqf
------END PGP SIGNATURE-----
-
---f2bekayrv5kknxjs--
+=0A=
+_______________________________________=0A=
+From: Damien Le Moal <dlemoal@kernel.org>=0A=
+Sent: Thursday, September 3, 2026 7:26 PM=0A=
+To: Martin K . Petersen <martin.petersen@oracle.com>; James E . J . Bottoml=
+ey <James.Bottomley@HansenPartnership.com>; linux-scsi@vger.kernel.org <lin=
+ux-scsi@vger.kernel.org>; linux-ide@vger.kernel.org <linux-ide@vger.kernel.=
+org>; Niklas Cassel <cassel@kernel.org>; linux-usb@vger.kernel.org <linux-u=
+sb@vger.kernel.org>; Alan Stern <stern@rowland.harvard.edu>; Greg Kroah-Har=
+tman <gregkh@linuxfoundation.org>; linux-s390@vger.kernel.org <linux-s390@v=
+ger.kernel.org>; Heiko Carstens <hca@linux.ibm.com>=0A=
+Subject: [PATCH v3 23/40] scsi: smartpqi: use 16-bits defined sense codes=
+=0A=
+=A0=0A=
+EXTERNAL EMAIL: Do not click links or open attachments unless you know the =
+content is safe=0A=
+=0A=
+Refactor the smartpqi driver to use the 16-bits sense_code field of=0A=
+struct scsi_sense_hdr and replace all hard-coded additional sense codes=0A=
+and additional sense code qualifiers with the enum values defined in=0A=
+include/scsi/scsi_sense.h. This helps with code clarity as the sense codes=
+=0A=
+being processed are easier to test and self-documented.=0A=
+=0A=
+No functional change intended.=0A=
+=0A=
+Signed-off-by: Damien Le Moal <dlemoal@kernel.org>=0A=
+=0A=
+Acked-by: Don Brace <don.brace@microchip.com>=0A=
+Thanks for your patch.=0A=
+---=0A=
+=A0drivers/scsi/smartpqi/smartpqi_init.c | 31 ++++++++++++++++-----------=
+=0A=
+=A01 file changed, 18 insertions(+), 13 deletions(-)=0A=
+=0A=
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/=
+smartpqi_init.c=0A=
+index 140e8a6addbe..d8d0fe915805 100644=0A=
+--- a/drivers/scsi/smartpqi/smartpqi_init.c=0A=
++++ b/drivers/scsi/smartpqi/smartpqi_init.c=0A=
+@@ -3249,15 +3249,15 @@ static void pqi_process_raid_io_error(struct pqi_io=
+_request *io_request)=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sense=
+_data_length =3D sizeof(error_info->data);=0A=
+=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if (scsi_status =3D=3D SAM_ST=
+AT_CHECK_CONDITION &&=0A=
+-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_no=
+rmalize_sense(error_info->data,=0A=
+-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0 sense_data_length, &sshdr) &&=0A=
+-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0 sshdr.sense_key =3D=3D HARDWARE_ERROR &&=0A=
+-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0 sshdr.asc =3D=3D 0x3e) {=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_normalize_sens=
+e(error_info->data,=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sense_data_length, &sshdr) &&=
+=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sshdr.sense_key =3D=
+=3D HARDWARE_ERROR &&=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_sense_asc(&ssh=
+dr) =3D=3D ASC_LU_HAS_NOT_SELF_CONFIGURED_YET) {=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 struc=
+t pqi_ctrl_info *ctrl_info =3D shost_to_hba(scmd->device->host);=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 struc=
+t pqi_scsi_dev *device =3D scmd->device->hostdata;=0A=
+=0A=
+-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 switch =
+(sshdr.ascq) {=0A=
+-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 case 0x=
+1: /* LOGICAL UNIT FAILURE */=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 switch =
+(sshdr.sense_code) {=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 case LU=
+_FAILURE:=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0 if (printk_ratelimit())=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scmd_printk(KERN_ERR, scmd, "rec=
+eived 'logical unit failure' from controller for scsi %d:%d:%d:%d\n",=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ctrl_inf=
+o->scsi_host->host_no, device->bus, device->target, device->lun);=0A=
+@@ -3265,10 +3265,15 @@ static void pqi_process_raid_io_error(struct pqi_io=
+_request *io_request)=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0 host_byte =3D DID_NO_CONNECT;=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0 break;=0A=
+=0A=
+-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 default=
+: /* See http://www.t10.org/lists/asc-num.htm#ASC_3E */=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 default=
+:=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0 /* include/scsi/scsi_sense.h */=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0 if (printk_ratelimit())=0A=
+-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scmd_printk(KERN_ERR, scmd, "rec=
+eived unhandled error %d from controller for scsi %d:%d:%d:%d\n",=0A=
+-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sshdr.as=
+cq, ctrl_info->scsi_host->host_no, device->bus, device->target, device->lun=
+);=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scmd_printk(KERN_ERR, scmd,=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "receive=
+d unhandled error %d from controller for scsi %d:%d:%d:%d\n",=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_sen=
+se_ascq(&sshdr),=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ctrl_inf=
+o->scsi_host->host_no,=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 device->=
+bus, device->target,=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 device->=
+lun);=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0 break;=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 }=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 }=0A=
+@@ -3286,11 +3291,11 @@ static void pqi_process_raid_io_error(struct pqi_io=
+_request *io_request)=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sense_data_length &&=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_normalize_sense(error_info->data, se=
+nse_data_length, &sshdr) &&=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sshdr.sense_key =3D=3D ILLEGAL_REQUEST &&=
+=0A=
+-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sshdr.asc =3D=3D 0x26 &&=0A=
+-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sshdr.ascq =3D=3D 0x0) {=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sshdr.sense_code =3D=3D INVALID_FIELD_IN_PA=
+RAMETER_LIST) {=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 host_byte =3D DID_NO_CONNECT;=
+=0A=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 pqi_take_device_offline(scmd-=
+>device, "AIO");=0A=
+-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_build_sense_buffer(0, scmd=
+->sense_buffer, HARDWARE_ERROR, 0x3e, 0x1);=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_set_sense_buffer(0, scmd->=
+sense_buffer, HARDWARE_ERROR,=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 LU_FAILURE);=0A=
+=A0=A0=A0=A0=A0=A0=A0 }=0A=
+=0A=
+=A0=A0=A0=A0=A0=A0=A0 scmd->result =3D scsi_status;=0A=
+@@ -3380,7 +3385,7 @@ static void pqi_process_aio_io_error(struct pqi_io_re=
+quest *io_request)=0A=
+=A0=A0=A0=A0=A0=A0=A0 }=0A=
+=0A=
+=A0=A0=A0=A0=A0=A0=A0 if (device_offline && sense_data_length =3D=3D 0)=0A=
+-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_build_sense(scmd, 0, HARDW=
+ARE_ERROR, 0x3e, 0x1);=0A=
++=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 scsi_set_sense(scmd, 0, HARDWAR=
+E_ERROR, LU_FAILURE);=0A=
+=0A=
+=A0=A0=A0=A0=A0=A0=A0 scmd->result =3D scsi_status;=0A=
+=A0=A0=A0=A0=A0=A0=A0 set_host_byte(scmd, host_byte);=0A=
+--=0A=
+2.55.0=0A=
+=0A=
