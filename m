@@ -1,294 +1,263 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9693E3E2AD7;
-	Fri,  4 Sep 2026 16:06:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F37419CC0F;
+	Fri,  4 Sep 2026 17:45:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788537976; cv=none; b=ogCbN/n8DxQ4d17voOU4m6oVH66R4898IXkTAIK6vszq4FIvj0TVBIGMouHpWXlRvlqDAdcyhRxSx4wBgTHq1gixWQd9BXk1rMKnMR70XFEK6niCzHXzQjGriVqivqQCYf7yfoazhzXj2nlL69qkqIct5V31Vt3OQdDKXiCHNSI=
+	t=1788543963; cv=none; b=FtfIgNPdCpF9g2wG3w6wnMRD8M3Vrc2CiDpo6W6jK3AsOaGga3CviFJQX7xclctyggjJtFtpfc+A0zgkDStdBFtk+pS0cQGlGeQfpJp+GWX3ikHer+iI/rZ6DUD5C0zSnjd6rTC3yBWhp8J074JRmIRkBoT45eRaFurBRvvavvY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788537976; c=relaxed/simple;
-	bh=HCz7elWQ8NOJMnh+TNorsXYZXxA/fRZ7xEsrgqrUObc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=W2cb+OgxIpUC7q/W73IAzVch/FSoNJVGbGx5ufnTGNabxt3hUfx8Rs0M/dSypnhJFRg/OVjyrctY6IFT3jivRy5uuS+lN2/J+elZCzdx2RTmP1UYVtAFe1AR9loqfkg3+AdpD1sRgKhQIKy6y7a5ms2FeLRTE6FBDeZzLbs66+Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=D7S3QLEu; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1788543963; c=relaxed/simple;
+	bh=IpIcXmZ5y3zAPIXH0ITLn7oZOKruZHk0aeMQju5DuzE=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=liIdabv0fHEGSagt+zcALKdoTP26oHgIOD+yqxoMV7dNVVb3KwbEV6Ywr8evNoX6eIuomRnWopowKTrGrmXBu8RkX1G+M2rWr2yLizCR4SIdjktIBMudrSrLPBRVezbkyLnDV1fkMrUqbPHza16Zf5U9GoxxvFZaCM0BM7RSq/M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=pMU/YCpY; arc=none smtp.client-ip=213.97.179.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="D7S3QLEu"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 684E1n2R1936213;
-	Fri, 4 Sep 2026 16:06:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=pXIkcB
-	c9Uz4FE0f466KYSQs0emdUWknXa5D8597/qQw=; b=D7S3QLEujhKBngEimHRUqL
-	j/lmmwv+TMVwcxja3i1G4/iKZr+hTNEIcDhGI4vstv64yCis4QNiYNuqyY2eW1K1
-	grVHaIpcRadrzzYpi+0dVcTCyyN//zLQs1w6T+vTzFZXERdwDRRldSOgN0ymq9Tw
-	Jx/mVslzIMd/thnxfns+WgPSCsDrKOdLqR4zuOefqVHhsGSq9TGiMOIMcyPUdlAm
-	O2xTetfF36NGdKGmB49wikusXkZZHft+Yq8Nmst+30dJcS3gs1nQ6RGjC1xIVDrk
-	qyEIJw0AFc6oSJF5DWSwhNSj3zFRsvBijz4dcByjN+RrrsTalfB3ju2hf3Mce3dg
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gbq55bx8w-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 04 Sep 2026 16:06:12 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 684FuF2k020491;
-	Fri, 4 Sep 2026 16:06:11 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gcceynsem-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 04 Sep 2026 16:06:11 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 684G5SUd28377830
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 4 Sep 2026 16:05:28 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7252958056;
-	Fri,  4 Sep 2026 16:06:09 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CF12F5805A;
-	Fri,  4 Sep 2026 16:06:08 +0000 (GMT)
-Received: from [9.61.80.215] (unknown [9.61.80.215])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  4 Sep 2026 16:06:08 +0000 (GMT)
-Message-ID: <9d4235ef-c28d-4c7f-ada9-0504f7dcf8b9@linux.ibm.com>
-Date: Fri, 4 Sep 2026 12:06:08 -0400
+	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="pMU/YCpY"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+	s=20170329; h=Content-Transfer-Encoding:Content-Type:Message-ID:Subject:Cc:To
+	:From:Date:MIME-Version:From:Reply-To;
+	bh=3kJ7V4qqJDGktsGa6HvFkInxay1XxXTxaazUjY3g2Hg=; b=pMU/YCpYNVsT4y/cw1wUdM7zig
+	6FGELePr69ke+QNUk1G581g+plUqC63/ulntoNIxp4pmbIVxfOia9PckTHSRm7xpUciNq57SZzqVN
+	cbsILUiD8lzSdwcwFXmRLM5CfmP+hPRfm6lYmxFlKNBEyu4prtcCynH9vE1ksDe8NHMM4ChUZakqb
+	g9JR+994Oc+oJQ4Q0AJSntCNDkHoysIvAdma6HpwZmNS1nvN6HQ7sdhdssRvg1w9t7SZEOTJlyvat
+	sUbSdbal24ShKj5UheutEWEXP6HsQ9h5DXMVF9LQie/eE7V27D08mGmnS+RWfYNHD9zmSk/JT0i/e
+	OBepHvZQ==;
+Received: from maestria.local.igalia.com ([192.168.10.14] helo=mail.igalia.com)
+	by fanzine2.igalia.com with esmtps 
+	(Cipher TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
+	id 1x2Xyg-00Ezrc-2e; Fri, 04 Sep 2026 19:45:26 +0200
+Received: from webmail.service.igalia.com ([192.168.21.45])
+	by mail.igalia.com with esmtp (Exim)
+	id 1x2Xye-001h2m-Ee; Fri, 04 Sep 2026 19:45:25 +0200
+Received: from localhost ([127.0.0.1] helo=webmail.igalia.com)
+	by webmail.service.igalia.com with esmtp (Exim 4.98.2)
+	(envelope-from <mfo@igalia.com>)
+	id 1x2Xye-00000006G3f-1esz;
+	Fri, 04 Sep 2026 19:45:24 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 1/5] s390/vfio-ap: Fix leak of pinned NIB and
- registered GISC in vfio_ap_irq_enable/disable()
-To: sashiko-reviews@lists.linux.dev
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20260904093435.1161402-1-akrowiak@linux.ibm.com>
- <20260904093435.1161402-2-akrowiak@linux.ibm.com>
- <20260904095200.0E7D11F00A3D@smtp.kernel.org>
-Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20260904095200.0E7D11F00A3D@smtp.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTA0MDE0NSBTYWx0ZWRfX0wmsOZ1RtLze
- TEnPUA7S7tY50ge7meq+2T8eZRrWXhpZ4ZkJ55YEK8jhiB6g7/3jkkWWd+PjSakgkux2ygPv1nL
- x9f36Y07J92lngMvYzmPkGUo/VUGula83NqtB4bzOIdqg4Pp7ykap+LVkZH8SPOxyUB729eg0J4
- ZGt+ANb5Dd3kVWo0NTyLaqcMCLz6wA0+K/Rnk4hsrzoBJDg0tHzppav59ru+0125khfJ3vBSPjR
- PTGm8GSNQ/D6SHAO3Yd+2zuOCC3Sh6Obi/SaQ6Up6T7Gp0vTcMwBQKc7j43dTh6I2UmvNqsrZde
- 6IVBtFnw4QbYKt3FiGaCtJnFN2I4tXYadMlil/buHURrkbImicz425xu+Wimdh7ULVVfcqrx2vI
- FsgIbkhdZR6AekM42EWNzEe7dOae7+UDGsE+mzzFNJ++Roo9Cm3dgByihQ20rxLsil8opShwM5j
- METJJ2pIL4H2f64csXg==
-X-Proofpoint-ORIG-GUID: JV_2ScxNN1Ud2fdK7rXQ1gTd7ICluGta
-X-Authority-Analysis: v=2.4 cv=CNgamxrD c=1 sm=1 tr=0 ts=6a9aec74 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=NLlBKCS0E_FMv3qD2gMA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: JV_2ScxNN1Ud2fdK7rXQ1gTd7ICluGta
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTA0MDE0NSBTYWx0ZWRfX4Tr86z3PV2e6
- clvwvMqpzIK58NBUiJMUUszm+MYyY25qW4N7FBi98xktJNBbzm1hW+XFyFe7dfdkPXa/5inbklt
- 7q4vE0fUc/RG26y8elxlmTho6xO+xSI=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-04_04,2026-09-03_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 bulkscore=0 suspectscore=0 phishscore=0 lowpriorityscore=0
- priorityscore=1501 clxscore=1015 impostorscore=0 adultscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609040145
+Date: Fri, 04 Sep 2026 14:45:23 -0300
+From: Mauricio Faria de Oliveira <mfo@igalia.com>
+To: Joel Granados <joel.granados@kernel.org>
+Cc: Kees Cook <kees@kernel.org>, Nathan Chancellor <nathan@kernel.org>,
+ Nicolas Schier <nsc@kernel.org>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo
+ Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ kernel-dev@igalia.com, linux-riscv@lists.infradead.org,
+ linux-kernel@vger.kernel.org, fsverity@lists.linux.dev,
+ keyrings@vger.kernel.org, bpf@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-kbuild@vger.kernel.org,
+ netdev@vger.kernel.org, linux-wpan@vger.kernel.org,
+ lvs-devel@vger.kernel.org, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, linux-sctp@vger.kernel.org,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ bridge@lists.linux.dev, mptcp@lists.linux.dev, rds-devel@oss.oracle.com,
+ virtualization@lists.linux.dev
+Subject: Re: [PATCH RFC v3 00/13] sysctl: add module aliases
+In-Reply-To: <mokz5pdtwswkyab4byfq7q7m6ac2g6ceoi6jflyxmaszaibzqa@su6m4kamtdpy>
+References: <20260819-sysctl-module-aliases-v3-0-aab90569365d@igalia.com>
+ <bpnqwggtidgiec5akns3fa5edbsvl7xf55dxabtwng2xspy4pn@ue554aii2ngk>
+ <53155340c897560bfc67e61ba9568fd6@igalia.com>
+ <mokz5pdtwswkyab4byfq7q7m6ac2g6ceoi6jflyxmaszaibzqa@su6m4kamtdpy>
+Message-ID: <b1a6cec17e7c828fcebe310ca2a0d25b@igalia.com>
+X-Sender: mfo@igalia.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Report: NO, Score=-2.1, Tests=ALL_TRUSTED=-3,BAYES_50=0.8,KAM_DMARC_NONE=0.125,KAM_DMARC_STATUS=0.005
+X-Spam-Score: -20
+X-Spam-Bar: --
 
+On 2026-09-04 10:41, Joel Granados wrote:
+> On Thu, Aug 20, 2026 at 06:22:13PM -0300, Mauricio Faria de Oliveira wrote:
+>> On 2026-08-20 09:51, Joel Granados wrote:
+>> > On Wed, Aug 19, 2026 at 03:16:13PM -0300, Mauricio Faria de Oliveira wrote:
+>> >> This series adds 'sysctl:' aliases to modules that register sysctl tables; e.g.:
+>> >> 
+>> >>         $ modinfo ./mpls_router.ko  | grep sysctl:
+>> >>         alias:          sysctl:*/net/mpls/conf/*/input
+>> >>         alias:          sysctl:*/net/mpls/default_ttl
+>> >>         alias:          sysctl:*/net/mpls/ip_ttl_propagate
+>> >>         alias:          sysctl:*/net/mpls/platform_labels
+>> >> 
+>> >> It provides a trivial way to map /proc/sys files to modules (not trivial today),
+>> >> and for userspace to handle nonexistent /proc/sys files (e.g., procps's sysctl
+>> >> and systemd-sysctl applying tunables) with "modprobe sysctl:<...>" and a retry.
+>> >> 
+>> >> This is done almost automatically with register_sysctl(), register_net_sysctl()
+>> >> and friends as wrappers of MODULE_SYSCTL_TABLE (similar to MODULE_DEVICE_TABLE),
+>> >> which emits symbols for file2alias/modpost to find and parse the sysctl tables.
+>> >> 
+>> >> The big exception to 'almost' are sysctl tables and paths allocated or defined
+>> >> at runtime (e.g., per-namespace or per-device), as all information is required
+>> >> at build-time. Fortunately, such tables and paths are often based on 'templates'
+>> >> which are static and can be used.
+>> >> 
+>> >> This is done by plumbing the template table/path as optional arguments (macros
+>> >> with default values as default_gfp()), so not to create functions for all cases:
+>> >> 
+>> >>         register_sysctl(path, table [, table_tmpl [, path_tmpl]]);
+>> >>         register_net_sysctl(net, path, table [, table_tmpl[, path_tmpl]]);
+>> >>         register_net_sysctl_sz(net, path, table, size [, table_tmpl[, path_tmpl]]);
+>> > 
+>> > The "what" is described but I'm missing more clarity on the "why". Why
+>> > does this need to be trivial? Where is it that you will know the sysctl
+>> > file path of a module and not the module name or alias?
+>> 
+>> Thanks for looking at this.
+>> 
+>> The problem this feature addresses is sysctl settings not applied
+>> because modules aren't yet loaded when systemd-sysctl/procps's sysctl
+>> runs on boot, and the usage of /etc/modules as a workaround.
+> 
+> Sorry for insisting, but is it not possible to set the sysctls after the
+> modules have been loaded? Why is the order to first set the sysctl and
+> then load the module?
 
+No worries, and thanks for getting back to this.
 
-On 9/4/26 5:51 AM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
->
-> New issues:
-> - [High] Guest-reachable WARN_ONCE macros violate KVM guidelines and can cause a host denial of service (DoS) under panic_on_warn.
->
-> Pre-existing issues:
-> - [High] Pinned NIB page and registered GISC are permanently leaked when a queue is removed from the host AP configuration or becomes physically unavailable.
-> --
->
-> commit ea9124e6c06c371c42de8146e0e3493413dc0829
-> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
-> s390/vfio-ap: Fix leak of pinned NIB and registered GISC in vfio_ap_irq_enable/disable()
->
-> This commit updates the interrupt enable and disable handlers for vfio_ap
-> to correctly manage pinned NIB pages and GISC registrations. It introduces
-> an asynchronous wait process for interrupt clearing to prevent wild DMA
-> writes, leaving resources allocated if the hardware doesn't confirm the
-> operation.
->
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->> index 940c0ff668bee..383ec9f5c8107 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> [ ... ]
->
->> @@ -257,12 +269,15 @@ static void vfio_ap_wait_for_irqclear(int apqn)
->>   		default:
->>   			WARN_ONCE(1, "%s: tapq rc %02x: %04x\n", __func__,
->>   				  status.response_code, apqn);
->> -			return;
->> +			return -ENODEV;
->>   		}
->>   	} while (--retry);
->>   
->> -	WARN_ONCE(1, "%s: tapq rc %02x: %04x could not clear IR bit\n",
->> -		  __func__, status.response_code, apqn);
->> +	WARN_ONCE(1, "%s: tapq rc %02x: timed out waiting for interrupts disabled for %02x.%04x\n",
->> +		  __func__, status.response_code,
->> +		  AP_QID_CARD(apqn), AP_QID_QUEUE(apqn));
->> +
->> +	return -ETIMEDOUT;
->>   }
-> [Severity: High]
-> Does this allow an unprivileged guest to trigger a host panic?
->
-> According to KVM subsystem guidelines, guest-reachable WARN_ON or WARN_ONCE
-> macros are prohibited because they can crash the host kernel on systems
-> configured with panic_on_warn.
->
-> If a guest forces a delay by issuing a ZAPQ reset (which can take up to
-> 2000ms), and immediately follows it with a PQAP-AQIC disable instruction,
-> this 100ms TAPQ polling loop (5 retries * 20ms) will time out.
->
-> Could this be converted to pr_warn_once() to avoid host denial of service?
+Yes, the former is possible and usually how that happens, but it is not
+guaranteed, thus the latter might happen -- unintentionally.
 
-This problem has been reported and responded to for all six versions of
-this patch as well as others in the series. I discovered while doing some
-testing/tracing of manually injected error conditions and discovered that
-this is a real possibility; so all of the code locations that are 
-reachable from
-a guest that log WARN messages need to be fixed by replacing them with
-pr_warn_rate_limited() or dev_warn_rate_limited calls.
+For example, a sysctl setting can be configured in /etc/sysctl.d/*.conf,
+which is manually tested and confirmed to apply it correctly. However,
+that might have worked only because its module was inadvertently loaded
+earlier (e.g., for something else by the sysadmin, or by something else
+in the system). The next time the system boots, the module is not
+automatically loaded, thus the sysctl setting fails to be applied when
+the (previously working) /etc/sysctl.d/*.conf is parsed.
 
->
-> [ ... ]
->
->> @@ -326,18 +372,47 @@ static struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q)
->>   		case AP_RESPONSE_Q_NOT_AVAIL:
->>   		case AP_RESPONSE_DECONFIGURED:
->>   		case AP_RESPONSE_CHECKSTOPPED:
->> +			/* AP not operational; no further interrupts possible */
->> +			WARN_ONCE(1, "%s: ap_aqic status %d\n", __func__,
->> +				  status.response_code);
->> +			goto end_free;
->>   		case AP_RESPONSE_INVALID_ADDRESS:
->>   		default:
->> -			/* All cases in default means AP not operational */
->> +			/*
->> +			 * The AQIC disable was rejected; IRQ is still enabled
->> +			 * and the hardware still holds the NIB address. Do not
->> +			 * free resources.
->> +			 */
->>   			WARN_ONCE(1, "%s: ap_aqic status %d\n", __func__,
->>   				  status.response_code);
->> -			goto end_free;
->> +			goto end_fail;
->>   		}
->>   	} while (retries--);
-> [Severity: High]
-> Does this share the same risk of triggering a host panic as the warning above?
->
-> Similar to the timeout case, if the AP returns statuses like DECONFIGURED
-> or CHECKSTOPPED, this guest-reachable path triggers a WARN_ONCE. Should
-> these be converted to pr_warn_once() to prevent a potential host DoS?
+Also, a sysctl setting may, or may not, be tied to a module; it can be
+built-in. This can change with kernel configuration, e.g., distro.
 
-See above
+So, another example: a sysadmin learns of a sysctl setting in
+documentation tested with another distro, which has it built-in. It
+fails to apply on this distro, which has it in a module, because the
+module isn't loaded. (Now the sysadmin is left to figure that out, and
+then which kernel module provides the sysctl setting.) 
 
->
-> [ ... ]
->
-> [Severity: High]
-> This isn't a bug introduced by this patch, but does the vfio_ap driver leak
-> the pinned NIB page and registered GISC when a queue is physically removed
-> or becomes unavailable?
->
-> Looking at vfio_ap_mdev_remove_queue(), if a queue with active interrupts is
-> removed from the host AP configuration, the bit test fails and we skip
-> calling vfio_ap_mdev_reset_queue(q):
->
-> 	/*
-> 	 * If the queue is not in the host's AP configuration, then resetting
-> 	 * it will fail with response code 01, (APQN not valid); so, let's make
-> 	 * sure it is in the host's config.
-> 	 */
-> 	if (test_bit_inv(apid, (unsigned long *)matrix_dev->info.apm) &&
-> 	    test_bit_inv(apqi, (unsigned long *)matrix_dev->info.aqm)) {
-> 		vfio_ap_mdev_reset_queue(q);
-> 		flush_work(&q->reset_work);
-> 	}
->
-> done:
-> 	if (matrix_mdev)
-> 		vfio_ap_unlink_queue_fr_mdev(q);
->
-> 	dev_set_drvdata(&apdev->device, NULL);
-> 	kfree(q);
->
-> Because the reset is bypassed, vfio_ap_free_aqic_resources(q) is never
-> called, permanently leaking the page and KVM routing entries.
->
-> Similarly, in vfio_ap_mdev_reset_queue():
->
-> 	default:
-> 		WARN(true,
-> 		     "PQAP/ZAPQ for %02x.%04x failed with invalid rc=%u\n",
-> 		     AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
-> 		     status.response_code);
-> 	}
->
-> If ap_zapq() returns AP_RESPONSE_Q_NOT_AVAIL (0x01) because the queue is
-> physically unavailable, the default case is hit. It logs a warning but fails
-> to call vfio_ap_free_aqic_resources(q), leaking the resources.
->
-> Could this lead to memory exhaustion and depletion of KVM ISCs over time if
-> devices are dynamically reconfigured?
+Note that both examples can be combined. (And the poor sysadmin is, in a
+reboot happening days/weeks/months later, left to also figure out that
+the sysctl setting is not applied, and whatever effect that caused,
+because that particular module was not loaded on boot, and should be
+added to /etc/modules).
 
-This analysis is correct, there is a resource leak in
-vfio_ap_mdev_reset_queue() when ap_zapq() returns
-AP_RESPONSE_Q_NOT_AVAIL (0x01). That response code falls through
-to the default case which only fires a WARN without calling
-vfio_ap_free_aqic_resources(q).
+>> This can be addressed with a way for sysctl tools to load the module for
+>> a non-existent sysctl file path.
+>> For that, the mapping between a sysctl file path (known) and its module
+>> (unknown) needs to be trivial.
+> This touches on my question. How is the file path known and the module
+> not known? The module is the one providing the paths, not the other way
+> around. Why choose to just work with sysctl path lists and not include
+> the modules that go with them?
 
-Regarding vfio_ap_mdev_remove_queue(): there are two distinct
-invocation paths to consider:
+The sysctl tools and configuration files only know about the file path,
+not the module. The sysctl tools know the file path when parsing the
+configuration files, converting a 'dir.file = value' line into opening
+/proc/sys/dir/value and writing value into it.
 
-Sysfs unbind: the queue is still in the host's AP
-configuration, so the test_bit_inv guard passes and
-vfio_ap_mdev_reset_queue() is called normally. The ZAPQ will
-succeed and resources are freed through the normal reset path.
+The format of configuration files only include file paths and values,
+but not modules, per sysctl.conf(5) and sysctl.d(5). This is reasonable,
+as there may, or may not, be a module for the sysctl setting (i.e.,
+module vs. built-in).
 
-AP bus scan (queue physically removed): the queue is no
-longer in the host's AP configuration, so the test_bit_inv
-guard is false and the ZAPQ is intentionally skipped — issuing
-it would just return rc=0x01 anyway. Since the hardware is gone
-and can no longer DMA-write to the NIB, it is safe to call
-vfio_ap_free_aqic_resources(q) directly without a ZAPQ.
-This is the fix needed here.
+Maybe I misunderstand the context for your questions; please let me
+know.
+Also, could you please clarify what you mean by 'include the modules
+that go with them' [sysctl path files] ?
 
-Note that vfio_ap_free_aqic_resources() is safe to call
-unconditionally in the AP bus scan path even when q->matrix_mdev
-is NULL (i.e., the queue is bound to vfio_ap but not assigned to
-any mdev). The WARN_ON guards inside the function will protect
-against the unpin and unregister operations. Since interrupts can
-only be enabled for a queue assigned to an mdev with an active KVM
-guest, saved_iova and saved_isc will not be set in that case,
-making the call a safe no-op.
+>> It may not seem serious at first, but I've seen this consume significant
+>> engineering time and impact production systems, in a previous technical
+>> support job.
+>> An example: cloud deployments with non-scalable network routing
+>> performance due to nf_conntrack_max not applied after reboot or an
+>> upgrade because the component which turned out to help with the
+>> /etc/modules workaround had its placement changed from network router
+>> nodes.
+> This is more understandable to me. The issue is that you loose the
+> relationship between sysctl paths and modules on updates. Are there
+> other cases where the module would not be loaded?
 
-The fix for vfio_ap_mdev_reset_queue() is to add
-AP_RESPONSE_Q_NOT_AVAIL alongside the existing
-AP_RESPONSE_DECONFIGURED and AP_RESPONSE_CHECKSTOPPED cases
-so that resources are freed when the queue is not available.
+In general, there is no guarantee that a module is loaded by the time a
+sysctl setting is about to be applied -- during system boot or even
+later.
 
->
+The example for system boot is covered previously. An example for
+'later' / after system boot: on network device testing which includes
+module unload/reload and sysctl settings for network performance, one
+might unload the module, and mistakenly first apply sysctl settings then
+reload the module, thus loosing the performance tuning on that one
+testing round.
 
+> And doesn't it create another problem where you will load modules that
+> you don't expect (on the update)?
+
+Sorry, not sure I understand the meaning of 'update' correctly, but yes,
+if there is a hard-coded module load (e.g., /etc/modules or in scripts),
+that happens. However, AFAICT, loading unexpected modules is less of a
+problem than not loading required modules, or may not be a problem.
+
+With an auto-load mechanism in place, hard-coding/force-load is not
+required, and neither problem (loading unexpected modules due to
+hard-coding, and not loading required modules due to lack of
+hard-coding) would happen, IIUIC.
+
+>> > Additionally, sysctls are not module specific; they are a way to
+>> > read/write kernel variables. Putting a module specific aspect in the
+>> > function arguments (that needs to be ignored in non-module cases) seems
+>> > wrong. Why not use the module subsys to add sysctl alias instead of the
+>> > sysctl subsys?
+>> 
+>> Fair point. The current design has 2 reasons:
+>> 
+>> 1) Use the 'path' argument (raised in [1]), only available in the
+>> register sysctl functions.
+>> 2) Use a more implicit/transparent approach, instead of more
+>> explicit/declarative approach. 
+> 
+> I get that the data is there and you would be able to do it, but it
+> still seems misplaced. Additionally, are you planning to move all the
+> modules to this scheme? If not, does that mean that some modules would
+> work and some wouldn't? And how would you make sure that modules would
+> use the correct call moving forward?
+
+This scheme currently covers all modules, AFAIK, as it is wrapped in the
+functions that register sysctl tables.
+
+On moving forward: usage of such functions in a way that breaks a
+requirement of this series (e.g., failing to specify the template
+table/path parameter(s), or not having constant initializers) hits a
+build error, as the requirements are actually from the compiler.
+
+>> I guess that a different design could use MODULE_SYSCTL_TABLE() as
+>> MODULE_DEVICE_TABLE(), declared per table instead of wrapped into
+>> register sysctl functions.
+>> However, it seems to require moving the value of the path argument (or
+>> its template) into the macro and still referencing it in the function
+>> (or its instantiation of the template), which adds obfuscation, to all
+>> callers. 
+>> 
+>> What do you think?
+> It might be that having it inside the module subsys is more work, but I
+> believe that there is the right place to have it. I still don't see that
+> adding a module specific arg to the sysctl register is a good thing.
+
+Ok, cool. I can work on a different design.
+
+Please just let me know whether you are OK with the remaining (above),
+and I'll be happy to tackle this.
+
+Thanks again,
+
+> 
+> 
+> Best
+
+-- 
+Mauricio
