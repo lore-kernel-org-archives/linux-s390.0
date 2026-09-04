@@ -1,151 +1,79 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2229B33A00C;
-	Fri,  4 Sep 2026 22:51:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 245E73911D3;
+	Fri,  4 Sep 2026 23:21:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788562289; cv=none; b=MM3vV5HNSzjPfUzaxFKMl+Elo8eSIx7+YaAA4yCo7ngevU9UadC6b72hSqvWQer8I2oHffUjvBdfCeiiNTJOYj6PR5b8O2G2nVpcqXQXmQn9hPbg0cl2txMmXhlYQxitedmDQ6yVvR+LH4cn+Ts9/Qumi6j3QJDg18LFu+baj/I=
+	t=1788564068; cv=none; b=fU0Ps2tF8ZdticL4PVSqi0jwVaDNbBhFzat2qMuxRS1AVSIL9G2flRP9mvQOnAMs0jsV3++6KIkQiNJLXZsBYD1O26AkNz4z/m/qpyWGjAJSGZ1XsHyJrHzNg1bbtlCV+WURKLSbPT6RuK9pYIR5MXBe0iSczMNwjSU0VLbAbZA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788562289; c=relaxed/simple;
-	bh=wcWOUQFWZKUg14JstxiLxPLmSH/hMNegI+uBYo403hA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=EUciPqozYwARUzteFVcja86hTkz0onb3EHWp6VQQylqTpfiSjhMOYMmdz9TFQbMNIDOJoyn3jkkcSw0EiwekLbH+IcWL1yrayg1lSlatj7VNtA+pSVWIkX67GjXzVZlhrUjldmODXvs1pGnq7M2Sxe8C0qp9YJr/qWIGOfm+faA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XWLCDErb; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788564068; c=relaxed/simple;
+	bh=WGZhmnQOogl48wgi2aqd89A7QELHYf0Bi9CQdmq86zA=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=BNQyiu5Ge0zrSQgUsbWgSi/0qHGiFMaqYQy8Cj6fJwIVlFnsYdGsO1KzC55Jf8ZQJyWtKvd0AZveZOtQ9zz0zcZ9sO0Yh1WKPYeMXnYlvj04Z/d5+96gXNELeqhvsurdG1WRwsiSFbkUlWLDKrDzIxDReVvD6I8T2IoYgCrNiMU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=El9P5IVH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XWLCDErb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A201D1F00A3E;
-	Fri,  4 Sep 2026 22:51:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="El9P5IVH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C02541F00A3D;
+	Fri,  4 Sep 2026 23:21:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788562288;
-	bh=QgythvfTc1fScK+cLnpCsO20KPKprT7M+0qpHB8n2z8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XWLCDErbO3pFzjEk3MVMrLUL0Vf9l7fAiP8A0Vga4N5ZM4u40e2U7HYOB2HurZbqW
-	 ItQSvM7g/B9PgFVrs3iCf/orbgVFDSo6x1Zo7WF3ZNU68s3kGDWrMPsESvr+OMDCXZ
-	 xP98BAWxw6Q4StW1kJInYDsljlYrGbujKES66ur0mDbMm/ArEvcLkUvsfBKaqtVfun
-	 KGiHFEc4Zqqvrs1FMPIF9nXkF2RtjWxviNeA1I3nH9qvcyGYQC3pPs+goH7NnYVd6B
-	 azqzwEDnUF9GCgTroOMCmsvyD3a/MwLpdwfw+fTsjMUm+/v26tyGZKyKwRxRu934rD
-	 rrZesLyQtuVag==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 1/6] s390/vfio-ap: Fix leaks of pinned NIB and
- registered GISC
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260904223531.1611088-2-akrowiak@linux.ibm.com>
-References: <20260904223531.1611088-1-akrowiak@linux.ibm.com>
- <20260904223531.1611088-2-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 04 Sep 2026 22:51:27 +0000
-Message-Id: <20260904225127.A201D1F00A3E@smtp.kernel.org>
+	s=k20260515; t=1788564066;
+	bh=a9P2gEGbU+vso59Kta3MJ8dJr9QzjuBZ0pND5nJyUzI=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=El9P5IVHujnm1fqwOM2iOXVMuONRhkEPL+GkOC7aljuyWm3nDzyTqy1vyK0MO2jRX
+	 akKMIxvvoLTLVzY7vJNbXo4w2DgsL1LTUwsIdhgBse0RADIa4W/VZDgTydu5qpYgFv
+	 R3mEuIWw9m4fg6uyAjbhJ8L8hpDT+ubMNWcxpERjjobFOhz/9PqyfRic12PbbCn5P4
+	 3zNznLSU8iFzeYomwVYOk71bD9WfZLrOHB9YoaNoNXxdnttdHJEVBIxy2Lob/6RsQI
+	 T7U80DC2ArViqrPbyogURs6XyaERR7itZyX5nWOelDZiSOMpe3XWtGQjcVnwQRn2nE
+	 ktO7v6KF9WJ7w==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 93B8D3924A7F;
+	Fri,  4 Sep 2026 23:20:08 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] dibs: Unregister dibs_class after error
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <178856400715.1013351.12940036598096810427.git-patchwork-notify@kernel.org>
+Date: Fri, 04 Sep 2026 23:20:07 +0000
+References: <20260902143438.426664-1-wintera@linux.ibm.com>
+In-Reply-To: <20260902143438.426664-1-wintera@linux.ibm.com>
+To: Alexandra Winter <wintera@linux.ibm.com>
+Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+ edumazet@google.com, andrew+netdev@lunn.ch, julianr@linux.ibm.com,
+ netdev@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ horms@kernel.org
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Critical] Eagerly freeing AQIC resources when ap_zapq() or ap_tapq() ret=
-urns an unrecognized response allows wild DMA writes to freed host memory.
---
+Hello:
 
-commit 6c73d9ea4d311d5d68e8f5501374842cccbe2c90
-Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-s390/vfio-ap: Fix leaks of pinned NIB and registered GISC
+On Wed,  2 Sep 2026 16:34:38 +0200 you wrote:
+> In case dibs_loopback_init() fails, e.g. because of -ENOMEM, dibs_init()
+> must unregister dibs_class. Otherwise dibs_class and /sys/class/dibs exist
+> even though the functionality is not available. A retry to load the module
+> fails with -EEXIST.
+> 
+> Unregister dibs_class in the error path of dibs_init.
+> 
+> [...]
 
-Several code paths in the vfio_ap driver failed to free the AQIC
-resources =E2=80=94 the pinned guest NIB page and the registered guest ISC
-used to enable interrupts for a queue =E2=80=94 when a queue became unavail=
-able
-or when unexpected response codes were returned. This could cause memory
-exhaustion and depletion of KVM interrupt subclass registrations over time
-with repeated dynamic AP reconfiguration.
+Here is the summary with links:
+  - [net] dibs: Unregister dibs_class after error
+    https://git.kernel.org/netdev/net/c/1668a31e3b1a
 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
-_ap_ops.c
-> index 940c0ff668bee..9d4f5b9e3301f 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-[ ... ]
-> @@ -1959,8 +2087,16 @@ static void apq_reset_check(struct work_struct *re=
-set_work)
->  		elapsed +=3D AP_RESET_INTERVAL;
->  		status =3D ap_tapq(q->apqn, NULL);
->  		ret =3D apq_status_check(q->apqn, &status);
-> -		if (ret =3D=3D -EIO)
-> +		if (ret =3D=3D -EIO) {
-> +			/*
-> +			 * TAPQ returned an invalid response code. This
-> +			 * indicates a hardware or firmware bug; the queue
-> +			 * cannot generate AP interrupts or DMA-write to the
-> +			 * NIB, so free the AQIC resources rather than leak them.
-> +			 */
-> +			vfio_ap_free_aqic_resources(q);
->  			return;
-> +		}
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-[Severity: Critical]
-If apq_status_check() returns -EIO due to an unrecognized TAPQ response,
-is it safe to eagerly free the AQIC resources?
 
-If the hardware is in an unknown state (due to a bug or unrecognized code),
-could it still be actively DMA-writing to the pinned Notification Indicator
-Byte (NIB) page?
-
-If vfio_ap_free_aqic_resources() unpins the page and returns it to the
-system allocator, could a subsequent wild DMA write from the malfunctioning
-AP queue corrupt memory belonging to a new owner, potentially causing a host
-panic?
-
-[ ... ]
-> @@ -1995,22 +2135,30 @@ static void vfio_ap_mdev_reset_queue(struct vfio_=
-ap_queue *q)
->  	switch (status.response_code) {
->  	case AP_RESPONSE_NORMAL:
->  	case AP_RESPONSE_RESET_IN_PROGRESS:
-> -	case AP_RESPONSE_BUSY:
->  	case AP_RESPONSE_STATE_CHANGE_IN_PROGRESS:
->  		/*
->  		 * Let's verify whether the ZAPQ completed successfully on a work queu=
-e.
->  		 */
->  		queue_work(system_long_wq, &q->reset_work);
->  		break;
-> +	case AP_RESPONSE_Q_NOT_AVAIL:
->  	case AP_RESPONSE_DECONFIGURED:
->  	case AP_RESPONSE_CHECKSTOPPED:
->  		vfio_ap_free_aqic_resources(q);
->  		break;
->  	default:
-> +		/*
-> +		 * The architecture defines only the response codes above as
-> +		 * valid for ZAPQ. Any other response code indicates a hardware
-> +		 * or firmware bug. Since a malfunctioning queue cannot generate
-> +		 * AP interrupts or DMA-write to the NIB, free the AQIC resources
-> +		 * rather than leak them.
-> +		 */
->  		WARN(true,
->  		     "PQAP/ZAPQ for %02x.%04x failed with invalid rc=3D%u\n",
->  		     AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
->  		     status.response_code);
-> +		vfio_ap_free_aqic_resources(q);
->  	}
->  }
-
-[Severity: Critical]
-Similarly, if ZAPQ fails with an unrecognized response code in
-vfio_ap_mdev_reset_queue(), does freeing the AQIC resources here present the
-same wild DMA risk?
-
-Even if a later patch in this series adds a retry loop that explicitly
-handles AP_RESPONSE_BUSY, does this default case still expose the host to
-memory corruption if any other unexpected response code is returned?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260904223531.1611=
-088-1-akrowiak@linux.ibm.com?part=3D1
