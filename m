@@ -1,135 +1,81 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3B9F4964F
-	for <linux-s390@vger.kernel.org>; Mon,  7 Sep 2026 10:38:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C68924477FA
+	for <linux-s390@vger.kernel.org>; Mon,  7 Sep 2026 10:39:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788777524; cv=none; b=a5JNBIlt4uqMx+jFsQ5JLYQAb8jP5XoAVJiLwQeMqSr1Gl/2ql8oHzScnQlQXbOWYtez8f6ZifoyKDHSLD6Vg7QiMyRi9B7XahIyUtIzvMpUcUAkO5rhtO5Z83EXo2pFYsw+YSeScNNANOk1uEVFqw0fvI4425p9RRvMhnWSzqM=
+	t=1788777545; cv=none; b=RE3QX1f9rlpoNEnf6MtkzSmrEmpTdyY8crTYOWMDOrDG/udbqbMlwPtK7KWJ66k1H6J+8LNSpnpK2Jay1uGGlIRCVtIvqjAAGcPQd3tJIg/4JapOgCt9M6RmyqT5g4Fah9LeXG6yd7oeFOcHKvkf2AC5Ft2hU6QVC1Ie7GJKpLM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788777524; c=relaxed/simple;
-	bh=33zfWCu3JJLioML3uD8Hs2PymB2vTcexp5imiSV6/mI=;
+	s=arc-20240116; t=1788777545; c=relaxed/simple;
+	bh=/rJj8K0Og4qarNxTO5xOeKV6XtKG+iSSxo14fwuVSMg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=az2lXveANzPf/oqLM//VIG6RNa6wr94qIlyhFAQBFMKJGnp1/5meC95UkVu1NkvIopZ1osDK0XIbxJ0j9cg9CvwZiUUi2cKFVljvgtUXstUsO+jSLrH4ctYg5ybkJLX8v/bW1O4GqyjaR4VGap2ArWB2py78RIELoSV8EdmMfZk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YxVcd84p; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=qsDNlHfhQtZlApKU9qpz0SleUmGL8VW4ekvdZ/od5NOoblzTCJFm73NN4w22uqn7sE6zjPegLfjPZZZ5vFHc/GlksuFFwdeakH1eDGDtM8yzm43PhcsX/5bqY03Sb309eiZ8Dxy8OVqcSEm0kdaWh6NRuEuCu4u/SGuyUp6O1Bs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VZuJniO6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YxVcd84p"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27ADA1F00A3A;
-	Mon,  7 Sep 2026 10:38:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VZuJniO6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15CF51F00A3A;
+	Mon,  7 Sep 2026 10:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788777522;
-	bh=pZcVscYUyGYw+xfUpZ4brUSHIaP9nASjxEpAQU9welo=;
+	s=k20260515; t=1788777543;
+	bh=B9zbe9kYT6sp3T4Le1ygjWlm9QGI8aT0JbxXuLf28ZY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=YxVcd84pWjcNjQqtyXBJnhZD9HDZwpcu7Wv+vqNZH7MOqb1tWWJX+Q82LcnyrET+i
-	 d8Fy+lWiAloFUqJENHh1rZRAMhIDzpldtroxSuUVmlG+uib3PfvNDt8pXDuvHsIOaE
-	 2OEOkRPIB8ft673rCSewijPPIjnBIlz1o/t2xnqMu/KzusF67SmMXj2J7OP2QLr4ZQ
-	 hJEovRjZpF0zUP4Q30ZeIRQZTiULnVB7ZAuf/NkYOE7OIxDiMtzvY9Ht8pVsv3gN5z
-	 2o6M8kzVGJLy/E+26qkQmaQn9+ZMl5C6s2wjAYLRfWd/klL1Zwap6s5Hf8or44mVpW
-	 Ztz2W7q+gbaXg==
+	b=VZuJniO6x/fw/Cf67s26d37yK9C1a4S08+ZnnD/e4f6ThQ5HPOhY/u0K2/WbfMohI
+	 pqxGNaUMPl+zoNXTV3H9mU+fLEgxISH79kM1M0UFXCW5zw8zViFDuXJThzb6ikSi3O
+	 RUuhcUrDSSatTDD6LJR2OzX0yTOIwUqclQKlcpu3CvAYgCGknLFk2Foi0d7zN/eQY5
+	 5hQthcqRr5dsveGiAeOtYA/t1TUuHfVxsy8Aq1BxfpvldvDsw44hc9kDIIN6Ngt0kK
+	 S9fow4q3UqX3k/0kD1Mez97oCrlfIkSVV8ayJFb2IK/PQmnyW0o7oyfv1yItykxU0J
+	 S0RH9tjS8B1ug==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 07/13] s390/idals: Use kmalloc() for IDAL data buffers
+Subject: Re: [PATCH] perf/core: Allow list_del during perf_event_overflow()
 Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?TWlrZSBSYXBvcG9ydCAoTWljcm9zb2Z0KQ==?= <rppt@kernel.org>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260907-s390-cio-ready-v1-7-ca7f39806234@kernel.org>
-References: <20260907-s390-cio-ready-v1-0-ca7f39806234@kernel.org>
- <20260907-s390-cio-ready-v1-7-ca7f39806234@kernel.org>
+To: "Thomas Richter" <tmricht@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260907103219.3006700-1-tmricht@linux.ibm.com>
+References: <20260907103219.3006700-1-tmricht@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 07 Sep 2026 10:38:41 +0000
-Message-Id: <20260907103842.27ADA1F00A3A@smtp.kernel.org>
+Date: Mon, 07 Sep 2026 10:39:02 +0000
+Message-Id: <20260907103903.15CF51F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
+> A PMU might use perf_sched_cb_inc() and perf_sched_cb_dec()
+> interface to get the PMU call back function pmu::sched_task
+> invoked at schedule in and schedule out. This is achieved
+> by walking along the list anchored by sched_cb_list.
+>=20
+> The following scenario might lead to a list corruption.
+>=20
+>    perf_pmu_sched_task()
+>       for_each_list_entry(..., &sched_cb_list)
+>       +--> __perf_pmu_sched_task()
+>            +--> event->pmu->sched_task())
+>                 +--> PMU_push_sample()
+>                      +--> perf_event_overflow()
+>                           +--> __perf_event_overflow()
+>                                +--> pmu->stop()
+>                                     +--> perf_sched_cb_dec()
+>                                          remove entry from sched_cb_list
+>                                          while list node in use.
+>=20
+> This happens when ioctl(fd, PERF_EVENT_IOC_REFRESH, xxx) has been
+> invoked and perf_event::event_limit hits zero.
+>=20
+> Prevent the list corruption and convert for_each_list_entry()
+> to for_each_list_entry_safe().
+>=20
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
 
-New issues:
-- [High] Replacing __get_free_pages() with kmalloc() violates the strict 4K=
- page-alignment requirement for s390 Indirect Data Address Words (IDAWs), l=
-eading to hardware I/O rejection and out-of-bounds memory access.
-- [Medium] Kmemleak will falsely report IDAL data chunks as memory leaks be=
-cause only their physical addresses are stored.
-
-Pre-existing issues:
-- [High] Unprotected concurrent modification of device->char_data.ibs in ta=
-pe_check_idalbuffer() leading to a Use-After-Free.
---
-
-commit ee00e66345d4d1d6997d0f2f7bda11ae7ad10516
-Author: Mike Rapoport (Microsoft) <rppt@kernel.org>
-
-s390/idals: Use kmalloc() for IDAL data buffers
-
-idal_buffer_alloc() allocates the data chunks of an IDAL buffer that is
-used for channel I/O.
-These buffers can be allocated with kmalloc() as there's nothing special
-about them to go directly to the page allocator.
-
-Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redh=
-at.com
-
-> diff --git a/arch/s390/include/asm/idals.h b/arch/s390/include/asm/idals.h
-> index 06e1ec2afd5af..248829d461bce 100644
-> --- a/arch/s390/include/asm/idals.h
-> +++ b/arch/s390/include/asm/idals.h
-> @@ -147,7 +147,7 @@ static inline struct idal_buffer *idal_buffer_alloc(s=
-ize_t size, int page_order)
->  			ib->data[i] =3D dma64_add(ib->data[i - 1], IDA_BLOCK_SIZE);
->  			continue;
->  		}
-> -		vaddr =3D (void *)__get_free_pages(GFP_KERNEL, page_order);
-> +		vaddr =3D kmalloc(PAGE_SIZE << page_order, GFP_KERNEL);
-
-[Severity: High]
-Does replacing __get_free_pages() with kmalloc() violate the strict 4K
-page-alignment requirement for s390 Indirect Data Address Words (IDAWs)?
-
-kmalloc() with memory debugging enabled (like SLUB redzoning) can return
-unaligned addresses for PAGE_SIZE allocations. Since the s390 Channel
-Subsystem mandates that second and subsequent IDAWs must be aligned to a
-4K boundary, could this unaligned address cause hardware I/O rejection?
-
-Additionally, if the base address is unaligned, does adding 4K via
-dma64_add() result in out-of-bounds array access, since the nr_ptrs
-calculation mathematically assumes a 4K-aligned start address?
-
->  		if (!vaddr)
->  			goto error;
->  		ib->data[i] =3D virt_to_dma64(vaddr);
-
-[Severity: Medium]
-Will kmemleak falsely report these IDAL data chunks as memory leaks?
-
-Since virt_to_dma64() stores the physical address, the kmemleak scanner
-won't find the exact virtual address bit pattern returned by kmalloc()
-during its garbage collection scan.
-
-[ ... ]
-
-This is a pre-existing issue, but I noticed a potential race condition in
-the tape driver when checking IDAL buffers.
-
-In drivers/s390/char/tape_char.c:tapechar_read():
-
-    rc =3D tape_check_idalbuffer(device, block_size);
-
-And in drivers/s390/char/tape_core.c:tape_check_idalbuffer():
-
-    idal_buffer_array_free(&device->char_data.ibs);
-    device->char_data.ibs =3D new;
-
-[Severity: High]
-If two threads call read() or write() concurrently without device->mutex
-being held, could one thread free device->char_data.ibs while the other
-is executing tape_do_io() or iterating over the old ibs array? Can this
-lead to a use-after-free or data corruption?
+Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260907-s390-cio-r=
-eady-v1-0-ca7f39806234@kernel.org?part=3D7
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260907103219.3006=
+700-1-tmricht@linux.ibm.com?part=3D1
+
