@@ -1,156 +1,57 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66238483807;
-	Mon,  7 Sep 2026 12:36:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+Received: from mail.8bytes.org (mail.8bytes.org [85.214.250.239])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 32E474A9D4F;
+	Mon,  7 Sep 2026 12:36:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.250.239
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788784601; cv=none; b=Y6qhVrXFmbqwt4a06FISNek4pjmfwkMuhJ2klY9LL0JL9EfgWWN0IQvpL5C8bzn5UFRyA9GwXy0eNQ9JzRxhfEbv/kuHWIWywTpdQ4uzPJhtn2L4ezpUdxKNAn1Ckd4NedXnvy6OMGi8Yah94thk6QvEHj3GFb4ndmdJ4a+EyOo=
+	t=1788784607; cv=none; b=WQX3FeoZxYbpYhuRC6dPQ/E3iV8neRpmH3TH5oCmcFMQBACYPXeYPmI07f99Gxvfk62OaU+4BC4456uQsAkJcVSjNuo5hEYM1YXnhNu9j7PxuPMtvb2g/AhjguHWErVhZBGaJXG4pMktGU6IXfazE3J1yOtWO1ekoB2OfopWIFE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788784601; c=relaxed/simple;
-	bh=FcL5nQBvGDd7mAxBy2gEvRsfE9Cxlm5VdxJuZLv2X6A=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=MrmYTnx2OLcb+FpPp45VdU0L3LrR4pMlnJ94GzLXuKXRNv1YIa6xuhOaOFNuqxaxEFMGOjwnt+xiJre8wJ5oOcjAvi3sM8/EfPwnI+vN5GdNnok2KMcuKnwBU34oeMNpStnZCd2q0ZWaDqD3AxTv3WYbJBNBHMQQAWOay1I0ReA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=KCC1Jkmd; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=4YGUIKJL; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=uulmKFbs; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=MsPp8ZTr; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="KCC1Jkmd";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="4YGUIKJL";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="uulmKFbs";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="MsPp8ZTr"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	s=arc-20240116; t=1788784607; c=relaxed/simple;
+	bh=E2mReioDtdPeHkxkBC3oT4CocMJFs0sLzUXgsU+H2hI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ob7nIxYNAYLSqpQK33QjFGZvGYHRORgs7JjQXvBsPsI0alRuw7vhbHEHHRZHbX2JiskByim8WOO7t2Ql5F2R3mIsXrs9yDe9lgJtEp2rDz4M6a6q84M/SrysfcWouAQykSRbNpaPDsKHdIl9ppxVcTIVH13OdM3TZFoLHAsyUv4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=8bytes.org; spf=pass smtp.mailfrom=8bytes.org; arc=none smtp.client-ip=85.214.250.239
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=8bytes.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=8bytes.org
+Received: from 8bytes.org (p200300f6af085a0015db8e28914752a6.dip0.t-ipconnect.de [IPv6:2003:f6:af08:5a00:15db:8e28:9147:52a6])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 3E65B219C2;
-	Mon,  7 Sep 2026 12:36:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788784594; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=A4rHycctEEv3dOh3nCwNYqjefhWMdU8tkOsMgrWm608=;
-	b=KCC1JkmdI90dNMtUjMW1P6K1c2EM2DBoHF0e82qf34VLpkC6tSKO+p0CUJLN3YfEjBBDWh
-	eh81N/qtu5m7J+9/q3Yoo/PbZspVuScgQsPU845/fox7hKMht020TZRN56/vVBfrNC1gLU
-	cGYd/2r9CkFjkM4FuMyDWiPvvjNQrow=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788784594;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=A4rHycctEEv3dOh3nCwNYqjefhWMdU8tkOsMgrWm608=;
-	b=4YGUIKJLl0Kea3igv2Eb0Y1U6DFps04qQtCSGShjkygtr3XfM96z0A4tdPNTwRY7jfb/p/
-	d8v1UgxmkyMZbQDQ==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=uulmKFbs;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=MsPp8ZTr
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1788784590; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=A4rHycctEEv3dOh3nCwNYqjefhWMdU8tkOsMgrWm608=;
-	b=uulmKFbs/S4v4SmLOM8FmtjAQGt9Txuo+Iml9Wz4XWYH1CXFHn2g8qNNbxrwk9ATPiLWdA
-	UEqzIuVXHZPRna17260ngPVpG2KL2zCrdce2nXty9bGmgtNJoksEVyV1p05YnUCCLiDzSB
-	OtjGRAd8rMY3hf3HcDdTfLZemTagsiw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1788784590;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=A4rHycctEEv3dOh3nCwNYqjefhWMdU8tkOsMgrWm608=;
-	b=MsPp8ZTrIyylNAsLHTc8LChW8BUc3ueU+4cwJ8PAs6hAZKy4GmO6lYpfARaIFv4tZcslm/
-	mSFDAnBtj6GaobCQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id DBE4E1339B;
-	Mon,  7 Sep 2026 12:36:29 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id jKtXNM2vnmp2NgAAD6G6ig
-	(envelope-from <hare@suse.de>); Mon, 07 Sep 2026 12:36:29 +0000
-Message-ID: <1ecb9e46-31f5-4742-8d1b-fb60ae3922d6@suse.de>
-Date: Mon, 7 Sep 2026 14:36:29 +0200
+	by mail.8bytes.org (Postfix) with ESMTPSA id 144D020A089;
+	Mon,  7 Sep 2026 14:36:43 +0200 (CEST)
+Date: Mon, 7 Sep 2026 14:36:41 +0200
+From: "Joerg Roedel (AMD)" <joro@8bytes.org>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Matthew Rosato <mjrosato@linux.ibm.com>, 
+	Farhan Ali <alifm@linux.ibm.com>, Omar Elghoul <oelghoul@linux.ibm.com>, 
+	Gerd Bayer <gbayer@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, 
+	Julian Ruess <julianr@linux.ibm.com>, Will Deacon <will@kernel.org>, 
+	Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <jroedel@suse.de>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Ramesh Errabolu <ramesh@linux.ibm.com>, Tobias Schumacher <ts@linux.ibm.com>, 
+	Halil Pasic <pasic@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, 
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	linux-s390@vger.kernel.org, iommu@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] iommu/s390: Fix NULL dereference in iova_to_phys() with
+ ZPCI_TABLE_TYPE_RFX
+Message-ID: <ap6vw9b1ki1oHPnK@8bytes.org>
+References: <20260818-iommu_fix_iova_to_phys-v1-1-1cd76d2a55b8@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 25/40] scsi: ps3rom: use 16-bits defined sense codes
-To: Damien Le Moal <dlemoal@kernel.org>,
- "Martin K . Petersen" <martin.petersen@oracle.com>,
- "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
- linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
- Niklas Cassel <cassel@kernel.org>, linux-usb@vger.kernel.org,
- Alan Stern <stern@rowland.harvard.edu>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org,
- Heiko Carstens <hca@linux.ibm.com>
-References: <20260903034201.112211-1-dlemoal@kernel.org>
- <20260903034201.112211-26-dlemoal@kernel.org>
-Content-Language: en-US
-From: Hannes Reinecke <hare@suse.de>
-In-Reply-To: <20260903034201.112211-26-dlemoal@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Level: 
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: 3E65B219C2
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[11];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:email,suse.de:mid,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
-	DKIM_TRACE(0.00)[suse.de:+]
-X-Spam-Flag: NO
-X-Spam-Score: -4.51
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260818-iommu_fix_iova_to_phys-v1-1-1cd76d2a55b8@linux.ibm.com>
 
-On 9/3/26 5:41 AM, Damien Le Moal wrote:
-> Refactor the PS3 DVD driver to use scsi_set_sense() and replace all
-> hard-coded additional sense codes and additional sense code qualifiers
-> with the enum values defined in include/scsi/scsi_sense.h. This helps with
-> code clarity as the sense codes being processed are easier to test and
-> self-documented.
-> 
-> No functional change intended.
-> 
-> Signed-off-by: Damien Le Moal <dlemoal@kernel.org>
+On Tue, Aug 18, 2026 at 09:13:17PM +0200, Niklas Schnelle wrote:
+> Cc: stable@vger.kernel.org
+> Fixes: 81244074b518 ("iommu/s390: allow larger region tables")
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 > ---
->   drivers/scsi/ps3rom.c | 5 +++--
->   1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-Reviewed-by: Hannes Reinecke <hare@kernel.org>
+>  drivers/iommu/s390-iommu.c | 2 ++
+>  1 file changed, 2 insertions(+)
 
-Cheers,
-
-Hannes
--- 
-Dr. Hannes Reinecke                  Kernel Storage Architect
-hare@suse.de                                +49 911 74053 688
-SUSE Software Solutions GmbH, Frankenstr. 146, 90461 Nürnberg
-HRB 36809 (AG Nürnberg), GF: I. Totev, A. McDonald, W. Knoblich
+Queued for -rc, thanks.
