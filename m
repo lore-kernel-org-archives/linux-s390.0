@@ -1,318 +1,120 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A618B67E;
-	Mon,  7 Sep 2026 05:39:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49D7138D6B5
+	for <linux-s390@vger.kernel.org>; Mon,  7 Sep 2026 05:59:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788759588; cv=none; b=cVwFikvPQH01abRv5AvH886yofqaFzUNXkjBd0fXkxRongCsMe7z+cx6RPa59dJmqBP5IODQ48i7kjOWAdvH7cWHig/swxry8vvrUcvA1dyF8S4t6B8bC4DzaztE8kVir8gH+6plTW+B8xD0nGnV3xtWOwiW8KyTAV4WzUVIAQE=
+	t=1788760743; cv=none; b=Tz5WCcHg44x7tUIDJWXiWkDzo/fCZJ6V7ses+W3FLAUZvVZ65TcJP2+X/XX+n+qJTAULvzMGnIsunvMIecpmH1HVb9DcnRqqRQaV5W4ulvvpXHuFB2jCdvWkV5TCBHDEWfkZi6+uDaBXU6vmEu2eq7yVUHpTv7WCAOwqVRdqOqI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788759588; c=relaxed/simple;
-	bh=1ayE33JIYEgD8v2D8aiKYUHjDj35pSwuimK8pvsU9TI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TFxa9UTq8E5Vq6lVV/ObERCmzKoquVJrEUDQksnNJ+Y/RGH8m7Y2Ly48LaPtVqlBRuT2fyBaaK2PRofeM7hpyf+rHeSGcBjfvfuN49k9QZQaQ6GF4chg9qP21NgwkY+sx8fiefqdf9jm9RCQFdSS03+0ckiIAKFEtXvRCiuR200=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ysz+RQQv; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1788760743; c=relaxed/simple;
+	bh=8u6RWBOwh83tvvZc3TLwaNX9CvVkv4tyJSo+YHIMMYI=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=eIwEnbMa0DzuOs15dJhwEhTQgvJxFGNNAEWMlYTC2b4uwQgn92X86C14p8K2t3gmON7C636W8QunTm7NIfNl+OxcZ5E5DxuJeyMA9vYJFJGHjBETl5XHccJHYXX9CBaFYtGNn86DQe4rSnt98xt6w8dhDoS5Lh0IaKfHE4zwEJQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jZuQL3cf; arc=none smtp.client-ip=209.85.128.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ysz+RQQv"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68741TCw786605;
-	Mon, 7 Sep 2026 05:39:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=7I11SF
-	9E/mQe/lwfM/926kpmsrcGT+7JJpNnz49U6r8=; b=Ysz+RQQvFMtGUumCBNJ9bG
-	dMGWjUIIuhpxQrWWcUzUEsyWI3yHryYCUbkgHT32uRKdHLybQhbOiN0Hr+u5u7kR
-	8Xyuy0P+/Va6ScmEx2QkI79thIklnT6Ur3Xtz+q6B656JeocKPI6lOlyKmHdLHc3
-	vEy0pCNFcbgD0w5HBk2UDfeLn4XVNy7EnXAKkN9HM74vqcgk/zhL7vT3w1jOqCGf
-	zm4twOwDV/RUTQJkVAWCM3AcrwArZ9pOPxA4kpHNv6qdoPCOgVE0jwJzN9JVG4RQ
-	c8dm5I29sKiIyG9SPjtKa9ZKmomyqkNrj3AeZBAV6II5cCOtJ/M6b81eEjjNklYA
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ggbhket6d-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 07 Sep 2026 05:39:40 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6875QFpu002205;
-	Mon, 7 Sep 2026 05:39:39 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gh03y3ww1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 07 Sep 2026 05:39:39 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6875dbUn60686746
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 7 Sep 2026 05:39:37 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 331FF5805A;
-	Mon,  7 Sep 2026 05:39:37 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1E3DA5805E;
-	Mon,  7 Sep 2026 05:39:31 +0000 (GMT)
-Received: from [9.39.28.204] (unknown [9.39.28.204])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  7 Sep 2026 05:39:30 +0000 (GMT)
-Message-ID: <7a174d1f-80d8-4294-ae66-829c9dacd662@linux.ibm.com>
-Date: Mon, 7 Sep 2026 11:09:29 +0530
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jZuQL3cf"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-49b392ccaacso46808715e9.2
+        for <linux-s390@vger.kernel.org>; Sun, 06 Sep 2026 22:59:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788760740; x=1789365540; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=GZO1sjKeCa3nKTO3K84gQ7ryyzwmNZ3acfbok1I6tKA=;
+        b=jZuQL3cfGj2saBmHeg8kujPA/7EMOHotqYz0/bdmRVwaTrfXm4HRKx0/04K5TdlkKG
+         FN1fBc5DwKzftmOjzfZfR/PR4mQKOXL9b71Q6vOLeIWm+nYHAXNlhkL0PvF4C6cQBcWD
+         6jk9RSwPNf49VLb7JJskzuIGhAhHX9s9QX7NZiE3vdGVuLbss8sIBFQNa2uVrk4aAdfv
+         R8Mmnfmx4pciJNfMAf7V8BdsfTSCBOLXVWYXEtmnHqFBcM1IzwtYDF2QL1gp4L8td6As
+         reiySdVv4O5hgr63TcON7tJx9KjFn84G4/RiCMXxBYsh7u8g1JDFe326Pyrliuq2QGAW
+         7b+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788760740; x=1789365540;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=GZO1sjKeCa3nKTO3K84gQ7ryyzwmNZ3acfbok1I6tKA=;
+        b=l1+BXIfOuGZxiG6l7m0ODslTy6Ua4DgnVc3emrQDAUMcYYySh4pTH0fPBneafG89Sd
+         zx/jI9xbfchUvdIASq51TCb0Kwtd1TakyDbrbVpwP/wiiT2q0906Bl4kcl72u6s+f/yU
+         p4en1sid8/Go5xfUWfJ2OS16TM8anvO6LbMUTKCFfIxSFF9Gdq2ZI7QLOJwPx/jM9omU
+         0XzPBSnFWOj2BM5WVUi/D+2G+FIIoj79V3eF7bm+IY7qtGa1brij9eiw6bTneFp2k6/6
+         PVdyXMdSjra3I1P/5vzU/zAZKJ4qRNDdSozI3py9VTTm9BJDy4ZHRSEeavd8QR7sFBw4
+         i3ow==
+X-Forwarded-Encrypted: i=1; AKwUvByXyizJXGbKtuw4gzor7D1uIZwheIN1gUs+sHS7Lz0VV5lSYe1/p+G1fFxVKysdzaaQZRVp0ohB6Hu9@vger.kernel.org
+X-Gm-Message-State: AFuF++nRsbm8+ek3RL98r/KF6bVK2daWZaxMOBwcKwzWshTDzl9Fpz64
+	Z4Pnz8KNE9A8T+6epIWoH8p44blsYvKMXHtfdkrFOGni3qG1Kn3oYDqO
+X-Gm-Gg: AYBFou1Yd+vF9BlQynudnMAatAP9GYZ4u87CiEjJiNLJDKXInDorGJseoyObEbeQFYK
+	qhpRIS5B/csXPw7jbhQE6cLbCofXDO1u/rjUMpZzqo5AuK7ZAz8tlFlOsrKBXgzzBtkyIn8DCXo
+	HEmdSJlkQdNi9zZQBnXamaEVtR9mIb0PiLKvav5ENpnA1mQmhHggtqyYNMBk82wJY/MIw09aSh1
+	dDiNahLMc+l/gEZTZXVE5mj8vqYJ35e4Ur0Cgb+E1oQY6ke7xT2ijUviT7FeXRyEsBnTse/kg4y
+	Jv1Uevrsl6Hz2gpHM/BmTEf67QceLa6TXsuxcX2l2iNnQ8Cr72Ybtbi0VTW/F9qGekYP21IEUOf
+	EUN59m/IneHZMEIvGL4eEW02v+IAHMaairhu13q35fOf6SSLi1sDEKJd1pkxdtajocl9kUm8tey
+	tXTe5PBFC+UxYwm6pUp0H50qLijFC7cSAK8J4+CRsBxYBn9Kq2Z87CATjSn0wnEMdT5eC8FyIQ+
+	Ioy1aevDwfrhDmeNwy19Ie4iE/29rfs4mVJ8Pm9flwaVGtLbFPJKfuZA6nYw20R0Ebzt+Lc13sT
+	mA/bjLDP2kXvTjLleqMZXOdlL/2MK28dOo9lN1oMDPwX/9TOK+Vw4hW3y5rRt1u5o64bDoMX
+X-Received: by 2002:a05:600c:5303:b0:49c:fa21:1c85 with SMTP id 5b1f17b1804b1-49cfa211d81mr158899595e9.26.1788760740303;
+        Sun, 06 Sep 2026 22:59:00 -0700 (PDT)
+Received: from localhost.localdomain (dynamic-2a02-3100-b0c9-3601-9daa-d59e-970b-f46c.310.pool.telefonica.de. [2a02:3100:b0c9:3601:9daa:d59e:970b:f46c])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cee80eda4sm362494915e9.15.2026.09.06.22.58.59
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Sun, 06 Sep 2026 22:58:59 -0700 (PDT)
+From: Karl Mehltretter <kmehltretter@gmail.com>
+To: Niklas Schnelle <schnelle@linux.ibm.com>,
+	Gerd Bayer <gbayer@linux.ibm.com>
+Cc: Karl Mehltretter <kmehltretter@gmail.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
+	Jonathan Corbet <corbet@lwn.net>,
+	linux-doc@vger.kernel.org,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v2] docs: s390: pci: Fix the sriov_numvfs attribute name
+Date: Mon,  7 Sep 2026 07:58:47 +0200
+Message-Id: <20260907055847.27992-1-kmehltretter@gmail.com>
+X-Mailer: git-send-email 2.39.5 (Apple Git-154)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] net/smc: do not credit bytes that splice() did not
- take
-To: Simon Horman <horms@kernel.org>
-Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
-        sidraya@linux.ibm.com, mjambigi@linux.ibm.com, andrew+netdev@lunn.ch,
-        tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        pasic@linux.ibm.com, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <20260820085543.967490-1-hidayath@linux.ibm.com>
- <20260824104758.996259-1-horms@kernel.org>
-Content-Language: en-GB
-From: Hidayath Khan <hidayath@linux.ibm.com>
-In-Reply-To: <20260824104758.996259-1-horms@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTA3MDA1NyBTYWx0ZWRfX4u+t7fQl2RVb
- XG1qdyrb5WVSPGcig18fnExe9PcvFaMjNba6CIz+AWtuFKThnZtxKJaWq+aTCG7UucqEZeDNhFN
- 0+c5cD2j/yBMFZNgFiN0cl4GOfhCh30=
-X-Proofpoint-ORIG-GUID: 1SPqgldcfgpyxhbU5BXxrvwhO0sCyYsg
-X-Authority-Analysis: v=2.4 cv=NMDlPU6g c=1 sm=1 tr=0 ts=6a9e4e1c cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=9R54UkLUAAAA:8
- a=VnNF1IyMAAAA:8 a=NNFXEjkSxkYUhrEG1f8A:9 a=QEXdDO2ut3YA:10
- a=YTcpBFlVQWkNscrzJ_Dz:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTA3MDA1NyBTYWx0ZWRfX3ROHL8dc7Ns0
- tNShS6ovtdNVdqN32s8HcNoRBk5Q+QRQfazQKTiKVpcMj5iGz1ldttUo3gZ02yj1IUbtJ1Eo2zV
- m3G3NKAIjzrvWPvUgwmPmbWBBDjWv0soueQ7lTmkHijPJM4TYLubIcWmDAs3PjAPgoIogFEoZo4
- YZhfNabEyfXbfkf70Jhpj6sX1lDU/YBkRV0AWkEeoKCwjHOgNDqfx9ZSncNTsOZbmD+r2fF21qY
- tvZdQSfjnPv6ywkVE5efgH8h50hGb0jPcfZ4OoaQKoiOAOf9i4OeKgap4qRWYh3XcP+s89rnM5Q
- +E0LVyyBb76kEE5YDVHEzscc83aF56aIS5JwFzoIobenrEiddLX4HzRIzyHjcVWNyhY9DwL1VCb
- BRNsKPOQPbwL63AUoCFJrG+Hm68ctR9eL4x5Fu5+aZ5DxpquocNy+Gev7SZ6HNEyqDbViGNeHAO
- +POIfu6cGEls3f4+Ahw==
-X-Proofpoint-GUID: 5603NIrZcwhNm_tGCvePs_yuVBcXFvzA
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-07_01,2026-09-03_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 spamscore=0 lowpriorityscore=0 clxscore=1015 adultscore=0
- impostorscore=0 bulkscore=0 malwarescore=0 priorityscore=1501 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609070057
+Content-Transfer-Encoding: 8bit
 
-Thanks for the review, Simon.
+The attribute is sriov_numvfs (drivers/pci/iov.c); the document names it
+sriov_numvf, which does not exist.
 
-All four points are correct. Because the 3rd point removes part of the 
-patch,
-v2 will be sent as a series.
+Use sriov_numvfs.
 
-On 24/08/26 4:17 pm, Simon Horman wrote:
-> This is an AI-generated review of your patch. The human sending this
-> email has considered the AI review valid, or at least plausible.
-> Full review at: https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260820085543.967490-1-hidayath@linux.ibm.com?part=1
-> ---
-> net/smc: do not credit bytes that splice() did not take
->
-> The patch adds a short-count path to the chunk loop in smc_rx_recvmsg()
-> so that only the number of bytes splice_to_pipe() actually accepted is
-> credited to copylen, read_remaining and read_done.  It also adds a
-> zero-count path that returns -EAGAIN when nothing was taken.
->
->>      A pipe that is not empty is enough to hit this; SPLICE_F_NONBLOCK on a
->>      full pipe produces the zero case.
-> [Severity: Low]
-> Is "A pipe that is not empty is enough to hit this" accurate?  A non-zero
-> short return from splice_to_pipe() requires smc_rx_splice() to submit more
-> than one page:
->
-> net/smc/smc_rx.c:smc_rx_splice() {
-> 	nr_pages = !lgr->is_smcd && smc->conn.rmb_desc->is_vm ?
-> 		   PAGE_ALIGN(len + offset) / PAGE_SIZE : 1;
->
-> For SMC-D and for SMC-R with physically contiguous RMBs nr_pages is 1 and
-> the single pipe_buffer carries partial[0].len == len, so the transfer is
-> all-or-nothing.  Together with wait_for_space() in splice_file_to_pipe()
-> guaranteeing at least one free slot on entry, doesn't the short-count case
-> only occur for SMC-R with is_vm RMBs?
+Fixes: de267a7c71ba ("s390/pci: Documentation for zPCI")
+Assisted-by: LLM
+Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
+---
+v2: name the file that defines the attribute, drivers/pci/iov.c (Randy);
+    Reviewed-by collected
+v1: https://lore.kernel.org/r/20260905091627.40946-1-kmehltretter@gmail.com/
 
-Yes. For SMC-D and SMC-R with physically contiguous RMBs, nr_pages is 1, so
-the transfer is all-or-nothing. I will clarify in the commit message that a
-short count only happens on SMC-R with virtually contiguous RMBs (is_vm).
+ Documentation/arch/s390/pci.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
->
-> Would it help to name that configuration in the changelog so backporters
-> know what to test?
->
->> diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
->> index 5c9e4d8b57de4..d951dbe8eec3c 100644
->> --- a/net/smc/smc_rx.c
->> +++ b/net/smc/smc_rx.c
->> @@ -488,6 +488,24 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
->>   						read_done = -EFAULT;
->>   					goto out;
->>   				}
-> [Severity: High]
-> This isn't a bug introduced by this patch, but since the patch reworks
-> exactly this accounting: does this pre-existing exit leak bytes_to_rcv on
-> a wrapped read?
-Yes. The "goto out" skips atomic_sub(), so chunk 0 bytes are never
-subtracted from bytes_to_rcv. But the pipe reader still updates the cursor,
-leaving bytes_to_rcv permanently incorrect.
+diff --git a/Documentation/arch/s390/pci.rst b/Documentation/arch/s390/pci.rst
+index 80f4ba193159..565434626fb5 100644
+--- a/Documentation/arch/s390/pci.rst
++++ b/Documentation/arch/s390/pci.rst
+@@ -67,7 +67,7 @@ Entries specific to zPCI functions and entries that hold zPCI information.
+ 
+   A physical function that currently supports a virtual function cannot be
+   powered off until all virtual functions are removed with:
+-  echo 0 > /sys/bus/pci/devices/DDDD:BB:dd.f/sriov_numvf
++  echo 0 > /sys/bus/pci/devices/DDDD:BB:dd.f/sriov_numvfs
+ 
+ * /sys/bus/pci/devices/DDDD:BB:dd.f/:
+ 
 
-I will fix this in the series: when chunk 1 fails after chunk 0 was
-delivered, set copylen to chunk 0 length and break instead of "goto out".
-The memcpy_to_msg() path has the same problem and will be fixed as well.
->
-> For a read that wraps the ring, chunk 0 can succeed and chunk 1 fail.
-> smc_rx_splice() has already committed chunk 0:
->
-> net/smc/smc_rx.c:smc_rx_splice() {
-> 	bytes = splice_to_pipe(pipe, &spd);
-> 	if (bytes > 0)
-> 		atomic_add(bytes, &smc->conn.splice_pending);
->
-> and the queued buffers advance the consumer cursor when the reader drains
-> them:
->
-> net/smc/smc_rx.c:smc_rx_pipe_buf_release() {
-> 	lock_sock(sk);
-> 	smc_rx_update_cons(smc, priv->len);
-> 	release_sock(sk);
->
-> Chunk 1 then finds the pipe full.  fs/splice.c:splice_to_pipe() converts
-> no progress to an error rather than 0:
->
-> 	if (!ret)
-> 		ret = -EAGAIN;
->
-> so control takes the quoted "if (rc < 0) ... goto out" with read_done ==
-> chunk 0 length, jumping past the only debit site in smc_rx_recvmsg():
->
-> 	atomic_sub(copylen, &conn->bytes_to_rcv);
->
-> Doesn't that leave cons advanced by the delivered bytes while
-> bytes_to_rcv still counts them?  smc_rx_data_available() reads
-> atomic_read(&conn->bytes_to_rcv) - peeked, so would a subsequent
-> recvmsg()/splice() start at the advanced cursor and copy that many bytes
-> of stale RMB content from past the producer position?
->
-> Also, can the documented invariant "0 <= bytes_to_rcv <= rmb_desc->len"
-> be violated if this repeats?
->
->> +				/* splice_to_pipe() takes only what the pipe
->> +				 * has room for, which may be less than was
->> +				 * offered, or nothing. Account what it took
->> +				 * and stop: crediting the whole chunk would
->> +				 * advance the consumer past data the reader
->> +				 * never received.
->> +				 */
->> +				if (!msg && rc < chunk_len) {
->> +					if (!rc) {
->> +						if (!read_done)
->> +							read_done = -EAGAIN;
->> +						goto out;
->> +					}
-> [Severity: Medium]
-> Can rc ever be 0 here?  splice_to_pipe() returns 0 only for
-> spd->nr_pages == 0, and otherwise ends with:
->
-> fs/splice.c:splice_to_pipe() {
-> 	if (!ret)
-> 		ret = -EAGAIN;
->
-> smc_rx_splice() always builds nr_pages >= 1 and returns the
-> splice_to_pipe() value unchanged, so the "took nothing" case arrives as
-> -EAGAIN and is consumed by the pre-existing block above, which reports
-> -EFAULT to userspace.  Does that make this "if (!rc)" arm unreachable,
-> and the changelog claim
->
->       When it took nothing, return -EAGAIN instead of reporting a length
->       that was not delivered.
->
-> not take effect?
-Yes, it is unreachable. smc_rx_splice() always passes nr_pages >= 1, so
-splice_to_pipe() returns -EAGAIN instead of 0.
+base-commit: 986c24e0fe44f844b44d365b71ce831947f50298
+-- 
+2.53.0
 
-The zero case arrives as -EAGAIN, which the existing code turns into
--EFAULT. In v2, I will drop the dead arm and return rc directly instead
-of -EFAULT (which also fixes -ENOMEM reporting). I will also reword the
-comment.
->
-> On the same note, does "SPLICE_F_NONBLOCK on a full pipe produces the
-> zero case" hold?  splice_file_to_pipe() calls wait_for_space() before
-> do_splice_read():
->
-> fs/splice.c:wait_for_space() {
-> 		if (!pipe_is_full(pipe))
-> 			return 0;
-> 		if (flags & SPLICE_F_NONBLOCK)
-> 			return -EAGAIN;
->
-> so a completely full pipe fails before smc_splice_read() is entered.
-> Should the comment block above also be reworded, since it describes a
-> callee returning zero that splice_to_pipe() does not do?
->
->> +					copylen = chunk_len_sum - chunk_len + rc;
->> +					read_remaining -= rc;
->> +					read_done += rc;
->> +					break;
->> +				}
->>   			}
->>   			read_remaining -= chunk_len;
->>   			read_done += chunk_len;
-> [Severity: High]
-> This is a pre-existing issue outside the diff, but this patch depends on
-> the invariant it breaks, so it may be worth mentioning: in
-> smc_rx_pipe_buf_release() the cursor advance happens under the socket
-> lock while the splice_pending decrement happens after it is dropped:
->
-> net/smc/smc_rx.c:smc_rx_pipe_buf_release() {
-> 	lock_sock(sk);
-> 	smc_rx_update_cons(smc, priv->len);
-> 	release_sock(sk);
-> 	if (atomic_sub_and_test(priv->len, &conn->splice_pending))
-> 		smc_rx_wake_up(sk);
->
-> smc_rx_recvmsg() assumes cons plus splice_pending marks the start of
-> unread data:
->
-> 	splbytes = atomic_read(&conn->splice_pending);
-> 	...
-> 	smc_curs_copy(&cons, &conn->local_tx_ctrl.cons, conn);
-> 	...
-> 	if (splbytes)
-> 		smc_curs_add(conn->rmb_desc->len, &cons, splbytes);
->
-> In the window between release_sock() and atomic_sub_and_test(), cons
-> already includes priv->len and splice_pending still counts the same
-> bytes.  Can a concurrent splice on the same socket then start priv->len
-> bytes too far, skipping unread data and handing stale ring content to the
-> pipe?
->
-> The recvmsg() path looks protected because it waits while splice_pending
-> is non-zero:
->
-> 		if (!readable || (msg && splbytes)) {
->
-> but the splice path (msg == NULL) is not gated on splice_pending.  The
-> pipe mutex doesn't serialize this either, since splice_file_to_pipe()
-> holds only the destination pipe's lock, so draining pipe A can race with
-> splicing the same socket into pipe B.
->
-> Would moving the atomic_sub_and_test() before release_sock() make cons
-> and splice_pending change together with respect to the socket lock?
-Yes. I will move the subtraction inside lock_sock() and keep the wake-up
-outside. I will send this in a separate patch.
-
-v2 will follow as a series
-
-Thanks,
-Hidayath
