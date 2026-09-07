@@ -1,110 +1,88 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2704B43CE6F
-	for <linux-s390@vger.kernel.org>; Mon,  7 Sep 2026 21:46:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CBFB3815F3
+	for <linux-s390@vger.kernel.org>; Mon,  7 Sep 2026 22:15:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788817579; cv=none; b=KSlomTi+gCD/bhvksIeOy19cPNAWuOjdKNQMfOG7Jet8qv0CXH73QncRQOHxsKI/jKoCG86pzY3zn7ZFFOcRODeU/66b+FqlH5UsDnpiUgiqInYZ3D4FD3uSHcpsLvonSkiGYhSRTddUXKGwtc4LDZB9E0hpRLsEpsLmvMkvOxo=
+	t=1788819322; cv=none; b=Mabdt2Y8Q/G6mdoV/sKkioJPbwN1lhnvdv82gSdcE0Bd+h4uRq68jhIQ9rbwFZRM+7XBAuGgvOsi419tj7id8ZZHTTYPIYWF2ldq7PKkWJlmlsPYUgQ4AGyVqql/hFCczr0oUyO+u2ycz8565XaNROoJAGXdkHtUph12s/jXWEE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788817579; c=relaxed/simple;
-	bh=BjK9vT7j+uUDxOu31cZD0dg87r12JRq28IJVMhS7if4=;
+	s=arc-20240116; t=1788819322; c=relaxed/simple;
+	bh=xWQKezu4BREhy3j/blXwxCRCfvwvHIXrTtHnHeeaEXk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rvpQl8JN5Z2eZcjPw3UzYiNZqIWSBIn113o2kNfmIhfn2++bHfXe+3BUHdKjwgW8PcPsaDnguq6IWe1mrnATPKcqUatmpjJlSMOzkgDulYlw43eCkpHvYefJGYAKuPHM1yKMcgTc3Q5d3jH0hpMRpiH+Sw/G1ALhOvr5Z6ZLfL8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dqd9iSfA; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=MwODpOYh; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Jk+9zLsI2/mkQwV0DGlNotuJnLNLWaJkijMxwnv2j7DpMFfc5il7f5GwHr3bDosEOybsdyBy1XVC+IRArwzJwY4CCo93JNoC1L4EJX4Y8e5ekhY8PKUrvTAVFCGFRTCvDGPixrO4He0/fTSN35aSs7/wSgprAgvbHQ6QogyEqZ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rJqnduyv; arc=none smtp.client-ip=209.85.128.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dqd9iSfA";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="MwODpOYh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788817577;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=GC0WWsmiiFckjnXpIAV44INGlQO0KgKkCU7zQg2E+YY=;
-	b=dqd9iSfAvIzg2LVYt3LXQy7E5x0lXcXDzt9n3MbAlJBaA1vTFIxlZnjdrdidEo+tVpMMvX
-	oaV5yRrMfugtVc6IIAIqGwC2BmSJG2qo9dDbIuFpkqaWRtbtVw5x2+YzEIon4xB+dYDX+L
-	w6guYl2scbwlzIhEwcmZDzUwGs9FjG8=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-527-pjbzashhNKSpHiqv1kfb2A-1; Mon, 07 Sep 2026 17:46:13 -0400
-X-MC-Unique: pjbzashhNKSpHiqv1kfb2A-1
-X-Mimecast-MFC-AGG-ID: pjbzashhNKSpHiqv1kfb2A_1788817573
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-49d156c917cso6501195e9.1
-        for <linux-s390@vger.kernel.org>; Mon, 07 Sep 2026 14:46:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rJqnduyv"
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-498028b3d5eso37722785e9.1
+        for <linux-s390@vger.kernel.org>; Mon, 07 Sep 2026 15:15:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1788817572; x=1789422372; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788819318; x=1789424118; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=GC0WWsmiiFckjnXpIAV44INGlQO0KgKkCU7zQg2E+YY=;
-        b=MwODpOYhur3RL4U2BfqIofA9roFeaq4XB+bs4DRvWkxfB7Q14NtoOnA941szEUscOa
-         D32YqGFZWxvwCG1kHLXmLAfJ4Je1w7cNvhLXJBUMHqcopaRAWdKYXOcYW4ENGoW98+bL
-         75RmLy07PgKo9H1RnN87ulEP2425KEg7REyJ5JlNg6n48MxQgdIgOLJy1T3Ry9vdcC/M
-         BHPEQINU6wT0ufk/2NAoLZF0+8jQXcIiQQLpJgB2+SYSyHLpkbs1NbJz7Jjd2pK+jpZG
-         YpgDkrgnPiFSJijNVo7NxazjeaLMElYeQqGNQOH9km684Gb+U6xq5a4mNdVQLFnuTmet
-         dn2Q==
+        bh=oxCw6MZUrUMQF3PxuLGYM79WzM4GNi956bvyl3WEJ2c=;
+        b=rJqnduyv3+GKruEiOn2qVV1C7znyq5QrRRS8m9CUavzzgCz57d0/XAd8J+yUQrhg3O
+         F0GCmdNrqMi7ytL99Rnq4dFDA58FMM9YfFX6s78vnx07rs0ylnylBPDT/qU8kkOBktKz
+         yC8rRFqMDdP4lxGY3fvArsigYGjlylSkxKzCt3lVKDTLpWb2q9fCuZgzrZ2v9HAXXMpY
+         RzL3zjzfevdli53ZcpxkIU6hS2QkZSuHgHOkt1YtMcnaty4fQzT2TwEBmQMAkVQ4etd9
+         D1dXx3OwuRL5WVEuXzTf0xpLuI6Q6CGwc62QzAJzVWS3oY0n1RFIkjwDj+ij9CvKeAgv
+         dl8g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788817572; x=1789422372;
+        d=1e100.net; s=20251104; t=1788819318; x=1789424118;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=GC0WWsmiiFckjnXpIAV44INGlQO0KgKkCU7zQg2E+YY=;
-        b=ks8QK+J+W84QltD0auXP6XHlklGSuXjNiXD0hyvMOKIMv4j43SMOGcldEyIRkO1EPS
-         VZumvgFwLcfE4bJ4c7ZX8NcTCyVbT9w37Kd+U65na5Bs0eRrs7l+nVSv9iQ5pA6PZHFB
-         djqMmNB+Xl51A648w7+wBqzaiFYz+MDhnJYtslJ5Ee4KKNCZySmLVMRAjYukPFvW6RJ7
-         xKp2XVmZ+GGpUikVLw7uG16hWetEC+pNDPNUYXZ61LnZ0+X1GaIPifz/qkPFmhNekLbG
-         5gKFyw5qnb5JuHxC1HOZ1X6F9n6FUsjCAF7/CxYHz3M+/a/BHMIuG7BGGJBVJh1/RCTw
-         1krg==
-X-Forwarded-Encrypted: i=1; AKwUvByVzkA6jLuRgdF1vRpGykVwHuAEgf1zrn3/UXyKuD+hnQyQChK2x6x2Hz80ShusQ/CoI15eionHungp@vger.kernel.org
-X-Gm-Message-State: AFuF++mYyQjqHlUcyg+tbgE6F9BF2O68TXtomIk60iRUebZkxPKioLTm
-	fBbsKZaBf5lV8Ay3TnS9BFx1XP6FyRPl2H9bPzC5E7alE5y8c67RH/0i8WPiQyU7VToezaZNh9O
-	nVynuqsXrjmy9pSxb42ml2/u9BZEsWibRqmMnVHmwcfhekaq9baKopWOR+sOgzpc=
-X-Gm-Gg: AYBFou22lzsM9wG6a4eL4ENGxilRnkpTZgXu2j9RnnaiTbdq/D4lIrBmyaeq6Mtrsg3
-	6LYsmHY4oQ0J1eKlF3ChTyj6iewEgGu3FkYWEcFo72UF2WTw+jDlzFeVJD1PcS/QZo/MUips8mu
-	RDop5vUzCp2GD9LtNjbrFo7DlOKq3PoezVunAz34yGqLjYKVtxIeoyjgRc37hRQ8t/og1gA3sxz
-	wtOcgAcBlNwPH3nKFSwHfEr+/BUi4t4GZ2HVqe9TQ49Er2gQ0S7IOzHi6uAT7+UuGmp4A74jsA5
-	CzIfAW2AX6dWdLvqIWfgwZCN93Ee+Dyt66+As6/T8V7Ovn7mrLtuV9efuYXHYJ/XXpETSuomWYd
-	dMrSOHL+kstGJBeP407fkxdc=
-X-Received: by 2002:a05:600c:3145:b0:49c:f13e:e4c with SMTP id 5b1f17b1804b1-49d1757294bmr35387255e9.9.1788817572587;
-        Mon, 07 Sep 2026 14:46:12 -0700 (PDT)
-X-Received: by 2002:a05:600c:3145:b0:49c:f13e:e4c with SMTP id 5b1f17b1804b1-49d1757294bmr35386945e9.9.1788817572138;
-        Mon, 07 Sep 2026 14:46:12 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49d0af538d0sm194010325e9.8.2026.09.07.14.46.09
+        bh=oxCw6MZUrUMQF3PxuLGYM79WzM4GNi956bvyl3WEJ2c=;
+        b=h//rwiSQGt7vG71Rai71hrr/A+gECVbdY04tPoZ2iYK0qBgt7Io6xcdrO1nSZ/uims
+         +2yTmkGlrqbhY+5RQrHJZTCGNHWDUkuUOXnQkTPjFBWCzpT65ltFee4MvggxdRztPeop
+         nYHAkuy+7zxutMg67hcuo4+zwadMawAwXp1NyyqgS7T3NMKOeipXFPWYzwtEkDVXEy9S
+         kyYyB+Z0XMNz3hxIhuTSukKSybZhtNOeE0OL1YfwuN0+AKpJUF9npW6Dfpchtk8O8F0d
+         c6p0LJW/86m4smK/g0H9EdRaQ2PPNBP3CqRN+pjXBW9js5NMW9t8cw7fX7O65/8uV1VR
+         9cPg==
+X-Forwarded-Encrypted: i=1; AKwUvBxNGC57ky5HxSlZL2Y7pKy5utX2ywumjuLAyv8YCijxu7TjUnL26r4x2uaR46YauHI8Hx2uXa1HSpwZ@vger.kernel.org
+X-Gm-Message-State: AFuF++lHtBiiF0ZvPOcHOtUI1d30HXWgGx0qTvzB9x9kk2U/LjAAo6kP
+	G4vnXwVpN7jd32efCHMYKa0p3NPLFrmUzz1mkKh6Zb3nmEbSHjMHF0Jr
+X-Gm-Gg: AYBFou3Uym37MkwH/y3wZpI1Xku7C376RDWfHFyHtCX+cHlX9qQeB07SgPtXc+FPij3
+	WdPp0I53z3oCaw5BxVaI5tK7oCnzzndzCTxYZMtneFahzGt7/f59gFidbDtYM8BCPv5szAQkq04
+	hc7FqPoCaPOCoW22Yi0xZ1rrhi6+TftDIq/qbBTajhC2GTcx4PX9dSvzeg9ERmR8afx55slw8Os
+	HUyWxJx3ctxk305JW99Et8dgVn00ueeDwwG+fTDJ6PzDhrn7e04SnWeVR0xiyp2YY0phUaba95F
+	itF/hdBeyXOo16/tCgvdzId0SJ++TIVk5LS+XpXisdWkEpQiCNXp8tsfl72xDIwhwuP9Uf9D8Um
+	xm/2UYzw0ao+IqwzA+aA5mWnJ1Vmp2A1lVwKKBFLXXr3yYVOQ0LAHcEwJQXP1edzIs58DtsoR1Q
+	rdQG/UlvDRkqD230BJ/kRtlqLKnBkbT2qoM12lUNV1YqnOOg1A5Md+nh6nMpndf9akhGXKXRzHX
+	BGPJpkMtuits1TjHBB+tlRFfoDW9kWzeMH6jL/iYAReTVnL6yD3JivYtwiDmrnDvYKE+Yk4Uc+n
+	AhELGp9dAqPuy7wVgkVF3baU3wtWMRTyogC5UAiblQPsfEgl2XMUIx9HZ187vQd0ZE+q9bCrcx8
+	c
+X-Received: by 2002:a05:600c:8012:b0:49c:d818:8764 with SMTP id 5b1f17b1804b1-49cf826818dmr259779075e9.11.1788819318162;
+        Mon, 07 Sep 2026 15:15:18 -0700 (PDT)
+Received: from MacBook-Pro-von-Karl (dynamic-2a02-3100-b0c9-3601-cdce-ba4b-d0e3-dede.310.pool.telefonica.de. [2a02:3100:b0c9:3601:cdce:ba4b:d0e3:dede])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48588394fa1sm29993570f8f.8.2026.09.07.15.15.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Sep 2026 14:46:11 -0700 (PDT)
-Date: Mon, 7 Sep 2026 17:46:07 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Karl Mehltretter <kmehltretter@gmail.com>
-Cc: Jason Wang <jasowangio@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Pawel Moll <pawel.moll@arm.com>, Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Hans de Goede <hansg@kernel.org>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	virtualization@lists.linux.dev, linux-input@vger.kernel.org,
-	linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-	linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
-	linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org
+        Mon, 07 Sep 2026 15:15:17 -0700 (PDT)
+Date: Tue, 8 Sep 2026 00:15:14 +0200
+From: Karl Mehltretter <kmehltretter@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowangio@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rusty Russell <rusty@rustcorp.com.au>, 
+	Pawel Moll <pawel.moll@arm.com>, Cornelia Huck <cohuck@redhat.com>, 
+	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
+	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+	Johannes Berg <johannes@sipsolutions.net>, Hans de Goede <hansg@kernel.org>, 
+	Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>, Vadim Pasternak <vadimp@nvidia.com>, 
+	Bjorn Andersson <andersson@kernel.org>, Mathieu Poirier <mathieu.poirier@linaro.org>, 
+	virtualization@lists.linux.dev, linux-input@vger.kernel.org, linux-s390@vger.kernel.org, 
+	kvm@vger.kernel.org, linux-um@lists.infradead.org, 
+	platform-driver-x86@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH v2 2/3] virtio_input: stop callbacks before unregistering
  input device
-Message-ID: <20260907174559-mutt-send-email-mst@kernel.org>
+Message-ID: <ap82pFlX8enNG0gZ@gmail.com>
 References: <20260905152059.89560-1-kmehltretter@gmail.com>
  <20260905152059.89560-3-kmehltretter@gmail.com>
+ <20260907174559-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -113,64 +91,21 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260905152059.89560-3-kmehltretter@gmail.com>
+In-Reply-To: <20260907174559-mutt-send-email-mst@kernel.org>
 
-On Sat, Sep 05, 2026 at 05:20:58PM +0200, Karl Mehltretter wrote:
-> virtinput_remove() unregisters the input device before resetting the
-> virtio device. virtinput_recv_events() drops vi->lock around input_event(),
-> so clearing vi->ready does not stop a callback that passed the entry check.
-> It can still use vi->idev, requeue buffers and kick the queue.
+On Mon, Sep 07, 2026 at 05:46:07PM +0100, Michael S. Tsirkin wrote:
+> > Assisted-by: LLM
 > 
-> Reset first, as virtinput_freeze() already does. With the preceding core
-> change, reset waits for callbacks before input_unregister_device() can
-> free vi->idev. Recheck vi->ready after taking the lock again: keep draining
-> completed events so an input packet is not truncated, but stop requeueing
-> buffers and kicking the queue.
+> which llm and which agent?
 > 
-> With evdev attached, input_unregister_handle() currently waits for an RCU
-> grace period, which also waits out IRQ callbacks. This masks the lifetime
-> bug on PCI and MMIO, but does not protect sleepable callbacks on other
-> transports.
-> 
-> Fixes: 271c865161c5 ("Add virtio-input driver.")
-> Assisted-by: LLM
 
-which llm and which agent?
+Claude Code and OpenAI Codex, each with their current models.
 
-> Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
-> ---
->  drivers/virtio/virtio_input.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
-> index deec24e8e682..7b654af0a42c 100644
-> --- a/drivers/virtio/virtio_input.c
-> +++ b/drivers/virtio/virtio_input.c
-> @@ -49,9 +49,12 @@ static void virtinput_recv_events(struct virtqueue *vq)
->  				    le16_to_cpu(event->code),
->  				    le32_to_cpu(event->value));
->  			spin_lock_irqsave(&vi->lock, flags);
-> +			if (!vi->ready)
-> +				continue;
->  			virtinput_queue_evtbuf(vi, event);
->  		}
-> -		virtqueue_kick(vq);
-> +		if (vi->ready)
-> +			virtqueue_kick(vq);
->  	}
->  	spin_unlock_irqrestore(&vi->lock, flags);
->  }
-> @@ -350,8 +353,9 @@ static void virtinput_remove(struct virtio_device *vdev)
->  	vi->ready = false;
->  	spin_unlock_irqrestore(&vi->lock, flags);
->  
-> -	input_unregister_device(vi->idev);
-> +	/* Callbacks use vi->idev. */
->  	virtio_reset_device(vdev);
-> +	input_unregister_device(vi->idev);
->  	while ((buf = virtqueue_detach_unused_buf(vi->sts)) != NULL)
->  		kfree(buf);
->  	vdev->config->del_vqs(vdev);
-> -- 
-> 2.39.5 (Apple Git-154)
+I switch between them and let one do review, the other
+helps with implementation.
 
+"Assisted-by: LLM" is the form Documentation/process/coding-assistants.rst
+gives now.
+
+Thanks,
+Karl
