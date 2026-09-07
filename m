@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC68246C85F;
-	Mon,  7 Sep 2026 10:24:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D97E46C844;
+	Mon,  7 Sep 2026 10:24:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788776666; cv=none; b=Y614Cr9s4mQZVeUdwyI+FA6r5kvcbkyN87ierRwa0J3gk4ZM8ASwA4YrkEp2ZllEzIS8k1HyHLw71QRPmqUEPjloTcfvYoor+UdiIvUFUn6WwSuY/w4OF+YGRhmGLHIjEbWf5O1LUUJVvm5JxWIm690LfMtWfndDCSMRIufNNAQ=
+	t=1788776670; cv=none; b=PGL+D8KArmcq9fSicQkAgtyzX3VGCk6tTK1cJ9MhGpEhYH8UAKkruwAg54yP5lf4AIW+j57uIJvwRzt0CPSgrEFxjkit0/0/OO1zPgEJ5EW8WGE8OVFrMyuEjmCstF3OBDXaPtSwJJR01T6iEmE8/OOCAYtUZ43ifWMt8Pq9FIg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788776666; c=relaxed/simple;
-	bh=py2j1Mb0iGfPkNln0c3I0yAAV0xNwtsE2Kq4knjbP0s=;
+	s=arc-20240116; t=1788776670; c=relaxed/simple;
+	bh=ExZRIfSZYWKiGLqVEza6Pma8epGogrkm5/O+l1yl1Ww=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Xh+Zy4aQ6fUIoK68KrZZjk+wVd6KCCc83hKCKgMRIXXW5jstMbcq5webHz9YeEe0FiWbmKGImzKMm5WXVv9YZQ1/5e0PZbaaCJSNDfSlDxdRCy1QJFfA1h+yDFEUO810FpLz693D9IpoBdFH5OuBo1jG3H6LU6s2tIxnwpd2qic=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VSFPOQga; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=gKoNSRb3wWTxVdFpXCWfMSKvRAc8r++oNwdv0Gvx1k90/GgGSxc6GhGFa/Igj0/kX2nHfTVTc4TmYNKGxdPP67sJtH88yhr3+NZkzw65bh9O7HgT6gURahbOl0qkVP+0gLehZ5hfFLqZl+FQ+X0xQEGNjrC1LNwCeYMU2JbqHHo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m9w2iL9K; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VSFPOQga"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D78DA1F00A3F;
-	Mon,  7 Sep 2026 10:24:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m9w2iL9K"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F10A1F00A3A;
+	Mon,  7 Sep 2026 10:24:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788776665;
-	bh=LB6kX+FFwnDBpk8VzIo69FZJtwl3A5eOSrIP15c/e4Y=;
+	s=k20260515; t=1788776669;
+	bh=kjadfUkSzyOP1zHYpwk4bR2tv8NVDjjU5ZmwfJdW4t8=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=VSFPOQgagwllHZbFfsorGzw3WQyeZsCzeMxcCv9VTYDjLMnEXGhqpUlRUvk87Qhks
-	 7lpd8Jl/A77vNADRXD/MUz8DTKrMt7qm+QiIQIi+U+AH7kUOBbP3fVlcaZS8yh6NAh
-	 EDe+BGYR3xUCfpG6/QpEJEObPiOlH2KJOTRy5tsiwbV5R6QrQ8vQ3DKn1bgmNLW1sd
-	 u0kuFe4xw51lECkKZutCbpfu/1MjuA4L8cYSs1+85ml30PZBTDzCs45C75L85Qi8BM
-	 /fsWIVGYFPg4P852DpOtyEdyRRvlHf/CA6jyz8C8UHuJeM1ersvekcvvBBBLqfXBCF
-	 SzIMe/ySFFK6Q==
+	b=m9w2iL9KmZjbnwrL0PHYradx8kYA+DJUJqja+5JXA3joouaWZ84qaThOVENwcCa0G
+	 ZX6bY8ySJ/fwUO2yJnCE3LA/A73yTEii5MJR8C0IMmDBImhkpY/xFuXWkSzO58yFdB
+	 FhyUiskZw/3HT9vOUJzibtohk4EtRNxoVdvw6KZwWjbqTMG2D3mdlAVlmp/Pz24EWh
+	 CeuaQAW42sS3OXwyQNx5fy21WGqhT3NHmNZeup5RvDNUqgWQaWny7K1VauWJCfFYfE
+	 kpqE+3wjwf8LAzcLP4fhwd6E0A6YOBWsHM68zaqFRDTVAMMuNgqiSF46JD/rzOky0q
+	 lb3eJyYGR2H2w==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Mon, 07 Sep 2026 13:23:51 +0300
-Subject: [PATCH 10/13] s390/qdio_setup: Use kzalloc() for QDIO buffers
+Date: Mon, 07 Sep 2026 13:23:52 +0300
+Subject: [PATCH 11/13] s390/qdio_setup: Use kzalloc() for the storage list
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,7 +37,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260907-s390-cio-ready-v1-10-ca7f39806234@kernel.org>
+Message-Id: <20260907-s390-cio-ready-v1-11-ca7f39806234@kernel.org>
 References: <20260907-s390-cio-ready-v1-0-ca7f39806234@kernel.org>
 In-Reply-To: <20260907-s390-cio-ready-v1-0-ca7f39806234@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
@@ -51,7 +51,8 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
  linux-kernel@vger.kernel.org, linux-mm@kvack.org
 X-Mailer: b4 0.17-dev
 
-qdio_alloc_buffers() allocates the QDIO buffers.
+__qdio_allocate_qs() allocates the storage list information block of a
+queue.
 
 This memory can be allocated with kmalloc() as there's nothing special
 about it to go directly to the page allocator.
@@ -66,7 +67,7 @@ fast path allocations.
 For the slow path the performance is anyway determined by the amount of
 reclaim involved rather than by what allocator is used.
 
-Replace use of get_zeroed_page() with kzalloc() and free_page() with
+Replace use of __get_free_page() with kzalloc() and free_page() with
 kfree().
 
 Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
@@ -77,27 +78,27 @@ Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
-index bd80703c174c7..b6f2ff202fe64 100644
+index b6f2ff202fe64..7ca8f61a2387b 100644
 --- a/drivers/s390/cio/qdio_setup.c
 +++ b/drivers/s390/cio/qdio_setup.c
-@@ -35,7 +35,7 @@ void qdio_free_buffers(struct qdio_buffer **buf, unsigned int count)
- 	int pos;
+@@ -83,7 +83,7 @@ static void __qdio_free_queues(struct qdio_q **queues, unsigned int count)
  
- 	for (pos = 0; pos < count; pos += QBUFF_PER_PAGE)
--		free_page((unsigned long) buf[pos]);
-+		kfree(buf[pos]);
+ 	for (i = 0; i < count; i++) {
+ 		q = queues[i];
+-		free_page((unsigned long)q->sl_page);
++		kfree(q->sl_page);
+ 		kmem_cache_free(qdio_q_cache, q);
+ 	}
  }
- EXPORT_SYMBOL_GPL(qdio_free_buffers);
- 
-@@ -49,7 +49,7 @@ int qdio_alloc_buffers(struct qdio_buffer **buf, unsigned int count)
- 	int pos;
- 
- 	for (pos = 0; pos < count; pos += QBUFF_PER_PAGE) {
--		buf[pos] = (void *) get_zeroed_page(GFP_KERNEL);
-+		buf[pos] = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 		if (!buf[pos]) {
- 			qdio_free_buffers(buf, count);
+@@ -109,7 +109,7 @@ static int __qdio_allocate_qs(struct qdio_q **irq_ptr_qs, int nr_queues)
  			return -ENOMEM;
+ 		}
+ 
+-		q->sl_page = (void *)__get_free_page(GFP_KERNEL);
++		q->sl_page = kzalloc(PAGE_SIZE, GFP_KERNEL);
+ 		if (!q->sl_page) {
+ 			kmem_cache_free(qdio_q_cache, q);
+ 			__qdio_free_queues(irq_ptr_qs, i);
 
 -- 
 2.53.0
