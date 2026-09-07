@@ -1,200 +1,168 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE6514FC8FD;
-	Mon,  7 Sep 2026 15:25:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788794720; cv=none; b=YetoV46kXjsrKC6LTiISygk45ezUOeEqfQKbQBbAeyYroKVd2xlOJPiTVqXsGHsVCNmqA1RMgbk9JM5j5yERWqcfu+o3xWOZbEklu6o3qafg2iqtdMHqgMK8ibHjz92SWO0DbjxsQ7GGxQ9L8325jfiT3N9nnKYXDAHAJsgVLcs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788794720; c=relaxed/simple;
-	bh=eKzDr8/wCeQCg2/90BjHTxPETEeWJwmcwT2sGZGhowc=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=JeWwyO6S9RG9ZlPuPgSj5EevEsOAH8PqB8lTUfGJ1omZ+a4wLcPCZqGxn29CHWGX6ODZhMQUfd8qsQGy9TtK2n7ndSjU29fpJnHA7oATjWCqFlYjUlZfikUhh3CRWwYwgSECkqg4ib0D2tu2B7OwVCP2iSJgLmA/iiIACgRQ1OI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aQHS8/MQ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B357B44CAC6;
+	Mon,  7 Sep 2026 15:26:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=216.71.154.45
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788794762; cv=fail; b=qVdnSI6wpX0ZHNGKHulCG9Km8h8ahDcTwq/TzwuzC1kKLCLskIVoDvX4gn0iB0Qo9iABtSRYxsh2m8YmEvgMsKPo0R0EJ35ZKHQDrgISDCuzcgBU40RjKjENtNW1d77LAaN10h3lG4ndKt96KQJtp88GUmFXIxbZq5Bu7ANxUEM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788794762; c=relaxed/simple;
+	bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
+	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=Gl0h0K8iFBKHYXy8W5ND1bRntC8Yua7N5YvN9kEzk+tlEX6YlIYAHTe8uUlzw8rA7EBXL+sI4TUx3xT4nSIJD8mx8rhEBXB7vcl0e5dPu7eWPPazcJ8h8gQOKJJct68gUA/fEYAt+3Q4Z7GUFOBNStqIj5ml2N8lDnh05CMIVEg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=bZ8r0v62; dkim=pass (1024-bit key) header.d=sharedspace.onmicrosoft.com header.i=@sharedspace.onmicrosoft.com header.b=RiV09OZK; arc=fail smtp.client-ip=216.71.154.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aQHS8/MQ"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 687E1Xmh2191807;
-	Mon, 7 Sep 2026 15:25:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=gSJtfM
-	shSfXkqFoQ/Va92ywCE30Yrb2WoQsAi6r9XaQ=; b=aQHS8/MQTStBeL30OG+qAO
-	j9XZWRNK/97Bt3ZPSeMxuOf0vILlOhRMfaRAoI9oIXSjdmeaqmRxh4wO/YxpWBqh
-	4d2Erz3ZAXcElilKPD1lpR/ixa42HuaYvhR+SFrwEE9QluPi8WgqshViuuqgZB5+
-	efHq7p3Ev7gSRevlTEY2KuADQfubpx30qJBndELRR48A5f/ZELqsjXVsPQ7EJINW
-	j6igc4SCGWIgh6YC93aUQjozNjRpcA9vZUXYExg0+no7Y6W/IDIyfwKR+4XyCUll
-	XH6Cb/KZE5YQeBRfCmjL2MvVEUAb0RdjpLbSbaUHgtO1FtiZlpBfC3JhiJdxhsjg
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ggbhesc11-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 07 Sep 2026 15:25:09 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 687FBG3E017847;
-	Mon, 7 Sep 2026 15:25:08 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4ggymg6fej-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 07 Sep 2026 15:25:08 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 687FP5v643450774
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 7 Sep 2026 15:25:05 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3899620043;
-	Mon,  7 Sep 2026 15:25:05 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A567320040;
-	Mon,  7 Sep 2026 15:25:04 +0000 (GMT)
-Received: from [9.87.150.24] (unknown [9.87.150.24])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  7 Sep 2026 15:25:04 +0000 (GMT)
-Message-ID: <98f11271b6574aa945755f073a3bcec8f69a02e9.camel@linux.ibm.com>
-Subject: Re: [PATCH] arch/s390/pci: fix fixup_user_fault() calls with NULL
- unlocked parameter
-From: Gerd Bayer <gbayer@linux.ibm.com>
-To: Liu Dalin <liudalin@kylinsec.com.cn>,
-        Niklas Schnelle	
- <schnelle@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik
-	 <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Matthew
- Rosato	 <mjrosato@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle	
- <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Deng Yingchao
- <dengyingchao@kylinsec.com.cn>,
-        Qin Yungao <qinyungao@kylinsec.com.cn>,
-        Luo
- Qiu	 <luoqiu@kylinsec.com.cn>
-Date: Mon, 07 Sep 2026 17:25:04 +0200
-In-Reply-To: <0726CF177011E0E2+20260826064228.3255764-1-liudalin@kylinsec.com.cn>
-References:
-	 	<0726CF177011E0E2+20260826064228.3255764-1-liudalin@kylinsec.com.cn>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.2 (3.60.2-1.fc44) 
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="bZ8r0v62";
+	dkim=pass (1024-bit key) header.d=sharedspace.onmicrosoft.com header.i=@sharedspace.onmicrosoft.com header.b="RiV09OZK"
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1788794760; x=1820330760;
+  h=message-id:date:subject:to:references:from:in-reply-to:
+   content-transfer-encoding:mime-version;
+  bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
+  b=bZ8r0v62LJsLXIml1Mqq9JAfamcMQpnwRRde0APIIHArbYS0H9YaE0pG
+   2pdWkSGOLGhezCY6hUmKKjjxQQF1ZRQrDrmhPv8qqy+4eGZ2QKakJq40Q
+   9Z9xdzENQ2DzJ+AlYqiGbNuaKDwfmLumTG3RnOrfWli00Gm/5a2KnkAp0
+   xAi7ZkRg8foiz03rUvu6Gchem0aDNZKDYh3rJP9HdKHqgIQU+gzWwJ8Wd
+   Rv+oyA3FA1o2zIsNTVpHeeZwlbHpeldTBAS6PJIcDg3Wg8FRFOaQ6ln36
+   wS1KUn7B/2vMWu5tYRYSuoXu1ut9LL7SFgN/LgMAHwTI7CkdEgdwFeLmL
+   g==;
+X-CSE-ConnectionGUID: yLYcBi81TV+1Jc6YWnAf4g==
+X-CSE-MsgGUID: dSqf13NiR/uIpILAP7avPA==
+X-IronPort-AV: E=Sophos;i="6.25,267,1779120000"; 
+   d="scan'208";a="153548057"
+Received: from mail-westcentralusazon11010016.outbound.protection.outlook.com (HELO CY7PR03CU001.outbound.protection.outlook.com) ([40.93.198.16])
+  by ob1.hgst.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 07 Sep 2026 23:25:59 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=jmMjri8ejF8VNb89JEyBXnFQAi56WTgjsAFzihsPg5ZxCUb8Ruq5CksK0l7/mkd71tT11hSOcE7het/HpWlve1oMAQtNY3A2kZkjE0Ep63AjO9d/ABaGm1vicSrihGub0y9ImlvTX5ll5owHdgHqGvFFM/R7W20NJQpcdXhYPWfVdacpAQ8BtTRj109aizSF+VCW1BKCFY1Fj5T3mqik/BNRJTWgBO0dPFgxE7U38TTy0PnSEixMIseJU8d7psENP4A/o6Ckgir0fFg04o9E18yg3K0jt44xIYG+zceNFyOEwrQ6RDqQUdNECdsyG5P4fxhLupJ8HLWWntvTTSGmMA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
+ b=xYT9N0BCUUFVUqnNbj8kWlEs7LOa1zmk+ye97puD8ch66tccfrT65af1I3hVrNvwZb1JzjPpa7BzY24k9scbUr0s8aIt5Pe8B812Q9s/hElDnZTEBf5hMYE8TBINKezuVDWQ3F65W5u5S9ajn2DHHGCMWl7bhTy4OXdi0sgpUP1e8aOqxXGABdT/4VLg6Hnx90NhLFzF5nZl70/TEFWyNBGrjzM6BGWFDjtTqFgw750B46atuDd+gNbQREgJt2Yz/6m46y2d+YhxkT4KWIYH1yhaeGPVOVIi3EYVoSpnqGA4w0M6v8fyA8Zaa0RZzHtS5zgjJR7OoddpbDsI67gVBw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
+ b=RiV09OZKZ1clBeOKRI2wstL4YKBEiOuOb9DvafYRHZ18+naaaMU6qPJzcGZGLEjl1pIsSJ7L7ONKgSiMdLNqxw045D3lmoBVCKo18nvjCpJuji0na9z2KXfoX21gO1dxSTyy4kRybIPTwSVawVeWPpkIpCem/jsIbmzVI4wClWk=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=wdc.com;
+Received: from SA6PR04MB9447.namprd04.prod.outlook.com (2603:10b6:806:436::21)
+ by LV8PR04MB8960.namprd04.prod.outlook.com (2603:10b6:408:18e::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.382.15; Mon, 7 Sep
+ 2026 15:25:56 +0000
+Received: from SA6PR04MB9447.namprd04.prod.outlook.com
+ ([fe80::14c6:1c14:485f:1825]) by SA6PR04MB9447.namprd04.prod.outlook.com
+ ([fe80::14c6:1c14:485f:1825%6]) with mapi id 15.21.0382.014; Mon, 7 Sep 2026
+ 15:25:56 +0000
+Message-ID: <69d39f0d-37e6-4724-99c3-4ecde2854fe2@wdc.com>
+Date: Mon, 7 Sep 2026 17:25:52 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 25/40] scsi: ps3rom: use 16-bits defined sense codes
+To: Damien Le Moal <dlemoal@kernel.org>,
+ "Martin K . Petersen" <martin.petersen@oracle.com>,
+ "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+ linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
+ Niklas Cassel <cassel@kernel.org>, linux-usb@vger.kernel.org,
+ Alan Stern <stern@rowland.harvard.edu>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org,
+ Heiko Carstens <hca@linux.ibm.com>
+References: <20260907024343.1046387-1-dlemoal@kernel.org>
+ <20260907024343.1046387-26-dlemoal@kernel.org>
+Content-Language: en-US
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+In-Reply-To: <20260907024343.1046387-26-dlemoal@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: FR4P281CA0166.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:b7::17) To SA6PR04MB9447.namprd04.prod.outlook.com
+ (2603:10b6:806:436::21)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: nJa_E25ZscRu5YZVdGbVbWd_q596R95w
-X-Authority-Analysis: v=2.4 cv=RIaD2Yi+ c=1 sm=1 tr=0 ts=6a9ed755 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=C4lfG5toAAAA:8
- a=HXg_6OqaGmJXRC9Fbd8A:9 a=QEXdDO2ut3YA:10 a=iqleXTDqv_QQetf3OR0u:22
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTA3MDE2NyBTYWx0ZWRfX9i6Q2Mx4fDsi
- mmL3C1S7DEqvh84mmsRbB2Hwjb1CuHGoRZy/TzndoBywhzqqQtuZyxJWyB3NG9h3iROZtcMjLVR
- TiLYSZ9YD4fMBMkK8JZy/Tdf/aRUut8=
-X-Proofpoint-ORIG-GUID: nJa_E25ZscRu5YZVdGbVbWd_q596R95w
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTA3MDE2NyBTYWx0ZWRfX0Ga9Lozmhsv7
- lY9yjR7oUM8IlTNqcK2LnsvlJV52sdeYqXxlUkfRabg5GlMFsKpQAnAOF+7a39WKqNb2TQyaP5t
- XrHJkhRIGRaqiKtkSbGdZUoIlllzNkDzuuilGWcBtoWnH8RZA1koKljWRpAqBlsAVAo4TbH5N4w
- Nzw/kSnP0yUBa+N1B2+UDv99Bm+Ay5ZqQrwN/++rQ4TT9mS5YMiGHajVJC3G+cj8IJ27R4IXZVG
- 7g+z1gxsv/uKNSeNlzxRned3CmB8zeNOcHBhFtg3GCLkJLOTAYfymRC3byaqNwR35Vt6koV9gru
- /MnkhP2QdWKEaSfxQHXrkiDd4e4mjBg031W3eaZeeiJCHDoYX3QBTmW/Rs72/tmuqgDh6DgtZL5
- ptDPkJMlhWbm4ce9bPlKHhZKQHkOXoQrt5ZuTQ2BNPlDobGs5VN5T6i2eZCArzzkmYzATuvnPyR
- c0ZRKOImVkpG+2i5J1g==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-07_04,2026-09-07_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 suspectscore=0 malwarescore=0 priorityscore=1501 bulkscore=0
- adultscore=0 phishscore=0 clxscore=1011 impostorscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609070167
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA6PR04MB9447:EE_|LV8PR04MB8960:EE_
+X-MS-Office365-Filtering-Correlation-Id: 197687ac-1efa-415c-a43b-08df0cf4501d
+WDCIPOUTBOUND: EOP-TRUE
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|366016|1800799024|23010399003|19092799006|7416014|11063799006|56012099006|4143699003|10067099003|18002099003|22082099003|921020;
+X-Microsoft-Antispam-Message-Info:
+	lpzs2yiZS3eC8v6Ej0gh3BI8WO9wMDLWKApqlUrcfk9i4lj5gynhIRaYEahRldm5DRiX3F5ddjSMtQZZLuy1nVtnf6y2QD8+MLVggf0+rZ+RrL4LN+n+2TmYBDTrNFDjFERGGBl3NQ2n1KNJBKH+gkkpTxqz8AGNOrePqHJlFJRx0+2m/Bdgf33q7ikYiTjI79OpK1tZR9w82C96IMSx1n4drHdraC/qGmnzWgjdviBGmpzoOogNJyCdy6yg3OIY0qu3U494mYedZ42nkN0vQFU+fWULdeDGF7G2xZmnk1nyiuPIVYbVzl3CnrrEIoKgAk48b+WOFALudTmIWmUmgtfYK92wirsb7kru/lqvTn4GPEWinRz+cm265QnvVgRiirdwea+8rYwR0ZPXHT/IpKqshuVaqXpz0fXUmNmbgpTiSiKeWPbBUBOCTJ3Ezdn3KhbSYRfz3dnSm9qSHxvGIH6CVDQIOMQBZ2kWnooSFGAy6XiZ1Ma9HYHbdCbDfn9vdkBD9t2rkScTE5avmb1MEfbWeuWMIuBPakswEAHga856K9GAb2jbaxx5vz3LMz2VwlwNP/9VQQUset1vT0PCE7nbDbOESW0cTmt43A77uejdrw+Bfqm+Fyq68w46AKHl8kPR16TjAbNsrVLCHMdDODxnW5ChHBlv1lrUp6NH53i0wrsRgLe2cTCHey/ISSll7GJou1DWCgyIr9RdHPPyfg==
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA6PR04MB9447.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024)(23010399003)(19092799006)(7416014)(11063799006)(56012099006)(4143699003)(10067099003)(18002099003)(22082099003)(921020);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?QmJTZ1I0WXIyNFFjQmhBNmN3cm00Vmx4RDN5TUtCUzFXcmJOclA4OWl5VklW?=
+ =?utf-8?B?a1lSaUpzVzNhaXJXRDhmMWtwTHlGNHltV1dqb3VEUkFJcVh3NXZEN3hjb29y?=
+ =?utf-8?B?UUpSK2taYXhodmh2dDJsQXRtaVdFNnQ1THFESWhwQzBScXl1M1BzZlZuNkdN?=
+ =?utf-8?B?TEpYUTdyUG5SaDV3VFlzaDF1VDJxZTdPcXlMTWlzaWVvZHE3Z1hqNmJlNjI5?=
+ =?utf-8?B?RnhiWXVQaHRSSEJnOXJ1b2s4Z2syMzRZNlloRVpXWmZsNXl3ZHBxdFJiSFFq?=
+ =?utf-8?B?a0Z0M3JMYnpZczViU09FalIvQncwQmVWdFZ4K2t6YzYzSk1aWmlPaS9Ba1Qx?=
+ =?utf-8?B?cHJWWEI2UXlDNElqMzliMHMzNkY3SXhvQzlJaTcrUFNKODZpWnRKSjNTV01u?=
+ =?utf-8?B?VVMvYkp5UUNRZ1Z3Y2xpTWxkbFhia2tpTXk2a3Fabzg3QytXRTdSSFlIUzBs?=
+ =?utf-8?B?VWJFY2I2WG0vL3RRekRqcWptRUFmRHJPQVNic25zeWZJK2x0N3RRM0NSbmVm?=
+ =?utf-8?B?LytaZWlYUmlXcnNIYXBKbFo4ekFYS1E1dmtmdm9Xa0p2K0dyQkRHTzJBUmRY?=
+ =?utf-8?B?aTNrZHYvY0VLR2Z4U0M0Q0gvdVdPTHZGbFpFTHluWXVzWlFUUWVYQmNLSXdE?=
+ =?utf-8?B?MUV3Vkk2VGdyNStjbU5GdVJ1eWZybDZwZVptU21LMFZPNVRDdTJhNEcrdHFN?=
+ =?utf-8?B?Z1hpUWx5c21vMTlFRUlNVE54NzZwOThYZCtTOWpJK0lSbHZBUzBER2pxT2t1?=
+ =?utf-8?B?Mmczbm4yb1pFWldkby9mTlI0OXRSZ0Z6OGx0b0YyL0NQZmhpSXBwR1ErNG5K?=
+ =?utf-8?B?NVcybEhIZXZoZ0oyeWxHVkJROHJMbDI5aUxXVno3RlBTSS9NT0VpK081UEZq?=
+ =?utf-8?B?WTR5R3JiWEsyZDZyQTlvaVFVWlJXYXBwU2tKUEkvSUtTZktKL1RONXFDczRx?=
+ =?utf-8?B?ZjJQcXN1Y09scXp0T1FlaGVpRUFwV3dnenQzdWErZTFnZTNPOXBkeE42NG1j?=
+ =?utf-8?B?MGhndnZhTjU4eWVkdVo3VEc0dEdQS0NVeFl1bS9mUWdOOHduZUwwVkd3ZW1i?=
+ =?utf-8?B?VUpTbGlOMTY2VHo0NEJWWTR3dVRqUEUzblBHK3NQVzFSUVh4blg2NktGSHdQ?=
+ =?utf-8?B?bm9FTkNqS2NtM1ZaSi9nZjgxd1dxaVpLZ3RKS01uNXFTWnJYZ0tjRTNCNTR1?=
+ =?utf-8?B?QStwYW5ncjFUWUQwQ0kzY25RTFl3UnFseWJCeFBwZWtvb000ZE05d3dhaGpq?=
+ =?utf-8?B?ZXdaSXBGZFp3SXRXaXBuQ0lZUzRGcWQ3RTB3K3pDeGxTVE1qSTlLNEhGYTVw?=
+ =?utf-8?B?V2tNOTA1NUw0WGxpMFVIdElkeXdWRTJicG5ENXlMSE1rcTV2RXl1OE9KUG9P?=
+ =?utf-8?B?S3VSZ3orZ3h0YXBqSW1iY0tPUURSTjgyRWljOXZ0OXNnKzZGckRhM2EvVjJT?=
+ =?utf-8?B?SGd1TmlyZEUvWW5kRVJFbWhzdXhLaFZUQ00ybERRRTJBemxQakVvTjFHRUhC?=
+ =?utf-8?B?YkVRWmQvN2g3UW8xSVIyR01xR1BYenNrSVZTUWRYYXllaWMvak93ZVRSRHVp?=
+ =?utf-8?B?MmZ6TVQ0dUNET0tGL3FzRHhCK1JFVXdwa1lVa1JlMllDajRUcWhUd25VRDNG?=
+ =?utf-8?B?bjdVWnd1NmQzSHIwZUdwUy8yOGpucXVhalBLdmZIVlErZVBMejJCRnp0SmI2?=
+ =?utf-8?B?cU9oNkU0aUt4Z1RmWnFqWElXTzBCalJVenhuakNjbFRPVDZCTVIzN1d1Ymty?=
+ =?utf-8?B?RmhWOEE3dHBZaGRYektxWGJ5WE40dU15WURYcXRNckpiQmFhb2U2U0s3aEgw?=
+ =?utf-8?B?cVB0dXI4NjNzQldReFRHL3F2MHJEbWdjN29DQzladkNmTWNPQ1hVaEN0Slgr?=
+ =?utf-8?B?aEFIRDZ4OUoyLzd3dXY3VW5rNnVXRm45UVZvRWxnMkxkQXJ4K28rK2hkWDB5?=
+ =?utf-8?B?enRRSTNFRmYwZXQzUWJpNFpkd3JFcHk4eW1IRVp3WmJUUWpJTXVIbUsxbnV6?=
+ =?utf-8?B?SXdwNXNBTlg2ZkoraUZjQTdmcVpRMm5EVVlCYnJVWUd1Q25sU0dtazZ6TkRp?=
+ =?utf-8?B?SDBhb3JXVjhhMEgvNUt4ZEczU21oZ0dlTldRb0I2OCtVUmF4YWRRT3YzRFc3?=
+ =?utf-8?B?d2IyZ1dzd05tQXkxcDBXSlJoZEFMc2lzZ3JRQlFOYkYvUy9tSHpkUVdxRmNY?=
+ =?utf-8?B?RHdpTVhmb1ovZGFvSTYxTXhaSnB2T1hsVkN2YkJDcUFSY3ZNVmhpdnhVUE1t?=
+ =?utf-8?B?Z1Z5SUFGQ1VrNmhDS09rVG5POUNhMjB2UjZ5dUFIenRkTTdRY0hGNVZyMXVL?=
+ =?utf-8?B?SmE2T0NGRFh6bnBQVXNKKzVzWFJ1RTFiYVNvd0w1cGRiOVFTTkV6SkdUcUVV?=
+ =?utf-8?Q?VMPUiwIUiDa05TAg=3D?=
+X-Exchange-RoutingPolicyChecked:
+	iYaDpjJ9u3zSyIwodQU1PqhC7SEe7/MeVBDfpHpqFzjhvxFpsP0Hdsr8RZSK4Od9WCsKlt4myjiJuPekWUVOBq8Ry6GMltxpzrTOuVJc2jDHf9iUYa+ak0s2dXKqwzxkD+4gvutYPRiT5lzVcPuRChlCZtIbjaql1Cb+Er8YpySq7QbY1LK0VJlXAqE/xREJ2AkKzyNe7cd8OjqqNGG5W3AwMnTBpeLPG6bTiDx1Sezq9E6mS6EFm3bqYxAj1qS8rqGoWz25ykz3ciDdD9O8hqGpPLNGiGCZcDUGrknTTLomRWUap+1HxYJ4finOeB42ahNT1KM2l2VscCeXy79jng==
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	i9x1Ik2q5/9Zo5+7uxKiZmHLDhMPbfkyJ5DxHDw/b9qgbcz29bTmw71UF3Ml7Czi6kSBjI/MaHXPpuiVIlDwQew3MPtDR2G4pBgkEuIUV6TLfOj01QQSrmnvN6Oy1NMBUKTXqNnnf6D45jRQ28M4sZuoX8xwyguE7v3tA/lZ2IFuq25JUcycae7KIY877NF0KthmT8PLgKP3d2lkVLFNUy3JIrqf60NtpL8nSRnbpvmsMBpwnP2UcRypBlRTR8aLYK8KTL1TO2hDc6woU87zrFw3hIQFZkmG+smhSpgKRXMOD10rDK0dIFRWo/caoDTJ8xg15lhNkWT8yjULwYcNSOhLsGvS4Gjytya0mdwlwSWhpoMIM42IP1DU5P3nLyvMSvQpF26a0kF3bT1+YcpG2JdM3dBBbvuVoBC7eCbeEmqbtfUJ9HLuhiDbO3Bl4u4sq0h3c722SG4hm+5dSJA6KY0a7qhYf6KWKEmbb8iOjjIcGvqKpciEHibXvXf0uwhownMNS/iEidwzyqDhyTI03dAbpVUaI455NiiDkMBw4cHfnwdIBpmcnugivmfYxIgeW7AIwn7hRE8IxFe/O61K0NvZqeujSgqjEesucgGfiljdTHh0CUD/t36JkOCYCinm
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 197687ac-1efa-415c-a43b-08df0cf4501d
+X-MS-Exchange-CrossTenant-AuthSource: SA6PR04MB9447.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Sep 2026 15:25:56.7903
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: REwwejbmpN4Pt5kx9BJsall5FDqgbaBbwtDUbXX1P8z5o585dXEwm/wz+HtxXnnjAUaLNMNxmYzVmHx9+yzVFlZskSC45DzjBhz8YzhISXk=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR04MB8960
 
-On Wed, 2026-08-26 at 14:42 +0800, Liu Dalin wrote:
-> The s390 PCI MMIO functions call fixup_user_fault() with the 'unlocked'
-> parameter set to NULL. This means when handle_mm_fault() returns
-> VM_FAULT_COMPLETED or VM_FAULT_RETRY, the function re-acquires the
-> mmap_lock but cannot notify the caller about this state change.
+Looks good,
 
-Hi Liu,
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-I'm far from being a mm-expert, but from reading the function
-description of fixup_user_fault() in mm/gup.c I believe that mmap_lock
-is unlocked *only* if retries are allowed by way of setting the
-FAULT_FLAG_ALLOW_RETRY. Otherwise, the unlocked parameter is allowed to
-be NULL.
 
-Since s390_pci_mmio_write()/_read() calls fixup_user_fault() without
-the FAULT_FLAG_ALLOW_RETRY flag, I thought your patch is not needed.
-
-But then I got concerned about the comment in the handling of the
-VM_FAULT_COMPLETED return from handle_mm_fault() - which got introduced
-with commit d92725256b4f ("mm: avoid unnecessary page fault retires on
-shared memory types") without changing the documentation of the
-unlocked parameter of fixup_user_fault().
-
-I'm under the impression, that so far we saw
-s390_pci_mmio_write()/_read() only in use on VMAs that ended in EFAULT?
-But that's a question to @Matt and/or @Niklas...
-
-> This is problematic because the caller subsequently calls
-> mmap_read_unlock() at the end of the function. If the lock was
-> re-acquired inside fixup_user_fault(), the unlock happens correctly.
-> But passing NULL makes the code fragile and hard to reason about.
-
-For a full solution, this would have to make the call to
-mmap_read_lock() dependent on unlocked being true at the end of both
-sys-calls.
-
->=20
-> Fix this by providing a proper 'unlocked' variable to fixup_user_fault()
-> so the lock state is properly tracked.
->=20
-> This is a follow-up to the defensive NULL check added in fixup_user_fault=
-()
-> by the previous patch in this series.
->=20
-> Fixes: 41a0926e82f4 ("s390/pci: Fix s390_mmio_read/write syscall page fau=
-lt handling")
-> Signed-off-by: Liu Dalin <liudalin@kylinsec.com.cn>
-> ---
->  arch/s390/pci/pci_mmio.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
->=20
-> diff --git a/arch/s390/pci/pci_mmio.c b/arch/s390/pci/pci_mmio.c
-> index f3f79ba78410..5ef2d6436d4b 100644
-> --- a/arch/s390/pci/pci_mmio.c
-> +++ b/arch/s390/pci/pci_mmio.c
-> @@ -182,7 +182,9 @@ SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, m=
-mio_addr,
->  	args.vma =3D vma;
->  	ret =3D follow_pfnmap_start(&args);
->  	if (ret) {
-> -		fixup_user_fault(current->mm, mmio_addr, FAULT_FLAG_WRITE, NULL);
-> +		bool unlocked =3D false;
-> +
-> +		fixup_user_fault(current->mm, mmio_addr, FAULT_FLAG_WRITE, &unlocked);
->  		ret =3D follow_pfnmap_start(&args);
->  		if (ret)
->  			goto out_unlock_mmap;
-> @@ -335,7 +337,9 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long, mm=
-io_addr,
->  	args.address =3D mmio_addr;
->  	ret =3D follow_pfnmap_start(&args);
->  	if (ret) {
-> -		fixup_user_fault(current->mm, mmio_addr, 0, NULL);
-> +		bool unlocked =3D false;
-> +
-> +		fixup_user_fault(current->mm, mmio_addr, 0, &unlocked);
->  		ret =3D follow_pfnmap_start(&args);
->  		if (ret)
->  			goto out_unlock_mmap;
-
-Thank you,
-Gerd
