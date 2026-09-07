@@ -1,168 +1,320 @@
-Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A18E5111B4;
-	Mon,  7 Sep 2026 16:57:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=68.232.143.124
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788800250; cv=fail; b=BvZFxGE1wQCl5W0t12rvmnuuMxk42cqbdZ5aG8Jcfz8aowdVnP64jxC2aAEwfRICl+HCtIr5LJnZvjbBoIDYoBi3ASjQ8cFcq1Wr+iqEHk/Uo2xK6WWzhPucd07R92VgbtgfV96iuBsB2O7CukVvw2Jg5janQSMC5YwVT6wN7lU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788800250; c=relaxed/simple;
-	bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
-	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=BR+hGGshDED731CANtJFzVbIO7nnwHV6XhmGlbqUEHX6Oc2/nM2D7+rP9FLJlK1QvOyLEL8skJi4a1kpb892xMA3Tzd+3pB53lwEUm6aGVTQ5OTT5BPdgQEb8FLIt0QfVx+D1rZe8WVXihfXUajn0e17bYxs0pY1HwgVpk0CNfA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=Bct4fDmL; dkim=pass (1024-bit key) header.d=sharedspace.onmicrosoft.com header.i=@sharedspace.onmicrosoft.com header.b=atwNrY8d; arc=fail smtp.client-ip=68.232.143.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="Bct4fDmL";
-	dkim=pass (1024-bit key) header.d=sharedspace.onmicrosoft.com header.i=@sharedspace.onmicrosoft.com header.b="atwNrY8d"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1788800248; x=1820336248;
-  h=message-id:date:subject:to:references:from:in-reply-to:
-   content-transfer-encoding:mime-version;
-  bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
-  b=Bct4fDmLSTqx1HrZKwX5SKOH+BM/MNlT2Vt/ttN9QSo1B/td1I04Qk4z
-   CHtRV+govr0jiqJW1SkC7nUzuHUP/eBHtMVYEi9C4ExJxG/A3Q3O7kJ6I
-   bm37x9EUNq3nApDAMGDOjq8JDwn7Qbuq/xnGBo96+pjEJtvy2LC/ioCFy
-   7l4CQbJZVeawgkJcGss2l3fguTKMAK+Ik6Y9cIAH2v+fxNgVLP0Rw7LJj
-   nsk491o9BKYHwDuUSpe5E/lL8WdtNPyegy1Wx60SW4SqobjCu84MmpWdX
-   7VO/ioFeyxoa5YKl38GeTDOD5htAetja1dk1CAE3Q51+MwK+d8LExEK5O
-   g==;
-X-CSE-ConnectionGUID: OX2ZLjGPRIimjwK+uQZKhA==
-X-CSE-MsgGUID: nTROp6vfT0SK86EKMB2QfQ==
-X-IronPort-AV: E=Sophos;i="6.25,267,1779120000"; 
-   d="scan'208";a="156054581"
-Received: from mail-westus3azon11010050.outbound.protection.outlook.com (HELO PH7PR06CU001.outbound.protection.outlook.com) ([52.101.201.50])
-  by ob1.hgst.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 08 Sep 2026 00:57:26 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=K3Uw3rTWNZreYiBo4jDNzg/Ur4lYStMSzoRmtb154Dys6nSPWPMrVpkUj8/eLOooLJ+ZKCu9d2XewlWT0xscKvnjnic7O8IRY99WJ97wC/wCf+CTonWEV65dMyzhtHq8b9y2wMJEJfm4AQHs55TRPiQ4LX8HfyAWbcmM+P4cm6iEWMkl7P6jyMhfaEXxB+wj3FEPRO1kA75kIcDBU9gnHq2PFVXUBtStYSFQH83FeTa1EYP0i+4PGzz6PImJSeRTVR/P5UjiWAGfORG+W5CE9ahVl8EpUCmw30O+pEYtxG0yYFhftp2tV27t/chkhsXxGVwtOpWXeGrntkFO0bEmeA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
- b=blGlGorKG8j9UnlXm+FIeyinM3gmz5IAifA2nE/ll9TfKce2+7IH/se5EvSBjYBMjs5UNGzynB2g2XOW93IiB+j3weX/Sy7RBs6d3Qlg6+DfchcjzS+Zbb6YI+ywix1q/SF1RVKMIRyrQzv6iiUFACvb+ViQySOPXuas86TAHJvKMb3W1+Cf3iqLS/jotWc9cMaxKJreUVUJipaLwhDeJEaHKLb+hXHOJCRQZaWAzOW6/vOIwNfgq5tAzdEWbemPBPgo+Un10NhRu2UYzXbhICKJkYYmbBJWJlCh13KnTz1t0jjxy1V7Vbcl/DwnYy7A5aeUtSgNp9UX7x0qT//qFg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
- b=atwNrY8dDRW+RwsqsoorD9hsbzb6TtajCP6581ZnLKlgdZ/DpYMGiRbV7q978v1glJUE6OHQkDkS5dMjTg0NLGwYMYDUoxcjdLYEn42ZeQsWzjZdoMBFHmSLLHFKwhEWE5bxBBSPP7f01qqRm9obKxcgFKFwvy35jsREvriG3OQ=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=wdc.com;
-Received: from SA6PR04MB9447.namprd04.prod.outlook.com (2603:10b6:806:436::21)
- by MN2PR04MB7022.namprd04.prod.outlook.com (2603:10b6:208:1eb::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.382.15; Mon, 7 Sep
- 2026 16:57:25 +0000
-Received: from SA6PR04MB9447.namprd04.prod.outlook.com
- ([fe80::14c6:1c14:485f:1825]) by SA6PR04MB9447.namprd04.prod.outlook.com
- ([fe80::14c6:1c14:485f:1825%6]) with mapi id 15.21.0382.014; Mon, 7 Sep 2026
- 16:57:25 +0000
-Message-ID: <4bce6a49-bcc5-48cc-9daa-fa38ccb5e152@wdc.com>
-Date: Mon, 7 Sep 2026 18:57:20 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 40/40] scsi: remove scsi_build_sense() and
- scsi_build_sense_buffer()
-To: Damien Le Moal <dlemoal@kernel.org>,
- "Martin K . Petersen" <martin.petersen@oracle.com>,
- "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
- linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
- Niklas Cassel <cassel@kernel.org>, linux-usb@vger.kernel.org,
- Alan Stern <stern@rowland.harvard.edu>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org,
- Heiko Carstens <hca@linux.ibm.com>
-References: <20260907024343.1046387-1-dlemoal@kernel.org>
- <20260907024343.1046387-41-dlemoal@kernel.org>
-Content-Language: en-US
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-In-Reply-To: <20260907024343.1046387-41-dlemoal@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: FR4P281CA0165.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:ba::20) To SA6PR04MB9447.namprd04.prod.outlook.com
- (2603:10b6:806:436::21)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39C5A39478B
+	for <linux-s390@vger.kernel.org>; Mon,  7 Sep 2026 19:24:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788809053; cv=none; b=IHklxkWaJ6chKfYEzaiOBmcNKNaGgZpQjrFqAcP+t71Oi/PCL3txxGSirFs5d7e5C8gMjKTlKfaRzanygdZKhamFQ2T5lvgWGLGTyf7odZqNhpu9I1SqCf86Q7MJkgDy13NmX35VVg+ARx5DEwLGYyQpEhu69DrJQXbPa030NMU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788809053; c=relaxed/simple;
+	bh=0QaHieNOw6KcvnOUUn3YC2pxzyaljxv036GAwc2TNyc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EMXUqM5SWO6Kqt98MqXFlXKC/huP8xNAacp5/Il4qAniwhXq11J0MEq1mEUQeQBkdYMDlZvHts4zlkR/if6dW0tfFA+gwsHJpYXciu1T8zYHNwNgP8y23KiZAyPfgbwu3vz98cuWrUGK9yerWhtTbfcxDEvsSLvuG1F7DE410JE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=maskray.me; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.218.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=maskray.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-c2533d83e3bso654407966b.2
+        for <linux-s390@vger.kernel.org>; Mon, 07 Sep 2026 12:24:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788809049; x=1789413849;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=D7+PGqvd3SIvPbBZ74nQwLWteKLtMN7893g76P/jiAU=;
+        b=s42iI0w1lP2mpgctY4X1HpBVTVw1Af2ekc21pECl8KXBxh1Pr+mAATh2PY6Dxw4Hgm
+         cBdV/ubelLxxiHHYgXjmLmuvTk4yQHtKVXUq4CSSVh/lAj/QrkJnzlrSk8Zk0uph1rzk
+         KFfyZKXVqeE9tJJQ8f4XXTP0P8k+YDZjlMPamkGJEUVbjySr8kGJP3c/G16LnKVCXXrX
+         DGtEVkHXlT/W2fJoj4pZ8fEjzJxU2b/I3JREV0uGu2tkKzEDrHKfMRUrk+pFZaDHQPeS
+         6UQhwa0V5ENWiS+z/uzWdwmCG4GJNaRLviQTXCqlxs8qwy758YQmcVIVQPquai/PyG8L
+         VABQ==
+X-Forwarded-Encrypted: i=1; AKwUvBxlnn9lqfBLcQLpj54Ui9uG+N6NeKtvjS6wekKnTW3zUBdR+2GV1+3C3B/HEdWI5YcSGrRayc4lFZwG@vger.kernel.org
+X-Gm-Message-State: AFuF++kTggOXWiPhkl1tpGih4rrQG75UM77rY6NjYpxu156YI4AQyCMq
+	bciCBxduKleiOMcWNTvGkKzaBRNCqDUi7U5+i6AvaYpK5vN7IP7vm8Q7UondWxEOm9Y=
+X-Gm-Gg: AYBFou16b0P4SFRQTJ+Kli5o1Zu0aipFjrbebokdETeq++F71PDh5Da/iKOpNyziq9M
+	/hiyj252T0+hbjuFOLj/LKabSiBrGsAFVq7JoFquteszCTw/8cZr02WsqO35/ShdBWGyLZrH/v3
+	89nDOIkp3brih1KROtgsYKy4Mmqr8dPHKBmSUsJ4uQcveBEp2S8xzqgaXVYbzggXaw7OyhnaAZv
+	qsiGTFe8a689dmClZ9IHRPCawDuV23SL1AuISvqfet8UcvJpXaZyBVO6YDH0qZIBOsju6MH5Vhr
+	Pc6FEI3byznqyteUcUSM9oULvb87PylC9GBbscgGBVJKe3ldA6yXuJiZ2RuDWPxLbSejLh1GPie
+	7sIRS4tzgTw7AF7guvOMECzKSBmLeU+QNp2yJ/96BCKT+rT3VGJJagIYrnOIvwAo65LrXkscep0
+	nifhpkoibW46z98kBGVXJ5sTKrAGe5INQnqr4+5ARp6GROuPgsiKvuqBEjadDV+rCmoTg7iAU7X
+	tX3J6a2rGQdNG15hM+iIRcq8o4FlG5umZMfvC0SE1lDRkuFI9Pz0z2PtA==
+X-Received: by 2002:a17:907:c64a:20b0:c25:c979:e76a with SMTP id a640c23a62f3a-c262b88e613mr770883366b.22.1788809049223;
+        Mon, 07 Sep 2026 12:24:09 -0700 (PDT)
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com. [209.85.218.45])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c260d5b371esm510517566b.54.2026.09.07.12.24.09
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Sep 2026 12:24:09 -0700 (PDT)
+Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-c252c7270faso554066066b.3
+        for <linux-s390@vger.kernel.org>; Mon, 07 Sep 2026 12:24:09 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AKwUvBzUmMVzRIUyrnSNAKAWY0jN6cEdAe7E3Vws0tcAnx95VYVVL4eJq6EH4gY3ryKbe93ELpoTY5JsnvXj@vger.kernel.org
+X-Received: by 2002:a17:906:7953:b0:c25:5114:c832 with SMTP id
+ a640c23a62f3a-c260c971f07mr1826536466b.3.1788808679899; Mon, 07 Sep 2026
+ 12:17:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA6PR04MB9447:EE_|MN2PR04MB7022:EE_
-X-MS-Office365-Filtering-Correlation-Id: 763cd603-b8bf-4ecf-1c1c-08df0d011779
-WDCIPOUTBOUND: EOP-TRUE
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|7416014|376014|23010399003|19092799006|921020|10067099003|4143699003|11063799006|56012099006|18002099003|22082099003;
-X-Microsoft-Antispam-Message-Info:
-	8Xk3FXvN/0u+0NOEYh+B4OlVz+t2oGeXY96e0Dk8FRGqYo3gEnL3zE2FVmm0QuKD9Mr9v8t+tS+CcDxaqjkUR17RrjpRMFCBXuGHQadGuUhqcFjlObVgyMh9YCzRYSNuCRtouZvjig3De8etzzkfe1lcCHuozAe/lLcHa5eB9INGs8pN+tcjJOD9+KpLwyXf+jb/9uErxZB8sxX0Jzp3dmPnZVbb9+nDpUmupoe8D5SvNMObfOy/Zpqd69fagxxmNolptmO/6jRAcmo4B78XVclJRJrUnFYXXXZD0avyAOO7O5BZSpet9SGp9TGTXqjYYI6R61FuoIuXqy3vu41Z74QXema7Hfk7QUCyUfbi5KD9hZirNHy47FBCQlroqGMgoSvWtxUzUgDjTQNNgEmifv3MtT7AW9lKI2xqyMdJu651unLZNMCjhkwdqxdalSpA7uZ9k9jjLwEkG8QUcgd24R9GBajPXB+fJKeULWGdI0OiHllVtK3tpPPB+xVDzB979BiNVlEZ5510eT8GkFAsXKnnGdlVY4AP25rc8y7we8/xj0JAFv+FK4cWt9SB5Rl9ICbARTjo34KLpdpDlU/wvpt1LCyOZy+lGGFzl5tPP+IkaCbxWhsYoBur5AGAG25bRO9erL/jaeRThchiGY6uEWE1/TjKIhOa9ljX0ugwfcIZAty/L/bV2GHtwX24vaSUS4dZTOkvuk62Pyr9k3GkBA==
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA6PR04MB9447.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014)(23010399003)(19092799006)(921020)(10067099003)(4143699003)(11063799006)(56012099006)(18002099003)(22082099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?c01YMDhBL2M0QXVCbUNNa25YQmVud3Q3N2ljV3dsU0tsRUttOWF2YS9ycUNI?=
- =?utf-8?B?cHdPNGpPa2lWeHBjamtNV1RBMElUbkdRcExHU2FwWGg3b005UzBZTlFKQmJu?=
- =?utf-8?B?YXVqL2tFNU9QMGl0andaVXZnTzVnQnJEbUFNY0hKYm9oamVPd2VtT1dsc0oy?=
- =?utf-8?B?UE9ERHl0c0pQU1lZUVNyWFlyWDdGbXMzMlMzR3k2dkV4LzgwdFpIT0xBbFlW?=
- =?utf-8?B?WXlGRmYrUkhpNHBCUEZRWHZUSHA5NkExeUEyMzdkd0VYWEptWGo2Y1hJRzNk?=
- =?utf-8?B?dTZKRHc4cjdrZWdGZ1lJTXdPWkFVODlaaDVyTDFxZEVZNmpOdUhvaDQ0NTlq?=
- =?utf-8?B?Uk14dmxoeHR5NGtZd05BZFZZdEp0TGE3d25FVmI3eTNLUnpiR3J6M3FjcDRk?=
- =?utf-8?B?YU8xR2cxZktYeFJyOXo0SHREaWdBSXptSzlFZElISEt1TkxPdmVFRjM3SE1Z?=
- =?utf-8?B?YWFMM21MZkw2ZzkwRkV2Ky9abS9kWlRWVldhWGZOQjVkTVZjbTIzcGJOc3VN?=
- =?utf-8?B?enI3NytqZ200NkF5bEp4OVAwOEdNcWNOZWVDdFpSQTIvZDlRNTExNlMzU3dt?=
- =?utf-8?B?ZE5IdEdUeWZBYTlWa1psTStLRys4WFpteGNQM0pxMFBjUnp2a1cxRkFMSXN5?=
- =?utf-8?B?YVhEZXlNNjNSMnNHemlQcUx3TUJSOW9vSC9KdkpYSWJickh5MGZBaDZ5UW4w?=
- =?utf-8?B?VWhET240Uzg3L2p1WkRrb2J3WHU1T0ZOamJLTzFrUW9hTHF1dy9mSjNoa2NR?=
- =?utf-8?B?TVdVck9HYTltTTgxQTFFaXJnck1rQmxaT1RZcmQ4ejRKMkhiL2hGMllWWW44?=
- =?utf-8?B?VFZqVk1ySEdXd1R6bnpLRm43RWdRWlp4cEkyNG9FRG9jeUJaZE9QM2hoazF6?=
- =?utf-8?B?VzhqeXc0SzJCc2kwcGY4TzJqS3JSeGk3S1Q0Z1RuSEdUanIvU0tEUXJScmdY?=
- =?utf-8?B?Z2l3S2l1MHgzdUpTZ3ZWVTRFWVdvZFBraEpPQUhkUURBTm5YMUZCdWlYK21B?=
- =?utf-8?B?WU41Z2cyakg5ZlByM0E5ZE1hREFCQkZ1QWNSb1ZNY2U3UDlsWmF3TC9WQmNP?=
- =?utf-8?B?SHBOV3FoNTYwSHRpTnIxV01Bd285ZFprSGl4ajJyNjBMM0ZBZnkzdDMwM2lH?=
- =?utf-8?B?bEZDT0hLUFFPek5QZXlpSTlweVdWbGxXKzNxTUZyYWhyNW5uNHFyVmFxWkJw?=
- =?utf-8?B?aEswcXA3MnAzNWYxWGp1dmlRelhvMkY4d210SW0vSnhyMHRFcUlmWjFONy9r?=
- =?utf-8?B?eU5MUlhnWGE2NHpmaUFXZUpJbzlnd1dyc3MxdENEYzFxZkQ2ZkVZaXdHdmQx?=
- =?utf-8?B?R2RDZFlIbFhXQ25vdEhqUzFYRUN4cWxBM0hPNHRtbEV0a2JuZFpveWp5eTlZ?=
- =?utf-8?B?cklWN1hCSkF4czBaOWRvSjVEeXlyVUpyOUFaL2Qzazc4WjFYeW9BVC9ST2p2?=
- =?utf-8?B?aXFKTUlWWFVuSW9wMGpCSHdEci9wU2VUbzdxS0N1a2diN0F5cGUvU1pRSXNK?=
- =?utf-8?B?dFg0UFJiMTZDNUtHUXBuV2Z4d0ZnS2t6M2ZGWlZ3VENKdkdsWHgxcllZQVhL?=
- =?utf-8?B?Q3ZOQTRIQlh0L2dpQU1jTlFXbURXY3JpRlVXUHo4aFdsTlBMckVIVDRnVUdU?=
- =?utf-8?B?SmxkQWM3aStPdEU3QXJlOTVmb250MVhFb2hOcTFoOTFFTG1RWksxVXh1RTFI?=
- =?utf-8?B?bitjZWRROWpyaUdzS1NXZmVaV2k5c2x6Tis4SVpNSGpzL1htYU5GQm9pa0hl?=
- =?utf-8?B?ZFgvN0ZzcDZSM1ZWUUFtTWJSWFlCYmprM3dHNklKRDJJYzdEblljNVlkWHV3?=
- =?utf-8?B?M3pRSzZkZ0NUQk9vaXFQTkxrT0NRSUtWUytnTG9jR1dKa1pqWmU4M3RnSUV4?=
- =?utf-8?B?MmU4TFpmdnBIYmtIbDFqNmU3WXUrTGR6dkZFbWhOcDhyaE5vRTRyUEJJbjdQ?=
- =?utf-8?B?bURGMHpoa1ladTZ6V0V2Uk82eWRtZDRWVmh6MmJKdmJLbTRJWEhDa1cwaS9O?=
- =?utf-8?B?OUNXOURQNGo4RlRiYW1YdzhQVGEvOGR2UEwwbGpXTTJ3T0hGY2haTkxCTFJF?=
- =?utf-8?B?emdxeDVibmxTUldMR2h0RXdtQ2xLdmZuTG9jMHBDREZkcWwzN1licW42Zmxq?=
- =?utf-8?B?K3BST0RDMnd1TVF2bzZwbExkaDNwNGJVY2t0Tjh5eWFvT1RJYTUyK3NLS2E4?=
- =?utf-8?B?UTZQdzFqWlRuL3FJSkZaNFg0dWp3UVNCK1l4RnNYOVk5bjdIRFdNWjFvbVNv?=
- =?utf-8?B?QldrQkRHYjBqRW83L2NlUFhKcDlHaU5QTmx5L1lBVFlGUGpvSm5KeVV0cnJE?=
- =?utf-8?B?UFZFOHM1YjNuZ202bFF6OUFEUGIzNkVaRE42L3VmL3pRWjBvZjM1WUdVdGNy?=
- =?utf-8?Q?sx/QRkJLaC9p9eyk=3D?=
-X-Exchange-RoutingPolicyChecked:
-	EpNIiFln0SjviRMG6YOm6dU3lFN4iB/DavQXWojIq1gO4KAY7i7Q7MlfCdpBFh1K9WVwqvCoRNhX0Ng2tTQz2+TPoPHkvGnOEKRL4eLtjQC5ywmUO0eiSvXLMG/0BoMmZmOa+2cOBUXntwmZcYdXKAaG/0SCdihqvy1Qw8yoSkt2by4dULNfn8MTSt6SniucLC0opViBD2stX+AUufZ3Zb55jEdAqtHje1+rVX+0knb2fHbFvpbMBg/JD6/yyTN4v3OOD8Q/qz3Q3tR9rdhsYVQPb32MSyppun69yi2sahA8S/MwUpJDylCVYHSSim0WzHQ1ikXSx1gF0Ss9XrR/2A==
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	wJlJoviSuWVWrLc15ZzFLrPeW6KuXGi5s5V3XOAM38oVrFpx4lOvokc0PAUPIqkF2ksUx64IOM69pyXe5+AId1sWU33Bcl3pLXx6Ic+6cIPLCgcKbL8yNsEsBbptQvSLiNT291oVohMj8NNxDOFbrtmLfWctCKjrc0HCDFez4iQ0FlrKX728/Y+BIFYQ++6p8sJ6d9N38I4Ivv2lqAKZT67wLGqqI7D2w1hwjyDso7MbXO0sHLK3di3XnWxShdY8WPxdmClu8hWtwD80enC3OcrWHhY2cdVRCBd4UI+ZLEDWm5Q8wUp/n9myXcWRl94DW0xHb+9OGZqdOy50pmZ3zDzkblfMypdkXF5l/kbkR4G58hEzWTAO25uiz89NTkdtP+E6ZIEidFcyFFUqMz1LpDYwD0fMdUtcdHH3pqzqKEJCFi6M4flQX60UGAq0GPwqHKWgqU6HGnFhcMz6+4E24O3AAzCa93+xCw+UxN56cdrGfR+diCCfbsB8GA35acfUYLWs6+DBqcUE44O3+nY1jpTEGhu0VJIS2fOlf20KtWo6K0o8XzDh9vye5CveLz/ku3eZkct5Bg6nKE8nwqwIeFRnz2pFR7hgNekgqYQg0P+wvfMQIZ1eHiHHlZN3PgpL
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 763cd603-b8bf-4ecf-1c1c-08df0d011779
-X-MS-Exchange-CrossTenant-AuthSource: SA6PR04MB9447.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Sep 2026 16:57:25.0495
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ONcMSlXHrRiXB8QoCVTJpFNa9gZ5XCi/b9/rgQMNfymhVwn2QUSBRqXuigSnCkiIKX2IjiM21HOw5dZLMwkOF+L8YgkFQTgmjiQOJWvx0eg=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR04MB7022
+References: <20260821195259.2688377-1-jremus@linux.ibm.com>
+In-Reply-To: <20260821195259.2688377-1-jremus@linux.ibm.com>
+From: Fangrui Song <i@maskray.me>
+Date: Mon, 7 Sep 2026 12:17:48 -0700
+X-Gmail-Original-Message-ID: <CAN30aBFo-1v+igPmm2JEqOBVuywxMD7HPVcxf+OQSd8LBnZYaQ@mail.gmail.com>
+X-Gm-Features: AcwNN1Ui_dhr8zWhdtT8d8B1cx26oY95n-5s0YmX52J9IMUYBxLn9nwqemexDEs
+Message-ID: <CAN30aBFo-1v+igPmm2JEqOBVuywxMD7HPVcxf+OQSd8LBnZYaQ@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 00/24] unwind_user: Implement .eh_frame handling
+To: Jens Remus <jremus@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+	linux-s390@vger.kernel.org, x86@kernel.org, 
+	Steven Rostedt <rostedt@kernel.org>, Josh Poimboeuf <jpoimboe@kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, 
+	Indu Bhagat <ibhagatgnu@gmail.com>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	"H. Peter Anvin" <hpa@zytor.com>, Namhyung Kim <namhyung@kernel.org>, Andrii Nakryiko <andrii@kernel.org>, 
+	Kees Cook <kees@kernel.org>, Sam James <sam@gentoo.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Looks good,
+On Fri, Aug 21, 2026 at 12:53=E2=80=AFPM Jens Remus <jremus@linux.ibm.com> =
+wrote:
+>
+> This series adds support for parsing DWARF Call Frame Information (CFI)
+> from the .eh_frame_hdr and .eh_frame sections of user space ELF files.
+>
+> The code is based on the deferred unwind user work originally done for
+> SFrame by Josh, Steven, and myself:
+>
+>   v4 : https://lore.kernel.org/all/cover.1737511963.git.jpoimboe@kernel.o=
+rg/
+>   v10: https://lore.kernel.org/all/20250827201548.448472904@kernel.org/
+>   v16: https://lore.kernel.org/all/20260521142546.3908498-1-jremus@linux.=
+ibm.com/
+>
+> The goal is to make user space stack traces available in-kernel without
+> requiring frame pointers and without copying large parts of the user
+> stack for later processing.
+>
+> Today, reliable user stack traces from the kernel generally requires
+> frame pointers.  Otherwise, profilers such as perf have to copy large
+> amounts of user space stack into the kernel ring buffer and process it
+> later.  Frame pointers are simple and robust, but enabling them for
+> all executables and libraries has a performance cost.
+>
+> Another issue is that the frame layout can vary between compilers and
+> architectures, and on architectures such as s390 there is no defined
+> frame layout which allows reliable frame-pointer based stack tracing.
+> The only way to perform user space profiling on there architectures is
+> to copy the user space into the kernel buffer.
+>
+>
+> The .eh_frame section is already emitted by most toolchains on most
+> architectures unless explicitly disabled.  It contains DWARF CFI
+> describing how to recover the caller state at any point in a function.
+> The .eh_frame_hdr section provides a binary search table for looking
+> up the Frame Description Entry (FDE) for a given instruction pointer
+> (IP).
+>
+> Because the .eh_frame_hdr and .eh_frame sections live in the ELF file,
+> they need to be faulted in when used.  This means that walking the user
+> space stack requires being in a faultable context.  As profilers like
+> perf request a stack trace in interrupt or NMI context, the walking
+> cannot be done when requested.  This series reuses the deferred unwind
+> user framework, that performed the actual user stack trace is later in
+> a faultable context, before the task returns to user space.
+>
+> This series implements .eh_frame[_hdr] support for the deferred unwind
+> user code and enables it for x86-64 and s390.
+>
+> It intentionally not implement a complete DWARF unwinder.  It evaluates
+> only the subset of DWARF CFI needed for stack tracing:
+>
+>   - Call Frame Address (CFA):  Using rule from DWARF CFI.
+>
+>   - Stack pointer (SP):  Using an implicit rule based on the CFA
+>     definition (SP =3D CFA for most architectures).
+>
+>   - Frame pointer (FP):  Using rule from DWARF CFI.
+>
+>   - Return address (RA):  Using rule from DWARF CFI.
+>
+> Unsupported CFI instructions, unsupported expressions, invalid data, or
+> user memory faults stop the stack tracing safely and results in a partial
+> stack trace.
+>
+>
+> This series applies on top of v7.2 tag:
+>
+>   git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git  v7.2
+>
+> The to be stack-traced user space executables and libraries need to
+> contain .eh_frame_hdr and .eh_frame sections as well as a GNU_EH_FRAME
+> PHDR.
+>
+> Namhyung Kim's related perf tools deferred callchain support can be used
+> for testing, for example:
+>
+>   perf record --call-graph fp,defer ...
+>   perf report
+>   perf script
+>
+>
+> Why .eh_frame?
+>
+> This series is not meant to replace or undermine the SFrame work.
+> SFrame remains the simpler and more purpose-built format for user stack
+> tracing.  The motivation for .eh_frame support is pragmatic:  .eh_frame
+> is already widely deployed today.
+>
+> - Availability and maturity:  .eh_frame is already present in most ELF
+>   binaries for C++ exception handling.  It has been used in production
+>   for decades for exception handling and debugger stack unwinding.
+>
+> - Toolchain support:  .eh_frame is supported across all major compilers
+>   and architectures today, whereas .sframe adoption is still emerging.
+>
+> - Size:  .sframe would be added in addition to existing .eh_frame[_hdr]
+>   rather than replacing it, increasing the ELF file size. [1]
+>
+>
+> Addressing historical DWARF concerns:
+>
+> Using DWARF for kernel unwinding has a bad history.  Previous attempts
+> were complex, fragile, slow, and hard to maintain.  Hand-written
+> assembly and the complexity of the DWARF state machine were among the
+> reasons the simpler ORC kernel unwind format was developed. [2,3,4]
+>
+> However, this implementation for user space stack tracing differs from
+> those problematic kernel unwinding attempts:
+>
+> - It stack traces user space, not kernel.
+>
+> - It runs in a deferred, faultable context, not in NMI, interrupt, or
+>   oops context.
+>
+> - It may return partial stack traces.  Bad CFI, unsupported operations,
+>   invalid user memory, or faults are allowed to terminate the unwind.
+>
+> - It implements only the CFI subset needed for stack tracing, not a
+>   general DWARF unwinder.
+>
+> - It does not include a general-purpose DWARF expression VM.  Expression
+>   size is bounded.  Only a small number of pattern-matched expressions
+>   is supported (e.g. DRAP and PLT expressions on x86).  Unsupported
+>   expressions cause stack tracing to fail safely.
+>
+> - All user memory access uses [unsafe_]get_user() with proper bounds
+>   checking and fault handling.
+>
+> - Corruption detection with automatic section removal on invalid
+>   .eh_frame prevents further stack tracing attempts.
+>
+>
+> Limitations and future work:
+>
+> - CIE version 1 support only and no DWARF64 support, as I have not run
+>   into either during my testing.
+>
+> - Signal frames are not handled yet.  An architecture hook could support
+>   unwinding through FDEs whose CIE augmentation contains 'S' (signal
+>   frame), similar to Glibc's SFrame backtrace() support.  See also my
+>   "[RFC PATCH v1 0/5] s390: Signal frame user space unwinding". [5]
+>
+> - x86-32, x86-x32, and 32-bit compat mode support not implemented yet.
+>
+> - CIE caching would be useful.  Reading an FDE requires reading its
+>   referenced CIE first to obtain the FDE encoding.  Most .eh_frame
+>   sections have only a very small number of CIEs, often one default
+>   CIE shared by most FDEs and possibly one signal frame CIE.  Caching
+>   the last CIE per section, together with the initial CFA, FP, and RA
+>   rules, would avoid repeated CIE parsing and initial CFI instruction
+>   processing.
+>
+>
+> [1]: https://lore.kernel.org/all/CAN30aBFVDxeoXApn_g_Hw0Ayhi4V=3Dm7CcX8UD=
+O6ZDTi6xA-3Pg@mail.gmail.com/
+> [2]: https://lwn.net/Articles/727553/
+> [3]: https://lkml.org/lkml/2012/2/10/356
+> [4]: https://lkml.org/lkml/2017/5/20/165
+> [5]: https://lore.kernel.org/all/20260127153331.2902504-1-jremus@linux.ib=
+m.com/
+>
+>
+> Patches 1-6 add base functionality to unwind user to support .eh_frame-
+> based (or .sframe-based) unwinding.  Patches originate from my latest
+> .sframe patch series.
+>
+> Patches 7-10 add the basic infrastructure for reading .eh_frame_hdr and
+> .eh_frame sections and storing them in a per-mm maple tree.
+>
+> Patches 11-14 wire up the eh_frame infrastructure to the unwind user
+> framework and add error handling and debugging support.
+>
+> Patch 15 duplicates registered .eh_frame_hdr section data on clone/fork.
+>
+> Patch 16 improves .eh_frame DWARF CFI instruction processing.
+>
+> Patch 17 enables architectures to implement selected DWARF expressions
+> in CFI instructions.
+>
+> Patches 18-21 enable .eh_frame unwinding on x86-64 with minimal DWARF
+> expression support for DRAP and PLT expressions.
+>
+> Patches 22-23 enable .eh_frame unwinding on s390.
+>
+> Patch 24 adds a prctl() interface for (un)registering .eh_frame_hdr
+> sections for shared libraries.  I will send a related test-patch for
+> Glibc separately.
+>
+>
+> Changes in RFC v2:
+> - Addressed most of Sashikos AI review feedback.
+> - Dropped patch that added support for linear .eh_frame search, as
+>   there is no good mean to limit it from reading outside of the
+>   .eh_frame section.
+> - Tweaked limits based on limited testing (still fairly arbitrary;
+>   needs more thought):
+>   - Reduced state stack depth limit to 1.
+>   - Added FDE length limit of 32.768 bytes.
+>   - Added CFI instruction limit (CIE+FDE) of 16.384 instructions.
+>
+>
+> Note that I will be away from keyboard for two weeks.  I'll reply
+> to your (and Sashiko AI's) feedback afterwards.
+>
+>
+> Thanks and regards,
+> Jens
 
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Thanks for pivoting to .eh_frame unwinding. This work is highly appreciated=
+.
 
+The moment deferred unwinding is implemented, the kernel space
+objection (https://lwn.net/Articles/728339/) no longer applies.
+Every argument for ORC (and derived formats like SFrame) -- that it
+must not crash during crash handling, that it is simple enough to be
+bug-free, and that it is fast enough for lockdep -- was formulated
+specifically to justify that kernel execution path.
+
+On the userspace side, we are seeing major advances in compact unwinding:
+
+* x86-64 (Alexis Engelke): Implemented a compact-unwind encoder in lld
+that encodes 100% of Clang (main) -O3 and 99.9% of GCC 15 -O3
+functions in an -fno-exceptions libLLVM.so. This reduces .eh_frame_hdr
++ .eh_frame size by 87% for Clang (1.80 descriptors per FDE) and 71%
+for GCC (3.85 descriptors per FDE).
+https://conf.gnu-tools-cauldron.org/prg26/talk/review/WV7MVNYXJA8XSMKRVBBV9=
+GQJZZ3LW9KT
+* AArch64 (Shoaib): Implemented a corresponding compact-unwind encoder
+for AArch64, used in Android apps.
+
+Crucially, neither of these approaches generates unwind information in
+relocatable files.
+Given the massive size reductions achieved by these compact unwind
+descriptors, I suspect there won't be a use case or remaining need for
+.sframe on either AArch64 or x86-64.
