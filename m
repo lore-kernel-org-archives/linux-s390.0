@@ -1,199 +1,146 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D61D346D09D
-	for <linux-s390@vger.kernel.org>; Mon,  7 Sep 2026 13:13:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A04444CB8AA;
+	Mon,  7 Sep 2026 13:18:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788786822; cv=none; b=O6j2wfFxiMLJuD58MQYfvgLdv9IUODnRH8w8JvJ6qt4PvJWkFyd9kitSoSY7TaOle63VbbFxou+ivhl8Pa5dyS0Kbr9k+qipY0ZvF62dX31KBbYLUCXvOcZxEXfJcAMsYCNQSm4onyg0CabDXQ/kEYA2shdV6c8FusXsFzp1yn4=
+	t=1788787091; cv=none; b=E4nsraRlI6l4Sia2FzXfAoCIkRqwk8/rKXVqPrmbJawTE+gAgBfZkz8oHy4R3h1GP+BAi+l9+Qb4tkl2vG2w/RWDogEoKlHRBrWhmHQ8xo33seiRQzsMdXnJcHnt7K9YXS6C3Y2x1EcCnpPPtJq1dKCiArTXHxAPn8TB59T3JD8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788786822; c=relaxed/simple;
-	bh=bbyM8+xnMNKO6fyiNZM2V/dxEjYjP4AdG79mC8RAzeM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hbVYu+7hVpmDPAtQcwwomjr5ecGFcEmQ/LToHjl0zkIHgvFV2YXeODA0E9850kfc3RmQe+n6YMajZM5ao16vgloLjVd1F7DbhMn24Ar4PDQd4RI2Z3Ot5sX24Xj/pz1T1hzoEVmJGLhQt20X0QbAg8fPyQ+16Xyu14RyPxEYC/0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BHNlFA48; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=gy0OdkN6; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1788787091; c=relaxed/simple;
+	bh=O8uD2nbZB0Kt9/+io9cvL2eRlnC2Z2oKlAmoSDOxyqw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=ezOubL77J/RMfKS6MXc21kOAfJp8SFphF7ysAI5z2OiqgFwJRPlfrRn2qIlAvuLMz+k0YTCLf0mIKF31nn/Pm3zMJvyrQVSRri3lafc+0xy4KKapk5lI6isV2jEYqW7KZfSx8szjieD7yzkvQWu46sNqcJvcJhiWAKCWn9gjDpE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=W4CCJWHo; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=589G9XlD; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=nOCPtAZd; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=3YygAve1; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BHNlFA48";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="gy0OdkN6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788786816;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="W4CCJWHo";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="589G9XlD";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="nOCPtAZd";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="3YygAve1"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 675361F794;
+	Mon,  7 Sep 2026 13:17:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1788787078; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=5punYBPTQYCYDbZdD+Tip6UD659TFwSyiVivgWnd/bQ=;
-	b=BHNlFA48L6Asxjk6Ul+pWL3mabZqd5KTjnSteMGdxnnZyajaCr5ADj0iKLTlFUGCEO5+WY
-	YAMEizLB05z4sEZqsrsQPDfWoUgbFoV+jn7DI2SyMJWuZOgl9rx2C6l4WjjfohV8Mx7FQP
-	6MDH0UD/97lsDKfJ6/Lk9lzKva4/Idg=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-300-H2H6NCP6OWG-1jRY7uhWoA-1; Mon, 07 Sep 2026 09:13:34 -0400
-X-MC-Unique: H2H6NCP6OWG-1jRY7uhWoA-1
-X-Mimecast-MFC-AGG-ID: H2H6NCP6OWG-1jRY7uhWoA_1788786813
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4994d67d0e3so24459915e9.2
-        for <linux-s390@vger.kernel.org>; Mon, 07 Sep 2026 06:13:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1788786813; x=1789391613; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=5punYBPTQYCYDbZdD+Tip6UD659TFwSyiVivgWnd/bQ=;
-        b=gy0OdkN6w26QFaOXv6fYnw8KuIo1/jlD0unXb1oGGSeoNrDrS7mYYQLaJiR6oDbzMF
-         teCyJbW66P7C3M/aCB9FZfW+5GRRyDB/Rq23ykl1KB6k6eksjLwb7l90ZQy4ALCGjylK
-         6ZOXfRnWwOfMy6iTBarbpaBKWoubHxdVWsuBaQu9mHs5IfpFxxQCrLk46MSzhThSPjri
-         hJsPXQCudWjdBKNId+zsEFwKwQ+gw1HAGxC4t2g7VTaF85nzmkRhKfrBlJyDA26flBYq
-         Qxwzw6UqsPJ8Xu/wgOVuhnlDkwpo6is8QNCtDEqp6tzuI+6LnV0tahMLVEy12wjsjcMr
-         fvtw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788786813; x=1789391613;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=5punYBPTQYCYDbZdD+Tip6UD659TFwSyiVivgWnd/bQ=;
-        b=O3u4/5pjSD8xw+fUqBQvG4Qe37LIFrF7w2M2D5W029ZtOnfss95RCOJ+yupCxJmvd3
-         3IzS5+c64toAKnIgCnpYhtW9VzB9aB7IoD5Veyu4kPiQICyezteF3gUDeUodsBAaotao
-         Dl8R6KRg4ChzR6TglbFdvfy61VPp7DEPH6yX3L5zXkApRJOHTosrt2K2E6aXtIyAVgfE
-         48inrmhbIm0qHrKcl9PTdBTsKh6TJa1Fk/CfnBcI20HvJPnX9zis12LljCSVp3y7JeP0
-         tR2NQ1e2RtAsatpF5dwergHdN83UXUOoEPcR3Y0d3DKGMZaXlVI3gMMb6qFMMYR/IsTR
-         YR8Q==
-X-Forwarded-Encrypted: i=1; AKwUvBxF1004cI3JXVELe32ql0dNMs6KrooVqKhjbfU0yJcCBs3bII+Jy4E1+bA89fcG5wOpaPJ/D1O30Srz@vger.kernel.org
-X-Gm-Message-State: AFuF++nowoG6DY5Rsunycgt0aWWRahhHRIy0+X7mQhtx5tP3hTMW1Lt9
-	dEScNNWyH8FK/FDQjoC05JLcH+IvzMT3B6spSkdtIv6cnhOjk4C4/oppiV+XXaIgmBHzP6dVAbf
-	LzFimmoEgCThT+13mj2MphNgeMIvwGan0b9rLtI3cpx5vLN//HeNaYyCyD8sNPLc=
-X-Gm-Gg: AYBFou0IwiSpaXOycKHxZgw1dJ9AOfLbjwPgtrYlmToYihRiI1vB0v/aMT7IYUOKd1f
-	+Bs89pY18DlokedtdPIX2gDNTJrpudV5euee9wjVWk3NeHIej6L81VPEcJQfqLDF5Fs9ARxGjiv
-	YKG+/Zwn1trsolLJXCj++3Sf9ANqHZKkvKpOa1NWYO9ANbEAoroMPlFSgMNfDYAwu3fR8TUuLMp
-	ArjzbHe4rsQA1t90XwUUA+m5cvhs7I6HcnwikHWI5JH5YKoDklQEDayej/+E5c7gYmo9PhQ7oNm
-	rkkScgjKEHVP+296tyIJR8RO06t8cJ527arxYUz0GsrhufLeqEpp5MlNzgZgBh/acUYSIcNcPzM
-	F3TomNHxonlwALWsCPJoOXxQ=
-X-Received: by 2002:a05:600c:4684:b0:49c:fc6c:be14 with SMTP id 5b1f17b1804b1-49cfc6cc10bmr197561005e9.26.1788786813396;
-        Mon, 07 Sep 2026 06:13:33 -0700 (PDT)
-X-Received: by 2002:a05:600c:4684:b0:49c:fc6c:be14 with SMTP id 5b1f17b1804b1-49cfc6cc10bmr197560545e9.26.1788786812906;
-        Mon, 07 Sep 2026 06:13:32 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cfd3f8192sm270920615e9.3.2026.09.07.06.13.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Sep 2026 06:13:32 -0700 (PDT)
-Date: Mon, 7 Sep 2026 09:13:28 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Karl Mehltretter <kmehltretter@gmail.com>
-Cc: Jason Wang <jasowangio@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Pawel Moll <pawel.moll@arm.com>, Cornelia Huck <cohuck@redhat.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Eric Farman <farman@linux.ibm.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Hans de Goede <hansg@kernel.org>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Vadim Pasternak <vadimp@nvidia.com>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	virtualization@lists.linux.dev, linux-input@vger.kernel.org,
-	linux-s390@vger.kernel.org, kvm@vger.kernel.org,
-	linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
-	linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/3] virtio: synchronize callbacks during device reset
-Message-ID: <20260907091033-mutt-send-email-mst@kernel.org>
-References: <20260905152059.89560-1-kmehltretter@gmail.com>
+	bh=6JzXSexZp9RLB4Ar/DI+xtlDtytp3zP+xY/lsYQUObs=;
+	b=W4CCJWHoJpAUWQysS9RW38ww3QIbCjI3T3z8/iWBE+NO1cv/haNnfjLvtxyK2M2+i6UmjS
+	heYamMyd9QcA6TIjBBLXgp23LFkL5TqF3MlO6n/PF3BE9OofUh6GoXcjXPmxjOUg2g1jbW
+	MtE06fo7CtLwkAaomco9gb5j0XYtImc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1788787078;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=6JzXSexZp9RLB4Ar/DI+xtlDtytp3zP+xY/lsYQUObs=;
+	b=589G9XlDhmn33fzJwTwqdXzGXeDQGvpAqyto+3p7vHgc2PjMuI7r1vCU+5T22PGr2WhccA
+	kmmxSWpMGsqeglDg==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1788787074; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=6JzXSexZp9RLB4Ar/DI+xtlDtytp3zP+xY/lsYQUObs=;
+	b=nOCPtAZdo23FqRnNrGl1Nxc+EufP8/cMxRDZVVWD7Bxw9xvHx7Vp4Y4d28UouHPuVgZhzu
+	mAg9f+ha9VvhdJ7Fhs4wLuC3fBm9G/6gnbm3eUS9VjnU4GwQSy1yz5KZGeiFi47lBlTu0u
+	k6THNrTfmD6kB9tU20Qvw87/04zBVkY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1788787074;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=6JzXSexZp9RLB4Ar/DI+xtlDtytp3zP+xY/lsYQUObs=;
+	b=3YygAve1GCdMF0oH3Mr9HgRt8D2f7TNVJQQh4H+E/kzS20yJccBWYvWy0brFgtr3+Dm9uI
+	0sWBzf57PH6Ep1AA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 0C95813432;
+	Mon,  7 Sep 2026 13:17:54 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id sIXuAYK5nmocYAAAD6G6ig
+	(envelope-from <hare@suse.de>); Mon, 07 Sep 2026 13:17:54 +0000
+Message-ID: <f1b95798-300e-495b-bf0d-338db425021a@suse.de>
+Date: Mon, 7 Sep 2026 15:17:53 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260905152059.89560-1-kmehltretter@gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 36/40] cdrom: use 16-bits defined sense codes
+To: Damien Le Moal <dlemoal@kernel.org>,
+ "Martin K . Petersen" <martin.petersen@oracle.com>,
+ "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+ linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
+ Niklas Cassel <cassel@kernel.org>, linux-usb@vger.kernel.org,
+ Alan Stern <stern@rowland.harvard.edu>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org,
+ Heiko Carstens <hca@linux.ibm.com>
+References: <20260903034201.112211-1-dlemoal@kernel.org>
+ <20260903034201.112211-37-dlemoal@kernel.org>
+Content-Language: en-US
+From: Hannes Reinecke <hare@suse.de>
+In-Reply-To: <20260903034201.112211-37-dlemoal@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: -4.30
+X-Spam-Level: 
+X-Spamd-Result: default: False [-4.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-0.996];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_SEVEN(0.00)[11];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid,suse.de:email]
+X-Spam-Flag: NO
 
-On Sat, Sep 05, 2026 at 05:20:56PM +0200, Karl Mehltretter wrote:
-> A virtqueue callback can outlive virtio_reset_device() and race with a
-> driver freeing the state it uses. The reset helper documents that no
-> callbacks remain in progress, but that depends on the transport:
-> virtio-pci waits in vp_reset(), while virtio-mmio does not.
+On 9/3/26 5:41 AM, Damien Le Moal wrote:
+> Refactor the cdrom driver to use the 16-bits sense_code field of
+> struct scsi_sense_hdr and replace all hard-coded additional sense codes
+> and additional sense code qualifiers with the enum values defined in
+> include/scsi/scsi_sense.h. This helps with code clarity as the sense codes
+> being processed are easier to test and self-documented.
 > 
-> virtio_input has a related ordering problem: it unregisters the input
-> device before resetting the virtio device, while an event callback may
-> still be using the input device.
+> No functional change intended.
 > 
-> Patch 1 moves the callback wait into the core, using the existing
-> virtio_synchronize_cbs() operation. Patch 2 fixes the virtio_input teardown
-> order. Patch 3 adds the missing synchronize_cbs hooks for UML, TmFIFO,
-> remoteproc and virtio-vdpa. Remoteproc uses one SRCU domain per processor.
+> Signed-off-by: Damien Le Moal <dlemoal@kernel.org>
+> ---
+>   drivers/cdrom/cdrom.c | 10 ++++------
+>   1 file changed, 4 insertions(+), 6 deletions(-)
 > 
-> The new hooks wait for callbacks already running. UML, TmFIFO and
-> remoteproc still allow new callbacks after reset; fixing that is separate
-> work. The event-virtqueue DMA mapping issue is also separate.
-> 
-> Changes in v2:
-> - Patch 1: move the wait into the core instead of fixing only MMIO, as
->   Michael suggested. Remove the duplicate PCI wait, preserve its shutdown
->   wait, and fix CCW callback locking. Drop the MMIO polling: reset polling
->   for v3 and newer is already in fa8833c085b6 ("virtio-mmio: add support
->   for transport version 3").
-> - Patch 2: keep draining completed events when ready becomes false,
->   instead of breaking out, so teardown does not truncate an input packet.
-> - Patch 3 is new, at Michael's request.
+Reviewed-by: Hannes Reinecke <hare@kernel.org>
 
-got all 3 patches now. it's a good start, thanks, but they need
-a bit more work, in particular addressing sashiko comments.
-I'd also prefer patch 1 to be split: moving code from pci to core
-is separate from ccw fixes.
+Cheers,
 
-Pls write or at least edit commit log messages yourself,
-after reviewing Documentation/process/coding-assistants.rst
-
-Thanks a lot!
-
-
-> I reran the 120-cycle unbind/rebind test in an arm64 KASAN guest with four
-> vCPUs and a 5 ms busy delay per event. With patch 2 alone over virtio-mmio,
-> reset returned with the callback still running in all 84 overlapping
-> cycles. With the series, it waited in all 103. Over PCI with per-queue
-> MSI-X, it waited in all 66, including runs with threadirqs. No KASAN or
-> lockdep reports. These runs predate the per-rproc change, which leaves
-> the tested MMIO and PCI paths unchanged. They confirmed the missing wait,
-> but did not reproduce a use-after-free: with evdev attached,
-> input_unregister_device() waits for an RCU grace period that the IRQ
-> callback blocks.
-> 
-> That version also passed QEMU input, rebind and shutdown checks on arm64
-> MMIO and x86-64 PCI, including arm64 RT, KASAN and KCSAN builds, and x86
-> UP/Tiny SRCU. A legacy INTx NIC was present for an additional x86
-> shutdown check. The changed objects built with W=1 without warnings on
-> arm64, x86-64, s390 and SMP UML. The per-rproc version built with W=1
-> on arm64 KASAN and x86 Tiny SRCU, and passed six remoteproc callback and
-> lifetime KUnit tests on each, using mock remoteproc devices.
-> 
-> Link: https://lore.kernel.org/r/20260818040433.66986-1-kmehltretter@gmail.com
-> 
-> Karl Mehltretter (3):
->   virtio: synchronize callbacks during device reset
->   virtio_input: stop callbacks before unregistering input device
->   virtio: implement synchronize_cbs for remaining transports
-> 
->  arch/um/drivers/virtio_uml.c             | 10 ++++++++++
->  drivers/platform/mellanox/mlxbf-tmfifo.c | 14 ++++++++++++++
->  drivers/remoteproc/remoteproc_core.c     | 10 ++++++++++
->  drivers/remoteproc/remoteproc_virtio.c   | 20 +++++++++++++++++---
->  drivers/s390/virtio/virtio_ccw.c         |  6 +-----
->  drivers/virtio/virtio.c                  |  2 ++
->  drivers/virtio/virtio_input.c            |  8 ++++++--
->  drivers/virtio/virtio_pci_legacy.c       |  2 --
->  drivers/virtio/virtio_pci_modern.c       |  3 ---
->  drivers/virtio/virtio_vdpa.c             | 21 ++++++++++++++++++++-
->  include/linux/remoteproc.h               |  3 +++
->  include/linux/virtio_config.h            |  6 +++---
->  12 files changed, 86 insertions(+), 19 deletions(-)
-> 
-> base-commit: a500db7819c50db59e55f1b4fa1c3baa5a2616f3
-> -- 
-> 2.39.5 (Apple Git-154)
-
+Hannes
+-- 
+Dr. Hannes Reinecke                  Kernel Storage Architect
+hare@suse.de                                +49 911 74053 688
+SUSE Software Solutions GmbH, Frankenstr. 146, 90461 Nürnberg
+HRB 36809 (AG Nürnberg), GF: I. Totev, A. McDonald, W. Knoblich
