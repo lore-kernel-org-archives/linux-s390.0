@@ -1,168 +1,179 @@
-Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 927014EA394;
-	Mon,  7 Sep 2026 15:59:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=216.71.154.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788796766; cv=fail; b=rdr7qIG4Bcq3kwlNdpe5aUa2tdHJ+4lZqrii6RDEGTf2woNr/eaQxWX7aw2dffSjBHZxtC7w40qt4w+mGP69L7Vm9lm7uyeThX1QnaoW/rrz/z/gGhWa/v7cVTLnlGiPKSSDWVcejC3kOSacFMTqKp9usRYuw3RIpw8Vlr3YTu0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788796766; c=relaxed/simple;
-	bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
-	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=GvoBnapX4bgi6g94ZFB657el8FoiWBLUdWoXivG+FSwoOzvNJYZfuoRj9gQvrXz9NVnvHRTdBkzNjPIJXDJrrHpmGqlAxDxJrmdeTDZuR1Fko7bOsyRvlC6nkUjtP5Ka69DQIkYjzhkb5Q/s9LkOUCqRyZkW2HZl18IuLlGKqQc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=atL1vShG; dkim=pass (1024-bit key) header.d=sharedspace.onmicrosoft.com header.i=@sharedspace.onmicrosoft.com header.b=sTIZl4rl; arc=fail smtp.client-ip=216.71.154.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 516565013CC;
+	Mon,  7 Sep 2026 16:13:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788797627; cv=none; b=HHhYPvT2cOyAtA1dqwWksezAUFshbvZ6Vnb/lcN8kY0MQzrW7fI6HrWxd8HSTHeVJjT8LpLE7Bk9nUlLG2h9Ux73XRrHKSaeJuIZXz3ieelCuFZzil4+vAzsPv4S1l0t0JrHPVsFZxI6Cheb+7xp8RnndTtRm66qzd5p8jd4wuk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788797627; c=relaxed/simple;
+	bh=cP4xKAaKOy4iVTTsWFYKaL64jtvJrYREJqa+UilTZKo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rHg+BskC0pFKG8wXpIcrQhYFiLS9mU53HYFXKnmS/cxa5/H9jV8FtBIGXCo8d6YR8MTKBt8zisbfPAefqcGQoOesXhrOGWJ4lbBB9CqDswfp5Ne+FA3TRHjCaMBaZFz+r6/DPghF4QzCNlvAO4mAqWPK63Y3XPG7Ph45kUpx2nA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=oeIFSP/L; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=kNANdT9i; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=u1sO1jKj; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=rRrXf8R3; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="atL1vShG";
-	dkim=pass (1024-bit key) header.d=sharedspace.onmicrosoft.com header.i=@sharedspace.onmicrosoft.com header.b="sTIZl4rl"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1788796764; x=1820332764;
-  h=message-id:date:subject:to:references:from:in-reply-to:
-   content-transfer-encoding:mime-version;
-  bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
-  b=atL1vShGjgYI1rDcegkhgnhv11QNT8m2lMdSz60jK3CzgKVJOR3Rx7hW
-   zasCz7Br3/+eXoyyrAgEEAcLFkqJVUVtrgfWPD/3f0JoT36jhJ8Iwsy8H
-   X/qQY2VJ5ocegOimD4OtQQgz8pfLf0Li/08u7d535mOfvAXLInD6nhZTR
-   Ps8a8mO58hNE4VHDhreA2Xq52dEgwXk/sNVubY6+yfNXqsAhxrpctiLJW
-   KpBB0aiTpJcx5AQMEaO9H735nNe4tJ76X1t4uhnYIW8lUiT2ALq6d865K
-   HnwttY1KgU7dOTLO1Tc12gjh11rgDe8As9eeqm+gFQ8mvCpTcNGz0CMz2
-   g==;
-X-CSE-ConnectionGUID: VFGCLR9mSJWX5556/XXgfw==
-X-CSE-MsgGUID: WPfe8MRSQhGkn+upYjZflg==
-X-IronPort-AV: E=Sophos;i="6.25,267,1779120000"; 
-   d="scan'208";a="153549198"
-Received: from mail-westusazon11012048.outbound.protection.outlook.com (HELO SJ2PR03CU001.outbound.protection.outlook.com) ([52.101.43.48])
-  by ob1.hgst.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 07 Sep 2026 23:59:23 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=LQY/JbahVFb/ULWntDra2m2iKFRTSKxaQ+x8nvJ2KZ+9nxXJZqNiHMEWG1cIGev3vzULVQLvMk+n1bk3MQP11LFvaqqYfGezA5iWvNjH4EYp4uZPnga6PbOzWoPIFcHEv83coFMLWZL3Y3cg6dMg9xlDZt7SUGFmErBKAx2KC4wR2kveeraeW40l6LfAQNgfqzTUhN3RJnGNos7hwk5fDYuNLqY+bWDt/1YUEkHP6ZHBJjVBOcojFV6vk61dWfwTHss2AYYSZqhvalpYuG1K9OE4O4YgRQYXCriOWyGESY/QC6tOkk5ZD2jExg+nKE02n/1RtlR9VLFyGWHCd0xACw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
- b=wTyY5e4Ea51zT6F09Tj6CMubkT+yaopOtOpL5c3BvBtFAFz2/r3ieg0tnskN6Y23B8jOKraaNZN5jhaBzndTVq30BNGERdsnvfcSw0Y478or3Sdlsza0ufLNjwQz/HNQR1N8Qj9toef0uLnLLUpWKkuOdpyY25Zzr2XJ+pXUGSncoPd5yc6YVHeDkHyvpzSwhcV/GzXNFQzwksIDZBPN/q20yHf5eRhPEp0v3ru6kQVNyyNFnSviDUKqGXuNlCvmirm5hBiliOy+nRh33ZWriCGE1cMztS7Pf1Y6EB1YzKRXanhvs14i3cNf7hPM0DEvjrAp5mpebhHPmSAOviuADg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0hFm4yO+V2KgeQG0ik8lLOHczCQdLX2syeEcd394fgI=;
- b=sTIZl4rllgRUGPuI+mTQCw6tHdT43+RG0yi6VLANlmqQ6L9aKcZ/a20TWa+2/hi78wn5ZHmJiGBcKpmRmiu25viXSJ/RfI92L6jIlnFOtnpvyGuGXrzlyJ+lNeaL3xGGYYEBVhLK8qlXcDzPv0HN4OStTX5Hd5fODZgvZIbcizY=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=wdc.com;
-Received: from SA6PR04MB9447.namprd04.prod.outlook.com (2603:10b6:806:436::21)
- by SJ0PR04MB7470.namprd04.prod.outlook.com (2603:10b6:a03:2a1::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.382.15; Mon, 7 Sep
- 2026 15:59:22 +0000
-Received: from SA6PR04MB9447.namprd04.prod.outlook.com
- ([fe80::14c6:1c14:485f:1825]) by SA6PR04MB9447.namprd04.prod.outlook.com
- ([fe80::14c6:1c14:485f:1825%6]) with mapi id 15.21.0382.014; Mon, 7 Sep 2026
- 15:59:22 +0000
-Message-ID: <e01079bf-828c-4168-9319-8bd6aac23293@wdc.com>
-Date: Mon, 7 Sep 2026 17:59:17 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 33/40] scsi: storvsc: use 16-bits defined sense codes
-To: Damien Le Moal <dlemoal@kernel.org>,
- "Martin K . Petersen" <martin.petersen@oracle.com>,
- "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
- linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
- Niklas Cassel <cassel@kernel.org>, linux-usb@vger.kernel.org,
- Alan Stern <stern@rowland.harvard.edu>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org,
- Heiko Carstens <hca@linux.ibm.com>
-References: <20260907024343.1046387-1-dlemoal@kernel.org>
- <20260907024343.1046387-34-dlemoal@kernel.org>
-Content-Language: en-US
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-In-Reply-To: <20260907024343.1046387-34-dlemoal@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: FR4P281CA0383.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:f7::6) To SA6PR04MB9447.namprd04.prod.outlook.com
- (2603:10b6:806:436::21)
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="oeIFSP/L";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="kNANdT9i";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="u1sO1jKj";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="rRrXf8R3"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id E5479219FA;
+	Mon,  7 Sep 2026 16:13:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1788797620;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ejjj/UktNvHuL6ZfBgZGy2xOjH4lWFO1beWpbKfBw+Y=;
+	b=oeIFSP/L7324gUSNEaYyp0KvjIp3oQI6RVhqgp2FBq0m49WuGeoy1zRIO/5nqzENHG+mG1
+	3I9/e7RZBR0bX//gSSRRZHy+4nCa7HrY3t7N7iU9SeMYCFVC4sJVwNbKr6WTuh4G4x2/+I
+	ipZtHvSR+tcSiBKdXZn97W8WWTtz+R4=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1788797620;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ejjj/UktNvHuL6ZfBgZGy2xOjH4lWFO1beWpbKfBw+Y=;
+	b=kNANdT9iEIOsfAslKtmL2Q5eOUtU61PuGxDvBbGP3Xy3WUe1CHTjmKw4dOQMHg++xKpkoX
+	9F2kXR1wCo97u3Cg==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1788797615;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ejjj/UktNvHuL6ZfBgZGy2xOjH4lWFO1beWpbKfBw+Y=;
+	b=u1sO1jKj1FfYIzynI5bvYBkCHyro3DcF4Brevq/t09F8gGP51aD7yvK3titlL8rwhbmuiI
+	A0j0RJcHyqXxzT+B+py3ObaISB8tPQomVAWwRDRUUVudapBz87sohNNZQXmmpCnItWecYc
+	8hlFuJ4UpElNyrD13S3AkRRWDsvjQiE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1788797615;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ejjj/UktNvHuL6ZfBgZGy2xOjH4lWFO1beWpbKfBw+Y=;
+	b=rRrXf8R3i97G0BUMSmSQiLikYTVEvTzIi0tEO54jMomkUPIdivwrpoQwYF7THAPUBMtj1H
+	tYUuuZzTr7cEy7Cg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9A6F71339B;
+	Mon,  7 Sep 2026 16:13:35 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id q4uAJa/inmqFDgAAD6G6ig
+	(envelope-from <dsterba@suse.cz>); Mon, 07 Sep 2026 16:13:35 +0000
+Date: Mon, 7 Sep 2026 18:13:30 +0200
+From: David Sterba <dsterba@suse.cz>
+To: Song Chen <chensong_2000@126.com>
+Cc: arnd@arndb.de, kees@kernel.org, clm@fb.com, dsterba@suse.com,
+	linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org,
+	guoren@kernel.org, kernel@xen0n.name, maddy@linux.ibm.com,
+	mpe@ellerman.id.au, npiggin@gmail.com, chleroy@kernel.org,
+	pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu,
+	alex@ghiti.fr, gor@linux.ibm.com, borntraeger@linux.ibm.com,
+	agordeev@linux.ibm.com, svens@linux.ibm.com, tglx@kernel.org,
+	mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+	x86@kernel.org, hpa@zytor.com, jpoimboe@kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org,
+	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH v2 0/3] btrfs: add error injection support for
+ checksum verification
+Message-ID: <20260907161330.GX9053@suse.cz>
+Reply-To: dsterba@suse.cz
+References: <20260724021229.47302-1-chensong_2000@126.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA6PR04MB9447:EE_|SJ0PR04MB7470:EE_
-X-MS-Office365-Filtering-Correlation-Id: 88c8c9bb-26c3-42de-b72f-08df0cf8fba3
-WDCIPOUTBOUND: EOP-TRUE
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|7416014|376014|23010399003|366016|19092799006|921020|10067099003|11063799006|4143699003|18002099003|22082099003|56012099006;
-X-Microsoft-Antispam-Message-Info:
-	0gUxaV62g5woQCnjefApYPhz6+fnSCkEEBeYQ3Hv8TiWdTPMU9F6nOni5KbEi08D0opKnylQZS3g4D6rYtT9xrIvgYvV9AJWbhEpz38hdRk9IzFeASHC/zLM9cU96mcPuJC4yy0xXu1Q0jnnV/wLj0GBECi8act17WM0DZzKgTXwnto4dQKqVAqY9LkgOhNNMe4ARnYuzkN3grLuTrS7he9ktBKtXrX6ksuQ5IiRTV1vSR+fm3ZcUKa4rs6VfHlumOWRE/t+f11uHbvbd8dfyr6kNEQJrJJtvsFZ6kg+4/bsW872FDVdq/riEkSxryn/2LAsG6nUONovUGJ6SujzN6NY6XMeUntFyYrtRAK66ag/uL+krcBRCcOpCEQJk2GNahGtfordZ5LcUySd9+nAeTriZcw7ue15apV7X2ZLissWSNO7Yc3T5by6sY01PRttnkQa64ftXfTIVZMCV0SOntZOBc4NREnWLXPLA+IMN2dhJYmK5OFqpTD25oofuaDP8zCc/rbd5Q3wpyR7TWiyb78Tj78PvFZQ1lbK+iQ2/hOI+m8dsXSkMQor6pXZgUTNEumlb4Sgvfzl66dTS6nRwVGKRFqx0MkTBlckG2DS/0M7++jzgg6R+Hbr6u6VH8M1mHqdcxsQ3K/7XM4vaPOAy/ZvlrDyViYcaVfqrPbYvqpPUcAojNU9wOPZ/bC1ZhnacQbaQegOfZkreA6q/zWnqQ==
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA6PR04MB9447.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(23010399003)(366016)(19092799006)(921020)(10067099003)(11063799006)(4143699003)(18002099003)(22082099003)(56012099006);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?MEhFNjRKaldXc1IyNzBDUDNZbE8zTVJBbVBDeU1iODdYalp5akZWWWJlUVRT?=
- =?utf-8?B?M2oyMGlEWllPazhjUytrN2YvN1o4NWkrYXk0dFBXYXZXM1VaVC9OYnE1WWRD?=
- =?utf-8?B?TFdscTdRcTdTM3AxZC9rNFBvMExUd09nSS9EYWRpalo4MXBHZTl3azBXR3gx?=
- =?utf-8?B?SVM3YktIbjFBZU1pLzhHeFY5aFhjOWVoMndXUVE1d3ZEcEZNQ29IY0NSQkJu?=
- =?utf-8?B?SWdiU2RkVGJ2a2hFUEsram9ZeThFK01lQnlzdlhwenpMTG5wL1M1a21SVGZT?=
- =?utf-8?B?aE5vYVZqZ2RHa3dMUnY2RitEZTduR1RUeFlTUHhqZ1piLzErckhuQWNUUVVq?=
- =?utf-8?B?RVFtUGk0OTV3VEp0YWZtRGdiVkxVcXE3TEJrajYrM2N1RC8vdjdsblVFaXRH?=
- =?utf-8?B?WWQrcUFmaFdCSXdRMzhRNXBXLzM4dlgxYjVyT2huYlBXUWMvSWI2YWVaUlVQ?=
- =?utf-8?B?dWhpMCt1aXlhT2paYjJ5KzJXaHFPVEl3UzdPaGVXcDMzZGd6bUZmYVcyYUUv?=
- =?utf-8?B?dHJua3V6UDdwRTBXMjV3THdwS0lsb1BBdy91NWN6elFwU3p2cVRpNG4weWdY?=
- =?utf-8?B?QjFIYWJ2VEtNcnM3MmEvS0Vmemx2UkJ0dUtpajRRb2hNaG50Q3lSVWt0T2Mz?=
- =?utf-8?B?T3lwZWxLdjNZWTFQZmNpL05UOTdjNkpvYldQYUlqZktvVFRIUlhDWVl6Sy9h?=
- =?utf-8?B?clZ2SUNSd1VVdndUWmpsSElkSFNrSUZvRjRYMGVHSmlteWozVHpTMVhRU2ht?=
- =?utf-8?B?bWlhdFJIUWdLczlCdE1qWWNXeTRCWGN3MVpLSGEyV05OWk9ydDBQeEZSbFdY?=
- =?utf-8?B?b1RndmhnS1RKeEpjNG9NdUVscHFiakNmcXc5S1BubEprTWJOV2RwV05iYWxk?=
- =?utf-8?B?bU1MY25oRmxQUm95ckJ3OEo5d3ZhOEZBVmFYTzJWYlc0TkI3OWtGRWs1K0I3?=
- =?utf-8?B?SHRLNHcrV3pqbWg2T1k5WHo1QXRoYlNiV0hIWm9xemN1R2QxdmJnbFNoclcz?=
- =?utf-8?B?Z3JSRUwzMG9yRGNBMzZ2a3NYOE5KaTNSTFRwQ3ltYmYraDVhZDNFK0d4enkr?=
- =?utf-8?B?REp4Q3dMUm5UdnJaVDhNVEJ6UEhiY2dPV2Q5R25rdThWOFF3MTBGakYrZ1RN?=
- =?utf-8?B?RzJhOXJJcWZ5VExmTnppNDV3UExkTGx4eVFsUzE5ZlBTcllOdCtqSzFGNXB4?=
- =?utf-8?B?aGJHZjg1MGlqRHVIM0x4ZVZUUVJrZHRhTFBhVTNIQ0J2R2JkaXducEhkYUgx?=
- =?utf-8?B?bndhcS95TE5WWWd2dkVhd0huZThzNlV0Q1dRZ28rKzd2RkJzdlNRSHB5Tzd6?=
- =?utf-8?B?cm94ZnhsS3AxQThXREF3eGUwTzRjRjdzMGhOMGp4VUZzR1ZIeEk5dVBMdlYz?=
- =?utf-8?B?bHd2Y2QzTmZrb1hITlhMOHlKQ2R4Wk9GUXZCeGpFZXRUWHFxZ2xsVE9sZkcw?=
- =?utf-8?B?d1Jwc0tMUGRNNUxReldUenlkSTZzK1dkOVVpMTZyR0dubEZ0clhMY3N0Tmwr?=
- =?utf-8?B?RlRad2hUZTJiNGdVTHhPaTBydlZYVnZhU0svNHNyallHZnJEREd3TVpzZkpS?=
- =?utf-8?B?TEpUVFBhY20vY3ZBM2xBc1BOb05RbDhweWZDNzFTWE1ZNnFMUUNWM0FGUkZz?=
- =?utf-8?B?aG5oR09LWHo4dnBNUHFNa0xHZVN3V0VDRlJscGl0NVp6ZndGQlJEYXFrYnBF?=
- =?utf-8?B?RngyVkhWcWIzeWkyQTA5S3lTMHdmT283Q0xldEV0VmJJcDA2Y1d6MmZvdG80?=
- =?utf-8?B?VWNBejNKMXNucnZXT1hnM3UrWTJhTjFVOE13QTJXTkZpanRNNXdGV0o4aTUz?=
- =?utf-8?B?ZE5nQm9NcklyZHljZVpwVkh4TkpFb3VSaHBGSHhPTTZ5dEV1dmVPTEp0aGIr?=
- =?utf-8?B?RTgxemE3bTNkMWp1TFdxeTlyYmRyY1IyS3hvMExpK2JRb2h2SWY4a2FaTFNN?=
- =?utf-8?B?YWxxUmV2ZGRkSlFad2hmYW5NUWgwZnhNMXp6cllNbGFYTE5EQmJDMndsQktX?=
- =?utf-8?B?QUx0bXd5blVBVC9tYVFQckZlUm9hdWp5MkxzL1ZqYjd6eVMzMFUyWTVNUnBv?=
- =?utf-8?B?WGpNUFZ5ZzFXWjdoRTBrUjhONU1LUXNVbXRiYXdQU0l4MUdCd1BXT0MwS2tU?=
- =?utf-8?B?Z09XRk9Xd2hmSExneVFpVjYwTTN5VnpMUDVjcHdDSU5kVDI4NFd3NnpPK1M4?=
- =?utf-8?B?SDZFeWZWYmxBOUxzenlrTTVXTjF2ZmxKK2o2SUxiakRNKzJsKzdVVFFBUE1N?=
- =?utf-8?B?TTdDYlJCd1ZNZDJwd2RUaGtFdkRpZHFTWWY5K29reE9kUU9KeUsyWS9neThv?=
- =?utf-8?B?Zjc5NzQ0aW8vQ0tCV21RTXBBVnA0Qml5K0hMM3FKNDBkOGpzdnhHWE5GeDZI?=
- =?utf-8?Q?M/nao6h/RYgE1AvQ=3D?=
-X-Exchange-RoutingPolicyChecked:
-	OqzQ1l6rxNb71+s/8FhWbz8hrXnnCgVrgqoa37k/ap8g0joyxsGn/+6XFGmlXupKl1Alwr4s9eQAl1qHpQZnqpDydnFgtxBGe2JAzUR693aQU39homZU7Ht1D5gdrZ7UpT3yxgeI7+PO2m7eB/krPnnUunigxfDbolufD6pp8+dewrZDeboCO2XgTwM7LoIiZq00QVWMZENBjj72EE8NETlrbcWLgGwKI1Yy6yRMxKC6Twl/hreBbG7mlDH5BxY7FSu/TRajrbot+IKwrpe6QggXNaGRpcutasSbfpfKkwISKNnCQ/WRCgYQ4QS/BE07i8AFpD0ngV8eFY6BpkGFQg==
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	hNSH4Aa+qoYob9PAPLwkHt9lli9UOC6Cw38w4zQeiWgT46gBSgO3noNRM6fNNBjGiyLPP3FYTrn92hTaWiMOpQBYZEOlIIiwWsilVC8Wz5o+mnC2mB2xt7Aw8mZGiMwME5AKR7DH49p1nhlZOE3wOy1hJ546dkOUymGLHrXHWFbIkADB0m1rlxfDYiCsSuIeI8/gD7y6RhrYD4QDeTq7N9UpuBce6bOjoc2lFOH22n4+EeKF6nM80Ttqv/Ni74rGneVYnAT4TwhUwVwGWcG0CPzfpjQgL8ydwwQGsZqoDDbjZpdGjviy15ZPGZcumx90hiKr22C2sbgvA+8ifgMoE+4XmBQysRV3PLn5v63S6yo87s/niCGSKK+LvGIkktGT4Fld2RffXm+FSAzzGFej2zpGu1NDCgJqfQg0rNzxLM1GhkY+cV0ek5R9e2y7aSj3rRu51NR+kCDyhXqFRclJoz1GQfr6tCy45sLVyByFA2lj9+OCHuXSsFyn1i0udCxf6xCm+fESH8mZIxu2bExeu7MLvHB+iemBW7Ojw9qSspqc+C13xGsTkWRZRqItKydaM5zpYmehCCPWmiJjUgVwloi3Wda3E3O/dGP5Dxy9ljNflDupdm2wI+BCl0KcAHmE
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 88c8c9bb-26c3-42de-b72f-08df0cf8fba3
-X-MS-Exchange-CrossTenant-AuthSource: SA6PR04MB9447.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Sep 2026 15:59:22.5402
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: SibYtFXcVWH7Wd1OW5plkoTjwzrddkq3akxYw08WcPWFwzySlD8D123NZ2x9liBZnWOVh0TTcjW1cLDAp9paP/k8enmG/+GjRYn7KqhaKcY=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR04MB7470
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260724021229.47302-1-chensong_2000@126.com>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+X-Spam-Level: 
+X-Spam-Score: -2.50
+X-Spam-Flag: NO
+X-Spamd-Result: default: False [-2.50 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	HAS_REPLYTO(0.30)[dsterba@suse.cz];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_TLS_ALL(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_TWELVE(0.00)[37];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLq7rgjtkhinpjg5fumb6k6gau)];
+	TO_DN_SOME(0.00)[];
+	FREEMAIL_TO(0.00)[126.com];
+	FREEMAIL_ENVRCPT(0.00)[126.com,gmail.com];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[arndb.de,kernel.org,fb.com,suse.com,armlinux.org.uk,arm.com,xen0n.name,linux.ibm.com,ellerman.id.au,gmail.com,dabbelt.com,eecs.berkeley.edu,ghiti.fr,redhat.com,alien8.de,linux.intel.com,zytor.com,lists.infradead.org,vger.kernel.org,lists.linux.dev,lists.ozlabs.org];
+	MID_RHS_MATCH_FROM(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:replyto,suse.cz:mid,imap1.dmz-prg2.suse.org:helo];
+	RCVD_COUNT_TWO(0.00)[2];
+	REPLYTO_ADDR_EQ_FROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	REPLYTO_DOM_NEQ_TO_DOM(0.00)[]
 
-Looks good,
+On Fri, Jul 24, 2026 at 10:12:26AM +0800, Song Chen wrote:
+> This patchset adds fault injection support for btrfs_data_csum_ok,
+> enabling controlled simulation of checksum mismatches to test btrfs
+> silent data corruption detection and reporting paths.
+> 
+> The first patch extends the error injection framework with a new type,
+> EI_ETYPE_FALSE, which allows bool-returning functions to be overridden
+> with a false return value directly.
+> 
+> The second patch marks btrfs_data_csum_ok with ALLOW_ERROR_INJECTION
+> using this new type.
+> 
+> The third patch adds a parent field to fei_attr to allow fault injection
+> on a function only when called from a specific parent function. 
+> 
+> Song Chen (3):
+>   error-injection: Introduce EI_ETYPE_FALSE for fail_function
+>   btrfs: Allow error injection on btrfs_data_csum_ok
+>   error-injection: Introduce parent in fei_attr
 
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+I'm going through my mailbox and found this. No objections to add the
+injection point to btrfs, but the rest is generic fault injection code
+so I can't take it via btrfs tree without acks.
 
+There are some sashiko comments (as replies in the thread [1]) and there
+have been some changes to btrfs code too so the patchset needs a
+refresh.
 
+I see maintainers in CC, if somebody could please let us know how to
+proceed.
+
+[1] https://lore.kernel.org/all/20260724021229.47302-1-chensong_2000@126.com/
+
+>  arch/arm/lib/error-inject.c           |  6 ++
+>  arch/arm64/lib/error-inject.c         |  6 ++
+>  arch/csky/lib/error-inject.c          |  6 ++
+>  arch/loongarch/lib/error-inject.c     |  6 ++
+>  arch/powerpc/lib/error-inject.c       |  6 ++
+>  arch/riscv/lib/error-inject.c         |  6 ++
+>  arch/s390/lib/error-inject.c          |  6 ++
+>  arch/x86/lib/error-inject.c           |  6 ++
+>  fs/btrfs/inode.c                      |  1 +
+>  include/asm-generic/error-injection.h |  6 ++
+>  kernel/fail_function.c                | 98 ++++++++++++++++++++++++++-
+>  11 files changed, 152 insertions(+), 1 deletion(-)
