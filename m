@@ -1,70 +1,69 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70D9C52ED2A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAEC15221D7
 	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 12:45:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788871554; cv=none; b=pKNtsTkSPENdGqACA6CSPcVpbpHtRhUp2kU+pbKig0uZPH7VaE8i/JmfAM4u5NXyesYIU4sCA3cSNE5lqzFYKZMFVlpIZbn14Jh17tZae+WzMll2FZRrXHvkz4YEf5GFhMcHediR5yJAT/VltY2R76oNSdLODKStvFfEKVDch3A=
+	t=1788871554; cv=none; b=jgJrueQ/IkCGHhj7N6OcF54WCe9Ti42g9U8o+UVqUOngEVHWRNRSMV4m59ine6IO3QFINpXx9SBgGvY68e2qdfk1jIYqxTj4O+/egFuEDCAA4WT2/Lx5rNRKl1hyr2N9CnKcUSkCorrdH/sUe2FH29hAGl0SxsW8VzcylKzLg2Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1788871554; c=relaxed/simple;
-	bh=g+NHk8DOijly2lUE9iP6mVsYWkCT3aYbE5EMhvgE/mY=;
+	bh=p8/Oq/lkvCXy89JOdcuLu2C3en5Lv1aieSlQW3Fyz2s=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Jpvt5IYR16TsWhUptEnLnbDvTniH4+DD954mN2bsUtoIiuqhQRN8G7gkn3/4Ppaff0A4eBiBfCpC0IyRDFwR/JQmAxkY5kV5NOE4pRmq3kfntRXv4feYdOwD2Opa/OEDk5QaUFfCl56B4ANqP6cdtZXaLlE05x95o2f7x8/2avM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WiswDAXC; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ej5c0HRpRcVOkEeNEqoii4aGZBLkGmmsWetM0zuu4bfQiGdrOluUki8VKdqtYB3EAF0VOLIWn7GUOAksoLpsYpeDdQ/tdK/NDIT9GlwqOwjFlvaIlTCJNh8B8bX0YHFsebv9xC4IInaKv477/6D5Curkei4hCnf0RI9O9OhlyXI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RkOSla3S; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WiswDAXC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB4C31F00A3A;
-	Tue,  8 Sep 2026 12:45:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RkOSla3S"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4D831F00A3D;
+	Tue,  8 Sep 2026 12:45:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788871551;
-	bh=g+NHk8DOijly2lUE9iP6mVsYWkCT3aYbE5EMhvgE/mY=;
+	s=k20260515; t=1788871552;
+	bh=p8/Oq/lkvCXy89JOdcuLu2C3en5Lv1aieSlQW3Fyz2s=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WiswDAXCqTObYPenzSVe8VhW7H824uzMk3q85H2k4+14Hqve/ugSiKSS9DrBbwRmq
-	 gv29nF5NDp31+f/Yt5LNEVi3oLjT/4fPROtC5fyRUaw9Z++XqajAQUlWb5QPNzEwZ0
-	 fy+1jGl+Zjh1SuakPhXpIE9vLa2tWKA+OV67JwlJz5NvtG4fkV3xUiXkaDWzzVkVj2
-	 3zFxFIHQMoZbSxQukVNBXT0oIoVJdWCa2kKIq6jf9b7DGun96V3uUv1tiZXMEfZDXF
-	 H7sTfeQzt2O1aDxZmvsleEBRKvO0D/tM4eQ5T0hU56H25q7H7/ifxFC0TALn1Lehev
-	 v16l94q9kcwdQ==
+	b=RkOSla3SbAgo5y+GGqv4s9EY5HdQg8SHecyKll8r9cmRHfH07ZI97e3PPIOa3NokS
+	 cBI4OKaix1sjTcMoj5eQ5PNGsT2G5gDgrDWdNOqohhbwE2uSkP7sIm7v4EVvx59Xoh
+	 H0p2NsNPtt0Kw1IwZ2GhIJn4xLbg+FfGdMAK7Bmn+TCX9IVpHApcy+VUMO2aE0OQVZ
+	 sNEJ+xUBPCP4c6erSoUN7SyfPR6mBuUdLbowD3YO655XIhA7P8aoSLd30T0RCO4ZA4
+	 ascSWCzwG1fi/F+xTs2viJMAFq3rK0swbYi4rrzv2DBksYCLwNwe+nxp9hksGs/0ol
+	 xZU6L5k8Vai+Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 01/12] mm/huge_memory: zap deposited page tables
- after an RCU grace period
+Subject: Re: [PATCH v2 08/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for sh-X2
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?TG9yZW56byBTdG9ha2VzIChBUk0p?= <ljs@kernel.org>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260908-rcu-pagetable-freeing-v2-1-1f60b64e878e@kernel.org>
+In-Reply-To: <20260908-rcu-pagetable-freeing-v2-8-1f60b64e878e@kernel.org>
 References: <20260908-rcu-pagetable-freeing-v2-0-1f60b64e878e@kernel.org>
- <20260908-rcu-pagetable-freeing-v2-1-1f60b64e878e@kernel.org>
+ <20260908-rcu-pagetable-freeing-v2-8-1f60b64e878e@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 12:45:50 +0000
-Message-Id: <20260908124550.DB4C31F00A3A@smtp.kernel.org>
+Date: Tue, 08 Sep 2026 12:45:51 +0000
+Message-Id: <20260908124551.E4D831F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> When an anonymous mapping is collapsed for THP, a PTE page table is
-> 'deposited' with the installed PMD entry.
+> Currently, non-x2 sh specifies CONFIG_MMU_GATHER_RCU_TABLE_FREE allowing
+> RCU page table freeing.
 >=20
-> This is done in order that a split can be performed without needing to
-> allocate additional memory.
+> sh-X2 is problematic because it utilises slab-allocated PMD page tables,
+> and thus tlb_remove_ptdesc() cannot be used in these cases.
 >=20
-> The freeing occurs in zap_deposited_table() and is done directly without
-> any delay via pte_free().
+> All other sh variants are fine as commit e3ecf7c7d082 ("mm: pgtable:
+> convert some architectures to use tlb_remove_ptdesc()") already converted
+> page table freeing to use tlb_remove_ptdesc(), which does so after an RCU
+> grace period when CONFIG_MMU_GATHER_RCU_TABLE_FREE is specified.
 >=20
-> This is currently not a problem as existing page table walks are protected
-> by the mmap or anon rmap lock.
+> Resolve this issue by firstly specifying CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE
+> for sh-X2, so the arch can provide its own __tlb_remove_table()
+> implementation (called after the RCU grace period).
 >=20
-> However this becomes problematic in a future where RCU-only page table
-> walkers exist, as there is nothing to prevent a page table walker that
-> started the walk prior to collapse having its PTE table freed underneath
 > [ ... ]
-> __collapse_huge_page_isolate() determines whether it is safe to proceed by
-> checking folio_ref_count() against folio_expected_ref_count(), so the two
-> must be mutually excluded.
+>=20
+> This forms part of an overall effort to switch every architecture to this
+> mode.
 >=20
 > Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 
@@ -72,5 +71,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908-rcu-pageta=
-ble-freeing-v2-0-1f60b64e878e@kernel.org?part=3D1
+ble-freeing-v2-0-1f60b64e878e@kernel.org?part=3D8
 
