@@ -1,123 +1,136 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F04F155D86B;
-	Tue,  8 Sep 2026 14:59:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F62D5592EF;
+	Tue,  8 Sep 2026 15:13:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788879604; cv=none; b=FBoC2DzX1oiWmj8700PTbck9FZLtluYnubS/OrS/yhJawebJMnzTAjLpr3g4fTyUxJrDgMSVgHRyiKEeSyNC3z0Jw8lSy0/mTQyqR0kDhkGVO7xE+XmYRSfAgAPFgXWd4VUDk9lJfkzG+sxUPUD5P03cdD6jaYGpQ4bSNtbCND8=
+	t=1788880443; cv=none; b=gux7VjLlrdhOr/f8tZWDBHvQjgAvjN3tpOfjsUEOu3QkqJhgCF4XedzA/60zzuxlfNlWw63cyaPd1pV8QAPMT/Km/Nbf9NtYJbvuydWy78KIvtj5BUspMFG01vrbvT4NbU0Iu48OdlNF6XHZvqv0eJ7VXf3VEVCR0p0iGtKl/nE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788879604; c=relaxed/simple;
-	bh=WUvmRzQ99IvWir9XATVDX75lWBY78cbwJF2UYPnQqKw=;
+	s=arc-20240116; t=1788880443; c=relaxed/simple;
+	bh=9VnbqKcFo0PdV/F50ouF++HgJygmdMQ5dTr+q9TdSv0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OFZnLFuPqkEZY5GcCfDjUkRDQsaW1x1Dg70gV6XqovDPn57ylDo9tClktMcDhOW7YddJEog9rPcY9qjVId9xW1+0CiFVN3Ok/P/hyUe+jJl2PzR9twP1ZECrmCdN13gtz1GUuGcAhkBAqO05vsvv2/fLXtafVuhrDj/NazNiTY8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QvGYzZvW; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=Qdip1vlPIOM2PqJXL9+Oe8Ka25D5E/TITvZC2uOon45DijyEPp6Fh+4ylESwL81rUF/1PjZzFOrEUVZ8+29OwVw9N2tQ/WU031LOWGEovCRyi5VpJP2LgsFsrRysMlIgkj7gvFUgifBZwAaaiXTCWR/8BMJ2e9D3WTMN3Mi4/pk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=fail (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=fAETnApx reason="signature verification failed"; arc=none smtp.client-ip=65.109.113.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QvGYzZvW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B47B31F00A3A;
-	Tue,  8 Sep 2026 14:59:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788879589;
-	bh=mjLxlDjwVMKv9IYIkt+Ko/Nyuaq1pNIEbnWW+mI79fE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=QvGYzZvW6Biq/bKb+ElGh8jCXJmgfMxoVL0Otn2vzu3W/Xmg9Bv+JC3DvUD+LuWy4
-	 5zHSOarYcP9CaGN7JAmEgbOcuiq5k4yqeVAeBse1GJx2ytaLCk7BgTyJ9K90260SkQ
-	 +QqOg36QieaIouCcAp5vjxWrkrJVoBQmG3a7dNypT5QdKVWri9HRkytxVHW5G0Sh9K
-	 cUTG68rmgshSn7vU79mx+3naUuCrNIHt8nqtZFbsEmVDRSI8g4TNkpBD5lsw00gxQq
-	 FgKaSVtHrOlKhSwHL37yeayu9D9QlIaagzVnoJAVY9TyBXnfhIJfBQT4BlKyzMoCSa
-	 ZC8kDVt3Wo8hQ==
-Date: Tue, 8 Sep 2026 09:59:29 -0500
-From: Rob Herring <robh@kernel.org>
-To: Thierry Reding <thierry.reding@kernel.org>
-Cc: Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Sowjanya Komatineni <skomatineni@nvidia.com>,
-	Luca Ceresoli <luca.ceresoli@bootlin.com>,
-	Mikko Perttunen <mperttunen@nvidia.com>,
-	Yury Norov <yury.norov@gmail.com>,
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+	dkim=fail reason="signature verification failed" (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="fAETnApx"
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id AF2E640E01DD;
+	Tue,  8 Sep 2026 15:13:48 +0000 (UTC)
+X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
+Received: from mail.alien8.de ([127.0.0.1])
+	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id 90bGYtLVFUMy; Tue,  8 Sep 2026 15:13:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
+	t=1788880423; bh=SihVXpN4VvNY3Mg5IOkHy8UfEsHqRfkcnelNTeVhEJY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=fAETnApxBEtfPuqHFKCgIL29nHx0Z2YHgAygdIUM8hU/Mz33/kA4ZUBeN/gRjrvau
+	 vtDllihc6pYSe5SXQwgoqpNhfk4/08/8KMfUsCAU9thasCFYYPKC5Y/pV7Y6XU69vH
+	 LNwlFlG04npY9qQKxVsZcrZnpWC37yTWxuzhzHRm5KpwYfkHvzNEQeiGPcvB58aLNL
+	 CiYr2yyCrB3Kpf/DVc891YwOW/34b2QLG1yPFPyiPhCi535fKHZgiFGNQiM2V+7vT2
+	 gPcZgp3ofWVjQmcjoKAe195uX42B3clf9ibePNVbJKWUY1oARNBH9aqSnI0FgzmH5W
+	 h3dWuWkymclGp3MUg9haChNnjvPBl3Zfv+FDejA3/AFf/CVXHWsWO5KDUQ2zEgeqt/
+	 YAh14BnniVfR4yGoNbbKeldMZUsNF3icLMOF+CXHFJzyhU2PGxTQ2922hXMjHxMdeL
+	 Z7VOvQUlIKK4Twu3A1MK/eNhNVBp3Aq4OXXBOciVJLy8/PcJIx0toX/zZ4lcn1jfV9
+	 ErcQYDZ5WCkd1WmQQESUO71elKnVOkkPTWwEHl1ZBofjxaMBHmYZWTaJGuyt7QqChy
+	 44ZU/2M46IVY51m5w2KmjWEiICeA6W5JNXmeJ3Nh9U8UDaWIWWakyv4XQKa/cqNpso
+	 4+S63J9RdOKwhC2R/OGeJJio=
+Received: from stx.tnic (unknown [IPv6:2600:1700:38ca:c00::42])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	(No client certificate requested)
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 2B8AE40E016C;
+	Tue,  8 Sep 2026 15:12:41 +0000 (UTC)
+Date: Tue, 8 Sep 2026 08:12:38 -0700
+From: Borislav Petkov <bp@alien8.de>
+To: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
+	Bill Wendling <morbo@google.com>,
+	Justin Stitt <justinstitt@google.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Vincenzo Frascino <vincenzo.frascino@arm.com>,
+	Kees Cook <kees@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
 	Russell King <linux@armlinux.org.uk>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>, Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	David Hildenbrand <david@kernel.org>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Sumit Semwal <sumit.semwal@linaro.org>,
-	Benjamin Gaignard <benjamin.gaignard@collabora.com>,
-	Brian Starkey <Brian.Starkey@arm.com>,
-	John Stultz <jstultz@google.com>,
-	"T.J. Mercier" <tjmercier@google.com>,
-	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Chun Ng <chunn@nvidia.com>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Saravana Kannan <saravanak@kernel.org>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	devicetree@vger.kernel.org, linux-tegra@vger.kernel.org,
-	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linux-media@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-s390@vger.kernel.org, linux-mm@kvack.org,
-	iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org,
-	linux-trace-kernel@vger.kernel.org,
-	Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v6 06/12] of: Export of_node_to_nid()
-Message-ID: <20260908145929.GB3123582-robh@kernel.org>
-References: <20260904-tegra-vpr-v6-0-79042cfa8de5@nvidia.com>
- <20260904-tegra-vpr-v6-6-79042cfa8de5@nvidia.com>
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	Alex Gaynor <alex.gaynor@gmail.com>, Gary Guo <gary@garyguo.net>,
+	=?utf-8?B?QmrDtnJu?= Roy Baron <bjorn3_gh@protonmail.com>,
+	Benno Lossin <lossin@kernel.org>,
+	Andreas Hindborg <a.hindborg@kernel.org>,
+	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Boqun Feng <boqun@kernel.org>, Nicolas Schier <nsc@kernel.org>,
+	linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+	llvm@lists.linux.dev, linux-mm@kvack.org,
+	linux-um@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	linux-s390@vger.kernel.org, linux-mips@vger.kernel.org,
+	rust-for-linux@vger.kernel.org, linux-kbuild@vger.kernel.org,
+	Jan Stancek <jstancek@redhat.com>,
+	Arnaldo Carvalho de Melo <acme@redhat.com>,
+	Alexandre Ghiti <alexghiti@rivosinc.com>
+Subject: Re: [PATCH v5 02/24] x86/elf, um/x86/elf: Move relocation constants
+ to UAPI
+Message-ID: <20260908151238.GBaqAl5iKb64meuPJl@fat_crate.local>
+References: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de>
+ <20260908-vdso-absolute-reloc-v5-2-3a93791af1cf@linutronix.de>
+ <20260908135513.GAaqATwXHcQD7plnH-@fat_crate.local>
+ <20260908161740-0d79e592-87a6-43c5-9174-84ce1904e639@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260904-tegra-vpr-v6-6-79042cfa8de5@nvidia.com>
+In-Reply-To: <20260908161740-0d79e592-87a6-43c5-9174-84ce1904e639@linutronix.de>
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 04, 2026 at 12:44:57PM +0200, Thierry Reding wrote:
-> From: Thierry Reding <treding@nvidia.com>
-> 
-> Drivers buildable as a module may want to use this, so export it.
+On Tue, Sep 08, 2026 at 04:26:00PM +0200, Thomas Wei=C3=9Fschuh wrote:
+> The existing, generic ELF definitions are there.
+> The ELF stuff in include/linux/ is highly specific to Linux.
 
-We need a specific reason/driver. Otherwise, that's every API function. 
+And putting them in UAPI casts them in stone. I wouldn't want to maintain=
+ them
+forever if not necessary.
 
-It doesn't look to me like the VPR driver ever actually uses the NID.
+> Also later in the patchset I want to expose the definitions to the
+> tools/ build. Exposing generic UAPI definitions to tools/ is a much
+> easier sell than include/linux/.
 
-> 
-> Signed-off-by: Thierry Reding <treding@nvidia.com>
-> ---
->  drivers/of/of_numa.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/of/of_numa.c b/drivers/of/of_numa.c
-> index 230d5f628c1b..da2e9bd1717c 100644
-> --- a/drivers/of/of_numa.c
-> +++ b/drivers/of/of_numa.c
-> @@ -171,6 +171,7 @@ int of_node_to_nid(struct device_node *device)
->  
->  	return NUMA_NO_NODE;
->  }
-> +EXPORT_SYMBOL(of_node_to_nid);
+tools/ *copies* kernel headers on a "they're needed" basis. No need to pu=
+t
+anything in UAPI for that.
 
-Assuming this is still needed, EXPORT_SYMBOL_GPL.
+It's even written down: tools/include/uapi/README
 
-Rob
+--=20
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
