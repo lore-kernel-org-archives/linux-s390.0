@@ -1,46 +1,47 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBB193BAD95;
-	Tue,  8 Sep 2026 06:34:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A44853BC68E;
+	Tue,  8 Sep 2026 06:34:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788849252; cv=none; b=Y5TkZWIOsASEG9qrfk78cEAay44PIyDGdDRjObwjvou6C/bSboC8FtIb0vzZoWhECuG6mIq1J3fjY0csEfG/5f0gPGKHVpf+qeMJ6ArP0dXTxZOoK+jPVDHe96z0ITSTMjud5lNb3GaDlzMEek0yrzPup+8p3mUXDccC+RtRHy0=
+	t=1788849251; cv=none; b=aBgWlIzNZgM74bpR7CbitEfmcglhsfE/1V76pny1pFIS1Bxt/MGmPt0piiPSimiVRPKr3eWt4SWASOuolh1rKCzp+xXHXlMiGcPi8GWgzLwO3nJTfcq2VyVvQ/RUeg0EY/MUCpMWc+bXDktXW7yGIQFvong8iJ8A9Hvamvv57DU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788849252; c=relaxed/simple;
-	bh=HZMdEj1C9yKMvR8t0T0b/I+JGw7MLB0CX99puHdToGs=;
+	s=arc-20240116; t=1788849251; c=relaxed/simple;
+	bh=R3oIxCvKReHS31AXFavRgNPui6/4omq3e3P+29cRTsM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=jVdxbZ1GsxQINieDCBDf9YQYX+uJrImv1P3L5CjrpUXknhBYPz4iNiSdyIwWeK8VTSEI7l1wOZOfm2p20hctYVmmIJMzr0oXJAh5678l16xdIc7plWWl3rvHR20/aDE9ax4iTR4vNyhlzDl744SAL19jGZuJdOdm+6Bn+Cfb1UM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=ONcLc8uH; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=l6gHpIlB; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=d8TKe9FN/Yol56hyRAM03IMSD0Yu2Y7D44wL+Xq2If6oii33HDmewQFFWGwDdiyOrpUfVrihBDLnj9wM5PDyFPC2jCxfmFTy6BKYcotS9eeH6LWWOLuitlEQ3sYj2M31CVtSNd0CFQaZLE9umVjKLR5D2o2UN0bB4aNZtawLTLA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=YMIoDXx/; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Wz8zdRK+; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="ONcLc8uH";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="l6gHpIlB"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="YMIoDXx/";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Wz8zdRK+"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1788849241;
+	s=2020; t=1788849239;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=3kBqivOxnOtc9zasn0eCWq4RBwv8X/Ufx01wFT8ObgI=;
-	b=ONcLc8uHweGH7n0pCw/rap58Hd3hlqqZX3tNa81FyeUAKASG7dHmKKrwNHdlyHHiRFlDv3
-	7P6wVHU85ZYXnfcCRiWnVYi+2QpFNcZuXtYVzD3P1Zn/fdZu12Z/aImdrANiv+oZZMl4at
-	9mMaHVOXZGbjivRo2no35o+uWLGgDiSG6UNMuG2+iEMTJ22PZURSKSRfc4Mgb5ukOyd5eo
-	qHDw6CT/f4p+x+WbR2azw5m6Mvj+cSnQGWh6LIR2cGKjHOZ07fbIsBdVtvR5MjpChX7mMS
-	oLADeRjpYC5cEYx4I9eCz34hLIFqdP4uXVXHWdOJrV8hibo+4NiNMS3Ou5SNNg==
+	bh=QpMeGTA/JL9YkhE8VitmDDEUz8BAqAeVVV3RUo7s8KM=;
+	b=YMIoDXx/ryyJO/wNSJr79hBrk/1uKFLoRwuyXWq2ERwfWyVqyJffleMbiT+vvuWtO204/K
+	XO3RmXGCnqV4w7lfkhlRudbX45mFtdRD41W9PJVoty/pqKiHswGZXTaKvmOaxPSu5VZJVM
+	xxsp4AJePJ+ALKIQ/EeGwO+kVJXptZyvKlxH78jJhdZkeOrN+Ww5q1WKtNHcy76t1B+jzv
+	XQRYBH9ansqx4KI/6zXA4pK/oLhRKj+aRYBHIq9E7X1UO0E3YCVRVTfZ6ee2DiCObTk4zf
+	wtUuUCDZU7XTwecLf7y0KofwzMRjqZcFYKJ6viLp4DkuxsMmnK/jJKnBlUZEnA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1788849241;
+	s=2020e; t=1788849239;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=3kBqivOxnOtc9zasn0eCWq4RBwv8X/Ufx01wFT8ObgI=;
-	b=l6gHpIlBwSi62BlkjxL9EUNAzZDCPGUsAN4gQqoMPR3kEWA9gAzwkD/kVYA1N+/Whf7HSz
-	RiUDLayydxIFtsCw==
-Date: Tue, 08 Sep 2026 08:33:57 +0200
-Subject: [PATCH v5 23/24] sparc: vdso: Enable the vdsocheck tool
+	bh=QpMeGTA/JL9YkhE8VitmDDEUz8BAqAeVVV3RUo7s8KM=;
+	b=Wz8zdRK+ls5E3Iazhq49Wi6Kk0ecGxrc48ZY5jjgK217bXfYrQAd4sT7ItwhO6FCRyToCS
+	ZOi8PKGbBnEfh/BQ==
+Date: Tue, 08 Sep 2026 08:33:55 +0200
+Subject: [PATCH v5 21/24] MIPS: ELF: Add more PC-relative relocation
+ definitions
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,7 +50,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260908-vdso-absolute-reloc-v5-23-3a93791af1cf@linutronix.de>
+Message-Id: <20260908-vdso-absolute-reloc-v5-21-3a93791af1cf@linutronix.de>
 References: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de>
 In-Reply-To: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de>
 To: Paul Walmsley <paul.walmsley@sifive.com>, 
@@ -91,80 +92,54 @@ Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
  Arnaldo Carvalho de Melo <acme@redhat.com>, 
  Alexandre Ghiti <alexghiti@rivosinc.com>, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1788849226; l=2334;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1788849226; l=1280;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=HZMdEj1C9yKMvR8t0T0b/I+JGw7MLB0CX99puHdToGs=;
- b=BIOspn+qM5bOmIKIxJ7EFwVtuD4wBWlInysCLHBriHSIaZ4Mi4Uuz/G1wqiiCglI1Bscu2LVw
- tLp8zgIJJGDDE/NO9Dyua6VwQNT98vlN+rim+byvjliIudZ111tEN/Y
+ bh=R3oIxCvKReHS31AXFavRgNPui6/4omq3e3P+29cRTsM=;
+ b=rkjnjj70dplXDvHhkzfJOvBIecn20+RvsB4YJZT7kS6dmC1XplZqrPoTSbkM+YB0aLRxuxOb5
+ Wp9eyI0SYfRAyhHyeFjnDOCIAqDeZA0dEsHaudn+dA9ns9ki2xZGWbR
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-The vdsocheck tool validates the object files and final .so library.
-It can detect if the compiler created relocations which are incompatible
-with the vDSO which need to be worked around.
+These are used by userspace and are necessary for the vdsocheck tool.
 
-Wire it up for the architecture.
+Also update the copy in tools/ so they can be used by vdsocheck.
 
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 ---
- arch/sparc/Kconfig          | 1 +
- arch/sparc/vdso/Makefile    | 5 +++--
- lib/vdso/check/vdsocheck.rs | 7 +++++++
- 3 files changed, 11 insertions(+), 2 deletions(-)
+ include/uapi/linux/elf-r.h       | 4 ++++
+ tools/include/uapi/linux/elf-r.h | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index ab77d3f2536e..628bdfc2f088 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -114,6 +114,7 @@ config SPARC64
- 	select ARCH_SUPPORTS_SCHED_SMT if SMP
- 	select ARCH_SUPPORTS_SCHED_MC  if SMP
- 	select ARCH_HAS_LAZY_MMU_MODE
-+	select VDSO_CHECK
- 	select GENERIC_GETTIMEOFDAY
- 
- config ARCH_PROC_KCORE_TEXT
-diff --git a/arch/sparc/vdso/Makefile b/arch/sparc/vdso/Makefile
-index 83fb2aca59cb..8bb235c3a618 100644
---- a/arch/sparc/vdso/Makefile
-+++ b/arch/sparc/vdso/Makefile
-@@ -28,7 +28,7 @@ CPPFLAGS_vdso.lds += -P -C
- VDSO_LDFLAGS_vdso.lds = -m elf64_sparc -soname linux-vdso.so.1 \
- 			-z max-page-size=8192
- 
--$(obj)/vdso64.so.dbg: $(obj)/vdso.lds $(vobjs) FORCE
-+$(obj)/vdso64.so.dbg: $(obj)/vdso.lds $(vobjs) $(vdsocheck) FORCE
- 	$(call if_changed,vdso)
- 
- HOST_EXTRACFLAGS += -I$(srctree)/tools/include
-@@ -99,7 +99,8 @@ $(obj)/vdso32.so.dbg: CHECKFLAGS = $(CHECKFLAGS_32)
- $(obj)/vdso32.so.dbg: FORCE \
- 			$(obj)/vdso32/vdso32.lds \
- 			$(obj)/vdso32/vclock_gettime.o \
--			$(obj)/vdso32/vdso-note.o
-+			$(obj)/vdso32/vdso-note.o \
-+			$(vdsocheck)
- 		$(call	if_changed,vdso)
- 
- #
-diff --git a/lib/vdso/check/vdsocheck.rs b/lib/vdso/check/vdsocheck.rs
-index 865e8cf7d4e1..0d3b47bf57e1 100644
---- a/lib/vdso/check/vdsocheck.rs
-+++ b/lib/vdso/check/vdsocheck.rs
-@@ -172,6 +172,13 @@ fn allowed_relocations_for_machine(machine: u16) -> Option<AllowedRelocations<'s
-             ..Default::default()
-         }
-         .into(),
-+        bindings::EM_SPARC | bindings::EM_SPARC32PLUS | bindings::EM_SPARCV9 => {
-+            AllowedRelocations {
-+                in_object_file: &[bindings::R_SPARC_DISP32],
-+                ..Default::default()
-+            }
-+            .into()
-+        }
-         _ => None,
-     }
- }
+diff --git a/include/uapi/linux/elf-r.h b/include/uapi/linux/elf-r.h
+index 170888422400..a6a4d7643c5d 100644
+--- a/include/uapi/linux/elf-r.h
++++ b/include/uapi/linux/elf-r.h
+@@ -646,6 +646,10 @@
+  */
+ #define R_MIPS_PC21_S2		60
+ #define R_MIPS_PC26_S2		61
++#define R_MIPS_PC18_S3		62
++#define R_MIPS_PC19_S2		63
++#define R_MIPS_PCHI16		64
++#define R_MIPS_PCLO16		65
+ /*
+  * This range is reserved for vendor specific relocations.
+  */
+diff --git a/tools/include/uapi/linux/elf-r.h b/tools/include/uapi/linux/elf-r.h
+index 170888422400..a6a4d7643c5d 100644
+--- a/tools/include/uapi/linux/elf-r.h
++++ b/tools/include/uapi/linux/elf-r.h
+@@ -646,6 +646,10 @@
+  */
+ #define R_MIPS_PC21_S2		60
+ #define R_MIPS_PC26_S2		61
++#define R_MIPS_PC18_S3		62
++#define R_MIPS_PC19_S2		63
++#define R_MIPS_PCHI16		64
++#define R_MIPS_PCLO16		65
+ /*
+  * This range is reserved for vendor specific relocations.
+  */
 
 -- 
 2.55.0
