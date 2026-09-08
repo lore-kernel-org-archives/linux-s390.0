@@ -1,206 +1,100 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACC3638DC56
-	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 06:57:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A99D4375F7B
+	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 07:00:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788850645; cv=none; b=q170NSpX59hh6OjdbjBfhYaxf7/+rqEOcP68zXwwgy/TNjvmPfAWFl5SpQigHjptXzmrBrR04gpy1PJp6LPrwTtkCaJkQ25i6RJO9hI9pog/IPLx1iM32XHhAGgef0KH+zx/whs3CP7bMuiGM9C5bb69cgDQax5BsskNKa4zeh4=
+	t=1788850839; cv=none; b=u7Akq2+kkU3mmPoxDCRchHvilBXTW+6u6WTBjA8ZaC7U7qTC75oaq82CSRQ7N/cCJX/kvIWvzENKGZib8sS9JquzjDBX4zV4aDz77M1BEMrevax69sXn2Ot7ECM/K4HbHWyh3iPn15AkLQFegCWfWOqp7efitAYJ69jb0KXjk5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788850645; c=relaxed/simple;
-	bh=aMPlI6f165qaXjI2ewVV9ZI7hdhGXHNav2hm8zlodTU=;
+	s=arc-20240116; t=1788850839; c=relaxed/simple;
+	bh=cGhgzkDWJbMY1t6RPmy90REjOc7zDAnjc0WPCdlQqLA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=qi09apqhJhijjZa4Das2k0DLuTbNMZswPnOeqYizi/VZ6aoH7peVgx3ZOSPhmxC3ews2EcFKCkRhgKUS0udWDzcrnJa92mhf5DlZMAf00zy9EnHdkyh00znUBOXlWMZ6XykE2D9alqWFyNyfB8XHnP2bQwkSwB25dMX3FhIDMZU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F6oHBbXB; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=YJExmFUsB3TzGIK9pZiHzk0qtee2imdlAdDDTQHSJoTcwZbaJiyqTyDtLYiIlMo/Dszy16CrJRW8gHZT9Xa8iUMZjWnqd8MQ4ZQIQXZ4gyhscQds7pCCitOXskcpr+vQQkygMvVYuKsMquQNzN2KG/g8qn0eLu4v9b7oZ8510zk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E1G+mxmv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F6oHBbXB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF3E61F00A3A;
-	Tue,  8 Sep 2026 06:57:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E1G+mxmv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B73541F00A3A;
+	Tue,  8 Sep 2026 07:00:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788850640;
-	bh=SbhWHozeHreKEaSmIh2jN0I/8wLLM0p12Wqi/z9wnF8=;
+	s=k20260515; t=1788850838;
+	bh=GIn0kxlrUTsvDAlw8GQdmT43DIfKI3hw7w6k89vSwUA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=F6oHBbXBRZhW4FdXgU8UiRPr2WYAv/5vbpCYhY2LdqBbrHDix6pwy/lThw6U+/Ap2
-	 +8aNtyCoYWPTPCI7qozM+2nQyw1zpeQgpRTxwxujo4l6iBpbRZW7NCEzLd+eLkhAN0
-	 pwtWhcK+N6jj5FU9Us0qUBfKhKtvxeqrJbETg1ZbppekPvLK3UODrDRhf4TQjjEDPv
-	 gDWrS0RdUzScb2HAlhU1BUl5icWHteYgNKoB3xmokgwSOY7wNVC4eWZBOEMcNqwe4/
-	 gJjyiDlhAuntyiPzYRFnX862dGSZN9p0QWxAeKzrHh9snz3hZFFm6eXWH6tbyQPpmG
-	 Hl+kzAiBpRUlw==
+	b=E1G+mxmvLA9d8eViMeIXiQjbS9j9gC6TJfA/U8JSL+PsOamJM1Fiq1qgltEQJdJRw
+	 330iD5Zc8H0UYmYgcZwV8rwzZHaRuo69UFE5A1RMLByXQ1zMAo8rLxZxp5vby8pPjK
+	 nlzFJRt9tZQchcaNAutwA5UA/8K/FzP4RMe4vdRDoYNw3b7XDqwZtJvLa3wxjSmc+A
+	 h64uqKOkiJZCxt1vkxRoj6dcek198Di9OG2nc5Mb0LrXb1rp2GH1aYjz+cXFbjzaMY
+	 xDHENUn1O8wWiwJl3lCQn4f5R2B8WqX+7N10OHhGSh6E8Q0DC8lTcjiTeaxsJYiS9a
+	 kj0tyCdgxAKgQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 12/24] vdso: Add the vdsocheck tool
+Subject: Re: [PATCH v5 13/24] x86/vdso: Enable the vdsocheck tool
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?VGhvbWFzIFdlacOfc2NodWg=?= <thomas.weissschuh@linutronix.de>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, ojeda@kernel.org, linux-s390@vger.kernel.org
-In-Reply-To: <20260908-vdso-absolute-reloc-v5-12-3a93791af1cf@linutronix.de>
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, ojeda@kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260908-vdso-absolute-reloc-v5-13-3a93791af1cf@linutronix.de>
 References: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de>
- <20260908-vdso-absolute-reloc-v5-12-3a93791af1cf@linutronix.de>
+ <20260908-vdso-absolute-reloc-v5-13-3a93791af1cf@linutronix.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 06:57:19 +0000
-Message-Id: <20260908065719.DF3E61F00A3A@smtp.kernel.org>
+Date: Tue, 08 Sep 2026 07:00:37 +0000
+Message-Id: <20260908070037.B73541F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] Parsing failure for valid ELF files containing `SHT_NOBITS` sect=
-ions.
-- [Medium] `validate_linked_dso` blindly rejects DSOs with `SHT_REL` / `SHT=
-_RELA` sections, dropping the workaround for `R_*_NONE` relocations.
-- [Low] Unchecked slice indexing in `get_data_subslice` causes unhandled pa=
-nics on malformed or adversarial ELF files.
-- [Low] vdsocheck.rs fails to compile due to multiple lifetime violations a=
-nd a move-while-borrowed error.
+- [Low] The AllowedRelocations list for EM_386 is missing bindings::R_386_P=
+LT32, which can cause valid 32-bit VDSO builds to fail.
 --
 
-commit 043a7ddfce689ccb30ea6aee60c35639fb8be5b1
+commit d74c76b651e13f383612ff619529355d8cc73129
 Author: Thomas Wei=C3=9Fschuh <thomas.weissschuh@linutronix.de>
 
-vdso: Add the vdsocheck tool
+x86/vdso: Enable the vdsocheck tool
 
-This commit introduces a Rust-based vdsocheck tool to validate that the vDSO
-library does not contain absolute dynamic relocations, moving this logic ou=
-t of
-inline shell commands.
+The vdsocheck tool validates the object files and final .so library
+and detects incompatible relocations. This commit wires it up for the
+x86 architecture.
 
-> diff --git a/lib/vdso/check/elf.rs b/lib/vdso/check/elf.rs
-> new file mode 100644
-> index 0000000000000..520285d6fd10a
-> --- /dev/null
-> +++ b/lib/vdso/check/elf.rs
-[ ... ]
-> +fn get_data_subslice(data: &[u8], offset: u64, size: u64) -> ParseResult=
-<&[u8]> {
-> +    let start: usize =3D offset.try_into().map_err(|_| ParseError::Index=
-OutOfRange)?;
-> +    let size: usize =3D size.try_into().map_err(|_| ParseError::IndexOut=
-OfRange)?;
-> +    let end =3D start.checked_add(size).ok_or(ParseError::IndexOutOfRang=
-e)?;
-> +
-> +    Ok(&data[start..end])
-> +}
-
-[Severity: Low]
-Does this slice indexing panic if the ELF file specifies an out-of-bounds s=
-ize
-where end exceeds data.len()?
-
-Could this use data.get(start..end).ok_or(...) instead to return a graceful
-parsing error rather than failing on malformed ELF files?
-
-[ ... ]
-> +impl<'f: 'a, 'a> Iterator for SectionHeaderIterator<'f, 'a> {
-> +    type Item =3D ParseResult<SectionHeader<'f>>;
-> +
-> +    fn next(&mut self) -> Option<Self::Item> {
-[ ... ]
-> +        match &mut self.0 {
-> +            ClassAlternative::Elf32(iter) =3D> iter.next().map(|n| {
-> +                Ok(SectionHeader {
-> +                    name: n.sh_name.to_cpu(iter.byteorder).into(),
-> +                    type_: n.sh_type.to_cpu(iter.byteorder).into(),
-> +                    entsize: n.sh_entsize.to_cpu(iter.byteorder).into(),
-> +                    data: get_data_subslice(
-> +                        file_data,
-> +                        n.sh_offset.to_cpu(iter.byteorder).into(),
-> +                        n.sh_size.to_cpu(iter.byteorder).into(),
-> +                    )?,
-> +                })
-> +            }),
-[ ... ]
-
-[Severity: Medium]
-Will this fail to parse valid ELF files containing sections with no file da=
-ta
-like .bss?
-
-Since sh_size for these sections represents memory allocation size rather t=
-han
-file size, calling get_data_subslice() here attempts to read non-existent
-bytes from the file, which could cause a parsing failure.
-
-[ ... ]
-> +impl<'a> RelSection<'a> {
-> +    pub fn entries(&'a self) -> ParseResult<RelSectionIterator<'a>> {
-> +        RelSectionIterator::new(&self.0)
-> +    }
-> +}
-
-[Severity: Low]
-Does this method signature enforce a lifetime bound (&'a self) that cannot =
-be
-satisfied when iterating over locally constructed sections? This appears to
-cause a compile failure in validate_object_file().
-
-[ ... ]
 > diff --git a/lib/vdso/check/vdsocheck.rs b/lib/vdso/check/vdsocheck.rs
-> new file mode 100644
-> index 0000000000000..f4c0730bc976d
-> --- /dev/null
+> index f4c0730bc976d..1174d896a68b9 100644
+> --- a/lib/vdso/check/vdsocheck.rs
 > +++ b/lib/vdso/check/vdsocheck.rs
-[ ... ]
-> +fn validate_linked_dso<'a>(file: &'a elf::File<'a>) -> ValidationResult<=
-'a> {
-> +    for section in file.sections()? {
-> +        let section =3D section?;
-> +
-> +        /* No relocations are allowed */
-> +        match section {
-> +            elf::Section::Rel(_) | elf::Section::Rela(_) =3D> {
-> +                return Err(ValidationError::UnexpectedSection(section))
-> +            }
-> +            _ =3D> {}
-> +        }
-> +    }
-> +
-> +    Ok(())
-> +}
-
-[Severity: Medium]
-Does this blindly reject DSOs containing relocation sections, even if they
-solely contain ignored relocations?
-
-The inline shell script this replaces in lib/vdso/Makefile.include explicit=
-ly
-ignored _NONE relocations:
-
-  cmd_vdso_check =3D if $(READELF) -rW $@ | grep -v _NONE | grep -q " R_\w*=
-_"; \
-
-Does unconditionally rejecting all relocation sections drop this workaround=
- for
-toolchains that emit empty or _NONE relocations?
-
-[ ... ]
-> +fn validate_object_file<'a>(file: &'a elf::File<'a>) -> ValidationResult=
-<'a> {
-[ ... ]
-> +        match section {
-> +            elf::Section::Rel(ref rel) =3D> {
-> +                for entry in rel.entries()? {
-> +                    if !allowed_relocs.in_object_file.contains(&entry.ty=
-pe_) {
-> +                        return Err(ValidationError::InvalidRelocation(se=
-ction, entry.type_));
-> +                    }
-> +                }
-> +            }
+> @@ -34,6 +34,20 @@ fn is_ignored_section(&self, section: &elf::Section<'_=
+>) -> bool {
+> =20
+>  fn allowed_relocations_for_machine(machine: u16) -> Option<AllowedReloca=
+tions<'static>> {
+>      match machine as u32 {
+> +        bindings::EM_386 =3D> AllowedRelocations {
+> +            in_object_file: &[
+> +                bindings::R_386_PC32,
+> +                bindings::R_386_GOTOFF,
+> +                bindings::R_386_GOTPC,
+> +            ],
 
 [Severity: Low]
-Will this fail to compile due to a move-while-borrowed error?
+Is the AllowedRelocations list for EM_386 missing bindings::R_386_PLT32 her=
+e?
 
-The variable section is moved into ValidationError::InvalidRelocation while=
- it
-is still borrowed by ref rel.
+The vdsocheck tool validates object files during the kernel build. If a
+compiler generates R_386_PLT32 relocations for local function calls in PIC
+code (which is common in many GCC versions), the build will fail because
+this relocation is not in the allowlist.
 
-Combined with the lifetime requirements of rel.entries(), this breaks the
-build when the vdso check config is enabled.
+For 64-bit VDSO (EM_X86_64), bindings::R_X86_64_PLT32 is explicitly allowed
+just below. Additionally, the kernel's relocs tool treats R_386_PLT32 as
+equivalent to R_386_PC32 because it is a standard PC-relative relocation
+emitted by GCC for function calls.
+
+Could omitting it from vdsocheck cause spurious build failures on valid
+32-bit C code?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908-vdso-absol=
-ute-reloc-v5-0-3a93791af1cf@linutronix.de?part=3D12
+ute-reloc-v5-0-3a93791af1cf@linutronix.de?part=3D13
