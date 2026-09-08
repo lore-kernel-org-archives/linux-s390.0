@@ -1,109 +1,126 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 381C3397E75
-	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 07:32:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADF61397923;
+	Tue,  8 Sep 2026 07:35:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788852723; cv=none; b=gXrqiDGC5DMi47L/424GwuBx0TNWRYkivWJd1ah793SHZR13wv1jHSQtxzPMBAnIC5nS4EZMYuUTvt5+Yi/mOtxCA0mNGPEXJyWlW+Ot7weqY07oX8ZUtRA/MdwWPdO2FfFwxXeDD9kv3E2DXkNG76iP9ekjbQnH6i98qhveD1E=
+	t=1788852955; cv=none; b=Wk1U6rMpr2OqAQlAYj2OxvQ/exBAdJCfFShpLqLUwPDAhPI6as/IAFedaMHJuwMBjBnAzHW2lnTYfs4eAK/RrSvWAl5SHXmpRfqCbyuxnDQ7JHNLoLpox1xjrObLXVwLwsgsxrdfFgxJkdUwvrY2zUw+fXrZMybJTWtlL72aJAg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788852723; c=relaxed/simple;
-	bh=36N/6c6mh2LPtKDK11aGmDuvff02ZD6z/uarPjtNhjY=;
+	s=arc-20240116; t=1788852955; c=relaxed/simple;
+	bh=Yas4x71zv2CucLgcDzjxZfSt/KtDAAqnSBc20UX9Q9M=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tvX3c4E5bq8xwWMibRifBj9d2tlNLZtLI+WnuDgbgNexmtjQ2xAv1cLPSqqYrJcLrOP6uQlSA6VWERXdMOhATlgDkXrKaZudU9c+zgr12avkmvEcjHTWZGeXgMwLeyHOdDDt692Guv9fn76qCa4nb6eJVZbkx+GFRzzrDs4fZzM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ak+tq/l4; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=TYAOag9HzfFiWW2VViPsfL/QHcTmEN0Vm7R/y0mdVxR2wnV1tcSCljKAB3izTDPNHFd1TxwzzJrnxA2s4CsgrzvKinHi1ZUK5SzLdrp3dkB6VvpQsf0eAi4+1vaoZU0zEKdRvvz/p4d3gtopD61rUvFkUbAbNIxLhfGo4DqNpdQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=sF40x1Tn; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=t4GN1Dhf; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ak+tq/l4"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6886VfWw3107144
-	for <linux-s390@vger.kernel.org>; Tue, 8 Sep 2026 07:32:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=WRYLsEnxQ+oDQ10sGaKnHk8wnYWUjo
-	WpPBh+oeJcCNk=; b=Ak+tq/l4V7QIMmrPFC4DRWEUUjonkDsCorCHAgoZWH7ECq
-	W4MG6PRIiPCNGYlItDZHKKXLJpn7ZUSgU5O0VbQkwW8OOMqJZ3ugg2zcRwhNhcmj
-	P6beLMg0j8UztRmpkHeyHWYBilPeysUaxHus04lhT0ZVrmRc3tIxExIthfkyQFmD
-	sXOW+1gF98fbrTZU7HB8JfNstaYRm4wcrRw77yAatJu6yIuhSQEZ/FV7IvFtP7av
-	RBcLqZJdNO9O/DIgI3mND93ixrxnGtRZlPCWHxc30yoHJYP6MF7Xm8XsTKHA45ET
-	0qSi9hBK+c/rv9UAnZuB1SoKkgLb3h96g+aaSAPg==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ggbjrn2wn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 08 Sep 2026 07:32:00 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 6887QE5L023870
-	for <linux-s390@vger.kernel.org>; Tue, 8 Sep 2026 07:32:00 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gh03ya5km-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 08 Sep 2026 07:32:00 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6887VtFH44761592
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 8 Sep 2026 07:31:55 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C04D12004D;
-	Tue,  8 Sep 2026 07:31:55 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8D2C620049;
-	Tue,  8 Sep 2026 07:31:55 +0000 (GMT)
-Received: from li-0f4bfd12-9554-4bfb-8b14-7ccf0f0767af.ibm.com (unknown [9.111.94.215])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  8 Sep 2026 07:31:55 +0000 (GMT)
-Date: Tue, 8 Sep 2026 09:32:30 +0200
-From: Sumanth Korikkar <sumanthk@linux.ibm.com>
-To: Thomas Richter <tmricht@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, japo@linux.ibm.com
-Subject: Re: [PATCH] s390/pai: Simplify pai_init() and always return -ENODEV
- on failure
-Message-ID: <ap-6DueOPYJhCw3Q@li-0f4bfd12-9554-4bfb-8b14-7ccf0f0767af.ibm.com>
-References: <20260903081557.2023814-1-tmricht@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="sF40x1Tn";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="t4GN1Dhf"
+Date: Tue, 8 Sep 2026 09:35:46 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1788852947;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Ji2FYflr/CbjV3rk9832i6ivZtcJlLtueWgeq3em9Fs=;
+	b=sF40x1TnpsNhyt0sI38rIHaeAvtNg/EM8w3EtHzsFSvvVwHHMnTzo9ND4gwdFmZKWgwiQI
+	zIUqZO38xf+hqbFqpxnJEf22XYPf5rduERB4k6rIc5UkCj8/unJYgFDyl/VlE7G+EFDI03
+	CNmgd/Vj1Q3c/q3Ydr3Q/DKOj3v431wlaOso4rjeyTahr+hMGIpBnsAkCalXgeDSgVmwoT
+	fSwtBw7bhzCeC4FkKyNmCXzfRLo7mT4mBMZCZPU/i5SaXQchJvrd+z5JqASF5WVbgiH5G4
+	it4ju8Bz/fYLxG5O3MBiu0Nd1yKjfxaEDd33C3bFc0Qo3/mwB0s4uDaabhB7ew==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1788852947;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Ji2FYflr/CbjV3rk9832i6ivZtcJlLtueWgeq3em9Fs=;
+	b=t4GN1DhfMH6AgNQoFSHKMaImcdOBofdEStAoUz2uy11ao2hSCXVnSiB6G9+q7fkA3MPgYT
+	C9GJghb2CAl+FqDg==
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Alexandre Ghiti <alex@ghiti.fr>, Nathan Chancellor <nathan@kernel.org>, 
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, Bill Wendling <morbo@google.com>, 
+	Justin Stitt <justinstitt@google.com>, Andy Lutomirski <luto@kernel.org>, 
+	Vincenzo Frascino <vincenzo.frascino@arm.com>, Kees Cook <kees@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, Richard Weinberger <richard@nod.at>, 
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Will Deacon <will@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	Miguel Ojeda <ojeda@kernel.org>, Alex Gaynor <alex.gaynor@gmail.com>, Gary Guo <gary@garyguo.net>, 
+	=?utf-8?B?QmrDtnJu?= Roy Baron <bjorn3_gh@protonmail.com>, Benno Lossin <lossin@kernel.org>, 
+	Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl <aliceryhl@google.com>, 
+	Trevor Gross <tmgross@umich.edu>, Danilo Krummrich <dakr@kernel.org>, 
+	Thomas Gleixner <tglx@kernel.org>, Christophe Leroy <chleroy@kernel.org>, 
+	Boqun Feng <boqun@kernel.org>, Nicolas Schier <nsc@kernel.org>, linux-riscv@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, llvm@lists.linux.dev, linux-mm@kvack.org, 
+	linux-um@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, linux-s390@vger.kernel.org, 
+	linux-mips@vger.kernel.org, rust-for-linux@vger.kernel.org, linux-kbuild@vger.kernel.org, 
+	Jan Stancek <jstancek@redhat.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, 
+	Alexandre Ghiti <alexghiti@rivosinc.com>
+Subject: Re: [PATCH v5 12/24] vdso: Add the vdsocheck tool
+Message-ID: <20260908093302-1a1cf0c7-8103-48b1-9f6a-abd5c5c16523@linutronix.de>
+References: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de>
+ <20260908-vdso-absolute-reloc-v5-12-3a93791af1cf@linutronix.de>
+ <20260908071911.GU4120091@noisy.programming.kicks-ass.net>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20260903081557.2023814-1-tmricht@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=E7T9Y6dl c=1 sm=1 tr=0 ts=6a9fb9f0 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=x097g5zEZefxzsnpXnoA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTA4MDA3NyBTYWx0ZWRfX9XVB/9pIkh0g
- EziKVA1pgyTa1+zop/hPlj70SsB3pp4+zA1KSf/msOGN7Te9y8APapiOWpvQHTreCwE8pRecDuQ
- V8YxP5VsnV9e5RKVVfVkzRCI7hn0TXU=
-X-Proofpoint-ORIG-GUID: KKoztnPEww0kLKDs7N_STdUsJ1v7TfpH
-X-Proofpoint-GUID: KKoztnPEww0kLKDs7N_STdUsJ1v7TfpH
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTA4MDA3NyBTYWx0ZWRfX1Wlm0NZw4JSg
- mUrbb6t3t371Rje6xnkhOOrpbo0e0y0vVYXmXL0F54/j4ZJU18mDiCOpJ9n3masrMp5qJtI0/Ac
- nxCVD06oXtrKVG05siOvg+5cWceah3CfvQm5TGynuzO9UgnjUIa4ak16pi31WrOgAU4IKi67YsH
- VF+MNHQ3WL+hcfT2DxDK5Ip+OxfYMWNcV/6g3xpaF/lzYJKLe+/3cOxRxnnO2suJ4ZvnNjGBRU7
- WR/So9LK0+Yt4K5Y44BwnJA1mdt3fXYGRMEvXx9MVgEcSQXdteLmfjHZ98+3tngzXkD6FNH36F1
- IFr9QOajZwx7UrNHfsAfrwywTSaTDmvLRGp956+jA28c/AIzExnsYkdO4LFPiyBNn4wNooYX3zq
- gMXpk0Qpu0MazACvg3A4FtYljSeLLj1zky9WjVzwYsszvQDlsKoR9mcVUIxh0x0hmm2Twx5T5ZV
- MRk8MnvVtUfySwr7pKQ==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-08_01,2026-09-07_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 phishscore=0 spamscore=0 suspectscore=0 priorityscore=1501
- bulkscore=0 impostorscore=0 malwarescore=0 lowpriorityscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609080077
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260908071911.GU4120091@noisy.programming.kicks-ass.net>
 
-On Thu, Sep 03, 2026 at 10:15:57AM +0200, Thomas Richter wrote:
-> Code simplification and remove variable state.
-> Return -ENODEV in all failures to indicate the PAI PMUs are not
-> available.
+On Tue, Sep 08, 2026 at 09:19:11AM +0200, Peter Zijlstra wrote:
+> On Tue, Sep 08, 2026 at 08:33:46AM +0200, Thomas Weiﬂschuh wrote:
+> > All vDSO code needs to be completely position independent. Symbol
+> > references are marked as hidden so the compiler emits PC-relative
+> > relocations. However there are cases where the compiler may still
+> > emit absolute relocations, as they are valid in regular PIC DSO code.
+> > These would be resolved by the linker and will break at runtime.
+> > This has been observed on arm64, see commit 0c314cda9325 ("arm64: vdso:
+> > Work around invalid absolute relocations from GCC")
+> > 
+> > Introduce a tool to check for absolute relocations during the build,
+> > as the current inline-shell logic is not expressive enough.
+> > The check is done on the object files as the relocations will not exist
+> > anymore in the final DSO. As there is no extension point for the
+> > compilation of each object file, perform the validation in vdso_check.
+> > 
+> > Signed-off-by: Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de>
+> > ---
+> >  Makefile                    |  19 ++
+> >  lib/vdso/Kconfig            |   5 +
+> >  lib/vdso/Makefile           |   2 +
+> >  lib/vdso/Makefile.include   |  14 ++
+> >  lib/vdso/check/.gitignore   |   3 +
+> >  lib/vdso/check/Makefile     |  34 +++
+> >  lib/vdso/check/elf.rs       | 498 ++++++++++++++++++++++++++++++++++++++++++++
+> >  lib/vdso/check/vdsocheck.rs | 154 ++++++++++++++
+> >  8 files changed, 729 insertions(+)
 > 
-> Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+> Urgh, does this mean I have to have rust installed just to build a
+> kernel now?
 
-Looks good to me.
+No.
 
-Reviewed-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
+If you don't have rust installed the build will instead use the existing shell
+script for a less thorough check. We only need one build machine at some point
+to have rust installed to report issues and this check to be useful.
+
+
+Thomas
