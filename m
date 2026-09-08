@@ -1,79 +1,61 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A00EE53D0C7
-	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 12:44:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8757453D0C7
+	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 12:44:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788871479; cv=none; b=rAZ2P+Q+HBKBaAZJ9yMSXpgT1K4H/fJKbCux3oSYlYcintdcH43R+ir3Mm88ATugBlIdlXJuZEQVsMGN1dv6mOReJFgR7bIon/CMq/XeRgBpv7AyOG+hH+33iWo5GjDhqQI6iuY96e77fBR2h3fFsfv7cNxVFHROv/zVFVLJAto=
+	t=1788871496; cv=none; b=X0HvTyNM/BeynWVZiNvvR9JqBgtZyWjI0/BE2PO6tKCUI+VZLsfUUUgSAN//I3zjSafR6auTcWscAYUeMzvBZ5cVbanxVUuxLm2Kbc7up8epUbe9kj95OcAiJYUF9I6KoTYJ19jp0BbosMs4Rd8OugXMhECaxOHXDzTzfQBYsSM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788871479; c=relaxed/simple;
-	bh=m2ZDgQEymvysf/hShdYDldljTbvXLwijwi2IhfOkWi4=;
+	s=arc-20240116; t=1788871496; c=relaxed/simple;
+	bh=WameStcwd6pA9h1CRwQIykx7aBUnxVIS5QMHu/zAij0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=hDL8q+9makpqt/N80Y9TkYnysj6siXsfqzzixVK5oIsmI7fYhQcqo4Op1753s7b52wCPNZO+AhiMbj9s1QKTxCSvIuBTAylKOy1UpuRQhvGfGsiExQy07j8AohNYu83POU1twSbbhJ3o4exEVH0ZJpUmMihfACBbTNqBxv1Ddjk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LazzzdRd; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LazzzdRd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B2611F00A3A;
-	Tue,  8 Sep 2026 12:44:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788871478;
-	bh=m2ZDgQEymvysf/hShdYDldljTbvXLwijwi2IhfOkWi4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=LazzzdRd1Y9nVQxIvSJeRb1sY1sALZq7IoO0Pi+gTZZsEFPgeWaSnXih8yGxxUM+8
-	 A7yXWu669PvOy1kFTv162sjvEzuIOqOEM9EyVReiXLWV2HSj0x8gEbrDbgQK+T2+4Z
-	 vq9dyVNpz/QOxoo89KSSm4QowrND98XiYlX/WvlcIdwiKx8r+7bCdif0/uAHEQC+7b
-	 UGV0mmH4sTpL79/WkvNGHVt1QEawLakv2dDFuZcGrHLorZ0YuZumaA+x0xLyZ7shFu
-	 qVzkbqtnkKM0TguSL6Ks9+vliGtQ/zi++ms5g9UU3hWSjrr+tliua/12nRCT+uAZ79
-	 +wuJUZpTUDylA==
+	 Message-Id; b=W9rXV3c14JV9BFQkjUpsAwX7hYZO62l1ZsbZHYmfBDul+wIlzAUYWE5zD/7J8snF11hhzRaykS4vm8CKY5Vk+PBw6OodGPoV60mFxgpBFJOKvlXyP23sKOu8ec7u1W3w7wyTvxQftv26Pk/IUZnEiLep7rEl5TV6cCv6BO4FAdI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B48E1F00A3A;
+	Tue,  8 Sep 2026 12:44:54 +0000 (UTC)
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 04/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU
- arm
+Subject: Re: [PATCH v2 05/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for arc,
+ microblaze, xtensa
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?TG9yZW56byBTdG9ha2VzIChBUk0p?= <ljs@kernel.org>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260908-rcu-pagetable-freeing-v2-4-1f60b64e878e@kernel.org>
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260908-rcu-pagetable-freeing-v2-5-1f60b64e878e@kernel.org>
 References: <20260908-rcu-pagetable-freeing-v2-0-1f60b64e878e@kernel.org>
- <20260908-rcu-pagetable-freeing-v2-4-1f60b64e878e@kernel.org>
+ <20260908-rcu-pagetable-freeing-v2-5-1f60b64e878e@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 12:44:37 +0000
-Message-Id: <20260908124438.4B2611F00A3A@smtp.kernel.org>
+Date: Tue, 08 Sep 2026 12:44:53 +0000
+Message-Id: <20260908124455.0B48E1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> Commit a0ad5496b2b3 ("arm: mm: enable HAVE_RCU_TABLE_FREE logic") enabled
-> CONFIG_MMU_GATHER_RCU_TABLE_FREE (then named HAVE_RCU_TABLE_FREE) for SMP
-> arm architectures with LPAE enabled.
+> Each of these architectures directly free page tables without routing the=
+se
+> changes through tlb_remove_ptdesc().
 >=20
-> Regardless of whether CONFIG_ARM_LPAE is enabled or not, the same page
-> table freeing functions __pte_free_tlb() and __pmd_free_tlb() are used.
+> The use of tlb_remove_ptdesc() is required for
+> CONFIG_MMU_GATHER_RCU_TABLE_FREE to correctly free page tables under RCU,
+> so simply update these architectures to use these functions.
 >=20
-> Non-LPAE PMD page tables are folded into the PGD and freed by
-> pgd_free() (PGD freeing is not part of mmu_gather page table freeing in a=
-ny
-> case), so this is a noop in this case.
+> Since none of the architectures share page tables or do anything unusual,
+> nothing complicated is required here.
 >=20
-> Since commit 358d1c39c82a ("arm: convert various functions to use ptdescs=
-")
-> both LPAE and non-LPAE PTE page table freeing uses tlb_remove_ptdesc().
+> Therefore this is simply a mechanical change - convert __pud_free_tlb(),
+> __pmd_free_tlb() and __pte_free_tlb() to use tlb_remove_ptdesc() as
+> required.
 >=20
-> Thus all page table freeing is performed under RCU with
-> CONFIG_MMU_GATHER_RCU_TABLE_FREE enabled for LPAE and non-LPAE and thus it
-> need not be gated on LPAE.
+> At the point this is in place, all mmu_gather page table freeing is
+> performed under RCU, and thus MMU_GATHER_RCU_TABLE_FREE is selected for
+> each architecture.
 >=20
-> A UP arm system can set CONFIG_PREEMPT_RCU, so a future pure RCU page
-> table walker requires MMU_GATHER_RCU_TABLE_FREE to be enabled on UP as
-> well, even if concurrent GUP fast is not possible there.
->=20
-> Therefore, it is both safe and desirable to set
-> CONFIG_MMU_GATHER_RCU_TABLE_FREE for all MMU arm architectures (nommu does
-> not perform mmu_gather operations).
+> Note that CONFIG_MMU_GATHER_RCU_TABLE_FREE is dependent on CONFIG_MMU for
+> xtensa to reflect the fact that nommu does not implement page table
+> gathering.
 >=20
 > This forms part of an overall effort to switch every architecture to this
 > mode.
@@ -84,5 +66,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908-rcu-pageta=
-ble-freeing-v2-0-1f60b64e878e@kernel.org?part=3D4
+ble-freeing-v2-0-1f60b64e878e@kernel.org?part=3D5
 
