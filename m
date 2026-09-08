@@ -1,179 +1,165 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 506EF36F433;
-	Tue,  8 Sep 2026 05:50:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D24025EF87;
+	Tue,  8 Sep 2026 05:50:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788846613; cv=none; b=KZgrStDW9DUrw+OFxC6AMhBmkSG8Q1QJ0GqUCiizuvoTvwOQbv0CLt5+CvO/Tn5l1T0t7ySalLmwFvfy1mIxxnxpyQWmSkSwSzuNh7f9TGLzLTNYosl1C2uB21tP1WpTXANaDt4bRASK3zDjP9mm7f5VVigx4+KYPB57rCmiz4g=
+	t=1788846619; cv=none; b=JY1iwsc20ZAe6VNRtNU7m2TULi5rMxF0kkn688Ew+Tx0ygQTrKw2QH92Tmmat7vaQ7eHMLovvsJIe4/zcg8Kfa/dWY1df79+70LAkvigXewrtLviR49fCmBMaMNECoPGgJLeHdeEN8v0V9gb4ObXR5GsIkyblfWphLmA8YZbQy8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788846613; c=relaxed/simple;
-	bh=WlHKWn4yfvUJ319cAxDoU013Ad86POKd21udtY7ib28=;
+	s=arc-20240116; t=1788846619; c=relaxed/simple;
+	bh=GjiX5ZpZ7NZD4YDBwlWMBeINCHTLmJt67Qr7uMuDcM4=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=bIQ6jfYoqoFaAEF6Ex4NWnBMXPi0I0+WCyse89Fcf8zNg3FbVJiaQGbXsV2ctJKlarOgeS7ZqAzcWiv2vE4k18e3kBtsR+oXACmlrvrOsXBP6xirVIkABt4kDrJbTKQqoq4JK/wXeBhDHBEOTFF+JbYDOSAgl+zTA9kt4Ywf+WQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NLcAmM95; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=KAjETTvaVLPGUL7QG9ZC84nNVfrkvNcookAT1YvDXfleYwHa8zSLcK3MefPLMEhwIenxcroyknPG76cqx4XvxqCCalL2j+WLcQZfdGA8H4Tsdl2BsuCOYiiOX46XkcXdiyiME6HV42sprb0gLNWX1h0QHCnEvXkfvdFOo16RJe0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OpzaG6mz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NLcAmM95"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87FB01F00A3A;
-	Tue,  8 Sep 2026 05:50:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OpzaG6mz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70F841F00A3A;
+	Tue,  8 Sep 2026 05:50:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788846611;
-	bh=7PPDiMy/NLx4yhSVt9UYMgdlaaoloT+zt8azCTyczJ4=;
+	s=k20260515; t=1788846618;
+	bh=+HdsQhUguVzCfg5c05nZeUPLgws28G3DkRXCxIkyvlg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NLcAmM95FVrix5OnTTH7AvHA0ADawEQqrw50ACnm9/GQheqOlU+X0cXhKmo08ynrj
-	 B903vgWnQ387vRJQJYfhIEdhMI3Dg0Qltz8FYlLb+XuCB8swhPqIQjiu+v0nfRLVWe
-	 UVA2d+y18SxAA2g93ytEa/g1GT87uGT3gP18jlhfFIgmxtvWcvNwmySZ75qbWOGuGI
-	 w+je40TOdZT76WIzSY8YmnqtOWUK6Z5NE3xM9Hsh+Y6g+Mt5DXt83WKf4cCWffJI0j
-	 Vl++qLUw3F8NsygT+clfDClPRXRoo6SfTu6JLI76vnI2x6vL4CsG3aiqQ3cPZcheMW
-	 kmDrVdYpdMvIQ==
+	b=OpzaG6mzuq9yrRVXSWOCHZOGnJhZyl+UPxg/iipVuYyC5NUot7DMSVXCsUAk7+9dU
+	 bq1lPjxMDtlIFynqQFHHhigpsARmT7iUG+a5r8Z1nDKnMAEjuUTxE8sTW3CsO86Ow4
+	 C0MOInK/DNTNTQYmyEd2Egz7ZT676P7kKSnVsp2RLej2bQYdn9y9VLl0xSUv7JLnn0
+	 h8W+vunAA5tzUzaA5IYtUQpQ5hXzp/tSl+xQzpA/stpOjRxMlm82Nr50jZlo0jOK3n
+	 JAI+QBID3bn/fylXxMFWEpJl03626j/4NcmQH+CJW06Giyng4wyk6zrlXQoSQDj9lD
+	 zgVFJIkeCvmZg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/6] virtio_ccw: fix synchronize_cbs() after
- interrupt fallback
+Subject: Re: [PATCH v3 4/6] um: virtio_uml: implement synchronize_cbs()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Karl Mehltretter" <kmehltretter@gmail.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, dmitry.torokhov@gmail.com, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, linux-input@vger.kernel.org, kvm@vger.kernel.org
-In-Reply-To: <20260908053817.26065-2-kmehltretter@gmail.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260908053817.26065-5-kmehltretter@gmail.com>
 References: <20260908053817.26065-1-kmehltretter@gmail.com>
- <20260908053817.26065-2-kmehltretter@gmail.com>
+ <20260908053817.26065-5-kmehltretter@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 05:50:11 +0000
-Message-Id: <20260908055011.87FB01F00A3A@smtp.kernel.org>
+Date: Tue, 08 Sep 2026 05:50:16 +0000
+Message-Id: <20260908055017.70F841F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [Critical] virtio_ccw_reset() silently fails to reset the device if ccw a=
-llocation fails, risking use-after-free and DMA corruption.
-- [High] virtio_ccw_del_vqs silently aborts on memory allocation failure, p=
-ermanently leaking all virtqueues and their DMA memory.
-- [High] Silent allocation failure in virtio_ccw_drop_indicator leaves stal=
-e virtqueue pointers in global routing tables, leading to UAF when adapter =
-interrupts fire.
+- [High] Premature clearing of dynamically allocated IRQ bit in um_free_irq=
+() causes unintended IRQ sharing and race conditions.
+- [High] Resource leak and potential Use-After-Free on vhost_user_init() er=
+ror path.
 --
 
-commit bd43fb4d1f3ef8003538155a318dcf69a27e4625
+commit 88d671cc22ee3a67541ca7191122aa3e1f6d8c9f
 Author: Karl Mehltretter <kmehltretter@gmail.com>
 
-virtio_ccw: fix synchronize_cbs() after interrupt fallback
+um: virtio_uml: implement synchronize_cbs()
 
-virtio_ccw_synchronize_cbs() assumes the device uses adapter interrupts
-when vcdev->airq_info is not NULL. If registering adapter indicators
-fails, virtio_ccw_find_vqs() falls back to classic interrupts but can
-leave airq_info set. This patch uses vcdev->is_thinint to properly
-select the lock.
+This commit implements synchronize_cbs() for virtio_uml by using
+synchronize_irq() instead of waiting for an RCU grace period. This
+synchronizes with the IRQ handlers used by virtqueue callbacks.
 
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virti=
-o_ccw.c
-> index bab6cad3fd5ce..b90299205698b 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -1062,7 +1062,7 @@ static void virtio_ccw_synchronize_cbs(struct virti=
-o_device *vdev)
->  	struct virtio_ccw_device *vcdev =3D to_vc_device(vdev);
->  	struct airq_info *info =3D vcdev->airq_info;
+> diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+> index 7425a8548141a..1f2e62e29a277 100644
+> --- a/arch/um/drivers/virtio_uml.c
+> +++ b/arch/um/drivers/virtio_uml.c
+
+[ ... ]
+
+> @@ -869,6 +870,14 @@ static void vu_reset(struct virtio_device *vdev)
+>  	vu_dev->status =3D 0;
+>  }
 > =20
-> -	if (info) {
-> +	if (vcdev->is_thinint && info) {
->  		/*
->  		 * This device uses adapter interrupts: synchronize with
->  		 * vring_interrupt() called by virtio_airq_handler()
-
-[ ... ]
-
-> static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
-> 				      struct ccw1 *ccw)
-> {
-> 	int ret;
-> 	struct virtio_thinint_area *thinint_area =3D NULL;
-> 	struct airq_info *airq_info =3D vcdev->airq_info;
-> 	dma64_t *indicatorp =3D NULL;
->=20
-> 	if (vcdev->is_thinint) {
-> 		thinint_area =3D ccw_device_dma_zalloc(vcdev->cdev,
-> 						     sizeof(*thinint_area),
-> 						     &ccw->cda);
-> 		if (!thinint_area)
-> 			return;
+> +static void vu_synchronize_cbs(struct virtio_device *vdev)
+> +{
+> +	struct virtio_uml_device *vu_dev =3D to_virtio_uml_device(vdev);
+> +
+> +	if (vu_dev->irq !=3D UM_IRQ_ALLOC)
+> +		synchronize_irq(vu_dev->irq);
+> +}
+> +
+>  static void vu_del_vq(struct virtqueue *vq)
+>  {
+>  	struct virtio_uml_vq_info *info =3D vq->priv;
 
 [Severity: High]
-This is a pre-existing issue, but returning early here on allocation failure
-skips deregistering indicators and removing stale pointers from the global
-airq_areas array.
+This isn't a bug introduced by this patch, but it is a pre-existing issue in
+the codebase.=20
 
-If ccw_device_dma_zalloc() fails, the caller virtio_ccw_del_vqs() continues
-and frees all virtqueues, while the global airq_areas array retains pointers
-to them.
+When a virtqueue is deleted during teardown, vu_del_vq() calls
+um_free_irq(vu_dev->irq, vq) to remove the callback for that specific queue=
+.=20
 
-A subsequent adapter interrupt in virtio_airq_handler() could then fetch the
-stale pointer:
+However, looking at um_free_irq() in arch/um/kernel/irq.c, it lacks referen=
+ce
+counting and unconditionally clears the dynamically allocated IRQ bit:
 
-	vring_interrupt(0, (void *)airq_iv_get_ptr(info->aiv, ai));
+arch/um/kernel/irq.c:um_free_irq() {
+	free_irq(irq, dev);
+	clear_bit(irq, irqs_allocated);
+}
 
-and trigger a use-after-free on the freed virtqueue memory.
+Since virtio_uml shares a single dynamically allocated IRQ (vu_dev->irq)
+across multiple virtqueues and the slave request channel using IRQF_SHARED,
+could this premature clearing of the IRQ bit mark it as free for global
+reallocation while still in use?=20
 
-Does this early return need to gracefully handle indicator deregistration
-when allocation fails?
+It seems concurrent requests for a new dynamic IRQ from other devices could=
+ be
+assigned this prematurely freed IRQ, resulting in unintended forced sharing=
+ or
+-EBUSY probe failures.
 
 [ ... ]
-
-> static void virtio_ccw_del_vqs(struct virtio_device *vdev)
-> {
-> 	struct virtqueue *vq, *n;
-> 	struct ccw1 *ccw;
-> 	struct virtio_ccw_device *vcdev =3D to_vc_device(vdev);
->=20
-> 	ccw =3D ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw), NULL);
-> 	if (!ccw)
-> 		return;
 
 [Severity: High]
-This isn't a bug introduced by this patch, but returning early on allocation
-failure skips the teardown loop entirely.
+This is also a pre-existing issue, but there appears to be a resource leak
+and potential use-after-free in the probe error path of virtio_uml.
 
-This leaks all virtqueues and their DMA memory. Since the virtqueues are not
-deregistered from the host or removed from the global airq_areas routing
-array, the virtio core will subsequently free the parent virtio_ccw_device.
+In virtio_uml_probe(), vhost_user_init() is called. If the slave request
+channel is negotiated, vhost_user_init_slave_req() creates a pipe, assigns
+req_fds[0] to vu_dev->req_fd, and requests an IRQ handler via
+um_request_irq_tt():
 
-A later adapter interrupt could invoke vring_interrupt() on the leaked
-virtqueue, holding a stale pointer to the freed device and potentially
-causing a use-after-free.
+arch/um/drivers/virtio_uml.c:vhost_user_init() {
+	if (vu_dev->protocol_features &
+			BIT_ULL(VHOST_USER_PROTOCOL_F_SLAVE_REQ)) {
+		rc =3D vhost_user_init_slave_req(vu_dev);
+		if (rc)
+			return rc;
+	}
 
-Should this fallback to a safe teardown path if ccw allocation fails?
+	if (vu_dev->protocol_features &
+			BIT_ULL(VHOST_USER_PROTOCOL_F_MQ)) {
+		rc =3D vhost_user_get_queue_num(vu_dev, &vu_dev->max_vqs);
+		if (rc)
+			return rc;
+}
 
-[ ... ]
+If a subsequent step like vhost_user_get_queue_num() fails, it returns the
+error code directly. Back in virtio_uml_probe(), the error path is taken:
 
-> static void virtio_ccw_reset(struct virtio_device *vdev)
-> {
-> 	struct virtio_ccw_device *vcdev =3D to_vc_device(vdev);
-> 	struct ccw1 *ccw;
->=20
-> 	ccw =3D ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw), NULL);
-> 	if (!ccw)
-> 		return;
+arch/um/drivers/virtio_uml.c:virtio_uml_probe() {
+error_init:
+	os_close_file(vu_dev->sock);
+error_free:
+	kfree(vu_dev);
+	return rc;
+}
 
-[Severity: Critical]
-This is a pre-existing issue, but this silent return bypasses sending the
-CCW_CMD_VDEV_RESET command to the host if allocation fails.
+Does this error path free vu_dev without unregistering the active IRQ
+handler or closing the vu_dev->req_fd file descriptor?=20
 
-The virtio core assumes the device is fully quiesced after virtio_ccw_reset=
-()
-returns and proceeds to free virtqueues and data buffers. Since the device =
-on
-the host was never actually reset, the hardware state machine remains active
-and may continue to execute pending DMA operations into the now-freed memor=
-y,
-causing critical data corruption.
-
-How should we ensure the device is safely quiesced if ccw allocation fails?
+If an untrusted userspace backend forces the probe to fail, could the leaked
+IRQ handler subsequently fire and access the freed vu_dev memory, causing a
+use-after-free?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908053817.2606=
-5-1-kmehltretter@gmail.com?part=3D1
+5-1-kmehltretter@gmail.com?part=3D4
