@@ -1,62 +1,147 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 103E33806D0
-	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 07:06:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 217CB390613
+	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 07:08:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788851170; cv=none; b=PwRwKxQ2Y8DAPsdQ04EDlujj58/kOfmPWKd8Qt3sP8CJNtbY04pgXCwXHA6CuqE8EIgwxS1BVmNKGXClmwYlLFCfc/Cmyz4WzgQzXR7evxA9sjpK6gXwOM7nqOgBN2F4LaR5qQNRWFA1PhaMa4BzU2hvF3G5UwmZsVsk/tiGO5M=
+	t=1788851296; cv=none; b=A9tigYuG+kpQC6EyaN56ilGlZa7woujZAuVD66MRHkLEATBW32Y7Bjalcr6USCqlRJRWUdn32UsAUyJBh28XoC/SNIrsIg82+GbrYSicH+F0DI9/m9S0R78HFLaxTP2IrF9scXLNX3RvRuOsBAT6TSR+xEH7vjtfCw4D9qyMlUE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788851170; c=relaxed/simple;
-	bh=iU3WSt25KjssQmxa1n82LUXMJxv1+rqPBTF1WnLDZbU=;
+	s=arc-20240116; t=1788851296; c=relaxed/simple;
+	bh=fLWJOXwtpU1PsCsoQ77WCd+sL5Ak5cwlycrplca4+0s=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=bfxzeyZJckWG8KWnwzp2TyNr3KEaeRTqvnKeKIV3CpeEGHmk4EYa7WEeLCspYCwZ6nkkwxC8lsaIlKLvoCYJzMzkwlnFGTqfmCdl+RIksPk5LAuDHge2Ju83iTwee19eNVzPq1hPGpldmsDxhflHeHLe2SKMCI+oSugg49sy324=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L2GTRZFM; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=QJ484R3gw7gKwARyuYwWhttsN4oKOfFZjE27kHpyEpM6Sb4Kkd/Y+JG+IdrJAxeVfYvYk7A2DugYrsc0IKFWlBba61YGkpkFe2CwPiPwzwIVpjqURfKawnM5Wtgn/1O8WJ1JOrou4aSs7pQZmfVAiX++dtA1dxxzHNpAkbi5jFo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MZ/sPDSZ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L2GTRZFM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFF901F00A3A;
-	Tue,  8 Sep 2026 07:06:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MZ/sPDSZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 573CC1F00A3A;
+	Tue,  8 Sep 2026 07:08:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788851168;
-	bh=iU3WSt25KjssQmxa1n82LUXMJxv1+rqPBTF1WnLDZbU=;
+	s=k20260515; t=1788851294;
+	bh=TXWe09A0Cg4VRM0vgq8hsKBRIQZA7itC9ldOGi/RvqI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=L2GTRZFMJlr5X/R3UpAvg2RKRXAQqsfCYZnTfPEvvr045jKcGscYK42U4uFuR9EL9
-	 XMONr/gds+Jz9/ohgGaPTzri1IbxZIAtE2q07/YLSdUf/UTWL6OaYV59vepHKrCarN
-	 hxWPxe3I+0RC3rVYl0UwuP5hDmNEMUvT8DwlWBV7zDEc4QTFiD0J05/eWxRCjMIV9+
-	 OY7ytV14UhlGAEiBzR1J00vjVVDaPBvQDUpJoqpKx24EMCk1d4M9hxdDYC2/MI/Okj
-	 5Hg/O4mfBVBjrjc7TB4eoeLrTbNCUL9QVZUyLXhldweNmcrX6aAXRMdkjOAqUAktKd
-	 3pbEt19M2IN6A==
+	b=MZ/sPDSZjyaBtIAM9CPyWUatP4Yb10dNKCuM41gHO6xeeLrORJBlrOC+oA7ZcO2xx
+	 hEEbnbVdjAJMZrKDt1YKJQvnnMXmlF84FNITzYNCJu3afMo69/yl73KpQnsR0/iRlV
+	 f7rbe3lmxxHPCFJAJYV6yjojh/4dhTI3FYbE5xyfVW0cFhx9tVNUCd9XfNV0PXx+K8
+	 znH7Jwh8KcFSZLBK5CO0nTMzpqaAKFaWqw96hMT6JfFln6QLSpJgLqnN5OVpCxryKX
+	 UWJrJFyiden/6h6X9O3gBJsQX1OY/325CTXQt4fvYKaklvcyCQrBu1tcSUWL1kdQYO
+	 WqECHIaruVyGw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 20/24] s390/vdso: Enable the vdsocheck tool
+Subject: Re: [PATCH v5 15/24] arm64: vdso: Enable the vdsocheck tool
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?VGhvbWFzIFdlacOfc2NodWg=?= <thomas.weissschuh@linutronix.de>
-Cc: linux-s390@vger.kernel.org, ojeda@kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260908-vdso-absolute-reloc-v5-20-3a93791af1cf@linutronix.de>
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, ojeda@kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260908-vdso-absolute-reloc-v5-15-3a93791af1cf@linutronix.de>
 References: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de>
- <20260908-vdso-absolute-reloc-v5-20-3a93791af1cf@linutronix.de>
+ <20260908-vdso-absolute-reloc-v5-15-3a93791af1cf@linutronix.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 07:06:07 +0000
-Message-Id: <20260908070607.BFF901F00A3A@smtp.kernel.org>
+Date: Tue, 08 Sep 2026 07:08:13 +0000
+Message-Id: <20260908070814.573CC1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> The vdsocheck tool validates the object files and final .so library.
-> It can detect if the compiler created relocations which are incompatible
-> with the vDSO which need to be worked around.
->=20
-> Wire it up for the architecture.
->=20
-> Signed-off-by: Thomas Wei=C3=9Fschuh <thomas.weissschuh@linutronix.de>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Low] R_AARCH64_JUMP26 is missing from the list of allowed AArch64 vDSO r=
+elocations, which breaks the build when the compiler optimizes tail calls.
+- [Low] The Rust vdsocheck tool unconditionally rejects all relocation sect=
+ions in the linked DSO, removing the known workaround for harmless R_*_NONE=
+ relocations.
+--
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+commit de060cbc8fa252ca9eccafa1af109831e25d164f
+Author: Thomas Wei=C3=9Fschuh <thomas.weissschuh@linutronix.de>
+
+arm64: vdso: Enable the vdsocheck tool
+
+The vdsocheck tool validates the object files and final .so library.
+It can detect if the compiler created relocations which are incompatible
+with the vDSO which need to be worked around.
+
+> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+> index 11e733b6a3cf3..f0dd557b16032 100644
+> --- a/arch/arm64/Kconfig
+> +++ b/arch/arm64/Kconfig
+> @@ -256,6 +256,7 @@ config ARM64
+>  	select TRACE_IRQFLAGS_NMI_SUPPORT
+>  	select HAVE_SOFTIRQ_ON_OWN_STACK
+>  	select USER_STACKTRACE_SUPPORT
+> +	select VDSO_CHECK
+
+[Severity: Low]
+Does enabling this checker break builds on toolchains that emit unneeded
+R_*_NONE dynamic relocations?
+
+In the legacy shell script workaround in lib/vdso/Makefile.include,
+grep -v _NONE was used to safely ignore harmless empty dynamic relocations
+generated by some older GNU ld ports.
+
+In the Rust vdsocheck tool, validate_linked_dso() now unconditionally
+rejects any relocation section:
+
+lib/vdso/check/vdsocheck.rs:validate_linked_dso() {
+    for section in file.sections()? {
+        ...
+        match section {
+            elf::Section::Rel(_) | elf::Section::Rela(_) =3D> {
+                return Err(ValidationError::UnexpectedSection(section))
+            }
+            _ =3D> {}
+        }
+    }
+}
+
+Because it does not iterate the section entries to filter or ignore _NONE
+relocations, will this unconditionally return UnexpectedSection and break
+builds relying on the previous workaround?
+
+>  	select VDSO_GETRANDOM
+>  	select VMAP_STACK
+>  	help
+
+[ ... ]
+
+> diff --git a/lib/vdso/check/vdsocheck.rs b/lib/vdso/check/vdsocheck.rs
+> index fb88ef0be09d9..e45a1fbc6829c 100644
+> --- a/lib/vdso/check/vdsocheck.rs
+> +++ b/lib/vdso/check/vdsocheck.rs
+> @@ -57,6 +57,18 @@ fn allowed_relocations_for_machine(machine: u16) -> Op=
+tion<AllowedRelocations<'s
+>              ..Default::default()
+>          }
+>          .into(),
+> +        bindings::EM_AARCH64 =3D> AllowedRelocations {
+> +            in_object_file: &[
+> +                bindings::R_AARCH64_PREL64,
+> +                bindings::R_AARCH64_PREL32,
+> +                bindings::R_AARCH64_PREL16,
+> +                bindings::R_AARCH64_LD_PREL_LO19,
+> +                bindings::R_AARCH64_ADR_PREL_LO21,
+> +                bindings::R_AARCH64_CALL26,
+> +            ],
+
+[Severity: Low]
+Will this break the build when the compiler applies tail-call optimizations?
+
+If the compiler optimizes tail calls in a vDSO function, it emits a B
+instruction which generates an R_AARCH64_JUMP26 relocation. Since
+bindings::R_AARCH64_JUMP26 is omitted from this list of allowed relocations,
+validate_object_file() will encounter it, fail the in_object_file.contains()
+check, and return InvalidRelocation, aborting the build.
+
+> +            ..Default::default()
+> +        }
+> +        .into(),
+>          _ =3D> None,
+>      }
+>  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908-vdso-absol=
-ute-reloc-v5-0-3a93791af1cf@linutronix.de?part=3D20
-
+ute-reloc-v5-0-3a93791af1cf@linutronix.de?part=3D15
