@@ -1,295 +1,299 @@
-Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A66E533594
-	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 12:11:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E283E53CA8B;
+	Tue,  8 Sep 2026 12:32:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788869475; cv=none; b=q849yGAwSRl4SG2EKBbpSHjXhYRxmD5ECIe+isNuq1TzSuYcCFyW1zzrLX0YKFhFnT2c1SUGmZHZVmr8C2QtecwaIcvK1XdZEpkwburWOfrbkOSTwPlJ+wQnXWEeTrPRqlKSmc7MK9qv9+R1pnDVqGH3B7yWuvPKKpxXbFkbmt0=
+	t=1788870775; cv=none; b=mjva2di/dhN24ctcZbJWyqtUdafc60Y9HUy2zv2NeeRjkcoLHNSGKxI6wRHNXv4pBHCcDby/P8YPqQXue7hDdq4RGr5mB/YkJNhSAg0A1nWLVRpg/AzZStR5smnskW4WcFc6nXx1XVN8Qc0U9HssBqHHMuBXgv89lZpbt0h4jwo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788869475; c=relaxed/simple;
-	bh=mlMBJVkGekTwfc/d7j0y6RTfUgXm9izZZ7ZBU2yIX3o=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FG8J8HnDva1NRjoITwaZSZoIlnCeUVC5g+HL5k1b3FQn9XIRuqrLkzbDx0dlqw29oxmhT3pq8VlDm8sNfq85p7uIE2stJiVBpNxWdecDDURXMkUXUOHRv9dlSPZ4pvotfrVmTGTm4sdRzPf3NlwZ23LWTjZgoDBzwwc6zERB8b4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=BxQYXoal; arc=none smtp.client-ip=209.85.218.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1788870775; c=relaxed/simple;
+	bh=6eCzrD026JWfYI3OjzZFVyRbHq3AG1HN1FE1U0t3tyE=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Wui8fpxoEHmqR/NOmjmVL7OpD+XvtF6bvzMOw71WKj7SjJhwBCkCZZUd9SV3F97Wd0zcVqBMbvUNN2I4LZU7VNfAVNq8D/IFYkQJ9t/FFCB4RbJ56uuL0BYF1Ps4EhoK+8BuE1r/JcvL/P+w9ttYicjidPKX9QbuCa7qq0grC8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WFYrYtjg; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="BxQYXoal"
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-c1677c91969so453301366b.1
-        for <linux-s390@vger.kernel.org>; Tue, 08 Sep 2026 05:11:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1788869462; x=1789474262; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=HTfnI3dp+d0/TG/Khs2JVLg9UCJ0wepa2hj2cOspexQ=;
-        b=BxQYXoalHux0OFHMoBQ5da/zUkwbG0Ra+1UXUBuTSHF8N0lX0KO6LgNnA/kn4u3NWo
-         Um7WGzk0EA+QCxKd2kERU/JOr8+PaPOZ/wK9Fx7UVz4gjPbhatupwZ23kS8RT1iGx4ke
-         FxosajLyOeeQof3KuWE7jFVU6LbLgOjcQ/HviJRvdNT6UJSXfMdDkO2xIrstb2Da4aD0
-         ZP9SVmTBTYdND0bRzhmrcs2pdkO+tW9cNzcOoG1VVoVZr1WeL7XA3hwyrBrHLPqSqhpx
-         q7nSuXGHSjclb8AtvlvPljiLMRa767m6QLp+mtPT/0mNVrXR+k8y3/AIQUo3AGqaVfWb
-         0WBA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788869462; x=1789474262;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=HTfnI3dp+d0/TG/Khs2JVLg9UCJ0wepa2hj2cOspexQ=;
-        b=Z/+mbxyup7fDu2iEy2e4xeYuZDexlHZJdXmESdfvY5UdnauSbiapiiOh1V7mKhk6Wl
-         wWRmnygp8Z0xwtCyz2t5SFPGL5A6znANxxpbXI6KSGLRkk1/ONXrlGzx5bY/c/vF9LMT
-         ev3Jr6x+CwcJElxI0g9P6qMqbXRw8uxQv/c36hhqQUe/KP18ZyD6wrUMVQNQpiRG9Dmt
-         7YI2nfgdIoi+onDL9xw5kC94eNs3ja6+ecIEHWA5kdnQRH+CYxVc3TUM+WBMEKWO3VTq
-         Vc+Njd9lCgdBVuSovI6FeAt4MVlX9hHkhq81qyF9DrDN+kj45iFCE5L/AIeFFHtb7RDg
-         nqNw==
-X-Forwarded-Encrypted: i=1; AKwUvBxoXBZ//F2OMIf5af2OG3OtIk9gca8R0JqmdmxkuUsibBvftMsJ2IpqJZ+N0qPViiy03ghQohCx8/6V@vger.kernel.org
-X-Gm-Message-State: AFuF++mNUfBgXW3tw6HkLmd/GbYZk4M7eiPpcQQfbDpGdSMVrw+54GIx
-	k0WaFjrXFr09WXeB8RJxWFmc0ctoVoCSQrwMVzNIV5d9bq1FiW7Vzp4zVUl/gPRq1iY=
-X-Gm-Gg: AYBFou23DlysPwS1daQ8Ui4h7eUrC41aHw3y1BT9RHlN0xq017aL2soFNlEqWqHOoAQ
-	wreGHYGdXuTC7NAINRa9I/rM3e5coRBXCtKGpjyiX7igRByeH3l2vSjMW+yJ6B3YolByG4KeqpY
-	ZYuyHV2SMX65bl/ZYLntprFu1esXwZ/x2Hpz7CVAiyC2slHOgcdPfkz411/dLDK/2Wc3NNOxDEN
-	NwGFPE2GyhebtuerMx4iSlEwtbpqiFyhPrRfGOjrlvKuETSj+fNct9E4svaDjt8EfiVON2jHIRH
-	dPh0X/sJcPCcV1a0+NbINCDth33SJLyauINe4mFJChHujuHWtYV6EIVR9nb4trRtRU9/faFkwt5
-	88T7qVOraAy5Ymlrctsto9sffSniVEFaF6qCvE2IRFWzNZTBj0dVZZkTRZO43p6jge07WEfcW29
-	w/s0IOphUI0I0YX1O6A08Kjjcr5LdZhlrQj1V/RhIJCFg7yJcQq57tHlzBvFqzn6Ee+/RI1yvYk
-	/EhW1S6eA931XBBMDd61cmZ31Kvxjfc2LNlmstCyIB2CELldqN0LdEbkBNP5Vesw/wBD1IOjglD
-	F/0PIpTOufVnJCkpWhlrnqzkad4lzA==
-X-Received: by 2002:a17:907:e013:20b0:c28:ebc7:9e67 with SMTP id a640c23a62f3a-c28ebc79ed4mr328134766b.45.1788869461543;
-        Tue, 08 Sep 2026 05:11:01 -0700 (PDT)
-Received: from ?IPV6:2a00:1028:838d:271e:8e3b:4aff:fe4c:a100? (dynamic-2a00-1028-838d-271e-8e3b-4aff-fe4c-a100.ipv6.o2.cz. [2a00:1028:838d:271e:8e3b:4aff:fe4c:a100])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c260d036674sm619593866b.8.2026.09.08.05.11.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Sep 2026 05:11:01 -0700 (PDT)
-Message-ID: <90d4523b-70e7-44a2-9c8b-107f1087c18a@suse.com>
-Date: Tue, 8 Sep 2026 14:10:59 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WFYrYtjg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 571151F00A3D;
+	Tue,  8 Sep 2026 12:32:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788870769;
+	bh=/NX9zTuBJprAZbDQG/MM/JRatg67RVZV2hcrO8X3ERc=;
+	h=From:Subject:Date:To:Cc;
+	b=WFYrYtjgPpbr/hwidvATlDVODrjSwP+HWI8Kl7S9xrf2WgC3hQDP6khQr1nMFslTq
+	 TbSm406p2qpnuADTGC+6tE/nTPxYxMVF+4OFtbIonotcYcHnM0FVW7CQcNxhAggcUy
+	 RUdZFz3Rk4EOtD42o1C7QsyTeI5jB0+a6xBDK24YSnjooKgQkR1yPg/GDD4Dz5VziZ
+	 BxufFpXHgn4IVJSiax8MYtTD99s3cRPFgRvhIRmYZXTK3A3NSD3NKUSHwY+wRDWw4x
+	 AiTr+io3dyDrqPy5gGGEQnV2GsPbu53vfgOvd1ivuOT3ziJeq3xMIIW4RCuGKGmMx3
+	 Ugtds1cv924RQ==
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Subject: [PATCH v2 00/12] mm: make userland page table freeing RCU-safe
+Date: Tue, 08 Sep 2026 13:32:09 +0100
+Message-Id: <20260908-rcu-pagetable-freeing-v2-0-1f60b64e878e@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC] module: init-failure path can free a module with live
- try_module_get() users
-To: Mahanta Jambigi <mjambigi@linux.ibm.com>
-Cc: Luis Chamberlain <mcgrof@kernel.org>, Daniel Gomez <da.gomez@kernel.org>,
- Sami Tolvanen <samitolvanen@google.com>, Aaron Tomlin <atomlin@atomlin.com>,
- linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org,
- netdev@vger.kernel.org, linux-s390@vger.kernel.org,
- "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>,
- Sidraya Jayagond <sidraya@linux.ibm.com>, Tony Lu
- <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
- Alexandra Winter <wintera@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
- Hidayath Khan <hidayath@linux.ibm.com>
-References: <5dc1fe2b-289e-4786-b9e9-e181dda8d4e9@linux.ibm.com>
- <8b6506a1-5bfc-4f9b-92fa-234c89afe9ad@suse.com>
- <37021811-78ac-4bdd-ab59-62fb089850f3@linux.ibm.com>
-Content-Language: en-US
-From: Petr Pavlu <petr.pavlu@suse.com>
-In-Reply-To: <37021811-78ac-4bdd-ab59-62fb089850f3@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3WNyw6CMBBFf4V07Zi2PFJd+R+GRVuHMmoKmQLRE
+ P5dHmuXJ7n3nFkkZMIkrtksGCdK1MUV9CkTvrUxINBjZaGlrqTJFbAfobcBB+veCA0jUgxgClc
+ 5NLlELcX67Rkb+uzee31wGt0T/bDJtkVLaej4u4cnte2OxkX+a0wKJJRFWVmjvNFK317IEd/nj
+ oOol2X5AezF2aLNAAAA
+X-Change-ID: 20260831-rcu-pagetable-freeing-84b6be830e20
+To: Andrew Morton <akpm@linux-foundation.org>, 
+ David Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>, 
+ Baolin Wang <baolin.wang@linux.alibaba.com>, 
+ "Liam R. Howlett" <liam@infradead.org>, Nico Pache <nico.pache@linux.dev>, 
+ Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, 
+ Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, 
+ Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>, 
+ Guo Ren <guoren@kernel.org>, Brian Cain <bcain@kernel.org>, 
+ Geert Uytterhoeven <geert@linux-m68k.org>, 
+ Dinh Nguyen <dinguyen@kernel.org>, 
+ Simon Schuster <schuster.simon@siemens-energy.com>, 
+ Jonas Bonn <jonas@southpole.se>, 
+ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
+ Stafford Horne <shorne@gmail.com>, 
+ Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
+ Russell King <linux@armlinux.org.uk>, Vineet Gupta <vgupta@kernel.org>, 
+ Michal Simek <monstr@monstr.eu>, Chris Zankel <chris@zankel.net>, 
+ Max Filippov <jcmvbkbc@gmail.com>, Will Deacon <will@kernel.org>, 
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
+ Nick Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Andreas Larsson <andreas@gaisler.com>, 
+ Richard Henderson <richard.henderson@linaro.org>, 
+ Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>, 
+ Catalin Marinas <catalin.marinas@arm.com>, 
+ Mark Rutland <mark.rutland@arm.com>, Huacai Chen <chenhuacai@kernel.org>, 
+ WANG Xuerui <kernel@xen0n.name>, 
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+ Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+ Michael Ellerman <mpe@ellerman.id.au>, 
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Richard Weinberger <richard@nod.at>, 
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+ Johannes Berg <johannes@sipsolutions.net>, 
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+ Arnd Bergmann <arnd@arndb.de>, Vlastimil Babka <vbabka@kernel.org>, 
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+ Michal Hocko <mhocko@suse.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
+ John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
+ linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org, 
+ linux-sh@vger.kernel.org, linux-riscv@lists.infradead.org, 
+ linux-arm-kernel@lists.infradead.org, linux-snps-arc@lists.infradead.org, 
+ linux-arch@vger.kernel.org, sparclinux@vger.kernel.org, 
+ linux-alpha@vger.kernel.org, loongarch@lists.linux.dev, 
+ linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+ linux-um@lists.infradead.org, Hugh Dickins <hughd@google.com>, 
+ Qi Zheng <qi.zheng@linux.dev>, "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=8463; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=6eCzrD026JWfYI3OjzZFVyRbHq3AG1HN1FE1U0t3tyE=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLIWMIRPP602XYgnvmNS5vJCMbXi/Y9CAn9+rTILzeg6J
+ 7XCLf9QRykLgxgXg6yYIsvzL+L7g0TC5nVe8HeDmcPKBDKEgYtTACbiacrwV1w7LODHtGezX1a+
+ O/iahycpqH6l3pK+3atiru6YLOVywZSRYb500p4Ln7ZVv/qQpiCk9ija67Fe34cr3Wdu5kYzTTl
+ VzgYA
+X-Developer-Key: i=ljs@kernel.org; a=openpgp;
+ fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-On 8/31/26 12:00 PM, Mahanta Jambigi wrote:
-> On 28/08/26 5:33 pm, Petr Pavlu wrote:
->> On 8/24/26 8:13 AM, Mahanta Jambigi wrote:
->>> Hi Luis, Petr, Daniel, Sami, Aaron,
->>>
->>> I'm writing to ask about what looks like a generic module-init failure
->>> lifetime problem in the module loader. I ran into it while working on
->>> the SMC networking module (net/smc/), but after several patch
->>> iterations, it seems the root issue may belong in kernel/module/main.c
->>> rather than in SMC itself. I'd appreciate your guidance on whether this
->>> reading is correct, and if so, what fix direction would be preferred.
->>>
->>> THE ISSUE IN do_init_module()
->>> =============================
->>>
->>> include/linux/module.h has a long-standing FIXME in module_is_live():
->>>
->>>     /* FIXME: It'd be nice to isolate modules during init, too, so they
->>>        aren't used before they (may) fail. But presently too much code
->>>        (IDE & SCSI) require entry into the module during init. */
->>>     static inline bool module_is_live(struct module *mod)
->>>     {
->>>         return mod->state != MODULE_STATE_GOING;
->>>     }
->>>
->>> Because MODULE_STATE_COMING is not MODULE_STATE_GOING, try_module_get()
->>> can succeed once a module's __init is executing. If __init makes the
->>> module externally reachable partway through and then later fails, the
->>> failure path in do_init_module() appears to do:
->>>
->>>     fail:
->>>         mod->state = MODULE_STATE_GOING;
->>>         synchronize_rcu();
->>>         module_put(mod);
->>>         ...
->>>         free_module(mod);
->>>
->>> synchronize_rcu() waits for RCU readers, but not for threads that
->>> already obtained a module reference via try_module_get() and are still
->>> executing module text.
->>>
->>> By contrast, the normal unload path in try_stop_module() refuses to
->>> proceed while the refcount is non-zero.
->>>
->>> So the asymmetry seems to be that the normal unload path waits for
->>> references to drain, while the init-failure path does not.
->>>
->>> A concrete race would look like:
->>>
->>>   1. Module __init registers an externally reachable interface.
->>>   2. User space enters through that interface and try_module_get()
->>>      succeeds while the module is still COMING.
->>>   3. A later __init step fails.
->>>   4. do_init_module() frees the module.
->>>   5. The in-flight caller is still executing module text.
->>>
->>> SMC AS A CONCRETE EXAMPLE
->>> =========================
->>>
->>> In SMC, simply moving registration later does not appear to eliminate
->>> the window, because there are two separate registration points that can
->>> make the module reachable via socket():
->>>
->>>   1. sock_register(&smc_sock_family_ops)
->>>      After this, socket(AF_SMC, ...) can succeed and reach
->>>      try_module_get() via __sock_create().
->>>
->>>   2. smc_inet_init() -> inet_register_protosw()
->>>      After this, socket(AF_INET, SOCK_STREAM, IPPROTO_SMC) can succeed
->>>      and again reach try_module_get().
->>>
->>> Either registration point can succeed before a later init step fails.
->>>
->>> This may not be specific to SMC; other protocol modules that become
->>> reachable during init, such as Bluetooth, may have similar exposure and
->>> appear worth auditing as well.
->>>
->>> ON THE FIXME'S IDE/SCSI CONCERN
->>> ===============================
->>>
->>> The FIXME mentions IDE and SCSI as reasons not to isolate modules
->>> during init.
->>>
->>>   1. IDE was removed in Linux 5.14, so that half of the concern no
->>>      longer applies.
->>>
->>>   2. SCSI still appears to self-reference during init
->>>      (scsi_device_get() -> try_module_get(hostt->module) during
->>>      scsi_scan_host()), so a blanket wait-for-refcount-to-drain
->>>      approach in the failure path may deadlock there.
->>>
->>> Also, strong_try_module_get() already rejects MODULE_STATE_COMING with
->>> -EBUSY, so the infrastructure for refusing callers during init already
->>> exists in some form.
->>>
->>> QUESTIONS
->>> =========
->>>
->>> First, is my reading of this init-failure refcount/lifetime asymmetry
->>> correct?
->>
->> Your analysis looks correct to me.
->>
->>>
->>> If so, would one of the following directions be acceptable?
->>>
->>>   1. An opt-in mechanism (for example, a module flag) for modules that
->>>      are safe to isolate during init and whose init-failure path should
->>>      wait for external references to drain.
->>
->> In general, it is preferred if the module loader handles all modules in
->> the same way.
->>
->> I would say that the module loader should wait for external references
->> to drain after an init failure for all modules and that it should be the
->> responsibility of individual modules to ensure that this wait eventually
->> completes. Excluding some modules would mean that the module loader
->> could still free them while they are in use by the kernel.
->>
->> Before such a wait, the module loader should cancel all idempotent
->> module loads. This is especially important during boot when several
->> udevd workers may be trying to insert the same module. In that case,
->> a failed module init function should block only a single udevd task, so
->> that the system can still boot properly.
->>
-> Thank you for the clear direction. I agree with both points — uniform
-> handling for all modules, and unblocking concurrent loaders before the
-> drain wait. Below is the proposed change with the rationale for each
-> step. Proposed change to the fail: path in do_init_module().
-> 
-> fail_free_freeinit:
-> 	kfree(freeinit);
-> fail:
-> 	/*
-> 	 * Mark dying so try_module_get() fails for all new callers.
-> 	 * synchronize_rcu() ensures this is visible on all CPUs before
-> 	 * we proceed; no new references can be taken after this point.
-> 	 */
-> 	mod->state = MODULE_STATE_GOING;
-> 	synchronize_rcu();
+The majority of architectures in the kernel defer page table freeing until
+an RCU grace period has elapsed, this series converts all remaining
+architectures to do so too and eliminates CONFIG_MMU_GATHER_RCU_TABLE_FREE
+altogether.
 
-The comment is somewhat misleading. The code invokes synchronize_rcu()
-to wait for any existing RCU readers to finish before proceeding, making
-sure that all new readers now observe the GOING state.
+This is important because it enables safe lockless page table walking under
+RCU alone.
 
-> 
-> 	/* Drop the loader's own reference taken in module_unload_init(). */
-> 	module_put(mod);
-> 
-> 	/*
-> 	 * Unblock concurrent loaders before blocking on the drain below,
-> 	 * so that a failed init delays only this task, not every udevd
-> 	 * worker that raced to load the same module.
-> 	 *
-> 	 * Two dedup paths exist:
-> 	 *
-> 	 * - finit_module path: losers of the inode race sleep in
-> 	 *   idempotent_wait_for_completion(). They are unblocked by
-> 	 *   idempotent_complete() in idempotent_init_module(), which
-> 	 *   runs as do_init_module() returns — before we reach here.
-> 	 *   No action needed.
+Doing so allows for reduced lock contention, avoids lock ordering concerns
+and enables fast, efficient and correct page table walking as a result.
 
-This looks incorrect. Since this code is added in do_init_module(),
-idempotent_complete() has not yet been invoked.
+Additionally it removes a bunch of code and architecture-specific behaviour
+which is always a beneficial thing to do.
 
-> 	 *
-> 	 * - init_module path: callers sleep in module_patient_check_exists()
-> 	 *   on module_wq waiting for finished_loading(), which returns
-> 	 *   true once state == MODULE_STATE_GOING. wake_up_all() kicks
-> 	 *   them loose immediately.
-> 	 */
-> 	*wake_up_all*(&module_wq);
-> 
-> 	/*
-> 	 * Drain async workers scheduled during __init (e.g. SCSI async
-> 	 * scan). MODULE_STATE_GOING is visible everywhere, so workers
-> 	 * that have not yet called try_module_get() will fail cleanly.
-> 	 * Workers already holding a reference complete and release it
-> 	 * naturally. Must run before free_module() regardless of
-> 	 * async_probe_requested.
-> 	 */
-> 	*async_synchronize_full*();
-> 
-> 	/*
-> 	 * Wait for references taken before MODULE_STATE_GOING became
-> 	 * visible. refcnt is monotonically decreasing from here; the
-> 	 * loop terminates provided the module's error path pairs every
-> 	 * __module_get() with a module_put(). The hung-task detector
-> 	 * catches violations.
-> 	 */
-> 	while (*module_refcount*(mod) != 0)
-> 		msleep(10);
+There has been much recent work on this:
 
-I think that instead of repeatedly polling the module refcount, it would
-be better for this code to sleep and for module_put() to wake it when
-the refcount drops to 0. This could be implemented using either the
-existing module_wq, a separate wait queue or a per-module completion.
+* In 2023 Hugh Dickins RCU-deferred khugepaged page table retraction in
+  commit 13cf577e6b66 ("mm/pgtable: add pte_free_defer() for pgtable as
+  page").
 
+* Qi Zheng has done most of the work that made this possible starting with
+  the critical commit 718b13861d22 ("x86: mm: free page table pages by RCU
+  instead of semi RCU").
+
+* Qi then went on to convert a large number of architectures in commit
+  e3ecf7c7d082 ("mm: pgtable: convert some architectures to use
+  tlb_remove_ptdesc()"), commit 44b079583f7d ("alpha: mm: enable
+  MMU_GATHER_RCU_TABLE_FREE") and the series to which it belongs.
+
+* Qi then introduced the important CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE
+  option in commit 086498aed3f6 ("mm: convert __HAVE_ARCH_TLB_REMOVE_TABLE
+  to CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE config").
+
+* Finally, and critically, Lance Yang then converted the batch allocation
+  fallback case to be RCU-safe in commit 1fb3d8c20bfa ("mm/mmu_gather:
+  replace IPI with synchronize_rcu() when batch allocation fails").
+
+The work I do here is only possible due to the work Hugh, Qi, Lance and
+others have done previously.
+
+An initial task this series addresses is to zap deposited page tables after
+an RCU grace period. Not doing so is currently safe, but for page table
+walkers relying on RCU alone, it would not be.
+
+The changes are largely mechanical - the majority of arches already have
+the machinery required to support CONFIG_MMU_GATHER_RCU_TABLE_FREE and
+simply needed configuration changes or small implementation changes to
+switch over.
+
+However some arches required extra attention - sh-X2, m68k-motorola and
+sparc32.
+
+sh-X2 allocates PMDs from the slab allocator and PTEs as normal. Therefore
+CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE is set to customise page table freeing
+and the LSB is used to encode which page table level is used, with
+__tlb_remove_table() doing the right thing depending on this.
+
+This pattern is repeated for m68k-motorola and sparc32 to account for
+different page table levels. In each case, the page tables are aligned such
+that sufficient bits are available in each case for encoding this
+information.
+
+m68k-motorola required the biggest change - since RCU page table freeing
+uses call_rcu(), this means page table freeing can arise from softirq
+context.
+
+This was fixed with an IRQ-safe spin lock used in both get_pointer_table()
+and free_pointer_table().
+
+As part of this change, the logic for allocation of a new pointer table was
+separated out into add_pointer_table() to make the locking more obviously
+correct.
+
+Finally, sparc32 was similar to m68k-motorola in that locking was required,
+however this was already implemented via a spinlock, and only had to be
+updated to be IRQ-safe.
+
+Additionally, the nocache pool's bit_map lock was updated to be IRQ-safe
+for softirq frees.
+
+Separately, the PTE path can't take mm->page_table_lock from softirq (no mm
+there), which is fine because the page reference count transitions are
+atomic and fully ordered.
+
+The series finally removes CONFIG_MMU_GATHER_RCU_TABLE_FREE and all related
+configurations and code that supported !CONFIG_MMU_GATHER_RCU_TABLE_FREE.
+
+As a result, page table walks can now be performed safely under RCU without
+any risk of page tables being freed underneath a walker.
+
+However, this is the only guarantee that this work provides - page table
+walkers must still ensure that page table entries are as expected
+throughout.
+
+All changes have been build tested. As most of the conversions are simply
+utilising existing mechanics that are known to work, this suffices for most
+cases.
+
+However those arches where significant changes have been made -
+m68k-motorola, sparc32 and sh-X2 - have been tested further.
+
+For each of these a boot test and stress test has been performed - fork 400
+children, each mmap()'ing 2 MiB and touching every page then partially
+munmap()'ing then exiting to trigger as much page table freeing as
+possible.
+
+All were found to be working correctly.
+
+Note that sparc32 LEON SMP is not emulated, Andreas - do you have a means
+of testing this?
+
+v2:
+* Updated commit message to reflect CONFIG_MMU dependency for xtensa as per
+  Suren.
+* Updated 12/12 to correctly describe the new contract re: readers/writes
+  as per Kiryl. Also fixed up typos there as per Kiryl, Suren and slightly
+  reworded for clarity, and updated commit message to reflect.
+* Updated 11/12 to reflect the fact the change is for userland only as per
+  Kiryl, also added a note about write locks similarly to 12/12.
+* Fixed bug as reported by sashiko for the sparc32 change (10/12) - the
+  refcounts are insufficient on their own, so replace the page_table_lock
+  altogether with an IRQ-safe spinlock.
+
+v1:
+https://patch.msgid.link/20260901-rcu-pagetable-freeing-v1-0-5456a81c8212@kernel.org
+
+Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+---
+Lorenzo Stoakes (ARM) (12):
+      mm/huge_memory: zap deposited page tables after an RCU grace period
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for most 2-level architectures
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU riscv
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU arm
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for arc, microblaze, xtensa
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for sparc64
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for m68k-coldfire
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for sh-X2
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for m68k-motorola
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for sparc32
+      mm: make userland page table freeing RCU-safe
+      mm: change the contract for free_pgtables(), update docs
+
+ Documentation/mm/process_addrs.rst       |   6 ++
+ arch/Kconfig                             |   8 --
+ arch/alpha/Kconfig                       |   1 -
+ arch/arc/include/asm/pgalloc.h           |   6 +-
+ arch/arm/Kconfig                         |   1 -
+ arch/arm64/Kconfig                       |   1 -
+ arch/loongarch/Kconfig                   |   1 -
+ arch/m68k/Kconfig                        |   1 +
+ arch/m68k/include/asm/mcf_pgalloc.h      |   5 +-
+ arch/m68k/include/asm/motorola_pgalloc.h |   9 ++-
+ arch/m68k/mm/motorola.c                  | 121 ++++++++++++++++++++-----------
+ arch/microblaze/include/asm/pgalloc.h    |   2 +-
+ arch/mips/Kconfig                        |   1 -
+ arch/parisc/Kconfig                      |   1 -
+ arch/powerpc/Kconfig                     |   1 -
+ arch/riscv/Kconfig                       |   1 -
+ arch/s390/Kconfig                        |   1 -
+ arch/sh/Kconfig                          |   1 +
+ arch/sh/include/asm/pgalloc.h            |   6 +-
+ arch/sh/mm/pgtable.c                     |  20 +++++
+ arch/sparc/Kconfig                       |   4 +-
+ arch/sparc/include/asm/pgalloc_32.h      |   7 +-
+ arch/sparc/include/asm/pgalloc_64.h      |   8 --
+ arch/sparc/include/asm/tlb_64.h          |   2 -
+ arch/sparc/lib/bitext.c                  |  14 ++--
+ arch/sparc/mm/srmmu.c                    |  32 ++++++--
+ arch/um/Kconfig                          |   1 -
+ arch/x86/Kconfig                         |   1 -
+ arch/xtensa/include/asm/tlb.h            |   2 +-
+ include/asm-generic/tlb.h                |  66 +++--------------
+ mm/Kconfig                               |   2 +-
+ mm/gup.c                                 |   5 +-
+ mm/huge_memory.c                         |   2 +-
+ mm/mmu_gather.c                          |  30 ++------
+ mm/pgtable-generic.c                     |  15 +++-
+ 35 files changed, 194 insertions(+), 191 deletions(-)
+---
+base-commit: 88297631d4d42f6004cb39c0ba3da7d2d10a616f
+change-id: 20260831-rcu-pagetable-freeing-84b6be830e20
+
+Best regards,
 -- 
-Thanks,
-Petr
+Lorenzo Stoakes (ARM) <ljs@kernel.org>
+
