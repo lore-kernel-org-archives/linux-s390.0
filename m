@@ -1,34 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E283E53CA8B;
-	Tue,  8 Sep 2026 12:32:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9563853CA6A;
+	Tue,  8 Sep 2026 12:33:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788870775; cv=none; b=mjva2di/dhN24ctcZbJWyqtUdafc60Y9HUy2zv2NeeRjkcoLHNSGKxI6wRHNXv4pBHCcDby/P8YPqQXue7hDdq4RGr5mB/YkJNhSAg0A1nWLVRpg/AzZStR5smnskW4WcFc6nXx1XVN8Qc0U9HssBqHHMuBXgv89lZpbt0h4jwo=
+	t=1788870791; cv=none; b=KcSY66a4ynOcTeaKUDNZAhxLfcpW2z0i0OZJ1FDoCPXoen5su5bKrAawE/PWF7lIK8dAO2kaJv8E02OMRFkYD7+XN77R3O9eobMQDlL0uLZSTynL+YyWKJ6eHEhhT5BfW1kcTiEPPcOf6Z/ytmTZ1krSxYPlwmBbG9amT5bSUsk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788870775; c=relaxed/simple;
-	bh=6eCzrD026JWfYI3OjzZFVyRbHq3AG1HN1FE1U0t3tyE=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Wui8fpxoEHmqR/NOmjmVL7OpD+XvtF6bvzMOw71WKj7SjJhwBCkCZZUd9SV3F97Wd0zcVqBMbvUNN2I4LZU7VNfAVNq8D/IFYkQJ9t/FFCB4RbJ56uuL0BYF1Ps4EhoK+8BuE1r/JcvL/P+w9ttYicjidPKX9QbuCa7qq0grC8I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WFYrYtjg; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788870791; c=relaxed/simple;
+	bh=QsmXD4bhTqKAKkUCvIrmgq1QZ07I5df5Am7bAMtZYGk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=Rz/YyTL9NWLCN1Kl/p2Dd3wc+BlAaicBfcSLjCgTOSIhaDEtVVIbYi7Qj2WNlE7QJuoZ2jC6BUzZLb6ySV38/PpyshKYeSUEqq2i5uEZ2rg0GftsWqAUZu8w7JTE/tt0ZRJ1XVuL3tbKvfqsMxC+GFoEYEKB/R45EKN5XGZiCI8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aLtpz7A5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WFYrYtjg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 571151F00A3D;
-	Tue,  8 Sep 2026 12:32:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aLtpz7A5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BC691F00A3A;
+	Tue,  8 Sep 2026 12:32:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788870769;
-	bh=/NX9zTuBJprAZbDQG/MM/JRatg67RVZV2hcrO8X3ERc=;
-	h=From:Subject:Date:To:Cc;
-	b=WFYrYtjgPpbr/hwidvATlDVODrjSwP+HWI8Kl7S9xrf2WgC3hQDP6khQr1nMFslTq
-	 TbSm406p2qpnuADTGC+6tE/nTPxYxMVF+4OFtbIonotcYcHnM0FVW7CQcNxhAggcUy
-	 RUdZFz3Rk4EOtD42o1C7QsyTeI5jB0+a6xBDK24YSnjooKgQkR1yPg/GDD4Dz5VziZ
-	 BxufFpXHgn4IVJSiax8MYtTD99s3cRPFgRvhIRmYZXTK3A3NSD3NKUSHwY+wRDWw4x
-	 AiTr+io3dyDrqPy5gGGEQnV2GsPbu53vfgOvd1ivuOT3ziJeq3xMIIW4RCuGKGmMx3
-	 Ugtds1cv924RQ==
+	s=k20260515; t=1788870790;
+	bh=qrlRHDKkKksSse2z7V875Db2PCZ3B/h/JK+Hse17ruk=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=aLtpz7A5VymVqyE5xIUldqu4FEfYkW3C/kRkUKk7eS5Fd938lNBcUqjWIc4HUU61D
+	 DVipoD/pdYsc76ZExc8Qvd07r0+EVBvsmN0INrIpBqY43rMzTPkA1y8XItRLueMgmx
+	 3YOfOCnlih3OLyVjTsPc67cCII18Lx0cRR9hCnypeOHaV41VQzUaFqL6rwG0rnaocV
+	 dq/wVeanPRwRB8LUnw28+2OE1zJ6OXYKiYMDTUC/ChepsXs8Tbov72fkpOZpN5UuX4
+	 BnK+GneNUBzkfBv1WkAj2ZiQktcmuToqdhISbN/sVHSCyc1BsNQXmhbGQ6rk9lwLrr
+	 h4poq5HhB3GXw==
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Subject: [PATCH v2 00/12] mm: make userland page table freeing RCU-safe
-Date: Tue, 08 Sep 2026 13:32:09 +0100
-Message-Id: <20260908-rcu-pagetable-freeing-v2-0-1f60b64e878e@kernel.org>
+Date: Tue, 08 Sep 2026 13:32:10 +0100
+Subject: [PATCH v2 01/12] mm/huge_memory: zap deposited page tables after
+ an RCU grace period
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,11 +38,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3WNyw6CMBBFf4V07Zi2PFJd+R+GRVuHMmoKmQLRE
- P5dHmuXJ7n3nFkkZMIkrtksGCdK1MUV9CkTvrUxINBjZaGlrqTJFbAfobcBB+veCA0jUgxgClc
- 5NLlELcX67Rkb+uzee31wGt0T/bDJtkVLaej4u4cnte2OxkX+a0wKJJRFWVmjvNFK317IEd/nj
- oOol2X5AezF2aLNAAAA
-X-Change-ID: 20260831-rcu-pagetable-freeing-84b6be830e20
+Message-Id: <20260908-rcu-pagetable-freeing-v2-1-1f60b64e878e@kernel.org>
+References: <20260908-rcu-pagetable-freeing-v2-0-1f60b64e878e@kernel.org>
+In-Reply-To: <20260908-rcu-pagetable-freeing-v2-0-1f60b64e878e@kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, 
  David Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>, 
  Baolin Wang <baolin.wang@linux.alibaba.com>, 
@@ -102,198 +101,67 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  linux-um@lists.infradead.org, Hugh Dickins <hughd@google.com>, 
  Qi Zheng <qi.zheng@linux.dev>, "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=8463; i=ljs@kernel.org;
- h=from:subject:message-id; bh=6eCzrD026JWfYI3OjzZFVyRbHq3AG1HN1FE1U0t3tyE=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLIWMIRPP602XYgnvmNS5vJCMbXi/Y9CAn9+rTILzeg6J
- 7XCLf9QRykLgxgXg6yYIsvzL+L7g0TC5nVe8HeDmcPKBDKEgYtTACbiacrwV1w7LODHtGezX1a+
- O/iahycpqH6l3pK+3atiru6YLOVywZSRYb500p4Ln7ZVv/qQpiCk9ija67Fe34cr3Wdu5kYzTTl
- VzgYA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1907; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=QsmXD4bhTqKAKkUCvIrmgq1QZ07I5df5Am7bAMtZYGk=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLIWMEQz2MotteNZL1imp//16Cr13zP57DKuWi88+/7V3
+ rv7jPrnd5SyMIhxMciKKbI8/yK+P0gkbF7nBX83mDmsTGBDuDgFYCIdVYwMTyUVDice2bv+1N8t
+ ptvOq5Z+sY5uu1n26MCPewUH//vl7WD4n9LEE+pReenVX+nclMY/0peKpct75+X5nPI4xSKj2PW
+ GFQA=
 X-Developer-Key: i=ljs@kernel.org; a=openpgp;
  fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-The majority of architectures in the kernel defer page table freeing until
-an RCU grace period has elapsed, this series converts all remaining
-architectures to do so too and eliminates CONFIG_MMU_GATHER_RCU_TABLE_FREE
-altogether.
+When an anonymous mapping is collapsed for THP, a PTE page table is
+'deposited' with the installed PMD entry.
 
-This is important because it enables safe lockless page table walking under
-RCU alone.
+This is done in order that a split can be performed without needing to
+allocate additional memory.
 
-Doing so allows for reduced lock contention, avoids lock ordering concerns
-and enables fast, efficient and correct page table walking as a result.
+The freeing occurs in zap_deposited_table() and is done directly without
+any delay via pte_free().
 
-Additionally it removes a bunch of code and architecture-specific behaviour
-which is always a beneficial thing to do.
+This is currently not a problem as existing page table walks are protected
+by the mmap or anon rmap lock.
 
-There has been much recent work on this:
+However this becomes problematic in a future where RCU-only page table
+walkers exist, as there is nothing to prevent a page table walker that
+started the walk prior to collapse having its PTE table freed underneath
+it.
 
-* In 2023 Hugh Dickins RCU-deferred khugepaged page table retraction in
-  commit 13cf577e6b66 ("mm/pgtable: add pte_free_defer() for pgtable as
-  page").
+Commit 13cf577e6b66 ("mm/pgtable: add pte_free_defer() for pgtable as
+page") already provides us the mechanism by which to solve this -
+pte_free_defer().
 
-* Qi Zheng has done most of the work that made this possible starting with
-  the critical commit 718b13861d22 ("x86: mm: free page table pages by RCU
-  instead of semi RCU").
+Therefore, as a prerequisite to a future commit which will permit fully RCU
+page table walks, update zap_deposited_table() to use pte_free_defer()
+rather than pte_free().
 
-* Qi then went on to convert a large number of architectures in commit
-  e3ecf7c7d082 ("mm: pgtable: convert some architectures to use
-  tlb_remove_ptdesc()"), commit 44b079583f7d ("alpha: mm: enable
-  MMU_GATHER_RCU_TABLE_FREE") and the series to which it belongs.
+Note that the IPI sync in collapse_huge_page() is still required to ensure
+refcount correctness against a GUP-fast operation.
 
-* Qi then introduced the important CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE
-  option in commit 086498aed3f6 ("mm: convert __HAVE_ARCH_TLB_REMOVE_TABLE
-  to CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE config").
-
-* Finally, and critically, Lance Yang then converted the batch allocation
-  fallback case to be RCU-safe in commit 1fb3d8c20bfa ("mm/mmu_gather:
-  replace IPI with synchronize_rcu() when batch allocation fails").
-
-The work I do here is only possible due to the work Hugh, Qi, Lance and
-others have done previously.
-
-An initial task this series addresses is to zap deposited page tables after
-an RCU grace period. Not doing so is currently safe, but for page table
-walkers relying on RCU alone, it would not be.
-
-The changes are largely mechanical - the majority of arches already have
-the machinery required to support CONFIG_MMU_GATHER_RCU_TABLE_FREE and
-simply needed configuration changes or small implementation changes to
-switch over.
-
-However some arches required extra attention - sh-X2, m68k-motorola and
-sparc32.
-
-sh-X2 allocates PMDs from the slab allocator and PTEs as normal. Therefore
-CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE is set to customise page table freeing
-and the LSB is used to encode which page table level is used, with
-__tlb_remove_table() doing the right thing depending on this.
-
-This pattern is repeated for m68k-motorola and sparc32 to account for
-different page table levels. In each case, the page tables are aligned such
-that sufficient bits are available in each case for encoding this
-information.
-
-m68k-motorola required the biggest change - since RCU page table freeing
-uses call_rcu(), this means page table freeing can arise from softirq
-context.
-
-This was fixed with an IRQ-safe spin lock used in both get_pointer_table()
-and free_pointer_table().
-
-As part of this change, the logic for allocation of a new pointer table was
-separated out into add_pointer_table() to make the locking more obviously
-correct.
-
-Finally, sparc32 was similar to m68k-motorola in that locking was required,
-however this was already implemented via a spinlock, and only had to be
-updated to be IRQ-safe.
-
-Additionally, the nocache pool's bit_map lock was updated to be IRQ-safe
-for softirq frees.
-
-Separately, the PTE path can't take mm->page_table_lock from softirq (no mm
-there), which is fine because the page reference count transitions are
-atomic and fully ordered.
-
-The series finally removes CONFIG_MMU_GATHER_RCU_TABLE_FREE and all related
-configurations and code that supported !CONFIG_MMU_GATHER_RCU_TABLE_FREE.
-
-As a result, page table walks can now be performed safely under RCU without
-any risk of page tables being freed underneath a walker.
-
-However, this is the only guarantee that this work provides - page table
-walkers must still ensure that page table entries are as expected
-throughout.
-
-All changes have been build tested. As most of the conversions are simply
-utilising existing mechanics that are known to work, this suffices for most
-cases.
-
-However those arches where significant changes have been made -
-m68k-motorola, sparc32 and sh-X2 - have been tested further.
-
-For each of these a boot test and stress test has been performed - fork 400
-children, each mmap()'ing 2 MiB and touching every page then partially
-munmap()'ing then exiting to trigger as much page table freeing as
-possible.
-
-All were found to be working correctly.
-
-Note that sparc32 LEON SMP is not emulated, Andreas - do you have a means
-of testing this?
-
-v2:
-* Updated commit message to reflect CONFIG_MMU dependency for xtensa as per
-  Suren.
-* Updated 12/12 to correctly describe the new contract re: readers/writes
-  as per Kiryl. Also fixed up typos there as per Kiryl, Suren and slightly
-  reworded for clarity, and updated commit message to reflect.
-* Updated 11/12 to reflect the fact the change is for userland only as per
-  Kiryl, also added a note about write locks similarly to 12/12.
-* Fixed bug as reported by sashiko for the sparc32 change (10/12) - the
-  refcounts are insufficient on their own, so replace the page_table_lock
-  altogether with an IRQ-safe spinlock.
-
-v1:
-https://patch.msgid.link/20260901-rcu-pagetable-freeing-v1-0-5456a81c8212@kernel.org
+This is because GUP-fast might increment refcount, but
+__collapse_huge_page_isolate() determines whether it is safe to proceed by
+checking folio_ref_count() against folio_expected_ref_count(), so the two
+must be mutually excluded.
 
 Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 ---
-Lorenzo Stoakes (ARM) (12):
-      mm/huge_memory: zap deposited page tables after an RCU grace period
-      mm: enable MMU_GATHER_RCU_TABLE_FREE for most 2-level architectures
-      mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU riscv
-      mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU arm
-      mm: enable MMU_GATHER_RCU_TABLE_FREE for arc, microblaze, xtensa
-      mm: enable MMU_GATHER_RCU_TABLE_FREE for sparc64
-      mm: enable MMU_GATHER_RCU_TABLE_FREE for m68k-coldfire
-      mm: enable MMU_GATHER_RCU_TABLE_FREE for sh-X2
-      mm: enable MMU_GATHER_RCU_TABLE_FREE for m68k-motorola
-      mm: enable MMU_GATHER_RCU_TABLE_FREE for sparc32
-      mm: make userland page table freeing RCU-safe
-      mm: change the contract for free_pgtables(), update docs
+ mm/huge_memory.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- Documentation/mm/process_addrs.rst       |   6 ++
- arch/Kconfig                             |   8 --
- arch/alpha/Kconfig                       |   1 -
- arch/arc/include/asm/pgalloc.h           |   6 +-
- arch/arm/Kconfig                         |   1 -
- arch/arm64/Kconfig                       |   1 -
- arch/loongarch/Kconfig                   |   1 -
- arch/m68k/Kconfig                        |   1 +
- arch/m68k/include/asm/mcf_pgalloc.h      |   5 +-
- arch/m68k/include/asm/motorola_pgalloc.h |   9 ++-
- arch/m68k/mm/motorola.c                  | 121 ++++++++++++++++++++-----------
- arch/microblaze/include/asm/pgalloc.h    |   2 +-
- arch/mips/Kconfig                        |   1 -
- arch/parisc/Kconfig                      |   1 -
- arch/powerpc/Kconfig                     |   1 -
- arch/riscv/Kconfig                       |   1 -
- arch/s390/Kconfig                        |   1 -
- arch/sh/Kconfig                          |   1 +
- arch/sh/include/asm/pgalloc.h            |   6 +-
- arch/sh/mm/pgtable.c                     |  20 +++++
- arch/sparc/Kconfig                       |   4 +-
- arch/sparc/include/asm/pgalloc_32.h      |   7 +-
- arch/sparc/include/asm/pgalloc_64.h      |   8 --
- arch/sparc/include/asm/tlb_64.h          |   2 -
- arch/sparc/lib/bitext.c                  |  14 ++--
- arch/sparc/mm/srmmu.c                    |  32 ++++++--
- arch/um/Kconfig                          |   1 -
- arch/x86/Kconfig                         |   1 -
- arch/xtensa/include/asm/tlb.h            |   2 +-
- include/asm-generic/tlb.h                |  66 +++--------------
- mm/Kconfig                               |   2 +-
- mm/gup.c                                 |   5 +-
- mm/huge_memory.c                         |   2 +-
- mm/mmu_gather.c                          |  30 ++------
- mm/pgtable-generic.c                     |  15 +++-
- 35 files changed, 194 insertions(+), 191 deletions(-)
----
-base-commit: 88297631d4d42f6004cb39c0ba3da7d2d10a616f
-change-id: 20260831-rcu-pagetable-freeing-84b6be830e20
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 54494c3fa983..505f7b62ff28 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2476,7 +2476,7 @@ static inline void zap_deposited_table(struct mm_struct *mm, pmd_t *pmd)
+ 	pgtable_t pgtable;
+ 
+ 	pgtable = pgtable_trans_huge_withdraw(mm, pmd);
+-	pte_free(mm, pgtable);
++	pte_free_defer(mm, pgtable);
+ 	mm_dec_nr_ptes(mm);
+ }
+ 
 
-Best regards,
 -- 
-Lorenzo Stoakes (ARM) <ljs@kernel.org>
+2.55.0
 
