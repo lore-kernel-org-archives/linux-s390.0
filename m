@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 049C3375F7B
-	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 06:48:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0101A3859DA
+	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 06:48:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788850127; cv=none; b=AjfdDYz00M9IcjhOzGvMYmkqB8Tnz8IopsHB9ZGF4dV+Vb6RK+UVjmaMgKTw56Or6NAtJIH4HH2li5Fhop1dx7RAS5FSJRrbytajqnySAXtgUWVjz1vE8npGtDsOnVNWbBVI6A4HCGq2Wo4LL0+XEm7vmPNituLi6KV5h2ojvkc=
+	t=1788850138; cv=none; b=DXQRVkgl20ouugkC28ciNzYICAVo2L3zxQmCK7V2X34c0myW7AThFOcMop36V8H/HuMZA1eI50BOtXWR1a+xKjUBw1UKD9Sq/Q9etKhLIihdKssCprbYkz5fwFzpIZTn2gLkIfLLnHCuqwZ8PLPt3rlUtIndPwZg6pxL5WZMnrY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788850127; c=relaxed/simple;
-	bh=yDAMH8V0NE5czfyntHy9+/IPD00Vpt1AFqA+V7dgpnk=;
+	s=arc-20240116; t=1788850138; c=relaxed/simple;
+	bh=S07tCwcJgpTzHeoWYpajlAr1H9/krM2tibvtenklvlY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NflKisfu9kGWhx/gN8prIMjD5OTNeSb7Pipujxf0mLO8yJpMP13oUwTs7GRm2vIzQnqFYaKq3Xw2L3yo9Zs9ehCPGHfmfLDp62BIURQrc82wP+HhGM7wDd3BGWsw7wSzUoiVfQmAJki4z4VpP+qOr6w2PUzsBNxOu49WGKj2PpM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N6lGAaLL; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=TF5WefrLRs162phzsDnhkue6kJFqf7WxU1Bb/e3xMZOiu2l+//cYRxBJeqfclF1PtEZji8FPGzQh2t9IVXs1cKSG9dK8VH80k6+WVyQHyrHgauTIQ2D3yAJ7CPu3iZKLbTxF66kHE5mPq7DOV9ov710cRQMw0MfBdRAM5HwX1Yc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DHGQYFU5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N6lGAaLL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49D921F00A3D;
-	Tue,  8 Sep 2026 06:48:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DHGQYFU5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21F1C1F00A3A;
+	Tue,  8 Sep 2026 06:48:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788850125;
-	bh=yDAMH8V0NE5czfyntHy9+/IPD00Vpt1AFqA+V7dgpnk=;
+	s=k20260515; t=1788850136;
+	bh=S07tCwcJgpTzHeoWYpajlAr1H9/krM2tibvtenklvlY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=N6lGAaLLQQM/yZyBcVMhFOJYEP5abiswitBslo1sM1MjIcNFPxy8zqklQzMHVLuND
-	 VeN8xFb9igKI9E6HPI2sW2JT4I6AAkjhPq3Wa93CRhBDczxNVddMxhfZeCi/3jwm5l
-	 ROL86utOCkUguxUdES70zSRbjSwlfRh5dc8Fly4xOI6jOVcnywEhPn7n1mj8YvxIt3
-	 2WypQ5v+84HGDLO0Z/RtQJSAqK8d+JRPUSisC5TMl4Q1UD8wzlzU2S05oLBaS9Te0l
-	 OZzbb9bxIq8Nq1YcCTM3nKyz62QUyGqzHBIRd6rutcmmT/waXDvfb/ijmMBlXLbVjW
-	 ag2yRT0+6vHUg==
+	b=DHGQYFU5d5McXUnc0wdkIofJ7bv5hWr2qR6WUo6+CiLukcS6gyYAjOu3yVyPJ8VFK
+	 9FAb8ca4K74m4Xh1W7kOIJ9vWHr9iUTSAPqlX4b0l8Wzd5ztb9etmnTkX/DvyWMReT
+	 Ya3YM5Un7Dzc2/WId4sd1iFisgewijAZ6RQD//k4AvDEara61qkVtWHHQCszXyVXMI
+	 XcayVkF4jmvrIAEkzt3jhPKKn02VPdRb4YQONR2vdheRdwGjS9TrbQIhRbQU9mGRgF
+	 dPzGp03Zr2Ab6UTD99x1gvfCtjIZkOlntQu8u7puk1w6F8uFPxwwcE5sLmZ+88bBwB
+	 0kvncowRddiYg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 10/24] sparc: elf: Move relocation constants to UAPI
+Subject: Re: [PATCH v5 09/24] MIPS: ELF: Move relocation constants to UAPI
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?VGhvbWFzIFdlacOfc2NodWg=?= <thomas.weissschuh@linutronix.de>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, ojeda@kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260908-vdso-absolute-reloc-v5-10-3a93791af1cf@linutronix.de>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, ojeda@kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260908-vdso-absolute-reloc-v5-9-3a93791af1cf@linutronix.de>
 References: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de>
- <20260908-vdso-absolute-reloc-v5-10-3a93791af1cf@linutronix.de>
+ <20260908-vdso-absolute-reloc-v5-9-3a93791af1cf@linutronix.de>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 06:48:44 +0000
-Message-Id: <20260908064845.49D921F00A3D@smtp.kernel.org>
+Date: Tue, 08 Sep 2026 06:48:55 +0000
+Message-Id: <20260908064856.21F1C1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -58,5 +58,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908-vdso-absol=
-ute-reloc-v5-0-3a93791af1cf@linutronix.de?part=3D10
+ute-reloc-v5-0-3a93791af1cf@linutronix.de?part=3D9
 
