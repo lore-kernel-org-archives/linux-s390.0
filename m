@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 382214F30FD;
-	Tue,  8 Sep 2026 11:53:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C92B5478E45;
+	Tue,  8 Sep 2026 11:55:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788868417; cv=none; b=cdiUcHx0+wWCrwUNz0Yv397FGtS0XNdvnGLu3JbqAxfr8EPNp9D8wR6fLED7EFhBgWsBmIejWSBvqbISGvHPROyoLKX2q26Dgvq3nrbg+6TTe8v9svkmghur94derFmGgkbac2/YCVdspN4wtrEzYBSlT/zKpnki8c6vztXweCM=
+	t=1788868555; cv=none; b=QAOEoebH1zoCe/ZWfthklQSHLPkBe4hzCHRH1Y0icCCvdcGno2+vlvcfJhHdfo0uevfyH9Mif/Z+2L/xygA8e1v52Jdb5zUGOjoGz0N+4NMP8AQLlO4GVpsHMYw31matTyYNeudYrQ6NjrMlU7I9BVeW0c29rPeSW5P7hWQEKSU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788868417; c=relaxed/simple;
-	bh=PNvPyKOY4Nwxmgp9wuhirh34HCkKxNQWWp6S/yUJHYU=;
+	s=arc-20240116; t=1788868555; c=relaxed/simple;
+	bh=QnM8oifJ0tOUd7HjV3UIJgwvSwy+bxaJlsblRfMiP2M=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=SJrCwNKi41R9g2jHSaHW/0pWFI5v+Qxt/PIjXrdqd2Tterwzw5bMg8hD1/HPE6R4Sk2xZ4ahTAU76zpJf4W1DHmm94egYI2AUNLYXFTDAFJe5SU2w9dlcSOx5DgbeHLIkm/CHpsuwhfr9E2mtCP++u4Dp4ek5djsYY4pOni3+rk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FOvgWczj; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=hSnix8lYOA3Ttz3BtELmjazZLpuPUISwOuXxxm08HIJ5B04CocQnacxTLIXESLFuNHweq25UMs2iqqHWEWAZQgBJgrBXdah8oSUJ6HXab5MA5SsiKx3oj/ryHYbMF/lxtuO6xdtDOtaSUUFlS7tMZzYkCcNa2APjlymdMvNHM3Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lpGDXF7Z; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FOvgWczj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59A271F00A3A;
-	Tue,  8 Sep 2026 11:53:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lpGDXF7Z"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B96B01F00A3A;
+	Tue,  8 Sep 2026 11:55:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788868412;
-	bh=TgnUvaODkORtnKYaf5ZZjujJr0av+pDqX4ZqIG/SHoI=;
+	s=k20260515; t=1788868554;
+	bh=YQfUobdb4z00WEwtnabznk2vNczJUBLHs2sPtjNr3cI=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=FOvgWczjtpAGFlyIM04XPBgIUoYgQRRH9iQaS/fQqiEifiriUQHpKjSKDBjqk5Ie8
-	 0oOr0sP4NqKInOziq9sP+fXMPoxBG709B47qFJzEcqfb9gGfAMs4RWeAqLrYDJ2b7j
-	 1UFT48gWzZMcLwpoX4kX6BvB2PDJ55w4rNIU1dpiIbmNISjveLAaWpEGjM66hdkq1B
-	 8KwxB0pelLRjAa68tHEvtwkXApscMwxQFAfkbhtJYkgDQIL6bKVWQWpQw6PTHjHaft
-	 Xf+3/BWJ/iYReJCxPvtUDIGXjw1R+YmPTxpvghklWlpoU1JsKCOM1GmG2xHkxMD++X
-	 HQNs7u3zPqTXg==
-Message-ID: <71218174-ddc9-49e4-a920-d211c169aa50@kernel.org>
-Date: Tue, 8 Sep 2026 13:53:20 +0200
+	b=lpGDXF7ZqLHduzl8FnziPOy44BLBHhC2Fw4f0jqmHQkKoysL/bVzIHC+FAe7sHw7Q
+	 jkocHRdaF0XzNj4f4PhKK93kmAF0iSVIiVQBbYfZPdmZHT4alxIAbfCODf6JWSb4LO
+	 MwoTcpezTjSOf7GShhM+TnQcNElLIb67uyP0XYwKTUG+OCwygDjUkHFMZQEHcinVRQ
+	 BQebwXbqAoK2cziX/sxNuAXk6q3CSoAjS+xNfEqMEoKs1lRGDE/xicTO/J4jx762XW
+	 F9VTD3V3103VvgiKmAuvnoNaijapfyIllBeaojqtCUKnCJmwj+700uh0TqrbiauV9A
+	 cMHAnXdOJcyYQ==
+Message-ID: <29e6d0d2-cdd6-4d59-aa6f-0073ac63eace@kernel.org>
+Date: Tue, 8 Sep 2026 13:55:41 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,9 +37,9 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v3 1/6] set_memory: add number of pages parameter to
  set_direct_map APIs
-To: Mike Rapoport <rppt@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
- =?UTF-8?Q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
+To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>
+Cc: =?UTF-8?Q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
  Albert Ou <aou@eecs.berkeley.edu>, Alexander Gordeev
  <agordeev@linux.ibm.com>, Alexandre Ghiti <alex@ghiti.fr>,
  Andy Lutomirski <luto@kernel.org>, Borislav Petkov <bp@alien8.de>,
@@ -63,8 +63,6 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
  loongarch@lists.linux.dev
 References: <20260903-execmem-set-vm-perms-v0-2-v3-0-949b64a9f755@kernel.org>
  <20260903-execmem-set-vm-perms-v0-2-v3-1-949b64a9f755@kernel.org>
- <a98df077-3e97-4eea-8bfe-470bad9ff9e0@kernel.org>
- <ap_vkSK_efv7ab90@kernel.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -111,42 +109,30 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <ap_vkSK_efv7ab90@kernel.org>
+In-Reply-To: <20260903-execmem-set-vm-perms-v0-2-v3-1-949b64a9f755@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
->> I'd assume such a case cannot currently get triggered, but there is no
->> documentation on what's supported and what's not. Or is there?
->>
->> Imagine someone performing an update on an area that partially spans two PMDs.
->> While splitting and updating the first PMD could succeed, splitting the second
->> PMD could fail. What would be the end result? Rollback? Does the caller have to
->> clean up?
+On 9/3/26 11:28, Mike Rapoport (Microsoft) wrote:
+> When set_direct_map APIs were introduced by the commit d253ca0c3865
+> ("x86/mm/cpa: Add set_direct_map_*() functions") the single page
+> parameter made sense because the initial callers (vmalloc and
+> hibernation) had sets of unsorted struct pages that required changes of
+> their mappings in the direct map.
 > 
-> There is no rollback in any of set_memory implementations. It's up to the
-> callers to cleanup the mess afterwards.
-
-Good to know, let's document that ;)
-
->  
->> I'd appreciate if we could add proper documentation with expected semantics.
+> Since there is an increasing demand for direct map manipulation and it
+> is also desirable to be able to update larger physically contiguous
+> mappings, for example an entire large folio, extend set_direct_map APIs
+> to receive number of pages parameter.
 > 
-> I believe it's more in the scope of  "arch, mm: create a generic
-> set_memory/change_page_attr core" [1] work than this patchset.
+> As there is still only a handful of callers, change the existing
+> functions directly and update all the call sites rather than adding
+> wrappers for single page case.
 > 
-> I can write (or maybe even slop ;) ) a doc about set_memory/set_direct_map,
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> ---
 
-I prefer well minimal and accurate docs ;) Who knows, maybe we'll even realize
-while writing the docs that some semantics are weird and should be changed (some
-architecture implementations adjusted to not be weird).
-
-(I'm pretty sure we'll do, so schlop is not a good idea)
-
-> but I wouldn't want to hold this because there's not set_memory
-> documentation.
-
-I'm fine with documenting it separately, but we *really* should start
-documenting the semantics as we touch+cleanup this mess.
+Acked-by: David Hildenbrand (Arm) <david@kernel.org>
 
 -- 
 Cheers,
