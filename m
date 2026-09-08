@@ -1,176 +1,157 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F21D546C851
-	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 08:31:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC5DB3B42CC;
+	Tue,  8 Sep 2026 08:39:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788856278; cv=none; b=ht9ZRUYqpNi0vIG0N6ttRdHRDvizvEn4Dlggx1zNNEB0QLdabdh1qA6ltdAwCpoqia/vtRooAR4inROkfDvOre26ulXyzsq17RU4rbTYLpUBgR1kP4McxcxUVQpU7shUcjN1Cdcg10+0mAKm+WXJgboR82LMik86InKERHWGkcc=
+	t=1788856765; cv=none; b=e8mSOJuou3519BpfD6wgfXVxz+b6Mn3LHJslpTDXSS4oTTXMrQLxLCTQ0ioZ9karwwf9YGFqd+D+mcGst9alG2av93N8YDzRj/L/WF+KmfI/CjlKNkfPsiuUBhtWLVefFud/ZMW8HVkPN2ybrRLpz4Xz+wv3CsUqydJUFUEfmDc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788856278; c=relaxed/simple;
-	bh=bQVGmZsh54EPXaCbHVhqpE0sv9MCdcZelHyuzt63DU0=;
+	s=arc-20240116; t=1788856765; c=relaxed/simple;
+	bh=slUWdnwq0XGj7f4s3OzgJoorkVnZmUKvVcYJXpe/QEA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nLbsQumVYa4qeQme2F+CvMz95GvJueYgGL6OAKSH3VhE3wzTNjjQKbNaOGb7rsgC2xDOdJ0II9OhEU73OyBWUN1lUiDkMn1EKk/GXzwU0uJQCYgtsA3dUVxAYt3/QNJYBG7LAEnijzRM7wxGXScStUdZjAiThMSB+SHzBb+EMfQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aIXkID83; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=b4Wz5U2K; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=nQCNQFFwgMRxEOnGdDJ2xljv0a4UDsNamXzWK1f1/GoPRUVh0uEXw4xnsKYvMqi0DJxk1Y0u0wxeNF15D8ugkY2d/xE9oI7eFticlItkRWTFcJ852Pc1VFHogavWSEfQYczL1XROMpGPb4zsbEhmp6vgZlUSXDOubmzSk+3pBdo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f31djqHM; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aIXkID83";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="b4Wz5U2K"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788856274;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=x3vwxLtyfH5eqXgdY8WBSA5geJ/rIMZ7KgxZ+JZp1ZA=;
-	b=aIXkID83FZBzMOs9IqwVsy7SQc+CVjXRHwcbm95LcQe34Re7gpgkJHpvslfDmtfBKHYpvG
-	W3G0cCK6ifKsr87LR3xkb0J+uB9u04/tFUDlVCgBdQEjOK7edTig5sbjyC0FIM307GB1md
-	pubURypBHMY+HBcNyviio9LgUPqddyI=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-456-zIZmnfABOz62-UsyRqNgaQ-1; Tue, 08 Sep 2026 04:31:13 -0400
-X-MC-Unique: zIZmnfABOz62-UsyRqNgaQ-1
-X-Mimecast-MFC-AGG-ID: zIZmnfABOz62-UsyRqNgaQ_1788856272
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-48437090e74so2690817f8f.2
-        for <linux-s390@vger.kernel.org>; Tue, 08 Sep 2026 01:31:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1788856272; x=1789461072; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=x3vwxLtyfH5eqXgdY8WBSA5geJ/rIMZ7KgxZ+JZp1ZA=;
-        b=b4Wz5U2KOyMrnAtSl98mTj+Ozbh3aJ5e3/08o8lIrd481/XCZIHgWRuZ6tvrjy2z0f
-         tIf7jXhRO9uyNHJ0/pLXM27W2Bt2KhB6xI7kPquEwV02pkQXIlJye4gJPKKVe677R5bd
-         SWu3W75QtfTGygcguksvV/wpDZU2wVtTV2xhsm5AP/xL8Hfu7fQJmLDCiyTGF7E+e9EO
-         0VR4EUvja7X//qqt8OWoiW52KTQYFZ9ENNwLvTYLxwsJ3XBmIsckdKzCKJvlW/Exa6gU
-         DQ/pJaUbW98/ktBXlO11PLuP8olDGHzGNukSe6QUa6+ySKKomB2Lq2J6ozgn4IZvXkRK
-         Xy2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788856272; x=1789461072;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=x3vwxLtyfH5eqXgdY8WBSA5geJ/rIMZ7KgxZ+JZp1ZA=;
-        b=mQcWRGAnHLeLhEGK1Rcs9rX1TeBjHQN4uTCtChQl6jLp2PJSjg2r4DYR9x6Z1mz+Xy
-         LFIMUoB+rID7WFDURGxXDGqp2MnfLT4iBbZDtO0wFoI6S1xPSqcBrCZGDMvtpXDIlguz
-         g3/nm6ngB0Jk2zMP2PtuxFhDMIqExd/75RmKeSDK1eBLgaxcTRg/V6j/tkU7MQJ+hT6q
-         rcrAayKfmb6+BhDrNyWupCm9V71DKlWgH6vJLFmjyKy4FNVQ9Vy5YpaBwJmVD0CmhsQn
-         3MoFa+MfA8VKctPJc4eZCVSt4Qade7mumAs6iGvdAfO4GaQaFq0nffrylLH+oOURz6nB
-         ZAJg==
-X-Forwarded-Encrypted: i=1; AKwUvByubFk5NKWttkGUjlg6x4uBXxtI8j7Jt5UzVoEu78gJLtJfS8A/3DTBGgFeHu8TRSnJB6u8t80VIv0i@vger.kernel.org
-X-Gm-Message-State: AFuF++mV47H+gvEZyYVsFpxIgUCv1kvh0EBQ85u75K4u0miaiXIKhDFm
-	P4rSlT5o8LIvXDxZbGFdGFiI5wiTni9Z197T315IdDgc6vFwLLBd6+8j3gtm6mSPEUA41KjvUfe
-	sOupB0Mub7CNB/q03xteuG246/0hyGyqhSP58fnppLjvKRXr091z2AovW70MDMuM=
-X-Gm-Gg: AYBFou2JILNFu7TIPXmpyaPydSS8fpZLM9obh/pK19HJbApJJkhkdKhMSZ81UscIA51
-	yeyS5Tn9UpofllNBh8GWUQGIXSfrSy2Rx0q8ZbEtcUoKVBLeWi3/KOS/Udgv+RZJkUEEiMrp23U
-	xonqN3HUN5kJq4I2eCsPWbwv5zOE8iHQI/xLWzejnYevajJcMKBCiEMHz4b6X1nzRSnlKj7UlWA
-	AXN55HCwZii6apXXzYItEKGte5VpzcGCzyqPrIstuinHAl18BwECgeswBRBB9lVDZbHRtM1bGzC
-	VNCbb/ueJH7GtleTZc+mBqrqIz1NDb1u4sRmzbRLaKuSXibexEbnb/hAMGkSb+HRlDG3wDszqGb
-	T1Dcj/81gYs8qiPrkKU1VRk0=
-X-Received: by 2002:a05:600c:4f43:b0:49c:fc6e:a3d9 with SMTP id 5b1f17b1804b1-49cfc6ea7b4mr252851925e9.24.1788856271965;
-        Tue, 08 Sep 2026 01:31:11 -0700 (PDT)
-X-Received: by 2002:a05:600c:4f43:b0:49c:fc6e:a3d9 with SMTP id 5b1f17b1804b1-49cfc6ea7b4mr252851425e9.24.1788856271518;
-        Tue, 08 Sep 2026 01:31:11 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cff81c9b5sm254295465e9.4.2026.09.08.01.31.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Sep 2026 01:31:10 -0700 (PDT)
-Date: Tue, 8 Sep 2026 04:31:07 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: sashiko-reviews@lists.linux.dev
-Cc: Karl Mehltretter <kmehltretter@gmail.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-	kvm@vger.kernel.org
-Subject: Re: [PATCH v3 6/6] virtio_vdpa: implement synchronize_cbs()
-Message-ID: <20260908043004-mutt-send-email-mst@kernel.org>
-References: <20260908053817.26065-1-kmehltretter@gmail.com>
- <20260908053817.26065-7-kmehltretter@gmail.com>
- <20260908055159.E49DF1F00A3A@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f31djqHM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C23A1F00A3A;
+	Tue,  8 Sep 2026 08:39:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788856760;
+	bh=slUWdnwq0XGj7f4s3OzgJoorkVnZmUKvVcYJXpe/QEA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=f31djqHMq1zm0NH10E6jABNFN/XEtBtVUywkW/jJEx2y3vkNmMXh/1kd/Sjj72P04
+	 T6L92RsSr9CQrX66jc0wrPwHh6ZjVD5aSMaTpkb+Cxjgp9ZU6YrbkkYXhDrOYryDaO
+	 ZTgU5gp6BdSkoU54QhSCWPpRXJjEqeQ7gFPhqonFR9QaQp7K9wC3t0y6YPinAZxwQV
+	 h+w9nS9hTC4LwZO/38s9ryPJzCgNR+G1JO/Mul0cHse249ia1+soSZnoBYdeQ4kY0m
+	 HeH3O938M7uXInW4K+dnzPNL73PzwIIfEEPV3T8JCftA19ij/TKmEUEYsg1ScglZFI
+	 YJglKg/Ofvcpw==
+Date: Tue, 8 Sep 2026 10:39:17 +0200
+From: Thierry Reding <thierry.reding@kernel.org>
+To: Will Deacon <will@kernel.org>
+Cc: Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Jonathan Hunter <jonathanh@nvidia.com>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Sowjanya Komatineni <skomatineni@nvidia.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
+	Mikko Perttunen <mperttunen@nvidia.com>, Yury Norov <yury.norov@gmail.com>, 
+	Rasmus Villemoes <linux@rasmusvillemoes.dk>, Russell King <linux@armlinux.org.uk>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
+	Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
+	Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, 
+	Sumit Semwal <sumit.semwal@linaro.org>, Benjamin Gaignard <benjamin.gaignard@collabora.com>, 
+	Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>, 
+	"T.J. Mercier" <tjmercier@google.com>, Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, 
+	Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>, 
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Chun Ng <chunn@nvidia.com>, Mark Rutland <mark.rutland@arm.com>, 
+	Saravana Kannan <saravanak@kernel.org>, Thierry Reding <thierry.reding@gmail.com>, 
+	devicetree@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, 
+	iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
+	linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>, vdonnefort@google.com
+Subject: Re: [PATCH v6 00/12] dma-buf: heaps: Add support for Tegra VPR
+Message-ID: <ap_HzwVp-6aOKEbJ@orome>
+References: <20260904-tegra-vpr-v6-0-79042cfa8de5@nvidia.com>
+ <apquUWgrD9C2jWQ0@willie-the-truck>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="a5apqptzjdcu2eq7"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260908055159.E49DF1F00A3A@smtp.kernel.org>
-
-On Tue, Sep 08, 2026 at 05:51:59AM +0000, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
-> 
-> Pre-existing issues:
-> - [High] Possible Use-After-Free of virtqueue memory in callback during find_vqs error handling
-> --
-> 
-> commit 05a7e5947030bc4c942e05c96bf1d657ed426d56
-> Author: Karl Mehltretter <kmehltretter@gmail.com>
-> 
-> virtio_vdpa: implement synchronize_cbs()
-> 
-> virtio_vdpa relies on the core's synchronize_rcu() fallback for callback
-> synchronization. This commit adds an SRCU domain per device and implements
-> synchronize_cbs() with synchronize_srcu() to cover the callbacks regardless
-> of the calling context.
-> 
-> > diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
-> > index 6bcf4567a9292..f9559b6b2e0b6 100644
-> > --- a/drivers/virtio/virtio_vdpa.c
-> > +++ b/drivers/virtio/virtio_vdpa.c
-> [ ... ]
-> > @@ -123,8 +128,22 @@ static irqreturn_t virtio_vdpa_config_cb(void *private)
-> >  static irqreturn_t virtio_vdpa_virtqueue_cb(void *private)
-> >  {
-> >  	struct virtqueue *vq = private;
-> > +	struct virtio_vdpa_device *vd_dev = to_virtio_vdpa_device(vq->vdev);
-> 
-> [Severity: High]
-> This is a pre-existing issue, but could this callback be invoked
-> concurrently on a freed vq, leading to a use-after-free when
-> dereferencing vq->vdev?
-> 
-> During driver probe, if virtio_vdpa_find_vqs() successfully creates some
-> virtqueues but fails on a subsequent one, it jumps to err_setup_vq and
-> calls virtio_vdpa_del_vqs():
-> 
-> drivers/virtio/virtio_vdpa.c:virtio_vdpa_find_vqs() {
->     ...
-> err_setup_vq:
-> 	virtio_vdpa_del_vqs(vdev);
->     ...
-> }
-> 
-> This tears down the previously created virtqueues. However, the callback is
-> not cleared with set_vq_cb(..., NULL), nor does it synchronize with pending
-> or concurrently running interrupt handlers (such as vp_vdpa_vq_handler).
-> 
-> Could a spurious or device-initiated interrupt occurring right before or
-> during vring_del_virtqueue(vq) race and cause virtio_vdpa_virtqueue_cb()
-> to dereference the freed vq structure when accessing vq->vdev?
+In-Reply-To: <apquUWgrD9C2jWQ0@willie-the-truck>
 
 
-IRQs are not yet allocated then are they?
-Looks like a false positive to me.
+--a5apqptzjdcu2eq7
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v6 00/12] dma-buf: heaps: Add support for Tegra VPR
+MIME-Version: 1.0
 
-> > +	irqreturn_t ret;
-> > +	int idx;
-> > +
-> > +	idx = srcu_read_lock(&vd_dev->cb_srcu);
-> > +	ret = vring_interrupt(0, vq);
-> > +	srcu_read_unlock(&vd_dev->cb_srcu, idx);
-> > +
-> > +	return ret;
-> > +}
-> > +
-> 
-> -- 
-> Sashiko AI review · https://sashiko.dev/#/patchset/20260908053817.26065-1-kmehltretter@gmail.com?part=6
+On Fri, Sep 04, 2026 at 12:41:05PM +0100, Will Deacon wrote:
+> Hi Thierry,
+>=20
+> On Fri, Sep 04, 2026 at 12:44:51PM +0200, Thierry Reding wrote:
+> > This series adds support for the video protection region (VPR) used on
+> > Tegra SoC devices. It's a special region of memory that is protected
+> > from accesses by the CPU and used to store DRM protected content (both
+> > decrypted stream data as well as decoded video frames).
+> >=20
+> > Patches 1 through 3 add DT binding documentation for the VPR and add the
+> > VPR to the list of memory-region items for display, host1x and NVDEC.
+> >=20
+> > The set_direct_map_*_noflush() functions that will be used later in this
+> > series are exported in patch 4 so that the drivers that use them can be
+> > built as a module.
+> >=20
+> > Patch 5 adds bitmap_allocate(), which is like bitmap_allocate_region()
+> > but works on sizes that are not a power of two.
+> >=20
+> > The of_node_to_nid() function is exported in patch 6 because it is used
+> > in a later patch adding a driver that can be built as a module.
+> >=20
+> > Patch 7 introduces new APIs needed by the Tegra VPR implementation that
+> > allow memory to be allocated at a fixed offset within a CMA area. Tegra
+> > VPR needs this in order to implement its own allocator on top of CMA to
+> > meet the strict hardware requirements. This replaces the dynamic CMA
+> > area creation patch from earlier versions.
+>=20
+> Did you get a chance to see how this could work with Vincent's series:
+>=20
+> https://lore.kernel.org/r/20260902104712.2399797-1-vdonnefort@google.com
+>=20
+> ? I think that should remove your reliance on can_set_direct_map() and
+> mean that you can retain block mappings for most of the linear mapping.
 
+I'm not sure if it would help all that much. Yes, if we mark the VPR
+region as LLMAP (or PTE_MAP, whichever it ends up being), it should make
+the checks for can_set_direct_map() redundant. However, from what I can
+tell, Vincent's series still forces page-granularity on these regions,
+so it won't retain block mappings at all for them.
+
+The block mappings can be retained for the non-VPR memory, so that's
+nice. It also reduces the amount of external prerequisites, but I had
+kind of hoped that we could go one step further and keep block mappings
+even for the VPR memory if the region happened to be a multiple of the
+block size.
+
+The recent addition of page count to the set_direct_map_*() functions
+helps reduce the amount of checks that need to be run, so maybe there's
+not too much to be gained from removing whole block mappings at once
+=66rom the linear map.
+
+Thierry
+
+--a5apqptzjdcu2eq7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmqfybIACgkQ3SOs138+
+s6HeMBAAuLF8s85+tHae/nBOh6j4pUVcjE5KyexYHpAnHyj8HIuDuERbHercMMPe
+CyLnvqYhkNgu1LmEjo9O0OVzGEe65BJoHkdgmXMTyFLQ/9NGtdvaaTCabe99iBCm
+1BGL8d0KtegUlzTJLntnV+ubRKhLjZthpMxxjuThV2TJaFTQXtS4kcaldKUTw73o
+k9bbvnuX2PsQCVZTL+aAKsRtvXHT011GzCwlfufuRnkX1kJ7vXidndwdsMOFoIJm
+lThSDnPii6F/bJc74o9ztJlObQ8gjs/6hzMjrFu9FVFoMa0sucCfM6d+q6wOw/QF
+nS7Gtk7mV9RgQ2PkT6o+Umw0l1Nnwd5R5XGKo+vuVb8hCy6hmTe1jPkIy0PyFyan
+k54nErXH09l91YA06FpSI4HmeoCYUk4cUU/hKlKYVbE+7DrP7GLNBgEl//Xm5zfB
+do1TCokmrQMoFu3UniXLhSmKJMZOuvW23cj5FVP81q3t3cJxvONGp7hvXMyAz5Yy
+tx3HYQn+1z1GuPrmlI/PQ7bCz2ZHhepUHPcP6fx3qQoEcECZr23Ud1xVA1xrxNKS
+AfvLgsWqAZnG0bTq0hOp2xW38FlPOEB/Gn0A3ux9viOHbMyVuOHqET3wahXk3XgN
+OkCpZ+OS8PyANuhW2WySDdpC1HnKIgfn0ghFX2BlmOZ86qZ1LTg=
+=5HqX
+-----END PGP SIGNATURE-----
+
+--a5apqptzjdcu2eq7--
