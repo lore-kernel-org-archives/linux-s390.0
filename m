@@ -1,65 +1,65 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86418377ECA
-	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 05:39:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D108D380FCA
+	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 05:39:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788845992; cv=none; b=ak2u9kM6bQdi9U+qd3oZhysvebWnAqWfcjEd4weCknctK91zFdTP+iIxP00AdFmngE9DgwP2TP1rPC+bMRqxQjzxsSiXtQu9sC5+oY4vX2zfIvUmUul9By7WPXvx9j/dkLQUNorBPR10X6dc77WAz0KlH1EkAKXPuV+zHzM1d+I=
+	t=1788845992; cv=none; b=ru05K3LrH11Ipanaiq73IvFv1YUoOtL0nfdR1zb5tc8+1RDqAoyGLqXmpECVTsWrzwm6CHCdUuwLq2FEl47Ik3KorQP9yGoGiP89Bw57B3+5bFYjY5LkiZf+678iUquEnH+XrhLsN0RGsgEOLL6d3m76uko619XffuCLyNyHZVM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1788845992; c=relaxed/simple;
-	bh=+h/0zeWFw84evQw0JV7uXbRDUk9bZb6gKcvHxLChX5o=;
+	bh=+wdB7PxXXtKvNQ35EUFAY1t6ihDReA2lJ+JGlRl8HqU=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Vcuui1LjzMuvQ8N2tyCmfSQhZiNAxOEfpWFu528kbNhaO1rz9QgTnjz+PDtd+grYiY1gmYJgrXI9Fra4r+n9VcxEMOLJnCkhAuihHEwEJ2zySVq31+ka90vqP1mssgV58QG7go2SahJWOj9RueMi9LmfCXLY7OAhThzVoyQCRkg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sHuwC9Bh; arc=none smtp.client-ip=209.85.128.46
+	 MIME-Version; b=HAYLegAKrusSNmSukltQ0l6RpXamgnT8GsF88X0FS0eUUjqPQCQf5dV65Ge/Nwi4dD1/SPDovw1aH+C6XFAQXv8Bf5YQ+uD2KpJ+ER94GVS2tJlJVGsbtCsb3NyHMSCJ+DIQ7SpASHJ9Ijlvgm1y2iJzAgih5Dd9ENF3oH8LnYA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dy6jspNb; arc=none smtp.client-ip=209.85.128.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sHuwC9Bh"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-49b0dd3c9a0so40296845e9.1
-        for <linux-s390@vger.kernel.org>; Mon, 07 Sep 2026 22:39:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dy6jspNb"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-49a97714f5dso40940455e9.0
+        for <linux-s390@vger.kernel.org>; Mon, 07 Sep 2026 22:39:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1788845985; x=1789450785; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1788845986; x=1789450786; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=PyvGIpKH+MV7CFSZeFmHniXCtrADstZbtULW+SJuxFg=;
-        b=sHuwC9Bhp5zJInWrqmBxu6nKmmuz8oCAYfjUDOdy+MzmmMCZ8BHmkemWSq/lpT3/p9
-         djM+Fl9wI7+/uBR55wakXcithRh+RYU3GLhiQAs/ALwVNRmOrfNZlTOT7830giOknf7n
-         AuJ2oPRDiDHok8eRz2Kob1oyQoaWiOPZJ+8OObXzXpiz14+TaJfJjC8be2dZ1P2QBpF+
-         V8gHXAlvqTd8RyEQACUeakK5nOOXhw85zHlE1u/0FdKWylSd1Y2JLrTt23fxYTaCqyA6
-         ua4V5hqMpEUfUe02pFlhWgIiMzAhFmhp+202aXNx5q2OYFXkzBzrts9Z4DO0mEb8Jl92
-         DmPw==
+        bh=iPvq113vaLkp19diB9PBTYq+aXRuG2muF34cABuckMo=;
+        b=dy6jspNbxGAKGG3lIe/bspSeQ5j6q6O7nVNct+gSf+FKrKUULLHhV4YZxLyD0FyzPP
+         5hCuizsetB/+39eiGzEi2UYzh/o2UrulEoDzGOEOimzTa7zUE3kIDqj6RdcmykWRNDMs
+         XaxvwNCZTh9iAOBYKGR+e9eCCk+LaMpQuppd9go90pCBSfbYMiQoQp6WFlCvE0ojmTI7
+         5EfY5SjAJE1+pJlnUwlgKZO9u6lhxwY0Sj1NYKXMko8BRuvXThgKVpdRSQWtILOlovgH
+         3UbNOCwk19AmEURMWAFD6nRY2x1FC3lAAHVAnNPos6nLvfItW/9fN5KJMKcMPtNn/DCb
+         4GAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788845985; x=1789450785;
+        d=1e100.net; s=20251104; t=1788845986; x=1789450786;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=PyvGIpKH+MV7CFSZeFmHniXCtrADstZbtULW+SJuxFg=;
-        b=KJfIOJ2b2414knHusyW/pD9RckBsZwrE9V53xrubRtB3y1fTnlX3aHyCEfQhcZoBvQ
-         AquTegVX4tXFKmDtyvYDSNfnutrjuRsY+4kldue0N2kYX5Rcjzl/ikgtb79T/PsTmr1G
-         eRdwCdHoz9tj0gAcP3+p8FiDuQxEK27xoy6kBpTFTDgFZTZ3w/X0sC/Ef8zW6Vh8WKo1
-         Hf5Zs6UzHnh6590wYseSYtONA7TGXxthWsuedpB4sV2hBJLgFBn4HIh6GN4oJDiVUcNs
-         4J5fZZiVn1GUe2VgmAqYOEP5Sl0xjLBWPv/OkOaHh/CV50g98gKW1CnMhf5a4Gm7K1SZ
-         pS+g==
-X-Forwarded-Encrypted: i=1; AKwUvByQcmc+m17tvk1a1xNx+TcNcKsiyqWE6HeReBJIwC9CxmBxnnXDk88tIPpvGDSX1lzWQBkI+CSQpDJn@vger.kernel.org
-X-Gm-Message-State: AFuF++mBAbRAKstdG5WgC+OW/Ph7lulbSQA64KWEzJA1BTkGX9G3HSF0
-	kRwUTvhR7qW1eCU58edDjZXMNk95pEceVZh1XJ0EONKCGgtE/sOKKbY+
-X-Gm-Gg: AYBFou1KsOXlSWSVXMediqRezE0lTaIXik69aNcHug6T89pMj5sBxoifJTyAYF0Ynro
-	UQzqtfxImeg+OAHyeMd24A0le884kRIXmkzbRbjg108hQGavYniy3wt1mdi2uQditaRZW193jid
-	3fe6EvGD4+xRRyyz5R354EtqVtEEf+WmhfajivzwxMoe6nTxF714zc0QAD7z9CO+90CBoBqdCcC
-	DqJCeXuKyif4+w0gg/exPDvVPaiHNb+NxxjVedKn9qwMJUcxB+z8TgAH/S9+rVK/beYPhvIuJA4
-	VF5cMoVFR+3qC5mFzvIJ5EcC4STsMotUzhU2IrIyCbXOjV+mDkzkPrSqgEFdroZhwKoXlxcnrql
-	TMGM18DI6fa3ADg2bDSrS35XutrOfHrzxhSHefJwp0W5zD0xKFpZkQe8LUbyentZ/baTlwpKAMy
-	OEWL6luMUMjZDAr4lT8T+0qLAwgF9eKlxlzAC2UraSEWYW/jYfHmKH8Db6QFs2s5CnWcno8sFVQ
-	FQ6A2G+kmRZrqP9/adQhOaY5oWOkZHy/o3hdOrXADSfpihJK1JIUmDfWboe5iHIRA+obiE5mYE6
-	GOEuM06HLfHqHaB2XignjxqTfAX2C5E=
-X-Received: by 2002:a05:600c:a0a:b0:49c:e1f1:3dd5 with SMTP id 5b1f17b1804b1-49cf81e6cebmr470253545e9.4.1788845984552;
-        Mon, 07 Sep 2026 22:39:44 -0700 (PDT)
+        bh=iPvq113vaLkp19diB9PBTYq+aXRuG2muF34cABuckMo=;
+        b=X2jx3aOMrQiMeM3lU+N8KWJ+J/WI/JE6ImAc08KAUNf7siO1i3H3o9EgFDJgKDFZpY
+         fQO4FBwttOjznWdtHcJuKpKZ8LIIWlv2HoZvQdAang7nDRQGCqrecAOIhfkJpI93j1lz
+         d+ZXTbqgEV/RMKQwUvBhCf2xL3DbZHicJ/KlrzUJYv5qSQBRi6yp9EMAV5KlMZrdVji+
+         6zXGXWV0mf3xQIyOlVraJPyfmgGTha/iuWVT5MUF4seo74C1NwYUMKdHJENJcmdr4jXy
+         x4Zli6wy/sV8nalnFXyvEr23wDSvx3DVVARUrCZIP0cWgVIsUfikhZvFuKixAdMCxiHt
+         XuMQ==
+X-Forwarded-Encrypted: i=1; AKwUvBz9V+E9u2KIGQ2eg4QCHJTyWYZ4cNk8GD4RLOFtG5WPi7MaNeTA8/PO2W1YU8IwEZZY0rg7UVe/avyf@vger.kernel.org
+X-Gm-Message-State: AFuF++kaQvMX+SJH8YyW5wEs0qvBSCAa5S/epbtqv+oQXuq6r7djo/XH
+	kD0ftKuIvc97yFwrOEDSkFSG16+qjhZUdQUlZems8BpHClFkpUbfd7qd
+X-Gm-Gg: AYBFou2OHFX1HGwzIUc0V3WghT725rJrVT/f89FMco9Weh68cuQotIfkTOOSeYTNEse
+	GgED6OlDK3clZFNsdKjb7mkd0GsVh0hC95gWt6Q9NLAQjAKCwWgCriGXAfeWJjTSRBSONSiK4TX
+	JJoyb9/4RHSRtFN1C1h7sIQ+HkVBwMixulFF/AV5G0vA3ufS20ACJStiLMuUauQbU75h6w/cMCc
+	tsekbn0+zeEfgmMT4oTZF3SURhoM0q9ybr2hvxM7Uhy+kLox3BX3ddNqtP7+gXda4n3kOk9X9nO
+	ha172mt8dilwo/SJGRBzJGtrcJ3u2FzC8P3NjIEr+teatkxTbvp1sOsgzVvhAIZqQjg3tG5pOeK
+	y8XbaT1ScvIJrMq/gtB8570Cx8K4U9M+Ijl18EAbFQ1xSDdpA3hLpC9nRBiuxBXqRVsc+bYhGPE
+	P5mDAIeZhLOj9tJqpAh/teVZNQ4/KXQb0POyAdoslGDxS1BOmDRLh3H7fUy3Y8dvwsIt/cWVb3m
+	mjlIXdhoLrLzlW+flDHoOaPxarIaRdDRYMnss4xc55TbhM5BNnb8L3P2rPONAUL7ewgdazHQISk
+	NT8MWOr+aN+5kWR0j7PNFC0A2Gu0oYFU3qPrBaFuNJY=
+X-Received: by 2002:a05:600c:620b:b0:49c:fa20:cc07 with SMTP id 5b1f17b1804b1-49cff19cbf4mr203278645e9.30.1788845986284;
+        Mon, 07 Sep 2026 22:39:46 -0700 (PDT)
 Received: from localhost.localdomain (dynamic-095-117-170-066.95.117.pool.telefonica.de. [95.117.170.66])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cee7fec25sm523841335e9.13.2026.09.07.22.39.42
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49cee7fec25sm523841335e9.13.2026.09.07.22.39.44
         (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Mon, 07 Sep 2026 22:39:44 -0700 (PDT)
+        Mon, 07 Sep 2026 22:39:45 -0700 (PDT)
 From: Karl Mehltretter <kmehltretter@gmail.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowangio@gmail.com>,
@@ -94,9 +94,9 @@ Cc: Karl Mehltretter <kmehltretter@gmail.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Sven Schnelle <svens@linux.ibm.com>
-Subject: [PATCH v3 4/6] um: virtio_uml: implement synchronize_cbs()
-Date: Tue,  8 Sep 2026 07:38:15 +0200
-Message-Id: <20260908053817.26065-5-kmehltretter@gmail.com>
+Subject: [PATCH v3 5/6] platform/mellanox: mlxbf-tmfifo: implement synchronize_cbs()
+Date: Tue,  8 Sep 2026 07:38:16 +0200
+Message-Id: <20260908053817.26065-6-kmehltretter@gmail.com>
 X-Mailer: git-send-email 2.39.5 (Apple Git-154)
 In-Reply-To: <20260908053817.26065-1-kmehltretter@gmail.com>
 References: <20260908053817.26065-1-kmehltretter@gmail.com>
@@ -108,53 +108,55 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-virtio_uml invokes virtqueue callbacks from vu_interrupt() and
-vu_req_interrupt(), which share vu_dev->irq. The core's
-synchronize_rcu() fallback already covers these IRQ handlers.
+TmFIFO invokes virtqueue callbacks from its FIFO work item under
+spin_lock_irqsave(). The core's synchronize_rcu() fallback already
+covers those sections.
 
-Implement synchronize_cbs() with synchronize_irq() to synchronize with
-that IRQ instead of waiting for an RCU grace period.
+Implement synchronize_cbs() using the existing per-direction locks
+instead of waiting for an RCU grace period. fifo->spin_lock[0] covers
+the transmit callbacks, including the callback from the timeout
+handler. fifo->spin_lock[1] covers the receive callbacks. Take and
+release each lock in turn to synchronize with callbacks running
+under that lock.
 
 Assisted-by: LLM
 Signed-off-by: Karl Mehltretter <kmehltretter@gmail.com>
 ---
- arch/um/drivers/virtio_uml.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/platform/mellanox/mlxbf-tmfifo.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
-index 7425a8548141..1f2e62e29a27 100644
---- a/arch/um/drivers/virtio_uml.c
-+++ b/arch/um/drivers/virtio_uml.c
-@@ -20,6 +20,7 @@
-  *
-  * Based on Virtio MMIO driver by Pawel Moll, copyright 2011-2014, ARM Ltd.
-  */
-+#include <linux/interrupt.h>
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
-@@ -869,6 +870,14 @@ static void vu_reset(struct virtio_device *vdev)
- 	vu_dev->status = 0;
+diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
+index 3c6408581373..664bec20a7ae 100644
+--- a/drivers/platform/mellanox/mlxbf-tmfifo.c
++++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
+@@ -1135,6 +1135,20 @@ static void mlxbf_tmfifo_virtio_reset(struct virtio_device *vdev)
+ 	tm_vdev->status = 0;
  }
  
-+static void vu_synchronize_cbs(struct virtio_device *vdev)
++/* Synchronize with callbacks running in the FIFO work item. */
++static void mlxbf_tmfifo_virtio_synchronize_cbs(struct virtio_device *vdev)
 +{
-+	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
++	struct mlxbf_tmfifo_vdev *tm_vdev = mlxbf_vdev_to_tmfifo(vdev);
++	struct mlxbf_tmfifo *fifo = tm_vdev->vrings[0].fifo;
++	unsigned long flags;
++	int i;
 +
-+	if (vu_dev->irq != UM_IRQ_ALLOC)
-+		synchronize_irq(vu_dev->irq);
++	for (i = 0; i < ARRAY_SIZE(fifo->spin_lock); i++) {
++		spin_lock_irqsave(&fifo->spin_lock[i], flags);
++		spin_unlock_irqrestore(&fifo->spin_lock[i], flags);
++	}
 +}
 +
- static void vu_del_vq(struct virtqueue *vq)
- {
- 	struct virtio_uml_vq_info *info = vq->priv;
-@@ -1121,6 +1130,7 @@ static const struct virtio_config_ops virtio_uml_config_ops = {
- 	.reset = vu_reset,
- 	.find_vqs = vu_find_vqs,
- 	.del_vqs = vu_del_vqs,
-+	.synchronize_cbs = vu_synchronize_cbs,
- 	.get_features = vu_get_features,
- 	.finalize_features = vu_finalize_features,
- 	.bus_name = vu_bus_name,
+ /* Read the value of a configuration field. */
+ static void mlxbf_tmfifo_virtio_get(struct virtio_device *vdev,
+ 				    unsigned int offset,
+@@ -1179,6 +1193,7 @@ static const struct virtio_config_ops mlxbf_tmfifo_virtio_config_ops = {
+ 	.find_vqs = mlxbf_tmfifo_virtio_find_vqs,
+ 	.del_vqs = mlxbf_tmfifo_virtio_del_vqs,
+ 	.reset = mlxbf_tmfifo_virtio_reset,
++	.synchronize_cbs = mlxbf_tmfifo_virtio_synchronize_cbs,
+ 	.set_status = mlxbf_tmfifo_virtio_set_status,
+ 	.get_status = mlxbf_tmfifo_virtio_get_status,
+ 	.get = mlxbf_tmfifo_virtio_get,
 -- 
 2.39.5 (Apple Git-154)
