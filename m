@@ -1,266 +1,127 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4606255930F
-	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 13:37:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 765BE5581E5;
+	Tue,  8 Sep 2026 13:56:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788874665; cv=none; b=B/9ruU4aIMLDuQDvwESl7sM57ynSnhqJtiyobqxbemhF/c1vahPea89XD7nElnZoaKHyo9BqDjH033+JzHnrpiZ4Ha/u6B34WEe22XuzQR0n/TzgOJZM3jZNN7BfHY5DTNaW8QNg2umwEXFb4an5ZmPNVp0ucliAroAvO0i0RNY=
+	t=1788875797; cv=none; b=l5vBVMFuK8ZYhADbsM/BiS1RyimLA/j6Zi/nrVrlutttpE3DlaE95wyfSnfblBIk+pg6v4mRxImGJYaRkujS7pnOkUWd+VfqR773KnJtGcsWU78PosC7GEXqqNjxqXUbjo6HyHZgU0JDKbaayyfvEUeQCvJLSOYjHQVBRyZcr6Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788874665; c=relaxed/simple;
-	bh=7R8yLBbz0DVC949U36addudfJEyeBrMn+74z8DzsWlU=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Ao4/YUe2yxPw5fSR9pcRgj9FPytxYAyS05odnVqOQZtPA//xl3iYxc5CZOJ9moukgG5VjUnyTQQ5o6/2Dc2y8uSXQeB6W5pnPDgVnjmfjnYvV1rovATj68opllX+oChvFnfZK9+w5VyiPHxgPoFiM5qH+J7ERZC7fnI7nMIRnfU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LyZtpdKU; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788875797; c=relaxed/simple;
+	bh=3GhasZEbt8NBvKiXdHgvjM+VMuOEV7WWgVkvCeM6fog=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HgSpcUim54QXG6Bx1PcJRC4vSDSuKR1lBouBIBrSyiq1Tx4yJXPAYHSiDcDKhKOr8H9G7hwjILUIGOWpXTyCys/4i7wP7xK7Tb9PxqeXFuFxmhEx4lJmlyIygTIaMNCblbqy0MFCTKfyNDdlp12zjAYEEsc0JlwcUuux6rT/EZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=fail (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=ckTRe3AP reason="signature verification failed"; arc=none smtp.client-ip=65.109.113.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LyZtpdKU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C8391F00A3F;
-	Tue,  8 Sep 2026 13:37:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788874649;
-	bh=m8mIdzlwozZVZOBSHL1kd5SLD5yunmC1baXofwJKhp0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=LyZtpdKURGpwukWY5iRhfq127Skv1dnVNAVbTh4p9awKUrmC9Xkb/FGSNpIPP4tEC
-	 NhW772tevf6uibkTbymY1eyXuiiFf7M3KJJuMWj1Tl9H1mLd4bYRPpd3LD6JougvGx
-	 BJ0rPC525p7YgXwFMc8WRJyrmkV4ACLikKOMSTvyPBOpy7hwkt/flGXE3iUe3pk+6w
-	 5e3bPsAs+o2Xiiz3/fbSfkPBFxtioMsZ5LosJ0G0JlQLlJFA4wUqnrNc3c40bjsf5F
-	 yxEzabyzHiuX6fsxGJCR6rtfFRybHgLlO0Sl/+CXFxecdwFKUXZ7WGZ4hHL9cJl9pA
-	 3QDKYr3AhtNNg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/1] s390/zcrypt: Fix and improve zcrypt reply
- message verification checks
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Harald Freudenberger" <freude@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260908131817.17644-2-freude@linux.ibm.com>
-References: <20260908131817.17644-1-freude@linux.ibm.com>
- <20260908131817.17644-2-freude@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 13:37:28 +0000
-Message-Id: <20260908133729.2C8391F00A3F@smtp.kernel.org>
+	dkim=fail reason="signature verification failed" (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="ckTRe3AP"
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id DD33440E01E1;
+	Tue,  8 Sep 2026 13:56:23 +0000 (UTC)
+X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
+Received: from mail.alien8.de ([127.0.0.1])
+	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id 7AQVUOgIjxGA; Tue,  8 Sep 2026 13:56:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
+	t=1788875778; bh=kXNkLBcr+MG7BHJqeeHaLokvBdBeeMHnjUE3stY0luk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ckTRe3APsxV8zd3aHLDbRKowGC2zSniJAA24Kt5+oY7o0ve9PWKF5qzBPopM3MPzG
+	 nCHC8z+inSEFr65KsTY7v0y5Me+yxQN+yYGf0Kea05MstOcF30c+7CTOeWLs4WHaen
+	 saUDiKtXKzodmoUWrICUVq2iX5AeQy5l0ohpxjUzLl6c9IHXEVVo3SiU927VoT+/6x
+	 qAopQ5XI0Z3df6psiX43eUXujqenUV0SMfLOjXQ7iu+N/pdMO135Hu0uia3OiezG6F
+	 3BQXZyL9gEAYT0T8MlWNODVy867kXqXWDznQLaaS3hnYUtTHX7ZPkioJ+C661mIH9b
+	 ic/QzGZYvbQCTW7sP6SYp95dpERxWEEjf4GNtlzOSWbxOHiLn0RHmVPtvW4BYJoWvh
+	 c/tOCDFqYnvh5YFTyN9GfAK6l94m91l6GS5sSYV+wFiupKKyMLGl8CaK+9cb3cZoI4
+	 mlWKwNA2s4fKHKSubYMAlCtd8a2o6fUxhWShY9aLdMFEqUQwrJenLRWIpJ0ag8aYsb
+	 W3QKYQQmTp4Jjf5zXuVHiRwAluE432BXUeWt7qI0luGw7gKHWwuLMGnQL1MEHEyLdb
+	 ONqhiiI6fb2L7uOxLcZK3mU619FPi/FBNNiTWRBnrCXpLvKVraEnxfnW1PUmkkdke8
+	 34u7wSXUJmbuZU/MSeUYx8hM=
+Received: from stx.tnic (unknown [IPv6:2600:1700:38ca:c00::42])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	(No client certificate requested)
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 253D640E016C;
+	Tue,  8 Sep 2026 13:55:16 +0000 (UTC)
+Date: Tue, 8 Sep 2026 06:55:13 -0700
+From: Borislav Petkov <bp@alien8.de>
+To: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
+	Bill Wendling <morbo@google.com>,
+	Justin Stitt <justinstitt@google.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Vincenzo Frascino <vincenzo.frascino@arm.com>,
+	Kees Cook <kees@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	Alex Gaynor <alex.gaynor@gmail.com>, Gary Guo <gary@garyguo.net>,
+	=?utf-8?B?QmrDtnJu?= Roy Baron <bjorn3_gh@protonmail.com>,
+	Benno Lossin <lossin@kernel.org>,
+	Andreas Hindborg <a.hindborg@kernel.org>,
+	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Boqun Feng <boqun@kernel.org>, Nicolas Schier <nsc@kernel.org>,
+	linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
+	llvm@lists.linux.dev, linux-mm@kvack.org,
+	linux-um@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
+	linux-s390@vger.kernel.org, linux-mips@vger.kernel.org,
+	rust-for-linux@vger.kernel.org, linux-kbuild@vger.kernel.org,
+	Jan Stancek <jstancek@redhat.com>,
+	Arnaldo Carvalho de Melo <acme@redhat.com>,
+	Alexandre Ghiti <alexghiti@rivosinc.com>
+Subject: Re: [PATCH v5 02/24] x86/elf, um/x86/elf: Move relocation constants
+ to UAPI
+Message-ID: <20260908135513.GAaqATwXHcQD7plnH-@fat_crate.local>
+References: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de>
+ <20260908-vdso-absolute-reloc-v5-2-3a93791af1cf@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260908-vdso-absolute-reloc-v5-2-3a93791af1cf@linutronix.de>
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
+On Tue, Sep 08, 2026 at 08:33:36AM +0200, Thomas Wei=C3=9Fschuh wrote:
+> These constants are useful for cross-platform userspace, for example to
+> process ELF files during kernel cross-compilation.
+>=20
+> Move them from the kernel-private architecture-specific header to the U=
+API.
 
-New issues:
-- [High] Missing error code assignment (`msg->rc =3D -EMSGSIZE`) on short r=
-eplies leads to kernel memory disclosure in multiple message receive functi=
-ons.
+Why UAPI?
 
-Pre-existing issues:
-- [Medium] Incomplete length validation for CEXXC_RESPONSE_TYPE_XCRB allows=
- an out-of-bounds read of CPRBX fields in convert_type86_rng().
---
-
-commit 4aedb5baa8548df5ca01ec9ef8a55fbf780a7ee8
-Author: Harald Freudenberger <freude@linux.ibm.com>
-
-s390/zcrypt: Fix and improve zcrypt reply message verification checks
-
-Add or improve checks related to buffer sizes and reply sizes to the
-handling of replies from the crypto cards for CCA, EP11 (AP message
-type 6) and ICA (AP type 50) messages. The verification code related
-to reply field length was not designed well and thus firmware
-deficiencies could lead to unexpected behavior in the zcrypt device
-driver.
-
-> diff --git a/drivers/s390/crypto/zcrypt_msgtype50.c b/drivers/s390/crypto=
-/zcrypt_msgtype50.c
-> index d6fc2d8e7fad9..80c447ea2d839 100644
-> --- a/drivers/s390/crypto/zcrypt_msgtype50.c
-> +++ b/drivers/s390/crypto/zcrypt_msgtype50.c
-> @@ -416,26 +416,40 @@ static void zcrypt_msgtype50_receive(struct ap_queu=
-e *aq,
->  		.reply_code =3D REP82_ERROR_MACHINE_FAILURE,
->  	};
->  	struct type80_hdr *t80h;
-> -	int len;
-> +	size_t len;
-> =20
->  	/* Copy the reply message to the request message buffer. */
->  	if (!reply)
->  		goto out;	/* ap_msg->rc indicates the error */
-> +
->  	t80h =3D reply->msg;
-> -	if (t80h->type =3D=3D TYPE80_RSP_CODE) {
-> -		len =3D t80h->len;
-> -		if (len > reply->bufsize || len > msg->bufsize ||
-> -		    len !=3D reply->len) {
-> -			pr_debug("len mismatch =3D> EMSGSIZE\n");
-> -			msg->rc =3D -EMSGSIZE;
-> -			goto out;
-> -		}
-> -		memcpy(msg->msg, reply->msg, len);
-> -		msg->len =3D len;
-> -	} else {
-> -		memcpy(msg->msg, reply->msg, sizeof(error_reply));
-> +
-> +	if (reply->len < sizeof(*t80h) ||
-> +	    t80h->type !=3D TYPE80_RSP_CODE) {
-> +		if (reply->len < sizeof(error_reply))
-> +			memcpy(msg->msg, &error_reply, sizeof(error_reply));
-> +		else
-> +			memcpy(msg->msg, reply->msg, sizeof(error_reply));
->  		msg->len =3D sizeof(error_reply);
-> +		goto out;
-
-[Severity: High]
-Does this missing error code assignment on short replies inadvertently
-validate them?
-
-If the hardware sends a reply that is shorter than sizeof(*t80h) but has a
-valid success header, this early bailout catches it but fails to set msg->rc
-to an error code like -EMSGSIZE. Because the caller sees rc =3D=3D 0, it may
-parse the success header and read uninitialized/leftover memory from the
-request buffer, potentially leaking kernel memory to userspace.
-
-> +	}
-> +
-> +	len =3D t80h->len;
-
-[ ... ]
-
-> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/=
-zcrypt_msgtype6.c
-> index 3df1d676de5d8..b53801b0a9710 100644
-> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
-> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-> @@ -766,6 +766,13 @@ static int convert_type86_rng(struct zcrypt_queue *z=
-q,
-> =20
->  	if (msg->cprbx.ccp_rtcode !=3D 0 || msg->cprbx.ccp_rscode !=3D 0)
->  		return -EINVAL;
-
-[Severity: Medium]
-This isn't a bug introduced by this patch, but could this blindly access
-ccp_rtcode and ccp_rscode if the hardware sent a truncated reply?
-
-If a hardware or emulator responds to a CEXXC_RESPONSE_TYPE_XCRB request
-with a truncated message that satisfies the 51-byte minlen checked in
-zcrypt_msgtype6_receive(), but doesn't include the full CPRBX structure,
-these fields may contain leftover data from the request buffer.
-
-> +	/*
-> +	 * Note that offset2 and count2 have already been checked in
-> +	 * zcrypt_msgtype6_receive(). So only check for not exceeding
-> +	 * the hard coded rng buffer size.
-> +	 */
-> +	if (msg->fmt2.count2 > ZCRYPT_RNG_BUFFER_SIZE)
-> +		return -EMSGSIZE;
->  	memcpy(buffer, data + msg->fmt2.offset2, msg->fmt2.count2);
->  	return msg->fmt2.count2;
->  }
-
-[ ... ]
-
-> @@ -928,48 +935,80 @@ static void zcrypt_msgtype6_receive(struct ap_queue=
- *aq,
->  	};
->  	struct ap_response_type *resp_type =3D &msg->response;
->  	struct type86x_reply *t86r;
-> -	int len;
-> +	size_t minlen, len;
-> =20
->  	/* Copy the reply message to the request message buffer. */
->  	if (!reply)
->  		goto out;	/* ap_msg->rc indicates the error */
-> +
->  	t86r =3D reply->msg;
-> -	if (t86r->hdr.type =3D=3D TYPE86_RSP_CODE &&
-> -	    t86r->cprbx.cprb_ver_id =3D=3D 0x02) {
-> -		switch (resp_type->type) {
-> +	minlen =3D sizeof(t86r->hdr) + sizeof(t86r->fmt2) +
-> +		offsetof(struct CPRBX, cprb_ver_id) +
-> +		sizeof(t86r->cprbx.cprb_ver_id);
-
-[Severity: Medium]
-This isn't a bug introduced by this patch, but does this minlen check
-guarantee the rest of the CPRBX structure is present?
-
-This check ensures the message has a valid cprb_ver_id (51 bytes), but it
-might not guarantee the rest of the CPRBX structure is present before allow=
-ing
-the CEXXC_RESPONSE_TYPE_XCRB branch to succeed, potentially leading to the
-issue in convert_type86_rng() mentioned above.
-
-> +
-> +	if (reply->len < minlen ||
-> +	    t86r->hdr.type !=3D TYPE86_RSP_CODE ||
-> +	    t86r->cprbx.cprb_ver_id !=3D 0x02) {
-> +		if (reply->len < sizeof(error_reply))
-> +			memcpy(msg->msg, &error_reply, sizeof(error_reply));
-> +		else
-> +			memcpy(msg->msg, reply->msg, sizeof(error_reply));
-> +		msg->len =3D sizeof(error_reply);
-> +		goto out;
-
-[Severity: High]
-Does this missing error code assignment (msg->rc =3D -EMSGSIZE) similarly l=
-ead
-to unintended memory disclosures as in zcrypt_msgtype50_receive()?
-
-For ICA requests, convert_type86_ica() could use the leftover count1 to copy
-up to PAGE_SIZE bytes of the buffer back to userspace if the rc remains 0.
-
-> +	}
-> +
-> +	switch (resp_type->type) {
-
-[ ... ]
-
-> @@ -992,34 +1031,53 @@ static void zcrypt_msgtype6_receive_ep11(struct ap=
-_queue *aq,
->  	};
->  	struct ap_response_type *resp_type =3D &msg->response;
->  	struct type86_ep11_reply *t86r;
-> -	int len;
-> +	size_t minlen, len;
-> =20
->  	/* Copy the reply message to the request message buffer. */
->  	if (!reply)
->  		goto out;	/* ap_msg->rc indicates the error */
-> +
->  	t86r =3D reply->msg;
-> -	if (t86r->hdr.type =3D=3D TYPE86_RSP_CODE &&
-> -	    t86r->cprbx.cprb_ver_id =3D=3D 0x04) {
-> -		switch (resp_type->type) {
-> +	minlen =3D sizeof(t86r->hdr) + sizeof(t86r->fmt2) +
-> +		offsetof(struct ep11_cprb, cprb_ver_id) +
-> +		sizeof(t86r->cprbx.cprb_ver_id);
-> +
-> +	if (reply->len < minlen ||
-> +	    t86r->hdr.type !=3D TYPE86_RSP_CODE ||
-> +	    t86r->cprbx.cprb_ver_id !=3D 0x04) {
-> +		if (reply->len < sizeof(error_reply))
->  			memcpy(msg->msg, &error_reply, sizeof(error_reply));
-> -			msg->len =3D sizeof(error_reply);
-> -		}
-> -	} else {
-> -		memcpy(msg->msg, reply->msg, sizeof(error_reply));
-> +		else
-> +			memcpy(msg->msg, reply->msg, sizeof(error_reply));
->  		msg->len =3D sizeof(error_reply);
-> +		goto out;
-
-[Severity: High]
-Could this logic omit setting the error code for short EP11 messages as wel=
-l?
-
-Bypassing length validation here may similarly allow uninitialized buffer
-reads.
-
->  	}
-> +
-> +	switch (resp_type->type) {
+Why not include/linux/ ?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908131817.1764=
-4-1-freude@linux.ibm.com?part=3D1
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
