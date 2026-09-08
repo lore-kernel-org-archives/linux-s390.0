@@ -1,127 +1,160 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 765BE5581E5;
-	Tue,  8 Sep 2026 13:56:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1D945592F0;
+	Tue,  8 Sep 2026 13:58:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788875797; cv=none; b=l5vBVMFuK8ZYhADbsM/BiS1RyimLA/j6Zi/nrVrlutttpE3DlaE95wyfSnfblBIk+pg6v4mRxImGJYaRkujS7pnOkUWd+VfqR773KnJtGcsWU78PosC7GEXqqNjxqXUbjo6HyHZgU0JDKbaayyfvEUeQCvJLSOYjHQVBRyZcr6Y=
+	t=1788875953; cv=none; b=uHC6BRPNLFrzbP+xg+DPALVLQmAwGwnvxQ3JgHFztMaAoKWA4GyMmh1E4MVNJIznsW3FqyTwVYuY9e5vuBarItpEdmpSc/ZG+vLXWYiJIjsidWKe1AdPhRWOcdX8H52uq0enePoyUi6FDfgjCo8PcmmtXTZZoanLzOGJ38Os6Ec=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788875797; c=relaxed/simple;
-	bh=3GhasZEbt8NBvKiXdHgvjM+VMuOEV7WWgVkvCeM6fog=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HgSpcUim54QXG6Bx1PcJRC4vSDSuKR1lBouBIBrSyiq1Tx4yJXPAYHSiDcDKhKOr8H9G7hwjILUIGOWpXTyCys/4i7wP7xK7Tb9PxqeXFuFxmhEx4lJmlyIygTIaMNCblbqy0MFCTKfyNDdlp12zjAYEEsc0JlwcUuux6rT/EZA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=fail (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=ckTRe3AP reason="signature verification failed"; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	s=arc-20240116; t=1788875953; c=relaxed/simple;
+	bh=bZJtJCOAOgV0u3xemrFTs11xz8hf4sJwrOt5eIn7Cic=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=i1emBHt0yvnLrBiolOGeLHzTZ62LpazOrjRzobxMzo+veuqawH8+3HY9kdPuFgVFVZ5hHbqGbw5kml65ovT/ECNBuh0P9LOKXsYKtdcFpbgNdBgn27T7zAH8D0oiA+z2o50hePM2SRexhhUbM4NRimKD6r0ddVkfJ+/soY5CXJ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=G7X5SwGz; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="signature verification failed" (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="ckTRe3AP"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id DD33440E01E1;
-	Tue,  8 Sep 2026 13:56:23 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id 7AQVUOgIjxGA; Tue,  8 Sep 2026 13:56:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1788875778; bh=kXNkLBcr+MG7BHJqeeHaLokvBdBeeMHnjUE3stY0luk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ckTRe3APsxV8zd3aHLDbRKowGC2zSniJAA24Kt5+oY7o0ve9PWKF5qzBPopM3MPzG
-	 nCHC8z+inSEFr65KsTY7v0y5Me+yxQN+yYGf0Kea05MstOcF30c+7CTOeWLs4WHaen
-	 saUDiKtXKzodmoUWrICUVq2iX5AeQy5l0ohpxjUzLl6c9IHXEVVo3SiU927VoT+/6x
-	 qAopQ5XI0Z3df6psiX43eUXujqenUV0SMfLOjXQ7iu+N/pdMO135Hu0uia3OiezG6F
-	 3BQXZyL9gEAYT0T8MlWNODVy867kXqXWDznQLaaS3hnYUtTHX7ZPkioJ+C661mIH9b
-	 ic/QzGZYvbQCTW7sP6SYp95dpERxWEEjf4GNtlzOSWbxOHiLn0RHmVPtvW4BYJoWvh
-	 c/tOCDFqYnvh5YFTyN9GfAK6l94m91l6GS5sSYV+wFiupKKyMLGl8CaK+9cb3cZoI4
-	 mlWKwNA2s4fKHKSubYMAlCtd8a2o6fUxhWShY9aLdMFEqUQwrJenLRWIpJ0ag8aYsb
-	 W3QKYQQmTp4Jjf5zXuVHiRwAluE432BXUeWt7qI0luGw7gKHWwuLMGnQL1MEHEyLdb
-	 ONqhiiI6fb2L7uOxLcZK3mU619FPi/FBNNiTWRBnrCXpLvKVraEnxfnW1PUmkkdke8
-	 34u7wSXUJmbuZU/MSeUYx8hM=
-Received: from stx.tnic (unknown [IPv6:2600:1700:38ca:c00::42])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
-	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 253D640E016C;
-	Tue,  8 Sep 2026 13:55:16 +0000 (UTC)
-Date: Tue, 8 Sep 2026 06:55:13 -0700
-From: Borislav Petkov <bp@alien8.de>
-To: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Vincenzo Frascino <vincenzo.frascino@arm.com>,
-	Kees Cook <kees@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Richard Weinberger <richard@nod.at>,
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-	Johannes Berg <johannes@sipsolutions.net>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>, Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Miguel Ojeda <ojeda@kernel.org>,
-	Alex Gaynor <alex.gaynor@gmail.com>, Gary Guo <gary@garyguo.net>,
-	=?utf-8?B?QmrDtnJu?= Roy Baron <bjorn3_gh@protonmail.com>,
-	Benno Lossin <lossin@kernel.org>,
-	Andreas Hindborg <a.hindborg@kernel.org>,
-	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Christophe Leroy <chleroy@kernel.org>,
-	Boqun Feng <boqun@kernel.org>, Nicolas Schier <nsc@kernel.org>,
-	linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
-	llvm@lists.linux.dev, linux-mm@kvack.org,
-	linux-um@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
-	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev,
-	linux-s390@vger.kernel.org, linux-mips@vger.kernel.org,
-	rust-for-linux@vger.kernel.org, linux-kbuild@vger.kernel.org,
-	Jan Stancek <jstancek@redhat.com>,
-	Arnaldo Carvalho de Melo <acme@redhat.com>,
-	Alexandre Ghiti <alexghiti@rivosinc.com>
-Subject: Re: [PATCH v5 02/24] x86/elf, um/x86/elf: Move relocation constants
- to UAPI
-Message-ID: <20260908135513.GAaqATwXHcQD7plnH-@fat_crate.local>
-References: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de>
- <20260908-vdso-absolute-reloc-v5-2-3a93791af1cf@linutronix.de>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="G7X5SwGz"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 688D1Val966810;
+	Tue, 8 Sep 2026 13:58:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=+a7HwRmXbItxlGjm4Y7u5hDFhYq/CU7cfq0FvCIrd
+	R4=; b=G7X5SwGzL5FNhNmpKWI2BF9jAhfXU0Ix+ZScg3VZOT5Q+HPJVQ+yKNLVm
+	GmuOWBbiRLOenCHvR/8aL39y556n/Jg3XoV10l1ROae+EgwEoq35qwn7xo6bnx4j
+	kBQB/gCl55ei8L8SfGxpUgTcWi+Mfi7Gk+XpX3lZim4DWjaYZKmvGN9LXjHunT69
+	Zf0xsZZwqasAzFq+t/SZneGQQR62ENONvhmSCwC4EdxyUrRyeF9wMI5dtyrXk92t
+	V1ybZaCQDSLqWTf5heQOfq8mgj+4rz4Q54oOxRSdFo7NGw436/LN4ZCOGSFZWYJs
+	9600Pllm05Xel/MTCxLwJ2WQTR+Sg==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4ggbf3ybr8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 08 Sep 2026 13:58:53 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 688DuDbp011292;
+	Tue, 8 Sep 2026 13:58:52 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4ggwsw49d0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 08 Sep 2026 13:58:52 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 688DwlcI42991938
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 8 Sep 2026 13:58:47 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CCA3C20043;
+	Tue,  8 Sep 2026 13:58:47 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 89DAB20040;
+	Tue,  8 Sep 2026 13:58:47 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  8 Sep 2026 13:58:47 +0000 (GMT)
+From: Jan Polensky <japo@linux.ibm.com>
+To: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com
+Cc: borntraeger@linux.ibm.com, svens@linux.ibm.com, ciunas@linux.ibm.com,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2] s390/rwlock: Add contention tracepoints to rwlock slowpath
+Date: Tue,  8 Sep 2026 15:58:43 +0200
+Message-ID: <20260908135843.1384367-1-japo@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260908-vdso-absolute-reloc-v5-2-3a93791af1cf@linutronix.de>
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: WabEUFDeeqN6OHigmuxnbHO7Eyh05LkF
+X-Proofpoint-GUID: WabEUFDeeqN6OHigmuxnbHO7Eyh05LkF
+X-Authority-Analysis: v=2.4 cv=DbEnbPtW c=1 sm=1 tr=0 ts=6aa0149d cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=JY_O3_BXcsAUf05eb4EA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTA4MDE0NSBTYWx0ZWRfX0J4rEKPFs4sr
+ uaz2l5CVyy6c5eiFIdp3QOFko7q33KcjpEElTXblUN64WFMme9UcgRF744Xa8qO/a73l5/GBo4G
+ +LEZtckjA7hG15hOIXLEd60kwqQ18c/rDfFiQG2oWUWzFYg3rLP7f6LZQCrJ4ob83FzIgQe0laC
+ 8xBjJXxZMUGwbIIIb9Tv8/Gvb1vzZz+lxbT+3fGmecTpc93uScwvA7jOgmDGtvqDU5RAwREVGAS
+ ek+eTNzynSaw7eFpWyNrb1ivkVXDKkX80vtCyQpIoYMRM1wu4WXdPFYwo4zxOKnveB92u3V9EGS
+ LWpby0o3qZi1S9TjHAM9eTkMCBsnhqX7BUx5vnlPCfQ2MyJmnfufv9F4jBHzwNDR4qfqeALnLsq
+ YrxH00161iEu/UhaHU17MoSRc+4OWLwzji1siDRW+2h2JVX5Wn8nWlP93qXOvuFcKnF2gKI4FPz
+ 6FLSJ3W5k9qtPup0uYA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTA4MDE0NSBTYWx0ZWRfX+w6JNyZ6bRnp
+ ubE3mDvoRP5W0enAbNhPDbAikz+UgT/lLsLqIb57eX858wy8vX+y0wKleo0qD9RaTLaX6ZG0eja
+ fS9cyxaH/cCDqqiInUjcGusdlt5wCwQ=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-08_02,2026-09-08_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 priorityscore=1501 impostorscore=0 adultscore=0 spamscore=0
+ clxscore=1015 suspectscore=0 bulkscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2609080145
 
-On Tue, Sep 08, 2026 at 08:33:36AM +0200, Thomas Wei=C3=9Fschuh wrote:
-> These constants are useful for cross-platform userspace, for example to
-> process ELF files during kernel cross-compilation.
->=20
-> Move them from the kernel-private architecture-specific header to the U=
-API.
+Instrument arch_read_lock_wait() and arch_write_lock_wait() with
+trace_contention_begin() and trace_contention_end().
 
-Why UAPI?
+These tracepoints are used by lock contention analysis tools such as
+perf lock contention to identify contended rwlocks and measure wait
+times. The generic implementation in kernel/locking/qrwlock.c already
+emits the same events from its read and write slowpaths.
 
-Why not include/linux/ ?
+For arch_read_lock_wait(), the in_interrupt() fast-path is intentionally
+left outside the tracepoint scope. That path spins without entering the
+wait queue, so it does not represent queue-based contention and its
+duration is not comparable to the normal slowpath. This matches the
+behaviour of queued_read_lock_slowpath() in qrwlock.c.
 
---=20
-Regards/Gruss,
-    Boris.
+The include for <trace/events/lock.h> is already present from
+commit ffa796cc1f45 ("s390/spinlock: Add contention tracepoints to
+lock slowpath").
 
-https://people.kernel.org/tglx/notes-about-netiquette
+Signed-off-by: Jan Polensky <japo@linux.ibm.com>
+---
+v1 -> v2:
+- Fix tracepoint placement in arch_read_lock_wait() to avoid recursion deadlocks.
+
+ arch/s390/lib/spinlock.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/s390/lib/spinlock.c b/arch/s390/lib/spinlock.c
+index dbabca35c008..c84991a1be20 100644
+--- a/arch/s390/lib/spinlock.c
++++ b/arch/s390/lib/spinlock.c
+@@ -318,6 +318,7 @@ void arch_read_lock_wait(arch_rwlock_t *rw)
+
+ 	/* Remove this reader again to allow recursive read locking */
+ 	__atomic_add_const(-1, &rw->cnts);
++	trace_contention_begin(rw, LCB_F_SPIN | LCB_F_READ);
+ 	/* Put the reader into the wait queue */
+ 	arch_spin_lock(&rw->wait);
+ 	/* Now add this reader to the count value again */
+@@ -326,6 +327,7 @@ void arch_read_lock_wait(arch_rwlock_t *rw)
+ 	while (READ_ONCE(rw->cnts) & 0x10000)
+ 		barrier();
+ 	arch_spin_unlock(&rw->wait);
++	trace_contention_end(rw, 0);
+ }
+ EXPORT_SYMBOL(arch_read_lock_wait);
+
+@@ -333,6 +335,7 @@ void arch_write_lock_wait(arch_rwlock_t *rw)
+ {
+ 	int old;
+
++	trace_contention_begin(rw, LCB_F_SPIN | LCB_F_WRITE);
+ 	/* Add this CPU to the write waiters */
+ 	__atomic_add(0x20000, &rw->cnts);
+
+@@ -349,6 +352,7 @@ void arch_write_lock_wait(arch_rwlock_t *rw)
+ 	}
+
+ 	arch_spin_unlock(&rw->wait);
++	trace_contention_end(rw, 0);
+ }
+ EXPORT_SYMBOL(arch_write_lock_wait);
+
+--
+2.53.0
+
