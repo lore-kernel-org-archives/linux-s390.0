@@ -1,45 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D24025EF87;
-	Tue,  8 Sep 2026 05:50:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D20DF37F8C3;
+	Tue,  8 Sep 2026 05:51:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788846619; cv=none; b=JY1iwsc20ZAe6VNRtNU7m2TULi5rMxF0kkn688Ew+Tx0ygQTrKw2QH92Tmmat7vaQ7eHMLovvsJIe4/zcg8Kfa/dWY1df79+70LAkvigXewrtLviR49fCmBMaMNECoPGgJLeHdeEN8v0V9gb4ObXR5GsIkyblfWphLmA8YZbQy8=
+	t=1788846711; cv=none; b=u98tFt7GfWAv6pOvn70DgRuYcHV4UfgTdsjm2nmSBF9N/WsfYcpJAEFfEznPrPtez/j3NVtz7tHrCxdPG6nNkTGHBOd4Zzh3FPnyDxu4oC/U0Q0CT2TEAO9tkgsouSshAYfDnHBz/lplItRwZfpGeeaAv9fW/PAZPsoYtRhCY3s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788846619; c=relaxed/simple;
-	bh=GjiX5ZpZ7NZD4YDBwlWMBeINCHTLmJt67Qr7uMuDcM4=;
+	s=arc-20240116; t=1788846711; c=relaxed/simple;
+	bh=OwB/eT4bbpJG64S+bIEyw2qbVoQ3OzIelzPB6ZVRSr0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=KAjETTvaVLPGUL7QG9ZC84nNVfrkvNcookAT1YvDXfleYwHa8zSLcK3MefPLMEhwIenxcroyknPG76cqx4XvxqCCalL2j+WLcQZfdGA8H4Tsdl2BsuCOYiiOX46XkcXdiyiME6HV42sprb0gLNWX1h0QHCnEvXkfvdFOo16RJe0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OpzaG6mz; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=KTv2PKR4qUK1ajvSqCN+RKwLBkK/5eoqfsQbR20eXuX7hcS0TESQ9yRTC1R8BioPrJxGZa2lV+oZWTLX87uAG4HPCC6FYsgQoxl0KgoILW8NWKyaMW4oPDoIiQFgyC4Yf8UOJCyRl4bGKaIQ1nfMavs2dl97+5f4CBGsQ4Sx2es=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n06WYkQj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OpzaG6mz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70F841F00A3A;
-	Tue,  8 Sep 2026 05:50:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n06WYkQj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B600D1F00A3F;
+	Tue,  8 Sep 2026 05:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788846618;
-	bh=+HdsQhUguVzCfg5c05nZeUPLgws28G3DkRXCxIkyvlg=;
+	s=k20260515; t=1788846709;
+	bh=ly+qtwtWNEfXvsOk8yhjt5DKACS0dSQy5XKEW5+XSe8=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=OpzaG6mzuq9yrRVXSWOCHZOGnJhZyl+UPxg/iipVuYyC5NUot7DMSVXCsUAk7+9dU
-	 bq1lPjxMDtlIFynqQFHHhigpsARmT7iUG+a5r8Z1nDKnMAEjuUTxE8sTW3CsO86Ow4
-	 C0MOInK/DNTNTQYmyEd2Egz7ZT676P7kKSnVsp2RLej2bQYdn9y9VLl0xSUv7JLnn0
-	 h8W+vunAA5tzUzaA5IYtUQpQ5hXzp/tSl+xQzpA/stpOjRxMlm82Nr50jZlo0jOK3n
-	 JAI+QBID3bn/fylXxMFWEpJl03626j/4NcmQH+CJW06Giyng4wyk6zrlXQoSQDj9lD
-	 zgVFJIkeCvmZg==
+	b=n06WYkQjJq1zJKJaLlf26u9qp8zXbMknl61OsfEirEPCOvHwOKs32L3oTaZt+/2S+
+	 Ge0UbG85ne+mh3/inRL4fSfx3wxFMOmyH/jGSeQpkAxKFIAyBYRMBiKoQmxWpvSRUQ
+	 9eHwyFn7A+gSBqfhtLVV6MTg4eFPMvf7/zKOuqQaNXXrGRMgGsOVLLg9u24QitIEPI
+	 33aR6TWX09TLArBQqby+B+aGs81oMNEAeDdZJNSngFAorkRpJjm3YhmVrUfHfaig1K
+	 dS/LWhPt5voIFYE0yDRv0NGS6fP86yv8j1CmSWVuq6Xahf5fEE0CrOhz0Atqt8l83o
+	 WRywK84fZGaSQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 4/6] um: virtio_uml: implement synchronize_cbs()
+Subject: Re: [PATCH v3 2/6] virtio_ccw: always take irq_lock in the classic
+ interrupt handler
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Karl Mehltretter" <kmehltretter@gmail.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260908053817.26065-5-kmehltretter@gmail.com>
+Cc: dmitry.torokhov@gmail.com, "Christian Borntraeger" <borntraeger@linux.ibm.com>, kvm@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <20260908053817.26065-3-kmehltretter@gmail.com>
 References: <20260908053817.26065-1-kmehltretter@gmail.com>
- <20260908053817.26065-5-kmehltretter@gmail.com>
+ <20260908053817.26065-3-kmehltretter@gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 05:50:16 +0000
-Message-Id: <20260908055017.70F841F00A3A@smtp.kernel.org>
+Date: Tue, 08 Sep 2026 05:51:48 +0000
+Message-Id: <20260908055148.B600D1F00A3F@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,116 +51,85 @@ Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
 
 Pre-existing issues:
-- [High] Premature clearing of dynamically allocated IRQ bit in um_free_irq=
-() causes unintended IRQ sharing and race conditions.
-- [High] Resource leak and potential Use-After-Free on vhost_user_init() er=
-ror path.
+- [High] The virtio interrupt handlers pass retrieved virtqueue pointers di=
+rectly to `vring_interrupt()` without a NULL check. A malicious or buggy ho=
+st can trigger a kernel panic by providing an invalid indicator or interrup=
+t vector.
+- [High] Lost configuration change notifications due to clearing the indica=
+tor bit after processing.
 --
 
-commit 88d671cc22ee3a67541ca7191122aa3e1f6d8c9f
+commit 40545ed73d4381a07a7934fddf3ac60ecd1f90d7
 Author: Karl Mehltretter <kmehltretter@gmail.com>
+Subject: virtio_ccw: always take irq_lock in the classic interrupt handler
 
-um: virtio_uml: implement synchronize_cbs()
+This commit unconditionally takes the read lock on vcdev->irq_lock in=20
+virtio_ccw_int_handler() so the write side can properly synchronize with
+the callbacks even when notification hardening is disabled.
 
-This commit implements synchronize_cbs() for virtio_uml by using
-synchronize_irq() instead of waiting for an RCU grace period. This
-synchronizes with the IRQ handlers used by virtqueue callbacks.
-
-> diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
-> index 7425a8548141a..1f2e62e29a277 100644
-> --- a/arch/um/drivers/virtio_uml.c
-> +++ b/arch/um/drivers/virtio_uml.c
-
-[ ... ]
-
-> @@ -869,6 +870,14 @@ static void vu_reset(struct virtio_device *vdev)
->  	vu_dev->status =3D 0;
->  }
-> =20
-> +static void vu_synchronize_cbs(struct virtio_device *vdev)
-> +{
-> +	struct virtio_uml_device *vu_dev =3D to_virtio_uml_device(vdev);
-> +
-> +	if (vu_dev->irq !=3D UM_IRQ_ALLOC)
-> +		synchronize_irq(vu_dev->irq);
-> +}
-> +
->  static void vu_del_vq(struct virtqueue *vq)
->  {
->  	struct virtio_uml_vq_info *info =3D vq->priv;
-
-[Severity: High]
-This isn't a bug introduced by this patch, but it is a pre-existing issue in
-the codebase.=20
-
-When a virtqueue is deleted during teardown, vu_del_vq() calls
-um_free_irq(vu_dev->irq, vq) to remove the callback for that specific queue=
-.=20
-
-However, looking at um_free_irq() in arch/um/kernel/irq.c, it lacks referen=
-ce
-counting and unconditionally clears the dynamically allocated IRQ bit:
-
-arch/um/kernel/irq.c:um_free_irq() {
-	free_irq(irq, dev);
-	clear_bit(irq, irqs_allocated);
-}
-
-Since virtio_uml shares a single dynamically allocated IRQ (vu_dev->irq)
-across multiple virtqueues and the slave request channel using IRQF_SHARED,
-could this premature clearing of the IRQ bit mark it as free for global
-reallocation while still in use?=20
-
-It seems concurrent requests for a new dynamic IRQ from other devices could=
- be
-assigned this prematurely freed IRQ, resulting in unintended forced sharing=
- or
--EBUSY probe failures.
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virti=
+o_ccw.c
+> index b90299205698b..552d779980129 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -1204,13 +1204,11 @@ static void virtio_ccw_int_handler(struct ccw_dev=
+ice *cdev,
 
 [ ... ]
 
+>  	for_each_set_bit(i, indicators(vcdev),
+>  			 sizeof(*indicators(vcdev)) * BITS_PER_BYTE) {
+>  		/* The bit clear must happen before the vring kick. */
+> @@ -1219,9 +1217,7 @@ static void virtio_ccw_int_handler(struct ccw_devic=
+e *cdev,
+>  		vq =3D virtio_ccw_vq_by_ind(vcdev, i);
+>  		vring_interrupt(0, vq);
+
 [Severity: High]
-This is also a pre-existing issue, but there appears to be a resource leak
-and potential use-after-free in the probe error path of virtio_uml.
+This is a pre-existing issue, but is it possible for virtio_ccw_vq_by_ind()
+to return a NULL virtqueue pointer if a malicious or buggy host provides an
+invalid indicator?
 
-In virtio_uml_probe(), vhost_user_init() is called. If the slave request
-channel is negotiated, vhost_user_init_slave_req() creates a pipe, assigns
-req_fds[0] to vu_dev->req_fd, and requests an IRQ handler via
-um_request_irq_tt():
+Passing an unvalidated NULL pointer directly to vring_interrupt() can cause=
+ a
+kernel panic when it is dereferenced inside more_used():
 
-arch/um/drivers/virtio_uml.c:vhost_user_init() {
-	if (vu_dev->protocol_features &
-			BIT_ULL(VHOST_USER_PROTOCOL_F_SLAVE_REQ)) {
-		rc =3D vhost_user_init_slave_req(vu_dev);
-		if (rc)
-			return rc;
-	}
-
-	if (vu_dev->protocol_features &
-			BIT_ULL(VHOST_USER_PROTOCOL_F_MQ)) {
-		rc =3D vhost_user_get_queue_num(vu_dev, &vu_dev->max_vqs);
-		if (rc)
-			return rc;
+drivers/virtio/virtio_ring.c:vring_interrupt() {
+    ...
+    if (!more_used(vq)) {
+        pr_debug("virtqueue interrupt with no work for %p\n", vq);
+    ...
 }
 
-If a subsequent step like vhost_user_get_queue_num() fails, it returns the
-error code directly. Back in virtio_uml_probe(), the error path is taken:
+Similarly, in virtio_airq_handler(), airq_iv_get_ptr() can return NULL which
+is unconditionally passed to vring_interrupt().
 
-arch/um/drivers/virtio_uml.c:virtio_uml_probe() {
-error_init:
-	os_close_file(vu_dev->sock);
-error_free:
-	kfree(vu_dev);
-	return rc;
-}
+Could we add a NULL check before calling the interrupt handler?
 
-Does this error path free vu_dev without unregistering the active IRQ
-handler or closing the vu_dev->req_fd file descriptor?=20
+>  	}
+> -#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
+>  	read_unlock(&vcdev->irq_lock);
+> -#endif
+>  	if (test_bit(0, indicators2(vcdev))) {
+>  		virtio_config_changed(&vcdev->vdev);
+>  		clear_bit(0, indicators2(vcdev));
+>  	}
 
-If an untrusted userspace backend forces the probe to fail, could the leaked
-IRQ handler subsequently fire and access the freed vu_dev memory, causing a
-use-after-free?
+[Severity: High]
+This isn't a bug introduced by this patch, but could this sequence lead to
+lost configuration change notifications?
+
+Because indicators2 is shared DMA memory updated by the host, if the host
+triggers another configuration change in the window between test_bit() and
+clear_bit(), it sets the bit in memory and raises a new interrupt.
+
+However, the guest will then blindly execute clear_bit() and wipe out the
+newly set notification flag. When the newly queued interrupt handler runs,
+it will find the bit cleared and do nothing, permanently losing the event.
+
+Would using test_and_clear_bit() before calling virtio_config_changed()
+close this race window?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908053817.2606=
-5-1-kmehltretter@gmail.com?part=3D4
+5-1-kmehltretter@gmail.com?part=3D2
