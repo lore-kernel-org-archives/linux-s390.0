@@ -1,32 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6A884A49A7
-	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 11:36:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 669684C6815
+	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 11:47:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788867369; cv=none; b=LmNeUd7OB91Th7JJyyetWzXQKmPa60hZvggIhaoB+Dum6LD3SBGc3h4HDjji4s7fETj1pU0dNm7P0ogEENGb78X5BWO02Y+qPjYMFU0MUa0sD1bxOwrJyJE/YesHumyw/2PR8wI8xFBKC0FC81eZXEjGPX02oAsR8eDK6EBh6+8=
+	t=1788868069; cv=none; b=Ac2WV0n2oNm0NU8TNWHweba8So2ZjB7A/1TQ5gcgz+GR0D//zJ2iJ8GPQJNde91lMDyS4kQlr+Z3MUJuu3S6qIVZEVj2HBLOOA80zefyhHm9fNJPrACoA+dC69sECn/LcVMk9NoTuwBrb58XaK/gKCXj0Qj+4yiTfq56LAFyviY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788867369; c=relaxed/simple;
-	bh=mmni438exKznkBgfvzOXz7KYUn3e+o2EoMQaU1zJJ6Y=;
+	s=arc-20240116; t=1788868069; c=relaxed/simple;
+	bh=gcuPsISrSPewD9pluTq1mY4nVU4KM02XIEoCoDGKvQk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=i5A1orXtEF2spY3ogOQPhCMO76xZ4v9Dl5AEa6d9CBdnHEqRuMvOq4a6dBeQsihPl9yfyqht2KmsshtWq73Plmsg56jBnoh5DK7OQXJHb6pvtPA+Ir54Z5nPcFYI6Y7S9KW+Tbz8tY7X9JAIY+1gfkYqcDZytIMCF5w9Wr6erA0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9579C1F00A3A;
-	Tue,  8 Sep 2026 11:36:01 +0000 (UTC)
+	 Message-Id; b=JmymP5s2bbpQRniK4up4muAVZee9N3Y/NrZWmr0k/ZIJ0kHUGGxBZCnYFRrZdFaXVONhTiaf54N1JK/0+hKniEw3zdEwqiSXp1+djXCwzKbrG/G+OkGQ/5lCG7tUDGQXyDYOlfxJnIFWDkH0uA2yJKkI7E1S/BxooB+bk1SKTgE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mkZPVBpM; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mkZPVBpM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 481841F00A3A;
+	Tue,  8 Sep 2026 11:47:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788868063;
+	bh=EjDmFyf38QZBeT5N8ew4uhOcmJUKMoOri8aOtQHO2Qg=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=mkZPVBpMhb/LJTVOi+Cq+zDBX4hPKmD8H688vP1YYc+4+W2fCQ+ue9G4pDBqYfQ7K
+	 EXO6nj+6LuX1EKZJMXEuW8R+RcaXwG5TkAlF0JCMVkyKEPTif7VJy8/5pMQ5EL8S7s
+	 SOmvXYThwDUJ708Nryb5pTLag+FjIl6W4IGcdl7xgCt6tEUkfF9FncIXplHQsFgFHM
+	 t+H7RdMblcR9z2ifdK8eZOeABnXfC/Jl5FtZUw/teN/+GxAqNnJdZ2nDPPjBS6TTQz
+	 zNW9qyRLku+yvhd6ItdQC+/7V51N2LFh6TUV4e4wZLwCVbaxcfOFi0dUEAyOuoPr91
+	 JbVNgmEfQH/Yg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] s390/rwlock: Add contention tracepoints to rwlock
- slowpath
+Subject: Re: [PATCH net v2] net/smc: fix abort_work termination in
+ smc_conn_free()
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jan Polensky" <japo@linux.ibm.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260908112607.828469-1-japo@linux.ibm.com>
-References: <20260908112607.828469-1-japo@linux.ibm.com>
+To: "Hidayath Khan" <hidayath@linux.ibm.com>
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260907114721.1303498-1-hidayath@linux.ibm.com>
+References: <20260907114721.1303498-1-hidayath@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 08 Sep 2026 11:36:01 +0000
-Message-Id: <20260908113601.9579C1F00A3A@smtp.kernel.org>
+Date: Tue, 08 Sep 2026 11:47:42 +0000
+Message-Id: <20260908114743.481841F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,55 +48,79 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] Calling trace_contention_begin() before decrementing the tentative=
- reader count exacerbates lock contention by blocking writers and risks dea=
-dlocks on recursive tracing.
+
+Pre-existing issues:
+- [Critical] Late-queued `tx_work` can execute on a freed socket because it=
+ does not hold a socket reference, causing a use-after-free.
 --
 
-commit 9f56bec8e5a4a2cdb518e49ae0095e4ddfeee5e0
-Author: Jan Polensky <japo@linux.ibm.com>
+commit ea8d2d358addfe3a2e07acf0170476ee1325ff01
+Author: Hidayath Khan <hidayath@linux.ibm.com>
 
-s390/rwlock: Add contention tracepoints to rwlock slowpath
+net/smc: fix abort_work termination in smc_conn_free()
 
-This commit instruments arch_read_lock_wait() and arch_write_lock_wait()
-with lock contention tracepoints on s390. This aims to support lock
-contention analysis tools like perf by identifying contended rwlocks and
-measuring wait times.
+This commit addresses deadlocks, reference leaks, and late-queued work races
+related to abort_work in smc_conn_free(). It drops the socket lock around
+cancel_work_sync() and uses a freed flag to prevent late-queued work from
+processing a destroyed connection.
 
-> diff --git a/arch/s390/lib/spinlock.c b/arch/s390/lib/spinlock.c
-> index dbabca35c008c..9094617a5e00b 100644
-> --- a/arch/s390/lib/spinlock.c
-> +++ b/arch/s390/lib/spinlock.c
-> @@ -316,6 +316,7 @@ void arch_read_lock_wait(arch_rwlock_t *rw)
->  		return;
->  	}
-> =20
-> +	trace_contention_begin(rw, LCB_F_SPIN | LCB_F_READ);
->  	/* Remove this reader again to allow recursive read locking */
->  	__atomic_add_const(-1, &rw->cnts);
+Link: https://lore.kernel.org/netdev/20260806081549.595001-1-hidayath@linux=
+.ibm.com/
 
-[Severity: High]
-Does placing trace_contention_begin() before decrementing the tentative
-reader count risk a deadlock?
-
-If a reader enters arch_read_lock_wait() while a writer is waiting, the
-reader has already incremented the lock's read count. If a trace probe
-attached to trace_contention_begin() recursively acquires the same read
-lock, it will enter arch_read_lock_wait(), decrement its own count, and
-block on arch_spin_lock(&rw->wait).
-
-Simultaneously, the waiting writer holds the rw->wait spinlock and spins
-forever waiting for the outer reader's count to drop to zero. The inner
-reader spins forever waiting for the writer to release rw->wait, forming
-an ABBA deadlock.
-
-Even without recursive tracing, does holding the elevated reader count
-during the tracepoint unnecessarily delay waiting writers? The generic
-queued_read_lock_slowpath() appears to decrement the count before
-executing the tracepoint to avoid this issue.
-
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index 04aedd957543a..9a109eae73b92 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
 [ ... ]
+> @@ -1276,8 +1295,7 @@ void smc_conn_free(struct smc_connection *conn)
+>  			smcd_buf_detach(conn);
+>  	} else {
+>  		smc_cdc_wait_pend_tx_wr(conn);
+> -		if (current_work() !=3D &conn->abort_work)
+> -			cancel_work_sync(&conn->abort_work);
+> +		smc_conn_cancel_abort_work(conn);
+
+[Severity: Critical]
+This is a pre-existing issue, but while fixing the exact same design flaw f=
+or
+abort_work, does this leave tx_work vulnerable to a similar late-queue race?
+
+If a local user closes an SMC socket, smc_close_cancel_work() cancels tx_wo=
+rk.
+However, before the socket is fully destroyed, a remote peer sending a CDC
+message (or a local user reading spliced data triggering
+smc_rx_pipe_buf_release()) can cause the incoming message handler
+smc_cdc_msg_recv_action() to call smc_tx_pending(). This can re-queue the w=
+ork
+after it was cancelled:
+
+net/smc/smc_tx.c:smc_tx_consumer_update() {
+    ...
+    queue_delayed_work(conn->lgr->tx_wq, &conn->tx_work, SMC_TX_WORK_DELAY);
+    ...
+}
+
+Because tx_work does not hold a socket reference, it can be queued late and
+outlive the socket. If the socket destruction completes and frees the socke=
+t,
+and then tx_work expires and executes, it will dereference the freed socket
+memory:
+
+net/smc/smc_tx.c:smc_tx_work() {
+    ...
+    lock_sock(&smc->sk);
+    ...
+}
+
+Could this lead to a use-after-free if it is reliably reachable by a local
+unprivileged user via splice() or by a remote peer sending timed CDC messag=
+es
+during socket teardown?
+
+>  	}
+>  	if (!list_empty(&lgr->list)) {
+>  		smc_buf_unuse(conn, lgr); /* allow buffer reuse */
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908112607.8284=
-69-1-japo@linux.ibm.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260907114721.1303=
+498-1-hidayath@linux.ibm.com?part=3D1
