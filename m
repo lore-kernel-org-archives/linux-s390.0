@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CE3A70808;
-	Tue,  8 Sep 2026 00:27:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DDF61D86FF;
+	Tue,  8 Sep 2026 00:32:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788827265; cv=none; b=nX1SYWuEytgitL0baqhX5WJxchAS4wOQa9VbflKItgYp+Kb+PU2xxxuiy1C2jYP0mRpxWClXAj9oy+RYb1QcwQQtGZGG3xK41ElLKNR+8sgYjrb1vsRenOyxhOhM5cAErs8NEwgIg3WRv022xnnFylekHZGnlBXwNdRwIBt8NKI=
+	t=1788827543; cv=none; b=jpqr1WeU6zllp8XckFcfqFVC2kUBjgkDdgRsMWxhiwUsM+BCJg9KSgAWpgDUAHBdR6YA10r/Rv6WdZHr+sP2pXybLKmcoZ7g31BZxEa8cLTAifWtmZ3HzA3CPYhqGVPSENm62JT3IMqZ3M3Cj87uqLBXHwnjDJUXw/pVLZaZAfA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788827265; c=relaxed/simple;
-	bh=t4vxgbrbi/wAWs1KoOlXAFuwYaRnFWoKYdliwh37Ytk=;
+	s=arc-20240116; t=1788827543; c=relaxed/simple;
+	bh=SgLBHpeYx96TBMWawXhkUXnL9XZmAcnqcfCDrNNhirk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=OkYI2JxGFkQyMAvbng7DKHPhaf1WUIYqOvpldfbvhvUwF+rCVWTOhzemg1G7eDvcI5Hu/p6ovjm72DDvbo/dSjDy94yj9zTarGnQZGvi83ZCQZ4y/Rl+uDsPJuuXMnm8xAwhcCBJvtFSXCiBk7tUxYn0eqAZCsRXaZsy6mCxjU0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Uc/qx5Es; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=eEE2bC1gi1iFcOMVXKNwjM5uXFgw+SVRnGSjNpamBILw03LK9PRcPvObW0vsuW4dQ0uw+kLICU0gP+XT9dWs2HvwoFOQHUuSK9AvOdUcMWy2My6drcOEkr2OLa3lFNviMBi92nDvv8gtotdfk44P0F6ADAAsKQCnXvnitlC3jnM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Fq3qcWd9; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Uc/qx5Es"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 536651F00A3A;
-	Tue,  8 Sep 2026 00:27:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Fq3qcWd9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49B4A1F00A3A;
+	Tue,  8 Sep 2026 00:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788827263;
-	bh=MOODhmwwhH7/g/Z4PPZATPpraTSPl3jX7F5Qv0B6f5Y=;
+	s=k20260515; t=1788827541;
+	bh=DCTW8mWT/1n1EavcifwQLUMz/p2cv9F1O2f8Z9E2G6E=;
 	h=Date:Subject:To:References:From:In-Reply-To;
-	b=Uc/qx5Esb1R07ri1PUbEPrBC9pZfxaKr/6lM9menQ/tJBJFdylTdwONmVgJUdExOj
-	 gYErV3eTCA36Au4bYEQOLYYkr1kOcTVvgZPRJok/TvCEvV3mWMm1rEkGX/P4QI38wp
-	 YlR2nP1syU3vl0U1H4PitI8NFpoS8QkMFDVWh/6bH4AzyIxn8Vqog0sEfGfaNXymH6
-	 u64Vv61kjcTN39w1kMjlUI4NJdc6AIZNI7werlwRKWkV08xKrGUY1KviBMau++0H3g
-	 vc4G4E0Mx7ymarO8VN5Ept2Ygx/QmqHYnSEEr3ThSxSFyLUB7gUvs0br8URbzpYsad
-	 DOkb3h9mdzKaQ==
-Message-ID: <f65388b1-e299-4f1f-927e-445f6d9e77df@kernel.org>
-Date: Tue, 8 Sep 2026 09:27:30 +0900
+	b=Fq3qcWd9jnfA4BeoMs0hwDzxfRO9oE17+IsFOJE92abCwgYb9hWfMT5pSTsvhqmFs
+	 Of1C2/a/cEfxNd/5Ze8NkjsgcUk91eBYlXBl7CZ/gOiH4RVDxmRgVg3gK84N83MFc5
+	 TlYwMESGPBNZugMJJiXZCLKaKC1inltafL+KLAR3lklSxOjM8LOZ+PReuNSRrUM1Ld
+	 jShn5j2xaDTPvI0aRPp3HU2gjCmNarbMxWr86OgvMPxb0gednRjMbHM+Pf+fJUHSQK
+	 34gSvTRnkwnyeMOT431kE2ANbY/RNlHjTC3V8hWOO389RbszvRCtDqJmbf0W+0A/zs
+	 dL1UPQsvhY5Uw==
+Message-ID: <0286eace-11b2-4513-9ad2-a919d9927783@kernel.org>
+Date: Tue, 8 Sep 2026 09:32:09 +0900
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -35,8 +35,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 35/40] usb: storage: use 16-bits defined sense codes
-To: Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+Subject: Re: [PATCH v5 07/40] scsi: core: use 16-bits defined sense codes
+To: Bart Van Assche <bvanassche@acm.org>,
  "Martin K . Petersen" <martin.petersen@oracle.com>,
  "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
  linux-scsi@vger.kernel.org, linux-ide@vger.kernel.org,
@@ -45,43 +45,29 @@ To: Johannes Thumshirn <johannes.thumshirn@wdc.com>,
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org,
  Heiko Carstens <hca@linux.ibm.com>
 References: <20260907024343.1046387-1-dlemoal@kernel.org>
- <20260907024343.1046387-36-dlemoal@kernel.org>
- <fbbde389-d040-405b-8f87-f589c4890afe@wdc.com>
+ <20260907024343.1046387-8-dlemoal@kernel.org>
+ <83caa7a0-27bc-4b10-8578-ed7afbd36030@acm.org>
 From: Damien Le Moal <dlemoal@kernel.org>
 Content-Language: en-US
 Organization: Western Digital Research
-In-Reply-To: <fbbde389-d040-405b-8f87-f589c4890afe@wdc.com>
+In-Reply-To: <83caa7a0-27bc-4b10-8578-ed7afbd36030@acm.org>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 9/8/26 01:13, Johannes Thumshirn wrote:
-> On 9/7/26 4:43 AM, Damien Le Moal wrote:
->> diff --git a/drivers/usb/gadget/function/f_mass_storage.c b/drivers/usb/
->> gadget/function/f_mass_storage.c
->> index a50743caf083..05e138968389 100644
->> --- a/drivers/usb/gadget/function/f_mass_storage.c
->> +++ b/drivers/usb/gadget/function/f_mass_storage.c
->> @@ -1103,9 +1103,9 @@ static int do_request_sense(struct fsg_common *common,
->> struct fsg_buffhd *bh)
->>        * FSG normally uses option a); enable this code to use option b).
->>        */
->>   #if 0
->> -    if (curlun && curlun->unit_attention_data != SS_NO_SENSE) {
->> +    if (curlun && curlun->unit_attention_data != NO_SENSE) {
->>           curlun->sense_data = curlun->unit_attention_data;
->> -        curlun->unit_attention_data = SS_NO_SENSE;
->> +        curlun->unit_attention_data = NO_SENSE;
->>       }
->>   #endif
-> 
-> No sure how relevant it is to change something in a commented out block.
-> Wouldn't it be better to just remove the block?
+On 9/8/26 05:03, Bart Van Assche wrote:
+> On 9/6/26 7:43 PM, Damien Le Moal wrote:
+>> No functional change intended, with the exception of a correction of the
+>> array any_sense_failure_defs in scsi_lib_test_any_sense() which
+>> erroenously sets result to SCMD_FAILURE_RESULT_ANY instead of
+>> SAM_STAT_CHECK_CONDITION and does not sets sense_key to
+>> SCMD_FAILURE_SENSE_KEY_ANY.
+> Is this perhaps a fix for patch 4 that should be squashed into patch 4?
 
-Well, I don't really know why that block is here. Might be for some quick debug
-thing, so I left it, but made sure it is also corrected so that if the #if 0 is
-changed to #if 1, it still compiles.
+Not really. Patch 4 only does renaming, so I did not fix this there.
+I did the correction here, but that could go either way, or I can add another
+patch just for this, but that seems overkill since the problem never actually
+causes any issue since the mistake makes that particular test pass all the time.
 
-I will let the cleanup of this, if any is needed, to the USB folks.
 
 
 -- 
