@@ -1,47 +1,46 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 413F93B4E9A;
-	Tue,  8 Sep 2026 06:34:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44402390CA6;
+	Tue,  8 Sep 2026 06:34:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788849244; cv=none; b=pKtOVOWLsNc1oBo7Qv7y7x3DXJVYxtMeIIOfelgUSDuqVBhJvoUogx6TITL3josPKdAQYbFncvEvQ+Zy7zuqgM5VNZ7hsbvVNrddQYsbwEqxKBuQr85kYY9lNLIM9RhuLTVIMS83OW7Idcx10doJm2IiPza5r9L1+zhdPGclx10=
+	t=1788849246; cv=none; b=o86rjQig41MnRVJlHvj36I/AUOBXUy7j8JFcjdNXPNkFxX9HQ2SGX/46HAiYHAYC0UQ+sAPffiDi2ZXF8n7HRbqo+6wGZ166Zmzlk2SXpTDNQCybz3h9XwftYFLK2fcZ5nYw1oRxsW/2TwXIQPc50Dn5CoZ70ZMaIHo+CEOGYWU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788849244; c=relaxed/simple;
-	bh=gDavw4WAqw6o13GhA3u/II77o40pPBvpHsDECXNhldY=;
+	s=arc-20240116; t=1788849246; c=relaxed/simple;
+	bh=PdmcaVe7pCu6upu7UTobIjeT+xi6m7cmShZzdDyDUqA=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=gQlJsO7tsqDkygWaZ86zGfWV3vGcWIOPBWft0vbWdlSshkqNI9n/3DS4nmx/DfsywXz22GvwtE+wrCQAzk4GVw13GOpJOgt8NxgsLawmP+MI4137bKypGkpDtawOUBt4OMV//ypSDcSMftRKwODSGq6jCKxPbsiOpRG+capnNM4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=srXUKKBv; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=rW7/VoVl; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=AjUQ8uUz/MTbD5sxGZN7obWBUdfMbwH9WCYWAjKE/sIcSpyVu4T27Jd6eCe2i8ynFOFncHKpT8MzS1mAcaHA3MCs4C8j0BIDzK03c72Vd5m6tNCjAtEjxhSA1dlUWp3t47WqRLQe2MXBPsro3pnlnGJAYU566i0cjppvpPsn9ag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Duhd+tzh; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=TsyWF+JN; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="srXUKKBv";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="rW7/VoVl"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Duhd+tzh";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="TsyWF+JN"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1788849236;
+	s=2020; t=1788849237;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Pdi6tJcXia5GQvjWLdDYxiQ6I89enT2mzL46ZqnmdMg=;
-	b=srXUKKBvBnZWl7h+1tvBv5e+AlKq5znw4KLWobhNXWNfQAuYkrwrf6qLr9sX3I376tXpaL
-	0gCLK9hvRcYej1aY+vuLNUXX8k0WaaNjh/gf2Si2JH/haTjazZxULX0a5f7Yw140D5KgYT
-	mY6i1JDe2y9ffdmhX61Pp10Gxy+SfEXQxM2EnqvziywLYsrgXQI8aTTmQXJNqF3Wlg/vEp
-	0gaYbr4thtj8q00nsmFu9BsDc1syHcFh5c6rh+d3Wwq5S09FzqW3vh3uH+fdVp1FSM314K
-	eg0gs4ury6AuRJrLxdmHGTOamuoIr50Pr/4C3keU04Rznfn+4zwCC+V/Fh4gkA==
+	bh=B5v9YeHlqv3ovO/ql+3n8/DnO9S76Q/KXTK4Iu9nIj8=;
+	b=Duhd+tzhOIqAKD5Jsk7S5bIW+1/U+0lAyREaDyVMtUfkM+/2g6McMuZ8BVCtyusCW6KJhw
+	wjBNCvGCpNGgmhFNn9x5FtX2pPVsVPQncpaQfdGxuDFM2F8njXe/d+MpW+sHlGTHGFoNTq
+	Irhfb/b0d78bbsC8nUcr59RO2R6WK1QG6Wmmqjub7uMBsV8HzhabnT8Q3BXaImhnViQuCI
+	99Y24z+RnYH8P+/0VTaa0of5QDISRCOgkSmlsMF9mLF5D2je6Fs4Q2NdAPmpcUGUDioSm3
+	I7ouCpMLG1e5cQUG5eQhiKpjN9lpx2nzj/DsTf8/2g6tDQdVpp9HJVE2/Kspiw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1788849236;
+	s=2020e; t=1788849237;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Pdi6tJcXia5GQvjWLdDYxiQ6I89enT2mzL46ZqnmdMg=;
-	b=rW7/VoVlTLF38Sp6NbEw24XpKKO0l53Bu8vFJSSAarrgsh5+3oOcPR3GCmN8eCmuxD/xDP
-	pyuyJDO6nu5wCADA==
-Date: Tue, 08 Sep 2026 08:33:50 +0200
-Subject: [PATCH v5 16/24] powerpc/elf: Add 32-bit REL16 relocation
- definitions
+	bh=B5v9YeHlqv3ovO/ql+3n8/DnO9S76Q/KXTK4Iu9nIj8=;
+	b=TsyWF+JNT75r27JmDD427VBvLmTOCV3ff2Y7hv2xF0uvSSVXKhCkoTtj5xhp4+hfJtB9PC
+	YrBA0mfCXrb6F8Cw==
+Date: Tue, 08 Sep 2026 08:33:51 +0200
+Subject: [PATCH v5 17/24] powerpc/vdso: Enable the vdsocheck tool
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -50,7 +49,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260908-vdso-absolute-reloc-v5-16-3a93791af1cf@linutronix.de>
+Message-Id: <20260908-vdso-absolute-reloc-v5-17-3a93791af1cf@linutronix.de>
 References: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de>
 In-Reply-To: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de>
 To: Paul Walmsley <paul.walmsley@sifive.com>, 
@@ -92,63 +91,93 @@ Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
  Arnaldo Carvalho de Melo <acme@redhat.com>, 
  Alexandre Ghiti <alexghiti@rivosinc.com>, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1788849226; l=1737;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1788849226; l=3226;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=gDavw4WAqw6o13GhA3u/II77o40pPBvpHsDECXNhldY=;
- b=at10aJs/4BEOnHQNfCkeHcofnKffueuw1V5jX3gearAcRNXGLUowN4VA80tWswO8yBV0CJAoU
- 1lBC/PMHi3vDICsSQ0DEs5CGMsAX8t5/pR4/5NVDW4dQxNWMl/dsaZv
+ bh=PdmcaVe7pCu6upu7UTobIjeT+xi6m7cmShZzdDyDUqA=;
+ b=KtzFUmFB6ajLIxA6GIlsiL6NZpPyhZkhtmdUQSlrxF2Z0EifBwB7dmyJS0AwkyNYLtHN5Uenz
+ k87bxRvOvh3AuR3/IHMkszUyZg00Zcqz3Ne04gmZUna19VeKFdykejP
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-These are used by userspace and are necessary for the vdsocheck tool.
-They share the numbers with their 64-bit variants.
+The vdsocheck tool validates the object files and final .so library.
+It can detect if the compiler created relocations which are incompatible
+with the vDSO which need to be worked around.
 
-Also update the copy in tools/ so they can be used by vdsocheck.
+Wire it up for the architecture.
 
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 ---
- include/uapi/linux/elf-r.h       | 7 ++++++-
- tools/include/uapi/linux/elf-r.h | 7 ++++++-
- 2 files changed, 12 insertions(+), 2 deletions(-)
+ arch/powerpc/Kconfig              |  1 +
+ arch/powerpc/kernel/vdso/Makefile |  4 ++--
+ lib/vdso/check/vdsocheck.rs       | 27 +++++++++++++++++++++++++++
+ 3 files changed, 30 insertions(+), 2 deletions(-)
 
-diff --git a/include/uapi/linux/elf-r.h b/include/uapi/linux/elf-r.h
-index 72fc9045a5d4..170888422400 100644
---- a/include/uapi/linux/elf-r.h
-+++ b/include/uapi/linux/elf-r.h
-@@ -182,8 +182,13 @@
- #define R_PPC_GOT_DTPREL16_HI	93 /* half16*	(sym+add)@got@dtprel@h */
- #define R_PPC_GOT_DTPREL16_HA	94 /* half16*	(sym+add)@got@dtprel@ha */
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 2580e27e4328..f19e225cfc5c 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -330,6 +330,7 @@ config PPC
+ 	select SYSCTL_EXCEPTION_TRACE
+ 	select THREAD_INFO_IN_TASK
+ 	select TRACE_IRQFLAGS_SUPPORT
++	select VDSO_CHECK
+ 	select VDSO_DATASTORE
+ 	select VDSO_GETRANDOM
+ 	#
+diff --git a/arch/powerpc/kernel/vdso/Makefile b/arch/powerpc/kernel/vdso/Makefile
+index 368759f81708..ca20b91b4373 100644
+--- a/arch/powerpc/kernel/vdso/Makefile
++++ b/arch/powerpc/kernel/vdso/Makefile
+@@ -81,9 +81,9 @@ targets += vdso64.lds
+ CPPFLAGS_vdso64.lds += -P -C
  
-+#define R_PPC_REL16		249
-+#define R_PPC_REL16_LO		250
-+#define R_PPC_REL16_HI		251
-+#define R_PPC_REL16_HA		252
-+
- /* keep this the last entry. */
--#define R_PPC_NUM		95
-+#define R_PPC_NUM		253
+ # link rule for the .so file, .lds has to be first
+-$(obj)/vdso32.so.dbg: $(obj)/vdso32.lds $(obj-vdso32) $(obj)/vgettimeofday-32.o $(obj)/vgetrandom-32.o $(obj)/crtsavres-32.o FORCE
++$(obj)/vdso32.so.dbg: $(obj)/vdso32.lds $(obj-vdso32) $(obj)/vgettimeofday-32.o $(obj)/vgetrandom-32.o $(obj)/crtsavres-32.o $(vdsocheck) FORCE
+ 	$(call if_changed,vdso32ld_and_check)
+-$(obj)/vdso64.so.dbg: $(obj)/vdso64.lds $(obj-vdso64) $(obj)/vgettimeofday-64.o $(obj)/vgetrandom-64.o FORCE
++$(obj)/vdso64.so.dbg: $(obj)/vdso64.lds $(obj-vdso64) $(obj)/vgettimeofday-64.o $(obj)/vgetrandom-64.o $(vdsocheck) FORCE
+ 	$(call if_changed,vdso64ld_and_check)
  
- /* PowerPC64 relocations defined by the ABIs */
- #define R_PPC64_NONE    R_PPC_NONE
-diff --git a/tools/include/uapi/linux/elf-r.h b/tools/include/uapi/linux/elf-r.h
-index 72fc9045a5d4..170888422400 100644
---- a/tools/include/uapi/linux/elf-r.h
-+++ b/tools/include/uapi/linux/elf-r.h
-@@ -182,8 +182,13 @@
- #define R_PPC_GOT_DTPREL16_HI	93 /* half16*	(sym+add)@got@dtprel@h */
- #define R_PPC_GOT_DTPREL16_HA	94 /* half16*	(sym+add)@got@dtprel@ha */
- 
-+#define R_PPC_REL16		249
-+#define R_PPC_REL16_LO		250
-+#define R_PPC_REL16_HI		251
-+#define R_PPC_REL16_HA		252
-+
- /* keep this the last entry. */
--#define R_PPC_NUM		95
-+#define R_PPC_NUM		253
- 
- /* PowerPC64 relocations defined by the ABIs */
- #define R_PPC64_NONE    R_PPC_NONE
+ # assembly rules for the .S files
+diff --git a/lib/vdso/check/vdsocheck.rs b/lib/vdso/check/vdsocheck.rs
+index e45a1fbc6829..429bdcd65818 100644
+--- a/lib/vdso/check/vdsocheck.rs
++++ b/lib/vdso/check/vdsocheck.rs
+@@ -69,6 +69,33 @@ fn allowed_relocations_for_machine(machine: u16) -> Option<AllowedRelocations<'s
+             ..Default::default()
+         }
+         .into(),
++        bindings::EM_PPC => AllowedRelocations {
++            in_object_file: &[
++                bindings::R_PPC_REL24,
++                bindings::R_PPC_REL14,
++                bindings::R_PPC_REL32,
++                bindings::R_PPC_REL16,
++                bindings::R_PPC_REL16_LO,
++                bindings::R_PPC_REL16_HI,
++                bindings::R_PPC_REL16_HA,
++            ],
++            ..Default::default()
++        }
++        .into(),
++        bindings::EM_PPC64 => AllowedRelocations {
++            in_object_file: &[
++                bindings::R_PPC64_REL24,
++                bindings::R_PPC64_REL14,
++                bindings::R_PPC64_REL32,
++                bindings::R_PPC64_REL64,
++                bindings::R_PPC64_REL16,
++                bindings::R_PPC64_REL16_LO,
++                bindings::R_PPC64_REL16_HI,
++                bindings::R_PPC64_REL16_HA,
++            ],
++            ..Default::default()
++        }
++        .into(),
+         _ => None,
+     }
+ }
 
 -- 
 2.55.0
