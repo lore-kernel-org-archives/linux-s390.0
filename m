@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E94454E2348;
-	Tue,  8 Sep 2026 09:04:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8776E517BB4;
+	Tue,  8 Sep 2026 09:04:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788858259; cv=none; b=c0UCEPq4/xYTExWUnDWw49KAgxVGa7/tJP31MR8ovHGJ5Wx7eshoTSfiI1pQmVWao+V2Qq3ZpeVtweOV/8s5Q0PJZIsCNljAX+1mBZLGiWQIW+DmYF4mYEzxR0hmuMaku7bH2vuZjQmUSe2IVKYMjojMuxUxxYI04KK7oTU+X0s=
+	t=1788858265; cv=none; b=ml4j2aVRslkiFpL+PKNZU1ieFfTSvTYBfp8gYkNXZcDVSb2t7fNpSMB70Q/DUtJWx3S0rUldLzI1HJhuVpTFHwiZ6BD03wtOC5kGA3gtRLTuJNbxY/Y8MpkKXFq1+BcfjbVVpCTzC4h7WiM7R8rlizlPGTnMdW6q2BRI6vWdDYw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788858259; c=relaxed/simple;
-	bh=tMRN/0vU7jcCRK5qKbgHgRusTj/tI0V9kuQAy/qSHl4=;
+	s=arc-20240116; t=1788858265; c=relaxed/simple;
+	bh=URXfVjXuJCRlwem2zLPwWCA+mlRaBNAhhgzB4l/EaM8=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Jt2rq/fs+2bzjM7KG9XwsUSeBuN1rysR53vE+BWvKpzrPtbcvMSinAqr6t/Ofyqbk9Jcch4XgToOqwCXYXssskoBG8qeVs2YhyMXeEVFDWvNJ5GLf9jJcQXK6lSkXYkC2nF/maMITF8yS/SX8Z1F7C1lXwmqtojNwmxn79GLmzY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fdKQDbbs; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=FT1ISNFGL2/GKBHcGKfjIoI7Gy88exveH0dEywFUJo6Fc8N50LkJnedc792xJAyLLo3ujSLl1yLJ9NxwG0PRMv7Lh7gR4+CJ2+QI8uHk9SvEK0A6RlpqOaCbd5HUW0xdYXTz/mo7HUnE1FhSxc+tQM4J/sEczr4Dsnf3I8bXcZE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VbtEVIFH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fdKQDbbs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F75A1F00A3F;
-	Tue,  8 Sep 2026 09:04:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VbtEVIFH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A4461F00ACF;
+	Tue,  8 Sep 2026 09:04:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788858256;
-	bh=JwcQOQsBSPsQO15W8V583ZWJ8BcR95sdwq7ysym28lY=;
+	s=k20260515; t=1788858260;
+	bh=FPyGZRrezAAlUFuTzR0Qnq3LuSyZgXmhTVovBfEHv/g=;
 	h=From:To:Subject:Date:In-Reply-To:References;
-	b=fdKQDbbsAajgj15vpPjAH5AWlrwm1ozWvCN58LQR7OwnZUQyZSyRx9HEPw03U/UqW
-	 EBCjgAPbRsBTRR7hCoDZwqL+ygJ/01NIAKdzujIeG+BXTbVg4B5DEBGLd+H7XF6obQ
-	 uW0PkSXnOnMO1pyOamV598boPBsFThmXhuNlx0gWTvscNeDT4oFcEnM64LaOYZrxaZ
-	 0v2Xr4gPLkZUheKTu/3cukwxMcTSriuH8D2TWEQUqd2qUO5iN9WcmBzJqYxTv7cTwG
-	 aE3Iy+Y8E/vYax4mKY4fDBc7C6d31PALtD9VBHexYD0IOsQYEAs0Xblm/UwFOKBQ7J
-	 e85SLz5C/sweQ==
+	b=VbtEVIFHIDmEIKaZfBz3ZkKf/FsNMpUAOpjmxR+4LRwzoIMgt5ycdcaU9K3+RJUmg
+	 IKITRNDQjdK0VEqfuHr0yoygbSKkhl0sJSVU1AN5a6NQIRzuYCO/5e8zvBWZYHridB
+	 JUROfLc5/wGU9XLdaUDmtIUD9MrtTT6IpNPpRG6MBt6hrtsXDrSxdjhb41T5VtRYod
+	 8tqYoKOxtMt+qANKoV2ztsK+q3hxofVlkki/D5WLvR6D09DOlMhmqhjuT9tG96jh6x
+	 UVOo90ERtQbRWGLuhwDvUaT0cdJ30533qFcG7uFS2b6F6Tjgi2kBvfrqtWJvQQjTvq
+	 bV6uf5aTTJmEw==
 From: Damien Le Moal <dlemoal@kernel.org>
 To: "Martin K . Petersen" <martin.petersen@oracle.com>,
 	"James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
@@ -37,9 +37,9 @@ To: "Martin K . Petersen" <martin.petersen@oracle.com>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	linux-s390@vger.kernel.org,
 	Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH v6 32/40] scsi: hpsa: use 16-bits defined sense codes
-Date: Tue,  8 Sep 2026 18:03:00 +0900
-Message-ID: <20260908090308.1085097-33-dlemoal@kernel.org>
+Subject: [PATCH v6 34/40] target: use 16-bits defined sense codes
+Date: Tue,  8 Sep 2026 18:03:02 +0900
+Message-ID: <20260908090308.1085097-35-dlemoal@kernel.org>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260908090308.1085097-1-dlemoal@kernel.org>
 References: <20260908090308.1085097-1-dlemoal@kernel.org>
@@ -51,257 +51,199 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Refactor the hpsa driver to replace all hard-coded additional sense codes
-and additional sense code qualifiers with the enum values defined in
+Refactor the target core code to use the 16-bits sense codes for building
+sense and replace all hard-coded additional sense codes and additional
+sense code qualifiers with the enum values defined in
 include/scsi/scsi_sense.h. This helps with code clarity as the sense codes
 being processed are easier to test and self-documented.
 
-The function decode_sense_data() is also modified to take a pointer to a
-16-bits sense_code variable in place of the two pointers to the additional
-sense code and its code qualifier. The local definitions of ASCs and ASCQs
-are deleted too.
-
-No functional change intended, but the function hpsa_volume_offline() was
-checking only the addditional sense code qualifier with checking the
-additional sense code. This change assumes that the intended additional
-sense code to check is ASC_LU_NOT_READY.
+No functional change intended.
 
 Signed-off-by: Damien Le Moal <dlemoal@kernel.org>
 Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 Reviewed-by: Hannes Reinecke <hare@kernel.org>
 ---
- drivers/scsi/hpsa.c     | 69 +++++++++++++++++++++--------------------
- drivers/scsi/hpsa_cmd.h | 23 --------------
- 2 files changed, 35 insertions(+), 57 deletions(-)
+ drivers/target/target_core_spc.c       | 11 +++++-----
+ drivers/target/target_core_transport.c | 11 +++++-----
+ drivers/target/target_core_ua.c        | 28 ++++++++++----------------
+ drivers/target/target_core_ua.h        |  7 +++----
+ 4 files changed, 25 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-index 8edad1830abe..795e8c7592af 100644
---- a/drivers/scsi/hpsa.c
-+++ b/drivers/scsi/hpsa.c
-@@ -353,14 +353,13 @@ static inline bool hpsa_is_cmd_idle(struct CommandList *c)
- 
- /* extract sense key, asc, and ascq from sense data.  -1 means invalid. */
- static void decode_sense_data(const u8 *sense_data, int sense_data_len,
--			u8 *sense_key, u8 *asc, u8 *ascq)
-+			      u8 *sense_key, u16 *sense_code)
+diff --git a/drivers/target/target_core_spc.c b/drivers/target/target_core_spc.c
+index f964a531e053..b70e81af867e 100644
+--- a/drivers/target/target_core_spc.c
++++ b/drivers/target/target_core_spc.c
+@@ -1226,9 +1226,9 @@ static sense_reason_t spc_emulate_request_sense(struct se_cmd *cmd)
  {
- 	struct scsi_sense_hdr sshdr;
- 	bool rc;
+ 	unsigned char *cdb = cmd->t_task_cdb;
+ 	unsigned char *rbuf;
+-	u8 ua_asc = 0, ua_ascq = 0;
+ 	unsigned char buf[SE_SENSE_BUF];
+ 	bool desc_format = target_sense_desc_format(cmd->se_dev);
++	u16 sense_code = NO_ADDITIONAL_SENSE_INFORMATION;
  
- 	*sense_key = -1;
--	*asc = -1;
--	*ascq = -1;
-+	*sense_code = -1;
+ 	memset(buf, 0, SE_SENSE_BUF);
  
- 	if (sense_data_len < 1)
- 		return;
-@@ -368,15 +367,15 @@ static void decode_sense_data(const u8 *sense_data, int sense_data_len,
- 	rc = scsi_normalize_sense(sense_data, sense_data_len, &sshdr);
- 	if (rc) {
- 		*sense_key = sshdr.sense_key;
--		*asc = sshdr.asc;
--		*ascq = sshdr.ascq;
-+		*sense_code = sshdr.sense_code;
+@@ -1242,11 +1242,12 @@ static sense_reason_t spc_emulate_request_sense(struct se_cmd *cmd)
+ 	if (!rbuf)
+ 		return TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE;
+ 
+-	if (!core_scsi3_ua_clear_for_request_sense(cmd, &ua_asc, &ua_ascq))
+-		scsi_build_sense_buffer(desc_format, buf, UNIT_ATTENTION,
+-					ua_asc, ua_ascq);
++	if (!core_scsi3_ua_clear_for_request_sense(cmd, &sense_code))
++		scsi_set_sense_buffer(desc_format, buf, UNIT_ATTENTION,
++				      sense_code);
+ 	else
+-		scsi_build_sense_buffer(desc_format, buf, NO_SENSE, 0x0, 0x0);
++		scsi_set_sense_buffer(desc_format, buf, NO_SENSE,
++				      NO_ADDITIONAL_SENSE_INFORMATION);
+ 
+ 	memcpy(rbuf, buf, min_t(u32, sizeof(buf), cmd->data_length));
+ 	transport_kunmap_data_sg(cmd);
+diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
+index dcfe94594916..ba208def8cb5 100644
+--- a/drivers/target/target_core_transport.c
++++ b/drivers/target/target_core_transport.c
+@@ -3555,7 +3555,8 @@ static void translate_sense_reason(struct se_cmd *cmd, sense_reason_t reason)
+ 	const struct sense_detail *sd;
+ 	u8 *buffer = cmd->sense_buffer;
+ 	int r = (__force int)reason;
+-	u8 key, asc, ascq;
++	u16 code;
++	u8 key;
+ 	bool desc_format = target_sense_desc_format(cmd->se_dev);
+ 
+ 	if (r < ARRAY_SIZE(sense_detail_table) && sense_detail_table[r].key)
+@@ -3566,21 +3567,19 @@ static void translate_sense_reason(struct se_cmd *cmd, sense_reason_t reason)
+ 
+ 	key = sd->key;
+ 	if (reason == TCM_CHECK_CONDITION_UNIT_ATTENTION) {
+-		if (!core_scsi3_ua_for_check_condition(cmd, &key, &asc,
+-						       &ascq)) {
++		if (!core_scsi3_ua_for_check_condition(cmd, &key, &code)) {
+ 			cmd->scsi_status = SAM_STAT_BUSY;
+ 			return;
+ 		}
+ 	} else {
+ 		WARN_ON_ONCE(sd->asc == 0);
+-		asc = sd->asc;
+-		ascq = sd->ascq;
++		code = scsi_sense_code(sd->asc, sd->ascq);
  	}
+ 
+ 	cmd->se_cmd_flags |= SCF_EMULATED_TASK_SENSE;
+ 	cmd->scsi_status = SAM_STAT_CHECK_CONDITION;
+ 	cmd->scsi_sense_length  = TRANSPORT_SENSE_BUFFER;
+-	scsi_build_sense_buffer(desc_format, buffer, key, asc, ascq);
++	scsi_set_sense_buffer(desc_format, buffer, key, code);
+ 	if (sd->add_sense_info)
+ 		WARN_ON_ONCE(scsi_set_sense_information(buffer,
+ 							cmd->scsi_sense_length,
+diff --git a/drivers/target/target_core_ua.c b/drivers/target/target_core_ua.c
+index 4276690fb6cb..ea97b05d47ab 100644
+--- a/drivers/target/target_core_ua.c
++++ b/drivers/target/target_core_ua.c
+@@ -187,11 +187,10 @@ void core_scsi3_ua_release_all(
+ 
+ /*
+  * Dequeue a unit attention from the unit attention list. This function
+- * returns true if the dequeuing succeeded and if *@key, *@asc and *@ascq have
++ * returns true if the dequeuing succeeded and if *@key and *@code have
+  * been set.
+  */
+-bool core_scsi3_ua_for_check_condition(struct se_cmd *cmd, u8 *key, u8 *asc,
+-				       u8 *ascq)
++bool core_scsi3_ua_for_check_condition(struct se_cmd *cmd, u8 *key, u16 *code)
+ {
+ 	struct se_device *dev = cmd->se_dev;
+ 	struct se_dev_entry *deve;
+@@ -214,8 +213,7 @@ bool core_scsi3_ua_for_check_condition(struct se_cmd *cmd, u8 *key, u8 *asc,
+ 	if (!deve) {
+ 		rcu_read_unlock();
+ 		*key = ILLEGAL_REQUEST;
+-		*asc = 0x25; /* LOGICAL UNIT NOT SUPPORTED */
+-		*ascq = 0;
++		*code = LU_NOT_SUPPORTED;
+ 		return true;
+ 	}
+ 	*key = UNIT_ATTENTION;
+@@ -232,8 +230,7 @@ bool core_scsi3_ua_for_check_condition(struct se_cmd *cmd, u8 *key, u8 *asc,
+ 		 * clearing it.
+ 		 */
+ 		if (!dev_ua_intlck_clear) {
+-			*asc = ua->ua_asc;
+-			*ascq = ua->ua_ascq;
++			*code = scsi_sense_code(ua->ua_asc, ua->ua_ascq);
+ 			break;
+ 		}
+ 		/*
+@@ -242,8 +239,7 @@ bool core_scsi3_ua_for_check_condition(struct se_cmd *cmd, u8 *key, u8 *asc,
+ 		 * (head of the list) in the outgoing CHECK_CONDITION + sense.
+ 		 */
+ 		if (head) {
+-			*asc = ua->ua_asc;
+-			*ascq = ua->ua_ascq;
++			*code = scsi_sense_code(ua->ua_asc, ua->ua_ascq);
+ 			head = 0;
+ 		}
+ 		list_del(&ua->ua_nacl_list);
+@@ -258,15 +254,13 @@ bool core_scsi3_ua_for_check_condition(struct se_cmd *cmd, u8 *key, u8 *asc,
+ 		nacl->se_tpg->se_tpg_tfo->fabric_name,
+ 		dev_ua_intlck_clear ? "Releasing" : "Reporting",
+ 		dev->dev_attrib.emulate_ua_intlck_ctrl,
+-		cmd->orig_fe_lun, cmd->t_task_cdb[0], *asc, *ascq);
++		cmd->orig_fe_lun, cmd->t_task_cdb[0],
++		scsi_sense_code_asc(*code), scsi_sense_code_ascq(*code));
+ 
+ 	return head == 0;
  }
  
- static int check_for_unit_attention(struct ctlr_info *h,
- 	struct CommandList *c)
+-int core_scsi3_ua_clear_for_request_sense(
+-	struct se_cmd *cmd,
+-	u8 *asc,
+-	u8 *ascq)
++int core_scsi3_ua_clear_for_request_sense(struct se_cmd *cmd, u16 *code)
  {
--	u8 sense_key, asc, ascq;
-+	u8 sense_key;
-+	u16 sense_code;
- 	int sense_len;
+ 	struct se_dev_entry *deve;
+ 	struct se_session *sess = cmd->se_sess;
+@@ -304,8 +298,7 @@ int core_scsi3_ua_clear_for_request_sense(
+ 	spin_lock(&deve->ua_lock);
+ 	list_for_each_entry_safe(ua, ua_p, &deve->ua_list, ua_nacl_list) {
+ 		if (head) {
+-			*asc = ua->ua_asc;
+-			*ascq = ua->ua_ascq;
++			*code = scsi_sense_code(ua->ua_asc, ua->ua_ascq);
+ 			head = 0;
+ 		}
+ 		list_del(&ua->ua_nacl_list);
+@@ -317,7 +310,8 @@ int core_scsi3_ua_clear_for_request_sense(
+ 	pr_debug("[%s]: Released UNIT ATTENTION condition, mapped"
+ 		" LUN: %llu, got REQUEST_SENSE reported ASC: 0x%02x,"
+ 		" ASCQ: 0x%02x\n", nacl->se_tpg->se_tpg_tfo->fabric_name,
+-		cmd->orig_fe_lun, *asc, *ascq);
++		cmd->orig_fe_lun, scsi_sense_code_asc(*code),
++		scsi_sense_code_ascq(*code));
  
- 	if (c->err_info->SenseLen > sizeof(c->err_info->SenseInfo))
-@@ -385,34 +384,35 @@ static int check_for_unit_attention(struct ctlr_info *h,
- 		sense_len = c->err_info->SenseLen;
+ 	return (head) ? -EPERM : 0;
+ }
+diff --git a/drivers/target/target_core_ua.h b/drivers/target/target_core_ua.h
+index 76487c9be090..6b636c13fee2 100644
+--- a/drivers/target/target_core_ua.h
++++ b/drivers/target/target_core_ua.h
+@@ -37,9 +37,8 @@ extern sense_reason_t target_scsi3_ua_check(struct se_cmd *);
+ extern int core_scsi3_ua_allocate(struct se_dev_entry *, u8, u8);
+ extern void target_ua_allocate_lun(struct se_node_acl *, u32, u8, u8);
+ extern void core_scsi3_ua_release_all(struct se_dev_entry *);
+-extern bool core_scsi3_ua_for_check_condition(struct se_cmd *, u8 *, u8 *,
+-					      u8 *);
+-extern int core_scsi3_ua_clear_for_request_sense(struct se_cmd *,
+-						u8 *, u8 *);
++extern bool core_scsi3_ua_for_check_condition(struct se_cmd *cmd, u8 *key,
++					      u16 *code);
++extern int core_scsi3_ua_clear_for_request_sense(struct se_cmd *cmd, u16 *code);
  
- 	decode_sense_data(c->err_info->SenseInfo, sense_len,
--				&sense_key, &asc, &ascq);
--	if (sense_key != UNIT_ATTENTION || asc == 0xff)
-+			  &sense_key, &sense_code);
-+	if (sense_key != UNIT_ATTENTION ||
-+	    scsi_sense_code_asc(sense_code) == 0xff)
- 		return 0;
- 
--	switch (asc) {
--	case STATE_CHANGED:
-+	switch (scsi_sense_code_asc(sense_code)) {
-+	case ASC_PARAMETERS_CHANGED:
- 		dev_warn(&h->pdev->dev,
- 			"%s: a state change detected, command retried\n",
- 			h->devname);
- 		break;
--	case LUN_FAILED:
-+	case ASC_LU_HAS_NOT_SELF_CONFIGURED_YET:
- 		dev_warn(&h->pdev->dev,
- 			"%s: LUN failure detected\n", h->devname);
- 		break;
--	case REPORT_LUNS_CHANGED:
-+	case ASC_TARGET_OPERATING_CONDITIONS_HAVE_CHANGED:
- 		dev_warn(&h->pdev->dev,
- 			"%s: report LUN data changed\n", h->devname);
- 	/*
--	 * Note: this REPORT_LUNS_CHANGED condition only occurs on the external
--	 * target (array) devices.
-+	 * Note: this ASC_TARGET_OPERATING_CONDITIONS_HAVE_CHANGED condition
-+	 * only occurs on the external target (array) devices.
- 	 */
- 		break;
--	case POWER_OR_RESET:
-+	case ASC_POWER_ON_RESET_OR_BUS_DEVICE_RESET_OCCURRED:
- 		dev_warn(&h->pdev->dev,
- 			"%s: a power on or device reset detected\n",
- 			h->devname);
- 		break;
--	case UNIT_ATTENTION_CLEARED:
-+	case ASC_COMMANDS_CLEARED_BY_ANOTHER_INITIATOR:
- 		dev_warn(&h->pdev->dev,
- 			"%s: unit attention cleared by another initiator\n",
- 			h->devname);
-@@ -2562,10 +2562,8 @@ static void complete_scsi_command(struct CommandList *cp)
- 	struct ErrorInfo *ei;
- 	struct hpsa_scsi_dev_t *dev;
- 	struct io_accel2_cmd *c2;
--
- 	u8 sense_key;
--	u8 asc;      /* additional sense code */
--	u8 ascq;     /* additional sense code qualifier */
-+	u16 sense_code;
- 	unsigned long sense_data_size;
- 
- 	ei = cp->err_info;
-@@ -2666,18 +2664,19 @@ static void complete_scsi_command(struct CommandList *cp)
- 		memcpy(cmd->sense_buffer, ei->SenseInfo, sense_data_size);
- 		if (ei->ScsiStatus)
- 			decode_sense_data(ei->SenseInfo, sense_data_size,
--				&sense_key, &asc, &ascq);
-+				&sense_key, &sense_code);
- 		if (ei->ScsiStatus == SAM_STAT_CHECK_CONDITION) {
- 			switch (sense_key) {
- 			case ABORTED_COMMAND:
- 				cmd->result |= DID_SOFT_ERROR << 16;
- 				break;
- 			case UNIT_ATTENTION:
--				if (asc == 0x3F && ascq == 0x0E)
-+				if (sense_code ==
-+				    REPORTED_LUNS_DATA_HAS_CHANGED)
- 					h->drv_req_rescan = 1;
- 				break;
- 			case ILLEGAL_REQUEST:
--				if (asc == 0x25 && ascq == 0x00) {
-+				if (sense_code == LU_NOT_SUPPORTED) {
- 					dev->removed = 1;
- 					cmd->result = DID_NO_CONNECT << 16;
- 				}
-@@ -2693,7 +2692,9 @@ static void complete_scsi_command(struct CommandList *cp)
- 				"Sense: 0x%x, ASC: 0x%x, ASCQ: 0x%x, "
- 				"Returning result: 0x%x\n",
- 				cp, ei->ScsiStatus,
--				sense_key, asc, ascq,
-+				sense_key,
-+				scsi_sense_code_asc(sense_code),
-+				scsi_sense_code_ascq(sense_code),
- 				cmd->result);
- 		} else {  /* scsi status is zero??? How??? */
- 			dev_warn(&h->pdev->dev, "cp %p SCSI status was 0. "
-@@ -2919,7 +2920,8 @@ static void hpsa_scsi_interpret_error(struct ctlr_info *h,
- {
- 	const struct ErrorInfo *ei = cp->err_info;
- 	struct device *d = &cp->h->pdev->dev;
--	u8 sense_key, asc, ascq;
-+	u8 sense_key;
-+	u16 sense_code;
- 	int sense_len;
- 
- 	switch (ei->CommandStatus) {
-@@ -2928,12 +2930,13 @@ static void hpsa_scsi_interpret_error(struct ctlr_info *h,
- 			sense_len = sizeof(ei->SenseInfo);
- 		else
- 			sense_len = ei->SenseLen;
--		decode_sense_data(ei->SenseInfo, sense_len,
--					&sense_key, &asc, &ascq);
-+		decode_sense_data(ei->SenseInfo, sense_len, &sense_key,
-+				  &sense_code);
- 		hpsa_print_cmd(h, "SCSI status", cp);
- 		if (ei->ScsiStatus == SAM_STAT_CHECK_CONDITION)
- 			dev_warn(d, "SCSI Status = 02, Sense key = 0x%02x, ASC = 0x%02x, ASCQ = 0x%02x\n",
--				sense_key, asc, ascq);
-+				sense_key, scsi_sense_code_asc(sense_code),
-+				 scsi_sense_code_ascq(sense_code));
- 		else
- 			dev_warn(d, "SCSI Status = 0x%02x\n", ei->ScsiStatus);
- 		if (ei->ScsiStatus == 0)
-@@ -3868,12 +3871,10 @@ static unsigned char hpsa_volume_offline(struct ctlr_info *h,
- {
- 	struct CommandList *c;
- 	unsigned char *sense;
--	u8 sense_key, asc, ascq;
-+	u8 sense_key;
-+	u16 sense_code;
- 	int sense_len;
- 	int rc, ldstat = 0;
--#define ASC_LUN_NOT_READY 0x04
--#define ASCQ_LUN_NOT_READY_FORMAT_IN_PROGRESS 0x04
--#define ASCQ_LUN_NOT_READY_INITIALIZING_CMD_REQ 0x02
- 
- 	c = cmd_alloc(h);
- 
-@@ -3889,7 +3890,7 @@ static unsigned char hpsa_volume_offline(struct ctlr_info *h,
- 		sense_len = sizeof(c->err_info->SenseInfo);
- 	else
- 		sense_len = c->err_info->SenseLen;
--	decode_sense_data(sense, sense_len, &sense_key, &asc, &ascq);
-+	decode_sense_data(sense, sense_len, &sense_key, &sense_code);
- 	cmd_free(h, c);
- 
- 	/* Determine the reason for not ready state */
-@@ -3912,8 +3913,8 @@ static unsigned char hpsa_volume_offline(struct ctlr_info *h,
- 		/* If VPD status page isn't available,
- 		 * use ASC/ASCQ to determine state
- 		 */
--		if ((ascq == ASCQ_LUN_NOT_READY_FORMAT_IN_PROGRESS) ||
--			(ascq == ASCQ_LUN_NOT_READY_INITIALIZING_CMD_REQ))
-+		if (sense_code == LU_NOT_READY_FORMAT_IN_PROGRESS ||
-+		    sense_code == LU_NOT_READY_INITIALIZING_COMMAND_REQUIRED)
- 			return ldstat;
- 		break;
- 	default:
-diff --git a/drivers/scsi/hpsa_cmd.h b/drivers/scsi/hpsa_cmd.h
-index ba6a3aa8d954..0dbfbec37ce2 100644
---- a/drivers/scsi/hpsa_cmd.h
-+++ b/drivers/scsi/hpsa_cmd.h
-@@ -63,29 +63,6 @@
- #define CISS_TMF_WRONG_LUN	0x09
- #define CISS_TMF_OVERLAPPED_TAG 0x0a
- 
--/* Unit Attentions ASC's as defined for the MSA2012sa */
--#define POWER_OR_RESET			0x29
--#define STATE_CHANGED			0x2a
--#define UNIT_ATTENTION_CLEARED		0x2f
--#define LUN_FAILED			0x3e
--#define REPORT_LUNS_CHANGED		0x3f
--
--/* Unit Attentions ASCQ's as defined for the MSA2012sa */
--
--	/* These ASCQ's defined for ASC = POWER_OR_RESET */
--#define POWER_ON_RESET			0x00
--#define POWER_ON_REBOOT			0x01
--#define SCSI_BUS_RESET			0x02
--#define MSA_TARGET_RESET		0x03
--#define CONTROLLER_FAILOVER		0x04
--#define TRANSCEIVER_SE			0x05
--#define TRANSCEIVER_LVD			0x06
--
--	/* These ASCQ's defined for ASC = STATE_CHANGED */
--#define RESERVATION_PREEMPTED		0x03
--#define ASYM_ACCESS_CHANGED		0x06
--#define LUN_CAPACITY_CHANGED		0x09
--
- /* transfer direction */
- #define XFER_NONE               0x00
- #define XFER_WRITE              0x01
+ #endif /* TARGET_CORE_UA_H */
 -- 
 2.55.0
 
