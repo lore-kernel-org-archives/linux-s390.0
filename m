@@ -1,46 +1,46 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44402390CA6;
-	Tue,  8 Sep 2026 06:34:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 587173B961A;
+	Tue,  8 Sep 2026 06:34:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788849246; cv=none; b=o86rjQig41MnRVJlHvj36I/AUOBXUy7j8JFcjdNXPNkFxX9HQ2SGX/46HAiYHAYC0UQ+sAPffiDi2ZXF8n7HRbqo+6wGZ166Zmzlk2SXpTDNQCybz3h9XwftYFLK2fcZ5nYw1oRxsW/2TwXIQPc50Dn5CoZ70ZMaIHo+CEOGYWU=
+	t=1788849247; cv=none; b=GIMqRsIRKbEotYeR4UZvK3RTwxtTNSg2TMGRApjOis7y7UWjQTUsdqBbDD3vqLJEzsEErLIcTcIIidRoVWPEVHtSSYXquxZcOPhIlbFwDQxuFLOoyazg79B10FIMccWOWDeojz1J0HsZ43lTAvzZBLdrz8hvEEEah30vDliTLXo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788849246; c=relaxed/simple;
-	bh=PdmcaVe7pCu6upu7UTobIjeT+xi6m7cmShZzdDyDUqA=;
+	s=arc-20240116; t=1788849247; c=relaxed/simple;
+	bh=aHlYdAt+sn8SQz3z94dI4KWuFSXUUjVIfd41CT6XtAE=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=AjUQ8uUz/MTbD5sxGZN7obWBUdfMbwH9WCYWAjKE/sIcSpyVu4T27Jd6eCe2i8ynFOFncHKpT8MzS1mAcaHA3MCs4C8j0BIDzK03c72Vd5m6tNCjAtEjxhSA1dlUWp3t47WqRLQe2MXBPsro3pnlnGJAYU566i0cjppvpPsn9ag=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Duhd+tzh; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=TsyWF+JN; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=Lp7J8DerXqZc+0iEgX65LkzjYFLCzctHLWegKWC1ehnxyVBGX+OzPQDLZ7MNGaeUyB6G76ZjwUnEFzfkUNC/El+laGloUwrBf4gSsHsxRh44RYApPhYSyl7bbDBi638mQXeEefOQXsxnEA0+6/FHjd9BGaJmc3XeDe3my0F4pgQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=UQTMG5iO; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=7PR/0nIH; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Duhd+tzh";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="TsyWF+JN"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="UQTMG5iO";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="7PR/0nIH"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1788849237;
+	s=2020; t=1788849238;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=B5v9YeHlqv3ovO/ql+3n8/DnO9S76Q/KXTK4Iu9nIj8=;
-	b=Duhd+tzhOIqAKD5Jsk7S5bIW+1/U+0lAyREaDyVMtUfkM+/2g6McMuZ8BVCtyusCW6KJhw
-	wjBNCvGCpNGgmhFNn9x5FtX2pPVsVPQncpaQfdGxuDFM2F8njXe/d+MpW+sHlGTHGFoNTq
-	Irhfb/b0d78bbsC8nUcr59RO2R6WK1QG6Wmmqjub7uMBsV8HzhabnT8Q3BXaImhnViQuCI
-	99Y24z+RnYH8P+/0VTaa0of5QDISRCOgkSmlsMF9mLF5D2je6Fs4Q2NdAPmpcUGUDioSm3
-	I7ouCpMLG1e5cQUG5eQhiKpjN9lpx2nzj/DsTf8/2g6tDQdVpp9HJVE2/Kspiw==
+	bh=4VIHtJxBKUV92ut5bUWYer42zzkTydvuwzOnHSs3Yeo=;
+	b=UQTMG5iOQDvZsY4LSnJHyDsgt5WxYxOz6YK1J4hyy8PpdVm7HY/Y/mh6cvKrE7NVsFt+Nb
+	5PHfF7NPgespT0taUkdG+2zsqwIaJCOc5lenErzQr2gJGmGCKDfglspuNebAKUicWnsEu/
+	OgGtj7CqD3bcw77a8A5zUcMAVDpAYTrT40KMbS3vw/PGpc+2sK3wf2Nyn++rSXvk/89a/O
+	dLBhqKZQpE19fpuoHY99u/fCxlDvRu6/J5A/dqsFfx74MtXtIoiuRmDCbLQFhLUUkESDb1
+	xO22aa0FVTkzJtC0FgFtMHHa1CD0BMXsnGpP3cYNg8YMYtTrbp5jheTjAu2qTQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1788849237;
+	s=2020e; t=1788849238;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=B5v9YeHlqv3ovO/ql+3n8/DnO9S76Q/KXTK4Iu9nIj8=;
-	b=TsyWF+JNT75r27JmDD427VBvLmTOCV3ff2Y7hv2xF0uvSSVXKhCkoTtj5xhp4+hfJtB9PC
-	YrBA0mfCXrb6F8Cw==
-Date: Tue, 08 Sep 2026 08:33:51 +0200
-Subject: [PATCH v5 17/24] powerpc/vdso: Enable the vdsocheck tool
+	bh=4VIHtJxBKUV92ut5bUWYer42zzkTydvuwzOnHSs3Yeo=;
+	b=7PR/0nIH3jxM0NAu2RQ8Kza6MygB9kI69pTDRsPAwhdPDsSecImgz/0fj3o3HpGROjRbDh
+	NRUyYikC3ZoRAoCQ==
+Date: Tue, 08 Sep 2026 08:33:53 +0200
+Subject: [PATCH v5 19/24] LoongArch: vDSO: Enable the vdsocheck tool
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,7 +49,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260908-vdso-absolute-reloc-v5-17-3a93791af1cf@linutronix.de>
+Message-Id: <20260908-vdso-absolute-reloc-v5-19-3a93791af1cf@linutronix.de>
 References: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de>
 In-Reply-To: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de>
 To: Paul Walmsley <paul.walmsley@sifive.com>, 
@@ -91,11 +91,11 @@ Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
  Arnaldo Carvalho de Melo <acme@redhat.com>, 
  Alexandre Ghiti <alexghiti@rivosinc.com>, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1788849226; l=3226;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1788849226; l=3278;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=PdmcaVe7pCu6upu7UTobIjeT+xi6m7cmShZzdDyDUqA=;
- b=KtzFUmFB6ajLIxA6GIlsiL6NZpPyhZkhtmdUQSlrxF2Z0EifBwB7dmyJS0AwkyNYLtHN5Uenz
- k87bxRvOvh3AuR3/IHMkszUyZg00Zcqz3Ne04gmZUna19VeKFdykejP
+ bh=aHlYdAt+sn8SQz3z94dI4KWuFSXUUjVIfd41CT6XtAE=;
+ b=2232qTauQU8ONuo72eWzPcWTOr/o5ANqNg5FnqG48nJxB/0T5MRVqjL9ipbJ1nOF+cXFluD1a
+ gXrQgZJJqvQDq3tjn71NRUZG05NIlhIDdmmjTh/MawpE3ZVvYw59mEQ
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
@@ -107,70 +107,75 @@ Wire it up for the architecture.
 
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 ---
- arch/powerpc/Kconfig              |  1 +
- arch/powerpc/kernel/vdso/Makefile |  4 ++--
- lib/vdso/check/vdsocheck.rs       | 27 +++++++++++++++++++++++++++
- 3 files changed, 30 insertions(+), 2 deletions(-)
+ arch/loongarch/Kconfig       |  1 +
+ arch/loongarch/vdso/Makefile |  4 ++--
+ lib/vdso/check/vdsocheck.rs  | 26 ++++++++++++++++++++++++++
+ 3 files changed, 29 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 2580e27e4328..f19e225cfc5c 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -330,6 +330,7 @@ config PPC
- 	select SYSCTL_EXCEPTION_TRACE
- 	select THREAD_INFO_IN_TASK
+diff --git a/arch/loongarch/Kconfig b/arch/loongarch/Kconfig
+index a21f51e5815e..5dc98a4b9c7f 100644
+--- a/arch/loongarch/Kconfig
++++ b/arch/loongarch/Kconfig
+@@ -213,6 +213,7 @@ config LOONGARCH
  	select TRACE_IRQFLAGS_SUPPORT
+ 	select USE_PERCPU_NUMA_NODE_ID
+ 	select USER_STACKTRACE_SUPPORT
 +	select VDSO_CHECK
  	select VDSO_DATASTORE
  	select VDSO_GETRANDOM
- 	#
-diff --git a/arch/powerpc/kernel/vdso/Makefile b/arch/powerpc/kernel/vdso/Makefile
-index 368759f81708..ca20b91b4373 100644
---- a/arch/powerpc/kernel/vdso/Makefile
-+++ b/arch/powerpc/kernel/vdso/Makefile
-@@ -81,9 +81,9 @@ targets += vdso64.lds
- CPPFLAGS_vdso64.lds += -P -C
+ 	select ZONE_DMA32 if 64BIT
+diff --git a/arch/loongarch/vdso/Makefile b/arch/loongarch/vdso/Makefile
+index 9c9181bb4071..b0dc58328664 100644
+--- a/arch/loongarch/vdso/Makefile
++++ b/arch/loongarch/vdso/Makefile
+@@ -50,7 +50,7 @@ ldflags-y := -Bsymbolic --no-undefined -soname=linux-vdso.so.1 \
+ #
  
- # link rule for the .so file, .lds has to be first
--$(obj)/vdso32.so.dbg: $(obj)/vdso32.lds $(obj-vdso32) $(obj)/vgettimeofday-32.o $(obj)/vgetrandom-32.o $(obj)/crtsavres-32.o FORCE
-+$(obj)/vdso32.so.dbg: $(obj)/vdso32.lds $(obj-vdso32) $(obj)/vgettimeofday-32.o $(obj)/vgetrandom-32.o $(obj)/crtsavres-32.o $(vdsocheck) FORCE
- 	$(call if_changed,vdso32ld_and_check)
--$(obj)/vdso64.so.dbg: $(obj)/vdso64.lds $(obj-vdso64) $(obj)/vgettimeofday-64.o $(obj)/vgetrandom-64.o FORCE
-+$(obj)/vdso64.so.dbg: $(obj)/vdso64.lds $(obj-vdso64) $(obj)/vgettimeofday-64.o $(obj)/vgetrandom-64.o $(vdsocheck) FORCE
- 	$(call if_changed,vdso64ld_and_check)
+ quiet_cmd_vdsold_and_vdso_check = LD      $@
+-      cmd_vdsold_and_vdso_check = $(cmd_ld); $(cmd_vdso_check)
++      cmd_vdsold_and_vdso_check = $(cmd_ld_vdso); $(cmd_vdso_check)
  
- # assembly rules for the .S files
+ quiet_cmd_vdsoas_o_S = AS       $@
+       cmd_vdsoas_o_S = $(CC) $(a_flags) -c -o $@ $<
+@@ -79,7 +79,7 @@ $(obj-vdso): KBUILD_AFLAGS := $(aflags-vdso) $(native-abi)
+ 
+ $(obj)/vdso.lds: KBUILD_CPPFLAGS := $(ccflags-vdso) $(native-abi)
+ 
+-$(obj)/vdso.so.dbg: $(obj)/vdso.lds $(obj-vdso) FORCE
++$(obj)/vdso.so.dbg: $(obj)/vdso.lds $(obj-vdso) $(vdsocheck) FORCE
+ 	$(call if_changed,vdsold_and_vdso_check)
+ 
+ $(obj)/vdso.so: OBJCOPYFLAGS := -S
 diff --git a/lib/vdso/check/vdsocheck.rs b/lib/vdso/check/vdsocheck.rs
-index e45a1fbc6829..429bdcd65818 100644
+index 67562d21f877..4aeb7094e552 100644
 --- a/lib/vdso/check/vdsocheck.rs
 +++ b/lib/vdso/check/vdsocheck.rs
-@@ -69,6 +69,33 @@ fn allowed_relocations_for_machine(machine: u16) -> Option<AllowedRelocations<'s
+@@ -122,6 +122,32 @@ fn allowed_relocations_for_machine(machine: u16) -> Option<AllowedRelocations<'s
              ..Default::default()
          }
          .into(),
-+        bindings::EM_PPC => AllowedRelocations {
++        bindings::EM_LOONGARCH => AllowedRelocations {
 +            in_object_file: &[
-+                bindings::R_PPC_REL24,
-+                bindings::R_PPC_REL14,
-+                bindings::R_PPC_REL32,
-+                bindings::R_PPC_REL16,
-+                bindings::R_PPC_REL16_LO,
-+                bindings::R_PPC_REL16_HI,
-+                bindings::R_PPC_REL16_HA,
-+            ],
-+            ..Default::default()
-+        }
-+        .into(),
-+        bindings::EM_PPC64 => AllowedRelocations {
-+            in_object_file: &[
-+                bindings::R_PPC64_REL24,
-+                bindings::R_PPC64_REL14,
-+                bindings::R_PPC64_REL32,
-+                bindings::R_PPC64_REL64,
-+                bindings::R_PPC64_REL16,
-+                bindings::R_PPC64_REL16_LO,
-+                bindings::R_PPC64_REL16_HI,
-+                bindings::R_PPC64_REL16_HA,
++                bindings::R_LARCH_ADD8,
++                bindings::R_LARCH_ADD16,
++                bindings::R_LARCH_ADD24,
++                bindings::R_LARCH_ADD32,
++                bindings::R_LARCH_ADD64,
++                bindings::R_LARCH_SUB8,
++                bindings::R_LARCH_SUB16,
++                bindings::R_LARCH_SUB24,
++                bindings::R_LARCH_SUB32,
++                bindings::R_LARCH_SUB64,
++                bindings::R_LARCH_B16,
++                bindings::R_LARCH_B21,
++                bindings::R_LARCH_B26,
++                bindings::R_LARCH_PCALA_HI20,
++                bindings::R_LARCH_PCALA_LO12,
++                bindings::R_LARCH_PCALA64_LO20,
++                bindings::R_LARCH_PCALA64_HI12,
++                bindings::R_LARCH_32_PCREL,
++                bindings::R_LARCH_PCADD_HI20,
++                bindings::R_LARCH_PCADD_LO12,
 +            ],
 +            ..Default::default()
 +        }
