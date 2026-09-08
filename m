@@ -1,21 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 275CA3290A5;
-	Tue,  8 Sep 2026 10:38:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 690DF33B6FB;
+	Tue,  8 Sep 2026 10:39:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788863940; cv=none; b=Qw43OjkIkqvRpTdRO5KHPPF1uwIInbHJ/Xcu7K+Z+DT9lE3mJtpFMr3hWAKEV/3SopO0ya/aYh8PwB+rrNe5bsHz+aTxMZybfBH4tIOC623mPACAzkx3LF70DLcinMXJgCpdkEidqBOBBcbR35vqdluR7i5rS/rkPU+yOlJK004=
+	t=1788863977; cv=none; b=Ed7/Ra2Z1B8os0VhvJ9CWYntS7MpHaAYDnRszOE7CThT8WMN5uA1PkSBczTR2ZKSRxsu+OcLLJEMs2Dh/wYsZadqIQmi09qYGk4FZ/cq/M2GBY96baGgZZdmrqkI5KH6d2C9yb4HbnHO2zzO1abrGOEtU185LeRcXcVHQ4XTsBo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788863940; c=relaxed/simple;
-	bh=1ROO6LQz6Uy81y1cy+JmkoOivc2+MSm7hMSbnc0ALnI=;
+	s=arc-20240116; t=1788863977; c=relaxed/simple;
+	bh=TJZLjRZ5Rw6VxNmXWPsRjBJ6HgabwVV5b5eQQ4B1CyA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nyDOn97UNXIukrXu5GyS36OGBgMpecSQRxhVbNMwEnUkxOWLPsGSEiUDisYT/oSkGZgD2tsZSVIqWSLEOa4wqHVrvy8//lsbt5R/JdxhZwUZJyCWoB6Kr7OKOPB1WX5doj2F2ypTZzV6tZyUoaNLDDi/g5dOIai2bSeCOrZODhU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 398421F00A3A;
-	Tue,  8 Sep 2026 10:38:47 +0000 (UTC)
-Message-ID: <a98df077-3e97-4eea-8bfe-470bad9ff9e0@kernel.org>
-Date: Tue, 8 Sep 2026 12:38:44 +0200
+	 In-Reply-To:Content-Type; b=lNZHbxdtjZN1bkuhqQgqN/xLmrDp1/dxwemGTuTD6/QNyrz1PWthyRDGauAMQNzgM+XxPEeN+Oqp0Cq9zi+h5MF25EW/cTUN8MqRScb7i0AcNiI2SI/8yj8wV6qZRyrMjYR+5QogrDd7dVYzMgpcU2lnkczyvq/zDoequXiU0hg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z85uGoCq; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z85uGoCq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A6E71F00A3A;
+	Tue,  8 Sep 2026 10:39:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788863976;
+	bh=YjJUbcma5aHPiCDKq7gAqglFN4GHXWVPea1PTRoIqQA=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=Z85uGoCqW2p5OrfqlMbTAXWNhCWyeFTtc6hPJunew+AqwO8w3KB84dcM7HtTXc+Dp
+	 kIrVqA2uHjib4MQly5gG2sAWV4JPCDgZISbnhtgKcwHR0xCz3uoLmbPWy83eL6Z/Cn
+	 7Lv/ROM/uizyH06RQra7gnEsreWgzAfIm1COqq1/Jt9LqHb15MQ60SKteLfcaZSGfI
+	 3GWTl8KLB7IIHzthOvHejwNUNWLKZhaPmnBi5AvPtpnqb+e2YL/n96OxzCrewy3Byx
+	 lQOgGTIiQ5sPobSvuqfU6Zg9lgBvOxQl/s7HfzGNxSg2KmHXL0TCEKI4aeLa4S2kBG
+	 Aax0efOl35LZw==
+Message-ID: <610ebd79-3ad4-432c-ac92-b8956d7150d1@kernel.org>
+Date: Tue, 8 Sep 2026 12:39:18 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -23,8 +35,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/6] set_memory: add number of pages parameter to
- set_direct_map APIs
+Subject: Re: [PATCH v3 3/6] mm/vmalloc: constify vm parameter of
+ get_vm_area_page_order()
 To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
  Andrew Morton <akpm@linux-foundation.org>
 Cc: =?UTF-8?Q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
@@ -50,7 +62,7 @@ Cc: =?UTF-8?Q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
  linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
  loongarch@lists.linux.dev
 References: <20260903-execmem-set-vm-perms-v0-2-v3-0-949b64a9f755@kernel.org>
- <20260903-execmem-set-vm-perms-v0-2-v3-1-949b64a9f755@kernel.org>
+ <20260903-execmem-set-vm-perms-v0-2-v3-3-949b64a9f755@kernel.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -97,42 +109,21 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260903-execmem-set-vm-perms-v0-2-v3-1-949b64a9f755@kernel.org>
+In-Reply-To: <20260903-execmem-set-vm-perms-v0-2-v3-3-949b64a9f755@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 9/3/26 11:28, Mike Rapoport (Microsoft) wrote:
-> When set_direct_map APIs were introduced by the commit d253ca0c3865
-> ("x86/mm/cpa: Add set_direct_map_*() functions") the single page
-> parameter made sense because the initial callers (vmalloc and
-> hibernation) had sets of unsorted struct pages that required changes of
-> their mappings in the direct map.
+> get_vm_area_page_order() and vm_area_page_order() do not need to modify
+> struct vm_struct passed to them.
 > 
-> Since there is an increasing demand for direct map manipulation and it
-> is also desirable to be able to update larger physically contiguous
-> mappings, for example an entire large folio, extend set_direct_map APIs
-> to receive number of pages parameter.
+> Constify the parameter.
 > 
-> As there is still only a handful of callers, change the existing
-> functions directly and update all the call sites rather than adding
-> wrappers for single page case.
-> 
+> Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
 > Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 > ---
-In general, LGTM.
 
-But regarding semantics, is it well defined what happens when an update fails
-halfway through an operation?
-
-I'd assume such a case cannot currently get triggered, but there is no
-documentation on what's supported and what's not. Or is there?
-
-Imagine someone performing an update on an area that partially spans two PMDs.
-While splitting and updating the first PMD could succeed, splitting the second
-PMD could fail. What would be the end result? Rollback? Does the caller have to
-clean up?
-
-I'd appreciate if we could add proper documentation with expected semantics.
+Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
 
 -- 
 Cheers,
