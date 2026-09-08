@@ -1,131 +1,145 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 690DF33B6FB;
-	Tue,  8 Sep 2026 10:39:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A33D0513576
+	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 10:40:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788863977; cv=none; b=Ed7/Ra2Z1B8os0VhvJ9CWYntS7MpHaAYDnRszOE7CThT8WMN5uA1PkSBczTR2ZKSRxsu+OcLLJEMs2Dh/wYsZadqIQmi09qYGk4FZ/cq/M2GBY96baGgZZdmrqkI5KH6d2C9yb4HbnHO2zzO1abrGOEtU185LeRcXcVHQ4XTsBo=
+	t=1788864043; cv=none; b=D4WWi4i1M/Vgk768MoGMpsi78C2OvmI1UmjfVoqWxpIzmtiPfLuU6LLLOsA1uuPRo0y7XEn7pFZY1EZGhswgK/6fq2XFPFHYmlx76VF7m10oV46+/n4XJ3kyOX58DtveZWtxF1NutPkVMJgGQzLvwjBXVMVrAxG+0yO0b4J5QBg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788863977; c=relaxed/simple;
-	bh=TJZLjRZ5Rw6VxNmXWPsRjBJ6HgabwVV5b5eQQ4B1CyA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lNZHbxdtjZN1bkuhqQgqN/xLmrDp1/dxwemGTuTD6/QNyrz1PWthyRDGauAMQNzgM+XxPEeN+Oqp0Cq9zi+h5MF25EW/cTUN8MqRScb7i0AcNiI2SI/8yj8wV6qZRyrMjYR+5QogrDd7dVYzMgpcU2lnkczyvq/zDoequXiU0hg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z85uGoCq; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788864043; c=relaxed/simple;
+	bh=kOhqncv5XCZ7r1wutg9WfqJInWhTomtwX/fOjw8gu+A=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=Ib+Ly3kFR7SWEHOCDN+fJcee0tEcL5h6t6ZqSXz2wMOESSuxUtZA5SICj0+DEO/k6tzYuUXZz9DdMcTjO7T4r42lb51V3L9sNsbLnLsTur49qtERNHJBKJesBjrDS8SPdJA8WWaQTaSRLD0h6t1D+944NmRNQg8gTXigcFD9p1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iobFmETs; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z85uGoCq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A6E71F00A3A;
-	Tue,  8 Sep 2026 10:39:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iobFmETs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3C5D1F00A3D;
+	Tue,  8 Sep 2026 10:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788863976;
-	bh=YjJUbcma5aHPiCDKq7gAqglFN4GHXWVPea1PTRoIqQA=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Z85uGoCqW2p5OrfqlMbTAXWNhCWyeFTtc6hPJunew+AqwO8w3KB84dcM7HtTXc+Dp
-	 kIrVqA2uHjib4MQly5gG2sAWV4JPCDgZISbnhtgKcwHR0xCz3uoLmbPWy83eL6Z/Cn
-	 7Lv/ROM/uizyH06RQra7gnEsreWgzAfIm1COqq1/Jt9LqHb15MQ60SKteLfcaZSGfI
-	 3GWTl8KLB7IIHzthOvHejwNUNWLKZhaPmnBi5AvPtpnqb+e2YL/n96OxzCrewy3Byx
-	 lQOgGTIiQ5sPobSvuqfU6Zg9lgBvOxQl/s7HfzGNxSg2KmHXL0TCEKI4aeLa4S2kBG
-	 Aax0efOl35LZw==
-Message-ID: <610ebd79-3ad4-432c-ac92-b8956d7150d1@kernel.org>
-Date: Tue, 8 Sep 2026 12:39:18 +0200
+	s=k20260515; t=1788864042;
+	bh=oFlFYB7JsZy8OlPUw/REtl9ziZINj9mm81h84T7Rop8=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=iobFmETswYr+yzJytrLWmEfq49n+3DzAbIp4Pua+Ob57W3VwvJft0UDFEVNUtFTb/
+	 aPXmaGF4+pc+wgyyCGTsc9V0VBJrLlVYUAg8fEcCBiBecNrcuPrWSgOH3tcKMK6v4m
+	 s8kD2haDlqtWW70LpBZZyvkwkHePh6SnhfNqNBtrV49uP4hIzdWOV9rul7SClVORNC
+	 suL9lgh3/y7/26BiOqDzkR7obR1LtauFrT/UkH+XfOjtkKCaG35rNuZV9bhSTwNsS9
+	 TJzq67kTbMFCoNQr7Lx8fFEH/yj3P8MAJa55pCi6Z26WPs36fpzZtNN+0tORq9AXcd
+	 JKoMezgYjbukw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v1 1/1] s390/zcrypt: Fix and improve zcrypt reply
+ message verification checks
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Harald Freudenberger" <freude@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20260908102058.14329-2-freude@linux.ibm.com>
+References: <20260908102058.14329-1-freude@linux.ibm.com>
+ <20260908102058.14329-2-freude@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 08 Sep 2026 10:40:41 +0000
+Message-Id: <20260908104041.D3C5D1F00A3D@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/6] mm/vmalloc: constify vm parameter of
- get_vm_area_page_order()
-To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>
-Cc: =?UTF-8?Q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
- Albert Ou <aou@eecs.berkeley.edu>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Alexandre Ghiti <alex@ghiti.fr>,
- Andy Lutomirski <luto@kernel.org>, Borislav Petkov <bp@alien8.de>,
- Brendan Jackman <brendan.jackman@linux.dev>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Huacai Chen <chenhuacai@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Len Brown <lenb@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <pjw@kernel.org>,
- Pavel Machek <pavel@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- "H. Peter Anvin" <hpa@zytor.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
- Ryan Roberts <ryan.roberts@arm.com>, Sven Schnelle <svens@linux.ibm.com>,
- Thomas Gleixner <tglx@kernel.org>, Uladzislau Rezki <urezki@gmail.com>,
- Vasily Gorbik <gor@linux.ibm.com>, WANG Xuerui <kernel@xen0n.name>,
- Will Deacon <will@kernel.org>, x86@kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-mm@kvack.org, linux-pm@vger.kernel.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- loongarch@lists.linux.dev
-References: <20260903-execmem-set-vm-perms-v0-2-v3-0-949b64a9f755@kernel.org>
- <20260903-execmem-set-vm-perms-v0-2-v3-3-949b64a9f755@kernel.org>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20260903-execmem-set-vm-perms-v0-2-v3-3-949b64a9f755@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
 
-On 9/3/26 11:28, Mike Rapoport (Microsoft) wrote:
-> get_vm_area_page_order() and vm_area_page_order() do not need to modify
-> struct vm_struct passed to them.
-> 
-> Constify the parameter.
-> 
-> Reviewed-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
-> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> ---
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
-Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
+Pre-existing issues:
+- [High] The length validation for XCRB replies with a secondary data segme=
+nt (`count2 > 0`) fails to verify that the primary segment's boundaries (`o=
+ffset1 + count1`) fit within the message buffer, allowing an out-of-bounds =
+read and uninitialized kernel heap memory disclosure to userspace.
+--
 
--- 
-Cheers,
+commit e0149d402b0c0e1ac4ba64b32211aa5a4effb09f
+Author: Harald Freudenberger <freude@linux.ibm.com>
 
-David
+s390/zcrypt: Fix and improve zcrypt reply message verification checks
+
+This commit reworks length validation for crypto card replies in the
+zcrypt device driver. It adds bounds checks to prevent out-of-bounds
+reads when handling CCA, EP11, and ICA messages.
+
+> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/=
+zcrypt_msgtype6.c
+> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
+> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
+
+[ ... ]
+
+> @@ -928,48 +935,82 @@ static void zcrypt_msgtype6_receive(struct ap_queue=
+ *aq,
+
+[ ... ]
+
+> +	case CEXXC_RESPONSE_TYPE_XCRB:
+> +		len =3D (size_t)t86r->fmt2.offset1 + (size_t)t86r->fmt2.count1;
+> +		if (t86r->fmt2.offset1 > reply->len ||
+> +		    t86r->fmt2.count1 > reply->len) {
+> +			msg->rc =3D -EMSGSIZE;
+> +			pr_debug("offset1 %u count1 %u rpl.len %zu mismatch, msg.rc=3D%d\n",
+> +				 t86r->fmt2.offset1, t86r->fmt2.count1,
+> +				 reply->len, msg->rc);
+> +			goto out;
+> +		}
+> +		if (t86r->fmt2.count2) {
+> +			len =3D (size_t)t86r->fmt2.offset2 +
+> +				(size_t)t86r->fmt2.count2;
+
+[Severity: High]
+This is a pre-existing issue, but does this overwrite of len bypass the
+bounds checking for offset1 and count1 against reply->len?
+
+When count2 is greater than 0, len is overwritten with the secondary
+segment's length (offset2 + count2). Later in zcrypt_msgtype6_receive(),
+the length validation check only verifies:
+
+if (len !=3D reply->len) {
+        ...
+}
+if (len > reply->bufsize || len > msg->bufsize) {
+        ...
+}
+
+Since len is now based entirely on offset2 and count2, the primary
+segment's boundaries (offset1 + count1) are never verified to ensure
+they actually fit within the message buffer (offset1 + count1 <=3D reply->l=
+en).
+
+Could this lead to an out-of-bounds read later when convert_type86_xcrb()
+handles the reply?
+
+If a malformed reply has count2 > 0 but crafted offset1 and count1
+values, convert_type86_xcrb() will use the unvalidated offset1 and count1
+to copy kernel data to userspace:
+
+drivers/s390/crypto/zcrypt_msgtype6.c:convert_type86_xcrb() {
+        ...
+        if (z_copy_to_user(userspace, xcrb->reply_control_blk_addr,
+                           data + msg->fmt2.offset1, msg->fmt2.count1))
+                return -EFAULT;
+        ...
+}
+
+Since the message buffer is allocated without zeroing, could this copy
+uninitialized heap memory past the end of the valid firmware reply
+back to userspace?
+
+> +			if (t86r->fmt2.offset2 > reply->len ||
+> +			    t86r->fmt2.count2 > reply->len) {
+>  				msg->rc =3D -EMSGSIZE;
+> +				pr_debug("offset2 %u count2 %u rpl.len %zu mismatch, msg.rc=3D%d\n",
+> +					 t86r->fmt2.offset2, t86r->fmt2.count2,
+> +					 reply->len, msg->rc);
+>  				goto out;
+>  			}
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260908102058.1432=
+9-2-freude@linux.ibm.com?part=3D1
