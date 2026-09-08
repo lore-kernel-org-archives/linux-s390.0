@@ -1,164 +1,127 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07B9B53ECF7;
-	Tue,  8 Sep 2026 14:41:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F1D0551993
+	for <linux-s390@vger.kernel.org>; Tue,  8 Sep 2026 14:45:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788878506; cv=none; b=EcAJ1Bs0aSwDKIHyzZbifG4M5DM2iFEHwteVwkGwP3fh+/+85KGSfR+CPsjhF4R7Jg1T8bTfhvYViUJP8VX/e3vwfNyx/2KuhxDMA0GgO6LA7sRWfhpTpmEVC2Mec/HZpu/jkJe8xNjXfAvJc4awPacwNrNFzpanDD/6CDNf7TU=
+	t=1788878744; cv=none; b=Xwz7XD3Db74/8aAxIYrM1F3Fp5PwwkJX2uczN+uY2luoWM3gALKLGR+j04ROYDhWSLCHnsMKl137BIjL5ud9zZ8UPbdEJ6Aioz0J9UZCKMTtfDi8EIGFhWIv7xCHympBRPJaJr88RJAjs0ZyvfifUWyTe+kFRZLBarbdiS+iY1c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788878506; c=relaxed/simple;
-	bh=oDX/WcE11SZ/SdoliOgaRIcPYC+iHQXg06z0Mv3RUGk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nBUhIjzzWRI5dhwlqAy7zJCis/z6/yjFQoJIWJ7elpD9+gR+LaoyOfGvjHU2SXZ+gvC/Y9XVJTzD6EowYI70Qkpnc1WO8W8H4DX9rvLkDUbUZoT6UAfUehLbI/7Ks8A69kkOown04mSAEwMz8EKHGU7LRekIwfrubUiXj5SGf34=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A83611F00A3A;
-	Tue,  8 Sep 2026 14:41:14 +0000 (UTC)
-Message-ID: <7c9f6ec3-5886-41ea-8803-d81019321d29@kernel.org>
-Date: Tue, 8 Sep 2026 16:41:09 +0200
+	s=arc-20240116; t=1788878744; c=relaxed/simple;
+	bh=cdtAh+39F44ooU2W5UB+eAWDJN4tt68YysyfkftghK4=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=CrVyzKGg8pZsSixXBM0Y0dihbhaY7vgp/UIQ25WyJEqdNTZ+Y7D2Yi2LPT6tKUz4p8IoBIB3rz2OizgG59P7qSP7dX8agBCovs60vEi8FpaFZP/n3jKTBvYlQdXCznMmZce1QirqUjUZuUDCxVoizfDGkLZnJVAl+R9tFCKtIzo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jdfgHYGJ; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jdfgHYGJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B04ED1F00A3A;
+	Tue,  8 Sep 2026 14:45:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1788878737;
+	bh=N9VGHU3fl0xk1GMCTaD7GtaZjIF0o9dgV/6QyWA2854=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=jdfgHYGJHMhK7UwDGXyxaVm9AAHZUjZPoMFSRcRYCbqwRiA5uraT4gbj7uvIfgHXz
+	 lCYB+ZaXbqixm0WBc5sWnRHjRzkFGA0WFcvRBhEqZKVTM3xkYrD2Jie905kq27cBhH
+	 jEx4lhLjJ2NXXzL9eKK5s8wyiZU8i8DjlS3ovvSIntjyz4NpkaNOOsbRJze3QNJvvR
+	 8bjTqMJ9lrgEimZT4oSZf7VxhymwryFpZva7ekH95hjUcYsN8hOt7yDjhMSheVZpT6
+	 GZ5wNYT0Ndy2IRk5uvtvxU5YADuZfw2xaOB4fu/LCqwXCmnhpHtNymXtflN+YdXgqY
+	 w28UdoW/XTbuw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net 1/2] s390/ctcm: Fix timer corruption in
+ fsm_addtimer()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Nagamani PV" <nagamani@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260907144511.3810194-2-nagamani@linux.ibm.com>
+References: <20260907144511.3810194-1-nagamani@linux.ibm.com>
+ <20260907144511.3810194-2-nagamani@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 08 Sep 2026 14:45:36 +0000
+Message-Id: <20260908144536.B04ED1F00A3A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 17/24] powerpc/vdso: Enable the vdsocheck tool
-To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
- Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt
- <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Alexandre Ghiti <alex@ghiti.fr>, Nathan Chancellor <nathan@kernel.org>,
- Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
- Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>,
- Andy Lutomirski <luto@kernel.org>,
- Vincenzo Frascino <vincenzo.frascino@arm.com>, Kees Cook <kees@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, Richard Weinberger <richard@nod.at>,
- Anton Ivanov <anton.ivanov@cambridgegreys.com>,
- Johannes Berg <johannes@sipsolutions.net>,
- Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Miguel Ojeda <ojeda@kernel.org>, Alex Gaynor <alex.gaynor@gmail.com>,
- Gary Guo <gary@garyguo.net>, =?UTF-8?Q?Bj=C3=B6rn_Roy_Baron?=
- <bjorn3_gh@protonmail.com>, Benno Lossin <lossin@kernel.org>,
- Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl <aliceryhl@google.com>,
- Trevor Gross <tmgross@umich.edu>, Danilo Krummrich <dakr@kernel.org>,
- Thomas Gleixner <tglx@kernel.org>, Boqun Feng <boqun@kernel.org>,
- Nicolas Schier <nsc@kernel.org>
-Cc: linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
- llvm@lists.linux.dev, linux-mm@kvack.org, linux-um@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
- loongarch@lists.linux.dev, linux-s390@vger.kernel.org,
- linux-mips@vger.kernel.org, rust-for-linux@vger.kernel.org,
- linux-kbuild@vger.kernel.org, Jan Stancek <jstancek@redhat.com>,
- Arnaldo Carvalho de Melo <acme@redhat.com>,
- Alexandre Ghiti <alexghiti@rivosinc.com>
-References: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de>
- <20260908-vdso-absolute-reloc-v5-17-3a93791af1cf@linutronix.de>
-Content-Language: fr-FR
-From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-In-Reply-To: <20260908-vdso-absolute-reloc-v5-17-3a93791af1cf@linutronix.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
 
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
 
+Pre-existing issues:
+- [High] Use-After-Free during teardown due to non-synchronous timer cancel=
+lation of grp->timer and priv->restart_timer
+--
 
-Le 08/09/2026 à 08:33, Thomas Weißschuh a écrit :
-> The vdsocheck tool validates the object files and final .so library.
-> It can detect if the compiler created relocations which are incompatible
-> with the vDSO which need to be worked around.
-> 
-> Wire it up for the architecture.
-> 
-> Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
-> ---
->   arch/powerpc/Kconfig              |  1 +
->   arch/powerpc/kernel/vdso/Makefile |  4 ++--
->   lib/vdso/check/vdsocheck.rs       | 27 +++++++++++++++++++++++++++
->   3 files changed, 30 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-> index 2580e27e4328..f19e225cfc5c 100644
-> --- a/arch/powerpc/Kconfig
-> +++ b/arch/powerpc/Kconfig
-> @@ -330,6 +330,7 @@ config PPC
->   	select SYSCTL_EXCEPTION_TRACE
->   	select THREAD_INFO_IN_TASK
->   	select TRACE_IRQFLAGS_SUPPORT
-> +	select VDSO_CHECK
->   	select VDSO_DATASTORE
->   	select VDSO_GETRANDOM
->   	#
-> diff --git a/arch/powerpc/kernel/vdso/Makefile b/arch/powerpc/kernel/vdso/Makefile
-> index 368759f81708..ca20b91b4373 100644
-> --- a/arch/powerpc/kernel/vdso/Makefile
-> +++ b/arch/powerpc/kernel/vdso/Makefile
-> @@ -81,9 +81,9 @@ targets += vdso64.lds
->   CPPFLAGS_vdso64.lds += -P -C
->   
->   # link rule for the .so file, .lds has to be first
-> -$(obj)/vdso32.so.dbg: $(obj)/vdso32.lds $(obj-vdso32) $(obj)/vgettimeofday-32.o $(obj)/vgetrandom-32.o $(obj)/crtsavres-32.o FORCE
-> +$(obj)/vdso32.so.dbg: $(obj)/vdso32.lds $(obj-vdso32) $(obj)/vgettimeofday-32.o $(obj)/vgetrandom-32.o $(obj)/crtsavres-32.o $(vdsocheck) FORCE
->   	$(call if_changed,vdso32ld_and_check)
-> -$(obj)/vdso64.so.dbg: $(obj)/vdso64.lds $(obj-vdso64) $(obj)/vgettimeofday-64.o $(obj)/vgetrandom-64.o FORCE
-> +$(obj)/vdso64.so.dbg: $(obj)/vdso64.lds $(obj-vdso64) $(obj)/vgettimeofday-64.o $(obj)/vgetrandom-64.o $(vdsocheck) FORCE
->   	$(call if_changed,vdso64ld_and_check)
->   
->   # assembly rules for the .S files
-> diff --git a/lib/vdso/check/vdsocheck.rs b/lib/vdso/check/vdsocheck.rs
-> index e45a1fbc6829..429bdcd65818 100644
-> --- a/lib/vdso/check/vdsocheck.rs
-> +++ b/lib/vdso/check/vdsocheck.rs
-> @@ -69,6 +69,33 @@ fn allowed_relocations_for_machine(machine: u16) -> Option<AllowedRelocations<'s
->               ..Default::default()
->           }
->           .into(),
-> +        bindings::EM_PPC => AllowedRelocations {
-> +            in_object_file: &[
-> +                bindings::R_PPC_REL24,
+commit 6ecc23adfe371b690518fad3a360058f37350370
+Author: Nagamani PV <nagamani@linux.ibm.com>
+Subject: s390/ctcm: Fix timer corruption in fsm_addtimer()
 
-Not sure this is correct, see commit 42ed6d56ade2 ("powerpc/vdso: Block 
-R_PPC_REL24 relocations")
+fsm_addtimer() calls timer_setup() unconditionally before add_timer(), which
+corrupts the timer list if the timer is already pending. This commit removes
+the redundant timer_setup() calls from fsm_addtimer() and fsm_modtimer(),
+and replaces add_timer() with mod_timer().
 
-> +                bindings::R_PPC_REL14,
-> +                bindings::R_PPC_REL32,
-> +                bindings::R_PPC_REL16,
-> +                bindings::R_PPC_REL16_LO,
-> +                bindings::R_PPC_REL16_HI,
-> +                bindings::R_PPC_REL16_HA,
-> +            ],
-> +            ..Default::default()
-> +        }
-> +        .into(),
-> +        bindings::EM_PPC64 => AllowedRelocations {
-> +            in_object_file: &[
-> +                bindings::R_PPC64_REL24,
+Link: https://sashiko.dev/#/patchset/20260803182736.2356374-1-nagamani@linu=
+x.ibm.com?part=3D1
 
-Not sure this is correct, see commit 42ed6d56ade2 ("powerpc/vdso: Block 
-R_PPC_REL24 relocations")
+> diff --git a/drivers/s390/net/fsm.c b/drivers/s390/net/fsm.c
+> index 9b8622aef807b..8d2e9bbb74a23 100644
+> --- a/drivers/s390/net/fsm.c
+> +++ b/drivers/s390/net/fsm.c
 
-> +                bindings::R_PPC64_REL14,
-> +                bindings::R_PPC64_REL32,
-> +                bindings::R_PPC64_REL64,
-> +                bindings::R_PPC64_REL16,
-> +                bindings::R_PPC64_REL16_LO,
-> +                bindings::R_PPC64_REL16_HI,
-> +                bindings::R_PPC64_REL16_HA,
-> +            ],
-> +            ..Default::default()
-> +        }
-> +        .into(),
->           _ => None,
->       }
->   }
-> 
+[ ... ]
 
+> @@ -189,12 +186,9 @@ fsm_modtimer(fsm_timer *this, int millisec, int even=
+t, void *arg)
+>  		this->fi->name, this, millisec);
+>  #endif
+> =20
+> -	timer_delete(&this->tl);
+
+[Severity: High]
+This is a pre-existing issue, but while reviewing the timer handling changes
+here, I noticed a potential Use-After-Free during device teardown due to
+fsm_deltimer() using the non-synchronous timer_delete().
+
+While a later patch in this series ("s390/ctcm: Fix use-after-free in
+channel_remove()") correctly avoids fsm_deltimer() in favor of
+timer_delete_sync() for ch->timer, it appears the same vulnerability remains
+for grp->timer and priv->restart_timer.
+
+During device unbind or offline actions, the driver calls fsm_deltimer()
+to cancel these timers and then immediately frees the enclosing structures.
+
+For instance, in drivers/s390/net/ctcm_main.c:ctcm_free_netdevice():
+
+	tasklet_kill(&grp->mpc_tasklet2);
+	kfree(grp);
+
+And similarly in ctcm_remove_device():
+
+	if (cgdev->state =3D=3D CCWGROUP_ONLINE)
+		ctcm_shutdown_device(cgdev);
+	dev_set_drvdata(&cgdev->dev, NULL);
+	kfree(priv);
+
+If the fsm_expire_timer() callback is executing concurrently on another CPU
+when kfree() is called, could it dereference the freed grp or priv
+structures?
+
+Would it make sense to update fsm_deltimer() to use timer_delete_sync() to
+safely wait for concurrent callbacks, or otherwise ensure synchronization
+during teardown?
+
+> -	timer_setup(&this->tl, fsm_expire_timer, 0);
+>  	this->expire_event =3D event;
+>  	this->event_arg =3D arg;
+> -	this->tl.expires =3D jiffies + (millisec * HZ) / 1000;
+> -	add_timer(&this->tl);
+> +	mod_timer(&this->tl, jiffies + msecs_to_jiffies(millisec));
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260907144511.3810=
+194-1-nagamani@linux.ibm.com?part=3D1
