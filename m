@@ -1,180 +1,192 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DE7D3002B9;
-	Wed,  9 Sep 2026 07:38:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5BAD3AAF40
+	for <linux-s390@vger.kernel.org>; Wed,  9 Sep 2026 08:04:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788939485; cv=none; b=LPpDvO14P9dvovPn8DBpbgZboEWgWseOh56r4Yl3HRsELiuo6wI5iGUvzvwyG7C2cybqA2tGiUKe2XyOvDNn17v21zvSMlnoP/DWtW19w+kjr4mq8hfcJYaeIMQkZuEmjQKtYsjAJRIVumrnWTQ1eFr4PDHQJUlqspWXIOWdwrs=
+	t=1788941051; cv=none; b=Eyk2DzRFD/0g7GN4Z0gxim6pfhbnW2hg/T7kvU1m5quM3/BSq9MkpGR14YqMPg195Vk+w27OuseJF5GazwFJ9CO8B5ffHywaF58wx/dJsYNTgmO7swcSV63aBY/cu79REMUnwHGzRQfN9hxpbvLuo9S0fGdMApwWE1+IcZkgWLA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788939485; c=relaxed/simple;
-	bh=nTAm35845aAqmOQtS6HyRYHkKn+bOdSMAV3QF5uJvY8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZdQmzFnen4pGM4M62lN7CkOLWz1/1MCEJEt2hgKO7FlRi4xKC9STZLFtV+TYQNNzy6w4guOP7Nnf0JOeDgs+Fl7UJqdo2lV+8wa+WPR92q+n7cn+23HaVocVKLhTHI0KyyiHyqIHIp0yxOlO+SUikaYa/YdguoVldsNeaQK4tos=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=fMvwOMtK; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1788941051; c=relaxed/simple;
+	bh=e1+Lb/NG+mk3Ilrk3d4Lqqcpc5Zw8k7/MCjnzOdByLo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=WuLOVPTXXsaPLo1Z0BCTey2waauGugAifAjluSUuM4omGAlDUj3D1060s43dhHjxiDvDZ5NwT/gnTCABbd9yS7DJ2qI6F2A7h6K+NC9KfXJuRfHzqpF/2GAxpQBYDNgp2ai8T19rnjUuYJl7no+LEUXvYM7lK348f9D2lIXxm4E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VryFZB83; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=k9R4+inj; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="fMvwOMtK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8484C1F00A3A;
-	Wed,  9 Sep 2026 07:38:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
-	s=korg; t=1788939483;
-	bh=z7WoiQ3kTHyw/Ii8U53W3jB43VLKD3M/+zE0Et0v4Dk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=fMvwOMtKjnQJHWqbGOBFRkxLXNBsibipPgj2Q6P064WQJWMW7wfdq4gqVuVvBLOBi
-	 mw2LdSGq7nWqdIa6eYDVqIpvJUSLUA2zonOikKUX6K36rwbteoOJo/Gwa7LLNDfbhI
-	 EHt9w7bjV4yHdhIGfrHtCRftSsoS+o6rrCDY1usY=
-Date: Wed, 9 Sep 2026 09:37:54 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>, Jann Horn <jannh@google.com>,
-	Pedro Falcato <pfalcato@suse.de>,
-	David Hildenbrand <david@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>,
-	Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
-	Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Eduard Zingerman <eddyz87@gmail.com>,
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <nico.pache@linux.dev>,
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
-	Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
-	Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>,
-	Doug Gilbert <dgilbert@interlog.com>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	"Martin K. Petersen" <mkp@kernel.org>,
-	Jaya Kumar <jayalk@intworks.biz>, Simona Vetter <simona@ffwll.ch>,
-	Helge Deller <deller@gmx.de>, Sebastian Reichel <sre@kernel.org>,
-	John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Oleg Nesterov <oleg@redhat.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	Namhyung Kim <namhyung@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>,
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
-	Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>,
-	Jan Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>,
-	Oliver Upton <oupton@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>,
-	Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>,
-	Youngjun Park <youngjun.park@lge.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Qi Zheng <qi.zheng@linux.dev>,
-	Shakeel Butt <shakeel.butt@linux.dev>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Xu Xin <xu.xin16@zte.com.cn>,
-	Chengming Zhou <chengming.zhou@linux.dev>,
-	Michal Hocko <mhocko@kernel.org>,
-	Miklos Szeredi <miklos@szeredi.hu>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-usb@vger.kernel.org, linux-rdma@vger.kernel.org,
-	selinux@vger.kernel.org, linux-sound@vger.kernel.org,
-	bpf@vger.kernel.org, linux-scsi@vger.kernel.org,
-	linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linux-trace-kernel@vger.kernel.org,
-	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
-	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev
-Subject: Re: [PATCH 09/39] drivers/usb/mon: update to use mmap_prepare + map
- kernel pages
-Message-ID: <2026090947-daycare-gentleman-9796@gregkh>
-References: <20260908-b4-mmap-prepare-vma-flag-sanify-v1-0-dacf19cce22b@kernel.org>
- <20260908-b4-mmap-prepare-vma-flag-sanify-v1-9-dacf19cce22b@kernel.org>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VryFZB83";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="k9R4+inj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1788941048;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=GGIjuVUQngRfRgvOMv6WaGJ9yxJojhd+x80M9bpkP2Y=;
+	b=VryFZB83+cpgeoa/pX5Gm+7Yba3EBVztfJmoRYkyDFhCB5o7mOiYHGjDlBNMF1fpAW0+79
+	z+iPvG56AUuaWS8qAJv6LaCKAuA1WHAFf0TW1G3AJ/baQlIhFupr1v8sRCnkQYjFfEJ0jP
+	9J50egJKA1e3Yq9e5VCTl+K69a6OTQc=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-519-XEO5POn0N6a59GdSwfAdVg-1; Wed, 09 Sep 2026 04:04:05 -0400
+X-MC-Unique: XEO5POn0N6a59GdSwfAdVg-1
+X-Mimecast-MFC-AGG-ID: XEO5POn0N6a59GdSwfAdVg_1788941044
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-482f41ca436so4906432f8f.1
+        for <linux-s390@vger.kernel.org>; Wed, 09 Sep 2026 01:04:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1788941044; x=1789545844; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=GGIjuVUQngRfRgvOMv6WaGJ9yxJojhd+x80M9bpkP2Y=;
+        b=k9R4+injsc/zbqg0EA2TiH1ju0+WWPJJsyndH2z63bbD4wmNJrPQhm6Y7SKH8as9cy
+         oyackBYiVfOR+IepwIF4tDGSDhZLLvYyJy0r2yKUxzfHTGv8bmYCfWAwlE1VMOpvQZOO
+         USkP+l87T7hRinb+ajFFhywlZ41IQOhCD59lDeUuqJV66j5kDedOlK6o+UU2/yzj98V4
+         ly6q4OXi6guTv1RiVmhgpgVrY8+sfP1DMfQ1ixrwA3HEOl5GfwPmFOrz3+qHoBxy5HPf
+         HGwWMydYDnoNGQPmo8MA/DRBv96x0UWoQseLf1DG5W5W8d914yFO1spKGbTgaLJCfYkG
+         0nAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788941044; x=1789545844;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=GGIjuVUQngRfRgvOMv6WaGJ9yxJojhd+x80M9bpkP2Y=;
+        b=ABotHU8eqsmGYdm3CEVREfCw6Y3B2Dl6rAkTi1mhblJsNzy8CkzUYdy50YIYjO3Q9/
+         krGcheHVIL73KQBkyGvBr9yEYA6r93vsDPXF143twVDAv5P7SXy6n48dH9Cw+p+Yg2du
+         gEqgqKHsCpz5EVhG7z4hdxorYQP97oXIiiUjGZuTXGcEBaWUz4vag+Eo0AyNjDtTiErO
+         6viXRhT+egfdcOtv33RsVKeshgW3H5EtSw+l39eyViu/f5W9Rv500+SzuE89mPSeEeIM
+         X8G40Wxi9/S+/fchDwSR9id7FclKtxogAB/ub0TQZliWbf3CWbqP7aTFjSYFhWQQ1Av/
+         rLKw==
+X-Forwarded-Encrypted: i=1; AKwUvBz2N9DqfGoAFNQGzudG+6Rven1qpgjnwZrihXwYX46RDNeSJAdlc2aS83qDo2gnBAFlfu8rD77j8owD@vger.kernel.org
+X-Gm-Message-State: AFuF++ncN1RjuBVg/Z4bkZ0kthsn0IlDGNL6H7e1vVO3QBcFOFI4RVpP
+	UrWhV895q8eSOErxWEaw4Nccwn7FunPUP5bXZofAf7KeIl3cw7xNhtT3C2iAhTdCh8E5PYqHoa/
+	hlS8rCQwW8BiOAvzJ/j/fRxJOMqnjTgEN7PpcnCxMW8jdWgV2N7LK29PM1BsNPj/UsMrnvfw=
+X-Gm-Gg: AYBFou35eILOL+RV0AhUUHMtqS9VAtKp1lIa9gLlG07sBna60Gy7v5skL+qLrjq4Qx4
+	wUWFaxOTIJXw8woKua3cjL+0VD1gSza8KyBzjucE8JkyOJewnr7E4qRcZTzVTpORRPrHEQeoyjL
+	zindaZDvIbc+Y6S4jhntvR24J8Rdtn9QjkdiFUh03Bo46OnxWPk1K7TPNm3ZEiO+Yzxgyk+PpGT
+	BZRfQMwN4qnF0XtxLU+SZJz87ViJAf570+vF90nVxv9EHvp4OrTxQAfm8fEhcM86GGA6TDY/E9Y
+	CyRSb12WH0Y3PNpUZnJ49zzNcGmYohQfw5eCR6A9fOdHxAuoakuV42GJYY/3sq7TDznvurYDl7Y
+	Uuok9B9gH9ZdtaPLCKUu2ltoSQzEcCaO3l2MEElk/Pp5JfwDSf/rcqkW1abvZ4WM4rCMQMV2nbQ
+	==
+X-Received: by 2002:a05:600c:8b05:b0:49c:edd2:855 with SMTP id 5b1f17b1804b1-49cf823c411mr360364085e9.6.1788941044346;
+        Wed, 09 Sep 2026 01:04:04 -0700 (PDT)
+X-Received: by 2002:a05:600c:8b05:b0:49c:edd2:855 with SMTP id 5b1f17b1804b1-49cf823c411mr360363415e9.6.1788941043923;
+        Wed, 09 Sep 2026 01:04:03 -0700 (PDT)
+Received: from [192.168.188.218] (ip232-47-231-195.pool-bba.aruba.it. [195.231.47.232])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49d20fce7a7sm89320615e9.4.2026.09.09.01.04.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 09 Sep 2026 01:04:03 -0700 (PDT)
+Message-ID: <d447c4e8-9f68-41fe-9598-68a35f48057e@redhat.com>
+Date: Wed, 9 Sep 2026 10:04:01 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260908-b4-mmap-prepare-vma-flag-sanify-v1-9-dacf19cce22b@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next] dibs: Avoid inconsistent lockstate warning in
+ dibs_lo_move_data()
+To: Alexandra Winter <wintera@linux.ibm.com>, netdev-bot+sashiko@kernel.org
+Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
+ sidraya@linux.ibm.com, mjambigi@linux.ibm.com, davem@davemloft.net,
+ kuba@kernel.org, edumazet@google.com, andrew+netdev@lunn.ch,
+ tonylu@linux.alibaba.com, guwen@linux.alibaba.com, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, hca@linux.ibm.com,
+ gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+ svens@linux.ibm.com, horms@kernel.org
+References: <20260904094446.1342654-1-wintera@linux.ibm.com>
+ <178887153533.219967.1817289806507440884@kernel.org>
+ <a5ffb5d2-4509-4e73-af0d-aad4b1cc9412@linux.ibm.com>
+Content-Language: en-US
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <a5ffb5d2-4509-4e73-af0d-aad4b1cc9412@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Tue, Sep 08, 2026 at 09:01:13PM +0100, Lorenzo Stoakes (ARM) wrote:
-> Replace the deprecated .mmap hook with its replacement .mmap_prepare. As
-> part of this change, additionally take the approach of mapping pages upon
-> mmap rather than providing a fault handler.
+On 9/8/26 7:04 PM, Alexandra Winter wrote:
+> On 08.09.26 14:45, netdev-bot+sashiko@kernel.org wrote:
+>> Thank you for your contribution! Sashiko AI review found 1 potential
+>> issue(s) to consider:
+>>
+>> Critical: 0 · High: 0 · Medium: 1 · Low: 0
+>>
+>> - [Medium] The patch fixes an observable lockdep "inconsistent lock
+>>   state" splat produced by the plain spin_lock(&dibs->lock) in…
+>>
+>> --
+>>
+>> Here is the report.
+>>
+>> dibs: Avoid inconsistent lockstate warning in dibs_lo_move_data()
+>>
+>> This converts the plain spin_lock()/spin_unlock() around the
+>> dibs->subs[]->ops->handle_irq() call in dibs_lo_move_data() to
+>> spin_lock_irqsave()/spin_unlock_irqrestore(), because the same lock is
+>> also taken from hardirq context in ism_handle_irq().  The commit message
+>> notes this is not a real deadlock since dibs_lo devices have no interrupt
+>> context.
+>>
+>>> diff --git a/drivers/dibs/dibs_loopback.c b/drivers/dibs/dibs_loopback.c
+>>> index 649e4e375be33..44a2e74c2efcb 100644
+>>> --- a/drivers/dibs/dibs_loopback.c
+>>> +++ b/drivers/dibs/dibs_loopback.c
+>>
+>> [ ... ]
+>>
+>>> @@ -267,12 +268,12 @@ static int dibs_lo_move_data(struct dibs_dev *dibs, u64 dmb_tok,
+>>>  	if (!sf)
+>>>  		return 0;
+>>>  
+>>> -	spin_lock(&dibs->lock);
+>>> +	spin_lock_irqsave(&dibs->lock, flags);
+>>>  	client_id = dibs->dmb_clientid_arr[sba_idx];
+>>>  	s_mask = ror16(0x1000, idx);
+>>>  	if (likely(client_id != NO_DIBS_CLIENT && dibs->subs[client_id]))
+>>>  		dibs->subs[client_id]->ops->handle_irq(dibs, sba_idx, s_mask);
+>>> -	spin_unlock(&dibs->lock);
+>>> +	spin_unlock_irqrestore(&dibs->lock, flags);
+>>
+>> [Severity: Medium]
+>> Should this carry a Fixes: tag?  The lockdep splat quoted in the commit
+>> message is reproducible on shipped kernels, and git blame attributes the
+>> converted spin_lock()/spin_unlock() pair in dibs_lo_move_data() to:
+>>
+>> cc21191b584c6f ("dibs: Move data path to dibs layer")
+>>
+>> The hardirq-side acquisition of the same lock is in ism_handle_irq()
+>> (drivers/s390/net/ism_drv.c):
+>>
+>> 	spin_lock(&dibs->lock);
+>>
+>> which matches the {IN-HARDIRQ-W} registration in the report, so the
+>> warning can be hit by ordinary SMC traffic through
+>> smc_close_active()->smcd_cdc_msg_send()->smcd_tx_ism_write()->dibs_lo_move_data()
+>> on a lockdep-enabled kernel.
+>>
+>> The splat also ends with "INFO: lockdep is turned off", so further lock
+>> checking is lost for the rest of that boot on affected kernels.
+>>
+>> Would adding the following help backporters and stable tooling identify
+>> which trees need this change?
+>>
+>> Fixes: cc21191b584c6f ("dibs: Move data path to dibs layer")
+>>
 > 
-> The page span cannot be mutated when an mmap mapping is in place, so this
-> is safe to do in advance (the MON_IOCT_RING_SIZE ioctl operation exits
-> -EBUSY if it's attempted, gated by the rp->mmap_active reference count).
 > 
-> Utilise the newly introduced mmap_action_map_discontig_kernel_pages() to do
-> this, which allows for iteration over pages in mon_bin_discontig_get().
+> As mentioned in the commit message the paths reported by lockdep belong to two
+> different device types (dibs-lo and ism). So not a real deadlock.
+> So unless lockdep-warnings by themselves warrant a Fixes-tag (?), I think net-next is correct here.
 > 
-> mon_bin_discontig_init() increments the rp->mmap_active reference count to
-> stabilise page spans. Should an error arise the core unmaps the VMA and
-> mon_bin_vma_close() drops the reference again.
-> 
-> The vm_ops->close hook implemented in mon_bin_vma_close() will ensure
-> correct reference count arithmetic upon unmap (with mon_bin_vma_open()
-> accounting for splitting).
-> 
-> The existing semantics are all retained, including not mapping past the
-> range of available pages, with a SIGBUS being raised in a userland process
-> that attempts to access past this point.
-> 
-> Ultimately insert_page() is invoked to insert each page, which increments
-> the reference count on each mapped page. This mimics what was being done
-> previously, only we pre-map the entire range rather than doing so on
-> demand.
-> 
-> The existing fault handler did nothing that required demand paging, and was
-> presumably implemented this way due for historic reasons.
-> 
-> One behavioural difference: pages are no longer faulted in on demand, so a
-> page discarded with MADV_DONTNEED is not repopulated and a subsequent
-> access raises SIGBUS, as with other pre-populated kernel mappings.
-> 
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+> Paolo applied this already to net-next.
+> For the records: Sahiko identified the right patch to blame.
+The current guidance is no fixes tag for net-next patches address old
+'issues'. Since this is a false positive, I deemed it as a 'non issue',
+hence I agreed with the net-next target (and thus no fixes tag).
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+/P
+
