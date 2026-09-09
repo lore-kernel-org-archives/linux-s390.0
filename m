@@ -1,46 +1,46 @@
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0E2D4854F6;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67CDB485CEF;
 	Wed,  9 Sep 2026 08:51:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788943901; cv=none; b=qg9zlOsPHpfaoRj8Eusx8o3d8t3b0BxbilHpnz1dacjEmCoG9ZfytjuhU/ZZvUlDrPqTYywi9uImkd/ThHO89XlUBAZJREE7JQu9hyIgOwbjS0d+6afPdq/fIhy+OcWUbL/c8Ft0AgsCi0zexau1Cqfb8JoJ2Pw57pzF57D90/A=
+	t=1788943903; cv=none; b=FEy3TZU+F1rpjkSUZaGzRumBlt4NknxSUHGytGhzKiTBzIhGwCMu8rq23fCJFzvHslBC0PBo6zO4/foTcZ0Qv/l2EHMz/5u07qwkxXNn/i0QCn7DgCwyozB8MlhRazkyF66/E/BwFNADVn2M3x2mh/wRIc1Zww0CF1RJhje9C10=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788943901; c=relaxed/simple;
-	bh=p+b8xoqSRp+BaXpuv6UkhI9jSr9haopNWgF+UmEOVQk=;
+	s=arc-20240116; t=1788943903; c=relaxed/simple;
+	bh=5kEtWlx4srqMSxMbrqSmgOqVkUKIg3dsZZJXpVNG60I=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=nGGFgaDWdonPS/rbMS3tkFmTNIEE+r40LeqV8Zs1eODpb6mFKx5s2w3KQxW5GM9a9E07dNUzS8gdVZ+mukO2jBpYMm+Px/Oykciv8AsGHbDbUEEuSP8Wgg4uadyRCRrSs/zAWiB5J5y1+HayLTm/gPIryNzuDwqpf2B8QDkpgiA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=18ypzorm; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=V9tYUFNz; arc=none smtp.client-ip=193.142.43.55
+	 In-Reply-To:To:Cc; b=gy8lipV5J2qmSvGk/CjPWhqriLcEGh2f72vl5/0OBjOAKUFymvd9KMRXGpO21hmafAQjVEC0ZB99RGgtaZhEjfijcgdewrE+VlKaIQGzWmho5Jy7ThIWCJ8qIOL+X4giFqm+ktDTx9xRA9oRQ8GNCmIG2g+VFBvbJxwzW29lO5U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=jG8f6cKe; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=+0brCh2l; arc=none smtp.client-ip=193.142.43.55
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="18ypzorm";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="V9tYUFNz"
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="jG8f6cKe";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="+0brCh2l"
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1788943885;
+	s=2020; t=1788943886;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=sC8+6J9OLUakbA4e+Ap2B6uuZE9Tl7PwTVwk0psJD7w=;
-	b=18ypzormw89rOzBf6uIIHYH1wJOPorGI4jxdXBGhkEdBQPZOLIVTm3KlRtbdVDtdGj9VG7
-	Dyjho9sIcBEasT5u31Y6tYFz04xKu20FzftA5gy6Id8NhHbhfJut0d0PS+7ZjetZKmijCh
-	u/3olgtjrDEgB4C5ITT4CpG3VJZ5DK2VcHCG/wOlxBKI+jSGLQNOi+m8a9Y5OivTRfFyAs
-	2pKxnMgQ6QXgcLRV+3MsRlunL77unXFK+hIJ7P2eCY8PBRsZctieqL2rbr4yWOsH/yijps
-	0oceS1P/fPh3YWLS+ARzngBQRl6bCpKYgOPJXYvTIYdpTZN4WO39XXP4Yc9OKQ==
+	bh=oh1PJG/vwynt7EkxazpWcIlavpMds/jXQGtW/4wg0d8=;
+	b=jG8f6cKe83NgFyvB7usZY5ErQO/V+DEWyK1IB8tUERMGKxGkzLNkIRGesrebnzL/Gxsnyi
+	ajCdAtna/v6CMkAKXjthX4qDcEE9WrSAtMgIfoQFesbhR0R4vNqSYIZ1OGchhK7tOM/GSY
+	SGyj2dZCe0nw25WQUym+CIEiEZ6x/wUaSFxGrW1UHbhREFH9op4ca2NuLp1Mo/RiW4B8P0
+	WztwZfxOkGPxnJhqkzrD+mcn0yD453QUx2P4tDWkiLiMbYyG78yBvjcK8R/Ym+DjhTxPlv
+	Qu07I+AE0JkTdPbZxhPMQ3BqhKIYkYs6yAnLeDVndUB+dkr600i6Jh5cklHbPw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1788943885;
+	s=2020e; t=1788943886;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=sC8+6J9OLUakbA4e+Ap2B6uuZE9Tl7PwTVwk0psJD7w=;
-	b=V9tYUFNzgGBunIsna6vZfNbVMtIIjvl+n+kfHtNDv+819iutT7PUqChs4OihB+GRdxuasV
-	MJxc+Wzwhfj+biBw==
-Date: Wed, 09 Sep 2026 10:51:22 +0200
-Subject: [PATCH 09/15] sparc/vdso: Delete asm/vdso/vsyscall.h inclusion
+	bh=oh1PJG/vwynt7EkxazpWcIlavpMds/jXQGtW/4wg0d8=;
+	b=+0brCh2l6wZIkosY+LRmMvfxx2IhX7GE3jNB+mNx83iF8+o62DG8Ex4rQiFeyrEcrPuQlG
+	/Ke2Gl8rQAlYcQBg==
+Date: Wed, 09 Sep 2026 10:51:23 +0200
+Subject: [PATCH 10/15] x86/vdso: Delete asm/vdso/vsyscall.h inclusions
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,7 +49,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260909-vdso-asm-generic-vsyscall-h-v1-9-63ae856cc659@linutronix.de>
+Message-Id: <20260909-vdso-asm-generic-vsyscall-h-v1-10-63ae856cc659@linutronix.de>
 References: <20260909-vdso-asm-generic-vsyscall-h-v1-0-63ae856cc659@linutronix.de>
 In-Reply-To: <20260909-vdso-asm-generic-vsyscall-h-v1-0-63ae856cc659@linutronix.de>
 To: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
@@ -60,33 +60,45 @@ Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
  linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
  sparclinux@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1788943875; l=516;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1788943875; l=1100;
  i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
- bh=p+b8xoqSRp+BaXpuv6UkhI9jSr9haopNWgF+UmEOVQk=;
- b=M4PnWWjB8PtId1XPU1zVCslJBTDHYh9V/L0XSbIVM9OptHzq+tq0jklWaWwKlEoUCNwkyM6tW
- rJ+WK8pnGurDoAd2fM6SfaNEA6DETxYOyV8t6MVuFm8YlCVyu8Tziow
+ bh=5kEtWlx4srqMSxMbrqSmgOqVkUKIg3dsZZJXpVNG60I=;
+ b=n4PspGkIOT4Ebc+CmHeX9ALb1UVKIlo/hmp+mpBEFSF3QM6gtk5pa1nGQAPgV+tbbPhWB3ikF
+ CsF4rPheNMACU2R8R3gkRXtsPOgU2bhh0jtZnJ0G/TUZh5S+gNmgRl9
 X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
  pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-The inclusion is unnecessary, remove it.
+The inclusions are unnecessary, remove them.
 
 Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 ---
- arch/sparc/vdso/vma.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/x86/entry/vdso/common/vdso-layout.lds.S | 1 -
+ arch/x86/entry/vdso/vma.c                    | 1 -
+ 2 files changed, 2 deletions(-)
 
-diff --git a/arch/sparc/vdso/vma.c b/arch/sparc/vdso/vma.c
-index 60029d60f4d3..ab6626c1ee61 100644
---- a/arch/sparc/vdso/vma.c
-+++ b/arch/sparc/vdso/vma.c
-@@ -23,7 +23,6 @@
- #include <asm/page.h>
- 
- #include <vdso/datapage.h>
+diff --git a/arch/x86/entry/vdso/common/vdso-layout.lds.S b/arch/x86/entry/vdso/common/vdso-layout.lds.S
+index a1e30be3e83d..f190efbc640e 100644
+--- a/arch/x86/entry/vdso/common/vdso-layout.lds.S
++++ b/arch/x86/entry/vdso/common/vdso-layout.lds.S
+@@ -1,6 +1,5 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ #include <asm/vdso.h>
 -#include <asm/vdso/vsyscall.h>
+ #include <vdso/datapage.h>
  
- unsigned int __read_mostly vdso_enabled = 1;
+ /*
+diff --git a/arch/x86/entry/vdso/vma.c b/arch/x86/entry/vdso/vma.c
+index 18dfd80a81ef..4bd3b22beea9 100644
+--- a/arch/x86/entry/vdso/vma.c
++++ b/arch/x86/entry/vdso/vma.c
+@@ -25,7 +25,6 @@
+ #include <asm/page.h>
+ #include <asm/desc.h>
+ #include <asm/cpufeature.h>
+-#include <asm/vdso/vsyscall.h>
+ #include <clocksource/hyperv_timer.h>
  
+ static_assert(VDSO_NR_PAGES + VDSO_NR_VCLOCK_PAGES == __VDSO_PAGES);
 
 -- 
 2.55.0
