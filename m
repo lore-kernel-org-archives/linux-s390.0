@@ -1,40 +1,40 @@
 Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 934AB345EA6;
-	Wed,  9 Sep 2026 19:30:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D192D41A8F;
+	Wed,  9 Sep 2026 19:34:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788982217; cv=none; b=A91Acn6V/NWpJ+1+TXyBzfX3zXM2QWmHfFgA/wQLUPpgWoVgrEnhQofd1LfBloxGRCWWHPROHx/bwhTALV0GTfd7RvuK7YNq9TpjGE2EBRwS4tGPOFqHFMbjXTZjt+mEytpl88GMJUuH5sYeIZoU7skeDrGk38KVrsIpbx1IlSo=
+	t=1788982449; cv=none; b=t+O2FbQ3bJJ+Jq8pstv/VlRyF8hxQhWFmsKsVu5g1LEXqcsw3pTe9BfzyLZyneRl7/4Av4LhTGxO3kwDrFLRPjS1YFzLdXzCaqXjtPuUTHuWhNXnWqEZmKhujB8IIy9N1zeZ3Vw5qQ+lidXRLoi0OQXXysVLozLPEX1UUKtK7K0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788982217; c=relaxed/simple;
-	bh=6FWk2kCaq7dt/dT206fJQw/agDhO+pyh0SswIzM/cJE=;
+	s=arc-20240116; t=1788982449; c=relaxed/simple;
+	bh=t6WvPZKDUa+XIMc5MJIp9UjPq4fgZb3FxkTKoMvc1Bo=;
 	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=EDcMYeq05q0QXPJsp32MXc3vNFVVKPzjygvxo6hQar2kMFRy5bJup4JvxCTlxnpENOZkAKre8Lw0V5y4ipHNFUoN+FzzbkXokOxc9gIV4sH3ItB7u/tDHwdcD/XXpbOsVsssKdFR8vy0XaZQmmidIw0W2Z2q63PYvSh/dYuKk8o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=KGmenuJ4; arc=none smtp.client-ip=198.137.202.136
+	 MIME-Version:Content-Type; b=L/9BfTpBkMIpFe0Ovn38VkG3UXnfJeupZYhO6H+QjccorE2cpZfiOPg1kuDuc3mAeYljphkZ4r7sqqwDT7QLBE+Gbmty+/GWJNIFtDdh/ghHzhAPnfwC/WjDzXvHe6SCRg4tSKKEXPm3pmzBD3WyUc9hnwy1yqDu7IHTwzaylcw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=gofX7hrQ; arc=none smtp.client-ip=198.137.202.136
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="KGmenuJ4"
-Received: from ehlo.thunderbird.net ([172.59.162.201])
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="gofX7hrQ"
+Received: from ehlo.thunderbird.net ([172.59.163.39])
 	(authenticated bits=0)
-	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 689JRcBm234939
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 689JW0Ri241996
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
-	Wed, 9 Sep 2026 12:27:39 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 689JRcBm234939
+	Wed, 9 Sep 2026 12:32:01 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 689JW0Ri241996
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-	s=2026082801; t=1788982063;
-	bh=dm9wpz4h++ofzecnaqGunBw1Zr0gciiuIEIuRKgM8Ow=;
+	s=2026082801; t=1788982324;
+	bh=+dGDqKIiorLm4PMRWZf+lcjSymk+duftPVKL8h3BRa8=;
 	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=KGmenuJ4WDEIJmD1OjtLBCTBIwmOPf5WXdqCO5NhxzNk/PRMxxRdYtCQ/e9LiQrbV
-	 5nqhJq3gZmxqektEkouPM43IJ+O+eLEDDnkzku4OU8RnhJdWNoOzbcM86CqUSS8cda
-	 TGHj1Sj2JK1rzrE8/0GlItXDBmcjxoplXEs2uNG488VNDWTtxr1RHdwo+/ZC/5FRv+
-	 Wy6lT+Qfy6Lh4xU4ePky/daoK1IUOfrPNaz0BFP5rM0ouPsB86TVM+rt/GpXFp601e
-	 VoZGbeqZhFA9YU7x21eyffmZrBwUa7PfRZVyvemk05/BdqUB6bb3V5JxF/PsdotOYc
-	 tTrjTgSh5/hig==
-Date: Wed, 09 Sep 2026 12:27:30 -0700
+	b=gofX7hrQMbsXkfAGKbIB5EEVBWalAWuw926LqzLEOVYYNLyZUfbWEzWPGDLj9bbmQ
+	 WFie+ve7lUQ9pYuRVmVYjV+EqzzAArpgHRWshxY1qKfnMcxxPUBe/xs1MmeSmnGIOJ
+	 dPgyxNew5qsHsjhQOA41SlBB/MQHD0m+r1YFZE3wLCs3umtpLH2oSsE4iYDyt3+j/i
+	 rnjM7tEna8nBlg7YqDxC5Ptjf5+Rcrbt1/0XzPeibvb/+oRmhKO1xpHus1ynWSXLJ8
+	 MI9bdFysgi5uqG5wVEpJJTL/7pSn2oMlC1a/K6We8WFSaRVoteYLUt+37PBgC/p1jC
+	 eVbxDJsilqYjA==
+Date: Wed, 09 Sep 2026 12:31:53 -0700
 From: "H. Peter Anvin" <hpa@zytor.com>
-To: Borislav Petkov <bp@alien8.de>,
+To: Peter Zijlstra <peterz@infradead.org>,
         =?ISO-8859-1?Q?Thomas_Wei=DFschuh?= <thomas.weissschuh@linutronix.de>
 CC: Paul Walmsley <paul.walmsley@sifive.com>,
         Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
@@ -45,6 +45,7 @@ CC: Paul Walmsley <paul.walmsley@sifive.com>,
         Andy Lutomirski <luto@kernel.org>,
         Vincenzo Frascino <vincenzo.frascino@arm.com>,
         Kees Cook <kees@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
         Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
         Richard Weinberger <richard@nod.at>,
         Anton Ivanov <anton.ivanov@cambridgegreys.com>,
@@ -78,12 +79,11 @@ CC: Paul Walmsley <paul.walmsley@sifive.com>,
         Jan Stancek <jstancek@redhat.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Alexandre Ghiti <alexghiti@rivosinc.com>
-Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v5_02/24=5D_x86/elf=2C_um/x86/?=
- =?US-ASCII?Q?elf=3A_Move_relocation_constants_to_UAPI?=
+Subject: Re: [PATCH v5 12/24] vdso: Add the vdsocheck tool
 User-Agent: K-9 Mail for Android
-In-Reply-To: <20260909144930.GAaqFx-mjH3-u6jLjw@fat_crate.local>
-References: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de> <20260908-vdso-absolute-reloc-v5-2-3a93791af1cf@linutronix.de> <20260908135513.GAaqATwXHcQD7plnH-@fat_crate.local> <20260908161740-0d79e592-87a6-43c5-9174-84ce1904e639@linutronix.de> <20260908151238.GBaqAl5iKb64meuPJl@fat_crate.local> <20260909075156-06ff671c-ab7b-47d8-aaa3-588b570888bc@linutronix.de> <20260909144930.GAaqFx-mjH3-u6jLjw@fat_crate.local>
-Message-ID: <F9786718-8378-443D-A21E-77E057B62BB2@zytor.com>
+In-Reply-To: <20260908071911.GU4120091@noisy.programming.kicks-ass.net>
+References: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de> <20260908-vdso-absolute-reloc-v5-12-3a93791af1cf@linutronix.de> <20260908071911.GU4120091@noisy.programming.kicks-ass.net>
+Message-ID: <ABBC0C50-847F-406A-B426-55D0C2BE15EA@zytor.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -94,69 +94,40 @@ Content-Type: text/plain;
  charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On September 9, 2026 7:49:30 AM PDT, Borislav Petkov <bp@alien8=2Ede> wrote=
-:
->On Wed, Sep 09, 2026 at 07:59:51AM +0200, Thomas Wei=C3=9Fschuh wrote:
->> These names and numbers are defined by the architectures' ELF specifica=
-tions=2E
->> They are already cast in stone=2E For example see Table 4=2E9 of [0]=2E
->> Changing them would break compilers, linkers, loaders and more or less =
-every
->> existing ELF binary=2E
+On September 8, 2026 12:19:11 AM PDT, Peter Zijlstra <peterz@infradead=2Eor=
+g> wrote:
+>On Tue, Sep 08, 2026 at 08:33:46AM +0200, Thomas Wei=C3=9Fschuh wrote:
+>> All vDSO code needs to be completely position independent=2E Symbol
+>> references are marked as hidden so the compiler emits PC-relative
+>> relocations=2E However there are cases where the compiler may still
+>> emit absolute relocations, as they are valid in regular PIC DSO code=2E
+>> These would be resolved by the linker and will break at runtime=2E
+>> This has been observed on arm64, see commit 0c314cda9325 ("arm64: vdso:
+>> Work around invalid absolute relocations from GCC")
+>>=20
+>> Introduce a tool to check for absolute relocations during the build,
+>> as the current inline-shell logic is not expressive enough=2E
+>> The check is done on the object files as the relocations will not exist
+>> anymore in the final DSO=2E As there is no extension point for the
+>> compilation of each object file, perform the validation in vdso_check=
+=2E
+>>=20
+>> Signed-off-by: Thomas Wei=C3=9Fschuh <thomas=2Eweissschuh@linutronix=2E=
+de>
+>> ---
+>>  Makefile                    |  19 ++
+>>  lib/vdso/Kconfig            |   5 +
+>>  lib/vdso/Makefile           |   2 +
+>>  lib/vdso/Makefile=2Einclude   |  14 ++
+>>  lib/vdso/check/=2Egitignore   |   3 +
+>>  lib/vdso/check/Makefile     |  34 +++
+>>  lib/vdso/check/elf=2Ers       | 498 ++++++++++++++++++++++++++++++++++=
+++++++++++
+>>  lib/vdso/check/vdsocheck=2Ers | 154 ++++++++++++++
+>>  8 files changed, 729 insertions(+)
 >
->So?
->
->Your goal is to provide them to tools/=2E You want to provide them to
->*everything*=2E See the discrepance here?
->
->> That is the documentation for the tools UAPI headers=2E
->
->Did you even read that file?
->
->"Why we want a copy of kernel headers in tools?
->=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
->
->There used to be no copies, with tools/ code using kernel headers
->directly=2E From time to time tools/perf/ broke due to legitimate kernel
->hacking=2E At some point Linus complained about such direct usage=2E Then=
- we
->adopted the current model=2E
->
->The way these headers are used in perf are not restricted to just
->including them to compile something=2E
->=2E=2E=2E"
->
->Just read the damn thing before you reply=2E
->
->> Also we already have other, closely related, ELF constants in the UAPI,
->> see {,tools/}include/uapi/linux/elf{,-em}=2Eh=2E
->
->Srsly?!?
->
->You moved them there:
->
->commit 626fd35278295fbb21f2da331cd8028e9738d965
->Author: Thomas Wei=C3=9Fschuh <thomas=2Eweissschuh@linutronix=2Ede>
->Date:   Wed Feb 26 12:44:46 2025 +0100
->
->    tools/include: Add uapi/linux/elf=2Eh
->   =20
->    It will be used by the vDSO selftests=2E
->
->
->Looking at the rest, it looks like some elf bits got exported, you added =
-some
->more and that ship has sailed=2E I still think us providing headers is
->completely unnecessary and it will come to cause conflicts eventually but=
- hey,
->not my problem=2E
->
+>Urgh, does this mean I have to have rust installed just to build a
+>kernel now?
 
-I do believe there are *some* headers that would be reasonably to export t=
-o tools/ beyond what it is in uapi; a major reason for that is that the too=
-ls are suffering from a crazy level of internal inconsistency right now=2E=
-=20
-
-Basically uapi =E2=8A=82 treewide =E2=8A=82 kernel, but also treewide =E2=
-=8A=82 tools common =E2=8A=82 tool-specific=2E=2E=2E
+It was going to happen, and now we'll have to suffer the instability of ru=
+st=2E=2E=2E
