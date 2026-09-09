@@ -1,298 +1,222 @@
-Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A2CA331EB9;
-	Wed,  9 Sep 2026 16:07:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788970033; cv=none; b=KU3xtqJW5rDeHjhGqMl8t85maiaXu1HYaY2ToH4xuwJV+yS1F27QU8G85ie0D6U1s3vCZV6CQ3zZH2+E6Nas/FF3IITrnYeH/QpgXwM1BYJ264+HHecFAHkKswBt4GCzvH2dOFBVzDeeBzm80+M8m9Dg6sTNTtqB33n/oqP0K2w=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788970033; c=relaxed/simple;
-	bh=chkZXiKbmRUxmJLFCqdgiCv0uwoikp1MINdnSfGtSLE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=X3DViH9z/9thyaZyU3g7U0Kix4WeE/olNQYVGi3QWu28MKzRRDFhHcHW2lfBUva1YkDj6b9MF+VW7OLVAZGwBINKsXPQ0+q1Ho+l3LuzV4Zxp+pG6OaB817/QewJ92X3TAwb5ctK1H5DtiWJqWbOLkdvNSNFjobks5ktdxQ4mU8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=QHkWkn3V; arc=none smtp.client-ip=115.124.30.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 625D155D865
+	for <linux-s390@vger.kernel.org>; Wed,  9 Sep 2026 16:35:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.171
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1788971707; cv=pass; b=R+GN1Z3m+kH4WUgGHcYp6Kd28rPA714gbIa2xAsUziiaFqHfGyeYS8VBycz3zRlStDnXYq5FrQAow1J03bIAS3JrsZKKQXVGCIDX0GreSmA4IjFJrpC15Wcm85fXb31AqEcIm2oXjS4dG7SMDUoqNpjCLvZFRvZ+9NWFWAXRN30=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1788971707; c=relaxed/simple;
+	bh=CaGvruleJgSZ7D4tJOVRAyip+ySuTNDBO1Fgf4mzBjU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Z2DhcAsVGR65IDOecx8LBhW+2VzZidqHP6iiamOBsGOt9AnW/rietFhyRyPheUVbwjHUXFpqp5WDddw7zaRenSAYUhGh84jLqs0AJ+/S92VDy7RtvQ6PUYzwPOEQcivHdxNz0BMHBCByOP5HeqaeqIXsOe+HQ76VsumpaJZidJM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eAavCD61; arc=pass smtp.client-ip=209.85.128.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="QHkWkn3V"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1788970023; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=tEiGMgkz1gfUIAip5YKwtlSoH3nUyI3YdbxlmBU5qEE=;
-	b=QHkWkn3VOdceJznPpf/Fq5GscbFeMQwBW/4F+smJZuqJV2AvaWjQo88O7Y9uQB44qDRKMmBax/iXdScxfOL1J6CKNPuQHviDHYyVE/A7yhpXIGIMSYR3Wq5uqPaaaFdkmr9oHnJQR1rJAC+eobCzjcMw68tTx0+O9Z3/i5aQ77Q=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R941e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037026112;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0XAfGm61_1788970021;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0XAfGm61_1788970021 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Thu, 10 Sep 2026 00:07:02 +0800
-Date: Thu, 10 Sep 2026 00:07:01 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Hidayath Khan <hidayath@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>, andrew+netdev@lunn.ch,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, alibuda@linux.alibaba.com, sidraya@linux.ibm.com
-Cc: pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com, stable@vger.kernel.org,
-	netdev@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net v2 0/2] net/smc: fix diag dump lifetime races
-Message-ID: <aqGEJRP_hZotdoNu@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20260828065439.3582783-1-mjambigi@linux.ibm.com>
- <apWEzobrZ3QR3IfN@linux.alibaba.com>
- <4f303f9f-fd20-475a-8004-1a670dfd34df@linux.ibm.com>
- <apbMyLc0IhLMKwwA@linux.alibaba.com>
- <85fa9f02-7516-4595-b5a8-4ae4ca845121@linux.ibm.com>
- <apgTu9dRGIQE6tm3@linux.alibaba.com>
- <899816c9-c908-4d64-8f5c-ba35619f78f2@linux.ibm.com>
- <apriDec7yHBkQgNv@linux.alibaba.com>
- <3803428a-2edc-4a5c-88e8-025f2f3322f4@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eAavCD61"
+Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-87ffa98d4a9so11308217b3.3
+        for <linux-s390@vger.kernel.org>; Wed, 09 Sep 2026 09:35:06 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1788971705; cv=none;
+        d=google.com; s=arc-20260327;
+        b=WF46CfxiLYC4QBtn5GnpHuXIPLkOnHAEw7qhBHdn/oDA6mBvN+8DuyPP56hvWXQD25
+         AumPeHOdHMXhreou+TBmZtsa9Y1+AvMgXI+dtUqB9zR9h3BUdJ9UbzZLe3mDvOx/w3IN
+         VqgHJEumvmLksDXBXZHSZZ/KOOTLsd13iKd/QmGZxhX+RdPNCL24Og+KqX/eo2SANL1Q
+         cGgnOD8gSQ8pBG6A6AO0BD3mjbP7TN/zzNGKlniwNl6fTySeCa8E2zRHWAIBUns/7RLH
+         HnSJQ6Xxs92NFsAYgQv4qDhjx6yY98BlysS0dMf6kMgt1/Oq+yYE0HXDvwcBSLTBwcYt
+         JvIA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=AurL6CS51ZxhuGokqtXHBRLRcchDPoQ4/ZSuDu7JVek=;
+        fh=SSONzHcTOZO2hxpd94ZPe69FlfnH6Wr5PFbXTr+nJyk=;
+        b=mrFpO7xMWwMa23w9oBB2RxXgXc7V+q5XN0GB+t0IeanycC6pOENLX6/hdMLuatg5af
+         2ZoSEJ8mSixCsFnaAib+bEMHiMlbDsUhwC8mZbcoBJlsmXrvh1wlU/w00xPfoBzpvV7b
+         Sf//0Wqgsj/TlCb4yOnHDY2SSawkROmIduV/NoT16bM8vlkpEiJj2k0VjaG5Sbfu43lP
+         h9Ety5YSmdnuQ6sR7QdmGy6dbygDPiMD4nNGf5nPrHIAa0oCpLxm583A5V+LV8NotdIG
+         +paumLYIJOBMz8KVJZd2REml6azTdDzu3bkCnMCICax/OloE8G0bADo1F7h/AIKKFxyc
+         KSGw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1788971705; x=1789576505; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=AurL6CS51ZxhuGokqtXHBRLRcchDPoQ4/ZSuDu7JVek=;
+        b=eAavCD61HoITToJi72MH3kovLTox2K97malcDr3Q9GRDdZasXxxoNnCpeUbAe63y/Q
+         QMuHeZxcrREH8kZDubpkURnw7kXShAaPqa9iDIdDDwW4ouAy6PiWvIsv+i6YDEQIO/oa
+         7LgMb/IIck834sVs8SpX67rjYC9GJRBDwTUay+YzMaFXmrw2vE7fz3thxVGH2IPIODAn
+         ws1i28deTBK0v/yW6HN+nWHfXol6x4up9T59knVRLnThz+1URdJVG8oIMESvxG0qaXGp
+         l8K6PvDT6vyGZOkKgihUfheBKsr7K3rkJ1Pf1+rTGhFKGFs7JJSctONDwm/SaICpQTAY
+         UyPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1788971705; x=1789576505;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=AurL6CS51ZxhuGokqtXHBRLRcchDPoQ4/ZSuDu7JVek=;
+        b=AWrM3GupmN621px8fgSNO/L44VShYupC3Z275rtKqVS5iHljEUK9zDUKJeEtM9qtqc
+         HDpKWC16+y26IHwacG+UjtMShpXuH1hwuwdiRgSqlDTUNfLW/Jteyi0SMZRZKaW0tSFz
+         PvWM/0Yuub6mRv3WfByyvtmB6/OXqho2OecJ+I8DHAXCKC/Logo9z+0IBCF9i1yhfZp5
+         ZZjUazxvAc08cIOTD9CpjvFVsyq76ISoBP7xYoNWMy7ZlRLzmZous/QFn6hSSmuZMXll
+         FzLNNV7XNBlLOzFWfLkypbgs8/43UA/LG8MW928UxKJIfGjtGTyNsOaOALkzXMxSthdg
+         qotg==
+X-Forwarded-Encrypted: i=1; AKwUvBw8yXiwzgQDHVsaqeJNuV5qbiy97syWXSjJmQepPptavcMmTISWALUR3Ujl88vZGnZAWQlXsaMdVx+c@vger.kernel.org
+X-Gm-Message-State: AFuF++lIOIBRDzNRC+wP0gDqAhlSGGVLzybjQokY7uScpLNWc3tmLoSi
+	T+zQ3k9EoJ0yrMylc1Mol1x3VLLiL8w+5qQyWJe4S7ApP/ByeO24Z0m72zDsFTle3jPEq4N27Rb
+	H1IZWAxRkPwxqluxACwuBTCK/1Lyyj84=
+X-Gm-Gg: AYBFou1fiYWkzGsh15AtspUekNc46CKvG9glAzdRijAF39Ojuxe/OktsIatWi+DNfBP
+	4TsymUslWcJFgqnuhn9alA4n7N6we06wkiFzIimCNEdP1JCnfeoQVM9hSvgwwwAX3OTucL56De3
+	gvx6cTdq492aFXT0dxrl49J05xI17iWrmeaxDU+lcaSAzGZHtgKAcCjskgZce1qAMdEXTDwkxNE
+	qZxFI/uBkf1iAG+JqXnT2UgRls/VFz5I2f2/tRqqsh0WGz1etoQQBGkYqRmpSqJHhq6yOzOJtRT
+	ztKit7Po3sOz3+hTDgDuziSeOorDigcyDUWNEWhzgxfJkXmakQHy38jCG8cMH0OyD4Ut6Oto+vZ
+	jopecchfwYzZrZm/U0A9EvfBI6DF4d5Xp5OCgo2k2QjPemFw7n0z1ZSVYYH4kGbvCVE7enIhm7u
+	q1TPa2x+oSU9jeI3HLVht4tpw=
+X-Received: by 2002:a05:690c:c622:b0:86f:6c64:7eb7 with SMTP id
+ 00721157ae682-87122599769mr119770507b3.1.1788971705167; Wed, 09 Sep 2026
+ 09:35:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3803428a-2edc-4a5c-88e8-025f2f3322f4@linux.ibm.com>
+References: <20260904195132.141068-3-sidchintamaneni@gmail.com> <4866144aa416a8491c9874325394e88f5dc2e66259212baa56032e0428f0772b@mail.kernel.org>
+In-Reply-To: <4866144aa416a8491c9874325394e88f5dc2e66259212baa56032e0428f0772b@mail.kernel.org>
+From: Siddharth Chintamaneni <sidchintamaneni@gmail.com>
+Date: Wed, 9 Sep 2026 09:34:53 -0700
+X-Gm-Features: AcwNN1WCeNCqyff3VAuQjYBnYtHIwccOam8Qp1LEGjFOZzxZQ1VjRoRu1i5QAcI
+Message-ID: <CAE5sdEhdsPvK8UD-SEZ=YNX5_GpHkUV8mivRW1j=6hJ6XkM7Zw@mail.gmail.com>
+Subject: Re: [PATCH bpf-next v1 2/7] bpf, x86: Use resolved pointer for timed may_goto
+To: bot+bpf-ci@kernel.org
+Cc: bpf@vger.kernel.org, jeremy.jean@oss.cyber.gouv.fr, ast@kernel.org, 
+	daniel@iogearbox.net, john.fastabend@gmail.com, andrii@kernel.org, 
+	eddyz87@gmail.com, memxor@gmail.com, martin.lau@linux.dev, song@kernel.org, 
+	yonghong.song@linux.dev, jolsa@kernel.org, emil@etsalapatis.com, 
+	ihor.solodrai@linux.dev, a.s.protopopov@gmail.com, puranjay@kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	linux-riscv@lists.infradead.org, rlmenge@gmail.com, 
+	hargar@linux.microsoft.com, apais@microsoft.com, martin.lau@kernel.org, 
+	mason@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On 2026-09-08 21:53:14, Hidayath Khan wrote:
+On Fri, 4 Sept 2026 at 13:33, <bot+bpf-ci@kernel.org> wrote:
 >
->On 04/09/26 8:51 pm, Dust Li wrote:
->> On 2026-09-03 13:26:30, Mahanta Jambigi wrote:
->> > On 02/09/26 5:46 pm, Dust Li wrote:
->> > > I think we can close this window by holding the SMC hash table lock in
->> > > smcr_link_clear()? [...]
->> > Hi Dust,
->> > 
->> > After debugging further, I believe that __smcr_link_clear() cannot be
->> > called from smc_switch_link_and_count() because
->> > refcount_dec_and_test(&lnk->refcnt) is always false on that path — the
->> > initial ref (set in smcr_link_init(), released only in
->> > smcr_link_clear()) is always held while the switch executes. So there is
->> > no UAF from that path. The only consequence is that the diag reader may
->> > observe a stale conn->lnk pointer value — pointing to the old link which
->> > is still fully live — and read the old link's ibport/link_id/ibname from it.
->> Hi Mahanta,
->> 
->> Sorry for the late reply. I've done some more thinking on this topic.
->> 
->> That's true, but strictly I think there is still a small gap. The old link is
->> memset later, in smcr_link_clear() after all connections have migrated, so a
->> reader that loaded conn->lnk just before its own connection was switched has a
->> few-instruction window before it dereferences. In practice this window is
->> really narrow: the clear path runs the whole switch + LLC + QP teardown, orders
->> of magnitude longer than the reader's load+deref.
->> 
->> > The real UAF is via smc_conn_free(): it drops both the connection-owned
->> > conn->lnk reference via smcr_link_put() and the connection-owned
->> > conn->lgr reference via smc_lgr_put(), while the socket is still visible
->> > in the hash table. [...] The current patch tries to fix this using
->> > lgr_lnk_lock. Since you suggested we fix it with *unhash-before-free*, I
->> > thought about it and here is my proposal.
->> > 
->> > Proposed fix (high level):
->> > 
->> > Introduce a smc_conn_unhash() helper with a per-connection unhashed flag
->> > that ensures the socket is removed from the hash table exactly once.
->> > Call it at the top of smc_conn_free(), before any lgr/lnk references are
->> > dropped.
->> > 
->> > This establishes the invariant: any socket still visible to the diag
->> > reader under read_lock(hash->lock) has valid conn->lgr and conn->lnk
->> > pointers. [...]
->> > 
->> > Does this design look reasonable to you?
->> Yes, I think it's the right fix and we can go ahead and fix it this way first.
->> 
->> > There is a separate minor issue — smc_switch_link_and_count() updates
->> > conn->lnk under send_lock while the diag reader loads it without any
->> > lock, which can cause stale ibport/link_id/ibname in *smcss -R* during a
->> > failover event. This is a data race but not a safety issue since the
->> > link struct is always live at that point.
->> > 
->> > This race is very rare in practice [...] Even when it occurs, the effect
->> > is transient: one dump may show the old link's ibport/link_id/ibname, and
->> > the next dump will show the correct values.
->> I think this is acceptable.
->> 
->> ---
->> 
->> I've been re-thinking this a bit more. We've been plagued by SMC's tangled
->> locks and ad-hoc lifetime handling for years — every fix adds another lock or
->> another ordering rule. I think it's time to step back and refactor this area as
->> a whole, and set up some rules for how we use locks/refcounts in SMC, instead of
->> keeping patching individual races. Below are some rough thoughts.
->> 
->> 1. Object layering
->> 
->> SMC really has three lifetime tiers, and the top one has to be split the way
->> TCP splits struct socket from struct sock:
->> 
->> - the file (struct socket) — lifetime tied to fput;
->> - the connection sock (smc_sock, with conn embedded) — lifetime tied to
->>    sk_refcnt; like a TCP sock it can be orphaned and outlive the file. On an
->>    active close, close(fd) orphans it first, but it stays alive — still bound to
->>    the transport — to finish the close handshake;
->> - the shared transport (lgr / link / device) — lifetime by refcount, multiplexed
->>    across connections.
->> 
->> It's the socket/sock split, plus one more tier because our transport is shared
->> (TCP's sock is 1:1, our lgr/link is not). Today smc_conn_free() mixes all three
->> and is called from the transport layer while the socket is still hashed —
->> that's exactly where these races come from.
->> 
->> With the tiers separated, teardown becomes two independent, idempotent steps
->> rather than one:
->> 
->> - orphan (file <-> sock): at fput, via sock_orphan();
->> - transport-detach (sock <-> transport): the connection drops its lgr/link
->>    refs. On an active close this happens later, after the handshake completes;
->>    on a transport fault it happens immediately.
->> 
->> The sock is freed only once it is orphaned, transport-detached, and the last
->> sock_put lands; the order of the two steps just depends on who initiates
->> teardown (app close vs. transport fault).
->> 
->> 2. Lifetime & boundary contract
->> 
->> Give each tier the right tool, and a clear boundary between them:
->> 
->> - ownership by kref; traversal by RCU (conn->lgr / conn->lnk become RCU
->>    pointers, the lgr is freed with kfree_rcu); fd-visible objects (clcsock)
->>    released only after the last fput; and no in-place mutation of a published
->>    object (stop memset()ing a link — mark it dead and reclaim it with the lgr
->>    after a grace period);
->> 
->> - boundary rule: on a transport fault the lower layer only signals and
->>    transport-detaches; it never orphans, unhashes, or frees the sock.
->>    - signal = wake the app with an error (sk_err + wakeup);
->>    - transport-detach = publish rcu_assign_pointer(conn->lgr/lnk, NULL), then
->>      drop the usage references (smc_lgr_put / smcr_link_put). The transport
->>      object itself is reclaimed later by its own refcount + kfree_rcu; the sock
->>      is left untouched.
->>    Handle-side teardown (orphan, unhash, clcsock release, final sock_put)
->>    belongs to the connection/file side and is driven by close — never by the
->>    transport layer.
->> 
->> With that, a diag reader under rcu_read_lock is guaranteed the link/lgr
->> outlives its critical section, so the per-connection lgr_lnk_lock is no longer
->> needed and smc_conn_unhash() can be retired too. (clcsock_release_lock goes
->> away separately, via the clcsock lifetime series.) It's a larger, mostly
->> mechanical change and would take a lot of careful rework, so I'd do it as a
->> follow-up. Your smc_conn_unhash() is the right fix to take now (and for
->> stable); the rework, if we agree on this direction, would retire it afterwards.
->Hi Dust,
+> > diff --git a/arch/x86/net/bpf_timed_may_goto.S b/arch/x86/net/bpf_timed_may_goto.S
+> > index 54c690cae190..6e9d9e7c2b1d 100644
+> > --- a/arch/x86/net/bpf_timed_may_goto.S
+> > +++ b/arch/x86/net/bpf_timed_may_goto.S
+> > @@ -11,12 +11,6 @@
+> >  SYM_FUNC_START(arch_bpf_timed_may_goto)
+> >       ANNOTATE_NOENDBR
+> >
+> > -     /*
+> > -      * r10 passes us stack depth, load the pointer to count and timestamp
+> > -      * into r10 by adding it to BPF frame pointer.
+> > -      */
+> > -     leaq (%rbp, %r10, 1), %r10
+> > -
 >
->Thanks for writing this up and for the pointer from my abort_work patch.
+> A subsystem pattern flags this as potentially concerning: This commit
+> changes the x86 trampoline to the new 'pointer in BPF_REG_AX' ABI, but the
+> producer side of that ABI was changed one commit earlier, in d8319a04dafc
+> ("bpf: Fix timed may_goto stack pointer for private stacks"), which
+> rewrote kernel/bpf/fixups.c to emit:
 >
->You describe three tiers, with lgr, link and device as the transport one.
->I was not sure where the buffer descriptor fits. It does not seem to
->follow the lgr: smc_buf_unuse() returns conn->rmb_desc to lgr->rmbs, and
->smc_buf_get_slot() can then hand it to another connection while the lgr is
->still alive.
+>     insn_buf[4] = BPF_MOV64_REG(BPF_REG_AX, BPF_REG_FP);
+>     insn_buf[5] = BPF_ALU64_IMM(BPF_ADD, BPF_REG_AX, stack_off_cnt);
 >
->Two places look like they can outlive it:
+> At commit d8319a04dafc (i.e. HEAD~1), does x86 still execute
+> 'leaq (%rbp, %r10, 1), %r10' on a register that already holds a resolved
+> pointer, producing r10 = rbp + (frame_ptr + stack_off_cnt) -- roughly
+> 2*rbp, a non-canonical address?
 >
->- a splice reader still holding pipe pages, since smc_buf_unuse() does not
->  consult conn->splice_pending;
+> bpf_check_timed_may_goto() then reads and writes p->timestamp / p->count
+> through it (kernel/bpf/core.c:3410). Would any BPF program containing
+> may_goto oops on x86_64 at that commit?
 >
->- smc_cdc_msg_recv_action() and smc_cdc_handle_urg_data_arrival(), which
->  read conn->rmb_desc after smc_cdc_rx_handler() has already left
->  conns_lock. On the is_reg_err path smcr_buf_unuse() frees the
->  descriptor rather than recycling it.
+> The same window exists for arm64, riscv, powerpc64 and s390, whose
+> trampolines are only converted in the four later commits d35642770d98,
+> 7053db7d3c0d, 6e03227c5677 and 20356163d51e. Is the tree bisectable across
+> the series?
 >
->Have you already considered the descriptor in this model? Would it need
->its own kref, or is it meant to sit inside the transport tier? I may be
->missing something here.
-
-Hi Hidayath,
-
-I didn't think much about the descriptor before and thanks for point this out.
-In this model, it belongs to the transport tier (it lives in the lgr buffer
-pool, multiplexed across connections), and the conn->rmb_desc / sndbuf_desc
-binding is a usage reference just like conn->lnk.
-
-So buf_desc should get a kref: the pool holds one reference for existence,
-and every user holds one -- the bound connection, each outstanding splice
-pipe buffer, and an in-flight rx reader. A descriptor may return to the
-pool (->used cleared, eligible to be re-handed by smc_buf_get_slot()) only
-once *all* of them are dropped, not just when the owning conn detaches --
-otherwise a lingering reader sees zeroed or another connection's data,
-since the same memory gets recycled.
-
-That should cover your two cases:
-
-- splice: get_page() pins the physical page, but nothing stops
-  smc_buf_unuse() from zeroing the buffer and returning the slot to the
-  pool while a pipe still references it (and it never consults
-  splice_pending). With the kref, each splice pipe buffer holds a
-  reference, so the slot is recycled only after the last page is
-  released.
-
-- rx after conns_lock: the receive action reads conn->rmb_desc holding
-  only a sock reference, racing smc_conn_free() -> smc_buf_unuse() (and
-  on the is_reg_err path smcr_buf_unuse() frees the descriptor outright).
-  Making conn->rmb_desc an RCU pointer, read under rcu_read_lock in the
-  receive path, closes this: a late reader either sees NULL (detached) or
-  a descriptor that outlives its read-side section.
-
+> The two halves carry different Fixes: tags (this one 2fb761823ead, the
+> fixups.c one e723608bf428), which invites a partial stable backport that
+> reintroduces exactly this wild-pointer write. Would squashing the fixups.c
+> ABI change with the arch trampoline updates, or ordering all arch updates
+> before the generic change, address the bisectability concern?
 >
->One smaller question, on the boundary rule. The SMC-D side already looks
->close to what you describe: smcd_handle_irq() holds smcd->lock across both
->the lookup and the tasklet_schedule(), and smc_ism_unset_conn() clears the
->slot under the same lock. The SMC-R receive path drops conns_lock between
->the lookup and the action. Is that difference something the refactor
->would make uniform, or is there a reason the receive path cannot hold the
->lock that long?
-
-There is a real reason they differ today: SMC-R does the receive inline in
-the completion softirq, and holding conns_lock (a bh rwlock) across that
-would invert against the teardown/migration paths that take it for write
-under lock_sock. SMC-D only schedules a tasklet under smcd->lock, which is
-cheap, and defers the work.
-
-But I'd rather not unify them by holding a lock longer -- that is the same
-"use a lock for lifetime" pattern I'd like to move away from. The refactor
-unifies the mechanism instead: both sides bridge the lookup -> action gap
-with a reference + RCU, not with a lock or a drain.
-
-For SMC-D the tasklet is the subtle part. RCU does not span the tasklet
-boundary: smcd_handle_irq()'s read-side section ends when the IRQ returns,
-and the tasklet runs later, possibly after a grace period. So a reference,
-not RCU, has to carry the connection across that gap:
-
-- smcd_handle_irq() takes a sock reference under smcd->lock before
-  tasklet_schedule(), and the tasklet drops it at the end -- exactly
-  what the SMC-R rx handler already does;
-- the tasklet reads conn->rmb_desc under its own rcu_read_lock();
-- smcd->lock stays as the state lock for the dmbno -> conn slot table,
-  and smc_ism_unset_conn() keeps clearing the slot, but its job becomes
-  "stop scheduling new work" rather than "keep the tasklet off freed
-  memory";
-
-So yes, the refactor makes the two uniform -- through references + RCU,
-not by extending conns_lock.
-
-More generally, the discipline I'd like us to adopt: don't use locks (or
-drains, or ad-hoc flags) to manage object lifetime -- use a kref for ownership
-plus RCU for traversal. A lock only covers the paths that remember to take it,
-so it always leaves one uncovered; a reference + RCU makes "can't be reclaimed
-while observed" structural.
-
-
+> >       /* Setup frame. */
+> >       pushq %rbp
+> >       movq %rsp, %rbp
 >
->If it would be useful, I can write up the lifetime assumptions I have run
->into while working through the teardown paths. Please tell me if that
->helps, or if it would only repeat what you already have.
 
-Please do -- I'd frame it as stress-testing the model rather than just
-documenting it. buf_desc is exactly the kind of gap I want to shake out
-before we commit to this direction: an object my write-up missed, which
-you found by walking the teardown paths. So it wouldn't be a repeat of
-what I have.
+I tried to follow the same pattern used when the patches were
+introduced, but this is a valid concern.
+Should I just squash all the patches to one then?
 
-Best regards,
-Dust
+> The x86-only __xlated expectations for the timed may_goto expansion in
+> tools/testing/selftests/bpf/progs/verifier_bpf_fastcall.c were never
+> updated for the new 7-insn -> 8-insn sequence. The test expects:
+>
+>     __xlated("7: if r12 == 0x0 goto pc+6")
+>     __xlated("8: r12 -= 1")
+>     __xlated("9: if r12 != 0x0 goto pc+2")
+>     __xlated("10: r12 = -24")
+>     __xlated("11: call unknown")
+>     __xlated("12: *(u64 *)(r10 -24) = r12")
+>
+
+I've fixed this in the selftests patch.
+
+> Does this test fail on x86_64 for the whole series? Every line from index
+> 7 onward is now wrong: the first branch becomes 'goto pc+7' (insn->off + 6
+> instead of insn->off + 5), the second becomes 'goto pc+3' instead of
+> 'pc+2', 'r12 = -24' is replaced by the pair 'r12 = r10' / 'r12 += -24',
+> and the trailing indices shift by one ('call unknown' at 12, the store at
+> 13, then 14 and 15).
+>
+> git log 28bd77eb835b..8dc5c7d5340d shows the only selftest commit in the
+> series is 8dc5c7d5340d ("selftests/bpf: Test timed may_goto with private
+> stacks"), which adds new coverage but does not touch
+> verifier_bpf_fastcall.c. Note the original x86 JIT enablement commit
+> 2fb761823ead -- the commit this patch lists in its Fixes: tag -- adjusted
+> this very test for the same reason, so the update belongs with the ABI
+> change.
+>
+> > commit 28bd77eb835bc1a95190315e93afbc6bb186b9ff
+> > Author: Siddharth Chintamaneni <sidchintamaneni@gmail.com>
+> >
+> >     bpf, x86: Use resolved pointer for timed may_goto
+> >
+> >     The timed may_goto fixup now passes the resolved counter pointer through
+> >     BPF_REG_AX instead of a stack offset.
+> >
+> >     Use the pointer directly rather than adding it to RBP. This preserves the
+> >     private-stack address selected by the JIT through R9.
+> >
+> >     Fixes: 2fb761823ead ("bpf, x86: Add x86 JIT support for timed may_goto")
+>                  ^^^^^^^^^^^
+>
+> The existing Fixes: tag points to commit 2fb761823ead, which is not an
+> ancestor of this fix and is on a different branch (bpf-next/res_spin_lock).
+>
+
+I'll fix this in the next iteration
+
+> The bug was actually introduced by commit 47ab38f3f4d9 in this branch's
+> history, which added the incorrect code 'leaq (%rbp, %r10, 1), %r10' that
+> overwrites r10 instead of preserving it.
+>
+> Should this use:
+>
+>   Fixes: 47ab38f3f4d9 ("adding ci files")
+>
+>
+> ---
+> AI reviewed your patch. Please fix the bug or email reply why it's not a bug.
+> See: https://github.com/kernel-patches/vmtest/blob/master/ci/claude/README.md
+>
+> CI run summary: https://github.com/kernel-patches/bpf/actions/runs/33914557238
