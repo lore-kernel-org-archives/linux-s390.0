@@ -1,192 +1,140 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5BAD3AAF40
-	for <linux-s390@vger.kernel.org>; Wed,  9 Sep 2026 08:04:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E94C3AA9EF;
+	Wed,  9 Sep 2026 08:51:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788941051; cv=none; b=Eyk2DzRFD/0g7GN4Z0gxim6pfhbnW2hg/T7kvU1m5quM3/BSq9MkpGR14YqMPg195Vk+w27OuseJF5GazwFJ9CO8B5ffHywaF58wx/dJsYNTgmO7swcSV63aBY/cu79REMUnwHGzRQfN9hxpbvLuo9S0fGdMApwWE1+IcZkgWLA=
+	t=1788943893; cv=none; b=amqI0QPZ2WjS65vtCoLiLdDg+fGldzHVv6X7G18n2BoDtlMPxMzV8As5Vzh42ufi5Kxsd6E4i0KxtMm4I8riF3CqMIJSDFV4UDAKAwqn9Qm/4koYJSm+YfCr9j7SN4qV+zYz4RAPFVyQS4BkjqiMJ9KSsV9wKMpoovw2wBV4YaY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788941051; c=relaxed/simple;
-	bh=e1+Lb/NG+mk3Ilrk3d4Lqqcpc5Zw8k7/MCjnzOdByLo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WuLOVPTXXsaPLo1Z0BCTey2waauGugAifAjluSUuM4omGAlDUj3D1060s43dhHjxiDvDZ5NwT/gnTCABbd9yS7DJ2qI6F2A7h6K+NC9KfXJuRfHzqpF/2GAxpQBYDNgp2ai8T19rnjUuYJl7no+LEUXvYM7lK348f9D2lIXxm4E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VryFZB83; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=k9R4+inj; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1788943893; c=relaxed/simple;
+	bh=7BLVTFBp0ZEd00ydpjlDQmwAhB/KSP4xZMVY9pc9HOs=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=WZFRY7EvNoVff6oyxCicStdyy0GTiLAmgzTBAGBiTx/JGVPSARbD+JpGm1ui0sx4eowBJV6n1Bj4BWANfqyC+OpLZvsR+m8nNnGzY4gVh9/2WrqnAcHz7uqqHItxZfaVJ+htvtmN71qTocP7c2xrbgRdh7xlNFb6w7Tsap5nsW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=k9vEQJ8w; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=1FCn8GUQ; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VryFZB83";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="k9R4+inj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1788941048;
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="k9vEQJ8w";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="1FCn8GUQ"
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1788943880;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=GGIjuVUQngRfRgvOMv6WaGJ9yxJojhd+x80M9bpkP2Y=;
-	b=VryFZB83+cpgeoa/pX5Gm+7Yba3EBVztfJmoRYkyDFhCB5o7mOiYHGjDlBNMF1fpAW0+79
-	z+iPvG56AUuaWS8qAJv6LaCKAuA1WHAFf0TW1G3AJ/baQlIhFupr1v8sRCnkQYjFfEJ0jP
-	9J50egJKA1e3Yq9e5VCTl+K69a6OTQc=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-519-XEO5POn0N6a59GdSwfAdVg-1; Wed, 09 Sep 2026 04:04:05 -0400
-X-MC-Unique: XEO5POn0N6a59GdSwfAdVg-1
-X-Mimecast-MFC-AGG-ID: XEO5POn0N6a59GdSwfAdVg_1788941044
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-482f41ca436so4906432f8f.1
-        for <linux-s390@vger.kernel.org>; Wed, 09 Sep 2026 01:04:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1788941044; x=1789545844; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=GGIjuVUQngRfRgvOMv6WaGJ9yxJojhd+x80M9bpkP2Y=;
-        b=k9R4+injsc/zbqg0EA2TiH1ju0+WWPJJsyndH2z63bbD4wmNJrPQhm6Y7SKH8as9cy
-         oyackBYiVfOR+IepwIF4tDGSDhZLLvYyJy0r2yKUxzfHTGv8bmYCfWAwlE1VMOpvQZOO
-         USkP+l87T7hRinb+ajFFhywlZ41IQOhCD59lDeUuqJV66j5kDedOlK6o+UU2/yzj98V4
-         ly6q4OXi6guTv1RiVmhgpgVrY8+sfP1DMfQ1ixrwA3HEOl5GfwPmFOrz3+qHoBxy5HPf
-         HGwWMydYDnoNGQPmo8MA/DRBv96x0UWoQseLf1DG5W5W8d914yFO1spKGbTgaLJCfYkG
-         0nAQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1788941044; x=1789545844;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=GGIjuVUQngRfRgvOMv6WaGJ9yxJojhd+x80M9bpkP2Y=;
-        b=ABotHU8eqsmGYdm3CEVREfCw6Y3B2Dl6rAkTi1mhblJsNzy8CkzUYdy50YIYjO3Q9/
-         krGcheHVIL73KQBkyGvBr9yEYA6r93vsDPXF143twVDAv5P7SXy6n48dH9Cw+p+Yg2du
-         gEqgqKHsCpz5EVhG7z4hdxorYQP97oXIiiUjGZuTXGcEBaWUz4vag+Eo0AyNjDtTiErO
-         6viXRhT+egfdcOtv33RsVKeshgW3H5EtSw+l39eyViu/f5W9Rv500+SzuE89mPSeEeIM
-         X8G40Wxi9/S+/fchDwSR9id7FclKtxogAB/ub0TQZliWbf3CWbqP7aTFjSYFhWQQ1Av/
-         rLKw==
-X-Forwarded-Encrypted: i=1; AKwUvBz2N9DqfGoAFNQGzudG+6Rven1qpgjnwZrihXwYX46RDNeSJAdlc2aS83qDo2gnBAFlfu8rD77j8owD@vger.kernel.org
-X-Gm-Message-State: AFuF++ncN1RjuBVg/Z4bkZ0kthsn0IlDGNL6H7e1vVO3QBcFOFI4RVpP
-	UrWhV895q8eSOErxWEaw4Nccwn7FunPUP5bXZofAf7KeIl3cw7xNhtT3C2iAhTdCh8E5PYqHoa/
-	hlS8rCQwW8BiOAvzJ/j/fRxJOMqnjTgEN7PpcnCxMW8jdWgV2N7LK29PM1BsNPj/UsMrnvfw=
-X-Gm-Gg: AYBFou35eILOL+RV0AhUUHMtqS9VAtKp1lIa9gLlG07sBna60Gy7v5skL+qLrjq4Qx4
-	wUWFaxOTIJXw8woKua3cjL+0VD1gSza8KyBzjucE8JkyOJewnr7E4qRcZTzVTpORRPrHEQeoyjL
-	zindaZDvIbc+Y6S4jhntvR24J8Rdtn9QjkdiFUh03Bo46OnxWPk1K7TPNm3ZEiO+Yzxgyk+PpGT
-	BZRfQMwN4qnF0XtxLU+SZJz87ViJAf570+vF90nVxv9EHvp4OrTxQAfm8fEhcM86GGA6TDY/E9Y
-	CyRSb12WH0Y3PNpUZnJ49zzNcGmYohQfw5eCR6A9fOdHxAuoakuV42GJYY/3sq7TDznvurYDl7Y
-	Uuok9B9gH9ZdtaPLCKUu2ltoSQzEcCaO3l2MEElk/Pp5JfwDSf/rcqkW1abvZ4WM4rCMQMV2nbQ
-	==
-X-Received: by 2002:a05:600c:8b05:b0:49c:edd2:855 with SMTP id 5b1f17b1804b1-49cf823c411mr360364085e9.6.1788941044346;
-        Wed, 09 Sep 2026 01:04:04 -0700 (PDT)
-X-Received: by 2002:a05:600c:8b05:b0:49c:edd2:855 with SMTP id 5b1f17b1804b1-49cf823c411mr360363415e9.6.1788941043923;
-        Wed, 09 Sep 2026 01:04:03 -0700 (PDT)
-Received: from [192.168.188.218] (ip232-47-231-195.pool-bba.aruba.it. [195.231.47.232])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49d20fce7a7sm89320615e9.4.2026.09.09.01.04.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Sep 2026 01:04:03 -0700 (PDT)
-Message-ID: <d447c4e8-9f68-41fe-9598-68a35f48057e@redhat.com>
-Date: Wed, 9 Sep 2026 10:04:01 +0200
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=qBxNGRr7V0cZXnwM00gER/wx3P+kfpLfgDvX2l6pq3g=;
+	b=k9vEQJ8wTctywsO8hI1YZ6um9M/lNjs1S0m1fgpc08NdgIYbZov0Zkofq1AxPdfblwLPa7
+	4KmfcHeu6b2Yr+01ivvZ6xjUcjoYm3eAQ5TgjEPS7CKlSdWg/JDCIFLH8782o31SLgz6gd
+	OtPuQq0Sjy9sgdW0sWOoMBh3I8RgTIUi6zxLRszOk905I462f6xWyvSyMqAO006ybGNQdu
+	SGKHJOBw038XIG0FBCvj4tz2gBcwNTvJjmEFGFYE/BwAJM7xynzmQllAr8cj2jRLAhO1yH
+	cjh8vmeAx20BKowGWdN/9sqWAOfZypcjYsZemxfmare/Lp1o32YdrpkitPZpLA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1788943880;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=qBxNGRr7V0cZXnwM00gER/wx3P+kfpLfgDvX2l6pq3g=;
+	b=1FCn8GUQNiHI5qLn1sTrlANzuUZEkf5xuKf+VYLZdOJYxtaWZpt+V7r7Urvulh09pavhRF
+	dsm/084ewNnqYqDw==
+Subject: [PATCH 00/15] vdso: Clean up the vsyscall.h headers
+Date: Wed, 09 Sep 2026 10:51:13 +0200
+Message-Id: <20260909-vdso-asm-generic-vsyscall-h-v1-0-63ae856cc659@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next] dibs: Avoid inconsistent lockstate warning in
- dibs_lo_move_data()
-To: Alexandra Winter <wintera@linux.ibm.com>, netdev-bot+sashiko@kernel.org
-Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
- sidraya@linux.ibm.com, mjambigi@linux.ibm.com, davem@davemloft.net,
- kuba@kernel.org, edumazet@google.com, andrew+netdev@lunn.ch,
- tonylu@linux.alibaba.com, guwen@linux.alibaba.com, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
- svens@linux.ibm.com, horms@kernel.org
-References: <20260904094446.1342654-1-wintera@linux.ibm.com>
- <178887153533.219967.1817289806507440884@kernel.org>
- <a5ffb5d2-4509-4e73-af0d-aad4b1cc9412@linux.ibm.com>
-Content-Language: en-US
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <a5ffb5d2-4509-4e73-af0d-aad4b1cc9412@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MQQqAIBBA0avErBswIamuEi1ExxooCwekkO6et
+ HyL/wsIJSaBqSmQKLPwGSu6tgG32bgSsq8GrbRRQ6cxeznRyoErxZo6zPKIs/uOG6pgTKB+tL5
+ 3UA9XosD3f5+X9/0APF61mm0AAAA=
+X-Change-ID: 20260812-vdso-asm-generic-vsyscall-h-0f66fe59ad5c
+To: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+ Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, 
+ linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ loongarch@lists.linux.dev, linux-mips@vger.kernel.org, 
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
+ sparclinux@vger.kernel.org, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1788943875; l=3678;
+ i=thomas.weissschuh@linutronix.de; s=20240209; h=from:subject:message-id;
+ bh=7BLVTFBp0ZEd00ydpjlDQmwAhB/KSP4xZMVY9pc9HOs=;
+ b=uTe2i40O4/xeVZQd1jNjZ2OlErGJqBh1xMapRWODGY5Dal9y4CKYI8NBfBpyMTHddnVSWXGD4
+ N0TrnT9R60lBMxCVhZtCvdvXAnyBBfInKOtzLXA0tNQZs9VfRNj5zYY
+X-Developer-Key: i=thomas.weissschuh@linutronix.de; a=ed25519;
+ pk=pfvxvpFUDJV2h2nY0FidLUml22uGLSjByFbM6aqQQws=
 
-On 9/8/26 7:04 PM, Alexandra Winter wrote:
-> On 08.09.26 14:45, netdev-bot+sashiko@kernel.org wrote:
->> Thank you for your contribution! Sashiko AI review found 1 potential
->> issue(s) to consider:
->>
->> Critical: 0 · High: 0 · Medium: 1 · Low: 0
->>
->> - [Medium] The patch fixes an observable lockdep "inconsistent lock
->>   state" splat produced by the plain spin_lock(&dibs->lock) in…
->>
->> --
->>
->> Here is the report.
->>
->> dibs: Avoid inconsistent lockstate warning in dibs_lo_move_data()
->>
->> This converts the plain spin_lock()/spin_unlock() around the
->> dibs->subs[]->ops->handle_irq() call in dibs_lo_move_data() to
->> spin_lock_irqsave()/spin_unlock_irqrestore(), because the same lock is
->> also taken from hardirq context in ism_handle_irq().  The commit message
->> notes this is not a real deadlock since dibs_lo devices have no interrupt
->> context.
->>
->>> diff --git a/drivers/dibs/dibs_loopback.c b/drivers/dibs/dibs_loopback.c
->>> index 649e4e375be33..44a2e74c2efcb 100644
->>> --- a/drivers/dibs/dibs_loopback.c
->>> +++ b/drivers/dibs/dibs_loopback.c
->>
->> [ ... ]
->>
->>> @@ -267,12 +268,12 @@ static int dibs_lo_move_data(struct dibs_dev *dibs, u64 dmb_tok,
->>>  	if (!sf)
->>>  		return 0;
->>>  
->>> -	spin_lock(&dibs->lock);
->>> +	spin_lock_irqsave(&dibs->lock, flags);
->>>  	client_id = dibs->dmb_clientid_arr[sba_idx];
->>>  	s_mask = ror16(0x1000, idx);
->>>  	if (likely(client_id != NO_DIBS_CLIENT && dibs->subs[client_id]))
->>>  		dibs->subs[client_id]->ops->handle_irq(dibs, sba_idx, s_mask);
->>> -	spin_unlock(&dibs->lock);
->>> +	spin_unlock_irqrestore(&dibs->lock, flags);
->>
->> [Severity: Medium]
->> Should this carry a Fixes: tag?  The lockdep splat quoted in the commit
->> message is reproducible on shipped kernels, and git blame attributes the
->> converted spin_lock()/spin_unlock() pair in dibs_lo_move_data() to:
->>
->> cc21191b584c6f ("dibs: Move data path to dibs layer")
->>
->> The hardirq-side acquisition of the same lock is in ism_handle_irq()
->> (drivers/s390/net/ism_drv.c):
->>
->> 	spin_lock(&dibs->lock);
->>
->> which matches the {IN-HARDIRQ-W} registration in the report, so the
->> warning can be hit by ordinary SMC traffic through
->> smc_close_active()->smcd_cdc_msg_send()->smcd_tx_ism_write()->dibs_lo_move_data()
->> on a lockdep-enabled kernel.
->>
->> The splat also ends with "INFO: lockdep is turned off", so further lock
->> checking is lost for the rest of that boot on affected kernels.
->>
->> Would adding the following help backporters and stable tooling identify
->> which trees need this change?
->>
->> Fixes: cc21191b584c6f ("dibs: Move data path to dibs layer")
->>
-> 
-> 
-> As mentioned in the commit message the paths reported by lockdep belong to two
-> different device types (dibs-lo and ism). So not a real deadlock.
-> So unless lockdep-warnings by themselves warrant a Fixes-tag (?), I think net-next is correct here.
-> 
-> Paolo applied this already to net-next.
-> For the records: Sahiko identified the right patch to blame.
-The current guidance is no fixes tag for net-next patches address old
-'issues'. Since this is a false positive, I deemed it as a 'non issue',
-hence I agreed with the net-next target (and thus no fixes tag).
+The vsyscall.h headers are a mess. Some of that was necessary back when
+some architectures where not using the generic vDSO infrastructure.
+Now that this is not necessary anymore, the headers can be cleaned up
+and many of the can be deleted altogether.
 
-/P
+The recipient list is trimmed to only the vDSO maintainers and the
+architecture lists.
+
+Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+---
+Thomas Weißschuh (15):
+      vdso: Move the kernel-side time update helpers to a new header
+      vdso/gettimeofday: Define fallback __arch_get_vdso_u_time_data() in gettimeofday.c
+      vdso/getrandom: Define fallback __arch_get_vdso_u_rng_data() in getrandom.c
+      vdso/vsyscall: Define fallback time synchronization functions in vsyscall.c
+      vdso: Delete asm-generic/vdso/vsyscall.h
+      x86/vdso: Move vDSO page definitions to asm/vdso.h
+      sparc/vdso: Move __VDSO_PAGES to asm/vdso.h
+      s390/vdso: Delete asm/vdso/vsyscall.h inclusions
+      sparc/vdso: Delete asm/vdso/vsyscall.h inclusion
+      x86/vdso: Delete asm/vdso/vsyscall.h inclusions
+      arm64/vdso: Delete asm/vdso/vsyscall.h inclusions
+      riscv/hwprobe: Include vdso/datapage.h
+      vdso: Remove unnecessary vdso/vsyscall.h includes
+      vdso: Add asm-generic/vdso/vsyscall.h
+      vdso: Remove __ASSEMBLER__ guards from vsyscall.h
+
+ MAINTAINERS                                  |  2 +-
+ arch/arm/include/asm/vdso/vsyscall.h         |  7 ------
+ arch/arm/kernel/vdso.c                       |  1 -
+ arch/arm64/include/asm/vdso/getrandom.h      |  1 -
+ arch/arm64/include/asm/vdso/vsyscall.h       |  7 ------
+ arch/arm64/kernel/vdso.c                     |  1 -
+ arch/arm64/kernel/vdso/vdso.lds.S            |  1 -
+ arch/loongarch/include/asm/vdso/vsyscall.h   | 14 -----------
+ arch/loongarch/kernel/vdso.c                 |  1 -
+ arch/mips/include/asm/vdso/vsyscall.h        | 16 -------------
+ arch/mips/kernel/vdso.c                      |  1 -
+ arch/powerpc/include/asm/vdso/vsyscall.h     | 14 -----------
+ arch/riscv/include/asm/vdso/vsyscall.h       | 14 -----------
+ arch/riscv/kernel/sys_hwprobe.c              |  2 +-
+ arch/riscv/kernel/vdso.c                     |  1 -
+ arch/s390/include/asm/vdso/getrandom.h       |  1 -
+ arch/s390/include/asm/vdso/vsyscall.h        | 16 -------------
+ arch/s390/kernel/time.c                      |  6 ++---
+ arch/s390/kernel/vdso.c                      |  1 -
+ arch/s390/kernel/vdso/vdso.lds.S             |  1 -
+ arch/sparc/include/asm/vdso.h                |  6 +++++
+ arch/sparc/include/asm/vdso/vsyscall.h       | 10 --------
+ arch/sparc/vdso/vdso-layout.lds.S            |  2 +-
+ arch/sparc/vdso/vma.c                        |  1 -
+ arch/x86/entry/vdso/common/vdso-layout.lds.S |  1 -
+ arch/x86/entry/vdso/vma.c                    |  1 -
+ arch/x86/include/asm/vdso.h                  |  7 ++++++
+ arch/x86/include/asm/vdso/vsyscall.h         | 22 -----------------
+ include/asm-generic/Kbuild                   |  1 +
+ include/asm-generic/vdso/vsyscall.h          | 35 ----------------------------
+ include/linux/vdso_time.h                    |  8 +++++++
+ include/vdso/vsyscall.h                      |  7 ------
+ kernel/time/vsyscall.c                       | 25 +++++++++++++++-----
+ lib/vdso/getrandom.c                         |  8 +++++--
+ lib/vdso/gettimeofday.c                      | 10 +++++---
+ 35 files changed, 60 insertions(+), 192 deletions(-)
+---
+base-commit: 1c2a9f9d89050cd9f2b2280060a9442338a1e6fe
+change-id: 20260812-vdso-asm-generic-vsyscall-h-0f66fe59ad5c
+
+Best regards,
+--  
+Thomas Weißschuh <thomas.weissschuh@linutronix.de>
 
