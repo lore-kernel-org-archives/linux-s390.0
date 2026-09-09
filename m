@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C2BE582B8B;
-	Wed,  9 Sep 2026 16:43:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88D20585974;
+	Wed,  9 Sep 2026 16:44:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788972193; cv=none; b=pOC7xacY+Mtz8iGRknzUSq0fjGn90abmNQjz7A/8PsasikyXeE2LkcovhpUPVmjoB6Zk7+/NRTqNpc4ROp9us8U/vJ5DIhJFfGXl7f+F4ZEaSrKBxgAndlAsE6dqt1D2pFBzHNTU2p8icqJd15/PikdbBdEtRgOCNn1YC5VQzRs=
+	t=1788972283; cv=none; b=kYAlDbAufQ8wHeUkcUPPQmnfVxWqhps5QU/mqJMlE95SuEvwXtDzIjIfHatCL2b/OE6DxCUwZv/F5BGo3e2Xtb7oFrtowMyDXzXXfH7ICXUBAhM26cMWkXhuiFnT85jAaEEjfDDVOyy9UxoMp8X8lWPZrWKK9h/lETje7dwvlaE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788972193; c=relaxed/simple;
-	bh=mjMEDB4wGR/2HGZp+iWAWmZt9I8i7GrCCpgQk6Cnjwk=;
+	s=arc-20240116; t=1788972283; c=relaxed/simple;
+	bh=h1TOCNSkj5R56lNH3DJ3hUBmUSsPSkXgQfnKFDYvvQg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oUV9SPD3ajjoIptOEvVV0iF4xtc3lIY/g8ibNYQdV+tKIAiDMmjlLCVf/W8rD9qF86EF8lm/R31mz9gTfTb6840U5T7go2BT+sTOcwsKy499AdrCqLk+/QgxwL43ZnimyaozzUpYf80OrQ4mJ5u8Lbu++e7/ta8jETDiz7r/yT8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gIPVuofi; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=qqHNYooEZlfFj9d3uSg8a1RKCyUoPUZ5HjYFCHaamRdndEHzL+LxrUxGvECd7BRejO0q0uaDbMX+irmxYcp2ai/xBYDb30xoZ/GMUuITGxQZvyMQD9fAl4FWbqPZEtuY9AyVUp+odPF3jPmiCaRN4Gf92UeXCOlq6KxVTQ9NgjA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SvkfUBrj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gIPVuofi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F4721F000FF;
-	Wed,  9 Sep 2026 16:42:47 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SvkfUBrj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F14881F000FF;
+	Wed,  9 Sep 2026 16:44:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1788972191;
-	bh=+bb9T4qzNzmlycp9ThZUfYsXOaxsYgWc9M6tavwahvE=;
+	s=k20260515; t=1788972281;
+	bh=Bapc0YSkMfnvYk3VlSbyVwcwaxlxEF/qdP5fqXt2FVU=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=gIPVuofiiuXzwRKr3oimigWerGVK3163gi1cAcgzOdWIHvv7vHRHaOOm70oBmvuof
-	 gM+DrCV50r5q2fX37AG+T2Z9/95C3wKDpEICIKuj714cWc9kpK2a643U857hnxKrt6
-	 F+VhD/Iigk9dREUeU4ysQJtISisTduJzSnmSk21qc6hooSphBl5H9CJ0/x7dZKu/Q6
-	 u+L9ir5TwzY1RhFgoDiNZuSP0ijZXhIOTL8sytWHlzA6zcGHNHpORsIUOjNpgYzeac
-	 YkdgjhwiwM1Yl/vDXjEBIxQFkvn0uBOf3YaFLZFvbyOIKYs37Ib6WZ5TYOCA3N7iFE
-	 8WN0ksIUU49KQ==
-Date: Wed, 9 Sep 2026 17:42:45 +0100
+	b=SvkfUBrj+qqUCItjJr4thxIOtrO+WmcNQus9iN7o7fjn21Kjri7ciOsZZbXojK8eq
+	 ebmrsmEhjQ8lMe6NScH5NJJVO7FkHjSrPlMJAzs9SeDQJIL0euxfAANelWLDPoYw1X
+	 CcSIvP/FGlOivDpnH/QksUP428gC7WgcKMjXSRAyqMHuiTJd6wYCdFyF9iWecTST2l
+	 DPfn0SayJdOumRm8EjJ0YaCf7wOVn5AtF52jH/K7lyYBUkf1LvlE8O39pf5s+r01dw
+	 hpz3MZmyVQYZqDR+4GQ6n1zp4Q8/XwEUokZ3xCVu0XLtYHfY7rf+QXRgnY7M4GG9HF
+	 fN2FuuSzCKwhQ==
+Date: Wed, 9 Sep 2026 17:44:16 +0100
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 To: Kiryl Shutsemau <kas@kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>, 
@@ -70,12 +70,11 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 	linux-alpha@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, 
 	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
 	linux-um@lists.infradead.org, Hugh Dickins <hughd@google.com>, Qi Zheng <qi.zheng@linux.dev>
-Subject: Re: [PATCH v2 12/12] mm: change the contract for free_pgtables(),
- update docs
-Message-ID: <aqGMefM9TIqUvZrp@gremlin>
+Subject: Re: [PATCH v2 11/12] mm: make userland page table freeing RCU-safe
+Message-ID: <aqGMqVxJCWbZePmW@gremlin>
 References: <20260908-rcu-pagetable-freeing-v2-0-1f60b64e878e@kernel.org>
- <20260908-rcu-pagetable-freeing-v2-12-1f60b64e878e@kernel.org>
- <aqEkfKww9XDq15ZF@thinkstation>
+ <20260908-rcu-pagetable-freeing-v2-11-1f60b64e878e@kernel.org>
+ <aqEivRP0LmJZcgEx@thinkstation>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -84,52 +83,77 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aqEkfKww9XDq15ZF@thinkstation>
+In-Reply-To: <aqEivRP0LmJZcgEx@thinkstation>
 
-On Wed, Sep 09, 2026 at 10:24:21AM +0100, Kiryl Shutsemau wrote:
-> On Tue, Sep 08, 2026 at 01:32:21PM +0100, Lorenzo Stoakes (ARM) wrote:
-> > Now that page tables are freed after an RCU grace period, it is safe for
-> > read-only page table walkers to walk page table ranges that are being
-> > concurrently torn down, provided the mm is kept alive via mmgrab().
+On Wed, Sep 09, 2026 at 10:15:13AM +0100, Kiryl Shutsemau wrote:
+> On Tue, Sep 08, 2026 at 01:32:20PM +0100, Lorenzo Stoakes (ARM) wrote:
+> > Now every architecture has been converted to support
+> > CONFIG_MMU_GATHER_RCU_TABLE_FREE, this configuration option no longer makes
+> > any sense to keep around.
 > >
-> > It is however unsafe for writers to do so, as they must obtain an
-> > appropriate lock to do so safely.
+> > Therefore remove it, and remove all the dead code that existed for
+> > !CONFIG_MMU_GATHER_RCU_TABLE_FREE architectures previously.
 > >
-> > Update the pte_offset_map_lock()'s comment block to reflect this.
+> > Additionally, CONFIG_MMU_GATHER_TABLE_FREE is no longer necessary, as all
+> > architectures instead use CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE when a custom
+> > __tlb_remove_table() is required, so remove this too.
 > >
-> > Similarly update the process addresses documentation.
+> > A number of architectures only enabled CONFIG_MMU_GATHER_RCU_TABLE_FREE if
+> > CONFIG_MMU was set, however the mmu_gather logic only actually does
+> > something meaningful if CONFIG_MMU is set (mmu_gather.c is only compiled in
+> > this case, for instance).
 > >
-> > Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> > ---
-> >  Documentation/mm/process_addrs.rst |  6 ++++++
-> >  mm/pgtable-generic.c               | 15 +++++++++++----
-> >  2 files changed, 17 insertions(+), 4 deletions(-)
+> > As a result, there's no need to gate any of this logic on CONFIG_MMU
+> > explicitly.
 > >
-> > diff --git a/Documentation/mm/process_addrs.rst b/Documentation/mm/process_addrs.rst
-> > index a7296f251799..1e65b139f355 100644
-> > --- a/Documentation/mm/process_addrs.rst
-> > +++ b/Documentation/mm/process_addrs.rst
-> > @@ -537,6 +537,12 @@ We establish basic locking rules when interacting with page tables:
-> >  * When changing a page table entry the page table lock for that page table
-> >    **must** be held, except if you can safely assume nobody can access the page
-> >    tables concurrently (such as on invocation of :c:func:`!free_pgtables`).
-> > +* Page tables may be *walked* under RCU alone, as page tables are freed only
-> > +  after an RCU grace period has elapsed. However, any entry found must be
-> > +  revalidated after the page table lock is taken (such as the
-> > +  :c:func:`!pmd_same` recheck performed by :c:func:`!pte_offset_map_lock`)
-> > +  before it is acted upon. Changing an entry always requires the page table
-> > +  lock.
+> > CONFIG_PT_RECLAIM however does have a strict dependency on CONFIG_MMU, so
+> > make this dependency explicit.
+> >
+> > Additionally, correct comments to remove references to non-RCU page table
+> > gathering and make it clear that this is not 'semi-RCU', nor has it been
+> > since commit 1fb3d8c20bfa ("mm/mmu_gather: replace IPI with
+> > synchronize_rcu() when batch allocation fails").
+> >
+> > With this change in place the kernel policy is now that all page tables are
 >
-> This says the PTL plus a recheck is enough to act on the entry. It is
-> not: free_pte_range() clears the PMD without the PTL, so pmd_same() can
-> pass and the table is torn down right after. That is the case we settled
-> on for the pte_offset_map_lock() comment, and the two now disagree.
->
-> Something like "Changing an entry requires the page table lock and one
-> of the locks that excludes teardown (mmap or VMA lock)" would match the
-> comment.
+> You missed s/all/userspace/ from v1.
 
-Ack will change!
+Hmm I thought I got this... will fix on respin!
+
+>
+> > freed after an RCU grace period, and thus it is now safe to unconditionally
+> > perform page table walks under RCU, safe in the knowledge that page tables
+> > will not be freed underneath the walker.
+>
+>
+> > @@ -151,24 +148,15 @@
+> >   *  This might be useful if your architecture has size specific TLB
+> >   *  invalidation instructions.
+> >   *
+> > - *  MMU_GATHER_TABLE_FREE
+> > - *
+> > - *  This provides tlb_remove_table(), to be used instead of tlb_remove_page()
+> > - *  for page directores (__p*_free_tlb()).
+> > - *
+> > - *  Useful if your architecture has non-page page directories.
+> > + *  Page directories (__p*_free_tlb()) are always freed via tlb_remove_table(),
+> > + *  after an RCU grace period (see mm/mmu_gather.c).
+> >   *
+> > - *  When used, an architecture is expected to provide __tlb_remove_table() or
+> > - *  use the generic __tlb_remove_table(), which does the actual freeing of these
+> > - *  pages.
+> > + * This serialises against software page-table walkers, including architectures
+> > + * which do not use IPIs for remote TLB invalidates.
+>
+> Indentation is broken.
+
+Ugh I thought I fixed this before I respun too, doh!
+
+Will fix.
+
+>
+> --
+>   Kiryl Shutsemau / Kirill A. Shutemov
 
 --
 Cheers, Lorenzo
