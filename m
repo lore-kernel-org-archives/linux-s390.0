@@ -1,111 +1,166 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 669493C3F6B
-	for <linux-s390@vger.kernel.org>; Thu, 10 Sep 2026 08:09:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A98D3A782D;
+	Thu, 10 Sep 2026 08:33:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789027762; cv=none; b=m+IQeQ1O0yXmeUsl/IAcFRDgIYF3wVJ+MBPAEgEHHbvG1/QcALJbhLkMEY2RoqNOZKmeZnR9GH6I78TbJEqp0cPWb/+9JLSKu3egyVu5hd6wcr9Y6hg4W6qcpq031wX+a6AabPuyo28+NgdO0dd5gfjpwlqb/+PKhr0B+Ue/9hM=
+	t=1789029192; cv=none; b=g9YEK8PFuWiayArAknVFsET+yuRWfURNlk9jmPOeTu76akvj+NslZiRqrzio1qNkfAtjGE2s0wNZ2xxx9WNornpHcun5dNDDHliwzMyKtmXePPeUVjacPNUyYpKY0loSxjhrfGYvlZAz1anRmXQ6bP8mkbDoh2lWTkOWJ/mVvnE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789027762; c=relaxed/simple;
-	bh=i1ViilAoWIfrvFNy2sfhaaMW34fJ6EiIye9LO/Lk/YM=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=NHIi0jHQRC/arNoLkMXCj/YNmn5EAlIs5+El0GxOA6J0ewZ+nAbSdPC1m6lsEG/BS1m2MhcpqgBhKUbs5v0HRstAuGpy3khhlkyjzHlOD1Csfw5g3jto1ef291VgUAUBH3uBsLHOKrP+/m/56BS00Jl0I4Yn7CKUls+zWRTHYMI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oDwnOz7c; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789029192; c=relaxed/simple;
+	bh=cT3gEwCENyvltQvdtkD7ViWmkEsUqe2m+2Mwtbh6C6I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GRVwPosHJ3WmZtoa+81A46+/0KGJk6FAQKO1hKClvLlqx7vnQZtPJ25ep34CImNROoKtGJpUI1k11A0R5jDJPg41mXHMrtZDDIGmccxZn1Pd+MoYEWEE9rDgp0rYlS1L3mJ+bF6KOw3dsoOCv5sRTkVns0L5xsGK2WJpPcOBK64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=nq0t+a13; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=5bolpWR6; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oDwnOz7c"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 983591F000FF;
-	Thu, 10 Sep 2026 08:09:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789027761;
-	bh=KFAMVVDliXqQVM6vFn7yOJZmGCZM0VX97mLISmdaUj8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=oDwnOz7cU7FyBaZ9CxD7cyh+H08b6pxt3OEt3vNb5j5/741MNHw+wbSO10BZrX+10
-	 0bzRZJo8ysZ6G5K0X3EY5a/JSEsSdnKXzOFLXo/pPyt9nsBwjveIqxn5+u0n/VZSRq
-	 Wn8o0u/Iw5g35H32Qawfvw4uMTnSLuV8pWZgd3YfKbKMt76w36m1tLtoiL+3mEm+xw
-	 8DpgBGGgCF5kmq6478fPuKFNe+dn7XIGKVYzBFH6IeoGev9pu3EVRoEJYS70mrsfib
-	 AToQm0dVTZ/1TWtoN2zTXFReTgRxRZW5UTlVjSfWh84xzPsEV9sdzsI+fA/yZsTMtv
-	 Rfdp8ddRXn+eA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] s390/hiperdispatch: use system_dfl_wq to reschedule
- hd_capacity_work
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Euan Bourke" <euan@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260910075746.1233706-1-euan@linux.ibm.com>
-References: <20260910075746.1233706-1-euan@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 10 Sep 2026 08:09:20 +0000
-Message-Id: <20260910080920.983591F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="nq0t+a13";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="5bolpWR6"
+Date: Thu, 10 Sep 2026 10:33:01 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1789029186;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=PgYnxH7H+tx7By2AM1sGAFXZm+b1KJf3JRXo/DozlYY=;
+	b=nq0t+a13NaTSuYF4CeenzbMGkxy4JvQOZ0gqaRRD4cV9bqclklB2nkc3jSKVIovWerzMBz
+	LqWRF9Z/Wq6H9Z9U5z8AE+VQpRnpoU7JLulnrl5INZdb1CMxTMPnV05lqmLTS9b7bcJFm5
+	+Jtv/C4gZ+T4oI66pMCTl5u5+NHtvOkMZSIlvstSVWgfAMfF9Uop+cNAY9pJ1wnhDHX3xt
+	0EaSx9l4i8NZrU/FDddnLlVafk+g+pAz5r8kkTP/k3bKjkb7OYFvZ0hMvCNLC7AHSIlTma
+	Sl6zOqwKm4Xb6YskdZMSeNDBr8w0HvolM2Ie/L+Q4FlwBs5LfCMZSPSM6ejB+A==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1789029186;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=PgYnxH7H+tx7By2AM1sGAFXZm+b1KJf3JRXo/DozlYY=;
+	b=5bolpWR6VEOPOQDk4aOdzzFsCMnIuSs3+o1Bx7da9a/VgRkSmhJ5Iff3Ie4w9HH2UtpfSb
+	Me4QoEKEhv6cUqDA==
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+To: Borislav Petkov <bp@alien8.de>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Alexandre Ghiti <alex@ghiti.fr>, Nathan Chancellor <nathan@kernel.org>, 
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, Bill Wendling <morbo@google.com>, 
+	Justin Stitt <justinstitt@google.com>, Andy Lutomirski <luto@kernel.org>, 
+	Vincenzo Frascino <vincenzo.frascino@arm.com>, Kees Cook <kees@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+	Johannes Berg <johannes@sipsolutions.net>, Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Huacai Chen <chenhuacai@kernel.org>, 
+	WANG Xuerui <kernel@xen0n.name>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Miguel Ojeda <ojeda@kernel.org>, 
+	Alex Gaynor <alex.gaynor@gmail.com>, Gary Guo <gary@garyguo.net>, 
+	=?utf-8?B?QmrDtnJu?= Roy Baron <bjorn3_gh@protonmail.com>, Benno Lossin <lossin@kernel.org>, 
+	Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl <aliceryhl@google.com>, 
+	Trevor Gross <tmgross@umich.edu>, Danilo Krummrich <dakr@kernel.org>, 
+	Thomas Gleixner <tglx@kernel.org>, Christophe Leroy <chleroy@kernel.org>, 
+	Boqun Feng <boqun@kernel.org>, Nicolas Schier <nsc@kernel.org>, linux-riscv@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, llvm@lists.linux.dev, linux-mm@kvack.org, 
+	linux-um@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linuxppc-dev@lists.ozlabs.org, loongarch@lists.linux.dev, linux-s390@vger.kernel.org, 
+	linux-mips@vger.kernel.org, rust-for-linux@vger.kernel.org, linux-kbuild@vger.kernel.org, 
+	Jan Stancek <jstancek@redhat.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, 
+	Alexandre Ghiti <alexghiti@rivosinc.com>
+Subject: Re: [PATCH v5 02/24] x86/elf, um/x86/elf: Move relocation constants
+ to UAPI
+Message-ID: <20260910095003-d751da0d-37d1-4b14-9941-e3c388c94733@linutronix.de>
+References: <20260908-vdso-absolute-reloc-v5-0-3a93791af1cf@linutronix.de>
+ <20260908-vdso-absolute-reloc-v5-2-3a93791af1cf@linutronix.de>
+ <20260908135513.GAaqATwXHcQD7plnH-@fat_crate.local>
+ <20260908161740-0d79e592-87a6-43c5-9174-84ce1904e639@linutronix.de>
+ <20260908151238.GBaqAl5iKb64meuPJl@fat_crate.local>
+ <20260909075156-06ff671c-ab7b-47d8-aaa3-588b570888bc@linutronix.de>
+ <20260909144930.GAaqFx-mjH3-u6jLjw@fat_crate.local>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260909144930.GAaqFx-mjH3-u6jLjw@fat_crate.local>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] Replacing `schedule_delayed_work()` with `mod_delayed_work()` in=
-troduces a race condition that can inadvertently overwrite the longer initi=
-al delay set by `hd_enable_hiperdispatch()`.
---
+On Wed, Sep 09, 2026 at 07:49:30AM -0700, Borislav Petkov wrote:
+> On Wed, Sep 09, 2026 at 07:59:51AM +0200, Thomas Weiﬂschuh wrote:
+> > These names and numbers are defined by the architectures' ELF specifications.
+> > They are already cast in stone. For example see Table 4.9 of [0].
+> > Changing them would break compilers, linkers, loaders and more or less every
+> > existing ELF binary.
+> 
+> So?
 
-commit 2fd466459ccefd111b375205c56ee7b3c6f6c69b
-Author: Euan Bourke <euan@linux.ibm.com>
+This was a direct response to your "And putting them in UAPI casts them in
+stone". With the idea that we can't possibly cast them more into stone
+than they already are.
 
-s390/hiperdispatch: use system_dfl_wq to reschedule hd_capacity_work
+> Your goal is to provide them to tools/. You want to provide them to
+> *everything*. See the discrepance here?
 
-This commit updates hd_capacity_work to be rescheduled on system_dfl_wq
-instead of system_percpu_wq. It accomplishes this by replacing
-schedule_delayed_work() with mod_delayed_work().
+My goal is to make my tool work. For that I can just as well add ad-hoc
+relocation constants definitions in my own code. Just as everybody else
+has done, in what seems like a well-honed tradition.
+Unifying the constant definitions was a preparatory cleanup step I put
+in my series.
 
-> diff --git a/arch/s390/kernel/hiperdispatch.c b/arch/s390/kernel/hiperdis=
-patch.c
-> index 2172065222661..2b9187e472170 100644
-> --- a/arch/s390/kernel/hiperdispatch.c
-> +++ b/arch/s390/kernel/hiperdispatch.c
-> @@ -265,7 +265,7 @@ static void hd_capacity_work_fn(struct work_struct *w=
-ork)
->  	}
->  	trace_s390_hd_work_fn(steal_percentage, hd_entitled_cores, hd_high_capa=
-city_cores);
->  	mutex_unlock(&smp_cpu_state_mutex);
-> -	schedule_delayed_work(&hd_capacity_work, HD_DELAY_INTERVAL);
-> +	mod_delayed_work(system_dfl_wq, &hd_capacity_work, HD_DELAY_INTERVAL);
+Some architectures (like x86) define the relocation constants in internal
+kernel headers, but others do so in their UAPI headers, so we can't have it
+in include/linux/.
+As the UAPI is the common superset, and given that we already have quite some
+ELF definitions in the UAPI I this is where I put the relocation constants.
+We can add a tools/-specific header which is not shared with include/linux/
+but then we still have duplication with the regular kernel code.
 
-[Severity: Medium]
-Does replacing schedule_delayed_work() with mod_delayed_work() introduce a
-race condition that could inadvertently overwrite the initial delay set by
-hd_enable_hiperdispatch()?
+As a coincidence, these definitions in the UAPI would also be useful
+for nolibc static PIE support, but that is more of a weird curiousity
+and not something I want to bring up as reason here.
 
-If hd_capacity_work_fn() drops smp_cpu_state_mutex, and a concurrent CPU
-topology update runs arch_update_cpu_topology() and acquires the mutex:
+(...)
 
-CPU 1:
-hd_capacity_work_fn()
-    mutex_unlock(&smp_cpu_state_mutex);
-    <preempted or delayed>
+> > Also we already have other, closely related, ELF constants in the UAPI,
+> > see {,tools/}include/uapi/linux/elf{,-em}.h.
+>
+> Srsly?!?
+> 
+> You moved them there:
+> 
+> commit 626fd35278295fbb21f2da331cd8028e9738d965
+> Author: Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de>
+> Date:   Wed Feb 26 12:44:46 2025 +0100
+> 
+>     tools/include: Add uapi/linux/elf.h
+>     
+>     It will be used by the vDSO selftests.
 
-CPU 2:
-arch_update_cpu_topology()
-    mutex_lock(&smp_cpu_state_mutex);
-    hd_enable_hiperdispatch()
-        mod_delayed_work(..., &hd_capacity_work, 1 second timer);
+I think we are talking past each other. To me the act of "exposing
+something to UAPI" is adding it to include/uapi/ (or the arch/ variants).
+That is an actual change worthy of discussion, which I am happy to have.
+Copying headers (UAPI or not) to tools/include/ is a rote administrative task.
 
-CPU 1:
-    mod_delayed_work(system_dfl_wq, &hd_capacity_work, HD_DELAY_INTERVAL);
+The commit above is the latter.
+elf.h has been part of the UAPI for as long as the UAPI exists.
 
-Could CPU 1 overwrite the longer 1-second delay set by CPU 2 with its
-shorter 250ms timer (HD_DELAY_INTERVAL)?
+> Looking at the rest, it looks like some elf bits got exported, you added some
+> more and that ship has sailed.
 
-The original schedule_delayed_work() internally uses queue_delayed_work(),
-which safely ignores the queue request if the work is already pending,
-preserving the longer interval. By switching to mod_delayed_work(), we now
-unconditionally modify the timer.
+"some elf bits got exported" undersells it a bit. There are 14 years of dozens
+of people adding constants to include/uapi/linux/elf.h. So far it doesn't seem
+to have been a problem.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260910075746.1233=
-706-1-euan@linux.ibm.com?part=3D1
+> I still think us providing headers is completely unnecessary and it will come
+> to cause conflicts eventually but hey, not my problem.
+
+As there is pushback, I'll just drop all of the header changes.
+Maybe somebody else wants to deal with it at some point. Not my problem either.
+
+
+Thomas
