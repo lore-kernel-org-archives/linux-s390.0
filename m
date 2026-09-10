@@ -1,152 +1,192 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from dvalin.narfation.org (dvalin.narfation.org [213.160.73.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80F973A7194
-	for <linux-s390@vger.kernel.org>; Thu, 10 Sep 2026 16:35:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1BE63AB287;
+	Thu, 10 Sep 2026 16:56:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789058135; cv=none; b=KeYeIv87r+l9Pe6xUzm0TUWZxJXfAuFtzoxu2GfuSVyZ0nDEryQMvgqLipLSl5ZZ1eMAaAVbFAs2dBh6EzoGjdVXbuO+6kZcmCxzr48NiOvzL9RmFogloHtT/Mr+qt3QRiAiXpAhEWZiW+M22jvXJTPPAYl5w7z4N3N1QXILJR0=
+	t=1789059398; cv=none; b=HJKzcnIDFkhoe2QBCp4RxSTXdLSZklQ9lA/9o3r4EJbU4/6sH5UwhYUuVXrQEoO7fSrNWea+cHCIxc/Qfqf4pPUi/8oDOJm80RXR1yFLHOzpz4m8v/isCThWEb1l8zYTYfsxrA6srBeImTyMR3QOedjgMUC9SYR2HoN4BBpWtKU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789058135; c=relaxed/simple;
-	bh=ZHB8fGkO/pcY2ntLtZrmzwWlJM7ncrRHU85nyTHSHFk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=luX9dVDcqEapwBEkBmOJfP4NohwfWrY4ECLA2DFuPUknkMiFoubut4Hbw8EkuX7T+uxX4eNy7+Lshd+S+cJ5T5jMnVFnjwymLolUkMm1VPyBhCEwY8SncQj1+b9WKcM48wlTor1cXrFLMytn1249p3PCAB6pviCaFdEYObH6SxQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dznqte+w; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789059398; c=relaxed/simple;
+	bh=ScSG9WBXfS4Wo/8HDgWfWshTRFigOP1Fj1R22XjxUT0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=UWG/PNPJ3BOcvwcfagXSU5JivU87sfjf2cx6FcYoTCFWl0wNuwEZSLwW9sLabzu0qLR28NYvsJY6cGHLkvWU1j69BJreRSEeS0xdeIr2+UJX2LF43AjAHYCjZ9j+XGhTmUCUJ5k9HqQ7O96L32Mp19IDj55B/oD4tCFgd68PayU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=narfation.org; spf=pass smtp.mailfrom=narfation.org; dkim=pass (1024-bit key) header.d=narfation.org header.i=@narfation.org header.b=nwEXBdcA; arc=none smtp.client-ip=213.160.73.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=narfation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=narfation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dznqte+w"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD2F61F000FF;
-	Thu, 10 Sep 2026 16:35:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789058133;
-	bh=jTLnFIGQdHIjJhzUEDYlZsYXoVjFcDB8DQn7OtZWUPo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dznqte+wfic1RoAWttujO+JatKWNvTaaLW7qWx1Lfin0dx+5AgtjmgdSKN7J3PqXd
-	 V4psqjCkv/1++CeIp42kJPipMC9YChUkx1exPjSYpyY9NJdAeod+OSpSeGdkHLMefP
-	 buO+sORG5WmFUJtFmurTLhUntVDVcyI3V850FIG/oQ/hwAKqWOzAQeccmxTx2EJf4j
-	 soU4jmsmiHWGf5VqrTO3eK/BE7mOnYivL91pfruocU8Lu6+Wp/m7qk080dAIpzxFUl
-	 IOSvfFM1XvCPhKf5Vhb2MafPm4xs8HslO7s2jZf5PGJDHVq6wQ4uyHbeQpeqkQOix/
-	 IBArUeDqcP1Pg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 1/1] s390/zcrypt: Fix and improve zcrypt reply
- message verification checks
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Harald Freudenberger" <freude@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260910161906.36251-2-freude@linux.ibm.com>
-References: <20260910161906.36251-1-freude@linux.ibm.com>
- <20260910161906.36251-2-freude@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 10 Sep 2026 16:35:32 +0000
-Message-Id: <20260910163532.CD2F61F000FF@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=narfation.org header.i=@narfation.org header.b="nwEXBdcA"
+Received: by dvalin.narfation.org (Postfix) id 2356320394;
+	Thu, 10 Sep 2026 16:56:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
+	s=20121; t=1789059391;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jpfKdfRhIDieddP8CnPCmiOpHujz9qF8RTfexgVbXU8=;
+	b=nwEXBdcAy3Bpov4VOY4e9xQIUo1PQ2X9HlwxbfnLeQfMjABTkXF73qIcnksvyZ+lcbcS0g
+	2rPkDRnl7UQZFmPrLPM9uczBVt0vyDhtL/31BVXskbZBb26AOMkMrYm6WaedfzaSpjh5hq
+	RYBqqwgy91rok1+/oD3mlpj7KKJQqzg=
+From: Sven Eckelmann <sven@narfation.org>
+To: netdev@vger.kernel.org, Fernando Fernandez Mancera <fmancera@suse.de>
+Cc: horms@kernel.org, kuba@kernel.org, pabeni@redhat.com, edumazet@google.com,
+ davem@davemloft.net, Fernando Fernandez Mancera <fmancera@suse.de>,
+ Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
+ Andrew Lunn <andrew+netdev@lunn.ch>,
+ Tony Nguyen <anthony.l.nguyen@intel.com>,
+ Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+ Elad Nachman <enachman@marvell.com>, Saeed Mahameed <saeedm@nvidia.com>,
+ Tariq Toukan <tariqt@nvidia.com>, Mark Bloch <mbloch@nvidia.com>,
+ Ido Schimmel <idosch@nvidia.com>, Petr Machata <petrm@nvidia.com>,
+ Edward Cree <ecree.xilinx@gmail.com>,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Arend van Spriel <arend.vanspriel@broadcom.com>,
+ Miri Korenblit <miriam.rachel.korenblit@intel.com>,
+ Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+ Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
+ Chaitanya Kulkarni <kch@nvidia.com>, Saurav Kashyap <skashyap@marvell.com>,
+ Javed Hasan <jhasan@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com,
+ "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+ "Martin K. Petersen" <mkp@kernel.org>, Nilesh Javali <njavali@marvell.com>,
+ Manish Rangankar <mrangankar@marvell.com>, Varun Prakash <varun@chelsio.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
+ Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
+ Chuck Lever <cel@kernel.org>, Jeff Layton <jlayton@kernel.org>,
+ NeilBrown <neil@brown.name>, Olga Kornievskaia <okorniev@redhat.com>,
+ Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
+ Marek Lindner <marek.lindner@mailbox.org>,
+ Simon Wunderlich <sw@simonwunderlich.de>,
+ Antonio Quartulli <antonio@mandelbit.com>,
+ Nikolay Aleksandrov <razor@blackwall.org>,
+ Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>,
+ Phil Sutter <phil@nwl.cc>, Johannes Berg <johannes@sipsolutions.net>,
+ Matthieu Baerts <matttbe@kernel.org>, Mat Martineau <martineau@kernel.org>,
+ Geliang Tang <geliang@kernel.org>, Julian Anastasov <ja@ssi.bg>,
+ Aaron Conole <aconole@redhat.com>, Eelco Chaudron <echaudro@redhat.com>,
+ Ilya Maximets <i.maximets@ovn.org>, Allison Henderson <achender@kernel.org>,
+ Jamal Hadi Salim <jhs@mojatatu.com>, Jiri Pirko <jiri@resnulli.us>,
+ Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+ Xin Long <lucien.xin@gmail.com>, "D. Wythe" <alibuda@linux.alibaba.com>,
+ Dust Li <dust.li@linux.alibaba.com>,
+ Sidraya Jayagond <sidraya@linux.ibm.com>,
+ Mahanta Jambigi <mjambigi@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>,
+ Wen Gu <guwen@linux.alibaba.com>, Jon Maloy <jmaloy@redhat.com>,
+ Tung Quang Nguyen <tung.quang.nguyen@est.tech>,
+ Steffen Klassert <steffen.klassert@secunet.com>,
+ Herbert Xu <herbert@gondor.apana.org.au>,
+ Casey Schaufler <casey@schaufler-ca.com>, Paul Moore <paul@paul-moore.com>,
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
+ Vikas Gupta <vikas.gupta@broadcom.com>,
+ Bhargava Marreddy <bhargava.marreddy@broadcom.com>,
+ Rajashekar Hudumula <rajashekar.hudumula@broadcom.com>,
+ Nicolai Buchwitz <nb@tipi-net.de>,
+ Markus =?UTF-8?B?QmzDtmNobA==?= <markus@blochl.de>,
+ Arnd Bergmann <arnd@arndb.de>, Heiner Kallweit <hkallweit1@gmail.com>,
+ Florian Fainelli <florian.fainelli@broadcom.com>,
+ Krzysztof Kozlowski <krzk@kernel.org>,
+ Qingfang Deng <qingfang.deng@linux.dev>,
+ Julian Braha <julianbraha@gmail.com>,
+ Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Eric Biggers <ebiggers@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+ Neal Cardwell <ncardwell@google.com>, Kuniyuki Iwashima <kuniyu@google.com>,
+ Willem de Bruijn <willemb@google.com>, Alyssa Ross <hi@alyssa.is>,
+ Joel Granados <joel.granados@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
+ linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
+ intel-wired-lan@lists.osuosl.org, oss-drivers@corigine.com,
+ linux-net-drivers@amd.com, linux-stm32@st-md-mailman.stormreply.com,
+ linux-arm-kernel@lists.infradead.org, linux-wireless@vger.kernel.org,
+ brcm80211@lists.linux.dev, brcm80211-dev-list.pdl@broadcom.com,
+ linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org,
+ target-devel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-afs@lists.infradead.org, linux-nfs@vger.kernel.org,
+ b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux.dev,
+ netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+ mptcp@lists.linux.dev, lvs-devel@vger.kernel.org, dev@openvswitch.org,
+ rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org,
+ linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
+ linux-security-module@vger.kernel.org
+Subject:
+ Re: [PATCH 01/13 net-next] net: ipv4: introduce CONFIG_IPV4 to decouple the
+ IPv4 stack
+Date: Thu, 10 Sep 2026 18:56:26 +0200
+Message-ID: <2927239.BEx9A2HvPv@ripper>
+In-Reply-To: <20260910144914.8025-2-fmancera@suse.de>
+References:
+ <20260910144914.8025-1-fmancera@suse.de>
+ <20260910144914.8025-2-fmancera@suse.de>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="nextPart15836323.tv2OnDr8pf";
+ micalg="pgp-sha512"; protocol="application/pgp-signature"
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Legitimate XCRB and RNG responses will be spuriously rejected due =
-to enforcing an incorrect minimum length of sizeof(struct type86x_reply).
---
+--nextPart15836323.tv2OnDr8pf
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"; protected-headers="v1"
+From: Sven Eckelmann <sven@narfation.org>
+Date: Thu, 10 Sep 2026 18:56:26 +0200
+Message-ID: <2927239.BEx9A2HvPv@ripper>
+In-Reply-To: <20260910144914.8025-2-fmancera@suse.de>
+MIME-Version: 1.0
 
-commit 991141a9c29feb41fbfdd37e1610a682977e72b6
-Author: Harald Freudenberger <freude@linux.ibm.com>
+On Thursday, 10 September 2026 16:48:26 CEST Fernando Fernandez Mancera wrote:
+> diff --git a/net/batman-adv/Kconfig b/net/batman-adv/Kconfig
+> index 58c408b7a7d9..60ad4b09be6e 100644
+> --- a/net/batman-adv/Kconfig
+> +++ b/net/batman-adv/Kconfig
+> @@ -9,6 +9,7 @@
+>  
+>  config BATMAN_ADV
+>         tristate "B.A.T.M.A.N. Advanced Meshing Protocol"
+> +       depends on IPV4
+>         select CRC32
+>         help
+>           B.A.T.M.A.N. (better approach to mobile ad-hoc networking) is
 
-s390/zcrypt: Fix and improve zcrypt reply message verification checks
+This doesn't make a lot of sense to me IPV4 is not a requirement for 
+batman-adv. Only very specific features will require symbols from IPv4:
 
-This commit adds and improves checks related to buffer sizes and reply sizes
-for CCA, EP11, and ICA messages in the zcrypt driver. It adds length
-validation before accessing reply message structures to prevent out-of-boun=
-ds
-reads. It also reworks payload evaluation functions.
+* CONFIG_BATMAN_ADV_BLA
 
-> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/=
-zcrypt_msgtype6.c
-> index 3df1d676de5d8..a7d392272cfa2 100644
-> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
-> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-[ ... ]
-> @@ -820,6 +833,8 @@ static int convert_response_xcrb(bool userspace, stru=
-ct zcrypt_queue *zq,
->  {
->  	struct type86x_reply *msg =3D reply->msg;
-> =20
-> +	/* reply->len is always >=3D sizeof(struct error_hdr) here */
-> +
->  	switch (msg->hdr.type) {
->  	case TYPE82_RSP_CODE:
->  	case TYPE88_RSP_CODE:
-> @@ -827,9 +842,14 @@ static int convert_response_xcrb(bool userspace, str=
-uct zcrypt_queue *zq,
->  		return convert_error(zq, reply);
->  	case TYPE86_RSP_CODE:
->  		if (msg->hdr.reply_code) {
-> -			xcrb->status =3D msg->fmt2.apfs;
-> +			if (reply->len < sizeof(struct type86_fmt2_msg))
-> +				xcrb->status =3D 0x0008044DL;
-> +			else
-> +				xcrb->status =3D msg->fmt2.apfs;
->  			return convert_error(zq, reply);
->  		}
-> +		if (reply->len < sizeof(struct type86x_reply))
-> +			return -EINVAL;
+  - arp_create
 
-[Severity: High]
-Does this code incorrectly reject legitimate XCRB responses?
+* CONFIG_BATMAN_ADV_DAT
 
-It appears that this check assumes XCRB replies use the large ICA-specific
-type86x_reply struct. If a userspace application sends a valid XCRB request
-without a data payload, the hardware replies successfully without padding.
+  - arp_create
 
-While zcrypt_msgtype6_receive() correctly computes len as offset1 + count1
-and verifies it exactly matches the hardware reply length, this check evalu=
-ates
-reply->len < sizeof(struct type86x_reply). Since type86x_reply includes 6
-additional bytes (pad[4] and length) intended only for ICA responses, its s=
-ize
-is larger than an empty-payload XCRB response.
+* CONFIG_BATMAN_ADV_MCAST
 
-Could this result in valid XCRB responses being rejected with -EINVAL,
-causing a regression for userspace applications using the ICAXCRB ioctl?
+  - ip_mc_check_igmp
 
->  		if (msg->cprbx.cprb_ver_id =3D=3D 0x02)
->  			return convert_type86_xcrb(userspace, zq, reply, xcrb);
->  		fallthrough;	/* wrong cprb version is an unknown response */
-[ ... ]
-> @@ -885,6 +909,8 @@ static int convert_response_rng(struct zcrypt_queue *=
-zq,
->  {
->  	struct type86x_reply *msg =3D reply->msg;
-> =20
-> +	/* reply->len is always >=3D sizeof(struct error_hdr) here */
-> +
->  	switch (msg->hdr.type) {
->  	case TYPE82_RSP_CODE:
->  	case TYPE88_RSP_CODE:
-> @@ -892,6 +918,8 @@ static int convert_response_rng(struct zcrypt_queue *=
-zq,
->  	case TYPE86_RSP_CODE:
->  		if (msg->hdr.reply_code)
->  			return -EINVAL;
-> +		if (reply->len < sizeof(struct type86x_reply))
-> +			return -EINVAL;
 
-[Severity: High]
-Does this check similarly apply a logically flawed minimum-size limit to RNG
-hardware responses?
+Basically things which currently depend on INET in net/batman-adv/Kconfig
 
-It seems this could fail if the hardware RNG response buffer size
-configuration ever drops below the 6-byte delta caused by the ICA-specific
-padding in type86x_reply.
+Or am I missing something here?
 
->  		if (msg->cprbx.cprb_ver_id =3D=3D 0x02)
->  			return convert_type86_rng(zq, reply, data);
->  		fallthrough;	/* wrong cprb version is an unknown response */
+Regards,
+	Sven
+--nextPart15836323.tv2OnDr8pf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260910161906.3625=
-1-2-freude@linux.ibm.com?part=3D1
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQS81G/PswftH/OW8cVND3cr0xT1ywUCaqLhOgAKCRBND3cr0xT1
+y0QVAQCluQcX0gr2MIQxC1VBX8WP3ecVDFqIOBKX04RTLEdoGQD+LCZ3LWDtGBbG
+zKG3h3F96XOApdHINtJ4L0x6nSSviww=
+=kxMI
+-----END PGP SIGNATURE-----
+
+--nextPart15836323.tv2OnDr8pf--
+
+
+
