@@ -1,598 +1,240 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B99613A5421
-	for <linux-s390@vger.kernel.org>; Thu, 10 Sep 2026 16:19:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8BFF4BB266;
+	Thu, 10 Sep 2026 16:23:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789057155; cv=none; b=gI/dkAcoriuRqDlvwuWT6dWq3049zUEmebNZ2yJ5ZNzEf+83EfjLXB3ORaXY7deiqd5Fg4+rzV5lPPEgRPbd7gP1qESowwhe48YrnyC7PWBkoQ5cvDsLvKjckb5Tv9E4swK0S8p+Y2HyxxaECqUXYk2MBxzB8a0yKEpQMANedAQ=
+	t=1789057395; cv=none; b=haMolN8rbO1mMZgO4r2FIgpdkICMoE6AmIdsK9mQ2HBDOPeoJiDNvgTPvyYJL//d009N5HuF7kSO7jah8ukernb5z0S3Kv0ZQARFag4M162UATZmZ6bUzXbWgwyPAbzOW59Ekw/iIkDOFBdh5hiPTdB/eUEjcgK7CeTLevGV5Zs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789057155; c=relaxed/simple;
-	bh=N0lWVrSpmxsAPm7wS/If6uy2BPuQI2urd0AlafNFmWw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CLXEB0CD/jgUxt723R8LsJvhM+l06+PyWBVH9kYG5JQG1EDCiI2l2Go8cMwin8znNJYfdN+hCIGZP1n4WOScanS2jeOlC6HtXc38bRLP639Td/HFEIBYjC9MNmJA1n2Y8BuXdEwuWywPI7TLpJTI3dd6esXsQGbXoQm+K+0W49Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Fxmq+r6z; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1789057395; c=relaxed/simple;
+	bh=WFJwA7rFedD+sut2fLamdfjds/NqKNm8sVMMEXUIAfk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=aompMycqtlfYeULoGZlV/vGh3Wsoduxon0i042Q/tmNIvFSWd+TF3O8VOYFju05JAxVMLnoYt5tN/KwQeV9OvvaEyXCH2r7WyGSPmCY8z8Z3N0U0x4PiJYHOZAO6hmcsfDz8ntKiWNNllnr/Ym9FmcSXk3RzqjnQY8kYe4db+pk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Di6J4ooq; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=2EKGAeF5; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=v9LNypzg; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=iqVfo1Lk; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Fxmq+r6z"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68AFDCBH3244585
-	for <linux-s390@vger.kernel.org>; Thu, 10 Sep 2026 16:19:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=xXLzZPYqoN9PDmH1T
-	uE72eT6cQF3gdJcX3MzqjGWWG4=; b=Fxmq+r6zZmYxOectNVS1lyoCh+H6mix7l
-	giQCC24Z69Ginjpn9se44+3WHXmBeNQSW21vehoATvGYcnXgRCAzURWTWlwE42bp
-	kjqZbhK8Ar810Wt2wwuKK1leTTSxzGXKur/XrvZG019qKkSuBVLxCgtb9hDzuiTD
-	BjPs0fiFiBiurkyUbTL1TMvuot8lsszB5N+cF/lKVmkiARhkAzjFnu9g3UD1Saav
-	yYeW/RYqQzRXmbEssdH9BUOTswc8QIQ8zkRAMkiGIA5ibsmZbam+DaQ8dAWCM63Q
-	8AHTeOjYY1y8STtjo6vHLfJ6cjU8q1w9RztuPCx/ZoMbORY3xQ0Lw==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gkd8pny6f-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Thu, 10 Sep 2026 16:19:11 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68AF7ZLe208913
-	for <linux-s390@vger.kernel.org>; Thu, 10 Sep 2026 16:19:11 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gkvnrh62j-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Thu, 10 Sep 2026 16:19:11 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68AGJ75o53608882
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 10 Sep 2026 16:19:07 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6CB0F20040;
-	Thu, 10 Sep 2026 16:19:07 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3541F2004B;
-	Thu, 10 Sep 2026 16:19:07 +0000 (GMT)
-Received: from funtu2.ibm.com (unknown [9.111.139.154])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 10 Sep 2026 16:19:07 +0000 (GMT)
-From: Harald Freudenberger <freude@linux.ibm.com>
-To: dengler@linux.ibm.com, fcallies@linux.ibm.com, ifranzki@linux.ibm.com
-Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH v3 1/1] s390/zcrypt: Fix and improve zcrypt reply message verification checks
-Date: Thu, 10 Sep 2026 18:19:06 +0200
-Message-ID: <20260910161906.36251-2-freude@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260910161906.36251-1-freude@linux.ibm.com>
-References: <20260910161906.36251-1-freude@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Di6J4ooq";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="2EKGAeF5";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="v9LNypzg";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="iqVfo1Lk"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id AECA721DBF;
+	Thu, 10 Sep 2026 16:23:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1789057387; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kr4VsGry+oKuFNSODwNOT1epFYC6cWJFJntIrCTTAgc=;
+	b=Di6J4ooqj0YNM6hFl2R0QAoPrCYY+xDjaKsB/WTlQC30AvF58wJ5hQ4YlqziTkzbp4Og/P
+	8AcvpOg7/YbzCaNQKLMjJzQSURihPuWeFViFE2uYafcYTpIJsnzxU0jfqNtUgZDKRihBvk
+	pYIPz0zwPXel13Wvwc81TgwYDG7qh4I=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1789057387;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kr4VsGry+oKuFNSODwNOT1epFYC6cWJFJntIrCTTAgc=;
+	b=2EKGAeF5UM0IQsTGyBtJtEWymjFLkfNM5dLWFz+lLgh2k1z7sVyu3GnjZh/Iff2EshTqjl
+	zkhxcxPvZmXVVUCw==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=v9LNypzg;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=iqVfo1Lk
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1789057383; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kr4VsGry+oKuFNSODwNOT1epFYC6cWJFJntIrCTTAgc=;
+	b=v9LNypzgtLQ7CRKOmN6anD0VC81kX2iC2c1SQxxlO7XxDyaAXrKGQnx0CFuoDpq/1g1LaR
+	hObqfjDhrjmgyzypfatp8LsaPwXkXxB2ihx1FCBkjtbMfwpf1V/hcaC8BtjYX60RUsjQj/
+	bDSH8rzm6F/OyuAqSiUg6LmxSUgiqRY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1789057383;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kr4VsGry+oKuFNSODwNOT1epFYC6cWJFJntIrCTTAgc=;
+	b=iqVfo1LkEJDI3/oHuqx6Tkqp4cn5U3OeTC5em8w4cwZF+bn7rC/JxfARvjPvNOJVeIQ8TR
+	9p+8O0KpqpnPZYAA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 1530E137FD;
+	Thu, 10 Sep 2026 16:22:57 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id ehFfAmHZompxSgAAD6G6ig
+	(envelope-from <fmancera@suse.de>); Thu, 10 Sep 2026 16:22:57 +0000
+Message-ID: <bee1e0e0-6114-462b-975c-62ca2e448e8e@suse.de>
+Date: Thu, 10 Sep 2026 18:22:21 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=eM2GH3p1 c=1 sm=1 tr=0 ts=6aa2d87f cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
- a=1auxRPO1mMRHnwUCypQA:9
-X-Proofpoint-ORIG-GUID: 7E-NfrPccB7Vql5dtwSNnO3XqhzBoQli
-X-Proofpoint-GUID: 7E-NfrPccB7Vql5dtwSNnO3XqhzBoQli
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTEwMDE5NSBTYWx0ZWRfXx+W+QTYmp10L
- 6PARbgkGK27mOvaodCWfWEIMXqX0IJvff1TM9cfm97aLRy474rn27a/7R6hFGjrJurTLosymWCF
- mva779C5XaHKjcjyokDOdeBIVen1lfg=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTEwMDE5NSBTYWx0ZWRfXxU6a/HPTrCCg
- rYxUsqoE7B7RDg0i6IlMdmn141D9R1gPKkS9mGvWzOqi/PQT/xwFuuVf1W7Ja6XIc/fsAsGl5If
- xw3ienBoD9Iaqk3k7qLcLlNv9kXls/TwflCzQnKQ5zisSfLrFquiTP2FSlDod+gwrOM5vQq1H/L
- cT+mJK/H8h3N8EvDdDNMXLw3uuRXRD4XexBWIj9slOOJ2Fxy5arIxXtCz/tuV2WZJsxP/3m2cfQ
- hSJ7wM7PdDClTnBKs4zdSmsK7hTMY64awRQKlAZAeIhUNYPda5SWZPduov5TTKNPOXhUmopyVGP
- aJ/t8J4oUPEBji4LuAqWs8JnI4/VVRzVD4ckGy3Goytxw0DYULUkQuBciMgHQlFgvsyF9zTcwvf
- Y5lJiymzRj2Yry59KPxj6/HLE7mtrflPTVCJ+nYEfTJ4B+vtQfKK/EWqkwceXaZSl1omHujHwHt
- EkjUDxlZdckhccnIPAw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-10_05,2026-09-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 impostorscore=0 malwarescore=0 adultscore=0 phishscore=0
- lowpriorityscore=0 suspectscore=0 spamscore=0 priorityscore=1501 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609100195
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 01/13 net-next] net: ipv4: introduce CONFIG_IPV4 to
+ decouple the IPv4 stack
+To: netdev@vger.kernel.org
+Cc: horms@kernel.org, kuba@kernel.org, pabeni@redhat.com,
+ edumazet@google.com, davem@davemloft.net, Jason Gunthorpe <jgg@ziepe.ca>,
+ Leon Romanovsky <leon@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ Tony Nguyen <anthony.l.nguyen@intel.com>,
+ Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+ Elad Nachman <enachman@marvell.com>, Saeed Mahameed <saeedm@nvidia.com>,
+ Tariq Toukan <tariqt@nvidia.com>, Mark Bloch <mbloch@nvidia.com>,
+ Ido Schimmel <idosch@nvidia.com>, Petr Machata <petrm@nvidia.com>,
+ Edward Cree <ecree.xilinx@gmail.com>,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Arend van Spriel <arend.vanspriel@broadcom.com>,
+ Miri Korenblit <miriam.rachel.korenblit@intel.com>,
+ Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+ Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
+ Chaitanya Kulkarni <kch@nvidia.com>, Saurav Kashyap <skashyap@marvell.com>,
+ Javed Hasan <jhasan@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ "Martin K. Petersen" <mkp@kernel.org>, Nilesh Javali <njavali@marvell.com>,
+ Manish Rangankar <mrangankar@marvell.com>, Varun Prakash
+ <varun@chelsio.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
+ Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
+ Chuck Lever <cel@kernel.org>, Jeff Layton <jlayton@kernel.org>,
+ NeilBrown <neil@brown.name>, Olga Kornievskaia <okorniev@redhat.com>,
+ Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
+ Marek Lindner <marek.lindner@mailbox.org>,
+ Simon Wunderlich <sw@simonwunderlich.de>,
+ Antonio Quartulli <antonio@mandelbit.com>,
+ Sven Eckelmann <sven@narfation.org>,
+ Nikolay Aleksandrov <razor@blackwall.org>,
+ Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>,
+ Phil Sutter <phil@nwl.cc>, Johannes Berg <johannes@sipsolutions.net>,
+ Matthieu Baerts <matttbe@kernel.org>, Mat Martineau <martineau@kernel.org>,
+ Geliang Tang <geliang@kernel.org>, Julian Anastasov <ja@ssi.bg>,
+ Aaron Conole <aconole@redhat.com>, Eelco Chaudron <echaudro@redhat.com>,
+ Ilya Maximets <i.maximets@ovn.org>, Allison Henderson <achender@kernel.org>,
+ Jamal Hadi Salim <jhs@mojatatu.com>, Jiri Pirko <jiri@resnulli.us>,
+ Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+ Xin Long <lucien.xin@gmail.com>, "D. Wythe" <alibuda@linux.alibaba.com>,
+ Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond
+ <sidraya@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>,
+ Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+ Jon Maloy <jmaloy@redhat.com>, Tung Quang Nguyen
+ <tung.quang.nguyen@est.tech>, Steffen Klassert
+ <steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>,
+ Casey Schaufler <casey@schaufler-ca.com>, Paul Moore <paul@paul-moore.com>,
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
+ Vikas Gupta <vikas.gupta@broadcom.com>,
+ Bhargava Marreddy <bhargava.marreddy@broadcom.com>,
+ Rajashekar Hudumula <rajashekar.hudumula@broadcom.com>,
+ Nicolai Buchwitz <nb@tipi-net.de>, =?UTF-8?Q?Markus_Bl=C3=B6chl?=
+ <markus@blochl.de>, Arnd Bergmann <arnd@arndb.de>,
+ Heiner Kallweit <hkallweit1@gmail.com>,
+ Florian Fainelli <florian.fainelli@broadcom.com>,
+ Krzysztof Kozlowski <krzk@kernel.org>,
+ Qingfang Deng <qingfang.deng@linux.dev>, Julian Braha
+ <julianbraha@gmail.com>, Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Eric Biggers <ebiggers@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+ Neal Cardwell <ncardwell@google.com>, Kuniyuki Iwashima <kuniyu@google.com>,
+ Willem de Bruijn <willemb@google.com>, Alyssa Ross <hi@alyssa.is>,
+ Joel Granados <joel.granados@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
+ linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
+ intel-wired-lan@lists.osuosl.org, oss-drivers@corigine.com,
+ linux-net-drivers@amd.com, linux-stm32@st-md-mailman.stormreply.com,
+ linux-arm-kernel@lists.infradead.org, linux-wireless@vger.kernel.org,
+ brcm80211@lists.linux.dev, brcm80211-dev-list.pdl@broadcom.com,
+ linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org,
+ target-devel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-afs@lists.infradead.org, linux-nfs@vger.kernel.org,
+ b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux.dev,
+ netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+ mptcp@lists.linux.dev, lvs-devel@vger.kernel.org, dev@openvswitch.org,
+ rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org,
+ linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
+ linux-security-module@vger.kernel.org
+References: <20260910144914.8025-1-fmancera@suse.de>
+ <20260910144914.8025-2-fmancera@suse.de>
+Content-Language: en-US
+From: Fernando Fernandez Mancera <fmancera@suse.de>
+In-Reply-To: <20260910144914.8025-2-fmancera@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Level: 
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: AECA721DBF
+X-Spamd-Result: default: False [-1.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	FORGED_RECIPIENTS(2.00)[m:horms@kernel.org,m:kuba@kernel.org,m:edumazet@google.com,m:davem@davemloft.net,m:leon@kernel.org,m:andrew+netdev@lunn.ch,m:anthony.l.nguyen@intel.com,m:przemyslaw.kitszel@intel.com,m:enachman@marvell.com,m:saeedm@nvidia.com,m:tariqt@nvidia.com,m:mbloch@nvidia.com,m:idosch@nvidia.com,m:petrm@nvidia.com,m:ecree.xilinx@gmail.com,m:maxime.chevallier@bootlin.com,m:mcoquelin.stm32@gmail.com,m:alexandre.torgue@foss.st.com,m:arend.vanspriel@broadcom.com,m:miriam.rachel.korenblit@intel.com,m:kbusch@kernel.org,m:axboe@kernel.dk,m:hch@lst.de,m:sagi@grimberg.me,m:kch@nvidia.com,m:skashyap@marvell.com,m:jhasan@marvell.com,m:GR-QLogic-Storage-Upstream@marvell.com,m:James.Bottomley@HansenPartnership.com,m:mkp@kernel.org,m:njavali@marvell.com,m:mrangankar@marvell.com,m:varun@chelsio.com,m:brauner@kernel.org,m:marc.dionne@auristor.com,m:trondmy@kernel.org,m:anna@kernel.org,m:cel@kernel.org,m:jlayton@kernel.org,m:neil@brown.name,m:Dai.Ngo@oracle.com,m:marek.lindner@mailbox.o
+ rg,m:antonio@mandelbit.com,m:sven@narfation.org,m:razor@blackwall.org,m:pablo@netfilter.org,m:phil@nwl.cc,m:matttbe@kernel.org,m:martineau@kernel.org,m:geliang@kernel.org,m:i.maximets@ovn.org,m:achender@kernel.org,m:jhs@mojatatu.com,m:marcelo.leitner@gmail.com,m:lucien.xin@gmail.com,m:alibuda@linux.alibaba.com,m:dust.li@linux.alibaba.com,m:sidraya@linux.ibm.com,m:mjambigi@linux.ibm.com,m:tonylu@linux.alibaba.com,m:guwen@linux.alibaba.com,m:tung.quang.nguyen@est.tech,m:herbert@gondor.apana.org.au,m:paul@paul-moore.com,m:jmorris@namei.org,m:serge@hallyn.com,m:vikas.gupta@broadcom.com,m:bhargava.marreddy@broadcom.com,m:rajashekar.hudumula@broadcom.com,m:markus@blochl.de,m:arnd@arndb.de,m:hkallweit1@gmail.com,m:florian.fainelli@broadcom.com,m:krzk@kernel.org,m:qingfang.deng@linux.dev,m:julianbraha@gmail.com,m:enelsonmoore@gmail.com,m:gregkh@linuxfoundation.org,m:ebiggers@kernel.org,m:ardb@kernel.org,s:oleg@redhat.com,s:linux-stm32@st-md-mailman.stormreply.com,s:linux-fsdevel@vger.kernel
+ .org,s:linux-kernel@vger.kernel.org,s:linux-nfs@vger.kernel.org,s:linux-rdma@vger.kernel.org,s:linux-s390@vger.kernel.org,s:linux-scsi@vger.kernel.org,s:linux-sctp@vger.kernel.org,s:linux-security-module@vger.kernel.org,s:linux-wireless@vger.kernel.org,s:lvs-devel@vger.kernel.org,s:netfilter-devel@vger.kernel.org,s:target-devel@vger.kernel.org];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FROM_HAS_DN(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_CC(0.00)[kernel.org,redhat.com,google.com,davemloft.net,ziepe.ca,lunn.ch,intel.com,marvell.com,nvidia.com,gmail.com,bootlin.com,foss.st.com,broadcom.com,kernel.dk,lst.de,grimberg.me,HansenPartnership.com,chelsio.com,zeniv.linux.org.uk,suse.cz,auristor.com,brown.name,oracle.com,talpey.com,mailbox.org,simonwunderlich.de,mandelbit.com,narfation.org,blackwall.org,netfilter.org,strlen.de,nwl.cc,sipsolutions.net,ssi.bg,ovn.org,mojatatu.com,resnulli.us,linux.alibaba.com,linux.ibm.com,est.tech,secunet.com,gondor.apana.org.au,schaufler-ca.com,paul-moore.com,namei.org,hallyn.com,tipi-net.de,blochl.de,arndb.de,linux.dev,linuxfoundation.org,alyssa.is,vger.kernel.org,lists.osuosl.org,corigine.com,amd.com,st-md-mailman.stormreply.com,lists.infradead.org,lists.linux.dev,lists.open-mesh.org,openvswitch.org,oss.oracle.com,lists.sourceforge.net];
+	ARC_NA(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_TLS_ALL(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLdey6otz8cz7qhffota9ydd97)];
+	TO_DN_SOME(0.00)[];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCPT_COUNT_GT_50(0.00)[133];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[netdev];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.de:dkim,suse.de:email,suse.de:mid]
+X-Spam-Flag: NO
+X-Spam-Score: -1.01
 
-Add or improve checks related to buffer sizes and reply sizes to the
-handling of replies from the crypto cards for CCA, EP11 (AP message
-type 6) and ICA (AP type 50) messages. The verification code related
-to reply field length was not designed well and thus firmware
-deficiencies could lead to unexpected behavior in the zcrypt device
-driver. Thus improve the code to more closely inspect especially
-length fields at message replies.
+On 9/10/26 4:48 PM, Fernando Fernandez Mancera wrote:
+> Historically, the IPv4 protocol has been linked to the core INET
+> subsystem. Because shared infrastructure like the TCP/UDP engine,
+> routing or INET hashtables live inside net/ipv4/, it has been impossible
+> to compile a kernel with only IPv6 support.
+> 
+> This patch introduces the CONFIG_IPV4 Kconfig symbol, which is set to
+> 'def_bool y' for now. This does not allow to completely disable the
+> IPv4 stack yet but it lays the necessary build-system work for that
+> goal.
+> 
+> In addition, multiple subsystems Kconfig symbols across networking
+> features like tunnels, drivers and filesystems have been adjusted to
+> depend on IPv4. Keep on mind that follow-up work is required to convert
+> the Kconfig symbol to bool and remove the dependency on IPv4 where it
+> makes sense.
+> 
+> Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
+FWIW, I just checked and the following symbols that are currently marked 
+as "depends on IPV4" can already be compiled without IPV4:
 
-Add length validation before accessing reply message structures in
-zcrypt_msgtype6_receive(), zcrypt_msgtype6_receive_ep11(), and
-zcrypt_msgtype50_receive() to prevent out-of-bounds reads and
-potential kernel memory disclosure.
+IPV6_MIP6, IPV6_ILA and IPV6_MROUTE
 
-Also rework these three functions to validate reply lengths more
-carefully before copying data back into the request buffer. Use size_t
-for length calculations, reject inconsistent reply sizes, and add
-defensive handling for short invalid replies. For XCRB replies,
-validate both reply segments and derive the effective message length
-from the covered range instead of trusting only the second segment.
+They will be adjusted on the next revision of the series. A re-check for 
+all the symbols will be performed.
 
-Additional improve some of the later invoked evaluation functions
-which further check the payload. Add comments about length assumptions
-and for the type50 processing rework the payload processing completely
-with removing a misplaced BUG_ON().
-
-Fixes: 3b6245fd303f ("s390/zcrypt: Separate msgtype implementation from card modules.")
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Cc: stable@vger.kernel.org
----
- drivers/s390/crypto/zcrypt_msgtype50.c |  95 ++++++++----
- drivers/s390/crypto/zcrypt_msgtype6.c  | 196 ++++++++++++++++++-------
- 2 files changed, 214 insertions(+), 77 deletions(-)
-
-diff --git a/drivers/s390/crypto/zcrypt_msgtype50.c b/drivers/s390/crypto/zcrypt_msgtype50.c
-index d6fc2d8e7fad..5907fb2a6920 100644
---- a/drivers/s390/crypto/zcrypt_msgtype50.c
-+++ b/drivers/s390/crypto/zcrypt_msgtype50.c
-@@ -152,6 +152,11 @@ struct type80_hdr {
- 	unsigned char	reserved3[8];
- } __packed;
- 
-+struct type80_reply {
-+	struct type80_hdr hdr;
-+	char data[];
-+} __packed;
-+
- int get_rsa_modex_fc(struct ica_rsa_modexpo *mex, int *fcode)
- {
- 	if (!mex->inputdatalength)
-@@ -340,32 +345,43 @@ static int ICACRT_msg_to_type50CRT_msg(struct zcrypt_queue *zq,
-  * @data: pointer to user output data
-  * @length: size of user output data
-  *
-- * Returns 0 on success or -EFAULT.
-+ * Returns 0 on success or neg. errno value on failure.
-  */
- static int convert_type80(struct zcrypt_queue *zq,
- 			  struct ap_message *reply,
- 			  char __user *outputdata,
- 			  unsigned int outputdatalength)
- {
--	struct type80_hdr *t80h = reply->msg;
--	unsigned char *data;
-+	struct type80_reply *msg = reply->msg;
-+	size_t payload_len;
-+
-+	/*
-+	 * reply->len is always >= sizeof(struct type80_reply) here and
-+	 * outputdatalength (the modulus size) is guaranteed to be equal to
-+	 * inputdatalength and 0 < outputdatalength <= CEX3A_MAX_MOD_SIZE,
-+	 * also payload size may be >= outputdatalength.
-+	 */
-+
-+	payload_len = reply->len - sizeof(msg->hdr);
- 
--	if (t80h->len < sizeof(*t80h) + outputdatalength) {
--		/* The result is too short, the CEXxA card may not do that.. */
-+	if (outputdatalength > payload_len) {
-+		/* We expect at least outputdatalength bytes, broken card ? */
- 		zq->online = 0;
- 		pr_err("Crypto dev=%02x.%04x code=0x%02x => online=0 rc=EAGAIN\n",
- 		       AP_QID_CARD(zq->queue->qid),
--		       AP_QID_QUEUE(zq->queue->qid), t80h->code);
-+		       AP_QID_QUEUE(zq->queue->qid), msg->hdr.code);
- 		ZCRYPT_DBF_ERR("%s dev=%02x.%04x code=0x%02x => online=0 rc=EAGAIN\n",
- 			       __func__, AP_QID_CARD(zq->queue->qid),
--			       AP_QID_QUEUE(zq->queue->qid), t80h->code);
-+			       AP_QID_QUEUE(zq->queue->qid), msg->hdr.code);
- 		ap_send_online_uevent(&zq->queue->ap_dev, zq->online);
- 		return -EAGAIN;
- 	}
--	BUG_ON(t80h->len > CEX3A_MAX_RESPONSE_SIZE);
--	data = reply->msg + t80h->len - outputdatalength;
--	if (copy_to_user(outputdata, data, outputdatalength))
-+
-+	if (copy_to_user(outputdata,
-+			 msg->data + payload_len - outputdatalength,
-+			 outputdatalength))
- 		return -EFAULT;
-+
- 	return 0;
- }
- 
-@@ -374,14 +390,19 @@ static int convert_response(struct zcrypt_queue *zq,
- 			    char __user *outputdata,
- 			    unsigned int outputdatalength)
- {
--	/* Response type byte is the second byte in the response. */
--	unsigned char rtype = ((unsigned char *)reply->msg)[1];
-+	struct type80_reply *msg = reply->msg;
-+
-+	/* reply->len is always >= sizeof(struct error_hdr) here */
- 
--	switch (rtype) {
-+	switch (msg->hdr.type) {
- 	case TYPE82_RSP_CODE:
- 	case TYPE88_RSP_CODE:
- 		return convert_error(zq, reply);
- 	case TYPE80_RSP_CODE:
-+		if (msg->hdr.code)
-+			return convert_error(zq, reply);
-+		if (reply->len < sizeof(struct type80_reply))
-+			return -EINVAL;
- 		return convert_type80(zq, reply,
- 				      outputdata, outputdatalength);
- 	default: /* Unknown response type, this should NEVER EVER happen */
-@@ -389,11 +410,11 @@ static int convert_response(struct zcrypt_queue *zq,
- 		pr_err("Crypto dev=%02x.%04x unknown response type 0x%02x => online=0 rc=EAGAIN\n",
- 		       AP_QID_CARD(zq->queue->qid),
- 		       AP_QID_QUEUE(zq->queue->qid),
--		       (int)rtype);
-+		       (int)msg->hdr.type);
- 		ZCRYPT_DBF_ERR(
- 			"%s dev=%02x.%04x unknown response type 0x%02x => online=0 rc=EAGAIN\n",
- 			__func__, AP_QID_CARD(zq->queue->qid),
--			AP_QID_QUEUE(zq->queue->qid), (int)rtype);
-+			AP_QID_QUEUE(zq->queue->qid), (int)msg->hdr.type);
- 		ap_send_online_uevent(&zq->queue->ap_dev, zq->online);
- 		return -EAGAIN;
- 	}
-@@ -416,26 +437,46 @@ static void zcrypt_msgtype50_receive(struct ap_queue *aq,
- 		.reply_code = REP82_ERROR_MACHINE_FAILURE,
- 	};
- 	struct type80_hdr *t80h;
--	int len;
-+	size_t len;
- 
- 	/* Copy the reply message to the request message buffer. */
- 	if (!reply)
- 		goto out;	/* ap_msg->rc indicates the error */
-+
- 	t80h = reply->msg;
--	if (t80h->type == TYPE80_RSP_CODE) {
--		len = t80h->len;
--		if (len > reply->bufsize || len > msg->bufsize ||
--		    len != reply->len) {
--			pr_debug("len mismatch => EMSGSIZE\n");
--			msg->rc = -EMSGSIZE;
-+
-+	if (reply->len < sizeof(*t80h) ||
-+	    t80h->type != TYPE80_RSP_CODE) {
-+		if (reply->len < sizeof(error_reply)) {
-+			/* total broken reply, use static error reply instead */
-+			memcpy(msg->msg, &error_reply, sizeof(error_reply));
-+			msg->len = sizeof(error_reply);
- 			goto out;
-+		} else {
-+			/* malformed reply, convert function will handle this */
-+			len = reply->len;
-+			goto copy_len_and_out;
- 		}
--		memcpy(msg->msg, reply->msg, len);
--		msg->len = len;
--	} else {
--		memcpy(msg->msg, reply->msg, sizeof(error_reply));
--		msg->len = sizeof(error_reply);
- 	}
-+
-+	len = t80h->len;
-+
-+copy_len_and_out:
-+	if (len != reply->len) {
-+		msg->rc = -EMSGSIZE;
-+		pr_debug("len %zu rpl.len %zu mismatch, msg.rc=%d\n",
-+			 len, reply->len, msg->rc);
-+		goto out;
-+	}
-+	if (len > reply->bufsize || len > msg->bufsize) {
-+		msg->rc = -EMSGSIZE;
-+		pr_debug("len %zu exceeds buf %zu/%zu, msg.rc=%d\n",
-+			 len, reply->bufsize, msg->bufsize, msg->rc);
-+		goto out;
-+	}
-+	memcpy(msg->msg, reply->msg, len);
-+	msg->len = len;
-+
- out:
- 	complete(&msg->response.work);
- }
-diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/zcrypt_msgtype6.c
-index 3df1d676de5d..a7d392272cfa 100644
---- a/drivers/s390/crypto/zcrypt_msgtype6.c
-+++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-@@ -766,6 +766,15 @@ static int convert_type86_rng(struct zcrypt_queue *zq,
- 
- 	if (msg->cprbx.ccp_rtcode != 0 || msg->cprbx.ccp_rscode != 0)
- 		return -EINVAL;
-+	/*
-+	 * Note that offset2 and count2 have already been checked in
-+	 * zcrypt_msgtype6_receive(). So only check for valid count2
-+	 * and for not exceeding the hard coded rng buffer size.
-+	 */
-+	if (!msg->fmt2.count2)
-+		return -EINVAL;
-+	if (msg->fmt2.count2 > ZCRYPT_RNG_BUFFER_SIZE)
-+		return -EMSGSIZE;
- 	memcpy(buffer, data + msg->fmt2.offset2, msg->fmt2.count2);
- 	return msg->fmt2.count2;
- }
-@@ -777,11 +786,15 @@ static int convert_response_ica(struct zcrypt_queue *zq,
- {
- 	struct type86x_reply *msg = reply->msg;
- 
-+	/* reply->len is always >= sizeof(struct error_hdr) here */
-+
- 	switch (msg->hdr.type) {
- 	case TYPE82_RSP_CODE:
- 	case TYPE88_RSP_CODE:
- 		return convert_error(zq, reply);
- 	case TYPE86_RSP_CODE:
-+		if (reply->len < sizeof(struct type86x_reply))
-+			return -EINVAL;
- 		if (msg->cprbx.ccp_rtcode &&
- 		    msg->cprbx.ccp_rscode == 0x14f &&
- 		    outputdatalength > 256) {
-@@ -820,6 +833,8 @@ static int convert_response_xcrb(bool userspace, struct zcrypt_queue *zq,
- {
- 	struct type86x_reply *msg = reply->msg;
- 
-+	/* reply->len is always >= sizeof(struct error_hdr) here */
-+
- 	switch (msg->hdr.type) {
- 	case TYPE82_RSP_CODE:
- 	case TYPE88_RSP_CODE:
-@@ -827,9 +842,14 @@ static int convert_response_xcrb(bool userspace, struct zcrypt_queue *zq,
- 		return convert_error(zq, reply);
- 	case TYPE86_RSP_CODE:
- 		if (msg->hdr.reply_code) {
--			xcrb->status = msg->fmt2.apfs;
-+			if (reply->len < sizeof(struct type86_fmt2_msg))
-+				xcrb->status = 0x0008044DL;
-+			else
-+				xcrb->status = msg->fmt2.apfs;
- 			return convert_error(zq, reply);
- 		}
-+		if (reply->len < sizeof(struct type86x_reply))
-+			return -EINVAL;
- 		if (msg->cprbx.cprb_ver_id == 0x02)
- 			return convert_type86_xcrb(userspace, zq, reply, xcrb);
- 		fallthrough;	/* wrong cprb version is an unknown response */
-@@ -854,11 +874,15 @@ static int convert_response_ep11_xcrb(bool userspace, struct zcrypt_queue *zq,
- {
- 	struct type86_ep11_reply *msg = reply->msg;
- 
-+	/* reply->len is always >= sizeof(struct error_hdr) here */
-+
- 	switch (msg->hdr.type) {
- 	case TYPE82_RSP_CODE:
- 	case TYPE87_RSP_CODE:
- 		return convert_error(zq, reply);
- 	case TYPE86_RSP_CODE:
-+		if (reply->len < sizeof(struct type86_ep11_reply))
-+			return -EINVAL;
- 		if (msg->hdr.reply_code)
- 			return convert_error(zq, reply);
- 		if (msg->cprbx.cprb_ver_id == 0x04)
-@@ -885,6 +909,8 @@ static int convert_response_rng(struct zcrypt_queue *zq,
- {
- 	struct type86x_reply *msg = reply->msg;
- 
-+	/* reply->len is always >= sizeof(struct error_hdr) here */
-+
- 	switch (msg->hdr.type) {
- 	case TYPE82_RSP_CODE:
- 	case TYPE88_RSP_CODE:
-@@ -892,6 +918,8 @@ static int convert_response_rng(struct zcrypt_queue *zq,
- 	case TYPE86_RSP_CODE:
- 		if (msg->hdr.reply_code)
- 			return -EINVAL;
-+		if (reply->len < sizeof(struct type86x_reply))
-+			return -EINVAL;
- 		if (msg->cprbx.cprb_ver_id == 0x02)
- 			return convert_type86_rng(zq, reply, data);
- 		fallthrough;	/* wrong cprb version is an unknown response */
-@@ -928,48 +956,85 @@ static void zcrypt_msgtype6_receive(struct ap_queue *aq,
- 	};
- 	struct ap_response_type *resp_type = &msg->response;
- 	struct type86x_reply *t86r;
--	int len;
-+	size_t minlen, len;
- 
- 	/* Copy the reply message to the request message buffer. */
- 	if (!reply)
- 		goto out;	/* ap_msg->rc indicates the error */
-+
- 	t86r = reply->msg;
--	if (t86r->hdr.type == TYPE86_RSP_CODE &&
--	    t86r->cprbx.cprb_ver_id == 0x02) {
--		switch (resp_type->type) {
--		case CEXXC_RESPONSE_TYPE_ICA:
--			len = sizeof(struct type86x_reply) + t86r->length;
--			if (len > reply->bufsize || len > msg->bufsize ||
--			    len != reply->len) {
--				pr_debug("len mismatch => EMSGSIZE\n");
--				msg->rc = -EMSGSIZE;
--				goto out;
--			}
--			memcpy(msg->msg, reply->msg, len);
--			msg->len = len;
--			break;
--		case CEXXC_RESPONSE_TYPE_XCRB:
--			if (t86r->fmt2.count2)
--				len = t86r->fmt2.offset2 + t86r->fmt2.count2;
--			else
--				len = t86r->fmt2.offset1 + t86r->fmt2.count1;
--			if (len > reply->bufsize || len > msg->bufsize ||
--			    len != reply->len) {
--				pr_debug("len mismatch => EMSGSIZE\n");
-+	minlen = sizeof(t86r->hdr) + sizeof(t86r->fmt2) +
-+		offsetof(struct CPRBX, cprb_ver_id) +
-+		sizeof(t86r->cprbx.cprb_ver_id);
-+
-+	if (reply->len < minlen ||
-+	    t86r->hdr.type != TYPE86_RSP_CODE ||
-+	    t86r->cprbx.cprb_ver_id != 0x02) {
-+		if (reply->len < sizeof(error_reply)) {
-+			/* total broken reply, use static error reply instead */
-+			memcpy(msg->msg, &error_reply, sizeof(error_reply));
-+			msg->len = sizeof(error_reply);
-+			goto out;
-+		} else {
-+			/* malformed reply, convert function will handle this */
-+			len = reply->len;
-+			goto copy_len_and_out;
-+		}
-+	}
-+
-+	switch (resp_type->type) {
-+	case CEXXC_RESPONSE_TYPE_ICA:
-+		if (reply->len < sizeof(struct type86x_reply)) {
-+			msg->rc = -EMSGSIZE;
-+			pr_debug("rpl.len %zu < struct type86_reply, msg.rc=%d\n",
-+				 reply->len, msg->rc);
-+			goto out;
-+		}
-+		len = sizeof(struct type86x_reply) + (size_t)t86r->length;
-+		break;
-+	case CEXXC_RESPONSE_TYPE_XCRB:
-+		len = (size_t)t86r->fmt2.offset1 + (size_t)t86r->fmt2.count1;
-+		if (len > reply->len) {
-+			msg->rc = -EMSGSIZE;
-+			pr_debug("offset1 %u count1 %u rpl.len %zu mismatch, msg.rc=%d\n",
-+				 t86r->fmt2.offset1, t86r->fmt2.count1,
-+				 reply->len, msg->rc);
-+			goto out;
-+		}
-+		if (t86r->fmt2.count2) {
-+			len = (size_t)t86r->fmt2.offset2 +
-+				(size_t)t86r->fmt2.count2;
-+			if (len > reply->len) {
- 				msg->rc = -EMSGSIZE;
-+				pr_debug("offset2 %u count2 %u rpl.len %zu mismatch, msg.rc=%d\n",
-+					 t86r->fmt2.offset2, t86r->fmt2.count2,
-+					 reply->len, msg->rc);
- 				goto out;
- 			}
--			memcpy(msg->msg, reply->msg, len);
--			msg->len = len;
--			break;
--		default:
--			memcpy(msg->msg, &error_reply, sizeof(error_reply));
--			msg->len = sizeof(error_reply);
- 		}
--	} else {
--		memcpy(msg->msg, reply->msg, sizeof(error_reply));
-+		break;
-+	default:
-+		memcpy(msg->msg, &error_reply, sizeof(error_reply));
- 		msg->len = sizeof(error_reply);
-+		goto out;
-+	}
-+
-+copy_len_and_out:
-+	if (len != reply->len) {
-+		msg->rc = -EMSGSIZE;
-+		pr_debug("len %zu rpl.len %zu mismatch, msg.rc=%d\n",
-+			 len, reply->len, msg->rc);
-+		goto out;
- 	}
-+	if (len > reply->bufsize || len > msg->bufsize) {
-+		msg->rc = -EMSGSIZE;
-+		pr_debug("len %zu exceeds buf %zu/%zu, msg.rc=%d\n",
-+			 len, reply->bufsize, msg->bufsize, msg->rc);
-+		goto out;
-+	}
-+	memcpy(msg->msg, reply->msg, len);
-+	msg->len = len;
-+
- out:
- 	complete(&resp_type->work);
- }
-@@ -992,34 +1057,65 @@ static void zcrypt_msgtype6_receive_ep11(struct ap_queue *aq,
- 	};
- 	struct ap_response_type *resp_type = &msg->response;
- 	struct type86_ep11_reply *t86r;
--	int len;
-+	size_t minlen, len;
- 
- 	/* Copy the reply message to the request message buffer. */
- 	if (!reply)
- 		goto out;	/* ap_msg->rc indicates the error */
-+
- 	t86r = reply->msg;
--	if (t86r->hdr.type == TYPE86_RSP_CODE &&
--	    t86r->cprbx.cprb_ver_id == 0x04) {
--		switch (resp_type->type) {
--		case CEXXC_RESPONSE_TYPE_EP11:
--			len = t86r->fmt2.offset1 + t86r->fmt2.count1;
--			if (len > reply->bufsize || len > msg->bufsize ||
--			    len != reply->len) {
--				pr_debug("len mismatch => EMSGSIZE\n");
--				msg->rc = -EMSGSIZE;
--				goto out;
--			}
--			memcpy(msg->msg, reply->msg, len);
--			msg->len = len;
--			break;
--		default:
-+	minlen = sizeof(t86r->hdr) + sizeof(t86r->fmt2) +
-+		offsetof(struct ep11_cprb, cprb_ver_id) +
-+		sizeof(t86r->cprbx.cprb_ver_id);
-+
-+	if (reply->len < minlen ||
-+	    t86r->hdr.type != TYPE86_RSP_CODE ||
-+	    t86r->cprbx.cprb_ver_id != 0x04) {
-+		if (reply->len < sizeof(error_reply)) {
-+			/* total broken reply, use static error reply instead */
- 			memcpy(msg->msg, &error_reply, sizeof(error_reply));
- 			msg->len = sizeof(error_reply);
-+			goto out;
-+		} else {
-+			/* malformed reply, convert function will handle this */
-+			len = reply->len;
-+			goto copy_len_and_out;
- 		}
--	} else {
--		memcpy(msg->msg, reply->msg, sizeof(error_reply));
-+	}
-+
-+	switch (resp_type->type) {
-+	case CEXXC_RESPONSE_TYPE_EP11:
-+		len = (size_t)t86r->fmt2.offset1 + (size_t)t86r->fmt2.count1;
-+		if (len > reply->len) {
-+			msg->rc = -EMSGSIZE;
-+			pr_debug("offset1 %u count1 %u rpl.len %zu mismatch, msg.rc=%d\n",
-+				 t86r->fmt2.offset1, t86r->fmt2.count1,
-+				 reply->len, msg->rc);
-+			goto out;
-+		}
-+		break;
-+	default:
-+		memcpy(msg->msg, &error_reply, sizeof(error_reply));
- 		msg->len = sizeof(error_reply);
-+		goto out;
-+	}
-+
-+copy_len_and_out:
-+	if (len != reply->len) {
-+		msg->rc = -EMSGSIZE;
-+		pr_debug("len %zu rpl.len %zu mismatch, msg.rc=%d\n",
-+			 len, reply->len, msg->rc);
-+		goto out;
- 	}
-+	if (len > reply->bufsize || len > msg->bufsize) {
-+		msg->rc = -EMSGSIZE;
-+		pr_debug("len %zu exceeds buf %zu/%zu, msg.rc=%d\n",
-+			 len, reply->bufsize, msg->bufsize, msg->rc);
-+		goto out;
-+	}
-+	memcpy(msg->msg, reply->msg, len);
-+	msg->len = len;
-+
- out:
- 	complete(&resp_type->work);
- }
--- 
-2.43.0
-
+Thanks,
+Fernando.
