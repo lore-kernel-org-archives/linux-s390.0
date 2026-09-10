@@ -1,136 +1,171 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE7273EDE4D
-	for <linux-s390@vger.kernel.org>; Thu, 10 Sep 2026 11:10:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D338746EC90
+	for <linux-s390@vger.kernel.org>; Thu, 10 Sep 2026 11:11:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789038661; cv=none; b=WKXXWNULUYhiwVqgWNQ1QCzpT3Uc9ses1I/e1E7Szs/SFKD5VyUQ5iOj/k/Q48Pe4MVjtUSuS05VZm/yTvPrpQjhSzwh+tEVss4PuX/9pv42s+YvO8lit1nbM8qQ4MGG2FxUHEDmQ2R/YM615ZTjSkRSR6Q87XPXEOFhyOoSK6o=
+	t=1789038667; cv=none; b=FdXLkPmFPu/B/Zo/RNZpuPThhTNTonOQ44xWsJ8gXRoremUA+v2c5VmXRUXgHOqxTPXIQakSGUi6CuXN3O8OfbE/2prANpPaeJK+4cirgsVSEkA5A9gWYUNRqlg7DuT71w5W2tTvCJHw3fzjTUgvsdf+0VqBSVlVenh2817zzzU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789038661; c=relaxed/simple;
-	bh=R7aWSheERLsLHisdk4PAxkgg+AviosuTIYUe7Lur0KI=;
+	s=arc-20240116; t=1789038667; c=relaxed/simple;
+	bh=DGfzU3Bewm9237LTA0VlryRrpvenjlLSjPFIegxPhTI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=V+3bco1ffhtykO/qhcbtc1SsaSwYiYEjTokORvg8zsfKXhocMPq1ywrO9WAajqEY+TiDvWBGWH5dSHDoEqhJLDkDVF/5yYgmETPNI0v6Vu+YRFbW6fj68Snr5RIZD7Ne4CeNJSEamySthvFDoGiNHfz/Q0P/h8FwxJaaw6psZUg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nZ3uEIui; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=nz4xlO4dEgi+eRt2w2TfZxA02a/w33NWcv9Uuw9cAQpPuuIHAMrF/4oyu7qJ2LSdWeObcrsspvynuCkHWgAhFOyfgMr4HW7U+ymHSLTrQjUCwhWK+rkoNL9+9bEtzhu6Kv2RVluPS23gqlVUuPQN57upW/JtLUP9tiu60MooXvk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gBxZh5PV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nZ3uEIui"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A7F71F000FF;
-	Thu, 10 Sep 2026 11:10:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gBxZh5PV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1551C1F000FF;
+	Thu, 10 Sep 2026 11:11:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789038659;
-	bh=5WCLMUICbLrV2smuxjJBnwJrMbvzTsFe/lkIVSvJJdU=;
+	s=k20260515; t=1789038665;
+	bh=yP2Y8h566+qJImv7OLhK1yXbw1g4NTdoVM1xehfZMk0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=nZ3uEIuipGJWICa2FSagl4tStbzzG6YWlLn+wmjsmiZ5khyspZ0DyRoTkwuEBYbxx
-	 bjg5khxaJC8iQejExSxRyP8TvSV9jlV0MQbCbEbGWnhl2Yrmulh+LZJahGlJ48bawj
-	 3H9jxAmkhQXAEkwqPEwZl/ObSEmLdSg6/C6vd/Tm7mND0cuqHieUwNVfpXUcK59xKp
-	 kbWZVBXMA8iR7fQKOwbPWIL9XY2WeUH2UJzIWdGPyCsbVy7hvPWySf3c/jKoDgUKSV
-	 MqU4BQaJBwOVeyworXWlOl1P3tsfhOaBaGVCTas6/ynsrP+OqDYU+1i3A+oxa/vddw
-	 LEDOiouULq2zA==
+	b=gBxZh5PVbyJb6V5VF+TX7X5kPDLenhixHXYJosP8hrf8Bt9Hs8JHRoYRBZFiMvnQc
+	 I1lHi5sx4wI6DPW3M/bQXYX454Kht1KaZwe8TtKGCmB4B6ZF9vJRTg8l/OfTo3K5BP
+	 gYFaV6fGEr1bva6Wr5D801u9H0AcPjsZMs03AgrPgOD467yVHanZKoCGk9sidb4x79
+	 w2SwzbGz+mFOSjW9iP4fyR/uuXjzSwDFyq2g1793O+rWFOtGcbP9vK5GTNs+v++bK4
+	 8qUFDNZfVK2sXi+eiMZlOMaFAhPb+cBqAQCtmwajKwpRnuEp0BhECzgUy1emKk8VBg
+	 5jzQFFYqzdTpg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 03/13] s390/chsc_sch: Use kzalloc() for CHSC requests
+Subject: Re: [PATCH v2 01/13] s390/chsc: Use kzalloc() for CUBs
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?TWlrZSBSYXBvcG9ydCAoTWljcm9zb2Z0KQ==?= <rppt@kernel.org>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260910-s390-cio-ready-v2-3-e931086fdde1@kernel.org>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260910-s390-cio-ready-v2-1-e931086fdde1@kernel.org>
 References: <20260910-s390-cio-ready-v2-0-e931086fdde1@kernel.org>
- <20260910-s390-cio-ready-v2-3-e931086fdde1@kernel.org>
+ <20260910-s390-cio-ready-v2-1-e931086fdde1@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 10 Sep 2026 11:10:58 +0000
-Message-Id: <20260910111059.2A7F71F000FF@smtp.kernel.org>
+Date: Thu, 10 Sep 2026 11:11:04 +0000
+Message-Id: <20260910111105.1551C1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] Hardware Alignment Violation: Replacing get_zeroed_page() with kza=
-lloc(PAGE_SIZE) drops the strict 4K page-alignment guarantee required by th=
-e CHSC hardware instruction.
+
+New issues:
+- [High] Replacing get_zeroed_page() with kzalloc() for channel measurement=
+ unit blocks (CUB/ECUB) removes the strict 4K page-alignment guarantee requ=
+ired by the s390 hardware.
+
+Pre-existing issues:
+- [High] Hardware DMA Use-After-Free during error rollback if the SECM disa=
+ble command fails.
 --
 
-commit 605eecc8759317b0b4a005d290e0db9d7f1fd0a3
+commit a4009c99c45aacf3c6ede46b7f75f80186fc50f9
 Author: Mike Rapoport (Microsoft) <rppt@kernel.org>
 
-s390/chsc_sch: Use kzalloc() for CHSC requests
+s390/chsc: Use kzalloc() for CUBs
 
-This commit replaces get_zeroed_page() and free_page() with kzalloc() and
-kfree() for CHSC request and response areas. The goal is to simplify the
-code and use a more standard API since the memory is assumed not to require
-page allocator specifics.
+This commit replaces the use of get_zeroed_page() and free_page() with
+kzalloc() and kfree() for allocating channel measurement unit blocks (CUBs
+and ECUBs). The author notes that kmalloc() provides a better API without
+requiring casts and that performance differences are negligible for these
+allocations.
 
 Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redh=
 at.com
 
-> diff --git a/drivers/s390/cio/chsc_sch.c b/drivers/s390/cio/chsc_sch.c
-> --- a/drivers/s390/cio/chsc_sch.c
-> +++ b/drivers/s390/cio/chsc_sch.c
-> @@ -292,7 +292,7 @@ static int chsc_ioctl_start(void __user *user_area)
->  	if (!css_general_characteristics.dynio)
->  		/* It makes no sense to try. */
->  		return -EOPNOTSUPP;
-> -	chsc_area =3D (void *)get_zeroed_page(GFP_DMA | GFP_KERNEL);
-> +	chsc_area =3D kzalloc(PAGE_SIZE, GFP_DMA | GFP_KERNEL);
+> diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
+> index 9689f722c863c..60a4a7e6086ce 100644
+> --- a/drivers/s390/cio/chsc.c
+> +++ b/drivers/s390/cio/chsc.c
+> @@ -931,12 +931,12 @@ static int cub_alloc(struct channel_subsystem *css)
+>  	int i;
+> =20
+>  	for (i =3D 0; i < CSS_NUM_CUB_PAGES; i++) {
+> -		css->cub[i] =3D (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
+> +		css->cub[i] =3D kzalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
 
 [Severity: High]
-Does this kzalloc() break the strict 4KB page alignment required by the
-CHSC hardware instruction?
+Does replacing get_zeroed_page() with kzalloc() break the strict 4K
+page-alignment required for the CUB blocks?
 
-When slab debugging (like redzoning) is enabled, the allocated memory block
-can be shifted by the redzone size, breaking page alignment.
+The s390 hardware SECM command expects the physical addresses of the CUB
+measurement blocks to be strictly 4KB page-aligned. When KASAN or SLUB
+debugging is enabled, kzalloc(PAGE_SIZE) offsets the returned pointer with
+redzones, which destroys page alignment.
 
-Passing this unaligned pointer to the CHSC instruction unconditionally
-triggers a hardware specification exception (program check) which breaks
-channel subsystem I/O functionality.
+When this unaligned virtual address is passed to virt_to_dma32() in
+__chsc_do_secm(), it yields an unaligned physical address. Could this cause
+the hardware to reject the command or write 4KB of measurement data to the
+unaligned boundary, potentially corrupting SLUB metadata or adjacent object=
+s?
 
-[ ... ]
-
-> @@ -340,7 +340,7 @@ static int chsc_ioctl_on_close_set(void __user *user_=
-area)
->  		ret =3D -ENOMEM;
->  		goto out_unlock;
+>  		if (!css->cub[i])
+>  			return -ENOMEM;
 >  	}
-> -	on_close_chsc_area =3D (void *)get_zeroed_page(GFP_DMA | GFP_KERNEL);
-> +	on_close_chsc_area =3D kzalloc(PAGE_SIZE, GFP_DMA | GFP_KERNEL);
+>  	for (i =3D 0; i < CSS_NUM_ECUB_PAGES; i++) {
+> -		css->ecub[i] =3D (void *)get_zeroed_page(GFP_KERNEL);
+> +		css->ecub[i] =3D kzalloc(PAGE_SIZE, GFP_KERNEL);
 
 [Severity: High]
-Will this also lose the hardware-required page alignment for the on-close
-CHSC command area?
+Similarly, does kzalloc() remove the strict page alignment guarantee for the
+ECUB blocks?
 
-[ ... ]
+Like the CUB blocks, if SLUB debugging offsets the pointer, the physical
+address sent to the hardware will be unaligned.
 
-> @@ -392,7 +392,7 @@ static int chsc_ioctl_start_sync(void __user *user_ar=
-ea)
->  	struct chsc_sync_area *chsc_area;
->  	int ret, ccode;
+>  		if (!css->ecub[i])
+>  			return -ENOMEM;
+>  	}
+> @@ -949,11 +949,11 @@ static void cub_free(struct channel_subsystem *css)
+>  	int i;
 > =20
-> -	chsc_area =3D (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
-> +	chsc_area =3D kzalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
+>  	for (i =3D 0; i < CSS_NUM_CUB_PAGES; i++) {
+> -		free_page((unsigned long)css->cub[i]);
+> +		kfree(css->cub[i]);
 
 [Severity: High]
-Is there a risk of a hardware exception here as well due to the same
-alignment issue in chsc_ioctl_start_sync()?
+This isn't a bug introduced by this patch, but can this lead to a DMA
+use-after-free if the SECM disable command fails?
 
-[ ... ]
+Looking at the error rollback path in chsc_secm(), if enabling SECM succeeds
+but chsc_add_cmg_attr() fails, it attempts to rollback with
+__chsc_do_secm(css, 0):
 
-> @@ -438,7 +438,7 @@ static int chsc_ioctl_info_channel_path(void __user *=
-user_cd)
->  		u8 data[PAGE_SIZE - 20];
->  	} __attribute__ ((packed)) *scpcd_area;
-> =20
-> -	scpcd_area =3D (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
-> +	scpcd_area =3D kzalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
+drivers/s390/cio/chsc.c:chsc_secm() {
+    ...
+		if (css->cm_enabled) {
+			ret =3D chsc_add_cmg_attr(css);
+			if (ret) {
+				__chsc_do_secm(css, 0);
+				css->cm_enabled =3D 0;
+			}
+		}
+    ...
+out:
+	if (!css->cm_enabled)
+		cub_free(css);
+    ...
+}
 
-[Severity: High]
-Could this silent drop of the 4K page-alignment guarantee cause I/O failure
-for the command block allocation in chsc_ioctl_info_channel_path()?
+The return value of __chsc_do_secm(css, 0) is ignored. If the hardware disa=
+ble
+command fails (e.g., due to a timeout or busy state), the hardware remains
+active and will continue writing measurement data to these DMA buffers.=20
 
-[ ... ]
+However, the code unconditionally sets css->cm_enabled =3D 0, which causes =
+the
+out label to call cub_free(css). Could this free actively-used DMA buffers
+back to the allocator and cause silent memory corruption for any subsequent
+user of this memory?
+
+>  		css->cub[i] =3D NULL;
+>  	}
+>  	for (i =3D 0; i < CSS_NUM_ECUB_PAGES; i++) {
+> -		free_page((unsigned long)css->ecub[i]);
+> +		kfree(css->ecub[i]);
+>  		css->ecub[i] =3D NULL;
+>  	}
+>  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260910-s390-cio-r=
-eady-v2-0-e931086fdde1@kernel.org?part=3D3
+eady-v2-0-e931086fdde1@kernel.org?part=3D1
