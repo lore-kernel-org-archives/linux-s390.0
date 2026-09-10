@@ -1,120 +1,144 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB3D818DB35;
-	Thu, 10 Sep 2026 10:52:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AEE146EC8E;
+	Thu, 10 Sep 2026 11:00:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789037527; cv=none; b=TGfNgZ4T0c6cVhcapzVtlDfE1tDyQ7osukiyrrJJa//7T9yL4zF5AqSUvWGpPkDlGjqHkR4NyBQTDi/BPFdKlaSZwyCHQ9TVfAwgos55H2TKKBt6TaK3vS6zorP9XuEHO2Z+Vy+AVk+55cymIfA9UhmLfJZNf5dvfDEXk4w9dyM=
+	t=1789038011; cv=none; b=RxT+4sEnBteo3fD/8OrazyK5EXeDRKjlvRGm4V1L5ZQSqGLDvXP4XbgehDoCtUQ+IfwAkwb/D0+rXhBEs1toVps9KKqMT+zF9N2XZynyIUD7jv9o2ATNy1O9ECeox/bucQEtpw24qR/IJUhIQNZ39FQeBF/whhVbWB+yxJcZMYg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789037527; c=relaxed/simple;
-	bh=N7tjoMh0VJ0JjF10mqJOPD7b1ih9SO6rgWyfI3+RTmM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RhWIJOJaaV4obJosx6iNVAsGP28PPfDgNMAZVwvQ/bJHSKZ8qrpJ///IMXPJ4UTWNhE83tuVX5zmNtRW0AmozAywd1O/ra8AIfYwok1szrE6Zy7JUbw918KZqVxzFXrp2Y3IbqWeU1mCPaJ+b2pjunpwRdjbXbsj6xdfZvh5T9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jkBWkbqs; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789038011; c=relaxed/simple;
+	bh=3wqGI0nig/gl7n6Paa6u9N3mFW1svrDXhwa96wwCujw=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=atyUu3mp62z1ck/2Mwxdr1EWZs6yUJxSBa1WxO5pyBq9AhwfKxH7viof6AE5VdWae8Kpvlvb2qQdzXKZqTsnEWEvJ7XmE6Q+yRZa0rn1vWCjptvVnIBMqX0pU/UeEjo8o8zA880wVlA2SQ3EI7zhqQJj5Y7XvVTW4Yn6WCetmqo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=S+4g5h2N; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jkBWkbqs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB61D1F000FF;
-	Thu, 10 Sep 2026 10:52:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="S+4g5h2N"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EB3C1F00893;
+	Thu, 10 Sep 2026 11:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789037526;
-	bh=N7tjoMh0VJ0JjF10mqJOPD7b1ih9SO6rgWyfI3+RTmM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=jkBWkbqsUtrXGjvzs9ejgfK4XpAo0fpqaDkZEwyYUh3nsky2zY+18Vn27mS7241TL
-	 MvCu5S/EUOKRuRIWcemqgqVR0X7r6k4w/oYOXZqhYTVtmn5cDR0ZWuVJ+EoGIOf31K
-	 si2Vs3AQL0JW0JfVnduAaNtpDg+K6Gjxl/jEwtzpEcPUiZ4rezgSm0nh5PAkQQUFO1
-	 GwPIbbmKXcJaxgmpF9ohj/yHw0Jk801NrDXApGybMo/hVriULWRHefHhXwmI/BEyuR
-	 x75hp2NlH3/kPyBXNr+tNycCgJ1d5N0BstAe2eFHBEpUaMX8cbJ1kv4UK65a/OEoEn
-	 o+nS3JzDYdGyw==
-Date: Thu, 10 Sep 2026 12:52:03 +0200
-From: Thierry Reding <thierry.reding@kernel.org>
-To: Rob Herring <robh@kernel.org>
-Cc: Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, 
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, Sowjanya Komatineni <skomatineni@nvidia.com>, 
-	Luca Ceresoli <luca.ceresoli@bootlin.com>, Mikko Perttunen <mperttunen@nvidia.com>, 
-	Yury Norov <yury.norov@gmail.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, 
-	Russell King <linux@armlinux.org.uk>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	David Hildenbrand <david@kernel.org>, Lorenzo Stoakes <ljs@kernel.org>, 
-	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
-	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
-	Michal Hocko <mhocko@suse.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
-	Robin Murphy <robin.murphy@arm.com>, Sumit Semwal <sumit.semwal@linaro.org>, 
-	Benjamin Gaignard <benjamin.gaignard@collabora.com>, Brian Starkey <Brian.Starkey@arm.com>, 
-	John Stultz <jstultz@google.com>, "T.J. Mercier" <tjmercier@google.com>, 
-	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, Steven Rostedt <rostedt@goodmis.org>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Chun Ng <chunn@nvidia.com>, 
-	Mark Rutland <mark.rutland@arm.com>, Saravana Kannan <saravanak@kernel.org>, 
-	Thierry Reding <thierry.reding@gmail.com>, devicetree@vger.kernel.org, linux-tegra@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, 
-	iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
-	linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v6 06/12] of: Export of_node_to_nid()
-Message-ID: <aqKLkeg0iRBqa3bo@orome>
-References: <20260904-tegra-vpr-v6-0-79042cfa8de5@nvidia.com>
- <20260904-tegra-vpr-v6-6-79042cfa8de5@nvidia.com>
- <20260908145929.GB3123582-robh@kernel.org>
+	s=k20260515; t=1789038009;
+	bh=dFQw63bj1F/kPxxC9sqt+7gLUa5LGEkiBMoIMmY1uR8=;
+	h=From:Subject:Date:To:Cc;
+	b=S+4g5h2NWFTKw9U3EFXYMboABy/RasNDJ7dRe0fdCFq3Rdq7Z+kPzO+SH5PvxFfp2
+	 Sk1Wx2pSLwFDQ+c1VjPfmiSbJmbRB7pYRJ/Koa798p2iawxJzSnNkMx9CXg2aa5eU/
+	 bGbX7rmjh5OzR7CsTolHe/luzwOvRkyY2TnRqOb2cIyvoNLQgGR3J0narGVHpnl3WU
+	 p58nYT8ERhkN/kwT84oiwqwoN9vTQQdlwiBj/nKQKHcC1PTkbEaBth6m0Ossp47d8I
+	 UkTdXZw4sAvrFyGJ5fkZ+mk9dh4R0tE4raHtrxgPaw6Qjb/KQ0XWguZIU75eEfej1B
+	 +hzX8r7SbFVDQ==
+From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+Subject: [PATCH v2 00/13] s390/cio: replace page allocator calls with
+ k[mz]alloc()
+Date: Thu, 10 Sep 2026 14:00:02 +0300
+Message-Id: <20260910-s390-cio-ready-v2-0-e931086fdde1@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="pochtu3uujjsdg7m"
-Content-Disposition: inline
-In-Reply-To: <20260908145929.GB3123582-robh@kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3WOyw6CMBBFf8V07ZA+CAVX/odhUcoUqoaaKRIJ4
+ d9tce3y3Jk5dzYWkTxGdjltjHDx0YcpgTyfmB3NNCD4PjGTXFa84RqiajhYH4DQ9CuIGrVyrq5
+ K6Vg6ehE6/zmEt/bH8d3d0c7Zkjc6ExE6MpMdc3SgLhSQFXk8+jgHWo+HFpE1f7sXAQmNdqqpe
+ SVVeX0gTfgsAg2s3ff9C6Oc0mreAAAA
+X-Change-ID: 20260907-s390-cio-ready-18e73ff8642f
+To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Mike Rapoport <rppt@kernel.org>, 
+ Peter Oberparleiter <oberpar@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, 
+ Vineeth Vijayan <vneethv@linux.ibm.com>, 
+ Vlastimil Babka <vbabka@kernel.org>, linux-s390@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org
+X-Mailer: b4 0.17-dev
 
+The saga continues :)
 
---pochtu3uujjsdg7m
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v6 06/12] of: Export of_node_to_nid()
-MIME-Version: 1.0
+This series covers CIO, QDIO, SCM and IDAL buffer allocations.
 
-On Tue, Sep 08, 2026 at 09:59:29AM -0500, Rob Herring wrote:
-> On Fri, Sep 04, 2026 at 12:44:57PM +0200, Thierry Reding wrote:
-> > From: Thierry Reding <treding@nvidia.com>
-> >=20
-> > Drivers buildable as a module may want to use this, so export it.
->=20
-> We need a specific reason/driver. Otherwise, that's every API function.=
-=20
->=20
-> It doesn't look to me like the VPR driver ever actually uses the NID.
+This is a (small) part of larger work of replacing page allocator calls
+with kmalloc.
 
-You're right, we currently don't need this. The plan is to use this to
-differentiate between VPR instances on NUMA systems, but we don't have
-any such system yet. I'll drop this patch for now.
+My initial intention a few month ago was to remove ugly casts [1], but then
+willy pointed out that Linus objected to something like this [2] and it
+looks like more than a decade old technical debt.
 
-Thierry
+Largely, anything that doesn't need struct page (or a memdesc in the
+future) should just use kmalloc() or kvmalloc() to allocate memory.
+kmalloc() guarantees alignment, physical contiguity and working
+virt_to_phys() and beside nicer API that returns void * on alloc and
+doesn't require to know the allocation size on free, kmalloc() provides
+better debugging capabilities than page allocator.
 
---pochtu3uujjsdg7m
-Content-Type: application/pgp-signature; name="signature.asc"
+Another thing is that touching these allocation sites gives the reviewers
+opportunity to see if a PAGE_SIZE buffer is actually needed or maybe
+another size is appropriate.
 
------BEGIN PGP SIGNATURE-----
+For larger allocations that don't need physically contiguous memory
+kvmalloc() can be a better option that __get_free_pages() because under
+memory pressure it's is easier to allocate several order-0 pages than a
+physically contiguous chunk with the same number of pages.
 
-iQIzBAABCgAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmqii9MACgkQ3SOs138+
-s6G+LA/7BGayHietSWcjHsnMEamaB/I04lj2qpSvcwlZK/2E94CCzDouik55LAg2
-7yFNbMU0VYi2oxec0RMMlAfo/OEN8iG+3X3tcTwQ6Hv7fPxlsffyKDIAb0SxAalQ
-3gXrYnaeeUS8oWlfyapzTnArDHz1wkolZluRr9R3cj73ED8jdi0XuHkTjlbGKVko
-KaZTIYUo9uB5G1wLUs0TOP3pAfJJa97LpAtMPIdytlgwy8wLXa5ti4A79opsZzIa
-5kTsTXx5D9Xg+/kJuuvpr/5lanW+hYPWVbL8w37xwjKV5EoQW5kSdUnXXuZiE5p6
-zM5tKM16OssvhPhZkYaYwdR4QwrJz2wpGE1R8NV9W0IMpW4HtsIRJPbTQhQOqn0L
-DdKwKKwPYYEAshOJ/vel7xA5/rnfbFAtxOI8CvPpjM6mv0y8AFM8fApzzcfjlJvW
-D+mJVr7IHD3+E4MZeA44MUvJpuK9a6tZg80Z0ixPnnbtl7th8/3nrj6vpW2ANmjk
-aeh2Rud7YKP1TJThucNGvzzl9zmePpUiapF47cWCkR13ooM8opgzSHkeGBkU4Oaa
-HsXVrm8Ie+po6BAMLKsduZrB2KFkFyJ68bMGbHwuwqmVSux9BnT+Mc65Yc7fWEF7
-9+pu4BoTZZ32aJXzpyx8RcxV9jADGugXNEA88fHQpAxDbtyg5lc=
-=XC4p
------END PGP SIGNATURE-----
+And last, but not least, removing needless calls to page allocator should
+help with memdesc (aka project folio) conversion. There will be way less
+places to audit to see if the user was actually using struct page.
 
---pochtu3uujjsdg7m--
+The patches are grouped by buffer usage and ordered by file or
+subsystem. Related CHSC work areas and requests are kept together.
+
+While on it, use __free(kfree) for the SCM information buffer and local
+buffers in synchronous CHSC ioctl handlers. The CHSC cleanup is kept in
+a separate patch.
+
+Also in git:
+https://git.kernel.org/pub/scm/linux/kernel/git/rppt/linux.git gfp-to-kmalloc/s390-cio
+
+[1] https://lore.kernel.org/all/20251018093002.3660549-1-rppt@kernel.org/
+[2] https://lore.kernel.org/all/CA+55aFwp4iy4rtX2gE2WjBGFL=NxMVnoFeHqYa2j1dYOMMGqxg@mail.gmail.com/
+
+---
+v2 changes:
+Address sashiko comments:
+* Allocate the exact CMB area size and reject invalid channel counts.
+  Correct the alignment requirement to 32 bytes.
+* Tell kmemleak to ignore IDAL data buffers as only DMA addresses are kept.
+* Drop the obsolete kmemleak exemption for the QDIO CCW.
+
+v1: https://patch.msgid.link/20260907-s390-cio-ready-v1-0-ca7f39806234@kernel.org
+
+---
+Mike Rapoport (Microsoft) (13):
+      s390/chsc: Use kzalloc() for CUBs
+      s390/chsc: Use kzalloc() for the SEI work area
+      s390/chsc_sch: Use kzalloc() for CHSC requests
+      s390/chsc_sch: Use __free(kfree) for synchronous CHSC requests
+      s390/cio: Use kzalloc() for CHSC work areas
+      s390/cmf: Use kmalloc() for the CMB area
+      s390/idals: Use kmalloc() for IDAL data buffers
+      s390/qdio_main: Use kzalloc() for the IRQ structure
+      s390/qdio_main: Use kzalloc() for the QDR
+      s390/qdio_setup: Use kzalloc() for QDIO buffers
+      s390/qdio_setup: Use kzalloc() for the storage list
+      s390/qdio_setup: Use kzalloc() for the SSQD request
+      s390/scm: Use kmalloc() for SCM information
+
+ arch/s390/include/asm/idals.h   |   9 +-
+ drivers/s390/cio/chsc.c         |  20 +--
+ drivers/s390/cio/chsc_sch.c     | 300 ++++++++++++++--------------------------
+ drivers/s390/cio/cmf.c          |  11 +-
+ drivers/s390/cio/qdio.h         |   2 +-
+ drivers/s390/cio/qdio_main.c    |  23 ++-
+ drivers/s390/cio/qdio_setup.c   |  14 +-
+ drivers/s390/cio/qdio_thinint.c |   2 +-
+ drivers/s390/cio/scm.c          |   7 +-
+ 9 files changed, 150 insertions(+), 238 deletions(-)
+---
+base-commit: cee9395acd8043be0644b25c34bfa86623f2b935
+change-id: 20260907-s390-cio-ready-18e73ff8642f
+
+--
+Sincerely yours,
+Mike.
+
