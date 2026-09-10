@@ -1,35 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7C8E472F8E;
-	Thu, 10 Sep 2026 11:00:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1D894734D4;
+	Thu, 10 Sep 2026 11:00:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789038051; cv=none; b=NDSBI2zmpCZRldA/ffivMQ+YotC56PxQK7UNuPTkMpX+dFzGX0wb9aBpAJre3dfaL4MsPm0RFGJV9WYYtqhxSxw8OVk+KK1oqVeCyrS27sAc6qPsgjuWMs5oQEi0zAEmXz3B2sGNZMOHOOE12UzSHaLFTtQ8Fg8rV5hi29icCTU=
+	t=1789038054; cv=none; b=FvQR6rHrh/qjzf/sxqjljwdA3bKUbGtOWoLetD6tAd0ImO5yeID6j3B8TLnPnZI+Ux60bnZUjZgtX5VvjDhfzB+legDcGYpfLUZYN4vcvqM/rkLg/2PsBWQ8S3pdeofpYiSH3YMWije+J6cszfFPbeL0AYQCT/pGb5m5O7IqvJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789038051; c=relaxed/simple;
-	bh=hgFVRlQObA6IRobzhqyVXdoXC8mayCY0Z2IgxlZSSuM=;
+	s=arc-20240116; t=1789038054; c=relaxed/simple;
+	bh=msniaosZMR/qwh9gdvOXvUlhttFaDmHvFelXNEpOfZM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=lNDEH7ulRaxR1h5aFCtNEkW2F959YM0jbYbXwIpQOh0TRLoTaQdBRaueO4/QeB4DCh40hfsXiTipOyx3765XTdDyOiA9vjG18XLnot4i0TULP1cgRdR3GnzXMDSdCg9jxNUKFVQ2aM+4rmj+GgiaHTigWBcBUqzw9K+ZAIW1mxg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VqW3X5Jv; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=ut22XjAA8adklbcvCFvNzbn6HjD9FzqU7c/8Bz0vyK9zS+am2XmKMiBKQPiJarUBwPT0S7bjcjYEaGhcKyDoTb5UJzaK0GW1JYRjL3CuhnDfvqX6gIY95IdejpPQVgina9UeLrQwxbVTrvZa6a7jniIBleVZTP3XByP+JrkhlYo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HRH9KEeX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VqW3X5Jv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D96D1F000FF;
-	Thu, 10 Sep 2026 11:00:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HRH9KEeX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2B7D1F00893;
+	Thu, 10 Sep 2026 11:00:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789038049;
-	bh=owHwZKjYQNBsdmW9cxprXhtWaMjXxhcOEf9UsPq09Zc=;
+	s=k20260515; t=1789038052;
+	bh=ZWoW41+x+7dy6umxK1i5p5XUicgKN/VyGWTHRTGB5Jk=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=VqW3X5Jv3ytuz7FUfg5yJqnTnWHxfa2f8uOh13f3L+szD9grS+b3XD6tZXP5GYz7i
-	 Rn8nqxn2FR17hX8vFXFoIhx78KAuzao+pXVvnHiAp1GulFNzIeMxX6VlSIhJdDr2ij
-	 PodkZYtf6VW+xOFO5I5EDQCidWQnHw+s21fK+KtDkOrKIf030lBYrf9ccB+mryU1A+
-	 zuEN+4dny8qUUT2jzRbjpxFLYHY7DJbnf9sIkJztLzG7tixEHkxtIYQJab0SoE2Qkb
-	 NtsF7X5HbVomohr15bWvmHFVLS+vNpcSyTtJ3CJetjLekTxePYfkf8LuSbSJ+uyhEA
-	 L77q5T8Iyf3Og==
+	b=HRH9KEeXmVngHNuUOWNn8xRQ7/eO7kzWYtRlf+g6+nsRcMThfVn9XAQD7WHChf76P
+	 FSxx9uAhqbsd7WTBRzgkgGXMKpvQm3hhb+2UXwcaflcaa+Xq/aBK0WH2zmQmQRbl6B
+	 9jBegERP4F5Lw7JkfAPVn/8+S9jcWcFxYPObvewN0Cjon4pVFmcLF6YiI5VJmBZqaG
+	 NVyDFo/84Wz0EMbhl4ZudmUN0ZfhyXRjSERYm7cbU8UNzjHcE8dy0cLzEeXNTdZ+TD
+	 0jU+f+UoD7kVR31vSAjE6ZloSuZhJHbQvO7kTLWD6A4ujSu36NzkNGkBu5gxrpj9Pk
+	 1GxVloef6tfOA==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Thu, 10 Sep 2026 14:00:14 +0300
-Subject: [PATCH v2 12/13] s390/qdio_setup: Use kzalloc() for the SSQD
- request
+Date: Thu, 10 Sep 2026 14:00:15 +0300
+Subject: [PATCH v2 13/13] s390/scm: Use kmalloc() for SCM information
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -38,7 +37,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260910-s390-cio-ready-v2-12-e931086fdde1@kernel.org>
+Message-Id: <20260910-s390-cio-ready-v2-13-e931086fdde1@kernel.org>
 References: <20260910-s390-cio-ready-v2-0-e931086fdde1@kernel.org>
 In-Reply-To: <20260910-s390-cio-ready-v2-0-e931086fdde1@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
@@ -52,10 +51,10 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
  linux-kernel@vger.kernel.org, linux-mm@kvack.org
 X-Mailer: b4 0.17-dev
 
-qdio_setup_get_ssqd() allocates the request block for the Store
-Subchannel QDIO Data (SSQD) CHSC command.
+scm_update_information() allocates the response buffer for the CHSC
+Store SCM Information command.
 
-This memory can be allocated with kmalloc() as there's nothing special
+This buffer can be allocated with kmalloc() as there's nothing special
 about it to go directly to the page allocator.
 
 kmalloc() provides a better API that does not require ugly casts and
@@ -68,38 +67,54 @@ fast path allocations.
 For the slow path the performance is anyway determined by the amount of
 reclaim involved rather than by what allocator is used.
 
-Replace use of __get_free_page() with kzalloc() and free_page() with
+Replace use of __get_free_page() with kmalloc() and free_page() with
 kfree().
+
+While on it, use __free(kfree) for the local response buffer.
 
 Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
 Assisted-by: copilot:claude-opus
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- drivers/s390/cio/qdio_setup.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/cio/scm.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
-index 7ca8f61a2387b..c0215a7d29a81 100644
---- a/drivers/s390/cio/qdio_setup.c
-+++ b/drivers/s390/cio/qdio_setup.c
-@@ -249,7 +249,7 @@ int qdio_setup_get_ssqd(struct qdio_irq *irq_ptr,
+diff --git a/drivers/s390/cio/scm.c b/drivers/s390/cio/scm.c
+index 171212a6d2d9c..b79fe023ab8d1 100644
+--- a/drivers/s390/cio/scm.c
++++ b/drivers/s390/cio/scm.c
+@@ -13,6 +13,7 @@
+ #include <linux/slab.h>
+ #include <linux/init.h>
+ #include <linux/err.h>
++#include <linux/cleanup.h>
+ #include <asm/eadm.h>
+ #include "chsc.h"
  
- 	DBF_EVENT("getssqd:%4x", schid->sch_no);
- 	if (!irq_ptr) {
--		ssqd = (struct chsc_ssqd_area *)__get_free_page(GFP_KERNEL);
-+		ssqd = kzalloc(PAGE_SIZE, GFP_KERNEL);
- 		if (!ssqd)
- 			return -ENOMEM;
- 	} else {
-@@ -270,7 +270,7 @@ int qdio_setup_get_ssqd(struct qdio_irq *irq_ptr,
+@@ -224,12 +225,12 @@ static int scm_add(struct chsc_scm_info *scm_info, size_t num)
  
- out:
- 	if (!irq_ptr)
--		free_page((unsigned long)ssqd);
-+		kfree(ssqd);
+ int scm_update_information(void)
+ {
+-	struct chsc_scm_info *scm_info;
++	struct chsc_scm_info *scm_info __free(kfree) = NULL;
+ 	u64 token = 0;
+ 	size_t num;
+ 	int ret;
  
- 	return rc;
+-	scm_info = (void *)__get_free_page(GFP_KERNEL | GFP_DMA);
++	scm_info = kmalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
+ 	if (!scm_info)
+ 		return -ENOMEM;
+ 
+@@ -250,8 +251,6 @@ int scm_update_information(void)
+ 		token = scm_info->restok;
+ 	} while (token);
+ 
+-	free_page((unsigned long)scm_info);
+-
+ 	return ret;
  }
+ 
 
 -- 
 2.53.0
