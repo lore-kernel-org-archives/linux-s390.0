@@ -1,34 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41F36472072;
-	Thu, 10 Sep 2026 11:00:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A786F3D16E2;
+	Thu, 10 Sep 2026 11:00:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789038034; cv=none; b=uZR+bbfdw3K4r5Tk/O4SKXBzw8Vi84yoMVOtwpGq0L2D/3vr934FM0MmvugJTvfWYCZTP9CE0HLGgpI13GPxktemr0m+v+xqxBnDCVTaeV9RvgLq4mGwxJARO2Xeom6IYduaVSPH0YlLRQZuXP2WtmCHjJsThz8/jbqH2lzJKSE=
+	t=1789038037; cv=none; b=KKSTue1c2FVjZS6nXqBHUggbga3JtrXg49Za+6ebUogx/crsMJrB1VZ9rSTEZ0othhizuDGTSkozGvErhkCm/1/D+O5WLpIohxiecXPjf9Yijn3WHLwz9KyTLfaWCGsPKUvULe5RGo6UGkvQNyLoLL11eSGga739inE46T3gjsg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789038034; c=relaxed/simple;
-	bh=rdcrVC0BA24TZWlwPcwV+Z6oi8PioFMGwbQn+fYuYnI=;
+	s=arc-20240116; t=1789038037; c=relaxed/simple;
+	bh=CnXHp1JkDOfwDEmuFIt1o/K8zCbiqBSR3yDlzthGbnQ=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=srxZ3a8KuprRh37IioPhW3xmHubgzGLOMaCxagwVhsdZzGXSvSfwPubg4o6KJ/9Xb3dC9r6iHzga+68pOlOD5/oGPVoY+uMSS3VFJVZTO7kIItXGtpbe0qAjShj7OkLaXx/qXqjnzS3Vd3r6tCxCnMg9K8V0kBPQqtKQO8iQlSw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QwJMnW0u; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=UKZUkP+E9I4p54tgOAGC0zZLhos6KK1wcmTZVH8G378Xn2Cl/bjhHsowHpqov9xGZHEjnt2QdrGawz5teNlzkEovjvhvqEx7kLJxeB/GFpEmwE5HT5+egUrQVcpM6/mUEG5Tuw+7J0xqEDVNl5sEuGR/A8G5p/kmG3BSg1NL6eg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dVsepamy; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QwJMnW0u"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 369BA1F00893;
-	Thu, 10 Sep 2026 11:00:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dVsepamy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BF391F00898;
+	Thu, 10 Sep 2026 11:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789038033;
-	bh=bAVP4y79lmB0kd35IBqs2N16e6jwAfNVV+NWInsx3B8=;
+	s=k20260515; t=1789038036;
+	bh=U1G72EbqUjI9oNziOv0XdCQMAxirZYF5Q2JcgCPI+0s=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=QwJMnW0uXEnOlhVjMZA3ChXQrzqwPzdD00tByvpMjpZhbWPYw2EJdfVvtch3h/gZS
-	 G8mh1fgKfpv7AA3MQn35gggwdWJqOOt2ofz18QG2rJT8R953CBCiPLjyEKF49uqLnV
-	 q+EQ8WmHBUuk8iQhRrfrGrGExi9FTJn+tmDTlhkm57GGQd9AruTdroDxlPuerbDl3C
-	 zdEQE9V5Q5uiApj3qDzkEd2l9IzAmVxfy8hwd1UtOad7tfAX7gF4+7ggrj70cCZZqF
-	 8aGTdeEAocc03X2vN+/KbDM2SEyEEyymgz2CH1VaZpf7oHPgD6/ZQxzdUlPElKMchr
-	 VjgvEuvNpQnLg==
+	b=dVsepamyflN4CWrmX4M5jdM3tEOFYmVaGJYyPMgYyQGltoCu/UE269px5Np++ntkv
+	 /aZjvuCUE4Y91WOA9Stmag4LPGRYjgNTOCzTRYxGs7+08594wADyF2AAMrR/QyKEhB
+	 teZsGft7BlpW8tIJuTju3U5vUx1MUaskToroQvtiXq43rJKHRmPPRUjBvD8h1CyIsV
+	 J8NDJOsqVwu36YLRUbBFcMUQ2BXbS2xOpyRGKK/pg/BHBR/+J3pCXBjxgYnS5XsYkh
+	 3Q1U+9JEMdFN26kZQwGgNYEgEsxWcjbky9eG/j4fe29P/C0I52z5XlZ0e4ORSIx8wg
+	 YecKXB7wpxmNg==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Thu, 10 Sep 2026 14:00:09 +0300
-Subject: [PATCH v2 07/13] s390/idals: Use kmalloc() for IDAL data buffers
+Date: Thu, 10 Sep 2026 14:00:10 +0300
+Subject: [PATCH v2 08/13] s390/qdio_main: Use kzalloc() for the IRQ
+ structure
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,7 +38,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260910-s390-cio-ready-v2-7-e931086fdde1@kernel.org>
+Message-Id: <20260910-s390-cio-ready-v2-8-e931086fdde1@kernel.org>
 References: <20260910-s390-cio-ready-v2-0-e931086fdde1@kernel.org>
 In-Reply-To: <20260910-s390-cio-ready-v2-0-e931086fdde1@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
@@ -51,11 +52,10 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
  linux-kernel@vger.kernel.org, linux-mm@kvack.org
 X-Mailer: b4 0.17-dev
 
-idal_buffer_alloc() allocates the data chunks of an IDAL buffer that is
-used for channel I/O.
+qdio_allocate() allocates the QDIO irq structure.
 
-These buffers can be allocated with kmalloc() as there's nothing special
-about them to go directly to the page allocator.
+This memory can be allocated with kmalloc() as there's nothing special
+about it to go directly to the page allocator.
 
 kmalloc() provides a better API that does not require ugly casts and
 kfree() does not need to know the size of the freed object.
@@ -67,62 +67,73 @@ fast path allocations.
 For the slow path the performance is anyway determined by the amount of
 reclaim involved rather than by what allocator is used.
 
-Replace use of __get_free_pages() with kmalloc() and free_pages() with
+Replace use of get_zeroed_page() with kzalloc() and free_page() with
 kfree().
 
-While on it, tell kmemleak to ignore the data chunks as only their DMA
-addresses are retained in the IDAL buffer.
+While on it, drop the kmemleak exemption for the CCW. The IRQ structure
+is now tracked, so kmemleak can find its pointer to the CCW.
 
 Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
 Assisted-by: copilot:claude-opus
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- arch/s390/include/asm/idals.h | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/s390/cio/qdio_main.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/arch/s390/include/asm/idals.h b/arch/s390/include/asm/idals.h
-index 06e1ec2afd5af..213f430a8d33a 100644
---- a/arch/s390/include/asm/idals.h
-+++ b/arch/s390/include/asm/idals.h
-@@ -18,6 +18,7 @@
- #include <linux/types.h>
- #include <linux/slab.h>
- #include <linux/uaccess.h>
-+#include <linux/kmemleak.h>
- #include <asm/dma-types.h>
- #include <asm/cio.h>
- 
-@@ -147,9 +148,11 @@ static inline struct idal_buffer *idal_buffer_alloc(size_t size, int page_order)
- 			ib->data[i] = dma64_add(ib->data[i - 1], IDA_BLOCK_SIZE);
- 			continue;
- 		}
--		vaddr = (void *)__get_free_pages(GFP_KERNEL, page_order);
-+		vaddr = kmalloc(PAGE_SIZE << page_order, GFP_KERNEL);
- 		if (!vaddr)
- 			goto error;
-+		/* Only DMA addresses are retained in ib->data. */
-+		kmemleak_ignore(vaddr);
- 		ib->data[i] = virt_to_dma64(vaddr);
- 	}
- 	return ib;
-@@ -157,7 +160,7 @@ static inline struct idal_buffer *idal_buffer_alloc(size_t size, int page_order)
- 	while (i >= nr_chunks) {
- 		i -= nr_chunks;
- 		vaddr = dma64_to_virt(ib->data[i]);
--		free_pages((unsigned long)vaddr, ib->page_order);
-+		kfree(vaddr);
- 	}
- 	kfree(ib);
- 	return ERR_PTR(-ENOMEM);
-@@ -175,7 +178,7 @@ static inline void idal_buffer_free(struct idal_buffer *ib)
- 	nr_chunks = (PAGE_SIZE << ib->page_order) >> IDA_SIZE_SHIFT;
- 	for (i = 0; i < nr_ptrs; i += nr_chunks) {
- 		vaddr = dma64_to_virt(ib->data[i]);
--		free_pages((unsigned long)vaddr, ib->page_order);
-+		kfree(vaddr);
- 	}
- 	kfree(ib);
+diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
+index d137bf8c70664..28eb8602ca97e 100644
+--- a/drivers/s390/cio/qdio_main.c
++++ b/drivers/s390/cio/qdio_main.c
+@@ -12,11 +12,11 @@
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+-#include <linux/kmemleak.h>
+ #include <linux/delay.h>
+ #include <linux/gfp.h>
+ #include <linux/io.h>
+ #include <linux/atomic.h>
++#include <linux/slab.h>
+ #include <asm/debug.h>
+ #include <asm/qdio.h>
+ #include <asm/asm.h>
+@@ -936,7 +936,7 @@ int qdio_free(struct ccw_device *cdev)
+ 	free_page((unsigned long) irq_ptr->qdr);
+ 	kfree(irq_ptr->chsc_page);
+ 	kfree(irq_ptr->ccw);
+-	free_page((unsigned long) irq_ptr);
++	kfree(irq_ptr);
+ 	return 0;
  }
+ EXPORT_SYMBOL_GPL(qdio_free);
+@@ -961,7 +961,7 @@ int qdio_allocate(struct ccw_device *cdev, unsigned int no_input_qs,
+ 	    no_output_qs > QDIO_MAX_QUEUES_PER_IRQ)
+ 		return -EINVAL;
+ 
+-	irq_ptr = (void *) get_zeroed_page(GFP_KERNEL);
++	irq_ptr = kzalloc(PAGE_SIZE, GFP_KERNEL);
+ 	if (!irq_ptr)
+ 		return -ENOMEM;
+ 
+@@ -969,9 +969,6 @@ int qdio_allocate(struct ccw_device *cdev, unsigned int no_input_qs,
+ 	if (!irq_ptr->ccw)
+ 		goto err_ccw;
+ 
+-	/* kmemleak doesn't scan the page-allocated irq_ptr: */
+-	kmemleak_not_leak(irq_ptr->ccw);
+-
+ 	irq_ptr->cdev = cdev;
+ 	mutex_init(&irq_ptr->setup_mutex);
+ 	if (qdio_allocate_dbf(irq_ptr))
+@@ -1011,7 +1008,7 @@ int qdio_allocate(struct ccw_device *cdev, unsigned int no_input_qs,
+ err_dbf:
+ 	kfree(irq_ptr->ccw);
+ err_ccw:
+-	free_page((unsigned long) irq_ptr);
++	kfree(irq_ptr);
+ 	return rc;
+ }
+ EXPORT_SYMBOL_GPL(qdio_allocate);
 
 -- 
 2.53.0
