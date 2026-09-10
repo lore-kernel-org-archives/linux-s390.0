@@ -1,243 +1,246 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F00ED4BE45F;
-	Thu, 10 Sep 2026 16:29:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF4F2346AD5;
+	Thu, 10 Sep 2026 16:31:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789057778; cv=none; b=bjgnjumFrAbjiGsdLDYB3SyUypqj4SDGnNE0eyedZsHrK0ixVERgB0tMmhaMpeGcBEEF4xo5xKKLPDO2M/SDPDz2tw//jGlE4zJRQsZOc3zmX5CHVKyFkdutwCrn2oroJc06Din5aV6CqLxw6+f4ON/xDpmE3/P3BCZcP4W0RbI=
+	t=1789057919; cv=none; b=RT9vRVj7KOlvAjqKYMSt3/7pHN47D3hwUPewQnlGVloIm655Aa3g+ybWrYhcM+i8KzpjKNeYS/ZCPVo0JxE027p6UGfw5l9PxI+QTZpLS+nXAD7F7Mmny8mJf0fRrPRfqGIwL2oSo7334XwuJjFO0CayPgcwOf/4M+v/3Z/8kDw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789057778; c=relaxed/simple;
-	bh=2Apoet0k8WVTXIH4aVqalEbrP7NA3KRZmITBGA13cNY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KPMNTGyODTwcXv3YBsR3AOe9cRgQROuRBeUoR05eJu4rZUiek/eV3sVGiAmNvUKD0KMMth3PV3nb9aHzyWWHo5k6JNrkPCtxwugbBBvmc1r9GUl6iS+upayD1n7NAEiPV0Ji94bOPwlBACYXD7BiXBtH9VJvp/fe3NbslcpyZCc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oipBapYS; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1789057919; c=relaxed/simple;
+	bh=a47H8ascUBW8jMxwLKmfEWxJLnstKS97n+pzQV1m0XY=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=gx+lxrlZzwDExNlx2BL+wPeUnw4DMlwtJ4/z7OsT09IwEOElGASadNtwY0eUhopC/vWXJF1BXNsVkuWbmosjqgRJLp6IMpEm0hoIv4X9rjcPYqwE9UMoIzX4o4t5YiovHHiCMdb1oqYN6u+ymrkihExRp3yy9+r3Beglx11eZvQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=yQtRt462; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=LH324BSn; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=cYCiQcKe; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=ImEU0/HI; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oipBapYS"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68AFD2fj3266059;
-	Thu, 10 Sep 2026 16:29:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=aUWRntB0d1H6IbL2iLaI3jV9B96pWL+EMeYnI0uoq
-	C8=; b=oipBapYSUnVwwvOLZMfViWbcJX3CL3lutuGgVmNaBwX/yJ452NFJYTwNd
-	lhnysLfsVGHPaxyRgcXHEIh1gSrpM2Q7jxg19+tgcvVIjAF1NUGGU4br6GApvsou
-	sOKVGfivxcxmBbTaFe4X5b23xoeKMtHSnIzJxjpO7tAffDMTzH3juTS1/VX1+JAa
-	ZOR4mCD0CkR/H2wyrAjr+vgZv6nJDq3Vdl79vy0QmvsWVY+sSQSWyPdyLlaJwnPk
-	gA5Kq99RRjQeLQ0CRf+OZUholfm7wqNoZstuHQKcarsx5Ea/1rU56rL3BQyOoBvQ
-	Eq7bwMTo1kKYfJerc9vtNOj2fPsRQ==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gkd8qp02x-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 10 Sep 2026 16:29:25 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68AF7bRF183835;
-	Thu, 10 Sep 2026 16:29:24 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gkvwk15ps-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 10 Sep 2026 16:29:24 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68AGTKE845023712
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 10 Sep 2026 16:29:20 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E9F4620043;
-	Thu, 10 Sep 2026 16:29:19 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AF8B820040;
-	Thu, 10 Sep 2026 16:29:19 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Thu, 10 Sep 2026 16:29:19 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
-	id 934AE160E52; Thu, 10 Sep 2026 18:29:19 +0200 (CEST)
-From: Alexandra Winter <wintera@linux.ibm.com>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>
-Cc: Thorsten Winkler <twinkler@linux.ibm.com>,
-        Bryam Vargas <hexlabsecurity@proton.me>, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>
-Subject: [PATCH net-next] net/iucv: Add lock nesting annotation in iucv_sock_close()
-Date: Thu, 10 Sep 2026 18:29:19 +0200
-Message-ID: <20260910162919.2100124-1-wintera@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="yQtRt462";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="LH324BSn";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="cYCiQcKe";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="ImEU0/HI"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 8191721DAF;
+	Thu, 10 Sep 2026 16:31:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1789057901; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=K0lYofAWqHa7ePB/bJxKmxDOeogYPK+nv0lM1u2sygM=;
+	b=yQtRt4622LZ6Zi4UvIWOPIjsnQFttLWbic0UbOJ/MktL5wrTGXBqQN6VGuGrXRhIlo/NeW
+	mEztr0zz7AktV8m4uA1s3ZQ6UgnpG9dWJT2grEZj2W+OiQ8bJuPUunvGSejQ+jE1ZPWpKC
+	TMxQGHoX9d9j13TmLvZ4K61GrFCE9hA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1789057901;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=K0lYofAWqHa7ePB/bJxKmxDOeogYPK+nv0lM1u2sygM=;
+	b=LH324BSnk58hu9qiwIXwVhycJLjRA5a8tBmcWkTq5EUKnPJNyXh5hxQGh9zkZjY59lz4yV
+	8q006bBLfAs0WTDA==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=cYCiQcKe;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b="ImEU0/HI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1789057897; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=K0lYofAWqHa7ePB/bJxKmxDOeogYPK+nv0lM1u2sygM=;
+	b=cYCiQcKeL+lNT5vXzUYXm2veHe3zr0mktCu+3rPmCBwrw2kTXo37AwFOyr1bYeWe0bmHdV
+	1arZOiwul7owGD/gNEqP/XnSrf1owgb50cB3DU9jESucNN4UKtQMk8/5hHaj02PDghTAWf
+	4mE3IjDeiQiY5bqZ7XKwd7ngXgaQAtU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1789057897;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=K0lYofAWqHa7ePB/bJxKmxDOeogYPK+nv0lM1u2sygM=;
+	b=ImEU0/HIDJ8BCgajwwBBxGIMxsn8h8Ik16/8D9zy28+7s2aEcSnL+JFiPuiMCS5WBdZZOG
+	Rc066ADpK5HMSXCA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id E4ED913180;
+	Thu, 10 Sep 2026 16:31:30 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 3ywWNWLbomodUwAAD6G6ig
+	(envelope-from <fmancera@suse.de>); Thu, 10 Sep 2026 16:31:30 +0000
+Message-ID: <6cd59005-16b9-402f-896e-a031c1e0b20d@suse.de>
+Date: Thu, 10 Sep 2026 18:30:59 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=SpUFe/O0 c=1 sm=1 tr=0 ts=6aa2dae5 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=YCHcyxAEXZIDGAU0KIQA:9
-X-Proofpoint-ORIG-GUID: O5RiHSyALEiXTKwLZLCuKGs-v8vou-ie
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTEwMDE5NSBTYWx0ZWRfX5IbPbw1+PUpJ
- CZr3m0WGiVS7WY++xiMvu72AjT7wIx3jBQPQsWkIsmzxkz6HSVcYv0evvUf6P5RB35YsFRAvNNm
- GVq5JtBDUH30ODnUoT2flkV/lbnCKmO6cqUn4PnizUx0QY48mryZL+U90uyrA7jmkj0StqtTDRF
- OcJYXYbC3hGXaXkaKaBwXOZzaVKHMGAle0NIrdayYCTksFS/yBXYYuCc2lSiHMJdNKRDYZPzPSn
- OwMbfXocO+7a2oxBjoVazDuLwM1atXWOkWRJae197XwvUjDCY7AHPZG9zK/t6Ui1krMow+XsxSQ
- 2xFndY7LfKHfaG5eIj77tgDYZ5QCluo51pidP2mAKJ2y9p1/u9AD8ONfH7x/1qoHAbbrHurTZkm
- nWgpEmyT+LNH9my9a3WnSPYD+gBEOijCFIagS3asFSzhGu5tHOgWdHHhTqHRNlCOy6Ke4HQqK9p
- HHAKZRh3tSlvBVhyO7g==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTEwMDE5NSBTYWx0ZWRfX0U8v98GKHpjK
- 4ua7m41k9tJZ57fVvzuSohd3VY9KZf7WGiywjYHETVPURqNJcf/VqGR/S3ZT64Yg6apDxoc1lkw
- HxeLs8M0CNa0qVFgxKw+MoebhArs9Cs=
-X-Proofpoint-GUID: 4t-QwTGFYCM9wdBTLQGUewm-RB_p5FeS
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-10_05,2026-09-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 adultscore=0 lowpriorityscore=0 suspectscore=0 spamscore=0
- clxscore=1015 phishscore=0 malwarescore=0 impostorscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609100195
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 01/13 net-next] net: ipv4: introduce CONFIG_IPV4 to
+ decouple the IPv4 stack
+From: Fernando Fernandez Mancera <fmancera@suse.de>
+To: netdev@vger.kernel.org
+Cc: horms@kernel.org, kuba@kernel.org, pabeni@redhat.com,
+ edumazet@google.com, davem@davemloft.net, Jason Gunthorpe <jgg@ziepe.ca>,
+ Leon Romanovsky <leon@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ Tony Nguyen <anthony.l.nguyen@intel.com>,
+ Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+ Elad Nachman <enachman@marvell.com>, Saeed Mahameed <saeedm@nvidia.com>,
+ Tariq Toukan <tariqt@nvidia.com>, Mark Bloch <mbloch@nvidia.com>,
+ Ido Schimmel <idosch@nvidia.com>, Petr Machata <petrm@nvidia.com>,
+ Edward Cree <ecree.xilinx@gmail.com>,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Arend van Spriel <arend.vanspriel@broadcom.com>,
+ Miri Korenblit <miriam.rachel.korenblit@intel.com>,
+ Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+ Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
+ Chaitanya Kulkarni <kch@nvidia.com>, Saurav Kashyap <skashyap@marvell.com>,
+ Javed Hasan <jhasan@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ "Martin K. Petersen" <mkp@kernel.org>, Nilesh Javali <njavali@marvell.com>,
+ Manish Rangankar <mrangankar@marvell.com>, Varun Prakash
+ <varun@chelsio.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
+ Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
+ Chuck Lever <cel@kernel.org>, Jeff Layton <jlayton@kernel.org>,
+ NeilBrown <neil@brown.name>, Olga Kornievskaia <okorniev@redhat.com>,
+ Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
+ Marek Lindner <marek.lindner@mailbox.org>,
+ Simon Wunderlich <sw@simonwunderlich.de>,
+ Antonio Quartulli <antonio@mandelbit.com>,
+ Sven Eckelmann <sven@narfation.org>,
+ Nikolay Aleksandrov <razor@blackwall.org>,
+ Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>,
+ Phil Sutter <phil@nwl.cc>, Johannes Berg <johannes@sipsolutions.net>,
+ Matthieu Baerts <matttbe@kernel.org>, Mat Martineau <martineau@kernel.org>,
+ Geliang Tang <geliang@kernel.org>, Julian Anastasov <ja@ssi.bg>,
+ Aaron Conole <aconole@redhat.com>, Eelco Chaudron <echaudro@redhat.com>,
+ Ilya Maximets <i.maximets@ovn.org>, Allison Henderson <achender@kernel.org>,
+ Jamal Hadi Salim <jhs@mojatatu.com>, Jiri Pirko <jiri@resnulli.us>,
+ Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+ Xin Long <lucien.xin@gmail.com>, "D. Wythe" <alibuda@linux.alibaba.com>,
+ Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond
+ <sidraya@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>,
+ Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+ Jon Maloy <jmaloy@redhat.com>, Tung Quang Nguyen
+ <tung.quang.nguyen@est.tech>, Steffen Klassert
+ <steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>,
+ Casey Schaufler <casey@schaufler-ca.com>, Paul Moore <paul@paul-moore.com>,
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
+ Vikas Gupta <vikas.gupta@broadcom.com>,
+ Bhargava Marreddy <bhargava.marreddy@broadcom.com>,
+ Rajashekar Hudumula <rajashekar.hudumula@broadcom.com>,
+ Nicolai Buchwitz <nb@tipi-net.de>, =?UTF-8?Q?Markus_Bl=C3=B6chl?=
+ <markus@blochl.de>, Arnd Bergmann <arnd@arndb.de>,
+ Heiner Kallweit <hkallweit1@gmail.com>,
+ Florian Fainelli <florian.fainelli@broadcom.com>,
+ Krzysztof Kozlowski <krzk@kernel.org>,
+ Qingfang Deng <qingfang.deng@linux.dev>, Julian Braha
+ <julianbraha@gmail.com>, Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Eric Biggers <ebiggers@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+ Neal Cardwell <ncardwell@google.com>, Kuniyuki Iwashima <kuniyu@google.com>,
+ Willem de Bruijn <willemb@google.com>, Alyssa Ross <hi@alyssa.is>,
+ Joel Granados <joel.granados@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
+ linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
+ intel-wired-lan@lists.osuosl.org, oss-drivers@corigine.com,
+ linux-net-drivers@amd.com, linux-stm32@st-md-mailman.stormreply.com,
+ linux-arm-kernel@lists.infradead.org, linux-wireless@vger.kernel.org,
+ brcm80211@lists.linux.dev, brcm80211-dev-list.pdl@broadcom.com,
+ linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org,
+ target-devel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-afs@lists.infradead.org, linux-nfs@vger.kernel.org,
+ b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux.dev,
+ netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+ mptcp@lists.linux.dev, lvs-devel@vger.kernel.org, dev@openvswitch.org,
+ rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org,
+ linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
+ linux-security-module@vger.kernel.org
+References: <20260910144914.8025-1-fmancera@suse.de>
+ <20260910144914.8025-2-fmancera@suse.de>
+ <bee1e0e0-6114-462b-975c-62ca2e448e8e@suse.de>
+Content-Language: en-US
+In-Reply-To: <bee1e0e0-6114-462b-975c-62ca2e448e8e@suse.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Level: 
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: 8191721DAF
+X-Spamd-Result: default: False [-1.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	FORGED_RECIPIENTS(2.00)[m:horms@kernel.org,m:kuba@kernel.org,m:edumazet@google.com,m:davem@davemloft.net,m:leon@kernel.org,m:andrew+netdev@lunn.ch,m:anthony.l.nguyen@intel.com,m:przemyslaw.kitszel@intel.com,m:enachman@marvell.com,m:saeedm@nvidia.com,m:tariqt@nvidia.com,m:mbloch@nvidia.com,m:idosch@nvidia.com,m:petrm@nvidia.com,m:ecree.xilinx@gmail.com,m:maxime.chevallier@bootlin.com,m:mcoquelin.stm32@gmail.com,m:alexandre.torgue@foss.st.com,m:arend.vanspriel@broadcom.com,m:miriam.rachel.korenblit@intel.com,m:kbusch@kernel.org,m:axboe@kernel.dk,m:hch@lst.de,m:sagi@grimberg.me,m:kch@nvidia.com,m:skashyap@marvell.com,m:jhasan@marvell.com,m:GR-QLogic-Storage-Upstream@marvell.com,m:James.Bottomley@HansenPartnership.com,m:mkp@kernel.org,m:njavali@marvell.com,m:mrangankar@marvell.com,m:varun@chelsio.com,m:brauner@kernel.org,m:marc.dionne@auristor.com,m:trondmy@kernel.org,m:anna@kernel.org,m:cel@kernel.org,m:jlayton@kernel.org,m:neil@brown.name,m:Dai.Ngo@oracle.com,m:marek.lindner@mailbox.o
+ rg,m:antonio@mandelbit.com,m:sven@narfation.org,m:razor@blackwall.org,m:pablo@netfilter.org,m:phil@nwl.cc,m:matttbe@kernel.org,m:martineau@kernel.org,m:geliang@kernel.org,m:i.maximets@ovn.org,m:achender@kernel.org,m:jhs@mojatatu.com,m:marcelo.leitner@gmail.com,m:lucien.xin@gmail.com,m:alibuda@linux.alibaba.com,m:dust.li@linux.alibaba.com,m:sidraya@linux.ibm.com,m:mjambigi@linux.ibm.com,m:tonylu@linux.alibaba.com,m:guwen@linux.alibaba.com,m:tung.quang.nguyen@est.tech,m:herbert@gondor.apana.org.au,m:paul@paul-moore.com,m:jmorris@namei.org,m:serge@hallyn.com,m:vikas.gupta@broadcom.com,m:bhargava.marreddy@broadcom.com,m:rajashekar.hudumula@broadcom.com,m:markus@blochl.de,m:arnd@arndb.de,m:hkallweit1@gmail.com,m:florian.fainelli@broadcom.com,m:krzk@kernel.org,m:qingfang.deng@linux.dev,m:julianbraha@gmail.com,m:enelsonmoore@gmail.com,m:gregkh@linuxfoundation.org,m:ebiggers@kernel.org,m:ardb@kernel.org,s:oleg@redhat.com,s:linux-stm32@st-md-mailman.stormreply.com,s:linux-fsdevel@vger.kernel
+ .org,s:linux-kernel@vger.kernel.org,s:linux-nfs@vger.kernel.org,s:linux-rdma@vger.kernel.org,s:linux-s390@vger.kernel.org,s:linux-scsi@vger.kernel.org,s:linux-sctp@vger.kernel.org,s:linux-security-module@vger.kernel.org,s:linux-wireless@vger.kernel.org,s:lvs-devel@vger.kernel.org,s:netfilter-devel@vger.kernel.org,s:target-devel@vger.kernel.org];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FROM_HAS_DN(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_CC(0.00)[kernel.org,redhat.com,google.com,davemloft.net,ziepe.ca,lunn.ch,intel.com,marvell.com,nvidia.com,gmail.com,bootlin.com,foss.st.com,broadcom.com,kernel.dk,lst.de,grimberg.me,HansenPartnership.com,chelsio.com,zeniv.linux.org.uk,suse.cz,auristor.com,brown.name,oracle.com,talpey.com,mailbox.org,simonwunderlich.de,mandelbit.com,narfation.org,blackwall.org,netfilter.org,strlen.de,nwl.cc,sipsolutions.net,ssi.bg,ovn.org,mojatatu.com,resnulli.us,linux.alibaba.com,linux.ibm.com,est.tech,secunet.com,gondor.apana.org.au,schaufler-ca.com,paul-moore.com,namei.org,hallyn.com,tipi-net.de,blochl.de,arndb.de,linux.dev,linuxfoundation.org,alyssa.is,vger.kernel.org,lists.osuosl.org,corigine.com,amd.com,st-md-mailman.stormreply.com,lists.infradead.org,lists.linux.dev,lists.open-mesh.org,openvswitch.org,oss.oracle.com,lists.sourceforge.net];
+	ARC_NA(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_TLS_ALL(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLdey6otz8cz7qhffota9ydd97)];
+	TO_DN_SOME(0.00)[];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCPT_COUNT_GT_50(0.00)[133];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[netdev];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.de:dkim,suse.de:email,suse.de:mid]
+X-Spam-Flag: NO
+X-Spam-Score: -1.01
 
-iucv_sock_close() acquires lock_sock(sk) and then, when the socket is in
-IUCV_LISTEN state, calls iucv_sock_cleanup_listen() which acquires
-lock_sock(child_sk) for each pending child socket. Moreover
-iucv_sock_close(child_sk) is called on the pending child sockets.
+On 9/10/26 6:22 PM, Fernando Fernandez Mancera wrote:
+> On 9/10/26 4:48 PM, Fernando Fernandez Mancera wrote:
+>> Historically, the IPv4 protocol has been linked to the core INET
+>> subsystem. Because shared infrastructure like the TCP/UDP engine,
+>> routing or INET hashtables live inside net/ipv4/, it has been impossible
+>> to compile a kernel with only IPv6 support.
+>>
+>> This patch introduces the CONFIG_IPV4 Kconfig symbol, which is set to
+>> 'def_bool y' for now. This does not allow to completely disable the
+>> IPv4 stack yet but it lays the necessary build-system work for that
+>> goal.
+>>
+>> In addition, multiple subsystems Kconfig symbols across networking
+>> features like tunnels, drivers and filesystems have been adjusted to
+>> depend on IPv4. Keep on mind that follow-up work is required to convert
+>> the Kconfig symbol to bool and remove the dependency on IPv4 where it
+>> makes sense.
+>>
+>> Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
+> FWIW, I just checked and the following symbols that are currently marked 
+> as "depends on IPV4" can already be compiled without IPV4:
+> 
+> IPV6_MIP6, IPV6_ILA and IPV6_MROUTE
+> 
 
-Avoid lockdep warning by using lock_sock_nested() in iucv_sock_close().
-Split off __iucv_sock_close(), so iucv_sock_cleanup_listen() can call it
-without nesting.
+MIP6 depends on XFRM so it actually depends on IPV4 for now.
 
-This is a missing lockdep annotation - not a real deadlock.
-
-Example warning:
-[ 6690.906930] =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-[ 6690.906935] WARNING: possible recursive locking detected
-[ 6690.906942] 7.3.0-rc1net_KCSAN_KASAN-00240-g641d03105cc0 #23 Not taint=
-ed
-[ 6690.906948] --------------------------------------------
-[ 6690.906953] afiucv_test_loc/5183 is trying to acquire lock:
-[ 6690.906959] 000601ad13f20a78 (sk_lock-IUCV){+.+.}-{0:0}, at: iucv_acce=
-pt_dequeue+0xdc/0x340 [af_iucv]
-[ 6690.906984]
-               but task is already holding lock:
-[ 6690.906989] 000601ad1c115278 (sk_lock-IUCV){+.+.}-{0:0}, at: iucv_sock=
-_close+0x82/0x7d0 [af_iucv]
-[ 6690.907006]
-               other info that might help us debug this:
-[ 6690.907010]  Possible unsafe locking scenario:
-
-[ 6690.907014]        CPU0
-[ 6690.907018]        ----
-[ 6690.907021]   lock(sk_lock-IUCV);
-[ 6690.907028]   lock(sk_lock-IUCV);
-[ 6690.907034]
-                *** DEADLOCK ***
-
-[ 6690.907038]  May be due to missing lock nesting notation
-
-[ 6690.907043] locks held by afiucv_test_loc/5183: 2, last CPU#0:
-[ 6690.907085]  #0: 000601ad137a5550 (&sb->s_type->i_mutex_key#12){+.+.}-=
-{3:3}, at: __sock_release+0x7e/0x230
-[ 6690.907109]  #1: 000601ad1c115278 (sk_lock-IUCV){+.+.}-{0:0}, at: iucv=
-_sock_close+0x82/0x7d0 [af_iucv]
-[ 6690.907127]
-               stack backtrace:
-[ 6690.907135] CPU: 0 UID: 0 PID: 5183 Comm: afiucv_test_loc Kdump: loade=
-d Not tainted 7.3.0-rc1net_KCSAN_KASAN-00240-g641d03105cc0 #23 PREEMPT
-[ 6690.907140] Hardware name: IBM 8561 T01 703 (z/VM 7.4.0)
-[ 6690.907142] Call Trace:
-[ 6690.907144]  [<00061ab555fd6208>] dump_stack_lvl+0xe8/0x140
-[ 6690.907151]  [<00061ab55623a110>] print_deadlock_bug+0x340/0x350
-[ 6690.907156]  [<00061ab55623f768>] __lock_acquire+0x11b8/0x15d0
-[ 6690.907159]  [<00061ab55623fc9c>] lock_acquire.part.0+0x11c/0x290
-[ 6690.907162]  [<00061ab55623fec4>] lock_acquire+0xb4/0x1e0
-[ 6690.907164]  [<00061ab5580d6b96>] lock_sock_nested+0x46/0xf0
-[ 6690.907167]  [<00061ab4d66e38dc>] iucv_accept_dequeue+0xdc/0x340 [af_i=
-ucv]
-[ 6690.907171]  [<00061ab4d66e541c>] iucv_sock_close+0xdc/0x7d0 [af_iucv]
-[ 6690.907174]  [<00061ab4d66e5b62>] iucv_sock_release+0x52/0x130 [af_iuc=
-v]
-[ 6690.907177]  [<00061ab5580c5b24>] __sock_release+0xa4/0x230
-[ 6690.907180]  [<00061ab5580c5cdc>] sock_close+0x2c/0x40
-[ 6690.907183]  [<00061ab556ac7a00>] __fput+0x2f0/0x880
-[ 6690.907187]  [<00061ab556ac8cc0>] fput_close_sync+0xd0/0x1c0
-[ 6690.907189]  [<00061ab556abbc70>] __s390x_sys_close+0x90/0xf0
-[ 6690.907192]  [<00061ab55894df0e>] __do_syscall+0x1be/0x5a0
-[ 6690.907196]  [<00061ab558976a7a>] system_call+0x72/0x90
-[ 6690.907200] INFO: lockdep is turned off.
-
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
----
- net/iucv/af_iucv.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
-
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index db261ecd19af..dc906f5f7c42 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -91,6 +91,7 @@ static struct sock *iucv_accept_dequeue(struct sock *pa=
-rent,
- 					struct socket *newsock);
- static void iucv_sock_kill(struct sock *sk);
- static void iucv_sock_close(struct sock *sk);
-+static void __iucv_sock_close(struct sock *sk);
-=20
- static void afiucv_hs_callback_txnotify(struct sock *sk, enum iucv_tx_no=
-tify);
-=20
-@@ -302,7 +303,9 @@ static void iucv_sock_cleanup_listen(struct sock *par=
-ent)
-=20
- 	/* Close non-accepted connections */
- 	while ((sk =3D iucv_accept_dequeue(parent, NULL))) {
--		iucv_sock_close(sk);
-+		lock_sock(sk);
-+		__iucv_sock_close(sk);
-+		release_sock(sk);
- 		iucv_sock_kill(sk);
- 	}
-=20
-@@ -394,15 +397,16 @@ static int iucv_send_ctrl(struct sock *sk, u8 flags=
-)
- 	return err;
- }
-=20
--/* Close an IUCV socket */
--static void iucv_sock_close(struct sock *sk)
-+/**
-+ * __iucv_sock_close() - close socket, caller holds lock_sock(sk)
-+ * @sk: network socket
-+ */
-+static void __iucv_sock_close(struct sock *sk)
- {
- 	struct iucv_sock *iucv =3D iucv_sk(sk);
- 	unsigned long timeo;
- 	int err =3D 0;
-=20
--	lock_sock(sk);
--
- 	switch (sk->sk_state) {
- 	case IUCV_LISTEN:
- 		iucv_sock_cleanup_listen(sk);
-@@ -454,7 +458,12 @@ static void iucv_sock_close(struct sock *sk)
-=20
- 	/* mark socket for deletion by iucv_sock_kill() */
- 	sock_set_flag(sk, SOCK_ZAPPED);
-+}
-=20
-+static void iucv_sock_close(struct sock *sk)
-+{
-+	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
-+	__iucv_sock_close(sk);
- 	release_sock(sk);
- }
-=20
---=20
-2.53.0
+> They will be adjusted on the next revision of the series. A re-check for 
+> all the symbols will be performed.
+> 
+> Thanks,
+> Fernando.
 
