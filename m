@@ -1,131 +1,139 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDCE43E44EB;
-	Thu, 10 Sep 2026 09:21:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6251E3D6CD3
+	for <linux-s390@vger.kernel.org>; Thu, 10 Sep 2026 09:32:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789032099; cv=none; b=Ib6y/z55sZPBliyJ196o6Qpu6QsIsyErjHYIqEPLCXVy/x5BG4J0e/OC1BEqFn+wfVallPkvlWLY8/YDEUqxQSqf/S5uYdgDRW0X80+Zo9uausErw8EtZZ9+elcvIi+/J2JDFvJ+lmO0it7FLIlI5SfaYNfV4TwZfFuAoSrYh5g=
+	t=1789032735; cv=none; b=XLzeIobqO4LfE9LlWNTkFpMhhna997VLRdJnJGXKjUI0v+TzAAkzs5JcXFXIYMF+SVZfeyk5K1HLgPEu3PmaJP7HVWURqSWWUt8Zok1SUFI5RAxdbL8TWx72ZmnJoPN3h4YUxvYWTQl/t1I9CNA19Ab28SwUN1JW833r3qVAhCM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789032099; c=relaxed/simple;
-	bh=aCdo8Bbt4RuE2BEnSXUF/igiOBHVMvKWYIliqMf4Hnk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jZjdq5mYBL4xGQQ5nj8+BEGiyO/0oYHTt/755QpxeerOh4v8uzWFf3VCn7NBQ40gCR5NN1Al7LiLGNjTAPeVq14XOqHkwRlWOUdIFoEB7CHNqh4q5F9/T7VhJ2H6I7H2Uv9ya9SZOqSf3awCa85ReRWSQmtzVlqOBYIusj6iYEo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SWenu4/b; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789032735; c=relaxed/simple;
+	bh=X3I6HYw3IMM8K+V0RxtLb4CvdzKxfl3IoOXxgG56cNo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=dnN6r9ekV9qn0aHa1AG1TIPxwU7wCTNbQ1ynJwMdqc2VLLo3oGWqh/r0dXToWhtekSoQIGaySgfPZBzFEJ0RQ5xc8TwsK25OdtTpTzxYsnxsrpKbHUvwZteGqs6ZnK60vTfHSmSv1wBA/TClETH8YzoDlwOx6I1bMg4aiZlyyK8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WjB1J3sg; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SWenu4/b"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE2DF1F000FF;
-	Thu, 10 Sep 2026 09:21:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789032097;
-	bh=etegQPhHDYYXKpgN5HhrDD3ja2BilOp/q9xebohgcXg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=SWenu4/bhQp/ebHqQ47mZ8ttape8v/6aPUf2kjB/Ld/j9zBiWoVDmMFM2WXUeFpA4
-	 Tz4kQl6h6D02ibEHqRfMCGmzm4F4W385fd4iPw4EV/b0R7FrEPUyPOdgqYghnwGSlg
-	 wlCNkIv6fYWAYcTfK4O6DgrRMLRvCHdb42c6Z5fPxcblq5pU74lnZfaSijO4QJtgql
-	 XWi5JzunvwkhvBE8/kV9Y4Q9psgLSZ8fOLaxugK+zflWpyfdSLe5ID2gv+8YzALlTs
-	 DNEG/urmvrS21JPGf+b18of+CcOKc6HBFiQHYWy3kARa8VmrNDWDGEakhoATI6H2NQ
-	 gKLgojcgqTT1g==
-Date: Thu, 10 Sep 2026 11:21:34 +0200
-From: Thierry Reding <thierry.reding@kernel.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Jonathan Hunter <jonathanh@nvidia.com>, David Airlie <airlied@gmail.com>, 
-	Simona Vetter <simona@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	Sowjanya Komatineni <skomatineni@nvidia.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
-	Mikko Perttunen <mperttunen@nvidia.com>, Yury Norov <yury.norov@gmail.com>, 
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>, Russell King <linux@armlinux.org.uk>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
-	Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>, 
-	Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
-	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
-	Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, 
-	Sumit Semwal <sumit.semwal@linaro.org>, Benjamin Gaignard <benjamin.gaignard@collabora.com>, 
-	Brian Starkey <Brian.Starkey@arm.com>, John Stultz <jstultz@google.com>, 
-	"T.J. Mercier" <tjmercier@google.com>, Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, 
-	Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Chun Ng <chunn@nvidia.com>, Mark Rutland <mark.rutland@arm.com>, 
-	Saravana Kannan <saravanak@kernel.org>, Thierry Reding <thierry.reding@gmail.com>, 
-	devicetree@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, 
-	iommu@lists.linux.dev, linaro-mm-sig@lists.linaro.org, 
-	linux-trace-kernel@vger.kernel.org, Thierry Reding <treding@nvidia.com>
-Subject: Re: [PATCH v6 04/12] arm64/mm: Export set_direct_map_*_noflush() APIs
-Message-ID: <aqJjL-kDfl2_wwHG@orome>
-References: <20260904-tegra-vpr-v6-0-79042cfa8de5@nvidia.com>
- <20260904-tegra-vpr-v6-4-79042cfa8de5@nvidia.com>
- <aqJFb3VtsYtnIa1c@infradead.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WjB1J3sg"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68A91xZi2484083;
+	Thu, 10 Sep 2026 09:32:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=9hm6VbcLkhj2xzG9WReJQhQUxlp9
+	8RfFKs/MyBo86a4=; b=WjB1J3sgNpSfUhCqEzMEbzwlld26GKEk2aLLh+uIYAzE
+	JXREGS6yK9pYHqYHji5sz2c7oELU84yjzzWjc6jk7yJf01r9lIoV/XLgrz4fYmFF
+	1m7rWzTDAcTzKIRSmiN+SNLIG/dy8SSonfPCMjVsBh2ETnWezXhiaaMZoXSFBxQw
+	uzfVfcpS67IeaBs4UurPd33NfQ3iQyO4cnjELF2x1otTELC957rR8LCEN6Cab0sQ
+	DKbW4lESyqPk6zet0vUagcK+TDUktGRLW5o1hvlJUARL0xcrX5qB0aipPb+sfYey
+	q27NxciXzaL7pvzA8Zo42s0p6lTBYF00rN8pn2pHQQ==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gkd8sumkr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 10 Sep 2026 09:32:10 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 68A9QEx8022044;
+	Thu, 10 Sep 2026 09:32:10 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gkcr3bmbx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 10 Sep 2026 09:32:09 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68A9W64C46924152
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 10 Sep 2026 09:32:06 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 03FAC2004B;
+	Thu, 10 Sep 2026 09:32:06 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CF81320043;
+	Thu, 10 Sep 2026 09:32:05 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 10 Sep 2026 09:32:05 +0000 (GMT)
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
+To: wbezenah@linux.ibm.com, cohuck@redhat.com, pasic@linux.ibm.com,
+        farman@linux.ibm.com, mjrosato@linux.ibm.com, oberpar@linux.ibm.com
+Cc: linux-s390@vger.kernel.org
+Subject: [PATCH 0/3] s390/cio: Harden pmcw/schib handling for dnv=0
+Date: Thu, 10 Sep 2026 11:32:00 +0200
+Message-ID: <20260910093205.3357827-1-vneethv@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="nc5ni6zymi4hrk6h"
-Content-Disposition: inline
-In-Reply-To: <aqJFb3VtsYtnIa1c@infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTEwMDEwOCBTYWx0ZWRfX930EL/TVyQMc
+ 58/t7jKXywGLOqFbBy+xoPYCGO5eCToGT77+jAWohdKZKKLLgSZN05X5tvebD984crpVEOkWuvy
+ H/b4uPoLlymLi2+vnzeLdkr/9RjmW94=
+X-Proofpoint-ORIG-GUID: n0yhWbgaPxY9gyrmLuvIZE2dtqeZPHHK
+X-Proofpoint-GUID: n0yhWbgaPxY9gyrmLuvIZE2dtqeZPHHK
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTEwMDEwOCBTYWx0ZWRfX2Fq1ieWEccUg
+ QlbczS3CBqYenhzfB6xnA8YQf3OoNTiQzXr+6X4PIEeopVCraEbRuNiy9Z9M60dTPU/+MCSB7i5
+ 2DVXTZBUvE7VcLA1LhJtkeyVyYLFZqsvMkHxhzJJsdAAFz1ufdRgLWlwXsbnJjz0ZAhtL9od0Ka
+ uDsfdO3ytyQrjbuaRfrhqZSCrMplTBN8i99kNTMXb3DRvyBWKOwzRxOOPciwqHKeWFCAhdPDq7K
+ IuhbsIlgMrEqybLzZbRzlPhPeWNE4a4e2M4ErJXs8UmIiA0GOHApe2gqr9kbDBq6LU7ESKggoDp
+ gU9dG5gUneOQZymICEntE1FsgoVCM9BP28I/23xv5BsA1NiM5FvO/dyEMzKDAjjNKD/V+oPN+GA
+ IZtVvO2PI7L65gkW1G3zIanAa3VoY/OADGbe9hhfEd3PfJLW6deZxjPYOgGhQjU1oh0VRxnzHLX
+ NzGJGQgOUKh1ZM8rJdQ==
+X-Authority-Analysis: v=2.4 cv=PIGaavqC c=1 sm=1 tr=0 ts=6aa2791a cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=nYgktii2EeDN6uVW9zUA:9 a=PRpDppDLrCsA:10 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-10_03,2026-09-09_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 priorityscore=1501 bulkscore=0 adultscore=0 suspectscore=0
+ lowpriorityscore=0 impostorscore=0 clxscore=1011 spamscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609100108
 
+For I/O subchannels, pmcw.dnv must be validated before relying on any
+other PMCW or SCHIB fields.
+Two issues exist today:
+ - Some I/O entry points check pmcw.ena without first verifying that
+   pmcw.dnv is set.
+ - cio_update_schib() updates the cached SCHIB before validating
+   pmcw.dnv, allowing an stsch result with dnv=0 to leave stale or
+   undefined data in sch->schib.
+ 
+This can trigger spurious, non-fatal error messages in the guest kernel
+log when a virtio device is being detached.
+ 
+Fix this by validating pmcw.dnv before updating the cached SCHIB. Also
+clear the cached SCHIB when stsch succeeds but returns dnv=0, ensuring
+that stale state is not retained.
+ 
+Additionally, add pmcw.dnv checks before pmcw.ena checks in I/O entry
+points and return -ENODEV when no device is present. Guard remaining
+direct accesses to cached PMCW fields, such as chpid[] and pam, to
+ensure they are only evaluated when the SCHIB contents are valid.
+ 
+This was reported and discussed at:
+ 
+Link: https://lore.kernel.org/linux-s390/20260612155407.199218-1-wbezenah@linux.ibm.com/ 
 
---nc5ni6zymi4hrk6h
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v6 04/12] arm64/mm: Export set_direct_map_*_noflush() APIs
-MIME-Version: 1.0
+Vineeth Vijayan (3):
+  s390/cio: Fix cio_update_schib() to not cache invalid schib
+  s390/cio: Check pmcw.dnv before pmcw.ena in I/O entry points
+  s390/cio: Guard PMCW field accesses with dnv check
 
-On Wed, Sep 09, 2026 at 10:51:43PM -0700, Christoph Hellwig wrote:
-> On Fri, Sep 04, 2026 at 12:44:55PM +0200, Thierry Reding wrote:
-> > From: Thierry Reding <treding@nvidia.com>
-> >=20
-> > Drivers that use this may want to be built as a module, so export them.
->=20
-> That's one of the worst commit log ever.  No, we don't just export
-> core symbols dealing with the kernel direct map because
-> "Drivers that use this may want to be built as a module".
->=20
-> For one exporting this at all needs a very good justification and
-> not just hand waiving.  But more importantly if we can't avoid
-> exporting it, it needs to be exported at the tightest sensible
-> scope.  E.g. for a given module if it is so special, or a namespace
-> if it's not that special.  But in doubt we should have a proper
-> core abstraction instead of opening up direct map manipulation to
-> random modules.
+ drivers/s390/cio/chp.c          |  3 +++
+ drivers/s390/cio/cio.c          | 11 +++++++----
+ drivers/s390/cio/device.c       |  9 +++++----
+ drivers/s390/cio/device_fsm.c   |  3 +++
+ drivers/s390/cio/device_ops.c   | 21 +++++++++++++++++++++
+ drivers/s390/cio/vfio_ccw_fsm.c |  2 +-
+ 6 files changed, 40 insertions(+), 9 deletions(-)
 
-Fair points. In an earlier set of patches this was abstracted behind a
-set of set_memory_*() functions, modelled after set_memory_encrypted()
-and set_memory_decrypted(), which I think I'd still prefer, too.
+-- 
+2.53.0
 
-Is that more along the lines of what you had in mind?
-
-Thanks,
-Thierry
-
---nc5ni6zymi4hrk6h
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmqidpsACgkQ3SOs138+
-s6GwVg//eIawY/jpVU95C05IvqaJG4LAKMlyvX0vCt0yTbFrsPQhY7RDigfanDMo
-ycZhJCp/jyLprOkhxYEUmbLqCr6cn+5taI7LSQYIjkP+XRbG7rM7vYOynCANDeOS
-uvUxtRu/8HlB0epcBAco9xhyX6Orb7w61HB8DspHAB/maQpHwCg8ce2/etTREXvK
-qXc3uVrtfrsVNKgZgNtSuHcYX5NyIIwuNKc7rwiU+Q3EFcYAF3RpG6XCrncuKajI
-GReiAWqBsyzzgM93zbemv3DKjbQkqVBl2fSZzTeguSv5KrJnFFd6n+JnHpHMPQPJ
-gg6l3zWb7P8nlPRtlEJh87sNZJ3F8nVYStP5WpaCgjFDW5WrMcTTj/SBKMQqeroe
-tgGkEMSMZAew1mtkyy5v0oaaialjMZ7796mpFs9J5GZv1PilvW/3Gn7D91zK4Yii
-N923BVwEz9EnkPER42dP9AfLUCDE0lwc4A5t7ezgKbOKLXUIfDN6zlZe3jWQ6LO3
-ALOl0JSYvlMX2izpQ4Pyl0/CSFHa5im5+5+o734Ql7U0mBOfpYYziOfPE9NJg5Xm
-hINUJ4RiAi1x2e7iP05HqJutCO2hXPdalSnK5rzuosZjqma4SvMo/Ma1P7bcFkJw
-2WDAAeRbtHk8qNOioz1Kp3UhdQCwFSP9Wa5RAtfvrmhE1X5Ap8I=
-=EeFB
------END PGP SIGNATURE-----
-
---nc5ni6zymi4hrk6h--
