@@ -1,65 +1,68 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84C0B582B9D
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 19:52:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DBFC583ABD
+	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 19:53:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789156361; cv=none; b=nWCJN2ZhMQX8d82tRUCI6sa7juKuIlKwWTUaGbqPe6rJ6dp+4V+XzlHndLKPBATX2BxctHiWN2J3DXE2OFuUAvAO9t1Q7bxqEFkjyd9Sfg+LXsQhgMrcvCJQbzPW5K8H4Bh5stDFC2OCu5a1hNnxk6iAzMdZ9Y9wH/jMXJo40Sk=
+	t=1789156425; cv=none; b=DdVxs2tE97+GvVKxvcE33YLeUxcCERp0JAOHY3GFOt4MAUl+a/Y7YaQPB+oA1mwUA5sLgNlhb/IloVxiMVxt9EjtmSWgIGh195iUqqUHHz9OR9zwK4Jr18061PeURO6quBGlx0/1F3zvkB3AaCUD9b+wWeEdh2u6MOXFQ+pLkPE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789156361; c=relaxed/simple;
-	bh=xgMBlPykM1hQCIhYJbpIHWnojlKoa75Cumgv00hMUfw=;
+	s=arc-20240116; t=1789156425; c=relaxed/simple;
+	bh=I02Gs8KE/zOz51M/rWIkSRDN7+w9qUM34zyGH1prNSQ=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=vAZVk/CcnuOqR/dS5qFulo7p2lJIqAXYTAcgHmcpFWnwqH1hL1bpOIeaGFzUhnXhwD+sSTg1E3eGBgB6MdNqamstz35bdjg3iLeTtgDZSFt5VPZA7BvzqB7UAK8kQ2zBT04f+8BmoDkiit33rh+AamJNvSnXkfPFbBN23Vifjww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gfVxm3pm; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=hqdaaZPDEGcxBnYEfF0GNHNQVJfCYDFSt91pC6Nt8h1VWg5EopJHclP6NYTTdyvCJLbqyjF4cnkb04mNpPNWd75vbvOX6CL/jRgvj9pXe2krFyrmfmNRxbFiFS/cckieCtnJBzEPPCReTX4EcVFDklrfb+Eh4ZOSAkdxyzhnpYQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T7MqFsWv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gfVxm3pm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90B861F0089A;
-	Fri, 11 Sep 2026 19:52:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T7MqFsWv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87ADE1F00898;
+	Fri, 11 Sep 2026 19:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789156348;
-	bh=xgMBlPykM1hQCIhYJbpIHWnojlKoa75Cumgv00hMUfw=;
+	s=k20260515; t=1789156414;
+	bh=I02Gs8KE/zOz51M/rWIkSRDN7+w9qUM34zyGH1prNSQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gfVxm3pm2blHTzRLZpBkvOHEBSAC4TYHcbXr2HQkWLEmhlDb4gvohWKv0ShqY+/qo
-	 2RcbteXu4JCxkZdGApIn5gII0xZFnJIus6a6hHneWhLGLzQ9RhMALhnHK/l6ABrSdx
-	 2F3xQEaCPOjzkPwVwvBBOLMa3x8IiwP23GyNchrQYwZzpg2rrBcJFSHaQ+qyK8NWIq
-	 dZc5ghB8n43O65le7C5Gpu+OEk7V17tq9YFeNWHlsMMvvjezWlVR9jP+AOXbciXqxY
-	 xnAVZ6af24hiMFsWSOQUZ3Cp3RzGE0gXiRLZY7oinnU9Hx1N1YgsE1FnxHWYeFfn+w
-	 ieS6OKjK4NW7A==
+	b=T7MqFsWvviasD8IXb2wJbAh+IkkLNItFsuIfkbqgCn1dVphQzAz9tbH/0QQfOFrqK
+	 SAQH2U0++ciV9GX90PYHanUH+qD1+iw9ZAooUADo7NQj4e9SF0C6vmBjGNz5gjVuh3
+	 b2l5hSXIfEJowkMUUGI2+P+9oe+/jihkYD6rBRSF+6pItuQ9Tjyel4K1cdBYnZZb9w
+	 Cou/LnuPXf/0ER3ZdWVjKueiWhv4LyMWU0QmMTwusE46G5rEcMwaugipqvITnkN8Fs
+	 2GpmYGhwhm/jUe/0ZyA4UIbcgIN8i1siH3TuRuv+3BX4LDbCNXdZH63M+p6syVZGoP
+	 DvePHGD/j/OCQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 08/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for sh-X2
+Subject: Re: [PATCH v3 04/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU
+ arm
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?TG9yZW56byBTdG9ha2VzIChBUk0p?= <ljs@kernel.org>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260911-rcu-pagetable-freeing-v3-8-7b8c86103821@kernel.org>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260911-rcu-pagetable-freeing-v3-4-7b8c86103821@kernel.org>
 References: <20260911-rcu-pagetable-freeing-v3-0-7b8c86103821@kernel.org>
- <20260911-rcu-pagetable-freeing-v3-8-7b8c86103821@kernel.org>
+ <20260911-rcu-pagetable-freeing-v3-4-7b8c86103821@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 11 Sep 2026 19:52:28 +0000
-Message-Id: <20260911195228.90B861F0089A@smtp.kernel.org>
+Date: Fri, 11 Sep 2026 19:53:34 +0000
+Message-Id: <20260911195334.87ADE1F00898@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> Currently, non-x2 sh specifies CONFIG_MMU_GATHER_RCU_TABLE_FREE allowing
-> RCU page table freeing.
+> Commit a0ad5496b2b3 ("arm: mm: enable HAVE_RCU_TABLE_FREE logic") enabled
+> CONFIG_MMU_GATHER_RCU_TABLE_FREE (then named HAVE_RCU_TABLE_FREE) for SMP
+> arm architectures with LPAE enabled.
 >=20
-> sh-X2 is problematic because it utilises slab-allocated PMD page tables,
-> and thus tlb_remove_ptdesc() cannot be used in these cases.
+> Regardless of whether CONFIG_ARM_LPAE is enabled or not, the same page
+> table freeing functions __pte_free_tlb() and __pmd_free_tlb() are used.
 >=20
-> All other sh variants are fine as commit e3ecf7c7d082 ("mm: pgtable:
-> convert some architectures to use tlb_remove_ptdesc()") already converted
-> page table freeing to use tlb_remove_ptdesc(), which does so after an RCU
-> grace period when CONFIG_MMU_GATHER_RCU_TABLE_FREE is specified.
+> Non-LPAE PMD page tables are folded into the PGD and freed by
+> pgd_free() (PGD freeing is not part of mmu_gather page table freeing in a=
+ny
+> case), so this is a noop in this case.
 >=20
-> Resolve this issue by firstly specifying CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE
-> for sh-X2, so the arch can provide its own __tlb_remove_table()
-> implementation (called after the RCU grace period).
+> Since commit 358d1c39c82a ("arm: convert various functions to use ptdescs=
+")
+> both LPAE and non-LPAE PTE page table freeing uses tlb_remove_ptdesc().
 >=20
+> Thus all page table freeing is performed under RCU with
 > [ ... ]
 > This forms part of an overall effort to switch every architecture to this
 > mode.
@@ -71,5 +74,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911-rcu-pageta=
-ble-freeing-v3-0-7b8c86103821@kernel.org?part=3D8
+ble-freeing-v3-0-7b8c86103821@kernel.org?part=3D4
 
