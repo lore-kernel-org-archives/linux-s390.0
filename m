@@ -1,235 +1,305 @@
-Received: from sonic309-27.consmr.mail.ne1.yahoo.com (sonic309-27.consmr.mail.ne1.yahoo.com [66.163.184.153])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D9BB40B398
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 18:59:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.184.153
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9CDA45629A;
+	Fri, 11 Sep 2026 19:38:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789153199; cv=none; b=BahQyQVGZG8rT5arJxX3cOO6TZGhAXRO/oomVPGCrM3gHJ8PNNeY6DuTpMI4h6erDgXN5hhuexLAQA3vh/sS5GsVsgsya4jtIa5IoOhZQpQE4uS6aL9NKMbmkdwjTuWw2KhmHg1/M9/2vVZJEZsFY8BsGiywN/gQDxChkA8I8oI=
+	t=1789155496; cv=none; b=Kw70TBWNv9jSXfHgGuRAGY5o6+S7ixHxTVfNfNYPio9KFCXZxF3lxclXu/IsX3V38Cx44fmEBRYu9UC2ji8m4ItBLb41VMJGOl/EhdUWvRSsjdggSnG6/DqvKVIPRRSw6xIJBeTSH7Pyi6nnaoh5vUeLcY7fEc4QtpdeBrTy3JM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789153199; c=relaxed/simple;
-	bh=j2KmhlXONrKBmB8LioVo80v7kvdpDGCasJKpOD3AEpI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dVcVVNH0jd3Mhuu/fo7S1orwos0KtO6LVZFvT9a9jGNiCnsDpu4cB6qpbkxlV8EoSFK/xfHwKf9fZzvd6G2n1ULeI2WJk4tzVf2cyPvwehwswzg4/i6Kq8Krsf6Lo/Ez80UtFheHtiP9LUBCIMM8US9Y/yFBx+i8vyij4uKzk2Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=mtnVsO1V; arc=none smtp.client-ip=66.163.184.153
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1789155496; c=relaxed/simple;
+	bh=RrPlKuSegKczbWHtvSwqv948LdW8VcCW3xiwS2H9cjE=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=IqK+qVxGG+gayOU+K7t9iWzcWgoyiCC4xouu+EUapUglqnWWLLRRHe4nlFCZLTAp3nfTLy8+6FYWO8TA+7aT8odK3oOcuWiBskcXY1g/05IE4EfbCK/75pYuOMNQrb8NwHoFVUQxCiqPh9PJMRVUeru5Ej7+0BQ2/GvTgBSbif8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QMj0IEmZ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="mtnVsO1V"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1789153195; bh=zPVAGvXA6BnDWmfJT3hQO0CB11Qqf66yZudh5n1EjA4=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=mtnVsO1VgKbez7SKzhsZplk6k0C9XTTXVlxzDnocNXEcQseScGzBI7NWgOkXr4UILYLp6xbh3FIHjwLdF+94WxMDb6ujNlEcAFFKECqG920WYAFTuiITuNW7RthvaIhN2AGu1tuq2GVpBfCumq35u7066l2/TlrAMDkZmZlUvAigViqjupi7aBGwM9ZfIWBkvefsp7nBcyrkSTSqOsa7ztb5+NPXMFhRnRdMy9gfukC2ZSMaXT2zEFTPBCWkqYo2lirWEQBy5QRK0sCqVkOeCrTj8u7fNeZOIN/CP0VXPWlqAHIOyz7yk4QRsYpt/9dz6e+97O94sev9f7/GzTpfMA==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1789153195; bh=8D6wX+F6GVfY3825euMFl9WpyXMjynR9Yldv18g8cqJ=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=bu4h9TPqgz2/xWApTNwcDeX3xsfNIFng8n/Rtz3yUlQCrPCz+m2kDMyd3M9a6Pms/kzWOPV43nupzqMml3jzOYsaiLLPly+AkpJFunibZo005zZSyijIaAunEVowe0JkVkRQWqOp3EyjFNwnYUBwktLOD74qKN3sUJjX3iT+AbTuQVUXuxCWnSHC8A/cGDFK6WSahfUHLR5Es1J3SpdWDOemGlmdMRQbZ7mhtYCUeOSYpeLQzl3jnYI9DzlW5RN8oiwsfwkf4cKnC3dFl7o/M6y2kWAU4NLhB44efnNs/WkreEBGwafOavMDhpRceTX4GcgwwjSW0pqGP8TqOam0tQ==
-X-YMail-OSG: 8IyxdVsVM1mOeDHP02iAS1e9vux4wp6Hm34349yjZZrE7KsVj4bJUTR76BW4BsK
- t19TLIIWTyEsL_xO6KYI6B3mIpTeWkCM7DlTvfoOQfuCsksf_DXfrnK4xY9kwKnB_FwtGMbXBVdX
- AwHEtPMyDd0o.V_n5VGZNusTss9eVCLkYUnExyioYPyx.Ad4XLy1Yhw66DZ6.cR7ayiSRijYW.xl
- 305XtUrCNu_HX0zlFhl1UhhhGTmHJWDT71o9fTQtscG7_EeuKRlbSitXpH3h2TWZBa1RvmugXEHt
- NXIrMOJrZi6l.PxmX8gxMKPF7q1N60fwVrVibI3BInE.6oUKBezs64Ge8lnfaH6urMLx_mS7NELj
- fXVYAq93FCVN6TNK0NO4G.DDrLjcDRa6hhwWgZ6gQzEbJo2rpUwMXusCpi7RZb5Xl3sf4c2Idq5Z
- 0YImN5yN2Urf87vmiFS8KvS6LQ8PAxxZyfXHUJ3TEbGILnbZXPD5AE_DFX2IpeDORzsdcSFaaNsu
- PJkDjGDNOOvznQ5FlWaMAh4HXH3i3.mQ0coMj6GUf4QwkG4eANVdkaMTdWJZeTV84xjq7hqr6XKn
- o1scllR7Z5GUkeTy8KNCbUrtqv5E7kUADSyywm2a.wUqCoxo5Q3A_YP0K0NZvpEKIs__FnlhdUI.
- q6m1Q09A2eYBeXmEIYZVeEkeB6sdw07Xxs8UUJuHZE0QHuKHXMrXD_xXTsGItQCvTPP8CDbX0kKe
- ImJUDil.4vy3ev72uHxHJEEWTnnuXYA_JydfBvosMnQg1N3bxdnWSWbU2Hkt3TqOn6I.FzGn6QG_
- wsFBAfZcXdPDj4v8n_Tn.11J7xLNj.C3Aoi_G63Dg8IjAO6.e7VyY4IIR7JohfOWwH7InWSPpd09
- L29Cgia4I5UJL8gTvOEtfAvKgJVnNCz.yi5pOsZY4j1II_vQDkb6oXyLuPEDAyPzDAFFnOiaNrKy
- x__Q1X.5B_1hlU32VDdlR0ZzLRLA1TJ22OXVHP7afTQZ2CEoO7JYf46la6agBDr8b5v6ACnNyYi0
- GhQZCLFp11jCoUSoTlX.swZ.VjvjiKiFxK1Ye.Y6beRQedZ1ShvRS3cGHZHLn0swNHUkffkG9fb3
- wOfjV.FBc9wUaDKFQWfxyDbjXO0IH0ejj1F4V87qTPUt2sRlRHwco_cjX6g8TQk3W1CWHZtJA8Pg
- tO3nnFPJrvQPKZpn49aFsX1c5K2ek4fcHTXgnHk4H1.HrFvV3xEMDEis4jnnSAlsgA8Rm6LvLdIz
- lUg33b0GLbxZzg0mpAIxtqrcQSofu5UyShBm.JhuDp9auiAWoHUZSz0qhhAGEt_GOhTOREfqCBZC
- G6fI4Yi.C177vKFVtiV63RCPKV3rxhhPlhyBZpV1ZUxEcqMjslksyvWTd6aT7vgXecZzbEB6Bbui
- PugKq5FvUYO.LajsfrgW6MxwegEMCwQHnJMQsa2Iiv_WjPIMQuqDSEH9zrUbp_k8Xt_MeBiTqXQs
- nXvD7ppdbgFMJjhFv1sbwFcotEUmdosnZNJTFj_.B9RbrhQTms0KTlTxt_kE8.NgiydL256Tokh1
- HbALEC9RtboqkogXmLNqhc9AtDZczzRhCNRn7Z2X3503NCMm88agdrjLobSs1H5d7xBdfXfFzDWy
- Nz0tAs4FjfupGpoHER0xGTafNDNwQhDzAsAi3Ns1zjs3AtY5PvuGfAWSa8fMSFBU03tXksZYFxo1
- ciJ0G1CvL1rd97I47QzrDWZ_28XKoUL8AUG1lo9hZdautcKmTjHBsHXCLAZuNOQ3VbTsaUcfqmee
- .irw7XZlKDpogx7TQrdIKjc686.9W3GLbec8PuplPYGKvHJJhuSP9jlcnM383VDSt8cLbmPuXq9q
- UfjAsSbY4zvrKu6HdDJcxvB8cx34WFQXftbm93mMXhuwnptgfKF5CDKWcQBHwqRHYsXSxAFpKM8S
- qTa3rFjIKqr1IO0XflZkb9XFSArGJix7oo_Xxz5tbTfxDmTZDSh6g_DFbDgKseITvTHLKJIf.Srg
- zVnCjD4ejDk1_J0rl97idNrtwcyBVrtsm8.34xwlrjrR25Rurg9citobqWcZ.BDfjnhc_fKhZQyb
- r8KhLp1zYO8PYT1BKGbEHUeMHroTq.j3oed5iHJ6xgxNJfL4MoCriV4lpnAthSrrU4GyoV4x2VqX
- oF_R8TC4LfHd6y98CdJloF.SZ2BtSQy89uStonDjpuGCXoEaZ98PKpIPceNx_hW37SyYRbmrBaKQ
- gu6._.5jHmTHesUwGqpIpKbbNaYhF7Q3yiS79YqO5LS7oubsSfX7dqeASC8h1m47H6U5NdATLY3r
- Y73pK8ITPNSGyICENKhMFqA--
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 155296a8-f4ef-4124-9fbd-d64e0f082663
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Fri, 11 Sep 2026 18:59:55 +0000
-Received: by hermes--production-gq1-678d9dd684-n95jq (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 54d69622036feeec9e5203b92a9973ac;
-          Fri, 11 Sep 2026 18:59:50 +0000 (UTC)
-Message-ID: <6f01eff3-20c9-488b-84f4-8c6456f2e54d@schaufler-ca.com>
-Date: Fri, 11 Sep 2026 11:59:47 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QMj0IEmZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B04931F000FF;
+	Fri, 11 Sep 2026 19:37:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789155479;
+	bh=hf37vYyW20dEN/lTmhv9TGUfmK0JZbnALvXs9gFdpBw=;
+	h=From:Subject:Date:To:Cc;
+	b=QMj0IEmZBrk/GKZIX9T/5F97jvb2O2L3q/ovTsXYfnZD8Kw/Q4X2c/SRae5A1roMB
+	 28QBr7EzVgZ+FMH+N0105ht5veE+OmSQcB+etn1rvALVTOjYICRsC4wfdvbMKkGmXk
+	 IDDsJFMcnzupqWm/s46BVVqKm5NUrjfVX+FlcdHwCGemk/f/9ktInqmxM7GH3q1pBO
+	 4Y6a15+wknntdtHfMGhulc3/6cw7Y0PmAQfyPVrkiYWHIU4ksi5tpPVXEdNb8uAQT5
+	 bSlXL/WAnt7QsoOSjBOFnWqFI8TVUT91h/EcwR6DumY/+ZsRIWVbdSdjLLA8eyFmua
+	 N34D69zmfbleQ==
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Subject: [PATCH v3 00/12] mm: make userland page table freeing RCU-safe
+Date: Fri, 11 Sep 2026 20:36:47 +0100
+Message-Id: <20260911-rcu-pagetable-freeing-v3-0-7b8c86103821@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 01/13 net-next] net: ipv4: introduce CONFIG_IPV4 to
- decouple the IPv4 stack
-To: Fernando Fernandez Mancera <fmancera@suse.de>, netdev@vger.kernel.org
-Cc: horms@kernel.org, kuba@kernel.org, pabeni@redhat.com,
- edumazet@google.com, davem@davemloft.net, Jason Gunthorpe <jgg@ziepe.ca>,
- Leon Romanovsky <leon@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>,
- Tony Nguyen <anthony.l.nguyen@intel.com>,
- Przemek Kitszel <przemyslaw.kitszel@intel.com>,
- Elad Nachman <enachman@marvell.com>, Saeed Mahameed <saeedm@nvidia.com>,
- Tariq Toukan <tariqt@nvidia.com>, Mark Bloch <mbloch@nvidia.com>,
- Ido Schimmel <idosch@nvidia.com>, Petr Machata <petrm@nvidia.com>,
- Edward Cree <ecree.xilinx@gmail.com>,
- Maxime Chevallier <maxime.chevallier@bootlin.com>,
- Maxime Coquelin <mcoquelin.stm32@gmail.com>,
- Alexandre Torgue <alexandre.torgue@foss.st.com>,
- Arend van Spriel <arend.vanspriel@broadcom.com>,
- Miri Korenblit <miriam.rachel.korenblit@intel.com>,
- Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
- Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
- Chaitanya Kulkarni <kch@nvidia.com>, Saurav Kashyap <skashyap@marvell.com>,
- Javed Hasan <jhasan@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
- "Martin K. Petersen" <mkp@kernel.org>, Nilesh Javali <njavali@marvell.com>,
- Manish Rangankar <mrangankar@marvell.com>, Varun Prakash
- <varun@chelsio.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
- Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
- Chuck Lever <cel@kernel.org>, Jeff Layton <jlayton@kernel.org>,
- NeilBrown <neil@brown.name>, Olga Kornievskaia <okorniev@redhat.com>,
- Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
- Marek Lindner <marek.lindner@mailbox.org>,
- Simon Wunderlich <sw@simonwunderlich.de>,
- Antonio Quartulli <antonio@mandelbit.com>,
- Sven Eckelmann <sven@narfation.org>,
- Nikolay Aleksandrov <razor@blackwall.org>,
- Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>,
- Phil Sutter <phil@nwl.cc>, Johannes Berg <johannes@sipsolutions.net>,
- Matthieu Baerts <matttbe@kernel.org>, Mat Martineau <martineau@kernel.org>,
- Geliang Tang <geliang@kernel.org>, Julian Anastasov <ja@ssi.bg>,
- Aaron Conole <aconole@redhat.com>, Eelco Chaudron <echaudro@redhat.com>,
- Ilya Maximets <i.maximets@ovn.org>, Allison Henderson <achender@kernel.org>,
- Jamal Hadi Salim <jhs@mojatatu.com>, Jiri Pirko <jiri@resnulli.us>,
- Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
- Xin Long <lucien.xin@gmail.com>, "D. Wythe" <alibuda@linux.alibaba.com>,
- Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond
- <sidraya@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>,
- Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
- Jon Maloy <jmaloy@redhat.com>, Tung Quang Nguyen
- <tung.quang.nguyen@est.tech>, Steffen Klassert
- <steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>,
- Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>, Vikas Gupta
- <vikas.gupta@broadcom.com>,
- Bhargava Marreddy <bhargava.marreddy@broadcom.com>,
- Rajashekar Hudumula <rajashekar.hudumula@broadcom.com>,
- Nicolai Buchwitz <nb@tipi-net.de>, =?UTF-8?Q?Markus_Bl=C3=B6chl?=
- <markus@blochl.de>, Arnd Bergmann <arnd@arndb.de>,
- Heiner Kallweit <hkallweit1@gmail.com>,
- Florian Fainelli <florian.fainelli@broadcom.com>,
- Krzysztof Kozlowski <krzk@kernel.org>,
- Qingfang Deng <qingfang.deng@linux.dev>, Julian Braha
- <julianbraha@gmail.com>, Ethan Nelson-Moore <enelsonmoore@gmail.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Eric Biggers <ebiggers@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
- Neal Cardwell <ncardwell@google.com>, Kuniyuki Iwashima <kuniyu@google.com>,
- Willem de Bruijn <willemb@google.com>, Alyssa Ross <hi@alyssa.is>,
- Joel Granados <joel.granados@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
- linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
- intel-wired-lan@lists.osuosl.org, oss-drivers@corigine.com,
- linux-net-drivers@amd.com, linux-stm32@st-md-mailman.stormreply.com,
- linux-arm-kernel@lists.infradead.org, linux-wireless@vger.kernel.org,
- brcm80211@lists.linux.dev, brcm80211-dev-list.pdl@broadcom.com,
- linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org,
- target-devel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- linux-afs@lists.infradead.org, linux-nfs@vger.kernel.org,
- b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux.dev,
- netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
- mptcp@lists.linux.dev, lvs-devel@vger.kernel.org, dev@openvswitch.org,
- rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org,
- linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
- linux-security-module@vger.kernel.org,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20260910144914.8025-1-fmancera@suse.de>
- <20260910144914.8025-2-fmancera@suse.de>
- <ee89e26c-3dad-450b-8861-badf19afa141@schaufler-ca.com>
- <dfd9590c-e029-4432-9a13-c789f708cfee@suse.de>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <dfd9590c-e029-4432-9a13-c789f708cfee@suse.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Mailer: WebService/1.1.26525 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3WN0Q6CIBhGX8VxHQ1QibrqPVoXQL9IOXSgrOZ89
+ 0Bv6sLLs33fOTMK4C0EdClm5CHaYHuXoDwUSLfSGcD2kRgxwjgRJcVeT3iQBkapOsCNB7DOYFE
+ prkCUBBhB6Tt4aOx79d7uG4dJPUGPWZYXrQ1j7z9rONK82xpnsteIFBNcVzWXgmrBKLu+wDvoj
+ r03KEci+9WIPQ1LGtpwongF4iTgT7Msyxf4nPnyFAEAAA==
+X-Change-ID: 20260831-rcu-pagetable-freeing-84b6be830e20
+To: Andrew Morton <akpm@linux-foundation.org>, 
+ David Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>, 
+ Baolin Wang <baolin.wang@linux.alibaba.com>, 
+ "Liam R. Howlett" <liam@infradead.org>, Nico Pache <nico.pache@linux.dev>, 
+ Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, 
+ Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, 
+ Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>, 
+ Guo Ren <guoren@kernel.org>, Brian Cain <bcain@kernel.org>, 
+ Geert Uytterhoeven <geert@linux-m68k.org>, 
+ Dinh Nguyen <dinguyen@kernel.org>, 
+ Simon Schuster <schuster.simon@siemens-energy.com>, 
+ Jonas Bonn <jonas@southpole.se>, 
+ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
+ Stafford Horne <shorne@gmail.com>, 
+ Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
+ Russell King <linux@armlinux.org.uk>, Vineet Gupta <vgupta@kernel.org>, 
+ Michal Simek <monstr@monstr.eu>, Chris Zankel <chris@zankel.net>, 
+ Max Filippov <jcmvbkbc@gmail.com>, Will Deacon <will@kernel.org>, 
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
+ Nick Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Andreas Larsson <andreas@gaisler.com>, 
+ Richard Henderson <richard.henderson@linaro.org>, 
+ Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>, 
+ Catalin Marinas <catalin.marinas@arm.com>, 
+ Mark Rutland <mark.rutland@arm.com>, Huacai Chen <chenhuacai@kernel.org>, 
+ WANG Xuerui <kernel@xen0n.name>, 
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+ Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+ Michael Ellerman <mpe@ellerman.id.au>, 
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Richard Weinberger <richard@nod.at>, 
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
+ Johannes Berg <johannes@sipsolutions.net>, 
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+ Arnd Bergmann <arnd@arndb.de>, Vlastimil Babka <vbabka@kernel.org>, 
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+ Michal Hocko <mhocko@suse.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
+ John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
+ linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org, 
+ linux-sh@vger.kernel.org, linux-riscv@lists.infradead.org, 
+ linux-arm-kernel@lists.infradead.org, linux-snps-arc@lists.infradead.org, 
+ linux-arch@vger.kernel.org, sparclinux@vger.kernel.org, 
+ linux-alpha@vger.kernel.org, loongarch@lists.linux.dev, 
+ linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+ linux-um@lists.infradead.org, Hugh Dickins <hughd@google.com>, 
+ Qi Zheng <qi.zheng@linux.dev>, "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=8719; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=RrPlKuSegKczbWHtvSwqv948LdW8VcCW3xiwS2H9cjE=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLKWRDS6HNB+eMojqSzYMqTy97EfC96GXVurd+BWnXFOs
+ YFurChrRykLgxgXg6yYIsvzL+L7g0TC5nVe8HeDmcPKBDKEgYtTACZy04yR4eXy/5OeRddUTr4e
+ UzjHYfv9Tb8tVs4SvW79e7nZ7wJxDTeGf+ozOy+pmWdGsn85oKkiuH+J1yU/27uT2AqkFj5b+Zg
+ tkhUA
+X-Developer-Key: i=ljs@kernel.org; a=openpgp;
+ fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-On 9/11/2026 11:31 AM, Fernando Fernandez Mancera wrote:
-> On 9/11/26 7:46 PM, Casey Schaufler wrote:
->> On 9/10/2026 7:48 AM, Fernando Fernandez Mancera wrote:
->>> Historically, the IPv4 protocol has been linked to the core INET
->>> subsystem. Because shared infrastructure like the TCP/UDP engine,
->>> routing or INET hashtables live inside net/ipv4/, it has been
->>> impossible
->>> to compile a kernel with only IPv6 support.
->>>
->>> This patch introduces the CONFIG_IPV4 Kconfig symbol, which is set to
->>> 'def_bool y' for now. This does not allow to completely disable the
->>> IPv4 stack yet but it lays the necessary build-system work for that
->>> goal.
->>>
->>> In addition, multiple subsystems Kconfig symbols across networking
->>> features like tunnels, drivers and filesystems have been adjusted to
->>> depend on IPv4. Keep on mind that follow-up work is required to convert
->>> the Kconfig symbol to bool and remove the dependency on IPv4 where it
->>> makes sense.
->>>
->>> Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
->>> ---
->>>   
->>
->> ...
->>
->>
->>>   security/smack/Kconfig                        |  1 +
->>>   54 files changed, 126 insertions(+), 66 deletions(-)
->>>
->> ...
->>
->>> diff --git a/security/smack/Kconfig b/security/smack/Kconfig
->>> index 5a8dfad469c3..b4e6d0168bd1 100644
->>> --- a/security/smack/Kconfig
->>> +++ b/security/smack/Kconfig
->>> @@ -3,6 +3,7 @@ config SECURITY_SMACK
->>>       bool "Simplified Mandatory Access Control Kernel Support"
->>>       depends on NET
->>>       depends on INET
->>> +    depends on IPV4
->>>       depends on SECURITY
->>>       select NETLABEL
->>>       select SECURITY_NETWORK
->>
->> Why would this make sense? You're introducing the capability to use
->> IP6 by itself, which is admirable, but you're disallowing that
->> configuration
->> with the Smack LSM. It appears that you've done a mechanical lookup
->> in the
->> Kconfig files and applied the minimal change to make the kernel compile,
->> which probably works for most cases. It does not work for Smack. Unless
->> there's a strong argument that Smack with IPv6 and without IPv4 is
->> and always
->> will be a pointless configuration you have my NAK.
->>
->>
->
-> Right, that was kind of the point. The idea was to be able to compile
-> core networking without IPv4. There are still plenty of modules that
-> depends on IPv4. It does not mean that they will remain like that
-> forever as I mentioned my idea was a follow-up on the series to avoid
-> having a too long series.
->
-> Anyway, I can make Smack to do not depend on IPv4 on this series if
-> that could grant an ACK.
+The majority of architectures in the kernel defer page table freeing until
+an RCU grace period has elapsed, this series converts all remaining
+architectures to do so too and eliminates CONFIG_MMU_GATHER_RCU_TABLE_FREE
+altogether.
 
-Yes, that would be acceptable. I apologize in advance for the Smack IPv6
-implementation. Replacing it with a proper CALIPSO stack has been on the
-todo list since CALIPSO was introduced.
+This is important because it enables safe lockless page table walking under
+RCU alone.
 
->
-> Thanks,
-> Fernando.
->
+Doing so allows for reduced lock contention, avoids lock ordering concerns
+and enables fast, efficient and correct page table walking as a result.
+
+Additionally it removes a bunch of code and architecture-specific behaviour
+which is always a beneficial thing to do.
+
+There has been much recent work on this:
+
+* In 2023 Hugh Dickins RCU-deferred khugepaged page table retraction in
+  commit 13cf577e6b66 ("mm/pgtable: add pte_free_defer() for pgtable as
+  page").
+
+* Qi Zheng has done most of the work that made this possible starting with
+  the critical commit 718b13861d22 ("x86: mm: free page table pages by RCU
+  instead of semi RCU").
+
+* Qi then went on to convert a large number of architectures in commit
+  e3ecf7c7d082 ("mm: pgtable: convert some architectures to use
+  tlb_remove_ptdesc()"), commit 44b079583f7d ("alpha: mm: enable
+  MMU_GATHER_RCU_TABLE_FREE") and the series to which it belongs.
+
+* Qi then introduced the important CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE
+  option in commit 086498aed3f6 ("mm: convert __HAVE_ARCH_TLB_REMOVE_TABLE
+  to CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE config").
+
+* Finally, and critically, Lance Yang then converted the batch allocation
+  fallback case to be RCU-safe in commit 1fb3d8c20bfa ("mm/mmu_gather:
+  replace IPI with synchronize_rcu() when batch allocation fails").
+
+The work I do here is only possible due to the work Hugh, Qi, Lance and
+others have done previously.
+
+An initial task this series addresses is to zap deposited page tables after
+an RCU grace period. Not doing so is currently safe, but for page table
+walkers relying on RCU alone, it would not be.
+
+The changes are largely mechanical - the majority of arches already have
+the machinery required to support CONFIG_MMU_GATHER_RCU_TABLE_FREE and
+simply needed configuration changes or small implementation changes to
+switch over.
+
+However some arches required extra attention - sh-X2, m68k-motorola and
+sparc32.
+
+sh-X2 allocates PMDs from the slab allocator and PTEs as normal. Therefore
+CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE is set to customise page table freeing
+and the LSB is used to encode which page table level is used, with
+__tlb_remove_table() doing the right thing depending on this.
+
+This pattern is repeated for m68k-motorola and sparc32 to account for
+different page table levels. In each case, the page tables are aligned such
+that sufficient bits are available in each case for encoding this
+information.
+
+m68k-motorola required the biggest change - since RCU page table freeing
+uses call_rcu(), this means page table freeing can arise from softirq
+context.
+
+This was fixed with an IRQ-safe spin lock used in both get_pointer_table()
+and free_pointer_table().
+
+As part of this change, the logic for allocation of a new pointer table was
+separated out into add_pointer_table() to make the locking more obviously
+correct.
+
+Finally, sparc32 was similar to m68k-motorola in that locking was required,
+however this was already implemented via a spinlock, and only had to be
+updated to be IRQ-safe.
+
+Additionally, the nocache pool's bit_map lock was updated to be IRQ-safe
+for softirq frees.
+
+Separately, the PTE path can't take mm->page_table_lock from softirq (no mm
+there), which is fine because the page reference count transitions are
+atomic and fully ordered.
+
+The series finally removes CONFIG_MMU_GATHER_RCU_TABLE_FREE and all related
+configurations and code that supported !CONFIG_MMU_GATHER_RCU_TABLE_FREE.
+
+As a result, page table walks can now be performed safely under RCU without
+any risk of page tables being freed underneath a walker.
+
+However, this is the only guarantee that this work provides - page table
+walkers must still ensure that page table entries are as expected
+throughout.
+
+All changes have been build tested. As most of the conversions are simply
+utilising existing mechanics that are known to work, this suffices for most
+cases.
+
+However those arches where significant changes have been made -
+m68k-motorola, sparc32 and sh-X2 - have been tested further.
+
+For each of these a boot test and stress test has been performed - fork 400
+children, each mmap()'ing 2 MiB and touching every page then partially
+munmap()'ing then exiting to trigger as much page table freeing as
+possible.
+
+All were found to be working correctly.
+
+Note that sparc32 LEON SMP is not emulated, Andreas - do you have a means
+of testing this?
+
+v3:
+* Added Kiryl's tag to series (thanks! :)
+* Corrected commit message, comment indentation in 11/12 as per Kiryl.
+* Corrected 12/12 documentation as per Kiryl.
+
+v2:
+* Updated commit message to reflect CONFIG_MMU dependency for xtensa as per
+  Suren.
+* Updated 12/12 to correctly describe the new contract re: readers/writes
+  as per Kiryl. Also fixed up typos there as per Kiryl, Suren and slightly
+  reworded for clarity, and updated commit message to reflect.
+* Updated 11/12 to reflect the fact the change is for userland only as per
+  Kiryl, also added a note about write locks similarly to 12/12.
+* Fixed bug as reported by sashiko for the sparc32 change (10/12) - the
+  refcounts are insufficient on their own, so replace the page_table_lock
+  altogether with an IRQ-safe spinlock.
+https://lore.kernel.org/r/20260908-rcu-pagetable-freeing-v2-0-1f60b64e878e@kernel.org
+
+v1:
+https://patch.msgid.link/20260901-rcu-pagetable-freeing-v1-0-5456a81c8212@kernel.org
+
+Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+---
+Lorenzo Stoakes (ARM) (12):
+      mm/huge_memory: zap deposited page tables after an RCU grace period
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for most 2-level architectures
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU riscv
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU arm
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for arc, microblaze, xtensa
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for sparc64
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for m68k-coldfire
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for sh-X2
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for m68k-motorola
+      mm: enable MMU_GATHER_RCU_TABLE_FREE for sparc32
+      mm: make userland page table freeing RCU-safe
+      mm: change the contract for free_pgtables(), update docs
+
+ Documentation/mm/process_addrs.rst       |   6 ++
+ arch/Kconfig                             |   8 --
+ arch/alpha/Kconfig                       |   1 -
+ arch/arc/include/asm/pgalloc.h           |   6 +-
+ arch/arm/Kconfig                         |   1 -
+ arch/arm64/Kconfig                       |   1 -
+ arch/loongarch/Kconfig                   |   1 -
+ arch/m68k/Kconfig                        |   1 +
+ arch/m68k/include/asm/mcf_pgalloc.h      |   5 +-
+ arch/m68k/include/asm/motorola_pgalloc.h |   9 ++-
+ arch/m68k/mm/motorola.c                  | 121 ++++++++++++++++++++-----------
+ arch/microblaze/include/asm/pgalloc.h    |   2 +-
+ arch/mips/Kconfig                        |   1 -
+ arch/parisc/Kconfig                      |   1 -
+ arch/powerpc/Kconfig                     |   1 -
+ arch/riscv/Kconfig                       |   1 -
+ arch/s390/Kconfig                        |   1 -
+ arch/sh/Kconfig                          |   1 +
+ arch/sh/include/asm/pgalloc.h            |   6 +-
+ arch/sh/mm/pgtable.c                     |  20 +++++
+ arch/sparc/Kconfig                       |   4 +-
+ arch/sparc/include/asm/pgalloc_32.h      |   7 +-
+ arch/sparc/include/asm/pgalloc_64.h      |   8 --
+ arch/sparc/include/asm/tlb_64.h          |   2 -
+ arch/sparc/lib/bitext.c                  |  14 ++--
+ arch/sparc/mm/srmmu.c                    |  32 ++++++--
+ arch/um/Kconfig                          |   1 -
+ arch/x86/Kconfig                         |   1 -
+ arch/xtensa/include/asm/tlb.h            |   2 +-
+ include/asm-generic/tlb.h                |  66 +++--------------
+ mm/Kconfig                               |   2 +-
+ mm/gup.c                                 |   5 +-
+ mm/huge_memory.c                         |   2 +-
+ mm/mmu_gather.c                          |  30 ++------
+ mm/pgtable-generic.c                     |  15 +++-
+ 35 files changed, 194 insertions(+), 191 deletions(-)
+---
+base-commit: 88297631d4d42f6004cb39c0ba3da7d2d10a616f
+change-id: 20260831-rcu-pagetable-freeing-84b6be830e20
+
+Best regards,
+-- 
+Lorenzo Stoakes (ARM) <ljs@kernel.org>
+
