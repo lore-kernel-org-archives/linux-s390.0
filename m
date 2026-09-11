@@ -1,226 +1,208 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from sonic317-38.consmr.mail.ne1.yahoo.com (sonic317-38.consmr.mail.ne1.yahoo.com [66.163.184.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C43A348896
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 16:29:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE29F4AE8A3
+	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 18:06:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.184.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789144187; cv=none; b=AwjBR5B6dfoUe5jwfxLvw/HJb2NMfl/Hn0FsSFwZslb9m/dkM10Gu45CSob0Hp3DpmBMj00VUZewnCtfWotCNQLtyyBtLrlpKOg4JL3uD80J8Iw/HFOE+XMcuoIIE5PR3xswnlJaC5QMSxJ50DOAHlf8QAEj/TGZQt3fHONwouw=
+	t=1789150011; cv=none; b=ipBymaLYhy2NL44KUNYAqGMwS3BJhVHCLWMw70KEfWiZ4HKP+dJg/PO4XmHDeqsS9zawao5ySSwDvdt2WMRCpMW00MM5O5y4R3yFIA2m0B7MtoL/KP/LC+xZfKPbUjwI/MCsnTdqKwUFwOsiUV4X5CQuAm1iSyEQbgNvyXNVlqw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789144187; c=relaxed/simple;
-	bh=fveB6SHDsCnPbgvUGBXKgSryT8Sm8Ie/4ozCvC+bfIY=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=KMiGyl15d7FKRDLazyvkaV7RrDxvyL96PcVuivz9HSSFKudPN7rgOiTwTE0ETAn590W6SefSHBX321vQfxVBKr9X5vSLe1ZccaX0xABmyv52hDqTAXdQBiIa/nOJNPXMuiH9wK22o+WlZ5GIaAWlzyc63MXgYl8g2ItgxCMHuNY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W3NGXYDP; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789150011; c=relaxed/simple;
+	bh=Z57Iku1thXyXrd/tJuHixAzTq3I2TFBtAiDxp2vv5n8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=l1O0UFxyY4QOu17qamOIt33NMsADHxBfRlZ1biz9mbKGeJjlvaMPzRE6ppkxSPVLtpCRs8N+lyMBcJcDzVAY3FTwYxmta9jT0AeFMly01hhay5uVPcJK99sGigOYYXWXopApzl6Qua4nycif5xhmsMqwtj2Dd39aXsF5D+SF7J8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=SJo1s8Q1; arc=none smtp.client-ip=66.163.184.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W3NGXYDP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B92321F000FF;
-	Fri, 11 Sep 2026 16:29:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789144186;
-	bh=gbghJXWhObBJybEWNvNblfakapCc/xdsMe1BA2XqOs0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=W3NGXYDPuq2w2Q5VOvCsZu4vOwTaSmQl1kzwfM9Riuq7WvGt5ll3VzswUkSxxNVAf
-	 /Lwo4BeGzW1aKxl6/DFN9fb5Zd0OnjSJwwZBqIj8rT2h/BW0TXEXof4oF1+1P0rHjv
-	 jCofeO3vLKrcAugYsqIqbbAlFRZm2N0Mmans5RgCZQVc41Sc9c+N28Frtx+HVxEdFv
-	 0WfXjNuDILVbVI7rbt1W9cKdJcQSZRxbiJdXMtVHaVp+mWnnnvLuzw6j+TAOjXhvsu
-	 b9aZ6NqTG6LeKBKVXmw7ZgSXlzCrL4lSktCf7QSYWOs3UYDjRIjTeiW1Msah1ueDdT
-	 kNDxy7dR4hj5g==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net-next] net/iucv: Add lock nesting annotation in
- iucv_sock_close()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Alexandra Winter" <wintera@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260910162919.2100124-1-wintera@linux.ibm.com>
-References: <20260910162919.2100124-1-wintera@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 11 Sep 2026 16:29:45 +0000
-Message-Id: <20260911162945.B92321F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="SJo1s8Q1"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1789150007; bh=N0ksFx+o56aUgsrzSCG07cwcgBEXSZlDOBLwLo9KB9k=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=SJo1s8Q1vVsugOTkF+1RDn5zyrCnUvWiMWl9DkJEFblXQQLOq7seoI4F9WXlRHxzPD8qos1Udfs/rQ6ASgk36BiU4zy84T6harikTSCh6CC2YYJUZu+/SlTdJ9vsElPI9kKM1SrN4LS90QeeWZ+vt8mASEzPgpQycijwcQpcC6gX0vPin5XRkVdE1hzEAh5O3MAHzWAFxpBd8t3ezWHhAv3zOlohttmoecJLca4rlpXdzjliKmKVixAymsLBmXQ/juLmU+LK1NqrAe8F5pUWukwK+eMwdtPB4ciqo/Xsa1nfLR3T5rKyRMAg4TnN4VkU1DwsS/VCTNcwsnltOgnUaw==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1789150007; bh=sS9eJo4ovNSrVR/z1S08U1kzXcmounSEtzDYIk9P3xJ=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=a0NohvpVKWlzG28yj84gBC8JgYfZpJp/GxomOh4hXSazWGiTKzl69/tOtX72cnbD8oXBkvWLPyWCD7GsmnGvjPDRg8VQ8ssLFqPzEbsWoVTuCMNIS/yGsDN9Wzg93BbLuyvrBqNx/534FI9/HQ5tTQljpY9NXhxy4EBOY+vQclAWDrrBNXaCIlaL7nodiN0tS98Edskn80CPMr4hlWhuGntrUo9Mk4coW8UEMKN0HyBUbKVXF7ZfySEJOjZ85goOE5BPMyjvMBE6xihw0PlnXnKtkeZE8OxDJ/u/Mo/ay68NPSfG6jdJTU3LFiuL3IoLSZfuoLfH//wUCR3ZmzSuPw==
+X-YMail-OSG: Z9UMG9YVM1lctHC24HnZvwkpAFOQdH7gglIMIGoN9uePiY6tmM1qasTJ0aPnTzX
+ tzt29oMHmILoCJ0h7IC3u49YVUVYpMiAR3DOapJZF7js1zavVTijW7mz6eDy0Aknu2cJAIMBsqct
+ C3ya42KOnkk9oeom.b.QTEgcQUSRb.xUyEOV838qqsLQzKYF7X4scufuZH2ZMtPbL4WXhFrvUpaa
+ b2h7qJsroiEU4KnSo_4R743CTWkEixpeInkhNH0gSxv83Oy2Qp2WDEFOmBoIryMYglQrGdPXsoBd
+ pWMZwxUFVMji3.9WaIrRLWEwU0aCVr.y7dg7LlQywAhwgodXzjq7xYZrwHNyfNkFOZOORAsIxvzh
+ T2.QUhV.JpcG1Fb6DrNXHkSYUzD9f0kby6nX1oVX_X3RSxKW_gdPGix0Yg2F.SZCIlWjZiWlfSct
+ EHuva2iR3235_wLAiNbAoBnNIA0auBPdbrWlPKgBy8dD1rjj1N.QzBmZteeApzGC5cTnvC6GdB_Y
+ pj2GFD41VlRPuSGzC1TI4dE8UtcO9WCWDGJJ.N9ljlE7ridZHp5sXcvrlb2a1bJn8b8g.gM_k0Y.
+ rhnpwwCd5hEjjm.jA8eaExquIyZEltU8Mn8S09036R4ZIVIUqtSgx2_UM_72JpAgdr93yUloY4Ni
+ ZkPaUGtv8xsIZjdsKhzb9Di_L2bWvEmHR1tEWk0sRpWSJgpkcV4TInr7E.FKZCDYRWAgpQas1uQJ
+ 1TOZ6fnSFy0FwYnc34A27vgJO53IRnC3i1fXQzozdz_ciT8l.ZAKAjYby7iyEEUlPZ7AuInZrPza
+ IEdzUZNoQry0p.FCLskNePKfkzaolmO7kf1Xy1P9r1wU3jjfCqpzfxKG3gMpYwfVAsVNnOv6gDzl
+ McJQL.IE2U_X9ZGVZjg4rkSvsjGUx_bL4lOIDeQWj5nb8EO_hS3ZFeOXVa76rEtJBTamfTTW_7Zc
+ elKXzO0c0jsF_iGOvV2sX9TtagZFju13DPJgDpCFgKnK8RfROr.IP761grH7JdkzCRfBscbKj8k7
+ Ahwv8KwS_qMFpGCZsVnKIueTdlB7CJitfx_aC17KoiI.w5vP5MeCFnyYnZ36ZuvoA4KiKo_Ncwrm
+ CZCI96cIwehGcjN454ZgHYgmbxlMsQdtxl0ALCXIEd231qZxI5r3jKKzqWBRQBT6wyOE.JLSQXU3
+ bZlUojN5mC7Gx19NhnLlG.lg751JnoD40Ciw_ysQAywCq2134cpLDvJiqE5XaWXg_KeWNaSx07Rp
+ Z.Hp4cWssIRHg5vMk_aZs5Z7gP2r111AT0tPqB.Zl36I7EcMncMSuoK6TpjUpeCFPNA2Uzn6lWpv
+ Ayq9XnDzPBBYPg3Z5Yq8pSj2VM5qO2prq6fi4wRQysNvd_1lqrs3VtFc9ydPyX8RD8VYVSxv1uJ1
+ FB2N7hJH1gYewxLqD1TrMgTjhWKaalb0ZCqhrFy0PdSKktKHFroGOPZfZWAV4mekQimDDZkSUtnC
+ yw.h8nHeNuzHO8V0HTM_P4nsUeGGf6aLnKrOA9cgDr2U7b1pfnZjwOEC9f3OwqLxHVtN7DxbxRBt
+ XbRaMJ0t0JXpnmzFjCEwxOIe4YxMA79ojl0uBwAtD0Fy0woxF6BF3RJ1ZPPU0_PUXxNYTPAv797g
+ hCvs4V7D7ilhn2pHF7zgioCgAymlDwbbb1kS25sFEgT.ab0mYvR_DTYvZdm8xvptaKga9_3Q_4la
+ Nfg7LDwLu90rXbR_jFSVDg8_CRrWzNGZoExyv2KC5Ioxx4w5Z.vFZMm71aSdZqcz97awS9O27LEy
+ zOpyEkEiGjFrw1cgZZtyu3Ew0HqIQ0h4xkl52jQ4XgT.30ChKEVFYvIV7iuJxGT28kntbVLk7n5h
+ Qgdut7ArndRx8PCSev3URpMnf8AM0zR8NhPyD_xl.PBWGf9W2RDA6RRWpdjmgFHBTId2lKL_nSJl
+ LkxGwDO7rDn_SxbCFne8eoKNae0qOWs798diQQVJL0Ddb8aFSC4LFGAwrr_d22T4W8yy.Ndfb49y
+ z2dOYbOpJhAl12Ftt1XOzJGQFgwPv5Q_tiwpkT27_1AfToPZ2tfNNwEU5LXsoecZNMjPL637Fs88
+ Pm9FtfEyd0XJbD1XOE.f.OBlHHpbiaJgp4mXcZx0q4HZOY4DX10_8VcqfbSEaXrmk1KmYyVyvbHM
+ 3QxDwZXAF5FNMwXncGbQWYGe_Azdm2WnLc5rY4RP0yu0DZzoy5yQFXvQ.VZQ0.Ig5LzjCVNNskre
+ .fT9yhcSlPWI3IHZaEsNbS3ASejCKAAQtyEkTugxQ5eM1GTORRydzR8ohwGmxc5gursUvWq1obkV
+ s1L1HzWgkFSZ7
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: b76ab4a0-2ab9-47b3-8cf5-8bdd5faf0803
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Fri, 11 Sep 2026 18:06:47 +0000
+Received: by hermes--production-gq1-678d9dd684-kwnw4 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 399694003e99ff36e3a7b206375e9b12;
+          Fri, 11 Sep 2026 17:46:02 +0000 (UTC)
+Message-ID: <ee89e26c-3dad-450b-8861-badf19afa141@schaufler-ca.com>
+Date: Fri, 11 Sep 2026 10:46:00 -0700
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 01/13 net-next] net: ipv4: introduce CONFIG_IPV4 to
+ decouple the IPv4 stack
+To: Fernando Fernandez Mancera <fmancera@suse.de>, netdev@vger.kernel.org
+Cc: horms@kernel.org, kuba@kernel.org, pabeni@redhat.com,
+ edumazet@google.com, davem@davemloft.net, Jason Gunthorpe <jgg@ziepe.ca>,
+ Leon Romanovsky <leon@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>,
+ Tony Nguyen <anthony.l.nguyen@intel.com>,
+ Przemek Kitszel <przemyslaw.kitszel@intel.com>,
+ Elad Nachman <enachman@marvell.com>, Saeed Mahameed <saeedm@nvidia.com>,
+ Tariq Toukan <tariqt@nvidia.com>, Mark Bloch <mbloch@nvidia.com>,
+ Ido Schimmel <idosch@nvidia.com>, Petr Machata <petrm@nvidia.com>,
+ Edward Cree <ecree.xilinx@gmail.com>,
+ Maxime Chevallier <maxime.chevallier@bootlin.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>,
+ Arend van Spriel <arend.vanspriel@broadcom.com>,
+ Miri Korenblit <miriam.rachel.korenblit@intel.com>,
+ Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+ Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>,
+ Chaitanya Kulkarni <kch@nvidia.com>, Saurav Kashyap <skashyap@marvell.com>,
+ Javed Hasan <jhasan@marvell.com>, GR-QLogic-Storage-Upstream@marvell.com,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ "Martin K. Petersen" <mkp@kernel.org>, Nilesh Javali <njavali@marvell.com>,
+ Manish Rangankar <mrangankar@marvell.com>, Varun Prakash
+ <varun@chelsio.com>, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ David Howells <dhowells@redhat.com>, Marc Dionne <marc.dionne@auristor.com>,
+ Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>,
+ Chuck Lever <cel@kernel.org>, Jeff Layton <jlayton@kernel.org>,
+ NeilBrown <neil@brown.name>, Olga Kornievskaia <okorniev@redhat.com>,
+ Dai Ngo <Dai.Ngo@oracle.com>, Tom Talpey <tom@talpey.com>,
+ Marek Lindner <marek.lindner@mailbox.org>,
+ Simon Wunderlich <sw@simonwunderlich.de>,
+ Antonio Quartulli <antonio@mandelbit.com>,
+ Sven Eckelmann <sven@narfation.org>,
+ Nikolay Aleksandrov <razor@blackwall.org>,
+ Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>,
+ Phil Sutter <phil@nwl.cc>, Johannes Berg <johannes@sipsolutions.net>,
+ Matthieu Baerts <matttbe@kernel.org>, Mat Martineau <martineau@kernel.org>,
+ Geliang Tang <geliang@kernel.org>, Julian Anastasov <ja@ssi.bg>,
+ Aaron Conole <aconole@redhat.com>, Eelco Chaudron <echaudro@redhat.com>,
+ Ilya Maximets <i.maximets@ovn.org>, Allison Henderson <achender@kernel.org>,
+ Jamal Hadi Salim <jhs@mojatatu.com>, Jiri Pirko <jiri@resnulli.us>,
+ Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+ Xin Long <lucien.xin@gmail.com>, "D. Wythe" <alibuda@linux.alibaba.com>,
+ Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond
+ <sidraya@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>,
+ Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+ Jon Maloy <jmaloy@redhat.com>, Tung Quang Nguyen
+ <tung.quang.nguyen@est.tech>, Steffen Klassert
+ <steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>,
+ Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>, Vikas Gupta
+ <vikas.gupta@broadcom.com>,
+ Bhargava Marreddy <bhargava.marreddy@broadcom.com>,
+ Rajashekar Hudumula <rajashekar.hudumula@broadcom.com>,
+ Nicolai Buchwitz <nb@tipi-net.de>, =?UTF-8?Q?Markus_Bl=C3=B6chl?=
+ <markus@blochl.de>, Arnd Bergmann <arnd@arndb.de>,
+ Heiner Kallweit <hkallweit1@gmail.com>,
+ Florian Fainelli <florian.fainelli@broadcom.com>,
+ Krzysztof Kozlowski <krzk@kernel.org>,
+ Qingfang Deng <qingfang.deng@linux.dev>, Julian Braha
+ <julianbraha@gmail.com>, Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Eric Biggers <ebiggers@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+ Neal Cardwell <ncardwell@google.com>, Kuniyuki Iwashima <kuniyu@google.com>,
+ Willem de Bruijn <willemb@google.com>, Alyssa Ross <hi@alyssa.is>,
+ Joel Granados <joel.granados@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
+ linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
+ intel-wired-lan@lists.osuosl.org, oss-drivers@corigine.com,
+ linux-net-drivers@amd.com, linux-stm32@st-md-mailman.stormreply.com,
+ linux-arm-kernel@lists.infradead.org, linux-wireless@vger.kernel.org,
+ brcm80211@lists.linux.dev, brcm80211-dev-list.pdl@broadcom.com,
+ linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org,
+ target-devel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-afs@lists.infradead.org, linux-nfs@vger.kernel.org,
+ b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux.dev,
+ netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+ mptcp@lists.linux.dev, lvs-devel@vger.kernel.org, dev@openvswitch.org,
+ rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org,
+ linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
+ linux-security-module@vger.kernel.org,
+ Casey Schaufler <casey@schaufler-ca.com>
+References: <20260910144914.8025-1-fmancera@suse.de>
+ <20260910144914.8025-2-fmancera@suse.de>
+Content-Language: en-US
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20260910144914.8025-2-fmancera@suse.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.26525 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
+On 9/10/2026 7:48 AM, Fernando Fernandez Mancera wrote:
+> Historically, the IPv4 protocol has been linked to the core INET
+> subsystem. Because shared infrastructure like the TCP/UDP engine,
+> routing or INET hashtables live inside net/ipv4/, it has been impossible
+> to compile a kernel with only IPv6 support.
+>
+> This patch introduces the CONFIG_IPV4 Kconfig symbol, which is set to
+> 'def_bool y' for now. This does not allow to completely disable the
+> IPv4 stack yet but it lays the necessary build-system work for that
+> goal.
+>
+> In addition, multiple subsystems Kconfig symbols across networking
+> features like tunnels, drivers and filesystems have been adjusted to
+> depend on IPv4. Keep on mind that follow-up work is required to convert
+> the Kconfig symbol to bool and remove the dependency on IPv4 where it
+> makes sense.
+>
+> Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
+> ---
+>  
 
-Pre-existing issues:
-- [Critical] Lockless traversal of accept_q causes list corruption and use-=
-after-free due to concurrent modifications from softirq context.
-- [High] Newly allocated sockets are permanently leaked on error paths beca=
-use iucv_sock_kill() returns early if SOCK_ZAPPED is not set.
-- [High] Child socket leak in iucv_sock_cleanup_listen due to late state up=
-date leaving a race window.
-- [High] Unprotected state modifications in iucv_callback_connack cause sta=
-te desynchronization.
---
-
-commit dd0ad2a384eeaa590848b51235abdb105f4560db
-Author: Alexandra Winter <wintera@linux.ibm.com>
-
-net/iucv: Add lock nesting annotation in iucv_sock_close()
-
-This commit splits off __iucv_sock_close() to allow it to be called
-without lock nesting. It also adds a lockdep annotation to
-iucv_sock_close() to avoid a false-positive recursive locking warning.
-
-> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-> index db261ecd19af1..dc906f5f7c42d 100644
-> --- a/net/iucv/af_iucv.c
-> +++ b/net/iucv/af_iucv.c
-
-[ ... ]
-
-> @@ -302,7 +303,9 @@ static void iucv_sock_cleanup_listen(struct sock *par=
-ent)
-> =20
->  	/* Close non-accepted connections */
->  	while ((sk =3D iucv_accept_dequeue(parent, NULL))) {
-
-[Severity: Critical]
-This is a pre-existing issue, but I have a question about how
-iucv_accept_dequeue() is interacting with the softirq context here.
-
-Does lockless traversal of accept_q cause list corruption or use-after-free
-due to concurrent modifications from softirq context?
-
-iucv_accept_dequeue() (and iucv_accept_poll()) traverses the accept_q list
-using list_for_each_entry_safe() without holding accept_q_lock:
-
-net/iucv/af_iucv.c:iucv_accept_dequeue() {
-    ...
-	list_for_each_entry_safe(isk, n, &iucv_sk(parent)->accept_q, accept_q) {
-    ...
-}
-
-Concurrently, an incoming connection triggers iucv_callback_connreq() in
-softirq, which acquires accept_q_lock via iucv_accept_enqueue() and modifies
-the list using list_add_tail(). Since list_for_each_entry_safe() is not safe
-against concurrent modifications from another context, does this result in a
-data race and list corruption when poll() or accept() are called?
-
-> -		iucv_sock_close(sk);
-> +		lock_sock(sk);
-> +		__iucv_sock_close(sk);
-> +		release_sock(sk);
->  		iucv_sock_kill(sk);
->  	}
-
-[Severity: High]
-This isn't a bug introduced by this patch, but looking at the loop above,
-could this leave a race window where child sockets are permanently leaked?
-
-iucv_sock_cleanup_listen() drains the accept_q completely, but since it is
-executed under lock_sock(parent) (which releases the slock spinlock), could
-a softirq executing iucv_callback_connreq() concurrently enqueue a new
-socket?
-
-Since parent->sk_state =3D IUCV_CLOSED is updated after the loop finishes:
-
-net/iucv/af_iucv.c:iucv_sock_cleanup_listen() {
-    ...
-	while ((sk =3D iucv_accept_dequeue(parent, NULL))) {
-		lock_sock(sk);
-		__iucv_sock_close(sk);
-		release_sock(sk);
-		iucv_sock_kill(sk);
-	}
-
-	parent->sk_state =3D IUCV_CLOSED;
-}
-
-Can a softirq successfully enqueue a new child socket to accept_q just as t=
-he
-loop terminates, leaving it leaked forever since iucv_sock_destruct() does
-not purge accept_q?
+...
 
 
-[Severity: High]
-This is another pre-existing issue, but does iucv_sock_kill() silently leak
-newly allocated sockets on error paths?
+>  security/smack/Kconfig                        |  1 +
+>  54 files changed, 126 insertions(+), 66 deletions(-)
+>
+...
 
-In error paths, newly allocated sockets are passed to iucv_sock_kill():
+> diff --git a/security/smack/Kconfig b/security/smack/Kconfig
+> index 5a8dfad469c3..b4e6d0168bd1 100644
+> --- a/security/smack/Kconfig
+> +++ b/security/smack/Kconfig
+> @@ -3,6 +3,7 @@ config SECURITY_SMACK
+>  	bool "Simplified Mandatory Access Control Kernel Support"
+>  	depends on NET
+>  	depends on INET
+> +	depends on IPV4
+>  	depends on SECURITY
+>  	select NETLABEL
+>  	select SECURITY_NETWORK
 
-net/iucv/af_iucv.c:iucv_callback_connreq() {
-    ...
-	if (err) {
-		iucv_sever_path(nsk, 1);
-		iucv_sock_kill(nsk);
-		goto fail;
-	}
-    ...
-}
+Why would this make sense? You're introducing the capability to use
+IP6 by itself, which is admirable, but you're disallowing that configuration
+with the Smack LSM. It appears that you've done a mechanical lookup in the
+Kconfig files and applied the minimal change to make the kernel compile,
+which probably works for most cases. It does not work for Smack. Unless
+there's a strong argument that Smack with IPv6 and without IPv4 is and always
+will be a pointless configuration you have my NAK.
 
-And also in afiucv_hs_callback_syn():
-
-net/iucv/af_iucv.c:afiucv_hs_callback_syn() {
-    ...
-	err =3D dev_queue_xmit(skb);
-	if (!err) {
-		...
-	} else
-		iucv_sock_kill(nsk);
-    ...
-}
-
-Since iucv_sock_alloc() creates sockets with the SOCK_ZAPPED flag cleared,
-and iucv_sock_kill() returns early if !sock_flag(sk, SOCK_ZAPPED), doesn't
-this mean the socket is left forever in iucv_sk_list without its reference
-being dropped? Could this allow a remote unauthenticated user to cause a
-Denial of Service via memory exhaustion by spamming SYN requests?
-
-> =20
-> @@ -394,15 +397,16 @@ static int iucv_send_ctrl(struct sock *sk, u8 flags)
->  	return err;
->  }
-> =20
-> -/* Close an IUCV socket */
-> -static void iucv_sock_close(struct sock *sk)
-> +/**
-> + * __iucv_sock_close() - close socket, caller holds lock_sock(sk)
-> + * @sk: network socket
-> + */
-> +static void __iucv_sock_close(struct sock *sk)
->  {
->  	struct iucv_sock *iucv =3D iucv_sk(sk);
->  	unsigned long timeo;
->  	int err =3D 0;
-> =20
-> -	lock_sock(sk);
-> -
->  	switch (sk->sk_state) {
-
-[Severity: High]
-This isn't a bug introduced by this patch, but could unprotected state
-modifications in iucv_callback_connack() cause state desynchronization
-and resource leaks?
-
-iucv_callback_connack() executes in interrupt context when the peer accepts
-a connection, and it directly modifies the socket state without acquiring
-bh_lock_sock(sk):
-
-net/iucv/af_iucv.c:iucv_callback_connack() {
-    ...
-	sk->sk_state =3D IUCV_CONNECTED;
-	sk->sk_state_change(sk);
-    ...
-}
-
-Since this write is unprotected, can it race with other operations (like
-__iucv_sock_close() checking sk->sk_state here) that are concurrently
-transitioning the socket to IUCV_CLOSING or IUCV_CLOSED under lock_sock(sk)?
-Would this blindly overwrite the state with IUCV_CONNECTED during a
-concurrent teardown sequence, leaving the socket in an inconsistent state
-forever?
-
->  	case IUCV_LISTEN:
->  		iucv_sock_cleanup_listen(sk);
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260910162919.2100=
-124-1-wintera@linux.ibm.com?part=3D1
