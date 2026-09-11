@@ -1,65 +1,75 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F142A4746C9
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 09:20:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C123831813A;
+	Fri, 11 Sep 2026 09:30:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789118413; cv=none; b=QCa163KncRBlWjCJDLRIbUOKinJCIvXqW1XLAMUHSBZGtvutONpdX3kYz0mgjs1rk7MAnLyLxQJYuPzlsjp1e7rmHtjC5VeR0UM4flBa4FWouv1VIMOjfD/qJmtVf1nlfZAP/kSDRD6dLXVLmeqjyrX409xBfQukT2FJVfCv/PI=
+	t=1789119021; cv=none; b=k/4nG+396TFIldnIZv2EInF0ZKgiSmrEtZYOiv/FDkJZIh/5MOWlt4i5Mt0QNGZAdKhgSYZG8hSDmDKI691FcgvsMOhmt9niL3cK9B8SJ9Di6FSPdb8Df5hNTJyeX0kPd5t8Rl1bTWnkfikRw/1CNLsHWwiqI04bI3b164b5mwA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789118413; c=relaxed/simple;
-	bh=kEsyUFW6UZu50Mq3lhqGLlE/H4pv+6hCowBDyd42Lj4=;
+	s=arc-20240116; t=1789119021; c=relaxed/simple;
+	bh=A4jHQyG+J5MNMZAQ+kcZeJlChlaoUikTEw/M8iWLf04=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=eWQM1o1rrB6MtymzAj1BEGMC6ryCEBnBlO2040tyxMnt/MLami5g1fzYHgtv77Z4Bi+ZemtI3t833BNavvS6Uhe2p0oU1BTddmrTS7rXGUog0yo/2bfYQ+2QxQXm5V7rDdbmK/OH6cGbrWsspLIkK9A2gOm68grFurWjRZ2RLn8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iU8VKRnO; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=LJtQYA0NCRhZtP0Y6nJ6ua3tUdXh8d8mvcBCID/MYzF2axhQbWTXt3PcnjB6Xeow58eQaESCaOtHugbd9BLdea8vPLKSIg4OJeyOKd/7wHXbqJsx03sVYpb6DdZc2O2+7ovHHHgA6w/OSqkPQz04mWzF4WI3UVeVwwZLQ6RhYCE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=auET5Cph; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iU8VKRnO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B7ED1F000FF;
-	Fri, 11 Sep 2026 09:20:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="auET5Cph"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF0DD1F000FF;
+	Fri, 11 Sep 2026 09:30:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789118411;
-	bh=kEsyUFW6UZu50Mq3lhqGLlE/H4pv+6hCowBDyd42Lj4=;
+	s=k20260515; t=1789119020;
+	bh=257SyGpWSl86iSkOsMsalhTeekXSon4AlW4qmeMth+U=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iU8VKRnOciFzFx5+6RKoX9CT4NsbzwMsxzlvQT2auwCSB6liukq5zs8R4xeOe4g0i
-	 N3ZIqvCQEyD9o62y06SGkHMsVLFJzOQsdOS5SG326jIpK/Z09y9QQtIfPQuPXInyXG
-	 ueB6xtx2H+M1jkS21Sci0GfoDpiaR5ZQnwXeM9mQzmE9eWRfZniIaloOspCeOXvbPH
-	 xZkSSirR/xDEVwdHGO881Fuju1ao7gsdA3IbreNBM+YEIk6CwGZTDTkmcMXLEysJgm
-	 WXMqOxQSRUjSEkyJI1dKEQ0E2txo8CjXhQp6id/JufP2rE1mjLpXhfRIYr8EKUaakA
-	 Rf/9VtvDRuDsA==
+	b=auET5CphIGflFGWOv0x1PwOrIbhJUYwjHbW264VdC3Op1rpfYDYjHRNjJ+Y5SwMjJ
+	 PcXc30BG692ov85E0okEDaXrqPMId3tcEkDmfpEWIndXGQKjlW1oYC34GciA5cXQN0
+	 CL6B+SUSuoAA0OoYpeoM9R1Wnj1GKBAs4+dk0gEbcBoSBiLlfSuwtnDGUBZc+yc0+1
+	 xcwKc0VFNMEja/Gf0c15SmRiah+Qg/68LRTca14IZQf35rTtQ0ru/ZpNvEOcjTt6mB
+	 QqOtD6l33LPrY461kc1t7CFju9ii1hFC1yw7VVdI0QvuUgROf2ZD8v0maSv+4Z76Uo
+	 Tcuktgm2N85jQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] s390/hiperdispatch: use system_dfl_wq to reschedule
- hd_capacity_work
+Subject: Re: [PATCH net v4] net/smc: fix lgr/lnk lifetime vs diag reader
+ race
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Euan Bourke" <euan@linux.ibm.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260911091309.1238604-1-euan@linux.ibm.com>
-References: <20260911091309.1238604-1-euan@linux.ibm.com>
+To: "Mahanta Jambigi" <mjambigi@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260911090906.1949163-1-mjambigi@linux.ibm.com>
+References: <20260911090906.1949163-1-mjambigi@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 11 Sep 2026 09:20:10 +0000
-Message-Id: <20260911092011.2B7ED1F000FF@smtp.kernel.org>
+Date: Fri, 11 Sep 2026 09:30:19 +0000
+Message-Id: <20260911093019.EF0DD1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> In hd_enable_hiperdispatch(), hd_capacity_work is scheduled on
-> system_dfl_wq, however the work function reschedules itself with
-> schedule_delayed_work(), which uses system_percpu_wq.
+> The diag dump walks the socket hash table under a read_lock and dereferen=
+ces
+> conn->lgr and conn->lnk.  Two terminal teardown paths drop those referenc=
+es via
+> smc_conn_free() while the socket is still hashed:
 >=20
-> Hiperdispatch does not benefit from using the percpu workqueue. Use
-> queue_delayed_work() with system_dfl_wq for consistency.
+>   - smc_conn_kill() -> smc_close_active_abort() -> smc_conn_free()
+>   - smc_close_passive_work() -> smc_conn_free()
 >=20
-> Changing the workqueue from system_percpu_wq to system_dfl_wq causes no
-> functional changes.
+> This allows the diag reader to dereference a freed lgr or lnk.
 >=20
-> Signed-off-by: Euan Bourke <euan@linux.ibm.com>
+> Fix it by unhashing the socket before smc_conn_free() is called at each o=
+f these
+> two sites.  Any socket visible to the diag reader under the hash read_loc=
+k then
+> has valid conn->lgr and conn->lnk pointers.
+>=20
+> Fixes: f16a7dd5cf27 ("smc: netlink interface for SMC sockets")
+> Fixes: 9dbe086c69b8 ("net/smc: fix invalid link access in dumping SMC-R c=
+onnections")
+> Signed-off-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911091309.1238=
-604-1-euan@linux.ibm.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911090906.1949=
+163-1-mjambigi@linux.ibm.com?part=3D1
 
