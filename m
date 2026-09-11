@@ -1,309 +1,587 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj2-f10.google.com (mail-pj2-f10.google.com [74.125.227.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E53D418DF80;
-	Fri, 11 Sep 2026 00:24:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77B8F3E40F6
+	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 02:57:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789086253; cv=none; b=TYOm7aMJzkdY2Y5eelzvhfZCS46yKliKz2swYHjifKzjwKy8Q9/cUN3nd4CzJeyJkli8+b+uVSgIqdQCAMWvI2Mm3p2yP3xcfQQ4VEsF1WNcvVbo/GcqAfqSDQ4m/dvm4n1oMAqQroQ53bSbAM1kWbVm3uDy19nMmXOkN7+KSEw=
+	t=1789095457; cv=none; b=YeEZoGa4K/7EqAedr/FQcRKaZC2Uato5dDLbD10ZGJmnXiRWbRLac2uD+E1e0j9Pdii2B4xs4/WsDmNzfsq42XX81DituR2JqKwLKp4WDVJAuw1I3nBSEnnQIr2crt7wvyZfSZhMMxrA/OnGO5vbZ7gOvBuGTR0B20dgwYJIG+Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789086253; c=relaxed/simple;
-	bh=AKtsfH5QrpHgr2A2NJf3MtAl/FrzCpaTYaZeAF7SbfM=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=T9UXg1IVdWmQD13Hmb8pVI04U+9LUi4tNKguzbnF9TZx9tX9HB5Vb3ZiWAxBTNlKSCwNZGPDQYGWSP2z3bmVf3OEeiN2zRX89Xe16TlzSCRMmFvkBZIP60EUMXiIMkdDm1rZM+KpiHMN+SNoBJn72RyRpmmKOqSW/+X6sA7oV3g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l7SyL2HH; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789095457; c=relaxed/simple;
+	bh=TFoZstVg/qTnm2TnC6SXqAluk3+Bs08p/4W0Gs3WSIc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iCdze6fVET8QQI7KCiX65ktSCWW8LCTTnc8k82JiQsjViKaG1pBJNzhCx5rja+/vkILs+gQzdPdLCeDBy5MRLfA8nXNxPF7vbhHAoRuUfB2i1zWsW8eIzcubg6N4apJ2lH6GyfaBQYIGdV960lYGc9MPy54JHlYXc8SLrTDguaE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lSIXeO2U; arc=none smtp.client-ip=74.125.227.138
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l7SyL2HH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70E4F1F000FF;
-	Fri, 11 Sep 2026 00:24:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789086251;
-	bh=gZsBbz8/MMxuPqcNJbO9PzEltgloSr2936xZcIVzJ0k=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=l7SyL2HHwJ7ASTUdSB6sklx+GXhLf1qiAG+CRw31vXUJDmtwmygHerUj2keiIaHwN
-	 331Nh4IaRyKztdTXS+Zo0+c5XoZtI/a8seKcNpnAFQxsi3wVJDqd1zOC6OMv624rDO
-	 s1bCbfgYCsoAi7QIxyKNaJ6ZOgRPW9buJnZbSZIrcYauXHx6wOP6AZZLWTuqT6ae8L
-	 K4gu45aeTtLtziY0zPO3sjycnqMnio3QmLdXxN7j3XX51gT3Qi17m7/RNE2Vao6vPp
-	 W30YEZUlvGkOvWPSfcmVtDj8NOQPawwnffm0xzVTgyJePBwoUwTrW8YHZBfA3974EP
-	 QiORZ7trdhs2w==
-Subject: Re: [PATCH net v3] net/smc: fix lgr/lnk lifetime vs diag reader race
-From: netdev-bot+sashiko@kernel.org
-To: mjambigi@linux.ibm.com
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
- dust.li@linux.alibaba.com, sidraya@linux.ibm.com, pasic@linux.ibm.com,
- horms@kernel.org, tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
- hidayath@linux.ibm.com, stable@vger.kernel.org, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Date: Fri, 11 Sep 2026 00:24:09 +0000
-Message-ID: <178908624996.219967.16908117009364362685@kernel.org>
-In-Reply-To: <20260908092252.3832975-1-mjambigi@linux.ibm.com>
-References: <20260908092252.3832975-1-mjambigi@linux.ibm.com>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lSIXeO2U"
+Received: by mail-pj2-f10.google.com with SMTP id d9443c01a7336-2cf49dc298bso2773605ad.0
+        for <linux-s390@vger.kernel.org>; Thu, 10 Sep 2026 19:57:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789095453; x=1789700253; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=7fZGhKbaKpC/0bwb/aBifkG6HcLnnMOlc1Eg8oJ/QHc=;
+        b=lSIXeO2UdtxRqEyKWDb732inVduMxwPnluCJiwrDDnR51bHV1qQOHdAwyNM2xnXt+D
+         qGV0HH9BZwgy54FX0RT1qbkoM00s/fVsgR4UcAclDaPEnX6XG51z08vFHSh6IYqdNo3f
+         Osypefg/QNtf+pskVwMq4sSsUotKhUSNqYpnUq3YEDncaG74wgsiMaPJG3PpL6YRpScx
+         cKCHCoZUGbrolbat/3Ir8eewzNHihe9lJBxH4ZsRvz/pPK8K9zdRbU8DyTsNUTqOODn2
+         knGmXFMhj8LET2K/KqkuGQbDVA8vUcxyv9nEek1kemghpYe1OGYb1aTJJaYQNVRQovnh
+         1A0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789095453; x=1789700253;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=7fZGhKbaKpC/0bwb/aBifkG6HcLnnMOlc1Eg8oJ/QHc=;
+        b=aNNHysIutJm3EnDNafMWENR546fjhfyfaSYLK1C8biknFVgL9wk6oWUg0dHm1zKuxa
+         9lTMRXtF5ouzOLo4sD5YrgOpFyJUlVOQEt2J+Gp7vwmBLi6fxsprK7X0h/DYaqLBoLOQ
+         vUyUXLUlGBc4RKWvvKNxprU/C/M+UyAXA7X+AXuYpJyrKUTCdTjAnVTbdQ3qfdfjkv4d
+         Rf1VKaKG4m8r44TGXlI8VQHPrHlt9a/3gksDMJRv+Lstb/t+VZRDyqT4INu1Jjp65P2W
+         SDf3XjGLxEDHGwd+X+aGSO13h4lUcSfpKDHSA1tVan1hWONEJiVt1D31JXkxRYK7dwr8
+         dEyw==
+X-Forwarded-Encrypted: i=1; AKwUvByq0dIpQFsxByNk0UMXsfalSnjMshrcNMwjK+qup0AyPt6GsEZwwC3m5SKem6Xy0wxJ+tToD88aZku2@vger.kernel.org
+X-Gm-Message-State: AFuF++kL2b1TjjeLoQiD1MWJ8qBbqRV/bH9Mc8gwji+2mMYKTVZzaZLM
+	zUa21U1iVj4xbHtafQRIzISRVTyoYEneBdCPMDOHWj9yiNqNjv3Jc2J4
+X-Gm-Gg: AYBFou0ttu7VrAh9Ca0mHOS3/ZXVKdHMxI0icoJ99nawZvZE8CvzKlxijczSBV5jP5u
+	Pa5TTWHkds/5LesMW6fn4ZnvtmybjFZLdK7Hb/4Qu617ud3SgSa4wnN57FAoD967Th1N00hGxkt
+	nMPfW7vb1s52rpGIwD3IyabQO5VDX2C1S/hTqU8XhqA3mDjhqfTQNzpcfto0KLqvB3eOk3fv98C
+	L5TOgnBzDXBDhZuIuqhmkZHBEwjiTztuH7og8ziRe85jo/e/NYFPVwQe7ad96Labco9RxP/AlGk
+	/5Qpj4ESlupCdzkWATIA5NrbKjSBY8AIM+F5ipASDdgLv0zUJnpgjBTrdPIejEJh5jVws384t6d
+	HMh0vwZZqsCtoNYg3i/KKtm4BtEbwoCRlFWDJIxpx+gCxOgVdYJCgRftewllqsgwxKbljmh7GCq
+	SdkPpiL4nupablykVbkwFNhh0weoEvKqlEpsg4qOu3YkmGqJNKhEEIbLS94/AbB6BCgeQthSrz0
+	7U6HowqC2wVX9G+pktKBWIOww==
+X-Received: by 2002:a17:902:d4ce:b0:2dd:60d:8b7c with SMTP id d9443c01a7336-2dd2a336ab6mr39680795ad.13.1789095452393;
+        Thu, 10 Sep 2026 19:57:32 -0700 (PDT)
+Received: from zhr-ThinkStation-K.mioffice.cn ([2408:8607:1b00:8:8ce8:c617:f32:c38e])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2dd2ce9c8besm3944495ad.18.2026.09.10.19.57.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 10 Sep 2026 19:57:31 -0700 (PDT)
+From: Hongru Zhang <zhanghongru06@gmail.com>
+X-Google-Original-From: Hongru Zhang <zhanghongru@xiaomi.com>
+To: akpm@linux-foundation.org
+Cc: linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	baohua@kernel.org,
+	surenb@google.com,
+	ljs@kernel.org,
+	david@kernel.org,
+	liam@infradead.org,
+	mhocko@suse.com,
+	rppt@kernel.org,
+	shakeel.butt@linux.dev,
+	vbabka@kernel.org,
+	willy@infradead.org,
+	zhaonanzhe@xiaomi.com,
+	linux@armlinux.org.uk,
+	catalin.marinas@arm.com,
+	will@kernel.org,
+	mark.rutland@arm.com,
+	linux-arm-kernel@lists.infradead.org,
+	chenhuacai@kernel.org,
+	kernel@xen0n.name,
+	loongarch@lists.linux.dev,
+	maddy@linux.ibm.com,
+	mpe@ellerman.id.au,
+	npiggin@gmail.com,
+	chleroy@kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	pjw@kernel.org,
+	palmer@dabbelt.com,
+	aou@eecs.berkeley.edu,
+	alex@ghiti.fr,
+	linux-riscv@lists.infradead.org,
+	agordeev@linux.ibm.com,
+	gerald.schaefer@linux.ibm.com,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	linux-s390@vger.kernel.org,
+	dave.hansen@linux.intel.com,
+	luto@kernel.org,
+	peterz@infradead.org,
+	tglx@kernel.org,
+	mingo@redhat.com,
+	bp@alien8.de,
+	x86@kernel.org,
+	hpa@zytor.com,
+	Hongru Zhang <zhanghongru@xiaomi.com>
+Subject: [PATCH v6] mm: retry page faults once under the per-VMA lock
+Date: Fri, 11 Sep 2026 10:56:13 +0800
+Message-ID: <20260911025613.1220845-1-zhanghongru@xiaomi.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issue(s) to consider:
+From: Hongru Zhang <zhanghongru@xiaomi.com>
 
-Critical: 0 · High: 2 (1) · Medium: 0 · Low: 0
+The per-VMA lock fault path releases the per-VMA lock when the folio
+cannot be locked. It then waits for the folio to become lockable
+without holding the VMA lock and retries the page fault. However,
+the retry always takes the mmap_lock instead of the per-VMA lock.
+This can cause serious lock contention when a writer is holding the
+mmap_lock at the same time.
 
-- [High] The commit message asserts the invariant "any socket still
-  visible to the diag reader under the hash read_lock has valid…
-- [High] The unconditional smc_conn_unhash() added at the head of
-  smc_conn_free() (net/smc/smc_core.c:1284) removes the socket from the…
+Add a single retry under the per-VMA lock in the architecture fault
+handler. This does not touch any page fault code in mm. The retry is
+very likely to succeed because the first page fault has already waited
+for the folio to become lockable. For example, this usually means that
+any required I/O has completed. This allows faults that can make
+progress on an immediate retry to stay on the per-VMA lock path,
+avoiding waits on the mmap_lock when it is write-contended. This
+reduces page-fault latency and mmap_lock contention. Some faults may
+retry unnecessarily, for example, those in __vmf_anon_prepare() or
+device-private fault handling, which require the mmap_lock. However,
+these cases are expected to be infrequent and only add one cheap
+per-VMA lock attempt. If the second attempt still returns
+VM_FAULT_RETRY, the fault continues through the existing mmap_lock
+path.
 
-Pre-existing issues:
-- [High] smc_cdc_msg_validate() (net/smc/smc_cdc.c:308-327) retargets
-  conn->lnk to the link a stray failover-validation CDC message arrived…
+Based on the stress model from Kunwu Chan and Wang Lian in RFC v2, we
+adapted a benchmark [1] to a 20-core Intel i7-12700 desktop by reducing
+the thread count and adjusting the memcg limits. The benchmark uses
+concurrent page faults under memcg pressure with parallel munmap to
+amplify mmap_lock read-write contention.
 
---
+Filemap throughput (higher is better)
 
-net/smc: fix lgr/lnk lifetime vs diag reader race
++---------+------------+---------------------+
+| Threads |  Vanilla   |       Patched       |
++---------+------------+---------------------+
+|   40    | 1069.34 /s | 1400.13 /s (+30.9%) |
++---------+------------+---------------------+
+|   60    | 1038.12 /s | 1683.37 /s (+62.2%) |
++---------+------------+---------------------+
+|   80    | 1042.62 /s | 1767.83 /s (+69.6%) |
++---------+------------+---------------------+
 
-This patch adds smc_conn_unhash() plus a per-connection unhashed flag and
-calls it at the top of smc_conn_free(), so the socket leaves the SMC socket
-hash before the connection-owned lgr and lnk references are dropped.
-__smc_release() is changed to use the new helper for non-fallback sockets
-and keeps the direct sk->sk_prot->unhash() call for fallback sockets.
+mmap_lock contention count (lower is better)
 
-A few questions below about the paths that reach smc_conn_free() and about
-the invariant described in the changelog.
++---------+-----------+---------+-----------+
+| Threads |  Vanilla  | Patched | Reduction |
++---------+-----------+---------+-----------+
+|   40    | 3,187,336 |  52,086 |  -98.4%   |
++---------+-----------+---------+-----------+
+|   60    | 4,385,154 |  65,079 |  -98.5%   |
++---------+-----------+---------+-----------+
+|   80    | 5,337,890 |  69,708 |  -98.7%   |
++---------+-----------+---------+-----------+
 
-> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> index e9f93b3ab435b..8c781a4a4485b 100644
-> --- a/net/smc/af_smc.c
-> +++ b/net/smc/af_smc.c
-> @@ -310,7 +310,15 @@ static int __smc_release(struct smc_sock *smc)
->  		smc_restore_fallback_changes(smc);
->  	}
->  
-> -	sk->sk_prot->unhash(sk);
-> +	/* Fallback sockets never call smc_conn_free(), so unhash directly.
-> +	 * Non-fallback sockets use smc_conn_unhash() so that the conn->unhashed
-> +	 * flag keeps the unhash exactly once even when smc_conn_free() already ran
-> +	 * first (e.g. via smc_conn_kill()).
-> +	 */
-> +	if (smc->use_fallback)
-> +		sk->sk_prot->unhash(sk);
-> +	else
-> +		smc_conn_unhash(&smc->conn);
+These results show that retrying once under the per-VMA lock keeps more
+file-backed faults on the fast path, improving throughput and reducing
+mmap_lock contention.
 
-[Severity: High]
-Is the premise "Fallback sockets never call smc_conn_free()" accurate?
-smc_listen_decline() calls smc_conn_abort() first and only afterwards turns
-the socket into a fallback socket:
+Using benchmark [2], we tested this on a 20-core Intel i7-12700 desktop
+with a 2GB swapfile. The benchmark uses one pressure thread under memcg
+limits to keep a 128MB non-zero anonymous mapping under swap pressure,
+12 reader threads to fault it back in, and optional mmap writer threads
+to amplify mmap_lock read-write contention. Each test ran for 60 seconds
+and reported completed reader rounds per second under swap pressure.
 
-net/smc/af_smc.c:smc_listen_decline() {
-	/* RDMA setup failed, switch back to TCP */
-	smc_conn_abort(new_smc, local_first);
-	if (reason_code < 0 ||
-	    smc_switch_to_fallback(new_smc, reason_code)) {
-	...
-	smc_listen_out_connected(new_smc);
-}
+Swap throughput (higher is better)
 
-net/smc/af_smc.c:smc_conn_abort() {
-	...
-	smc_conn_free(conn);
-	...
-}
++--------------+-------------+---------------------------+
+| mmap writers |   Vanilla   |          Patched          |
++--------------+-------------+---------------------------+
+|      0       | 17303.09 /s | 17899.48 /s       (+3.4%) |
++--------------+-------------+---------------------------+
+|      4       | 12596.23 /s | 16095.20 /s      (+27.8%) |
++--------------+-------------+---------------------------+
+|      8       |     0.58 /s | 15420.57 /s (+2658619.0%) |
++--------------+-------------+---------------------------+
 
-The client side does the same via smc_connect_rdma()'s connect_abort label
-followed by smc_connect_decline_fallback().
+With increasing mmap_lock write pressure, Vanilla degrades sharply and
+drops to near zero at eight writers. Patched kernel holds up much better.
 
-Beyond the comment, smc_conn_free() is also reached for connection
-*attempts* on sockets that stay alive afterwards, and there is no path that
-re-inserts the socket into the hash.  Can this make live sockets invisible
-to smc_diag for the rest of their lifetime?
+Performance was evaluated on a Pixel 6 running Android 17, using Baidu
+Tieba (com.baidu.tieba) and Tencent Video (com.tencent.qqlive), both
+very popular Android apps, as the workloads. For each workload, we
+performed 100 cold app launches with each kernel variant (vanilla and
+patched). Each run recorded cold app launch time, measured as the time
+to first frame, and the main thread's mmap_lock wait events. Shorter
+launch times indicate better performance.
 
-For the server ISM retry loop:
+Baidu Tieba cold app launch time
 
-net/smc/af_smc.c:smc_listen_ism_init() {
-	rc = smc_buf_create(new_smc, true);
-	if (rc) {
-		smc_conn_abort(new_smc, ini->first_contact_local);
-		...
-}
++-----------+----------+----------+--------+
+| Statistic |  Vanilla |  Patched | Change |
++-----------+----------+----------+--------+
+|    Mean   | 3,672 ms | 3,580 ms |  -2.5% |
++-----------+----------+----------+--------+
+|  Maximum  | 4,469 ms | 4,156 ms |  -7.0% |
++-----------+----------+----------+--------+
 
-net/smc/af_smc.c:smc_find_ism_v2_device_serv() {
-	for (i = 0; i < matches; i++) {
-		...
-		rc = smc_listen_ism_init(new_smc, ini);
-		if (rc) {
-			smc_init_info_store_rc(rc, ini);
-			/* try next active ISM device */
-			continue;
-		}
-		return; /* matching and usable V2 ISM device found */
-	}
-}
+Baidu Tieba cold app launch time distribution
 
-The failed attempt unhashes the socket through smc_conn_free(), the next
-ISM device then succeeds, and smc_conn_create() only does
-"conn->unhashed = 0" without calling sk->sk_prot->hash() again.  The same
-shape exists for the v2 -> v1 RDMA fallthrough in
-smc_find_rdma_v2_device_serv() -> smc_listen_find_device().
++-------------+------------+------------+
+|  Time (ms)  |   Vanilla  |   Patched  |
++-------------+------------+------------+
+| 2,750-2,999 |  0  (0.0%) |  1  (1.0%) |
++-------------+------------+------------+
+| 3,000-3,249 |  8  (8.0%) | 14 (14.0%) |
++-------------+------------+------------+
+| 3,250-3,499 | 17 (17.0%) | 30 (30.0%) |
++-------------+------------+------------+
+| 3,500-3,749 | 38 (38.0%) | 27 (27.0%) |
++-------------+------------+------------+
+| 3,750-3,999 | 26 (26.0%) | 18 (18.0%) |
++-------------+------------+------------+
+| 4,000-4,249 |  8  (8.0%) | 10 (10.0%) |
++-------------+------------+------------+
+| 4,250-4,499 |  3  (3.0%) |  0  (0.0%) |
++-------------+------------+------------+
 
-smc_diag_dump_proto() walks only that hash:
+Baidu Tieba main-thread mmap_lock wait statistics
 
-net/smc/smc_diag.c:smc_diag_dump_proto() {
-	read_lock(&prot->h.smc_hash->lock);
-	head = &prot->h.smc_hash->ht;
-	...
-	sk_for_each(sk, head) {
-	...
-}
++----------------------+----------------+----------------+--------+
+|        Metric        |     Vanilla    |     Patched    | Change |
++----------------------+----------------+----------------+--------+
+|    Total Wait Time   |  569.9 ms/run  |  469.9 ms/run  | -17.6% |
++----------------------+----------------+----------------+--------+
+| Read-Lock Wait Count | 32.4 waits/run | 10.9 waits/run | -66.2% |
++----------------------+----------------+----------------+--------+
 
-so an established SMC-D/SMC-R connection or an active TCP-fallback
-connection produced by these paths would no longer show up in ss --smc or
-smcss, including the SMC_DIAG_MODE_FALLBACK_TCP reporting.  The same early
-unhash also hides sockets that user space still has open after
-__smc_lgr_terminate() -> smc_conn_kill() -> smc_close_active_abort() ->
-smc_conn_free().  Should the unhash be restricted to terminal teardown, or
-should the abort paths re-hash the socket?
+Tencent Video cold app launch time
 
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index 04aedd957543a..e302221c35e3f 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -1251,6 +1251,20 @@ static void smc_buf_unuse(struct smc_connection *conn,
->  	}
->  }
->  
-> +/* unhash the socket once; owns the single unhash for all non-fallback paths.
-> + * Every caller holds lock_sock for this socket, so conn->unhashed is protected
-> + * by that lock and no separate synchronisation is needed.
-> + */
-> +void smc_conn_unhash(struct smc_connection *conn)
-> +{
-> +	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
-> +
-> +	if (!conn->unhashed) {
-> +		conn->unhashed = 1;
-> +		smc->sk.sk_prot->unhash(&smc->sk);
-> +	}
-> +}
-> +
->  /* remove a finished connection from its link group */
->  void smc_conn_free(struct smc_connection *conn)
->  {
-> @@ -1263,6 +1277,11 @@ void smc_conn_free(struct smc_connection *conn)
->  		return;
->  
->  	conn->freed = 1;
-> +	/* Unhash before dropping lgr/lnk refs so the diag reader, which
-> +	 * iterates under the socket hash read_lock, cannot see a connection whose
-> +	 * lgr or lnk is being freed concurrently.
-> +	 */
-> +	smc_conn_unhash(conn);
++-----------+----------+----------+--------+
+| Statistic |  Vanilla |  Patched | Change |
++-----------+----------+----------+--------+
+|    Mean   | 1,907 ms | 1,840 ms |  -3.5% |
++-----------+----------+----------+--------+
+|  Maximum  | 3,023 ms | 2,851 ms |  -5.7% |
++-----------+----------+----------+--------+
 
-[Severity: High]
-The changelog states the invariant as "any socket still visible to the diag
-reader under the hash read_lock has valid conn->lgr and conn->lnk
-pointers".  Does the SMC-R link failover path still break that for
-conn->lnk?
+Tencent Video cold app launch time distribution
 
-smc_switch_link_and_count() drops the connection-owned link reference and
-republishes conn->lnk while the socket stays hashed:
++-------------+------------+------------+
+|  Time (ms)  |   Vanilla  |   Patched  |
++-------------+------------+------------+
+| 1,250-1,499 |  3  (3.0%) |  7  (7.0%) |
++-------------+------------+------------+
+| 1,500-1,749 | 32 (32.0%) | 33 (33.0%) |
++-------------+------------+------------+
+| 1,750-1,999 | 39 (39.0%) | 36 (36.0%) |
++-------------+------------+------------+
+| 2,000-2,249 | 12 (12.0%) | 15 (15.0%) |
++-------------+------------+------------+
+| 2,250-2,499 |  7  (7.0%) |  4  (4.0%) |
++-------------+------------+------------+
+| 2,500-2,749 |  5  (5.0%) |  3  (3.0%) |
++-------------+------------+------------+
+| 2,750-2,999 |  1  (1.0%) |  2  (2.0%) |
++-------------+------------+------------+
+| 3,000-3,249 |  1  (1.0%) |  0  (0.0%) |
++-------------+------------+------------+
 
-net/smc/smc_core.c:smc_switch_link_and_count() {
-	atomic_dec(&conn->lnk->conn_cnt);
-	/* link_hold in smc_conn_create() */
-	smcr_link_put(conn->lnk);
-	conn->lnk = to_lnk;
-	...
-}
+Tencent Video main-thread mmap_lock wait statistics
 
-It runs under conn->send_lock and lgr->conns_lock only, never under the
-socket hash lock and without unhashing, so a reader that already
-snapshotted the old link keeps using it:
++----------------------+----------------+---------------+--------+
+|        Metric        |     Vanilla    |    Patched    | Change |
++----------------------+----------------+---------------+--------+
+|    Total Wait Time   |  139.6 ms/run  |  66.4 ms/run  | -52.4% |
++----------------------+----------------+---------------+--------+
+| Read-Lock Wait Count | 28.4 waits/run | 4.7 waits/run | -83.5% |
++----------------------+----------------+---------------+--------+
 
-net/smc/smc_diag.c:__smc_diag_dump() {
-	struct smc_link *link = smc->conn.lnk;
-	...
-	memcpy(linfo.lnk[0].ibname, link->smcibdev->ibdev->name,
-	       sizeof(link->smcibdev->ibdev->name));
-	smc_gid_be16_convert(linfo.lnk[0].gid, link->gid);
-	...
-}
+Across both workloads, the single retry under the per-VMA lock
+substantially reduced mmap_lock read-side contention, leading to lower
+app startup times at both the mean and the tail.
 
-Once the last connection has been migrated off the old link,
-smcr_link_clear() -> smcr_link_put() -> __smcr_link_clear() zeroes the
-whole structure:
+[1] https://gist.github.com/zhr250/c36c2c54d9351df37e12fd072d4926ef
+[2] https://gist.github.com/zhr250/218ffe693f842346b56434483127422c
 
-net/smc/smc_core.c:__smcr_link_clear() {
-	put_device(&lnk->smcibdev->ibdev->dev);
-	smcibdev = lnk->smcibdev;
-	memset(lnk, 0, sizeof(struct smc_link));
-	lnk->state = SMC_LNK_UNUSED;
-	...
-}
+Signed-off-by: Hongru Zhang <zhanghongru@xiaomi.com>
+Suggested-by: Barry Song <baohua@kernel.org>
+Suggested-by: Suren Baghdasaryan <surenb@google.com>
+Suggested-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+Tested-by: Nanzhe Zhao <zhaonanzhe@xiaomi.com>
+---
+Changes since RFC v5:
+- Added measurements from 100 cold app launches per kernel for each of
+  Baidu Tieba and Tencent Video on a Pixel 6 running Android 17
+  Tested by Nanzhe Zhao. Thanks!
+- Rebased onto mm-unstable; no code changes
 
-so link->smcibdev becomes NULL and the dereference above is a NULL
-dereference, with the device reference already dropped.  This looks like
-the same class of access the cited "Fixes: 9dbe086c69b8 (net/smc: fix
-invalid link access in dumping SMC-R connections)" refers to, and the
-reader/writer lock sets (hash read_lock versus send_lock/conns_lock/
-llc_conf_mutex) do not intersect.  The v2 posting of this series protected
-smc_switch_link_and_count() with lgr_lnk_lock; is anything replacing that
-protection in v3, or should the invariant in the changelog be narrowed to
-conn->lgr?
+Changes since RFC v4:
+- Drop `VM_FAULT_MAY_USE_VMA_LOCK` and always retry once under the
+  per-VMA lock, based on feedback from Lorenzo and Barry. Thanks!
 
-[Severity: High]
-This is a pre-existing issue and not introduced by this patch, but it also
-bears on the conn->lnk invariant being asserted: the reference that
-smc_conn_free() releases is not always the one the connection holds.
+Changes since RFC v3:
+- Keep VM_FAULT_RETRY unchanged and add VM_FAULT_MAY_USE_VMA_LOCK as an
+  advisory bit
+- Bound VMA-lock retries with FAULT_FLAG_TRIED
+- Opt in filemap_fault() and do_swap_page() to VM_FAULT_MAY_USE_VMA_LOCK
+- Rebased on mm-unstable
 
-smc_cdc_msg_validate() retargets conn->lnk with no reference transfer,
-reached from smc_cdc_msg_recv() when the peer sets
-prod_flags.failover_validation and the seqno is stale:
+Changes since RFC v2:
+- Redesigned as a single blacklist-based patch (v2 was 5 per-path patches)
+- Added retry_vma loop to all architectures (not just x86)
+- Rebased on mm-unstable
 
-net/smc/smc_cdc.c:smc_cdc_msg_validate() {
-	diff = conn->local_rx_ctrl.seqno - recv_seq;
-	if (diff < 0) { /* diff larger than 0x7fff */
-		...
-		spin_lock_bh(&conn->send_lock);
-		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
-		conn->lnk = link;
-		spin_unlock_bh(&conn->send_lock);
-	...
-}
+Changes since RFC v1:
+- collect tags from Pedro, Kunwu and Lian, thanks!
+- handle case (2), for uptodate folios, don't retry PF
 
-There is no smcr_link_hold() on the new link and no smcr_link_put() on the
-old one, while the counted reference was taken in smc_conn_create():
+Link to RFC v5:
+https://lore.kernel.org/all/20260814085300.399107-1-zhanghongru@xiaomi.com/
 
-	smcr_link_hold(conn->lnk); /* link_put in smc_conn_free() */
+Link to RFC v4:
+https://lore.kernel.org/all/20260804095135.45897-1-zhanghongru@xiaomi.com/
 
-and smc_conn_free() later releases whatever conn->lnk points at:
+Link to RFC v3:
+https://lore.kernel.org/all/20260626075019.1833065-1-zhanghongru@xiaomi.com/
 
-	if (!lgr->is_smcd)
-		smcr_link_put(conn->lnk); /* link_hold in smc_conn_create() */
+Link to RFC v2:
+https://lore.kernel.org/all/20260430040427.4672-1-baohua@kernel.org/
 
-In a multi-link link group, does this over-put the new link and leak a
-reference on the old one?  The over-put can take the new link's refcount to
-zero while other connections still cache it in conn->lnk, running
-__smcr_link_clear() (put_device() plus memset()) before its QP is
-destroyed, after which smcr_link_clear() returns early on the
-SMC_LNK_UNUSED state.  The leaked reference on the old link would keep its
-__smcr_link_clear() and the nested smc_lgr_put() from ever running.
+Link to RFC v1:
+https://lore.kernel.org/all/20251127011438.6918-1-21cnbao@gmail.com/
 
->  	if (!smc_conn_lgr_valid(conn))
->  		/* Connection has already unregistered from
->  		 * link group.
-> @@ -2053,6 +2072,7 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
->  	if (!conn->lgr->is_smcd)
->  		smcr_link_hold(conn->lnk); /* link_put in smc_conn_free() */
->  	conn->freed = 0;
-> +	conn->unhashed = 0;
+ arch/arm/mm/fault.c       | 8 ++++++++
+ arch/arm64/mm/fault.c     | 8 ++++++++
+ arch/loongarch/mm/fault.c | 8 ++++++++
+ arch/powerpc/mm/fault.c   | 7 +++++++
+ arch/riscv/mm/fault.c     | 8 ++++++++
+ arch/s390/mm/fault.c      | 6 ++++++
+ arch/x86/mm/fault.c       | 8 ++++++++
+ 7 files changed, 53 insertions(+)
 
-[ ... ]
+diff --git a/arch/arm/mm/fault.c b/arch/arm/mm/fault.c
+index 0a09d4ff7718..70472744f5c5 100644
+--- a/arch/arm/mm/fault.c
++++ b/arch/arm/mm/fault.c
+@@ -344,6 +344,7 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
+ 	vm_fault_t fault;
+ 	unsigned int flags = FAULT_FLAG_DEFAULT;
+ 	vm_flags_t vm_flags = VM_ACCESS_FLAGS;
++	bool vma_lock_retried = false;
+ 
+ 	if (kprobe_page_fault(regs, fsr))
+ 		return 0;
+@@ -395,6 +396,7 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
+ 	if (!(flags & FAULT_FLAG_USER))
+ 		goto lock_mmap;
+ 
++lock_vma:
+ 	vma = lock_vma_under_rcu(mm, addr);
+ 	if (!vma)
+ 		goto lock_mmap;
+@@ -424,6 +426,12 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
+ 			goto no_context;
+ 		return 0;
+ 	}
++
++	if (!vma_lock_retried) {
++		vma_lock_retried = true;
++		goto lock_vma;
++	}
++
+ lock_mmap:
+ 
+ retry:
+diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
+index 75c3e463df2e..c7fd6f485b16 100644
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -614,6 +614,7 @@ static int __kprobes do_page_fault(unsigned long far, unsigned long esr,
+ 	struct vm_area_struct *vma;
+ 	int si_code;
+ 	int pkey = -1;
++	bool vma_lock_retried = false;
+ 
+ 	if (kprobe_page_fault(regs, esr))
+ 		return 0;
+@@ -682,6 +683,7 @@ static int __kprobes do_page_fault(unsigned long far, unsigned long esr,
+ 	if (!(mm_flags & FAULT_FLAG_USER))
+ 		goto lock_mmap;
+ 
++lock_vma:
+ 	vma = lock_vma_under_rcu(mm, addr);
+ 	if (!vma)
+ 		goto lock_mmap;
+@@ -728,6 +730,12 @@ static int __kprobes do_page_fault(unsigned long far, unsigned long esr,
+ 			goto no_context;
+ 		return 0;
+ 	}
++
++	if (!vma_lock_retried) {
++		vma_lock_retried = true;
++		goto lock_vma;
++	}
++
+ lock_mmap:
+ 
+ retry:
+diff --git a/arch/loongarch/mm/fault.c b/arch/loongarch/mm/fault.c
+index 2c93d33356e5..ef6ea847b1e0 100644
+--- a/arch/loongarch/mm/fault.c
++++ b/arch/loongarch/mm/fault.c
+@@ -181,6 +181,7 @@ static void __kprobes __do_page_fault(struct pt_regs *regs,
+ 	struct mm_struct *mm = tsk->mm;
+ 	struct vm_area_struct *vma = NULL;
+ 	vm_fault_t fault;
++	bool vma_lock_retried = false;
+ 
+ 	if (kprobe_page_fault(regs, current->thread.trap_nr))
+ 		return;
+@@ -219,6 +220,7 @@ static void __kprobes __do_page_fault(struct pt_regs *regs,
+ 	if (!(flags & FAULT_FLAG_USER))
+ 		goto lock_mmap;
+ 
++lock_vma:
+ 	vma = lock_vma_under_rcu(mm, address);
+ 	if (!vma)
+ 		goto lock_mmap;
+@@ -265,6 +267,12 @@ static void __kprobes __do_page_fault(struct pt_regs *regs,
+ 			no_context(regs, write, address);
+ 		return;
+ 	}
++
++	if (!vma_lock_retried) {
++		vma_lock_retried = true;
++		goto lock_vma;
++	}
++
+ lock_mmap:
+ 
+ retry:
+diff --git a/arch/powerpc/mm/fault.c b/arch/powerpc/mm/fault.c
+index 806c74e0d5ab..06018b6d7086 100644
+--- a/arch/powerpc/mm/fault.c
++++ b/arch/powerpc/mm/fault.c
+@@ -422,6 +422,7 @@ static int ___do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	int is_write = page_fault_is_write(error_code);
+ 	vm_fault_t fault, major = 0;
+ 	bool kprobe_fault = kprobe_page_fault(regs, 11);
++	bool vma_lock_retried = false;
+ 
+ 	if (unlikely(debugger_fault_handler(regs) || kprobe_fault))
+ 		return 0;
+@@ -487,6 +488,7 @@ static int ___do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	if (!(flags & FAULT_FLAG_USER))
+ 		goto lock_mmap;
+ 
++lock_vma:
+ 	vma = lock_vma_under_rcu(mm, address);
+ 	if (!vma)
+ 		goto lock_mmap;
+@@ -517,6 +519,11 @@ static int ___do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	if (fault_signal_pending(fault, regs))
+ 		return user_mode(regs) ? 0 : SIGBUS;
+ 
++	if (!vma_lock_retried) {
++		vma_lock_retried = true;
++		goto lock_vma;
++	}
++
+ lock_mmap:
+ 
+ 	/* When running in the kernel we expect faults to occur only to
+diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
+index 04ed6f8acae4..ff861793dba9 100644
+--- a/arch/riscv/mm/fault.c
++++ b/arch/riscv/mm/fault.c
+@@ -284,6 +284,7 @@ void handle_page_fault(struct pt_regs *regs)
+ 	unsigned int flags = FAULT_FLAG_DEFAULT;
+ 	int code = SEGV_MAPERR;
+ 	vm_fault_t fault;
++	bool vma_lock_retried = false;
+ 
+ 	cause = regs->cause;
+ 	addr = regs->badaddr;
+@@ -347,6 +348,7 @@ void handle_page_fault(struct pt_regs *regs)
+ 	if (!(flags & FAULT_FLAG_USER))
+ 		goto lock_mmap;
+ 
++lock_vma:
+ 	vma = lock_vma_under_rcu(mm, addr);
+ 	if (!vma)
+ 		goto lock_mmap;
+@@ -376,6 +378,12 @@ void handle_page_fault(struct pt_regs *regs)
+ 			no_context(regs, addr);
+ 		return;
+ 	}
++
++	if (!vma_lock_retried) {
++		vma_lock_retried = true;
++		goto lock_vma;
++	}
++
+ lock_mmap:
+ 
+ retry:
+diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+index 46d828926009..dcd1ba24497f 100644
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -271,6 +271,7 @@ static void do_exception(struct pt_regs *regs, int access)
+ 	unsigned int flags;
+ 	vm_fault_t fault;
+ 	bool is_write;
++	bool vma_lock_retried = false;
+ 
+ 	/*
+ 	 * The instruction that caused the program check has
+@@ -294,6 +295,7 @@ static void do_exception(struct pt_regs *regs, int access)
+ 		flags |= FAULT_FLAG_WRITE;
+ 	if (!(flags & FAULT_FLAG_USER))
+ 		goto lock_mmap;
++lock_vma:
+ 	vma = lock_vma_under_rcu(mm, address);
+ 	if (!vma)
+ 		goto lock_mmap;
+@@ -318,6 +320,10 @@ static void do_exception(struct pt_regs *regs, int access)
+ 			handle_fault_error_nolock(regs, 0);
+ 		return;
+ 	}
++	if (!vma_lock_retried) {
++		vma_lock_retried = true;
++		goto lock_vma;
++	}
+ lock_mmap:
+ retry:
+ 	vma = lock_mm_and_find_vma(mm, address, regs);
+diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
+index aa88370ce739..df10d5cea4ee 100644
+--- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -1222,6 +1222,7 @@ void do_user_addr_fault(struct pt_regs *regs,
+ 	struct mm_struct *mm;
+ 	vm_fault_t fault;
+ 	unsigned int flags = FAULT_FLAG_DEFAULT;
++	bool vma_lock_retried = false;
+ 
+ 	tsk = current;
+ 	mm = tsk->mm;
+@@ -1331,6 +1332,7 @@ void do_user_addr_fault(struct pt_regs *regs,
+ 	if (!(flags & FAULT_FLAG_USER))
+ 		goto lock_mmap;
+ 
++lock_vma:
+ 	vma = lock_vma_under_rcu(mm, address);
+ 	if (!vma)
+ 		goto lock_mmap;
+@@ -1360,6 +1362,12 @@ void do_user_addr_fault(struct pt_regs *regs,
+ 						 ARCH_DEFAULT_PKEY);
+ 		return;
+ 	}
++
++	if (!vma_lock_retried) {
++		vma_lock_retried = true;
++		goto lock_vma;
++	}
++
+ lock_mmap:
+ 
+ retry:
 
+base-commit: 3628c3df6cd2797b34714d23113cd44cb30801e7
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260908092252.3832975-1-mjambigi%40linux.ibm.com
+2.43.0
+
