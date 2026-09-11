@@ -1,154 +1,168 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7947A49E12F;
-	Fri, 11 Sep 2026 12:11:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56B00476CFC
+	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 12:39:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789128675; cv=none; b=FVmmpVqSH1BoOPeYBXk9+OTWYe7DVhCJ+yfUdZ+1MNkrit9IiwNlfIjzR4qXwbBoQ5hDxqDCCYb8ULFd8zIXR6J+zdqsoGUIK58dCip552ImoFBNccuoznd9S5PWmekao6ukXQVeJ1n1Sb1xs/iWpAr4+uz/ZL0wKnFcF7gK8Uc=
+	t=1789130381; cv=none; b=aw+xFCoLQJZ4ThXSLDPsEct0iXqpx+mElYNKaswNsSqhgUMe3A2ntbyFMKz2lwOzlv+1GBfog48VMdc/OuGbu0OcG6RPiAPi7cL32S3JvDbTrSNPDXrYdF6EkPQlwvJuNZfvzqO3ZnKqVh7JK3Pp7soGkieH1jD0m4zOfCI3gtY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789128675; c=relaxed/simple;
-	bh=HuYm4W3vzsxucXJ37lx6SX/wJgtWGWCIdeQ6dqbocQ0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=L7jgBEx82oWABowKlNxpTxmRPsJIwIozJJH4BvqpcgGPAtnI6CyCS0EU4F/qB1cqdwcvT5cmHG4j9jDBqOMY8YF0BKm/g2dp6UhQO1LTjo3nqVXU81UIYxeEeFBN5iObZPEWl3ZqJwzTRXYhCv0z6HtxmBhW4pV9+v3fpy9PyBw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=C1B/e7g4; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1789130381; c=relaxed/simple;
+	bh=GDdmUOvL5qIET19hhzGDg8z0c0RlAlMuQVYPy1uq+Hw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=YCbQQyoJzF9Jjw5rAxeiwvNB8x3adYgMap4ozYj5pYr+5KP5S28U6uzMdEEQ955O+Vj0lLyNRCGNCAFaWRsnCm0XU0OaU/f3hb6WkWzBENCMpg4l40webLxzCVerpasgsSSfdIr/daXlqb8DmO3SGili4i0fv0i2/OdMuugS6m0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MxtqT1iy; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=gMfz6rRw; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="C1B/e7g4"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68BB1ge4457187;
-	Fri, 11 Sep 2026 12:11:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=hitssf
-	Jh+BAoSSPoO9RPsMKDioeLjqiXO+CBQgdlOYA=; b=C1B/e7g4EVY379J29VlQmF
-	R+9CqNo7ajN21t5RzTUEFDBL87/mb8GZHCFVoO5sO1nYygpZoSG6aHjr12PWvyDk
-	K4hxZ5awnPmc49kkvqNw7gTDHslU7idYIyu0O/ZN1O/e1d++xW6Zh0t5sI8lD4gk
-	qXiKB9f2fyDRW1uNGPd5LQrfwH6h03q5o5yItnr2UOF7TtYsxQT6c0OPslhzu4DI
-	OFgkCD/XvNsnnb7ncoivN7rRQE28RZYxKOUPBYpuLy8LIb0DLaKinaoHywxR4n7M
-	3MTZdXEEJIfDK33JASXciNQL4gy2JVIrSb9+hpNnCUQ9aADfaEtX6ZCeOK0R2/IA
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gkd8qb8ha-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 11 Sep 2026 12:11:06 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68BAo4vb1499347;
-	Fri, 11 Sep 2026 12:11:06 GMT
-Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gkvwk664s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 11 Sep 2026 12:11:06 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68BCB5xQ27656814
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 11 Sep 2026 12:11:05 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2C16E5805A;
-	Fri, 11 Sep 2026 12:11:05 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C08C65803F;
-	Fri, 11 Sep 2026 12:11:01 +0000 (GMT)
-Received: from [9.124.211.27] (unknown [9.124.211.27])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 11 Sep 2026 12:11:01 +0000 (GMT)
-Message-ID: <765ef2c2-124c-4214-abdf-06b06d3ef631@linux.ibm.com>
-Date: Fri, 11 Sep 2026 17:40:59 +0530
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MxtqT1iy";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="gMfz6rRw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1789130373;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3o3AUP2GR4e8bKS56CF9rGMsnzBPpsvQ/7QSZVFmj6g=;
+	b=MxtqT1iyLvIMbsg69wDC3iwbEuaPPQqn6okc4ie5s65UB2TMd0dGT0SNfMh/mc8yjMv/oO
+	oV0s5uv70q2OK4rCuRoCbJjY2ApLy5PhJz7lY3//drmcc4pOhT6PPHN+oeRqDE/jyzh3R7
+	qFgUd9GVVjsxC7KYy6vczjR15DkHHoI=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-482-oqBlQUArMl--p9b32PGhkg-1; Fri, 11 Sep 2026 08:39:32 -0400
+X-MC-Unique: oqBlQUArMl--p9b32PGhkg-1
+X-Mimecast-MFC-AGG-ID: oqBlQUArMl--p9b32PGhkg_1789130371
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-49e661c6440so2199445e9.3
+        for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 05:39:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1789130371; x=1789735171; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=3o3AUP2GR4e8bKS56CF9rGMsnzBPpsvQ/7QSZVFmj6g=;
+        b=gMfz6rRw+DBxRU4YO78zqKqIWImeitBaqF31uPDXFMaByCH8yHoXRrAj3JroA9oN84
+         SLx+bbW9/UPf4/8Hd9ch+NgwmlgzwlcxXVUw6FOYQ8Cz4Ru7oqR9jnshWW8zpa/zlTpn
+         SjAP20UUp/cTbbIjE699Dh41l07Q/isXezQ5xIMAZmYuO2bVsJza6EL/xDTwujd8V2/q
+         /onCMmHbVdYho0u2448KfoszrDucZJbicPUzxY5bteJne9p4mjgmwyd7ptzmjm/aadSS
+         Od+VUBAbWX+Wcu5ZcsSk4YjdPMD0QKIJ5m0K4+S7Dpem5KZ+NgTRmkW2LL1a0+gzrUZ7
+         GUaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789130371; x=1789735171;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=3o3AUP2GR4e8bKS56CF9rGMsnzBPpsvQ/7QSZVFmj6g=;
+        b=WaPAHDVYvrLf1dtgpqvJPesjiMVLmbnlmwv+cWk8A6g2WhkKHFxb+4j6FjjZ1V6AjP
+         CI3pDF7xZh9PmhssI+N+KyqHXp7z59vDrNBL7leMo7csh94YDZpLlkGq8RphbNXnbT1v
+         Y9Ccqowf4HDDCrryL81uJF8SaY7SpYOQoh7YSJDtcwBrpVTsOuY3NddYAhBvr5GZO508
+         0jcKuTWrx/FjauEPyKA2Ti4AVcac9+B9rxTELCQXR5lElPoajtvL8gGsw+HDwLJpMmUO
+         53Y4mpl3ASIh6q0fsRIkfsB32gKeyhnqZj5FMkj2YC5a6fKHyl40AO3xDNUfql0GZv6b
+         L8Wg==
+X-Forwarded-Encrypted: i=1; AKwUvBzm3YV0i+Xx4ac1otEavojmPEQizAAS3XEJzZrWJGy6/w3oGrQnJN+VVgzgsS5AC9bZNJz6aLhhWtoR@vger.kernel.org
+X-Gm-Message-State: AFuF++nTnR0+DDKTnmsx+DQxbC+nOsHcItxYk+q0n+TMEWHYqJLWP5tW
+	9tRAuwFIc4ky1czokfKIkYJVROhKyPOkJvmtiTChSblR3ojS+fdcE0+B6/Nfh6v/iAwfTOXE+tu
+	SzpHnsHt/fAF68RtQ2z06jQn/MBbnpI910t2pfFxkjr4t9VVCdIDPiTBHM3qSXwE=
+X-Gm-Gg: AYBFou1v5R8UbqD2QYwsWiGVWMVYw3gOlKPbtShblUi310HJJ9V0x3x+y+go8EFcZRW
+	NVfOgdAr6vNPtCLPEW4M157GmxIVyIowgroBJtIEXxkfFLlJz1FYJx0U+W5Mfy2T0DIAxr8PSLK
+	jlxY5x83zGT8iXyQK5YftmJmHbGVSe+pI2kV+VXsEuRjEyNUx2FdoBPXLftfY9gk6A+f1V8GfA2
+	ikbEtZh8qg2epL+c1LUeb5tD914sxYPLQfru1NU1CLDg9Nf7hoF9s74lba4OEpUEBc/6i0lqJZQ
+	zrJ0Gk0O/nKRXy35C9Xu2XPtK0gXd52YUz6xMgs5bJQoiMW2Xk1ZqnIakx7qCJgAPfDJ+TWDKL3
+	rIqiFZr6wNzvD3StFFumREEA=
+X-Received: by 2002:a05:600d:4452:20b0:499:b65d:124f with SMTP id 5b1f17b1804b1-49e6198c2aemr35358115e9.11.1789130370705;
+        Fri, 11 Sep 2026 05:39:30 -0700 (PDT)
+X-Received: by 2002:a05:600d:4452:20b0:499:b65d:124f with SMTP id 5b1f17b1804b1-49e6198c2aemr35357705e9.11.1789130370161;
+        Fri, 11 Sep 2026 05:39:30 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-79-236.inter.net.il. [80.230.79.236])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49e6420de77sm22739175e9.3.2026.09.11.05.39.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 11 Sep 2026 05:39:29 -0700 (PDT)
+Date: Fri, 11 Sep 2026 08:39:25 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Karl Mehltretter <kmehltretter@gmail.com>
+Cc: Jason Wang <jasowangio@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Pawel Moll <pawel.moll@arm.com>, Cornelia Huck <cohuck@redhat.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Eric Farman <farman@linux.ibm.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Hans de Goede <hansg@kernel.org>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Vadim Pasternak <vadimp@nvidia.com>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	virtualization@lists.linux.dev, linux-input@vger.kernel.org,
+	linux-s390@vger.kernel.org, kvm@vger.kernel.org,
+	linux-um@lists.infradead.org, platform-driver-x86@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 0/3] virtio: synchronize callbacks during device reset
+Message-ID: <20260911083848-mutt-send-email-mst@kernel.org>
+References: <20260905152059.89560-1-kmehltretter@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2] net/smc: fix abort_work termination in
- smc_conn_free()
-To: Paolo Abeni <pabeni@redhat.com>, sashiko-reviews@lists.linux.dev
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-References: <20260907114721.1303498-1-hidayath@linux.ibm.com>
- <20260908114743.481841F00A3A@smtp.kernel.org>
- <3991782b-7a63-4bc9-94c2-02b3f9173586@linux.ibm.com>
- <ebded824-c858-4187-948c-b5444f4bf82c@redhat.com>
-Content-Language: en-GB
-From: Hidayath Khan <hidayath@linux.ibm.com>
-In-Reply-To: <ebded824-c858-4187-948c-b5444f4bf82c@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: SrHgsE58s3t8gBSWPUcIOQy7UnNlwvXT
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTExMDE2OSBTYWx0ZWRfX8eFxag7UDNSU
- 8WDpc6JMveNuTB/7pyOsNFXX/nYcSawIt/xetjbijvRhLvbysGNP2VBSVwwE6LPysVoS+uk1CgM
- 40T9i0D5/wydo0PKlC8oaHgXjD3urzA=
-X-Authority-Analysis: v=2.4 cv=E/dYNqdl c=1 sm=1 tr=0 ts=6aa3efda cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=UtPUOyP3EEdAFgR30jEA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTExMDE2OSBTYWx0ZWRfXx82TxEo5jpr8
- 0o7Q1oVxpFkhBlQ3WKzWDIN4RS+bEdo97znFGHXThqPpe/RaHwfOPxKBE6uvNe/ITMMBiiSXq/P
- r/7QghzGu+P3BO5dcMhdL0uv9sd0dbZiWTHTteaHnFNcs/6UKzwFSGwcr+yTDEq6doEzBQcpHqD
- hGtRJRziS9aaoMEt0GanJ5339d2yQCActUtN0df1Wph40fFa3ttSsnHl4NOz9ESOIQq4BIr1EVl
- AraPoNIALbW5TY/1dDWV0kdaGGZZAgma5tKyD8waS0ryBp2CC/Ibk0MClS43JVsLWLC7NQv8kXd
- QdSW1yJWnMCsm47Mk+LiW23SQVf1zeUPsLre0blfiiBAe8HagrhKXSsFWdZ92ahDLaKRZNJGlLh
- wlra5gEIdRyXYuoY7khawIht14/AzR4mXpHgysniq5ViefDQDd/UgCh67Y7ZF7qO0PFWe6BUrsy
- 7d5m0ESOMsjVV92lLDA==
-X-Proofpoint-GUID: SrHgsE58s3t8gBSWPUcIOQy7UnNlwvXT
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-11_04,2026-09-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 suspectscore=0 spamscore=0 bulkscore=0 clxscore=1015
- impostorscore=0 phishscore=0 adultscore=0 lowpriorityscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609110169
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260905152059.89560-1-kmehltretter@gmail.com>
 
+On Sat, Sep 05, 2026 at 05:20:56PM +0200, Karl Mehltretter wrote:
+> A virtqueue callback can outlive virtio_reset_device() and race with a
+> driver freeing the state it uses. The reset helper documents that no
+> callbacks remain in progress, but that depends on the transport:
+> virtio-pci waits in vp_reset(), while virtio-mmio does not.
+> 
+> virtio_input has a related ordering problem: it unregisters the input
+> device before resetting the virtio device, while an event callback may
+> still be using the input device.
+> 
+> Patch 1 moves the callback wait into the core, using the existing
+> virtio_synchronize_cbs() operation. Patch 2 fixes the virtio_input teardown
+> order. Patch 3 adds the missing synchronize_cbs hooks for UML, TmFIFO,
+> remoteproc and virtio-vdpa. Remoteproc uses one SRCU domain per processor.
+> 
+> The new hooks wait for callbacks already running. UML, TmFIFO and
+> remoteproc still allow new callbacks after reset; fixing that is separate
+> work. The event-virtqueue DMA mapping issue is also separate.
+> 
+> Changes in v2:
+> - Patch 1: move the wait into the core instead of fixing only MMIO, as
+>   Michael suggested. Remove the duplicate PCI wait, preserve its shutdown
+>   wait, and fix CCW callback locking. Drop the MMIO polling: reset polling
+>   for v3 and newer is already in fa8833c085b6 ("virtio-mmio: add support
+>   for transport version 3").
+> - Patch 2: keep draining completed events when ready becomes false,
+>   instead of breaking out, so teardown does not truncate an input packet.
+> - Patch 3 is new, at Michael's request.
+> 
+> I reran the 120-cycle unbind/rebind test in an arm64 KASAN guest with four
+> vCPUs and a 5 ms busy delay per event. With patch 2 alone over virtio-mmio,
+> reset returned with the callback still running in all 84 overlapping
+> cycles. With the series, it waited in all 103. Over PCI with per-queue
+> MSI-X, it waited in all 66, including runs with threadirqs. No KASAN or
+> lockdep reports. These runs predate the per-rproc change, which leaves
+> the tested MMIO and PCI paths unchanged. They confirmed the missing wait,
+> but did not reproduce a use-after-free: with evdev attached,
+> input_unregister_device() waits for an RCU grace period that the IRQ
+> callback blocks.
+> 
+> That version also passed QEMU input, rebind and shutdown checks on arm64
+> MMIO and x86-64 PCI, including arm64 RT, KASAN and KCSAN builds, and x86
+> UP/Tiny SRCU. A legacy INTx NIC was present for an additional x86
+> shutdown check. The changed objects built with W=1 without warnings on
+> arm64, x86-64, s390 and SMP UML. The per-rproc version built with W=1
+> on arm64 KASAN and x86 Tiny SRCU, and passed six remoteproc callback and
+> lifetime KUnit tests on each, using mock remoteproc devices.
+> 
+> Link: https://lore.kernel.org/r/20260818040433.66986-1-kmehltretter@gmail.com
 
-On 10/09/26 4:20 pm, Paolo Abeni wrote:
-> On 9/9/26 8:48 AM, Hidayath Khan wrote:
->> On 08/09/26 5:17 pm, sashiko-bot@kernel.org wrote:
->>> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
->>>
->>> Pre-existing issues:
->>> - [Critical] Late-queued `tx_work` can execute on a freed socket because it does not hold a socket reference, causing a use-after-free.
->>> --
->> Thanks for the Sashiko AI review. The finding is correct.
->>
->> tx_work is the only one of the three connection work items with no socket
->> reference:
->>
->>     close_work   sock_hold smc_cdc.c:420   sock_put smc_close.c:444
->>     abort_work   sock_hold smc_cdc.c:324   sock_put smc_core.c:1754
->>     tx_work        none                                  none
->>
->> The link group holds a reference while the connection is registered, which
->> is what hides this. smc_conn_free() drops it in smc_lgr_unregister_conn()
->> and never cancels tx_work - it only cancels abort_work - and the link
->> group usually outlives the socket, so lgr->tx_wq is still there to run an
->> item that was queued late.
->>
->> Worth noting the fix in this patch does not transfer. conn->freed works
->> for abort_work because abort_work holds a reference, so the socket is
->> alive and the flag is safe to read. tx_work holds nothing, so by the time
->> it runs there may be no conn to test. It needs the missing reference
->> rather than a guard: sock_hold() at the three queue sites, sock_put() in
->> smc_tx_work(), and the reference returned at the cancel sites that report
->> they removed a pending item.
->>
->> I will send that separately, since it is a different work item and a
->> different fix. This patch is unchanged.
-> Could you please have a look at clashiko report, too? that looks
-> correct, too and more strictly tied to the issue addressed here.
-Yes, the findings are correct. I will look into the report.
->
-> Also note that netdev-wise the most relevant sashiko instance is
-> the nipa/clashiko one, as it includes reports/reviews/findings
-> from the public clashiko instance.
-Noted, thanks!
->
-> /P
+I posted a version of patch 1, split up, just to give direction.
+Feel free to take over it, or test and ack. Thanks a lot for your work!
+
