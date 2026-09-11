@@ -1,214 +1,309 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5A28370AEB;
-	Thu, 10 Sep 2026 18:55:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E53D418DF80;
+	Fri, 11 Sep 2026 00:24:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789066546; cv=none; b=qI04ZCD/mffz8cpWqepYGMFV8Mp+SckjY1mMcAa6rsDe9kbC0stcfx2zD+J7+I3u1JbuCYOfprkKBtOdQXCzDaRdWO8wC3s07a4U34v1gZM4aPdg96uWmghvXCkFNLpDqk3ix6QSKvlbeFommd9l3PlW59y1YVogEyWBeklnOxg=
+	t=1789086253; cv=none; b=TYOm7aMJzkdY2Y5eelzvhfZCS46yKliKz2swYHjifKzjwKy8Q9/cUN3nd4CzJeyJkli8+b+uVSgIqdQCAMWvI2Mm3p2yP3xcfQQ4VEsF1WNcvVbo/GcqAfqSDQ4m/dvm4n1oMAqQroQ53bSbAM1kWbVm3uDy19nMmXOkN7+KSEw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789066546; c=relaxed/simple;
-	bh=jA1OIjMBwv91UuOt5Tn56hy+6IGDF/xyXBVDc+O0W7c=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=A+ac7OsFdCSk2ZgjggUEYNyk4qABfHooj+hlO9MbViUc0WCRtXI5eLFkxpk7W9dQ5JYKjN2SCapwFEuOSIMOYCeUAUznU6rWrRcXDK+Uv8sJjOm3BmsrZD6qMF1fS9r9KQgw8cQJYtc7xANVQGzoX0yYNcmROoSIKr0IrqWz3ac=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=F6i3O5AT; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789086253; c=relaxed/simple;
+	bh=AKtsfH5QrpHgr2A2NJf3MtAl/FrzCpaTYaZeAF7SbfM=;
+	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=T9UXg1IVdWmQD13Hmb8pVI04U+9LUi4tNKguzbnF9TZx9tX9HB5Vb3ZiWAxBTNlKSCwNZGPDQYGWSP2z3bmVf3OEeiN2zRX89Xe16TlzSCRMmFvkBZIP60EUMXiIMkdDm1rZM+KpiHMN+SNoBJn72RyRpmmKOqSW/+X6sA7oV3g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l7SyL2HH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="F6i3O5AT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC6741F008A6;
-	Thu, 10 Sep 2026 18:55:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l7SyL2HH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70E4F1F000FF;
+	Fri, 11 Sep 2026 00:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789066544;
-	bh=CrpBp6UrC3ldEa5GcKmmPo3oz74G2RAnpQBvJ2o9k1k=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject;
-	b=F6i3O5AT5R2f9Yx+JsX4oi2MbBVZy6vhmuah8fyZ7HoRM4fcwu9ko/hMOipVkG55B
-	 1Zmg31PLcmFyjN/6qwvx+Gi14CUmpNgqwIW3GIcgTV8r/HdYjj80cmHBvTlnPKg5uR
-	 OFZIpZsE3LqRG10E9rSuJaexxU9wT5CasLzhcaoOUlc1HtwpM6VduzyZ+RCbNEeTCG
-	 7mnywN+8+H6LvsHwXafWrsaQmZDzIueYYyazPefKJGcMkw5e44QHRXV4epY9oIt8b/
-	 VxUYOa++vQ7n7D+qHzq2qnf380yDhptkzXHvt9CgqRKD1Qe5yMUYoD9jvQW061SukA
-	 KzIemnQ3+sQfA==
-Received: from phl-compute-10.internal (phl-compute-10.internal [10.202.2.50])
-	by mailfauth.phl.internal (Postfix) with ESMTP id C451EF40069;
-	Thu, 10 Sep 2026 14:55:42 -0400 (EDT)
-Received: from phl-imap-15 ([10.202.2.104])
-  by phl-compute-10.internal (MEProxy); Thu, 10 Sep 2026 14:55:42 -0400
-X-ME-Sender: <xms:Lv2iajO020W1DUB7kxvyyEY7DfRl-e2BIJTX073yLiFUhMClSPWBiA>
-    <xme:Lv2iaoxfBFeDEd_VmLtT0qd94HDtXRhhpDvUfHkJM_m66XDNqrBNS-B2koOqMN4lP
-    Sa0Ug9f_2FH0Kq2r3-yqf79TNecZT6-Lakr_OXpOKrFWd9sWBuPoBo>
-X-ME-Proxy-Cause: dmFkZTF4DbH3FZ3dPjetu62giaNH+KK3h7Vnr+fEg85PysIt/4nck/4imrawKEp8DsE6Pr
-    r0whIQLHunubPaHCLLANlXfZ8RvcApjV2EH4HvJnIa7IIlTjW/aieFsEYioNdVnIC1pGZ7
-    r7+Be7rv47aINSOQmPbhGzYvhtHf8def9lEg4PtjWAs9LAnZxAA8HHEDG0Nu5Q4D+ErnGo
-    wbL3v3GuUBm9m4647OHl9jiHICZ+8M7+WaOVrci5hxhVfG9CY47ExztZrbckd1/ZxcD0FZ
-    vwDE7nYg/E3N/QLZgdrUVACuceWMJkJ6Wb+Z2hJc7h8HgoI8f/4b+gnUnlKGDgCx/5CDPJ
-    po6DIC9Q8yofj6Gyo3f7FKL5mt0EHv82L6g17/YO3gWxVRbIFJetz+YWg8fgbv7WuFfefm
-    hnLsmWUjBQVBzx6B9SMuUsPATs4OJtGO1f+mnt0J/1peJ5Nq63D3J9EC8B1PaX5BKnWN5n
-    NTUc5qHazXKrxzCndz85zJiyINbeiTNLTCeRjTR7RMcNSUFcXqheUFmGnh70f88dysYIhz
-    x/wWpwuzN1bBTEbUGCyOiSyCxaCxeioaasg+88aeLfS3v1QhYfc5bHYGwrmHrU/cjZ20YX
-    SgmgetWptaxFGpGrTy/DDcJdYBDIVEtFh7oH120w4eOuhoZaxlVn3LGzD7xQ
-X-ME-Proxy: <xmx:Lv2iagKDhe4ENuyDEBPe0XuX5JV95iH3pOzVxXrfT1HwGt5hmy731g>
-    <xmx:Lv2iavY0YWPFwc5heNSQaejsEbm3T9Hzm9qfGqn3H3Ql0pmX2TgP2A>
-    <xmx:Lv2ias4lIQtLaB1oGx0UNzfhFXq0OCShC-yE9ybCKPEj_MhGksso3A>
-    <xmx:Lv2iaoJl7Z6wMLyQsn5RJgRWdIhUrImOwvxM7EqgPgmRZWBE2AuVGw>
-    <xmx:Lv2iaqawY0GSonv8zq4bA_iHkDoRcvBDh1ekvmmQAljAmwqWH4krgir7>
-Feedback-ID: ifa6e4810:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 8F75E7811F0; Thu, 10 Sep 2026 14:55:42 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	s=k20260515; t=1789086251;
+	bh=gZsBbz8/MMxuPqcNJbO9PzEltgloSr2936xZcIVzJ0k=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=l7SyL2HHwJ7ASTUdSB6sklx+GXhLf1qiAG+CRw31vXUJDmtwmygHerUj2keiIaHwN
+	 331Nh4IaRyKztdTXS+Zo0+c5XoZtI/a8seKcNpnAFQxsi3wVJDqd1zOC6OMv624rDO
+	 s1bCbfgYCsoAi7QIxyKNaJ6ZOgRPW9buJnZbSZIrcYauXHx6wOP6AZZLWTuqT6ae8L
+	 K4gu45aeTtLtziY0zPO3sjycnqMnio3QmLdXxN7j3XX51gT3Qi17m7/RNE2Vao6vPp
+	 W30YEZUlvGkOvWPSfcmVtDj8NOQPawwnffm0xzVTgyJePBwoUwTrW8YHZBfA3974EP
+	 QiORZ7trdhs2w==
+Subject: Re: [PATCH net v3] net/smc: fix lgr/lnk lifetime vs diag reader race
+From: netdev-bot+sashiko@kernel.org
+To: mjambigi@linux.ibm.com
+Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
+ dust.li@linux.alibaba.com, sidraya@linux.ibm.com, pasic@linux.ibm.com,
+ horms@kernel.org, tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+ hidayath@linux.ibm.com, stable@vger.kernel.org, netdev@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+Date: Fri, 11 Sep 2026 00:24:09 +0000
+Message-ID: <178908624996.219967.16908117009364362685@kernel.org>
+In-Reply-To: <20260908092252.3832975-1-mjambigi@linux.ibm.com>
+References: <20260908092252.3832975-1-mjambigi@linux.ibm.com>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: AHIlAaKAQArc
-Date: Thu, 10 Sep 2026 14:55:20 -0400
-From: "Chuck Lever" <cel@kernel.org>
-To: "Fernando Fernandez Mancera" <fmancera@suse.de>, netdev@vger.kernel.org
-Cc: "Simon Horman" <horms@kernel.org>, "Jakub Kicinski" <kuba@kernel.org>,
- "Paolo Abeni" <pabeni@redhat.com>, edumazet@google.com,
- davem@davemloft.net, "Jason Gunthorpe" <jgg@ziepe.ca>,
- "Leon Romanovsky" <leon@kernel.org>,
- "Andrew Lunn" <andrew+netdev@lunn.ch>,
- "Tony Nguyen" <anthony.l.nguyen@intel.com>,
- "Przemek Kitszel" <przemyslaw.kitszel@intel.com>,
- "Elad Nachman" <enachman@marvell.com>,
- "Saeed Mahameed" <saeedm@nvidia.com>, "Tariq Toukan" <tariqt@nvidia.com>,
- "Mark Bloch" <mbloch@nvidia.com>, "Ido Schimmel" <idosch@nvidia.com>,
- "Petr Machata" <petrm@nvidia.com>,
- "Edward Cree" <ecree.xilinx@gmail.com>,
- "Maxime Chevallier" <maxime.chevallier@bootlin.com>,
- "Maxime Coquelin" <mcoquelin.stm32@gmail.com>,
- "Alexandre Torgue" <alexandre.torgue@foss.st.com>,
- "Arend van Spriel" <arend.vanspriel@broadcom.com>,
- "Miri Korenblit" <miriam.rachel.korenblit@intel.com>,
- "Keith Busch" <kbusch@kernel.org>, "Jens Axboe" <axboe@kernel.dk>,
- "Christoph Hellwig" <hch@lst.de>, "Sagi Grimberg" <sagi@grimberg.me>,
- "Chaitanya Kulkarni" <kch@nvidia.com>,
- "Saurav Kashyap" <skashyap@marvell.com>,
- "Javed Hasan" <jhasan@marvell.com>,
- GR-QLogic-Storage-Upstream@marvell.com,
- "James Bottomley" <James.Bottomley@hansenpartnership.com>,
- "Martin K. Petersen" <mkp@kernel.org>,
- "Nilesh Javali" <njavali@marvell.com>,
- "Manish Rangankar" <mrangankar@marvell.com>,
- "Varun Prakash" <varun@chelsio.com>,
- "Alexander Viro" <viro@zeniv.linux.org.uk>,
- "Christian Brauner" <brauner@kernel.org>, "Jan Kara" <jack@suse.cz>,
- "David Howells" <dhowells@redhat.com>,
- "Marc Dionne" <marc.dionne@auristor.com>,
- "Trond Myklebust" <trondmy@kernel.org>,
- "Anna Schumaker" <anna@kernel.org>, "Jeff Layton" <jlayton@kernel.org>,
- NeilBrown <neil@brown.name>, "Olga Kornievskaia" <okorniev@redhat.com>,
- "Dai Ngo" <Dai.Ngo@oracle.com>, "Tom Talpey" <tom@talpey.com>,
- "Marek Lindner" <marek.lindner@mailbox.org>,
- "Simon Wunderlich" <sw@simonwunderlich.de>,
- "Antonio Quartulli" <antonio@mandelbit.com>,
- "Sven Eckelmann" <sven@narfation.org>,
- "Nikolay Aleksandrov" <razor@blackwall.org>,
- "Pablo Neira Ayuso" <pablo@netfilter.org>,
- "Florian Westphal" <fw@strlen.de>, "Phil Sutter" <phil@nwl.cc>,
- "Johannes Berg" <johannes@sipsolutions.net>,
- "Matthieu Baerts" <matttbe@kernel.org>,
- "Mat Martineau" <martineau@kernel.org>,
- "Geliang Tang" <geliang@kernel.org>, "Julian Anastasov" <ja@ssi.bg>,
- "Aaron Conole" <aconole@redhat.com>,
- "Eelco Chaudron" <echaudro@redhat.com>,
- "Ilya Maximets" <i.maximets@ovn.org>,
- "Allison Henderson" <achender@kernel.org>,
- "Jamal Hadi Salim" <jhs@mojatatu.com>, "Jiri Pirko" <jiri@resnulli.us>,
- "Marcelo Ricardo Leitner" <marcelo.leitner@gmail.com>,
- "Xin Long" <lucien.xin@gmail.com>,
- "D. Wythe" <alibuda@linux.alibaba.com>,
- "Dust Li" <dust.li@linux.alibaba.com>,
- "Sidraya Jayagond" <sidraya@linux.ibm.com>,
- "Mahanta Jambigi" <mjambigi@linux.ibm.com>,
- "Tony Lu" <tonylu@linux.alibaba.com>, "Wen Gu" <guwen@linux.alibaba.com>,
- "Jon Maloy" <jmaloy@redhat.com>,
- "Tung Quang Nguyen" <tung.quang.nguyen@est.tech>,
- "Steffen Klassert" <steffen.klassert@secunet.com>,
- "Herbert Xu" <herbert@gondor.apana.org.au>,
- "Casey Schaufler" <casey@schaufler-ca.com>,
- "Paul Moore" <paul@paul-moore.com>, "James Morris" <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>,
- "Vikas Gupta" <vikas.gupta@broadcom.com>,
- "Bhargava Marreddy" <bhargava.marreddy@broadcom.com>,
- "Rajashekar Hudumula" <rajashekar.hudumula@broadcom.com>,
- "Nicolai Buchwitz" <nb@tipi-net.de>,
- =?UTF-8?Q?Markus_Bl=C3=B6chl?= <markus@blochl.de>,
- "Arnd Bergmann" <arnd@arndb.de>,
- "Heiner Kallweit" <hkallweit1@gmail.com>,
- "Florian Fainelli" <florian.fainelli@broadcom.com>,
- "Krzysztof Kozlowski" <krzk@kernel.org>,
- "Qingfang Deng" <qingfang.deng@linux.dev>,
- "Julian Braha" <julianbraha@gmail.com>,
- "Ethan Nelson-Moore" <enelsonmoore@gmail.com>,
- "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
- "Eric Biggers" <ebiggers@kernel.org>, "Ard Biesheuvel" <ardb@kernel.org>,
- "Neal Cardwell" <ncardwell@google.com>,
- "Kuniyuki Iwashima" <kuniyu@google.com>,
- "Willem de Bruijn" <willemb@google.com>, "Alyssa Ross" <hi@alyssa.is>,
- "Joel Granados" <joel.granados@kernel.org>,
- "Oleg Nesterov" <oleg@redhat.com>, linux-rdma@vger.kernel.org,
- linux-kernel@vger.kernel.org, intel-wired-lan@lists.osuosl.org,
- oss-drivers@corigine.com, linux-net-drivers@amd.com,
- linux-stm32@st-md-mailman.stormreply.com,
- linux-arm-kernel@lists.infradead.org, linux-wireless@vger.kernel.org,
- brcm80211@lists.linux.dev, brcm80211-dev-list.pdl@broadcom.com,
- linux-nvme@lists.infradead.org,
- "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
- target-devel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- linux-afs@lists.infradead.org, linux-nfs@vger.kernel.org,
- b.a.t.m.a.n@lists.open-mesh.org, bridge@lists.linux.dev,
- netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
- mptcp@lists.linux.dev, lvs-devel@vger.kernel.org, dev@openvswitch.org,
- rds-devel@oss.oracle.com, linux-sctp@vger.kernel.org,
- linux-s390@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
- linux-security-module@vger.kernel.org
-Message-Id: <ff6ff699-e942-455f-8816-49af24afb370@app.fastmail.com>
-In-Reply-To: <20260910144914.8025-2-fmancera@suse.de>
-References: <20260910144914.8025-1-fmancera@suse.de>
- <20260910144914.8025-2-fmancera@suse.de>
-Subject: Re: [PATCH 01/13 net-next] net: ipv4: introduce CONFIG_IPV4 to decouple the
- IPv4 stack
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 
+Thank you for your contribution! Sashiko AI review found 2 potential
+issue(s) to consider:
 
+Critical: 0 · High: 2 (1) · Medium: 0 · Low: 0
 
-On Thu, Sep 10, 2026, at 10:48 AM, Fernando Fernandez Mancera wrote:
-> Historically, the IPv4 protocol has been linked to the core INET
-> subsystem. Because shared infrastructure like the TCP/UDP engine,
-> routing or INET hashtables live inside net/ipv4/, it has been impossible
-> to compile a kernel with only IPv6 support.
->
-> This patch introduces the CONFIG_IPV4 Kconfig symbol, which is set to
-> 'def_bool y' for now. This does not allow to completely disable the
-> IPv4 stack yet but it lays the necessary build-system work for that
-> goal.
->
-> In addition, multiple subsystems Kconfig symbols across networking
-> features like tunnels, drivers and filesystems have been adjusted to
-> depend on IPv4. Keep on mind that follow-up work is required to convert
-> the Kconfig symbol to bool and remove the dependency on IPv4 where it
-> makes sense.
->
-> Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
+- [High] The commit message asserts the invariant "any socket still
+  visible to the diag reader under the hash read_lock has valid…
+- [High] The unconditional smc_conn_unhash() added at the head of
+  smc_conn_free() (net/smc/smc_core.c:1284) removes the socket from the…
 
-> diff --git a/net/sunrpc/Kconfig b/net/sunrpc/Kconfig
-> index e7808e5714dc..58e6f6db3100 100644
-> --- a/net/sunrpc/Kconfig
-> +++ b/net/sunrpc/Kconfig
-> @@ -1,7 +1,7 @@
->  # SPDX-License-Identifier: GPL-2.0-only
->  config SUNRPC
->  	tristate
-> -	depends on MULTIUSER
-> +	depends on MULTIUSER && IPV4
-> 
->  config SUNRPC_GSS
->  	tristate
+Pre-existing issues:
+- [High] smc_cdc_msg_validate() (net/smc/smc_cdc.c:308-327) retargets
+  conn->lnk to the link a stray failover-validation CDC message arrived…
 
-Acked-by: Chuck Lever <cel@kernel.org>
+--
 
+net/smc: fix lgr/lnk lifetime vs diag reader race
+
+This patch adds smc_conn_unhash() plus a per-connection unhashed flag and
+calls it at the top of smc_conn_free(), so the socket leaves the SMC socket
+hash before the connection-owned lgr and lnk references are dropped.
+__smc_release() is changed to use the new helper for non-fallback sockets
+and keeps the direct sk->sk_prot->unhash() call for fallback sockets.
+
+A few questions below about the paths that reach smc_conn_free() and about
+the invariant described in the changelog.
+
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index e9f93b3ab435b..8c781a4a4485b 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -310,7 +310,15 @@ static int __smc_release(struct smc_sock *smc)
+>  		smc_restore_fallback_changes(smc);
+>  	}
+>  
+> -	sk->sk_prot->unhash(sk);
+> +	/* Fallback sockets never call smc_conn_free(), so unhash directly.
+> +	 * Non-fallback sockets use smc_conn_unhash() so that the conn->unhashed
+> +	 * flag keeps the unhash exactly once even when smc_conn_free() already ran
+> +	 * first (e.g. via smc_conn_kill()).
+> +	 */
+> +	if (smc->use_fallback)
+> +		sk->sk_prot->unhash(sk);
+> +	else
+> +		smc_conn_unhash(&smc->conn);
+
+[Severity: High]
+Is the premise "Fallback sockets never call smc_conn_free()" accurate?
+smc_listen_decline() calls smc_conn_abort() first and only afterwards turns
+the socket into a fallback socket:
+
+net/smc/af_smc.c:smc_listen_decline() {
+	/* RDMA setup failed, switch back to TCP */
+	smc_conn_abort(new_smc, local_first);
+	if (reason_code < 0 ||
+	    smc_switch_to_fallback(new_smc, reason_code)) {
+	...
+	smc_listen_out_connected(new_smc);
+}
+
+net/smc/af_smc.c:smc_conn_abort() {
+	...
+	smc_conn_free(conn);
+	...
+}
+
+The client side does the same via smc_connect_rdma()'s connect_abort label
+followed by smc_connect_decline_fallback().
+
+Beyond the comment, smc_conn_free() is also reached for connection
+*attempts* on sockets that stay alive afterwards, and there is no path that
+re-inserts the socket into the hash.  Can this make live sockets invisible
+to smc_diag for the rest of their lifetime?
+
+For the server ISM retry loop:
+
+net/smc/af_smc.c:smc_listen_ism_init() {
+	rc = smc_buf_create(new_smc, true);
+	if (rc) {
+		smc_conn_abort(new_smc, ini->first_contact_local);
+		...
+}
+
+net/smc/af_smc.c:smc_find_ism_v2_device_serv() {
+	for (i = 0; i < matches; i++) {
+		...
+		rc = smc_listen_ism_init(new_smc, ini);
+		if (rc) {
+			smc_init_info_store_rc(rc, ini);
+			/* try next active ISM device */
+			continue;
+		}
+		return; /* matching and usable V2 ISM device found */
+	}
+}
+
+The failed attempt unhashes the socket through smc_conn_free(), the next
+ISM device then succeeds, and smc_conn_create() only does
+"conn->unhashed = 0" without calling sk->sk_prot->hash() again.  The same
+shape exists for the v2 -> v1 RDMA fallthrough in
+smc_find_rdma_v2_device_serv() -> smc_listen_find_device().
+
+smc_diag_dump_proto() walks only that hash:
+
+net/smc/smc_diag.c:smc_diag_dump_proto() {
+	read_lock(&prot->h.smc_hash->lock);
+	head = &prot->h.smc_hash->ht;
+	...
+	sk_for_each(sk, head) {
+	...
+}
+
+so an established SMC-D/SMC-R connection or an active TCP-fallback
+connection produced by these paths would no longer show up in ss --smc or
+smcss, including the SMC_DIAG_MODE_FALLBACK_TCP reporting.  The same early
+unhash also hides sockets that user space still has open after
+__smc_lgr_terminate() -> smc_conn_kill() -> smc_close_active_abort() ->
+smc_conn_free().  Should the unhash be restricted to terminal teardown, or
+should the abort paths re-hash the socket?
+
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index 04aedd957543a..e302221c35e3f 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -1251,6 +1251,20 @@ static void smc_buf_unuse(struct smc_connection *conn,
+>  	}
+>  }
+>  
+> +/* unhash the socket once; owns the single unhash for all non-fallback paths.
+> + * Every caller holds lock_sock for this socket, so conn->unhashed is protected
+> + * by that lock and no separate synchronisation is needed.
+> + */
+> +void smc_conn_unhash(struct smc_connection *conn)
+> +{
+> +	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
+> +
+> +	if (!conn->unhashed) {
+> +		conn->unhashed = 1;
+> +		smc->sk.sk_prot->unhash(&smc->sk);
+> +	}
+> +}
+> +
+>  /* remove a finished connection from its link group */
+>  void smc_conn_free(struct smc_connection *conn)
+>  {
+> @@ -1263,6 +1277,11 @@ void smc_conn_free(struct smc_connection *conn)
+>  		return;
+>  
+>  	conn->freed = 1;
+> +	/* Unhash before dropping lgr/lnk refs so the diag reader, which
+> +	 * iterates under the socket hash read_lock, cannot see a connection whose
+> +	 * lgr or lnk is being freed concurrently.
+> +	 */
+> +	smc_conn_unhash(conn);
+
+[Severity: High]
+The changelog states the invariant as "any socket still visible to the diag
+reader under the hash read_lock has valid conn->lgr and conn->lnk
+pointers".  Does the SMC-R link failover path still break that for
+conn->lnk?
+
+smc_switch_link_and_count() drops the connection-owned link reference and
+republishes conn->lnk while the socket stays hashed:
+
+net/smc/smc_core.c:smc_switch_link_and_count() {
+	atomic_dec(&conn->lnk->conn_cnt);
+	/* link_hold in smc_conn_create() */
+	smcr_link_put(conn->lnk);
+	conn->lnk = to_lnk;
+	...
+}
+
+It runs under conn->send_lock and lgr->conns_lock only, never under the
+socket hash lock and without unhashing, so a reader that already
+snapshotted the old link keeps using it:
+
+net/smc/smc_diag.c:__smc_diag_dump() {
+	struct smc_link *link = smc->conn.lnk;
+	...
+	memcpy(linfo.lnk[0].ibname, link->smcibdev->ibdev->name,
+	       sizeof(link->smcibdev->ibdev->name));
+	smc_gid_be16_convert(linfo.lnk[0].gid, link->gid);
+	...
+}
+
+Once the last connection has been migrated off the old link,
+smcr_link_clear() -> smcr_link_put() -> __smcr_link_clear() zeroes the
+whole structure:
+
+net/smc/smc_core.c:__smcr_link_clear() {
+	put_device(&lnk->smcibdev->ibdev->dev);
+	smcibdev = lnk->smcibdev;
+	memset(lnk, 0, sizeof(struct smc_link));
+	lnk->state = SMC_LNK_UNUSED;
+	...
+}
+
+so link->smcibdev becomes NULL and the dereference above is a NULL
+dereference, with the device reference already dropped.  This looks like
+the same class of access the cited "Fixes: 9dbe086c69b8 (net/smc: fix
+invalid link access in dumping SMC-R connections)" refers to, and the
+reader/writer lock sets (hash read_lock versus send_lock/conns_lock/
+llc_conf_mutex) do not intersect.  The v2 posting of this series protected
+smc_switch_link_and_count() with lgr_lnk_lock; is anything replacing that
+protection in v3, or should the invariant in the changelog be narrowed to
+conn->lgr?
+
+[Severity: High]
+This is a pre-existing issue and not introduced by this patch, but it also
+bears on the conn->lnk invariant being asserted: the reference that
+smc_conn_free() releases is not always the one the connection holds.
+
+smc_cdc_msg_validate() retargets conn->lnk with no reference transfer,
+reached from smc_cdc_msg_recv() when the peer sets
+prod_flags.failover_validation and the seqno is stale:
+
+net/smc/smc_cdc.c:smc_cdc_msg_validate() {
+	diff = conn->local_rx_ctrl.seqno - recv_seq;
+	if (diff < 0) { /* diff larger than 0x7fff */
+		...
+		spin_lock_bh(&conn->send_lock);
+		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
+		conn->lnk = link;
+		spin_unlock_bh(&conn->send_lock);
+	...
+}
+
+There is no smcr_link_hold() on the new link and no smcr_link_put() on the
+old one, while the counted reference was taken in smc_conn_create():
+
+	smcr_link_hold(conn->lnk); /* link_put in smc_conn_free() */
+
+and smc_conn_free() later releases whatever conn->lnk points at:
+
+	if (!lgr->is_smcd)
+		smcr_link_put(conn->lnk); /* link_hold in smc_conn_create() */
+
+In a multi-link link group, does this over-put the new link and leak a
+reference on the old one?  The over-put can take the new link's refcount to
+zero while other connections still cache it in conn->lnk, running
+__smcr_link_clear() (put_device() plus memset()) before its QP is
+destroyed, after which smcr_link_clear() returns early on the
+SMC_LNK_UNUSED state.  The leaked reference on the old link would keep its
+__smcr_link_clear() and the nested smc_lgr_put() from ever running.
+
+>  	if (!smc_conn_lgr_valid(conn))
+>  		/* Connection has already unregistered from
+>  		 * link group.
+> @@ -2053,6 +2072,7 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+>  	if (!conn->lgr->is_smcd)
+>  		smcr_link_hold(conn->lnk); /* link_put in smc_conn_free() */
+>  	conn->freed = 0;
+> +	conn->unhashed = 0;
+
+[ ... ]
 
 -- 
-Chuck Lever (Come to NFS bake-a-thon! https://nfsv4bat.org)
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260908092252.3832975-1-mjambigi%40linux.ibm.com
