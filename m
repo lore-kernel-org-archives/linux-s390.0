@@ -1,168 +1,149 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A0F83CF022
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 10:05:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5850E406804
+	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 10:12:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789121108; cv=none; b=UmkGUXMIqxe6+brMgXhZpXB91dypkz8AqYy5jZtmJCrQOh0iYGvguxhpsRTO4RWKh37BJ90xDENeYkIbTME8BgC2hHbLE8E96bVuCwRXw3CQ2oGk15pGSbxmc7ftEBbN66F9jBmhmjGImV6nvNLV6STuKoGkDM6nUTjQYFBKJhU=
+	t=1789121543; cv=none; b=UtfXh04L5GiE1PnH0RA7GR9ZcHyakAbyZRoe0hNYrVPHpYkqtnxi2WOg0bwKVJCSFuS3H7AxwP4Xn9fyvwMvPXZkHMXHZeeFuaiHvbimFFU/MrcL+vdtwOJ0N4yld6zELVxTdAT2X5Jxo+s/5lvJdFscSZlHaZOyqgx5ACgthzU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789121108; c=relaxed/simple;
-	bh=vYiD8VGLXE7VOYUz5qja2kJr1R93//8BulXYCD/ylfM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OCE7JtiMViS5wYcP97iA2PAwAByL2TfasW/uEOPZzGpZhTwRbi/9dYkHfVv3p1OpCB169slNp597kXhKVedDpEUWTdiRZuYPAeQ4RwlizzJzn98nOC5OXXDzIxas3XwxboRKBl2XWyVjbEBGaE/ps03v5purtchSDJJdm7WW++s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IR0oQusc; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1789121543; c=relaxed/simple;
+	bh=s71JqJxflMdvVXIcnsxkNxgmxhFiwmWEyOuncAIiU2Y=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=L/CrvsEUBYM+FRlarxszeAuWhH5f9sdYju2g9xexQPfQ5Ajom8kfwKABAC2UG0bOyHqJJl8G+q/F0XXd6rDW6tuprz0Njn9vBeBlAqw6zp2DbZjV98n1FY315wtY8n7h5kutN7s9W96lzT4lmRYyOBcFAKjPgQJcTfYM5LmHpbk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ScRxq6vy; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IR0oQusc"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68B81b88079996
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 10:05:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=SsbHVbSJjdeinSvoGu7TwK/2xG13pBNX8RVSYS1dp
-	wQ=; b=IR0oQuscTAd7aoTkc1WWcq++LeQzTM6wjMIPMqce3QemeDzYk01EpAo/e
-	ZJ4ywHaeDHpGvzHe2+jZHIuozBefZJ+tv72JLZYEIRxHKb+xsu1DSdgo4WNYuxVu
-	VfKWy44d+gbC1Bq+ZnB+eLlbiLWFU17xgGR5sSclVPsXiHheESXZp1L72NlbkTPu
-	zaRgQhmTU6ulHxY6iUTz5UJ4CS0xkxjdTfg9kDJM4moXediZbAm3Yw64j6jFzcVO
-	XqhTFPDgQ33Ja0MmUlGCLGR3XeCQjgFImV42jpJVhevPRujF0KCw8bLTBd2QgG5z
-	ZSOeTZh7VtHPWT4Yx0VkBWUPz5MIQ==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gkd8qanj9-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 10:05:06 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68B7o4sN1317942
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 10:05:05 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gkvtfdngm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 10:05:05 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68BA51oj43974916
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 11 Sep 2026 10:05:01 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 765592004F;
-	Fri, 11 Sep 2026 10:05:01 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 50F232004E;
-	Fri, 11 Sep 2026 10:05:01 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 11 Sep 2026 10:05:01 +0000 (GMT)
-From: Thomas Richter <tmricht@linux.ibm.com>
-To: linux-s390@vger.kernel.org, sumanthk@linux.ibm.com, japo@linux.ibm.com
-Cc: agordeev@linux.ibm.com, iii@linux.ibm.com, hca@linux.ibm.com,
-        Thomas Richter <tmricht@linux.ibm.com>
-Subject: [PATCH ping2 linux-next] perf test: probe_vfs_getname add do_getname() probing fallback
-Date: Fri, 11 Sep 2026 12:04:55 +0200
-Message-ID: <20260911100455.2131629-1-tmricht@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ScRxq6vy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4BE01F000FF;
+	Fri, 11 Sep 2026 10:12:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789121542;
+	bh=JXc4XgNfHMDPGXJrtAxTniw9hlcBfY+orpqqRxTBjOo=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ScRxq6vyZqHgvAh3NZnx5sPOYlI7gjQCsOJ+03KP+dBnpsFsAsOwWeuBT+6AedFQ8
+	 VyMxlJDYFjia02aUXydqtrjGrFy72QnYKuqdcMofWeXNpcZLoYIj5qdyJm6q+O6ASC
+	 mlG9sj6WJyJyScR0XWPPzV+Y5wvg84PTqbfzcxqwCLmbw1m5bfyvze5BhfoA6PwrNg
+	 5x+r1UTBpdR6dQopqa3HbOVNcZnF6ccCOqmQ6Lj83K5a0LOgPrxH9lexy8goZeddrf
+	 ewqoiwsR+i6bZH+TzCH98prNWZkzJ8B20A5/aH1ncQxNSVzOOv8aCTUi0QMMzW0R85
+	 g/eNxw4nGX2TQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH ping2 linux-next] perf test: probe_vfs_getname add
+ do_getname() probing fallback
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Thomas Richter" <tmricht@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260911100455.2131629-1-tmricht@linux.ibm.com>
+References: <20260911100455.2131629-1-tmricht@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 11 Sep 2026 10:12:21 +0000
+Message-Id: <20260911101221.A4BE01F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: PZNd-pBydO9Sc0NFaYz_yDWcwVBuF4Pp
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTExMDE0MCBTYWx0ZWRfXyBuYLnDzOPbY
- OwslMuOnu7qUUweP+AqNVsGVTGZOODRIhs7GYOKZK8PJpxqmcsYspHqU8bj4PuOnm2HAeDa7Q9q
- 8LHP+K0CTloBDFxOuMDb6o2SPlBKhxY=
-X-Authority-Analysis: v=2.4 cv=E/dYNqdl c=1 sm=1 tr=0 ts=6aa3d252 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=HWmUBIJd22lZSy0K-CsA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTExMDE0MCBTYWx0ZWRfX04UQwoH1xM5F
- Gx7fxoy5BoXmx6ncDGhCfGGSfxRMT8Y5PRIPcXfBbbeGHcUimfXDmRPTQ3ZfV7DnFVXbwChFmyc
- +9v3ju4Ogw0Hb2knHk4EzAgPXhUCmpsPPf9YbvEHabzcYEUjwhueOv/qs88PRgMzNZKqruXPfcr
- DtD3oRvZgz5d9rsps3ZuyWjeSu28RuG1IsHhQozPrLKLIItsMHXwNACh9BaFJkUw+SHz/rxU/N6
- KQ4wltVtqpprd4nrIzUt9inHWzaPezNjzQAiNBxjJHHnTzeKhPG4ldFwQHTM9j4RM0hoBOwaoPE
- OBrU6MKLVQX/a1k68f1ol1CD7ITQcFykGLycjZYucfT+9SNpiOUWFRGE6gjyIQSX758+TA3QWE1
- OzRwSzep4WuvPH6AxhvA7s1t08VWXtEG+4Q15yaH+gs/jM6qxbweW9MNhcYze92zScEYSNsFB3q
- nFw2eZmnoBob/Ja735A==
-X-Proofpoint-GUID: PZNd-pBydO9Sc0NFaYz_yDWcwVBuF4Pp
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-11_03,2026-09-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 suspectscore=0 spamscore=0 bulkscore=0 clxscore=1015
- impostorscore=0 phishscore=0 adultscore=0 lowpriorityscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609110140
 
-The following tests are skipped for some time now on platforms
-s390 and x86_64:
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Medium] The fallback probe for `do_getname` incorrectly uses `result->in=
+ame:string` instead of `result->name:string`, leading to string truncation =
+or out-of-bounds reads for long filenames.
+- [Medium] The new `do_getname` probe logic omits the fallback to reading t=
+he user-space pointer (`filename:ustring`) if the `result` struct is optimi=
+zed out by the compiler, reducing test robustness.
+--
 
- # perf test vfs_getname
- 138: Add vfs_getname probe to get syscall args filenames    : Skip
- 140: Use vfs_getname probe to get syscall args filenames    : Skip
- 154: Check open filename arg using perf trace + vfs_getname : Skip
- #
+commit ad303146f8b0a504f7736915a5ea288cabae2ca8
+Author: Thomas Richter <tmricht@linux.ibm.com>
 
-This is caused by a change in kernel code of function
-getname_flags(), see
-  commit 9fa3ec84587c ("allow incomplete imports of filenames")
-This commit changed the function getname_flags() implementation.
+perf test: probe_vfs_getname add do_getname() probing fallback
 
-Now the perf probe 'vfs_getname parameter=xxx' does not match any
-more. Extend the test logic to fall back to probing do_getname().
-This reflects the updated kernel code.
+This commit extends the vfs_getname perf test to fall back to probing
+do_getname() if getname_flags() cannot be probed. This accounts for
+recent kernel changes that altered the getname_flags() implementation.
 
-Output after:
- # perf test vfs_getname
- 138: Add vfs_getname probe to get syscall args filenames    : Ok
- 140: Use vfs_getname probe to get syscall args filenames    : Ok
- 154: Check open filename arg using perf trace + vfs_getname : Ok
- #
+> diff --git a/tools/perf/tests/shell/lib/probe_vfs_getname.sh b/tools/perf=
+/tests/shell/lib/probe_vfs_getname.sh
+> index 88cd0e26d5f67..9156a79212b9e 100644
+> --- a/tools/perf/tests/shell/lib/probe_vfs_getname.sh
+> +++ b/tools/perf/tests/shell/lib/probe_vfs_getname.sh
 
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
----
- tools/perf/tests/shell/lib/probe_vfs_getname.sh | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+[ ... ]
 
-diff --git a/tools/perf/tests/shell/lib/probe_vfs_getname.sh b/tools/perf/tests/shell/lib/probe_vfs_getname.sh
-index 88cd0e26d5f6..9156a79212b9 100644
---- a/tools/perf/tests/shell/lib/probe_vfs_getname.sh
-+++ b/tools/perf/tests/shell/lib/probe_vfs_getname.sh
-@@ -12,6 +12,8 @@ cleanup_probe_vfs_getname() {
- 
- add_probe_vfs_getname() {
- 	add_probe_verbose=$1
-+	do_getname=0
-+
- 	if [ $had_vfs_getname -eq 1 ] ; then
- 		result_initname_re="[[:space:]]+([[:digit:]]+)[[:space:]]+initname.*"
- 		line=$(perf probe -L getname_flags 2>&1 | grep -E "$result_initname_re" | sed -r "s/$result_initname_re/\1/")
-@@ -28,12 +30,24 @@ add_probe_vfs_getname() {
- 			line=$(perf probe -L getname_flags 2>&1 | grep -E "$result_aname_re" | sed -r "s/$result_aname_re/\1/")
- 		fi
- 
-+		if [ -z "$line" ] ; then
-+			do_getname=1
-+			result_iname_re="[[:space:]]+([[:digit:]]+)[[:space:]]+initname\(result\);"
-+			line=$(perf probe -L do_getname 2>&1 | grep -E "$result_iname_re" | sed -r "s/$result_iname_re/\1/")
-+		fi
-+
- 		if [ -z "$line" ] ; then
- 			echo "Could not find probeable line"
- 			return 2
- 		fi
- 
--		perf probe -q       "vfs_getname=getname_flags:${line} pathname=result->name:string" || \
-+		if [ "$do_getname" -eq 1 ]
-+		then
-+			param="vfs_getname=do_getname:${line} pathname=result->iname:string"
-+			perf probe -q "$param" || perf probe $add_probe_verbose "$param" || return 1
-+			return 0
-+		fi
-+		perf probe -q "vfs_getname=getname_flags:${line} pathname=result->name:string" || \
- 		perf probe $add_probe_verbose "vfs_getname=getname_flags:${line} pathname=filename:ustring" || return 1
- 	fi
- }
--- 
-2.53.0
+> @@ -28,12 +30,24 @@ add_probe_vfs_getname() {
+>  			line=3D$(perf probe -L getname_flags 2>&1 | grep -E "$result_aname_re=
+" | sed -r "s/$result_aname_re/\1/")
+>  		fi
+> =20
+> +		if [ -z "$line" ] ; then
+> +			do_getname=3D1
+> +			result_iname_re=3D"[[:space:]]+([[:digit:]]+)[[:space:]]+initname\(re=
+sult\);"
+> +			line=3D$(perf probe -L do_getname 2>&1 | grep -E "$result_iname_re" |=
+ sed -r "s/$result_iname_re/\1/")
+> +		fi
+> +
+>  		if [ -z "$line" ] ; then
+>  			echo "Could not find probeable line"
+>  			return 2
+>  		fi
+> =20
+> -		perf probe -q       "vfs_getname=3Dgetname_flags:${line} pathname=3Dre=
+sult->name:string" || \
+> +		if [ "$do_getname" -eq 1 ]
+> +		then
+> +			param=3D"vfs_getname=3Ddo_getname:${line} pathname=3Dresult->iname:st=
+ring"
 
+[Severity: Medium]
+Will tracing result->iname as a string cause out-of-bounds reads or
+truncated output for long filenames?
+
+Looking at getname_long() in fs/namei.c, when a filename >=3D
+EMBEDDED_NAME_MAX is processed, a separate buffer is allocated for
+name->name:
+
+	memcpy(p, &name->iname, EMBEDDED_NAME_MAX);
+	len =3D strncpy_from_user(p + EMBEDDED_NAME_MAX,
+				filename + EMBEDDED_NAME_MAX,
+				PATH_MAX - EMBEDDED_NAME_MAX);
+	if (unlikely(len < 0))
+		return len;
+	if (unlikely(len =3D=3D PATH_MAX - EMBEDDED_NAME_MAX))
+		return -ENAMETOOLONG;
+	name->name =3D no_free_ptr(p);
+
+This leaves name->iname completely filled without a null terminator. Should
+this probe use pathname=3Dresult->name:string instead to safely handle both
+short and long filenames?
+
+> +			perf probe -q "$param" || perf probe $add_probe_verbose "$param" || r=
+eturn 1
+
+[Severity: Medium]
+Does this fallback logic miss the user-space pointer retry?
+
+The original code for getname_flags falls back to tracing the user-space
+pointer (filename:ustring) if probing the result struct fails (which can
+happen if the compiler optimizes the struct out).
+
+In this new do_getname block, if the first probe fails, it retries the
+exact same parameter with $add_probe_verbose rather than falling back to
+pathname=3Dfilename:ustring. Can this cause spurious test failures on
+environments where debug info for the result pointer is optimized out?
+
+> +			return 0
+> +		fi
+> +		perf probe -q "vfs_getname=3Dgetname_flags:${line} pathname=3Dresult->=
+name:string" || \
+>  		perf probe $add_probe_verbose "vfs_getname=3Dgetname_flags:${line} pat=
+hname=3Dfilename:ustring" || return 1
+>  	fi
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911100455.2131=
+629-1-tmricht@linux.ibm.com?part=3D1
