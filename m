@@ -1,133 +1,165 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06380485505
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 13:19:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 369D736495D
+	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 14:42:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789132794; cv=none; b=RwysTLnExV2Bk4QRVp8aprLlJ85N6oWDnlvzrzl+cU+QAKFzese7Y9gY70GYE0JAUJSBFSkHn6lP3NQISr25lSLEh1htJ4hm5rYJm4ihCasB8+hggqkAP5SzGs2v+qOATZJR2RrGrlmX0ihjtq8JBUGanFS+7SPXhINpEeCI7zs=
+	t=1789137766; cv=none; b=id2xUVipamks1O8XkPF3NmfsBU/sDjgAxQfPXuhU4HivxavyIgqa2PT0YQ+VBx23T2Z2g9JDvGwDoEfZxECz0S98FnaDSFHDwFYQoVQruxbNJ+ec+IS0aV+5xnx99s5AlUow1qDSJvvlHgic9Ea+whNfWEj8ON2f+mDIFVAeTEc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789132794; c=relaxed/simple;
-	bh=3IoTbul1OIKUfMaXG8rvMJ2k7/ZMW/O9DgIuBitgqYE=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=bqbaylWMij1w6EyOB0mV6BsMnBAHpXuOdcb+uwzFwrKq17/Tbp+DffwEtDmbodzsacyciZXVbGaUbV46MWsxSQEOXkrKeMf0K8qFl9cPCjFY8xd/Jl/FteznOsrdXTlHHC21L5h70WkFj91Th/YnFKistTEs1m3sM5ibkcXLvMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q4chhsbK; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789137766; c=relaxed/simple;
+	bh=q72VP5n2ZqcEGQgXeUc2xgK/v4cYAsj+QPvCunTuwVY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Z7OdekhaliQvMc0OObTnITuIXJBd1KgdZHWADvjaL0rB+9V+ym84z9fHp4+W/xB53NJF0qP5iweKCndF6lUwzps8bfBnjOlw8TNwSIkwZBBGB/9qe0TGQ7R01BzsarWY8piANKA3qWGKMfVb+TbupTyAzQLkdqfd6GroaAZmToc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=Oa3P+L8h; arc=none smtp.client-ip=209.85.128.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q4chhsbK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BF281F000FF;
-	Fri, 11 Sep 2026 13:19:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789132786;
-	bh=Os5vsej/sJTuscl2aIUBSd27vo29ee0g1dK2oL9Eab0=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Q4chhsbKQ4OXJosCgiw3VBVk47W3Sr138ftYv4ui2Wj3mq+bxxq1C7y5e5xVo30cN
-	 aG9vOPq8Iga0Sb8woKHwSFxrFd//WszSfg8KzoOZ2vemVIKcdcmeIMBgtplvNZbrlW
-	 I/wtyxmFwQvSavXW0+VQkwEcWRMgMOcqxHEjLKkjdFd8Z2Av77UbyUf7z7v40glb4K
-	 Z8Vzli8I4qdJXVmZm3552/4fB1PHJWm0F2moB047Gf7jwjhIMnCxwRaVnN6b2kZme0
-	 XjuMTqfcUcbbUxdrAjqdGDbKw41WuHaAxyAPwX1jKmnz1w3SXbz861OgIYrZj7BmSE
-	 fvjUVAkLjXG+A==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 1/1] s390/zcrypt: Fix and improve zcrypt reply
- message verification checks
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Harald Freudenberger" <freude@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260911130544.43484-2-freude@linux.ibm.com>
-References: <20260911130544.43484-1-freude@linux.ibm.com>
- <20260911130544.43484-2-freude@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 11 Sep 2026 13:19:45 +0000
-Message-Id: <20260911131946.6BF281F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="Oa3P+L8h"
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-49b965570d7so12480175e9.0
+        for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 07:42:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1789137762; x=1789742562; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=jtpnUSLeT4ed4dWoaotfN7ey6FZzLAllCqnmIx1g6CU=;
+        b=Oa3P+L8hS5uNkz4niILTnDU6g1KqJOSl07IepB97cothgdPCtzuCqnHr/Ris3t2ZR8
+         sGkTWTi39H/kGliiNFSxa0pUXav5NACiZBUbIZqFUI13DgVISvAq88kOck1kbYFi11tk
+         s4sImAXrp0+0BrBPFV/bgoXbfYPSQ2U9tgUBOoKcPrjPzdYEpkQ8wEGQ4piPm1CBnpGW
+         R2CENzSyKArysWyQJOek25TAS9jAHzB1dD5oxZNEiOsAc6HGliIqUVV7lpvk0PnnfgQR
+         HmYYuiyKuLCBKsQJkovTAhy31kk/CGgXmHzLt5NI98yDOS9OC9W6h6M8cThDQ67eYvP3
+         dvbw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789137762; x=1789742562;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=jtpnUSLeT4ed4dWoaotfN7ey6FZzLAllCqnmIx1g6CU=;
+        b=WNw1notkHZrDA7smL39PPuSCYo61lrf0VMLmH8Jg3Qk7EQv5DUNJEUDPDQYm29sKok
+         t6TxL5X3yV6ShKGzlKo6VxBzRJnC2G4NoRCM7xMx2um24nBfd4c7EqsuK2fnvaaBUQe8
+         6W+jwPUgpGpqD4ASPMNVYrfMQe2Sb8Y+G1jYfhf9jBHL+BldBG2pW1oT/EVOxCKhgG7P
+         FOd4PaYhe1ppfgMXpYcAS+PDI+2AJmrF4w0ikoFCXfuPvaaExPbW6EKXa3QptSVEonJT
+         OsIZamFTgLQYREGZfei8TrypwqPjwrJ2iY7Q8030VxhMlqHG7Em8BhIJrC2b1jpup1pD
+         0PDQ==
+X-Forwarded-Encrypted: i=1; AKwUvBz6bU9M2NFVcRXjAk+JhsDrZxA++rKh2Lj0g+ljS1YEBglmUa2dTC7db0ea/BTlYKFULexr9sCGlp47@vger.kernel.org
+X-Gm-Message-State: AFuF++m664Hd1IpAYOXCZA3mja2OMuZ3RT4WQU4Lb7PJ7YDwrVqryJUo
+	aC7ATQJmipJLVga7aUjem3VRKDbdQCG6Kwit4ZegBXf5Te1O1UEaUGJ6hTKBWc/tk1o=
+X-Gm-Gg: AYBFou1oKKI3f3liS01uf2tuXeDvOPw2RZsu1UGBV9Tv/DNVz4v4ocQor4/KyfwBQ6n
+	v6GI7RZT2T3ZCdjG52DKmrgrChVlAgCtbYFzBzCkuJ7I6BdTFyY0pHjY/qG50HNwTUkEMevam4Q
+	KR3375lsw5kl/kXqQ/TwLo+34vxRWxQQNKa9S9Rp0U9zP292qhJvfUOP+WRriAW2y/1sCr9cDCS
+	99c+tojjgrCiGP3y5EYzls7eT6Y/jwdB1GYI35z6ZVi2VjcdLKVa3Cb+ec3/QPgkm5J122+4TLW
+	O92mly5kZqvxga79+InelrJKNTFs15elwnEwlWGsJQIbsZWb4RCPTSDYtFDL8C0VsEskK+MU/ZD
+	lK9FkeloULlQUdjT8/cDY+W9YK+FpiKzEGUsSsYFVrnt9h6WZoZdwrSIPHJFThm985DugTQCAQW
+	mAlg4J8ZXcfFgYKBp41ri3hBKubkDWLvmDyADU46ohmgvVQltz/1ksfMqbiHS6vzM3fmo/xxG9R
+	7pL5Q==
+X-Received: by 2002:a05:600c:1f8d:b0:499:be2d:c290 with SMTP id 5b1f17b1804b1-49e6198933cmr55970145e9.9.1789137762240;
+        Fri, 11 Sep 2026 07:42:42 -0700 (PDT)
+Received: from localhost.localdomain ([2001:af0:8000:1409:193:86:92:181])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49e60ababd5sm107038405e9.4.2026.09.11.07.42.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 11 Sep 2026 07:42:41 -0700 (PDT)
+From: Petr Pavlu <petr.pavlu@suse.com>
+To: Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Jarkko Sakkinen <jarkko@kernel.org>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Petr Pavlu <petr.pavlu@suse.com>,
+	Daniel Gomez <da.gomez@kernel.org>,
+	Sami Tolvanen <samitolvanen@google.com>
+Cc: Xin Li <xin@zytor.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@kernel.org>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Aaron Tomlin <atomlin@atomlin.com>,
+	linux-s390@vger.kernel.org,
+	kvm@vger.kernel.org,
+	linux-integrity@vger.kernel.org,
+	linux-modules@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/6] module: Limit ELF includes in linux/module.h to uapi/linux/elf.h
+Date: Fri, 11 Sep 2026 16:40:30 +0200
+Message-ID: <20260911-module-include-elf-v2-0-954c732975fb@suse.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+X-Change-ID: 20260816-module-include-elf-a9c10c041867
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] Strict length checks placed before error checks in convert_respons=
-e_ica and convert_response_ep11_xcrb break retry logic for short error repl=
-ies.
---
+linux/module.h appears in roughly 15k #include directives across the
+kernel. This makes it a "hot" header, so it should avoid pulling in
+unnecessary definitions.
 
-commit 8039067e4a9fd6e25e23de18df187889de05156f
-Author: Harald Freudenberger <freude@linux.ibm.com>
+The header currently includes linux/elf.h but this is largely unnecessary
+because it requires only the base ELF structures, such as Elf_Ehdr and
+Elf_Sym, which are declared in uapi/linux/elf.h.
 
-s390/zcrypt: Fix and improve zcrypt reply message verification checks
+Replace the linux/elf.h include with uapi/linux/elf.h. On x86_64_defconfig,
+including linux/module.h alone results in 2.2 MB of preprocessed data. This
+change reduces that to 1.5 MB.
 
-This commit improves boundary checks and reply size validations in the
-zcrypt device driver to prevent out-of-bounds memory accesses. Length
-validations are added before processing reply structures for CCA, EP11,
-and ICA messages.
+The first five patches are cleanups to avoid relying on declarations being
+indirectly provided through linux/module.h -> linux/elf.h. These patches
+are mostly independent and can go through their respective trees if
+preferred, except for the cpufeature patch, which depends on the preceding
+s390 cleanup. The final module patch depends on all of these changes.
 
-Cc: stable@vger.kernel.org
+It is hard to identify all files that indirectly reference something only
+through linux/module.h -> linux/elf.h. The changes were build-tested with
+allmodconfig on arm, arm64, m68k, mips, powerpc64, riscv, s390, x86_64.
 
-> diff --git a/drivers/s390/crypto/zcrypt_msgtype6.c b/drivers/s390/crypto/=
-zcrypt_msgtype6.c
-> index 3df1d676de5d8..9bd08f0376c33 100644
-> --- a/drivers/s390/crypto/zcrypt_msgtype6.c
-> +++ b/drivers/s390/crypto/zcrypt_msgtype6.c
-[ ... ]
-> @@ -777,11 +786,15 @@ static int convert_response_ica(struct zcrypt_queue=
- *zq,
->  {
->  	struct type86x_reply *msg =3D reply->msg;
-> =20
-> +	/* reply->len is always >=3D sizeof(struct error_hdr) here */
-> +
->  	switch (msg->hdr.type) {
->  	case TYPE82_RSP_CODE:
->  	case TYPE88_RSP_CODE:
->  		return convert_error(zq, reply);
->  	case TYPE86_RSP_CODE:
-> +		if (reply->len < sizeof(struct type86x_reply))
-> +			return -EINVAL;
+---
+Changes in v2:
+- Rebase on top of v7.3-rc2.
+- Add the missing include of linux/slab.h in
+  drivers/virt/coco/arm-cca-guest/arm-cca-guest.c.
+- Remove the asm/mmu_context.h include from asm/elf.h on s390.
+- Add the missing include of linux/elf.h in linux/cpufeature.h, reported by
+  the kernel test robot.
+- Clean up commit descriptions.
+- Link to v1: https://patch.msgid.link/20260707153819.4172541-1-petr.pavlu@suse.com
 
-[Severity: High]
-Does this length check preempt the error handling for short hardware error
-replies?=20
+---
+Petr Pavlu (6):
+      x86: Avoid indirect includes through linux/module.h -> linux/elf.h
+      s390: Avoid indirect includes through linux/module.h -> linux/elf.h
+      drivers: Include linux/slab.h for kmalloc() functions
+      s390: Remove the asm/mmu_context.h include from asm/elf.h
+      cpufeature: Include asm/elf.h for ELF_PLATFORM
+      module: Limit ELF includes in linux/module.h to uapi/linux/elf.h
 
-If the hardware returns a short TYPE86 error reply (such as format 1 TYPE86
-errors which are only 8 bytes), it appears this will immediately return
--EINVAL before the msg->hdr.reply_code check can process it.
-
-This bypasses the error conversion and retry logic in convert_error() for
-transient hardware or bus errors (e.g., REP82_ERROR_TRANSPORT_FAIL), causing
-them to falsely propagate as invalid arguments to userspace applications
-instead of being retried.
-
->  		if (msg->cprbx.ccp_rtcode &&
->  		    msg->cprbx.ccp_rscode =3D=3D 0x14f &&
->  		    outputdatalength > 256) {
-[ ... ]
-> @@ -854,11 +876,15 @@ static int convert_response_ep11_xcrb(bool userspac=
-e, struct zcrypt_queue *zq,
->  {
->  	struct type86_ep11_reply *msg =3D reply->msg;
-> =20
-> +	/* reply->len is always >=3D sizeof(struct error_hdr) here */
-> +
->  	switch (msg->hdr.type) {
->  	case TYPE82_RSP_CODE:
->  	case TYPE87_RSP_CODE:
->  		return convert_error(zq, reply);
->  	case TYPE86_RSP_CODE:
-> +		if (reply->len < sizeof(struct type86_ep11_reply))
-> +			return -EINVAL;
-
-[Severity: High]
-Similarly, does this strict length check break the error processing and ret=
-ry
-mechanism for EP11 requests if a short TYPE86 error reply is returned?
-
->  		if (msg->hdr.reply_code)
->  			return convert_error(zq, reply);
->  		if (msg->cprbx.cprb_ver_id =3D=3D 0x04)
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911130544.4348=
-4-2-freude@linux.ibm.com?part=3D1
+ arch/s390/include/asm/elf.h                     | 1 -
+ arch/s390/kernel/nospec-branch.c                | 1 +
+ arch/s390/kernel/processor.c                    | 1 +
+ arch/s390/mm/mmap.c                             | 1 +
+ arch/x86/entry/entry_fred.c                     | 1 +
+ arch/x86/entry/syscall_32.c                     | 1 +
+ arch/x86/kernel/cpu/intel.c                     | 1 +
+ arch/x86/kernel/fpu/xstate.c                    | 2 +-
+ arch/x86/kernel/process.c                       | 1 +
+ arch/x86/kernel/signal.c                        | 1 +
+ drivers/char/tpm/tpm_crb_ffa.c                  | 1 +
+ drivers/s390/char/uvdevice.c                    | 2 ++
+ drivers/virt/coco/arm-cca-guest/arm-cca-guest.c | 1 +
+ include/linux/cpufeature.h                      | 1 +
+ include/linux/module.h                          | 4 ++--
+ 15 files changed, 16 insertions(+), 4 deletions(-)
+---
+base-commit: df2908090cda368b01ff43709f51890076c56157
+change-id: 20260816-module-include-elf-a9c10c041867
