@@ -1,134 +1,212 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBAE93AB285
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 09:47:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7077639A80E
+	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 09:52:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789120061; cv=none; b=nDNl+IebPqb3YNGjVnYND0QewVgnyPH+LEjMXHwB732TCX2AWgUnBgkCcX4DAIBQLLr0eBdUxQeVvoa0u8M+EyW4U8myvQ6nToA4NnsZqTgAU50IH4jjY3JLlgIThtoqu5zU2rcUHR88qIjQEFIbA/g+8ucv2IesZzhWhoydRdI=
+	t=1789120341; cv=none; b=Raf+YEAfZv07Klbp2bKdVF46Mt+7PULii5+A03ojhuEvf2BeBptRefPOqIuVHSjhys786zSAlrYulibp9U+Ke3zGkzdadLmEiF2CQABpnfjRpz6M0ORcCvZWWr5RtHNRtTwew1jEZffam25bjnjD30El1454vQ2iipjDqSoSSpI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789120061; c=relaxed/simple;
-	bh=xGGCc2ntSoMFPb3Xhvkc7zrCAk8Ispg/ZB1L3ojoz8g=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YjY4QPRkOaRE9etBcRgj0JMmRJlFHX5QdyiOotNpsGyxNEQLfjy2wBlhPcE6v3uBTt2gMkWBL/UlpmYvK2crPVR4u86UkDWqxmO4qaKePGP9GMdwNCg7GOXF2hKyTVYhXde+t43q5WR61fbdOrwspVLTYlZ7eq+HKnehqALFxfU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GqGE4f8x; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1789120341; c=relaxed/simple;
+	bh=foBiRzj/cXAIJFAVSNYQZm1+W39c9b6Yo6GFF65Fv10=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=pXO1xVQmdwqbKnCpedZh/korWwjrxTg1RIlMfD5vvhIx72jmC2dgh1vazfW4eyon5IX7i1Ll42V1QmiGKH+tnGh+osO3kgnOhq3wKKysJ/aA8brsDopF5ZQccrA3vorfswkG0UBfyfkCXIJVB9dX/HIvwQpN0eAEoBREnZSTIpg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IkTB2Bmj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GqGE4f8x"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68B81Z2b1237483
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 09:47:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Z9QwjP
-	bAxcXeI3iHMqjOI9GxAp3WZdNmDpNzUS13O4A=; b=GqGE4f8xeszevYOkK/8cKT
-	Ah6/mHS/dFsvALNBHbdO6XnbrJHGdiQctzCa/P3cK+NXtKZLT8+7Lp7ZH8lPXpiO
-	2MFSkPNQWXC8vdS7AT66BgwF2VAn0v7aQdCUFiWOCX9RYUrtnTe9nugtpCMEP5B6
-	fEP53ZcCGMF2ghFvPebRFPdxjRgdhDoTu9p0+q7RYQdRZtdVVhGx+lhQyY7aioly
-	wqvjJ3js+RMyyalsUMXKBVg8rBSDI8sUdyueiQktYEyqrA11fanwy4ufqS2A924K
-	+sCpFAK8CbJ16WbrbSlTneCUDF4UEuENcIUgpa6C9lOtVRZVvHbw8kiKc7Z823yQ
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gkd8qtmk7-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 09:47:38 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68B7o87q1318015
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 09:47:38 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gkvtfdjpc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 09:47:37 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68B9lYwu14614816
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 11 Sep 2026 09:47:34 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E8C792004B;
-	Fri, 11 Sep 2026 09:47:33 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9E92620043;
-	Fri, 11 Sep 2026 09:47:33 +0000 (GMT)
-Received: from [9.111.80.234] (unknown [9.111.80.234])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 11 Sep 2026 09:47:33 +0000 (GMT)
-Message-ID: <1402f797-77c0-4e27-b9dd-713abf763d5d@linux.ibm.com>
-Date: Fri, 11 Sep 2026 11:47:33 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IkTB2Bmj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE41E1F000FF;
+	Fri, 11 Sep 2026 09:52:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789120340;
+	bh=3/vtlQ8Nz6Q9OdolqTd/1zlJkTugHy373WFuUvd9CmY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=IkTB2BmjZ0HW4RwjxdkORbFX28ZJLjHMb0kaDdp3Ajp37uKhKOQw94wtuFA9JmWoK
+	 nWAP23wMfMXT56k8DqdH3tfRTOMry5OEdNBGElEbZL1INAEwWMYmQ7Moj5e03gFFim
+	 h8CWGwReXlBGRIGevAbYqpU67IlUQGKM15wfd1F+ZHPTjoqGL6phOSt7cQAkCF4VH+
+	 XqnTVtEPiNvSiIj5CkpRerMrxi2VeVRg98HwOMN8U/rkrUZTo3YF80y9rDn+ZoP9f+
+	 FIVpnaUUEK0ctDAUzrmSntx20sBXqY+LJ5ID1mTnFgew4iMvGWlxuoFo3FDjlH3yQe
+	 LA6rWchf4Lrjw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] perf header: Fix HEADER_CPU_DOMAIN_INFO feature
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Thomas Richter" <tmricht@linux.ibm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260911094129.2032815-1-tmricht@linux.ibm.com>
+References: <20260911094129.2032815-1-tmricht@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 11 Sep 2026 09:52:19 +0000
+Message-Id: <20260911095219.AE41E1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] s390/hiperdispatch: use system_dfl_wq to reschedule
- hd_capacity_work
-To: Euan Bourke <euan@linux.ibm.com>, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com
-Cc: linux-s390@vger.kernel.org
-References: <20260911091309.1238604-1-euan@linux.ibm.com>
-Content-Language: en-US
-From: Mete Durlu <meted@linux.ibm.com>
-In-Reply-To: <20260911091309.1238604-1-euan@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=SpUFe/O0 c=1 sm=1 tr=0 ts=6aa3ce3a cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=51Nsnpwx8Kpt3tMXxvMA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: 7zOpgbvZwJgiCeU_SP38vnV5Exah4XFn
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTExMDEzMiBTYWx0ZWRfX6RuMVKeXMMQ4
- y+Z+tuF+yfxis+ClFzxPSpTdHTzPVIH5uSOn0+5qsYNaruiA0xo/pEiwy+sZ6fhvztu35XUU13j
- qMj9a2Hto7SndIzqss/BHkm5tHEsdZTR6cJQMSRZJsoKn7S9a6eygoTlwhhXfXAHzjzCasY9dzH
- jMNNIgq3x0gVgpCIAhPOKzktlOv0f5yGix+q1iZIEZPxMoHXvxfgdX2eeByxrPE7vMgtewWeFM9
- yaB8yvRVosCQCWZvMQHEs/5F95bcSfLkkHoGobOvfnP2M/Mg95QCehszzKRCyyJvFhkbEhnlCwz
- rkFxX4dxVSx/Be3zaz7DSguWKrBfzSIxsqg2fJJEnZQpZid9+mTf5xQodALLoczZAe0DwXl7bVO
- frqVKYyfx0jWMJYbKRWpfFAGxGoaTLsFbXs9sC3t3lwrIwT9turMztFzwX2AVGEc8GbIWAkLpO6
- 1ADFpMxoo6JVNfBjkBg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTExMDEzMiBTYWx0ZWRfX0i11K0GC/30G
- t1o1NFs5Yx4ofd2Q+ZYRTGY4lmTDSAOcQbPx/mkl7Jm2QtdJOeyLU4pAb0CvUdyCcLJfbdIIzoO
- qgj7onicdSV2DWHJsQXxfehskTFsPHY=
-X-Proofpoint-GUID: 7zOpgbvZwJgiCeU_SP38vnV5Exah4XFn
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-11_03,2026-09-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 adultscore=0 lowpriorityscore=0 suspectscore=0 spamscore=0
- clxscore=1015 phishscore=0 malwarescore=0 impostorscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609110132
 
-On 11/09/2026 11:13, Euan Bourke wrote:
-> In hd_enable_hiperdispatch(), hd_capacity_work is scheduled on
-> system_dfl_wq, however the work function reschedules itself with
-> schedule_delayed_work(), which uses system_percpu_wq.
-> 
-> Hiperdispatch does not benefit from using the percpu workqueue. Use
-> queue_delayed_work() with system_dfl_wq for consistency.
-> 
-> Changing the workqueue from system_percpu_wq to system_dfl_wq causes no
-> functional changes.
-> 
-> Signed-off-by: Euan Bourke <euan@linux.ibm.com>
-> ---
-> v2:
-> - use queue_delayed_work() instead of mod_delayed_work()
-> 
->   arch/s390/kernel/hiperdispatch.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-This disparity is first introduced at;
-commit 72105fc1c1cb ("s390: Replace use of system_wq with system_dfl_wq")
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
+s) to consider:
 
-I must have missed that schedule_delayed_work() always moves the
-work item from its original work queue to system_percpu_wq.
+New issues:
+- [Critical] The patch adds a new field `nr_cpus` to the `HEADER_CPU_DOMAIN=
+_INFO` section in `write_cpu_domain_info()`, but completely fails to update=
+ the corresponding read logic in `process_cpu_domain_info()`. As a result, =
+the parser mistakenly consumes `nr_cpus` as the first `cpu` ID, permanently=
+ desynchronizing all subsequent reads of variable-length arrays and strings=
+. This fatally breaks the perf.data format reading for this feature.
+- [Low] The updated documentation in `perf.data-file-format.txt` erroneousl=
+y contains literal `+` signs (diff artifacts) and misrepresents the structu=
+ral layout of the binary format by appending the new fields instead of show=
+ing them at the beginning of the header section, contradicting both the ser=
+ialization code and the commit message.
 
-Thanks for the patch and feel free to put my r-b and tested-by
-as it looks good and tela test cases for hiperdispatch show no
-regression.
+Pre-existing issues:
+- [Critical] Heap out-of-bounds write in `build_cpu_domain_map()` when pars=
+ing `/proc/schedstat`. The `cpu` index is extracted and used directly as an=
+ array index into the dynamically allocated `cd_map` array without any boun=
+ds checking against its allocated size `nr`.
+- [Critical] Stack buffer overflow in `build_cpu_domain_map()` when parsing=
+ unbounded strings from `/proc/schedstat`. The unbounded `%s` format specif=
+iers write directly into fixed-size stack buffers (`dname` of size 16, `cpu=
+mask` of size 4096) without width limits.
+--
 
-Tested-by: Mete Durlu <meted@linux.ibm.com>
-Reviewed-by: Mete Durlu <meted@linux.ibm.com>
+commit b3021ce087d716ca61ad4fc99fbab6158ead0501
+Author: Thomas Richter <tmricht@linux.ibm.com>
+
+perf header: Fix HEADER_CPU_DOMAIN_INFO feature
+
+This commit updates the `HEADER_CPU_DOMAIN_INFO` feature serialization to
+include a new `nr_cpus` field and aims to align the documentation with the
+binary layout.
+
+> diff --git a/tools/perf/Documentation/perf.data-file-format.txt b/tools/p=
+erf/Documentation/perf.data-file-format.txt
+> index b90cba9168f84..e37f7484487bc 100644
+> --- a/tools/perf/Documentation/perf.data-file-format.txt
+> +++ b/tools/perf/Documentation/perf.data-file-format.txt
+
+[ ... ]
+
+> @@ -461,7 +461,14 @@ struct domain_info {
+>  struct cpu_domain_info {
+>  	int cpu;
+>  	int nr_domains;
+> -	struct domain_info domains[];
+> ++	int schedstat_version;
+> ++	int max_sched_domains;
+> ++	int nr_cpus;
+> ++	struct {
+> ++	       int cpu;
+> ++	       int nr_domains;
+> ++	       struct domain_info domains[nr_domains];
+> ++	} [nr_cpus]
+>  };
+
+[Severity: Low]
+Does this documentation update mistakenly contain literal '+' signs from di=
+ff
+artifacts?
+
+Additionally, does appending the new fields at the end misrepresent the act=
+ual
+structural layout of the binary format, which writes these values before `c=
+pu`
+and `nr_domains`?
+
+> diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
+> index 7db7da090a1e0..770fd21eb1a55 100644
+> --- a/tools/perf/util/header.c
+> +++ b/tools/perf/util/header.c
+> @@ -1836,7 +1836,7 @@ struct cpu_domain_map **build_cpu_domain_map(u32 *s=
+chedstat_version, u32 *max_sc
+
+[Severity: Critical]
+This is a pre-existing issue, but does `build_cpu_domain_map()` have an
+out-of-bounds write when parsing the cpu index from /proc/schedstat?
+
+tools/perf/util/header.c:build_cpu_domain_map() {
+...
+		} else if (strncmp(line, "cpu", 3) =3D=3D 0) {
+			retval =3D sscanf(line, "cpu%u %*s", &cpu);
+			if (retval =3D=3D 1) {
+				cd_map[cpu] =3D zalloc(sizeof(*cd_map[cpu]));
+...
+}
+
+The `cpu` index is extracted and used directly as an array index into the
+dynamically allocated `cd_map` array without a bounds check against its
+allocated size `nr`. Could this lead to a heap out-of-bounds write?
+
+[Severity: Critical]
+This is also a pre-existing issue, but does `build_cpu_domain_map()` overfl=
+ow
+its stack buffers when parsing unbounded strings?
+
+tools/perf/util/header.c:build_cpu_domain_map() {
+...
+	char dname[DNAME_LEN], cpumask[MAX_NR_CPUS];
+...
+			if (*schedstat_version >=3D 17) {
+				retval =3D sscanf(line, "domain%u %s %s %*s", &domain, dname,
+						cpumask);
+...
+}
+
+The `%s` format specifiers in `sscanf` write directly into the fixed-size
+`dname` and `cpumask` stack arrays without length limits. Can this lead to a
+stack buffer overflow?
+
+>  static int write_cpu_domain_info(struct feat_fd *ff,
+>  				 struct evlist *evlist __maybe_unused)
+>  {
+> -	u32 max_sched_domains =3D 0, schedstat_version =3D 0;
+> +	u32 max_sched_domains =3D 0, schedstat_version =3D 0, nr_cpus =3D 0;
+>  	struct cpu_domain_map **cd_map;
+
+[ ... ]
+
+> @@ -1855,6 +1855,15 @@ static int write_cpu_domain_info(struct feat_fd *f=
+f,
+>  	if (ret < 0)
+>  		goto out;
+> =20
+> +	for (i =3D 0; i < nr; i++) {
+> +		if (!cd_map[i])
+> +			continue;
+> +		++nr_cpus;
+> +	}
+> +	ret =3D do_write(ff, &nr_cpus, sizeof(u32));
+
+[Severity: Critical]
+By adding `nr_cpus` to the payload here, do we need a corresponding update =
+in
+`process_cpu_domain_info()`?
+
+Without a matching read, it appears `process_cpu_domain_info()` will consume
+`nr_cpus` instead of the first `cpu` ID:
+
+tools/perf/util/header.c:process_cpu_domain_info() {
+...
+	ret =3D do_read_u32(ff, &max_sched_domains);
+	if (ret)
+		return ret;
+...
+	env->max_sched_domains =3D max_sched_domains;
+
+	for (i =3D 0; i < nr; i++) {
+		if (do_read_u32(ff, &cpu))
+			return -1;
+...
+}
+
+Will this permanently desynchronize all subsequent reads from the perf.data
+file?
+
+> +	if (ret < 0)
+> +		goto out;
+> +
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911094129.2032=
+815-1-tmricht@linux.ibm.com?part=3D1
