@@ -1,65 +1,65 @@
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB832370AF5
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 14:42:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A04CF372EEA
+	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 14:42:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789137773; cv=none; b=jamH8x3XazPt0LeI0oWNZsfs60UpGSCX1hLDGkIBxD7hINXfhd8iUZntZo0Mg39s6mofwcvpJE01Yh7dEewP0kPqwMymIUHBRwDgt53zIDkY837w0yNc9D26/qmO4WvGMUumUsl/Jfp0QqiyqLuYLxt71OBwq78r2HFeS7e83Ro=
+	t=1789137774; cv=none; b=vEPuzBdeVMKIsy5zuOaXnJOZ4bIwA3KFjRK4RVVppotZCylcXQN6v+fv65NKewhA4nuGGrxxhmYLtugxMCnLc/7DhMeYOvXVDRxriTKtPMhMXwvbCIIJuB9BFnJmbnCU3NP/KrkqaNP3cNpPZgs16nigtaGU8MaOMCqoxbKHp90=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789137773; c=relaxed/simple;
-	bh=vyJh04de2eQI9xDXQLk2SsoY9d27ljdKRQo9PLvYs3c=;
+	s=arc-20240116; t=1789137774; c=relaxed/simple;
+	bh=0IbYtktTturnkEVqSlPbeY9GBPBTr7a/zwfoJfBYE+M=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=DmK7SSwcXM8pC7upPYSz9YOJIR/BMhja0/t/gcPVIn/dKWeiwpU0ptzLeo9fMV3nhnUWSeCExYydfaL5mkriUaMjChgEgocV5aMIQ6NMh/njeYAdJoZrTYAfp1fUciBkAzcxvSbW3XFXIAgJwCBrmulsqGgwGMoBQz4uOqii1Yk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=Ry9/DkDa; arc=none smtp.client-ip=209.85.128.54
+	 MIME-Version:Content-Type; b=oJ9ECy3r/GtUfhzYNDHvrOlcmnv7Ky+EX/6bEbY8eV5G5r/Sd1My59+In6mFug0GtpU/qvCcgiSLKoh6fkjGvLlMr+PT4ugt/sbjhq47A/vP6MEZDVafa6zUPOsYNuDOe7LuiL3zzbBHFNW0VJfwYj6is3Vn/UezY63rXPnoe7E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=Z8jfTWos; arc=none smtp.client-ip=209.85.128.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="Ry9/DkDa"
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-49b0d8bc2aaso11808715e9.0
-        for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 07:42:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="Z8jfTWos"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-49cca4ffdcfso8728665e9.0
+        for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 07:42:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1789137769; x=1789742569; darn=vger.kernel.org;
+        d=suse.com; s=google; t=1789137770; x=1789742570; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=q7y0rlVQh9abTylMWGDq0N15j8M2y0GYhOvmNvpShVQ=;
-        b=Ry9/DkDaFZ4TdwpnSd2qNFVelkgZf0I+sK/vUSrXGJVDvUzGWKFLqdb8UxWJFtIRyd
-         QGt2zLsY13XYCfEcx00KmUUPRDrGz+NYn9CJmX9yUyb6hq7gEJz42IC4MRCnwIaEcpdW
-         tQUujaQLqeUNnfCJTTcjYm7FSljCpemBd6+PukhbHVRJ4Q4stj3C5SASxuwEvbjV0Osg
-         /Q9Xgj+v7KR2zVR2teJezj0miqoZCcV0EC/BLQEfUdpZPOknI1tMHRR4RQUQMW5zLmKr
-         P4KyxRefgvqyrABexKeT1gw6lYCx5pucDAHN4oMpIUKFHJiBPNydC9j33pcTbhnipiQE
-         DZWQ==
+        bh=FKEH1rdH58hXYuPTfWCTfgwfx7OW8iMrRBH+iDZ91m4=;
+        b=Z8jfTWosaEo2HWD2p/bKk1WPbhl/j6Pe2eLIR8l6ukhtfdaUijFMgVf2HCa7Z298SD
+         CFcykKCNEosaxh8H1INhTq5m0f/XqRC5fsjT3azAOB5zvpsS8/QUec+opqz9bhiKTnqU
+         d9RmGJF1NWoJcyLW+ZxqfUoyWaOTXdhY0cpc/f3YvvjKb5wGSG+fI9QgimDFakTbb0kJ
+         IIbtE4rW8l5mj6FAffDrI9GM2LakqOKXPCbR52H6mKtRGrfm6xiQsjOBjF1gLaMmLQxl
+         wu6l8w57NLr0I5Z07RgoKWtMTRnqmzpagspnC+ipJvRR48TYm/Jk1bElpF3Yht6+affq
+         4D2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789137769; x=1789742569;
+        d=1e100.net; s=20251104; t=1789137770; x=1789742570;
         h=content-transfer-encoding:content-type:mime-version:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=q7y0rlVQh9abTylMWGDq0N15j8M2y0GYhOvmNvpShVQ=;
-        b=XamAJEMVj6Z7/Wruh2cjKV0b5bDDjRS+ycO9qmGj46eG/RV6hSjxb5W+40DsR1asoJ
-         aaOZFUOXW/DW7+Hbw+YbOAEF04FM8WNTA2XtJj0z767zIufTr2iw4av477RFIY5AX1cp
-         9ce66l5X/8490cbklPB6QIAI8e8FnCRynXhoDSz+cNBPhmfswQ6I43F5Rb6VVCmlWQm2
-         u5adeYy4dgZ2hbKa8O1N4la+bv5yG5K46JxzrSxXAIot3p7/Qbnz/vb0Dnq42KfaxBOZ
-         HrR+vmKNAlEKPgyGMIvhu1Oim1g2G8RlxLq74kW3hqz7rkeHEbPpce9z8VXt1S91Mvl+
-         P9FA==
-X-Forwarded-Encrypted: i=1; AKwUvBzEVxFjG8uOZbQsQpI47oE//nnoQ6PYJuum1Fxo4fnQ1sIctu11Bz5cG/m8/SoyshmRKC8A9U04i94w@vger.kernel.org
-X-Gm-Message-State: AFuF++khpUNBPbrmC4uO8BAkGWo7/lcMOsQ2wbgA9hK/KCK16GEKCdMj
-	/kZGhnP/lmYNdnm0j6J/cja6sXxRiRvu0gg7d4FaGGM7/i//SfEZWonYEA92D5B+75g=
-X-Gm-Gg: AYBFou10tqor36P2Z4aVCHwDMCN9IEbP17HDT4CQLcUPLzH7OzQk3TopiFg04G9L5a4
-	2RBaLPF9G2hZeVq0v48KU5d9YPSZu+B1GXuV2yZsKw8UIp9/pZnScke3VjVgRB3zJ5j3C9pX48x
-	E+2il2BfxZgoevzlZ+jJP/glw2ldEWQvOpLysSZ//AfETKN/b0GGyvi3CgVumYNlEAQZ6+udPJE
-	NTuXCLEdfUbvsd2Czhfxfkpt3wnG2s43G/ZBtu9rt5ojT5w/DKWJ8+PrsRW+e5uVqn+kRSeLeCW
-	nwGZUXKT3SNHz/j8oL5aaivuh2Vu/CbYROA+BAa6aSf1voAOcAxtUJqV6uF7MNxo5WOEm3KRgSo
-	RA4al2lXgCvwPBcVZQktt9f5ic0KUNi8wZncQTNLZ1a8qEB+Q0h0G3xf+wUfP6X1DKuIKAiDZUN
-	ZAojwetBKm5+347yls2jOvvldit+Pe80kUsuY4pBxygn7Bm6/BcZ64ZLq9H3UI8gIWgWtvlWsew
-	VZtpw==
-X-Received: by 2002:a05:600c:4f43:b0:49c:fc6c:be0b with SMTP id 5b1f17b1804b1-49e619bd068mr62359435e9.17.1789137768683;
-        Fri, 11 Sep 2026 07:42:48 -0700 (PDT)
+        bh=FKEH1rdH58hXYuPTfWCTfgwfx7OW8iMrRBH+iDZ91m4=;
+        b=RGnw1fn/BhGKEElqr6BYDNNISLwBwn2f93/3ru0Y9STVHfm25LhQwpSjdsND05YBqO
+         55gfaon+28E6KgZilikpmEClPg27Otpj1TMlUgEqNq6zcl3U1/sGBQ7kMmDyUlEm1lqd
+         BMJyg3/JDIeQ2gDGcbH4PqiwH97gOtxDjpLh1FnuNYOL7IbfD25G6PeB+/acYU/IlNHe
+         FEBPvK4gsGrIkfJuvEhERQSjBZsWyAYfeorssAvLH3PUa8h72jTjdLrA+Uj86zKEzJvr
+         JxR2JwzG29FFe32AgUM/dNIlVlRNL2Hgm75Tg0jdBCnldF0scakI4W2TLYU4L7UcJt9p
+         f76Q==
+X-Forwarded-Encrypted: i=1; AKwUvBxnwcG8BHSwPeVx23vgRRuJcGo4LpgiH5NL1uq6gd674qbIsM7ixVArfeYph6XfiUywTY74qJCO/W+9@vger.kernel.org
+X-Gm-Message-State: AFuF++lBuYIwf8U8I4bja0l9IP2KS/x7nyxBy92TmpTK+YbwOPWDKkOq
+	ANTjyOwjs3wMq2nW2UMa+8sS2IF9c1S96KnNUy2DEiSWEmuP37cUHIYLV4V8VdyGnss=
+X-Gm-Gg: AYBFou0r3k9gQllPo5lCAK+mjmZtHb5xs8kZujNdDLFx8NM1n48N16A5KfVHGd8RK7s
+	TiGXudXOqnQRZ8GN6UuFT0fFL6YMriOJnIWED8FMBNtfMpoXFSaEJ7sv/EfIjgI6DjCzpzIC2aP
+	3QaEOi01M2ZzY8R3JUGqYPhK+1l//tPINyCps9BTbpH4RF2BjbO+BSf43N3L9M36CkpscTbHD99
+	gm/i/+0mKcqeMp9VwUgD3LwdnPkc9v9DmKX4nVcwtuWpE0wKqcN+Di58ICFQe6hLfh3mvYmQ65m
+	196QeDCmaZaTEXF0MiVMeoYQ3Zj0VV/xLbpqbIzXswNx4KrJ2g34VX1DGP1uWZVkk8cMmTjHvJd
+	vVzmL3RZK1jU7BSkeY9VqoCZlDDnIBesj9MtZSQf/fzF8T3qXOpTR41qlVi1ijvsD98JNfww4qH
+	ffvkm96pZzSJ6oSJWnAkEE56gFzpcVTj4RAW7XdeZype0Zb3v0q/35zo32RGT2iE1B6W8TdgpG8
+	KgQ+jM=
+X-Received: by 2002:a05:600c:3b1f:b0:49c:fc89:59cb with SMTP id 5b1f17b1804b1-49e61983468mr57196585e9.5.1789137770026;
+        Fri, 11 Sep 2026 07:42:50 -0700 (PDT)
 Received: from localhost.localdomain ([2001:af0:8000:1409:193:86:92:181])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49e60ababd5sm107038405e9.4.2026.09.11.07.42.47
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49e60ababd5sm107038405e9.4.2026.09.11.07.42.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Sep 2026 07:42:48 -0700 (PDT)
+        Fri, 11 Sep 2026 07:42:49 -0700 (PDT)
 From: Petr Pavlu <petr.pavlu@suse.com>
 To: Thomas Gleixner <tglx@kernel.org>,
 	Ingo Molnar <mingo@redhat.com>,
@@ -89,10 +89,11 @@ Cc: Xin Li <xin@zytor.com>,
 	kvm@vger.kernel.org,
 	linux-integrity@vger.kernel.org,
 	linux-modules@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 4/6] s390: Remove the asm/mmu_context.h include from asm/elf.h
-Date: Fri, 11 Sep 2026 16:40:34 +0200
-Message-ID: <20260911-module-include-elf-v2-4-954c732975fb@suse.com>
+	linux-kernel@vger.kernel.org,
+	kernel test robot <lkp@intel.com>
+Subject: [PATCH v2 5/6] cpufeature: Include asm/elf.h for ELF_PLATFORM
+Date: Fri, 11 Sep 2026 16:40:35 +0200
+Message-ID: <20260911-module-include-elf-v2-5-954c732975fb@suse.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20260911-module-include-elf-v2-0-954c732975fb@suse.com>
 References: <20260911-module-include-elf-v2-0-954c732975fb@suse.com>
@@ -105,71 +106,33 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 
-The asm/mmu_context.h include was added to asm/elf.h by commit 146e4b3c8b92
-("[S390] 1K/2K page table pages.") in 2008, when the new macro
-elf_read_implies_exec() used disable_noexec() /
-current->mm->context.noexec. Commit 043d07084b53 ("[S390] Remove data
-execution protection") removed that macro in 2011 and asm/elf.h no longer
-needs asm/mmu_context.h.
+linux/cpufeature.h uses ELF_PLATFORM, which is defined in asm/elf.h. It
+currently relies on that header being included indirectly through other
+files, specifically, drivers/base/cpu.c gets it via linux/module.h ->
+linux/elf.h.
 
-Several s390 files currently depend on declarations provided indirectly
-through asm/elf.h -> asm/mmu_context.h:
+Add the missing include in preparation for removing the linux/elf.h include
+from linux/module.h.
 
-* arch/s390/mm/mmap.c: check_asce_limit() -> asm/pgalloc.h,
-* arch/s390/kernel/processor.c: enter_lazy_tlb() -> asm/mmu_context.h.
-
-Add the missing includes to these files and remove the asm/mmu_context.h
-include from asm/elf.h.
-
-This is a preparatory cleanup for adding the asm/elf.h include in
-linux/cpufeature.h, which would otherwise create the following cycle:
-
-linux/pgtable.h -> asm/pgtable.h -> linux/cpufeature.h -> asm/elf.h ->
-asm/mmu_context.h -> asm/pgalloc.h -> linux/mm.h -> linux/pgtable.h
-
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202608151415.UAbFbpvE-lkp@intel.com/
 Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
 ---
- arch/s390/include/asm/elf.h  | 1 -
- arch/s390/kernel/processor.c | 1 +
- arch/s390/mm/mmap.c          | 1 +
- 3 files changed, 2 insertions(+), 1 deletion(-)
+ include/linux/cpufeature.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/include/asm/elf.h b/arch/s390/include/asm/elf.h
-index bb63fa4d20bb..e22e3ab25760 100644
---- a/arch/s390/include/asm/elf.h
-+++ b/arch/s390/include/asm/elf.h
-@@ -170,7 +170,6 @@ typedef s390_fp_regs elf_fpregset_t;
- typedef s390_regs elf_gregset_t;
- 
- #include <linux/sched/mm.h>	/* for task_struct */
--#include <asm/mmu_context.h>
+diff --git a/include/linux/cpufeature.h b/include/linux/cpufeature.h
+index 6aff540ee9e5..66027987e9d6 100644
+--- a/include/linux/cpufeature.h
++++ b/include/linux/cpufeature.h
+@@ -11,6 +11,7 @@
+ #include <linux/init.h>
+ #include <linux/mod_devicetable.h>
+ #include <asm/cpufeature.h>
++#include <asm/elf.h>
  
  /*
-  * This is used to ensure we don't load something for the wrong architecture.
-diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
-index e33a3eccda56..76b2c7478c6e 100644
---- a/arch/s390/kernel/processor.c
-+++ b/arch/s390/kernel/processor.c
-@@ -27,6 +27,7 @@
- #include <asm/param.h>
- #include <asm/sclp.h>
- #include <asm/smp.h>
-+#include <asm/mmu_context.h>
- 
- unsigned long __read_mostly elf_hwcap;
- char elf_platform[ELF_PLATFORM_SIZE];
-diff --git a/arch/s390/mm/mmap.c b/arch/s390/mm/mmap.c
-index ef7bfc87758c..8206f347e00e 100644
---- a/arch/s390/mm/mmap.c
-+++ b/arch/s390/mm/mmap.c
-@@ -18,6 +18,7 @@
- #include <linux/security.h>
- #include <linux/hugetlb.h>
- #include <asm/elf.h>
-+#include <asm/pgalloc.h>
- 
- static unsigned long stack_maxrandom_size(void)
- {
+  * Macros imported from <asm/cpufeature.h>:
 
 -- 
 2.55.0
