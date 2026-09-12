@@ -1,129 +1,130 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf2-f12.google.com (mail-lf2-f12.google.com [74.125.229.204])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B53B2429CC8;
-	Sat, 12 Sep 2026 11:43:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B40AF3264F9
+	for <linux-s390@vger.kernel.org>; Sat, 12 Sep 2026 13:50:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.204
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789213412; cv=none; b=mEtJhfIlnn8MouITUXFNEDO0h1qnEDEM6XbpiUElQwr/tCp0IACiNgqrQWBA8P6QI6J3iGmubHSCf49FcZhm9ibxiI+ShMZtTCfyjTuFf3vTJjjZcSzsbmA5qdZhCOLgxKbsXEMnm3YsCBWgpWrKR3HwzU/ghsHBRsjBTsO9MsA=
+	t=1789221039; cv=none; b=Yvl6TZBcjviN9dd5CEKk9jDqWC6fIQB3I7UNlNWD8QjRGcx4d+rupaCY63Z2axDH5Exonql6Jnxtv/Sl5fyCxMs2bjGxFG/7/GJMDyk9SWDL6iuerWowKGtxWRuFWZvcVlUWV9An/h8YcOisBvEr6Y2DNjfNHbn1XUlBAq+eMzE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789213412; c=relaxed/simple;
-	bh=TAAuZOGr/85DV5+Z7Dz9SB0m4XeycxoHFiH1U0fo8xQ=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hif06+coYyq0h58X8epoQmqy+9Z9fBWQy40O+rAbAp2pfAM2A7r7tRfOBhMj3zgIL2M3mp1kq+c0U18LANpmvRnyxs0VIwWJ70XGMTH1jaeBVuc/QA2JfeOUM0sb79zDCnzpEFgQ9PkUJ3nmlsYLzqxrQ2BEoj9tzsnm611+Z9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cK5XlgfP; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789221039; c=relaxed/simple;
+	bh=+1wQZPTinDQ05m6tnd+jN0uZ71x8nm6FHFC7WAcjCJc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KoBahWmmYfd4MVUqzd9pzmvin9RIDnzJ8+vbSkZ25r96KnbhMp9sUKdsGsyvpdtwS6eSHirM7N0horQya4D45SyuKrhnr4C6TA9tEt07mS/Y0K3xgxekkVmN1I9xbNlOaAXjc5G1hcj3lVRkMh9YE+5q4QSlaq3KLWCr1z6NYbY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CsVBvRjn; arc=none smtp.client-ip=74.125.229.204
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cK5XlgfP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88A781F00893;
-	Sat, 12 Sep 2026 11:43:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789213411;
-	bh=FluqXzh5k5qC80kIPbMVeqGTxq2K8dL/fFXy6Ui0ioU=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=cK5XlgfPkupYP5E+vsxJ+64JEO2JtLPlE15k4Mh8bZmBOf41g0Y7tUKKpNBn4dZi5
-	 +dQGE5QpQwpwGkmBB/TV1FaS0Chj+kAm75gtK1QNRdX6dQ98Twu9fuQfV51yd2rBh3
-	 aHk4owDnHeAaYPsu61BKSShioTRuwr52FvDxJusrvPBfe8dNMD8w2r4TYC9gY/7tH8
-	 W+pun973OiWgJ+Ceb2yzNOB1ZTFgfXAAnvTY7bqI79eOHgXwK5ZPjDZcaKupHT4JW2
-	 G8tYUYsdxUr0OiePQztZ33u56eWGo8bhIfchdyLD/h8M10IpI+U931IcCKBr/MLW+K
-	 /mM8xwPF3/6jw==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
-	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <maz@kernel.org>)
-	id 1x5M8n-000000085Bb-05E5;
-	Sat, 12 Sep 2026 11:43:29 +0000
-Date: Sat, 12 Sep 2026 12:43:28 +0100
-Message-ID: <86ecey7l0f.wl-maz@kernel.org>
-From: Marc Zyngier <maz@kernel.org>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: kvm@vger.kernel.org,
-	kvmarm@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Grapentin <gra@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@kernel.org>,
-	Friedrich Welter <fritz@linux.ibm.com>,
-	Fuad Tabba <tabba@google.com>,
-	Gautam Gala <ggala@linux.ibm.com>,
-	Hariharan Mari <hari55@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Hendrik Brueckner <brueckner@linux.ibm.com>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Joey Gouly <joey.gouly@arm.com>,
-	Nico Boehr <nrb@linux.ibm.com>,
-	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-	Oliver Upton <oupton@kernel.org>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Will Deacon <will@kernel.org>,
-	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v7 11/23] KVM: arm64: Share arm64 code with s390
-In-Reply-To: <20260902124152.438647-C-seiden@linux.ibm.com>
-References: <20260831144802.834315-1-seiden@linux.ibm.com>
-	<20260831144802.834315-12-seiden@linux.ibm.com>
-	<87se3tmlrv.wl-maz@kernel.org>
-	<20260901084037.185345-C-seiden@linux.ibm.com>
-	<87mru0m76g.wl-maz@kernel.org>
-	<20260902124152.438647-C-seiden@linux.ibm.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
- (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CsVBvRjn"
+Received: by mail-lf2-f12.google.com with SMTP id 2adb3069b0e04-5b79784a6edso538841e87.1
+        for <linux-s390@vger.kernel.org>; Sat, 12 Sep 2026 06:50:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789221036; x=1789825836; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=1JB/LtmISFBIMSogMI8anZ1fGKk9xgkHd5HRwwP3L2A=;
+        b=CsVBvRjnM70hWtB/xyQb5SQepTFUj4ccJDLHpwa7Ai4plLa06pNMxc3WAId1bKlrrE
+         F7ftNV0BkFaA/soNsDqeI0a5yW53MEVn1oMc1PHIXSVZfdPzkzMo/MoT4GmdyS0KkG5S
+         TWgZPgTmFCuZ4h8EUwa4D4/r/80Nz0JclxePgVIPuLyXUZjbxUh77Cf859bx880E5Zgf
+         15FTMKi3+uhkhsPguaXMtdCqVxa4UF/zrTawPnTUeIjxpUMnZ9C1z18xgSQqcQa1m9mP
+         g/ML40Uft4cs2QSjSceKGvRj2FlFgKBeayMoG+4n6rM/BrwR03GrRG+UR+id8SGWUaSx
+         IIKA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789221036; x=1789825836;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=1JB/LtmISFBIMSogMI8anZ1fGKk9xgkHd5HRwwP3L2A=;
+        b=I0KuPqTyAlCQWlczB2kYvGLcton09V3+ssEoPj7K2lpa8+BFwtX/j01VZ2h3E1ATY+
+         i7qeVO1YJNr+aZXvTkBrJT/pd7N/l75LkAYRB6yf2FQjH6ioJ+1HWClfSXZMDftyX34f
+         e9/gif7bZ7RnYtBm2m6K7LZHWnH6Vl4JC98v71i4kAiEdbBAtp+D0UE24kNedE0rZ2X7
+         3DIRilTvsdJDCkB+6sj9fl4vMyhTFXtXWuc/7n2NUEs7lkyETvSZg3iNHz92WPc1cKqz
+         8rR4jDGL0d2zawn1y5ysXth0F5XaAnwvkJoVItYv0DqZuEWeqVifS9/spfc1Z/Vr7KIG
+         mL0Q==
+X-Forwarded-Encrypted: i=1; AKwUvBxp2b7/xacMFD5eEslq0uDF3+GIUt2LY/NBLEXsFxRH8BYWCcVGxdm6iVFlJwGr9GBmgqc/Lnn+Uy6u@vger.kernel.org
+X-Gm-Message-State: AFuF++l9A2udMaS65liVjKTeokYaVUiuqx2QBCjqfSoobYYXBIg+EtT5
+	emRGKe44gHvkgkx54jgzRHL3HX0OUx8wg5+Tbffq96Wx8miS5ltAYHPh
+X-Gm-Gg: AYBFou2enY2AGJOuuz6HOkmeBnBNjm3g3dimXcJ9Xq+/t11TUGWru3zVwlaAYi2rE2S
+	dGTbavPan4mVdwmI1QU8+UoLKWGqCEbW6dK5nSs4v123Rqv9b/VmPXTKNqohMqMN7q8MlEdgIk8
+	FtLiWQDPLpZbyzvAAvbAww+1Mjphmw0ysFtWJvOAdSV77AOl0dJnGHW/s+5OUdnxIUsEh/F1SQF
+	KpPl5PIpSumBor0sBhoLYOnau40plXNLmqMcPquw3IVOE4if9rWk80f6ehq5hQGjUCbk1pIU7V7
+	KbNCxwQmMK4w3tkltm7Pareoyn0Z8O2qODsrb/0EWD73kY6QR2qrK4RJbHtaoOf/HAWCfYM9ccc
+	wZ1jbP35+11volzHouU9NlNE/r5NDiIyqoH1PabvsB4DGCOR3OsAX6g1owixR5ieQq0gbQYqRHJ
+	MmrmEBz0vqCEIybv4haBrnuUPZbJWe1fOj1uj4YVA+xKOPQmHHBsihkybYNcDVl7/pFZX2kQDVM
+	lXzmGbzpc588ZQb3HNg8kKgr6588nkBVXPlc74x0BFdbZCefdfhISm19vnlUtOy+hJI
+X-Received: by 2002:a05:6512:3e24:b0:5b2:e947:b3de with SMTP id 2adb3069b0e04-5b8a8ebe72emr404733e87.7.1789221035331;
+        Sat, 12 Sep 2026 06:50:35 -0700 (PDT)
+Received: from localhost.localdomain (46-138-187-224.dynamic.spd-mgts.ru. [46.138.187.224])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b8a0457246sm1257770e87.23.2026.09.12.06.50.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 12 Sep 2026 06:50:34 -0700 (PDT)
+From: Artem Lytkin <iprintercanon@gmail.com>
+To: netdev@vger.kernel.org
+Cc: bridge@lists.linux.dev,
+	razor@blackwall.org,
+	idosch@nvidia.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	andrew+netdev@lunn.ch,
+	kuniyu@google.com,
+	michael.chan@broadcom.com,
+	pavan.chebbi@broadcom.com,
+	ajit.khaparde@broadcom.com,
+	sriharsha.basavapatna@broadcom.com,
+	anthony.l.nguyen@intel.com,
+	przemyslaw.kitszel@intel.com,
+	intel-wired-lan@lists.osuosl.org,
+	saeedm@nvidia.com,
+	tariqt@nvidia.com,
+	mbloch@nvidia.com,
+	oss-drivers@corigine.com,
+	wintera@linux.ibm.com,
+	aswin@linux.ibm.com,
+	linux-s390@vger.kernel.org
+Subject: [PATCH net-next v2 0/2] bridge: report an oversized IFLA_AF_SPEC nest instead of truncating
+Date: Sat, 12 Sep 2026 16:50:20 +0300
+Message-ID: <20260912135022.1701-1-iprintercanon@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, tabba@google.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, seanjc@google.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Wed, 02 Sep 2026 13:41:52 +0100,
-Steffen Eiden <seiden@linux.ibm.com> wrote:
+v1 clamped the VLAN lists to keep the nest under the u16 nla_len.
+Nikolay asked for an explicit error for both RTM_GETLINK and
+notifications, with the extack set by the bridge itself. So patch 1
+plumbs extack through ndo_bridge_getlink() and patch 2 returns -E2BIG
+and points userspace at RTM_GETVLAN.
 
-[...]
+v1: https://lore.kernel.org/netdev/20260906224246.21719-1-iprintercanon@gmail.com/
 
-> So my suggestion is:
-> 
-> For series 1 (and 2) s390 has its own, local implementation of
-> handle_exit without sharing any code with arm64 in regard to EC
-> 
-> When s390 has all the relevant code available (likely series 3) s390 can
-> switch to using most (if not all) EC handling code used by
-> arm_exit_handlers implemented in handle_exit.c.
-> 
-> This can be done without a mixed patch:
-> 
-> 1. Mark arm64 handle_exit.c as shared (roughly the first 400Loc w/o
->    includes) - s390 will not use it after this patch.
-> 2. remove the handle exit code from s390's handle_exit.c and include the
->    new generated handle_exit.inc
-> 
-> This approach brings us further into the share architecture not only code
-> approach you meantrioned in the comments regarding sys-regs. (I or
-> Andreas will provide a solution for this later :) ) 
-> 
-> Is that OK with you, what do you think?
 
-I *think* that's OK. I just want to make sure that in the long run, we
-don't end-up with pointless divergence.
+Artem Lytkin (2):
+  rtnetlink: pass extack to ndo_bridge_getlink()
+  net: bridge: fail link info that does not fit the IFLA_AF_SPEC nest
 
-Thanks,
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c      |  4 ++--
+ drivers/net/ethernet/emulex/benet/be_main.c    |  4 ++--
+ drivers/net/ethernet/intel/i40e/i40e_main.c    |  6 ++++--
+ drivers/net/ethernet/intel/ice/ice_main.c      |  6 ++++--
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c  |  5 +++--
+ .../net/ethernet/mellanox/mlx5/core/en_main.c  |  4 ++--
+ .../ethernet/netronome/nfp/nfp_net_common.c    |  4 ++--
+ drivers/s390/net/qeth_l2_main.c                |  4 ++--
+ include/linux/netdevice.h                      |  5 +++--
+ include/linux/rtnetlink.h                      |  3 ++-
+ net/bridge/br_netlink.c                        | 16 ++++++++++++----
+ net/bridge/br_private.h                        |  2 +-
+ net/core/rtnetlink.c                           | 18 +++++++++++-------
+ 13 files changed, 50 insertions(+), 31 deletions(-)
 
-	M.
 
+base-commit: 879e280b8486d4612ad1aa050d6fada2dd80cf1c
 -- 
-Without deviation from the norm, progress is not possible.
+2.43.0
+
