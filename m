@@ -1,78 +1,129 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE7D3584966
-	for <linux-s390@vger.kernel.org>; Fri, 11 Sep 2026 19:59:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B53B2429CC8;
+	Sat, 12 Sep 2026 11:43:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789156780; cv=none; b=ZDDmy/PgyrObp4EKYOgmm6/0KObMCB27/kYHq29W8+FOpawC632fb1gWeZfL9dGZTKrT68dmkPP50gZQrzDqiO9aiV4UCHW5dxOlHB8XSehX/yWztfPti/LZz3/+DQlrlaYTDlIsW6aAs9ML6VZt618dGUqxZBa+Bn3S6Rgfn0Y=
+	t=1789213412; cv=none; b=mEtJhfIlnn8MouITUXFNEDO0h1qnEDEM6XbpiUElQwr/tCp0IACiNgqrQWBA8P6QI6J3iGmubHSCf49FcZhm9ibxiI+ShMZtTCfyjTuFf3vTJjjZcSzsbmA5qdZhCOLgxKbsXEMnm3YsCBWgpWrKR3HwzU/ghsHBRsjBTsO9MsA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789156780; c=relaxed/simple;
-	bh=rKusOAAtxW8+3T8pol/7JVoH2aIEHJ9BY90ryZx458c=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Xqo8PkZ36xSp5Kr4N+S76EIrp2JNFjMZ1Z+IH3uR5dcP9JtlJWsoPmmyN5N7+8SnFtptAHPPzGYZ3UFN2pXJHNDKa9mKzwsMSqfSDjNceSaLKO46RC1GYmCZENv8w6Ie5fF2+Gf0k9DfHOlt2p3HNupzCxxZAVZsMdol8SXdVV4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fhTXqaL0; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789213412; c=relaxed/simple;
+	bh=TAAuZOGr/85DV5+Z7Dz9SB0m4XeycxoHFiH1U0fo8xQ=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=hif06+coYyq0h58X8epoQmqy+9Z9fBWQy40O+rAbAp2pfAM2A7r7tRfOBhMj3zgIL2M3mp1kq+c0U18LANpmvRnyxs0VIwWJ70XGMTH1jaeBVuc/QA2JfeOUM0sb79zDCnzpEFgQ9PkUJ3nmlsYLzqxrQ2BEoj9tzsnm611+Z9Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cK5XlgfP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fhTXqaL0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E3FC1F000FF;
-	Fri, 11 Sep 2026 19:59:34 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cK5XlgfP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88A781F00893;
+	Sat, 12 Sep 2026 11:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789156774;
-	bh=rKusOAAtxW8+3T8pol/7JVoH2aIEHJ9BY90ryZx458c=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fhTXqaL0joBu7RJevxczpZl8+NhwMofd82+H04nP34ss/p4F/Htu+bEtuLdNqUtrb
-	 /jVGLieiy8pc5XD0cKkKCJQfM723t+YHXzDrSRncNj8VDmAvr2N4nw/bwHSxWc61OG
-	 U25h83oXeUJFfU5+XfYjrHm58/vjfsAauqSXh0f3KPYif9124wVnnrLrJNefHfZESU
-	 qZdkX8DPrnzoo90DqjDM7BPcWfQvMpy1Mtzs++GUZ5XSgns80EBsTeYebjzfoEMj/U
-	 aZuidk9+pS7tBr7CdI5jPbWtPUaill90tXIaO6+wld59nT/AK9F6ov+IJELVpNttbW
-	 YsnzLmo0CxK8Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 11/12] mm: make userland page table freeing RCU-safe
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?TG9yZW56byBTdG9ha2VzIChBUk0p?= <ljs@kernel.org>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260911-rcu-pagetable-freeing-v3-11-7b8c86103821@kernel.org>
-References: <20260911-rcu-pagetable-freeing-v3-0-7b8c86103821@kernel.org>
- <20260911-rcu-pagetable-freeing-v3-11-7b8c86103821@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 11 Sep 2026 19:59:33 +0000
-Message-Id: <20260911195934.2E3FC1F000FF@smtp.kernel.org>
+	s=k20260515; t=1789213411;
+	bh=FluqXzh5k5qC80kIPbMVeqGTxq2K8dL/fFXy6Ui0ioU=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=cK5XlgfPkupYP5E+vsxJ+64JEO2JtLPlE15k4Mh8bZmBOf41g0Y7tUKKpNBn4dZi5
+	 +dQGE5QpQwpwGkmBB/TV1FaS0Chj+kAm75gtK1QNRdX6dQ98Twu9fuQfV51yd2rBh3
+	 aHk4owDnHeAaYPsu61BKSShioTRuwr52FvDxJusrvPBfe8dNMD8w2r4TYC9gY/7tH8
+	 W+pun973OiWgJ+Ceb2yzNOB1ZTFgfXAAnvTY7bqI79eOHgXwK5ZPjDZcaKupHT4JW2
+	 G8tYUYsdxUr0OiePQztZ33u56eWGo8bhIfchdyLD/h8M10IpI+U931IcCKBr/MLW+K
+	 /mM8xwPF3/6jw==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <maz@kernel.org>)
+	id 1x5M8n-000000085Bb-05E5;
+	Sat, 12 Sep 2026 11:43:29 +0000
+Date: Sat, 12 Sep 2026 12:43:28 +0100
+Message-ID: <86ecey7l0f.wl-maz@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: kvm@vger.kernel.org,
+	kvmarm@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Grapentin <gra@linux.ibm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@kernel.org>,
+	Friedrich Welter <fritz@linux.ibm.com>,
+	Fuad Tabba <tabba@google.com>,
+	Gautam Gala <ggala@linux.ibm.com>,
+	Hariharan Mari <hari55@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Hendrik Brueckner <brueckner@linux.ibm.com>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Joey Gouly <joey.gouly@arm.com>,
+	Nico Boehr <nrb@linux.ibm.com>,
+	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+	Oliver Upton <oupton@kernel.org>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Will Deacon <will@kernel.org>,
+	Zenghui Yu <yuzenghui@huawei.com>
+Subject: Re: [PATCH v7 11/23] KVM: arm64: Share arm64 code with s390
+In-Reply-To: <20260902124152.438647-C-seiden@linux.ibm.com>
+References: <20260831144802.834315-1-seiden@linux.ibm.com>
+	<20260831144802.834315-12-seiden@linux.ibm.com>
+	<87se3tmlrv.wl-maz@kernel.org>
+	<20260901084037.185345-C-seiden@linux.ibm.com>
+	<87mru0m76g.wl-maz@kernel.org>
+	<20260902124152.438647-C-seiden@linux.ibm.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, tabba@google.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, seanjc@google.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-> Now every architecture has been converted to support
-> CONFIG_MMU_GATHER_RCU_TABLE_FREE, this configuration option no longer mak=
-es
-> any sense to keep around.
->=20
-> Therefore remove it, and remove all the dead code that existed for
-> !CONFIG_MMU_GATHER_RCU_TABLE_FREE architectures previously.
->=20
-> Additionally, CONFIG_MMU_GATHER_TABLE_FREE is no longer necessary, as all
-> architectures instead use CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE when a custom
-> __tlb_remove_table() is required, so remove this too.
->=20
-> A number of architectures only enabled CONFIG_MMU_GATHER_RCU_TABLE_FREE if
-> CONFIG_MMU was set, however the mmu_gather logic only actually does
-> something meaningful if CONFIG_MMU is set (mmu_gather.c is only compiled =
-in
-> this case, for instance).
-> [ ... ]
-> upon page table walkers to ensure that the page table entries are as
-> expected.
->=20
-> Acked-by: Kiryl Shutsemau (Meta) <kas@kernel.org>
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+On Wed, 02 Sep 2026 13:41:52 +0100,
+Steffen Eiden <seiden@linux.ibm.com> wrote:
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+[...]
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260911-rcu-pageta=
-ble-freeing-v3-0-7b8c86103821@kernel.org?part=3D11
+> So my suggestion is:
+> 
+> For series 1 (and 2) s390 has its own, local implementation of
+> handle_exit without sharing any code with arm64 in regard to EC
+> 
+> When s390 has all the relevant code available (likely series 3) s390 can
+> switch to using most (if not all) EC handling code used by
+> arm_exit_handlers implemented in handle_exit.c.
+> 
+> This can be done without a mixed patch:
+> 
+> 1. Mark arm64 handle_exit.c as shared (roughly the first 400Loc w/o
+>    includes) - s390 will not use it after this patch.
+> 2. remove the handle exit code from s390's handle_exit.c and include the
+>    new generated handle_exit.inc
+> 
+> This approach brings us further into the share architecture not only code
+> approach you meantrioned in the comments regarding sys-regs. (I or
+> Andreas will provide a solution for this later :) ) 
+> 
+> Is that OK with you, what do you think?
 
+I *think* that's OK. I just want to make sure that in the long run, we
+don't end-up with pointless divergence.
+
+Thanks,
+
+	M.
+
+-- 
+Without deviation from the norm, progress is not possible.
