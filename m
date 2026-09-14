@@ -1,60 +1,60 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5730F4756CE;
-	Mon, 14 Sep 2026 14:50:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93087319601;
+	Mon, 14 Sep 2026 14:54:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789397444; cv=none; b=mEI+2rD7fCUNBBXvo4B6bI2PynnSHdVr5eUbQmFUeMBegYvjtsItNfonCoYelG9MHKH+vgFz5B/bQpb09wRaloHyPsBwHf8jjEH0bi/HNVmNBrZ4/3ixEWhnE2ldFFGCRNuHnXyVv2D4p8wkO+h8DOrFpS1XMgVWftuWumBKsoM=
+	t=1789397645; cv=none; b=Wz4F31FPhn5MwM/Pfc/QOo2QPRyVEKZ5bzz91Vq9phFY5k7uH1wv7NB5KWK32Z2fF+qMOw5mjdK6pu9wYoUpLH/7/En616DahWWdoZKmJbCsvCQqTaR0DzKod4Xg5g9egrJo9R8NR+Z5WplumEcW7A+QfsCQBieQk34kcOI617o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789397444; c=relaxed/simple;
-	bh=cwna8Bial48kIDcqkrkO7CHZDp8fjkpFwRaUFTlmNJs=;
+	s=arc-20240116; t=1789397645; c=relaxed/simple;
+	bh=kFCKHi621AjGDm8LrVk88DLI3HyRyRbY9isaABoxJyg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Tcg6WuKaJOrNkq7KmJQukEOhcviwxVV/GlPzeJDll8KzzMD/3HKz5t2abK6dMgitlUH4xQZsIu7QqZ5uiUtI6G3EXnBiQ3eYxxkoQT/EZx9ZhXx1fWGpO6lSBq0YJC3cUk1jXr69/RUKzfGrKi5FLHmbA//Fcq5+K5z4MrKiY8Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ms8ldR/J; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=GrTaxNg761kPoyq8g2wwW2hEBgVqn/yNazwigBECs7AlZFZiJXdHSAh8h/G97+Nuig+HpVJ4XucsNL8fX9J1S1trMui0rgrujygE/3ogZq9IQXqQzTR+V+RdGGjzbTUTT0fcRYplGpR90amdPlZf8wPV/tsz469hgFjXyojwxk0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=D52SCTij; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ms8ldR/J"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68EETgCD2306781;
-	Mon, 14 Sep 2026 14:50:39 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="D52SCTij"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68EEVlKj2160411;
+	Mon, 14 Sep 2026 14:53:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=3hOeMC
-	ri7jwZOnE0IonyVfgEmL5uYiu5W2LI0RMwPDY=; b=Ms8ldR/JxZXm0uwVIiupaS
-	CzsU+ITKo7ULzkZ46mrLHkFk6Vjcv6qwtf9lXtP6ia4WB+mCvo6q4zC8TW7Y16sg
-	Qt28ZXzjj1ln3NTT6e3VOV7CzAittScZGEWAMDNTj71YGz5of7eaTW9xqZS9zJCl
-	otJY+vUEY6enbzyTTPVGc4fHQNDM4sd3HMnImIEm8sJW2o0PKM05Qqt+ulTsGYTi
-	R0uqkTL9NAmxaV9TLBA4qCYlF44Quv4LTXy4DAMZ68vPLZWtqiwoqEh9Ixh7H4G9
-	GGTkyQWSCXdu/WdM1+6oT8xA+uNyrUXaWAsp6poo3OJoxrQTTDbnlLQpyVCf1mVA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=luBa94
+	VbONhRx+7hsYfj2YPwmf9vpuN0WMLt38Sa+/M=; b=D52SCTij1xq5E+Tk568lfj
+	QU8sxzSJk+/5NUGqDpsb1b2pSrm+1pIQtlJvp1n4KZp2CBURcLi03Mh9SCYcOKr0
+	biJH5+kZeuq9NEaBH8bhp6BCzJ4r/d2vsOKQgvv/6MASZOuV+veMpDejEluUHlA+
+	e4ad3oICoQ1grpxxdIz9pPH4va86q12ByyRxAh4HHdlhbiCe8fZU5gu6EHQH8h/b
+	Z6yrHxUu2LW+uHQ0qfNLmdvXt7WMtJ+030UBNgUrJChAcPvHRtpT0aUOwSZuTISA
+	EOYWbOWexYCxOiJmnKoYqt/kGfFtw7Dad1s0UDSj/wXHfChlONc8KAR3NDMAPeRg
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmxf4t3nq-1
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmv5hj8g7-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 14 Sep 2026 14:50:39 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68ED595b2333737;
-	Mon, 14 Sep 2026 14:50:38 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gnjjgpgnj-1
+	Mon, 14 Sep 2026 14:53:59 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68ED54d72386810;
+	Mon, 14 Sep 2026 14:53:58 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gnk9j6dyr-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 14 Sep 2026 14:50:38 +0000 (GMT)
+	Mon, 14 Sep 2026 14:53:58 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68EEoYkf28901936
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68EErspJ45154566
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 14 Sep 2026 14:50:34 GMT
+	Mon, 14 Sep 2026 14:53:54 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7C32620043;
-	Mon, 14 Sep 2026 14:50:34 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id A98772004D;
+	Mon, 14 Sep 2026 14:53:54 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1535320040;
-	Mon, 14 Sep 2026 14:50:34 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4EA6D20043;
+	Mon, 14 Sep 2026 14:53:54 +0000 (GMT)
 Received: from [9.111.205.105] (unknown [9.111.205.105])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 14 Sep 2026 14:50:34 +0000 (GMT)
-Message-ID: <65f6fb59-085f-4223-b8e9-358c9af458a8@linux.ibm.com>
-Date: Mon, 14 Sep 2026 16:50:34 +0200
+	Mon, 14 Sep 2026 14:53:54 +0000 (GMT)
+Message-ID: <fe8ff552-a33f-44a5-991c-22415862c136@linux.ibm.com>
+Date: Mon, 14 Sep 2026 16:53:54 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,130 +62,125 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 17/24] unwind_user/eh_frame: Add support for DWARF
- expressions
-To: sashiko-reviews@lists.linux.dev
-Cc: linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+Subject: Re: [RFC PATCH v2 18/24] x86/uaccess: Add unsafe_copy_from_user()
+ implementation
+To: sashiko-reviews@lists.linux.dev, Steven Rostedt <rostedt@goodmis.org>,
+        Josh Poimboeuf <jpoimboe@kernel.org>
+Cc: linux-s390@vger.kernel.org,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>, linux-trace-kernel@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Josh Poimboeuf <jpoimboe@kernel.org>
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
 References: <20260821195259.2688377-1-jremus@linux.ibm.com>
- <20260821195259.2688377-18-jremus@linux.ibm.com>
- <20260821201856.706821F000E9@smtp.kernel.org>
+ <20260821195259.2688377-19-jremus@linux.ibm.com>
+ <20260821201107.7F0CB1F000E9@smtp.kernel.org>
 Content-Language: en-US
 From: Jens Remus <jremus@linux.ibm.com>
 Organization: IBM Deutschland Research & Development GmbH
-In-Reply-To: <20260821201856.706821F000E9@smtp.kernel.org>
+In-Reply-To: <20260821201107.7F0CB1F000E9@smtp.kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: bVpYJxDZh8K2NzDE8QMqqhnz-VGXEA4_
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE0MDIwMSBTYWx0ZWRfX5ww2/7XJW4dG
- iuc4Rmu2ZasYTXmvbuCmNaviHLGOUDqLa/zXRd9+4cqmVT58croCFMJI/0X3RjylmO11UHZZd+l
- XBsRF/heQegZPjWrVOxZ6BryjUaqKMw=
-X-Authority-Analysis: v=2.4 cv=cvgOAF4i c=1 sm=1 tr=0 ts=6aa809bf cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE0MDIwOCBTYWx0ZWRfX8pJhEG3rjc1Y
+ lYnbic5+ymQS+46Dl0S/obOUT6gEdrsOze+ah5EgxdNifl4hkvBE8aNgnWH153+G6dky/8jleRV
+ Vhv/UU7Kv21Yn8th6yyO7IncPsFOiPmHUXWVDkGLdxX2235T3vBmNVeDAILmlJ6LIKHQFLvmhzN
+ g1rns0nt/yCpltnrpJw9/KBUvTPi7P+EGWh+55mwOl/Z7EqTz+wh0KeuiX32gutZ06E/mVmlpa5
+ j9XTkK/PWYXIBnEmKWQ781IQFg+aID9v/k1SewyrH27FC0rQB+117h0gl7AtPOlY0zrtfKpNAZK
+ BlbXeaBBYN31sqGjmxjh8/JYzuJuqWWwOlN5ubZdUwpe10F+fJ6EeYARiAVm1j2xQGNPC+k18qL
+ 7ZGfMScDDWhMikxSk/YY07LbpHkgRC6l3zM0MCQRIuL/byFomJ45Obh59aXctXNBqJ5FRjD804Y
+ nIgsZL/uzfRcG4IUIhg==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE0MDIwOCBTYWx0ZWRfXyis3z2GqfFuM
+ 9IlidRCHryfo+9EoLyjMb3ZzTeRoieIFGtcF7peSbBorDm/7f+6Dtr4kv036c7JdlYQ/ZDk/n9M
+ zzjnXrq0kmkX1/bpKTYchx/CSAfMBH4=
+X-Authority-Analysis: v=2.4 cv=Zsx4uN7G c=1 sm=1 tr=0 ts=6aa80a87 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=QVt8ylwSJS-iOULjLIcA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: bVpYJxDZh8K2NzDE8QMqqhnz-VGXEA4_
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE0MDIwMSBTYWx0ZWRfX+52457hW5dJP
- w7K7RNEzevabKIchHXxcFbwdTMYmlcZ+dnW1gwy3jqk40a6a1jVZ4wLjC6lg5Ko/lQhlSPLwBLr
- W8SLUvbqcSAfTy6FlFgYfTHSSPWMCohkNtWDrjNhx17kl45aB+MLxN1IdNPGP3ev3z9OFxPhX86
- 4pRs3b+g7E46usn1gDcMGgGSezAiuHK51qGB4ungr49S3du/4eB6aDBO8hdHdpYhoLMN99XAttx
- 1rT+x9ciVt7cL1CLno1xWQAzPvrPdmtHbnjozRC4DRF1LxOsvXKQBXBnHR/idizITnM/EN0HN7D
- VsHFBwJJ5rgoVxH6sMx222vgE4h4ZW5/e68kuDL9WRGmTNNB/4ZR1SHeqojSG/wXKZy8LzJPHQw
- xWIdk3KnCr4TrkobjmcXf9w4oEg3TEALMAqRRB+hlGPAw8fvxnqzVeBjD83+lZXl6MSt3rkCr4u
- RYgb7XvawA5d4LmCwZg==
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=VwQbUJbxAAAA:8 a=njC-hnyFwTIKUP6h0CMA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: XggWwxfULuItcQhR-pRffxO0bPQTtQ8Y
+X-Proofpoint-GUID: XggWwxfULuItcQhR-pRffxO0bPQTtQ8Y
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-14_03,2026-09-14_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 lowpriorityscore=0 clxscore=1015 priorityscore=1501
- suspectscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ malwarescore=0 impostorscore=0 clxscore=1015 priorityscore=1501
+ lowpriorityscore=0 bulkscore=0 adultscore=0 phishscore=0 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609140201
+ definitions=main-2609140208
 
-On 8/21/2026 10:18 PM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+On 8/21/2026 10:11 PM, sashiko-bot@kernel.org wrote:
 
->     Enable architectures to handle DWARF expressions in DWARF CFI
->     instructions DW_CFA_def_cfa_expression, DW_CFA_expression, and
->     DW_CFA_val_expression. Limit the maximum expression length to a
->     reasonable size, while enabling architectures to override the
->     limit.
+> This commit adds an x86 implementation of unsafe_copy_from_user() similar to
+> the existing unsafe_copy_to_user() macro. It also updates the existing
+> unsafe_copy_to_user() macro to use shorter internal variable names.
 
->> diff --git a/kernel/unwind/eh_frame.c b/kernel/unwind/eh_frame.c
+>> diff --git a/arch/x86/include/asm/uaccess.h b/arch/x86/include/asm/uaccess.h
 
->> @@ -803,6 +772,27 @@ static __always_inline int __do_cfi_insn(struct eh_frame_section *sec,
->>  			break;
->>  		}
->>  
->> +		case DW_CFA_def_cfa_expression: {
->> +			unsigned long expr_len;
->> +			char expr[EH_FRAME_MAX_EXPRESSION_LENGTH];
+>> -#define unsafe_copy_to_user(_dst,_src,_len,label)			\
+>> -do {									\
+>> -	char __user *__ucu_dst = (_dst);				\
+>> -	const char *__ucu_src = (_src);					\
+>> -	size_t __ucu_len = (_len);					\
+>> -	unsafe_copy_loop(__ucu_dst, __ucu_src, __ucu_len, u64, label);	\
+>> -	unsafe_copy_loop(__ucu_dst, __ucu_src, __ucu_len, u32, label);	\
+>> -	unsafe_copy_loop(__ucu_dst, __ucu_src, __ucu_len, u16, label);	\
+>> -	unsafe_copy_loop(__ucu_dst, __ucu_src, __ucu_len, u8, label);	\
+>> +#define unsafe_copy_to_user(_dst, _src, _len, label)				\
+>> +do {										\
+>> +	void __user *__dst = (_dst);						\
+>> +	const void *__src = (_src);						\
+>> +	size_t __len = (_len);							\
+> 
+> [Severity: Medium]
+> Could this macro change cause dangerous variable shadowing?
+> 
+> By renaming the internal variables from __ucu_dst to generic names like __dst,
+> __src, and __len, if a caller passes arguments with those exact names, the
+> macro will expand to something like void __user *__dst = (__dst);. This
+> results in self-initialization using uninitialized stack memory, which could
+> lead to arbitrary memory reads or writes when used with SMAP disabled.
+
+IIRC Steven advised to disregard Sashiko's concerns and leave Josh's
+commit as-is for now.  Any objections?
+
+> 
+>> +	unsafe_copy_to_user_loop(__dst, __src, __len, u64, label);		\
+>> +	unsafe_copy_to_user_loop(__dst, __src, __len, u32, label);		\
+>> +	unsafe_copy_to_user_loop(__dst, __src, __len, u16, label);		\
+>> +	unsafe_copy_to_user_loop(__dst, __src, __len, u8,  label);		\
+>> +} while (0)
 >> +
->> +			ret = read_uleb128(&cur, end, &expr_len);
->> +			if (ret)
->> +				return ret;
+>> +#define unsafe_copy_from_user_loop(dst, src, len, type, label)			\
+>> +	while (len >= sizeof(type)) {						\
+>> +		unsafe_get_user(*(type *)(dst), (type __user *)(src), label);	\
+>> +		dst += sizeof(type);						\
+>> +		src += sizeof(type);						\
+>> +		len -= sizeof(type);						\
+>> +	}
 >> +
->> +			if (cur + expr_len < cur || cur + expr_len > end)
->> +				return -EINVAL;
->> +
->> +			if (expr_len > sizeof(expr))
->> +				return -EOPNOTSUPP;
->> +			unsafe_copy_from_user(&expr, (void __user *)cur, expr_len, Efault);
+>> +#define unsafe_copy_from_user(_dst, _src, _len, label)				\
+>> +do {										\
+>> +	void *__dst = (_dst);							\
+>> +	const void __user *__src = (_src);					\
+>> +	size_t __len = (_len);							\
 > 
-> [Severity: Low]
-> Does this unaligned stack buffer passed to unsafe_copy_from_user() cause
-> undefined behavior?
+> [Severity: Medium]
+> Does this new macro suffer from the same variable shadowing risk?
 > 
-> Passing a 1-byte aligned char array to unsafe_copy_from_user() violates C
-> alignment rules. In architecture-specific implementations, the macro
-> explicitly casts the destination pointer to larger integer types (e.g.,
-> u64 *) to perform optimized word-sized memory assignments. Dereferencing
-> an unaligned pointer is Undefined Behavior in C.
+> Using generic internal names like __dst, __src, and __len might cause
+> accidental self-initialization if a caller happens to use the same variable
+> names for the arguments. Should we use more uniquely prefixed names here
+> similar to the old __ucu_dst?
 
-AFAIK [unsafe_]copy_from_user() has no source or destination alignment
-requirements.
-
-The reported concern appears to be specific to the proposed x86
-implementation (see next patch "[RFC PATCH v2 18/24] x86/uaccess: Add
-unsafe_copy_from_user() implementation"), which casts the pointers
-to u64 *, u32 *, and so on.
+Likewise.
 
 > 
-> While x86 hardware gracefully handles unaligned memory accesses, the
-> compiler's optimizer is legally allowed to assume u64 * is 8-byte aligned
-> and could emit trapping instructions. Furthermore, if this generic .eh_frame
-> code is later enabled on architectures with strict hardware alignment
-> enforcement, it will immediately trigger alignment exceptions.
-
-This is currently enforced very early by "[RFC PATCH v2 07/24]
-unwind_user/eh_frame: Add support for reading .eh_frame_hdr section":
-
-	/*
-	 * Unaligned access to .eh_frame[_hdr] fields using
-	 * unsafe_get_user() via UNSAFE_GET_USER_INC()
-	 */
-	BUILD_BUG_ON(!IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS));
-
-> 
-> Could this buffer be declared with __aligned(8) or as an array of u64?
-
-I don't think this makes sense.
-
-> 
->> +			ret = eh_frame_do_def_cfa_expression(expr, expr_len, target_ip, &ctx->state);
->> +			if (ret)
->> +				return ret;
->> +			cur += expr_len;
->> +			break;
->> +		}
->> +
+>> +	unsafe_copy_from_user_loop(__dst, __src, __len, u64, label);		\
+>> +	unsafe_copy_from_user_loop(__dst, __src, __len, u32, label);		\
+>> +	unsafe_copy_from_user_loop(__dst, __src, __len, u16, label);		\
+>> +	unsafe_copy_from_user_loop(__dst, __src, __len, u8,  label);		\
+>>  } while (0)
 Regards,
 Jens
 -- 
