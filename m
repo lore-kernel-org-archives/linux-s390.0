@@ -1,67 +1,130 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3392355055;
-	Mon, 14 Sep 2026 16:50:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18D86368D78;
+	Mon, 14 Sep 2026 17:03:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789404643; cv=none; b=sLyfoWV17ZrppJ3F8GU6UMnHhSW6cqZqR/7+ll3lLoB1zpzB3y6/1aHaV8zN2/CmRddUwAXakDsY0aUCa5wPcIfpP5BxHGkuVZjkLj+viG68fikNsvnVeGeCMVIAaQ3yiJV4klqNgghH8B53rHm03oAVw7XzzuRXna18mVDDX3U=
+	t=1789405382; cv=none; b=LiZagMsRicMtn5zLBXQrZcLiWceGMEQajuuoM80I+s77cyjh12YdoTWeWqTWD0APECa9h2OelE9oNtq0ZsAmydYAW1See5mfFLBbwULAA8zGkIFrIiz99/jf7nfDe7bx00SVqBDqKAgt+gHA0GBH0FcRxxU9+Cd9g+3kscrKrlk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789404643; c=relaxed/simple;
-	bh=fMHfm7FZeGf7wenZpfJYeYn6PjNgUU2eSII5RVcR2D4=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=cSjoXs4b9V1Sl+K+1qkFoB9X6goo1s7hp2dBjCI4WiWviAP7RWH4Bz2AdcYd10ltqrWEJ+tsZRFP64BYwr6L8kg+ulAdbxDLzTeWDlYC3SHsuuNWj6aZOXIKS5AW4LHVHs1P5vxWCJmCKTfyFhkydRffvoBHp/7gkygBlW9bQeg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MbEpcLci; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789405382; c=relaxed/simple;
+	bh=dYCXpFw25I3Y7h9Cj8YGjW/IEpXG/wwnKMKLMnnlhME=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pFRb6wBRiB9V3PozQZ8DEXgRSgDG9EnxMqBo9jIVOLCizAvc3k6bvVVTbcH315fxQOPbz4TcpnCdQHOBtZfOui/F5y82gjBlbgL/XGmg4nPs3kb3L/JVjCRUfoTs/Sc20GC+BYfOyPVubzKl6Ofv7xIB2cgbzuit8IskzZ9+sYk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=avqkMUJX; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MbEpcLci"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E641F000FF;
-	Mon, 14 Sep 2026 16:50:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789404641;
-	bh=fMHfm7FZeGf7wenZpfJYeYn6PjNgUU2eSII5RVcR2D4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MbEpcLcidWqFKrf9SNVAq8W2H0C9dzhHr/GINcnFsMH73oPTM4hbKmq98bj+S/5hY
-	 QOi2Y9BIuK2+E0/dPXJVdQ7+WAhl/0oWPwH5+V1rUakRIjkPp3BcBqqaXW6QppFGlR
-	 Em89N7BMuwlk6fvhD9XC4ol9sI6UZrzEEn6qNb1KHMTs7W2T5izJ8hWMZb+0e6Kd53
-	 CLspDFzi5SGtxXNIGYxNV+0kjjgcue/t1EoLVaC5+RW/BaL7XNUHD+cKDWjAOEfSCK
-	 kALJb4S7b9n/kUTKFaLgFRtYcIoGpKAjyqgTvgJ3CdxOB9YIihbYhPlcV4acKqcaAs
-	 EyL/QhL8VkbFA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 07/40] mm/vma: tidy up map kernel pages enum values
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?TG9yZW56byBTdG9ha2VzIChBUk0p?= <ljs@kernel.org>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, dri-devel@lists.freedesktop.org, bpf@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Marc
- Zyngier" <maz@kernel.org>, "Heiko Carstens" <hca@linux.ibm.com>, linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org, kvmarm@lists.linux.dev, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Oliver Upton" <oupton@kernel.org>, linux-scsi@vger.kernel.org, selinux@vger.kernel.org, linux-rdma@vger.kernel.org
-In-Reply-To: <20260914-b4-mmap-prepare-vma-flag-sanify-v2-7-7d9781ed5361@kernel.org>
-References: <20260914-b4-mmap-prepare-vma-flag-sanify-v2-0-7d9781ed5361@kernel.org>
- <20260914-b4-mmap-prepare-vma-flag-sanify-v2-7-7d9781ed5361@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 14 Sep 2026 16:50:40 +0000
-Message-Id: <20260914165041.01E641F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="avqkMUJX"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68EFvlhe2495103;
+	Mon, 14 Sep 2026 17:03:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=dv33IYOEp6gB7I/zkPCMed4YnTOuiy
+	Vonfo2LDra4BM=; b=avqkMUJX9bwy7vnvVLI0axJ9wtxv+VWe5KlJcTTWJzR4B4
+	x9E2MC8He02jqhSdVss6ZcuB8iHAzcRzo3yxTHBfCP6CVNi0ojGXuh/4gFuLAekC
+	mNSdEYLLmTEEUxisd+l+OcN7g5hkqwV67v+Hj3lk7y3VGcb3caijhA9ZobbHerro
+	dUMs7+xqDD6O5fAnmeKK5TIR+oZnJl5/0F1PhE0Q3V9so6GThl2ONkvbwYbLGmTy
+	dHm2ljAjFNZJJ3Qp6Lr62yPVqsWNtuHNc9LnS/KF0JPzBWNNNHU8LX6gxMqogvZT
+	cFvfMD4S2FdWAf8JoKoo5ex254egUXKZCIDpY5ew==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmxf4ttcg-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 14 Sep 2026 17:03:00 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68EGd86u2333687;
+	Mon, 14 Sep 2026 17:02:59 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gnjjgq3mk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 14 Sep 2026 17:02:59 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68EH2tDe51053044
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 14 Sep 2026 17:02:55 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 257512004E;
+	Mon, 14 Sep 2026 17:02:55 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C99AF2004D;
+	Mon, 14 Sep 2026 17:02:54 +0000 (GMT)
+Received: from osiris (unknown [9.87.150.220])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 14 Sep 2026 17:02:54 +0000 (GMT)
+Date: Mon, 14 Sep 2026 19:02:53 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Jan Polensky <japo@linux.ibm.com>
+Cc: gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, ciunas@linux.ibm.com, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] s390/rwlock: Add contention tracepoints to rwlock
+ slowpath
+Message-ID: <20260914170253.14910D83-hca@linux.ibm.com>
+References: <20260908135843.1384367-1-japo@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260908135843.1384367-1-japo@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: QgubwiQRHltJ97dq5ZBuBi4FDk_ia1vJ
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE0MDI0MSBTYWx0ZWRfX4tJO5h1ROpsS
+ 4lK/8Ijne0Q6HXl1LyFyeTYIu8P1xQVV5/rYNPw+YBtkn+9icNykLX33iZHORJXNbL4kj9tiAbA
+ k2IpneO6ZQGbeAY88qdbmpRaL/8WakE=
+X-Authority-Analysis: v=2.4 cv=cvgOAF4i c=1 sm=1 tr=0 ts=6aa828c4 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=VFibKQHTiDGcZmGrcJYA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: QgubwiQRHltJ97dq5ZBuBi4FDk_ia1vJ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE0MDI0MSBTYWx0ZWRfX83maR1TKlfZD
+ 7/nosdhu3kyoufQDv2jxRvDgWxGk3GUMvJLoxekLOXN1FwxXsW6LoC3ZBDX8NarytP+ZYdX64Ov
+ S4VKEl2RgEIWP+JrZKMEGn4qEdbtw3ubwFPYCY4mPXoooH2iCQndOAzX4mhRac1I+SGF1pWr8Qk
+ RYXX5VGIrUuWUOohBrZY3al61lhL/agAJ7KD3HWKW1WncfV7dY1+v3CqiMgIr2ONmqbPrSscsKq
+ vIT4JvnaiZz06/SfFQywiKltZhM5P6xvmqzGc9UYiC2HJXSDacB5tmpl5qsK7c+ZDcJIGgmikq2
+ vdRM6qjoGHrfmtfTnvppNWdgovGlbSqXjyAxZHkSMs7z7uBpRCrwZo/9BClC97f7WyN1R3MWXX4
+ 5AOsrGOpzWorXnNef/p2TPMb/2Mba9xf/dT+KgzA7L21sAgetbnoHfqNLAhXC0GQqJS4zPCSIwR
+ ZYzqJaYiWO4Azk2JLqw==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-14_03,2026-09-14_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 lowpriorityscore=0 clxscore=1015 priorityscore=1501
+ suspectscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
+ definitions=main-2609140241
 
-> MMAP_MAP_KERNEL_PAGES is a mouthful, discard the MAP_ as that's implied by
-> MMAP.
->=20
-> Also while we're here delete useless comments for mmap actions whose names
-> clearly indicate what they are for.
->=20
-> Also update the userland VMA tests to reflect this change.
->=20
-> No functional change intended.
->=20
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+On Tue, Sep 08, 2026 at 03:58:43PM +0200, Jan Polensky wrote:
+> Instrument arch_read_lock_wait() and arch_write_lock_wait() with
+> trace_contention_begin() and trace_contention_end().
+> 
+> These tracepoints are used by lock contention analysis tools such as
+> perf lock contention to identify contended rwlocks and measure wait
+> times. The generic implementation in kernel/locking/qrwlock.c already
+> emits the same events from its read and write slowpaths.
+> 
+> For arch_read_lock_wait(), the in_interrupt() fast-path is intentionally
+> left outside the tracepoint scope. That path spins without entering the
+> wait queue, so it does not represent queue-based contention and its
+> duration is not comparable to the normal slowpath. This matches the
+> behaviour of queued_read_lock_slowpath() in qrwlock.c.
+> 
+> The include for <trace/events/lock.h> is already present from
+> commit ffa796cc1f45 ("s390/spinlock: Add contention tracepoints to
+> lock slowpath").
+> 
+> Signed-off-by: Jan Polensky <japo@linux.ibm.com>
+> ---
+> v1 -> v2:
+> - Fix tracepoint placement in arch_read_lock_wait() to avoid recursion deadlocks.
+> 
+>  arch/s390/lib/spinlock.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 
-Sashiko has reviewed this patch and found no issues. It looks great!
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914-b4-mmap-pr=
-epare-vma-flag-sanify-v2-0-7d9781ed5361@kernel.org?part=3D7
-
+Applied, thanks!
