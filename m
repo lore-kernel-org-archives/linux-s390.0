@@ -1,121 +1,133 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1BAF36B905
-	for <linux-s390@vger.kernel.org>; Mon, 14 Sep 2026 17:18:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D033F49551A;
+	Mon, 14 Sep 2026 17:39:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789406327; cv=none; b=T4SpAs23n7dLH3hyEMQSSthn8oWjPkQVqHDmBbv3bmO3V6s95XffrMxhoW9m1HTINeIWvQirmOIeWYgjaJJEcp9JpRJqDj/A8ePOtvF9iosWHhS+hboYuN1e67BBbArEapxp0kLnRt3zwm6+RpG3EFsl1O1zd+AyIf0e5DxsQ6I=
+	t=1789407591; cv=none; b=Ec4hohnVdfp9QMwhtOjfFOMOR5gpdX2E6kJ/Rl3Bvq9BH6vx+gt3vI8gLlfs5KHTmUszngEC57SpTPKjOrc+/NeVHyLZkeGDkIsUdqVMoJsP+DDEpK5EogjC4VQu3H5gXaBMgXXl7p2Lg//y/0kp842+4kw5uqpYpDOzjbErOP0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789406327; c=relaxed/simple;
-	bh=mSNNs3otzA5pPBTVkCBhAYaqM6vJvit1zgr2+vIrN84=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uq3978gC36plgDFLfECr7AckmHyn0fb8hlLvpEZzPJXOKeLS3CP4ZVhq6KOwIXdFDBnTaNyibyZNL/vLBTdZlQUXjfTDrmaQWoHMV+oSBQTJK2zch4n8M8wOakDDwo4qQGPPas6SLt2Z7clp5Luj0A+Voju9Z694npclDzyWn2Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SozpLhMQ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1789407591; c=relaxed/simple;
+	bh=xowSs5X6y2jpvt1cr188yyhw9cv4PZ7/Udl8A89c+Ow=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=iYCCJfSkDTlZDWMDtLSYirWF3HhhjCzRqOGoLrUYr7nwQAU7JRjYBidvBzhgbzTs+kwG+yq6xeOtEeJxuN+JoCvqFYGfV/qihfE/+601E7Z2yss5QTXWItnOOotyjSASfXK9UgUItA/DqoTYsPcwWeZNN86xKZcZOf2vik3xE9E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Fq7P+Vba; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SozpLhMQ"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68EFvmxd1320038
-	for <linux-s390@vger.kernel.org>; Mon, 14 Sep 2026 17:18:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=rqr0FSC/xXwNrPEo4Ug3YcqGOx9mr7
-	APeanIGW7sAKY=; b=SozpLhMQ13EiLVuqdUSTr6of/S5oMu8mZ/7wAn8CPZd+1l
-	0Gh0UtfxrBRv2e9YJOJb2FeHx8sK7h0R7S4kOZ7d07C5TaXUpmXo4uNFkA1XC0xv
-	RCRN+UBigRXXH0InSFJQ/Mnt8DBlSl38vGT47guIjfoEt7JSChN87pbdOerUJyOR
-	wqDbaPFfuXvC/PnM5WWXVVwbFLp3/xHdNNBkwwG3qPhN72Mu5Ir7jK7wUK7cjZpq
-	be5bUqAMATWdPWbs5Ne8fvlrKSb8iQ0T9k0Mw0TQP8LUvEW+BtgCXJDjBijUBawj
-	vWoT9Ve/mchAdBulAD3wOnuDKlx+1fu3EfsifSOw==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmw5dtua9-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Mon, 14 Sep 2026 17:18:44 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68EGY7al2352575
-	for <linux-s390@vger.kernel.org>; Mon, 14 Sep 2026 17:18:43 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gnkry70g6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Mon, 14 Sep 2026 17:18:43 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68EHIdUp51052800
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 14 Sep 2026 17:18:40 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E054C20043;
-	Mon, 14 Sep 2026 17:18:39 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 972842004B;
-	Mon, 14 Sep 2026 17:18:39 +0000 (GMT)
-Received: from osiris (unknown [9.87.150.220])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 14 Sep 2026 17:18:39 +0000 (GMT)
-Date: Mon, 14 Sep 2026 19:18:38 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Euan Bourke <euan@linux.ibm.com>
-Cc: gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, meted@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v2] s390/hiperdispatch: use system_dfl_wq to reschedule
- hd_capacity_work
-Message-ID: <20260914171838.14910E0f-hca@linux.ibm.com>
-References: <20260911091309.1238604-1-euan@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Fq7P+Vba"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55DB21F000FF;
+	Mon, 14 Sep 2026 17:39:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789407589;
+	bh=kGvsKbS+uUAsgVL9R+R9s8xtSlNDiXgGCZNSCC3UYxQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Fq7P+Vbaq+FUxkcYSDw+Br/lIyPdPsmBCkByCCCRnhL/a3rq2mASd5EWlFUDGvd4Q
+	 i4AxVMWt0Z9ROq260lRmw+9rttdDcGvg/9ktBTkIkX7tcu6/V6HXVOzYv3LsM9zV9c
+	 wMUcuABISg5aJZCsKF4T274WDnCg5coFpxq4D5pLD3hZ7WmDsVHQQ1EuTWfvzhCEdh
+	 hQyK8WhJ85Ryfxfa4VEJF3BDALbmafxqo2PLBzz+iyVXlgDbqhbwUr5fRA4AGfG5Iv
+	 b+/yhQXU1P8SQzW2s7gQ3BBJ7yNqApeASQPBgJWUs4pg8DhjgBdAJdxweGeXmvjUCZ
+	 vydiavCxwVxgQ==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 11/40] infiniband: update hfi1 to use
+ remap_vmalloc_range()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: =?utf-8?b?TG9yZW56byBTdG9ha2VzIChBUk0p?= <ljs@kernel.org>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, dri-devel@lists.freedesktop.org, "Oliver
+ Upton" <oupton@kernel.org>, "Heiko Carstens" <hca@linux.ibm.com>, "Marc
+ Zyngier" <maz@kernel.org>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, bpf@vger.kernel.org, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, linux-rdma@vger.kernel.org, selinux@vger.kernel.org, kvmarm@lists.linux.dev, linux-trace-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, linux-perf-users@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260914-b4-mmap-prepare-vma-flag-sanify-v2-11-7d9781ed5361@kernel.org>
+References: <20260914-b4-mmap-prepare-vma-flag-sanify-v2-0-7d9781ed5361@kernel.org>
+ <20260914-b4-mmap-prepare-vma-flag-sanify-v2-11-7d9781ed5361@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 14 Sep 2026 17:39:47 +0000
+Message-Id: <20260914173948.55DB21F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260911091309.1238604-1-euan@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE0MDI0MSBTYWx0ZWRfX+ajupE1Q/h4K
- PwjD2hls6RtkMZJ4QQaXNieBeEC9FPZgq4D0osfm3CFAem2IKeVF3S5P7Scc3f63BKpG+s6j9S5
- HGtdG8zKlj8YTYJ7kkRkmHxfCCS1qBcsP//kU/avIuHGftidkV65a4W8p8DDcfPSiMuuKsno4b+
- keQFhQ4e034L1xXZ8yg7RyFjX6CkM1f5ybadYApDTmfMv5cAzzpydoPCdxrh5dqAf332oat6hyK
- HNNYILOFeAVEDClt6af47X8K7L3vm07ruZs1Kim0pMkLkwH15s2PogU3UXonc+0/WBEVwIX6Qwj
- xzppWGizlNWNIYGJYyYRRPMlrOzvMsqDnhb//ydNO1+/IjemNow9i7jxrcR9NMtGWArCOXmbuq9
- rybok4Q8zsJyoPGMYiFAUOPAh/wl+Cuq9d3YJF8V3stSktoJrn0cEn7baK5EZVFOBVL9oO6iHtz
- FpvUE5kzb/4m4OkgXuw==
-X-Authority-Analysis: v=2.4 cv=E/NYNqdl c=1 sm=1 tr=0 ts=6aa82c74 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=H_EcMzwd05W21IqyVeQA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: V7ysZXklEYLWa-Ola2ZHoCL3bF7NR1HX
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE0MDI0MSBTYWx0ZWRfX0DmJhlpYv3GQ
- thrX3RKykcDFCybj+/QeylytWhg0K4GNQzth+ZgMwBkaFC33zwSah7fi52KJaJGWSCKKueFeLW6
- Oqq2DAzjNFHx6BPk46+hUUPjVqMnlMA=
-X-Proofpoint-GUID: V7ysZXklEYLWa-Ola2ZHoCL3bF7NR1HX
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-14_03,2026-09-14_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 lowpriorityscore=0 priorityscore=1501 spamscore=0
- adultscore=0 clxscore=1015 bulkscore=0 malwarescore=0 suspectscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609140241
 
-On Fri, Sep 11, 2026 at 11:13:09AM +0200, Euan Bourke wrote:
-> In hd_enable_hiperdispatch(), hd_capacity_work is scheduled on
-> system_dfl_wq, however the work function reschedules itself with
-> schedule_delayed_work(), which uses system_percpu_wq.
-> 
-> Hiperdispatch does not benefit from using the percpu workqueue. Use
-> queue_delayed_work() with system_dfl_wq for consistency.
-> 
-> Changing the workqueue from system_percpu_wq to system_dfl_wq causes no
-> functional changes.
-> 
-> Signed-off-by: Euan Bourke <euan@linux.ibm.com>
-> ---
-> v2:
-> - use queue_delayed_work() instead of mod_delayed_work()
-> 
->  arch/s390/kernel/hiperdispatch.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] The patch breaks mmap for the EVENTS region for all dynamic contex=
+ts because remap_vmalloc_range() strictly requires the base address of the =
+vmalloc allocation, but the patch passes a pointer with an offset.
+--
 
-Applied, thanks!
+commit b52cc1703a348bc2ace5ff6752750d7fd8d2282e
+Author: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+
+infiniband: update hfi1 to use remap_vmalloc_range()
+
+This commit updates the hfi1 infiniband driver to use remap_vmalloc_range()
+for mapping chip memory from vmalloc'd ranges instead of using a custom
+fault handler. It aims to prevent exposing kernel virtual addresses and
+cleans up VM flags.
+
+> diff --git a/drivers/infiniband/hw/hfi1/file_ops.c b/drivers/infiniband/h=
+w/hfi1/file_ops.c
+> --- a/drivers/infiniband/hw/hfi1/file_ops.c
+> +++ b/drivers/infiniband/hw/hfi1/file_ops.c
+> @@ -476,15 +472,10 @@ static int hfi1_file_mmap(struct file *fp, struct v=
+m_area_struct *vma)
+>  		 * Use the page where this context's flags are. User level
+>  		 * knows where it's own bitmap is within the page.
+>  		 */
+> -		memaddr =3D (unsigned long)
+> -			(dd->events + uctxt_offset(uctxt)) & PAGE_MASK;
+> +		memvirt =3D dd->events + uctxt_offset(uctxt);
+> +		memvirt =3D (void *)(((uintptr_t)memvirt) & PAGE_MASK);
+>  		memlen =3D PAGE_SIZE;
+> -		/*
+> -		 * v3.7 removes VM_RESERVED but the effect is kept by
+> -		 * using VM_IO.
+> -		 */
+> -		flags |=3D VM_IO | VM_DONTEXPAND;
+> -		vmf =3D 1;
+> +		is_vmalloc =3D 1;
+>  		break;
+>  	case STATUS:
+
+[ ... ]
+
+> @@ -559,12 +546,10 @@ static int hfi1_file_mmap(struct file *fp, struct v=
+m_area_struct *vma)
+>  	}
+> =20
+>  	vm_flags_reset(vma, flags);
+> -	mmap_cdbg(ctxt, subctxt, type, mapio, vmf, memaddr, memvirt, memdma,=20
+> +	mmap_cdbg(ctxt, subctxt, type, mapio, is_vmalloc, memaddr, memvirt, mem=
+dma,
+>  		  memlen, vma);
+> -	if (vmf) {
+> -		vma->vm_pgoff =3D PFN_DOWN(memaddr);
+> -		vma->vm_ops =3D &vm_ops;
+> -		ret =3D 0;
+> +	if (is_vmalloc) {
+> +		ret =3D remap_vmalloc_range(vma, memvirt, 0);
+
+[Severity: High]
+Will this fail for secondary contexts where uctxt_offset(uctxt) > 0?
+
+When mapping the EVENTS region for any context > 0, memvirt is calculated as
+an offset from the vmalloc base address (dd->events). However,
+remap_vmalloc_range() strictly requires the exact base address of the
+vmalloc allocation.=20
+
+Because remap_vmalloc_range() expects the provided address to exactly match
+the area base address, won't it unconditionally return -EINVAL when passed
+this interior pointer?=20
+
+If so, does this mean userspace applications attempting to mmap the EVENTS
+page for any dynamic context will receive an unexpected -EINVAL error,
+breaking core functionality for secondary contexts?
+
+>  	} else if (memdma) {
+>  		ret =3D dma_mmap_coherent(&dd->pcidev->dev, vma,
+>  					memvirt, memdma, memlen);
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260914-b4-mmap-pr=
+epare-vma-flag-sanify-v2-0-7d9781ed5361@kernel.org?part=3D11
