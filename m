@@ -1,215 +1,152 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk2-f12.google.com (mail-qk2-f12.google.com [74.125.230.204])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18A084C9543;
-	Tue, 15 Sep 2026 18:51:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789498319; cv=none; b=RfcaQtKP7+Kan5UIdOyJPPLTaPDu6rK7i3mlV59vpBw9SMezvq56Piw72ud+5v6S3q6GB9zQ6fl5F2IiLYdPG6XoniQyI5CPky0y/EDE9JCT5l6xc19ttdZf3979lPeCv/6Egoy2R/5BtZgkXgD6igLrCl2lHIa16N2/Z+suqqg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789498319; c=relaxed/simple;
-	bh=4pxf8aIjib0BRZxZRH4FGi8jsaJE+JnA3k+xYag0u28=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=nwMEADnGpWxGFyKQIYlnry6jJPfS+bQJTSN/9c477+/EpCRDoNVB/MxuscN0PrVs6gSm/hiE0va/7noAXKxLE6Uywl8YBGjbFP6bZKQybR7pdoYYyG5OSi6hg9J3sMBmkgmQ1DG8tDjn9GyqJ5tcWohNjCxrPHuxX8Ys/8219YQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IvOpH985; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2C5B383987
+	for <linux-s390@vger.kernel.org>; Tue, 15 Sep 2026 19:47:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.230.204
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789501661; cv=pass; b=IrEXoYo6SgV53Ok5f/jozVw/L9F2ZzkeymMfSDpxbjXZ/1BS9sYlVW5nK/ngQiWVGClDFlxzR2Ym7h6+eFrl/VLOH4F8NSNcIPNW0+XsLbvVfiIIAXBhV+ILAYh6KT0NaQXE6YQXfimJ+zTMYlhsO9AKflmyG48wfQZpIeSI7Oo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789501661; c=relaxed/simple;
+	bh=XPQeBwzJVFS7E7eRmzzs+WdXKCVvNPBVqu7jyYbAFec=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qsyVNnT8pLT9dxGFUZ+q/Bf+e5IJkuLm4sjRbcDVmKYtVfA1croAcY9Oa44GJRheXUYmK5Brsqc6DnW7y5iywqSBq9xjVjc/GaHgAhwOiTYPW2PZvOboEdWVCRW/D7A/NnQHlxADG9Cv+q8uoxJfUPrMNDvUHarl8Du0XlcDEcs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=hBba8wHN; arc=pass smtp.client-ip=74.125.230.204
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IvOpH985"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B4C51F000FF;
-	Tue, 15 Sep 2026 18:51:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789498317;
-	bh=6Zd0kC+Yy9Ng843KwX37t61erK5Sw7cuOKPZQI6ppzc=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=IvOpH985U8Dx0YGCxtSn8aHcEX1CsCN7dkKQBfKqsCUJxJaSEMSDxOtT9GEI/HLAH
-	 r+Li9ccW37WAm4wjjstzLwP1TJ3US4KKO4u5/3MoMxyN+VwcUuZQpVsZLd0W5oFS1k
-	 PTRavUfay78CMXmlR5BBpInf71aJP9vbFfUWDobmsq5ntitzBLSbkGpUJkbdOUCJAI
-	 a8yE97PKje1S1hWktfvA1Cf82YQuZIQVK/43roT41GIyGdIIRemo4wMlh4JvQe/OOs
-	 abuuKhaDqjTv8/0TM5HJBjnYbahUulcKROHkrQ8vjMSehqWVR+XiB5S0D/V8+g69LM
-	 lAjlNHyYU5nWw==
-Subject: Re: [PATCH net-next v2 2/2] net: bridge: fail link info that does not
- fit the IFLA_AF_SPEC nest
-From: netdev-bot+sashiko@kernel.org
-To: iprintercanon@gmail.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, razor@blackwall.org,
- idosch@nvidia.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, horms@kernel.org, andrew+netdev@lunn.ch, kuniyu@google.com,
- michael.chan@broadcom.com, pavan.chebbi@broadcom.com,
- ajit.khaparde@broadcom.com, sriharsha.basavapatna@broadcom.com,
- anthony.l.nguyen@intel.com, przemyslaw.kitszel@intel.com,
- intel-wired-lan@lists.osuosl.org, saeedm@nvidia.com, tariqt@nvidia.com,
- mbloch@nvidia.com, oss-drivers@corigine.com, wintera@linux.ibm.com,
- aswin@linux.ibm.com, linux-s390@vger.kernel.org
-Date: Tue, 15 Sep 2026 18:51:55 +0000
-Message-ID: <178949831579.22033.2772389608829417270@kernel.org>
-In-Reply-To: <20260912135022.1701-3-iprintercanon@gmail.com>
-References: <20260912135022.1701-3-iprintercanon@gmail.com>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="hBba8wHN"
+Received: by mail-qk2-f12.google.com with SMTP id d75a77b69052e-530d5fc2cd8so63021cf.1
+        for <linux-s390@vger.kernel.org>; Tue, 15 Sep 2026 12:47:39 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789501658; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Auokl3xUd/oI+hYw+07AdS2v2mDnMtA7H9uRWuzqU7oxOvJ8sYqc/WiVcbHbMJblLf
+         wllLVtbVjQK9XhMqpzCcsxfL02zoCRj1TZTsDlztr7/OJnsdx/dt40kkvGEEb/bjw9V9
+         7cbHZl3o3WyUu9IpAk991N+VyErti/noJKz1jr/fljn4YaUUHDAeM6+bbgwo+cOJAJOr
+         UEwNTDuNEJFdROwWTsXoac7ghKpoLWzSWcrIGFHs3B7pCZ/8meY9g8LEOgLXb0JGjYoH
+         vAtOtirz7FZMx1SQMh6e/9ncXmfkAiZ0C5ztONMUZiNMwoqcUCNvCRkDcJBTwfHHT/jV
+         VN8g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=85J+aiA04EY/KMG60rW4VZXcI33pWG+C3OlEjBwYKSc=;
+        fh=zhCvK9cLi9J7hE2H3Ce8+HcrtpEbiK1dLQl6jcZf8so=;
+        b=pQfl3tBFyeEN0eWOSbKObv865WRVzen3z/0HRSWEWO4R9QFbkWjXQCRf0Wvz0WiFmV
+         2BePnTxEa7X0LqUj7knrZx2d6UOqFC7+RxuBeLypfXAK0LsnUg8laV0bMhbgVKY/SEWW
+         DFMZ/XSLfJHaeQujSyHX+ykFN3XD2Gd683DxYLV7Be+c4qmdFqsoVZBbx5qCheq+1Dlx
+         ALNyHhARYgR3O9ASVDFozBZPRRM7Npgibj25L3TpCrXzQPYn+hRbdeLJgZSXWuSrpYdA
+         jxO+pqDi8nC9uayT3COLRntZLMw7TXIXsi6JK9OostGiZtoVNbu1vjFWj8AQljTtzG+3
+         9kLg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1789501658; x=1790106458; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=85J+aiA04EY/KMG60rW4VZXcI33pWG+C3OlEjBwYKSc=;
+        b=hBba8wHNjK8wmNIhIRnK3enamrCwSDZSeFUUC0HJpxzMEoggb6yUH+s0mOusUaoStM
+         iecVpu8mFiIPXIQU2zT2wRPJKsxcguvD6Xh48o1Kltwo772OwSLDBky5aLfLy9QDh0lz
+         8oh2ej8ojvahLjh9aBcqNr0DUtIMgJLcg4sR/k9XWnFXb9CYITT7mLpXCYSsIFWS4QdD
+         LSwwJJguqFvZpgCDe1n3fD1dc62A1Xgpq8wmLGR5qGY1lL6fpQgcSb+Jt3HaVb94JCvz
+         vCc4C0abu/n6KL07QyQpXKZ1bKfv3dKyzzr619N4rGK3d0WJ3n1G+ax3NFj9uv4rT/Oi
+         1OGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789501658; x=1790106458;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=85J+aiA04EY/KMG60rW4VZXcI33pWG+C3OlEjBwYKSc=;
+        b=WGi9g+/4TLNkEoM0WgYCKNHFCRGcHsEKxgVyAEE/fELiJ9LSa5EExqDV/8yR/g1dA0
+         9n4KU9a/zCnwDuHoisHzIzYWGq3nfZEjatsx5t8d5hk6Mdga2B//CT3FNKGDFN9/iddB
+         ndEFDY6eanZTxng8JHsKtZ6UgvTUtks8/JfmP3119NNeIjgkiS14K7GMDb2lPq8H+mCd
+         UyVmCAM5H6B40yg5kTiIdSwZFJ9KMXcfDAzTpOi0ynCzEGMVtAsusV0Nj6Zn3Cn9APxQ
+         kDIrjExlmVGqcjA82gasrPI8vLVJcOAkhI+KUJ1TDDnrUe8DozpvDLfoSmGg307qpmQR
+         TktA==
+X-Forwarded-Encrypted: i=1; AKwUvBxqAM52OJu2xxSXgAlyZ9OepvjWS0NX/ij4Fb0cJTkpJKtIcl4R7doAXvhNl15FjbIZtZILFzzXTntW@vger.kernel.org
+X-Gm-Message-State: AFuF++mXqCSQ/0eKhX8Q31NQFqiTr/GVGhDKzCdY4Xx3GO9WV3V6L4MJ
+	glYSXW2VErUJ2lxAW7TdY57Whq/RYQYQ4AXFVrqktQbEuN3SCLym96BWlZW6/fwfbthXDLRel6g
+	IBBJTtK+weeXLdJ79IFRWjYgfYm1DYQ8beetGkbYj
+X-Gm-Gg: AYBFou1esqUO2VWkWO8kW+sbHuNegL0B1XonqjA/FFFG8E9lPvQ/8TWdgj4WdFlZf5F
+	pE9u1JZR7k9je4E/76yi6S1J/8RAYw0g7xh+Ygx6UTuUvzhIEZlnjSc/O4ZHmbC9azTJIuvdUk8
+	ivbtv0/adlojta5jejZ6ZEuXONqfMuHNHK9BzcaUoQufMCI6SVHMJx4k77akQSJ6pj0cubwVzAM
+	jROskItwxx4NZ1NJ3V1jp/ojImsRMbmpmajhLMwv7P+t0pmHsdGB/oD8IK86YIXQM6eesqOTk7r
+	ag6eyuTyDME7GoigS0Vvftqzve8LiCVyO1a84jZjoy0wAq1lX7ClR6DnlzYH6f0TL2V+Oxq7ZQP
+	n1Z5EsGPo4hg=
+X-Received: by 2002:a05:622a:11c5:b0:531:129b:2dba with SMTP id
+ d75a77b69052e-53259a9396dmr2409481cf.3.1789501657735; Tue, 15 Sep 2026
+ 12:47:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+References: <20260821125538.3721169-1-jremus@linux.ibm.com> <ba75c436-ae41-4754-8a73-80e2e5df76e7@linux.ibm.com>
+In-Reply-To: <ba75c436-ae41-4754-8a73-80e2e5df76e7@linux.ibm.com>
+From: Ian Rogers <irogers@google.com>
+Date: Tue, 15 Sep 2026 12:47:25 -0700
+X-Gm-Features: AcwNN1XUo01KXBIUBoyjPH1IxD3wuQZzmLQBC8pBcdAs-LnVLvB7_CmYe-5vPlQ
+Message-ID: <CAP-5=fXGKJk6VrWTcdC8iUdhzw6djscJ8SBoJiBgFaPH8TWSZw@mail.gmail.com>
+Subject: Re: [PATCH v2] perf evsel: Improve callchain warning for s390
+To: Jens Remus <jremus@linux.ibm.com>, Thomas Richter <tmricht@linux.ibm.com>
+Cc: Jan Polensky <japo@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Ilya Leoshkevich <iii@linux.ibm.com>, linux-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, 
+	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issue(s) to consider:
+On Fri, Aug 21, 2026 at 6:03=E2=80=AFAM Jens Remus <jremus@linux.ibm.com> w=
+rote:
+>
+> On 8/21/2026 2:55 PM, Jens Remus wrote:
+>
+> > Instead, warn on s390 when callchain sampling is requested with an even=
+t
+> > provided by the CPUMSF hardware PMU, because that combination is not
+> > supported.
+>
+> > diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
+>
+> > @@ -1078,9 +1078,8 @@ static void __evsel__config_callchain(struct evse=
+l *evsel, const struct record_o
+> >       bool function =3D evsel__is_function_event(evsel);
+> >       struct perf_event_attr *attr =3D &evsel->core.attr;
+> >
+> > -     if (EM_HOST =3D=3D EM_S390 && param->record_mode =3D=3D CALLCHAIN=
+_FP) {
+> > -             pr_warning_once(
+> > -                     "Framepointer unwinding lacks kernel support. Use=
+ '--call-graph dwarf'\n");
+> > +     if (EM_HOST =3D=3D EM_S390 && evsel->pmu && !perf_pmu__is_softwar=
+e(evsel->pmu)) {
+> > +             pr_warning_once("Cannot use hardware CPUMSF event with -g=
+ and --call-graph.\n");
+>
+> Jan, Thomas, could you please do me a favor and test whether this works
+> as expected on LPAR with CPUMSF?  Time was running out before I leave on
+> vacation.
 
-Critical: 0 · High: 1 · Medium: 1 · Low: 1
+Thomas, the change looks good to me. What are your thoughts?
 
-- [High] Incomplete bounds check: the new U16_MAX guard only measures the
-  outer IFLA_AF_SPEC nest and only runs at the 'done:' label, i.e. after…
-- [Medium] Returning -E2BIG from br_fill_ifinfo()/br_getlink() aborts the
-  whole RTM_GETLINK/AF_BRIDGE dump at the offending device:…
-- [Low] The patch changes user-visible behaviour to fix a data-corruption
-  bug (the commit message itself says 'a large enough port produces a…
+Thanks,
+Ian
 
---
-
-net: bridge: fail link info that does not fit the IFLA_AF_SPEC nest
-
-br_fill_ifinfo() now measures the IFLA_AF_SPEC nest at the done: label and,
-if the accumulated payload exceeds U16_MAX, cancels the message and returns
--E2BIG with an extack.  An extack argument is threaded into br_fill_ifinfo()
-from br_getlink(), while br_info_notify() passes NULL.
-
-A couple of questions on the placement of the check and on the resulting
-dump behaviour.
-
-First, on the commit message trailers:
-
->     Assisted-by: Claude:claude-opus-5
->     Signed-off-by: Artem Lytkin <iprintercanon@gmail.com>
-
-[Severity: Low]
-The commit message describes a user-visible corruption ("a large enough port
-produces a nest whose length wraps and userspace reads garbage"), but there
-is no Fixes: tag.  Should one be added naming the commit that first made more
-than 64 KiB of IFLA_AF_SPEC content possible, for example the per-VLAN
-tunnel-info netlink support or the IFLA_BRIDGE_MST support, so that stable
-tooling picks this up and the affected range is clear?
-
-Also, Assisted-by: is not one of the documented trailers.
-
-> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> index 855a46aec3a89..53676df9e4d11 100644
-> --- a/net/bridge/br_netlink.c
-> +++ b/net/bridge/br_netlink.c
-
-[ ... ]
-
-> @@ -613,6 +613,12 @@ static int br_fill_ifinfo(struct sk_buff *skb,
->  
->  done:
->  	if (af) {
-> +		if (skb_tail_pointer(skb) - (unsigned char *)af > U16_MAX) {
-> +			NL_SET_ERR_MSG_MOD(extack,
-> +					   "VLAN information does not fit in one message, use RTM_GETVLAN");
-> +			nlmsg_cancel(skb, nlh);
-> +			return -E2BIG;
-> +		}
-
-[Severity: High]
-Does this check come too late to cover the inner nests?
-
-The MST and CFM nests are closed earlier in br_fill_ifinfo(), before control
-reaches done:
-
-net/bridge/br_netlink.c:br_fill_ifinfo() {
-	...
-		err = br_mst_fill_info(skb, vg);
-		if (err)
-			goto nla_put_failure;
-
-		nla_nest_end(skb, mst_nest);
-	}
-
-done:
-	if (af) {
-		if (skb_tail_pointer(skb) - (unsigned char *)af > U16_MAX) {
-	...
-}
-
-and nla_nest_end() both warns and performs the truncating store:
-
-include/net/netlink.h:nla_nest_end() {
-	unsigned long diff = skb_tail_pointer(skb) - (unsigned char *)start;
-
-	DEBUG_NET_WARN_ON_ONCE(diff > U16_MAX);
-	start->nla_len = diff;
-	...
-}
-
-Can IFLA_BRIDGE_MST alone exceed 65535 bytes?  br_mst_fill_info() emits one
-roughly 20 byte IFLA_BRIDGE_MST_ENTRY per distinct MSTI, with no aggregate
-size accounting:
-
-net/bridge/br_mst.c:br_mst_fill_info() {
-	list_for_each_entry(v, &vg->vlan_list, vlist) {
-		if (test_bit(v->brvlan->msti, seen))
-			continue;
-
-		nest = nla_nest_start_noflag(skb, IFLA_BRIDGE_MST_ENTRY);
-	...
-}
-
-With up to 4094 distinct MSTIs that is roughly 82 KB, and the same applies to
-IFLA_BRIDGE_CFM where each peer-MEP status entry is roughly 76 bytes.  The
-dump skb is sized from br_get_link_af_size_filtered() via rtnl_calcit() into
-cb->min_dump_alloc, which is a u32 with no 64 KiB cap, so the oversized nest
-is actually written out.
-
-So for the inner nests the wrapped nla_len is still stored, and on
-CONFIG_DEBUG_NET kernels the DEBUG_NET_WARN_ON_ONCE fires from an ordinary
-unprivileged RTM_GETLINK/AF_BRIDGE dump.  Would the size have to be bounded
-while each nest is being filled, rather than once after the whole message has
-been serialized?
-
-[Severity: Medium]
-Does returning -E2BIG here stop the rest of the dump?
-
-The chain is rtnl_bridge_getlink() -> br_getlink() -> br_fill_ifinfo(), and
-rtnl_bridge_getlink() treats any negative error other than -EOPNOTSUPP as
-terminal for the whole walk:
-
-net/core/rtnetlink.c:rtnl_bridge_getlink() {
-	...
-				if (err < 0 && err != -EOPNOTSUPP) {
-					if (likely(skb->len))
-						break;
-
-					goto out_err;
-				}
-			}
-			idx++;
-	...
-	err = skb->len;
-out_err:
-	rcu_read_unlock();
-	cb->args[0] = idx;
-}
-
-Since idx is not incremented for the failing device, cb->args[0] still points
-at it on the retry round.  That round starts with skb->len == 0, so it takes
-goto out_err and the dump ends with -E2BIG.  Are all ports after the
-offending one then never enumerated, and does every subsequent dump fail at
-the same device again?  Before the patch the same configuration produced one
-message with a wrapped AF_SPEC length but the walk continued.
-
-The commit message says only that "the error goes to userspace"; should it
-mention that the remainder of the dump is dropped?
-
-On the extack text: the same overflow is reachable for a request that sets
-only RTEXT_FILTER_MST or only RTEXT_FILTER_CFM_CONFIG / RTEXT_FILTER_CFM_STATUS,
-where no VLAN data is emitted at all and RTM_GETVLAN is not a substitute.
-Could the message be made specific to what actually overflowed?
-
->  		if (nlmsg_get_pos(skb) - (void *)af > nla_attr_size(0))
->  			nla_nest_end(skb, af);
->  		else
-
-[ ... ]
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260912135022.1701-1-iprintercanon%40gmail.com
+> >       }
+> >
+> >       evsel__set_sample_bit(evsel, CALLCHAIN);
+> Thanks and regards,
+> Jens
+> --
+> Jens Remus
+> Linux on Z Development (D3303)
+> jremus@de.ibm.com / jremus@linux.ibm.com
+>
+> IBM Deutschland Research & Development GmbH; Vorsitzender des Aufsichtsra=
+ts: Wolfgang Wendt; Gesch=C3=A4ftsf=C3=BChrung: David Faller; Sitz der Gese=
+llschaft: Ehningen; Registergericht: Amtsgericht Stuttgart, HRB 243294
+> IBM Data Privacy Statement: https://www.ibm.com/privacy/
+>
