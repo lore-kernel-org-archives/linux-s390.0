@@ -1,35 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EAC34F054A;
-	Wed, 16 Sep 2026 12:03:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D955935AC1C;
+	Wed, 16 Sep 2026 12:03:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789560242; cv=none; b=B0uoiljGbQP2JnCdlshlDI5L8xi3LqIK+s7z0aUYyYUnyfu2wYF/t3WEkYsL0SHB1doZb5IAhfTVijQmrJiSKKSg0GADM1w14jSZR7cqXHlhfT7eupPkaZDXwfsCftVdSx/xC2PJsZdv2iXVSCJD8zTgf40D7+3DC41IG3xrJjo=
+	t=1789560246; cv=none; b=UcF3q8XzmDdr72GBPjvFs4MyeTKfoqvZ7oIV+Mq5JRYDc8FL7/2L4vHQDvQ+wMVklG0bdtiBmVHPXgp+hK1+PpvML38kRppaWMOUiU30iO/JcufrxQ0fmNJZ2PpRl0VmcNCKV0yIFlrHOLaDleJdeKBYWt5XLH36xlbbpQBCCvM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789560242; c=relaxed/simple;
-	bh=JkkuCK1AjeZA2D774owh92o+U22DOEgW8Bl1T+VvjGM=;
+	s=arc-20240116; t=1789560246; c=relaxed/simple;
+	bh=ILeEvtymUiyFn6FXjfwWf9BUERRvcE4G786kxLGajS4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=r9jmrLgq4zFRwUlbAJsUUnqQ4/Fjtshy075rWES1M3Cr+a0egRadMa+2sDYabU+ISDFJrQg+ILm8BkL9YcbgdGmvwZONrjZXQimuS5/PweaHaLoe6r4uMkanKe5186v2wjfpYR8QYrUvcBRWVRZGdJsU/63xGmt8Adth6u1b2A8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EAce1fhA; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=CTqzOzStnIWVgrECadeESV2sZgLOmFtmQoSORRG+Ji7EwT7CgLi0ILXe+CfsNyGLreNii61fJApWbSkWR8k26Cuzb9jR5nl8qoAtDMpCpkR2rPP7XDG4Gx6PW59iabWzBnHohbxh5Li6sZhjP2qI4V3mEQwPzMYK8phy3aKfTQo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ml42hJBd; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EAce1fhA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAF581F0089A;
-	Wed, 16 Sep 2026 12:03:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ml42hJBd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D1C71F00899;
+	Wed, 16 Sep 2026 12:03:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789560235;
-	bh=DJHDp9vqJXqFSbKUnrSygcbO2/M2tpxb0Oj00wJTPho=;
+	s=k20260515; t=1789560232;
+	bh=JO8zvszsozs4GkpHmyopZ7vErLCjHtSqmQPyVsRODfA=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=EAce1fhAsPPC3kF2ylU6CATF9nCbEqSmOzx7qUVC9VhipchN28lkPYShtYDFpnw4j
-	 dG3GPyU88038isT2JPJkUb/bUoev57I/6LsEjI/rAZ11k37trd6BC27abxzYWYNOEP
-	 H8PiUdqA53Oec/qZ6dq9sCFnuf9pCE9N9V6/stGDpGbA0b7pbDXmhE5D1y/G0/VJ/J
-	 2qiOpv27g4mGTl+QUnws374gEYEEUDzSEcJOnMyPN0s68mMUJiCBc8HwmmxIRnEYRl
-	 ZIefJntx8NH8HODnJHM5afimdQfkzB1S1+k2VPJAloypuVJusewfq99/PSFwFYZwes
-	 Q41c2eDiC3Ixg==
+	b=ml42hJBdAQr2V10Uh2pmfR0pjHqFBHJj6PovDXwc8vewjqQGxlDhnIsDti0bpmfWy
+	 qbcEynQD9O5UPH8qDpVSiyp7gR8W5fD10rfET67Dt1I/887weT9JoDXcW6ztZHOMEA
+	 ZnS1R2vaQy2Z28heQ7hU6pB0wdeEqqPFKA+36oh8IGv5aULa5t9GvmzW0BcXls50mf
+	 gHCOUdOBZkRK7++WyPFy2Gu0KrWQE2KlgRTn/hLip7vZ0s8+rwdaIHZa1np+GSIGud
+	 xPUIUvIaOq7dEUBXw/UbQtzvvTCmX64FMucBy98Id0Aj2ELEnBk1BjrIOtK/qJjvgq
+	 32Fq2RNvXUMIg==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Wed, 16 Sep 2026 15:03:19 +0300
-Subject: [PATCH v3 12/13] s390/qdio_setup: Use kmalloc() for the SSQD
- request
+Date: Wed, 16 Sep 2026 15:03:18 +0300
+Subject: [PATCH v3 11/13] s390/qdio_setup: Use kmalloc() for the storage
+ list
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -38,7 +38,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260916-s390-cio-ready-v3-12-39e4894637d6@kernel.org>
+Message-Id: <20260916-s390-cio-ready-v3-11-39e4894637d6@kernel.org>
 References: <20260916-s390-cio-ready-v3-0-39e4894637d6@kernel.org>
 In-Reply-To: <20260916-s390-cio-ready-v3-0-39e4894637d6@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
@@ -52,8 +52,8 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
  linux-kernel@vger.kernel.org, linux-mm@kvack.org
 X-Mailer: b4 0.17-dev
 
-qdio_setup_get_ssqd() allocates the request block for the Store
-Subchannel QDIO Data (SSQD) CHSC command.
+__qdio_allocate_qs() allocates the storage list information block of a
+queue.
 
 This memory can be allocated with kmalloc() as there's nothing special
 about it to go directly to the page allocator.
@@ -79,27 +79,27 @@ Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
-index d8e9c0872d15d..e1c5c6a8b3b27 100644
+index b6f2ff202fe64..d8e9c0872d15d 100644
 --- a/drivers/s390/cio/qdio_setup.c
 +++ b/drivers/s390/cio/qdio_setup.c
-@@ -249,7 +249,7 @@ int qdio_setup_get_ssqd(struct qdio_irq *irq_ptr,
+@@ -83,7 +83,7 @@ static void __qdio_free_queues(struct qdio_q **queues, unsigned int count)
  
- 	DBF_EVENT("getssqd:%4x", schid->sch_no);
- 	if (!irq_ptr) {
--		ssqd = (struct chsc_ssqd_area *)__get_free_page(GFP_KERNEL);
-+		ssqd = kmalloc(PAGE_SIZE, GFP_KERNEL);
- 		if (!ssqd)
- 			return -ENOMEM;
- 	} else {
-@@ -270,7 +270,7 @@ int qdio_setup_get_ssqd(struct qdio_irq *irq_ptr,
- 
- out:
- 	if (!irq_ptr)
--		free_page((unsigned long)ssqd);
-+		kfree(ssqd);
- 
- 	return rc;
+ 	for (i = 0; i < count; i++) {
+ 		q = queues[i];
+-		free_page((unsigned long)q->sl_page);
++		kfree(q->sl_page);
+ 		kmem_cache_free(qdio_q_cache, q);
+ 	}
  }
+@@ -109,7 +109,7 @@ static int __qdio_allocate_qs(struct qdio_q **irq_ptr_qs, int nr_queues)
+ 			return -ENOMEM;
+ 		}
+ 
+-		q->sl_page = (void *)__get_free_page(GFP_KERNEL);
++		q->sl_page = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 		if (!q->sl_page) {
+ 			kmem_cache_free(qdio_q_cache, q);
+ 			__qdio_free_queues(irq_ptr_qs, i);
 
 -- 
 2.53.0
