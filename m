@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAE7E4AA3EA
-	for <linux-s390@vger.kernel.org>; Wed, 16 Sep 2026 12:17:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 618BB378D74
+	for <linux-s390@vger.kernel.org>; Wed, 16 Sep 2026 12:18:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789561043; cv=none; b=hhpIDy+0Z6uGu8XsNesxjyhljHxhBEsl6eCvZTt6p89E/7r3Uj4iCz0DoaAciJEzBfylIQJZuFz7j5xug7BIwXUd9JlsaHnYpNM2KASfKzChnQ0RQlHtGcwhJd9jE8uzFHfZmVQzVZB0RWo8QjCcn28y9IYyB5QtgbwLulX3mXI=
+	t=1789561130; cv=none; b=Pi6C4wgRwuoqxHeCRaMKXOlkQGS9KA+aaWjGbGvrx5ZjIaKNb4wAdboRJTPONrJoySIEfaw0sR0EPwx7u9f0tOAHBsjwTJNtZeUQGrkc0n3KUJoskSED0Z6yk3NdYsqQnPjmaKENXavApZzhT2tdK2MqHKXC0PhKKd2crQbhlJA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789561043; c=relaxed/simple;
-	bh=mVOk9ZE65/FXyBByIpgRYL1pFSfGiQO7JJrjnSNsozQ=;
+	s=arc-20240116; t=1789561130; c=relaxed/simple;
+	bh=fyDLzwrqNtSPazzninbMVzdBmGqrQ3996CQHQpQT8AU=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Zg1REHqb498uQyugG2TtyeqNOBubZcVBZYqAstX+2HMp/mjVeWEAWeaqGRd0Gkt9PFWeEwWIyA2bFlHyB6I3E5nfUgmIagkWWXLQZcO9nrJFbQFnnFYpiHa7L7n89Az3KBRsTX4UpNCj8VCn2qW2sGy+Co++K7TtXPlGkBrcLUM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eS0fHe3b; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=XrcOsfQC0/cva8Lzmf2pqIoLVdP97yXW3xtdBXKpOeP3alnobkDXhPAgeVonaLyDEIrL0TO+csxEK7VlchEH5JDQIkaO3zKbYssNMWwHb57md0oKxFLeX16gfbEYerRaZbplVSuZm+s3DNat43Awxi+4tKxQJyUH3v2b/2xJKA0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bew1PIz1; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eS0fHe3b"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 424FF1F00893;
-	Wed, 16 Sep 2026 12:17:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bew1PIz1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3B611F000FF;
+	Wed, 16 Sep 2026 12:18:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789561041;
-	bh=NbBlSvEOGvRbk1o+hsSUJ3ZHE2wgmUxcOG7oaiOV5vw=;
+	s=k20260515; t=1789561129;
+	bh=K22UipEt/bGexFucLtse2iwQADpXxlrb8UFSG5qrMZY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eS0fHe3bffPnPMRLBe+ASVsOjdzFycHeeCQB7GdYEK6aaA2QfzFWQP3/ruCxfS1pg
-	 E9Fzw44zDv1wfT/k02gjV+u+S/u9JO93JavxFbmbMGCTxdNggemmH65C018PSYGRFB
-	 dKELsayFJ2T6xaZIbcZzYoPzXKDYZKZlejlyoIVpMj/emtg2SpVhVaU4RsfDunU2tA
-	 7cZsHdwxde1IfWz07sYWTMx6hrSDIIbG0erdZaz6isY98M+B+83+NPcLRRbXVClJnY
-	 gjEiZaihI3p/e7HiR1fn6T2DwHM/a0RC1avOeY3hr6HSF+RZiH61bK0ZvpV2E+ZxUG
-	 L5w/fC84L4GhA==
+	b=bew1PIz1okvna3/sDWYTEm3IPhwHDIoEWn0bQ32YzGaQ7Lcmv28TMzF+Fp7X/cD6G
+	 AGWBSjuc6EG19SjJrolhW5ASBeBKt2vBC3XpypNyaiasCD97PBsJpntk3A0kkbBswl
+	 mCF5p78Sj44AFy05NWjAGaU2a8UDAD2RrW6OvsF+iQR7wh2JIdJ4C6h/3U7aDZQp9L
+	 s4CVwO1U2eyyAgsPMKWg6pr57J1h9gfFNGm0Jjm1PYFdxY3QegooBOuEmJ40CFJtwB
+	 8bJ0x9v5LoTeappcBnIO+ZqoaYFkBneBxRpBxKejEP2l4LgOsX5hMs+/WF6CeBuAjw
+	 ZJk4gbyp1Owbg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 08/13] s390/qdio_main: Use kzalloc() for the IRQ
- structure
+Subject: Re: [PATCH v3 06/13] s390/cmf: Use kmalloc() for the CMB area
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?TWlrZSBSYXBvcG9ydCAoTWljcm9zb2Z0KQ==?= <rppt@kernel.org>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260916-s390-cio-ready-v3-8-39e4894637d6@kernel.org>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20260916-s390-cio-ready-v3-6-39e4894637d6@kernel.org>
 References: <20260916-s390-cio-ready-v3-0-39e4894637d6@kernel.org>
- <20260916-s390-cio-ready-v3-8-39e4894637d6@kernel.org>
+ <20260916-s390-cio-ready-v3-6-39e4894637d6@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 16 Sep 2026 12:17:20 +0000
-Message-Id: <20260916121721.424FF1F00893@smtp.kernel.org>
+Date: Wed, 16 Sep 2026 12:18:47 +0000
+Message-Id: <20260916121848.E3B611F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,60 +48,65 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] s390/qdio: kzalloc() breaks strict hardware alignment for qib and =
-chsc_page
+- [High] s390/cio: hardware alignment violation in alloc_cmb() due to kmall=
+oc()
 --
 
-commit 9f2f47b6eeaa2161812dfa4d13374862da2270d0
+commit 8f39fa3622bcd7032d06a1645dbaec85cdb07a1f
 Author: Mike Rapoport (Microsoft) <rppt@kernel.org>
-s390/qdio_main: Use kzalloc() for the IRQ structure
 
-This commit modifies the memory allocation for the QDIO IRQ structure,=20
-switching from the page allocator to the slab allocator. It replaces=20
-get_zeroed_page() with kzalloc() and updates the free paths to use kfree().=
-=20
-It also removes a related kmemleak exemption.
+s390/cmf: Use kmalloc() for the CMB area
+
+alloc_cmb() allocates the channel measurement block area shared by
+devices using the basic channel measurement format. This commit replaces
+__get_free_pages() with kmalloc() and free_pages() with kfree().
 
 Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redh=
 at.com
 
-> diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-> index d137bf8c70664..28eb8602ca97e 100644
-> --- a/drivers/s390/cio/qdio_main.c
-> +++ b/drivers/s390/cio/qdio_main.c
-
+> diff --git a/drivers/s390/cio/cmf.c b/drivers/s390/cio/cmf.c
+> index 92ab3d546fe47..8fd41a7dfc20b 100644
+> --- a/drivers/s390/cio/cmf.c
+> +++ b/drivers/s390/cio/cmf.c
 [ ... ]
-
-> @@ -961,7 +961,7 @@ int qdio_allocate(struct ccw_device *cdev, unsigned i=
-nt no_input_qs,
->  	    no_output_qs > QDIO_MAX_QUEUES_PER_IRQ)
->  		return -EINVAL;
+> @@ -501,12 +504,12 @@ static int alloc_cmb(struct ccw_device *cdev)
+>  		WARN_ON(!list_empty(&cmb_area.list));
 > =20
-> -	irq_ptr =3D (void *) get_zeroed_page(GFP_KERNEL);
-> +	irq_ptr =3D kzalloc(PAGE_SIZE, GFP_KERNEL);
+>  		spin_unlock(&cmb_area.lock);
+> -		mem =3D (void *)__get_free_pages(GFP_KERNEL, get_order(size));
+> +		mem =3D kmalloc(size, GFP_KERNEL);
 
 [Severity: High]
-Does this kzalloc() replacement break the architectural alignment guarantee=
-s=20
-for the QDIO irq structure?
+Does this allocation still guarantee the 32-byte alignment required by the
+hardware for the measurement block origin (MBO)?
 
-The irq_ptr contains a struct qib which has a strict 256-byte architectural
-alignment requirement. Additionally, the irq_ptr->chsc_page allocated later
-in qdio_allocate() (which was also converted to kzalloc in an earlier patch)
-is passed to the CHSC instruction, which strictly mandates 4096-byte (page)
-alignment.
+While kmalloc() naturally aligns power-of-two multiples in default
+configurations, if memory debugging options like CONFIG_SLUB_DEBUG
+(redzoning) or CONFIG_KASAN are enabled, SLUB can insert metadata padding
+before the object payload.
 
-When memory debugging features like CONFIG_SLUB_DEBUG (redzoning) or KASAN
-are enabled, kzalloc() can return a pointer offset by the redzone size,=20
-breaking these 256-byte and 4096-byte structural alignment guarantees.
+This padding shifts the returned physical address so it is only guaranteed
+to be aligned to ARCH_KMALLOC_MINALIGN (8 bytes on s390), potentially
+breaking the 32-byte alignment requirement.
 
-Could passing this unaligned memory to the CHSC hardware instruction=20
-trigger a hardware specification exception during device initialization?
+If the unaligned address is then used in cmf_activate():
 
->  	if (!irq_ptr)
->  		return -ENOMEM;
->
+drivers/s390/cio/cmf.c:cmf_activate() {
+    ...
+	asm volatile(
+		"	lgr	1,%[r1]\n"
+		"	lgr	2,%[mbo]\n"
+		"	schm"
+		:
+		: [r1] "d" ((unsigned long)onoff),
+		  [mbo] "d" (virt_to_phys(area))
+		: "1", "2");
+    ...
+}
+
+could this trigger a specification exception and crash the kernel when the
+schm instruction executes?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916-s390-cio-r=
-eady-v3-0-39e4894637d6@kernel.org?part=3D8
+eady-v3-0-39e4894637d6@kernel.org?part=3D6
