@@ -1,128 +1,243 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E2AB521203
-	for <linux-s390@vger.kernel.org>; Wed, 16 Sep 2026 16:53:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0A7D4B8290;
+	Wed, 16 Sep 2026 17:00:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789577620; cv=none; b=IyjWhKxNuv8KCvxuLfqnGp2MF1jVR99rGvLzhSWeH12KNNpg49vXsbsordLgsBExj1oBYu5bDzu0ObqvBiW4j3VWjvAJGSx21cPOgrFrIZMlO0CQbDMMt2u/THa1dUOd3H0gOF54ZoJNAcbJetTP3IMWVODz9VaWrDESMuOObco=
+	t=1789578039; cv=none; b=JIA4zkSN3JvVgJ3jTlPT5shRN7CVG/ykDeLyX9ivN+6dDckbGJeXvCNoRK/fz1RE1G08PosQqv7PPmy+aqrJrg4xw4N68JruhKqkVc1DhAP3fH0BUw2HgEa4zvMLLWXxh/PMI7XpAQMwyyvT/WfAhDCj5mZgWrakir7EQrDoE6k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789577620; c=relaxed/simple;
-	bh=DlxXYjqA1WxKkdy4Ua1c25yArF6gBcVAUhJfPTgsK28=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=akh5uagiCsN75MH8k2yyJxBeGeonj677QY3Mmf6C+S7JPWqDTBCeUxSUjaGbA/Y9aplJgYJ550ZFQucOdvgpVKgltSi3yHMxb2CxGuWAYUpVK9D+AFcmIwiYQw8HNdJ7tAzhNx83vJidkCEovi6yIygoDc9sWE7ei4dovD0Lwmo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=C4C5mYru; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1789578039; c=relaxed/simple;
+	bh=xTR83EDr3GJ1gs6LtXBNUd0wwxqijXMTgP0OcHKvJSc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RPFayXyJlIxEyePLjrvS4UqE9pYw6b7jYF1xLqMTb7BGvoPrHr0cTH7Tuv2RD23lIW3CbFTnIBFQ9fos3q7niWdvQR3pq0cCgamFtUjt6pMoOHQ+/2l+7v3puwZv5+UcP55Me45Ecu1THSHtYPcFOiO9Bg6GjpG1PxjmErCCmCg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PmVw4wXS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="C4C5mYru"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68GG1eca4057249
-	for <linux-s390@vger.kernel.org>; Wed, 16 Sep 2026 16:53:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=shVSFu8iE5rxD2PXZcakQ+i+BE4uj9swGhEChYjEp
-	U4=; b=C4C5mYruOywIZmeJ4qXyX7l8xOjgCPf50O1TTkaWAZN/A2HZYhelqWsA2
-	902YIylV+yN9/cbNfo4JHp2gQxvBbnUXrESlLWDpGqENLfuMoLp3wruG1xyxd3Qj
-	W1Z+N6OMBH0zCbWTvmC+Gf8ifKZsJfRMxSVDZjq3wKMeSjWEXj0UHJkvS8GSYzre
-	UEWiinFRviOOuUQGv6VE4SQIEsZFj7BMZ+jlIFy5Xphh5ROQ7WTmYlTyBZ1lG1XN
-	cPG8zyox+EylSWq5wPuIvu//CuemXO9LOs9BzlOBJmFCIVvQsbfLyY1sxnG3j/3d
-	UCMgoqpA2GsgM3x+M0AzLqaK0sw9A==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmv5hwqwc-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 16 Sep 2026 16:53:35 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68GFe5Dk2599784
-	for <linux-s390@vger.kernel.org>; Wed, 16 Sep 2026 16:53:34 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gpw6d7w9q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 16 Sep 2026 16:53:34 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68GGrVCi50528626
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 16 Sep 2026 16:53:31 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E6F3620043;
-	Wed, 16 Sep 2026 16:53:30 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C32DA20040;
-	Wed, 16 Sep 2026 16:53:30 +0000 (GMT)
-Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 16 Sep 2026 16:53:30 +0000 (GMT)
-From: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-To: linux-s390@vger.kernel.org
-Cc: Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>
-Subject: [PATCH] s390/debug: Reject NULL debug info in debug_dump()
-Date: Wed, 16 Sep 2026 18:53:30 +0200
-Message-ID: <20260916165330.2309909-1-zaslonko@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PmVw4wXS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4114D1F000FF;
+	Wed, 16 Sep 2026 16:59:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789578016;
+	bh=JNZtWdKCogaGrWtyvhM6z027Qg7RFwkG7Shw9zuVQhE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=PmVw4wXS/r9CpHfAOn2amzHMwnGPXSnlrGas83Xpi7dsydIKsArkblukiVIHwBAY6
+	 ubpGfFGa7kqrykL1Pa6q3MkO4GKMCQQXpCmITVG/PeoahA3HJxtDyVnKBlsOT5y6Mm
+	 wozpolIxCIhxuWjx0aQRah90ZewUiZ9k5Elj1dLiF8CCivxp3p7w6OaDY/5H9Oq45S
+	 O6mv0zYlNEHZcdRLCgzvK/ZrOJVz1jz48dKYZvJ7Oi+o5KCdWId8DKOgPiN8pVOlBz
+	 jm/9rlekEwQE9XCQ+GkKAffM26w81NuZfKTTB+nUUF3sGMC9I2pcmKHTHWSj4DPFxw
+	 A9hfwpouwGpWQ==
+Date: Wed, 16 Sep 2026 17:59:52 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, "Liam R. Howlett" <liam@infradead.org>, 
+	Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, 
+	Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, 
+	Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>, Guo Ren <guoren@kernel.org>, 
+	Brian Cain <bcain@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, 
+	Dinh Nguyen <dinguyen@kernel.org>, Simon Schuster <schuster.simon@siemens-energy.com>, 
+	Jonas Bonn <jonas@southpole.se>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
+	Stafford Horne <shorne@gmail.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
+	Russell King <linux@armlinux.org.uk>, Vineet Gupta <vgupta@kernel.org>, 
+	Michal Simek <monstr@monstr.eu>, Chris Zankel <chris@zankel.net>, 
+	Max Filippov <jcmvbkbc@gmail.com>, Will Deacon <will@kernel.org>, 
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, 
+	Peter Zijlstra <peterz@infradead.org>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Richard Henderson <richard.henderson@linaro.org>, 
+	Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, 
+	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Richard Weinberger <richard@nod.at>, 
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Arnd Bergmann <arnd@arndb.de>, Vlastimil Babka <vbabka@kernel.org>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
+	John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org, 
+	linux-riscv@lists.infradead.org, linux-arm-kernel@lists.infradead.org, 
+	linux-snps-arc@lists.infradead.org, linux-arch@vger.kernel.org, sparclinux@vger.kernel.org, 
+	linux-alpha@vger.kernel.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	linux-um@lists.infradead.org, Hugh Dickins <hughd@google.com>, Qi Zheng <qi.zheng@linux.dev>
+Subject: Re: [PATCH v3 01/12] mm/huge_memory: zap deposited page tables after
+ an RCU grace period
+Message-ID: <aqrAflIQbwcNKlQL@gremlin>
+References: <20260911-rcu-pagetable-freeing-v3-0-7b8c86103821@kernel.org>
+ <20260911-rcu-pagetable-freeing-v3-1-7b8c86103821@kernel.org>
+ <467b6599-b73a-4f58-a29a-b6c6d1ffc3a5@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE2MDIyNiBTYWx0ZWRfX1VpFP5VeWYsN
- o0Akjg1COiK3VBAbDAAg6O2vaKKWL1037gmY3PQ15otMIDDpluNN/qomK+ofVIs4qiYu9VNRCDS
- awe7GUuCMeuf/G0MjGzFnBH45uDRiRVIKikArGUG/jgpm5JhJHYl8RMcWSkq3vdN0qzvpy9qPu/
- 85VT/nlOtKOAw32TK3RGCr2F6hiwF4kG9wWIFhPB8FL7WsxSpm/vD4ajAxlRQ/w0JXBaXnvNARB
- brBflZ1NJnzP1SCJoOARKRLwc7XPswrnNNYRrVdZ5XspJeb3fzMFZbk2R3lE+QI8e5HeVYaBkjD
- R+g62/ycr6R31m6X6k9y88+Hbib/Ceyx4t5fTWIkqLBZg+faOfpYGlGGn1/cRDL6bc6/cxMB09X
- atN6qV3u+f9G3DrEsp8o09NuM3sf1YbDLJ9+ZP6xzvuYv2pa76m5O1O0uMu7P2krKIBD17Js23r
- fe6oOcqq172vkpFXBtg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE2MDIyNiBTYWx0ZWRfX/nF7umuTiVvA
- f8UppX7QTHBK8LZwAc9byaC3CvyLO3px9UeMsTcMFT2CHrIDlzujwWD/IfQUryw/kgF35UxbP69
- dM4VAZF73UCJ0IMbogSkRRDY4NeEHlc=
-X-Authority-Analysis: v=2.4 cv=Zsx4uN7G c=1 sm=1 tr=0 ts=6aaac98f cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=f5iO84m0z7rEuJ1daokA:9
-X-Proofpoint-ORIG-GUID: ZqnprQKeVgPs-XMBf8ZbAbvKXmTD6Qrz
-X-Proofpoint-GUID: ZqnprQKeVgPs-XMBf8ZbAbvKXmTD6Qrz
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-16_03,2026-09-16_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 impostorscore=0 clxscore=1015 priorityscore=1501
- lowpriorityscore=0 bulkscore=0 adultscore=0 phishscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609160226
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <467b6599-b73a-4f58-a29a-b6c6d1ffc3a5@kernel.org>
 
-debug_dump() passes id on to debug_info_copy(), which dereferences
-in->name unchecked. debug_unregister(), debug_set_size() and
-debug_register_view() guard against a NULL id but debug_dump() does not.
-Nothing reaches this today, but add the check for consistency.
+On Wed, Sep 16, 2026 at 04:42:04PM +0200, David Hildenbrand (Arm) wrote:
+> On 9/11/26 21:36, Lorenzo Stoakes (ARM) wrote:
+> > When an anonymous mapping is collapsed for THP, a PTE page table is
+> > 'deposited' with the installed PMD entry.
+>
+> Right. Or when we allocate an anon THP.
 
-Reported-by: Sashiko <sashiko-bot@kernel.org>
-Closes: https://lore.kernel.org/all/20260910110147.96E851F000FF@smtp.kernel.org/
-Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
----
- arch/s390/kernel/debug.c | 3 +++
- 1 file changed, 3 insertions(+)
+That case doesn't interact with page walking though, as they're
+just-allocated right?
 
-diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
-index b5bf8284dbfc..354ce78fc0cf 100644
---- a/arch/s390/kernel/debug.c
-+++ b/arch/s390/kernel/debug.c
-@@ -823,6 +823,9 @@ ssize_t debug_dump(debug_info_t *id, struct debug_view *view,
- 	file_private_info_t *p_info;
- 	size_t size, offset = 0;
- 
-+	if (!id)
-+		return -EINVAL;
+Am focusing on collapse case for that reason rather than listing all
+possible places deposit can happen.
+
+>
+> >
+> > This is done in order that a split can be performed without needing to
+> > allocate additional memory.
+> >
+> > The freeing occurs in zap_deposited_table() and is done directly without
+> > any delay via pte_free().
+> >
+> > This is currently not a problem as existing page table walks are protected
+> > by the mmap or anon rmap lock.
+>
+> Or VMA lock?
+
+Yup indeed, can update on respin/ask Andrew to add VMA lock here.
+
+>
+> >
+> > However this becomes problematic in a future where RCU-only page table
+> > walkers exist, as there is nothing to prevent a page table walker that
+> > started the walk prior to collapse having its PTE table freed underneath
+> > it.
+>
+>
+> Wait, but wouldn't it be really problematic to punch a page table that is still
+
+Punch? You mean deposit?
+
+> being walked into the deposited list where it can just be allocated from another
+> PMD->PTE split?
+
+In general, RCU-only page table walkers are _only_ guaranteed that the page
+tables are not freed from underneath them, as per the cover letter:
+
+	"As a result, page table walks can now be performed safely under RCU without
+	 any risk of page tables being freed underneath a walker.
+
+	However, this is the only guarantee that this work provides - page table
+	walkers must still ensure that page table entries are as expected
+	throughout."
+
+So this series doesn't actually have to answer that :)
+
+But a PTE PTL -> pmd_same() check will flag anything like that,
+a.k.a. pte_offset_map_lock().
+
+The RCU lock replaces stablisation on stuff other than VMA/mmap or rmap
+lock.
+
+If the walker needs to be sure the PTE is actually valid and belongs to the
+expected walk then further is required.
+
+Alternatively (like GUP-fast) if you wanted to avoid locking at all, IRQs
+off would be required paired with the tlb_remove_table_sync_one() in
+collapse_huge_page().
+
+Another strategy could be used I guess with looped checks but it gets a bit
+sketchy with timing etc.
+
+But actually maybe we can avoid all that...
+
+>
+> Note that pgtable_trans_huge_withdraw() just dequeues *some* PTE page table in
+> the list attached to the PMD table.
+>
+> Something is odd here.
+
+...Since this code path already allocates (the huge folio), so allocation
+here isn't an issue (as long as done outside of lcosk), why not have it
+also allocate a new PTE to deposit and RCU-free the existing PTE instead?
+
+That eliminates the one place in the kernel (afaik) where a
+page-table-walker-visible table can just get yoinked over somewhere else.
+
+Then a lockless PMD check works.
+
+E.g. something like the below?
+
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index f49a6710933b..d9cb6b406ebb 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1293,7 +1293,7 @@ static enum scan_result collapse_huge_page(struct mm_struct *mm, unsigned long s
+ 	LIST_HEAD(compound_pagelist);
+ 	pmd_t *pmd, _pmd;
+ 	pte_t *pte = NULL;
+-	pgtable_t pgtable;
++	pgtable_t pgtable = NULL;
+ 	struct folio *folio;
+ 	spinlock_t *pmd_ptl, *pte_ptl;
+ 	enum scan_result result = SCAN_FAIL;
+@@ -1310,6 +1310,12 @@ static enum scan_result collapse_huge_page(struct mm_struct *mm, unsigned long s
+ 		goto out_nolock;
+ 	}
+
++	if (is_pmd_order(order)) {
++		pgtable = pte_alloc_one(mm);
++		if (!pgtable)
++			goto out_nolock;
++	}
 +
- 	/* Need space for '\0' byte */
- 	if (buf_size < 1)
- 		return 0;
--- 
-2.55.0
+ 	mmap_read_lock(mm);
+ 	result = hugepage_vma_revalidate(mm, pmd_addr, /*expect_anon=*/ true,
+ 					 &vma, cc, order);
+@@ -1433,8 +1439,8 @@ static enum scan_result collapse_huge_page(struct mm_struct *mm, unsigned long s
+ 	spin_lock(pmd_ptl);
+ 	VM_WARN_ON_ONCE(!pmd_none(*pmd));
+ 	if (is_pmd_order(order)) {
+-		pgtable = pmd_pgtable(_pmd);
+ 		pgtable_trans_huge_deposit(mm, pmd, pgtable);
++		pgtable = NULL;
+ 		map_anon_folio_pmd_nopf(folio, pmd, vma, pmd_addr);
+ 	} else {
+ 		/*
+@@ -1453,6 +1459,9 @@ static enum scan_result collapse_huge_page(struct mm_struct *mm, unsigned long s
+ 	}
+ 	spin_unlock(pmd_ptl);
 
++	if (is_pmd_order(order))
++		pte_free_defer(mm, pmd_pgtable(_pmd));
++
+ 	folio = NULL;
+
+ 	result = SCAN_SUCCEED;
+@@ -1463,6 +1472,8 @@ static enum scan_result collapse_huge_page(struct mm_struct *mm, unsigned long s
+ 		anon_vma_unlock_write(vma->anon_vma);
+ 	mmap_write_unlock(mm);
+ out_nolock:
++	if (pgtable)
++		pte_free(mm, pgtable);
+ 	if (folio)
+ 		folio_put(folio);
+ 	trace_mm_collapse_huge_page(mm, result == SCAN_SUCCEED, result, order);
+
+
+>
+> --
+> Cheers,
+>
+> David
+
+--
+Cheers, Lorenzo
