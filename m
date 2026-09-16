@@ -1,34 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CBEB373BE7;
-	Wed, 16 Sep 2026 12:03:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EAC34F054A;
+	Wed, 16 Sep 2026 12:03:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789560237; cv=none; b=YHDLk5l5H0cop+5AkD0ONPBXMkmdkgJyPlJocBA0ASmVPEZDboqgd0foNEs0Tf9iXCXIM3eNBojQdTll0wWuTyLR8Gtt6Ir/7UnFedCuV/AN/mC1eF5ZKL/YH5aSSjUaAWGyBFqAt9dWjoQVio3Su8hOSmiIYUC9ei63cNmKXsM=
+	t=1789560242; cv=none; b=B0uoiljGbQP2JnCdlshlDI5L8xi3LqIK+s7z0aUYyYUnyfu2wYF/t3WEkYsL0SHB1doZb5IAhfTVijQmrJiSKKSg0GADM1w14jSZR7cqXHlhfT7eupPkaZDXwfsCftVdSx/xC2PJsZdv2iXVSCJD8zTgf40D7+3DC41IG3xrJjo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789560237; c=relaxed/simple;
-	bh=4alY3z2W927Ms15LZYZMvwkRWVZRcuBdqTKjuIfVo1A=;
+	s=arc-20240116; t=1789560242; c=relaxed/simple;
+	bh=JkkuCK1AjeZA2D774owh92o+U22DOEgW8Bl1T+VvjGM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=fFTTQ52jBmR1YZqU86xJFzT9N6KLb3lKK+kvPwZS9U7StS3W6hZCkV61xKwKkClSTQPH8/Xd84/tGyaueHdC0RdEa2+s1KtYgdA+Admnb4Kv/LqpsBzNmH86qpAwLqj+EWzpC70F1UzxinzjWVCoaO6gXp3nmUajX1q5qQHZiwM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a6fFas1B; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=r9jmrLgq4zFRwUlbAJsUUnqQ4/Fjtshy075rWES1M3Cr+a0egRadMa+2sDYabU+ISDFJrQg+ILm8BkL9YcbgdGmvwZONrjZXQimuS5/PweaHaLoe6r4uMkanKe5186v2wjfpYR8QYrUvcBRWVRZGdJsU/63xGmt8Adth6u1b2A8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EAce1fhA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a6fFas1B"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5276F1F0089C;
-	Wed, 16 Sep 2026 12:03:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EAce1fhA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAF581F0089A;
+	Wed, 16 Sep 2026 12:03:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789560226;
-	bh=GAESRwUS4AoT8Fe9vxXzcjqr/ANwAvgo8C6M4V7pHvs=;
+	s=k20260515; t=1789560235;
+	bh=DJHDp9vqJXqFSbKUnrSygcbO2/M2tpxb0Oj00wJTPho=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=a6fFas1Bc27pKC1jQ/NkBXM0GYbCXSa82qImbsgbod4ilaTgi9SjJGRCtvOVYxpW/
-	 qVcv9GI3uHMODJ7+tRRVAeuCE17oUOTATFrKBEAW3WmjjhF4G1pcXjCztOycunN0oM
-	 279Eud8rdiIi3IZFrvyawyqJ8tqiGhG44Sr0xYOz7bG/lmqK2EPx2nXeYWxIG4W/b+
-	 XV8Hi5hZn1Y2UrEMatxNrVPWUOflcK4YcrrjYkoEvVH2U6SXDf/HfhTMTifY5eP+AO
-	 MCIZKAvRNX1dRS3VCu8JVKs92sxX8UQPmFBoq/R8ZgI3uO+brqUJQ/25Dg7W6liu+B
-	 uwGV8ibY/dDLw==
+	b=EAce1fhAsPPC3kF2ylU6CATF9nCbEqSmOzx7qUVC9VhipchN28lkPYShtYDFpnw4j
+	 dG3GPyU88038isT2JPJkUb/bUoev57I/6LsEjI/rAZ11k37trd6BC27abxzYWYNOEP
+	 H8PiUdqA53Oec/qZ6dq9sCFnuf9pCE9N9V6/stGDpGbA0b7pbDXmhE5D1y/G0/VJ/J
+	 2qiOpv27g4mGTl+QUnws374gEYEEUDzSEcJOnMyPN0s68mMUJiCBc8HwmmxIRnEYRl
+	 ZIefJntx8NH8HODnJHM5afimdQfkzB1S1+k2VPJAloypuVJusewfq99/PSFwFYZwes
+	 Q41c2eDiC3Ixg==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Wed, 16 Sep 2026 15:03:16 +0300
-Subject: [PATCH v3 09/13] s390/qdio_main: Use kzalloc() for the QDR
+Date: Wed, 16 Sep 2026 15:03:19 +0300
+Subject: [PATCH v3 12/13] s390/qdio_setup: Use kmalloc() for the SSQD
+ request
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,7 +38,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260916-s390-cio-ready-v3-9-39e4894637d6@kernel.org>
+Message-Id: <20260916-s390-cio-ready-v3-12-39e4894637d6@kernel.org>
 References: <20260916-s390-cio-ready-v3-0-39e4894637d6@kernel.org>
 In-Reply-To: <20260916-s390-cio-ready-v3-0-39e4894637d6@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
@@ -51,7 +52,8 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
  linux-kernel@vger.kernel.org, linux-mm@kvack.org
 X-Mailer: b4 0.17-dev
 
-qdio_allocate() allocates the queue description record (QDR).
+qdio_setup_get_ssqd() allocates the request block for the Store
+Subchannel QDIO Data (SSQD) CHSC command.
 
 This memory can be allocated with kmalloc() as there's nothing special
 about it to go directly to the page allocator.
@@ -66,47 +68,38 @@ fast path allocations.
 For the slow path the performance is anyway determined by the amount of
 reclaim involved rather than by what allocator is used.
 
-Replace use of get_zeroed_page() with kzalloc() and free_page() with
+Replace use of __get_free_page() with kmalloc() and free_page() with
 kfree().
 
 Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
 Assisted-by: copilot:claude-opus
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- drivers/s390/cio/qdio_main.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/s390/cio/qdio_setup.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-index 28eb8602ca97e..889f63f94a4a7 100644
---- a/drivers/s390/cio/qdio_main.c
-+++ b/drivers/s390/cio/qdio_main.c
-@@ -933,7 +933,7 @@ int qdio_free(struct ccw_device *cdev)
- 	mutex_unlock(&irq_ptr->setup_mutex);
+diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
+index d8e9c0872d15d..e1c5c6a8b3b27 100644
+--- a/drivers/s390/cio/qdio_setup.c
++++ b/drivers/s390/cio/qdio_setup.c
+@@ -249,7 +249,7 @@ int qdio_setup_get_ssqd(struct qdio_irq *irq_ptr,
  
- 	qdio_free_queues(irq_ptr);
--	free_page((unsigned long) irq_ptr->qdr);
-+	kfree(irq_ptr->qdr);
- 	kfree(irq_ptr->chsc_page);
- 	kfree(irq_ptr->ccw);
- 	kfree(irq_ptr);
-@@ -988,7 +988,7 @@ int qdio_allocate(struct ccw_device *cdev, unsigned int no_input_qs,
- 		goto err_chsc;
+ 	DBF_EVENT("getssqd:%4x", schid->sch_no);
+ 	if (!irq_ptr) {
+-		ssqd = (struct chsc_ssqd_area *)__get_free_page(GFP_KERNEL);
++		ssqd = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 		if (!ssqd)
+ 			return -ENOMEM;
+ 	} else {
+@@ -270,7 +270,7 @@ int qdio_setup_get_ssqd(struct qdio_irq *irq_ptr,
  
- 	/* qdr is used in ccw1.cda which is u32 */
--	irq_ptr->qdr = (struct qdr *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
-+	irq_ptr->qdr = kzalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
- 	if (!irq_ptr->qdr)
- 		goto err_qdr;
+ out:
+ 	if (!irq_ptr)
+-		free_page((unsigned long)ssqd);
++		kfree(ssqd);
  
-@@ -1001,7 +1001,7 @@ int qdio_allocate(struct ccw_device *cdev, unsigned int no_input_qs,
- 	return 0;
- 
- err_queues:
--	free_page((unsigned long) irq_ptr->qdr);
-+	kfree(irq_ptr->qdr);
- err_qdr:
- 	kfree(irq_ptr->chsc_page);
- err_chsc:
+ 	return rc;
+ }
 
 -- 
 2.53.0
