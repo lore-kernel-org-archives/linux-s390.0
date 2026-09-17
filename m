@@ -1,32 +1,32 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B0DDA4B7A20;
-	Thu, 17 Sep 2026 16:02:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id BB6164E4C35;
+	Thu, 17 Sep 2026 16:06:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789660980; cv=none; b=A/6bOvQJ33o8VqhxtZqlPoUCnlElCjjYCdy5P1SquR+NY/e8nhmL3yyzsOnI41pHQr7kHHxbNrAyIvKlhTtAghGvhWUrRk6l8XlYTvYanuy9hMFiSstR6n5AwxRGVgRPc3ByRvw3I9sOuLE5R6xEyHCJP2lYRwVCwXkji7E0a40=
+	t=1789661164; cv=none; b=qGpN5z0A6QfkYKkti/tpUNJ+GjvXYX3EdmiECfVMQ91y8X089a7ntlagjCHzg8ucxKJquLqeXmltRhRrUqNOgCiUlGK6ocCvIGpfgs6Hzk4a5VN1ytL/VZ0IjeB7SZHcFYQ26nmhNoTk14E08Zmn3/QFYJsFaJ6sxDsn+Jd2KrI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789660980; c=relaxed/simple;
-	bh=oTSpkmkdrCN17NbG/BBwkxPXVynnbNeoywXS03zePeY=;
+	s=arc-20240116; t=1789661164; c=relaxed/simple;
+	bh=9mcxnDc8qxIpxmpk6T3Tp+BnQwg+ATLN/zS0rC02bj4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pRV9Vz9OARz1SeunljoNmnPRG2b3RwUSlt9qHqerN4T/5XHCEvwd7R7T4MWWzod79uaYUl0Kc6v2y5FHpWoSQDBn06VVI9hXN1a+/YygKb4IYVnmd/64wzPU5dVr7sB9doGLwYux0NrkNYB2Z9IQqPbguXZvP/PiirPbGInPWCI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=S2fxmt5n; arc=none smtp.client-ip=217.140.110.172
+	 Content-Type:Content-Disposition:In-Reply-To; b=h9FByVXMzEcCDDBbQ7RCCNMpyvVj9s9fZXRbUufRcrN695BZJDf2DLj9oMBu2Px2+GcnqrIUtk6rVGJmEteVKtn+9OkY3BYpt5RoDRr62y7SADwhAP/lKebE2/7p8Vm5xdpTri0xcd9iCMPfHDw40EL1IY1LR/2kNgrSHVqnxzw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=iSTmFOj/; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="S2fxmt5n"
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="iSTmFOj/"
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 676491476;
-	Thu, 17 Sep 2026 09:02:52 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 723D01476;
+	Thu, 17 Sep 2026 09:05:57 -0700 (PDT)
 Received: from arm.com (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0676E3F7B4;
-	Thu, 17 Sep 2026 09:02:50 -0700 (PDT)
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0930A3F86F;
+	Thu, 17 Sep 2026 09:05:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1789660976; bh=oTSpkmkdrCN17NbG/BBwkxPXVynnbNeoywXS03zePeY=;
+	t=1789661161; bh=9mcxnDc8qxIpxmpk6T3Tp+BnQwg+ATLN/zS0rC02bj4=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=S2fxmt5n7wqW8D4QzBKWm8vc57hZzAXsLdw9Jtmn7fDwYuUkUjAjjz0iYC6XiR0tu
-	 9uTMew8t9VAK7rJOxWX62e/iXJau/fZJ5mkD/AXyBAM4cL0DOiEE+aa31dFygWVPu6
-	 NIHL5WfGiIh7klKkEub7eNcTGfyNDO5DXPYwmJRI=
-Date: Thu, 17 Sep 2026 17:02:48 +0100
+	b=iSTmFOj/SjkZUclQCqE4zTW0vk94VTD2VbErQFckNg1Hf9DqR+Wb+AcjT1kbXrZTY
+	 9NCVL8hRLjredBc9QRerBZnnZDifRLrHjsitRjiaswGzll4lpHF3AB6KbXTdEHKJsU
+	 MLwoOZ4/t3+aNJhsyRfmX7PHIpukuOpzzytXFkiM=
+Date: Thu, 17 Sep 2026 17:05:53 +0100
 From: Catalin Marinas <catalin.marinas@arm.com>
 To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
 Cc: iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
@@ -64,11 +64,11 @@ Cc: iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
 	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
 	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
 	x86@kernel.org
-Subject: Re: [PATCH v4 3/5] dma: swiotlb: Centralize memory-encryption pool
- sizing
-Message-ID: <aqwPKO80ZEn0cqa7@arm.com>
+Subject: Re: [PATCH v4 4/5] dma: swiotlb: Add an overridable architecture
+ pool opt-out
+Message-ID: <aqwP4ZKugUpFezV7@arm.com>
 References: <20260914070135.313337-1-aneesh.kumar@kernel.org>
- <20260914070135.313337-4-aneesh.kumar@kernel.org>
+ <20260914070135.313337-5-aneesh.kumar@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -77,44 +77,21 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260914070135.313337-4-aneesh.kumar@kernel.org>
+In-Reply-To: <20260914070135.313337-5-aneesh.kumar@kernel.org>
 
-On Mon, Sep 14, 2026 at 12:31:32PM +0530, Aneesh Kumar K.V (Arm) wrote:
-> +/**
-> + * swiotlb_adjusted_size() - get the prospective adjusted SWIOTLB size
-> + *
-> + * Return the size that confidential-computing guest sizing would select for
-> + * the default pool, without changing the configured SWIOTLB size. An
-> + * explicit swiotlb= size is always preserved. An explicit area count is
-> + * included in the size calculation. Automatic area sizing is initialized
-> + * later from the running kernel's possible CPU map and any resulting size
-> + * adjustment is therefore not reflected in the returned size.
-> + */
-> +unsigned long __init swiotlb_adjusted_size(void)
-> +{
-> +	unsigned long nslabs, size = swiotlb_size_or_default();
-> +
-> +	if (swiotlb_default_size_changed() ||
-> +	    !cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
-> +		return size;
-> +	/*
-> +	 * For SEV and TDX and CCA, all DMA has to occur via
-> +	 * shared/unencrypted pages. Kernel uses SWIOTLB to make this
-> +	 * happen without changing device drivers. However, depending on
-> +	 * the workload being run, the default 64MB of SWIOTLB may not be
-> +	 * enough and SWIOTLB may run out of buffers for DMA, resulting in
-> +	 * I/O errors and/or performance degradation especially with high
-> +	 * I/O workloads.
-> +	 *
-> +	 * Adjust the default size of SWIOTLB using a percentage of guest
-> +	 * memory for SWIOTLB buffers. Also, as the SWIOTLB bounce buffer
-> +	 * memory is allocated from low memory, ensure that the adjusted
-> +	 * size is within the limits of low available memory.
+On Mon, Sep 14, 2026 at 12:31:33PM +0530, Aneesh Kumar K.V (Arm) wrote:
+> diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
+> index be3962a33fc6..ef7a776ee508 100644
+> --- a/include/linux/swiotlb.h
+> +++ b/include/linux/swiotlb.h
+> @@ -20,6 +20,8 @@ struct scatterlist;
+>  #define SWIOTLB_INIT_ADDRESSING_LIMIT	(1 << 2)
+>  /* Initialize a default-sized pool that requires architecture remapping. */
+>  #define SWIOTLB_INIT_REMAP		(1 << 3)
+> +/* Do not initialize a pool unless SWIOTLB is explicitly required. */
+> +#define SWIOTLB_INIT_FORCE_DISABLE	(1 << 4)
 
-Nit: if SWIOTLB_ANY is passed, do we still allocate only from low
-memory? I think this comment made sense on x86 but it's not valid for
-s390, pseries with the changes so far.
-
-Otherwise:
+Nit: maybe better as SWIOTLB_INIT_DEFAULT_OFF. "Force" sounds too
+drastic and it can be overridden on the command line to re-enable.
 
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
