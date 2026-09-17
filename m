@@ -1,116 +1,165 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE1455237A0
-	for <linux-s390@vger.kernel.org>; Thu, 17 Sep 2026 13:22:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E240F4E1C99;
+	Thu, 17 Sep 2026 13:32:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789651347; cv=none; b=IIKcOi2fo/c8vZk+PBiyKgx0QKY2qnmvHtquNh62YWH3g4rDORGsjFBp2OBuKDN1iADbXUCPe6ZO5Rvc067dM2BEcQnwS5QYoZc0k82JZZIAnc0q5HMTL+VxeIwnohlRjapv7Vxk4tWJuR0YJXs02MtvshzcyUByrdAbZ8e7weY=
+	t=1789651979; cv=none; b=EVJT3sBw/IrW0STWcUmOPo0Dlkx4X3cR0Tc3HdwI6r7QFWp8S57Av96kOs4mWFDu+f2W+rDE5QmMrhGAx65V0yQzhT3TCqwF0ziGxyDr+97O1lidLaClghn1Ei65r5V2cqg7+tRmP+oh+1aXauzpC8a5Q2eKGqtjTeyjrNihZvI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789651347; c=relaxed/simple;
-	bh=aGdGXNNLwJ0yQoeXlkF5HBes0GuPKpKOn3XppLNO4p8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=S+xOeIwxGmNgHTp486JQnSktMoHJg8Oh8mHckEMfkTxVrAQg58A3Kv8R7+KtTxE3ktbjf3G9dG21pddFiRgYKLY0Vxmpr46SPrNEBEUdPhZizoVI9FSy6g5baJD2T6QBDerNL6x5/kRYRNfCykXA69XJjznnf5wvTTBFZXysdVw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XcvZJ528; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789651979; c=relaxed/simple;
+	bh=mgJ4pOA/BDBTrfWlpwe2JXsiMIMXaH7rAYrCZqbb0/M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=B5qGesbCeKcJ39xBxPkcl/0Kbenn/GqEo+iV7XiiWwqGFaGWry55Nf2oWzuKnZD1SP1Db8jzC4gcu7D2b7b1+f5qpfNxT3AIFx32YM6qgtfimv5dK7J71gt2J4ZMYOnfd8GhMEsSr9CpOyjvobYNtRpiRvEpn9E+XA63L1cPZhA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jSlJhmGQ; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XcvZJ528"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 646FF1F00898;
-	Thu, 17 Sep 2026 13:22:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789651345;
-	bh=Goll1IogCekTcXs0iXnmzR1k1bl5JM0Gwd6drVo+77E=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XcvZJ5282BwoQ53YtnHN+0LR9OI4M7Wm6q7I2PXiwEjwQx7Pwa38YZpI8xt7UyUsb
-	 KVjREXmkFlWTXvEIOSj7Wu9NnvT+PNpf9wuquth9A04S7Z7SU5J6pxVT9kx5hVw6hV
-	 EqG6Mmw/QDuvjxkaUp16Ju93vgH2qZJNpc9hOjse54spW6JB2kqZG7OMTA1SvQSnMm
-	 dcMhFQ/4swW8uYER6s6lYjw4u7vZZb+y3OjUeiPjp+VohuoCgRKAHDPsjXK7xpmUg/
-	 vcoNtPnbvy1FiICaIO4b634uTRyqXF1VOJRsCeMHYDgNFx++58dUkLz9VO1ujaL+rL
-	 AvI9uIxC6FNCw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v2 2/2] s390/ctcm: Fix use-after-free in
- channel_remove()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Nagamani PV" <nagamani@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260916132149.4185912-3-nagamani@linux.ibm.com>
-References: <20260907144511.3810194-1-nagamani@linux.ibm.com>
- <20260916132149.4185912-1-nagamani@linux.ibm.com>
- <20260916132149.4185912-3-nagamani@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 17 Sep 2026 13:22:24 +0000
-Message-Id: <20260917132225.646FF1F00898@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jSlJhmGQ"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68HA1SVm322296;
+	Thu, 17 Sep 2026 13:32:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ODgGJ4
+	fkGZnjmAXhi3sqtR7uq5XJ8wMB23Pd/sPw//g=; b=jSlJhmGQqM6J6PUseibufc
+	dgMJ/i1Q6OKS/vLCUXOis4zJ5JvvhCNTo8s30HN+rEN+zQmcGBX3MQxs1rA6ZceK
+	l0p4guS4i16CQOmRo2VB4v333EgcFMQu7GVWgXOUiFl14usPL5qBQqEJPZVYzn0T
+	9mdhpidYiPwNXK/uGl5KYrxd4tqfTcUshuia5X8zeZHx0Gwyky7L2tS/Xshw2K55
+	VAIuUMEaAbFnJC1yjOBPGiRSpF+n35LVbQKPK+Lu2jnjP/gKlOESgzfCV/CNY77V
+	zZ/GBu4O9E51V7eFl/VftV3HvAIjrVdmydmlqH3SucvSLGMw66UFwr61AifU/K7g
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmxdqjmw4-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 17 Sep 2026 13:32:51 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68H9aIqP2962377;
+	Thu, 17 Sep 2026 13:32:50 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gra3ysn8e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 17 Sep 2026 13:32:50 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68HDWmPU28246548
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 17 Sep 2026 13:32:48 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B24F058063;
+	Thu, 17 Sep 2026 13:32:48 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 02DB058065;
+	Thu, 17 Sep 2026 13:32:47 +0000 (GMT)
+Received: from [9.61.247.238] (unknown [9.61.247.238])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 17 Sep 2026 13:32:46 +0000 (GMT)
+Message-ID: <85cb647d-b1c8-4804-b206-2cae1e03e20d@linux.ibm.com>
+Date: Thu, 17 Sep 2026 09:32:46 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v6 2/4] s390/pci: Reuse FMB buffer and preserve state in
+ device re-enablement
+To: Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, schnelle@linux.ibm.com,
+        alifm@linux.ibm.com, farman@linux.ibm.com, gbayer@linux.ibm.com,
+        pasic@linux.ibm.com, alex@shazbot.org
+References: <20260916213222.233-1-oelghoul@linux.ibm.com>
+ <20260916213222.233-3-oelghoul@linux.ibm.com>
+ <099b4e3f-4156-42e4-a2e9-bdc715547bef@linux.ibm.com>
+Content-Language: en-US
+From: Omar Elghoul <oelghoul@linux.ibm.com>
+In-Reply-To: <099b4e3f-4156-42e4-a2e9-bdc715547bef@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE3MDE5MCBTYWx0ZWRfXx/upzehTN8Yr
+ Cwn+G3lelFZilDPvTW5woglDWoDvLeTEYtQr+W+TwI/bACAe9PpQ02oVA9rMWPlt6FRRoul/LDE
+ F8ikLriu3lpubOn+Q21ZYW1FVBeMHVfnoJAqcE+KyQYkb/hnYPds3LvK1Zkrd6XbASY8+Aa2K6F
+ uD1LbDqswBlkrysIZruKvytIrBSLJ5+zBAw2qQArramqSbjyHrbnOVprKoXh8zhIUz27zdJUSJs
+ ropyp9fZtBQZjOnd8brVlNuYzGPeF0iRNEfnN1ErreIzno7biNBwTRjLdygQq8OoYJcLp23xB6s
+ f8OcFA/PbchUl4QS4/uoFAJfF+exY3ShUJHs5Mdl/rlEIa5oBkJIT4wzwKykIXaGVRY9H7Qqp2r
+ ZIODJzAUwWaI8niGOJ9tVJ1KG7opOa9LQLqmFuXswlMCyHdHfTjFGBnlL889kMkEPiu5CEUowPX
+ 21SAz5m5I3ZQEUeMk9A==
+X-Proofpoint-GUID: eqokwp51adjx54htjj43JQ1sPjUCIxO4
+X-Authority-Analysis: v=2.4 cv=DobDa2/+ c=1 sm=1 tr=0 ts=6aabec03 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=EUQsns2teDQkhDBnVLYA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: eqokwp51adjx54htjj43JQ1sPjUCIxO4
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE3MDE5MCBTYWx0ZWRfX8dZRNK2XIQZz
+ Qv5ldF9ifEFyPcmAhKsUI5SpapQ7TQEHchVe8svr4n8flUALBr6UsVAOV5U+O2oaRtCqtCPnKUv
+ xWYR1IPuXo4mZ3etzAR4o1ROAALhNaU=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-17_02,2026-09-16_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 malwarescore=0 priorityscore=1501 suspectscore=0 impostorscore=0
+ spamscore=0 clxscore=1015 adultscore=0 bulkscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609170190
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] timer: use-after-free in channel_remove() due to re-arming after t=
-imer_delete_sync()
---
+On 9/16/26 10:21 PM, Matthew Rosato wrote:
+> 
+>> +int zpci_fmb_reenable_device(struct zpci_dev *zdev)
+>> +{
+>> +	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_SET_MEASURE);
+>> +	struct zpci_fib fib = {0};
+>> +	u8 cc, status;
+>> +
+>> +	lockdep_assert_held(&zdev->fmb_lock);
+>> +
+>> +	if (!zdev->fmb_enabled)
+>> +		return zpci_fmb_enable_device(zdev);
+> 
+> Sashiko has a point here, won't all paths that call zpci_reenable_device
+> now unconditionally turn on FMB here even if it was purposely disabled?
+> 
+> The pattern of callers for zpci_reenable_device() is:
+> 
+> zpci_disable_device()
+> ...
+> zpci_reenable_device()
+> 
+> We only care to re-enable the FMB during device re-enable if the device
+> had FMB enabled at the time zpci_disable_device() was called.
 
-commit f0230a69308edd523997bd09005283eab61bb03e
-Author: Nagamani PV <nagamani@linux.ibm.com>
+The way I thought of it was pcibios_enable_device() already enables
+measurement, so we might as well ensure it is enabled when the zdev is
+re-enabled. That default state is also helpful for the later patches
+because kvm_s390_pci_register_kvm() calls zpci_reenable_device().
 
-s390/ctcm: Fix use-after-free in channel_remove()
+But I guess if we didn't want to conflate the two, we could also add an
+unconditional zpci_fmb_reenable_device() within the KVM register hook,
+to run after the zpci_reenable_device(), whichever you'd prefer.
 
-This commit attempts to fix a use-after-free in channel_remove() by replaci=
-ng
-fsm_deltimer() calls with direct calls to timer_delete_sync() before freeing
-the channel structure. The commit message states timer_shutdown_sync() was
-avoided to prevent self-deadlocks if FSM action functions call fsm_deltimer=
-()
-from within the timer callback chain.
+Thanks
 
-Link: https://sashiko.dev/#/patchset/20260803182736.2356374-1-nagamani@linu=
-x.ibm.com?part=3D1
+> 
+> Thanks,
+> Matt
+> 
+>> +
+>> +	fib.gd = zdev->gisa;
+>> +	cc = zpci_mod_fc(req, &fib, &status); /* Disable function measurement */
+>> +
+>> +	/* Unlike in zpci_fmb_disable_device(), cc == 3 is not a valid state here
+>> +	 * because we are re-enabling function measurement for the same function
+>> +	 * handle.
+>> +	 */
+>> +	if (cc)
+>> +		return -EIO;
+>> +
+>> +	zdev->fmb_enabled = 0;
+>> +	return zpci_fmb_enable_device(zdev);
+>> +}
+>> +EXPORT_SYMBOL_GPL(zpci_fmb_reenable_device);
+> 
 
-> diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-> --- a/drivers/s390/net/ctcm_main.c
-> +++ b/drivers/s390/net/ctcm_main.c
-> @@ -211,9 +211,9 @@ static void channel_remove(struct channel *ch)
->  	while (*c) {
->  		if (*c =3D=3D ch) {
->  			*c =3D ch->next;
-> -			fsm_deltimer(&ch->timer);
-> +			timer_delete_sync(&ch->timer.tl);
->  			if (IS_MPC(ch))
-> -				fsm_deltimer(&ch->sweep_timer);
-> +				timer_delete_sync(&ch->sweep_timer.tl);
-
-[Severity: High]
-Can this sequence lead to a use-after-free if the main timer is re-armed
-during teardown?
-
-Looking at channel_remove(), the patch deliberately uses timer_delete_sync()
-instead of timer_shutdown_sync(). While timer_delete_sync() waits for a
-running callback to finish, it does not mark the timer as shut down or
-prevent it from being re-armed.
-
-If a concurrent sweep_timer callback executes during channel_remove(), it
-can re-arm the main timer via ctcmpc_chx_send_sweep():
-
-drivers/s390/net/ctcm_fsms.c:ctcmpc_chx_send_sweep() {
-    ...
-    fsm_addtimer(&wch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, wch);
-    fsm_newstate(wch->fsm, CTC_STATE_TX);
-    ...
-}
-
-If channel_remove() calls timer_delete_sync() on ch->timer.tl first, and
-then spin-waits for ch->sweep_timer.tl, the sweep_timer callback could
-re-arm ch->timer right before the teardown thread proceeds to free the
-channel structure via kfree(ch).
-
-Since the kernel Timer API requires timer_shutdown_sync() to safely
-prevent this exact re-arming scenario before freeing, does leaving the
-timer capable of being re-armed leave it active on the timer wheel after
-the channel memory is gone?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260916132149.4185=
-912-1-nagamani@linux.ibm.com?part=3D2
