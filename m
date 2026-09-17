@@ -1,188 +1,114 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7092030F7FF;
-	Thu, 17 Sep 2026 08:45:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D37674A204D;
+	Thu, 17 Sep 2026 09:13:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789634772; cv=none; b=lv5i2xyC5baUqZBGkV/LjoihJnOqJcH5sWyqV4Ny2/IZSSjczf5IbCGrV5vzX5lb9ZTpHdIy6v4z6I29IbKhs2WRjArxgRPS0vu9kyC6w+/X8MMqhhI2uzrF9t0BtAj/meskMbbOL1+7g3yRrPvMWm7KZF+W/KlZBvNk0vdGDQU=
+	t=1789636396; cv=none; b=ZI+onVtlRfaVorKKxOYamjXYdXm6cKE7gX8M/eI7PZr6goc80jADw30gmbW2QQKJlJM2FVASmQzZ/Jxu4M4cCFvUwwapnDpciva9rMD88k6WIgyk0b9OlCKCuyH/v4H02c/N9ICgo4N3lPg+s0hi+WOR9gSs37mgnYa3uwvl3KQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789634772; c=relaxed/simple;
-	bh=KNvuiSAZT/02QuUxp7uiQOlWYu2VUC1qzplqriSz8ZY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=T/cMDx72Skwql2VZhhZNwOi38DY7mbNYmJ0sYKyVdLsc0BJuMO5RX1+rTNLmfmuS5a4J6PPadDryzHOz3FOsmt6HZ6Auv27RKne09EYKSady9gT3Nb6IQbO2bH44Ik0sx5JTbnkfhWU4ccXSsSF/vQBoUmcTs4ym9X+RQPlJs7k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=g9dlaHth; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1789636396; c=relaxed/simple;
+	bh=6tdv1fQIX48GNjkBOUbNITXfXvuQarY3qABLSJmTviM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=JLNaYnWzIVm+3+4neyLJVp888YSc86u23MK/NW3yvGrgA/GDUm++FUNHfJ9jNjVv+6rgxl1pWHu2e6SSzMGtiK2fWYZM0xzE4yzXN+rLqUW3WZndF/s9vD7LeQCS7AMSwFqY5MTB9et1BOnCE3Oc12BmwQeTMlt97sIP72CebXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=K8nr4pLC; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="g9dlaHth"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68H62V4k543286;
-	Thu, 17 Sep 2026 08:45:51 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="K8nr4pLC"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68H61nsI1715746;
+	Thu, 17 Sep 2026 09:13:11 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=T5CM6ODXOUrqzCVj1f4AUoFeSoYLib
-	qQQi4xRw949ug=; b=g9dlaHthG11QP5ZrXfLVjTXxXbYSqgV2LuzJ2K/1ZC0lJr
-	quZT21uTR85Uc5hmt1I3JwSudAlylafERGmMd+bwd6fAb/XK9n4O8AV9sTgDiYXL
-	HLa/qAzjz4FtRGTj+nJQCNyb0Om/AJf7nUpapw9eqN3Tif3o5vH+C2gcf2SBFcJx
-	4ea4w2EvqSzyhPkEFCMZOgS8RalrRSoHve88zVmTtf4zmxcaYEYvJlsrRvgaMaPj
-	DKT7BU5LMP/h8uL9HbtHaIFu1z2wKDs+nm5pNP46cfYT4/YNApujotXLDoUJTUwg
-	jPwsXCjvmUMv26Ptog15p1Cj3RrlnArmewsVjIUw==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmw5e8ydf-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=OhAZpF
+	E45Wv96b50Eo18CRHe6c/DNguzKZ+2qnW74jU=; b=K8nr4pLCwrlwFOQyWa2u+8
+	sQv1FPuUWPa2041ETdIqwyLzDzfJiQmoof+yT4dkRhAYgm8rNygYGI5uLPfBMgVJ
+	izsBsaTXz8sgSlFQo1JudlpIu2RB6L+0Uqq0F6WDXRPHQNiNUxJgvkXN86zh0odI
+	10BuSIHUcdplrrTE5dAXFh2R8/aGwE/+SdgiISDPzGFVA5ySYBAN4bWdWqsUK2WX
+	LFut74BzWAEavfHr+ZivXDCuCEVUwHnXOgHMOPWLSZ+sEHww2fUJdPiS+bTKWvjc
+	RgRC3kp/iRm87IjFGNa8YoGlYvUcxLWQ4Fgh7+WipEYXOzYrZWV2HYK8eNZ+mVRg
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmxf59f2n-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 17 Sep 2026 08:45:50 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68H653432660555;
-	Thu, 17 Sep 2026 08:45:50 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gr5fjhk3s-1
+	Thu, 17 Sep 2026 09:13:10 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68H65AKd3619060;
+	Thu, 17 Sep 2026 09:13:09 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gr7geh8qq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 17 Sep 2026 08:45:50 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68H8jkFd28311812
+	Thu, 17 Sep 2026 09:13:09 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68H9D66J46530838
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 17 Sep 2026 08:45:46 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 516AE20043;
-	Thu, 17 Sep 2026 08:45:46 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2D20720040;
-	Thu, 17 Sep 2026 08:45:46 +0000 (GMT)
-Received: from osiris (unknown [9.224.76.185])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 17 Sep 2026 08:45:46 +0000 (GMT)
-Date: Thu, 17 Sep 2026 10:45:44 +0200
-From: Steffen Eiden <seiden@linux.ibm.com>
-To: Sean Christopherson <seanjc@google.com>
-Cc: sashiko-reviews@lists.linux.dev,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>, kvm@vger.kernel.org,
-        Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: Re: [PATCH v2] vfio: Use file-based reference counting for KVM
-Message-ID: <20260917084544.474297-A-seiden@linux.ibm.com>
-References: <20260903-vfio-v2-1-ef4cd4190ae7@linux.ibm.com>
- <20260903084221.C3B871F000E9@smtp.kernel.org>
- <apmpWNSv6ahYr2Bl@google.com>
+	Thu, 17 Sep 2026 09:13:06 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0CB5C20043;
+	Thu, 17 Sep 2026 09:13:06 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CE73A20040;
+	Thu, 17 Sep 2026 09:13:05 +0000 (GMT)
+Received: from [9.224.91.220] (unknown [9.224.91.220])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 17 Sep 2026 09:13:05 +0000 (GMT)
+Message-ID: <5e9a75a1-54f4-4425-806d-55d27569602e@linux.ibm.com>
+Date: Thu, 17 Sep 2026 11:13:05 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <apmpWNSv6ahYr2Bl@google.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 0/1] s390/crypto: Generate iintermediate chaining value
+ on export
+To: Herbert Xu <herbert@gondor.apana.org.au>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik
+ <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>
+Cc: Harald Freudenberger <freude@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Eric Biggers <ebiggers@kernel.org>, linux-crypto@vger.kernel.org,
+        ifranzki@linux.ibm.com
+References: <20260814142010.259918-1-dengler@linux.ibm.com>
+From: Holger Dengler <dengler@linux.ibm.com>
+Content-Language: en-US, de-DE
+In-Reply-To: <20260814142010.259918-1-dengler@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE3MDExNiBTYWx0ZWRfX4FTCRqbsYLxT
- y8ElZRsb3ecu1u3jDKbnmHnSGHE/pSCyvi4Gzl6o1Wf4YvQeV0UCfGyG0JQORNgz4mWHENUgImy
- mGACtsKrluwU18t44CFFM+VqNSl3cjODchhlAHPTo8OThpbciYJjgvkNvqSRjFzaGdoy6Dv23xB
- cKD8D3oadonV3LChRwFSETYe+g7YzLf0RcLkGcl82EmyB7YSASTi2ZruiaG+Mh7C8PxjIgT2EXR
- YgKlHxInAqGTLH+dPGlX9zzXpC8v4WAG2N/fwxyTJH/Kp8iRCZ4Opubs8TttoTuSBd62D81DATU
- moREleUNsgMwwtr+JdYYeyPWhvYtubVmUGPFSzLwUH6v44ktCQtb5+l2ekATqCbZxEF0O0/rlBF
- GGlqBywt+jRWyAx6IWyI+N9+c6xC+8I7aFvI/6CBgOawxTGmDel6jXjN0YZa/Si6rhJxDC9HVYC
- //o6GQ/iHCBPJDsQ01g==
-X-Authority-Analysis: v=2.4 cv=E/NYNqdl c=1 sm=1 tr=0 ts=6aaba8bf cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=1S03ISw_H58Mq3hviRYA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-ORIG-GUID: xKBDAchbgNBRyb6i4BLtkzoy4Et3BA-5
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE3MDExNiBTYWx0ZWRfXy8SBbaPR4RIP
- tedWM7+COBnMzpJi6+74K7bZqRIxJ8xZq8mim9sbyIu1RXRleDEgG2ir7YvzaIUXA/OYG+jvuKM
- 1L6fj4f+XLmxzwdAhin9TrHkMBfASSI=
-X-Proofpoint-GUID: sxzVDNJf6d89P3f8URrWrJYS87sx4rU_
+X-Proofpoint-GUID: imIkWFLBH_6-GOziPcWTl2VVFtWQ1cbO
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE3MDEyMyBTYWx0ZWRfX3fl1BaZZc8P8
+ 5+e2PMhEjJ0f+UYgVCVsOTV9/nI8hAqlBxHBrHf2d4Qr5vR1ouBKiaZCnAFLqJLxP2PFeA20zl0
+ DyjyfKUUwc8J0DP5M6IyToVIlHQkiD0=
+X-Authority-Analysis: v=2.4 cv=cvgOAF4i c=1 sm=1 tr=0 ts=6aabaf26 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=6B41mUtho_lo4dOVP3MA:9
+ a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: imIkWFLBH_6-GOziPcWTl2VVFtWQ1cbO
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE3MDEyMyBTYWx0ZWRfX4H7Fus3ZnfQe
+ uPJN6/rp8IPC6+nacjg6Ks4GGgi/W4aGDZQkjSlgZn0dmnw9DLABLjAX8N9DY1CHZk4N99XdaGl
+ yknjAFN2QrMuaPAS5YtJHSnQMAtzuq8ZQb+1XWtw13B9V/ErQWPcnsUZibOJQg/BgUecz+EwtiQ
+ c4ii3qe08OUFyufn1ga3rG0+11Zmu1f6vCb85vK4cjuetmLzJhPWbVSSFrOSixxzPbl+Y189TQi
+ D50TiujwzHUMDMzSg55gRriXKLhvG1oq8Vg6G8OIDNwhJins0fnPgmo7lYILgJcbl9h8TB9R8Z3
+ lfm4tesv+2Ggzn+f/6WByIY69TNeu5/rrDzOvcTMWYTHfGXMWM2KahPafp0+VyKs99VZ0mBii+b
+ 50lC3qDyPpWdVLD52OT53OwhQ0GzbrmzSC0KvDtTlRbkYj5auVMnQGMebIO8YSMaaz/KZ7d1EB8
+ 2EpxFiQiBHhQzCC70Fg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-17_01,2026-09-16_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 lowpriorityscore=0 priorityscore=1501 spamscore=0
- adultscore=0 clxscore=1015 bulkscore=0 malwarescore=0 suspectscore=0
- phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ malwarescore=0 lowpriorityscore=0 clxscore=1015 priorityscore=1501
+ suspectscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609170116
+ definitions=main-2609170123
 
-On Thu, Sep 03, 2026 at 10:07:36AM -0700, Sean Christopherson wrote:
-> On Thu, Sep 03, 2026, sashiko-bot@kernel.org wrote:
-> > > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> > > index 940c0ff668bee..f160e1945fbce 100644
-> > > --- a/drivers/s390/crypto/vfio_ap_ops.c
-> > > +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> > 
-> > [ ... ]
-> > 
-> > > @@ -1822,17 +1822,27 @@ static const struct attribute_group *vfio_ap_mdev_attr_groups[] = {
-> > >  
-> > >  /**
-> > >   * vfio_ap_mdev_set_kvm - sets all data for @matrix_mdev that are needed
-> > > - * to manage AP resources for the guest whose state is represented by @kvm
-> > > + * to manage AP resources for the guest whose state is represented by
-> > > + * @kvm_file
-> > >   *
-> > >   * @matrix_mdev: a mediated matrix device
-> > > - * @kvm: reference to KVM instance
-> > > + * @kvm_file: the KVM VM file this vfio device is associated with
-> > >   *
-> > > - * Return: 0 if no other mediated matrix device has a reference to @kvm;
-> > > + * Return: 0 if no other mediated matrix device has a reference to the VM;
-> > >   * otherwise, returns an -EPERM.
-> > >   */
-> > >  static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
-> > > -				struct kvm *kvm)
-> > > +				struct file *kvm_file)
-> > >  {
-> > > +	struct kvm *kvm;
-> > > +
-> > > +	if (!kvm_file)
-> > > +		return -ENOENT;
-> > > +
-> > > +	kvm = kvm_file->private_data;
-> > > +	if (!kvm)
-> > > +		return -ENOENT;
-> > > +
-> > >  	if (kvm->arch.crypto.crycbd) {
-> > 
-> > [Severity: Critical]
-> > Does this code adequately verify that the file is an s390 KVM file before
-> > casting its private_data in vfio_ap_mdev_set_kvm() inside
-> > drivers/s390/crypto/vfio_ap_ops.c?
-> > 
-> > If a user instantiates a VM using a concurrent KVM-arm64 module and attaches
-> > an s390-specific VFIO device to its KVM device, could this driver extract the
-> > untyped private_data and mistakenly treat an arm64 struct kvm as an s390 one?
-> > 
-> > Because the memory layouts of struct kvm_arch differ across architectures,
-> > would accessing s390-specific fields in the arch member (like
-> > kvm->arch.crypto.pqap_hook) result in arbitrary memory corruption?
-> 
-> This is effectively the same concern I raised[1] in the s390+arm64 series:
-> 
->  : Side topic #2, this entire approach seems extremely brittle unless you make it
->  : all but impossible for non-KVM code to get at KVM structure definitions.  Outside
->  : of KVM, all compilation units will see the s390 version of KVM structures.  Which
->  : is "fine", but obviously dangerous and IMO asking for maintenance issues down the
->  : road.
-> 
-> I don't think we need to go to the super extreme lengths I proposed[2] back when
-> we were exploring multi-KVM on x86, but the direct dereference of ->private_data
-> is a huge red flag.
-> 
-> Given that external usage of "struct kvm" should be *super* rare, and IMO is
-> something we should actively discourage, I think we should make it opt-in.  Then
-> at the same time, define the API so that it's arch-specific, e.g. to yield
-> file_to_kvm_s390() so that drivers/s390/crypto/vfio_ap_ops.c can get exactly
-> what it wants.
-> 
+Can someone please pick this series? Either via crypto or s390
+maintainers. Thx.
+-- 
+Mit freundlichen Grüßen / Kind regards
+Holger Dengler
 
-yes, I was not happy with the ->private_data either. Thanks for finding
-a solution. Simple is good. I only came up overly complex solutions I
-did not like :) I will incoporate this. 
-
-> Diff below, though it needs to be split into multiple patches (I'll respond with
-> more to the full patch).
-
-Amazing, thanks!
-
-	Steffen
