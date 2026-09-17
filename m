@@ -1,60 +1,33 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58CCA4E73A9;
-	Thu, 17 Sep 2026 18:08:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id C352D4FDA76;
+	Thu, 17 Sep 2026 18:11:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789668504; cv=none; b=uzBgGOIYa4HYJbLfwT5WAhPEMq6Zs4WfeND62g5JWXIFZltvlBhDBT34K0XN5ccfN3MuxG1wlnU+RqGI+mQaVZKiqB0Xlnj3SqZ69deLbWos23pwHZk5ZCv0M721SldOzOLjNJ59th/23PzIiw88wbCL0YVMzRZeAYvnRT2ueAU=
+	t=1789668699; cv=none; b=KjtWrV9mBr4xHbafHx9D27PnGo4GSxIcRNwbjdlNxvr6Dy1zXab8D0SqJSLw5+j6B3HKVq+KcNuBj+4nH5RLQlZUbLgRg4UB0QALSqLavZkzAY2V7vBz8Oiy/cR2oVrrdaFIVx+hCmtFZxfGVh8b6O2hi6j/opfpsLx6DAkWnN4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789668504; c=relaxed/simple;
-	bh=fhL58jgtvL1dddXrA20/eQLD4DACWKB2bp3h0acSLwk=;
+	s=arc-20240116; t=1789668699; c=relaxed/simple;
+	bh=TMD2k65kuIFXRf0q/E0tlyDyciozaJKv/LfOROsWlhU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LYlZoJ54GUXZK4C9xuGFJaqcAjL0T4k14kOZorH+yo53wDRFF2da8m9WPwfy+KuzbaDrEPVwQ69tDLEKhXNg2tRrMWDOgryVUustoATPszhahI8B9FIqvynTMrp291kiJFOaCO/P6QXXYUY73thhIukPHDzBuc62IkxOiEWDV8I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=abdh4N/q; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=oUvexjaZ9OJ/uzqW7BEMJJT5C3GjdtQaHiShw4MYFVPARLZcYV4NI0HxvkkzVG853cQt/zG9TMYIVLujz2NjW7Hq+/bFoi8yGWMfliBzCQwpCz3qUtzVb9ctQ6X4X0Us0sUMYMkE79VKC1Ac2/vcOYiZqM7Xkur3WuPa1cbdI/k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=oz67M4YS; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="abdh4N/q"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68HHVdGp2998402;
-	Thu, 17 Sep 2026 18:08:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=GhoL6V
-	W6zauK2jjrPKHJ3zzBMgo00GMyDSFSKueWuTk=; b=abdh4N/qLpnGTiRFJ3UR5J
-	HMgymQxhanli1DzpUltLT60qkAIEpeQZHewi/7epAZSTZxKQutPZVzWPCdxb2c7o
-	b7fG06JKFNjS1zva5otXY86GXIINt9PCe//fiswREfUoyRtrP14EDxfV3J7oOPuF
-	GfG/mJXz6G2sHXKYiZ+SSJj6u7m5xhFptLLMvTB1QlavkcurVz4qVy1ixlNbyz/M
-	AIyWOTv4Uz/pAVQB9BpwkeykaRgyeT0dUJyrkHPAfDkhzZATsz4/Zmwkpb7GtklH
-	vcOCzotQQga2BE0y0JMfLDl9zRkib5YWrQsdtMiFm+6EhdiMVzuiEBfogbBOUGaA
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmv5j3tat-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 17 Sep 2026 18:08:22 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68HH91w23510127;
-	Thu, 17 Sep 2026 18:08:21 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gr5xa3kjg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 17 Sep 2026 18:08:21 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68HI8Kci45482420
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 17 Sep 2026 18:08:20 GMT
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 63B1058053;
-	Thu, 17 Sep 2026 18:08:20 +0000 (GMT)
-Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BD23D58059;
-	Thu, 17 Sep 2026 18:08:18 +0000 (GMT)
-Received: from [9.61.246.38] (unknown [9.61.246.38])
-	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 17 Sep 2026 18:08:18 +0000 (GMT)
-Message-ID: <4870421d-39dc-48f7-ad34-6e9f642f1c66@linux.ibm.com>
-Date: Thu, 17 Sep 2026 11:08:18 -0700
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="oz67M4YS"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4D27B1476;
+	Thu, 17 Sep 2026 11:11:32 -0700 (PDT)
+Received: from [10.57.7.135] (unknown [10.57.7.135])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 07D443F86F;
+	Thu, 17 Sep 2026 11:11:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1789668695; bh=TMD2k65kuIFXRf0q/E0tlyDyciozaJKv/LfOROsWlhU=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=oz67M4YS9vKX95bPOvJjG/6IahhL31r2yGk7O81dt+sjjN414ZuuZ1xCMa2au/gHH
+	 rXUcqtwGrQvFQ85FYRDPTsgIv5sPS9YSZzFPZz/TWW1k7YQuQdJ0UPTrn4SrhDiV3s
+	 CGukra9E2ILOT0R0PDF2smG+O2IyEGDjkvUSbT20=
+Message-ID: <d299f7c5-6c71-499a-b8cd-aa69c4c81dd1@arm.com>
+Date: Thu, 17 Sep 2026 20:11:22 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,73 +35,91 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 4/4] s390/pci: Don't report recovery success on skipped
- recovery
-To: Niklas Schnelle <schnelle@linux.ibm.com>,
-        Gerd Bayer <gbayer@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        Julian Ruess <julianr@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ramesh Errabolu <ramesh@linux.ibm.com>,
-        Tobias Schumacher <ts@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260916-fix_zpci_report_status_pdev_leak-v3-0-61a2f980e71d@linux.ibm.com>
- <20260916-fix_zpci_report_status_pdev_leak-v3-4-61a2f980e71d@linux.ibm.com>
-Content-Language: en-US
-From: Farhan Ali <alifm@linux.ibm.com>
-In-Reply-To: <20260916-fix_zpci_report_status_pdev_leak-v3-4-61a2f980e71d@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Subject: Re: [PATCH v3 1/6] set_memory: add number of pages parameter to
+ set_direct_map APIs
+To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>
+Cc: =?UTF-8?Q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Alexandre Ghiti <alex@ghiti.fr>,
+ Andy Lutomirski <luto@kernel.org>, Borislav Petkov <bp@alien8.de>,
+ Brendan Jackman <brendan.jackman@linux.dev>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ David Hildenbrand <david@kernel.org>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Huacai Chen <chenhuacai@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Len Brown <lenb@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <pjw@kernel.org>,
+ Pavel Machek <pavel@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+ "H. Peter Anvin" <hpa@zytor.com>, "Rafael J. Wysocki" <rafael@kernel.org>,
+ Ryan Roberts <ryan.roberts@arm.com>, Sven Schnelle <svens@linux.ibm.com>,
+ Thomas Gleixner <tglx@kernel.org>, Uladzislau Rezki <urezki@gmail.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, WANG Xuerui <kernel@xen0n.name>,
+ Will Deacon <will@kernel.org>, x86@kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org, linux-pm@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ loongarch@lists.linux.dev
+References: <20260903-execmem-set-vm-perms-v0-2-v3-0-949b64a9f755@kernel.org>
+ <20260903-execmem-set-vm-perms-v0-2-v3-1-949b64a9f755@kernel.org>
+From: Kevin Brodsky <kevin.brodsky@arm.com>
+Content-Language: en-GB
+In-Reply-To: <20260903-execmem-set-vm-perms-v0-2-v3-1-949b64a9f755@kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE3MDI1NyBTYWx0ZWRfX7SFncSIUTg3y
- oCrcCCVoz7g+ZrTQ79SbtBtU3SKnHcMACirdL8uqdvQj1pWIecMJosiZRdZinDrVWAz8ThnkN9m
- KKyUCKJKDIcfKhxBooMenWXOPQeQ0vTYsoCPxsyxJurmlgEPg//1R4VYiu+V0//8avCJ71rY9uO
- CfH6U0TC3ZxkDaPryXYRymyj7wrwTPFbXQwBsaq0RRjQugn1Y/Zr+q/QVdsApBwSiUFOgFHHhNY
- NZn+EwkTB0A7p5Gco52PuYrsdONVCsH+1/1l4YC6f5zRJJed+jSGXBjAXepxY5HijAZFP5cvKFv
- 1zhwdnV6VOUpKWK6YJN4sqWiHdlkcwnpxlyG+g1U6tx4QPRcbBv0Rju7IVkhB/HU8JBCe1z+thN
- EJOq58D1gYxfpxHQb+BepeZN5/IqNz/udJdvWO5l7G9ddQRQPZ3+HW0yu3GOOZ7AWMcETd/0FeG
- e5ezDExmty/k3Wszq4A==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE3MDI1NyBTYWx0ZWRfX0cBnemsB2Ae8
- kzGXc2QZk0IOdrw2RJ+WGbAemCYGyKZZH+o6vMWOLJDT9a+Mj/RcQ85TZCF4If2mPFp4LNOFd/C
- PpGj5hUQb5M19/npbyDryLbi9NnqZas=
-X-Authority-Analysis: v=2.4 cv=Zsx4uN7G c=1 sm=1 tr=0 ts=6aac2c96 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=4Un3bHBAJC8VMyDCUI4A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: iNnBuYcvmudzLkOq1bKkm9jPu2CK0wdD
-X-Proofpoint-GUID: iNnBuYcvmudzLkOq1bKkm9jPu2CK0wdD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-17_04,2026-09-16_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 impostorscore=0 clxscore=1015 priorityscore=1501
- lowpriorityscore=0 bulkscore=0 adultscore=0 phishscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609170257
 
-
-On 9/16/2026 8:14 AM, Niklas Schnelle wrote:
-> When a PCI device is already in the permanent failure state, recovery is
-> skipped, but the SCLP recovery report still shows success. Fix this by
-> changing the status string to explicitly state that recovery was skipped
-> due to permanent failure.
+On 03/09/2026 11:28, Mike Rapoport (Microsoft) wrote:
+> When set_direct_map APIs were introduced by the commit d253ca0c3865
+> ("x86/mm/cpa: Add set_direct_map_*() functions") the single page
+> parameter made sense because the initial callers (vmalloc and
+> hibernation) had sets of unsorted struct pages that required changes of
+> their mappings in the direct map.
 >
-> Cc:stable@vger.kernel.org
-> Fixes: 4ec6054e7321 ("s390/pci: Report PCI error recovery results via SCLP")
-> Signed-off-by: Niklas Schnelle<schnelle@linux.ibm.com>
+> Since there is an increasing demand for direct map manipulation and it
+> is also desirable to be able to update larger physically contiguous
+> mappings, for example an entire large folio, extend set_direct_map APIs
+> to receive number of pages parameter.
+>
+> As there is still only a handful of callers, change the existing
+> functions directly and update all the call sites rather than adding
+> wrappers for single page case.
+>
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 > ---
->   arch/s390/pci/pci_event.c | 1 +
->   1 file changed, 1 insertion(+)
+>  arch/arm64/include/asm/set_memory.h     | 4 ++--
+>  arch/arm64/mm/pageattr.c                | 8 ++++----
+>  arch/loongarch/include/asm/set_memory.h | 4 ++--
+>  arch/loongarch/mm/pageattr.c            | 8 ++++----
+>  arch/riscv/include/asm/set_memory.h     | 4 ++--
+>  arch/riscv/mm/pageattr.c                | 8 ++++----
+>  arch/s390/include/asm/set_memory.h      | 4 ++--
+>  arch/s390/mm/pageattr.c                 | 8 ++++----
+>  arch/x86/include/asm/set_memory.h       | 4 ++--
+>  arch/x86/mm/pat/set_memory.c            | 8 ++++----
+>  include/linux/set_memory.h              | 6 ++++--
+>  kernel/power/snapshot.c                 | 4 ++--
+>  mm/secretmem.c                          | 6 +++---
+>  mm/vmalloc.c                            | 5 +++--
+>  14 files changed, 42 insertions(+), 39 deletions(-)
+>
+> diff --git a/arch/arm64/include/asm/set_memory.h b/arch/arm64/include/asm/set_memory.h
+> index 90f61b17275e1..b07fd4e026eac 100644
+> --- a/arch/arm64/include/asm/set_memory.h
+> +++ b/arch/arm64/include/asm/set_memory.h
+> @@ -11,8 +11,8 @@ bool can_set_direct_map(void);
+>  
+>  int set_memory_valid(unsigned long addr, int numpages, int enable);
+>  
+> -int set_direct_map_invalid_noflush(struct page *page);
+> -int set_direct_map_default_noflush(struct page *page);
+> +int set_direct_map_invalid_noflush(struct page *page, unsigned int numpages);
+> +int set_direct_map_default_noflush(struct page *page, unsigned int numpages);
 
-Reviewed-by: Farhan Ali <alifm@linux.ibm.com>
+I don't have a strong opinion on whether to call the argument nr or
+numpages, but we might as well be consistent across archs :)
 
+Aside from that:
 
+Reviewed-by: Kevin Brodsky <kevin.brodsky@arm.com>
