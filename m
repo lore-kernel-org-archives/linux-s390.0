@@ -1,172 +1,196 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F11F4F85B0;
-	Thu, 17 Sep 2026 16:39:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AB844F85D6;
+	Thu, 17 Sep 2026 16:39:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789663149; cv=none; b=i+C+HNZA+XqWrT1bzyJHwXIyH5glGtD9orREXm6nQYOMj6B8kuF8LMnQtsICNVOa330GeTMbrKeJ5n9jm6avh2eM2JZW2NqJxocD5Nbos29TckNII+FWs8oMtzYO8EF2mFbTEGTCwaXF2NSD41jvwBjKcHsedfWnlXonhFOHoBY=
+	t=1789663158; cv=none; b=WPXib7Z2HDMRLVyRUIEdP9w0VykKhgsgWfVP9wfPYrT+kfhnARBWQlJgtBSlJwThKfZfxOVslrUhyfGDJFoYaNSLYr2aAFIVc17CqiT4pG6MlA/HCX1OsXYrBXneTv/NILFrYaaesTOT1UNbybcF+Ss2GymYVeV71lDBNkJB8tQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789663149; c=relaxed/simple;
-	bh=uVYDKMQ/OAC28IZRtd6CZKrKe8EBa0w3jutt2qowyi0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RO28snnXx8g1jMoD1yp18VJ7hmhugBEWtumtbropZ0AXbWqKoaDA9fxj0T8sFoT5uV6G0psHmNAlQkTO/WYfOMsC0oQaL1JPv6CsO8n5PP/P6AL7ugUSG2YgmBpkMTkukwtwxdhZv42zKLcr+5A6NQwx7tUYEKsPTNwlo5Ve7/4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IjlFhjzq; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1789663158; c=relaxed/simple;
+	bh=RaKyg3GqRiVqHvw/UDaaHvGcpLhQwigi+RNlsL2zffs=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=uVDS/8fzWoxrsDTMaCAjaA1EM2kyZIl3i9VuSIxulaF5TQ0a1cblKQDxQtuy7OSsFnT0fbuG9rb4unphe1ZfTA/A/rjNvRKPLglv5y9uh5ID0yn3sZo0Hwa8g8SEf6T1etvmVV1m9JMh1EoOD6r+9qK9S2vnYnXwWByiwH3Ymo8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JuzlckQR; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IjlFhjzq"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68HE1RIh2710637;
-	Thu, 17 Sep 2026 16:39:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=8RA2qn
-	zzrS7kRZVRYKA6kRl874/PzAtTz3F0PTmD5LI=; b=IjlFhjzqX686bAhjc4wR4T
-	rUjl/wRvdaSL/Ah5lvNOZWzHSq45UZGNZIa0TcMB/kYot02YwH3L4Njk9WCKaV+E
-	bKGMs+YmOOa1LMNqqtANm7YhT9+ctn2NMn41eX380yaL3j9KPrnhRnsT58HYCEq2
-	YcPFC52K7qqstvK/9MZjrcNwOu2nCMfLDHz/iDiuKj2lQe8djPG/AztBpPu5r9Nc
-	ZJt8FhYjDO5qRSHJRA/Y1xvswzl6C8y/bAo9dwd5FA0TeQxK1l2b4TT72ociIDQe
-	QBje1odFoFIWjpBvb60aCXSN1/+kWXTRPQIxdDiDqLc4NBhgIUFxmUrfP5eamIkw
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmxf5bmdg-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 17 Sep 2026 16:39:04 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68HDa1Wp3208141;
-	Thu, 17 Sep 2026 16:39:03 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gr5xa372w-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 17 Sep 2026 16:39:03 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68HGd26m19399332
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 17 Sep 2026 16:39:02 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 599AF5808F;
-	Thu, 17 Sep 2026 16:39:02 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E170158083;
-	Thu, 17 Sep 2026 16:39:00 +0000 (GMT)
-Received: from [9.61.247.238] (unknown [9.61.247.238])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 17 Sep 2026 16:39:00 +0000 (GMT)
-Message-ID: <f826f068-b716-4cff-8c3d-620790db58c5@linux.ibm.com>
-Date: Thu, 17 Sep 2026 12:38:59 -0400
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JuzlckQR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2FFA1F00898;
+	Thu, 17 Sep 2026 16:38:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789663156;
+	bh=9WoUWUiccCZ5pmncdG/fVn1uDF622HEjGzqeAT5aHc8=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=JuzlckQR6v/NzH0mtru1XZ7iqyxCxBjrCwCFsUHW609jPCf8U6sfhyPJkkpToF69f
+	 siJ7N2NXwspDpQ5dJIIyLpRq7MwSgE3R3mqg5OrgAtBYXQZyoeaTTM2m6j28o+aBbX
+	 I7FSiMwxg1YdjTyYq2YbYkTvH901cTdfYaUc365eMr8X4iPtaA7EQGoTbcu8Y7USWP
+	 bzvY4XKh3JpReezKG88DwuCuMK1EFa2lyia7xTBCesd95C4tljlOVn0ygfLWln5b8m
+	 HFBw3K+lt5pgVgVgyTxhxlY5CZ9zPDN2L69fXPf9G/mWuVci/9xx+4Tz25j31d67md
+	 EUctPDbCJlXcw==
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Date: Thu, 17 Sep 2026 17:22:41 +0100
+Subject: [PATCH v3 32/40] mm/uffd: use predicates for userfaultfd checks
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 2/4] s390/pci: Reuse FMB buffer and preserve state in
- device re-enablement
-To: Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, schnelle@linux.ibm.com,
-        alifm@linux.ibm.com, farman@linux.ibm.com, gbayer@linux.ibm.com,
-        pasic@linux.ibm.com, alex@shazbot.org
-References: <20260916213222.233-1-oelghoul@linux.ibm.com>
- <20260916213222.233-3-oelghoul@linux.ibm.com>
- <099b4e3f-4156-42e4-a2e9-bdc715547bef@linux.ibm.com>
- <85cb647d-b1c8-4804-b206-2cae1e03e20d@linux.ibm.com>
- <dae3c7cd-21aa-4263-bec5-792b018d21e2@linux.ibm.com>
-Content-Language: en-US
-From: Omar Elghoul <oelghoul@linux.ibm.com>
-In-Reply-To: <dae3c7cd-21aa-4263-bec5-792b018d21e2@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Ayvh7cBEJKGg5YAixQ3Fs48BxxMWQLfD
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE3MDIzNSBTYWx0ZWRfXy7+2tOP5ZJ2y
- QdNuoiAVa5v3OCZJBnLrCA64JJXP3HRKzEgqshqS2OQBPhySknM5kWm4A4WMrUSXUVpMCu+snfv
- DqhychDWwASNYE7nUpsc+D3iI0MfYoI=
-X-Authority-Analysis: v=2.4 cv=cvgOAF4i c=1 sm=1 tr=0 ts=6aac17a8 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=eUsDoICE4VMyY97GcngA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: Ayvh7cBEJKGg5YAixQ3Fs48BxxMWQLfD
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE3MDIzNSBTYWx0ZWRfX0/tL80MHUpnK
- JC8TlK/ZIHA97fhzPXnEpJOKRowQbtF6zJxRNy8s0YgYVQnBdLmMVfGobH+ZneStwooEtVBxJwg
- qNtO++6mp6qTCb8oskBF1t+lgw2er+s9wwJTt0lUl/tmKHNNcKaA8Y3fZKaVaczwXe3oOAlZpVe
- l7xY/ijo/WlzCzwn+rBVCV+PNyUyiftkMnINgc5qaK6qMloPqNaIuwkTWid2HeONuDJ7zpC32V5
- ZlFkG8XOqnA8FwDf5ll15U5fkLNRgfwFooub8KAhMrvJjlGphj6fUnjJn+Mml63bzJIRL8VpHtf
- 8E/mXUe/Kb+FAaeFXhJl1wwMMsZX0vP3le2fehvuc9kCEMbRgGEbNfsm8frDqgMKfRPB0R970QK
- NQY+nkd0enck/8YhgpU8+D3mK5l3nJgEyFOInZQ7RdrjpBgQbWjA8QxEMSBNFx5dlHh2AjmfaRf
- 8HJOf5B4lBTMyDMUhqg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-17_03,2026-09-16_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 lowpriorityscore=0 clxscore=1015 priorityscore=1501
- suspectscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609170235
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-32-4583d8a23bca@kernel.org>
+References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
+In-Reply-To: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
+To: Andrew Morton <akpm@linux-foundation.org>, 
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+ Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+ David Hildenbrand <david@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
+ Jonathan Corbet <corbet@lwn.net>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
+ Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
+ Paul Moore <paul@paul-moore.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+ Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+ Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
+ Baolin Wang <baolin.wang@linux.alibaba.com>, 
+ Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, 
+ Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+ Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
+ Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+ "Martin K. Petersen" <mkp@kernel.org>, Jaya Kumar <jayalk@intworks.biz>, 
+ Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, 
+ Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, 
+ Peter Xu <peterx@redhat.com>, Masami Hiramatsu <mhiramat@kernel.org>, 
+ Oleg Nesterov <oleg@redhat.com>, Peter Zijlstra <peterz@infradead.org>, 
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
+ x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+ Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, 
+ Juri Lelli <juri.lelli@redhat.com>, 
+ Vincent Guittot <vincent.guittot@linaro.org>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
+ Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
+ Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, 
+ Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>, 
+ Catalin Marinas <catalin.marinas@arm.com>, 
+ Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, 
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+ Albert Ou <aou@eecs.berkeley.edu>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Janosch Frank <frankja@linux.ibm.com>, 
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Andreas Larsson <andreas@gaisler.com>, 
+ Alexander Viro <viro@zeniv.linux.org.uk>, 
+ Christian Brauner <brauner@kernel.org>, 
+ Matthew Brost <matthew.brost@intel.com>, 
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, 
+ Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>, 
+ Ying Huang <ying.huang@linux.alibaba.com>, 
+ Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, 
+ Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, 
+ Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
+ Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
+ Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
+ Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, 
+ Wei Xu <weixugc@google.com>, Chengming Zhou <chengming.zhou@linux.dev>, 
+ Michal Hocko <mhocko@kernel.org>, Miklos Szeredi <miklos@szeredi.hu>, 
+ Xu Xin <xu.xin@linux.dev>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+ linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
+ linux-rdma@vger.kernel.org, selinux@vger.kernel.org, 
+ linux-sound@vger.kernel.org, bpf@vger.kernel.org, 
+ linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+ dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
+ linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, 
+ linux-fsdevel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
+ kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+ linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, 
+ fuse-devel@lists.linux.dev, "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2289; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=RaKyg3GqRiVqHvw/UDaaHvGcpLhQwigi+RNlsL2zffs=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLLWCB/OPPvVb8aRBlaPSTM6P2dc4rwuwDBzzqZoPX/27
+ rSo12wRHaUsDGJcDLJiiizPv4jvDxIJm9d5wd8NZg4rE8gQBi5OAZjIn1ZGhu/b9ztfWa90el/9
+ TetPvC5Nrbrrmvhtz33cqXTRuuHAHX9Ghi+axsy3Htr+lVOdM/mU0QoVzTe+TDpKZk8zz6fZScS
+ KswIA
+X-Developer-Key: i=ljs@kernel.org; a=openpgp;
+ fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-On 9/17/26 11:28 AM, Matthew Rosato wrote:
-> On 9/17/26 9:32 AM, Omar Elghoul wrote:
->> On 9/16/26 10:21 PM, Matthew Rosato wrote:
->>>
->>>> +int zpci_fmb_reenable_device(struct zpci_dev *zdev)
->>>> +{
->>>> +    u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_SET_MEASURE);
->>>> +    struct zpci_fib fib = {0};
->>>> +    u8 cc, status;
->>>> +
->>>> +    lockdep_assert_held(&zdev->fmb_lock);
->>>> +
->>>> +    if (!zdev->fmb_enabled)
->>>> +        return zpci_fmb_enable_device(zdev);
->>>
->>> Sashiko has a point here, won't all paths that call zpci_reenable_device
->>> now unconditionally turn on FMB here even if it was purposely disabled?
->>>
->>> The pattern of callers for zpci_reenable_device() is:
->>>
->>> zpci_disable_device()
->>> ...
->>> zpci_reenable_device()
->>>
->>> We only care to re-enable the FMB during device re-enable if the device
->>> had FMB enabled at the time zpci_disable_device() was called.
->>
->> The way I thought of it was pcibios_enable_device() already enables
->> measurement, so we might as well ensure it is enabled when the zdev is
-> 
-> Yes, FMB starts enabled by default but then it could be disabled
-> intentionally via sysfs; if a recovery action occurs on the device
-> sometime after I manually disabled FMB for a device, I'd expect it to
-> still be disabled after the recovery action but AFAICT with this
-> codepath it will always get re-enabled.
-> 
-> Completely removing the device and re-introducing it to the system is a
-> different matter; in that case yeah we'd be back to FMB-enabled because
-> that's our default starting state via pcibios_enable_device().
+Rather than directly checking VMA flags, use the newly introduced
+vma_is_kernel_owned() and vma_is_persistent() helpers in userfaultfd when
+assessing VMA suitability for userfaultfd and UFFDIO_MOVE.
 
-Makes sense, I will fix this in the next version.
+Update vma_move_compatible() so it's expressed in terms of VMA
+characteristics rather than arbitrary flags.
 
-> 
->> re-enabled. That default state is also helpful for the later patches
->> because kvm_s390_pci_register_kvm() calls zpci_reenable_device().
->>
->> But I guess if we didn't want to conflate the two, we could also add an
->> unconditional zpci_fmb_reenable_device() within the KVM register hook,
->> to run after the zpci_reenable_device(), whichever you'd prefer.
-> 
-> Do we even want it to be part of the KVM register hook at all, or could
-> we leave it off until we get a VFIO_DEVICE_FEATURE_ZPCI_FMB_ENABLE?
-> 
-> That way if a guest isn't using FMB (we never intercepted the associated
-> MPCIFC to enable measurement), QEMU would never issue
-> VFIO_DEVICE_FEATURE_ZPCI_FMB_ENABLE and then we just leave the host FMB off.
-> 
-> In practice, yes, FMB is always on by default for a linux guest today
-> but if we were to ever move to a model where we make it opt-in, it would
-> be nice to only enable the host FMB when the guest actually wants it.
+Additionally, update the use of the deprecated VMA flag API when checking
+VMA_SHADOW_STACK_BIT.
+
+A VMA_IO_BIT check is no longer required but that is fine as a hard
+invariant has been established that only kernel-owned mappings may set
+VMA_IO_BIT so the check is now redundant.
+
+Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+---
+ mm/userfaultfd.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
+
+diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
+index 949017e60608..ddf0a4a3d399 100644
+--- a/mm/userfaultfd.c
++++ b/mm/userfaultfd.c
+@@ -1754,10 +1754,18 @@ static inline bool move_splits_huge_pmd(unsigned long dst_addr,
+ }
+ #endif
+ 
+-static inline bool vma_move_compatible(struct vm_area_struct *vma)
++static inline bool vma_move_compatible(const struct vm_area_struct *vma)
+ {
+-	return !(vma->vm_flags & (VM_PFNMAP | VM_IO |  VM_HUGETLB |
+-				  VM_MIXEDMAP | VM_SHADOW_STACK));
++	/* uffd is generally incompatible with kernel-owned mappings. */
++	if (vma_is_kernel_owned(vma))
++		return false;
++	/* The shadow stack should not be written to by userspace. */
++	if (vma_test_single_mask(vma, VMA_SHADOW_STACK))
++		return false;
++	/* hugetlb mappings cannot be safely moved. */
++	if (vma_is_hugetlb(vma))
++		return false;
++	return true;
+ }
+ 
+ static int validate_move_areas(struct userfaultfd_ctx *ctx,
+@@ -2146,10 +2154,11 @@ static bool vma_can_userfault(struct vm_area_struct *vma, vm_flags_t vm_flags,
+ {
+ 	const struct vm_uffd_ops *ops = vma_uffd_ops(vma);
+ 
+-	if (vma->vm_flags & (VM_DROPPABLE | VM_SHADOW_STACK))
++	/* Non-persistent memory is inherently not controllable by userspace. */
++	if (!vma_is_persistent(vma))
+ 		return false;
+-
+-	if (!vma_is_hugetlb(vma) && (vma->vm_flags & VM_SPECIAL))
++	/* The shadow stack should not be written to by userspace. */
++	if (vma_test_single_mask(vma, VMA_SHADOW_STACK))
+ 		return false;
+ 
+ 	vm_flags &= __VM_UFFD_FLAGS;
+
+-- 
+2.55.0
 
