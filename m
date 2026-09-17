@@ -1,73 +1,128 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 650E73B7751
-	for <linux-s390@vger.kernel.org>; Thu, 17 Sep 2026 07:09:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B39CA43F0A7
+	for <linux-s390@vger.kernel.org>; Thu, 17 Sep 2026 07:12:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789628968; cv=none; b=EDkSldN8y46R5oNsSMD5BFvSoZ3OZ3G8G/usygvoTgzNjIiLkHj5rC+K9ONuli1B9k32DR3Sp8sAbVmWBaXbyxXVZmTZJ3tNAPDHKxU/3oSgMxtfNRiIaUylY+u4n6hVuC5QOSlzG+cvFcFjqaDtzNgUrWWTNh3P7XL4JPdH20c=
+	t=1789629130; cv=none; b=U+Y1YLgOxCG0292NFKkL0s+icGuOkmUxFGBuH5YBIdqvSooLNw4blJmPBU5M+9KwzE2Kybwm/iqBwSGZStgdvE7GH3lV/tZNhP7vJ4hBgc0iKTzmh95ExUjIWEgiHsFmp2PHEKSoLu+DSXcew04lYq3ObTkMB8fATKBeRidDpKo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789628968; c=relaxed/simple;
-	bh=Y2x+6rNogkQEnF8RzNc5/f6HiAPI6DOk65q3yHK2n9c=;
+	s=arc-20240116; t=1789629130; c=relaxed/simple;
+	bh=yWC5ANq21ZusOLKDy1gavxj/FDfWzoUz5KCpBj2Jg5o=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=KUb6x3GZXkWvTRrnafHCLqV3lNU3dSTrWH2qLqSkBjHgGCKq1CUVejKoqJ2oZEqk08czsSZKPsT8nd1kB5/2uN0D5lKRk+gereA0X5Q5ZQ+xCLqxp3x75k6zV6YljhWKwogYrDuQD6cZl/YuCVNKvSDJGsy+zP5CRu07pYO3gW0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X+I7kDAx; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=sCJgzWzCVRkeQG8U6io3k5Peo/e+CRmIHMCyb1x8oSB7yifpSULr6eYyD9UbP0OqFhANhnuSnL8R8TVpLihVXslKrsQDYsYYj5ax4QpDROFzzdjC2c4i35YaA9wZPWJwbzmSYaIJ4Z+nMTYU+E3QBJT7qNZU+fnJz6dQ7xecH2c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BIncmyU6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X+I7kDAx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A77EC1F000FF;
-	Thu, 17 Sep 2026 07:09:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BIncmyU6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E23701F000FF;
+	Thu, 17 Sep 2026 07:12:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789628967;
-	bh=Y2x+6rNogkQEnF8RzNc5/f6HiAPI6DOk65q3yHK2n9c=;
+	s=k20260515; t=1789629128;
+	bh=2ttklWCZY+jUGWAbuQ3McbC7zv4HUaU7RyMaCaljS9I=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=X+I7kDAxm5MATojKRAr1klh0FMj+pQ9H03phoiYKAOpcooVScnX+QU4e1o5PsGuMN
-	 hSGuZk/FQEYKCoxCvt5u0mZH6J8theVDTps3OdbtqL1IyOT5VncOIzyZr+nrXDPNBN
-	 aCiWh0EpE+pszta4H5E/2Mcb5ATmi43tWabCB5xJ35cs80305tk/JwjvxmOP2HRZ2n
-	 Y3S56AUCdeBcyk7z7qLdIIJGY5gtOP5k0FXriqtF7FIQZGjidBssilGcp86hksz6t3
-	 wSUXqzmUKivjwyEOWKSYPx3VDYryDSgoScwNhXMHL5HjBcCt5auGSA9Mj0PSRjN8V+
-	 V/sO86OfpyfrA==
+	b=BIncmyU6cKobel9GKHnt4S/34acJY0AfCjcghm4XynQbYM/N9EeHCZQyDZc6nzRfg
+	 YG2JSHJHmPUCMCCNptNOBxmop2hy4Ea+R4OFW7B79NyDvJLQM4Fz2gavTDaqOpsE5M
+	 T6DE1N898a4ICjNykmhuFNG5rxZ/d3mSNBHz6fMz9KU9/hKXCK0AP6Uq35phf1tJ/g
+	 qg/6vw6Ww43H1+rXlRy+jKetlh+zxkDKinpH/zfVLTFtcHP7eW2uGClxgKM+gvWKJC
+	 znH/ObGjUFIpVN48ayG+qbmHE0VYefUuEF9wb3tBcN4NcqDCat9XuPI5boRDT9LQOn
+	 3/QA/B2YCxNuA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 3/4] s390/sclp_ocf: Fix computation of length of GDS
- values
+Subject: Re: [PATCH v5 2/4] s390/sclp_tty: Make use of sclp_gds_for_each()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Alexander Egorenkov" <egorenar@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260917065824.2858737-4-egorenar@linux.ibm.com>
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260917065824.2858737-3-egorenar@linux.ibm.com>
 References: <20260917065824.2858737-1-egorenar@linux.ibm.com>
- <20260917065824.2858737-4-egorenar@linux.ibm.com>
+ <20260917065824.2858737-3-egorenar@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 17 Sep 2026 07:09:26 +0000
-Message-Id: <20260917070926.A77EC1F000FF@smtp.kernel.org>
+Date: Thu, 17 Sep 2026 07:12:07 +0000
+Message-Id: <20260917071207.E23701F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> There is a potential invalid read memory access while extracting
-> the HMC network and the CPC name from event buffers sent by OCF.
->=20
-> Both, the HMC network and the CPC name, are sent as a GDS subvector.
-> A value stored in the length field of the header of a GDS (sub)vector
-> includes not only the size of a GDS value but also the size of the GDS
-> header. Therefore, to obtain the size of the GDS value only, the size of
-> the GDS header must be first subtracted from the total GDS (sub)vector
-> length.
->=20
-> If the length of the HMC network or the CPC name is less than 6,
-> then the total length of the GDS subvector carrying it will be less than 8
-> (length of value plus 2 bytes for GDS subvector header). In that case
-> the memcpy() call in sclp_ocf_handler() will read extra 2 bytes following
-> the GDS subvector.
->=20
-> Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] s390/sclp: out-of-bounds read in sclp_gds_for_each() due to intege=
+r promotion
+--
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+commit b02b1435e7ea0c6d35613a83d6a0bafa8d59fb95
+Author: Alexander Egorenkov <egorenar@linux.ibm.com>
+
+s390/sclp_tty: Make use of sclp_gds_for_each()
+
+This commit replaces manual iterations over gds subvector entries with the
+sclp_gds_for_each() macro. The stated goal is to handle erroneous entries
+in gds vectors and subvectors more safely.
+
+> diff --git a/drivers/s390/char/sclp_tty.c b/drivers/s390/char/sclp_tty.c
+> index 0a92d08830e7c..4353890bbf8af 100644
+> --- a/drivers/s390/char/sclp_tty.c
+> +++ b/drivers/s390/char/sclp_tty.c
+> @@ -418,38 +418,38 @@ static void sclp_get_input(struct gds_subvector *sv)
+> =20
+>  static inline void sclp_eval_selfdeftextmsg(struct gds_subvector *sv)
+>  {
+> -	void *end;
+> -
+> -	end =3D (void *) sv + sv->length;
+> -	for (sv =3D sv + 1; (void *) sv < end; sv =3D (void *) sv + sv->length)
+> +	void *start =3D sv + 1;
+> +	void *end =3D (void *) sv + sv->length;
+> +	int n;
+> +	sclp_gds_for_each(sv, n, start, end) {
+
+[Severity: High]
+Does this code introduce an out-of-bounds read regression if the hardware
+provides a malformed sccb buffer with a length smaller than the header size?
+
+If sv->length is smaller than sizeof(*sv), start will be greater than end.
+In the sclp_gds_for_each() macro defined in drivers/s390/char/sclp.h, n is
+defined as an int and evaluated as n =3D (end) - (start), which becomes a
+negative value:
+
+drivers/s390/char/sclp.h:
+#define sclp_gds_for_each(v, n, start, end) \
+	for ((n) =3D (end) - (start), (v) =3D (start); \
+	     (n) >=3D sizeof(*(v)) && (v)->length >=3D sizeof(*(v)) && (v)->length=
+ <=3D (n); \
+	     (n) -=3D (v)->length, (v) =3D (void*)(v) + (v)->length)
+
+Because sizeof returns an unsigned size_t, standard C integer promotion
+rules convert the negative int n to a very large positive size_t value
+when evaluating (n) >=3D sizeof(*(v)). This incorrectly bypasses the initial
+bounds check.
+
+The condition then proceeds to evaluate (v)->length >=3D sizeof(*(v)),
+dereferencing v. Since v points to start which is beyond end, this results
+in an out-of-bounds memory read (1 or 2 bytes), which could cause a kernel
+panic due to a page fault on unmapped memory or trigger kasan.
+
+This regression is exposed here in sclp_eval_selfdeftextmsg(), but also
+directly in sclp_tty_receiver() when parsing untrusted sclp event buffers
+from the hardware or hypervisor, where an evbuf->length smaller than
+sizeof(*evbuf) causes start > end:
+
+drivers/s390/char/sclp_tty.c:sclp_tty_receiver() {
+    ...
+    v =3D sclp_find_gds_vector(evbuf + 1, (void *) evbuf + evbuf->length,
+                             GDS_ID_MDSMU);
+    ...
+}
+
+>  		if (sv->key =3D=3D 0x30)
+>  			sclp_get_input(sv);
+> +	}
+>  }
+
+[ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260917065824.2858=
-737-1-egorenar@linux.ibm.com?part=3D3
-
+737-1-egorenar@linux.ibm.com?part=3D2
