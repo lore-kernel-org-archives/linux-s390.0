@@ -1,141 +1,109 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0E8D4E36C7
-	for <linux-s390@vger.kernel.org>; Thu, 17 Sep 2026 19:43:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA0BE4EB875;
+	Thu, 17 Sep 2026 21:12:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789674182; cv=none; b=fVPDq9tSZ1GsA7dMUaamsxgqVEOe5QB3NWIm8xa5CpVKGjFEQ2s3+r+PnZOIsyVO/QQXiI0vAANs8w839lthl5qReTIdYDqopNYzmeklAoxTfPq/fDKvqt3pAqzaJ0a4gTx+Q1PTD1hfuqN6iTsxut91wRO7KSPnkVdhNnJ65zM=
+	t=1789679563; cv=none; b=nRpBDgZAmoiJG+83bO/U+rUPTYB0lBUYak7SQMfr1EFK5KGhemZUEoLZUcSm85NczQtQH7KRRjuO2/SP4HeAWthdaTWIAqZAVg78dDwO2YFIRljup/N4eH+xcG1yICVr3OJOADZ3aFEEHMv8w3dIc2WDe7GjYgbaDsJe/3fSOak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789674182; c=relaxed/simple;
-	bh=A6X5mGOI0uqKhyjv8H0bU/FPFu8ElC8p701wh8Moy9w=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ZZDHL1TAgJgoqgcwAVYz5vqSQnKdPnxmKyT2Zhm5jAg5rRxkrTSU0P7isqb/XPdp6hBkaN85oTR1TeDTq8NBk50YYXlLNDXvGDodUxKZkLc+ihVUMR0rAIaTpiR96g7dkshsgEGTU8BIM0ctek7VL9lMjJHcsM8iLSPDh2bhCGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZWusUwoL; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789679563; c=relaxed/simple;
+	bh=01FvJxetNS7YjoiVP3GIq8xXDj55NBVoskUA5qMRyHc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=UxxzzrSxydtct733VLWWGoeSklpk+gT4eEVAFYWENE9ksCX3+4sd7S8pJbQVhFPQzRoQVtTa0r7jLzh9RVlSyLOqh9FOoRRES34Y29SaKlHtuItiCqd18fOG32O1dPd2HSnLuxaYOKly8rtb4F/jCVEOqLgQwPTKl7Tba2F2IGg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NazMnaxv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZWusUwoL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EF361F000FF;
-	Thu, 17 Sep 2026 19:42:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NazMnaxv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0A251F000FF;
+	Thu, 17 Sep 2026 21:12:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789674179;
-	bh=zys4v/s6po8BGBa8B/yt/67RlArhCjW6RnoHcHJjEKk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ZWusUwoL6MX5oG+4XtLhRxYG4h4b4+WEbGklSIYoPm8kJIHxleDLZo7NTE6fuFVIS
-	 RX11HuJMgjdgMEn/t4pnRYgabvs57kn4fTcT+XwyH4CedVkwrho8QJrMen6folmqxz
-	 bvXaerH1t7FYizjvCpE/Bu4+nHN6VEY0rg72OZs/40dxpKsNMx58zslcKkKqftInr9
-	 wp1TqpwexnFinm67CklrVHgodtyAaS2d8NZCxgkfUDG0xzi3EZaMC/QhPXYgb20t0W
-	 PhhWWnuy80MO+HrcCqE+ySYFCHH+fl4+Vnci70zMqbwPpL+YBj+/Zqsh0/IKpOW5H4
-	 W8O62+eASr2Ow==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 12/12] s390/percpu: Rework to simplify percpu_entry()
- and percpu_exit()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Heiko Carstens" <hca@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260917192237.638324-13-hca@linux.ibm.com>
-References: <20260917192237.638324-1-hca@linux.ibm.com>
- <20260917192237.638324-13-hca@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 17 Sep 2026 19:42:59 +0000
-Message-Id: <20260917194259.7EF361F000FF@smtp.kernel.org>
+	s=k20260515; t=1789679561;
+	bh=Lr/gYrJ5d7eKsqJ9AZf8WCnyZeqcGWqFtx9106X0crA=;
+	h=From:To:Cc:Subject:Date;
+	b=NazMnaxvlARRvcYWFKAKmv4YO085GJjQb17DN6YmXPqeiq/fjywu3US2C2U5n9lZe
+	 Ea67igZN5xDoH/plXDq5p/ta8euTMFc8ep1waYI4ETewczFNF2lrkxVKNwrCm0skr4
+	 IpeguhvcPxv6PF0G76aFATAfNRwS+3I+5nK+64m68u6mOpSXG3X6yJV9c+4DgeIeed
+	 WtdQSc4ICw62qVzbC14UEcVWY15OId2kNR7vuoXk+J1tC3kXzGog8zjpWnoX8fjHrv
+	 LWfC9YXmUApn9WCuCIOABb1TpdZB5rINlXeimoeiZFHb7Mp7QH8fc04E0ZFcm/DXBv
+	 RbX+LFStOnwag==
+From: Kees Cook <kees@kernel.org>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Kees Cook <kees@kernel.org>,
+	Kees Cook <kees+treewide@kernel.org>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-hardening@vger.kernel.org
+Subject: [PATCH] s390/keyboard: Allocate key_maps and func_table with ARRAY_SIZE()
+Date: Thu, 17 Sep 2026 14:12:40 -0700
+Message-Id: <20260917211239.i.576-kees@kernel.org>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2083; i=kees@kernel.org; h=from:subject:message-id; bh=APzKABLwNoiSeT+qix+ad/LP9/BL1NKjU2raC555QIE=; b=owGbwMvMwCVmps19z/KJym7G02pJDFlrwk/EFZ1bpywru3Ot+LODsSKOa0rNJIofMe/obM3P0 rHl7A3tKGVhEONikBVTZAmyc49z8XjbHu4+VxFmDisTyBAGLk4BmIimOcP/JBGWHdH3OSUaQnST J0vq2OmZMX9WOFIYVN+WtmOzr7QEw/+AvXLJy14IvPY/x+k7i2XJd8/PW+RLuzKEv679L1V8T5o fAA==
+X-Developer-Key: i=kees@kernel.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
+Content-Transfer-Encoding: 8bit
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] s390/percpu: unconditional register fixup in percpu_exit() corrupt=
-s GPRs on NMI
---
+From: Kees Cook <kees+treewide@kernel.org>
 
-commit 9424e4df4698f4a6dd024548cb15a93aae1331e4
-Author: Heiko Carstens <hca@linux.ibm.com>
+In preparation for converting the kmalloc family of allocators to the
+type-aware kmalloc_obj family, we need to make sure that the returned
+type from the allocation matches the type of the variable being
+assigned. (The kmalloc family returns "void *", which can be implicitly
+cast to any pointer type.)
 
-s390/percpu: Rework to simplify percpu_entry() and percpu_exit()
+These allocate as many pointers as ebc_key_maps and ebc_func_table hold,
+but the sizes were taken from the whole arrays, which would make the
+allocation types pointers to those arrays rather than the "u_short **"
+and "char **" being assigned. Allocate ARRAY_SIZE-many entries instead.
+The resulting allocation sizes are the same.
 
-This commit changes s390 to implement a new approach for percpu code
-sections similar to arm64, removing the need to check instruction opcodes
-during interrupts. It encodes three register numbers into the
-percpu_register field and uses a register pair to work around the
-single-byte limit of the mviy instruction.
+Build tested ARCH=s390 allmodconfig with GCC s390x-linux-gnu 16.1.0:
+drivers/s390/char/keyboard.o
 
-Link: https://lore.kernel.org/all/20260908151741.394589-1-mark.rutland@arm.=
-com/
+Assisted-by: LLM coccinelle
+Signed-off-by: Kees Cook <kees+treewide@kernel.org>
+---
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: <linux-s390@vger.kernel.org>
+---
+ drivers/s390/char/keyboard.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-> diff --git a/arch/s390/include/asm/entry-percpu.h b/arch/s390/include/asm=
-/entry-percpu.h
-> index 89c9e44f6f833..7ec5d976db471 100644
-> --- a/arch/s390/include/asm/entry-percpu.h
-> +++ b/arch/s390/include/asm/entry-percpu.h
+diff --git a/drivers/s390/char/keyboard.c b/drivers/s390/char/keyboard.c
+index ecd9ace2b3aa..63bcb52d6e87 100644
+--- a/drivers/s390/char/keyboard.c
++++ b/drivers/s390/char/keyboard.c
+@@ -81,7 +81,8 @@ kbd_alloc(void) {
+ 	kbd = kzalloc_obj(struct kbd_data);
+ 	if (!kbd)
+ 		goto out;
+-	kbd->key_maps = kzalloc(sizeof(ebc_key_maps), GFP_KERNEL);
++	kbd->key_maps = kcalloc(ARRAY_SIZE(ebc_key_maps),
++				sizeof(*kbd->key_maps), GFP_KERNEL);
+ 	if (!kbd->key_maps)
+ 		goto out_kbd;
+ 	for (i = 0; i < ARRAY_SIZE(ebc_key_maps); i++) {
+@@ -93,7 +94,8 @@ kbd_alloc(void) {
+ 				goto out_maps;
+ 		}
+ 	}
+-	kbd->func_table = kzalloc(sizeof(ebc_func_table), GFP_KERNEL);
++	kbd->func_table = kcalloc(ARRAY_SIZE(ebc_func_table),
++				  sizeof(*kbd->func_table), GFP_KERNEL);
+ 	if (!kbd->func_table)
+ 		goto out_maps;
+ 	for (i = 0; i < ARRAY_SIZE(ebc_func_table); i++) {
+-- 
+2.34.1
 
-[ ... ]
-
-> -static __always_inline void percpu_exit(struct pt_regs *regs, bool needs=
-_fixup)
-> +static __always_inline void percpu_exit(struct pt_regs *regs)
->  {
-> +	unsigned char regval, regpcp, regoff, regptr;
->  	struct lowcore *lc =3D get_lowcore();
-> -	unsigned char reg;
-> =20
-> -	if (user_mode(regs))
-> -		return;
-> -	reg =3D regs->percpu_register;
-> -	lc->percpu_register =3D reg;
-> -	if (likely(!needs_fixup))
-> -		return;
-> -	/* Check if process has been migrated to a different CPU. */
-> -	if (regs->cpu =3D=3D lc->cpu_nr)
-> +	if (!regs->percpu_register)
->  		return;
-> -	/* Fixup percpu base register */
-> -	regs->gprs[reg] -=3D __per_cpu_offset[regs->cpu];
-> -	regs->gprs[reg] +=3D lc->percpu_offset;
-> +	regval =3D regs->percpu_register;
-> +	lc->percpu_register =3D regval;
-> +	regpcp =3D FIELD_GET(PCPU_REG_PCP, regval);
-> +	regoff =3D FIELD_GET(PCPU_REG_OFF, regval);
-> +	regptr =3D regoff + 1;
-> +
-> +	/*
-> +	 * Update register 'regoff' which contains the current CPU's percpu
-> +	 * offset, and recalculate and update current CPU's percpu variable
-> +	 * address contained in register 'regptr'.
-> +	 */
-> +	regs->gprs[regoff] =3D lc->percpu_offset;
-> +	regs->gprs[regptr] =3D regs->gprs[regpcp] + regs->gprs[regoff];
-
-[Severity: High]
-Does this unconditional fixup corrupt GPRs if an NMI interrupts the kernel
-return path?
-
-If a standard interrupt occurs during a percpu code section, the handler's
-percpu_exit() restores the non-zero lc->percpu_register right before
-returning to assembly. During the subsequent assembly return sequence (e.g.,
-in .Lsysc_restore), lc->percpu_register remains non-zero.
-
-If a non-migrating exception (such as a Machine Check NMI) hits during this
-precise window, s390_do_machine_check() will save the return sequence's
-current registers into pt_regs, call percpu_entry(), and then percpu_exit().
-
-Because this patch removed the migration check (regs->cpu =3D=3D lc->cpu_nr=
-),
-percpu_exit() now unconditionally overwrites the regoff and regptr GPRs.
-Since the compiler's "=3D&d" constraint can allocate register pairs heavily
-used by the return sequence (like %r10/%r11 where %r11 points to pt_regs,
-or %r14/%r15 where %r15 is the stack pointer), the NMI will clobber them.
-
-When the NMI returns, the interrupted return sequence continues with
-corrupted GPRs, potentially causing fatal faults on instructions like
-lmg %r0,%r15,__PT_R0(%r11).
-
->  }
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260917192237.6383=
-24-1-hca@linux.ibm.com?part=3D12
