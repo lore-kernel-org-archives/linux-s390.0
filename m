@@ -1,130 +1,141 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA2654E36C6;
-	Thu, 17 Sep 2026 19:35:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0E8D4E36C7
+	for <linux-s390@vger.kernel.org>; Thu, 17 Sep 2026 19:43:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789673751; cv=none; b=qWz9sRuA8HLmOuqrEXScTI4R37PqWYsXFf4XYBWcbdX7MtL1VFJEdUxgoigUm/uxvKjzQFuyiREdjellcTy9PpPJeHr6DObJoXWc/TEsyAknDaPgY9FRvV/PGxGAGPYICV/7fru2qD15tnbAI6J2SLL9XzTKyDoeqWDOQHFxilM=
+	t=1789674182; cv=none; b=fVPDq9tSZ1GsA7dMUaamsxgqVEOe5QB3NWIm8xa5CpVKGjFEQ2s3+r+PnZOIsyVO/QQXiI0vAANs8w839lthl5qReTIdYDqopNYzmeklAoxTfPq/fDKvqt3pAqzaJ0a4gTx+Q1PTD1hfuqN6iTsxut91wRO7KSPnkVdhNnJ65zM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789673751; c=relaxed/simple;
-	bh=ZdaDZ7DmgcYhunGLg9XN1aRRnPTk3xh49WnefUvS7T4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GIc6YYVhN4U3S9FQ3LFK1IPsfq4lP/tf1lGweQBrNsx1OEH4AusbpZr97Z3x+LKfwdtxXOqP4LnJg/1uNZLGc2nGh+BzA4T7rs2MsJkdhB81lGvqaZjH2ZX1mvpJ3XkHRogEC8xSG+FEqrLMNB4CgFoDSageKwpqGYWIv/fQLMA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cO2PKqwG; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1789674182; c=relaxed/simple;
+	bh=A6X5mGOI0uqKhyjv8H0bU/FPFu8ElC8p701wh8Moy9w=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=ZZDHL1TAgJgoqgcwAVYz5vqSQnKdPnxmKyT2Zhm5jAg5rRxkrTSU0P7isqb/XPdp6hBkaN85oTR1TeDTq8NBk50YYXlLNDXvGDodUxKZkLc+ihVUMR0rAIaTpiR96g7dkshsgEGTU8BIM0ctek7VL9lMjJHcsM8iLSPDh2bhCGI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZWusUwoL; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cO2PKqwG"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68HHVagS3182107;
-	Thu, 17 Sep 2026 19:35:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=1gItC5phrprkxYX1pujl44KNc3xrKd
-	TC8XyZgAuFYKA=; b=cO2PKqwG6l8g1+RpnY+AS0Gu2nykZb2obCSx4a4UNM/Ssm
-	IvOxOvCBBUqQKR8Xg53u9IHYuMlc1IeQlrZYQ5PaZ51DZ8o450G7mHbncV6Wb+tM
-	/9Hcp27ezuN/Jze+JRzsERJPwZ4h2m/HKNyFWQ2NPA5kY2i/mDlaa/yTqnz7bNQV
-	tdJrmQkIj+X/tvR7FcOUMtcysn/4pUjm1LPd2LWLPirgh+SJewehwl8kPrz4w0rb
-	knIpLNvj5SRif7zN1Y9hvTXxtzxp8hBpR5+Wvhd+shGJNoy2eyiLC6P4xeEd2/Cs
-	9Y2wk5pN8Qb+mTDl1VvY3CG2t8Nj5obs7B+eE8Fw==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmxcvbud7-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 17 Sep 2026 19:35:46 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68HH9Ahe261621;
-	Thu, 17 Sep 2026 19:35:46 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gr7gekmj8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 17 Sep 2026 19:35:45 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68HJZgRX47513880
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 17 Sep 2026 19:35:42 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4598020043;
-	Thu, 17 Sep 2026 19:35:42 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DC17E20040;
-	Thu, 17 Sep 2026 19:35:41 +0000 (GMT)
-Received: from osiris (unknown [9.111.82.95])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 17 Sep 2026 19:35:41 +0000 (GMT)
-Date: Thu, 17 Sep 2026 21:35:40 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Vasily Gorbik <gor@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
-        kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] s390/uv: Rework page allocation for guest variable
- storage area
-Message-ID: <20260917193540.13842A26-hca@linux.ibm.com>
-References: <20260915144307.2367089-1-hca@linux.ibm.com>
- <1a53b72c-b215-496c-b9f0-04f3afd09693-agordeev@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZWusUwoL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EF361F000FF;
+	Thu, 17 Sep 2026 19:42:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789674179;
+	bh=zys4v/s6po8BGBa8B/yt/67RlArhCjW6RnoHcHJjEKk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ZWusUwoL6MX5oG+4XtLhRxYG4h4b4+WEbGklSIYoPm8kJIHxleDLZo7NTE6fuFVIS
+	 RX11HuJMgjdgMEn/t4pnRYgabvs57kn4fTcT+XwyH4CedVkwrho8QJrMen6folmqxz
+	 bvXaerH1t7FYizjvCpE/Bu4+nHN6VEY0rg72OZs/40dxpKsNMx58zslcKkKqftInr9
+	 wp1TqpwexnFinm67CklrVHgodtyAaS2d8NZCxgkfUDG0xzi3EZaMC/QhPXYgb20t0W
+	 PhhWWnuy80MO+HrcCqE+ySYFCHH+fl4+Vnci70zMqbwPpL+YBj+/Zqsh0/IKpOW5H4
+	 W8O62+eASr2Ow==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 12/12] s390/percpu: Rework to simplify percpu_entry()
+ and percpu_exit()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Heiko Carstens" <hca@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20260917192237.638324-13-hca@linux.ibm.com>
+References: <20260917192237.638324-1-hca@linux.ibm.com>
+ <20260917192237.638324-13-hca@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 17 Sep 2026 19:42:59 +0000
+Message-Id: <20260917194259.7EF361F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1a53b72c-b215-496c-b9f0-04f3afd09693-agordeev@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE3MDI3OSBTYWx0ZWRfXw4jJYB+9KF/d
- xKLhadtAYAtxneldBMLwYgbI8OcJet93/F66t1ATbCN26ZcMBhByNxijjqtOj37wlGf5jW26C7b
- 6EwQylkrlePwXvemYYHSY4bJOBZidKU=
-X-Proofpoint-ORIG-GUID: RgQNPFIvEn6DnAy0Re0sBklNzp7bgJnV
-X-Proofpoint-GUID: RgQNPFIvEn6DnAy0Re0sBklNzp7bgJnV
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE3MDI3OSBTYWx0ZWRfX60DLld6w6aQP
- 2wyOM3A52M/we0tHkvOB9NkNoAQA4mMjpS/eTMTVNAK1WND0R5D5v4iXRczIaWfx+He/Kro8ZKc
- E7RzKwsDgfqndNAAcx13Ru6W0I43RBWMbjysnSF9GPfxrIu8Wmxi+mpmZa1Cz6TmS1VBh47qjdQ
- WGeZibRUX8h+VNdmRdgdFZeRQVUXiwYrOTLPlTwWLFcSfuXps1a5kXHj6ctXMauKkBBXBmJAolq
- FzXHONRXR27AdaIfMS7ueQs3rsPpMyfpou7owDq51HcNsDelXdgoGbYuFq2B2pW9wKnJozgraWR
- rzk52A3bp4LiK9RY96S/+OiXvd3V2perwfqKTgki65PXvxsxUMdedMqVubRaGKz19WFQmLVLg7K
- WBvTnZDk9seSnc1DhJwjVHp7ZZH1TlS39GrbYMML9imnHjDPZc5tSl7UhPdzTU3mx3/nMzfLZPb
- DHHmoM5x82LUmFX+Gnw==
-X-Authority-Analysis: v=2.4 cv=F+7C5ahN c=1 sm=1 tr=0 ts=6aac4112 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=xgZBs7X4GezASKjRQcQA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-17_04,2026-09-16_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 suspectscore=0 phishscore=0 clxscore=1015 malwarescore=0
- lowpriorityscore=0 bulkscore=0 spamscore=0 impostorscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609170279
 
-On Thu, Sep 17, 2026 at 12:26:55PM +0200, Alexander Gordeev wrote:
-> On Tue, Sep 15, 2026 at 04:43:07PM +0200, Heiko Carstens wrote:
-> Hi Heiko,
-> ...
-> > +	for (i = 0; i < nr_pages; i++) {
-> > +		pages[i] = alloc_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO);
-> > +		if (!pages[i])
-> > +			goto free_pages;
-> > +	}
-> ...
-> > +	for (i = 0; i < nr_pages; i++) {
-> > +		if (pages[i])
-> > +			__free_page(pages[i]);
-> > +	}
-> 
-> Why not alloc_pages_bulk()/free_pages_bulk()?
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] s390/percpu: unconditional register fixup in percpu_exit() corrupt=
+s GPRs on NMI
+--
 
-That's because alloc_pages_bulk() contains this:
+commit 9424e4df4698f4a6dd024548cb15a93aae1331e4
+Author: Heiko Carstens <hca@linux.ibm.com>
 
-	/* Bulk allocator does not support memcg accounting. */
-	if (memcg_kmem_online() && (gfp & __GFP_ACCOUNT))
-		goto failed;
+s390/percpu: Rework to simplify percpu_entry() and percpu_exit()
 
-Which does not work with GFP_KERNEL_ACCOUNT.
+This commit changes s390 to implement a new approach for percpu code
+sections similar to arm64, removing the need to check instruction opcodes
+during interrupts. It encodes three register numbers into the
+percpu_register field and uses a register pair to work around the
+single-byte limit of the mviy instruction.
+
+Link: https://lore.kernel.org/all/20260908151741.394589-1-mark.rutland@arm.=
+com/
+
+> diff --git a/arch/s390/include/asm/entry-percpu.h b/arch/s390/include/asm=
+/entry-percpu.h
+> index 89c9e44f6f833..7ec5d976db471 100644
+> --- a/arch/s390/include/asm/entry-percpu.h
+> +++ b/arch/s390/include/asm/entry-percpu.h
+
+[ ... ]
+
+> -static __always_inline void percpu_exit(struct pt_regs *regs, bool needs=
+_fixup)
+> +static __always_inline void percpu_exit(struct pt_regs *regs)
+>  {
+> +	unsigned char regval, regpcp, regoff, regptr;
+>  	struct lowcore *lc =3D get_lowcore();
+> -	unsigned char reg;
+> =20
+> -	if (user_mode(regs))
+> -		return;
+> -	reg =3D regs->percpu_register;
+> -	lc->percpu_register =3D reg;
+> -	if (likely(!needs_fixup))
+> -		return;
+> -	/* Check if process has been migrated to a different CPU. */
+> -	if (regs->cpu =3D=3D lc->cpu_nr)
+> +	if (!regs->percpu_register)
+>  		return;
+> -	/* Fixup percpu base register */
+> -	regs->gprs[reg] -=3D __per_cpu_offset[regs->cpu];
+> -	regs->gprs[reg] +=3D lc->percpu_offset;
+> +	regval =3D regs->percpu_register;
+> +	lc->percpu_register =3D regval;
+> +	regpcp =3D FIELD_GET(PCPU_REG_PCP, regval);
+> +	regoff =3D FIELD_GET(PCPU_REG_OFF, regval);
+> +	regptr =3D regoff + 1;
+> +
+> +	/*
+> +	 * Update register 'regoff' which contains the current CPU's percpu
+> +	 * offset, and recalculate and update current CPU's percpu variable
+> +	 * address contained in register 'regptr'.
+> +	 */
+> +	regs->gprs[regoff] =3D lc->percpu_offset;
+> +	regs->gprs[regptr] =3D regs->gprs[regpcp] + regs->gprs[regoff];
+
+[Severity: High]
+Does this unconditional fixup corrupt GPRs if an NMI interrupts the kernel
+return path?
+
+If a standard interrupt occurs during a percpu code section, the handler's
+percpu_exit() restores the non-zero lc->percpu_register right before
+returning to assembly. During the subsequent assembly return sequence (e.g.,
+in .Lsysc_restore), lc->percpu_register remains non-zero.
+
+If a non-migrating exception (such as a Machine Check NMI) hits during this
+precise window, s390_do_machine_check() will save the return sequence's
+current registers into pt_regs, call percpu_entry(), and then percpu_exit().
+
+Because this patch removed the migration check (regs->cpu =3D=3D lc->cpu_nr=
+),
+percpu_exit() now unconditionally overwrites the regoff and regptr GPRs.
+Since the compiler's "=3D&d" constraint can allocate register pairs heavily
+used by the return sequence (like %r10/%r11 where %r11 points to pt_regs,
+or %r14/%r15 where %r15 is the stack pointer), the NMI will clobber them.
+
+When the NMI returns, the interrupted return sequence continues with
+corrupted GPRs, potentially causing fatal faults on instructions like
+lmg %r0,%r15,__PT_R0(%r11).
+
+>  }
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260917192237.6383=
+24-1-hca@linux.ibm.com?part=3D12
