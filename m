@@ -1,156 +1,145 @@
-Received: from fout-a2-smtp.messagingengine.com (fout-a2-smtp.messagingengine.com [103.168.172.145])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 154E83812F6;
-	Thu, 17 Sep 2026 05:56:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.145
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F348443CE71
+	for <linux-s390@vger.kernel.org>; Thu, 17 Sep 2026 06:58:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789624586; cv=none; b=pNh65hvcceXssJ+MNte2ogsAfoBAjGhSI5wtU5mZyhAYFfwimHjqJMqgPKjInPqBEIeS8TOn6cxrgqG/wPRmw5KnOHtd4+pEDFDm8DLRs6DNnCqwhDQ4RM6PdJWjXaugKK5IptBMYo8/6Fo2DlEFLA9OaQGepG0jUydWb6PABVM=
+	t=1789628314; cv=none; b=OKtp+krZxWvSQ1BfWgj/aVLAwkMC8GdT/ZgvZXSxDZs4zNWtObAww4E2gplikenC3rcagcsM2H9wF00TigkWXk8stKH1ge71XZgC2V13Vq5MHEl+hQcR2bdmAx80ct2+eTFptJMDk381+VlFchVVV8FJU9025djl05FV5JWW7O8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789624586; c=relaxed/simple;
-	bh=Mbwi+hAEJ2TOuE5pCiU68p6QpU+CXNObLTPMmeKgryc=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=IgML+dkT5c5Rt/8s51jUv/A/ov/QBG8mC/dXiRmCJGzMwr8lU7LU0gnfdfmhuASIuUi0EYhvbOpKaTyrm1yZhz8DSQj3hLN9rKCxOPpaFSbKTWXxVYLxG0wEfoM6E1IiWz75FxZWuMjNTeJoD+8y7GCOntIf/4jg8g8NaEuiQSU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=GGbp4G/u; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=eBKaRa1q; arc=none smtp.client-ip=103.168.172.145
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1789628314; c=relaxed/simple;
+	bh=kjFNm/EySh45KI13+758fty8KnWopaqaMY6cn9UItc8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=tFoT5IVD40MpJIdW3GqEg83JSQfEkaHFhoiL5BrcQQ97X2mlfU9hHDw8WnmXq8HQr9b4y9GtdmKdYUBG3qBvygmVeIg90zVM9IjRRrLMLpI3m64S9q2oKK/TUNz9gJ2UtSOd2+uXJwnv3i/b8FaaJQxDWNX1vOZz3A7xgKQaHdw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=jY2g6xMP; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="GGbp4G/u";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="eBKaRa1q"
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailfout.phl.internal (Postfix) with ESMTP id 05937EC0118;
-	Thu, 17 Sep 2026 01:56:21 -0400 (EDT)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Thu, 17 Sep 2026 01:56:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1789624581;
-	 x=1789710981; bh=E6Vg3bpUqSz3Pj9xg3oQSweER3Z7QxD7M1oDqjqbTDE=; b=
-	GGbp4G/u+roLCBBW1X5LxaPuo76yNpQDClMQMHkJmJCuirPtxMNGj1jajS/PTGfN
-	JVK1YQbrVgyHcM5r88NM4U1E5do7xAG78NOL+9CDBRjuk4KEDE8BSVNmyWM2arDJ
-	ra6+Btxidwe4vTBDTMhblROGwZLbytUpIx8EtmlM6yA6jtQGaTqKRX4Dcxb4n3au
-	NnEUSdf3EDdHJlXkS0zp+WeWiCdYUBSaP3a2dk6oKO2VhmXUl2wKRWIPoO0ogHee
-	CTESVdKNA7pcf9Jyz9Bi4fAR7ZK+I+rZuCxYMynFJmHpCV8DV2WexIiE75gl9N76
-	+rV/p9tZhFNfaPbak9I0QQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1789624581; x=
-	1789710981; bh=E6Vg3bpUqSz3Pj9xg3oQSweER3Z7QxD7M1oDqjqbTDE=; b=e
-	BKaRa1qijVXP/ajZuMAbyukMZKAFqJbMTTD1l4SzixYv2o9ux9k5SpwWP6shuZi6
-	865rELRDQkGVQ560bbGAEs54IVn96qd4TZC64dVV29s6tGRKoIBB1oCprIIIaEBd
-	R0a7/WhCklnf2k3mcDGVJbRtWfJVKB5iZwosgZAiPT+EpCM7CHbR1Vy+4iS8wX36
-	9LE9fv8WA5KCuoK1eq0iy9Nvfsm/+T+u996e9rpT3cllfrv7U3tMxNRiMsRo48MS
-	Gs8UoeIwlWQsI4PPWOdU3eoVd3Kcq8wnnb8EGn6UcR8ip06o0H13XQAPCaNsXY8a
-	SC8VoEXEyTHTEalfPb/FA==
-X-ME-Sender: <xms:AIGranrIsNzd-n5_Y_lgDm8e4SveGD4WDkkQG1exaPyHNwyfIvTZbA>
-    <xme:AIGrasfLaUOrMTpyOBaiZ89PwG8J6Edhypf-kwZqr_K80-fhGBuGj5T1N5bvggTAM
-    hNpTkii2-BASlIC_B0jMI20PaaeEPo5rxYuOFCVD9hYmZKqVFtADLNk>
-X-ME-Proxy-Cause: dmFkZTFlx2cT7GLNvlNJEzNcY+Amz1Ciq+yjddF3pMcq3/zZLoLLD2H82cYq+2SeOYQV9f
-    vehC8tp9xFp5qadWLjh+qiCAyw47Ch69MWx66qZr1l/WAmg0WrvOpJumDcq+uMYLgMnaui
-    vaVxLdO2W1cWqVPF2UQHOQ36xm/wSftcKi+Ca//GEsMgqK0MrQF4x4me01uH4IRb68jYyZ
-    OJUk4XkunCR4+ds+tTViycw2avGqXhI22CM1Gdy9ZkMp0uMjDt0GHh5BtN/7tM6ztMugOO
-    92nCc5FFXjf//UTJ5Y2mBwu5H/nqaISdKHJ3PiRgUtwGCanRvVJS3KCcsANToDdrbd1uIU
-    UB3LfmT1/5WcpFhho/ss8YDyEuTq93o6YW96Fvy/GopTRZ6mFe/jVCl8NbTSToGxqkDZbs
-    ae8Ec1jmx/4fmaS8R2dq6A2nJe2Bu44omcwh+Uc9+lks0BIAHWfdBfCpP3a9aU9ElZQ42V
-    tzgYuvZzo4kLrFFQuxbRatLhcsKUYLu2bsEuApzGxJOJcwFxJT6tGlg7ICwRL9cxg2d27W
-    PEw7JxMlTUJXiJY/M9hMFCSD+ao51qh4AO9SuMAYNv1dFuqTFP0fTJGZ9uIE1md1Gcy6sP
-    Gu4Im/oJu2smgsG47SdCFaov6IfT7eJU7LO6HoFrSlZ85HOX4lBZdHSlbcXw
-X-ME-Proxy: <xmx:A4GraqsT-7Y_-7Pi_lEQa9ygymHWBMqAV-q_z0fAlD7Xl_MrRPlTuw>
-    <xmx:A4Grav504RveMCKeSbDWGAtYZXxblOBcBDM643TN_YWDjAcwkhNOLA>
-    <xmx:A4Gralh0Ju2t_GxhEHoVaLRYJnMALJOoo5IhfOlSiHGY4nVCRFoeaw>
-    <xmx:A4GrahlpmG0IUBEpT0yA3bHiuuRcQz4vCKr1JaFc3Ko2r-rZJiVgpw>
-    <xmx:BYGrat3f9YzO4JP-AGGLy-4_Rp9eLrex7DBQngPe_b2S_5s8Oivy7jAX>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id A4D9532A0084; Thu, 17 Sep 2026 01:56:16 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jY2g6xMP"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68H61uwn1702314
+	for <linux-s390@vger.kernel.org>; Thu, 17 Sep 2026 06:58:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=WSSWKbe72TQPJ6GNE
+	giPlDhVI/JofjsIWss4gA3Za2M=; b=jY2g6xMPa6clX4oR5MsH9ztsFYKp83Dla
+	SCMSgDa6Q5um1hh6dVtELxn8EODMApNoKLKnNDmqMgaU9UDF696ZJqPkfdQMSD5G
+	n6RT9fzfCPbn9KQ7+OxMh+uSPZjmavl1Ux39Si4jqEX8KndxbXJdLGgZGKoXqwkE
+	x9t0Fy9NfAKnqO5uegevhQl4b+6jTPTKXQM37m6HlvV6R3RqpOcYTtcCCn7Ow3BU
+	OagG95tTVZw9Z/uu6+38UI0XzAIyzuGg0y3msW+a2GQQIIsjzsriWlP4SNgZtl43
+	B1SoJWMo3/zy1fFgpC/66R2nb1M36PNgTlAa5jvdsMVzU7XLqEozw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmx840van-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Thu, 17 Sep 2026 06:58:30 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68H653UX2678199
+	for <linux-s390@vger.kernel.org>; Thu, 17 Sep 2026 06:58:30 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gr5xa13tb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Thu, 17 Sep 2026 06:58:30 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68H6wOHG30146952
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 17 Sep 2026 06:58:24 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CA58420040;
+	Thu, 17 Sep 2026 06:58:24 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AE6922004B;
+	Thu, 17 Sep 2026 06:58:24 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 17 Sep 2026 06:58:24 +0000 (GMT)
+From: Alexander Egorenkov <egorenar@linux.ibm.com>
+To: oberpar@linux.ibm.com
+Cc: gor@linux.ibm.com, hca@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com,
+        linux390-list@tuxmaker.boeblingen.de.ibm.com,
+        linux-s390@vger.kernel.org
+Subject: [PATCH v5 3/4] s390/sclp_ocf: Fix computation of length of GDS values
+Date: Thu, 17 Sep 2026 08:58:23 +0200
+Message-ID: <20260917065824.2858737-4-egorenar@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260917065824.2858737-1-egorenar@linux.ibm.com>
+References: <20260917065824.2858737-1-egorenar@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: AA0MNwphKERR
-Date: Thu, 17 Sep 2026 07:55:56 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: =?UTF-8?Q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
-Cc: "Christian Brauner" <brauner@kernel.org>, linux-kernel@vger.kernel.org,
- linux-kbuild@vger.kernel.org, kernel-dev@igalia.com,
- "Masami Hiramatsu" <mhiramat@kernel.org>,
- "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
- linux-alpha@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, soc@lists.linux.dev,
- linux-mips@vger.kernel.org, sparclinux@vger.kernel.org
-Message-Id: <5aedf90f-d30d-4f55-b066-dd8fdf3ff8f9@app.fastmail.com>
-In-Reply-To: <6fa4e1e3-c023-465c-9490-ce2f18ffaa91@igalia.com>
-References: <20260828-tonyk-syscall_table-v6-0-fdd358456cf1@igalia.com>
- <95b693c0-ca51-4355-99ba-2b37a1ab2169@app.fastmail.com>
- <6fa4e1e3-c023-465c-9490-ce2f18ffaa91@igalia.com>
-Subject: Re: [PATCH v6 00/13] syscalls: Add a shared table for all archs
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE3MDA4NiBTYWx0ZWRfX6zZY08CCizra
+ yWQpxzkmAhELOQdVkn3AA7GuaVtLEsWF4haAaY8xetS72ak+ozbb5Xcj5vcfmam/ddvCQjUXZl2
+ tQWcqra9SC9YUr2zNYx8K08Fj0YX1qQjAB1frt96D0jUj/VUomxfSC3Qy07O0BwzkKdwQZVk4o6
+ jbYQmuOgW9rdYYeu82VtfD3ZA5R0Ulok1vac+1V4Xr3lnRZzqb9Io1IkoBfZy/qZU6xSg4+uyed
+ Kxbi7FI71kKFhbJPWhXTjFenoS5joT6G812o061o4l7BHflDRoIPCiOfwGbB0oDAM0ThRHJ7TT5
+ yaIW0Jq4IFK8jbhDC14ACOaE80Qd0qyxhrCbwSyKU8VLZioXOcqPA4pzeqnwl7QxItOxJjfWrPK
+ tGbP/7gpya0lxEQ+zNnPtODQc7GeSuzNo5a3eIVbPjw2bGBvwQG1brFksibD7LfDOTTi5nC+RKY
+ T2TpXWssPfAsYla6fSw==
+X-Proofpoint-ORIG-GUID: RMz2OrMHjw9wtoUgnX-DXEH9E50kDOEK
+X-Proofpoint-GUID: RMz2OrMHjw9wtoUgnX-DXEH9E50kDOEK
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE3MDA4NiBTYWx0ZWRfXwFL/FuSVvVMi
+ oBke8jit4wFQniM6OMtMv6KN900dw1TMWmx/h8R5addpKPbrd6eKLJxzESEMSXm0v2AiOjDLxiR
+ lyJraBMzAJcXe4eq468tT8JfpyLXYmc=
+X-Authority-Analysis: v=2.4 cv=cY9HPXDM c=1 sm=1 tr=0 ts=6aab8f97 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=3p12VsNbHHCjkpGzt3EA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-17_01,2026-09-16_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 spamscore=0 bulkscore=0 clxscore=1015 suspectscore=0
+ impostorscore=0 malwarescore=0 phishscore=0 adultscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609170086
 
-On Thu, Sep 17, 2026, at 00:19, Andr=C3=A9 Almeida wrote:
-> Em 15/09/2026 04:45, Arnd Bergmann escreveu:
->> On Sat, Aug 29, 2026, at 01:19, Andr=C3=A9 Almeida wrote:
->
-> Thanks for testing! I believe I found a simple solution for this. I=20
-> modified syscall_o32.tbl and can confirm it triggers a rebuild now:
->
-> diff --git a/arch/mips/kernel/syscalls/Makefile=20
-> b/arch/mips/kernel/syscalls/Makefile
-> index aaa5443ea906..9e31d1ce5015 100644
-> --- a/arch/mips/kernel/syscalls/Makefile
-> +++ b/arch/mips/kernel/syscalls/Makefile
-> @@ -40,10 +40,10 @@ src_n32 :=3D $(src)/syscall_n.tbl
->   src_n64 :=3D $(src)/syscall_n.tbl
->   src_o32 :=3D $(src)/syscall_o32.tbl
->
-> -$(kapi)/unistd_nr_%.h: $(systbl_common) $(sysnr) FORCE
-> +$(kapi)/unistd_nr_%.h: $(systbl_common) $(src_%) $(sysnr) FORCE
->          $(call if_changed,sysnr)
->
-> -$(kapi)/syscall_table_%.h: $(systbl) $(systbl_common) FORCE
-> +$(kapi)/syscall_table_%.h: $(systbl) $(systbl_common) $(src_%) FORCE
->          $(call if_changed,systbl)
+There is a potential invalid read memory access while extracting
+the HMC network and the CPC name from event buffers sent by OCF.
 
-I had tried the same thing already, but in my testing, it did
-not rebuild after changing the syscall_n.tbl file, only the=20
-syscall_o32.tbl file. Can you verify that your change rebuilds
-all nine files in the correct cases?
+Both, the HMC network and the CPC name, are sent as a GDS subvector.
+A value stored in the length field of the header of a GDS (sub)vector
+includes not only the size of a GDS value but also the size of the GDS
+header. Therefore, to obtain the size of the GDS value only, the size of
+the GDS header must be first subtracted from the total GDS (sub)vector
+length.
 
->> The rt_sigtimedwait and ustat entries had a typo that caused a link
->> error, but I did not check if there were any additional mistakes that
->> caused incorrect output data without causing a link failure.
->>=20
->
-> Ops, my bad. I had another round comparing the tables, and I found=20
-> another case that needed a fix:
->
-> diff --git a/arch/mips/kernel/syscalls/syscall_n.tbl=20
-> b/arch/mips/kernel/syscalls/syscall_n.tbl
-> index e3d278f715b7..1882527053af 100644
-> --- a/arch/mips/kernel/syscalls/syscall_n.tbl
-> +++ b/arch/mips/kernel/syscalls/syscall_n.tbl
-> @@ -43,7 +43,7 @@
->   33     common  pause                           sys_pause
->   34     common  nanosleep                       sys_nanosleep=20
-> sys_nanosleep_time32
->   35     common  getitimer                       sys_getitimer=20
-> compat_sys_getitimer
-> -36     common  setitimer                       sys_setitimer=20
-> compat_setitimer
-> +36     common  setitimer                       sys_setitimer=20
-> compat_sys_setitimer
->   37     common  alarm                           sys_alarm
->   38     common  getpid                          sys_getpid
->   39     common  sendfile                        sys_sendfile64=20
-> compat_sys_sendfile
+If the length of the HMC network or the CPC name is less than 6,
+then the total length of the GDS subvector carrying it will be less than 8
+(length of value plus 2 bytes for GDS subvector header). In that case
+the memcpy() call in sclp_ocf_handler() will read extra 2 bytes following
+the GDS subvector.
 
-Looks good, thanks for checking this one.
+Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Fixes: 7eb9d5bec552 ("[S390] get CPC image name")
+---
+ drivers/s390/char/sclp_ocf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-    Arnd
+diff --git a/drivers/s390/char/sclp_ocf.c b/drivers/s390/char/sclp_ocf.c
+index 35f3a4a08b12..cee4bfa4a48a 100644
+--- a/drivers/s390/char/sclp_ocf.c
++++ b/drivers/s390/char/sclp_ocf.c
+@@ -66,13 +66,13 @@ static void sclp_ocf_handler(struct evbuf_header *evbuf)
+ 	/* Copy network name and cpc name. */
+ 	spin_lock(&sclp_ocf_lock);
+ 	if (netid) {
+-		size = min(OCF_LENGTH_HMC_NETWORK, (size_t) netid->length);
++		size = min(OCF_LENGTH_HMC_NETWORK, (size_t) netid->length - sizeof(*netid));
+ 		memcpy(hmc_network, netid + 1, size);
+ 		EBCASC(hmc_network, size);
+ 		hmc_network[size] = 0;
+ 	}
+ 	if (cpc) {
+-		size = min(OCF_LENGTH_CPC_NAME, (size_t) cpc->length);
++		size = min(OCF_LENGTH_CPC_NAME, (size_t) cpc->length - sizeof(*cpc));
+ 		memset(cpc_name, 0, OCF_LENGTH_CPC_NAME);
+ 		memcpy(cpc_name, cpc + 1, size);
+ 	}
+-- 
+2.53.0
+
