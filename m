@@ -1,38 +1,37 @@
 Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A4974C651F;
-	Thu, 17 Sep 2026 23:46:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C37A49EC6E;
+	Thu, 17 Sep 2026 23:47:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789688822; cv=none; b=tO0nIKGwsyjsnqxUJnWvjKohFkdeKwEbVstMAGyo60nhqSn/IngyGFG9KIWon9HA2jMfktV8A/fNzToYzeMXNm/PQjkQTlA+W5hXtnq2NAKPh0vDqAPb4Bfj2CGMmY0pbMxk7FabhGq6rXXRJqIQ9DF6uH6w3Gcd+rDr3UO/CmU=
+	t=1789688826; cv=none; b=EfC5WvrTs7o0OCcRa6bagqyx2BIi8YamC2rvk2YmfWvtYsCKxFyCJ0x6FLeCkv0hpuNQN1GTbBuQa6JizLE2FUzqxPuyMuv/3blbYq9zUsAidWSwUOpbpn9qEnH7LyGsaHejF23vZEQU78Yc29y+c6+L8GWSehN+ztr94ANEGf0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789688822; c=relaxed/simple;
-	bh=DfRllZXWOs5SzSbERs8JgNFoChdoZGxXq/0cUsf5uXY=;
+	s=arc-20240116; t=1789688826; c=relaxed/simple;
+	bh=eYxNeCvy4p71IloUWnXnyvA9fBmKrgyjMUcMHXcwN74=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=n4NxhIktlYe3T+gpRTsgz2UXSCYrwHIlnIEkK3YhzeLpwvZ7/AtN+raN7QIzT1MSYM0/Ux2T9faP+35DMnOHYpjBv0cFBjv5kNFJNZkl2Y9FJ8WevondotIy6ouRoSSBtCHctilvJnzSI9JkS+sWwr+xiM18VaRKSFIVZj4HGIY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=EHi2eVj2; arc=none smtp.client-ip=213.97.179.56
+	 In-Reply-To:To:Cc; b=TxcPeLk5pG68vAHw6rbs3982Wc5lW17c9XBrym6pQrXcXw3x1twfmi5sTST/74F3Chdm+yHaNfJUVSQdkInEAvFJKATphZu4cKclM7QB0TUfot9EQeItnyutBwyRTCGfCZpwnoZAN1avJX+/qvLUShM5B3fWWm+gBBkw+3nmSOI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=gheur/nM; arc=none smtp.client-ip=213.97.179.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="EHi2eVj2"
+	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="gheur/nM"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
 	s=20170329; h=Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:
 	MIME-Version:Subject:Date:From:From:Reply-To;
-	bh=32rKyVueiaI6C9W/X0LdWDqFBehAcF9QrZeOUIZ334Q=; b=EHi2eVj2e0YVhdXQUZdVC7YHq+
-	Q5THvsr0cBRRgTZdQjD+mgxESEAoI9VWXFTDq52dFqNNvbktoakeIyff+xlhpQYQmlzkWrHJeJZn+
-	bn7lKTHrTzAsHAuW/pmH5Jb6Rgb5cnTVngVeIXqzDp94ZKjPjBsK8arD0g/RaWHjgZeR5kxpEW/wu
-	WLNJkuscjJpt/X9tMa+lGhPtarcLdJhM840/ZkMSL9hzIqng7hBy1eJd/3+/aZfwzW73rgsiusk6c
-	EggfhUfSZsqQ32eWXYMT9c8iHyT/kfm9f4D+QARiGjibsiPhQApgjQCckADhAM2MozYI3wUVIT593
-	8saawVTw==;
+	bh=VjIF0aVYBJ9Ga527Xyl4l3TJ4nkphldiKj6rE37lIV8=; b=gheur/nMPek+i8kLFpvkVHAyoA
+	Y0UoRtj/Js9lo8iylHZauNc3biC/m4IyBCeZEFc0TJNs86xnVEiv1xxx/bmPZIwVZkjhVVq9C9MF1
+	pbg7g2wIOx332nHBJBAB8ZoQrKBpmRV5ZPHuylh8FaLMmjUKT2dzCXSkyY+hhN59WnerlyOQDz8TR
+	Btr3f8CZqUaq6tuAbgrCVtEcxJa8UMOGtvu6K5MyauhJ0lWKBXcc6ZnuSa00FBvVWU2OIbZvV7qM0
+	N1JfphDPeC86odzDoCB/qCIydFWOm3ohvNynmbd5R+hMouNOyjGgVqi+Vq3MMVDOy6WsAmW8/eJ1E
+	d19sqt7A==;
 Received: from [177.172.123.214] (helo=[192.168.15.100])
 	by fanzine2.igalia.com with esmtpsa 
 	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-	id 1x7Loe-003hU7-IE; Fri, 18 Sep 2026 01:46:56 +0200
+	id 1x7Loh-003hU7-Ow; Fri, 18 Sep 2026 01:46:59 +0200
 From: =?utf-8?q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
-Date: Thu, 17 Sep 2026 20:46:15 -0300
-Subject: [PATCH v7 12/13] alpha: Remove alpha_ prefix from custom syscall
- entries
+Date: Thu, 17 Sep 2026 20:46:16 -0300
+Subject: [PATCH v7 13/13] alpha: Use the common syscall table
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -41,7 +40,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260917-tonyk-syscall_table-v7-12-f4cd8f8e3265@igalia.com>
+Message-Id: <20260917-tonyk-syscall_table-v7-13-f4cd8f8e3265@igalia.com>
 References: <20260917-tonyk-syscall_table-v7-0-f4cd8f8e3265@igalia.com>
 In-Reply-To: <20260917-tonyk-syscall_table-v7-0-f4cd8f8e3265@igalia.com>
 To: Masami Hiramatsu <mhiramat@kernel.org>, Arnd Bergmanon <arnd@arndb.de>
@@ -54,87 +53,117 @@ Cc: Christian Brauner <brauner@kernel.org>, linux-kernel@vger.kernel.org,
  =?utf-8?q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
 X-Mailer: b4 0.15.2
 
-Some architectures need special entry points for some syscalls (like
-clone3). The current approach is, instead of having a special name like
-arch_syscall, to name if as __syscall. This is enough to different the
-common entry point to the architecture specific entry point.
-
-Change alpha special syscall entries to do the same. This makes easier to
-join the syscall tables. Leave alpha_syscall_zero because this syscall only
-exists in alpha anyway.
+Remove some of the duplicated code by using the common syscall number
+table.
 
 Signed-off-by: André Almeida <andrealmeid@igalia.com>
 ---
- arch/alpha/kernel/entry.S              | 8 ++++----
- arch/alpha/kernel/syscalls/syscall.tbl | 8 ++++----
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ arch/alpha/kernel/syscalls/Makefile    | 14 +++++++---
+ arch/alpha/kernel/syscalls/syscall.tbl | 49 ----------------------------------
+ arch/alpha/kernel/systbls.S            |  1 +
+ 3 files changed, 11 insertions(+), 53 deletions(-)
 
-diff --git a/arch/alpha/kernel/entry.S b/arch/alpha/kernel/entry.S
-index 9f2608de2544..8a85fcf117cb 100644
---- a/arch/alpha/kernel/entry.S
-+++ b/arch/alpha/kernel/entry.S
-@@ -879,9 +879,9 @@ ret_from_kernel_thread:
+diff --git a/arch/alpha/kernel/syscalls/Makefile b/arch/alpha/kernel/syscalls/Makefile
+index b265e4bc16c2..03099daff6b9 100644
+--- a/arch/alpha/kernel/syscalls/Makefile
++++ b/arch/alpha/kernel/syscalls/Makefile
+@@ -7,17 +7,23 @@ $(shell mkdir -p $(uapi) $(kapi))
+ syscall := $(src)/syscall.tbl
+ syshdr := $(srctree)/scripts/syscallhdr.sh
+ systbl := $(srctree)/scripts/syscalltbl.sh
++systbl_common := $(srctree)/scripts/syscall_common.tbl
++abis := common,__clone3
  
- .macro	fork_like name
- 	.align	4
--	.globl	alpha_\name
--	.ent	alpha_\name
--alpha_\name:
-+	.globl	__sys_\name
-+	.ent	__sys_\name
-+__sys_\name:
- 	.prologue 0
- 	bsr	$1, do_switch_stack
- 	// NB: if anyone adds preemption, this block will need to be protected
-@@ -896,7 +896,7 @@ alpha_\name:
- 	ldq	$26, 56($sp)
- 	lda	$sp, SWITCH_STACK_SIZE($sp)
- 	ret
--.end	alpha_\name
-+.end	__sys_\name
- .endm
+ quiet_cmd_syshdr = SYSHDR  $@
+-      cmd_syshdr = $(CONFIG_SHELL) $(syshdr) --emit-nr $< $@
++      cmd_syshdr = $(CONFIG_SHELL) $(syshdr) --emit-nr \
++		   --common-tbl $(systbl_common) --common-offset 110 \
++		   --abis $(abis) $< $@
  
- fork_like fork
+ quiet_cmd_systbl = SYSTBL  $@
+-      cmd_systbl = $(CONFIG_SHELL) $(systbl) $< $@
++      cmd_systbl = $(CONFIG_SHELL) $(systbl) \
++		   --common-tbl $(systbl_common) --common-offset 110 \
++		   --abis $(abis) $< $@
+ 
+-$(uapi)/unistd_32.h: $(syscall) $(syshdr) FORCE
++$(uapi)/unistd_32.h: $(syscall) $(systbl_common) $(syshdr) FORCE
+ 	$(call if_changed,syshdr)
+ 
+-$(kapi)/syscall_table.h: $(syscall) $(systbl) FORCE
++$(kapi)/syscall_table.h: $(syscall) $(systbl_common) $(systbl) FORCE
+ 	$(call if_changed,systbl)
+ 
+ uapisyshdr-y		+= unistd_32.h
 diff --git a/arch/alpha/kernel/syscalls/syscall.tbl b/arch/alpha/kernel/syscalls/syscall.tbl
-index 8fc4701a6328..a41276634923 100644
+index a41276634923..7066a3920899 100644
 --- a/arch/alpha/kernel/syscalls/syscall.tbl
 +++ b/arch/alpha/kernel/syscalls/syscall.tbl
-@@ -9,7 +9,7 @@
- #
- 0	common	osf_syscall			alpha_syscall_zero
- 1	common	exit				sys_exit
--2	common	fork				alpha_fork
-+2	common	fork				__sys_fork
- 3	common	read				sys_read
- 4	common	write				sys_write
- 5	common	osf_old_open			sys_ni_syscall
-@@ -72,7 +72,7 @@
- 63	common	getpgrp				sys_getpgrp
- 64	common	getpagesize			sys_getpagesize
- 65	common	osf_mremap			sys_ni_syscall
--66	common	vfork				alpha_vfork
-+66	common	vfork				__sys_vfork
- 67	common	stat				sys_newstat
- 68	common	lstat				sys_newlstat
- 69	common	osf_sbrk			sys_ni_syscall
-@@ -242,7 +242,7 @@
- 309	common	get_kernel_syms			sys_ni_syscall
- 310	common	syslog				sys_syslog
- 311	common	reboot				sys_reboot
--312	common	clone				alpha_clone
-+312	common	clone				__sys_clone
- 313	common	uselib				sys_uselib
- 314	common	mlock				sys_mlock
- 315	common	munlock				sys_munlock
-@@ -474,7 +474,7 @@
- 542	common	fsmount				sys_fsmount
- 543	common	fspick				sys_fspick
- 544	common	pidfd_open			sys_pidfd_open
--545	common	clone3				alpha_clone3
-+545	common	clone3				__clone3
- 546	common	close_range			sys_close_range
- 547	common	openat2				sys_openat2
- 548	common	pidfd_getfd			sys_pidfd_getfd
+@@ -463,52 +463,3 @@
+ 532	common	getppid				sys_getppid
+ # all other architectures have common numbers for new syscall, alpha
+ # is the exception.
+-534	common	pidfd_send_signal		sys_pidfd_send_signal
+-535	common	io_uring_setup			sys_io_uring_setup
+-536	common	io_uring_enter			sys_io_uring_enter
+-537	common	io_uring_register		sys_io_uring_register
+-538	common	open_tree			sys_open_tree
+-539	common	move_mount			sys_move_mount
+-540	common	fsopen				sys_fsopen
+-541	common	fsconfig			sys_fsconfig
+-542	common	fsmount				sys_fsmount
+-543	common	fspick				sys_fspick
+-544	common	pidfd_open			sys_pidfd_open
+-545	common	clone3				__clone3
+-546	common	close_range			sys_close_range
+-547	common	openat2				sys_openat2
+-548	common	pidfd_getfd			sys_pidfd_getfd
+-549	common	faccessat2			sys_faccessat2
+-550	common	process_madvise			sys_process_madvise
+-551	common	epoll_pwait2			sys_epoll_pwait2
+-552	common	mount_setattr			sys_mount_setattr
+-553	common	quotactl_fd			sys_quotactl_fd
+-554	common	landlock_create_ruleset		sys_landlock_create_ruleset
+-555	common	landlock_add_rule		sys_landlock_add_rule
+-556	common	landlock_restrict_self		sys_landlock_restrict_self
+-# 557 reserved for memfd_secret
+-558	common	process_mrelease		sys_process_mrelease
+-559	common  futex_waitv                     sys_futex_waitv
+-560	common	set_mempolicy_home_node		sys_set_mempolicy_home_node
+-561	common	cachestat			sys_cachestat
+-562	common	fchmodat2			sys_fchmodat2
+-563	common	map_shadow_stack		sys_map_shadow_stack
+-564	common	futex_wake			sys_futex_wake
+-565	common	futex_wait			sys_futex_wait
+-566	common	futex_requeue			sys_futex_requeue
+-567	common	statmount			sys_statmount
+-568	common	listmount			sys_listmount
+-569	common	lsm_get_self_attr		sys_lsm_get_self_attr
+-570	common	lsm_set_self_attr		sys_lsm_set_self_attr
+-571	common	lsm_list_modules		sys_lsm_list_modules
+-572	common  mseal				sys_mseal
+-573	common	setxattrat			sys_setxattrat
+-574	common	getxattrat			sys_getxattrat
+-575	common	listxattrat			sys_listxattrat
+-576	common	removexattrat			sys_removexattrat
+-577	common	open_tree_attr			sys_open_tree_attr
+-578	common	file_getattr			sys_file_getattr
+-579	common	file_setattr			sys_file_setattr
+-580	common	listns				sys_listns
+-581	common	rseq_slice_yield		sys_rseq_slice_yield
+-582	common	fchroot				sys_fchroot
+diff --git a/arch/alpha/kernel/systbls.S b/arch/alpha/kernel/systbls.S
+index 68f3e4f329eb..9a67d29f7818 100644
+--- a/arch/alpha/kernel/systbls.S
++++ b/arch/alpha/kernel/systbls.S
+@@ -7,6 +7,7 @@
+ 
+ #include <asm/unistd.h>
+ 
++#define __SYSCALL_WITH_COMPAT(nr, native, compat)        __SYSCALL(nr, native)
+ #define __SYSCALL(nr, entry) .quad entry
+ 	.data
+ 	.align 3
 
 -- 
 2.55.0
