@@ -1,95 +1,95 @@
-Received: from mail-ej2-f23.google.com (mail-ej2-f23.google.com [74.125.228.151])
+Received: from mail-ej2-f12.google.com (mail-ej2-f12.google.com [74.125.228.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F8014DAF8C
-	for <linux-s390@vger.kernel.org>; Fri, 18 Sep 2026 10:55:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.228.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B4AF4D6C2D
+	for <linux-s390@vger.kernel.org>; Fri, 18 Sep 2026 10:57:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.228.140
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789728914; cv=pass; b=oTx4AbJ4yRYnFPniFucQo8zQ35nkypGUm/xRWp1zZKfPQ8CugjhCufjkXQ+dAkmKWMt/rMUKWbEtVItGvKkbHAvYXCrlPiAbBjhD/pDS1KWgBQgiLXKV7CyLzuD2s+wzVaDHj/kbESebQ0L3eFUbra3cuwXW+6z7qwazRyTtrTA=
+	t=1789729047; cv=pass; b=Zh/iVTPPCYkvbgGwwxpC3NOZlJeKlgfL6fZNdK2t2DCG3vvNW5j9J7PYqzKmzLzXHHn5a0HdJDD0oAr+quzi8n15SDmHVe2QkW6sW6GEGFA+25sCfq5mXRlkdpi2XNtdCnpSfOy2wUrVV40u9N9KW4BjgNANEkjSThIHFibFidI=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789728914; c=relaxed/simple;
-	bh=0QFLY2cyWzIGxwHrQ7HwSGwbi9sjKL2DXLzkJTDdzU8=;
+	s=arc-20240116; t=1789729047; c=relaxed/simple;
+	bh=6iYGIhTpi7LuKPSoQodSj4LWWam1JDnzz7YKjGx7zA8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Fu4GVaylh+tWjWBlt4YUESGFYbhhrmrhJCxTztTea0QtyVbXSLUD5sCFok3wcof9JIP31q36SGAA6OL8DW/i9NgVBu10fXF0JwdUIonIc2yyJpjEZqwiAM5D6mD4o8vMeVYD0GV3TQerHrprOsTevWbLmHoHUT0yhO4VqTmjzfc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Azd5WHFc; arc=pass smtp.client-ip=74.125.228.151
+	 To:Cc:Content-Type; b=EYNS9tll5uf7eNk8LsQyhtouLL0SzfTigj5DqFNP+EkEZ2NmbiKJVknDVoCFtmSaZHFHgvqCFIFW0Azc5WT7iHxmP21BBPqIfNwopRGr1mSm5DpHPzZHeFD6SGdMFe3frjeplGS8icjzl3pgZfBrOPFqa17kw6doHHKcc1An+lU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oLrD+Ext; arc=pass smtp.client-ip=74.125.228.140
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Azd5WHFc"
-Received: by mail-ej2-f23.google.com with SMTP id a640c23a62f3a-c25ef7a3ce9so74887266b.3
-        for <linux-s390@vger.kernel.org>; Fri, 18 Sep 2026 03:55:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789728907; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oLrD+Ext"
+Received: by mail-ej2-f12.google.com with SMTP id a640c23a62f3a-c254f9f0b1eso93072566b.1
+        for <linux-s390@vger.kernel.org>; Fri, 18 Sep 2026 03:57:22 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789729041; cv=none;
         d=google.com; s=arc-20260327;
-        b=ozU2J4BxtETONV6RVlEffKjVwH0UBhN/BbWo0Ot9X2EBbTUw7rnez6NmA8zYhkPGRC
-         elW6PABAEXchYyKkF/IICQ2xfH0CfaHxkV7HCcafVV74w+vt3oRagus1RaOVgLpbke5+
-         fXZWeAPapTgtIJBfLziAT/BB+MPQH0kSNM737w4vEoKpu8CaEGs3Q3gQJlW/jv6hSCLM
-         tV9G8hsWLA//IJNKxfgBedPipRbmYL0H/Izcp6v6HwtUgwkCNVj5DQt6Zxr6flJriAWE
-         mfD9GnMjUVcT+xaBDjXPcRR9wRkWdgp5s1mu1Nb/9k0Dt5YL1sCOmszNLAMzqrDtSH1M
-         oAfA==
+        b=g87y1k8uNtGVzUVD1yh54UTsvbbuGbDPQDTxrd5J4Xzu6F3cC3+fz+WmSdiIzGLlb7
+         EhPZgwr3yBc012Gkzz5cyt3tL4X1Gp8Sx30+M9NR14sGH0p5kB5GwdFnGZH3POY3lV0S
+         l9U6fZmc8hh5JOwEmxt1FGfFjDitYY4gb/3ourAee0xrFCDW0GD6YDT3RrxQnBTlxOzY
+         ss2NDXyKyci21RnXPWS+41ElLRCcomUrIvikPhljHizkHAwLM2apSlFdILWCnKF5kV1H
+         WkQ+noFz9m+U6Wf7+wX6JGGpTh3CIjQoL8kp4jQrN0GNIqtdyvAMkJ/OeK2A2DKeolrJ
+         o91w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=c9KFaw0r3zy7as/jjFJHUlbx8sYj2YFXt4OlbArB54Y=;
-        fh=8y1qvm0lX8sX+H0eZzyPifhQq/JizX/6L7wEXjoOBR0=;
-        b=kwZ1l+0LBvHp0tNK9KI86fy7yuaDP0c4rcftlK2uaQtKMGcrbxMTGEo6Y7inDgP0H4
-         DtyzgcRXDq7Bf61Lkm6fQteZwdoqdEWAZCgLx+1rOMnQqwFlmbRSOR+7XsOs6yEc844w
-         LBQAq4463HiZNvMFM3gv6ltSJjAqSpb6UvxWnmM0PjdJvKOVboXVczfaEWOLfX0KLeJH
-         a6Fm03Vr4qMicaYhjqt39abRBFMUshbecjbkV197tmShOfta0co1Vdi0XhnDVG6oFpxI
-         O1A0a43Zr8c6HGd3ctJf3V7y2z35qg5kchBEDfVcpNFHBe3mL1FBLfmGfHDm8Ik4xEGV
-         viDg==;
+        bh=STfWB7GvLQfZTNQp3BOqhn0t82awjzhOdLfYzJJuSYw=;
+        fh=TtPrkJifQRn7WjlrdVtp0UrRW52d2HR3oL4ii9WVtGg=;
+        b=Jsjrtb/0eRnfglCroujqm7uayJZarEUXpKMabnNYxSG+fS1WmyeVbhQggjBJbPS9re
+         eeuzxpGkUASc2IzeOB/y+2C7DWOqoy8wtU6BOroymsUz3Aq8HAT7aZSP49MhR71+BG/8
+         ICRs7p5+kSKTk+9/WiMwflzOUpSB6NUrG3pFW9iNf8erKqTOzb6/igbKQmmt3GsNMiwU
+         6avPVidZ5+jX8GnSwFLG0dSlWkT2FUEvEc8Iq9/KEwtv2Kp6F9+U7PgVlvOmEzUCt4io
+         gZ8bjNSOaJtdwIj7WOWqwk081dyyRmw+YkGl8sh61dMgDfIYlsh1Qg3lxrgxvBj542kQ
+         3PZg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789728907; x=1790333707; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789729041; x=1790333841; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=c9KFaw0r3zy7as/jjFJHUlbx8sYj2YFXt4OlbArB54Y=;
-        b=Azd5WHFc1CvGiYQ9NCg17h0QdQDsKZ1Ic+0GnZXnWRlhTXCHeOt/YKAE0IjeF3RFdo
-         mNUlVWWMNvpDH01goCjbtTfi0Wb0g8nlX2FBJGkeqtrHbz9vnW4fm/VQ+kdwbqCSZ1kS
-         Oi45Tx85x94cXarLimXLqXpPwrB4/rntqcR3q5+hBllZwHtqJMygkg6UgyHurXqBPemO
-         /iVmKyn8SWOHzkRG5ESZV9hfeq3LpxINZGbxIPaCg8OJ0I78rpaQ5l15M18yL2So4NA5
-         NCr6l6shtfaJr+Hss/3rPX5iLi+JKMylFgMwfsDg7JxXyd3atCS1RasPfbddZyg9hr7T
-         G/Gw==
+        bh=STfWB7GvLQfZTNQp3BOqhn0t82awjzhOdLfYzJJuSYw=;
+        b=oLrD+ExtTSe1LUoDVHkc7lP6hqeH0hwwOBdmRSHJoRFQQu5MhepiER7DYUevRXwIZC
+         5E/GZX2pQpWwzhE0j0jfV5L+vDzhPdjJuYSYmR/ba0tKs4SBWa0YmnqbUgEwuCN6PMmw
+         DmL45bEw2s51tHtRZnpD2WJCkIRJaIDluitHtggjnNWB+dLt4EGAXBLhwibA8/+hQH20
+         wugPlTAzF4yC+9vyKR9JCWZKFVxomKUXx8Ex/aLqi9Npgo4u40TDNZ0vPZeCdWaCaWlZ
+         5vHzXRUBT0Y/WEI0yhMM7NGec5KcU/Q6nUf+NAsu2O72ykn5Hxk9/+DfduURQuMqal+z
+         4Bnw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789728907; x=1790333707;
+        d=1e100.net; s=20260707; t=1789729041; x=1790333841;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=c9KFaw0r3zy7as/jjFJHUlbx8sYj2YFXt4OlbArB54Y=;
-        b=MrFV2GT3Ud8s5nOG7HdkBLK9XVkIHvB8VTpKxUBFD8R+1rcLVeIycvoGw3TWKT/K9q
-         Mqu1A397aSXf/msvCfMSnQg3TklBmAmJBdW5YOipqIdEhpn1SYnhv/m5IXCAylYV+WRW
-         7VZDSjbk6oqtMYQHCM1kXRKlxGjLPhYv4SZa9SZ4kOAY7Yp1lGSUSlPzXi4dn3h8RpCc
-         Etfkz+dJPEGhsbRVlYjvGOq46gYARXnJzNiyJQx7FdN0Lc2W+GzdYYMcQdXosI1Ci6yh
-         JRbJwMIiNhvk1jpeB07uLdXcmrnZZhDY6rd9hiIFVUb1ky8ygHhSts7GxEjQAZljiz6j
-         +wkA==
-X-Forwarded-Encrypted: i=1; AKwUvByYBDDt5RSiJc5V+EM8Ipx6V78+ErR3yu3eKCYEP0xW4iw57K9MejGTC11/mnOPGDEDtNVQGvHdY4lY@vger.kernel.org
-X-Gm-Message-State: AFuF++nIF5jamROOnBxMPmePE90RmGNPGKvKioPIClMW4CxKgDkXWhIh
-	YcUO/GwwtlC97rE4RDNXtK9KjnjJ5I3AWyZiwMiJIAfX9a/pf1TGSVcxluZlXtKt4+rlkbja6xf
-	Qxz511rIq/ER0PS0TM1vz28rkhLTDM6w=
-X-Gm-Gg: AYBFou1ACLp/HbspyuMsacipxob60lAuRyPBTJDy7QdPR4mKv3DMX0bNJbQ1rx04YeO
-	2C06oXnWi5QrXSO97b/rXMRL1fmuSbIJTugKmtCdvtZpVoNQ+zSwWR0hPW/AD6OWAI0mnUCBza2
-	kfbQz56CTqU1PtQ4BrdHggHBBYT1eteZeYFNkD2HgwYpOGDX+GNJ2vvGu6FQ5F7U/aQoRj3kKAr
-	CuobFdrajX2gV39sgM/ok10xtwNIDpnlawH+wC3PkDkHrqpW4rIX540XfHj++JKVf3osLzIQBpI
-	42FI9xaGlFaqAUIA6hnuSvW0Z+yBwViYcClm9PLUamZwtXljufXv11ZeLCx5dQq4cVqXzjk/F+W
-	TgDwneyWd4Has5OMviOcEVIH4+s1+aoNCa12nCwLhz2V29WiszaK8
-X-Received: by 2002:a17:907:d0a:b0:c28:ec7c:27ae with SMTP id
- a640c23a62f3a-c2a15aecddfmr221737866b.25.1789728906928; Fri, 18 Sep 2026
- 03:55:06 -0700 (PDT)
+        bh=STfWB7GvLQfZTNQp3BOqhn0t82awjzhOdLfYzJJuSYw=;
+        b=lIloQNGHOAQJ8FsFJIa/UUf8XCiU9XW68A/mItjfhUi917Q0agulwdr13X36UgKSYY
+         Li7i30LIdUT1IP0fnttGQeAtHPlRP0Wa3c/mYl7ZdJsrwr/hheYWoIe8mulrlxye7uky
+         O+swkwSKdDao/seE3qBAHQzpHNlqgVlBURb7w0hWKyfxbduyGaE2TQ1AkgfPY1YMCoDT
+         A7txd8g5LYt8FPIvw7pfRFMMSuIhzGfJWlrdeNv6diiglmWNXkJNcAbeVCgmfKsJ6PRL
+         w0sndBetBvLiF+mOLum71cjAkT7BaAsyOGFbCK4i/BlDzHCzA3eklwnHdPPwTvAoSkpe
+         S3DQ==
+X-Forwarded-Encrypted: i=1; AKwUvBw/LkCF2wtO9EfYH+vTwGFDHRpVk3FBjcq4gVpK8g4tWZ+53XxjPBKXhfltAeLRvRY6l99MtRjpkmlL@vger.kernel.org
+X-Gm-Message-State: AFuF++n9YBjHivWL9P/CzbYfhNZRlE1qdRhbKllI9hZDlSl3qZz6dSYm
+	Gb4ta1DU8ucbkDaWYYQNh9RqDUcZOiGEfrH1F7kjMiTwxNVPIg79wfAchw2/jRlWOSsNCIEypQj
+	mDdNV7HpIq++R9LeTTYwJKYSBl+UT2Lo=
+X-Gm-Gg: AYBFou1oTYaBsblazkuL0xU2a8UkBzjFqmnmHi/qO3tVkyMq3eygW5dAwmHhX56XwNg
+	S0QfKO78oWAe/D3TXwQZdBBEAusSPXP2zOY+sElDpM3cpI0wpgSAC7yJzBcXKRYgmsGoF19p2lR
+	RwwEbZ7DOXeN3QlOFUTbn5A1YO9fVEjBeahuLZ8GSqjYb7jA3NJZQdxJj9A8YzOFEMXuuuVl099
+	/+U5AzXW8rpQhLbKWvb5DhuVmOqmanL88dO/2Y67AXEVn+SsvZCshhH9UG/UeIgnaeDqRMSAFSI
+	kOOQCAhRtM8PasZgL22ju7Vny0Xqk1u0o2lZFkcV1UyKVujVZWgIYw7SkKgO//6eFoN4+B0AroU
+	wEt0uSPmjNckKATbRm/FxCwvq7lNeLOfm3RylHJNVJWMct+YV+gFj
+X-Received: by 2002:a17:907:3e9f:b0:c29:f5d8:9c6f with SMTP id
+ a640c23a62f3a-c2a15802e80mr221037366b.30.1789729041100; Fri, 18 Sep 2026
+ 03:57:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260917-tonyk-syscall_table-v7-0-f4cd8f8e3265@igalia.com> <20260917-tonyk-syscall_table-v7-12-f4cd8f8e3265@igalia.com>
-In-Reply-To: <20260917-tonyk-syscall_table-v7-12-f4cd8f8e3265@igalia.com>
+References: <20260917-tonyk-syscall_table-v7-0-f4cd8f8e3265@igalia.com> <20260917-tonyk-syscall_table-v7-13-f4cd8f8e3265@igalia.com>
+In-Reply-To: <20260917-tonyk-syscall_table-v7-13-f4cd8f8e3265@igalia.com>
 From: Magnus Lindholm <linmag7@gmail.com>
-Date: Fri, 18 Sep 2026 12:54:55 +0200
-X-Gm-Features: AcwNN1XYBCc8XytQv7lpPsMdlPdL7ChQXyccU8FUv6otEOv13o1h6_2iRPXOShM
-Message-ID: <CA+=Fv5Q+sOLmT0Wf3OGdKw=mBt_EoS8ZQDF3wwGrm2-2vnOYgg@mail.gmail.com>
-Subject: Re: [PATCH v7 12/13] alpha: Remove alpha_ prefix from custom syscall entries
+Date: Fri, 18 Sep 2026 12:57:09 +0200
+X-Gm-Features: AcwNN1XuAITXWKYUHlzEkxHeHjQM9QwjDHbUkRpVnBkp7VsqOue8wy8fg51lcyo
+Message-ID: <CA+=Fv5Rx6Ccmxi2a2YmiMgc0Z7TaWvx8=27jpFE-k3Kfn8Q-ug@mail.gmail.com>
+Subject: Re: [PATCH v7 13/13] alpha: Use the common syscall table
 To: =?UTF-8?Q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
 Cc: Masami Hiramatsu <mhiramat@kernel.org>, Arnd Bergmanon <arnd@arndb.de>, 
 	Christian Brauner <brauner@kernel.org>, linux-kernel@vger.kernel.org, 
@@ -105,110 +105,139 @@ Hi Andr=C3=A9,
 On Fri, Sep 18, 2026 at 1:48=E2=80=AFAM Andr=C3=A9 Almeida <andrealmeid@iga=
 lia.com> wrote:
 >
-> Some architectures need special entry points for some syscalls (like
-> clone3). The current approach is, instead of having a special name like
-> arch_syscall, to name if as __syscall. This is enough to different the
-> common entry point to the architecture specific entry point.
->
-> Change alpha special syscall entries to do the same. This makes easier to
-> join the syscall tables. Leave alpha_syscall_zero because this syscall on=
-ly
-> exists in alpha anyway.
+> Remove some of the duplicated code by using the common syscall number
+> table.
 >
 > Signed-off-by: Andr=C3=A9 Almeida <andrealmeid@igalia.com>
 > ---
->  arch/alpha/kernel/entry.S              | 8 ++++----
->  arch/alpha/kernel/syscalls/syscall.tbl | 8 ++++----
->  2 files changed, 8 insertions(+), 8 deletions(-)
+>  arch/alpha/kernel/syscalls/Makefile    | 14 +++++++---
+>  arch/alpha/kernel/syscalls/syscall.tbl | 49 ----------------------------=
+------
+>  arch/alpha/kernel/systbls.S            |  1 +
+>  3 files changed, 11 insertions(+), 53 deletions(-)
 >
-> diff --git a/arch/alpha/kernel/entry.S b/arch/alpha/kernel/entry.S
-> index 9f2608de2544..8a85fcf117cb 100644
-> --- a/arch/alpha/kernel/entry.S
-> +++ b/arch/alpha/kernel/entry.S
-> @@ -879,9 +879,9 @@ ret_from_kernel_thread:
+> diff --git a/arch/alpha/kernel/syscalls/Makefile b/arch/alpha/kernel/sysc=
+alls/Makefile
+> index b265e4bc16c2..03099daff6b9 100644
+> --- a/arch/alpha/kernel/syscalls/Makefile
+> +++ b/arch/alpha/kernel/syscalls/Makefile
+> @@ -7,17 +7,23 @@ $(shell mkdir -p $(uapi) $(kapi))
+>  syscall :=3D $(src)/syscall.tbl
+>  syshdr :=3D $(srctree)/scripts/syscallhdr.sh
+>  systbl :=3D $(srctree)/scripts/syscalltbl.sh
+> +systbl_common :=3D $(srctree)/scripts/syscall_common.tbl
+> +abis :=3D common,__clone3
 >
->  .macro fork_like name
->         .align  4
-> -       .globl  alpha_\name
-> -       .ent    alpha_\name
-> -alpha_\name:
-> +       .globl  __sys_\name
-> +       .ent    __sys_\name
-> +__sys_\name:
->         .prologue 0
->         bsr     $1, do_switch_stack
->         // NB: if anyone adds preemption, this block will need to be prot=
-ected
-> @@ -896,7 +896,7 @@ alpha_\name:
->         ldq     $26, 56($sp)
->         lda     $sp, SWITCH_STACK_SIZE($sp)
->         ret
-> -.end   alpha_\name
-> +.end   __sys_\name
->  .endm
+>  quiet_cmd_syshdr =3D SYSHDR  $@
+> -      cmd_syshdr =3D $(CONFIG_SHELL) $(syshdr) --emit-nr $< $@
+> +      cmd_syshdr =3D $(CONFIG_SHELL) $(syshdr) --emit-nr \
+> +                  --common-tbl $(systbl_common) --common-offset 110 \
+> +                  --abis $(abis) $< $@
 >
->  fork_like fork
+>  quiet_cmd_systbl =3D SYSTBL  $@
+> -      cmd_systbl =3D $(CONFIG_SHELL) $(systbl) $< $@
+> +      cmd_systbl =3D $(CONFIG_SHELL) $(systbl) \
+> +                  --common-tbl $(systbl_common) --common-offset 110 \
+> +                  --abis $(abis) $< $@
+>
+> -$(uapi)/unistd_32.h: $(syscall) $(syshdr) FORCE
+> +$(uapi)/unistd_32.h: $(syscall) $(systbl_common) $(syshdr) FORCE
+>         $(call if_changed,syshdr)
+>
+> -$(kapi)/syscall_table.h: $(syscall) $(systbl) FORCE
+> +$(kapi)/syscall_table.h: $(syscall) $(systbl_common) $(systbl) FORCE
+>         $(call if_changed,systbl)
+>
+>  uapisyshdr-y           +=3D unistd_32.h
 > diff --git a/arch/alpha/kernel/syscalls/syscall.tbl b/arch/alpha/kernel/s=
 yscalls/syscall.tbl
-> index 8fc4701a6328..a41276634923 100644
+> index a41276634923..7066a3920899 100644
 > --- a/arch/alpha/kernel/syscalls/syscall.tbl
 > +++ b/arch/alpha/kernel/syscalls/syscall.tbl
-> @@ -9,7 +9,7 @@
->  #
->  0      common  osf_syscall                     alpha_syscall_zero
->  1      common  exit                            sys_exit
-> -2      common  fork                            alpha_fork
-> +2      common  fork                            __sys_fork
->  3      common  read                            sys_read
->  4      common  write                           sys_write
->  5      common  osf_old_open                    sys_ni_syscall
-> @@ -72,7 +72,7 @@
->  63     common  getpgrp                         sys_getpgrp
->  64     common  getpagesize                     sys_getpagesize
->  65     common  osf_mremap                      sys_ni_syscall
-> -66     common  vfork                           alpha_vfork
-> +66     common  vfork                           __sys_vfork
->  67     common  stat                            sys_newstat
->  68     common  lstat                           sys_newlstat
->  69     common  osf_sbrk                        sys_ni_syscall
-> @@ -242,7 +242,7 @@
->  309    common  get_kernel_syms                 sys_ni_syscall
->  310    common  syslog                          sys_syslog
->  311    common  reboot                          sys_reboot
-> -312    common  clone                           alpha_clone
-> +312    common  clone                           __sys_clone
->  313    common  uselib                          sys_uselib
->  314    common  mlock                           sys_mlock
->  315    common  munlock                         sys_munlock
-> @@ -474,7 +474,7 @@
->  542    common  fsmount                         sys_fsmount
->  543    common  fspick                          sys_fspick
->  544    common  pidfd_open                      sys_pidfd_open
-> -545    common  clone3                          alpha_clone3
-> +545    common  clone3                          __clone3
->  546    common  close_range                     sys_close_range
->  547    common  openat2                         sys_openat2
->  548    common  pidfd_getfd                     sys_pidfd_getfd
+> @@ -463,52 +463,3 @@
+>  532    common  getppid                         sys_getppid
+>  # all other architectures have common numbers for new syscall, alpha
+>  # is the exception.
+> -534    common  pidfd_send_signal               sys_pidfd_send_signal
+> -535    common  io_uring_setup                  sys_io_uring_setup
+> -536    common  io_uring_enter                  sys_io_uring_enter
+> -537    common  io_uring_register               sys_io_uring_register
+> -538    common  open_tree                       sys_open_tree
+> -539    common  move_mount                      sys_move_mount
+> -540    common  fsopen                          sys_fsopen
+> -541    common  fsconfig                        sys_fsconfig
+> -542    common  fsmount                         sys_fsmount
+> -543    common  fspick                          sys_fspick
+> -544    common  pidfd_open                      sys_pidfd_open
+> -545    common  clone3                          __clone3
+> -546    common  close_range                     sys_close_range
+> -547    common  openat2                         sys_openat2
+> -548    common  pidfd_getfd                     sys_pidfd_getfd
+> -549    common  faccessat2                      sys_faccessat2
+> -550    common  process_madvise                 sys_process_madvise
+> -551    common  epoll_pwait2                    sys_epoll_pwait2
+> -552    common  mount_setattr                   sys_mount_setattr
+> -553    common  quotactl_fd                     sys_quotactl_fd
+> -554    common  landlock_create_ruleset         sys_landlock_create_rules=
+et
+> -555    common  landlock_add_rule               sys_landlock_add_rule
+> -556    common  landlock_restrict_self          sys_landlock_restrict_sel=
+f
+> -# 557 reserved for memfd_secret
+> -558    common  process_mrelease                sys_process_mrelease
+> -559    common  futex_waitv                     sys_futex_waitv
+> -560    common  set_mempolicy_home_node         sys_set_mempolicy_home_no=
+de
+> -561    common  cachestat                       sys_cachestat
+> -562    common  fchmodat2                       sys_fchmodat2
+> -563    common  map_shadow_stack                sys_map_shadow_stack
+> -564    common  futex_wake                      sys_futex_wake
+> -565    common  futex_wait                      sys_futex_wait
+> -566    common  futex_requeue                   sys_futex_requeue
+> -567    common  statmount                       sys_statmount
+> -568    common  listmount                       sys_listmount
+> -569    common  lsm_get_self_attr               sys_lsm_get_self_attr
+> -570    common  lsm_set_self_attr               sys_lsm_set_self_attr
+> -571    common  lsm_list_modules                sys_lsm_list_modules
+> -572    common  mseal                           sys_mseal
+> -573    common  setxattrat                      sys_setxattrat
+> -574    common  getxattrat                      sys_getxattrat
+> -575    common  listxattrat                     sys_listxattrat
+> -576    common  removexattrat                   sys_removexattrat
+> -577    common  open_tree_attr                  sys_open_tree_attr
+> -578    common  file_getattr                    sys_file_getattr
+> -579    common  file_setattr                    sys_file_setattr
+> -580    common  listns                          sys_listns
+> -581    common  rseq_slice_yield                sys_rseq_slice_yield
+> -582    common  fchroot                         sys_fchroot
+> diff --git a/arch/alpha/kernel/systbls.S b/arch/alpha/kernel/systbls.S
+> index 68f3e4f329eb..9a67d29f7818 100644
+> --- a/arch/alpha/kernel/systbls.S
+> +++ b/arch/alpha/kernel/systbls.S
+> @@ -7,6 +7,7 @@
+>
+>  #include <asm/unistd.h>
+>
+> +#define __SYSCALL_WITH_COMPAT(nr, native, compat)        __SYSCALL(nr, n=
+ative)
+>  #define __SYSCALL(nr, entry) .quad entry
+>         .data
+>         .align 3
 >
 > --
 > 2.55.0
 >
 >
 
-The fork_like macro now defines __sys_clone3, but the syscall table
-entry is changed from alpha_clone3 to __clone3.
+I tested the full series on my Alpha for-next branch, which also contains
+the Alpha GENERIC_ENTRY enablement.
 
-This should be __sys_clone3, like the other custom entry points.
+With patch 13 applied the kernel builds and links successfully and boots
+normally on my UP2000+.
 
-I also confirmed this by building the tree at this patch, before applying
-patch 13:
+The issue I mentioned on patch 12 is hidden by this patch, since the
+common table correctly selects __sys_clone3 for the __clone3 ABI.
+Other than that issue in patch 12, I haven't found any Alpha-specific
+problems with the conversion.
 
-LD      .tmp_vmlinux1
-alpha-unknown-linux-gnu-ld: arch/alpha/kernel/systbls.o:
-in function `sys_call_table':
-(.data+0x1108): undefined reference to `__clone3'
-
-Patch 13 hides the issue because the common table uses __clone3 as the
-ABI tag but correctly selects __sys_clone3 as the syscall entry point.
-
-Magnus
+Tested-by: Magnus Lindholm <linmag7@gmail.com>
