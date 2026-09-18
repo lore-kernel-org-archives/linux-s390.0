@@ -1,57 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0DE14FD29E;
-	Fri, 18 Sep 2026 13:32:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C153517BCA;
+	Fri, 18 Sep 2026 13:32:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789738375; cv=none; b=SCQMw6KchZbBskyHLb/maI8fde1GnGCyY82kCzpasMrjbuQa3rHO4Fu9maivFjeAgdgFDDrGH9h/QQJtQj1FZ7BSPfUj7yYWBJGuCzCMRiwJt1ysPt4PLeTmQmxi5gxsDRAQJvMiJ+vMxEQhF293UXoXdCIdYJ9aPssvZAVTIDk=
+	t=1789738379; cv=none; b=qOK9JcVZUU1Q8K6/uAqqu495rdk03AWb/tLXyTonvA5ll19b9MRgCUjnNYXUv6u/ey6frK/pNH/8hVH7MB458m4QfMSynCVip4YNYOvl9FGmrBMfmXa/5MLJrn92No9NmQmp2f+7XDMAS6/aWN5leLcMQYoaC/fTbTRnt0XHNM8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789738375; c=relaxed/simple;
-	bh=f2lWFrVUaldFPOGGRSQjtndrudqn+1CbFAiZyaHKlXM=;
+	s=arc-20240116; t=1789738379; c=relaxed/simple;
+	bh=y4kyAuseVXdZvFmiHOyd9Ag8SRcIgA5Vfg3SW8qRIWU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=rLWdLK1M8xHPja4M1/7sItIFz+Nkw1ISGl7H1a3Lg6S/2NJTmFx7eyhEivrMfdAuy4va3qb9iS2cipP5BN+7A4c7UEN5bEqj/FqXFUp2waOXksfSLuX23K4p5ssanQsClwMYdmFTYICbFD4kEG/7x7LN2W5n+iWZH3GdwsyDv90=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kP5caMYG; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=XXAZP3K81YPAvH5AFIrvnWyAAn4/AoPf3tDjCOkzrLF2h9IkOuXEPmDkEKPlj3gN4q/3uLWUx7sGhKeVXEgi/YdvSM0q1rf5ppflmZ21pRDX/+STUwwcZy0P7FTSxY7KDJy9mcRZwM+crJeMglaCFcbGwoM2/29UjgKDuNrabyI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LBfoH3JM; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kP5caMYG"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68IA1VA7946109;
-	Fri, 18 Sep 2026 13:31:16 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LBfoH3JM"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68IA2mgS991016;
+	Fri, 18 Sep 2026 13:31:20 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=dGxaGv9ue7Ewuq1eH
-	s7QObjbv274+o/jH3uV6I04G0M=; b=kP5caMYGjWiK5Zg2yVeZnKRrXStfjjtMN
-	e/nksQVa3dP8EalptcgmlGUF+v3Ahmg2yc0p4zB/DU8GnrEY4nYECNrkvd9sVl26
-	nbeJeYM/6c7PKV5zAYs/7uFhyiHuKYU71EK4i39njZSHmgqon8ugiKVQ6I+FUPBT
-	UJYEAYEqhciujOOozkNoMHE4lBDC8twyRQQN7k9p+nsWHNt43qC7wubksU2Yzkra
-	8T7KYhqUKPu2+G0UAtGlo9Aq8FOjrEYqdi+2nyeiAqW0YdEHB6FVmvDAIXfl8kSV
-	78Z5/U1pzbRlSyGUUDwOwnxb6SfI7qfFpGFYhsBn98PgNk5rIjn+g==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmx848a5f-1
+	:mime-version:references:subject:to; s=pp1; bh=8U/24HvfSe9SvVW3M
+	i1QdqXQeajeDAh9/ITv81UXOTk=; b=LBfoH3JMrGGVmy0r3AaqRvm4qlmht+JxQ
+	kOLgmzi9XDiSuIkFtWh26MCzLLUK/kSS74fvmd8fXqg+FEXXMOGVOEarlxWLqoYq
+	DdcNTWKQqAePJS8LqNKt6Ttn9yrRQGpUoKj8ZLAGxR0Le9QRgawPSI8dFPTK8j60
+	2DzX8ztycCIywuCYS6YDAXDXaHcwaBbLPzzGRCuCFWSJss1IZvOb1fg3O+xR6r0Q
+	rZYFzGwRznlB5U399cW9iLp1jFxL7uETLrnzyVT+UzapuJ/KmLPteuELqa+8B88D
+	ptXWv5ycrQcPtzDziTVuxzqKJBTgoFYOSX5ZlwckgkWKXNx/rOdFQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmxcvfnp9-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 18 Sep 2026 13:31:16 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68IDO2Jf777731;
-	Fri, 18 Sep 2026 13:31:15 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gra3yxkbh-1
+	Fri, 18 Sep 2026 13:31:19 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68IDO1fW722844;
+	Fri, 18 Sep 2026 13:31:18 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gr5fjqgvp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 18 Sep 2026 13:31:15 +0000 (GMT)
+	Fri, 18 Sep 2026 13:31:18 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68IDV9JJ40042858
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68IDVB9A46072148
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 18 Sep 2026 13:31:09 GMT
+	Fri, 18 Sep 2026 13:31:12 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3C34A20040;
-	Fri, 18 Sep 2026 13:31:09 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id C6EEF20040;
+	Fri, 18 Sep 2026 13:31:11 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E2CB62004B;
-	Fri, 18 Sep 2026 13:31:08 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 789002004B;
+	Fri, 18 Sep 2026 13:31:11 +0000 (GMT)
 Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 18 Sep 2026 13:31:08 +0000 (GMT)
+	Fri, 18 Sep 2026 13:31:11 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -77,9 +77,9 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
         Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v8 03/29] KVM: x86: Use file_to_kvm_x86() in SEV
-Date: Fri, 18 Sep 2026 15:30:40 +0200
-Message-ID: <20260918133107.1042730-4-seiden@linux.ibm.com>
+Subject: [PATCH v8 10/29] arm64: Use proper include variant
+Date: Fri, 18 Sep 2026 15:30:47 +0200
+Message-ID: <20260918133107.1042730-11-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260918133107.1042730-1-seiden@linux.ibm.com>
 References: <20260918133107.1042730-1-seiden@linux.ibm.com>
@@ -92,72 +92,56 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE4MDE4NCBTYWx0ZWRfX5upRvvzS/GHQ
- 9nzo7qmWVjtnz5WCcRPJtMyGiKna5NBxlk52F16Fu7SE1ZgImvaJG3+AnTRMLE5rziu38wu3CNv
- e6v77EWhmvcX9ZJxQCnoFNVmxfARWU2rEONrXkuFLFxIDPJeLovOAl/n3GDG39h0C/YsmpGgEuF
- l7ywT9z8OnhSffJXBHwNhtGFf2nsHS1QLlUPUschoawP034y7xT/W010DIbZRl5PAijEaclg4aR
- KcX0brqYW+pnCoJ3jR916UGmhL7cjRSd1nYiFxZqwCTn77I0FcR3go/9s4wC9ZzNV8ddHs5lDLF
- kuMcIYgLCWSBUHk7HK8iVFpvTh4dNhsDQg1p5oYdsNEohNylYE0Fj5Y8LTDu3caeSPuPS9ZtWHb
- 31c7/ybfWsltitju73Ed+1ubKgLx39eXdmFI6wzBS6jMNV1scoueo2kvFVygBRI2lva6WOG4gKl
- gnPwlbBenMtKmbaj87Q==
-X-Proofpoint-ORIG-GUID: kZZrtHqZQ3qIZ0PGz-KG7j3HrJTxHGUp
-X-Proofpoint-GUID: LktavOI8BR_X_3gU2-eZCG7Zm5MjsSFG
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE4MDE4NCBTYWx0ZWRfX7KFZJvIoroxU
- WgpTbxWHlqJPPemq926nr1d+8zrUDr9bVB1iP81J6PUQWzmLq14agA2NJBDdfp/sjZhuteq3dgP
- 4NPOzBPElk6Xk0hws92vYwS+pghTpvA=
-X-Authority-Analysis: v=2.4 cv=cY9HPXDM c=1 sm=1 tr=0 ts=6aad3d24 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE4MDE4NCBTYWx0ZWRfX6vrwIJuZpZxh
+ 7PojR6uLAHAlLT5lTNFjlUkKdSG0lWxd2lux5N5O5hNJRfFsE+xeQ9XvJ2/qKKI/G05nTgvkJeS
+ libMvpDPQQl7pGE++fKFe5lv8RCOnxU=
+X-Proofpoint-ORIG-GUID: ZaNPU2glogTC9A_K7lCZGOYPKv1rZWq7
+X-Proofpoint-GUID: wH4n4pnvjsZKZAaXtIDZtNpZPcCCqQDW
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE4MDE4NCBTYWx0ZWRfX2nchNqyg2Xh/
+ u6DwQ8wLnKk5fvFEOFhkpNpV4agn2xmKD7A00OmoJA9/Ol5s3DrEDQRraMTeXJIYSfM28UD9HfK
+ B4OxKfYIcqhM1HHZHGYTqfulRQm3jEMXI1MSvgoXJqzIsPXJGARzcD0QTJ9BZq4EqHsb5z9q260
+ TlWIs+IgC8ovQW8JHIoHwzBgPW/DEAwzKIYCMheHrExHIHbf+gAs1wHNlobnU93mnKnFCkD3rx4
+ 5pqevvLP7R0tQWcjIlW8TSn9fgYMM7wrmuu42nvul13zrKN48paQ1+RxOPIMS4ltTEjwY/sD7eD
+ jqeKBGjt6K8I0g+3d4P5OFCIxdyXrF3igvtiWT5xSDhYQvm9F2Maj+d5TR2N/f4cxNncDo3q5yd
+ he0AEmI2nZegiI0XeV2LI0Ffoc4Ch2wz4JBYEoiB7nO3nGwh+f9+w0Ld6KSIddrxGL0wNIJS+Ot
+ /rUqoWGQO400c/Fod+w==
+X-Authority-Analysis: v=2.4 cv=F+7C5ahN c=1 sm=1 tr=0 ts=6aad3d28 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=1XWaLZrsAAAA:8 a=VnNF1IyMAAAA:8
- a=JZHfIBTrcVpj99XhhAcA:9
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=d3WjOe2bLlXSZPWdUOEA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-18_03,2026-09-16_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 bulkscore=0 clxscore=1015 suspectscore=0
- impostorscore=0 malwarescore=0 phishscore=0 adultscore=0 lowpriorityscore=0
+ priorityscore=1501 suspectscore=0 phishscore=0 clxscore=1015 malwarescore=0
+ lowpriorityscore=0 bulkscore=0 spamscore=0 impostorscore=0 adultscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609180184
 
-Use the new arch-namespaced helper  instead of open-coding the file
-check and private_data cast separately.
+Use <> for including the sysreg header as it is not discoverable from
+the current directory.
 
-Suggested-by: Sean Christopherson <seanjc@google.com>
+Fixes: c07d8017bceb ("arm64/sysreg: Enable automatic generation of system register definitions")
+Acked-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/x86/kvm/svm/sev.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm64/include/asm/sysreg.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
-index 5705723f1f41..6b0eacde4f06 100644
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -2145,10 +2145,10 @@ int sev_vm_move_enc_context_from(struct kvm *kvm, unsigned int source_fd)
- 	if (fd_empty(f))
- 		return -EBADF;
+diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
+index 7aa08d59d494..4bfdac9401bd 100644
+--- a/arch/arm64/include/asm/sysreg.h
++++ b/arch/arm64/include/asm/sysreg.h
+@@ -173,7 +173,7 @@
+  * come from here. The header relies on the definition of sys_reg()
+  * earlier in this file.
+  */
+-#include "asm/sysreg-defs.h"
++#include <asm/sysreg-defs.h>
  
--	if (!file_is_kvm(fd_file(f)))
-+	source_kvm = file_to_kvm_x86(fd_file(f));
-+	if (!source_kvm)
- 		return -EBADF;
- 
--	source_kvm = fd_file(f)->private_data;
- 	ret = sev_lock_two_vms(kvm, source_kvm);
- 	if (ret)
- 		return ret;
-@@ -2866,10 +2866,10 @@ int sev_vm_copy_enc_context_from(struct kvm *kvm, unsigned int source_fd)
- 	if (fd_empty(f))
- 		return -EBADF;
- 
--	if (!file_is_kvm(fd_file(f)))
-+	source_kvm = file_to_kvm_x86(fd_file(f));
-+	if (!source_kvm)
- 		return -EBADF;
- 
--	source_kvm = fd_file(f)->private_data;
- 	ret = sev_lock_two_vms(kvm, source_kvm);
- 	if (ret)
- 		return ret;
+ /*
+  * System registers, organised loosely by encoding but grouped together
 -- 
 2.53.0
 
