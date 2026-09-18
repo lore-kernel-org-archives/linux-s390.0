@@ -1,104 +1,134 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 820813264C8
-	for <linux-s390@vger.kernel.org>; Fri, 18 Sep 2026 00:01:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA91B75809
+	for <linux-s390@vger.kernel.org>; Fri, 18 Sep 2026 00:02:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789689680; cv=none; b=dguN6QeJacyombiiW7GlGQDmr18H3qgMXxS7tAWSHyH1hOHeN0xdLtPoMIsAPmtkArHIWYjpl1y/oilnjvZX6E979nCcUC2KNZK3t4V4b+vkU5xVf16O6fl1dNkFXp9lg19A8DghZmarq7po1VTFk75A6XYVLHHU3lt/PyZIGJc=
+	t=1789689727; cv=none; b=L4t0HT3AfXMHUqL8ZQjG1qzPfjR1cFXtmWt0S1K1StuhjREltEd6go+wHPnZ9alczNo/3DY9GvM+NhPT7hUUpHT3dnuqzUad25lg+F5tvQCvV4vtgSntxPW5qUGIQNmvOrS+Bj8uBRdOI1B1YxZfVEV3ypMGAoh7zORhz9eaAHU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789689680; c=relaxed/simple;
-	bh=wQ/qKptBllJl9VP1R7eERJoiXtDh+4yS/VdTDYd5s4U=;
+	s=arc-20240116; t=1789689727; c=relaxed/simple;
+	bh=5IiTaZqKbN+lkS4IIAhCMMy7Zsj3Lq5Qi3/hukFRf1E=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=j3Qt2oWXWwkuV3YEVqn/c5kZMbwRJUK9JjTkHBvTv3HnXZZQMVuX7Agyw9TCXZP83YiYfVnukm/BaB1Di5BqMcs0nW/TyCjtkt0el+46miY/0sSXJ2qDNEhhDoJ+ZilY9z/w7YGYpQ82GzM+8Te+L6v9Qe/7EceyovIewP+q2uQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IgBC/+tp; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=Ob/MYbtqdingNFCeqamH50QZOkfM+xaeSa/NcAsAvS75A0rpt61oZ2h4qnS+0o73jlmyPGEN5fzkQ6+GLkTv2Fg8LwJyUQvG0l3RLoRzi2yyo40XpQtg6nMokA6J20xhgL7ZDB+BOHhrrMPfMsitKexp81HhME0W46ZFFtnYqtc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VNMUUzQ0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IgBC/+tp"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D7701F00893;
-	Fri, 18 Sep 2026 00:01:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VNMUUzQ0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B8781F000FF;
+	Fri, 18 Sep 2026 00:02:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789689679;
-	bh=q4lvBqZU98DoGkOTwkydZsd799yUsVsPHOWUF5QXxn4=;
+	s=k20260515; t=1789689725;
+	bh=tf2/jFeHn6rKbMRgW5gtjuYRMGqeX48ZseB4nZRRN+U=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IgBC/+tpEOpbutPLY29hexZJKEFf6jM7BsTyNQvzLTsTBFwYPNitZtfCq5J6pOLRN
-	 ptWT34VlHSq3YcL8BD27wnJVWzXVWj4HcQlA8d40gLdQSpp099x9hgWjXHLiteEI4A
-	 ITYci0HN/CsEpJ71vx5IoP8ql5rKhq/QCQGGbmBX2HioVk0geUWnsD7AykzoI/1F1i
-	 ksjgWv+mom59EfHfTqjn+AaUmeAhyU7Xwr5AmqKoWc732hrzWur/6+ZBxp+rJgm8e1
-	 XCCf4x9I4zEcOjABzs558UN5hjKjzFkaspCaxh+944c3XoX+/v/UD1p7XlM2Hg4gaA
-	 0XyQtrU6UGXcg==
+	b=VNMUUzQ0uVwBRSzT0ogNHJje0B1nL890u7hErNOFtBuFPEiB0VUSJi8S4QqvUPfGY
+	 zo05kD0l71gGvxOs6a2QLDYMd4Bg+1Z1fIZZqKmyX3kBYrWcGqGYI56hYbW2L/P8Jh
+	 v/fPBUZT1/9JoJWDT5SZwubbrHG1y/HdG++c4Ag840ZPV1ezuYRqaL9D1ds6ZEK41a
+	 5xn9IvnrPkMMvcxB+4+7dTYl4M2y9KhZh9Im9Fh3OGf5szyPNHmGKZLgBkV0qM+2+R
+	 hX/vm2RwosZtKUhQ1acFX04DxmrFhmYiNMAPph717JdY/WuQu6AlafN5HhYWc2oUXU
+	 p2t5H8+xW1S+Q==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 04/13] arm: Use the common syscall table
+Subject: Re: [PATCH v7 03/13] scripts/syscall.tbl: Use the common table
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?QW5kcsOpIEFsbWVpZGE=?= <andrealmeid@igalia.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260917-tonyk-syscall_table-v7-4-f4cd8f8e3265@igalia.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20260917-tonyk-syscall_table-v7-3-f4cd8f8e3265@igalia.com>
 References: <20260917-tonyk-syscall_table-v7-0-f4cd8f8e3265@igalia.com>
- <20260917-tonyk-syscall_table-v7-4-f4cd8f8e3265@igalia.com>
+ <20260917-tonyk-syscall_table-v7-3-f4cd8f8e3265@igalia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 18 Sep 2026 00:01:18 +0000
-Message-Id: <20260918000119.0D7701F00893@smtp.kernel.org>
+Date: Fri, 18 Sep 2026 00:02:04 +0000
+Message-Id: <20260918000205.2B8781F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] arm: OABI ABI breakage for epoll_pwait2 due to missing local sysca=
-ll.tbl entry
+- [Medium] perf: perf trace silently drops generic syscalls >=3D 403
+- [Low] docs: adding-syscalls.rst directs developers to break the build
 --
 
-commit 538cbce7faef9329b4e409f09b73e772fc2b26c9
+commit b66e7fc900570caaf1efbae8e5955a536079dad9
 Author: Andr=C3=A9 Almeida <andrealmeid@igalia.com>
 
-arm: Use the common syscall table
+scripts/syscall.tbl: Use the common table
 
 Remove some of the duplicated code by using the common syscall number
 table.
 
-> diff --git a/arch/arm/tools/syscall.tbl b/arch/arm/tools/syscall.tbl
-> index 55717ed32c27e..bccded328911a 100644
-> --- a/arch/arm/tools/syscall.tbl
-> +++ b/arch/arm/tools/syscall.tbl
-> @@ -438,52 +438,3 @@
->  421	common	rt_sigtimedwait_time64		sys_rt_sigtimedwait
->  422	common	futex_time64			sys_futex
->  423	common	sched_rr_get_interval_time64	sys_sched_rr_get_interval
+> diff --git a/scripts/Makefile.asm-headers b/scripts/Makefile.asm-headers
+> index f1c3d287c14b0..b09dbc8992c32 100644
+> --- a/scripts/Makefile.asm-headers
+> +++ b/scripts/Makefile.asm-headers
 [ ... ]
-> -440	common	process_madvise			sys_process_madvise
-> -441	common	epoll_pwait2			sys_epoll_pwait2
-> -442	common	mount_setattr			sys_mount_setattr
+> @@ -15,9 +15,10 @@ all:
+> =20
+>  src :=3D $(srctree)/$(subst /generated,,$(obj))
+> =20
+> -syscall_abis_32  +=3D common,32
+> -syscall_abis_64  +=3D common,64
+> +syscall_abis_32  +=3D clone3,common,32
+> +syscall_abis_64  +=3D clone3,common,64
+>  syscalltbl :=3D $(srctree)/scripts/syscall.tbl
+> +syscalltbl_common :=3D $(srctree)/scripts/syscall_common.tbl
 
-[Severity: High]
-Does removing this local entry for epoll_pwait2 break OABI binaries?
+[Severity: Medium]
+Does this change cause perf trace to silently drop generic syscalls >=3D 40=
+3?
 
-By removing this entry, the build falls back to the common table definition
-in scripts/syscall_common.tbl, which defines a compat handler:
+The tools/perf/trace/beauty/syscalltbl.sh script is hardcoded to only
+parse scripts/syscall.tbl for generic architectures like CSKY and RISC-V:
 
-441	common	epoll_pwait2		sys_epoll_pwait2	compat_sys_epoll_pwait2
+tools/perf/trace/beauty/syscalltbl.sh:build_tables() {
+    build_tables "$tools_dir/scripts/syscall.tbl" "$outfile" \
+        common,32,csky,time32,stat64,rlimit EM_CSKY
+}
 
-OABI prefers the compat entry point when available, as mapped in
-arch/arm/kernel/entry-common.S:
+Because the newly introduced syscall_common.tbl is not parsed by perf trace,
+local execution of perf trace on affected architectures will fail to resolve
+the names of generic syscalls >=3D 403 (e.g., clone3, openat2, io_uring_set=
+up),
+displaying raw numbers instead.
 
-#undef __SYSCALL_WITH_COMPAT
-#define __SYSCALL_WITH_COMPAT(nr, native, compat)	__SYSCALL(nr, compat)
+> diff --git a/scripts/syscall.tbl b/scripts/syscall.tbl
+> index 0ab5316051202..ee828d03094ed 100644
+> --- a/scripts/syscall.tbl
+> +++ b/scripts/syscall.tbl
+> @@ -344,72 +344,3 @@
+>  293	common	rseq				sys_rseq
+>  294	common	kexec_file_load			sys_kexec_file_load
+>  # 295 through 402 are unassigned to sync up with generic numbers don't u=
+se
+> -403	32	clock_gettime64			sys_clock_gettime
+> -404	32	clock_settime64			sys_clock_settime
+[ ... ]
+> -471	common	rseq_slice_yield		sys_rseq_slice_yield
+> -472	common	fchroot				sys_fchroot
 
-This causes OABI to attempt to link compat_sys_epoll_pwait2 instead of the
-native sys_epoll_pwait2 handler.
+[Severity: Low]
+With these entries moved, does Documentation/process/adding-syscalls.rst now
+direct developers to break the build?
 
-Because ARM32 lacks CONFIG_COMPAT, the weak stub in kernel/sys_ni.c resolves
-the missing syscall to sys_ni_syscall:
+The documentation actively instructs developers to place new entries in the
+now-deprecated primary table:
 
-COND_SYSCALL_COMPAT(epoll_pwait2);
+Documentation/process/adding-syscalls.rst:
+    As scripts/syscall.tbl serves as a common syscall table across multiple
+    architectures, a new entry is required in this table::
 
-Could this mask the build error while causing the syscall to silently fail =
-at
-runtime with -ENOSYS for any unprivileged OABI process calling epoll_pwait2?
+        468   common   xyzzy     sys_xyzzy
+
+Because syscallhdr.sh and syscalltbl.sh append syscall_common.tbl (which
+starts at 403) after processing syscall.tbl, a developer following these
+instructions and adding a new generic syscall (e.g., 468) to syscall.tbl wi=
+ll
+cause the internal nxt counter to exceed the first entry of the common table
+(469 > 403). This triggers the strict ascending-order check and results in a
+fatal "syscall table is not sorted" build error.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260917-tonyk-sysc=
-all_table-v7-0-f4cd8f8e3265@igalia.com?part=3D4
+all_table-v7-0-f4cd8f8e3265@igalia.com?part=3D3
