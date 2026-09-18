@@ -1,150 +1,129 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC3C05038EA;
-	Fri, 18 Sep 2026 15:50:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D73472EEE8A;
+	Fri, 18 Sep 2026 15:53:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789746652; cv=none; b=mY/xq7+Pf0XCIoNVGrSeAbNH4BxGgbbLhwfB1JK0fLixFEVdULPOsXwB+o62WazOl3tti47TT8B0F1zOxTxc3HgJ/nB6inTXHOHe0Xg8D/AGweixHyOLEmwb3DF5XteidAvHjvJNaZWL4JGRt8EiTJd7562LVnxYP6yS5vnQ99s=
+	t=1789746828; cv=none; b=RJZVAGDGT0LCKzDcG6SFv3KOEnorrnDRwK6d8mnT8ojARHOrvYnjf+WCSHWEguiJNiH76ZxbyjfYFIlWFqWzedPosz/8LAhR5lHlfKdZoKcYqFbmb2RXl58yDKlIl8jSqzchhxoFVms8eEHSQsZeCAp4OKP9y1JuuJFUOnp67QE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789746652; c=relaxed/simple;
-	bh=c0ulTxHGkAoUymxsk6rAHzEebFJZhNNs6FHlItbMSfc=;
+	s=arc-20240116; t=1789746828; c=relaxed/simple;
+	bh=ny5E8hoLYdHjR6usmiDsgHfT2otoTlUKobRr9Bgug9c=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ul+AVhT7Ff9XZEAoTmbHEbvXw6SDSGpRjfxKnxdtQhQqH3gcBMGkY6yZIEvva23/4gFJ0A2RKCfAwHjRirLiMY2ZcOcQVa4MxkMFFj1EqGDWnmOKE9T4Lik7JIA68WbXR7/j7zSmt09QbfV0kAdFuy3qudTg/L6Sy8ftic9d9NY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Zr6y8qd5; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=SBLB+m4eCHUc1bZGbvus9PVnAFP+DOvdxtLSvS5Wl+N2oknYEvg4hK2HlFHjf85AQrQDDbfir0P7kxoixPZOpuZ6B8gvB6Btii9rL8+lcir/tU+GvP4Mo+RJnXCISPDr4hu6eOsGLyJl0vAaJq4fvqxoh0wIgLguUHJ1XroaZ/c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hqyAv1su; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Zr6y8qd5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11C9B1F000FF;
-	Fri, 18 Sep 2026 15:50:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hqyAv1su"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20F1B1F000FF;
+	Fri, 18 Sep 2026 15:53:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789746650;
-	bh=P++khf8ZZmxK6RYPJo0Vkd9e6O/83RWhDxGp1k2CSZg=;
+	s=k20260515; t=1789746826;
+	bh=akyI3txdzwF4Jc4VNnEVqqlVsMmV/w43ECBf0Ywc4Bg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Zr6y8qd5pX8gDi2LjEBQS0SURoqAC3yDmKDpDmr0LLiHhKy//Q/xL78uOyMlCxmJI
-	 KcC8P41RAM94OWSMGe1hS/9mdoVNN6KqPpzez3fUxtwwbZpvo64MjAxVKsrRQ2eZcY
-	 AFqpKujzzyf8HQVTAxwLmputofM2K0UZW3qFpcdgK6QgXwNNDlnPY/odE2/yKQIEva
-	 pBxy5/XldKjpxMQwO+PRqfhTKyUSqTddx3weW+/IKoyZrAJLZHd7dy3w3o9VDWbTxE
-	 H2yhcrE+47owL5hA9Glf35SeOcynD/dCTQKNzK00HbubC1fFanXBWfLK3IlGio5EJs
-	 bJh4WVPog5b4w==
+	b=hqyAv1subQjr6uzZZdZFOkeKLncExlU6iil0P2HeDE5Mk4HdfAzgimN/G6ILZPair
+	 rVAycg6oVwz+IMSCvJof546xhcYRvjlophP7Lkx5SY00EdPQ/5qXGbVAo2rERLJ1FW
+	 Rzl1m4K2P0aE18T/wHDPfZ2HIW7zfXY25TR33sUdoJW2Gg9Q5V0fUdhxFuMbNNGByC
+	 6GtLFfa+R3RH1INhKdArWV3mwjTuaLuvNB0awD7Kohkc3M9B8fPznFVWjMvoSj/f0P
+	 kAUsbTT7g7vrut62Kev6NIE+jmdCMqxecXN+p4iAkqox0PQ6rllFBJOWRV45z0SBew
+	 3q2e7BIa+stdQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 20/21] KVM: s390: vsie: Create minimal scb shadows
- for not running g3 blocks
+Subject: Re: [PATCH v7 21/21] KVM: s390: vsie: Enable use of VSIE SSCA
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, kvm@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260918-vsie-sigpi-v7-20-f39806eaae37@linux.ibm.com>
+Cc: kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20260918-vsie-sigpi-v7-21-f39806eaae37@linux.ibm.com>
 References: <20260918-vsie-sigpi-v7-0-f39806eaae37@linux.ibm.com>
- <20260918-vsie-sigpi-v7-20-f39806eaae37@linux.ibm.com>
+ <20260918-vsie-sigpi-v7-21-f39806eaae37@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 18 Sep 2026 15:50:49 +0000
-Message-Id: <20260918155050.11C9B1F000FF@smtp.kernel.org>
+Date: Fri, 18 Sep 2026 15:53:45 +0000
+Message-Id: <20260918155346.20F1B1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] kvm: s390: vsie: host DoS via unbacked nested SCA address
-- [Medium] kvm: s390: vsie: missing hpid and cpnc in minimal shadow SCB bre=
-aks SIGPI
+- [High] kvm: s390: missing MMU notifier integration causes stale page tran=
+slations
 --
 
-commit feee29bf065106ccfaff09da7c439bae1d45d3eb
+commit c91eb6421a6b9ec0c4df9e03f9cc7aa92ee08182
 Author: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Subject: KVM: s390: vsie: Create minimal scb shadows for not running g3 blo=
-cks
 
-This commit optimizes the shadowing of vSIE control blocks by creating a
-minimal shadow for non-running guest-3 blocks instead of a full shadow. The
-minimal shadow is designed to only contain information necessary for SIGPI =
-and
-SRSI, reducing the overhead of shadowing the entire guest-3 configuration.
+KVM: s390: vsie: Enable use of VSIE SSCA
+
+This commit enables code paths that configure and use VSIE SIGPI and
+SRSI, allowing hardware to handle SIGP EXTERNAL_CALL and
+SENSE_RUNNING_STATUS instructions without exiting VSIE. The feature can
+be enabled globally via the ssca module parameter and improves guest-3
+performance.
 
 > diff --git a/arch/s390/kvm/s390/vsie.c b/arch/s390/kvm/s390/vsie.c
-> index 59037964efc9e..c99cc03ecb81d 100644
+> index c99cc03ecb81d..04c14d33927a6 100644
 > --- a/arch/s390/kvm/s390/vsie.c
 > +++ b/arch/s390/kvm/s390/vsie.c
-[ ... ]
-> @@ -722,6 +721,39 @@ static void unshadow_scb(struct kvm_vcpu *vcpu, stru=
-ct vsie_page *vsie_page)
->  		scb_o->ihcpu =3D scb_s->ihcpu;
->  }
-> =20
-> +static int shadow_scb_minimal(struct kvm_vcpu *vcpu, struct vsie_page *v=
-sie_page)
-> +{
-> +	struct kvm_s390_sie_block *scb_s =3D &vsie_page->scb_s;
-> +	struct kvm_s390_sie_block *scb_o =3D vsie_page->scb_o;
-> +	int rc;
-> +
-> +	/* make sure we don't have any leftovers when reusing the scb */
-> +	scb_s->icptcode =3D 0;
-> +	scb_s->eca =3D 0;
-> +	scb_s->ecb =3D 0;
-> +	scb_s->ecb2 =3D 0;
-> +	scb_s->ecb3 =3D 0;
-> +	scb_s->ecd =3D 0;
-> +	scb_s->fac =3D 0;
-> +	scb_s->fpf =3D 0;
-> +
-> +	rc =3D prepare_cpuflags(vcpu, vsie_page);
-
-[Severity: Medium]
-Does this zeroing sequence miss carrying over the HPID and CPNC values?
-
-Unlike the full shadow_scb(), shadow_scb_minimal() does not seem to set
-scb_s->hpid =3D HPID_VSIE or copy scb_o->cpnc to scb_s->cpnc. Without the
-correct HPID (0x5) initialized in the minimal shadow SCB, will hardware SIGP
-Interpretation (SIGPI) fail or incorrectly intercept for non-running guest-3
-CPUs?
-
-The hardware SIGPI mechanism requires the sender's HPID to match the target
-SCB's HPID.
-
+> @@ -147,6 +147,8 @@ static inline bool use_ssca(struct kvm *kvm, struct k=
+vm_s390_sie_block *scb)
+>  {
+>  	if (!kvm->arch.use_ssca)
+>  		return false;
+> +	if (!test_kvm_cpu_feat(kvm, KVM_S390_VM_CPU_FEAT_SIGPIF))
+> +		return false;
+>  	if (!(scb->eca & ECA_SIGPI) && !(scb->ecb & ECB_SRSI))
+>  		return false;
+>  	if (!read_scao(kvm, scb))
+>  		return false;
 
 [Severity: High]
-Can an L2 guest setting an unbacked nested SCA address cause a host DoS?
+By enabling the use of SSCA here, doesn't this expose a memory corruption
+regression in how the vsie control blocks cache host physical addresses?
 
-Looking at get_vsie_sca() and kvm_s390_handle_vsie() in
-arch/s390/kvm/s390/vsie.c, if a malicious L2 guest sets sca_gpa in its SCB
-to an invalid or unbacked guest physical address, pin_sca() fails and
-returns -EINVAL:
+Looking at get_vsie_sca() which caches the pinned SCA pages:
 
 arch/s390/kvm/s390/vsie.c:get_vsie_sca() {
-    ...
+...
 	rc =3D pin_sca(kvm, vsie_sca);
 	if (rc) {
 		put_vsie_sca(vsie_sca);
 		vsie_sca->sca_gpa =3D ULONG_MAX;
 		goto out;
 	}
-    ...
+
+	rc =3D xa_insert(&kvm->arch.vsie.osca_to_sca, vsie_sca->sca_gpa >> SCA_ALI=
+GNMENT_SHIFT,
+		       vsie_sca, GFP_KERNEL_ACCOUNT);
+...
 }
 
-This unhandled -EINVAL is then propagated unmodified through
-get_vsie_sca() and returned by kvm_s390_handle_vsie() out of the instruction
-handler, instead of injecting a validity intercept:
+This appears to cache the pages across VM exits without registering an MMU
+notifier to invalidate them when the host mapping changes.
 
-arch/s390/kvm/s390/vsie.c:kvm_s390_handle_vsie() {
-    ...
-out_unpin:
-	unpin_guest_page(vcpu->kvm, scb_addr, scb_hpa);
+Furthermore, looking at pin_guest_page():
 
-	if (rc =3D=3D -EAGAIN) {
-		kvm_s390_rewind_psw(vcpu, 4);
-		rc =3D 0;
-	}
-	return rc < 0 ? rc : 0;
+arch/s390/kvm/s390/vsie.c:pin_guest_page() {
+...
+	page =3D gfn_to_page(kvm, gpa_to_gfn(gpa));
+	if (!page)
+		return -EINVAL;
+	*hpa =3D (hpa_t)page_to_phys(page) + (gpa & ~PAGE_MASK);
+...
 }
 
-Does this bypass the -EAGAIN check and bubble up to the KVM core, crashing
-the host userspace process (e.g., QEMU) and bringing down the entire L1 VM?
+Because this extracts the physical address without closing the time-of-check
+to time-of-use window via mmu_invalidate_seq, if host userspace alters the
+mapping for the guest physical address (e.g., via madvise with
+MADV_DONTNEED or memory hot-unplug), won't KVM retain and use a
+stale physical address?
+
+Since this bypasses the MMU notifier retry protocol, could a malicious guest
+or dynamic host environment cause the hardware to read or write an old
+physical page while the guest OS accesses a new page?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260918-vsie-sigpi=
--v7-0-f39806eaae37@linux.ibm.com?part=3D20
+-v7-0-f39806eaae37@linux.ibm.com?part=3D21
