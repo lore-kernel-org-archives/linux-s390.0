@@ -1,57 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23E4F502D7D;
-	Fri, 18 Sep 2026 13:32:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 053CF4FB9C0;
+	Fri, 18 Sep 2026 13:32:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789738330; cv=none; b=sgyB4MAlO2L2DEcTIeS07mhzHKuL1MevQ87qQ6UaGTXQ0jRoz6B7WEZq6qGul26NzJDF5Yxfxq8zDzlTenqxT0aE5brYpMgYbdkjryllSNdlT2inKadxECMI3E6uJzsxEG1XtrVBXKx6qh/MXa9yX+nGfTv+HOHsSrDjy0gv/ls=
+	t=1789738337; cv=none; b=D/lZ22OWNLe6vmk8h5N3aQQQ2bMn1Gmj0imS6RZJjI1gzopEGtUAgaipgfZ27V8fBzjKkzaGGwpgjj0rMrfsDV4aXayIfZJllyaIzLEgsRzs6Kt+SHSwSjWbKVKmB/hayTLQCTNgeagKlb/dbXxpQbkFKl1Rp067JEEl3xrojXM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789738330; c=relaxed/simple;
-	bh=FKAS5JM0YtlqsygrtUhVlasxecpfNmansRMVSSV7FM0=;
+	s=arc-20240116; t=1789738337; c=relaxed/simple;
+	bh=QfQ8k6bv2crdYgt2de4mPlgLdFS3kW2o5ooo31+T+k4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=r4a2j/BZkBxokBoc7mdFTwqyvEvE+mME24Fr93r5BfxnvnMYwunhuBiYdmbIKLk1vjADZSbhox8QiqNMAtzzKZZTDoQ/T5AgXuhCIxWc+36Wna02/0qUM5KRL4TPMcu+yz4lEpmw7OaX3V/YtwRpGvajLEkcsq3Wmeq9wc4RoYY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=dDeFysFv; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=MvfhTf0m4Y8UIWvjlq387RIbA09TFYmiDRH6QiqD+ll1mHcdN+TRI1/LB8LcNbdjpISvLR/is/5qdlgJd8GqTSfVCbWpSAC56vvMg3ireban+S9ve/TKKdTBuc5h5Yd++lX9CrMJQGo9DESfaggYnC9K1oWg/yCE3mAELtN5E8g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TxuRd6GE; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="dDeFysFv"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68IDVPwo1378486;
-	Fri, 18 Sep 2026 13:31:25 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TxuRd6GE"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68IA1fgq803525;
+	Fri, 18 Sep 2026 13:31:21 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=6kkUuBtQh7OlhH3TH
-	IaN3BECiqBALGTcSbqHwQf9XXw=; b=dDeFysFvwhN6ZeT7hO77ICIqsIxHCgLuG
-	cZYIL3mceklZ+ydaG1C1l3MR44Lj79XbwwS09ftoKsPmO7VGhIyCmhaMmFnMiOiv
-	UOBfX+CZCYO2jZ/8Ure/vi5xlijJq1EIXkGXw+BpG1KtbH06jiWdrwB4uAqirMK5
-	KFK03/+KmNfmNA0c9Gvvq7Ge0VtZ1oGCZG/AT4oU1qF5h76U2c3pO0x74OoRBbIF
-	QUURVQ8s2DfT8c1D5QaBRiu+zUFBoVJVEOzFgUC/q2lKPEg+QSS5ZbCggxVhY5dq
-	pxCtnGOhn/2Z+v9+ASDDF8IFH+vPstD+o3U00M5GrQZ/2I2K22V4w==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmx848a66-1
+	:mime-version:references:subject:to; s=pp1; bh=RH7/ACgaLAD7xiHpi
+	23Sm9CXa397B2KbF2Zs4gvs6bI=; b=TxuRd6GEvIDaUeTuWYkqIuTGCWsIJbI0f
+	PAYs+vRgRT6tMsjwfK2YGOxQw9zFaMriFhZfvdyuSBDjYyEXlk3YTalTNonK9FUY
+	h+lsaHq+qEdrQaGMCFiN9KWMfnsWcnmm+UHKDZfAZv38Y+GV0uACDWKiGiigWYIt
+	GlrpGuT0GvkfCL3i0kY1lEYCU7mhMZjwpKlfMN2HM6XluFH5UxDMvD58NWmCJbsx
+	nZbXkTNTZDTbtf5lnXfrN/CXd2nGtEfWAu+7ow7uJbXPNEi7RNssfRp4V5PbRcx+
+	FJzWMJDeeAYZE0/nBBPPv9XEoWRzH4tBJDYLJNtRVE9hq72S+Yw2A==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmv5j8145-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 18 Sep 2026 13:31:24 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68IDO1fX722844;
-	Fri, 18 Sep 2026 13:31:21 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gr5fjqgvt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 18 Sep 2026 13:31:20 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68IDOCl1695830;
+	Fri, 18 Sep 2026 13:31:20 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gra3fek79-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 18 Sep 2026 13:31:19 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68IDVC6849152392
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68IDV8ao51642828
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 18 Sep 2026 13:31:12 GMT
+	Fri, 18 Sep 2026 13:31:09 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 277DD20040;
-	Fri, 18 Sep 2026 13:31:12 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id DCBE220040;
+	Fri, 18 Sep 2026 13:31:08 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CCDBD20049;
-	Fri, 18 Sep 2026 13:31:11 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8E59020049;
+	Fri, 18 Sep 2026 13:31:08 +0000 (GMT)
 Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 18 Sep 2026 13:31:11 +0000 (GMT)
+	Fri, 18 Sep 2026 13:31:08 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -77,9 +77,9 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
         Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v8 11/29] arm64: ptrace: Use constants for compat register numbers
-Date: Fri, 18 Sep 2026 15:30:48 +0200
-Message-ID: <20260918133107.1042730-12-seiden@linux.ibm.com>
+Subject: [PATCH v8 02/29] KVM: Add file back-pointer to struct kvm
+Date: Fri, 18 Sep 2026 15:30:39 +0200
+Message-ID: <20260918133107.1042730-3-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260918133107.1042730-1-seiden@linux.ibm.com>
 References: <20260918133107.1042730-1-seiden@linux.ibm.com>
@@ -92,115 +92,86 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE4MDE5MiBTYWx0ZWRfX3oHdTM0RcM9M
- lJA/QRIcr2gycnElpo/MDeE2zEa/GHQIylJu8moeaG9G0rL5XqCLPB3TcdMk75TJfOPH7wd5uA2
- 12T+ArQ0VYltavLHTvLNJwriHMxpLe52i3M9sZ7oVCrkD+ahn/8vhbtKBQfD9xXxCDGMu3mMSoD
- CIG21Za8Lv9fwHNDXpBiK99JdvVFE74DCjcSnbGlHopkZOfAl8VvyEcWAiWOLZUGYrfRcx64HVm
- 3Sy1NhBOAg4XrfyFqDYErSYKLBCbiJBsfXz84J7u2O8H8py6vY+XsOUP6/QJ1NSoPD/hrBzWc8n
- vSu7u9U/gIS3dzZwvgTkKK7WXj4Kmhgx1cq/JNxR7MzjABiPnbzAjcv9i+024blZV6I7cqAsBfu
- T4Eh/mFQEGhmTbfmLOULX6OFejk0Kg0yGyWC8MbwO2WKaVP3qdehPEtD+oRl3k270uMSq6/PeBC
- R1DurimcSDSxTOzw6Rg==
-X-Proofpoint-ORIG-GUID: 8p8JeldyMPn5HZt2Ye27SKz3ElNncAyV
-X-Proofpoint-GUID: _WjLFTjcQpS3C97htwFQBPucWAYwRzl5
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE4MDE5MiBTYWx0ZWRfX1JVlF1JJiUpF
- MpkoXI2Yb2IHIE1je1OHNCRP/sORPGCJ4XY2+VOzfbf/9ozdZDXut91oYhiEI5AkpB1WMrxurKE
- Iu3MCS/OmPCs+V1FGjTP+wv3wSt3nEo=
-X-Authority-Analysis: v=2.4 cv=cY9HPXDM c=1 sm=1 tr=0 ts=6aad3d2c cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE4MDE4NCBTYWx0ZWRfX9xIhu1g9ugrX
+ rH4DjmJFGl8+lyQPTbtptshAtETCkgumxcoebAzSqdVptl4BKNfxgmwR5CWWeHNj7t4X+XFS8H8
+ OoJ6tytuZd6znqTlmLnzkuow6Wvvvt7QOF3rDLpsGX9J9g+3p4Xomo8WC3nb8PUWtTi/mTaIYWJ
+ h/LiiGRKzWIL/Z/rthHqr+/ZaXTt4zwM5qjoFvMS86ULz/cj7OZ7+tWCC+WY0V99GxVa9a+9KeH
+ AWeh38cbWwX/lJj3E1pBPLHTuDZvVuwmZ80jHiEmW3zcOfp8VpIwkmOWAaCUjhtcVZV7IFU5I0l
+ Of8O38piHZDqih2GmuoXZt1zG78Xl+UlH46BuLtjTDr6xLsRUc/RjbGTfmolG4xa0Y2Z55hqCvr
+ 00WibjrLsXQ/zdx3KxpQlpxxJyYxEw6L3GLKzhQisz7pKVLlLNikNfYme9U2e1hIIMppWnVYD6V
+ FwyDd/RYi2DSNNZgTPg==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE4MDE4NCBTYWx0ZWRfX6I+kRjZoQGyD
+ vpYKSCuMscvu/Vxtyd30LkMGo8FBLEAp5tGdrIUeTJhqCCdShCZc9ERtbIZc2O96UMP7Bak0sR6
+ /JYJ/q3d4yvfGTiBlulpDZ8UMOewdvI=
+X-Authority-Analysis: v=2.4 cv=Zsx4uN7G c=1 sm=1 tr=0 ts=6aad3d29 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=8sKaXpLx0aSSeG29UzUA:9
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=1XWaLZrsAAAA:8 a=VnNF1IyMAAAA:8
+ a=q3OYOvv_GcRzabu4IdsA:9
+X-Proofpoint-ORIG-GUID: hhakXsoQk_t-0CLSijhO_PAbfQM46rA6
+X-Proofpoint-GUID: tNskIW43qKDl8CnCnNcc1c165n-p9K5N
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-18_04,2026-09-16_02,2025-10-01_01
+ definitions=2026-09-18_03,2026-09-16_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 bulkscore=0 clxscore=1015 suspectscore=0
- impostorscore=0 malwarescore=0 phishscore=0 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609180192
+ malwarescore=0 impostorscore=0 clxscore=1015 priorityscore=1501
+ lowpriorityscore=0 bulkscore=0 adultscore=0 phishscore=0 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
+ definitions=main-2609180184
 
-Define an enum to determine the register number for the mapping from
-AArch32 and AArch64 registers. This allows for a more flexible use of
-the register mappings.
+Add kvm->file as a no-reference back-pointer to the VM file in struct
+kvm. The pointer is set at VM creation time and cleared under
+WRITE_ONCE() in kvm_vm_release() before the file is freed.
+Callers storing the file must take their own reference.
 
-Reviewed-by: Marc Zyngier <maz@kernel.org>
+Co-developed-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/arm64/include/asm/ptrace.h | 60 ++++++++++++++++++++++-----------
- 1 file changed, 41 insertions(+), 19 deletions(-)
+ include/linux/kvm_host.h | 6 ++++++
+ virt/kvm/kvm_main.c      | 4 ++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/arch/arm64/include/asm/ptrace.h b/arch/arm64/include/asm/ptrace.h
-index f7dc5fb9427d..49a83a0636b9 100644
---- a/arch/arm64/include/asm/ptrace.h
-+++ b/arch/arm64/include/asm/ptrace.h
-@@ -102,26 +102,48 @@
- #define COMPAT_USER_SZ	296
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index a1bf6d4a8f46..2b56fb4e8555 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -784,6 +784,12 @@ struct kvm {
+ 	 * kvm_swap_active_memslots().
+ 	 */
+ 	struct mutex slots_arch_lock;
++	/*
++	 * Back-reference to the VM file for subsystems (e.g., VFIO). Holds no
++	 * reference to avoid pinning the VM. Callers storing the file must
++	 * take their own reference.
++	 */
++	struct file *file;
+ 	struct mm_struct *mm; /* userspace tied to this vm */
+ 	unsigned long nr_memslot_pages;
+ 	/* The two memslot sets - active and inactive (per address space) */
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 0172ca94f82e..bab71d398236 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1352,6 +1352,8 @@ static int kvm_vm_release(struct inode *inode, struct file *filp)
  
- /* Architecturally defined mapping between AArch32 and AArch64 registers */
-+enum {
-+	__compat_fp		= 11,
-+	__compat_sp		= 13,
-+	__compat_lr		= 14,
-+	__compat_sp_hyp		= 15,
-+	__compat_lr_irq		= 16,
-+	__compat_sp_irq		= 17,
-+	__compat_lr_svc		= 18,
-+	__compat_sp_svc		= 19,
-+	__compat_lr_abt		= 20,
-+	__compat_sp_abt		= 21,
-+	__compat_lr_und		= 22,
-+	__compat_sp_und		= 23,
-+	__compat_r8_fiq		= 24,
-+	__compat_r9_fiq		= 25,
-+	__compat_r10_fiq	= 26,
-+	__compat_r11_fiq	= 27,
-+	__compat_r12_fiq	= 28,
-+	__compat_sp_fiq		= 29,
-+	__compat_lr_fiq		= 30,
-+};
+ 	kvm_irqfd_release(kvm);
+ 
++	WRITE_ONCE(kvm->file, NULL);
 +
- #define compat_usr(x)	regs[(x)]
--#define compat_fp	regs[11]
--#define compat_sp	regs[13]
--#define compat_lr	regs[14]
--#define compat_sp_hyp	regs[15]
--#define compat_lr_irq	regs[16]
--#define compat_sp_irq	regs[17]
--#define compat_lr_svc	regs[18]
--#define compat_sp_svc	regs[19]
--#define compat_lr_abt	regs[20]
--#define compat_sp_abt	regs[21]
--#define compat_lr_und	regs[22]
--#define compat_sp_und	regs[23]
--#define compat_r8_fiq	regs[24]
--#define compat_r9_fiq	regs[25]
--#define compat_r10_fiq	regs[26]
--#define compat_r11_fiq	regs[27]
--#define compat_r12_fiq	regs[28]
--#define compat_sp_fiq	regs[29]
--#define compat_lr_fiq	regs[30]
-+#define compat_fp	regs[__compat_fp]
-+#define compat_sp	regs[__compat_sp]
-+#define compat_lr	regs[__compat_lr]
-+#define compat_sp_hyp	regs[__compat_sp_hyp]
-+#define compat_lr_irq	regs[__compat_lr_irq]
-+#define compat_sp_irq	regs[__compat_sp_irq]
-+#define compat_lr_svc	regs[__compat_lr_svc]
-+#define compat_sp_svc	regs[__compat_sp_svc]
-+#define compat_lr_abt	regs[__compat_lr_abt]
-+#define compat_sp_abt	regs[__compat_sp_abt]
-+#define compat_lr_und	regs[__compat_lr_und]
-+#define compat_sp_und	regs[__compat_sp_und]
-+#define compat_r8_fiq	regs[__compat_r8_fiq]
-+#define compat_r9_fiq	regs[__compat_r9_fiq]
-+#define compat_r10_fiq	regs[__compat_r10_fiq]
-+#define compat_r11_fiq	regs[__compat_r11_fiq]
-+#define compat_r12_fiq	regs[__compat_r12_fiq]
-+#define compat_sp_fiq	regs[__compat_sp_fiq]
-+#define compat_lr_fiq	regs[__compat_lr_fiq]
+ 	kvm_put_kvm(kvm);
+ 	return 0;
+ }
+@@ -5532,6 +5534,8 @@ static int kvm_dev_ioctl_create_vm(unsigned long type)
+ 		goto put_kvm;
+ 	}
  
- static inline unsigned long compat_psr_to_pstate(const unsigned long psr)
- {
++	kvm->file = file;
++
+ 	/*
+ 	 * Don't call kvm_put_kvm anymore at this point; file->f_op is
+ 	 * already set, with ->release() being kvm_vm_release().  In error
 -- 
 2.53.0
 
