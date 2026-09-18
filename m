@@ -1,204 +1,224 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8801448D1B;
-	Fri, 18 Sep 2026 13:21:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 166934EDCB1
+	for <linux-s390@vger.kernel.org>; Fri, 18 Sep 2026 13:22:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.76
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789737673; cv=none; b=C1Gkdqpnb04cnL0tJUSmFO+ZCT9gnl9xjewlFCxorB6KM7U/JN1l/2AWeBF5lwq0a77vHn9Fc7oqBn/bJ+/+ut25+8N8GNIFLStspC3+yZz7bO97msUWj4ez+FHcHRlPxhF2LvdlZR2AcnNY0+EewYYzyOwV6gT4UCzWQghqBC4=
+	t=1789737770; cv=none; b=ME6TQFeK8BLyYeBNpfkIgBPmFSCC1Mrm54UCYMfmJGjn5HoqjkbWFJepcnjYdjy5zt/1CJrMYK4MnKXkCh5edpp6pDNQ/eMAbHDPdn64/Qd6RrFKLDYmeOtSN7tyYNCMo7n/V/cOrAUEtLv/YhbyQ6/+0jmpMhhVi/q0biRIyl0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789737673; c=relaxed/simple;
-	bh=q9MlBAFpzeRNsgJB0XNvJREWaiaMY04cUxk1fBjFkvc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cKpxoJbRsUh5mGAFv60qahKypt2bThhDWziWgBddfqhbUNKGZJTE035X5wP2Pp8ejw5JSdbjdL/WRsWCZd4/0Cj4rlU3sqTxFngGSYCJul6x3WN2Rh1nVdJsJWMYVX19XpxcCREY8mXzulSsn7b0+0NxpLmbkHUTw0vQ5FbM7wA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TfzaMgjx; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789737770; c=relaxed/simple;
+	bh=b1No/s+YxvLDDWJ/c9YG5eDsGoNlnCstFBf6EMY3bdM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=QE9sIGbd4fUpW6fFiwGtPNPQ/qwXLFvzq41T3eltF02NVUcNH/wkQfWY74DTpfFty2Gb0GwQsB8S6m2YcCeqIxy89rJuW/JQ+SecHlKz4nmw3sETGQAbolBY9aww63BjLi0obSsRexQxwoqiYoBIsMC5tpo7Z/7JtBoALousAu8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gzs8LdAh; arc=none smtp.client-ip=74.125.225.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TfzaMgjx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67ECF1F000FF;
-	Fri, 18 Sep 2026 13:20:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789737669;
-	bh=0xpULa2wThyMyC/xm34rNy2PVoRdKfkNjg/wDjNfAbA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=TfzaMgjxtuNYRSbgy2oM9VNvelBoHpssOxVnn3XSg1NBMWU+/jyuXP6IaWZPY1CyA
-	 HdBMtjIknOhPruLGftRV7i8l8p2FKFX9fh6wCnG6H7oIwP4PW1xdz9+MUzns7blyED
-	 /oRJYHsPVqdDxPAyuN2AzxSAiLvBhcP8CKPzAWi22BWwuNke+22ALcPYId6jeNIBML
-	 tQQNk+We4UYkN+CSHkOuucCPZKJx6kWkj+b3NHpOKoKa54bgQVSWJGafkpCLc8uAXu
-	 3AdyFrmOR8pMPgGGIaBQnhqN7aE1U/3MowHa1LPEb32ScKkPhZnAMxVtJ6HiM44AnV
-	 XbSuPP1rSj3rQ==
-Date: Fri, 18 Sep 2026 14:20:34 +0100
-From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-To: Breno Leitao <leitao@debian.org>
-Cc: Mike Rapoport <rppt@kernel.org>, 
-	Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
-	Vlastimil Babka <vbabka@kernel.org>, Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
-	David Hildenbrand <david@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
-	Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
-	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
-	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
-	Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen" <mkp@kernel.org>, 
-	Jaya Kumar <jayalk@intworks.biz>, Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, 
-	Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
-	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
-	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
-	Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, Juri Lelli <juri.lelli@redhat.com>, 
-	Vincent Guittot <vincent.guittot@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>, 
-	Oliver Upton <oupton@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
-	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
-	Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
-	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
-	Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
-	Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
-	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
-	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
-	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
-	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev
-Subject: Re: [PATCH v2 01/40] mm/vma: fix mmap_prepare file handling, remove
- file_doesnt_need_get
-Message-ID: <aq06hcheI4OGi_3A@gremlin>
-References: <20260914-b4-mmap-prepare-vma-flag-sanify-v2-0-7d9781ed5361@kernel.org>
- <20260914-b4-mmap-prepare-vma-flag-sanify-v2-1-7d9781ed5361@kernel.org>
- <aquz9Z9JrK_H_E0g@kernel.org>
- <aq01JFp8hRReyY-O@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gzs8LdAh"
+Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-4843f22dcb8so524393f8f.0
+        for <linux-s390@vger.kernel.org>; Fri, 18 Sep 2026 06:22:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789737766; x=1790342566; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=bi9+tp0tdSAqr1IOm/IF32S8WKoTQ+Hz6781U37us8U=;
+        b=gzs8LdAh3l2N1BGYmnmRpRNeJmsU9TLEQKCral5PpadH8AZaNVIKi9SHLNWQNVd2h7
+         Lz7bkfSz4rEyKG07BHrMr287Y98PhOgaizgvjyLlMl5kctIWfXVawoW3rFH8w9FNOtpz
+         pYARzRMqB6dE+/0tKN2gBGyBZTn8TwL43mH4H22ZxdVRExYoEBwuwOoEnQ+U8YBOHS4h
+         AH/21IqMALzTbuZWzg9S3RhmONcElOSJ+uClJhD3OQQY3xQfoeT4JQ2ODh2bIPDB09s+
+         aOueOO3Iv/HI5ZCgZKfrsx+33vG8ZB7slOyfPLyAE2cH6U1fSyFbJcycLxiye4N7v60O
+         DbOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789737766; x=1790342566;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=bi9+tp0tdSAqr1IOm/IF32S8WKoTQ+Hz6781U37us8U=;
+        b=HIMCLgA5ThHtPj9locXskSo4lbIoyPxeLnuW8GA90FzAKpswKb553XG5Mb8fDqV7yL
+         fkx96YiW0fibZIOMRjDxF8gelWEY5W12+jmU+bOEJ04gsGHKnLI7sjdR3odKr8vrY2J+
+         Kt2PIdrSLg9k1Skco4uABr/7ZQVhUSNgTOBDP4Pa0w7Oss3NRXll2VsZDo7DlK0o2ego
+         8aIIKQiW0begaL0+CMztBsC3y+iI8BFNf9LPpnceRE5BfcvulD95wvJUUztWDSN2rg9T
+         dH6JDpEPth6fUUIIRMAzuvZn6zn0h4XHjND0XnTgzlXJUBrfAP5ABD9Cutr5IdmGtjFK
+         HYtQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwXROQ6TMtUtNerry6Zol86HnQFCvm4+u5geQFR3Ooo0ArWcDL2sR60flD4Q08j+fRGA5oXf9ZOO3ER@vger.kernel.org
+X-Gm-Message-State: AFuF++lUMWh7M1ihqlOXzjVR0MF65xhqO0ou7/otpejMzNLbquHI21l0
+	Ec1ZHCZlpvtvzPwUridOvs31lE8ZCKbXDuYuYldOIip1G5NXe8tj3z3t
+X-Gm-Gg: AYBFou24DZIrX8LKcbWAmFH0VRsiOwSgbXZpr5nIUhyqLVb3PM4+fXzZTZ0JO7x1hv+
+	9aeV74ZWWo1gUPj6kCHtZ5JSzmsEYGSsjnbT490LsAIpU6yKw3LF/khhMpsQIUOYYMGK+e50q6V
+	F2AowXDAH7K5SkYhs2xPgz+IZJJsuXWTgfiWKtzJeKUQTtVnaMTGXY8kcGchSpCIy6FuPwQoNC1
+	DMcV/5PP95RZVJo5Jjui+61y8pumPjxfds0Et0RBknSAt/6mfqRNO0w4a+80EMs+cjeNxESpoUF
+	2d7SXal4Mv6h/0txqSR7WsAiA45QMKAHPCNKomYXcVEILYTNliBDDLZQ0wuMfaPvCoJhrHIOif9
+	KsAYXjC7hoo+Xu6EaZYmquaO7We/fRCDwIvVEaUb3gpclFJqE5BLQ1k+DSvn1N/uF+A7rvu3yE4
+	2xOe5Jwt2xPFShk5N4YWvCWfO5jHAK4tlUS2F/ALidZoBJZ36+VTVD1ovgciZRnzpIkpJnbx2aB
+	QTUeKjanRzXSJZqA/J9cyl3pqSi4TKSLk4=
+X-Received: by 2002:a5d:5f90:0:b0:486:e737:d94b with SMTP id ffacd0b85a97d-4871e3814ebmr3476154f8f.51.1789737766063;
+        Fri, 18 Sep 2026 06:22:46 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4871ff5605dsm4015260f8f.19.2026.09.18.06.22.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Sep 2026 06:22:45 -0700 (PDT)
+Date: Fri, 18 Sep 2026 14:22:41 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Mahanta Jambigi <mjambigi@linux.ibm.com>
+Cc: Luis Chamberlain <mcgrof@kernel.org>, Petr Pavlu <petr.pavlu@suse.com>,
+ Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen
+ <samitolvanen@google.com>, Aaron Tomlin <atomlin@atomlin.com>,
+ linux-modules@vger.kernel.org, linux-kernel@vger.kernel.org,
+ netdev@vger.kernel.org, linux-s390@vger.kernel.org, "D. Wythe"
+ <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>, Sidraya
+ Jayagond <sidraya@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>, Wen
+ Gu <guwen@linux.alibaba.com>, Alexandra Winter <wintera@linux.ibm.com>,
+ Halil Pasic <pasic@linux.ibm.com>, Hidayath Khan <hidayath@linux.ibm.com>
+Subject: Re: [RFC] module: init-failure path can free a module with live
+ try_module_get() users
+Message-ID: <20260918142241.55a6630a@pumpkin>
+In-Reply-To: <5dc1fe2b-289e-4786-b9e9-e181dda8d4e9@linux.ibm.com>
+References: <5dc1fe2b-289e-4786-b9e9-e181dda8d4e9@linux.ibm.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aq01JFp8hRReyY-O@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Fri, Sep 18, 2026 at 05:57:51AM -0700, Breno Leitao wrote:
-> On Thu, Sep 17, 2026 at 12:33:41PM +0300, Mike Rapoport wrote:
-> > On Mon, Sep 14, 2026 at 03:57:21PM +0100, Lorenzo Stoakes (ARM) wrote:
-> > > The map->file_doesnt_need_get flag is confusing and the existing
-> > > implementation has holes.
-> > >
-> > > Drivers are permitted to change the owning file of a mapping. If they do
-> > > so, they are required to take a reference on that file.
-> > >
-> > > The mmap() operation which ultimately invokes __mmap_region() is guaranteed
-> > > to drop the refcount for the original file the mapping was made under, but
-> > > this is not true for the replaced file.
-> > >
-> > > This has been addressed so far by tracking map->file_doesnt_need_get, which
-> > > is rather poorly named and unfortunately fails to correctly track whether
-> > > or not an additional put were needed in a number of cases.
-> > >
-> > > Make life easier by removing this flag, and instead drop the reference for
-> > > both mmap_prepare and the deprecated mmap callback in a new function
-> > > put_map().
-> > >
-> > > Track whether this needs to be done by aligning mmap_state with
-> > > vm_area_desc and store the original file in the map->file field, keeping
-> > > the updated file in map->vm_file.
-> > >
-> > > In order to have the same behaviour for both types of hooks, only drop the
-> > > reference __mmap_new_file_vma() itself took in its error path, deferring
-> > > the replaced file's reference to put_map().
-> > >
-> > > To make this work correctly, map->vm_file has to be updated before any
-> > > error handling, so update __mmap_new_file_vma() and call_mmap_prepare() to
-> > > set this field first.
-> > >
-> > > Also when mmap_prepare() changes the file and is then merged, the reference
-> > > count also must be decremented, so update the logic to call put_map() in
-> > > this case too.
-> > >
-> > > Also update __compat_vma_mmap() to manually perform this step for stacked
-> > > file systems using the compatibility layer, and update
-> > > compat_set_vma_from_desc() to replace vma_set_file() with a correct
-> > > refcount/file update.
-> > >
-> > > No in-tree driver is impacted by the incorrect implementation of this
-> > > currently (no driver that does this is mergeable for one), so this does not
-> > > need to be a fix.
-> >
-> > But the patch iteslf needs to be fixed :)
-> >
-> > It seems to be the change that broke the CI.
-> >
-> > The rest is from LLM, take it with a grain of salt :)
-> >
-> > mm-ci mm-unstable red build - bisect analysis
-> > ==============================================
-> >
-> > Bad commit: 2a937a04babf1 "mm/vma: fix mmap_prepare file handling, remove
-> > file_doesnt_need_get" - first patch of Lorenzo Stoakes' 40-patch series
-> > "mm: make VMA flag semantics explicit, eliminate VM_SPECIAL" (v2).
-> > https://lore.kernel.org/all/20260914-b4-mmap-prepare-vma-flag-sanify-v2-0-7d9781ed5361@kernel.org
-> >
-> > Symptom: tools/testing/selftests/mm/pfnmap.c triggers
-> > "BUG: Bad page map in process pfnmap" during __zap_vma_range()/vm_normal_page(),
-> > seen on process exit/munmap. CI's run-mm-selftests.sh greps guest dmesg for
-> > BUG|WARNING and fails the job regardless of the test's own exit code.
->
-> I am seeing something similar here and stress-ng can reproduce it:
->
->       WARNING: mm/memory.c:3225 at do_remap_pfn_range+0x9b4/0x9f0, CPU#25: stress-ng-dev/354858
->       Call trace:
->        do_remap_pfn_range+0x9b4/0x9f0 (P)
->        remap_pfn_range_complete+0xac/0xd0
->        mmap_action_complete+0xcc/0x3d8
->        mmap_region+0xb54/0x1978
->        do_mmap+0x588/0xb18
->        vm_mmap_pgoff+0x1e4/0x320
->        ksys_mmap_pgoff+0x2d8/0x510
->        __arm64_sys_mmap+0x100/0x128
->
->       BUG: Bad page map in process stress-ng-dev  pte:0160000000000fcf
->       addr:0000ffe8d9080000 vm_flags:00000071 anon_vma:0000000000000000 mapping:ffff0000a0c4ea98 index:0 (file) ffe8d9080 (anon)
->       file:mem fault:0x0 mmap:0x0 mmap_prepare: mmap_mem_prepare read_folio:0x0
->       Call trace:
->        print_bad_page_map+0x63c/0x740
->        vm_normal_page+0x228/0x240
->        __zap_vma_range+0xbe0/0x34a0
->        unmap_vmas+0x240/0x318
->        unmap_region+0x12c/0x238
->        vms_complete_munmap_vmas+0x318/0x958
->        do_vmi_align_munmap+0x254/0x2f8
->        do_vmi_munmap+0xc4/0xf8
->        __vm_munmap+0x174/0x288
->        __arm64_sys_munmap+0x70/0x90
+On Mon, 24 Aug 2026 11:43:46 +0530
+Mahanta Jambigi <mjambigi@linux.ibm.com> wrote:
 
-Yup I already fixed it and respun the series :)
+> Hi Luis, Petr, Daniel, Sami, Aaron,
+> 
+> I'm writing to ask about what looks like a generic module-init failure
+> lifetime problem in the module loader. I ran into it while working on
+> the SMC networking module (net/smc/), but after several patch
+> iterations, it seems the root issue may belong in kernel/module/main.c
+> rather than in SMC itself. I'd appreciate your guidance on whether this
+> reading is correct, and if so, what fix direction would be preferred.
+> 
+> THE ISSUE IN do_init_module()
+> =============================
+> 
+> include/linux/module.h has a long-standing FIXME in module_is_live():
+> 
+>     /* FIXME: It'd be nice to isolate modules during init, too, so they
+>        aren't used before they (may) fail. But presently too much code
+>        (IDE & SCSI) require entry into the module during init. */
+>     static inline bool module_is_live(struct module *mod)
+>     {
+>         return mod->state != MODULE_STATE_GOING;
+>     }
+> 
+> Because MODULE_STATE_COMING is not MODULE_STATE_GOING, try_module_get()
+> can succeed once a module's __init is executing. If __init makes the
+> module externally reachable partway through and then later fails, the
+> failure path in do_init_module() appears to do:
 
-https://lore.kernel.org/all/20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org/
+It is rather worse that that.
+If sock_create() auto-loads a module (eg sctp) then nothing stops a second
+sock_create() entering the protocol code before the initialisation completes.
+That can be hit by two separate applications, I hit it from an out of tree
+kernel module and avoided the problem by putting a mutex() around the
+sock_create() call.
 
---
-Cheers, Lorenzo
+It might help by letting try_module_get(THIS_MODULE) always succeed
+while blocking other requests until initialisation completes.
+The code making the call must own a reference (otherwise the code could
+just disappear), and that reference stops the module being unloaded.
+That would let the initialisation code grab extra references (eg for
+a worker thread) without allowing other codes paths enter the
+part-initialised driver.
+
+David
+
+> 
+>     fail:
+>         mod->state = MODULE_STATE_GOING;
+>         synchronize_rcu();
+>         module_put(mod);
+>         ...
+>         free_module(mod);
+> 
+> synchronize_rcu() waits for RCU readers, but not for threads that
+> already obtained a module reference via try_module_get() and are still
+> executing module text.
+> 
+> By contrast, the normal unload path in try_stop_module() refuses to
+> proceed while the refcount is non-zero.
+> 
+> So the asymmetry seems to be that the normal unload path waits for
+> references to drain, while the init-failure path does not.
+> 
+> A concrete race would look like:
+> 
+>   1. Module __init registers an externally reachable interface.
+>   2. User space enters through that interface and try_module_get()
+>      succeeds while the module is still COMING.
+>   3. A later __init step fails.
+>   4. do_init_module() frees the module.
+>   5. The in-flight caller is still executing module text.
+> 
+> SMC AS A CONCRETE EXAMPLE
+> =========================
+> 
+> In SMC, simply moving registration later does not appear to eliminate
+> the window, because there are two separate registration points that can
+> make the module reachable via socket():
+> 
+>   1. sock_register(&smc_sock_family_ops)
+>      After this, socket(AF_SMC, ...) can succeed and reach
+>      try_module_get() via __sock_create().
+> 
+>   2. smc_inet_init() -> inet_register_protosw()
+>      After this, socket(AF_INET, SOCK_STREAM, IPPROTO_SMC) can succeed
+>      and again reach try_module_get().
+> 
+> Either registration point can succeed before a later init step fails.
+> 
+> This may not be specific to SMC; other protocol modules that become
+> reachable during init, such as Bluetooth, may have similar exposure and
+> appear worth auditing as well.
+> 
+> ON THE FIXME'S IDE/SCSI CONCERN
+> ===============================
+> 
+> The FIXME mentions IDE and SCSI as reasons not to isolate modules
+> during init.
+> 
+>   1. IDE was removed in Linux 5.14, so that half of the concern no
+>      longer applies.
+> 
+>   2. SCSI still appears to self-reference during init
+>      (scsi_device_get() -> try_module_get(hostt->module) during
+>      scsi_scan_host()), so a blanket wait-for-refcount-to-drain
+>      approach in the failure path may deadlock there.
+> 
+> Also, strong_try_module_get() already rejects MODULE_STATE_COMING with
+> -EBUSY, so the infrastructure for refusing callers during init already
+> exists in some form.
+> 
+> QUESTIONS
+> =========
+> 
+> First, is my reading of this init-failure refcount/lifetime asymmetry
+> correct?
+> 
+> If so, would one of the following directions be acceptable?
+> 
+>   1. An opt-in mechanism (for example, a module flag) for modules that
+>      are safe to isolate during init and whose init-failure path should
+>      wait for external references to drain.
+> 
+>   2. Treating MODULE_STATE_COMING as non-live for normal
+>      try_module_get() users, with some explicit escape hatch for the
+>      remaining subsystems that genuinely need self-entry during init.
+> 
+> Any guidance on the preferred direction would be much appreciated.
+> 
+> Best regards,
+> Mahanta Jambigi
+> 
+
