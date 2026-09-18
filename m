@@ -1,327 +1,165 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D56E73B42E3;
-	Fri, 18 Sep 2026 07:27:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BD394B7A31;
+	Fri, 18 Sep 2026 08:17:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789716470; cv=none; b=A4nxufPFyQFlXupB/UbzdSPWgkur3JFIBSdyROPK1XUS0t4zxGvvMAWu1DGKMJ0wQ65+xqU1+o3iTPQBVgN+awgQm3jLHEldvCbYiKvZ0tH9HjGy099plWctsZlKTIC8RKTpxaeiSVrooSusSz1DfHYOZjgPo5T+HUlr/JTLdtY=
+	t=1789719478; cv=none; b=okro7t0+BWSH2FEZktVpcDkiQHloAKVuB7R6RdhaL4Ki9pU6mVZsuru/YJyU0p96j1fyNHErgtpyaYaLvQ7rwW4J9r7DQ1JxbVDMgn3iwFzLi3ULQOB+lhKDHWEt9YaeBSZSqNenWYhE9MQppRC5UlWFuOavm5IV30B0fDPsqoY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789716470; c=relaxed/simple;
-	bh=Wr4nyvzcR7JAFQv8sDWIUvP9LIRBWSLeep4vaSSRrOw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lGdj4Nk+4xVzU5PsPwg39sqvTj5J+K6LxA1UYvFd4v8pLgW6VEPWy0/KfDd+DS4/4NHlhn528Cwy1Y/vd3mn+3tXvrKkoyf9lYxtkuNQohmtPeC8W+Bdcki97pGAogby7F3/p8F78g443lxZqamWzvoRX9xqsEEiF/jrabsOdaY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HsS7XZ5x; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1789719478; c=relaxed/simple;
+	bh=4UMbm2EIhxXiFHfLG6a6pCV3oDz/DLBbEO5MhHosI/I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fSKGjvVTXz4KnsyBHjdtxGtG8x+HeTtYVOmHm86QTVaPHjIsGAwUyMCinpB1D6ukUMMzC2K0WrU3M9e2MkQoSaCBoUjduP9IvbhuTR4QHa6phbuZnbdrEzYJtHSzjOVQAyt56L3+HH/oKXMymnh71gHT5phNKdSGcKA/HG71AAg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JaekGeiP; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HsS7XZ5x"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68I61XiZ457215;
-	Fri, 18 Sep 2026 07:27:24 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JaekGeiP"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68I620tv313828;
+	Fri, 18 Sep 2026 08:17:55 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=x+H+eF
-	PYEIB0UoYVc5ZjURmJ2HCWkqvvv2is4lFZPw8=; b=HsS7XZ5xM9lyMgn/zEzyl5
-	ZGjT2BvywdVghsQoADzELXCN7+VIUumdWA5jbwrjHelVT4BTmuchW5ZP1ulGXjfy
-	9KYOVEB/Q6bAKz44tBi4TFAkVhAKclMwtiujMFqHt9yguaWmna7lmBZaF1sHHKkA
-	/s9GoObnjhktPv76JZhsx0JxNxQy8wMeNWH7rqx8glp8Mvn5xtQRk2HNx2R7B0O4
-	XBGl11znCWkZy3fbrNvsUZN8ohOaySz74MsT9XyFRCnBa4Y/4M6gnWCvEncCAsqL
-	2h9rTzvDD9IYsRmPoPC0SDOU/XBDXUCYNVMZNJeKH4XQTU5vxtHhugWJzLrsm3fA
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmx846t8j-1
+	:message-id:mime-version:references:sender:subject:to; s=pp1;
+	 bh=RwR6XHfl7OXFgQqWduePs1pXpmDFTyz5A7ZzC2qmzrs=; b=JaekGeiP/zg1
+	demN/oS51UvPhWWue3L38/aq3f2t6p8JeTY6sIWXNjnLbdlnQHVpaTIvPhlSupge
+	WhYcTaJBW4BjDp5yGeSes4l5kz/WK/U7csUoL23jiCuLlEOiQbCSPt7GvQlWtuo2
+	3LkDQkXr/uducleF4ZR++5qwjgh0p9tKgqwE9Od8/bqMyWnV83CRKV7Vihe2PaJe
+	PErVdGRRzQXsF/0WSUfs3xnC+Zqs3OCdH+SrrJ6HFKJFMQnnNtSP4GDas8zIuByy
+	0Wuqmc7H0Jt5juR9pt9wqP9gMYCdQsZvMoIwM1e9dqUDiXkkuiPv2ijSQuhED10k
+	OpstwOM98g==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmv5j6qf1-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 18 Sep 2026 07:27:23 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68I652Eu1154846;
-	Fri, 18 Sep 2026 07:27:22 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gr7genvac-1
+	Fri, 18 Sep 2026 08:17:54 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68I6548G196223;
+	Fri, 18 Sep 2026 08:17:54 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gr5fjpeh5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 18 Sep 2026 07:27:22 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68I7RLqB42664402
+	Fri, 18 Sep 2026 08:17:54 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68I8HoEb56164696
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 18 Sep 2026 07:27:21 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 146225805B;
-	Fri, 18 Sep 2026 07:27:21 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 75DD258058;
-	Fri, 18 Sep 2026 07:27:15 +0000 (GMT)
-Received: from [9.111.160.79] (unknown [9.111.160.79])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 18 Sep 2026 07:27:15 +0000 (GMT)
-Message-ID: <d11098fd-042c-4246-ba3b-9c2662447f21@linux.ibm.com>
-Date: Fri, 18 Sep 2026 12:57:13 +0530
+	Fri, 18 Sep 2026 08:17:50 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 47BBD20043;
+	Fri, 18 Sep 2026 08:17:50 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 31DD320040;
+	Fri, 18 Sep 2026 08:17:50 +0000 (GMT)
+Received: from p14sgen6-pf6akexs (unknown [9.224.70.27])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 18 Sep 2026 08:17:50 +0000 (GMT)
+Received: from bblock by p14sgen6-pf6akexs with local (Exim 4.99.5)
+	(envelope-from <bblock@linux.ibm.com>)
+	id 1x7Tn3-000000010vS-3sAb;
+	Fri, 18 Sep 2026 10:17:49 +0200
+Date: Fri, 18 Sep 2026 10:17:49 +0200
+From: Benjamin Block <bblock@linux.ibm.com>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: Gerd Bayer <gbayer@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>, Julian Ruess <julianr@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Ramesh Errabolu <ramesh@linux.ibm.com>,
+        Tobias Schumacher <ts@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 1/4] s390/pci: Fix leak of struct pci_dev reference in
+ zpci_report_status()
+Message-ID: <20260918081749.GA39182@p14sgen6-pf6akexs.fritz.box>
+References: <20260916-fix_zpci_report_status_pdev_leak-v3-0-61a2f980e71d@linux.ibm.com>
+ <20260916-fix_zpci_report_status_pdev_leak-v3-1-61a2f980e71d@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v4] net/smc: fix lgr/lnk lifetime vs diag reader race
-To: dust.li@linux.alibaba.com, andrew+netdev@lunn.ch, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        alibuda@linux.alibaba.com, sidraya@linux.ibm.com
-Cc: pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
-        guwen@linux.alibaba.com, hidayath@linux.ibm.com,
-        stable@vger.kernel.org, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-References: <20260911090906.1949163-1-mjambigi@linux.ibm.com>
- <aqlgtaEk3kNcg-Yp@linux.alibaba.com>
- <69676c38-3d68-41db-8b26-3e589d7477d5@linux.ibm.com>
- <aqq0rnQjiKymR3TM@linux.alibaba.com>
- <2111df0c-33b1-4330-8adf-ac5a0f1de451@linux.ibm.com>
- <aqwM5USzvdm5zF40@linux.alibaba.com>
-Content-Language: en-US
-From: Mahanta Jambigi <mjambigi@linux.ibm.com>
-In-Reply-To: <aqwM5USzvdm5zF40@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260916-fix_zpci_report_status_pdev_leak-v3-1-61a2f980e71d@linux.ibm.com>
+Sender: Benjamin Block <bblock@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE4MDA5NCBTYWx0ZWRfX2LEL4DqE7S0i
- LRndXWD/1pPWFlvDLj2xe8vnStKwH05PZm+7Ul67NCAIH6xuqfM7fOoF7D00u/2bJH+AUvGnLB4
- kI2W4E4PJLUbpsxQ2iBum89NyMLrrN2+QI0SDUs2bTf9b39cGqug5cTlCN3XP9wH6C/kXprB2+p
- JuWSjUSf0Kgm5Fa8lpQAZ7PUWBfBBEfiKwY23JnIspLsI3wLidczkqDGOx//Qvk+BdeSY3sTG6X
- K0qA1ZO8uaRqNv+l8+rst22QVw+c988kzQOXUEWhdt2Omcn6LZVQZ3lcs2tSSs/Sp4mnBSsaz8F
- bbtKdGiJmadGD4ugRol169PWifLKJ+kxVh+7NVuwZ2LvXhhx9fxoiPnFfsrmeszAl80AY0mxhzV
- dqYtx3uIiBLIE8WK2tQuxLLvKv0NId1+vDFCzZZ9/21FDWSZ0gCZoFobFGOQnNS4MVwRXRDcl0m
- qnk03wocZbW7UNf4epQ==
-X-Proofpoint-ORIG-GUID: XifP6K_Ftt7UtKQwvbSQdtfebg422q9x
-X-Proofpoint-GUID: SV85c2tR4z56xvmot4vVapNolRtXfanR
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE4MDA5NCBTYWx0ZWRfX9ahZrEt/GsmG
- wD4IrPo08tZvoopffbnzch97uhB/Rr/gJaTQJUUpPr9xFhKiEwCP/Imj3917aB4BspYcbqNlq0z
- 0ACQHf+M7/EUAzlx/tP4tIELQh1EBNM=
-X-Authority-Analysis: v=2.4 cv=cY9HPXDM c=1 sm=1 tr=0 ts=6aace7dc cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=j7ZKgxhjHW8lMw6mU2MA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE4MDEwOSBTYWx0ZWRfX6NY9x8D9+ADq
+ /AnW+ABx0X6wCrd9mE2MxB25TdAE0lhqCMStmCHi1854ixCfU05ASfSEih2u7YFFnwsdkd8m1KS
+ 7zcmBZH9BAkftT/G1CUFi0L8WT81xb/lbrsMXA/dGyxyuUaKoOxP0Vw8Jk/r4OpJUWBEBRKFQ44
+ 4TidKEzOS3/s0eUDOC2qcJkpD8e8pqZ1NSOVkqEy/I2PsLhyTnM3TcnEFogKz5tqoN/NnpbnW/k
+ VFlETzrTZDd5OD5VsPYqxEh19GECmbHTDvBFfMl4G8qzwsFqusiRhwIjwC0pZcwXaqup142dd9a
+ fcxjfN6sXEdZhLMzrdN4z/7WQx3PPiOCngGS/yjRYMihvvQ41Oe1D3VKR0s7Y4E1i3BYTsPgWqi
+ yu45hkIJ3F29wGGgQR2BtcNezgb9RuhpUJkAD+wbcQtGtI0bimPnyutTBA+Za/Xe8AYFLQqvFEz
+ I7xn8JZ0HM9XnT2JkSg==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE4MDEwOSBTYWx0ZWRfX0kTXrIkpwOgk
+ dBtn1uJazeA3euFN61w497u2JumjxCe8FtFBQjkOxqkfV+AqT08A9rqkDeQ1VwAXJGJ54m30/rX
+ 4q8sMdeBbLreJIhfc4yVEZjNd5TsLEY=
+X-Authority-Analysis: v=2.4 cv=Zsx4uN7G c=1 sm=1 tr=0 ts=6aacf3b2 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=8nJEP1OIZ-IA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=VwQbUJbxAAAA:8 a=PjM2ap6TQN7HG-kUjAwA:9 a=3ZKOabzyN94A:10 a=wPNLvfGTeEIA:10
+X-Proofpoint-ORIG-GUID: LuG-er0s_Nt9UEBLG2w2Sg8Mhsyn9NSP
+X-Proofpoint-GUID: LuG-er0s_Nt9UEBLG2w2Sg8Mhsyn9NSP
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-18_02,2026-09-16_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 bulkscore=0 clxscore=1015 suspectscore=0
- impostorscore=0 malwarescore=0 phishscore=0 adultscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609180094
+ malwarescore=0 impostorscore=0 clxscore=1015 priorityscore=1501
+ lowpriorityscore=0 bulkscore=0 adultscore=0 phishscore=0 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
+ definitions=main-2609180109
 
-
-
-On 17/09/26 9:23 pm, Dust Li wrote:
-> On 2026-09-17 13:15:23, Mahanta Jambigi wrote:
->>
->>
->> On 16/09/26 8:54 pm, Dust Li wrote:
->>> On 2026-09-16 14:04:42, Mahanta Jambigi wrote:
->>>>
->>>>
->>>> On 15/09/26 8:43 pm, Dust Li wrote:
->>>>> On 2026-09-11 11:09:06, Mahanta Jambigi wrote:
->>>>>> The diag dump walks the socket hash table under a read_lock and
->>>>>> dereferences conn->lgr and conn->lnk.  Two terminal teardown paths
->>>>>> drop those references via smc_conn_free() while the socket is still
->>>>>> hashed:
->>>>>>
->>>>>> - smc_conn_kill() -> smc_close_active_abort() -> smc_conn_free() -
->>>>>> smc_close_passive_work() -> smc_conn_free()
->>>>>>
->>>>>> This allows the diag reader to dereference a freed lgr or lnk.
->>>>>>
->>>>>> Fix it by unhashing the socket before smc_conn_free() is called at
->>>>>> each of these two sites.  Any socket visible to the diag reader
->>>>>> under the hash read_lock then has valid conn->lgr and conn->lnk
->>>>>> pointers.
->>>>>>
->>>>>> Fixes: f16a7dd5cf27 ("smc: netlink interface for SMC sockets") Fixes:
->>>>>> 9dbe086c69b8 ("net/smc: fix invalid link access in dumping SMC-R
->>>>>> connections") Signed-off-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
->>>>>> --- Changes in v4: - dropped smc_conn_unhash() wrapper, conn-
->>>>>>> unhashed flag, and all changes to af_smc.c, smc.h, smc_core.c and
->>>>>> smc_core.h; smc_unhash_sk() is already idempotent via sk_hashed(),
->>>>>> so direct calls at the two teardown sites in smc_close.c are
->>>>>> sufficient - dropped the __smc_release() hunk: it needs no change
->>>>>> since the subsequent unhash there is already a safe no-op - fixed
->>>>>> premature-unhash issue present in v3: smc_conn_free() must not unhash
->>>>>> because smc_conn_abort() calls it before smc_switch_to_fallback() in
->>>>>> both smc_listen_decline() and smc_connect_rdma() error paths; unhashing
->>>>>> there would make live fallback sockets invisible to smcss -
->>>>>> likewise, the ISM/RDMA retry loops (smc_find_ism_v2_device_serv(), 
->>>>>> smc_find_rdma_v2_device_serv()) call smc_conn_abort() on a failed attempt
->>>>>> and then smc_conn_create() on the next device; unhashing in 
->>>>>> smc_conn_free() would permanently hide the established connection
->>>>>> from smc_diag since smc_conn_create() does not re-hash the socket
->>>>>
->>>>> Hi Mahanta,
->>>>>
->>>>> This version looks clean. And you explained why we can't call unhash
->>>>> in smc_conn_abort() well. But smc_conn_abort() still calls
->>>>> smc_conn_free(), when the smc_sk is still hashed, is there still a
->>>>> race window with dump ?
->>>>
->>>> Hi Dust,
->>>>
->>>> Thank you for catching this corner case!
->>>>
->>>> During early handshake setup (when sk_state is *SMC_INIT*),
->>>> smc_conn_abort() can be called on connection failure/fallback and
->>>> invokes smc_conn_free() while the socket remains hashed, leaving a
->>>> window where a concurrent diag dump could evaluate smc_conn_lgr_valid()
->>>> and dereference conn->lgr / conn->lnk.
->>>>
->>>> Since sockets in *SMC_INIT* are in a transient embryonic handshake phase
->>>> and userspace (smcss) *skips displaying link-group, DMB, and connection
->>>> details for INIT state sockets anyway*, we could have __smc_diag_dump()
->>>> skip inspecting connection/link-group extensions when r->diag_state ==
->>>> SMC_INIT:
->>>>
->>>> diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
->>>> --- a/net/smc/smc_diag.c
->>>> +++ b/net/smc/smc_diag.c
->>>> @@ -90,6 +90,9 @@ static int __smc_diag_dump(struct sock *sk, struct
->>>> sk_buff *skb,
->>>> 	r->diag_state = sk->sk_state;
->>>> +	if (r->diag_state == SMC_INIT)
->>>> +		return 0;
->>>> +
->>>> 	if (smc->use_fallback)
->>>> 		r->diag_mode = SMC_DIAG_MODE_FALLBACK_TCP;
->>>> 	else if (smc_conn_lgr_valid(&smc->conn) && smc->conn.lgr->is_smcd)
->>>>
->>>> Together with unhashing before smc_conn_free() in smc_close.c for
->>>> established and closing sockets, this cleanly closes the race window
->>>> across all socket states without touching the hash table mechanics
->>>> during fallback/retry.
->>>>
->>>> Does this approach look good to you? If you agree, I will prepare and
->>>> submit v5 with this change. Please let me know if you have any other
->>>> suggestions or alternative approaches, and I'll be happy to look into them.
->>>
->>> What about this path ?
->>>
->>> smc_listen_decline() -> smc_listen_out_err(), where smc_conn_abort() has
->>> already run, and the sock state is then changed from SMC_INIT to SMC_CLOSED.
->>
->> Hi Dust,
->>
->> Good catch on the smc_listen_out_err() path as well!
->>
->> In smc_listen_decline() -> smc_listen_out_err(), the server socket fails
->> handshake and is transitioned to SMC_CLOSED while remaining in the hash
->> table until smc_accept_dequeue() runs.
->>
->> Since userspace (smcss) skips displaying all connection, link-group, and
->> DMB details for both SMC_INIT and SMC_CLOSED sockets (smcss.c:186 and
->> smcss.c:199), we can update __smc_diag_dump() to check for both states:
->>
->> diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
->> --- a/net/smc/smc_diag.c
->> +++ b/net/smc/smc_diag.c
->> @@ -90,6 +90,9 @@ static int __smc_diag_dump(struct sock *sk, struct
->> sk_buff *skb,
->> 	r->diag_state = sk->sk_state;
->> +	if (r->diag_state == SMC_INIT || r->diag_state == SMC_CLOSED)
->> +		return 0;
->> +
->> 	if (smc->use_fallback)
->> 		r->diag_mode = SMC_DIAG_MODE_FALLBACK_TCP;
->> 	else if (smc_conn_lgr_valid(&smc->conn) && smc->conn.lgr->is_smcd)
->>
+On Wed, Sep 16, 2026 at 05:14:10PM +0200, Niklas Schnelle wrote:
+> In zpci_report_status(), a reference to the pdev associated with the
+> zdev being reported about is acquired using pci_get_slot(). This
+> reference needs to be dropped with pci_dev_put(), but this call is
+> missing, thus leaking the reference. On subsequent hot unplug, this will
+> cause the struct pci_dev to not be released, leaking memory and
+> preventing reattach.
 > 
-> I checked the code again, and I'm afraid adding SMC_CLOSED is still not right.
+> At the same time, the only existing caller already holds a pdev
+> reference. So instead of reacquiring and then dropping another reference,
+> simply pass the existing pdev pointer to zpci_report_status(). This gets
+> rid of the need for pci_get_slot() as well as the zdev->zbus check.
 > 
-> smc_listen_decline(): smc_switch_to_fallback(), smc_clc_send_decline() then
-> fails, and smc_listen_out_err() sets the socket to SMC_CLOSED. The socket
-> stays on the accept queue, hashed, until accept() reaches smc_accept_dequeue().
+> Cc: stable@vger.kernel.org
+> Fixes: 4ec6054e7321 ("s390/pci: Report PCI error recovery results via SCLP")
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> ---
+>  arch/s390/pci/pci_event.c  |  2 +-
+>  arch/s390/pci/pci_report.c | 11 +++++------
+>  arch/s390/pci/pci_report.h |  4 +++-
+>  3 files changed, 9 insertions(+), 8 deletions(-)
 > 
-> But the early return sits after nlmsg_put() but before diag_mode,
-> smc_diag_msg_attrs_fill() and the SMC_DIAG_FALLBACK attribute are filled.
-> The record is still emitted, but diag_mode is left at 0 -- which is
-> SMC_DIAG_MODE_SMCR, not "unknown" -- and the fallback reason attribute is gone.
+> diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
+> index f317a1465dad..3b4941b65840 100644
+> --- a/arch/s390/pci/pci_event.c
+> +++ b/arch/s390/pci/pci_event.c
+> @@ -298,7 +298,7 @@ static pci_ers_result_t zpci_event_attempt_error_recovery(struct pci_dev *pdev,
+>  	pci_uevent_ers(pdev, PCI_ERS_RESULT_RECOVERED);
+>  out_unlock:
+>  	device_unlock(&pdev->dev);
+> -	zpci_report_status(zdev, "recovery", status_str);
+> +	zpci_report_status(zdev, pdev, "recovery", status_str);
 
-Regarding your concern about wrong output when the early return fires
-before diag_mode and SMC_DIAG_FALLBACK are filled: you are right that
-diag_mode must be filled before the guard. *smcss.c* reads diag_mode at
-lines 177 and 179 for --smcr/--smcd filtering, which happens before the
-SMC_INIT and SMC_CLOSED state checks. If diag_mode is left as 0 for
-a failed-fallback SMC_CLOSED socket, --smcr would incorrectly include it
-and --smcd would incorrectly exclude it.
+Hmm. Wasn't one of the previous fixes to move the lock below the status
+report?
 
-*SMC_DIAG_FALLBACK* however is *not* needed before the guard — smcss
-only reads it inside the diag_mode == SMC_DIAG_MODE_FALLBACK_TCP branch
-which is never reached for *SMC_INIT* or *SMC_CLOSED* sockets, as those
-two states hit goto newline before that point.
+Why is that missing here again?
 
-So the correct placement is after smc_diag_msg_attrs_fill(), which fills
-diag_mode, diag_uid, and diag_inode, but before SMC_DIAG_FALLBACK:
 
-    r->diag_state = sk->sk_state;
-    if (smc->use_fallback)
-        r->diag_mode = SMC_DIAG_MODE_FALLBACK_TCP;
-    else if (...)
-        ...
-    if (smc_diag_msg_attrs_fill(sk, skb, r, user_ns))
-        goto errout;
+Otherwise this looks fine.
 
-+   if (r->diag_state == SMC_INIT || r->diag_state == SMC_CLOSED)
-+       goto out;
-
-    fallback.reason = smc->fallback_rsn;
-    ...
-
-+out:
-    nlmsg_end(skb, nlh);
-    return 0;
-
-At this position all fields smcss reads for these two states are already
-filled correctly, including diag_mode for --smcr/--smcd filtering.  The
-CONNINFO, LGRINFO, and DMBINFO blocks — which contain the unsafe lgr/lnk
-dereferences — are never reached.
-
-What is your opinion on this?
-> 
-> Why don't you use conn->free instead of sk_state ? It is set unconditionally
-> at the top of smc_conn_free() before any lgr/lnk reference is dropped.
-> 
-> 
-> So maybe something like this ? Please double check.
-> 
-> diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-> index bf0beaa23bdb6..a19f16881ae7e 100644
-> --- a/net/smc/smc_diag.c
-> +++ b/net/smc/smc_diag.c
-> @@ -103,6 +103,9 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
->         if (nla_put(skb, SMC_DIAG_FALLBACK, sizeof(fallback), &fallback) < 0)
->                 goto errout;
-> 
-> +       if (smc->conn.freed)
-> +               goto out;
-> +
-
-Regarding conn->freed: it does not fully close the race. The check and
-the subsequent lgr/lnk dereferences in the LGRINFO/DMBINFO blocks are
-not atomic. The diag reader can pass the conn->freed == 0 check, then
-smc_conn_free() runs concurrently and calls smc_lgr_put() which may drop
-the lgr refcount to zero and free lgr, and then the reader resumes and
-dereferences conn->lgr — a UAF.
-
->         if ((req->diag_ext & (1 << (SMC_DIAG_CONNINFO - 1))) &&
->             smc->conn.alert_token_local) {
->                 struct smc_connection *conn = &smc->conn;
-> @@ -185,6 +188,7 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
->                         goto errout;
->         }
-> 
-> +out:
->         nlmsg_end(skb, nlh);
->         return 0;
-> 
-> BTW, as we talked in the previous threads, the teardown path is messy and lots
-> of hidden holes, so I think we will finnally refine those.
-> As for now, if this works, I think we can go with it.
-
-I agree, as of now I am trying to fix the UAF bug with minimal changes.
+-- 
+Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
+IBM Deutschland Research & Development GmbH    /   https://www.ibm.com/privacy
+Vors. Aufs.-R.: Wolfgang Wendt         /        Gesch�ftsf�hrung: David Faller
+Sitz der Ges.: Ehningen     /     Registergericht: AmtsG Stuttgart, HRB 243294
