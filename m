@@ -1,59 +1,92 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C27B342509;
-	Fri, 18 Sep 2026 15:16:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEE7D3D6CA3;
+	Fri, 18 Sep 2026 15:19:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789744597; cv=none; b=CbgGF4qyCHA9K8sBmMMWu+f+e7fOrulj3IvMKkx7y98U4CJ2j4FTq/kTx6f+1iLoevr6qubxjbHj5NIoOxc4kUoW/ch0dYAFRD/0rF8kmQNZLGVK3s+GcU8bGPz0pQ/I/isHPV5GBQ4TApL+ci+EMA3IhluCI1NJEHGbwqsFUP0=
+	t=1789744772; cv=none; b=ufsEWJcXQwSACEX0Qzp5cMbMqxnkb4fUcPM2fJIoy/8JYoR/fqb2WwAVoEbzamh00mUWLLoxO6RRfQZRVnrQ8EOhnxrV2g/7mfDkJphWUO6S6mXpVvofs4vGqlBowK3lg13jik59qV9Y4p/WkLUpN8ZxLnfaT31G0wtsSS9URNM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789744597; c=relaxed/simple;
-	bh=avcDYpRZIGMzM3DoGgE/7KaAhcue4GgheA70YOHpVR0=;
+	s=arc-20240116; t=1789744772; c=relaxed/simple;
+	bh=vxGrkJqmLngCYGpNexeZHUBxdnnM6uI36+LxIIp/ZHI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=e0chL78sEPnY/HFI2THJHY3gIwCg6UVVc3Qdg0kljmLDUfNItcdCO9pGUGBOupEvMxJoPN+AyiqO2tlBYFSMFIsMr9RsqTIOFf4WYc6TO/opLVS6xVbICEKQfDZ3D2GQVVchFetaNo0KNvO8B5lZqG89/rNfN/A0ikQGX2ZtIH4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B8cyNIaj; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=iFX8HeSFg/Yz5X6G6WhelgYqEA+w1EAs+1q3duDW9XCXbxcpZGpFMIxC5lvnYmAMBKLkvo/j6CZ798/agm6e3LT7h7rfjvdoUjixX2ZNpqUfwlJRTC4SFBca5bbrHJp7IlDwwCFU06SOvppkavO0NL4LuxGV8B/I1+PkpKeb0I0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BoeyhHch; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B8cyNIaj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F94C1F000FF;
-	Fri, 18 Sep 2026 15:16:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BoeyhHch"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B29541F000FF;
+	Fri, 18 Sep 2026 15:19:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789744596;
-	bh=avcDYpRZIGMzM3DoGgE/7KaAhcue4GgheA70YOHpVR0=;
+	s=k20260515; t=1789744770;
+	bh=jxvxEwIs46X6V79+sLj8IgiU91LRK68xToVSUhhjBeI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=B8cyNIajJTgq21ya4YbzKXJq+WdGz/SE7603oGy7oVX3BT2broWoPnSDzg0NV7Nq9
-	 YbOEb6ajj3IH6N1B8P9XNkpBiIhRm9ksTehj8jXtMZbLFhfBTblwJBLJsR4R8/LNXb
-	 jzeknnX0ZRjlOpuHD5OA/iP1ZKcS3//dZORf49W/UlwHTAEvML7L8TaNnILw/YMOgi
-	 xXs8HhHFqPGuRrnJS5hLGG/hvwg5/EbxWRDOCWrxOvVSiizTh9Kw5cn8KdtLATgnYT
-	 kACR4BKCaPQLNsx31vXSTF0M82Da04T5Pj4m7aQk23naUy4e/Y+tnjtnzuSFptn2MF
-	 wnteHxr1MtUIQ==
+	b=BoeyhHche+84qQlAqeVp3c4khGoERNHh4tMYmmFJq4fAtiJmMGzpitbQo9cCkYhgD
+	 pFnjfjuWCJTs+yIt3RDtAqNAiDCoAiHui2OJhRhBYCowSOEV1VWfSBmyym8Ibln6tu
+	 UcM6PltGYTanDC5aCccPggEPGIYEyHLCRAdaKbuwdTWoUGDenqM2LT2EOlndlBNw1S
+	 j3Ffc9+qpNn2ewHtAC/WFPQkhR2ToJsM03J7abKVwQuDMcJlYtbYMao1c7zddAPVxc
+	 vUV2ZXshbPjQRqVQAldDhHN+SKJaRySg1ik9HNWlt7Ra/wMi77iflIcSgoCNrL2rj9
+	 NFzmLZ5YoIE7w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v7 05/21] KVM: s390: vsie: Move pin/unpin guest page
+Subject: Re: [PATCH v7 08/21] KVM: s390: vsie: Create helpers to alloc and
+ free vsie_pages
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260918-vsie-sigpi-v7-5-f39806eaae37@linux.ibm.com>
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260918-vsie-sigpi-v7-8-f39806eaae37@linux.ibm.com>
 References: <20260918-vsie-sigpi-v7-0-f39806eaae37@linux.ibm.com>
- <20260918-vsie-sigpi-v7-5-f39806eaae37@linux.ibm.com>
+ <20260918-vsie-sigpi-v7-8-f39806eaae37@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 18 Sep 2026 15:16:35 +0000
-Message-Id: <20260918151635.8F94C1F000FF@smtp.kernel.org>
+Date: Fri, 18 Sep 2026 15:19:29 +0000
+Message-Id: <20260918151929.B29541F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> Move {,un}pin_guest_page() up in preparation for the next patches to
-> avoid having to resort to forward declarations later on.
-> No change intended.
->=20
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] kvm: s390: unused parameter 'kvm' in alloc_vsie_page()
+--
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+commit 1e1ca0f3e1c46c0196550769e69e63dd15389aa5
+Author: Christoph Schlameuss <schlameuss@linux.ibm.com>
+
+KVM: s390: vsie: Create helpers to alloc and free vsie_pages
+
+This commit encapsulates the allocation and freeing of struct vsie_page
+into their own methods to allow reuse from multiple code paths.
+
+> diff --git a/arch/s390/kvm/s390/vsie.c b/arch/s390/kvm/s390/vsie.c
+> index afc2e56fcabfa..e7005bade7574 100644
+> --- a/arch/s390/kvm/s390/vsie.c
+> +++ b/arch/s390/kvm/s390/vsie.c
+
+[ ... ]
+
+> +static struct vsie_page *alloc_vsie_page(struct kvm *kvm)
+> +{
+> +	struct vsie_page *vsie_page;
+> +
+> +	vsie_page =3D (struct vsie_page *)__get_free_page(GFP_KERNEL_ACCOUNT | =
+__GFP_ZERO | GFP_DMA);
+
+[Severity: Low]
+Does this new function need the kvm parameter? It appears the kvm
+parameter is never used within the body of alloc_vsie_page in=20
+arch/s390/kvm/s390/vsie.c.
+
+> +	if (!vsie_page)
+> +		return vsie_page;
+> +
+> +	/* Mark it as invalid until it resides in the tree. */
+> +	vsie_page->scb_gpa =3D ULONG_MAX;
+> +	return vsie_page;
+> +}
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260918-vsie-sigpi=
--v7-0-f39806eaae37@linux.ibm.com?part=3D5
-
+-v7-0-f39806eaae37@linux.ibm.com?part=3D8
