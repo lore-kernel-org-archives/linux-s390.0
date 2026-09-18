@@ -1,53 +1,53 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7876C3783C4;
-	Fri, 18 Sep 2026 08:48:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B10C4ABBC7;
+	Fri, 18 Sep 2026 08:48:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789721343; cv=none; b=IiMl3HGA/qp7CCwez2fcjDBR/S90Ba5/Psy8ueR8Rhs9WJd4egs71pu6/Faysa8TpqWQ7FkVygjIsxSuKPZcZ7JvbAIYuXbu4N/0fMA37PA5G0GdNlnfCpje5VFMFmDcAe0qe0+BzjgfoVeciSYK3+M2/YdbEIX2T2KogxTJvEw=
+	t=1789721343; cv=none; b=n4DvaRYhZJ4W5jXI6YBcBglFg6ooRexrkg4y5AXXbmI1Jqk44xTx+3tcOfOrfkzol62NAxKagMdwGBJ7KDLf/GnufQp043OTdOurPg1KBsCTDMeeEnlzypKqSepFDmY2mCrWT9nvh6Bp/If0qHtOFg5Mvm1L64HuNBxMEH3Kv5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789721343; c=relaxed/simple;
-	bh=hsSTMnOkgCVsq5THFPEcnlXpX+RhuzOtkcCqcE7Vxus=;
+	bh=t9TxXk816GExzNpVYSmqUlYBgG7VeW2N+Tjgtmdde0Y=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=N1iS4HrmZxUS8nDhbxTIctuID3dZLrzedtUIRduuO7/VDMbgOXw5ZYBx7z5hIpBc90jypFj+KX/ug6pxJScLZcW15h7KpTBrGRB41YlclnZfGoTRZoTiwUadJNm3P81cJjGUBzMDN2FsHeuqisJ0S8Ypvb/RECTwaJ1ufytVBOM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PjhhKI7c; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=bRHOi7fr1WaYAbbu0B0HyYADf3z0X+NG9pxmnJwT1OJj6Apaz9zUdqU94bVzX73RUJs2qXSZ7TuOAagjSnQ9ZmGEmlKMMYVwuPZpNXMqfT4u6BoKfqeyMWm1UMniS5CqZVJwajqIsIvgNCKY9mKVUH09PPpdDFLuwovtZlOd630=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eNWuI35h; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PjhhKI7c"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68I61fhx498317;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eNWuI35h"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68I61e4l3489998;
 	Fri, 18 Sep 2026 08:48:49 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=+aIXhE5xATl253AJX
-	z4Do+ZDyBBQmjcdPIpnowKqkeI=; b=PjhhKI7c35Zx15/6au8BiUiLkwx2YiwTH
-	xCCb8o8L755fpiypwhZVre6ol6Rv+QpiCbzE9xay6QALfh0Po47Dj9zH4Ag52Xff
-	q/L9hISQlc4W9qu4kFgaeqvsVD+gCQrTdcOY3VxoAflCc9vEON3HzOWNyfSf+ezl
-	oInlzz1eEPJZ5+4mmXPNr1IvXBzOBUEEWf+Ea/2cRIWgrNLUcQSeIH2x5kuVrLY7
-	7e14ubgq4HlBE740zfIgw2+fm+6+miG1KvMFu0ITD1QBgTT5EEyEM0XWKb2VSjUb
-	M8ptFjY7Krhzq03DnPhs0gN6PaSL58GECelUXyo1XOAy+hzjlPtMQ==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmxcveggk-1
+	:mime-version:references:subject:to; s=pp1; bh=I+wMOHFy9NdvIWSnv
+	NOdy1HIVwDhgSU6cyZy/p8fcK0=; b=eNWuI35hTli1NkRU7tIUjYxnrBYHqHjn3
+	K51UJrw9kiwu8oEl9cBMW1u7/u7a0qdGc3T6k4pCJLmxynzNzN/X3wtpyrQS+jzJ
+	ZhxBauJigWMWvgKE2ja3HXl6GZLzMgM6zsg41KHmEpCxzq4kUvefmUf7BsErdtbj
+	FTqaRiiJDFCGV6IMmWqBACDZtV6nEAYIYxf+epoJqa+AT6D8zQQkNtJ4PyNdG/t+
+	bZ4mtOLseDldZD522Mih3VcI74lxEQmeZpNnm+nbH9z6UXAPBd1Kq//KMPiDvTCL
+	kVARgEIYWr7WSELCaMKZdvGooR8Zc15kUUIWVQmKfUOGr0MUkh2dA==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmw5eendt-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
 	Fri, 18 Sep 2026 08:48:49 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68I654pl251880;
-	Fri, 18 Sep 2026 08:48:48 GMT
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68I65AGp208533;
+	Fri, 18 Sep 2026 08:48:49 GMT
 Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gra3ywm6s-1
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gr5xa6ewg-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 18 Sep 2026 08:48:48 +0000 (GMT)
+	Fri, 18 Sep 2026 08:48:49 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68I8miKO32178456
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68I8miH832178452
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Fri, 18 Sep 2026 08:48:44 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9E89920040;
+	by IMSVA (Postfix) with ESMTP id 3F9C820043;
 	Fri, 18 Sep 2026 08:48:44 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 740C620043;
+	by IMSVA (Postfix) with ESMTP id 1609020040;
 	Fri, 18 Sep 2026 08:48:44 +0000 (GMT)
 Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -62,9 +62,9 @@ To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Juergen Christ <jchrist@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH v2 09/12] s390/percpu: Use percpu code section for this_cpu_xchg()
-Date: Fri, 18 Sep 2026 10:48:39 +0200
-Message-ID: <20260918084842.2333237-10-hca@linux.ibm.com>
+Subject: [PATCH v2 07/12] s390/percpu: Use __PCPU_BEGIN() and __PCPU_END() for inline assemblies
+Date: Fri, 18 Sep 2026 10:48:37 +0200
+Message-ID: <20260918084842.2333237-8-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260918084842.2333237-1-hca@linux.ibm.com>
 References: <20260918084842.2333237-1-hca@linux.ibm.com>
@@ -76,97 +76,205 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE4MDExNyBTYWx0ZWRfX4e734ZXrRoyk
- I24zDUzGqj1h5sQDFU2MEvKqJJFSYB6aiyGxfKyVRsYtU5h0H05unSYqHHoQHfPNB1dmspBNhRg
- l4o437WR6Fof40mQI3EIJowX/fGZ7E4=
-X-Proofpoint-ORIG-GUID: 5xCKCya4EeDuM_N1gzCzBfNvvNWfO5xH
-X-Proofpoint-GUID: 5xCKCya4EeDuM_N1gzCzBfNvvNWfO5xH
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE4MDExNyBTYWx0ZWRfX0GjDJ4IClgDc
- yrMwEBzg7POkF5b+hi36GKjXJo/dOU6MANeRSdVUnQ+ZPnhtyecODZK/OzNRALpFFBCC5+a6WIh
- +36ZlROYcC20tjXI9oUwaFv7hwE67xabbXsrpK5IvJ5fOgmBvel2rB2P2mb7SQDr/Vnbd6W8Xz9
- asY/M14ufvEYAYMm2yn4w6sVLhGFOJ8e4nv52NmrSM4e0Ypw2oZBT/tn1sAc/6SKW/E4OS6B/kB
- 0bvic7+rghMLcB6/pDSEKTu0aUTnZhywwVmxYEUwx9cs15gF+/nFXpTJITUen6t3S3w9fkOmxMC
- jzD5dz2tL3s3GQtAmRkaXPCu0IyVeceiOajCoiA9zGQiXoh+40l2Q62eeNC2cZY2va00fCCo/v/
- obFVbQ1yZmMcyRAaQ3+pzoNyaSQa1wJQ/S92ibX3RSf8c333Y0RPBCKOQPMDb701yPUqW0XAoAF
- kBqw+/DYoslTiH/rQAw==
-X-Authority-Analysis: v=2.4 cv=F+7C5ahN c=1 sm=1 tr=0 ts=6aacfaf1 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE4MDExNyBTYWx0ZWRfX+gjKEnAIFzUQ
+ a0Qc8nYsmAqGF8tYZzJKY1S6digLPXixDp8oqj3bUZXZT6z6wotAAW7MJCb6J0EKdqwybLJtlQm
+ 0uC1tatp31QO9jTaG8ZJaB5Hh/OKdEkMwrCK3oOqmloZGhVy1K9QxVP3rZh8LTjT3XX2hXVn5Tz
+ W3VPFUl/cfE1Mq/G5lxOnYO9vn2fjqj7AAhytLPMUPwE5/0JrBBV6MczH0/y+edcPBJrnfuSusq
+ zWlO2Hvpvcsf4ROZnJNbNmse/tjrJbi3F+uiyyW4TfXGMnCb0Alw4GiUQYEWJOxkVb5GHfSbK7c
+ nqZZ2rqbNE9t/v7+o/6xmo6AjD8/rVpVUxKGYQx4z2KMWJPNHyh2NkCyD3+CcWlpQGdkIbH2C99
+ Czu8lz9QCR8oVfW0CR2Rz4L/m+ImS0pxLoHRhIEIHsHzF36qGdeuT8yGFl1T+6oAHODVB8lxv9A
+ hYqrG9ITOg+i1cRuSXw==
+X-Authority-Analysis: v=2.4 cv=E/NYNqdl c=1 sm=1 tr=0 ts=6aacfaf1 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=CR6qe3_hcmaCbRXVjxMA:9
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=7qROLAO0VneCJbZu0JoA:9
+X-Proofpoint-ORIG-GUID: sJuNK3EaFOxdzY-TM40HI__U8EQv8w6e
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE4MDExNyBTYWx0ZWRfX1ZDzvG+B+PQ4
+ 7p81SyHR+YJIOhERL1Y3QiPIczCxnZMjG92sZ2j4Ad1wcMaomhFSk42JtlZ0UK9N+iFkhS4I71w
+ 2PcRhJcvCUzU3CO7p0wjMO3H6ytsj4M=
+X-Proofpoint-GUID: sJuNK3EaFOxdzY-TM40HI__U8EQv8w6e
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-18_02,2026-09-16_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 suspectscore=0 phishscore=0 clxscore=1015 malwarescore=0
- lowpriorityscore=0 bulkscore=0 spamscore=0 impostorscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609180117
+ impostorscore=0 lowpriorityscore=0 priorityscore=1501 spamscore=0
+ adultscore=0 clxscore=1015 bulkscore=0 malwarescore=0 suspectscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
+ definitions=main-2609180117
 
-Convert this_cpu_xchg() to make use of percpu code section
-functionality in order to get rid of preempt_disable() and
-preempt_enable() calls.
+Replace the use of MVIY_PERCPU(), AG_ALT(), and MVIY_ALT() within all
+percpu inline assemblies with __PCPU_BEGIN() and __PCPU_END(), since
+the begin and end of each inline assembly is the same.
 
-Consider only four and eight byte usages, since there are compare and
-swap instructions for one and two bytes available. For one and two
-byte use the previous simple implementation.
+Also use consistent names: e.g. __PCPU_MVIY() and __PCPU_AG() instead of
+the previous MVIY_PERCPU() and AG_ALT().
+
+Furthermore extract DEFINE_GR_NUM and UNDEF_GR_NUM which are used to
+convert register strings to register numbers.
+
+All of this should make the code more readable. No functional change.
 
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/include/asm/percpu.h | 34 +++++++++++++++++++++++++++++-----
- 1 file changed, 29 insertions(+), 5 deletions(-)
+ arch/s390/include/asm/percpu.h | 83 +++++++++++++++++-----------------
+ 1 file changed, 42 insertions(+), 41 deletions(-)
 
 diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
-index 0eae65937c0d..237bf8c80843 100644
+index 0df47ec2e6c7..78c3aaa138f7 100644
 --- a/arch/s390/include/asm/percpu.h
 +++ b/arch/s390/include/asm/percpu.h
-@@ -331,7 +331,7 @@ do {									\
- 	old__;								\
- })
+@@ -92,42 +92,49 @@
+  *
+  * Inline assemblies making use of this typically have a code sequence like:
+  *
+- *   MVIY_PERCPU(...) <- start of percpu code section
+- *   AG_ALT(...)      <- add percpu offset; must be the second instruction
+- *   atomic_op	      <- atomic op
+- *   MVIY_ALT(...)    <- end of percpu code section
++ *   __PCPU_BEGIN(...) <- start of percpu code section
++ *   atomic_op	       <- atomic op
++ *   __PCPU_END(...)   <- end of percpu code section
+  */
  
--#define arch_this_cpu_xchg(pcp, nval)					\
-+#define arch_this_cpu_xchg_simple(pcp, nval)				\
- ({									\
- 	typeof(pcp) *ptr__;						\
- 	typeof(pcp) ret__;						\
-@@ -342,10 +342,34 @@ do {									\
- 	ret__;								\
- })
+ #define LC_ALT_ADDR	__stringify(LOWCORE_ALT_ADDRESS)
  
--#define this_cpu_xchg_1(pcp, nval) arch_this_cpu_xchg(pcp, nval)
--#define this_cpu_xchg_2(pcp, nval) arch_this_cpu_xchg(pcp, nval)
--#define this_cpu_xchg_4(pcp, nval) arch_this_cpu_xchg(pcp, nval)
--#define this_cpu_xchg_8(pcp, nval) arch_this_cpu_xchg(pcp, nval)
-+#define arch_this_cpu_xchg(pcp, nval, ldop, csop)			\
-+({									\
-+	typedef typeof(pcp) pcp_op_T__;					\
-+	pcp_op_T__ old__, new__ = (nval);				\
-+	pcp_op_T__ *ptr__;						\
-+									\
-+	ptr__ = PERCPU_PTR(&(pcp));					\
-+	asm_inline volatile(						\
-+		__PCPU_BEGIN("%[lcreg]","%[lcoff]","%[ptr__]")		\
-+		"	" ldop "	%[old__],0(%[ptr__])\n"		\
-+		"0:	" csop "	%[old__],%[new__],0(%[ptr__])\n"\
-+		"	jnz	0b\n"					\
-+		__PCPU_END("%[lcreg]")					\
-+		: [old__] "=&d" (old__),				\
-+		  [ptr__] "+&a" (ptr__), "+m" (*ptr__),			\
-+		  "=m" (((struct lowcore *)0)->percpu_register)		\
-+		: [new__] "d" (new__),					\
-+		  [lcreg] "i" (LC_PERCPU_REGISTER),			\
-+		  [lcoff] "i" (LC_PERCPU_OFFSET),			\
-+		  "m" (((struct lowcore *)0)->percpu_offset)		\
-+		: "memory", "cc");					\
-+	old__;								\
-+})
+-#define MVIY_PERCPU(disp, reg)							\
+-	".macro GEN_MVIY disp, reg\n"						\
+-	".set	.Lreg,255\n"							\
+-	".irp	rs,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15\n"			\
+-	"	.ifc \\reg,%%r\\rs\n"						\
+-	"		.set	.Lreg,\\rs\n"					\
++#define DEFINE_GR_NUM								\
++	".macro _GR_NUM opd, gr\n"						\
++	".set	\\opd,255\n"							\
++	".irp rs,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15\n"			\
++	"	.ifc \\gr,%%r\\rs\n"						\
++	"		\\opd = \\rs\n"						\
+ 	"	.endif\n"							\
+ 	".endr\n"								\
+-	".if .Lreg == 255\n"							\
++	".if \\opd == 255\n"							\
+ 	"	.error \"Illegal register number\"\n"				\
+ 	".endif\n"								\
+-	"mviy	\\disp(%%r0),.Lreg\n"						\
+-	".endm\n"								\
+-	ALTERNATIVE("GEN_MVIY " disp		     " , " reg "\n",		\
+-		    "GEN_MVIY " disp "+" LC_ALT_ADDR " , " reg "\n",		\
+-		    ALT_FEATURE(MFEATURE_LOWCORE))				\
+-	".purgem GEN_MVIY\n"
++	".endm\n"
+ 
+-#define MVIY_ALT(disp)								\
+-	ALTERNATIVE("	mviy	" disp		       "(%%r0),0\n",		\
+-		    "	mviy	" disp "+" LC_ALT_ADDR "(%%r0),0\n",		\
++#define UNDEF_GR_NUM								\
++	".purgem _GR_NUM\n"
 +
-+#define this_cpu_xchg_1(pcp, nval) arch_this_cpu_xchg_simple(pcp, nval)
-+#define this_cpu_xchg_2(pcp, nval) arch_this_cpu_xchg_simple(pcp, nval)
-+#define this_cpu_xchg_4(pcp, nval) arch_this_cpu_xchg(pcp, nval, "l",  "cs")
-+#define this_cpu_xchg_8(pcp, nval) arch_this_cpu_xchg(pcp, nval, "lg", "csg")
++#define __PCPU_MVIY(lcreg, imm)							\
++	ALTERNATIVE("	mviy	" lcreg			"(%%r0)," imm "\n",	\
++		    "	mviy	" lcreg "+" LC_ALT_ADDR "(%%r0)," imm "\n",	\
+ 		    ALT_FEATURE(MFEATURE_LOWCORE))
  
- #include <asm-generic/percpu.h>
+-#define AG_ALT(disp, reg)							\
+-	ALTERNATIVE("	ag	" reg ", " disp			"(%%r0)\n",	\
+-		    "	ag	" reg ", " disp "+" LC_ALT_ADDR "(%%r0)\n",	\
++#define __PCPU_AG(reg, lcoff)							\
++	ALTERNATIVE("	ag	" reg ", " lcoff		 "(%%r0)\n",	\
++		    "	ag	" reg ", " lcoff "+" LC_ALT_ADDR "(%%r0)\n",	\
+ 		    ALT_FEATURE(MFEATURE_LOWCORE))
  
++#define __PCPU_BEGIN(lcreg, lcoff, reg)						\
++	DEFINE_GR_NUM								\
++	"_GR_NUM .Lreg, " reg "\n"						\
++	UNDEF_GR_NUM								\
++	__PCPU_MVIY(lcreg, ".Lreg")						\
++	__PCPU_AG(reg, lcoff)
++
++#define __PCPU_END(lcreg)							\
++	__PCPU_MVIY(lcreg, "0")
++
+ #ifndef MARCH_HAS_Z196_FEATURES
+ 
+ #define this_cpu_add_4(pcp, val)	arch_this_cpu_to_op_simple(pcp, val, +)
+@@ -151,10 +158,9 @@ do {										\
+ 	if (__builtin_constant_p(val__) &&					\
+ 	    ((szcast)val__ > -129) && ((szcast)val__ < 128)) {			\
+ 		asm volatile(							\
+-			MVIY_PERCPU("%[lcreg]","%[ptr__]")			\
+-			AG_ALT("%[lcoff]", "%[ptr__]")				\
++			__PCPU_BEGIN("%[lcreg]","%[lcoff]","%[ptr__]")		\
+ 			op2 "   0(%[ptr__]),%[val__]\n"				\
+-			MVIY_ALT("%[lcreg]")					\
++			__PCPU_END("%[lcreg]")					\
+ 			: [ptr__] "+&a" (ptr__), "+m" (*ptr__),			\
+ 			  "=m" (((struct lowcore *)0)->percpu_register)		\
+ 			: [val__] "i" ((szcast)val__),				\
+@@ -164,10 +170,9 @@ do {										\
+ 			: "cc");						\
+ 	} else {								\
+ 		asm volatile(							\
+-			MVIY_PERCPU("%[lcreg]", "%[ptr__]")			\
+-			AG_ALT("%[lcoff]", "%[ptr__]")				\
++			__PCPU_BEGIN("%[lcreg]","%[lcoff]","%[ptr__]")		\
+ 			op1 "   %[old__],%[val__],0(%[ptr__])\n"		\
+-			MVIY_ALT("%[lcreg]")					\
++			__PCPU_END("%[lcreg]")					\
+ 			: [old__] "=&d" (old__),				\
+ 			  [ptr__] "+&a" (ptr__),  "+m" (*ptr__),		\
+ 			  "=m" (((struct lowcore *)0)->percpu_register)		\
+@@ -190,10 +195,9 @@ do {										\
+ 									\
+ 	ptr__ = PERCPU_PTR(&(pcp));					\
+ 	asm_inline volatile(						\
+-		MVIY_PERCPU("%[lcreg]","%[ptr__]")			\
+-		AG_ALT("%[lcoff]","%[ptr__]")				\
++		__PCPU_BEGIN("%[lcreg]","%[lcoff]","%[ptr__]")		\
+ 		op "	%[old__],%[val__],0(%[ptr__])\n"		\
+-		MVIY_ALT("%[lcreg]")					\
++		__PCPU_END("%[lcreg]")					\
+ 		: [old__] "=&d" (old__),				\
+ 		  [ptr__] "+&a" (ptr__), "+m" (*ptr__),			\
+ 		  "=m" (((struct lowcore *)0)->percpu_register)		\
+@@ -216,10 +220,9 @@ do {									\
+ 									\
+ 	ptr__ = PERCPU_PTR(&(pcp));					\
+ 	asm_inline volatile(						\
+-		MVIY_PERCPU("%[lcreg]","%[ptr__]")			\
+-		AG_ALT("%[lcoff]","%[ptr__]")				\
++		__PCPU_BEGIN("%[lcreg]","%[lcoff]","%[ptr__]")		\
+ 		op "    %[old__],%[val__],0(%[ptr__])\n"		\
+-		MVIY_ALT("%[lcreg]")					\
++		__PCPU_END("%[lcreg]")					\
+ 		: [old__] "=&d" (old__),				\
+ 		  [ptr__] "+&a" (ptr__), "+m" (*ptr__),			\
+ 		  "=m" (((struct lowcore *)0)->percpu_register)		\
+@@ -245,10 +248,9 @@ do {									\
+ 									\
+ 	ptr__ = PERCPU_PTR(&(pcp));					\
+ 	asm_inline volatile(						\
+-		MVIY_PERCPU("%[lcreg]","%[ptr__]")			\
+-		AG_ALT("%[lcoff]","%[ptr__]")				\
++		__PCPU_BEGIN("%[lcreg]","%[lcoff]","%[ptr__]")		\
+ 		op "	%[res__],0(%[ptr__])\n"				\
+-		MVIY_ALT("%[lcreg]")					\
++		__PCPU_END("%[lcreg]")					\
+ 		: [res__] "=&d" (res__), [ptr__] "+&a" (ptr__),		\
+ 		  "=m" (((struct lowcore *)0)->percpu_register)		\
+ 		: [lcreg] "i" (LC_PERCPU_REGISTER),			\
+@@ -271,10 +273,9 @@ do {									\
+ 									\
+ 	ptr__ = PERCPU_PTR(&(pcp));					\
+ 	asm_inline volatile(						\
+-		MVIY_PERCPU("%[lcreg]","%[ptr__]")			\
+-		AG_ALT("%[lcoff]","%[ptr__]")				\
++		__PCPU_BEGIN("%[lcreg]","%[lcoff]","%[ptr__]")		\
+ 		op "    %[val__],0(%[ptr__])\n"				\
+-		MVIY_ALT("%[lcreg]")					\
++		__PCPU_END("%[lcreg]")					\
+ 		: [ptr__] "+&a" (ptr__), "=m" (*ptr__),			\
+ 		  "=m" (((struct lowcore *)0)->percpu_register)		\
+ 		: [val__] "d" (val__),					\
 -- 
 2.53.0
 
