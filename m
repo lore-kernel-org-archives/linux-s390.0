@@ -1,71 +1,60 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0C0450AC23
-	for <linux-s390@vger.kernel.org>; Fri, 18 Sep 2026 15:23:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D0EB502792;
+	Fri, 18 Sep 2026 15:24:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789744999; cv=none; b=q76RgacunSrAuaa+c2UNloV+wRGXWl/F88ZmYjqtYOFCbxGXdgqEHenz/nQ8bUGodh9aTmaacSFwza7Y+T5g23lJCcHfi6vDVVjfpEQvQjCdXscRM1y1p1pJ3qjXfasccheLIH2jEdSmXiOh43Mw/7Ns3uJy6n3OSJMfXPS2hu0=
+	t=1789745045; cv=none; b=T9QO0XhhETwIu93NmPZhg5NJIumc4dwzKFNYi38SigfnCHHIxXraTHpRmFw9yZIRODXtWnwPkdAMgtqryPrbavrhDXPq8Mhs29lBC2MwR2vNLHIMQfEjtDCUtPo8Mga1vAPKpVNmZdzaY2iWSPXly/tX+iHU2NjTDCXNv/11wiA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789744999; c=relaxed/simple;
-	bh=JE6XrW2bsuX228vQ2XaqOcrM7qRZyZFJEGTOrJfmZfw=;
+	s=arc-20240116; t=1789745045; c=relaxed/simple;
+	bh=7EgPpv6+7E85k29wDOwrtNWuCMOQn0Utmy1LBeYCyvY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=MMqHZixwj2WiDpso5Gb3e8/2kRoQn6HZA93oD+sjzILtkj+TJVRwyrkDyCo4uvqzjwBjozPBgFi3q/Oo35tk37Im8rJWT8AI2ZY3Q3OdS1N4axyVUJiw3SwLsONdruo12VxuQYDpRp0n7O9UDPCEw8gb5GSxPuZub57UluN6PU4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Urom4nCc; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=gwOswyLyVPWakqG3gLqEffyd1h3VhS4C0WIMUXNCQsKsdNVS4P7CA5lqOMFTZxEgonGvmZBqNP6GKctOJ9nMKLoB++tmswH0FlhXpUIjbORFzAmhWPDiMc9BYzmdEHu5pwmc/Y177VWwXF2zG9FE7YnVp0OVoaY7+Y6ejQ6G1ok=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=me1LSRY0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Urom4nCc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CDC21F000FF;
-	Fri, 18 Sep 2026 15:23:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="me1LSRY0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86C0C1F000FF;
+	Fri, 18 Sep 2026 15:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789744997;
-	bh=JE6XrW2bsuX228vQ2XaqOcrM7qRZyZFJEGTOrJfmZfw=;
+	s=k20260515; t=1789745043;
+	bh=7EgPpv6+7E85k29wDOwrtNWuCMOQn0Utmy1LBeYCyvY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Urom4nCcXXlrkNzWl8O70xDO4DrnS0py4cJqTwcnbkgrPzfj8KbZ+qslOqU/Jb6Uf
-	 27rbcBq+wO6q21FrF8j5ObyY2IsPcVkc+kbeTmnBZ1jswwVgyWPMVlTxauCDoDnR/d
-	 s1rqKWt/iPThh80RcUPMQ70ywM/f3yyaIvF+dWNMyJ1gq5aYIkQaUdEt2huF5TOJa6
-	 7VOzhMH+JpDzdHDPM6CV3oC7hcJi+HQvJzUj77ZdGUKWJ8G86sVwOZHzDoIwWynCaJ
-	 vWDMdqrM3Oe77sg+Kx90GhTqKY7LHj0TJrMfCQOQQJgB+N/+R6F69b19Z6+/rIOmfK
-	 uW07Pbcsgw2Vg==
+	b=me1LSRY0LeE5Wtibj5GQgeL+o759a3yPyUEEKwCszBwHggfRWa3Z8rgMxE9flvcJT
+	 wMo2WFz7X8uqO/SXibLrCwOhlI3KqcbXG/9Sr0EIcBHliFPlDfUg1hSB6fTWglgU5f
+	 yzcHWl/j8h3llMLH7lbZ4r0krI3vsh500Oiss9H1VLOEPvldKFqsU5+/k2TM09O5BC
+	 C9ud22o5fyNn5z9mGNesSnPNhvLMy1f2IO9uajnhGOQYDoCLCo9Td8YJsyXflWWA8F
+	 lQ8+Fgk7kvmyL6MBnpI65xQ1da/dua9WHgs6jLE2c7jHF5w0oX76Kn8B73MeXHz2/e
+	 kAQpQYcSYEE3g==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] s390/debug: Do not register views for failed static
- debug areas
+Subject: Re: [PATCH v7 06/21] KVM: s390: vsie: Move pin/unpin_scb methods
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mikhail Zaslonko" <zaslonko@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260918151351.3977090-1-zaslonko@linux.ibm.com>
-References: <20260918151351.3977090-1-zaslonko@linux.ibm.com>
+To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260918-vsie-sigpi-v7-6-f39806eaae37@linux.ibm.com>
+References: <20260918-vsie-sigpi-v7-0-f39806eaae37@linux.ibm.com>
+ <20260918-vsie-sigpi-v7-6-f39806eaae37@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 18 Sep 2026 15:23:16 +0000
-Message-Id: <20260918152317.1CDC21F000FF@smtp.kernel.org>
+Date: Fri, 18 Sep 2026 15:24:03 +0000
+Message-Id: <20260918152403.86C0C1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> __REGISTER_STATIC_DEBUG_INFO() calls debug_register_view()
-> unconditionally, even when debug_register_static() has failed. In that
-> case _debug_register() was never reached and id->debugfs_root_entry is
-> still NULL, so debugfs_create_file() places the view file in the debugfs
-> root directory. For sclp_err this leaves a /sys/kernel/debug/hex_ascii
-> file with nothing to indicate which debug log it belongs to.
+> Move {,un}pin_scb() up in preparation for the next patches to avoid
+> having to resort to forward declarations later on.
+> No change intended.
 >=20
-> debug_register_static() is not exported and the macro is its only
-> caller, so let it return an error code and skip the view registration
-> when it fails. No debugfs files are created for such an area then.
->=20
-> Reproduce by booting with s390dbf=3Dsclp_err::100000000. The sclp_err
-> registration fails, no s390dbf/sclp_err/ directory is created, and a
-> hex_ascii file appears in the debugfs root instead.
->=20
-> Fixes: d72541f94512 ("s390/debug: add early tracing support")
-> Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260918151351.3977=
-090-1-zaslonko@linux.ibm.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260918-vsie-sigpi=
+-v7-0-f39806eaae37@linux.ibm.com?part=3D6
 
