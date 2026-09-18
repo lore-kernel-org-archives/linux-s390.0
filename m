@@ -1,133 +1,150 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E5A435200A;
-	Fri, 18 Sep 2026 15:50:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC3C05038EA;
+	Fri, 18 Sep 2026 15:50:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789746625; cv=none; b=axFAyBpVT2hpjBHPNf1r85n0ueNXw/ds5U8+HRj8zdHQ/sYMW5l0LnFJJd9ZmwXv9xRusR+qxdjnq0bjcvAPV0iJ1wxYyH/KhUFwKGz9N6F8BT37vbvBOE9T8A6JQNmKjXvPUayR1/L8NkwZad5cIsS3lOUMtipcV5fVyhFetSU=
+	t=1789746652; cv=none; b=mY/xq7+Pf0XCIoNVGrSeAbNH4BxGgbbLhwfB1JK0fLixFEVdULPOsXwB+o62WazOl3tti47TT8B0F1zOxTxc3HgJ/nB6inTXHOHe0Xg8D/AGweixHyOLEmwb3DF5XteidAvHjvJNaZWL4JGRt8EiTJd7562LVnxYP6yS5vnQ99s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789746625; c=relaxed/simple;
-	bh=3pydJXIY6t+I/XfxRLCONssK3/5BuI74h/FogHWBZS4=;
+	s=arc-20240116; t=1789746652; c=relaxed/simple;
+	bh=c0ulTxHGkAoUymxsk6rAHzEebFJZhNNs6FHlItbMSfc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=HqMnMWcHBeC/b53Y3kCy43iuGGnKRPPfgG87WDkc1USQ5sxfO9KnxEq5Z5mp3B4fNZQMGeSt2vbE7hLGUpEZ9LV6ovZush0SMnRaqNxXJdW0mEacxgm8vdLsdiZIeCpGSfW79eloJWltdcgDDlNaUPmdmvmu4BBasd2THXmDNA0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LXvmXkRV; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ul+AVhT7Ff9XZEAoTmbHEbvXw6SDSGpRjfxKnxdtQhQqH3gcBMGkY6yZIEvva23/4gFJ0A2RKCfAwHjRirLiMY2ZcOcQVa4MxkMFFj1EqGDWnmOKE9T4Lik7JIA68WbXR7/j7zSmt09QbfV0kAdFuy3qudTg/L6Sy8ftic9d9NY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Zr6y8qd5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LXvmXkRV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F40151F000FF;
-	Fri, 18 Sep 2026 15:50:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Zr6y8qd5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11C9B1F000FF;
+	Fri, 18 Sep 2026 15:50:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789746624;
-	bh=xRP/XXIBu2PhX3zWK2M82UVWtfYpK8lLARY3tJ1TmyM=;
+	s=k20260515; t=1789746650;
+	bh=P++khf8ZZmxK6RYPJo0Vkd9e6O/83RWhDxGp1k2CSZg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=LXvmXkRVU7LXbEHp1reV62bvKj0/utGHvxE4Yjnz0luD8NZZ++y7HunXKU3+7xLF1
-	 5QtqwLZOmm8qFWum3oBiPdKGZwBXyb2JIzfnZNfpdFeZQEsMsnKOLc5gv/RPAW0sCh
-	 CmGWZsNFuYlriPKDTenWw9iiv9oh8xlFzKvlbYtgJ8tf4J9mtibvTjklHDXIE3tk8o
-	 vLqFcUXGWlTgC6331vB5bHJ1nkyWJhd09gbBa6KfdxetQg6rnygHZeZQyL1UzteKOD
-	 N8K88ZBXab+GGyQAYyzjnZPoRb68/Deab0s7Q0+SWjt79Xqo5rSPFt4/tJhFYNod6W
-	 k0ye4OVkUJSfw==
+	b=Zr6y8qd5pX8gDi2LjEBQS0SURoqAC3yDmKDpDmr0LLiHhKy//Q/xL78uOyMlCxmJI
+	 KcC8P41RAM94OWSMGe1hS/9mdoVNN6KqPpzez3fUxtwwbZpvo64MjAxVKsrRQ2eZcY
+	 AFqpKujzzyf8HQVTAxwLmputofM2K0UZW3qFpcdgK6QgXwNNDlnPY/odE2/yKQIEva
+	 pBxy5/XldKjpxMQwO+PRqfhTKyUSqTddx3weW+/IKoyZrAJLZHd7dy3w3o9VDWbTxE
+	 H2yhcrE+47owL5hA9Glf35SeOcynD/dCTQKNzK00HbubC1fFanXBWfLK3IlGio5EJs
+	 bJh4WVPog5b4w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 16/29] arm64: Share arm64 headers with s390
+Subject: Re: [PATCH v7 20/21] KVM: s390: vsie: Create minimal scb shadows
+ for not running g3 blocks
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Steffen Eiden" <seiden@linux.ibm.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Marc
- Zyngier" <maz@kernel.org>, "Heiko Carstens" <hca@linux.ibm.com>, kvmarm@lists.linux.dev, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Oliver Upton" <oupton@kernel.org>, kvm@vger.kernel.org
-In-Reply-To: <20260918133107.1042730-17-seiden@linux.ibm.com>
-References: <20260918133107.1042730-1-seiden@linux.ibm.com>
- <20260918133107.1042730-17-seiden@linux.ibm.com>
+To: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, kvm@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260918-vsie-sigpi-v7-20-f39806eaae37@linux.ibm.com>
+References: <20260918-vsie-sigpi-v7-0-f39806eaae37@linux.ibm.com>
+ <20260918-vsie-sigpi-v7-20-f39806eaae37@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 18 Sep 2026 15:50:23 +0000
-Message-Id: <20260918155023.F40151F000FF@smtp.kernel.org>
+Date: Fri, 18 Sep 2026 15:50:49 +0000
+Message-Id: <20260918155050.11C9B1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Low] build: fragile cross-architecture coupling via text extraction
+- [High] kvm: s390: vsie: host DoS via unbacked nested SCA address
+- [Medium] kvm: s390: vsie: missing hpid and cpnc in minimal shadow SCB bre=
+aks SIGPI
 --
 
-commit 7c91cae0fde64b5f320fb846c975eb58dd534362
-Author: Steffen Eiden <seiden@linux.ibm.com>
+commit feee29bf065106ccfaff09da7c439bae1d45d3eb
+Author: Christoph Schlameuss <schlameuss@linux.ibm.com>
+Subject: KVM: s390: vsie: Create minimal scb shadows for not running g3 blo=
+cks
 
-arm64: Share arm64 headers with s390
+This commit optimizes the shadowing of vSIE control blocks by creating a
+minimal shadow for non-running guest-3 blocks instead of a full shadow. The
+minimal shadow is designed to only contain information necessary for SIGPI =
+and
+SRSI, reducing the overhead of shadowing the entire guest-3 configuration.
 
-This commit prepares arm64 headers to be shared with s390 by adding
-ifdef markers and comments. A preprocessor symbol is added to the arm64
-Makefile to keep the code active on arm64 while s390 can extract it.
-
-> diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
-> index 6b005c8fef706..12cbad460258f 100644
-> --- a/arch/arm64/Makefile
-> +++ b/arch/arm64/Makefile
-> @@ -45,6 +45,11 @@ KBUILD_CFLAGS	+=3D $(CC_FLAGS_NO_FPU) \
->  KBUILD_CFLAGS	+=3D $(call cc-disable-warning, psabi)
->  KBUILD_AFLAGS	+=3D $(compat_vdso)
+> diff --git a/arch/s390/kvm/s390/vsie.c b/arch/s390/kvm/s390/vsie.c
+> index 59037964efc9e..c99cc03ecb81d 100644
+> --- a/arch/s390/kvm/s390/vsie.c
+> +++ b/arch/s390/kvm/s390/vsie.c
+[ ... ]
+> @@ -722,6 +721,39 @@ static void unshadow_scb(struct kvm_vcpu *vcpu, stru=
+ct vsie_page *vsie_page)
+>  		scb_o->ihcpu =3D scb_s->ihcpu;
+>  }
 > =20
-> +# Enable all code shared to s390
-> +KBUILD_CFLAGS	+=3D -DARM64_S390_COMMON
-
-[Severity: Low]
-Does adding a global define purely to wrap code for an s390 extraction
-script create a fragile build coupling? This couples the s390 build to=20
-the exact formatting and macro placement in arm64 headers.
-
-> +KBUILD_AFLAGS	+=3D -DARM64_S390_COMMON
-> +KBUILD_CPPFLAGS	+=3D -DARM64_S390_COMMON
+> +static int shadow_scb_minimal(struct kvm_vcpu *vcpu, struct vsie_page *v=
+sie_page)
+> +{
+> +	struct kvm_s390_sie_block *scb_s =3D &vsie_page->scb_s;
+> +	struct kvm_s390_sie_block *scb_o =3D vsie_page->scb_o;
+> +	int rc;
 > +
+> +	/* make sure we don't have any leftovers when reusing the scb */
+> +	scb_s->icptcode =3D 0;
+> +	scb_s->eca =3D 0;
+> +	scb_s->ecb =3D 0;
+> +	scb_s->ecb2 =3D 0;
+> +	scb_s->ecb3 =3D 0;
+> +	scb_s->ecd =3D 0;
+> +	scb_s->fac =3D 0;
+> +	scb_s->fpf =3D 0;
+> +
+> +	rc =3D prepare_cpuflags(vcpu, vsie_page);
 
-[ ... ]
+[Severity: Medium]
+Does this zeroing sequence miss carrying over the HPID and CPNC values?
 
-> diff --git a/arch/arm64/include/asm/brk-imm.h b/arch/arm64/include/asm/br=
-k-imm.h
-> index beb42c62b6acc..dd2d153dc0d81 100644
-> --- a/arch/arm64/include/asm/brk-imm.h
-> +++ b/arch/arm64/include/asm/brk-imm.h
-> @@ -2,6 +2,7 @@
->  /*
->   * Copyright (C) 2012 ARM Ltd.
->   */
-> +/* Whole file is shared with s390 */
+Unlike the full shadow_scb(), shadow_scb_minimal() does not seem to set
+scb_s->hpid =3D HPID_VSIE or copy scb_o->cpnc to scb_s->cpnc. Without the
+correct HPID (0x5) initialized in the minimal shadow SCB, will hardware SIGP
+Interpretation (SIGPI) fail or incorrectly intercept for non-running guest-3
+CPUs?
 
-[Severity: Low]
-Is it robust to rely on an informal textual comment to drive cross-architec=
-ture
-sharing instead of moving the file to an architecture-neutral location like
-asm-generic? Normal refactoring by arm64 maintainers could trivially break
-the s390 build if they remove or modify these marker comments.
+The hardware SIGPI mechanism requires the sender's HPID to match the target
+SCB's HPID.
 
-> =20
->  #ifndef __ASM_BRK_IMM_H
->  #define __ASM_BRK_IMM_H
 
-[ ... ]
+[Severity: High]
+Can an L2 guest setting an unbacked nested SCA address cause a host DoS?
 
-> diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/as=
-m/kvm_emulate.h
-> index a34a9417ff4da..09f04a5686a18 100644
-> --- a/arch/arm64/include/asm/kvm_emulate.h
-> +++ b/arch/arm64/include/asm/kvm_emulate.h
-> @@ -47,6 +47,7 @@ void kvm_skip_instr32(struct kvm_vcpu *vcpu);
->  int kvm_inject_dabt_excl_atomic(struct kvm_vcpu *vcpu, u64 addr);
->  int kvm_inject_serror_esr(struct kvm_vcpu *vcpu, u64 esr);
-> =20
-> +#ifdef ARM64_S390_COMMON
->  void kvm_inject_undefined(struct kvm_vcpu *vcpu);
+Looking at get_vsie_sca() and kvm_s390_handle_vsie() in
+arch/s390/kvm/s390/vsie.c, if a malicious L2 guest sets sca_gpa in its SCB
+to an invalid or unbacked guest physical address, pin_sca() fails and
+returns -EINVAL:
 
-[Severity: Low]
-Could this genuinely shared component be factored into a common include
-directory like include/kvm or include/linux instead of being spliced via
-build-time regex parsing? Adding s390-specific extraction guards into
-arm64 headers requires arm64 maintainers to accommodate s390 build scripts
-when modifying ifdef boundaries.
+arch/s390/kvm/s390/vsie.c:get_vsie_sca() {
+    ...
+	rc =3D pin_sca(kvm, vsie_sca);
+	if (rc) {
+		put_vsie_sca(vsie_sca);
+		vsie_sca->sca_gpa =3D ULONG_MAX;
+		goto out;
+	}
+    ...
+}
 
->  void kvm_inject_sync(struct kvm_vcpu *vcpu, u64 esr);
->  int kvm_inject_sea(struct kvm_vcpu *vcpu, bool iabt, u64 addr);
+This unhandled -EINVAL is then propagated unmodified through
+get_vsie_sca() and returned by kvm_s390_handle_vsie() out of the instruction
+handler, instead of injecting a validity intercept:
+
+arch/s390/kvm/s390/vsie.c:kvm_s390_handle_vsie() {
+    ...
+out_unpin:
+	unpin_guest_page(vcpu->kvm, scb_addr, scb_hpa);
+
+	if (rc =3D=3D -EAGAIN) {
+		kvm_s390_rewind_psw(vcpu, 4);
+		rc =3D 0;
+	}
+	return rc < 0 ? rc : 0;
+}
+
+Does this bypass the -EAGAIN check and bubble up to the KVM core, crashing
+the host userspace process (e.g., QEMU) and bringing down the entire L1 VM?
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260918133107.1042=
-730-1-seiden@linux.ibm.com?part=3D16
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260918-vsie-sigpi=
+-v7-0-f39806eaae37@linux.ibm.com?part=3D20
