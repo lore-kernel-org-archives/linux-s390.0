@@ -1,74 +1,99 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC311522699;
-	Fri, 18 Sep 2026 19:45:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9871466B17;
+	Fri, 18 Sep 2026 19:59:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.97.179.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789760752; cv=none; b=Y125aNHgUixOU/yu3TvzXfKen9j9TPiOZdCHJfssk2afrz1OFCUq8aDniKWlBxfcVxpL9YQGZtpj6LyDTkXbrrO3xBYYqUQUAdxbpZODIHafSjNjEqi67ZF1RL0ONmyqFyKaZ/CG3BQgMMLfYdtjz+FXqh7oePl7DhbP4Kqsz5w=
+	t=1789761547; cv=none; b=HpBZ4UQlCT8ADuDd4K3yT929e8zF3ScotXzU6xnqkltRPSxQ4f7SbZoA7kQRUssnHDPNMwuZjrmysjfO5o7JXlDkbr8Ruxq0RotlfaBdmoszUVNthPbN3J4NC4XjupTseSFmXlUpK7w1w6qxwl6Yh3WGlagqtoYrnn3aeGkflck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789760752; c=relaxed/simple;
-	bh=Buk2H4UGWd1HKKhaku9nG/8YiPC1RZu+XniqN9Z4+V0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gpF1yc1OjioHZkVEd2NT8brgECaiJK4aKCMwEpDsKHxjt+paT2etm9ByI/OSSgXH2LOUGonmKprmkurJl+BbjLWG1mhGxZGcsiA8TwAXwLz08eJzQGeGJNN1w2UvestyBfGBCk3moFautV+neXCPjR7MJRJ0/npRWLiLXeVA4rw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UO3MeYxT; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789761547; c=relaxed/simple;
+	bh=/4f16jk0w1SZlOazZG/EvX8VDTn9PFtJwde9AsBZ1oE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=aGAvfo8V+rjYcrJGfv0pq8g3ogUiEJY3FD1p/XxdVsJIBY3HUoaFSItFouKXMmi/DPzy4RRlqJwc6OkM/54PrBqdVVE4E0oqItgCyaAeGtABPV7/SNTBNsH9+uJVVAZA0ARzLIuif17wopfvYfZq2i/vlG04ZlPo7Ga/GCzta98=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com; spf=pass smtp.mailfrom=igalia.com; dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b=enFP9GrW; arc=none smtp.client-ip=213.97.179.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UO3MeYxT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 099B71F00898;
-	Fri, 18 Sep 2026 19:45:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789760748;
-	bh=vYQ6BtbbVgXXP8MV1veSsvM8EhJvgEGrwFCTi1zmUXo=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=UO3MeYxTHGJ5KmoTPW4UdkTh2wsEnScnQv/m8Ws7iFif5wgHpEHMrpd8ku1ZSOFMJ
-	 Oyk8sZAM73SDN7Dm9RieRI4gyMHxw69FUUzVs0JEKgtZwkcEsyb45K1CRE7JiiF/Re
-	 n5d1L34EjQE7Scr1iejMlUKilm5SqlO6pCkuRcZFuYaItlteZrbm0dZUDUSOXRfeNA
-	 D/BMWkLL56M24STXKAH5gxEC+D6HlH5YlxrC3bSnjPwWgD5sMYy2++idnDAXo9/K1m
-	 v0eW2pNpb8lxgQiGjbO5dXVB4uRD38UKmauxSFSolFnUid7dR48L5kLCOjVhtwmwgU
-	 Qsaa/3B5oLYTg==
-From: Sasha Levin <sashal@kernel.org>
-To: stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>,
-	gregkh@linuxfoundation.org,
-	guangguan.wang@linux.alibaba.com,
-	alibuda@linux.alibaba.com,
-	dust.li@linux.alibaba.com,
-	sidraya@linux.ibm.com,
-	mjambigi@linux.ibm.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	"David S . Miller" <davem@davemloft.net>,
-	Junjie Cao <junjie.cao@intel.com>
-Subject: Re: [PATCH 6.1.y] net/smc: check v2_ext_offset/eid_cnt/ism_gid_cnt when receiving proposal msg
-Date: Fri, 18 Sep 2026 15:45:29 -0400
-Message-ID: <2026-09-18-daily-reply-0002-re-net-smc-proposal-msg@kernel.org>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260918045353.686837-1-junjie.cao@intel.com>
-References: <20260918045353.686837-1-junjie.cao@intel.com>
+	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="enFP9GrW"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+	s=20170329; h=Content-Transfer-Encoding:Content-Type:From:Cc:To:Subject:
+	MIME-Version:Date:Message-ID:From:Reply-To;
+	bh=k+xIqsm9yQ1hNrqrX4cwXF5kuEUp8+h4riZn/pmeeOU=; b=enFP9GrW0aNsR1AnDePgll6kXa
+	vIUTHl3x2i7bi0JOHfQhu/GOcv4bXVvs7H5FJfUcCgjOyeKGTjts+iY1Zvkws7+bj7Qysy9o3dwQp
+	xRnQUwJYGvxW7K6ziJ/X2c4IGHstnPwpuLIWaPspZ6i2NvsdSv/1rckyjGt70edc8ML4QTeCAiLcl
+	QTj7TgByRBDVHi0zdfzfoH8zLfAzXgfzAiiGDCO9uNWclsaKQAzFS3Q5hVrC+7tWPJz33DZbFXBjA
+	5QKIVmcofx7BtJd1lIuoonuJ29TYG0eaWljjEEWJh0M7olZde1T4okg1Fc4blXbk4fy64HDParCMP
+	bQHv07LQ==;
+Received: from [177.172.123.214] (helo=[192.168.15.100])
+	by fanzine2.igalia.com with esmtpsa 
+	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+	id 1x7ejU-0046be-TI; Fri, 18 Sep 2026 21:58:52 +0200
+Message-ID: <77321b17-c533-4287-9b05-98003959da70@igalia.com>
+Date: Fri, 18 Sep 2026 16:58:50 -0300
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 03/13] scripts/syscall.tbl: Use the common table
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Christian Brauner <brauner@kernel.org>, linux-kernel@vger.kernel.org,
+ linux-kbuild@vger.kernel.org, kernel-dev@igalia.com,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ linux-alpha@vger.kernel.org, linux-s390@vger.kernel.org,
+ Masami Hiramatsu <mhiramat@kernel.org>,
+ linux-arm-kernel@lists.infradead.org, soc@lists.linux.dev,
+ linux-mips@vger.kernel.org, sparclinux@vger.kernel.org
+References: <20260917-tonyk-syscall_table-v7-0-f4cd8f8e3265@igalia.com>
+ <20260917-tonyk-syscall_table-v7-3-f4cd8f8e3265@igalia.com>
+ <6cd76fb4-0834-457c-8188-c68a507b6a6f@app.fastmail.com>
+Content-Language: en-US
+From: =?UTF-8?Q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
+In-Reply-To: <6cd76fb4-0834-457c-8188-c68a507b6a6f@app.fastmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-> Backport of the CVE-2024-49568 fix to 6.1.y. The CNA record lists
-> 6.6.68, 6.12.7 and 6.13 as fixed and nothing for 6.1; the affected
-> code (v2 CLC proposal parsing) dates from 5.10. The other five fixes
-> from the same series are in 6.1.y since v6.1.122; this is the only
-> one missing.
-
-Queued for 6.1, thanks.
-
-> 5.15.y and 5.10.y are in the affected range as well; the commit
-> conflicts in af_smc.c there and needs a separate backport.
-
-Send those along when you have them and I will queue them too.
-
--- 
-Thanks,
-Sasha
+Em 18/09/2026 03:34, Arnd Bergmann escreveu:
+> On Fri, Sep 18, 2026, at 01:46, André Almeida wrote:
+>> Remove some of the duplicated code by using the common syscall number
+>> table.
+>>
+>> Signed-off-by: André Almeida <andrealmeid@igalia.com>
+>> ---
+>>   arch/arm64/tools/syscall_32.tbl | 69 -----------------------------------------
+>>   scripts/Makefile.asm-headers    | 15 ++++-----
+>>   scripts/syscall.tbl             | 69 -----------------------------------------
+>>   3 files changed, 8 insertions(+), 145 deletions(-)
+> 
+> This somewhat desyncs the two copies of the arm32 table, which
+> isn't great.
+> 
+>> diff --git a/scripts/Makefile.asm-headers b/scripts/Makefile.asm-headers
+>> index f1c3d287c14b..b09dbc8992c3 100644
+>> --- a/scripts/Makefile.asm-headers
+>> +++ b/scripts/Makefile.asm-headers
+>> @@ -15,9 +15,10 @@ all:
+>>
+>>   src := $(srctree)/$(subst /generated,,$(obj))
+>>
+>> -syscall_abis_32  += common,32
+>> -syscall_abis_64  += common,64
+>> +syscall_abis_32  += clone3,common,32
+>> +syscall_abis_64  += clone3,common,64
+> 
+> The clone3 variant is wrong on nios2 and openrisc, as they need the
+> __clone3 version. These currently redirect it using a macro from
+> syscall_table.c doing
+> 
+> #define sys_clone3 __sys_clone3
+> 
+> which will continue to work here, but I don't like how this is
+> inconsistent between the architectures. Let's use either
+> syscall_abis_* or a macro to pick the clone3 variant on
+> all architectures, but not both.
+> 
+Ok, I have dropped the sys_clone3 macro and added clone3/__clone3 for 
+the all archs that uses scripts/syscall.tbl for the next patch revision.
