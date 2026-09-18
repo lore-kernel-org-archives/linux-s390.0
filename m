@@ -1,124 +1,108 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65D3A511E85
-	for <linux-s390@vger.kernel.org>; Fri, 18 Sep 2026 16:12:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C9B15172C2;
+	Fri, 18 Sep 2026 16:14:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789747946; cv=none; b=J4VHn182rxnwIO5MLgoaFvgQwItzAYuuvYoXQQa2JTCPr4hLwF5jsQG/aqegwbVGGGiMqa9GwZpvEEDXgW1rGaEBmmuDDEILplx7oxEnZN0fQsMyQp3kXhbeRcJrWfRyOpoYwUyV/zlNkwrO6wxGCmsaDpkEWupx3FCpXzrvQvQ=
+	t=1789748090; cv=none; b=hl9DfQD35fxxFBdpWjnm51cTwhMr4lFlxswFKs+Cu+wSQdiIUwcmkUVGb9lOz5dB/i9hsAAOVNnrbL5X+GiJLKnUcY81w6SQCHNjTdM1BR+xfED71pLY5oqDn7Ty83YvPPHdJf/j9bL7e54QUhRLGmW4Fcv9SZHa1FBHnMO+oxI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789747946; c=relaxed/simple;
-	bh=/WoZ8qJ4L/6SX4FKj5ca+etsm/UgQyHmkxbRyFDC87A=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JGFd7LyvEUNxmBerfddupPrmNJTHRjvDkMsWIBcNpre8ur7tfsVv730pAD1qhUuw7iFYu8VtAWGXhFiHIL3KtZ0T0bBZHKUUUu+HYlQ7Y68TUKH3j1NOTE84h5ibibObnJSEGU+6tzb3B2+Q7bIaMWsQNcjqtFB154ppPeieIPU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sXLKesmX; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1789748090; c=relaxed/simple;
+	bh=l9nYo3fnLVcP3EfwMY2HprXsggbhOGLXy3Rp82L/0ng=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=shUdXpAdW8vZiqrIT9mFggmRb6I/awHiDTiNHymv7DLqS8a0orP1ncJZtSlPJdXhfd2wcIMlxzUjy3HHrY7E51Kyt4NKx5gkUJsW2G2DhNxuCc+7KhAQgxQ+l8RhM8CB0KBJx5Yc0MukC+s7BlirW8ZoPXRDk5ODhPrJErC6fkc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k8cf7bZb; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sXLKesmX"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68IDVbq41421243
-	for <linux-s390@vger.kernel.org>; Fri, 18 Sep 2026 16:12:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=lNRlxmYgM6wOFrvIqLKlu49i5wFvoIuZyGdnvn4Mj
-	bM=; b=sXLKesmXA4nmhEGny82+nuYUbgybF9+WrXa0HUYzoFVy+eQvJ4f0AIyXo
-	tlpWITkBxo7DMQvD0yYvmINo5AqzkXE61+PC+TYzn1KGil1ieohWJUo4CYBVArk1
-	Ro9sH6DoKNC22xuS2Y9z79whEEB5VjXu9k1hbeBnSMAkobr5hYmGKxeVA6DNVes+
-	2cih3FK4w5ikapG/KlWMrpAkddjjunGOSmnMslfcMud/HsO6bYoei3s+OV0dflvj
-	JbXBBFVf7wD5rT/4Op2p9vQWGgoraFM/Jg8DxHT891dvbT4ami+IqW2hcwUN7kIz
-	EQFUu22rnHoZ1HDHYZl+8y6fc6I7g==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmxcvgevr-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 18 Sep 2026 16:12:19 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68IDNtsH771788
-	for <linux-s390@vger.kernel.org>; Fri, 18 Sep 2026 16:12:19 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gr5ffg52g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 18 Sep 2026 16:12:18 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68IGCFqc6029696
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 18 Sep 2026 16:12:15 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5F1F620043;
-	Fri, 18 Sep 2026 16:12:15 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3923120040;
-	Fri, 18 Sep 2026 16:12:15 +0000 (GMT)
-Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 18 Sep 2026 16:12:15 +0000 (GMT)
-From: Peter Oberparleiter <oberpar@linux.ibm.com>
-To: Vineeth Vijayan <vneethv@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>
-Subject: [PATCH] s390/cmf: Fix virtual vs physical address confusion
-Date: Fri, 18 Sep 2026 18:12:07 +0200
-Message-ID: <20260918161207.1756809-1-oberpar@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k8cf7bZb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B61C1F0089A;
+	Fri, 18 Sep 2026 16:14:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1789748089;
+	bh=OIio10vJFuWpSQCOrKEwPrmMGhRjb55Qi4/sWOshmbk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=k8cf7bZbFSdo6H80Fsnx77yNEQxSTpwZSx05d3kPyzIaXh5cCPUUOQohxb4kdwl2X
+	 vV4FhquCU/ZN2Z4zv1V7QY9N4N8lJFDs+ddxLR8tPVHPqIEt1cFWHuc/oWDd0mqdpK
+	 DCbu+zjp2n9GrWLRpIB1MVyTi4Pe8LyucixB0evn0KhMF+5uq7bRvHjETlPXzO4JyE
+	 JtkKl5wNX/1unBLmziQuoA0XZDTDq+VVgGjoZaHdAAjCmZNBn2/s58dG/4YbGmgyeH
+	 MgB34uc1rO+tFXp7K2fmPE7sDMokIOZwMU3CVoM5QtG6HpLZjVdvd3kwxh2TmC/2XJ
+	 pCgPUx8NLImCA==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v8 19/29] KVM: s390: Use arm64 code
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Steffen Eiden" <seiden@linux.ibm.com>
+Cc: kvmarm@lists.linux.dev, "Oliver Upton" <oupton@kernel.org>, "Marc
+ Zyngier" <maz@kernel.org>, linux-s390@vger.kernel.org, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260918133107.1042730-20-seiden@linux.ibm.com>
+References: <20260918133107.1042730-1-seiden@linux.ibm.com>
+ <20260918133107.1042730-20-seiden@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 18 Sep 2026 16:14:48 +0000
+Message-Id: <20260918161448.9B61C1F0089A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE4MDIyOSBTYWx0ZWRfX6oijpJqahhIS
- G7PFeHcKuv19/mCPNs2SZr1K40GKaB+zHKqtqZoQ33Bt/Bp2ab1oID+p66oZO0xgmTxI6BTNQv3
- q6Z2sS4pRd+dIyAzROpAU32rS78bjV4=
-X-Proofpoint-ORIG-GUID: N8xFemz0MmR6dprxOaB0r1xGeI-GeTKy
-X-Proofpoint-GUID: N8xFemz0MmR6dprxOaB0r1xGeI-GeTKy
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE4MDIyOSBTYWx0ZWRfX8byqHhVXkJl2
- Eiq6z5iKdp32WU0cVEqK3urYmtUZUfL7Wl5g9U9168HxZJI6JURHTANafMqakjE1hQAcftJNv7U
- i8THVDJtcKJJ4iH9k2wnOBMsArOqZyKw4uTblRDOT6w1OiKl25e5h+Hrl7el7VMGWcFX7kRMmRn
- kaMyfCHF6+yRM1brZe+FcK+SNtbBjo5SX9MhdfrDxalxtVM2gJB0FNhLWZ7cOVvi83dkNYYvhMU
- ydeJyfEhe+Brt2q6BmR/brxkaM/V8ST9U0JKk9YlEzNRfBAI8RjLmHvGAYSj/mFftghNaTo5561
- 0Mdb1U3u13A1VIckBPztBiQ3y2sib5Puu0Xf5swdfR0niqXYrlvDC6Qi7sTj4npaZ3+53DVhT8c
- P+3OUjz/nXhCOW1CVpsQ7tLR7GBm+gYOQ/EPX/G0C5MewBHx34c9jYPGPbihZRjUkjA3w+LUqgE
- kLw0i90O6Gp8SDrKRkQ==
-X-Authority-Analysis: v=2.4 cv=F+7C5ahN c=1 sm=1 tr=0 ts=6aad62e3 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=tLthRNIcWGBJtGepR_YA:9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-18_04,2026-09-16_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 suspectscore=0 phishscore=0 clxscore=1015 malwarescore=0
- lowpriorityscore=0 bulkscore=0 spamscore=0 impostorscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609180229
 
-The measurement block address is an absolute address; therefore add a
-missing virt_to_phys() translation.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Medium] build: cross-arch C code extraction via awk breaks tooling and m=
+odularity
+--
 
-Without this fix, a wrong address will be used by firmware when storing
-extended format channel measurement data on kernels built with
-CONFIG_RANDOMIZE_IDENTITY_BASE=y.
+commit e83a74be06a131ec905dd0c83821e6279b998572
+Author: Steffen Eiden <seiden@linux.ibm.com>
 
-Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
----
- drivers/s390/cio/cmf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+KVM: s390: Use arm64 code
 
-diff --git a/drivers/s390/cio/cmf.c b/drivers/s390/cio/cmf.c
-index 92ab3d546fe4..5f57a12762d2 100644
---- a/drivers/s390/cio/cmf.c
-+++ b/drivers/s390/cio/cmf.c
-@@ -183,7 +183,7 @@ static int set_schib(struct ccw_device *cdev, u32 mme, int mbfc,
- 	sch->config.mbfc = mbfc;
- 	/* address can be either a block address or a block index */
- 	if (mbfc)
--		sch->config.mba = address;
-+		sch->config.mba = address ? virt_to_phys((void *)address) : 0;
- 	else
- 		sch->config.mbi = address;
- 
--- 
-2.53.0
+This commit introduces build infrastructure to extract marked sections
+from ARM64 C files into generated .inc files for use in the s390 KVM
+host code. It adds the copy-arm64c.awk script that searches for
+ARM64_S390_COMMON markers and copies the matched code verbatim.
 
+> diff --git a/arch/s390/kvm/arm64/copy-arm64c.awk b/arch/s390/kvm/arm64/co=
+py-arm64c.awk
+> new file mode 100644
+> index 0000000000000..5561619aa70c8
+> --- /dev/null
+> +++ b/arch/s390/kvm/arm64/copy-arm64c.awk
+> @@ -0,0 +1,72 @@
+[ ... ]
+> +BEGIN {
+> +	# Constants
+> +	start_pattern =3D "^#ifdef ARM64_S390_COMMON$"
+> +	end_pattern =3D "^#endif /\\* ARM64_S390_COMMON \\*/$"
+
+[Severity: Medium]
+Does tightly coupling the s390 build to the exact source code formatting
+in the arm64 tree present a maintenance burden?
+
+Sharing architecture code via text extraction of C files violates kernel
+modularity principles. It imposes a burden on ARM64 maintainers who must
+now preserve s390-specific markers (ARM64_S390_COMMON) and formatting.
+The established Linux kernel paradigm for cross-architecture code sharing
+is to abstract common logic into standalone .c files in a shared
+location (e.g., virt/kvm/).
+
+[ ... ]
+> +copying {
+> +	gsub(/#include <asm\//, "#include <arm64/")
+> +	gsub(/#include <uapi\/asm\//, "#include <uapi/arm64/")
+> +	print
+> +	next
+> +}
+
+[Severity: Medium]
+Does copying C source code into a new file without emitting C preprocessor
+#line directives break standard developer tooling?
+
+Without #line directives, compiler errors, warnings, and debugger (GDB)
+symbols will map to the generated .inc files instead of the original
+arch/arm64 source, degrading debuggability.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260918133107.1042=
+730-1-seiden@linux.ibm.com?part=3D19
