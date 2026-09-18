@@ -1,57 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7780C4F93B3;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAF734F93C3;
 	Fri, 18 Sep 2026 13:32:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789738359; cv=none; b=QYpPnaOraxIhTfNlHCcKrANZ54jLROHwLxBAQnH8UaJB/tqBGNNEKT+Rxfft08ZEqF/8KQ/xPlxUI6AhKKPiNTUAm6aqlNI7LVhNWbDBzhR4k9Gi0SXHuDx0qjNwTkyL5GMLLfz1ZpHWS1prcv42CXS78tQ49ZFib/P5VTFfpIs=
+	t=1789738359; cv=none; b=qIiJrFjWvssV4s8njrrFZO2Z1cjVbQMRzIT4r0VLcgBhQ/28MHD9/oq3eXfCp/BATPwjlNdTMDhINlPwvCbpOoib2z7CZI1lYfyUDOme6ho3Qijq5j7msmRsY/7E48MjtvcZPqeKbg2wZ/CSO0SGpFMLu7tJxxD8+UbX32+WFYE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789738359; c=relaxed/simple;
-	bh=K0pH/kIzdjn7XhRQ01Q7s1FQZEgJAfF9fnAxKZl9i7c=;
+	bh=6EgD8i3CE3AtETIenE0D3zpVwvhqFf6EDMOChlJQZc8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=URhzW7y3MBegDiL18uSgCk1krVGgd90Mc2agAM1hAi9cU+vLQ8sBeBynNmRnK+dCKv9vIn01j9fFERmkFdQTmJqzPJFYhVJyejcs2OO2IvWEnEAuRACH/XiSiMg+vMC1U/0PqiE8PA+l0D7fG+DkmsPCycAWPtiUkn+RGseg08w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=TXEUsyp7; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=MgwR/PtH3O7+ZdohEd2wEyy5tnfdOOnzN+eUtJaXp/rRvbO2VE9xPp9M2hZLu2DzXKVqjQ6PLMe20av6sl6+/gJ2PCwoGJmuekCd6ID8B3KBrmsZZ392n6kb32eiQDVzMjHmauWFpTjW14YJjJR0h/xbfYZP0po1YoxZUyiDxxw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pTtu5a+E; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TXEUsyp7"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68IA1UxN960828;
-	Fri, 18 Sep 2026 13:31:28 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pTtu5a+E"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68IA1WPA3979066;
+	Fri, 18 Sep 2026 13:31:22 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=z8sLHo8BqRMdgseyc
-	gHYqYz+145DnazUIQfzCQ3O+EU=; b=TXEUsyp7tpftExjG3PvhHzCrmmOX/hy7j
-	XZav0EJGnBznAiVp97CzFdXE/SricpHQ/ZUoBoVKH3FZ9Ete7nFUFMpmNzHU3vpx
-	v7eRjEOyNi1/iVnF7Elf0Gsn3P0zbORgE8d90qac7l4iy9V+z+ihh6s7J4LnC0Kx
-	89GEwotPJvfOdlmeiQRljNEmvWvdSJYcopzqKWsddGVJ1Puu0cQMvRbe2R1cJRAc
-	vAjSW3cghVIm0p99ivvq3CgjsYLDPjtAGeNJ0VifkC/xqz8EXz7k5qnLn8OU72ry
-	P+cxqPii13dpDQWl5oub7WW7bkoo9j6rFQN3nJtKHOSudUa2o38bg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmxf5gb7x-1
+	:mime-version:references:subject:to; s=pp1; bh=pbtqYrAN3W2LzyED5
+	w10DT4NqSRcgG+1DLfffCPvG38=; b=pTtu5a+EuRUpHunQ0MQiOpzM4O9igk22g
+	GD8ZcBvXI0ks5VuFa0jjaAqYRDuzbhhnq40KMTQuBZmLfeXtQlUZClD1EE9q31V2
+	+VKWFjzgqsJvQnfC69bdbeiDqS7rMs14BOcHLxys4B31JkrQmFX+9NsQFHUpT1BX
+	oUZRusofjSpnv+F6/VhALZdlT3DtDHKu64o6ngXw0Qi/adcIcmWpVC4mx79bqUdJ
+	faYhbIOpQffpfFz5ApSjx1oVtEhn7htuOUw/vlIzPFYffGwT63/G7uXd/nMcoepa
+	9A6rFRZnAJWNwH1qKC5qjz1bxgrguxbRXpoOhPb1z1fNTG2SBfBLw==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmw5eftsh-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 18 Sep 2026 13:31:27 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68IDOFiA739719;
-	Fri, 18 Sep 2026 13:31:26 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gs56q88uk-1
+	Fri, 18 Sep 2026 13:31:21 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68IDO9In771962;
+	Fri, 18 Sep 2026 13:31:20 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gr5fffhcb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 18 Sep 2026 13:31:26 +0000 (GMT)
+	Fri, 18 Sep 2026 13:31:20 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68IDVEfx20841002
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68IDVBG746072142
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 18 Sep 2026 13:31:14 GMT
+	Fri, 18 Sep 2026 13:31:11 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AFEFE20049;
-	Fri, 18 Sep 2026 13:31:14 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 15EC020040;
+	Fri, 18 Sep 2026 13:31:11 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 599DA2004D;
-	Fri, 18 Sep 2026 13:31:14 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id B3AE92004B;
+	Fri, 18 Sep 2026 13:31:10 +0000 (GMT)
 Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 18 Sep 2026 13:31:14 +0000 (GMT)
+	Fri, 18 Sep 2026 13:31:10 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -77,9 +77,9 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
         Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v8 18/29] s390/tools: Use arm64 headers
-Date: Fri, 18 Sep 2026 15:30:55 +0200
-Message-ID: <20260918133107.1042730-19-seiden@linux.ibm.com>
+Subject: [PATCH v8 08/29] KVM: Move architecture capability Kconfigs to header defines
+Date: Fri, 18 Sep 2026 15:30:45 +0200
+Message-ID: <20260918133107.1042730-9-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260918133107.1042730-1-seiden@linux.ibm.com>
 References: <20260918133107.1042730-1-seiden@linux.ibm.com>
@@ -92,277 +92,450 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: PM5P4ONwvp8aq_-ervFBOC6wbtARJ8S4
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE4MDE4NCBTYWx0ZWRfX8duBsZH4K1lb
- zZQsIPsiVBfO4eNjU29XFEvwZCWT++xJ4FMFGD7W6ivzBzCMq+lB0pjdC7z1wkyrvrEMZCbq6YP
- zNRMMuuvICwcWUNVYJwLWJnBquPwNPM=
-X-Authority-Analysis: v=2.4 cv=cvgOAF4i c=1 sm=1 tr=0 ts=6aad3d30 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE4MDE4NCBTYWx0ZWRfX+L0b5IMlrCHL
+ g51jzBPnMW/yQz5uHgeO1+bxpBneAhZ22CkbDl7QL2HBo4n6BVOhjXksaJ6yB3RddRrRoJMbDA3
+ QnzeWFGqx0AuFMq4Y7KT9AzDz0SyZ3nTRfOrmzX/aAeYIKJ2k9yYED98dFvKoS6kLZc6SQuc7Og
+ +14AvvEXMEcwNy8hxdmWJ+VVWKmLE4JC05mocjyw4wQfTewxHd5HXPyUdiBKYqJHd2gwIG6WWEO
+ r9Xb/BrHpyryeRI51+Cyp5R4240doqt7F+L2f0ob53YDzNW8hZsl56XrGZbnFBuvWRUSJnhiVV6
+ SoNEAp6+rSAV/9hW/OgY3W1n+o64ofETlPQF7La/0hSZQ0MZf44fDoCNpZy9aql1lircOtkE1Qi
+ dHBRlKEpfM/ztL8R32GRugRgsMbrW6l2tT3SegQrx5efTXVTb2PIKi0oY3aS1tK2xCe2qaNYp/K
+ V/2BnwAIiNCkh2ORQXg==
+X-Authority-Analysis: v=2.4 cv=E/NYNqdl c=1 sm=1 tr=0 ts=6aad3d2a cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=ZhoKsAT7EqIUtuKD8d0A:9
-X-Proofpoint-ORIG-GUID: zY9TUmbVGn5R_HPEJBGWQp6E46Zl6Q9I
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE4MDE4NCBTYWx0ZWRfX3b/I2acUpJIV
- 1IZfE4XuANgIUARNvopskPG/TDdYI7mecaUAAGnChUzNPcI01wYOi4QGeWqREGU0+Z1snLsa1n4
- F569J7ELjx2QhPYlwMQwgO3MaAl+aMnPMPTKzuj2AkIVHoHcT5j08QniIDv9rhfv5XIGuTwN6RL
- j43j9R1F/+YEBeXCxjfBGbVoVQMwQFY+4JJS+gkKqa8cVnXe+mkzMor9FEneA2UxhEvW6UYp3pO
- BYVPyaOo0gIHd7FrtH5JfBzsBdWDw/6jo+HEVYQDaY78XG7Q8vXBXp/wFOlq0IWCH/srUuAFVPP
- JmVOZQKPALw96y88OSA5zvZ/B+4YyUsHROzG8pDuDuaidLKEst6Trrw8k6LQDaXUwgAiRnOGDMr
- tMZCl41R4iEeytwVqxnjz8zaow/kKrl9AuS4WtgDboRchC0SUB4/C+wb/k5nss8GXuvGg/VaqkX
- YsuklSfm4jBi55FkUsQ==
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=Zed0xjmiq0EMZ3KVzcgA:9
+ a=4VlVeAog_cEay8Ou:21
+X-Proofpoint-ORIG-GUID: 6xrBa-2ANJ8qif2L6cstpVccskYDFVO6
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE4MDE4NCBTYWx0ZWRfX4suYAxM5NcwU
+ uTxx1zkNizqWCqthQqjTA+VDvGIFbJk5FjC1rzqbVLlWjtxwSxnBdQ94+Ns6w7HtDIkc7EsceUe
+ VIyU5ZZCO5mSZwY6jlgRQhXErsEom/M=
+X-Proofpoint-GUID: HQOMIqY6q82Dfi2VG72T0w3t9R0HebQM
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-18_03,2026-09-16_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 lowpriorityscore=0 clxscore=1015 priorityscore=1501
- suspectscore=0 bulkscore=0 impostorscore=0 phishscore=0 spamscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ impostorscore=0 lowpriorityscore=0 priorityscore=1501 spamscore=0
+ adultscore=0 clxscore=1015 bulkscore=0 malwarescore=0 suspectscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
  definitions=main-2609180184
 
-Introduce a flexible system for sharing ARM64 headers with s390 KVM.
-Selected arm64 headers or snippet of headers will be reachable by s390
-code through asm/header.h.
+Historically, KVM feature opt-ins and callbacks (e.g. read-only memory,
+MSI routing, generic pre-fault memory, lockless aging, halt-polling
+controls, and vcpu run PID changes) were configured globally via Kconfig
+symbols (CONFIG_HAVE_KVM_* and CONFIG_KVM_*).
 
-Add copy-arm64h.awk that detects ARM64_S390_COMMON markers and extracts
-marked section into a generated header consumable by s390. Falls back to
-full file copy when no markers are found.
+With s390 hosting multiple independent KVM implementations within the
+same kernel build (native s390 KVM and arm64 on s390), global Kconfig
+selections force both implementations to inherit options that only apply
+to one of them. For instance, selecting KVM_GENERIC_PRE_FAULT_MEMORY for
+native s390 would force arm64 on s390 to provide unused dummy stubs.
 
-Transform copied includes by replacing '#include <asm/...>' with
-'#include <arm64/...>' and similar for uapi headers to ensure
-correct path resolution on s390 and allow for a clear separation of s390
-asm headers and arm64 asm headers.
+Replace these global Kconfig options with architecture-specific opt-in
+defines in <asm/kvm_host.h> and standardize their naming by dropping the
+HAVE_ prefix:
+  - KVM_GENERIC_PRE_FAULT_MEMORY
+  - KVM_INVALID_WAKEUPS
+  - KVM_MSI               (formerly HAVE_KVM_MSI)
+  - KVM_NO_POLL           (formerly HAVE_KVM_NO_POLL)
+  - KVM_READONLY_MEM      (formerly HAVE_KVM_READONLY_MEM)
+  - KVM_VCPU_RUN_PID_CHANGE (formerly HAVE_KVM_VCPU_RUN_PID_CHANGE)
 
-Integrate this extraction into the s390/kapi target, conditional on
-CONFIG_KVM.
+This allows each architecture and guest implementation to configure its
+supported capabilities independently in its kvm_host header and eliminates
+unnecessary fallback stubs across different KVM targets.
 
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/s390/tools/Makefile             |  9 +++-
- arch/s390/tools/Makefile.arm64h      | 56 ++++++++++++++++++++++
- arch/s390/tools/copy-arm64h-full.awk | 47 ++++++++++++++++++
- arch/s390/tools/copy-arm64h.awk      | 71 ++++++++++++++++++++++++++++
- 4 files changed, 182 insertions(+), 1 deletion(-)
- create mode 100644 arch/s390/tools/Makefile.arm64h
- create mode 100644 arch/s390/tools/copy-arm64h-full.awk
- create mode 100644 arch/s390/tools/copy-arm64h.awk
+ arch/arm64/include/asm/kvm_host.h     |  3 +++
+ arch/arm64/kvm/Kconfig                |  3 ---
+ arch/loongarch/include/asm/kvm_host.h |  2 ++
+ arch/loongarch/kvm/Kconfig            |  2 --
+ arch/mips/include/asm/kvm_host.h      |  1 +
+ arch/mips/kvm/Kconfig                 |  1 -
+ arch/powerpc/include/asm/kvm_host.h   |  3 +++
+ arch/powerpc/kvm/Kconfig              |  1 -
+ arch/riscv/include/asm/kvm_host.h     |  2 ++
+ arch/riscv/kvm/Kconfig                |  2 --
+ arch/s390/include/asm/kvm_host_s390.h |  4 ++++
+ arch/s390/kvm/Kconfig                 |  3 ---
+ arch/x86/include/asm/kvm_host.h       |  4 ++++
+ arch/x86/kvm/Kconfig                  |  4 ----
+ include/linux/kvm_host.h              | 20 ++++++++++++--------
+ virt/kvm/Kconfig                      | 20 +-------------------
+ virt/kvm/kvm_main.c                   |  8 ++++----
+ 17 files changed, 36 insertions(+), 47 deletions(-)
 
-diff --git a/arch/s390/tools/Makefile b/arch/s390/tools/Makefile
-index f2862364fb42..6a97beff03a2 100644
---- a/arch/s390/tools/Makefile
-+++ b/arch/s390/tools/Makefile
-@@ -3,12 +3,19 @@
- # Makefile for s390 specific build tools
- #
+diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
+index 27fe0cd5b2d7..9c314d0568b1 100644
+--- a/arch/arm64/include/asm/kvm_host.h
++++ b/arch/arm64/include/asm/kvm_host.h
+@@ -30,6 +30,9 @@
+ #include <asm/vncr_mapping.h>
  
-+include $(srctree)/arch/s390/tools/Makefile.arm64h
-+
- kapi := arch/$(ARCH)/include/generated/asm
- kapi-hdrs-y := $(kapi)/facility-defs.h $(kapi)/dis-defs.h
+ #define __KVM_HAVE_ARCH_INTC_INITIALIZED
++#define KVM_MSI
++#define KVM_READONLY_MEM
++#define KVM_VCPU_RUN_PID_CHANGE
  
-+targets += $(addprefix ../../../,$(kapi-hdrs-y))
-+targets += $(patsubst $(objtree)/%,../../../%,$(ARM64_TARGETS))
-+
-+kapi-hdrs-$(CONFIG_KVM) += $(ARM64_TARGETS)
-+
- PHONY += kapi
+ #define KVM_HALT_POLL_NS_DEFAULT 500000
  
--kapi:	$(kapi-hdrs-y)
-+kapi:	$(kapi-hdrs-y) $(kapi-hdrs-m)
+diff --git a/arch/arm64/kvm/Kconfig b/arch/arm64/kvm/Kconfig
+index 449154f9a485..7329124deb2f 100644
+--- a/arch/arm64/kvm/Kconfig
++++ b/arch/arm64/kvm/Kconfig
+@@ -28,12 +28,9 @@ menuconfig KVM
+ 	select KVM_VFIO
+ 	select HAVE_KVM_DIRTY_RING_ACQ_REL
+ 	select NEED_KVM_DIRTY_RING_WITH_BITMAP
+-	select HAVE_KVM_MSI
+ 	select HAVE_KVM_IRQCHIP
+ 	select HAVE_KVM_IRQ_ROUTING
+ 	select HAVE_KVM_IRQ_BYPASS
+-	select HAVE_KVM_READONLY_MEM
+-	select HAVE_KVM_VCPU_RUN_PID_CHANGE
+ 	select SCHED_INFO
+ 	select GUEST_PERF_EVENTS if PERF_EVENTS
+ 	select KVM_GUEST_MEMFD
+diff --git a/arch/loongarch/include/asm/kvm_host.h b/arch/loongarch/include/asm/kvm_host.h
+index 65d91c3ce313..4cb370a8d09b 100644
+--- a/arch/loongarch/include/asm/kvm_host.h
++++ b/arch/loongarch/include/asm/kvm_host.h
+@@ -26,6 +26,8 @@
+ #include <asm/loongarch.h>
  
- hostprogs		    += gen_facilities
- hostprogs		    += gen_opcode_table
-diff --git a/arch/s390/tools/Makefile.arm64h b/arch/s390/tools/Makefile.arm64h
-new file mode 100644
-index 000000000000..069473ea335d
---- /dev/null
-+++ b/arch/s390/tools/Makefile.arm64h
-@@ -0,0 +1,56 @@
-+# SPDX-License-Identifier: GPL-2.0
-+#
-+# Share ARM64 headers with s390 KVM
-+#
+ #define __KVM_HAVE_ARCH_INTC_INITIALIZED
++#define KVM_MSI
++#define KVM_READONLY_MEM
+ 
+ /* Loongarch KVM register ids */
+ #define KVM_GET_IOC_CSR_IDX(id)		((id & KVM_CSR_IDX_MASK) >> LOONGARCH_REG_SHIFT)
+diff --git a/arch/loongarch/kvm/Kconfig b/arch/loongarch/kvm/Kconfig
+index 15da2d88c0c1..a427429a2b05 100644
+--- a/arch/loongarch/kvm/Kconfig
++++ b/arch/loongarch/kvm/Kconfig
+@@ -23,8 +23,6 @@ config KVM
+ 	select HAVE_KVM_DIRTY_RING_ACQ_REL
+ 	select HAVE_KVM_IRQ_ROUTING
+ 	select HAVE_KVM_IRQCHIP
+-	select HAVE_KVM_MSI
+-	select HAVE_KVM_READONLY_MEM
+ 	select KVM_COMMON
+ 	select KVM_GENERIC_DIRTYLOG_READ_PROTECT
+ 	select KVM_GENERIC_HARDWARE_ENABLING
+diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
+index c14b10821817..8e484bb482ba 100644
+--- a/arch/mips/include/asm/kvm_host.h
++++ b/arch/mips/include/asm/kvm_host.h
+@@ -893,5 +893,6 @@ static inline void kvm_arch_vcpu_blocking(struct kvm_vcpu *vcpu) {}
+ static inline void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu) {}
+ 
+ #define __KVM_HAVE_ARCH_FLUSH_REMOTE_TLBS
++#define KVM_READONLY_MEM
+ 
+ #endif /* __MIPS_KVM_HOST_H__ */
+diff --git a/arch/mips/kvm/Kconfig b/arch/mips/kvm/Kconfig
+index b1b9a1d67758..c24b872afbcb 100644
+--- a/arch/mips/kvm/Kconfig
++++ b/arch/mips/kvm/Kconfig
+@@ -24,7 +24,6 @@ config KVM
+ 	select KVM_GENERIC_DIRTYLOG_READ_PROTECT
+ 	select KVM_MMIO
+ 	select KVM_GENERIC_HARDWARE_ENABLING
+-	select HAVE_KVM_READONLY_MEM
+ 	help
+ 	  Support for hosting Guest kernels.
+ 
+diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
+index 2d139c807577..ad7c34e9b227 100644
+--- a/arch/powerpc/include/asm/kvm_host.h
++++ b/arch/powerpc/include/asm/kvm_host.h
+@@ -49,6 +49,9 @@
+ #endif /* CONFIG_KVM_BOOK3S_HV_POSSIBLE */
+ 
+ #define __KVM_HAVE_ARCH_INTC_INITIALIZED
++#ifdef CONFIG_KVM_MPIC
++#define KVM_MSI
++#endif
+ 
+ #define KVM_HALT_POLL_NS_DEFAULT 10000	/* 10 us */
+ 
+diff --git a/arch/powerpc/kvm/Kconfig b/arch/powerpc/kvm/Kconfig
+index b6bc2fc86dca..1fae2de8fa68 100644
+--- a/arch/powerpc/kvm/Kconfig
++++ b/arch/powerpc/kvm/Kconfig
+@@ -232,7 +232,6 @@ config KVM_MPIC
+ 	depends on KVM && PPC_E500
+ 	select HAVE_KVM_IRQCHIP
+ 	select HAVE_KVM_IRQ_ROUTING
+-	select HAVE_KVM_MSI
+ 	help
+ 	  Enable support for emulating MPIC devices inside the
+ 	  host kernel, rather than relying on userspace to emulate.
+diff --git a/arch/riscv/include/asm/kvm_host.h b/arch/riscv/include/asm/kvm_host.h
+index a30600579231..23b5560e97ba 100644
+--- a/arch/riscv/include/asm/kvm_host.h
++++ b/arch/riscv/include/asm/kvm_host.h
+@@ -47,6 +47,8 @@
+ #define KVM_REQ_STEAL_UPDATE		KVM_ARCH_REQ(6)
+ 
+ #define __KVM_HAVE_ARCH_FLUSH_REMOTE_TLBS_RANGE
++#define KVM_MSI
++#define KVM_READONLY_MEM
+ 
+ #define KVM_HAVE_MMU_RWLOCK
+ 
+diff --git a/arch/riscv/kvm/Kconfig b/arch/riscv/kvm/Kconfig
+index ec2cee0a39e0..3cb4f8037300 100644
+--- a/arch/riscv/kvm/Kconfig
++++ b/arch/riscv/kvm/Kconfig
+@@ -22,8 +22,6 @@ config KVM
+ 	depends on RISCV_SBI && MMU
+ 	select HAVE_KVM_IRQCHIP
+ 	select HAVE_KVM_IRQ_ROUTING
+-	select HAVE_KVM_MSI
+-	select HAVE_KVM_READONLY_MEM
+ 	select HAVE_KVM_DIRTY_RING_ACQ_REL
+ 	select KVM_COMMON
+ 	select KVM_GENERIC_DIRTYLOG_READ_PROTECT
+diff --git a/arch/s390/include/asm/kvm_host_s390.h b/arch/s390/include/asm/kvm_host_s390.h
+index 8a7eed5847e1..5fd7f49d7c0d 100644
+--- a/arch/s390/include/asm/kvm_host_s390.h
++++ b/arch/s390/include/asm/kvm_host_s390.h
+@@ -34,6 +34,10 @@
+ 
+ #define KVM_INTERNAL_MEM_SLOTS 1
+ 
++#define KVM_GENERIC_PRE_FAULT_MEMORY
++#define KVM_INVALID_WAKEUPS
++#define KVM_NO_POLL
 +
-+arm64api := $(objtree)/arch/$(ARCH)/include/generated/arm64
-+arm64uapi := $(objtree)/arch/$(ARCH)/include/generated/uapi/arm64
-+
-+# List of ARM64 headers to share with s390 KVM
-+# Format: [uapi:]header.h or header-gen.h
-+#
-+# * header.h - from arch/arm64/include/asm/ to arm64/
-+# * uapi:header.h - from arch/arm64/include/uapi/asm/ to uapi/arm64/
-+# * header-gen.h - generated as header-gen.h from ARM64 header header.h
-+# If a header contains partial markers (#ifdef ARM64_S390_COMMON) only this part will be copied.
-+# If the file does not contain any markers the whole file will be copied.
-+ARM64_SHARED_HEADERS := \
-+	brk-imm.h \
-+	esr.h \
-+	kvm_arm.h \
-+	kvm_emulate-gen.h \
-+	kvm_host.h \
-+	ptrace-gen.h \
-+	sysreg-gen.h \
-+	uapi:hwcap.h \
-+	uapi:kvm.h \
-+	uapi:ptrace.h \
-+	uapi:sve_context.h \
-+
-+quiet_cmd_gen_arm_hdr = GEN     $@
-+      cmd_gen_arm_hdr = mkdir -p $(dir $@); \
-+                      $(AWK) -f $(src)/copy-arm64h.awk $< > $@ || \
-+                      $(AWK) -f $(src)/copy-arm64h-full.awk -v srcfile="$(subst $(srctree)/,,$(subst $(srctree)/../,,$<))" $< > $@ || \
-+		      { echo "Error: Unbalanced ARM64_S390_COMMON markers in $<" >&2; rm -f $@; exit 1; }
-+
-+arm64-type = $(firstword $(subst :, ,$(1)))
-+arm64-base = $(or $(word 2,$(subst :, ,$(1))),$(1))
-+arm64-src-base = $(patsubst %-gen.h,%.h,$(call arm64-base,$(1)))
-+
-+arm64-src = $(srctree)/arch/arm64/include/$(if $(filter uapi,$(call arm64-type,$(1))),uapi/)asm/$(call arm64-src-base,$(1))
-+arm64-dst = $(if $(filter uapi,$(call arm64-type,$(1))),$(arm64uapi),$(arm64api))/$(call arm64-base,$(1))
-+
-+$(foreach hdr,$(ARM64_SHARED_HEADERS),\
-+	$(eval $(call arm64-dst,$(hdr)): $(call arm64-src,$(hdr)) $(src)/copy-arm64h.awk $(src)/copy-arm64h-full.awk FORCE))
-+
-+ARM64_TARGETS := $(sort $(foreach hdr,$(ARM64_SHARED_HEADERS),$(call arm64-dst,$(hdr))))
-+$(ARM64_TARGETS):
-+	$(call if_changed,gen_arm_hdr)
-+
-+quiet_cmd_gen_sysreg_arm64 = GEN     $@
-+      cmd_gen_sysreg_arm64 = mkdir -p $(dir $@); $(AWK) -f $(srctree)/arch/arm64/tools/gen-sysreg.awk $(srctree)/arch/arm64/tools/sysreg > $@
-+
-+$(arm64api)/sysreg-defs.h: $(srctree)/arch/arm64/tools/gen-sysreg.awk $(srctree)/arch/arm64/tools/sysreg FORCE
-+	$(call if_changed,gen_sysreg_arm64)
-+
-+ARM64_TARGETS += $(arm64api)/sysreg-defs.h
-diff --git a/arch/s390/tools/copy-arm64h-full.awk b/arch/s390/tools/copy-arm64h-full.awk
-new file mode 100644
-index 000000000000..a6aaf9cc3332
---- /dev/null
-+++ b/arch/s390/tools/copy-arm64h-full.awk
-@@ -0,0 +1,47 @@
-+#!/usr/bin/awk -f
-+# SPDX-License-Identifier: GPL-2.0
-+#
-+# Process entire ARM64 headers for sharing with s390 KVM
-+#
-+# Usage: copy-arm64h-full.awk -v srcfile=<source_path> <input_file>
-+#
-+# This processes the entire file (unlike copy-arm64h.awk which only extracts marked sections)
-+
-+BEGIN {
-+	max_guard_line = 25
-+	guard_found = 0
-+	header_added = 0
-+}
-+
-+# Find and process the include guard in the first few lines
-+NR <= max_guard_line && !guard_found && /^#ifndef [A-Z_0-9]+$/ {
-+	guard_name = $2
-+	guard_found = 1
-+	print "/* This header was copied from " srcfile " */"
-+	print ""
-+	print
-+	header_added = 1
-+	next
-+}
-+
-+# Transform include directives
-+/^#include <uapi\/asm\// {
-+	sub(/<uapi\/asm\//, "<uapi/arm64/")
-+	print
-+	next
-+}
-+
-+/^#include <asm\// {
-+	sub(/<asm\//, "<arm64/")
-+	print
-+	next
-+}
-+
-+/ARM64_S390_COMMON/ {
-+	exit 1
-+}
-+
-+# Pass through all other lines
-+{
-+	print
-+}
-diff --git a/arch/s390/tools/copy-arm64h.awk b/arch/s390/tools/copy-arm64h.awk
-new file mode 100644
-index 000000000000..e7fb00ffb987
---- /dev/null
-+++ b/arch/s390/tools/copy-arm64h.awk
-@@ -0,0 +1,71 @@
-+#!/usr/bin/awk -f
-+# SPDX-License-Identifier: GPL-2.0
-+#
-+# Extract marked sections from ARM64 headers for sharing with s390 KVM
-+#
-+# Usage: copy-arm64h.awk <input_file>
-+#
-+# Extracts all sections between start/end markers. If no markers found, signals for fallback.
-+BEGIN {
-+	# Constants
-+	start_pattern = "^#ifdef ARM64_S390_COMMON$"
-+	end_pattern = "^#endif \\/\\* ARM64_S390_COMMON \\*\\/$"
-+	max_guard_line = 25
-+
-+	# State variables
-+	copying = found_marker = 0
-+	guard_name = ""
-+	file_header_done = 0
-+}
-+
-+NR <= max_guard_line && !guard_name && /^#ifndef [A-Za-z0-9_]+$/ {
-+	guard_name = $2
-+	filename = FILENAME
-+	sub(/^.*arch\/arm64\//, "arch/arm64/", filename)
-+	print "/*"
-+	print " * This header was automatically generated from " filename
-+	print " * Do not modify this file directly."
-+	print " */"
-+	print "#ifndef " guard_name
-+	print "#define " guard_name
-+	print ""
-+	next
-+}
-+
-+NR > max_guard_line && !guard_name && !file_header_done {
-+	print "error: no include guard found in first " max_guard_line " lines" > "/dev/stderr"
-+	file_header_done = 1
-+	exit 1
-+}
-+
-+!guard_name {
-+	print
-+	next
-+}
-+
-+$0 ~ start_pattern {
-+	if (copying) { exit 1 }
-+	copying = found_marker = 1
-+	next
-+}
-+
-+guard_name && !found_marker {
-+	next
-+}
-+
-+$0 ~ end_pattern { copying = 0; next }
-+
-+copying {
-+	gsub(/#include <asm\//, "#include <arm64/")
-+	gsub(/#include <uapi\/asm\//, "#include <uapi/arm64/")
-+	print
-+	next
-+}
-+
-+END {
-+	if (found_marker) {
-+		print ""
-+		print "#endif /* " guard_name " */"
-+	}
-+	exit !found_marker || copying
-+}
+ #define KVM_S390_MANAGES_S390_GUEST 1
+ 
+ /*
+diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+index 8d3ee17a1bcb..a6ff2e5aa19b 100644
+--- a/arch/s390/kvm/Kconfig
++++ b/arch/s390/kvm/Kconfig
+@@ -25,12 +25,9 @@ config KVM
+ 	select KVM_COMMON
+ 	select HAVE_KVM_IRQCHIP
+ 	select HAVE_KVM_IRQ_ROUTING
+-	select HAVE_KVM_INVALID_WAKEUPS
+-	select HAVE_KVM_NO_POLL
+ 	select KVM_VFIO
+ 	select VIRT_XFER_TO_GUEST_WORK
+ 	select KVM_MMU_LOCKLESS_AGING
+-	select KVM_GENERIC_PRE_FAULT_MEMORY
+ 	help
+ 	  Support hosting paravirtualized guest machines using the SIE
+ 	  virtualization capability on the mainframe. This should work
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index e460073ff176..cfe22832a4df 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -47,6 +47,10 @@
+ #define kvm_file_to_kvm_arch x86
+ 
+ #define __KVM_HAVE_ARCH_VCPU_DEBUGFS
++#define KVM_GENERIC_PRE_FAULT_MEMORY
++#define KVM_MSI
++#define KVM_NO_POLL
++#define KVM_READONLY_MEM
+ 
+ /*
+  * CONFIG_KVM_MAX_NR_VCPUS is defined iff CONFIG_KVM!=n, provide a dummy max if
+diff --git a/arch/x86/kvm/Kconfig b/arch/x86/kvm/Kconfig
+index 538ed1e80332..fa20f64d6a2f 100644
+--- a/arch/x86/kvm/Kconfig
++++ b/arch/x86/kvm/Kconfig
+@@ -28,7 +28,6 @@ config KVM_X86
+ 	select HAVE_KVM_DIRTY_RING_ACQ_REL
+ 	select HAVE_KVM_IRQ_BYPASS
+ 	select HAVE_KVM_IRQ_ROUTING
+-	select HAVE_KVM_READONLY_MEM
+ 	select VHOST_TASK
+ 	select KVM_ASYNC_PF
+ 	select USER_RETURN_NOTIFIER
+@@ -37,15 +36,12 @@ config KVM_X86
+ 	select PERF_EVENTS
+ 	select GUEST_PERF_EVENTS
+ 	select PERF_GUEST_MEDIATED_PMU
+-	select HAVE_KVM_MSI
+ 	select HAVE_KVM_CPU_RELAX_INTERCEPT
+-	select HAVE_KVM_NO_POLL
+ 	select VIRT_XFER_TO_GUEST_WORK
+ 	select KVM_GENERIC_DIRTYLOG_READ_PROTECT
+ 	select KVM_VFIO
+ 	select HAVE_KVM_PM_NOTIFIER if PM
+ 	select KVM_GENERIC_HARDWARE_ENABLING
+-	select KVM_GENERIC_PRE_FAULT_MEMORY
+ 	select KVM_WERROR if WERROR
+ 	select KVM_GUEST_MEMFD if X86_64
+ 
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 5926478563e8..b7bd20fc9e34 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -749,7 +749,11 @@ static inline u64 kvm_gmem_get_supported_flags(struct kvm *kvm)
+ #ifndef kvm_arch_has_readonly_mem
+ static inline bool kvm_arch_has_readonly_mem(struct kvm *kvm)
+ {
+-	return IS_ENABLED(CONFIG_HAVE_KVM_READONLY_MEM);
++#ifdef KVM_READONLY_MEM
++	return true;
++#else
++	return false;
++#endif
+ }
+ #endif
+ 
+@@ -2481,7 +2485,7 @@ void kvm_arch_update_irqfd_routing(struct kvm_kernel_irqfd *irqfd,
+ 				   struct kvm_kernel_irq_routing_entry *new);
+ #endif /* CONFIG_HAVE_KVM_IRQ_BYPASS */
+ 
+-#ifdef CONFIG_HAVE_KVM_INVALID_WAKEUPS
++#ifdef KVM_INVALID_WAKEUPS
+ /* If we wakeup during the poll time, was it a sucessful poll? */
+ static inline bool vcpu_valid_wakeup(struct kvm_vcpu *vcpu)
+ {
+@@ -2493,9 +2497,9 @@ static inline bool vcpu_valid_wakeup(struct kvm_vcpu *vcpu)
+ {
+ 	return true;
+ }
+-#endif /* CONFIG_HAVE_KVM_INVALID_WAKEUPS */
++#endif /* KVM_INVALID_WAKEUPS */
+ 
+-#ifdef CONFIG_HAVE_KVM_NO_POLL
++#ifdef KVM_NO_POLL
+ /* Callback that tells if we must not poll */
+ bool kvm_arch_no_poll(struct kvm_vcpu *vcpu);
+ #else
+@@ -2503,18 +2507,18 @@ static inline bool kvm_arch_no_poll(struct kvm_vcpu *vcpu)
+ {
+ 	return false;
+ }
+-#endif /* CONFIG_HAVE_KVM_NO_POLL */
++#endif /* KVM_NO_POLL */
+ 
+ void kvm_arch_guest_memory_reclaimed(struct kvm *kvm);
+ 
+-#ifdef CONFIG_HAVE_KVM_VCPU_RUN_PID_CHANGE
++#ifdef KVM_VCPU_RUN_PID_CHANGE
+ int kvm_arch_vcpu_run_pid_change(struct kvm_vcpu *vcpu);
+ #else
+ static inline int kvm_arch_vcpu_run_pid_change(struct kvm_vcpu *vcpu)
+ {
+ 	return 0;
+ }
+-#endif /* CONFIG_HAVE_KVM_VCPU_RUN_PID_CHANGE */
++#endif /* KVM_VCPU_RUN_PID_CHANGE */
+ 
+ #ifdef CONFIG_VIRT_XFER_TO_GUEST_WORK
+ static inline void kvm_handle_signal_exit(struct kvm_vcpu *vcpu)
+@@ -2663,7 +2667,7 @@ void kvm_arch_gmem_reclaim(kvm_pfn_t pfn, kvm_pfn_t nr_pages);
+ void kvm_arch_gmem_invalidate_range(struct kvm *kvm, struct kvm_gfn_range *range);
+ #endif
+ 
+-#ifdef CONFIG_KVM_GENERIC_PRE_FAULT_MEMORY
++#ifdef KVM_GENERIC_PRE_FAULT_MEMORY
+ long kvm_arch_vcpu_pre_fault_memory(struct kvm_vcpu *vcpu,
+ 				    struct kvm_pre_fault_memory *range);
+ #endif
+diff --git a/virt/kvm/Kconfig b/virt/kvm/Kconfig
+index c3c0ee253fc7..008b110ebdb7 100644
+--- a/virt/kvm/Kconfig
++++ b/virt/kvm/Kconfig
+@@ -9,7 +9,7 @@ config KVM_COMMON
+        select PREEMPT_NOTIFIERS
+ 
+ config HAVE_KVM_PFNCACHE
+-       bool
++       booCONFIG_ltt
+ 
+ config HAVE_KVM_IRQCHIP
+        bool
+@@ -50,27 +50,15 @@ config KVM_ASYNC_PF
+ config KVM_ASYNC_PF_SYNC
+        bool
+ 
+-config HAVE_KVM_MSI
+-       bool
+-
+-config HAVE_KVM_READONLY_MEM
+-       bool
+-
+ config HAVE_KVM_CPU_RELAX_INTERCEPT
+        bool
+ 
+ config KVM_VFIO
+        bool
+ 
+-config HAVE_KVM_INVALID_WAKEUPS
+-       bool
+-
+ config KVM_GENERIC_DIRTYLOG_READ_PROTECT
+        bool
+ 
+-config KVM_GENERIC_PRE_FAULT_MEMORY
+-       bool
+-
+ config KVM_COMPAT
+        def_bool y
+        depends on KVM && COMPAT && !(S390 || ARM64 || RISCV)
+@@ -79,12 +67,6 @@ config HAVE_KVM_IRQ_BYPASS
+        tristate
+        select IRQ_BYPASS_MANAGER
+ 
+-config HAVE_KVM_VCPU_RUN_PID_CHANGE
+-       bool
+-
+-config HAVE_KVM_NO_POLL
+-       bool
+-
+ config VIRT_XFER_TO_GUEST_WORK
+        bool
+ 
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 4f25e170b542..a7ce1f22b3de 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -4351,7 +4351,7 @@ static int kvm_vcpu_ioctl_get_stats_fd(struct kvm_vcpu *vcpu)
+ 	return fd;
+ }
+ 
+-#ifdef CONFIG_KVM_GENERIC_PRE_FAULT_MEMORY
++#ifdef KVM_GENERIC_PRE_FAULT_MEMORY
+ static int kvm_vcpu_pre_fault_memory(struct kvm_vcpu *vcpu,
+ 				     struct kvm_pre_fault_memory *range)
+ {
+@@ -4650,7 +4650,7 @@ static long kvm_vcpu_ioctl(struct file *filp,
+ 		r = kvm_vcpu_ioctl_get_stats_fd(vcpu);
+ 		break;
+ 	}
+-#ifdef CONFIG_KVM_GENERIC_PRE_FAULT_MEMORY
++#ifdef KVM_GENERIC_PRE_FAULT_MEMORY
+ 	case KVM_PRE_FAULT_MEMORY: {
+ 		struct kvm_pre_fault_memory range;
+ 
+@@ -4891,7 +4891,7 @@ static int kvm_vm_ioctl_check_extension_generic(struct kvm *kvm, long arg)
+ 	case KVM_CAP_DESTROY_MEMORY_REGION_WORKS:
+ 	case KVM_CAP_JOIN_MEMORY_REGIONS_WORKS:
+ 	case KVM_CAP_INTERNAL_ERROR_DATA:
+-#ifdef CONFIG_HAVE_KVM_MSI
++#ifdef KVM_MSI
+ 	case KVM_CAP_SIGNAL_MSI:
+ #endif
+ #ifdef CONFIG_HAVE_KVM_IRQCHIP
+@@ -5281,7 +5281,7 @@ static long kvm_vm_ioctl(struct file *filp,
+ 		r = kvm_ioeventfd(kvm, &data);
+ 		break;
+ 	}
+-#ifdef CONFIG_HAVE_KVM_MSI
++#ifdef KVM_MSI
+ 	case KVM_SIGNAL_MSI: {
+ 		struct kvm_msi msi;
+ 
 -- 
 2.53.0
 
