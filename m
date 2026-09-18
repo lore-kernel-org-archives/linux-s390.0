@@ -1,57 +1,57 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94F3C4F4CEE;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D455A4FC33B;
 	Fri, 18 Sep 2026 13:33:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789738386; cv=none; b=XGhhSzwEFWdsdK1XBjjUNtLooQ1T4LgpcVpAUBHiSwbZyTfvk5qo5RU42Zl6FPW5bhUSvhUoxXPsnWd0ClyAr8K0cittGd2mRs55VYRCmPcWtXINjRQ3HwvVR3HY7scSZbG/OhG74rxK8VDIiNbgPmSP3KufQZ84WJrhJKVn3L4=
+	t=1789738386; cv=none; b=NC0DUqv3GxPvhne73881XXi2LTrxjBjwLlTc5AkX2nwmw7vDtGXC99vqSt0fCXeXvyvLIubVJcGIhClgCxCNiysTNX+YX6zLIKlhDCwFVoO4InAB1YTo7mi+2kP0R364Li8lU3acVrKDZNtLYtJhK1F1QIjSo92HfzVFRCgPITo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1789738386; c=relaxed/simple;
-	bh=XIk7qLRIH3bG25iDSTsgECFI6IQ17qjEXdHNyz1RLjQ=;
+	bh=RyxxTMht2B5B102zC167boZIZ7l/cT+ihBRApFMGiCA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=E9TXKe2AH/kn+TEjnhk87zvxWM5VO0fGHUZCoaehfW6pueZpu4xuk8LeGejBZtHkeQilfdWvTaP7QR8ckq9SEqmTpXHk5l27ec4i0+fdJie5D2bPr2erWm1zsPYb2prnp7ICnSGPy5d5oLJ5u6Fbhy2Grd1RHLvItl93opXi7wo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=cDF54Ne4; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=Oji6Ek7Apyc8ko3F5sjmrIsZl+dXKxAn2xluuVjN/RIlQs1C5SmZJBOYlCdUiyfDhINT3qSqZUm8hrviEVMamRtE2WaCtXjfhyTCu+i9NP5beNn4VZkDXE8treGhkj9aujo86pifEVB772PqdA46c41gYsmskpK8Idnr5K07JmU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VGA5hyml; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cDF54Ne4"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VGA5hyml"
 Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68IA1i8H803594;
-	Fri, 18 Sep 2026 13:31:22 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68IA1aql803423;
+	Fri, 18 Sep 2026 13:31:19 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=rq26S7jqE4cjpZiw5
-	hGGQPRlH38Fkh4Yp4LDsM8tK5w=; b=cDF54Ne4+AncvwmBO75vS64byPLkxCNC3
-	N0K0CQ6VdTLYM4RVbH4L830hwaFvhrOT6VLnzyY+l+A4jw8Hwd3y72jQA8Fp0tNi
-	hoKfDuVDNhQzY7U9hp8jFcOJuz/TUuSAzggtiCnrwq9TS62+6bJ/Oefea/tV4M3I
-	ubDQY5bb93gKzQQ0BIkFha0u6BB5VjpUxXn6Ab7YVimmpTkKkZGSmD5Q9KBRm0VB
-	s28JoosrPS477Un6LzoFR+1/6mtRZxAx+VDIuQ2ESgAbf65oPTlV5m8e5VNSbtRi
-	esH9k7BAA22ZYUwgTQ6sjwO8WvuDfARoUru5wJRCk7wqpzpFMkNPQ==
+	:mime-version:references:subject:to; s=pp1; bh=ultWEJhp6ZIJJNlF9
+	2dkS5UfNARIdvGV4toPmQvSUaE=; b=VGA5hymlz2YlxdTIlYmAndnysWU1Y1bKi
+	uzUB1HyJxNDeCQ1tFv5VmwK26WtQrb7EH1JNAue6LKj/iTpSaGWDYlSPkOhW5x9q
+	qXvEu0FsY8/E0YJPqUef80iwRXfVtd9YD+LWna2kY/tn9p60V7WLOWz1JBedRZOl
+	7MO8h/5XgoXUDAsYMZ3fDVYPlh1IkXZRGTt2iLKyp8h2/GhALdIc8PtaV0mjxjWf
+	ynRrE1d0cjb7TOYKZKEl1jPYAdSjOvfJcQ46gT99UOtjQobvXtEEDOo6dicvKFki
+	vlR0EKIU71VLK8aMtCfR1CT2pc2KjQHgMJ+W84E4FlIp2LZPSfJ9w==
 Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmv5j814b-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmv5j813p-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 18 Sep 2026 13:31:22 +0000 (GMT)
+	Fri, 18 Sep 2026 13:31:18 +0000 (GMT)
 Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68IDNqsh722670;
-	Fri, 18 Sep 2026 13:31:21 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gr5fjqgvx-1
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68IDNqsf722670;
+	Fri, 18 Sep 2026 13:31:17 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gr5fjqgvm-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 18 Sep 2026 13:31:21 +0000 (GMT)
+	Fri, 18 Sep 2026 13:31:17 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68IDVFZr38928852
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68IDVAgS51642852
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 18 Sep 2026 13:31:15 GMT
+	Fri, 18 Sep 2026 13:31:10 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1004320040;
-	Fri, 18 Sep 2026 13:31:15 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 588D920040;
+	Fri, 18 Sep 2026 13:31:10 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B64402004E;
-	Fri, 18 Sep 2026 13:31:14 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0A3B02004D;
+	Fri, 18 Sep 2026 13:31:10 +0000 (GMT)
 Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 18 Sep 2026 13:31:14 +0000 (GMT)
+	Fri, 18 Sep 2026 13:31:09 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
 To: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
@@ -77,9 +77,9 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
         Zenghui Yu <yuzenghui@huawei.com>
-Subject: [PATCH v8 19/29] KVM: s390: Use arm64 code
-Date: Fri, 18 Sep 2026 15:30:56 +0200
-Message-ID: <20260918133107.1042730-20-seiden@linux.ibm.com>
+Subject: [PATCH v8 06/29] KVM: Move export symbol check macros to Makefile.kvm
+Date: Fri, 18 Sep 2026 15:30:43 +0200
+Message-ID: <20260918133107.1042730-7-seiden@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260918133107.1042730-1-seiden@linux.ibm.com>
 References: <20260918133107.1042730-1-seiden@linux.ibm.com>
@@ -92,23 +92,23 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE4MDE4NCBTYWx0ZWRfX2bZyimmMZATy
- 2PEuNpRzDigwMA511pmlsni9ojm+mZNKWojX34zEOM8c7YbhXFne0IN0bfxIbf7Td0cSVTcjHak
- XKJ+Y0XHGEruSYzhvMuEL1JQq3DaPqc+POo7Uhic59aoiIiiAH59f17tF0VIf0HUHEHHA6wUZxw
- KESAG00KnUX6IguFhEZzlUQDNi5HCiPQw5I3mQzqpTCuKlzDpffwuxQk1vzDWv20PExPNCkkZwK
- nlqdweaazH6hflg1aHvjgiPWtNtjzvonokNzqL8t5eYoRX5FSuYwUYPrfqoJQk+L0HY7qo8uNJ7
- 0M7zMeUGzM7gi8oJpFc3FE4Wnt7txn9YtCXFvAfx1GWpnkHcj+6kTRAmWUT0a91FAHxqijqJk40
- 09pWR59oTLHWxH3ZOgj9dhQmHuzj+j8MhTgI4TK1k1dhYKQk0QJA2r8nBnfsCIrbBw7LkMk5L3N
- cXucVIJhbjqtun7/MUw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE4MDE4NCBTYWx0ZWRfX1zSEh6TCujeA
- IHWziz4fXnD4xOl5llKDuyjr8Dh7aurFPqzLVZtCsWkIY7uSgUy3uJbFJhUG+wflL04T05Fj8ls
- 1NOFRsnM2hR2sImdLS8R17X++8m9gEI=
-X-Authority-Analysis: v=2.4 cv=Zsx4uN7G c=1 sm=1 tr=0 ts=6aad3d2a cx=c_pps
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE4MDE4NCBTYWx0ZWRfX4ECV8w/7ItR+
+ 5Qv/vl2FdwTOaswJMK+Jy5EOVXfioy81ZhsW5RJTIEgkLCX3zoKk31bMjLJ7kVj7/ecyYuU4q71
+ iwhi3Xxsv+bTPXsKImSofiJGwY7cfNpYPVMm2hblWB9xdo4wSM6TdQAZa6lakMoug1EA2AvdDTQ
+ z+ofNsphWTo+pWGQbgtQY8waxW0wTeiD//sVOvYJuVjivIqKPS/QfWnTv08jcTnEbLj4vSyr5nI
+ pk0VmyhYV2DZVYsaoRP9aztNZMdyERSSMelaAaeH2AauSYnobNxlnU9FxqB8jG3vJ8QUF7JI68O
+ v99MCR7IZp1F3tngJgUX1wAWHXdoptY2Newv4QBwUnC18jLxpIcQdGS9dusTGGCIKiwV1RE/T0q
+ 0a7ZHA5YF7eD2wO2lyqaHWI/LDqcn8srCQdGcSaIs7oPA6Vm6/p2vS6lriM9ITMccmTpUgc0mVC
+ PiHc1TOSfj+QWaNvTgw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE4MDE4NCBTYWx0ZWRfX5W2Vxqiy8jJs
+ 0BZFP2ztqyaKCBQxsuJ1S2BbC0tYFV32WmoPUbzBtsTcta2n8Al/LJDCOq2++HQo1a2z0ZzOa2N
+ R7jtVJEMmXG7EOcHnkbTf4rOTbkQk9w=
+X-Authority-Analysis: v=2.4 cv=Zsx4uN7G c=1 sm=1 tr=0 ts=6aad3d26 cx=c_pps
  a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=x1b9RNJZmR4nZInT6RoA:9
-X-Proofpoint-ORIG-GUID: V5YxHi439nzC48TG7SzpuiCKoqWu1GHl
-X-Proofpoint-GUID: Yod9GHa8_eKmqnjMdNZtQd42f_TNEzLX
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=xeFIZLMA4NwSUji8HBwA:9
+X-Proofpoint-ORIG-GUID: JiX0ns0nG5pKmZYWp0e1gsi3vLiY40wB
+X-Proofpoint-GUID: L9ZS1jqqmo0O9XiSGMaRkjSrgjZgmqyC
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-18_03,2026-09-16_02,2025-10-01_01
@@ -119,150 +119,122 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
  definitions=main-2609180184
 
-Add the infrastructure to extract KVM/arm64 code into s390 at built
-time similar to the arm64 header sharing. Add copy-arm64c.awk hat
-detects ARM64_S390_COMMON markers and extracts marked section into an
-.inc file that can be consumed by arm on s390 host code. If no marker is
-found make will fail.
+The EXPORT_SYMBOL_GPL/EXPORT_SYMBOL enforcement logic in
+arch/x86/kvm/Makefile is useful for any KVM architecture wanting to
+restrict the exported symbols. Move the check macros to
+virt/kvm/Makefile.kvm so they can be shared.
 
-To ensure that no code is consumed twice by accident a guard is added
-during file generation. A s390 C file wanting to consume such an inc
-file must first define __INCL_GEN_ARM_FILE otherwise the inc file will
-emit a compile error.
+Arch Makefiles only need to set kvm_exports_allowed to a space-separated
+list of symbols that are permitted and then call kvm_check_exports for
+each symbol type they want to enforce.
 
-Example:
-	#define __INCL_GEN_ARM_FILE
-	#include <generated/arm.inc>
-	#undef __INCL_GEN_ARM_FILE
+No functional change.
 
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/s390/kvm/arm64/.gitignore      |  2 +
- arch/s390/kvm/arm64/Makefile.gen    | 26 +++++++++++
- arch/s390/kvm/arm64/copy-arm64c.awk | 72 +++++++++++++++++++++++++++++
- 3 files changed, 100 insertions(+)
- create mode 100644 arch/s390/kvm/arm64/.gitignore
- create mode 100644 arch/s390/kvm/arm64/Makefile.gen
- create mode 100644 arch/s390/kvm/arm64/copy-arm64c.awk
+ arch/x86/kvm/Makefile | 49 +++++++++----------------------------------
+ virt/kvm/Makefile.kvm | 33 +++++++++++++++++++++++++++++
+ 2 files changed, 43 insertions(+), 39 deletions(-)
 
-diff --git a/arch/s390/kvm/arm64/.gitignore b/arch/s390/kvm/arm64/.gitignore
-new file mode 100644
-index 000000000000..bd9d90694676
---- /dev/null
-+++ b/arch/s390/kvm/arm64/.gitignore
-@@ -0,0 +1,2 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+generated/*
-diff --git a/arch/s390/kvm/arm64/Makefile.gen b/arch/s390/kvm/arm64/Makefile.gen
-new file mode 100644
-index 000000000000..e12714203bde
---- /dev/null
-+++ b/arch/s390/kvm/arm64/Makefile.gen
-@@ -0,0 +1,26 @@
-+# SPDX-License-Identifier: GPL-2.0
-+#
-+# Extracts ARM64 marked sections to .inc files that are included by main source
-+# files
+diff --git a/arch/x86/kvm/Makefile b/arch/x86/kvm/Makefile
+index c6bf463f5032..1bfd630c0767 100644
+--- a/arch/x86/kvm/Makefile
++++ b/arch/x86/kvm/Makefile
+@@ -54,43 +54,14 @@ clean-files += kvm-asm-offsets.h
+ # Only a handful of exports intended for other modules (VFIO, KVMGT) should
+ # use EXPORT_SYMBOL_GPL, and EXPORT_SYMBOL should never be used.
+ ifdef CONFIG_KVM_X86
+-# Search recursively for whole words and print line numbers.  Filter out the
+-# allowed set of exports, i.e. those that are intended for external usage.
+-exports_grep_trailer := --include='*.[ch]' -nrw $(srctree)/virt/kvm $(srctree)/arch/x86/kvm | \
+-			grep -v -e kvm_page_track_register_notifier \
+-				-e kvm_page_track_unregister_notifier \
+-				-e kvm_write_track_add_gfn \
+-				-e kvm_write_track_remove_gfn \
+-				-e kvm_file_to_kvm_fn
+-
+-# Force grep to emit a goofy group separator that can in turn be replaced with
+-# the above newline macro (newlines in Make are a nightmare).  Note, grep only
+-# prints the group separator when N lines of context are requested via -C,
+-# a.k.a. --NUM.  Simply request zero lines.  Print the separator only after
+-# filtering out expected exports to avoid extra newlines in the error message.
+-define get_kvm_exports
+-$(shell grep "$(1)" -C0 $(exports_grep_trailer) | grep "$(1)" -C0 --group-separator="!SEP!")
+-endef
+-
+-define check_kvm_exports
+-nr_kvm_exports := $(shell grep "$(1)" $(exports_grep_trailer) | wc -l)
+-
+-ifneq (0,$$(nr_kvm_exports))
+-$$(error ERROR ***\
+-$$(newline)found $$(nr_kvm_exports) unwanted occurrences of $(1):\
+-$$(newline)  $(subst !SEP!,$$(newline) ,$(call get_kvm_exports,$(1)))\
+-$$(newline)in directories:\
+-$$(newline)  $(srctree)/arch/x86/kvm\
+-$$(newline)  $(srctree)/virt/kvm\
+-$$(newline)Use EXPORT_SYMBOL_FOR_KVM_INTERNAL, not $(1))
+-endif # nr_kvm_exports != 0
+-undefine nr_kvm_exports
+-endef # check_kvm_exports
+-
+-$(eval $(call check_kvm_exports,EXPORT_SYMBOL_GPL))
+-$(eval $(call check_kvm_exports,EXPORT_SYMBOL))
+-
+-undefine check_kvm_exports
+-undefine get_kvm_exports
+-undefine exports_grep_trailer
++kvm_exports_allowed := kvm_page_track_register_notifier \
++		       kvm_page_track_unregister_notifier \
++		       kvm_write_track_add_gfn \
++		       kvm_write_track_remove_gfn \
++		       kvm_file_to_kvm_fn
 +
-+# List of ARM64 C files to extract
-+ARM64_CFILES := \
-+	arm.c \
-+	guest.c \
-+	mmio.c \
++$(eval $(call kvm_check_exports,EXPORT_SYMBOL_GPL))
++$(eval $(call kvm_check_exports,EXPORT_SYMBOL))
 +
-+quiet_cmd_extract_inc = GEN     $@
-+      cmd_extract_inc = mkdir -p $(dir $@); \
-+                        $(AWK) -f $(src)/copy-arm64c.awk $< > $@ || \
-+                        { echo "Error: No or unbalanced ARM64_S390_COMMON markers in $<" >&2; rm -f $@; exit 1; }
++undefine kvm_exports_allowed
+ endif # CONFIG_KVM_X86
+diff --git a/virt/kvm/Makefile.kvm b/virt/kvm/Makefile.kvm
+index d047d4cf58c9..dd40544b8ecb 100644
+--- a/virt/kvm/Makefile.kvm
++++ b/virt/kvm/Makefile.kvm
+@@ -13,3 +13,36 @@ kvm-$(CONFIG_HAVE_KVM_IRQ_ROUTING) += $(KVM)/irqchip.o
+ kvm-$(CONFIG_HAVE_KVM_DIRTY_RING) += $(KVM)/dirty_ring.o
+ kvm-$(CONFIG_HAVE_KVM_PFNCACHE) += $(KVM)/pfncache.o
+ kvm-$(CONFIG_KVM_GUEST_MEMFD) += $(KVM)/guest_memfd.o
 +
-+$(obj)/generated/%.inc: $(srctree)/arch/arm64/kvm/%.c $(src)/copy-arm64c.awk FORCE
-+	$(call if_changed,extract_inc)
++# Force grep to emit a goofy group separator that can in turn be replaced with
++# the above newline macro (newlines in Make are a nightmare).  Note, grep only
++# prints the group separator when N lines of context are requested via -C,
++# a.k.a. --NUM.  Simply request zero lines.  Print the separator only after
++# filtering out expected exports to avoid extra newlines in the error message.
++define __kvm_get_exports
++$(shell grep "$(1)" -C0 --include='*.[ch]' -nrw \
++	$(srctree)/virt/kvm $(srctree)/arch/$(SRCARCH)/kvm \
++	$(addprefix | grep -v -e ,$(kvm_exports_allowed)) \
++	| grep "$(1)" -C0 --group-separator="!SEP!")
++endef
 +
-+ARM64_INC_FILES := $(foreach cfile,$(ARM64_CFILES),generated/$(basename $(cfile)).inc)
 +
-+targets += $(ARM64_INC_FILES)
-+clean-files += generated/*.inc
++KVM_CHECK_EXPORT_DIRS ?= $(srctree)/virt/kvm $(srctree)/arch/$(ARCH)/kvm
 +
-+$(foreach cfile,$(basename $(ARM64_CFILES)),\
-+	$(eval $(obj)/$(cfile).o: $(obj)/generated/$(cfile).inc))
-diff --git a/arch/s390/kvm/arm64/copy-arm64c.awk b/arch/s390/kvm/arm64/copy-arm64c.awk
-new file mode 100644
-index 000000000000..5561619aa70c
---- /dev/null
-+++ b/arch/s390/kvm/arm64/copy-arm64c.awk
-@@ -0,0 +1,72 @@
-+#!/usr/bin/awk -f
-+# SPDX-License-Identifier: GPL-2.0
-+#
-+# Extract marked sections from ARM64 C files for sharing with s390 KVM
-+#
-+# Usage: copy-arm64c.awk <input_file>
-+#
-+# Extracts all sections between start/end markers. If no markers found, signals failure.
++# Fail the build if any unwanted $(1) usage is found outside kvm_exports_allowed.
++define kvm_check_exports
++kvm_nr_exports := $(shell grep "$(1)" --include='*.[ch]' -nrw \
++	$(KVM_CHECK_EXPORT_DIRS) \
++	$(addprefix | grep -v -e ,$(kvm_exports_allowed)) | wc -l)
 +
-+BEGIN {
-+	# Constants
-+	start_pattern = "^#ifdef ARM64_S390_COMMON$"
-+	end_pattern = "^#endif /\\* ARM64_S390_COMMON \\*/$"
-+
-+	# State variables
-+	copying = found_marker = 0
-+	file_header_done = 0
-+}
-+
-+!file_header_done {
-+	if (/^\/\*/ || /^\/\/ SPDX-License-Identifier:/) {
-+		print
-+		next
-+	}
-+	if (/[[:space:]]\*([[:space:]]|$)/) {
-+		print
-+		next
-+	}
-+	if (/\*\//) {
-+		print " *"
-+	} else {
-+		print "/*"
-+	}
-+
-+	filename = FILENAME
-+	sub(/^.*arch\/arm64\//, "arch/arm64/", filename)
-+	print " * This file was automatically generated from " filename
-+	print " * Do not modify this file directly."
-+	print " */"
-+	print ""
-+	print "#ifndef __INCL_GEN_ARM_FILE"
-+	print "#error included .inc file w/o proper guard definition"
-+	print "#else"
-+	print "#undef __INCL_GEN_ARM_FILE"
-+	print "#endif /* __INCL_GEN_ARM_FILE */"
-+	print ""
-+
-+	file_header_done = 1
-+}
-+
-+$0 ~ start_pattern {
-+	if (copying) { error = 1; exit 1 }
-+	copying = found_marker = 1
-+	next
-+}
-+
-+$0 ~ end_pattern {
-+	if (!copying) { error = 1; exit }
-+	copying = 0
-+	next
-+}
-+
-+copying {
-+	gsub(/#include <asm\//, "#include <arm64/")
-+	gsub(/#include <uapi\/asm\//, "#include <uapi/arm64/")
-+	print
-+	next
-+}
-+
-+END {
-+	exit error || !found_marker || copying
-+}
++ifneq (0,$$(kvm_nr_exports))
++$$(error ERROR ***\
++$$(newline)found $$(kvm_nr_exports) unwanted occurrences of $(1):\
++$$(newline)  $(subst !SEP!,$$(newline) ,$(call __kvm_get_exports,$(1)))\
++$$(newline)in directories:\
++$$(newline)  $(KVM_CHECK_EXPORT_DIRS)\
++$$(newline)If this is a valid exception add it to kvm_exports_allowed or\
++$$(newline)use EXPORT_SYMBOL_FOR_KVM_INTERNAL, not $(1))
++endif # kvm_nr_exports != 0
++undefine kvm_nr_exports
++endef # kvm_check_exports
 -- 
 2.53.0
 
