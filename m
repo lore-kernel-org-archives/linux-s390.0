@@ -1,58 +1,58 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D838F40F72D;
-	Fri, 18 Sep 2026 10:59:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26DD74E01E3;
+	Fri, 18 Sep 2026 11:02:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789729179; cv=none; b=qOl2Y/O8o9LSH34F6A/doj5TN2JP+qoNe8rvHvqcmHuMoKSPfLdN0FutG6AUxFjBFwG5X3iGAXFzcPtBhX6VJ2lx5+GqFdc3NolDtdkZRuxVPylDXx7CO2h2f1AiKHLUQjIlNHrH6xCxJmywZirEpC2pLDXk7WxVgVMCoZX5TCY=
+	t=1789729338; cv=none; b=oGDm3WQhRYsUsW5Hpw/ruSvTn5pfAzuBl28eQ8FLzq8leC+tMN8su2SbSnegDTAfj6WCrehZ2bBLNOaADOvn/6d1sNW7Go6QubhYFD8ZbvLA2MYzOZkCpgIR1177MdQdJHk+JvYzi7f2fIPFA/MuQlFgbYafUDURWPmUGAFja/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789729179; c=relaxed/simple;
-	bh=vXJghl3KuVg5da0+h8PVYuMxaAhPRp2LtVKVy8H6J0A=;
+	s=arc-20240116; t=1789729338; c=relaxed/simple;
+	bh=6ewiep7ZzxjOZNesecxqH876ysSp9V8BLH626ueoy/4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iCGiZxPEE/8xG2NKSHpvk5wq4dFYmPm/JoOEg+cEJS6VZT7ogdBZtWD5RtQ/zCtSMTwE6zRq/dl7orWFENKUoS8/kle6kx5fCvdbLO5PcxbRuvwLXQnb53an1Uxt173wkgwpAQNdK3X2eeAaHTUWinjlbC56cGh+e84Csn4CSYo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Rdc5k3UJ; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:Content-Disposition:In-Reply-To; b=fFkRaQYkBCDcPG8GZmGff+svxy9Jsyc26Yy3Q7HQ30xtiOcxaUd7az6PCcHIClAy5CdO5AziipHaBXp62n94RJ/9jAJKXPHArFPoUjHX4jmKzaQrru5NiV281jZKihU5XWksRw4l3DSyfTI4+pizNFXHm/Xxb1SKYkCmEYe+2rY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=W3703Dcw; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Rdc5k3UJ"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68IA2mmK990986;
-	Fri, 18 Sep 2026 10:59:29 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="W3703Dcw"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68IA1T2w946092;
+	Fri, 18 Sep 2026 11:02:09 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=tyclNKZd0pmegIgZMm4HZ9Jsc0OMjR
-	iTPkuftcZ9UTI=; b=Rdc5k3UJfFI4O1agD8XWuycd5wdaW9mii3qq9Jj8FM3FQW
-	OzVI/BhS8dYixNsIe1hFxbYHilBObPLM8m7GYXrQR29ZPQVKEsiojPSzrpDwHB/Q
-	cQd8iUYqrbsncTi0hryI4QOodevy6/BJdpyCi6rFXBJUoVKcLYZCJH/lqwRqQIBJ
-	a/qBnVWo8V0olbLVmqhZCGLA+RNHp+Q4wjm38KSV2SGxdsC9/AouF9mtaPp7XGIi
-	ySN3ewZnONSGqclO4CdmqfKleys+DErrti3AopyHUxhdzYf90nHsF0S0A2Kt3Une
-	9drQddkOv3u4uVEIGB8T9JETBHMrYOLNPpiVS7VA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmxcvf0sx-1
+	:references:subject:to; s=pp1; bh=suvHqJsTNyiojY+d/RJfUZwEOKQLY/
+	yu5Qg0Rh4D8Pw=; b=W3703Dcw7MmZ/x4D2lGCydGqIRycDmVrYllNfuWmBplovS
+	f40JJ/6WgEWcMyHN+bq+Yqmz0t2JIL8teRxrxSZtVfn/D5bvyg61JGGQ0qTxs2Jy
+	Iw9VIUh015DS2o5lWmD4DfTonkS651k91Tz9sEed4/ZZOuBhOAyFb1V/Cm/XXeO1
+	udi1AlLlIUTK3EtjaAuMuavNPAVWUyZwf4n+OVVpW51ZsRdLqLM5zTHXJkESyG/r
+	KkTEuF3OZYAgWhjfYRV2loq6CdVshsNkuDV7igcetAMBPFyoAIc+6Y9laqhM9tGE
+	H626VJKtD+rdeNG13ckfeY8Af4lWojhRrZUXtsww==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gmx847n8e-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 18 Sep 2026 10:59:28 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68I9o4oU466604;
-	Fri, 18 Sep 2026 10:59:28 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gr5xa6vqq-1
+	Fri, 18 Sep 2026 11:02:09 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68I9o5ft507516;
+	Fri, 18 Sep 2026 11:02:08 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gra3yx2dw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 18 Sep 2026 10:59:28 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68IAxOOl51839440
+	Fri, 18 Sep 2026 11:02:08 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68IB25Lb48497014
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 18 Sep 2026 10:59:24 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 40D0F2004B;
-	Fri, 18 Sep 2026 10:59:24 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D190B20040;
-	Fri, 18 Sep 2026 10:59:23 +0000 (GMT)
+	Fri, 18 Sep 2026 11:02:05 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0BD8420043;
+	Fri, 18 Sep 2026 11:02:05 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9D89C20040;
+	Fri, 18 Sep 2026 11:02:04 +0000 (GMT)
 Received: from osiris (unknown [9.111.38.246])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 18 Sep 2026 10:59:23 +0000 (GMT)
-Date: Fri, 18 Sep 2026 12:59:22 +0200
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 18 Sep 2026 11:02:04 +0000 (GMT)
+Date: Fri, 18 Sep 2026 13:02:03 +0200
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Mark Rutland <mark.rutland@arm.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -63,10 +63,12 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Juergen Christ <jchrist@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>, linux-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org
-Subject: Re: [PATCH v2 00/12] s390: More this_cpu_*() changes
-Message-ID: <20260918105922.20386E38-hca@linux.ibm.com>
+Subject: Re: [PATCH v2 12/12] s390/percpu: Rework to simplify percpu_entry()
+ and percpu_exit()
+Message-ID: <20260918110203.20386F2b-hca@linux.ibm.com>
 References: <20260918084842.2333237-1-hca@linux.ibm.com>
- <aq0S_fKqcZ5WoLUU@J2N7QTR9R3>
+ <20260918084842.2333237-13-hca@linux.ibm.com>
+ <aq0VFSS_81QTKjcj@J2N7QTR9R3>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,68 +77,53 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aq0S_fKqcZ5WoLUU@J2N7QTR9R3>
+In-Reply-To: <aq0VFSS_81QTKjcj@J2N7QTR9R3>
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE4MDE0NyBTYWx0ZWRfX7B5OxZ3x9grj
- 0reL+0oZaWIzANSqO3AxCEqTbB8NtmxFPe/eA61DHulbQwdH3iGPG3YKddDx6H2PHxvzL2AX5Ki
- JpAqEXF45Z05uRNzKyncj/8WGCzKyrY=
-X-Proofpoint-ORIG-GUID: OVHJ8lGc11HoTIm5nWy3oZqy2o6LaFMJ
-X-Proofpoint-GUID: OVHJ8lGc11HoTIm5nWy3oZqy2o6LaFMJ
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE4MDE0NyBTYWx0ZWRfX4/JkX9fA36Kq
- KKhuGdUP2A3pS9uItHxu196AzTaeYxyfdcmKks30f9GGFKTjhBbVHs9VbVR8SrkXh2+DhBFXntA
- 9z5YxBstrTR2XIjeP6dXb8X2oJokqjEyYDbieNyyd6BQs+eM9Vu4ANeiSmZA8nxPZ1KFNJ5cfFZ
- VxCuOpyJmgxaQPwNSWU/XILTLeQqs/TlY0IR6JlWbGnWxKoSlqyQ3pI9wV7d24U+LHiZjY2j2t4
- C2gcEit52S1ycq3LFKKPn7P93v2a26A1uGnntJNVQj1/FhG+uPNz6pbCLlhsMUpP4YNGsX/ehI+
- J+BH6Xlc0jJ5Z4Mbl2RBeHdnXn/kLXtDzqcYdINkGznNTt3Lk+KqLtHHjSrpwXKU1x8IST4s/UZ
- JfugLiS2ifks5yEHpl9LiP2O+AkONBzeIy78/PzXGTmnQVa0Fqwpor1LIjwtKiOgOEG06RKHB6m
- jAU+QVgsGCrG4zWrtGQ==
-X-Authority-Analysis: v=2.4 cv=F+7C5ahN c=1 sm=1 tr=0 ts=6aad1990 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTE4MDE1NCBTYWx0ZWRfX8vN9k6tLa5tC
+ qKN96gJU8XJCk6sOO3PyK5BOVkqOzaoLnPCDRRTNx3lFwRqOBwuTa2A/XvimcIj/pjP+cBKiazZ
+ sxv7PHqvAUy/0oWy28nfCdz3iaK/Zu9xnye/q4yQHffhmlARcpwcrqo3yXmrZXDjCVe+d5yNkVh
+ JCfeXoaaN1QKVqlVEcHqZUtf6TGpWH60gAi94BrZW+us8ZLU/s5+J0Fvv90GVD3SM2OWaikld8K
+ 91WmC8M2yPxhP/4BsJWoB/BAuctw07qOe2DI0mPNPbpIto1tC3RKKMwTZGPJyDpZAyHrhMGrveI
+ 2yo9jS5eJMwHravIyaxYJS/XXk8a7cwdDWubmfQYukyXr2kLN4AxFRKcZXfxS2gtEuFdfMfCJif
+ w3XGsypLH5Gl1/aojhEordfa/P61yTKmh4ZIlwVMEF81ZiZ3fSYZ0htuRKQ2sOSxR2TE4Wap+ZP
+ dACnnGImHgZHQOWnvuw==
+X-Proofpoint-ORIG-GUID: YPTu6fwYnFyVPJY1As4Q9gTDvpW9foUx
+X-Proofpoint-GUID: YPTu6fwYnFyVPJY1As4Q9gTDvpW9foUx
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTE4MDE1NCBTYWx0ZWRfXwrT3tUHhEWw+
+ TWrzPVaOTZB79Rn3G+wxXP1yAJOL1qs4yMcAlks5+zSs4xjfSrj5xlgeEWdwpX34KvGqitK6ymv
+ HWh3ptCBrJbxBRpHGfJqnMBZRwnfreI=
+X-Authority-Analysis: v=2.4 cv=cY9HPXDM c=1 sm=1 tr=0 ts=6aad1a31 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=6EpOferOdSSFD47BJMEA:9
- a=CjuIK1q_8ugA:10
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=xIGoFdqxBrF3HhsM5RMA:9
+ a=CjuIK1q_8ugA:10 a=zZCYzV9kfG8A:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-18_03,2026-09-16_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 suspectscore=0 phishscore=0 clxscore=1015 malwarescore=0
- lowpriorityscore=0 bulkscore=0 spamscore=0 impostorscore=0 adultscore=0
+ priorityscore=1501 spamscore=0 bulkscore=0 clxscore=1015 suspectscore=0
+ impostorscore=0 malwarescore=0 phishscore=0 adultscore=0 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609180147
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609180154
 
-On Fri, Sep 18, 2026 at 11:31:25AM +0100, Mark Rutland wrote:
-> > v2:
-> > - Yet another brown paper bug: Re-add CPU migration check to last
-> >   patch. Unconditionally recalculating and updating the percpu variable
-> >   address and percpu offset register can corrupt previous context
-> >   register state in several cases (not only the single case reported by
-> >   Sashiko).
+On Fri, Sep 18, 2026 at 11:40:21AM +0100, Mark Rutland wrote:
+> On Fri, Sep 18, 2026 at 10:48:42AM +0200, Heiko Carstens wrote:
+> > +#define __PCPU_AGRK(regptr, regpcp, regoff)					\
+> > +	"	agrk	" regptr "," regpcp "," regoff "\n"
+> > +
+> > +#define __PCPU_BEGIN(lcreg, lcoff, regpcp, regoff, regptr)			\
+> > +	__PCPU_MVIY_REGS(lcreg, regpcp, regoff)					\
+> > +	__PCPU_LG(regoff, lcoff)						\
+> > +	__PCPU_AGRK(regptr, regpcp, regoff)
 > 
-> Do all of those case boil down to:
+> Since percpu_exit() relies on regptr being regoff + 1, maybe it's worth
+> having a check here to verify that? Perhaps in __PCPU_MVIY_REGS() with
+> the uniqueness check.
 > 
-> * During exception entry from context A to context B, a nested exception
->   is taken from context B to context C before percpu_entry() is called,
->   and the nested exception handler updates B's live regs using A's
->   percpu register indices.
-> 
-> * During exception return from context B to context A, a nested
->   exception is taken from context B to context C after percpu_entry() is
-                                                         ^^^^^^^^^^^^
-That should have been percpu_exit(), I guess.
+> Hopefully that never goes wrong, but catching a violation at build time
+> might save some future pain.
 
->   called, and the nested exception handler updates B's live regs using
->   A's percpu register indices.
-> 
-> ... or was there another case that you spotted (e.g. some case where
-> percpu_{entry,exit}() aren't called)?
+Yes, that makes sense. Especially considering that there was already a
+previous bug which could have been caught at build time.
 
-Yes, all scenarios boil down to exactly the above.
-
-> On arm64, I think we avoid those two cases by virtue of not taking
-> nested (architectural) exceptions during those windows, and by not
-> applying fixups for SDEI events (SW NMIs that can be taken during those
-> windows).
-> 
-> If there's another case to consider, it'd be handy to know.
-
-I'm not aware of more cases.
+Thanks a lot for taking a look!
