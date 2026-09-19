@@ -1,69 +1,93 @@
-Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D0323D8121;
-	Sat, 19 Sep 2026 01:53:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 71B2037CD47;
+	Sat, 19 Sep 2026 10:13:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789782829; cv=none; b=qYK9LxDe+X7JCprxMuCo+AWmvyamrlqlFB9JWI3kaj8Hc1Aw6IL9cZGwHZvsDy3P12CagXuW8cAxa94PdiK1CVVRfN6Hm+hetEuYFOsOBlR3qu0yDuozIvr1g4Z5PWrOxH0632gYOOLrOg3ouay31TIF3YhDulCedRXmpWCUWkM=
+	t=1789812840; cv=none; b=c+nMkZVMSDQSyQL49dd5FYd9mHaFaYoAHFXhwz1xjrmW+S+En0h2tZDe2hHFmfzqIr2kfPgfqhoZpTIRHRJiIR+MDoh4wh2YcY5i27gu+ehMYVCJA/tCZH5B/T5XkBnLWkbSMxnD6Z1+xtWfVPZtk+BOffNocj//CTC+tapcY4I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789782829; c=relaxed/simple;
-	bh=wLe9OWnfDr11qLYVF8DBDM+OfvRjyRDeaAEbbaPvwig=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QQtn0JmpE67tnqhuXW4raqhBKMrXxd2Bn4IGbstSwPtQT+Olw6VFwhHRed1JT3Xq0besmO9yT3R4iMxN5ykNBXY2WC4QU2AW9EflFjliW8/UvrgTvBVOQ0CvdT9FpgWPCamuNxNK1lSmw1fhUKiV/1CG4esZ7TRwi76rmYsMzks=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b=OZQGj+WQ; arc=none smtp.client-ip=180.181.231.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	s=arc-20240116; t=1789812840; c=relaxed/simple;
+	bh=I+CE+sjYRQ9D7SEGybEH6t6fkrM4V9KN8kvDc0ka/6Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=WLe33HHKq88vz+F0ZHNtSOQdGTlYqG1ZW+LGMq4JtI2qEYZjwJwGhq5yH8thR87bStSbonrRTx9Lf/3fPXR6QXgbG7XvE2oxmIyrEgLxJw4kHw1A8SLNCr3h0JqvRQeaM1uS6zaIg9Ozyp+p4b97geTqXjdqj0HY4AYfCO8zL0M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=tCV8/ZEq; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b="OZQGj+WQ"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
-	from:content-type:reply-to; bh=emva1d1eEYHqYEnQrO9fNOj1YFovnJ+Shw2XgKOXxgc=; 
-	b=OZQGj+WQ2eSVG+orxy7v+JXoXhUeVBTOb9oF4Ruee1pPsMdMrEvX0J9eJDGP4DbvbelLsI3e5aU
-	Fu1XeHrMwAuO3yXticWLxtejxd6W3shLEd2RyHyToj19DwCZoWBFy+OjGaXXUiFtrtspOezpvLiZs
-	1fF9HAHX+v/mSTy0QLY4Zeu/Bn5M+qcBVo8nlManm0r8te2gi8+kCz7U59gLOqG+PwYruGIJcmeCV
-	8qzSXkGmCU+iKkaSvXNwXEeYBZ2wyQ6dSoyoMcbbU+SPgJhR6lsfucMPqPDp+yQcvKeHxV+nSnx2R
-	yYMg5EeWoFfyrMPG38D9k/IoWDqTFrVB1wlg==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.98.2 #2 (Debian))
-	id 1x7kGr-0000000Fci4-17fi;
-	Sat, 19 Sep 2026 09:53:42 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Sat, 19 Sep 2026 11:53:41 +1000
-Date: Sat, 19 Sep 2026 11:53:41 +1000
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Holger Dengler <dengler@linux.ibm.com>,
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="tCV8/ZEq"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A9120165C;
+	Sat, 19 Sep 2026 03:13:51 -0700 (PDT)
+Received: from localhost (a085714.arm.com [10.164.19.28])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 6C4033F86F;
+	Sat, 19 Sep 2026 03:13:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1789812835; bh=I+CE+sjYRQ9D7SEGybEH6t6fkrM4V9KN8kvDc0ka/6Y=;
+	h=From:To:Cc:Subject:Date:From;
+	b=tCV8/ZEqWEXIyFG1R0G2wD3x5uG5Uogvfzm4XNcsTOBLttYZmAN+ZMu3H9FTuPFzQ
+	 Bj7ymrY6ha+YT98rT0C0HnIyvVreG1WESpy0g4HKGCTQSdkVyCCC6Cmlbdy7SVefvK
+	 sBI+vsfK1ilDwzBaS8gOFcnUx9DI1OJ7fCkGqBmQ=
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+To: linux-mm@kvack.org
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>,
+	David Hildenbrand <david@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	linux-s390@vger.kernel.org, Eric Biggers <ebiggers@kernel.org>,
-	linux-crypto@vger.kernel.org, ifranzki@linux.ibm.com
-Subject: Re: [PATCH v1 0/1] s390/crypto: Generate iintermediate chaining
- value on export
-Message-ID: <aq3rJRw-mWKxQfBF@gondor.apana.org.au>
-References: <20260814142010.259918-1-dengler@linux.ibm.com>
- <5e9a75a1-54f4-4425-806d-55d27569602e@linux.ibm.com>
- <20260918152641.20386I1b-hca@linux.ibm.com>
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Helge Deller <deller@gmx.de>,
+	loongarch@lists.linux.dev,
+	linux-s390@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 0/3] arch/mm: Drop similar platform overrides for pxdp_get()
+Date: Sat, 19 Sep 2026 15:43:38 +0530
+Message-ID: <20260919101343.1959572-1-anshuman.khandual@arm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260918152641.20386I1b-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Fri, Sep 18, 2026 at 05:26:41PM +0200, Heiko Carstens wrote:
-> On Thu, Sep 17, 2026 at 11:13:05AM +0200, Holger Dengler wrote:
-> > Can someone please pick this series? Either via crypto or s390
-> > maintainers. Thx.
-> 
-> This should go via the crypto tree. Herbert?
+There are many platforms with similar pxpd_get() overrides like the generic
+memory default helpers which use READ_ONCE() for reading page table entries
+These overrides could be dropped safely letting their platforms fallback on
+the defaults instead. Although it requires some code movement from platform
+headers to avoid build failures.
 
-Patch applied.  Thanks.
+This series based on v7.2-rc3 after the following patch.
+
+https://lore.kernel.org/linux-mm/20260918064928.793742-1-anshuman.khandual@arm.com/
+
+Cc: David Hildenbrand <david@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Huacai Chen <chenhuacai@kernel.org>
+Cc: WANG Xuerui <kernel@xen0n.name>
+Cc: “James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: linux-mm@kvack.org
+Cc: loongarch@lists.linux.dev
+Cc: linux-s390@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+
+Anshuman Khandual (3):
+  s390/mm: Drop all pxdp_get()
+  loongarch/mm: Drop all pxdp_get()
+  parisc/mm: Drop all pxdp_get()
+
+ arch/loongarch/include/asm/pgtable.h | 20 ++--------------
+ arch/loongarch/mm/init.c             | 19 +++++++++++++++
+ arch/parisc/include/asm/pgtable.h    | 20 +---------------
+ arch/parisc/mm/init.c                | 13 +++++++++++
+ arch/s390/include/asm/pgtable.h      | 35 ++++------------------------
+ 5 files changed, 40 insertions(+), 67 deletions(-)
+
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+2.43.0
+
