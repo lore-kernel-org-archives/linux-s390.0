@@ -1,62 +1,64 @@
 Received: from mail-lr2-f12.google.com (mail-lr2-f12.google.com [74.125.230.76])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8FEA25B08D
-	for <linux-s390@vger.kernel.org>; Sat, 19 Sep 2026 13:43:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76C87342515
+	for <linux-s390@vger.kernel.org>; Sat, 19 Sep 2026 13:43:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.76
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789825432; cv=none; b=p4VwBlmByRXKsM60bmE9lPv9UmrWOgPQSmgZSmDtkEU2VLchFtjTsfKNleaaNbGg/53nEJ0RTnybqzPx6FQJi5IBeMIMQ70nfnnXOHrWQRtCgj5pwLmjakWCmZqlcawJH8LstziQq0I4R1JXtE2mpBFb4KJ/gZw1ujAwP8VoJyw=
+	t=1789825434; cv=none; b=PujMyMKNWBcrH6giAzqsTCgcr2XH6tB0SAgGJb+xztTdV1KHLt2k2mShz2nPzs4kYZa6MD0TWfN1ns4i8ujskAADj10lLXotsDv3bkQ3LP6m2+BNPToqXHRTDwqrYKmaD/seAiAE18P7mbtBtUydgC5yXAihc7Axw18SQbPqUVk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789825432; c=relaxed/simple;
-	bh=dFZ63T3zvOowaEIbbYHyNeo31i69lA6u+JkTJ9+rQeY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iVK9VspwSvfQxuMCoo9MzK6JYN/3+l2Us0ISLXAN1z8b+sDDhM3NBhYFR0rpCcEUTM/DZ+ZANwgJSsMsDADkLeQgOKHYlneVdPhdyNHSuCi6RE7d7VMKnyq8VYW+LSBC2LEmw7U6WXC0K3/lhr0da8/MdZBRK4qSN5F35F1pcp8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H/zngkOn; arc=none smtp.client-ip=74.125.230.76
+	s=arc-20240116; t=1789825434; c=relaxed/simple;
+	bh=twYxm8KkBBz5TtdTcshdmfGdvKHWJaaTEKzHj5SSDGo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=HhB4j63w+9Fcgx4lHd4r2crgkcwakVzkvQtYOhX2+sD0gCYCgzomcvUzSGBYvPX+BlYNnw7KNd2Krd38DCuzLhCqhukwtA08ojCb0WRvo1hnU0Fc6vyUy7WOOhiiJKjxwYjEQQ6x08WtUBtYHLOnh7RCb5ioklUhRpUKW+l9+3Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jvjcVNpG; arc=none smtp.client-ip=74.125.230.76
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H/zngkOn"
-Received: by mail-lr2-f12.google.com with SMTP id 38308e7fff4ca-3a36de66c0dso16055001fa.0
-        for <linux-s390@vger.kernel.org>; Sat, 19 Sep 2026 06:43:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jvjcVNpG"
+Received: by mail-lr2-f12.google.com with SMTP id 38308e7fff4ca-3a2ff00b8d8so13882951fa.1
+        for <linux-s390@vger.kernel.org>; Sat, 19 Sep 2026 06:43:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789825428; x=1790430228; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=HuHF/oDZVPSpibhsK+iPHeV9FkZXWA2uFO4o60iu8z0=;
-        b=H/zngkOncThpID1/pMXMVInlk7OkTPlKuJk5fdWven3hX8/TIEcozwB2K1Dz8XNdRj
-         pq6ysDnx+Cz5VmuoIm0q891L2OhMcX9l+wGIHAeIgrE+ho4F1TPWM0XmpwBu1n+BgLIa
-         LlrLHexOZyXo0r8tIujIGvQkwVz738I25ovWMZc+ZTFYQs8DUWjWYnZ+5HReb3nfD8Fz
-         FdNLFUybxbouKAPqslPUrY42xdKgp++U2y//2UN45u83YmK0yRYcpKgINF7nY1LHiYz+
-         MDS7gvJtxYtE5X+jlrHOk4byiTTWdklQf6QUJPgGkSIuUU+Zq4CJ7YOQFEu7ldqwajdK
-         b9hA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789825428; x=1790430228;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1789825430; x=1790430230; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=HuHF/oDZVPSpibhsK+iPHeV9FkZXWA2uFO4o60iu8z0=;
-        b=WEfoVDhD0U9DSrxy9h7JhMqrvxYlKOdAklT1FUnUqQaNezki0cLQQwpCMZA0AyHZg8
-         l8WZ/1DorqamDaqlMjPZQ+0ucNNRMtljO1lGcOINDZmYtNOx7Tu2X9PCV6lRgZfRIRb3
-         J5LKYmqLwRq06yxxVwFXyoL26uXM1sTWVgSRocQ/hNz6IU3JxyetdiaGYgSXnlIC3vC8
-         dL8U7Lj9HmZWgE7BqBtG1709KH5TQAlt9h6XLWvVFDyl74/twJ5VHxnPByWn+/h3vuKJ
-         A9RXGiQ3Ouate/8AetGoCA6Es5mzJlLUNy5lo559BDacZsbLuFbYbzt0iNWwY/qTbEua
-         zSKA==
-X-Forwarded-Encrypted: i=1; AKwUvBzAnV9Kav5/7lFqwGrpCriQi4wm//n9+iytYKbehe2Alq6rCTrDerxdSASdXyc0Uj10ocu7QtEUXQIw@vger.kernel.org
-X-Gm-Message-State: AFuF++k3TYP/hBgfl3tiCqeh5dSsTJOlo/7pB/Ybg3PLs8YjBs76swDT
-	bRlrJnO2zWiLHPogWZIMA2iNP4IALbx2covnUEnw2HAJC/FL8OZ8Qvbm
-X-Gm-Gg: AYBFou3RSg4+iAj5Z8RVWQIEl3ovG+q1z8p6Bj77GyDSbdTeLp5RbBqwNyG/INQC95/
-	4PC+kVnUkiM1SQKSH3fiWAk7MoRtXJXmZWptdkQD5c5WIRKSFywgOdt00a0IM8m1tgJ94G5hnuO
-	H9bUjIi4Fawa81PloAnFsvySsAFtMN4kZMK7EhWLA9/XeJ+McP+aRLsPZ9LrsCZJPINI9BimtPk
-	qROu0mdJ0lCw/kF5FI6a9/9OXTzpz89kHp4EvZzaWKIpfVYQJxT3D3iR4Hjt/Td7h6cF2MixrcE
-	JgAcpo53rcbTs40q3cDpqx7dmLny3QTXRddPhYxRPCjpi92QGy9v9wIYjvU0SoeK2pBGYilOKGV
-	YvRCmyKpLHxn9o3nvLMIvOe2k3+iSWFxccH0z0WmquxiD6QkZapnc0jxfqSWqUhPhaXYkCzJ9oN
-	AhMMvsGWFxEsY5nBPrp3pNZCrsRIYS+uUU0FEtbX37zDzCwwvr1I87+y8HyeHmhXISXPiZIOWhy
-	zfVTbnNG5oVjdzo3jB5l5ZGcTh8uJx9ftcgQljXzRTbjOCr23Mj4PycNzpw6pvNKmB+
-X-Received: by 2002:a05:651c:2213:b0:3a3:314d:1169 with SMTP id 38308e7fff4ca-3a5fbf05908mr10726771fa.1.1789825427681;
-        Sat, 19 Sep 2026 06:43:47 -0700 (PDT)
+        bh=3+J2l1gP5MhTi9oNQGHstmZ8ANZIuRJDXJgeWc7c7qg=;
+        b=jvjcVNpGBHRtQu0BjhffNo8IA3xBiC85bwcjBjGanpP/5ZkYoSY5wZiRSN5z/enPKN
+         6N369/dQ8Pl/g4GZvu0qvdZfmO+mN6maFNAavhWdMiOOCJH3+mGWNoiGjNXdpUZ9CaXl
+         aVnzstd27CO/+NewESnEN1EqtMQZRSUJpGwPSRDtzTupCAOb32nwS6LMhJkKOEpu0c9m
+         xBcxUiLgKN9Kj2mMdk2bWIpVgAPjb9E7HHSvSmcmzbkoC03w75vq+B8tOsj3goVYaUEm
+         xh7ZckHtx639rdlRy/M51l85y8uyJ2jz8U6KnVGQ4lUhClfoOdM++PgCmCaA11QbarxH
+         Rllg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1789825430; x=1790430230;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=3+J2l1gP5MhTi9oNQGHstmZ8ANZIuRJDXJgeWc7c7qg=;
+        b=NvyZOHgoKJziPPwC8sLTyzx4w4O17t2L7bAGhsnwf/dEASh6tLd1cjCAdVekIOMMgN
+         TCh3JOXJQzHdnlfhd1EPA76vzatmYIttUl/qcZFXjEQNNyKOoQIpI/cNQoiqSIp/FMvD
+         ncQiIcIKKMi0puoCTwg9tgJH3PcBV6FQwEdCOKji80/i1k5jz70y/mQRVxZte8uYit0D
+         yksLVcm1fXnSHQ5TnHS0LhYVUvMfFUjsdAEUjiX7sTItf1zl1l4g71fm2Tu3aY/xNwy+
+         bj1PYHD2/yCNknVuXet7iXe6WJr2evpHNmgLTmZXa60uuL6ZloFcKMCNrbTqx7ViPmbP
+         Pxgw==
+X-Forwarded-Encrypted: i=1; AKwUvBwcpCkqQ2fzDy6z0aQJNMdkGM/dBu2ZzS/xfjF7HplNU/GKkk7Ie0iB9/bltpb/tKdZ2lclc/exyhCn@vger.kernel.org
+X-Gm-Message-State: AFuF++mZwo5d6mS0CFH/WRG8+7knYOhtKoPBwcDjYiBPEx715wJyQrJI
+	XD4BMp+BtJh38RHJNibONdmKkHU5CT86jTOzXYqPgg2hRCmFTRE+tz2Y
+X-Gm-Gg: AYBFou1mWTWqk6KGzKdoWS9QZdp6ZzXOvMnWZ/Wwfzz3Hjy6agHp/LFzl9ApJfkLBCw
+	VYSqrF9mW/tMQr1YSdI9Vq5J7/ouaZ1sNIp678d2SpWg2HPti1JrLXmbEc9l1GF+k9Q+192GRIq
+	gg1LF4UERcQJTpXaO1A57HX0L5JDRitlErd6YTBbB0+t9DI3f6pKDWgxFvowjWoB5WWuZVPwmKQ
+	VSTtuI3XN4KmczPoUO+FnsqIlMo/cwNFwf2zvRyzPVV6G7YV/uiNekF2urOWKecY9FdTlgDQiH/
+	HEGbEp9iCR6JixGyTKGchT/NZC22MUI89Qeh/8r4hsPzEO9kVCiHjQd+rHNWKew2oVFtAYnxrH7
+	aan16tIR55HKkOUY4wmZkfkEE0GdJeb33hhOjCb5ZKWU597hDRt25eegeGbdLKkicS6OQHWk6/z
+	gEzscrthWWaOQhyh+oveHjmgspGuNWEipqeISwF/Bzz1O9fM3fRI0J7eVkvUficDQWq36fAiAOg
+	NnJXMfN4Uo+o/FJ8m+IpFua67NXWFCy0CGzCKdmhbpg0tJQO6RaXFtBwqq2r/vFSRgb
+X-Received: by 2002:a2e:a803:0:b0:3a3:361e:6f1a with SMTP id 38308e7fff4ca-3a5fbf5e287mr11840091fa.12.1789825430463;
+        Sat, 19 Sep 2026 06:43:50 -0700 (PDT)
 Received: from localhost.localdomain (46-138-187-224.dynamic.spd-mgts.ru. [46.138.187.224])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3a60767aa6asm6220941fa.40.2026.09.19.06.43.46
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3a60767aa6asm6220941fa.40.2026.09.19.06.43.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 19 Sep 2026 06:43:47 -0700 (PDT)
+        Sat, 19 Sep 2026 06:43:50 -0700 (PDT)
 From: Artem Lytkin <iprintercanon@gmail.com>
 To: netdev@vger.kernel.org
 Cc: bridge@lists.linux.dev,
@@ -83,10 +85,12 @@ Cc: bridge@lists.linux.dev,
 	wintera@linux.ibm.com,
 	aswin@linux.ibm.com,
 	linux-s390@vger.kernel.org
-Subject: [PATCH net-next v3 0/2] bridge: report an oversized IFLA_AF_SPEC nest instead of truncating
-Date: Sat, 19 Sep 2026 16:43:31 +0300
-Message-ID: <20260919134333.49379-1-iprintercanon@gmail.com>
+Subject: [PATCH net-next v3 2/2] net: bridge: fail link info that does not fit in a netlink attribute
+Date: Sat, 19 Sep 2026 16:43:33 +0300
+Message-ID: <20260919134333.49379-3-iprintercanon@gmail.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260919134333.49379-1-iprintercanon@gmail.com>
+References: <20260919134333.49379-1-iprintercanon@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -95,35 +99,94 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Patch 1 adds extack to ndo_bridge_getlink(), patch 2 returns -E2BIG
-when the AF_SPEC nest, or the MST/CFM nest inside it, overflows nla_len.
+nla_len is a u16, and a port with enough VLANs, tunnels or MST entries
+makes the IFLA_AF_SPEC nest wrap, so userspace reads garbage. Same for
+the inner MST and CFM nests.
 
-v3: handle the MST and CFM nests too, use nla_nest_end_safe() (Nikolay)
-v2: https://lore.kernel.org/netdev/20260912135022.1701-1-iprintercanon@gmail.com/
-v1: https://lore.kernel.org/netdev/20260906224246.21719-1-iprintercanon@gmail.com/
+Use nla_nest_end_safe() for all three and return -E2BIG with an extack
+on overflow. Dumps end with that error, notifications go through
+rtnl_set_sk_err() so listeners resync.
 
+Assisted-by: Claude:claude-opus-5
+Signed-off-by: Artem Lytkin <iprintercanon@gmail.com>
+---
+ net/bridge/br_netlink.c | 25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
-Artem Lytkin (2):
-  rtnetlink: pass extack to ndo_bridge_getlink()
-  net: bridge: fail link info that does not fit in a netlink attribute
-
- drivers/net/ethernet/broadcom/bnxt/bnxt.c     |  4 +--
- drivers/net/ethernet/emulex/benet/be_main.c   |  4 +--
- drivers/net/ethernet/intel/i40e/i40e_main.c   |  6 ++--
- drivers/net/ethernet/intel/ice/ice_main.c     |  6 ++--
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |  5 ++--
- .../net/ethernet/mellanox/mlx5/core/en_main.c |  4 +--
- .../ethernet/netronome/nfp/nfp_net_common.c   |  4 +--
- drivers/s390/net/qeth_l2_main.c               |  4 +--
- include/linux/netdevice.h                     |  5 ++--
- include/linux/rtnetlink.h                     |  3 +-
- net/bridge/br_netlink.c                       | 28 +++++++++++++------
- net/bridge/br_private.h                       |  2 +-
- net/core/rtnetlink.c                          | 18 +++++++-----
- 13 files changed, 57 insertions(+), 36 deletions(-)
-
-
-base-commit: e3bfd25626b44b6fa61a13c17178922171d519ce
+diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+index 855a46aec3a89..fbd91b86d4268 100644
+--- a/net/bridge/br_netlink.c
++++ b/net/bridge/br_netlink.c
+@@ -459,7 +459,7 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 			  const struct net_bridge_port *port,
+ 			  u32 pid, u32 seq, int event, unsigned int flags,
+ 			  u32 filter_mask, const struct net_device *dev,
+-			  bool getlink)
++			  bool getlink, struct netlink_ext_ack *extack)
+ {
+ 	u8 operstate = netif_running(dev) ? READ_ONCE(dev->operstate) :
+ 					    IF_OPER_DOWN;
+@@ -588,7 +588,8 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 				goto nla_put_failure;
+ 		}
+ 
+-		nla_nest_end(skb, cfm_nest);
++		if (nla_nest_end_safe(skb, cfm_nest) < 0)
++			goto nla_nest_too_large;
+ 	}
+ 
+ 	if ((filter_mask & RTEXT_FILTER_MST) &&
+@@ -608,20 +609,27 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+ 		if (err)
+ 			goto nla_put_failure;
+ 
+-		nla_nest_end(skb, mst_nest);
++		if (nla_nest_end_safe(skb, mst_nest) < 0)
++			goto nla_nest_too_large;
+ 	}
+ 
+ done:
+ 	if (af) {
+-		if (nlmsg_get_pos(skb) - (void *)af > nla_attr_size(0))
+-			nla_nest_end(skb, af);
+-		else
++		if (nla_nest_end_safe(skb, af) < 0)
++			goto nla_nest_too_large;
++		if (!nla_len(af))
+ 			nla_nest_cancel(skb, af);
+ 	}
+ 
+ 	nlmsg_end(skb, nlh);
+ 	return 0;
+ 
++nla_nest_too_large:
++	NL_SET_ERR_MSG_MOD(extack,
++			   "AF_SPEC info too large, use per-object dumps (e.g. RTM_GETVLAN)");
++	nlmsg_cancel(skb, nlh);
++	return -E2BIG;
++
+ nla_put_failure:
+ 	nlmsg_cancel(skb, nlh);
+ 	return -EMSGSIZE;
+@@ -654,7 +662,8 @@ void br_info_notify(int event, const struct net_bridge *br,
+ 	if (skb == NULL)
+ 		goto errout;
+ 
+-	err = br_fill_ifinfo(skb, port, 0, 0, event, 0, filter, dev, false);
++	err = br_fill_ifinfo(skb, port, 0, 0, event, 0, filter, dev, false,
++			     NULL);
+ 	if (err < 0) {
+ 		/* -EMSGSIZE implies BUG in br_nlmsg_size() */
+ 		WARN_ON(err == -EMSGSIZE);
+@@ -693,7 +702,7 @@ int br_getlink(struct sk_buff *skb, u32 pid, u32 seq,
+ 		return 0;
+ 
+ 	return br_fill_ifinfo(skb, port, pid, seq, RTM_NEWLINK, nlflags,
+-			      filter_mask, dev, true);
++			      filter_mask, dev, true, extack);
+ }
+ 
+ static int br_vlan_info(struct net_bridge *br, struct net_bridge_port *p,
 -- 
 2.43.0
 
