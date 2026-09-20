@@ -1,58 +1,102 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 101B53C3442
-	for <linux-s390@vger.kernel.org>; Sun, 20 Sep 2026 02:34:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B7113C8C71;
+	Sun, 20 Sep 2026 03:45:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789871642; cv=none; b=DXwxznXjbilyJsD31OU0Y3m815LK5aB/tth4Tvb8/3STA8X1Hl0ySK6vZb/dpLnR/iWmGj7gkWWAwBvGdTLP7/zEKG3sAvbwl41po0IFAcAu72zHNXu1AmGI5/mQp9O5U9e257d2ZfRxtRl1iGfwUFXH5CKjgDNWU5t5bCBxgP8=
+	t=1789875943; cv=none; b=l8D4FxVJzWb4Q4iutKcqOgsRi+880m0kAUJ/Ef0yl6f8Q6aaEwAtwetJwQbAOQVdBi4AEINOtxyQoqG/dLRkH4AzdBevndPrQPaXLOeniYcveW2+khTY5eqtcpOHT+1BIKn+sQk0N77s7fB3uZsq8YVs9UdEVYbJuhEjoAY3yAk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789871642; c=relaxed/simple;
-	bh=kFJyNEyMw6lRwE/OvLOM4ZtMe2jqGuukJ3SKdez/kqk=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=BkIMzbS04ISdRBPQeRklJBIUrXGE4vA3+BBbfzBqsvUPIF+L9mslW8Z1FAt45C/fzosUOSkeNA/95HXfXL/olS7rmki/QWDVW8dCRPmaRHjx2XIJ2RMvkPq4l3V0waSm8iC54/fFnOkGnl3bqcz43mLk3NrX0cc1zPC/xmF7zMU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AdTegspL; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1789875943; c=relaxed/simple;
+	bh=fNDlvv9js+sV2beWReqfxE7Uavey4en9htf6yqVmgUU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=OOEkGcAELHeKDKCkVQ+WlTa4q0vKzPf0cRXG95c0Y62NtwjpefHvWoGOFRLXZ1mNK1DlQxRfq1wQ5hMCPQtMA8knx1TjlKQiz4q/3TtIA8pDYl24SLH+xLN4PyfiC6BiIiL83RelrCI+EBKdQBSyeYE/7ktQntlX1Bhvk/0owDo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=HkC6IN9S; arc=none smtp.client-ip=117.135.210.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AdTegspL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 600E91F000FF;
-	Sun, 20 Sep 2026 02:34:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789871640;
-	bh=kFJyNEyMw6lRwE/OvLOM4ZtMe2jqGuukJ3SKdez/kqk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=AdTegspL5BnGP1/RrpvqVailWvwx+v3Ns73yi3VNfnMmvDEvqfq6ORbL70rhNWD7j
-	 lKWuJEOcGPpsc1r5hekXlFcqlskSTGxIbgp1KhifQaB1gOl4oPEXdLlu6EK9GxXp3i
-	 hGMBNDOyX/NGcGXEKnK485943iI6cpFaxHSwGIL2aWKhCn2dz4f7vkE49BckTeacNW
-	 AEHibOjABFLXErgKiST5MALUGwvmIZisqg7sXEtk2HHeo/C5ASPKlK+Siozv7si6gq
-	 c3TSGhZ49fH1X5sajkXba9wIR1NxSf4B4HBOI9tjbaiJFdhDYXRMTW9kl+XGBcz685
-	 E7kgfGOXFVO3w==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] s390/time: use assign_bit() where applicable
-Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?UGVuZyBGYW4gKE9TUyk=?= <peng.fan@oss.nxp.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260920022804.3145894-1-peng.fan@oss.nxp.com>
-References: <20260920022804.3145894-1-peng.fan@oss.nxp.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 20 Sep 2026 02:33:59 +0000
-Message-Id: <20260920023400.600E91F000FF@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="HkC6IN9S"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=7c
+	zii8ADadjJtpJC2iwRVyjneTWNVczRgsww9F8lTRI=; b=HkC6IN9SFXzFmbfUx8
+	UrOWB2mInUNCwt4LMjAgNr7B+Paqi4RgVjFD+4hbpUrViH75vJEyOThwR8pGkfhj
+	rZgiUxBz1CAFSDQEPyp2mRLK4+DXt6HGa8FlZ482EHPUaKD27MEG3kNfAT1iHau9
+	xsBlGiwMAf7BA4CtOG83WpV/U=
+Received: from localhost.localdomain (unknown [])
+	by gzsmtp5 (Coremail) with SMTP id QCgvCgDnT4bAVq9qBxlxAQ--.5103S2;
+	Sun, 20 Sep 2026 11:45:05 +0800 (CST)
+From: Pengpeng Hou <hppiscas@163.com>
+To: wintera@linux.ibm.com
+Cc: twinkler@linux.ibm.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	horms@kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	hppiscas@163.com
+Subject: [PATCH net v3] net/iucv: require IUCV for AF_IUCV sockets
+Date: Sun, 20 Sep 2026 11:45:03 +0800
+Message-ID: <20260920034503.17322-1-hppiscas@163.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:QCgvCgDnT4bAVq9qBxlxAQ--.5103S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW7KFW7KrWUKw18XFW3tryrJFb_yoW8XryrpF
+	srKryjk3yDJFya9ws5Z3Z3Wr13Xas3Gay7WF1UWw18urZ09348urnxKF4YqFyUAr4ktrW3
+	X3yF934Yya98Za7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0zRY0PhUUUUU=
+X-CM-SenderInfo: 5kssx2xfdvqiywtou0bp/xtbC7QFMFWqvVsGu6QAA3g
 
-> From: Peng Fan <peng.fan@nxp.com>
->=20
-> Convert open-coded if/else with set_bit/clear_bit to the assign_bit API.
->=20
-> Signed-off-by: Peng Fan <peng.fan@nxp.com>
+AFIUCV can currently be selected with IUCV disabled. That configuration
+does not build af_iucv.o because the parent Makefile only enters
+net/iucv under CONFIG_IUCV. Independently entering the directory is not
+sufficient: AF_IUCV also relies on the IUCV implementation.
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+Restore the IUCV dependency for AFIUCV, as proposed during review. This
+also constrains AFIUCV to a module when its IUCV provider is modular,
+without changing the directory traversal rules.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260920022804.3145=
-894-1-peng.fan@oss.nxp.com?part=3D1
+The issue was found by our static-analysis tool.
+
+Fixes: c69748d1c9b5 ("iucv: kernel option for z/VM IUCV and HiperSockets")
+Assisted-by: gpt 5
+Signed-off-by: Pengpeng Hou <hppiscas@163.com>
+---
+Changes since v2:
+https://lore.kernel.org/all/20260815135456.53684-1-pengpeng@iscas.ac.cn/
+Replace the v2 always-descend approach with the IUCV dependency proposed
+by Alexandra. Do not carry the review tag for the superseded
+implementation.
+
+ net/iucv/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/iucv/Kconfig b/net/iucv/Kconfig
+index 5cfddc9c6498..2686d795cc2f 100644
+--- a/net/iucv/Kconfig
++++ b/net/iucv/Kconfig
+@@ -9,7 +9,7 @@ config IUCV
+ 	  communication link between VM guests.
+ 
+ config AFIUCV
+-	depends on S390
++	depends on IUCV
+ 	def_tristate m if QETH_L3 || IUCV
+ 	prompt "AF_IUCV Socket support (S390 - z/VM and HiperSockets transport)"
+ 	help
+
+base-commit: 518e5b794c06c0f0eb40df3e202274a66202c137
+-- 
+2.50.1 (Apple Git-155)
 
