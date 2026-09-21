@@ -1,57 +1,57 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6B8E45560C;
-	Mon, 21 Sep 2026 08:40:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEAB445563A;
+	Mon, 21 Sep 2026 08:40:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789980028; cv=none; b=PlBIs3wmyCwlJkgEU/tkcHD+iyJFjlJvJDHFr/dFc/qMvKxom17TligZICXeU7ZCFNpPgWc2C7bM6z8f45/lzQSpNSBye0GeH5fHhUMNgrt5O40R6eXSYkoE2pmp+S8Zcq4foZN1Pr9VrPh3E3f8NRg3vxxRWje/GKoz3hsxIb8=
+	t=1789980029; cv=none; b=UbBrBTrFAzvYP3nFvCjXI9C9cJEnja467H1jSIDwdgmLfYb22VEPhPavAtLaL6GPhe3ZPLAsAWvFyRAI26aaWPn1rGDCaOPxj/Q229CmVCHaXRTx/6gGYqtjGfkKJxNP8jguapfE6nGAAeBUFatwc2Ks9LGMmrhP5abFqgarDqg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789980028; c=relaxed/simple;
-	bh=dk15zW62dw4J4Iu1H7GOx3XtEAyR16DKh1/gZRelIDA=;
+	s=arc-20240116; t=1789980029; c=relaxed/simple;
+	bh=QuLPXVAFgIJ9fPxmYJemmPvdwZIjvEMVor4YZEw3MJY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=bE0x75CEKhaeMYHoJ6wfdG/5e6MceyDqhYgr2EjJgwHAf19IQJVW2nEQztTfktgB8ek4ONCT8bB/2MZgd97yxRWAUVt2MWMKSZlTS7djqu9To2xYGf9S3abx1gTJ2UWZw7N9YJ19T084QKbSpRTf7P78qAF1dBFuLAUAA+4HnYc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oISE8IHm; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=A3OOyc5Ydx9c7SoLbGw+T3vcoswZVmJ6dU1a/kFxb/8HcI6znIPeo/kgPRDAZ8PHOg7xXATPRJRirZcb24z0PV0mwALrUB85+tFGZk6ocUvfU5deAlqCYMKX66DLH2o3s8Bo32NLMRoUUFzNCVFKjySGtM78/jQ8+HqgE22jnjk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JoIbgXNc; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oISE8IHm"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68L7ZSD5830148;
-	Mon, 21 Sep 2026 08:40:12 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JoIbgXNc"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68L7ZPMk3153652;
+	Mon, 21 Sep 2026 08:40:11 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=tAYE5G2sLX5gFTLq8
-	Vi+M9XlI4kPloCQK/GSNSxPNyI=; b=oISE8IHmvxbti4TNjVqh+9xTNc+HnGrVP
-	t5xV1PLfB1LJ7L41eB9X8VVOeF+4X9oicC8/H3WpSHAD13Ln7V9HiXUcmSyVEQHQ
-	Jx2MN0x/GroZOBPhjj94niAwwJAZ3d5h2tzOIxlB0jm1abhJ08Nfu16heGRqMR+f
-	7oYCZH7Qfy2pYev5Id3XVXMc7Z6apyNofTx1FROSJKF37C7GiIGLreD1daOCN1iA
-	Akl0aQ154eAGunGLgwmUHsAOtExv2oVB5pyKzRg6w8qIAxRVvEEvnKD+N4TfCz7u
-	Y7fn9AOu1TZ4kuyOtC0uI72vfxKhe0Riw/2aTfj8eFDvzkqgzU8tQ==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskgryjap-1
+	:mime-version:references:subject:to; s=pp1; bh=UbSM4J6q9wHJGxcag
+	Fzwg95TRKRs0Sfalw4VwKXSGug=; b=JoIbgXNcfrPnmrxZMWw7m4zjP8IMlmkpi
+	33x9WRmx6H+AHtkM2mN41bwMJJFyvLhBYyKHr2PsZi7GSFoPN2+NLQz89JKUtpQg
+	B3H41fqDTZ74nf5XqhNgDHqqkuprJDwp8iem6qK+C8qIS5VKoRDRVeTgNMIHuQYD
+	DasXqGQz/Zpp6pg/OX6yhGRGAK5xdLQtx4iCdO3RM8txn+XERSB72hth5NNq3/2A
+	16TjDtIqftwlLDB/QZfMDxWbND39FlF6njxb/AIQeDQY+zT16wCEU36xbR5A1R8O
+	Lur8tsKl7DPkQoba6uhqTMXEEDB6yViWBR1XDNoV/WifHnb3/0Hvw==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gske1fjub-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 21 Sep 2026 08:40:12 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68L7HiXR1835697;
-	Mon, 21 Sep 2026 08:40:11 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gt7dy4814-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 21 Sep 2026 08:40:11 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68L7HTk1924403;
+	Mon, 21 Sep 2026 08:40:10 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gt4qq4mrt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 21 Sep 2026 08:40:10 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68L8e7Ox55705896
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68L8e7pp53281126
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 21 Sep 2026 08:40:08 GMT
+	Mon, 21 Sep 2026 08:40:07 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CEDF72004B;
+	by IMSVA (Postfix) with ESMTP id 2A13E20040;
 	Mon, 21 Sep 2026 08:40:07 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A503920043;
-	Mon, 21 Sep 2026 08:40:07 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id E82E72004B;
+	Mon, 21 Sep 2026 08:40:06 +0000 (GMT)
 Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 21 Sep 2026 08:40:07 +0000 (GMT)
+	Mon, 21 Sep 2026 08:40:06 +0000 (GMT)
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
@@ -62,9 +62,9 @@ To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Juergen Christ <jchrist@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH v3 06/11] s390/percpu: Rename inline assembly symbolic names
-Date: Mon, 21 Sep 2026 10:40:00 +0200
-Message-ID: <20260921084005.4022574-7-hca@linux.ibm.com>
+Subject: [PATCH v3 03/11] s390/lowcore: Remove _AC() from LOWCORE_ALT_ADDRESS
+Date: Mon, 21 Sep 2026 10:39:57 +0200
+Message-ID: <20260921084005.4022574-4-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260921084005.4022574-1-hca@linux.ibm.com>
 References: <20260921084005.4022574-1-hca@linux.ibm.com>
@@ -76,170 +76,57 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=V/XoQuni c=1 sm=1 tr=0 ts=6ab0ed6c cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-ORIG-GUID: Oa59B8snKXqc0Ry8RQnCFj-sGAZWM9rU
+X-Authority-Analysis: v=2.4 cv=EOCTQFZC c=1 sm=1 tr=0 ts=6ab0ed6b cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=4HBEOGDHSRqv0w81nQsA:9
-X-Proofpoint-ORIG-GUID: EhbSxV38t75PSG5C-zdq4JXw0GEBoZ_7
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIxMDEyMyBTYWx0ZWRfX0LswzUhPc2vU
- 1ax8dPmUxIZimx4FBFV5viUdl8EMp6G3iWz5eOzmncF2JxjclhKzw2qmftxJdYJ1/ztnDWFvg8G
- OyuSqgTdTwzMVg5FaJ1LjfnY8aFmpKoWI0FXBTaq/232Z/YHVjn9AFv8c7hKxULkHrD5LqHeRJK
- DcJhd7b/6l0U1fttssdT+QT+LwJpfEF0Mf1I73jPlJK9OEc7z1gAufX7YhB4kJf0BNfk/GzHtKH
- 5ai6Nnh3GfWd7see2MfFGVjAUKV+ZiQel5eTttl4zXAdq9Dp1snHsrd9vi0fEyzFCOPSM0mLn44
- lwz31U09MVeVE4FyYzEk/sztJv2qX/jH2BUVGemIffBElkZZbTNfpn4TohPsQL0wcQK7hYTdTcH
- 1j5fJeQnBdnxh9fbjClFgsxdArc+tIqidUvdk8F7pAuqTljc1+DD05fUVqZb1jPWXFYQU+jlzE0
- P/Jf+wByDyklfGIgPnw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIxMDEyMyBTYWx0ZWRfX7k68HB4cXlCP
- ou7nSGSZ5QW0AigA0nQY3620CP0ZgNAXiblrfwguiWb1eQYiwaag3YLNVC3244cxkSK2f+kKGdw
- /gbaND+9bqIbmAx/8FHgwIGIeYbD3Tg=
-X-Proofpoint-GUID: EhbSxV38t75PSG5C-zdq4JXw0GEBoZ_7
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=phCDqYjOjFlr_q_ZZjMA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIxMDEyMyBTYWx0ZWRfX/3ScFtneG3jb
+ WUu6pxxevmcXN6c6pQJIyBOmfdQxr/4K8jGG7/LpAkJNWfWHCbJiomwqQtYQiFy+fbcVOhSzszt
+ LKFBN27FbfgL/Lz6ivaLFEBHwQUSBYo=
+X-Proofpoint-GUID: Oa59B8snKXqc0Ry8RQnCFj-sGAZWM9rU
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIxMDEyMyBTYWx0ZWRfXwdkk+HgSLPqY
+ Bq1kBdOmxAxvrg3Exbn8I45Jj4qq/+tvMozlljXde2PqdI+5WmlO0k2+2eHEsWTve6fa1sgAyUF
+ O0y19AHiyK2h5eeC8hsJUNq3sRA/NoVCah7+FsXIuNEUn4rfXdqvtj1w6USJnqH8riqBOqIcnIs
+ pRk4+aeMuxgHvoH/x57iHFQ7N6eRSnItQMjMzUgqOj6TRg5WkHUDP5zPhh6Xae3PZUY2Ts/c8W1
+ ZkeJphc9lzd0IOenqSW+upRGgSJ+AO/5iAjsVAjO6l7dQbL+3MUl6NTo3vMNEPiig4JsiMWAthh
+ 7wbxgK+Png2dm4rJRzNZNHC2VvPXh2Mbk8oDbkqry8vKqvYn9Ew38Kv4N3VD8TZhd8CYp6XMKQr
+ CQTeExpeNpdtsFBZo+UDVNQuXI3/r1S3+wGUdWhCsmxT3pXLXBAuXxUkN5xbc7j77LdRMRhCpYp
+ 1uVp6m4a1m8FbsE78Zg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-21_03,2026-09-16_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 malwarescore=0 clxscore=1015 phishscore=0
- bulkscore=0 adultscore=0 lowpriorityscore=0 impostorscore=0 suspectscore=0
+ bulkscore=0 phishscore=0 priorityscore=1501 clxscore=1015 spamscore=0
+ adultscore=0 impostorscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609210123
 
-Rename percpu inline assembly symbolic names so they match (more) what is
-specified with input operands. A trivial change which is supposed to make
-the code a bit more readable.
+Remove the _AC() conversion from LOWCORE_ALT_ADDRESS. This changes the
+type of LOWCORE_ALT_ADDRESS from unsigned long to int in C code, however
+looking at the current users this should not cause any changes.
+
+This allows to use __stringify(LOWCORE_ALT_ADDRESS) for inline
+assemblies, which otherwise wouldn't work because of the UL suffix.
 
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/include/asm/percpu.h | 60 +++++++++++++++++-----------------
- 1 file changed, 30 insertions(+), 30 deletions(-)
+ arch/s390/include/asm/lowcore.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
-index 770fe4be65dc..0df47ec2e6c7 100644
---- a/arch/s390/include/asm/percpu.h
-+++ b/arch/s390/include/asm/percpu.h
-@@ -151,29 +151,29 @@ do {										\
- 	if (__builtin_constant_p(val__) &&					\
- 	    ((szcast)val__ > -129) && ((szcast)val__ < 128)) {			\
- 		asm volatile(							\
--			MVIY_PERCPU("%[disppcpr]","%[ptr__]")			\
--			AG_ALT("%[disppcpo]", "%[ptr__]")			\
-+			MVIY_PERCPU("%[lcreg]","%[ptr__]")			\
-+			AG_ALT("%[lcoff]", "%[ptr__]")				\
- 			op2 "   0(%[ptr__]),%[val__]\n"				\
--			MVIY_ALT("%[disppcpr]")					\
-+			MVIY_ALT("%[lcreg]")					\
- 			: [ptr__] "+&a" (ptr__), "+m" (*ptr__),			\
- 			  "=m" (((struct lowcore *)0)->percpu_register)		\
- 			: [val__] "i" ((szcast)val__),				\
--			  [disppcpr] "i" (LC_PERCPU_REGISTER),			\
--			  [disppcpo] "i" (LC_PERCPU_OFFSET),			\
-+			  [lcreg] "i" (LC_PERCPU_REGISTER),			\
-+			  [lcoff] "i" (LC_PERCPU_OFFSET),			\
- 			  "m" (((struct lowcore *)0)->percpu_offset)		\
- 			: "cc");						\
- 	} else {								\
- 		asm volatile(							\
--			MVIY_PERCPU("%[disppcpr]", "%[ptr__]")			\
--			AG_ALT("%[disppcpo]", "%[ptr__]")			\
-+			MVIY_PERCPU("%[lcreg]", "%[ptr__]")			\
-+			AG_ALT("%[lcoff]", "%[ptr__]")				\
- 			op1 "   %[old__],%[val__],0(%[ptr__])\n"		\
--			MVIY_ALT("%[disppcpr]")					\
-+			MVIY_ALT("%[lcreg]")					\
- 			: [old__] "=&d" (old__),				\
- 			  [ptr__] "+&a" (ptr__),  "+m" (*ptr__),		\
- 			  "=m" (((struct lowcore *)0)->percpu_register)		\
- 			: [val__] "d" (val__),					\
--			  [disppcpr] "i" (LC_PERCPU_REGISTER),			\
--			  [disppcpo] "i" (LC_PERCPU_OFFSET),			\
-+			  [lcreg] "i" (LC_PERCPU_REGISTER),			\
-+			  [lcoff] "i" (LC_PERCPU_OFFSET),			\
- 			  "m" (((struct lowcore *)0)->percpu_offset)		\
- 			: "cc");						\
- 	}									\
-@@ -190,16 +190,16 @@ do {										\
- 									\
- 	ptr__ = PERCPU_PTR(&(pcp));					\
- 	asm_inline volatile(						\
--		MVIY_PERCPU("%[disppcpr]","%[ptr__]")			\
--		AG_ALT("%[disppcpo]","%[ptr__]")			\
-+		MVIY_PERCPU("%[lcreg]","%[ptr__]")			\
-+		AG_ALT("%[lcoff]","%[ptr__]")				\
- 		op "	%[old__],%[val__],0(%[ptr__])\n"		\
--		MVIY_ALT("%[disppcpr]")					\
-+		MVIY_ALT("%[lcreg]")					\
- 		: [old__] "=&d" (old__),				\
- 		  [ptr__] "+&a" (ptr__), "+m" (*ptr__),			\
- 		  "=m" (((struct lowcore *)0)->percpu_register)		\
- 		: [val__] "d" (val__),					\
--		  [disppcpr] "i" (LC_PERCPU_REGISTER),			\
--		  [disppcpo] "i" (LC_PERCPU_OFFSET),			\
-+		  [lcreg] "i" (LC_PERCPU_REGISTER),			\
-+		  [lcoff] "i" (LC_PERCPU_OFFSET),			\
- 		  "m" (((struct lowcore *)0)->percpu_offset)		\
- 		: "cc");						\
- 	old__ + val__;							\
-@@ -216,16 +216,16 @@ do {									\
- 									\
- 	ptr__ = PERCPU_PTR(&(pcp));					\
- 	asm_inline volatile(						\
--		MVIY_PERCPU("%[disppcpr]","%[ptr__]")			\
--		AG_ALT("%[disppcpo]","%[ptr__]")			\
-+		MVIY_PERCPU("%[lcreg]","%[ptr__]")			\
-+		AG_ALT("%[lcoff]","%[ptr__]")				\
- 		op "    %[old__],%[val__],0(%[ptr__])\n"		\
--		MVIY_ALT("%[disppcpr]")					\
-+		MVIY_ALT("%[lcreg]")					\
- 		: [old__] "=&d" (old__),				\
- 		  [ptr__] "+&a" (ptr__), "+m" (*ptr__),			\
- 		  "=m" (((struct lowcore *)0)->percpu_register)		\
- 		: [val__] "d" (val__),					\
--		  [disppcpr] "i" (LC_PERCPU_REGISTER),			\
--		  [disppcpo] "i" (LC_PERCPU_OFFSET),			\
-+		  [lcreg] "i" (LC_PERCPU_REGISTER),			\
-+		  [lcoff] "i" (LC_PERCPU_OFFSET),			\
- 		  "m" (((struct lowcore *)0)->percpu_offset)		\
- 		: "cc");						\
- } while (0)
-@@ -245,14 +245,14 @@ do {									\
- 									\
- 	ptr__ = PERCPU_PTR(&(pcp));					\
- 	asm_inline volatile(						\
--		MVIY_PERCPU("%[disppcpr]","%[ptr__]")			\
--		AG_ALT("%[disppcpo]","%[ptr__]")			\
-+		MVIY_PERCPU("%[lcreg]","%[ptr__]")			\
-+		AG_ALT("%[lcoff]","%[ptr__]")				\
- 		op "	%[res__],0(%[ptr__])\n"				\
--		MVIY_ALT("%[disppcpr]")					\
-+		MVIY_ALT("%[lcreg]")					\
- 		: [res__] "=&d" (res__), [ptr__] "+&a" (ptr__),		\
- 		  "=m" (((struct lowcore *)0)->percpu_register)		\
--		: [disppcpr] "i" (LC_PERCPU_REGISTER),			\
--		  [disppcpo] "i" (LC_PERCPU_OFFSET),			\
-+		: [lcreg] "i" (LC_PERCPU_REGISTER),			\
-+		  [lcoff] "i" (LC_PERCPU_OFFSET),			\
- 		  "m" (*ptr__),						\
- 		  "m" (((struct lowcore *)0)->percpu_offset)		\
- 		: "cc");						\
-@@ -271,15 +271,15 @@ do {									\
- 									\
- 	ptr__ = PERCPU_PTR(&(pcp));					\
- 	asm_inline volatile(						\
--		MVIY_PERCPU("%[disppcpr]","%[ptr__]")			\
--		AG_ALT("%[disppcpo]","%[ptr__]")			\
-+		MVIY_PERCPU("%[lcreg]","%[ptr__]")			\
-+		AG_ALT("%[lcoff]","%[ptr__]")				\
- 		op "    %[val__],0(%[ptr__])\n"				\
--		MVIY_ALT("%[disppcpr]")					\
-+		MVIY_ALT("%[lcreg]")					\
- 		: [ptr__] "+&a" (ptr__), "=m" (*ptr__),			\
- 		  "=m" (((struct lowcore *)0)->percpu_register)		\
- 		: [val__] "d" (val__),					\
--		  [disppcpr] "i" (LC_PERCPU_REGISTER),			\
--		  [disppcpo] "i" (LC_PERCPU_OFFSET),			\
-+		  [lcreg] "i" (LC_PERCPU_REGISTER),			\
-+		  [lcoff] "i" (LC_PERCPU_OFFSET),			\
- 		  "m" (((struct lowcore *)0)->percpu_offset)		\
- 		: "cc");						\
- } while (0)
+diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
+index 5cef215d30e7..f0364a9f8a19 100644
+--- a/arch/s390/include/asm/lowcore.h
++++ b/arch/s390/include/asm/lowcore.h
+@@ -21,7 +21,7 @@
+ #define LC_ORDER 1
+ #define LC_PAGES 2
+ 
+-#define LOWCORE_ALT_ADDRESS	_AC(0x70000, UL)
++#define LOWCORE_ALT_ADDRESS	0x70000
+ 
+ #ifndef __ASSEMBLER__
+ 
 -- 
 2.53.0
 
