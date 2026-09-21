@@ -1,71 +1,128 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DD2724B28
-	for <linux-s390@vger.kernel.org>; Mon, 21 Sep 2026 06:48:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9E06373C1D
+	for <linux-s390@vger.kernel.org>; Mon, 21 Sep 2026 06:51:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789973294; cv=none; b=kCWkgMgwZ6ISBCYI0eXh31e4W3D3h1nL+/0rJz/oBvDDgnS06Co/283x6pz46+Uni2CvmI22aePTfzW7hEwY4h+xTDFGDTw9UUuPuMX/ROw9VXLtZHtpDYCyziltynlCmp7ONXu6wI4BXdfQfpuabo0anFo16mIHt7IdlLXMz9s=
+	t=1789973518; cv=none; b=KSry5N5yKyHtG/zxZCylOPD57p8je/LRU9h07MXxw8xsN6moGMiXN/AOcq+vQITvdyqGOtaiiiJ8ALH56OxlpYmiAp8PoJ2HsuxOBHGmKvp46TFa+i9Lmj30f1ts3gqiXDWtNl5BmVD6WZAilPMBVNhgy4FZndrBzdTT3PDj6y8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789973294; c=relaxed/simple;
-	bh=ySNKkJo9sWvrvSInxNYM3dqbHzeUZdvx2prrm4xnqDc=;
+	s=arc-20240116; t=1789973518; c=relaxed/simple;
+	bh=rkbv/6sFl9hl/5eevzoMC/0ItSCZY8ETrsp7YEArgCc=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=f5q5adTpEMRJVXyYc7HOxiR+qKvKjHr2o9Cr1uMilOMg3SE2TlOh/6mjQeYSCg2M5x1U9H1btpEcR2DfLmQSkhE2QpiKKcLXtudLd5TTfb0y0zgqJA9uGFEZax3l1O5/aH4gzVAurmNUxEahyRt4RBKD3v9PWg5nlT5MIzmOD4g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Osd8LgzT; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ge00oB+5E6Ky6EDDFipWHYdrKse7EJPOk9S4ZkWF4s4bPP2fTyTCFlhJZHZfSv03cJYxQDuyjxxoOY2p/dCv+ZVOR+sBQdz7Nq6XmYZrXLDabUCraNc0WA98g+5aZw/ui8ZATPW8f8vT2PgffmGpbrUfpLEc/cPM6rF2App0W7g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iKQSICo1; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Osd8LgzT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF56F1F000FF;
-	Mon, 21 Sep 2026 06:48:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iKQSICo1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DA361F00893;
+	Mon, 21 Sep 2026 06:51:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1789973293;
-	bh=ySNKkJo9sWvrvSInxNYM3dqbHzeUZdvx2prrm4xnqDc=;
+	s=k20260515; t=1789973515;
+	bh=OUMX+3DrrUJ/4f/y1tIPx/CX6EAZ8y0GntBH69qPEvw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Osd8LgzTMzeZxVgpBWes8/6mM9SsXWebHZHXKsrnk2U3BOaKC+cUKXf1Yz6K5kpN7
-	 3nIsN8Ta0fxACIB9PTutL02s+amjuzopAkrtwLJ1Wsj8oVF8n4J9whsmMX/pUNyM96
-	 LrvkPytkRP0heJVt6Z/Jq5Zl/OD56r5/+Ig22fe0ipfKXdIjVu8HIEk+GApkSDiG0Z
-	 /kA0etBEZlx2CjKgKb2wt5l7qGtHFJtaro1OndWZpVj71BT9Xqbg0ikHaH1+vIpeBZ
-	 1RZFN/t8xjWbJ6EUgdImxB6O8nstUrxlEuHTu2yB/YYBu2OlntSrakKpKMYpYQl8i7
-	 IRGf+c3hXX2UA==
+	b=iKQSICo1AzDa7cc/2Ipj4zQtUofW2hHbZSyjwTy9yJ+nMgAx/Bpxllci3w3bNPQy6
+	 TZK+uahQ2iNvjTnijyKAxH7mQgpa1L6NUb9uaKGK4ESAcDmN3fhExFuuX4WzX+4QVd
+	 nRtLUC++U5yxWxKT/v1Io5Uf21sj+KY7hPonqn7hzOOKuitbUQUkT8CKSthQZcvh8Y
+	 yJCTgvf/oa59tNNbNnhL2bYMSjQ00nj+qrMZnZwy5DqV/wtPHMlr8YQZtYsFle2tPC
+	 OTHog+UVtkK5yC4z0jYgqN2u94U50DCHOaiHkKFYqLpwDReWiVY6p32T6P0tiqmybK
+	 LXe/iXZCtS87w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 6/6] dma: swiotlb: Remove SWIOTLB_ANY
+Subject: Re: [PATCH v5 5/6] dma: swiotlb: Add an overridable architecture
+ pool opt-out
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?QW5lZXNoIEt1bWFyIEsuViAoQXJtKQ==?= <aneesh.kumar@kernel.org>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <20260921063628.362078-7-aneesh.kumar@kernel.org>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260921063628.362078-6-aneesh.kumar@kernel.org>
 References: <20260921063628.362078-1-aneesh.kumar@kernel.org>
- <20260921063628.362078-7-aneesh.kumar@kernel.org>
+ <20260921063628.362078-6-aneesh.kumar@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 21 Sep 2026 06:48:12 +0000
-Message-Id: <20260921064812.CF56F1F000FF@smtp.kernel.org>
+Date: Mon, 21 Sep 2026 06:51:53 +0000
+Message-Id: <20260921065154.9DA361F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> swiotlb pools are currently allocated below the architecture's low
-> address limit by default. SWIOTLB_ANY overrides this and permits
-> allocation anywhere in directly mapped memory.
->=20
-> SWIOTLB_INIT_ADDRESSING_LIMIT now explicitly identifies callers which
-> need a pool that is reachable by devices with limited DMA addressing.
-> Use it as the placement constraint and remove SWIOTLB_ANY.
->=20
-> This changes the default behavior for callers which do not set either
-> flag. Previously, omitting SWIOTLB_ANY placed the default pool below the
-> architecture's low address limit and also constrained dynamically
-> allocated pools to the same range. After this change, omitting
-> SWIOTLB_INIT_ADDRESSING_LIMIT permits both static and dynamic pools to
-> use any directly mapped memory.
->=20
-> Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] dma: swiotlb: default opt-out incorrectly overrides iommu=3Dsoft
+--
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+commit 8a081ec4054b9ec450c0c293130d0ceb6b8d20fa
+Author: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+
+dma: swiotlb: Add an overridable architecture pool opt-out
+
+This commit introduces SWIOTLB_INIT_DEFAULT_OFF to allow an architecture
+to opt out of SWIOTLB pool initialization without losing placement
+constraints.
+
+> diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
+> index 0cff255827baf..ce257b20ea9cf 100644
+> --- a/arch/x86/kernel/pci-dma.c
+> +++ b/arch/x86/kernel/pci-dma.c
+> @@ -44,9 +44,13 @@ static unsigned int x86_swiotlb_flags;
+>  static void __init pci_swiotlb_detect(void)
+>  {
+>  	/* don't initialize swiotlb if iommu=3Doff (no_iommu=3D1) */
+> -	if (!no_iommu && max_possible_pfn > MAX_DMA32_PFN) {
+> -		x86_swiotlb_enable =3D true;
+> +	if (no_iommu)
+> +		x86_swiotlb_flags |=3D SWIOTLB_INIT_DEFAULT_OFF;
+
+[Severity: High]
+When this is combined with iommu=3Dsoft (which sets
+SWIOTLB_INIT_ADDRESSING_LIMIT), doesn't this flag overwrite the user's
+explicit fallback request?
+
+[ ... ]
+
+> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+> index c19675846fc1d..46b789eb08063 100644
+> --- a/kernel/dma/swiotlb.c
+> +++ b/kernel/dma/swiotlb.c
+> @@ -563,10 +563,16 @@ swiotlb_select_pool_policy(unsigned int flags)
+>  	if (flags & SWIOTLB_INIT_REMAP)
+>  		return SWIOTLB_POOL_DEFAULT;
+> =20
+> -	if (flags & SWIOTLB_INIT_ADDRESSING_LIMIT)
+> +	if (swiotlb_force_bounce)
+>  		return SWIOTLB_POOL_DEFAULT;
+> =20
+> -	if (swiotlb_force_bounce)
+> +	/*
+> +	 * Explicit requirements above override an architecture's default opt-o=
+ut.
+> +	 */
+> +	if (flags & SWIOTLB_INIT_DEFAULT_OFF)
+> +		return SWIOTLB_POOL_NONE;
+> +
+> +	if (flags & SWIOTLB_INIT_ADDRESSING_LIMIT)
+>  		return SWIOTLB_POOL_DEFAULT;
+> =20
+>  	if (swiotlb_kmalloc_needs_bounce())
+
+[Severity: High]
+By evaluating SWIOTLB_INIT_DEFAULT_OFF before SWIOTLB_INIT_ADDRESSING_LIMIT
+and swiotlb_kmalloc_needs_bounce(), does the default opt-out incorrectly
+override explicit requests for a software bounce pool and unaligned kmalloc
+bouncing?
+
+For instance, if a user boots an x86 system with iommu=3Doff iommu=3Dsoft,
+pci_swiotlb_detect() sets SWIOTLB_INIT_DEFAULT_OFF because of no_iommu=3D1.
+The iommu=3Dsoft parameter also sets SWIOTLB_INIT_ADDRESSING_LIMIT.
+
+Because the opt-out is checked first here in swiotlb_select_pool_policy(),
+it returns SWIOTLB_POOL_NONE and prevents the pool from being allocated.
+Could this lead to DMA mapping failures for devices that cannot address all
+system memory, contradicting the commit message which states that iommu=3Ds=
+oft
+retains the addressing limit?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260921063628.3620=
-78-1-aneesh.kumar@kernel.org?part=3D6
-
+78-1-aneesh.kumar@kernel.org?part=3D5
