@@ -1,178 +1,191 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 169A44DF4DC;
-	Mon, 21 Sep 2026 16:49:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C71644B3364;
+	Mon, 21 Sep 2026 17:34:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790009400; cv=none; b=DmZXsJ1ghE7rMLOsz/MYvbdxiwEK3a7XmxHwR5N0pO+Y4WPTr8GG3U+OIJl23qdFvmlx1WeGYQ3d53FmPmLZo2VR+N/9fV32SD84kMCeTfhXlkhUZc3VW9NKGrIvggCcslq4U8LBB71QMFvNO3ncjc9QJ8u4awh+dfIQ/eRPSFE=
+	t=1790012059; cv=none; b=HmPxFHGxigqAhw+Tk/fgC77C3EF78JJKYqqjaMe894cBTKCCfqeLHJKYqLo1DuhuFaURmi1HmVxzg++yvvDIlyOMwWZGNp7pHRdc2fWOscaBKB8fSRCiCCuSDiA5AOLTjH3Xb6+2DYPxdZSc78CHHn/RXKpg35sX2m1Qn7UY7h4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790009400; c=relaxed/simple;
-	bh=Wdg09chPpqQgC/K0e8SKRfjnjFGDVmMx8BswypSmTA0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=m9ISGx1w0Rf62gsYpzGffypUM7QPo8E1YF2bq2Ew4vYYpLzvbYtYst1BdCb5ByHJt70xX6UY+gxKr322DeSCU6zDO/vYH40PLLUF3AZxm51CGCjDBaETQtSMo3/ImuXSGm3R2j8D4y6FzNAwOPEw0dBVQ5DZASUa60D9IeofPUs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=XQmomevp; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	s=arc-20240116; t=1790012059; c=relaxed/simple;
+	bh=NWPMLmKR5H+NciSlzSpaXKEQ9o8CFGTkrapK+qDVBsQ=;
+	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=ZGag79ZfFV75bbM04PZwD0eNdVI1clUEVa0PYwgrE/d1VOGvpZerPLYoghD8UAx536TZDKnhd9CTK6mJFecEnOZyjJcvFjvryVN2ylATqA4pdoCEl8zqSr0pwbYtd+T4Ql+f8F3fkk4pCG8aOeHoGBh9pnwRZLLvh55W+FVUjxQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ntfIleXt; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="XQmomevp"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9584919F0;
-	Mon, 21 Sep 2026 09:49:53 -0700 (PDT)
-Received: from [10.2.212.23] (e121345-lin.cambridge.arm.com [10.2.212.23])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 7C3E73F9A2;
-	Mon, 21 Sep 2026 09:49:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1790009397; bh=Wdg09chPpqQgC/K0e8SKRfjnjFGDVmMx8BswypSmTA0=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=XQmomevpZT09cy6cgr1kTzu2so5J171U16ite1cLw6tf7wJFB4IdlH5QxKz6sSd/4
-	 qRHE98CmDqCVVIr1K3Cv1yP6IMXAdywdYQoc3xBrma/fZL4DL86RO08+Hgqua4e3tA
-	 tpLMTY+ABzQMH+5gDW1Tr/akzSw8iQXUsL5/7yfc=
-Message-ID: <21180ec6-b9ad-43fd-9e52-51df644e1b93@arm.com>
-Date: Mon, 21 Sep 2026 17:49:42 +0100
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ntfIleXt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D4CF1F000FF;
+	Mon, 21 Sep 2026 17:34:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790012057;
+	bh=alPDCc/SUV227jYN2Mo1xAda//QTLk70i3b6IwDM7UI=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=ntfIleXtOngS9kgtd13aXHkN8riuMFwNMcUzajbCcBRQQBzBVoBr8ak1m1TfU92GE
+	 JI84svf3uFDwrccHoW+x64Ww2sS0QtdqhKvj91gutkuCzXF0exSukcQ5vInYuvLjpL
+	 PqqEDW5cX3eOn3T8ucVJx1OBRf0lJnMrk4oqUOOkZuD82IVo35bb8m7AR8LOvHuZF/
+	 s8Pkcvg2VNUxARnEhCpojVMdqOsKLjIjOR0E7/KE+VXw/t6Bakr0GKzvEf2mJKaQf4
+	 q4cb8gEn2UvgHB6qUTJXvV7QBgspz1ciY3EX+z/8AFZGYFDbMTXhrkAk/rctKHJp9Y
+	 vhn9X1eUgqahA==
+Subject: Re: [PATCH] net/smc: Fix socket use-after-free in smc_shutdown()
+From: netdev-bot+sashiko@kernel.org
+To: vulab@iscas.ac.cn
+Cc: alibuda@linux.alibaba.com, davem@davemloft.net, dust.li@linux.alibaba.com,
+ edumazet@google.com, guwen@linux.alibaba.com, horms@kernel.org,
+ kgraul@linux.ibm.com, kuba@kernel.org, linux-kernel@vger.kernel.org,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ mjambigi@linux.ibm.com, netdev@vger.kernel.org, pabeni@redhat.com,
+ sidraya@linux.ibm.com, tonylu@linux.alibaba.com, wenjia@linux.ibm.com,
+ stable@vger.kernel.org
+Date: Mon, 21 Sep 2026 17:34:15 +0000
+Message-ID: <179001205598.2160803.12068131189751847433@kernel.org>
+In-Reply-To: <20260917163956.2162779-1-vulab@iscas.ac.cn>
+References: <20260917163956.2162779-1-vulab@iscas.ac.cn>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 3/6] dma: swiotlb: Centralize minimal pool sizing
-To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
- iommu@lists.linux.dev, linux-kernel@vger.kernel.org
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>, Will Deacon
- <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
- Steven Price <steven.price@arm.com>,
- Suzuki K Poulose <Suzuki.Poulose@arm.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Jiri Pirko <jiri@resnulli.us>,
- Jason Gunthorpe <jgg@ziepe.ca>, Mostafa Saleh <smostafa@google.com>,
- Petr Tesarik <ptesarik@suse.com>, Alexey Kardashevskiy <aik@amd.com>,
- Dan Williams <dan.j.williams@intel.com>, Xu Yilun
- <yilun.xu@linux.intel.com>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Russell King <linux@armlinux.org.uk>,
- Huacai Chen <chenhuacai@kernel.org>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Jiaxun Yang <jiaxun.yang@flygoat.com>, Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, x86@kernel.org
-References: <20260921063628.362078-1-aneesh.kumar@kernel.org>
- <20260921063628.362078-4-aneesh.kumar@kernel.org>
-From: Robin Murphy <robin.murphy@arm.com>
-Content-Language: en-GB
-In-Reply-To: <20260921063628.362078-4-aneesh.kumar@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-On 21/09/2026 7:36 am, Aneesh Kumar K.V (Arm) wrote:
-> A default SWIOTLB pool used only for unaligned kmalloc bouncing can be
-> smaller than one required for limited DMA addressing. Arm64 and RISC-V
-> currently implement this sizing independently, using 1 MiB of SWIOTLB
-> space per GiB of RAM.
-> 
-> The SWIOTLB core now identifies this case with SWIOTLB_POOL_MINIMAL.
-> Size that policy in swiotlb_adjust_pool_size() and remove the
-> architecture-specific adjustments.
-> 
-> Explicit swiotlb= sizing remains unchanged because swiotlb_adjust_size()
-> preserves a user-configured size.
-> 
-> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
-> ---
->   arch/arm64/mm/init.c | 11 -----------
->   arch/riscv/mm/init.c |  4 ----
->   kernel/dma/swiotlb.c | 11 ++++++++++-
->   3 files changed, 10 insertions(+), 16 deletions(-)
-> 
-> diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-> index 7d51fb5f5a71..95075b5c8207 100644
-> --- a/arch/arm64/mm/init.c
-> +++ b/arch/arm64/mm/init.c
-> @@ -340,17 +340,6 @@ void __init arch_mm_preinit(void)
->   {
->   	unsigned int flags = SWIOTLB_VERBOSE;
->   
-> -	if (max_pfn <= PFN_DOWN(arm64_dma_phys_limit)) {
-> -		/*
-> -		 * If no bouncing needed for ZONE_DMA, reduce the swiotlb
-> -		 * buffer for kmalloc() bouncing to 1MB per 1GB of RAM.
-> -		 */
-> -		unsigned long size =
-> -			DIV_ROUND_UP(memblock_phys_mem_size(), 1024);
-> -
-> -		swiotlb_adjust_size(min(swiotlb_size_or_default(), size));
-> -	}
-> -
->   	if (max_pfn > PFN_DOWN(arm64_dma_phys_limit))
->   		flags |= SWIOTLB_INIT_ADDRESSING_LIMIT;
->   
-> diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-> index e0e4c103d603..96856114b387 100644
-> --- a/arch/riscv/mm/init.c
-> +++ b/arch/riscv/mm/init.c
-> @@ -183,10 +183,6 @@ void __init arch_mm_preinit(void)
->   		 * memory when DRAM starts above dma32_phys_limit.  Allocate
->   		 * ~1 MB per 1 GB of RAM.
->   		 */
-> -		unsigned long size =
-> -			DIV_ROUND_UP(memblock_phys_mem_size(), 1024);
-> -		swiotlb_adjust_size(min(swiotlb_size_or_default(), size));
-> -		swiotlb = true;
->   		swiotlb_flags |= SWIOTLB_ANY;
->   	}
->   
-> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-> index 8f86deb25be2..f368a73f4ed0 100644
-> --- a/kernel/dma/swiotlb.c
-> +++ b/kernel/dma/swiotlb.c
-> @@ -483,9 +483,18 @@ static bool __init swiotlb_kmalloc_needs_bounce(void)
->   static void __init
->   swiotlb_adjust_pool_size(enum swiotlb_pool_policy policy)
->   {
-> +	if (swiotlb_default_size_changed())
-> +		return;
-> +
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue(s) to consider.
 
-This appears to be entirely redundant, as ultimately the point of this 
-function is to call swiotlb_adjust_size() (if it does anything at all), 
-and the first thing that does is this same exact check. We hardly need 
-to micro-optimise short-circuiting a handful of arithmetic in a one-off 
-setup path, and it's convoluted enough as it is, so please try to avoid 
-redundancy that makes it even more confusing to follow.
+Critical: 0 · High: 1 · Medium: 0 · Low: 0
 
->   	switch (policy) {
-> -	case SWIOTLB_POOL_MINIMAL:
-> +	case SWIOTLB_POOL_MINIMAL: {
-> +		unsigned long size;
-> +
-> +		/* Use 1MB per 1GB of RAM for kmalloc() bouncing. */
-> +		size = DIV_ROUND_UP(memblock_phys_mem_size(), 1024);
-> +		swiotlb_adjust_size(min(swiotlb_size_or_default(), size));
->   		break;
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
 
-Similarly I think it would be clearer if we had a common 
-swiotlb_adjust_size() call at the end of the function, and then either 
-calculate a size or return early in each switch case as appropriate.
+- [High] net/smc/af_smc.c:smc_shutdown() — the commit claims to fix a
+  use-after-free where the passive-closing sock_put() frees sk before…
 
-Furthermore, swiotlb_size_or_default() is awful IMO - and in fact after 
-this series we could perhaps clean it up entirely by making the size 
-implicit in swiotlb_init_late() - not to mention misleadingly redundant. 
-I'd say just open-code "default_nslabs << IO_TLB_SHIFT" like elsewhere 
-in the file, but in fact it may as well just be IO_TLB_DEFAULT_SIZE 
-(think about it...)
+--
 
-Thanks,
-Robin.
+net/smc: Fix socket use-after-free in smc_shutdown()
 
-> +	}
->   	case SWIOTLB_POOL_CC_GUEST:
->   		break;
->   	case SWIOTLB_POOL_NONE:
+This moves the passive-closing sock_put() in the smc->use_fallback branch
+of smc_shutdown() past release_sock(), using a new passive_close flag, on
+the grounds that the put could otherwise free sk before release_sock()
+runs.  It carries a Fixes: tag and Cc: stable.
 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index e9f93b3ab435b..70d6da4c6267d 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -2946,6 +2946,7 @@ int smc_shutdown(struct socket *sock, int how)
+>  {
+>  	struct sock *sk = sock->sk;
+>  	bool do_shutdown = true;
+> +	bool passive_close = false;
+>  	struct smc_sock *smc;
+>  	int rc = -EINVAL;
+>  	int old_state;
+> @@ -2983,7 +2984,7 @@ int smc_shutdown(struct socket *sock, int how)
+>  		if (sk->sk_shutdown == SHUTDOWN_MASK) {
+>  			sk->sk_state = SMC_CLOSED;
+>  			sk->sk_socket->state = SS_UNCONNECTED;
+> -			sock_put(sk);
+> +			passive_close = true;
+>  		}
+>  		goto out;
+>  	}
+
+[Severity: High]
+Can the use-after-free described in the changelog actually happen here?
+
+smc_shutdown() is only installed as proto_ops->shutdown (af_smc.c and
+smc_inet.c), so it is entered from __sys_shutdown() or
+kernel_sock_shutdown() while a struct socket/file reference is alive.  The
+socket's own reference on sk is dropped only in smc_release():
+
+net/smc/af_smc.c:smc_release() {
+	...
+	sock_orphan(sk);
+	sock->sk = NULL;
+	release_sock(sk);
+
+	sock_put(sk); /* sock_hold above */
+	sock_put(sk); /* final sock_put */
+}
+
+and smc_release() cannot run while the shutdown syscall holds the fd.  With
+that reference plus the passive-closing reference, wouldn't sk_refcnt be at
+least 2 at the old sock_put(), making the release_sock()-on-freed-sk path
+unreachable?
+
+The commit message also states the reference may be gone because "the
+passive closing reference was already consumed by an abort of the active
+link group".  Can that state be reached in this branch?  This branch runs
+only for smc->use_fallback sockets, and the abort paths leave sk_state at
+SMC_CLOSED, SMC_PEERABORTWAIT or SMC_PROCESSABORT:
+
+net/smc/smc_close.c:smc_close_active_abort() {
+	case SMC_ACTIVE:
+	case SMC_APPCLOSEWAIT1:
+	case SMC_APPCLOSEWAIT2:
+		sk->sk_state = SMC_PEERABORTWAIT;
+		...
+		sk->sk_state = SMC_CLOSED;
+		sock_put(sk); /* (postponed) passive closing */
+}
+
+net/smc/smc_close.c:smc_close_passive_abort_received() {
+	case SMC_INIT:
+	case SMC_ACTIVE:
+	case SMC_APPCLOSEWAIT1:
+		sk->sk_state = SMC_PROCESSABORT;
+		sock_put(sk); /* passive closing */
+}
+
+All three of those states are rejected earlier in smc_shutdown() with
+-ENOTCONN:
+
+	rc = -ENOTCONN;
+	if ((sk->sk_state != SMC_ACTIVE) &&
+	    (sk->sk_state != SMC_PEERCLOSEWAIT1) &&
+	    (sk->sk_state != SMC_PEERCLOSEWAIT2) &&
+	    (sk->sk_state != SMC_APPCLOSEWAIT1) &&
+	    (sk->sk_state != SMC_APPCLOSEWAIT2) &&
+	    (sk->sk_state != SMC_APPFINCLOSEWAIT))
+		goto out;
+
+so the fallback branch is never reached after such an abort.  Could a
+reachable path (ideally a KASAN splat) be added to the changelog?
+
+> @@ -3014,6 +3015,8 @@ int smc_shutdown(struct socket *sock, int how)
+>  		sock->state = SS_DISCONNECTING;
+>  out:
+>  	release_sock(sk);
+> +	if (passive_close)
+> +		sock_put(sk); /* passive closing */
+>  	return rc ? rc : rc1;
+>  }
+
+[Severity: High]
+If the premise in the changelog did hold, does this reordering remove the
+problem or just move it?
+
+passive_close is derived solely from sk_shutdown == SHUTDOWN_MASK, which
+says nothing about whether this call still owns the passive-closing
+reference.  The same unconditional decrement therefore still runs, just
+later.
+
+If it drops the last reference, sk is freed while sock->sk still points at
+it for an open fd, and the next fd operation touches freed memory:
+
+net/smc/af_smc.c:smc_release() {
+	struct sock *sk = sock->sk;
+	...
+	sock_hold(sk); /* sock_put below */
+
+Wouldn't an ownership check (or bracketing the region with
+sock_hold()/sock_put() as smc_release() does) be needed instead of a
+reordering, if there really is a stray put to fix?
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260917163956.2162779-1-vulab%40iscas.ac.cn
