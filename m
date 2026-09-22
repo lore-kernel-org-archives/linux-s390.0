@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3BEE28E0;
-	Tue, 22 Sep 2026 05:32:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2427B48EC96;
+	Tue, 22 Sep 2026 05:42:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790055155; cv=none; b=F0EqyrOr3mzbxjzRJFvLPn7b0ab8eorgKd1qCtwPe1ZJaS9ZKTb4Vdr59lqcorP/YsfZK7AQH7mzAUNcF/TQ3GiuXomJXQ80DL+uQUtZ198rKbuwX6klCHAjBE53uLAMczW2N0XMtLwyAzGeSB+QCedD0J80iU24tgSZ/pj7Jek=
+	t=1790055740; cv=none; b=G8ZvMUQHKQsaOOXANJKB+rbbfRs8Wy/DtDE/SN5jLmdhUcFm6pEWK6me4pzrzEnX8NTai0iIuue3hL9RGRZ/Lv2QBYY7ZtYMSFDikItT6EWuU1aR+DVFACUggL6kH4jnsPzdv1O5bGqpfR1mcjHqMdhyhV+gLMMG46lVtzu/AZg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790055155; c=relaxed/simple;
-	bh=F1knI2hy3RZA/sctne2GeabgDRMp3OmfYXtY78iusNE=;
+	s=arc-20240116; t=1790055740; c=relaxed/simple;
+	bh=QLstHbecJM6J3c12qaE/eMNnS3uL33Y24ac3M5mHP9w=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=s7n22WLhiEc98nxOLvUUhwAe9ZwamMbsDLH4YcaC1g6EN6ioYJdeqBYEpAJMhqr7rhRQWWLgGTqUDRLzQtEi2tM6UlVW3vKCzLMNPKNse5Rdd8cpmeKlc3H4k4Y9UadBkh07wMSZaBaILVTI2JeFNSUgzR98r7fIHVQoj7HNbGo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V+sHkd3I; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=chmz48gbB7anrwoQZRtGc1VX24UAxVflMxAW9v9rIjIvAG93A8Px3Yz4Ywmklzu3MX8Jl5a59+7lO9WvsOSua9hYcURLTcA7w+wRZhO9kfyx8I5CinRtoW7qz5hzvH353n5YTbC1dFv3wSufEOlRfpgwKLZ6Eva4Cy+g6ZfLJK4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n3cAyn/R; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V+sHkd3I"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06F581F000FF;
-	Tue, 22 Sep 2026 05:32:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n3cAyn/R"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 943B51F000FF;
+	Tue, 22 Sep 2026 05:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790055153;
-	bh=2gdM7pJQWOB32IRzRuuSECTGadyK+L+jFgZIHeUlWCg=;
+	s=k20260515; t=1790055737;
+	bh=3epzgFAGTIrwRdhpNfOPzvquVJOf1jbVVt83Gylxrw4=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=V+sHkd3IFKj/u1XrhzjZHaVWFT/6SS6oRLDyXWiULliXGM1LHof1yu+9SpjH+o9S5
-	 qF51+zWQXWibRxXwB+At7raCSyzo0QFJREV65DomR9GvesvkJN8pn4LgEE7wF2bO5+
-	 zSLA+kNPsEZ2pyzsYhVjQ8l29HQT8LaTtO2SsCZRKyM66vejz/2Wjk0xwPsN+8GGUe
-	 tM0CsZF6sBU7t3+Uuom/cP15Anfopu7hSOpU8Y+nOHLjXkTLRxs5jbdAz0AbeBgwFs
-	 s6rgYq/A+/k73xGj/EHQ+h+FSnWosqmHOStWzy7hZryanbnyuEHkd8yDtMI4g2Mkxq
-	 lWUOQc1CyuE7A==
+	b=n3cAyn/RCRCO8X+Uau1YjXbZxv8R3e4DCS+Xrx4rxCRgSj1hcmaLfTbRORYJw1hgq
+	 Cdw8d9qTesIZG96UD++KmUGKR0DtVp8Km9oejn5XjuarV7G50P0Egv95jNovWg5nHx
+	 9biemEsqA2QDkJEW6YxDns/Fcj6SeGFmgfINJQBFXMauH1rC7qKLOGGgJDa1ksYZVv
+	 F4bBFg9Uu6vXcF5kxVU5L5bwk4e2hX2UdCkTsGD76gFExoimfyeuDNQ9fxDXt/f2f3
+	 LrIkgC9XUMg3K6ZpKCyfWYLJRw6k5gX7a/F2+K9SqAsZpSXf2NYCDRauBSvMK89oLc
+	 6F8UvRtFunsPg==
 X-Mailer: emacs 31.1 (via feedmail 11-beta-1 I)
 From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
 To: Robin Murphy <robin.murphy@arm.com>, iommu@lists.linux.dev,
@@ -67,14 +67,14 @@ Cc: Marek Szyprowski <m.szyprowski@samsung.com>,
 	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
 	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
 	x86@kernel.org
-Subject: Re: [PATCH v5 1/6] dma: swiotlb: Centralize default pool policy
- selection
-In-Reply-To: <4ef23d65-02d2-4187-904b-9d1665d8cff5@arm.com>
+Subject: Re: [PATCH v5 2/6] dma: swiotlb: Track whether the pool size was
+ explicitly set
+In-Reply-To: <94630348-d295-4424-9f6c-0dc3b8704077@arm.com>
 References: <20260921063628.362078-1-aneesh.kumar@kernel.org>
- <20260921063628.362078-2-aneesh.kumar@kernel.org>
- <4ef23d65-02d2-4187-904b-9d1665d8cff5@arm.com>
-Date: Tue, 22 Sep 2026 11:02:18 +0530
-Message-ID: <yq5av77x3l7h.fsf@kernel.org>
+ <20260921063628.362078-3-aneesh.kumar@kernel.org>
+ <94630348-d295-4424-9f6c-0dc3b8704077@arm.com>
+Date: Tue, 22 Sep 2026 11:12:01 +0530
+Message-ID: <yq5ase313kra.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -86,85 +86,66 @@ Content-Type: text/plain
 Robin Murphy <robin.murphy@arm.com> writes:
 
 > On 21/09/2026 7:36 am, Aneesh Kumar K.V (Arm) wrote:
-> [...]
->> diff --git a/arch/powerpc/kernel/dma-swiotlb.c b/arch/powerpc/kernel/dma-swiotlb.c
->> index ba256c37bcc0..97fffa46f05a 100644
->> --- a/arch/powerpc/kernel/dma-swiotlb.c
->> +++ b/arch/powerpc/kernel/dma-swiotlb.c
->> @@ -14,8 +14,10 @@ unsigned int ppc_swiotlb_flags;
+>> swiotlb_adjust_size() must not override a pool size supplied through the
+>> swiotlb= command-line parameter.
+>> 
+>> Currently, it determines whether a size was supplied by comparing
+>> default_nslabs with IO_TLB_DEFAULT_SIZE. This fails when the user
+>> explicitly requests the compiled-in default size, allowing the request
+>> to be overwritten by automatic pool sizing.
+>> 
+>> Record whether swiotlb= supplied a numeric size and add
+>> swiotlb_default_size_changed() to query that state.
+>> 
+>> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+>> ---
+>>   kernel/dma/swiotlb.c | 9 ++++++++-
+>>   1 file changed, 8 insertions(+), 1 deletion(-)
+>> 
+>> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+>> index aa19e81ae544..8f86deb25be2 100644
+>> --- a/kernel/dma/swiotlb.c
+>> +++ b/kernel/dma/swiotlb.c
+>> @@ -107,6 +107,7 @@ static struct io_tlb_mem io_tlb_default_mem;
 >>   
->>   void __init swiotlb_detect_4g(void)
->>   {
->> -	if ((memblock_end_of_DRAM() - 1) > 0xffffffff)
->> +	if ((memblock_end_of_DRAM() - 1) > 0xffffffff) {
->>   		ppc_swiotlb_enable = 1;
+>>   static unsigned long default_nslabs = IO_TLB_DEFAULT_SIZE >> IO_TLB_SHIFT;
+>>   static unsigned long default_nareas;
+>> +static bool swiotlb_size_set __initdata;
 >
-> Nit: Perhaps it's beyond the functional scope of this patch, but I do 
-> wonder if these <arch>_swiotlb_enable conditions become redundant and 
-> could just be replaced with "if (<arch>_swiotlb_flags != 0)" too.
+> Nit: there are various ways and reasons that the size is set in general; 
+> could this please be named something clearer, e.g. 
+> "swiotlb_cmdline_size_set"?
 >
-
-
-Possibly. However, x86 has a case where x86_swiotlb_enable is cleared
-and used to free the swiotlb pool during initialization.
-
-pci_iommu_init() {
-	if (x86_swiotlb_enable) {
-		pr_info("PCI-DMA: Using software bounce buffering for IO (SWIOTLB)\n");
-		swiotlb_print_info();
-	} else {
-		swiotlb_exit();
-	}
-}
-
->
->> +		ppc_swiotlb_flags |= SWIOTLB_INIT_ADDRESSING_LIMIT;
->> +	}
+>>   /**
+>>    * struct io_tlb_area - IO TLB memory area descriptor
+>> @@ -269,6 +270,7 @@ setup_io_tlb_npages(char *str)
+>>   		/* avoid tail segment of size < IO_TLB_SEGSIZE */
+>>   		default_nslabs =
+>>   			ALIGN(simple_strtoul(str, &str, 0), IO_TLB_SEGSIZE);
+>> +		swiotlb_size_set = true;
+>>   	}
+>>   	if (*str == ',')
+>>   		++str;
+>> @@ -304,6 +306,11 @@ unsigned long swiotlb_size_or_default(void)
+>>   	return default_nslabs << IO_TLB_SHIFT;
 >>   }
 >>   
->>   static int __init check_swiotlb_enabled(void)
-> [...]
->> diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
->> index 75cf8f6ae8cd..0cff255827ba 100644
->> --- a/arch/x86/kernel/pci-dma.c
->> +++ b/arch/x86/kernel/pci-dma.c
->> @@ -44,8 +44,10 @@ static unsigned int x86_swiotlb_flags;
->>   static void __init pci_swiotlb_detect(void)
->>   {
->>   	/* don't initialize swiotlb if iommu=off (no_iommu=1) */
->> -	if (!no_iommu && max_possible_pfn > MAX_DMA32_PFN)
->> +	if (!no_iommu && max_possible_pfn > MAX_DMA32_PFN) {
->>   		x86_swiotlb_enable = true;
->> +		x86_swiotlb_flags |= SWIOTLB_INIT_ADDRESSING_LIMIT;
->> +	}
->>   
->>   	/*
->>   	 * Set swiotlb to 1 so that bounce buffers are allocated and used for
->> @@ -81,8 +83,10 @@ static void __init pci_xen_swiotlb_init(void)
->>   	if (!xen_swiotlb_enabled())
->>   		return;
->>   	x86_swiotlb_enable = true;
->> -	x86_swiotlb_flags |= SWIOTLB_ANY;
->> -	swiotlb_init_remap(true, x86_swiotlb_flags, xen_swiotlb_fixup);
->> +	/* Xen can use a SWIOTLB pool anywhere in directly mapped memory. */
->> +	x86_swiotlb_flags &= ~SWIOTLB_INIT_ADDRESSING_LIMIT;
->> +	x86_swiotlb_flags |= SWIOTLB_INIT_REMAP | SWIOTLB_ANY;
+>> +static bool __init swiotlb_default_size_changed(void)
 >
-> Similarly, I see how having a SWIOTLB_INIT_REMAP flag keeps 
-> swiotlb_select_pool_policy() neat, but couldn't we technically already 
-> infer that from the fact that a non-NULL remap function was passed?
+> ...and then do we really need a trivial wrapper function with the exact 
+> same scope as the variable itself? (Plus the name is similarly confusing 
+> as the places this is used are themselves potentially changing the 
+> default size, if you consider "default" to mean "not explicitly 
+> specified"...)
+>
+> With the naming improved,
 >
 
+Updated and dropped the helper.
 
-I thought deriving the entire pool policy from the flags made the code
-easier to follow. For example, if flags == 0 and remap != NULL, we would
-also need to pass remap to swiotlb_select_pool_policy() to determine the
-policy.
-
->
-> Nits aside, the overall change seems reasonable to me;
 >
 > Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+>
 
-Thanks
+
 -aneesh
