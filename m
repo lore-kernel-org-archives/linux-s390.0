@@ -1,53 +1,53 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9037625B0BE
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3D052FF672
 	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790059391; cv=none; b=IoX3H1fneo83qUcu2is0z71C0r5AIc0TttWsdVfs0T0Wz3HczAO1ftD5zzd5Ss+txU0S6h7vIpFL5iQZ/rLCSZkDyDnlWgpYz+uI3juHzF93Y06inNi3XPyy2DVBqRBcj5Am/ICsztYfatvrKpJLk6Q0Vj5zH3Vfy/t+Ixc2I/k=
+	t=1790059392; cv=none; b=GLM6f25331Cgo+xNhvVYRubRSAHStnIFf8GOtPNx5UB5UKZ6njcCTWXJAp8Zzwjqd0ZYwsTsePR/OJ474msoSEPp3Vjrwl8z+v+gBZPRWs0DsusD7LaJyBhfGYsnVi4s6aAMpAXoCWCV8gyoE1VTLZt9MBZmJtL00Oxk7p0xFiE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790059391; c=relaxed/simple;
-	bh=aU8HjF/L4BhRhMqKgP0FwpOfQt2RHimsEH2uoTnXkCU=;
+	s=arc-20240116; t=1790059392; c=relaxed/simple;
+	bh=sDaHgqjSm+r9IvlbvVyPTNRbRxEMSEU+t04g3/FgM7Y=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PEdKpuHshZRYFwRN42+B3snv8ap/1xLxY1GvmDVX9CpeCK3Q6/tTuqPM6Oe7CRl6xuorJXzQpvhFeOaUadjgwCVpO8uRTJ/vZkuyZGhLpfPWGsc3QlpSK45YgTEpwqTwnwW0j1Vcx/wQzqCc9rjvq+MdvYGJBT+rzGGDqlfk8RY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=G+OWHFiE; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=JVhSapJQ1/HXyzSigil3Z2rpscSUXqNlcb2QNdjnJ0huTJ/sWfnsuAd5UCzYSWurxydpBQ2skgIQsCe7IhEwvfYGu4e6ugHOlWOvlZthfF3/kK+Hp8schmta0gtjBx/skKLNpFeAE0WYL9EjcEgKo6Ma6o58FzE2eFhsW34oqQw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Xxc3DEg1; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="G+OWHFiE"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68M05WGE2980329
-	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:09 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Xxc3DEg1"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68M05WA62940065
+	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=W4I5U8UGgmfVHuDND
-	2qrQr/M6qB88qGCkOlm80vioN4=; b=G+OWHFiE6tJoWgiG9huPA6MoQd2QX6Yoj
-	8GT2r1xjvmkZCBdPgzQ+hbFksyCw3wfKvi+wlNcaHTmhJpQBDDc8HRrogFvqL/L5
-	+Wcgj1a1vGSGgqOTUfASTQe7+Wdkd85llkKhEpelTZJMNhQrGY14R1+WMAaaC0FT
-	O91FyTAGPeapMI6XhAGaVrSJBLJEQOaAj/V84NLBdK+SN2Lw/PWeqt1WoP407upa
-	tYM+3PLTwtINQZ42l5LC8JEzuDYdP9tS9yBAgTSYzzbNxFc/heoUd8x+HrHoKBl2
-	sFzxXc6Gu/AvEHKn9qjGbsRiLaWCNGsXXDLglwCY70i2Gc/+0F7iA==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskdv43fe-1
+	:mime-version:references:subject:to; s=pp1; bh=53EA3tibfYnvtOZeJ
+	xzZH+uSAZSQU/ba67hMUlghq3k=; b=Xxc3DEg1mKRosr9ThEFdRnoP3BcuF3eJT
+	xNK2zi0LeWFpHaJtLm6f/GwtKrB6fqIDgjb01kLIJLOMX/aQeLjb/4zzoCe/N/o/
+	qb2NHmvGlkT+wF7t6EVBaIIUWyJz4ORAYPBpqbfe+2VDwiGKCHDYQZrNLuj4onVP
+	mppaf7nbJTXrVuoh1S1ekL0I0WMITF2kL0ZmX0yRuzOVEzRb0BO0tZUoHIIysO8O
+	6wK3X02zj0LLwcFzArjOmfN1boot3zUawMpBV02OmfRrv7Slxmp80Fu3sK2ayqqt
+	659tRUWRacXwfDYp7FQp5Te0mFIsHVHFMawTl/xde8cphm+Ofup6A==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskg2cbqw-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:09 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68M5MVZi2085677
-	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:08 GMT
+	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:10 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68M5I9gW2002230
+	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:09 GMT
 Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gt4qq8t8j-1
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gt5qjrncj-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:08 +0000 (GMT)
+	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:09 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68M6h3vG49217794
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68M6h3A849217792
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 22 Sep 2026 06:43:04 GMT
+	Tue, 22 Sep 2026 06:43:03 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C4A3D2004B;
+	by IMSVA (Postfix) with ESMTP id A346D20049;
 	Tue, 22 Sep 2026 06:43:03 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A78DC2004F;
+	by IMSVA (Postfix) with ESMTP id 85E672004D;
 	Tue, 22 Sep 2026 06:43:03 +0000 (GMT)
 Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -58,9 +58,9 @@ Cc: gor@linux.ibm.com, hca@linux.ibm.com, agordeev@linux.ibm.com,
         borntraeger@linux.ibm.com,
         linux390-list@tuxmaker.boeblingen.de.ibm.com,
         linux-s390@vger.kernel.org
-Subject: [PATCH v6 2/5] s390/sclp: Introduce macro sclp_gds_for_each()
-Date: Tue, 22 Sep 2026 08:43:00 +0200
-Message-ID: <20260922064303.524293-3-egorenar@linux.ibm.com>
+Subject: [PATCH v6 1/5] s390/sclp: Make parsing of received event buffers more robust
+Date: Tue, 22 Sep 2026 08:42:59 +0200
+Message-ID: <20260922064303.524293-2-egorenar@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260922064303.524293-1-egorenar@linux.ibm.com>
 References: <20260922064303.524293-1-egorenar@linux.ibm.com>
@@ -72,99 +72,73 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: THChkDee9RPNNuJtLgDf5SfIYrbUt0nq
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIyMDA5MyBTYWx0ZWRfXws3oX8zmJdZd
- gUzHQ+7skXVfK+8+KxNMdqQ6uJIef3RHYmJRwCw1o0jKJlHc/sOC05PbFhn0ek+IJNFXFVDVtRI
- H/4n6tITsJqZOjrshdjavKTEtj/vQhU=
-X-Authority-Analysis: v=2.4 cv=FLiOVOos c=1 sm=1 tr=0 ts=6ab2237d cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-ORIG-GUID: uSSzqFFyxGe_BBYlnG6uL2VHuXybytVN
+X-Authority-Analysis: v=2.4 cv=I43w19gg c=1 sm=1 tr=0 ts=6ab2237e cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=6L2ITpmw0Ys5tFHv31kA:9
-X-Proofpoint-GUID: THChkDee9RPNNuJtLgDf5SfIYrbUt0nq
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIyMDA5MyBTYWx0ZWRfXxL72bVY6vJPP
- fFzZ3f1GXqIa3NS5nr1xxEEatFqY6925BAz1HMZl9aW0V/Xp3cQMDSZBgC9taNlJQPgHKXKGikn
- EFZYjsZANvfy5/WgZa15VBAZJrfGqci+3RzGMpC1V+JhaC21geCvxxB0tPWdaNvaKVucl4Jp6w2
- Mljdd41i8u6/D9x1O4DGj6eogBdo3/5IzDHBXAtw29yAIt/RlBEWYn6NdXMpq8/YB8yrnEQS9NO
- q5gRAhPMuSFtkhgcJoydo+tBsI2H9K1jsitOuEUkFn3XqAMkYslSlZTYDFcYUgUjDePxrJFlpZp
- uwPrh7hC+CvmNWXDsi5P/kcSodHQMHbWt1ZJD8qMGu0RlTzf+JTDPVAB+F7v0G0+BEFiaCK8GLs
- wWIHm4AmT3TBtLvR1MGDOGL49HQhK8Rj45DlNqYDwdCccBmRc5LOXG/BaSTqOU8e7q/Xt6tb8Xc
- adO93oBz3WCAySWc4WA==
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=0mq7_-0UZ_Kb3BqdX3gA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIyMDA5MyBTYWx0ZWRfXwCrcGIcbF6kj
+ /A6eYybJNNkKFZG/ruSfTsKKlj27lhC2450N7J3z5ZNzI5V7jM4K0MCYdoHAIMG51TRY5GBO5p1
+ tLq2WCUbKoH6WTF/ANOlZ8yWUfDQH7u1EtQJ7fGChOhs17aNR7DZhH1oEPq5Yhywl62Q5zKy74s
+ EbKIms4NP/62joekFO4Wi9kWAle0DesL9PGoH74yv0kOAy6Xwl5iB/pU6vG8mAhjNbgLIt5ktl5
+ YHWX0sz4T/MyWo4iCZYZeqtyOTksFKatqAklyRvp+hZvlZkYMFqy0iWoAhq/qyIIfBHIva7AweM
+ WQgDbgasFsFHxmY4YH/w6VOYqWr2fN1L7tDgm88puY5+dDWtKwkUc97CgwVE6o4ZMoucDMmaVtp
+ yNjxGR4jxbwV31hZ/OKZIGzNa5kyTlvmEJrxOSyz04mLKx5eEF/PVm1LZyqf3rAowmnvgRa5imH
+ s3BP9QFO0Hkk5wCHm4Q==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIyMDA5MyBTYWx0ZWRfX72xJt6VXLLzF
+ +2wN6YlYSz7/mFe3mIDwI1SgAVWdj+o8nfp/IHfi/M1Jm/Kik+52p+fk6givLl82zm44zeq0E+r
+ MAG7DRekqWb/LP3VFHx7LQhoZGxwzao=
+X-Proofpoint-GUID: uSSzqFFyxGe_BBYlnG6uL2VHuXybytVN
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-21_07,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 impostorscore=0 phishscore=0 spamscore=0 clxscore=1015
- suspectscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609220093
+ spamscore=0 clxscore=1015 adultscore=0 suspectscore=0 impostorscore=0
+ lowpriorityscore=0 bulkscore=0 phishscore=0 priorityscore=1501 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609220093
 
-sclp_find_gds_{sub}vector() does not deal well with malformed event buffers
-consisting of GDS {sub}vectors. This can result in an infinite loop or
-an out-of-bounds memory read. Therefore, abort with NULL if
-* the next GDS header would exceed the given end boundary
-* the length in a GDS header contains an invalid value.
-  A valid length value in a GDS header should be at least as large
-  as the size of the corresponding GDS header (2 or 4 bytes)
-  but also not lead to exceeding the given end boundary.
-
-Use the new macro in sclp_find_gds_{sub}vector() to iterate over entries
-of a GDS {sub}vector in a safe manner bailing out on the first invalid
-entry.
+Ensure that
+* an event buffer does not cross the end boundary of the SCCB buffer it is
+  part of
+* the total length of an event buffer is not smaller than the size of
+  its header
 
 Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Suggested-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Fixes: 30c2df51173e ("[S390] sclp: event buffer dissection")
 ---
- drivers/s390/char/sclp.h | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ drivers/s390/char/sclp.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/char/sclp.h b/drivers/s390/char/sclp.h
-index b31a680e0871..a006d7abfdf3 100644
---- a/drivers/s390/char/sclp.h
-+++ b/drivers/s390/char/sclp.h
-@@ -360,25 +360,33 @@ sclp_ascebc_str(char *str, int nr)
- 	(machine_is_vm()) ? ASCEBC(str, nr) : ASCEBC_500(str, nr);
- }
+diff --git a/drivers/s390/char/sclp.c b/drivers/s390/char/sclp.c
+index 98e334724a62..7be4acec9d6e 100644
+--- a/drivers/s390/char/sclp.c
++++ b/drivers/s390/char/sclp.c
+@@ -532,8 +532,7 @@ EXPORT_SYMBOL(sclp_add_request);
  
--static inline struct gds_vector *
--sclp_find_gds_vector(void *start, void *end, u16 id)
-+/* Loop over all GDS {sub}vectors in a safe manner. */
-+#define sclp_gds_for_each(v, n, start, end)	\
-+	for ((n) = (void*)(end) - (void*)(start), (v) = (typeof(v))(start);	\
-+	     (n) >= sizeof(*(v)) && (v)->length >= sizeof(*(v)) && (v)->length <= (n);	\
-+	     (n) -= (v)->length, (v) = (void*)(v) + (v)->length)
-+
-+static inline struct gds_vector *sclp_find_gds_vector(void *start,
-+						      void *end, u16 id)
+ /* Dispatch events found in request buffer to registered listeners. Return 0
+  * if all events were dispatched, non-zero otherwise. */
+-static int
+-sclp_dispatch_evbufs(struct sccb_header *sccb)
++static int sclp_dispatch_evbufs(struct sccb_header *sccb)
  {
- 	struct gds_vector *v;
--
--	for (v = start; (void *) v < end; v = (void *) v + v->length)
-+	int n;
-+	sclp_gds_for_each(v, n, start, end) {
- 		if (v->gds_id == id)
- 			return v;
-+	}
- 	return NULL;
- }
+ 	unsigned long flags;
+ 	struct evbuf_header *evbuf;
+@@ -544,11 +543,13 @@ sclp_dispatch_evbufs(struct sccb_header *sccb)
  
--static inline struct gds_subvector *
--sclp_find_gds_subvector(void *start, void *end, u8 key)
-+static inline struct gds_subvector *sclp_find_gds_subvector(void *start,
-+							    void *end, u8 key)
- {
- 	struct gds_subvector *sv;
--
--	for (sv = start; (void *) sv < end; sv = (void *) sv + sv->length)
-+	int n;
-+	sclp_gds_for_each(sv, n, start, end) {
- 		if (sv->key == key)
- 			return sv;
-+	}
- 	return NULL;
- }
- 
+ 	spin_lock_irqsave(&sclp_lock, flags);
+ 	rc = 0;
+-	for (offset = sizeof(struct sccb_header); offset < sccb->length;
++	for (offset = sizeof(struct sccb_header);
++	     offset < sccb->length && (sccb->length - offset >= sizeof(struct evbuf_header));
+ 	     offset += evbuf->length) {
+ 		evbuf = (struct evbuf_header *) ((addr_t) sccb + offset);
+ 		/* Check for malformed hardware response */
+-		if (evbuf->length == 0)
++		if (evbuf->length < sizeof(*evbuf) ||
++		    offset + evbuf->length > sccb->length)
+ 			break;
+ 		/* Search for event handler */
+ 		reg = NULL;
 -- 
 2.53.0
 
