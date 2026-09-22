@@ -1,57 +1,57 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5FFE5326C7;
-	Tue, 22 Sep 2026 10:19:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E609D5328B3;
+	Tue, 22 Sep 2026 10:19:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790072371; cv=none; b=SDl1PBh5bCd9gK4voXseYsnyoQJRvNJbZyaGLWh8OU7m7LR6Yi+Oci+PyayH6rChJBdSV6813hXEyooZg/uKc6/SglTpUHLyPDHApUjIppaEPpfsXCdPtDoKuB/yhLbopLrn9MaeAsHGLcJukFx1IXLH1lmlVd5IWcFcI33s3nk=
+	t=1790072372; cv=none; b=m0JugsPjenu7/zBFg+aUbt4W2rvN2ErzXSlMkhvKFx258WjDglOHx2Fry+XVvPNCXhjTGMGcFLWQ0yIioVRvz/Sx5IHuUy+/JF4TbouIHTjBYIbb1F2nQyrSosluLtPfiNf4ieWXI/XUz0T6a3YUqTJVnquBSfe+drMWEGlO1KY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790072371; c=relaxed/simple;
-	bh=9VYlEBBzHvNgnKHjD/sB6aGAHCr33aE4j4uXIeG5GlY=;
+	s=arc-20240116; t=1790072372; c=relaxed/simple;
+	bh=fnfJDBEXNUMOlGWOqPPPrXtBQMfJE8QcEAnUb4psO2U=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CECxONyzayVsZdItInpRKiKD7PuOYoDpF+AIu5pD/q3SBmIxYY1gUaU5Vna7gckUMD4uwo8nUx/+u1Fne+Xm4DxOf0Dm1IQiZvVQgsXU68uBPr6pJ14HBrivceTTn+JhF+S1LoL47LGqRCMcC/YwO6g76S96JywIhyLklvzyI4I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qATCCJuR; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=TOJzW9om4XPmYzkzddLC0mwWyGAzGlGlv5w78cfcweoHAWseexw/RrL8esmc5WPvM2+UK8aAKoPugtppDS/wR9RDN5dtwBhhzxRLJaWQplEFaTFh4wRs/MkSzGNOOMSOGF/ogEfAuypN6XSHBZYFgY0YO1VuwKXdyebgiiVlUR8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=clz8S1En; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qATCCJuR"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68M05Uct1075347;
-	Tue, 22 Sep 2026 10:19:23 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="clz8S1En"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68M05gAH2948920;
+	Tue, 22 Sep 2026 10:19:24 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=NNIbTOTUOhN+guE6W
-	aKUWJifDAzgIR8Qvw1UneT4K/U=; b=qATCCJuRW3xWRhjg1PLeFgDteb8BOUL3v
-	1RTLy99KTFay0ToKqBafd3U1deYsXjbdGlhozujxKiPdhYTgTNiDmj8i/l/KJ5oQ
-	X4rgNz4PLRupQu5jpe/7KmUHvHANTg6FQr+nIaacLKrp+pbK1stoCb2sQ8MJSaKC
-	i/V8bW2SWPNBn/RNwOw3okg7atLl47+76xhHGolztSqO2C6CM1ZrAhf58qZ16P2+
-	tQ8N2erWnXiiBxJp1YYwyKNOiJgSFNaiJbRoL3o/BrbbnicSpxaJEENNXcgNEJd3
-	jaPHeL5qF2R5ujCMZ1QcKf/ACXafdl6ZeLYnb84kalEq+qTsGal+Q==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gske1n626-1
+	:mime-version:references:subject:to; s=pp1; bh=KY2NWf6oBgwasWp9Z
+	JhMWxWZkRkGv4HTySqVrEev6Kg=; b=clz8S1EnEejOgRDkqpcsBQfzyQoYnDgN3
+	QaOUirLuBvgW5NSiFydIUoRXYZTXhkaZ03bJ4RiqSN/v5PbyI77wWzSsznyQHB+e
+	MV86CDIYGp92vyrDEGL2FuwY72HugapAfS/Ub+ZeVnC6SsTKxElbz7CRgcCQ4Tbn
+	WqdYK6gjIazATmMIhjHRflkZlCB5HGTYK7mxuWqZ5NxWlSgVNCwXRja5eXL0gZ0D
+	dv+AKfhUOI2uBzbQ08wj9+staLvS2fRdbWptQFUHj6HJPfFer1pdvENUXOcrRASe
+	G2SIdsi7a7f8r66T52Xi5f8IZVsInLgI99Ci50mkvbx7MAXAcX1bA==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskgs55u5-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 22 Sep 2026 10:19:22 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68MA7wjT2045776;
-	Tue, 22 Sep 2026 10:19:21 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gt67gs9t5-1
+	Tue, 22 Sep 2026 10:19:24 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68MA3NCU2995419;
+	Tue, 22 Sep 2026 10:19:22 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gt7dy94u5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 22 Sep 2026 10:19:21 +0000 (GMT)
+	Tue, 22 Sep 2026 10:19:22 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68MAJHit28377420
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68MAJIwW30933698
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 22 Sep 2026 10:19:17 GMT
+	Tue, 22 Sep 2026 10:19:19 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5BCD020043;
-	Tue, 22 Sep 2026 10:19:17 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id D984720043;
+	Tue, 22 Sep 2026 10:19:18 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 12C2E20040;
-	Tue, 22 Sep 2026 10:19:17 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 93EEB20040;
+	Tue, 22 Sep 2026 10:19:18 +0000 (GMT)
 Received: from t83lp71.lnxne.boe (unknown [9.87.84.240])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 22 Sep 2026 10:19:17 +0000 (GMT)
+	Tue, 22 Sep 2026 10:19:18 +0000 (GMT)
 From: Nagamani PV <nagamani@linux.ibm.com>
 To: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
         kuba@kernel.org, pabeni@redhat.com
@@ -60,9 +60,9 @@ Cc: wintera@linux.ibm.com, aswin@linux.ibm.com, hca@linux.ibm.com,
         svens@linux.ibm.com, kees@kernel.org, linux-s390@vger.kernel.org,
         netdev@vger.kernel.org, Nagamani PV <nagamani@linux.ibm.com>,
         stable@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>
-Subject: [PATCH net v3 1/2] s390/ctcm: Fix timer corruption in fsm_addtimer()
-Date: Tue, 22 Sep 2026 12:19:12 +0200
-Message-ID: <20260922101913.239103-2-nagamani@linux.ibm.com>
+Subject: [PATCH net v3 2/2] s390/ctcm: Fix use-after-free in channel_remove()
+Date: Tue, 22 Sep 2026 12:19:13 +0200
+Message-ID: <20260922101913.239103-3-nagamani@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260922101913.239103-1-nagamani@linux.ibm.com>
 References: <20260922101913.239103-1-nagamani@linux.ibm.com>
@@ -75,100 +75,133 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: BGE3YdTzp6QTy7G87RG5h6b5x-hjI4dI
-X-Authority-Analysis: v=2.4 cv=EOCTQFZC c=1 sm=1 tr=0 ts=6ab2562a cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Authority-Analysis: v=2.4 cv=V/XoQuni c=1 sm=1 tr=0 ts=6ab2562c cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=c92rfblmAAAA:8 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
- a=T_NMYt6YcsbJOU4cA00A:9 a=GvGzcOZaWPEFPQC_NcjD:22
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIyMDE0NSBTYWx0ZWRfX7PX5YQuOCP+G
- TI53nyn6ypXr9ZVIawoSZKS/p61bs1fEDNXsIz3GMbyyfkvHSH3efVvjDJsRqEgH9Zsn7HyzDAr
- MEWuNH7xZRCUFrJsxgE3YJOXy6XIIOU=
-X-Proofpoint-GUID: aPAs5Lz1YvfUZYgOlw0JET3kzGtT0vHN
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIyMDE0NSBTYWx0ZWRfXxEJomm5BbdzM
- apMAz1YGfjZDg+Q6AHSOW+5Tihgbw4odor8wd0589mda8pBu9fNxAwSorOqvhTpKHmXmivRoLfP
- azcopKrJm0IpvuJ/koHTfog7Eb25rM1Xu4Z1ZMG8kk3tYzwI74ezqDAGoqiMRgYB99sLTvcg/w+
- WDpSpdyPbbyg3RtxOEyVByFbNDVa5LArSDZCue0G1Hn9cj7nEky3r3s4V0he+9qzDybcHEOJyap
- 87yAa+LMuUkum8oa6w9UpDUCTxZ4XbtrJ6I07oW/PuVJCLmMXTKYREGBZUXWlc4z4lcd48nnRNr
- OP+nz8J5gp2oS7ujLGqhzu2zh+zwlV9YMVRg9NiM6k1jG6mRtDwCQVAPKYlXMozihn5HFchLxlZ
- MN5443NxI4vUC62S+MXLH85/cBvuNglWJCpRSYjC0dDJciiIsQNliT91TNtl0bfx9WRUnfcu2F+
- s8gtfQfOxtRnGQfpbnQ==
+ a=U7nrCbtTmkRpXpFmAIza:22 a=c92rfblmAAAA:8 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=vvMWNJ4svd0Vc9r0P7sA:9 a=GvGzcOZaWPEFPQC_NcjD:22
+X-Proofpoint-ORIG-GUID: 60gZuBT_fD4UQXP40fZK_NBXjTbspf21
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIyMDE0NSBTYWx0ZWRfXy0rLOLCXKY08
+ YYAtXWP2yiyMt17yo8ojPNJ2hcsk7iy1PCjxbHrWXApnMrGTFXoj9cDFHvm5rG5hhGJlipp4+cm
+ 0mXF7VbYynY+56/sI+bKb9nZM8PiFauCWn9WDGgR4KcEhHsUAq50O6kYnDQYKg6+CaIOc0K4RUv
+ Wy0DaiAF8cOUwrtyJnthsmZ20yDhrR2RZYFpeKWZEmjvJKUlab71uw+qMt6ysbAmQRMwt2CXBD9
+ DSp2neoOYJ78MzQkUuMlf7ZLvC69rvvnYn+6e+LOUp4vXGFvuc6xTGb07xLKrxTykHuoZKLb1Jt
+ byqcKxbeRQQVOLTfEV2U9aRZCRcWHLfkjM6i7OdaHX7VzwlmaMPyRw3R5NmJXqq+ICZElxTciFn
+ z08bK1z7iZzzylMIdQwh2WEY3n/glQpagrp7RuARU0RJj3YThtPcuzJCEWYFYWyRb3wV2w1Tkvx
+ 6+4zhvxxtwlnt9FfRaA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIyMDE0NSBTYWx0ZWRfX28dGCOxUWYjB
+ v7jX30zkWtk7OCXNS4bmLz7NjQVxoIup5raQ6evlxKFQgwSVaGe25ZPzQyYFtAFBEVc7cn7xHrY
+ wxda4oxapuYH7AMuxKsi5WkXv4lssZ0=
+X-Proofpoint-GUID: uiI0-ym9hIrxCs59EvD5c2Y-1vdRqT54
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-21_07,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 phishscore=0 priorityscore=1501 clxscore=1015 spamscore=0
- adultscore=0 impostorscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
+ priorityscore=1501 spamscore=0 malwarescore=0 clxscore=1015 phishscore=0
+ bulkscore=0 adultscore=0 lowpriorityscore=0 impostorscore=0 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609220145
 
-fsm_addtimer() calls timer_setup() unconditionally before add_timer().
-If called on an already-pending timer, timer_setup() re-initializes
-the timer's list_head fields while the timer is still enqueued in the
-wheel, corrupting the timer list.
+channel_remove() calls fsm_deltimer(), which internally uses
+timer_delete(), then immediately frees the channel structure:
 
-The timer is already initialized once by fsm_settimer() which calls
-timer_setup() correctly. Multiple callsites invoke fsm_addtimer()
-without a preceding fsm_deltimer(), including ctcm_main.c
-ctcmpc_send_sweep_req() and ctcm_mpc.c mpc_action_side_xid(), making the
-redundant timer_setup() in fsm_addtimer() a real corruption risk.
+  fsm_deltimer(&ch->timer);
+  kfree_fsm(ch->fsm);       /* freed while callback may still run */
+  kfree(ch);
 
-Remove the redundant timer_setup() calls from fsm_addtimer() and
-fsm_modtimer(), and replace add_timer() with mod_timer() which safely
-handles both pending and non-pending timers atomically without
-corrupting the timer wheel.
+timer_delete() returns immediately even if the timer callback is
+currently executing on another CPU, creating a window where
+fsm_expire_timer() accesses this->fi (which points to ch->fsm)
+after it has been freed by kfree_fsm().
 
-Fixes: e99e88a9d2b0 ("treewide: setup_timer() -> timer_setup()")
+Fix this by calling timer_delete_sync() directly on the underlying
+timer_list fields before freeing, instead of going through
+fsm_deltimer(). This cannot be fixed in fsm_deltimer() itself because
+FSM action functions triggered by CTC_EVENT_TIMER call fsm_deltimer()
+from within the timer callback chain, which would cause a self-deadlock in
+timer_delete_sync().
+
+For MPC channels, two additional problems exist. First, freeing
+ch->fsm before tasklet_kill() leaves a window where ch_tasklet
+(ctcmpc_bh) or ch_disc_tasklet could access the freed ch->fsm. Second,
+ch_tasklet can re-arm sweep_timer via ctcmpc_send_sweep_resp(), and
+sweep_timer's callback re-arms ch->timer via ctcmpc_chx_send_sweep().
+
+Kill both tasklets before stopping the timers: this closes the freed
+ch->fsm access window and eliminates the tasklet-driven sweep_timer
+re-arm source. Then use timer_shutdown_sync() for sweep_timer to wait
+for any running callback and prevent further re-arms of ch->timer from
+sweep_timer. kfree(ch->discontact_th) is moved into this MPC block
+after tasklet_kill(ch_disc_tasklet), since mpc_action_send_discontact()
+accesses discontact_th.
+
+timer_delete_sync() is retained for ch->timer because normal FSM timer
+callbacks can delete and re-arm ch->timer; shutting it down would break
+normal operation.
+
+Patch 1 changes fsm_addtimer() to use mod_timer() without reinitializing
+the timer, which is required for timer_shutdown_sync() to reliably
+prevent subsequent re-arms.
+
+Backporting patch 2 without patch 1 is not safe because the old
+fsm_addtimer() reinitializes the timer with timer_setup() before
+add_timer().
+
+Fixes: 293d984f0e36 ("ctcm: infrastructure for replaced ctc driver")
 Cc: stable@vger.kernel.org
 Reported-by: Sashiko <sashiko-bot@kernel.org>
 Link: https://sashiko.dev/#/patchset/20260803182736.2356374-1-nagamani@linux.ibm.com?part=1
-Reviewed-by: Aswin Karuvally <aswin@linux.ibm.com>
-Tested-by: Aswin Karuvally <aswin@linux.ibm.com>
 Signed-off-by: Nagamani PV <nagamani@linux.ibm.com>
 ---
 Changes in v3:
-- No changes to this patch.
+- Kill ch_tasklet and ch_disc_tasklet before stopping the timers and
+  freeing ch->fsm: closes freed ch->fsm access from tasklet context and
+  eliminates tasklet-driven sweep_timer re-arm.
+- Shut down sweep_timer with timer_shutdown_sync() before deleting
+  ch->timer to prevent sweep_timer callback from re-arming ch->timer.
+- Move kfree(ch->discontact_th) after tasklet_kill(ch_disc_tasklet).
+- Drop Reviewed-by and Tested-by; please re-review and re-test the
+  new teardown order.
 
 Changes in v2:
-- fix function name ctcm_send_sweep() -> ctcmpc_send_sweep_req()
-  in the commit message (Sashiko netdev-bot)
-- call mod_timer() then return 0 explicitly, preserving the
-  "Always returns 0" contract documented in fsm.h (Sashiko netdev-bot)
+- add Fixes: and Cc: stable@vger.kernel.org tags (Sashiko netdev-bot)
 ---
- drivers/s390/net/fsm.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/s390/net/ctcm_main.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/s390/net/fsm.c b/drivers/s390/net/fsm.c
-index 9b8622aef807..936ed0bc8401 100644
---- a/drivers/s390/net/fsm.c
-+++ b/drivers/s390/net/fsm.c
-@@ -171,11 +171,9 @@ fsm_addtimer(fsm_timer *this, int millisec, int event, void *arg)
- 	       this->fi->name, this, millisec);
- #endif
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index 8b0d76a47d9f..5053737f11fc 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -211,9 +211,13 @@ static void channel_remove(struct channel *ch)
+ 	while (*c) {
+ 		if (*c == ch) {
+ 			*c = ch->next;
+-			fsm_deltimer(&ch->timer);
+-			if (IS_MPC(ch))
+-				fsm_deltimer(&ch->sweep_timer);
++			if (IS_MPC(ch)) {
++				tasklet_kill(&ch->ch_tasklet);
++				tasklet_kill(&ch->ch_disc_tasklet);
++				timer_shutdown_sync(&ch->sweep_timer.tl);
++				kfree(ch->discontact_th);
++			}
++			timer_delete_sync(&ch->timer.tl);
  
--	timer_setup(&this->tl, fsm_expire_timer, 0);
- 	this->expire_event = event;
- 	this->event_arg = arg;
--	this->tl.expires = jiffies + (millisec * HZ) / 1000;
--	add_timer(&this->tl);
-+	mod_timer(&this->tl, jiffies + msecs_to_jiffies(millisec));
- 	return 0;
- }
- 
-@@ -189,12 +187,9 @@ fsm_modtimer(fsm_timer *this, int millisec, int event, void *arg)
- 		this->fi->name, this, millisec);
- #endif
- 
--	timer_delete(&this->tl);
--	timer_setup(&this->tl, fsm_expire_timer, 0);
- 	this->expire_event = event;
- 	this->event_arg = arg;
--	this->tl.expires = jiffies + (millisec * HZ) / 1000;
--	add_timer(&this->tl);
-+	mod_timer(&this->tl, jiffies + msecs_to_jiffies(millisec));
- }
- 
- EXPORT_SYMBOL(init_fsm);
+ 			kfree_fsm(ch->fsm);
+ 			clear_normalized_cda(&ch->ccw[4]);
+@@ -221,11 +225,6 @@ static void channel_remove(struct channel *ch)
+ 				clear_normalized_cda(&ch->ccw[1]);
+ 				dev_kfree_skb_any(ch->trans_skb);
+ 			}
+-			if (IS_MPC(ch)) {
+-				tasklet_kill(&ch->ch_tasklet);
+-				tasklet_kill(&ch->ch_disc_tasklet);
+-				kfree(ch->discontact_th);
+-			}
+ 			kfree(ch->ccw);
+ 			kfree(ch->irb);
+ 			kfree(ch);
 -- 
 2.53.0
 
