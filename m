@@ -1,56 +1,57 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3E8949502A;
-	Tue, 22 Sep 2026 19:52:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 325524AA00D;
+	Tue, 22 Sep 2026 19:52:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790106725; cv=none; b=GdmKY+IRO0gIgkI05iw9iUtYNg7/H+5EtPmcQtlT7tMjmDkcP/OhZxTeUZx8SwxmVNDXjfdGboWUtvUHBykf1ruyIa55vhRtyRBTQnIDzqMHzn8ZJZwuD3dfXiSQIuBFVWU82r03ypQ6Z4ko8uUuu5uMPcRI2Z/DIT0vMZOlolw=
+	t=1790106729; cv=none; b=NvkENXeC/yHpXNfyWTRYUCW79VpcrmFKmWv4/rQa/IXpim7DSZqtB0K1uBk0VeQiOtRwOCtdhdFvJOA2xD4bnK2duUNbOJbbT6Baw60eyZ9diDZjxFesBI8Gtd0+RPuiuSvQhVs9PEa/8CmyMEt1ftr8pGsoPNen40uYUj+Qg9M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790106725; c=relaxed/simple;
-	bh=rO46+qCjXpkCxSolKr5Zydyt/pCFNQF2M7IstQo9H30=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=B1SAkwfZjNiencwZ+6mrlCjrNoioz+9ZNS1i/OrrK8ws+XEqwruwYZohhMA2lGYEMNh9XF41e28o+EF4pULGnfgKSH3kb8ORieaXM6a1CoKMhyJ9p7DzybFPlpTPTNwrOTCzPSH0ZQyONeJeeLnpN/l97BTzxtjOopfOwJFk3Kw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=V3c+aq1J; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1790106729; c=relaxed/simple;
+	bh=Pp7DmVHziTjsngerGzAzS9ggZnFeUelWoLtKn7VLkkA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=fDaAWJR1c0NIRjnt0qSTDrWxGjVnw6ImmFwVHdjV0KqRpv1FYLobQ6M3d9L2q8BuYX5UfVNgIjW1yM1hxrChjURDZrVYsXVCrBBK1RxIjPHMKZVr8qBE2eDUgcyNDVmsBjLQ87ynmNnpj6ye6pVEVtIK1wIia+WjOIuOGn2axlo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=e4n/7rka; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="V3c+aq1J"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68MI7bQg965141;
-	Tue, 22 Sep 2026 19:52:01 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="e4n/7rka"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68MI7YaV1129430;
+	Tue, 22 Sep 2026 19:52:05 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=I6Dz1pScvuchOON2TsOXdwLzSDjb2wOmqPU1mfIgg
-	6o=; b=V3c+aq1Jcz1ih4tLfakFsWrgc4yJs1Eka77qj8XVe2D1Z60ljHnu9TfL1
-	apfw8exsKcuhthuV23L9I9VEQH6CF4ColVn85oHl6TrNX4aiUEjZxtocdB+qnpWP
-	MWSZZ+XHdDXIE9CL2JyQqOHTEN5KccHQXm4MoHXJy9tmpCE2Hw0gPdm2nJLMaIND
-	vLOIWZLrgcEuq49RvG2zOZytpvM/jhr+5yfq6LYZiueXJ8M82+SDoHvypO+WcoDT
-	jPE6c3srRiK+jP7M/cDGjkP6aWjg5h3Gu+wJnh28Sjs5XsJqQT6uaNlAw1ufxNQv
-	CU6tWQQ+FWR3goLkqDcAQKCWWueGg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gske1fdtw-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=l0eLohf0bZd7cQUOX
+	391fnN0GQ8lLsDWvhUe+M+IiXM=; b=e4n/7rkapL8p9VU6Kw2FRsZ/PMQNbFEjH
+	0RW3lMTumo2Qp8HBh2mKGboiu2sqQDzGdAWC3HgPVmnhJ2WRsHhN+CSCWvy8N6QO
+	loNdmL2fMWH6R7BmrUbSEZn0ctOpfYsCgNtI9YTel8vUJ7dZO8NpvmiDjBpJsFZ8
+	u4YEAEHZvqFl7t8r2p3SxjrY2AUCxKx592rRuOELj8RVFe2fL0ld/FHa75wsVrqk
+	KA8o/0OmnSoD+2SZiiHN1eZAjz1gQ6wVU4DrJl2SmxLOx8HtZpJ3CWKVEwQtru/V
+	6jyV7KyJie/FrnL22GvVA5c5uXMuXIdn6VsGu6sRvTWj54sC3pEwA==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskgs7pr7-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 22 Sep 2026 19:52:01 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68MIHX0I3239749;
-	Tue, 22 Sep 2026 19:52:00 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gt67gu66y-1
+	Tue, 22 Sep 2026 19:52:04 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68MIHXBq4187956;
+	Tue, 22 Sep 2026 19:52:04 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gt7dyb171-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 22 Sep 2026 19:52:00 +0000 (GMT)
+	Tue, 22 Sep 2026 19:52:04 +0000 (GMT)
 Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68MJpw7x30474752
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68MJq0hR22413912
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 22 Sep 2026 19:51:58 GMT
+	Tue, 22 Sep 2026 19:52:00 GMT
 Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 74BFC58050;
+	by IMSVA (Postfix) with ESMTP id 8F02058052;
+	Tue, 22 Sep 2026 19:52:00 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A2BD358045;
 	Tue, 22 Sep 2026 19:51:58 +0000 (GMT)
-Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9F37F58045;
-	Tue, 22 Sep 2026 19:51:56 +0000 (GMT)
 Received: from Mac.ibm.com (unknown [9.61.246.118])
 	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 22 Sep 2026 19:51:56 +0000 (GMT)
+	Tue, 22 Sep 2026 19:51:58 +0000 (GMT)
 From: Omar Elghoul <oelghoul@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org
@@ -58,11 +59,13 @@ Cc: oelghoul@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
         agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
         schnelle@linux.ibm.com, mjrosato@linux.ibm.com, alifm@linux.ibm.com,
         farman@linux.ibm.com, gbayer@linux.ibm.com, pasic@linux.ibm.com,
-        alex@shazbot.org
-Subject: [PATCH v7 0/4] vfio-pci/zdev: Improved zPCI Function Measurement Support
-Date: Tue, 22 Sep 2026 15:51:37 -0400
-Message-ID: <20260922195141.94548-1-oelghoul@linux.ibm.com>
+        alex@shazbot.org, stable@vger.kernel.org
+Subject: [PATCH v7 1/4] s390/pci: Hold fmb_lock when enabling or disabling PCI devices
+Date: Tue, 22 Sep 2026 15:51:38 -0400
+Message-ID: <20260922195141.94548-2-oelghoul@linux.ibm.com>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260922195141.94548-1-oelghoul@linux.ibm.com>
+References: <20260922195141.94548-1-oelghoul@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -71,155 +74,91 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: o_tWGYj_dUNR6t1isvgECCU0FkapIX98
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIyMDI4NyBTYWx0ZWRfXwJenkal3EMj3
- csnCHlZ/JuLheLE/oVviw8LhrMGP8MbkWKDRm/BJ/ZpfddBZ6mttsqIlE0pCtEufypuxxxujjel
- eOW9SfGpNrX2SyZNWjsldRBa/Cz0bXX71+zYCBXvPl/cT/5Wk3WhIMxbkBGPC+pzGonBAdbxi4C
- 0jly7ZdyLvAlFMVJey5vwWePt/nqsQBpv/NZm3V33d6K0syJgaRd/ofWKZap8i0sm/Xd36sBKXu
- 05MqYI3CMI+cN7j8mY0RusMGRRp0xiMHW/QahwQzd+YvPuP9SF8VcSjmBHS3CaROynpO8kXg8jW
- fbm3Lz/GibTL7B3u5cQArs3JXKsiZCavykqd5BgEBr+Uz3M6I/KDbujenNuD7ChT0jwyCEGGEMt
- tKs2lBKiMLsx0eRejRriGINDNrX+O1MVTSdqG6cksqt96kjmwU0zcgnb7b++9w45hdRUxQ3CuP5
- pYwBBo4Uvn3xPpYhWTw==
-X-Authority-Analysis: v=2.4 cv=O/KsLx9W c=1 sm=1 tr=0 ts=6ab2dc61 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Authority-Analysis: v=2.4 cv=V/XoQuni c=1 sm=1 tr=0 ts=6ab2dc64 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=Or8v72Ccw2kqKKHgtsQA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIyMDI4NyBTYWx0ZWRfX2GsqnO54K1yO
- rSziFV53+h290oA4jskTPnl5vHM/oe/SBdehqgRdfmpBfh4DDSGZJqbSTzUkECthGgMnIxwnOsn
- 2QhdvOTjptsbZZicuCzZuTl/GqW1NJs=
-X-Proofpoint-GUID: o_tWGYj_dUNR6t1isvgECCU0FkapIX98
+ a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=5NbLduwtq9nBFWGw9KEA:9
+X-Proofpoint-ORIG-GUID: pUtK9MOx1B4o5gEc8rvbYhz92H4Cw3-P
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIyMDI4NyBTYWx0ZWRfX4ZauGVkn30ac
+ D95qT4W89GF7FnruTibbSf5jpIUJV8BBmIWN45UM5BmMCw0D+ClfELeBuVMyXcJZqJPqlRBFB5b
+ APEyW/wbt0ZZWV2oLlV8RzK3Hus9SXgCTxBqbdY/88yqEuetEnOLxj6Cba4UrMLZnq4VuNOngdr
+ T7hoXaPFTHiONI14BVOGmMSitzJOEFMywLxPWkpLharq7H/E3uEzwCCJpz0WqwX58tXdR0+zWYC
+ g5whu9lH5q6HTFgdLoZtU2j7QjEzaR84Xz188GS1sW0jtOAufTt5nrl+OkviEWgXNLJdtNL1/ZY
+ /C091gVmi+g7ZrNw3ywQytPRPEJ//JJI8FnCluhzjeiNKUh6SlkUahhDX2BQOD2OQeqonJ6bDxe
+ Y0rW+VikJxpvA1qw9+RmZsUjFDfUH5Ui2cjbcOt4s+DS14Wnzu/gGnQo8jE3XMsLfqzs5DkgyvD
+ /UgiFTlFS9wLA9W8lrw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIyMDI4NyBTYWx0ZWRfXz59whd5j98cF
+ K8zBC8muAK69RJPrApNF5nTlI+UNJTcJ/L8CcEoMGDwm0jBTrfAwcJNJ8ORooTZQw6jksXFrBvK
+ FkkWRojsoMYfEeza9ARtnThQJ92Ww2s=
+X-Proofpoint-GUID: pUtK9MOx1B4o5gEc8rvbYhz92H4Cw3-P
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-22_03,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 malwarescore=0 phishscore=0 impostorscore=0 suspectscore=0
- bulkscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0 spamscore=0
+ priorityscore=1501 spamscore=0 malwarescore=0 clxscore=1015 phishscore=0
+ bulkscore=0 adultscore=0 lowpriorityscore=0 impostorscore=0 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609220287
 
-Hi,
+Ensure that fmb_lock is held by pcibios_enable_device() and
+pcibios_disable_device() when calling zpci_fmb_enable_device() or
+zpci_fmb_disable_device(), respectively. Additionally, assert that the
+fmb_lock is held within the latter two functions to prevent future race
+conditions regarding new callers.
 
-This patch series improves support for function measurement for zPCI
-passthrough devices on s390.
+Fixes: af0a8a8453f7 ("s390/pci: implement pcibios_add_device")
+Fixes: 944239c59e93 ("s390/pci: implement pcibios_release_device")
+Cc: stable@vger.kernel.org
+Signed-off-by: Omar Elghoul <oelghoul@linux.ibm.com>
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+---
+ arch/s390/pci/pci.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Changelog
-=========
-v6 -> v7:
-* Patch 2/4:
-  - Don't re-enable FMB if it wasn't already enabled
-
-v5 -> v6:
-* Patch 2/4:
-  - Rework the FMB re-enablement code to reuse the same buffer again
-  - Make the FMB buffer persistent once allocated for as long as the
-    device's lifetime to accommodate an architectural quirk
-* Patch 4/4:
-  - Update the liveness check to use the new FMB enabled bool
-
-v4 -> v5:
-* Typo in the cover letter
-* Swap the ordering of patches 3/4 and 4/4 to ease merging (i.e., to
-  ensure the three s390 patches are ordered before the VFIO patch)
-* Patch 2/4:
-  - Drop the refactor of zpci_fmb_enable_device() and the separation of
-    zpci_fmb_clear_iommu_ctrs() and zpci_fmb_do_enable()
-  - Allocate a new buffer in zpci_fmb_reenable_device() rather than
-    reusing the same buffer to avoid firmware edge cases
-
-* Patch 3/4 (previously 4/4):
-  - Avoid reading from userspace while holding kzdev_lock unnecessarily
-
-* Patch 4/4 (previously 3/4):
-  - Drop allowing usercopy of the FMB when initializing the kmem_cache
-  - Avoid copying to userspace while holding fmb_lock unnecessarily
-    - Restore the FMB bounce buffer to achieve this one
-  - Clarify uAPI documentation and ensure it accurately describes the
-    behavior of the VFIO features
-
-v3 -> v4:
-* Patch 2/4:
-  - Replace mutex_lock/unlock in zpci_reenable_device() with a guard
-
-* Patch 3/4:
-  - Allow usercopy of the FMB when initializing its kmem_cache
-  - Move the guard in vfio_pci_zdev_feature_fmb_enable() lower to only
-    protect the FMB
-  - Ensure vfio_pci_zdev_feature_fmb_enable() fails on double-enable for
-    consistency with the documentation
-  - Eliminate the bounce buffer in vfio_pci_zdev_feature_fmb_read()
-  - Replace the void pointer with __aligned_u64 in the FMB read uAPI
-    structure
-
-v2 -> v3:
-* Patch 1/4 (new patch):
-  - Fix race conditions in pcibios_enable/disable_device() with regard to
-    the FMB enable/disable
-  - Assert that fmb_lock is held within zpci_fmb_enable_device() and
-    zpci_fmb_disable_device()
-
-* Patch 2/4 (previously 1/3):
-  - Move the FMB enable logic into a static function zpci_fmb_do_enable()
-    to reduce code duplication between zpci_fmb_enable_device() and
-    zpci_fmb_reenable_device()
-  - Reword commit message to use the imperative voice more consistently
-
-* Patch 3/4 (previously 2/3):
-  - Split the previous VFIO feature into a SET-only and a GET-only feature
-    for enabling/disabling and reading the FMB respectively
-  - Remove FMB definitions from the VFIO uAPI and instead treat it as an
-    opaque structure
-
-* Patch 4/4 (previously 3/3):
-  - Clarify goto label name to reduce misunderstandings
-
-v1 -> v2:
-* Patch 1/3:
-  - Address a possible race condition in zpci_reenable_device() caused by
-    calling zpci_fmb_reenable_device() without holding fmb_lock
-  - Assert that fmb_lock is held within zpci_fmb_reenable_device()
-
-* Patch 3/3:
-  - Address a possible race condition in pci_perf_seq_write() caused by
-    consuming zdev->kzdev without holding kzdev_lock
-
-Motivation
-==========
-The firmware on s390x machines allows for tracking a variety of statistics
-relating to zPCI devices in a function measurement block (FMB). However,
-the kernel currently lacks a structured mechanism of sharing this
-information with userspace, beyond /sys/kernel/debug/pci/ID/statistics.
-This can lead to shortcomings when running a guest on KVM with PCI
-passthrough devices, as QEMU is unable to provide an accurate FMB snapshot
-to the guest.
-
-Proposal
-========
-We propose adding a new VFIO device feature to zPCI passthrough devices,
-allowing userspace programs to read the latest FMB snapshot as it is
-written by the firmware. We ensure that function measurement enablement is
-preserved across device resets on the host. Furthermore, we guard against
-host tampering with the FMB via sysfs when the zPCI device is in
-passthrough to protect the VM's state.
-
-I'd appreciate some feedback on these patches.
-
-Thanks in advance.
-
-Omar Elghoul (4):
-  s390/pci: Hold fmb_lock when enabling or disabling PCI devices
-  s390/pci: Reuse FMB buffer and preserve state in device re-enablement
-  s390/pci: Fence FMB enable/disable via debugfs for passthrough devices
-  vfio-pci/zdev: Add VFIO FMB device features
-
- arch/s390/include/asm/pci.h      |  2 +
- arch/s390/pci/pci.c              | 85 +++++++++++++++++++++++++-------
- arch/s390/pci/pci_debug.c        | 11 ++++-
- drivers/vfio/pci/vfio_pci_core.c |  4 ++
- drivers/vfio/pci/vfio_pci_priv.h | 18 +++++++
- drivers/vfio/pci/vfio_pci_zdev.c | 60 ++++++++++++++++++++++
- include/uapi/linux/vfio.h        | 29 +++++++++++
- 7 files changed, 191 insertions(+), 18 deletions(-)
-
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index d64c544b32b0..c055a9ad0972 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -173,6 +173,8 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
+ 	unsigned long flags;
+ 	u8 cc, status;
+ 
++	lockdep_assert_held(&zdev->fmb_lock);
++
+ 	if (zdev->fmb || sizeof(*zdev->fmb) < zdev->fmb_length)
+ 		return -EINVAL;
+ 
+@@ -211,6 +213,8 @@ int zpci_fmb_disable_device(struct zpci_dev *zdev)
+ 	struct zpci_fib fib = {0};
+ 	u8 cc, status;
+ 
++	lockdep_assert_held(&zdev->fmb_lock);
++
+ 	if (!zdev->fmb)
+ 		return -EINVAL;
+ 
+@@ -639,7 +643,9 @@ int pcibios_enable_device(struct pci_dev *pdev, int mask)
+ 	struct zpci_dev *zdev = to_zpci(pdev);
+ 
+ 	zpci_debug_init_device(zdev, dev_name(&pdev->dev));
++	mutex_lock(&zdev->fmb_lock);
+ 	zpci_fmb_enable_device(zdev);
++	mutex_unlock(&zdev->fmb_lock);
+ 
+ 	return pci_enable_resources(pdev, mask);
+ }
+@@ -648,7 +654,9 @@ void pcibios_disable_device(struct pci_dev *pdev)
+ {
+ 	struct zpci_dev *zdev = to_zpci(pdev);
+ 
++	mutex_lock(&zdev->fmb_lock);
+ 	zpci_fmb_disable_device(zdev);
++	mutex_unlock(&zdev->fmb_lock);
+ 	zpci_debug_exit_device(zdev);
+ }
+ 
 -- 
 2.55.0
 
