@@ -1,127 +1,184 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 845034F391B
-	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 10:35:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 608F6409275;
+	Tue, 22 Sep 2026 10:54:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790073310; cv=none; b=jt9VORFbBSkOV+ALI2hG88+Fo2dImra/11m84jHW6OVw2tz3lAmhklYG54d8ARHOAz4Spa5ILWmxY9cZW2+wvZIv2qAYZJmHd6sheRDsnQh2kRRU6+xc+ae+9ydO0WAZcXVCOBpfWTnJN6jOk840E0f60ZO5Mw2UAEMDRCjmEyo=
+	t=1790074479; cv=none; b=Nnft7vaLQNyvacCejAzckSZg64eUQJgVcccuNPHdGo6f1NmCUdV/0FBtK3hRNmQDSFr+H8UCgTx6epd0wTK/W2Kbm/0DKAzUPHR83mTR9nBIrxTaRaMaOioG+5P4PaA9jKLjjP7yjCtMALbgd2S8vIB+x5Qm+T7b/4WT547XWl0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790073310; c=relaxed/simple;
-	bh=9SPKXdejKSVe59K2K32lnllXmGoWbDx0Aqxb4rmcRrI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YcwSrXyJ+N+9nkZLdDNLvObbo2+SGmTCGmXSsH51Pk6GusSZKj7gOiJ9uhtNsJJVvzrckNhp7poGeQ/xoGyn4B99BSeQCiInDM1esgnViBfWdpZ0w7vPXyiFUQDNx5cr7NgWIRbg5t538v0PZLdIHhW7LHqy8P7By/+bfnxqFWQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PVoYWfJf; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1790074479; c=relaxed/simple;
+	bh=oJwNptDZcD5/WvZrtVwL7zTqFDuJc9l2duAZ3uiRITg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Irj6uUMqpg3ILlTljBHZ6XPTnWyWI35ecJKr75iOuU53ciW58sdfvgSMWY2O1Vv3+naZ9Btkbr1bzxf4fyBSolOIKiJRDpLrdGFHD0C5jAw7/N4YRg5hmsYJ/z6zZuAAR88eB+GXjKSe55Msfb+hKntvtWYBvZexp+83adZY70U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Fa9jPokF; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PVoYWfJf"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68M05M3H2939911
-	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 10:35:07 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Fa9jPokF"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68M05ZIA2980352;
+	Tue, 22 Sep 2026 10:54:27 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=95133OOphoqyG0VO76Jd8QTqNDfQ+J
-	M/2XwWO1ppHSU=; b=PVoYWfJfk2T40eh0siAKFZhnUNJ98c5LjYeowlH2zg6RBB
-	FnHz1F/I8xFtNMb/HAX9H5SLkkEJlF9lUrxstzFK5TnbzWkY3NcRf7WXCCy9u5AB
-	xr54Amlf88asrhzCV7aeXyMdMU6DDHSyZy5lTEk1nUWyZ9e6Up+irVAQgdJSrPx4
-	mc4vd5fzHbbWIC5CfLz45IvZzrAqB9LXytXE1nhIMghzjqA+wvoE2GqFYijF0AMU
-	LKA+BdcIP2fCedqi6d1jql26DjO7bKbX36PssTCjvxhkwW71OLSseRR4IDymoaOP
-	GfbokRE4ze/wc85wZCQV5GRPrAz/JPMyCfLZhvAg==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskg2d8de-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 10:35:07 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68M9xZsp2995401
-	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 10:35:06 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gt7dy964w-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 10:35:06 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68MAZ29x49873256
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ww5/Xb
+	xna6uERz6s5dtWeyVzbQpR9YLcjUoFn223sgk=; b=Fa9jPokFTNXoFgMxfBKeQw
+	9tb5pU+1J/9xUje+rJxAKIGMslC8twW/RUsIfkW2VAuXSx2/LiIo2XoLx5oNmTNF
+	yWgZt1oT+9wkYMZwTledDVtvCIZrU6vzRXSViVhx1J0EX/XepXldYphQLsrRoRxF
+	7FXWaYnuvGNewCKEA6YPz18IuUoTjJA1r+RugT8R40uWLhImQiar3OcyCueR9e4J
+	EIevfOilqmgxjjnYaFEAooq4qYyxdghRuIiiqHjQSjkiyfExKJ0kdVdvm3f+hp5h
+	mYhUqgYXoLHGQ6wQRbihSms3j/ewygRstqK+82u/DLj+/xTDmXmzJGI9shziorsA
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskdv510s-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 22 Sep 2026 10:54:26 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68MA4JAf2002282;
+	Tue, 22 Sep 2026 10:54:25 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gt5qjsest-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 22 Sep 2026 10:54:25 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68MAsLMw47120810
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 22 Sep 2026 10:35:02 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C9D5A20040;
-	Tue, 22 Sep 2026 10:35:02 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8F0AC2004D;
-	Tue, 22 Sep 2026 10:35:02 +0000 (GMT)
-Received: from osiris (unknown [9.87.153.113])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 22 Sep 2026 10:35:02 +0000 (GMT)
-Date: Tue, 22 Sep 2026 12:35:01 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>
-Subject: Re: [PATCH v2] s390/debug: Fix NULL pointer dereference in
- debug_info_copy()
-Message-ID: <20260922103501.10121Aba-hca@linux.ibm.com>
-References: <20260916160626.1988684-1-zaslonko@linux.ibm.com>
+	Tue, 22 Sep 2026 10:54:21 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9425520043;
+	Tue, 22 Sep 2026 10:54:21 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EAB2020040;
+	Tue, 22 Sep 2026 10:54:17 +0000 (GMT)
+Received: from [9.39.20.68] (unknown [9.39.20.68])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 22 Sep 2026 10:54:17 +0000 (GMT)
+Message-ID: <cca9b841-2719-4691-943c-d2aa7d7d98ae@linux.ibm.com>
+Date: Tue, 22 Sep 2026 16:24:16 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260916160626.1988684-1-zaslonko@linux.ibm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v2 0/2] s390/ctcm: Fix timer bugs in fsm.c
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        pabeni@redhat.com, wintera@linux.ibm.com, aswin@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, kees@kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org
+References: <20260907144511.3810194-1-nagamani@linux.ibm.com>
+ <20260916132149.4185912-1-nagamani@linux.ibm.com>
+ <20260921161519.17f77cae@kernel.org>
+Content-Language: en-US
+From: Nagamani PV <nagamani@linux.ibm.com>
+In-Reply-To: <20260921161519.17f77cae@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 36mt5-hQ3ZX5UVJUqqC-H3FpPkuZ520v
-X-Authority-Analysis: v=2.4 cv=I43w19gg c=1 sm=1 tr=0 ts=6ab259db cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=gheRGZjsO9QmUI7mxtoA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIyMDE1MiBTYWx0ZWRfXwwLkbvVeSO2E
- /a9819T27OXWbfgqzu1EHvpM1pcksT20RdQ0x4alnBQxWjnosxi0laUAPggvCeUcsnssfxik5FE
- CiAqiKmZEKi/pXfz79NYSEEp4QDpc1qFCN8ea77pPukHrrYzJUbgFWfxYi/Gdf8JjfmM5osHG2j
- o94mZYLV6M9XAeS9GmkDxXNnMRBgV2kyYDMvmVQJns1uXSuJcfYto5LL/JkjcYJk6Yg1ud+S/pT
- LHITttDt8q9tLjb+O2O50LNeXMdjGXUcqF6TatT/oqWJF+KK1R9dmlqJYHfmwcbuAlfo1ztwXyM
- 0Q50RP/dPewFRw5qZbPj1eKF0Z5FrLgvuqwKznBU7WJ/Q9ns00nEeSpVey2hAr7DmZWrwJdAd9v
- BgyDSenni44memOLaqf+e8/tZo/hNEfEJE1nPGM3KAlkZLKg/EJF9Ev+H0aNSlQLzocr2rAkTvq
- l00sf80zfbCNS1/fJXw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIyMDE1MiBTYWx0ZWRfXxWINBcq+ydin
- dhl8So9gz/X08KsaXcg0HVjGzBlTmH7zA3cR+X9Yd65duZ6CVOFv9aEM5iFHXBMxNpBXojJ/M0G
- /2AOGXzFowHcOCy+gWPMwpfG++pIt6g=
-X-Proofpoint-GUID: 36mt5-hQ3ZX5UVJUqqC-H3FpPkuZ520v
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: 45K6JPrXP6KjSpYEBAf-8J7JuMAwwlp-
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIyMDE1MiBTYWx0ZWRfX09QxjKQ4FvHs
+ 9BtOImu5MdUtOY9+l1mGK7fIOphJHENeIJ7ylt3rAzhI1wXL4F4XPyFYDOKGb2XP6pZqqmJrTJ/
+ UJpxA5PCJ1H4RAXcgV11jjOmtjI03HM=
+X-Authority-Analysis: v=2.4 cv=FLiOVOos c=1 sm=1 tr=0 ts=6ab25e62 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=9R54UkLUAAAA:8
+ a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=DMUOFhj9m736tlyUx-QA:9 a=QEXdDO2ut3YA:10
+ a=YTcpBFlVQWkNscrzJ_Dz:22
+X-Proofpoint-GUID: CtO8W81s9c5Ec54rVBiO-SMfEpt5BW61
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIyMDE1MiBTYWx0ZWRfX7bLhAw3TM9bK
+ 1gz0mJPMLKocDLp5wtyKHElJcl8UwYLGFEl+vZawl3plm4AjqVTAoy2nZA5MkDBNIQaOXT5TAQ9
+ vCIgOF7P93b2Fw0klzYgwow/AyefnS/afnThCzoBSllIoj9S2LhbcH8pVE4IxUi6drWpCRTdEHY
+ gNOD20ewCgijWRwitw/x/x58GUxqkIlILElYb2VJd2GdNe0rnJxh9uOyFxT80hPAH5d1E61fZy0
+ ea0cf/ZUwpvT5wLgRbccvPVFaOR5rl9ric1jGOuWjWOM0ekuwooj6MSUC3fb8uHtlBj1hAwCjID
+ FR8UjjKObWPzyoFiGT3UmsPvdXEgJt9C/UYhKmphnv1VIzdWndCr43Zu+cPI8EIYP6O9ayKMM+U
+ pVtO6lIUpCJ2Sa1ACNedv2IEFCFfhfcL/FTHCLPX45oA9Tk0X4zvC/D9lH8fF6gzf0Rlyx9jNkd
+ kVZDF6Ox/VlMy52QeIw==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-21_07,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 clxscore=1015 adultscore=0 suspectscore=0 impostorscore=0
- lowpriorityscore=0 bulkscore=0 phishscore=0 priorityscore=1501 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609220152
+ adultscore=0 impostorscore=0 phishscore=0 spamscore=0 clxscore=1015
+ suspectscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
+ definitions=main-2609220152
 
-On Wed, Sep 16, 2026 at 06:06:26PM +0200, Mikhail Zaslonko wrote:
-> When debug_register_static() fails, it clears areas, active_pages and
-> active_entries but leaves the area bounds unchanged. Copying such an
-> area, either by opening its view file or via debug_dump(), makes
-> debug_info_copy() dereference the NULL pointers.
-> 
-> Skip the copy loop when the source has no areas.
-> 
-> Closes: https://lore.kernel.org/r/20260903132123.12F271F00A3F@smtp.kernel.org
-> Fixes: d72541f94512 ("s390/debug: add early tracing support")
-> Signed-off-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-> ---
-> v2:
-> - Different approach: check the areas pointer in debug_info_copy()
->   instead of zeroing nr_areas/pages_per_area in debug_register_static().
->   Zeroing nr_areas made debug_info_alloc() return ZERO_SIZE_PTR for
->   active_pages/active_entries, which debug_to_act_entry() dereferences
->   before debug_prev_entry() checks id->areas.
->   Checking the pointer also matches what all other readers in this file
->   already do.
-> - v1: https://lore.kernel.org/all/20260910104525.3788362-1-zaslonko@linux.ibm.com/
-> 
->  arch/s390/kernel/debug.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
 
-Applied, thanks!
+
+On 22/09/26 4:45 AM, Jakub Kicinski wrote:
+> On Wed, 16 Sep 2026 15:21:47 +0200 Nagamani PV wrote:
+>> Fix two bugs in drivers/s390/net/fsm.c found by Sashiko AI code review.
+>>
+>> Patch 1 fixes timer list corruption when fsm_addtimer() is called on
+>> an already-pending timer - timer_setup() re-initializes the timer
+>> list_head while it is still enqueued in the wheel.
+>>
+>> Patch 2 fixes a use-after-free in channel_remove() - timer_delete()
+>> returns before any running callback finishes, leaving a window where
+>> the timer callback can access freed memory. Fix by waiting for any
+>> running callback to complete before freeing the channel.
+>>
+>> Changes in v2:
+>> - Patch 1: fix function name ctcm_send_sweep() -> ctcmpc_send_sweep_req()
+>>   in the commit message (Sashiko netdev-bot)
+>> - Patch 1: call mod_timer() then return 0 explicitly, preserving the
+>>   "Always returns 0" contract documented in fsm.h (Sashiko netdev-bot)
+>> - Patch 2: add Fixes: and Cc: stable@vger.kernel.org tags
+>>   (Sashiko netdev-bot)
+> 
+> Clashiko won't respond because of the unnecessary threading,
+> but there are 4 high severity findings needing your attention:
+> 
+> https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260916132149.4185912-3-nagamani@linux.ibm.com
+
+Thank you for the pointer. I have reviewed all four High findings.
+Two share a root cause and are addressed in v3, sent Tue 22 Sep 2026
+as "[PATCH net v3 0/2] s390/ctcm: Fix timer corruption and use-after-free"
+<20260922101913.239103-1-nagamani@linux.ibm.com> (raw). The remaining two
+are pre-existing issues outside the scope of this series and will be
+fixed in a follow-up patch.
+
+--- Findings addressed in v3 ---
+
+1. [High] ch_tasklet re-arms sweep_timer after timer_shutdown_sync()
+   returns (Sashiko patch 2/2, finding 2):
+
+   ch_tasklet (ctcmpc_bh -> ctcmpc_send_sweep_resp) can re-arm
+   sweep_timer after timer_shutdown_sync() returns because the v2 patch
+   killed tasklets after stopping the timers.
+
+2. [High] kfree_fsm(ch->fsm) before tasklet_kill() races with a running
+   tasklet accessing ch->fsm (Sashiko patch 2/2, finding 5).
+
+   v3 fix for both: kill ch_tasklet and ch_disc_tasklet first, then
+   timer_shutdown_sync(&ch->sweep_timer.tl), then
+   timer_delete_sync(&ch->timer.tl), before freeing ch->fsm.
+   kfree(ch->discontact_th) is also moved into the MPC teardown block
+   after tasklet_kill(ch_disc_tasklet).
+
+--- Pre-existing findings tracked for follow-up ---
+
+3. [High] grp->timer / priv->restart_timer not cancelled before free in
+   ctcm_free_netdevice() (Sashiko patch 1/2 finding 2, patch 2/2
+   finding 1): predates this series (commit 293d984f0e36), out of scope
+   here. Will be fixed in a follow-up patch.
+
+4. [High] NULL deref on peekskb->len in ctcmpc_chx_txdone()
+   ctcm_fsms.c:1299 (Sashiko patch 1/2, finding 1): skb_peek() returns
+   NULL when collect_queue empties. Predates this series. Same
+   follow-up patch.
+
+--- v3 summary ---
+
+  Patch 1 (fsm.c): unchanged from v2.
+  Patch 2 (ctcm_main.c): tasklet_kill() moved before timer stops;
+    kfree(discontact_th) moved into the MPC teardown block.
+
+Aswin Karuvally will review and test the new teardown order.
+
+Nagamani
