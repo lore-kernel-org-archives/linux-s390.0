@@ -1,69 +1,66 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1524B3F9264
-	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0ED825B0BE
+	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790059392; cv=none; b=CiH+rNFg81rbDKurdEtgT43fiK1M8tVSmJVXGjDoRgcmUeLeGGlI7RUoDiHWO/3bkOql/MW8AYn+EVKFOrH57hzt440yMGfPuFgSLJS9bWck/+OjL8z7GH/d0json0LocljGems6BAS8TTDE7zNnHSvnku6nNFv5ELW4o0F/Ye4=
+	t=1790059397; cv=none; b=qdK5p5xf0g6bTWPAB8+/1u0D4OUZZjqgH/iuFXvZSG8C77ZmrYYb0mDksI6H0n8HZT/IY8rk/vAyc0umaUiJt2RaH/bZpc0VgdvSp4NsB6t1B42OrjuNZZ0V6RzM0LnaVFQ7DJyFW/58yMFdTplP3ISmB25RjHngeyUprrYIZUI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790059392; c=relaxed/simple;
-	bh=jkM38InhHKHNA6pX5VHjMIajS/yUwUSFaOUEEwiMZXM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CBMgPrk980be8Qbdik0hSlQd7Yd+M+qn8nmCZb3o4RR6L6mTsOSFyp0dpaQ7c4ku0WQq25GnDcuTzCPQq8HtOqOREgxHnRquxeqxoNrqV61RNx9lqFHJ+zcq3seHn8AvMBE6sm56gL8PlNeNmzJqmYdYZ+lc6FoYcp29qrUU/fk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hsvbidX9; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1790059397; c=relaxed/simple;
+	bh=qxL4lJARFJsM5VOa2oANkO5gnVKjhePxLBvV0Y+8LUQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jfrW1LvQr+wx0sKjBnc0YDv3z8c/56JKmOHCt43FJWwJMWvCODSD21aN20OVQwjih76LJVVs7GcoJqxYn/QzgwDJNiQec9vbLc9+RqN1+OU42DHZD8bDHDjcusVtYz08fi4WYXwx//KS7EDFqQyvuYOuQ5LULAatBZnaj1+1WDE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gGOs8ZD4; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hsvbidX9"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68M05VuW2948544
-	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:10 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gGOs8ZD4"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68M05TGN2980281
+	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:14 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=5pGaJ1ZbF12suQoo7
-	l4VpQY1U/1I/YQJN4KjQUr7g60=; b=hsvbidX96/+/KW9m2/c3lMMjOYjDVgYtp
-	mHOJag0ZwT2X24/ZYxjyhG2KHylC9sf4t6HdzzkcIHHfJljP++ZNpEN5mGb4WWZx
-	q4YPZ5EfMyThNKbvOj8/W6nVSh5787ge+Z6E44gwqhy2pCBxo8OhEC/zEYx6uY3Q
-	h/wQ5g8GSWE8SWVfGbAnDfsGti7v+gq40Wh51TZrRHLpFraDEXcFVym+X6oM0gNi
-	oom661TRu5po9oppS8pJxep4nUPVBj/q/ftWCgLen3ZewvcXUrJgJOX9CNfo/OEo
-	hwACN37edyN6Iyk61ua+w+iOvHl0k0DfSWOM3Gx8ypaMEpo/BYsiA==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskgs4b47-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=5WXC8q91IFZF9F3Ie5iKsJbH5D2JghvWlW8WqDLx5
+	1c=; b=gGOs8ZD4YQ5o47PFJwETfOqC14KR7DN30VkTOYsqhEZBAfB2Pxw0k0R1G
+	REg4zm8AZZ6WkeDFuJoqzMNRDO0QmWGYqkw4RXddBIoluv9iTTNl4UrDODVkOsDD
+	7l5PeahjGlfEcQ1LEdFfE9ktcyJjHOJNAQCKichAjKm6LacjpEHD2DQKYbeLSaWj
+	xf0vJHl6lBAfACHan8AGt5rfqQDUlujMjEmYsnAi88mgr53LlGs3CfumU1YYQhPB
+	y9EK23WnKgE/sy+GqnIEjw6jZjMKFuANGmja4B8INV2H+REjQZvYegrj3rH7P19o
+	SmkJsnAj67BMdbZlRnA71rvsHsjPw==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskdv43fg-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:10 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68M5j0Fp2024880
-	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:09 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gt53vgrjg-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
 	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:09 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68M5ZcKY2002798
+	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:09 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gt5qjrnch-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 06:43:08 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68M6h4lM50069860
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68M6h3gQ49218046
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 22 Sep 2026 06:43:04 GMT
+	Tue, 22 Sep 2026 06:43:03 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 39FC02004B;
-	Tue, 22 Sep 2026 06:43:04 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 81DD52004B;
+	Tue, 22 Sep 2026 06:43:03 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1D51220049;
-	Tue, 22 Sep 2026 06:43:04 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 63D9A20049;
+	Tue, 22 Sep 2026 06:43:03 +0000 (GMT)
 Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 22 Sep 2026 06:43:04 +0000 (GMT)
+	Tue, 22 Sep 2026 06:43:03 +0000 (GMT)
 From: Alexander Egorenkov <egorenar@linux.ibm.com>
 To: oberpar@linux.ibm.com
 Cc: gor@linux.ibm.com, hca@linux.ibm.com, agordeev@linux.ibm.com,
         borntraeger@linux.ibm.com,
         linux390-list@tuxmaker.boeblingen.de.ibm.com,
         linux-s390@vger.kernel.org
-Subject: [PATCH v6 5/5] s390/sclp: Ensure no callback gets called after sclp_unregister() returns
-Date: Tue, 22 Sep 2026 08:43:03 +0200
-Message-ID: <20260922064303.524293-6-egorenar@linux.ibm.com>
+Subject: [PATCH v6 0/5] s390/sclp: Misc fixes
+Date: Tue, 22 Sep 2026 08:42:58 +0200
+Message-ID: <20260922064303.524293-1-egorenar@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260922064303.524293-1-egorenar@linux.ibm.com>
-References: <20260922064303.524293-1-egorenar@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -72,128 +69,118 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=V/XoQuni c=1 sm=1 tr=0 ts=6ab2237e cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-ORIG-GUID: nyymo4MRtKIlDYM1_ndlZ60-Tpbz2VhU
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIyMDA5MyBTYWx0ZWRfX4+1PT5FpfUu1
+ bDzV6Wz82ycj8pw0t6kYlVjwjWapvDwBBjp0UbWz0Vm1n3sf75oblKkK07Ji0wE/ZtLiGGrZeAe
+ Hr646oZeGO0I8CtJyg64v7Des739Un4=
+X-Authority-Analysis: v=2.4 cv=FLiOVOos c=1 sm=1 tr=0 ts=6ab2237d cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=Op0lFPL3nzr5eK-xEWoA:9
-X-Proofpoint-ORIG-GUID: BMcbAXIvZrLvhwHXvl2cXrpUoxSjw0ME
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIyMDA5MyBTYWx0ZWRfX+vF4+kShkqHo
- XX1H2ELy7c2gXEly/r50f4Bzcvir9GAKotIrveDmJgw6VbT3aV27rnGafsRbdhqm8ZZ0TX+19JG
- UGzd+gNUXyteJ46DDVIDvyJf7Bj+0VUeYmxULu9v7Wu02wN0YtZ6vVhkY48tpVFpQ2edZdhnana
- KmxUwO+dYTPlfMyCDBXVWp6y7xJsxxjNOhRssjbJOSWMv10ziJbwwe6w44F3h/TVw7ewnTn/nnP
- sSnwCt1IKH4PWWg0e5rW3+zDya1sozj/6jZwgK/Mt4L0YO6yTEzWWxsDwFkMhLeXvOpl58/gP4s
- qhHPbrMw+yebnk6d6cfvz/XgK9ymBo3dflDz07YLKTjMKaN323Xiy8YqiIY6OH5n2QLQpQ2ybtR
- GmIUtB58grhD1euBexdM/k7n8BQnpWacw1mOfQu2WajY1/fNc3ZNaDIuzY9rJG4t1bg5PPbfu9f
- EbhKsmv2ild689rho5Q==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIyMDA5MyBTYWx0ZWRfXw7qS43/tvIVj
- qPL3EWIZYlWN62eB2N7qWLmvj63DNUzdfrtOCT017Rd2XqjZWE6spji8efTOyqT0GgGTQzHWBFA
- 1gvONjP4yY7iMtp6vSnHxJYzQY2AMgI=
-X-Proofpoint-GUID: BMcbAXIvZrLvhwHXvl2cXrpUoxSjw0ME
+ a=RzCfie-kr_QcCd8fBx8p:22 a=67BLDgbx8QTdBiVmwgYA:9
+X-Proofpoint-GUID: nyymo4MRtKIlDYM1_ndlZ60-Tpbz2VhU
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIyMDA5MyBTYWx0ZWRfX+8ebpMYSpQ5T
+ R/dVOh+zLdjm2FOy43naV5j0K3f+jK1zyn/Kz2NLwP7R3ktvdP7bUTaegdF0XWAKbabeTZ2iZdO
+ +c2AaIwNz85s7g7wVMcC2Vn2x8XWH1H4tAyLoknwEK1iDRxYMgMKsw5nUxuZx+wDQjxrfWKq/hB
+ CYb3Cjq6pEdPBVxUmSPr66rq0sdNTKIKaqOIdssrU9yLKlvWa0Faas1IytlQcKm4kAgMtRWt2TC
+ 98I2loj1WLiVDtsqxdhKa3kqX/PIo4vTkrSpPHqZKN/FcMxAjZSG4XdvxPifQZH7PPgiEcFpE48
+ duhAKFFVC/jUPRIGmjQ+wUpPqF6OGuxVWgdfjKVGyJFUei/d8UboXqrAHuCrAW23uLy0MEsx9rF
+ HVx9H5aec+4/cDkGaALA5wADRRVOjkQvPV4TVJCHZ5aQloomZosoI0dQ91g60Yv612wZPHGQMVg
+ EKDNxVuqpcIWiEsTw1g==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-21_07,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 malwarescore=0 clxscore=1015 phishscore=0
- bulkscore=0 adultscore=0 lowpriorityscore=0 impostorscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609220093
+ adultscore=0 impostorscore=0 phishscore=0 spamscore=0 clxscore=1015
+ suspectscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
+ definitions=main-2609220093
 
-There is a potential race condition between sclp_unregister()
-and sclp_dispatch_evbufs()/sclp_dispatch_state_change(). As a result,
-it is not guaranteed that the callbacks registered with sclp_register()
-will not get called one more time (and no more than one) after
-sclp_unregister() returns.
+This series consists of several fixes for the s390 SCLP driver.
 
-The basic idea is to use a single global wait queue which is woken up
-when no SCLP WRITE_EVENT_MASK and no SCLP READ_EVENT_DATA request is
-outstanding. If both are true then it is guaranteed that no sclp_register
-callback could be in-flight. Once the struct sclp_register given to
-sclp_unregister() is removed from the list sclp_reg_list, no further
-callbacks can be scheduled for the given struct sclp_register and it only
-remains to wait until the SCLP driver becomes idle.
+* The first patch makes sclp_dispatch_evbufs() more safe while parsing event buffers
+  contained in a received SCCB buffer.
+* The second patch introduces the macro sclp_gds_for_each() to safely iterate over
+  GDS {sub}vectors and serves to improve error handling in sclp_find_gds_{sub}vector()
+  to prevent out-of-range memory read and potential infinite loops
+  when a malformed event buffer is received from SCLP.
+* The third patch reuses the macro sclp_gds_for_each() in SCLP TTY introduced in the first patch
+  to replace manual and error-prone iteration over entries of a GDS {sub}vector to fix
+  the same issues addressed in the first patch.
+* The fourth patch fixes 2 potential illegal memory accesses when reading
+  the value from a GDS subvector in SCLP event buffers sent by OCF.
+* The fifth patch fixes race situations with in-flight callbacks and sclp_unregister() calls.
 
-With this change sclp_unregister() may no longer be invoked from atomic
-context or registered callbacks. But this represents no problem because
-this is no regular use case and no driver using sclp_unregister() requires
-this at the moment and likely should not require it in the future.
+Changes since v5
+----------------
+- Added patch "s390/sclp: Make parsing of received event buffers more robust"
+  - Reported by Sashiko
+- Rework the patch "s390/sclp: Introduce macro sclp_gds_for_each()"
+  - Explicit cast of start and end parameters to void* removing the need
+    for the caller to use extra void* variables for start and end, and also
+    protecting from mistakes when using non-void* variables when calculating n
+- Rework the patch "s390/sclp_ocf: Fix computation of length of GDS values"
+  - Improved commit description as suggested by Peter
 
-Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Suggested-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
----
- drivers/s390/char/sclp.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+Changes since v4
+----------------
+- Drop patch "s390/sclp: Drop volatile type class from SCLP state variables"
+  - There are several doubts to it being correct in all situations
+- Introduce the macro sclp_gds_for_each()
+  - Reusable and safe iteration over GDS {sub}vectors
+  - Make use of sclp_gds_for_each() in SCLP TTY
+- Rework the patch "s390/sclp: Ensure no callback gets called after sclp_{un}register() returns"
+  - Remove waiting for SCLP mask and reading states to become idle from sclp_register() on sclp_init_mask() failure
+    - First, it is incorrect to sleep in sclp_register() which is called from atomic context
+      - sclp_console_init() -> sclp_rw_init() -> sclp_register()
+      - sclp_vt220_con_init() -> __sclp_vt220_init() -> sclp_register()
+    - Second, it is redundant because no race situation can occur if sclp_init_mask() fails because
+      in that case no events can be received from SCLP due to SCLP receive event mask update performed
+      in sclp_init_mask() having failed
+  - Add might_sleep() to sclp_unregister() to indicate that the function could potentially sleep
+  - Adjust coding style of function sclp_unregister()
+- Add "Fixes" tag where necessary
 
-diff --git a/drivers/s390/char/sclp.c b/drivers/s390/char/sclp.c
-index 7be4acec9d6e..eccc3f2fb491 100644
---- a/drivers/s390/char/sclp.c
-+++ b/drivers/s390/char/sclp.c
-@@ -20,6 +20,7 @@
- #include <linux/jiffies.h>
- #include <linux/init.h>
- #include <linux/platform_device.h>
-+#include <linux/wait.h>
- #include <asm/types.h>
- #include <asm/irq.h>
- #include <asm/debug.h>
-@@ -67,6 +68,8 @@ static struct sclp_req sclp_init_req;
- static void *sclp_read_sccb;
- static struct init_sccb *sclp_init_sccb;
- 
-+static DECLARE_WAIT_QUEUE_HEAD(sclp_state_wq);
-+
- /* Number of console pages to allocate, used by sclp_con.c and sclp_vt220.c */
- int sclp_console_pages = SCLP_CONSOLE_PAGES;
- /* Flag to indicate if buffer pages are dropped on buffer full condition */
-@@ -589,6 +592,7 @@ sclp_read_cb(struct sclp_req *req, void *data)
- 		sclp_dispatch_evbufs(sccb);
- 	spin_lock_irqsave(&sclp_lock, flags);
- 	sclp_reading_state = sclp_reading_state_idle;
-+	wake_up_all(&sclp_state_wq);
- 	spin_unlock_irqrestore(&sclp_lock, flags);
- }
- 
-@@ -899,19 +903,26 @@ sclp_register(struct sclp_register *reg)
- 
- EXPORT_SYMBOL(sclp_register);
- 
--/* Unregister event listener. */
--void
--sclp_unregister(struct sclp_register *reg)
-+/* Unregister event listener.
-+ * This function may sleep. Do not call it from atomic context or
-+ * sclp_register.receive_fn(). */
-+void sclp_unregister(struct sclp_register *reg)
- {
--	unsigned long flags;
-+	might_sleep();
- 
- 	/* UREG: Event listener unregistered (b=caller) */
- 	sclp_trace_register(2, "UREG", 0, _RET_IP_, reg);
- 
--	spin_lock_irqsave(&sclp_lock, flags);
-+	spin_lock_irq(&sclp_lock);
- 	list_del(&reg->list);
--	spin_unlock_irqrestore(&sclp_lock, flags);
-+	spin_unlock_irq(&sclp_lock);
- 	sclp_init_mask(1);
-+	spin_lock_irq(&sclp_lock);
-+	wait_event_lock_irq(sclp_state_wq,
-+			    (sclp_mask_state == sclp_mask_state_idle) &&
-+			    (sclp_reading_state == sclp_reading_state_idle),
-+			    sclp_lock);
-+	spin_unlock_irq(&sclp_lock);
- }
- 
- EXPORT_SYMBOL(sclp_unregister);
-@@ -1037,6 +1048,7 @@ sclp_init_mask(int calculate)
- 		}
- 	}
- 	sclp_mask_state = sclp_mask_state_idle;
-+	wake_up_all(&sclp_state_wq);
- 	spin_unlock_irqrestore(&sclp_lock, flags);
- 	return rc;
- }
+Changes since v3
+----------------
+- Rework the patch "s390/sclp: Ensure no callback gets called after sclp_{un}register() returns"
+  - Shorten and reword the commit description
+  - Replace wake_up_all_locked() with wake_up_all()
+  - Replace sclp_init_state with sclp_mask_state in wait queue condition
+  - Call wake_up_all() unconditionally
+  - Add call to wake_up_call() in sclp_init_mask() after updating sclp_mask_state 
+
+Changes since v2
+----------------
+- Add 2 new patches:
+  - s390/sclp: Drop volatile type class from SCLP state variables
+  - s390/sclp: Improve robustness of sclp_find_gds_{sub}vector()
+- Rework the patch "s390/sclp: Ensure no callback gets called after sclp_unregister() returns"
+  to implement Peter Oberparleiter's suggestion with a global wait queue and checking
+  the state variables as its condition. It turns out the implementation with a single completion
+  per struct sclp_register is inadequate because theoretically the callback state_change_fn() and receive_fn()
+  could get invoked in parallel, however unlikely. Furthermore, the same race situation might happen
+  with sclp_register() too. 
+
+Changes since v1
+----------------
+- Drop redundant empty lines in sclp.c
+- Make commit message more verbose for the fix in sclp.c
+
+Alexander Egorenkov (5):
+  s390/sclp: Make parsing of received event buffers more robust
+  s390/sclp: Introduce macro sclp_gds_for_each()
+  s390/sclp_tty: Make use of sclp_gds_for_each()
+  s390/sclp_ocf: Fix computation of length of GDS values
+  s390/sclp: Ensure no callback gets called after sclp_unregister()
+    returns
+
+ drivers/s390/char/sclp.c     | 33 +++++++++++++++++++++++----------
+ drivers/s390/char/sclp.h     | 24 ++++++++++++++++--------
+ drivers/s390/char/sclp_ocf.c |  4 ++--
+ drivers/s390/char/sclp_tty.c | 24 +++++++++---------------
+ 4 files changed, 50 insertions(+), 35 deletions(-)
+
 -- 
 2.53.0
 
