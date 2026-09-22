@@ -1,221 +1,229 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CB5755820D;
-	Tue, 22 Sep 2026 15:37:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FF9555C1DF;
+	Tue, 22 Sep 2026 15:37:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790091442; cv=none; b=hicN0/Gh5PAfA9+0mDBDWt2LblfbDSIuC30IlPqMA8cRfAJoPSFb89/gMsDeRqn8xOaZZPDkXKPhnwvBU2yE10nM+jMoRxYjAfhHQup3Od9K0jiHaKWe5zRJJ4cDjPv64eg/sf6gwZRGI2TMfkfBjGdm/xJsCSXnOysXF3Qmrg0=
+	t=1790091451; cv=none; b=IEEEYHRA2YREoex159nw9uJ0hLZdYR161zwJS/H5qFHsN5UwGMR9I0Ms9+0GqwQ9IwVLLpfcUBOSZGMuGn/by9131WtNofxn2YuvMoQkn6sJyDNm4mqwULWwB0M6vB/b8DySIvInrrv1SQVttJKEhsVNFvmf9j5biS0/zzxX4b0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790091442; c=relaxed/simple;
-	bh=bwuaeHFGwuLQFcHN0hOhjdTFxvn+j0g8fIWNrCdz0hk=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=k4w1LO0ZYceJOF3cfweE5kiUXuU3FuGJQkFQP7tt8Oruo7BhZnThrfZn8oQqayoQkuCR+0ON5Y8UuOMGLzz4yFVAolk67kctqPJD1F7Fd+70fO5gls0UskITGeU10NwuKI4ArCkf6GsU+moJ8A1SOpsp3lH0+jSgsIMvB9tZ9GY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A8I7oZL7; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790091451; c=relaxed/simple;
+	bh=q2QfQvAOLHd4afuvZld9/jIQw9gIeKdin67gd2Ex0hI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=nXBeSaKUdCHVeYSvDvskJWp8/KvucZoyzOhdVdQal6ToXicodLhLTQA/f2wGyyTlTfp3y88QoVOeDiYM0fDvu/pQarzUJjHkyctXh2gsVaCutMiEmn6FW39vTUPsdnCHRjTQivfgz4EuDBccOd8yn8GnQ0YxdCryKhgbfGTrecY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DAknCw/h; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A8I7oZL7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F4FC1F00899;
-	Tue, 22 Sep 2026 15:36:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790091440;
-	bh=EytwztXVP9+HAqnBzZ3KHLRHej5X7gcr6/abe7XoyR8=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=A8I7oZL76bgc/K4OnZ0JyOMCleMrv8FdbRx4ZImWL6TzUOPy27OJNysbdg4leGGta
-	 Lx4vSFm7V5JKYxrVGD86zIiIioAiFtHv9yN3wsYYID68QpWVVMN3tQku4l98Qy4zgw
-	 qF27kTj7WZm0/RooazviLjtxmwgEqpzuJcU5c7iIeBV8ngO+1ipt0+uSiSCb1hYR9b
-	 FeqTZuRHz8OvBlBx/kNDAhn+A5qaMG/FK1Kz/HdRa6QnK91S6WhAahUdZR52ic+UQ6
-	 m4kfJDCDMoP3ZT2i41bOmIUPh/ZPP4TnOLJOrrC+n/gp89K3MgMVpMT2NZUEDoQZj+
-	 OSQ/pfkvGm+LQ==
-From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Date: Tue, 22 Sep 2026 16:35:33 +0100
-Subject: [PATCH v4 02/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for most
- 2-level architectures
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DAknCw/h"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68MF5XaE780343;
+	Tue, 22 Sep 2026 15:37:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=OCm3ro
+	EYozAezczHpGeNcF1S13oV+Cjc2G+ycS75wa0=; b=DAknCw/hkTC1hU+92fcGXw
+	rwTUBReFDau7yKjA0nWC5XJG/j7BvDMRTisEXwe41Un7amgEbHlM+TpFoAcs04aR
+	V9H4jDiariu/ZiFmxfyAZTpekYWRABmVF+pTbvmj7pRF7Wh3aJsc29lq7SU4+wmu
+	UorDc07jtkULoo44XtYqoKxSnFtlDsIO4z5c93v/P4BWL4Jykel2U1C9quRZbCY/
+	VrG42NVF+z4HB4k64STxIkLnvBE4R7iKDhwZm1hqjws4hPUxhqp1oxBUoYU/z3B3
+	nSiq4YfVqU2Gx8lOB4jn0Bi2LE/s4W4NpKNxhRWge+1mrDv9SaylAgC4tNWn09tQ
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskdv6bdw-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 22 Sep 2026 15:37:19 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68MElasH2965400;
+	Tue, 22 Sep 2026 15:37:19 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gt5qjtdm8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 22 Sep 2026 15:37:18 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68MFbFJU50594152
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 22 Sep 2026 15:37:15 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E662820043;
+	Tue, 22 Sep 2026 15:37:14 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 88B2420040;
+	Tue, 22 Sep 2026 15:37:14 +0000 (GMT)
+Received: from [9.111.22.84] (unknown [9.111.22.84])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 22 Sep 2026 15:37:14 +0000 (GMT)
+Message-ID: <dc01ef2f-3ed9-4b25-ae5f-1bd317df27cb@linux.ibm.com>
+Date: Tue, 22 Sep 2026 17:37:14 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 00/11] s390: More this_cpu_*() changes
+To: Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Juergen Christ <jchrist@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20260921155806.2447506-1-hca@linux.ibm.com>
+Content-Language: en-US
+From: Mete Durlu <meted@linux.ibm.com>
+In-Reply-To: <20260921155806.2447506-1-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260922-rcu-pagetable-freeing-v4-2-fe1ad1f1e303@kernel.org>
-References: <20260922-rcu-pagetable-freeing-v4-0-fe1ad1f1e303@kernel.org>
-In-Reply-To: <20260922-rcu-pagetable-freeing-v4-0-fe1ad1f1e303@kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, 
- David Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>, 
- Baolin Wang <baolin.wang@linux.alibaba.com>, 
- "Liam R. Howlett" <liam@infradead.org>, Nico Pache <nico.pache@linux.dev>, 
- Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, 
- Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, 
- Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>, 
- Guo Ren <guoren@kernel.org>, Brian Cain <bcain@kernel.org>, 
- Geert Uytterhoeven <geert@linux-m68k.org>, 
- Dinh Nguyen <dinguyen@kernel.org>, 
- Simon Schuster <schuster.simon@siemens-energy.com>, 
- Jonas Bonn <jonas@southpole.se>, 
- Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, 
- Stafford Horne <shorne@gmail.com>, Rich Felker <dalias@libc.org>, 
- John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
- Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
- Russell King <linux@armlinux.org.uk>, Vineet Gupta <vgupta@kernel.org>, 
- Michal Simek <monstr@monstr.eu>, Chris Zankel <chris@zankel.net>, 
- Max Filippov <jcmvbkbc@gmail.com>, Will Deacon <will@kernel.org>, 
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
- Nick Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>, 
- "David S. Miller" <davem@davemloft.net>, 
- Andreas Larsson <andreas@gaisler.com>, 
- Richard Henderson <richard.henderson@linaro.org>, 
- Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>, 
- Catalin Marinas <catalin.marinas@arm.com>, 
- Mark Rutland <mark.rutland@arm.com>, Huacai Chen <chenhuacai@kernel.org>, 
- WANG Xuerui <kernel@xen0n.name>, 
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
- Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
- Michael Ellerman <mpe@ellerman.id.au>, 
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, Richard Weinberger <richard@nod.at>, 
- Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
- Johannes Berg <johannes@sipsolutions.net>, 
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, 
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
- Arnd Bergmann <arnd@arndb.de>, Vlastimil Babka <vbabka@kernel.org>, 
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
- Michal Hocko <mhocko@suse.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
- John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
- Yoshinori Sato <ysato@users.sourceforge.jp>, 
- Shakeel Butt <shakeel.butt@linux.dev>, Jonathan Corbet <corbet@lwn.net>, 
- Randy Dunlap <rdunlap@infradead.org>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
- linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
- linux-m68k@lists.linux-m68k.org, linux-openrisc@vger.kernel.org, 
- linux-sh@vger.kernel.org, linux-riscv@lists.infradead.org, 
- linux-arm-kernel@lists.infradead.org, linux-snps-arc@lists.infradead.org, 
- linux-arch@vger.kernel.org, sparclinux@vger.kernel.org, 
- linux-alpha@vger.kernel.org, loongarch@lists.linux.dev, 
- linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
- linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
- linux-um@lists.infradead.org, Hugh Dickins <hughd@google.com>, 
- Qi Zheng <qi.zheng@linux.dev>, linux-doc@vger.kernel.org, 
- "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3613; i=ljs@kernel.org;
- h=from:subject:message-id; bh=bwuaeHFGwuLQFcHN0hOhjdTFxvn+j0g8fIWNrCdz0hk=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLI2Lch++epj9MNnHpEe9yYlHD30J+h8XF7vnb1CF/a1l
- 1Vpn6xe2FHKwiDGxSArpsjy/Iv4/iCRsHmdF/zdYOawMoEMYeDiFICJNO1n+J9tETupvXJjzarT
- rwX+hry6vcpP5urt1Q9MTtum66QcKIlk+B9bHRHH1mdsW7N44armiqcpC9oZ5195ZXdRTZPRdKv
- ybXYA
-X-Developer-Key: i=ljs@kernel.org; a=openpgp;
- fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 6S3gsGywxpjOubl5YlqYT1VEntfNj09c
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIyMDIyNyBTYWx0ZWRfX9wYK9s2Ubhyo
+ Wi+5Re6iB+Xgxy7uuOqUc7fzz+dnG0w4TdQ4OavOAAOREcg255d5+yfvwE62B8imaGH4OLinVgu
+ 3IIJn1zFlQuhVabHjMLmFQIdjuu470M=
+X-Authority-Analysis: v=2.4 cv=FLiOVOos c=1 sm=1 tr=0 ts=6ab2a0af cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
+ a=7CQSdrXTAAAA:8 a=s7ObvvvYnUrjyN0Krc8A:9 a=QEXdDO2ut3YA:10
+ a=a-qgeE7W1pNrGK8U0ZQC:22
+X-Proofpoint-GUID: 6S3gsGywxpjOubl5YlqYT1VEntfNj09c
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIyMDIyNyBTYWx0ZWRfX6E80gNfZXN2h
+ lgugKO6eKafQFl21wj4jdB241EcsI+xdIGUHb3hhyCOG9zrDim7dVQEPXGSlSO0kRRCoOY1mcrx
+ 0zybM9cMF/0MnaCSp0QWGAbyiNlJOYBvMfUukNxKUOwhlITGgEODayYgWLKfLmwXvD1HRNVTFdm
+ UPpoRTRsrIGEz1UvBKRkM3F5mHA+Ha1pK8vxCNW7YuwjtfCbLRcmm1Ac1rkfcuZ8Wb5JYu4omgu
+ 5PsM9d2H8Ucuu70Cp6m6ICeNuAWNIEjdQZZbnQ4f7fuxva7jRY5yKR/QHRgUwW9aPmUnRHAM+Ox
+ g9DavEg/DHiHyajz9WFH1KT7kobaNb56pLJp+g+FIeXYsrINJ3npiX487LinmussskzkO1CxgfC
+ B6f7/YpkB/4lGN/3BsU0qmSrVip74ZUdjiWxynxaCD4gC2jJMJs2Xh2IxO/vhKL9N9MK7YmwRID
+ HA+p/bHRJr0hYYgn8UA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-22_02,2026-09-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 impostorscore=0 phishscore=0 spamscore=0 clxscore=1011
+ suspectscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
+ definitions=main-2609220227
 
-Commit e3ecf7c7d082 ("mm: pgtable: convert some architectures to use
-tlb_remove_ptdesc()") updated a number of architectures from using
-pagetable_dtor() + tlb_remove_page_ptdesc() to using tlb_remove_ptdesc() in
-__pte_free_tlb().
+On 21/09/2026 17:57, Heiko Carstens wrote:
+[..snip..]
+> v1:
+> Most of this is only about cleaning up the percpu code after preemptible
+> this_cpu_*() operations have been implemented. The first ten patches are
+> all more or less trivial cleanup patches trying to make the code shorter
+> and more readable.
+> 
+> The only non-trivial patch is the last one, which converts s390's
+> this_cpu_*() operations to use a similar scheme like Mark Rutland
+> provided it for arm64 [1]. This allows to simplify the irq entry and exit
+> path, however at the cost of slightly worse code for this_cpu_*()
+> operations.
+> 
+> The simplified irq entry and exit code seems to be worth it. Usable
+> performance numbers are not available yet, however I don't expect big
+> difference to before.
+> 
+> [1] https://lore.kernel.org/all/20260904161758.376504-1-mark.rutland@arm.com/
+> 
+> Thanks,
+> Heiko
+> 
+> Heiko Carstens (11):
+>    s390/percpu: Fix comment typo
+>    s390/percpu: Add sanity check to GEN_MVIY macro
+>    s390/lowcore: Remove _AC() from LOWCORE_ALT_ADDRESS
+>    s390/percpu: Let MVIY_PERCPU() calculate alternative displacement
+>    s390/percpu/lowcore: Add and use LC_PERCPU lowcore offset defines
+>    s390/percpu: Rename inline assembly symbolic names
+>    s390/percpu: Use __PCPU_BEGIN() and __PCPU_END() for inline assemblies
+>    s390/percpu: Use percpu code section for this_cpu_cmpxchg128()
+>    s390/percpu: Use percpu code section for this_cpu_xchg()
+>    s390/percpu: Use percpu code section for this_cpu_cmpxchg()
+>    s390/percpu: Rework to simplify percpu_entry() and percpu_exit()
+> 
+>   arch/s390/include/asm/entry-percpu.h |  71 ++----
+>   arch/s390/include/asm/lowcore.h      |   5 +-
+>   arch/s390/include/asm/percpu.h       | 354 +++++++++++++++++----------
+>   arch/s390/kernel/irq.c               |  10 +-
+>   arch/s390/kernel/nmi.c               |   4 +-
+>   arch/s390/kernel/traps.c             |   4 +-
+>   6 files changed, 248 insertions(+), 200 deletions(-)
+> 
 
-This is meaningful as tlb_remove_ptdesc() allows for RCU page table
-freeing if CONFIG_MMU_GATHER_RCU_TABLE_FREE is specified.
+Hi all,
 
-The csky, hexagon, nios2, openrisc, sh (except X2) and m68k-sun3
-architectures all have 2 levels of page tables, so the only page tables
-ever freed by mmu_gather are PTEs, so this update suffices to ensure that
-every page table freed by the mmu_gather mechanism is freed under RCU.
+I did some benchmarking for this patch series.
 
-Therefore, update all of these architectures to select
-CONFIG_MMU_GATHER_RCU_TABLE_FREE.
+Used a shared LPAR with 24 CPUs (12 cores w SMT2).
 
-This forms part of an overall effort to switch every architecture to this
-mode.
+Base commit: f0100363d8c3 ("Merge tag 'xfs-fixes-7.3-rc5' of
+gitolite.kernel.org:/pub/scm/fs/xfs/xfs-linux")
 
-Acked-by: Kiryl Shutsemau (Meta) <kas@kernel.org>
-Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
----
- arch/csky/Kconfig     | 1 +
- arch/hexagon/Kconfig  | 1 +
- arch/m68k/Kconfig     | 1 +
- arch/nios2/Kconfig    | 1 +
- arch/openrisc/Kconfig | 1 +
- arch/sh/Kconfig       | 1 +
- 6 files changed, 6 insertions(+)
+Some of the benchmark runs show +-5% standard deviation which can
+be attributed to s390 being a virtualized system. Each run has been
+repeated five times to circumvent the effects of standard deviation.
+(In the odd case where baseline has -5% and patched run has +5%
+deviation, the comparison can show ~+10% improvements which is highly
+misleading).
 
-diff --git a/arch/csky/Kconfig b/arch/csky/Kconfig
-index 4331313a42ff..80f89ef1d962 100644
---- a/arch/csky/Kconfig
-+++ b/arch/csky/Kconfig
-@@ -96,6 +96,7 @@ config CSKY
- 	select HAVE_SYSCALL_TRACEPOINTS
- 	select HOTPLUG_CORE_SYNC_DEAD if HOTPLUG_CPU
- 	select LOCK_MM_AND_FIND_VMA
-+	select MMU_GATHER_RCU_TABLE_FREE
- 	select MAY_HAVE_SPARSE_IRQ
- 	select MODULES_USE_ELF_RELA if MODULES
- 	select OF
-diff --git a/arch/hexagon/Kconfig b/arch/hexagon/Kconfig
-index b48491140013..d9b3fb86556b 100644
---- a/arch/hexagon/Kconfig
-+++ b/arch/hexagon/Kconfig
-@@ -23,6 +23,7 @@ config HEXAGON
- 	# select HAVE_CLK
- 	select GENERIC_ATOMIC64
- 	select HAVE_PERF_EVENTS
-+	select MMU_GATHER_RCU_TABLE_FREE
- 	# GENERIC_ALLOCATOR is used by dma_alloc_coherent()
- 	select GENERIC_ALLOCATOR
- 	select GENERIC_IRQ_PROBE
-diff --git a/arch/m68k/Kconfig b/arch/m68k/Kconfig
-index 11835eb59d94..e29610fd1240 100644
---- a/arch/m68k/Kconfig
-+++ b/arch/m68k/Kconfig
-@@ -36,6 +36,7 @@ config M68K
- 	select HAVE_MOD_ARCH_SPECIFIC
- 	select HAVE_UID16
- 	select MMU_GATHER_NO_RANGE if MMU
-+	select MMU_GATHER_RCU_TABLE_FREE if MMU && SUN3
- 	select MODULES_USE_ELF_REL
- 	select MODULES_USE_ELF_RELA
- 	select NO_DMA if !MMU && !COLDFIRE
-diff --git a/arch/nios2/Kconfig b/arch/nios2/Kconfig
-index 9c0e6eaeb005..b0ccfc3b7a7e 100644
---- a/arch/nios2/Kconfig
-+++ b/arch/nios2/Kconfig
-@@ -19,6 +19,7 @@ config NIOS2
- 	select HAVE_PAGE_SIZE_4KB
- 	select IRQ_DOMAIN
- 	select LOCK_MM_AND_FIND_VMA
-+	select MMU_GATHER_RCU_TABLE_FREE
- 	select MODULES_USE_ELF_RELA
- 	select OF
- 	select OF_EARLY_FLATTREE
-diff --git a/arch/openrisc/Kconfig b/arch/openrisc/Kconfig
-index 5eb995c13074..d90b24dd3bce 100644
---- a/arch/openrisc/Kconfig
-+++ b/arch/openrisc/Kconfig
-@@ -35,6 +35,7 @@ config OPENRISC
- 	select GENERIC_ATOMIC64
- 	select GENERIC_CLOCKEVENTS_BROADCAST
- 	select GENERIC_SMP_IDLE_THREAD
-+	select MMU_GATHER_RCU_TABLE_FREE
- 	select MODULES_USE_ELF_RELA
- 	select HAVE_DEBUG_STACKOVERFLOW
- 	select OR1K_PIC
-diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
-index d60f1d5a94c0..204f64912f0e 100644
---- a/arch/sh/Kconfig
-+++ b/arch/sh/Kconfig
-@@ -61,6 +61,7 @@ config SUPERH
- 	select HAVE_SYSCALL_TRACEPOINTS
- 	select IRQ_FORCED_THREADING
- 	select LOCK_MM_AND_FIND_VMA
-+	select MMU_GATHER_RCU_TABLE_FREE if MMU && !X2TLB
- 	select MODULES_USE_ELF_RELA
- 	select NEED_SG_DMA_LENGTH
- 	select NO_DMA if !MMU && !DMA_COHERENT
+Overall, the benchmarks do not show any real difference between baseline
+and patched kernels;
 
--- 
-2.55.0
+1-) Hackbench
+========================================================================
+Repeated hackbench runs with different group and fd count combinations;
+[1, 2, 4, 8]
 
+$ hackbench -T -p -l $loops -g $g -f $f
+
+no real difference.
+
+2-) Stress-ng
+========================================================================
+Repeated stress-ng runs with range of stressors: [6, $(nproc)]
+
+# 3d matrix operations
+$ stress-ng --matrix-3d $cpu --matrix-3d-method mult --timeout 10
+
+# repeated mmap() and munmap() operations and also writing to the
+# allocated memory.
+$ stress-ng --vm $cpu --vm-bytes 128M --timeout 10
+
+# starts workers that each fork off 32 child processes. Each child
+# tries to allocate some memory. Child processes use madvise and memset
+# to produce VM activity.
+$ stress-ng --mmapfork $cpu --mmapfork-bytes 128M --timeout 10
+
+no real difference.
+
+3-) Openblas Benchmark
+========================================================================
+Repeated matrix operations with different size of 3d matrices.
+
+$ make -j$(nproc) \
+         USE_OPENMP=1 \
+         NUM_THREADS=$(nproc)\
+         NOFORTRAN=1 > /dev/null 2>&1
+
+$ make -C benchmark sgemm.goto \
+         USE_OPENMP=1 \
+         NUM_THREADS=$(nproc) \
+         NOFORTRAN=1 > /dev/null 2>&1
+
+$ OPENBLAS_LOOPS=50 sgemm.goto
+
+no real difference between runs.
+
+4-) Compiling kernel
+========================================================================
+Linux kernel compilation
+
+$ make clean
+$ make mrproper
+$ make defconfig
+$ time make -j$(nproc)
+
+no real difference between runs.
