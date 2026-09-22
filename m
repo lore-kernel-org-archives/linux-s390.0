@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16E7C3B7B7F;
-	Tue, 22 Sep 2026 18:44:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63B0249B5A2;
+	Tue, 22 Sep 2026 18:44:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790102669; cv=none; b=aVROGE7fzynzfW/pdovCbDv9WIc9984VcXIfPWkPM3tGklY6VJoKhKJkR5+/sPsNbV39D0kBNreG9iXZ/1YYwXU642WbZFKhrSwSuIkZntWt94iuH+QZPQh9Vc0cJI7HWIuiZ0j/bXRLbQTFcVpgZzDMNOMjanfVzar/Fki9+fs=
+	t=1790102669; cv=none; b=Iaq+sHin2fEDMiP95rwrVBt46DPMUS/W3+h9S8TgANk/oXmZPWVX/mL4T0c/jd2R/yiCL45FFBbtmctUb0t2C3gXqVDe3VWGRXIiGrskimJVKQxkpb0BkS+y9Om/iOxmajsFqj4Yut/SjsStvhkF2SvtfCWQv5TKyGqbMm9OXng=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1790102669; c=relaxed/simple;
-	bh=h6IVm2PcH9mfF7+RczPWWLWohajk9HLBHhcz9iSYAjk=;
+	bh=7PLii7ETIvCKdWk31bzgi6aDo157/lglI8HsoGMnRdM=;
 	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Hl+61GrhFrMuBwallpkmyt5/6Vy8Jjm49Z4vb4N3nvO3UEMFnx0i0BHpqQiOdk6fbFRwtVXcj1oI7MHeOx+3sbhzopCt5uqgkkSoZ5fRl3h9qJ/MbAG2mywPBCXQ72f2zfL7CEnaNGnHU1xfwk9Ko65hLY1oJvTKM7TQ6tZIXnw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ULqOnm5o; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:MIME-Version; b=nuvqKCq6s55uocC1FY7Rf+SF0eEyRV2kbROiRx5ZHEK17XdnmUlnmgdDU9qIRbTW7cpTydTIgTWqASS/yunTxUHv1GJw4NoH/G1SM0ZIzhMp4q72a5D2kUOyWRLEulPvZto7ydPci8fXyt/Rw3uaiUK9ip7z+AbCkrdVpgasl4Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kAXyt4bd; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ULqOnm5o"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A42C1F00893;
-	Tue, 22 Sep 2026 18:44:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kAXyt4bd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A7911F000FF;
+	Tue, 22 Sep 2026 18:44:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790102662;
-	bh=1IxyZtZmcdhtuM2dKvn8d1mOOIfkqTrxHyUtB5yx34Q=;
+	s=k20260515; t=1790102660;
+	bh=UjEou/Ftu9I+L9AdcUk1ScJDdFJXrMrfvwt0cglL1Ok=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=ULqOnm5olO9jV8adygoNsZuOmn8oIHOEmnsVGOtWjLKoo9wQbcDWm9aR2sEVyAa5P
-	 xV8PP0GuJSs+MeZkf6/jt+3FTOKmFN3h/k/JlrGcdMfpwhTkrruHS+IhO9K2Wsj8sh
-	 351uf+RCPeL1LQMBYTh301MfjqFFk3O7RbjsfLTpJYNFppizAwZYww2vQFKb63Y/yY
-	 xUQBE1X+UGVTd1ZX/WndoRNElx59rsUwWC2c+tTzrXA7mdP8a3NyVE8A7Ku0AY0zwH
-	 MEktnmSp+MONIClqYr0NgDhG8dvwcc/XkcgoWk/UylAecU+cEy6xqgX7cr9or2G+Oa
-	 4d9WjI/4ulIOw==
-Subject: Re: [PATCH net-next v3 2/2] net: bridge: fail link info that does not
- fit in a netlink attribute
+	b=kAXyt4bdygdTvDTWP9ntXNYI0zgVyiwrs67bi2HRbSIo7Wxqaz2v4x7icoTZqR80V
+	 4/QXnH3/sd24yVc/cs5JtVq0uYoQMMUbKh9FzQIi0n7njAPMg37w9FzAXz4QGiiZd9
+	 cI31Q4kq6LXby1RYeHzlYuo3ZEp/1U0JGUj2rYqNShaGDbQN5YdP7kgEX4mDj5klRd
+	 NHFVCZ0Zd+RfrOSR9297bdJEI3sU2cF4MTUYjZMEBGDYtx2tPm56BZ0LFh/EAKBU5Z
+	 CDn92FXS8UicEfgNeEv+Az9kh+5afz1FxuSaETQ6grP7RiGfWcErFY5TR+u1cPTj7D
+	 GACtiByAkm2XA==
+Subject:
+ Re: [PATCH net-next v3 1/2] rtnetlink: pass extack to ndo_bridge_getlink()
 From: netdev-bot+sashiko@kernel.org
 To: iprintercanon@gmail.com
 Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, razor@blackwall.org,
@@ -39,11 +39,11 @@ Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, razor@blackwall.org,
  intel-wired-lan@lists.osuosl.org, saeedm@nvidia.com, tariqt@nvidia.com,
  mbloch@nvidia.com, oss-drivers@corigine.com, wintera@linux.ibm.com,
  aswin@linux.ibm.com, linux-s390@vger.kernel.org
-Date: Tue, 22 Sep 2026 18:44:20 +0000
-Message-ID: <179010266085.2160803.3521506082186980077@kernel.org>
-In-Reply-To: <20260919134333.49379-3-iprintercanon@gmail.com>
-References: <20260919134333.49379-3-iprintercanon@gmail.com>
-X-sashiko-severity: Medium
+Date: Tue, 22 Sep 2026 18:44:18 +0000
+Message-ID: <179010265895.2160803.373522142695973642@kernel.org>
+In-Reply-To: <20260919134333.49379-2-iprintercanon@gmail.com>
+References: <20260919134333.49379-2-iprintercanon@gmail.com>
+X-sashiko-severity: Low
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -53,257 +53,159 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issue(s) to consider.
+Thank you for your contribution! Sashiko AI review found more severe
+issue(s) in other patches of this series. This mail is only an FYI, in case
+you want to address the nit picks below when you respin.
 
-Critical: 0 · High: 0 · Medium: 1 (2) · Low: 2
+Low priority / nit picks for your consideration:
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
-
-- [Medium] New error path discards already-consumed CFM status.
-- [Low] Missing `Fixes:` tag / stable routing information for a user-
-  visible uAPI bug fix.
-- [Low] The single `nla_nest_too_large` label emits "AF_SPEC info too
-  large, use per-object dumps (e.g. RTM_GETVLAN)" for all three overflow…
+- [Low] Patch 1 ("rtnetlink: pass extack to ndo_bridge_getlink()")
+  threads a `struct netlink_ext_ack *extack` through the…
 
 Pre-existing issues:
-- [Medium] This problem wasn't introduced by this patch, but it
-  undermines the notification behaviour the commit message describes:…
-- [Medium] This problem wasn't introduced by this patch, but it sits
-  directly in the rewritten function: in `br_fill_ifinfo()` the return…
+- [Medium] This problem wasn't introduced by this patch, but in
+  `br_fill_ifinfo()` (net/bridge/br_netlink.c) the VLAN-fill result is…
 
 --
 
-net: bridge: fail link info that does not fit in a netlink attribute
+rtnetlink: pass extack to ndo_bridge_getlink()
 
-br_fill_ifinfo() now finalizes the IFLA_AF_SPEC, IFLA_BRIDGE_CFM and
-IFLA_BRIDGE_MST nests with nla_nest_end_safe() and returns -E2BIG with an
-extack message when a nest payload exceeds what the u16 nla_len can
-describe.  br_fill_ifinfo() gains an extack argument, passed through from
-br_getlink() and NULL from br_info_notify().
+The patch adds a struct netlink_ext_ack *extack argument to the
+ndo_bridge_getlink op, to ndo_dflt_bridge_getlink() and to br_getlink(),
+and updates the eight in-tree implementations plus the two rtnetlink call
+sites. The commit describes itself as no functional change.
 
-A few questions on the change below.
-
-> nla_len is a u16, and a port with enough VLANs, tunnels or MST entries
-> makes the IFLA_AF_SPEC nest wrap, so userspace reads garbage. Same for
-> the inner MST and CFM nests.
+> diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+> index e3444fd24061..a341e06f47d3 100644
+> --- a/net/core/rtnetlink.c
+> +++ b/net/core/rtnetlink.c
+> @@ -5420,7 +5420,8 @@ int ndo_dflt_bridge_getlink(struct sk_buff *skb, u32 pid, u32 seq,
+>  			    u32 filter_mask,
+>  			    int (*vlan_fill)(struct sk_buff *skb,
+>  					     struct net_device *dev,
+> -					     u32 filter_mask))
+> +					     u32 filter_mask),
+> +			    struct netlink_ext_ack *extack)
+>  {
+>  	struct nlmsghdr *nlh;
+>  	struct ifinfomsg *ifm;
 
 [Severity: Low]
-Since the commit message describes pre-existing user-visible breakage
-("userspace reads garbage") rather than a cleanup, should this carry a
-Fixes: tag so it gets routed to stable?
+Taken on its own, does this patch leave extack unused in every callee it
+touches?
 
-The overflow does look reachable: __get_vlan_tinfo_size() in
-br_netlink_tunnel.c charges 28 bytes per tunnel mapping
+ndo_dflt_bridge_getlink() gains the parameter but none of its failure
+paths reference it:
 
-	return nla_total_size(0) + nla_total_size(sizeof(u32)) +
-	       nla_total_size(sizeof(u16)) + nla_total_size(sizeof(u16));
+net/core/rtnetlink.c:ndo_dflt_bridge_getlink() {
+	...
+	nlh = nlmsg_put(skb, pid, seq, RTM_NEWLINK, sizeof(*ifm), nlflags);
+	if (nlh == NULL)
+		return -EMSGSIZE;
+	...
+nla_put_failure:
+	nlmsg_cancel(skb, nlh);
+	return err ? err : -EMSGSIZE;
+}
 
-so roughly 4094 VLANs with non-consecutive tunnel IDs push the AF_SPEC
-payload past U16_MAX, and br_info_notify() allocates an skb of exactly
-br_nlmsg_size() bytes for it.
-
-Candidate anchors would be the commit that introduced the AF_SPEC nesting
-(b6c02ef54913) and the later CFM/MST reporting additions.
-
-> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> index 855a46aec3a8..fbd91b86d426 100644
-> --- a/net/bridge/br_netlink.c
-> +++ b/net/bridge/br_netlink.c
+So for the eight drivers that use the default helper the extack stays
+empty, and the commit message statement "So the bridge can say why filling
+the link info failed" is only realized by the next patch in the series,
+which adds the extack argument to br_fill_ifinfo() and emits
+NL_SET_ERR_MSG_MOD() there. Would it help to say in the changelog that
+this is preparation and that the message is added by the following patch?
 
 [ ... ]
 
-> @@ -588,7 +588,8 @@ static int br_fill_ifinfo(struct sk_buff *skb,
->  				goto nla_put_failure;
->  		}
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index ae76df0de05a..855a46aec3a8 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+> @@ -680,7 +680,8 @@ void br_ifinfo_notify(int event, const struct net_bridge *br,
+>   * Dump information about all ports, in response to GETLINK
+>   */
+>  int br_getlink(struct sk_buff *skb, u32 pid, u32 seq,
+> -	       struct net_device *dev, u32 filter_mask, int nlflags)
+> +	       struct net_device *dev, u32 filter_mask, int nlflags,
+> +	       struct netlink_ext_ack *extack)
+>  {
+>  	struct net_bridge_port *port = br_port_get_rtnl(dev);
 >  
-> -		nla_nest_end(skb, cfm_nest);
-> +		if (nla_nest_end_safe(skb, cfm_nest) < 0)
-> +			goto nla_nest_too_large;
->  	}
-
-[Severity: Medium]
-Can this new exit throw away CFM status that has already been consumed?
-
-br_getlink() calls br_fill_ifinfo() with getlink = true, and
-br_cfm_status_fill_info() clears the "seen" indications as it serializes
-each record:
-
-net/bridge/br_cfm_netlink.c:br_cfm_status_fill_info() {
-	...
-	if (getlink) {
-		/* Clear all 'seen' indications */
-		mep->status.opcode_unexp_seen = false;
-		mep->status.version_unexp_seen = false;
-		mep->status.rx_level_low_seen = false;
-	}
-	...
-		if (getlink) { /* Only clear if this is a GETLINK */
-			/* Clear all 'seen' indications */
-			peer_mep->cc_status.seen = false;
-			peer_mep->cc_status.tlv_seen = false;
-			peer_mep->cc_status.seq_unexp_seen = false;
-		}
-	...
-}
-
-Nothing bounds the peer MEP count so that the IFLA_BRIDGE_CFM nest stays
-below U16_MAX (each peer status record is around 76 bytes, so roughly 860
-peers overflow it).  The nest check then jumps to nla_nest_too_large, which
-cancels the whole message and returns -E2BIG, after the flags were already
-cleared.
-
-A retry returns -E2BIG again, so that generation of defect and
-unexpected-opcode information is gone.  Before this patch the malformed
-message was at least delivered.  The existing nla_put_failure path has the
-same clear-then-cancel shape; would validating the nest size before
-consuming the state be preferable to adding another cancel-after-clear
-exit?
-
-> @@ -608,20 +609,27 @@ static int br_fill_ifinfo(struct sk_buff *skb,
->  		if (err)
->  			goto nla_put_failure;
->  
-> -		nla_nest_end(skb, mst_nest);
-> +		if (nla_nest_end_safe(skb, mst_nest) < 0)
-> +			goto nla_nest_too_large;
->  	}
->  
->  done:
->  	if (af) {
-> -		if (nlmsg_get_pos(skb) - (void *)af > nla_attr_size(0))
-> -			nla_nest_end(skb, af);
-> -		else
-> +		if (nla_nest_end_safe(skb, af) < 0)
-> +			goto nla_nest_too_large;
-> +		if (!nla_len(af))
->  			nla_nest_cancel(skb, af);
->  	}
->  
->  	nlmsg_end(skb, nlh);
->  	return 0;
->  
-
-[Severity: Medium]
-This isn't a bug introduced by this patch, but it lands right in the
-rewritten function: can the done: block finalize a truncated AF_SPEC nest
-and report success?
-
-Earlier in br_fill_ifinfo() the VLAN fill result is clobbered:
-
-	if (filter_mask & RTEXT_FILTER_BRVLAN_COMPRESSED)
-		err = br_fill_ifvlaninfo_compressed(skb, vg);
-	else
-		err = br_fill_ifvlaninfo(skb, vg);
-
-	if (port && test_bit(BR_VLAN_TUNNEL_BIT, &port->flags))
-		err = br_fill_vlan_tunnel_info(skb, vg);
-	rcu_read_unlock();
-	if (err)
-		goto nla_put_failure;
-
-br_fill_vlan_tunnel_info() in br_netlink_tunnel.c returns 0 without writing
-anything when no VLAN in the group has a tunnel_dst:
-
-	if (!v->tinfo.tunnel_dst)
-		continue;
-	...
-	return 0;
-
-vlan_tunnel is a port flag that can be set without any per-VLAN tunnel
-mapping, so an -EMSGSIZE from the VLAN fill is overwritten with 0, the
-goto nla_put_failure is skipped, and control reaches done: which ends the
-nest and returns 0.  In a dump rtnl_bridge_getlink() then does
-
-	idx++;
-
-and moves past the device, so the missing VLANs are never emitted.
-
-> +nla_nest_too_large:
-> +	NL_SET_ERR_MSG_MOD(extack,
-> +			   "AF_SPEC info too large, use per-object dumps (e.g. RTM_GETVLAN)");
-> +	nlmsg_cancel(skb, nlh);
-> +	return -E2BIG;
-> +
 
 [Severity: Low]
-All three overflow sites share this label, so an oversized
-IFLA_BRIDGE_CFM nest also tells userspace to retry with RTM_GETVLAN.
+br_getlink() accepts extack here but drops it, since the call below is
+left unchanged:
 
-The bridge only registers PF_BRIDGE handlers for the VLAN and MDB commands:
+net/bridge/br_netlink.c:br_getlink() {
+	...
+	return br_fill_ifinfo(skb, port, pid, seq, RTM_NEWLINK, nlflags,
+			      filter_mask, dev, true);
+}
 
-net/bridge/br_vlan.c:
-	{THIS_MODULE, PF_BRIDGE, RTM_GETVLAN, NULL, br_vlan_rtm_dump, 0},
+br_fill_ifinfo() is the function that actually returns -EMSGSIZE, so does
+anything in the bridge get to use the new argument until the follow-up
+patch wires it into br_fill_ifinfo()?
 
-There is no RTM_GET* command that dumps CFM MEP config or status; those
-attributes are only produced by br_cfm_config_fill_info() and
-br_cfm_status_fill_info(), reachable solely from br_fill_ifinfo(), and
-include/uapi/linux/rtnetlink.h has no CFM command.  The same applies to the
-per-port IFLA_BRIDGE_MST nest, for which RTM_GETVLAN returns only the
-indirect per-VLAN state.
-
-Would a per-site message be better here, so the advice matches what the
-kernel can actually return?
-
->  nla_put_failure:
->  	nlmsg_cancel(skb, nlh);
->  	return -EMSGSIZE;
-> @@ -654,7 +662,8 @@ void br_info_notify(int event, const struct net_bridge *br,
->  	if (skb == NULL)
->  		goto errout;
->  
-> -	err = br_fill_ifinfo(skb, port, 0, 0, event, 0, filter, dev, false);
-> +	err = br_fill_ifinfo(skb, port, 0, 0, event, 0, filter, dev, false,
-> +			     NULL);
->  	if (err < 0) {
->  		/* -EMSGSIZE implies BUG in br_nlmsg_size() */
->  		WARN_ON(err == -EMSGSIZE);
+While looking at br_fill_ifinfo() for the above, one unrelated
+observation:
 
 [Severity: Medium]
-This is a pre-existing issue, but it affects the notification behaviour
-described in the changelog: on the CFM status notification path the skb can
-be too small, so this WARN_ON fires before the new -E2BIG check is reached.
+This isn't a bug introduced by this patch, but in br_fill_ifinfo() the
+VLAN fill result is overwritten before it is tested:
 
-br_cfm_status_fill_info() opens one nest per record:
-
-net/bridge/br_cfm_netlink.c:br_cfm_status_fill_info() {
+net/bridge/br_netlink.c:br_fill_ifinfo() {
 	...
-	tb = nla_nest_start(skb, IFLA_BRIDGE_CFM_MEP_STATUS_INFO);
-	if (!tb)
-		goto nla_info_failure;
-	...
-}
+		if (filter_mask & RTEXT_FILTER_BRVLAN_COMPRESSED)
+			err = br_fill_ifvlaninfo_compressed(skb, vg);
+		else
+			err = br_fill_ifvlaninfo(skb, vg);
 
-and likewise one IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO nest per peer MEP, but
-br_get_link_af_size_filtered() only charges the outer nest plus the child
-attributes:
-
-net/bridge/br_netlink.c:br_get_link_af_size_filtered() {
-	...
-	vinfo_sz += nla_total_size(0);	/* IFLA_BRIDGE_CFM */
-	/* For each status struct the MEP instance (u32) is added */
-	vinfo_sz += num_cfm_mep_infos *
-		    (nla_total_size(sizeof(u32)) ...
+		if (port && test_bit(BR_VLAN_TUNNEL_BIT, &port->flags))
+			err = br_fill_vlan_tunnel_info(skb, vg);
+		rcu_read_unlock();
+		if (err)
+			goto nla_put_failure;
 	...
 }
 
-No nla_total_size(0) is added for the enclosing per-record nests, so the
-estimate is 4 bytes short per record.  br_cfm_notify() reaches this path:
+Can an -EMSGSIZE from br_fill_ifvlaninfo[_compressed]() be lost here?
+br_fill_vlan_tunnel_info() in net/bridge/br_netlink_tunnel.c skips every
+VLAN that has no tinfo.tunnel_dst and returns 0 without touching the skb,
+which happens after "bridge link set dev X vlan_tunnel on" with no
+tunnel_info id mappings configured:
 
-net/bridge/br_cfm.c:br_cfm_notify() {
-	u32 filter = RTEXT_FILTER_CFM_STATUS;
+net/bridge/br_netlink_tunnel.c:br_fill_vlan_tunnel_info() {
+	list_for_each_entry_rcu(v, &vg->vlan_list, vlist) {
+		if (!br_vlan_should_use(v))
+			continue;
 
-	br_info_notify(event, port->br, NULL, filter);
+		if (!v->tinfo.tunnel_dst)
+			continue;
+	...
+	return 0;
 }
 
-The deficit grows with the record count while the slack from kmalloc bucket
-rounding does not, so for some MEP/peer counts nla_nest_start() fails with
--EMSGSIZE, the "implies BUG in br_nlmsg_size()" WARN_ON triggers and the
-notification is dropped instead of taking the new -E2BIG path.
+In that configuration a partially filled VLAN list appears to be
+finalized as success, and rtnl_bridge_getlink() then advances idx and
+records it in cb->args[0], so the port is not retried in the next dump
+round:
+
+net/core/rtnetlink.c:rtnl_bridge_getlink() {
+	...
+				if (err < 0 && err != -EOPNOTSUPP) {
+					if (likely(skb->len))
+						break;
+
+					goto out_err;
+				}
+			}
+			idx++;
+	...
+}
+
+Would testing the VLAN fill error before calling
+br_fill_vlan_tunnel_info() be the right fix? This code is identical in
+the baseline and is unchanged by the series, so it is a separate patch.
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260919134333.49379-1-iprintercanon%40gmail.com
