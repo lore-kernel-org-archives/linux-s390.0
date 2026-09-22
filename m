@@ -1,211 +1,225 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63B0249B5A2;
-	Tue, 22 Sep 2026 18:44:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3E8949502A;
+	Tue, 22 Sep 2026 19:52:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790102669; cv=none; b=Iaq+sHin2fEDMiP95rwrVBt46DPMUS/W3+h9S8TgANk/oXmZPWVX/mL4T0c/jd2R/yiCL45FFBbtmctUb0t2C3gXqVDe3VWGRXIiGrskimJVKQxkpb0BkS+y9Om/iOxmajsFqj4Yut/SjsStvhkF2SvtfCWQv5TKyGqbMm9OXng=
+	t=1790106725; cv=none; b=GdmKY+IRO0gIgkI05iw9iUtYNg7/H+5EtPmcQtlT7tMjmDkcP/OhZxTeUZx8SwxmVNDXjfdGboWUtvUHBykf1ruyIa55vhRtyRBTQnIDzqMHzn8ZJZwuD3dfXiSQIuBFVWU82r03ypQ6Z4ko8uUuu5uMPcRI2Z/DIT0vMZOlolw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790102669; c=relaxed/simple;
-	bh=7PLii7ETIvCKdWk31bzgi6aDo157/lglI8HsoGMnRdM=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=nuvqKCq6s55uocC1FY7Rf+SF0eEyRV2kbROiRx5ZHEK17XdnmUlnmgdDU9qIRbTW7cpTydTIgTWqASS/yunTxUHv1GJw4NoH/G1SM0ZIzhMp4q72a5D2kUOyWRLEulPvZto7ydPci8fXyt/Rw3uaiUK9ip7z+AbCkrdVpgasl4Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kAXyt4bd; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790106725; c=relaxed/simple;
+	bh=rO46+qCjXpkCxSolKr5Zydyt/pCFNQF2M7IstQo9H30=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=B1SAkwfZjNiencwZ+6mrlCjrNoioz+9ZNS1i/OrrK8ws+XEqwruwYZohhMA2lGYEMNh9XF41e28o+EF4pULGnfgKSH3kb8ORieaXM6a1CoKMhyJ9p7DzybFPlpTPTNwrOTCzPSH0ZQyONeJeeLnpN/l97BTzxtjOopfOwJFk3Kw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=V3c+aq1J; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kAXyt4bd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A7911F000FF;
-	Tue, 22 Sep 2026 18:44:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790102660;
-	bh=UjEou/Ftu9I+L9AdcUk1ScJDdFJXrMrfvwt0cglL1Ok=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=kAXyt4bdygdTvDTWP9ntXNYI0zgVyiwrs67bi2HRbSIo7Wxqaz2v4x7icoTZqR80V
-	 4/QXnH3/sd24yVc/cs5JtVq0uYoQMMUbKh9FzQIi0n7njAPMg37w9FzAXz4QGiiZd9
-	 cI31Q4kq6LXby1RYeHzlYuo3ZEp/1U0JGUj2rYqNShaGDbQN5YdP7kgEX4mDj5klRd
-	 NHFVCZ0Zd+RfrOSR9297bdJEI3sU2cF4MTUYjZMEBGDYtx2tPm56BZ0LFh/EAKBU5Z
-	 CDn92FXS8UicEfgNeEv+Az9kh+5afz1FxuSaETQ6grP7RiGfWcErFY5TR+u1cPTj7D
-	 GACtiByAkm2XA==
-Subject:
- Re: [PATCH net-next v3 1/2] rtnetlink: pass extack to ndo_bridge_getlink()
-From: netdev-bot+sashiko@kernel.org
-To: iprintercanon@gmail.com
-Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, razor@blackwall.org,
- idosch@nvidia.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
- pabeni@redhat.com, horms@kernel.org, andrew+netdev@lunn.ch, kuniyu@google.com,
- michael.chan@broadcom.com, pavan.chebbi@broadcom.com,
- ajit.khaparde@broadcom.com, sriharsha.basavapatna@broadcom.com,
- anthony.l.nguyen@intel.com, przemyslaw.kitszel@intel.com,
- intel-wired-lan@lists.osuosl.org, saeedm@nvidia.com, tariqt@nvidia.com,
- mbloch@nvidia.com, oss-drivers@corigine.com, wintera@linux.ibm.com,
- aswin@linux.ibm.com, linux-s390@vger.kernel.org
-Date: Tue, 22 Sep 2026 18:44:18 +0000
-Message-ID: <179010265895.2160803.373522142695973642@kernel.org>
-In-Reply-To: <20260919134333.49379-2-iprintercanon@gmail.com>
-References: <20260919134333.49379-2-iprintercanon@gmail.com>
-X-sashiko-severity: Low
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="V3c+aq1J"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68MI7bQg965141;
+	Tue, 22 Sep 2026 19:52:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=I6Dz1pScvuchOON2TsOXdwLzSDjb2wOmqPU1mfIgg
+	6o=; b=V3c+aq1Jcz1ih4tLfakFsWrgc4yJs1Eka77qj8XVe2D1Z60ljHnu9TfL1
+	apfw8exsKcuhthuV23L9I9VEQH6CF4ColVn85oHl6TrNX4aiUEjZxtocdB+qnpWP
+	MWSZZ+XHdDXIE9CL2JyQqOHTEN5KccHQXm4MoHXJy9tmpCE2Hw0gPdm2nJLMaIND
+	vLOIWZLrgcEuq49RvG2zOZytpvM/jhr+5yfq6LYZiueXJ8M82+SDoHvypO+WcoDT
+	jPE6c3srRiK+jP7M/cDGjkP6aWjg5h3Gu+wJnh28Sjs5XsJqQT6uaNlAw1ufxNQv
+	CU6tWQQ+FWR3goLkqDcAQKCWWueGg==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gske1fdtw-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 22 Sep 2026 19:52:01 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68MIHX0I3239749;
+	Tue, 22 Sep 2026 19:52:00 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gt67gu66y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 22 Sep 2026 19:52:00 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68MJpw7x30474752
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 22 Sep 2026 19:51:58 GMT
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 74BFC58050;
+	Tue, 22 Sep 2026 19:51:58 +0000 (GMT)
+Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9F37F58045;
+	Tue, 22 Sep 2026 19:51:56 +0000 (GMT)
+Received: from Mac.ibm.com (unknown [9.61.246.118])
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 22 Sep 2026 19:51:56 +0000 (GMT)
+From: Omar Elghoul <oelghoul@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc: oelghoul@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        schnelle@linux.ibm.com, mjrosato@linux.ibm.com, alifm@linux.ibm.com,
+        farman@linux.ibm.com, gbayer@linux.ibm.com, pasic@linux.ibm.com,
+        alex@shazbot.org
+Subject: [PATCH v7 0/4] vfio-pci/zdev: Improved zPCI Function Measurement Support
+Date: Tue, 22 Sep 2026 15:51:37 -0400
+Message-ID: <20260922195141.94548-1-oelghoul@linux.ibm.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: o_tWGYj_dUNR6t1isvgECCU0FkapIX98
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIyMDI4NyBTYWx0ZWRfXwJenkal3EMj3
+ csnCHlZ/JuLheLE/oVviw8LhrMGP8MbkWKDRm/BJ/ZpfddBZ6mttsqIlE0pCtEufypuxxxujjel
+ eOW9SfGpNrX2SyZNWjsldRBa/Cz0bXX71+zYCBXvPl/cT/5Wk3WhIMxbkBGPC+pzGonBAdbxi4C
+ 0jly7ZdyLvAlFMVJey5vwWePt/nqsQBpv/NZm3V33d6K0syJgaRd/ofWKZap8i0sm/Xd36sBKXu
+ 05MqYI3CMI+cN7j8mY0RusMGRRp0xiMHW/QahwQzd+YvPuP9SF8VcSjmBHS3CaROynpO8kXg8jW
+ fbm3Lz/GibTL7B3u5cQArs3JXKsiZCavykqd5BgEBr+Uz3M6I/KDbujenNuD7ChT0jwyCEGGEMt
+ tKs2lBKiMLsx0eRejRriGINDNrX+O1MVTSdqG6cksqt96kjmwU0zcgnb7b++9w45hdRUxQ3CuP5
+ pYwBBo4Uvn3xPpYhWTw==
+X-Authority-Analysis: v=2.4 cv=O/KsLx9W c=1 sm=1 tr=0 ts=6ab2dc61 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=Or8v72Ccw2kqKKHgtsQA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIyMDI4NyBTYWx0ZWRfX2GsqnO54K1yO
+ rSziFV53+h290oA4jskTPnl5vHM/oe/SBdehqgRdfmpBfh4DDSGZJqbSTzUkECthGgMnIxwnOsn
+ 2QhdvOTjptsbZZicuCzZuTl/GqW1NJs=
+X-Proofpoint-GUID: o_tWGYj_dUNR6t1isvgECCU0FkapIX98
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-22_03,2026-09-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 malwarescore=0 phishscore=0 impostorscore=0 suspectscore=0
+ bulkscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609220287
 
-Thank you for your contribution! Sashiko AI review found more severe
-issue(s) in other patches of this series. This mail is only an FYI, in case
-you want to address the nit picks below when you respin.
+Hi,
 
-Low priority / nit picks for your consideration:
+This patch series improves support for function measurement for zPCI
+passthrough devices on s390.
 
-- [Low] Patch 1 ("rtnetlink: pass extack to ndo_bridge_getlink()")
-  threads a `struct netlink_ext_ack *extack` through the…
+Changelog
+=========
+v6 -> v7:
+* Patch 2/4:
+  - Don't re-enable FMB if it wasn't already enabled
 
-Pre-existing issues:
-- [Medium] This problem wasn't introduced by this patch, but in
-  `br_fill_ifinfo()` (net/bridge/br_netlink.c) the VLAN-fill result is…
+v5 -> v6:
+* Patch 2/4:
+  - Rework the FMB re-enablement code to reuse the same buffer again
+  - Make the FMB buffer persistent once allocated for as long as the
+    device's lifetime to accommodate an architectural quirk
+* Patch 4/4:
+  - Update the liveness check to use the new FMB enabled bool
 
---
+v4 -> v5:
+* Typo in the cover letter
+* Swap the ordering of patches 3/4 and 4/4 to ease merging (i.e., to
+  ensure the three s390 patches are ordered before the VFIO patch)
+* Patch 2/4:
+  - Drop the refactor of zpci_fmb_enable_device() and the separation of
+    zpci_fmb_clear_iommu_ctrs() and zpci_fmb_do_enable()
+  - Allocate a new buffer in zpci_fmb_reenable_device() rather than
+    reusing the same buffer to avoid firmware edge cases
 
-rtnetlink: pass extack to ndo_bridge_getlink()
+* Patch 3/4 (previously 4/4):
+  - Avoid reading from userspace while holding kzdev_lock unnecessarily
 
-The patch adds a struct netlink_ext_ack *extack argument to the
-ndo_bridge_getlink op, to ndo_dflt_bridge_getlink() and to br_getlink(),
-and updates the eight in-tree implementations plus the two rtnetlink call
-sites. The commit describes itself as no functional change.
+* Patch 4/4 (previously 3/4):
+  - Drop allowing usercopy of the FMB when initializing the kmem_cache
+  - Avoid copying to userspace while holding fmb_lock unnecessarily
+    - Restore the FMB bounce buffer to achieve this one
+  - Clarify uAPI documentation and ensure it accurately describes the
+    behavior of the VFIO features
 
-> diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-> index e3444fd24061..a341e06f47d3 100644
-> --- a/net/core/rtnetlink.c
-> +++ b/net/core/rtnetlink.c
-> @@ -5420,7 +5420,8 @@ int ndo_dflt_bridge_getlink(struct sk_buff *skb, u32 pid, u32 seq,
->  			    u32 filter_mask,
->  			    int (*vlan_fill)(struct sk_buff *skb,
->  					     struct net_device *dev,
-> -					     u32 filter_mask))
-> +					     u32 filter_mask),
-> +			    struct netlink_ext_ack *extack)
->  {
->  	struct nlmsghdr *nlh;
->  	struct ifinfomsg *ifm;
+v3 -> v4:
+* Patch 2/4:
+  - Replace mutex_lock/unlock in zpci_reenable_device() with a guard
 
-[Severity: Low]
-Taken on its own, does this patch leave extack unused in every callee it
-touches?
+* Patch 3/4:
+  - Allow usercopy of the FMB when initializing its kmem_cache
+  - Move the guard in vfio_pci_zdev_feature_fmb_enable() lower to only
+    protect the FMB
+  - Ensure vfio_pci_zdev_feature_fmb_enable() fails on double-enable for
+    consistency with the documentation
+  - Eliminate the bounce buffer in vfio_pci_zdev_feature_fmb_read()
+  - Replace the void pointer with __aligned_u64 in the FMB read uAPI
+    structure
 
-ndo_dflt_bridge_getlink() gains the parameter but none of its failure
-paths reference it:
+v2 -> v3:
+* Patch 1/4 (new patch):
+  - Fix race conditions in pcibios_enable/disable_device() with regard to
+    the FMB enable/disable
+  - Assert that fmb_lock is held within zpci_fmb_enable_device() and
+    zpci_fmb_disable_device()
 
-net/core/rtnetlink.c:ndo_dflt_bridge_getlink() {
-	...
-	nlh = nlmsg_put(skb, pid, seq, RTM_NEWLINK, sizeof(*ifm), nlflags);
-	if (nlh == NULL)
-		return -EMSGSIZE;
-	...
-nla_put_failure:
-	nlmsg_cancel(skb, nlh);
-	return err ? err : -EMSGSIZE;
-}
+* Patch 2/4 (previously 1/3):
+  - Move the FMB enable logic into a static function zpci_fmb_do_enable()
+    to reduce code duplication between zpci_fmb_enable_device() and
+    zpci_fmb_reenable_device()
+  - Reword commit message to use the imperative voice more consistently
 
-So for the eight drivers that use the default helper the extack stays
-empty, and the commit message statement "So the bridge can say why filling
-the link info failed" is only realized by the next patch in the series,
-which adds the extack argument to br_fill_ifinfo() and emits
-NL_SET_ERR_MSG_MOD() there. Would it help to say in the changelog that
-this is preparation and that the message is added by the following patch?
+* Patch 3/4 (previously 2/3):
+  - Split the previous VFIO feature into a SET-only and a GET-only feature
+    for enabling/disabling and reading the FMB respectively
+  - Remove FMB definitions from the VFIO uAPI and instead treat it as an
+    opaque structure
 
-[ ... ]
+* Patch 4/4 (previously 3/3):
+  - Clarify goto label name to reduce misunderstandings
 
-> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
-> index ae76df0de05a..855a46aec3a8 100644
-> --- a/net/bridge/br_netlink.c
-> +++ b/net/bridge/br_netlink.c
-> @@ -680,7 +680,8 @@ void br_ifinfo_notify(int event, const struct net_bridge *br,
->   * Dump information about all ports, in response to GETLINK
->   */
->  int br_getlink(struct sk_buff *skb, u32 pid, u32 seq,
-> -	       struct net_device *dev, u32 filter_mask, int nlflags)
-> +	       struct net_device *dev, u32 filter_mask, int nlflags,
-> +	       struct netlink_ext_ack *extack)
->  {
->  	struct net_bridge_port *port = br_port_get_rtnl(dev);
->  
+v1 -> v2:
+* Patch 1/3:
+  - Address a possible race condition in zpci_reenable_device() caused by
+    calling zpci_fmb_reenable_device() without holding fmb_lock
+  - Assert that fmb_lock is held within zpci_fmb_reenable_device()
 
-[Severity: Low]
-br_getlink() accepts extack here but drops it, since the call below is
-left unchanged:
+* Patch 3/3:
+  - Address a possible race condition in pci_perf_seq_write() caused by
+    consuming zdev->kzdev without holding kzdev_lock
 
-net/bridge/br_netlink.c:br_getlink() {
-	...
-	return br_fill_ifinfo(skb, port, pid, seq, RTM_NEWLINK, nlflags,
-			      filter_mask, dev, true);
-}
+Motivation
+==========
+The firmware on s390x machines allows for tracking a variety of statistics
+relating to zPCI devices in a function measurement block (FMB). However,
+the kernel currently lacks a structured mechanism of sharing this
+information with userspace, beyond /sys/kernel/debug/pci/ID/statistics.
+This can lead to shortcomings when running a guest on KVM with PCI
+passthrough devices, as QEMU is unable to provide an accurate FMB snapshot
+to the guest.
 
-br_fill_ifinfo() is the function that actually returns -EMSGSIZE, so does
-anything in the bridge get to use the new argument until the follow-up
-patch wires it into br_fill_ifinfo()?
+Proposal
+========
+We propose adding a new VFIO device feature to zPCI passthrough devices,
+allowing userspace programs to read the latest FMB snapshot as it is
+written by the firmware. We ensure that function measurement enablement is
+preserved across device resets on the host. Furthermore, we guard against
+host tampering with the FMB via sysfs when the zPCI device is in
+passthrough to protect the VM's state.
 
-While looking at br_fill_ifinfo() for the above, one unrelated
-observation:
+I'd appreciate some feedback on these patches.
 
-[Severity: Medium]
-This isn't a bug introduced by this patch, but in br_fill_ifinfo() the
-VLAN fill result is overwritten before it is tested:
+Thanks in advance.
 
-net/bridge/br_netlink.c:br_fill_ifinfo() {
-	...
-		if (filter_mask & RTEXT_FILTER_BRVLAN_COMPRESSED)
-			err = br_fill_ifvlaninfo_compressed(skb, vg);
-		else
-			err = br_fill_ifvlaninfo(skb, vg);
+Omar Elghoul (4):
+  s390/pci: Hold fmb_lock when enabling or disabling PCI devices
+  s390/pci: Reuse FMB buffer and preserve state in device re-enablement
+  s390/pci: Fence FMB enable/disable via debugfs for passthrough devices
+  vfio-pci/zdev: Add VFIO FMB device features
 
-		if (port && test_bit(BR_VLAN_TUNNEL_BIT, &port->flags))
-			err = br_fill_vlan_tunnel_info(skb, vg);
-		rcu_read_unlock();
-		if (err)
-			goto nla_put_failure;
-	...
-}
-
-Can an -EMSGSIZE from br_fill_ifvlaninfo[_compressed]() be lost here?
-br_fill_vlan_tunnel_info() in net/bridge/br_netlink_tunnel.c skips every
-VLAN that has no tinfo.tunnel_dst and returns 0 without touching the skb,
-which happens after "bridge link set dev X vlan_tunnel on" with no
-tunnel_info id mappings configured:
-
-net/bridge/br_netlink_tunnel.c:br_fill_vlan_tunnel_info() {
-	list_for_each_entry_rcu(v, &vg->vlan_list, vlist) {
-		if (!br_vlan_should_use(v))
-			continue;
-
-		if (!v->tinfo.tunnel_dst)
-			continue;
-	...
-	return 0;
-}
-
-In that configuration a partially filled VLAN list appears to be
-finalized as success, and rtnl_bridge_getlink() then advances idx and
-records it in cb->args[0], so the port is not retried in the next dump
-round:
-
-net/core/rtnetlink.c:rtnl_bridge_getlink() {
-	...
-				if (err < 0 && err != -EOPNOTSUPP) {
-					if (likely(skb->len))
-						break;
-
-					goto out_err;
-				}
-			}
-			idx++;
-	...
-}
-
-Would testing the VLAN fill error before calling
-br_fill_vlan_tunnel_info() be the right fix? This code is identical in
-the baseline and is unchanged by the series, so it is a separate patch.
+ arch/s390/include/asm/pci.h      |  2 +
+ arch/s390/pci/pci.c              | 85 +++++++++++++++++++++++++-------
+ arch/s390/pci/pci_debug.c        | 11 ++++-
+ drivers/vfio/pci/vfio_pci_core.c |  4 ++
+ drivers/vfio/pci/vfio_pci_priv.h | 18 +++++++
+ drivers/vfio/pci/vfio_pci_zdev.c | 60 ++++++++++++++++++++++
+ include/uapi/linux/vfio.h        | 29 +++++++++++
+ 7 files changed, 191 insertions(+), 18 deletions(-)
 
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260919134333.49379-1-iprintercanon%40gmail.com
+2.55.0
+
