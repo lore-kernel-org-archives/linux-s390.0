@@ -1,43 +1,113 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62D6251DDF4;
-	Tue, 22 Sep 2026 16:07:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9538A55C33F;
+	Tue, 22 Sep 2026 16:43:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790093227; cv=none; b=fZAmIrPfKtYulafnhk41bOlXnVZe6+WlnSNggozNYMUXC56wXZPrxhvJuvbRygmi/wshu9gUBCa4xsIzHJ+XPE+RRYlkHTJg2ytPhMYiZ+RqHWvf0bA/iypC01b32pBeVbMH9sZh+yFcdj/ETIw2224ht2R4XYt0rSh1opHLXOU=
+	t=1790095388; cv=none; b=ZDgn5xjvnpsUHPkt2RC7VwBEw3Pz5LZ+zMAD8JF9sY3hu8gzvXQaLUv8I6Ba9OK+G31Fjwo6dhXxo6wuZCVtIT87A+dvRRLMNpDN6Z/Mvhs1jot3txgsCwQ0OXK79fbCjbJic9dZWjjwZsZXgHT4ukhwm+SIJzrlWsc7e/16sMM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790093227; c=relaxed/simple;
-	bh=/NIDHB/qZvBR54apWJdVrYRyfo2N6e64oYVHCRQ7nDo=;
+	s=arc-20240116; t=1790095388; c=relaxed/simple;
+	bh=14Jwv5SqG/STLi+i1lVISv+YxviZldN+nSDRF/nZ4aI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BHQYxAAIXJeNHzaTOpodMDq0q/OnUJI6MlE68I9CxGmxfUTfyhZbIvoEO9A4lIIs3bfWyQ2/UK+Jjd0RFCGLArJipULtuHU0/vxNhCd43Ld7gTH265/238jCtkS+NoqVMLQCEt80YwVj/whyo0FdXbBdgVqI/OWkMutawGsU1sY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=QS0NAy8r; arc=none smtp.client-ip=115.124.30.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=YT6QyjWIa6M8H72XjgrlOtJIXFsrvMW6Tk4uRNyl5P7DoDUTwViIM+pJoqN/VqUKh7avusm3rgoHezEe/WZ+Ku89SA2IKsUODzdI/flH/mtbg7kEFZbnJb+JT2cSt19gn92WwlGaIpvWBZsgg7qcLUVYu23MTMqfWLMmTx7gLCE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=DXSA/Gcd; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="QS0NAy8r"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1790093213; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
-	bh=Lccu25ZMZmH8wBWm/9KHW0iBPuhOoZxVdNftCRxBmcM=;
-	b=QS0NAy8rmcKHoeUX3Y5xfkwhkjA/FxVrD4TwPzof65ny1zun3b+ZVoEJtnodzU1cAfieeH8GgV8HX3LIS2Tw3FyQ/pv4nHiwIMec4w9RgV05EAg+SB7Ow8ON/8ez6jMvZcF9uuYXWx3OrLZhTzxj+F1rlUs081uOWCahTjoiBzw=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0XBUBSgm_1790093212;
-Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0XBUBSgm_1790093212 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Wed, 23 Sep 2026 00:06:52 +0800
-Date: Wed, 23 Sep 2026 00:06:45 +0800
-From: Dust Li <dust.li@linux.alibaba.com>
-To: Sidraya Jayagond <sidraya@linux.ibm.com>, davem@davemloft.net,
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-	alibuda@linux.alibaba.com, horms@kernel.org, mjambigi@linux.ibm.com
-Cc: tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
-	hidayath@linux.ibm.com, pasic@linux.ibm.com, netdev@vger.kernel.org,
-	linux-s390@vger.kernel.org
-Subject: Re: [PATCH net] net/smc: fix UAF on lgr list traversal in
- smcr_port_err()
-Message-ID: <arKnlYTap3hKFR5q@linux.alibaba.com>
-Reply-To: dust.li@linux.alibaba.com
-References: <20260922073149.474762-1-sidraya@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="DXSA/Gcd"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=acmbGOYX6e5b9nsGkh+Evf65NkqvOdBjs0iMPuA3tME=; b=DXSA/GcdR6HXs2iM/AY4Vz+edJ
+	kA/NioItpmK4uLBa+N+yBYGy/TG5czyqFC4qExUiAy7txhD2ZetX+uytMySoVkb7vf95MpnQHobXs
+	5nj+vhS0PUVYU2/JaoirFCdNajGdEWvlQ4wdWlfiL1oP8Yf0G8zCFuk5lYCptlXSEaQ0KOZm+zJN+
+	NG7W2GGIrdOancjdcnpkIbZqCN7FFw8zwNf+GSbFUdO+K8gp+sYxBhPsjldvrqJGrSpLKHYWgpKte
+	3kxOzApBvbjROOxG3nl5IbBdc+LakvvRp2Rg1UGqSPeIiJ9mKJOUkUI2TQFNOzS2neJmoa4FFivIy
+	UMSxC1qg==;
+Received: from willy by casper.infradead.org with local (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1x93ZL-00000009bF8-0eHw;
+	Tue, 22 Sep 2026 16:42:11 +0000
+Date: Tue, 22 Sep 2026 17:42:10 +0100
+From: Matthew Wilcox <willy@infradead.org>
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+	David Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Nico Pache <nico.pache@linux.dev>,
+	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
+	Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
+	Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>,
+	Guo Ren <guoren@kernel.org>, Brian Cain <bcain@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Dinh Nguyen <dinguyen@kernel.org>,
+	Simon Schuster <schuster.simon@siemens-energy.com>,
+	Jonas Bonn <jonas@southpole.se>,
+	Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+	Stafford Horne <shorne@gmail.com>, Rich Felker <dalias@libc.org>,
+	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Russell King <linux@armlinux.org.uk>,
+	Vineet Gupta <vgupta@kernel.org>, Michal Simek <monstr@monstr.eu>,
+	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
+	Will Deacon <will@kernel.org>,
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+	Nick Piggin <npiggin@gmail.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Matt Turner <mattst88@gmail.com>,
+	Magnus Lindholm <linmag7@gmail.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Helge Deller <deller@gmx.de>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+	John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Shakeel Butt <shakeel.butt@linux.dev>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Randy Dunlap <rdunlap@infradead.org>, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-snps-arc@lists.infradead.org, linux-arch@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-alpha@vger.kernel.org,
+	loongarch@lists.linux.dev, linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, linux-um@lists.infradead.org,
+	Hugh Dickins <hughd@google.com>, Qi Zheng <qi.zheng@linux.dev>,
+	linux-doc@vger.kernel.org
+Subject: Re: [PATCH v4 00/12] mm: make userland page table freeing RCU-safe
+Message-ID: <arKv4qbF04KB2WxQ@casper.infradead.org>
+References: <20260922-rcu-pagetable-freeing-v4-0-fe1ad1f1e303@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -46,83 +116,19 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260922073149.474762-1-sidraya@linux.ibm.com>
+In-Reply-To: <20260922-rcu-pagetable-freeing-v4-0-fe1ad1f1e303@kernel.org>
 
-On 2026-09-22 09:31:49, Sidraya Jayagond wrote:
->smcr_port_err() traverses smc_lgr_list.list without holding
->smc_lgr_list.lock, allowing a concurrent smc_lgr_terminate_sched()
->to free an lgr while it is still being dereferenced.
->
->Hold smc_lgr_list.lock across the traversal. Update
->smc_ib_gid_check() to call smcr_port_err() after releasing the lock.
->
->Fixes: 541afa10c126 ("net/smc: add smcr_port_err() and smcr_link_down() processing")
->Reviewed-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
->Signed-off-by: Sidraya Jayagond <sidraya@linux.ibm.com>
-
-Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
-
-Best regards,
-Dust
-
-
->---
-> net/smc/smc_core.c |  2 ++
-> net/smc/smc_ib.c   | 10 ++++++++--
-> 2 files changed, 10 insertions(+), 2 deletions(-)
->
->diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
->index 04aedd957543..9974149659c2 100644
->--- a/net/smc/smc_core.c
->+++ b/net/smc/smc_core.c
->@@ -1849,6 +1849,7 @@ void smcr_port_err(struct smc_ib_device *smcibdev, u8 ibport)
-> 	struct smc_link_group *lgr, *n;
-> 	int i;
+On Tue, Sep 22, 2026 at 04:35:31PM +0100, Lorenzo Stoakes (ARM) wrote:
+> m68k-motorola required the biggest change - since RCU page table freeing
+> uses call_rcu(), this means page table freeing can arise from softirq
+> context.
 > 
->+	spin_lock_bh(&smc_lgr_list.lock);
-> 	list_for_each_entry_safe(lgr, n, &smc_lgr_list.list, list) {
-> 		if (strncmp(smcibdev->pnetid[ibport - 1], lgr->pnet_id,
-> 			    SMC_MAX_PNETID_LEN))
->@@ -1863,6 +1864,7 @@ void smcr_port_err(struct smc_ib_device *smcibdev, u8 ibport)
-> 				smcr_link_down_cond_sched(lnk);
-> 		}
-> 	}
->+	spin_unlock_bh(&smc_lgr_list.lock);
-> }
-> 
-> static void smc_link_down_work(struct work_struct *work)
->diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
->index 9bb495707445..daaa8a72da90 100644
->--- a/net/smc/smc_ib.c
->+++ b/net/smc/smc_ib.c
->@@ -333,6 +333,7 @@ static bool smc_ib_check_link_gid(u8 gid[SMC_GID_SIZE], bool smcrv2,
-> static void smc_ib_gid_check(struct smc_ib_device *smcibdev, u8 ibport)
-> {
-> 	struct smc_link_group *lgr;
->+	bool stale_gid = false;
-> 	int i;
-> 
-> 	spin_lock_bh(&smc_lgr_list.lock);
->@@ -348,11 +349,16 @@ static void smc_ib_gid_check(struct smc_ib_device *smcibdev, u8 ibport)
-> 				continue;
-> 			if (!smc_ib_check_link_gid(lgr->lnk[i].gid,
-> 						   lgr->smc_version == SMC_V2,
->-						   smcibdev, ibport))
->-				smcr_port_err(smcibdev, ibport);
->+						   smcibdev, ibport)) {
->+				stale_gid = true;
->+				goto out;
->+			}
-> 		}
-> 	}
->+out:
-> 	spin_unlock_bh(&smc_lgr_list.lock);
->+	if (stale_gid)
->+		smcr_port_err(smcibdev, ibport);
-> }
-> 
-> static int smc_ib_remember_port_attr(struct smc_ib_device *smcibdev, u8 ibport)
->
->base-commit: f0b88fade64c6fe52e15b246097d10bb115d8af3
->-- 
->2.55.0
+> This was fixed with an IRQ-safe spin lock used in both get_pointer_table()
+> and free_pointer_table().
+
+You don't need to use an irq-safe spinlock for softirqs.  It does work,
+but it's overkill since it disables hardirqs.  If you use spin_lock_bh(),
+only softirqs are prevented from running (and it's safe to call
+spin_lock_bh() when in softirq context, just like it's safe to call
+spin_lock_irqsave() in hardirq or softirq context).
+
