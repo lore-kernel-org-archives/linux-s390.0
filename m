@@ -1,68 +1,60 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DFE7560AB1
-	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 15:47:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C40D4F474C
+	for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 15:48:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790092077; cv=none; b=UCRxMc8sqNo9nG3e7z+ywV3Zys07vUB4QDw7zsFjtXpGNA8TwCi4ZtJxt6iHAdRZyeBQ/WUq+V9YLJYmLm9J/fMG8gxi/oqN3lBVyWkkkrPgM4JXf8BH4QKnU4jJHoulSncffZfslOjYf/+V2YKuk2/duCa+fj50XGbFISX13q8=
+	t=1790092119; cv=none; b=ebEmhUMaan+jxYepeXy4RXniNZs3jBAmlUMy/lpPJYwbK1T7p2VCIz5juLfatQyiHwAoGE5FpQvygu2nPnDKuXyRAqHxKhye9Ql9+ufYs2HPBK1F/VNCM2zD85xsxxni016XwLEb77nz/V6z9GX0Rw054ZpKKpR9SZNxlr9Xneo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790092077; c=relaxed/simple;
-	bh=d1t/jxrZZrqy2lG4zP/CQBW3YnAG2lniHyuDOnhHwlg=;
+	s=arc-20240116; t=1790092119; c=relaxed/simple;
+	bh=PHDRsBp1ZbQ4+XLk48JJ4B8nT0Pd4d43U/Mwn2uUAFI=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=DeklWqE7HR43buwfswuxyAGsmkLUClxtZKLpfQ6Bjx51Q2xNseFHUiqz9WiaNbskIQ5lNbdtU8Acaj3ytzM8y3K428egh/gmD3cJzRGPveqxMzjuiXlPPHVN3X+r+wkzPDmP1wFlHGVaJlycQ3sWGgbt5I2donEF/+GvquJ7Lk4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WuytfHd1; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=fKaSkTRKRmya5lLopStFnF/02EmGKagTl6kq9nA6q5I8jd3ndPi/L31Ia2EB8kb7T4bW6wbPHQtdKG91hs9zm7bKuwF7r8nAMjBY23k+xR2sT1A8EmQQHP6EgsARyth/ofF2G1vVG5266pG5nmb8WKWjGUzmZxOkY+46sfhSX0g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JOtjYKHC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WuytfHd1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEEC81F000FF;
-	Tue, 22 Sep 2026 15:47:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JOtjYKHC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D58151F00898;
+	Tue, 22 Sep 2026 15:48:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790092072;
-	bh=d1t/jxrZZrqy2lG4zP/CQBW3YnAG2lniHyuDOnhHwlg=;
+	s=k20260515; t=1790092118;
+	bh=PHDRsBp1ZbQ4+XLk48JJ4B8nT0Pd4d43U/Mwn2uUAFI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WuytfHd1UWrCvpOEncjb9icZQtUFVuxOE9Oe86tszxDdyMpHClZJAOeijrbfJjy4T
-	 mwGHEn4Uiny1KS7gZYWBCXIhIu4S6NQHQwKja1zdcff0frkTo9TkJfRk77LpF0naK/
-	 G/UcB9CaamJkl6YD12mkxZVHek7VNUXQPi4f6/iguw6nGnM3XvWqjegB/6i81zd63D
-	 QZeKuebtoRbFcJHLYcBzM0d6CmIgAFdagYceNFzm2ApgqheKdcS4NMhwx7toivSK/M
-	 yVL3cOsaEEQgddheCqbwqkC5rEmw5dF7ladC4Zg77ljWX1pni6H9elttxwZAnrs0Ay
-	 nVXILNqDWCV+Q==
+	b=JOtjYKHCkbv5JX0KcMxYRDljKq4cDC582DPjANpcaXEgURApjOan+iJnszixHeG6q
+	 2c0N82HAYcnSbjFsK71FUnB4iUw+ZocH8admN+C+Qkk5hKmfYtz2Gm3bW/FcBuCkWK
+	 USganZ9rPZ4O/G+Q3kv3iT5d5srbm5IoY7NlsnjbpfeoSlTWV+qBjbetocrtONioXU
+	 ECFG+Jsl8rc36sLmDWywjloZaCFDHubRWpGgpNMo6+8MzN9gUtkRSfPgnZV0ImCSLU
+	 pvnAKToy55+l2e+Nxmrn+dewDQTU6X1AkuT31/QZcCnSLoHw2uA519MNUwgh8B3EIk
+	 CqTSDZFhAO2uw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 06/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for
- sparc64
+Subject: Re: [PATCH v4 07/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for
+ m68k-coldfire
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?TG9yZW56byBTdG9ha2VzIChBUk0p?= <ljs@kernel.org>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260922-rcu-pagetable-freeing-v4-6-fe1ad1f1e303@kernel.org>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260922-rcu-pagetable-freeing-v4-7-fe1ad1f1e303@kernel.org>
 References: <20260922-rcu-pagetable-freeing-v4-0-fe1ad1f1e303@kernel.org>
- <20260922-rcu-pagetable-freeing-v4-6-fe1ad1f1e303@kernel.org>
+ <20260922-rcu-pagetable-freeing-v4-7-fe1ad1f1e303@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 22 Sep 2026 15:47:51 +0000
-Message-Id: <20260922154751.EEEC81F000FF@smtp.kernel.org>
+Date: Tue, 22 Sep 2026 15:48:37 +0000
+Message-Id: <20260922154837.D58151F00898@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> Commit 4a0100f7546f ("sparc64: use RCU page table freeing") enabled
-> CONFIG_MMU_GATHER_RCU_TABLE_FREE for SMP sparc64 architectures, expressly
-> for GUP-fast page table walkers.
+> Similar to sun3, the coldfire variant of m68k uses 2-level page tables.
 >=20
-> Naturally, UP systems do not have to worry about concurrent GUP fast
-> operations.
+> Update its __pte_free_tlb() function to use tlb_remove_ptdesc() in order
+> that, with CONFIG_MMU_GATHER_RCU_TABLE_FREE, page tables are freed under
+> RCU.
 >=20
-> However, CONFIG_PREEMPT_RCU is also available even on a UP system, so a
-> future pure-RCU page table walker requires MMU_GATHER_RCU_TABLE_FREE to be
-> enabled on UP, even if concurrent GUP fast is not possible there.
->=20
-> To enable future pure-RCU page table walkers, enable
-> MMU_GATHER_RCU_TABLE_FREE unconditionally.
->=20
-> With this change, it is no longer necessary to have !CONFIG_SMP
-> pgtable_free_tlb(), so also remove this now dead code.
+> The page tables occupy a page each and have no odd semantics, so this
+> change suffices to allow enabling of CONFIG_MMU_GATHER_RCU_TABLE_FREE for
+> m68k-coldfire, so do so.
 >=20
 > This forms part of an overall effort to switch every architecture to this
 > mode.
@@ -74,5 +66,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260922-rcu-pageta=
-ble-freeing-v4-0-fe1ad1f1e303@kernel.org?part=3D6
+ble-freeing-v4-0-fe1ad1f1e303@kernel.org?part=3D7
 
