@@ -1,67 +1,71 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E43F5328DA;
-	Tue, 22 Sep 2026 10:19:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5FFE5326C7;
+	Tue, 22 Sep 2026 10:19:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790072370; cv=none; b=WC6sWz2In3LAVIWTL3QtjFhCPO+LiCvIIHSorDfjiCM7Jp3hW14Ane5whi/gvKW/8COMeidPRWq+65wVgY+r0fupbVA6vubGyr5fmiYBglbY/S40mfNbfj3j0JXfHwYe2PQKE/vZ1FUJMzV5tLG8L6YlO+DVOTXzRzqWccHsf0E=
+	t=1790072371; cv=none; b=SDl1PBh5bCd9gK4voXseYsnyoQJRvNJbZyaGLWh8OU7m7LR6Yi+Oci+PyayH6rChJBdSV6813hXEyooZg/uKc6/SglTpUHLyPDHApUjIppaEPpfsXCdPtDoKuB/yhLbopLrn9MaeAsHGLcJukFx1IXLH1lmlVd5IWcFcI33s3nk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790072370; c=relaxed/simple;
-	bh=B1Qa+nkvY8U0bmLpznwmykvTGZOX4kTi77Pj0B3TFTY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=i1D1bzoAoB8uVeCd/BL9wGe1W+AeeUJepwYbcEtvhbo6JVY+jm5w78L7Dhne6ySEMJKEH/z/g79Tzfb0JgPU5zELr8JOe1YY++lEAnVCh+IGRx4oTby5RgNq7GqShVkx8jxBvJqm1XtFMziq50C3M4UfkJi9cJ6etpv7oB5haEA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rH59kq5P; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1790072371; c=relaxed/simple;
+	bh=9VYlEBBzHvNgnKHjD/sB6aGAHCr33aE4j4uXIeG5GlY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=CECxONyzayVsZdItInpRKiKD7PuOYoDpF+AIu5pD/q3SBmIxYY1gUaU5Vna7gckUMD4uwo8nUx/+u1Fne+Xm4DxOf0Dm1IQiZvVQgsXU68uBPr6pJ14HBrivceTTn+JhF+S1LoL47LGqRCMcC/YwO6g76S96JywIhyLklvzyI4I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qATCCJuR; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rH59kq5P"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68M05dGR1778072;
-	Tue, 22 Sep 2026 10:19:20 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qATCCJuR"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68M05Uct1075347;
+	Tue, 22 Sep 2026 10:19:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=SENuwHelByXhcnMfBQ+ZhMnkdBktkHZiPgELWqnwx
-	WI=; b=rH59kq5PK4Ve1UaRHbqeAAoq31iYstyZ/PkwfoDxe7EGRB9RmS4Xj1Waa
-	13FRSVrl8qyOrMFGIt47GNjsAgPJeW9JGojKAGykbwmpOvK7j+sK4oduw7dza2/A
-	k7JOeLbsYZ5b4DwI0yN2J7kVbYhOdgppEsNDN5nqwu/tNifakenYl4NZ+Fcf2UkY
-	EoiT83P4BZ9gLwBsIdc4N/I0byomC7ooQ95bcuUkl3k4mXKxNNn6v+tTBIC1y3uy
-	0aZZ7S3QV3yB2CqV3kqTYJrCiHPp6aOQck0fX002fETyC3CyaNajBOYTOLbp5ab7
-	VXmRRaVO9kpgR0MApjvSvg3cWYXRA==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskgqcujn-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=NNIbTOTUOhN+guE6W
+	aKUWJifDAzgIR8Qvw1UneT4K/U=; b=qATCCJuRW3xWRhjg1PLeFgDteb8BOUL3v
+	1RTLy99KTFay0ToKqBafd3U1deYsXjbdGlhozujxKiPdhYTgTNiDmj8i/l/KJ5oQ
+	X4rgNz4PLRupQu5jpe/7KmUHvHANTg6FQr+nIaacLKrp+pbK1stoCb2sQ8MJSaKC
+	i/V8bW2SWPNBn/RNwOw3okg7atLl47+76xhHGolztSqO2C6CM1ZrAhf58qZ16P2+
+	tQ8N2erWnXiiBxJp1YYwyKNOiJgSFNaiJbRoL3o/BrbbnicSpxaJEENNXcgNEJd3
+	jaPHeL5qF2R5ujCMZ1QcKf/ACXafdl6ZeLYnb84kalEq+qTsGal+Q==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gske1n626-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 22 Sep 2026 10:19:20 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68MA6wQC764392;
-	Tue, 22 Sep 2026 10:19:19 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gu5bkbwkt-1
+	Tue, 22 Sep 2026 10:19:22 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68MA7wjT2045776;
+	Tue, 22 Sep 2026 10:19:21 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gt67gs9t5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 22 Sep 2026 10:19:19 +0000 (GMT)
+	Tue, 22 Sep 2026 10:19:21 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68MAJFsV48562646
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68MAJHit28377420
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 22 Sep 2026 10:19:15 GMT
+	Tue, 22 Sep 2026 10:19:17 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A97B620043;
-	Tue, 22 Sep 2026 10:19:15 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 5BCD020043;
+	Tue, 22 Sep 2026 10:19:17 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 631BE20040;
-	Tue, 22 Sep 2026 10:19:15 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 12C2E20040;
+	Tue, 22 Sep 2026 10:19:17 +0000 (GMT)
 Received: from t83lp71.lnxne.boe (unknown [9.87.84.240])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 22 Sep 2026 10:19:15 +0000 (GMT)
+	Tue, 22 Sep 2026 10:19:17 +0000 (GMT)
 From: Nagamani PV <nagamani@linux.ibm.com>
 To: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
         kuba@kernel.org, pabeni@redhat.com
 Cc: wintera@linux.ibm.com, aswin@linux.ibm.com, hca@linux.ibm.com,
         gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
         svens@linux.ibm.com, kees@kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, Nagamani PV <nagamani@linux.ibm.com>
-Subject: [PATCH net v3 0/2] s390/ctcm: Fix timer corruption and use-after-free
-Date: Tue, 22 Sep 2026 12:19:11 +0200
-Message-ID: <20260922101913.239103-1-nagamani@linux.ibm.com>
+        netdev@vger.kernel.org, Nagamani PV <nagamani@linux.ibm.com>,
+        stable@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>
+Subject: [PATCH net v3 1/2] s390/ctcm: Fix timer corruption in fsm_addtimer()
+Date: Tue, 22 Sep 2026 12:19:12 +0200
+Message-ID: <20260922101913.239103-2-nagamani@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260922101913.239103-1-nagamani@linux.ibm.com>
+References: <20260922101913.239103-1-nagamani@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -71,74 +75,100 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=G+OJgNk5 c=1 sm=1 tr=0 ts=6ab25628 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-ORIG-GUID: BGE3YdTzp6QTy7G87RG5h6b5x-hjI4dI
+X-Authority-Analysis: v=2.4 cv=EOCTQFZC c=1 sm=1 tr=0 ts=6ab2562a cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8 a=3rS-qYyT1ibZB_HPfVwA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIyMDE0NSBTYWx0ZWRfXw+XoZuDyjcpI
- lYYpk5buZxKy/oFMo99qq4d7iqz2MyhyoiVq/8A1ngxA9EHqZNSiqiiK0IVk0uB/qlfCVuV9PD1
- qozWClN3oow6lxKbtbzmU2jkZPMgA73H7IXs58bzHgc++BCyoL5frqXohH7gbW7GSMTGg4KA88x
- N5gMYeMZ1C9K6f0CBwAGFGlUk1vICBeReorjW5gpXYJv3JpDnW27ChKmK4Sh9KWOE4glcNFeXx3
- XZ+tDuUcWUip/OCeWLWjmh5owC5E1e515AByhNcqQgQvb9lrx9hiZG+pfurt+eD64doq+GtfVi0
- KD/pvN9X/JNi6ETcfWL6GNk6GsYHjsIZHE4Yo8wgixELcViIu0YnO2swvHEbMo7X8FF0wO3kFKN
- yGXfipJu0EfXSudvxmzosnazgwu8pCRSIMWI0tiO1ci2XPkCWpHCzNtxKB0qop39T97ASxVa7V+
- NIKlniu0ChUyHgEGsBA==
-X-Proofpoint-ORIG-GUID: PalLib8XLoV_i-NlgGGXYGNZOiMsQhjt
-X-Proofpoint-GUID: Q4jUXzb0cB-NR1SJQ07UXANXqpeAMU6E
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIyMDE0NSBTYWx0ZWRfXyHA8Aw/1v2Ek
- TzTHA1k90wI8VHPkLN8PZDQglAj3yx2XrJJQI75oGAeOXq1CbQ8Ki6pO3nUGOA9KVoquBwYchYO
- hj/blmb8eit9JnvS+5rGrvDD7x1lwUA=
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=c92rfblmAAAA:8 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=T_NMYt6YcsbJOU4cA00A:9 a=GvGzcOZaWPEFPQC_NcjD:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIyMDE0NSBTYWx0ZWRfX7PX5YQuOCP+G
+ TI53nyn6ypXr9ZVIawoSZKS/p61bs1fEDNXsIz3GMbyyfkvHSH3efVvjDJsRqEgH9Zsn7HyzDAr
+ MEWuNH7xZRCUFrJsxgE3YJOXy6XIIOU=
+X-Proofpoint-GUID: aPAs5Lz1YvfUZYgOlw0JET3kzGtT0vHN
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIyMDE0NSBTYWx0ZWRfXxEJomm5BbdzM
+ apMAz1YGfjZDg+Q6AHSOW+5Tihgbw4odor8wd0589mda8pBu9fNxAwSorOqvhTpKHmXmivRoLfP
+ azcopKrJm0IpvuJ/koHTfog7Eb25rM1Xu4Z1ZMG8kk3tYzwI74ezqDAGoqiMRgYB99sLTvcg/w+
+ WDpSpdyPbbyg3RtxOEyVByFbNDVa5LArSDZCue0G1Hn9cj7nEky3r3s4V0he+9qzDybcHEOJyap
+ 87yAa+LMuUkum8oa6w9UpDUCTxZ4XbtrJ6I07oW/PuVJCLmMXTKYREGBZUXWlc4z4lcd48nnRNr
+ OP+nz8J5gp2oS7ujLGqhzu2zh+zwlV9YMVRg9NiM6k1jG6mRtDwCQVAPKYlXMozihn5HFchLxlZ
+ MN5443NxI4vUC62S+MXLH85/cBvuNglWJCpRSYjC0dDJciiIsQNliT91TNtl0bfx9WRUnfcu2F+
+ s8gtfQfOxtRnGQfpbnQ==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-21_07,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0
- bulkscore=0 priorityscore=1501 clxscore=1015 spamscore=0 malwarescore=0
+ bulkscore=0 phishscore=0 priorityscore=1501 clxscore=1015 spamscore=0
+ adultscore=0 impostorscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609220145
 
-Fix two timer bugs in drivers/s390/net/fsm.c and
-drivers/s390/net/ctcm_main.c found by Sashiko AI code review.
+fsm_addtimer() calls timer_setup() unconditionally before add_timer().
+If called on an already-pending timer, timer_setup() re-initializes
+the timer's list_head fields while the timer is still enqueued in the
+wheel, corrupting the timer list.
 
-Patch 1 fixes timer list corruption when fsm_addtimer() is called on
-an already-pending timer - timer_setup() re-initializes the timer
-list_head while it is still enqueued in the wheel.
+The timer is already initialized once by fsm_settimer() which calls
+timer_setup() correctly. Multiple callsites invoke fsm_addtimer()
+without a preceding fsm_deltimer(), including ctcm_main.c
+ctcmpc_send_sweep_req() and ctcm_mpc.c mpc_action_side_xid(), making the
+redundant timer_setup() in fsm_addtimer() a real corruption risk.
 
-Patch 2 fixes a use-after-free in channel_remove() - timer_delete()
-returns before any running callback finishes, leaving a window where
-the timer callback can access freed memory. For MPC channels,
-ch_tasklet and ch_disc_tasklet are killed first so they cannot access
-freed memory or re-arm sweep_timer; sweep_timer is then shut down with
-timer_shutdown_sync() because its callback can re-arm ch->timer; only
-then is ch->timer stopped with timer_delete_sync().
+Remove the redundant timer_setup() calls from fsm_addtimer() and
+fsm_modtimer(), and replace add_timer() with mod_timer() which safely
+handles both pending and non-pending timers atomically without
+corrupting the timer wheel.
 
+Fixes: e99e88a9d2b0 ("treewide: setup_timer() -> timer_setup()")
+Cc: stable@vger.kernel.org
+Reported-by: Sashiko <sashiko-bot@kernel.org>
+Link: https://sashiko.dev/#/patchset/20260803182736.2356374-1-nagamani@linux.ibm.com?part=1
+Reviewed-by: Aswin Karuvally <aswin@linux.ibm.com>
+Tested-by: Aswin Karuvally <aswin@linux.ibm.com>
+Signed-off-by: Nagamani PV <nagamani@linux.ibm.com>
+---
 Changes in v3:
-- Patch 2: fix MPC tasklet/timer re-arm UAF identified by Sashiko:
-  kill ch_tasklet and ch_disc_tasklet before stopping the timers, then
-  shut down sweep_timer before deleting ch->timer; move
-  kfree(discontact_th) into the MPC teardown block.
-- Patch 2: code changed; Reviewed-by and Tested-by dropped.
-
-Note: two pre-existing UAFs in ctcm_free_netdevice() (grp->timer,
-priv->restart_timer) and a NULL deref in ctcmpc_chx_txdone() are
-confirmed but out of scope for this series; follow-up patch planned.
+- No changes to this patch.
 
 Changes in v2:
-- Patch 1: fix function name ctcm_send_sweep() -> ctcmpc_send_sweep_req()
+- fix function name ctcm_send_sweep() -> ctcmpc_send_sweep_req()
   in the commit message (Sashiko netdev-bot)
-- Patch 1: call mod_timer() then return 0 explicitly, preserving the
+- call mod_timer() then return 0 explicitly, preserving the
   "Always returns 0" contract documented in fsm.h (Sashiko netdev-bot)
-- Patch 2: add Fixes: and Cc: stable@vger.kernel.org tags
-  (Sashiko netdev-bot)
+---
+ drivers/s390/net/fsm.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-Nagamani PV (2):
-  s390/ctcm: Fix timer corruption in fsm_addtimer()
-  s390/ctcm: Fix use-after-free in channel_remove()
-
- drivers/s390/net/ctcm_main.c | 15 +++++++--------
- drivers/s390/net/fsm.c       |  9 ++-------
- 2 files changed, 9 insertions(+), 15 deletions(-)
-
+diff --git a/drivers/s390/net/fsm.c b/drivers/s390/net/fsm.c
+index 9b8622aef807..936ed0bc8401 100644
+--- a/drivers/s390/net/fsm.c
++++ b/drivers/s390/net/fsm.c
+@@ -171,11 +171,9 @@ fsm_addtimer(fsm_timer *this, int millisec, int event, void *arg)
+ 	       this->fi->name, this, millisec);
+ #endif
+ 
+-	timer_setup(&this->tl, fsm_expire_timer, 0);
+ 	this->expire_event = event;
+ 	this->event_arg = arg;
+-	this->tl.expires = jiffies + (millisec * HZ) / 1000;
+-	add_timer(&this->tl);
++	mod_timer(&this->tl, jiffies + msecs_to_jiffies(millisec));
+ 	return 0;
+ }
+ 
+@@ -189,12 +187,9 @@ fsm_modtimer(fsm_timer *this, int millisec, int event, void *arg)
+ 		this->fi->name, this, millisec);
+ #endif
+ 
+-	timer_delete(&this->tl);
+-	timer_setup(&this->tl, fsm_expire_timer, 0);
+ 	this->expire_event = event;
+ 	this->event_arg = arg;
+-	this->tl.expires = jiffies + (millisec * HZ) / 1000;
+-	add_timer(&this->tl);
++	mod_timer(&this->tl, jiffies + msecs_to_jiffies(millisec));
+ }
+ 
+ EXPORT_SYMBOL(init_fsm);
 -- 
 2.53.0
 
