@@ -1,137 +1,309 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8CAB488DA0;
-	Tue, 22 Sep 2026 18:23:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16E7C3B7B7F;
+	Tue, 22 Sep 2026 18:44:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790101395; cv=none; b=UpM66TvhWJUNe5r6nmckuel3iCf3nUWRpFESkRhu8n1VBe+SOH4Na5LQsI/bozfdpm1yFRYWOOcdeEmTLAda638eLLCX85He9Ce6phYMf4KFwtKvhnedMU/7We4qcuQRZZ30bPPPv/iZHOXD0UIuib5I2RYEPiKb+Ka7qOBGSCQ=
+	t=1790102669; cv=none; b=aVROGE7fzynzfW/pdovCbDv9WIc9984VcXIfPWkPM3tGklY6VJoKhKJkR5+/sPsNbV39D0kBNreG9iXZ/1YYwXU642WbZFKhrSwSuIkZntWt94iuH+QZPQh9Vc0cJI7HWIuiZ0j/bXRLbQTFcVpgZzDMNOMjanfVzar/Fki9+fs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790101395; c=relaxed/simple;
-	bh=wNGJDeCmxIIrZU9lVVusChrYW2DlI08XhxkD4rOMgtw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NYCsd6TDxOHu/pr3GiuZiRaATT1VZ/IeyQLkmpNVbbUsCb2wEqFcX9C2GNB7GGT1ogXp1bf5lpota7Z6o7/kcTqDFfMaxOi1GYXlPLJwIa/YHe6kbMlgBQBsw5GWI9pf6eev4HoNCmrXvWMPpa7M4yKuHuh57EE+GD1WEUgcuXU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=T11iXN2o; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1790102669; c=relaxed/simple;
+	bh=h6IVm2PcH9mfF7+RczPWWLWohajk9HLBHhcz9iSYAjk=;
+	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Hl+61GrhFrMuBwallpkmyt5/6Vy8Jjm49Z4vb4N3nvO3UEMFnx0i0BHpqQiOdk6fbFRwtVXcj1oI7MHeOx+3sbhzopCt5uqgkkSoZ5fRl3h9qJ/MbAG2mywPBCXQ72f2zfL7CEnaNGnHU1xfwk9Ko65hLY1oJvTKM7TQ6tZIXnw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ULqOnm5o; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="T11iXN2o"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68MI6w341128971;
-	Tue, 22 Sep 2026 18:23:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=gfdR7ORVUJumurlwESUP5IHSYU1p+I
-	eJ31U+9ZVOlR4=; b=T11iXN2oUetZ4bEssqHfXPZO6MeW7+HsV6LYasckRhiJ/i
-	pxiI80o+1d6Eoxnz24spVPJmNGRrSz84PUHlxH7euCHVLc83SxXay9c5XgFXUcaX
-	Jt+2gOQAKU0kxEgoFCp3OF30DYjjZmvkjMEpxEtVknfbtPzSw6Mqw/5MXhWUjnkW
-	RbGr9fi4dtoZQc441WDHa+fCTCKYPwnuebEO+N/kZAX0CqAY1xLZoK2wZzD0iVNw
-	eH5qZBTVgqdETUeWpV3+I/iAQMAbAhG7J1hwzLAgZUWFr9vWvl42Cv5ptgkch9gW
-	UvyphQUTHHmvNEd54fVqS51iVhuJZQU0bQ5tkLTw==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskg2fcuv-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 22 Sep 2026 18:23:03 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68MIHctB3240060;
-	Tue, 22 Sep 2026 18:23:03 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gt67gtvtn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 22 Sep 2026 18:23:02 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68MIMuFJ6029626
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 22 Sep 2026 18:22:57 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D32932004B;
-	Tue, 22 Sep 2026 18:22:56 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E21F20040;
-	Tue, 22 Sep 2026 18:22:56 +0000 (GMT)
-Received: from osiris (unknown [9.111.71.5])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 22 Sep 2026 18:22:56 +0000 (GMT)
-Date: Tue, 22 Sep 2026 20:22:55 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Mete Durlu <meted@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Juergen Christ <jchrist@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: Re: [PATCH v4 00/11] s390: More this_cpu_*() changes
-Message-ID: <20260922182255.26236Cc2-hca@linux.ibm.com>
-References: <20260921155806.2447506-1-hca@linux.ibm.com>
- <dc01ef2f-3ed9-4b25-ae5f-1bd317df27cb@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ULqOnm5o"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A42C1F00893;
+	Tue, 22 Sep 2026 18:44:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790102662;
+	bh=1IxyZtZmcdhtuM2dKvn8d1mOOIfkqTrxHyUtB5yx34Q=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=ULqOnm5olO9jV8adygoNsZuOmn8oIHOEmnsVGOtWjLKoo9wQbcDWm9aR2sEVyAa5P
+	 xV8PP0GuJSs+MeZkf6/jt+3FTOKmFN3h/k/JlrGcdMfpwhTkrruHS+IhO9K2Wsj8sh
+	 351uf+RCPeL1LQMBYTh301MfjqFFk3O7RbjsfLTpJYNFppizAwZYww2vQFKb63Y/yY
+	 xUQBE1X+UGVTd1ZX/WndoRNElx59rsUwWC2c+tTzrXA7mdP8a3NyVE8A7Ku0AY0zwH
+	 MEktnmSp+MONIClqYr0NgDhG8dvwcc/XkcgoWk/UylAecU+cEy6xqgX7cr9or2G+Oa
+	 4d9WjI/4ulIOw==
+Subject: Re: [PATCH net-next v3 2/2] net: bridge: fail link info that does not
+ fit in a netlink attribute
+From: netdev-bot+sashiko@kernel.org
+To: iprintercanon@gmail.com
+Cc: netdev@vger.kernel.org, bridge@lists.linux.dev, razor@blackwall.org,
+ idosch@nvidia.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, horms@kernel.org, andrew+netdev@lunn.ch, kuniyu@google.com,
+ michael.chan@broadcom.com, pavan.chebbi@broadcom.com,
+ ajit.khaparde@broadcom.com, sriharsha.basavapatna@broadcom.com,
+ anthony.l.nguyen@intel.com, przemyslaw.kitszel@intel.com,
+ intel-wired-lan@lists.osuosl.org, saeedm@nvidia.com, tariqt@nvidia.com,
+ mbloch@nvidia.com, oss-drivers@corigine.com, wintera@linux.ibm.com,
+ aswin@linux.ibm.com, linux-s390@vger.kernel.org
+Date: Tue, 22 Sep 2026 18:44:20 +0000
+Message-ID: <179010266085.2160803.3521506082186980077@kernel.org>
+In-Reply-To: <20260919134333.49379-3-iprintercanon@gmail.com>
+References: <20260919134333.49379-3-iprintercanon@gmail.com>
+X-sashiko-severity: Medium
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dc01ef2f-3ed9-4b25-ae5f-1bd317df27cb@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: R3Rm1nbfO4gltRVUTXODtSL29oCz_OMz
-X-Authority-Analysis: v=2.4 cv=I43w19gg c=1 sm=1 tr=0 ts=6ab2c787 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
- a=_IjnK-qXvPJbhhBBUg8A:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIyMDI2NSBTYWx0ZWRfX+6vkDMfq2RGS
- 2YzxSdoAZZrHvqgIs9aQI1T6zHOeNAJ17TiOclbjKaiG3YaLm3DmCpJtiMilHDTNCsvEQJadtqu
- GHEN/Kayz2sY7oOE/AWR6aDDl/BMTcJnJ9CgY6eElFKNDj0tkL3jlJtbgdaaREwVdzk1bt0kwDZ
- kFo/BbqAffZW2qPylW4Oe7U0aYfvK9/nfyC+LO0gShFoQ6BqyvMBxZnMkCMppdhVRJUwXTfz8xJ
- 2G+Mu4vhmVzPVdt7m0Kfjc7w6lmkoL3PkjUo55D1s4Y5gR4qAyfTuwD0bXr4IKBI27gNHpyCXJt
- DoqKQrgw9vSfTjmFkS071t76NUIz0FR7nsBI0Mir9eSndNwlBAHt6nGilPECAb5da62mibCopMG
- ytOcaBkot5YWQdHk9TFz0XMVi7rNCHlEk09hCgKQtTmMytaNXZv9NdELz3ECXD1bdj9NAlCButo
- MgqjLPH3utrXJfHprTQ==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIyMDI2NSBTYWx0ZWRfX+BQM/0j2giAe
- qSD67oDJXV41kOb4RMiJxlHS6z739h5DErSXwfHdUsrqnGnrJqvRoiK0ReV2Kv5+LqMLtAlNltx
- 0/bWxbTb+sOsAyaSX5U75aDE0vX9kY8=
-X-Proofpoint-GUID: R3Rm1nbfO4gltRVUTXODtSL29oCz_OMz
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-22_03,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 clxscore=1015 adultscore=0 suspectscore=0 impostorscore=0
- lowpriorityscore=0 bulkscore=0 phishscore=0 priorityscore=1501 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609220265
 
-On Tue, Sep 22, 2026 at 05:37:14PM +0200, Mete Durlu wrote:
-> On 21/09/2026 17:57, Heiko Carstens wrote:
-> [..snip..]
-> > The only non-trivial patch is the last one, which converts s390's
-> > this_cpu_*() operations to use a similar scheme like Mark Rutland
-> > provided it for arm64 [1]. This allows to simplify the irq entry and exit
-> > path, however at the cost of slightly worse code for this_cpu_*()
-> > operations.
-...
-> Hi all,
-> 
-> I did some benchmarking for this patch series.
-> 
-> Used a shared LPAR with 24 CPUs (12 cores w SMT2).
-> 
-> Base commit: f0100363d8c3 ("Merge tag 'xfs-fixes-7.3-rc5' of
-> gitolite.kernel.org:/pub/scm/fs/xfs/xfs-linux")
-> 
-> Some of the benchmark runs show +-5% standard deviation which can
-> be attributed to s390 being a virtualized system. Each run has been
-> repeated five times to circumvent the effects of standard deviation.
-> (In the odd case where baseline has -5% and patched run has +5%
-> deviation, the comparison can show ~+10% improvements which is highly
-> misleading).
-> 
-> Overall, the benchmarks do not show any real difference between baseline
-> and patched kernels;
+Thank you for your contribution! Sashiko AI review found 3 potential
+issue(s) to consider.
 
-Mete, thanks a lot for running the benchmarks!
+Critical: 0 · High: 0 · Medium: 1 (2) · Low: 2
 
-This confirms that we can move forward including the last patch of this series.
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
+
+- [Medium] New error path discards already-consumed CFM status.
+- [Low] Missing `Fixes:` tag / stable routing information for a user-
+  visible uAPI bug fix.
+- [Low] The single `nla_nest_too_large` label emits "AF_SPEC info too
+  large, use per-object dumps (e.g. RTM_GETVLAN)" for all three overflow…
+
+Pre-existing issues:
+- [Medium] This problem wasn't introduced by this patch, but it
+  undermines the notification behaviour the commit message describes:…
+- [Medium] This problem wasn't introduced by this patch, but it sits
+  directly in the rewritten function: in `br_fill_ifinfo()` the return…
+
+--
+
+net: bridge: fail link info that does not fit in a netlink attribute
+
+br_fill_ifinfo() now finalizes the IFLA_AF_SPEC, IFLA_BRIDGE_CFM and
+IFLA_BRIDGE_MST nests with nla_nest_end_safe() and returns -E2BIG with an
+extack message when a nest payload exceeds what the u16 nla_len can
+describe.  br_fill_ifinfo() gains an extack argument, passed through from
+br_getlink() and NULL from br_info_notify().
+
+A few questions on the change below.
+
+> nla_len is a u16, and a port with enough VLANs, tunnels or MST entries
+> makes the IFLA_AF_SPEC nest wrap, so userspace reads garbage. Same for
+> the inner MST and CFM nests.
+
+[Severity: Low]
+Since the commit message describes pre-existing user-visible breakage
+("userspace reads garbage") rather than a cleanup, should this carry a
+Fixes: tag so it gets routed to stable?
+
+The overflow does look reachable: __get_vlan_tinfo_size() in
+br_netlink_tunnel.c charges 28 bytes per tunnel mapping
+
+	return nla_total_size(0) + nla_total_size(sizeof(u32)) +
+	       nla_total_size(sizeof(u16)) + nla_total_size(sizeof(u16));
+
+so roughly 4094 VLANs with non-consecutive tunnel IDs push the AF_SPEC
+payload past U16_MAX, and br_info_notify() allocates an skb of exactly
+br_nlmsg_size() bytes for it.
+
+Candidate anchors would be the commit that introduced the AF_SPEC nesting
+(b6c02ef54913) and the later CFM/MST reporting additions.
+
+> diff --git a/net/bridge/br_netlink.c b/net/bridge/br_netlink.c
+> index 855a46aec3a8..fbd91b86d426 100644
+> --- a/net/bridge/br_netlink.c
+> +++ b/net/bridge/br_netlink.c
+
+[ ... ]
+
+> @@ -588,7 +588,8 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+>  				goto nla_put_failure;
+>  		}
+>  
+> -		nla_nest_end(skb, cfm_nest);
+> +		if (nla_nest_end_safe(skb, cfm_nest) < 0)
+> +			goto nla_nest_too_large;
+>  	}
+
+[Severity: Medium]
+Can this new exit throw away CFM status that has already been consumed?
+
+br_getlink() calls br_fill_ifinfo() with getlink = true, and
+br_cfm_status_fill_info() clears the "seen" indications as it serializes
+each record:
+
+net/bridge/br_cfm_netlink.c:br_cfm_status_fill_info() {
+	...
+	if (getlink) {
+		/* Clear all 'seen' indications */
+		mep->status.opcode_unexp_seen = false;
+		mep->status.version_unexp_seen = false;
+		mep->status.rx_level_low_seen = false;
+	}
+	...
+		if (getlink) { /* Only clear if this is a GETLINK */
+			/* Clear all 'seen' indications */
+			peer_mep->cc_status.seen = false;
+			peer_mep->cc_status.tlv_seen = false;
+			peer_mep->cc_status.seq_unexp_seen = false;
+		}
+	...
+}
+
+Nothing bounds the peer MEP count so that the IFLA_BRIDGE_CFM nest stays
+below U16_MAX (each peer status record is around 76 bytes, so roughly 860
+peers overflow it).  The nest check then jumps to nla_nest_too_large, which
+cancels the whole message and returns -E2BIG, after the flags were already
+cleared.
+
+A retry returns -E2BIG again, so that generation of defect and
+unexpected-opcode information is gone.  Before this patch the malformed
+message was at least delivered.  The existing nla_put_failure path has the
+same clear-then-cancel shape; would validating the nest size before
+consuming the state be preferable to adding another cancel-after-clear
+exit?
+
+> @@ -608,20 +609,27 @@ static int br_fill_ifinfo(struct sk_buff *skb,
+>  		if (err)
+>  			goto nla_put_failure;
+>  
+> -		nla_nest_end(skb, mst_nest);
+> +		if (nla_nest_end_safe(skb, mst_nest) < 0)
+> +			goto nla_nest_too_large;
+>  	}
+>  
+>  done:
+>  	if (af) {
+> -		if (nlmsg_get_pos(skb) - (void *)af > nla_attr_size(0))
+> -			nla_nest_end(skb, af);
+> -		else
+> +		if (nla_nest_end_safe(skb, af) < 0)
+> +			goto nla_nest_too_large;
+> +		if (!nla_len(af))
+>  			nla_nest_cancel(skb, af);
+>  	}
+>  
+>  	nlmsg_end(skb, nlh);
+>  	return 0;
+>  
+
+[Severity: Medium]
+This isn't a bug introduced by this patch, but it lands right in the
+rewritten function: can the done: block finalize a truncated AF_SPEC nest
+and report success?
+
+Earlier in br_fill_ifinfo() the VLAN fill result is clobbered:
+
+	if (filter_mask & RTEXT_FILTER_BRVLAN_COMPRESSED)
+		err = br_fill_ifvlaninfo_compressed(skb, vg);
+	else
+		err = br_fill_ifvlaninfo(skb, vg);
+
+	if (port && test_bit(BR_VLAN_TUNNEL_BIT, &port->flags))
+		err = br_fill_vlan_tunnel_info(skb, vg);
+	rcu_read_unlock();
+	if (err)
+		goto nla_put_failure;
+
+br_fill_vlan_tunnel_info() in br_netlink_tunnel.c returns 0 without writing
+anything when no VLAN in the group has a tunnel_dst:
+
+	if (!v->tinfo.tunnel_dst)
+		continue;
+	...
+	return 0;
+
+vlan_tunnel is a port flag that can be set without any per-VLAN tunnel
+mapping, so an -EMSGSIZE from the VLAN fill is overwritten with 0, the
+goto nla_put_failure is skipped, and control reaches done: which ends the
+nest and returns 0.  In a dump rtnl_bridge_getlink() then does
+
+	idx++;
+
+and moves past the device, so the missing VLANs are never emitted.
+
+> +nla_nest_too_large:
+> +	NL_SET_ERR_MSG_MOD(extack,
+> +			   "AF_SPEC info too large, use per-object dumps (e.g. RTM_GETVLAN)");
+> +	nlmsg_cancel(skb, nlh);
+> +	return -E2BIG;
+> +
+
+[Severity: Low]
+All three overflow sites share this label, so an oversized
+IFLA_BRIDGE_CFM nest also tells userspace to retry with RTM_GETVLAN.
+
+The bridge only registers PF_BRIDGE handlers for the VLAN and MDB commands:
+
+net/bridge/br_vlan.c:
+	{THIS_MODULE, PF_BRIDGE, RTM_GETVLAN, NULL, br_vlan_rtm_dump, 0},
+
+There is no RTM_GET* command that dumps CFM MEP config or status; those
+attributes are only produced by br_cfm_config_fill_info() and
+br_cfm_status_fill_info(), reachable solely from br_fill_ifinfo(), and
+include/uapi/linux/rtnetlink.h has no CFM command.  The same applies to the
+per-port IFLA_BRIDGE_MST nest, for which RTM_GETVLAN returns only the
+indirect per-VLAN state.
+
+Would a per-site message be better here, so the advice matches what the
+kernel can actually return?
+
+>  nla_put_failure:
+>  	nlmsg_cancel(skb, nlh);
+>  	return -EMSGSIZE;
+> @@ -654,7 +662,8 @@ void br_info_notify(int event, const struct net_bridge *br,
+>  	if (skb == NULL)
+>  		goto errout;
+>  
+> -	err = br_fill_ifinfo(skb, port, 0, 0, event, 0, filter, dev, false);
+> +	err = br_fill_ifinfo(skb, port, 0, 0, event, 0, filter, dev, false,
+> +			     NULL);
+>  	if (err < 0) {
+>  		/* -EMSGSIZE implies BUG in br_nlmsg_size() */
+>  		WARN_ON(err == -EMSGSIZE);
+
+[Severity: Medium]
+This is a pre-existing issue, but it affects the notification behaviour
+described in the changelog: on the CFM status notification path the skb can
+be too small, so this WARN_ON fires before the new -E2BIG check is reached.
+
+br_cfm_status_fill_info() opens one nest per record:
+
+net/bridge/br_cfm_netlink.c:br_cfm_status_fill_info() {
+	...
+	tb = nla_nest_start(skb, IFLA_BRIDGE_CFM_MEP_STATUS_INFO);
+	if (!tb)
+		goto nla_info_failure;
+	...
+}
+
+and likewise one IFLA_BRIDGE_CFM_CC_PEER_STATUS_INFO nest per peer MEP, but
+br_get_link_af_size_filtered() only charges the outer nest plus the child
+attributes:
+
+net/bridge/br_netlink.c:br_get_link_af_size_filtered() {
+	...
+	vinfo_sz += nla_total_size(0);	/* IFLA_BRIDGE_CFM */
+	/* For each status struct the MEP instance (u32) is added */
+	vinfo_sz += num_cfm_mep_infos *
+		    (nla_total_size(sizeof(u32)) ...
+	...
+}
+
+No nla_total_size(0) is added for the enclosing per-record nests, so the
+estimate is 4 bytes short per record.  br_cfm_notify() reaches this path:
+
+net/bridge/br_cfm.c:br_cfm_notify() {
+	u32 filter = RTEXT_FILTER_CFM_STATUS;
+
+	br_info_notify(event, port->br, NULL, filter);
+}
+
+The deficit grows with the record count while the slack from kmalloc bucket
+rounding does not, so for some MEP/peer counts nla_nest_start() fails with
+-EMSGSIZE, the "implies BUG in br_nlmsg_size()" WARN_ON triggers and the
+notification is dropped instead of taking the new -E2BIG path.
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260919134333.49379-1-iprintercanon%40gmail.com
