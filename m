@@ -1,174 +1,128 @@
-Received: from mta1.migadu.com (out-6.mta1.migadu.com [95.215.58.6])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1158E39AD49
-	for <linux-s390@vger.kernel.org>; Wed, 23 Sep 2026 04:39:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.6
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 090713932F9
+	for <linux-s390@vger.kernel.org>; Wed, 23 Sep 2026 04:41:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790138382; cv=none; b=orQSg19QEmlyCRVXvR0/+VfMnf2cqvGO9CG6jgftkgB1BrBsRxH62NS7mXUpMrYw5VVCajMuEf4PzOTEwJL/STWMMxXh6ZslplqJfSBXOLFHVsoiRZRuOcNlhg1eBFFVXCey5I/Xjd/jq3OWfBJUsND8uhuLeVgR/YkLs4tcbc0=
+	t=1790138507; cv=none; b=BJmz7ioqKc51CZUlAXhRD6ZLtugCMT7TJOfOQa23sxCNZJyPMZ55noFKxiS23LzwPqfSiaUxI1MQHlml+YX0KjfMKuncWx2lPMqQpHpeBYCJIhDIaVQ5xj5YjeTTeShz3GiIq6WdmR3LMnbuR92eqrjA1wHLkNciiA7lTcGuAkU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790138382; c=relaxed/simple;
-	bh=iSNouMXA3RwlruRYR9UspqX4v90LzLOpRZaDkTpRMn8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=diIKifRWXJbjMFJoR5g2owlGG2eeNKW7JLkBhhNEoliHynYevnsVSnBlylYGjoiY3lnW6Zp4ycIbxW7sKiRwPYPAI/r+c9tumbXoiLS5nHiAtAiKTeYoNUaPBzpkaZF3IC+SG1yOYyK1l4agTzspeBCo0qyeH6EYFoqCmH9BlXw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=unJFU9D6; arc=none smtp.client-ip=95.215.58.6
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1790138507; c=relaxed/simple;
+	bh=31L8uRuGZtLlVj8fVtavb1s0jseFtP9Qt2gH0yLiaZo=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=CzZU19UZS5YHvDoGU7QykmYJpCVgPyc9pwXiS6CGPeMOZqsculCZXws5Qrpby8lgxJW91ytKkO07cnXlYDav4E7hpSF1Dzqv55f/oejS7nhq4zR3eUX6cHS6/RR+Abx6uB3ntk34jIzmZArkYmpYd525XE0VtSIxEyb2V8Oab7E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y9pjQpO/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="unJFU9D6"
-X-Envelope-To: linux-s390@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=iSNouMXA3RwlruRYR9UspqX4v90LzLOpRZaDkTpRMn8=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1790138379; v=1; x=1790743179;
- b=unJFU9D6k69/66399yxvnxLTbncUPJF1Y3LH87EEYjWGZiybjyMTD9qThw0exQpYPfP1JRRd
- 78vomzBJgCP/4Y1Qf0XfnMNemdqYUB/+HEAZQKsKBS2BVIygFxsYrKPEnD7hP/dcE+UDwdarY9T
- 6kzm54i5BLL0ycwESI7hixW0=
-X-Envelope-To: linux-s390@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 8a4b30de2f7f9df3;
-	Wed, 23 Sep 2026 04:39:35 +0000
-X-Mizu-Trace-ID: 8a4b30de2f7f9df3
-X-Migadu-Flow: FLOW_OUT
-From: Lance Yang <lance.yang@linux.dev>
-To: ljs@kernel.org
-Cc: akpm@linux-foundation.org,
-	david@kernel.org,
-	ziy@nvidia.com,
-	baolin.wang@linux.alibaba.com,
-	liam@infradead.org,
-	nico.pache@linux.dev,
-	ryan.roberts@arm.com,
-	dev.jain@arm.com,
-	baohua@kernel.org,
-	lance.yang@linux.dev,
-	usama.arif@linux.dev,
-	kas@kernel.org,
-	guoren@kernel.org,
-	bcain@kernel.org,
-	geert@linux-m68k.org,
-	dinguyen@kernel.org,
-	schuster.simon@siemens-energy.com,
-	jonas@southpole.se,
-	stefan.kristiansson@saunalahti.fi,
-	shorne@gmail.com,
-	dalias@libc.org,
-	glaubitz@physik.fu-berlin.de,
-	pjw@kernel.org,
-	palmer@dabbelt.com,
-	aou@eecs.berkeley.edu,
-	alex@ghiti.fr,
-	linux@armlinux.org.uk,
-	vgupta@kernel.org,
-	monstr@monstr.eu,
-	chris@zankel.net,
-	jcmvbkbc@gmail.com,
-	will@kernel.org,
-	aneesh.kumar@kernel.org,
-	npiggin@gmail.com,
-	peterz@infradead.org,
-	davem@davemloft.net,
-	andreas@gaisler.com,
-	richard.henderson@linaro.org,
-	mattst88@gmail.com,
-	linmag7@gmail.com,
-	catalin.marinas@arm.com,
-	mark.rutland@arm.com,
-	chenhuacai@kernel.org,
-	kernel@xen0n.name,
-	tsbogend@alpha.franken.de,
-	James.Bottomley@HansenPartnership.com,
-	deller@gmx.de,
-	maddy@linux.ibm.com,
-	mpe@ellerman.id.au,
-	chleroy@kernel.org,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com,
-	borntraeger@linux.ibm.com,
-	svens@linux.ibm.com,
-	richard@nod.at,
-	anton.ivanov@cambridgegreys.com,
-	johannes@sipsolutions.net,
-	tglx@kernel.org,
-	mingo@redhat.com,
-	bp@alien8.de,
-	dave.hansen@linux.intel.com,
-	x86@kernel.org,
-	hpa@zytor.com,
-	arnd@arndb.de,
-	vbabka@kernel.org,
-	rppt@kernel.org,
-	surenb@google.com,
-	mhocko@suse.com,
-	jgg@ziepe.ca,
-	jhubbard@nvidia.com,
-	peterx@redhat.com,
-	ysato@users.sourceforge.jp,
-	shakeel.butt@linux.dev,
-	corbet@lwn.net,
-	rdunlap@infradead.org,
-	linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	linux-openrisc@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arch@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	linux-alpha@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	linux-um@lists.infradead.org,
-	hughd@google.com,
-	qi.zheng@linux.dev,
-	linux-doc@vger.kernel.org
-Subject: Re: [PATCH v4 02/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for most 2-level architectures
-Date: Wed, 23 Sep 2026 12:39:26 +0800
-Message-ID: <20260923043926.76397-1-lance.yang@linux.dev>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20260922-rcu-pagetable-freeing-v4-2-fe1ad1f1e303@kernel.org>
-References: <20260922-rcu-pagetable-freeing-v4-2-fe1ad1f1e303@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y9pjQpO/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E0911F000FF;
+	Wed, 23 Sep 2026 04:41:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790138505;
+	bh=VMcKGoJ5K8+1xipevoDZTIhDEKl4hTHPQXRF1eTGRBE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Y9pjQpO/+7kBfcIJpgFNRj7sQbYC0BQt8lHGmPM4BZ9yI48p6oaeutpSDhIvN5pfN
+	 PixUPrk+ifZYomL/ZjGfNlzqc6te1hWfnjMBYH5ygSmEPZ75X4ryX5LguHvFccOXCg
+	 U0jA2KAM+ixVhoXaCh07Er2vpgssmcy/vviBGy85XRTdRM4G1sHbTSaG9jO9biqwUV
+	 NcqcvDruYuLE1M5EMpFPscbpg0+4JSg14WKuCMFAJx23qdBwY8bVZt9MnfcEd9/j4x
+	 jt2gIWhgnsurPa3WFxkFdQOvftWklPzDHTj4I+5XTCfVA/DzEv2mO73wUtuGBYV2aE
+	 zek+JVxYU1SLg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 2/3] loongarch/mm: Drop all pxdp_get()
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Anshuman Khandual" <anshuman.khandual@arm.com>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260923043226.331880-3-anshuman.khandual@arm.com>
+References: <20260923043226.331880-1-anshuman.khandual@arm.com>
+ <20260923043226.331880-3-anshuman.khandual@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 23 Sep 2026 04:41:44 +0000
+Message-Id: <20260923044145.2E0911F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] mm: performance regression from de-inlining pte_clear()
+--
 
-On Tue, Sep 22, 2026 at 04:35:33PM +0100, Lorenzo Stoakes (ARM) wrote:
->Commit e3ecf7c7d082 ("mm: pgtable: convert some architectures to use
->tlb_remove_ptdesc()") updated a number of architectures from using
->pagetable_dtor() + tlb_remove_page_ptdesc() to using tlb_remove_ptdesc() in
->__pte_free_tlb().
->
->This is meaningful as tlb_remove_ptdesc() allows for RCU page table
->freeing if CONFIG_MMU_GATHER_RCU_TABLE_FREE is specified.
->
->The csky, hexagon, nios2, openrisc, sh (except X2) and m68k-sun3
->architectures all have 2 levels of page tables, so the only page tables
->ever freed by mmu_gather are PTEs, so this update suffices to ensure that
->every page table freed by the mmu_gather mechanism is freed under RCU.
->
->Therefore, update all of these architectures to select
->CONFIG_MMU_GATHER_RCU_TABLE_FREE.
->
->This forms part of an overall effort to switch every architecture to this
->mode.
->
->Acked-by: Kiryl Shutsemau (Meta) <kas@kernel.org>
->Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
->---
+commit 5d80651056844549679369970919b58e26bc34bf
+Author: Anshuman Khandual <anshuman.khandual@arm.com>
 
-Nothing jumped out at me,
+loongarch/mm: Drop all pxdp_get()
 
-Reviewed-by: Lance Yang <lance.yang@linux.dev>
+This patch removes redundant loongarch-specific pxdp_get() helpers, relying
+on the generic ones from include/linux/pgtable.h. To prevent build failures,
+it moves some dependent functions to out-of-line implementations.
+
+> diff --git a/arch/loongarch/include/asm/pgtable.h b/arch/loongarch/includ=
+e/asm/pgtable.h
+> index a05f6a4928dc6..b1060b86d5353 100644
+> --- a/arch/loongarch/include/asm/pgtable.h
+> +++ b/arch/loongarch/include/asm/pgtable.h
+
+[ ... ]
+
+> @@ -378,12 +375,7 @@ static inline void set_pte(pte_t *ptep, pte_t pteval)
+>  #endif
+>  }
+> =20
+> -static inline void pte_clear(struct mm_struct *mm, unsigned long addr, p=
+te_t *ptep)
+> -{
+> -	pte_t pte =3D ptep_get(ptep);
+> -	pte_val(pte) &=3D _PAGE_GLOBAL;
+> -	set_pte(ptep, pte);
+> -}
+> +void pte_clear(struct mm_struct *mm, unsigned long addr, pte_t *ptep);
+
+[Severity: High]
+Does removing 'static inline' and moving pte_clear() out-of-line introduce a
+performance regression?
+
+pte_clear() is a core memory management primitive executed iteratively in
+extremely hot paths. For instance, zap_pte_range() processes up to 512 PTEs
+per PMD during munmap or madvise. Replacing inline bitwise operations with
+function calls during large VMA teardown introduces a significant overhead
+for any unprivileged process allocating and freeing memory.
+
+Could this be avoided by expanding ptep_get(ptep) to its equivalent
+READ_ONCE(*ptep) inside the inline definition instead of moving the function
+out-of-line?
+
+[ ... ]
+
+> @@ -618,16 +610,8 @@ static inline pmd_t pmd_mkinvalid(pmd_t pmd)
+>   * different prototype.
+>   */
+>  #define __HAVE_ARCH_PMDP_HUGE_GET_AND_CLEAR
+> -static inline pmd_t pmdp_huge_get_and_clear(struct mm_struct *mm,
+> -					    unsigned long address, pmd_t *pmdp)
+> -{
+> -	pmd_t old =3D pmdp_get(pmdp);
+> -
+> -	pmd_clear(pmdp);
+> -
+> -	return old;
+> -}
+> =20
+> +pmd_t pmdp_huge_get_and_clear(struct mm_struct *mm, unsigned long addres=
+s, pmd_t *pmdp);
+
+[Severity: High]
+Does moving pmdp_huge_get_and_clear() out-of-line similarly negatively impa=
+ct
+THP teardown performance?
+
+Like pte_clear(), this function operates on hot paths, and substituting an
+inline definition with a function call introduces overhead. Could this also
+be kept inline by expanding pmdp_get(pmdp) to READ_ONCE(*pmdp)?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260923043226.3318=
+80-1-anshuman.khandual@arm.com?part=3D2
