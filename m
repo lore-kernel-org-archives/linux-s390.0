@@ -1,60 +1,33 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ADA251C32C;
-	Wed, 23 Sep 2026 12:58:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9FD5B526AA4;
+	Wed, 23 Sep 2026 13:04:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790168313; cv=none; b=jrf6jGu2UDYmZfMS2mh42vQkcfoBa51/snPD200oW6vklqRPig6kOYaOCIBgknRPhTOsuGtqVKI+n5TXEHVlJYfJSFV/+17sgiyctT3kLj1gSwKQ7xDpIkpaMl4tXKmOOQWOhUGkq5z6pJvqGoQ9d7Wyv9KhhYdlROijZOlCwyc=
+	t=1790168668; cv=none; b=YlNAKtnZDCmi2SaowKC1qY8Cck7gmPwalZkW/u8JbgJKqeR/xVWDiWkzLSwV6RE7dNK+G2q0WpGS1X0efZVt3C4c7emCiVajI9UjPrHAFmo5ZMvqblfxAIY3P8qneQNVr5j4is8DJmEbim8py5wM+z9pUDF6Zydxxfqr4zmAy6Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790168313; c=relaxed/simple;
-	bh=703Ro7IEAM+WNjEfOCYl4fQECkT/xcvjqeC+cG8mwUE=;
+	s=arc-20240116; t=1790168668; c=relaxed/simple;
+	bh=V2eG6fezUymbQQ69ZuSww8KCP/5bN/QHpNMXTsYSPOw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GxC0mMSzh390WHdIhpj9SvAGvmQnGtwbqlSS2wydjNqkVmKO9v1bKNmqfRVlJ/x3Ua5pVaWBL3gn6/+JL3D2118LTyJmMa2t0pGioUDSKpgC1NC1FiV6QCFHOXf14BBS+CeAYyKXK7GSVMazlOP3IEahZplQUpKYNRjNCNZBBY4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hEKZAhjJ; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=fE8jdQcgaamktJYs+Fh0DfQ2jyc00UJpQxxsfsn75cuZs7AjO6hrrNS01ncSgje+0ns1Hk93YSZ8647xvRXlsHIsDr1Cd9hbiYwfGmW+ofXUBvnxnvPBacCYrMkL2FwvQOJePq0x3ZdQGkggTzFr5nZo5QwBWnxeBacdise1h8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=ZvqzetxD; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hEKZAhjJ"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68N8ZbLR2940654;
-	Wed, 23 Sep 2026 12:58:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=m5wlbJ
-	gesI/vUIz5jgVCshLG1H4PTC1DYRalSn9rh0Q=; b=hEKZAhjJh1LDqX4cDnh+MK
-	CPHX9aKhz10mo0pmyXS1q6S/jO6bBBdrp5cqnWzoTLU0ntlxpV1YJr4Kwy16nAIu
-	P+IHyoBepXOKUbUVM0a9gPcC0DjR9Xz//YouOCXOqOAv4ZfuaOhLaAemDCRVK5Hd
-	cLrzXtT0SspTVJwDrLQor+4XlxfH6GUptRMJmX/gT/8+oMrJyRAqgMjRPAx/om6f
-	gxpkBWz21udn2oR2eYZZTzpx8boYSm0C33A+zEgEBfxWSwF32rW+W2kTbYPloeNk
-	IxHhnBcxMZGElzygAyxozEP8aRrDXwOWCl0Gh9fu6jf4t5QBsYPtO3tLycaTXufA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskdvavse-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 23 Sep 2026 12:58:27 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68NCNJWA2891803;
-	Wed, 23 Sep 2026 12:58:26 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gu5bkh08t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 23 Sep 2026 12:58:26 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68NCwMDB45154626
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 23 Sep 2026 12:58:23 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C7CF420043;
-	Wed, 23 Sep 2026 12:58:22 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6CCAA20040;
-	Wed, 23 Sep 2026 12:58:22 +0000 (GMT)
-Received: from [9.111.80.133] (unknown [9.111.80.133])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 23 Sep 2026 12:58:22 +0000 (GMT)
-Message-ID: <eee880b8-8b1e-43ff-b1c0-2836cae0084b@linux.ibm.com>
-Date: Wed, 23 Sep 2026 14:58:22 +0200
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="ZvqzetxD"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6A0231570;
+	Wed, 23 Sep 2026 06:04:22 -0700 (PDT)
+Received: from [10.2.212.23] (e121345-lin.cambridge.arm.com [10.2.212.23])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A1A663F86F;
+	Wed, 23 Sep 2026 06:04:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1790168665; bh=V2eG6fezUymbQQ69ZuSww8KCP/5bN/QHpNMXTsYSPOw=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=ZvqzetxDsEV+z9y8tgXSp1WMJmVGbPD4FFevEiSlqja3DG2IGWuF2b73OrQ3DI5PP
+	 ebwj8SPEQZ4BaUOAgvsq/NUWIH7HsMxifQ4aW+kmBXBfzWreFCdx8DwnXmCnT2MCb1
+	 pQF5HqiW/0gA6vvYspF/vjHUh2HXW5nKxCvWawCQ=
+Message-ID: <8c9c04ae-cba7-4096-a7d1-70b90a46c161@arm.com>
+Date: Wed, 23 Sep 2026 14:04:00 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,101 +35,156 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 11/21] KVM: s390: vsie: Add helper reset_vsie_page()
- and unshadow_intercept()
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <shuah@kernel.org>, Sean Christopherson <seanjc@google.com>
-References: <20260918-vsie-sigpi-v7-0-f39806eaae37@linux.ibm.com>
- <20260918-vsie-sigpi-v7-11-f39806eaae37@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20260918-vsie-sigpi-v7-11-f39806eaae37@linux.ibm.com>
+Subject: Re: [PATCH v5 5/6] dma: swiotlb: Add an overridable architecture pool
+ opt-out
+To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
+ iommu@lists.linux.dev, linux-kernel@vger.kernel.org
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>, Will Deacon
+ <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+ Steven Price <steven.price@arm.com>,
+ Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Jiri Pirko <jiri@resnulli.us>,
+ Jason Gunthorpe <jgg@ziepe.ca>, Mostafa Saleh <smostafa@google.com>,
+ Petr Tesarik <ptesarik@suse.com>, Alexey Kardashevskiy <aik@amd.com>,
+ Dan Williams <dan.j.williams@intel.com>, Xu Yilun
+ <yilun.xu@linux.intel.com>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Russell King <linux@armlinux.org.uk>,
+ Huacai Chen <chenhuacai@kernel.org>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Jiaxun Yang <jiaxun.yang@flygoat.com>, Paul Walmsley <pjw@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, x86@kernel.org
+References: <20260921063628.362078-1-aneesh.kumar@kernel.org>
+ <20260921063628.362078-6-aneesh.kumar@kernel.org>
+From: Robin Murphy <robin.murphy@arm.com>
+Content-Language: en-GB
+In-Reply-To: <20260921063628.362078-6-aneesh.kumar@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: nfg8gSRJQztVlnjZUOI9Fj-vSlQklqXR
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIzMDA1MCBTYWx0ZWRfX1eZM80CC6tI5
- SYfTzHpNojZkwbUpNtU5S2XfWWGCeNeqHI/JHXMNpNDbaUqT0P+iGgnFf81vIvviDHr34uYOBOB
- /kivraDSTTwbgJDr/rPzs4FSbMyIEcE=
-X-Authority-Analysis: v=2.4 cv=FLiOVOos c=1 sm=1 tr=0 ts=6ab3ccf3 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=01tizzF2ymvp2yp13ZkA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: uVlP_YznVjlC5q0WShHlyzS0fIiZSbC-
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIzMDA1MCBTYWx0ZWRfX2z3Rj7iLFZAb
- HXGiRBBe1jnZbbbaepu+Vx5RY7Q2R04vzAoSVK1jT/D3w3lnGelG6tEAUYTT41cfpZwmymcv95T
- 3VMTNWYuCxoNbJhDH0XRJokslUHrohJ1hA3C+/9/oSs7mufIYd2vvyADZqGsKIljnH18SzaU/18
- 1MZVxf7pS0T777R9uTIIe6SP7LjZQOSOUqL3SblDIM29/jTyB1+MuJYAo8zbF+p/48nu75dJPI9
- 4JaEjpdXtvxnlbfQuwJw2FIYOa5IxPi0eZ5uql5rkfs9SDOSwALOrjSRuj6sOqjHnfe+Fko25Ga
- ntf7s/TerujQIyeD+UZimEs6RNIn7ci9KYAtqqDBcWTPggOUl5LWSBvOvjCDy892wbd+IMU6T+Q
- ht1porY3y76zqXacHZTb04c1+7zmr3OgXVmYbL5oHytzRDaaDTnPdbaoBLYkXyDofn90CSn+71F
- Hvb2SvnMgiGyyARKu3Q==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-23_04,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 impostorscore=0 phishscore=0 spamscore=0 clxscore=1015
- suspectscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609230050
 
-On 9/18/26 5:09 PM, Christoph Schlameuss wrote:
-> Extract helper method from existing code to reuse in new code.
+On 21/09/2026 7:36 am, Aneesh Kumar K.V (Arm) wrote:
+> On x86, iommu=off historically prevented SWIOTLB initialization by not
+> setting SWIOTLB_INIT_ADDRESSING_LIMIT. This overloads that flag: it
+> controls both whether a pool is selected and where the pool is
+> allocated. If another requirement, swiotlb=force selects a pool
+> independently, omitting SWIOTLB_INIT_ADDRESSING_LIMIT may place it above
+> the addressable range of devices which need bounce buffering.
+
+Well then surely something is wrong with the design? If 
+SWIOTLB_INIT_ADDRESSING_LIMIT is set then SWIOTLB still needs to respect 
+it irrespective of any *additional* reasons for activating (either from 
+arch code or internally). And conversely, if devices have addressing 
+limits but SWIOTLB_INIT_ADDRESSING_LIMIT is *not* set, then the arch 
+code has clearly gone wrong or made a bad assumption, but that doesn't 
+seem like SWIOTLB's problem to worry about.
+
+> Add SWIOTLB_INIT_FORCE_DISABLE to let an architecture opt out of normal
+> pool initialization without discarding the pool placement constraints.
 > 
-> reset_vsie_page() clears and releases gmap related to vsie_page.
+> Unlike swiotlb_force_disable, which is set by swiotlb=noforce and
+> unconditionally prevents pool initialization, the new flag is an
+> architecture default. Explicit requirements such as memory encryption,
+> architecture remapping, or swiotlb=force take precedence over it.
+
+Logically, that should already be implied by the architecture passing no 
+SWIOTLB_INIT flags.
+
+Thanks,
+Robin.
+
+> iommu=soft retains SWIOTLB_INIT_ADDRESSING_LIMIT because it requests
+> software bounce buffering for devices whose DMA masks cannot address all
+> system memory. Such devices must be able to reach the bounce pool.
 > 
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> Clear both flags for Xen because Xen explicitly requires a remapped
+> SWIOTLB pool and may allocate it anywhere in directly mapped memory.
+> 
+> With no override, iommu=off disables both hardware IOMMU translation and
+> SWIOTLB bouncing. Direct DMA remains available; mappings outside a
+> device's addressable range fail instead of being bounced.
+> 
+> Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+> ---
+>   arch/x86/kernel/pci-dma.c | 11 ++++++++---
+>   include/linux/swiotlb.h   |  2 ++
+>   kernel/dma/swiotlb.c      | 10 ++++++++--
+>   3 files changed, 18 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
+> index 0cff255827ba..ce257b20ea9c 100644
+> --- a/arch/x86/kernel/pci-dma.c
+> +++ b/arch/x86/kernel/pci-dma.c
+> @@ -44,9 +44,13 @@ static unsigned int x86_swiotlb_flags;
+>   static void __init pci_swiotlb_detect(void)
+>   {
+>   	/* don't initialize swiotlb if iommu=off (no_iommu=1) */
+> -	if (!no_iommu && max_possible_pfn > MAX_DMA32_PFN) {
+> -		x86_swiotlb_enable = true;
+> +	if (no_iommu)
+> +		x86_swiotlb_flags |= SWIOTLB_INIT_DEFAULT_OFF;
+> +
+> +	if (max_possible_pfn > MAX_DMA32_PFN) {
+>   		x86_swiotlb_flags |= SWIOTLB_INIT_ADDRESSING_LIMIT;
+> +		if (!no_iommu)
+> +			x86_swiotlb_enable = true;
+>   	}
+>   
+>   	/*
+> @@ -84,7 +88,8 @@ static void __init pci_xen_swiotlb_init(void)
+>   		return;
+>   	x86_swiotlb_enable = true;
+>   	/* Xen can use a SWIOTLB pool anywhere in directly mapped memory. */
+> -	x86_swiotlb_flags &= ~SWIOTLB_INIT_ADDRESSING_LIMIT;
+> +	x86_swiotlb_flags &= ~(SWIOTLB_INIT_ADDRESSING_LIMIT |
+> +			       SWIOTLB_INIT_DEFAULT_OFF);
+>   	x86_swiotlb_flags |= SWIOTLB_INIT_REMAP | SWIOTLB_ANY;
+>   	swiotlb_init_remap(x86_swiotlb_flags, xen_swiotlb_fixup);
+>   	dma_ops = &xen_swiotlb_dma_ops;
+> diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
+> index be3962a33fc6..466c33795db0 100644
+> --- a/include/linux/swiotlb.h
+> +++ b/include/linux/swiotlb.h
+> @@ -20,6 +20,8 @@ struct scatterlist;
+>   #define SWIOTLB_INIT_ADDRESSING_LIMIT	(1 << 2)
+>   /* Initialize a default-sized pool that requires architecture remapping. */
+>   #define SWIOTLB_INIT_REMAP		(1 << 3)
+> +/* Do not initialize a pool unless SWIOTLB is explicitly required. */
+> +#define SWIOTLB_INIT_DEFAULT_OFF		(1 << 4)
+>   
+>   /*
+>    * Maximum allowable number of contiguous slabs to map,
+> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+> index c19675846fc1..46b789eb0806 100644
+> --- a/kernel/dma/swiotlb.c
+> +++ b/kernel/dma/swiotlb.c
+> @@ -563,10 +563,16 @@ swiotlb_select_pool_policy(unsigned int flags)
+>   	if (flags & SWIOTLB_INIT_REMAP)
+>   		return SWIOTLB_POOL_DEFAULT;
+>   
+> -	if (flags & SWIOTLB_INIT_ADDRESSING_LIMIT)
+> +	if (swiotlb_force_bounce)
+>   		return SWIOTLB_POOL_DEFAULT;
+>   
+> -	if (swiotlb_force_bounce)
+> +	/*
+> +	 * Explicit requirements above override an architecture's default opt-out.
+> +	 */
+> +	if (flags & SWIOTLB_INIT_DEFAULT_OFF)
+> +		return SWIOTLB_POOL_NONE;
+> +
+> +	if (flags & SWIOTLB_INIT_ADDRESSING_LIMIT)
+>   		return SWIOTLB_POOL_DEFAULT;
+>   
+>   	if (swiotlb_kmalloc_needs_bounce())
+
