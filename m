@@ -1,160 +1,184 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D245046D57D;
-	Wed, 23 Sep 2026 09:30:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC749439014;
+	Wed, 23 Sep 2026 09:39:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790155804; cv=none; b=fFd1tEl6RAPJbChWo8l85EpWTDzuOoFn4Rv5YSnjZKQL0aUSLTD9Keklvk4ygCG+NdHO6O2IcWhiIGRn5XqjeqglavOt1jqu4BVIKpVzlgtMs8f3R/+ucHgTMDC3Lao7lOYjYtfAV1rDNCtlLcwyzyb6CUDmTNNpjhSGc1cH7LQ=
+	t=1790156391; cv=none; b=IYMaaejFrjWf4iLxWNil7BCGike70r/FyPHv/3gtJN+H5O2iRAuE45Ga2y3bMYeBaXo3sOTTmMSIKVBjZXjv/8IZMpM+2c/HliSXp4u61r3gz+Dsf7DnawmaMPEC+dZLKVpjVG/L1YC3GRVcHE6O+G3eVs94Fvt3HexH+1Y4vgo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790155804; c=relaxed/simple;
-	bh=7KGdJJGq5RqXz7A2MxGYRbng6M71fIW94sYcH+joxh8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bF+bHXnoDh5IwSHdjzkxgZgmQT2HuHXx0p0fepAxH8NWe9f1bWmpvko0VwkV+Od5Ltaa7g6lnx98ek3Sd7+MuuptsfkL9do6ktkzR8GpCENpaFF9GN0tkiuXOIbYP8Z/GM542QDqZuEE+D5rWTjw89z0dfThlvIeguRIJU4V1cg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OSd8Ss8v; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1790156391; c=relaxed/simple;
+	bh=/QsHuDttxaRSyGmLHoMZpt76dk8UYL8eOUTAX3LYrxk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=iLh24RIxPu4YvtB8qk1hdE02PcSENJAhBOB1BvoOThz1R6U2yn4YqJl0+VgLkjQq6ISUmznJ3sEJqwusOoSrtWWjRNPm3T01UhCieACMPN5tU4y8wjas6b0sEhhEciRRwF/4VjJw/DtvpCsbbXf/UKwkKBJfb6cC86TepqxK1jY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KYr7TIgW; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OSd8Ss8v"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68N8Zjq72940886;
-	Wed, 23 Sep 2026 09:29:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:sender:subject:to; s=pp1;
-	 bh=sh8m9alv7sqlRqmf4Xyo08q7LYjFNOUSFtLnHGnDzKo=; b=OSd8Ss8vxRRH
-	Mm8dnGVPyTJMZAIQrRi8sr7vCwjcoEex4syO9m3fn2p5E5MGLbuk8yHKfJP/T2k6
-	y68/YX2bTkB4BJJ+2n93DE6K4ULG/46uGyrV/llsWLEQRE8l4UCIDVytoojtoCGR
-	nzBxOYqEHKu34DPI31yAjsFLUFSFGfn2B55ltw/Dxk4pTvDNnZpzfAvhNryky06y
-	yxtC2UX0hHmI0AalxkN1WWeTp8PAP5naU7R4IF/hIb90yRqMROzYDXLSvcC5UZ0P
-	x0u+SiKYAhK1bqUPIROZ1oeStJ/upaCuGQxTgFWSyGgpykWQeXBx6G16wFecLjcd
-	ZEmuuy3pJw==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskdv9vp4-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 23 Sep 2026 09:29:48 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68N8bcnm008014;
-	Wed, 23 Sep 2026 09:29:47 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gvbe1r5gj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 23 Sep 2026 09:29:47 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68N9Th8p50987324
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 23 Sep 2026 09:29:43 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 60D3C2004D;
-	Wed, 23 Sep 2026 09:29:43 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4B2E120043;
-	Wed, 23 Sep 2026 09:29:43 +0000 (GMT)
-Received: from p14sgen6-pf6akexs (unknown [9.224.70.27])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 23 Sep 2026 09:29:43 +0000 (GMT)
-Received: from bblock by p14sgen6-pf6akexs with local (Exim 4.99.5)
-	(envelope-from <bblock@linux.ibm.com>)
-	id 1x9JIN-00000001F2X-02DR;
-	Wed, 23 Sep 2026 11:29:43 +0200
-Date: Wed, 23 Sep 2026 11:29:42 +0200
-From: Benjamin Block <bblock@linux.ibm.com>
-To: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Gerd Bayer <gbayer@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>,
-        Farhan Ali <alifm@linux.ibm.com>, Julian Ruess <julianr@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ramesh Errabolu <ramesh@linux.ibm.com>,
-        Tobias Schumacher <ts@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/4] s390/pci: Fix leak of struct pci_dev reference in
- zpci_report_status()
-Message-ID: <20260923092942.GA30627@p14sgen6-pf6akexs>
-References: <20260916-fix_zpci_report_status_pdev_leak-v3-0-61a2f980e71d@linux.ibm.com>
- <20260916-fix_zpci_report_status_pdev_leak-v3-1-61a2f980e71d@linux.ibm.com>
- <20260918083702.GE241998@p14sgen6-pf6akexs>
- <8d95a91f089186b4b09a60c24363642173263d42.camel@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KYr7TIgW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC0771F000FF;
+	Wed, 23 Sep 2026 09:39:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790156389;
+	bh=Ky9c7fQZ/1RFu7l1ztUmuvVnX2EIpcy6aLCf8pDHQ2o=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=KYr7TIgWfrXtSFuYVtPX6VTaibKpRDQE0xLEscffhdhRMZQB3sVyojKDpb3pvYX9a
+	 qfvIpI/SixGIFQ7jPSlfRpTXqHoSQw3e5NGtYoZ0sYH3oJ+xqsBI0jpKsys1S/JnYy
+	 IvQ5WEYwt2sHjNSrspaH0UnfT4l3XktBqmTgdQkVCWl9XgouOK5HxvYe5u055yDxRe
+	 RgCQcXcWZ6Lv0CUhhbVrDCdmnM1DAd3Ix6pJv/92RXmA/nzdCeEya6awHMsihGp3fa
+	 8OzKYVp4CPN2ar8c2+eqMrSU+ghKOu7oofCmSqVM5mgyS2NoW6ndtBPvRSr07sUjNj
+	 CvviJRLhMRoaQ==
+Message-ID: <300f92ef-1526-44d9-a01f-e9b8f3fc0cd1@kernel.org>
+Date: Wed, 23 Sep 2026 11:39:27 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <8d95a91f089186b4b09a60c24363642173263d42.camel@linux.ibm.com>
-Sender: Benjamin Block <bblock@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: vr8Y_3TAxFvjcmJwdg-9w9oJ0rK-AQx5
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIzMDAzNSBTYWx0ZWRfXwd08/VdlJYQO
- CpJZuJEl0ypXJCEbYI/CpTCg2ekbj9uVMyh+e64K9qq7gwW12U4qN0SWQh1WQw5htIgxvQbydsq
- WF89n8nuNwoVHfHKoe6Z7oXn5Ke0hj8=
-X-Authority-Analysis: v=2.4 cv=FLiOVOos c=1 sm=1 tr=0 ts=6ab39c0c cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=8nJEP1OIZ-IA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=47u9jTYrQl9R5fVhXXkA:9 a=3ZKOabzyN94A:10 a=wPNLvfGTeEIA:10
-X-Proofpoint-GUID: vr8Y_3TAxFvjcmJwdg-9w9oJ0rK-AQx5
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIzMDAzNSBTYWx0ZWRfX55wQHXjZl+NP
- Wdu2PCFIN0wDRGqV4e6DeiVe+Ic4BeM0Nr8I8VsooR6z0TapFHkMz0AIyaKFeRy4oeOrK9jBny8
- tZMEvQZAadVfH4inwwxltGqtKoqO7h3kjiXycFWQASK6C0C/yYb934SJs2+PG0lzGqWCrAUL/bi
- O/eDZpMHSPJ3zsWIfeuaP4gCMecc6kNjMAfePPo9Z70RSo3njrT9dI1bzRCZxBgxMbzWlC/9Y65
- SdesVvuP7jC6cfWdEx/+Km73XvyH4AfvvBamNEc7QHV7LdYqL+7kHMFDLgiinn2xPzHR0lAKum6
- e8IhmloCBCeu85l7Wk3hU0Gx7vN+LyEt7koAa4yFLcYdTVWCAXT+RU7uJ65RJ2GupXZjgH/rPl8
- YpWytah92II8w0M06ObB/nGaNQ1DJplTsV1o28xNcCJXQFvMYIGqWqy6txf/puBiAgeFDswvios
- hIKSzdGhuSN180B5fgw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-23_04,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 impostorscore=0 phishscore=0 spamscore=0 clxscore=1015
- suspectscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609230035
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 00/12] mm: make userland page table freeing RCU-safe
+Content-Language: en-US
+To: "David Hildenbrand (Arm)" <david@kernel.org>,
+ "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Zi Yan <ziy@nvidia.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ "Liam R. Howlett" <liam@infradead.org>, Nico Pache <nico.pache@linux.dev>,
+ Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
+ Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
+ Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>,
+ Guo Ren <guoren@kernel.org>, Brian Cain <bcain@kernel.org>,
+ Geert Uytterhoeven <geert@linux-m68k.org>, Dinh Nguyen
+ <dinguyen@kernel.org>, Simon Schuster <schuster.simon@siemens-energy.com>,
+ Jonas Bonn <jonas@southpole.se>,
+ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+ Stafford Horne <shorne@gmail.com>, Rich Felker <dalias@libc.org>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+ Russell King <linux@armlinux.org.uk>, Vineet Gupta <vgupta@kernel.org>,
+ Michal Simek <monstr@monstr.eu>, Chris Zankel <chris@zankel.net>,
+ Max Filippov <jcmvbkbc@gmail.com>, Will Deacon <will@kernel.org>,
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin
+ <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>,
+ "David S. Miller" <davem@davemloft.net>,
+ Andreas Larsson <andreas@gaisler.com>,
+ Richard Henderson <richard.henderson@linaro.org>,
+ Matt Turner <mattst88@gmail.com>, Magnus Lindholm <linmag7@gmail.com>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Mark Rutland <mark.rutland@arm.com>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+ Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>, Thomas Gleixner
+ <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+ Arnd Bergmann <arnd@arndb.de>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>,
+ Peter Xu <peterx@redhat.com>, Yoshinori Sato <ysato@users.sourceforge.jp>,
+ Shakeel Butt <shakeel.butt@linux.dev>, Jonathan Corbet <corbet@lwn.net>,
+ Randy Dunlap <rdunlap@infradead.org>, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-snps-arc@lists.infradead.org,
+ linux-arch@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-alpha@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+ linux-um@lists.infradead.org, Hugh Dickins <hughd@google.com>,
+ Qi Zheng <qi.zheng@linux.dev>, linux-doc@vger.kernel.org
+References: <20260922-rcu-pagetable-freeing-v4-0-fe1ad1f1e303@kernel.org>
+ <20260922160021.a2fc65d05d9b867a141e5457@linux-foundation.org>
+ <9dcde7e4-dadb-4644-9dff-7fd8a26e29a6@kernel.org> <arOVbT5B1FOMe1wb@gremlin>
+ <77db2f8f-dfc2-49c6-82f6-8e6c4f7c1fd0@kernel.org>
+From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
+Autocrypt: addr=vbabka@kernel.org; keydata=
+ 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
+In-Reply-To: <77db2f8f-dfc2-49c6-82f6-8e6c4f7c1fd0@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Sep 21, 2026 at 01:54:03PM +0200, Niklas Schnelle wrote:
-> On Fri, 2026-09-18 at 10:37 +0200, Benjamin Block wrote:
-> > On Wed, Sep 16, 2026 at 05:14:10PM +0200, Niklas Schnelle wrote:
-> > > diff --git a/arch/s390/pci/pci_report.c b/arch/s390/pci/pci_report.c
-> > > index 7030f7052926..867419779219 100644
-> > > --- a/arch/s390/pci/pci_report.c
-> > > +++ b/arch/s390/pci/pci_report.c
-> > > @@ -89,7 +89,8 @@ static struct debug_view debug_log_view = {
-> > >  
-> > >  /**
-> > >   * zpci_report_status - Report the status of operations on a PCI device
-> > > - * @zdev:	The PCI device for which to report status
-> > > + * @zdev:	The zPCI device for which to report status
-> > > + * @pdev:	The PCI device associated with the zdev if any, NULL otherwise
-> > >   * @operation:	A string representing the operation reported
-> > >   * @status:	A string representing the status of the operation
-> > >   *
-> > > @@ -103,15 +104,15 @@ static struct debug_view debug_log_view = {
-> > >   *
-> > >   * Return: 0 on success an error code < 0 otherwise.
-> > >   */
-> > > -int zpci_report_status(struct zpci_dev *zdev, const char *operation, const char *status)
-> > > +int zpci_report_status(struct zpci_dev *zdev, struct pci_dev *pdev,
-> > > +		       const char *operation, const char *status)
-> > 
-> > One small thing that is in no way critical: I wonder whether we could make the
-> > `pdev` const. We don't do anything with it apart from reading some attributes
-> > and such.
+On 9/23/26 11:15, David Hildenbrand (Arm) wrote:
+> On 9/23/26 11:04, Lorenzo Stoakes (ARM) wrote:
+>> On Wed, Sep 23, 2026 at 10:45:33AM +0200, David Hildenbrand (Arm) wrote:
+>>> On 9/23/26 01:00, Andrew Morton wrote:
+>>>>
+>>>>
+>>>> Do we have reason to believe that anyone is seeing any effects from
+>>>> their arch's failure to rcu-free the page tables?
+>>>>
+>>>> This sounds like a rather long-standing wart, yes?
+>>>>
+>>>> The patchset is thinly reviewed and mm.git is bursting at the seams
+>>>> again.  I'll play wait-and-see on this series.
+>>> Do we want to nudge arch maintainers to review?
+>> 
+>> (Just to note that I replied separately, 'thinly reviewed' is incorrect, it's
+>> been in -next for weeks and the whole thing was reviewed by Kiryl.)
 > 
-> Just checked. This conflicts with device_lock_assert() taking a non-
-> const struct device *. So we would have to adjust that as well.
+> Ack.
+> 
+>> 
+>> The only places where that would be useful is m68k motorola, sparc32.
+>> 
+>> But in any case it has been heavily tested including on every single arch
+>> listed with stress testing performed (I think I cover that in the cover
+>> letter).
+>> 
+>> The changes are not controversial so I don't think that's a blocker, but
+>> it'd be nice?
+> 
+> I doubt we'll ever get sparc32 reviews :)
+> 
+> I'd definitely appreciate some review on the arch bits from arch maintainers,
+> but if they don't reply within the next weeks I wouldn't wait on that.
 
-Ok, fair enough.
-
--- 
-Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
-IBM Deutschland Research & Development GmbH    /   https://www.ibm.com/privacy
-Vors. Aufs.-R.: Wolfgang Wendt         /        Geschäftsführung: David Faller
-Sitz der Ges.: Ehningen     /     Registergericht: AmtsG Stuttgart, HRB 243294
+Indeed, for minor arches like this the lack of review (it would be a whole
+cycle by the merge window) shouldn't be a blocker for important tree-wide
+progress.
