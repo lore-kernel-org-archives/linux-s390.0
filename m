@@ -1,267 +1,158 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy2-f12.google.com (mail-dy2-f12.google.com [74.125.229.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 643231C5D72;
-	Wed, 23 Sep 2026 06:18:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 941F943D4EF
+	for <linux-s390@vger.kernel.org>; Wed, 23 Sep 2026 06:28:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790144299; cv=none; b=gs2bIj6C1j5ai4BTcwd86V7i/ahWrunFP2Zlw5Nm/g57okp2PYDeJPee4gKZSEAQuKaGcZYrGzJje285YK2KwbjOBr6krj/V8DSI1eIrDuBoJwigkcUEdERZ6dyRwRlq2he+vAa/NhJUjTybc2ebPfbIq7JwYpO+nerQqztvWuM=
+	t=1790144912; cv=none; b=hZb7CNuhQ0b98/elVvhb9FONwNRCB8Ow23gqz86xFsQuzuojCmy6VUzMqvhpxtHeW+S3RYHV48vAIZC1g9TeiYaYuTb7RPMD6ojxSmcvyHJfsQI5IdQJTCOiaDgrpClRjs34qxjQy9UzfF50sQGl2qNOtw3rUp2T6rOpv9jYbr4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790144299; c=relaxed/simple;
-	bh=Uu748ubSW/QQrB+QXJmWruZIuhi/YzA1i5UWxRViIfA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gxOitRwSiwZrRsnNTfAZx7843xdOjMz8Go3tVykxg0gfvLVgS0UJAaWJFufrbziEDWwNV21J8KDvHenC+avXXIjj0s+WJ8BxZ2OutSL33ltJDUc0GRbi85hFLilQLZ4pRsSm1RIJ5sOEYJJ6A3WPulY6zILBCPwXr1ggn9bV6zk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bEVfyl+f; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1790144912; c=relaxed/simple;
+	bh=4G5stfYL+d2I3arosXAulfA419oGwxz6L8v47Lllkwk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KToRfnSjhRoP4Ytym39tzuvVYSeSrxaTnyDQyfr1sNl714f6Rx2Y6a4gQ9CVEDzlmeiU7aTlKsMq1AVI2Kzymw/HexfCwXyHeJddkSPGYL94/mEw/PdqkL5u/3bqRq7BGBBwcsPjBLXTfRkwd9rNczInrmYjv4enuNCl175M7cM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J9cI9Q68; arc=none smtp.client-ip=74.125.229.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bEVfyl+f"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68N45aYI2189290;
-	Wed, 23 Sep 2026 06:18:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=G6CDeaTQ+93ah+yEXVxJiAaK+t3iA5aoxjUfAluYM
-	5M=; b=bEVfyl+ftVnoDVLXOuVPWaTK5zOpg2LvlzkqU8n6Uafaa8xE2d3If8nrx
-	jSru73RNsCZmE7m8+VdrnQsV4K90Lainm2zOggfnuWwMs/KwJ5LgMr5jIGQ3Xe16
-	B+WUSwbzzfeFfxHYJzXGj3ddhU6F+/+MQV1NvLfBwM0Hcrys0P/agff3H+ZV0P/1
-	fFtmH0d2BZUINDE4Zc9gjC6FWfTVGidNjWqNfcN+3uM8GEuTeN1qC0kX4XRT0C93
-	uaZHlyF1mwTvnuQoZlOjb/kcSqoDShq35PjbC0Ji1E+hS86N23oivmz6mbT/s2MK
-	oloCYfoqLKJvYSx/YvFSv44ebh0fA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gske1h7d0-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 23 Sep 2026 06:18:08 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68N3lXsp3855379;
-	Wed, 23 Sep 2026 06:18:08 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gt67gvybu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 23 Sep 2026 06:18:08 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68N6I41125952632
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 23 Sep 2026 06:18:04 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 207C120043;
-	Wed, 23 Sep 2026 06:18:04 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D5E7420040;
-	Wed, 23 Sep 2026 06:18:03 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Wed, 23 Sep 2026 06:18:03 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 56341)
-	id BB6B11616BB; Wed, 23 Sep 2026 08:18:03 +0200 (CEST)
-From: Mahanta Jambigi <mjambigi@linux.ibm.com>
-To: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
-        dust.li@linux.alibaba.com, sidraya@linux.ibm.com
-Cc: hidayath@linux.ibm.com, pasic@linux.ibm.com, horms@kernel.org,
-        tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
-        stable@vger.kernel.org, netdev@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
-        Mahanta Jambigi <mjambigi@linux.ibm.com>
-Subject: [PATCH net v5] net/smc: fix lgr/lnk lifetime vs diag reader race
-Date: Wed, 23 Sep 2026 08:17:16 +0200
-Message-ID: <20260923061716.1970059-1-mjambigi@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J9cI9Q68"
+Received: by mail-dy2-f12.google.com with SMTP id 5a478bee46e88-32dbbe82e13so482407eec.0
+        for <linux-s390@vger.kernel.org>; Tue, 22 Sep 2026 23:28:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790144910; x=1790749710; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=2hUFOEJST1qHgvJkQDivOVNilsD3f7PYYgSWMm8/mzk=;
+        b=J9cI9Q689QlTD0Rm9iaM5DR4cDNSWcqmqC8MqDCEqXyee3VJcWWjwLUkuKVnL6+PAb
+         hLLKCZjcpJXP1Y0/UUqVaBp0LB9CPcitR2C7HIZoS+yg0Llqkb0JgXjtpsUi9F/otZOd
+         8GV+M5wB2eW/OGoFod4cNrbwEaBu1gpGvCmJH8+mKCCQqaRm1r4lVUpHAT8nMPKFGGp5
+         f+JQ0Cmqjs20HyR/ta8LjsKn1vJrKVFa0yBjPSy7NbpWu+KromApt3r9EpHoHUlky2rY
+         uiqUkjiMHn7uF7zCiuH2MQpY6UpuTsfvqYB8hsF/ahMZ5M0I5awG9Jdg0ydR3e8Ct1fd
+         BdSA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790144910; x=1790749710;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=2hUFOEJST1qHgvJkQDivOVNilsD3f7PYYgSWMm8/mzk=;
+        b=Ten4m/nmplS7uufgY30T02ASR/MTIkqi0NO/JG0GTr3gJAtcEHZr+NnXSKNBeHEzC2
+         lpSrViieaBHGxAgeIJ7ApVr+iL7rYScKwtYet+50Y7q9B6BWH+jzQQX3ZEJ4QpkoSnAn
+         AsV3rrRLgYiXCZo5X9tobX1yqcuJlIuOQm5Sd442pxeMpjLWeaztC6rR+M/0+Hda+3mW
+         UASB50buwrCSzh4CaPBnnT84hDk2CUIj9bf2iDc+utNM68wmt+ju3jCsN+IvcONQO2gp
+         CKCYbBh5lnQvycFaP6htF3fnN2DYdied/8SClDNv2g/1hkCs0fn+I6mv+8pZimR7wBys
+         l5gg==
+X-Forwarded-Encrypted: i=1; AKwUvBxhIm8M7MoChVV7cfJPMFMYTrWULpBucmMKt9N+QDnbg71RRLFPxny85BMsAVEGxbUnX6+BPmCt4Ck+@vger.kernel.org
+X-Gm-Message-State: AFuF++kk6P0ylstzaVl7/JZX/Ay6eIrHmilkZEMtwNGi6Wy6ixP5zs0O
+	n8/AU2j3nCVZNq6qbYHhUXMMpCRk+J58urtFlxZKBSLUiZ3UyR8g6mKZ
+X-Gm-Gg: AYBFou0oMceJPqcd23u+hRWZ/vU1ofNY8ahdat60Qx/W/rmwD0sg0YAi03rJig+e31o
+	WB7Lc0/37MYoxIQgNdnEFEh7lWiPuaOMFSa7UN9D8V3vz5ajlpQ6yCHjFAAMxAQH84HF2xqQWtH
+	CNN27kipYpEDmX7sSGST0FA99k63/WTkBr9n+0KTwHJOrIAbq916iCN11N5kEVu0Uu3yBMhMZ1d
+	oSQYmp8NDnNOjqUP+wA/fiTh+f6xGRgM7mrWwVH5IplLVT3vxoewiQlvIufLsHd+POZpxMe5aKD
+	3bYg0s0UHXWMtVMakKHLHugn+fGlGOkSglQYoD4ttAnhLo0R53Z+imm542DccHZp77PERMiaIpF
+	YmrAQsxo9AdG9W3l9d58irFN+LA3MqUI1SdHOu5vWPZmsSeou1W8HP2/4tmMsFMrG08FDPqzipM
+	eMiC7ILA7u1aOlg0XHseIkOpa8aTS4huDhjv2JnILGgK/yE66qD5UR5TN9KDExNlPpQjpZJ1UNi
+	QD+x3n97zji3Fj1f5MocdmtBLmqR3LetzkqHQUnSwDhj+QeeKTAqQ==
+X-Received: by 2002:a05:7301:3a86:b0:33e:5c4f:f46e with SMTP id 5a478bee46e88-33e8d8d2598mr1603719eec.30.1790144909601;
+        Tue, 22 Sep 2026 23:28:29 -0700 (PDT)
+Received: from li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com ([129.41.58.4])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-33e97236754sm3074867eec.29.2026.09.22.23.28.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 22 Sep 2026 23:28:29 -0700 (PDT)
+Date: Wed, 23 Sep 2026 11:58:13 +0530
+From: Mukesh Kumar Chaurasiya <mkchauras@gmail.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: catalin.marinas@arm.com, will@kernel.org, mark.rutland@arm.com, 
+	maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com, chleroy@kernel.org, 
+	ritesh.list@gmail.com, sshegde@linux.ibm.com, pjw@kernel.org, palmer@dabbelt.com, 
+	aou@eecs.berkeley.edu, alex@ghiti.fr, hca@linux.ibm.com, gor@linux.ibm.com, 
+	agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com, tglx@kernel.org, 
+	mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org, 
+	hpa@zytor.com, ojeda@kernel.org, boqun@kernel.org, gary@garyguo.net, 
+	bjorn3_gh@protonmail.com, lossin@kernel.org, a.hindborg@kernel.org, aliceryhl@google.com, 
+	tmgross@umich.edu, dakr@kernel.org, daniel.almeida@collabora.com, tamird@kernel.org, 
+	acourbot@nvidia.com, work@onurozkan.dev, nathan@kernel.org, ndesaulniers@google.com, 
+	morbo@google.com, justinstitt@google.com, jszhang@kernel.org, japo@linux.ibm.com, 
+	jpoimboe@kernel.org, seanjc@google.com, pmladek@suse.com, thuth@redhat.com, 
+	ynorov@nvidia.com, joelagnelf@nvidia.com, david@davidgow.net, 
+	fujita.tomonori@gmail.com, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, rust-for-linux@vger.kernel.org, llvm@lists.linux.dev
+Subject: Re: [RFC] rust: kernel: Add KUnit tests for ARCH_WARN_ASM bug table
+ emission
+Message-ID: <arNxAn7I7NCVWmD1@li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com>
+References: <20260922054959.955093-2-mkchauras@gmail.com>
+ <20260922064735.GS4121339@noisy.programming.kicks-ass.net>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: RdAdVqKNJ-tSIJhEmn9rQoIJ3aCTtQAC
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIzMDAyNCBTYWx0ZWRfXxYJS0UlF3FoQ
- QrCcFz+kNnZEMxdoLm52BW/deXppkyzlVZd/nkOx6T/bfnnV40cXUy8V6MT+vN9wC7j1PlDWRWc
- oz5/lTfTMXQEnmW/GTDVYCCoGYBTuEOK1bZXZsr19oMt7Dz8UlaZQeThBss0GVo07deS8Z+I3NO
- /99IgI1zkFdU7AjJk9cdub3eJv61ALtafz85g//Ug7z6krkL0gBuHAvbs+IUtYt5rQRgUtnOMhg
- OFCrrhPkukY9/p9YTnu6WRPE+RU3ScyUb79uMAdspOYP7hSNa31fx7+gIB6t9b3e0Lv9LkIdV/n
- 4ZF0JRRHgDdn+Nrh5fJ0vaY6ck9GWTOVdEY4m2XLQ4+7F3oYPWIvOz5uNZam7ldv/vUuW1Mu+N7
- JLMqFL1N/2Z/j3PJ361w9G4iI9yZ1rbsZta5deIlz6YM4JoYk3BvSCYXhmh/zqA9aMKnqtgUBFp
- p9VnixRqyktwGAK38Zw==
-X-Authority-Analysis: v=2.4 cv=O/KsLx9W c=1 sm=1 tr=0 ts=6ab36f21 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=G6lVKk-lwKvxZUKr5V8A:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIzMDAyNCBTYWx0ZWRfX6huBAfbGwSsf
- q46aQbNsy4x1PuuKPZAX7CK7dd5STxXxgQW7PM7SlmQrNop6dZcY9i78iTG9o8s7LhWw7Jh4HjG
- VOHznGPdy8Pd72Aff7YBJRFRClz6i5o=
-X-Proofpoint-GUID: ZIWTCR-ljzvfso0WB8jBl2TIOCSXSJX0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-23_02,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 malwarescore=0 phishscore=0 impostorscore=0 suspectscore=0
- bulkscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609230024
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260922064735.GS4121339@noisy.programming.kicks-ass.net>
 
-The diag dump walks the socket hash table under a read_lock and dereferen=
-ces
-conn->lgr and conn->lnk. Two terminal teardown paths drop those reference=
-s via
-smc_conn_free() while the socket is still hashed:
+On Tue, Sep 22, 2026 at 08:47:35AM +0200, Peter Zijlstra wrote:
+> On Tue, Sep 22, 2026 at 11:20:00AM +0530, Mukesh Kumar Chaurasiya (IBM) wrote:
+> > Verify that the __bug_table entry emitted by ARCH_WARN_ASM has a correct
+> > bug_addr displacement — i.e. the arch's trap label reference resolves to
+> > the trap instruction — by calling find_bug() with the exact virtual address
+> > of the trap, mirroring what the real trap handler does.
+> > 
+> > To support all architectures, each arch that implements ARCH_WARN_ASM now
+> > defines ARCH_WARN_ASM_TRAP_LABEL, a string constant naming the local label
+> > at which the trap instruction is placed:
+> > 
+> >   x86       "1"     (ud2 at label 1:)
+> >   powerpc   "1"     (twi at label 1:)
+> >   riscv     "1"     (ebreak at label 1:)
+> >   arm64     "14471" (brk placed at 14471: by __BUG_ENTRY_END)
+> >   s390      "0"     (mc at label 0:)
+> > 
+> > The label is used consistently: in ARCH_WARN_ASM itself, in the
+> > bug_addr back-reference inside __BUG_ENTRY / _EMIT_BUG_ENTRY, 
+> 
+> 
+> > diff --git a/arch/x86/include/asm/bug.h b/arch/x86/include/asm/bug.h
+> > index 23ab05438269..6cca8880660e 100644
+> > --- a/arch/x86/include/asm/bug.h
+> > +++ b/arch/x86/include/asm/bug.h
+> > @@ -62,8 +62,9 @@ extern void __WARN_trap(struct bug_entry *bug, ...);
+> >  #define HAVE_ARCH_BUG_FORMAT_ARGS
+> >  #endif
+> >  
+> > +#define ARCH_WARN_ASM_TRAP_LABEL "1"
+> >  #define __BUG_ENTRY(format, file, line, flags)				\
+> > -	"\t.long 1b - ."	"\t# bug_entry::bug_addr\n"		\
+> > +	"\t.long " ARCH_WARN_ASM_TRAP_LABEL "b - ." "\t# bug_entry::bug_addr\n" \
+> >  	__BUG_ENTRY_FORMAT(format)					\
+> >  	__BUG_ENTRY_VERBOSE(file, line)					\
+> >  	"\t.word " flags	"\t# bug_entry::flags\n"
+> > @@ -101,7 +102,7 @@ do {									\
+> >  	"99:\n"								\
+> >  	"\t.string \"\"\n"						\
+> >  	".popsection\n"							\
+> > -	"1:\t " ASM_UD2 "\n"						\
+> > +	ARCH_WARN_ASM_TRAP_LABEL ":\t " ASM_UD2 "\n"			\
+> >  	_BUG_FLAGS_ASM("99b", file, line, flags, size, "")
+> >  
+> >  #else
+> 
+> Not really a fan of that. And I can't really tell what you're doing with
+> it either. The kunit is in Rust and thus unreadable :-(
+> 
+> I would rather you fix up is_valid_bugaddr(), some architectures seem to
+> have an always true stub because of the callchains always being from the
+> break instruction.
 
-  - smc_conn_kill() -> smc_close_active_abort() -> smc_conn_free()
-  - smc_close_passive_work() -> smc_conn_free()
+Hey Peter,
 
-This allows the diag reader to dereference a freed lgr or lnk.
+thanks for the suggestion. I will fix up the is_valid_bugaddr for
+powerpc. I am not very good with other archs asm but i can do it for
+ppc32 and ppc64.
 
-Fix it by unhashing the socket before smc_conn_free() is called at the tw=
-o
-terminal teardown sites in smc_close.c.
-
-Additionally, smc_conn_abort() calls smc_conn_free() during early handsha=
-ke
-aborts while the socket remains hashed in SMC_INIT state. The
-smc_listen_out_err() path leaves the socket hashed in SMC_CLOSED state af=
-ter
-smc_conn_abort() returns. Guard the conn/lgr/lnk inspection blocks in
-__smc_diag_dump() by skipping them when the socket is in SMC_INIT or SMC_=
-CLOSED
-state.
-
-Fixes: f16a7dd5cf27 ("smc: netlink interface for SMC sockets")
-Fixes: 9dbe086c69b8 ("net/smc: fix invalid link access in dumping SMC-R c=
-onnections")
-Signed-off-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
----
-Changes in v5:
-- guard conn/lgr/lnk blocks in __smc_diag_dump() with an
-  (SMC_INIT || SMC_CLOSED) state check placed after the
-  SMC_DIAG_FALLBACK nla_put; SMC_INIT can coexist with fallback
-  (smc_sendmsg() MSG_FASTOPEN path), so the guard must not suppress
-  the fallback reason
-
-Changes in v4:
-- dropped smc_conn_unhash() wrapper, conn->unhashed flag, and all
-  changes to af_smc.c, smc.h, smc_core.c and smc_core.h;
-  smc_unhash_sk() is already idempotent via sk_hashed(), so direct
-  calls at the two teardown sites in smc_close.c are sufficient
-- dropped the __smc_release() hunk: it needs no change since the
-  subsequent unhash there is already a safe no-op
-- fixed premature-unhash issue present in v3: smc_conn_free() must not
-  unhash because smc_conn_abort() calls it before
-  smc_switch_to_fallback() in both smc_listen_decline() and
-  smc_connect_rdma() error paths; unhashing there would make live
-  fallback sockets invisible to smcss
-- likewise, the ISM/RDMA retry loops (smc_find_ism_v2_device_serv(),
-  smc_find_rdma_v2_device_serv()) call smc_conn_abort() on a failed
-  attempt and then smc_conn_create() on the next device; unhashing in
-  smc_conn_free() would permanently hide the established connection from
-  smc_diag since smc_conn_create() does not re-hash the socket
-
-Changes in v3:
-- redesigned as a single patch; dropped the lgr_lnk_lock spinlock
-  approach and the 2-patch split
-- fix is now at the socket hash layer: introduce smc_conn_unhash() with
-  a per-connection unhashed flag; smc_conn_free() unhashes before droppin=
-g
-  lgr/lnk refs, so any socket visible to the diag reader under the hash
-  read_lock has valid conn->lgr and conn->lnk pointers
-- __smc_release() updated to call smc_conn_unhash() for non-fallback
-  sockets so the flag is honoured when smc_conn_free() already ran first
-- smc_diag.c needs no changes; the hash read_lock invariant is
-  sufficient without any per-connection lock in the dump path
-- dropped the clcsock/mutex_trylock fix as that will be addressed separat=
-ely
-
-Changes in v2:
-- this is v2 of the 2-patch series; the earlier submission was mislabelle=
-d
-  [PATCH v3] but was in fact the first version sent to the list
-- split into a 2-patch series; patch 1/2 adds per-connection lgr_lnk_lock
-  infrastructure to smc_core, patch 2/2 fixes the diag dump path using it
-- dropped lock_sock()/release_sock() from __smc_diag_dump(); v1 held the
-  socket lock across all lgr/lnk dereferences, requiring the hash read_lo=
-ck
-  to be dropped and re-acquired around each socket
-- dropped the restart-from-head loop in smc_diag_dump_proto(); the new
-  design does not drop the hash read_lock mid-walk so the hlist truncatio=
-n
-  concern no longer applies
-- dropped refcount_inc_not_zero() socket pinning from the dump loop for t=
-he
-  same reason: the hash read_lock is now held for the full walk
-- added per-connection lgr_lnk_lock spinlock to struct smc_connection;
-  conn->lgr and conn->lnk are NULLed under this lock in smc_conn_free()
-  before borrowed references are released, establishing the invariant: a
-  non-NULL conn->lgr seen under lgr_lnk_lock guarantees the lgr is alive
-- added lgr_lnk_lock to smc_switch_link_and_count() to protect the conn->=
-lnk
-  pointer swap from concurrent diag readers
-- replaced mutex_lock() on clcsock_release_lock in smc_diag_msg_common_fi=
-ll()
-  with mutex_trylock(); mutex_lock() was valid in v1 because the hash
-  spinlock had been dropped, but the new design holds the hash read_lock
-  throughout so only a non-sleeping trylock is safe; a failed trylock lea=
-ves
-  address fields zeroed, which is acceptable for a monitoring tool
-- all conn->lgr and conn->lnk accesses in __smc_diag_dump() use a
-  snapshot-then-use pattern: fields are copied into local stack variables
-  under lgr_lnk_lock and nla_put() is called after releasing the lock,
-  avoiding any sleeping operation under the spinlock
-
- net/smc/smc_close.c | 10 ++++++++++
- net/smc/smc_diag.c  |  4 ++++
- 2 files changed, 14 insertions(+)
-
-diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-index bb0313ef5f7c..3940098c651d 100644
---- a/net/smc/smc_close.c
-+++ b/net/smc/smc_close.c
-@@ -130,6 +130,11 @@ void smc_close_active_abort(struct smc_sock *smc)
- 	struct sock *sk =3D &smc->sk;
- 	bool release_clcsock =3D false;
-
-+	/*
-+	 * Unhash before any branch calls smc_conn_free() and drops lgr/lnk ref=
-s;
-+	 * the diag reader must not see a hashed socket with freed lgr/lnk.
-+	 */
-+	sk->sk_prot->unhash(sk);
- 	if (sk->sk_state !=3D SMC_INIT && smc->clcsock && smc->clcsock->sk) {
- 		sk->sk_err =3D ECONNABORTED;
- 		if (smc->clcsock && smc->clcsock->sk)
-@@ -433,6 +438,11 @@ static void smc_close_passive_work(struct work_struc=
-t *work)
- 		sk->sk_state_change(sk);
- 		if ((sk->sk_state =3D=3D SMC_CLOSED) &&
- 		    (sock_flag(sk, SOCK_DEAD) || !sk->sk_socket)) {
-+			/*
-+			 * Unhash before smc_conn_free() drops lgr/lnk refs so the diag
-+			 * reader cannot see a hashed socket with freed lgr/lnk.
-+			 */
-+			sk->sk_prot->unhash(sk);
- 			smc_conn_free(conn);
- 			if (smc->clcsock)
- 				release_clcsock =3D true;
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index bf0beaa23bdb..fb615d3af058 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -103,5 +103,8 @@ static int __smc_diag_dump(struct sock *sk, struct sk=
-_buff *skb,
- 	if (nla_put(skb, SMC_DIAG_FALLBACK, sizeof(fallback), &fallback) < 0)
- 		goto errout;
-
-+	if (sk->sk_state =3D=3D SMC_INIT || sk->sk_state =3D=3D SMC_CLOSED)
-+		goto out;
-+
- 	if ((req->diag_ext & (1 << (SMC_DIAG_CONNINFO - 1))) &&
- 	    smc->conn.alert_token_local) {
-@@ -185,5 +188,6 @@ static int __smc_diag_dump(struct sock *sk, struct sk=
-_buff *skb,
- 			goto errout;
- 	}
-
-+out:
- 	nlmsg_end(skb, nlh);
- 	return 0;
---=20
-2.43.7
+Regards,
+Mukesh
