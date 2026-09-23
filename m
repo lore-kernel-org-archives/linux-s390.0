@@ -1,212 +1,169 @@
-Received: from mta1.migadu.com (out-140.mta1.migadu.com [95.215.58.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91F9F468C1F
-	for <linux-s390@vger.kernel.org>; Wed, 23 Sep 2026 08:05:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E803468C22;
+	Wed, 23 Sep 2026 08:14:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790150752; cv=none; b=JGRbxhl4ct3OXJyJeWsi/dcuDLl5bnZPQLhd+UN3/PjLJcbhESB2JVtOzU79R4dFJTpepDj2EwSr7JnPu98iW2AfRDXWhQ5acVY8B21JGf9HXasSwjxihd5g0ITS02oyxvK5KbYz3u3Fk3201AVmb3FPLVTqG1GE1ZO7f4pEEdI=
+	t=1790151254; cv=none; b=QkkydmTFgWKAv42om4OWOTP2WXvd+NDzpqIbfBr2bbIQB/StloH9myvyumT1py3C5kxnJMf7DgQA4YfbdXf3dn6W8Fx1t/qvt0Bq2V3E0futs8NLiGhSsiuaL5B0D5i08i0ES9psdiyw84kHOie5pMk3Y+zcvsi0JNyfjboKJns=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790150752; c=relaxed/simple;
-	bh=5BGZTHY8kFe6g0IgkeIcnp2oHzMTIKE0zyxoC0cn6HM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ax+SNIcBuiRKLFhbPjzA5G0P/mFnRnDp8F5xE+7GcdwMCvFtpLHieT4P3VFFezIsD+Sf0cfDrL/qdGnm2pInGnOMSCkCGxtfMpEFfz7hkWozlxC/8fSmHmJROQ4I6UhuG0y1OUUH1kYGdksprwqeeR+vZeW4XZs5yeTYN3ct+eU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=WWzI1t7T; arc=none smtp.client-ip=95.215.58.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1790151254; c=relaxed/simple;
+	bh=aN2ZWo/23w37qNKgpNUnQ0H6NGD03WPhBvg03+MG/94=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HR064HOt5Vnx77PFMZX0U1VDnIMihgT7audwW0G9+h8lBGhW6m4zH+0Zu06olSrHZnuTsQH47N4NPhfOE/ee1UP8ci5iG6uHAU/yt2ufBcMHAmqs71yOo97b1iHdkL1yvuM0CZ8JXayl+R78fG8Bce5Xkd7XBoxGrFXU7BRYeQw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mCJlfOwt; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="WWzI1t7T"
-X-Envelope-To: linux-s390@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=5BGZTHY8kFe6g0IgkeIcnp2oHzMTIKE0zyxoC0cn6HM=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1790150746; v=1; x=1790755546;
- b=WWzI1t7TTqFw2wr0jDkPbtN7TwQkuQvfOO3Aoft9mKRYRiQ8BJkP6zHsQzDXqVepu6W5cjvb
- tfHsZBOIWQv3UyolWYXTaga2Up9GF8hClSUeIYphsrLfUFaHgusY8nU/X1vFS5NizsI0/JMz8p6
- fN5aMOPIlrRM1utL1VgA1DNQ=
-X-Envelope-To: linux-s390@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 0dc515f7c86dd02d;
-	Wed, 23 Sep 2026 08:05:34 +0000
-X-Mizu-Trace-ID: 0dc515f7c86dd02d
-X-Migadu-Flow: FLOW_OUT
-From: Lance Yang <lance.yang@linux.dev>
-To: ljs@kernel.org
-Cc: akpm@linux-foundation.org,
-	david@kernel.org,
-	ziy@nvidia.com,
-	baolin.wang@linux.alibaba.com,
-	liam@infradead.org,
-	nico.pache@linux.dev,
-	ryan.roberts@arm.com,
-	dev.jain@arm.com,
-	baohua@kernel.org,
-	lance.yang@linux.dev,
-	usama.arif@linux.dev,
-	kas@kernel.org,
-	guoren@kernel.org,
-	bcain@kernel.org,
-	geert@linux-m68k.org,
-	dinguyen@kernel.org,
-	schuster.simon@siemens-energy.com,
-	jonas@southpole.se,
-	stefan.kristiansson@saunalahti.fi,
-	shorne@gmail.com,
-	dalias@libc.org,
-	glaubitz@physik.fu-berlin.de,
-	pjw@kernel.org,
-	palmer@dabbelt.com,
-	aou@eecs.berkeley.edu,
-	alex@ghiti.fr,
-	linux@armlinux.org.uk,
-	vgupta@kernel.org,
-	monstr@monstr.eu,
-	chris@zankel.net,
-	jcmvbkbc@gmail.com,
-	will@kernel.org,
-	aneesh.kumar@kernel.org,
-	npiggin@gmail.com,
-	peterz@infradead.org,
-	davem@davemloft.net,
-	andreas@gaisler.com,
-	richard.henderson@linaro.org,
-	mattst88@gmail.com,
-	linmag7@gmail.com,
-	catalin.marinas@arm.com,
-	mark.rutland@arm.com,
-	chenhuacai@kernel.org,
-	kernel@xen0n.name,
-	tsbogend@alpha.franken.de,
-	James.Bottomley@HansenPartnership.com,
-	deller@gmx.de,
-	maddy@linux.ibm.com,
-	mpe@ellerman.id.au,
-	chleroy@kernel.org,
-	hca@linux.ibm.com,
-	gor@linux.ibm.com,
-	agordeev@linux.ibm.com,
-	borntraeger@linux.ibm.com,
-	svens@linux.ibm.com,
-	richard@nod.at,
-	anton.ivanov@cambridgegreys.com,
-	johannes@sipsolutions.net,
-	tglx@kernel.org,
-	mingo@redhat.com,
-	bp@alien8.de,
-	dave.hansen@linux.intel.com,
-	x86@kernel.org,
-	hpa@zytor.com,
-	arnd@arndb.de,
-	vbabka@kernel.org,
-	rppt@kernel.org,
-	surenb@google.com,
-	mhocko@suse.com,
-	jgg@ziepe.ca,
-	jhubbard@nvidia.com,
-	peterx@redhat.com,
-	ysato@users.sourceforge.jp,
-	shakeel.butt@linux.dev,
-	corbet@lwn.net,
-	rdunlap@infradead.org,
-	linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	linux-csky@vger.kernel.org,
-	linux-hexagon@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org,
-	linux-openrisc@vger.kernel.org,
-	linux-sh@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-snps-arc@lists.infradead.org,
-	linux-arch@vger.kernel.org,
-	sparclinux@vger.kernel.org,
-	linux-alpha@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	linux-um@lists.infradead.org,
-	hughd@google.com,
-	qi.zheng@linux.dev,
-	linux-doc@vger.kernel.org
-Subject: Re: [PATCH v4 04/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU arm
-Date: Wed, 23 Sep 2026 16:05:23 +0800
-Message-ID: <20260923080523.9480-1-lance.yang@linux.dev>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20260922-rcu-pagetable-freeing-v4-4-fe1ad1f1e303@kernel.org>
-References: <20260922-rcu-pagetable-freeing-v4-4-fe1ad1f1e303@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mCJlfOwt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 376301F000FF;
+	Wed, 23 Sep 2026 08:13:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790151252;
+	bh=4asDkf1r4nhSOrT7R8hAyZcEQKKYrXhZ/zPFbXlZHas=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=mCJlfOwtX67y203buKELQIT2TJkfDrkJVRWjviTUThii3FIl01hNmt/2/N5niDJsO
+	 pMfVhn9hKYcyv1hPNTj3q8nO0Pds6VFO+rGQe1AtibuYmlGhfEvG5fzsVNd5VZj00d
+	 fkgcgDIaUfRNs16fD4U8B+bk8I0EVqFfud76K+T15hPjY5Wnzx7h17G1IEpBvKdbdT
+	 fwOMBpLGIgd0Nxsna3HHhcpWKXrmzcnrf1IYhuJaw4NDIion+IMG6MmbJbYDpOjNxG
+	 ds54K/vBGhy978o0s9QlAtQmkuOq1eOy+SdadnN3yilV4MeGzEJApyN21XCzbDlSMz
+	 y5uiJtnDQNScw==
+Date: Wed, 23 Sep 2026 09:13:40 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: Suren Baghdasaryan <surenb@google.com>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>, 
+	Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+	Mike Rapoport <rppt@kernel.org>, Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
+	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
+	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
+	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
+	Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen" <mkp@kernel.org>, 
+	Jaya Kumar <jayalk@intworks.biz>, Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, 
+	Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
+	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+	Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, Juri Lelli <juri.lelli@redhat.com>, 
+	Vincent Guittot <vincent.guittot@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>, 
+	Oliver Upton <oupton@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
+	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
+	Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
+	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
+	Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
+	Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
+	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
+	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
+	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev, 
+	Takashi Iwai <tiwai@suse.de>
+Subject: Re: [PATCH v2 00/40] mm: make VMA flag semantics explicit, eliminate
+ VM_SPECIAL
+Message-ID: <arOCPN02xB7mykju@gremlin>
+References: <20260914-b4-mmap-prepare-vma-flag-sanify-v2-0-7d9781ed5361@kernel.org>
+ <20260914180811.057cba8fcc48d6e0b53a2683@linux-foundation.org>
+ <0b064fe6-ddb3-4f26-a1f2-2e9dd88d590f@kernel.org>
+ <CAJuCfpFBichJH4OcmSHTb1rOuQBT6k5pXeua9_KgpWjDBKvsYw@mail.gmail.com>
+ <aq6kzpK7wPl3iFGe@gremlin>
+ <aq6lW9FvL69QeA9H@gremlin>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <aq6lW9FvL69QeA9H@gremlin>
 
+On Sat, Sep 19, 2026 at 04:09:13PM +0100, Lorenzo Stoakes (ARM) wrote:
+> On Sat, Sep 19, 2026 at 04:05:57PM +0100, Lorenzo Stoakes (ARM) wrote:
+> > On Fri, Sep 18, 2026 at 01:31:24PM -0700, Suren Baghdasaryan wrote:
+> > > On Fri, Sep 18, 2026 at 1:21 PM David Hildenbrand (Arm)
+> > > <david@kernel.org> wrote:
+> > > >
+> > > > On 9/15/26 03:08, Andrew Morton wrote:
+> > > > > On Mon, 14 Sep 2026 15:57:20 +0100 "Lorenzo Stoakes (ARM)" <ljs@kernel.org> wrote:
+> > > > >
+> > > > >> The VM_SPECIAL / VMA_SPECIAL_FLAGS mask conflates several unrelated
+> > > > >> properties:
+> > > > >>
+> > > > >> ...
+> > > > >>
+> > > > >> It's all rather a mess.
+> > > > >>
+> > > > >> This series brings some order to things by both limiting what drivers can
+> > > > >> do with VMA flags and switching to using predicates that describe
+> > > > >> behaviour, not arbitrary flags.
+> > > > >
+> > > > > That's a lot of patches.
+> > > > >
+> > > > > Review is thin and I expect this won't improve a lot.  Lots of "no
+> > > > > functional changes" changes.
+> > > >
+> > > > I'll expect to go through all of them. Might just take a bit ;)
+> > >
+> > > ditto
+> >
+> > Thanks guys!
+>
+> Note v3 has been posted to fix a stupid bug in 1/40 + attack some very trivial
+> sashiko stuff
+>
+> https://lore.kernel.org/linux-mm/20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org/
 
-On Tue, Sep 22, 2026 at 04:35:35PM +0100, Lorenzo Stoakes (ARM) wrote:
->Commit a0ad5496b2b3 ("arm: mm: enable HAVE_RCU_TABLE_FREE logic") enabled
->CONFIG_MMU_GATHER_RCU_TABLE_FREE (then named HAVE_RCU_TABLE_FREE) for SMP
->arm architectures with LPAE enabled.
->
->Regardless of whether CONFIG_ARM_LPAE is enabled or not, the same page
->table freeing functions __pte_free_tlb() and __pmd_free_tlb() are used.
->
->Non-LPAE PMD page tables are folded into the PGD and freed by
->pgd_free() (PGD freeing is not part of mmu_gather page table freeing in any
->case), so this is a noop in this case.
->
->Since commit 358d1c39c82a ("arm: convert various functions to use ptdescs")
->both LPAE and non-LPAE PTE page table freeing uses tlb_remove_ptdesc().
->
->Thus all page table freeing is performed under RCU with
->CONFIG_MMU_GATHER_RCU_TABLE_FREE enabled for LPAE and non-LPAE and thus it
->need not be gated on LPAE.
->
->A UP arm system can set CONFIG_PREEMPT_RCU, so a future pure RCU page
->table walker requires MMU_GATHER_RCU_TABLE_FREE to be enabled on UP as
->well, even if concurrent GUP fast is not possible there.
->
->Therefore, it is both safe and desirable to set
->CONFIG_MMU_GATHER_RCU_TABLE_FREE for all MMU arm architectures (nommu does
->not perform mmu_gather operations).
->
->This forms part of an overall effort to switch every architecture to this
->mode.
->
->Acked-by: Kiryl Shutsemau (Meta) <kas@kernel.org>
->Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
->---
+Just a gentle nudge on this :)
 
-Tested under heavy page-table teardown load on qemu-system-arm,
-with and without ARM_LPAE. No issues seen :D
+If you guys or anybody else has some time it'd be appreciated! (obv. the v3 as
+linked above not this v2!)
 
-Tested-by: Lance Yang <lance.yang@linux.dev>
+I know the series seems intimidating but most of the commits are very small and
+it's been in -next for a while.
 
-Also, feel free to add:
-
-Acked-by: Lance Yang <lance.yang@linux.dev>
-
-
-> arch/arm/Kconfig | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
 >
->diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
->index 408aa58a2a5b..72b9afc6ae10 100644
->--- a/arch/arm/Kconfig
->+++ b/arch/arm/Kconfig
->@@ -134,7 +134,7 @@ config ARM
-> 	select HAVE_PERF_REGS
-> 	select HAVE_PERF_USER_STACK_DUMP
-> 	select HAVE_POSIX_CPU_TIMERS_TASK_WORK
->-	select MMU_GATHER_RCU_TABLE_FREE if SMP && ARM_LPAE
->+	select MMU_GATHER_RCU_TABLE_FREE if MMU
-> 	select HAVE_REGS_AND_STACK_ACCESS_API
-> 	select HAVE_RSEQ
-> 	select HAVE_RUST if CPU_LITTLE_ENDIAN && CPU_32v7 && !KASAN
+> >
+> > >
+> > > >
+> > > > --
+> > > > Cheers,
+> > > >
+> > > > David
+> >
+> > --
+> > Cheers, Lorenzo
 >
->-- 
->2.55.0
->
->
+> --
+> Cheers, Lorenzo
+
+--
+Cheers, Lorenzo
