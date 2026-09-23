@@ -1,35 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8B43556B9F;
-	Wed, 23 Sep 2026 15:17:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63B385540A0;
+	Wed, 23 Sep 2026 15:17:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790176651; cv=none; b=WNCYbCdnY4QVpyy8zCSA05361wxMUBKTiaHiOha99c/+3szAjWuMUVwty/m1lpS4Sf/1QPv4dl/MAuZXKZ373esHlWxLWT1zSkbSvYNOHcPQO8ARuz6K+vq8BPc6dCppcbGiU1IO2K3XiTprIZNhcYmkNrl7sB6aX9dQqbHRQyo=
+	t=1790176660; cv=none; b=TEW4f/xp7mmlY5jVyqqv0dd4uWtCx0pKOdZCAfF83MIDrypwwGELNnKU+ZB+NptGom4scp0J8jfAMceakbmG07OWsMmkjdQOjLcaarDCNdi2LcyQc5Orlz2bLKSKifo/BhDwgGgBKqShDYjh7MvntIefbFG6oyQO6tHKX6XkJtE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790176651; c=relaxed/simple;
-	bh=ZOeS30gofdCLOtXFawVIsqjJmujH+ZzrHXswM13UJw8=;
+	s=arc-20240116; t=1790176660; c=relaxed/simple;
+	bh=3jNmX2L0KPAyNxJEsL2NZ7ih8eaJGSFbnXSbhQF4vow=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=aMla65qogU6eacb/0lTXps66AitpFyFwwBK8uY6jON/iqBSUKSNM/vgvYNND1LVkc1o50YMAiQ23+YrEGXs751RwFzs4NUi72WpcJyC83AGvIcCub3QTx34l3V+5yKmDXk/6cn9maRAK1wwlyHwqFYey04Pre3f5SAmH3aY+lhc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nd1tzxbU; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=GEkosjyiD4Q3BPiY6YgXVGDefpjERGvK9j4CibuAZSpOWlz9jrP+hzJxop53xopQzAKwSPlUrHcPN+w4b6meQBcsf4k3vASyXxNtPaLwR/zT39x7fv2HnPWnO1EwfjAcPY0xrY0eaAymv3tZRJAJDven8RgQAexTHgj6JgiD4i0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MXtbzQ7I; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nd1tzxbU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74ADA1F00893;
-	Wed, 23 Sep 2026 15:17:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MXtbzQ7I"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BE141F00898;
+	Wed, 23 Sep 2026 15:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790176649;
-	bh=XFLThVHVojpEVUSy57OzgxDT30uqvYagO8r4EUiTrpo=;
+	s=k20260515; t=1790176659;
+	bh=9vm32az2LnuV8WaiAacxm+CnjVstWYf+Y/eufVTbi0o=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=Nd1tzxbUupmp39i9v7NxLW1mFVXBMOX/eSLEcGX0ecyR0PHYJekwz5icqDiYzFqU0
-	 LswEIO9iNNZHJZ+KPEzitCY96UvuJk0Rrj6GT/+xJrwN4uwxeVDXOrDuL+DGwHlQEq
-	 ePfaO+41RQcLA0tcUrvY3JbgTwmaPX2mfBtKPOGG1d4lfzcbVixX2V2e9P/HEvOQ5H
-	 7ljAMM5HexD9vFN4kNufxBBF7u9TLaurFX2Qlmddfp7qWno04KyoIw1m8+OJQ9FEuE
-	 zZWwp8BA3zy31fIRlEKvppBNTQKQi+SGsYTDKZp2PCW1WC9tQ8nNpaXP/ola4k0B/m
-	 MIE3tVWDv9z1A==
+	b=MXtbzQ7I1JHpjbHGy0JZp3RUIguxeDgIO3H3rII9bJogVlw+XyPbgOpxl9U7FoQYi
+	 eQSr8qILD04P6lR7UnN5QIM1ACiCrnY0g5NDVY9Cit73pYHbOz3YeJf1rEnDWXwGDn
+	 j4XtfuHD+FAAsA6Nyo2nLuD1JukBTCu+EKKi6TD0i/Zt30Fy41f0DUu1KW2NpRABy+
+	 SPcoQe8NPmByOeaU4ao/uufEfcK+2xPR/l0CRzf2rIEghFOXLliluBVsJxeO1e9gWn
+	 062fvxKab7VdxkpFLEl27ifUqIXs7KPcvJwxFZymyIyyZ4nCytPiqeTu1bNzODnKm6
+	 c2n98XdRm8TRQ==
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Date: Wed, 23 Sep 2026 16:15:51 +0100
-Subject: [PATCH v4 08/14] KVM: arm64: Propagate EHWPOISON in
- kvm_s2_fault_pin_pfn()
+Date: Wed, 23 Sep 2026 16:15:52 +0100
+Subject: [PATCH v4 09/14] KVM: arm64: Pass walk flags to
+ kvm_pgtable_get_leaf()
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -38,7 +38,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260923-kvm-arm-prefault-v4-8-d4b0b4dfa8c3@kernel.org>
+Message-Id: <20260923-kvm-arm-prefault-v4-9-d4b0b4dfa8c3@kernel.org>
 References: <20260923-kvm-arm-prefault-v4-0-d4b0b4dfa8c3@kernel.org>
 In-Reply-To: <20260923-kvm-arm-prefault-v4-0-d4b0b4dfa8c3@kernel.org>
 To: Catalin Marinas <catalin.marinas@arm.com>, 
@@ -70,73 +70,177 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  Leo Soares Passos <Leo.Bras@arm.com>, Wei-Lin Chang <weilin.chang@arm.com>, 
  linux-s390@vger.kernel.org, "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2077; i=ljs@kernel.org;
- h=from:subject:message-id; bh=ZOeS30gofdCLOtXFawVIsqjJmujH+ZzrHXswM13UJw8=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLI2v9Vt2MfWm/N2xtr7N844/I0u0+y+6Rq6OMV299KqW
- u3w+cyvOkpZGMS4GGTFFFmefxHfHyQSNq/zgr8bzBxWJpAhDFycAjCRT/8Z/vAXbd4uur/4xMoL
- NlHK0tJ2xdIX5U4IbNt6P030Wc/9CRcY/rsvCQsMlf6Xd0/4qriZpHaEGaN0wzz50LyQz/u53KZ
- OZgUA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6199; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=/7gESZ5TmmiQJgL7YNm2fLECXkI/ScMMb7OHCu5WcGA=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLI2v9UNC8/jbLj5TPbrriO2PitLPf4eTEzblit97F/U5
+ pc3A9P2dpSyMIhxMciKKbI8/yK+P0gkbF7nBX83mDmsTCBDGLg4BWAiZ3sZGT5l2wRWp5x7+fdj
+ 4eKYmdpGE70TOl49eyD4gSk8UNc6vIaR4eb8+IO3J635/9lJM+DtlG0r5C4t1RRjk1p2SefX3g2
+ ar9kA
 X-Developer-Key: i=ljs@kernel.org; a=openpgp;
  fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-Currently kvm_s2_fault_pin_pfn() handles a poisoned page directly by
-sending a SIGBUS signal itself.
+From: Jack Thomson <jackabt@amazon.com>
 
-This is an odd place to do it, the caller should decide what to do with
-errors, so move the handling to the sole caller, user_mem_abort().
+Allow callers of kvm_pgtable_get_leaf() to specify the page-table walk
+flags, in preparation for performing walks under the MMU read lock.
 
-This lays the foundation for stage 2 pre-faulting which, arising from a
-synthetic fault, should not send a signal.
+Reading a stage-2 leaf while only holding the read lock requires
+KVM_PGTABLE_WALK_SHARED: parallel faults (which also only hold the read
+lock) can unlink table pages and free them via RCU, so the walker must
+be inside an RCU read-side critical section, which the shared walk flag
+provides via kvm_pgtable_walk_begin().
 
-In order to do so, check to see if user_mem_abort()'s caller has set result
-- i.e. whether it wants to be informed about the outcome of the fault
-handling.
-
-If it does, then it is implied that it should handle the -EHWPOISON error
-itself. This is the case for pre-faulting.
-
-Otherwise this is real hardware, so send the signal.
+All existing callers either hold the write lock, walk with interrupts
+disabled, or run at hyp where shared walks are rejected; they keep the
+current behaviour by passing no flags.
 
 No functional change intended.
 
+Signed-off-by: Jack Thomson <jackabt@amazon.com>
+[ljs: fixup new kvm_pgtable_get_leaf() invocation]
 Reviewed-by: Oliver Upton <oupton@kernel.org>
 Reviewed-by: Fuad Tabba <fuad.tabba@linux.dev>
 Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 ---
- arch/arm64/kvm/mmu.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ arch/arm64/include/asm/kvm_pgtable.h  |  5 ++++-
+ arch/arm64/kvm/hyp/nvhe/mem_protect.c | 10 +++++-----
+ arch/arm64/kvm/hyp/nvhe/mm.c          |  2 +-
+ arch/arm64/kvm/hyp/pgtable.c          |  5 +++--
+ arch/arm64/kvm/mmu.c                  |  2 +-
+ arch/arm64/kvm/nested.c               |  2 +-
+ 6 files changed, 15 insertions(+), 11 deletions(-)
 
-diff --git a/arch/arm64/kvm/mmu.c b/arch/arm64/kvm/mmu.c
-index cd4bc1d1bcdb..476a98cbe05d 100644
---- a/arch/arm64/kvm/mmu.c
-+++ b/arch/arm64/kvm/mmu.c
-@@ -2018,10 +2018,8 @@ static int kvm_s2_fault_pin_pfn(const struct kvm_s2_fault_desc *s2fd,
- 				      kvm_s2_fault_is_write(s2fd) ? FOLL_WRITE : 0,
- 				      &s2vi->map_writable, &s2vi->page);
- 	if (unlikely(is_error_noslot_pfn(s2vi->pfn))) {
--		if (s2vi->pfn == KVM_PFN_ERR_HWPOISON) {
--			kvm_send_hwpoison_signal(s2fd->hva, __ffs(s2vi->vma_pagesize));
--			return 0;
--		}
-+		if (s2vi->pfn == KVM_PFN_ERR_HWPOISON)
-+			return -EHWPOISON;
- 		return -EFAULT;
- 	}
+diff --git a/arch/arm64/include/asm/kvm_pgtable.h b/arch/arm64/include/asm/kvm_pgtable.h
+index 20d12da3d28e..589db1d6405f 100644
+--- a/arch/arm64/include/asm/kvm_pgtable.h
++++ b/arch/arm64/include/asm/kvm_pgtable.h
+@@ -859,6 +859,8 @@ int kvm_pgtable_walk(struct kvm_pgtable *pgt, u64 addr, u64 size,
+  * @addr:	Input address for the start of the walk.
+  * @ptep:	Pointer to storage for the retrieved PTE.
+  * @level:	Pointer to storage for the level of the retrieved PTE.
++ * @flags:	Flags to control the page-table walk
++ *		(see struct kvm_pgtable_visit_ctx).
+  *
+  * The offset of @addr within a page is ignored.
+  *
+@@ -869,7 +871,8 @@ int kvm_pgtable_walk(struct kvm_pgtable *pgt, u64 addr, u64 size,
+  * Return: 0 on success, negative error code on failure.
+  */
+ int kvm_pgtable_get_leaf(struct kvm_pgtable *pgt, u64 addr,
+-			 kvm_pte_t *ptep, s8 *level);
++			 kvm_pte_t *ptep, s8 *level,
++			 enum kvm_pgtable_walk_flags flags);
  
-@@ -2263,6 +2261,13 @@ static int user_mem_abort(const struct kvm_s2_fault_desc *s2fd,
- 	 * get block mapping for device MMIO region.
- 	 */
- 	ret = kvm_s2_fault_pin_pfn(s2fd, &s2vi);
-+	if (ret == -EHWPOISON) {
-+		/* If result is specified, let the caller handle this. */
-+		if (result)
-+			return -EHWPOISON;
-+		kvm_send_hwpoison_signal(s2fd->hva, __ffs(s2vi.vma_pagesize));
-+		return 0;
-+	}
- 	if (ret != 1)
+ /**
+  * kvm_pgtable_stage2_pte_prot() - Retrieve the protection attributes of a
+diff --git a/arch/arm64/kvm/hyp/nvhe/mem_protect.c b/arch/arm64/kvm/hyp/nvhe/mem_protect.c
+index a6a47c1e058b..443ee433119e 100644
+--- a/arch/arm64/kvm/hyp/nvhe/mem_protect.c
++++ b/arch/arm64/kvm/hyp/nvhe/mem_protect.c
+@@ -540,7 +540,7 @@ static int host_stage2_adjust_range(u64 addr, struct kvm_mem_range *range)
+ 	int ret;
+ 
+ 	hyp_assert_lock_held(&host_mmu.lock);
+-	ret = kvm_pgtable_get_leaf(&host_mmu.pgt, addr, &pte, &level);
++	ret = kvm_pgtable_get_leaf(&host_mmu.pgt, addr, &pte, &level, 0);
+ 	if (ret)
  		return ret;
  
+@@ -930,7 +930,7 @@ static int get_valid_guest_pte(struct pkvm_hyp_vm *vm, u64 ipa, kvm_pte_t *ptep,
+ 	s8 level;
+ 	int ret;
+ 
+-	ret = kvm_pgtable_get_leaf(&vm->pgt, ipa, &pte, &level);
++	ret = kvm_pgtable_get_leaf(&vm->pgt, ipa, &pte, &level, 0);
+ 	if (ret)
+ 		return ret;
+ 	if (guest_pte_is_poisoned(pte))
+@@ -979,7 +979,7 @@ int __pkvm_vcpu_in_poison_fault(struct pkvm_hyp_vcpu *hyp_vcpu)
+ 	ipa |= FAR_TO_FIPA_OFFSET(kvm_vcpu_get_hfar(&hyp_vcpu->vcpu));
+ 
+ 	guest_lock_component(vm);
+-	ret = kvm_pgtable_get_leaf(&vm->pgt, ipa, &pte, &level);
++	ret = kvm_pgtable_get_leaf(&vm->pgt, ipa, &pte, &level, 0);
+ 	if (ret)
+ 		goto unlock;
+ 
+@@ -1335,7 +1335,7 @@ static int host_stage2_get_guest_info(phys_addr_t phys, struct pkvm_hyp_vm **vm,
+ 		return -EPERM;
+ 	}
+ 
+-	ret = kvm_pgtable_get_leaf(&host_mmu.pgt, phys, &pte, &level);
++	ret = kvm_pgtable_get_leaf(&host_mmu.pgt, phys, &pte, &level, 0);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -1564,7 +1564,7 @@ static int __check_host_shared_guest(struct pkvm_hyp_vm *vm, u64 *__phys, u64 ip
+ 	s8 level;
+ 	int ret;
+ 
+-	ret = kvm_pgtable_get_leaf(&vm->pgt, ipa, &pte, &level);
++	ret = kvm_pgtable_get_leaf(&vm->pgt, ipa, &pte, &level, 0);
+ 	if (ret)
+ 		return ret;
+ 	if (!kvm_pte_valid(pte))
+diff --git a/arch/arm64/kvm/hyp/nvhe/mm.c b/arch/arm64/kvm/hyp/nvhe/mm.c
+index 29ab5ee9d57f..bcf2fd1ddd75 100644
+--- a/arch/arm64/kvm/hyp/nvhe/mm.c
++++ b/arch/arm64/kvm/hyp/nvhe/mm.c
+@@ -486,7 +486,7 @@ static int check_page_ownership(phys_addr_t phys)
+ 			return -EPERM;
+ 	}
+ 
+-	ret = kvm_pgtable_get_leaf(&host_mmu.pgt, phys, &pte, NULL);
++	ret = kvm_pgtable_get_leaf(&host_mmu.pgt, phys, &pte, NULL, 0);
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/arch/arm64/kvm/hyp/pgtable.c b/arch/arm64/kvm/hyp/pgtable.c
+index b74dd5ce1efd..347eec3957d6 100644
+--- a/arch/arm64/kvm/hyp/pgtable.c
++++ b/arch/arm64/kvm/hyp/pgtable.c
+@@ -298,12 +298,13 @@ static int leaf_walker(const struct kvm_pgtable_visit_ctx *ctx,
+ }
+ 
+ int kvm_pgtable_get_leaf(struct kvm_pgtable *pgt, u64 addr,
+-			 kvm_pte_t *ptep, s8 *level)
++			 kvm_pte_t *ptep, s8 *level,
++			 enum kvm_pgtable_walk_flags flags)
+ {
+ 	struct leaf_walk_data data;
+ 	struct kvm_pgtable_walker walker = {
+ 		.cb	= leaf_walker,
+-		.flags	= KVM_PGTABLE_WALK_LEAF,
++		.flags	= flags | KVM_PGTABLE_WALK_LEAF,
+ 		.arg	= &data,
+ 	};
+ 	int ret;
+diff --git a/arch/arm64/kvm/mmu.c b/arch/arm64/kvm/mmu.c
+index 476a98cbe05d..5bfc4cf76f22 100644
+--- a/arch/arm64/kvm/mmu.c
++++ b/arch/arm64/kvm/mmu.c
+@@ -895,7 +895,7 @@ static int get_user_mapping_size(struct kvm *kvm, u64 addr)
+ 	 * IPI-ing threads).
+ 	 */
+ 	local_irq_save(flags);
+-	ret = kvm_pgtable_get_leaf(&pgt, addr, &pte, &level);
++	ret = kvm_pgtable_get_leaf(&pgt, addr, &pte, &level, 0);
+ 	local_irq_restore(flags);
+ 
+ 	if (ret)
+diff --git a/arch/arm64/kvm/nested.c b/arch/arm64/kvm/nested.c
+index ec754a865a00..cd868af63b1b 100644
+--- a/arch/arm64/kvm/nested.c
++++ b/arch/arm64/kvm/nested.c
+@@ -662,7 +662,7 @@ static u8 get_guest_mapping_ttl(struct kvm_s2_mmu *mmu, u64 addr)
+ 		return 0;
+ 
+ 	tmp &= ~(sz - 1);
+-	if (kvm_pgtable_get_leaf(mmu->pgt, tmp, &pte, NULL))
++	if (kvm_pgtable_get_leaf(mmu->pgt, tmp, &pte, NULL, 0))
+ 		goto again;
+ 	if (!(pte & PTE_VALID))
+ 		goto again;
 
 -- 
 2.55.0
