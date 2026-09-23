@@ -1,260 +1,206 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id E0B58522EEB;
-	Wed, 23 Sep 2026 13:12:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mta0.migadu.com (out-195.mta0.migadu.com [91.218.175.195])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF5A749E13D
+	for <linux-s390@vger.kernel.org>; Wed, 23 Sep 2026 13:16:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790169152; cv=none; b=Ph4/EMgcwayl6lBkuLB3E+zykyhXmjUb6g0E0bVUs4oulANHZzAGB8FCN0VGkKvdOvuzMOW6BbG7yrfSqV78kM7Fz40jGZNGmxs95Y53R5f6CgZ+f8Dsg0s1XRtj5BE46MZbVUCn7B3OLU8WckWak5gSHNPgUaPA2Kq8rZFurhc=
+	t=1790169409; cv=none; b=mQLpQGrB7x4hSxwEwVcKqXH/oXtR7kx+A0oJcs3y75LZJJN0lUzZSsgpmRNzrvoQAnu+qi+Ryoi4AdlsN9xjvnWlYBQ4PwdiyACi8CvQPyTkOYL7sUAgGn+XJxxREb5mQJorypYgDwK+zYwB6gtbjDX0E2PuHg8SzgT1546SkU8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790169152; c=relaxed/simple;
-	bh=SmFHo2nDPpKUONOshPa8YT9u4NS/UwmA8+HdpmeKeFY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pK/VEZ404yXYgHkzRkKqOhTnHtuePPdOwZ0yXGCos6lb+7WbQPw9aMwDtQB3v9KhbZEpqWmbM8/QaM9wnWmIePu2+peZd/cC+p0NfHccqiMLkM1b3W27ROhX1mdEeDaj+03rsdFODzgDfVFYAPXJe0RlIdxMlx6acI2PGLu9jMs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=aYmen1TR; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	s=arc-20240116; t=1790169409; c=relaxed/simple;
+	bh=Oo904kmsf5S8wAGGf7/FG6FAeaEtExRT7Jk7mDgjtow=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=cOcdI6HGCLNaJHEt+5orcZSgejrcVWAGr0d0nm0ve0SaWPdzHRo3ydNQwBOXylhV2vfbX/JB4FivD6QgP/lg/3AyXqhmwcCjRMx0URW3bwXYEC2a71eyk6s3fsjKNS6nKfpHh83E5MFxjRGC0t5rQo/XJsixrh6DQCyLmTe1JFE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=xCzssSsp; arc=none smtp.client-ip=91.218.175.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="aYmen1TR"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id AA44F1570;
-	Wed, 23 Sep 2026 06:12:26 -0700 (PDT)
-Received: from [10.2.212.23] (e121345-lin.cambridge.arm.com [10.2.212.23])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id DECAE3F86F;
-	Wed, 23 Sep 2026 06:12:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1790169150; bh=SmFHo2nDPpKUONOshPa8YT9u4NS/UwmA8+HdpmeKeFY=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=aYmen1TRM7QwJGqc4OFo5787lJ46tKHEUhwYkPXWOHO78pDyWHT/ftcomcAC4QiiM
-	 uwuv2AuQKHBDvvrSfp103KDdhV9+AKBs552MKlmOb12iwVrK22hWi7KXM5UOO/7Th9
-	 hwFueBx+pgNbLEPuAMRwfKDJM8gVQxNzs1TUlr4A=
-Message-ID: <26dd45d3-067a-4999-9cf6-8a0633a594f8@arm.com>
-Date: Wed, 23 Sep 2026 14:12:21 +0100
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="xCzssSsp"
+X-Envelope-To: linux-s390@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=Oo904kmsf5S8wAGGf7/FG6FAeaEtExRT7Jk7mDgjtow=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1790169403; v=1; x=1790774203;
+ b=xCzssSspaBGhFiXSrVms0nnKI8bL98Kz40GqFav+hw8EIGJMCNagy0TZf6kOokebvah9UFDl
+ qyg9XbD0oLRtfKVJqxPdr51QiR0NG7WWNSyy4w0KsJ4w6SrHZYvLtoTjdX0EEdBn6zVwOU1UcwY
+ CJg7lOfPMG8u2DTCRLUGFamc=
+X-Envelope-To: linux-s390@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id acd8da373ac6bf50;
+	Wed, 23 Sep 2026 13:16:40 +0000
+X-Mizu-Trace-ID: acd8da373ac6bf50
+X-Migadu-Flow: FLOW_OUT
+From: Lance Yang <lance.yang@linux.dev>
+To: ljs@kernel.org
+Cc: akpm@linux-foundation.org,
+	david@kernel.org,
+	ziy@nvidia.com,
+	baolin.wang@linux.alibaba.com,
+	liam@infradead.org,
+	nico.pache@linux.dev,
+	ryan.roberts@arm.com,
+	dev.jain@arm.com,
+	baohua@kernel.org,
+	lance.yang@linux.dev,
+	usama.arif@linux.dev,
+	kas@kernel.org,
+	guoren@kernel.org,
+	bcain@kernel.org,
+	geert@linux-m68k.org,
+	dinguyen@kernel.org,
+	schuster.simon@siemens-energy.com,
+	jonas@southpole.se,
+	stefan.kristiansson@saunalahti.fi,
+	shorne@gmail.com,
+	dalias@libc.org,
+	glaubitz@physik.fu-berlin.de,
+	pjw@kernel.org,
+	palmer@dabbelt.com,
+	aou@eecs.berkeley.edu,
+	alex@ghiti.fr,
+	linux@armlinux.org.uk,
+	vgupta@kernel.org,
+	monstr@monstr.eu,
+	chris@zankel.net,
+	jcmvbkbc@gmail.com,
+	will@kernel.org,
+	aneesh.kumar@kernel.org,
+	npiggin@gmail.com,
+	peterz@infradead.org,
+	davem@davemloft.net,
+	andreas@gaisler.com,
+	richard.henderson@linaro.org,
+	mattst88@gmail.com,
+	linmag7@gmail.com,
+	catalin.marinas@arm.com,
+	mark.rutland@arm.com,
+	chenhuacai@kernel.org,
+	kernel@xen0n.name,
+	tsbogend@alpha.franken.de,
+	James.Bottomley@HansenPartnership.com,
+	deller@gmx.de,
+	maddy@linux.ibm.com,
+	mpe@ellerman.id.au,
+	chleroy@kernel.org,
+	hca@linux.ibm.com,
+	gor@linux.ibm.com,
+	agordeev@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	svens@linux.ibm.com,
+	richard@nod.at,
+	anton.ivanov@cambridgegreys.com,
+	johannes@sipsolutions.net,
+	tglx@kernel.org,
+	mingo@redhat.com,
+	bp@alien8.de,
+	dave.hansen@linux.intel.com,
+	x86@kernel.org,
+	hpa@zytor.com,
+	arnd@arndb.de,
+	vbabka@kernel.org,
+	rppt@kernel.org,
+	surenb@google.com,
+	mhocko@suse.com,
+	jgg@ziepe.ca,
+	jhubbard@nvidia.com,
+	peterx@redhat.com,
+	ysato@users.sourceforge.jp,
+	shakeel.butt@linux.dev,
+	corbet@lwn.net,
+	rdunlap@infradead.org,
+	linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	linux-csky@vger.kernel.org,
+	linux-hexagon@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	linux-openrisc@vger.kernel.org,
+	linux-sh@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-snps-arc@lists.infradead.org,
+	linux-arch@vger.kernel.org,
+	sparclinux@vger.kernel.org,
+	linux-alpha@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	hughd@google.com,
+	qi.zheng@linux.dev,
+	linux-doc@vger.kernel.org
+Subject: Re: [PATCH v4 09/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for m68k-motorola
+Date: Wed, 23 Sep 2026 21:16:34 +0800
+Message-ID: <20260923131634.47896-1-lance.yang@linux.dev>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20260922-rcu-pagetable-freeing-v4-9-fe1ad1f1e303@kernel.org>
+References: <20260922-rcu-pagetable-freeing-v4-9-fe1ad1f1e303@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 6/6] dma: swiotlb: Remove SWIOTLB_ANY
-To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
- iommu@lists.linux.dev, linux-kernel@vger.kernel.org
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>, Will Deacon
- <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
- Steven Price <steven.price@arm.com>,
- Suzuki K Poulose <Suzuki.Poulose@arm.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Jiri Pirko <jiri@resnulli.us>,
- Jason Gunthorpe <jgg@ziepe.ca>, Mostafa Saleh <smostafa@google.com>,
- Petr Tesarik <ptesarik@suse.com>, Alexey Kardashevskiy <aik@amd.com>,
- Dan Williams <dan.j.williams@intel.com>, Xu Yilun
- <yilun.xu@linux.intel.com>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Russell King <linux@armlinux.org.uk>,
- Huacai Chen <chenhuacai@kernel.org>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Jiaxun Yang <jiaxun.yang@flygoat.com>, Paul Walmsley <pjw@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, x86@kernel.org
-References: <20260921063628.362078-1-aneesh.kumar@kernel.org>
- <20260921063628.362078-7-aneesh.kumar@kernel.org>
-From: Robin Murphy <robin.murphy@arm.com>
-Content-Language: en-GB
-In-Reply-To: <20260921063628.362078-7-aneesh.kumar@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On 21/09/2026 7:36 am, Aneesh Kumar K.V (Arm) wrote:
-> swiotlb pools are currently allocated below the architecture's low
-> address limit by default. SWIOTLB_ANY overrides this and permits
-> allocation anywhere in directly mapped memory.
-> 
-> SWIOTLB_INIT_ADDRESSING_LIMIT now explicitly identifies callers which
-> need a pool that is reachable by devices with limited DMA addressing.
-> Use it as the placement constraint and remove SWIOTLB_ANY.
-> 
-> This changes the default behavior for callers which do not set either
-> flag. Previously, omitting SWIOTLB_ANY placed the default pool below the
-> architecture's low address limit and also constrained dynamically
-> allocated pools to the same range. After this change, omitting
-> SWIOTLB_INIT_ADDRESSING_LIMIT permits both static and dynamic pools to
-> use any directly mapped memory.
 
-While it's rather dependent on some of the other aspects wanting a bit 
-more work still, this part I do entirely agree with :)
+On Tue, Sep 22, 2026 at 04:35:40PM +0100, Lorenzo Stoakes (ARM) wrote:
+>sun3 and coldfire are already supported, however motorola requires a little
+>more care.
+>
+>Here, custom table removal logic is required, so
+>CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE is enabled for m68k-motorola.
+>
+>Firstly as part of this change, the page table level must be communicated
+>to the underlying __tlb_remove_table() implementation.
+>
+>Take advantage of the fact that page tables are aligned by more than enough
+>to permit setting TABLE_PTE or TABLE_PMD in the low bits of the pointer,
+>and store this there.
+>
+>Then update __pte_free_tlb() and __pmd_free_tlb() to pass this through,
+>then have __tlb_remove_table() decode this and pass it to
+>free_pointer_table().
+>
+>The page table freeing is performed via call_rcu(), so free_pointer_table()
+>now will be invoked from softirq context, and as such may be re-entrant.
+>
+>Introduce an irq save/restore spinlock to handle this, and hold it over the
+>time a given ptable entry is being referenced in both get_pointer_table()
+>and free_pointer_table().
+>
+>In order to make things a little easier in this respect, separate out the
+>logic for adding a new ptable entry into add_pointer_table() and only hold
+>the lock during ptable entry insertion in this case.
+>
+>Note that original list_add_tail(new, dp) added new prior to dp, which is
+>ptable_list[type].next, i.e. after ptable_list[type].
+>
+>The equivalent therefore is list_add(new, &ptable_list[type]), which adds
+>new after ptable_list[type], only without needing to make reference to dp.
+>
+>Note that, as m68k-motorola specifies CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE, it
+>does not enable CONFIG_PT_RECLAIM. This isn't meaningfully impactful.
+>
+>With this applied, all of m68k implements CONFIG_MMU_GATHER_RCU_TABLE_FREE.
+>
+>This forms part of an overall effort to switch every architecture to this
+>mode.
+>
+>Acked-by: Kiryl Shutsemau (Meta) <kas@kernel.org>
+>Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+>---
 
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+I wondered about slot reuse during the RCU wait, but that can't happen :)
 
-> Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
-> ---
->   Documentation/core-api/swiotlb.rst |  8 ++++----
->   arch/powerpc/mm/mem.c              |  6 ++++--
->   arch/riscv/mm/init.c               | 16 ----------------
->   arch/s390/mm/init.c                |  2 +-
->   arch/x86/kernel/pci-dma.c          |  2 +-
->   include/linux/swiotlb.h            |  7 +++----
->   kernel/dma/swiotlb.c               | 17 ++++++-----------
->   7 files changed, 19 insertions(+), 39 deletions(-)
-> 
-> diff --git a/Documentation/core-api/swiotlb.rst b/Documentation/core-api/swiotlb.rst
-> index 71b4e4c27eb5..06d9f88fdf7b 100644
-> --- a/Documentation/core-api/swiotlb.rst
-> +++ b/Documentation/core-api/swiotlb.rst
-> @@ -148,10 +148,10 @@ may also be adjusted
->   due to other conditions, such as running in a CoCo VM, as described above. If
->   CONFIG_SWIOTLB_DYNAMIC is enabled, additional pools may be allocated later in
->   the life of the system. Each pool must be a contiguous range of physical
-> -memory. The default pool is allocated below the 4 GiB physical address line so
-> -it works for devices that can only address 32-bits of physical memory (unless
-> -architecture-specific code provides the SWIOTLB_ANY flag). In a CoCo VM, the
-> -pool memory must be decrypted before swiotlb is used.
-> +memory. The default pool is allocated below the architecture's low address
-> +limit when it is needed for devices with limited DMA addressing. Otherwise,
-> +it may be allocated anywhere in directly mapped memory. In a CoCo VM, the pool
-> +memory must be decrypted before swiotlb is used.
->   
->   Each pool is divided into "slots" of size IO_TLB_SIZE, which is 2 KiB with
->   current definitions. IO_TLB_SEGSIZE contiguous slots (128 slots) constitute
-> diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-> index 006ed41097e9..1bdea6c03848 100644
-> --- a/arch/powerpc/mm/mem.c
-> +++ b/arch/powerpc/mm/mem.c
-> @@ -295,9 +295,11 @@ void __init arch_mm_preinit(void)
->   		/*
->   		 * Since the guest memory is inaccessible to the host,
->   		 * devices always need to use the SWIOTLB buffer for DMA
-> -		 * even if dma_capable() says otherwise.
-> +		 * even if dma_capable() says otherwise. The hypervisor has
-> +		 * no addressing limitation, so the buffer may be allocated
-> +		 * anywhere.
->   		 */
-> -		ppc_swiotlb_flags |= SWIOTLB_ANY;
-> +		ppc_swiotlb_flags &= ~SWIOTLB_INIT_ADDRESSING_LIMIT;
->   	}
->   
->   	/*
-> diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-> index 96856114b387..734712230f35 100644
-> --- a/arch/riscv/mm/init.c
-> +++ b/arch/riscv/mm/init.c
-> @@ -165,27 +165,11 @@ static void print_vm_layout(void) { }
->   
->   void __init arch_mm_preinit(void)
->   {
-> -	bool swiotlb = max_pfn > PFN_DOWN(dma32_phys_limit) &&
-> -		       memblock_start_of_DRAM() < dma32_phys_limit;
->   	unsigned int swiotlb_flags = SWIOTLB_VERBOSE;
->   #ifdef CONFIG_FLATMEM
->   	BUG_ON(!mem_map);
->   #endif /* CONFIG_FLATMEM */
->   
-> -	if (IS_ENABLED(CONFIG_DMA_BOUNCE_UNALIGNED_KMALLOC) && !swiotlb &&
-> -	    dma_cache_alignment != 1) {
-> -		/*
-> -		 * No 32-bit DMA bouncing needed (either all DRAM is within
-> -		 * the 32-bit limit, or it all starts above it), but
-> -		 * kmalloc() buffers whose sizes are not cache-line-aligned
-> -		 * still require bouncing for non-coherent DMA.  Use
-> -		 * SWIOTLB_ANY so that the buffer can be allocated from high
-> -		 * memory when DRAM starts above dma32_phys_limit.  Allocate
-> -		 * ~1 MB per 1 GB of RAM.
-> -		 */
-> -		swiotlb_flags |= SWIOTLB_ANY;
-> -	}
-> -
->   	if ((max_pfn > PFN_DOWN(dma32_phys_limit)) &&
->   	     (memblock_start_of_DRAM() < dma32_phys_limit))
->   		swiotlb_flags |= SWIOTLB_INIT_ADDRESSING_LIMIT;
-> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> index 78f507e24ceb..ce10292447f1 100644
-> --- a/arch/s390/mm/init.c
-> +++ b/arch/s390/mm/init.c
-> @@ -166,7 +166,7 @@ static void __init pv_init(void)
->   	virtio_set_mem_acc_cb(virtio_require_restricted_mem_acc);
->   
->   	/* make sure bounce buffers are shared */
-> -	swiotlb_init(SWIOTLB_VERBOSE | SWIOTLB_ANY);
-> +	swiotlb_init(SWIOTLB_VERBOSE);
->   	swiotlb_update_mem_attributes();
->   }
->   
-> diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
-> index ce257b20ea9c..74e92b457758 100644
-> --- a/arch/x86/kernel/pci-dma.c
-> +++ b/arch/x86/kernel/pci-dma.c
-> @@ -90,7 +90,7 @@ static void __init pci_xen_swiotlb_init(void)
->   	/* Xen can use a SWIOTLB pool anywhere in directly mapped memory. */
->   	x86_swiotlb_flags &= ~(SWIOTLB_INIT_ADDRESSING_LIMIT |
->   			       SWIOTLB_INIT_DEFAULT_OFF);
-> -	x86_swiotlb_flags |= SWIOTLB_INIT_REMAP | SWIOTLB_ANY;
-> +	x86_swiotlb_flags |= SWIOTLB_INIT_REMAP;
->   	swiotlb_init_remap(x86_swiotlb_flags, xen_swiotlb_fixup);
->   	dma_ops = &xen_swiotlb_dma_ops;
->   	if (IS_ENABLED(CONFIG_PCI))
-> diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
-> index 466c33795db0..503e1446e0d8 100644
-> --- a/include/linux/swiotlb.h
-> +++ b/include/linux/swiotlb.h
-> @@ -15,13 +15,12 @@ struct page;
->   struct scatterlist;
->   
->   #define SWIOTLB_VERBOSE	(1 << 0) /* verbose initialization */
-> -#define SWIOTLB_ANY	(1 << 1) /* allow any memory for the buffer */
->   /* Initialize a default-sized pool for devices with limited DMA addressing. */
-> -#define SWIOTLB_INIT_ADDRESSING_LIMIT	(1 << 2)
-> +#define SWIOTLB_INIT_ADDRESSING_LIMIT	(1 << 1)
->   /* Initialize a default-sized pool that requires architecture remapping. */
-> -#define SWIOTLB_INIT_REMAP		(1 << 3)
-> +#define SWIOTLB_INIT_REMAP		(1 << 2)
->   /* Do not initialize a pool unless SWIOTLB is explicitly required. */
-> -#define SWIOTLB_INIT_DEFAULT_OFF		(1 << 4)
-> +#define SWIOTLB_INIT_DEFAULT_OFF	(1 << 3)
->   
->   /*
->    * Maximum allowable number of contiguous slabs to map,
-> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-> index 46b789eb0806..77d7c320de28 100644
-> --- a/kernel/dma/swiotlb.c
-> +++ b/kernel/dma/swiotlb.c
-> @@ -450,15 +450,10 @@ static void __init *swiotlb_memblock_alloc(unsigned long nslabs,
->   	size_t bytes = PAGE_ALIGN(nslabs << IO_TLB_SHIFT);
->   	void *tlb;
->   
-> -	/*
-> -	 * By default allocate the bounce buffer memory from low memory, but
-> -	 * allow to pick a location everywhere for hypervisors with guest
-> -	 * memory encryption.
-> -	 */
-> -	if (flags & SWIOTLB_ANY)
-> -		tlb = memblock_alloc(bytes, PAGE_SIZE);
-> -	else
-> +	if (flags & SWIOTLB_INIT_ADDRESSING_LIMIT)
->   		tlb = memblock_alloc_low(bytes, PAGE_SIZE);
-> +	else
-> +		tlb = memblock_alloc(bytes, PAGE_SIZE);
->   
->   	if (!tlb) {
->   		pr_warn("%s: Failed to allocate %zu bytes tlb structure\n",
-> @@ -604,10 +599,10 @@ void __init swiotlb_init_remap(unsigned int flags,
->   #ifdef CONFIG_SWIOTLB_DYNAMIC
->   	if (!remap)
->   		io_tlb_default_mem.can_grow = true;
-> -	if (flags & SWIOTLB_ANY)
-> -		io_tlb_default_mem.phys_limit = virt_to_phys(high_memory - 1);
-> -	else
-> +	if (flags & SWIOTLB_INIT_ADDRESSING_LIMIT)
->   		io_tlb_default_mem.phys_limit = ARCH_LOW_ADDRESS_LIMIT;
-> +	else
-> +		io_tlb_default_mem.phys_limit = virt_to_phys(high_memory - 1);
->   #endif
->   
->   	/* if we have host or guest memory encryption */
+The slot stays marked busy until free_pointer_table() runs after RCU, and
+the last free unlinks the page under ptable_lock.
 
+Also ran page-table teardown stress and fork/exec churn on
+qemu-system-m68k (virt, m68040, CONFIG_MMU_MOTOROLA=y). All 40 rounds ran
+cleanly :D
+
+Acked-by: Lance Yang <lance.yang@linux.dev>
+
+Tested-by: Lance Yang <lance.yang@linux.dev>
