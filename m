@@ -1,29 +1,29 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5914A56853F;
-	Wed, 23 Sep 2026 19:59:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 190953ADB94;
+	Wed, 23 Sep 2026 20:01:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790193588; cv=none; b=gCnTRfn/3gOTCJUwRvO5zyxIUefnX+iB6V/K0mk95MNk1dLc8dgqw72mHGmzJtm/VIl59rEKDJEj8WKg843OPOHZED2JgHU0KfeZQwgN/be2IdGUqdx1tLKzrubvbo3ZRRke+l6ro9yae84fkOlQV6OtplQSqj24pMK1mH/WtiI=
+	t=1790193678; cv=none; b=Ut5gNZUabxMRB2w8HXhq4DKvybVSm65NM84MLtcgQy3IscnDTIaa1B2HGHx3IbmnA5+VD7/VqHZE+Szj/nYPl5FUrOrC8jwLzu97Xxv9TSzGleiCHophzpxp81hXNN0WB1mNejaa7QbJk2VI8PpxBTas0HD2OkRiQcpC9K/l8Ss=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790193588; c=relaxed/simple;
-	bh=OI8KuuU8c6+cbhWAp7Don6xKpY0y06h5UEwIzhDdU7c=;
+	s=arc-20240116; t=1790193678; c=relaxed/simple;
+	bh=EoAm9eQnkEX/Su8Tb54A8ZssNa84fNPugYrGvhxvhGs=;
 	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=DpVEyDIQQLJm1/8tC1ZGQCcZXcElzaoGjvx/g9FG90haWXRMKWwp7o4LGFt67yLf+mVwFJXZy5Ka27tj6JsQMS7mmHhXjV/9tb4XfNvQ32sB0Hu0l+cJxMCUm4kfaZSsObITun01HFbmz3K03TWWR25fz9AE4nuB25By+0ceEaA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=kno41qWF; arc=none smtp.client-ip=100.103.45.18
+	 Mime-Version:Content-Type; b=PIgw6HoSqBahVwt9IRIAGNNfcJSquxWhPqqBcSTvYpvezso3UvwIEKSm8S3nDwXLe1r4bEYP0sEzqdiwrAjj1+s2z9DN/ms6whv7byrJ1nkJm/MPPJlKqnZ/Ouu77rWFmjtKOfg0YfLpj/H+S6kt1CTjjCXUDU1zrdqZ8aZjICc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=yukRbG0q; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="kno41qWF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B16C1F000FF;
-	Wed, 23 Sep 2026 19:59:25 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="yukRbG0q"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 976111F000FF;
+	Wed, 23 Sep 2026 20:01:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux-foundation.org; s=korg; t=1790193568;
-	bh=6Vw00INHTiJj7/4QiQUDB/NHC+AlawfaZqFc89mI3Uo=;
+	d=linux-foundation.org; s=korg; t=1790193668;
+	bh=pvDDKbJOCHVNMBf6MfRG+XPEG43cFbYIZQUAS2hlVUA=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=kno41qWFahoXgz8d+ShejJCZHoWEcJVL1leHlRD1kffko8g8JqMF0swHQKAX1HqpM
-	 oSFWcsNfwRPPZPiT8oiRGQWKzrdI0TLKeP9oQtYbei92ILkPB3/p1L+hKq6td77JFF
-	 LtG5ONUzFTYy73cWN7de/JfRwIjTq8OlV8hOUlho=
-Date: Wed, 23 Sep 2026 12:59:25 -0700
+	b=yukRbG0qkn30dWVsqij/SU5fM7nkPcs9gLdvOBDFKy6hSl5ItrFuR2BYdapipYrFp
+	 /ULALkETS2Hzxxifit/ssnY1WioE70raLvLXq6WSexLRbbzTwV3qRYdtF+xb4eB5wp
+	 1Lu+3tjEqSY8F42OSvK9noPy1qtRRMWcgWlWM4o4=
+Date: Wed, 23 Sep 2026 13:01:05 -0700
 From: Andrew Morton <akpm@linux-foundation.org>
 To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 Cc: David Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>, Baolin
@@ -50,7 +50,7 @@ Cc: David Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>, Baolin
  Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland
  <mark.rutland@arm.com>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui
  <kernel@xen0n.name>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge
+ "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge
  Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael
  Ellerman <mpe@ellerman.id.au>, "Christophe Leroy (CS GROUP)"
  <chleroy@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
@@ -80,9 +80,11 @@ Cc: David Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>, Baolin
  <hughd@google.com>, Qi Zheng <qi.zheng@linux.dev>,
  linux-doc@vger.kernel.org
 Subject: Re: [PATCH v4 00/12] mm: make userland page table freeing RCU-safe
-Message-Id: <20260923125925.105d7575838c3a154a258a4c@linux-foundation.org>
-In-Reply-To: <20260922-rcu-pagetable-freeing-v4-0-fe1ad1f1e303@kernel.org>
+Message-Id: <20260923130105.522942080238d133a36afc91@linux-foundation.org>
+In-Reply-To: <arN3iaw7VDIA-bWf@gremlin>
 References: <20260922-rcu-pagetable-freeing-v4-0-fe1ad1f1e303@kernel.org>
+	<20260922160021.a2fc65d05d9b867a141e5457@linux-foundation.org>
+	<arN3iaw7VDIA-bWf@gremlin>
 X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -93,128 +95,11 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Tue, 22 Sep 2026 16:35:31 +0100 "Lorenzo Stoakes (ARM)" <ljs@kernel.org> wrote:
+On Wed, 23 Sep 2026 08:04:25 +0100 "Lorenzo Stoakes (ARM)" <ljs@kernel.org> wrote:
 
-> The majority of architectures in the kernel defer page table freeing until
-> an RCU grace period has elapsed, this series converts all remaining
-> architectures to do so too and eliminates CONFIG_MMU_GATHER_RCU_TABLE_FREE
-> altogether.
-> 
-> This is important because it enables safe lockless page table walking under
-> RCU alone.
-> 
-> Doing so allows for reduced lock contention, avoids lock ordering concerns
-> and enables fast, efficient and correct page table walking as a result.
-> 
-> Additionally it removes a bunch of code and architecture-specific behaviour
-> which is always a beneficial thing to do.
-> 
-> There has been much recent work on this:
+> Err, Kiryl reviewed the entire series, I sent it in -rc1 of this cycle, and
+> it's been in -next forever?
 
-Thanks, I've updated mm.git's mm-unstable branch to this version.  Plus
-one -fix for [01/12].
-
-> v4:
-> * Updated the 1st patch to allocate a new page table on PTE deposit rather
->   than deposit a page table that might currently be being walked by an
->   RCU-only page table walker, as per David.
-
-Here's how v4 altered mm.git:
-
-
- mm/huge_memory.c |    2 +-
- mm/khugepaged.c  |   34 ++++++++++++++++++++++++++++++++--
- 2 files changed, 33 insertions(+), 3 deletions(-)
-
---- a/mm/huge_memory.c~b
-+++ a/mm/huge_memory.c
-@@ -2478,7 +2478,7 @@ static inline void zap_deposited_table(s
- 	pgtable_t pgtable;
- 
- 	pgtable = pgtable_trans_huge_withdraw(mm, pmd);
--	pte_free_defer(mm, pgtable);
-+	pte_free(mm, pgtable);
- 	mm_dec_nr_ptes(mm);
- }
- 
---- a/mm/khugepaged.c~b
-+++ a/mm/khugepaged.c
-@@ -1278,6 +1278,23 @@ static enum scan_result alloc_charge_fol
- 	return SCAN_SUCCEED;
- }
- 
-+static pgtable_t alloc_deposit_pte(struct mm_struct *mm)
-+{
-+	/*
-+	 * khugepaged is run from a kernel thread, so need to manually set the
-+	 * correct memcg so the allocation gets charged correctly.
-+	 */
-+	struct mem_cgroup *memcg = get_mem_cgroup_from_mm(mm);
-+	struct mem_cgroup *old_memcg = set_active_memcg(memcg);
-+	pgtable_t pgtable;
-+
-+	pgtable = pte_alloc_one(mm);
-+
-+	set_active_memcg(old_memcg);
-+	mem_cgroup_put(memcg);
-+	return pgtable;
-+}
-+
- /*
-  * collapse_huge_page() expects the mmap_lock to be unlocked before entering and
-  * will always return with the lock unlocked, to avoid holding the mmap_lock
-@@ -1293,7 +1310,7 @@ static enum scan_result collapse_huge_pa
- 	LIST_HEAD(compound_pagelist);
- 	pmd_t *pmd, _pmd;
- 	pte_t *pte = NULL;
--	pgtable_t pgtable;
-+	pgtable_t pgtable = NULL;
- 	struct folio *folio;
- 	spinlock_t *pmd_ptl, *pte_ptl;
- 	enum scan_result result = SCAN_FAIL;
-@@ -1310,6 +1327,14 @@ static enum scan_result collapse_huge_pa
- 		goto out_nolock;
- 	}
- 
-+	if (is_pmd_order(order)) {
-+		pgtable = alloc_deposit_pte(mm);
-+		if (!pgtable) {
-+			result = SCAN_ALLOC_HUGE_PAGE_FAIL;
-+			goto out_nolock;
-+		}
-+	}
-+
- 	mmap_read_lock(mm);
- 	result = hugepage_vma_revalidate(mm, pmd_addr, /*expect_anon=*/ true,
- 					 &vma, cc, order);
-@@ -1433,8 +1458,8 @@ static enum scan_result collapse_huge_pa
- 	spin_lock(pmd_ptl);
- 	VM_WARN_ON_ONCE(!pmd_none(*pmd));
- 	if (is_pmd_order(order)) {
--		pgtable = pmd_pgtable(_pmd);
- 		pgtable_trans_huge_deposit(mm, pmd, pgtable);
-+		pgtable = NULL;
- 		map_anon_folio_pmd_nopf(folio, pmd, vma, pmd_addr);
- 	} else {
- 		/*
-@@ -1453,6 +1478,9 @@ static enum scan_result collapse_huge_pa
- 	}
- 	spin_unlock(pmd_ptl);
- 
-+	if (is_pmd_order(order))
-+		pte_free_defer(mm, pmd_pgtable(_pmd));
-+
- 	folio = NULL;
- 
- 	result = SCAN_SUCCEED;
-@@ -1463,6 +1491,8 @@ out_up_write:
- 		anon_vma_unlock_write(vma->anon_vma);
- 	mmap_write_unlock(mm);
- out_nolock:
-+	if (pgtable)
-+		pte_free(mm, pgtable);
- 	if (folio)
- 		folio_put(folio);
- 	trace_mm_collapse_huge_page(mm, result == SCAN_SUCCEED, result, order);
-_
+I'd failed to notice that v3 of this series was in mm.git, oops. 
+Thanks for cluebatting.
 
