@@ -1,60 +1,33 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 836EE49BD92;
-	Wed, 23 Sep 2026 12:40:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0141651E43E;
+	Wed, 23 Sep 2026 12:48:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790167221; cv=none; b=hmgijv3ExG2aFHNxdHGVM8+fLMlOHOhnWjPoKAD+D91Up09pd9V+eyhBP6Pg74yvLcu2CHzPCaB9RV+c84WM5v5GTfITm51vVEOSKcJxkiRA5ENljBAjJI0rvUtiAEKwiKnmHvbTbVE+uXGhmkGYB6ZJYakk3SGPOC22YLzHEKI=
+	t=1790167683; cv=none; b=pzeNnZSBlvowPDHXvxpWDOkyCBJ8vdDK9F9y5sL51vKmm5SgDuCRbmaImp7iJdsxGwbILxDQcdfyGxPHzRH/b5HJ/m9aSPg91zKv5GOR5Kyz9crlq0/2LQHoPV6BZ4kN8+X1Ce+rs6AiO6EEHQYhlJLK9bjHJ96S70QuNecbB9c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790167221; c=relaxed/simple;
-	bh=rJY8ge6rCZ9Q8pODTJ6F7OwUoTa9UdStelKSER073QQ=;
+	s=arc-20240116; t=1790167683; c=relaxed/simple;
+	bh=RIhC3hUarxRrR/f5mRDyLyshn3OVC6xd4Pet+9BmBkI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=S3iowQPDivp0ZcgWeWfBrK9S6J90msn0W9TrfoswR8KD9AKqpqfQzGCasrPBTl1i9eoLRC2pNVD700IWTATqh+6X4k9STvDOx8ZbZQCA+oBQNygagrHaiH3rRnEwg0kfrS5L2SFTVk6XxmGWsDS9pkYyQcUMbPHGEeJiaPpyahs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EjCEfRu7; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=dxBwz8oPjtqFmAVcTA2TbWsH1sHdgbLmCoYCgnNIZYyoOHD/GtwEC9T3e+h7PTZnh6qbRYDGFSezOW3stCmblXXvBctC5FD/GbMs+pUDaeC68UVd5tFpk07Bfbxqx5fSepzNuRksWL/RXD2a61FPsA0AcsFAd6e/B3V43KTY/4U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=db+pBdYh; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EjCEfRu7"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68N8Zscd1031451;
-	Wed, 23 Sep 2026 12:40:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=CPtNgf
-	2ejJUELxCf3lAR9MsJWtYgjCZqIvaI4J0wC+8=; b=EjCEfRu7MHpQFJH3eMxfk9
-	tAm5NfWvl+BBCkzwkiRjaKbKmwWWSqtnWnBElSzOnD3BhVJKJ0Lh+bpbpJV5aR7N
-	eyX5HiXH+A+JvaltXQpPdtCz1GmgPWaDY1wo8O82r6n3gYlJtfKImQiGQbsmJEyO
-	lPQVOwmULbqVEldvygSmXKaRnGcWXAlTfiQsVRKb9WjqaW/KYfQTyq0Ss/miCQMF
-	0vlUHp59TPqHNHb/FgZjhln+dKKKJvq8KLgm2etgeM3th3w9rgsWpBopslcJQGWw
-	ThmbaXNfKQBIQUj1e4IuTw2eRJ8/j5Tn+NX6dHRI09+lT9FcIO+yv3MlvusIfp0w
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gske1u84t-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 23 Sep 2026 12:40:16 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68N95hlr005936;
-	Wed, 23 Sep 2026 12:40:15 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gvbu8rtfq-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 23 Sep 2026 12:40:15 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68NCeArl31588674
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 23 Sep 2026 12:40:11 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D083C20043;
-	Wed, 23 Sep 2026 12:40:10 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7BC3820040;
-	Wed, 23 Sep 2026 12:40:10 +0000 (GMT)
-Received: from [9.111.80.133] (unknown [9.111.80.133])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 23 Sep 2026 12:40:10 +0000 (GMT)
-Message-ID: <5df0f9d6-6856-4b19-b5b8-a54aa23f2095@linux.ibm.com>
-Date: Wed, 23 Sep 2026 14:40:10 +0200
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="db+pBdYh"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id ACA861570;
+	Wed, 23 Sep 2026 05:47:56 -0700 (PDT)
+Received: from [10.2.212.23] (e121345-lin.cambridge.arm.com [10.2.212.23])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 86ECA3F86C;
+	Wed, 23 Sep 2026 05:47:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1790167680; bh=RIhC3hUarxRrR/f5mRDyLyshn3OVC6xd4Pet+9BmBkI=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=db+pBdYhJE2fGHV6VKDio2pztmLqY1Eh+yFiBoVVLDJx2jEVzxpsuPFnx+/nlttpc
+	 Cf7Ot496F1Lyd/LCV9ab67bSymlJjM1X4hMWqAB3TKvs0DOlRrG+fpxyRQ9Bkqz49+
+	 7jFl+bqKwsuz59JreWAqLWWa4hJJWVTOV1uNJGBk=
+Message-ID: <644aa208-55f0-440c-94b9-75e58e588dde@arm.com>
+Date: Wed, 23 Sep 2026 13:47:43 +0100
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,101 +35,272 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 09/21] KVM: s390: vsie: Replace radix_tree with xarray
- addr_to_page
-To: Christoph Schlameuss <schlameuss@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Eric Farman <farman@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-        Nico Boehr <nrb@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>,
-        Shuah Khan <shuah@kernel.org>, Sean Christopherson <seanjc@google.com>
-References: <20260918-vsie-sigpi-v7-0-f39806eaae37@linux.ibm.com>
- <20260918-vsie-sigpi-v7-9-f39806eaae37@linux.ibm.com>
-Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20260918-vsie-sigpi-v7-9-f39806eaae37@linux.ibm.com>
+Subject: Re: [PATCH v5 4/6] dma: swiotlb: Centralize memory-encryption pool
+ sizing
+To: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
+ iommu@lists.linux.dev, linux-kernel@vger.kernel.org
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>, Will Deacon
+ <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+ Steven Price <steven.price@arm.com>,
+ Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Jiri Pirko <jiri@resnulli.us>,
+ Jason Gunthorpe <jgg@ziepe.ca>, Mostafa Saleh <smostafa@google.com>,
+ Petr Tesarik <ptesarik@suse.com>, Alexey Kardashevskiy <aik@amd.com>,
+ Dan Williams <dan.j.williams@intel.com>, Xu Yilun
+ <yilun.xu@linux.intel.com>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Russell King <linux@armlinux.org.uk>,
+ Huacai Chen <chenhuacai@kernel.org>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Jiaxun Yang <jiaxun.yang@flygoat.com>, Paul Walmsley <pjw@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+ linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, x86@kernel.org
+References: <20260921063628.362078-1-aneesh.kumar@kernel.org>
+ <20260921063628.362078-5-aneesh.kumar@kernel.org>
+From: Robin Murphy <robin.murphy@arm.com>
+Content-Language: en-GB
+In-Reply-To: <20260921063628.362078-5-aneesh.kumar@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: mnh-KRU2lOsUcHdmtoMdPllIBLgladeP
-X-Authority-Analysis: v=2.4 cv=EOCTQFZC c=1 sm=1 tr=0 ts=6ab3c8b0 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=DponMWe7-xSqsNA-YoAA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIzMDA1MCBTYWx0ZWRfX9I8LQ6wkk5XY
- qdPcgA+dp55YqqzKtM5aRHS+tszc3g4kraNIW+qA0+buia/AFsitTPsSrQhNt7xEny0s9meKA79
- ipqqZN+7yAvp4HGBtIjM12Zv19KNG7I=
-X-Proofpoint-GUID: P3dycCgMYcO32UV5YkNXIeIEhBaEilBb
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIzMDA1MCBTYWx0ZWRfX4VujMLD7MbHw
- gzYXPqjyuaCWkAjjYTNo5cP73wq64VuVZlmyIkx20JcdWKkhSVsrSLD15+2wGsfzbZ2Y4yShc8/
- O/41x1ntHQbZ2XizQ28pCSgPLrOA93T94c6THB+K8SMFIf+PleEwdffJIFXqB1fA8QmG53S7GqH
- c/bVnEZDmpl7h5bcA1MCKtNpb0dCx0FS1PGhfotqIr4p40cgQtJs7t/Wg+SKJOoo6yP/4mdB2da
- mihjROk198Rlw/UCMcg33ZHSTiE0FGE6qBsFoheZMGylDL/OqtKfHwiIho3Vmz2TzMM/C7CV7ZI
- qho2HzR+N0JIvAJny2wZt5bp1izjiibPJCUYFBp9517WmBAFcSUVFzs/6X61hFQ9MAj0cGPajKX
- utFg4B/aSVNmhtzJ2d2+41zyOS/t+ncghmwvWRMWCrj14wr7wvCq76jMHNlLctgeYBkwbdvEBXh
- 55JLWsRSQJdplxegYBw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-23_04,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 phishscore=0 priorityscore=1501 clxscore=1015 spamscore=0
- adultscore=0 impostorscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609230050
 
-On 9/18/26 5:09 PM, Christoph Schlameuss wrote:
-> The underlying implementation of radix_tree is xarray since v4.20.
-> Changing to the xarray API directly relaxes some of the locking
-> obligations and provides more symmetry with the next vsie changes in
-> the series.
+On 21/09/2026 7:36 am, Aneesh Kumar K.V (Arm) wrote:
+> Memory-encrypted guests use shared or unencrypted memory for DMA and may
+> route all DMA through SWIOTLB. The default pool can therefore be too
+> small for I/O-intensive workloads.
 > 
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> Move the existing x86 guest-sizing policy into the SWIOTLB core. For
+> SWIOTLB_POOL_CC_GUEST, size the pool to 6% of guest memory, clamped
+> between the normal default and 1 GiB. Preserve an explicit swiotlb=
+> size.
+> 
+> Provide swiotlb_adjusted_size() so early users, including the x86 crash
+> kernel reservation, can account for the prospective guest pool size
+> before SWIOTLB initialization. Use the same area-aware alignment for
+> both the prospective and allocated sizes.
+> 
+> Host memory encryption still selects a normal-sized shared pool and
+> does not use the guest-sizing policy.
+> 
+> A restricted DMA pool already provides shared bounce buffers for its
+> devices. Record its presence during reserved-memory initialization and
+> do not select the confidential-guest default-pool policy solely because
+> guest memory encryption is active.
+> 
+> Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
+> ---
+>   arch/x86/include/asm/crash_reserve.h |  6 ++--
+>   arch/x86/mm/mem_encrypt.c            | 24 --------------
+>   include/linux/swiotlb.h              |  6 ++++
+>   kernel/dma/swiotlb.c                 | 47 +++++++++++++++++++++++++++-
+>   4 files changed, 56 insertions(+), 27 deletions(-)
+> 
+> diff --git a/arch/x86/include/asm/crash_reserve.h b/arch/x86/include/asm/crash_reserve.h
+> index 7835b2cdff04..c1f5bf5d4182 100644
+> --- a/arch/x86/include/asm/crash_reserve.h
+> +++ b/arch/x86/include/asm/crash_reserve.h
+> @@ -18,7 +18,9 @@
+>    * no good way to detect the paging mode of the target kernel which will be
+>    * loaded for dumping.
+>    */
+> -extern unsigned long swiotlb_size_or_default(void);
+> +#ifdef CONFIG_X86_64
+> +unsigned long __init swiotlb_adjusted_size(void);
+> +#endif
+>   
+>   #ifdef CONFIG_X86_32
+>   # define CRASH_ADDR_LOW_MAX     SZ_512M
+> @@ -33,7 +35,7 @@ extern unsigned long swiotlb_size_or_default(void);
+>   static inline unsigned long crash_low_size_default(void)
+>   {
+>   #ifdef CONFIG_X86_64
+> -	return max(swiotlb_size_or_default() + (8UL << 20), 256UL << 20);
+> +	return max(swiotlb_adjusted_size() + (8UL << 20), 256UL << 20);
+>   #else
+>   	return 0;
+>   #endif
+> diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
+> index 95bae74fdab2..912f22ca838f 100644
+> --- a/arch/x86/mm/mem_encrypt.c
+> +++ b/arch/x86/mm/mem_encrypt.c
+> @@ -101,9 +101,6 @@ void __init mem_encrypt_init(void)
+>   
+>   void __init mem_encrypt_setup_arch(void)
+>   {
+> -	phys_addr_t total_mem = memblock_phys_mem_size();
+> -	unsigned long size;
+> -
+>   	/*
+>   	 * Do RMP table fixups after the e820 tables have been setup by
+>   	 * e820__memory_setup().
+> @@ -114,27 +111,6 @@ void __init mem_encrypt_setup_arch(void)
+>   	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
+>   		return;
+>   
+> -	/*
+> -	 * For SEV and TDX, all DMA has to occur via shared/unencrypted pages.
+> -	 * Kernel uses SWIOTLB to make this happen without changing device
+> -	 * drivers. However, depending on the workload being run, the
+> -	 * default 64MB of SWIOTLB may not be enough and SWIOTLB may
+> -	 * run out of buffers for DMA, resulting in I/O errors and/or
+> -	 * performance degradation especially with high I/O workloads.
+> -	 *
+> -	 * Adjust the default size of SWIOTLB using a percentage of guest
+> -	 * memory for SWIOTLB buffers. Also, as the SWIOTLB bounce buffer
+> -	 * memory is allocated from low memory, ensure that the adjusted size
+> -	 * is within the limits of low available memory.
+> -	 *
+> -	 * The percentage of guest memory used here for SWIOTLB buffers
+> -	 * is more of an approximation of the static adjustment which
+> -	 * 64MB for <1G, and ~128M to 256M for 1G-to-4G, i.e., the 6%
+> -	 */
+> -	size = total_mem * 6 / 100;
+> -	size = clamp_val(size, IO_TLB_DEFAULT_SIZE, SZ_1G);
+> -	swiotlb_adjust_size(size);
+> -
+>   	/* Set restricted memory access for virtio. */
+>   	virtio_set_mem_acc_cb(virtio_require_restricted_mem_acc);
+>   }
+> diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
+> index d69370c08094..be3962a33fc6 100644
+> --- a/include/linux/swiotlb.h
+> +++ b/include/linux/swiotlb.h
+> @@ -193,6 +193,7 @@ void swiotlb_dev_init(struct device *dev);
+>   size_t swiotlb_max_mapping_size(struct device *dev);
+>   bool is_swiotlb_allocated(void);
+>   bool is_swiotlb_active(struct device *dev);
+> +unsigned long __init swiotlb_adjusted_size(void);
+>   void __init swiotlb_adjust_size(unsigned long size);
+>   phys_addr_t default_swiotlb_base(void);
+>   phys_addr_t default_swiotlb_limit(void);
+> @@ -232,6 +233,11 @@ static inline bool is_swiotlb_active(struct device *dev)
+>   	return false;
+>   }
+>   
+> +static inline unsigned long __init swiotlb_adjusted_size(void)
+> +{
+> +	return 0;
+> +}
+> +
+>   static inline void swiotlb_adjust_size(unsigned long size)
+>   {
+>   }
+> diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+> index f368a73f4ed0..c19675846fc1 100644
+> --- a/kernel/dma/swiotlb.c
+> +++ b/kernel/dma/swiotlb.c
+> @@ -80,6 +80,7 @@ struct io_tlb_slot {
+>   
+>   static bool swiotlb_force_bounce;
+>   static bool swiotlb_force_disable;
+> +static bool restricted_dma_pool_present __initdata;
+>   
+>   enum swiotlb_pool_policy {
+>   	SWIOTLB_POOL_NONE,
+> @@ -480,6 +481,46 @@ static bool __init swiotlb_kmalloc_needs_bounce(void)
+>   	       (dma_get_cache_alignment() > 1);
+>   }
+>   
+> +/**
+> + * swiotlb_adjusted_size() - get the prospective adjusted SWIOTLB size
+> + *
+> + * Return the size that confidential-computing guest sizing would select for
+> + * the default pool, without changing the configured SWIOTLB size. An
+> + * explicit swiotlb= size is always preserved. An explicit area count is
+> + * included in the size calculation. Automatic area sizing is initialized
+> + * later from the running kernel's possible CPU map and any resulting size
+> + * adjustment is therefore not reflected in the returned size.
+> + */
+> +unsigned long __init swiotlb_adjusted_size(void)
+
+This is yet another misleadingly ambiguous name.
+
+> +{
+> +	unsigned long nslabs, size = swiotlb_size_or_default();
+> +
+> +	if (swiotlb_default_size_changed() ||
+> +	    !cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
+> +		return size;
+
+And this makes for another needlessly convoluted calling convention.
+
+> +	/*
+> +	 * For SEV and TDX and CCA, all DMA has to occur via
+> +	 * shared/unencrypted pages. Kernel uses SWIOTLB to make this
+> +	 * happen without changing device drivers. However, depending on
+> +	 * the workload being run, the default 64MB of SWIOTLB may not be
+> +	 * enough and SWIOTLB may run out of buffers for DMA, resulting in
+> +	 * I/O errors and/or performance degradation especially with high
+> +	 * I/O workloads.
+> +	 *
+> +	 * Adjust the default size of SWIOTLB using a percentage of guest
+> +	 * memory for SWIOTLB buffers.
+> +	 *
+> +	 * The percentage of guest memory used here for SWIOTLB buffers is
+> +	 * more of an approximation of the static adjustment which 64MB for
+> +	 * <1G, and ~128M to 256M for 1G-to-4G, i.e., the 6%
+> +	 */
+> +	size = memblock_phys_mem_size() * 6 / 100;
+
+But mostly I fail to see how this makes any sense for the x86 
+crash_low_size_default() case anyway. This calculation is based on the 
+*total* system memory, of which 6% is likely comparable to (or perhaps 
+even more than) the *entire* amount of memory reserved for the crash 
+kernel itself. What's more, if the low memory and size restrictions are 
+lifted for regular CoCo SWIOTLB as people want, then it becomes even 
+more utterly nonsensical to tie crashkernel_low to this.
+
+Yes, this happens to be the behaviour that falls out of how two 
+different parts of the existing code interact, but I highly doubt it was 
+ever intentional, so I'm not convinced that complicating SWIOTLB 
+interfaces to blindly preserve it is the right thing to do.
+
+Thanks,
+Robin.
+
+> +	size = clamp_val(size, IO_TLB_DEFAULT_SIZE, SZ_1G);
+> +	nslabs = swiotlb_aligned_nslabs(size);
+> +
+> +	return nslabs << IO_TLB_SHIFT;
+> +}
+> +
+>   static void __init
+>   swiotlb_adjust_pool_size(enum swiotlb_pool_policy policy)
+>   {
+> @@ -496,6 +537,7 @@ swiotlb_adjust_pool_size(enum swiotlb_pool_policy policy)
+>   		break;
+>   	}
+>   	case SWIOTLB_POOL_CC_GUEST:
+> +		swiotlb_adjust_size(swiotlb_adjusted_size());
+>   		break;
+>   	case SWIOTLB_POOL_NONE:
+>   		WARN(true, "Cannot adjust SWIOTLB size without a pool\n");
+> @@ -511,7 +553,8 @@ swiotlb_select_pool_policy(unsigned int flags)
+>   	if (swiotlb_force_disable)
+>   		return SWIOTLB_POOL_NONE;
+>   
+> -	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
+> +	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
+> +	    !restricted_dma_pool_present)
+>   		return SWIOTLB_POOL_CC_GUEST;
+>   
+>   	if (cc_platform_has(CC_ATTR_HOST_MEM_ENCRYPT))
+> @@ -2157,6 +2200,8 @@ static int __init rmem_swiotlb_setup(unsigned long node,
+>   	    of_get_flat_dt_prop(node, "no-map", NULL))
+>   		return -EINVAL;
+>   
+> +	restricted_dma_pool_present = true;
+> +
+>   	pr_info("Reserved memory: created restricted DMA pool at %pa, size %ld MiB\n",
+>   		&rmem->base, (unsigned long)rmem->size / SZ_1M);
+>   	return 0;
+
