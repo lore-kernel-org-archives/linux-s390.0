@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2721A53A89D;
-	Wed, 23 Sep 2026 15:16:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AB4B53C3A5;
+	Wed, 23 Sep 2026 15:16:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790176570; cv=none; b=reAaz34kFgsZp8E7OSPir7Wxgx3up5yXugdcXLi5jgL4fCvzzPoNLuUqvCEodS6XffrY8H9Ipz5j41K6KvBbkhpmegTv22UaAGt4Xzrl1pMjvqGWvXXivtegWJ+myin57IF2WypY8bWWmEYoqLs3iPR8DYMJUBbHo+rVM/aWkBc=
+	t=1790176580; cv=none; b=TO66bzudeH04m2PetBZHEN8KkTuoocNeLRXg1jS9cA1zQ9/cvia9GswNpL+3W2voev8Aujt5+gpQywylRPylR+k3Y0cpU1YsdnXTOnl6aREak5qMlZuO0rzl+oxg6H9f13Qyo8kTE+Nc68mmoSxrQ6hNLUbIHE41pGvVolNe3Tk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790176570; c=relaxed/simple;
-	bh=GYWfUnTkP0gJvKMOUL5QKcvgb16vDu9ahPAgFk+I10Q=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=N71gEIwrNQ/nHIdBLYnJeCeGkaxA5wfFZzN+oA4Mefn/81ovad8SwGFQT3pusHyNDZuXTcntMp6/cfVe83Te/Xhk+0GZeYOeRw1WmQPYL2M1nY7YLP8fZSN2zt6NVxwdkbYHCcaMPy3TNVA7+74B+7ZGMp1epmhHyPdcBeFJAgM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M6ycILeq; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790176580; c=relaxed/simple;
+	bh=ZwWYk6PSclRbCMM/4KyRdFN56IXZ5zZBC+oPi0Tho/4=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=SQ7UBdUA/6k6F4sv/tG5dh3HrmGCyV25F6FZmyQq3u6TzXDQmT7MdX/JKOgG/F0ZuMTsYjh3K/hscepquT5Js8r865MWOg+BwjNXF8QWSHrZ+tNJk3g+o6D3LpWr2uiSAqU8JyZpOmf94VEL5lA9Z734OSChGjt8WOe1C+UdqoM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Yj6GEbQ5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M6ycILeq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A5FC1F000FF;
-	Wed, 23 Sep 2026 15:15:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Yj6GEbQ5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47D171F00893;
+	Wed, 23 Sep 2026 15:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790176568;
-	bh=uhiHK1xeWjLCIGW0E7V8+Nj+NJaq2mGJkeRGTcZrb+o=;
-	h=From:Subject:Date:To:Cc;
-	b=M6ycILeqX2bnA28NGWauthBqCcvcc+tcb8zJK7Ndba5O+RSX0CtL5D5yFN5w/mVzj
-	 k+wUHP6VuKf51xLT4IHwBLKQrgvYkrTruJv8l2XMpIOGFNFxiiV2moX2rcym3hWbsj
-	 KRkEjZmyUTN/M6+mRXqGFes3H9GGEFiNCYfAxotRimDrjKLs6hDQsiQ/AcSYfVRoP4
-	 vc9tgtCgOjIl1G4WN+B+qMUNB1nDYUmFcLYhdJh4567CB1Rs0ZtDzeLZ+1fvpapfp5
-	 rlFuNFzQuMYTTssAJzEohJsA2t8LyHh+T60VgqM5Z3OLTd2x6YzgRCoUh0JZAHZ0PQ
-	 a2jOKWz0NBE6A==
+	s=k20260515; t=1790176578;
+	bh=xB36sriidKZjRSzeuEDk6PUSKpyNqCdc/eDuq5n0ym4=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=Yj6GEbQ5nbMxdOlmj+BxJoZZKIiJRx4KTCKp+f81vmfP2RaFIrTcdBe6zva1pC2db
+	 MpH/wSoddyBQ6eWiCV96IgAg/FR6vlZVARrFTsTfu6wCCzkG26SOvrhTzzrSvC+hkq
+	 LM8dCdUmmSGbOjrPQY0x0ZkMNkp4k0NMf5auj2P9vP/LAFwINSL/6L21ojdY+qcM+Z
+	 ucWNMR8Qek8zwxReXkZvKnHWPetUgqTmH9CCd6i6vynrdZSVE/NYs5Barx9YPVUYPJ
+	 TgOXvp8kgTUMHdH0W2tBHhQUV09knvB4f4h7M1mHxdzqO3lU5FH5ExZYiJ2LO/n6EW
+	 SGVbnlZoDoFkw==
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Subject: [PATCH v4 00/14] KVM: arm64: Add KVM_PRE_FAULT_MEMORY support
-Date: Wed, 23 Sep 2026 16:15:43 +0100
-Message-Id: <20260923-kvm-arm-prefault-v4-0-d4b0b4dfa8c3@kernel.org>
+Date: Wed, 23 Sep 2026 16:15:44 +0100
+Subject: [PATCH v4 01/14] KVM: Allow architectures to disallow pre-fault
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -37,11 +37,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/23NwQ6CMAyA4VchOzvDuknBk+9hPDDoYAHBDFw0h
- Hd3EBM1cvzb9OvEBnKWBnaMJubI28H2XQi1i1hR511F3JahGcSQxKk48MZfee6u/ObI5Pd25Jn
- WSgidpBmWLJwtC/tYyfMldG2HsXfP9YMXy/SNwQbmBY+5JkNpphBjoFNDrqN237uKLZqHj5AJt
- SFAECAxWqFBpVH+CfJLANgQZBAwRV1KXSBJ8yPM8/wCvukZ6zUBAAA=
-X-Change-ID: 20260815-kvm-arm-prefault-9bb411b6897d
+Message-Id: <20260923-kvm-arm-prefault-v4-1-d4b0b4dfa8c3@kernel.org>
+References: <20260923-kvm-arm-prefault-v4-0-d4b0b4dfa8c3@kernel.org>
+In-Reply-To: <20260923-kvm-arm-prefault-v4-0-d4b0b4dfa8c3@kernel.org>
 To: Catalin Marinas <catalin.marinas@arm.com>, 
  Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>, 
  Oliver Upton <oupton@kernel.org>, Joey Gouly <joey.gouly@arm.com>, 
@@ -71,209 +69,143 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  Leo Soares Passos <Leo.Bras@arm.com>, Wei-Lin Chang <weilin.chang@arm.com>, 
  linux-s390@vger.kernel.org, "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=9264; i=ljs@kernel.org;
- h=from:subject:message-id; bh=GYWfUnTkP0gJvKMOUL5QKcvgb16vDu9ahPAgFk+I10Q=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLI2v9Xhmbk3oeyYjrxGw5V2a4XDC2ZHqqg4B35oiJTNf
- mNXpJnUUcrCIMbFICumyPL8i/j+IJGweZ0X/N1g5rAygQxh4OIUgIl4CjIyXD65xFPafGtM4PJT
- c8t3zZtx3XO95qXKttJ/htP4ZOzcZRgZFto/F0/YHJf45JOmjMJzl/mX27/99nv3/8/XFd4Owo0
- sPAA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4247; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=ZwWYk6PSclRbCMM/4KyRdFN56IXZ5zZBC+oPi0Tho/4=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLI2v9VZ6vH+h11L59zYFa9djz1gragvy7n/xqyHI01sr
+ f48j28mHaUsDGJcDLJiiizPv4jvDxIJm9d5wd8NZg4rE8gQBi5OAZjInReMDI+eCb2ry1vudGL5
+ o3vlYVtSQ7LjEp4+nXmhbrukv4f3nHJGhg0PZhxrka7Z2vHimmwtB7sC70HX+tXxccsOzFPcuMD
+ 4CR8A
 X-Developer-Key: i=ljs@kernel.org; a=openpgp;
  fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-This series implements the KVM stage 2 page table pre-faulting feature for
-arm64.
+All existing architectures which implement KVM pre-fault (x86, s390) have
+mechanisms for disallowing pre-faulting.
 
-== Foundations ==
+Currently these are open coded as part of kvm_arch_vcpu_pre_fault_memory().
 
-1. Providing a generic kvm_arch_pre_fault_allowed() hook.
+Formalise this by moving them into a new kvm_arch_pre_fault_allowed() hook,
+which every architecture selecting CONFIG_KVM_GENERIC_PRE_FAULT_MEMORY must
+implement, returning an error code if the operation is disallowed or 0
+otherwise.
 
-This allows arm64 to reject an uninitialised vCPU from being specified on
-pre-fault, avoiding loading a vCPU that is not correctly initialised yet.
+The hook is called early in the generic code, allowing architectures to
+disallow the operation prior to vCPU load.
 
-2. Updating kvm_s2_fault_desc to independently store the exception syndrome
-   register (ESR) value, and updating all code paths to use this value
-   exclusively.
+This is important, as kvm_vcpu_pre_fault_memory() is the only place where
+generic code can call vcpu_load() on a vCPU that has not yet been
+initialised.
 
-This is needed so we can later generate a synthetic fault to perform the
-pre-faulting - we need to be sure the code doesn't grab an incorrect ESR
-from elsewhere.
+This lays the foundation for a future change which implements pre-faulting
+for arm64 which needs to disallow the mechanism for uninitialised vCPUs.
 
-3. Updating kvm_s2_fault_desc to independently store the kvm_s2_mmu and
-   updating all code paths to use this value exclusively.
-
-Similarly this is needed so we can generate a synthetic fault against the
-canonical stage 2 MMU (it would make no sense for it to touch nested shadow
-page tables) - we need to be sure that the code doesn't grab an incorrect
-MMU from elsewhere.
-
-4. Updating the abort paths which consume kvm_s2_fault_desc to also return
-   a kvm_s2_fault_result data structure.
-
-To perform pre-faulting the code must know the granule size of what was
-just walked. So the abort paths have to tell us what that was.
-
-5. Pass walk flags to kvm_pgtable_get_leaf() to permit walking page tables
-   under the MMU read lock.
-
-This is Jack's patch which allows the use of the KVM_PGTABLE_WALK_SHARED
-flag to walk page tables under the MMU read lock.
-
-Pre-faulting requires it to be able to work in parallel as specified by the
-API. The read lock precludes page tables being torn down behind our back.
-
-== Implementation ==
-
-Pre-faulting is implemented in kvm_arch_vcpu_pre_fault_memory() whose job
-is to pre-fault the stage 2 page tables which map a specific GPA (which,
-for arm64, is the guest's IPA).
-
-This function is called by kvm_vcpu_pre_fault_memory() for each GPA in the
-range, which itself is ultimately invoked by userland via the
-KVM_PRE_FAULT_MEMORY ioctl.
-
-The implementation is simple - try to walk to the stage 2 page table
-mapping the GPA - if unmapped, fault it in through a synthetic page fault.
-
-pKVM is not supported regardless of whether the VM is protected or
-not.
-
-This is because pKVM instantiates vCPUs upon run, but pre-faulting is
-typically performed before a vCPU is run. It would be confusing and
-inconsistent to error out on non-running vCPUs but to pre-fault running
-ones.
-
-Additionally, in pKVM mode, the stage 2 page tables are owned by the
-hypervisor rather than the host - the host can neither walk them nor
-populate them directly, so it's not clear that the pre-fault mechanism
-correctly maps onto pKVM.
-
-== Credits ==
-
-This series is based, with gratitude, on Jack Thomson's series and their
-respins (links provided below) as well as the feedback he received.
-
-The series includes Jack's v5 "KVM: arm64: Pass walk flags to
-kvm_pgtable_get_leaf()" patch (verbatim bar a one-line rebase fixup) and
-two of his test patches (with minor fixups), plus a nested pre-fault test
-based on his.
-
-Link: https://patch.msgid.link/20260612162354.73378-1-jackabt.amazon@gmail.com/
-Link: https://patch.msgid.link/20260113152643.18858-1-jackabt.amazon@gmail.com/
-Link: https://patch.msgid.link/20251119154910.97716-1-jackabt.amazon@gmail.com/
-Link: https://patch.msgid.link/20251013151502.6679-1-jackabt.amazon@gmail.com/
-Link: https://patch.msgid.link/20250911134648.58945-1-jackabt.amazon@gmail.com/
-
-== Reviewer Notes ==
-
-I synced with maintainers on this who asked me to take a look, as there hadn't
-been progress on the series for some time.
-
+Suggested-by: Oliver Upton <oupton@kernel.org>
 Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 ---
-v4:
-* Added tags, thank you everybody! (dropped Oliver's from 1/14 as new code,
-  and Fuad's Tested-by tags as he hasn't tested the latest version yet).
-* Reworked patch 1/14 to implement kvm_arch_pre_fault_allowed() to return
-  an error number and added x86, s390 implementations, as per Oliver.
-* Made implementing kvm_arch_pre_fault_allowed() a requirement in 1/14 if
-  pre-fault enabled for arches, as per Sean.
-* Updated 2/14 to move esr_abt_is_s1ptw() and esr_abt_is_exec_fault()
-  (which relies on it) into kvm_emulate.h as per Oliver.
-* Updated 3/14 to use the ESR_ELx_EC() macro instead of a wrapper for it,
-  as per Oliver.
-* Fixed 5/14 to gate the kvm_guest_s2_mapping allocation on s2fd->mmu,
-  as per Fuad.
-* Made gmem_abort() skip kvm_prepare_memory_fault_exit() when pre-faulting
-  in 6/14, as per Fuad.
-* Updated 10/14 to move the pKVM -EOPNOTSUPP check into the
-  kvm_arch_pre_fault_allowed() hook, as per Fuad.
-* Extended pKVM reasoning in the 10/14 commit message, based on
-  discussions with Aneesh.
+ arch/s390/kvm/s390/s390.c | 11 ++++++++---
+ arch/x86/kvm/mmu/mmu.c    | 11 ++++++++---
+ include/linux/kvm_host.h  |  1 +
+ virt/kvm/kvm_main.c       | 10 +++++++++-
+ 4 files changed, 26 insertions(+), 7 deletions(-)
 
-v3:
-* Rebased on next, fixed up a new caller to kvm_pgtable_get_leaf() to
-  account for additional parameter passed.
-* Adjusted: cover letter, added [ljs: ...] note to commit msg for 9/14 to
-  reflect the fixup.
-* Introduced and wired up kvm_arch_vcpu_allow_pre_fault_memory() as a
-  separate commit at the start of the series, as per Oliver.
-* Updated the pre-fault implementation to disallow uninitialised vCPU on
-  pre-fault as per Oliver, and updated cover letter to reflect it.
-* Extended pKVM reasoning in cover letter, commit message.
-https://lore.kernel.org/r/20260922-kvm-arm-prefault-v3-0-787bd3bc7e3f@kernel.org
+diff --git a/arch/s390/kvm/s390/s390.c b/arch/s390/kvm/s390/s390.c
+index 5c73f43782a7..47fe032444f4 100644
+--- a/arch/s390/kvm/s390/s390.c
++++ b/arch/s390/kvm/s390/s390.c
+@@ -5784,6 +5784,14 @@ void kvm_arch_commit_memory_region(struct kvm *kvm, struct kvm_memory_slot *old,
+ 	s390_kvm_mmu_commit_memory_region(kvm, old, new, change);
+ }
+ 
++int kvm_arch_pre_fault_allowed(struct kvm_vcpu *vcpu)
++{
++	if (kvm_is_ucontrol(vcpu->kvm))
++		return -EINVAL;
++
++	return 0;
++}
++
+ /**
+  * kvm_arch_vcpu_pre_fault_memory() -- pre-fault and link gmap dat tables
+  * @vcpu: the vcpu that shall appear to have generated the fault-in.
+@@ -5810,9 +5818,6 @@ long kvm_arch_vcpu_pre_fault_memory(struct kvm_vcpu *vcpu, struct kvm_pre_fault_
+ 	gpa_t end;
+ 	int rc;
+ 
+-	if (kvm_is_ucontrol(vcpu->kvm))
+-		return -EINVAL;
+-
+ 	rc = kvm_s390_faultin_gfn(vcpu, NULL, &f);
+ 	if (rc == PGM_ADDRESSING)
+ 		return -ENOENT;
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 064ecc33b926..c35fd2868c20 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -5086,6 +5086,14 @@ static int kvm_tdp_page_prefault(struct kvm_vcpu *vcpu, gpa_t gpa,
+ 	}
+ }
+ 
++int kvm_arch_pre_fault_allowed(struct kvm_vcpu *vcpu)
++{
++	if (!vcpu->kvm->arch.pre_fault_allowed)
++		return -EOPNOTSUPP;
++
++	return 0;
++}
++
+ long kvm_arch_vcpu_pre_fault_memory(struct kvm_vcpu *vcpu,
+ 				    struct kvm_pre_fault_memory *range)
+ {
+@@ -5095,9 +5103,6 @@ long kvm_arch_vcpu_pre_fault_memory(struct kvm_vcpu *vcpu,
+ 	u64 end;
+ 	int r;
+ 
+-	if (!vcpu->kvm->arch.pre_fault_allowed)
+-		return -EOPNOTSUPP;
+-
+ 	if (kvm_is_gfn_alias(vcpu->kvm, gpa_to_gfn(range->gpa)))
+ 		return -EINVAL;
+ 
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 03bfc92864b6..39a4d345aeca 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -2643,6 +2643,7 @@ void kvm_arch_gmem_invalidate_range(struct kvm *kvm, struct kvm_gfn_range *range
+ #endif
+ 
+ #ifdef CONFIG_KVM_GENERIC_PRE_FAULT_MEMORY
++int kvm_arch_pre_fault_allowed(struct kvm_vcpu *vcpu);
+ long kvm_arch_vcpu_pre_fault_memory(struct kvm_vcpu *vcpu,
+ 				    struct kvm_pre_fault_memory *range);
+ #endif
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 65eb26a0520d..41356577bee7 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -4353,7 +4353,7 @@ static int kvm_vcpu_ioctl_get_stats_fd(struct kvm_vcpu *vcpu)
+ static int kvm_vcpu_pre_fault_memory(struct kvm_vcpu *vcpu,
+ 				     struct kvm_pre_fault_memory *range)
+ {
+-	int idx;
++	int idx, err;
+ 	long r;
+ 	u64 full_size;
+ 
+@@ -4365,6 +4365,14 @@ static int kvm_vcpu_pre_fault_memory(struct kvm_vcpu *vcpu,
+ 	    range->gpa + range->size <= range->gpa)
+ 		return -EINVAL;
+ 
++	/*
++	 * Certain architectures (e.g. arm64) need to reject the ioctl 'early'
++	 * before vcpu_load().
++	 */
++	err = kvm_arch_pre_fault_allowed(vcpu);
++	if (err)
++		return err;
++
+ 	vcpu_load(vcpu);
+ 	idx = srcu_read_lock(&vcpu->kvm->srcu);
+ 
 
-v2:
-* Split series - Added 1/13 for the esr.h helpers, 2/13 for converting
-  callers to use them, and move what was 1/8 to 3/13 to propagate
-  s2fd->esr, as per Marc.
-* Made esr helpers __always_inline as per Marc.
-* Renamed esr_trap_get_class() -> esr_get_ec() + dropped churn as per Marc.
-* Updated 5/13 (was 3/8) to drop the kvm_s2_fault_result.mapped flag.
-* Also updated 5/13 so abort handlers return -EAGAIN instead of swallowing, as
-  per Marc.
-* Split implementation patch further -> topup_mmu_memcache() change to 6/13,
-  EHWPOISON change -> 7/13 and docs change -> 10/13, as per Marc.
-* No longer mkyoung existing walked ranges, updated docs to reflect, as per
-  Marc.
-* Eliminated s2fd->pre_fault as per Marc.
-* Eliminated the redundant page table level in pre_fault_s2() as per Marc.
-* Put the commit message for 9/13 on a diet as per Marc.
-* Fixed up commit message for 11/13 (was 6/8) to correct reasoning about
-  exit-reason assert, as per Fuad.
-* Simplified: nested test 13/13 (was 8/8), dropping the empty nested-S2
-  setup and using test_supports_el2() to handle NV=0 opt-out, as per
-  Wei-Lin and Fuad.
-* Re-authored patch 13/13 to me as the changes are substantial enough to
-  require it. Updated commit message to give Jack credit for original.
-https://lore.kernel.org/r/20260914-kvm-arm-prefault-v2-0-26fb47f74b73@kernel.org
-
-v1:
-https://lore.kernel.org/r/20260825-kvm-arm-prefault-v1-0-befe8947702e@kernel.org
-
----
-Jack Thomson (3):
-      KVM: arm64: Pass walk flags to kvm_pgtable_get_leaf()
-      KVM: selftests: Enable pre_fault_memory_test for arm64
-      KVM: selftests: Add option for different backing in pre-fault tests
-
-Lorenzo Stoakes (ARM) (11):
-      KVM: Allow architectures to disallow pre-fault
-      arm64: Add ESR fault helpers
-      KVM: arm64: Use ESR helpers in guest abort handling
-      KVM: arm64: Propagate and use esr in s2fd when handling guest aborts
-      KVM: arm64: Propagate and use mmu in s2fd when handling guest aborts
-      KVM: arm64: Propagate and use kvm_s2_fault_result on S2 fault
-      KVM: arm64: Size the stage-2 memcache from the fault MMU
-      KVM: arm64: Propagate EHWPOISON in kvm_s2_fault_pin_pfn()
-      KVM: arm64: Implement KVM_PRE_FAULT_MEMORY
-      Documentation: KVM: document arm64 KVM_PRE_FAULT_MEMORY
-      KVM: selftests: Add nested pre-fault test for arm64
-
- Documentation/virt/kvm/api.rst                     |  19 +-
- arch/arm64/include/asm/esr.h                       |  29 ++
- arch/arm64/include/asm/kvm_emulate.h               |  60 ++--
- arch/arm64/include/asm/kvm_pgtable.h               |   5 +-
- arch/arm64/include/asm/kvm_pkvm.h                  |   2 +-
- arch/arm64/kvm/Kconfig                             |   1 +
- arch/arm64/kvm/arm.c                               |   1 +
- arch/arm64/kvm/hyp/nvhe/mem_protect.c              |  10 +-
- arch/arm64/kvm/hyp/nvhe/mm.c                       |   2 +-
- arch/arm64/kvm/hyp/pgtable.c                       |   5 +-
- arch/arm64/kvm/mmu.c                               | 313 +++++++++++++++++----
- arch/arm64/kvm/nested.c                            |   2 +-
- arch/s390/kvm/s390/s390.c                          |  11 +-
- arch/x86/kvm/mmu/mmu.c                             |  11 +-
- include/linux/kvm_host.h                           |   1 +
- tools/testing/selftests/kvm/Makefile.kvm           |   2 +
- .../selftests/kvm/arm64/nv_pre_fault_memory_test.c | 158 +++++++++++
- .../testing/selftests/kvm/pre_fault_memory_test.c  | 152 ++++++++--
- virt/kvm/kvm_main.c                                |  10 +-
- 19 files changed, 646 insertions(+), 148 deletions(-)
----
-base-commit: 23ddf997ab16b5f4aa9f948f5a68f5b35e4e398f
-change-id: 20260815-kvm-arm-prefault-9bb411b6897d
-
-Best regards,
 -- 
-Lorenzo Stoakes (ARM) <ljs@kernel.org>
+2.55.0
 
