@@ -1,331 +1,279 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEE6D4F403E;
-	Wed, 23 Sep 2026 15:09:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2721A53A89D;
+	Wed, 23 Sep 2026 15:16:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790176152; cv=none; b=tGHjzrEp9LYAVwUGi0luv8+1CwM/haAvO9srzEd2cnlJDDTAPYTZicD4VJFR5eN/sNQc8ggMUGfr2JeOwqejr9TS1zMx9X0xAQstcSUc48aLDurItxqDVV6Znvu2SQeQ6sTNiR5TQswg+ra2h+3Vmom90QZS9plrRS8xC3fL868=
+	t=1790176570; cv=none; b=reAaz34kFgsZp8E7OSPir7Wxgx3up5yXugdcXLi5jgL4fCvzzPoNLuUqvCEodS6XffrY8H9Ipz5j41K6KvBbkhpmegTv22UaAGt4Xzrl1pMjvqGWvXXivtegWJ+myin57IF2WypY8bWWmEYoqLs3iPR8DYMJUBbHo+rVM/aWkBc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790176152; c=relaxed/simple;
-	bh=kbjEPQisOMReKzVuwlvcs8Tj08ueB5cETOFLgl9aBZY=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=tf+tk0kFL8ksb6mZHiDkMSPHw/yKtg7h21H9xa02BdAgz3QwV4hgxHv1vY61tKMD3ZJxfzL2Dv0PPWT5t6KNI2XYxWhIpRtzzetMBm4kEDc1l3P8AHPXeIJ307BvNcoY9MIzLLpZeinq/UePywjOQ+80g/mTjM3r9mn7CNHrEYA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XODfHCz8; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1790176570; c=relaxed/simple;
+	bh=GYWfUnTkP0gJvKMOUL5QKcvgb16vDu9ahPAgFk+I10Q=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=N71gEIwrNQ/nHIdBLYnJeCeGkaxA5wfFZzN+oA4Mefn/81ovad8SwGFQT3pusHyNDZuXTcntMp6/cfVe83Te/Xhk+0GZeYOeRw1WmQPYL2M1nY7YLP8fZSN2zt6NVxwdkbYHCcaMPy3TNVA7+74B+7ZGMp1epmhHyPdcBeFJAgM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M6ycILeq; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XODfHCz8"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68N8ZftW2742262;
-	Wed, 23 Sep 2026 15:09:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=hxgNtc
-	od0dYCrLZEfQ82+TO+k/62tLZFxNN7ZVmniu8=; b=XODfHCz8sIJ5yaUUvTsIxp
-	v5CJagy8/HwtK+GXTr8Z0VP7zRA/rQxRHZweh0/jYRCIcaINFxGCEKBXnqfCexOH
-	iuSekeykE5fyW/W1ej9BGjAm3QK3wistsVeRu2Q5ZrYVEe8Hqv0qKxkZqfkbCH79
-	FabePCd1QBiUm6UbrVQK7P+0gfo9Tcq8qVhOQtwaVN7poSJb4Rog0GEvrxAZS8Ni
-	ozCQXjoXsXlOdV7JbyyJZd2pkP23PgCjt20nTiValEx22OaWGAXDQ/VBAhQuUcRR
-	JoEILi8fATKggu5I4M4uIxvs0fIUtzF4z2ZKKxlvrDarUVfuSdCDYSidiQ0Z95Zw
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gske1km4q-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 23 Sep 2026 15:09:08 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68NCoQds008141;
-	Wed, 23 Sep 2026 15:09:07 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gvbt2sdg0-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 23 Sep 2026 15:09:07 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68NF93Jb47841638
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 23 Sep 2026 15:09:03 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7B06D20043;
-	Wed, 23 Sep 2026 15:09:03 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 43DCC20040;
-	Wed, 23 Sep 2026 15:09:03 +0000 (GMT)
-Received: from [9.224.92.241] (unknown [9.224.92.241])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 23 Sep 2026 15:09:03 +0000 (GMT)
-Message-ID: <d5a32ced819407ae370da37803e30acf541bc5d3.camel@linux.ibm.com>
-Subject: Re: [PATCH v7 2/4] s390/pci: Reuse FMB buffer and preserve state in
- device re-enablement
-From: Gerd Bayer <gbayer@linux.ibm.com>
-To: Omar Elghoul <oelghoul@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, schnelle@linux.ibm.com,
-        mjrosato@linux.ibm.com, alifm@linux.ibm.com, farman@linux.ibm.com,
-        pasic@linux.ibm.com, alex@shazbot.org
-Date: Wed, 23 Sep 2026 17:09:03 +0200
-In-Reply-To: <20260922195141.94548-3-oelghoul@linux.ibm.com>
-References: <20260922195141.94548-1-oelghoul@linux.ibm.com>
-		 <20260922195141.94548-3-oelghoul@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M6ycILeq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A5FC1F000FF;
+	Wed, 23 Sep 2026 15:15:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790176568;
+	bh=uhiHK1xeWjLCIGW0E7V8+Nj+NJaq2mGJkeRGTcZrb+o=;
+	h=From:Subject:Date:To:Cc;
+	b=M6ycILeqX2bnA28NGWauthBqCcvcc+tcb8zJK7Ndba5O+RSX0CtL5D5yFN5w/mVzj
+	 k+wUHP6VuKf51xLT4IHwBLKQrgvYkrTruJv8l2XMpIOGFNFxiiV2moX2rcym3hWbsj
+	 KRkEjZmyUTN/M6+mRXqGFes3H9GGEFiNCYfAxotRimDrjKLs6hDQsiQ/AcSYfVRoP4
+	 vc9tgtCgOjIl1G4WN+B+qMUNB1nDYUmFcLYhdJh4567CB1Rs0ZtDzeLZ+1fvpapfp5
+	 rlFuNFzQuMYTTssAJzEohJsA2t8LyHh+T60VgqM5Z3OLTd2x6YzgRCoUh0JZAHZ0PQ
+	 a2jOKWz0NBE6A==
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Subject: [PATCH v4 00/14] KVM: arm64: Add KVM_PRE_FAULT_MEMORY support
+Date: Wed, 23 Sep 2026 16:15:43 +0100
+Message-Id: <20260923-kvm-arm-prefault-v4-0-d4b0b4dfa8c3@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: byX7xD6VCr9YM67JN-N1c1v1A2P4bhuo
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIzMDA2MCBTYWx0ZWRfX4eRYWUFBeEgp
- vaAoLtzwEKLBcRDTQnrMRiM2ahcto0s/G/kO7t1QTbUmJciUNNXNOzFtz5m2p/NEswg81JYzvS5
- Aa/1b8HsJMkNF5/XazL/p5t5atu5Eos7wCvDEnufU2QtUX1JoLzd0tkH5Y//i4OyljeFvxG6uz4
- D/0I6Yc0Wycypzo8rExSWINrGPW/flN2tpBHZOc2g8MeqY0VVMuT9NSnV10094HbBX/rFVtIFqv
- JU8UfGiAdhgRzpFl/PIkTRP6JNLZBZb+AOwSpLpe2ntcUG2D+uxsDzsn3BG0viV4zwfXFEOKGXD
- GPuCK6rE3b6/kZPk1XO7wrNRP3pmrtrMsV/JsFjhxS6ozO5aNdFkwsnU/F2JuIcB/JRNyEvgxqa
- glFHv5D8a2oF/RfawORn5PebYwHzScIvEk8cnnScNzZBN6SPLhyQXf2ww5SK8bBAXW9sOArv0z7
- zVyNQLwwPTE6kWlP6Jw==
-X-Authority-Analysis: v=2.4 cv=O/KsLx9W c=1 sm=1 tr=0 ts=6ab3eb94 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=ciMhaqKDz8H6mv_B3WcA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIzMDA2MCBTYWx0ZWRfX++caJmu/1zA8
- vS+N4CNS054xebZ29xymFMHRzzvTyjI+eONypNeXu/ojM/0CS82XXMQYIVWXaIzqdElvyFx70TO
- kz1zPbSt0edCn4FbPjP9gjjpdIp4Ty0=
-X-Proofpoint-GUID: byX7xD6VCr9YM67JN-N1c1v1A2P4bhuo
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-23_04,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1011 malwarescore=0 phishscore=0 impostorscore=0 suspectscore=0
- bulkscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609230060
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/23NwQ6CMAyA4VchOzvDuknBk+9hPDDoYAHBDFw0h
+ Hd3EBM1cvzb9OvEBnKWBnaMJubI28H2XQi1i1hR511F3JahGcSQxKk48MZfee6u/ObI5Pd25Jn
+ WSgidpBmWLJwtC/tYyfMldG2HsXfP9YMXy/SNwQbmBY+5JkNpphBjoFNDrqN237uKLZqHj5AJt
+ SFAECAxWqFBpVH+CfJLANgQZBAwRV1KXSBJ8yPM8/wCvukZ6zUBAAA=
+X-Change-ID: 20260815-kvm-arm-prefault-9bb411b6897d
+To: Catalin Marinas <catalin.marinas@arm.com>, 
+ Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>, 
+ Oliver Upton <oupton@kernel.org>, Joey Gouly <joey.gouly@arm.com>, 
+ Steffen Eiden <seiden@linux.ibm.com>, 
+ Suzuki K Poulose <suzuki.poulose@arm.com>, 
+ Zenghui Yu <yuzenghui@huawei.com>, Paolo Bonzini <pbonzini@redhat.com>, 
+ Jonathan Corbet <corbet@lwn.net>, Mark Rutland <mark.rutland@arm.com>, 
+ Fuad Tabba <fuad.tabba@linux.dev>, Randy Dunlap <rdunlap@infradead.org>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@kernel.org>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>, 
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+ "H. Peter Anvin" <hpa@zytor.com>, Shuah Khan <skhan@linuxfoundation.org>, 
+ Shuah Khan <shuah@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+ kvmarm@lists.linux.dev, kvm@vger.kernel.org, linux-doc@vger.kernel.org, 
+ linux-kselftest@vger.kernel.org, Jack Thomson <jackabt@amazon.com>, 
+ Jack Thomson <jackabt.amazon@gmail.com>, 
+ Alexandru Elisei <alexandru.elisei@arm.com>, 
+ Vincent Donnefort <vdonnefort@google.com>, 
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
+ Sean Christopherson <seanjc@google.com>, 
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, 
+ Leo Soares Passos <Leo.Bras@arm.com>, Wei-Lin Chang <weilin.chang@arm.com>, 
+ linux-s390@vger.kernel.org, "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=9264; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=GYWfUnTkP0gJvKMOUL5QKcvgb16vDu9ahPAgFk+I10Q=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLI2v9Xhmbk3oeyYjrxGw5V2a4XDC2ZHqqg4B35oiJTNf
+ mNXpJnUUcrCIMbFICumyPL8i/j+IJGweZ0X/N1g5rAygQxh4OIUgIl4CjIyXD65xFPafGtM4PJT
+ c8t3zZtx3XO95qXKttJ/htP4ZOzcZRgZFto/F0/YHJf45JOmjMJzl/mX27/99nv3/8/XFd4Owo0
+ sPAA=
+X-Developer-Key: i=ljs@kernel.org; a=openpgp;
+ fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-On Tue, 2026-09-22 at 15:51 -0400, Omar Elghoul wrote:
-> Introduce the function zpci_fmb_reenable_device() that checks the state
-> of function measurement and ensures it is enabled. Reset the counters to
-> zero, disable, and re-enable the FMB if it was already enabled. Call
-> this function from zpci_reenable_device().
->=20
-> Don't free the FMB buffer during disabling and reuse it when re-enabling
-> measurement. Instead, free the buffer upon device teardown, allowing the
-> same buffer to be reused in the enable path and add the bit fmb_enabled
-> to struct zpci_dev. Audit the only consumer of zdev->fmb and update it
-> to reflect the change in semantics.
+This series implements the KVM stage 2 page table pre-faulting feature for
+arm64.
 
-While I understand how this evolved, this commit message reads upside-
-down for me. Shouldn't we consider the changes described in this second
-part of the commit message as a preparatory step for the introduction
-of zpci_fmb_reenable_device() and put this paragraph first - or even
-into a separate commit of its own?
+== Foundations ==
 
-Or, do you want to capture some (the outcome) of the prior discussion
-about the "grace period" that architecture imposes on re-using the
-memory that was ever registered as FMB with a PCI function? As
-rationale why this patch changes when the FMB memory is freed.
+1. Providing a generic kvm_arch_pre_fault_allowed() hook.
 
->=20
-> Signed-off-by: Omar Elghoul <oelghoul@linux.ibm.com>
-> ---
->  arch/s390/include/asm/pci.h |  2 +
->  arch/s390/pci/pci.c         | 77 +++++++++++++++++++++++++++++--------
->  arch/s390/pci/pci_debug.c   |  2 +-
->  3 files changed, 63 insertions(+), 18 deletions(-)
->=20
-> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-> index 88a125b92bdd..b8162f7a8968 100644
-> --- a/arch/s390/include/asm/pci.h
-> +++ b/arch/s390/include/asm/pci.h
-> @@ -175,6 +175,7 @@ struct zpci_dev {
->  	u8		util_str_avail	: 1;
->  	u8		tid_avail	: 1;
->  	u8		rtr_avail	: 1; /* Relaxed translation allowed */
-> +	u8		fmb_enabled	: 1;
->  	unsigned int	devfn;		/* DEVFN part of the RID*/
-> =20
->  	u8 pfip[CLP_PFIP_NR_SEGMENTS];	/* pci function internal path */
-> @@ -351,6 +352,7 @@ void zpci_remove_parent_msi_domain(struct zpci_bus *z=
-bus);
->  /* FMB */
->  int zpci_fmb_enable_device(struct zpci_dev *);
->  int zpci_fmb_disable_device(struct zpci_dev *);
-> +int zpci_fmb_reenable_device(struct zpci_dev *zdev);
+This allows arm64 to reject an uninitialised vCPU from being specified on
+pre-fault, avoiding loading a vCPU that is not correctly initialised yet.
 
-Nothing wrong in this patch, but apparently there's no common "style"
-in this file regarding whether parameters are named in the function
-prototypes.
+2. Updating kvm_s2_fault_desc to independently store the exception syndrome
+   register (ESR) value, and updating all code paths to use this value
+   exclusively.
 
-> =20
->  /* Debug */
->  int zpci_debug_init(void);
-> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> index c055a9ad0972..815257ddb6c8 100644
-> --- a/arch/s390/pci/pci.c
-> +++ b/arch/s390/pci/pci.c
-> @@ -175,13 +175,18 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
-> =20
->  	lockdep_assert_held(&zdev->fmb_lock);
-> =20
-> -	if (zdev->fmb || sizeof(*zdev->fmb) < zdev->fmb_length)
-> +	if (zdev->fmb_enabled || sizeof(*zdev->fmb) < zdev->fmb_length)
->  		return -EINVAL;
-> =20
-> -	zdev->fmb =3D kmem_cache_zalloc(zdev_fmb_cache, GFP_KERNEL);
-> -	if (!zdev->fmb)
-> -		return -ENOMEM;
-> -	WARN_ON((u64) zdev->fmb & 0xf);
-> +	if (!zdev->fmb) {
-> +		zdev->fmb =3D kmem_cache_zalloc(zdev_fmb_cache, GFP_KERNEL);
-> +		if (!zdev->fmb)
-> +			return -ENOMEM;
-> +		WARN_ON((u64) zdev->fmb & 0xf);
+This is needed so we can later generate a synthetic fault to perform the
+pre-faulting - we need to be sure the code doesn't grab an incorrect ESR
+from elsewhere.
 
-Already before this patch: Is this WARN_ON necessary, with the
-alignment on struct zpci_fmb when zdev_fmb_cache is created in
-zpci_mem_init()?
+3. Updating kvm_s2_fault_desc to independently store the kvm_s2_mmu and
+   updating all code paths to use this value exclusively.
 
-> +	} else {
-> +		/* FMB buffers are intentionally persistent for later reuse */
+Similarly this is needed so we can generate a synthetic fault against the
+canonical stage 2 MMU (it would make no sense for it to touch nested shadow
+page tables) - we need to be sure that the code doesn't grab an incorrect
+MMU from elsewhere.
 
-How about changing this comment to: /* reuse same FMB buffer as long a
-zdev lives */
+4. Updating the abort paths which consume kvm_s2_fault_desc to also return
+   a kvm_s2_fault_result data structure.
 
-> +		memset(zdev->fmb, 0, sizeof(*zdev->fmb));
-> +	}
-> =20
->  	/* reset software counters */
->  	spin_lock_irqsave(&zdev->dom_lock, flags);
-> @@ -199,11 +204,11 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
->  	fib.fmb_addr =3D virt_to_phys(zdev->fmb);
->  	fib.gd =3D zdev->gisa;
->  	cc =3D zpci_mod_fc(req, &fib, &status);
-> -	if (cc) {
-> -		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
-> -		zdev->fmb =3D NULL;
-> -	}
-> -	return cc ? -EIO : 0;
-> +	if (cc)
-> +		return -EIO;
-> +
-> +	zdev->fmb_enabled =3D 1;
-> +	return 0;
->  }
-> =20
->  /* Modify PCI: Disable PCI function measurement */
-> @@ -215,7 +220,7 @@ int zpci_fmb_disable_device(struct zpci_dev *zdev)
-> =20
->  	lockdep_assert_held(&zdev->fmb_lock);
-> =20
-> -	if (!zdev->fmb)
-> +	if (!zdev->fmb_enabled)
->  		return -EINVAL;
-> =20
->  	fib.gd =3D zdev->gisa;
-> @@ -224,13 +229,39 @@ int zpci_fmb_disable_device(struct zpci_dev *zdev)
->  	cc =3D zpci_mod_fc(req, &fib, &status);
->  	if (cc =3D=3D 3) /* Function already gone. */
->  		cc =3D 0;
-> +	if (cc)
-> +		return -EIO;
-> =20
-> -	if (!cc) {
-> -		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
-> -		zdev->fmb =3D NULL;
-> -	}
-> -	return cc ? -EIO : 0;
-> +	zdev->fmb_enabled =3D 0;
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(zpci_fmb_disable_device);
-> +
-> +int zpci_fmb_reenable_device(struct zpci_dev *zdev)
-> +{
-> +	u64 req =3D ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_SET_MEASURE);
-> +	struct zpci_fib fib =3D {0};
-> +	u8 cc, status;
-> +
-> +	lockdep_assert_held(&zdev->fmb_lock);
-> +
-> +	if (!zdev->fmb_enabled)
-> +		return zpci_fmb_enable_device(zdev);
-> +
-> +	fib.gd =3D zdev->gisa;
-> +	cc =3D zpci_mod_fc(req, &fib, &status); /* Disable function measurement=
- */
-> +
-> +	/* Unlike in zpci_fmb_disable_device(), cc =3D=3D 3 is not a valid stat=
-e here
-> +	 * because we are re-enabling function measurement for the same functio=
-n
-> +	 * handle.
-> +	 */
-> +	if (cc)
-> +		return -EIO;
-> +
-> +	zdev->fmb_enabled =3D 0;
-> +	return zpci_fmb_enable_device(zdev);
->  }
-> +EXPORT_SYMBOL_GPL(zpci_fmb_reenable_device);
+To perform pre-faulting the code must know the granule size of what was
+just walked. So the abort paths have to tell us what that was.
 
-I see a little imbalance of the semantics of "reenable" in
-zpci_fmb_reenable_device() vs. zpci_reenable_device():
-zpci_reenable_device() "just" enables + registers existing data
-structures with the underlying system - while
-zpci_fmb_reenable_device() does both the disablement + the enablement.
+5. Pass walk flags to kvm_pgtable_get_leaf() to permit walking page tables
+   under the MMU read lock.
 
-Since zpci_disable_device() includes the disablement of FMB per
-architecture, I wonder if it would suffice to set zdev->fmb_enabled =3D 0
-in that function, and drop the explicit disable FMB there?
+This is Jack's patch which allows the use of the KVM_PGTABLE_WALK_SHARED
+flag to walk page tables under the MMU read lock.
 
-> =20
->  static int zpci_cfg_load(struct zpci_dev *zdev, int offset, u32 *val, u8=
- len)
->  {
-> @@ -737,8 +768,14 @@ int zpci_reenable_device(struct zpci_dev *zdev)
->  	}
-> =20
->  	rc =3D zpci_iommu_register_ioat(zdev, &status);
-> -	if (rc)
-> +	if (rc) {
->  		zpci_disable_device(zdev);
-> +		return rc;
-> +	}
-> +
-> +	guard(mutex)(&zdev->fmb_lock);
-> +	if (zdev->fmb_enabled)
-> +		zpci_fmb_reenable_device(zdev);
-> =20
->  	return rc;
->  }
-> @@ -1003,6 +1040,12 @@ void zpci_release_device(struct kref *kref)
->  	if (zdev->has_resources)
->  		zpci_cleanup_bus_resources(zdev);
-> =20
-> +	if (zdev->fmb) {
-> +		zdev->fmb_enabled =3D 0;
-> +		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
-> +		zdev->fmb =3D NULL;
-> +	}
-> +
->  	zpci_bus_device_unregister(zdev);
->  	zpci_destroy_iommu(zdev);
->  	zpci_dbg(3, "rem fid:%x\n", zdev->fid);
-> diff --git a/arch/s390/pci/pci_debug.c b/arch/s390/pci/pci_debug.c
-> index c7ed7bf254b5..44f026ead414 100644
-> --- a/arch/s390/pci/pci_debug.c
-> +++ b/arch/s390/pci/pci_debug.c
-> @@ -97,7 +97,7 @@ static int pci_perf_show(struct seq_file *m, void *v)
->  		return 0;
-> =20
->  	mutex_lock(&zdev->fmb_lock);
-> -	if (!zdev->fmb) {
-> +	if (!zdev->fmb_enabled) {
->  		mutex_unlock(&zdev->fmb_lock);
->  		seq_puts(m, "FMB statistics disabled\n");
->  		return 0;
+Pre-faulting requires it to be able to work in parallel as specified by the
+API. The read lock precludes page tables being torn down behind our back.
 
-Thank you,
-Gerd
+== Implementation ==
+
+Pre-faulting is implemented in kvm_arch_vcpu_pre_fault_memory() whose job
+is to pre-fault the stage 2 page tables which map a specific GPA (which,
+for arm64, is the guest's IPA).
+
+This function is called by kvm_vcpu_pre_fault_memory() for each GPA in the
+range, which itself is ultimately invoked by userland via the
+KVM_PRE_FAULT_MEMORY ioctl.
+
+The implementation is simple - try to walk to the stage 2 page table
+mapping the GPA - if unmapped, fault it in through a synthetic page fault.
+
+pKVM is not supported regardless of whether the VM is protected or
+not.
+
+This is because pKVM instantiates vCPUs upon run, but pre-faulting is
+typically performed before a vCPU is run. It would be confusing and
+inconsistent to error out on non-running vCPUs but to pre-fault running
+ones.
+
+Additionally, in pKVM mode, the stage 2 page tables are owned by the
+hypervisor rather than the host - the host can neither walk them nor
+populate them directly, so it's not clear that the pre-fault mechanism
+correctly maps onto pKVM.
+
+== Credits ==
+
+This series is based, with gratitude, on Jack Thomson's series and their
+respins (links provided below) as well as the feedback he received.
+
+The series includes Jack's v5 "KVM: arm64: Pass walk flags to
+kvm_pgtable_get_leaf()" patch (verbatim bar a one-line rebase fixup) and
+two of his test patches (with minor fixups), plus a nested pre-fault test
+based on his.
+
+Link: https://patch.msgid.link/20260612162354.73378-1-jackabt.amazon@gmail.com/
+Link: https://patch.msgid.link/20260113152643.18858-1-jackabt.amazon@gmail.com/
+Link: https://patch.msgid.link/20251119154910.97716-1-jackabt.amazon@gmail.com/
+Link: https://patch.msgid.link/20251013151502.6679-1-jackabt.amazon@gmail.com/
+Link: https://patch.msgid.link/20250911134648.58945-1-jackabt.amazon@gmail.com/
+
+== Reviewer Notes ==
+
+I synced with maintainers on this who asked me to take a look, as there hadn't
+been progress on the series for some time.
+
+Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+---
+v4:
+* Added tags, thank you everybody! (dropped Oliver's from 1/14 as new code,
+  and Fuad's Tested-by tags as he hasn't tested the latest version yet).
+* Reworked patch 1/14 to implement kvm_arch_pre_fault_allowed() to return
+  an error number and added x86, s390 implementations, as per Oliver.
+* Made implementing kvm_arch_pre_fault_allowed() a requirement in 1/14 if
+  pre-fault enabled for arches, as per Sean.
+* Updated 2/14 to move esr_abt_is_s1ptw() and esr_abt_is_exec_fault()
+  (which relies on it) into kvm_emulate.h as per Oliver.
+* Updated 3/14 to use the ESR_ELx_EC() macro instead of a wrapper for it,
+  as per Oliver.
+* Fixed 5/14 to gate the kvm_guest_s2_mapping allocation on s2fd->mmu,
+  as per Fuad.
+* Made gmem_abort() skip kvm_prepare_memory_fault_exit() when pre-faulting
+  in 6/14, as per Fuad.
+* Updated 10/14 to move the pKVM -EOPNOTSUPP check into the
+  kvm_arch_pre_fault_allowed() hook, as per Fuad.
+* Extended pKVM reasoning in the 10/14 commit message, based on
+  discussions with Aneesh.
+
+v3:
+* Rebased on next, fixed up a new caller to kvm_pgtable_get_leaf() to
+  account for additional parameter passed.
+* Adjusted: cover letter, added [ljs: ...] note to commit msg for 9/14 to
+  reflect the fixup.
+* Introduced and wired up kvm_arch_vcpu_allow_pre_fault_memory() as a
+  separate commit at the start of the series, as per Oliver.
+* Updated the pre-fault implementation to disallow uninitialised vCPU on
+  pre-fault as per Oliver, and updated cover letter to reflect it.
+* Extended pKVM reasoning in cover letter, commit message.
+https://lore.kernel.org/r/20260922-kvm-arm-prefault-v3-0-787bd3bc7e3f@kernel.org
+
+v2:
+* Split series - Added 1/13 for the esr.h helpers, 2/13 for converting
+  callers to use them, and move what was 1/8 to 3/13 to propagate
+  s2fd->esr, as per Marc.
+* Made esr helpers __always_inline as per Marc.
+* Renamed esr_trap_get_class() -> esr_get_ec() + dropped churn as per Marc.
+* Updated 5/13 (was 3/8) to drop the kvm_s2_fault_result.mapped flag.
+* Also updated 5/13 so abort handlers return -EAGAIN instead of swallowing, as
+  per Marc.
+* Split implementation patch further -> topup_mmu_memcache() change to 6/13,
+  EHWPOISON change -> 7/13 and docs change -> 10/13, as per Marc.
+* No longer mkyoung existing walked ranges, updated docs to reflect, as per
+  Marc.
+* Eliminated s2fd->pre_fault as per Marc.
+* Eliminated the redundant page table level in pre_fault_s2() as per Marc.
+* Put the commit message for 9/13 on a diet as per Marc.
+* Fixed up commit message for 11/13 (was 6/8) to correct reasoning about
+  exit-reason assert, as per Fuad.
+* Simplified: nested test 13/13 (was 8/8), dropping the empty nested-S2
+  setup and using test_supports_el2() to handle NV=0 opt-out, as per
+  Wei-Lin and Fuad.
+* Re-authored patch 13/13 to me as the changes are substantial enough to
+  require it. Updated commit message to give Jack credit for original.
+https://lore.kernel.org/r/20260914-kvm-arm-prefault-v2-0-26fb47f74b73@kernel.org
+
+v1:
+https://lore.kernel.org/r/20260825-kvm-arm-prefault-v1-0-befe8947702e@kernel.org
+
+---
+Jack Thomson (3):
+      KVM: arm64: Pass walk flags to kvm_pgtable_get_leaf()
+      KVM: selftests: Enable pre_fault_memory_test for arm64
+      KVM: selftests: Add option for different backing in pre-fault tests
+
+Lorenzo Stoakes (ARM) (11):
+      KVM: Allow architectures to disallow pre-fault
+      arm64: Add ESR fault helpers
+      KVM: arm64: Use ESR helpers in guest abort handling
+      KVM: arm64: Propagate and use esr in s2fd when handling guest aborts
+      KVM: arm64: Propagate and use mmu in s2fd when handling guest aborts
+      KVM: arm64: Propagate and use kvm_s2_fault_result on S2 fault
+      KVM: arm64: Size the stage-2 memcache from the fault MMU
+      KVM: arm64: Propagate EHWPOISON in kvm_s2_fault_pin_pfn()
+      KVM: arm64: Implement KVM_PRE_FAULT_MEMORY
+      Documentation: KVM: document arm64 KVM_PRE_FAULT_MEMORY
+      KVM: selftests: Add nested pre-fault test for arm64
+
+ Documentation/virt/kvm/api.rst                     |  19 +-
+ arch/arm64/include/asm/esr.h                       |  29 ++
+ arch/arm64/include/asm/kvm_emulate.h               |  60 ++--
+ arch/arm64/include/asm/kvm_pgtable.h               |   5 +-
+ arch/arm64/include/asm/kvm_pkvm.h                  |   2 +-
+ arch/arm64/kvm/Kconfig                             |   1 +
+ arch/arm64/kvm/arm.c                               |   1 +
+ arch/arm64/kvm/hyp/nvhe/mem_protect.c              |  10 +-
+ arch/arm64/kvm/hyp/nvhe/mm.c                       |   2 +-
+ arch/arm64/kvm/hyp/pgtable.c                       |   5 +-
+ arch/arm64/kvm/mmu.c                               | 313 +++++++++++++++++----
+ arch/arm64/kvm/nested.c                            |   2 +-
+ arch/s390/kvm/s390/s390.c                          |  11 +-
+ arch/x86/kvm/mmu/mmu.c                             |  11 +-
+ include/linux/kvm_host.h                           |   1 +
+ tools/testing/selftests/kvm/Makefile.kvm           |   2 +
+ .../selftests/kvm/arm64/nv_pre_fault_memory_test.c | 158 +++++++++++
+ .../testing/selftests/kvm/pre_fault_memory_test.c  | 152 ++++++++--
+ virt/kvm/kvm_main.c                                |  10 +-
+ 19 files changed, 646 insertions(+), 148 deletions(-)
+---
+base-commit: 23ddf997ab16b5f4aa9f948f5a68f5b35e4e398f
+change-id: 20260815-kvm-arm-prefault-9bb411b6897d
+
+Best regards,
+-- 
+Lorenzo Stoakes (ARM) <ljs@kernel.org>
+
