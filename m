@@ -1,195 +1,135 @@
-Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B904A5326A0
-	for <linux-s390@vger.kernel.org>; Wed, 23 Sep 2026 14:31:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.176
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790173881; cv=pass; b=iWs9i//uxkCwYLZWOZk2oBDw+WzjCQN923nOjrc4KfwUsvyazjAGoJVm3WsegMpiC9pXRO8jbLq/kGZpM4uojge8TlHrTbEQ8CyIJ3j29WGZERzmAeuDO4Z4IejFIN8AgHYw6ddpH3RaJZIAQJSK+JVZfeF4rH6yoLREUN7DhpA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790173881; c=relaxed/simple;
-	bh=3IRQTfCkVu29EAhzhIq8HL8xV9bhN+vmwTvfaTzW1hg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dcut0GmMaSpOgMshmciqm1Le6UtetwibGP3NMEgtgsVmGI2nIDZpI/5JxQXmvWucfYv65oozEUIjpRpn8qVysjkk4cO3ifUiYZHxtqekThA1mu5HM3OIi54GCND9KgpKkFLJhtrxBmy1oQEpy8VmZHZUF/808WDjmdg5j5xYQM8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=C+1Ohl3z; arc=pass smtp.client-ip=209.85.160.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2046377AAD;
+	Wed, 23 Sep 2026 14:33:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790173984; cv=none; b=W2HaID4uLJTsETeWLnvtwr4PDrOd7q4+e+rB78RjRA+KA153uZJ5jDuik7whBFcCvzQb3fypnv50ym+Lm2TMiNo8aW0pj0gkxYmflVCY6aDVTZZZCmc4STDcGp51LaTC1GMLkH3QR6S1ey83yIU9YyNBH/7H6QM/Lj0ZSi4tdGk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790173984; c=relaxed/simple;
+	bh=9ofp4hNr70z2lyv3ooh2c6m/rwRRgcegg3VMXAMXFDg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=FJsX3doeM/mdm+Er5tc8qB7CRQRocS49Q444QQXUlU8iPoRy8Muac3QxNGi0KAcXGi02xfchpqQeXGMULgsYipFHhpcBMNOBMzmOb/uGqA9GuyC35jwPohKOQH/AoF3kUvD46b3AoplAoEXxZ/Y5zkdFDJhKYP+jBLGAJWoZpZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Qo88Uxoh; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="C+1Ohl3z"
-Received: by mail-qt1-f176.google.com with SMTP id d75a77b69052e-53113d72966so260881cf.1
-        for <linux-s390@vger.kernel.org>; Wed, 23 Sep 2026 07:31:17 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790173876; cv=none;
-        d=google.com; s=arc-20260327;
-        b=qWDZZk4KNFsxht9kJCg6YC1rb3d77i60yvGZS3T5LUa5D5JMqrcExI+nM2Wqh7l8LH
-         BWeIUMhXgkQ1YpRrRc/4W0vIUjDb5FX4Yvw2Ic3pv55W21EZXzRRxWNTHl8Q4Qnv572V
-         /O1XnG99rSJPDI1yMzI8SgzwixXWw+6W4SbrOU+1+ioCOpLKfaecgZS4jPVE1QoxE1N2
-         LLCJ1qgUfN41ScINljDqY+A8dNHEXsfSmZgztrssBxwCo8lXLBJudlThowKC/G5kD4Xd
-         35dfM/0iY5jMXEFZBJUBE+RF9qWYnY9IM1LRVzuCSNKZs8PjdLCzdVMAXMFSttK7kR8H
-         Eikg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=3IRQTfCkVu29EAhzhIq8HL8xV9bhN+vmwTvfaTzW1hg=;
-        fh=HW+PScRJbegSs2TAUsXL4g6+UQf2ZdnsqqliK2edN+o=;
-        b=K8Y8JTzgO5AF+fC1bmH6uCQpPACeK62ZzZ9RHIyhqkfB37+fBDssWDoMW87WRPspmQ
-         86xOPV2OCyRm9YhvLp/x+BkuTIh4bjEZwsah7OXgJsxOssNd17XDuSHujErKPcgLyntd
-         BngeLjfmzOeWjLuJxTuVXWFuXaBVLVzo5A4YRlZEaTinxg9WAw8qaaRUbzSMgHiTzbQa
-         UvgL5snAcey6nhvPqG49J34h7qjx1dzOqRyS3B/W+o93t36gVUPsh2GpmhOg+KLfIL92
-         ROaU/EheC5te0hGYE1nlf+lyCpjzMo96CyH2LQNMJFZssNO58wrFdF2S6j2mhoZFerCG
-         UVvw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1790173876; x=1790778676; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=3IRQTfCkVu29EAhzhIq8HL8xV9bhN+vmwTvfaTzW1hg=;
-        b=C+1Ohl3zbsMrjh1dB/zOjZD8WctelSpuD7HSjz83HtCzxAu2uQCdrvdk6mQA/qDmED
-         XPmCruc/0qesoh5ZaUY/8kYU55YuQDkrL+NWB4/GzBktzO6vR8i1QACk+3pme9wnGQCn
-         VZQmjl8KrY0HTHromA139b+tgbWQilZ3lTmZ8bgk7A7cwz+FVWfgOIYzhOmTDxAQ89K+
-         VZ5tGKKWdn2SxsyXoo0ZRNPy/7aL5Z2Tdfk7aj0pDU/c4b+4zxQCe6XqJRfIBBmHEG8r
-         fY+QEIfNks1XUT2d6WUeW6MkoHO+EYXflKlYvUF0fbOWU0DbvpsKlrTvHc30tBgH/z4n
-         u9Ww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790173876; x=1790778676;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=3IRQTfCkVu29EAhzhIq8HL8xV9bhN+vmwTvfaTzW1hg=;
-        b=HGKjIV1kcvnE5bAJJ7G5wCZVXbDZWktZt0yWsAk04Gbla05I2tk7SpFRhXZX6/t0Km
-         +uD/fL0SkDZ0FYKN5CN6U7rrtwHqfPSU1JsI9nNgkbnQbp1OhdeHVm0wR/NKDePMROMQ
-         Cu1eMzEDNGF2zCrtwYvB9aDwxc0ElUimM9yTPju5T1Egsjp7iDCb1mRPmaLZfmpBPW6K
-         OMpNjjVAIC/ShutzYd1GADLrgyQ8yiEtd7PNM587NhcJNd6NlXDYVJQv36Ss+CK8ZylM
-         zEwqcWGxTBI7+k3E7zNWAmX+q4URlq6lyUbEIv4rcujpvUnt7CAQNSXb+SJFuL7CT2je
-         GqrQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxskyUmn3Aa/YmYPEAogNgcjeMvHkjHPSDZWl0R7/RfaysXoVKX1PEU4IDDUAMuoT9I0zyCfgSt8MtE@vger.kernel.org
-X-Gm-Message-State: AFuF++kmltORmLMXJxJrfe9MxzynqmCkCaBfb1y5VR1mowOxjBTN2rDw
-	VY+3KEMaqmtloE4ANIq3+vPY3T9oCdmp8+ptkfL1EHfDwjNzyGeipi1f09gnIUUwBpujwoJS/yx
-	5R7LByyw38OoyRn+3tObN4bEVf5KShHI14YhpXbEA
-X-Gm-Gg: AYBFou2MOyprboeGXSUf1iMdt3LxB+vmcHEj6W6Gqw1x8xhajKjXZLKY0pebA23Jl5z
-	8sMFU4SammeTSCAJsZbh/UH/1yDgbbUHIKJCqwYP5Eabe0oVW0VgQ/PERkguKkbl4dp5PLEW0Xx
-	mo0qHkhT83r1njEWSZXsEOeu/21oT5b/ZF/DtL8Kz3iJXxP4N9w6iIt6jDc1So/OCD1Qfbgc0MI
-	80X1QotJhEGm3VVkR8cpng+FTBopdm8BkAtKhSjj1K0xwZJ0+noOAqSs5B54HxL21VJuyfn70W5
-	1P9RtYooU7u9igDTkIc+dlQe3YC82W4kOjzhvI1Ck7h4Hmlj/+CwC66vlwxuD+tdKRB4csoAGis
-	UAdDR6pufSw==
-X-Received: by 2002:a05:622a:260e:b0:532:9d15:2e5a with SMTP id
- d75a77b69052e-532ede89b29mr14598791cf.1.1790173874906; Wed, 23 Sep 2026
- 07:31:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Qo88Uxoh"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68N8Zoov1031364;
+	Wed, 23 Sep 2026 14:32:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=dTLEWXxZ3/GILPnEIAr1GlznsBvHRZ
+	fvHZ70H1KLoLk=; b=Qo88UxohcNN8SpbSKUBr5cDAuLy9wsUReWb22/yAD3VEna
+	iaQcJhiJ3ARz3qC3Bza2bqx5LDMDY3fqjzGg0Y1Yx2giTnCYKV6/Cyu2YcD27Lb8
+	7RH7xqSNuxuGmHMviyp3364SThNgSF6jUNmX098C6rfX20Qf3os2ILUO4Vgou2xl
+	v7Wr2ATjzrYx1vDks3x+OSDJZPaJUXVM7pndrciNEZxmioJ7ayTFXMhN5SKtw07u
+	948FpPzhD5Qot2aHLbq4T9CRmW9/W2c9sVRB2ECc3RENETXjqNal/kUkXqN/kr9d
+	9mQLELOmeQ8FjtGJvU0+1CraPYger0G5Sdmm1Zgw==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gske1uv8k-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Wed, 23 Sep 2026 14:32:54 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68NCLiiQ008504;
+	Wed, 23 Sep 2026 14:32:53 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gvb8jse13-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 23 Sep 2026 14:32:53 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68NEWntm16384288
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 23 Sep 2026 14:32:49 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9913020049;
+	Wed, 23 Sep 2026 14:32:49 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 28D3220040;
+	Wed, 23 Sep 2026 14:32:49 +0000 (GMT)
+Received: from osiris (unknown [9.111.16.152])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 23 Sep 2026 14:32:49 +0000 (GMT)
+Date: Wed, 23 Sep 2026 16:32:47 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: linux-mm@kvack.org, David Hildenbrand <david@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>,
+        Helge Deller <deller@gmx.de>, loongarch@lists.linux.dev,
+        linux-s390@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] s390/mm: Drop all pxdp_get()
+Message-ID: <20260923143247.9636Cf1-hca@linux.ibm.com>
+References: <20260923043226.331880-1-anshuman.khandual@arm.com>
+ <20260923043226.331880-2-anshuman.khandual@arm.com>
+ <20260923091629.9636A36-hca@linux.ibm.com>
+ <echvqvjj435meeh6gcrqewysdqbtkrsgayvsyfcr3q6h3bh7fn@hsa7xh22l4rj>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260914-b4-mmap-prepare-vma-flag-sanify-v2-0-7d9781ed5361@kernel.org>
- <20260914180811.057cba8fcc48d6e0b53a2683@linux-foundation.org>
- <0b064fe6-ddb3-4f26-a1f2-2e9dd88d590f@kernel.org> <CAJuCfpFBichJH4OcmSHTb1rOuQBT6k5pXeua9_KgpWjDBKvsYw@mail.gmail.com>
- <aq6kzpK7wPl3iFGe@gremlin> <aq6lW9FvL69QeA9H@gremlin> <arOCPN02xB7mykju@gremlin>
- <b007cd0f-29ef-457a-8e44-63ab26f3bcd0@kernel.org>
-In-Reply-To: <b007cd0f-29ef-457a-8e44-63ab26f3bcd0@kernel.org>
-From: Suren Baghdasaryan <surenb@google.com>
-Date: Wed, 23 Sep 2026 07:31:02 -0700
-X-Gm-Features: AclHuK_ZGTwaB8ygIyiOyIIeQNRzbEtns-G_Cds8CuZ4q61CHw7YMjTifucik0o
-Message-ID: <CAJuCfpHL=dHjT=O4S88ZBvT1DyodAtCL9QTryepzs3EMwoECDQ@mail.gmail.com>
-Subject: Re: [PATCH v2 00/40] mm: make VMA flag semantics explicit, eliminate VM_SPECIAL
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, 
-	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, Jann Horn <jannh@google.com>, 
-	Pedro Falcato <pfalcato@suse.de>, Mike Rapoport <rppt@kernel.org>, Michal Hocko <mhocko@suse.com>, 
-	Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
-	Leon Romanovsky <leon@kernel.org>, Paul Moore <paul@paul-moore.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Jaroslav Kysela <perex@perex.cz>, 
-	Takashi Iwai <tiwai@suse.com>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
-	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
-	Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	"Martin K. Petersen" <mkp@kernel.org>, Jaya Kumar <jayalk@intworks.biz>, Simona Vetter <simona@ffwll.ch>, 
-	Helge Deller <deller@gmx.de>, Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, 
-	Peter Xu <peterx@redhat.com>, Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
-	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, 
-	Juri Lelli <juri.lelli@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, 
-	Arnd Bergmann <arnd@arndb.de>, Muchun Song <muchun.song@linux.dev>, 
-	Oscar Salvador <osalvador@suse.de>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, 
-	Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, 
-	Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>, 
-	Ying Huang <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>, 
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
-	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, 
-	Baoquan He <baoquan.he@linux.dev>, Youngjun Park <youngjun.park@lge.com>, 
-	Johannes Weiner <hannes@cmpxchg.org>, Qi Zheng <qi.zheng@linux.dev>, 
-	Shakeel Butt <shakeel.butt@linux.dev>, Axel Rasmussen <axelrasmussen@google.com>, 
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
-	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
-	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, 
-	linux-usb@vger.kernel.org, linux-rdma@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-sound@vger.kernel.org, bpf@vger.kernel.org, 
-	linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
-	kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, 
-	fuse-devel@lists.linux.dev, Takashi Iwai <tiwai@suse.de>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <echvqvjj435meeh6gcrqewysdqbtkrsgayvsyfcr3q6h3bh7fn@hsa7xh22l4rj>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: pB-ITqb9sOi216kpDP6qFr_AkUfA0YiO
+X-Authority-Analysis: v=2.4 cv=EOCTQFZC c=1 sm=1 tr=0 ts=6ab3e316 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=s6_hAop9O4wJoUa2jvYA:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTIzMDA1NiBTYWx0ZWRfX22wASEXzLiou
+ PfFsvMfHjLR3w9yAsIv0VoV1k3rQ1tg1VGpyHFdoCSG77Z4UvPhFSm4mrr3cFl+H5R/R3beTz47
+ rGtl+Y6RwJokrmDgrV2vhG9hrs2x4lI=
+X-Proofpoint-GUID: wKSs8eQ0tSZ4i-GNyRYMRcD2K4LE2JQz
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTIzMDA1NiBTYWx0ZWRfXwHPABW50L+fB
+ IloTBWxVRpe3zLFf6xTiqsudch9JpP0gjXsS4DmzoU/vzgS4sgktPxavXKEfcdW8kC7+6nhhNo0
+ +ry4ndBZtugMek7C7B9frVH+AWPJcbCrAxzGdQl3Jyc5yxA6x2UhotqdvLyFzBr4VACaFOy1I8c
+ Lxo46K1swYjr84QTmBRS23JSimQbO3FRlkEQAhanoWdL6LlrPUfg8oLM63o0TwU714EM+D5Y/ZE
+ +Sin01SfRk6lvimzFutahVWSPeOECK2DnDfIX0mcx+i7unp47bpzcHK9JuNNcgxVVNq8Z7C+7IA
+ Yj7wDw07WYlMCiuH4BDtliirABQ5Nkou11UoHxnH51CyrimCAS+nYS8cTtx7TAhRPeRuCho2tah
+ JenhoBlym3Gro7kuMLcmkKAtppeSJ0VRp2PCMG0bXWI+NE03hKMTQdMHRmpGLKw5NialfhVw56n
+ Vj0Qi3gQIrmLdBUVP9w==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-23_04,2026-09-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 phishscore=0 priorityscore=1501 clxscore=1015 spamscore=0
+ adultscore=0 impostorscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609230056
 
-On Wed, Sep 23, 2026 at 1:40=E2=80=AFAM David Hildenbrand (Arm)
-<david@kernel.org> wrote:
->
-> On 9/23/26 10:13, Lorenzo Stoakes (ARM) wrote:
-> > On Sat, Sep 19, 2026 at 04:09:13PM +0100, Lorenzo Stoakes (ARM) wrote:
-> >> On Sat, Sep 19, 2026 at 04:05:57PM +0100, Lorenzo Stoakes (ARM) wrote:
-> >>>
-> >>> Thanks guys!
-> >>
-> >> Note v3 has been posted to fix a stupid bug in 1/40 + attack some very=
- trivial
-> >> sashiko stuff
-> >>
-> >> https://lore.kernel.org/linux-mm/20260917-b4-mmap-prepare-vma-flag-san=
-ify-v3-0-4583d8a23bca@kernel.org/
-> >
-> > Just a gentle nudge on this :)
-> >
-> > If you guys or anybody else has some time it'd be appreciated! (obv. th=
-e v3 as
-> > linked above not this v2!)
-> >
-> > I know the series seems intimidating but most of the commits are very s=
-mall and
-> > it's been in -next for a while.
->
-> Busy with too many other things sorry. Its time will come.
+On Wed, Sep 23, 2026 at 05:42:00PM +0530, Anshuman Khandual wrote:
+> On Wed, Sep 23, 2026 at 11:16:29AM +0200, Heiko Carstens wrote:
+> > On Wed, Sep 23, 2026 at 10:02:20AM +0530, Anshuman Khandual wrote:
+> > > +static inline pte_t ptep_get(const pte_t *ptep);
+> > > +static inline pud_t pudp_get(const pud_t *pudp);
+> > > +static inline p4d_t p4dp_get(const p4d_t *p4dp);
+> > > +static inline pgd_t pgdp_get(const pgd_t *pgdp);
+...
+> > > -#define ptep_get ptep_get
+> > > -static inline pte_t ptep_get(pte_t *ptep)
+> > > -{
+> > > -	return READ_ONCE(*ptep);
+> > > -}
+> > 
+> > As reported by Sashiko, this results in a compile error due to conflicting
+> > types; but I don't see too much value with this patch if a forward declaration
+> > of the common code implementation needs to be added instead. Looks like s390
+> > would be the only architecture which would have that.
+> 
+> We could move pxdp_get() caller functions from this header inside C files
+> like other platform changes proposed here. Would that be better instead ?
 
-Had to take care of the pile of bugs but I'm on it now.
+That would make pud_clear() & friends real functions calls instead of being
+inlined. Function calls are more expensive, so I would like to avoid that.
 
->
-> --
-> Cheers,
->
-> David
+I would prefer to drop this patch.
