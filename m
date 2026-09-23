@@ -1,35 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 738A453D0D4;
-	Wed, 23 Sep 2026 15:17:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8B43556B9F;
+	Wed, 23 Sep 2026 15:17:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790176640; cv=none; b=VoGEt6qL0uL6bBrW1b6wLzL+RfVqvYcZPNV7YrbuzPETGR6gXsVVDdvDZtTZ1ivRI8jKmRxa0DNIq4G7PZhtqjPaCpJNLK5BEKHX65fSy89SA7/Td7el7SLR5ykbL6I+C4Mg/qoMp+bkKhkytprT6T2yGnNq3quTJMjbMxM6O/4=
+	t=1790176651; cv=none; b=WNCYbCdnY4QVpyy8zCSA05361wxMUBKTiaHiOha99c/+3szAjWuMUVwty/m1lpS4Sf/1QPv4dl/MAuZXKZ373esHlWxLWT1zSkbSvYNOHcPQO8ARuz6K+vq8BPc6dCppcbGiU1IO2K3XiTprIZNhcYmkNrl7sB6aX9dQqbHRQyo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790176640; c=relaxed/simple;
-	bh=pAPxUpZtqgJo3haFZqrljwVWvDJLRFxgQ5QDLtB5gZo=;
+	s=arc-20240116; t=1790176651; c=relaxed/simple;
+	bh=ZOeS30gofdCLOtXFawVIsqjJmujH+ZzrHXswM13UJw8=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=BsBJDFHP7qqx7oMW5nKfv3Lw/1TQFhdZfO0gnzxCx04izqzXrc0rc+R77/gjePXBXZwaJL7AuUzaBSdOR3E2uNW9hLCajCEXOXhYBY/fRD8yGab9YGZX5IWMRjo2P3HyHrLhUrAvqCWftCnVMRgKTO6ITaP0RpcZF8sxo6Utgzs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KDDYhmpm; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=aMla65qogU6eacb/0lTXps66AitpFyFwwBK8uY6jON/iqBSUKSNM/vgvYNND1LVkc1o50YMAiQ23+YrEGXs751RwFzs4NUi72WpcJyC83AGvIcCub3QTx34l3V+5yKmDXk/6cn9maRAK1wwlyHwqFYey04Pre3f5SAmH3aY+lhc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nd1tzxbU; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KDDYhmpm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FC691F000FF;
-	Wed, 23 Sep 2026 15:17:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nd1tzxbU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74ADA1F00893;
+	Wed, 23 Sep 2026 15:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790176639;
-	bh=lIj/Dbom+J7aqmlKPZ1y/Va/8sNR/cU9PEm7aCseVZY=;
+	s=k20260515; t=1790176649;
+	bh=XFLThVHVojpEVUSy57OzgxDT30uqvYagO8r4EUiTrpo=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=KDDYhmpmlsVAjJkAyXEb9XNgBOi5awscdP44AJxhJS714JM6QR8D+WRdP64lXdmd5
-	 JtZ04/3c0luLG0blYnW37xVmymeRHUAT3Q/Z0ZTv0Teaoq9UYGJE4/bY+gHRK2q05V
-	 equ2sRiRk/5n9/K9O6ty9gJfxmDpCSxwO03/UtlvHhuWyTKtMBctgm8aRcw6spmzoh
-	 seDOmQREwnoDS/X2TrYiPUQORBHY54q9eaXYiHAhMFk2NDEnHKJtDwg5AjHJumu0XP
-	 vvAuMBMzevekDmmpZcuRIDxxV9xObG8lxZ7kM8Zt7tylKhcSbXSf6nbl/KBI+nZWzn
-	 Df1WgBWKCzITg==
+	b=Nd1tzxbUupmp39i9v7NxLW1mFVXBMOX/eSLEcGX0ecyR0PHYJekwz5icqDiYzFqU0
+	 LswEIO9iNNZHJZ+KPEzitCY96UvuJk0Rrj6GT/+xJrwN4uwxeVDXOrDuL+DGwHlQEq
+	 ePfaO+41RQcLA0tcUrvY3JbgTwmaPX2mfBtKPOGG1d4lfzcbVixX2V2e9P/HEvOQ5H
+	 7ljAMM5HexD9vFN4kNufxBBF7u9TLaurFX2Qlmddfp7qWno04KyoIw1m8+OJQ9FEuE
+	 zZWwp8BA3zy31fIRlEKvppBNTQKQi+SGsYTDKZp2PCW1WC9tQ8nNpaXP/ola4k0B/m
+	 MIE3tVWDv9z1A==
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Date: Wed, 23 Sep 2026 16:15:50 +0100
-Subject: [PATCH v4 07/14] KVM: arm64: Size the stage-2 memcache from the
- fault MMU
+Date: Wed, 23 Sep 2026 16:15:51 +0100
+Subject: [PATCH v4 08/14] KVM: arm64: Propagate EHWPOISON in
+ kvm_s2_fault_pin_pfn()
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -38,7 +38,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260923-kvm-arm-prefault-v4-7-d4b0b4dfa8c3@kernel.org>
+Message-Id: <20260923-kvm-arm-prefault-v4-8-d4b0b4dfa8c3@kernel.org>
 References: <20260923-kvm-arm-prefault-v4-0-d4b0b4dfa8c3@kernel.org>
 In-Reply-To: <20260923-kvm-arm-prefault-v4-0-d4b0b4dfa8c3@kernel.org>
 To: Catalin Marinas <catalin.marinas@arm.com>, 
@@ -70,27 +70,32 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
  Leo Soares Passos <Leo.Bras@arm.com>, Wei-Lin Chang <weilin.chang@arm.com>, 
  linux-s390@vger.kernel.org, "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2386; i=ljs@kernel.org;
- h=from:subject:message-id; bh=pAPxUpZtqgJo3haFZqrljwVWvDJLRFxgQ5QDLtB5gZo=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLI2v9UVEa47Nz1esedi48qAiOPWP2U21uzcNsFsNQfLw
- 8sXp/zI7ChlYRDjYpAVU2R5/kV8f5BI2LzOC/5uMHNYmUCGMHBxCsBEHjxlZPi3huOpwnIF7wuP
- wuuDPkf13hTrfPwucPmKqMIMuzf/PWQZ/nBp/m65yOtw5dydCLk90u+PmeolTyw70vOegbOz5i/
- XQhYA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2077; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=ZOeS30gofdCLOtXFawVIsqjJmujH+ZzrHXswM13UJw8=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLI2v9Vt2MfWm/N2xtr7N844/I0u0+y+6Rq6OMV299KqW
+ u3w+cyvOkpZGMS4GGTFFFmefxHfHyQSNq/zgr8bzBxWJpAhDFycAjCRT/8Z/vAXbd4uur/4xMoL
+ NlHK0tJ2xdIX5U4IbNt6P030Wc/9CRcY/rsvCQsMlf6Xd0/4qriZpHaEGaN0wzz50LyQz/u53KZ
+ OZgUA
 X-Developer-Key: i=ljs@kernel.org; a=openpgp;
  fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-topup_mmu_memcache() sizes the page-table cache from
-vcpu->arch.hw_mmu, which is the MMU that faulted.
+Currently kvm_s2_fault_pin_pfn() handles a poisoned page directly by
+sending a SIGBUS signal itself.
 
-Pass the target s2fd->mmu instead, so the mmu used can be controlled by the
-caller.
+This is an odd place to do it, the caller should decide what to do with
+errors, so move the handling to the sole caller, user_mem_abort().
 
-For a guest abort this is vcpu->arch.hw_mmu, so this commit introduces no
-functional change in practice.
+This lays the foundation for stage 2 pre-faulting which, arising from a
+synthetic fault, should not send a signal.
 
-However, it's necessary for a future change which introduces stage 2
-pre-faulting which must always target the canonical MMU regardless of the
-vCPU's last-run context.
+In order to do so, check to see if user_mem_abort()'s caller has set result
+- i.e. whether it wants to be informed about the outcome of the fault
+handling.
+
+If it does, then it is implied that it should handle the -EHWPOISON error
+itself. This is the case for pre-faulting.
+
+Otherwise this is real hardware, so send the signal.
 
 No functional change intended.
 
@@ -98,52 +103,40 @@ Reviewed-by: Oliver Upton <oupton@kernel.org>
 Reviewed-by: Fuad Tabba <fuad.tabba@linux.dev>
 Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 ---
- arch/arm64/kvm/mmu.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/arm64/kvm/mmu.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
 diff --git a/arch/arm64/kvm/mmu.c b/arch/arm64/kvm/mmu.c
-index ee2a4f0faa14..cd4bc1d1bcdb 100644
+index cd4bc1d1bcdb..476a98cbe05d 100644
 --- a/arch/arm64/kvm/mmu.c
 +++ b/arch/arm64/kvm/mmu.c
-@@ -1606,9 +1606,9 @@ static void *get_mmu_memcache(struct kvm_vcpu *vcpu)
- 		return &vcpu->arch.pkvm_memcache;
- }
- 
--static int topup_mmu_memcache(struct kvm_vcpu *vcpu, void *memcache)
-+static int topup_mmu_memcache(struct kvm_s2_mmu *mmu, void *memcache)
- {
--	int min_pages = kvm_mmu_cache_min_pages(vcpu->arch.hw_mmu);
-+	int min_pages = kvm_mmu_cache_min_pages(mmu);
- 
- 	if (!is_protected_kvm_enabled())
- 		return kvm_mmu_topup_memory_cache(memcache, min_pages);
-@@ -1707,7 +1707,7 @@ static int gmem_abort(const struct kvm_s2_fault_desc *s2fd,
- 
- 	if (!perm_fault) {
- 		memcache = get_mmu_memcache(s2fd->vcpu);
--		ret = topup_mmu_memcache(s2fd->vcpu, memcache);
-+		ret = topup_mmu_memcache(s2fd->mmu, memcache);
- 		if (ret)
- 			return ret;
- 		if (kvm_is_nested_s2_mmu(kvm, pgt->mmu)) {
-@@ -1827,7 +1827,7 @@ static int pkvm_mem_abort(const struct kvm_s2_fault_desc *s2fd)
- 	int ret;
- 
- 	hyp_memcache = get_mmu_memcache(vcpu);
--	ret = topup_mmu_memcache(vcpu, hyp_memcache);
-+	ret = topup_mmu_memcache(s2fd->mmu, hyp_memcache);
- 	if (ret)
- 		return -ENOMEM;
- 
-@@ -2253,7 +2253,7 @@ static int user_mem_abort(const struct kvm_s2_fault_desc *s2fd,
- 	memcache = get_mmu_memcache(s2fd->vcpu);
- 	if (!perm_fault || memslot_is_logging(s2fd->memslot) ||
- 	    is_protected_kvm_enabled()) {
--		ret = topup_mmu_memcache(s2fd->vcpu, memcache);
-+		ret = topup_mmu_memcache(s2fd->mmu, memcache);
- 		if (ret)
- 			return ret;
+@@ -2018,10 +2018,8 @@ static int kvm_s2_fault_pin_pfn(const struct kvm_s2_fault_desc *s2fd,
+ 				      kvm_s2_fault_is_write(s2fd) ? FOLL_WRITE : 0,
+ 				      &s2vi->map_writable, &s2vi->page);
+ 	if (unlikely(is_error_noslot_pfn(s2vi->pfn))) {
+-		if (s2vi->pfn == KVM_PFN_ERR_HWPOISON) {
+-			kvm_send_hwpoison_signal(s2fd->hva, __ffs(s2vi->vma_pagesize));
+-			return 0;
+-		}
++		if (s2vi->pfn == KVM_PFN_ERR_HWPOISON)
++			return -EHWPOISON;
+ 		return -EFAULT;
  	}
+ 
+@@ -2263,6 +2261,13 @@ static int user_mem_abort(const struct kvm_s2_fault_desc *s2fd,
+ 	 * get block mapping for device MMIO region.
+ 	 */
+ 	ret = kvm_s2_fault_pin_pfn(s2fd, &s2vi);
++	if (ret == -EHWPOISON) {
++		/* If result is specified, let the caller handle this. */
++		if (result)
++			return -EHWPOISON;
++		kvm_send_hwpoison_signal(s2fd->hva, __ffs(s2vi.vma_pagesize));
++		return 0;
++	}
+ 	if (ret != 1)
+ 		return ret;
+ 
 
 -- 
 2.55.0
