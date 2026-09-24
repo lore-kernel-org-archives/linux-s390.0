@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18475349CFF;
-	Thu, 24 Sep 2026 06:10:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44E933DDDB0;
+	Thu, 24 Sep 2026 06:10:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790230203; cv=none; b=Nfgei8VQUCQnCZKhH9lUBeMG9VqrKf+d23WGBEwOdDNjXAhcT99VG4AHBLCSjWSpcYCTPuf+vcDUd83eFvpqL+JT/lRpx7zkfmgOuoVqv3YHSTDAtFI8nu6pfiaMYe7Kf0TCsuCH0Qcgolrn1X+C1P/6g3MGmNe0nDWinybDUew=
+	t=1790230220; cv=none; b=Hcc6roS3F4IUPCu5VdflbTcG6n4RAdAe8PbidjkaHZKFNmq8JIsBEbFxrcEfrQKATurLjrx6yznbEb8Vj5prF+jYYYt8I70qy01fOQjyyzIBQNh+ljJbb2GX65Cv/H5b62kxIlXq36UR00jhN7epgQi4gfyUoMqqxPilAiYCsrU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790230203; c=relaxed/simple;
-	bh=oPkJ7I4m81bREd/9YR0WWkqRm9bqwo35PiQcvWTzNFU=;
+	s=arc-20240116; t=1790230220; c=relaxed/simple;
+	bh=p1uZ6m2QAos8fgm5OVJVppqz17Rk2IQHv1YVhSpdB4A=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=I7Nt29hTaAucEYW0K71uGHbKolMqdcy9cxycZ1haT2kxtjbWXD3yARbUE5ms6oFYnnE48cWdFqVHCu2u2rowO/facJL0Eq5XppNEM1KJ6RNu2NXzbbegQnXlQSPCJa8YPaXDeD05342WKwRKSqbmpNV7i8hOyuSWu/qmsOAzo5o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JH592GnK; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=XbF0n0y0VCCKPmdBobsJck57jz/cjbVQARTfGND8TSiZ7c++Nq09LKmRic4iCLKfzXJo1fREJGLuhjf2mmwnPFE7TRB3ZGxd+iMAAdZ80/sw0kh3PSYjECjQ4CJSiCkQfBSckNZ+/AuqITuJlWeySkpHHqdYC9xvwCCELXjacyA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lfjpmzYr; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JH592GnK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C1171F00893;
-	Thu, 24 Sep 2026 06:09:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lfjpmzYr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F4561F000FF;
+	Thu, 24 Sep 2026 06:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790230201;
-	bh=Fa0KQ3fgRkDVGiDssz/j9qXG8YHMD9kKAj2GPSYE3Uo=;
+	s=k20260515; t=1790230218;
+	bh=rNm+mOo8Qc346ouhd+MVcZZHr4pMSublo9/m/bzvlkE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=JH592GnKcE2iGAD07ASXMeBURt6QXUxEDyZ1fIFQ0oGthXjgqzKxtqRghMZfV1SDX
-	 KjJCxF8wcsi0g3KU9Ll7drA0AED0KkzETF78nCFEaWQ7DCGbNiDY9pAKt3CISBLgxN
-	 ByVHf4gXBDkom9D/wNER72wL+d5o/rzfaA8lNRA6OZohytw6ckxnTgM58h5UUmx0oI
-	 QZxwJQoZCfqoiQUriDiBnPqaMeSVQgkY4vpC+PYkcwBmnmgSD/0GybQM/AP391pGdc
-	 dpQTnoZxeQ5tW8Wygzal5/6KEoXFAcjH/muCPqK8a6yKzU5SdpruNHq7BWA6AsmqPm
-	 rBHuXRBApBJFQ==
+	b=lfjpmzYr2RJ/hwCqh4+Xa84oi7xdypaLrJm6fg+U3mWTgBN0yRfH3aGn1EEj3dGNt
+	 Kp8IckeRp2L30fKxhmpkmXWq7OXQzrIMlRFV5cq4/gsT1SVlUaePfDRHSSG0nQhPtr
+	 qZ9Swk606Qo4mAVLWNXtqH5LINBI8/SaVe5/E9BC7xGXnX64SBaDOWGIogT7WKp00G
+	 CTji3JPJk7iQKZo6TX6213hpDPapehVq3bDQPvXlV7MKjRai9u30EpJnhDlmr1I004
+	 MY2ZKadu9+0hUOxFLnaMmc/JR0oU9ocYeXs6lWmKcVWqBN16sO/IkzkeR9Q51iM251
+	 gkQnHaMRcshWw==
 From: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
 To: iommu@lists.linux.dev,
 	linux-kernel@vger.kernel.org
@@ -84,9 +84,9 @@ Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
 	linux-riscv@lists.infradead.org,
 	linux-s390@vger.kernel.org,
 	x86@kernel.org
-Subject: [PATCH v6 6/8] dma: swiotlb: Centralize memory-encryption pool sizing
-Date: Thu, 24 Sep 2026 11:37:54 +0530
-Message-ID: <20260924060756.1325156-7-aneesh.kumar@kernel.org>
+Subject: [PATCH v6 7/8] dma: swiotlb: Add an overridable architecture pool opt-out
+Date: Thu, 24 Sep 2026 11:37:55 +0530
+Message-ID: <20260924060756.1325156-8-aneesh.kumar@kernel.org>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260924060756.1325156-1-aneesh.kumar@kernel.org>
 References: <20260924060756.1325156-1-aneesh.kumar@kernel.org>
@@ -98,148 +98,114 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Memory-encrypted guests use shared or unencrypted memory for DMA and may
-route all DMA through SWIOTLB. The default pool can therefore be too
-small for I/O-intensive workloads.
+On x86, iommu=off historically prevented SWIOTLB initialization by not
+setting SWIOTLB_INIT_ADDRESSING_LIMIT. This overloads that flag: it
+controls both whether a pool is selected and where the pool is
+allocated. If another requirement, swiotlb=force selects a pool
+independently, omitting SWIOTLB_INIT_ADDRESSING_LIMIT may place it above
+the addressable range of devices which need bounce buffering.
 
-Move the existing x86 guest-sizing policy into the SWIOTLB core. For
-SWIOTLB_POOL_CC_GUEST, size the pool to 6% of guest memory, clamped
-between the normal default and 1 GiB. Preserve an explicit swiotlb=
-size.
+Add SWIOTLB_INIT_DEFAULT_OFF to let an architecture opt out of normal
+pool initialization without discarding the pool placement constraints.
 
-Host memory encryption still selects a normal-sized shared pool and
-does not use the guest-sizing policy.
+Unlike swiotlb_force_disable, which is set by swiotlb=noforce and
+unconditionally prevents pool initialization, the new flag is an
+architecture default. Explicit requirements such as memory encryption,
+architecture remapping, or swiotlb=force take precedence over it.
 
-A restricted DMA pool already provides shared bounce buffers for its
-devices. Record its presence during reserved-memory initialization and
-do not select the confidential-guest default-pool policy solely because
-guest memory encryption is active.
+iommu=soft retains SWIOTLB_INIT_ADDRESSING_LIMIT because it requests
+software bounce buffering for devices whose DMA masks cannot address all
+system memory. Such devices must be able to reach the bounce pool.
+
+Clear both flags for Xen because Xen explicitly requires a remapped
+swiotlb pool and may allocate it anywhere in directly mapped memory.
+
+With no override, iommu=off disables both hardware IOMMU translation and
+swiotlb bouncing. Direct DMA remains available; mappings outside a
+device's addressable range fail instead of being bounced.
 
 Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@kernel.org>
 Cc: Ingo Molnar <mingo@redhat.com>
 Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
 Cc: x86@kernel.org
 Cc: "H. Peter Anvin" <hpa@zytor.com>
 Cc: Marek Szyprowski <m.szyprowski@samsung.com>
 Cc: Robin Murphy <robin.murphy@arm.com>
 Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
 ---
- arch/x86/mm/mem_encrypt.c | 24 ------------------------
- kernel/dma/swiotlb.c      | 27 +++++++++++++++++++++++++--
- 2 files changed, 25 insertions(+), 26 deletions(-)
+ arch/x86/kernel/pci-dma.c | 11 ++++++++---
+ include/linux/swiotlb.h   |  2 ++
+ kernel/dma/swiotlb.c      | 10 ++++++++--
+ 3 files changed, 18 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
-index 95bae74fdab2..912f22ca838f 100644
---- a/arch/x86/mm/mem_encrypt.c
-+++ b/arch/x86/mm/mem_encrypt.c
-@@ -101,9 +101,6 @@ void __init mem_encrypt_init(void)
- 
- void __init mem_encrypt_setup_arch(void)
+diff --git a/arch/x86/kernel/pci-dma.c b/arch/x86/kernel/pci-dma.c
+index 0cff255827ba..ce257b20ea9c 100644
+--- a/arch/x86/kernel/pci-dma.c
++++ b/arch/x86/kernel/pci-dma.c
+@@ -44,9 +44,13 @@ static unsigned int x86_swiotlb_flags;
+ static void __init pci_swiotlb_detect(void)
  {
--	phys_addr_t total_mem = memblock_phys_mem_size();
--	unsigned long size;
--
- 	/*
- 	 * Do RMP table fixups after the e820 tables have been setup by
- 	 * e820__memory_setup().
-@@ -114,27 +111,6 @@ void __init mem_encrypt_setup_arch(void)
- 	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
- 		return;
+ 	/* don't initialize swiotlb if iommu=off (no_iommu=1) */
+-	if (!no_iommu && max_possible_pfn > MAX_DMA32_PFN) {
+-		x86_swiotlb_enable = true;
++	if (no_iommu)
++		x86_swiotlb_flags |= SWIOTLB_INIT_DEFAULT_OFF;
++
++	if (max_possible_pfn > MAX_DMA32_PFN) {
+ 		x86_swiotlb_flags |= SWIOTLB_INIT_ADDRESSING_LIMIT;
++		if (!no_iommu)
++			x86_swiotlb_enable = true;
+ 	}
  
--	/*
--	 * For SEV and TDX, all DMA has to occur via shared/unencrypted pages.
--	 * Kernel uses SWIOTLB to make this happen without changing device
--	 * drivers. However, depending on the workload being run, the
--	 * default 64MB of SWIOTLB may not be enough and SWIOTLB may
--	 * run out of buffers for DMA, resulting in I/O errors and/or
--	 * performance degradation especially with high I/O workloads.
--	 *
--	 * Adjust the default size of SWIOTLB using a percentage of guest
--	 * memory for SWIOTLB buffers. Also, as the SWIOTLB bounce buffer
--	 * memory is allocated from low memory, ensure that the adjusted size
--	 * is within the limits of low available memory.
--	 *
--	 * The percentage of guest memory used here for SWIOTLB buffers
--	 * is more of an approximation of the static adjustment which
--	 * 64MB for <1G, and ~128M to 256M for 1G-to-4G, i.e., the 6%
--	 */
--	size = total_mem * 6 / 100;
--	size = clamp_val(size, IO_TLB_DEFAULT_SIZE, SZ_1G);
--	swiotlb_adjust_size(size);
--
- 	/* Set restricted memory access for virtio. */
- 	virtio_set_mem_acc_cb(virtio_require_restricted_mem_acc);
- }
+ 	/*
+@@ -84,7 +88,8 @@ static void __init pci_xen_swiotlb_init(void)
+ 		return;
+ 	x86_swiotlb_enable = true;
+ 	/* Xen can use a SWIOTLB pool anywhere in directly mapped memory. */
+-	x86_swiotlb_flags &= ~SWIOTLB_INIT_ADDRESSING_LIMIT;
++	x86_swiotlb_flags &= ~(SWIOTLB_INIT_ADDRESSING_LIMIT |
++			       SWIOTLB_INIT_DEFAULT_OFF);
+ 	x86_swiotlb_flags |= SWIOTLB_INIT_REMAP | SWIOTLB_ANY;
+ 	swiotlb_init_remap(x86_swiotlb_flags, xen_swiotlb_fixup);
+ 	dma_ops = &xen_swiotlb_dma_ops;
+diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
+index 6386536a5ec6..f5ce45f2994b 100644
+--- a/include/linux/swiotlb.h
++++ b/include/linux/swiotlb.h
+@@ -20,6 +20,8 @@ struct scatterlist;
+ #define SWIOTLB_INIT_ADDRESSING_LIMIT	(1 << 2)
+ /* Initialize a default-sized pool that requires architecture remapping. */
+ #define SWIOTLB_INIT_REMAP		(1 << 3)
++/* Do not initialize a pool unless SWIOTLB is explicitly required. */
++#define SWIOTLB_INIT_DEFAULT_OFF		(1 << 4)
+ 
+ /*
+  * Maximum allowable number of contiguous slabs to map,
 diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 75ee63cd354e..e626cca63ad1 100644
+index e626cca63ad1..130a13eb85b0 100644
 --- a/kernel/dma/swiotlb.c
 +++ b/kernel/dma/swiotlb.c
-@@ -33,6 +33,7 @@
- #include <linux/kmsan-checks.h>
- #include <linux/iommu-helper.h>
- #include <linux/init.h>
-+#include <linux/math64.h>
- #include <linux/memblock.h>
- #include <linux/mm.h>
- #include <linux/pfn.h>
-@@ -80,6 +81,7 @@ struct io_tlb_slot {
+@@ -526,10 +526,16 @@ swiotlb_select_pool_policy(unsigned int flags)
+ 	if (flags & SWIOTLB_INIT_REMAP)
+ 		return SWIOTLB_POOL_DEFAULT;
  
- static bool swiotlb_force_bounce;
- static bool swiotlb_force_disable;
-+static bool restricted_dma_pool_present __initdata;
+-	if (flags & SWIOTLB_INIT_ADDRESSING_LIMIT)
++	if (swiotlb_force_bounce)
+ 		return SWIOTLB_POOL_DEFAULT;
  
- enum swiotlb_pool_policy {
- 	SWIOTLB_POOL_NONE,
-@@ -478,7 +480,25 @@ swiotlb_adjust_pool_size(enum swiotlb_pool_policy policy)
- 		size = min(swiotlb_default_pool_size(), size);
- 		break;
- 	case SWIOTLB_POOL_CC_GUEST:
--		return;
-+		/*
-+		 * For SEV and TDX and CCA, all DMA has to occur via
-+		 * shared/unencrypted pages. Kernel uses SWIOTLB to make this
-+		 * happen without changing device drivers. However, depending on
-+		 * the workload being run, the default 64MB of SWIOTLB may not be
-+		 * enough and SWIOTLB may run out of buffers for DMA, resulting in
-+		 * I/O errors and/or performance degradation especially with high
-+		 * I/O workloads.
-+		 *
-+		 * Adjust the default size of SWIOTLB using a percentage of guest
-+		 * memory for SWIOTLB buffers.
-+		 *
-+		 * The percentage of guest memory used here for SWIOTLB buffers is
-+		 * more of an approximation of the static adjustment which 64MB for
-+		 * <1G, and ~128M to 256M for 1G-to-4G, i.e., the 6%
-+		 */
-+		size = div_u64((u64)memblock_phys_mem_size() * 6, 100);
-+		size = clamp_val(size, IO_TLB_DEFAULT_SIZE, SZ_1G);
-+		break;
- 	case SWIOTLB_POOL_NONE:
- 		WARN(true, "Cannot adjust SWIOTLB size without a pool\n");
- 		return;
-@@ -496,7 +516,8 @@ swiotlb_select_pool_policy(unsigned int flags)
- 	if (swiotlb_force_disable)
- 		return SWIOTLB_POOL_NONE;
- 
--	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
-+	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
-+	    !restricted_dma_pool_present)
- 		return SWIOTLB_POOL_CC_GUEST;
- 
- 	if (cc_platform_has(CC_ATTR_HOST_MEM_ENCRYPT))
-@@ -2142,6 +2163,8 @@ static int __init rmem_swiotlb_setup(unsigned long node,
- 	    of_get_flat_dt_prop(node, "no-map", NULL))
- 		return -EINVAL;
- 
-+	restricted_dma_pool_present = true;
+-	if (swiotlb_force_bounce)
++	/*
++	 * Explicit requirements above override an architecture's default opt-out.
++	 */
++	if (flags & SWIOTLB_INIT_DEFAULT_OFF)
++		return SWIOTLB_POOL_NONE;
 +
- 	pr_info("Reserved memory: created restricted DMA pool at %pa, size %ld MiB\n",
- 		&rmem->base, (unsigned long)rmem->size / SZ_1M);
- 	return 0;
++	if (flags & SWIOTLB_INIT_ADDRESSING_LIMIT)
+ 		return SWIOTLB_POOL_DEFAULT;
+ 
+ 	if (swiotlb_kmalloc_needs_bounce())
 -- 
 2.43.0
 
