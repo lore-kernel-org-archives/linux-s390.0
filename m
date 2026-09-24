@@ -1,108 +1,77 @@
-Received: from mail-qk2-f43.google.com (mail-qk2-f43.google.com [74.125.230.235])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35A1F45D934
-	for <linux-s390@vger.kernel.org>; Thu, 24 Sep 2026 16:38:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.230.235
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11D7A463B7B;
+	Thu, 24 Sep 2026 16:38:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790267895; cv=none; b=ut0abc5eXFKqLm5bB32FnlZ6BSBXnATdCWK8EOsk6h3qMLJhARMBUe5QjQA1iLEELTpvOsFYnjlUaDOzLoOqw8YOcfafbEMIgRkRjCaqJlQJRn/TuMQDbavDHODQEXMqhz+EHYEcC8ygM2uwh+fHmRyPeSt053Jl6WNvP6kqe14=
+	t=1790267895; cv=none; b=Amgmqee2QOGIqFq0aZ5XG+/R7CfMHXVZYXVvDi2Onm3PYaYFwp6N4NrFmbk2Z5FCVVNAjEvMBRQuU1JKt6tV8CcdfMv8kAkvyRUHIuukOtyVE7S0zB4khIq2eZOviosWME2JuR6Km8S0QG/zSEKHknQpJSf2bpg/ByeQNz4pCX4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1790267895; c=relaxed/simple;
-	bh=Y6dfgoDu9ENyHz35342iESy0PYqePxl/sIn9jSurkUk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JG6ZzNHm5zW1jgrquJE3ip6+u6Fl87Pcms7URa7RnRqDmby87opdW+fnXW5hzmzT3DUQO+XeEdRGFmB5CID5EZFk4OQfqlpqVw7Fn3nvNnWLJyhOhsgp/0cKWdWxNRPdpBqOL40gQ+JB9SQ42+vuu6x7+tgw5rg3onkwSPczeys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=DELaQ6H+; arc=none smtp.client-ip=74.125.230.235
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+	bh=zAV4b2NLPjwkF5B6za3u4tEcG1TK+jhFiNhQk8awmkY=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=iYCoafqQ7hVICDQaU/Goeq9ZRteM4rGIYAoEDhhFr9fy/XyRqeUDsDEFOwKTho/jLYbcUUinLpApHmZcIcsqxqrSTbu7fp7irVNau55QwSPsfLxZiz10rx9votYbGU6oaHiBDiLpQe70WwU+0g6r5/UOK2bJ2+BKsFoqfGpT2t0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FoxW9pBe; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="DELaQ6H+"
-Received: by mail-qk2-f43.google.com with SMTP id d75a77b69052e-52fb76543e1so245121cf.0
-        for <linux-s390@vger.kernel.org>; Thu, 24 Sep 2026 09:38:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1790267891; x=1790872691; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=LuPrvXBzY5FQ+f/5fzbveR9yF272P1V2+jsIcGJNdC0=;
-        b=DELaQ6H+GoqYKhSPbbw83I2UghjOPLUKt/HJzwYXOl5vd4By1b/ewKsZIbd9ahXhZb
-         TJDLBT2drAnq8j1D4gtZjKdZE54vfhHIW07z7SMjyhNrpJZ88lIXL27llafwJKgt7Hvw
-         zeqWn52o1fsiwmzoo4rrDQZv3h3IiFJnFO2iuBnkUsGA3ktjvtFHA3Jr6K2ZEcGMg8M1
-         1di2ZTIAJ2yTB2V6zmlctv6zG6tcG5IvMF9RkWmI06r7tX+skZxDuVThBB0MSr3NZe3S
-         B2+XxiOTA95Xk/3/+mlBZ2rpvQSIcAx9lD43yFxhcrOBvTesr5mE416XkZK5Fw1vsdLx
-         5Q7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790267891; x=1790872691;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=LuPrvXBzY5FQ+f/5fzbveR9yF272P1V2+jsIcGJNdC0=;
-        b=FZCTP0kZYdJTepI6AZnHVdNPjFa0hCUudhQeiX3b2fvh/cov33emn1ZiiZ9cfMJZQz
-         ZXMxnkVMWRyKI22wbyCssGCCvqlPXdMxRargrmN0BGzDFecluLjIMb0y4gHrJfzBr9t3
-         LFYS0BskzEeUFn/bbqD7Fq54/AuBiLjVeQLRYGfBMyBFtdq2yrzbMBUBHj2C6fYkw2Ez
-         CE6jf8t35bRtk8ww8tKvhZLLB+O2y0/x3myMdSySNIVmxoLNZDr1TYXMps83Auxi/3M3
-         HvyYv5ljh3Hm713vTjoXyg73Z9s3AcoTM7FO/kE/By+ha5mutJrV/yLOCggbgjcQTIC9
-         ykCQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxVHGuVutwrHn5kBumVPrGlYTPh341ul3h2ZR996df3dhnx8uCFM3WBzpjaXPHFMIlYugJSMywkC+jf@vger.kernel.org
-X-Gm-Message-State: AFuF++mIOCmV/JK+zPGpI5MmJTK5nJPeA3QKV2E0OFP+0p0EhOhB20pW
-	hZau6npd03gp6pRVtsIxS7ZRJZ3leYs4SPoh/xaTujiVigOcb1LPP5CMbWHg8hlasWM=
-X-Gm-Gg: AYBFou2Gj/X0WoY1iz83YZXEak6Tp8W5OmmFKfjNqvGCM11N7GT6ht0Kc5iHd4vSIYD
-	U33+bx9G1xg/fpWWQA8v5dSTXElp1FehG3i+zetLUfXMFN3wvR7axz5TTLyyAoBS1uCrMjlKdPq
-	u4fKxfCLjOKOy4peJkI/rGDNlen+cwAmyOIqo7dzwL1YKLT/jYwVbPFfT1mgbE4VCcioIOTx585
-	VPK9NpAL7Mb28z9hMz0Rc6U1ege/8607AF4OX0vINRrtNnF/fJujCbORJlVLn8JxPm26ZGCt/SU
-	ZsZr632sUtmKtNSSRq0jG0Y161Vo7j42SAcGD0k5hn9O90rd/EhyIdLIkr75l2Z1y+O9JOnF+qk
-	WMVxJ83bcKnZxJ4L5BxQ8UlvqIv8+zFORpa4GonBYKkPTq262WffwPoF6WAYUWoxBtEfk3dWVs2
-	czGjbpUFOj/ZMdCU8iJgJOPY/3qs99oZn7ESgQb8j2TxgV3N2cX9fYyE6w/+eRMDRsOpbECY9RL
-	44VLmmpooBJ+Gp2LXBp0maOtCl1SXOw6lFrbKMGCAqej9MXsNP+DjY=
-X-Received: by 2002:ac8:5743:0:b0:530:d860:ffba with SMTP id d75a77b69052e-532fe9f05bamr29797891cf.6.1790267890993;
-        Thu, 24 Sep 2026 09:38:10 -0700 (PDT)
-Received: from gourry-fedora-PF4VCD3F (pool-173-79-60-52.washdc.fios.verizon.net. [173.79.60.52])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-532eb32f6aasm45064551cf.16.2026.09.24.09.38.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Sep 2026 09:38:10 -0700 (PDT)
-Date: Thu, 24 Sep 2026 12:38:08 -0400
-From: Gregory Price <gourry@gourry.net>
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, 
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
-	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev
-Subject: Re: [PATCH v3 03/40] mm/vma: introduce and use
- vma_[flags_]can_merge()
-Message-ID: <arVRqJZkql6sGunt@gourry-fedora-PF4VCD3F>
-References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
- <20260917-b4-mmap-prepare-vma-flag-sanify-v3-3-4583d8a23bca@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FoxW9pBe"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 499941F000FF;
+	Thu, 24 Sep 2026 16:38:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790267893;
+	bh=Qk0YUqpY7jMzq883A6bxQZmXyF0o8ltW+Gu9+k2z1kA=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=FoxW9pBelCxhBVceRK3Y7omN3PeUwUZxldt6cY2drsTTIs2cpkKLb5FP/ecD5/3z7
+	 O9xCvNmTh0AEsOzzHNL+ZOaQTFoBDW4WAqb+yVvxp1CJYpz9P3XWB8A4z3EHtp4iOK
+	 LobhjP10soBgWp2CKgbjRZ734VDETrOt7P1PB2uhRqNJ3KPxqTVI+WwkUl1MoIvZt9
+	 HPjK5F9HPWPatJ8JdYFowDA92WjhbCFPVYHnWfK1YWCB3OOxKEy4iP/FOOdEGom/zM
+	 5S7b90mP9yGq+z6P2nexJ5J6BKgyryypJwerqH555XUAn6pdQTI9f4poHsu5TIUwJh
+	 KNDxvM5zKBNQg==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v15 2/5] PCI: Fix AB-BA deadlock between device_lock and
+ pci_rescan_remove_lock in remove_store
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Benjamin Block" <bblock@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-pci@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, intel-xe@lists.freedesktop.org, linux-s390@vger.kernel.org
+In-Reply-To: <1f58bc47da3e119a0c72e721455041c18db6f3ec.1790267348.git.bblock@linux.ibm.com>
+References: <cover.1790267348.git.bblock@linux.ibm.com>
+ <1f58bc47da3e119a0c72e721455041c18db6f3ec.1790267348.git.bblock@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 24 Sep 2026 16:38:12 +0000
+Message-Id: <20260924163813.499941F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-3-4583d8a23bca@kernel.org>
 
-On Thu, Sep 17, 2026 at 05:22:12PM +0100, Lorenzo Stoakes (ARM) wrote:
-> Replace the open-coded VMA_SPECIAL_FLAGS check in the VMA merge logic with
-> two new functions vma_flags_can_merge() and vma_can_merge() and update the
-> merge logic to use the former.
-> 
-> This abstracts the check and expresses it in terms of the desired behaviour
-> rather than an arbitrary and confusing VMA flag.
-> 
-> This also lays the groundwork for making further improvements in VMA flag
-> usage.
-> 
-> Also update the userland VMA tests to reflect the change.
-> 
-> No functional change intended.
-> 
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+> From: Ionut Nechita <ionut.nechita@windriver.com>
+>=20
+> remove_store() calls pci_stop_and_remove_bus_device_locked() which
+> takes pci_rescan_remove_lock first, then device_lock during driver
+> release.  Meanwhile, unbind_store() takes device_lock first (via
+> device_driver_detach), and the driver's .remove() callback may call
+> pci_disable_sriov() -> sriov_del_vfs() -> pci_lock_rescan_remove().
+>=20
+> This creates an AB-BA deadlock:
+>=20
+>   CPU0 (remove_store)               CPU1 (unbind_store)
+>   --------------------              --------------------
+>   pci_lock_rescan_remove()
+>                                     device_lock()
+>                                     driver .remove()
+> [ ... ]
+> Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+> Tested-by: Benjamin Block <bblock@linux.ibm.com>
+> Signed-off-by: Ionut Nechita <ionut.nechita@windriver.com>
+> Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
 
-Reviewed-by: Gregory Price (Meta) <gourry@gourry.net>
+Sashiko has reviewed this patch and found no issues. It looks great!
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1790267348.gi=
+t.bblock@linux.ibm.com?part=3D2
 
