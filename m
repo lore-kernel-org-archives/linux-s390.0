@@ -1,36 +1,36 @@
 Received: from sipsolutions.net (s3.sipsolutions.net [168.119.38.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0AFE3ABD96;
-	Thu, 24 Sep 2026 12:40:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55D3C2F8EBC;
+	Thu, 24 Sep 2026 12:40:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.38.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790253655; cv=none; b=Hz2ejI2sn+S4b8nKU5zHPOuVL4BoB7238LRRXOsSpVB9hF/7P9M5a0+mg5N+JEf2XwG+2yH6HoPkqeTdy36kHAP9mpbdg+nc7yJtJgdedoIhyuNN66NsC2YtODjS1rNIPUEst/5S9o3lAeBP3c9VNz+dXygVgz0tmFwDSAEyyi8=
+	t=1790253656; cv=none; b=aOXetwY8QhtjV0mJz/sHgUO7CEYLnHz0A/YdcGccWZ93eUIEt+yITE/kOwM9zfFkcHqS2QnWaXygd65Q5bzMZNNlTaiC6R1V7/OZ+B+EFscbxohGV9yiLI5tfOg8AQXxZRPFZCyeKULUEhvW1zm4pwo/Y5Te3MIoxUvLiiWDkyM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790253655; c=relaxed/simple;
-	bh=4s6QAGOSw02obaoUejOkLC5JwzN47+Sds/ZrPWOhowY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SIYAlXYHSqFm4gHjYNonasaUUwKqOt69H4XT2FE29AKxYR402Qbtz9FQ0RapJev1GbPnAAA3yRH3n6JPC8UhOPZC3FD7eqQTvO7j2a8Y/G/dLemh3liyJ0e+jW7yNto6BwamgZJVGq5T3eGi6pq2gucm3Sfv00vPzrMtV4wQO5I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=permerror header.from=sipsolutions.net; spf=pass smtp.mailfrom=sipsolutions.net; dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b=xcjT4bKS; arc=none smtp.client-ip=168.119.38.16
+	s=arc-20240116; t=1790253656; c=relaxed/simple;
+	bh=SmfhWUHgjEhs7ScLOGqPgd9CVRRbouQ05MUP19ZDCX0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=O7B9WDrC4DZhY55Izz2ivnnfwDGNOYuKGarZTFXXl3vElShpuGWcYI4fF6xvo3HjL7OfWcj7+E0/fGFhjdzvSHABTFHCELpZSqMauGxCbPToTLLCcFxFRxE/JLHTN8EJSjk02ZIJa1/0lU8k8hPjZsn3a1F20Eoga1K6wlCH6mc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=permerror header.from=sipsolutions.net; spf=pass smtp.mailfrom=sipsolutions.net; dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b=dd6Nw9qG; arc=none smtp.client-ip=168.119.38.16
 Authentication-Results: smtp.subspace.kernel.org; dmarc=permerror header.from=sipsolutions.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sipsolutions.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b="xcjT4bKS"
+	dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b="dd6Nw9qG"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
-	Message-ID:Date:Subject:Cc:To:From:Content-Type:Sender:Reply-To:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-To:Resent-Cc:
-	Resent-Message-ID:In-Reply-To:References;
-	bh=4s6QAGOSw02obaoUejOkLC5JwzN47+Sds/ZrPWOhowY=; t=1790253654; x=1791463254; 
-	b=xcjT4bKSZPusZnkeafvQfeysOmh+9FFTNCsPzBDP5s5XMHe7KpkmYf6gZwkTAeUJ64CQKlz/xmz
-	rityTms73GO+V9xIR4d6W3NIKBpZjJNCBhE5kKjSCJloornyrZLwfN1/m+JThtsuF2IS9xUVfghyP
-	DVe3wWqp4sjSFIrggFHYeaxqE766y81Ep33lb15WjMFe5Phm6JkO2NQZK9rOvlYGr+hTo/WkSjO1n
-	p2nzNVlIfw/oP5ON3UnWDwwwhKvgKXPYgAkCL3pOS1pTRTF+1EqXxnEVIYP57n56C1qimPE3SdiZn
-	u96wckIx1FMf7RcRZnrnkjvJcrj0D9Jp9j0A==;
+	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Content-Type:Sender
+	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
+	Resent-Cc:Resent-Message-ID; bh=F+mLTFWcuTBUsCxvuF5xTJ0KZMxOy4eAk395s+P/g3g=;
+	t=1790253654; x=1791463254; b=dd6Nw9qGNBxe1DKxc19l77kn/BzaNHgIqBnHHpLfSJRDQI7
+	UuQlQBh0GBIPgRGT5Wwbr9/YSVQwZn0N5y0KZJz8Jbk+1opJcskVGOErt/a5WTL+4D5Vix7DSu9R/
+	8RFdPGsUOWemPfp5KMk28Dll1yOM5FYNsNHm5UfxtEXxrYr0t72zWN6O6omzFXUtf2aFhBlQnWbgw
+	emNFNvOkqJ7nyQhj+600O1WewvV04WUqBsfxMjLkR3Tvsnd46BkU/f3wd1lNbWS7HErsMMlM5x1Q/
+	q44XD1TBQATa768lPfvwe5EQnUdI6m54wBvuh1NMa4mlEm9tTj2GWQBHqs4vJiGA==;
 Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__ECDSA_SECP256R1_SHA256__AES_256_GCM:256)
 	(Exim 4.98.2)
 	(envelope-from <johannes@sipsolutions.net>)
-	id 1x9ikq-000000092x8-32Wu;
-	Thu, 24 Sep 2026 14:40:48 +0200
+	id 1x9ikr-000000092x8-1pkb;
+	Thu, 24 Sep 2026 14:40:49 +0200
 From: Johannes Berg <johannes@sipsolutions.net>
 To: linux-kernel@vger.kernel.org,
 	loongarch@lists.linux.dev,
@@ -39,11 +39,14 @@ To: linux-kernel@vger.kernel.org,
 Cc: Heiko Carstens <hca@linux.ibm.com>,
 	Huacai Chen <chenhuacai@kernel.org>,
 	Josh Poimboeuf <jpoimboe@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 0/4] ORC unwinder cleanup & UML support
-Date: Thu, 24 Sep 2026 14:35:49 +0200
-Message-ID: <20260924124039.1621965-6-johannes@sipsolutions.net>
+	Peter Zijlstra <peterz@infradead.org>,
+	Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 1/4] s390: remove unwind_module_init()
+Date: Thu, 24 Sep 2026 14:35:50 +0200
+Message-ID: <20260924144039.4af0d88b163a.I91f8c59a12ad3d5fe67d50aa3b0434d666ffc9f8@changeid>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260924124039.1621965-6-johannes@sipsolutions.net>
+References: <20260924124039.1621965-6-johannes@sipsolutions.net>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -52,25 +55,29 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Since UML is pretty much "just x86" I'd figured for years it
-should be "simple" to add ORC unwinder support. It's not quite
-as simple as I thought, but I managed - though to not have to
-copy/paste _quite_ as much code, this series first cleans up
-the already common code between x86 and loongarch.
+From: Johannes Berg <johannes.berg@intel.com>
 
-Most of the code is indeed copy/paste, but with adjustments
-that are not really abstractable for making common code.
+This is dead code, but will likely conflict with
+the ORC unwinder unification.
 
-It touches s390 because I thought we could end up with some
-compilation errors from s390 unnecessarily (and accidentally?)
-declaring unwind_module_init(), maybe it's not needed since
-the new orc.h isn't included anywhere it could conflict.
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+---
+ arch/s390/include/asm/unwind.h | 3 ---
+ 1 file changed, 3 deletions(-)
 
-Works for x86 and um, builds for loongarch (but I don't see
-a reason it wouldn't work).
-
-No idea how we'd merge this and if the MAINTAINER entry is
-really where it should be, but I'm also not in a hurry :)
-
-johannes
+diff --git a/arch/s390/include/asm/unwind.h b/arch/s390/include/asm/unwind.h
+index b8ecf04e3468..021056d5982c 100644
+--- a/arch/s390/include/asm/unwind.h
++++ b/arch/s390/include/asm/unwind.h
+@@ -91,8 +91,5 @@ static inline struct pt_regs *unwind_get_entry_regs(struct unwind_state *state)
+ 	     unwind_next_frame(state))
+ 
+ static inline void unwind_init(void) {}
+-static inline void unwind_module_init(struct module *mod, void *orc_ip,
+-				      size_t orc_ip_size, void *orc,
+-				      size_t orc_size) {}
+ 
+ #endif /* _ASM_S390_UNWIND_H */
+-- 
+2.55.0
 
