@@ -1,205 +1,177 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBCAD47143D;
-	Thu, 24 Sep 2026 11:32:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59B7A479893;
+	Thu, 24 Sep 2026 11:52:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790249554; cv=none; b=CeMG3lm8d+JYDip+LGyK2dEy9o+71W2FikwEorfXOzA7qagjThhNSVEyxkeFVkZeRY0O4PYQhka0sTZ7q88amaIiB3gPfZ62wr6gryzvMPq6NLgPgq4lSDqGw/dMkytemOaL/LtKy7bGJ53Ann4fOIdmP6ECRXPN2kkOiuP7oQ0=
+	t=1790250733; cv=none; b=JT3zHmZlvrq+K2L6659+WVV7nR6uVX3aAmcHX+3HBtTMcVUpaCSVOQs8u/6wgsh8ODzAUfXLT4ub8Rp4p0LYkORszwIrdbSD0sA3efjQ/004HeWNZpr+pwBtS4RCZL5SJy7PB0f75/OXIwf4MQNmdEYAWwr1PTMlyRm0Uhj6vd4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790249554; c=relaxed/simple;
-	bh=UjE3VK3mwNMPeS6UwemiwW2OZK9FhUpbf7clt4mI3p8=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:Cc:To:Subject:
-	 References:In-Reply-To; b=JLRMtkXxulkmnZKFwN+dtfhqT2G4FC4kdbW75iIMgKrlANKh1+AeV4lJ88nIY1dlaFgYzoFdckjz5+yvGpwJpXf/vlIKhQjWauUoDoFYp/dYFjx8C9fq2e18kEHba0c6+flLLta7H7lrGJhhZH2jQIh7uvX/EqOdoVLjfQz+ovk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ORVzJNZY; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1790250733; c=relaxed/simple;
+	bh=mfb/CA3RCSUvHz57v5qijNER5L5wZRqtaxdCEjO/djk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=m1aZbChCuAn2M7dj3WPD3Os4D2FwHAsb0x7kHPJBhiW6zEaWPMPvg91p++he8S2diJ4NHsvtuTrIl3FZOngn/RVJ97Oj+WOYnVKVxCEiUcDHL+T4XHBNkvrHAjNqmmfoMaDnUf/Gj3SZOn7XL1Nt7TL3S7/bYlch3M35IujqKCA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=f4KRkltG; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ORVzJNZY"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68O5brrH1179979;
-	Thu, 24 Sep 2026 11:32:22 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="f4KRkltG"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68O5bYRR160026;
+	Thu, 24 Sep 2026 11:52:11 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=vvrvEB
-	P7yRHGEHdwu1SXSug+UxCecF+8PDKLe2ytAfg=; b=ORVzJNZYeu8MnSl/dCLpqL
-	mT8XoDx6Z2tmwL8BzonPq+6vk+cWdQMNfOTxt14cP/oGzZJll11+/CrWQvAynAc9
-	w7hnplvNYouoL3HVwPvGsoaHzvzXxaYfwNhPSxYDAjVI2xkll3gSt+Wc9aIxq9Hj
-	EtatkC5xmVTwFZFaQz37sSFfq7vp6cAa97yFcR1dYg1MwhRMSB+pD3SK/qWn/y8h
-	sAUu8ds2zi9fPz7NCJskK/zK+GxsYpVUssd98mVUgSK9FMpXu2qbCt1Rcp+tS/Ux
-	isMjIN1uAK/MstnlsMDlOgLSqkMtuBuOnVb+bloRc3VSnWSRD6pdZT22EnFrDlew
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gske1r1uv-1
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=/T11GLvLq3Q28RiHYY2RhMsRX4mGN1OgptIP3VWnh
+	mo=; b=f4KRkltGbQtEJ5rzY77mqwV/Nu6rw4WqWJ+HBTPqN/afQBsPSXp6e0CLj
+	LaNyZPngN+HJymkZvB/cGF6Y0YozVLZlHvd8nmAzGkSrmFyct36Sj543NX67okSN
+	pIlakFlugWhOiTO9XfuZKQBjlPNEzgakgEQLRACsw4cPcYJFGD34of2/Z5DL+7yN
+	BUj780SGZya69s2TTHDiyuD8/GYCAmHfscXqqgRux6Z+KXhfTmOk75TmfoiXKfOG
+	rsaV4OMQIW0nGddMBqGYOOPWC9sfPml9GhU5PJCWUCNJ/bVGL1eiSi68XNYjCbPk
+	u8sWA0HwmNwDNo+AsbeFiI7nN003g==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskgqr0cg-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 24 Sep 2026 11:32:21 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68OA57UN212369;
-	Thu, 24 Sep 2026 11:32:21 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gvu7e9ng7-1
+	Thu, 24 Sep 2026 11:52:10 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68OAGoMM1501503;
+	Thu, 24 Sep 2026 11:52:10 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gvbt2wdnj-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 24 Sep 2026 11:32:21 +0000 (GMT)
+	Thu, 24 Sep 2026 11:52:10 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68OBWH9A41484794
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68OBq6Rs48234756
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 24 Sep 2026 11:32:17 GMT
+	Thu, 24 Sep 2026 11:52:06 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6864920043;
-	Thu, 24 Sep 2026 11:32:17 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 4B32C20043;
+	Thu, 24 Sep 2026 11:52:06 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5153B20040;
-	Thu, 24 Sep 2026 11:32:17 +0000 (GMT)
-Received: from darkmoore (unknown [9.224.78.25])
+	by IMSVA (Postfix) with ESMTP id 3650220040;
+	Thu, 24 Sep 2026 11:52:06 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 24 Sep 2026 11:32:17 +0000 (GMT)
+	Thu, 24 Sep 2026 11:52:06 +0000 (GMT)
+From: Ajaykumar Rajappa <ajaykr@linux.ibm.com>
+To: linux-s390@vger.kernel.org, sashiko-reviews@lists.linux.dev
+Cc: Ajaykumar Rajappa <ajaykr@linux.ibm.com>
+Subject: [PATCH v3] zfcp: Fix integer underflow in status read buffer payload length
+Date: Thu, 24 Sep 2026 13:52:04 +0200
+Message-ID: <20260924115204.1090452-1-ajaykr@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 24 Sep 2026 13:32:12 +0200
-Message-Id: <DLNIHTBTMVCN.63H29I8Y56E2@linux.ibm.com>
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>,
-        "Christian Borntraeger"
- <borntraeger@linux.ibm.com>,
-        "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
-        "David Hildenbrand" <david@kernel.org>,
-        "Eric Farman"
- <farman@linux.ibm.com>,
-        "Heiko Carstens" <hca@linux.ibm.com>,
-        "Nico Boehr"
- <nrb@linux.ibm.com>,
-        "Sven Schnelle" <svens@linux.ibm.com>,
-        "Vasily Gorbik"
- <gor@linux.ibm.com>,
-        "Paolo Bonzini" <pbonzini@redhat.com>,
-        "Shuah Khan"
- <shuah@kernel.org>,
-        "Sean Christopherson" <seanjc@google.com>
-To: "Janosch Frank" <frankja@linux.ibm.com>,
-        "Christoph Schlameuss"
- <schlameuss@linux.ibm.com>,
-        <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH v7 08/21] KVM: s390: vsie: Create helpers to alloc and
- free vsie_pages
-X-Mailer: aerc 0.22.0
-References: <20260918-vsie-sigpi-v7-0-f39806eaae37@linux.ibm.com>
- <20260918-vsie-sigpi-v7-8-f39806eaae37@linux.ibm.com>
- <14552c47-8b20-41a6-a194-5aee626251de@linux.ibm.com>
-In-Reply-To: <14552c47-8b20-41a6-a194-5aee626251de@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: FHRKVITGtxA2GqPvyf20-RfGb_IYiDgt
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI0MDA0NiBTYWx0ZWRfX2gBirj7eSXMH
- 8BFP4xouQ86Id1rlmhAVjwubIcglUX9xMySs3KSk0xn1wdwA1qvJcIR3qP/uHwnam71gRqyheW2
- tNS9IlAq61GFTWhTDTHT7ojyDzCFD+xIWCfGwvBJWHE/boCG0JIiMAwhiyrlFeSYTEEjdKIxagP
- xjRBSxLrKrPfGgfYMMjUC5zJSruAHqo979C+tGGAbzI5C/zQoIT8eiomZ7paV165++6ZJ5CjsbN
- lQDu7m73bAeaQ4S4yS7Lirb/u4GZM7X1VCjxMX70hbkKmoW3DB6d/XZYDBQlvyZ1torg3E+TR1N
- jx8gPIMwQyD5EFJSq6dMeEXPjoUfG/fgnlyTCBns4i7CejLQSJNCsM5TjtD4/uFGhADpG04j2LE
- iGaG48wzCn9rTSK7ybdgiiZPTxqZvCAulhcpwvzRX/eAuslRdvfT6AHxaTQTK3OTc5lkB6eOW+7
- Gg4A0CpLFo6qg3mADMA==
-X-Authority-Analysis: v=2.4 cv=O/KsLx9W c=1 sm=1 tr=0 ts=6ab50a46 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=txTgCb6B7qFG2BPPUQIA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI0MDA0NiBTYWx0ZWRfX9DH3+Kj6bSlt
- wcEo7GVaWGuWmysFDtpKoKYgaEhGoAWWL7yY6jRFe0mSl7oa/Wca3aktvjK/Vp2FNhHT22jBIRQ
- bOA2VNgMd1Hjl1c8Aliw2OHZPQSnfzM=
-X-Proofpoint-GUID: TIc-0JM8Vq8rUlY02IH_u476Vi9W2Hfr
+X-Authority-Analysis: v=2.4 cv=G+OJgNk5 c=1 sm=1 tr=0 ts=6ab50eea cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=rkieUo1cksqtal3aXWoA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI0MDA0OCBTYWx0ZWRfXw2U/QUqNuvI6
+ WMchw4JQeGKMta44bhud21QyLtvvAqnCARDzscFWBBTrupvHroUTozUObGQ0Ou7k05JylFjyKaT
+ lKMB/eCTBTWhrp3+1WFFf4CVa93R6yFEq1JKdAMA9ouH7ZgQuaq4vke/B79zEw7p4ovXNSK2GDy
+ yjCwiRuy3dRmpdYaG6g1+1302EuBCsPTJNQiQ4I81sJInl3n+2fpqprirTdpbjTDZ6uZMCzEc8r
+ Fbn1UCeuDGsCOJsDXhytx+I7nKZ0yfyDAPG3zmxByXUShWWXQ8HFHNtcewK4Gr/fyHKr7Yo3Hma
+ SKSbdUrsyJ/idP70wjqjWoRx0STbWjIFPwJf0KreWSwOk+ZpdjCLCmWmoN0K+tNzSo46hBdqdnZ
+ Arzl/S2qiNW2KfcCARMOoYSOpqMcKCjYKK7c4wwTCRmG76oQO83wdN6Wokdz4rhJEJF5gu5S7mz
+ UNqogecDaYMcY0xk4oQ==
+X-Proofpoint-ORIG-GUID: fyZdmycsJXIVUG4rFBbVImtsmj-n2VsB
+X-Proofpoint-GUID: fyZdmycsJXIVUG4rFBbVImtsmj-n2VsB
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI0MDA0OCBTYWx0ZWRfXwB6ECXJFMPGG
+ ue2hartgW/wFzmzYRscfTCMfTQB/2SBh45Coz6c1p6YqX6sTWyEECU4qyv2bzqPFiszyZtIA0jm
+ aS2CLkow+f9FzPH6+Bo2E3dMrNSGjLg=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-24_02,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 malwarescore=0 phishscore=0 impostorscore=0 suspectscore=0
- bulkscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0 spamscore=0
+ suspectscore=0 adultscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0
+ bulkscore=0 priorityscore=1501 clxscore=1011 spamscore=0 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609240046
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609240048
 
-On Wed Sep 23, 2026 at 1:54 PM CEST, Janosch Frank wrote:
-> On 9/18/26 5:09 PM, Christoph Schlameuss wrote:
->> Encapsulate allocation of struct vsie_page and free into its own methods
->> to allow this from multiple code paths.
->>=20
->> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
->> ---
->>   arch/s390/kvm/s390/vsie.c | 26 ++++++++++++++++++++++----
->>   1 file changed, 22 insertions(+), 4 deletions(-)
->>=20
->> diff --git a/arch/s390/kvm/s390/vsie.c b/arch/s390/kvm/s390/vsie.c
->> index afc2e56fcabf..e7005bade757 100644
->> --- a/arch/s390/kvm/s390/vsie.c
->> +++ b/arch/s390/kvm/s390/vsie.c
->> @@ -1502,6 +1502,24 @@ static void put_vsie_page(struct vsie_page *vsie_=
-page)
->>   	clear_bit(VSIE_PAGE_IN_USE, &vsie_page->flags);
->>   }
->>  =20
->> +static void free_vsie_page(struct vsie_page *vsie_page)
->> +{
->> +	free_page((unsigned long)vsie_page);
->> +}
->> +
->> +static struct vsie_page *alloc_vsie_page(struct kvm *kvm)
->> +{
->> +	struct vsie_page *vsie_page;
->> +
->> +	vsie_page =3D (struct vsie_page *)__get_free_page(GFP_KERNEL_ACCOUNT |=
- __GFP_ZERO | GFP_DMA);
->> +	if (!vsie_page)
->> +		return vsie_page;
->> +
->> +	/* Mark it as invalid until it resides in the tree. */
->> +	vsie_page->scb_gpa =3D ULONG_MAX;
->
-> I'd appreciate a properly named constant in favor of the comment being=20
-> repeated. This has been a thorn in my side for a while now.
->
-> #define VSIE_PAGE_INV ULONG_MAX
->
+zfcp_dbf_hba_fsf_uss() only guards against a zero-length status read
+buffer. If srb->length is non-zero but smaller than the fixed header
+size of struct fsf_status_read_buffer, subtracting the payload offset
+underflows and can result in an out-of-bounds read from
+srb->payload.data.
 
-Yes, I like it. Makes it easier to grasp directly without the comments.
+zfcp_dbf_san_in_els() has the same problem. The underflowed value is
+used as the scatterlist payload length, potentially causing accesses
+beyond the reported status read buffer.
 
->> +	return vsie_page;
->> +}
->> +
->>   /*
->>    * Get or create a vsie page for a scb address.
->>    *
->> @@ -1537,7 +1555,7 @@ static struct vsie_page *get_vsie_page(struct kvm =
-*kvm, unsigned long addr)
->>  =20
->>   	mutex_lock(&kvm->arch.vsie.mutex);
->>   	if (kvm->arch.vsie.page_count < nr_vcpus) {
->> -		vsie_page =3D (void *)__get_free_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO=
- | GFP_DMA);
->
-> Can't we go the kzalloc route like Mike did for the other page=20
-> allocations? Maybe we can then also get rid of the free function that=20
-> you're introducing?
->
-> https://lore.kernel.org/kvm/20260906-s390-kvm-v2-0-2cf6434e6646@kernel.or=
-g/
->
+Prevent both underflows by validating srb->length before subtracting the
+payload offset. If the reported status read buffer length does not reach
+the payload area, treat the payload as empty rather than performing the
+subtraction. This avoids the unsigned underflow and ensures that no
+payload data is processed or accessed beyond the reported buffer.
 
-Sure, I do not see a reason not to as long as kzalloc() guarantees the page
-alignment (which it does).
-Will do the same for the vsie_sca allocation in the other patch (which then
-should also be guaranteed to be page aligned continuous memory).
+Skip scatterlist setup and payload tracing when no valid payload exists.
+If the reported status read buffer length does not reach the payload
+area, no scatterlist is initialized and zfcp_dbf_san() is called
+without payload data, preventing any access beyond the reported buffer.
 
->> +		vsie_page =3D alloc_vsie_page(kvm);
->>   		if (!vsie_page) {
->>   			mutex_unlock(&kvm->arch.vsie.mutex);
->>   			return ERR_PTR(-ENOMEM);
->> @@ -1557,9 +1575,9 @@ static struct vsie_page *get_vsie_page(struct kvm =
-*kvm, unsigned long addr)
->>   		if (vsie_page->scb_gpa !=3D ULONG_MAX)
->>   			radix_tree_delete(&kvm->arch.vsie.addr_to_page,
->>   					  vsie_page->scb_gpa >> SCB_ALIGNMENT_SHIFT);
+For valid payloads, continue to initialize the scatterlist and trace the
+payload via zfcp_dbf_san(). Payload capture remains bounded by
+ZFCP_DBF_PAY_MAX_REC, preserving existing trace behavior for valid
+status read buffers.
 
+Signed-off-by: Ajaykumar Rajappa <ajaykr@linux.ibm.com>
+---
+ drivers/s390/scsi/zfcp_dbf.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
+index 81fb8af408e9..e90ccaec2697 100644
+--- a/drivers/s390/scsi/zfcp_dbf.c
++++ b/drivers/s390/scsi/zfcp_dbf.c
+@@ -223,6 +223,7 @@ void zfcp_dbf_hba_fsf_uss(char *tag, struct zfcp_fsf_req *req)
+ 	struct zfcp_dbf_hba *rec = &dbf->hba_buf;
+ 	static int const level = 2;
+ 	unsigned long flags;
++	const u32 pay_offset = offsetof(struct fsf_status_read_buffer, payload);
+ 
+ 	if (unlikely(!debug_level_enabled(dbf->hba, level)))
+ 		return;
+@@ -254,8 +255,8 @@ void zfcp_dbf_hba_fsf_uss(char *tag, struct zfcp_fsf_req *req)
+ 	memcpy(&rec->u.uss.res4, &srb->res4, sizeof(rec->u.uss.res4));
+ 
+ 	/* status read buffer payload length */
+-	rec->pl_len = (!srb->length) ? 0 : srb->length -
+-			offsetof(struct fsf_status_read_buffer, payload);
++	rec->pl_len = (srb->length < pay_offset) ? 0 :
++		      (u16)(srb->length - pay_offset);
+ 
+ 	if (rec->pl_len)
+ 		zfcp_dbf_pl_write(dbf, srb->payload.data, rec->pl_len,
+@@ -716,15 +717,20 @@ void zfcp_dbf_san_in_els(char *tag, struct zfcp_fsf_req *fsf)
+ 		(struct fsf_status_read_buffer *) fsf->data;
+ 	u16 length;
+ 	struct scatterlist sg;
++	const u32 pay_offset = offsetof(struct fsf_status_read_buffer, payload);
+ 
+ 	if (unlikely(!debug_level_enabled(dbf->san, ZFCP_DBF_SAN_LEVEL)))
+ 		return;
+ 
+-	length = (u16)(srb->length -
+-			offsetof(struct fsf_status_read_buffer, payload));
+-	sg_init_one(&sg, srb->payload.data, length);
+-	zfcp_dbf_san(tag, dbf, "san_els", &sg, ZFCP_DBF_SAN_ELS, length,
+-		     fsf->req_id, ntoh24(srb->d_id), length);
++	length = (srb->length < pay_offset) ? 0 :
++		 (u16)(srb->length - pay_offset);
++
++	if (length)
++		sg_init_one(&sg, srb->payload.data, length);
++
++	zfcp_dbf_san(tag, dbf, "san_els", length ? &sg : NULL, ZFCP_DBF_SAN_ELS,
++		     length, fsf->req_id, ntoh24(srb->d_id),
++		     min_t(u16, length, ZFCP_DBF_PAY_MAX_REC));
+ }
+ 
+ /**
+-- 
+2.53.0
 
