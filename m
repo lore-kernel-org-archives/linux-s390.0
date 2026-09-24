@@ -1,80 +1,76 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from sipsolutions.net (s3.sipsolutions.net [168.119.38.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBC9B2FF66A
-	for <linux-s390@vger.kernel.org>; Thu, 24 Sep 2026 12:32:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0AFE3ABD96;
+	Thu, 24 Sep 2026 12:40:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.38.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790253147; cv=none; b=bnj/Kdltbrf0nBkOpBPLGqbqyEMNdbcMz1LW/NWjDtKnfyvhgg7mMOHtfpg/dYcA36FbE3IVCId+cJi61DugIt+0wcnsgYlQmimeeQlRUHi7bMssQQ0hDBgy7/XVpOpDu8rqIkzECIqbQE9eiJemlNmz7mNPvCyLnG6peOYplzg=
+	t=1790253655; cv=none; b=Hz2ejI2sn+S4b8nKU5zHPOuVL4BoB7238LRRXOsSpVB9hF/7P9M5a0+mg5N+JEf2XwG+2yH6HoPkqeTdy36kHAP9mpbdg+nc7yJtJgdedoIhyuNN66NsC2YtODjS1rNIPUEst/5S9o3lAeBP3c9VNz+dXygVgz0tmFwDSAEyyi8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790253147; c=relaxed/simple;
-	bh=LX5w1RokCPiZqiEEzXWSZR4iPVWiiyHkwoaP95gUzkw=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=rWtPzeq7ouvO2KPkyFoN5pwSstLSw8LeH7YcDrxVQ2ZAprh70gspW+drOctgDC8K+y10erjUuS0Ygh+aGqmzvb3pNVwEXiQB3MEtouOP2L7U5Bfw3JGPrWe2wKXcmKBdPnawT3/dkiIxDKcBsmnVL+NdbiwZ/W3xckT3CJ+iqj4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jZGH597b; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790253655; c=relaxed/simple;
+	bh=4s6QAGOSw02obaoUejOkLC5JwzN47+Sds/ZrPWOhowY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SIYAlXYHSqFm4gHjYNonasaUUwKqOt69H4XT2FE29AKxYR402Qbtz9FQ0RapJev1GbPnAAA3yRH3n6JPC8UhOPZC3FD7eqQTvO7j2a8Y/G/dLemh3liyJ0e+jW7yNto6BwamgZJVGq5T3eGi6pq2gucm3Sfv00vPzrMtV4wQO5I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=permerror header.from=sipsolutions.net; spf=pass smtp.mailfrom=sipsolutions.net; dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b=xcjT4bKS; arc=none smtp.client-ip=168.119.38.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=permerror header.from=sipsolutions.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sipsolutions.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jZGH597b"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36A161F000FF;
-	Thu, 24 Sep 2026 12:32:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790253146;
-	bh=LX5w1RokCPiZqiEEzXWSZR4iPVWiiyHkwoaP95gUzkw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jZGH597bKkqUn5/A8gHlrK0BppzYMaDdfBCdLIUM5wYBbZHxAOkGE4lrVZ6PWZr9j
-	 TnEsOUYTC9QS81Fk3QvtXpAqoNebCupNFIoDC/Gk4Kgc5xshdOEycDwOkOayNE9muK
-	 4sOLuVLvrDrsyGYry27UG32xYM4Xbq98qNuYXVAyE4ICDWiSUVY2ZCA3KhRU6p28Yp
-	 OdaUi4/R24wcyJMAnvnBmFcvPZzBA4GdJoYdOdNB/gjcwIAnup8NGIkyryntgLQBRT
-	 bnYXPnxdUnziSvNpxHt1JUUITBt+kCPSmzKYZxi/iEnzHFteTkfRsC6CeyDrLCeaXV
-	 TJ+GuuH7/LijA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3] zfcp: Fix integer underflow in status read buffer
- payload length
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ajaykumar Rajappa" <ajaykr@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260924122400.1185067-1-ajaykr@linux.ibm.com>
-References: <20260924122400.1185067-1-ajaykr@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 24 Sep 2026 12:32:25 +0000
-Message-Id: <20260924123226.36A161F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=sipsolutions.net header.i=@sipsolutions.net header.b="xcjT4bKS"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
+	Message-ID:Date:Subject:Cc:To:From:Content-Type:Sender:Reply-To:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-To:Resent-Cc:
+	Resent-Message-ID:In-Reply-To:References;
+	bh=4s6QAGOSw02obaoUejOkLC5JwzN47+Sds/ZrPWOhowY=; t=1790253654; x=1791463254; 
+	b=xcjT4bKSZPusZnkeafvQfeysOmh+9FFTNCsPzBDP5s5XMHe7KpkmYf6gZwkTAeUJ64CQKlz/xmz
+	rityTms73GO+V9xIR4d6W3NIKBpZjJNCBhE5kKjSCJloornyrZLwfN1/m+JThtsuF2IS9xUVfghyP
+	DVe3wWqp4sjSFIrggFHYeaxqE766y81Ep33lb15WjMFe5Phm6JkO2NQZK9rOvlYGr+hTo/WkSjO1n
+	p2nzNVlIfw/oP5ON3UnWDwwwhKvgKXPYgAkCL3pOS1pTRTF+1EqXxnEVIYP57n56C1qimPE3SdiZn
+	u96wckIx1FMf7RcRZnrnkjvJcrj0D9Jp9j0A==;
+Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__ECDSA_SECP256R1_SHA256__AES_256_GCM:256)
+	(Exim 4.98.2)
+	(envelope-from <johannes@sipsolutions.net>)
+	id 1x9ikq-000000092x8-32Wu;
+	Thu, 24 Sep 2026 14:40:48 +0200
+From: Johannes Berg <johannes@sipsolutions.net>
+To: linux-kernel@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	linux-um@lists.infradead.org,
+	linux-s390@vger.kernel.org
+Cc: Heiko Carstens <hca@linux.ibm.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Josh Poimboeuf <jpoimboe@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 0/4] ORC unwinder cleanup & UML support
+Date: Thu, 24 Sep 2026 14:35:49 +0200
+Message-ID: <20260924124039.1621965-6-johannes@sipsolutions.net>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-> zfcp_dbf_hba_fsf_uss() only guards against a zero-length status read
-> buffer. If srb->length is non-zero but smaller than the fixed header
-> size of struct fsf_status_read_buffer, subtracting the payload offset
-> underflows and can result in an out-of-bounds read from
-> srb->payload.data.
->=20
-> zfcp_dbf_san_in_els() has the same problem. The underflowed value is
-> used as the scatterlist payload length, potentially causing accesses
-> beyond the reported status read buffer.
->=20
-> Prevent both underflows by validating srb->length before subtracting the
-> payload offset. If the reported status read buffer length does not reach
-> the payload area, treat the payload as empty rather than performing the
-> subtraction. This avoids the unsigned underflow and ensures that no
-> payload data is processed or accessed beyond the reported buffer.
->=20
-> Skip scatterlist setup and payload tracing when no valid payload exists.
-> If the reported status read buffer length does not reach the payload
-> area, no scatterlist is initialized and zfcp_dbf_san() is called
-> without payload data, preventing any access beyond the reported buffer.
->=20
-> For valid payloads, preserve the existing tracing behavior by continuing
-> to initialize the scatterlist and pass the computed payload length to
-> zfcp_dbf_san().
->=20
-> Signed-off-by: Ajaykumar Rajappa <ajaykr@linux.ibm.com>
+Since UML is pretty much "just x86" I'd figured for years it
+should be "simple" to add ORC unwinder support. It's not quite
+as simple as I thought, but I managed - though to not have to
+copy/paste _quite_ as much code, this series first cleans up
+the already common code between x86 and loongarch.
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+Most of the code is indeed copy/paste, but with adjustments
+that are not really abstractable for making common code.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260924122400.1185=
-067-1-ajaykr@linux.ibm.com?part=3D1
+It touches s390 because I thought we could end up with some
+compilation errors from s390 unnecessarily (and accidentally?)
+declaring unwind_module_init(), maybe it's not needed since
+the new orc.h isn't included anywhere it could conflict.
+
+Works for x86 and um, builds for loongarch (but I don't see
+a reason it wouldn't work).
+
+No idea how we'd merge this and if the MAINTAINER entry is
+really where it should be, but I'm also not in a hurry :)
+
+johannes
 
