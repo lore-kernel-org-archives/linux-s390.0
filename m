@@ -1,94 +1,73 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AE2037E2E2
-	for <linux-s390@vger.kernel.org>; Thu, 24 Sep 2026 06:14:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31B8B407CDF
+	for <linux-s390@vger.kernel.org>; Thu, 24 Sep 2026 06:16:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790230495; cv=none; b=YF6IHyvPAx0fZ51/eiedBmWvKY2DwQhmoxUaHckzZCRGdlZcgjBHsU2AvMdaMF+YF1+5XbKXb9En7xcjUDrjxQPVDxIYAyNxCGlgrmnCDfPS/3jR0EfR1FsoO0AcyAOLeRfw+0SMigbrZ41w1UgYpOnLVwc1uvdsYAD4LJbhEiw=
+	t=1790230578; cv=none; b=Nc5f39mk1x+UMac4B3uNzCQRYXvVL1ec2j0YAig5KmlOOJwzZu/DZs01zKmWw3a46nrG98fNjDxpxluyShF4xhoxJ1EB1TCUVHhJv749PSBuE3U6SXrCGqeH/3F9mHG39mbWbGRRVzbfuGq3FWxnk5HPjh49gZAStcz6pcJn4Nk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790230495; c=relaxed/simple;
-	bh=7RCFdrvT0CXmTNLIraQusBc/SfLDQRI6xF7HUEJYxgI=;
+	s=arc-20240116; t=1790230578; c=relaxed/simple;
+	bh=hiVRC7JUha5QRXJ9DtUfaMP+ikACA0hhiax+GigyNbw=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=b2YX6WghelKi3Qo8beh7HxxV9uEc8QcocbLaQSIIsVZopTnWxeUKLE+8hyBKTOT3sABVG9wNtxOpK5RwenzYy3vsPmnhNypXq6FIdjElNc90dCDmu7+Lgofx7QSQLBxWSRhDmVoHi8FJc7aJTnS4Xzv5Jmzy2imXO9upNL6UIhw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DqN/5Yly; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=onMe70HKpMoZk7LuFs3DkxmoXDmZ3kjGuJceXx2Dvuf0LUXNcyzA4Oy86X4ZyhIm1leVSHgJ3M4O3EAaAbzg5e+ldc6o1F7iuINZMzZCd8FZ+2kNksYYLMgXUyq+mwBSenT3rkiUTyQXdYdTZ2kwt2MwtWmcGxn/a/XpgYjkmdg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Co6xDnjm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DqN/5Yly"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7FE91F000FF;
-	Thu, 24 Sep 2026 06:14:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Co6xDnjm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82B7D1F000FF;
+	Thu, 24 Sep 2026 06:16:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790230494;
-	bh=QK0QpfiT0/EjLthpGveTMU7J099OJgm+Gf5qHkNKBb0=;
+	s=k20260515; t=1790230575;
+	bh=hiVRC7JUha5QRXJ9DtUfaMP+ikACA0hhiax+GigyNbw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=DqN/5YlySM94zBWQVGTC+LXMmse+4/gJqAan+K+lx1bh3DhkeUQLEnB2ktdzpePge
-	 04BLxUD2D4dPiR/ZIsvpKdTToKC1iRml8d7WjyNfwXQy0+D/UIGVCmi6qhGxJgy6WR
-	 ty3TXn/MPqBdAXkUNUsa9fYeWiW70960mydGw4y2gNIgNYsPw/YdMjeQh3TmK7ZZJV
-	 gb3GUDu9fAenqoJDca8XXHHs+U3BlqevSZqz0L2/2hkwSc+KOv9M3hkr2yzz4Hfp5G
-	 1R5eLXLVYuKYVhF7e7sct1l3d279T/WoMW9NvtN1IEo5KztMo1IASUpfzF/yjskI1x
-	 VPGtBRiOdInQw==
+	b=Co6xDnjmajZjXWZavh1Q8aL6XE3kgp8GUrbVd86xp0Hj7ryTXcWI4xm9aLTNEMpHP
+	 IiZaP/7OizyX42iix+OYYTAPMi8QqM6lSamVm1FNFAqejoyDDhRaCx12KZKQDoFQlC
+	 n4eIwy+9X/2Fp6+qARPh0VfxB2K+IArbuKXgNwErQYlOn5nXZbogz7ol+a8R08ELgP
+	 3PLDtl0WMpPrpn42PFyU71AnUeW/zwMv+t3ibezBK+T2dOcUW6W5E40q+nCbSt2aUX
+	 9lnXHTto44Ggmo+gMRCJjn7SuQtxBRrVl+cvNuQD8kwNZHggtT/OA+PejCm4oIis/E
+	 8+sT1iTzVT2Xg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 1/8] dma: swiotlb: Rename swiotlb_size_or_default()
+Subject: Re: [PATCH v6 3/8] dma: swiotlb: Track whether the pool size was
+ explicitly set
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?QW5lZXNoIEt1bWFyIEsuViAoQXJtKQ==?= <aneesh.kumar@kernel.org>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260924060756.1325156-2-aneesh.kumar@kernel.org>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20260924060756.1325156-4-aneesh.kumar@kernel.org>
 References: <20260924060756.1325156-1-aneesh.kumar@kernel.org>
- <20260924060756.1325156-2-aneesh.kumar@kernel.org>
+ <20260924060756.1325156-4-aneesh.kumar@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 24 Sep 2026 06:14:53 +0000
-Message-Id: <20260924061453.A7FE91F000FF@smtp.kernel.org>
+Date: Thu, 24 Sep 2026 06:16:15 +0000
+Message-Id: <20260924061615.82B7D1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Low] docs: missed function rename to swiotlb_default_pool_size()
---
+> swiotlb_adjust_size() must not override a pool size supplied through the
+> swiotlb=3D command-line parameter.
+>=20
+> Currently, it determines whether a size was supplied by comparing
+> default_nslabs with IO_TLB_DEFAULT_SIZE. This fails when the user
+> explicitly requests the compiled-in default size, allowing the request
+> to be overwritten by automatic pool sizing.
+>=20
+> Record whether swiotlb=3D supplied a numeric size in swiotlb_cmdline_size=
+_set
+> and check that flag directly before adjusting the pool size.
+>=20
+> Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+> Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+> Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+> Cc: Robin Murphy <robin.murphy@arm.com>
+> Signed-off-by: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
 
-commit 88c990f98bc8ebb1b961e1f014a4e9bab02d6131
-Author: Aneesh Kumar K.V (Arm) <aneesh.kumar@kernel.org>
-
-dma: swiotlb: Rename swiotlb_size_or_default()
-
-This commit renames swiotlb_size_or_default() to swiotlb_default_pool_size()
-to clarify that it returns the current size of the default pool. This inclu=
-des
-sizes resulting from command-line modifications or heuristics, not just the
-compiled-in default.
-
-> diff --git a/arch/x86/include/asm/crash_reserve.h b/arch/x86/include/asm/=
-crash_reserve.h
-> index 7835b2cdff04a..047f638a766d7 100644
-> --- a/arch/x86/include/asm/crash_reserve.h
-> +++ b/arch/x86/include/asm/crash_reserve.h
-[ ... ]
-> @@ -33,7 +33,7 @@ extern unsigned long swiotlb_size_or_default(void);
->  static inline unsigned long crash_low_size_default(void)
->  {
->  #ifdef CONFIG_X86_64
-> -	return max(swiotlb_size_or_default() + (8UL << 20), 256UL << 20);
-> +	return max(swiotlb_default_pool_size() + (8UL << 20), 256UL << 20);
-
-[Severity: Low]
-Since the function swiotlb_size_or_default() is renamed to
-swiotlb_default_pool_size() here in crash_low_size_default(), does the
-corresponding documentation in Documentation/admin-guide/kernel-parameters.=
-txt
-also need to be updated?
-
-The documentation string currently still uses the old function name to expl=
-ain
-the crashkernel reservation formula on x86:
-
-Documentation/admin-guide/kernel-parameters.txt:
-        --> x86: max(swiotlb_size_or_default() + 8MiB, 256MiB)
+Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260924060756.1325=
-156-1-aneesh.kumar@kernel.org?part=3D1
+156-1-aneesh.kumar@kernel.org?part=3D3
+
