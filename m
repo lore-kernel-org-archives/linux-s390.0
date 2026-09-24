@@ -1,180 +1,247 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54FE33E172E;
-	Thu, 24 Sep 2026 05:41:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34E8C3F6C42;
+	Thu, 24 Sep 2026 06:08:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790228508; cv=none; b=oshhAco2lAZnkbuVCX3wUrnfVeCgtW6qXdZoLeUrXMaEEHQjwqw2+J78Rkcqb2NXdywft/SPplMtUJY+TKsjl6xciQxVjT5BkTg6ICrwKh2fosig4PdgploJhM9G0KOTs1IT6yGK8XbJWyKN2EugeeF2sp2d0ZrCjKU6ai45byo=
+	t=1790230103; cv=none; b=DJPx48o4eNEna6Y+YV9FXVta7lFd/W2jcysElpFe3fDUSEQoPcdquRqDZBOv5N2xxBK3ONUV8R2w4ylBr/HhlLE9hsOhIJB9BbWwy29mHSuZdBTAdi8TADd9QeCy0msWm8h2DhOeSp6oDe89g5S/sAvktA6fbKVkSB1Agg9BWhE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790228508; c=relaxed/simple;
-	bh=qSw6Ch86PfeA7TbGfRfN9M4jHoDhQmrEEGKZK1qnJuo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Z4sD+gLFcC6NuBKBlf01efMm2A1CWaEp3+TwfJ8E2efZxwX4yR0cCaqZ+fRqTxwLELVK/3lxbLDn1YKemtGJkAIeI7gTBVFMyDZaBTlWugU1inpOVXf8DU2ydrwQgivEzTUOBL3ryq6SP3bdru8jFiCjItwQhjwgzkR4d7wZsSI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bbz4wTaU; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1790230103; c=relaxed/simple;
+	bh=v+9XRJTtvH3BqjVcGSVcYBfvf9q3PzWiAk0+il3HErc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nz1+ztePF+ssuakARklb0dG2Os8purwey7kWidUK/sw+HNzIIm89srv36oHVx4FnBFLcZxhg3rtov58e+HcYtrbslJRS5a+QsMf0xqRCLrms92ZxuVGtmBOsdLTmnTPkt7Q7CyzFSZOuSJ+WvuNjCGmful6PzPautSrPQ8/b4co=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dCLAyysY; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bbz4wTaU"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68O5bPLq1341316;
-	Thu, 24 Sep 2026 05:41:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=j3C8VT6lq/50NekSaSJTHmBeZBZscb
-	7GN4xLh4wEW5M=; b=bbz4wTaUGdrQaezWOslqPi0RfZE9FIjpiRPxchfX7J2lv2
-	GwM/6q3h9Qfl8ASF/87c3ZuIOvgRx5i5yJByI2ck9tFyywyiJgHQN6ui6MLlY4kS
-	AlZnLmJneTTyeIjZGTbobsZKqKY/1z/B8as+yq93FR9VnUB5ycUVgUXSLA5aVSx0
-	wUJUnhfx3iumwz72dGMsYX7P6bG4z68DB+bS/oqSffMzvoCvlUsqfhRfTIPmkAms
-	LgWgB1cLWQsaAUQDDfs9HiUWhBNNDDM9Iysi2nVVzVoNNpYgI99YiXk83L32IDp4
-	/tZtAZGE440SouoPmaeNCit8qXHUfOqpJyxb/7SA==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskg2q8wp-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 24 Sep 2026 05:41:45 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68O2IYu61279363;
-	Thu, 24 Sep 2026 05:41:44 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gvbt2v58n-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 24 Sep 2026 05:41:44 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68O5feWo49873192
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 24 Sep 2026 05:41:40 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 559412004B;
-	Thu, 24 Sep 2026 05:41:40 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2C0A620040;
-	Thu, 24 Sep 2026 05:41:40 +0000 (GMT)
-Received: from osiris (unknown [9.224.90.220])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 24 Sep 2026 05:41:40 +0000 (GMT)
-Date: Thu, 24 Sep 2026 07:41:38 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Nihar Panda <niharp@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, vneethv@linux.ibm.com, oberpar@linux.ibm.com,
-        linux-kernel@vger.kernel.org, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, wintera@linux.ibm.com, bblock@linux.ibm.com,
-        nagamani@linux.ibm.com
-Subject: Re: [PATCH v5 1/1] s390/qdio: Ensure QDIO_IRQ_STATE_ACTIVE is set
- only after firmware activates.
-Message-ID: <20260924054138.13740A41-hca@linux.ibm.com>
-References: <20260924050217.2583852-1-niharp@linux.ibm.com>
- <20260924050217.2583852-2-niharp@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dCLAyysY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABCE41F000FF;
+	Thu, 24 Sep 2026 06:08:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790230098;
+	bh=A+b0QfMrBYdMcYFCICVqdR0OXDOa6w9OD48EIiSzDyI=;
+	h=From:To:Cc:Subject:Date;
+	b=dCLAyysYJq3tw3Zd89/8HfyIdVUUN6YTWImQbQtYWgNgSoX+q7H8933X4zO5vsix/
+	 cWAmzjdMnk+PSNjJeT226kssBmm8ufXA7enM27yO7uWkccRxhHNQnYvO++Zr45t6eP
+	 OeALh5UHn/vSCK0Rh4RSy3KJUeVFnG5TsvTPhd9ST8OCQK505QKdc6V0IFjBVNhBMy
+	 xNiX0aNyHwI9CKrv7R9GSYhWwqqiaaErgu4K++3z+05rY+zy3QOaz8I96TAPuEeUjI
+	 0Th7aF8pwVdxGD0s8uvsSbzv4vyoM16Mk5PfUSMlOWPka5qZHjNKC5wurOCZj94FfQ
+	 SY60QB0CQgMvw==
+From: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>
+To: iommu@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Marek Szyprowski <m.szyprowski@samsung.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Will Deacon <will@kernel.org>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Marc Zyngier <maz@kernel.org>,
+	Steven Price <steven.price@arm.com>,
+	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Jiri Pirko <jiri@resnulli.us>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Mostafa Saleh <smostafa@google.com>,
+	Petr Tesarik <ptesarik@suse.com>,
+	Alexey Kardashevskiy <aik@amd.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Xu Yilun <yilun.xu@linux.intel.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	"Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Jiaxun Yang <jiaxun.yang@flygoat.com>,
+	Paul Walmsley <pjw@kernel.org>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexandre Ghiti <alex@ghiti.fr>,
+	Andy Lutomirski <luto@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	linux-arm-kernel@lists.infradead.org,
+	loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	x86@kernel.org
+Subject: [PATCH v6 0/8] dma: swiotlb: Centralize default pool policy and sizing
+Date: Thu, 24 Sep 2026 11:37:48 +0530
+Message-ID: <20260924060756.1325156-1-aneesh.kumar@kernel.org>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260924050217.2583852-2-niharp@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 3apGR39Hzi8Sd8JQPzMycQJ_zRUaGT1n
-X-Authority-Analysis: v=2.4 cv=I43w19gg c=1 sm=1 tr=0 ts=6ab4b819 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=I-6cxHlVoWN35HKNoDMA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI0MDAyNCBTYWx0ZWRfX4tDIOnoRhjfB
- O29MLsZZbWtMPTCpRwNNT5phN0Bhc6TlrDsSMZwGc6RdDmeDeh2z+RzRAnpso72I25+OQyb6mWE
- mnXMA1d4rEqnv38VTLZbx9kdsYWIaREcAHIRC++WMPtgcwMVom6+0d2DkK9zH5op0/F63USFFRy
- HT+T8e/1R67coBQy+nmmkO8rSt2sDJM8hosHzssxrwkRvCIsDV89EzEb3Jp7c24tnui01SabxyK
- xfSUKCASxNxs5hlGVuOs8EFpOGZVNi34HEbDFeVpRu1yOGNg0kP2RN41XMfhN2qQhy4hTPr02nW
- vn229J2maH1ka+mnq0qhG1zwufNhSSiEhTTS94QsBx6F78gLjKNQWwGx0FHQ1+1Jcnr9SKxVCyW
- 0z8qP8qpDNSMPOC/BjYTItPc54KNtKiKQ+LYM6qIkZgab2fhH1FCHcnXKCjy4MhqcnzgVIAW0FR
- +GuWzLDWD5fMcQ5rRuQ==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI0MDAyNCBTYWx0ZWRfX0LWzlSupcfb1
- W/5lwQSWFfEFGRq60WdGjHaiakvqLO3yx8IE0bQM5u2fTPK8T1uW9QV/XUtTPdLqXvQsHthuoHa
- ZiP37AXYPV9bic7C1Y5r+kHBDWoLoYg=
-X-Proofpoint-GUID: 3apGR39Hzi8Sd8JQPzMycQJ_zRUaGT1n
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-24_02,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 clxscore=1015 adultscore=0 suspectscore=0 impostorscore=0
- lowpriorityscore=0 bulkscore=0 phishscore=0 priorityscore=1501 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609240024
+Content-Transfer-Encoding: 8bit
 
-On Thu, Sep 24, 2026 at 07:01:36AM +0200, Nihar Panda wrote:
-> Set QDIO_IRQ_STATE_ACTIVE only if both the subchannel-active bit and
-> the QDIO-active bit are set in the Subchannel Status Word (SCSW).
-> 
-> The channel subsystem sets the SCSW_ACTL_SCHACT bit in scsw.actl and
-> scsw.qact = 1 in the SCHIB to indicate that the activate-QDIO-queues
-> CCW program is running and the queues are ready.
-> 
-> An interrupt-driven approach is not applicable here.
-> Using CCW_FLAG_PCI on the activate CCW generates an intermediate interrupt
-> too early, before the firmware sets qact=1.
-> Therefore, polling the SCHIB via cio_update_schib() is the only way to
-> reliably detect when the queues are ready.
-> 
-> Signed-off-by: Nihar Panda <niharp@linux.ibm.com>
-> Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-> Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-> Reviewed-by: Nagamani PV <nagamani@linux.ibm.com>
-> ---
->  arch/s390/include/asm/scsw.h |  4 +--
->  drivers/s390/cio/qdio_main.c | 59 +++++++++++++++++++++++++++---------
->  2 files changed, 47 insertions(+), 16 deletions(-)
+Hi,
 
-Unfortunately the cover letter does not mention what has changed
-compared to the previous version. Also there seems to be a confusion
-between versions. Cover-letter says v2, while the patch says v5.
+This series centralizes swiotlb default-pool selection and sizing, and
+simplifies the initialization flags used to describe pool placement.
 
-In addition the code changed obviously. Is it ok to keep the Reviewed-by tags
-from above which were given to a previous version of the code?
+The first patch replaces the addressing-limit argument with initialization
+flags and introduces explicit policies for the different reasons a default
+pool may be needed. Architectures now report DMA addressing constraints with
+SWIOTLB_INIT_ADDRESSING_LIMIT, while the core selects the corresponding pool
+policy.
 
-> -	/* wait for subchannel to become active */
-> -	msleep(5);
-> +	rc = -ETIMEDOUT;
-> +	timeout = jiffies + HZ;
->  
-> -	switch (irq_ptr->state) {
-> -	case QDIO_IRQ_STATE_STOPPED:
-> -	case QDIO_IRQ_STATE_ERR:
-> -		rc = -EIO;
-> -		break;
-> -	default:
-> -		qdio_set_state(irq_ptr, QDIO_IRQ_STATE_ACTIVE);
-> -		rc = 0;
-> -	}
-> +	do {
-> +		msleep(1);
-> +		if (irq_ptr->state != QDIO_IRQ_STATE_ESTABLISHED) {
-> +			rc = -EIO;
-> +			DBF_ERROR("%4x act WS:%d", irq_ptr->schid.sch_no, irq_ptr->state);
-> +			break;
-> +		}
-> +		/* Query hardware */
-> +		spin_lock_irq(get_ccwdev_lock(cdev));
-> +		if (cio_update_schib(sch) == 0) {
-> +			if ((sch->schib.scsw.cmd.actl & SCSW_ACTL_SCHACT)
-> +					&& sch->schib.scsw.cmd.qact) {
-> +				qdio_set_state(irq_ptr, QDIO_IRQ_STATE_ACTIVE);
-> +				rc = 0;
-> +			}
-> +		}
-> +		spin_unlock_irq(get_ccwdev_lock(cdev));
-> +		if (!rc)
-> +			break;
-> +	} while (time_before(jiffies, timeout));
-> +	if (rc == -ETIMEDOUT)
-> +		DBF_ERROR("%4x act TMOUT", irq_ptr->schid.sch_no);
->  out:
->  	mutex_unlock(&irq_ptr->setup_mutex);
+The second patch moves the reduced sizing used when the pool is needed only
+for unaligned kmalloc bouncing from arm64 and RISC-V into the swiotlb core.
 
-As already mentioned in a previous comment: "worst case" is that this would
-timeout after waiting only 1ms (+ preemption), compared to before where there
-was a guaranteed minimum wait time of 5ms.
-Is this change intended? Could this lead to regressions?
-If this is intended it should be described.
+The third patch centralizes swiotlb sizing for memory-encrypted systems. It
+moves the existing x86 guest-sizing policy into the core. Host memory
+encryption retains the normal pool size, and a shared default pool is not
+selected solely for guest memory encryption when a restricted DMA pool is
+present.
 
-Usually problems like this are avoided by retrying n times, instead of using a
-fixed timeout value.
+The fourth patch removes SWIOTLB_ANY. Pool placement is derived directly from
+SWIOTLB_INIT_ADDRESSING_LIMIT: pools required for limited DMA addressing are
+allocated below the architecture's low address limit, while other pools may
+be allocated anywhere in directly mapped memory. Xen continues to request a
+pool explicitly with SWIOTLB_INIT_REMAP without imposing a low-address
+constraint.
+
+Changes from v5:
+https://lore.kernel.org/all/20260921063628.362078-1-aneesh.kumar@kernel.org
+* Collect Reviewed-by tags.
+* Drop the x86 crash changes
+* Add two new patches:
+  "dma: swiotlb: Consolidate slab rounding"
+  "dma: swiotlb: Rename swiotlb_size_or_default()"
+* Drop the swiotlb_default_size_changed() helper.
+* Simplify swiotlb_adjust_pool_size().
+
+Changes from v4:
+https://lore.kernel.org/all/20260914070135.313337-1-aneesh.kumar@kernel.org
+* Collect Reviewed-by tags.
+* Add a new patch, "dma: swiotlb: Track whether the pool size was explicitly set".
+* Retain SWIOTLB_ANY usage for RISC-V until patch 6.
+* Rename SWIOTLB_INIT_FORCE_DISABLE to SWIOTLB_INIT_DEFAULT_OFF.
+
+Changes from v3:
+https://lore.kernel.org/all/20260904101810.1193505-1-aneesh.kumar@kernel.org
+* Add a new patch, "dma: swiotlb: Add an overridable architecture pool opt-out".
+* Clarify the change in default behavior with the removal of SWIOTLB_ANY.
+
+Changes from v2:
+https://lore.kernel.org/all/20260813102521.1367737-1-aneesh.kumar@kernel.org
+* Rebase to latest tree.
+* Drop SWIOTLB_ANY and derive that based on SWIOTLB_INIT_ADDRESSING_LIMIT
+* Add SWIOTLB_INIT_REMAP.
+
+v1:
+https://lore.kernel.org/all/20260811134056.756015-1-aneesh.kumar@kernel.org
+
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Shuah Khan <skhan@linuxfoundation.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Steven Price <steven.price@arm.com>
+Cc: Suzuki K Poulose <Suzuki.Poulose@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Mostafa Saleh <smostafa@google.com>
+Cc: Petr Tesarik <ptesarik@suse.com>
+Cc: Alexey Kardashevskiy <aik@amd.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Xu Yilun <yilun.xu@linux.intel.com>
+Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+Cc: "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>
+Cc: Shrikanth Hegde <sshegde@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Huacai Chen <chenhuacai@kernel.org>
+Cc: WANG Xuerui <kernel@xen0n.name>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc: Paul Walmsley <pjw@kernel.org>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Alexandre Ghiti <alex@ghiti.fr>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Cc: loongarch@lists.linux.dev
+Cc: linux-mips@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: x86@kernel.org
+
+Aneesh Kumar K.V (Arm) (8):
+  dma: swiotlb: Rename swiotlb_size_or_default()
+  dma: swiotlb: Consolidate slab rounding
+  dma: swiotlb: Track whether the pool size was explicitly set
+  dma: swiotlb: Centralize default pool policy selection
+  dma: swiotlb: Centralize minimal pool sizing
+  dma: swiotlb: Centralize memory-encryption pool sizing
+  dma: swiotlb: Add an overridable architecture pool opt-out
+  dma: swiotlb: Remove SWIOTLB_ANY
+
+ Documentation/core-api/swiotlb.rst   |   8 +-
+ arch/arm/mm/init.c                   |   6 +-
+ arch/arm/xen/mm.c                    |   2 +-
+ arch/arm64/mm/init.c                 |  14 +-
+ arch/loongarch/kernel/setup.c        |   2 +-
+ arch/mips/cavium-octeon/dma-octeon.c |   2 +-
+ arch/mips/loongson64/dma.c           |   2 +-
+ arch/mips/sibyte/common/dma.c        |   2 +-
+ arch/powerpc/kernel/dma-swiotlb.c    |   4 +-
+ arch/powerpc/mm/mem.c                |  17 ++-
+ arch/powerpc/platforms/pseries/svm.c |  10 --
+ arch/powerpc/sysdev/fsl_pci.c        |   1 +
+ arch/riscv/mm/init.c                 |  24 +---
+ arch/s390/mm/init.c                  |   2 +-
+ arch/x86/include/asm/crash_reserve.h |   4 +-
+ arch/x86/kernel/pci-dma.c            |  23 +++-
+ arch/x86/mm/mem_encrypt.c            |  24 ----
+ include/linux/swiotlb.h              |  17 ++-
+ kernel/dma/swiotlb.c                 | 193 +++++++++++++++++++--------
+ 19 files changed, 210 insertions(+), 147 deletions(-)
+
+
+base-commit: 704340f1cd0dcef829eb62f5b48ae95a2ce17bdf
+-- 
+2.43.0
+
