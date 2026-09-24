@@ -1,377 +1,302 @@
-Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010025.outbound.protection.outlook.com [52.101.201.25])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD7CE4A483F;
-	Thu, 24 Sep 2026 15:50:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.25
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790265036; cv=fail; b=unQhj/U4z+REasyWJvD/avaMQQRIIMoELB/qoOxdEqVoEy1QJunHMvRrPjfL6JhNeJMWULjheQ9yKHxmaYTsvCEEnL123VZqM8OGRzKcGZABgqt4BOEfRla9/YKbXAB9G3UhoGGWho4L1lwKZIieyvtBDr0koDtoTWk7K1dx+uw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790265036; c=relaxed/simple;
-	bh=7CGsuHUhPnzubjxQeyaN7It8lOKbg2aHRSXd+ABPfR4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Q0lpZxUSheqSqxzAzLX2h+jkVkKdBqAHXIY537/U4GLeqHqxmuLy1qK9bOHHrxCPHo+xdQ4M1Qg4oTJG8Nn3I9O/yOjzmdOo6CESv/YoAKxKbTsI9ivWI43huVoYd+fo5zflk/qzzeHVWieszYCc3QRj3MpEJ/MAPz6gxSlnZOg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=IF6Z6NTA; arc=fail smtp.client-ip=52.101.201.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC9FC4A2631;
+	Thu, 24 Sep 2026 15:55:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790265321; cv=none; b=d1Qf+cf61ruxI8XYO/ByT7ptRSsvmG8UBUxLdg5KZTBpGOCICMqt9iA2UKdZGZ27XNwHgQ7tmMe8iBS4K37Buon8gfJJziLY/yYloSBeGw202vTZ3GwbJkUmTvIHXZJkguZDJ9VB/d/ZSJ9Bl5v+zVseGXteajF2m1z3mLvUTzc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790265321; c=relaxed/simple;
+	bh=lOn8pU/Ic2xKhcoU+iEhzv5ynf0puxNUNBBxcniK3dU=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=cHvMAQpqH9qAUdFu+wqJDRz8/noSLZhM6VlUhVr6WabdxszMX0aQOLh78vWd9wp8ISxM6Tgoqu2t2Mgi31FA5MM4/6ZK7BwknBia3j7PFE+BZNR4E37ar9gpf0FflRkXpRagF/JCjYa7w7ttGXIjR8xIARDgvZxAR3MC3E/HQ5Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WbP0ufDc; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="IF6Z6NTA"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=V0m6eg89kopQFl3u4IGUBlxCnRazbDM7W04AjUEYr82pv8x3G4EpPCeTJFTnq9Z3QRmF5PXWl55elFHrnYrWUn4x5FE12iIiO6F9A11TvvNhobLjyHxWiEU8biVfMLJHjaUZfYMiPQG9Tjbu3uZGBc/a1ulAl7XApQL/xa77nCyvqRRPPrCSxI27K8aewe8Q06odz3SUDH4abSX3Uv9yIJ2GcjQiQvjWGNT9gOuoa9rYWRzqHKthceT7n+BjEvtY0s+MlDIQulvEGA4DWoKN6n2l2paRfjj9tf1Hams1uPpHxnc1a4GsvHQNkMF3OK6h58qYgat5rnU5xII5t6dUYw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=xiYwQEGkKM+tsHhc5VwTwt7K0S2UtKAK9YfSG0KXgVg=;
- b=Gf3FvOtghUQBfr7F4QG4XyIMI6foJRQhNGdy256hkHEMKvApKl/Of58X25Zuuuzy3BEVB2afSZGGqyJqyr1C/R2ODJioj14x1TKCZ5Qb6o0sD40/IppygmWTsZt89iHlxYLmMoFxiZz66TNpkEJPZara/pzNkKCbXhofbpNOxybxN7+EHTKRSupSl9SE5TsvNrVMH4CdZ2H+NEor58jKQo+fTWTMQfUnb0ZZxMqRAgRmAVcn5GNG8yOpEQHS9DA0gordDSezG/XdQTJB2OxIdp/FAvbD3YwsetFAhId3D11+o+2yVzckZMpgi0gI0ZckCxVxultg+HkeNXlzgeCRow==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xiYwQEGkKM+tsHhc5VwTwt7K0S2UtKAK9YfSG0KXgVg=;
- b=IF6Z6NTAI6zMdc80b8hHyu7XZ5ItC6YPpawMOAVwcEXXe/HtfKdW/gsVcwLD+HrX36GiVCpcWjLZi/UStlcuKnjO0ZGkxW9pqUjtKCYYykoW0RRZg8+DnC9YkFnYrMSy5sCZiq7DBPrQPnl8EofbQbCdDniNBexe5pkQUwe6nsLpvFCPRHs+u4GHzd36hLuuGS2IGhtOi5ilhY4PerGPsLd8mMnp/gdjmjKCO/IE+eMh5dQbSfJypmCakvvDzVi4IO6nerwHidZSF1SABPm0pOtAApXStVwUTsOSzqdGm5SvNctqL0x556wcEN/PDxWUMOjN/iwxYkT8tZxciJlx0Q==
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from IA0PR12MB8374.namprd12.prod.outlook.com (2603:10b6:208:40e::7)
- by MW6PR12MB8916.namprd12.prod.outlook.com (2603:10b6:303:24b::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.451.18; Thu, 24 Sep
- 2026 15:50:20 +0000
-Received: from IA0PR12MB8374.namprd12.prod.outlook.com
- ([fe80::d85f:4c87:ae84:3f16]) by IA0PR12MB8374.namprd12.prod.outlook.com
- ([fe80::d85f:4c87:ae84:3f16%6]) with mapi id 15.21.0451.014; Thu, 24 Sep 2026
- 15:50:20 +0000
-From: Zi Yan <ziy@nvidia.com>
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
- Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>,
- David Hildenbrand <david@kernel.org>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Jonathan Corbet <corbet@lwn.net>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
- Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
- Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>,
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>,
- Kumar Kartikeya Dwivedi <memxor@gmail.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>,
- Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
- Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>,
- Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>,
- "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
- "Martin K. Petersen" <mkp@kernel.org>, Jaya Kumar <jayalk@intworks.biz>,
- Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>,
- Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>,
- Peter Xu <peterx@redhat.com>, Masami Hiramatsu <mhiramat@kernel.org>,
- Oleg Nesterov <oleg@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>,
- Juri Lelli <juri.lelli@redhat.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
- Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
- Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>,
- Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- "David S. Miller" <davem@davemloft.net>,
- Andreas Larsson <andreas@gaisler.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>,
- Matthew Brost <matthew.brost@intel.com>,
- Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
- Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
- Ying Huang <ying.huang@linux.alibaba.com>,
- Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>,
- Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
- Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>,
- Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>,
- Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>,
- Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
- Wei Xu <weixugc@google.com>, Chengming Zhou <chengming.zhou@linux.dev>,
- Michal Hocko <mhocko@kernel.org>, Miklos Szeredi <miklos@szeredi.hu>,
- Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- linux-doc@vger.kernel.org, linux-usb@vger.kernel.org,
- linux-rdma@vger.kernel.org, selinux@vger.kernel.org,
- linux-sound@vger.kernel.org, bpf@vger.kernel.org, linux-scsi@vger.kernel.org,
- linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
- linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
- kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
- fuse-devel@lists.linux.dev
-Subject: Re: [PATCH v3 24/40] mm/mlock: eliminate weird VMA_IO_BIT abuse and
- simplify
-Date: Thu, 24 Sep 2026 11:50:14 -0400
-X-Mailer: MailMate (3.0r7032)
-Message-ID: <CBD619D6-8717-4C81-B5EA-D1D0771BDA3A@nvidia.com>
-In-Reply-To: <arT3K71l86fUVldk@gremlin>
-References:
- <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
- <20260917-b4-mmap-prepare-vma-flag-sanify-v3-24-4583d8a23bca@kernel.org>
- <93672B94-BB0C-4713-8F8A-3619D81DB7BB@nvidia.com> <arT3K71l86fUVldk@gremlin>
-Content-Type: text/plain
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WbP0ufDc"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68OC6A5r2190676;
+	Thu, 24 Sep 2026 15:55:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=2E2H4C
+	oyxfJK+lzu9ThUQaah7QWZCRFiMjlmX/h5w9A=; b=WbP0ufDcmMLR0ct/6TXk/8
+	RcsM5Yw8PvL3PzD7a4DFZ1d/jobJSOtqgFonsk+V3V1IHGIzpk6ok5CxxyPK95ac
+	bYUwrsI1KqopPQ4IwhrOyP+3NRADHrSMxe5FBvdQp3e07wJOy89ECA1Lmwrj1Up4
+	cRlmmrjG6Wf2U0BoTycl2ZDpZIDbc36hqsd2O2Zeyx4714M3TVwec/4DEXOwc+0F
+	tp6JY7ZOtA5NR6sExTuC/LP9KibReGyp60rUpIv1bnlAOu7ISTJa/c4xXP8rwrzt
+	MuFWMlCt1zewsfno8h36YVkC/KtqjHi9VUmFAfGtJs68YsEUICj/wknRgneayWaw
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskg2t5qd-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 24 Sep 2026 15:55:16 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68OFlcB62346203;
+	Thu, 24 Sep 2026 15:55:15 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gvbe1xhnm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 24 Sep 2026 15:55:15 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68OFt7lW53215596
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 24 Sep 2026 15:55:07 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CD80020043;
+	Thu, 24 Sep 2026 15:55:07 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 926642004B;
+	Thu, 24 Sep 2026 15:55:07 +0000 (GMT)
+Received: from [9.224.92.241] (unknown [9.224.92.241])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 24 Sep 2026 15:55:07 +0000 (GMT)
+Message-ID: <8c1094dda46b18a8c4d12dafbfea94e89c0b0b85.camel@linux.ibm.com>
+Subject: Re: [PATCH v7 2/4] s390/pci: Reuse FMB buffer and preserve state in
+ device re-enablement
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Omar Elghoul <oelghoul@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, schnelle@linux.ibm.com,
+        mjrosato@linux.ibm.com, alifm@linux.ibm.com, farman@linux.ibm.com,
+        pasic@linux.ibm.com, alex@shazbot.org,
+        Gerd Bayer <gerd.bayer@de.ibm.com>
+Date: Thu, 24 Sep 2026 17:55:07 +0200
+In-Reply-To: <07094b4a-0c11-42a0-a9dd-8c46fe7e47f9@linux.ibm.com>
+References: <20260922195141.94548-1-oelghoul@linux.ibm.com>
+	 <20260922195141.94548-3-oelghoul@linux.ibm.com>
+	 <d5a32ced819407ae370da37803e30acf541bc5d3.camel@linux.ibm.com>
+	 <07094b4a-0c11-42a0-a9dd-8c46fe7e47f9@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-MS-Reactions: disallow
-X-ClientProxiedBy: BN9PR03CA0293.namprd03.prod.outlook.com
- (2603:10b6:408:f5::28) To IA0PR12MB8374.namprd12.prod.outlook.com
- (2603:10b6:208:40e::7)
+User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: IA0PR12MB8374:EE_|MW6PR12MB8916:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3951ee8a-f586-4cea-8c7e-08df1a538978
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|376014|23010399003|366016|1800799024|4143699003|11063799006|56012099006|10067099003|18002099003|22082099003|3023799007;
-X-Microsoft-Antispam-Message-Info:
-	/DYJt0aMJ6rftIKDZrc71LKGQ4W8+lcZLcsIYkbZGdwY2zccTnAXJPeDfYA+Nziv5GZkLnvQvTmx1APX7yJ3Z0fM+V/7rX4pRa1ELWppgvJS/vG9tUooAjm7RWGR7HIdd0fcLYEG+/l3W162rN6m82GQSKUzJJe0duMhzZpruk33ZhmtId0c59DpSkdTmwVwC7/EWHgvCrExEXpc1Wp0I9Yn/uWNm7PUK+B2F7BKf6VjN1ye91ceps1/+oKvvFFzACjuuiRwo/gatru1OqVKDO3Kw8dQlO/I5gV1eOxQRErokp0seL+Cr2Xu/yNCTbSDW3xrNqUzxXfA9QtQheVpGMMcdElcfVoYBNVYyWrdLEPIq2FySzJ8Lt98mN4Zl7/CuafIDohKB+7KDJuqFf4h2bI/92aGToe+hrIIbvaXOtTcqWziVak3sSDBxhLv+eTzciaUZCg0Fdqs5PCgy+8107nhabOQpkmMYDtABZhWaTFtsTvILoUSJfnOL0Pgol1NQrb3cSe5L3Nokxc7mf6OhuEi8lLzCUzOF2g6a6iWcbNIfeAtS42t/GmePumu8JZUjyDTvdhBrF8zUIrYov9hPRmGQnPFRWxf2BIHY48qxD0KAo0giYL6nCSgM5SUFXYSb8SQqPqIwTUM9jAX+BuUHU/esSPwNYZhC91uhPadmSI=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA0PR12MB8374.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(23010399003)(366016)(1800799024)(4143699003)(11063799006)(56012099006)(10067099003)(18002099003)(22082099003)(3023799007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?JeJopQ5lfzE2bWSt/Rmd4DJiBX+xQ19R2cjS+3FNRB+VOfKsUyKVeiFNfFto?=
- =?us-ascii?Q?T1itSYQafYF82gHn8U/jUnW67ukMkUbFi8Vu9CYzq1vn+3bWo4drKKtbALjw?=
- =?us-ascii?Q?KhfgmQ6QO49d4xP6qbULxYFHNd3rJfmlsPDTynTfcj3eYuHBpbNZ/FHpvuuW?=
- =?us-ascii?Q?jx8R/J8gwSksEqNxwNHHWqCRJaSqzpQUvQD1uYeRxCuMVwhnaGTmmmhXaJ8B?=
- =?us-ascii?Q?GpnPmHPbShhZt0cD5onLQVoSD2RQxTcZ1wtiUfDNMoZkjWs9HeIHSCdM8LnT?=
- =?us-ascii?Q?bWk9ZSa8RsOPzvBbh6t++9lCMFGWE+lxd7KOgmnhH+Z/e2pyIGslV/2XCH3p?=
- =?us-ascii?Q?10qTuQyYf46q1PWd+O+DpXx/OiPIRgz8QgCI3xAU2KoZuG7E4sFdIdAuU/YK?=
- =?us-ascii?Q?of8TmfHniOwk4udbD+3+WEpEZ1jAgLASY3Mn2rq+ax5W2mti4qKiv76ax1Bi?=
- =?us-ascii?Q?9xh15nVXYneJTZbzYrXbmQyLdMe11FsPqUrdO/WrifsHtJjJzU1wKLK6Qu+Q?=
- =?us-ascii?Q?mCbA9fO5wRlkM0KBUwsrjpfAQOy3JmuuXU+wlQ+YGtVN7DzGQHfEohi19cpz?=
- =?us-ascii?Q?zwCeZvmO3V2UlMi5Jz0Kou33OUISZfBL5F7BWfZnl0b0K4/9KKFF2TQOiXv9?=
- =?us-ascii?Q?+QnbqDy+2Tr2KB8Ecsi5gbY3Kf8g2fyyN7Q7w99XI8HcacYOsvIwckOjl/IJ?=
- =?us-ascii?Q?os5jKc40ERkR5sbb3+ESbwM0hYcqv5xoqEZfQrGWfsW3ohtHKPgjXK7KIR/Y?=
- =?us-ascii?Q?RZL1hmRqnyloks/PznSICTu+x1FzulX1U/OrjHJyVHTUVRzb+dmI8vhrZq+/?=
- =?us-ascii?Q?iRX9w0H6ioRV//gYIFyrlLEu8TnyFPGUJzFyq7dU72ahIq9qwYCOyfbbXXH4?=
- =?us-ascii?Q?WnzHlO2Yut+2wTg1HvNOFxR56rQzcUVaMUov+qmIs8g5RD6E4JduQR2l/MHP?=
- =?us-ascii?Q?rtQCOcvitugM8YnO2pvWw+csx8n6oAWxf9rShnPLlbtiy6nzSeKh1JJnUVEX?=
- =?us-ascii?Q?BKu/1bACk6Pv2yK1ULFYmtgqUn4blD14c6U/LyvB90zdqt+2OO4K0xUO7plR?=
- =?us-ascii?Q?Y+AANLdWHtQcQWlsnzy8uZP3hAfZAbukv/aeu8Vd9pjWHQp4Q4/uGoL1MO3B?=
- =?us-ascii?Q?J3AvVrB0dcjCT1Oq/Y7YjXUFsfneZZLLzzjqZCXFv1GlspsxXGS9JT8PfVam?=
- =?us-ascii?Q?X50c5hH2anHbHVX65jlJqPa4y8jQbciLyrW5LjjfTVo8jTBUXqd0B4nRNySH?=
- =?us-ascii?Q?H5W37HtIv9R9zRrkAy3Y2WlUgHG/Ar0b76YR/gKmiPEBSoTYakyg8J8W1IyU?=
- =?us-ascii?Q?lDrhzr0q5X4PqS6vEhYdqHU85i+knwTMxAko+Py+Yvjt+ZBmipxC3Tytglqa?=
- =?us-ascii?Q?RcdCNcGHT55EDiB6IUqUL5/j/Xt80zy+FaNXnuuojKXc6xQjwhynj9qHW68z?=
- =?us-ascii?Q?+wQ2KlVlj8zp+J7MEpam2sp4fniY1miJYDZnd80O5AJO0Zo1a4P+YCCZg9uq?=
- =?us-ascii?Q?iNW5w23JZ7nokJfdxTTPHyo1W6+E2TYT3XtDWlY0JD0IUxmjduxz3jS9y4oX?=
- =?us-ascii?Q?blHc8YtDIVKjGyNgi7wOCpytbjdw2TN3Du5S93jmTOTFHq8xmrbOPTcnrcOc?=
- =?us-ascii?Q?aKBYmVL0VeNadD7HwwdJJMzUEHIrCihidb0S2x3tUv/NsceCCg5RfuIeFfd0?=
- =?us-ascii?Q?7Vy3JTwd09vU9/v86yNsbGr1jdC72MzbQfSI1ldMp2FAgNAFWSfgJddGaviK?=
- =?us-ascii?Q?PZRpuHwfVA=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3951ee8a-f586-4cea-8c7e-08df1a538978
-X-MS-Exchange-CrossTenant-AuthSource: IA0PR12MB8374.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Sep 2026 15:50:20.2851
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: zN/2ejWQwO24ocq4CdeF4UkGV6z628t5mCXiPUme/B7EMRlZTdImbbwwAf3STLlS
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW6PR12MB8916
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: swd93M0KtWqyEYMWC8W9kk8ppXcor1YT
+X-Authority-Analysis: v=2.4 cv=I43w19gg c=1 sm=1 tr=0 ts=6ab547e4 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=rfKfkVEBMkOvuwVTT1cA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI0MDA2NCBTYWx0ZWRfX0YNQ6S6vupux
+ 6g5oNU7Dq2kMkyBNQtDl33SviBLMhWDyEMpTZhj8gIoPn7Dhe7sMgEvMG0GXjI5cegUii+LhIzy
+ GuGl63pKb86wQSDSITRAkGwoOEetRZFDnygZTSrLJlAd4dYrhIu+ux0ixlr3w6E92ReytL0khKO
+ hytvHyJcTdB798Q7H5xdIwp0PceQ566IT3VyXrxE5e8iDAgIlEvBaHgIf/hqx24oFPqA3p/CSpJ
+ zj1/ikxa7pMJ4GNPX+I5IXi1bnJP27c8ebzGUqqfvMhtL121gwTSo2mRAG7tJBAV7NTuLcZr6eZ
+ Io2gVyLWC5Y0SHvuiqUv2LeTMYbgoqueXlmvccNqteFBaq1kdhZ4biJ9BLz2ETAJrXd9lZyaREc
+ 1kPUXzMozjmNU2HlgCUyUnm9jefP5KHN8fXuiaj8VIx1K5Zg0Q6arXtI6FezRzSF7ExcHdMEdQx
+ ueyp4Ym8by3u5lmrAWg==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI0MDA2NCBTYWx0ZWRfX21B1Cqk+nWJY
+ YxKc3d0spPQmF6B0gV4Gb8DviT33tER5wn6RIdByQvR5xOlnm/1/Tna0Hn+k2sIp648eIayVAMV
+ kxljliqwy9SgT+pT26xLM1U0AW6EZBo=
+X-Proofpoint-GUID: swd93M0KtWqyEYMWC8W9kk8ppXcor1YT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-24_03,2026-09-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 clxscore=1015 adultscore=0 suspectscore=0 impostorscore=0
+ lowpriorityscore=0 bulkscore=0 phishscore=0 priorityscore=1501 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609240064
 
-On 24 Sep 2026, at 6:21, Lorenzo Stoakes (ARM) wrote:
-
-> On Wed, Sep 23, 2026 at 04:06:14PM -0400, Zi Yan wrote:
->> On 17 Sep 2026, at 12:22, Lorenzo Stoakes (ARM) wrote:
->>
->>> When performing mlock() or munlock() otherwise normal VMAs have VMA_I=
-O_BIT
->>> solely to fix a race with migration which might otherwise double-coun=
+On Wed, 2026-09-23 at 12:37 -0400, Omar Elghoul wrote:
+> On 9/23/26 11:09 AM, Gerd Bayer wrote:
+> > On Tue, 2026-09-22 at 15:51 -0400, Omar Elghoul wrote:
+> > > Introduce the function zpci_fmb_reenable_device() that checks the sta=
+te
+> > > of function measurement and ensures it is enabled. Reset the counters=
+ to
+> > > zero, disable, and re-enable the FMB if it was already enabled. Call
+> > > this function from zpci_reenable_device().
+> > >=20
+> > > Don't free the FMB buffer during disabling and reuse it when re-enabl=
+ing
+> > > measurement. Instead, free the buffer upon device teardown, allowing =
+the
+> > > same buffer to be reused in the enable path and add the bit fmb_enabl=
+ed
+> > > to struct zpci_dev. Audit the only consumer of zdev->fmb and update i=
 t
->>> mlock VMAs.
->>>
->>> This is unnecessary - at the point of applying folio mlock state, whe=
-ther
->>> setting or clearing PG_mlocked, we know whether or not we are locking=
-=2E
->>>
->>> Solve this in two ways - thread a boolean through the page table walk=
+> > > to reflect the change in semantics.
+> >=20
+> > While I understand how this evolved, this commit message reads upside-
+> > down for me. Shouldn't we consider the changes described in this second
+> > part of the commit message as a preparatory step for the introduction
+> > of zpci_fmb_reenable_device() and put this paragraph first - or even
+> > into a separate commit of its own?
+>=20
+> That's a fair point, the commit message can be restructured to describe
+> exactly what the function does first, and then afterwards describe where
+> we're calling it and why.
 
->>> indicating whether a lock or unlock is being performed, and run a loc=
-king
->>> walk with VMA_LOCKONFAULT_BIT set and VMA_LOCKED_BIT cleared.
->>>
->>> This state never occurs otherwise, as VMA_LOCKONFAULT_BIT always impl=
-ies
->>> VMA_LOCKED_BIT. These are also always cleared together.
->>>
->>> Then, update folio_add_lru_vma() and mlock_folio() to check only for
->>> VMA_LOCKED_BIT, and update try_to_unmap_one() to check for VMA_LOCKED=
-_MASK
->>> instead.
->>>
->>> Also remove the useless invocation of allow_mlock_munlock() which sim=
-ply
->>> returns true if unlocking and instead rename it to allow_mlock() and =
-only
->>> call it when locking.
->>>
->>> Finally, with the other mlock abuse of VMA_IO_BIT addressed, update
->>> mlock_vma_folio() and folio_add_lru_vma() to simply test for
->>> VMA_LOCKED_BIT. munlock_vma_folio() tests VMA_LOCKED_MASK instead, as=
- an
->>> unmap racing with the locking walk must still munlock folios the walk=
- has
->>> already counted.
->>>
->>> While here, also replace some deprecated VMA flag predicates.
->>>
->>> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
->>> ---
->>>  mm/folio.c    |  2 +-
->>>  mm/internal.h | 10 +++++++---
->>>  mm/mlock.c    | 51 +++++++++++++++++++------------------------------=
---
->>>  mm/rmap.c     |  4 +++-
->>>  4 files changed, 30 insertions(+), 37 deletions(-)
->>>
->>> diff --git a/mm/folio.c b/mm/folio.c
->>> index 47a437e0f7fd..35e242b48870 100644
->>> --- a/mm/folio.c
->>> +++ b/mm/folio.c
->>> @@ -505,7 +505,7 @@ void folio_add_lru_vma(struct folio *folio, struc=
-t vm_area_struct *vma)
->>>  {
->>>  	VM_BUG_ON_FOLIO(folio_test_lru(folio), folio);
->>>
->>> -	if (unlikely((vma->vm_flags & (VM_LOCKED | VM_SPECIAL)) =3D=3D VM_L=
-OCKED))
->>> +	if (vma_test(vma, VMA_LOCKED_BIT))
->>
->> I think it is worth documenting VMA_LOCKONFAULT_BIT alone means mlock =
-in
->> progress, like you did in munlock_vma_folio(). Just to keep the protoc=
-ol
->> explicit for all the readers.
->
-> Well I'm not sure it's necessary here honestly, because this never chec=
-ked
-> VMA_LOCKED_MASK anyway, and VMA_LOCKONFAULT_BIT never made a difference=
-=2E
->
-> So the meaning of VMA_LOCKED_BIT here is strictly 'is it locked' and it=
-'s
-> correctly handled.
->
-> And I fear that it becomes whack-a-mole - the neat thing about this cha=
-nge is
-> that you no longer have to special case the stupid VM_SPECIAL thing, an=
-d can in
-> fact do the 'normal' thing of _just checking_ VMA_LOCKED_BIT :)
->
-> So I think it's better not to.
+Sounds good.
 
-Your reasoning makes sense to me.
+> I also think having everything in one commit is necessary because this
+> commit changes the semantics of zdev->fmb, where the old code used it
+> as both the buffer and also as an FMB enablement check. The latter check
+> is no longer valid after this commit, unless we want to add a separate
+> commit that just adds the fmb_enabled bool, which I thought was a little
+> overkill.
 
->
->>
->>>  		mlock_new_folio(folio);
->>>  	else
->>>  		folio_add_lru(folio);
->>> diff --git a/mm/internal.h b/mm/internal.h
->>> index b2c6c9435021..84aa3e6c8bac 100644
->>> --- a/mm/internal.h
->>> +++ b/mm/internal.h
->>> @@ -971,8 +971,7 @@ void mlock_folio(struct folio *folio);
->>>  static inline void mlock_vma_folio(struct folio *folio,
->>>  				struct vm_area_struct *vma)
->>>  {
->>> -	/* The VM_IO check prevents migration from double-counting during m=
-lock. */
->>> -	if (unlikely((vma->vm_flags & (VM_LOCKED|VM_SPECIAL)) =3D=3D VM_LOC=
-KED))
->>> +	if (vma_test(vma, VMA_LOCKED_BIT))
->>
->> Ditto.
->
-> Similar reasoning to above.
->
->>
->>>  		mlock_folio(folio);
->>>  }
->>>
->>> @@ -989,7 +988,12 @@ static inline void munlock_vma_folio(struct foli=
-o *folio,
->>>  	 * always munlock the folio and page reclaim will correct it
->>>  	 * if it's wrong.
->>>  	 */
->>> -	if (unlikely(vma->vm_flags & VM_LOCKED))
->>> +	/*
->>> +	 * VMA_LOCKONFAULT_BIT alone marks an mlock walk in progress, see
->>> +	 * mlock_vma_pages_range(). An unmap racing with the walk must stil=
-l
->>> +	 * munlock folios the walk has already counted.
->>> +	 */
->
-> Here it's worth mentioning, as it's specifically relying on the new
-> behaviour. Although it's neatly using the VMA_LOCKED_MASK to handle bot=
-h the
-> locked case and the 'being locked' case :)
->
->>> +	if (unlikely(vma_test_any_mask(vma, VMA_LOCKED_MASK)))
->>>  		munlock_folio(folio);
->>>  }
->>>
->>
->> Why I am commenting in the middle of the series? Because I am taking
->> a quiz given by LLM based on this series to get myself enough backgrou=
-nd
->> knowledge to review this series. This mlock part came up at part E
->> and I only have part F left before I can do the full review. :)
->
-> Thanks! :) I really appreciate you taking the time to look at this! Sor=
-ry it's
-> so large.
+That's fine with me, no hard feelings.
 
-Sure. It is great learning material for me. Thank you for the patches.
+[...]
 
->
-> I held this series back from last cycle to help with review load, then =
-spent
-> some time fixing various AI-discovered things, and all the patches are =
-necessary
-> (well for the most part) to get where the series needs to go.
->
-> I think the change is worth it though!
+> >=20
+> > > +		memset(zdev->fmb, 0, sizeof(*zdev->fmb));
+> > > +	}
+> > >  =20
+> > >   	/* reset software counters */
+> > >   	spin_lock_irqsave(&zdev->dom_lock, flags);
+> > > @@ -199,11 +204,11 @@ int zpci_fmb_enable_device(struct zpci_dev *zde=
+v)
+> > >   	fib.fmb_addr =3D virt_to_phys(zdev->fmb);
+> > >   	fib.gd =3D zdev->gisa;
+> > >   	cc =3D zpci_mod_fc(req, &fib, &status);
+> > > -	if (cc) {
+> > > -		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
+> > > -		zdev->fmb =3D NULL;
+> > > -	}
+> > > -	return cc ? -EIO : 0;
+> > > +	if (cc)
+> > > +		return -EIO;
+> > > +
+> > > +	zdev->fmb_enabled =3D 1;
+> > > +	return 0;
+> > >   }
+> > >  =20
+> > >   /* Modify PCI: Disable PCI function measurement */
+> > > @@ -215,7 +220,7 @@ int zpci_fmb_disable_device(struct zpci_dev *zdev=
+)
+> > >  =20
+> > >   	lockdep_assert_held(&zdev->fmb_lock);
+> > >  =20
+> > > -	if (!zdev->fmb)
+> > > +	if (!zdev->fmb_enabled)
+> > >   		return -EINVAL;
+> > >  =20
+> > >   	fib.gd =3D zdev->gisa;
+> > > @@ -224,13 +229,39 @@ int zpci_fmb_disable_device(struct zpci_dev *zd=
+ev)
+> > >   	cc =3D zpci_mod_fc(req, &fib, &status);
+> > >   	if (cc =3D=3D 3) /* Function already gone. */
+> > >   		cc =3D 0;
+> > > +	if (cc)
+> > > +		return -EIO;
+> > >  =20
+> > > -	if (!cc) {
+> > > -		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
+> > > -		zdev->fmb =3D NULL;
+> > > -	}
+> > > -	return cc ? -EIO : 0;
+> > > +	zdev->fmb_enabled =3D 0;
+> > > +	return 0;
+> > > +}
+> > > +EXPORT_SYMBOL_GPL(zpci_fmb_disable_device);
+> > > +
+> > > +int zpci_fmb_reenable_device(struct zpci_dev *zdev)
+> > > +{
+> > > +	u64 req =3D ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_SET_MEASURE);
+> > > +	struct zpci_fib fib =3D {0};
+> > > +	u8 cc, status;
+> > > +
+> > > +	lockdep_assert_held(&zdev->fmb_lock);
+> > > +
+> > > +	if (!zdev->fmb_enabled)
+> > > +		return zpci_fmb_enable_device(zdev);
+> > > +
+> > > +	fib.gd =3D zdev->gisa;
+> > > +	cc =3D zpci_mod_fc(req, &fib, &status); /* Disable function measure=
+ment */
+> > > +
+> > > +	/* Unlike in zpci_fmb_disable_device(), cc =3D=3D 3 is not a valid =
+state here
+> > > +	 * because we are re-enabling function measurement for the same fun=
+ction
+> > > +	 * handle.
+> > > +	 */
+> > > +	if (cc)
+> > > +		return -EIO;
+> > > +
+> > > +	zdev->fmb_enabled =3D 0;
+> > > +	return zpci_fmb_enable_device(zdev);
+> > >   }
+> > > +EXPORT_SYMBOL_GPL(zpci_fmb_reenable_device);
+> >=20
+> > I see a little imbalance of the semantics of "reenable" in
+> > zpci_fmb_reenable_device() vs. zpci_reenable_device():
+> > zpci_reenable_device() "just" enables + registers existing data
+> > structures with the underlying system - while
+> > zpci_fmb_reenable_device() does both the disablement + the enablement.
+>=20
+> Strictly speaking, the disablement step may not be necessary, provided
+> firmware starts the counters at zero upon changing an FMB address, which
+> does seem to be true in practice. The architecture doesn't explicitly
+> require that though, so I thought it's a reasonable safeguard to use it
+> as an intermediate step that signals firmware to stop counting before we
+> immediately restart measurement after.
 
-Of course, great to see hacky code being removed by this series.
+Initially, my point was purely "semantics":
+If it is enough for zpci_reenable_device() to do only "enabling"-kind
+of steps, why is zpci_fmb_reenable_device() then also doing some
+"disabling" (under certain conditions). In my eyes the "reenable" was
+actually a "conditional-toggling-on".
 
-For this patch, feel free to add
+And this then led me to checking the paths leading into
+zpci_reenable_device(). I found that all paths would call
+zpci_disable_device() before and that led me to the next question:
 
-Reviewed-by: Zi Yan <ziy@nvidia.com>
+> > Since zpci_disable_device() includes the disablement of FMB per
+> > architecture, I wonder if it would suffice to set zdev->fmb_enabled =3D=
+ 0
+> > in that function, and drop the explicit disable FMB there?
+>=20
+> The semantics of the FMB re-enable function were intended to allow us
+> to re-enable the FMB when we re-enable the device after FMB was
+> implicitly disabled via zpci_disable_device(), like you said. Prior to
+> this patch, there was a sort of "limbo" state where firmware thinks FMB
+> is disabled, but the kernel is unaware of it because it was implicit.
+>=20
+> For that same reason, I would prefer to not touch zpci_disable_device()
+> at all, neither explicitly disabling FMB nor setting fmb_enabled to 0.
+> The purpose of fmb_enabled variable is to allow us to restore the
+> original FMB enablement when we re-enable the device, and so we want to
+> preserve it here [1].
 
+OK, I see. The whole point was to preserve the FMB enabled state over
+disable/enable sequences on a zdev: Re-enable if (and only if) it was
+enabled before the sequence. So I agree, you must not set zdev-
+>fmb_enabled =3D 0 in zpci_disable_device(). But you can trust firmware
+to stop updating the FMB buffer (after the ominous grace-period) after
+zpci_disable_device() ran - the zpci_mod_fc() to set FMB to 0 is done
+implicitly in clp_disable_fh().
+
+And you wanted to reuse the zdev->fmb buffer if there ever was one
+allocated for the zdev. It just occurred to me, what good is the whole
+zdev_fmb_cache if the life-time of struct zpci_fmb buffers becomes
+almost as static as struct zpci_dev (short of those that never leave
+"STANDBY"). Couldn't we just kzalloc() a struct zpci_fmb right in
+zpci_create_device()?
 
 
-Best Regards,
-Yan, Zi
+>=20
+> Thanks
+>=20
+> [1]=20
+> https://lore.kernel.org/all/dae3c7cd-21aa-4263-bec5-792b018d21e2@linux.ib=
+m.com/
+>=20
+>=20
+
+[...]
+
+Thank you,
+Gerd
