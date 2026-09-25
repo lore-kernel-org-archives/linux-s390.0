@@ -1,162 +1,132 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy2-f43.google.com (mail-dy2-f43.google.com [74.125.229.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4210367291;
-	Fri, 25 Sep 2026 05:20:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C1FF42F6F8
+	for <linux-s390@vger.kernel.org>; Fri, 25 Sep 2026 06:21:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790313649; cv=none; b=Z4s/9rIMhsfbUI8IpgQwgjv+uszu6T2X1nwICWnZC8nLpvhbZtcAzQBLPsph1LVGrmGdHIJyAAPlMICKizppsGkyEWOoVvuCCnVM5NheIKk2hkYNlsp2FVoUz5w50Ob06rGTG5QEzHV8gnPxrA8Sh4h/OdcXY9NIt4hDeRvUrxo=
+	t=1790317321; cv=none; b=E+z9PbrrVlE9K4S06Wf2pGFoXDjxsTLX314EnkcdXIbgNLdEYCLxvadG3gUwiFTh8gge6RJOwsFp1VHFXG57r0otrP/nCaXfU5nmIHnqb+uy//XH0l4cOHHeBYUeJBg2nKLsKadAMlnqRMYECtccXh5URtgW6SsP6hAEehfsr5Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790313649; c=relaxed/simple;
-	bh=8qxpkMMoaVY836cgrQgnFdFSEX02qHLJ14wkm+LoT70=;
+	s=arc-20240116; t=1790317321; c=relaxed/simple;
+	bh=UjlgwLbgeh6LAkjBfXyoi1ibUIo+DP0JvbI95ZXgWUM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=i6cwQ0XuTwXSUXSq66hB5qwqwHlHONUzcWvUUzfYxmR4toquaqHvS4J+Ecj0XXAR0KneTEiRMcehqbb6gJkLxaFkByNYTFxQmJTwixr3Wb2RP8LRf/+Z7utDsHB2p5ApyI4ykVanReExyqdWWtLO8YSkdrW1PZdqPFtVULRpDFE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=LXnn2mW8; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Kr4Ye9XboH1LyMFzNOJnPj/VcS4scLzYCdHwh9aI7HYq1x0WXhzOvcfGY1rCqRME8d0mFTX6144jO5iEKIZ0pIQZvUz4VlhoQDSoPsmqGlW6ihB5UBE6mmbz/baJhOkHm56qcd+veTcK4WIotTaILUygTK3kUID1lBPGZOa001k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bcCf+rsu; arc=none smtp.client-ip=74.125.229.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="LXnn2mW8"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68P4aB4c061545;
-	Fri, 25 Sep 2026 05:20:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:sender:subject:to; s=pp1;
-	 bh=Rn3aWsRBSbK7JlEcAr0q9d3vEYD1JDh5vsJpTXheSks=; b=LXnn2mW8RF2l
-	TsWYgMIjFBCJAhx2Woy9Ko1Dt3qvkRy3Wzo+5jW4CjwEESJEmzLJCzkEpRJegP0O
-	+RD3giE7D8zBBOLKN58te4xn5f4fRwYMHWfr13YnZ/YbDDtZmAebhABT3JihM3ej
-	QqjdtGcayhw1+rittm0CaHcWaLSyeO7okh3dUErMYw5FrNINUBHsYCeTRRZYwnk0
-	r6VtTcFdkCqbcgPiBnFcJnUte7bERAspysHJephLn7q+8+MwA9Wne9Q1gvE5BVtm
-	JH4o+Mesi7SdWq5uEn8n3scy500hYINZYmfdoSkyLoal+a2C6dLoOfPZWSweVqjT
-	O5iiaVI8vw==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskgsn82w-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 25 Sep 2026 05:20:46 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68P4lYBa3248902;
-	Fri, 25 Sep 2026 05:20:45 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gvbt3129m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 25 Sep 2026 05:20:45 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68P5KfTo52298020
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 25 Sep 2026 05:20:41 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5D5F220065;
-	Fri, 25 Sep 2026 05:20:41 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 46ADD2004F;
-	Fri, 25 Sep 2026 05:20:41 +0000 (GMT)
-Received: from p14sgen6-pf6akexs (unknown [9.111.75.35])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 25 Sep 2026 05:20:41 +0000 (GMT)
-Received: from bblock by p14sgen6-pf6akexs with local (Exim 4.99.5)
-	(envelope-from <bblock@linux.ibm.com>)
-	id 1x9yMS-00000009R7E-3jWZ;
-	Fri, 25 Sep 2026 07:20:40 +0200
-Date: Fri, 25 Sep 2026 07:20:40 +0200
-From: Benjamin Block <bblock@linux.ibm.com>
-To: sashiko-reviews@lists.linux.dev, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        intel-xe@lists.freedesktop.org, linux-pci@vger.kernel.org
-Subject: Re: [PATCH v15 5/5] s390/pci: Fix circular/recursive deadlocks in
- PCI-bus and -device release
-Message-ID: <20260925052040.GA2183239@p14sgen6-pf6akexs.fritz.box>
-References: <cover.1790267348.git.bblock@linux.ibm.com>
- <845f3fd0e94294765ea10454823c21e464d2f4bd.1790267348.git.bblock@linux.ibm.com>
- <20260924164406.B7A151F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bcCf+rsu"
+Received: by mail-dy2-f43.google.com with SMTP id 5a478bee46e88-3396cec93b6so558672eec.3
+        for <linux-s390@vger.kernel.org>; Thu, 24 Sep 2026 23:21:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790317315; x=1790922115; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=peRJubAzt5CBA3DlGa/amJu9ZBZekocmcGMZ2nqjKzw=;
+        b=bcCf+rsunlWa3cL2fTN0lmKtabtaSpPf9CxG//dRhkFwqKSBHmPh967KVU4dyqW1hN
+         S+/MJMVAB1rpNZoPph0y3i2MyKehfWzmrTciN/9X7GyjTC3G3qFiS97oSwBjslTgHMYq
+         tmdaWhiSdVVS/AKfY08MUrFsAyT25NpHMbf1mJPnOz7p8U3XeWuQnUAcRBfvPCy5NZQW
+         qbPv7bHikYGOXqI0CUjwHojlXG1gyAMH+f534exx2k3rwJyYgROCOd9ckPhz/osiV2iL
+         p7JGh1BHpSZ0MhpX/gwlU+TYbI9HoE1RDRM/kKCvvKIM+yyRaYEMTsmkrcJyvcuCei8p
+         86dQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790317315; x=1790922115;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=peRJubAzt5CBA3DlGa/amJu9ZBZekocmcGMZ2nqjKzw=;
+        b=qzce790F9w7oMO3ok0AIU2/Ky71aQ7J7F9Pq8ZCWSBRn9jlCUZxe7BrwHxQsvLhe/l
+         7CVcmTGOqbbNLo8cOnPUHPTchzPnKKcK/DIbWqphDvYYgUxsi5ogY07ChHoTKQ8v/PAM
+         QY6pUOzjmL4VmWlGIeQUnD90Uzb3teFvkZOuQTnjR14acL4K5HQlzGuUmuIh5DvF2NPD
+         aJwOV5BIRYhZjadlOfUNuVYg9vRBYeCgygh4SyesECtfWJCv6Gx+JLlWH663/KKQl8di
+         hx3T6ow9AkonKyzn7btcZJJp/d8rZ8YKUbl52EOxSd0DwNhYfftqHroEy/0AdNv/K3cK
+         SgFw==
+X-Forwarded-Encrypted: i=1; AKwUvBwlFaSJReotcUo864zJqhhlnsHB9P1AimHSGTLreVtENwsG8mLeA8LP3owNDYkFCgARZgw3oX3zWvmL@vger.kernel.org
+X-Gm-Message-State: AFuF++nvwTP3ln/cpDkqJ+bYgq7APj21bTNgQpRDNkv0mG1szd1C2Mwo
+	lHVlx1oW2IUCI5EGyo9D8Ctm4HCeB4PdxaVqr9zc2aikmamzTlu9TWEr
+X-Gm-Gg: AYBFou0WlMLsise5NqwjzHgNxisqCASJiLHbjou7niZWAbIKMy2F/19A5JJLxglALmy
+	bjvKv5thwM2tQT/TaSrzhElXJRNer4cpV1LR3DKc/6SZ5CoQIYaaoP44nM1/Mt6OjrrQpzlJ2XC
+	aGkeN/EzHuLDbox3pQiIGYmqVTFB5n/nNvMEAJL4wU7aDexhmnNLcxxHfSyXvS6rElupAaEGw5Z
+	BEmf/T61P/i4WkXucsItJJYU0yUVa+EXgKrZ6/y4jPcmLgHYOgPr06XJet7ErUC/+9SaboOlaS9
+	k/op/pvSOBC+HvMA4DemZML5lkQ3bQk++7b9kH1/vG8zKDsGEEtj1j/b0HkZ9I405H7kFNL2jhL
+	Mj/TQs/7jwb3/D1IVhKDz9xR3FhwuuAryIvrk7H73pyHVzfGBZ/atddI+RZduxwWnyzATyyI3rw
+	G9U3bA8a4hkuGzPEJ1/Yd73ibctze/93SfOzyCvAA1pCAzZ+01/mv6JAYuiY8y3rTa21AqSEPSx
+	BNodNIYAfESwPCD4RjAsii2+y/HjilVVhVQyWVZv6a7
+X-Received: by 2002:a05:7300:dd47:b0:342:94b:aa28 with SMTP id 5a478bee46e88-342095b08cemr188044eec.27.1790317315073;
+        Thu, 24 Sep 2026 23:21:55 -0700 (PDT)
+Received: from li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com ([106.51.165.23])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-34144172de6sm5598126eec.9.2026.09.24.23.21.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 24 Sep 2026 23:21:54 -0700 (PDT)
+Date: Fri, 25 Sep 2026 11:51:33 +0530
+From: Mukesh Kumar Chaurasiya <mkchauras@gmail.com>
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: catalin.marinas@arm.com, will@kernel.org, maddy@linux.ibm.com, 
+	mpe@ellerman.id.au, npiggin@gmail.com, chleroy@kernel.org, ritesh.list@gmail.com, 
+	sshegde@linux.ibm.com, pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu, 
+	alex@ghiti.fr, hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, 
+	borntraeger@linux.ibm.com, svens@linux.ibm.com, tglx@kernel.org, mingo@redhat.com, 
+	bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, 
+	ojeda@kernel.org, boqun@kernel.org, gary@garyguo.net, bjorn3_gh@protonmail.com, 
+	lossin@kernel.org, a.hindborg@kernel.org, aliceryhl@google.com, tmgross@umich.edu, 
+	dakr@kernel.org, daniel.almeida@collabora.com, tamird@kernel.org, 
+	acourbot@nvidia.com, work@onurozkan.dev, nathan@kernel.org, ndesaulniers@google.com, 
+	morbo@google.com, justinstitt@google.com, jszhang@kernel.org, japo@linux.ibm.com, 
+	peterz@infradead.org, jpoimboe@kernel.org, seanjc@google.com, pmladek@suse.com, 
+	thuth@redhat.com, ynorov@nvidia.com, joelagnelf@nvidia.com, david@davidgow.net, 
+	fujita.tomonori@gmail.com, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, rust-for-linux@vger.kernel.org, llvm@lists.linux.dev
+Subject: Re: [RFC] rust: kernel: Add KUnit tests for ARCH_WARN_ASM bug table
+ emission
+Message-ID: <arYR4GrzNnFko7XO@li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com>
+References: <20260922054959.955093-2-mkchauras@gmail.com>
+ <arUYLsJJewE--wqo@J2N7QTR9R3>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260924164406.B7A151F000FF@smtp.kernel.org>
-Sender: Benjamin Block <bblock@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=V/XoQuni c=1 sm=1 tr=0 ts=6ab604ae cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=8nJEP1OIZ-IA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=FFIfLM0yJpXRnZ21FiUA:9 a=3ZKOabzyN94A:10 a=wPNLvfGTeEIA:10
-X-Proofpoint-ORIG-GUID: cH8_hwyH5h2DnXUFrYoirBoTEL14nOtH
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI1MDAyMCBTYWx0ZWRfX6uTnNMvbolH3
- svX1sJY6gdmUzbUSQY6alJt16bNodUFAujaO6VXEhbxFHdBqE8BgPc33mMDMt7KKCPACQPQhhQu
- qMMweFpKdXG8tqKi2AfuLs7mJsfWMQWZJp9Ly9bSj8CMISScBOBR8utkru8LJJMBY8EqS8TeZZC
- aZU3EPlWO6BXhwrrIyG5xudPtRlumSG/ntFO47hKXCjN5m/knTYaRoceo4DvisGogSRTsNc0ien
- 0yJEglOcP7exNxiX8moajR3+I53lOg39sq0W8S9j5FSqmCuYrZeCKL3S5NHtoczcAK5M3u3JoOm
- l6BTGzL/sJy3aRa75nykkrV8JS9NSuU5jjMhOF10wV+trl5DMGRV5T8Wwnk2Z2qwwCghpOQ/bev
- KnO1binI0uqgcAzGACPzw6NBNWYWIYbdr5AOFe9HmZvbL+/qNI79/0hnKxXwkI9ioZ943GaKkE+
- OwPnm0KoYtOvDAAXH5Q==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI1MDAyMCBTYWx0ZWRfX+rImqnaeRuTu
- Tt3KM3A9zVxEJgXcLciWeVQ8/RF9f2xt/vKUbl1YQlGjsJ0jj73dMXrvz+v2OUwP0eM3MP7D2nQ
- n9zHfPIaKwjxwiSXJVEqOZC0Ly298Co=
-X-Proofpoint-GUID: cH8_hwyH5h2DnXUFrYoirBoTEL14nOtH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-25_02,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 malwarescore=0 clxscore=1011 phishscore=0
- bulkscore=0 adultscore=0 lowpriorityscore=0 impostorscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609250020
+In-Reply-To: <arUYLsJJewE--wqo@J2N7QTR9R3>
 
-On Thu, Sep 24, 2026 at 04:44:06PM +0000, sashiko-bot@kernel.org wrote:
-> > diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> > index d64c544b32b0c..4fc3e3dc87ad1 100644
-> > --- a/arch/s390/pci/pci.c
-> > +++ b/arch/s390/pci/pci.c
-> > @@ -1208,7 +1212,8 @@ static int __init pci_base_init(void)
-> >  	if (rc)
-> >  		goto out_irq;
-> >  
-> > -	rc = zpci_scan_devices();
-> > +	scoped_guard(pci_rescan_remove)
-> > +		rc = zpci_scan_devices();
-> >  	if (rc)
-> >  		goto out_find;
+On Thu, Sep 24, 2026 at 01:31:42PM +0100, Mark Rutland wrote:
+> On Tue, Sep 22, 2026 at 11:20:00AM +0530, Mukesh Kumar Chaurasiya (IBM) wrote:
+> > Verify that the __bug_table entry emitted by ARCH_WARN_ASM has a correct
+> > bug_addr displacement â€” i.e. the arch's trap label reference resolves to
+> > the trap instruction â€” by calling find_bug() with the exact virtual address
+> > of the trap, mirroring what the real trap handler does.
+> > 
+> > To support all architectures, each arch that implements ARCH_WARN_ASM now
+> > defines ARCH_WARN_ASM_TRAP_LABEL, a string constant naming the local label
+> > at which the trap instruction is placed:
+> > 
+> >   x86       "1"     (ud2 at label 1:)
+> >   powerpc   "1"     (twi at label 1:)
+> >   riscv     "1"     (ebreak at label 1:)
+> >   arm64     "14471" (brk placed at 14471: by __BUG_ENTRY_END)
+> >   s390      "0"     (mc at label 0:)
 > 
-> The pci_base_init() function contains multiple goto statements for error
-> handling, and this patch introduces a scoped_guard() into the same routine.
-> The cleanup.h guidelines state that usage of goto and cleanup helpers should
-> never be mixed in the same function.
---8<--
-> > diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-> > index f317a1465dad8..268f435677ae3 100644
-> > --- a/arch/s390/pci/pci_event.c
-> > +++ b/arch/s390/pci/pci_event.c
-> > @@ -382,6 +382,7 @@ static void __zpci_event_error(struct zpci_ccdf_err *ccdf)
-> >  	pci_dev_put(pdev);
-> >  no_pdev:
-> >  	mutex_unlock(&zdev->state_lock);
-> > +	guard(pci_rescan_remove)();
-> >  	zpci_zdev_put(zdev);
-> >  }
+> I'm not a fan of exposing such a low-level implementation detail out of
+> the architecture code, and I don't think we should expose this.
 > 
-> In __zpci_event_error(), there are goto statements used for error handling,
-> and this patch introduces a guard() right at the cleanup label. Mixing goto
-> with cleanup.h helpers in the same function goes against the subsystem
-> guidelines.
+> What exactly are you trying to verify here, and why? Has there been
+> some _specific_ issue on powerpc that caused you to look at this?
+> 
+> Mark.
 
-So as far as I know this rule from cleanup.h is motivated by cases where
-someone jumps *into* a cleanup-scope and thus skips the initialization, but
-executes the cleanup, which then breaks.
+Hey Mark,
 
-This shouldn't be a problem here, but if our s390 maintainers think this
-should be changed regardless, I can use ordinary calls in those two cases,
-since it's probably not worth converting the whole functions here.
+During implementing ARCH_WARN_ASM for rust I broke the bug entry for
+powerpc so I wrote this to verify. I sent it out mainly for ppc but
+few people wanted that if it needed it should be done for all archs.
+So separated this thing and sent it out as an RFC to check whether
+other archs want this or not.
 
--- 
-Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
-IBM Deutschland Research & Development GmbH    /   https://www.ibm.com/privacy
-Vors. Aufs.-R.: Wolfgang Wendt         /        Geschäftsführung: David Faller
-Sitz der Ges.: Ehningen     /     Registergericht: AmtsG Stuttgart, HRB 243294
+Regards,
+Mukesh
