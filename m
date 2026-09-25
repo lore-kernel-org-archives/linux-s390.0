@@ -1,393 +1,227 @@
-Received: from mail-wr2-f12.google.com (mail-wr2-f12.google.com [74.125.225.76])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from flow-b8-smtp.messagingengine.com (flow-b8-smtp.messagingengine.com [202.12.124.143])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA0BF38D6B5
-	for <linux-s390@vger.kernel.org>; Fri, 25 Sep 2026 22:01:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.225.76
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790373663; cv=pass; b=sR9ZrWFOYNpHgkNxoDBgQsJ28zg24IwVVq7I7RufLslKOIED5jUJxbS5AfYTwjahLlfdTDgAYGgaZFkCHvYvt1EZBC+S7qiPjlVAVJqfZqGWXtn2eJHfgwhOKg8zZWXf74GIMoeItATiZc9t5PtTObNJEXB5c8QJojzIbVUvaLM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790373663; c=relaxed/simple;
-	bh=LklSWknRMwfaVZQDpvI7pbaMGR+tZRKs+3Kj5yrKaHY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rU1lZw0xgYwOgnbzgAZPrnbDpNYrhIh+DtrQrvnBcWHd+QqkJsiXi9Ue9eaeLK5uL6rXETA//wX2aFrOlOjS/bYh0L8q2upwkxBk4zCqrBCNiN9tiWxjmRHBnJ4miWeHAx55MWdeAKVn9edzEcA/lCJdeDhBm/AtDKdjKqoUNFk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=F7jPCrDS; arc=pass smtp.client-ip=74.125.225.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C1824570E1;
+	Fri, 25 Sep 2026 22:06:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.143
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790374019; cv=none; b=KnF68ceULhHuwl9zGkE4KpadXcCo6dieB5pZxfwwdQhfx5EslvNRRqqmxFUm61zWlvrkq5cvHzh+nhe/R7TNEO8c9DNfZghyHYFtelAJXDWBWnFnOEHVl2jJ5/y+PipPF236SrMZILhlIa2RU+2llb4QyylhhFtBloJ9bPGDfJc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790374019; c=relaxed/simple;
+	bh=lS1TxV0OL5XbjJoEVVQOxIs/WZv/eAgyubI3NbbQssI=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=qBMOiV8XKYqE2k6LV4zGN+Ym0gNRay1evLw51EiIATao+r3QN1HLgUuNYoQbBZRKgtdG00suqHJJz+Zv+bRDauX/f0jlv9G/IRgVP00uVEiVlZR+Q36ywtU3gzLx0vNyhQ4Hrtw0SPFpKcOD9ivHoE8kPXv9GeTZh5VBN3yN2IE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=VV93A+GB; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=aGXV+YUS; arc=none smtp.client-ip=202.12.124.143
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="F7jPCrDS"
-Received: by mail-wr2-f12.google.com with SMTP id ffacd0b85a97d-4843cedd129so763897f8f.0
-        for <linux-s390@vger.kernel.org>; Fri, 25 Sep 2026 15:01:00 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1790373659; cv=none;
-        d=google.com; s=arc-20260327;
-        b=bWT9DI0GsUKdiQ4nHJfUqBYimNddxCveZ1PipY32hvjTeZESG7yP3n+c7DemxR6BG4
-         b3W050pZOtvHxEj/U5H+IiRUjNL43LTQyxlnR77HA8WLbX5Jz0om6gq2WhAZJboEvtxt
-         8NO0Dhb23U5FA7rBoN6WDYAOUDlJXTiaL3rg0uGhkrVMa7SoTl7aXjYaU/SgNsha7hJt
-         Ky+La7BvvzZh/Yej6IoXAp/REEDOS83+4uPqEsIQw4xCW3SBVM+tMF3ZU4htWMEq3M2z
-         4n3AxXU2VMx8yTamdLzjY62CJ4+TYl3NLvFIL8sODWXtAL62XHl1x4Us8UuY0E2lFAD9
-         eOLQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=QlMEQu1qsaTBww97rVbchh8pOSM1CexDa8zo36TMiIs=;
-        fh=dCQgMKfxvNa4E3YQLjb6NrjSYIyi0ykhnylS8Ecer34=;
-        b=KWbnJRfxpn/M9RmXbEwhuF1khqpHmSa0vnFEQlOmwJCJa7QGpWoK12MZl/9ugzV6b+
-         Ven0eLUiuGxz+KDhxCB35ISZXwYBA7Iom8mvTLnnoih6OaGAGawTHhtCDa0CjaMKgYnK
-         24zFJL820/zS9uTYOLGGyUwgUQyATCVJ+LNea9snfxp81IthAaVcROsHb2ex/4kTD7dS
-         RntWa+30tOhTwtlaH8l78NYlLpwBRR1ctClmdnXINY3fdcCaBoQR4Woq8EMX/n/VMRm7
-         JqhcHbMUWxI+59MCIrxyWQ4u7nW3UjtadPBNvSOCZXp8dI64rlVHNyN577OPNRKcEN+B
-         SP7Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1790373659; x=1790978459; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=QlMEQu1qsaTBww97rVbchh8pOSM1CexDa8zo36TMiIs=;
-        b=F7jPCrDScB/JAroDYfAtspkk37iCGVhJVrIACrMN6/yo1NoMeu/9xnCtlQUfpvIEPL
-         TQQ4e3O2vdh/SqbE6xWO/LPzi8kMTbxmsCTb82Zxt+lukYXZRHhbY1clhD9cXhNRJ+we
-         Yj/4WoKoL303uAI438G9lCToFBojYs4/MbAEbTs8RdGR+rsS29QcT7zQzNUv26r7I67f
-         dHJN1EPPQ4I1wNK5Mg+7Hxj0dWnQIiUlmqSgH/Zpq8l4TbSMucOanKPxQlwvf9AT9CfW
-         Xj/+ltzS5jsjJ3bsv/FoBcwGO7gwaILe6/tl+cQ7I3tnZxAbtTAfNoQgJJFX/+38KiSk
-         1Dmg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790373659; x=1790978459;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=QlMEQu1qsaTBww97rVbchh8pOSM1CexDa8zo36TMiIs=;
-        b=DO7YMxr8A6CkKctmxYN9aVJ/M6dh4Jsrj0u4aqu0WXdD06gak+ADMZe3BxLgnNN9r+
-         iYx7YSMVSYCrYln1qGqLIjdCpBcYa0/hjd+aa3aeZECjdYq6+lBpf2c7phESvla4vlKA
-         vrmclIGotLFtDbyFaK9SG/E5ak2+teQmHeDMJD1H6J5QeEbL3kmrJFSqisfihkwKejIU
-         rZa+boHEZn/nLMF+q11KQY4NmF6Ww7Anru/+8lzVfDrjnxWObfxrVO0geb6ejgzXgBxs
-         70EMRQKap1kyUYCzZ/C7nQvMh5LWRGnMLP4VbdXfksiLl1Tb6pjO+xuDRtZhTudGbw8Y
-         E8TA==
-X-Forwarded-Encrypted: i=1; AKwUvByE1jZHrnrdIftI9XU1NnaplKdb59rchCUxJX3GZEs377lybS6ZlSR8tXPhnvyiJs+hMexdaaKK3IJl@vger.kernel.org
-X-Gm-Message-State: AFuF++m9oIjdYJgz6slCDzt2zFMEVjT2EFlALIsIRy3ZXifa7oZThKOY
-	+PpSiqnnApp0dB46KJFkipqcIHaGnhqX/bqLbjuRJwyZDqsEI6vjQ7F6y0G3j16SfmS5518RJOX
-	a6O+u0vb0rB+3tU5Rzsv33sZD93yYuEVWh8UXUqlt
-X-Gm-Gg: AYBFou2RhrRyG3gEaceE0uArsgTZD1B/xsn1GJYOlwHxLzRBaEGvhN2GXkfmeiolGCx
-	hWWX/8wr1yczajKOwAR571fe+UTPv+z/kSfH50W5jnJ1dR/fi9PKzl5b991AyYQc002nfdOTjDE
-	1LtM3BONE0M1htcRD7GrOwOoVsK17rixtL+xSZCclPbCziF2uTRDFEaAt7/gmy7ouRL4FkR4kyw
-	xXQMLGX8TVHF7rLEAnEnM59oxBoDlWv4yviRbuldOIyyPPHtzOdSNZfm9K3KlusldES+L8ydnBG
-	8HAlINQVqZDEI+xFTzbVYlOZEK+zh2BaSyLu+sKvMJpuvUJbiRPkVpkZCz++NhUsge1Nk0Y1MVA
-	1lj4WxPlsfIH2n5Guihr6taaTz8wb4lykACW4xtLYv0oSRey0R+zMpm+w2divjbL6qOwi/w==
-X-Received: by 2002:a05:6000:41f7:b0:487:27f6:a4d6 with SMTP id
- ffacd0b85a97d-488716b00eemr13403982f8f.38.1790373658191; Fri, 25 Sep 2026
- 15:00:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="VV93A+GB";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="aGXV+YUS"
+Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
+	by mailflow.stl.internal (Postfix) with ESMTP id 573C313003B9;
+	Fri, 25 Sep 2026 18:06:52 -0400 (EDT)
+Received: from ams-imap-03 ([10.64.2.23])
+  by ams-compute-02.internal (MEProxy); Fri, 25 Sep 2026 18:06:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1790374011;
+	 x=1790381211; bh=JrMmm48wWb5nfElfLTql9tnPeB0+8MEVeYNyAgGoaQE=; b=
+	VV93A+GBv2P9/qrRdwAhHm15SknYpPDoE9Rusj/hHzckBkjJVEcdDlJTHlO4p/7E
+	MsStEr6lA9ZZpv80ctYjcMxWtVfeFtMzS2Pz6b48b4mBBrO1C9yPQ1m/yB4jrJsU
+	Txgptg/CZdFHDOAYUVRGXXi1vMAjXp9R2q/zkAVgu2JU57U6eOhopKB9vdNOWomM
+	8KEOhPJEGjfknNt7dRh1N3UcGrPPo322SVDR7u2P7ODyCz9fXvOMVKwB4BGJLV4d
+	p1vZk++EfDAgCFACQelPXp+bGzwficcKO8bwIm5qbPT1tKzqp+6Byy8nrSst/iUF
+	5iM/+XBRXhRzlq/3FdZWSw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1790374011; x=
+	1790381211; bh=JrMmm48wWb5nfElfLTql9tnPeB0+8MEVeYNyAgGoaQE=; b=a
+	GXV+YUSmJZBpt2RL3eFg0yROgDvjwUpne/3aX5qHc2ia1wEVE/khGVzWW2IGsz5l
+	hd3jDKQVGFxsM4ytzm0w/bh9v/Q0fmxggROD5amVZbL2IpyazCJKEmXcfYygtqXQ
+	BNuhNcefmS8wBdPbdpsyQgC85zo4DoYIA7PTlnLy/b0B7TGhHrMTVWAcQVUniEoZ
+	1QJGFj+nGWa8IGhxIs0v/xiIAUYiBM7D6MMeI7Tqf0DCWrqnH693KRkitqw3jAgQ
+	k0QlTsip1+o1bnRtNhMLSAe/LoZeLLRCKWTKQF0vQQ12dvxRPUWAYPzU7TrYn2iP
+	xq/lsXF6iBqKAWrtf+W5Q==
+X-ME-Sender: <xms:cvC2aiSvwM8it39YGAo0r2BFMlajZQzHCF1-wybOlfFNnzuJE4_VgQ>
+    <xme:cvC2aim-IxtOzGmBKYQptfJ-5tq7fGqg-34DIWlZzsqMywgEQ0mR0QgqWq_6cb9JX
+    NjtResFg31PUDdRrYBtL-YJLF1e2pjmDFCJzHcjJRCB_VemwzQ9RdVm>
+X-ME-Proxy-Cause: dmFkZTGWorUwcHDaphCYw8v7P4r6eX5pMArEM2/fjfsVfdD8oh9PHyAFGRqsP8lKRNOvro
+    Ftaux56ZQWBnJufjCK4NoTl5gmyZyS2NrT/mOlvXaJbBgwyJlksfmDxh/T6ep3Q5rP1X5I
+    Gg3BUF69X8e0yxuG8tIsosXhwJWN04kZfd3Hs8hAZ/+JOdcATDpskVHlGuS/IemkueryOR
+    hIuVjhFQk7CePHMlVc9CQ7MECLINzrqb9LdZmsZGkkEkpHSYSPer552CpRSKn34v37USct
+    HhFuvihTiBMck5qt8HqfIL/ioFLlYd+AoG7CwtlhshQQ5QWzjlxpGOjuQuzfN0lyT2CNBA
+    xiE3/XVFoRJUnTcPHXnnP4ULg2/OhUw0cUVTM2Hl8kzEGyQmxm0APQJMTvjFGoCeexOfR/
+    jaxLRyktqvX8daF3L239waW+lQXkj8NIMZ45sRs0hondG/NYNiUtlwijloNURLVJpSRs1n
+    HjrVk8mAadcUojfqUFKMkwbvd1knunWFqf3wFKqO35MyuIsff+Lt3vTDKNneO2MS2loK5e
+    Q/dybw3p42QGSplvXOieL4zZL+ZwpJVbWdxv7+d9YbwYEGdtccmCLCVTEkoohZKIitwDZF
+    bbnjGJjj38fYWu6AOjGxXX1gJyhzi0LUn/N6YtrvJoDdXC/mveLWJ3hmsmrw
+X-ME-Proxy: <xmx:dvC2amzBvlQCAD5sW2JaXm3j0P9ai-oMPjy5v8vXmarN-S8XKRnZUw>
+    <xmx:dvC2auHhsX2b7IMnKKPnB_m7lyGmqEgN3tOfWJI43cbUmyqJIJe9DQ>
+    <xmx:dvC2avqA9un_ie7CCszm4rHR5kIbiuuqJAmgxGMKC0t4LTi-ke-ZMg>
+    <xmx:dvC2avxp2MUpSON7EdEvlibuWv90i4hC2qOqz0DFeopE6Lyo9tYUDA>
+    <xmx:e_C2asxjh4_ZZbt6wpAEkh3al--Q2E5cOHCufEezSsf4Ch9A-LWaZN6L>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.ams.internal (Postfix, from userid 501)
+	id 548BB32A0087; Fri, 25 Sep 2026 18:06:42 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260925-vdso-getrandom-avoid-memset-llvm-24-v2-1-ce640f872393@kernel.org>
- <CAKwvOdmuvn0LZkYEsH84hnOGTYhTtzuWs3wMARtWdTeL6dD9sA@mail.gmail.com> <CAKwvOdnxKVpn=nAFaqP+9PTx4PqgHsUVWv6e60Pcr29W_eZrpQ@mail.gmail.com>
-In-Reply-To: <CAKwvOdnxKVpn=nAFaqP+9PTx4PqgHsUVWv6e60Pcr29W_eZrpQ@mail.gmail.com>
-From: Nick Desaulniers <ndesaulniers@google.com>
-Date: Fri, 25 Sep 2026 15:00:46 -0700
-X-Gm-Features: AclHuK_Ut9cdmWvtWXJ4TZyUvK9Gsy2XhR4mB0KeYmSzL3PaZLLknagb6ZhED0Y
-Message-ID: <CAKwvOdmNZL3eFvV3v77GXDzL+XLgz+BT9TA=my0yTnbsHqVeSg@mail.gmail.com>
-Subject: Re: [PATCH v2] random: vDSO: Avoid call to memset() when zeroing
- reserved in __cvdso_getrandom_data()
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@kernel.org>, "Theodore Ts'o" <tytso@mit.edu>, 
-	"Jason A. Donenfeld" <Jason@zx2c4.com>, Vincenzo Frascino <vincenzo.frascino@arm.com>, 
-	Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, Huacai Chen <chenhuacai@kernel.org>, 
-	WANG Xuerui <kernel@xen0n.name>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	llvm@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-ThreadId: AJwEWD5WPnhk
+Date: Sat, 26 Sep 2026 00:06:22 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Lorenzo Stoakes" <ljs@kernel.org>,
+ "Andrew Morton" <akpm@linux-foundation.org>,
+ "Liam R. Howlett" <liam@infradead.org>,
+ "Vlastimil Babka (SUSE)" <vbabka@kernel.org>,
+ "Jann Horn" <jannh@google.com>, "Pedro Falcato" <pfalcato@suse.de>,
+ "David Hildenbrand (Red Hat)" <david@kernel.org>,
+ "Mike Rapoport" <rppt@kernel.org>,
+ "Suren Baghdasaryan" <surenb@google.com>,
+ "Michal Hocko" <mhocko@suse.com>, "Jonathan Corbet" <corbet@lwn.net>,
+ "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+ "Dennis Dalessandro" <dennis.dalessandro@cornelisnetworks.com>,
+ "Jason Gunthorpe" <jgg@ziepe.ca>, "Leon Romanovsky" <leon@kernel.org>,
+ "Paul Moore" <paul@paul-moore.com>,
+ "Stephen Smalley" <stephen.smalley.work@gmail.com>,
+ "Jaroslav Kysela" <perex@perex.cz>, "Takashi Iwai" <tiwai@suse.com>,
+ "Alexei Starovoitov" <ast@kernel.org>,
+ "Daniel Borkmann" <daniel@iogearbox.net>,
+ "Andrii Nakryiko" <andrii@kernel.org>,
+ "Eduard Zingerman" <eddyz87@gmail.com>,
+ "Kumar Kartikeya Dwivedi" <memxor@gmail.com>, "Zi Yan" <ziy@nvidia.com>,
+ "Baolin Wang" <baolin.wang@linux.alibaba.com>,
+ "Nico Pache" <nico.pache@linux.dev>,
+ "Ryan Roberts" <ryan.roberts@arm.com>, "Dev Jain" <dev.jain@arm.com>,
+ "Barry Song" <baohua@kernel.org>, "Lance Yang" <lance.yang@linux.dev>,
+ "Usama Arif" <usama.arif@linux.dev>,
+ "Kirill A. Shutemov" <kas@kernel.org>,
+ "Doug Gilbert" <dgilbert@interlog.com>,
+ "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+ "Martin K. Petersen" <mkp@kernel.org>,
+ "Jaya Kumar" <jayalk@intworks.biz>, "Simona Vetter" <simona@ffwll.ch>,
+ "Helge Deller" <deller@gmx.de>, "Sebastian Reichel" <sre@kernel.org>,
+ "John Hubbard" <jhubbard@nvidia.com>, peterx <peterx@redhat.com>,
+ "Masami Hiramatsu" <mhiramat@kernel.org>,
+ "Oleg Nesterov" <oleg@redhat.com>,
+ "Peter Zijlstra" <peterz@infradead.org>,
+ "Thomas Gleixner" <tglx@kernel.org>, "Ingo Molnar" <mingo@redhat.com>,
+ "Borislav Petkov" <bp@alien8.de>,
+ "Dave Hansen" <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "Arnaldo Carvalho de Melo" <acme@kernel.org>,
+ "Namhyung Kim" <namhyung@kernel.org>,
+ "Mark Rutland" <mark.rutland@arm.com>, "Rik van Riel" <riel@surriel.com>,
+ "Harry Yoo" <harry@kernel.org>, "Juri Lelli" <juri.lelli@redhat.com>,
+ "Vincent Guittot" <vincent.guittot@linaro.org>,
+ "Maarten Lankhorst" <maarten.lankhorst@linux.intel.com>,
+ "Maxime Ripard" <mripard@kernel.org>,
+ "Thomas Zimmermann" <tzimmermann@suse.de>,
+ "Dave Airlie" <airlied@gmail.com>, "Will Deacon" <will@kernel.org>,
+ "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
+ "Nicholas Piggin" <npiggin@gmail.com>,
+ "Muchun Song" <muchun.song@linux.dev>,
+ "Oscar Salvador" <osalvador@suse.de>,
+ "Matthew Wilcox" <willy@infradead.org>, "Jan Kara" <jack@suse.cz>,
+ "Marc Zyngier" <maz@kernel.org>, "Oliver Upton" <oupton@kernel.org>,
+ "Catalin Marinas" <catalin.marinas@arm.com>,
+ "Madhavan Srinivasan" <maddy@linux.ibm.com>,
+ "Anup Patel" <anup@brainfault.org>, "Paul Walmsley" <pjw@kernel.org>,
+ "Palmer Dabbelt" <palmer@dabbelt.com>,
+ "Albert Ou" <aou@eecs.berkeley.edu>,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+ "Janosch Frank" <frankja@linux.ibm.com>,
+ "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ "Gerald Schaefer" <gerald.schaefer@linux.ibm.com>,
+ "Heiko Carstens" <hca@linux.ibm.com>,
+ "Vasily Gorbik" <gor@linux.ibm.com>,
+ "David S . Miller" <davem@davemloft.net>,
+ "Andreas Larsson" <andreas@gaisler.com>,
+ "Alexander Viro" <viro@zeniv.linux.org.uk>,
+ "Christian Brauner" <brauner@kernel.org>,
+ "Matthew Brost" <matthew.brost@intel.com>,
+ "Joshua Hahn" <joshua.hahnjy@gmail.com>, "Rakie Kim" <rakie.kim@sk.com>,
+ "Byungchul Park" <byungchul@sk.com>, "Gregory Price" <gourry@gourry.net>,
+ "Ying Huang" <ying.huang@linux.alibaba.com>,
+ "Alistair Popple" <apopple@nvidia.com>, "Chris Li" <chrisl@kernel.org>,
+ "Kairui Song" <kasong@tencent.com>,
+ "Kemeng Shi" <shikemeng@huaweicloud.com>,
+ "Nhat Pham" <nphamcs@gmail.com>, "Baoquan He" <baoquan.he@linux.dev>,
+ "Youngjun Park" <youngjun.park@lge.com>,
+ "Johannes Weiner" <hannes@cmpxchg.org>, "Qi Zheng" <qi.zheng@linux.dev>,
+ "Shakeel Butt" <shakeel.butt@linux.dev>,
+ "Axel Rasmussen" <axelrasmussen@google.com>,
+ "Yuanchu Xie" <yuanchu@google.com>, "Wei Xu" <weixugc@google.com>,
+ "Chengming Zhou" <chengming.zhou@linux.dev>,
+ "Michal Hocko" <mhocko@kernel.org>, "Miklos Szeredi" <miklos@szeredi.hu>,
+ "Xu Xin" <xu.xin@linux.dev>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ linux-doc@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-rdma@vger.kernel.org, selinux@vger.kernel.org,
+ linux-sound@vger.kernel.org, bpf@vger.kernel.org, linux-scsi@vger.kernel.org,
+ linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ Linux-Arch <linux-arch@vger.kernel.org>, linux-fsdevel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+ kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
+ fuse-devel@lists.linux.dev, "Takashi Iwai" <tiwai@suse.de>,
+ "Emil Tsalapatis" <emil@etsalapatis.com>
+Message-Id: <d4d7d4c2-a1d5-41d0-b1c8-8ea0cc5a0397@app.fastmail.com>
+In-Reply-To: 
+ <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
+References: 
+ <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
+Subject: Re: [PATCH v3 00/40] mm: make VMA flag semantics explicit, eliminate
+ VM_SPECIAL
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Fri, Sep 25, 2026 at 2:56=E2=80=AFPM Nick Desaulniers
-<ndesaulniers@google.com> wrote:
+On Thu, Sep 17, 2026, at 18:22, Lorenzo Stoakes (ARM) wrote:
 >
-> On Fri, Sep 25, 2026 at 2:53=E2=80=AFPM Nick Desaulniers
-> <ndesaulniers@google.com> wrote:
-> >
-> > On Fri, Sep 25, 2026 at 2:46=E2=80=AFPM Nathan Chancellor <nathan@kerne=
-l.org> wrote:
-> > >
-> > > After a recent change in LLVM [1], builds with the random vDSO
-> > > implementation, such as PowerPC and RISC-V, fail when checking the vD=
-SO:
-> > >
-> > >   arch/powerpc/kernel/vdso/vdso32.so.dbg: dynamic relocations are not=
- supported
-> > >   arch/riscv/kernel/vdso/vdso.so.dbg: dynamic relocations are not sup=
-ported
-> > >
-> > > memset() is now generated when zeroing params->reserved for some buil=
-ds
-> > > because LLVM has an optimization (now run in more instances) that can
-> > > recognize at compile time when it is assigning a static value to a
-> > > contiguous area of memory and turn that into a call to memset(). Both
-> > > clang and GCC assume memset() is always available [2].
-> > >
-> > > clang provides a builtin, __builtin_memset_inline [3][4], that can be
-> > > used to ensure an external function call is not generated when zeroin=
-g
-> > > this memory. Use it when it is available.
-> > >
-> > > While GCC has no issues with the current code, it has generated memse=
-t()
-> > > before, as seen in commit b7bad082e113 ("random: vDSO: avoid call to =
-out
-> > > of line memset()"). GCC 14 provides '-finline-stringops=3Dmemset' [5]=
-[6]
-> > > with a similar guarantee to the clang builtin, so use it and
-> > > __builtin_memset() when available.
-> > >
-> > > If no option is available, provide a simple memset_inline() like the =
-one
-> > > from lib/string.c to avoid adding an ugly ifdef.
-> > >
-> > > Link: https://github.com/llvm/llvm-project/commit/90cebef1411617fc3ee=
-dd359bdf00cb44b1c2439 [1]
-> > > Link: https://gcc.gnu.org/onlinedocs/gcc-16.2.0/gcc/Standards.html#in=
-dex-ffreestanding [2]
-> > > Link: https://github.com/llvm/llvm-project/commit/38637ee477541370a90=
-b37f149069d8e5c0c2efd [3]
-> > > Link: https://clang.llvm.org/docs/LanguageExtensions.html#guaranteed-=
-inlined-memset [4]
-> > > Link: https://gcc.gnu.org/git/?p=3Dgcc.git;a=3Dcommit;h=3D1ff6d9f7428=
-b0668cd8ab0b3e3ab94f1d733124d [5]
-> > > Link: https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#index-=
-finline-stringops [6]
-> > > Suggested-by: "Jason A. Donenfeld" <Jason@zx2c4.com>
-> > > Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
-> > > Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> > > ---
-> > > Changes in v2:
-> > > - Switch approach entirely (Jason, Nick)
-> > >   - clang: use __builtin_memset_inline() to avoid external call
-> > >   - GCC 14+: use __builtin_memset + -finline-stringops=3Dmemset (henc=
-e the
-> > >     massive CC list increase)
-> > >   - GCC < 14: no issues currently but avoid ifdef with simple memset
-> > >     implementation
-> > > - Link to v1: https://patch.msgid.link/20260916-vdso-getrandom-avoid-=
-memset-llvm-24-v1-1-80a92f2e225a@kernel.org
-> > > ---
-> > >  arch/arm64/kernel/vdso/Makefile     |  2 +-
-> > >  arch/loongarch/vdso/Makefile        |  1 +
-> > >  arch/powerpc/kernel/vdso/Makefile   |  1 +
-> > >  arch/riscv/kernel/vdso/Makefile     |  1 +
-> > >  arch/s390/kernel/vdso/Makefile      |  1 +
-> > >  arch/x86/entry/vdso/vdso64/Makefile |  2 +-
-> > >  init/Kconfig                        |  7 +++++++
-> > >  lib/vdso/getrandom.c                | 19 +++++++++++++++++--
-> > >  8 files changed, 30 insertions(+), 4 deletions(-)
-> > >
-> > > diff --git a/arch/arm64/kernel/vdso/Makefile b/arch/arm64/kernel/vdso=
-/Makefile
-> > > index 7dec05dd33b7..f6619e1cb2ce 100644
-> > > --- a/arch/arm64/kernel/vdso/Makefile
-> > > +++ b/arch/arm64/kernel/vdso/Makefile
-> > > @@ -41,7 +41,7 @@ CC_FLAGS_REMOVE_VDSO :=3D $(CC_FLAGS_FTRACE) -Os $(=
-CC_FLAGS_SCS) \
-> > >                         $(CC_FLAGS_LTO) $(CC_FLAGS_CFI) \
-> > >                         -Wmissing-prototypes -Wmissing-declarations
-> > >
-> > > -CC_FLAGS_ADD_VDSO :=3D -O2 -mcmodel=3Dtiny -fasynchronous-unwind-tab=
-les
-> > > +CC_FLAGS_ADD_VDSO :=3D -O2 -mcmodel=3Dtiny -fasynchronous-unwind-tab=
-les $(CONFIG_CC_OPT_INLINE_MEMSET)
-> > >
-> > >  CFLAGS_REMOVE_vgettimeofday.o =3D $(CC_FLAGS_REMOVE_VDSO)
-> > >  CFLAGS_REMOVE_vgetrandom.o =3D $(CC_FLAGS_REMOVE_VDSO)
-> > > diff --git a/arch/loongarch/vdso/Makefile b/arch/loongarch/vdso/Makef=
-ile
-> > > index 9c9181bb4071..0b84892d084b 100644
-> > > --- a/arch/loongarch/vdso/Makefile
-> > > +++ b/arch/loongarch/vdso/Makefile
-> > > @@ -16,6 +16,7 @@ ccflags-vdso :=3D \
-> > >         $(filter -m64,$(KBUILD_CFLAGS)) \
-> > >         $(filter -march=3D%,$(KBUILD_CFLAGS)) \
-> > >         $(filter -m%-float,$(KBUILD_CFLAGS)) \
-> > > +       $(CONFIG_CC_OPT_INLINE_MEMSET) \
-> > >         $(CLANG_FLAGS) \
-> > >         -D__VDSO__
-> > >
-> > > diff --git a/arch/powerpc/kernel/vdso/Makefile b/arch/powerpc/kernel/=
-vdso/Makefile
-> > > index 368759f81708..0d1a49529885 100644
-> > > --- a/arch/powerpc/kernel/vdso/Makefile
-> > > +++ b/arch/powerpc/kernel/vdso/Makefile
-> > > @@ -43,6 +43,7 @@ ccflags-y :=3D -fno-common -fno-builtin -DBUILD_VDS=
-O
-> > >  ccflags-y +=3D $(DISABLE_LATENT_ENTROPY_PLUGIN)
-> > >  ccflags-y +=3D $(call cc-option, -fno-stack-protector)
-> > >  ccflags-y +=3D -DDISABLE_BRANCH_PROFILING
-> > > +ccflags-y +=3D $(CONFIG_CC_OPT_INLINE_MEMSET)
-> > >  ccflags-y +=3D -ffreestanding -fasynchronous-unwind-tables
-> > >  ccflags-remove-y :=3D $(CC_FLAGS_FTRACE)
-> > >  ldflags-y :=3D -Wl,--hash-style=3Dboth -nostdlib -shared -z noexecst=
-ack $(CLANG_FLAGS)
-> > > diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso=
-/Makefile
-> > > index 8dbf2532a573..c023046a3fd7 100644
-> > > --- a/arch/riscv/kernel/vdso/Makefile
-> > > +++ b/arch/riscv/kernel/vdso/Makefile
-> > > @@ -36,6 +36,7 @@ endif
-> > >  ccflags-y :=3D -fno-stack-protector
-> > >  ccflags-y +=3D -DDISABLE_BRANCH_PROFILING
-> > >  ccflags-y +=3D -fno-builtin
-> > > +ccflags-y +=3D $(CONFIG_CC_OPT_INLINE_MEMSET)
-> > >  ccflags-y +=3D $(KBUILD_BASE_ISA)$(CFI_MARCH)
-> > >  ccflags-y +=3D $(CFI_FULL)
-> > >  asflags-y +=3D $(KBUILD_BASE_ISA)$(CFI_MARCH)
-> > > diff --git a/arch/s390/kernel/vdso/Makefile b/arch/s390/kernel/vdso/M=
-akefile
-> > > index 35c834b895ec..54bcf2984ca1 100644
-> > > --- a/arch/s390/kernel/vdso/Makefile
-> > > +++ b/arch/s390/kernel/vdso/Makefile
-> > > @@ -29,6 +29,7 @@ KBUILD_CFLAGS_VDSO :=3D $(filter-out -munaligned-sy=
-mbols,$(KBUILD_CFLAGS_VDSO))
-> > >  KBUILD_CFLAGS_VDSO :=3D $(filter-out -fno-asynchronous-unwind-tables=
-,$(KBUILD_CFLAGS_VDSO))
-> > >  KBUILD_CFLAGS_VDSO +=3D -fPIC -fno-common -fno-builtin -fasynchronou=
-s-unwind-tables
-> > >  KBUILD_CFLAGS_VDSO +=3D -fno-stack-protector $(DISABLE_KSTACK_ERASE)
-> > > +KBUILD_CFLAGS_VDSO +=3D $(CONFIG_CC_OPT_INLINE_MEMSET)
-> > >  ldflags-y :=3D -shared -soname=3Dlinux-vdso.so.1 \
-> > >              --hash-style=3Dboth --build-id=3Dsha1 \
-> > >              $(call ld-option, --eh-frame-hdr) -T
-> > > diff --git a/arch/x86/entry/vdso/vdso64/Makefile b/arch/x86/entry/vds=
-o/vdso64/Makefile
-> > > index 7c0790065b5e..c2353a065279 100644
-> > > --- a/arch/x86/entry/vdso/vdso64/Makefile
-> > > +++ b/arch/x86/entry/vdso/vdso64/Makefile
-> > > @@ -14,7 +14,7 @@ vobjs-$(CONFIG_X86_SGX)                       +=3D =
-vsgx.o
-> > >  vobjs-$(CONFIG_FUTEX_ROBUST_UNLOCK)    +=3D vfutex.o
-> > >
-> > >  # Compilation flags
-> > > -flags-y                                :=3D -DBUILD_VDSO64 -m64 -mcm=
-odel=3Dsmall
-> > > +flags-y                                :=3D -DBUILD_VDSO64 -m64 -mcm=
-odel=3Dsmall $(CONFIG_CC_OPT_INLINE_MEMSET)
-> > >
-> > >  # The location of this include matters!
-> > >  include $(src)/../common/Makefile.include
-> > > diff --git a/init/Kconfig b/init/Kconfig
-> > > index 8583d9f06c52..ff3f8475dd2f 100644
-> > > --- a/init/Kconfig
-> > > +++ b/init/Kconfig
-> > > @@ -173,6 +173,13 @@ config CC_HAS_ALLOC_TOKEN
-> > >  config CC_HAS_MULTIDIMENSIONAL_NONSTRING
-> > >         def_bool $(success,echo 'char tag[][4] __attribute__((__nonst=
-ring__)) =3D { };' | $(CC) $(CLANG_FLAGS) -x c - -c -o /dev/null -Werror)
-> > >
-> > > +config CC_HAS_OPT_INLINE_MEMSET
-> > > +       def_bool $(cc-option,-finline-stringops=3Dmemset)
-> > > +
-> > > +config CC_OPT_INLINE_MEMSET
-> > > +       string
-> > > +       default "-finline-stringops=3Dmemset" if CC_HAS_OPT_INLINE_ME=
-MSET
-> > > +
-> > >  config LD_CAN_USE_KEEP_IN_OVERLAY
-> > >         # ld.lld prior to 21.0.0 did not support KEEP within an overl=
-ay description
-> > >         # https://github.com/llvm/llvm-project/pull/130661
-> > > diff --git a/lib/vdso/getrandom.c b/lib/vdso/getrandom.c
-> > > index 2851afa9154f..f5cad5641985 100644
-> > > --- a/lib/vdso/getrandom.c
-> > > +++ b/lib/vdso/getrandom.c
-> > > @@ -29,6 +29,22 @@
-> > >         }                                                            =
-           \
-> > >  } while (0)
-> > >
-> > > +#if __has_builtin(__builtin_memset_inline)
-> > > +#define memset_inline(dst, value, size) __builtin_memset_inline(dst,=
- value, size)
-> > > +#elif IS_ENABLED(CONFIG_CC_HAS_OPT_INLINE_MEMSET)
-> > > +#define memset_inline(dst, value, size) __builtin_memset(dst, value,=
- size)
-> > > +#else
-> > > +static inline void *memset_inline(void *dst, int value, size_t size)
-> > > +{
-> > > +       char *d =3D dst;
-> > > +
-> > > +       while (size--)
-> > > +               *d++ =3D value;
-> > > +
-> > > +       return d;
-> > > +}
-> > > +#endif
-> >
-> > Does this work?
-> > https://godbolt.org/z/Tx6EaGMfb
->
-> Hmmm...possibly.
-> https://godbolt.org/z/ec9rzd9Yf
-> I don't get it...
+>  mm/vma.c                                   | 246 +++++++++++++++++++-------
 
-Just keep it under 2 pages, it will be fine:
-https://godbolt.org/z/qqoMqfxev
+Hi Lorenzo,
 
->
-> >
-> > (Sorry, I _should_ have replied to Jason on V1. I'm not ignoring him,
-> > just way behind on my code reviews. Sorry!)
-> >
-> > > +
-> > >  static void memcpy_and_zero_src(void *dst, void *src, size_t len)
-> > >  {
-> > >         if (IS_ENABLED(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS)) {
-> > > @@ -83,8 +99,7 @@ __cvdso_getrandom_data(const struct vdso_rng_data *=
-rng_info, void *buffer, size_
-> > >                 params->size_of_opaque_state =3D sizeof(*state);
-> > >                 params->mmap_prot =3D PROT_READ | PROT_WRITE;
-> > >                 params->mmap_flags =3D MAP_DROPPABLE | MAP_ANONYMOUS;
-> > > -               for (size_t i =3D 0; i < ARRAY_SIZE(params->reserved)=
-; ++i)
-> > > -                       params->reserved[i] =3D 0;
-> > > +               memset_inline(params->reserved, 0, sizeof(params->res=
-erved));
-> > >                 return 0;
-> > >         }
-> > >
-> > >
-> > > ---
-> > > base-commit: cee9395acd8043be0644b25c34bfa86623f2b935
-> > > change-id: 20260916-vdso-getrandom-avoid-memset-llvm-24-74d45fa6031e
-> > >
-> > > Best regards,
-> > > --
-> > > Cheers,
-> > > Nathan
-> > >
-> >
-> >
-> > --
-> > Thanks,
-> > ~Nick Desaulniers
->
->
->
-> --
-> Thanks,
-> ~Nick Desaulniers
+I see that in linux-next there is a new build failure in some
+configurations in code that you are changing here:
 
+mm/vma.c: In function '__mmap_region':
+mm/vma.c:3083:1: error: the frame size of 1552 bytes is larger than 1536 bytes [-Werror=frame-larger-than=]
 
+I don't immediately see anything that you did that would have introduced
+something bad that wasn't already there, so it's likely just gone from
+just below the limit I was using for my testing to just above. The 1536
+byte limit is what I use on 64-bit builds with KASAN and otherwise
+still has a clean build (with a small number of local fixup patches).
 
---=20
-Thanks,
-~Nick Desaulniers
+What I see is that this function has multiple structures on the
+stack that have nontrivial sizes:
+
+        VMA_ITERATOR(vmi, mm, addr); /* 104 bytes */
+        MMAP_STATE(map, mm, &vmi, addr, len,...); /* 384 bytes */
+        struct vm_area_desc desc; /* 128 bytes */
+
+The config that caused this is https://pastebin.com/raw/5M95qHy5,
+which is an x86-64 build with CONFIG_KASAN_STACK enabled, and likely
+a few other configuration options that made it a little worse.
+KASAN_STACK tends to double the stack size used by structures
+in order to catch out-of-bounds accesses.
+
+If I sprinkle some 'noinline_for_stack' annotations on functions
+called by __mmap_region(), I can get the size down to 1144 in this
+config, but that doesn't sound like a great workaround.
+
+The large stack usage is potentially harmful if this ends up
+in call chains that have additional large stack usage (e.g.
+kmalloc() leading to reclaim). Any ideas for how to reduce it here?
+
+     Arnd
