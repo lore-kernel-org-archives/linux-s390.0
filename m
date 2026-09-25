@@ -1,63 +1,138 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69A254E06CE;
-	Fri, 25 Sep 2026 18:42:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBDF314A619;
+	Fri, 25 Sep 2026 19:48:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790361781; cv=none; b=MyRaW47LMpw+kpwxP9MKihYb3I0pIjLZQHdAqLWJgotEaMTKCp7LsCTLq4THdXFoZNAwHJOFpq0o9p6j3RtUBK0zTbiYWNSXm6EC5G2Y9gNvc4gHNeF2alU7xHjeLm81rG+dFwFNLi0MGb4YnmrW6WLWbQ6fPcVucObKJlCJboY=
+	t=1790365703; cv=none; b=ZkC8OQ/hkf64/E0UbOYLLMyseqbEPl4EF4F0ZasDQ5acMFiDemBmEbq9MaJ1r3yUDzA8maam9Jm72phVE6bNFPluqOGBkU1PIl71jxu2yrNRHKUJqeEERgmgorMiSbdhYIUGLFOllE0LrhrXSUnL+eedvkaU+aah5CjI8pGm5mo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790361781; c=relaxed/simple;
-	bh=qJ6iNjSxn7OZPN9weEi9W6xgCTyYeFpawwhJ9EYKX5g=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=Ws5CAmCAaFU76Hz/KwLwmDTxgr129wCo4PQCvCrwpnXjfLQ0biIsjTyzQLuCtjOnGtu5D5nv3foUCv6IwsjEDD/XjgRJoP+wqWp+BX8ZhLrCQQUDISPQLZpRbup1R1jJieWUZNky7y0IapFchRsNc25sl6X6bIFfPuf0vzCHVtg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j8DVar+p; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790365703; c=relaxed/simple;
+	bh=TciHMdDlrdsa9ERMoFTjGhAHbHf8M+vgHxNh6dXT4go=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=WLcUNnghaIbupEISqHXqvF/gZtU56kKb/NN7fizPNxnd5xi+0IQ7g6Qz8gp9dM6P/Tr1dF20ywAhV2pKNOyjmIJ1BXC11TM/QcIrrjLp+jB7J1SmGJnjTMPv8Qb+jPgz3GXLMVbG2ysEfBF7OeXT6q4BoJnF87uKuJ6eVYhF/HM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aiVZjVmE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j8DVar+p"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FCA61F000FF;
-	Fri, 25 Sep 2026 18:42:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aiVZjVmE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DDF91F000FF;
+	Fri, 25 Sep 2026 19:48:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790361779;
-	bh=tgSZ+IqtUcEHBc+ASLfUtYudJCjAcQm10AuG0lcZAD8=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc;
-	b=j8DVar+pJX53Nw27zk9Boq0KiF5Kv+YZlehNhwtIqhZ1B6F1FMRuL0C9wPyXdLtfw
-	 WP2Zepjl+vuzHwW8JHE81ijE5CBCPRZtwuWGQrZcmkFenDsISf4jic+0BsVl6lGpPl
-	 HRvG0I2ez7wgQ8cuMv0XgSvKCMUhDK8ugA5KKW2LqwHQVTieCKBUKndsD7hR5ZOYsA
-	 BO4e3/cq/Hv/pDfaWO4VVYNAdmN4HIcOW9wzS4s/K2rpEkJfDoJ9Tu+RU8aaAOHknW
-	 PdzoKyJthy+DiuAquUl8E/Gn/T+B5FLVs9OVNu0Q64YsOJaUdrtiE5IKSLx4HaAdmZ
-	 afhMD9U+sdHIg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 569C0380820D;
-	Fri, 25 Sep 2026 18:41:48 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 fixes for 7.3-rc5
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20260925113755.23528Bd0-hca@linux.ibm.com>
-References: <20260925113755.23528Bd0-hca@linux.ibm.com>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20260925113755.23528Bd0-hca@linux.ibm.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-7.3-4
-X-PR-Tracked-Commit-Id: 5b76268dac968612f7283d59b539036de955b7d9
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 547463efb935dec67c476f90917a0ff4baf6d0b5
-Message-Id: <179036170710.3089752.11767014661345954443.pr-tracker-bot@kernel.org>
-Date: Fri, 25 Sep 2026 18:41:47 +0000
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+	s=k20260515; t=1790365701;
+	bh=iihkM/7KvK/mt1x0eZrWDrnWJRfMoQnZsgo9hNqe2G8=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=aiVZjVmEy1ThNnYtiCN1cN+s5ZqCNT+FP/swQUZVuNiJ7kWC5BDeOeCFutI34nVGg
+	 0LmSxyMmeP4LR6IkdRtS1PgHj7BOOsVIFqSAcmDRbbVl3OR6nELyLXXoQXeZMtZnya
+	 LRxoZRnnfLul7IArKgbVPoCGVm2OUfn3az67oNC3dNhjHhBkPBF+DWAVDY7lDtXs1M
+	 j8rUW8SnEeQydrHCrUGimqDN1e/LZAMlUrBS2RTTE8/V1uMt30mpk3s2yLtwonRJof
+	 qTMGhtCJ9ZH8Pjg2pML5wI+IpiO9QdcvOHn2S/qup/K655+EVWVOB4ee8O6G80lb/v
+	 gFFDHLdg3Ec9A==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <maz@kernel.org>)
+	id 1xABu6-0000000Daim-3CXI;
+	Fri, 25 Sep 2026 19:48:18 +0000
+Date: Fri, 25 Sep 2026 20:48:18 +0100
+Message-ID: <86eceh3yf1.wl-maz@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>,
+	Oliver Upton <oupton@kernel.org>,
+	Joey Gouly <joey.gouly@arm.com>,
+	Steffen Eiden <seiden@linux.ibm.com>,
+	Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Zenghui Yu <yuzenghui@huawei.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Fuad Tabba <fuad.tabba@linux.dev>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	David Hildenbrand <david@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Shuah Khan <shuah@kernel.org>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	kvmarm@lists.linux.dev,
+	kvm@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	Jack Thomson <jackabt@amazon.com>,
+	Jack Thomson <jackabt.amazon@gmail.com>,
+	Alexandru Elisei <alexandru.elisei@arm.com>,
+	Vincent Donnefort <vdonnefort@google.com>,
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+	Sean Christopherson <seanjc@google.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	Leo Soares Passos <Leo.Bras@arm.com>,
+	Wei-Lin Chang <weilin.chang@arm.com>,
+	linux-s390@vger.kernel.org
+Subject: Re: [PATCH v4 00/14] KVM: arm64: Add KVM_PRE_FAULT_MEMORY support
+In-Reply-To: <arY1uKfUBXRpauaN@gremlin>
+References: <20260923-kvm-arm-prefault-v4-0-d4b0b4dfa8c3@kernel.org>
+	<86ik3u4asq.wl-maz@kernel.org>
+	<arY1uKfUBXRpauaN@gremlin>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: ljs@kernel.org, catalin.marinas@arm.com, will@kernel.org, oupton@kernel.org, joey.gouly@arm.com, seiden@linux.ibm.com, suzuki.poulose@arm.com, yuzenghui@huawei.com, pbonzini@redhat.com, corbet@lwn.net, mark.rutland@arm.com, fuad.tabba@linux.dev, rdunlap@infradead.org, borntraeger@linux.ibm.com, frankja@linux.ibm.com, david@kernel.org, hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com, tglx@kernel.org, mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, skhan@linuxfoundation.org, shuah@kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kvmarm@lists.linux.dev, kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-kselftest@vger.kernel.org, jackabt@amazon.com, jackabt.amazon@gmail.com, alexandru.elisei@arm.com, vdonnefort@google.com, aneesh.kumar@kernel.org, seanjc@google.com, imbrenda@linux.ibm.com, Leo.Bras@arm.com, weilin.chang@arm.com, linux-s390@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-The pull request you sent on Fri, 25 Sep 2026 13:37:55 +0200:
+On Fri, 25 Sep 2026 09:51:41 +0100,
+"Lorenzo Stoakes (ARM)" <ljs@kernel.org> wrote:
+> 
+> On Thu, Sep 24, 2026 at 10:08:37PM +0100, Marc Zyngier wrote:
+> > On Wed, 23 Sep 2026 16:15:43 +0100,
+> > "Lorenzo Stoakes (ARM)" <ljs@kernel.org> wrote:
+> > >
+> > > This series implements the KVM stage 2 page table pre-faulting feature for
+> > > arm64.
+> >
+> > [...]
+> >
+> > > base-commit: 23ddf997ab16b5f4aa9f948f5a68f5b35e4e398f
+> >
+> > In the future, please don't do this. I've just nuked this commit from
+> > kvmarm/next as I rebuilt it, and using such a random commit is
+> > counter-productive. Just stick to an -rc tag from Linus' tree, and
+> > that's it. I'm perfectly happy to deal with the outcome (conflicts and
+> > other funny things).
+> 
+> Ack! No problem, will do.
+> 
+> Do you prefer that people stick to the same -rc base from the start or OK to
+> roll it over to latest Linus's tree?
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-7.3-4
+We generally pick -rc3 as the merge base for all topic branches, so
+something -rc{1,2,3} are ideal. If you depend on something that is in
+a further -rc, we can manage. But keep in mind that around -rc6, the
+tree is closed to new features and becomes fixes only. So if you find
+yourself basing something on -rc5, you're already playing with fire.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/547463efb935dec67c476f90917a0ff4baf6d0b5
+Thanks,
 
-Thank you!
+	M.
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Without deviation from the norm, progress is not possible.
