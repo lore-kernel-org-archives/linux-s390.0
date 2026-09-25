@@ -1,78 +1,69 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A10274F0524
-	for <linux-s390@vger.kernel.org>; Fri, 25 Sep 2026 20:28:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C17E4E3EEC
+	for <linux-s390@vger.kernel.org>; Fri, 25 Sep 2026 20:28:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790368084; cv=none; b=NbhRqlVkkTxczmHkv7WnrmJTN9QzQ6Ba+oj7mv09I6BpG3WjA3O99rzcI7VQCsTmCg2RB2j0WmJRp7rXI0PEsgQKRBDxalNOcLWuqEfshPEzddln5fTDCaA25P6MkaiZ1YejEBcJaayWdildLCgWwID+r6kovsvDJR+2GPIh53o=
+	t=1790368129; cv=none; b=sU5Y5pBhr2GafvRuTwvV0rq2i1itOQgJcrGtgloNWQiPV3ZcG2wpdwD0+O4rleTyawigwc5DL87y64buSElvPL8v36mNczHESV7gapHp99it0G3cFjVYuq0mUOrp9j3lRyhs+yRj8oH2ZbhnL+fQS6Je4rUz9zP0YDqEwbbwldU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790368084; c=relaxed/simple;
-	bh=VPjW0RQcs+AsWOeXWvkt1rNvlQJG8tPoPuO9NYdcRd0=;
+	s=arc-20240116; t=1790368129; c=relaxed/simple;
+	bh=2JEZ9oAhjarOtzmFhuM6leYYB0wLfFeOb2XtV499v+E=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=jzVGmmSyx6uQ5IIYQzBJ4un5MyuDITRIpwa1AblCaqUW1kSAQSAjxOcI2UMVftY8uUcdYRRdmYwRjy3t1dLlb+3Ukd+ieWdfvuWreZHbVsqHX5gmDuRBTO3QmkFrvePS7t7AAKl4UD3CoXM8NTckTG5ll2a1PzZZmmZxwHyzqgQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GzZ2acVm; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=gopmaWJycNspePxZgOhX9UE5LkxuXVcEMBXKDX7+ZMBUCZUtAXn+MwGDaKmtA6nr+WDeDFJyhLpKAFKiCFOmWkEzrB1Z1i61Afoq4bx3u2a5uVjJxZg8VL77ct25/Pbh6yasfFSsybXKSY/pnfftGg43EnsXHHkgWMBafXGeq0o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bofTtfyb; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GzZ2acVm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FA3F1F000FF;
-	Fri, 25 Sep 2026 20:28:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bofTtfyb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06F9A1F000FF;
+	Fri, 25 Sep 2026 20:28:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790368082;
-	bh=VPjW0RQcs+AsWOeXWvkt1rNvlQJG8tPoPuO9NYdcRd0=;
+	s=k20260515; t=1790368128;
+	bh=2JEZ9oAhjarOtzmFhuM6leYYB0wLfFeOb2XtV499v+E=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GzZ2acVmc2+Dqgo7YLsB+TXu3JCCkHmAj4UQ/M3Ue0smtMMaFbtvioSjLuZR4aOI+
-	 TgQWBAt/0E1rJN2TxylIn5VKbOIjOPziE+xYEBU862/7zBhn+3VPqbWizCXW6WZDx9
-	 wTm3iAXLH/FNJR76KSu1Ojn2V+5pa+gyCB40GlEmjaHNxvV5nKJsSJq3st83dkhxwD
-	 quE7RBFVAMa3Eb8DumOxtaOX8365VhWo2GQ9cCPXKvejxHt9VLlh/umbDF9kEp8vS0
-	 4u94HYqcx5PmeSb4WrNJViibqGn1eFl5LFd3pYKwkMsvx1zqqOcy3BPnbo1oVKoZ2V
-	 HYBITNQviYzaA==
+	b=bofTtfybZ+I6GBP2teJKqealEFPjXfXOQwoJXoiEQnpnOWuZW0yDdyz/GlIpo6XPH
+	 5f0AbXxCb8NEQ0tZdNVgczJy5msMpuX200ihqHHpcQQBmJZAOyKcJRnRAkGRqV4GFE
+	 0if8nXq3JadLdsaDKijKQFYOwly73x4GG8Yh4iU+4atajJGbjjkUfmEsKlcuIiPE3N
+	 Bo/Ac2xFS4tEhk3/LH/d/s1ZCGmBmi9HCxRTnwEIoQQxUCU3vMJsGgM5PCmjN4++0e
+	 T6vDxi+24TlHbcOy77U1Pv7O96chCvjZ9OWPjkXCcG2WOUgL/WJJmKaqDxW9GlMqbe
+	 WsoVYJfw1mGhQ==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 09/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for
- m68k-motorola
+Subject: Re: [PATCH v5 12/12] mm: change the contract for free_pgtables(),
+ update docs
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?TG9yZW56byBTdG9ha2VzIChBUk0p?= <ljs@kernel.org>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260925-rcu-pagetable-freeing-v5-9-31e91065fea4@kernel.org>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20260925-rcu-pagetable-freeing-v5-12-31e91065fea4@kernel.org>
 References: <20260925-rcu-pagetable-freeing-v5-0-31e91065fea4@kernel.org>
- <20260925-rcu-pagetable-freeing-v5-9-31e91065fea4@kernel.org>
+ <20260925-rcu-pagetable-freeing-v5-12-31e91065fea4@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 25 Sep 2026 20:28:01 +0000
-Message-Id: <20260925202802.1FA3F1F000FF@smtp.kernel.org>
+Date: Fri, 25 Sep 2026 20:28:47 +0000
+Message-Id: <20260925202848.06F9A1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> sun3 and coldfire are already supported, however motorola requires a litt=
-le
-> more care.
+> Now that page tables are freed after an RCU grace period, it is safe for
+> read-only page table walkers to walk page table ranges that are being
+> concurrently torn down, provided the mm is kept alive via mmgrab().
 >=20
-> Here, custom table removal logic is required, so
-> CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE is enabled for m68k-motorola.
+> It is however unsafe for writers to do so, as they must obtain an
+> appropriate lock to do so safely.
 >=20
-> Firstly as part of this change, the page table level must be communicated
-> to the underlying __tlb_remove_table() implementation.
+> Update the pte_offset_map_lock()'s comment block to reflect this.
 >=20
-> Take advantage of the fact that page tables are aligned by more than enou=
-gh
-> to permit setting TABLE_PTE or TABLE_PMD in the low bits of the pointer,
-> and store this there.
->=20
-> Then update __pte_free_tlb() and __pmd_free_tlb() to pass this through,
-> then have __tlb_remove_table() decode this and pass it to
-> [ ... ]
+> Similarly update the process addresses documentation.
 >=20
 > Acked-by: Kiryl Shutsemau (Meta) <kas@kernel.org>
-> Acked-by: Lance Yang <lance.yang@linux.dev>
-> Tested-by: Lance Yang <lance.yang@linux.dev>
 > Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260925-rcu-pageta=
-ble-freeing-v5-0-31e91065fea4@kernel.org?part=3D9
+ble-freeing-v5-0-31e91065fea4@kernel.org?part=3D12
 
