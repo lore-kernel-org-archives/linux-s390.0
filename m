@@ -1,132 +1,176 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A105F4334D9;
-	Fri, 25 Sep 2026 09:35:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A2E348125E;
+	Fri, 25 Sep 2026 09:35:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790328915; cv=none; b=taxtk2J+cqIO0FbccIumaBXeEJfu8tfVpG/lEzlNLuQuB5/xSTwYiv8/2SEuG0wuKMH+41UAHEE6tM6b6vzTLZNx5sNaAnySetCctHzN64Lfracv5joDtg5HWOqNWA+EQnMJhZhK1/FIe5X8RNfL5OoLcwOUwe9B/RkLc95o67I=
+	t=1790328934; cv=none; b=Uu1YR+BFm8ZOD/A6dgFneKISB6G5iib+gTI72T6s4WVuzmHAxYfGh74owrh+JZzQFjaEotjMxk+5gqpfPQUbjb/evfOcxZZ6ulH03H/Xd1ODhcIUAv51FZdVC/p6mutHxDSrA2BypgpmCrYPVC4tWdy+SagbAvzoeVxcvyxzVFQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790328915; c=relaxed/simple;
-	bh=NvPM4KCHNRUUmYJoS0Lks/JErSTtZZzhPOFblcOYE24=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iTy8zbFqw09F10GR7rMAVw3HdM227kVZ3b0lQ7LB4X92IIeqxIBgi+5EKWuxAps1PD5NwdII9ZjAyXV3zIUBfKgE0ECIQ3jc/vR1RcLN4O1GqnW2GeDnO/4GyfTC/NQQXXJahJ7wL8MKRhWhiy4vTblojWx9hMXxvhSkr3IPKfY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qJNWOy8V; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1790328934; c=relaxed/simple;
+	bh=k6uDKPPe1ermrsLZjx3IZyd4bJERPiX+St53e6BiYx4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=P+Ca7dfSss73i2hXsns0CBNdu5jtxvgnxq+tVrY+JIHu7txq5mvy2zPBB02Fr/7XTzNpRwF7cp4/kUJuKanjlWzNs+ebjNCtt+E/NanKU0toYa+IHq8VrgnfjMX0tCC3GqDRtG/KN35xg91fNsIqPphQiWs0MHu4O2cC2VwnvlE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bzZxhyhs; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qJNWOy8V"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68P4a8ek3083607;
-	Fri, 25 Sep 2026 09:35:12 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=AzqpFQ
-	59UWc/vLtUIvSxuw5VZVoFaJ100Eu1q1e5xx0=; b=qJNWOy8V2F6QnRU8xJsxnI
-	Ag3TbbkJ7Kdc8JuiysGUxMu8RDnBJjv0sw/tkmGQt7vAJLAlbZaaTxwLsCrgWens
-	/s3iW0uJFWoIq9rVWbT0RTSfvMB+V9LPjdXbAeipUDIoAaRzCBBmQ1Oxhqseb3MU
-	b3kmWo/2SQW7Ezr8iGfiWallAOg0Tu7DJsbEQT2HzQ8sqPXOB8egI78KuPnF/pEN
-	6LKQczU5qwnErt62Y/e1Ak3eJfx97RQsleiQhX7/nk5qFjXQ5smBiezC7EuRXv+h
-	xYRFQRU6suf3aJoqDR8cmPQV1Ebrp+1t4rtWLDvwE6SlbG3j5eit+esWujN42aQA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskgqw9cd-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 25 Sep 2026 09:35:11 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68P4lUYD1959486;
-	Fri, 25 Sep 2026 09:35:11 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gvu7ee2wc-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 25 Sep 2026 09:35:11 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68P9Z7dA47055234
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 25 Sep 2026 09:35:07 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8D26220040;
-	Fri, 25 Sep 2026 09:35:07 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3787F2004B;
-	Fri, 25 Sep 2026 09:35:07 +0000 (GMT)
-Received: from [9.224.77.173] (unknown [9.224.77.173])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 25 Sep 2026 09:35:07 +0000 (GMT)
-Message-ID: <5c2c6589-f9c3-45ee-ba1f-9d22b1b47122@linux.ibm.com>
-Date: Fri, 25 Sep 2026 11:35:07 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bzZxhyhs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DC6D1F000FF;
+	Fri, 25 Sep 2026 09:35:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790328932;
+	bh=uLG5lXHaGba/dPImy7unpJ5IThclo3TEAxLWPTrsKfU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=bzZxhyhsPfPrL97TbhC325gHjRpuHNOnRAtDnIf7+He5gMfkm4PSOaeLWWHbi8c+l
+	 6gLN53Uwdjt1XIK0OfcSHtcQmumMJlRTA69LriLBQLJ0wlctJVs9Bq/WbFIYgezX2S
+	 o7HKidp4dQ3owP9NtNKbVP6jhZCshUTUiQ66DK4nhMPv/dIHOX+rBfreTpiYW/Trbr
+	 lwzJ176A2TJiIAwDANzHglZssZ2IwPz45AtPMn/Payp0HQBUyL8MtoMoRwY1oA7vIH
+	 So1mhkj16h3+GX9qr62k4qaQbTa37MdNPZHhAdlXJfG4rCoV0gvFtIiYsigAgrqycF
+	 Yh3V65CGNEVUA==
+Date: Fri, 25 Sep 2026 10:35:02 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: Zi Yan <ziy@nvidia.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+	David Hildenbrand <david@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
+	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
+	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
+	Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, 
+	Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, 
+	Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>, 
+	Doug Gilbert <dgilbert@interlog.com>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	"Martin K. Petersen" <mkp@kernel.org>, Jaya Kumar <jayalk@intworks.biz>, 
+	Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, Sebastian Reichel <sre@kernel.org>, 
+	John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
+	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+	Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, Juri Lelli <juri.lelli@redhat.com>, 
+	Vincent Guittot <vincent.guittot@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>, 
+	Oliver Upton <oupton@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
+	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
+	Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
+	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
+	Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
+	Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
+	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
+	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
+	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev
+Subject: Re: [PATCH v3 24/40] mm/mlock: eliminate weird VMA_IO_BIT abuse and
+ simplify
+Message-ID: <arZAC3fyGMDnxiFX@gremlin>
+References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
+ <20260917-b4-mmap-prepare-vma-flag-sanify-v3-24-4583d8a23bca@kernel.org>
+ <93672B94-BB0C-4713-8F8A-3619D81DB7BB@nvidia.com>
+ <arT3K71l86fUVldk@gremlin>
+ <CBD619D6-8717-4C81-B5EA-D1D0771BDA3A@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 2/3] KVM: s390: Kick PV cpus at the right time for
- service irqs
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: imbrenda@linux.ibm.com, linux-s390@vger.kernel.org, pasic@linux.ibm.com
-References: <20260820121546.24694-1-frankja@linux.ibm.com>
- <20260820121546.24694-3-frankja@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20260820121546.24694-3-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=G+OJgNk5 c=1 sm=1 tr=0 ts=6ab64050 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=2RzByGtBRGyDpTDcgcIA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI1MDAzNiBTYWx0ZWRfX3mColtsDPGva
- gZcbjcJzOXIkEiO3JV9PXXqfPTcAZfZodktd43Hmta+KBsDlMmIyMtmsyhAL0e5cR0zngc0pW9N
- bB+ocfv9LQgoXxSZvxNDX4gpuu0yqqFeyuNkeFFBXj3uDlMfC8lGtNTjD8ymZTD156xA3RyPGXS
- 5884JoH7crSlgUgvY9ZxnVrrbZSB1M4wKE4WhzQSMFXlqiNt/bfseBIkVHQ1iQpgvsxZy4dcfSd
- N2EO+2ew9klWh32rFZkDvt3RJWtjHccSzW5COM6SuVa3VNu9cor3bkXg5GbECm/ri/WdQiDKV4B
- tmFVJvNZz+yU+DCfTViBe12gEJvChrR5z4/omPRaTe0DPYiI60Va315ablPSRutEe3pUe+MgL56
- xjOOrDGA82Qqu8FMhpZVFgI3zglZGBNaoskIQzZDRcxbRl+Atm/KR0V5kL7L9Xh/chCjk8Pb/4J
- bh2Q8i5WMrxfGVHc4lA==
-X-Proofpoint-ORIG-GUID: wRCeby14GyfzRw0ah6bxSprXgAXD1GyR
-X-Proofpoint-GUID: wRCeby14GyfzRw0ah6bxSprXgAXD1GyR
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI1MDAzNiBTYWx0ZWRfX3oawFOu/D+dx
- rjVrMtpm7aWpj3FkX5QxOI6YlfOONKOl3UY5tZWaEbxa3QkWDhp2PsrNPnfbYQKhr90pRm4C5/b
- gVLNiUEwHIvh6o+dIYPstDEYp8fgjDY=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-25_02,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0
- bulkscore=0 priorityscore=1501 clxscore=1015 spamscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609250036
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CBD619D6-8717-4C81-B5EA-D1D0771BDA3A@nvidia.com>
 
-Am 20.08.26 um 14:12 schrieb Janosch Frank:
-> Service call handling is a two stage process for PV vms. First we
-> receive the secure instruction intercept and then the secure
-> instruction notification intercept.
-> 
-> The secure instruction intercept (104) is analogous to the non-pv
-> instruction intercept (4) with the difference that we're not allowed
-> to inject an IRQ when re-entering SIE. We have to wait for the
-> notification intercept (108) which tells us that we're allowed to
-> inject.
-> 
-> Unfortunately we never considered this difference and hence the IRQ
-> injection code will try to inject on the secure instruction intercept
-> where service IRQs are masked.
+On Thu, Sep 24, 2026 at 11:50:14AM -0400, Zi Yan wrote:
+> On 24 Sep 2026, at 6:21, Lorenzo Stoakes (ARM) wrote:
 
+> >>> diff --git a/mm/folio.c b/mm/folio.c
+> >>> index 47a437e0f7fd..35e242b48870 100644
+> >>> --- a/mm/folio.c
+> >>> +++ b/mm/folio.c
+> >>> @@ -505,7 +505,7 @@ void folio_add_lru_vma(struct folio *folio, struct vm_area_struct *vma)
+> >>>  {
+> >>>  	VM_BUG_ON_FOLIO(folio_test_lru(folio), folio);
+> >>>
+> >>> -	if (unlikely((vma->vm_flags & (VM_LOCKED | VM_SPECIAL)) == VM_LOCKED))
+> >>> +	if (vma_test(vma, VMA_LOCKED_BIT))
+> >>
+> >> I think it is worth documenting VMA_LOCKONFAULT_BIT alone means mlock in
+> >> progress, like you did in munlock_vma_folio(). Just to keep the protocol
+> >> explicit for all the readers.
+> >
+> > Well I'm not sure it's necessary here honestly, because this never checked
+> > VMA_LOCKED_MASK anyway, and VMA_LOCKONFAULT_BIT never made a difference.
+> >
+> > So the meaning of VMA_LOCKED_BIT here is strictly 'is it locked' and it's
+> > correctly handled.
+> >
+> > And I fear that it becomes whack-a-mole - the neat thing about this change is
+> > that you no longer have to special case the stupid VM_SPECIAL thing, and can in
+> > fact do the 'normal' thing of _just checking_ VMA_LOCKED_BIT :)
+> >
+> > So I think it's better not to.
+>
+> Your reasoning makes sense to me.
 
-> 
-> It's time to move injection to the instruction notification and skip
-> injection on the instruction interception path.
+Thanks :)
 
-The injection itself (setting the pending bit) already happens in
-handle_pv_sclp(). This patch moves the kick and we should change that
-in the commit message.
+> >> Why I am commenting in the middle of the series? Because I am taking
+> >> a quiz given by LLM based on this series to get myself enough background
+> >> knowledge to review this series. This mlock part came up at part E
+> >> and I only have part F left before I can do the full review. :)
+> >
+> > Thanks! :) I really appreciate you taking the time to look at this! Sorry it's
+> > so large.
+>
+> Sure. It is great learning material for me. Thank you for the patches.
 
+No worries, and sorry for the size of this change...! :)
 
-> 
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>
+> >
+> > I held this series back from last cycle to help with review load, then spent
+> > some time fixing various AI-discovered things, and all the patches are necessary
+> > (well for the most part) to get where the series needs to go.
+> >
+> > I think the change is worth it though!
+>
+> Of course, great to see hacky code being removed by this series.
+>
+> For this patch, feel free to add
+>
+> Reviewed-by: Zi Yan <ziy@nvidia.com>
 
-Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Thanks :)
+
+>
+>
+>
+> Best Regards,
+> Yan, Zi
+
+--
+Cheers, Lorenzo
