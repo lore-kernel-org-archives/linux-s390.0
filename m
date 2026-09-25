@@ -1,72 +1,69 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92CDC3BBFC5;
-	Fri, 25 Sep 2026 22:07:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC07A3B19DE;
+	Fri, 25 Sep 2026 22:19:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790374061; cv=none; b=B0YhvLb0mPn1FvI7iifTXYRdvnvYBO1LM94dPo/q3puBuFucybAvZh/iiGAm77/TqQM1rYY6naHVmDR9v4gUq3HHp40j/bkJY9IB044Gw/Vo7t56kEdMxthSsGFuySEUhEGyhuIJo0KRCvHdmXHChVLgBBMYU0Sbke6W8NDB1GI=
+	t=1790374771; cv=none; b=ODZvRlcbsE22qsU9YQM/y9inqqoegFwmzfBBkrgLNvrPusDfx6xGR4wwOOt2cCyxdeD6uBfUvzIk6idyb2QxdVKPQgmDVOMmeElPbet4s3uqOMSQLu1w7o4QP2WB6i/8O3jU5ggR2H3A+UIgnTPcjJ4bfx7vY4tMfJXZouHy2Ic=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790374061; c=relaxed/simple;
-	bh=v5aR+9FNEpK5gxvC7HOJa4TqnF3FfO7zQMNhCpKK8/I=;
+	s=arc-20240116; t=1790374771; c=relaxed/simple;
+	bh=zSRb9x++qabLIT7ciB+i17Qwgp6yEv3v3XcxPYd1UhM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=StToNnVbhPlO6Cwfe/gl8l1BtFD1DXthYQDfFHL3qi0+w4YR91/CEmV1zCrMsbPyLQemeD0tiuKuoeukLXtYYg4G3672ut0WVHVohxQViJ1NOs3KltwyHMiAt5lPYAnk7oOgFQYKmb3/f+ZW5YUapuIMYhfsefXk1qBPe6xlZ/c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Blm+98gn; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=CHoBHC72C3txYtGEwQL2xmI5804GFcCwwccyKGSaFAWVKO77DuWHar33NlA2EqJ2Xoqx59I/wvwsfjj9qDRo2hYKwuKZzNgdNowo7YUTa4nt7iATewmi+2fLyHIBtnGq7qj6NsPmEV6WYyyt1q4AwSCy22dzKNXZiUEsr/2KY5M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PQxXz8Bq; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Blm+98gn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3F871F000FF;
-	Fri, 25 Sep 2026 22:07:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PQxXz8Bq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBFD91F00893;
+	Fri, 25 Sep 2026 22:19:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790374060;
-	bh=k8g2DRYbUFc/WlQ2pAkletlhQtrwe1F0NZCL2F3+zUE=;
+	s=k20260515; t=1790374770;
+	bh=Ub6l+gGnhbpnVJSf1sECQFZws1/JGSNU3EBgSX0gJT0=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Blm+98gnNSmmT+B1FkGka5xELWe0Sas5kxh6t5tiDl8w5RPy2GIR156rg32qYAB8h
-	 0WC2HIz9I9oTU8BMJGRhVpVPYDGzzRjyfJveq8tYuLsmMYq8PIg/rRdFm5JUc5XTUv
-	 91GhFUgvrNiWWbRRvN59hi3Fpb3qet+Bo+uXdpaPUiXnSpzo4uJ6julwsKMhb0hI0F
-	 fCnTm7iQaDrz5G7/S+Ybr+QBIQ138M/AuG4leepfCPOBvTzVcKAe7YoDWwTXpZPdWD
-	 sWKIAoZzsyb+GWb/CE2bNAPLaHe7PFEY5aiF2ExoAzy1jo3Uh5k6xUgU2dktwiDBax
-	 IMsJ0+SwguBcQ==
-Date: Fri, 25 Sep 2026 15:07:37 -0700
-From: Eric Biggers <ebiggers@kernel.org>
-To: Michal Wilczynski <m.wilczynski@samsung.com>
-Cc: Nathan Chancellor <nathan@kernel.org>,
-	Nick Desaulniers <ndesaulniers@google.com>,
+	b=PQxXz8Bqrp5fZyfGD0+JAGV/Kt9gf1keLvC0fg5oDg0FbTEbVJGuxWGMfLX4a64tp
+	 AWVr2a0nGnUzgI0wEPXnVpyWA2bs9xiS75lcfbRaZsj6SsbeBpDWwM2a1brofqNtc/
+	 PMVzMywMMPqnL/kNGdSX9F63rKLKf3sNQoadBGdYyIoJVHaFD9o2FxX3/eeZttbdAW
+	 inqLQvas8M54Ltq6wI4sRbZF3B+T/RIAJD3NcO6l0rUleguc0EzcHCV7vzFkNvo/WV
+	 yh0CnZKvY/rQthUclqO6rQJbXjy8+yJDamlNxOKl56QmZxkkB7YCoqP8hpwRiy5WMz
+	 6mMauv2SHxwSg==
+Date: Fri, 25 Sep 2026 23:19:21 +0100
+From: Nathan Chancellor <nathan@kernel.org>
+To: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
+	Theodore Ts'o <tytso@mit.edu>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Vincenzo Frascino <vincenzo.frascino@arm.com>,
 	Bill Wendling <morbo@google.com>,
 	Justin Stitt <justinstitt@google.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>, Heiko Carstens <hca@linux.ibm.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Alexander Gordeev <agordeev@linux.ibm.com>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	Sven Schnelle <svens@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
 	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Minchan Kim <minchan@kernel.org>,
-	Sergey Senozhatsky <senozhatsky@chromium.org>,
-	Jens Axboe <axboe@kernel.dk>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
-	linux-block@vger.kernel.org, Yann Collet <yann.collet.73@gmail.com>,
-	Nick Terrell <terrelln@meta.com>, Gao Xiang <xiang@kernel.org>,
-	Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Phillip Lougher <phillip@squashfs.org.uk>,
-	Sungguk <sungguk.na@samsung.com>,
-	Jaehoon Chung <jh80.chung@samsung.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	linux-erofs@lists.ozlabs.org,
-	linux-f2fs-devel@lists.sourceforge.net,
-	linux-crypto@vger.kernel.org
-Subject: Re: [PATCH RFC 0/9] lib/lz4: stop forking upstream LZ4, vendor it
- instead
-Message-ID: <20260925220737.GB1903@quark>
-References: <CGME20260925113450eucas1p2fcf838f00f35e1bce0ca04a694cd0cd2@eucas1p2.samsung.com>
- <20260925-lz4-vendor-upstream-v1-0-1c7ffbe21c4b@samsung.com>
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	llvm@lists.linux.dev
+Subject: Re: [PATCH v2] random: vDSO: Avoid call to memset() when zeroing
+ reserved in __cvdso_getrandom_data()
+Message-ID: <20260925221921.GA2296912@ax162>
+References: <20260925-vdso-getrandom-avoid-memset-llvm-24-v2-1-ce640f872393@kernel.org>
+ <CAKwvOdmuvn0LZkYEsH84hnOGTYhTtzuWs3wMARtWdTeL6dD9sA@mail.gmail.com>
+ <CAKwvOdnxKVpn=nAFaqP+9PTx4PqgHsUVWv6e60Pcr29W_eZrpQ@mail.gmail.com>
+ <CAKwvOdmNZL3eFvV3v77GXDzL+XLgz+BT9TA=my0yTnbsHqVeSg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -75,38 +72,34 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260925-lz4-vendor-upstream-v1-0-1c7ffbe21c4b@samsung.com>
+In-Reply-To: <CAKwvOdmNZL3eFvV3v77GXDzL+XLgz+BT9TA=my0yTnbsHqVeSg@mail.gmail.com>
 
-On Fri, Sep 25, 2026 at 01:27:30PM +0200, Michal Wilczynski wrote:
-> The in-kernel LZ4 is a fork. The decompressor was last synced with
-> upstream v1.8.3 in 2018 and the compressor with v1.7.3 in 2017, both by
-> hand. Upstream has made 488 commits against lib/ since, and the gap is
-> maintained one cherry-pick at a time.
+On Fri, Sep 25, 2026 at 03:00:46PM -0700, Nick Desaulniers wrote:
+> > > > +static inline void *memset_inline(void *dst, int value, size_t size)
+> > > > +{
+> > > > +       char *d = dst;
+> > > > +
+> > > > +       while (size--)
+> > > > +               *d++ = value;
+> > > > +
+> > > > +       return d;
+> > > > +}
+> > >
+> > > Does this work?
+> > > https://godbolt.org/z/Tx6EaGMfb
+> >
+> > Hmmm...possibly.
+> > https://godbolt.org/z/ec9rzd9Yf
+> > I don't get it...
 > 
-> That has left real bugs in place for example the forked
-> LZ4_decompress_fast() has no bounds checks, so corrupted input runs off
-> the output buffer in both directions. 
-> 
-> This series vendors the upstream sources unmodified and adapts them at
-> build time, so a re-sync becomes a directory copy:
+> Just keep it under 2 pages, it will be fine:
+> https://godbolt.org/z/qqoMqfxev
 
-At a high level, this looks good to me, and it's similar to what was
-done with zstd.  I don't see any obvious issues with the integration.
+Yeah, it might be worth a comment that this is only safe for small
+values of size so it should not be blindly copied elsewhere (although I
+guess if it is, the outlined version exists in the majority of other
+places).
 
-There are disadvantages to directly integrating external projects like
-this, vs. writing a small implementation from scratch for the kernel.
-But the existing LZ4 code in the kernel isn't that, but rather a fork
-from upstream anyway, and it's clearly not being maintained properly.
-
-The upstream LZ4 codebase also already avoids many of the typical
-incompatibilities with Linux kernel code that are often seen in
-userspace projects (such as assuming FPU/SIMD/vector instructions can be
-used at any time, or that the stack size is infinite, or that the C
-standard library is available, or that it's reasonable to have hundreds
-of files or 100MB of test data, etc.).
-
-And writing properly optimized compression/decompression code is quite
-difficult.  So yes, syncing with the latest LZ4 upstream seems like the
-right choice for the kernel.
-
-- Eric
+-- 
+Cheers,
+Nathan
