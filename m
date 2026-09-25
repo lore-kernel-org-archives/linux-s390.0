@@ -1,123 +1,168 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2A2A3AEF51;
-	Fri, 25 Sep 2026 12:57:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FF1649CF39;
+	Fri, 25 Sep 2026 12:59:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790341043; cv=none; b=XwB85PaklmwppBiItKo3VdmzGvgS1BZXPm2EVYtk28H7VFK0jZG6X3NK1UJTi1emZbVZs8ejj9VzIqdR7xOxiBYGYnMyzSLIi4jKz3BQtuUh/+3homooeLAqwYbv1Faz+CCUmxYsjCCqzAc0Pvrk+Z7jTPmEyo4xZE6l1+3IMH8=
+	t=1790341196; cv=none; b=qQ5wrAvS3FCwKC6+U52LoiLD1uktNZ+pzMMtvZd4f8tTszHMHrW6tfWY/szbQSXHUEspVILUt5Bdm2KZ+rD0RQO2opHJtmuIxGJYV8vr6lb5w1qIhg7GVTlOE7wMm1VSGH2/zJt1u8TEsyCRp97/UAjmgEypCzRVTtMjmpnceMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790341043; c=relaxed/simple;
-	bh=147WfADxFTPuYQQTXvSf+W4g6iJ4FbD7oDtSyqX8MB0=;
+	s=arc-20240116; t=1790341196; c=relaxed/simple;
+	bh=JedtBopJ5YW/Ih/XS69Ytluv6ZfOMgMyFdSzpBoTdbs=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=YXcTlcP5FjWekuDI7osGo+HRoL7PE2uBVTXSAbfdkd/uwruGlshlqKC2UIB/CKcL57fZNti++tg9uNeT/c2uLUIN62nY9Nw8rAxTGEpFSWnIpQDbmLWl0gm0F9KhKik5vAShlGjVzTXIFhgPklLtpU6qrxdezqUNU54PTcs9hOw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gzCKwAv4; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ZiSAQiH7hHggzpVW627weHKoUnrQRPWPJRDT+/rLbxWSXWyADvr1PLUcsos4AtRk4xaYnChW9RS7aYIEbJVGCw87nff1N5uUTDMycGs9rPZRY9BV+3GSiol7SFLVC81l2hHsk2puri1zOesXV18z4tjmEw3m3wXHCW0E6RMqbeU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jyCErHx4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gzCKwAv4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C29C1F000FF;
-	Fri, 25 Sep 2026 12:57:21 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jyCErHx4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAFAA1F00893;
+	Fri, 25 Sep 2026 12:59:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790341042;
-	bh=M6kTzlTtA4bzlUK7Jgov/Z9PMNLjHrr+FTbVzJGHHIM=;
+	s=k20260515; t=1790341194;
+	bh=zPhcui6w8pl756gc0CcsOusp+gQ16G7RhqFH5EnJe14=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=gzCKwAv4LkPWFxwETkyVJ9fF4Cli25PutsnwtrmsB9pvvRuXY4dNmAGF2Q5vU6hp7
-	 2IYj11XcjKu5JMGl/jIAVSSZIFxY2EhGxpTvTR5KuoMQYekSbs2W6Aw964z+Q+/zIg
-	 ARRYh0uXunXlM2D0a544uYFejfqfuyXK2MoDxq4zrokstWgCQ2MdtG9EqL8czxqFy4
-	 lskfyIL91FNg2O3K+4ViRUlOO7WtEIj8dqiHLGvgiWRXgzyfPihwialW8VDOuhHnBF
-	 G/liDaHDjo8yNoHtlwBMEa9crxCpvQBVunM+KHV/nvoCXNSnT/q1gnHWBqoWJ8I4nn
-	 lYbs0mJoE3WGQ==
+	b=jyCErHx4egCNjvYfv6CgeWVnOFTV9Vejp+lC5I10Icc5rTVVNrCmc/Fg2amXtFNYS
+	 CtntgjZra0D2RcciISlpujLAOSMWCgplgyZoHo6xxYt+4l5aOJpXm+DtPO1sr7nRzb
+	 9iHOz1xzx8nQzpcrDbvBSjpeCPPjr6t2SrdF6WRZi8TvGb7cna2AdmHcixJ882wcFL
+	 A5ucRDlcNXkFNCa7Sf6+i3bDs5Wv7jt9RnTRSBTPlaKjGsds7r8N6Dp8YmBW68MwQK
+	 lxMtN8RDZDpB83qoYEZ33+Du/1M7fm0zRMAK7F/P3JFvxzWJ3ON5fGAk2KaV2jnRKL
+	 ZHP4j7CLe0FZA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 1/6] s390/vfio-ap: Fix leaks of pinned NIB and
- registered GISC
+Subject: Re: [PATCH v8 6/6] s390/vfio-ap: replace guest-reachable WARNs with
+ ratelimited warnings
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, kvm@vger.kernel.org
-In-Reply-To: <20260925124551.665448-2-akrowiak@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20260925124551.665448-7-akrowiak@linux.ibm.com>
 References: <20260925124551.665448-1-akrowiak@linux.ibm.com>
- <20260925124551.665448-2-akrowiak@linux.ibm.com>
+ <20260925124551.665448-7-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 25 Sep 2026 12:57:20 +0000
-Message-Id: <20260925125721.5C29C1F000FF@smtp.kernel.org>
+Date: Fri, 25 Sep 2026 12:59:53 +0000
+Message-Id: <20260925125953.DAFAA1F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [High] s390/vfio-ap: wild DMA write due to unconditional NIB unpin in unm=
-ap_iova
+- [High] s390/vfio-ap: NULL pointer deref in vfio_ap_free_aqic_resources()
+- [Low] s390/vfio-ap: format specifiers truncate DMA addr and corrupt log
 --
 
-commit f138c70af93258555b6e1c1c1233b5d5dc8b82da
+commit bb0d1a9a828269662641d7a1b6f445a55a9d0e1d
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-s390/vfio-ap: Fix leaks of pinned NIB and registered GISC
+s390/vfio-ap: replace guest-reachable WARNs with ratelimited warnings
 
-This commit addresses resource leaks of pinned NIB pages and registered
-GISCs across several paths. It introduces intentional leaks for cases where
-hardware might still be able to write to the NIB, while freeing resources
-when queues become unavailable.
+WARN and WARN_ONCE macros in code paths reachable by a guest
+can be triggered repeatedly by a malicious or misbehaving guest,
+flooding the kernel log and potentially impacting system
+stability. Replace all WARN and WARN_ONCE calls reachable from
+the guest AP interrupt enable/disable and queue reset paths with
+ratelimited warning functions.
 
 > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
 _ap_ops.c
+> index cd4a436c43194..4b6e64daed253 100644
 > --- a/drivers/s390/crypto/vfio_ap_ops.c
 > +++ b/drivers/s390/crypto/vfio_ap_ops.c
 [ ... ]
-> @@ -1857,8 +2006,28 @@ static void unmap_iova(struct ap_matrix_mdev *matr=
-ix_mdev, u64 iova, u64 length)
->  	int loop_cursor;
-> =20
->  	hash_for_each(qtable->queues, loop_cursor, q, mdev_qnode) {
-> -		if (q->saved_iova >=3D iova && q->saved_iova < iova + length)
-> +		if (q->saved_iova >=3D iova && q->saved_iova < iova + length) {
->  			vfio_ap_irq_disable(q);
-> +			/*
-> +			 * If IRQ disable failed or IR=3D0 could not be confirmed,
-> +			 * vfio_ap_irq_disable() intentionally leaks the NIB to
-> +			 * prevent a wild DMA write. But vfio core requires the
-> +			 * page to be unpinned before dma_unmap returns, or it
-> +			 * will BUG_ON after 10 re-notification rounds.
-> +			 *
-> +			 * Fall back to a bounded queue reset. The ZAPQ zeroizes
-> +			 * the NIB pointer in hardware, eliminating the DMA risk
-> +			 * that justified the leak. Once the worker finishes (or
-> +			 * times out with a reset confirmed in-progress), the
-> +			 * hardware no longer holds a reference to saved_iova and
-> +			 * it is safe to unpin unconditionally.
-> +			 */
-> +			if (q->saved_iova) {
-> +				vfio_ap_mdev_reset_queue(q);
-> +				flush_work(&q->reset_work);
-> +				vfio_ap_free_aqic_resources(q);
+> +static void report_gisc_unregister_failure(struct vfio_ap_queue *q)
+> +{
+> +	if (q->matrix_mdev) {
+> +		dev_warn_ratelimited(mdev_dev(q->matrix_mdev->mdev),
+> +				     "APQN %02x.%04x: Failed to unregister guest ISC %c\n",
+> +				     AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
+> +				     q->saved_isc);
+
+[Severity: Low]
+Could this result in missing or mangled information in the kernel log?
+The guest ISC is printed using %c, which will output a non-printable ASCII
+character for the numeric value, rather than the integer itself.
+
+> +	} else {
+> +		pr_warn_ratelimited("APQN %02x.%04x: Failed to unregister guest ISC %c=
+\n",
+> +				    AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
+> +				    q->saved_isc);
+> +	}
+> +}
+> +
+> +static bool verify_free_aqic_resourcers(struct vfio_ap_queue *q)
+> +{
+> +	bool verified =3D true;
+> +
+> +	if (q->saved_isc !=3D VFIO_AP_ISC_INVALID &&
+> +	    !(q->matrix_mdev && q->matrix_mdev->kvm)) {
+> +		report_gisc_unregister_failure(q);
+> +		verified =3D false;
+> +	}
+> +
+> +	if (q->saved_iova && !q->matrix_mdev) {
+> +		pr_warn_ratelimited("APQN %02x.%04x: Failed to unpin NIB page %08x\n",
+> +				    AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
+> +				    q->saved_iova);
+
+[Severity: Low]
+Does this truncate the logged DMA address? q->saved_iova is a 64-bit=20
+dma_addr_t, but it's being printed with a 32-bit format specifier %08x.
+
+> +		verified =3D false;
+> +	}
+> +
+> +	return verified;
+> +}
+> +
+>  /**
+>   * vfio_ap_free_aqic_resources - free vfio_ap_queue resources
+>   * @q: The vfio_ap_queue
+> @@ -316,17 +398,13 @@ static int vfio_ap_wait_for_irqclear(int apqn, stru=
+ct ap_queue_status *tapq_stat
+>   */
+>  static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
+>  {
+> -	if (!q)
+> +	if (!q || !verify_free_aqic_resourcers(q))
+>  		return;
+> -	if (q->saved_isc !=3D VFIO_AP_ISC_INVALID &&
+> -	    !WARN_ON(!(q->matrix_mdev && q->matrix_mdev->kvm))) {
+> -		kvm_s390_gisc_unregister(q->matrix_mdev->kvm, q->saved_isc);
+> -		q->saved_isc =3D VFIO_AP_ISC_INVALID;
+> -	}
+> -	if (q->saved_iova && !WARN_ON(!q->matrix_mdev)) {
+> -		vfio_unpin_pages(&q->matrix_mdev->vdev, q->saved_iova, 1);
+> -		q->saved_iova =3D 0;
+> -	}
+> +
+> +	kvm_s390_gisc_unregister(q->matrix_mdev->kvm, q->saved_isc);
+> +	q->saved_isc =3D VFIO_AP_ISC_INVALID;
+> +	vfio_unpin_pages(&q->matrix_mdev->vdev, q->saved_iova, 1);
+> +	q->saved_iova =3D 0;
+>  }
 
 [Severity: High]
-Does this unconditional call to vfio_ap_free_aqic_resources() risk allowing
-a wild DMA write into host memory?
+Can this lead to a NULL pointer dereference or a memory leak?
 
-If vfio_ap_mdev_reset_queue() encounters a hardware fault and TAPQ returns
-an invalid response code, it intentionally leaves the NIB pinned. The
-comment in vfio_ap_mdev_reset_queue() notes:
+In verify_free_aqic_resourcers(), the logic couples the validation of the t=
+wo
+independent resources. If both resources are empty (q->saved_isc =3D=3D=20
+VFIO_AP_ISC_INVALID and q->saved_iova =3D=3D 0), the function returns true.=
+ If=20
+q->matrix_mdev is NULL, vfio_ap_free_aqic_resources() will then uncondition=
+ally=20
+dereference q->matrix_mdev->kvm, resulting in a kernel panic. This path can=
+ be=20
+reached when an unbound queue is removed from the host AP configuration.
 
-"An invalid response code indicates a hardware or firmware bug. Since we
-cannot determine whether the queue can still DMA-write to the NIB, the AQIC
-resources are intentionally leaked lest the NIB page is reallocated to a new
-owner."
-
-However, calling vfio_ap_free_aqic_resources() in unmap_iova() forces the
-NIB page to be unpinned regardless of the reset result. If the ZAPQ failed
-to zeroize the NIB, unpinning it here overrides the intentional safety leak
-and could expose the host to memory corruption.
-
-> +			}
-> +		}
->  	}
->  }
+Additionally, if only one resource fails validation (e.g., kvm is NULL),
+verify_free_aqic_resourcers() returns false, which skips the cleanup entire=
+ly.
+This prevents the NIB page from being unpinned, leaking the memory.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260925124551.6654=
-48-1-akrowiak@linux.ibm.com?part=3D1
+48-1-akrowiak@linux.ibm.com?part=3D6
