@@ -1,80 +1,76 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD5F943F8C9
-	for <linux-s390@vger.kernel.org>; Fri, 25 Sep 2026 20:25:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A23D40BCB8
+	for <linux-s390@vger.kernel.org>; Fri, 25 Sep 2026 20:25:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790367911; cv=none; b=T0a7RaVttRXazzLmXXkAeD1WZpsWdWY+PMiFoyF1HzRGHoLwFNJIxbrgp/cJVCxuAduMYXdvi8eE8eI34kGRPiKgXkyhEC4zWdsJlI+kA/56fuo/3eTYN8GvEHkwVwzAWM00xB+WezEFVtnIIPx+3daEo44JrDB/CZUm9N8QZFQ=
+	t=1790367912; cv=none; b=YRVnEUCmH3Pe6kCp+2xMd5T8rjSteK2AjD0OCYwl0RqxA5ivndhNwXtook63nKv3KkOvc0pzHzc8jImJNqYk9pXmVPTMhxhLudsxVK+POawAYTvyTxZB7ytSlFcrquGYt6CEtDiJoI9Vm2TkuXiwnSFX7rvlU2rg9HWSZXDH/48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790367911; c=relaxed/simple;
-	bh=Di/hi7fyav3o8a3IPuTsK8viRJi57ENgId4hdrO+gtY=;
+	s=arc-20240116; t=1790367912; c=relaxed/simple;
+	bh=/6GGi0e5G0uyjFchKV2wxI7K0OSjtnHzGB8ri0BhdSY=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=AWXihLMzQOHyyNbowJbwxpTMsprk4lvV1vNyTsZRh5x5THnSRww/K97qob43LJUOfKLPvhSJQcSbhFsg9lJPJiiqmGLOsOiEuKok4ex5BUNwLb08QCEqCYolFn90u6BifpgUwPowo8hEtF+M9UxPBP7sg5YunA0ODhS5nZujk64=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BvBpCNIl; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=YIkI5dQ/edGbdqvFcMSodK1B0eKoVBoslYuUivesc9MIAUSea71RNKsetn3+rMCpVtUms64cFR6eMVc9YZl+sJ05MTWzI+XI0JjFNc+ROFutWCiHcPKUE97mU5ssRiZoXC5BCJThoqteKZCdYGrchZJ1c225lXB/CNIta5rMvts=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eD3ywe1V; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BvBpCNIl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E3901F000FF;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eD3ywe1V"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D90D01F00898;
 	Fri, 25 Sep 2026 20:25:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790367910;
-	bh=Di/hi7fyav3o8a3IPuTsK8viRJi57ENgId4hdrO+gtY=;
+	s=k20260515; t=1790367911;
+	bh=/6GGi0e5G0uyjFchKV2wxI7K0OSjtnHzGB8ri0BhdSY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BvBpCNIlu6LwsrL7ze8TbPQifH+5zpdzrhs74yPAF02UCIsb3Jo0UAbmmRohBbXgJ
-	 f12vQfb7V2S54Eh4xd/j0MHuK85BtJyVzfxY/fHtGT4kJcyKpj0Pl7sR5FHaQQ2J7t
-	 wIIwVL9WMGvzSkLjv1fVORfV/WRbEOFbqG9qmGVwP6Aqmal0F3Ht3WbwKqfzrSehEx
-	 3fn3IwUhF8cKV158d0Vi0Fbebtb66GKgJAKmTwCDALXCwS2Gi9TITHtAV2MGnjLu6d
-	 OxBjN4gdTOq0NvyGgn+GOJu8EnPHb422RzSB1GZTeNLrn9z2IFBXFTcmXY+MmzV2kE
-	 y5QB3T01WjeQQ==
+	b=eD3ywe1VzyqjS2qsJxQdVyXn/lgMAPabyxrsQDZcamRMzLniRnE5d5I0xxk+yMTbP
+	 psQKUN4MFAWYSf+nP+u79EOICfIz9KL2Ihrc+txl6RsCuDMrDlKdhC/WKz6jLhPiMi
+	 pqN1wtdN0LfO4h0TD9QdQXHca0Q9CtZb0yeY6kc8OBY/ewaIbwv4ZYC/pKAih5Th2d
+	 Qca1FgRw49bzJd+5cn6n4gNMx0xofGN/EYaf+7xow0hsU5xP0CTgcqQs6FLnmh5iYk
+	 2tdKZIjaaAoo/S/7qizRwcE1xcJi6Uf1glB8pIqUdeZXirvk6Z4B+0zpVc7Is5cYQ/
+	 E0Jmp6adAS+Jw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 01/12] mm/khugepaged: deposit a newly allocated page
- table on collapse
+Subject: Re: [PATCH v5 08/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for sh-X2
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?TG9yZW56byBTdG9ha2VzIChBUk0p?= <ljs@kernel.org>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260925-rcu-pagetable-freeing-v5-1-31e91065fea4@kernel.org>
+In-Reply-To: <20260925-rcu-pagetable-freeing-v5-8-31e91065fea4@kernel.org>
 References: <20260925-rcu-pagetable-freeing-v5-0-31e91065fea4@kernel.org>
- <20260925-rcu-pagetable-freeing-v5-1-31e91065fea4@kernel.org>
+ <20260925-rcu-pagetable-freeing-v5-8-31e91065fea4@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 25 Sep 2026 20:25:09 +0000
-Message-Id: <20260925202510.1E3901F000FF@smtp.kernel.org>
+Date: Fri, 25 Sep 2026 20:25:10 +0000
+Message-Id: <20260925202510.D90D01F00898@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> collapse_huge_page() deposits a PTE page table on PMD collapse in order
-> that it can be utilised for subsequent split operations, meaning that tho=
-se
-> operations do not need to perform an allocation (as they are in a context
-> where it might be unwise).
+> Currently, non-x2 sh specifies CONFIG_MMU_GATHER_RCU_TABLE_FREE allowing
+> RCU page table freeing.
 >=20
-> However the PTE page table which is deposited is the one which is current=
-ly
-> mapped by the PMD entry that is in the process of being collapsed.
+> sh-X2 is problematic because it utilises slab-allocated PMD page tables,
+> and thus tlb_remove_ptdesc() cannot be used in these cases.
 >=20
-> Once deposited, the PTE page table may be used in a split of any other
-> unrelated PMD entry.
+> All other sh variants are fine as commit e3ecf7c7d082 ("mm: pgtable:
+> convert some architectures to use tlb_remove_ptdesc()") already converted
+> page table freeing to use tlb_remove_ptdesc(), which does so after an RCU
+> grace period when CONFIG_MMU_GATHER_RCU_TABLE_FREE is specified.
 >=20
-> This is currently not an issue as this operation is performed with VMA/mm=
-ap
-> write lock + anon rmap locks held, so ordinary page table walkers will
-> never accidentally end up walking the wrong thing, and GUP-fast is
-> protected by an IPI via tlb_remove_table_sync_one().
+> Resolve this issue by firstly specifying CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE
+> for sh-X2, so the arch can provide its own __tlb_remove_table()
+> implementation (called after the RCU grace period).
+>=20
 > [ ... ]
+> mode.
 >=20
-> Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-> Acked-by: David Hildenbrand (Arm) <david@kernel.org>
-> Reviewed-by: Lance Yang <lance.yang@linux.dev>
+> Acked-by: Kiryl Shutsemau (Meta) <kas@kernel.org>
+> Acked-by: Lance Yang <lance.yang@linux.dev>
 > Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260925-rcu-pageta=
-ble-freeing-v5-0-31e91065fea4@kernel.org?part=3D1
+ble-freeing-v5-0-31e91065fea4@kernel.org?part=3D8
 
