@@ -1,168 +1,299 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FF1649CF39;
-	Fri, 25 Sep 2026 12:59:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3494749E145;
+	Fri, 25 Sep 2026 13:00:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790341196; cv=none; b=qQ5wrAvS3FCwKC6+U52LoiLD1uktNZ+pzMMtvZd4f8tTszHMHrW6tfWY/szbQSXHUEspVILUt5Bdm2KZ+rD0RQO2opHJtmuIxGJYV8vr6lb5w1qIhg7GVTlOE7wMm1VSGH2/zJt1u8TEsyCRp97/UAjmgEypCzRVTtMjmpnceMI=
+	t=1790341233; cv=none; b=P7P9Q9PF5sj+XAWHWVNu6DOAsPKWVB2ThW+sjbtEGqDfoPHrW97QDIWIfr2+u/uMJrIqp0IHt+eQ5mU2B8IeK8dvuYoKZ3MEbOveJ/urToT1iVKiMINip8oRkYAST+s9V1diyYJP4/O8iyhP0viBZKSYOqlJBUdET0+ARk/hY/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790341196; c=relaxed/simple;
-	bh=JedtBopJ5YW/Ih/XS69Ytluv6ZfOMgMyFdSzpBoTdbs=;
+	s=arc-20240116; t=1790341233; c=relaxed/simple;
+	bh=+WTOigZLktiCSvymHZ7o1bYy2KlD03AH7QEsZh5Qpuk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ZiSAQiH7hHggzpVW627weHKoUnrQRPWPJRDT+/rLbxWSXWyADvr1PLUcsos4AtRk4xaYnChW9RS7aYIEbJVGCw87nff1N5uUTDMycGs9rPZRY9BV+3GSiol7SFLVC81l2hHsk2puri1zOesXV18z4tjmEw3m3wXHCW0E6RMqbeU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jyCErHx4; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=nefbwiYXc0XlbPYc/rcp+HnMn4S6VaPl7i9z5WPO2Jk4mixZgeK01VKGebRYaU4QqlO/Y8JkFsSLFTGWE4LXwd9fN4zQHaah1BzDQcD7V7tKYQzrgYzUVoAeqqKEaAO35+Ub6fJ/jxMRkdnJ6FbupckPl9UrT9ORemFYCty7TFE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B9rPyvLZ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jyCErHx4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAFAA1F00893;
-	Fri, 25 Sep 2026 12:59:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B9rPyvLZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 739B01F00898;
+	Fri, 25 Sep 2026 13:00:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790341194;
-	bh=zPhcui6w8pl756gc0CcsOusp+gQ16G7RhqFH5EnJe14=;
+	s=k20260515; t=1790341231;
+	bh=yJYewbvsT0JXwrQQaQUclJtjVrcX1k2l/ZCBbGgAI7c=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jyCErHx4egCNjvYfv6CgeWVnOFTV9Vejp+lC5I10Icc5rTVVNrCmc/Fg2amXtFNYS
-	 CtntgjZra0D2RcciISlpujLAOSMWCgplgyZoHo6xxYt+4l5aOJpXm+DtPO1sr7nRzb
-	 9iHOz1xzx8nQzpcrDbvBSjpeCPPjr6t2SrdF6WRZi8TvGb7cna2AdmHcixJ882wcFL
-	 A5ucRDlcNXkFNCa7Sf6+i3bDs5Wv7jt9RnTRSBTPlaKjGsds7r8N6Dp8YmBW68MwQK
-	 lxMtN8RDZDpB83qoYEZ33+Du/1M7fm0zRMAK7F/P3JFvxzWJ3ON5fGAk2KaV2jnRKL
-	 ZHP4j7CLe0FZA==
+	b=B9rPyvLZPM5MGZP83qgaX8oF8qenn2EX83xXNAVJsRR4zmNeYa90pEM45ba+tHEpl
+	 YuBLmjUueS1i+V891hwsstZewM7M9W7QiJ0AZ2l1vlOG4SxmVP/DvYGuGVTXI/zfj9
+	 d7bX2S7C4ueYGzEaV5a2JM5K3wbTzWf+x3x4hc4Hs5u/CzljIcbHUV+TQngl5B6X8v
+	 JwZtKb5OZ9zHW3Em5qebzRNx8ErHQ7rufN6hgzpmyftDatVuTcKw2vWk5ajFFcbNws
+	 9VUqxO+Ixc1QzAf48sRXOulKZPRyYiPvlscQHhKIvdOL07SYTKsTqQpAfVfvjmoR9d
+	 hUDPS4BIHfoSg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 6/6] s390/vfio-ap: replace guest-reachable WARNs with
- ratelimited warnings
+Subject: Re: [PATCH v8 3/6] s390/vfio-ap: Fix unbounded loop in
+ apq_reset_check()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260925124551.665448-7-akrowiak@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, kvm@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org
+In-Reply-To: <20260925124551.665448-4-akrowiak@linux.ibm.com>
 References: <20260925124551.665448-1-akrowiak@linux.ibm.com>
- <20260925124551.665448-7-akrowiak@linux.ibm.com>
+ <20260925124551.665448-4-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 25 Sep 2026 12:59:53 +0000
-Message-Id: <20260925125953.DAFAA1F00893@smtp.kernel.org>
+Date: Fri, 25 Sep 2026 13:00:30 +0000
+Message-Id: <20260925130031.739B01F00898@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 6 potential issue(=
 s) to consider:
-- [High] s390/vfio-ap: NULL pointer deref in vfio_ap_free_aqic_resources()
-- [Low] s390/vfio-ap: format specifiers truncate DMA addr and corrupt log
+- [Critical] s390/vfio-ap: unmap_iova() defeats timeout leak, causing wild =
+DMA write
+- [Critical] s390/vfio-ap: vfio_ap_mdev_reset_queue() abandons reset on AP_=
+RESPONSE_BUSY
+- [Critical] s390/vfio-ap: apq_reset_check() falsely reports zeroization co=
+mplete
+- [High] s390/vfio-ap: apq_reset_check() infinite loop on AP_RESPONSE_BUSY
+- [High] s390/vfio-ap: cross-guest resource corruption due to dangling IOVA=
+/ISC
+- [Low] s390/vfio-ap: dead code and ineffective state handling on reset tim=
+eout
 --
 
-commit bb0d1a9a828269662641d7a1b6f445a55a9d0e1d
+commit 3205ec637b4cfa8d70d28a8f5abc909aba0bd19c
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+Subject: s390/vfio-ap: Fix unbounded loop in apq_reset_check()
 
-s390/vfio-ap: replace guest-reachable WARNs with ratelimited warnings
-
-WARN and WARN_ONCE macros in code paths reachable by a guest
-can be triggered repeatedly by a malicious or misbehaving guest,
-flooding the kernel log and potentially impacting system
-stability. Replace all WARN and WARN_ONCE calls reachable from
-the guest AP interrupt enable/disable and queue reset paths with
-ratelimited warning functions.
+The commit introduces a 2000ms timeout to apq_reset_check() to prevent
+indefinite spinning when the hardware continuously returns a busy response.
+If the timeout is reached, the NIB page and ISC registration are intentiona=
+lly
+leaked to avoid memory corruption from potential wild DMA writes. It also
+corrects the confirmation logic by checking multiple status bits returned
+from TAPQ.
 
 > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
 _ap_ops.c
-> index cd4a436c43194..4b6e64daed253 100644
+> index 940c0ff668bee..47d4936fb9d7c 100644
 > --- a/drivers/s390/crypto/vfio_ap_ops.c
 > +++ b/drivers/s390/crypto/vfio_ap_ops.c
 [ ... ]
-> +static void report_gisc_unregister_failure(struct vfio_ap_queue *q)
-> +{
-> +	if (q->matrix_mdev) {
-> +		dev_warn_ratelimited(mdev_dev(q->matrix_mdev->mdev),
-> +				     "APQN %02x.%04x: Failed to unregister guest ISC %c\n",
-> +				     AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
-> +				     q->saved_isc);
+> @@ -1857,8 +2006,28 @@ static void unmap_iova(struct ap_matrix_mdev *matr=
+ix_mdev, u64 iova, u64 length)
+>  	int loop_cursor;
+> =20
+>  	hash_for_each(qtable->queues, loop_cursor, q, mdev_qnode) {
+> -		if (q->saved_iova >=3D iova && q->saved_iova < iova + length)
+> +		if (q->saved_iova >=3D iova && q->saved_iova < iova + length) {
+>  			vfio_ap_irq_disable(q);
+> +			/*
+> +			 * If IRQ disable failed or IR=3D0 could not be confirmed,
+> +			 * vfio_ap_irq_disable() intentionally leaks the NIB to
+> +			 * prevent a wild DMA write. But vfio core requires the
+> +			 * page to be unpinned before dma_unmap returns, or it
+> +			 * will BUG_ON after 10 re-notification rounds.
+> +			 *
+> +			 * Fall back to a bounded queue reset. The ZAPQ zeroizes
+> +			 * the NIB pointer in hardware, eliminating the DMA risk
+> +			 * that justified the leak. Once the worker finishes (or
+> +			 * times out with a reset confirmed in-progress), the
+> +			 * hardware no longer holds a reference to saved_iova and
+> +			 * it is safe to unpin unconditionally.
+> +			 */
+> +			if (q->saved_iova) {
+> +				vfio_ap_mdev_reset_queue(q);
+> +				flush_work(&q->reset_work);
+> +				vfio_ap_free_aqic_resources(q);
 
-[Severity: Low]
-Could this result in missing or mangled information in the kernel log?
-The guest ISC is printed using %c, which will output a non-printable ASCII
-character for the numeric value, rather than the integer itself.
+[Severity: Critical]
+Could this sequence unconditionally free the AQIC resources immediately aft=
+er
+the timeout completes, defeating the deliberate leak?
 
-> +	} else {
-> +		pr_warn_ratelimited("APQN %02x.%04x: Failed to unregister guest ISC %c=
-\n",
-> +				    AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
-> +				    q->saved_isc);
-> +	}
-> +}
-> +
-> +static bool verify_free_aqic_resourcers(struct vfio_ap_queue *q)
-> +{
-> +	bool verified =3D true;
-> +
-> +	if (q->saved_isc !=3D VFIO_AP_ISC_INVALID &&
-> +	    !(q->matrix_mdev && q->matrix_mdev->kvm)) {
-> +		report_gisc_unregister_failure(q);
-> +		verified =3D false;
-> +	}
-> +
-> +	if (q->saved_iova && !q->matrix_mdev) {
-> +		pr_warn_ratelimited("APQN %02x.%04x: Failed to unpin NIB page %08x\n",
-> +				    AP_QID_CARD(q->apqn), AP_QID_QUEUE(q->apqn),
-> +				    q->saved_iova);
+apq_reset_check() intentionally leaks the NIB page on timeout because hardw=
+are
+might still be actively writing to it. However, unmap_iova() executes
+flush_work(&q->reset_work) and then unconditionally checks q->saved_iova.
 
-[Severity: Low]
-Does this truncate the logged DMA address? q->saved_iova is a 64-bit=20
-dma_addr_t, but it's being printed with a 32-bit format specifier %08x.
+Because the timeout path didn't clear saved_iova, unmap_iova() immediately
+unpins the page via vfio_ap_free_aqic_resources(). Returning an active DMA
+target to the page allocator could cause host memory corruption via wild DMA
+writes.
 
-> +		verified =3D false;
-> +	}
-> +
-> +	return verified;
-> +}
-> +
->  /**
->   * vfio_ap_free_aqic_resources - free vfio_ap_queue resources
->   * @q: The vfio_ap_queue
-> @@ -316,17 +398,13 @@ static int vfio_ap_wait_for_irqclear(int apqn, stru=
-ct ap_queue_status *tapq_stat
->   */
->  static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
->  {
-> -	if (!q)
-> +	if (!q || !verify_free_aqic_resourcers(q))
->  		return;
-> -	if (q->saved_isc !=3D VFIO_AP_ISC_INVALID &&
-> -	    !WARN_ON(!(q->matrix_mdev && q->matrix_mdev->kvm))) {
-> -		kvm_s390_gisc_unregister(q->matrix_mdev->kvm, q->saved_isc);
-> -		q->saved_isc =3D VFIO_AP_ISC_INVALID;
-> -	}
-> -	if (q->saved_iova && !WARN_ON(!q->matrix_mdev)) {
-> -		vfio_unpin_pages(&q->matrix_mdev->vdev, q->saved_iova, 1);
-> -		q->saved_iova =3D 0;
-> -	}
-> +
-> +	kvm_s390_gisc_unregister(q->matrix_mdev->kvm, q->saved_isc);
-> +	q->saved_isc =3D VFIO_AP_ISC_INVALID;
-> +	vfio_unpin_pages(&q->matrix_mdev->vdev, q->saved_iova, 1);
-> +	q->saved_iova =3D 0;
+> +			}
+> +		}
+>  	}
 >  }
+[ ... ]
+> @@ -1959,8 +2220,77 @@ static void apq_reset_check(struct work_struct *re=
+set_work)
+>  		elapsed +=3D AP_RESET_INTERVAL;
+>  		status =3D ap_tapq(q->apqn, NULL);
+>  		ret =3D apq_status_check(q->apqn, &status);
+[ ... ]
+> +		if (!ret || ret =3D=3D -ENODEV) {
+> +			/*
+> +			 * Zeroization confirmed (ret =3D=3D 0): the TAPQ status bits
+> +			 * indicate the async portion of the ZAPQ completed
+> +			 * successfully. Free AQIC resources and return.
+> +			 *
+> +			 * Queue non-operational (ret =3D=3D -ENODEV): the queue is
+> +			 * deconfigured or checkstopped; interrupts are not
+> +			 * possible so AQIC resources can be safely freed.
+> +			 * Zeroization cannot be confirmed in this state, but the
+> +			 * queue cannot generate interrupts, so the NIB page is
+> +			 * no longer a DMA target and it is safe to free it.
+> +			 */
+> +			apq_reset_finalize(q, &status, ret);
+> +			return;
+
+[Severity: Critical]
+Does this immediate return prevent the rejected ZAPQ instruction from being
+reissued, bypassing queue zeroization entirely while falsely reporting succ=
+ess?
+
+If the initial ap_zapq() is rejected (e.g., returns
+AP_RESPONSE_STATE_CHANGE_IN_PROGRESS), apq_reset_check() is queued without =
+the
+queue being zeroized. apq_reset_check() polls with ap_tapq().
+
+Once the hardware state change finishes, ap_tapq() returns AP_RESPONSE_NORM=
+AL
+(queue empty). apq_reset_check() sees !ret, executes apq_reset_finalize(),
+and returns success.
+
+The ZAPQ command is never reissued. The queue is falsely marked as reset and
+can be assigned to a new guest with the previous guest's cryptographic secr=
+ets
+intact.
+
+> +		}
+> +
+> +		if (elapsed >=3D AP_RESET_MAX_WAIT) {
+> +			/*
+> +			 * Timed out without being able to verify zapq completed.
+[ ... ]
+> +			 */
+> +			report_aqic_resource_leak(q);
+> +			/*
+> +			 * Zeroization could not be confirmed; set
+> +			 * reset_status to AP_RESPONSE_RESET_IN_PROGRESS.
+> +			 * This is used internally to signal that the reset
+> +			 * did not complete, and ensures that if the queue
+> +			 * is reset again, the re-issue logic in
+> +			 * apq_reset_check() will re-issue the ZAPQ.
+> +			 */
+> +			q->reset_status.response_code =3D AP_RESPONSE_RESET_IN_PROGRESS;
+> +
+> +			return;
 
 [Severity: High]
-Can this lead to a NULL pointer dereference or a memory leak?
+Can leaving q->saved_iova and q->saved_isc populated after the timeout corr=
+upt
+cross-guest resources?
 
-In verify_free_aqic_resourcers(), the logic couples the validation of the t=
-wo
-independent resources. If both resources are empty (q->saved_isc =3D=3D=20
-VFIO_AP_ISC_INVALID and q->saved_iova =3D=3D 0), the function returns true.=
- If=20
-q->matrix_mdev is NULL, vfio_ap_free_aqic_resources() will then uncondition=
-ally=20
-dereference q->matrix_mdev->kvm, resulting in a kernel panic. This path can=
- be=20
-reached when an unbound queue is removed from the host AP configuration.
+If the queue is assigned to a new guest, q->matrix_mdev points to the new
+guest's matrix_mdev. When the new guest enables interrupts,
+vfio_ap_free_aqic_resources() is called.
 
-Additionally, if only one resource fails validation (e.g., kvm is NULL),
-verify_free_aqic_resourcers() returns false, which skips the cleanup entire=
-ly.
-This prevents the NIB page from being unpinned, leaking the memory.
+It uses the new q->matrix_mdev to unpin the old q->saved_iova and unregister
+the old q->saved_isc, corrupting the new guest's IOMMU pinning counts
+and KVM ISC refcounts.
+
+> +		}
+> +
+>  		if (ret =3D=3D -EBUSY) {
+>  			pr_notice_ratelimited(WAIT_MSG, elapsed,
+>  					      AP_QID_CARD(q->apqn),
+> @@ -1968,18 +2298,15 @@ static void apq_reset_check(struct work_struct *r=
+eset_work)
+>  					      status.response_code,
+>  					      status.queue_empty,
+>  					      status.irq_enabled);
+> -		} else {
+> -			if (q->reset_status.response_code =3D=3D AP_RESPONSE_RESET_IN_PROGRES=
+S ||
+> -			    q->reset_status.response_code =3D=3D AP_RESPONSE_BUSY ||
+> -			    q->reset_status.response_code =3D=3D AP_RESPONSE_STATE_CHANGE_IN_=
+PROGRESS ||
+> -			    ret =3D=3D -EAGAIN) {
+> -				status =3D ap_zapq(q->apqn, 0);
+> -				memcpy(&q->reset_status, &status, sizeof(status));
+> -				continue;
+> -			}
+> -			if (q->saved_isc !=3D VFIO_AP_ISC_INVALID)
+> -				vfio_ap_free_aqic_resources(q);
+> -			break;
+> +			continue;
+> +		}
+> +
+> +		if (ret =3D=3D -EAGAIN ||
+> +		    q->reset_status.response_code =3D=3D AP_RESPONSE_RESET_IN_PROGRESS=
+ ||
+> +		    q->reset_status.response_code =3D=3D AP_RESPONSE_STATE_CHANGE_IN_P=
+ROGRESS) {
+
+[Severity: Low]
+Is this condition checking dead code because earlier flow control guarantees
+ret =3D=3D -EAGAIN is always true here?
+
+The code attempts to signal a failed reset by setting
+reset_status.response_code =3D AP_RESPONSE_RESET_IN_PROGRESS on timeout.
+
+However, vfio_ap_mdev_reset_queue() overwrites reset_status unconditionally
+with the result of a new ap_zapq() call on the next reset attempt, rendering
+the signal useless. Furthermore, the conditional check for this status insi=
+de
+apq_reset_check() is completely unreachable because execution only reaches =
+that
+block if ret =3D=3D -EAGAIN, which short-circuits the OR condition.
+
+> +			status =3D ap_zapq(q->apqn, 0);
+> +			memcpy(&q->reset_status, &status, sizeof(status));
+> +			elapsed =3D 0;
+
+[Severity: High]
+Will this repeatedly reset the timeout counter when dealing with busy
+responses, bypassing the timeout logic?
+
+If the hardware continuously returns AP_RESPONSE_BUSY, apq_status_check()
+maps this to -EAGAIN. In apq_reset_check(), if ret =3D=3D -EAGAIN, the elap=
+sed
+timeout counter is reset to 0, completely bypassing the new 2000ms timeout
+logic.
+
+This causes the worker to spin indefinitely, deadlocking the host system as
+callers hold global mutexes like mdevs_lock while waiting on flush_work().
+
+>  		}
+>  	}
+>  }
+[ ... ]
+> @@ -1995,18 +2322,27 @@ static void vfio_ap_mdev_reset_queue(struct vfio_=
+ap_queue *q)
+>  	switch (status.response_code) {
+>  	case AP_RESPONSE_NORMAL:
+>  	case AP_RESPONSE_RESET_IN_PROGRESS:
+> -	case AP_RESPONSE_BUSY:
+>  	case AP_RESPONSE_STATE_CHANGE_IN_PROGRESS:
+>  		/*
+>  		 * Let's verify whether the ZAPQ completed successfully on a work queu=
+e.
+>  		 */
+>  		queue_work(system_long_wq, &q->reset_work);
+>  		break;
+
+[Severity: Critical]
+Would removing AP_RESPONSE_BUSY here cause the flow to fall through to the
+default error case?
+
+If the initial ap_zapq() returns AP_RESPONSE_BUSY, it falls to the default
+case, aborting the reset and not queueing the reset_work.
+
+This leaves the cryptographic queue unzeroized, leading to an information
+leak when the queue is reassigned.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260925124551.6654=
-48-1-akrowiak@linux.ibm.com?part=3D6
+48-1-akrowiak@linux.ibm.com?part=3D3
