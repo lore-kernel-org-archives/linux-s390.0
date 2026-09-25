@@ -1,60 +1,33 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDE79478E57;
-	Fri, 25 Sep 2026 10:11:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5AA138E12D;
+	Fri, 25 Sep 2026 11:02:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790331107; cv=none; b=en8ajpxQPKI+HYCjFKf0qGQbuk5kmPJSKpmMVCZcLkk/juOC/l9cOQ0hitP5/uo97vd/kJ34PnSjvReGvilvWOqnlePSq2uEhbfzLF03xyfRU+giKeQN9X4E+Lj6YbvL5b5/Ea42zyf4jdAp+wCa9SZ6YvW87g2uQSC0bezFbZs=
+	t=1790334128; cv=none; b=p2XgU9f3MDDkomrp1nPFzqTMgGV4f/HGwybpoBGRwkREOMDaM7MZpPjm7myyr55zyIw9HClk2+UGXDtn6qWb5wFAjTMXpRdV/s6dPIcOlo+KFUnUzYX/mfC3sRvm4F5+l9b2o4EJbOI7RwSVb5TREMHZMuiZfd4dCDkqBOVQURM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790331107; c=relaxed/simple;
-	bh=iB7NCgqwaTX/yw2yl8Vy2ZIHDibfj7S5i9/LYG9j/UM=;
+	s=arc-20240116; t=1790334128; c=relaxed/simple;
+	bh=Vw4tIvUh9iCRgPumHdbxmQ3uFjAZKshFXT5h59HwEYw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qYZ6Kkyroy2b7l4FYw/uRYS+2+JdJnVVaGtgpxPV5x/J+9Sz8aAlAeci+da4+Y1fIT5T9/nSiynosb43WeruSI9Qyv50zpK/V6lMS4yVzl6qSl8339Si1ZGySeA+9Czy0n2zkmXIu5xzjwb3IjS9rV4m5LXu+wCobyj2PeC4jMc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bG0nU4TY; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=ua3I4xIutsPtjVArlVy7V4tpW60RVvFizUWAN8Y4jgpY0J4f9Pa801fMXsA6uKAeneZWU1a3MX7RT+EzF0GVRA96U6bLhRx02A+tZ1ol/Xz1lbHhODPVuujrYf+ubpoAr97f3/ccI+5f+zmYW7lQ/CnnZmRy03RTpkwJbmTod4U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cs8M+KUt; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bG0nU4TY"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68P4aXVt102845;
-	Fri, 25 Sep 2026 10:11:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=N55JED
-	qJa1TqYQpogc6rhq/qUggInOxax3YJay3sC8Q=; b=bG0nU4TYEGzzwHoy697e88
-	F8UGf+wCYpG8Y1EUx6+WvL49+rRFOs/b0U1r7Pug8DVL21XaZhKsLZEzBGvMs7uP
-	DtyQXG+O2cF+DhxZsPcvQ9oZER/VVpBQB7dkGDBjRtXiBWtcMVl+tH7SWrT5SWtP
-	VY92Wnvkvjv5GLR8HWy0hpXyrv0fBNc6AEGb30Y63XbOXyYaELYZbHb2007pz/Ji
-	eJXLdolj8g5e6+eWG3SUfe2ZD2RmZpYj4Ls4RcgZwDhnamaq87EBiPXmTgH4hn/p
-	hcgTIdXWMCtHIsSycWSy5nl2tx9nvIStgyr1I4/UdzEnwt1fqAzc8lEicyCnZt2Q
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskdvnfat-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 25 Sep 2026 10:11:44 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68PA1Anw1960465;
-	Fri, 25 Sep 2026 10:11:43 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gvu7ee6f5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 25 Sep 2026 10:11:43 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68PABemT56230150
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 25 Sep 2026 10:11:40 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 382B720040;
-	Fri, 25 Sep 2026 10:11:40 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DB7702004B;
-	Fri, 25 Sep 2026 10:11:39 +0000 (GMT)
-Received: from [9.224.77.173] (unknown [9.224.77.173])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 25 Sep 2026 10:11:39 +0000 (GMT)
-Message-ID: <7d80b6c3-ff7e-4be7-8bee-899fe08c98a7@linux.ibm.com>
-Date: Fri, 25 Sep 2026 12:11:39 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cs8M+KUt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBE011F000FF;
+	Fri, 25 Sep 2026 11:01:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790334122;
+	bh=i2MF8G53+2TJNwdh6H/2D4TjPKTBJGXEPFShL5//B+M=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=Cs8M+KUt16tK/XUS4KBWNEBFZCG7qdya4X5Q0/m1DlAhuFxLfunQdq/oOm/3xLhmk
+	 g+mz7RXSaCtI6rsDcJwgvAYI3OjRMNkZK0LcUbazzucK5JBDOKf5kvtv/2ePJtWUdN
+	 ME7b6geBHQ5EcQiztnroB9GCESGBTwfj3BOFpkrCOl2QXW03KCgvW+wRt9Z6cGJwg/
+	 16Pn9i25K6bLCw+K0mlmbRqTKkBOUUALnFf6h+RtaMbve0sYiz7bKXvmaAm6kK77s4
+	 FXoRQNJDmxpHAXV4WVeHP31V50DVpThWrSf4TxjtqXa883PecK/QuYllTic1IK01px
+	 H5q+PVXIZC3Rw==
+Message-ID: <91d800d6-03f3-4068-8c12-618529a81528@kernel.org>
+Date: Fri, 25 Sep 2026 13:01:51 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,60 +35,114 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 2/3] KVM: s390: Kick PV cpus at the right time for
- service irqs
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: imbrenda@linux.ibm.com, linux-s390@vger.kernel.org, pasic@linux.ibm.com
-References: <20260820121546.24694-1-frankja@linux.ibm.com>
- <20260820121546.24694-3-frankja@linux.ibm.com>
+Subject: Re: [PATCH] arch, mm: promote DEBUG_WX to CHECK_WX
+To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>
+Cc: Albert Ou <aou@eecs.berkeley.edu>,
+ Alexander Gordeev <agordeev@linux.ibm.com>, Alexandre Ghiti <alex@ghiti.fr>,
+ Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+ "Liam R. Howlett" <liam@infradead.org>, Lorenzo Stoakes <ljs@kernel.org>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Mark Rutland <mark.rutland@arm.com>, Michael Ellerman <mpe@ellerman.id.au>,
+ Michal Hocko <mhocko@suse.com>, Nicholas Piggin <npiggin@gmail.com>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <pjw@kernel.org>,
+ "H. Peter Anvin" <hpa@zytor.com>, Ritesh Harjani <ritesh.list@gmail.com>,
+ Russell King <linux@armlinux.org.uk>, Shrikanth Hegde
+ <sshegde@linux.ibm.com>, Suren Baghdasaryan <surenb@google.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
+ Vasily Gorbik <gor@linux.ibm.com>, Vlastimil Babka <vbabka@kernel.org>,
+ Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org
+References: <20260925-direct-map-verify-wx-v1-1-7fd2f7d6d23b@kernel.org>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20260820121546.24694-3-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <20260925-direct-map-verify-wx-v1-1-7fd2f7d6d23b@kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: jd7iW_rRxkUAmkyQG4iAK9LHm_3I4Ux8
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI1MDA0MCBTYWx0ZWRfX/ij4Ezctj1d7
- 6aZRTbjV/XFP6fABSimGrLgK9PUo0hj7kRFlbvdr1/vaAeEJgqaw90yIwmNOAjntAmhcBaD8d3R
- SE0fSzOy3s/zSBaBnnF50RgLMTkq9Ac=
-X-Authority-Analysis: v=2.4 cv=FLiOVOos c=1 sm=1 tr=0 ts=6ab648e0 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=W3Q_srcwFkJ-giImEy0A:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: jd7iW_rRxkUAmkyQG4iAK9LHm_3I4Ux8
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI1MDA0MCBTYWx0ZWRfX7o886gqB+0gX
- tkI/7t+WqtkvD7w8yq0suDd0B5NifYwsHyxNND09e6fhKcBe6KGPouz2nsKe+pSqEdE5ZA7BS4V
- lydB/mlkDWG2uiXkyRfNXG4d9Om52JPxMQv3qAOOQQd/0sdbc6z4C7zqSN3NGy1qUb4PmD6/hSu
- /EjrZ4dYTQW2Qu0TG246GbEfqUU7JEBfLlIWNhbhC2JzNvb9uogjVnrSjzmVKjbO91+ZhT0+nuR
- r3Uk5oKRZD4XXccFF/dnWwumDKH0KIZswiHK0fipPUP/6MxON+LWm3LZ4Q7HBwmx96cwrTw7ts5
- p5VjwWPvC/22LijhW7vyBMjV3CQG/sV9vHqw81XheipeEkuXN01TedrysyZGOHJoyxjj2UE1vkS
- YFKRxR3YzUS+nfVM5QY8XZJvl6K0+64jdNuEvxNzcw/qchOGaywav4hpu9F7PHmucWum+UAU1v4
- GpbYxlQb5snHFDDiEFg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-25_02,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 impostorscore=0 phishscore=0 spamscore=0 clxscore=1015
- suspectscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609250040
 
+On 9/25/26 11:53, Mike Rapoport (Microsoft) wrote:
+> Verification that the kernel does not have writable + executable
+> mappings is about detecting security risks rather than a pure debug
+> feature.
+> 
+> Major distribution configurations enable it in their kernels as well as
+> defconfigs of most architectures that have ARCH_HAS_DEBUG_WX.
+> 
+> Rename relevant generic configuration options to use CHECK_WX and move
+> their definitions from mm/Kconfig.debug to mm/Kconfig.
+> 
+> For arm that does not widely enable it, only rename its variants of the
+> config options.
+> 
+> Enabling CHECK_WX adds a few kilobytes to the kernel binary and while
+> the added size can be slightly reduced with churny updates of
+> architecture implementations of ptdump, the core functionality takes
+> most of the added size. It cannot be moved to .init.text because the
+> verification has to happen after init sections are freed.
+> 
+> With this, make generic CHECK_WX default to STRICT_KERNEL_RWX while
+> still leaving users targeting small kernels the possibility to opt-out.
+> 
+> Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> ---
 
+Makes sense to me
 
-Am 20.08.26 um 14:12 schrieb Janosch Frank:
+Acked-by: David Hildenbrand (Arm) <david@kernel.org>
 
-> +void kvm_s390_pv_sclp_kick(struct kvm_vcpu *vcpu)
-> +{
-> +	/*
-> +	 * The cpu that called sclp likely will also take the IRQ, no
-> +	 * need to kick anyone.
-> +	 */
-> +	if (likely(deliverable_irqs(vcpu) & BIT(IRQ_PEND_EXT_SERVICE)))
-> +		return;
+-- 
+Cheers,
 
-Get rid of likely please (unless you have verified this).
-
-IIRC, the Linux kernel calls servc with interrupts disabled in most places.
-
+David
