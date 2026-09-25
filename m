@@ -1,190 +1,175 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99CB748D86E;
-	Fri, 25 Sep 2026 13:03:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AC034307B0;
+	Fri, 25 Sep 2026 13:43:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790341390; cv=none; b=blEGFWpQJARQXjslwBe3XCK85/Dir4FSRb82zaezcte3jEIzQJtNmaTZU4ETtIAzTWip2a8G3SXSN5SbneQPICksJm9jYFvYt1kud5OX/x3rU+csEVa97gz9dtqGgWAQ6r3TsZwoIhdXvfoqpX4VNbLVTeJPVDu78B8d0ug1gwg=
+	t=1790343803; cv=none; b=R9l/4WzWdQ94j9DauOCGq9x2Mrb0gS7dJ07MMbbfQV9tH1DOzMJCjy9rYLzIJF1JpE2svHPSQP9JvR2GtdjZ2eGyRG9OB/KMJj03DCj+Yp1iNxgMugM3IFj9eHW/vqGoW8TbqQUB16OXu2ydjpz9w4np1RaWMeRnKdPcWdyxgq4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790341390; c=relaxed/simple;
-	bh=EGuyb9F6r+KylcUwxyOFiSCGEKoqfoc20Mm4eTrXLE8=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=CW8imZw2EshTHW3ZFPtQYhrGwVmkO98yZJ0dyzbSsh7sGgtaHUALOclqon8ncYOmY0yp90pFGfVclpxpji25aDx2nXICWrGbWwu8hiuHhv3H+8AFK33gGAj+pINnuokjD+/x4AXy+yvcTC+2/zJgafkjAi8k+Jhtky2/sBv6vKQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BSp6HHFr; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790343803; c=relaxed/simple;
+	bh=NzkHGgvnm/2kiAgKh+ZTyI5FDTFWyo/bVXRa4F31S1c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dfLxUDkNRH0DOdpfWDgyrts0cpyzabYnV1DGcsyFJft3G1+4WfaJ9rU5BokTcB0mK0kxE6lhIA8wtQ8ODU83RSJLCyYnN7/GPGC+0xk2POEpOb0z+UFYJYFqxvKyu2vxp5U5WDUrmtRs/XAGp+dniAFDJnjgo42HOvyEeBW+ub0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EEplY4dX; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BSp6HHFr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D988B1F000FF;
-	Fri, 25 Sep 2026 13:03:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790341389;
-	bh=VdVpGypdOborRTs6aMZgX/4R1iWBP8q+oMOK0hbNEw8=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BSp6HHFrW9kRFsOtqLE53mANrjg61rRkP/XCEiNiyFnB7MLKz04uQKheSlq9rNHid
-	 yKWH2lFu7fQbOOEx/TL6yvTsIcPaHyh8PTBJDk8i5uLWMPzZL0jRDLFhONV0D/c85N
-	 mVgZFUhNp7BJrmY5UQeCORiERkiut7oD9ZBketXWWIWeJcr5M5Hy1j+IpT2zVud7YN
-	 u5I3svxQrOBlGN4EpmrQ54PR85L4VruLrvaLwppllr4nBleWvNE3Sf5Asq0CZSoO0t
-	 PMXP+PYcbSva1JPCQq+aYtrYfZcpdsRW5UssH+8K1H9Zqomjn5skxnGZ5bpocST0n9
-	 4I1MfJTTVt/Tw==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 5/6] s390/vfio-ap: fix queue state leakage to guest
- and host
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20260925124551.665448-6-akrowiak@linux.ibm.com>
-References: <20260925124551.665448-1-akrowiak@linux.ibm.com>
- <20260925124551.665448-6-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 25 Sep 2026 13:03:08 +0000
-Message-Id: <20260925130308.D988B1F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EEplY4dX"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68P4aW25102815;
+	Fri, 25 Sep 2026 13:42:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=pGmUzdss5rEW+R1oGfgJFhDqCoXEAC
+	tVuCJeVlCowUQ=; b=EEplY4dXyT5TnlQDtoDm7+L5X9sOTEzNipvqTUu8s1LEuS
+	eE94bO88HaakzMucn+OCPYiFQp6Wnqb9URcR3KvpjdPsC+6pUd9lyOG7lG3cS6fd
+	JLSaHkUVH7mNl9f5pM8QTuajQ8YZT7bF6NxXRt3FYfLZULvx9FFZIH6vrSWo8iW1
+	30otN1vJD/yoIQYiuCgGAWomjRNOHFIDgczLSgBkxfcWeUT38vh7+jU54ORlkPiI
+	ZlaggeNnjPsy6+Prosf7S200q/znrivWcxMVpp1KI4aX6n/HjoZAFyx+sTDP01Lt
+	kFJLVqwmsAvJxQImOPyA1WXN5RTuARVhiG+CEb0Q==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskdvpb5t-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Fri, 25 Sep 2026 13:42:30 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68P9k7il3288275;
+	Fri, 25 Sep 2026 13:42:30 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gvbe22mcy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 25 Sep 2026 13:42:30 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68PDgQOw13107688
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 25 Sep 2026 13:42:26 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1237520043;
+	Fri, 25 Sep 2026 13:42:26 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DC7AE20040;
+	Fri, 25 Sep 2026 13:42:24 +0000 (GMT)
+Received: from osiris (unknown [9.111.31.68])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri, 25 Sep 2026 13:42:24 +0000 (GMT)
+Date: Fri, 25 Sep 2026 15:42:23 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Alexandre Ghiti <alex@ghiti.fr>, Borislav Petkov <bp@alien8.de>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        David Hildenbrand <david@kernel.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>, "Liam R. Howlett" <liam@infradead.org>,
+        Lorenzo Stoakes <ljs@kernel.org>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <pjw@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Ritesh Harjani <ritesh.list@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Shrikanth Hegde <sshegde@linux.ibm.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
+        Vasily Gorbik <gor@linux.ibm.com>, Vlastimil Babka <vbabka@kernel.org>,
+        Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH] arch, mm: promote DEBUG_WX to CHECK_WX
+Message-ID: <20260925134223.23528E0e-hca@linux.ibm.com>
+References: <20260925-direct-map-verify-wx-v1-1-7fd2f7d6d23b@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260925-direct-map-verify-wx-v1-1-7fd2f7d6d23b@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: az6V2wRZNTPsfcgPJvRvBbZTbbclocGz
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI1MDA1NCBTYWx0ZWRfX8eL1fhw8Wcuz
+ gwW3tmVcEwpUDvML7GILF9tAuDr0VlXZUr5Wt11Sb6FgeUgSArMjIqmr7nGQy57VhoNxjcdb1nB
+ xgUIIMHQV/ped6lC1/jiVHQShjl212s=
+X-Authority-Analysis: v=2.4 cv=FLiOVOos c=1 sm=1 tr=0 ts=6ab67a47 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=QyXUC8HyAAAA:8
+ a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=AFSQz8Mf0LVJe8Ay4m4A:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: 0vhv4zhVL0x6H6vYd9vrkIP5KCg73iuL
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI1MDA1NCBTYWx0ZWRfXzgmDIjyBU9XH
+ AZygS5+FQqXvvslTnG00liNVJBCMapoyGbK83aD/2abGIeLAKYFSQ+7bK6Q9bFom2evAfxDBE9T
+ GZArUR5CDRcYvKoLKJulQESBL84U7K6X+/9MkHAWIhl3JByi7BSRQBQoXzCf336JUrpREKgaIPL
+ TfdL9OOeOBob+ckLDr79fGOo6b+bCdZoo0z+sZ2qJUMXXT5yANcfQjcS04U02Ha1zOwDt9O3wCE
+ 4QilhmxAIrZKRzqLdgDG858DA/wV+CDDlXaGCdtKe9LCeuQFrfIZdyAHwbC7cQGjJqnHWaU+Th3
+ RwDS9SMwEBch3wrMER1CIygLEMvYbf23X0BPjzvJkIZIv5xU4a/z3fpCB7p45+V/64blb8yDwTk
+ nQUAAlCd16ruDY4xCr9wFhHy/g2X/4msugQqmL0LTkJdjwIz0I7AuYeStPUMi1mSxjMScYQUOtz
+ jwmTnG3Z501Gy7oE9DQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-25_02,2026-09-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 impostorscore=0 phishscore=0 spamscore=0 clxscore=1015
+ suspectscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
+ definitions=main-2609250054
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [High] crypto: vfio: Use-After-Free of vfio_ap_queue in vfio_ap_on_qstate=
-_transition
-- [High] crypto: vfio: TOCTOU on q->matrix_mdev leads to unprotected KVM st=
-ate updates and deadlocks
-- [Low] crypto: vfio: Incorrect comment for __drv_notify_qstate_transitioned
---
+On Fri, Sep 25, 2026 at 12:53:46PM +0300, Mike Rapoport (Microsoft) wrote:
+> Verification that the kernel does not have writable + executable
+> mappings is about detecting security risks rather than a pure debug
+> feature.
+> 
+> Major distribution configurations enable it in their kernels as well as
+> defconfigs of most architectures that have ARCH_HAS_DEBUG_WX.
+> 
+> Rename relevant generic configuration options to use CHECK_WX and move
+> their definitions from mm/Kconfig.debug to mm/Kconfig.
+> 
+> For arm that does not widely enable it, only rename its variants of the
+> config options.
+> 
+> Enabling CHECK_WX adds a few kilobytes to the kernel binary and while
+> the added size can be slightly reduced with churny updates of
+> architecture implementations of ptdump, the core functionality takes
+> most of the added size. It cannot be moved to .init.text because the
+> verification has to happen after init sections are freed.
+> 
+> With this, make generic CHECK_WX default to STRICT_KERNEL_RWX while
+> still leaving users targeting small kernels the possibility to opt-out.
+> 
+> Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
+> Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
+> ---
+...
+>  arch/s390/Kconfig                    |  2 +-
+>  arch/s390/configs/debug_defconfig    |  2 +-
+>  arch/s390/configs/defconfig          |  2 +-
+>  arch/s390/mm/dump_pagetables.c       |  2 +-
 
-commit 6964322bafaab43ec603a04a262b5d1370b6779d
-Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com> # s390
 
-s390/vfio-ap: fix queue state leakage to guest and host
+> diff --git a/arch/s390/mm/dump_pagetables.c b/arch/s390/mm/dump_pagetables.c
+> index 89badbe72ae7..a23a0bd4d8a8 100644
+> --- a/arch/s390/mm/dump_pagetables.c
+> +++ b/arch/s390/mm/dump_pagetables.c
+> @@ -86,7 +86,7 @@ static void note_prot_wx(struct pg_state *st, unsigned long addr)
+>  	 */
+>  	if (addr == PAGE_SIZE && (nospec_uses_trampoline() || !cpu_has_bear()))
+>  		return;
+> -	WARN_ONCE(IS_ENABLED(CONFIG_DEBUG_WX),
+> +	WARN_ONCE(IS_ENABLED(CONFIG_CHECK_WX),
 
-This patch limits the wait for a queue reset to complete and prevents the
-leakage of queue state to a guest. It introduces an on_qstate_transition
-callback to track queue state changes and restricts queue passability to
-fully zeroized states.
-
-Cc: stable@vger.kernel.org
-
-> diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-> index d82df5b4e2db3..a53cfad3543eb 100644
-> --- a/drivers/s390/crypto/ap_bus.c
-> +++ b/drivers/s390/crypto/ap_bus.c
-[ ... ]
-> @@ -1979,6 +1979,28 @@ static inline void notify_scan_complete(void)
->  			 __drv_notify_scan_complete);
->  }
-> =20
-> +/* Helper function for notify_config_changed */
-> +static int __drv_notify_qstate_transitioned(struct device_driver *drv, v=
-oid *data)
-
-[Severity: Low]
-Is this comment accurate? It states this is a helper function for
-notify_config_changed, but the function name and usage indicate it is a
-helper for notify_qstate_transitioned.
-
-> +{
-[ ... ]
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
-_ap_ops.c
-> index ffc2d8715bd96..cd4a436c43194 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-[ ... ]
-> @@ -3309,3 +3310,46 @@ void vfio_ap_on_scan_complete(struct ap_config_inf=
-o *new_config_info,
-> =20
->  	mutex_unlock(&matrix_dev->guests_lock);
->  }
-> +
-> +/**
-> + * vfio_ap_on_qstate_transition:
-> + *
-> + * AP bus callback notifying the vfio_ap device driver that the state of=
- a
-> + * queue has transitioned.
-> + *
-> + * @qstate_trans: the object containing a reference to the queue device =
-and the
-> + *		  state to which it transitioned.
-> + */
-> +void vfio_ap_on_qstate_transition(struct ap_qstate_transition *qstate_tr=
-ans)
-> +{
-> +	struct vfio_ap_queue *q =3D vfio_ap_find_queue(qstate_trans->queue->qid=
-);
-> +	DECLARE_BITMAP(apm_filtered, AP_DEVICES);
-> +
-> +	/*
-> +	 * If the queue is not bound to the vfio_ap device driver, then it won't
-> +	 * be passed through to a guest; so, no need to continue.
-> +	 */
-> +	if (!q)
-> +		return;
-> +
-> +	get_update_locks_for_mdev(q->matrix_mdev);
-
-[Severity: High]
-Can this dereference a freed pointer?
-
-If vfio_ap_find_queue() reads the device's drvdata and drops the device
-reference before returning, q has no reference count. Because
-vfio_ap_on_qstate_transition() holds no locks, a concurrent sysfs unbind
-can invoke vfio_ap_mdev_remove_queue(), which clears drvdata and calls
-kfree(q).
-
-This would cause a use-after-free when reading q->matrix_mdev.
-
-Additionally, is there a TOCTOU race when reading q->matrix_mdev without
-locks?
-
-If q->matrix_mdev is NULL here, get_update_locks_for_mdev() will skip
-acquiring kvm->lock. If another thread concurrently updates q->matrix_mdev
-to a non-NULL value while waiting on guests_lock, this could lead to issues
-later in the function.
-
-> +
-> +	switch (qstate_trans->new_state) {
-> +	case AP_QUEUE_CONFIG_ON:
-> +	case AP_QUEUE_CHKSTOP_OFF:
-> +		vfio_ap_mdev_reset_queue(q);
-> +		flush_work(&q->reset_work);
-
-[Severity: High]
-Does this also cause a use-after-free for the same reason? Passing the
-potentially freed queue object to vfio_ap_mdev_reset_queue(q) and flushing
-its work struct could trigger further memory corruption.
-
-> +
-> +		if (q->matrix_mdev) {
-> +			if (vfio_ap_mdev_filter_matrix(q->matrix_mdev, apm_filtered)) {
-> +				vfio_ap_mdev_update_guest_apcb(q->matrix_mdev);
-
-[Severity: High]
-If q->matrix_mdev changed concurrently after get_update_locks_for_mdev()
-was called, could this update the KVM guest state without having acquired
-the proper KVM locks?
-
-> +				reset_queues_for_apids(q->matrix_mdev, apm_filtered);
-> +			}
-> +		}
-> +		break;
-> +	default:
-> +		break;
-> +	}
-> +
-> +	release_update_locks_for_mdev(q->matrix_mdev);
-
-[Severity: High]
-If q->matrix_mdev was modified between the initial acquisition and here,
-would this call mutex_unlock() on a lock it did not acquire, or leave
-an acquired lock perpetually locked?
-
-> +}
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260925124551.6654=
-48-1-akrowiak@linux.ibm.com?part=3D5
+Hm... looks like there is bug with relocated lowcore handling in the if
+condition above the WARN_ONCE(). I'm going to address that, but that
+has nothing to do with your patch.
