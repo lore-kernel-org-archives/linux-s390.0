@@ -1,35 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A7134D2EFB;
-	Fri, 25 Sep 2026 20:12:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F9764EA380;
+	Fri, 25 Sep 2026 20:12:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790367165; cv=none; b=CcEm12Ab44NYQuKNa1ekUMVkUPJUYDV2JP+xE0uIKxhBbUfe36RSKeVzPkauazFVa5rRx3KgP/6m65P7xHRK+mWNFVmgCcnh3W0U0ManR/UPMZndhOAn+kKe0g0rEffZgQrE7XXQ4B0fgIQiykvweymDRJG5cuT0U1I3eoShff0=
+	t=1790367177; cv=none; b=Xef/Xx/F69k/X3QtXPSTEZIW1bCdAShjEK4EbSSkq9n4E7PblLoP8J0xautIgLPHUBdyghb77rdGyU7rK3ZfuV8R7DaHnkgeK85YqbVWLVyQhnD4vBZ1z0kstAddAsrxHIm2FfNJtUfH+nvg4lvkc10jIwIA0LWSYOGW9vqXsJY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790367165; c=relaxed/simple;
-	bh=wTPS3tObjnit80i5jG0OzSjV+ZJC9LambnmGz9RIJjc=;
+	s=arc-20240116; t=1790367177; c=relaxed/simple;
+	bh=LIKVLPdgTvixCm5b1s0RnhQBz2rNn/VSLQ1UWZakBPA=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=csSBOF14/xeD12SiZVEgeA2dreuvRRLZuWCR7b0O8pnnP1hj8FimlvwQSKkS1boC3oBACPoiPmyrGi9utjTqv1Jhic4QhVhzrpXlsGaskHaieCbfVkmgom/WUcfq50/9X9e6T0JFJ/f61BlXemhy07ZGCNx1PLvD71a28mZLUlQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=koGG6VkH; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=uO0ArGUDlmFSAz1Bz/eNa/NC8ZzHDQopJVTqHo5nTLlylOc65sbkt8vDVJA9dxySqMAYq5MWnE+Gw9VgHtR3afRP6ocllhJNCGrknwSv7jYQppPw/mADLRR1b9/yL27UlKzZ+RuowbBYARy6hqlpWLXZUu9Bsj0dQZ4QR+IlSbg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OoSc9Jsu; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="koGG6VkH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A74D61F00898;
-	Fri, 25 Sep 2026 20:12:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OoSc9Jsu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8EF91F000FF;
+	Fri, 25 Sep 2026 20:12:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790367153;
-	bh=i9btTZnCFLC8MMw6KMGK91iVLYRqVa7A+XQvAJcnthc=;
+	s=k20260515; t=1790367174;
+	bh=7Kh9URTqx3+SlaadiKZbGWnbSyeyU9KtRJxdWpySnaw=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=koGG6VkHK9sq7MUCsKX6l8GWvGH1X10xvKB/1Gb6IALPCnGNK6OLAn4edc3ppM9tw
-	 XF5DLLj+zcIZx0j+zL/F8/pMW1FR8yjWkWYsg0z+hqLvAIEBvGhuRCTS95OSheg3IC
-	 i8haH1mXFZ6EiUV4mPNPDYbngmJZJL6fneEkRFBz69DDia5YYUyV+DyyfnCtX2nw9b
-	 aFW4fMhecvKfClHGenR6/HrNpp/dpU9NU7ZXVhlKOxZhvXhq4/JGllecZvzt50vRqf
-	 5xFwTYJFDrouBhp5qHt7Zk/0avP9tlgacO//JPou+MCvPzoZmO5Vrju3Q2vp+7jOow
-	 Wv8x2IhM+uhGg==
+	b=OoSc9JsuQ2uTkvwn9PGDHAg0BSfeivccowW/zAEbpAuuGjhArzn2jeY6DAbDtBqFy
+	 M+8PNmKNihk5b+id0y2HrE11QKfjN5DFALwqOipnOGhpoLcLZBA6VuTbYPsnb0eECq
+	 rC9UhFugmC7Qc4cML/I72MdFz+tQYJXyLYDhzBHw0pyWqE7k6pblg0oQlLvvo7Rcu/
+	 sZvd62HxV7TfZabMcVUHyl2Yr78eLGNkC5Phdsm/iTrwIzXKGM/aLHEsWBOQHNog/8
+	 nA0s76Wdqaj+zZNR3iBYuo7+7OBYOWvB3FN4Z6T1rh6Mn3RrtIBI1qGe8ol98LaeAH
+	 d7Q8ufRrdxV4A==
 From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Date: Fri, 25 Sep 2026 21:09:42 +0100
-Subject: [PATCH v5 07/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for
- m68k-coldfire
+Date: Fri, 25 Sep 2026 21:09:43 +0100
+Subject: [PATCH v5 08/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for sh-X2
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -38,7 +37,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260925-rcu-pagetable-freeing-v5-7-31e91065fea4@kernel.org>
+Message-Id: <20260925-rcu-pagetable-freeing-v5-8-31e91065fea4@kernel.org>
 References: <20260925-rcu-pagetable-freeing-v5-0-31e91065fea4@kernel.org>
 In-Reply-To: <20260925-rcu-pagetable-freeing-v5-0-31e91065fea4@kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, 
@@ -102,70 +101,127 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
  linux-um@lists.infradead.org, Hugh Dickins <hughd@google.com>, 
  Qi Zheng <qi.zheng@linux.dev>, linux-doc@vger.kernel.org, 
- "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, 
- Greg Ungerer <gerg@linux-m68k.org>
+ "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2031; i=ljs@kernel.org;
- h=from:subject:message-id; bh=wTPS3tObjnit80i5jG0OzSjV+ZJC9LambnmGz9RIJjc=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLK2XWX/nrikwtvb6sJaZkaOMrNvQjuEvKuOTD/x7pxf+
- OXTKV0SHaUsDGJcDLJiiizPv4jvDxIJm9d5wd8NZg4rE8gQBi5OAZiIZCcjwwZR4ZUL3m+I7wsx
- 28EiL/8lbNpvXfG9HGGXd8pt/qk9vZDhv1N3gp7PVQn/0s4L+TtjrpclvJk57XX1tn0fvjKcb81
- azwkA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4222; i=ljs@kernel.org;
+ h=from:subject:message-id; bh=LIKVLPdgTvixCm5b1s0RnhQBz2rNn/VSLQ1UWZakBPA=;
+ b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLK2XWUPbXgfu0o/otjKzvnm58zd945J3V2yq07OsfO2p
+ b++ieq0jlIWBjEuBlkxRZbnX8T3B4mEzeu84O8GM4eVCWQIAxenAEwkYRPDP6VrM6MLFZSq9szl
+ 6Lrmvv/zye0dzpOa/ru2eIuavmRkEWb4X3flY5mOQS7H0633PlTGMHT+qVsiZpV27NxNyX/Ofjw
+ JfAA=
 X-Developer-Key: i=ljs@kernel.org; a=openpgp;
  fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-Similar to sun3, the coldfire variant of m68k uses 2-level page tables.
+Currently, non-x2 sh specifies CONFIG_MMU_GATHER_RCU_TABLE_FREE allowing
+RCU page table freeing.
 
-Update its __pte_free_tlb() function to use tlb_remove_ptdesc() in order
-that, with CONFIG_MMU_GATHER_RCU_TABLE_FREE, page tables are freed under
-RCU.
+sh-X2 is problematic because it utilises slab-allocated PMD page tables,
+and thus tlb_remove_ptdesc() cannot be used in these cases.
 
-The page tables occupy a page each and have no odd semantics, so this
-change suffices to allow enabling of CONFIG_MMU_GATHER_RCU_TABLE_FREE for
-m68k-coldfire, so do so.
+All other sh variants are fine as commit e3ecf7c7d082 ("mm: pgtable:
+convert some architectures to use tlb_remove_ptdesc()") already converted
+page table freeing to use tlb_remove_ptdesc(), which does so after an RCU
+grace period when CONFIG_MMU_GATHER_RCU_TABLE_FREE is specified.
+
+Resolve this issue by firstly specifying CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE
+for sh-X2, so the arch can provide its own __tlb_remove_table()
+implementation (called after the RCU grace period).
+
+Then, convert __pmd_free_tlb() to tag the pointer to the PMD, and have
+__tlb_remove_table() check this tag to determine whether to free via the
+slab or to use pagetable_dtor_free().
+
+This follows the pattern used by sparc64 as implemented in commit
+4a0100f7546f ("sparc64: use RCU page table freeing").
+
+Previously __pmd_free_tlb() freed PMD page tables immediately, before any
+TLB flush IPI. This seems to be a pre-existing bug, which this change also
+resolves.
+
+CONFIG_HAVE_ARCH_TLB_REMOVE_TABLE is only specified for sh-X2, as setting
+it disables CONFIG_PT_RECLAIM and causes __tlb_remove_table_one() to call
+tlb_remove_table_sync_rcu() and synchronize_rcu() in turn, and this is not
+necessary for other sh variants.
 
 This forms part of an overall effort to switch every architecture to this
 mode.
 
 Acked-by: Kiryl Shutsemau (Meta) <kas@kernel.org>
-Acked-by: Greg Ungerer <gerg@linux-m68k.org>
-Tested-by: Greg Ungerer <gerg@linux-m68k.org>
 Acked-by: Lance Yang <lance.yang@linux.dev>
 Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 ---
- arch/m68k/Kconfig                   | 2 +-
- arch/m68k/include/asm/mcf_pgalloc.h | 5 +----
- 2 files changed, 2 insertions(+), 5 deletions(-)
+ arch/sh/Kconfig               |  3 ++-
+ arch/sh/include/asm/pgalloc.h |  6 +++++-
+ arch/sh/mm/pgtable.c          | 20 ++++++++++++++++++++
+ 3 files changed, 27 insertions(+), 2 deletions(-)
 
-diff --git a/arch/m68k/Kconfig b/arch/m68k/Kconfig
-index e29610fd1240..6b8ec67c86fd 100644
---- a/arch/m68k/Kconfig
-+++ b/arch/m68k/Kconfig
-@@ -36,7 +36,7 @@ config M68K
- 	select HAVE_MOD_ARCH_SPECIFIC
- 	select HAVE_UID16
- 	select MMU_GATHER_NO_RANGE if MMU
--	select MMU_GATHER_RCU_TABLE_FREE if MMU && SUN3
-+	select MMU_GATHER_RCU_TABLE_FREE if MMU && (SUN3 || COLDFIRE)
- 	select MODULES_USE_ELF_REL
+diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
+index 204f64912f0e..75236bef6f16 100644
+--- a/arch/sh/Kconfig
++++ b/arch/sh/Kconfig
+@@ -33,6 +33,7 @@ config SUPERH
+ 	select HAVE_ARCH_AUDITSYSCALL
+ 	select HAVE_ARCH_KGDB
+ 	select HAVE_ARCH_SECCOMP_FILTER
++	select HAVE_ARCH_TLB_REMOVE_TABLE if X2TLB
+ 	select HAVE_ARCH_TRACEHOOK
+ 	select HAVE_DEBUG_BUGVERBOSE
+ 	select HAVE_DEBUG_KMEMLEAK
+@@ -61,7 +62,7 @@ config SUPERH
+ 	select HAVE_SYSCALL_TRACEPOINTS
+ 	select IRQ_FORCED_THREADING
+ 	select LOCK_MM_AND_FIND_VMA
+-	select MMU_GATHER_RCU_TABLE_FREE if MMU && !X2TLB
++	select MMU_GATHER_RCU_TABLE_FREE if MMU
  	select MODULES_USE_ELF_RELA
- 	select NO_DMA if !MMU && !COLDFIRE
-diff --git a/arch/m68k/include/asm/mcf_pgalloc.h b/arch/m68k/include/asm/mcf_pgalloc.h
-index fc5454d37da3..b53ff0950db2 100644
---- a/arch/m68k/include/asm/mcf_pgalloc.h
-+++ b/arch/m68k/include/asm/mcf_pgalloc.h
-@@ -39,10 +39,7 @@ extern inline pmd_t *pmd_alloc_kernel(pgd_t *pgd, unsigned long address)
- static inline void __pte_free_tlb(struct mmu_gather *tlb, pgtable_t pgtable,
- 				  unsigned long address)
- {
--	struct ptdesc *ptdesc = virt_to_ptdesc(pgtable);
--
--	pagetable_dtor(ptdesc);
--	pagetable_free(ptdesc);
-+	tlb_remove_ptdesc(tlb, virt_to_ptdesc(pgtable));
- }
+ 	select NEED_SG_DMA_LENGTH
+ 	select NO_DMA if !MMU && !DMA_COHERENT
+diff --git a/arch/sh/include/asm/pgalloc.h b/arch/sh/include/asm/pgalloc.h
+index 6fe7123d38fa..67ce7fa23fa1 100644
+--- a/arch/sh/include/asm/pgalloc.h
++++ b/arch/sh/include/asm/pgalloc.h
+@@ -17,7 +17,11 @@ extern void pgd_free(struct mm_struct *mm, pgd_t *pgd);
+ extern void pud_populate(struct mm_struct *mm, pud_t *pudp, pmd_t *pmd);
+ extern pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address);
+ extern void pmd_free(struct mm_struct *mm, pmd_t *pmd);
+-#define __pmd_free_tlb(tlb, pmdp, addr)		pmd_free((tlb)->mm, (pmdp))
++extern void __tlb_remove_table(void *table);
++
++/* PMDs are slab-allocated, tag so they are freed correctly. */
++#define __pmd_free_tlb(tlb, pmdp, addr)					\
++	tlb_remove_table((tlb), (void *)((unsigned long)(pmdp) | 1))
+ #endif
  
- static inline pgtable_t pte_alloc_one(struct mm_struct *mm)
+ static inline void pmd_populate_kernel(struct mm_struct *mm, pmd_t *pmd,
+diff --git a/arch/sh/mm/pgtable.c b/arch/sh/mm/pgtable.c
+index 3a4085ea0161..f6184b86b89c 100644
+--- a/arch/sh/mm/pgtable.c
++++ b/arch/sh/mm/pgtable.c
+@@ -56,4 +56,24 @@ void pmd_free(struct mm_struct *mm, pmd_t *pmd)
+ {
+ 	kmem_cache_free(pmd_cachep, pmd);
+ }
++
++static void __tlb_remove_table_slab(void *table)
++{
++	kmem_cache_free(pmd_cachep, table);
++}
++
++static void __tlb_remove_table_pgtable(void *table)
++{
++	pagetable_dtor_free(table);
++}
++
++void __tlb_remove_table(void *table)
++{
++	const unsigned long addr = (unsigned long)table;
++
++	if (addr & 1)
++		__tlb_remove_table_slab((void *)(addr & ~1UL));
++	else
++		__tlb_remove_table_pgtable(table);
++}
+ #endif /* PAGETABLE_LEVELS > 2 */
 
 -- 
 2.55.0
