@@ -1,60 +1,60 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A447B4A5EBD;
-	Fri, 25 Sep 2026 13:48:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3670837C0F5;
+	Fri, 25 Sep 2026 15:17:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790344140; cv=none; b=MO+FJpq6H93HDtX/EGiUAE304McGd62otBTtWk23hK9nIxk7l6D5YVGeWMyCUZRNQ8aQmWRupH8QD2lb4NVFFEx59pZbYJyZ12HzdNtq9IvuR2XgZiIDblXPJQgges98G8IR2NekdJVwqfGE9+7I23xuQqm+UMprzRCCcoZG4F0=
+	t=1790349430; cv=none; b=tdnBhwoGTK6NfcKlMkNs+mNrIOlCuFNUSvHJefVbGFrlZkOvRJvE7ZkhRPATWUVENDojGm0n1BdZHeGpT7m4GilQahMDLXxVW1tnq3Wc43NTZs+e0NiuILbqU8fNyMiAilo5oJWy9YirhyFENBcelP+8b5sLTO64JYgEPZBUrcc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790344140; c=relaxed/simple;
-	bh=WjxKZasN2j01CHH/zt2npltpduTlS4FjfX69sy2klps=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=V/7xfpkkSpazBiqAQM7rSWlxxDWprwJ+DsRgkNNFOgLWZBRC3kE4zSnybfDfcepaojWyYuvz3FD7sKBL010WBNwxji+R5W+mrsQ+/JkGXm8covW8bIneQF+YEhQeetI+zofa6QKZPA41i2/PiroZRaM7pGc6AOdZ+Zde7/24Olw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=U6JtKzmP; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1790349430; c=relaxed/simple;
+	bh=Dth1pW+X/qoBasl4Sm/FBeTxR8R9lpHCCljFzhOUKho=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=I16ENQ+04xE00RIrvdRnFsCb1ufhDzt+LZDxng0/iWt/Cwai+HWNQmskz8f0KlySY47PUSIXvUIxDOVDuVWQnlJ7gKtO+MWlTCEDPg34bJM6cuWHHdnayuuyypomLxvdo509Ur8zU3LP+db4KiCcknFYyNT5cbM/9tqSfoYTgDc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PQlizrml; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="U6JtKzmP"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68P4ZsAU074224;
-	Fri, 25 Sep 2026 13:48:58 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PQlizrml"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68P4b16l2394514;
+	Fri, 25 Sep 2026 15:16:55 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=vW0cVh
-	I9lri601sLp4W4jAmowTfw/qCQjrhh6YYFyjo=; b=U6JtKzmP6o1X7vakCJH288
-	qZEk4h4vRviGZeyZPpV4qi6ZbAr1Zga0Yl9oyUKDFzovu73VDDKp0cSKIQc2OcoY
-	kBDldsMqOCCroWuoel4XGw1APuREzQoJAFn+P3e+L4CnSZh8X4q83Oxl61OHz1u2
-	va85gSaVtZ2We6qOIAV+RDT1Gets4l/DDVPfwfC9yC6vxzPq4SjnTpiqurEebME3
-	ofhtp1d9tcduJhvprAdUtX7HaOrxV06p//R2su2e/oA0I+nlRL3lKITjDCWh4GR1
-	G0amN7RYYdsyEXzhSWjDuI0SFaPUg+SIQMW8LpYSCXabIhtkmR4ufRtmmJIlUDsA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=rV1r1S
+	aMs8R2GMCMT2tW/2PbUnXsz2c243bENxyFY1c=; b=PQlizrmlh+uMWrGjQa6iQ2
+	1PGICFID545vSH4YUZZNMV7NlRwSzCXsH24BlBaLWZ2ksP1tJmR6zQ29T2S9Gp9q
+	Cu2a7ybZq6UffrWCE4NAHCv09tX1ZfLZ+f8Sl+PDnEz8S0hejjrvzPhs6YPRsOgy
+	DRXOOcT3EJXz1qjvDlnPF6Zw/TTRd+wsjb7l/36lMcyg2NxJnpvrYff1gNG6jxwq
+	8leNxNH9y9an/+nFpu5g3MEKL4CxHUB/pyV/RWfbg57lrUum07MmaWS5anOzKagQ
+	1TsNg8j7NB78juepEGWbjPJIvQ0n8biqr9APAkJAP687hDamTPI6PBi6TSGN9cIw
 	==
 Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gskg2yfa4-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gske27rxb-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 25 Sep 2026 13:48:58 +0000 (GMT)
+	Fri, 25 Sep 2026 15:16:55 +0000 (GMT)
 Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68P9jcQL3296986;
-	Fri, 25 Sep 2026 13:48:57 GMT
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68PF1aO33297092;
+	Fri, 25 Sep 2026 15:16:54 GMT
 Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gvb6qtn13-1
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gvb6qtx34-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 25 Sep 2026 13:48:57 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68PDmsCa46727578
+	Fri, 25 Sep 2026 15:16:54 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68PFGpBc51184064
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 25 Sep 2026 13:48:54 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4BAEC20040;
-	Fri, 25 Sep 2026 13:48:54 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 294812004B;
-	Fri, 25 Sep 2026 13:48:54 +0000 (GMT)
-Received: from [9.224.77.173] (unknown [9.224.77.173])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 25 Sep 2026 13:48:54 +0000 (GMT)
-Message-ID: <942440e4-33e0-470a-a926-66572add41d8@linux.ibm.com>
-Date: Fri, 25 Sep 2026 15:48:53 +0200
+	Fri, 25 Sep 2026 15:16:51 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 03AB72004E;
+	Fri, 25 Sep 2026 15:16:51 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 922612004B;
+	Fri, 25 Sep 2026 15:16:50 +0000 (GMT)
+Received: from [9.111.133.14] (unknown [9.111.133.14])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 25 Sep 2026 15:16:50 +0000 (GMT)
+Message-ID: <717d9c0e-83e9-4ad7-82b6-7970a0ba6729@linux.ibm.com>
+Date: Fri, 25 Sep 2026 17:16:50 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,55 +62,72 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 1/3] KVM: s390: Improve floating IRQ injection behavior
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: imbrenda@linux.ibm.com, linux-s390@vger.kernel.org, pasic@linux.ibm.com
-References: <20260820121546.24694-1-frankja@linux.ibm.com>
- <20260820121546.24694-2-frankja@linux.ibm.com>
- <b7707a7e-26bc-4b0b-ad58-9cd7f8f820fa@linux.ibm.com>
- <6ed30827-e79f-4fdb-8e26-dd14860f1d4f@linux.ibm.com>
+Subject: Re: [PATCH net v3] net/iucv: require IUCV for AF_IUCV sockets
+From: Alexandra Winter <wintera@linux.ibm.com>
+To: netdev-bot+sashiko@kernel.org, hppiscas@163.com
+Cc: twinkler@linux.ibm.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com
+References: <20260920034503.17322-1-hppiscas@163.com>
+ <178996250579.2160803.3689804935882322466@kernel.org>
+ <d0c5ed89-f782-4acf-8c4c-4626f4be650a@linux.ibm.com>
 Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <6ed30827-e79f-4fdb-8e26-dd14860f1d4f@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <d0c5ed89-f782-4acf-8c4c-4626f4be650a@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: lrD8FhhxUtIZEG32iIcT_v7RQvv_zofq
-X-Authority-Analysis: v=2.4 cv=I43w19gg c=1 sm=1 tr=0 ts=6ab67bca cx=c_pps
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: 8l3E_mPJ93pvdEZdXYDMkRy1dVCP-3cz
+X-Authority-Analysis: v=2.4 cv=EOCTQFZC c=1 sm=1 tr=0 ts=6ab69067 cx=c_pps
  a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=0NI4bR7Cfh6FfpvhMD8A:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI1MDA1NCBTYWx0ZWRfX29IShEsp6ZpS
- UPh+cOnTQ1SVZtcTKhvv5q8ZMzeoYQgbbOdK7Ns2JMLXuk1nWrUIxKWjg7HccYVqRtzYt1nLT8H
- HxGN6VCnq52v76QGDU98HaKC7+T3SinCDpOUg9ZIFvtuZ3vVyUjQEuGIP5T+cv5yAvGM1xM4HCV
- cEbUcwuBW4tfiMs4Qw1u8mkED25PvOIXg4SmDx+YmHCZeUK9Tydpt74nztfXHq60bTAJhDEtR1B
- YmbdSyymPm3GQRetuzP+CfD+gRpllNTJm0YrcM6y46b9LY5rdgVjTWJSJ9r63qHaYEdC3fb+uI0
- vj0Y9DV1D9/c9e2NtKlECHFL38ZmFtXIcz33gtnozl0j7uQhV31nnLe0dbHXhXKk+V2iBV9qTcF
- /XKjTeb8Noc3zx0vMVr6PMb2rmCxpmfHPJLkpNC0yMGYHe6SeBxnqCHUaG+xsbpjEUqLP3YmzNh
- Xx2Yq9aurZHKW25pBVg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI1MDA1NCBTYWx0ZWRfX+J1N5fHGstPe
- 6i38jEh2KChLApZtAWOkDfvBJXl1gWEzpE3GdMi3gb56K7xlRFy+uW+k1Ql3BWLYDZjcofGkeEL
- Szdbxz+OkUmSfpwreft9WNJbiJ6vHx4=
-X-Proofpoint-GUID: lrD8FhhxUtIZEG32iIcT_v7RQvv_zofq
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=iMySd7Nm5nv2uyiilLIA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI1MDA2MCBTYWx0ZWRfX51Gjsu18j+VV
+ EH6ZslkAU8an3qoK2glBS6kfJS7j5o1aynZ4DR3dCW6Xi0+4PzLkXuTBUiCUZmNYWUIXitlLUaR
+ rJJnezqZjvG1hfIKVvWoJz3cULiM4pE=
+X-Proofpoint-GUID: G-mNGDf8f4Q6p2hndv9kE6m8I3ukcCxz
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI1MDA2MCBTYWx0ZWRfX3z769/oFiUAZ
+ ahpBEjpvg6cGSmnvqzgcJjxfp78o539onsXMIwBLQ8qLh6F/dlskbyGI5Nh8XCeEGIJ3kmBGs7k
+ gx+Juy4yd9EJmYRYJnamGoVFBYW/feHUBdnSXaD78MgFmKPE0VP4d6i+QgBNL9yLmfZGhuoEBgB
+ H4Yp6a6LNxMAMO5tFCgJTGIGn+I5Tt+HeT1ix0aKToL8pzb0gcpHnVvLyhsZrEoIJEVIeJ1mg/d
+ KRkFZI70izqMhsuj/DefgEJfjltg+NTtQHNfda1G9X7uerljgAKalaRd44kHBf6m+xvBmpVLG/N
+ np7TGD62x4wjG7RkEz7qo28d2WbD/7F5Fa6NpUhe68m4ymXaDGn2hqgltVN9AHBwCw7HlytU4SI
+ DUISRyF9CDwEMYU3i1t0Gl6XA3fUasyXOzayftfqSmwzpj25VWolhSlrvY3s5tDZV0lHIWCdJ0L
+ UA9DOOS4Vw9M+ZEKe6w==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-25_02,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 clxscore=1015 adultscore=0 suspectscore=0 impostorscore=0
- lowpriorityscore=0 bulkscore=0 phishscore=0 priorityscore=1501 malwarescore=0
+ bulkscore=0 phishscore=0 priorityscore=1501 clxscore=1015 spamscore=0
+ adultscore=0 impostorscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609250054
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609250060
 
 
 
-Am 25.09.26 um 15:45 schrieb Janosch Frank:
-
->>> +        if (nr_tries++ >= online_vcpus * 2) {
->>
->> why 2 rounds?
+On 24.09.26 20:52, Alexandra Winter wrote:
+> Actually even with your v2 IUCV=M, AF_IUCV=M builds fine in an LPAR,
+> but modprobe returns with
+> modprobe: ERROR: could not insert 'af_iucv': Protocol not supported	(not expected)
+> modprobe: ERROR: could not insert 'iucv': Protocol not supported   	(expected)
 > 
-> I honestly can't recall why
-> I can remove that change if you want.
+> Is this a result of
+>> 	if (machine_is_vm() && ...
+>> 		err = -EPROTONOSUPPORT;
+> I don't fully understand it yet.
+> 
+> But that combination can be defined, even with your v3, so we have another open issue here.
+> 
+> I definitively need to test all possible combinations! (Should have done that earlier, I admit)
 
-Lets do one round.
+That is the same root cause as IUCV=M, AF_IUCV=Y linker error with v2:
+the reference to `iucv_if'.
+So this probably would work with v3.
+
+Nevertheless, I'm working on a clean solution on top of your v2. Let me see if I can come up with that.
+
+Kind regards
+Alexandra
