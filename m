@@ -1,90 +1,58 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 619EA3A5436;
-	Fri, 25 Sep 2026 08:45:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4683355057;
+	Fri, 25 Sep 2026 08:51:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790325929; cv=none; b=OMHayU2F9ClYu/mwmbqokLZ8VRe+RDuKxMa9NTO8UHfJkT6ihZxoDXxChC05zh+G3lp13VgCVQ4k38SeUMQznERErJHEN3CLDoGlYOxDpkUI3xy/SS+h2GkABT+bwFEYpfojzvj0wjcMVvrmbsmkJUYU7Um5iLhWLbyoqdMXv7A=
+	t=1790326316; cv=none; b=l3kAav5DcH8EvbfWwdg7we4E0Z10Y9BSIWRR8oMENbEpZ0FaY7R0DZ5tQmlk4SxgH0zyZsmXrgObuLMG/QorOHZe8dFVj6122t3o2QA+5RwdWrs/bk2cYDOa6qdi6PTn1CWsYl5qTDi3mkQFdgfGsJAqjcwvAxqvunmUil0N9+U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790325929; c=relaxed/simple;
-	bh=J/nvE5eYJpS0kIo0tIMt5vOFhmfBJFQUnBTgMp5546c=;
+	s=arc-20240116; t=1790326316; c=relaxed/simple;
+	bh=ODydsWC4nVQ8JKTBG7GCQrD8PhiBWa5QNpx0W+Vs8hk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cJLOliqldhv/UyPibHly+BUE8VR3nNyjqsES6/S3w1t+Pdqt2P5SqWsqynedcakCYFHmXLvTWC4cKh8XbKrU29ON3wSlukOMKIYt1hrO8XG5uRkWhvkEqlRMB7xvTyIFjpw2uEQjFLL8UarToYpmstPGc93JctSZ+uXbN1KqMLM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=p3huYxFH; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=jMnKVMJDCF+NbQG92d1OSVcvStR6H2UMVfqRAXsE88JtbQWVkaS6NDFGY9DLNKcbdooPKnK4tj59BwiWUlHW26w5DupBjzyfZTgOdROiLkbL9Obs1QbbOx6DnEuTSsHcOyWGaV+hQGcf9Tstca/CZhOfCmNWPpcFJdiRO34SvA4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NwQ5+zEr; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="p3huYxFH"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68P4ZuCw4104239;
-	Fri, 25 Sep 2026 08:44:31 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=2de9xHNjmPAOVaG2ifsPQ33bU5QHct
-	L9cV7tymsHQY0=; b=p3huYxFHoSEQncV4QHHXzz9lN66r41EH9qE+HH2FTWFAo5
-	h/zba0v1i+C0lHm8p2oh9LrPWVV3JhMXJRxLFZdaiKbbx78fnhoRNxy3VsNT261u
-	bOl1eIgrFHbcrLXw+wr961mlSwl/0x47DzjqFGscKv1Z2XQo5YHvdhbHwvJ/B67N
-	RoylsQAfclr6bKM/i7XgIxeHGJuwlQzJkx7+sn+KWg+ZW8EfSpKI3oV0+kp8R6Ef
-	M+UIn9ZkBXlwgq5Ra5CRDPgCDKq4OfWB+dP1dpoNuFNSn2sM8P0NVMsKNkfB4/GG
-	o5fFDUTtUg7Pcb+/6QZNnYiMoUzfXOw8A4Zzf+1w==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gske1w7vm-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 25 Sep 2026 08:44:29 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68P4lYGl1959512;
-	Fri, 25 Sep 2026 08:44:28 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gvu7edxau-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 25 Sep 2026 08:44:28 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68P8iPQw28836176
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 25 Sep 2026 08:44:25 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EF1762004B;
-	Fri, 25 Sep 2026 08:44:24 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 39CD820043;
-	Fri, 25 Sep 2026 08:44:23 +0000 (GMT)
-Received: from osiris (unknown [9.111.31.68])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 25 Sep 2026 08:44:23 +0000 (GMT)
-Date: Fri, 25 Sep 2026 10:44:21 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Mukesh Kumar Chaurasiya <mkchauras@gmail.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, catalin.marinas@arm.com,
-        will@kernel.org, mark.rutland@arm.com, maddy@linux.ibm.com,
-        mpe@ellerman.id.au, npiggin@gmail.com, chleroy@kernel.org,
-        ritesh.list@gmail.com, sshegde@linux.ibm.com, pjw@kernel.org,
-        palmer@dabbelt.com, aou@eecs.berkeley.edu, alex@ghiti.fr,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, tglx@kernel.org, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
-        ojeda@kernel.org, boqun@kernel.org, gary@garyguo.net,
-        bjorn3_gh@protonmail.com, lossin@kernel.org, a.hindborg@kernel.org,
-        aliceryhl@google.com, tmgross@umich.edu, dakr@kernel.org,
-        daniel.almeida@collabora.com, tamird@kernel.org, acourbot@nvidia.com,
-        work@onurozkan.dev, nathan@kernel.org, ndesaulniers@google.com,
-        morbo@google.com, justinstitt@google.com, jszhang@kernel.org,
-        japo@linux.ibm.com, jpoimboe@kernel.org, seanjc@google.com,
-        pmladek@suse.com, thuth@redhat.com, ynorov@nvidia.com,
-        joelagnelf@nvidia.com, david@davidgow.net, fujita.tomonori@gmail.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
-        linux-s390@vger.kernel.org, rust-for-linux@vger.kernel.org,
-        llvm@lists.linux.dev
-Subject: Re: [RFC] rust: kernel: Add KUnit tests for ARCH_WARN_ASM bug table
- emission
-Message-ID: <20260925084421.23528Afe-hca@linux.ibm.com>
-References: <20260922054959.955093-2-mkchauras@gmail.com>
- <20260922064735.GS4121339@noisy.programming.kicks-ass.net>
- <arNxAn7I7NCVWmD1@li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com>
- <20260924111557.GP1837346@noisy.programming.kicks-ass.net>
- <20260924151335.18402A8b-hca@linux.ibm.com>
- <arYWDWmMJgIAt1_W@li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NwQ5+zEr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 507691F000FF;
+	Fri, 25 Sep 2026 08:51:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790326314;
+	bh=S3rbnL0mTjXgUEK5/Bs8TjZebjmAkHUgwjp+YFQ5wF8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=NwQ5+zErr0eWfZ83cKssBNFBF9lNyuNXbkxYZzw+Ygnpp3iNHc26F7ogQgr/9Qx1b
+	 n8xQvXwdkE5hPJL27dROeQ0oDkgrFXCHzQT9ZkWqZCff+n2zTU743gNOI9RR8gOmUa
+	 QCsWVtTy/y1lmHedpO7xJpA/T+x0DgSp+e4I7tG7uirhV2Kpr5JPwtuIzPcvfGSTNW
+	 R5Rl63O7zHZbGYxIcvYUVcux840pW1V+3w+VdAoYPinPM4QAZsppT6/nbb271bUoRu
+	 qr7Eee0KEiLNoFrcisin1XR/oLcZTLvYRDPs/RQ1jpMPJNSdZuzL2kmJ9uOFji15TM
+	 kWMcobWgdQwdA==
+Date: Fri, 25 Sep 2026 09:51:41 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: Marc Zyngier <maz@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, 
+	Will Deacon <will@kernel.org>, Oliver Upton <oupton@kernel.org>, 
+	Joey Gouly <joey.gouly@arm.com>, Steffen Eiden <seiden@linux.ibm.com>, 
+	Suzuki K Poulose <suzuki.poulose@arm.com>, Zenghui Yu <yuzenghui@huawei.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Mark Rutland <mark.rutland@arm.com>, Fuad Tabba <fuad.tabba@linux.dev>, 
+	Randy Dunlap <rdunlap@infradead.org>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@kernel.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Shuah Khan <skhan@linuxfoundation.org>, Shuah Khan <shuah@kernel.org>, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, kvmarm@lists.linux.dev, 
+	kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	Jack Thomson <jackabt@amazon.com>, Jack Thomson <jackabt.amazon@gmail.com>, 
+	Alexandru Elisei <alexandru.elisei@arm.com>, Vincent Donnefort <vdonnefort@google.com>, 
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Sean Christopherson <seanjc@google.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, Leo Soares Passos <Leo.Bras@arm.com>, 
+	Wei-Lin Chang <weilin.chang@arm.com>, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v4 00/14] KVM: arm64: Add KVM_PRE_FAULT_MEMORY support
+Message-ID: <arY1uKfUBXRpauaN@gremlin>
+References: <20260923-kvm-arm-prefault-v4-0-d4b0b4dfa8c3@kernel.org>
+ <86ik3u4asq.wl-maz@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -93,60 +61,39 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <arYWDWmMJgIAt1_W@li-1a3e774c-28e4-11b2-a85c-acc9f2883e29.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: 87lA0aCgX2z2D3O1YImj8y7jkpHmz4CB
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI1MDAzNCBTYWx0ZWRfXyKhVgC1T7hXc
- V/4zpWORmrgXaPIYCPqnXQh+/XRSwR1UXNgV2YvLqkokz4XTbTo2lSCIo2oGyHP5I/BQxBbtksw
- OLPZx6zdmUHojKQonoku7cjqsdZoePEMaX0dEzbcuBAjpuNDcXWXe3/vUlCZJCpBd1Ovtom/noX
- MmniggVMhfgZ4L07KrgtwHhet7Eir9r3Xd+hvhCrbn95SRLiCdjhLNRQOT1IocKdr6r3LvwTadO
- y4CSA8jcRzWbkgfE23lR/ONSq0zsrCi65ubnC6woMeUNsQI0j9K2e5fXc2TQHy5gh1QKHLNc17Y
- OAKjpKoYQ7Qn9zZ/n69xqyFwRfiWN33KM1gJzZ/57d5EDtrsVvAoPaozHfnjajPwokHT1TRbBU9
- QhA36CoSDk/x1vOSIIwGzAn4zrb42OphDQSjxR+zQe/DJOGEddcYVSIoiECr93Fdhd/S9YsZJa3
- kKlU0vrfYgVZwYwHzZg==
-X-Authority-Analysis: v=2.4 cv=O/KsLx9W c=1 sm=1 tr=0 ts=6ab6346e cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=kNr3sdrnxbR47e0HQjsA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI1MDAzNCBTYWx0ZWRfXy9BY6yI3+QWb
- ojtvWdD5I9GgEO2EI/5q1+KsJFtrN8hUGDyFDrjjLiBS4udvzPoklpbszwigPS0vRy/fC9pj/Ag
- cPRsb7OwEtSlA8sDaU+DGjpOMGVPE3o=
-X-Proofpoint-GUID: rzTFMSH6Roqit0uEX2DfQ6jw3cCbmDAk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-25_02,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 malwarescore=0 phishscore=0 impostorscore=0 suspectscore=0
- bulkscore=0 priorityscore=1501 lowpriorityscore=0 adultscore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609250034
+In-Reply-To: <86ik3u4asq.wl-maz@kernel.org>
 
-On Fri, Sep 25, 2026 at 12:06:28PM +0530, Mukesh Kumar Chaurasiya wrote:
-> On Thu, Sep 24, 2026 at 05:13:35PM +0200, Heiko Carstens wrote:
-> > On Thu, Sep 24, 2026 at 01:15:57PM +0200, Peter Zijlstra wrote:
-> > > Untested thingies for arm64 and s390x.
-> > >  int is_valid_bugaddr(unsigned long addr)
-> > >  {
-> > > -	return 1;
-> > > +	u16 insn;
-> > > +
-> > > +	if (get_kernel_nofault(insn, (u16 *)addr))
-> > > +		return 0;
-> > > +
-> > > +	return insn == 0x0001 || insn == 0x000e;
-> > 
-> > I have no idea why anybody wants to do this, but it looks like I'm not
-> > alone :) In any case: the check is wrong.
-> > s390 uses only the monitor call instruction and this should be
-> > 
-> > 	return insn == 0xaf00;
-> 
-> should i send this out along with ppc. I am not paricularly very good
-> with s390's assembly, but if this looks correct to you, i can send it
-> out.
+On Thu, Sep 24, 2026 at 10:08:37PM +0100, Marc Zyngier wrote:
+> On Wed, 23 Sep 2026 16:15:43 +0100,
+> "Lorenzo Stoakes (ARM)" <ljs@kernel.org> wrote:
+> >
+> > This series implements the KVM stage 2 page table pre-faulting feature for
+> > arm64.
+>
+> [...]
+>
+> > base-commit: 23ddf997ab16b5f4aa9f948f5a68f5b35e4e398f
+>
+> In the future, please don't do this. I've just nuked this commit from
+> kvmarm/next as I rebuilt it, and using such a random commit is
+> counter-productive. Just stick to an -rc tag from Linus' tree, and
+> that's it. I'm perfectly happy to deal with the outcome (conflicts and
+> other funny things).
 
-No, I still don't get what this fixes, or what the improvement would be
-(also not after reading you reply to Mark). The current code is fine for
-s390. Unless there is a pressing need I'd like to keep it as it is.
+Ack! No problem, will do.
+
+Do you prefer that people stick to the same -rc base from the start or OK to
+roll it over to latest Linus's tree?
+
+Not that I imagine it makes any difference in most cases.
+
+>
+> Thanks,
+>
+> 	M.
+>
+> --
+> Without deviation from the norm, progress is not possible.
+
+--
+Cheers, Lorenzo
