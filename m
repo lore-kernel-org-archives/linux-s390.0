@@ -1,39 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 768D0126C02;
-	Sat, 26 Sep 2026 12:39:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 433F644065E;
+	Sat, 26 Sep 2026 12:49:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790426357; cv=none; b=DVJAmCwoHhG4VbwM4zA5zJBhgDaz7NUguW3ETghi8relwgnsujVo8yVJ35cnDn5+swbo88CBt5CDwT92U4OPMQGUh7GT/+U75wg8YkAEAXw4SaDJoepTKPKrllZbYwI5cdYdqzHQfqxOHOepZ+S9nFMt5/Uz1kKBhtzl6pSzqN0=
+	t=1790426992; cv=none; b=n35bRuSIkHpXJgeNlnG/T1W5RKwJyw+fpah78Xj+JdOunjDsb9t4qq6PDhxVWxtLOOb4xSkESgvqXxz3fsGWevhLMEEH3U0bPXl6OJLBrEJFDK5eL5U9GTbY7zPTpbmprzVs78j4ly1HtPD7ujklzPHNZXY8Y4332Qk2Rqb74yE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790426357; c=relaxed/simple;
-	bh=C7CUUnBt5TXvA5ptaCYvt0JS3Dvwmd2X76y7hjyODBY=;
+	s=arc-20240116; t=1790426992; c=relaxed/simple;
+	bh=wJODCO7qLFS406HdWeGWn9AB/r+Nib0na9ZJ01dnJlI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=AD721DVbZA9BJ6wAx4oVKKpTEsr2jSy7EQ5yjB0eaa0C3vE9OYm5hjGHw5uhBma0T3BuDGBRT9lLrjeHuLxEP679/chmdPUfERTxJE2KsSP7YTBDcPmLxCCMBfKdtqAA1NdKRNdHFYufWcgByMmapZtgPLbfgRTvnJZ33o+qOP0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mqO5QHmR; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=I2V22UBxQv1Tp/5E9ibENWhiRa9NYejhpIr1fh8HbRup0FjeA+41HYTmLLV374UdxUvDmNYjsyfGvVFWdidFIsa1r2ToS27YkaIdHeK8lXwZjHxbd43OXop8k/jBXyhMdSwkz/8zeUWXesAfBQeXvbHzZ+RjWpHBy2FSeR6iOpI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fd5egb/9; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mqO5QHmR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8CFA1F000FF;
-	Sat, 26 Sep 2026 12:39:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fd5egb/9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6DC21F000FF;
+	Sat, 26 Sep 2026 12:49:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790426355;
-	bh=xUrWyqVmnKFt3e8RhkrZ2j3Y0i3O/ft05oQJMh6wlj4=;
+	s=k20260515; t=1790426987;
+	bh=VcwH+9dD3jn1cikX304Fn2/psmP9ex3vbb4X9xZ4y0w=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=mqO5QHmRcMSYwDEgOPDLIZcr6jr2YfLZFqWA7XF/GlNNvRhVaLD2MqTlse+KUluEL
-	 xzQtAcTaB0AUUAyhyXub2Dl1sDoMhQBVGpEqYPhOFnxMIeHAfILAjiNHt5KASH4zgE
-	 9rM1gY9zZsC843JVDcJ/evpaUDkxxUnTOWMufD7S2+kem/c2g2lrgfyGSMRjpNUarx
-	 z5QFeWBKFuAmXjti4J2zAENqDWuza+nvxNd9M8lkcQxgEaFZWFlweuEwmQoJ24uygc
-	 ZwThu0B4gX8MvLQqagGgOMSxUH5JZWmq/Uwr7kjbGCVNI+MI7sGEzKwfcBn23nv76b
-	 a+d3+QTbcxiZg==
-Date: Sat, 26 Sep 2026 13:39:06 +0100
+	b=fd5egb/9VQIjjOqS4QVt0JCgY3CjQEWPCjDbq1JPvTO/u/NWzV+lbMU2GnucpD8Cg
+	 fQBncBItUBiNpft5Xle3TNZkvASdQXwYT782WczpRC4jNHKnURx/VR4lMI4JBZAg4b
+	 za0ej8mPU5YqIeMJVF26LmaALHmhJznID0Q97bqr7HNfNTSy14hNnajBL2yZtPoDr6
+	 ZPeKxz/NhMbw/6kJedmpg94MnX+XYJsijQGDTgqkeXja/IGUPPqM+mRcQX86S0NU8a
+	 AaymHjbxISsM0nBUg8bnqDkatbTzLbXwZiMwQwM34QeqRDonyX/y1rrUsoEZSMn7fp
+	 RycokNiL9jKuw==
+Date: Sat, 26 Sep 2026 13:49:38 +0100
 From: Nathan Chancellor <nathan@kernel.org>
-To: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
-	Nick Desaulniers <ndesaulniers@google.com>,
+To: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Andreas Schwab <schwab@linux-m68k.org>,
 	Andy Lutomirski <luto@kernel.org>,
 	Thomas Gleixner <tglx@kernel.org>, Theodore Ts'o <tytso@mit.edu>,
 	Vincenzo Frascino <vincenzo.frascino@arm.com>,
+	Nick Desaulniers <ndesaulniers@google.com>,
 	Bill Wendling <morbo@google.com>,
 	Justin Stitt <justinstitt@google.com>,
 	Catalin Marinas <catalin.marinas@arm.com>,
@@ -42,8 +42,9 @@ Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
 	WANG Xuerui <kernel@xen0n.name>,
 	Madhavan Srinivasan <maddy@linux.ibm.com>,
 	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>, Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
 	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
 	Heiko Carstens <hca@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
@@ -59,40 +60,65 @@ Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>,
 	llvm@lists.linux.dev
 Subject: Re: [PATCH v2] random: vDSO: Avoid call to memset() when zeroing
  reserved in __cvdso_getrandom_data()
-Message-ID: <20260926123906.GB1486962@ax162>
+Message-ID: <20260926124938.GC1486962@ax162>
 References: <20260925-vdso-getrandom-avoid-memset-llvm-24-v2-1-ce640f872393@kernel.org>
- <CAKwvOdmuvn0LZkYEsH84hnOGTYhTtzuWs3wMARtWdTeL6dD9sA@mail.gmail.com>
- <CAKwvOdnxKVpn=nAFaqP+9PTx4PqgHsUVWv6e60Pcr29W_eZrpQ@mail.gmail.com>
- <CAKwvOdmNZL3eFvV3v77GXDzL+XLgz+BT9TA=my0yTnbsHqVeSg@mail.gmail.com>
- <areYMjNcaqe86ds4@zx2c4.com>
- <9d1c338b-368f-4ea2-a12e-c28d49adff5e@kernel.org>
+ <87zex4ic68.fsf@linux-m68k.org>
+ <20260926121927.GA1486962@ax162>
+ <are7cfMIHZZn6jLz@zx2c4.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9d1c338b-368f-4ea2-a12e-c28d49adff5e@kernel.org>
+In-Reply-To: <are7cfMIHZZn6jLz@zx2c4.com>
 
-On Sat, Sep 26, 2026 at 12:55:34PM +0200, Christophe Leroy (CS GROUP) wrote:
-> Le 26/09/2026 à 12:02, Jason A. Donenfeld a écrit :
-> > Apparently not on RISCV, which is what prompted this patch in the first
-> > place. So I suspect Nathan's v2 here is the way to go.
+On Sat, Sep 26, 2026 at 02:32:49PM +0200, Jason A. Donenfeld wrote:
+> On Sat, Sep 26, 2026 at 01:19:27PM +0100, Nathan Chancellor wrote:
+> > On Sat, Sep 26, 2026 at 11:39:43AM +0200, Andreas Schwab wrote:
+> > > On Sep 25 2026, Nathan Chancellor wrote:
+> > > 
+> > > > +#if __has_builtin(__builtin_memset_inline)
+> > > > +#define memset_inline(dst, value, size) __builtin_memset_inline(dst, value, size)
+> > > > +#elif IS_ENABLED(CONFIG_CC_HAS_OPT_INLINE_MEMSET)
+> > > > +#define memset_inline(dst, value, size) __builtin_memset(dst, value, size)
+> > > > +#else
+> > > > +static inline void *memset_inline(void *dst, int value, size_t size)
+> > > > +{
+> > > > +	char *d = dst;
+> > > > +
+> > > > +	while (size--)
+> > > > +		*d++ = value;
+> > > > +
+> > > > +	return d;
+> > > > +}
+> > > > +#endif
+> > > > +
+> > > 
+> > > memset actually returns the original pointer, not the incremented one.
+> > > Nothing uses the return value of memset_inline here, but it is
+> > > confusing.
+> > 
+> > Whoops, good catch, I guess my fingers gave up on those last two
+> > characters :) I will fix this for v3 once there has been some time for
+> > further review.
 > 
+> Do we even need to return a value at all? Might as well just make the
+> function two lines:
 > 
-> Don't you have -fno-builtin on RISCV like we have on powerpc ?
-> 
-> Or is it clang that is missing this option ?
+> +       for (char *d = dst; size--;)
+> +               *d++ = value;
 
-Yes, clang has -fno-builtin but as I mention in the commit message, that
-may not always stop the compiler from generating calls to memset(),
-which it is allowed to do even with -ffreestanding (which implies
--fno-builtin) per GCC's documentation. -fno-builtin with GCC < 14 just
-happens to avoid generating memset() for memset_inline() in all of my
-tests, hence why I went with this approach as suggested by Jason.
+Yeah, good point, no point in returning something that we don't need
+plus this is basically what we had before, just with a different pointer
+type. Thanks for the suggestion.
+
+> (Technically that could even be one, but maybe that sort of golf loses
+> clarity. Your choice.)
+
+I'll keep it two lines just for the sake of clarity.
 
 -- 
 Cheers,
