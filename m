@@ -1,237 +1,305 @@
-Received: from SN4PR0501CU005.outbound.protection.outlook.com (mail-southcentralusazon11011038.outbound.protection.outlook.com [40.93.194.38])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2FFA255F28;
-	Sat, 26 Sep 2026 02:30:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.194.38
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790389828; cv=fail; b=Z50kVBAB1Xa7FXM9tIgH7N96m2IF/HSx+r2mrN3UwLp1EI6EPg3oMYA3inUjPvHHfJ5a/Of3mVJJryjRSAqQvpnBDRCHVFXA+L6/0IMqr+Rebm9VFBBZrVTUejlSq8i2TYuvBRmBqGi+komWY8ho84TyrWIYomcJt0wgD+1JQac=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790389828; c=relaxed/simple;
-	bh=FNhiyKfw+w86IepAg5/GM7Ls6jy3nchchg3rrJE/Zrk=;
-	h=Content-Type:Date:Message-Id:Subject:Cc:To:From:References:
-	 In-Reply-To:MIME-Version; b=Gpnbil5rGnXNbGrqB0Q35qr6FlVuouJRQK+0JOCFRAosGR3zBV70oRjnAVK3f6/W9XtAg0HDB5kgCQnNnCjgIpdQ4sQVo7oIuLQN27EhoVyL/GqqdYths4h/ESLKiDdXuHTyoyoOyVJi2j62M547KVGez7TfW+W0cMmFSPJxyRE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Jhyp1dXd; arc=fail smtp.client-ip=40.93.194.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F55D38D01B;
+	Sat, 26 Sep 2026 06:34:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1790404461; cv=none; b=Vp+NkSBYqM0b7U+fFfeDmNRA5iVfZY9qJjaElVoLSkJgv17P55e0e9T54urIEcMfj1hYB74Emjcw/SMFdVAILtQxkQ83ED3QY+Sc1RZPM//OIWuzb6LovOzrNtU0foMUkkJYHT+q2V8wTq82NgZObFa5oFtuUuMTU9Tll+VULVw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1790404461; c=relaxed/simple;
+	bh=EM8Aq0zba55JAF1PiqJZKwXUK24rdLNa8m9H7uIa2tU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=LrnJHnCJ9x0qrsChV7c7MnUgi4wrbh6l9bnwTYR3xrGlfZ+3R9C66eT+uyqAf1e5icrKTbKmIl0qSxv3ciFyDKBQa17ATnkOpp78kAi+qkFXjzc46pqAZs74+EgK8YjYNZGjL0W8AYsjQUJoNWctLrpHrQGEaAlBUNBgQTplD0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X3keQOxp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Jhyp1dXd"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=MGt+/rGefaZMuWMA5TLfFlwpc/JuU7A8aX1qxvmvQ3UqMFlQJVm1XDrY9Pcr8Y5ZKk6TdVnsdNE/EklatQY8obKNbNjw9iIt5RwBGOdrT7V53dUHMrtHItSegcD/1hSjYzlQYmbpr9YxoSjWZkaiibcNir347pkoB9QpcEN7HXMIts3SfkoDOARt+imm7QAio7f5UB8bVpkLjL5dknuwhdO+VSeDkA99QogxxaGIaz4xnvMoTDu9M/S21bKi0M3W5kWx7QH3Qa/QKIqm4c0bEw188byJ0H/QNDM47M8N4qC1nuezxQFuyjM358X7ynW0yWbDvrZaunc9rf3Z/mKCmw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=mQMimtvf09yHV27pRM3QAJhff16w1Cd9pOcXbZNVfZ0=;
- b=ypj4dpgsiNu/i7tTLJzyvv/pipRpmPiVIwETnar17yFfkLM+jeM9+xPjPYSSM+8bjiBF8h/XO/VEiL36NtBg5gc5XghuVai1RtEZrSTyjWK5ahQA96DI65iSOzNfoESwSlUYjL3zaRDS4r1QK4TECTfHUWhsEGflZFpjND2lAh6HcPEYTlnOqNXHJaqZd5DVYBCckIJRmpOoOdiPHyjKux5H7du7LfgY1M2bdQRUIKTE68vg8/3AwXOXnYuma0s4PHeqYjW0Lxl51b/zzxbXtS4ApR0rePKyeEffyI3KnbJAAijJP9nPplH898ADSInBE+1WN/QGw78KOdatN47CYQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mQMimtvf09yHV27pRM3QAJhff16w1Cd9pOcXbZNVfZ0=;
- b=Jhyp1dXd0M1VuO/UfCjUw5NuvpMNCOmvbiIwuwrppoASf2Jx85KK5TQmMftiJhMWj3hN1uq/+vJQeK54+ejiMm6V3MB8Vas0ZCOuj/Q6iUebBy6cCITtlKrS+LYimWr2PHsDJ+zhDoStXrJ0hEbcSjfbECJgHtXLQvT4ANHyr6cj5gao4s/Ic12V2Nksc00BlsYLQC+jMpSNYr4Js7hHFOIcAK3DojmNzamkCJhtT2QzcSv0d1FgpOte/Nf9PwxMju68GYUJj2XBYBKNSChYsWm7HWi6+sT9S63PIYLBVRCIJgXjc0OB5hjyRNwedF7BJFo4KyeRvWqDBmjuEFpgzg==
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from IA0PR12MB8374.namprd12.prod.outlook.com (2603:10b6:208:40e::7)
- by IA0PR12MB8255.namprd12.prod.outlook.com (2603:10b6:208:404::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.451.18; Sat, 26 Sep
- 2026 02:30:18 +0000
-Received: from IA0PR12MB8374.namprd12.prod.outlook.com
- ([fe80::d85f:4c87:ae84:3f16]) by IA0PR12MB8374.namprd12.prod.outlook.com
- ([fe80::d85f:4c87:ae84:3f16%6]) with mapi id 15.21.0451.014; Sat, 26 Sep 2026
- 02:30:18 +0000
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 25 Sep 2026 22:30:11 -0400
-Message-Id: <DLOW7WTRQY8J.RZ0XDZWZIMS5@nvidia.com>
-Subject: Re: [PATCH v3 21/40] mm/gup: error out early on !VMA_MAYREAD_BIT
- VMAs
-Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
- <linux-doc@vger.kernel.org>, <linux-usb@vger.kernel.org>,
- <linux-rdma@vger.kernel.org>, <selinux@vger.kernel.org>,
- <linux-sound@vger.kernel.org>, <bpf@vger.kernel.org>,
- <linux-scsi@vger.kernel.org>, <linux-fbdev@vger.kernel.org>,
- <dri-devel@lists.freedesktop.org>, <linux-trace-kernel@vger.kernel.org>,
- <linux-perf-users@vger.kernel.org>, <linux-arch@vger.kernel.org>,
- <linux-fsdevel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
- <kvmarm@lists.linux.dev>, <linuxppc-dev@lists.ozlabs.org>,
- <kvm@vger.kernel.org>, <kvm-riscv@lists.infradead.org>,
- <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
- <sparclinux@vger.kernel.org>, <fuse-devel@lists.linux.dev>
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, "Andrew Morton"
- <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>,
- "Vlastimil Babka" <vbabka@kernel.org>, "Jann Horn" <jannh@google.com>,
- "Pedro Falcato" <pfalcato@suse.de>, "David Hildenbrand" <david@kernel.org>,
- "Mike Rapoport" <rppt@kernel.org>, "Suren Baghdasaryan"
- <surenb@google.com>, "Michal Hocko" <mhocko@suse.com>, "Jonathan Corbet"
- <corbet@lwn.net>, "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
- "Dennis Dalessandro" <dennis.dalessandro@cornelisnetworks.com>, "Jason
- Gunthorpe" <jgg@ziepe.ca>, "Leon Romanovsky" <leon@kernel.org>, "Paul
- Moore" <paul@paul-moore.com>, "Stephen Smalley"
- <stephen.smalley.work@gmail.com>, "Jaroslav Kysela" <perex@perex.cz>,
- "Takashi Iwai" <tiwai@suse.com>, "Alexei Starovoitov" <ast@kernel.org>,
- "Daniel Borkmann" <daniel@iogearbox.net>, "Andrii Nakryiko"
- <andrii@kernel.org>, "Eduard Zingerman" <eddyz87@gmail.com>, "Kumar
- Kartikeya Dwivedi" <memxor@gmail.com>, "Baolin Wang"
- <baolin.wang@linux.alibaba.com>, "Nico Pache" <nico.pache@linux.dev>, "Ryan
- Roberts" <ryan.roberts@arm.com>, "Dev Jain" <dev.jain@arm.com>, "Barry
- Song" <baohua@kernel.org>, "Lance Yang" <lance.yang@linux.dev>, "Usama
- Arif" <usama.arif@linux.dev>, "Kiryl Shutsemau" <kas@kernel.org>, "Doug
- Gilbert" <dgilbert@interlog.com>, "James E.J. Bottomley"
- <James.Bottomley@HansenPartnership.com>, "Martin K. Petersen"
- <mkp@kernel.org>, "Jaya Kumar" <jayalk@intworks.biz>, "Simona Vetter"
- <simona@ffwll.ch>, "Helge Deller" <deller@gmx.de>, "Sebastian Reichel"
- <sre@kernel.org>, "John Hubbard" <jhubbard@nvidia.com>, "Peter Xu"
- <peterx@redhat.com>, "Masami Hiramatsu" <mhiramat@kernel.org>, "Oleg
- Nesterov" <oleg@redhat.com>, "Peter Zijlstra" <peterz@infradead.org>,
- "Thomas Gleixner" <tglx@kernel.org>, "Ingo Molnar" <mingo@redhat.com>,
- "Borislav Petkov" <bp@alien8.de>, "Dave Hansen"
- <dave.hansen@linux.intel.com>, <x86@kernel.org>, "Arnaldo Carvalho de Melo"
- <acme@kernel.org>, "Namhyung Kim" <namhyung@kernel.org>, "Mark Rutland"
- <mark.rutland@arm.com>, "Rik van Riel" <riel@surriel.com>, "Harry Yoo"
- <harry@kernel.org>, "Juri Lelli" <juri.lelli@redhat.com>, "Vincent Guittot"
- <vincent.guittot@linaro.org>, "Maarten Lankhorst"
- <maarten.lankhorst@linux.intel.com>, "Maxime Ripard" <mripard@kernel.org>,
- "Thomas Zimmermann" <tzimmermann@suse.de>, "David Airlie"
- <airlied@gmail.com>, "Will Deacon" <will@kernel.org>, "Aneesh Kumar K.V"
- <aneesh.kumar@kernel.org>, "Nick Piggin" <npiggin@gmail.com>, "Arnd
- Bergmann" <arnd@arndb.de>, "Muchun Song" <muchun.song@linux.dev>, "Oscar
- Salvador" <osalvador@suse.de>, "Matthew Wilcox (Oracle)"
- <willy@infradead.org>, "Jan Kara" <jack@suse.cz>, "Marc Zyngier"
- <maz@kernel.org>, "Oliver Upton" <oupton@kernel.org>, "Catalin Marinas"
- <catalin.marinas@arm.com>, "Madhavan Srinivasan" <maddy@linux.ibm.com>,
- "Anup Patel" <anup@brainfault.org>, "Paul Walmsley" <pjw@kernel.org>,
- "Palmer Dabbelt" <palmer@dabbelt.com>, "Albert Ou" <aou@eecs.berkeley.edu>,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Janosch Frank"
- <frankja@linux.ibm.com>, "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>, "Gerald Schaefer"
- <gerald.schaefer@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>,
- "Vasily Gorbik" <gor@linux.ibm.com>, "David S. Miller"
- <davem@davemloft.net>, "Andreas Larsson" <andreas@gaisler.com>, "Alexander
- Viro" <viro@zeniv.linux.org.uk>, "Christian Brauner" <brauner@kernel.org>,
- "Matthew Brost" <matthew.brost@intel.com>, "Joshua Hahn"
- <joshua.hahnjy@gmail.com>, "Rakie Kim" <rakie.kim@sk.com>, "Byungchul Park"
- <byungchul@sk.com>, "Gregory Price" <gourry@gourry.net>, "Ying Huang"
- <ying.huang@linux.alibaba.com>, "Alistair Popple" <apopple@nvidia.com>,
- "Chris Li" <chrisl@kernel.org>, "Kairui Song" <kasong@tencent.com>, "Kemeng
- Shi" <shikemeng@huaweicloud.com>, "Nhat Pham" <nphamcs@gmail.com>, "Baoquan
- He" <baoquan.he@linux.dev>, "Youngjun Park" <youngjun.park@lge.com>,
- "Johannes Weiner" <hannes@cmpxchg.org>, "Qi Zheng" <qi.zheng@linux.dev>,
- "Shakeel Butt" <shakeel.butt@linux.dev>, "Axel Rasmussen"
- <axelrasmussen@google.com>, "Yuanchu Xie" <yuanchu@google.com>, "Wei Xu"
- <weixugc@google.com>, "Chengming Zhou" <chengming.zhou@linux.dev>, "Michal
- Hocko" <mhocko@kernel.org>, "Miklos Szeredi" <miklos@szeredi.hu>, "Xu Xin"
- <xu.xin@linux.dev>
-From: "Zi Yan" <ziy@nvidia.com>
-X-Mailer: aerc 0.22.0
-References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org> <20260917-b4-mmap-prepare-vma-flag-sanify-v3-21-4583d8a23bca@kernel.org>
-In-Reply-To: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-21-4583d8a23bca@kernel.org>
-X-ClientProxiedBy: YQBPR0101CA0244.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:c01:66::16) To IA0PR12MB8374.namprd12.prod.outlook.com
- (2603:10b6:208:40e::7)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X3keQOxp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C00571F000FF;
+	Sat, 26 Sep 2026 06:34:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790404459;
+	bh=PGoBOYGQFMmgkg0THkTOdUI30C4ST2Titdv6ASdq6z8=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=X3keQOxp1tBtuWVBA/GBtSTLiUQRxOBSNxRdAlOlbGfr7T3RKDQAP1hU9UbGqlC/w
+	 3PJ85mcmhlsLwmq6yVlRoD28izVuDgabWq/+5UM7kpOBE3Pk4Go9B9ehwO9gn0Bhev
+	 iTAl61Ikfsa33CGlRO1QkLudvPEperBl2X1NsI2lSzQMy65KohW5DWudmwPtA2CcV2
+	 T66a7nZlZZzbltX3v1DTuvDm+99chPB2HuXc5lYYlWIkTQ+0UMV3AL4FjdI7+rMVN7
+	 OF4JtgtAHZvxID7lezJ9eYLLkQQUepVcO0JWZGTfrVT0/Q7Lnt+hslscKk5CoLHGie
+	 QdYcU5p96v9XQ==
+Message-ID: <76f4039a-d591-4b6a-af7e-83eb90266719@kernel.org>
+Date: Sat, 26 Sep 2026 08:34:06 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: IA0PR12MB8374:EE_|IA0PR12MB8255:EE_
-X-MS-Office365-Filtering-Correlation-Id: 138fddc9-a7bf-4081-49c6-08df1b761ace
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|23010399003|7416014|376014|921020|4143699003|11063799006|10067099003|56012099006|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	yjqVnX4u7QVMeoGtLZtilVpLpigFGWHuQ2n8R3oTV5gTh+k4sSvcwvhdBdE4FcBYxlT2GGAjngmQGd//PFhv3HshkFRhbMu46G4Tz9arATj0zyb58k/UEXPNtvtqsjfstROxgIbGfZ6qrYZP8w8qXK/mtEmIm83b2o1KS8VnTVVHfn7+EN80YuDipniFrgp18nqs/mEksiGRiRsUqiueQoCoP6DPmwPSHHj5h0lhVhOJAyTzLaYTwHAKibRZVbbk2y7Q6MrMxOUdyvkhWTK9LQ+4WUK5XH+lpAJ1cn32OdoWD2nUfYd6VAYOzH8JlWT5dbP6LnjtuvzeCC31wbS4tpbVQI4WJXUpihedWGYaAs9L4X6ZTvKwb1gnqqFSBjAaOAkEx0zvJsniEAq2263YFusu21vdWStkZB/DOlmKaQx8C5sp1MjZXBLqMhSzVa2x5/kYq4Ta8FQChTEU1aUQ3SLkAyLI0ncmqfsMb4sypZZsd3ybc1V4jNTeINEV/KGTlYlJW7L2ntQc6RxOp8UT1bLXmAmHrb5R+GyRMiSv7+FZwSXABHYxUeeklKDy/4MTX06dj4hCTYxsWMVvpjrBk569iH1+qmWOxgXN54d93bmfLMybGnrrI4buvelUaq0Uc3rzeUx0kHVTq/P+2E3JxTyinyEyXZMDdxRDjbHXuosTIOQnPcRDqcBrOZozt7IRP52P5Dy5RhXVJiR0h4SvgQ==
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA0PR12MB8374.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(23010399003)(7416014)(376014)(921020)(4143699003)(11063799006)(10067099003)(56012099006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?LzhkM0k5SklGaXJtUU9UZzArUk0xeUR3K2Y3U29yNmE2bjZnZVZlbk8vdkx0?=
- =?utf-8?B?QXQ0ZnRQRWFIa2JoTnJSazBERHVFUWpRQ1I4K002bXFBUUZhdFpyREVmZStB?=
- =?utf-8?B?T0gzcmhhaVRWM1Y5TTJybHBndmRNcFo0Y0c0SDVoenpaWkY5U2ZGdElqQzBj?=
- =?utf-8?B?dUZHRkU0eVVndnhhY1lDc0NaMnRSUVNoODFvMktybi9LUmJ0M1pEalVaQlJo?=
- =?utf-8?B?SDI5L0YreHBkL1ZqY29Ba2hqbll3QnpQdXBxVTMreVF6VmJLeXRKL0Q1V3dZ?=
- =?utf-8?B?SHNrajh2UUI4R1ZnR1d3Mm5aOGxaT1hzSXdEMTJ4UHRQU3kyMUxzOXNtaVJC?=
- =?utf-8?B?ZDkxY2ZIcXVIVjJ5THZwQmo2eStkT0hQU1htZlRqdmlaelZ2cU9IYnRuOVVV?=
- =?utf-8?B?YXJJSDc1YktqS2JTYWxqRmVvZFlLdXZNN2cvbVNybEJTK3Vib3B1M2VxK0FY?=
- =?utf-8?B?aG5tS01XVytpTEdtaUVlYVREcDZsTnZkLzJpUTUvdVpPd0phL1UvWlZhYUJ5?=
- =?utf-8?B?R2NneHBMU2ZtUjNnRm95Y3RMQTBCOUlnTTR0SmF3eWVZU0tpU1JJbVdOWmgx?=
- =?utf-8?B?aEQwNGhvVi9PNllGbzdEZi9qM2M4M1dRdEFmcnFpNEQ4ZWtSTWptc3BMbXU2?=
- =?utf-8?B?SmRNUi9ZT3dMOHB3dlF0dGkxbmhIRmZvRUg3WjRZTEUzWU12Y2d5dzY1dk1K?=
- =?utf-8?B?TFZ6N1lBUWxHODZFNWFhUUpEcWZRbmc4bnlLZ25PMm9mYWQ4anplWHpqVm1j?=
- =?utf-8?B?V01SVEx1ZnE2VFY4dVg1ODJYT3ZKdHZtdjg5MU95bG1XYjFwUHRBUmI3eUhp?=
- =?utf-8?B?WG5tSG15K0k4cnNMUGVOaVQwSnhLd3lFWXhtYytOeDZ3a0NQY2hIbzZxaVUx?=
- =?utf-8?B?NDVKWk9reDU0ZEN0c01IZmxzR0YzNGVhN1NndG1KRzMzTkVXNDhyRkRkUG9a?=
- =?utf-8?B?WElzSWVONjVLYWprT25WK3FJYjRMNE5YanFURUFvWDBabnQrUStwczU0TjJS?=
- =?utf-8?B?eTlCQmhycDNvMlVveERiaW9aL2JCMDROUDhtSmRzOUgzRHNhMm1GWTR1OEtJ?=
- =?utf-8?B?cmcvcGx0YWdSLzU1dDV3WGpocW5ha250dXRyZ29ramVKS2xTaEZQd2x0Q3Zj?=
- =?utf-8?B?SlVZLzJyOWF6bU9QajFxYkFKZHhYK2ZnempmYU5zWEtuMktWbytCMGFXR2lk?=
- =?utf-8?B?b0wva256ZDlIYXY3M29yL3V5RTZzc2hUV0FYZ3hpVUdURExNZVJ1c2VJN3Ir?=
- =?utf-8?B?UHFJbjgwZ2tmeHBadXNYWnVIUVFib1VldHdyTm1ON21CNmw1djZrakl1Zk01?=
- =?utf-8?B?TnF1NVRua0RJZFlBVFBjcGhKaDFrUU9mSml3Y2F2Q2g5VUlxYUtRTWliVCt0?=
- =?utf-8?B?SVF2MUlreDljZ3B6WlVVMFNqRWdmdC8wYXRNYlZSRys4Vm8xZVAxQWUvSzZN?=
- =?utf-8?B?SEttR0tEOEFDYUc0NkplVGpub0FIZk84ZUVnQXVTNGZFZWJPcU5hbG5Xbi8w?=
- =?utf-8?B?b0FNTEpaSFM3ejhoYlE1V2hxQms2NGRvRWVqUk4wQUNxZTdtQnJTVEl5Qlp2?=
- =?utf-8?B?VUhHK2Fkbmc1V1lJNlVXS05QVzdlVHllblZTeFpTODJudHBKcmtYSUhuTEJw?=
- =?utf-8?B?NzlPRjJMNkJ6eUQwV3F6eVFLUXZqWEZoM2pWTTBVWW9xaHBQSHZvT2o5NFdi?=
- =?utf-8?B?N3hCS202dzhFVVJDZUQ2NnlzMWxUTDd5V3ZHUFphZnBEMlpLNDVCeFVMU1JT?=
- =?utf-8?B?Q3FHVzlOSW1mcTcwODVqSXNMNWoyd2hYSmFWdVVtWXpCNEI4ZzdjVC9odDJa?=
- =?utf-8?B?c2tqNW9XRjY4UWJHelgwdmZyUEJJL2RubEZHTmc2RnlPUjNiOFhYVGhIOVJJ?=
- =?utf-8?B?R1lTUlk0eUxJLzNJZ2JRYSs4Q1NwU1pLUUZob005VDFRZ2c2YjQ4QVlxU3RP?=
- =?utf-8?B?Y01DRU9ITXllNzgraXZkbStsWWZGTTdXdWgxMk9NRy8zTHc1QUFLcW15c2Zq?=
- =?utf-8?B?U2JBSzZPNjVjTFF2cnJzSnhaU3hySlNSUWtKeVg3M3EydU5WdHNjOEdNVXA3?=
- =?utf-8?B?QzZTOE1hT3RDbVRvdWg4ei9sYTljSkFzZE51S2JvN2syVGVPOFhPNTZyWVlQ?=
- =?utf-8?B?OFo1R3N3RWNUVlhlKzRxdGRjZWNGYXFRSWF6T0lHd1c2MHF2ZzI5R2ErVTJD?=
- =?utf-8?B?LzB2MElydjR6c09XZ2g1TzRzTERTR1ExR3VQeGNndU1MTmdrOHQ4WmVQdDJx?=
- =?utf-8?B?NlJBWlhUYWZKSW9qcDRLWFVYSit3MlhHWHF3bkxxRVYwelhzMUNEVGVtNG14?=
- =?utf-8?Q?unUmaXGZA1/PSmHZb0?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 138fddc9-a7bf-4081-49c6-08df1b761ace
-X-MS-Exchange-CrossTenant-AuthSource: IA0PR12MB8374.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Sep 2026 02:30:18.0846
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: COb42g68OUl+u5Cs4xToYuDg9UqVuTh90oapNXsS4S4BMaLi2HZXpCMHLeL1bQQI
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB8255
-
-On Thu Sep 17, 2026 at 12:22 PM EDT, Lorenzo Stoakes (ARM) wrote:
-> When populating a VMA range via the aptly named populate_vma_page_range()
-> an unreadable VMA will always eventually fail with -EFAULT.
->
-> That a VMA is accessible is always checked, however VMA_MAYREAD_BIT is no=
-t.
->
-> All user mappings always have VMA_MAYREAD_BIT set, so this check only
-> impacts kernel mappings.
->
-> It is implemented specifically to disallow population of uprobes XOL
-> mappings which are exec-only.
->
-> A nasty interaction with these mappings may occur if they are mlocked, so
-> actively disallow this early.
->
-> This allows a subsequent commit to remove the VM_IO check in
-> __mm_populate() which otherwise requires non-MMIO mappings to be wrongly
-> flagged simply as a workaround.
->
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> ---
->  mm/gup.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-
-Acked-by: Zi Yan <ziy@nvidia.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] random: vDSO: Avoid call to memset() when zeroing
+ reserved in __cvdso_getrandom_data()
+To: Nick Desaulniers <ndesaulniers@google.com>,
+ Nathan Chancellor <nathan@kernel.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
+ Theodore Ts'o <tytso@mit.edu>, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+ Vincenzo Frascino <vincenzo.frascino@arm.com>,
+ Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Mark Rutland <mark.rutland@arm.com>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+ loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
+ linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+ llvm@lists.linux.dev
+References: <20260925-vdso-getrandom-avoid-memset-llvm-24-v2-1-ce640f872393@kernel.org>
+ <CAKwvOdmuvn0LZkYEsH84hnOGTYhTtzuWs3wMARtWdTeL6dD9sA@mail.gmail.com>
+ <CAKwvOdnxKVpn=nAFaqP+9PTx4PqgHsUVWv6e60Pcr29W_eZrpQ@mail.gmail.com>
+ <CAKwvOdmNZL3eFvV3v77GXDzL+XLgz+BT9TA=my0yTnbsHqVeSg@mail.gmail.com>
+Content-Language: fr-FR
+From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+In-Reply-To: <CAKwvOdmNZL3eFvV3v77GXDzL+XLgz+BT9TA=my0yTnbsHqVeSg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
 
 
---=20
-Best Regards,
-Yan, Zi
+Le 26/09/2026 à 00:00, Nick Desaulniers a écrit :
+> On Fri, Sep 25, 2026 at 2:56 PM Nick Desaulniers
+> <ndesaulniers@google.com> wrote:
+>>
+>> On Fri, Sep 25, 2026 at 2:53 PM Nick Desaulniers
+>> <ndesaulniers@google.com> wrote:
+>>>
+>>> On Fri, Sep 25, 2026 at 2:46 PM Nathan Chancellor <nathan@kernel.org> wrote:
+>>>>
+>>>> After a recent change in LLVM [1], builds with the random vDSO
+>>>> implementation, such as PowerPC and RISC-V, fail when checking the vDSO:
+>>>>
+>>>>    arch/powerpc/kernel/vdso/vdso32.so.dbg: dynamic relocations are not supported
+>>>>    arch/riscv/kernel/vdso/vdso.so.dbg: dynamic relocations are not supported
+>>>>
+>>>> memset() is now generated when zeroing params->reserved for some builds
+>>>> because LLVM has an optimization (now run in more instances) that can
+>>>> recognize at compile time when it is assigning a static value to a
+>>>> contiguous area of memory and turn that into a call to memset(). Both
+>>>> clang and GCC assume memset() is always available [2].
+>>>>
+>>>> clang provides a builtin, __builtin_memset_inline [3][4], that can be
+>>>> used to ensure an external function call is not generated when zeroing
+>>>> this memory. Use it when it is available.
+>>>>
+>>>> While GCC has no issues with the current code, it has generated memset()
+>>>> before, as seen in commit b7bad082e113 ("random: vDSO: avoid call to out
+>>>> of line memset()"). GCC 14 provides '-finline-stringops=memset' [5][6]
+>>>> with a similar guarantee to the clang builtin, so use it and
+>>>> __builtin_memset() when available.
+>>>>
+>>>> If no option is available, provide a simple memset_inline() like the one
+>>>> from lib/string.c to avoid adding an ugly ifdef.
+>>>>
+>>>> Link: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2Fllvm%2Fllvm-project%2Fcommit%2F90cebef1411617fc3eedd359bdf00cb44b1c2439&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C8130be3fe7304659b8e308df1b507f25%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639259704683663121%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=TzFmsIf6K0ZNffmwZjFRWcrFHJ4akhMw%2FxcWeHR4hFY%3D&reserved=0 [1]
+>>>> Link: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgcc.gnu.org%2Fonlinedocs%2Fgcc-16.2.0%2Fgcc%2FStandards.html%23index-ffreestanding&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C8130be3fe7304659b8e308df1b507f25%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639259704683681786%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=A6PdZfaF0MvKQ0TEuJEnFWmXpMKD5CPz6Ko2fWh9ZGY%3D&reserved=0 [2]
+>>>> Link: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2Fllvm%2Fllvm-project%2Fcommit%2F38637ee477541370a90b37f149069d8e5c0c2efd&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C8130be3fe7304659b8e308df1b507f25%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639259704683693796%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=ordMFwd99jKGsM6%2F5jqb6T%2FCzJZ%2BccJTNL6Zyyz38S4%3D&reserved=0 [3]
+>>>> Link: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fclang.llvm.org%2Fdocs%2FLanguageExtensions.html%23guaranteed-inlined-memset&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C8130be3fe7304659b8e308df1b507f25%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639259704683704121%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=mqgeAxJp0cTsBD1qngk%2BliTUC1kID648Z81H6hiKYDI%3D&reserved=0 [4]
+>>>> Link: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgcc.gnu.org%2Fgit%2F%3Fp%3Dgcc.git%3Ba%3Dcommit%3Bh%3D1ff6d9f7428b0668cd8ab0b3e3ab94f1d733124d&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C8130be3fe7304659b8e308df1b507f25%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639259704683713563%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=hNiJSMBbn6k7Pq4uBYQ5Bi6fO8ttW8KXVK6hPLEfJCM%3D&reserved=0 [5]
+>>>> Link: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgcc.gnu.org%2Fonlinedocs%2Fgcc%2FOptimize-Options.html%23index-finline-stringops&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C8130be3fe7304659b8e308df1b507f25%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639259704683722844%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=BwB1lUSynGcGGLwkspnlVbkBAkdeRo4ItXk19ffMU44%3D&reserved=0 [6]
+>>>> Suggested-by: "Jason A. Donenfeld" <Jason@zx2c4.com>
+>>>> Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
+>>>> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+>>>> ---
+>>>> Changes in v2:
+>>>> - Switch approach entirely (Jason, Nick)
+>>>>    - clang: use __builtin_memset_inline() to avoid external call
+>>>>    - GCC 14+: use __builtin_memset + -finline-stringops=memset (hence the
+>>>>      massive CC list increase)
+>>>>    - GCC < 14: no issues currently but avoid ifdef with simple memset
+>>>>      implementation
+>>>> - Link to v1: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fpatch.msgid.link%2F20260916-vdso-getrandom-avoid-memset-llvm-24-v1-1-80a92f2e225a%40kernel.org&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C8130be3fe7304659b8e308df1b507f25%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639259704683731836%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=Z1w8wFKZCVjlUIwkIjffeIBIPkDhRRln3l7xot3daRc%3D&reserved=0
+>>>> ---
+>>>>   arch/arm64/kernel/vdso/Makefile     |  2 +-
+>>>>   arch/loongarch/vdso/Makefile        |  1 +
+>>>>   arch/powerpc/kernel/vdso/Makefile   |  1 +
+>>>>   arch/riscv/kernel/vdso/Makefile     |  1 +
+>>>>   arch/s390/kernel/vdso/Makefile      |  1 +
+>>>>   arch/x86/entry/vdso/vdso64/Makefile |  2 +-
+>>>>   init/Kconfig                        |  7 +++++++
+>>>>   lib/vdso/getrandom.c                | 19 +++++++++++++++++--
+>>>>   8 files changed, 30 insertions(+), 4 deletions(-)
+>>>>
+>>>> diff --git a/arch/arm64/kernel/vdso/Makefile b/arch/arm64/kernel/vdso/Makefile
+>>>> index 7dec05dd33b7..f6619e1cb2ce 100644
+>>>> --- a/arch/arm64/kernel/vdso/Makefile
+>>>> +++ b/arch/arm64/kernel/vdso/Makefile
+>>>> @@ -41,7 +41,7 @@ CC_FLAGS_REMOVE_VDSO := $(CC_FLAGS_FTRACE) -Os $(CC_FLAGS_SCS) \
+>>>>                          $(CC_FLAGS_LTO) $(CC_FLAGS_CFI) \
+>>>>                          -Wmissing-prototypes -Wmissing-declarations
+>>>>
+>>>> -CC_FLAGS_ADD_VDSO := -O2 -mcmodel=tiny -fasynchronous-unwind-tables
+>>>> +CC_FLAGS_ADD_VDSO := -O2 -mcmodel=tiny -fasynchronous-unwind-tables $(CONFIG_CC_OPT_INLINE_MEMSET)
+>>>>
+>>>>   CFLAGS_REMOVE_vgettimeofday.o = $(CC_FLAGS_REMOVE_VDSO)
+>>>>   CFLAGS_REMOVE_vgetrandom.o = $(CC_FLAGS_REMOVE_VDSO)
+>>>> diff --git a/arch/loongarch/vdso/Makefile b/arch/loongarch/vdso/Makefile
+>>>> index 9c9181bb4071..0b84892d084b 100644
+>>>> --- a/arch/loongarch/vdso/Makefile
+>>>> +++ b/arch/loongarch/vdso/Makefile
+>>>> @@ -16,6 +16,7 @@ ccflags-vdso := \
+>>>>          $(filter -m64,$(KBUILD_CFLAGS)) \
+>>>>          $(filter -march=%,$(KBUILD_CFLAGS)) \
+>>>>          $(filter -m%-float,$(KBUILD_CFLAGS)) \
+>>>> +       $(CONFIG_CC_OPT_INLINE_MEMSET) \
+>>>>          $(CLANG_FLAGS) \
+>>>>          -D__VDSO__
+>>>>
+>>>> diff --git a/arch/powerpc/kernel/vdso/Makefile b/arch/powerpc/kernel/vdso/Makefile
+>>>> index 368759f81708..0d1a49529885 100644
+>>>> --- a/arch/powerpc/kernel/vdso/Makefile
+>>>> +++ b/arch/powerpc/kernel/vdso/Makefile
+>>>> @@ -43,6 +43,7 @@ ccflags-y := -fno-common -fno-builtin -DBUILD_VDSO
+>>>>   ccflags-y += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+>>>>   ccflags-y += $(call cc-option, -fno-stack-protector)
+>>>>   ccflags-y += -DDISABLE_BRANCH_PROFILING
+>>>> +ccflags-y += $(CONFIG_CC_OPT_INLINE_MEMSET)
+>>>>   ccflags-y += -ffreestanding -fasynchronous-unwind-tables
+>>>>   ccflags-remove-y := $(CC_FLAGS_FTRACE)
+>>>>   ldflags-y := -Wl,--hash-style=both -nostdlib -shared -z noexecstack $(CLANG_FLAGS)
+>>>> diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
+>>>> index 8dbf2532a573..c023046a3fd7 100644
+>>>> --- a/arch/riscv/kernel/vdso/Makefile
+>>>> +++ b/arch/riscv/kernel/vdso/Makefile
+>>>> @@ -36,6 +36,7 @@ endif
+>>>>   ccflags-y := -fno-stack-protector
+>>>>   ccflags-y += -DDISABLE_BRANCH_PROFILING
+>>>>   ccflags-y += -fno-builtin
+>>>> +ccflags-y += $(CONFIG_CC_OPT_INLINE_MEMSET)
+>>>>   ccflags-y += $(KBUILD_BASE_ISA)$(CFI_MARCH)
+>>>>   ccflags-y += $(CFI_FULL)
+>>>>   asflags-y += $(KBUILD_BASE_ISA)$(CFI_MARCH)
+>>>> diff --git a/arch/s390/kernel/vdso/Makefile b/arch/s390/kernel/vdso/Makefile
+>>>> index 35c834b895ec..54bcf2984ca1 100644
+>>>> --- a/arch/s390/kernel/vdso/Makefile
+>>>> +++ b/arch/s390/kernel/vdso/Makefile
+>>>> @@ -29,6 +29,7 @@ KBUILD_CFLAGS_VDSO := $(filter-out -munaligned-symbols,$(KBUILD_CFLAGS_VDSO))
+>>>>   KBUILD_CFLAGS_VDSO := $(filter-out -fno-asynchronous-unwind-tables,$(KBUILD_CFLAGS_VDSO))
+>>>>   KBUILD_CFLAGS_VDSO += -fPIC -fno-common -fno-builtin -fasynchronous-unwind-tables
+>>>>   KBUILD_CFLAGS_VDSO += -fno-stack-protector $(DISABLE_KSTACK_ERASE)
+>>>> +KBUILD_CFLAGS_VDSO += $(CONFIG_CC_OPT_INLINE_MEMSET)
+>>>>   ldflags-y := -shared -soname=linux-vdso.so.1 \
+>>>>               --hash-style=both --build-id=sha1 \
+>>>>               $(call ld-option, --eh-frame-hdr) -T
+>>>> diff --git a/arch/x86/entry/vdso/vdso64/Makefile b/arch/x86/entry/vdso/vdso64/Makefile
+>>>> index 7c0790065b5e..c2353a065279 100644
+>>>> --- a/arch/x86/entry/vdso/vdso64/Makefile
+>>>> +++ b/arch/x86/entry/vdso/vdso64/Makefile
+>>>> @@ -14,7 +14,7 @@ vobjs-$(CONFIG_X86_SGX)                       += vsgx.o
+>>>>   vobjs-$(CONFIG_FUTEX_ROBUST_UNLOCK)    += vfutex.o
+>>>>
+>>>>   # Compilation flags
+>>>> -flags-y                                := -DBUILD_VDSO64 -m64 -mcmodel=small
+>>>> +flags-y                                := -DBUILD_VDSO64 -m64 -mcmodel=small $(CONFIG_CC_OPT_INLINE_MEMSET)
+>>>>
+>>>>   # The location of this include matters!
+>>>>   include $(src)/../common/Makefile.include
+>>>> diff --git a/init/Kconfig b/init/Kconfig
+>>>> index 8583d9f06c52..ff3f8475dd2f 100644
+>>>> --- a/init/Kconfig
+>>>> +++ b/init/Kconfig
+>>>> @@ -173,6 +173,13 @@ config CC_HAS_ALLOC_TOKEN
+>>>>   config CC_HAS_MULTIDIMENSIONAL_NONSTRING
+>>>>          def_bool $(success,echo 'char tag[][4] __attribute__((__nonstring__)) = { };' | $(CC) $(CLANG_FLAGS) -x c - -c -o /dev/null -Werror)
+>>>>
+>>>> +config CC_HAS_OPT_INLINE_MEMSET
+>>>> +       def_bool $(cc-option,-finline-stringops=memset)
+>>>> +
+>>>> +config CC_OPT_INLINE_MEMSET
+>>>> +       string
+>>>> +       default "-finline-stringops=memset" if CC_HAS_OPT_INLINE_MEMSET
+>>>> +
+>>>>   config LD_CAN_USE_KEEP_IN_OVERLAY
+>>>>          # ld.lld prior to 21.0.0 did not support KEEP within an overlay description
+>>>>          # https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2Fllvm%2Fllvm-project%2Fpull%2F130661&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C8130be3fe7304659b8e308df1b507f25%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639259704683740883%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=JlYxG81FQsC5sm3aLe4M6uUIaU5QNmdbupcy3LuGPGQ%3D&reserved=0
+>>>> diff --git a/lib/vdso/getrandom.c b/lib/vdso/getrandom.c
+>>>> index 2851afa9154f..f5cad5641985 100644
+>>>> --- a/lib/vdso/getrandom.c
+>>>> +++ b/lib/vdso/getrandom.c
+>>>> @@ -29,6 +29,22 @@
+>>>>          }                                                                       \
+>>>>   } while (0)
+>>>>
+>>>> +#if __has_builtin(__builtin_memset_inline)
+>>>> +#define memset_inline(dst, value, size) __builtin_memset_inline(dst, value, size)
+>>>> +#elif IS_ENABLED(CONFIG_CC_HAS_OPT_INLINE_MEMSET)
+>>>> +#define memset_inline(dst, value, size) __builtin_memset(dst, value, size)
+>>>> +#else
+>>>> +static inline void *memset_inline(void *dst, int value, size_t size)
+>>>> +{
+>>>> +       char *d = dst;
+>>>> +
+>>>> +       while (size--)
+>>>> +               *d++ = value;
+>>>> +
+>>>> +       return d;
+>>>> +}
+>>>> +#endif
+>>>
+>>> Does this work?
+>>> https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgodbolt.org%2Fz%2FTx6EaGMfb&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C8130be3fe7304659b8e308df1b507f25%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639259704683749874%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=3MCx7IwcEz2ieYYZzQ2dLdrxFTjJiUqH0c1qiOXeLlo%3D&reserved=0
+>>
+>> Hmmm...possibly.
+>> https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgodbolt.org%2Fz%2Fec9rzd9Yf&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C8130be3fe7304659b8e308df1b507f25%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639259704683758681%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=5T4oq%2B4AfVJBqvBNA19kzNq19kRYM9u8YzYcP%2B8P7Mw%3D&reserved=0
+>> I don't get it...
+> 
+> Just keep it under 2 pages, it will be fine:
+> https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgodbolt.org%2Fz%2FqqoMqfxev&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C8130be3fe7304659b8e308df1b507f25%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639259704683768107%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=FrwGHnEXsSp8scH8GtL%2BlqjymHfVokSrtaOqhp2iZPg%3D&reserved=0
+> 
 
+Doesn't work on powerpc (gcc 13.4):
+
+foo:
+         li 5,8192
+         li 4,0
+         b memset
+foo2:
+         li 5,8193
+         li 4,0
+         b memset
+
+But that's the reason why vdso Makefile has option  -fno-builtin, that 
+option gives instead:
+
+foo:
+         li 10,2048
+         li 9,0
+         addi 3,3,-1
+         mtctr 10
+.L2:
+         stb 9,1(3)
+         stb 9,2(3)
+         stb 9,3(3)
+         stbu 9,4(3)
+         bdnz .L2
+         blr
+foo2:
+         li 9,0
+         li 10,2048
+         stb 9,0(3)
+         mtctr 10
+.L10:
+         stb 9,1(3)
+         stb 9,2(3)
+         stb 9,3(3)
+         stbu 9,4(3)
+         bdnz .L10
+         blr
+
+
+
+Christophe
