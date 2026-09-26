@@ -1,32 +1,33 @@
-Received: from mta0.migadu.com (out-9.mta0.migadu.com [91.218.175.9])
+Received: from mta1.migadu.com (out-148.mta1.migadu.com [95.215.58.148])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BE8046A600
-	for <linux-s390@vger.kernel.org>; Sat, 26 Sep 2026 13:56:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C24B45562E
+	for <linux-s390@vger.kernel.org>; Sat, 26 Sep 2026 13:56:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.148
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790430990; cv=none; b=YbsKy4KF+hcjMPvMbbIcxA3fV1VrYqmBHUF3HjRDm7RHaMQ+ldQxXKbwN4WiRRK3N7t8RBNsD1QCjETQb3CtqICZUj/waElCGWEPYQyS4F663B37xsxze2EWyRIiY9SBRIbfoAPb2hT27z+oqeDGZ+m75rLi1T1XWVVOkY0FIgw=
+	t=1790430996; cv=none; b=ZQBhAccFnjZYvblvEIFyPJ2K9sJMNA90q5dCGcG/T2ZxoMMUfeiijMcNWosLT4sNh2gbKmlvRk4zm3JIoqQrBRkin3LGpINH6CqFUWcXrbmiB7PV/CYZYiSit5dL1A6B8Ut7A77DuPWyJB2zPnZggxGZImlGX57s4EPJ91tO1Os=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790430990; c=relaxed/simple;
-	bh=Jk1pfOxu5P7hTWP0WaNJ55pPrxw8o/7nlJ9L9NFZsYY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mKJK8VtkaPONynHvk5dRgbZp1aUCGDpG632Gv33+b6rqGF6q68S4E72qeNFTmP7LZSLwILsJRhAkJ+SG0I5brPfB9fvg6NRBmcVJRmDiqwkpq+S2/UQOYV3EhpGnvkjScEDlh83RUHk53pd8EeS2Zr8bcdkfmxyItv3ZWsb4OvE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=jeE4WsTc; arc=none smtp.client-ip=91.218.175.9
+	s=arc-20240116; t=1790430996; c=relaxed/simple;
+	bh=wt+Sf4/K44D18qxUhVMcBpJ43zRH/d2pWQpmucexby4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=awWPkJr8/VDhiM8HEqmKobWZg+sGseK9WUVxyNqwAaYKumC4YPkMIR8GhwyAD9gYvJwRb5hzrKCmYJffx6z1lCW60Dqa0/SFSrqC5bVw3ju8FQ96bhiHeoX9ZcD6xTWGc5B7LcV1d9lhEaR3YqOda3eCD9Xy4Eo0t3ieIUdq520=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=cPeG/4zm; arc=none smtp.client-ip=95.215.58.148
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="jeE4WsTc"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="cPeG/4zm"
 X-Envelope-To: linux-s390@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=Jk1pfOxu5P7hTWP0WaNJ55pPrxw8o/7nlJ9L9NFZsYY=;
+DKIM-Signature: a=rsa-sha256; bh=wt+Sf4/K44D18qxUhVMcBpJ43zRH/d2pWQpmucexby4=;
  c=simple/simple; d=linux.dev;
  h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1790430982; v=1; x=1791035782;
- b=jeE4WsTcy24Pskiw/BwbbL7baL7nWh3w5py6LlwtqYzqCzLzZP3jqyuEg2Z8HRY2+x34jwLL
- Jleitm1hR8los07K3crew6R0NT+yBZX80MO2j9APE6o7szGPuXTjHUu6+W15ULW4YNxoV6epp/U
- 11VZ0nVs+1m4D2OpQfZYjNmY=
+ t=1790430989; v=1; x=1791035789;
+ b=cPeG/4zmqFLcOi4A1x/KxtKSK+dQVw6fLL5TRuKAg+WOGjoEmhYnrnjCRiflHKbXLi9r+gU2
+ MNO0qcj9sRUVn1tDqz5CVd3mIQs1NX78SY8HnE2Gl36bsHotZOjfexZ7USW5KrKrLLHBF/hcsAR
+ LNw9N5qDgPxLhfQropU+ahoc=
 X-Envelope-To: linux-s390@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id e6577e4ede2e14f5;
-	Sat, 26 Sep 2026 13:56:21 +0000
-X-Mizu-Trace-ID: e6577e4ede2e14f5
+Received: by smtp.migadu.com with ESMTPS id 173538b95d96974b;
+	Sat, 26 Sep 2026 13:56:28 +0000
+X-Mizu-Trace-ID: 173538b95d96974b
 X-Migadu-Flow: FLOW_OUT
 From: "Florent Revest (Anthropic)" <florent.revest@linux.dev>
 To: bpf@vger.kernel.org,
@@ -91,10 +92,12 @@ Cc: "Florent Revest (Anthropic)" <florent.revest@linux.dev>,
 	WANG Xuerui <kernel@xen0n.name>,
 	Will Deacon <will@kernel.org>,
 	x86@kernel.org
-Subject: [PATCH bpf v5 0/3] bpf: Fix use-after-free of progs detached from busy trampolines
-Date: Sat, 26 Sep 2026 13:55:57 +0000
-Message-ID: <20260926135605.1217928-1-florent.revest@linux.dev>
+Subject: [PATCH bpf v5 1/3] bpf: Wait for an RCU tasks grace period before freeing trampoline progs
+Date: Sat, 26 Sep 2026 13:55:58 +0000
+Message-ID: <20260926135605.1217928-2-florent.revest@linux.dev>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260926135605.1217928-1-florent.revest@linux.dev>
+References: <20260926135605.1217928-1-florent.revest@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -103,110 +106,108 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-A task running in a trampoline image can call a prog that was detached
-and freed in the meantime, when it slept in a sleepable prog before
-reaching the detached one or was preempted right before calling it.
-Patch 1 handles the preempted case with an RCU tasks grace period,
-patch 2 handles the sleeping case by patching detached progs out of the
-images that still call them and patch 3 adds a selftest for the sleeping
-case.
+When a prog is detached from a trampoline, it is freed after an RCU
+grace period, or an RCU tasks trace one if it is sleepable. This covers
+the tasks that are running the prog, since the prog's enter helper takes
+the matching read lock before the prog is called. On a preemptible
+kernel, it doesn't cover a task that was preempted in the trampoline
+just before the enter helper. That task holds no lock yet, and it calls
+the prog after it was freed:
 
-Since v3, only the nop of the prog that is detached is patched, in every
-image that isn't freed yet, like v2 did. Progs that stay attached keep
-running for the tasks that are in old images, ip_after_call is gone and
-the call to the original function is never skipped.
+  BUG: KASAN: vmalloc-out-of-bounds in __bpf_prog_enter_recur+0x3a5/0x3f0
+  Read of size 8 at addr ffffc90000055040 by task candidate/110
+  CPU: 1 UID: 0 PID: 110 Comm: candidate Not tainted 7.3.0-rc2-00014-g15071f2a1263-dirty #2 PREEMPT(full)
+  Call Trace:
+   <TASK>
+   __bpf_prog_enter_recur+0x3a5/0x3f0
+   bpf_trampoline_6442509193+0x37/0xf1
+   __x64_sys_futex+0x9/0x410
+   do_syscall_64+0xb0/0x530
+   ...
 
-On riscv and loongarch a jump of any range takes several instructions,
-and as bpf-ci and Alexei pointed out, a task preempted in the middle of
-such a patch site could resume into half of the new sequence. v5 makes
-the skip sites a single instruction there, patched to a jal / b through
-a new arch_bpf_trampoline_skip() hook, like their jump labels. I could
-only test these two under qemu.
+Wait for an RCU tasks grace period before the existing one when freeing
+a prog that was linked to a trampoline. An RCU tasks grace period only
+ends once the tasks that were preempted have run again, and
+bpf_tramp_image_put() already relies on it to free the image. It doesn't
+wait for tasks that sleep in the trampoline, the next commit takes care
+of those.
 
-Tested on x86_64 under KVM and on arm64, s390x, powerpc64le, riscv64
-and loongarch64 under qemu TCG, all with KASAN: the new selftest crashes
-the unpatched kernel and passes with the series on every one of them,
-along with trampoline_count, fentry/fexit, fentry_fexit, modify_return
-and lsm_cgroup (and the full test_progs on x86_64). On x86_64, 18
-fsession progs with cookies on an 11 argument function still fit in the
-image. Same on bpf-next, where patch 2 has trivial context conflicts in
-the x86 and arm64 JITs.
+Only progs that were linked to a trampoline can be called this way, so
+bpf_trampoline_add_prog() marks them and other progs are still freed as
+before.
 
-Changes since v4
-(https://lore.kernel.org/bpf/20260925100342.481242-1-florent.revest@linux.dev/):
-- riscv, loongarch: single instruction skip sites, patched through
-  arch_bpf_trampoline_skip(), loongarch keeps its limit of 38 (bpf-ci,
-  Alexei)
-- arm64: say in bpf_arch_text_poke() why patching out a detached prog
-  needs no synchronization (bpf-ci)
-- Comment fixes (bpf-ci)
-- Cc the arch maintainers and lists
+Fixes: e21aa341785c ("bpf: Fix fexit trampoline.")
+Reported-by: Junseo Lim <zirajs7@gmail.com>
+Closes: https://lore.kernel.org/bpf/aqdrwVpanH3WGurX@omen-arch/
+Assisted-by: Claude:unspecified
+Signed-off-by: Florent Revest (Anthropic) <florent.revest@linux.dev>
+---
+ include/linux/bpf.h     |  1 +
+ kernel/bpf/syscall.c    | 19 ++++++++++++++++++-
+ kernel/bpf/trampoline.c |  1 +
+ 3 files changed, 20 insertions(+), 1 deletion(-)
 
-Changes since v3
-(https://lore.kernel.org/bpf/20260924170543.1017048-1-florent.revest@linux.dev/):
-- Only patch the nop of the prog that is detached, in all the images
-  that aren't freed yet, like v2 did, and explain why a list of images
-  is needed (Alexei, bpf-ci)
-- Lower BPF_MAX_TRAMP_LINKS to 36 on x86, the worst case no longer fit
-  in a page with the nops (bpf-ci, Alexei)
-- selftest: wait for the detached progs to really be freed before
-  releasing the task, the grace period of patch 1 made the previous wait
-  too short (bpf-ci). Detach two progs one after the other, so that the
-  second detach has to reach an image that isn't the current one anymore
-- Keep a single comment block in bpf_tramp_image_put() (bpf-ci)
-
-Changes since v2
-(https://lore.kernel.org/bpf/20260912095924.866254-1-florent.revest@linux.dev/):
-- Patch all the nops in bpf_tramp_image_put() instead of the detached
-  prog's nop at detach time, drop the image list, the trampoline
-  backpointer and ip_after_call (Alexei)
-- Wait for an RCU tasks grace period before freeing progs that were
-  linked to a trampoline, for tasks preempted right before the enter
-  helper (Junseo, sashiko)
-- Initialize the jit ctx in loongarch's arch_bpf_trampoline_size() and
-  the dummy image in every arch_bpf_trampoline_size() (bpf-ci)
-- selftest: move the userfaultfd helper to testing_helpers.c and share
-  it with bpf_mod_race, comment fixes (bpf-ci), add a subtest where the
-  original function runs between the sleeping prog and the detached one
-
-Changes since v1
-(https://lore.kernel.org/bpf/20260819122252.1782790-1-florent.revest@linux.dev/):
-- Patch nops in front of detached progs instead of taking prog
-  references from the image (Alexei)
-- Lower BPF_MAX_TRAMP_LINKS on arm64, loongarch and powerpc so the
-  image still fits in a page
-- Explain that the sleepable case doesn't depend on CONFIG_PREEMPTION
-  (Kumar, Alexei)
-- Add a selftest (Jiri, Alexei)
-- Add Sechang's Reported-by (Junseo, Kumar)
-- Drop Leon's and Kumar's acks since the code changed entirely
-
-Florent Revest (Anthropic) (3):
-  bpf: Wait for an RCU tasks grace period before freeing trampoline
-    progs
-  bpf: Skip detached progs in trampoline images that are still in use
-  selftests/bpf: Detach a trampoline prog while a task sleeps before it
-
- arch/arm64/net/bpf_jit_comp.c                 |  37 ++--
- arch/loongarch/net/bpf_jit.c                  |  60 ++++--
- arch/powerpc/net/bpf_jit_comp.c               |  45 +++--
- arch/riscv/net/bpf_jit_comp64.c               |  56 ++++--
- arch/s390/net/bpf_jit_comp.c                  |  46 +++--
- arch/x86/net/bpf_jit_comp.c                   |  26 ++-
- include/linux/bpf.h                           |  45 ++++-
- kernel/bpf/syscall.c                          |  19 +-
- kernel/bpf/trampoline.c                       |  85 ++++++--
- .../selftests/bpf/prog_tests/bpf_mod_race.c   |  34 +---
- .../bpf/prog_tests/tramp_prog_detach.c        | 188 ++++++++++++++++++
- .../selftests/bpf/progs/tramp_prog_detach.c   |  56 ++++++
- tools/testing/selftests/bpf/testing_helpers.c |  28 +++
- tools/testing/selftests/bpf/testing_helpers.h |   2 +
- 14 files changed, 572 insertions(+), 155 deletions(-)
- create mode 100644 tools/testing/selftests/bpf/prog_tests/tramp_prog_detach.c
- create mode 100644 tools/testing/selftests/bpf/progs/tramp_prog_detach.c
-
-
-base-commit: ab39974240a0cff765f3bb9cce81d8001ffdb144
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index 1d2676782d70..a8ec85127571 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -1770,6 +1770,7 @@ struct bpf_prog_aux {
+ 	bool offload_requested; /* Program is bound and offloaded to the netdev. */
+ 	bool attach_btf_trace; /* true if attaching to BTF-enabled raw tp */
+ 	bool attach_tracing_prog; /* true if tracing another tracing program */
++	bool tramp_linked; /* true if it was ever linked to a trampoline */
+ 	bool func_proto_unreliable;
+ 	bool tail_call_reachable;
+ 	bool xdp_has_frags;
+diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+index 244a939b9d2d..96217b99399d 100644
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -2448,6 +2448,21 @@ static void __bpf_prog_put_rcu(struct rcu_head *rcu)
+ 	bpf_prog_free(aux->prog);
+ }
+ 
++/*
++ * Progs called from a trampoline can also be reached by a task that was
++ * preempted in the trampoline before the prog's enter helper took its RCU
++ * read lock, wait for those first.
++ */
++static void __bpf_prog_put_rcu_tasks(struct rcu_head *rcu)
++{
++	struct bpf_prog *prog = container_of(rcu, struct bpf_prog_aux, rcu)->prog;
++
++	if (prog->sleepable)
++		call_rcu_tasks_trace(rcu, __bpf_prog_put_rcu);
++	else
++		call_rcu(rcu, __bpf_prog_put_rcu);
++}
++
+ static void __bpf_prog_put_noref(struct bpf_prog *prog, bool deferred)
+ {
+ 	bpf_prog_kallsyms_del_all(prog);
+@@ -2461,7 +2476,9 @@ static void __bpf_prog_put_noref(struct bpf_prog *prog, bool deferred)
+ 		btf_put(prog->aux->attach_btf);
+ 
+ 	if (deferred) {
+-		if (prog->sleepable)
++		if (IS_ENABLED(CONFIG_TASKS_RCU) && prog->aux->tramp_linked)
++			call_rcu_tasks(&prog->aux->rcu, __bpf_prog_put_rcu_tasks);
++		else if (prog->sleepable)
+ 			call_rcu_tasks_trace(&prog->aux->rcu, __bpf_prog_put_rcu);
+ 		else
+ 			call_rcu(&prog->aux->rcu, __bpf_prog_put_rcu);
+diff --git a/kernel/bpf/trampoline.c b/kernel/bpf/trampoline.c
+index 90b70ea0d370..9d69c066a817 100644
+--- a/kernel/bpf/trampoline.c
++++ b/kernel/bpf/trampoline.c
+@@ -907,6 +907,7 @@ static int bpf_trampoline_add_prog(struct bpf_trampoline *tr,
+ 	}
+ 
+ 	hlist_add_head(&node->tramp_hlist, prog_list);
++	node->link->prog->aux->tramp_linked = true;
+ 	if (kind == BPF_TRAMP_FSESSION) {
+ 		tr->progs_cnt[BPF_TRAMP_FENTRY]++;
+ 		fexit = fsession_exit(node);
 -- 
 2.55.0
 
