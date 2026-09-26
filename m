@@ -1,270 +1,212 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mta0.migadu.com (out-9.mta0.migadu.com [91.218.175.9])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED9EB41F34E;
-	Sat, 26 Sep 2026 13:22:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BE8046A600
+	for <linux-s390@vger.kernel.org>; Sat, 26 Sep 2026 13:56:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790428959; cv=none; b=WW3v1fzi7rfj4wLs5OeWwq9Uc7WjZnPP/IPbetj0bvrsa1f+URRYH5z31klatUY0F/C1Iom2i1Zk0vsd3VKr61GzFITsZehMPlEURYtEH3/hCpPAQL6M/ZQW7BGA3bvESH8zvkve1+eDZj6ZE1oRP3VfeCj/02opgeA44qXyslQ=
+	t=1790430990; cv=none; b=YbsKy4KF+hcjMPvMbbIcxA3fV1VrYqmBHUF3HjRDm7RHaMQ+ldQxXKbwN4WiRRK3N7t8RBNsD1QCjETQb3CtqICZUj/waElCGWEPYQyS4F663B37xsxze2EWyRIiY9SBRIbfoAPb2hT27z+oqeDGZ+m75rLi1T1XWVVOkY0FIgw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790428959; c=relaxed/simple;
-	bh=ytgc6Ysa5Go78zHXRVtTHpX/QUpJmBMDXx19p/scRAY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=A82A1SGCy+DX7VqbBf+MM6daTdJLcwBu61VGloCtV/fbone2163TKqYXLtMuk8ZGf05JdZH07uVnwDv6qdAS2mk9QW3m3sAh0FB6juTcbK2fMFPE2u9Q9V8QCblNhQhIp7Abh68hwdue+mcCW07qAdGzLH9regM4RUODbFg1JG8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gn1PEczg; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790430990; c=relaxed/simple;
+	bh=Jk1pfOxu5P7hTWP0WaNJ55pPrxw8o/7nlJ9L9NFZsYY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mKJK8VtkaPONynHvk5dRgbZp1aUCGDpG632Gv33+b6rqGF6q68S4E72qeNFTmP7LZSLwILsJRhAkJ+SG0I5brPfB9fvg6NRBmcVJRmDiqwkpq+S2/UQOYV3EhpGnvkjScEDlh83RUHk53pd8EeS2Zr8bcdkfmxyItv3ZWsb4OvE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=jeE4WsTc; arc=none smtp.client-ip=91.218.175.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gn1PEczg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B984F1F000FF;
-	Sat, 26 Sep 2026 13:22:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790428957;
-	bh=Ho6ODA6dlgcOvdPnhowd9GgmBiom3Zlo2XTvzY/VTW0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=gn1PEczgsD5J29kex3G7noDS0spUTsU0srsr+zO1nZZFuyKKVJFH88OWSVdctFAta
-	 v7+cMia70kZ1YiuCIVpgK+S7YUkcgPcfUscXxMIVNy2T0tNen4vpOI9UIX+1BDQbbc
-	 ePRW1SWCr2qEbUMLcslI3kLtHSdkz6HzShrhvUDCAIXM9cTBfN59vnzkvSpAY5sH1A
-	 HiO3kEDoHq52UM6A/hwkWmFG1rbuJuaaijRW4+S7BnYNa61yNGGxIUvVs8xVjcKOaU
-	 2ZsrOuBc7LttfpdBhGRS97sgpAQW2anj2l9mfgb3mnYHtFFH+/VpzMj5GLRW0f0MCb
-	 rDkMkQL9UaUiA==
-Date: Sat, 26 Sep 2026 14:22:06 +0100
-From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, 
-	"Liam R. Howlett" <liam@infradead.org>, "Vlastimil Babka (SUSE)" <vbabka@kernel.org>, 
-	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
-	"David Hildenbrand (Red Hat)" <david@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
-	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
-	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
-	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
-	"Kirill A. Shutemov" <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
-	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen" <mkp@kernel.org>, 
-	Jaya Kumar <jayalk@intworks.biz>, Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, 
-	Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, peterx <peterx@redhat.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
-	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
-	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
-	Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, Juri Lelli <juri.lelli@redhat.com>, 
-	Vincent Guittot <vincent.guittot@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	Dave Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
-	"Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>, Nicholas Piggin <npiggin@gmail.com>, 
-	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
-	Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>, 
-	Oliver Upton <oupton@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
-	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
-	Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
-	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
-	Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
-	Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
-	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
-	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
-	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
-	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>, 
-	linux-fsdevel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, 
-	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, 
-	fuse-devel@lists.linux.dev, Takashi Iwai <tiwai@suse.de>, 
-	Emil Tsalapatis <emil@etsalapatis.com>
-Subject: Re: [PATCH v3 00/40] mm: make VMA flag semantics explicit, eliminate
- VM_SPECIAL
-Message-ID: <arfGmNiEngnO3JKm@gremlin>
-References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
- <d4d7d4c2-a1d5-41d0-b1c8-8ea0cc5a0397@app.fastmail.com>
- <areSEI5pWBadkqIe@gremlin>
- <408aef6e-5b0a-482f-8ba8-f8c20ee870e5@app.fastmail.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="jeE4WsTc"
+X-Envelope-To: linux-s390@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=Jk1pfOxu5P7hTWP0WaNJ55pPrxw8o/7nlJ9L9NFZsYY=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1790430982; v=1; x=1791035782;
+ b=jeE4WsTcy24Pskiw/BwbbL7baL7nWh3w5py6LlwtqYzqCzLzZP3jqyuEg2Z8HRY2+x34jwLL
+ Jleitm1hR8los07K3crew6R0NT+yBZX80MO2j9APE6o7szGPuXTjHUu6+W15ULW4YNxoV6epp/U
+ 11VZ0nVs+1m4D2OpQfZYjNmY=
+X-Envelope-To: linux-s390@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id e6577e4ede2e14f5;
+	Sat, 26 Sep 2026 13:56:21 +0000
+X-Mizu-Trace-ID: e6577e4ede2e14f5
+X-Migadu-Flow: FLOW_OUT
+From: "Florent Revest (Anthropic)" <florent.revest@linux.dev>
+To: bpf@vger.kernel.org,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Andrii Nakryiko <andrii@kernel.org>
+Cc: "Florent Revest (Anthropic)" <florent.revest@linux.dev>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Eduard Zingerman <eddyz87@gmail.com>,
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+	Song Liu <song@kernel.org>,
+	Yonghong Song <yonghong.song@linux.dev>,
+	Jiri Olsa <jolsa@kernel.org>,
+	KP Singh <kpsingh@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Leon Hwang <leon.hwang@linux.dev>,
+	Junseo Lim <zirajs7@gmail.com>,
+	Sechang Lim <rhkrqnwk98@gmail.com>,
+	Puranjay Mohan <puranjay@kernel.org>,
+	Xu Kuohai <xukuohai@huaweicloud.com>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	Hari Bathini <hbathini@linux.ibm.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Naveen N Rao <naveen@kernel.org>,
+	=?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
+	Pu Lehui <pulehui@huawei.com>,
+	Tiezhu Yang <yangtiezhu@loongson.cn>,
+	Hengqi Chen <hengqi.chen@gmail.com>,
+	linux-kernel@vger.kernel.org,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Alexandre Ghiti <alex@ghiti.fr>,
+	Borislav Petkov <bp@alien8.de>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Emil Tsalapatis <emil@etsalapatis.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Ihor Solodrai <ihor.solodrai@linux.dev>,
+	Ingo Molnar <mingo@redhat.com>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kselftest@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	loongarch@lists.linux.dev,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Mark Rutland <mark.rutland@arm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	"Paul E. McKenney" <paulmck@kernel.org>,
+	Paul Walmsley <pjw@kernel.org>,
+	"Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	Shuah Khan <shuah@kernel.org>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	WANG Xuerui <kernel@xen0n.name>,
+	Will Deacon <will@kernel.org>,
+	x86@kernel.org
+Subject: [PATCH bpf v5 0/3] bpf: Fix use-after-free of progs detached from busy trampolines
+Date: Sat, 26 Sep 2026 13:55:57 +0000
+Message-ID: <20260926135605.1217928-1-florent.revest@linux.dev>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <408aef6e-5b0a-482f-8ba8-f8c20ee870e5@app.fastmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Sat, Sep 26, 2026 at 03:06:33PM +0200, Arnd Bergmann wrote:
-> On Sat, Sep 26, 2026, at 11:40, Lorenzo Stoakes (ARM) wrote:
-> > On Sat, Sep 26, 2026 at 12:06:22AM +0200, Arnd Bergmann wrote:
-> >>
-> >> mm/vma.c: In function '__mmap_region':
-> >> mm/vma.c:3083:1: error: the frame size of 1552 bytes is larger than 1536 bytes [-Werror=frame-larger-than=]
-> >>
-> >> I don't immediately see anything that you did that would have introduced
-> >> something bad that wasn't already there, so it's likely just gone from
-> >> just below the limit I was using for my testing to just above. The 1536
-> >> byte limit is what I use on 64-bit builds with KASAN and otherwise
-> >> still has a clean build (with a small number of local fixup patches).
-> >
-> > Hmm are you specifying this limit manually somehow?
->
-> It's a Kconfig setting upstream, but the way I'm doing it is to have
-> patch that calculates a sensible default based on other options that
-> is a little smaller than the default (currently 2048 bytes) on x86-64
-> to catch more cases where something sticks out.
+A task running in a trampoline image can call a prog that was detached
+and freed in the meantime, when it slept in a sleepable prog before
+reaching the detached one or was preempted right before calling it.
+Patch 1 handles the preempted case with an RCU tasks grace period,
+patch 2 handles the sleeping case by patching detached progs out of the
+images that still call them and patch 3 adds a selftest for the sleeping
+case.
 
-I see.
+Since v3, only the nop of the prog that is detached is patched, in every
+image that isn't freed yet, like v2 did. Progs that stay attached keep
+running for the tasks that are in old images, ip_after_call is gone and
+the call to the original function is never skipped.
 
-So this is an early warning more or less :)
+On riscv and loongarch a jump of any range takes several instructions,
+and as bpf-ci and Alexei pointed out, a task preempted in the middle of
+such a patch site could resume into half of the new sequence. v5 makes
+the skip sites a single instruction there, patched to a jal / b through
+a new arch_bpf_trampoline_skip() hook, like their jump labels. I could
+only test these two under qemu.
 
->
-> >> If I sprinkle some 'noinline_for_stack' annotations on functions
-> >> called by __mmap_region(), I can get the size down to 1144 in this
-> >> config, but that doesn't sound like a great workaround.
-> >>
-> >> The large stack usage is potentially harmful if this ends up
-> >> in call chains that have additional large stack usage (e.g.
-> >> kmalloc() leading to reclaim). Any ideas for how to reduce it here?
-> >
-> > That can never happen :) this call chain is _only_ for an mmap() call.
->
-> I mean more functions called /from/ here, something like
->
->   __mmap_region()
->   __mmap_new_vma()
->   vm_area_alloc()
->   kmem_cache_alloc(..., GFP_KERNEL)
->   slab_alloc_node()
->   allocate_slab()
->   alloc_slab_page()
->   __alloc_pages_slowpath()
->   __alloc_pages_direct_reclaim()
->   __perform_reclaim()
->   try_to_free_pages()
->   shrink_zones()
->   shrink_node()
->   lru_gen_shrink_node()
->   shrink_many()
->   shrink_one()
->   try_to_shrink_lruvec()
->   evict_folios()
->   shrink_folio_list()
->   pageout()
->   shmem_writeout()
->   swap_writeout()
->   swap_add_folio()
->   swap_write_submit()
->   nfs_swap_submit_write()
->   nfs_file_direct_write()
->   nfs_direct_extract_pages()
->   nfs_do_recoalesce()
->   __nfs_pageio_add_request()
->   nfs_pageio_doio()
->   pnfs_generic_pg_writepages()
->   pnfs_do_write()
->   pnfs_try_to_write_data()
->   filelayout_write_pagelist()
->   nfs_initiate_pgio()
->   nfs_local_doio()
->   nfs_local_do_write()
->   nfs_local_call_write()
->   ->write_iter()
->   generic_file_write_iter()
->   generic_write_sync()
->   vfs_fsync_range()
->   ->fsync()
->   xfs_file_fsync()
->   file_write_and_wait_range()
->   filemap_fdatawrite_range()
->   filemap_writeback()
->   do_writepages()
->   ->writepages()
->   xfs_vm_writepages()
->   iomap_writepages()
->   iomap_writeback_folio()
->   iomap_writeback_range()
->   ->writeback_range()
->   xfs_zoned_writeback_range()
->   iomap_add_to_ioend()
->   ->writeback_submit()
->   xfs_zoned_writeback_submit()
->   xfs_zone_alloc_and_submit()
->   xfs_submit_zoned_bio()
->   submit_bio()
->   submit_bio_noacct()
->   submit_bio_noacct_nocheck()
->   __submit_bio_noacct()
->   __submit_bio()
->   blk_mq_submit_bio()
->   blk_mq_run_dispatch_ops()
->   blk_mq_try_issue_directly()
->   blk_mq_run_hw_queue()
->   blk_mq_sched_dispatch_requests()
->   blk_mq_do_dispatch_sched()
->   __blk_mq_do_dispatch_sched()
->   blk_mq_dispatch_rq_list()
->   ->queue_rq()
->   scsi_queue_rq()
->   scsi_dispatch_cmd()
->   ->queuecommand()
->   ata_scsi_queuecmd()
->   __ata_scsi_queuecmd()
->   ata_scsi_translate()
->   ata_scsi_qc_issue()
->   ata_qc_issue()
->   qc_issue()
->   ata_sff_qc_issue()
->   ata_sff_queue_pio_task()
+Tested on x86_64 under KVM and on arm64, s390x, powerpc64le, riscv64
+and loongarch64 under qemu TCG, all with KASAN: the new selftest crashes
+the unpatched kernel and passes with the series on every one of them,
+along with trampoline_count, fentry/fexit, fentry_fexit, modify_return
+and lsm_cgroup (and the full test_progs on x86_64). On x86_64, 18
+fsession progs with cookies on an 11 argument function still fit in the
+image. Same on bpf-next, where patch 2 has trivial context conflicts in
+the x86 and arm64 JITs.
 
-Ugh delightful :)
+Changes since v4
+(https://lore.kernel.org/bpf/20260925100342.481242-1-florent.revest@linux.dev/):
+- riscv, loongarch: single instruction skip sites, patched through
+  arch_bpf_trampoline_skip(), loongarch keeps its limit of 38 (bpf-ci,
+  Alexei)
+- arm64: say in bpf_arch_text_poke() why patching out a detached prog
+  needs no synchronization (bpf-ci)
+- Comment fixes (bpf-ci)
+- Cc the arch maintainers and lists
 
->
-> There are many ways the call chain can go of course, but the actual
-> stack overflows do tend to follow this pattern where you are at a
-> function with high stack usage and call kmalloc() during low memory
-> condition and that ends up waiting for a block I/O down the line.
-> (you normally don't go through swap and nfs, I was just looking
-> for the worst case I could easily see in the code)
+Changes since v3
+(https://lore.kernel.org/bpf/20260924170543.1017048-1-florent.revest@linux.dev/):
+- Only patch the nop of the prog that is detached, in all the images
+  that aren't freed yet, like v2 did, and explain why a list of images
+  is needed (Alexei, bpf-ci)
+- Lower BPF_MAX_TRAMP_LINKS to 36 on x86, the worst case no longer fit
+  in a page with the nops (bpf-ci, Alexei)
+- selftest: wait for the detached progs to really be freed before
+  releasing the task, the grace period of patch 1 made the previous wait
+  too short (bpf-ci). Detach two progs one after the other, so that the
+  second detach has to reach an image that isn't the current one anymore
+- Keep a single comment block in bpf_tramp_image_put() (bpf-ci)
 
-You certainly found quite the example haha.
+Changes since v2
+(https://lore.kernel.org/bpf/20260912095924.866254-1-florent.revest@linux.dev/):
+- Patch all the nops in bpf_tramp_image_put() instead of the detached
+  prog's nop at detach time, drop the image list, the trampoline
+  backpointer and ip_after_call (Alexei)
+- Wait for an RCU tasks grace period before freeing progs that were
+  linked to a trampoline, for tasks preempted right before the enter
+  helper (Junseo, sashiko)
+- Initialize the jit ctx in loongarch's arch_bpf_trampoline_size() and
+  the dummy image in every arch_bpf_trampoline_size() (bpf-ci)
+- selftest: move the userfaultfd helper to testing_helpers.c and share
+  it with bpf_mod_race, comment fixes (bpf-ci), add a subtest where the
+  original function runs between the sleeping prog and the detached one
 
->
-> > In general I am absolutely taking this seriously and will find a way to
-> > reduce this, but my only question is whether this is actually something
-> > that needs to be done in this series?
-> >
-> > Because it's already huge and I would rather avoid adding yet another patch
-> > to it if possible.
-> >
-> > If I can do it as a follow-up that'd be ideal!
->
-> What I was hoping for is that as you are already deep into the
-> exact code that caused the warning and you can already see something
-> in there that may help.
->
-> I don't think it's urgent, I just don't want it to be forgotten.
+Changes since v1
+(https://lore.kernel.org/bpf/20260819122252.1782790-1-florent.revest@linux.dev/):
+- Patch nops in front of detached progs instead of taking prog
+  references from the image (Alexei)
+- Lower BPF_MAX_TRAMP_LINKS on arm64, loongarch and powerpc so the
+  image still fits in a page
+- Explain that the sleepable case doesn't depend on CONFIG_PREEMPTION
+  (Kumar, Alexei)
+- Add a selftest (Jiri, Alexei)
+- Add Sechang's Reported-by (Junseo, Kumar)
+- Drop Leon's and Kumar's acks since the code changed entirely
 
-It won't be, it's now on my TODO and I see it as a relatively high priority
-thing to follow up with.
+Florent Revest (Anthropic) (3):
+  bpf: Wait for an RCU tasks grace period before freeing trampoline
+    progs
+  bpf: Skip detached progs in trampoline images that are still in use
+  selftests/bpf: Detach a trampoline prog while a task sleeps before it
 
-Will likely send a patch for it next cycle (this is about the worst cycle I've
-seen workload-size for mm so I don't really want to send anything more this time
-around).
+ arch/arm64/net/bpf_jit_comp.c                 |  37 ++--
+ arch/loongarch/net/bpf_jit.c                  |  60 ++++--
+ arch/powerpc/net/bpf_jit_comp.c               |  45 +++--
+ arch/riscv/net/bpf_jit_comp64.c               |  56 ++++--
+ arch/s390/net/bpf_jit_comp.c                  |  46 +++--
+ arch/x86/net/bpf_jit_comp.c                   |  26 ++-
+ include/linux/bpf.h                           |  45 ++++-
+ kernel/bpf/syscall.c                          |  19 +-
+ kernel/bpf/trampoline.c                       |  85 ++++++--
+ .../selftests/bpf/prog_tests/bpf_mod_race.c   |  34 +---
+ .../bpf/prog_tests/tramp_prog_detach.c        | 188 ++++++++++++++++++
+ .../selftests/bpf/progs/tramp_prog_detach.c   |  56 ++++++
+ tools/testing/selftests/bpf/testing_helpers.c |  28 +++
+ tools/testing/selftests/bpf/testing_helpers.h |   2 +
+ 14 files changed, 572 insertions(+), 155 deletions(-)
+ create mode 100644 tools/testing/selftests/bpf/prog_tests/tramp_prog_detach.c
+ create mode 100644 tools/testing/selftests/bpf/progs/tramp_prog_detach.c
 
->
->      Arnd
 
---
-Cheers, Lorenzo
+base-commit: ab39974240a0cff765f3bb9cce81d8001ffdb144
+-- 
+2.55.0
+
