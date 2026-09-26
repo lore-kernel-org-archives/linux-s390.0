@@ -1,237 +1,167 @@
-Received: from flow-a3-smtp.messagingengine.com (flow-a3-smtp.messagingengine.com [103.168.172.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy2-f23.google.com (mail-dy2-f23.google.com [74.125.229.23])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1996A31E85B;
-	Sat, 26 Sep 2026 17:14:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01BE837475D
+	for <linux-s390@vger.kernel.org>; Sat, 26 Sep 2026 18:04:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.23
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790442891; cv=none; b=ikGqtDyotU4vLW1m0H2ZSA90ZHJD4lX/4QPHjebIl7PvkbNsltWobnO0xDyiheF4kGEEYviUQZNc0Sy9be9HZUD62SgxEM2GyMIJSCjlwL1rkYtI0myf3PkDl4SQkYERH1b7c0SofCRPFC8Ydnxc760/9pLbl1CPRwt1Y8Bd5Z4=
+	t=1790445868; cv=none; b=a3QivA+vl759bWVqbGSzQSx1APJG8JAiymjQZV7bvFooshst/ZIMtmyFA8ei9tYroj/ruKoBqtWAouNa0Y572xqswP1AzLdixPKTCr8kNliIHJHqfNpm6yAa6crBUU491RNjJo1aMfdDSkOGm2qzVTWPW086a5HBh5bK+7xPqWE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790442891; c=relaxed/simple;
-	bh=gojmdYDsD3StNnB/hDyqo1gXIHc8O8nZybk73It5oqU=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=nAA/WlIzbixDsH7/i+ccnmt0/NrHTEngYwj2+yPDdK2pqxFX41f+CdQ6dgIGCk0WoW+DK/WA/1QXux5IV93FXwqfilQbgWIHjWqi9pLE7dj/5aZrgTYV6Oh/zy3xlxursqdHeGkiOUugMQzB3Ewlbvq+0m8sgX9n5ZM3o7Zws/A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=ZVIK9Hxi; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=mwp84TFY; arc=none smtp.client-ip=103.168.172.138
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1790445868; c=relaxed/simple;
+	bh=2zVps6AYrWAiY9ULKun6/agXQ3ENzQcWHEgAv4h9mPk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZftulZv8+LeQ8ZT/FQaSK0eyW2N7v3tedYDcoqXU+rfS2fJZR9rE8oi7qHmx2b6t/GWXT/ryUhXDGTI8Q/VetH1PYOMHXJVZFgSoPKq1VONIjLbTD1/6mm3zKT4zE8d+uGoX8kYOFsC8GDSDbRKgHQiqoXDutx4MNh/4MFbLlrc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d8Hh36KQ; arc=none smtp.client-ip=74.125.229.23
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="ZVIK9Hxi";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="mwp84TFY"
-Received: from ams-compute-02.internal (ams-compute-02.internal [10.64.2.62])
-	by mailflow.phl.internal (Postfix) with ESMTP id E9CEB13800A4;
-	Sat, 26 Sep 2026 13:14:44 -0400 (EDT)
-Received: from ams-imap-03 ([10.64.2.23])
-  by ams-compute-02.internal (MEProxy); Sat, 26 Sep 2026 13:14:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1790442884;
-	 x=1790450084; bh=tGTq2YiYGuZgWk5ZY7JZMyWu45IuuL1ykMMcgPEJafg=; b=
-	ZVIK9Hxi8OmBYJD8gSQZXTgvlZ4ULwofUd3eHILARMayF90oSThQLlm5pu0l5+wO
-	EnQNPrQtmiNIZnGIwOhafr8jMDFrP3Dl7gTfjveAGlyclXfQN3BLKbYH82TnwGGE
-	LDHz+61nEQdNJ7Mm5sWNWenepLPKzpbtqHutP61oa4S7+XoKGpYriUTGoU0AgYuQ
-	9OTwRwbhibVgycEtR2pOCeqTs4FUfvkkls84aK/T+ibf6XDH5w7vKSNIGM7Ns4Te
-	135M6wCurb5eGsyT4wJmj9eSmNADUwntt12lTP3+ewZFA5Y2rk4HTFGRVv8Gm5J4
-	FYdUPsr/YYOVOuEmK403CA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1790442884; x=
-	1790450084; bh=tGTq2YiYGuZgWk5ZY7JZMyWu45IuuL1ykMMcgPEJafg=; b=m
-	wp84TFYHlBmHy48WpU0OJv+UejeKBnb6WEhb5BMBbjPw/UCY7uqA+43EKIRDaLxu
-	G1ME4E65zZTTM83OGQxFYEaX8IjFcTplRfJNXnDCcf7M4LwptgYoomz5Pd8yjegu
-	vxxY9CLa8ktV+zIhtoRoAiwaeH8imBZgq5qItAjTqRNlGb0cSk9vAwm0npDwQJxc
-	ZBSOWP/LIH26Up0NfHDTJ2s5vjKd+KXmqqu3dQNyzUjNXLWwkQPUdw7wFwNq/2No
-	YsWwT9G3+rtA9dRodWihaGIftDwTqZDbktrxc69FY4uf2b4Ufj3bOnrmH4U90eCu
-	jkII0jgJplt+Ho3eCclLA==
-X-ME-Sender: <xms:ev23aphDb-V-DzcUvq0g2j4uWxVUXz288eL2VWYqofNWUqazGf5cSw>
-    <xme:ev23ao0ryaKlcNAnhIKgzAZfizI5zRmS9PD6pqUF6Jaoul6FnnmXFYB6KvX02iUGz
-    BZmE3RTt53azeiOlRWmgUZqFjlCoYZMFa8ew0yOEJBlTMonzQebK2g>
-X-ME-Proxy-Cause: dmFkZTFhx2cFFtNhkULYuqPvl8gGeJkM2fhMBUUfWVg74H8MxuoOHs6J8LEQB/SWwobSXF
-    cN3Bm393pJVl8n+wel7ooQQNi4RqB/GFQKqP4KFWek4N9ELRDdYFOjuVinSGdMSTiVarKs
-    4rOSnFGMqI3VdSxqJCmbjwz8JsjadS6g8WVg1FSsOASQL9qnvW06scsM7DdiXuQXSRvbp0
-    oc1rMfdDSdXjZDuQ4Flc3WgW80v1q7p36oNIX1c572OX8QvM44FF244YDOCuvYk1zcB+Fz
-    OcU5GlcEjMBRQT8ozzGGB17lMhu1hmoOmo2ETYbYqG7qYCuz/Gp8fIl3AA5CvGes553OYH
-    zOP0t/bzfIhWaCPZjluKxSSoXuDxxjcXX/Q8DMMxmDbQWJ9Fr5WThqDq2FLaU+SqnaJuCL
-    pkYbhniVBzMm7pvuYCl/qtichaoaEjJr59rIk6FGTSg9hy5MSJhlHhPKI2TiyHW60MEHdl
-    JWno9EOAuEBSzEKX+LMbGzYracPdYAHxU3uanBYFvpgh22w5H+sisOsx1bppU4jaCs1GSb
-    qD7s7IdOD1fMrVJxaXNIjxEhMdeQ0eT9oEzd23eeqQJ6pu7bYb2KG7Sxf3YtlsvQWzwwTb
-    DVHLWbQk3RKB8mG01KIcI+VKbYDfnxSRmys1tgvRg1CtY/krP0JQij7af/2Q
-X-ME-Proxy: <xmx:f_23asArcTC-7Q3MDdhePBo8lXV8z6QvAKpe9Ibzmll_nWXelxFyFw>
-    <xmx:f_23aqWfoDFHKQGVk2R1--3tsFeyYyFnrcejyjSEGK5MWrduS9Wguw>
-    <xmx:f_23am5ly-0659jMdrdtd-Lr7Biq-i6-UFjxRj9juHeAU_T69iDw6A>
-    <xmx:f_23amDnrd_P6v0UUP--vOzaHh9I4PDmquAxe_V0QS1vx9j31Ee7Dg>
-    <xmx:hP23akAE2wZVF6psZ3xKJ1lvcUYpihdEVBPR2JzpRxVK20H4-2HGjT2V>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.ams.internal (Postfix, from userid 501)
-	id 7CCAA32A0087; Sat, 26 Sep 2026 13:14:34 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d8Hh36KQ"
+Received: by mail-dy2-f23.google.com with SMTP id 5a478bee46e88-32be7127c64so209975eec.2
+        for <linux-s390@vger.kernel.org>; Sat, 26 Sep 2026 11:04:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790445866; x=1791050666; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=kHluweKfZpb/IlLJvDMNI0ICAGK++39Oi731e5BjCgQ=;
+        b=d8Hh36KQIM5dQiSiSt6ZWvxwv8bA82YxwChJoHWpHhk1MMcNidnumefY9Tt9FYIkiz
+         wv7hCOsCLVWTU8o+AOwXTDPREsqCnqYHtL7fbKesEK420mvTZyUxD9uQw5ZVBxuxPgg0
+         I/FJhFI/GOFbqXL8funJbX2ZYlzhSsfaBuPVc4tbDnaYdIsgN7qGnQg0wxKqPHiyXWln
+         MSjT3NMkYYZ8jXH64oULms2hm2ffeOoGk0fQZxCUvIPrEv5ZhZ71GkJQNuOxpMN4e2do
+         hTd5yeo/XUvU5LnR3NppccxuB/+OBIuS1BOvjM4oYJrmJWZGXCFs/WHs5WWsC+DAnZQy
+         Qlpw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790445866; x=1791050666;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=kHluweKfZpb/IlLJvDMNI0ICAGK++39Oi731e5BjCgQ=;
+        b=jEpO91Z2BEqRYVAXtZZWc6FdIOAu6iutjZp+gmWbJc59aCorIRX80oGO47P9y+G9er
+         JdSWyV6sITuLohygnwrWCTIdLE0o6vXlVGGjO5zmjRRlys968789nL7mVnDxkO4WkPpR
+         ZASv5DTHIeBcs5fX6qVJgezKTJdXIrxeoa5B1S9zI8aRMRpNzYfLYd5szJGY3TlvWAdl
+         rExViY/s+kM+fmMBXSx1YmlmUI+N0UXkdp7NOjh6pQ25TOaRI4Mpy7q3W36cvU1M+nXW
+         o7xlcyYYX8TGLJ8SOnGsgnvjdci0g5mk2HWh8uV4DsJiCx8vi9aZSm9bCAhFg5sVMv+i
+         wutA==
+X-Forwarded-Encrypted: i=1; AKwUvBzUDEdapgDm+24E3fqmhK6IuIq9Ug/ro/mDhTAIUMadAGa0tvLZVQS71ccSg4xUMj9GDShaUAvhoQD4@vger.kernel.org
+X-Gm-Message-State: AFq9FYINFTJL9oEpLUJ4iQANGALZQqrs2bKTxVOmAtKNiGBfn4kOKWaw
+	W6xr/J0DRj5Zyb0YElHegxp8fc0yTBOGCzF/zz+WO4HL3gh+Nb80SUUH
+X-Gm-Gg: AYBFou0PYUq7frbc4RS8lzfcw8BoZRuqV6bW+biRtamMPrsrHKxC1eSUcqRalGrYqo6
+	m4hjnchMBllaPW9zPpa84+vxrzwsbXfcTYl7BpIQkT0MYwWwXPA2if7H7GKBaw0Z4PUcbeO9qyJ
+	s4kmDyrTmstioFqQbx+kP3uG88qINEI0RsXUHp+2EXDFycmR4URUG2Qnc26O2QHU33TAu72keQC
+	wTiAzXKz1/bOGFClG6Wxt+G8fO35ptL+CVBpxPscAHoNxcrzH6T5RbZCh4KJXtZpCkTwuS8Q0dJ
+	+QZUYe9181UUTD3tG0XHCbbcqpn0BT8EA7iLLk+/DGbBQrIVAA68NrSPn8JgiVySyufNrPC5Jzk
+	xfkNNAikSC7KhzeFcnpVVT9la3oSxNxJjwEwfnrGpZQPF28CTges9thdr2SbNxulyUNzuBiUUeQ
+	L11RO/ZGU0XN7bQfqteD6VPcSAel6qM3uZl+TZrnMd2WSpWSWPN2BUNhbzMcj/oZxNci+ZffteY
+	hMyz72D4cG15Yrmpr/LWGsKoANWec6bxA7zrBqBlnTvdpe2A/EzAgujPOhTHRVRR2Wdrw==
+X-Received: by 2002:a05:7301:b0e:b0:33f:3750:4e22 with SMTP id 5a478bee46e88-3426cce6521mr5523221eec.0.1790445865269;
+        Sat, 26 Sep 2026 11:04:25 -0700 (PDT)
+Received: from localhost.localdomain (95.169.12.199.16clouds.com. [95.169.12.199])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-341463ec3ecsm16542044eec.31.2026.09.26.11.04.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 26 Sep 2026 11:04:24 -0700 (PDT)
+From: Chengfeng Ye <nicoyip.dev@gmail.com>
+To: "D. Wythe" <alibuda@linux.alibaba.com>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Ursula Braun <ubraun@linux.ibm.com>
+Cc: linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Chengfeng Ye <nicoyip.dev@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH net] net/smc: protect clcsock lifetime in smc_getname
+Date: Sun, 27 Sep 2026 02:04:04 +0800
+Message-ID: <20260926180404.2721010-1-nicoyip.dev@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: AJwEWD5WPnhk
-Date: Sat, 26 Sep 2026 19:14:14 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Lorenzo Stoakes" <ljs@kernel.org>
-Cc: "Andrew Morton" <akpm@linux-foundation.org>,
- "Liam R. Howlett" <liam@infradead.org>,
- "Vlastimil Babka (SUSE)" <vbabka@kernel.org>,
- "Jann Horn" <jannh@google.com>, "Pedro Falcato" <pfalcato@suse.de>,
- "David Hildenbrand (Red Hat)" <david@kernel.org>,
- "Mike Rapoport" <rppt@kernel.org>,
- "Suren Baghdasaryan" <surenb@google.com>,
- "Michal Hocko" <mhocko@suse.com>, "Jonathan Corbet" <corbet@lwn.net>,
- "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
- "Dennis Dalessandro" <dennis.dalessandro@cornelisnetworks.com>,
- "Jason Gunthorpe" <jgg@ziepe.ca>, "Leon Romanovsky" <leon@kernel.org>,
- "Paul Moore" <paul@paul-moore.com>,
- "Stephen Smalley" <stephen.smalley.work@gmail.com>,
- "Jaroslav Kysela" <perex@perex.cz>, "Takashi Iwai" <tiwai@suse.com>,
- "Alexei Starovoitov" <ast@kernel.org>,
- "Daniel Borkmann" <daniel@iogearbox.net>,
- "Andrii Nakryiko" <andrii@kernel.org>,
- "Eduard Zingerman" <eddyz87@gmail.com>,
- "Kumar Kartikeya Dwivedi" <memxor@gmail.com>, "Zi Yan" <ziy@nvidia.com>,
- "Baolin Wang" <baolin.wang@linux.alibaba.com>,
- "Nico Pache" <nico.pache@linux.dev>,
- "Ryan Roberts" <ryan.roberts@arm.com>, "Dev Jain" <dev.jain@arm.com>,
- "Barry Song" <baohua@kernel.org>, "Lance Yang" <lance.yang@linux.dev>,
- "Usama Arif" <usama.arif@linux.dev>,
- "Kirill A. Shutemov" <kas@kernel.org>,
- "Doug Gilbert" <dgilbert@interlog.com>,
- "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
- "Martin K. Petersen" <mkp@kernel.org>,
- "Jaya Kumar" <jayalk@intworks.biz>, "Simona Vetter" <simona@ffwll.ch>,
- "Helge Deller" <deller@gmx.de>, "Sebastian Reichel" <sre@kernel.org>,
- "John Hubbard" <jhubbard@nvidia.com>, peterx <peterx@redhat.com>,
- "Masami Hiramatsu" <mhiramat@kernel.org>,
- "Oleg Nesterov" <oleg@redhat.com>,
- "Peter Zijlstra" <peterz@infradead.org>,
- "Thomas Gleixner" <tglx@kernel.org>, "Ingo Molnar" <mingo@redhat.com>,
- "Borislav Petkov" <bp@alien8.de>,
- "Dave Hansen" <dave.hansen@linux.intel.com>, x86@kernel.org,
- "Arnaldo Carvalho de Melo" <acme@kernel.org>,
- "Namhyung Kim" <namhyung@kernel.org>,
- "Mark Rutland" <mark.rutland@arm.com>, "Rik van Riel" <riel@surriel.com>,
- "Harry Yoo" <harry@kernel.org>, "Juri Lelli" <juri.lelli@redhat.com>,
- "Vincent Guittot" <vincent.guittot@linaro.org>,
- "Maarten Lankhorst" <maarten.lankhorst@linux.intel.com>,
- "Maxime Ripard" <mripard@kernel.org>,
- "Thomas Zimmermann" <tzimmermann@suse.de>,
- "Dave Airlie" <airlied@gmail.com>, "Will Deacon" <will@kernel.org>,
- "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
- "Nicholas Piggin" <npiggin@gmail.com>,
- "Muchun Song" <muchun.song@linux.dev>,
- "Oscar Salvador" <osalvador@suse.de>,
- "Matthew Wilcox" <willy@infradead.org>, "Jan Kara" <jack@suse.cz>,
- "Marc Zyngier" <maz@kernel.org>, "Oliver Upton" <oupton@kernel.org>,
- "Catalin Marinas" <catalin.marinas@arm.com>,
- "Madhavan Srinivasan" <maddy@linux.ibm.com>,
- "Anup Patel" <anup@brainfault.org>, "Paul Walmsley" <pjw@kernel.org>,
- "Palmer Dabbelt" <palmer@dabbelt.com>,
- "Albert Ou" <aou@eecs.berkeley.edu>,
- "Christian Borntraeger" <borntraeger@linux.ibm.com>,
- "Janosch Frank" <frankja@linux.ibm.com>,
- "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>,
- "Gerald Schaefer" <gerald.schaefer@linux.ibm.com>,
- "Heiko Carstens" <hca@linux.ibm.com>,
- "Vasily Gorbik" <gor@linux.ibm.com>,
- "David S . Miller" <davem@davemloft.net>,
- "Andreas Larsson" <andreas@gaisler.com>,
- "Alexander Viro" <viro@zeniv.linux.org.uk>,
- "Christian Brauner" <brauner@kernel.org>,
- "Matthew Brost" <matthew.brost@intel.com>,
- "Joshua Hahn" <joshua.hahnjy@gmail.com>, "Rakie Kim" <rakie.kim@sk.com>,
- "Byungchul Park" <byungchul@sk.com>, "Gregory Price" <gourry@gourry.net>,
- "Ying Huang" <ying.huang@linux.alibaba.com>,
- "Alistair Popple" <apopple@nvidia.com>, "Chris Li" <chrisl@kernel.org>,
- "Kairui Song" <kasong@tencent.com>,
- "Kemeng Shi" <shikemeng@huaweicloud.com>,
- "Nhat Pham" <nphamcs@gmail.com>, "Baoquan He" <baoquan.he@linux.dev>,
- "Youngjun Park" <youngjun.park@lge.com>,
- "Johannes Weiner" <hannes@cmpxchg.org>, "Qi Zheng" <qi.zheng@linux.dev>,
- "Shakeel Butt" <shakeel.butt@linux.dev>,
- "Axel Rasmussen" <axelrasmussen@google.com>,
- "Yuanchu Xie" <yuanchu@google.com>, "Wei Xu" <weixugc@google.com>,
- "Chengming Zhou" <chengming.zhou@linux.dev>,
- "Michal Hocko" <mhocko@kernel.org>, "Miklos Szeredi" <miklos@szeredi.hu>,
- "Xu Xin" <xu.xin@linux.dev>, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-usb@vger.kernel.org, linux-rdma@vger.kernel.org,
- selinux@vger.kernel.org, linux-sound@vger.kernel.org,
- bpf@vger.kernel.org, linux-scsi@vger.kernel.org,
- linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
- linux-trace-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- Linux-Arch <linux-arch@vger.kernel.org>, linux-fsdevel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
- kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
- fuse-devel@lists.linux.dev, "Takashi Iwai" <tiwai@suse.de>,
- "Emil Tsalapatis" <emil@etsalapatis.com>
-Message-Id: <4a3a089c-3ade-494d-8f83-f9cb710e9ad1@app.fastmail.com>
-In-Reply-To: <arfGmNiEngnO3JKm@gremlin>
-References: 
- <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
- <d4d7d4c2-a1d5-41d0-b1c8-8ea0cc5a0397@app.fastmail.com>
- <areSEI5pWBadkqIe@gremlin>
- <408aef6e-5b0a-482f-8ba8-f8c20ee870e5@app.fastmail.com>
- <arfGmNiEngnO3JKm@gremlin>
-Subject: Re: [PATCH v3 00/40] mm: make VMA flag semantics explicit, eliminate
- VM_SPECIAL
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Sat, Sep 26, 2026, at 15:22, Lorenzo Stoakes (ARM) wrote:
-> On Sat, Sep 26, 2026 at 03:06:33PM +0200, Arnd Bergmann wrote:
->>
->> It's a Kconfig setting upstream, but the way I'm doing it is to have
->> patch that calculates a sensible default based on other options that
->> is a little smaller than the default (currently 2048 bytes) on x86-64
->> to catch more cases where something sticks out.
->
-> So this is an early warning more or less :)
+smc_getname() dereferences smc->clcsock without holding
+clcsock_release_lock. Link-group termination can release the CLC socket
+through smc_close_active_abort() while the SMC socket is still open,
+for example after shutdown(SHUT_WR).
 
-Yes, a surprising number of these just point to stupid mistakes
-where the developer had no they were adding a large object to
-the stack. This instance here is unfortunately not an obvious
-case.
+A getsockname() caller can load smc->clcsock, then the termination worker
+can clear the pointer and call sock_release() before the caller accesses
+clcsock->ops or invokes getname(). This causes a use-after-free; if the
+worker clears the pointer before the load, it causes a NULL dereference.
+The syscall's file reference keeps the SMC socket alive but does not
+prevent asynchronous release of its CLC socket.
 
->> There are many ways the call chain can go of course, but the actual
->> stack overflows do tend to follow this pattern where you are at a
->> function with high stack usage and call kmalloc() during low memory
->> condition and that ends up waiting for a block I/O down the line.
->> (you normally don't go through swap and nfs, I was just looking
->> for the worst case I could easily see in the code)
->
-> You certainly found quite the example haha.
+KASAN reported:
 
-I have previously toyed around with using VMALLOC_STACK on a reduced
-stack size and syzcaller, so I knew roughly where the worst offenders
-lie, but the list was from looking through the code just today.
+  BUG: KASAN: slab-use-after-free in smc_getname+0x19e/0x1b0
+  Read of size 8 at addr ffff888109abb4e0 by task poc/103
+  Call Trace:
+   smc_getname+0x19e/0x1b0
+   do_getsockname+0xe5/0x170
+   __sys_getsockname+0x8c/0x100
 
->> > If I can do it as a follow-up that'd be ideal!
->>
->> What I was hoping for is that as you are already deep into the
->> exact code that caused the warning and you can already see something
->> in there that may help.
->>
->> I don't think it's urgent, I just don't want it to be forgotten.
->
-> It won't be, it's now on my TODO and I see it as a relatively high priority
-> thing to follow up with.
->
-> Will likely send a patch for it next cycle (this is about the worst cycle I've
-> seen workload-size for mm so I don't really want to send anything more this time
-> around).
+  Allocated by task 95:
+   sock_alloc_inode+0x1e/0x280
+   sock_alloc+0x3d/0x240
+   __sock_create+0x7e/0x430
+   smc_create+0x121/0x240
 
-Sounds good, I'll keep the local hack to mark functions as noinline for the
-moment then. Thanks,
+  Freed by task 0:
+   kmem_cache_free+0xcc/0x340
+   rcu_core+0x50a/0x1850
 
-      Arnd
+  Last potentially related work creation:
+   evict+0x446/0x6c0
+   smc_clcsock_release+0xa8/0xd0
+   smc_close_active_abort+0x26a/0x3a0
+   __smc_lgr_terminate.part.0+0x137/0x2e0
+
+Hold clcsock_release_lock across the pointer check and the getname()
+callback, as the socket option handlers already do. Return -EBADF if
+the CLC socket has already been released, preserving the existing peer
+state check and the callback's return value otherwise.
+
+Fixes: b03faa1fafc8 ("net/smc: postpone release of clcsock")
+Cc: stable@vger.kernel.org
+Signed-off-by: Chengfeng Ye <nicoyip.dev@gmail.com>
+---
+ net/smc/af_smc.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index e9f93b3ab435..8b3ee70f8433 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -2784,6 +2784,7 @@ int smc_getname(struct socket *sock, struct sockaddr *addr,
+ 		int peer)
+ {
+ 	struct smc_sock *smc;
++	int rc = -EBADF;
+ 
+ 	if (peer && (sock->sk->sk_state != SMC_ACTIVE) &&
+ 	    (sock->sk->sk_state != SMC_APPCLOSEWAIT1))
+@@ -2791,7 +2792,11 @@ int smc_getname(struct socket *sock, struct sockaddr *addr,
+ 
+ 	smc = smc_sk(sock->sk);
+ 
+-	return smc->clcsock->ops->getname(smc->clcsock, addr, peer);
++	mutex_lock(&smc->clcsock_release_lock);
++	if (smc->clcsock)
++		rc = smc->clcsock->ops->getname(smc->clcsock, addr, peer);
++	mutex_unlock(&smc->clcsock_release_lock);
++	return rc;
+ }
+ 
+ int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+-- 
+2.43.0
+
