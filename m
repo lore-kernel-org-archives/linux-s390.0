@@ -1,152 +1,157 @@
-Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
+Received: from mail-dy2-f43.google.com (mail-dy2-f43.google.com [74.125.229.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C9A33563F6
-	for <linux-s390@vger.kernel.org>; Sun, 27 Sep 2026 07:02:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8A633BC680
+	for <linux-s390@vger.kernel.org>; Sun, 27 Sep 2026 07:32:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790492551; cv=none; b=soMteg5tOxHfyuHNkx4byCzWUiC3D+FYaWHqoCT/1wqljqaO+Z72eaYV5r8NQi10p11HvGERnENWUfeEY65+sfvdDmYE1RwYnWrSdyoHZjFgAb4qQeYb2vqH5iqMBkaWGiFa6kghk3TivSS2PKpSI9P/DT18dt93tRc3TtiLeWM=
+	t=1790494337; cv=none; b=s5t86QN7uoGjmQTSnDg/i4GYAQIeDiGZ//sjz6COfNIyTmixa+xmHNEGbCWi8cTtAWbG3YnYV2pB7vxdEYur7jcyU7F1qNBdL+JSnnzO6CXA3HZg0DJQQxVufiG4Ge3M+6sbgJ0qwjgxtBYewqAlUC4wOGLzCbL1Hdtd751R8hs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790492551; c=relaxed/simple;
-	bh=EZBGaGu7g268yBeLa/NPbPJzutiCHGfKPegWoTP0nS0=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=BFppAxpwezyQdSjLSv5vbSN9C+Pll1dLcDNwAi1tmLljzgMwFgn+Rrhr0Na00kyteTRX7r76vaZxfjDhk0rqGyPv4AWzHNQHvkthY8tzn5dI6GhhWWBneL+PHfz0YKBvyrNuPmBdf/LdEXSDhk2CxjLcPKMOCK3LyerPyO5EjcA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fhhbGWcS; arc=none smtp.client-ip=74.125.225.140
+	s=arc-20240116; t=1790494337; c=relaxed/simple;
+	bh=nY8qGs46zgeEK17RWUhh5D/oORqRp0Zwjy2eAU1BJVY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nOVrNM1/toRfQngHiuQGrV3fupEVNoUjR9B9aXkK04mZ7rWMDKr7dqNWfoQya30wU/xIc+3xgzeIiMwE6fIo26VOF4Z/AAg3Ge5I5pKl18jRIlaP/d48BlMQbFF6V+xjionOYsJEk2TVXyL9xTqdGffg9PbRVUKSQtY2mQWEXo8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AHv66hE+; arc=none smtp.client-ip=74.125.229.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fhhbGWcS"
-Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49ffed768deso2810335e9.1
-        for <linux-s390@vger.kernel.org>; Sun, 27 Sep 2026 00:02:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AHv66hE+"
+Received: by mail-dy2-f43.google.com with SMTP id 5a478bee46e88-340f45daf45so204627eec.3
+        for <linux-s390@vger.kernel.org>; Sun, 27 Sep 2026 00:32:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790492548; x=1791097348; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=RJKp/brBpZ8U6kwJIcmM4FiZnVhsdc/GYabd2hj9ep0=;
-        b=fhhbGWcSs98KWNIPjQAwwy2Yzwiu5DdepGYGIryjir0puqjg/9ax8hBsUb14n4wWBn
-         8/MqsllnNi5kpq79icgdS4NmoAWnuLTQpDPY9Zs7HYADGy2VjYEdHzkMYQu8dWggLjJq
-         9swI1XBLBjnEVsGoMV5b3e4jtkhvmTswyFxQLcoDEddYigQ6xn8YXWDj5xGSyU87Fn/j
-         GyeNGdi56lUom7g/riLoAaddFOVw2U7u+q7SXU2tn4dm5gsALpXWfnOUbhjh1282tE/P
-         WVgPhbVvuHe/LsVhRDPywC8+lBvqoMD7t6xh0CkWhIo0amWuUHNnV2m2KpNAliIvZHaA
-         0NMQ==
+        d=gmail.com; s=20251104; t=1790494332; x=1791099132; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=gCHlGAQUPQqUwMiZODOWYGN6xif3TdPxiD76nVrz+oA=;
+        b=AHv66hE+453a1o7CCAhJdKZZzPPjIciAqAg0DNN9j5vvISW63i8NiBAdyleUetCeF0
+         EWN0bO5YGoTsQlT+cWBlPqy1J4qcxIL9ClgcpRRL6k/uowZ72xM/Q7MYg90ZYbX74A2t
+         pJWKQ6/+1ZKnbQMQNzRpnprnEfzGvN4F3hLNQHUJW0+l5/Ua/PbDDy1JqPdOx/A6t7V9
+         xYeb5wKsNzcrGjdTShWBNirv0AMsR8oqjKpKa6xyG7rvg+GyEB/VWKru4nIJK53QP4yG
+         fkRE1JUSqpcyUXgNNL0JMAKBlqm9qirduMLe/x5i7NszncNakSLS6ucuejuz474lZliu
+         As4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790492548; x=1791097348;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=RJKp/brBpZ8U6kwJIcmM4FiZnVhsdc/GYabd2hj9ep0=;
-        b=th4nNpACtDsYPiV944MYT8F1nmKS2YdM9agzDeQ99SjdryeHVoQwoO32SC+unVVDtK
-         JtWb4dk+pHAYfEwdiSwWtcgPi4p9TsPJCK68Qgnid7e7Tqp6vSBLvjqCVenSwppPBqYB
-         gjUS0HawU64S3wITCs0TWpKRHbkrCktLbDJxSlSMgpBr+wqb6D4KSB5YkfRim1+RZZWc
-         vVrIXmZ/iBxrP+WsyfDnezCzYybyAygdSzTHMWhuMQW3xVteCKV+CkqK4BDT5rkpSDpG
-         KUZf+09b+VRGMaMgyukjjGUyFLW+lfBLs8kppccyfpB93tRMFiV0RiG/9gu8dY9y12QH
-         cnUA==
-X-Forwarded-Encrypted: i=1; AKwUvBz1w1EU8aIzQIRANjg382NxD3fhsVqE795UTTy3KTL/d8Dob/IIFyEAz7Axzr7m4YSTFUuNkRb2Ysvx@vger.kernel.org
-X-Gm-Message-State: AFuF++mNkp82XsimxHapQwiqs+r1bD8Qm4b5nuT7WticC6COiiFd3C03
-	/hgpSBNQnnpfh/9g7DZawWNtpEgzpBVEq82A3t5XaoGSeM6WPStK5IrI
-X-Gm-Gg: AYBFou25NLj/etCgZY9+XTwp7uY/eh8cl+A6YiyK5+7R8pcHYDxpnZVZLKlvj/xOdxW
-	mr9I73+RwByfIjTKtiankTe8Y5EYkZY1ppPL3Jad1GOKPrHEvA2UU8DlDyIpNNd5frWZTfra4Lq
-	sVpn896v+ksFfnDYzhYwWi7lH1sHdY4ahGN5fUEztErNRY3srCAsWTkzpDXmsCqldyP5iXRPgBV
-	CRI7aBdiFwwH7QIxhvcBkujeGdtMPv8/IH2P8BKNXpXbzZlQwPOB4ej8iWU54nrHVdozjIXnKok
-	S+U6M4IdyHTfC+CNfVl8mnosDhxefZ3UBanlnbSHQCBBna0rziULnWX1nI/v34nKBqNfm6hKcxS
-	MOZ4gc2U583+ImrpOa5tyrBkkP8p/RvggCzhvGmOhGciLvYKzmwWmJZYXb5Pz1tXjXhzTU2kxcS
-	A3xeofjz9xLZv5pkIT9L5oxbOO1vM/9LY+OyShpHV8UUik+VGYhO972Q1xxy73V6elWKOi/pvkz
-	P2WgZcA9lPrJ0ZF5pq+XK7E80X9tsx858N3
-X-Received: by 2002:a05:600c:1f83:b0:49b:8f5e:51fb with SMTP id 5b1f17b1804b1-49fe66c8087mr175447355e9.3.1790492548064;
-        Sun, 27 Sep 2026 00:02:28 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a0018f0e79sm57015315e9.7.2026.09.27.00.02.26
+        d=1e100.net; s=20260707; t=1790494332; x=1791099132;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=gCHlGAQUPQqUwMiZODOWYGN6xif3TdPxiD76nVrz+oA=;
+        b=jOptIJ0Ke/tt52KbCn1XG1vfSNCLHWsNurii6JG/uaNQ52aW1I9jy778NkO1rzkf77
+         So9tuCIJ/lsrFc7iaqPHnFzQNB1cAZ7N6v6A9yTiwgb0sPoqeFmhIxyI/ljYtMXMAq7r
+         kJEFmvCO93JX3B47FNP3Z+ykJglw37i43BOn9w8XBoCDaSYZWQzSeqpdtIwWQV07Gefo
+         CApNGvhfWF9hPrR9jknsZfGOHDZdyFigfCnz7cs7bA+vKX8BOO39vlcPt08rcnSidngQ
+         c13yy5E75dHFRXaqwSPtFJkOFss2QsCCHYI/UfI5Oxo6GIK4qldqucyB5O6eDrc7xuF0
+         56AQ==
+X-Forwarded-Encrypted: i=1; AKwUvByVqTpYLzGWppak0GgUrWDtWoHbeAySiNFkr5zogesfYTJtVZNM22aEo8Wf18XbK7y0WidJ1NQm6oOL@vger.kernel.org
+X-Gm-Message-State: AFq9FYKzSVGE+mWzkgCfzA/JMCS13Ep/ZI4KF3sCvxq8M80KQbP8w51Z
+	HyeBKBiPslArKdlZuIcqNnBXiuhMYo2tsPP3zoN1L3UHiICcE6zFbPgV
+X-Gm-Gg: AYBFou2O8itEEuhQaO52/9DmHy4XNuh/aMEopCrSMQFawzF6lVGTrzJlIXZQp02w42V
+	KJuVNzc3ZvVa7LZir82JG4OoHxGyXuN0c/fL8lsfMFLqTumC+TyKAKWa410jooOyK1+HNp88kWm
+	TeJaltFzRdDO0B4Gns9fk1JFhn/TKgmDMk0Vekv+eMCc++v59rEJgrZFiym/Dh5G7HzIq3Timcm
+	27Ndui7UlFuHLSCWmNAqVAGB8UkK0FqpISV+7u67JvrgEr5kBXCieuOywW2etm0C7Md4OOZvCzC
+	L0tvkuaAic0enaccjcdXzH2ivf+olk+1Q6638ab7ezJ2KMBaG2JtSgLyVwE54ZNzjHyI4Vr58uM
+	DZ0F3HzlS1lJmMbsK1H9NVVqBYN2IczLFmHFjG+4hPfgamgQrVygcRmz5S78VhBMPqrVZ/OUyIu
+	T2Hcp9M490Hj//3Bojc8dhEX9OeRKbEqgTi9Hn+mA/E4cec2x2dMBmLWhNsVOMO5pK/DJyLEt8g
+	+2gsZpIELygzDFiP11nPXCqgbFtcHYhO81U2laUWqct+YxWNh7o/Jk/Pg8zDqOwboK0ug==
+X-Received: by 2002:a05:7301:b0e:b0:33f:3750:4e22 with SMTP id 5a478bee46e88-3426cce6521mr7959749eec.0.1790494331059;
+        Sun, 27 Sep 2026 00:32:11 -0700 (PDT)
+Received: from localhost.localdomain (95.169.12.199.16clouds.com. [95.169.12.199])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3433628f5basm10705821eec.18.2026.09.27.00.32.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Sep 2026 00:02:27 -0700 (PDT)
-Date: Sun, 27 Sep 2026 08:02:25 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc: Nathan Chancellor <nathan@kernel.org>, Andreas Schwab
- <schwab@linux-m68k.org>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner
- <tglx@kernel.org>, Theodore Ts'o <tytso@mit.edu>, Vincenzo Frascino
- <vincenzo.frascino@arm.com>, Nick Desaulniers <ndesaulniers@google.com>,
- Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Mark Rutland <mark.rutland@arm.com>, Huacai Chen <chenhuacai@kernel.org>,
- WANG Xuerui <kernel@xen0n.name>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Paul Walmsley
- <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou
- <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Ingo
- Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
- <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
- x86@kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, llvm@lists.linux.dev
-Subject: Re: [PATCH v2] random: vDSO: Avoid call to memset() when zeroing
- reserved in __cvdso_getrandom_data()
-Message-ID: <20260927080225.37534e7c@pumpkin>
-In-Reply-To: <are7cfMIHZZn6jLz@zx2c4.com>
-References: <20260925-vdso-getrandom-avoid-memset-llvm-24-v2-1-ce640f872393@kernel.org>
-	<87zex4ic68.fsf@linux-m68k.org>
-	<20260926121927.GA1486962@ax162>
-	<are7cfMIHZZn6jLz@zx2c4.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+        Sun, 27 Sep 2026 00:32:10 -0700 (PDT)
+From: Chengfeng Ye <nicoyip.dev@gmail.com>
+To: "D. Wythe" <alibuda@linux.alibaba.com>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Wenjia Zhang <wenjia@linux.ibm.com>
+Cc: linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Chengfeng Ye <nicoyip.dev@gmail.com>,
+	stable@vger.kernel.org
+Subject: [PATCH net] net/smc: serialize sndbuf descriptor release with diagnostic dumps
+Date: Sun, 27 Sep 2026 15:32:03 +0800
+Message-ID: <20260927073203.3694279-1-nicoyip.dev@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Sat, 26 Sep 2026 14:32:49 +0200
-"Jason A. Donenfeld" <Jason@zx2c4.com> wrote:
+An SMC-D connection can remain in the socket hash while smc_conn_kill()
+tears it down. For devices supporting DMB nocopy, smcd_buf_detach() frees
+the send buffer descriptor without taking the hash lock held by the
+diagnostic reader.
 
-> On Sat, Sep 26, 2026 at 01:19:27PM +0100, Nathan Chancellor wrote:
-> > On Sat, Sep 26, 2026 at 11:39:43AM +0200, Andreas Schwab wrote:  
-> > > On Sep 25 2026, Nathan Chancellor wrote:
-> > >   
-> > > > +#if __has_builtin(__builtin_memset_inline)
-> > > > +#define memset_inline(dst, value, size) __builtin_memset_inline(dst, value, size)
-> > > > +#elif IS_ENABLED(CONFIG_CC_HAS_OPT_INLINE_MEMSET)
-> > > > +#define memset_inline(dst, value, size) __builtin_memset(dst, value, size)
-> > > > +#else
-> > > > +static inline void *memset_inline(void *dst, int value, size_t size)
-> > > > +{
-> > > > +	char *d = dst;
-> > > > +
-> > > > +	while (size--)
-> > > > +		*d++ = value;
-> > > > +
-> > > > +	return d;
-> > > > +}
-> > > > +#endif
-> > > > +  
-> > > 
-> > > memset actually returns the original pointer, not the incremented one.
-> > > Nothing uses the return value of memset_inline here, but it is
-> > > confusing.  
-> > 
-> > Whoops, good catch, I guess my fingers gave up on those last two
-> > characters :) I will fix this for v3 once there has been some time for
-> > further review.  
-> 
-> Do we even need to return a value at all? Might as well just make the
-> function two lines:
-> 
-> +       for (char *d = dst; size--;)
-> +               *d++ = value;
+__smc_diag_dump() can load a non-NULL conn->sndbuf_desc, then a concurrent
+smc_conn_kill() can clear the pointer and free the descriptor before the
+dump reads its len field. The socket lock held by the teardown path does
+not exclude the dump, and clearing the pointer before freeing it does
+not protect a reader that has already loaded it.
 
-Wouldn't it be better to add a barrier() or similar in there to
-stop the compiler playing unwanted games>
+KASAN reported:
 
-David
+  BUG: KASAN: slab-use-after-free in __smc_diag_dump.constprop.0+0x2477/0x2b10
+  Call Trace:
+   __smc_diag_dump.constprop.0+0x2477/0x2b10
+   smc_diag_dump_proto+0x266/0x390
+   smc_diag_dump+0x20/0x70
+   netlink_dump+0x489/0x1140
+  Allocated by task 70:
+   smcd_buf_attach+0x11b/0x310
+   smc_listen_work+0x2a62/0x4cf0
+  Freed by task 98:
+   kfree+0x131/0x3c0
+   smcd_buf_detach+0x120/0x280
+   smc_conn_kill+0x487/0x720
+   __smc_lgr_terminate.part.0+0x231/0x430
+   smc_smcd_terminate_all+0x2cf/0x610
 
-> 
-> (Technically that could even be one, but maybe that sort of golf loses
-> clarity. Your choice.)
-> 
+Take the hash write lock when removing the descriptor from the
+connection. This waits for dumps holding the old pointer and prevents
+new dumps from seeing it. Free the descriptor after dropping the lock.
+
+Fixes: ae2be35cbed2 ("net/smc: {at|de}tach sndbuf to peer DMB if supported")
+Cc: stable@vger.kernel.org
+Signed-off-by: Chengfeng Ye <nicoyip.dev@gmail.com>
+---
+ net/smc/smc_core.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 9974149659c2..f32fc1bd5bc8 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1207,6 +1207,8 @@ static void smcr_buf_unuse(struct smc_buf_desc *buf_desc, bool is_rmb,
+ 
+ static void smcd_buf_detach(struct smc_connection *conn)
+ {
++	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
++	struct smc_hashinfo *h = smc->sk.sk_prot->h.smc_hash;
+ 	struct smcd_dev *smcd = conn->lgr->smcd;
+ 	u64 peer_token = conn->peer_token;
+ 	struct smc_buf_desc *buf_desc;
+@@ -1216,8 +1218,10 @@ static void smcd_buf_detach(struct smc_connection *conn)
+ 
+ 	smc_ism_detach_dmb(smcd, peer_token);
+ 
++	write_lock_bh(&h->lock);
+ 	buf_desc = conn->sndbuf_desc;
+ 	conn->sndbuf_desc = NULL;
++	write_unlock_bh(&h->lock);
+ 	kfree(buf_desc);
+ }
+ 
+-- 
+2.43.0
 
