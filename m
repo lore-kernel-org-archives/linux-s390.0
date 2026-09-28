@@ -1,60 +1,61 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AECCE33EB01;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8505342CB3;
 	Mon, 28 Sep 2026 13:07:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790600860; cv=none; b=DmzEFk3FGe36omACoaIIohHeyXLuinxw2I7A2XUpFp76vuSYTt97PSGTaYQO0q6J+DGe9qeCiWRXu7V1REaplFhy5EoO/ny0X112si+//KilaYME/f3svBS25dJpp+ZK7Ofy9zNaiw7caP04xmvSimnTGw93X7Yzssro62sDH74=
+	t=1790600860; cv=none; b=hgYuWCPzLyATzP18jDlvXr+t7zRaKeIEOlVtvLSw059Ns+C7Kc3/F6bq+dECfqJEltmGK/jPOpXIgRRqFwd0Az8QYn3ursQR8EgN2waJaJpiw0p7t85F+ME8BlC+TBif+nFgSywWx9SfeDZSsG0wmAV3tqY19cSsVBKOWkKPQ9c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1790600860; c=relaxed/simple;
-	bh=HyX/iDcSsA8Wpj5ALg1rKINrt1MNK2L/+DHmyHOdmao=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=cZfGslOWsESR6DREo8QVhwWpOje8CEfkAiy7p6QfVAq5zhEio5pGqdF5avsPUZSPQzZQUkjGEW7Y5B140K+VUL6w2eMilJm7B9UyMZ1/K6KQ5Ayh/EYnWBFW1DMJ7msQlv+puAvTc4MyTF5fSLYSrJi+ahsiw9RjtjbpQZrTgLM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Ot3qaigB; arc=none smtp.client-ip=148.163.158.5
+	bh=eNSLBM68o3uL7AE1H1rfme5raxdSsyCkCnns2hVYH8Y=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=Qwg2EdyyyMi74sa6tfc21RoKYtC8Ggye60yu6shWMfVYymJf0vMPFTNY+kXW6VNeInF1GqyFb4v6VEqmHQDEX2NnZokXM0Xjt5c3Ct2JJmRMU6NqpYyNksWkNg8jZ31cOfOZTVoEePP2sIuwkrihfKi20VV+RPzsWOW/v1LXSQo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DiEu8g/s; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Ot3qaigB"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68SBZa7g823791;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DiEu8g/s"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68SBZWPb1047068;
 	Mon, 28 Sep 2026 13:07:20 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pp1; bh=Aw/YH6AU7HaYEn5EoggLYb/lvqaG
-	yVKu2hAw2/tbfQo=; b=Ot3qaigBPc/KzRTsgwHFuVzvVTMhwR1KYapzgqJs9tMV
-	VqRVQuS9s9y80Q4RwoAm6kWxSPS3X4TgmYJab1OWPnpEA1qGvSXmwLFtwjI2+Jyi
-	+VFkdpd4DWcNTXFnHIsmAzMwIffFb17z6Svqlw/YqcPFs0ASRuKvX974rWqphax8
-	Ewla9L6pK1uj6Oha019wXTabhr1QEBfWigLWDYPTe41Yckx2YdCja0xxsy1hFqBs
-	mmXCrm9k28YvkRZNm6dXQXn6/+POBHGbD9Bdfc9JgPjQezvwR6RYCc4sN+ZTP0Ch
-	DeGqEgx3kpEk1EGifUOaoGjSHMIfVn1rGte4wRZ1hg==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx3fk1bwr-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=RIkmhq
+	GyevWqPgH8Mh3BVT1nbCwPHPnA2qGuYY/811w=; b=DiEu8g/sfQr8E/h2Kjwsfn
+	zpOwzOcu9SZ5ULrS/v3PSnLm5DS9VhntI0R1M9BzQwmlgzl0QlzaJvo4WqBVNDV5
+	M/VlAFJpWYgSKNIZUSJhH0JSCaLvS//PiyELkXoKWh8GFygwKoxPpgSbcf8NTjen
+	LAYSUvfn1qGaYm432hXxPyIYfCLmQ8ha5VTUgbqEjweNtBdDBPHBgCky4wsUojDR
+	3UYRRU3EK1t6LeEm3+iXQUW2X5rMmAwPePPCi2p9dXtXSvBD1NqQ83pantM2CsCf
+	lIwyi1FdO/ZyAYtgL/rthnjsBBoL0dd8uzxDWjXyxwmguFq4Xq11eIjymbpth2Qg
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5j51g55-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
 	Mon, 28 Sep 2026 13:07:19 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68SBHX1S069402;
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68SBHZl22943266;
 	Mon, 28 Sep 2026 13:07:18 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gxrcpnfj4-1
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gxtkg54h3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Mon, 28 Sep 2026 13:07:18 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68SD7EwA42991880
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68SD7FeS47710690
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 28 Sep 2026 13:07:14 GMT
+	Mon, 28 Sep 2026 13:07:15 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A8C3C20049;
-	Mon, 28 Sep 2026 13:07:14 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 0146D20040;
+	Mon, 28 Sep 2026 13:07:15 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5A70E20040;
+	by IMSVA (Postfix) with ESMTP id AC88A2004B;
 	Mon, 28 Sep 2026 13:07:14 +0000 (GMT)
 Received: from [127.0.1.1] (unknown [9.87.85.9])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
 	Mon, 28 Sep 2026 13:07:14 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
-Subject: [PATCH v4 0/6] KVM/vfio: Use file-based reference counting for KVM
-Date: Mon, 28 Sep 2026 15:07:01 +0200
-Message-Id: <20260928-vfio-v4-0-e32e226d5932@linux.ibm.com>
+Date: Mon, 28 Sep 2026 15:07:02 +0200
+Subject: [PATCH v4 1/6] KVM: Introduce file_to_kvm_<arch>() infrastructure
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -63,11 +64,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/23MSwrCMBSF4a1Ixqbk1UccuQ9xkKSJvWAbSTRUS
- vduWgpKcXgu9/snFG0AG9HpMKFgE0TwQx7ieECmU8PNYmjzRoywijSU4eTAYydJJdtG6VKUKL8
- +gnUwrpnLNe8O4tOH91pNdLnuAoliikvjLNHUKWHr8x2G11iA7gvje7REEvtCSfgGWYbWCdMKK
- on6D/kPZGKDHBMsFJOCk7qWtd7DeZ4/joV+uQ4BAAA=
-X-Change-ID: 20260812-vfio-f9069d8ab545
+Message-Id: <20260928-vfio-v4-1-e32e226d5932@linux.ibm.com>
+References: <20260928-vfio-v4-0-e32e226d5932@linux.ibm.com>
+In-Reply-To: <20260928-vfio-v4-0-e32e226d5932@linux.ibm.com>
 To: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
@@ -88,126 +87,137 @@ To: Christian Borntraeger <borntraeger@linux.ibm.com>,
         Holger Dengler <dengler@linux.ibm.com>,
         Alex Williamson <alex@shazbot.org>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Steffen Eiden <seiden@linux.ibm.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>
+        linux-kernel@vger.kernel.org, Steffen Eiden <seiden@linux.ibm.com>
 X-Mailer: b4 0.14.3
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: LNxxJbZtYmWFKo4GoBDrAfeJeK0MT7P_
-X-Proofpoint-GUID: cYVvOHNPT2RWuWRvvsjgPAc656ALrldR
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI4MDA1MiBTYWx0ZWRfX5HluGe6um9T2
- AEbMgnnRkTNeS2g87P9g2pTQuaVdpRcAKHevNnCbj//1m8cJOQWSQLxZqA3Ey5tVYt2LnQgxidx
- vTNQB39vvoqB0soCEf35kOCuzj0oXyk=
-X-Authority-Analysis: v=2.4 cv=Vv62kO2n c=1 sm=1 tr=0 ts=6aba6688 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI4MDA1MiBTYWx0ZWRfX3xygYv3utvLU
+ W6HH+z72xFzPlQe9icG4lXMNxyXvY+EJmLP2kANmx7prwqubREtLoZ14stH4g0jmkY6zLfqKRk5
+ ZV6UPLzSAGhXNQOlMgeaWTzpah33bPA=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI4MDA1MiBTYWx0ZWRfXzsaaO3ywd6sY
+ wpF/zX5MhIDZ3w8YisulpVkyY48mOg/8iiFovRag4+PbH8UqJLpZac1w3KACBYJ3veDhV1L0KUI
+ JJkA5ltC+q8npjDFfpygKCiwTRSV+nOWfI/a7N2nCyDK4Ry3ajZ+57P/acURgDHK5SgcYG47wU0
+ tw8Bdao8ukEhVLvwlWDeq2RWsIN/MaLem5ntTbYKIcY1SZAHc+qLNUi2WreSivD59kJujJUCylo
+ BKcOjZwCDKJDnJJOajeAh308BwOk/SJVnaD2v7YAI3yVpjY+gKXEoRgh7X3QKn47aVLWWQujbP+
+ axiXRtWWU/GYRxKcUGBr92mNUAlqeBhmzSXp0r2BFQAyHuzDIWQe07f6zKUlGbTDCbvexueivOu
+ TKB+DGEnZOAoAtnhUV/33pqkTIkiP3k3b+mWgtcbViDEHzTlc/cRG2hMVb09fUmqK6cV4v3pbAF
+ uJJwF3vahSmWfWCbygA==
+X-Proofpoint-GUID: gP1owWNOuqAP5COjtLtA6Ye1zgTseCS6
+X-Authority-Analysis: v=2.4 cv=RKcmjIi+ c=1 sm=1 tr=0 ts=6aba6688 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=1mAWvp4K8iewrBkhS6QA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI4MDA1MiBTYWx0ZWRfX00tdB8a4eRP6
- PoN15hbkNBowVicpXF8MMrJz147zdiNdlsqn3MUNiibMImLZBFUru0vr7Xdcd/p4gRRcc37pNMq
- RArXDLOyicx6FScV9Xfg6C0Qir4rkaC5o9p9XbspRMd4rPEpbRHfX4g+Pv+q9eR/tGoXZeIAbM2
- K2rb5EyiUFx/LgocDOfIH8vAmIzNv2y3by/aRRHVhXQzFJ9PX6hS6mmYJUqDBzGbnNUbgxAQ+sw
- MBtX5IwDsVITcqn1RorvBH+ID7/SKX/PLxtlEu77FOPgriOHlL/5VaCypjOl+bgMayJfXpOQAlF
- 1tz3Z1sYQ4oeRld1erIsq4aROr6MhIY/H1dQMCVhvk0KY9y+xrwqJLEMnXUYEho4guCciQLfALz
- mGq1pjmNKsU+h8WS/ORPnjnXEJZem7Xt5g9HJuBDmFFwV6h5/GaHfRYsK2Fg60qpBtvLpStOdJ5
- wNwm45UXld5co16VcfQ==
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=1XWaLZrsAAAA:8
+ a=VnNF1IyMAAAA:8 a=AxOYn98-_IzFSfPWV6cA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: 2uZsZ8qMYX_yORY1Yj74wTQmPGYmZmsz
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-28_03,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 spamscore=0 phishscore=0 bulkscore=0 adultscore=0
- priorityscore=1501 malwarescore=0 clxscore=1015 lowpriorityscore=0
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609280052
+ clxscore=1015 priorityscore=1501 spamscore=0 bulkscore=0 impostorscore=0
+ adultscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609280052
 
-This series switches the KVM-VFIO interface and external consumers over to
-standard file-based reference counting, eliminating all external KVM symbol
-exports.
+Add a macro mechanism that generates an opt-in and arch-namespaced
+file_to_kvm_<arch>() to convert a file reference to a kvm object if the
+file handle represents a kvm handle.
 
-This is a spin-off for the arm on s390 series (old version: [1]) to
-address all the relevant persons w/o polluting their mailbox. The
-arm-on-s390 series now dropped those patches and depends on this series
-(for beeing able to link with KVM=y)
+Activate for x86 and for s390 (native KVM only).
 
-Currently, VFIO integrates with KVM by looking up kvm_get_kvm_safe() and
-kvm_put_kvm() dynamically using symbol_get(), manually tracking module
-reference counts and storing a put_kvm function pointer in struct
-vfio_device.
-
-In the ARM64-on-s390 architecture, a second concurrent KVM module
-(kvm-arm64) is introduced alongside native KVM to host hardware-accelerated
-ARM64 guests. Having exported global symbols (like kvm_get_kvm/kvm_put_kvm)
-creates symbol conflicts and prevents clean coexistence of two KVM modules.
-
-Additionally, the file based counting simplifies the code and reuses
-the existing fs refcounting.
-
-Instead of passing raw KVM pointers and managing module symbols manually, the
-interface now passes the underlying VM file descriptor throughout VFIO and
-associated architecture subsystems. To safely extract the KVM instance from a
-file, an architecture-namespaced helper mechanism is introduced that verifies
-the file belongs to the expected KVM implementation before accessing its
-internal state. A back-pointer from the KVM instance to its associated file is
-maintained across its lifecycle so subsystems can safely acquire file
-references on demand. Finally, with VFIO, architecture page tracking, and
-device hooks converted to use file references, the remaining KVM reference-
-counting exports are restricted strictly to internal KVM modules.
-
-	Steffen
-
-[1] https://lore.kernel.org/all/20260918133107.1042730-1-seiden@linux.ibm.com
-
+Suggested-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
-Changes in v4:
-- Add patch to remove now unused file_is_kvm()
-- Add Jasons r-b
-- Link to v3: https://lore.kernel.org/r/20260924-vfio-v3-0-4a294307797b@linux.ibm.com
-
-Changes in v3:
-- Split the previous single monolithic patch into 5 smaller, focused patches:
-  1. Add opt-in macro infrastructure for `file_to_kvm_<arch>()` helpers.
-  2. Add `kvm->file` back-pointer to `struct kvm`.
-  3. Use `file_to_kvm_x86()` helper in AMD SEV.
-  4. Convert VFIO, s390 vfio-ap/zpci, and x86 page-track to file-based refcounting.
-  5. Restrict `kvm_get_kvm`/`kvm_put_kvm` to `EXPORT_SYMBOL_FOR_KVM_INTERNAL`.
-- Introduce macro-generated, typed `file_to_kvm_<arch>()` helpers instead of generic casts.
-- Clean up `vfio_pci_zdev.c` by passing `struct file *` through `zpci_kvm_hook.kvm_register`.
-- Update x86 page-track and s390 AP/PCI to use `file_to_kvm_<arch>()`.
-- Update x86 Makefile export checks.
-- Link to v2: https://lore.kernel.org/r/20260903-vfio-v2-1-ef4cd4190ae7@linux.ibm.com
-
-Changes in v2:
-- Rebase on 7.3-rc1+ and resolve conflict with 9f240376d034 ("s390/pci: Store
-  PCI error information for passthrough devices"),
-- Fix stub prototype for vfio_group_set_kvm for !CONFIG_VFIO_GROUP
-- Link to v1:   https://lore.kernel.org/r/20260812-vfio-v1-1-5cfe0b1fa4e7@linux.ibm.com
-
----
-Steffen Eiden (6):
-      KVM: Introduce file_to_kvm_<arch>() infrastructure
-      KVM: Add file back-pointer to struct kvm
-      KVM: x86: Use file_to_kvm_x86() in SEV
-      KVM/vfio: Use file-based reference counting for KVM
-      KVM: Restrict kvm_get_kvm/kvm_put_kvm export to internal KVM modules
-      KVM: Remove unused file_is_kvm
-
- arch/s390/include/asm/kvm_host_s390.h |  4 ++-
- arch/s390/kvm/s390/pci.c              |  9 ++++--
+ arch/s390/include/asm/kvm_host_s390.h |  2 ++
  arch/x86/include/asm/kvm_host.h       |  2 ++
- arch/x86/include/asm/kvm_page_track.h | 10 +++---
- arch/x86/kvm/Makefile                 |  4 +--
- arch/x86/kvm/mmu/page_track.c         | 22 +++++++++-----
- arch/x86/kvm/svm/sev.c                |  8 ++---
- drivers/s390/crypto/vfio_ap_ops.c     | 20 ++++++++----
- drivers/vfio/group.c                  | 11 ++++++-
- drivers/vfio/vfio.h                   | 12 ++++----
- drivers/vfio/vfio_main.c              | 57 +++++++++++------------------------
- include/linux/kvm_host.h              | 19 +++++++++++-
- include/linux/vfio.h                  |  5 ++-
- virt/kvm/kvm_main.c                   | 21 +++++++++----
- virt/kvm/vfio.c                       | 13 +++++---
- 15 files changed, 129 insertions(+), 88 deletions(-)
+ arch/x86/kvm/Makefile                 |  1 +
+ include/linux/kvm_host.h              | 12 ++++++++++++
+ virt/kvm/kvm_main.c                   | 11 +++++++++++
+ 5 files changed, 28 insertions(+)
 
-base-commit: 72d3fcf802c45d00b300f25b848a93c3a2bd7c7e
+diff --git a/arch/s390/include/asm/kvm_host_s390.h b/arch/s390/include/asm/kvm_host_s390.h
+index cd692f8fb764..8a7eed5847e1 100644
+--- a/arch/s390/include/asm/kvm_host_s390.h
++++ b/arch/s390/include/asm/kvm_host_s390.h
+@@ -27,6 +27,8 @@
+ #include <asm/isc.h>
+ #include <asm/guarded_storage.h>
+ 
++#define kvm_file_to_kvm_arch s390
++
+ #define KVM_HAVE_MMU_RWLOCK
+ #define KVM_MAX_VCPUS 255
+ 
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 683bb8bf43a9..e460073ff176 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -44,6 +44,8 @@
+ 
+ #include <hyperv/hvhdk.h>
+ 
++#define kvm_file_to_kvm_arch x86
++
+ #define __KVM_HAVE_ARCH_VCPU_DEBUGFS
+ 
+ /*
+diff --git a/arch/x86/kvm/Makefile b/arch/x86/kvm/Makefile
+index 0474604ab8a1..e6d395ede9e2 100644
+--- a/arch/x86/kvm/Makefile
++++ b/arch/x86/kvm/Makefile
+@@ -61,6 +61,7 @@ exports_grep_trailer := --include='*.[ch]' -nrw $(srctree)/virt/kvm $(srctree)/a
+ 				-e kvm_page_track_unregister_notifier \
+ 				-e kvm_write_track_add_gfn \
+ 				-e kvm_write_track_remove_gfn \
++				-e kvm_file_to_kvm_fn \
+ 				-e kvm_get_kvm \
+ 				-e kvm_get_kvm_safe \
+ 				-e kvm_put_kvm
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index cf7fe835c4ad..bc3abfde8393 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -1082,6 +1082,18 @@ void kvm_get_kvm(struct kvm *kvm);
+ bool kvm_get_kvm_safe(struct kvm *kvm);
+ void kvm_put_kvm(struct kvm *kvm);
+ bool file_is_kvm(struct file *file);
++
++/*
++ * Architectures define kvm_file_to_kvm_arch to <arch>
++ * to get a typed, arch-namespaced helper:
++ *
++ *   struct kvm *file_to_kvm_<arch>(struct file *file)
++ */
++#ifdef kvm_file_to_kvm_arch
++#define kvm_file_to_kvm_fn CONCATENATE(file_to_kvm_, kvm_file_to_kvm_arch)
++struct kvm *kvm_file_to_kvm_fn(struct file *file);
++#endif /* kvm_file_to_kvm_arch */
++
+ void kvm_put_kvm_no_destroy(struct kvm *kvm);
+ 
+ static inline struct kvm_memslots *__kvm_memslots(struct kvm *kvm, int as_id)
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 85f42289748d..07fc874a38e1 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -5519,6 +5519,17 @@ bool file_is_kvm(struct file *file)
+ }
+ EXPORT_SYMBOL_FOR_KVM_INTERNAL(file_is_kvm);
+ 
++#ifdef kvm_file_to_kvm_arch
++struct kvm *kvm_file_to_kvm_fn(struct file *file)
++{
++	if (!file || file->f_op != &kvm_vm_fops)
++		return NULL;
++
++	return file->private_data;
++}
++EXPORT_SYMBOL_GPL(kvm_file_to_kvm_fn);
++#endif
++
+ static int kvm_dev_ioctl_create_vm(unsigned long type)
+ {
+ 	char fdname[ITOA_MAX_LEN + 1];
+
+-- 
+2.53.0
 
