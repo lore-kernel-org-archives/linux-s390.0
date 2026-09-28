@@ -1,81 +1,178 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id BCCBC4E36CF;
-	Mon, 28 Sep 2026 15:11:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA49149DB89;
+	Mon, 28 Sep 2026 15:14:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790608294; cv=none; b=uUG9fGwlQhf/Aa/U+/JDOM6Ob0Tb+jzRW1aFd0JIq3q6FKBh8GHtJ05ykC1797xBkO5nXYVWFsjzS+TADRX/CKsH/QoXudInvqfjncy8vWxv+HetYwcCpQx7lF+W60yEXsOpkj+cuu7k+b2Qq/5bubOA2PP7yOPO8bqqOUJFRNE=
+	t=1790608474; cv=none; b=DLqPp02440qVSzLUTOm1AKsw4DFGru7uHQ5OGiKTD2MbJkgjB6eD3pfRKCmTuM/Z+e1bMwezJ0hbl0BpdFLlhRUPuNOdbwnRENQPzkJNjdRNSQTva2KqWnQr5sIhjyguJoVdZWcpIE8MkUK5v8+bas/0BEWlCoxkGVmi6v9D9Xo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790608294; c=relaxed/simple;
-	bh=Hc6ZuvaXlauagEGx+TDoCIpa+OmpCGHn1bAN2lvRNK0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ovnyFUsa7+sN8cKpnFqOiyImwXhYb8zGCEGlCyTU328yRbrGhv7yxdIbng1FbAto4D35z+/dIuTpMGDUAj8wze2WtO8CVNbBMHTOa2dP4C5ss+4ciJCvtnulTWlJm09fbXIfI8CnKuGiU4kW4m3WzVl6BfrcJw1nPZnaat8L1LE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=Q/rdgTRw; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	s=arc-20240116; t=1790608474; c=relaxed/simple;
+	bh=hb2cf8q8p9CanWzj9wu3j+yifOA3ZuTQCLGzXZv6/Ds=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gBCq10qiqO+hWGmpjkWaGfdKTmMOjHepzIHcNJM2gyF9dH9vr6MTRJO/Oiu+FSWu0U2V+L/10GUq2N4dBNSSZt6kto1ReUTWiXKOjrcPcMyCvNPtZdyTCz0KgE0XSLKpyr9MKW8fdRg8D3nCrVjzNxsNkSJszgoFEXAfoRBdJBw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=L/P4q+mG; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="Q/rdgTRw"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5FF571758;
-	Mon, 28 Sep 2026 08:11:28 -0700 (PDT)
-Received: from arm.com (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id AADD03F763;
-	Mon, 28 Sep 2026 08:11:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1790608291; bh=Hc6ZuvaXlauagEGx+TDoCIpa+OmpCGHn1bAN2lvRNK0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Q/rdgTRw0IwSGfaXeojr45nvCaK8teKmg2S6xpipCML0NkCzlkKSs1gFhpwfzSluc
-	 DBb73c42I6LDgDbqy9l2zkhq0f8wdYDcqsp/Qe2+FU3nu9Eyhmx9PLKz6SnqQoNjbf
-	 waSikuiYa0PdFkLkD6u5zq/WbdEOeOhKgHxI1tgo=
-Date: Mon, 28 Sep 2026 16:11:23 +0100
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Grapentin <gra@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@kernel.org>,
-	Friedrich Welter <fritz@linux.ibm.com>,
-	Fuad Tabba <tabba@google.com>, Gautam Gala <ggala@linux.ibm.com>,
-	Hariharan Mari <hari55@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Hendrik Brueckner <brueckner@linux.ibm.com>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Joey Gouly <joey.gouly@arm.com>, Marc Zyngier <maz@kernel.org>,
-	Nico Boehr <nrb@linux.ibm.com>,
-	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-	Oliver Upton <oupton@kernel.org>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
-	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v8 15/29] arm64: Prepare sharing arm64 headers with s390
-Message-ID: <arqDm9EGd7-rqvWp@arm.com>
-References: <20260918133107.1042730-1-seiden@linux.ibm.com>
- <20260918133107.1042730-16-seiden@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="L/P4q+mG"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68SF5McC1460345;
+	Mon, 28 Sep 2026 15:14:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=sGfRxYoCiAtwA40VVXyn+8HtYoVkam6i2B6+it2F1
+	Xs=; b=L/P4q+mGZHiX9HULZ6QlwjXKXVwV7s0IL2ZWcuLf7NRvo84Awyp77oDCk
+	foCpUZrevY2siu6j4XJQ1r8an2keZCPlCwa+CKfkiSh3D9G6eqEqJf22hiaPEa7W
+	keAMhFuMbynr8nrQ8Yz0OwMKPtjU3WqU5xaM4RbVigT6uKzkKhiQnUPZzg/NKVjf
+	8KUPVhi3vRr5HYAsDdP2d0uFKdFzqlBEGULT8tJrRaJay9oanQ5IR0Sql+MEPLhn
+	AKk7ytRMKb+Kodhuv8Ilk/+F3fE8snM9kRAE2jZwHaURxMpJFIFDZopTXOyW9jps
+	ES7R5pgYaytnB4KfyqhtsJhwAGXWw==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5s527yk-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 28 Sep 2026 15:14:25 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68SElhgt291043;
+	Mon, 28 Sep 2026 15:14:24 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gxu2y5jgk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 28 Sep 2026 15:14:24 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68SFEKwQ46596468
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 28 Sep 2026 15:14:20 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 92E7C2004B;
+	Mon, 28 Sep 2026 15:14:20 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5C66920043;
+	Mon, 28 Sep 2026 15:14:20 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Mon, 28 Sep 2026 15:14:20 +0000 (GMT)
+Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 55271)
+	id 3D243162099; Mon, 28 Sep 2026 17:14:20 +0200 (CEST)
+From: Alexandra Winter <wintera@linux.ibm.com>
+To: Aswin Karuvally <aswin@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>,
+        David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@google.com>,
+        Andrew Lunn <andrew+netdev@lunn.ch>
+Cc: Julian Ruess <julianr@linux.ibm.com>, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Simon Horman <horms@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH net v2] s390/ism: Zerorize dmb at allocation
+Date: Mon, 28 Sep 2026 17:14:20 +0200
+Message-ID: <20260928151420.383105-1-wintera@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260918133107.1042730-16-seiden@linux.ibm.com>
+Content-Transfer-Encoding: quoted-printable
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI4MDA2MCBTYWx0ZWRfX7eKgsfCG4sg9
+ j+PH2aWuzOwcNAjYhi/oaaQJKM98Py8CaFaIkApAFquaFILJVDpFvfAxDZHtFgfQsooyu7hyzz2
+ efxy8tmvDsA6IXCSpbLG0JVTz1ZgM9s=
+X-Authority-Analysis: v=2.4 cv=HJ5WhYtv c=1 sm=1 tr=0 ts=6aba8451 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=BBuY1RymvebusuJm9ysA:9
+X-Proofpoint-GUID: dMcZZTSGqRxXwav2cgXaw-z_zQg77ZzF
+X-Proofpoint-ORIG-GUID: 3-oriRVOGmAk0BGZMGK3SCxQigrXtEEv
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI4MDA2MCBTYWx0ZWRfX8h/T0kHsv3ax
+ Nixg32TQBwZBNN4mG1kEOQ0C2G4pgjHNKCT9k6x6iFj0HDl/fe91UXHVqA/EuKQVkysXl1Xr/Ll
+ ztRdeCcEO0234eUt06Yz54d4y2SHSqw+3N6Skwweu9Nl37gRiM0fitNpugKpA7CM2/WfOE4QS+e
+ paRcBlhZQu/QmRt/c1r46mzwiMz+Xs1gucF6l45xBz8I4WMI3hpnqg5Qtm4KThckvmNfc3Tdnah
+ J94GtbETatdrwH/8hg81NQ8q5ed+bfiB0csZmHnM5iduykMwn6HLEvE5jlHKaRzzrVdNhqjDIFT
+ 8sYmmfvCnffHYXFI9K2kZYsjdGp4gyJ0PAQXP+uM9TXUM2J/mB+GbnhTpcLqD2sToz0IRR2+PrG
+ /Z6vab0Lzo4+B1HC3hiPReiOVnQeTwGtUnRHNEhXsE01/MeL4gO1gm2a0WAusg+UR6mk7riqPEY
+ h24S4d96CQH14lfUJew==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-28_04,2026-09-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 suspectscore=0 bulkscore=0 clxscore=1015 lowpriorityscore=0
+ spamscore=0 impostorscore=0 phishscore=0 priorityscore=1501 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609280060
 
-On Fri, Sep 18, 2026 at 03:30:52PM +0200, Steffen Eiden wrote:
-> Prepare the sharing of arm64 headers with s390 by moving definitions
-> inside headers to reduce the number of shared markers. Clean up includes
-> to further streamline the sharing of headers.
-> 
-> No functional change.
-> 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+Sashiko reported [1] that 'Missing __GFP_ZERO in folio_alloc() causes
+uninitialized kernel memory to be exposed in the receive message buffer'.
+An ism dmb is receive-only, so the data is not leaked to a remote peer. I=
+n
+general the smc kernel module (dibs client) will only push newly received
+data to userspace. We still should not have uninitialized data in a recei=
+ve
+buffer.
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Since
+commit 750afb08ca71 ("cross-tree: phase out dma_zalloc_coherent()")
+dma_alloc_coherent no longer required the __GFP_ZERO flag, but when
+commit 83781384a96b ("s390/ism: Properly fix receive message buffer alloc=
+ation")
+switched to folio_alloc(), it should have added back the __GFP_ZERO flag.
+
+Add __GFP_ZERO flag and state in dibs.h that register_dbm() provides
+a zerorized buffer (dibs_lo already does).
+
+Link: https://lore.kernel.org/linux-s390/20260903143746.A5CC41F00A3A@smtp=
+.kernel.org/ [1]
+Fixes: 83781384a96b ("s390/ism: Properly fix receive message buffer alloc=
+ation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Reviewed-by: Julian Ruess <julianr@linux.ibm.com>
+---
+v1->v2: CC Stable
+---
+ drivers/s390/net/ism_drv.c | 3 ++-
+ include/linux/dibs.h       | 6 +++---
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index 035b233abb4e..405abd99c820 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -256,7 +256,8 @@ static int ism_alloc_dmb(struct ism_dev *ism, struct =
+dibs_dmb *dmb)
+ 		return -EINVAL;
+=20
+ 	folio =3D folio_alloc(GFP_KERNEL | __GFP_NOWARN | __GFP_NOMEMALLOC |
+-			    __GFP_NORETRY, get_order(dmb->dmb_len));
++			    __GFP_NORETRY | __GFP_ZERO,
++			    get_order(dmb->dmb_len));
+=20
+ 	if (!folio) {
+ 		rc =3D -ENOMEM;
+diff --git a/include/linux/dibs.h b/include/linux/dibs.h
+index d3e0777f25ae..0c10c224bcca 100644
+--- a/include/linux/dibs.h
++++ b/include/linux/dibs.h
+@@ -261,12 +261,12 @@ struct dibs_dev_ops {
+ 	 *	@vlan_id: deprecated, ignored if device does not support vlan
+ 	 * Upon return in addition the following fields will be valid:
+ 	 *	@dmb_tok: for usage by remote and local devices and clients
+-	 *	@cpu_addr: allocated buffer
++	 *	@cpu_addr: allocated, zerorized buffer
+ 	 *	@idx: dmb index, unique per dibs device
+ 	 *	@dma_addr: to be used by device driver,if applicable
+ 	 *
+-	 * Allocate a dmb buffer and register it with this device and for this
+-	 * client.
++	 * Allocate and zerorize a dmb buffer and register it with this device
++	 * and for this client.
+ 	 * Return: zero on success
+ 	 */
+ 	int (*register_dmb)(struct dibs_dev *dev, struct dibs_dmb *dmb,
+--=20
+2.53.0
+
