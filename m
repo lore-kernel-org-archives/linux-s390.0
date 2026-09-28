@@ -1,62 +1,67 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E944528B4E2;
-	Mon, 28 Sep 2026 12:45:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E87C2302163;
+	Mon, 28 Sep 2026 12:48:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790599533; cv=none; b=Cq5LCA6zxlTmwZzIglNljsexLq3kuM2cYjJ3Rr8DTUSdsJdH7tmi4c3iF16Mhm48EGoTHVir1nVFiUYLhQK++iWiIRdffdEYSPWtrmVPFNq5x7Uk0j3vpa7m341rLqcUPv6QHyuuRTdOOGTW1xV6rn946t3IOgkOcOVRRnrHE1c=
+	t=1790599696; cv=none; b=ZeS32pZrGBJeL8ZAs5MNQBeu7FoxZGwv5GsNWd/4BhB+5CIwcHeJ7Q6jF5VqKQE+oQJ8tQ1+clwZTbRWUUVm0477QQJ2XZNnG7PeBGnh94WY6LiXnm//7/D1Zp6chVy3K9RfeFs4hm1UAlvk1cYsjTKgUg6wVd2WtGTSufzGU5Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790599533; c=relaxed/simple;
-	bh=HAuCRw7y8pU7eUeYF2NtJHcyv/3i8GpDCmwe9gSknIU=;
+	s=arc-20240116; t=1790599696; c=relaxed/simple;
+	bh=9sLw+SAyI1vjoG6NKu06z0dP7M+J+d5pSygE/Gc98k0=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=ovffMSMOgR8XBdxM8Fji/7fG/9sYuldiB3YhHvaXazSyLPiovimPLeA1vWf/9IXQ2Bq3+sWc3oREH5tyN+6pzEvezN82rNFTMMoqy5YsnodBrIWh8n6hglOWdpVLJ6estfKWxK/z3cE55X0hidX9IdrFgMDZoA8AhESXHUVVLrE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=APEDECLk; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=NA5ZBqjx5gm3pSgpuj+Ew/IJ6/J9VXEQbL0FHV7JK154mTq0nHBW+liMo+2VxSUj2OFy3WV2BCKQ2NYh4+89q0V+lfONFSKrb4BberTTyUoHEdXb1OVaps4Fp5EOMR64yBTLc1VunUS2VLQO4SQWpz8z0ctd4NZNm3YFH8TDAiI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OKSep4XY; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="APEDECLk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78C1F1F000FF;
-	Mon, 28 Sep 2026 12:45:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OKSep4XY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D54D1F000FF;
+	Mon, 28 Sep 2026 12:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790599531;
-	bh=HAuCRw7y8pU7eUeYF2NtJHcyv/3i8GpDCmwe9gSknIU=;
+	s=k20260515; t=1790599694;
+	bh=9sLw+SAyI1vjoG6NKu06z0dP7M+J+d5pSygE/Gc98k0=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=APEDECLknXKI1wsPPOvXXje1rZOOGGd94gc00zrbkHFnGiC1NvhmRIVcvFYu+oRVG
-	 ifaF1Enu5CEd7vncjA2bFPta/C5QXcz0rJW7Tcplp3cgGAw59Fj4JhhlVRnFWJfH6M
-	 GWWuVyy8Ua3jWpniCwY7eXehSmxBIxfRUIqEuj4tGW7ZEjoEkmneaxjH8WgIX4hCSO
-	 4KI1PjnI7UkTCxr3mmq5rWJY6D0nlsZF6PmuluRHNqr/krh2gE1nssB3TNNcrrMaf8
-	 ZHGHwRGSAt280KyV0Z6NcA5ODfR2QyK1v8nulxN0p6EG5kp7Uv+pyYyi1XRQIHHwU/
-	 WY1d2vzahaE5w==
+	b=OKSep4XYxXBq2GASF2JCUFOs5LToo7z+uwNlu/eJCSvDSWF0cew7yQ41m9cmCOO0n
+	 7jH2PLPgBW8q/umOXJbPBrTV4R2gMqFyNaTYW8ZVJ8px6Mmt4ZjbDP3cd+8tQDrCk0
+	 bUfMBs1WIZfZNupF36XQiCKwsRQtN9sPfoUNVwW8rpkr1UAXasgeSVAPe7fkaNymdK
+	 Db3qL8K8KeETGtIS5ZJDihWq/+3HU+RRkk27iYiJIAm4GPIioIfEKYQ1FoD9Xiq+Vc
+	 BmIH0hKeOkswrGD5iXM8t/VgBHrV5r/BrGB7cRtRTGGFjVWgHNaJJVF6oesTtoB6qS
+	 lYkaQJ3jp1/fA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5 1/3] KVM: s390: Improve floating IRQ injection
- behavior
+Subject: Re: [PATCH v5 2/3] KVM: s390: Kick PV cpus at the right time for
+ service irqs
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Janosch Frank" <frankja@linux.ibm.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260928123639.34226-2-frankja@linux.ibm.com>
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260928123639.34226-3-frankja@linux.ibm.com>
 References: <20260928123639.34226-1-frankja@linux.ibm.com>
- <20260928123639.34226-2-frankja@linux.ibm.com>
+ <20260928123639.34226-3-frankja@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 28 Sep 2026 12:45:31 +0000
-Message-Id: <20260928124531.78C1F1F000FF@smtp.kernel.org>
+Date: Mon, 28 Sep 2026 12:48:13 +0000
+Message-Id: <20260928124814.3D54D1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> Floating IRQs can be handled by any VCPU that opened its masks. The
-> current design does not check if the mask is open when a floating IRQ
-> is injected via the FLIC. It will wakeup the last VCPU that went
-> sleeping hoping it's the correct one.
+> Service call handling is a two stage process for PV vms. First we
+> receive the secure instruction intercept and then the secure
+> instruction notification intercept.
 >=20
-> Improve this by checking if the VCPU can deliver that partiqular IRQ
-> and if not try to find another VCPU which can take the IRQ.
+> The secure instruction intercept (104) is analogous to the non-pv
+> instruction intercept (4) with the difference that we're not allowed
+> to inject an IRQ when re-entering SIE. We have to wait for the
+> notification intercept (108) which tells us that we're allowed to
+> inject.
 >=20
-> This is not the final fix around this topic but we'll eventually
-> inject a pending IRQ. The current code can easily deadlock a VM and
-> with this fix we work around that.
+> Unfortunately we never considered this difference and hence the IRQ
+> injection code will try to kick on the secure instruction intercept
+> where service IRQs are masked.
+>=20
+> It's time to move the kick to the instruction notification and skip
+> kicking on the instruction interception path.
 >=20
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 
@@ -64,5 +69,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260928123639.3422=
-6-1-frankja@linux.ibm.com?part=3D1
+6-1-frankja@linux.ibm.com?part=3D2
 
