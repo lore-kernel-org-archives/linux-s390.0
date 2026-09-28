@@ -1,73 +1,80 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81B8E312819;
-	Mon, 28 Sep 2026 13:22:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id B70754BD79E;
+	Mon, 28 Sep 2026 14:01:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790601755; cv=none; b=fLrTxi3b9qbB7hLCrAqzdGs1P5Q994RuxYHe+TV7IyAfAuKRNFdD6iDXpfafkER8P6h6MCZ0/B0J1tlbjtcKhVyKfLBwfBXPtiYbo5xw7szdOM5Ixk9U86HtvG73z4xReUIcPZ4rQm0gHUwWRTSB1EYZyha5zKPPUfphBiCLW70=
+	t=1790604103; cv=none; b=qnmOlBd/LPZKXDuml+zFb8gdN1PurCecrbZOShO0UYlwrx7KPCAIPQFgO44S8GVh6g1AmFjGugMsZgo+srw31oz4mdMEI+N97P4uqvE3tukRFypby6W377Yx1n3UMwLP29ZPHIiWnc0NgT+/q49OMwmkM9ZrGXP/OAqNmFI4c8Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790601755; c=relaxed/simple;
-	bh=I1ipRuIqe4H7eFc+XrpVGhyBcaGx9cJa200gBPcN0nc=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=E4FcKnyoMif9obAfwYzeozOlBGXa4EC7la+mKvMyRjhUZsI4fSzy+OyVtXTnlems5TFGpFgiRal7/iqnBSsaXkLgoswgp0PJymd1fb2KfHOoSARUKEHLIxIsBtr7t6oT7Z+04RgjxvVdBWra1WRzHhhEW27bagi19NWUKDbawSc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ThCZg/Dh; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790604103; c=relaxed/simple;
+	bh=fBXa/ueasdImeVBDgfgjheoJKCMPY8NCaFV/SF8dFPI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=od5f716yias9uqULVJe2yWHEouJUySsbBcfn6LCvzAdwGT2cmA5pah9a+fbGV67TEZlqI9m1pJvtVHAiC0Px2Ueulcqm1kSNNaIrZsPJkK2aKNIOQd+bSf0mNn6oM7d6ze988ysiUmokN9x++1gzQpKXiQHILB24Hz0e8Nf/oCs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=Vg4/TIsX; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ThCZg/Dh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C63B91F000FF;
-	Mon, 28 Sep 2026 13:22:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790601754;
-	bh=I1ipRuIqe4H7eFc+XrpVGhyBcaGx9cJa200gBPcN0nc=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ThCZg/Dhnr7qEO5eViHpXP6KhFPjfSDDeMkV/xaw7dTiVgrcZ6uQGZPz39AdW/Atm
-	 QvUKja95sBQWR+bNbMqImzLnHxbmd+WGWFIZCuRRaTYbc+FvW+TRyKDwk7g5uS3Y20
-	 N1IusuqTj92Jj3i+po6+w0VYeuvlOFtAeDATrIFNWq4X7jHHhLTGwIcEc4foSP5Mp5
-	 7fEmH5Y1J3MhqDBhfGZqU4ol26x8JJDZIcBAMhMTiXuamo6hjbc49k5xG8QdAUIeUN
-	 ZB4KBqLRmjeTHZj3G1688uaI3y4xG8Bhzo5lFZDuouKmTsL3mdXloEyb7B6Y+QRdNd
-	 P05xyCHln0dHA==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 4/6] KVM/vfio: Use file-based reference counting for
- KVM
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Steffen Eiden" <seiden@linux.ibm.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, kvm@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20260928-vfio-v4-4-e32e226d5932@linux.ibm.com>
-References: <20260928-vfio-v4-0-e32e226d5932@linux.ibm.com>
- <20260928-vfio-v4-4-e32e226d5932@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 28 Sep 2026 13:22:33 +0000
-Message-Id: <20260928132233.C63B91F000FF@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="Vg4/TIsX"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 993441655;
+	Mon, 28 Sep 2026 07:01:37 -0700 (PDT)
+Received: from arm.com (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 638F33F763;
+	Mon, 28 Sep 2026 07:01:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1790604101; bh=fBXa/ueasdImeVBDgfgjheoJKCMPY8NCaFV/SF8dFPI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Vg4/TIsX2zSBY/VJqTduNFc8Zkia1nMyF7g2IbT/uVMxbgf5qc4QgCPb4GrrFBkHk
+	 JX+sp1wpJUJiRu+nL4m88fjnJNEGuVXrPNUy/Gl1Jyh8GtyJhLEWtfZZbwlffcIy5H
+	 Jpptuh7ALbAdmfYXzqllwFwA60Vv/MokQ/6iTL/Y=
+Date: Mon, 28 Sep 2026 15:01:26 +0100
+From: Catalin Marinas <catalin.marinas@arm.com>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Grapentin <gra@linux.ibm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@kernel.org>,
+	Friedrich Welter <fritz@linux.ibm.com>,
+	Fuad Tabba <tabba@google.com>, Gautam Gala <ggala@linux.ibm.com>,
+	Hariharan Mari <hari55@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Hendrik Brueckner <brueckner@linux.ibm.com>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Joey Gouly <joey.gouly@arm.com>, Marc Zyngier <maz@kernel.org>,
+	Nico Boehr <nrb@linux.ibm.com>,
+	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+	Oliver Upton <oupton@kernel.org>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
+	Zenghui Yu <yuzenghui@huawei.com>
+Subject: Re: [PATCH v8 10/29] arm64: Use proper include variant
+Message-ID: <arpzNmXfjqlKbQHh@arm.com>
+References: <20260918133107.1042730-1-seiden@linux.ibm.com>
+ <20260918133107.1042730-11-seiden@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260918133107.1042730-11-seiden@linux.ibm.com>
 
-> Replace manual module reference counting with file-based reference
-> counting for KVM integration. Previously, VFIO used symbol_get() to
-> obtain function pointers for kvm_get_kvm_safe() and kvm_put_kvm(),
-> then manually tracked module references through these symbols. This
-> approach required storing the put_kvm function pointer in each device
-> and carefully managing symbol references.
->=20
-> Pass struct file pointers instead of struct kvm pointers throughout the
-> VFIO-KVM interface, leveraging the kernel's existing file reference
-> counting via get_file()/get_file_active() and fput(). Convert the x86
-> page-track API and update s390 vfio to use file_to_kvm_<arch>(). This
-> simplifies the code.
->=20
-> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
-> Co-developed-by: Sean Christopherson <seanjc@google.com>
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
+On Fri, Sep 18, 2026 at 03:30:47PM +0200, Steffen Eiden wrote:
+> Use <> for including the sysreg header as it is not discoverable from
+> the current directory.
+> 
+> Fixes: c07d8017bceb ("arm64/sysreg: Enable automatic generation of system register definitions")
+> Acked-by: Marc Zyngier <maz@kernel.org>
 > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 
-Sashiko has reviewed this patch and found no issues. It looks great!
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260928-vfio-v4-0-=
-e32e226d5932@linux.ibm.com?part=3D4
-
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
