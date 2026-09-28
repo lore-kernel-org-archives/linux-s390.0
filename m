@@ -1,64 +1,60 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB3FF4BE424;
-	Mon, 28 Sep 2026 14:16:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B12CC4D599E;
+	Mon, 28 Sep 2026 14:23:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790604993; cv=none; b=fnA5Xe009LXR8QMmwFkY2DZSVjUFq3/WeKxccU6FugXTrt48nfxF+Xdf2zskSKw7PhI4BUnhqa6dKXAzwt1fDVtk2yiQ+dRnABKnZYs5bIG2C3QO1x1sVDLcrIX5vJzLQAolNy1lMp3TDIEa9wHkWJSl5nBMMJRXcnc9HkqTZXc=
+	t=1790605415; cv=none; b=HpqAxbs2YpGUPnIv+kq6QifhTwkv1kL5z7zHXi3oSrPR1m3oOAHbm/ijL8G3+Q4igGTRCHFvRmzyYKh8oQo2q5ZbpF/7c5hbi83YwzJeDNZsVdSHaNoCkF+gieoaRh9AGwN9fLHB16+BZ1ftt565lVTrJPUgIqN+IjQv9VK9riM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790604993; c=relaxed/simple;
-	bh=QbZ5UsXrWS0owgzj5i50hnc+v3PF+lldVQgfA/R/4ZQ=;
+	s=arc-20240116; t=1790605415; c=relaxed/simple;
+	bh=P9PqO5qfr930naBjEJYBYKBsPVV2btuw00OrnlZSvyg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EkV22eipdthk7IAfFlSPIaikg443N7kmzw6BKlcexYQkQhy/6RT6jHvpY/l6t4KKObYK6mvRIvT9N8MQSNYIVqGuHlVZrwP1p+u74XMyKuvQWBuy6PyzMwPibNo4XQFGo2/C6BeCWcWAvBeFnpPRE27HLcqBzCnIFen8q4BBITg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WbDo8fIe; arc=none smtp.client-ip=148.163.158.5
+	 Content-Type:Content-Disposition:In-Reply-To; b=FmEiXjfiKWMh9WEjjZFsB5VwqFHK8WzIuiU5gVYV6Z+ss9nZQ4yzp+/m6ZMLOcSJ3WmeG/OfObeeMF/6jATWQG9NZpUFm49o1Q+i6mAZtwTuIpbduAjqQl6cwG0zEr29zsPLC4M0FZNFTOfOzdCdDIGakgZ2aDPNOmLbOXgA+QY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=SgtpN1qA; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WbDo8fIe"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68SBZwWd3971640;
-	Mon, 28 Sep 2026 14:16:07 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="SgtpN1qA"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68SBZZVv1047082;
+	Mon, 28 Sep 2026 14:23:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:sender:subject:to; s=pp1; bh=AhCRB9NLLW8bdkoAECwyNoY
-	+xY+rBOaD+BK919XDM0M=; b=WbDo8fIeaTKnBfjK/pVvpw/oChstda5C+Yb1tvz
-	XgMWR9NLexh9wlD4QGlbRttOz5xFIUcCHBALQZ0yKwInkbf+KeaNeplwHZ//whbw
-	OqxQ7Za+DrUsyQuDFefQpniEAnX7BzX9b5Ql7V6hT9JqgjEzQReqcCidznpPiLr4
-	V0X+5ErzjrOtOiX7JYZbz+xV6QWteo5+X8BMrwvw6omOQhCKUkdactsmDPSSjvZ6
-	MFlk6/nGS8yMsBuOv0OZoEcBHg/s9e/2H42TeCo2pDVPyPVH9GCLfT2/IgzETLIt
-	ha96CONDR3QJRJYetRJX5sd01ThkMUqZB3X1k6nfa1cXEkQ==
+	:references:subject:to; s=pp1; bh=269Qr/2f+mli5iZf5LjqCG3Wsfifp4
+	/qh4IuSPn08jE=; b=SgtpN1qASY6d0PD/W/Oe9D2ym8/5/iRdQSQ2eFEdKDxVVH
+	j6H0M5X2Zyhsgvl4VyUy6p0mmA8bpfwCe6Eb3/MFepx1LTfznN21FX09qLp7krhi
+	IpbWporLsvfFTZkapCZ7CSjWSgzzAhRUwMNSzOse2Z6j65mkUzJWhS6/Fm6azY5v
+	VrTIlF8e5POPLfPhDBoZC21D3QuJcW6VF/5OC6sVdHbOQ83gsNC+iNCXxdKkphGB
+	SeCA3e4xtKDID0US2EbHCiRrqw7xYWMds29o7dxeiWY+IKDjoeMqIdVh5rjdVQDv
+	HsKmQgvgBsXLojZD8vL+2FUuu2PeWvPxlEaJsYTg==
 Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx4fe1hqg-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5j51y8x-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 28 Sep 2026 14:16:06 +0000 (GMT)
+	Mon, 28 Sep 2026 14:23:13 +0000 (GMT)
 Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68SBHtjM076695;
-	Mon, 28 Sep 2026 14:16:06 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gxsvhdg4v-1
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68SBHufQ076700;
+	Mon, 28 Sep 2026 14:23:12 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gxsvhdgya-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 28 Sep 2026 14:16:06 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68SEFxuh32637348
+	Mon, 28 Sep 2026 14:23:11 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68SEN1Zh55705980
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 28 Sep 2026 14:15:59 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 72A242004D;
-	Mon, 28 Sep 2026 14:15:59 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 55A3D2005A;
-	Mon, 28 Sep 2026 14:15:59 +0000 (GMT)
-Received: from vela (unknown [9.111.89.89])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 28 Sep 2026 14:15:59 +0000 (GMT)
-Received: from brueckner by vela with local (Exim 4.99.5)
-	(envelope-from <brueckner@linux.ibm.com>)
-	id 1xBC98-0000000C3I8-3ejc;
-	Mon, 28 Sep 2026 16:15:58 +0200
-Date: Mon, 28 Sep 2026 16:15:58 +0200
-From: Hendrik Brueckner <brueckner@linux.ibm.com>
-To: Steffen Eiden <seiden@linux.ibm.com>
+	Mon, 28 Sep 2026 14:23:01 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 38ABC20040;
+	Mon, 28 Sep 2026 14:23:01 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5552B2004D;
+	Mon, 28 Sep 2026 14:23:00 +0000 (GMT)
+Received: from osiris (unknown [9.87.129.112])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 28 Sep 2026 14:23:00 +0000 (GMT)
+Date: Mon, 28 Sep 2026 16:22:58 +0200
+From: Steffen Eiden <seiden@linux.ibm.com>
+To: Hendrik Brueckner <brueckner@linux.ibm.com>
 Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -71,7 +67,6 @@ Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         Gautam Gala <ggala@linux.ibm.com>,
         Hariharan Mari <hari55@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
         Ilya Leoshkevich <iii@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
         Marc Zyngier <maz@kernel.org>, Nico Boehr <nrb@linux.ibm.com>,
@@ -83,9 +78,10 @@ Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
         Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
         Zenghui Yu <yuzenghui@huawei.com>
 Subject: Re: [PATCH v8 23/29] KVM: s390: Add basic arm64 kvm module
-Message-ID: <arp2njz3Dro0sQ6Z@linux.ibm.com>
+Message-ID: <20260928142258.53077-B-seiden@linux.ibm.com>
 References: <20260918133107.1042730-1-seiden@linux.ibm.com>
  <20260918133107.1042730-24-seiden@linux.ibm.com>
+ <arp2njz3Dro0sQ6Z@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -94,67 +90,70 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260918133107.1042730-24-seiden@linux.ibm.com>
-Sender: Hendrik Brueckner <brueckner@linux.ibm.com>
+In-Reply-To: <arp2njz3Dro0sQ6Z@linux.ibm.com>
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=FYWiV5+6 c=1 sm=1 tr=0 ts=6aba76a7 cx=c_pps
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI4MDA1NiBTYWx0ZWRfX5dsVumWdYdWF
+ AZKYtE84fjB98wl/6dKGXlvs+Ly0IWzRCQtvVYltXc1mz74v1LhjwW6iWDIHvD2yRLVeoi+m7Mu
+ yIk64PRIjmPyPlIfSdGB+VOWLJva8y4=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI4MDA1NiBTYWx0ZWRfX1BAFPlgJV6Nv
+ OXuy0WD/1RHa0kE+XIyTFbFO0IriHeyB0GcbFKbrEk8jdJ0wmFsNwH5qPRXpsYgmjbSg+5w0LIQ
+ tcxLO+zEOA+xHAAbg1KOw+eY5rjOUvN8sHC7rD5TEMrFcGeULBy1iIklCpZ/dkV+M+UzrPLQ9+E
+ cnBqCflGGYWtjXzUZWTWpeVt6yiq+hbX/zgc1c2pgY0eUKYVn2vsJAFhZkrVqmaYBEmwCa+Nq5+
+ jOrXaFxPCoQZZjWm46w595wiEMMZkm1EvkInymRJ4ZBlGi/qDLOAJeabAu97U4X2g0vcrKKbdTQ
+ 3thPAiKwu33JqADp2A6jHwtzHwyUCz0jU+nM9gT4zH1H1a5VhJvDpf6VoTQgvEDMRXpIOYHNW90
+ 6hRy/f0GcczR20Nvqz10T/S8rpOrc80UtbSY+6nijgyTmln/Yok1fUAu5oQKbbhHcNprHz7Sy+k
+ dzmHX6gNcIvh7qwV4XA==
+X-Proofpoint-GUID: -opRUxCBQ87ofTNi4olODdbsoM2GysKf
+X-Authority-Analysis: v=2.4 cv=RKcmjIi+ c=1 sm=1 tr=0 ts=6aba7851 cx=c_pps
  a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=nnIaaF498kqO1bEHNMIA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI4MDA1NiBTYWx0ZWRfX72hKPbHn0oBk
- RVFuvBqH8UHPWEoKzXdQr64GJWDGGWKnIO1MVn7goXs69X8xC7jB4YwC1auPz/wXgY+NIiJmji4
- d2xLMIzsZPnbCNiU1IPsNlQcBk50BGk=
-X-Proofpoint-ORIG-GUID: c8k90I_35h1vfDy12bjJ-4_B4O-n2PNu
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI4MDA1NiBTYWx0ZWRfX6cPRFJGxV5Ug
- TAb9cNc5k7WfJCqfLczGDe5HlTRxPb4/jrOu3EyqNFsXiIXGE/HTuUQWdIlsPCB0lyUVd9ijXGK
- qrkARkw5fH5VyeBdLrYhaxLZ7HEZJNw2FMXASvcymwIkuVHt7IiIGR3KZB3l6+lzE+7CAbGjzG2
- 3HjsWMAQp0EgYWgXjqplQGXaouXCHjnM4HLI5S/fIDehHStPOKdeDOsMYXUyVOdX2XadHW4ssU2
- XY82J2DcaQDjianPr97X326Q21kz6kvzfoDn+QIeW3SFViYyExlRCwwlJD+QT9AtrNul/nKFGm/
- zP02XnFqeHjAqDTQJUjG7ijPg45l5Qs19aZaLW6wbbBMjTLBa66EJZYiFauL+kFRkFcZtQ4jm8S
- paXA0duaRBpGf0gY/k7Lqy/jtAI2xhiNBzXOi8F3cpvQ01wt8Fln72L34jmpDg2doVfTq6T1HVh
- 2zGyVeJyg0a5Tx+qyoA==
-X-Proofpoint-GUID: gQs0JtJQ3bmijgSPG4xGjgWcJAErDcqK
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=kmqKt6rW6CT7MOcbZeAA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: QDIhRafS2tv1KtcByMsVqsVtQuv9E7le
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-28_03,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 clxscore=1011 impostorscore=0 spamscore=0 phishscore=0
- priorityscore=1501 malwarescore=0 bulkscore=0 lowpriorityscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609280056
+ clxscore=1015 priorityscore=1501 spamscore=0 bulkscore=0 impostorscore=0
+ adultscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609280056
 
-On Fri, Sep 18, 2026 at 03:31:00PM +0200, Steffen Eiden wrote:
-> Add basic code for the new arm64 on s390 KVM implementation.
-> Add kernel module boilerplate code and trivial functions.
-> Add tracing scaffolding.
+On Mon, Sep 28, 2026 at 04:15:58PM +0200, Hendrik Brueckner wrote:
+> On Fri, Sep 18, 2026 at 03:31:00PM +0200, Steffen Eiden wrote:
+> > Add basic code for the new arm64 on s390 KVM implementation.
+> > Add kernel module boilerplate code and trivial functions.
+> > Add tracing scaffolding.
+> > 
+> > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> > ---
+> >  arch/s390/kvm/arm64/arm.c   | 147 ++++++++++++++++++++++++++++++++++++
+> >  arch/s390/kvm/arm64/arm.h   |  44 +++++++++++
+> >  arch/s390/kvm/arm64/guest.c |  92 ++++++++++++++++++++++
+> >  arch/s390/kvm/arm64/trace.h |  18 +++++
+> >  4 files changed, 301 insertions(+)
+> >  create mode 100644 arch/s390/kvm/arm64/arm.c
+> >  create mode 100644 arch/s390/kvm/arm64/arm.h
+> >  create mode 100644 arch/s390/kvm/arm64/guest.c
+> >  create mode 100644 arch/s390/kvm/arm64/trace.h
+> > 
+> > diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
+> > new file mode 100644
+> > index 000000000000..8b056fc836d7
+> > --- /dev/null
+> > +++ b/arch/s390/kvm/arm64/arm.c
 > 
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> ---
->  arch/s390/kvm/arm64/arm.c   | 147 ++++++++++++++++++++++++++++++++++++
->  arch/s390/kvm/arm64/arm.h   |  44 +++++++++++
->  arch/s390/kvm/arm64/guest.c |  92 ++++++++++++++++++++++
->  arch/s390/kvm/arm64/trace.h |  18 +++++
->  4 files changed, 301 insertions(+)
->  create mode 100644 arch/s390/kvm/arm64/arm.c
->  create mode 100644 arch/s390/kvm/arm64/arm.h
->  create mode 100644 arch/s390/kvm/arm64/guest.c
->  create mode 100644 arch/s390/kvm/arm64/trace.h
+> [..]
 > 
-> diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
-> new file mode 100644
-> index 000000000000..8b056fc836d7
-> --- /dev/null
-> +++ b/arch/s390/kvm/arm64/arm.c
+> > +static int __init kvm_s390_arm64_init(void)
+> > +{
+> > +	if (!sclp.has_aef)
+> > +		return -ENXIO;
+> 
+> I suggest to use -ENODEV here to be consistent with s390 kvm module.
+> The arm64 module also return -ENODEV when not available.
 
-[..]
+Makes sense. Thanks
 
-> +static int __init kvm_s390_arm64_init(void)
-> +{
-> +	if (!sclp.has_aef)
-> +		return -ENXIO;
-
-I suggest to use -ENODEV here to be consistent with s390 kvm module.
-The arm64 module also return -ENODEV when not available.
+	Steffen
