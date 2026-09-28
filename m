@@ -1,57 +1,52 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 063B3439F62;
-	Mon, 28 Sep 2026 13:12:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FC1E472540;
+	Mon, 28 Sep 2026 13:13:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790601131; cv=none; b=VNz0iSHLAZUzqj53r60ZPO0Xsik14nKjtngfCmd9l/Wb2NRBAUNQkhpVvf7kyGxMmmKc+fIdHc3DdUr3aE4J76w0iH8ael/V2qvB0ySKZwJpK+bQsZFF9olc2fPI6aSuaB11hnde6xB2RtLWweoki5Gqxoy9sPzhUsiycEwI1XQ=
+	t=1790601227; cv=none; b=tGwM6t72S4w5c2RPz36RXn7890P0srOBFdwGmQN/OYD6ntVYjcP/lKZteQQcClAd2F6hH3OD5lxOLNJRY/m8f+lRChG9ROKclE8QZ21yUT2QIab51B0RxkookKB73cQ3VLMsLUpgaDmHw9v2Pon89Lkn47vtKOMc5XZ9CLFufyk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790601131; c=relaxed/simple;
-	bh=rL6ZYJv9DsFjRvU38C/nBOV/mCiBjmE6dVSThxlYNFo=;
+	s=arc-20240116; t=1790601227; c=relaxed/simple;
+	bh=qGmsHA0nEf27+XgSHz4UMlWJ0ncPhfBck/rqldr6HaQ=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=C84uNfnRZSxL9Zfo07vor+hvn77EXBCuO9RVjD5q7pm6WeBCtblKNa5zHILikDBGsCspWe6O5+UHpQiLHEIIfotmr6DTojOExl1s1RkUpJN2ROr4BegEgQ+0YyTLnySfrwX2IlwcBIKza+iMNxUvXNiYWYmYY2RKmiWJg3q2B3A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ak23Jwaq; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=kCMV56ch7vw+59E8mU4SKCeUsAV4Fwa8A6JLLQDklczcUOhIYnDgfO+HrwGLOnkct+TI8s/5qTPK63HBNKcUa7MOj8U9XFvA8H3PJSMsD8OL27+aKcgB5QMl/MqzHIJ/XIewNer6xAEjVuj+I2m/7l27Ds9BHcWYAPrPQlhmnNg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cOyrhP9B; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ak23Jwaq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A13781F00893;
-	Mon, 28 Sep 2026 13:12:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cOyrhP9B"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ADB41F000FF;
+	Mon, 28 Sep 2026 13:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790601129;
-	bh=rL6ZYJv9DsFjRvU38C/nBOV/mCiBjmE6dVSThxlYNFo=;
+	s=k20260515; t=1790601226;
+	bh=qGmsHA0nEf27+XgSHz4UMlWJ0ncPhfBck/rqldr6HaQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ak23Jwaqske4VSB0mlzncNL9cWc2zY7dCnas9HOZ6n8s2Tr5qUGBbq90mRlu24OI2
-	 w0+EP7TFhLA3IQeRkHzTZ5CcnQ59Q/m3I2mxR8yZe4HbDxElwXFdL4gG/FUcuKH9O1
-	 fhHrN783syx9Zp7XeCPZXRBw/4MOrW3f5k2O7xq4yOeA0ChR7dHoaJ3lmmULDkyKwW
-	 V63PRvWExovYyfMIS0bpCRQjMHsYRnvCEZIUiONWpqQrsUY0q6F1edtkJ/xz7TsP9C
-	 6L3nEL8n3gaozHzkWbUErreoKsldVDOReWYDcVSwIjsWopxnE1mgCqoA6jZfHC1I/g
-	 XYkuUJE0s3vJQ==
+	b=cOyrhP9Bi40qCDCBIAOZ3Md4u8XFtR5L9+wIl+exwcSafB8w+xegLlvKZHZGuajna
+	 YkcRz3l7KRctFSW2wnGAiI08l27kbsMIWOQrn05Gyw6R8x7ZKJ2+AUB5a5DGxPSDHo
+	 cW6M3XkhZhjtx5rIjliTrcx0ghqaa9CiAW7UrTJaZ5S6pOyuI47l9uRHbfHfcNRLpQ
+	 hxIyh5tEiU9CvfE/FE0pPdkwlwz0dGp9lw5LAgOn8ygkTb4jj3L12c5qxNjlvzCpG1
+	 gXoP0AFHYf8m3VnPUSkubVe+TbBoUTmPxKM8kFk3zUvNM5ugAQy+99psNI4yaAXLgx
+	 ISk/XDM6zBm5w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 5/6] KVM: Restrict kvm_get_kvm/kvm_put_kvm export to
- internal KVM modules
+Subject: Re: [PATCH v4 3/6] KVM: x86: Use file_to_kvm_x86() in SEV
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Steffen Eiden" <seiden@linux.ibm.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20260928-vfio-v4-5-e32e226d5932@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, kvm@vger.kernel.org
+In-Reply-To: <20260928-vfio-v4-3-e32e226d5932@linux.ibm.com>
 References: <20260928-vfio-v4-0-e32e226d5932@linux.ibm.com>
- <20260928-vfio-v4-5-e32e226d5932@linux.ibm.com>
+ <20260928-vfio-v4-3-e32e226d5932@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 28 Sep 2026 13:12:09 +0000
-Message-Id: <20260928131209.A13781F00893@smtp.kernel.org>
+Date: Mon, 28 Sep 2026 13:13:45 +0000
+Message-Id: <20260928131345.8ADB41F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> Switch kvm_get_kvm, kvm_get_kvm_safe, and kvm_put_kvm from
-> EXPORT_SYMBOL_GPL to EXPORT_SYMBOL_FOR_KVM_INTERNAL. These symbols are
-> now only used within KVM itself. No external module needs them now that
-> VFIO uses file-based reference counting. Remove the corresponding
-> exemptions from the x86 KVM Makefile exports check.
+> Use the new arch-namespaced helper instead of open-coding the file check
+> and private_data cast separately.
 >=20
 > Suggested-by: Sean Christopherson <seanjc@google.com>
 > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
@@ -60,5 +55,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260928-vfio-v4-0-=
-e32e226d5932@linux.ibm.com?part=3D5
+e32e226d5932@linux.ibm.com?part=3D3
 
