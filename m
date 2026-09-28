@@ -1,146 +1,161 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 473E24E80A9;
-	Mon, 28 Sep 2026 15:58:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 47E874E36F1;
+	Mon, 28 Sep 2026 16:08:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790611141; cv=none; b=uk9Rzy73S7ANss4SiN9c5UahCRPMg2J64W6MS55W6iGLPn8t5hwSAYfPPJN7fDHmTr/5ZruJnDn4FHCZYdL4D6PiE45XbYdfAZlPocfybVcpLSccHD13Cm5D5QgeFu/+I7izm+4zQoj3bNVTTf3y/BKr9ddcSAEpmx8EZmrR93c=
+	t=1790611681; cv=none; b=RUsgXhvQ9qWkpdhyXUnAUhynq5ZYeVl3yFM1H78Cp5p6JAIwu9o4VeO9tQOasjO3kTpslwLzEhcyG0TnZL9zh5sxNEprJSOaJZAGDR3D2WO3Of3wu9oNSPRUb5TpkD6RBctE/cX+Y5f8StVwqVLKnor4CkqaYzE4L4tNXeq/2LQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790611141; c=relaxed/simple;
-	bh=04Ifz2k31JE157sSuBCrUq92PK7BGbZhITDHVUXzOwA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YlNug6otyyTnSNYh9iz29CfPoqw3IVSZDztTl488z8FZlrDOjCVWDm4lL6jcIiH5MgcwdobWjD/mh5Nv2S4rN15kWxa2b9w5qI5QSrmt3xoxsuKITAtpammDMOxUzObq53KrEMhlt018oQXKEt1PZ/BLKlzcQZ4HRaFMqKxmcrE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=grNeGLQF; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1790611681; c=relaxed/simple;
+	bh=c5FHfUVz5VVHTSc2j+d6ycLo0NpKTyx2202wpOOflXM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VBVHu8SQLMKZcaTjNswZ886pNgrGYMMP+16tEMoVsYewV/eEGokjI3ooCnBRcPu30E8K3RBXMqER8cd+gYPH7yxPRlox4cX17I3RaBFQMQFWA8HmupCKviKV/BIO/92K06NXNc5wxD5CHnCbx+cb/ntFdKEm4K8EewwrUByfnCk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=OwU/63mP; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="grNeGLQF"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68SF5YEY216947;
-	Mon, 28 Sep 2026 15:58:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=rzyibD
-	QTpQayQMJ6uE+DAwnjNSVqg9HDPjxKT/D4jMY=; b=grNeGLQFIcNppKXXDKI0rl
-	ThLMbnF6URl5Sg70BHzDbIBGMok1PcGBVunzH4LH80tr5xSz0JZgBdUTDZwRYHxS
-	sPLeXAsV+2g7y/1QeXKOwJi+CBPnrVSh6M58EEb19sVkUCLXuNH73/d43igI4Lli
-	JIm5jWsL+kNDUw2AMi6JTy76JKeM7uMDdqAtGyFMj8mgI//ioIOlpUw0HgPAMb2w
-	FmziXcuPqxjwmI66ZF/hq9/GbOY0SjLKxmEjJVdLkzSeHV8i7SQL2HRx+OEz9P52
-	rkRsPmPP+LcPyiKu0/0CZNVYsVQrktc9BQraPckbPlQujcnoT6tX0u4kT7FBgobw
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx4fe24r7-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 28 Sep 2026 15:58:36 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68SElYxt290963;
-	Mon, 28 Sep 2026 15:58:35 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gxu2y5qq2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 28 Sep 2026 15:58:35 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68SFwWBo44040678
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 28 Sep 2026 15:58:32 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 02D2620043;
-	Mon, 28 Sep 2026 15:58:32 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0680920040;
-	Mon, 28 Sep 2026 15:58:31 +0000 (GMT)
-Received: from [0.0.0.0] (unknown [9.111.81.16])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 28 Sep 2026 15:58:30 +0000 (GMT)
-Message-ID: <c97ae089-fadf-4a29-b7df-4947ea8d6592@linux.ibm.com>
-Date: Mon, 28 Sep 2026 17:58:30 +0200
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="OwU/63mP"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 384901655;
+	Mon, 28 Sep 2026 09:07:56 -0700 (PDT)
+Received: from arm.com (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 47AEC3FA1F;
+	Mon, 28 Sep 2026 09:07:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1790611679; bh=c5FHfUVz5VVHTSc2j+d6ycLo0NpKTyx2202wpOOflXM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=OwU/63mP+mDZeSRe60JhpPQnlr7sDP3cia+ZLhZhxhc/Iyn6lkPHoIlEV+vofTcIG
+	 QYnJuy+WgYfE6nrh8qbtZjjUn/b0kG5vKGmJ6Po2u7w7hWulE4bsqKG2cFxY7tmd66
+	 l70A93Xu6/3iN2DQ+wYq1ZM3q40cP1SV7Pj/jrIc=
+Date: Mon, 28 Sep 2026 17:07:52 +0100
+From: Catalin Marinas <catalin.marinas@arm.com>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Andreas Grapentin <gra@linux.ibm.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Claudio Imbrenda <imbrenda@linux.ibm.com>,
+	David Hildenbrand <david@kernel.org>,
+	Friedrich Welter <fritz@linux.ibm.com>,
+	Fuad Tabba <tabba@google.com>, Gautam Gala <ggala@linux.ibm.com>,
+	Hariharan Mari <hari55@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Hendrik Brueckner <brueckner@linux.ibm.com>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	Janosch Frank <frankja@linux.ibm.com>,
+	Joey Gouly <joey.gouly@arm.com>, Marc Zyngier <maz@kernel.org>,
+	Nico Boehr <nrb@linux.ibm.com>,
+	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+	Oliver Upton <oupton@kernel.org>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
+	Zenghui Yu <yuzenghui@huawei.com>
+Subject: Re: [PATCH v8 16/29] arm64: Share arm64 headers with s390
+Message-ID: <arqQ2Eat4VUBbl49@arm.com>
+References: <20260918133107.1042730-1-seiden@linux.ibm.com>
+ <20260918133107.1042730-17-seiden@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 22/29] s390/hwcaps: Report SAE support as hwcap
-To: Steffen Eiden <seiden@linux.ibm.com>, kvm@vger.kernel.org,
-        kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Friedrich Welter
- <fritz@linux.ibm.com>, Fuad Tabba <tabba@google.com>,
-        Gautam Gala <ggala@linux.ibm.com>,
-        Hariharan Mari <hari55@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Nico Boehr <nrb@linux.ibm.com>,
-        Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-        Oliver Upton <oupton@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-        Vasily Gorbik
- <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
-        Zenghui Yu <yuzenghui@huawei.com>
-References: <20260918133107.1042730-1-seiden@linux.ibm.com>
- <20260918133107.1042730-23-seiden@linux.ibm.com>
-Content-Language: en-US
-From: Ilya Leoshkevich <iii@linux.ibm.com>
-In-Reply-To: <20260918133107.1042730-23-seiden@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=FYWiV5+6 c=1 sm=1 tr=0 ts=6aba8ead cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=-Vzjgo3omqpRI_WBrZcA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI4MDA2MiBTYWx0ZWRfX4XV4UOxcfS7P
- 0BbtHhPo3KhYsVIOb3OM9DJGdbUgdubsZz0PgqbsxfIQwCL713wGVSEIxXAo1kV+BTSks25F7J1
- NVpWyNmQFAq7cQFI010E63gNGvAYwws=
-X-Proofpoint-ORIG-GUID: Mtrun8DKU0SK8lBZtLKEIDFHUbwLPE0S
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI4MDA2MiBTYWx0ZWRfX4DHV58DlNGDR
- 9T8Sp1CTOSVq/jLjjCsS4ZVoacGNvlbSs81VEvfmGDzJH7xQPd5kW/ZXg3Nx3PGSX8aJXvts/25
- uPF5HZMFIqBiDWtUBsv9pXd0ySQAPRYoAk1Ts1gpFYITkvhSZ7jyT93LxmzdafpHLywZxlC6b7t
- ZVQijeYBuyC8/bFU8HmvxfvehGbwo69D7uMTsWPDikZYOlUw0SASC23aAA5DybNNk6IZ/Yz3Sk+
- EplkGTF5eA3FTz57P8lCxrJ3bBRJythk0gvQ4/kiN7KP2MwOhVw/lJCcZpm70bEHzo/juFjkfMK
- qQWz26gJabzwTI3Em2OVpMB3etfotcopkdiz/bmB3g0aFyT5t2nBiQM1aF4Ah60SleCIwvkRZjY
- QlwDz2wZfHGJ4Z06HyOdXmby4zPzD/MX4ZFloFI7OPbKGOMl1XcW3Yx3UWLRT2o4qIJt6Ftlvm+
- XaaNGoeWKs0fPoD/law==
-X-Proofpoint-GUID: VIifUq-Wtvu10B-gtNGluxlt-RnrP-Q4
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-28_04,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 clxscore=1015 impostorscore=0 spamscore=0 phishscore=0
- priorityscore=1501 malwarescore=0 bulkscore=0 lowpriorityscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2609280062
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260918133107.1042730-17-seiden@linux.ibm.com>
 
+On Fri, Sep 18, 2026 at 03:30:53PM +0200, Steffen Eiden wrote:
+> diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
+> index 6b005c8fef70..12cbad460258 100644
+> --- a/arch/arm64/Makefile
+> +++ b/arch/arm64/Makefile
+> @@ -45,6 +45,11 @@ KBUILD_CFLAGS	+= $(CC_FLAGS_NO_FPU) \
+>  KBUILD_CFLAGS	+= $(call cc-disable-warning, psabi)
+>  KBUILD_AFLAGS	+= $(compat_vdso)
+>  
+> +# Enable all code shared to s390
+> +KBUILD_CFLAGS	+= -DARM64_S390_COMMON
+> +KBUILD_AFLAGS	+= -DARM64_S390_COMMON
+> +KBUILD_CPPFLAGS	+= -DARM64_S390_COMMON
 
+Do we actually need these defines? They seem only to be used as markers
+for the awk scripts to extract the definitions. Why do we need the C
+preprocessor involved at all? Could we not just have comment markers:
 
-On 9/18/26 15:30, Steffen Eiden wrote:
-> From: Hendrik Brueckner <brueckner@linux.ibm.com>
-> 
-> Report SAE support as hwcap (and /proc/cpuinfo)
-> 
-> Signed-off-by: Hendrik Brueckner <brueckner@linux.ibm.com>
-> Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->   arch/s390/include/asm/elf.h    | 2 ++
->   arch/s390/include/asm/sclp.h   | 5 ++++-
->   arch/s390/kernel/processor.c   | 3 +++
->   drivers/s390/char/sclp_early.c | 1 +
->   4 files changed, 10 insertions(+), 1 deletion(-)
-Reviewed-by: Ilya Leoshkevich <iii@linux.ibm.com>
+/* ARM64_S390_COMMON_BEGIN */
+...
+/* ARM64_S390_COMMON_END */
 
+(also the CPPFLAGS definition was enough, it gets copied into the others
+automatically)
+
+> diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
+> index ab205f9db94a..1c5c4df260be 100644
+> --- a/arch/arm64/include/asm/sysreg.h
+> +++ b/arch/arm64/include/asm/sysreg.h
+> @@ -16,6 +16,8 @@
+>  
+>  #include <asm/gpr-num.h>
+>  
+> +#ifdef ARM64_S390_COMMON
+> +
+>  /*
+>   * ARMv8 ARM reserves the following encoding for system registers:
+>   * (Ref: ARMv8 ARM, Section: "System instruction class encoding overview",
+> @@ -50,6 +52,8 @@
+>  #define sys_reg_CRm(id)	(((id) >> CRm_shift) & CRm_mask)
+>  #define sys_reg_Op2(id)	(((id) >> Op2_shift) & Op2_mask)
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+>  #ifndef CONFIG_BROKEN_GAS_INST
+>  
+>  #ifdef __ASSEMBLER__
+> @@ -123,6 +127,8 @@
+>  #define GSB_SYS_BARRIER_INSN		__SYS_BARRIER_INSN(1, 0, 12, 0, 0, 31)
+>  #define GSB_ACK_BARRIER_INSN		__SYS_BARRIER_INSN(1, 0, 12, 0, 1, 31)
+>  
+> +#ifdef ARM64_S390_COMMON
+> +
+>  /* Data cache zero operations */
+>  #define SYS_DC_ISW			sys_insn(1, 0, 7, 6, 2)
+>  #define SYS_DC_IGSW			sys_insn(1, 0, 7, 6, 4)
+> @@ -832,6 +838,8 @@
+>  #define SCTLR_ELx_A	 (BIT(1))
+>  #define SCTLR_ELx_M	 (BIT(0))
+>  
+> +#endif /* ARM64_S390_COMMON */
+> +
+>  #ifdef CONFIG_CPU_BIG_ENDIAN
+>  #define ENDIAN_SET_EL2		SCTLR_ELx_EE
+>  #else
+> @@ -866,6 +874,7 @@
+>  	 SCTLR_EL1_LSMAOE | SCTLR_EL1_nTLSMD | SCTLR_EL1_EIS   | \
+>  	 SCTLR_EL1_TSCXT  | SCTLR_EL1_EOS)
+>  
+> +#ifdef ARM64_S390_COMMON
+>  /* MAIR_ELx memory attributes (used by Linux) */
+>  #define MAIR_ATTR_DEVICE_nGnRnE		UL(0x00)
+>  #define MAIR_ATTR_DEVICE_nGnRE		UL(0x04)
+> @@ -1102,6 +1111,8 @@
+>  #define GICV5_GICR_CDNMIA_TYPE_MASK	GENMASK_ULL(31, 29)
+>  #define GICV5_GICR_CDNMIA_ID_MASK	GENMASK_ULL(23, 0)
+>  
+> +#endif /* ARM64_S390_COMMON */
+
+I haven't checked them all but there are a few definitions in here that
+depend on arm64-specific configs: e.g. GCR depends on KASAN, TGRAN
+macros depend on page size, PA_BITS_52 influences some other values.
+
+I think they should be outside the common definitions shared with s390.
+In addition, the awk scripts should reject any CONFIG_ (or at least
+CONFIG_ARM64_) lines in the copied files. Ideally report an error rather
+than silently masking them out.
+
+-- 
+Catalin
