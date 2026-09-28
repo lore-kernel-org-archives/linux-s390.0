@@ -1,115 +1,138 @@
-Received: from mail-pz2-f40.google.com (mail-pz2-f40.google.com [74.125.228.40])
+Received: from mta0.migadu.com (out-224.mta0.migadu.com [91.218.175.224])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E81F47A87B
-	for <linux-s390@vger.kernel.org>; Mon, 28 Sep 2026 08:27:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.40
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2AB548BD54
+	for <linux-s390@vger.kernel.org>; Mon, 28 Sep 2026 08:51:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.224
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790584055; cv=none; b=Ale7DXZRi/NzSuVSl6Jt735fPPP4OCvoCm9q37aj1EFx7OFtzkRAsbUX7iDT3UMuqs4jzE5pm0dudlyZCJ2z3rSXbP7bm4CMs4S3owe7ZVZBhcjX/cf6NqoTM2VfzTZ6pMEJVzBuJ/1f2wTCyTqxY+ySglF8WG7VHz0OO2fHfSk=
+	t=1790585464; cv=none; b=WQ0kZLC38ZSUVNP3U3kY/CTvFDqDq3sTyW6TKhdFNxZasD6tsXuJvmoXlnXRL+cfDamolbK4RlTW1VLm9onX/nNuMHpv62tOVeXTuE9Misz1QFZmallwLsJC9I9AaREMHf2zLfmgeaS/LHABKsOgShRgWT05oe0GQ76Uxu469GM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790584055; c=relaxed/simple;
-	bh=qAKPddpqFgfHmTQw4mD4LolSxZQhiX47J3WLDmhJNXc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uxQprENDGhRw3xk1KOQpNe/ujPfJ+VsDZw0VgI6dqagRk0yMMYOU7y6qLVwcMsTOLJmI5Cv3cvkhyqzx+ZX8jW60u335sD5utoWEiJ9cp2sniCOVYeOhrilY9XsL3b/slMQZK4ufpzUu1kwPbZMpC7MxHkcp3Qi4MLjIY1uq2Vc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=JcRCzfEr; arc=none smtp.client-ip=74.125.228.40
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1790585464; c=relaxed/simple;
+	bh=09WBzyqcOHBSt5hLHqAwbTciP1G0S+c8iry/IFi/HlI=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
+	 References:In-Reply-To; b=COLjn0j4Wh5gPZJCTGp2UhnXWyKnrCrRpk23cga1RIRXJlH4ry0sOcNlT/vXe/2lhfxdJG5ss/CshMw2HrwIcvTInnuPHbbN1DuPiSTRyHQS/75uWfmYMV741IAg1dndIdcWTg30n28OAuogwax8KbWlhaj4JHK03jF14bB4Yck=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=hlJSyJb4; arc=none smtp.client-ip=91.218.175.224
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="JcRCzfEr"
-Received: by mail-pz2-f40.google.com with SMTP id d2e1a72fcca58-8805988a200so1643168b3a.3
-        for <linux-s390@vger.kernel.org>; Mon, 28 Sep 2026 01:27:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1790584054; x=1791188854; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=XfTNwTEf8cXEoiVJjaR2wzaM0AVgLL//fGyHvTOkwQs=;
-        b=JcRCzfErgVnrnW3HUokCKg8lXPciOB/jfvRnEGSanZoKcgsWxqzHlMClhV2Wxj+iTh
-         HORA8F97dmAVIQab4y+hYMEzf3FON3sym2qgjsojRYDxoOvSTva65KhFI2COTJSK724P
-         Rh7bJki16pz0KEQ2GN8crKod8DZ7ieZ34XeDQ=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790584054; x=1791188854;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=XfTNwTEf8cXEoiVJjaR2wzaM0AVgLL//fGyHvTOkwQs=;
-        b=lJuy6H35b39PuwMTWa3VT4JlIUGSn9bZbr0nXNC6OnIe5EJndzHEK/tB3Y7y4C7Uz5
-         dYXJOijIhhNCUPvC6JaSsGSVpB11uGReV7IVOhcOYdEfn7Jaei3YpGgMhR5yjYhkkLR8
-         vg09rDtbbEWnbkh+WB8oT+IJhXhlyEnOHVDIMZFCd7HPPhnwXAHOmNy7qj6V8PNVw7qT
-         bb7YIlZitsAe8hN+hVmS6sg6mreo/4/D9h1pRFV4OHvOTX3eZi6D9L6vm/U/DOLpFvn8
-         iQ6JWPlK9FvuD9+Mu9g3E1EbKTvgmDOvcpTceO1o3rPk8IBUh+XGsqa14WeGQwgAwuLb
-         zUuA==
-X-Forwarded-Encrypted: i=1; AKwUvBzM8ezEPYz24SLRVse0jWOn8NqNSa97fDjRoRY7g3vsGWsQ3hcvVe5bX6BNrO87n1j281CiFxLMwUoi@vger.kernel.org
-X-Gm-Message-State: AFuF++lnaiLKpKxsDs+jCMiQaJQRXDdgdjG4L8OTmcTgXD0E8d0rfLin
-	PQSKdpop0gzqbkxuo10j9M87GaLYG+OCgjL8CBH+45c905b2GBBQ5jB6cTP+ylwQ/w==
-X-Gm-Gg: AYBFou3ylb1zaCJMGHpA4X/LdwMnM14vMkRQR+oFzjYxhGZ1yQQzhOqG7KK0zBNhYbO
-	t4L6yE2YHydhMbBHkpxDWylnwvDdXJ1bSp5m1WjWr481soda9umLvIr8eyz9RvTcWH60Pex6ODG
-	C9SPDWAAHug8XHd2ZIIur88ITsHLb+IiLnT6J0MeQZDtgNYnlmHHytcz2s44VTZBW4ST+tbX1XN
-	4BCfdZvCKzZ6aC/PNN1AInr9do3YMkJjSZkJvDLsro/QFDLRKiGccpafU6MDZ+sq/40vaY8fphP
-	EgnrFUgT9g/K/kgeISR9v0hio6h5NGoP13VxpGC8gLuIuqc9uwnjOuBBavVG9tLcRUM853AnY+y
-	dIVFKOJqjNyOR8dt/UJDfqxtvZnfANN/78biIq16uGzTzhy4HCdppU60aIrergm9XwbPeIw5EF1
-	NyGSk6eDTRoWIPq6pdoFPFhR07osheLcbtcFOXSpYcbAtaVLmOwDNVd0z/PQ82xy7u/BG20KwlV
-	8Jd091Xol8jl+8NjxBYE5Bqa3R2cpWBrq89i44=
-X-Received: by 2002:a05:6a00:7619:b0:880:8fe8:a3ea with SMTP id d2e1a72fcca58-8808fe8a798mr3659738b3a.45.1790584053122;
-        Mon, 28 Sep 2026 01:27:33 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2031:6:fdbe:318b:98fe:bd96])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-87feae8d827sm3676965b3a.36.2026.09.28.01.27.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Sep 2026 01:27:32 -0700 (PDT)
-Date: Mon, 28 Sep 2026 17:27:23 +0900
-From: Sergey Senozhatsky <senozhatsky@chromium.org>
-To: Michal Wilczynski <m.wilczynski@samsung.com>
-Cc: Nathan Chancellor <nathan@kernel.org>, 
-	Nick Desaulniers <ndesaulniers@google.com>, Bill Wendling <morbo@google.com>, 
-	Justin Stitt <justinstitt@google.com>, Russell King <linux@armlinux.org.uk>, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	Helge Deller <deller@gmx.de>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Minchan Kim <minchan@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
-	Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, llvm@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
-	linux-s390@vger.kernel.org, linux-block@vger.kernel.org, 
-	Yann Collet <yann.collet.73@gmail.com>, Nick Terrell <terrelln@meta.com>, Gao Xiang <xiang@kernel.org>, 
-	Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>, 
-	Herbert Xu <herbert@gondor.apana.org.au>, Phillip Lougher <phillip@squashfs.org.uk>, 
-	Sungguk <sungguk.na@samsung.com>, Jaehoon Chung <jh80.chung@samsung.com>, 
-	Marek Szyprowski <m.szyprowski@samsung.com>, linux-erofs@lists.ozlabs.org, 
-	linux-f2fs-devel@lists.sourceforge.net, linux-crypto@vger.kernel.org, 
-	Sergey Senozhatsky <senozhatsky@chromium.org>
-Subject: Re: [PATCH RFC 0/9] lib/lz4: stop forking upstream LZ4, vendor it
- instead
-Message-ID: <arokqo4gVQVglkBa@google.com>
-References: <CGME20260925113450eucas1p2fcf838f00f35e1bce0ca04a694cd0cd2@eucas1p2.samsung.com>
- <20260925-lz4-vendor-upstream-v1-0-1c7ffbe21c4b@samsung.com>
- <arnr-Su0uJdK_rOb@google.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="hlJSyJb4"
+X-Envelope-To: linux-s390@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=09WBzyqcOHBSt5hLHqAwbTciP1G0S+c8iry/IFi/HlI=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1790585459; v=1; x=1791190259;
+ b=hlJSyJb4zyvL5tTc5B+UKJvJCZdxkTMJPLEWB4nUbp/tleH04SocnIPGb4w8yi3m5ovXyx/z
+ NSXt9VR0s+2Xg/Os5fYU54qClXCgayhYrJKbIYjmLqn2jdYk36jdndIr87ji4R0cYdAR0U+78QB
+ B7kA8WSWg0tewIstOzALdJoI=
+X-Envelope-To: linux-s390@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id dcca5a333ecbdbdc;
+	Mon, 28 Sep 2026 08:50:58 +0000
+X-Mizu-Trace-ID: dcca5a333ecbdbdc
+X-Migadu-Flow: FLOW_OUT
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <arnr-Su0uJdK_rOb@google.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 28 Sep 2026 08:50:55 +0000
+Message-Id: <DLQTKIGNXKLS.1E0Y9RS93S82N@linux.dev>
+From: "Florent Revest" <florent.revest@linux.dev>
+To: <bot+bpf-ci@kernel.org>, <bpf@vger.kernel.org>, <ast@kernel.org>,
+ <daniel@iogearbox.net>, <andrii@kernel.org>
+Cc: <martin.lau@linux.dev>, <eddyz87@gmail.com>, <memxor@gmail.com>,
+ <song@kernel.org>, <yonghong.song@linux.dev>, <jolsa@kernel.org>,
+ <kpsingh@kernel.org>, <john.fastabend@gmail.com>, <leon.hwang@linux.dev>,
+ <zirajs7@gmail.com>, <rhkrqnwk98@gmail.com>, <puranjay@kernel.org>,
+ <xukuohai@huaweicloud.com>, <iii@linux.ibm.com>, <hbathini@linux.ibm.com>,
+ <chleroy@kernel.org>, <naveen@kernel.org>, <bjorn@kernel.org>,
+ <pulehui@huawei.com>, <yangtiezhu@loongson.cn>, <hengqi.chen@gmail.com>,
+ <linux-kernel@vger.kernel.org>, <aou@eecs.berkeley.edu>,
+ <agordeev@linux.ibm.com>, <alex@ghiti.fr>, <bp@alien8.de>,
+ <catalin.marinas@arm.com>, <borntraeger@linux.ibm.com>,
+ <dave.hansen@linux.intel.com>, <emil@etsalapatis.com>, <hca@linux.ibm.com>,
+ <hpa@zytor.com>, <chenhuacai@kernel.org>, <ihor.solodrai@linux.dev>,
+ <mingo@redhat.com>, <linux-arm-kernel@lists.infradead.org>,
+ <linux-kselftest@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
+ <linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
+ <loongarch@lists.linux.dev>, <maddy@linux.ibm.com>, <mark.rutland@arm.com>,
+ <mpe@ellerman.id.au>, <npiggin@g>
+Subject: Re: [PATCH bpf v5 1/3] bpf: Wait for an RCU tasks grace period
+ before freeing trampoline progs
+X-Mailer: aerc 0.17.0
+References: <20260926135605.1217928-2-florent.revest@linux.dev>
+ <9d932a22ca908da9378ea281633ddb749453911ac6ae7a27a09e376f9ad02ff7@mail.kernel.org>
+In-Reply-To: <9d932a22ca908da9378ea281633ddb749453911ac6ae7a27a09e376f9ad02ff7@mail.kernel.org>
 
-On (26/09/28 13:25), Sergey Senozhatsky wrote:
-> On my x86_64 build .text size change seems to be quite significant:
-> 
->  ./scripts/bloat-o-meter lib/lz4/lz4_compress-old.ko lib/lz4/lz4_compress.ko
-> add/remove: 0/2 grow/shrink: 5/1 up/down: 8022/-1755 (6267)
-> Function                                     old     new   delta
-> LZ4_compress_fast_continue                  6028   10486   +4458
-> LZ4_compress_destSize                        158    3112   +2954
-> LZ4_compress_fast_extState                  4078    4597    +519
-> LZ4_saveDict                                  82     153     +71
-> __UNIQUE_ID_modinfo_466                       52      72     +20
-> __pfx_LZ4_compress_destSize_generic           16       -     -16
-> LZ4_loadDict                                 261     204     -57
-> LZ4_compress_destSize_generic               1682       -   -1682
-> Total: Before=14756, After=21023, chg +42.47%
+On Sun Sep 27, 2026 at 8:41 PM UTC,  wrote:
+> > bpf: Wait for an RCU tasks grace period before freeing trampoline progs
+> >
+> > When a prog is detached from a trampoline, it is freed after an RCU
+> > grace period, or an RCU tasks trace one if it is sleepable. This covers
+> > the tasks that are running the prog, since the prog's enter helper take=
+s
+> > the matching read lock before the prog is called. On a preemptible
+> > kernel, it doesn't cover a task that was preempted in the trampoline
+> > just before the enter helper. That task holds no lock yet, and it calls
+> > the prog after it was freed:
+> >
+> >   BUG: KASAN: vmalloc-out-of-bounds in __bpf_prog_enter_recur+0x3a5/0x3=
+f0
+> >   Read of size 8 at addr ffffc90000055040 by task candidate/110
+> >   CPU: 1 UID: 0 PID: 110 Comm: candidate Not tainted 7.3.0-rc2-00014-g1=
+5071f2a1263-dirty #2 PREEMPT(full)
+> >   Call Trace:
+> >    <TASK>
+> >    __bpf_prog_enter_recur+0x3a5/0x3f0
+> >    bpf_trampoline_6442509193+0x37/0xf1
+> >    __x64_sys_futex+0x9/0x410
+> >    do_syscall_64+0xb0/0x530
+> >    ...
+> >
+> > Wait for an RCU tasks grace period before the existing one when freeing
+> > a prog that was linked to a trampoline. An RCU tasks grace period only
+> > ends once the tasks that were preempted have run again, and
+> > bpf_tramp_image_put() already relies on it to free the image. It doesn'=
+t
+> > wait for tasks that sleep in the trampoline, the next commit takes care
+> > of those.
+> >
+> > Only progs that were linked to a trampoline can be called this way, so
+> > bpf_trampoline_add_prog() marks them and other progs are still freed as
+> > before.
+> >
+> > Fixes: e21aa341785c ("bpf: Fix fexit trampoline.")
+>
+> Is this the right Fixes: target?
+>
+> The race being closed here (a task preempted inside the trampoline image
+> before __bpf_prog_enter*() takes its RCU read lock, while the prog is fre=
+ed
+> after only a regular RCU or RCU tasks trace grace period) appears to pred=
+ate
+> e21aa341785c.
+>
+> In fec56f5890d9 ("bpf: Introduce BPF trampoline") bpf_trampoline_update()
+> switched images with no tasks RCU wait, and __bpf_prog_put_noref() freed =
+the
+> prog with a plain call_rcu(&prog->aux->rcu, __bpf_prog_put_rcu).
+>
+> Just before e21aa341785c, the synchronize_rcu_mult(call_rcu_tasks,
+> call_rcu_tasks_trace) in bpf_trampoline_update() ran before
+> arch_prepare_bpf_trampoline() rather than after the new image was install=
+ed,
+> and the total =3D=3D 0 unregister_fentry() path had no wait at all, so a =
+task
+> preempted in the old image could already reach a freed prog.
+>
+> Would Fixes: fec56f5890d9 ("bpf: Introduce BPF trampoline") be more
+> accurate, so that stable trees without e21aa341785c also pick this up? Th=
+e
+> follow-up 49ca60187380 in this series uses the same tag.
 
-D'oh you actually point that out in the commit message, sorry for the noise.
+Yeah, that seems right. It shouldn't make much of a difference for stable
+because both have been introduced in the same 5.10.y. I can either switch t=
+his
+if there's a v6 or a maintainer can change when applying.
