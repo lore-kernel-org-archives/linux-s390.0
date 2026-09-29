@@ -1,57 +1,57 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E363D51DDFC;
-	Tue, 29 Sep 2026 12:18:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A6D851EE17;
+	Tue, 29 Sep 2026 12:18:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790684333; cv=none; b=I4tQn+iTr6o768LVPVX8zRI3clZm25VmsK8mOdrYrgkFnzg7V2bxBYEcFrSREwKxAGxo6XMc0AlLMkQWOWizmCqARYomA7DRKbmqQmNqt/mrkFWjZZsOUVTx+JiQgW8DOMEg2ju3v5/fGyo6Bpsm8nCJs77SDLfJMEh0AxQnb9I=
+	t=1790684334; cv=none; b=saASDhEtzRGHDU2GF8gdrZT88dGYJhjKtcNs6pSlqmHusVXo4Iil5BSJFIsAP/lm3PSLMzTBpFoPbYge/6ZY2wd7Cu9xVAIhhs9bIQb4/1JloqRgsIe6ZleeUKg3SY4dyL/onz4eFTCMOQ6uWTEiFbHsmLNgzNYFrSc5fZ3oTVs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790684333; c=relaxed/simple;
-	bh=wjCmyAwGwxnZ/JGUOBOrI4yScmQpXedRHj8I/4EszxQ=;
+	s=arc-20240116; t=1790684334; c=relaxed/simple;
+	bh=lqfka2eK2Tt83UbVyLG5Aa/H7Uj8rNCI1rwrULl+tfM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NDzUIeW18s7UbNZhnzWtg0lakKDC5Ch1aQJ/b82IidP72KL5c6jSNZ5G4++9tHdQBSx38fytUV1VSV7vEAww+hRbbsuyP9S/xjK3fC4ssAek7lC6rF1sOo9CD6kuk1mlIvqLlouOvKzn4zAhORKxDRGa4in2nfMg9Vx7+jR8gtk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GZj6p6R2; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=gGBBpOZTsrzXY4Kd4+HaLCOqsBX8T/u6v8gV4V2D+lQIPuuUGgd7YZNE6OPC7Hdt3EF2EEWqaD7AthIjrv+wcT2QP6Pe109TbW5/5YoljvixXrXRvrHASyKYRd+iH33jC042L+luQnGjHH54SILLVHTHsnJzgrfL2gffaOEu3wA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mRjHtjnL; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GZj6p6R2"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68TB5m6U4018014;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mRjHtjnL"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68TB5YoX4060120;
 	Tue, 29 Sep 2026 12:18:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=mJQNL8WovEa8gtU/0
-	E2T62/O9Zy5z82zbFA/F4icwMs=; b=GZj6p6R2Y0uC/2v+i253W9PZFDSumzkHa
-	MKRw9oIZ/BJmhvB3+v265gG06Cih04KZNB96EugV/ZxQpWzaH0fsD+P3aEJCwG/j
-	xofmow1KW02NMeUI9MwCSDiiFyBvtTXiqyz7ZyAFHr4uf3vVb74j1wMEfSRqUJtL
-	ElphoBod9udwSNx2E3cRs5rN7I7UZM4Fuup6vjGF7C9br24cIFesalbdRc6b04ft
-	O18sgq1JiCF8UtxudUQslojqKpGceAtSx7FHYOkm6GjsJEe8EVrMp04poIE5+dbm
-	6cy7fSnbuxJcmQ31IZZODxPJB3nAVgnMQPoELtHW/SGOCNjKOLq4Q==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5pt65s2-1
+	:mime-version:references:subject:to; s=pp1; bh=hPeXGT9JUJG/Rgrzq
+	MRVuq0iSW8u2RzU7AL4HK2w7lY=; b=mRjHtjnL9VbKyZV4V7tJ2iv8WhHwEGDuM
+	4WzhSlyX4t5vAkyQ/42NNylpePOgzBrEQqp9xp+kDq3iD4PD3bSMkxq+5e5lgabY
+	U7p7AojcE+Pjm6HlL3Cjt5EelbUJo8or6gdJQptascHSO4G0ZGh4dXbek9TaUeyf
+	H6KJj1mpiMDn8Uk1JhzFt7N6hXfAlmwwgGCnX7hlzrmXwgWMkCXhUVOPaqrjz16l
+	EsIWkRiXz7l0TSB2KyL05mHAq2MxgGntAFPJ6vsga30owPkHuMB0d2+xq/z8eaxJ
+	VZxxA/4UHI1C0eELGsyq1Sny9ha/uxHB29A0TpXAR9/9E811j74Tw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5j570d2-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 29 Sep 2026 12:18:45 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68TAlXKT1667688;
-	Tue, 29 Sep 2026 12:18:45 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gxsvhhjts-1
+	Tue, 29 Sep 2026 12:18:44 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68TAlZFJ1617033;
+	Tue, 29 Sep 2026 12:18:43 GMT
+Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gxrrw9raa-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 29 Sep 2026 12:18:45 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68TCIiAY56689032
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 29 Sep 2026 12:18:44 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E3BEB5805D;
 	Tue, 29 Sep 2026 12:18:43 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68TCIge112911332
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 29 Sep 2026 12:18:42 GMT
 Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9E98B58056;
+	by IMSVA (Postfix) with ESMTP id 809F058065;
 	Tue, 29 Sep 2026 12:18:42 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 414E358052;
+	Tue, 29 Sep 2026 12:18:41 +0000 (GMT)
 Received: from li-4c4c4544-004d-4810-8043-b7c04f423534.ibm.com.com (unknown [9.61.24.130])
 	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 29 Sep 2026 12:18:42 +0000 (GMT)
+	Tue, 29 Sep 2026 12:18:41 +0000 (GMT)
 From: Anthony Krowiak <akrowiak@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org
@@ -60,9 +60,9 @@ Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com,
         fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
         imbrenda@linux.ibm.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
         gor@linux.ibm.com, freude@linux.ibm.com, stable@vger.kernel.org
-Subject: [PATCH v9 3/6] s390/vfio-ap: Fix unbounded loop in apq_reset_check()
-Date: Tue, 29 Sep 2026 08:18:34 -0400
-Message-ID: <20260929121837.2715710-4-akrowiak@linux.ibm.com>
+Subject: [PATCH v9 2/6] s390/vfio-ap: Fix failure to release IRQ notification eventfd contexts
+Date: Tue, 29 Sep 2026 08:18:33 -0400
+Message-ID: <20260929121837.2715710-3-akrowiak@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260929121837.2715710-1-akrowiak@linux.ibm.com>
 References: <20260929121837.2715710-1-akrowiak@linux.ibm.com>
@@ -74,255 +74,125 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: tGItlCPyLAivQoW-Ijh79NKtHc0jbuCF
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI5MDA0OCBTYWx0ZWRfX0s1uq5pWkI7/
- BDQ3iL9BlTtxvtEbFyfMCsaOHIIJq+szZwDPQ+2IZojWLCWK86nE1YqaRwndIEKVp68BLzv+rcj
- VJ8AsRawmyfNIaATdGsvIucLnzFyxxWpG88lS6snC80htQzxTrBJV28L/13XdnI9Cxas5XZbbeh
- sZISOi+ClXmafiZD/2Dlvn4xJoVWjOUrzSIQL1aJQrYNRSQi7lJbAEvtA9LJwI8Tbm8wjTJGz+I
- ciRriJIMjkAFfoxRmyYoLL72OHYRD91Jd47rH2e/p3mNIi1XEViPg7YNfowWSUObhtHo4c1C0J6
- AE0q4y2e68Gfqlu8qqn3KfVClhkKryRtC8y/ux70CDgi+3blhubrmYDOCAEVKmUD0yeUGplettN
- ePfE650BLXETAUQCl+uAOZ37WiIurVjw5bGsVBNuZL8UDTh49oJ3A3tFBqsYU3TMzJOx15QWXKO
- KTdB+g2PlCCwOL0eufA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI5MDA0OCBTYWx0ZWRfX05LbbasS++Ue
- ZcbAqR/AaNr5ZfA17iKlUxFEJCNV2huALLtAbmb0dACpVMAytSOiY9WWwct1Kd/nXnrYOBVJD0j
- z2D1qlqOB7wJ0JOzp8feAkckp5rzDxA=
-X-Authority-Analysis: v=2.4 cv=EY5d0/mC c=1 sm=1 tr=0 ts=6abbaca5 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI5MDA0OCBTYWx0ZWRfXx6RhBjHizUmG
+ gnl9xhs02lDK8ySR9F16kgbx2h5RjM0jDK8QH/fUYItpsGO2dAGZ1H5Kag2Dhxc0V0howhJIfL+
+ eey77HiOnkVF7FMVFNDmBsg/+bLbvWM=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI5MDA0OCBTYWx0ZWRfXzUUyLreY0l5H
+ 0CQ6bMpGGwQrS1i59DjnU8MPe8sVuGooP7Be4WKjTcascV9ei8br76LuVZjM5VdRyGEA31xmgi4
+ K0WEKTkbSAGsEkvDp1V2ox8bK8PPI6YcFD8IdJIlY7ROV2hEa82JhvNFs6XuDCQu02T9A8bb6o1
+ 4uilJnJQGH3vQxtj97JdzFIB8rX34em28Ite8/gp1Cne7TYfiNLeomqRZXw3i8dvhWmkgy6qmtE
+ T3Wl5GMlVg5W3/5lvrBsvXVANPupytGdPw7/Rb1fplX9Xo9Y/htRcinPs//T9/BFyfb9nNq0flA
+ SasBPl/i5NULv84mt4YdH/FGJ0LXRWkunXxVz0lhkUC3IxrEgclCZpnqG1AmW0pv0n02J3XEtRj
+ DPe0YNg1eIEzrUfLIrPAFdAnQWboHbJoR8/02dc6YRnovKyYDqNVbNF/p7EAMBbafQ3nooWAOSG
+ EuLeEPRUrUKrABzgYTQ==
+X-Proofpoint-GUID: cOS3DUb4NLfkdrnhOB-lEQEvsgJWGrfV
+X-Authority-Analysis: v=2.4 cv=RKcmjIi+ c=1 sm=1 tr=0 ts=6abbaca4 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
- a=eFsuE5GGs7WHm1Q7U0AA:9
-X-Proofpoint-GUID: tGItlCPyLAivQoW-Ijh79NKtHc0jbuCF
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8
+ a=fxeDLeT5AZ2qCvnLJ4gA:9
+X-Proofpoint-ORIG-GUID: cOS3DUb4NLfkdrnhOB-lEQEvsgJWGrfV
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-29_04,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 suspectscore=0 adultscore=0 clxscore=1015
- malwarescore=0 impostorscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0
+ clxscore=1015 priorityscore=1501 spamscore=0 bulkscore=0 impostorscore=0
+ adultscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0 phishscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609290048
 
-The apq_reset_check() worker polls ap_tapq() in a while(true)
-loop waiting for a queue reset to complete. When ap_tapq()
-returns AP_RESPONSE_BUSY, AP_RESPONSE_RESET_IN_PROGRESS, or
-AP_RESPONSE_STATE_CHANGE_IN_PROGRESS, apq_status_check() returns
--EBUSY and the loop continues after sleeping AP_RESET_INTERVAL (20ms).
-There is no upper bound on how many times the loop iterates, so if the
-hardware continuously returns a busy response the worker runs
-indefinitely.
+When userspace registers IRQ notification eventfds via the
+VFIO_DEVICE_SET_IRQS ioctl, vfio_ap_set_request_irq() and
+vfio_ap_set_cfg_change_irq() each call eventfd_ctx_fdget(), which
+takes a reference on the eventfd_ctx and stores it in
+matrix_mdev->req_trigger and matrix_mdev->cfg_chg_trigger
+respectively.
 
-This is particularly harmful because several callers of
-vfio_ap_mdev_reset_queue() - such as vfio_ap_mdev_reset_queues(),
-vfio_ap_mdev_reset_qlist() and vfio_ap_mdev_remove_queue() -
-call flush_work() on the queue's reset_work while holding one
-or more of the global matrix_dev locks (guests_lock,
-mdevs_lock) or the KVM lock. An indefinitely spinning worker
-permanently blocks access to all ap_matrix_mdev objects, which
-could hang other guests that are using them.
+These references are dropped only when userspace explicitly replaces
+or clears them via a subsequent SET_IRQS call.  If the device is
+closed without that explicit teardown - because the guest exits,
+the VM process crashes, or the device file is simply closed -
+neither vfio_ap_mdev_close_device() nor the remove path releases
+these references.  The eventfd_ctx backing objects and their
+associated file references therefore leak for the lifetime of the
+kernel.
 
-Fix this by introducing AP_RESET_MAX_WAIT (2000ms) and breaking
-out of the poll loop when elapsed time reaches that threshold.
+Fix this by introducing vfio_ap_mdev_release_eventfds() and calling
+it from vfio_ap_mdev_close_device() after vfio_ap_mdev_unset_kvm().
+The VFIO core guarantees that close_device is called before
+vfio_unregister_group_dev() returns in the remove path, so fixing
+close_device is sufficient to cover both teardown paths.
 
-If apq_reset_check() times out before verifying completion of
-the reset, the AQIC resources associated with the queue cannot
-be freed. The NIB is the active DMA target for AP interrupt
-delivery until the reset completes; freeing the pinned page
-would allow it to be reallocated to a new owner. A subsequent
-hardware wild DMA-write to that physical address would corrupt the
-new owner's memory and could crash or compromise the host kernel.
+Note:
+~~~~
+The matrix_dev->mdevs lock must be held during the call to
+vfio_ap_mdev_release_eventfds(). There is a small window between the calls
+to vfio_ap_mdev_unset_kvm() which gets and releases the update locks
+and the acquisition of the matrix_dev->mdevs_lock mutex during which
+it is possible - although highly unlikely during normal operation - whereby
+a concurrent SET_IRQS call can get in.
 
-If the reset eventually completes, interrupts will be
-terminated, but the pinned NIB page and ISC registration will
-be leaked. This is preferable to a compromised kernel or kernel
-crash, or waiting indefinitely and blocking access to all
-mdevs, hanging the guests to which they are attached.
-On timeout, q->reset_status.response_code is set to
-AP_RESPONSE_RESET_IN_PROGRESS. This is used internally to
-signal that the reset did not complete, and ensures that if
-the queue is reset again, the re-issue logic in
-apq_reset_check() will re-issue the ZAPQ.
+Taking matrix_dev->mdevs_lock around vfio_ap_mdev_release_eventfds()
+is sufficient to make this race-free. The SET_IRQS ioctl path writes
+req_trigger and cfg_chg_trigger only from vfio_ap_mdev_ioctl(), which
+holds mdevs_lock for its entire duration and always calls
+eventfd_ctx_put() on the previous value before storing the new one.
 
-This patch also fixes a bug whereby AP_RESPONSE_NORMAL (0)
-returned from PQAP(ZAPQ) was incorrectly treated as
-confirmation that the queue was zeroized. AP_RESPONSE_NORMAL
-only indicates that the ZAPQ was accepted; zeroization is
-performed asynchronously. To confirm completion, the following
-bits in the status word returned from PQAP(TAPQ) must all
-be verified:
+Any number of concurrent SET_IRQS calls during the window between
+vfio_ap_mdev_unset_kvm() and the acquisition of mdevs_lock are
+therefore safe: each ioctl invocation puts the reference it found and
+installs a new one, leaving exactly one live reference in the field
+when it releases the lock. When release_eventfds subsequently acquires
+mdevs_lock it finds that single surviving reference and puts it.
+Conversely, a SET_IRQS call that loses the race and blocks on
+mdevs_lock will find the field NULL after release_eventfds finishes,
+take ownership of the reference it just created, and install it into a
+field that will never be read again - a transient leak. To close that
+final case, callers must ensure no new SET_IRQS ioctls can be issued
+after close_device() is called, which the VFIO core guarantees by
+releasing the device file before invoking close_device().
 
-status->irq_enabled == 0
-status->queue_empty == 1
-status->replies_waiting == 0
-status->async == 0
-
-Fixes: dd174833e44e ("s390/vfio-ap: remove upper limit on wait for queue reset to complete")
+Fixes: bf48961f6f48e ("s390/vfio-ap: realize the VFIO_DEVICE_SET_IRQS ioctl")
 Cc: stable@vger.kernel.org
 Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 122 +++++++++++++++++++++++++++---
- 1 file changed, 111 insertions(+), 11 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
 diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 087e8474a34a..07fbfa6f1015 100644
+index e178b657faa8..087e8474a34a 100644
 --- a/drivers/s390/crypto/vfio_ap_ops.c
 +++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -2164,6 +2164,12 @@ static int apq_status_check(int apqn, struct ap_queue_status *status)
- 		return -EBUSY;
- 
- 	case AP_RESPONSE_BUSY:
-+		/*
-+		 * The queue is busy with something unrelated to a reset and our
-+		 * ZAPQ was rejected outright. Re-issue the ZAPQ.
-+		 */
-+		return -EAGAIN;
-+
- 	case AP_RESPONSE_ASSOC_SECRET_NOT_UNIQUE:
- 	case AP_RESPONSE_ASSOC_FAILED:
- 		/*
-@@ -2190,8 +2196,59 @@ static int apq_status_check(int apqn, struct ap_queue_status *status)
- 	}
+@@ -2337,12 +2337,28 @@ static int vfio_ap_mdev_open_device(struct vfio_device *vdev)
+ 	return vfio_ap_mdev_set_kvm(matrix_mdev, vdev->kvm);
  }
  
-+static void report_apq_reset_check_timeout(struct vfio_ap_queue *q)
++static void vfio_ap_mdev_release_eventfds(struct ap_matrix_mdev *matrix_mdev)
 +{
-+	if (q->aqic_resources.isc != VFIO_AP_ISC_INVALID || q->aqic_resources.iova) {
-+		if (q->matrix_mdev) {
-+			dev_warn_ratelimited(mdev_dev(q->matrix_mdev->mdev),
-+					     "Reset timed out for APQN %02x.%04x: leaking AQIC resources (NIB page & GISC) to prevent host crash\n",
-+					     AP_QID_CARD(q->apqn),
-+					     AP_QID_QUEUE(q->apqn));
-+		} else {
-+			pr_warn_ratelimited("Reset timed out for APQN %02x.%04x: leaking AQIC resources (NIB page & GISC) to prevent host crash\n",
-+					    AP_QID_CARD(q->apqn),
-+					    AP_QID_QUEUE(q->apqn));
-+		}
-+	} else {
-+		if (q->matrix_mdev) {
-+			dev_warn_ratelimited(mdev_dev(q->matrix_mdev->mdev),
-+					     "Reset timed out for APQN %02x.%04x\n",
-+					     AP_QID_CARD(q->apqn),
-+					     AP_QID_QUEUE(q->apqn));
-+		} else {
-+			pr_warn_ratelimited("Reset timed out for APQN %02x.%04x\n",
-+					    AP_QID_CARD(q->apqn),
-+					    AP_QID_QUEUE(q->apqn));
-+		}
++	if (matrix_mdev->req_trigger) {
++		eventfd_ctx_put(matrix_mdev->req_trigger);
++		matrix_mdev->req_trigger = NULL;
++	}
++	if (matrix_mdev->cfg_chg_trigger) {
++		eventfd_ctx_put(matrix_mdev->cfg_chg_trigger);
++		matrix_mdev->cfg_chg_trigger = NULL;
 +	}
 +}
 +
- #define WAIT_MSG "Waited %dms for reset of queue %02x.%04x (%u, %u, %u)"
- 
-+/**
-+ * apq_reset_finalize - store final TAPQ status and free AQIC resources.
-+ * @q:      the vfio_ap_queue
-+ * @status: the final AP queue status returned by PQAP(TAPQ)
-+ * @ret:    the return value from apq_status_check()
-+ *
-+ * Copies the full TAPQ status word to q->reset_status so that all status
-+ * bits reflect the confirmed end state of the queue. If ret == 0,
-+ * zeroization was confirmed and the response code is overridden with
-+ * AP_RESPONSE_NORMAL so that _queue_passable() returns true. For
-+ * ret == -ENODEV (DECONFIGURED or CHECKSTOPPED), the non-zero response
-+ * code is left intact so _queue_passable() correctly returns false.
-+ * AQIC resources are then freed.
-+ */
-+static void apq_reset_finalize(struct vfio_ap_queue *q,
-+			       struct ap_queue_status *status, int ret)
-+{
-+	memcpy(&q->reset_status, status, sizeof(*status));
-+	if (!ret)
-+		q->reset_status.response_code = AP_RESPONSE_NORMAL;
-+
-+	vfio_ap_free_aqic_resources(q);
-+}
-+
- static void apq_reset_check(struct work_struct *reset_work)
+ static void vfio_ap_mdev_close_device(struct vfio_device *vdev)
  {
- 	int ret = -EBUSY, elapsed = 0;
-@@ -2223,30 +2280,73 @@ static void apq_reset_check(struct work_struct *reset_work)
- 			 */
- 			memcpy(&q->reset_status, &status, sizeof(status));
- 			return;
--		}
--		if (ret == -EBUSY) {
-+		} else if (elapsed >= AP_RESET_MAX_WAIT) {
-+			/*Timed out without being able to verify zapq completed */
-+			if (!ret || ret == -ENODEV) {
-+				/*
-+				 * Zeroization confirmed (ret == 0): the TAPQ status bits
-+				 * indicate the async portion of the ZAPQ completed
-+				 * successfully. Free AQIC resources and return.
-+				 *
-+				 * Queue non-operational (ret == -ENODEV): the queue is
-+				 * deconfigured or checkstopped; interrupts are not
-+				 * possible so AQIC resources can be safely freed.
-+				 * Zeroization cannot be confirmed in this state, but the
-+				 * queue cannot generate interrupts, so the NIB page is
-+				 * no longer a DMA target and it is safe to free it.
-+				 */
-+				apq_reset_finalize(q, &status, ret);
-+				return;
-+			}
+ 	struct ap_matrix_mdev *matrix_mdev =
+ 		container_of(vdev, struct ap_matrix_mdev, vdev);
+ 
+ 	vfio_ap_mdev_unset_kvm(matrix_mdev);
 +
-+			report_apq_reset_check_timeout(q);
-+
-+			/*
-+			 * Zeroization could not be confirmed; set
-+			 * reset_status to AP_RESPONSE_RESET_IN_PROGRESS.
-+			 * This is used internally to signal that the reset
-+			 * did not complete, and ensures that if the queue
-+			 * is reset again, the re-issue logic in
-+			 * apq_reset_check() will re-issue the ZAPQ.
-+			 */
-+			q->reset_status.response_code = AP_RESPONSE_RESET_IN_PROGRESS;
-+
-+			return;
-+		} else if (ret == -EBUSY) {
- 			pr_notice_ratelimited(WAIT_MSG, elapsed,
- 					      AP_QID_CARD(q->apqn),
- 					      AP_QID_QUEUE(q->apqn),
- 					      status.response_code,
- 					      status.queue_empty,
- 					      status.irq_enabled);
-+			continue;
- 		} else {
--			if (q->reset_status.response_code == AP_RESPONSE_RESET_IN_PROGRESS ||
--			    q->reset_status.response_code == AP_RESPONSE_BUSY ||
--			    q->reset_status.response_code == AP_RESPONSE_STATE_CHANGE_IN_PROGRESS ||
--			    ret == -EAGAIN) {
-+			if (ret == -EAGAIN ||
-+			    q->reset_status.response_code == AP_RESPONSE_RESET_IN_PROGRESS ||
-+			    q->reset_status.response_code == AP_RESPONSE_STATE_CHANGE_IN_PROGRESS) {
- 				status = ap_zapq(q->apqn, 0);
- 				memcpy(&q->reset_status, &status, sizeof(status));
- 				continue;
- 			}
-+
- 			/*
--			 * We end up here when the ZAPQ has completed. ZAPQ
--			 * disables interrupts, so the AQIC resources must be
--			 * freed; otherwise they will be leaked.
-+			 * We are here for one of two reasons:
-+			 *
-+			 * Zeroization confirmed (ret == 0): the TAPQ status bits
-+			 * indicate the async portion of the ZAPQ completed
-+			 * successfully.
-+			 *
-+			 * Queue non-operational (ret == -ENODEV): the queue is
-+			 * deconfigured or checkstopped; interrupts are not
-+			 * possible. Zeroization cannot be confirmed in this state,
-+			 * but the queue cannot generate interrupts, so the
-+			 * NIB page is no longer a DMA.
-+			 *
-+			 * In either case, it is safe to free up the AQIC
-+			 * resources.
- 			 */
--			vfio_ap_free_aqic_resources(q);
--			break;
-+			apq_reset_finalize(q, &status, ret);
-+			return;
- 		}
- 	}
++	mutex_lock(&matrix_dev->mdevs_lock);
++	vfio_ap_mdev_release_eventfds(matrix_mdev);
++	mutex_unlock(&matrix_dev->mdevs_lock);
  }
+ 
+ static void vfio_ap_mdev_request(struct vfio_device *vdev, unsigned int count)
 -- 
 2.53.0
 
