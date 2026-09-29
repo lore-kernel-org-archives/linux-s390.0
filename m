@@ -1,100 +1,100 @@
-Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com [74.125.225.141])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6436E5476C3
-	for <linux-s390@vger.kernel.org>; Tue, 29 Sep 2026 17:44:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1A662F7EE4;
+	Tue, 29 Sep 2026 18:00:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790703868; cv=none; b=hP0eZYD3ZzCx/85hZti9up+dVA4nufdMYSI+0YuCAgSdL3NEQAbjSxE2pgI79bQlx4Om0YUSqwOhE6pUIcf58nOzETgqPckR48o7ECf1a7c4WY9oxavxAFmIK98zozaBOAort+UZ3zjR1dKbmEWc7Pgv6MwFjkKR9gFrCmURDKs=
+	t=1790704824; cv=none; b=f1tRKjOda/YBy2RDCOeLgWisNKxlU8bLfQy5eeR8uFbeH4X5Gfmoy1yPIZavIdMYLXkXiADiS8msq6cinfF4MeKyuJDRb0jQVe0KmB9+bc8vQWYBd8Ak8Pwomm1JanHzibagr2U/RGiRQTbq4QvocYTuT0ylj9CQT0ttLBhAGxU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790703868; c=relaxed/simple;
-	bh=0xBkcPblbpjG4vkQkMpJRewja3D/3gtloFXrU9YBVy0=;
+	s=arc-20240116; t=1790704824; c=relaxed/simple;
+	bh=AenBsAv8ole41IBuZHCZTq4DORQfoaw6/0eMqQqljtM=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=dfryeynxYwxpX1503w4K4Pcq5+JzZ72G2yHpHBuPX0JDNY51KQR9FxOULi/Qrfs64B6JaoGBw+Ky1A/wMf2JnSlGYJJc5bsoqf0MR1S5Ay7hH8QgombJ5a37xFTkQNnQAJkGcSfSUZEaWWhtNIsHHmPENIFb/7eupwosw27mRTk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=at3cWKpM; arc=none smtp.client-ip=74.125.225.141
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 MIME-Version:Content-Type; b=Zp/4pv5h/U/zVM6ALCJOp9RLYHYsJJPaSMh1Sl82VwMXJ0BPaPaMwGaHE+DpgfFNqX5uU3bquPOaaj0+JUZb2Jq+IPLB0xj2mr0NK7tYJXPVOuU0ZSRFLRbcNiG2KGcq/F5GNf3QRmp2GK6DXkZkI4okscs12bzV46DE6tYHRGE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=I44S7IZ2; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="at3cWKpM"
-Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49b912df756so35116825e9.3
-        for <linux-s390@vger.kernel.org>; Tue, 29 Sep 2026 10:44:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790703864; x=1791308664; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=k31zVVbNicpwi9YDlhFvR6Wyco71XCVxmV3/xYq3pxI=;
-        b=at3cWKpMhGKj8d+1+sqvMlItz70CUXrkUiivMhFNZII1Utz24VaNNZEW31ohThwo2f
-         PDFYEGDTa5uSmd7Cl5FcwfCxHUwR0n0wQgeY2PGZtlHs9u0kyvaTHTYj3ue2tWCW8SZp
-         y146QBqMApBK9L6BJHy3Ls55QWIcVruXpBR3yViRPUoXR19yXE3oiPp3u91/rYAc72+D
-         /rIvXfGnZJ/SEt9KohJUaGHUuAV25KXNKQRjA+oxpWAzYAtfmgRHvjrl0O+fs5FVC8CK
-         oBk1n+QFMa6a//dDx7Ge5rXzjwYmYlbhOJUtg+W/HTkWD1SlsDVcz3TISIpIVaGTZCPa
-         M+QQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790703864; x=1791308664;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=k31zVVbNicpwi9YDlhFvR6Wyco71XCVxmV3/xYq3pxI=;
-        b=izcS2jGUtl/a/c5R0ZpQ8f3nweU9J9j9t944LkVERXPRyQPj3/z2r2Hy5/VPSncdky
-         MtBDtBMpbVKQgCcKNORc2Szy3ndLeAhxu85BYXJ7IW54JhTe/xHAEgkIM6DuE7VJHM6j
-         7WXoyfFB7ntlHlDxrwDgptpP8wcz7/dMXzI0XINwfforEcAE9got1pQQAwtMWIf/5RyM
-         aB41DaWGXYieBguMuZgxDDgwW/wRAikBHEd5R3EurprUggMH3sK3c1teeXFEHUzDkOER
-         LqVj19WxYFMFES7H6L7MiRdtXTxjahO0I3vMDdmo9OO4unOKM6UatLJVuH7FaRuAUCTC
-         HIwA==
-X-Forwarded-Encrypted: i=1; AKwUvBz6qizPGl5aNrwWqoPSo8ypRZxhLANswkQE/NPfSdwXi8ffVXHB8Alf66P9wohzq20uWwXjwxIYHzUf@vger.kernel.org
-X-Gm-Message-State: AFuF++kAxrzU1Elrun/1jdwUT21hM91IH13yh5lVg1DbgDIUQkvCKodL
-	K5HLbTVpev4wsdJYNRWMgxFUffBLZip/V7U1faVfJYXki0/AWXevjTZn
-X-Gm-Gg: AYBFou3ULgoAFxmDQQL0qVIJ2K8eDa06i4iYm4CUvTRWTaIOdxgAHlQVUyE4k8SXT1/
-	NXb3ONNMNByrqlzsqe4wV9Xzl7hmRqG751rQ12ZwxvarMgejgVUGa91wdVNHrZwB7N1/4DK3j+q
-	dPFcsIaWzF5RHic2izyC1cY0VDEMN7NvFkmCmOfNri3BDjm9n8KIQVDuKtdw8WopLXDFq61NC28
-	LT96aNw8xGBD+BjFigmbToasDSpnjN7NQQe+nEEN+CgnlZHinAqj2NXPIJ7jyGhWX/G16BJjoRK
-	RXRiJU/v1g+ehs4uKhXggXl9nPt5ex710cKaniefth4ik20cKeT30rV+xnYwehF1xkmtzmxEJo7
-	MpqcbHowCzBS1FLNmSknvNjBYmJOC/onY94t8EsX6ohu+Fo81H6d2x4yp8YIyWTsSVCOBOMhpSW
-	eTwSMnRVPeD2yb+0vCSDoV5ed2+/G8skbYTrYi+bkeD2nbMsOZ+PzRZHQqYjLttpnkNl3u6N251
-	1Ai95H1CPCSMo3eem6FJRkq66C7GT9QPEA=
-X-Received: by 2002:a05:600c:4e12:b0:49d:1842:f001 with SMTP id 5b1f17b1804b1-49fe66b6e0emr305056015e9.14.1790703863276;
-        Tue, 29 Sep 2026 10:44:23 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a00cfae123sm103285395e9.13.2026.09.29.10.44.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Sep 2026 10:44:22 -0700 (PDT)
-Date: Tue, 29 Sep 2026 18:44:15 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>, Andreas Schwab
- <schwab@linux-m68k.org>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner
- <tglx@kernel.org>, Theodore Ts'o <tytso@mit.edu>, Vincenzo Frascino
- <vincenzo.frascino@arm.com>, Nick Desaulniers <ndesaulniers@google.com>,
- Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Mark Rutland <mark.rutland@arm.com>, Huacai Chen <chenhuacai@kernel.org>,
- WANG Xuerui <kernel@xen0n.name>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Paul Walmsley
- <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou
- <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Ingo
- Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
- <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
- x86@kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
- linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, llvm@lists.linux.dev
-Subject: Re: [PATCH v2] random: vDSO: Avoid call to memset() when zeroing
- reserved in __cvdso_getrandom_data()
-Message-ID: <20260929184415.1920fe91@pumpkin>
-In-Reply-To: <20260929165939.GA1890629@ax162>
-References: <20260925-vdso-getrandom-avoid-memset-llvm-24-v2-1-ce640f872393@kernel.org>
-	<87zex4ic68.fsf@linux-m68k.org>
-	<20260926121927.GA1486962@ax162>
-	<are7cfMIHZZn6jLz@zx2c4.com>
-	<20260927080225.37534e7c@pumpkin>
-	<20260929165939.GA1890629@ax162>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="I44S7IZ2"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68TB5YoN4017586;
+	Tue, 29 Sep 2026 18:00:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=d0JBOp
+	2Zgl56RrKCWGNjxKxPnVYKsxt8Rhm9tXG8ad8=; b=I44S7IZ22g5Nr4wtzxk7L7
+	C+I98Tt56PrutHNvbAGbNLVM9VVkZSlpCnd8BaODTdn9kL7ERM6lbhTUx4t+6oBK
+	avWXxepBFDLgdySYIBGmyLKpvtNKqhlc0bZ+ZFHPFd3894vlou6HfLGjob5oz+TL
+	86PlU36kovjM6sOOqZDk4Wv1BQmqduswY4NlGn8Xo5uSfWMoSSZrS1LiVPn7v9EH
+	/CrrUb2r8dubLPUOzdnwHMhVV3j209b+q7PnFjKBRlOfla8KnRuBDyC9WzFr6M4P
+	UJotnSGC453OsUEWWfiYe735ZRkTSWjlPYw25R7Fk+QGABbl82Czk26mh5ZVku7A
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5pt7qw2-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 29 Sep 2026 18:00:04 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68TFj2Af2060753;
+	Tue, 29 Sep 2026 18:00:03 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h0g8e0g5a-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 29 Sep 2026 18:00:03 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68THxwBc43057418
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 29 Sep 2026 17:59:58 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4B1D920043;
+	Tue, 29 Sep 2026 17:59:58 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0128E20040;
+	Tue, 29 Sep 2026 17:59:57 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.87.155.98])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Tue, 29 Sep 2026 17:59:56 +0000 (GMT)
+Date: Tue, 29 Sep 2026 19:59:54 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank
+ <frankja@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        Heiko
+ Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander
+ Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Sean
+ Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Borislav
+ Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Matthew Rosato
+ <mjrosato@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>, Eric Farman
+ <farman@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic
+ <pasic@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Harald
+ Freudenberger <freude@linux.ibm.com>,
+        Holger Dengler
+ <dengler@linux.ibm.com>,
+        Alex Williamson <alex@shazbot.org>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jason Gunthorpe <jgg@ziepe.ca>
+Subject: Re: [PATCH v4 4/6] KVM/vfio: Use file-based reference counting for
+ KVM
+Message-ID: <20260929195954.3db8f840@p-imbrenda>
+In-Reply-To: <20260928-vfio-v4-4-e32e226d5932@linux.ibm.com>
+References: <20260928-vfio-v4-0-e32e226d5932@linux.ibm.com>
+	<20260928-vfio-v4-4-e32e226d5932@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -103,53 +103,116 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: 8FT0QXAjdsG7nXQbB7MYupM2vTJ1wG2U
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI5MDA3MCBTYWx0ZWRfX+S2CBX9hd12C
+ ifGO/eO9xPyfANL0DrbHtwKrsjqJPsXsgTIAXjwNaw5ZIZCExUfQDAYoAGMSonXMqM4h7rf9guq
+ gU5+ZxEognUHrPZqdNzj5pcouypvy6X2J5kgrA3wNCvxVpW74fcsF3wfTh91ZxogfYHgfofuQGa
+ oGB3AzOT2cDeW5JCaDgwTkbxmlQj7s/1AB9gmxN4l+oW5M3ferqlD6UpBHcGHPL95sz6yc3aD77
+ ao38QII6Rh0HfOo3EQI07qY/yP0WcajxvdCe0vQYvvI/UF+9Tr2KWTSCX3Dhs/+g43n7DOw2G4y
+ ZPfw+2gAmYmfBWszcQdKWHzZWEwkot3VxQQ/0d6SbcqTS2XqRvnzSBp5yPStNEEptBgy4yORPvI
+ 1qReSU3FofQKXDqntHV1jUWmUW1Ysb/K1ubBIvQXiGLPqB2ftR5hz4w7a4jZ9b4utSH9urfQv8Y
+ U8UEnIX6Aoun/NVOV/A==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI5MDA3MCBTYWx0ZWRfX1w8OIjW41n7J
+ HyzifB24Af7oA3TEe33Fh/p4dWk4Ppqusm8tSokEPq5LSzfkasM52jNU4/gsJziUgnW9LfJPCC6
+ LQ3B9qrbCpCoNJ5v6ouepj0K4ka8/xw=
+X-Authority-Analysis: v=2.4 cv=EY5d0/mC c=1 sm=1 tr=0 ts=6abbfca5 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=Ikd4Dj_1AAAA:8 a=1XWaLZrsAAAA:8 a=NGxIVH0s-Lo3PVwwm9IA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: -tnjIJvNjZ9bd-j0AC8ySM0yhh7Lbf54
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-29_04,2026-09-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 priorityscore=1501 suspectscore=0 adultscore=0 clxscore=1011
+ malwarescore=0 impostorscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609290070
 
-On Tue, 29 Sep 2026 18:59:39 +0200
-Nathan Chancellor <nathan@kernel.org> wrote:
+On Mon, 28 Sep 2026 15:07:05 +0200
+Steffen Eiden <seiden@linux.ibm.com> wrote:
 
-> On Sun, Sep 27, 2026 at 08:02:25AM +0100, David Laight wrote:
-> > On Sat, 26 Sep 2026 14:32:49 +0200
-> > "Jason A. Donenfeld" <Jason@zx2c4.com> wrote:  
-> > > Do we even need to return a value at all? Might as well just make the
-> > > function two lines:
-> > > 
-> > > +       for (char *d = dst; size--;)
-> > > +               *d++ = value;  
-> > 
-> > Wouldn't it be better to add a barrier() or similar in there to
-> > stop the compiler playing unwanted games>  
+> Replace manual module reference counting with file-based reference
+> counting for KVM integration. Previously, VFIO used symbol_get() to
+> obtain function pointers for kvm_get_kvm_safe() and kvm_put_kvm(),
+> then manually tracked module references through these symbols. This
+> approach required storing the put_kvm function pointer in each device
+> and carefully managing symbol references.
 > 
-> Wouldn't that just result in the same code generation issue that Jason
-> pointed out on my v1?
+> Pass struct file pointers instead of struct kvm pointers throughout the
+> VFIO-KVM interface, leveraging the kernel's existing file reference
+> counting via get_file()/get_file_active() and fput(). Convert the x86
+> page-track API and update s390 vfio to use file_to_kvm_<arch>(). This
+> simplifies the code.
 > 
->   https://lore.kernel.org/aquyVkdYceiWdckX@zx2c4.com/
+> Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
+> Co-developed-by: Sean Christopherson <seanjc@google.com>
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
+> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/kvm_host_s390.h |  2 +-
+>  arch/s390/kvm/s390/pci.c              |  9 ++++--
+>  arch/x86/include/asm/kvm_page_track.h | 10 +++---
+>  arch/x86/kvm/mmu/page_track.c         | 22 +++++++++-----
+>  drivers/s390/crypto/vfio_ap_ops.c     | 20 ++++++++----
+>  drivers/vfio/group.c                  | 11 ++++++-
+>  drivers/vfio/vfio.h                   | 12 ++++----
+>  drivers/vfio/vfio_main.c              | 57 +++++++++++------------------------
+>  include/linux/vfio.h                  |  5 ++-
+>  virt/kvm/vfio.c                       | 13 +++++---
+>  10 files changed, 87 insertions(+), 74 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/kvm_host_s390.h b/arch/s390/include/asm/kvm_host_s390.h
+> index 8a7eed5847e1..9519b8028b10 100644
+> --- a/arch/s390/include/asm/kvm_host_s390.h
+> +++ b/arch/s390/include/asm/kvm_host_s390.h
+> @@ -722,7 +722,7 @@ static inline void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu) {}
+>  void kvm_arch_free_vm(struct kvm *kvm);
+>  
+>  struct zpci_kvm_hook {
+> -	int (*kvm_register)(void *opaque, struct kvm *kvm);
+> +	int (*kvm_register)(void *opaque, struct file *kvm_file);
+>  	void (*kvm_unregister)(void *opaque);
+>  };
+>  
+> diff --git a/arch/s390/kvm/s390/pci.c b/arch/s390/kvm/s390/pci.c
+> index 82892e1e03d9..d79bd3bdc68e 100644
+> --- a/arch/s390/kvm/s390/pci.c
+> +++ b/arch/s390/kvm/s390/pci.c
+> @@ -498,17 +498,22 @@ static void kvm_s390_pci_dev_release(struct zpci_dev *zdev)
+>   * available, enable them and let userspace indicate whether or not they will
+>   * be used (specify SHM bit to disable).
+>   */
+> -static int kvm_s390_pci_register_kvm(void *opaque, struct kvm *kvm)
+> +static int kvm_s390_pci_register_kvm(void *opaque, struct file *kvm_file)
+>  {
+>  	struct zpci_dev *zdev = opaque;
+> +	struct kvm *kvm;
+>  	int rc;
+>  
+>  	if (!zdev)
+>  		return -EINVAL;
+>  
+> +	kvm = file_to_kvm_s390(kvm_file);
+> +	if (!kvm)
+> +		return -ENOENT;
+> +
 
-I missed that one going past....
-You only get 'rep stosq' because the compiler first converts it to memset(). 
+the !kvm check (which you remove in this patch) returned -EINVAL, but
+now we return -ENOENT. Is this intended?
 
-> Maybe that doesn't matter because modern compilers have better options?
+is kvm_file always guaranteed to be non-NULL? We checked for !kvm
+before, why don't we need to check for that now?
 
-A lot of cpu will run the 'rep stosq' very slowly (it has a big fixed cost).
+>  	mutex_lock(&zdev->kzdev_lock);
+>  
+> -	if (zdev->kzdev || zdev->gisa != 0 || !kvm) {
+> +	if (zdev->kzdev || zdev->gisa != 0) {
+>  		mutex_unlock(&zdev->kzdev_lock);
+>  		return -EINVAL;
+>  	}
 
-At a guess the loop is 3 clocks (possibly 2; but that usually needs
-you to use negative offsets from the end - and gcc doesn't like that).
-That is comparable to a mispredicted branch (and you might get two of them).
-It still might actually be faster than the 'rep stosq' version!
-
-I suspect the fastest code is to unroll the loop.
-	xor %eax, %eax
-	movl %eax, 12(%rbx)
-	movq %rax, 16(%rbx)
-	movq %rax, 24(%rbx)
-	movq %rax, 32(%rbx)
-	movq %rax, 40(%rbx)
-	movq %rax, 48(%rbx)
-	movq %rax, 56(%rbx)
-8 clocks on old cpu, 4 on newer ones.
-But more likely to be limited be I-cache reads.
-
-If you are going to use 'rep stos' then you might as well write
-13 32bit words.
-
-David
-
+[...]
