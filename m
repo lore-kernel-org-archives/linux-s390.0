@@ -1,184 +1,209 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A83193E49F5;
-	Tue, 29 Sep 2026 12:33:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E29F51814C;
+	Tue, 29 Sep 2026 12:33:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790685194; cv=none; b=p6jerIRpdT6nGyowYwf9skgSzvV0U9t97ZpMxgNr6NyW09ByDG9Hi/sL9qVxYiq6kK8mNStIO6Ers0cm3nEsSDgysHhj6cM/niW7yru9ryO+hVlLU20m2O9kc5sRV7HgD4Dw6qydzQZ11sGwZ9HkGf2LgrAIO0OMl++S6GWKKhU=
+	t=1790685209; cv=none; b=NG8BowPfoyfVq6D9RjPLcYCRZDVoptIhhX5ghwq00O4/BqMs5fU5iK3DdhOqKr0AnyxRK2o7LQ+4rbgHn5Sp5fwbcpVw1xwOhYP3dGfs1VyoRxdI5t4IxVXR+XIj4fgaObsjbfAvZGkQSGDi6Qca3PSAP1hDIP/Vt6g9D9ez/FA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790685194; c=relaxed/simple;
-	bh=u1HnNkUGA6hM+FlYfklHT1+Y+NujlXh75n+G22q8h4o=;
+	s=arc-20240116; t=1790685209; c=relaxed/simple;
+	bh=CJyp9joo2apPJ5BlZ+kMeDS1h5XjOwpadlP3GClqUrM=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=gJnrSO7Z78TUqio7S1yAMKoV+ZkO2l8hI12sW6KI1HSYgpsf5PAgv7BB/qLpM/cOnV+bM3AqCuTFYb3/nwMutnvT5sA9deUuPJxGikLnLbqQHv69XEF8I2CU4HiyDb+z+aQ487bt20eCfLGLIDg0URgp1ZCLfJYfDPAQ914Pplw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iuMx5W2d; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=oZEG1T2T749nXepHVDaSYa0cuvgPCw/VUfPF8Dt8Ak90D72wwFQ+dm/mTOrsq8GVEFYTLxANJQ0Plh1vXMvcRbdyP5RyUO8R0kRQUOxfdHRtF8Q+kjBr1TlYhhGbO8w5h7WLPeXWyEFrj6RH5ammbXaUUWhAQynfKuqK/Gi8uR4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XhQYGStR; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iuMx5W2d"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECC6F1F000FF;
-	Tue, 29 Sep 2026 12:33:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XhQYGStR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D24FE1F0089A;
+	Tue, 29 Sep 2026 12:33:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790685192;
-	bh=CK1m/NW/c68GOCsYbS/l1oWMix0f6p96xXWSbQWJmvk=;
+	s=k20260515; t=1790685208;
+	bh=OrK6IKoj0nvGMQMJz7NkIEpaqPpvg+6EM07/ITIB/Uk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iuMx5W2ds8tLv5ZHLZ/BbPLBGjOQx8aWocrP+cS+VZT30SJx1iJdQn0qBVYrYn9j6
-	 wmekHhRppnEXVb9jF2kny6p6bVEpZ/WAhdoSbfDpCMfVbUwUqj2Mos/0ghpO4zOHos
-	 QB6AnG3/Kou9DWg9snjy3F0gSF8Y8Nzv14X2CZrCx8neVpFGBpl3nlTGYHK0Zd1JHX
-	 mObcWw+qFIBEHmovXi8xyDnIbrg+eWK14R6APRX1Z4uOKhEiPNFo8RAUmWjSZOYcxf
-	 O8v41wUMtmpV01tPQfvc+yJz2oTVkGfmvDZ/tutqcvcbCpmDaV0ADQwsPosml+ZhFn
-	 2KzRebW+SQ08g==
+	b=XhQYGStRBGZfaW6QBEw93s2wz3N9je4divjQzj0jWAQjsyIEgT9fNMovs/W2fcpF7
+	 +LlrMg29X5092/ujlKv6+XtX1NFx8LDsWGoJiRJjTa6/stKkkUoot61PBOQ0mZ8GNi
+	 SROZ939somsPwh5DDiEutdYHVGKCI2Q85TdEuSg+kFbGFVyokkyyesK5Q+ok7YRNDm
+	 /ZYy5iOTMlMRslVYBhn6PRqNndS2Cj1OQOBrmH3lx8q2NPEOlrzBfJ8oh+kJTtIE6n
+	 7KPwJPGGKPQRrwMBB6bzd5r2txgbIS1qOm4gEa2E8zsbe0n1mWA1N3no0YOdUpyoUi
+	 wdnsv8R/Na2jw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 5/6] s390/vfio-ap: fix queue state leakage to guest
- and host
+Subject: Re: [PATCH v9 1/6] s390/vfio-ap: Fix leaks of pinned NIB and
+ registered GISC
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, kvm@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260929121837.2715710-6-akrowiak@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, kvm@vger.kernel.org, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20260929121837.2715710-2-akrowiak@linux.ibm.com>
 References: <20260929121837.2715710-1-akrowiak@linux.ibm.com>
- <20260929121837.2715710-6-akrowiak@linux.ibm.com>
+ <20260929121837.2715710-2-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 29 Sep 2026 12:33:11 +0000
-Message-Id: <20260929123311.ECC6F1F000FF@smtp.kernel.org>
+Date: Tue, 29 Sep 2026 12:33:27 +0000
+Message-Id: <20260929123327.D24FE1F0089A@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 4 potential issue(=
 s) to consider:
-- [High] crypto: vfio_ap: stale reset_status allows non-operational queues =
-to bypass zeroization validation
-- [High] crypto: vfio_ap: unassigned queues bypass hardware zeroization due=
- to 0-initialized reset_status
+- [Critical] vfio_ap: Use-After-Free of vfio_device on AQIC resource release
+- [High] vfio_ap: ABA pointer aliasing causes unintended KVM GISC unregistr=
+ation
+- [High] vfio_ap: Host panic due to VFIO BUG_ON when queue reset fails duri=
+ng unmap
+- [Medium] vfio_ap: KVM GISC alert reference leak on dynamic queue unplug
 --
 
-commit 24e15c35f349b082c58fb854babbe21937a8bd2c
+commit 83f84bb0e3c067b95ee373106f589b768094e294
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+Subject: s390/vfio-ap: Fix leaks of pinned NIB and registered GISC
 
-s390/vfio-ap: fix queue state leakage to guest and host
-
-This commit limits the wait timeout for queue resets and modifies the
-passability checks to ensure strict queue zeroization before guest
-assignment. It also introduces a state machine callback to handle
-hardware queue state transitions.
-
-Cc: stable@vger.kernel.org
+Several code paths in the vfio_ap driver failed to free the AQIC resources,
+specifically the pinned guest NIB page and the registered guest ISC used to
+enable interrupts for a queue. This commit adds fixes to handle response
+codes and prevent memory exhaustion and depletion of KVM interrupt subclass
+registrations during dynamic AP reconfiguration.
 
 > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
 _ap_ops.c
-> index ad19d44a67bc4..89efb73d70355 100644
+> index 4db878c18f41c..e178b657faa8f 100644
 > --- a/drivers/s390/crypto/vfio_ap_ops.c
 > +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -881,14 +881,14 @@ static bool _queue_passable(struct vfio_ap_queue *q)
+[ ... ]
+> @@ -254,90 +276,231 @@ static void vfio_ap_wait_for_irqclear(int apqn)
+[ ... ]
+>  static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
+>  {
 >  	if (!q)
->  		return false;
-> =20
-> -	switch (q->reset_status.response_code) {
-> -	case AP_RESPONSE_NORMAL:
-> -	case AP_RESPONSE_DECONFIGURED:
-> -	case AP_RESPONSE_CHECKSTOPPED:
-> -		return true;
-> -	default:
-> -		return false;
-> -	}
-> +	/*
-> +	 * A queue is only passable if zeroization was confirmed by
-> +	 * apq_reset_check() via TAPQ status bit verification. This is
-> +	 * indicated by reset_status.response_code =3D=3D AP_RESPONSE_NORMAL (0=
-).
-> +	 * This is to protect against leaking the internal state of the queue
-> +	 * to the guest.
-> +	 */
-> +	return q->reset_status.response_code =3D=3D AP_RESPONSE_NORMAL;
->  }
-
-[ ... ]
-
-> @@ -2855,6 +2855,8 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apde=
-v)
-> =20
->  	if (matrix_mdev) {
->  		vfio_ap_mdev_link_queue(matrix_mdev, q);
-> +		vfio_ap_mdev_reset_queue(q);
-> +		flush_work(&q->reset_work);
-> =20
->  		/*
-
-[Severity: High]
-Does the 0-initialization of reset_status in vfio_ap_mdev_probe_queue() cau=
-se
-unassigned queues to bypass the zeroization verification in _queue_passable=
-()?
-
-If a queue is probed without an assigned matrix_mdev:
-
-	memset(&q->reset_status, 0, sizeof(q->reset_status));
-	INIT_WORK(&q->reset_work, apq_reset_check);
-
-	if (matrix_mdev) {
-		vfio_ap_mdev_link_queue(matrix_mdev, q);
-		vfio_ap_mdev_reset_queue(q);
-		...
-
-The hardware reset is skipped, but the memset sets the response code to 0
-(AP_RESPONSE_NORMAL). If this adapter is later linked to an mdev via
-assign_adapter_store(), will _queue_passable() incorrectly evaluate to true=
- and
-grant the guest access to unzeroized hardware state?
-
-[ ... ]
-
-> +	case AP_QUEUE_CONFIG_OFF:
-> +	case AP_QUEUE_CHKSTOP_ON:
-> +		/*
-> +		 * The queue has become non-operational. Hot-unplug its adapter
-> +		 * from the guest's shadow APCB so the guest stops issuing
-> +		 * operations to a queue it can no longer reach. Since queues are
-> +		 * addressed via a card/domain matrix it is not possible to remove
-> +		 * a single queue; the whole adapter must be unplugged.
-> +		 *
-> +		 * The queue remains bound to the driver and stays in
-> +		 * matrix_dev->info; vfio_ap_mdev_filter_matrix() will
-> +		 * re-admit it automatically when the queue returns to an
-> +		 * operational state (CONFIG_ON or CHKSTOP_OFF).
-> +		 */
-> +		if (test_bit_inv(AP_QID_CARD(q->apqn),
-> +				 matrix_mdev->shadow_apcb.apm) &&
-> +		    test_bit_inv(AP_QID_QUEUE(q->apqn),
-> +				 matrix_mdev->shadow_apcb.aqm)) {
-> +			clear_bit_inv(AP_QID_CARD(q->apqn),
-> +				      matrix_mdev->shadow_apcb.apm);
-> +			vfio_ap_mdev_update_guest_apcb(matrix_mdev);
-> +			reset_queues_for_apid(matrix_mdev,
-> +					      AP_QID_CARD(q->apqn));
-> +		}
-> +		break;
-
-[Severity: High]
-The commit message states that for non-operational queues, q->reset_status
-is zeroed and its response code is set to AP_RESPONSE_DECONFIGURED or
-AP_RESPONSE_CHECKSTOPPED.
-
-However, does this block miss updating the reset status?
-
-If the queue retains an old AP_RESPONSE_NORMAL (0) status from when it was
-operational, can _queue_passable() incorrectly evaluate to true and allow t=
-he
-queue to bypass the required hardware zeroization when later evaluated by t=
-he
-filtering logic?
-
-> +	default:
-> +		break;
-> +	}
+>  		return;
+> -	if (q->saved_isc !=3D VFIO_AP_ISC_INVALID) {
+> -		if (!WARN_ON(!q->matrix_mdev) && q->matrix_mdev->kvm)
+> -			kvm_s390_gisc_unregister(q->matrix_mdev->kvm, q->saved_isc);
+> -		q->saved_isc =3D VFIO_AP_ISC_INVALID;
 > +
-> +out_unlock:
-> +	release_update_locks_for_mdev(matrix_mdev);
-> +}
+> +	if (q->aqic_resources.isc !=3D VFIO_AP_ISC_INVALID) {
+> +		if (q->aqic_resources.kvm &&
+> +		    q->matrix_mdev && q->aqic_resources.kvm =3D=3D q->matrix_mdev->kvm=
+) {
+> +			kvm_s390_gisc_unregister(q->aqic_resources.kvm, q->aqic_resources.isc=
+);
+
+[Severity: High]
+Can this equality check fall victim to an ABA problem? If the original gues=
+t's
+struct kvm is freed and a new guest's struct kvm is allocated at the exact
+same memory address, could this evaluate to true and mistakenly unregister
+the new guest's GISC, silently stopping its AP interrupts?
+
+[Severity: Medium]
+If a queue is hot-unplugged from a running guest via sysfs and the reset
+fails, the AQIC resources are intentionally leaked and q->matrix_mdev is set
+to NULL. If the queue recovers later, will bypassing
+kvm_s390_gisc_unregister() permanently leak the KVM GISA alert reference for
+the still-running guest?
+
+> +		} else {
+> +			report_gisc_unregister_failure(q);
+> +		}
+> +		q->aqic_resources.isc =3D VFIO_AP_ISC_INVALID;
+> +		q->aqic_resources.kvm =3D NULL;
+>  	}
+> -	if (q->saved_iova && !WARN_ON(!q->matrix_mdev)) {
+> -		vfio_unpin_pages(&q->matrix_mdev->vdev, q->saved_iova, 1);
+> -		q->saved_iova =3D 0;
+> +
+> +	if (q->aqic_resources.iova) {
+> +		if (q->aqic_resources.vdev)
+> +			vfio_unpin_pages(q->aqic_resources.vdev, q->aqic_resources.iova, 1);
+
+[Severity: Critical]
+Is it possible for the q->aqic_resources.vdev pointer to become dangling he=
+re
+if the original matrix_mdev was destroyed? If a queue reset failed previous=
+ly
+and the resources were kept leaked, the queue would retain the unreferenced
+vdev pointer while the matrix_mdev is freed. Could a subsequent reset or
+reassignment trigger a use-after-free when dereferencing it for
+vfio_unpin_pages()?
+
+> +		else
+> +			pr_warn_ratelimited("APQN %02x.%04x: Failed to unpin NIB page at %pad=
+\n",
+> +					    AP_QID_CARD(q->apqn),
+> +					    AP_QID_QUEUE(q->apqn),
+> +					    &q->aqic_resources.iova);
+> +		q->aqic_resources.iova =3D 0;
+> +		q->aqic_resources.vdev =3D NULL;
+>  	}
+>  }
+[ ... ]
+> @@ -489,27 +658,48 @@ static struct ap_queue_status vfio_ap_irq_enable(st=
+ruct vfio_ap_queue *q,
+>  	status =3D ap_aqic(q->apqn, aqic_gisa, h_nib);
+>  	switch (status.response_code) {
+>  	case AP_RESPONSE_NORMAL:
+[ ... ]
+>  		vfio_ap_free_aqic_resources(q);
+> -		q->saved_iova =3D nib;
+> -		q->saved_isc =3D isc;
+> +		q->aqic_resources.iova =3D nib;
+> +		q->aqic_resources.isc  =3D isc;
+> +		q->aqic_resources.vdev =3D &q->matrix_mdev->vdev;
+
+[Severity: Critical]
+Does this code need to acquire a lifecycle reference to the vdev pointer
+before storing it here? Snapshooting the embedded pointer from matrix_mdev
+without taking a reference appears to expose the use-after-free discussed
+above if the mediated device goes away.
+
+> +		q->aqic_resources.kvm  =3D q->matrix_mdev->kvm;
+>  		break;
+[ ... ]
+> @@ -1857,8 +2046,29 @@ static void unmap_iova(struct ap_matrix_mdev *matr=
+ix_mdev, u64 iova, u64 length)
+>  	int loop_cursor;
+> =20
+>  	hash_for_each(qtable->queues, loop_cursor, q, mdev_qnode) {
+> -		if (q->saved_iova >=3D iova && q->saved_iova < iova + length)
+> +		if (q->aqic_resources.iova >=3D iova && q->aqic_resources.iova < iova =
++ length) {
+>  			vfio_ap_irq_disable(q);
+> +			/*
+> +			 * If AQIC disable was unable to confirm that interrupts were
+> +			 * disabled (IR=3D0), q->aqic_res.iova remains non-zero. VFIO
+> +			 * core requires the mapped pages to be unpinned during DMA
+> +			 * unmap notifications (or type1 IOMMU will BUG_ON after 10
+> +			 * retries).
+> +			 *
+> +			 * To satisfy VFIO core safely, fall back to a queue reset via
+> +			 * ZAPQ. ZAPQ wipes the queue state and clears the hardware's
+> +			 * internal NIB address register, neutralizing pending DMA.
+> +			 *
+> +			 * Flush the reset worker. If the reset completes, the worker
+> +			 * frees the AQIC resources (unpinning the NIB). If the reset
+> +			 * times out or fails with an error, the resources are kept
+> +			 * leaked to guard against wild DMA writes.
+> +			 */
+> +			if (q->aqic_resources.iova) {
+> +				vfio_ap_mdev_reset_queue(q);
+> +				flush_work(&q->reset_work);
+> +			}
+
+[Severity: High]
+If the queue reset times out or fails with an error, the NIB page is kept
+leaked and remains pinned. Since the VFIO core requires all mapped pages to
+be unpinned during an unmap notifier, could returning to the VFIO core from
+unmap_iova() without unpinning the page trigger a BUG_ON or WARN_ON and pan=
+ic
+the host kernel?
+
+> +		}
+>  	}
+>  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260929121837.2715=
-710-1-akrowiak@linux.ibm.com?part=3D5
+710-1-akrowiak@linux.ibm.com?part=3D1
