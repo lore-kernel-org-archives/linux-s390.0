@@ -1,260 +1,254 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD8525237AC;
-	Tue, 29 Sep 2026 12:38:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 234395208BE;
+	Tue, 29 Sep 2026 12:41:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790685497; cv=none; b=C0M/Kqp6tz8m1IcZ+WvmqETLzY5qZSGmXKZvKHCcV9itaE9KWH0SNLubDt3n02P4vzel0n4OiJOHZG+2Kvww4t/7Fnqt7kjYjMbSRHF+HD/ayM2VgYEGkqk5KELCDA2hJlUfX4F8/HV99HnJaVOwRfvGyZk5mglLwmfJcNDnBp4=
+	t=1790685688; cv=none; b=Vou6PV2cre+Q6Y90sVAg5hMPUOB2q3d+w60vHQ0aP6XW6COuvF7TgroU4lSRONNgts0dkleOHrwiiKDHX1T+zJVAxIbVsFVuioNldgkS0Zc0BGEs+SRE21MpEw/uRatJm+d/cUEvmXusgn57plMOZhBn6wum5NBysww1mX3yBn4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790685497; c=relaxed/simple;
-	bh=QC6jOU0Eop0si3mSmGrevxCUesIX0AnJPoftRANAN3w=;
+	s=arc-20240116; t=1790685688; c=relaxed/simple;
+	bh=Uhl/vM7TWPILR2Clki+AP9qjNTUVMOEdVvxJq7hyYOo=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=YrfqNzduH/l7vNsANQ/YWuV/71A8djXAR71siAWYboSRbjBcJvjpvPIza8JcS6GZMqH1O4Ylh/YQxrD2QBWS0qo0hSO05wi8JRCnw02a6IkVLU97FSCx49RSycWL6xQr+CgMYqd2IvECQ7iMabImEz0iiZyQnIEV+y29pPb+JjE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=D6uTziWD; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=nNIxUhRA4Xynyy241+KR6wA0CKBYMoYJ3oKhynB+mQgxIXvDqUr3DUytfZm2SDpIPbswbbQmWNPnmrfvZNCM0ao0XepbxHFVQf+mXkH9pPrBGTsMcCpVhouxrm8aDQn2avL+IIEKz4+LX0oXte3+32Qs9GX2a4FXggbaSbOub6Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NqpDPeUn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="D6uTziWD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 287871F000FF;
-	Tue, 29 Sep 2026 12:38:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NqpDPeUn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71F571F000FF;
+	Tue, 29 Sep 2026 12:41:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790685495;
-	bh=avk3euovDkGkIFMTXibqpEymbUBwVEAyF3XiMpQtO+A=;
+	s=k20260515; t=1790685686;
+	bh=QrYN+KfFVNzB3DmmPmFm42rJ43sQtMx7T+AXgI14HqE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=D6uTziWD1gfFGkbrcduSdrFsiwguETVdUNx4OtGc3KGs62mNDwKlXey2zFWfRMg4P
-	 qJbGksvESSh4M3z2uwUWcL1sjxGWE9qAH9FLXc+KG/FJHxgYXwQljdO0mrtEl1jy9v
-	 F6/pclAwhXCcR9zYqRP/eJdw8zBdCl2VcwpylnkCnFu5Tzq4gRrYmL2oApSgpNX0nF
-	 cARfbKcMhdOAhpkSWVD7ozWUQoiDZWZ2AHT0nynASO4wo/ze9LVNBSQoFe8foHZQi2
-	 W2b9aPXEdixuMIr935KWjb4ZTHHCAsh5pHyODrtkxcenAhnx4scdg62I8YhixN4KUZ
-	 2TQBKDSX2gjLA==
+	b=NqpDPeUn9sOb60qQN+trQwTPn6mZdc12KdPC+K0aO6qS1dbF2rgSIS7eTSALWdnXT
+	 Qloho/ajuLa+h86YTv+iGnG0AVilL/VOh0i47J67MqMXhziERvVwndXpBNVL6nvdcT
+	 UZGnzk5qXo1OfDJsu+7ldKatfxeURPBkwrLgbT6e04jJ8AYveLn5k/Gq9Bk5kT9lii
+	 hscZAthmc54uoBgkQs+ZFtRs3t7+Fvt11Ea4mn9JN5m47DPW4BGMlQ+PQSUuczYAZr
+	 syZ9YCWgHhNIS7OPWfy0+FNV+HkAqhe9v1E3oN24ocv5V0Tw3JDY+HJ1yhtlvCRlkW
+	 5zn1bmEptbsHg==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 3/6] s390/vfio-ap: Fix unbounded loop in
- apq_reset_check()
+Subject: Re: [PATCH v9 6/6] s390/vfio-ap: replace guest-reachable WARNs with
+ ratelimited warnings
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-In-Reply-To: <20260929121837.2715710-4-akrowiak@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>
+In-Reply-To: <20260929121837.2715710-7-akrowiak@linux.ibm.com>
 References: <20260929121837.2715710-1-akrowiak@linux.ibm.com>
- <20260929121837.2715710-4-akrowiak@linux.ibm.com>
+ <20260929121837.2715710-7-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 29 Sep 2026 12:38:14 +0000
-Message-Id: <20260929123815.287871F000FF@smtp.kernel.org>
+Date: Tue, 29 Sep 2026 12:41:25 +0000
+Message-Id: <20260929124126.71F571F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 6 potential issue(=
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
 s) to consider:
-- [Critical] crypto: zeroization bypass and DMA vulnerability if ZAPQ retur=
-ns BUSY
-- [Critical] crypto: Use-After-Free of vdev pointer after reset timeout
-- [High] crypto: resource leak and erroneous WARN when ZAPQ returns BUSY
-- [High] crypto: zeroization bypass if non-reset state change completes at =
-timeout
-- [Medium] crypto: spurious ZAPQs from conflating TAPQ and ZAPQ BUSY respon=
-ses
-- [Low] crypto: dead code setting fallback reset status on timeout
+- [High] vfio_ap: AB-BA deadlock between guests_lock and pqap_hook_rwsem
+- [High] vfio_ap: returning negative errors from handle_pqap() causes guest=
+-triggerable VM crash
+- [High] vfio_ap: clobbering guest registers before fallback to userspace b=
+reaks emulation
+- [High] vfio_ap: 3-way SRCU deadlock via guests_lock and kvm->lock
+- [Medium] vfio_ap: dev_warn_ratelimited() uses static state, breaking per-=
+mdev isolation
 --
 
-commit 625818127ace62cbd33b251880fe0f1f6d732f69
+commit 5bf97ebc06bca2480f470ccf5163316139db70cc
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-s390/vfio-ap: Fix unbounded loop in apq_reset_check()
+s390/vfio-ap: replace guest-reachable WARNs with ratelimited warnings
 
-This commit fixes an unbounded wait loop in the apq_reset_check() worker by
-adding a 2000ms timeout. It also updates TAPQ status checks to accurately
-verify asynchronous queue zeroization completion before freeing AQIC
-resources.
+This commit replaces WARN and WARN_ONCE macros in code paths reachable by a
+guest with ratelimited warning functions to prevent malicious guests from
+flooding the kernel log. It also refactors handle_pqap() to hold both
+guests_lock and mdevs_lock during execution, using a single exit point to
+prevent one guest's mdev from suppressing messages for another.
 
 > diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
 _ap_ops.c
-> index 087e8474a34ab..07fbfa6f10152 100644
+> index 89efb73d70355..7b1da96146271 100644
 > --- a/drivers/s390/crypto/vfio_ap_ops.c
 > +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -2164,6 +2164,12 @@ static int apq_status_check(int apqn, struct ap_qu=
-eue_status *status)
->  		return -EBUSY;
+> @@ -226,6 +226,58 @@ static struct vfio_ap_queue *vfio_ap_mdev_get_queue(
+>  	return NULL;
+>  }
 > =20
->  	case AP_RESPONSE_BUSY:
-> +		/*
-> +		 * The queue is busy with something unrelated to a reset and our
-> +		 * ZAPQ was rejected outright. Re-issue the ZAPQ.
-> +		 */
-> +		return -EAGAIN;
-> +
+> +static void report_tapq_rc(struct vfio_ap_queue *q, u8 rc)
+> +{
+> +	if (q->matrix_mdev)
+> +		dev_warn_ratelimited(mdev_dev(q->matrix_mdev->mdev),
+> +				     "PQAP(TAPQ) for %02x.%04x failed with invalid rc=3D%#02x\n",
+> +				     AP_QID_CARD(q->apqn),
+> +				     AP_QID_QUEUE(q->apqn), rc);
 
 [Severity: Medium]
-Does returning `-EAGAIN` here trigger spurious ZAPQs by conflating TAPQ and
-ZAPQ BUSY responses?
+Will this actually provide per-mdev isolation?
 
-`apq_status_check()` evaluates the output of `ap_tapq()`. If `ap_tapq()`
-returns `AP_RESPONSE_BUSY`, it means the read instruction itself was
-transiently rejected. However, this code appears to incorrectly assume it
-means the previous ZAPQ was rejected outright, returning `-EAGAIN`.=20
+The commit explicitly states that dev_warn_ratelimited() was chosen so the
+rate limit state is per-mdev. However, dev_warn_ratelimited() relies on
+dev_level_ratelimited(), which defines a static DEFINE_RATELIMIT_STATE at
+the call site:
 
-This forces the worker loop to immediately issue a new `ap_zapq()`, which
-overwrites `q->reset_status` and destroys the correct queue state tracking,
-likely leading to further failures.
+include/linux/dev_printk.h:dev_level_ratelimited() {
+    ...
+    static DEFINE_RATELIMIT_STATE(_rs, ...);
+    ...
+}
+
+Does this mean any guest spamming invalid requests will exhaust the static
+rate limit for this source line, silencing the warnings for all other guest=
+s?
 
 [ ... ]
 
-> @@ -2223,30 +2280,73 @@ static void apq_reset_check(struct work_struct *r=
-eset_work)
->  			 */
->  			memcpy(&q->reset_status, &status, sizeof(status));
->  			return;
-> -		}
-> -		if (ret =3D=3D -EBUSY) {
-> +		} else if (elapsed >=3D AP_RESET_MAX_WAIT) {
-> +			/*Timed out without being able to verify zapq completed */
-> +			if (!ret || ret =3D=3D -ENODEV) {
+> @@ -787,32 +836,39 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
+> =20
+>  	apqn =3D vcpu->run->s.regs.gprs[0] & 0xffff;
+> =20
+> -	/* If we do not use the AIV facility just go to userland */
+> -	if (!(vcpu->arch.sie_block->eca & ECA_AIV)) {
+> -		VFIO_AP_DBF_WARN("%s: AIV facility not installed: apqn=3D0x%04x, eca=
+=3D0x%04x\n",
+> -				 __func__, apqn, vcpu->arch.sie_block->eca);
+> -
+> -		return -EOPNOTSUPP;
+> -	}
+> -
+> +	mutex_lock(&matrix_dev->guests_lock);
 
 [Severity: High]
-Does evaluating the timeout condition before the retry logic allow an
-unrelated state change completion to bypass the required zeroization step?
+Does this code introduce an AB-BA deadlock between guests_lock and
+pqap_hook_rwsem?
 
-If the initial ZAPQ returns `AP_RESPONSE_STATE_CHANGE_IN_PROGRESS`, the wor=
-ker
-polls until it completes before retrying ZAPQ. If the state change completes
-exactly at `elapsed >=3D AP_RESET_MAX_WAIT`, `ap_tapq()` indicates the queu=
-e is
-idle, and `ret =3D 0`.
+A guest executing PQAP causes KVM to call handle_pqap() under the read-side
+of pqap_hook_rwsem:
 
-Because the loop evaluates the timeout condition `else if (elapsed >=3D
-AP_RESET_MAX_WAIT)` before the ZAPQ retry logic, the timeout block executes
-`apq_reset_finalize()`, forces the status to `AP_RESPONSE_NORMAL`, and retu=
-rns.
-
-The required `ap_zapq()` is entirely bypassed, leaving the queue unzeroized
-while freeing AQIC resources, resulting in a DMA vulnerability.
-
-> +				/*
-> +				 * Zeroization confirmed (ret =3D=3D 0): the TAPQ status bits
-> +				 * indicate the async portion of the ZAPQ completed
-> +				 * successfully. Free AQIC resources and return.
-> +				 *
-> +				 * Queue non-operational (ret =3D=3D -ENODEV): the queue is
-> +				 * deconfigured or checkstopped; interrupts are not
-> +				 * possible so AQIC resources can be safely freed.
-> +				 * Zeroization cannot be confirmed in this state, but the
-> +				 * queue cannot generate interrupts, so the NIB page is
-> +				 * no longer a DMA target and it is safe to free it.
-> +				 */
-> +				apq_reset_finalize(q, &status, ret);
-> +				return;
-> +			}
-> +
-> +			report_apq_reset_check_timeout(q);
-> +
-> +			/*
-> +			 * Zeroization could not be confirmed; set
-> +			 * reset_status to AP_RESPONSE_RESET_IN_PROGRESS.
-> +			 * This is used internally to signal that the reset
-> +			 * did not complete, and ensures that if the queue
-> +			 * is reset again, the re-issue logic in
-> +			 * apq_reset_check() will re-issue the ZAPQ.
-> +			 */
-> +			q->reset_status.response_code =3D AP_RESPONSE_RESET_IN_PROGRESS;
-
-[Severity: Low]
-Is this assignment to `q->reset_status.response_code` dead code?
-
-The timeout logic assigns `AP_RESPONSE_RESET_IN_PROGRESS` to theoretically
-trigger a re-issue during the next reset. However, the next reset requires
-calling `vfio_ap_mdev_reset_queue()`, which immediately executes
-`status =3D ap_zapq(q->apqn, 0)` and unconditionally overwrites
-`q->reset_status` via `memcpy`.
-
-> +
-> +			return;
-
-[Severity: Critical]
-Does returning early here skip cleanup and leave `q->aqic_resources.vdev`
-as a dangling pointer?
-
-`q->aqic_resources.vdev` points to the `vdev` embedded in `ap_matrix_mdev`
-without holding a reference count. When the new timeout mechanism returns
-early without calling `apq_reset_finalize()`, it leaves
-`q->aqic_resources.vdev` populated.
-
-When the mediated device is removed, `vfio_ap_mdev_remove()` flushes the
-worker and calls `vfio_put_device()`, which frees the `ap_matrix_mdev`.
-This turns `q->aqic_resources.vdev` into a dangling pointer on a surviving
-`vfio_ap_queue`.
-
-Later, if the AP queue is unbound or reused, `vfio_ap_free_aqic_resources()`
-unconditionally dereferences this pointer via
-`vfio_unpin_pages(q->aqic_resources.vdev, ...)`, which could trigger a
-use-after-free on the host.
-
-> +		} else if (ret =3D=3D -EBUSY) {
->  			pr_notice_ratelimited(WAIT_MSG, elapsed,
->  					      AP_QID_CARD(q->apqn),
->  					      AP_QID_QUEUE(q->apqn),
->  					      status.response_code,
->  					      status.queue_empty,
->  					      status.irq_enabled);
-> +			continue;
->  		} else {
-> -			if (q->reset_status.response_code =3D=3D AP_RESPONSE_RESET_IN_PROGRES=
-S ||
-> -			    q->reset_status.response_code =3D=3D AP_RESPONSE_BUSY ||
-> -			    q->reset_status.response_code =3D=3D AP_RESPONSE_STATE_CHANGE_IN_=
-PROGRESS ||
-> -			    ret =3D=3D -EAGAIN) {
-> +			if (ret =3D=3D -EAGAIN ||
-> +			    q->reset_status.response_code =3D=3D AP_RESPONSE_RESET_IN_PROGRES=
-S ||
-> +			    q->reset_status.response_code =3D=3D AP_RESPONSE_STATE_CHANGE_IN_=
-PROGRESS) {
-
-[Severity: Critical]
-Is it possible for `AP_RESPONSE_BUSY` to be missed in this retry check?
-
-If `ap_zapq()` inside the worker loop is rejected with `AP_RESPONSE_BUSY`,
-`q->reset_status.response_code` is set to `AP_RESPONSE_BUSY`.
-On the next iteration, if the queue becomes idle, `ap_tapq()` returns
-`AP_RESPONSE_NORMAL` (ret =3D 0).
-
-Since `AP_RESPONSE_BUSY` is missing from the retry condition, the worker se=
-ems
-to skip re-issuing the ZAPQ. It would fall through to `apq_reset_finalize()=
-`,
-falsely overriding the status to `AP_RESPONSE_NORMAL` and freeing the AQIC
-resources. Can this leave secret keys intact and expose the host to wild
-DMA writes?
-
-> +				status =3D ap_zapq(q->apqn, 0);
-> +				memcpy(&q->reset_status, &status, sizeof(status));
->  				continue;
->  			}
-
-
-I also have a question about `vfio_ap_mdev_reset_queue()`:
-
-drivers/s390/crypto/vfio_ap_ops.c:vfio_ap_mdev_reset_queue() {
+arch/s390/kvm/s390/priv.c:kvm_s390_handle_b2() {
     ...
-	switch (status.response_code) {
-	case AP_RESPONSE_NORMAL:
-	case AP_RESPONSE_RESET_IN_PROGRESS:
-	case AP_RESPONSE_STATE_CHANGE_IN_PROGRESS:
+    down_read(&vcpu->kvm->arch.crypto.pqap_hook_rwsem);
+    ...
+}
+
+This patch makes handle_pqap() unconditionally acquire guests_lock here.
+
+Concurrently, a host thread executing a configuration change (e.g. via
+get_update_locks_for_kvm()) acquires guests_lock and then attempts to
+acquire the write-side of pqap_hook_rwsem:
+
+drivers/s390/crypto/vfio_ap_ops.c:get_update_locks_for_kvm() {
+    ...
+    mutex_lock(&matrix_dev->guests_lock);
+    if (kvm) {
+        mutex_lock(&kvm->lock);
+        down_write(&kvm->arch.crypto.pqap_hook_rwsem);
+    }
     ...
 }
 
 [Severity: High]
-Does lacking `case AP_RESPONSE_BUSY:` here cause legitimately busy queues
-to fail in the default case?
+Does acquiring guests_lock here also introduce a 3-way SRCU deadlock?
 
-If the queue is transiently busy, ZAPQ returns `AP_RESPONSE_BUSY`. Execution
-falls to the `default:` branch, triggering a host WARN (falsely claiming a
-hardware bug) and intentionally leaking AQIC resources without queueing the
-worker to retry. Could this allow a guest that keeps the queue busy to cause
-resource leaks and kernel warnings on the host when the device is removed or
-reset?
+KVM holds srcu_read_lock(&kvm->srcu) when calling the instruction intercept
+handlers. The KVM locking documentation explicitly forbids acquiring any lo=
+ck
+that wraps kvm->lock while holding KVM's SRCU read lock:
+
+Documentation/virt/kvm/locking.rst:
+synchronize_srcu(&kvm->srcu) is called inside critical sections for
+kvm->lock ... These locks _cannot_ be taken inside a kvm->srcu read-side
+critical section.
+
+Can this result in a circular dependency where:
+1. The vCPU thread holds SRCU and waits for guests_lock.
+2. The mdev configuration thread holds guests_lock and waits for kvm->lock
+   (via get_update_locks_for_kvm()).
+3. Another KVM thread holding kvm->lock calls synchronize_srcu(&kvm->srcu),
+   waiting on the vCPU thread?
+
+>  	mutex_lock(&matrix_dev->mdevs_lock);
+> +	matrix_mdev =3D vfio_ap_mdev_for_apqn(apqn);
+> +	if (!matrix_mdev || !matrix_mdev->kvm) {
+> +		ret =3D -ENODEV;
+> +		goto out_unlock;
+> +	}
+
+[Severity: High]
+Can returning a negative error code here cause a guest-triggerable VM crash?
+
+If a guest executes PQAP for an unassigned queue or missing mdev, the patch=
+ed
+handle_pqap() returns -ENODEV or -EINVAL instead of returning 0 and setting=
+ a
+guest CC.
+
+KVM's instruction intercept handler (__vcpu_run) propagates non-EOPNOTSUPP
+negative errors directly to userspace:
+
+arch/s390/kvm/s390/s390.c:vcpu_post_run() {
+    ...
+    if (rc !=3D -EOPNOTSUPP)
+        return rc;
+    ...
+}
+
+QEMU treats an unexpected KVM_RUN failure as a fatal error and terminates
+the VM, allowing an unprivileged guest to crash its hypervisor process.
+
+[ ... ]
+
+> -	matrix_mdev =3D container_of(vcpu->kvm->arch.crypto.pqap_hook,
+> -				   struct ap_matrix_mdev, pqap_hook);
+> -
+> -	/* If the there is no guest using the mdev, there is nothing to do */
+> -	if (!matrix_mdev->kvm) {
+> -		vfio_ap_le_guid_to_be_uuid(&matrix_mdev->mdev->uuid, uuid);
+> -		VFIO_AP_DBF_WARN("%s: mdev %08lx-%04lx-%04lx-%04lx-%04lx%08lx not in u=
+se: apqn=3D0x%04x\n",
+> -				 __func__, uuid[0],  uuid[1], uuid[2],
+> -				 uuid[3], uuid[4], uuid[5], apqn);
+> +	/* If we do not use the AIV facility just go to userland */
+> +	if (!(vcpu->arch.sie_block->eca & ECA_AIV)) {
+> +		VFIO_AP_DBF_WARN("%s: AIV facility not installed: apqn=3D0x%04x, eca=
+=3D0x%04x\n",
+> +				 __func__, apqn, vcpu->arch.sie_block->eca);
+> +		dev_warn_ratelimited(mdev_dev(matrix_mdev->mdev),
+> +				     "PQAP(AQIC) for %02x.%04x: AIV facility not installed\n",
+> +				     AP_QID_CARD(apqn), AP_QID_QUEUE(apqn));
+> +		ret =3D -EOPNOTSUPP;
+>  		goto out_unlock;
+>  	}
+
+[ ... ]
+
+> @@ -835,7 +895,8 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
+>  	memcpy(&vcpu->run->s.regs.gprs[1], &qstatus, sizeof(qstatus));
+>  	vcpu->run->s.regs.gprs[1] >>=3D 32;
+>  	mutex_unlock(&matrix_dev->mdevs_lock);
+> -	return 0;
+> +	mutex_unlock(&matrix_dev->guests_lock);
+> +	return ret;
+>  }
+
+[Severity: High]
+Does routing the -EOPNOTSUPP fallback through out_unlock clobber guest
+registers and break emulation?
+
+If the KVM AIV facility is not installed, handle_pqap() returns -EOPNOTSUPP
+to defer emulation to userspace.
+
+However, since this now passes through out_unlock, it unconditionally
+executes memcpy(&vcpu->run->s.regs.gprs[1], &qstatus, sizeof(qstatus)).
+
+Will this overwrite the guest's actual instruction parameters in gprs[1]
+with an error code before KVM exits to userspace, causing QEMU to attempt
+emulation with corrupted inputs?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260929121837.2715=
-710-1-akrowiak@linux.ibm.com?part=3D3
+710-1-akrowiak@linux.ibm.com?part=3D6
