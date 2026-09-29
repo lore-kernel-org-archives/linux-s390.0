@@ -1,120 +1,155 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 7F08953D9D5;
-	Tue, 29 Sep 2026 17:00:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mail-wm2-f13.google.com (mail-wm2-f13.google.com [74.125.225.141])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6436E5476C3
+	for <linux-s390@vger.kernel.org>; Tue, 29 Sep 2026 17:44:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790701229; cv=none; b=MRGQs41vnOpLaaEW7Dmov3c3Df64WDNpK3o6GwpdH03lN0xKSDB5j64psUOR+GSwkmdSWBunOMZSwlj84OIMkr4NnbBZyX6XIEz9R347nSTfbRmssihex+3fj6f7fFxXkRUHpNuj86IbrWrMuxW+Tw1C/pHLmxdLrZdMLN1Hfgk=
+	t=1790703868; cv=none; b=hP0eZYD3ZzCx/85hZti9up+dVA4nufdMYSI+0YuCAgSdL3NEQAbjSxE2pgI79bQlx4Om0YUSqwOhE6pUIcf58nOzETgqPckR48o7ECf1a7c4WY9oxavxAFmIK98zozaBOAort+UZ3zjR1dKbmEWc7Pgv6MwFjkKR9gFrCmURDKs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790701229; c=relaxed/simple;
-	bh=JOH3/jvzoj8I30I9E7kqxaEsc2Cplh2etaLYcI+/ZEo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Zd7b9ff4NtA9o9X5XmnigljUk03pW1+fQethfUqW2vzFqPXphLhsgN96D9pQftrckzvqaZfWVIbbJ94X6rSIbYCgJ3gRmK69BCRu/FVNoNevVDQdoLxVmUBSHv8xlj9ORnmvuZavzGNfvnPBgGXwn/JyZIUQnHqaayEe2j5MVfw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=nzbmtfKi; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	s=arc-20240116; t=1790703868; c=relaxed/simple;
+	bh=0xBkcPblbpjG4vkQkMpJRewja3D/3gtloFXrU9YBVy0=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=dfryeynxYwxpX1503w4K4Pcq5+JzZ72G2yHpHBuPX0JDNY51KQR9FxOULi/Qrfs64B6JaoGBw+Ky1A/wMf2JnSlGYJJc5bsoqf0MR1S5Ay7hH8QgombJ5a37xFTkQNnQAJkGcSfSUZEaWWhtNIsHHmPENIFb/7eupwosw27mRTk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=at3cWKpM; arc=none smtp.client-ip=74.125.225.141
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="nzbmtfKi"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8F3EF1655;
-	Tue, 29 Sep 2026 10:00:23 -0700 (PDT)
-Received: from arm.com (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 55F753F85F;
-	Tue, 29 Sep 2026 10:00:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1790701227; bh=JOH3/jvzoj8I30I9E7kqxaEsc2Cplh2etaLYcI+/ZEo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=nzbmtfKi8hy7Cc/yT4F+PGL6tW6kIHItKwVzh05TXYNazNIP2VPxFmRX+iByTzJci
-	 vkpKv707Z8drHTA6cAUBWSs41lcGj8D84X8Ul4eZUyi05Lu5EFRpj5sH9ciUXEZV9J
-	 JuiircUcRlGb+buJ2IlH/gTkk8HxtKdcSyyrp3Zo=
-Date: Tue, 29 Sep 2026 18:00:12 +0100
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: Andreas Grapentin <gra@linux.ibm.com>
-Cc: Steffen Eiden <seiden@linux.ibm.com>, kvm@vger.kernel.org,
-	kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@kernel.org>,
-	Friedrich Welter <fritz@linux.ibm.com>,
-	Fuad Tabba <tabba@google.com>, Gautam Gala <ggala@linux.ibm.com>,
-	Hariharan Mari <hari55@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Hendrik Brueckner <brueckner@linux.ibm.com>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Joey Gouly <joey.gouly@arm.com>, Marc Zyngier <maz@kernel.org>,
-	Nico Boehr <nrb@linux.ibm.com>,
-	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-	Oliver Upton <oupton@kernel.org>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
-	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v8 16/29] arm64: Share arm64 headers with s390
-Message-ID: <arvunF8epgpWh1YT@arm.com>
-References: <20260918133107.1042730-1-seiden@linux.ibm.com>
- <20260918133107.1042730-17-seiden@linux.ibm.com>
- <arqQ2Eat4VUBbl49@arm.com>
- <20260928162345.428362-C-seiden@linux.ibm.com>
- <ars6Jh5DiendDT7G@li-d8547bcc-2d90-11b2-a85c-a70f2a37009a.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="at3cWKpM"
+Received: by mail-wm2-f13.google.com with SMTP id 5b1f17b1804b1-49b912df756so35116825e9.3
+        for <linux-s390@vger.kernel.org>; Tue, 29 Sep 2026 10:44:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1790703864; x=1791308664; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=k31zVVbNicpwi9YDlhFvR6Wyco71XCVxmV3/xYq3pxI=;
+        b=at3cWKpMhGKj8d+1+sqvMlItz70CUXrkUiivMhFNZII1Utz24VaNNZEW31ohThwo2f
+         PDFYEGDTa5uSmd7Cl5FcwfCxHUwR0n0wQgeY2PGZtlHs9u0kyvaTHTYj3ue2tWCW8SZp
+         y146QBqMApBK9L6BJHy3Ls55QWIcVruXpBR3yViRPUoXR19yXE3oiPp3u91/rYAc72+D
+         /rIvXfGnZJ/SEt9KohJUaGHUuAV25KXNKQRjA+oxpWAzYAtfmgRHvjrl0O+fs5FVC8CK
+         oBk1n+QFMa6a//dDx7Ge5rXzjwYmYlbhOJUtg+W/HTkWD1SlsDVcz3TISIpIVaGTZCPa
+         M+QQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1790703864; x=1791308664;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=k31zVVbNicpwi9YDlhFvR6Wyco71XCVxmV3/xYq3pxI=;
+        b=izcS2jGUtl/a/c5R0ZpQ8f3nweU9J9j9t944LkVERXPRyQPj3/z2r2Hy5/VPSncdky
+         MtBDtBMpbVKQgCcKNORc2Szy3ndLeAhxu85BYXJ7IW54JhTe/xHAEgkIM6DuE7VJHM6j
+         7WXoyfFB7ntlHlDxrwDgptpP8wcz7/dMXzI0XINwfforEcAE9got1pQQAwtMWIf/5RyM
+         aB41DaWGXYieBguMuZgxDDgwW/wRAikBHEd5R3EurprUggMH3sK3c1teeXFEHUzDkOER
+         LqVj19WxYFMFES7H6L7MiRdtXTxjahO0I3vMDdmo9OO4unOKM6UatLJVuH7FaRuAUCTC
+         HIwA==
+X-Forwarded-Encrypted: i=1; AKwUvBz6qizPGl5aNrwWqoPSo8ypRZxhLANswkQE/NPfSdwXi8ffVXHB8Alf66P9wohzq20uWwXjwxIYHzUf@vger.kernel.org
+X-Gm-Message-State: AFuF++kAxrzU1Elrun/1jdwUT21hM91IH13yh5lVg1DbgDIUQkvCKodL
+	K5HLbTVpev4wsdJYNRWMgxFUffBLZip/V7U1faVfJYXki0/AWXevjTZn
+X-Gm-Gg: AYBFou3ULgoAFxmDQQL0qVIJ2K8eDa06i4iYm4CUvTRWTaIOdxgAHlQVUyE4k8SXT1/
+	NXb3ONNMNByrqlzsqe4wV9Xzl7hmRqG751rQ12ZwxvarMgejgVUGa91wdVNHrZwB7N1/4DK3j+q
+	dPFcsIaWzF5RHic2izyC1cY0VDEMN7NvFkmCmOfNri3BDjm9n8KIQVDuKtdw8WopLXDFq61NC28
+	LT96aNw8xGBD+BjFigmbToasDSpnjN7NQQe+nEEN+CgnlZHinAqj2NXPIJ7jyGhWX/G16BJjoRK
+	RXRiJU/v1g+ehs4uKhXggXl9nPt5ex710cKaniefth4ik20cKeT30rV+xnYwehF1xkmtzmxEJo7
+	MpqcbHowCzBS1FLNmSknvNjBYmJOC/onY94t8EsX6ohu+Fo81H6d2x4yp8YIyWTsSVCOBOMhpSW
+	eTwSMnRVPeD2yb+0vCSDoV5ed2+/G8skbYTrYi+bkeD2nbMsOZ+PzRZHQqYjLttpnkNl3u6N251
+	1Ai95H1CPCSMo3eem6FJRkq66C7GT9QPEA=
+X-Received: by 2002:a05:600c:4e12:b0:49d:1842:f001 with SMTP id 5b1f17b1804b1-49fe66b6e0emr305056015e9.14.1790703863276;
+        Tue, 29 Sep 2026 10:44:23 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a00cfae123sm103285395e9.13.2026.09.29.10.44.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 29 Sep 2026 10:44:22 -0700 (PDT)
+Date: Tue, 29 Sep 2026 18:44:15 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Nathan Chancellor <nathan@kernel.org>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>, Andreas Schwab
+ <schwab@linux-m68k.org>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner
+ <tglx@kernel.org>, Theodore Ts'o <tytso@mit.edu>, Vincenzo Frascino
+ <vincenzo.frascino@arm.com>, Nick Desaulniers <ndesaulniers@google.com>,
+ Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Mark Rutland <mark.rutland@arm.com>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Paul Walmsley
+ <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou
+ <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+ <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Ingo
+ Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
+ <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ x86@kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, loongarch@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org,
+ linux-s390@vger.kernel.org, llvm@lists.linux.dev
+Subject: Re: [PATCH v2] random: vDSO: Avoid call to memset() when zeroing
+ reserved in __cvdso_getrandom_data()
+Message-ID: <20260929184415.1920fe91@pumpkin>
+In-Reply-To: <20260929165939.GA1890629@ax162>
+References: <20260925-vdso-getrandom-avoid-memset-llvm-24-v2-1-ce640f872393@kernel.org>
+	<87zex4ic68.fsf@linux-m68k.org>
+	<20260926121927.GA1486962@ax162>
+	<are7cfMIHZZn6jLz@zx2c4.com>
+	<20260927080225.37534e7c@pumpkin>
+	<20260929165939.GA1890629@ax162>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ars6Jh5DiendDT7G@li-d8547bcc-2d90-11b2-a85c-a70f2a37009a.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Tue, Sep 29, 2026 at 06:19:20AM +0200, Andreas Grapentin wrote:
-> On Sep 28 26, Steffen Eiden wrote:
-> > On Mon, Sep 28, 2026 at 05:07:52PM +0100, Catalin Marinas wrote:
-> > > On Fri, Sep 18, 2026 at 03:30:53PM +0200, Steffen Eiden wrote:
-> > > > +# Enable all code shared to s390
-> > > > +KBUILD_CFLAGS	+= -DARM64_S390_COMMON
-> > > > +KBUILD_AFLAGS	+= -DARM64_S390_COMMON
-> > > > +KBUILD_CPPFLAGS	+= -DARM64_S390_COMMON
+On Tue, 29 Sep 2026 18:59:39 +0200
+Nathan Chancellor <nathan@kernel.org> wrote:
+
+> On Sun, Sep 27, 2026 at 08:02:25AM +0100, David Laight wrote:
+> > On Sat, 26 Sep 2026 14:32:49 +0200
+> > "Jason A. Donenfeld" <Jason@zx2c4.com> wrote:  
+> > > Do we even need to return a value at all? Might as well just make the
+> > > function two lines:
 > > > 
-> > > Do we actually need these defines? They seem only to be used as markers
-> > > for the awk scripts to extract the definitions. Why do we need the C
-> > > preprocessor involved at all? Could we not just have comment markers:
-> > > 
-> > > /* ARM64_S390_COMMON_BEGIN */
-> > > ...
-> > > /* ARM64_S390_COMMON_END */
-> > >
-> > No technically we do not need those. They could be useful if we find out
-> > that AWK is the wrong tool and move to a C Preprocessor + diff based
-> > approach. 
+> > > +       for (char *d = dst; size--;)
+> > > +               *d++ = value;  
 > > 
-> > if the ifdev is not closed the compiler will complain, but an 'arm did
-> > not destroy us' verifiaction tool ( I will send one soonish) could do
-> > the same.
+> > Wouldn't it be better to add a barrier() or similar in there to
+> > stop the compiler playing unwanted games>  
 > 
-> iirc the last time we discussed this we didn't think that load-bearing
-> comments were the right tool here. We also briefly floated the idea of
-> using a #pragma region based approach, but in the end we went with the
-> #ifdef preprocessor directives instead, as the least invasive
-> non-comment marker that was available.
+> Wouldn't that just result in the same code generation issue that Jason
+> pointed out on my v1?
+> 
+>   https://lore.kernel.org/aquyVkdYceiWdckX@zx2c4.com/
 
-The downside is that the macro affects the preprocessed code. We need to
-ensure they don't leak in uapi headers for example. Not a fan of this
-approach but I don't have a better suggestion either. At least we could
-write them as:
+I missed that one going past....
+You only get 'rep stosq' because the compiler first converts it to memset(). 
 
-#if ARM64_S390_COMMON == 1
+> Maybe that doesn't matter because modern compilers have better options?
 
-so we get an error if someone misspells the macro name (or they leak in
-uapi headers, vDSO).
+A lot of cpu will run the 'rep stosq' very slowly (it has a big fixed cost).
 
-It would also be useful for the awk scripts look for the paired #endif
-rather than relying on the comment at the end of the line. Otherwise
-it's not really different from just sticking to comments.
+At a guess the loop is 3 clocks (possibly 2; but that usually needs
+you to use negative offsets from the end - and gcc doesn't like that).
+That is comparable to a mispredicted branch (and you might get two of them).
+It still might actually be faster than the 'rep stosq' version!
 
--- 
-Catalin
+I suspect the fastest code is to unroll the loop.
+	xor %eax, %eax
+	movl %eax, 12(%rbx)
+	movq %rax, 16(%rbx)
+	movq %rax, 24(%rbx)
+	movq %rax, 32(%rbx)
+	movq %rax, 40(%rbx)
+	movq %rax, 48(%rbx)
+	movq %rax, 56(%rbx)
+8 clocks on old cpu, 4 on newer ones.
+But more likely to be limited be I-cache reads.
+
+If you are going to use 'rep stos' then you might as well write
+13 32bit words.
+
+David
+
