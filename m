@@ -1,254 +1,204 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 234395208BE;
-	Tue, 29 Sep 2026 12:41:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91FF341A92C;
+	Tue, 29 Sep 2026 13:06:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790685688; cv=none; b=Vou6PV2cre+Q6Y90sVAg5hMPUOB2q3d+w60vHQ0aP6XW6COuvF7TgroU4lSRONNgts0dkleOHrwiiKDHX1T+zJVAxIbVsFVuioNldgkS0Zc0BGEs+SRE21MpEw/uRatJm+d/cUEvmXusgn57plMOZhBn6wum5NBysww1mX3yBn4=
+	t=1790687165; cv=none; b=jY0/n4xstugP9BJmlC89Qw81aTN9VT3k0LWv7jXLfkEU6oiOwuhEeSLugx/TnuQ+7BzfB3/T3tmGvg7BKNuaLU1z2YeoFlWN4mqZrBsvXZDox5/5ETSZkkws2Gwh/uDYbS+aGAhgyh87WbXjUPkIMPRDvpLOOO3GoKkeImHCLAg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790685688; c=relaxed/simple;
-	bh=Uhl/vM7TWPILR2Clki+AP9qjNTUVMOEdVvxJq7hyYOo=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=nNIxUhRA4Xynyy241+KR6wA0CKBYMoYJ3oKhynB+mQgxIXvDqUr3DUytfZm2SDpIPbswbbQmWNPnmrfvZNCM0ao0XepbxHFVQf+mXkH9pPrBGTsMcCpVhouxrm8aDQn2avL+IIEKz4+LX0oXte3+32Qs9GX2a4FXggbaSbOub6Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NqpDPeUn; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790687165; c=relaxed/simple;
+	bh=4/qgfcgx5Slrb/nvXZTrBwS4wRRJDx0ZBHlG3MzDYMs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=MsL5MowOZQLQIhMrMHpTT/hAvAOQHtqIKPG8TMG/7ma2/7/gvnJkx+Xjd9asycQ0rTIMOAG0b42Zx/71l++/T5DxFLt7kTZnVqwMJImbRUXCoB8WjDvivtBZ+w1ynbAONvW6waEjKaZ+u1+eGTXri7lZjVWPoRftgp+Jo0kClsQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Nh5XVP/D; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NqpDPeUn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71F571F000FF;
-	Tue, 29 Sep 2026 12:41:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790685686;
-	bh=QrYN+KfFVNzB3DmmPmFm42rJ43sQtMx7T+AXgI14HqE=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NqpDPeUn9sOb60qQN+trQwTPn6mZdc12KdPC+K0aO6qS1dbF2rgSIS7eTSALWdnXT
-	 Qloho/ajuLa+h86YTv+iGnG0AVilL/VOh0i47J67MqMXhziERvVwndXpBNVL6nvdcT
-	 UZGnzk5qXo1OfDJsu+7ldKatfxeURPBkwrLgbT6e04jJ8AYveLn5k/Gq9Bk5kT9lii
-	 hscZAthmc54uoBgkQs+ZFtRs3t7+Fvt11Ea4mn9JN5m47DPW4BGMlQ+PQSUuczYAZr
-	 syZ9YCWgHhNIS7OPWfy0+FNV+HkAqhe9v1E3oN24ocv5V0Tw3JDY+HJ1yhtlvCRlkW
-	 5zn1bmEptbsHg==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 6/6] s390/vfio-ap: replace guest-reachable WARNs with
- ratelimited warnings
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20260929121837.2715710-7-akrowiak@linux.ibm.com>
-References: <20260929121837.2715710-1-akrowiak@linux.ibm.com>
- <20260929121837.2715710-7-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 29 Sep 2026 12:41:25 +0000
-Message-Id: <20260929124126.71F571F000FF@smtp.kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Nh5XVP/D"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68TB5fbO4017657;
+	Tue, 29 Sep 2026 13:05:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=lT+AMN
+	wa1qnKid+StkqQoP21mDueBhkfgnfbFu19Neg=; b=Nh5XVP/DNMxBp2hKG+tIH9
+	FoTFVx+HPCer5hiSX0aMjursQz7ptArIQKRcBvUtS+67eMNYpCk3liLsMwZpINZz
+	kRGJt6tzeDTqKp7hfEExJ7v0o/H0JvrfvTaKyPtw9V+IdWNVFrkytYkR6b5tmx1K
+	ID8Z9RNk7433N57+Co/GqNOG7uqNI/NntNjq3TkY8A+snZFLtVN6I8GoE01tfKCv
+	OiHuc8LA6BpG14uHdxsgVDNmZEWUsoSH28TVtWUtRof+23bH0pAD1KgOoZoJpLAl
+	kyxDgGWok+DCFIgk4YRj73vQalOr+cuEU2xa8bqOgA5P+KgG0taJfBXz79fYqUyQ
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5pt6cqx-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 29 Sep 2026 13:05:46 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68TAlqxn1657703;
+	Tue, 29 Sep 2026 13:05:45 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gxrcpt008-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 29 Sep 2026 13:05:45 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68TD5g9i16646570
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 29 Sep 2026 13:05:42 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 20EEE2004B;
+	Tue, 29 Sep 2026 13:05:42 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7573620049;
+	Tue, 29 Sep 2026 13:05:41 +0000 (GMT)
+Received: from [9.111.44.243] (unknown [9.111.44.243])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 29 Sep 2026 13:05:41 +0000 (GMT)
+Message-ID: <0be2ddbb-e382-4d78-b77d-3b448668575d@linux.ibm.com>
+Date: Tue, 29 Sep 2026 15:05:41 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 0/6] KVM/vfio: Use file-based reference counting for
+ KVM
+To: Steffen Eiden <seiden@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev
+ <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini
+ <pbonzini@redhat.com>,
+        Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>,
+        Tony Krowiak <akrowiak@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Holger Dengler <dengler@linux.ibm.com>,
+        Alex Williamson <alex@shazbot.org>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Jason Gunthorpe <jgg@ziepe.ca>
+References: <20260928-vfio-v4-0-e32e226d5932@linux.ibm.com>
+Content-Language: en-US
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ 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
+In-Reply-To: <20260928-vfio-v4-0-e32e226d5932@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: quLO0xM_1oMRqiXW3cFGDE3eQ7IMAgQE
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI5MDA1MiBTYWx0ZWRfX1sjNKxg0FxFF
+ dS2yCFbYRNn7u3CmLfE9wPqLAp4nRB6teBLYqXj3M9uV3Kw7ZFYHIdeXcEyA+G/oGKEH7xelwdq
+ CHQH4Y62L+76pe2S7xx2UZr5gbrzeBHwAnc+IrjRmqpdR8XjMMuOmTKUFRKeO8+tKYPrTaTACrH
+ 90ccSrioAtn7hH4LB024XnWFe38gzEBhHZwDxy72m2N4FP1Fzni7PtsGjVZwFcBsYthvP/UF7QH
+ g7u1S/V+NCECVyGO4wxXCa+t+DKb/RX4qPif21d3Z98shrbR96B6c3g9XNPJxkZJ8zKYFDrnf+Y
+ qoGJGvp62+plKvlFtq1hyy2c3GsEIQvv25gVuz21TtGX6hvwyJFt1VtxX8mr0MFUazGOvwmABMq
+ 4fLPgfrMFHLcEcR/Lg35aihyUPxBE4KHCB4fOQ3yXpABfna7jh74fdnnpRpWjJeA6u8MxgoKJJR
+ EfZjPca6t6wL2WpH8WA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI5MDA1MiBTYWx0ZWRfXyLHiNOcW/jp4
+ BruZvu48upL1P/uDTY81fmSbSJgoZ6P+TmIt9rw/hzYijf9/M3lh8q92/B2aC9nZ82BH1hnI2ia
+ Dj14UKniUwNN0WqFcOLAw+pVpvfNdIY=
+X-Authority-Analysis: v=2.4 cv=EY5d0/mC c=1 sm=1 tr=0 ts=6abbb7ab cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=k4G1AkHzgUvhF1Ut7VEA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: Hn9TX-Ez48Wm7k5Rrepn29YU2GLjTC5a
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-29_04,2026-09-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 priorityscore=1501 suspectscore=0 adultscore=0 clxscore=1011
+ malwarescore=0 impostorscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609290052
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
-s) to consider:
-- [High] vfio_ap: AB-BA deadlock between guests_lock and pqap_hook_rwsem
-- [High] vfio_ap: returning negative errors from handle_pqap() causes guest=
--triggerable VM crash
-- [High] vfio_ap: clobbering guest registers before fallback to userspace b=
-reaks emulation
-- [High] vfio_ap: 3-way SRCU deadlock via guests_lock and kvm->lock
-- [Medium] vfio_ap: dev_warn_ratelimited() uses static state, breaking per-=
-mdev isolation
---
-
-commit 5bf97ebc06bca2480f470ccf5163316139db70cc
-Author: Anthony Krowiak <akrowiak@linux.ibm.com>
-
-s390/vfio-ap: replace guest-reachable WARNs with ratelimited warnings
-
-This commit replaces WARN and WARN_ONCE macros in code paths reachable by a
-guest with ratelimited warning functions to prevent malicious guests from
-flooding the kernel log. It also refactors handle_pqap() to hold both
-guests_lock and mdevs_lock during execution, using a single exit point to
-prevent one guest's mdev from suppressing messages for another.
-
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
-_ap_ops.c
-> index 89efb73d70355..7b1da96146271 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -226,6 +226,58 @@ static struct vfio_ap_queue *vfio_ap_mdev_get_queue(
->  	return NULL;
->  }
-> =20
-> +static void report_tapq_rc(struct vfio_ap_queue *q, u8 rc)
-> +{
-> +	if (q->matrix_mdev)
-> +		dev_warn_ratelimited(mdev_dev(q->matrix_mdev->mdev),
-> +				     "PQAP(TAPQ) for %02x.%04x failed with invalid rc=3D%#02x\n",
-> +				     AP_QID_CARD(q->apqn),
-> +				     AP_QID_QUEUE(q->apqn), rc);
-
-[Severity: Medium]
-Will this actually provide per-mdev isolation?
-
-The commit explicitly states that dev_warn_ratelimited() was chosen so the
-rate limit state is per-mdev. However, dev_warn_ratelimited() relies on
-dev_level_ratelimited(), which defines a static DEFINE_RATELIMIT_STATE at
-the call site:
-
-include/linux/dev_printk.h:dev_level_ratelimited() {
-    ...
-    static DEFINE_RATELIMIT_STATE(_rs, ...);
-    ...
-}
-
-Does this mean any guest spamming invalid requests will exhaust the static
-rate limit for this source line, silencing the warnings for all other guest=
-s?
-
-[ ... ]
-
-> @@ -787,32 +836,39 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
-> =20
->  	apqn =3D vcpu->run->s.regs.gprs[0] & 0xffff;
-> =20
-> -	/* If we do not use the AIV facility just go to userland */
-> -	if (!(vcpu->arch.sie_block->eca & ECA_AIV)) {
-> -		VFIO_AP_DBF_WARN("%s: AIV facility not installed: apqn=3D0x%04x, eca=
-=3D0x%04x\n",
-> -				 __func__, apqn, vcpu->arch.sie_block->eca);
-> -
-> -		return -EOPNOTSUPP;
-> -	}
-> -
-> +	mutex_lock(&matrix_dev->guests_lock);
-
-[Severity: High]
-Does this code introduce an AB-BA deadlock between guests_lock and
-pqap_hook_rwsem?
-
-A guest executing PQAP causes KVM to call handle_pqap() under the read-side
-of pqap_hook_rwsem:
-
-arch/s390/kvm/s390/priv.c:kvm_s390_handle_b2() {
-    ...
-    down_read(&vcpu->kvm->arch.crypto.pqap_hook_rwsem);
-    ...
-}
-
-This patch makes handle_pqap() unconditionally acquire guests_lock here.
-
-Concurrently, a host thread executing a configuration change (e.g. via
-get_update_locks_for_kvm()) acquires guests_lock and then attempts to
-acquire the write-side of pqap_hook_rwsem:
-
-drivers/s390/crypto/vfio_ap_ops.c:get_update_locks_for_kvm() {
-    ...
-    mutex_lock(&matrix_dev->guests_lock);
-    if (kvm) {
-        mutex_lock(&kvm->lock);
-        down_write(&kvm->arch.crypto.pqap_hook_rwsem);
-    }
-    ...
-}
-
-[Severity: High]
-Does acquiring guests_lock here also introduce a 3-way SRCU deadlock?
-
-KVM holds srcu_read_lock(&kvm->srcu) when calling the instruction intercept
-handlers. The KVM locking documentation explicitly forbids acquiring any lo=
-ck
-that wraps kvm->lock while holding KVM's SRCU read lock:
-
-Documentation/virt/kvm/locking.rst:
-synchronize_srcu(&kvm->srcu) is called inside critical sections for
-kvm->lock ... These locks _cannot_ be taken inside a kvm->srcu read-side
-critical section.
-
-Can this result in a circular dependency where:
-1. The vCPU thread holds SRCU and waits for guests_lock.
-2. The mdev configuration thread holds guests_lock and waits for kvm->lock
-   (via get_update_locks_for_kvm()).
-3. Another KVM thread holding kvm->lock calls synchronize_srcu(&kvm->srcu),
-   waiting on the vCPU thread?
-
->  	mutex_lock(&matrix_dev->mdevs_lock);
-> +	matrix_mdev =3D vfio_ap_mdev_for_apqn(apqn);
-> +	if (!matrix_mdev || !matrix_mdev->kvm) {
-> +		ret =3D -ENODEV;
-> +		goto out_unlock;
-> +	}
-
-[Severity: High]
-Can returning a negative error code here cause a guest-triggerable VM crash?
-
-If a guest executes PQAP for an unassigned queue or missing mdev, the patch=
-ed
-handle_pqap() returns -ENODEV or -EINVAL instead of returning 0 and setting=
- a
-guest CC.
-
-KVM's instruction intercept handler (__vcpu_run) propagates non-EOPNOTSUPP
-negative errors directly to userspace:
-
-arch/s390/kvm/s390/s390.c:vcpu_post_run() {
-    ...
-    if (rc !=3D -EOPNOTSUPP)
-        return rc;
-    ...
-}
-
-QEMU treats an unexpected KVM_RUN failure as a fatal error and terminates
-the VM, allowing an unprivileged guest to crash its hypervisor process.
-
-[ ... ]
-
-> -	matrix_mdev =3D container_of(vcpu->kvm->arch.crypto.pqap_hook,
-> -				   struct ap_matrix_mdev, pqap_hook);
-> -
-> -	/* If the there is no guest using the mdev, there is nothing to do */
-> -	if (!matrix_mdev->kvm) {
-> -		vfio_ap_le_guid_to_be_uuid(&matrix_mdev->mdev->uuid, uuid);
-> -		VFIO_AP_DBF_WARN("%s: mdev %08lx-%04lx-%04lx-%04lx-%04lx%08lx not in u=
-se: apqn=3D0x%04x\n",
-> -				 __func__, uuid[0],  uuid[1], uuid[2],
-> -				 uuid[3], uuid[4], uuid[5], apqn);
-> +	/* If we do not use the AIV facility just go to userland */
-> +	if (!(vcpu->arch.sie_block->eca & ECA_AIV)) {
-> +		VFIO_AP_DBF_WARN("%s: AIV facility not installed: apqn=3D0x%04x, eca=
-=3D0x%04x\n",
-> +				 __func__, apqn, vcpu->arch.sie_block->eca);
-> +		dev_warn_ratelimited(mdev_dev(matrix_mdev->mdev),
-> +				     "PQAP(AQIC) for %02x.%04x: AIV facility not installed\n",
-> +				     AP_QID_CARD(apqn), AP_QID_QUEUE(apqn));
-> +		ret =3D -EOPNOTSUPP;
->  		goto out_unlock;
->  	}
-
-[ ... ]
-
-> @@ -835,7 +895,8 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
->  	memcpy(&vcpu->run->s.regs.gprs[1], &qstatus, sizeof(qstatus));
->  	vcpu->run->s.regs.gprs[1] >>=3D 32;
->  	mutex_unlock(&matrix_dev->mdevs_lock);
-> -	return 0;
-> +	mutex_unlock(&matrix_dev->guests_lock);
-> +	return ret;
->  }
-
-[Severity: High]
-Does routing the -EOPNOTSUPP fallback through out_unlock clobber guest
-registers and break emulation?
-
-If the KVM AIV facility is not installed, handle_pqap() returns -EOPNOTSUPP
-to defer emulation to userspace.
-
-However, since this now passes through out_unlock, it unconditionally
-executes memcpy(&vcpu->run->s.regs.gprs[1], &qstatus, sizeof(qstatus)).
-
-Will this overwrite the guest's actual instruction parameters in gprs[1]
-with an error code before KVM exits to userspace, causing QEMU to attempt
-emulation with corrupted inputs?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20260929121837.2715=
-710-1-akrowiak@linux.ibm.com?part=3D6
+On 9/28/26 3:07 PM, Steffen Eiden wrote:
+> This series switches the KVM-VFIO interface and external consumers over to
+> standard file-based reference counting, eliminating all external KVM symbol
+> exports.
+> 
+> This is a spin-off for the arm on s390 series (old version: [1]) to
+> address all the relevant persons w/o polluting their mailbox. The
+> arm-on-s390 series now dropped those patches and depends on this series
+> (for beeing able to link with KVM=y)
+> 
+> Currently, VFIO integrates with KVM by looking up kvm_get_kvm_safe() and
+> kvm_put_kvm() dynamically using symbol_get(), manually tracking module
+> reference counts and storing a put_kvm function pointer in struct
+> vfio_device.
+> 
+> In the ARM64-on-s390 architecture, a second concurrent KVM module
+> (kvm-arm64) is introduced alongside native KVM to host hardware-accelerated
+> ARM64 guests. Having exported global symbols (like kvm_get_kvm/kvm_put_kvm)
+> creates symbol conflicts and prevents clean coexistence of two KVM modules.
+> 
+> Additionally, the file based counting simplifies the code and reuses
+> the existing fs refcounting.
+> 
+> Instead of passing raw KVM pointers and managing module symbols manually, the
+> interface now passes the underlying VM file descriptor throughout VFIO and
+> associated architecture subsystems. To safely extract the KVM instance from a
+> file, an architecture-namespaced helper mechanism is introduced that verifies
+> the file belongs to the expected KVM implementation before accessing its
+> internal state. A back-pointer from the KVM instance to its associated file is
+> maintained across its lifecycle so subsystems can safely acquire file
+> references on demand. Finally, with VFIO, architecture page tracking, and
+> device hooks converted to use file references, the remaining KVM reference-
+> counting exports are restricted strictly to internal KVM modules.
+> 
+> 	Steffen
+Series
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
