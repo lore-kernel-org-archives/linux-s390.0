@@ -1,60 +1,60 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91FF341A92C;
-	Tue, 29 Sep 2026 13:06:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A24E83B38B9;
+	Tue, 29 Sep 2026 13:38:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790687165; cv=none; b=jY0/n4xstugP9BJmlC89Qw81aTN9VT3k0LWv7jXLfkEU6oiOwuhEeSLugx/TnuQ+7BzfB3/T3tmGvg7BKNuaLU1z2YeoFlWN4mqZrBsvXZDox5/5ETSZkkws2Gwh/uDYbS+aGAhgyh87WbXjUPkIMPRDvpLOOO3GoKkeImHCLAg=
+	t=1790689107; cv=none; b=F4RFuw2sfc+4cZQkkXbSq5KCmx0droGYVb1cp/hqw1eJHvwBQQvJS1eP28ipkMgkbGUqRd3DFZkbDg32YR6HWjfIRUATGXG1FdccoKcOs81h0/sh1POcyJED/9QSb4qKyWPucZQwp4toys5eIlfrrftO0SgEZV3J98FemzOcVuc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790687165; c=relaxed/simple;
-	bh=4/qgfcgx5Slrb/nvXZTrBwS4wRRJDx0ZBHlG3MzDYMs=;
+	s=arc-20240116; t=1790689107; c=relaxed/simple;
+	bh=LiTZ2CqzUEmT2+U5pU37fEvQKbAwfuMhEfoTh3UgvII=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=MsL5MowOZQLQIhMrMHpTT/hAvAOQHtqIKPG8TMG/7ma2/7/gvnJkx+Xjd9asycQ0rTIMOAG0b42Zx/71l++/T5DxFLt7kTZnVqwMJImbRUXCoB8WjDvivtBZ+w1ynbAONvW6waEjKaZ+u1+eGTXri7lZjVWPoRftgp+Jo0kClsQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Nh5XVP/D; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:Content-Type; b=tI/xR7BHXZ2IEFcUyiClZI6ecQEJF5tAf5Y4QErqi43TWjptpn6ajidgfkd80YTFM6f5+52aEGbLWs0Uhu89YAd6z/qoOmwBOZQCnEJ6DM8Z01NucvE2JPacE8mMNUPCARNDszP1Yka/G786H7jLYqeIJjiO8x9/Dwncd5RPK84=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NqA+B+IL; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Nh5XVP/D"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68TB5fbO4017657;
-	Tue, 29 Sep 2026 13:05:47 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NqA+B+IL"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68TB5YUE2187974;
+	Tue, 29 Sep 2026 13:38:25 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=lT+AMN
-	wa1qnKid+StkqQoP21mDueBhkfgnfbFu19Neg=; b=Nh5XVP/DNMxBp2hKG+tIH9
-	FoTFVx+HPCer5hiSX0aMjursQz7ptArIQKRcBvUtS+67eMNYpCk3liLsMwZpINZz
-	kRGJt6tzeDTqKp7hfEExJ7v0o/H0JvrfvTaKyPtw9V+IdWNVFrkytYkR6b5tmx1K
-	ID8Z9RNk7433N57+Co/GqNOG7uqNI/NntNjq3TkY8A+snZFLtVN6I8GoE01tfKCv
-	OiHuc8LA6BpG14uHdxsgVDNmZEWUsoSH28TVtWUtRof+23bH0pAD1KgOoZoJpLAl
-	kyxDgGWok+DCFIgk4YRj73vQalOr+cuEU2xa8bqOgA5P+KgG0taJfBXz79fYqUyQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=+x5SJn
+	easI6AK27aTC2+v3wSsY8o47SiNhlvYQVxad0=; b=NqA+B+ILRAk0qDlfE8GnXJ
+	PPHsVt4DB2fZ33maZpsz7yhIPwmKvdtQYLXExfYlzVXT+byJ27bIvLDcSFVTELen
+	/QoQ4pqxGASD/hZwpYz01iIAzqVrST80xTxGDowwy+AhQav8GrN4o6o3HzxbzOny
+	o1lozP/v6xh1aYEbbn7WLgzlJmt+JUJbxMAfm++y5JuSg0XwuBI2wzfXdHdnc6jj
+	dR5h8AsBZnFdo49TKDeMzWCm9S9eqlppEyh52W2dqXwKOlWwWfteKQZxqTLt6Tn2
+	jgoOljnjw0aIYE/ehqzS2C1zIYCBgggGMCDrh7z6i2+nvuaqzPGTaCHgFHVhg5Hg
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5pt6cqx-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5qr788k-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 29 Sep 2026 13:05:46 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68TAlqxn1657703;
-	Tue, 29 Sep 2026 13:05:45 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4gxrcpt008-1
+	Tue, 29 Sep 2026 13:38:24 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68TAm2fl1617536;
+	Tue, 29 Sep 2026 13:38:23 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gxrrwa1fb-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 29 Sep 2026 13:05:45 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68TD5g9i16646570
+	Tue, 29 Sep 2026 13:38:23 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68TDcM6E26804852
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 29 Sep 2026 13:05:42 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 20EEE2004B;
-	Tue, 29 Sep 2026 13:05:42 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7573620049;
-	Tue, 29 Sep 2026 13:05:41 +0000 (GMT)
-Received: from [9.111.44.243] (unknown [9.111.44.243])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 29 Sep 2026 13:05:41 +0000 (GMT)
-Message-ID: <0be2ddbb-e382-4d78-b77d-3b448668575d@linux.ibm.com>
-Date: Tue, 29 Sep 2026 15:05:41 +0200
+	Tue, 29 Sep 2026 13:38:22 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 21DA658056;
+	Tue, 29 Sep 2026 13:38:22 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8718D5803F;
+	Tue, 29 Sep 2026 13:38:21 +0000 (GMT)
+Received: from [9.61.162.12] (unknown [9.61.162.12])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 29 Sep 2026 13:38:21 +0000 (GMT)
+Message-ID: <23656c81-a31b-408c-9f1f-d066a58c6192@linux.ibm.com>
+Date: Tue, 29 Sep 2026 09:38:21 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,143 +62,225 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 0/6] KVM/vfio: Use file-based reference counting for
- KVM
-To: Steffen Eiden <seiden@linux.ibm.com>,
+Subject: Re: [PATCH v9 1/6] s390/vfio-ap: Fix leaks of pinned NIB and
+ registered GISC
+To: sashiko-reviews@lists.linux.dev
+Cc: Vasily Gorbik <gor@linux.ibm.com>, kvm@vger.kernel.org,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev
- <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini
- <pbonzini@redhat.com>,
-        Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Holger Dengler <dengler@linux.ibm.com>,
-        Alex Williamson <alex@shazbot.org>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Jason Gunthorpe <jgg@ziepe.ca>
-References: <20260928-vfio-v4-0-e32e226d5932@linux.ibm.com>
+        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>
+References: <20260929121837.2715710-1-akrowiak@linux.ibm.com>
+ <20260929121837.2715710-2-akrowiak@linux.ibm.com>
+ <20260929123327.D24FE1F0089A@smtp.kernel.org>
 Content-Language: en-US
-From: Janosch Frank <frankja@linux.ibm.com>
-Autocrypt: addr=frankja@linux.ibm.com; keydata=
- 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
-In-Reply-To: <20260928-vfio-v4-0-e32e226d5932@linux.ibm.com>
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <20260929123327.D24FE1F0089A@smtp.kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: quLO0xM_1oMRqiXW3cFGDE3eQ7IMAgQE
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI5MDA1MiBTYWx0ZWRfX1sjNKxg0FxFF
- dS2yCFbYRNn7u3CmLfE9wPqLAp4nRB6teBLYqXj3M9uV3Kw7ZFYHIdeXcEyA+G/oGKEH7xelwdq
- CHQH4Y62L+76pe2S7xx2UZr5gbrzeBHwAnc+IrjRmqpdR8XjMMuOmTKUFRKeO8+tKYPrTaTACrH
- 90ccSrioAtn7hH4LB024XnWFe38gzEBhHZwDxy72m2N4FP1Fzni7PtsGjVZwFcBsYthvP/UF7QH
- g7u1S/V+NCECVyGO4wxXCa+t+DKb/RX4qPif21d3Z98shrbR96B6c3g9XNPJxkZJ8zKYFDrnf+Y
- qoGJGvp62+plKvlFtq1hyy2c3GsEIQvv25gVuz21TtGX6hvwyJFt1VtxX8mr0MFUazGOvwmABMq
- 4fLPgfrMFHLcEcR/Lg35aihyUPxBE4KHCB4fOQ3yXpABfna7jh74fdnnpRpWjJeA6u8MxgoKJJR
- EfZjPca6t6wL2WpH8WA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI5MDA1MiBTYWx0ZWRfXyLHiNOcW/jp4
- BruZvu48upL1P/uDTY81fmSbSJgoZ6P+TmIt9rw/hzYijf9/M3lh8q92/B2aC9nZ82BH1hnI2ia
- Dj14UKniUwNN0WqFcOLAw+pVpvfNdIY=
-X-Authority-Analysis: v=2.4 cv=EY5d0/mC c=1 sm=1 tr=0 ts=6abbb7ab cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTI5MDA1NCBTYWx0ZWRfX3fZS5wgC8vZa
+ OpBr5xKnclaInC+f0wlolUccxZ+zeW8mtbgQtEksahOn9NzgxY9pNa579DQY3J9dm/D7JaC8JWo
+ OScr6hYhDzSH3PMb7BUf/xFP/FxNk+/fkNwRCW1GahR1hsfUtvMp5wZiaeRhzUvU+rUTyy+9HNM
+ YwB6vcxP5Ut/JSuen912ngaA1i6EI/NJC7nqg47GwyxB8oPX/+MoTQOndbut9tgdhcmvrEW6O+q
+ rHvC4diTx6m02wJwoXifqUXcooJASqwmR+ZWVHnD5WZomhXDWmw3G77BRwy5mqHnNBRcuNE2pQk
+ ShXb7+CqFUv8fuP1afd+WmtxMCVMyS7+8S/iNjrhscWO6lbZtScqMDOmC6ov4JrZBfsGJQPrfIX
+ etgrnOYno1TpLHYw4q3zKjbYQhmDdD4lwMPfwYpgDZPdR8muGVvHUHG9ozwSCcmXlhr8Li02AiK
+ v8aNtMxf08Np8EzQwGw==
+X-Authority-Analysis: v=2.4 cv=SPbXx+vH c=1 sm=1 tr=0 ts=6abbbf50 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=k4G1AkHzgUvhF1Ut7VEA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: Hn9TX-Ez48Wm7k5Rrepn29YU2GLjTC5a
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=rORQQuJ1QDlRwYwXYLEA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: LI-rj9vcVDm8Zrs-3UCkTbKFMHbJ-pVe
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTI5MDA1NCBTYWx0ZWRfXxlrgQX3+CFvK
+ Szz8gHjs2JkmqJWXUhdPEvFILKYqfM37d1hr20/z2jYSRZTSe/zSvHbWYq8epq22ecGFUYUw6CO
+ g6mM/jdBDjEMc6rlchk8TZJ9qIg3TnA=
+X-Proofpoint-GUID: LI-rj9vcVDm8Zrs-3UCkTbKFMHbJ-pVe
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-29_04,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 suspectscore=0 adultscore=0 clxscore=1011
- malwarescore=0 impostorscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609290052
+ priorityscore=1501 suspectscore=0 clxscore=1015 spamscore=0
+ lowpriorityscore=0 malwarescore=0 adultscore=0 bulkscore=0 impostorscore=0
+ phishscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
+ definitions=main-2609290054
 
-On 9/28/26 3:07 PM, Steffen Eiden wrote:
-> This series switches the KVM-VFIO interface and external consumers over to
-> standard file-based reference counting, eliminating all external KVM symbol
-> exports.
-> 
-> This is a spin-off for the arm on s390 series (old version: [1]) to
-> address all the relevant persons w/o polluting their mailbox. The
-> arm-on-s390 series now dropped those patches and depends on this series
-> (for beeing able to link with KVM=y)
-> 
-> Currently, VFIO integrates with KVM by looking up kvm_get_kvm_safe() and
-> kvm_put_kvm() dynamically using symbol_get(), manually tracking module
-> reference counts and storing a put_kvm function pointer in struct
-> vfio_device.
-> 
-> In the ARM64-on-s390 architecture, a second concurrent KVM module
-> (kvm-arm64) is introduced alongside native KVM to host hardware-accelerated
-> ARM64 guests. Having exported global symbols (like kvm_get_kvm/kvm_put_kvm)
-> creates symbol conflicts and prevents clean coexistence of two KVM modules.
-> 
-> Additionally, the file based counting simplifies the code and reuses
-> the existing fs refcounting.
-> 
-> Instead of passing raw KVM pointers and managing module symbols manually, the
-> interface now passes the underlying VM file descriptor throughout VFIO and
-> associated architecture subsystems. To safely extract the KVM instance from a
-> file, an architecture-namespaced helper mechanism is introduced that verifies
-> the file belongs to the expected KVM implementation before accessing its
-> internal state. A back-pointer from the KVM instance to its associated file is
-> maintained across its lifecycle so subsystems can safely acquire file
-> references on demand. Finally, with VFIO, architecture page tracking, and
-> device hooks converted to use file references, the remaining KVM reference-
-> counting exports are restricted strictly to internal KVM modules.
-> 
-> 	Steffen
-Series
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
+
+
+On 9/29/26 8:33 AM, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 4 potential issue(s) to consider:
+> - [Critical] vfio_ap: Use-After-Free of vfio_device on AQIC resource release
+> - [High] vfio_ap: ABA pointer aliasing causes unintended KVM GISC unregistration
+> - [High] vfio_ap: Host panic due to VFIO BUG_ON when queue reset fails during unmap
+> - [Medium] vfio_ap: KVM GISC alert reference leak on dynamic queue unplug
+> --
+>
+> commit 83f84bb0e3c067b95ee373106f589b768094e294
+> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+> Subject: s390/vfio-ap: Fix leaks of pinned NIB and registered GISC
+>
+> Several code paths in the vfio_ap driver failed to free the AQIC resources,
+> specifically the pinned guest NIB page and the registered guest ISC used to
+> enable interrupts for a queue. This commit adds fixes to handle response
+> codes and prevent memory exhaustion and depletion of KVM interrupt subclass
+> registrations during dynamic AP reconfiguration.
+>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>> index 4db878c18f41c..e178b657faa8f 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> [ ... ]
+>> @@ -254,90 +276,231 @@ static void vfio_ap_wait_for_irqclear(int apqn)
+> [ ... ]
+>>   static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
+>>   {
+>>   	if (!q)
+>>   		return;
+>> -	if (q->saved_isc != VFIO_AP_ISC_INVALID) {
+>> -		if (!WARN_ON(!q->matrix_mdev) && q->matrix_mdev->kvm)
+>> -			kvm_s390_gisc_unregister(q->matrix_mdev->kvm, q->saved_isc);
+>> -		q->saved_isc = VFIO_AP_ISC_INVALID;
+>> +
+>> +	if (q->aqic_resources.isc != VFIO_AP_ISC_INVALID) {
+>> +		if (q->aqic_resources.kvm &&
+>> +		    q->matrix_mdev && q->aqic_resources.kvm == q->matrix_mdev->kvm) {
+>> +			kvm_s390_gisc_unregister(q->aqic_resources.kvm, q->aqic_resources.isc);
+> [Severity: High]
+> Can this equality check fall victim to an ABA problem? If the original guest's
+> struct kvm is freed and a new guest's struct kvm is allocated at the exact
+> same memory address, could this evaluate to true and mistakenly unregister
+> the new guest's GISC, silently stopping its AP interrupts?
+
+Not valid. `vfio_ap_mdev_set_kvm()` takes a `kvm_get_kvm()`
+reference before storing the pointer, so the struct cannot be
+freed while the mdev holds it. `vfio_ap_mdev_unset_kvm()` sets
+`matrix_mdev->kvm = NULL` before dropping the ref, so by the
+time the struct could be freed the comparison cannot be true.
+
+>
+> [Severity: Medium]
+> If a queue is hot-unplugged from a running guest via sysfs and the reset
+> fails, the AQIC resources are intentionally leaked and q->matrix_mdev is set
+> to NULL. If the queue recovers later, will bypassing
+> kvm_s390_gisc_unregister() permanently leak the KVM GISA alert reference for
+> the still-running guest?
+
+Not valid. `kvm_s390_gisa_destroy()` zeroes `gi->alert.mask`
+and sets `gi->origin = NULL` on guest teardown. After that,
+`kvm_s390_gisc_unregister()` returns -ENODEV harmlessly. The
+KVM teardown path cleans up the GISC registration regardless
+of whether vfio-ap explicitly calls unregister.
+
+>
+>> +		} else {
+>> +			report_gisc_unregister_failure(q);
+>> +		}
+>> +		q->aqic_resources.isc = VFIO_AP_ISC_INVALID;
+>> +		q->aqic_resources.kvm = NULL;
+>>   	}
+>> -	if (q->saved_iova && !WARN_ON(!q->matrix_mdev)) {
+>> -		vfio_unpin_pages(&q->matrix_mdev->vdev, q->saved_iova, 1);
+>> -		q->saved_iova = 0;
+>> +
+>> +	if (q->aqic_resources.iova) {
+>> +		if (q->aqic_resources.vdev)
+>> +			vfio_unpin_pages(q->aqic_resources.vdev, q->aqic_resources.iova, 1);
+> [Severity: Critical]
+> Is it possible for the q->aqic_resources.vdev pointer to become dangling here
+> if the original matrix_mdev was destroyed? If a queue reset failed previously
+> and the resources were kept leaked, the queue would retain the unreferenced
+> vdev pointer while the matrix_mdev is freed. Could a subsequent reset or
+> reassignment trigger a use-after-free when dereferencing it for
+> vfio_unpin_pages()?
+
+Not valid in practice. `vfio_ap_mdev_remove()` flushes all
+reset work before calling `vfio_put_device()`, so
+`vfio_ap_free_aqic_resources()` — the only site that
+dereferences `vdev` — always completes before `matrix_mdev`
+is freed. No reachable path calls it on a detached queue.
+
+>
+>> +		else
+>> +			pr_warn_ratelimited("APQN %02x.%04x: Failed to unpin NIB page at %pad\n",
+>> +					    AP_QID_CARD(q->apqn),
+>> +					    AP_QID_QUEUE(q->apqn),
+>> +					    &q->aqic_resources.iova);
+>> +		q->aqic_resources.iova = 0;
+>> +		q->aqic_resources.vdev = NULL;
+>>   	}
+>>   }
+> [ ... ]
+>> @@ -489,27 +658,48 @@ static struct ap_queue_status vfio_ap_irq_enable(struct vfio_ap_queue *q,
+>>   	status = ap_aqic(q->apqn, aqic_gisa, h_nib);
+>>   	switch (status.response_code) {
+>>   	case AP_RESPONSE_NORMAL:
+> [ ... ]
+>>   		vfio_ap_free_aqic_resources(q);
+>> -		q->saved_iova = nib;
+>> -		q->saved_isc = isc;
+>> +		q->aqic_resources.iova = nib;
+>> +		q->aqic_resources.isc  = isc;
+>> +		q->aqic_resources.vdev = &q->matrix_mdev->vdev;
+> [Severity: Critical]
+> Does this code need to acquire a lifecycle reference to the vdev pointer
+> before storing it here? Snapshooting the embedded pointer from matrix_mdev
+> without taking a reference appears to expose the use-after-free discussed
+> above if the mediated device goes away.
+
+Not valid in practice, same reason as Comment 3. Taking a
+vfio ref would also be wrong: `vdev` is embedded in
+`matrix_mdev`, so holding a ref while resources are
+intentionally leaked would prevent the mdev from ever being
+freed — introducing a new leak.
+
+>
+>> +		q->aqic_resources.kvm  = q->matrix_mdev->kvm;
+>>   		break;
+> [ ... ]
+>> @@ -1857,8 +2046,29 @@ static void unmap_iova(struct ap_matrix_mdev *matrix_mdev, u64 iova, u64 length)
+>>   	int loop_cursor;
+>>   
+>>   	hash_for_each(qtable->queues, loop_cursor, q, mdev_qnode) {
+>> -		if (q->saved_iova >= iova && q->saved_iova < iova + length)
+>> +		if (q->aqic_resources.iova >= iova && q->aqic_resources.iova < iova + length) {
+>>   			vfio_ap_irq_disable(q);
+>> +			/*
+>> +			 * If AQIC disable was unable to confirm that interrupts were
+>> +			 * disabled (IR=0), q->aqic_res.iova remains non-zero. VFIO
+>> +			 * core requires the mapped pages to be unpinned during DMA
+>> +			 * unmap notifications (or type1 IOMMU will BUG_ON after 10
+>> +			 * retries).
+>> +			 *
+>> +			 * To satisfy VFIO core safely, fall back to a queue reset via
+>> +			 * ZAPQ. ZAPQ wipes the queue state and clears the hardware's
+>> +			 * internal NIB address register, neutralizing pending DMA.
+>> +			 *
+>> +			 * Flush the reset worker. If the reset completes, the worker
+>> +			 * frees the AQIC resources (unpinning the NIB). If the reset
+>> +			 * times out or fails with an error, the resources are kept
+>> +			 * leaked to guard against wild DMA writes.
+>> +			 */
+>> +			if (q->aqic_resources.iova) {
+>> +				vfio_ap_mdev_reset_queue(q);
+>> +				flush_work(&q->reset_work);
+>> +			}
+> [Severity: High]
+> If the queue reset times out or fails with an error, the NIB page is kept
+> leaked and remains pinned. Since the VFIO core requires all mapped pages to
+> be unpinned during an unmap notifier, could returning to the VFIO core from
+> unmap_iova() without unpinning the page trigger a BUG_ON or WARN_ON and panic
+> the host kernel?
+
+Valid. If both `vfio_ap_irq_disable()` and the ZAPQ fallback
+fail, `unmap_iova()` returns with `aqic_resources.iova`
+non-zero. `vfio_iommu_type1.c:1522` hits
+`BUG_ON(++retries > 10)` — a real host panic. Fix: add a
+last-resort forced unpin with a `pr_crit` after `flush_work()`
+when the ZAPQ also fails to release the NIB.
+
+>
+>> +		}
+>>   	}
+>>   }
+
