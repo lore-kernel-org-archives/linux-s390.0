@@ -1,140 +1,178 @@
-Received: from mail-pz2-f37.google.com (mail-pz2-f37.google.com [74.125.228.37])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DA3C3AFD1F
-	for <linux-s390@vger.kernel.org>; Wed, 30 Sep 2026 06:08:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.228.37
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D68F44F543;
+	Wed, 30 Sep 2026 07:02:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790748489; cv=none; b=T8y36Bs8kPonXQOfMrzsEvT3pBOPYfbMWKv5DQF9rJnQnGRBpyQ/YxfSCvATHfZXr5PQWWGiIRvFBa80PCUD4se3NUpLnul9TafqfdxgaqjrFEdlg4/azBz0L19abT1ObRMKxV4YNOtXGtmUmn0D32HioF/rPC6o0KxKWRakyiw=
+	t=1790751780; cv=none; b=RsA61Kx4v6r/qLGHm7bj/BUeSEufKeyBiRQD098yTjfI8REGsvCQ5H0kZmOjin/DsU3Y0JgGkmf5JbVMwCqsl6SvgUkvBqr1ygo7KfjRfnWOSdpBQKqSYzoDxpFI6XmMs8Ekdh8l+KUg/XkaFROVq9kGkw2McZczKSNKMYCr154=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790748489; c=relaxed/simple;
-	bh=FQT7C9mEtUI9zyQeAiy/rz7mwvm/L9IqR2P4MCxmtag=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=pJKDZcnzH+2jAyESJOMvJIV1HdvjF1agxe5SafmTeM9n0q/8vSTUX+88Eua4APy0+qFZRjitunv+YBUJOF5DxENddmyN7D4LljRjSudi+ZNbHNJfGh6Ma1ZU9C+Xe/tABGs1wI1JM78/MJYD9oVRjThIv0fEOdqpKPjpDiDzf0w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=GpLOQ885; arc=none smtp.client-ip=74.125.228.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1790751780; c=relaxed/simple;
+	bh=I+oRYE1hByn30bYkUkL6uPnSEbWCuf6g31HZNmsdTtE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Xbrv40Ac5qTt4m3ovVEhIyczK485LCfKp//dqWiAgNRPHX884CLM/xMaXl4rdMcrqH/X+gRTyK8kKDyV/Atb4Ow+D2WU9lRwaNJ/O8L1TnF4V4o9aVk3AAgHnSwJtl9UW3Qaha6nG7NQfvgE6jViZO5/jr+4rxgnuzKwcX4Mhto=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mn3CBeOA; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="GpLOQ885"
-Received: by mail-pz2-f37.google.com with SMTP id d2e1a72fcca58-8873070bcd0so63962b3a.0
-        for <linux-s390@vger.kernel.org>; Tue, 29 Sep 2026 23:08:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1790748487; x=1791353287; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=CgFmFj2igJGpmbRflOSd7wans++uMlq7r70gUY54Vy0=;
-        b=GpLOQ885YueQnMRr7aYksbM090881sDEr8Fe1usp/q0pr6fKEwx2Cglw8wGIeuqXfo
-         z9+qdro7WLQlY5O7IK5f2JeUGmrO0obUFcd+Na/uUiQIuolwIOhoYcdmwDhyJuUCflos
-         uNc3Zr3tAz8ZSh0r82sTNNcJOP6oSeRIpn2Zg=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790748487; x=1791353287;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=CgFmFj2igJGpmbRflOSd7wans++uMlq7r70gUY54Vy0=;
-        b=lylhBWomGFz9U2oXtpIqYWNtXflgC5D3p/dFsEnAVFLiX7bMBKpMaag3GCukme+iUs
-         +XiKVK/SGoOsQav+lBH85riaLYOSmBs7+H7V4eqAL1vw1wln8XS6vE7haq4z7Jk6NU1e
-         wrrAIy2K7AsLf/1vWQanleb4ah88OP+E+o4E+BnKIk6fRm0U7rcQxPuAIXvSc5e0R/sV
-         bxFOm4IXTnmCJni69TV0JXrG/0KmQrOEjR7UGeMQTbgVO6X7uD2i7oCpov6PgZEsuGXi
-         ZxSVucac54H/t9aYE26L2iulEdAjitW5DQoEEdudOMml6vrs9ph0MiuKTiDnSLkLcoJf
-         Y5yw==
-X-Forwarded-Encrypted: i=1; AKwUvBz6M2lTCGfL/mC3UugUhmuu31KTBFjtGcmaED8EJZc3yQeJFkmzRiEgq5H2+PRo2icYUCO1mbV+OEfT@vger.kernel.org
-X-Gm-Message-State: AFuF++mY+ZaArJRD/pcbwfRXUbKcHcWf0QvbMEH6U9H/ZULQqpn04AiH
-	qmAWTDd9WqmG6BotdHm48aJ03hv9HS5GvUZV1LKr20NRkDQViW9pAYVZbi15pVQcBg==
-X-Gm-Gg: AYBFou1EkSjKzk2NcCTynMp0J/miWvjdZpdXuAyAaaPQAhLIlC5TMfTnlqdPUOtu7yP
-	a0mu3dZEn+3pLoNQc139RlqFjZYpNWe4m87iV3YvA6NBcrc3r2XD/V6O9g8F8kJm+WveHW8QH+C
-	ntVp+MF3KkgzjIFRINrwg3rYpJdt1bb4dsUoVIBpXI9yj9wj/V/NPKkxuZyqgwo9+HOvQFDJLAn
-	q+GIlY2NJP7Jx/tzdJ3NxkG3aa1/+0vy4AWoC4dDuVQ1bsPrbwGkV6JXl+3BE7iqZgaqPqntMdQ
-	KIP3m207PbnWiJpw41u/yDAs8Su/VJoN5FQRnsVp8IpD1IYYfgJEKLz04zFVj0E9kZZWVZFusZ2
-	06SVaxrrkF/R3Qy3VWETOWHpkvT9TZgV8cM1ToOnmCFzYcQcTG0WEFKW96Q8q8crnqzLOK48vM9
-	mf4lPb1P1kzRpFzLzPctQGLgzxHI689WNiCeG29yOIv4OKQoa+6d1jXrpqiyhb62fliP8bYweno
-	poqeZuy41Qrm6R+6X31Cu3ptLbYQynQJvM9j+GRz1DVxEDX5g==
-X-Received: by 2002:a05:6a21:492:b0:3de:3bd5:604c with SMTP id adf61e73a8af0-3de9e87f358mr387844637.41.1790748487167;
-        Tue, 29 Sep 2026 23:08:07 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2031:6:31b3:f8c3:893a:d0bb])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-88725d68389sm247895b3a.39.2026.09.29.23.08.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Sep 2026 23:08:06 -0700 (PDT)
-Date: Wed, 30 Sep 2026 15:07:56 +0900
-From: Sergey Senozhatsky <senozhatsky@chromium.org>
-To: Michal Wilczynski <m.wilczynski@samsung.com>
-Cc: Nathan Chancellor <nathan@kernel.org>, 
-	Nick Desaulniers <ndesaulniers@google.com>, Bill Wendling <morbo@google.com>, 
-	Justin Stitt <justinstitt@google.com>, Russell King <linux@armlinux.org.uk>, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	Helge Deller <deller@gmx.de>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Minchan Kim <minchan@kernel.org>, Sergey Senozhatsky <senozhatsky@chromium.org>, 
-	Jens Axboe <axboe@kernel.dk>, Andrew Morton <akpm@linux-foundation.org>, 
-	linux-kernel@vger.kernel.org, llvm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
-	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, 
-	linux-block@vger.kernel.org, Yann Collet <yann.collet.73@gmail.com>, 
-	Nick Terrell <terrelln@meta.com>, Gao Xiang <xiang@kernel.org>, Chao Yu <chao@kernel.org>, 
-	Jaegeuk Kim <jaegeuk@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, 
-	Phillip Lougher <phillip@squashfs.org.uk>, Sungguk <sungguk.na@samsung.com>, 
-	Jaehoon Chung <jh80.chung@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
-	linux-erofs@lists.ozlabs.org, linux-f2fs-devel@lists.sourceforge.net, 
-	linux-crypto@vger.kernel.org
-Subject: Re: [PATCH RFC 1/9] lib/lz4: import upstream LZ4 sources verbatim
-Message-ID: <aryehUJml8fTy0o-@google.com>
-References: <20260925-lz4-vendor-upstream-v1-0-1c7ffbe21c4b@samsung.com>
- <CGME20260925113452eucas1p170bfdb34dfbf670a14a6f8f0c2f5094a@eucas1p1.samsung.com>
- <20260925-lz4-vendor-upstream-v1-1-1c7ffbe21c4b@samsung.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mn3CBeOA"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68TNZqV4120194;
+	Wed, 30 Sep 2026 07:02:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=w15/hm9CPDsPrawR9
+	7OAtf/xNAjIDheAVnZI3Epe7xc=; b=mn3CBeOA3Meu1ttpcRNbnGsjjxvhaayvw
+	YZs+rCTLWLCBcAtJ5CWUxuVZ1l117ZoQeGCSPVEVs8qPuv29EQpJm79ZKDnvGNFr
+	9+cq4FH6N9k4piihRWazT3ggqdn3ZOWt0dj5b+C0n7CEqGYEHZLJwNvLt1Mx8nUv
+	igtwm73Yb4DZmGMEyouYn2SEhJb9W6kDuSaogLT9ZJIUTCczDfRkCwhYqjO8EEzi
+	Kl9FXjvZZRR791me3bueHOa7CEPMKLcPmgACi0nM9EFdX8x5hVopqwq/eizi63pL
+	mgy3SvK1HbfPtGomQ87P1EwZsQIysVJADwDECyvGFg/hbtNAuXgRw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx4feampr-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Wed, 30 Sep 2026 07:02:43 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68U4rag22549180;
+	Wed, 30 Sep 2026 07:02:43 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gxrrwddpe-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 30 Sep 2026 07:02:42 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68U72cab31916608
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 30 Sep 2026 07:02:39 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A508F2004B;
+	Wed, 30 Sep 2026 07:02:38 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 59D9320049;
+	Wed, 30 Sep 2026 07:02:38 +0000 (GMT)
+Received: from t83lp71.lnxne.boe (unknown [9.87.84.240])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 30 Sep 2026 07:02:38 +0000 (GMT)
+From: Nagamani PV <nagamani@linux.ibm.com>
+To: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com
+Cc: wintera@linux.ibm.com, aswin@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, kees@kernel.org, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, Nagamani PV <nagamani@linux.ibm.com>,
+        stable@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>
+Subject: [PATCH net v4 1/2] s390/ctcm: Fix timer corruption in fsm_addtimer()
+Date: Wed, 30 Sep 2026 09:02:33 +0200
+Message-ID: <20260930070234.569500-2-nagamani@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260930070234.569500-1-nagamani@linux.ibm.com>
+References: <20260930070234.569500-1-nagamani@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260925-lz4-vendor-upstream-v1-1-1c7ffbe21c4b@samsung.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=FYWiV5+6 c=1 sm=1 tr=0 ts=6abcb414 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=c92rfblmAAAA:8 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=T_NMYt6YcsbJOU4cA00A:9 a=GvGzcOZaWPEFPQC_NcjD:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTMwMDAyNiBTYWx0ZWRfXwLEr6Udz+830
+ IgLIJMvqSqshGXTWcfHTvpBsxzd9Pj1emKbjlo2EOJlRUsy35wBli/R5zX1/7L03fE2R99JbhOH
+ t+viu2c5uiVGBNv1Qq2tzl0W0T1VNzk=
+X-Proofpoint-ORIG-GUID: jHfV2Zs45mM7mZ9W7QtA7_1ykMdW-j6C
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTMwMDAyNiBTYWx0ZWRfX2C9T6E03ZsI0
+ lYWkWJK+PkLelP+JZ7Xw23b2LVIB7yWE/RNJ7q9s2GX+1Zcw0N7buGYLdQUkQ074avv8zLrBGKL
+ 9iPiXWLr7VLJ3hRXn6cT/lGUZLSkTyMR0pL4BYlOXUFccH0hFn+1up0b60HGYl83Mhn17/D08bk
+ G3fc4jahQf1S1VOPHR+XCPhEAI8KkAs7GBpOFIZ5Svf20bT4utuvxDXFDn+F1izrkCWR9Eiymca
+ LvLz2bNmYMuCTi8nm2YKpUCMCVqULI+sxjkkgS5y14Snzd+qL1Rc3Jq6SP9RgtJKY8L07o4YNlg
+ VMpvbLqOke5XIzti1LhM6O5i5eVW3ENzV8GLrUi2TppoCSpQbJWL2XMItxA7AWBc1w54QMwIM2R
+ yyiHSaU4UlQaHj3Q0S70mspyOt7XMrEn4yqzp9aifwN9qbBW7+5ok4SozpfMcJLCV2dbsfqh30s
+ Yk7kHl88IKM97DPaNSw==
+X-Proofpoint-GUID: 0-H4ws03r4nC5qy37iYWw7yAE2PvppIe
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-29_05,2026-09-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 clxscore=1015 impostorscore=0 spamscore=0 phishscore=0
+ priorityscore=1501 malwarescore=0 bulkscore=0 lowpriorityscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
+ definitions=main-2609300026
 
-On (26/09/25 13:27), Michal Wilczynski wrote:
-[..]
+fsm_addtimer() calls timer_setup() unconditionally before add_timer().
+If called on an already-pending timer, timer_setup() re-initializes
+the timer's list_head fields while the timer is still enqueued in the
+wheel, corrupting the timer list.
 
-> +void LZ4_resetStream_fast(LZ4_stream_t* ctx) {
-> +    LZ4_prepareTable(&(ctx->internal_donotuse), 0, byU32);
-> +}
+The timer is already initialized once by fsm_settimer() which calls
+timer_setup() correctly. Multiple callsites invoke fsm_addtimer()
+without a preceding fsm_deltimer(), including ctcm_main.c
+ctcmpc_send_sweep_req() and ctcm_mpc.c mpc_action_side_xid(), making the
+redundant timer_setup() in fsm_addtimer() a real corruption risk.
 
-[..]
+Remove the redundant timer_setup() calls from fsm_addtimer() and
+fsm_modtimer(), and replace add_timer() with mod_timer() which safely
+handles both pending and non-pending timers atomically without
+corrupting the timer wheel.
 
-> +void LZ4_attach_dictionary(LZ4_stream_t* workingStream, const LZ4_stream_t* dictionaryStream)
-> +{
-> +    const LZ4_stream_t_internal* dictCtx = (dictionaryStream == NULL) ? NULL :
-> +        &(dictionaryStream->internal_donotuse);
-> +
-> +    DEBUGLOG(4, "LZ4_attach_dictionary (%p, %p, size %u)",
-> +             workingStream, dictionaryStream,
-> +             dictCtx != NULL ? dictCtx->dictSize : 0);
-> +
-> +    if (dictCtx != NULL) {
-> +        /* If the current offset is zero, we will never look in the
-> +         * external dictionary context, since there is no value a table
-> +         * entry can take that indicate a miss. In that case, we need
-> +         * to bump the offset to something non-zero.
-> +         */
-> +        if (workingStream->internal_donotuse.currentOffset == 0) {
-> +            workingStream->internal_donotuse.currentOffset = 64 KB;
-> +        }
-> +
-> +        /* Don't actually attach an empty dictionary.
-> +         */
-> +        if (dictCtx->dictSize == 0) {
-> +            dictCtx = NULL;
-> +        }
-> +    }
-> +    workingStream->internal_donotuse.dictCtx = dictCtx;
-> +}
+Fixes: e99e88a9d2b0 ("treewide: setup_timer() -> timer_setup()")
+Cc: stable@vger.kernel.org
+Reported-by: Sashiko <sashiko-bot@kernel.org>
+Link: https://sashiko.dev/#/patchset/20260803182736.2356374-1-nagamani@linux.ibm.com?part=1
+Reviewed-by: Aswin Karuvally <aswin@linux.ibm.com>
+Tested-by: Aswin Karuvally <aswin@linux.ibm.com>
+Signed-off-by: Nagamani PV <nagamani@linux.ibm.com>
+---
+Changes in v4:
+- No changes to this patch.
 
-Just a side note,
-there is a bunch of new helpful API added in this release.  Currently,
-we do some memcpy hacks to avoid re-init of lz4 C/D-dict in zram, but
-once this series lands I'll be happy to send some trivial EXPORT_SYMBOL
-patches so that zram (and other lz4 users) can use standard lz4 dict
-API instead of hacks.
+Changes in v3:
+- No changes to this patch.
+
+Changes in v2:
+- Fix function name ctcm_send_sweep() -> ctcmpc_send_sweep_req()
+  in the commit message.
+- Call mod_timer() then return 0 explicitly, preserving the
+  "Always returns 0" contract documented in fsm.h.
+---
+ drivers/s390/net/fsm.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/s390/net/fsm.c b/drivers/s390/net/fsm.c
+index 9b8622aef807..936ed0bc8401 100644
+--- a/drivers/s390/net/fsm.c
++++ b/drivers/s390/net/fsm.c
+@@ -171,11 +171,9 @@ fsm_addtimer(fsm_timer *this, int millisec, int event, void *arg)
+ 	       this->fi->name, this, millisec);
+ #endif
+ 
+-	timer_setup(&this->tl, fsm_expire_timer, 0);
+ 	this->expire_event = event;
+ 	this->event_arg = arg;
+-	this->tl.expires = jiffies + (millisec * HZ) / 1000;
+-	add_timer(&this->tl);
++	mod_timer(&this->tl, jiffies + msecs_to_jiffies(millisec));
+ 	return 0;
+ }
+ 
+@@ -189,12 +187,9 @@ fsm_modtimer(fsm_timer *this, int millisec, int event, void *arg)
+ 		this->fi->name, this, millisec);
+ #endif
+ 
+-	timer_delete(&this->tl);
+-	timer_setup(&this->tl, fsm_expire_timer, 0);
+ 	this->expire_event = event;
+ 	this->event_arg = arg;
+-	this->tl.expires = jiffies + (millisec * HZ) / 1000;
+-	add_timer(&this->tl);
++	mod_timer(&this->tl, jiffies + msecs_to_jiffies(millisec));
+ }
+ 
+ EXPORT_SYMBOL(init_fsm);
+-- 
+2.53.0
+
