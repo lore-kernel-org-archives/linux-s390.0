@@ -1,190 +1,251 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 232BD3D1AB3;
-	Wed, 30 Sep 2026 07:28:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4CBA374187;
+	Wed, 30 Sep 2026 07:29:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790753315; cv=none; b=nWZmAKdH395zs8wSV3wtChzKQCHaI/7acN/x1oaUzNr8sa93jInWEJCOt4gep6+ZV3XEu7WaFGmsvF7m0YS9XnlJ9CfnK6yxBeEfArLDseVJt6xlaK2qHRRbnQE7H8szn5QzY1fC7hHr80Cz0HX75anOBPeHmrzhDxMLGd7Zbfc=
+	t=1790753376; cv=none; b=oTgs0Or13G+H0ZTKalFVLDKwy+ec+lZ9FjHYaFfxmgIcPuUeW1jS3vGfn4CTRoqmwb1YIMV4kPPnY84cbIv5MtkXO/YpGvuKd7xNj6TUFNYXgJ9QgXDtujbx+WUa6Op7EWZ7DOURGVZP1Ym+Xe2f2dDwCbvKyxQW7jWLDheyvuk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790753315; c=relaxed/simple;
-	bh=crfXBi6k42WA+BnhYLAJgvnaGtZorXB2udVsvlHftg8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FAgCVVl9ojr3Rz06wmib3g3CaY6EJ8Jp2koE2r+0VkkAET1lhY0M4sJnmP9tFke6Mp1jy40fFtd/5OR8MEIJ1DkAIjfSsVRVfd2TjU871BNxHM7qnziHXdRdCocqI05eWkcXIyfCK+HkaYQIhEygC07JpL9/G1pmUcaB85gjSyA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qyQqJw3n; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1790753376; c=relaxed/simple;
+	bh=ntE2VgJ/2ndBLvycIIAQ/XTPb/6jBTUG7A5qs9WsMjU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=cK5oOzNwiLClGxjm6M1knKFAcAU8cqGba8uS999qPNd70LJq89cf1B66E69Dovk2GbeTwDHO9xC+NjkKQ3BUEUszUjvWCq6L2QpuhV2Ba2/8RRWovhQ/d1KF9R5VT9zn07V0Kdimbowzdg4jgWlj+Lux8YFuUg3FTgndMoi35qM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WteS/e0x; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qyQqJw3n"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68TNZfTl120044;
-	Wed, 30 Sep 2026 07:28:13 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WteS/e0x"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68TNZdwO1171861;
+	Wed, 30 Sep 2026 07:29:27 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=hRgj7Et2mslqCi74mWWVC1UpL1zk3V
-	NNzSJBai5rckM=; b=qyQqJw3nC2zsh7oS8ERyU52BdcKrwVTFljr3BvDbpRd3B0
-	0zPKlWOiZqcAP8lqqFDURkd2yhVvDnlffkj/n4slv1AsrKUOk5PJcib71T0qIsl7
-	vFEguWe7hdEimsi5asqbi69ZCjF8u7AMcBtGVNa+9MyVMhx3uaKGMeZ1KBUKjaDn
-	0AX5KFBUXsBtYy4SsX8EyIsqe+mfqJOKg8pQwXxwydhgKDHvFeFXrq9Qdbb5LCog
-	ia7XEe99DG0ha1Y6NaGbGtug+FFxgE8Px2QXVMyw7/gCufVMbhCLB+JDdxbjLrJl
-	g/XH2u8s24bAkyIjFrbMF2J2lk7AjCs0mxSZqwoQ==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx4feaqur-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=yDjzzb
+	3YB8/Duz/xovBGr/fUbsnCWQl3DbCZ+JIDik8=; b=WteS/e0xq8zBvcwvG0PwU0
+	pkjWgT0n4So5b41CCer2H49B2E+LECu5qqas5g2QYLASaLEcnEqek6wTvMC47+2k
+	bNYNKZpmcAooXNSOd+aAABgjuBPyHks0nI46naIW4FzCoH8GYoQYPoPf3Va1yPO+
+	sXBme00Jseoj8k8B3IkUvpPxgtPcNf4NzksIRIUn0oCWyfpXjq9gUIo4+1hw3KyS
+	5UH3tRPdbpPkphe7B1/GRPDgr2AIRLnnMoLrMEla7/nSJ73bWE13i9Exp/E4nESU
+	gvyNPPMo5ReNnZH1841XM/5N7SwiPJIjrQuu8PmaxvJkCxomdPmg2GIEWLHvJctg
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx3fkb04u-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 30 Sep 2026 07:28:12 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68U4iFK52606339;
-	Wed, 30 Sep 2026 07:28:11 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4gxsvhnb27-1
+	Wed, 30 Sep 2026 07:29:27 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68U4dj7O2541956;
+	Wed, 30 Sep 2026 07:29:26 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h0hfpaqfn-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Sep 2026 07:28:11 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68U7S5dp51380624
+	Wed, 30 Sep 2026 07:29:26 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68U7TKal48759206
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 30 Sep 2026 07:28:05 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 470CB20040;
-	Wed, 30 Sep 2026 07:28:05 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4AD5F20049;
-	Wed, 30 Sep 2026 07:28:04 +0000 (GMT)
-Received: from osiris (unknown [9.111.12.23])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 30 Sep 2026 07:28:04 +0000 (GMT)
-Date: Wed, 30 Sep 2026 09:28:03 +0200
-From: Steffen Eiden <seiden@linux.ibm.com>
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Andreas Grapentin <gra@linux.ibm.com>, kvm@vger.kernel.org,
-        kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Friedrich Welter <fritz@linux.ibm.com>, Fuad Tabba <tabba@google.com>,
-        Gautam Gala <ggala@linux.ibm.com>,
-        Hariharan Mari <hari55@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Nico Boehr <nrb@linux.ibm.com>,
-        Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-        Oliver Upton <oupton@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
-        Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v8 16/29] arm64: Share arm64 headers with s390
-Message-ID: <20260930072803.664031-A-seiden@linux.ibm.com>
-References: <20260918133107.1042730-1-seiden@linux.ibm.com>
- <20260918133107.1042730-17-seiden@linux.ibm.com>
- <arqQ2Eat4VUBbl49@arm.com>
- <20260928162345.428362-C-seiden@linux.ibm.com>
- <ars6Jh5DiendDT7G@li-d8547bcc-2d90-11b2-a85c-a70f2a37009a.ibm.com>
- <arvunF8epgpWh1YT@arm.com>
+	Wed, 30 Sep 2026 07:29:20 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BC08B2005A;
+	Wed, 30 Sep 2026 07:29:20 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BF06A20063;
+	Wed, 30 Sep 2026 07:29:17 +0000 (GMT)
+Received: from [9.123.15.93] (unknown [9.123.15.93])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 30 Sep 2026 07:29:17 +0000 (GMT)
+Message-ID: <4590a880-d267-4c26-8a1f-c33cb3f53fca@linux.ibm.com>
+Date: Wed, 30 Sep 2026 12:59:16 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <arvunF8epgpWh1YT@arm.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v3 2/2] s390/ctcm: Fix use-after-free in
+ channel_remove()
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        pabeni@redhat.com, wintera@linux.ibm.com, aswin@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, kees@kernel.org,
+        linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+        stable@vger.kernel.org, sashiko-bot@kernel.org
+References: <20260922101913.239103-3-nagamani@linux.ibm.com>
+ <20260928233416.2796559-1-kuba@kernel.org>
+Content-Language: en-US
+From: Nagamani PV <nagamani@linux.ibm.com>
+In-Reply-To: <20260928233416.2796559-1-kuba@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=FYWiV5+6 c=1 sm=1 tr=0 ts=6abcba0c cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=yUGAwy5nKwvZNSSkddwA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTMwMDAyOCBTYWx0ZWRfX3sU+2Dfn/vqZ
- 9s9sMEAwJ/QoIm+wXUoUz+vMRPGFn+7t+mizIFcTMueUC3b+sVfDtayK78vJ/lweMyrYOj751+J
- e2uQYrwjTU5UmQIW6yiFB5Aec8OUzWs=
-X-Proofpoint-ORIG-GUID: _DlkOUTOeH3w63xnnfRbYKXk7OuwWqh_
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTMwMDAyOCBTYWx0ZWRfX+QA+Jhr/nNEc
- g+1uQImKhn5dkXln+A0VcaP3Q1Z7lr4d2OR7I70b525QnlNe86XXIVCeXQnK64Hr/G3cJrXdDOW
- xarHfa1K54FmWIE84TlPDZSUduNs78AZVpH2ISdcXex054xZJVnqpsHV5M6KmLfEUDMCFr4g3w2
- TdZ0fnb/SBK//8Gm+2G1x9ZB4vSTBm3AJj3EtUN7rknmvx5+hG77220YBDIe/wcYsMZDTXYNXsb
- IKuxgvAh022qpVUXshSpAsOqrwtfVQIokbZtPZ2KwfDkLKhTkTzbL2WJvksNJb1BJy0TlSYUJOu
- i/rKLvzKVpluB1M6QVkX/iv8oemQeHNdLQACH3QwxymFk1JJ2qQiKrpBlmlm4iYK3u3qGnUFwDf
- gWxXFdWjFB9fqKIyN/BttHrHaIA8xN4GnKR+R0oBPspRkW6zK/s1c7suKsbZzlSXV5hbVU5JBa0
- gCooiWNfWe/80bWIEoA==
-X-Proofpoint-GUID: 9uC9FNKzEs4mMhcFIr-EKf_de_z3-bc6
+X-Proofpoint-ORIG-GUID: IeKpu_-aFwcfU0z65FUsIH114n8mKFi4
+X-Proofpoint-GUID: etoNrfvWsyMV4bYGka86F5EdpnXBpyj-
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTMwMDAyOCBTYWx0ZWRfX9LRaDlD3Ga0l
+ kjEejqPCeJ/6Yy8V51Pjyb1kxvAl/mEjz2kEvBdLxKzgYwqSyX5qBZ2OCHk/gm0hcW4rKtKojv1
+ ROnJH1sJElCznPjO/OeaLZ6pk+xMArU=
+X-Authority-Analysis: v=2.4 cv=Vv62kO2n c=1 sm=1 tr=0 ts=6abcba57 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
+ a=An1SWL3B0YKOnqAVLzcA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTMwMDAyOCBTYWx0ZWRfXxr1vTkXGIl6x
+ yevyTlAHqV5bTe/YKQoXq/Rtni4feIKgfiseaZ1E1pTFeera9NE4ztYStwirhoryJZLniY5Ac28
+ 1AV98X4KpSsrV8kQzWNHqwao2leTKmDizcaICGCDE8xsfwSvBI1TnjHCSaT4DKL6tJ+9+If/9cD
+ 7JrtBtZ922X37TOgPvd+M7OtDUWZV2bstxPHZPFMItYgiWz0y4drYnsQz+pc4WbKZ/0mh17DBxC
+ oZL3M6zH0AlV8H/6/x1eJ2njV1aw1JNvAnbYCV/ECnyNlCdp925CTDBvcAL0mhN49KXi+6e5VZV
+ MWdlCVs+R0fGrW0wAf+RSgj8aFw3KqPh5Soqtj+iBIKIhnFDwKd4rJIHRrXRoO/L0vyp6YclA91
+ Mu3fzZrGYNIMX13JM2t0GpLnhoLiWi27oyQrXESnpsdmToeAEO6RvcsPJPse6VM/0LuDY1F65TS
+ QRJL+LFAGC66Vq3559A==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-29_05,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 clxscore=1015 impostorscore=0 spamscore=0 phishscore=0
- priorityscore=1501 malwarescore=0 bulkscore=0 lowpriorityscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ suspectscore=0 spamscore=0 phishscore=0 bulkscore=0 adultscore=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 lowpriorityscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
  definitions=main-2609300028
 
-On Tue, Sep 29, 2026 at 06:00:12PM +0100, Catalin Marinas wrote:
-> On Tue, Sep 29, 2026 at 06:19:20AM +0200, Andreas Grapentin wrote:
-> > On Sep 28 26, Steffen Eiden wrote:
-> > > On Mon, Sep 28, 2026 at 05:07:52PM +0100, Catalin Marinas wrote:
-> > > > On Fri, Sep 18, 2026 at 03:30:53PM +0200, Steffen Eiden wrote:
-> > > > > +# Enable all code shared to s390
-> > > > > +KBUILD_CFLAGS	+= -DARM64_S390_COMMON
-> > > > > +KBUILD_AFLAGS	+= -DARM64_S390_COMMON
-> > > > > +KBUILD_CPPFLAGS	+= -DARM64_S390_COMMON
-> > > > 
-> > > > Do we actually need these defines? They seem only to be used as markers
-> > > > for the awk scripts to extract the definitions. Why do we need the C
-> > > > preprocessor involved at all? Could we not just have comment markers:
-> > > > 
-> > > > /* ARM64_S390_COMMON_BEGIN */
-> > > > ...
-> > > > /* ARM64_S390_COMMON_END */
-> > > >
-> > > No technically we do not need those. They could be useful if we find out
-> > > that AWK is the wrong tool and move to a C Preprocessor + diff based
-> > > approach. 
-> > > 
-> > > if the ifdev is not closed the compiler will complain, but an 'arm did
-> > > not destroy us' verifiaction tool ( I will send one soonish) could do
-> > > the same.
-> > 
-> > iirc the last time we discussed this we didn't think that load-bearing
-> > comments were the right tool here. We also briefly floated the idea of
-> > using a #pragma region based approach, but in the end we went with the
-> > #ifdef preprocessor directives instead, as the least invasive
-> > non-comment marker that was available.
-> 
-> The downside is that the macro affects the preprocessed code. We need to
-> ensure they don't leak in uapi headers for example. Not a fan of this
-> approach but I don't have a better suggestion either. At least we could
-> write them as:
-> 
-> #if ARM64_S390_COMMON == 1
 
-This is a great idea and an improvement. Thanks.
 
-@Marc: Shall I sent a v9 of this series or do you want to pick v8 and I
-send this as an improvement once picked?
+On 29/09/26 5:04 AM, Jakub Kicinski wrote:
 
-Regarding UAPI: We will either import the whole uapi header or noting.
-We will not modify ARM uapi headers for the arm64 on s390 feature.
+Thank you for the detailed review. Responses inline.
 
+> [Severity: Low]
+> This isn't a bug, but "Patch 1" and "patch 2" won't mean anything once
+> these commits are in git history.
 > 
-> so we get an error if someone misspells the macro name (or they leak in
-> uapi headers, vDSO).
+> The prerequisite is "s390/ctcm: Fix timer corruption in fsm_addtimer()".
+> Its Fixes: tag (e99e88a9d2b0) is different from the one on this commit
+> (293d984f0e36). Without it, fsm_addtimer() calls timer_setup() again, which
+> restores ->function and undoes timer_shutdown_sync(&ch->sweep_timer.tl).
 > 
-> It would also be useful for the awk scripts look for the paired #endif
-> rather than relying on the comment at the end of the line. Otherwise
-> it's not really different from just sticking to comments.
+> Could the commit message name the prerequisite by title or SHA? Could the
+> Cc: stable line also use the "Cc: stable@vger.kernel.org # <ver>: <sha>:
+> <title>" form, so the dependency is recorded in a way tools can pick up?
 > 
 
-Are you suggesting that the AWK scripts should track the #if% and #endif
-in the code and warn or reject if the marked endif for the shared code
-does not match pairing with the starting #if? That makes sense yes. I'll
-investigate and would add this as an improvement later on.
+Fixed in v4:
+- Named the prerequisite by commit title ("s390/ctcm: Fix timer
+  corruption in fsm_addtimer()") throughout the commit message.
+- Updated the tag to structured format:
+  Cc: stable@vger.kernel.org # depends on: s390/ctcm: Fix timer corruption in fsm_addtimer()
 
-	Steffen
+> 
+> [Severity: High]
+> Is this quiesce early enough? On the offline path, channel_remove() only
+> runs after ctcm_free_netdevice() has already freed the shared MPC state:
+> 
+> ctcm_shutdown_device()
+>     channel_free(priv->channel[CTCM_READ])
+>     channel_free(priv->channel[CTCM_WRITE])
+>     unregister_netdev(dev)
+>     ctcm_free_netdevice(dev)
+>         kfree_fsm(grp->fsm)
+>         kfree(grp)
+>         priv->mpcg = NULL
+>         kfree_fsm(priv->fsm)
+>         free_netdev(dev)        /* MODULE builds only */
+>     ...
+>     channel_remove(priv->channel[CTCM_READ])
+>     channel_remove(priv->channel[CTCM_WRITE])
+> 
+> ctcmpc_bh(), the ch_tasklet handler, dereferences these objects without
+> checking the channel FSM state. Setting CTC_STATE_IDLE in channel_free()
+> therefore doesn't stop a tasklet that is already pending:
+> 
+> drivers/s390/net/ctcm_mpc.c:ctcmpc_bh() {
+> 	struct net_device *dev	= ch->netdev;
+> 	struct ctcm_priv  *priv	= dev->ml_priv;
+> 	struct mpc_group  *grp	= priv->mpcg;
+>     ...
+> 	while ((fsm_getstate(grp->fsm) != MPCG_STATE_FLOWC) &&
+>     ...
+> }
+> 
+> Suppose the RX path scheduled rch->ch_tasklet just before the device was
+> taken offline, and the tasklet is still pending (for example deferred to
+> ksoftirqd) when ctcm_free_netdevice() runs. Can it then dereference a NULL
+> priv->mpcg, or a freed dev in MODULE builds, before channel_remove() gets
+> to tasklet_kill()?
+> 
+> Something similar can happen with sweep_timer. An in-flight action in
+> ctcmpc_chx_send_sweep() can overwrite the CTC_STATE_IDLE set by
+> channel_free() and re-arm wch->timer:
+> 
+> 	fsm_addtimer(&wch->timer, CTCM_TIME_5_SEC, CTC_EVENT_TIMER, wch);
+> 	fsm_newstate(wch->fsm, CTC_STATE_TX);
+> 
+> If that timer fires before channel_remove(), the TX timer action would use
+> ch->netdev and priv->mpcg, which by then are freed or NULL.
+> 
+> The error path in ctcm_new_device() has the same order: it calls
+> ctcm_free_netdevice() at out_dev and channel_remove() on both channels
+> afterwards.
+> 
+> Would it make sense to quiesce the tasklets and timers of both channels
+> before ctcm_free_netdevice() is called?
+> 
+
+Confirmed pre-existing bug in ctcm_shutdown_device() / ctcm_new_device()
+error path, outside the scope of channel_remove(). Aswin Karuvally has
+picked this up and is preparing a fix in a follow-up series.
+
+> 
+> [Severity: Medium]
+> Can a timer callback schedule ch_disc_tasklet again after the
+> tasklet_kill() above?
+> 
+> tasklet_kill() waits for the current run and clears TASKLET_STATE_SCHED.
+> It doesn't stop a later tasklet_hi_schedule(), and the timer actions can
+> reach one. 
+> [ ... ]> Would a second tasklet_kill() after the timers are synced, or a
+> tasklet_disable() before them, close this?
+> 
+
+Fixed in v4 by shutting down timers before tasklet_kill():
+
+  if (IS_MPC(ch))
+      timer_shutdown_sync(&ch->sweep_timer.tl);
+  timer_shutdown_sync(&ch->timer.tl);
+  if (IS_MPC(ch)) {
+      tasklet_kill(&ch->ch_tasklet);
+      tasklet_kill(&ch->ch_disc_tasklet);
+      kfree(ch->discontact_th);
+  }
+
+timer_shutdown_sync() waits for any active callback and prevents further
+rearming. Shutting down sweep_timer first breaks the sweep -> ch->timer
+re-arm chain, and shutting down ch->timer prevents scheduling
+ch_disc_tasklet via mpc_action_go_inop(). tasklet_kill() then cleans up
+any in-flight instances.
+
+timer_shutdown_sync() is also used for non-MPC ch->timer since
+ctcm_chx_txretry() can re-arm ch->timer on that path as well.
+
+> 
+> [Severity: High]
+> This isn't a bug introduced by this patch, but the same removal sequence
+> seems to leave two other FSM timers running on freed memory.
+> 
+> ctcmpc_init_mpc_group() binds grp->timer, which is embedded in grp, with
+> fsm_settimer(grp->fsm, &grp->timer). ctcm_init_netdevice() binds
+> priv->restart_timer to priv->fsm. ctcm_free_netdevice() frees all of these
+> without first cancelling either timer synchronously:
+> 
+> [ ... ]
+
+> Should grp->timer and priv->restart_timer be stopped with
+> timer_delete_sync() or timer_shutdown_sync() before ctcm_free_netdevice()
+> frees them?
+> 
+Confirmed pre-existing bug in ctcm_free_netdevice(). Aswin Karuvally has
+picked this up for the follow-up series as well.
+
+These changes are included in the v4 series posted to the list.
+
+Nagamani
 
