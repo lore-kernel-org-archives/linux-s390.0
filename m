@@ -1,94 +1,97 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4B05471410;
-	Wed, 30 Sep 2026 08:53:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C06C30C147;
+	Wed, 30 Sep 2026 09:32:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790758428; cv=none; b=mSOlZmyYSTY4/aRHKB+RJxYbzuhdsyW48+aNZYAagKU8AtdY4za/3OXQHiEMlFUMjcsX1tW21/+jDjy0A/3H+cIe+09s05fEkdne8oOJaSLRRI1aED5USkFX+8iK4ez1AvD00yR7G0t2HOcfZKxQwoT16TVdEiftPyAlOsuo8rA=
+	t=1790760761; cv=none; b=Kf9Zr2uNjv45FwLGm/pDi1s5K2fOqWiFNkJULWX0rtrHJR2A2ylYuyTTb6Y6CNrBQsxkHIzSVOLDvh1Wl1jHIMaDPkjhtJGP530xZog4U5RaDZ5MftPSguEzABYKK+nl4CKzV3ZyZm2VikY0kM9frmh5EZYnmgWPqK9zzcQien8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790758428; c=relaxed/simple;
-	bh=LnomSK7POE15LyEpdzjf0O2g1cDeKGmuEsQmVqZE1qM=;
+	s=arc-20240116; t=1790760761; c=relaxed/simple;
+	bh=TlzHEJQt+34xYjujqXxuq3JcjM0wYp8ZviYUagsVkog=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YtmgD/eRDntrhxGaJ379gYkdOl8b642V9fxSryCdXd8q1InuaAOiKIZplYwR8iI+vUkrmTvl35j4cZEwj+DPW5L7z/AP6not6t3oGWT3kujPZQ+kOpl+lAHWoM/Q3c1lhDwAB1ixzyV3jjHDtzsFtLdYnfP5+sjw/KF80dXulZw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Rx9ygRXK; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=garWEN3pTPZ7+NgDU1WHoJtjfajbeOywY3CMAhthbp1Wn6S/ZR7JDL1COPGG16xzzNMad5wxSVwPmmJwNRV0wutckgUP6s9N+LHPXG14nlYHw3+dWd5gAqMX8XpHnmCS89rzNhvWXYrh3iR4CfWqOLZv34HFKanSM5TiA59WRWk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A/WFPBAH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Rx9ygRXK"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68U7aoAg2367598;
-	Wed, 30 Sep 2026 08:53:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=NhIukOj8BOfFcEqXCoWm3ULcTHuspX
-	E7+r0QvW4z63U=; b=Rx9ygRXK4WPeGJMhbwYHlLYdxios9M47BgGk66SEF6gAMt
-	h0dW1XEo/2YkR5l3mMTR7WJn5zsyBgxIqbOMv+M5EyFozLbTkC/P86WeMMEohjv3
-	isA73RkGrpXKsD0X2vB01phmIwSiI5zWxane0cfeiT/eC5q5KwZ/p+h4NaeLXfCh
-	3Kl/slGriTpnE5ffjkQmytugwlxCFiJuXC8Fu9Jz4xRjXNk4wcNry5gQf+ryi/9T
-	jkWxNrvFXvpKzTdhrMiJaoq1b2383FivMVaTKP1eADYKl+6iSNyehGXHBrf33rDb
-	oqxhDVYDwB/03/5zobKhhepzeE1KbvE8IYXQTe4A==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5ptaysu-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 30 Sep 2026 08:53:17 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68U7lUPa3126451;
-	Wed, 30 Sep 2026 08:53:16 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h0g8e39we-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 30 Sep 2026 08:53:16 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68U8r94338732070
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 30 Sep 2026 08:53:10 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 95C1F20043;
-	Wed, 30 Sep 2026 08:53:09 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A79BE20040;
-	Wed, 30 Sep 2026 08:53:08 +0000 (GMT)
-Received: from osiris (unknown [9.111.12.23])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 30 Sep 2026 08:53:08 +0000 (GMT)
-Date: Wed, 30 Sep 2026 10:53:07 +0200
-From: Steffen Eiden <seiden@linux.ibm.com>
-To: Marc Zyngier <maz@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>,
-        Andreas Grapentin <gra@linux.ibm.com>, kvm@vger.kernel.org,
-        kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Friedrich Welter <fritz@linux.ibm.com>, Fuad Tabba <tabba@google.com>,
-        Gautam Gala <ggala@linux.ibm.com>,
-        Hariharan Mari <hari55@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
-        Nico Boehr <nrb@linux.ibm.com>,
-        Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-        Oliver Upton <oupton@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
-        Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v8 16/29] arm64: Share arm64 headers with s390
-Message-ID: <20260930085307.770322-B-seiden@linux.ibm.com>
-References: <20260918133107.1042730-1-seiden@linux.ibm.com>
- <20260918133107.1042730-17-seiden@linux.ibm.com>
- <arqQ2Eat4VUBbl49@arm.com>
- <20260928162345.428362-C-seiden@linux.ibm.com>
- <ars6Jh5DiendDT7G@li-d8547bcc-2d90-11b2-a85c-a70f2a37009a.ibm.com>
- <arvunF8epgpWh1YT@arm.com>
- <20260930072803.664031-A-seiden@linux.ibm.com>
- <865wzn41h6.wl-maz@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A/WFPBAH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD21A1F000FF;
+	Wed, 30 Sep 2026 09:32:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1790760760;
+	bh=GUhUebTYwdNTDsFDAgKX2XUga1p/xniYtUmuBOcAkD0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=A/WFPBAH7Qma+9hcX287RuSKWlORpntiWFjFLaPigU8Y75ISxg3KEjLTfteawEyBe
+	 2g/cYh4OEqr71nkWwJpVQnorMprUQRkz1eix+QLOCr/CPst8lLD0ChCfFd8YGM4jfy
+	 Fksx04sLagSxxR88vp09QnJZCikrL8s15UEcYtyj8cHuNrsfav7blbRqRE5dyxX7SB
+	 IKNdTpYGGoAU9JjY6jjqMsEYQfRaLoK1HI3j102H2WUj2d2AjX7kJd1tm0yEuZtXim
+	 rxv3PmM3a58m4CHKDbt2tmNwqyH0M2+G0zuIAT/AqLpxmsAoL5566Xt1IaKFXihiLq
+	 k8Bhh/EDc3Mrg==
+Date: Wed, 30 Sep 2026 10:32:09 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: Zi Yan <ziy@nvidia.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+	David Hildenbrand <david@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
+	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
+	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
+	Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, 
+	Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, 
+	Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>, 
+	Doug Gilbert <dgilbert@interlog.com>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	"Martin K. Petersen" <mkp@kernel.org>, Jaya Kumar <jayalk@intworks.biz>, 
+	Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, Sebastian Reichel <sre@kernel.org>, 
+	John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
+	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+	Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, Juri Lelli <juri.lelli@redhat.com>, 
+	Vincent Guittot <vincent.guittot@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>, 
+	Oliver Upton <oupton@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
+	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
+	Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
+	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
+	Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
+	Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
+	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
+	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
+	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev
+Subject: Re: [PATCH v3 34/40] mm: eliminate VMA_SPECIAL_FLAGS usage when
+ hugetlb explicitly tested
+Message-ID: <arzXDWOaouPMGtxL@gremlin>
+References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
+ <20260917-b4-mmap-prepare-vma-flag-sanify-v3-34-4583d8a23bca@kernel.org>
+ <DLSAZ4ZQY8Q3.3OKOCCOQAFVCC@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -97,112 +100,72 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <865wzn41h6.wl-maz@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: hlt5tY_2sa3oCouRCckoYMzdGBgxEcfG
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTMwMDAzNCBTYWx0ZWRfX4XfLdgpSugRT
- XlKY3BXGec62GjXr1X+q9M67hlS8YubEVWaNhhIhulpnmG2ZHgqFVr+JMnYqgFTwHGBQSjFE70P
- enyCwFTO9Yls0xjnOUrNp4rpLxuGKQjXjVe61sDv0E508eP5Kl0eT4uGQtjZmRCn9luussRqyXS
- EzlTbb2paiO2eythsFkgh5xASzLftBQVwdWS2iCab2oU2b0VyoGKPZGYt2lkW6NXZNWwCrso1Zs
- O/1dOaAoci317V3iqnfv5YDJDl1A+Wm48aElWcKjYrK4D+r+3OwgwHW1rhlp6YGK6Nm5A0mxHrt
- 5IIQ8Yo634NNeCpNVYn0D0RX6SSQ+3UEuj0Tz5WvLOzrPwR/7jos7+6/VyJ5Epib+FCSXZqICWf
- JT4D4Dms5HnS5LOdl74qFsbJSc5NQjEw3jwfhHctbxUryr8H5Q5mTTuBlUT2fftpVBgl2BsbARa
- dnBaT27Kq+ET3ko/vCQ==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTMwMDAzNCBTYWx0ZWRfXx2ydMeHP7FMn
- y172RhPy8DuzoeAapk44jnJfuMot6M4Z8iauGIimm8Ek3ereyYBPrAbiPULWZilGPkoqfRsvDw5
- Kc9CBQQADM1FBkMtHRn018l4K5Atuhk=
-X-Authority-Analysis: v=2.4 cv=EY5d0/mC c=1 sm=1 tr=0 ts=6abccdfe cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=GA_TYQvl0U8dmn4ZWnYA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: i_8l7rOMgnEnckEEpZJW-6IXi7e8oe2u
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-30_01,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 suspectscore=0 adultscore=0 clxscore=1015
- malwarescore=0 impostorscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609300034
+In-Reply-To: <DLSAZ4ZQY8Q3.3OKOCCOQAFVCC@nvidia.com>
 
-On Wed, Sep 30, 2026 at 08:55:49AM +0100, Marc Zyngier wrote:
-> On Wed, 30 Sep 2026 08:28:03 +0100,
-> Steffen Eiden <seiden@linux.ibm.com> wrote:
-> > 
-> > On Tue, Sep 29, 2026 at 06:00:12PM +0100, Catalin Marinas wrote:
-> > > On Tue, Sep 29, 2026 at 06:19:20AM +0200, Andreas Grapentin wrote:
-> > > > On Sep 28 26, Steffen Eiden wrote:
-> > > > > On Mon, Sep 28, 2026 at 05:07:52PM +0100, Catalin Marinas wrote:
-> > > > > > On Fri, Sep 18, 2026 at 03:30:53PM +0200, Steffen Eiden wrote:
-> > > > > > > +# Enable all code shared to s390
-> > > > > > > +KBUILD_CFLAGS	+= -DARM64_S390_COMMON
-> > > > > > > +KBUILD_AFLAGS	+= -DARM64_S390_COMMON
-> > > > > > > +KBUILD_CPPFLAGS	+= -DARM64_S390_COMMON
-> > > > > > 
-> > > > > > Do we actually need these defines? They seem only to be used as markers
-> > > > > > for the awk scripts to extract the definitions. Why do we need the C
-> > > > > > preprocessor involved at all? Could we not just have comment markers:
-> > > > > > 
-> > > > > > /* ARM64_S390_COMMON_BEGIN */
-> > > > > > ...
-> > > > > > /* ARM64_S390_COMMON_END */
-> > > > > >
-> > > > > No technically we do not need those. They could be useful if we find out
-> > > > > that AWK is the wrong tool and move to a C Preprocessor + diff based
-> > > > > approach. 
-> > > > > 
-> > > > > if the ifdev is not closed the compiler will complain, but an 'arm did
-> > > > > not destroy us' verifiaction tool ( I will send one soonish) could do
-> > > > > the same.
-> > > > 
-> > > > iirc the last time we discussed this we didn't think that load-bearing
-> > > > comments were the right tool here. We also briefly floated the idea of
-> > > > using a #pragma region based approach, but in the end we went with the
-> > > > #ifdef preprocessor directives instead, as the least invasive
-> > > > non-comment marker that was available.
-> > > 
-> > > The downside is that the macro affects the preprocessed code. We need to
-> > > ensure they don't leak in uapi headers for example. Not a fan of this
-> > > approach but I don't have a better suggestion either. At least we could
-> > > write them as:
-> > > 
-> > > #if ARM64_S390_COMMON == 1
-> > 
-> > This is a great idea and an improvement. Thanks.
-> > 
-> > @Marc: Shall I sent a v9 of this series or do you want to pick v8 and I
-> > send this as an improvement once picked?
-> 
-> Please send a v9. That's invasive enough that it warrants it.
+On Tue, Sep 29, 2026 at 10:42:00PM -0400, Zi Yan wrote:
+> On Thu Sep 17, 2026 at 12:22 PM EDT, Lorenzo Stoakes (ARM) wrote:
+> > It is now an invariant that VMA_IO_BIT is not set except by kernel-owned
+> > mappings, so each existing VMA_SPECIAL_FLAGS test need only test for
+> > VMA_DONTEXPAND_BIT, VMA_PFNMAP_BIT and VMA_MIXEDMAP_BIT.
+> >
+> > This is precisely a test for a kernel-owned or fixed mapping.
+> >
+> > Update a number of callsites which already explicitly handle hugetlb
+> > mappings.
+> >
+> > vma_supports_mlock() and ksm_compatible() also explicitly bail on droppable
+> > mappings - detecting kernel-owned, fixed or droppable mappings is handled
+> > by vma_is_persistent(), so in these cases use this predicate.
+> >
+> > should_skip_vma() tests for locked, kernel-owned or fixed memory (having
+> > already excluded hugetlb mappings) so simply test for those there.
+> >
+> > No functional change intended.
+> >
+> > Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+> > ---
+> >  mm/internal.h | 4 +---
+> >  mm/ksm.c      | 4 +---
+> >  mm/vmscan.c   | 3 ++-
+> >  3 files changed, 4 insertions(+), 7 deletions(-)
+> >
+>
+> <snip>
+>
+> > diff --git a/mm/vmscan.c b/mm/vmscan.c
+> > index 12ed3388ee41..09ff20c3df5b 100644
+> > --- a/mm/vmscan.c
+> > +++ b/mm/vmscan.c
+> > @@ -3477,7 +3477,8 @@ static int should_skip_vma(unsigned long start, unsigned long end, struct mm_wal
+> >  	if (!vma_has_recency(vma))
+> >  		return true;
+> >
+> > -	if (vma->vm_flags & (VM_LOCKED | VM_SPECIAL))
+> > +	if (vma_test(vma, VMA_LOCKED_BIT) || vma_is_kernel_owned(vma) ||
+>
+> At this point, mmap_lock is held, there is no mlock WIP, so
+> VMA_LOCKED_BIT is enough.
 
-Will send one ASAP.
+Yes indeed :)
 
-> 
-> > > It would also be useful for the awk scripts look for the paired #endif
-> > > rather than relying on the comment at the end of the line. Otherwise
-> > > it's not really different from just sticking to comments.
-> > > 
-> > 
-> > Are you suggesting that the AWK scripts should track the #if% and #endif
-> > in the code and warn or reject if the marked endif for the shared code
-> > does not match pairing with the starting #if? That makes sense yes. I'll
-> > investigate and would add this as an improvement later on.
-> 
-> I think the suggestion is to teach the script about the #if/#endif
-> nesting, and therefore to not require the trailing comment on #endif
-> (i.e. the script acts as a normal cpp).
-> 
-> It should only be a matter of counting the #{if,ifdef}s and #endif
-> past the ARM64_S390_COMMON guard.
+>
+> > +	    vma_is_fixed_mapping(vma))
+> >  		return true;
+> >
+> >  	if (vma == get_gate_vma(vma->vm_mm))
+>
+> LGTM.
+>
+> Reviewed-by: Zi Yan <ziy@nvidia.com>
+
+Thanks!
+
+>
+>
+> --
+> Best Regards,
+> Yan, Zi
 >
 
-Yes, countin is what I had in mind. I will deliver this feature (or fix?)
-as an improvement later on. At this point we may actually use the cpp to
-do that for us. This requires some investigation from my side. IMO the
-current implementation is a good first step we can use as a starting
-point for further improvements.
-
-	Steffen
-
+--
+Cheers, Lorenzo
