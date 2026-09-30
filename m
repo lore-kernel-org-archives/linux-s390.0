@@ -1,148 +1,137 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 032DF351C11;
-	Wed, 30 Sep 2026 08:18:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A3B13C9893;
+	Wed, 30 Sep 2026 08:33:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790756343; cv=none; b=eeHsmALRjs+boDa8UXgX1QuD7kpZkOVgBmUXHiEA+kKJ17C7OpuVZm2wIrmZWxw+CvALVfbfOAJ/MXCFqnDylzg98fWCuvW+xLWchBypRKreG314Xb3LLBTLv6LqTYFhRFm6qs6oH2DrVdKo81NMokZRLQRhxg59ivw5cqSsgmw=
+	t=1790757205; cv=none; b=EpsLDrOkjJ+Xl/uIOwKOXe9pE4+Fo15jP9w7Vkyex+Z8O+VG8fSPD9tRESDxHIhlUm85kXB5dJD4ykZqUzLUaAwQx/ySR4gPO5ei/dJgpioVrzDiickbF0GM9fvp4+OJo+ye0mbGetdNXQqwOSj4PhE4ahAumt6sQNfrUFOKStc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790756343; c=relaxed/simple;
-	bh=Zs/zsvEVQRk+mVgJ9NPC0tp22kbeIszRpi3LYPXHG08=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ACQM1T3RCQXz2x0P2PR95EUaUkoHl54Hh5Stj0wipGAEUidoSFhnlg3lS7xTAFJA0B+G/sBovicg9v7y02x4+2ivv73TT7qPub0HTLzErYUKcwWclGFgAqzy2lO37iVr+FbtQN8LAaVGkgfSA/9gL+rxJmtyyJiGpHJjekKqvks=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JOTpVC04; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790757205; c=relaxed/simple;
+	bh=2P+24IJ4tpNgAKjcn6f2qL3ldLRiosZOezOINslhyLI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bh1wvZroZd8Bz0q/bhmILR8otVfufIETyoangEh8Tq0NsQ6dUvlVQBDvmsFSmFNMsMvkUUH1ibze76B3r5Z9tbdI37sXmHbV6AdyCiK7fOF8LUPr0j7uFGbBaP6B33+XTv8LCJVY/jd7i+/Nrh0+CaIGdHQ4oscTluwfYAX+YWQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=k1jzxXn3; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JOTpVC04"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28AB61F00893;
-	Wed, 30 Sep 2026 08:18:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790756336;
-	bh=nbSovUZb/MlZhj2tEhZiGj8CNPVmvAH3i/Z0nTxFLdg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=JOTpVC04wh5pGOAwB+akNvtPI/EaJ/sGBV5jUBqBgrdaZmq4W7GXQAkE+Wu2KInW5
-	 jRDnHo3ofu3EWnP34hEd6e2A7PdYH454fghF/agQnD8YU4tyzjkhuySfIcbK8ri5gR
-	 e908gdDcPHTJ2Lsw806HNc8ZkXRpczhaHl8l0ZmdGYp9jtsvPTUh0VjNTD0ir1+wc7
-	 JTmAkePd/1/+vxicYMbNTbATdOJJVfFHXGfal0pB6qvAq0yKINxjcgOKQcaQVE+kXN
-	 CzfpJDFSeYHUa2feuXIHtDJOHBzChvR2meGHR/kaHhE753kfTeGj1A5m06OmVyVmGa
-	 Zbl62QeRGrrRQ==
-Date: Wed, 30 Sep 2026 09:18:47 +0100
-From: Will Deacon <will@kernel.org>
-To: Marc Zyngier <maz@kernel.org>
-Cc: Steffen Eiden <seiden@linux.ibm.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Andreas Grapentin <gra@linux.ibm.com>, kvm@vger.kernel.org,
-	kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@kernel.org>,
-	Friedrich Welter <fritz@linux.ibm.com>,
-	Fuad Tabba <tabba@google.com>, Gautam Gala <ggala@linux.ibm.com>,
-	Hariharan Mari <hari55@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Hendrik Brueckner <brueckner@linux.ibm.com>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Joey Gouly <joey.gouly@arm.com>, Nico Boehr <nrb@linux.ibm.com>,
-	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-	Oliver Upton <oupton@kernel.org>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v8 16/29] arm64: Share arm64 headers with s390
-Message-ID: <arzF5y2C0eMDQYwE@willie-the-truck>
-References: <20260918133107.1042730-1-seiden@linux.ibm.com>
- <20260918133107.1042730-17-seiden@linux.ibm.com>
- <arqQ2Eat4VUBbl49@arm.com>
- <20260928162345.428362-C-seiden@linux.ibm.com>
- <ars6Jh5DiendDT7G@li-d8547bcc-2d90-11b2-a85c-a70f2a37009a.ibm.com>
- <arvunF8epgpWh1YT@arm.com>
- <20260930072803.664031-A-seiden@linux.ibm.com>
- <865wzn41h6.wl-maz@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="k1jzxXn3"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68U7bIUN2374473;
+	Wed, 30 Sep 2026 08:32:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=HVozmJ
+	Ce5CuqcxQLM5wK3UMtL4EPP6p8ko4dfAm9314=; b=k1jzxXn33j2hLp5pKSFzI9
+	WnHSml7tpLFG+qQwD0tNbXAYO9CtDnFHqqRn6SNBvlL4aBY9TcPIoGRNYBOAFsjM
+	hAE460gotG9FcH1bDA8nxkqo9121SmZ/DiaCBTN0pILrL1DOZvikPv4dDTujIb00
+	QGbiUwe8uYu8WkWD/tg1RQXW0gpwncHaoktrqw3U58k1mDcmDdPRm5Bam9deTYj9
+	HAWZ/m9W8QxR0MavAV1NKhGlnL0/HLVl1+Oed/LkcVXqaGRGwqsGmVngayqp0E7Q
+	3XYgy0vl/CMYcWHiJUZ+EZDsQSiWlgp/JfXEDUMCV9MzjhAOkbg+1i8VkpLG20jQ
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5s5bsh5-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Wed, 30 Sep 2026 08:32:50 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 68U7lSkZ3082971;
+	Wed, 30 Sep 2026 08:32:49 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h0hfpawvn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 30 Sep 2026 08:32:49 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 68U8WmLa25297564
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 30 Sep 2026 08:32:48 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0216B58059;
+	Wed, 30 Sep 2026 08:32:48 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E98285806A;
+	Wed, 30 Sep 2026 08:32:41 +0000 (GMT)
+Received: from [9.123.5.239] (unknown [9.123.5.239])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 30 Sep 2026 08:32:41 +0000 (GMT)
+Message-ID: <50193f2c-1a18-49e0-bafe-bb0916b14b72@linux.ibm.com>
+Date: Wed, 30 Sep 2026 14:02:40 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <865wzn41h6.wl-maz@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v7] net/smc: fix lgr/lnk lifetime vs diag reader race
+To: netdev-bot+sinfo@kernel.org
+Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
+        dust.li@linux.alibaba.com, sidraya@linux.ibm.com,
+        hidayath@linux.ibm.com, pasic@linux.ibm.com, horms@kernel.org,
+        tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+        stable@vger.kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <20260930073029.1201202-1-mjambigi@linux.ibm.com>
+ <179075363052.31693.7276499571222525560@kernel.org>
+Content-Language: en-US
+From: Mahanta Jambigi <mjambigi@linux.ibm.com>
+In-Reply-To: <179075363052.31693.7276499571222525560@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTMwMDAzMiBTYWx0ZWRfXzqRJ1c/eD2Aw
+ ONpwLwYv2YIZ8qEM6Otdc5kvACXXJa+SklTMgvfSaMF09v2AElHQ0zbFK2KKm7/bk1Fp/CN58XQ
+ 0Qpz5i9cvXBrAZWVd8eOQJ3iyJ9X23s=
+X-Authority-Analysis: v=2.4 cv=HJ5WhYtv c=1 sm=1 tr=0 ts=6abcc932 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
+ a=8WImSUdLa4LpenjYlHkA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: kmSBDthRuDHvReWlkysbDKFOb5_HZgDI
+X-Proofpoint-ORIG-GUID: LzYPD1s3SJgg_i5tA7UbtwAY078vbwH4
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTMwMDAzMiBTYWx0ZWRfX3Ed8xY6fScHp
+ A1JSgOcPp5Utu9KmkW9pN//i0icZvWixeltkmqAN/tp1lGyH4guHj1tTGC3fSKt+KfQbE9ilew3
+ 2RZ/+1LZ9Z7xU2VCT4cJx6JKsznhfR8iGzka/T5YHa/Z39bz7f4IRt/ABXY0YAEd9e/zx8hOcMl
+ Dek3AQWNaXDiXXTwNYwnn1aE7XumIfu6mJl+ivFvUmWfL7ZwXEB6WSjeX56RKPgQWS4ERmKiWUT
+ KGXQ/8/VCl9FfSMjPezYbl+36LSpdgy0aWXToFHxASXmbAG3Wbczzo/qEslkPtdWrsD4JZ3q3D4
+ xg/jP7AKvAUunnPydweQI0rP+gbsS/s1Ns9K5Fk8mPHuGo5Cv0YH0QasO2zKGQOSp7Mh7qy/f/C
+ 88uWQodB+QKRVIuYkKIXaNb17kz/DKO9TeUqbAK45F5UkEw+zSEgB/akbgKeTr8URIlkGJRq0k4
+ mJ0Jv281EMxbxpvPreA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-09-30_01,2026-09-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 suspectscore=0 bulkscore=0 clxscore=1011 lowpriorityscore=0
+ spamscore=0 impostorscore=0 phishscore=0 priorityscore=1501 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2609300032
 
-On Wed, Sep 30, 2026 at 08:55:49AM +0100, Marc Zyngier wrote:
-> On Wed, 30 Sep 2026 08:28:03 +0100,
-> Steffen Eiden <seiden@linux.ibm.com> wrote:
-> > 
-> > On Tue, Sep 29, 2026 at 06:00:12PM +0100, Catalin Marinas wrote:
-> > > On Tue, Sep 29, 2026 at 06:19:20AM +0200, Andreas Grapentin wrote:
-> > > > On Sep 28 26, Steffen Eiden wrote:
-> > > > > On Mon, Sep 28, 2026 at 05:07:52PM +0100, Catalin Marinas wrote:
-> > > > > > On Fri, Sep 18, 2026 at 03:30:53PM +0200, Steffen Eiden wrote:
-> > > > > > > +# Enable all code shared to s390
-> > > > > > > +KBUILD_CFLAGS	+= -DARM64_S390_COMMON
-> > > > > > > +KBUILD_AFLAGS	+= -DARM64_S390_COMMON
-> > > > > > > +KBUILD_CPPFLAGS	+= -DARM64_S390_COMMON
-> > > > > > 
-> > > > > > Do we actually need these defines? They seem only to be used as markers
-> > > > > > for the awk scripts to extract the definitions. Why do we need the C
-> > > > > > preprocessor involved at all? Could we not just have comment markers:
-> > > > > > 
-> > > > > > /* ARM64_S390_COMMON_BEGIN */
-> > > > > > ...
-> > > > > > /* ARM64_S390_COMMON_END */
-> > > > > >
-> > > > > No technically we do not need those. They could be useful if we find out
-> > > > > that AWK is the wrong tool and move to a C Preprocessor + diff based
-> > > > > approach. 
-> > > > > 
-> > > > > if the ifdev is not closed the compiler will complain, but an 'arm did
-> > > > > not destroy us' verifiaction tool ( I will send one soonish) could do
-> > > > > the same.
-> > > > 
-> > > > iirc the last time we discussed this we didn't think that load-bearing
-> > > > comments were the right tool here. We also briefly floated the idea of
-> > > > using a #pragma region based approach, but in the end we went with the
-> > > > #ifdef preprocessor directives instead, as the least invasive
-> > > > non-comment marker that was available.
-> > > 
-> > > The downside is that the macro affects the preprocessed code. We need to
-> > > ensure they don't leak in uapi headers for example. Not a fan of this
-> > > approach but I don't have a better suggestion either. At least we could
-> > > write them as:
-> > > 
-> > > #if ARM64_S390_COMMON == 1
-> > 
-> > This is a great idea and an improvement. Thanks.
-> > 
-> > @Marc: Shall I sent a v9 of this series or do you want to pick v8 and I
-> > send this as an improvement once picked?
-> 
-> Please send a v9. That's invasive enough that it warrants it.
-> 
-> > > It would also be useful for the awk scripts look for the paired #endif
-> > > rather than relying on the comment at the end of the line. Otherwise
-> > > it's not really different from just sticking to comments.
-> > > 
-> > 
-> > Are you suggesting that the AWK scripts should track the #if% and #endif
-> > in the code and warn or reject if the marked endif for the shared code
-> > does not match pairing with the starting #if? That makes sense yes. I'll
-> > investigate and would add this as an improvement later on.
-> 
-> I think the suggestion is to teach the script about the #if/#endif
-> nesting, and therefore to not require the trailing comment on #endif
-> (i.e. the script acts as a normal cpp).
-> 
-> It should only be a matter of counting the #{if,ifdef}s and #endif
-> past the ARM64_S390_COMMON guard.
 
-Yeah, and the check on the comment anchor could still remain as a rough
-consistency check.
 
-Will
+On 30/09/26 1:03 pm, netdev-bot+sinfo@kernel.org wrote:
+> Hi!
+> 
+> This is an automated message. This series looks like a fix, but its
+> commit messages seem to be missing some information:
+> 
+>  - How the issue was discovered, e.g. hit in production, hit during
+>    development, syzbot report, manual code inspection, LLM or static
+>    analysis tool scan.
+
+The issue was found by manual code inspection while reviewing the diag
+dump path in net/smc/smc_diag.c.
+
+> 
+>  - Whether the issue was actually triggered, or is only theoretical
+>    (e.g. found by code inspection). If it was triggered please include
+>    the symptoms, like the stack trace or error messages.
+
+The races are theoretical — none of the three windows were triggered in
+practice. The smc_conn_kill() / smcd_buf_detach() race requires an
+active smcss poll to coincide with an SMC-D lgr termination on the
+dmb_nocopy path; the smc_close_active_abort() and
+smc_close_passive_work() races require a concurrent diag dump during the
+narrow teardown window between sk_state = SMC_CLOSED and
+smc_conn_free(). No stack trace or error message is available since the
+bugs were not hit in a running system.
