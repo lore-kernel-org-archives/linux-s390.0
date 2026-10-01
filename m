@@ -1,62 +1,63 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E32C13EC832
-	for <linux-s390@vger.kernel.org>; Thu,  1 Oct 2026 10:42:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44FB33FB07E
+	for <linux-s390@vger.kernel.org>; Thu,  1 Oct 2026 10:42:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790851350; cv=none; b=En1wLNgxpp4NKRzjmKjfBXIHiQutEncaV7XKB+WbLq02ZAYgbNpwrNgx14Oq6h7G+z8ez8e/kkDOV//XOlVcdsYM7pQzuQeh/nNF+97cS33o31qvJGVGkhqVnZMHWy/w9Z9txwlpDsWA0eQIAuNQs3s1mbCzWY43WOLTLz0W6Vg=
+	t=1790851370; cv=none; b=RXBx1m6u7OrimK0IkupyJ9rVPX/Hha/hTlLIIOrpSm7Iqf/WvnFBj1MJDm0PXW0H0zObPHiPNkzjSaZEE5fALG6GJiDm/OFIITdUtMnpbUch0jc5tHoH12WDn1wDuX/B2/9S7zYgp6qVpo2+WfbZS89P6qnuTGJsTinWQtFOmPs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790851350; c=relaxed/simple;
-	bh=L3rmbHnDQyAtWM3XnoIFXzr/ntu6ZFrMLxKqkIDW/HM=;
+	s=arc-20240116; t=1790851370; c=relaxed/simple;
+	bh=xZ2dMCy/0pnlxqwbsy8+J8ty4ycbrl/8Oi2hiaroSmk=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=XaqlLhSIsfdHoWazyIalc38NkNF77Q7C8zFlbKz013UTfQhiEvxzObtmzjH7SCPvs7VInLh8jLmgSTR3JXkiaZ4nzmOnB+UO0N88YjNyYjdx3T9SfXDg0IQlAO2hCDF8smzr8gUWjVWHnpFjDekdCq+4Scsf878/ZpOo/l7InaU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iAvbrRJe; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=VjgRD5XH7CVcXk4S1p1W6RqrJ0xI0+7HhKMqaKsRmQQBHOwX4vhPZWxDKYuhsAufcKCyvRXGTBFxd+4akTWOFrwop6t4jyUjPPfyqi4snCIzyRly6SpIIfkRfAp5A08L8hWBQH4bVqFx+jFTIh93hBKUfiQHzwDUVm9v6ZMu09M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gOYec/iE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iAvbrRJe"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FBF01F000FF;
-	Thu,  1 Oct 2026 10:42:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gOYec/iE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9B831F00898;
+	Thu,  1 Oct 2026 10:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790851343;
-	bh=L3rmbHnDQyAtWM3XnoIFXzr/ntu6ZFrMLxKqkIDW/HM=;
+	s=k20260515; t=1790851365;
+	bh=xZ2dMCy/0pnlxqwbsy8+J8ty4ycbrl/8Oi2hiaroSmk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iAvbrRJeVz4/bgCgu25kwT0yGnTbt0VxPMNUeT27+4dbV1r0SBjzYUhBJQ5kTt8ep
-	 omy4jNSkalHonS2eXGCLhkScJm1jO1VB1KDxN7BQk6snnRUkAJ/rURAXM3mncsPy26
-	 WcBLczgn35RbciaOwcjmNo+5638lx+lioz5H5VXjXRUbe+3pOgAAR5juqdy36veEqC
-	 y1kqTuCy62QHFgsDhLJtzCWXlFCjLOYe3lIzfTGc39DE99Wb0ZeOLx86QId8QlkntJ
-	 dpS0BoaVsH+/RcZPADWAj1uipO0R/GN3b7O34Hz6CY4KBEtzbia9kgZhYxA5vlX4Ik
-	 RF3uWg9VtCyAw==
+	b=gOYec/iEieVoxWUTkgwcCa7V7U3yXQqkCrqeiZ8bvqLX8Lt7NvC/AqPjOIavgo5IP
+	 fEjX9qv4O0C30I6J3HWvBebStNiGq09in5o/NqFQDcRzDsCdyqgsRaNo/y4duLaLwD
+	 7wPOcEqIq+SJOp9zYFyK/fz4O1sO2R7Spm7njhCHWmjaX8HX49sH1T7Vdri1UZmxTm
+	 sKErJjMSIm2OiJ6RZGvDSQMxGsqpnGaJsQLIkW8Er4ONIzcygMB+8drXwcG04CJ0ez
+	 i3FyGh7H0a6shWgdcG+pLQ7EwuIATqzMtyE2lw06QlgNx/DkiRqNXMOof2wwWO+f1+
+	 ug5PiXsQ+IA7w==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 23/32] s390/word-at-a-time: Convert inline assembly to
- EX_TABLE_INSN
+Subject: Re: [PATCH 02/32] s390/early: Fix early warning handling
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Heiko Carstens" <hca@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261001103247.1989111-24-hca@linux.ibm.com>
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20261001103247.1989111-3-hca@linux.ibm.com>
 References: <20261001103247.1989111-1-hca@linux.ibm.com>
- <20261001103247.1989111-24-hca@linux.ibm.com>
+ <20261001103247.1989111-3-hca@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 01 Oct 2026 10:42:22 +0000
-Message-Id: <20261001104222.9FBF01F000FF@smtp.kernel.org>
+Date: Thu, 01 Oct 2026 10:42:44 +0000
+Message-Id: <20261001104244.D9B831F00898@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> Convert the load_unaligned_zeropad exception table entries to use
-> EX_TABLE_INSN. With EX_TABLE_INSN entries always point to the faulting
-> instruction, so the duplicate entry and nopr padding are no longer
-> needed and removed.
+> When adding support for __WARN_printf() the early program check handler w=
+as
+> not taken into account. Add the missing support to the early program check
+> handler. This avoids that the kernel crashes instead of printing a warnin=
+g.
 >=20
+> Fixes: 04dabb4261c3 ("s390/bug: Implement __WARN_printf()")
+> Fixes: 79996065cfa2 ("s390/bug: Skip __WARN_trap() in call traces")
 > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261001103247.1989=
-111-1-hca@linux.ibm.com?part=3D23
+111-1-hca@linux.ibm.com?part=3D2
 
