@@ -1,125 +1,209 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 632723DAAC2;
-	Thu,  1 Oct 2026 11:04:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56B0236B933;
+	Thu,  1 Oct 2026 11:35:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790852698; cv=none; b=DMVCebe0pN6Wbw/z72KXmiw6mLYBFFaE80fXRLJVzkodWz+q7+iLqS3hHxrEtzaM0tkRbMTlRpsRiU7n6c8LmcmSWd9dhx3WFg+cMpvPHwFC6C80XxbDmUzLROEm1lpkZIbKosvtVCE2dsiLnT5dYfCa3C5ySbdaL56iuQ82b9g=
+	t=1790854558; cv=none; b=ELt4kBDkCbQ7CVKGxY8DZf143y6NLmUA7hd5hoWhd1REG32KFwqR8sexBbbvRg6roqyPem0fO4PA4dHR5QjJL9LdwddvALFlYrhWTny4ogGRB55uvWXGps4gvng49bm/8r9T9okIHHuynkR3UYj0aQ0xxAREuAgqNLubNGvv/C0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790852698; c=relaxed/simple;
-	bh=bXv6GlTIZuDVTw0ZfVU3X7Dp2P4hmqJvr+EzSRPktYo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=TidlNj9VBQrLcSEsvkWHu6gj11eZCUjgiiAcvYzDx7qE3etZdzNzAuZrcX8ewk3AFDwpIFE2gGQ1W3bK5zlCrGqU1wt5wQwWfq8qTJNr4BOfontpMn0nAxkoTcLJLl3LRRREUz2Tbw4s0kJvSURD3B6CQu2X7H6fQ5wC42Rpk6E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Vd2ritWN; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790854558; c=relaxed/simple;
+	bh=lGFFrJe+RgFlecAKuz80arX6emlndUmD4SkJpmFmvvA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=r4tL9thkrXmreTRoDietuyvvYwMc/bgJDo118HJuge9PohZ80wC4hvjMIcV0c2SCEKSRZaB+JOEsuRqNKU4FJodpIdsvW1I9Yzn6lbfE5mEB4hRy01RR6mwnjdoLV31ytddx1HrbLproRabGyoYHEOmyW/feZ2YYrG4hKlHTFj4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IuRU28aq; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Vd2ritWN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07F191F000FF;
-	Thu,  1 Oct 2026 11:04:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790852697;
-	bh=yDoJGusJjj9fWwjr1asctJ4ruRZGa3Y6b+riH2Zmh94=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=Vd2ritWNwMl4w47uWROaY+6SWKRnNZIMVEnU/gxN8f+/MzbMikJBnGlkjNMgnwGB5
-	 9AOaC+VY+jvCPHsb62HkbFUbznVc9uq30qgzOngP1WoVIxjBukLD9cv3V8iieB8Vbm
-	 8AceZrqbklsqPcnOBL2ANcgt3wcHd2gdS9XmKFa2tVSWfZRuwt/uy93xXipSokiBNf
-	 td7JjOuiCgojI9IUAjiRG1JZIFwVsFNudjZhBjkwWTMbgZ2Z196rPWft7pHM5i+p3v
-	 JF/sqBcIUbL8M+W8Vhw34DNs+MwGBonM/r3bUQ0OjATWW/rl5mPOcvyDLg/rNiD9CL
-	 ES7HKJRG1lDaQ==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=valley-girl.lan)
-	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <maz@kernel.org>)
-	id 1xCEas-0000000Fjgd-3Ckb;
-	Thu, 01 Oct 2026 11:04:54 +0000
-From: Marc Zyngier <maz@kernel.org>
-To: kvm@vger.kernel.org,
-	kvmarm@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Steffen Eiden <seiden@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Grapentin <gra@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@kernel.org>,
-	Friedrich Welter <fritz@linux.ibm.com>,
-	Gautam Gala <ggala@linux.ibm.com>,
-	Hariharan Mari <hari55@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Hendrik Brueckner <brueckner@linux.ibm.com>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Joey Gouly <joey.gouly@arm.com>,
-	Nico Boehr <nrb@linux.ibm.com>,
-	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-	Oliver Upton <oupton@kernel.org>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Will Deacon <will@kernel.org>,
-	Zenghui Yu <yuzenghui@huawei.com>,
-	Fuad Tabba <fuad.tabba@linux.dev>
-Subject: Re: (subset) [PATCH v9 00/24] KVM: s390: Introduce arm64 KVM
-Date: Thu,  1 Oct 2026 12:04:51 +0100
-Message-ID: <179085262878.3865846.5787241839391727949.b4-ty@b4>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260930173441.66762-1-seiden@linux.ibm.com>
-References: <20260930173441.66762-1-seiden@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IuRU28aq"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 691761DI4041238;
+	Thu, 1 Oct 2026 11:35:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=BXSEfh
+	I5lU6UswsTTYHzTEZj3EyFOnaL4T58FFbIq60=; b=IuRU28aqz+uTk3oScaeb2R
+	/zVmc173mlWtqGOSbr+IMoAyYiptk7DUDPkZ6yh8e4F4Y7wlBSfCOH4syQfU6dgC
+	R6e6kZvOKmXiO5izJeQUmSlDkefx8UqT2hK3sEJ0QyYSbibCh/z7prMl95X/Fey/
+	KQDWnb0e44hdILgldBMpWZdNPqZRZLXOYQ8qSdE9urZI7mS3Z5buzSne2YE0ZQAt
+	rp3340Xz+seTCL4R0WkklgQhoYzYPoAOwZBKInUp1sHg7DxNVi8+wn+Cm1u2+8Be
+	ZEWtDyjk0jFwNCsVcDVek8pELr4LFNhMWPGG1HPW2LZTzxI58TdwPvh2X7pjzFww
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx4fehq5w-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 01 Oct 2026 11:35:45 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 691BQIUe557930;
+	Thu, 1 Oct 2026 11:35:45 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h0j23rap2-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 01 Oct 2026 11:35:44 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 691BZfwC31392078
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 1 Oct 2026 11:35:41 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 532A92004B;
+	Thu,  1 Oct 2026 11:35:41 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C7CD020043;
+	Thu,  1 Oct 2026 11:35:38 +0000 (GMT)
+Received: from [9.123.9.250] (unknown [9.123.9.250])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  1 Oct 2026 11:35:38 +0000 (GMT)
+Message-ID: <a94e9796-7ec2-4ff7-b5b4-f6ca24107de9@linux.ibm.com>
+Date: Thu, 1 Oct 2026 17:05:38 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, seiden@linux.ibm.com, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, seanjc@google.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com, fuad.tabba@linux.dev
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v4 2/2] s390/ctcm: Fix use-after-free in
+ channel_remove()
+To: Nagamani PV <nagamani@linux.ibm.com>, andrew+netdev@lunn.ch,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com
+Cc: wintera@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+        kees@kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org
+References: <20260930070234.569500-1-nagamani@linux.ibm.com>
+ <20260930070234.569500-3-nagamani@linux.ibm.com>
+Content-Language: en-US
+From: Aswin Karuvally <aswin@linux.ibm.com>
+In-Reply-To: <20260930070234.569500-3-nagamani@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=FYWiV5+6 c=1 sm=1 tr=0 ts=6abe4592 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=c92rfblmAAAA:8
+ a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=PrirHVnjloWTi40jdTwA:9 a=QEXdDO2ut3YA:10
+ a=GvGzcOZaWPEFPQC_NcjD:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDAxMDA0NiBTYWx0ZWRfX0hEqk59bFJ+S
+ lxZuuqupndeWnquF2bRfDVT/ky3onI3iPkDhDpB+ssCOU6H9hCOj3/ykTuIZdHW7TSOmkexIjVG
+ boxUwQ6SnQ9R10mIhv+0jKapZB79YUk=
+X-Proofpoint-ORIG-GUID: wfg8VDe2CyADVf4CRk6MGGnzdsewoJ_S
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDAxMDA0NiBTYWx0ZWRfX9z17szy+JpWn
+ v7tzQfM0aHfB+rp9vbCt6iyXenjC0U9GMZcCy7E+XL1AlQPSI8yW8AIbQ1vPfhUHbwZJriT3HRg
+ P5VrQktYxLKJMsXby9voQCPREtW4Jh1laujQejoT9hozSNzd4nLz5Ax6Ik26PUATglGVWMJYnf2
+ IYQUiAYy9h9NnK3QbEMGwP9JOcwFWjDlzx8XxZ2goLKMNCYoCtH0rcnI+TnSVPkQa7VtQtutZjJ
+ kqDAdh8z+6YD78d8qmxZJ0w6yG7F9kfxQ10/nWCdlcARBvoDoKf8qARDYNiQBxeFrxYA3YHtMQa
+ gz+J/Alm/R+IXasisnAg1z6QyjBmcBG/aQR/VIuIAe7PfhfKAVVrbdxshMT0wwAkSjBCInzWfZ/
+ w1nnJxGCkw0iocT7uT70yQc8UUs/gzOR2Hn4KSK2CaXgsFB6NoJw18o2byEZHe8tezJltjoOQ31
+ 01NKw7+C9oYkRU7Oquw==
+X-Proofpoint-GUID: qMSu5Lovk2w0u3f0JF-ANdOr5r4xTyC5
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-01_03,2026-09-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 clxscore=1011 impostorscore=0 spamscore=0 phishscore=0
+ priorityscore=1501 malwarescore=0 bulkscore=0 lowpriorityscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
+ definitions=main-2610010046
 
-On Wed, 30 Sep 2026 19:34:15 +0200, Steffen Eiden wrote:
-> Introduce arm-on-s390. Enable KVM-accelerated ARM CPU virtualisation on s390.
+On 30/09/26 12:32, Nagamani PV wrote:
+> channel_remove() uses fsm_deltimer() which calls timer_delete(),
+> returning immediately even if the timer callback is running on
+> another CPU. This leaves a window where fsm_expire_timer() accesses
+> ch->fsm after kfree_fsm().
 > 
-> The new KVM functionally depends on KVM/vfio: Use file-based reference
-> counting for KVM [5] The series itself should apply w/o those.
+> For MPC channels the teardown has a circular dependency:
 > 
-> For the original, now partially outdated, cover letter, have a look at versions
-> one to three [1].
+>   ch->timer callback -> ctcm_chx_txretry() -> mpc_action_go_inop()
+>     -> tasklet_hi_schedule(&ch->ch_disc_tasklet)
 > 
-> [...]
+>   ch_tasklet -> ctcmpc_send_sweep_resp() -> fsm_addtimer(&ch->sweep_timer)
+> 
+>   sweep_timer callback -> fsm_addtimer(&ch->timer)
+> 
+> Use timer_shutdown_sync() for both timers: it waits for any running
+> callback and permanently prevents rearming. Shut down sweep_timer
+> first (its callback rearms ch->timer at ctcm_fsms.c), then
+> ch->timer. Only then call tasklet_kill() -- catching any tasklet
+> scheduled by an in-flight callback before shutdown.
+> kfree(ch->discontact_th) follows tasklet_kill(ch_disc_tasklet) since
+> ch->ccw[15].cda points to discontact_th and
+> mpc_action_send_discontact() starts I/O through ch->ccw[15].
+> 
+> timer_shutdown_sync() is also used for non-MPC ch->timer:
+> ctcm_chx_txretry() (CTC_STATE_TX + CTC_EVENT_TIMER) calls
+> fsm_addtimer(&ch->timer) on both paths.
+> 
+> Depends on "s390/ctcm: Fix timer corruption in fsm_addtimer()" which
+> replaces add_timer() with mod_timer(). mod_timer() on a shut-down
+> timer is discarded; without it fsm_addtimer() calls timer_setup()
+> defeating timer_shutdown_sync(). Backporting without that
+> prerequisite is unsafe.
+> 
+> Fixes: 293d984f0e36 ("ctcm: infrastructure for replaced ctc driver")
+> Cc: stable@vger.kernel.org # depends on: s390/ctcm: Fix timer corruption in fsm_addtimer()
+> Reported-by: Sashiko <sashiko-bot@kernel.org>
+> Link: https://sashiko.dev/#/patchset/20260922101913.239103-1-nagamani@linux.ibm.com?part=2
+> Signed-off-by: Nagamani PV <nagamani@linux.ibm.com>
+> ---
+> Changes in v4:
+> - Shut down timers before tasklet_kill() rather than after,
+>   shutting down sweep_timer before ch->timer.
+> - Use timer_shutdown_sync() for ch->timer on both MPC and non-MPC paths.
+> - Name prerequisite by commit title and add structured stable tag
+>   dependency (Jakub Kicinski).
+> - Code changed; Reviewed-by and Tested-by dropped.
+> 
+> Changes in v3:
+> - Kill ch_tasklet and ch_disc_tasklet before stopping the timers and
+>   freeing ch->fsm: closes freed ch->fsm access from tasklet context and
+>   eliminates tasklet-driven sweep_timer re-arm.
+> - Shut down sweep_timer with timer_shutdown_sync() before deleting
+>   ch->timer to prevent sweep_timer callback from re-arming ch->timer.
+> - Move kfree(ch->discontact_th) after tasklet_kill(ch_disc_tasklet).
+> - Drop Reviewed-by and Tested-by; please re-review and re-test the
+>   new teardown order.
+> 
+> Changes in v2:
+> - Add Fixes: and Cc: stable@vger.kernel.org tags.
+> ---
+>  drivers/s390/net/ctcm_main.c | 14 +++++++-------
+>  1 file changed, 7 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+> index 8b0d76a47d9f..27a22dbc9280 100644
+> --- a/drivers/s390/net/ctcm_main.c
+> +++ b/drivers/s390/net/ctcm_main.c
+> @@ -211,9 +211,14 @@ static void channel_remove(struct channel *ch)
+>  	while (*c) {
+>  		if (*c == ch) {
+>  			*c = ch->next;
+> -			fsm_deltimer(&ch->timer);
+>  			if (IS_MPC(ch))
+> -				fsm_deltimer(&ch->sweep_timer);
+> +				timer_shutdown_sync(&ch->sweep_timer.tl);
+> +			timer_shutdown_sync(&ch->timer.tl);
+> +			if (IS_MPC(ch)) {
+> +				tasklet_kill(&ch->ch_tasklet);
+> +				tasklet_kill(&ch->ch_disc_tasklet);
+> +				kfree(ch->discontact_th);
+> +			}
+>  
+>  			kfree_fsm(ch->fsm);
+>  			clear_normalized_cda(&ch->ccw[4]);
+> @@ -221,11 +226,6 @@ static void channel_remove(struct channel *ch)
+>  				clear_normalized_cda(&ch->ccw[1]);
+>  				dev_kfree_skb_any(ch->trans_skb);
+>  			}
+> -			if (IS_MPC(ch)) {
+> -				tasklet_kill(&ch->ch_tasklet);
+> -				tasklet_kill(&ch->ch_disc_tasklet);
+> -				kfree(ch->discontact_th);
+> -			}
+>  			kfree(ch->ccw);
+>  			kfree(ch->irb);
+>  			kfree(ch);
 
-Applied to next, thanks!
-
-[05/24] arm64: ptrace: Use constants for compat register numbers
-        commit: 295d3df9b1e425099a4eb37954a02c4a08fdb496
-[06/24] arm64: sysreg: Convert SPSR_ELx to automatic register generation
-        commit: d3d78520068779779e1ed7aa0dd8a3ce63e1ca43
-[07/24] KVM: arm64: Access elements of vcpu_gp_regs individually
-        commit: 29d92585ab987bb80b1e78d811aaea2a8db86e62
-[08/24] KVM: arm64: Use accessor functions for core regs
-        commit: 89ed62818f10e38e64fea46d43ee6455a1beb647
-[09/24] arm64: Prepare sharing arm64 headers with s390
-        commit: df6a70516adec8b7f5fa49e1755d8ee33d980d9c
-[10/24] arm64: Share arm64 headers with s390
-        commit: c7e18ba462536e870b0ff4deca581babcac9135b
-[11/24] KVM: arm64: Share arm64 code with s390
-        commit: dcb776bfcccc9662001a75b99dbfbef55f46eb31
-
-Note that there were a few conflicts. Please check that I resolved
-them correctly.
-
-Cheers,
-
-	M.
--- 
-Without deviation from the norm, progress is not possible.
-
-
+Reviewed-by: Aswin Karuvally <aswin@linux.ibm.com>
