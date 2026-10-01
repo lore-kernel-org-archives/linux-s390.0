@@ -1,57 +1,57 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DA4B4D9577;
-	Thu,  1 Oct 2026 10:33:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C6224C8C6B;
+	Thu,  1 Oct 2026 10:33:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790850796; cv=none; b=GZUV2IaFeAGPQCGJK1dcH3WeGWMkly24Gdzgom1fFYM5X+syYLbgJmLhS+OuS8QkGCDtQXSXXjHAqLpyjmsR/MpRjVvXE200iYKvHBT1N2Tg5w5A+1O9T83aTSEUGTuthKvvFUwy3kXWvKJSWJC+Enofcoo5Mi7pcXi0KgUsgmY=
+	t=1790850796; cv=none; b=Q4thZ6YDXXObjKW1YmQy6sz5zf+2im5oisgheGafAhiqNRQ5KgWwWA1ht/X5ya0AbnKa7sMbclA005m2lWbqw5w/89X6IgwltHKmDZIcQ4h+DM1CL/at6HcqQ9vR5L36LziVWHAnTYfprFi1CeEfjvPVpJanf3Nn2OyF3bCQhvI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1790850796; c=relaxed/simple;
-	bh=zSKIRVCaTq60h/uU6EhhGMaPc/Vwv+XqeDlm8gfBoOM=;
+	bh=Nbw5GiANbjL54p2QBQ7tmODKAfVL8CHLvLDKmWZ98OI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=utELH7yoxXjZmJI7ESCFYpw2s7E4RLCQWvc3QTLbUOVRtNuFv7qlaRuARKCzM7FwY65JHd8T5hfAXYVtbgVPLz5I3vphl7CR+sswexEXbCDfnOemiZkk7Mx3h5/dHfbhpoIcZLPaYZPZwYoUpZTd/TTRXtywCZwAExG+fjiROHo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sS3kUL09; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=J/7Eea/KoMOoiAU+VyQlprd0zbedc1Ap2fji74rhCdRbKBrwR64adAPzDCm82PBL75H/sxnCHSNSsO9Cn/nSWQeI8+ozj6W6L/i7upvgJZDklCMunAI3BdTHNPJ64uK2yDQrzeXmCGK7ysLMtHNcGyhpQQ043knZOfNDBqYutOo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PS56HOrS; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sS3kUL09"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69175NwP1085937;
-	Thu, 1 Oct 2026 10:33:01 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PS56HOrS"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69175Qeu907214;
+	Thu, 1 Oct 2026 10:32:58 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=yXCCU2E6QDTS4+JqV
-	e/DYrV9ydwnwjvsUWZrLt3tRSg=; b=sS3kUL09t6lpVyq8f573spLyU+lm29og7
-	KsOhYQUoW/LiPFjq1YooDkEYUYTkJp0kt/9r5TmWN0PjnT3oVgpApnIVtSEQ07qL
-	TrsnHbxzXCSwJkgfnwpeMxKtXvTVN4IaHwODTv57kUiJB/bwDlRgpF69dK2rtFTi
-	nKkWlJ4vhxITZFj9s0jgsqjy4qZeEFLAI434kRPWYpLyQxtbbqo/r7zccqMppyuk
-	jpIqh+PtZ42MCZuHIr9OVJI8bQcpifoHSYUpg6mSnUB4cvD707e2ms8ExxgRWQMf
-	g2wF/Z5nyVUZrfBstYbx8dF421vgAuH/z6TNj94aXMBug7xoXkjQQ==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5s5jk2t-1
+	:mime-version:references:subject:to; s=pp1; bh=4FutSsXzoL0LGhdmP
+	V+VB7XpTSSnYgRBKGS1QWO84wE=; b=PS56HOrSNVeuyaZqqdbBnLgaK0MB1TdT1
+	/0Gse19sY7PsFTx/J6yqBHvLXeue5WBt/QG6milN9KmS2lWgizHV96hcPUBHjOt5
+	pt8YQLT57Un/9hMokn1zwZpMThrRg6jfQiZgpn43T9CgzTnPZ7D2GI0q18bKQM1B
+	mC1yPhupJmZPBLfeFpf2OwdysldnJc0gFizQFj2SKArU8Yl0Q+u06SLj/M3loNsM
+	Ysfv0tfQKTLPI0CJarJ7jD3mQqlqJ9QjMVNxMG7i+uTG38BngA+56jyBnoD83Ay7
+	sCcYqSwN4JemcjrjHBtvVwC/emxT/QH38PIxvA149FOYstuxSO7PQ==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx3fkhsq5-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 01 Oct 2026 10:33:01 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69172TVa557896;
-	Thu, 1 Oct 2026 10:33:00 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h0j23r4d6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 01 Oct 2026 10:33:00 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 691AWv6642336514
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 01 Oct 2026 10:32:58 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69172sWF3460485;
 	Thu, 1 Oct 2026 10:32:57 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h0q4pexb6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 01 Oct 2026 10:32:57 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 691AWrTV52167130
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 1 Oct 2026 10:32:53 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1346620040;
-	Thu,  1 Oct 2026 10:32:57 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id CBDD120040;
+	Thu,  1 Oct 2026 10:32:53 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CC76B20043;
-	Thu,  1 Oct 2026 10:32:56 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 8C1A72004B;
+	Thu,  1 Oct 2026 10:32:53 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  1 Oct 2026 10:32:56 +0000 (GMT)
+	Thu,  1 Oct 2026 10:32:53 +0000 (GMT)
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
@@ -69,9 +69,9 @@ To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH 31/32] s390/bpf: Simplify exception table entry handling
-Date: Thu,  1 Oct 2026 12:32:46 +0200
-Message-ID: <20261001103247.1989111-32-hca@linux.ibm.com>
+Subject: [PATCH 20/32] s390/ap: Convert inline assembly to EX_TABLE_INSN
+Date: Thu,  1 Oct 2026 12:32:35 +0200
+Message-ID: <20261001103247.1989111-21-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261001103247.1989111-1-hca@linux.ibm.com>
 References: <20261001103247.1989111-1-hca@linux.ibm.com>
@@ -83,181 +83,72 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDAxMDA0MCBTYWx0ZWRfXwUAlZVMC13wg
- ryHojtIwI5nk+ORpKSScIjIl+p0cl3Ex8TNxsN6OVUdAnKrVh9W2IAR7u4EMGF8s5prcyYBK3uB
- OTK1Q63ENJvNd/clkUz8P5/SSfEXeDE=
-X-Authority-Analysis: v=2.4 cv=HJ5WhYtv c=1 sm=1 tr=0 ts=6abe36dd cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-ORIG-GUID: 1ANSvHyG3a8ZXRn28lULOMergeMsjjwq
+X-Proofpoint-GUID: 1ANSvHyG3a8ZXRn28lULOMergeMsjjwq
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDAxMDA0MCBTYWx0ZWRfX6r0FfhTXfdO3
+ hCdg+/y73Zw3D5S7vlhl///9et+XRRRMQ24YCPrBo+iMF3kH6yw+o9asaPbeSc34tiLAmaQwc2g
+ NTP9VXohVSfm4+a4ZId1SIfHCXw0jJ4=
+X-Authority-Analysis: v=2.4 cv=Vv62kO2n c=1 sm=1 tr=0 ts=6abe36da cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=DKa8rqKrbTOd84IxAboA:9
-X-Proofpoint-GUID: rVd4RcI1pndIyRTiRb-KSq1csyYcQjdK
-X-Proofpoint-ORIG-GUID: rVd4RcI1pndIyRTiRb-KSq1csyYcQjdK
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDAxMDA0MCBTYWx0ZWRfXw1wfN4WZhKx0
- GtfrW7QIn/KbdG4DH3jgP4BPd8DLN03fLD5bkp03Q0Q0lwcdhxbjLrXIv6cCY/uT/319isWos4N
- tHGWDNglyYwu72+1zth/byEHGy7nAH/imGaprOf3wOm0OQtVziR8TrveMzJbni31/kK/GW9BuJI
- ESkBhWLHoDJcFSuhoX0odg+RoWTiJmal0Ft8uUIHto0ot0PYsT/q5lHRUXpPzXJakuv8c8YBFJV
- 1P4alECT2sfPkfK7Yoz2CAmaEWp2gLWPh6622m3lWZBd7TWRkmEOx7gj2NJXA0F8H/twMvXPGne
- SUx+Fw05yQFR95eP4eKju6aLoPwy11qvzaBKSVERoIOLe4WEqAPsGuM2WiDhx4f8FSNTvH2fah4
- 0/w9SXlihNKUDt7nRbPf+IepNu3vvfY3vfOAs4lFaTebErCra2a87CWmx+/G7483wgIIDJ/0HUN
- 8s6Lf/oj2iYdsjk8TeQ==
+ a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=rHyoCaKgv23gh7QR-QcA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDAxMDA0MCBTYWx0ZWRfX+z8raWUAOB1G
+ RFyk6im/jZT7HVQDSIiKsUG0Iu2st7/mHs2/krNr4dkND6GslyY/wt/FfjG8k4O+9oXPXjZjJB1
+ I5mgPG0fI6j424bkOghzlKpb8LoODFWuuNDVWZMKAy9rNH8DYOOzsFo9wF6fXUkjVFli35f2xhS
+ OTRQIebicKG3QDcD4j8bGpfqlfdvV+HDu0YzAJGstzTUAverBZwf18Z+QGhread6XPsQxTPZKt6
+ WdvKZhBfK1rgYIujm/PzgUhdShXMvN7g2LChdF+TCJRpKb9/n3h0d/y/zU9bjrIfB7nN8VoHP1E
+ r7IBPdgm1lFfIOeiETa11nDo//X1Q9gxNofV/2g9EyiOM835gHo2O7NVJ8cwGggoZAleuPetW2O
+ iSupffbPx784czvL1KtcWlMovdkQjdgQzhGwgfOiWeRuQOfTJsEc8Sm9Cd10PYH9QLh9hb7rMzM
+ atr1D1aEIGM4PEmk9Dg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-01_03,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 suspectscore=0 bulkscore=0 clxscore=1015 lowpriorityscore=0
- spamscore=0 impostorscore=0 phishscore=0 priorityscore=1501 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610010040
+ suspectscore=0 spamscore=0 phishscore=0 bulkscore=0 adultscore=0
+ priorityscore=1501 malwarescore=0 clxscore=1015 lowpriorityscore=0
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
+ definitions=main-2610010040
 
-With exception table lookup always pointing to the faulting instruction,
-only a single exception table entry per probe instruction is needed.
-
-Remove the second exception table entry, the extra nop instruction
-emitted between/after probe instructions, and simplify probe handling
-in the BPF JIT.
+Convert all ap exception table entries to use EX_TABLE_INSN.
 
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/net/bpf_jit_comp.c | 78 ++++++++++--------------------------
- 1 file changed, 21 insertions(+), 57 deletions(-)
+ arch/s390/include/asm/ap.h | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index c4b47070bb59..9f1632e068e1 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -723,7 +723,6 @@ bool ex_handler_bpf(const struct exception_table_entry *x, struct pt_regs *regs)
-  */
- struct bpf_jit_probe {
- 	int prg;	/* JITed instruction offset */
--	int nop_prg;	/* JITed nop offset */
- 	int reg;	/* Register to clear on exception */
- 	int arena_reg;	/* Register to use for arena addressing */
- };
-@@ -731,29 +730,10 @@ struct bpf_jit_probe {
- static void bpf_jit_probe_init(struct bpf_jit_probe *probe)
- {
- 	probe->prg = -1;
--	probe->nop_prg = -1;
- 	probe->reg = -1;
- 	probe->arena_reg = REG_0;
- }
- 
--/*
-- * Handlers of certain exceptions leave psw.addr pointing to the instruction
-- * directly after the failing one. Therefore, create two exception table
-- * entries and also add a nop in case two probing instructions come directly
-- * after each other.
-- */
--static void bpf_jit_probe_emit_nop(struct bpf_jit *jit,
--				   struct bpf_jit_probe *probe)
--{
--	if (probe->prg == -1 || probe->nop_prg != -1)
--		/* The probe is not armed or nop is already emitted. */
--		return;
--
--	probe->nop_prg = jit->prg;
--	/* bcr 0,%0 */
--	_EMIT2(0x0700);
--}
--
- static void bpf_jit_probe_load_pre(struct bpf_jit *jit, struct bpf_insn *insn,
- 				   struct bpf_jit_probe *probe)
- {
-@@ -815,47 +795,36 @@ static int bpf_jit_probe_post(struct bpf_jit *jit, struct bpf_prog *fp,
- 			      struct bpf_jit_probe *probe)
- {
- 	struct exception_table_entry *ex;
--	int i, prg;
- 	s64 delta;
--	u8 *insn;
- 
- 	if (probe->prg == -1)
- 		/* The probe is not armed. */
- 		return 0;
--	bpf_jit_probe_emit_nop(jit, probe);
- 	if (!fp->aux->extable)
- 		/* Do nothing during early JIT passes. */
- 		return 0;
--	insn = jit->prg_buf + probe->prg;
--	if (WARN_ON_ONCE(probe->prg + insn_length(*insn) != probe->nop_prg))
--		/* JIT bug - gap between probe and nop instructions. */
-+	if (WARN_ON_ONCE(jit->excnt >= fp->aux->num_exentries))
-+		/* Verifier bug - not enough entries. */
- 		return -1;
--	for (i = 0; i < 2; i++) {
--		if (WARN_ON_ONCE(jit->excnt >= fp->aux->num_exentries))
--			/* Verifier bug - not enough entries. */
--			return -1;
--		ex = &fp->aux->extable[jit->excnt];
--		/* Add extable entries for probe and nop instructions. */
--		prg = i == 0 ? probe->prg : probe->nop_prg;
--		delta = jit->prg_buf + prg - (u8 *)&ex->insn;
--		if (WARN_ON_ONCE(delta < INT_MIN || delta > INT_MAX))
--			/* JIT bug - code and extable must be close. */
--			return -1;
--		ex->insn = delta;
--		/*
--		 * Land on the current instruction. Note that the extable
--		 * infrastructure ignores the fixup field; it is handled by
--		 * ex_handler_bpf().
--		 */
--		delta = jit->prg_buf + jit->prg - (u8 *)&ex->fixup;
--		if (WARN_ON_ONCE(delta < INT_MIN || delta > INT_MAX))
--			/* JIT bug - landing pad and extable must be close. */
--			return -1;
--		ex->fixup = delta;
--		ex->type = EX_TYPE_BPF;
--		ex->data = probe->reg;
--		jit->excnt++;
--	}
-+	ex = &fp->aux->extable[jit->excnt];
-+	delta = jit->prg_buf + probe->prg - (u8 *)&ex->insn;
-+	if (WARN_ON_ONCE(delta < INT_MIN || delta > INT_MAX))
-+		/* JIT bug - code and extable must be close. */
-+		return -1;
-+	ex->insn = delta;
-+	/*
-+	 * Land on the current instruction. Note that the extable
-+	 * infrastructure ignores the fixup field; it is handled by
-+	 * ex_handler_bpf().
-+	 */
-+	delta = jit->prg_buf + jit->prg - (u8 *)&ex->fixup;
-+	if (WARN_ON_ONCE(delta < INT_MIN || delta > INT_MAX))
-+		/* JIT bug - landing pad and extable must be close. */
-+		return -1;
-+	ex->fixup = delta;
-+	ex->type = EX_TYPE_BPF;
-+	ex->data = probe->reg;
-+	jit->excnt++;
- 	return 0;
- }
- 
-@@ -1705,7 +1674,6 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp,
- 			EMIT6_DISP_LH(0xe3000000,
- 				      is32 ? 0x0058 : 0x0004, REG_W0, REG_0,
- 				      load_probe.arena_reg, off);
--			bpf_jit_probe_emit_nop(jit, &load_probe);
- 			/* Reuse {ly|lg}'s arena_reg for {csy|csg}. */
- 			if (load_probe.prg != -1) {
- 				probe.prg = jit->prg;
-@@ -1716,7 +1684,6 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp,
- 			/* 0: {csy|csg} %w0,%src,off(%arena) */
- 			EMIT6_DISP_LH(0xeb000000, is32 ? 0x0014 : 0x0030,
- 				      REG_W0, src_reg, probe.arena_reg, off);
--			bpf_jit_probe_emit_nop(jit, &probe);
- 			/* brc 4,0b */
- 			EMIT4_PCREL_RIC(0xa7040000, 4, loop_start);
- 			/* {llgfr|lgr} %src,%w0 */
-@@ -2364,9 +2331,6 @@ static struct bpf_binary_header *bpf_jit_alloc(struct bpf_jit *jit,
- 			 */
- 			fp->aux->num_exentries += 1;
- 	}
--	/* We need two entries per insn. */
--	fp->aux->num_exentries *= 2;
--
- 	code_size = roundup(jit->size,
- 			    __alignof__(struct exception_table_entry));
- 	extable_size = fp->aux->num_exentries *
+diff --git a/arch/s390/include/asm/ap.h b/arch/s390/include/asm/ap.h
+index c91b6ace199d..b0f8e3946a43 100644
+--- a/arch/s390/include/asm/ap.h
++++ b/arch/s390/include/asm/ap.h
+@@ -91,10 +91,10 @@ static inline bool ap_instructions_available(void)
+ 		"	lgr	0,%[reg0]\n"		/* qid into gr0 */
+ 		"	lghi	1,0\n"			/* 0 into gr1 */
+ 		"	lghi	2,0\n"			/* 0 into gr2 */
+-		"	.insn	rre,0xb2af0000,0,0\n"	/* PQAP(TAPQ) */
+-		"0:	la	%[reg1],1\n"		/* 1 into reg1 */
++		"0:	.insn	rre,0xb2af0000,0,0\n"	/* PQAP(TAPQ) */
++		"	la	%[reg1],1\n"		/* 1 into reg1 */
+ 		"1:\n"
+-		EX_TABLE(0b, 1b)
++		EX_TABLE_INSN(0b, 1b)
+ 		: [reg1] "+&d" (reg1)
+ 		: [reg0] "d" (reg0)
+ 		: "cc", "0", "1", "2");
+@@ -272,10 +272,10 @@ static inline int ap_qci(struct ap_config_info *config)
+ 	asm volatile(
+ 		"	lgr	0,%[reg0]\n"		/* QCI fc into gr0 */
+ 		"	lgr	2,%[reg2]\n"		/* ptr to config into gr2 */
+-		"	.insn	rre,0xb2af0000,0,0\n"	/* PQAP(QCI) */
+-		"0:	la	%[reg1],0\n"		/* good case, QCI fc available */
++		"0:	.insn	rre,0xb2af0000,0,0\n"	/* PQAP(QCI) */
++		"	la	%[reg1],0\n"		/* good case, QCI fc available */
+ 		"1:\n"
+-		EX_TABLE(0b, 1b)
++		EX_TABLE_INSN(0b, 1b)
+ 		: [reg1] "+&d" (reg1)
+ 		: [reg0] "d" (reg0), [reg2] "d" (reg2)
+ 		: "cc", "memory", "0", "2");
 -- 
 2.53.0
 
