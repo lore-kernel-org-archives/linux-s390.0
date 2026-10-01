@@ -1,124 +1,178 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from flow-a5-smtp.messagingengine.com (flow-a5-smtp.messagingengine.com [103.168.172.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EDDF36A03F;
-	Thu,  1 Oct 2026 15:41:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFE3E28CF4A
+	for <linux-s390@vger.kernel.org>; Thu,  1 Oct 2026 17:39:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790869290; cv=none; b=Xwz+gxFYZGS5bohziyVO8IO8qOkgjj391WoOAeojL1sKsQxaH/MJbLZlHe8LRkjxoRW/z2Uqm+pXhy7vkGu8xdo9PKCI4b3llMzOxXGcmdWDAZKkQdgAlUEkW9P2EdcdkXP62EOlPUHF9wsfwgDgPpuM1fI2C3X4KekvqYEEko4=
+	t=1790876385; cv=none; b=HS+TbGj5LAlaK1w/f7x6Nl/epsPpSWAYBfO0CgGe0Aogfl397C54LPgOwZT0EUoIyyyhjrbNe0/wzL+o+qHXCOYXZFVsmbk1Urse0Sx02lnACJUQy5jin2BqkIgIwExTW/EBxD4CnpArxNdydXMuKMIwtfv+kjLaaWK2pEJf7qY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790869290; c=relaxed/simple;
-	bh=zMpP7Ek30nn20yowmhFwyEo1UfdAZ6hcxlmYWKozDC0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Smv9ovLB80LRIvknnmHv4B1SowH16etGDpO/QDAVcnQGIjETdm5x3yJPa2VKjTicjKbO+ZWUYMyYc1anQSQDe6mz6LMnbV7V1Sj78rPaHcuONho6Hx4VufqsjzARkzfy/0SBANIm9JlctonuCjaazUcvXd7VdaOwRywoMqAA4hM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=J/XJVuvs; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1790876385; c=relaxed/simple;
+	bh=dK1YC8FLSUXxmYfSB8ouUVvYnUfdNVfIde9XouOn+8A=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=bVLIYRfV3+P2EVRtyzg7qGZFLH9txN7Ov/SFZd6cqSe+30Y1VjlThcGQvy/DR/5dbN+SMaje752slMS9sefQ/dBVTS0i2xsu7K2t4G2P3jJlioTSAS0wZC6ZQukZ5fMt2v0502n4giJGIiQPj+bFdL5lFe5cBi6seEoGGz5FRbI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=kdqSq7ON; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=tFtwlagK; arc=none smtp.client-ip=103.168.172.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="J/XJVuvs"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 691Datlx651160;
-	Thu, 1 Oct 2026 15:41:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=MGX5xiylu6dHWYVxafA3947xnzl0U+
-	ZYQmbR8NulFzY=; b=J/XJVuvs6yL+Xf7XHPkbRrdcKkQiBdjNi1j7E//qkYY5im
-	oVEEb/92jfIhgbgIqSlgNos0gGN3hBysB6a9WXlNofhC/ns2Jk/mMz9td1rOIpPo
-	rWCii99jn4liKOaGp7xejeusjB9LG3wO1RS9OYqHADZlYnEw5u1cpVTlm6rg7rTZ
-	jO9FDaujPKN+SUKsQ28YJe8g6V9t/0pnsyndxLtlZ4nmhHpAwGbWNpU0t/zZfSrr
-	HHU98zra3Gy3xxpzhrBPliZ8fkGOz+x1kQTErxKwxE7u0OJ8lwYBV1I9tCjnr8t9
-	z3064GVyIaKkS66Nv84PCEO9z4H2R2KRUKxrGisg==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx4fejybd-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 01 Oct 2026 15:41:23 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 691E2hDg1000240;
-	Thu, 1 Oct 2026 15:41:22 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h0xcsem3e-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 01 Oct 2026 15:41:22 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 691FfI9D12321128
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 1 Oct 2026 15:41:18 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C51782004E;
-	Thu,  1 Oct 2026 15:41:18 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 627B72004D;
-	Thu,  1 Oct 2026 15:41:18 +0000 (GMT)
-Received: from osiris (unknown [9.111.57.16])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  1 Oct 2026 15:41:18 +0000 (GMT)
-Date: Thu, 1 Oct 2026 17:41:17 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>, linux-s390@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        kasan-dev@googlegroups.com
-Subject: Re: [PATCH v7 2/4] s390/mm: Batch PTE updates in lazy MMU mode
-Message-ID: <20261001154117.23106Da3-hca@linux.ibm.com>
-References: <cover.1786956464.git.agordeev@linux.ibm.com>
- <d7fd78377a7278108ef501cf76571e80caef5968.1786956464.git.agordeev@linux.ibm.com>
- <20260824104048.11040Cdc-hca@linux.ibm.com>
- <b66a61a4-a532-44ba-a1c6-26f02193fb05-agordeev@linux.ibm.com>
- <20261001082143.23106A21-hca@linux.ibm.com>
- <15c64970-d54e-4b8f-96f6-50c021079a94-agordeev@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="kdqSq7ON";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="tFtwlagK"
+Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
+	by mailflow.phl.internal (Postfix) with ESMTP id 953BC13803E1
+	for <linux-s390@vger.kernel.org>; Thu,  1 Oct 2026 13:39:41 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-06.internal (MEProxy); Thu, 01 Oct 2026 13:39:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1790876381;
+	 x=1790883581; bh=l3aq13J5VX9YHBy+nDgiTWl41JHuJfuq9o7FqdgtotQ=; b=
+	kdqSq7ONSi0lCoc73xVfCf0+TFUtGLQ7rPztnEBFgqNS25kl0UE2ydYW6SAq4qPz
+	EWwWi6Jw3w67qM11Pa6ILzqkKawDmHle7CyFrKqeweES/L5JDCCwVhoMIoa5Bl+B
+	oNBA1N5QyFADEWk155aFKZ36Id6Fd1jvO5V1LWzvxw/aHqgOva1pi5Fimta6GDxK
+	LY+4xoehiYHkLPXhjjjGVnmdBFYJVPqINy0sIbjR5c4jtmMmW1YKE8d5TKF032zk
+	qUZz+OIzpEI76WdwsE3sPpQ/XNIOpG8SJkrWibuxaUMweE/76B17Wr3PFHTqsLSO
+	QO+AJHyDpFCZYfEtR04sUA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1790876381; x=
+	1790883581; bh=l3aq13J5VX9YHBy+nDgiTWl41JHuJfuq9o7FqdgtotQ=; b=t
+	FtwlagKkqMq92EXRtCIhXFmPZqwc04B6V7Xrod3Y3SE25ilvAQNcvJnHjZSVy7HR
+	5jdBUNSA3RPIe9XvW/RWSEOxDs1yeROoWR06orhQzf5XQQbZkvFoVfEx4M6jgChW
+	BoDlQSfm9w+b/dhDhe/0ikdEIFaUjz1eMao8lio1sPifIu7AfFTiBQ98oDhQ6o/r
+	n4WLrTOF66O+S5JvVkosjThNjh9kXiVnSXH4CZgen49piBSrHmI09weFPAavVWQq
+	APRPkEx3KV5DQFdpif/qhaMTdZeXIj016XBuQEu5mhLa7zfMxZbJhvTznqrJOJi6
+	SDM/8jixveElLhdfeOmjQ==
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-06;
+	repo=github.com/dkim2wg/interop; date=2026-09-30; sw=lmtpprox;
+	action=sign d=shazbot.org a=rsa-sha256;
+DKIM2-Signature: i=1; m=1; t=1790876381; d=shazbot.org;
+	mf=PGFsZXhAc2hhemJvdC5vcmc+;
+	rt=PGxpbnV4LXMzOTBAdmdlci5rZXJuZWwub3JnPg==;
+	s=fm1:rsa-sha256:4GAG+487ypxepS3EmQMo54XJ8zCIarkh0ubZaTSZI86PcUU
+	PLLbxrDu1IfQYxPe35bL1gnVHErtbUUAnI7FWDFHrhQqh/opDHqoRgkO3kqdPYBW
+	fg87FPd+5bwO5Bo598F/tXLuXF4Z8V7CeSLj1iyU2GpkRra497UznzaK3sgEPMkH
+	QqM9cRjxZuAxzUMf5HCX1w581kVJqJT6ztipL0nvsq2sScBPc87ood0gttd+hvjG
+	RunFBCEbUiLqxQxpcB2lQrqDKGn6PY/haTsEyD7BRUlmUEWE71Nr9TKkcesUlw6r
+	Skeh9v35DZ5STEwaTQNJIPGLV/35j0Gz0Nx/3SQ==;
+X-DKIM2-Info: draft=ietf-dkim-dkim2-spec-06;
+	repo=github.com/dkim2wg/interop; date=2026-09-30; sw=lmtpprox;
+	action=mi-m=1; hc=12;
+	hn=cc,content-transfer-encoding,content-type,date,feedback-id,
+	from,in-reply-to,message-id,mime-version,references,subject,to;
+Message-Instance: m=1; h=sha256:z2qhpcc+RzePh3dNm2m2+Knepu4wJdsPJN+T/6bVKtY=:dK1YC8FLSUXxmYfSB8ouUVvYnUfdNVfIde9XouOn+8A=;
+X-ME-Sender: <xms:3Jq-aug3K9pvUYA2R758yEKTaUF6hWItBV3oCBoeYgaGqw1bL-jpUQ>
+    <xme:3Jq-apsyY0eOS2RVEV4MxabJNPqhgVpf8RdKuodXZmIQpYnubLPRtFp_7WU6Q7jDA
+    85yFi2mkP5fQE7m2tp8OGgZXHzivu4iS2RZ0pTQmX0dxM1rHMybG78>
+X-ME-Received: <xmr:3Jq-aqFQYje6EM_ix9p9ipNVzRSwHOuJoq9wYvG8RU6-RecYNr_7OTpC7JoXDQ>
+X-ME-Proxy-Cause: dmFkZTFjMvnoc2ZRA7bRZ4ZKMJykf9Z98u/a2S5rh6yqc8FD4Z2e29OmoZxkc+onHeIyrO
+    dAAb7ujMFpuUmFa0XOLFnfycqmpnr+UIiD5zRwb5uYR2lYv6+v5NCR1bPSqjMBLj2CqaW6
+    bGfvCIuo5XeKSJoFMuhojzwmrcvpaYASjzwRKcIYro0OeFDAHuRae9leb0cb4m7sBGrsmE
+    jCoOsgcuxYpxueCYXFZedkdKyG59g/H4j/0JzaspL9zC72ImcaIHxOZgPV3I9KXiTG0cHv
+    OKxlOLPWD6+O1841nvrr30eav+R/UAz5An5jQuTZz2zK0mCKezUT+eizpE40cUJR7nRiOC
+    XWlYJHtlaMCbCnJt1eiwOL4U34V7yoz/m0dHBpDTvXhSeHaRsWqKRS+kbBH7Idg8tmSPPg
+    3dC7joSgHbDzjQWILZ9lklcXyfU32/naPYE5wnfMlCD6FbjI4Mw6i/84fzJLpUrDG2+n5e
+    A/yg01EdAeC08uEihbbzzhS+G/gMlcNShtLuelgSPD1UUbEVM1ikYZyALm7R+52Qvea4eL
+    tlhfdWJrehWohKCYe9EBF44U576JhWbZNUtrD5Ggu8lWSECAs78EGda4MH2XPU9206tRxT
+    BfXUkX3ZM1nndndcQ1wpG/cZBIpmYWliTlcl/KvwvpB30FB4sRJgKyA08t4A
+X-ME-Proxy: <xmx:3Jq-an9GVRhMCzGmC4bOWS5lTld-0cmumjXLMoKNPTMmoxFG1RUUXQ>
+    <xmx:3Jq-aqiD2bw0KgH2UsuNdkpllbd7MfAGcm9wXb9r8B-s4A--SrmXJQ>
+    <xmx:3Jq-at-UU8G7ITOaH0LYOQiiMrAXOfOqx3qLXxj0kx7u8JijGh2PuA>
+    <xmx:3Jq-amSI7B9o8dIyEjb4yz6gOOlTA-ra5DuJiK0vOTucwDmnY0FH9A>
+    <xmx:3Zq-am7_0KFlHTcvcD3rwRRRNNJcF2umGR6KZWtPiqExSxvFHyXd_6xQ>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 1 Oct 2026 13:39:38 -0400 (EDT)
+Date: Thu, 1 Oct 2026 11:39:36 -0600
+From: Alex Williamson <alex@shazbot.org>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Janosch Frank <frankja@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ David Hildenbrand <david@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Sean Christopherson <seanjc@google.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>,
+ Matthew Rosato <mjrosato@linux.ibm.com>,
+ Farhan Ali <alifm@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>,
+ Tony Krowiak <akrowiak@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Jason Herne <jjherne@linux.ibm.com>,
+ Harald Freudenberger <freude@linux.ibm.com>,
+ Holger Dengler <dengler@linux.ibm.com>, kvm@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Jason Gunthorpe <jgg@ziepe.ca>, alex@shazbot.org
+Subject: Re: [PATCH v4 4/6] KVM/vfio: Use file-based reference counting for
+ KVM
+Message-ID: <20261001113936.21bc850a@shazbot.org>
+In-Reply-To: <20260928-vfio-v4-4-e32e226d5932@linux.ibm.com>
+References: <20260928-vfio-v4-0-e32e226d5932@linux.ibm.com>
+	<20260928-vfio-v4-4-e32e226d5932@linux.ibm.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15c64970-d54e-4b8f-96f6-50c021079a94-agordeev@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=FYWiV5+6 c=1 sm=1 tr=0 ts=6abe7f23 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=RQ3G99v50yCnU2VXwHMA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDAxMDA2MiBTYWx0ZWRfX2z+LpBAEyxRt
- Kx/W8UWE7w2jOo30Q+6cHpEdD8uZAmx0VaxLB+mtqsnFJyO2ezeEbXoKplI2RbU/Ptc0LLSOnPe
- /WSGK4CzGEe0dS+Cl+hxbRUsl8VVTvQ=
-X-Proofpoint-ORIG-GUID: Z6UFw9oTZ0wEx_TlcRHvUidj7D5SDPbL
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDAxMDA2MiBTYWx0ZWRfXx7MDApKeGV58
- 0BP7hn3rjnPlt/0FlyxvAXksOL8xH31JqwCL3UWGp/IIYm5vva+6MvbqZMUgt5hj9hmvqbTam6o
- PRhMR7Em+qwReoUjsf9DsqvO52ouGFG8whQMJR60fDxX3ZQO5FLwX9H5Dpe6sR3QFF/aDzjJFt0
- drkfpq4Jgek9aeOz9h8iqP1H2TspssKiGVk0ngl+j+npyqu19IFHPiNHC/BPS+8Q6Ty7WcNTo3N
- tJz3yIkWyy8fcKr720w1fcygPPv5LyZa1xEHAnK+MZhdxQDpFvZm85cRdE216NtmapkrM7bDFqH
- LvK8INARMyax5cbwHzESfRzjtSBWJr95nCCH4OF8cLFPWKvH5zFlFBH9bUf99NjMLyYOswZUERg
- jB1Mi63JIhadfEXZFq6PxbAYU4L3NYvuEw/vE8KE5a38u7YftU4+3PJcHKNCx4mG+PjsL7ikWkr
- 5p6UhgIOBc64wtu3Stg==
-X-Proofpoint-GUID: _qdtfAZ6gAzJ0RjX8Ic6qXL6aF2Zt8nE
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-01_04,2026-09-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 clxscore=1015 impostorscore=0 spamscore=0 phishscore=0
- priorityscore=1501 malwarescore=0 bulkscore=0 lowpriorityscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2610010062
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, Oct 01, 2026 at 11:20:17AM +0200, Alexander Gordeev wrote:
-> On Thu, Oct 01, 2026 at 10:21:43AM +0200, Heiko Carstens wrote:
-> > On Thu, Oct 01, 2026 at 10:00:55AM +0200, Alexander Gordeev wrote:
-> > > On Mon, Aug 24, 2026 at 12:40:48PM +0200, Heiko Carstens wrote:
-> > Not really. But why is lazy_mmu_count 32 bit? Do you expect a nesting
-> > level of 2^32? :) If you would reduce that to one byte you could use
-> > tmy or cliy.
-> 
-> Good point. But still, do you think it worth dropping the KASAN check?
+On Mon, 28 Sep 2026 15:07:05 +0200
+Steffen Eiden <seiden@linux.ibm.com> wrote:
+> diff --git a/drivers/vfio/vfio_main.c b/drivers/vfio/vfio_main.c
+> index 423ead48aafe..ed96acfa8635 100644
+> --- a/drivers/vfio/vfio_main.c
+> +++ b/drivers/vfio/vfio_main.c
+> @@ -472,36 +472,14 @@ void vfio_unregister_group_dev(struct vfio_device *device)
+>  EXPORT_SYMBOL_GPL(vfio_unregister_group_dev);
+>  
+>  #if IS_ENABLED(CONFIG_KVM)
+> -void vfio_device_get_kvm_safe(struct vfio_device *device, struct kvm *kvm)
+> +void vfio_device_get_kvm_safe(struct vfio_device *device, struct file *kvm)
+>  {
+> -	void (*pfn)(struct kvm *kvm);
+> -	bool (*fn)(struct kvm *kvm);
+> -	bool ret;
+> -
+>  	lockdep_assert_held(&device->dev_set->lock);
+>  
+>  	if (!kvm)
+>  		return;
+>  
+> -	pfn = symbol_get(kvm_put_kvm);
+> -	if (WARN_ON(!pfn))
+> -		return;
+> -
+> -	fn = symbol_get(kvm_get_kvm_safe);
+> -	if (WARN_ON(!fn)) {
+> -		symbol_put(kvm_put_kvm);
+> -		return;
+> -	}
+> -
+> -	ret = fn(kvm);
+> -	symbol_put(kvm_get_kvm_safe);
+> -	if (!ret) {
+> -		symbol_put(kvm_put_kvm);
+> -		return;
+> -	}
+> -
+> -	device->put_kvm = pfn;
+> -	device->kvm = kvm;
+> +	device->kvm = get_file(kvm);
+>  }
 
-KASAN check for lowcore? I don't think we care - this is initialized to zero
-anyway, so what could go wrong? Also given how frequently these operations are
-used, yes, please drop KASAN checks.
+Nit, retaining the "_safe" naming here and through the callers is now
+meaningless and could be dropped.  Otherwise,
+
+Acked-by: Alex Williamson <alex@shazbot.org>
+
+Thanks,
+Alex
