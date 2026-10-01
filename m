@@ -1,57 +1,57 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E80E4CCDC4;
-	Thu,  1 Oct 2026 10:33:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD54E4E4C26;
+	Thu,  1 Oct 2026 10:33:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790850798; cv=none; b=pSYGT3ucS0r8UxUMJLYSNVdJIduP2gJt2rwuezSNQbbVpXLnckaOIpYQ/E5bQ8M8EXCDkaFehd6t4gefGsc5QG/LGXIPIF2TjjMx6e3Fa1VrerAUuAWTYkQeu+9iByVGrAXvaIzw89dQhtIBumLczoVN8mib+54ADtE/16KCuLU=
+	t=1790850800; cv=none; b=ssx9ARGObr4Qf2Jsb9mqzpeGFuUN+LOHU69fnE9j/sp52P3QZ/s8aPuiLaI32aBR+q5BUH4+/twxc+mKziZnuV/F1ohenyUJbBmdsHb+AA+PSMhWoO1Ua5KJYOFCggjCmtwOtVpRUji/ADgMSJsdVX0v4OPWQIIBLUNlaNEqzkk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790850798; c=relaxed/simple;
-	bh=nNnDwsS/uIAXtJ8PamNLBbzBJ+Eb8bJRKDK1m+NqcV0=;
+	s=arc-20240116; t=1790850800; c=relaxed/simple;
+	bh=wz2ZUsuZvjwX0prGpeDKfQiM8totcPIZfaDSTCVQWgM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=aM7jy/S2nJauujbFowkD2IjMGE5CbLk5fcZ0dFuS0llxqRN/sKZUX6KCj3nJF1qlTfqUP7ZWIj+Ji/tHQ438hNzwvxeBvw8JEKU+UDc8d18iumCOi8T7myTKnCDd/owfIWMevGpyDdrilzHO+E81XmROhnqAJrGNdhM75RKOSTE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=r7oeRRno; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=aCYE/BC8Q994pHiUdIfLQ8tc6V2xDewBxezZyPQC7RIJQg/uEjNTgnhF1iZqt/ksXFSODpb4suUtKlS+gAPFhJ2/tMzV1WLYBfOAR8mflxG8IJB5P03pHDaBpo+fbUKraaUmnWT+Is+wZaDKz7WJJhpwJPl9892iz6LjT5kjygg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oMIhpWIw; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="r7oeRRno"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oMIhpWIw"
 Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69175j1E1086248;
-	Thu, 1 Oct 2026 10:32:57 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69175XRK1086069;
+	Thu, 1 Oct 2026 10:33:02 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=5CqcLh24Ck4CVNhVq
-	Xvru9zlwu2qU9vFuw9HLKyAj+M=; b=r7oeRRno9D3Q3Lgkp1gJy7baGdxlvymPL
-	Q1WHayQswRpeNZbcbpGLbgbT+EJrif/6iAniU+teVoXh6RET7V89xSG2qCzG7U4O
-	HmlkRgkgeFnjzBp5zkJ3w1QvSSJQ6SXWXEKPJ8M+JrEaHNf+aHTTnT4TVDyQkNqN
-	nLSgw+lYrlNqIxIU1IHu3FcUXUaCUr2oy8ZZCRrphEso9hvaE4ZWk0Vt17K3opVh
-	jAeuGyWmofL4ujy+JQNfw6EfR7MNhsfVV6x7tPVuLBeNThusqBd9TiVk6NbE6w+R
-	sZs2oTc85S4zPZwNV+kLZ60xObM3rTm1Bx+GxBxAI3syWhWKDcSiQ==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5pthch0-1
+	:mime-version:references:subject:to; s=pp1; bh=+JmvrHWWJybBoSKAb
+	dN3wgadYA26ifJWrv6kZmEt4/E=; b=oMIhpWIwdFfjLP30TBiJnhNGvB3SIoI//
+	IePpCoa9i0mQ4m/iHldb4vy+jXVRwTszWWkFDFCk0ueX0y+obkikuEAhGrBd77kw
+	pPx2rZatWHX9q9VDfi3L80EfVA22GxUIVXsyZeJMAZ2eptC4Ns4ZfcgWJchn4T1Z
+	hHGs7rKNGTGuZH1OmyHgaum+2w/Qxy/4ZDtJ8bgawM0e4kW6DYzGUw1TdOTdCaJG
+	hmLQv6c2qI7mTV0UibAJM8ESprF6OeCwqlTRMG6q8L+fXUd6URf6/UujOvnjQljy
+	5MqzjLr4LXj1FK/Uq1h0WT9+aMy3m8y2dPlm0T8BKHXb1oCtz5bfw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5pthche-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 01 Oct 2026 10:32:57 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69172aiD520749;
-	Thu, 1 Oct 2026 10:32:56 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h0hfpga5s-1
+	Thu, 01 Oct 2026 10:33:01 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69172VUk589647;
+	Thu, 1 Oct 2026 10:33:01 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h1aa7tf5e-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 01 Oct 2026 10:32:56 +0000 (GMT)
+	Thu, 01 Oct 2026 10:33:01 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 691AWqDw47055338
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 691AWvMs42336516
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 1 Oct 2026 10:32:52 GMT
+	Thu, 1 Oct 2026 10:32:57 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9A49A20040;
-	Thu,  1 Oct 2026 10:32:52 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 5DC9920040;
+	Thu,  1 Oct 2026 10:32:57 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5F11C2004D;
-	Thu,  1 Oct 2026 10:32:52 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 187FF2004B;
+	Thu,  1 Oct 2026 10:32:57 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  1 Oct 2026 10:32:52 +0000 (GMT)
+	Thu,  1 Oct 2026 10:32:57 +0000 (GMT)
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
@@ -69,9 +69,9 @@ To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH 16/32] s390/cpu_mf: Convert inline assembly to EX_TABLE_INSN
-Date: Thu,  1 Oct 2026 12:32:31 +0200
-Message-ID: <20261001103247.1989111-17-hca@linux.ibm.com>
+Subject: [PATCH 32/32] s390/extable: Remove EX_TABLE macros and fallback extable search
+Date: Thu,  1 Oct 2026 12:32:47 +0200
+Message-ID: <20261001103247.1989111-33-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261001103247.1989111-1-hca@linux.ibm.com>
 References: <20261001103247.1989111-1-hca@linux.ibm.com>
@@ -83,23 +83,23 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: C7mRQGTP3xSc9saKBFBKxuzgh_GDAqgZ
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDAxMDA0MCBTYWx0ZWRfX3Q/Zx3Sg0C1N
- +srHUOwa9kNDm8Co5UZmmib8qwF9wg9Hl3/hm1Ra/2DrtCKrii2cTJW64SYoGxuzHU/RkF88vQu
- cKmxUsKaQ26i05QU2UYpbIVdo4XoI1tkHja3E0a3l46HO8Oek1JuynngVYtzYlo5bj2VM8jE0J8
- Z5iTYjTOSueSaCTWhKsLbqKlduAefQhO50GiaDt9TIYE/gkDj4h3pqQdobBuNym9Fwg8DeRDIx9
- oQsoNoMtsFLt7GI4cPq1h1hiqwqKwWyIy1B5aWCeAXEtGhsJMrZDq6h++9YzIHh7bscH6KUl2UQ
- UEEoMc3XtrnwEy6uCjGc7phY5eYBkfhwNFVQDYdt6q0QHDNoZj6ELCiddYM6t7barWlM/QEre+d
- 9QPMw0TGlTsQkW0y4DkWkerQ8n+mU1mCsPMjQ7IZEvSuGd5wTsoykcA/lFGm41pzvYcynoF9Q7N
- c0RLhrrT/v4skwbiqKw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDAxMDA0MCBTYWx0ZWRfXyJcEVNz6Umb9
- 2uRsVDVBTYNkkfVP9ZU/RguG3wdvk+LuGTlkLh79f5JkdLZ3iKGdKRQPPTdh3c86NMbw8rr39fN
- 9NU/zaRjBuKhceA0+7waI2MjsuIMUto=
-X-Authority-Analysis: v=2.4 cv=EY5d0/mC c=1 sm=1 tr=0 ts=6abe36d9 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-ORIG-GUID: vAZ_geALm157IMRgrThNbdx6G7UweDjZ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDAxMDA0MCBTYWx0ZWRfX3bXDRpYzbliD
+ jrCkeiJ+177Jf+turUR3No7dd5iPMiHOxR18P12/YMXVJ9sSNiJcX+Yfztek5rFMAhlSXpAJiGf
+ 67rZonPNG5A43VSZ8tq8ovBFUH+xXmZMD+GzvtfZ4Uz5Q/fIJ1g9NDRW3t+TkCZAJjBzJqf6/hj
+ NfSFikUarVPGlBVhSHz0AeAv750zUsV/7D5I4/tgYNNFoD9yL76uMkL5U0jWA0W29qaWguINXPK
+ OJM3m/4GNv+Vw3a984TCpG0r3qM4L2VKB4SZ1YcrK+1gwG1ngq8WYYX2QAgHkcUK8ai2WXi0rSm
+ a8/b9TCRmMBR7oc/TTmA6BPKC5pWAH4SfrzJoj2BDbchjjnguAUKEL69U0eJVi2VRVyvaHxvSH0
+ JsWy2Z5K2GAPVL8eA1bfMi9ZtOnxw/oYOiRJbw5ZUXHfBr9I0LZlDOOgHhsCWGnf5bKn67/4r8x
+ 0eSNxbWSj336umb2D+A==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDAxMDA0MCBTYWx0ZWRfX1whMKqItZOTH
+ v9a5ZeKzTxpSy0EZLvTNnOJsqkVF2nTi3nIobhUwhXm/GQYl+bqwaS/AjqB3bOWLBhqEkzQmAUU
+ CNClaDdP9aMZX48Mr8awO1zGBvtEQVE=
+X-Authority-Analysis: v=2.4 cv=EY5d0/mC c=1 sm=1 tr=0 ts=6abe36dd cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=imVGdzJB3aOyz5-kiykA:9
-X-Proofpoint-GUID: C7mRQGTP3xSc9saKBFBKxuzgh_GDAqgZ
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=s4zfVSsjitEiAOX-CbkA:9
+X-Proofpoint-GUID: vAZ_geALm157IMRgrThNbdx6G7UweDjZ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-01_03,2026-09-21_02,2025-10-01_01
@@ -109,59 +109,183 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610010040
 
-Convert all cpu_mf exception table entries to use EX_TABLE_INSN.
-With EX_TABLE_INSN entries always point to the faulting instruction,
-so duplicate entries are removed.
+Now that all exception table entries point to the faulting instruction,
+rename all EX_TABLE* macros to EX_TABLE_INSN* and remove the
+EX_TABLE_INSN* aliases.
+
+Also remove the fallback extable search via instruction_pointer() which
+was only needed to handle the old EX_TABLE entries that pointed to the
+instruction after the faulting instruction.
+
+Add a comment above the EX_TABLE_INSN macros that documents the usage
+rule and describe the difference to the previous EX_TABLE macros. This
+might be helpful in case of backporting to old kernels.
 
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/include/asm/cpu_mf.h | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ arch/s390/boot/pgm_check.c          | 23 +++++------------
+ arch/s390/include/asm/asm-extable.h | 38 ++++++++++++++---------------
+ arch/s390/include/asm/extable.h     | 25 ++++++-------------
+ arch/s390/mm/extable.c              |  2 --
+ 4 files changed, 32 insertions(+), 56 deletions(-)
 
-diff --git a/arch/s390/include/asm/cpu_mf.h b/arch/s390/include/asm/cpu_mf.h
-index 1798fbd59068..dd2991622e82 100644
---- a/arch/s390/include/asm/cpu_mf.h
-+++ b/arch/s390/include/asm/cpu_mf.h
-@@ -173,9 +173,9 @@ static inline int qctri(struct cpumf_ctr_info *info)
- 
- 	asm_inline volatile (
- 		"0:	qctri	%1\n"
--		"1:	lhi	%0,0\n"
--		"2:\n"
--		EX_TABLE(1b, 2b)
-+		"	lhi	%0,0\n"
-+		"1:\n"
-+		EX_TABLE_INSN(0b, 1b)
- 		: "+d" (rc), "=Q" (*info));
- 	return rc;
+diff --git a/arch/s390/boot/pgm_check.c b/arch/s390/boot/pgm_check.c
+index 56d0be7e2823..e5a454b21669 100644
+--- a/arch/s390/boot/pgm_check.c
++++ b/arch/s390/boot/pgm_check.c
+@@ -51,31 +51,20 @@ static unsigned long boot_get_trap_ip(struct pt_regs *regs)
+ 	return __rewind_psw(regs->psw, regs->int_code >> 16);
  }
-@@ -257,9 +257,9 @@ static inline int qsi(struct hws_qsi_info_block *info)
  
- 	asm volatile(
- 		"0:	qsi	%1\n"
--		"1:	lhi	%0,0\n"
--		"2:\n"
--		EX_TABLE(0b, 2b) EX_TABLE(1b, 2b)
-+		"	lhi	%0,0\n"
-+		"1:\n"
-+		EX_TABLE_INSN(0b, 1b)
- 		: "+d" (cc), "+Q" (*info));
- 	return cc ? -EINVAL : 0;
+-static const struct exception_table_entry *search_boot_extable(unsigned long ip)
++static bool ex_handler(struct pt_regs *regs)
+ {
+ 	const struct exception_table_entry *ex;
++	unsigned long ip = boot_get_trap_ip(regs);
+ 
+ 	for (ex = __start___ex_table; ex < __stop___ex_table; ex++) {
+ 		if (extable_insn(ex) != ip)
+ 			continue;
+ 		if (ex->type != EX_TYPE_FIXUP)
+-			return NULL;
+-		return ex;
++			return false;
++		regs->psw.addr = extable_fixup(ex);
++		return true;
+ 	}
+-	return NULL;
+-}
+-
+-static bool ex_handler(struct pt_regs *regs)
+-{
+-	const struct exception_table_entry *ex;
+-
+-	ex = search_boot_extable(boot_get_trap_ip(regs));
+-	if (!ex)
+-		ex = search_boot_extable(instruction_pointer(regs));
+-	if (!ex)
+-		return false;
+-	regs->psw.addr = extable_fixup(ex);
+-	return true;
++	return false;
  }
-@@ -272,10 +272,10 @@ static inline int lsctl(struct hws_lsctl_request_block *req)
- 	exception = 1;
- 	asm volatile(
- 		"0:	lsctl	%[req]\n"
--		"1:	lhi	%[exc],0\n"
--		"2:\n"
-+		"	lhi	%[exc],0\n"
-+		"1:\n"
- 		CC_IPM(cc)
--		EX_TABLE(0b, 2b) EX_TABLE(1b, 2b)
-+		EX_TABLE_INSN(0b, 1b)
- 		: CC_OUT(cc, cc), [exc] "+d" (exception)
- 		: [req] "Q" (*req)
- 		: CC_CLOBBER);
+ 
+ void do_pgm_check(struct pt_regs *regs)
+diff --git a/arch/s390/include/asm/asm-extable.h b/arch/s390/include/asm/asm-extable.h
+index 488bd10452b3..fd43ecd3e491 100644
+--- a/arch/s390/include/asm/asm-extable.h
++++ b/arch/s390/include/asm/asm-extable.h
+@@ -65,41 +65,41 @@
+ 	stringify_in_c(.purgem	extable_reg;)					\
+ 	stringify_in_c(.previous)
+ 
+-#define EX_TABLE(_fault, _target)					\
++/*
++ * EX_TABLE_INSN usage rules:
++ *
++ * _fault must point to the faulting instruction, never behind it.
++ *
++ * This differs from the former EX_TABLE convention, where usually two entries
++ * were needed. One that pointed to the faulting instruction (for nullifying
++ * exceptions), and a second one that pointed behind the instruction (for
++ * suppressing, completing, and terminating exceptions).
++ */
++#define EX_TABLE_INSN(_fault, _target)					\
+ 	__EX_TABLE(__ex_table, _fault, _target, EX_TYPE_FIXUP, __stringify(%%r0), __stringify(%%r0), 0)
+ 
+-#define EX_TABLE_AMODE31(_fault, _target)				\
++#define EX_TABLE_INSN_AMODE31(_fault, _target)				\
+ 	__EX_TABLE(.amode31.ex_table, _fault, _target, EX_TYPE_FIXUP, __stringify(%%r0), __stringify(%%r0), 0)
+ 
+-#define EX_TABLE_UA_FAULT(_fault, _target, _regerr)			\
++#define EX_TABLE_INSN_UA_FAULT(_fault, _target, _regerr)		\
+ 	__EX_TABLE(__ex_table, _fault, _target, EX_TYPE_UA_FAULT, _regerr, _regerr, 0)
+ 
+-#define EX_TABLE_UA_LOAD_REG(_fault, _target, _regerr, _regzero)	\
++#define EX_TABLE_INSN_UA_LOAD_REG(_fault, _target, _regerr, _regzero)	\
+ 	__EX_TABLE(__ex_table, _fault, _target, EX_TYPE_UA_LOAD_REG, _regerr, _regzero, 0)
+ 
+-#define EX_TABLE_UA_LOAD_REGPAIR(_fault, _target, _regerr, _regzero)	\
++#define EX_TABLE_INSN_UA_LOAD_REGPAIR(_fault, _target, _regerr, _regzero) \
+ 	__EX_TABLE(__ex_table, _fault, _target, EX_TYPE_UA_LOAD_REGPAIR, _regerr, _regzero, 0)
+ 
+-#define EX_TABLE_ZEROPAD(_fault, _target, _regdata, _regaddr)		\
++#define EX_TABLE_INSN_ZEROPAD(_fault, _target, _regdata, _regaddr)	\
+ 	__EX_TABLE(__ex_table, _fault, _target, EX_TYPE_ZEROPAD, _regdata, _regaddr, 0)
+ 
+-#define EX_TABLE_FPC(_fault, _target)					\
++#define EX_TABLE_INSN_FPC(_fault, _target)				\
+ 	__EX_TABLE(__ex_table, _fault, _target, EX_TYPE_FPC, __stringify(%%r0), __stringify(%%r0), 0)
+ 
+-#define EX_TABLE_UA_MVCOS_TO(_fault, _target)				\
++#define EX_TABLE_INSN_UA_MVCOS_TO(_fault, _target)			\
+ 	__EX_TABLE(__ex_table, _fault, _target, EX_TYPE_UA_MVCOS_TO, __stringify(%%r0), __stringify(%%r0), 0)
+ 
+-#define EX_TABLE_UA_MVCOS_FROM(_fault, _target)				\
++#define EX_TABLE_INSN_UA_MVCOS_FROM(_fault, _target)			\
+ 	__EX_TABLE(__ex_table, _fault, _target, EX_TYPE_UA_MVCOS_FROM, __stringify(%%r0), __stringify(%%r0), 0)
+ 
+-#define EX_TABLE_INSN				EX_TABLE
+-#define EX_TABLE_INSN_AMODE31			EX_TABLE_AMODE31
+-#define EX_TABLE_INSN_UA_FAULT			EX_TABLE_UA_FAULT
+-#define EX_TABLE_INSN_UA_LOAD_REG		EX_TABLE_UA_LOAD_REG
+-#define EX_TABLE_INSN_UA_LOAD_REGPAIR		EX_TABLE_UA_LOAD_REGPAIR
+-#define EX_TABLE_INSN_ZEROPAD			EX_TABLE_ZEROPAD
+-#define EX_TABLE_INSN_FPC			EX_TABLE_FPC
+-#define EX_TABLE_INSN_UA_MVCOS_TO		EX_TABLE_UA_MVCOS_TO
+-#define EX_TABLE_INSN_UA_MVCOS_FROM		EX_TABLE_UA_MVCOS_FROM
+-
+ #endif /* __ASM_EXTABLE_H */
+diff --git a/arch/s390/include/asm/extable.h b/arch/s390/include/asm/extable.h
+index af6ba52743e9..5032c648781b 100644
+--- a/arch/s390/include/asm/extable.h
++++ b/arch/s390/include/asm/extable.h
+@@ -5,25 +5,14 @@
+ #include <asm/ptrace.h>
+ #include <linux/compiler.h>
+ 
+-/*
+- * The exception table consists of three addresses:
+- *
+- * - Address of an instruction that is allowed to fault.
+- * - Address at which the program should continue.
+- * - Optional address of handler that takes pt_regs * argument and runs in
+- *   interrupt context.
+- *
+- * No registers are modified, so it is entirely up to the continuation code
+- * to figure out what to do.
+- *
+- * All the routines below use bits of fixup code that are out of line
+- * with the main instruction path.  This means when everything is well,
+- * we don't even have to jump over them.  Further, they do not intrude
+- * on our cache or tlb entries.
++/**
++ * struct exception_table_entry - entry in exception table
++ * @insn:  Relative pointer to faulting instruction
++ * @fixup: Relative pointer to instruction where execution resumes
++ * @type:  Exception type
++ * @data:  handler-specific data
+  */
+-
+-struct exception_table_entry
+-{
++struct exception_table_entry {
+ 	int insn, fixup;
+ 	short type, data;
+ };
+diff --git a/arch/s390/mm/extable.c b/arch/s390/mm/extable.c
+index ca6a1efa49ee..6bed074f1c5f 100644
+--- a/arch/s390/mm/extable.c
++++ b/arch/s390/mm/extable.c
+@@ -121,8 +121,6 @@ bool fixup_exception(struct pt_regs *regs)
+ 	const struct exception_table_entry *ex;
+ 
+ 	ex = s390_search_extables(get_trap_ip(regs));
+-	if (!ex)
+-		ex = s390_search_extables(instruction_pointer(regs));
+ 	if (!ex)
+ 		return false;
+ 	switch (ex->type) {
 -- 
 2.53.0
 
