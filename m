@@ -1,57 +1,57 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90F3A3F86EF;
-	Thu,  1 Oct 2026 10:32:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C244A3FA5E9;
+	Thu,  1 Oct 2026 10:32:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790850786; cv=none; b=e9Q6A1v4NIh8o39Iz6fSxZYL+pJU1ue3jXtFF3cwWkdzerF1SPSBRSnwhaq/DRHw1MQa+Omr1exv0BOivA2czjdb21/bjS92fKkzh4W/Vu4L7k4C3b77sgYta+LNW0/QqYFnx4I06KRz9de4vvOuzWYg7pLCQ1Oa7Sm2KCFkprA=
+	t=1790850786; cv=none; b=QVJ5Sj74qFLhtPRRWwLpY0EyFDXMfmcDG1kehB6p9gneo7M84Bw/EU0l0MgimwX3Ze7rOa7LHXP3wAi2YnRHhOGuDBButPPwXBb3wHlfBoVBmRfnjegKwShELu7UMA1SSlkA8t3XPa2uGCQpMWUM9+XHek7pgl6NV52nGiArkps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1790850786; c=relaxed/simple;
-	bh=VLhFccrY1H9lgV/Mo43vFSTX7xXewF7wZUWKWR98+Us=;
+	bh=GSv5p4gGXTuHdIYld1AfkJ2XRxJVNm6Np+jMgbFGdcQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ec1P+uTffqdAYEplcUV4t6R7v2YxKfo8uMmSUgabh6B46FFoi6/EZVH50WmLVYdI8NF+7XrXhN8TvraYA47sDRl0IF8PLIgd0DFyfPdOoeoWerbdu+UlFqesL4EYCzIETc+DpcuXkA0+ptkNit6k5FcpfqL8B8DakmrF8Snn6c0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=CBkw0Xa8; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=u82ELU8NwDEgE1eFjxD6d5Tb7F/cYklHY8qC1Y5x1zbWu3kqOFYg5UwJhT9q8olQAa+GxyHm3HFNIixPyuqegzpigGlxEMxms0bOVboN8cyXLbjlwzT3nxpmXESe4i5oMr4X9leEsb+PpoxcTVR3rnfMDvD9q6zPHM4gMxwCA0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EEMkDj/r; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="CBkw0Xa8"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69175dH04040963;
-	Thu, 1 Oct 2026 10:32:56 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EEMkDj/r"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69176KUS1120833;
+	Thu, 1 Oct 2026 10:32:55 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=gMJPGrKkkyP8YabRU
-	8AXf2URNZxwm3DYXZSL+bwQVLc=; b=CBkw0Xa83J6LoeQTTb3SYgukjDiOc9ceF
-	nZYu1vfn/EA7d/ECiAg119r/7GervGqWOozTmuUmNisruhm1B50heb6iDR2miFOe
-	JYhaRLWm8Vur5Q6ipSsIF0WXsMoyMs6sAvr20QGLz0MLexbUaOahGEeg3NQ9VqGn
-	8D3Y7vBqLu5LVNEdTdK/MhnUZ6ZgpgQdXW0hQ8siorLXkD90OcIgrOb8crvw3LCC
-	2GVNOO/0eAZ3F3ZsenQgLBkkDtv3GaNStAYFRM0aWX9YNNSoFnHO4l8dkNmfepoi
-	bCBhh7+RVvvRHmH5ghrTkf+WacD6WbLAxfC+ZA+ESUBpgJT2zdjcw==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx4fehfn3-1
+	:mime-version:references:subject:to; s=pp1; bh=cihIN88vtGi+ScDAW
+	XyOkJECb2E8cpqLSUFLgiw2SDk=; b=EEMkDj/ripvAxW2/HTxV2znptlXGsUWM5
+	2sszNy2DJKntNA487c58eGwr4bIXCO9j7jep4266P0gwUA6ShI0TKhD0otv4paw8
+	P4QmfofHFkZJewpcHd1/gwA0MMl9Lrq+zHSqwujANFBAuBTHvEa7es9Lg6yk3uy/
+	zxVQCdEfv1H9gh/74cgtIymAmQetHNMFs0LH+oV7kOm7om7CA1h7HYJOzMRRD2k3
+	99jUp0Fri+NXdeOSnEGeNXe2iXR0BaCMU2CMJH7vbwpqEenLL2tdz2yR5PQUkBwU
+	766Q4cvCZMNUhhACJ4/doIZsLsMZ7kaAtUkzA9e47/fIyYcdD3B2A==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5j5jrak-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 01 Oct 2026 10:32:56 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69172YfW561211;
-	Thu, 1 Oct 2026 10:32:55 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h0g8e8kb2-1
+	Thu, 01 Oct 2026 10:32:54 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69172X5m520721;
+	Thu, 1 Oct 2026 10:32:53 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h0hfpga5h-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 01 Oct 2026 10:32:55 +0000 (GMT)
+	Thu, 01 Oct 2026 10:32:53 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 691AWqci41943372
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 691AWnZB31523086
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 1 Oct 2026 10:32:52 GMT
+	Thu, 1 Oct 2026 10:32:50 GMT
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1068B20043;
-	Thu,  1 Oct 2026 10:32:52 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id D854220043;
+	Thu,  1 Oct 2026 10:32:49 +0000 (GMT)
 Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C8B152004F;
-	Thu,  1 Oct 2026 10:32:51 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 9C0F82004B;
+	Thu,  1 Oct 2026 10:32:49 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  1 Oct 2026 10:32:51 +0000 (GMT)
+	Thu,  1 Oct 2026 10:32:49 +0000 (GMT)
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
@@ -69,9 +69,9 @@ To: Alexander Gordeev <agordeev@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH 14/32] s390/diag: Convert inline assembly to EX_TABLE_INSN
-Date: Thu,  1 Oct 2026 12:32:29 +0200
-Message-ID: <20261001103247.1989111-15-hca@linux.ibm.com>
+Subject: [PATCH 06/32] s390/tools: Generate bitmap of nullified program checks
+Date: Thu,  1 Oct 2026 12:32:21 +0200
+Message-ID: <20261001103247.1989111-7-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261001103247.1989111-1-hca@linux.ibm.com>
 References: <20261001103247.1989111-1-hca@linux.ibm.com>
@@ -83,109 +83,209 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=FYWiV5+6 c=1 sm=1 tr=0 ts=6abe36d8 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDAxMDA0MCBTYWx0ZWRfX0CeOTWtW4uBm
+ 1UZGliD4iELfuVO4Qg71DuG7bfWNus4PBk1a75C2t7sbrRCqFjh7+t7TusoumSaQp2HVfHi1Xfh
+ ClaD8XrCsjmqCjMNNHp4FsTAVIsMKMA=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDAxMDA0MCBTYWx0ZWRfX3HlCyimHBu5D
+ k0qOE6aTqmI53t7eRyiIs2vVa2L+GqPYCX0sqvkuOtxKp7kfbK9MxgbSrHU7XLkJa6poYd2tF2p
+ DWI+0rgaVbBDCiP1FeRayyB4k4Rbg5G5mehhaAC1r/x2kCffKsi9IExegNHBKI4aquSLx84BUBH
+ WWbu0QrIi5p2ZmnaZ7/+2Ztm2M12BDPlsscWabr69iforYaCvxnNavwdVGJMUaIfntotrz5R6B4
+ U5ZPEFXoC1lf1mUAvVovW+E8eq8h0PCjjl/MB5PZFBYYm8wlWbsXO5DYQihED/cCDbIvgKJm5fx
+ THbm0hqlbCHLFdMNgSwSvK6ry/1jQy1ml8HR7RTsZm/EkH6sSKab8wEMArZ9rUyhv3XWuv/slYm
+ FskgdCShG4Cxb2d9OSYhGXm1L5p8LLL5oMdOdj8qEAdRU6p5NY5b4i4zfo6a93qB/I+/ei+XqZG
+ 39fTJwzPuz/GjABJpig==
+X-Proofpoint-GUID: JyR7cmMRnA0pkdp4wy04lyxXl_f7VPh2
+X-Authority-Analysis: v=2.4 cv=RKcmjIi+ c=1 sm=1 tr=0 ts=6abe36d6 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=sYOz-H63P38W3EJanfYA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDAxMDA0MCBTYWx0ZWRfXxVd8V91pTSFA
- NGhmt2NNDAxwzXK5+55DythEmRSeEtIBGzq8UbV463syljZKGg3BCYajh+/jwsTrizvfihoOGYm
- 8HTu+dHdhFi/p4h0dDDZPjWy8uIf83w=
-X-Proofpoint-ORIG-GUID: zczkrJlga0eKapdhQUoMaeUBwEhDAIa1
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDAxMDA0MCBTYWx0ZWRfXz1TvychMTt4l
- SrtVnPRfH5XqqQCjbqK02t8OENa0de14vBW3Bqw6fZkw2UfHDeiu2B6Vth+UtfoTNKegE6Ro6jT
- xJB3edrPtBk0MQeJNvcWZmPXEjk15Ga57/NJOeUD0HLAX0hwhSx+OW7/rZoRU8mPCws6seHHxT6
- qiGyKsIAS9dvzd5rwS5I+SiWwFjb1un84CQ9qOtRL/jnzMXwCmtaoyqLIVJZ9dLf6/xqTbFX2OP
- G0ywWngeg5pJqszslMzOhb3jWS8b7X25qXHLAdQ5Cxt9hhQUFcVLikuL3Kqt8eOUNcwbA9mXczn
- EDCO/h7dSCT+AohUw2zrcI45fF3jaug0nI0IoE61HrjSlvsbrz+0kHbzlkRqOOAs76+aQmrXIBk
- s0NNF3HCU0Y5GYk4S7Ut8uAM/EiuxgsBsercxyYkqup2t8Vqeemy2aYlf0skOOUC2ZUhFdv7QRR
- xVT0yr7UDLQr2jHkkSg==
-X-Proofpoint-GUID: zczkrJlga0eKapdhQUoMaeUBwEhDAIa1
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=lkSWvLFn8bspC76GBR4A:9
+X-Proofpoint-ORIG-GUID: JyR7cmMRnA0pkdp4wy04lyxXl_f7VPh2
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-01_03,2026-09-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 clxscore=1015 impostorscore=0 spamscore=0 phishscore=0
- priorityscore=1501 malwarescore=0 bulkscore=0 lowpriorityscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2610010040
+ clxscore=1015 priorityscore=1501 spamscore=0 bulkscore=0 impostorscore=0
+ adultscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610010040
 
-Convert all diag exception table entries to use EX_TABLE_INSN.
-With EX_TABLE_INSN entries always point to the faulting instruction,
-so duplicate entries and nopr padding are no longer needed and removed.
+Add PGM_CHECKS_NULLIFIED bitmap to gen_bitmaps and add a --pgmcheck
+command line option to generate the pgmcheck-defs.h header file. The
+bitmap specifies which program checks are nullified, and will be used
+with future changes.
+
+Change gen_bitmaps.c so it can create bitmaps with different bit
+numbering: MSB0 bit numbering like before (most significant bit is
+bit 0), and LSB0 bit numbering (least significant bit is bit 0),
+which is used for the new bitmap.
 
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/include/asm/diag.h    |  5 ++---
- arch/s390/include/asm/diag288.h |  6 +++---
- arch/s390/kernel/diag/diag.c    | 12 ++++++------
- 3 files changed, 11 insertions(+), 12 deletions(-)
+ arch/s390/include/asm/Kbuild  |  1 +
+ arch/s390/tools/Makefile      |  8 +++++-
+ arch/s390/tools/gen_bitmaps.c | 54 +++++++++++++++++++++++++++++++++--
+ 3 files changed, 59 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/include/asm/diag.h b/arch/s390/include/asm/diag.h
-index 8db8db3b1018..1416ee1ad323 100644
---- a/arch/s390/include/asm/diag.h
-+++ b/arch/s390/include/asm/diag.h
-@@ -68,9 +68,8 @@ static inline void diag10_range(unsigned long start_pfn, unsigned long num_pfn)
- 	diag_stat_inc(DIAG_STAT_X010);
- 	asm_inline volatile(
- 		"0:	diag	%0,%1,0x10\n"
--		"1:	nopr	%%r7\n"
--		EX_TABLE(0b, 1b)
--		EX_TABLE(1b, 1b)
-+		"1:\n"
-+		EX_TABLE_INSN(0b, 1b)
- 		: : "a" (start_addr), "a" (end_addr));
- }
+diff --git a/arch/s390/include/asm/Kbuild b/arch/s390/include/asm/Kbuild
+index 0c1fc47c3ba0..d13dd7e3dc01 100644
+--- a/arch/s390/include/asm/Kbuild
++++ b/arch/s390/include/asm/Kbuild
+@@ -1,6 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ generated-y += dis-defs.h
+ generated-y += facility-defs.h
++generated-y += pgmcheck-defs.h
+ generated-y += syscall_table.h
+ generated-y += unistd_nr.h
  
-diff --git a/arch/s390/include/asm/diag288.h b/arch/s390/include/asm/diag288.h
-index 5e1b43cea9d6..f0a37a80d672 100644
---- a/arch/s390/include/asm/diag288.h
-+++ b/arch/s390/include/asm/diag288.h
-@@ -28,10 +28,10 @@ static inline int __diag288(unsigned int func, unsigned int timeout,
- 	int rc = -EINVAL;
+diff --git a/arch/s390/tools/Makefile b/arch/s390/tools/Makefile
+index ac267bb46550..ba1e42d005e7 100644
+--- a/arch/s390/tools/Makefile
++++ b/arch/s390/tools/Makefile
+@@ -4,7 +4,9 @@
+ #
  
- 	asm volatile(
--		"	diag	%[r1],%[r3],0x288\n"
--		"0:	lhi	%[rc],0\n"
-+		"0:	diag	%[r1],%[r3],0x288\n"
-+		"	lhi	%[rc],0\n"
- 		"1:"
--		EX_TABLE(0b, 1b)
-+		EX_TABLE_INSN(0b, 1b)
- 		: [rc] "+d" (rc)
- 		: [r1] "d" (r1.pair), [r3] "d" (r3.pair)
- 		: "cc", "memory");
-diff --git a/arch/s390/kernel/diag/diag.c b/arch/s390/kernel/diag/diag.c
-index 56b862ba9be8..f23b3e2b070e 100644
---- a/arch/s390/kernel/diag/diag.c
-+++ b/arch/s390/kernel/diag/diag.c
-@@ -196,9 +196,9 @@ static inline int __diag204(unsigned long *subcode, unsigned long size, void *ad
- 	union register_pair rp = { .even = *subcode, .odd = size };
+ kapi := arch/$(ARCH)/include/generated/asm
+-kapi-hdrs-y := $(kapi)/facility-defs.h $(kapi)/dis-defs.h
++kapi-hdrs-y := $(kapi)/dis-defs.h
++kapi-hdrs-y += $(kapi)/facility-defs.h
++kapi-hdrs-y += $(kapi)/pgmcheck-defs.h
  
- 	asm_inline volatile(
--		"	diag	%[addr],%[rp],0x204\n"
--		"0:	nopr	%%r7\n"
--		EX_TABLE(0b,0b)
-+		"0:	diag	%[addr],%[rp],0x204\n"
-+		"1:\n"
-+		EX_TABLE_INSN(0b, 1b)
- 		: [rp] "+&d" (rp.pair) : [addr] "d" (addr) : "memory");
- 	*subcode = rp.even;
- 	return rp.odd;
-@@ -287,10 +287,10 @@ int diag224(void *ptr)
+ PHONY += kapi
  
- 	diag_stat_inc(DIAG_STAT_X224);
- 	asm_inline volatile("\n"
--		"	diag	%[type],%[addr],0x224\n"
--		"0:	lhi	%[rc],0\n"
-+		"0:	diag	%[type],%[addr],0x224\n"
-+		"	lhi	%[rc],0\n"
- 		"1:\n"
--		EX_TABLE(0b,1b)
-+		EX_TABLE_INSN(0b, 1b)
- 		: [rc] "+d" (rc)
- 		, "=m" (*(struct { char buf[PAGE_SIZE]; } *)ptr)
- 		: [type] "d" (0), [addr] "d" (addr));
+@@ -16,6 +18,7 @@ hostprogs		    += gen_opcode_table
+ HOSTCFLAGS_gen_bitmaps.o += $(LINUXINCLUDE)
+ 
+ filechk_facility-defs.h = $(obj)/gen_bitmaps --facility
++filechk_pgmcheck-defs.h = $(obj)/gen_bitmaps --pgmcheck
+ 
+ filechk_dis-defs.h = \
+ 	$(obj)/gen_opcode_table < $(srctree)/arch/$(ARCH)/tools/opcodes.txt
+@@ -23,6 +26,9 @@ filechk_dis-defs.h = \
+ $(kapi)/facility-defs.h: $(obj)/gen_bitmaps FORCE
+ 	$(call filechk,facility-defs.h)
+ 
++$(kapi)/pgmcheck-defs.h: $(obj)/gen_bitmaps FORCE
++	$(call filechk,pgmcheck-defs.h)
++
+ $(kapi)/dis-defs.h: $(obj)/gen_opcode_table FORCE
+ 	$(call filechk,dis-defs.h)
+ 
+diff --git a/arch/s390/tools/gen_bitmaps.c b/arch/s390/tools/gen_bitmaps.c
+index 4bc5f19dd405..2e5dc491b19e 100644
+--- a/arch/s390/tools/gen_bitmaps.c
++++ b/arch/s390/tools/gen_bitmaps.c
+@@ -17,6 +17,8 @@
+ struct bitmap_def {
+ 	char *name;
+ 	int *bits;
++	int inverted;
++	int maxbit;
+ };
+ 
+ static struct bitmap_def facility_defs[] = {
+@@ -27,6 +29,7 @@ static struct bitmap_def facility_defs[] = {
+ 		 * -march=<machine>.
+ 		 */
+ 		.name = "FACILITIES_ALS",
++		.inverted = 1,
+ 		.bits = (int[]){
+ 			0,  /* N3 instructions */
+ 			1,  /* z/Arch mode installed */
+@@ -71,6 +74,7 @@ static struct bitmap_def facility_defs[] = {
+ 		 * guest facilities supported by KVM.
+ 		 */
+ 		.name = "FACILITIES_KVM",
++		.inverted = 1,
+ 		.bits = (int[]){
+ 			0,  /* N3 instructions */
+ 			1,  /* z/Arch mode installed */
+@@ -116,6 +120,7 @@ static struct bitmap_def facility_defs[] = {
+ 		 */
+ 
+ 		.name = "FACILITIES_KVM_CPUMODEL",
++		.inverted = 1,
+ 		.bits = (int[]){
+ 			12, /* AP Query Configuration Information */
+ 			15, /* AP Facilities Test */
+@@ -125,17 +130,56 @@ static struct bitmap_def facility_defs[] = {
+ 	},
+ };
+ 
++static struct bitmap_def pgm_check_defs[] = {
++	{
++		.name = "PGM_CHECKS_NULLIFIED",
++		.inverted = 0,
++		.maxbit = 127,
++		.bits = (int[]){
++			0x10, /* Segment Translation */
++			0x11, /* Page Translation */
++			0x16, /* Trace Table */
++			0x20, /* AFX Translation */
++			0x21, /* ASX Translation */
++			0x22, /* LX Translation */
++			0x23, /* EX Translation */
++			0x24, /* Primary Authority */
++			0x25, /* Secondary Authority */
++			0x26, /* LFX Translation */
++			0x27, /* LSX Translation */
++			0x29, /* ALEN Translation */
++			0x2a, /* ALE Sequence */
++			0x2b, /* ASTE Validity */
++			0x2c, /* ASTE Sequence */
++			0x2d, /* Extended Authority */
++			0x2e, /* LSTE Sequence */
++			0x2f, /* ASTE Instance */
++			0x30, /* Stack Full */
++			0x31, /* Stack Empty */
++			0x32, /* Stack Specification */
++			0x33, /* Stack Type */
++			0x34, /* Stack Operation */
++			0x38, /* ASCE Type */
++			0x39, /* Region First Translation */
++			0x3a, /* Region Second Translation */
++			0x3b, /* Region Third Translation */
++			0x3d, /* Secure Storage Access */
++			-1  /* END */
++		}
++	},
++};
++
+ static void print_bitmap(struct bitmap_def *def)
+ {
+ 	unsigned int high, bit, dword, i;
+ 	unsigned long long *array;
+ 
+-	array = calloc(1, 8);
++	high = def->maxbit ? def->maxbit / 64 : 0;
++	array = calloc(high + 1, 8);
+ 	if (!array)
+ 		exit(EXIT_FAILURE);
+-	high = 0;
+ 	for (i = 0; def->bits[i] != -1; i++) {
+-		bit = 63 - (def->bits[i] & 63);
++		bit = def->inverted ? 63 - (def->bits[i] & 63) : (def->bits[i] & 63);
+ 		dword = def->bits[i] / 64;
+ 		if (dword > high) {
+ 			array = realloc(array, (dword + 1) * 8);
+@@ -171,6 +215,7 @@ static void print_header(const char *guard, struct bitmap_def *defs, size_t num)
+ 
+ static const struct option long_options[] = {
+ 	{ "facility", no_argument, NULL, 'f' },
++	{ "pgmcheck", no_argument, NULL, 'p' },
+ 	{ NULL, 0, NULL, 0 }
+ };
+ 
+@@ -185,6 +230,9 @@ int main(int argc, char **argv)
+ 	case 'f':
+ 		print_header("FACILITY", facility_defs, ARRAY_SIZE(facility_defs));
+ 		break;
++	case 'p':
++		print_header("PGMCHECK", pgm_check_defs, ARRAY_SIZE(pgm_check_defs));
++		break;
+ 	default:
+ 		return 1;
+ 	}
 -- 
 2.53.0
 
