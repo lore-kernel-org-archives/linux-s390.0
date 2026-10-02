@@ -1,159 +1,244 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EE683431E6;
-	Fri,  2 Oct 2026 18:22:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C678D1C2324;
+	Fri,  2 Oct 2026 19:30:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790965323; cv=none; b=MMt0AeyjnkLSL6OLpsOA5EdFTjwgvSiwZGC6LZwxi8MhTy+zjWfCijn8C/zlRtIaXl4rPHNoRX2xhxD7heZX1IHVvwG2fXg7Hb8TdTwHVdzCiGCt685YLGJ2ZJgA0M7Ob3Y/KyjUAITNJCiwXvBsfWMfSTdfBfyaPXw8P5gzHIk=
+	t=1790969448; cv=none; b=Kc0GIsK9N7rNc3UrnXE+2UXTQqkFDoTG5IJOhVNhYf8Y0vuo97YKCt60ROuPTwCOEr+7E+jT3rnMEOI97nXNH1AOBBwY6UUDV7GW9SYdeTBLVmfO74XQaAYW9S3panVj81EkfIjeoUCyNWSo5CGG6OuD4BZOYIFWl5n+gSrkaDI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790965323; c=relaxed/simple;
-	bh=uMBQhmDVpYAchsflbsSrypZqCGz7fzSiXPVqr4wXquc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gumKmMqR9wc6AU89w/HIzL/l27uFKv3ovfDeUtimF/wp+av9UxbajoniO/fLtA1WCB+iC7S2iP2uOogDHQrMUKTmZaK/8hoNcP/pzJAMeILhZ9GuPLj9Mn/t5gENJ3SUpMuj8Pz+jsYHFMIUTxcs0cZTf/Xt47WwYNs/U4UcpTw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QXsaGbmn; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790969448; c=relaxed/simple;
+	bh=UvxOFB0IbE8KIM4WIMe8P7WoA3vIDhkx8lQlM29Phbw=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=jBBAhRbwnyDHoqZHPBLugLf8Vaov7IDFJ/ERouMzpKXnYQtCmY5gRGBPhRzzXD3gQnUT3Af6Za0fcrD+JRysoPIF6/eq/s7vetdrdH1Y04WvfU3WsXTLimMyfk5pPRKaOk84VgwUh7M1AaSib06zodHcAA8NvDryrtWHgJg9gHE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d2r2hK5k; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QXsaGbmn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3496D1F000FF;
-	Fri,  2 Oct 2026 18:21:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d2r2hK5k"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 748A01F000FF;
+	Fri,  2 Oct 2026 19:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790965321;
-	bh=DRNHZG+0rjn+MS3ZH0CrvoAZYe+hwRcWZ5W/r+K9L0c=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=QXsaGbmntNXtf8qGXbZm0VEFHH+Ktxq2NycVl9EA2UFJL5xoZ/7d0KfIdhvM22cGE
-	 5Br3otgO+SIMvA5iH1BDByi0k1+DbOmVY77NPu8uIBzzMghHQETQUbBZPcYRFv0a8z
-	 DRT4z9LSccwooBqwo4wg0YXKYC/2UL07N1MZQ4w/MUtqRI2DC5QYE+9qvmyD6dutEL
-	 pmpMLRcOBj6u8ddAC/t2x5aZ1IapKtAA4XNzeDWqBXI76qzsqx+oc5+bkxEYoavYYe
-	 /Q3H+GcrB9mDK4EhLPYavMssqFQA/PeSVeY0TOuLGECUEB+VovTtunZjz65tDBhUi5
-	 0EAsTq4zf3ulw==
-Message-ID: <2618625a-864d-43a4-b151-100e0d76ff87@kernel.org>
-Date: Fri, 2 Oct 2026 20:21:47 +0200
+	s=k20260515; t=1790969446;
+	bh=ekKUYOby3c2j+NEGwfq/n/16hDsQN2mSgzvQPgHiWWI=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=d2r2hK5kCljTlCYwbBufk/wivX4jkvPY5GtMgJLcUIUGT4ktspgfRBivcG57guSh0
+	 hmkWr9NCuIzN8DuY1j8dpdZ4MIgpfoMkhqfwhFne9TUTm7tvkDIkyqcyp6gifsaedU
+	 mNrCV965QKAOpjo5mT0u9456Q2feFcLsrcpn4yK2t79qy6ksjZH9IjiJABakb9YbL5
+	 heJGGdWiGwwTNHAPJgbj/idVxDZSAeMzL3J8SODqqJovLo/2+7RpFWIqHOSOxNi79y
+	 Uw9DHbuSk9BoX3hzMhPL2bfOom2XjyLWZ7KwO9IQVaU87sthIFLqZfHTTSxGRCaWc8
+	 PWPWsigErZcDg==
+From: Barry Song <baohua@kernel.org>
+To: willy@infradead.org
+Cc: agordeev@linux.ibm.com,
+	akpm@linux-foundation.org,
+	alex@ghiti.fr,
+	aou@eecs.berkeley.edu,
+	baohua@kernel.org,
+	borntraeger@linux.ibm.com,
+	bp@alien8.de,
+	catalin.marinas@arm.com,
+	chenhuacai@kernel.org,
+	chleroy@kernel.org,
+	dave.hansen@linux.intel.com,
+	david@kernel.org,
+	gerald.schaefer@linux.ibm.com,
+	gor@linux.ibm.com,
+	hca@linux.ibm.com,
+	hpa@zytor.com,
+	kernel@xen0n.name,
+	liam@infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-riscv@lists.infradead.org,
+	linux-s390@vger.kernel.org,
+	linux@armlinux.org.uk,
+	linuxppc-dev@lists.ozlabs.org,
+	ljs@kernel.org,
+	loongarch@lists.linux.dev,
+	luto@kernel.org,
+	maddy@linux.ibm.com,
+	mark.rutland@arm.com,
+	mhocko@suse.com,
+	mingo@redhat.com,
+	mpe@ellerman.id.au,
+	npiggin@gmail.com,
+	palmer@dabbelt.com,
+	peterz@infradead.org,
+	pjw@kernel.org,
+	rppt@kernel.org,
+	shakeel.butt@linux.dev,
+	surenb@google.com,
+	svens@linux.ibm.com,
+	tglx@kernel.org,
+	vbabka@kernel.org,
+	will@kernel.org,
+	x86@kernel.org,
+	zhanghongru06@gmail.com,
+	zhanghongru@xiaomi.com,
+	zhaonanzhe@xiaomi.com
+Subject: Re: [PATCH v6] mm: retry page faults once under the per-VMA lock
+Date: Sat,  3 Oct 2026 03:30:34 +0800
+Message-Id: <20261002193034.86218-1-baohua@kernel.org>
+X-Mailer: git-send-email 2.39.3 (Apple Git-146)
+In-Reply-To: <ar7MsOb6IJLt4eLo@casper.infradead.org>
+References: <ar7MsOb6IJLt4eLo@casper.infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] random: vDSO: Avoid call to memset() when zeroing
- reserved in __cvdso_getrandom_data()
-To: "Jason A. Donenfeld" <Jason@zx2c4.com>,
- Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>,
- Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
- Theodore Ts'o <tytso@mit.edu>, Vincenzo Frascino
- <vincenzo.frascino@arm.com>, Bill Wendling <morbo@google.com>,
- Justin Stitt <justinstitt@google.com>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Mark Rutland <mark.rutland@arm.com>, Huacai Chen <chenhuacai@kernel.org>,
- WANG Xuerui <kernel@xen0n.name>, Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- loongarch@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- llvm@lists.linux.dev
-References: <ar0a4b9CjL2YHCkY@zx2c4.com> <ar0gTS71qxnx9AkW@zx2c4.com>
- <20260930151337.GD3142230@ax162>
- <CAHmME9pA+AntJ6hWoFYpTVjh-NUSd0ZGXp5XiUuhQcq3HjQT3g@mail.gmail.com>
- <ede392d7-3104-4a0f-9fa1-99b22552dcd6@kernel.org>
- <ar4nD8aRH7wEvTMt@zx2c4.com> <20261001102059.GA4176271@ax162>
- <ar46ap4jzLWyP92C@zx2c4.com> <20261001110310.GA138012@ax162>
- <20261002094932.GA3435055@ax162> <ar-Dx-deXN93M24v@zx2c4.com>
-Content-Language: fr-FR
-From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-In-Reply-To: <ar-Dx-deXN93M24v@zx2c4.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
+On Fri, Oct 2, 2026 at 5:12 AM Matthew Wilcox <willy@infradead.org> wrote:
+>
+> On Mon, Sep 28, 2026 at 10:48:41AM +0800, Barry Song wrote:
+> > On Mon, Sep 28, 2026 at 6:55 AM Matthew Wilcox <willy@infradead.org> wrote:
+> > > So while doing my slides, I realised that what we need to avoid doing
+> > > is (a) sleeping while holding the mmap_lock (b) returning RETRY while
+> > > holding the VMA lock
+> > >
+> > > And that turns out to be as simple as this patch:
+> > >
+> > > diff --git a/include/linux/mm.h b/include/linux/mm.h
+> > > index dd09c438fa23..94ed2333f8d8 100644
+> > > --- a/include/linux/mm.h
+> > > +++ b/include/linux/mm.h
+> > > @@ -723,6 +723,8 @@ enum {
+> > >   */
+> > >  static inline bool fault_flag_allow_retry_first(enum fault_flag flags)
+> > >  {
+> > > +       if (flags & FAULT_FLAG_VMA_LOCK)
+> > > +               return false;
+> > >         return (flags & FAULT_FLAG_ALLOW_RETRY) &&
+> > >             (!(flags & FAULT_FLAG_TRIED));
+> > >  }
+> > >
+> > > OK, this is a hack.  The function is spectacularly badly named, and
+> > > needs to be renamed before a patch can go upstream.  But this should
+> > > fix the contention on mmap_lock.
+> >
+> > Thanks for your suggestion.
+> > This is exactly what we did in Android Common Kernel before we had
+> > Lorenzo's proposal (bypassing `fault_flag_allow_retry_first()`):
+> >
+> > https://android.googlesource.com/kernel/common/+/1b9b045a586245cc1c29b2747c6586234c7f5bad%5E%21/#F2
+>
+> Looks like that one didn't cover __folio_lock_or_retry(), but that
+> doesn't invalidate your point.
+Yep. `__folio_lock_or_retry()` will make the same thing true for anon
+VMAs, so we intentionally made the hook valid only for file VMAs.Only touching the file retry path seems to involve less VMA
+contention.
 
+>
+> > Note that Lorenzo's proposal avoids mmap_lock contention without
+> > introducing any new VMA lock contention. It also doesn't require a new
+> > flag that would break KMI. So this is clearly the preferred approach.
+>
+> But it does retry multiple times in cases where we know the fault
+> will always fail (eg the fault is on a device-private VMA)
+>
+Right now, these might require a single extra retry for device-private
+and `__vmf_anon_prepare()` cases. The commit log also mentions this.
 
-Le 02/10/2026 à 12:13, Jason A. Donenfeld a écrit :
-> On Fri, Oct 02, 2026 at 11:49:32AM +0200, Nathan Chancellor wrote:
->> On Thu, Oct 01, 2026 at 01:03:10PM +0200, Nathan Chancellor wrote:
->>> On Thu, Oct 01, 2026 at 12:48:10PM +0200, Jason A. Donenfeld wrote:
->>>> Does this commit seem okay with you? I used the diff you sent below and
->>>> adjusted the commit message: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgit.zx2c4.com%2Flinux-rng%2Fcommit%2F%3Fid%3D56ff95ee85715047eb5b5220243778af657778c8&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C4caf8956c2d94439c19a08df206dd40b%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639265328227648970%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=H27VGYLdNkvQiA6l%2BJNnEModMbEySwTMXpLAt8iAFiI%3D&reserved=0
->>>
->>> Yeah, that seems fine to me, thanks for taking care of it!
->>
->> Can you adjust the LLVM value by one from 4294967295 to 4294967294? ~0U
->> is actually a special value, so we hit an assertion in the SystemZ
->> backend.
->>
->>    https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2Fllvm%2Fllvm-project%2Fblob%2F3f48e22a1f321d5d3341bd812803694cea588785%2Fllvm%2Flib%2FCodeGen%2FSelectionDAG%2FSelectionDAG.cpp%23L9547&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C4caf8956c2d94439c19a08df206dd40b%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639265328227670583%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=u8petgY9wU9ur%2By4kaOrb6VFKL%2FNf4tcCIUL%2BcUcDfs%3D&reserved=0
->>    https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2Fllvm%2Fllvm-project%2Fblob%2F3f48e22a1f321d5d3341bd812803694cea588785%2Fllvm%2Flib%2FTarget%2FSystemZ%2FSystemZISelLowering.cpp%23L1470-L1471&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C4caf8956c2d94439c19a08df206dd40b%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639265328227686571%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=cSwt%2BTJdYa%2Bbwe8HyO6FsIq6oU6YNplRlwCa0upif9Q%3D&reserved=0
->>
->> clang: llvm/lib/Target/SystemZ/SystemZISelLowering.cpp:1471: virtual bool llvm::SystemZTargetLowering::findOptimalMemOpLowering(LLVMContext &, std::vector<EVT> &, unsigned int, const MemOp &, unsigned int, unsigned int, const AttributeList &, EVT *) const: Assertion `Limit != ~0U && "Expected EmitTargetCodeForMemXXX() to handle AlwaysInline cases."' failed.
->> PLEASE submit a bug report to https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2Fllvm%2Fllvm-project%2Fissues%2F&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C4caf8956c2d94439c19a08df206dd40b%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639265328227701575%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=%2F3q8laZb%2FDhCWp117N9EtyxLIc5lq%2FzEN2l0z%2BXwDHY%3D&reserved=0 and include the crash backtrace and dumped files.
->> Stack dump:
->> 0.      Program arguments: ...
->> 1.      <eof> parser at end of file
->> 2.      Code generation
->> 3.      Running pass 'Function Pass Manager' on module 'arch/s390/kernel/vdso/vgetrandom.c'.
->> 4.      Running pass 'SystemZ DAG->DAG Pattern Instruction Selection' on function '@__kernel_getrandom'
->> ...
-> 
-> Holy smokes. Sure, fixed:  https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgit.zx2c4.com%2Flinux-rng%2Fcommit%2F%3Fid%3Deb13a1ff271b0d180687eebb30611b0b276d5193&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C4caf8956c2d94439c19a08df206dd40b%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639265328227716550%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=WcnFE6S72OrDTNNvU1T06BtUTyI1sDx%2F%2Btz%2FkpGslMA%3D&reserved=0
-> 
-> 
->  From eb13a1ff271b0d180687eebb30611b0b276d5193 Mon Sep 17 00:00:00 2001
-> From: Nathan Chancellor <nathan@kernel.org>
-> Date: Fri, 25 Sep 2026 22:46:32 +0100
-> Subject: [PATCH] random: vDSO: avoid call to memset() when zeroing reserved
->   parameter
-> 
-> After a recent change in LLVM [1], builds with the random vDSO
-> implementation, such as PowerPC and RISC-V, fail when checking the vDSO:
-> 
->    arch/powerpc/kernel/vdso/vdso32.so.dbg: dynamic relocations are not supported
->    arch/riscv/kernel/vdso/vdso.so.dbg: dynamic relocations are not supported
-> 
-> memset() is now generated when zeroing params->reserved for some builds
-> because LLVM has an optimization (now run in more instances) that can
-> recognize at compile time when it is assigning a static value to a
-> contiguous area of memory and turn that into a call to memset(). Both
-> clang and GCC assume memset() is always available [2].
-> 
-> Clang has an internal fiddly hook, -max-store-memset, which we can set
-> to a high number, to disable generating out of line memset calls [3].
-> Similarly, GCC has -finline-stringops=memset to do the same [4], should
-> this issue ever hit future version of GCC. While these options wouldn't
-> make sense for normal kernel code, it is fine for the extremely limited
-> and intentionally compact vDSO code.
-> 
-> Link: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2Fllvm%2Fllvm-project%2Fcommit%2F90cebef1411617fc3eedd359bdf00cb44b1c2439&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C4caf8956c2d94439c19a08df206dd40b%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639265328227732238%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=cYZ2nUalY%2F6yarydfMIlcGpDVlztXRBeg7UG7tpCO9g%3D&reserved=0 [1]
-> Link: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgcc.gnu.org%2Fonlinedocs%2Fgcc-16.2.0%2Fgcc%2FStandards.html%23index-ffreestanding&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C4caf8956c2d94439c19a08df206dd40b%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639265328227748542%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=vRl%2BQgL5GJ0wowXAIlRIczC5XqUXyOFUvFVe5C8XWAc%3D&reserved=0 [2]
-> Link: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2Fllvm%2Fllvm-project%2Fcommit%2Fb28eeb28bea39148738dc375e8a97072a1907e64&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C4caf8956c2d94439c19a08df206dd40b%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639265328227762721%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=nt59J3%2BOoiEKYGzfFfAq7WoAnEMAimt6vKDaJjhvHtg%3D&reserved=0 [3]
-> Link: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgcc.gnu.org%2Fonlinedocs%2Fgcc%2FOptimize-Options.html%23index-finline-stringops&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C4caf8956c2d94439c19a08df206dd40b%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639265328227777215%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=fyZA9XC%2FwSAUc346VWT%2FmyeqddqeTo62dBKtiJilR9U%3D&reserved=0 [4]
-> Closes: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgithub.com%2FClangBuiltLinux%2Flinux%2Fissues%2F2183&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C4caf8956c2d94439c19a08df206dd40b%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639265328227792263%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=49HfUDlzn%2FLUeISQ7%2BFR5jE7lZkqfORaqjauLn8cdm0%3D&reserved=0
-> Cc: stable@vger.kernel.org # v6.12+
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+"Some faults may
+retry unnecessarily, for example, those in __vmf_anon_prepare() or
+device-private fault handling, which require the mmap_lock. However,
+these cases are expected to be infrequent and only add one cheap
+per-VMA lock attempt."
 
-Ok, I checked the version that is in the rng tree, namely commit 
-eb13a1ff271b ("random: vDSO: avoid call to memset() when zeroing 
-reserved parameter"). Looks similar to this mail.
+If we do want to remove the extra VMA lock attempt, we might still
+need an additional flag such as VM_FAULT_NEED_MMAP_LOCK:
 
-It looks ok, no change to generated loop on powerpc32 neither with gcc 
-13 nor gcc 16.
+diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
+index 2cecf6ba6df7..2821e3bd7462 100644
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -620,6 +620,7 @@ static int __kprobes do_page_fault(unsigned long far, unsigned long esr,
+ 	struct vm_area_struct *vma;
+ 	int si_code;
+ 	int pkey = -1;
++	bool vma_lock_retried = false;
+ 
+ 	if (kprobe_page_fault(regs, esr))
+ 		return 0;
+@@ -688,6 +689,7 @@ static int __kprobes do_page_fault(unsigned long far, unsigned long esr,
+ 	if (!(mm_flags & FAULT_FLAG_USER))
+ 		goto lock_mmap;
+ 
++lock_vma:
+ 	vma = lock_vma_under_rcu(mm, addr);
+ 	if (!vma)
+ 		goto lock_mmap;
+@@ -734,6 +736,12 @@ static int __kprobes do_page_fault(unsigned long far, unsigned long esr,
+ 			goto no_context;
+ 		return 0;
+ 	}
++
++	if (!vma_lock_retried && !(fault & VM_FAULT_NEED_MMAP_LOCK)) {
++		vma_lock_retried = true;
++		goto lock_vma;
++	}
++
+ lock_mmap:
+ 
+ retry:
+diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+index 6141160ec652..baadab598d98 100644
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -1734,10 +1734,11 @@ enum vm_fault_reason {
+ 	VM_FAULT_NOPAGE         = (__force vm_fault_t)0x000100,
+ 	VM_FAULT_LOCKED         = (__force vm_fault_t)0x000200,
+ 	VM_FAULT_RETRY          = (__force vm_fault_t)0x000400,
+-	VM_FAULT_FALLBACK       = (__force vm_fault_t)0x000800,
+-	VM_FAULT_DONE_COW       = (__force vm_fault_t)0x001000,
+-	VM_FAULT_NEEDDSYNC      = (__force vm_fault_t)0x002000,
+-	VM_FAULT_COMPLETED      = (__force vm_fault_t)0x004000,
++	VM_FAULT_NEED_MMAP_LOCK     = (__force vm_fault_t)0x000800,
++	VM_FAULT_FALLBACK       = (__force vm_fault_t)0x001000,
++	VM_FAULT_DONE_COW       = (__force vm_fault_t)0x002000,
++	VM_FAULT_NEEDDSYNC      = (__force vm_fault_t)0x004000,
++	VM_FAULT_COMPLETED      = (__force vm_fault_t)0x008000,
+ 	VM_FAULT_HINDEX_MASK    = (__force vm_fault_t)0x0f0000,
+ };
+ 
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index ddc631a388b9..64e08c6153cf 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -1480,7 +1480,7 @@ vm_fault_t do_huge_pmd_device_private(struct vm_fault *vmf)
+ 
+ 	if (vmf->flags & FAULT_FLAG_VMA_LOCK) {
+ 		vma_end_read(vma);
+-		return VM_FAULT_RETRY;
++		return VM_FAULT_RETRY | VM_FAULT_NEED_MMAP_LOCK;
+ 	}
+ 
+ 	ptl = pmd_lock(vma->vm_mm, vmf->pmd);
+diff --git a/mm/memory.c b/mm/memory.c
+index 1f83a26f8733..89c8c8a52c16 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -3980,7 +3980,7 @@ vm_fault_t __vmf_anon_prepare(struct vm_fault *vmf)
+ 		return 0;
+ 	if (vmf->flags & FAULT_FLAG_VMA_LOCK) {
+ 		if (!mmap_read_trylock(vma->vm_mm))
+-			return VM_FAULT_RETRY;
++			return VM_FAULT_RETRY | VM_FAULT_NEED_MMAP_LOCK;
+ 	}
+ 	if (__anon_vma_prepare(vma))
+ 		ret = VM_FAULT_OOM;
+@@ -4937,7 +4937,7 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
+ 				 * under VMA lock.
+ 				 */
+ 				vma_end_read(vma);
+-				ret = VM_FAULT_RETRY;
++				ret = VM_FAULT_RETRY | VM_FAULT_NEED_MMAP_LOCK;
+ 				goto out;
+ 			}
+ 
+-- 
+2.39.3 (Apple Git-146)
 
-Reviewed-by: Christophe Leroy (CS GROUP) <chleroy@kernel.org>
-
-> ---
->   arch/arm64/kernel/vdso/Makefile     | 2 +-
->   arch/loongarch/vdso/Makefile        | 1 +
->   arch/powerpc/kernel/vdso/Makefile   | 1 +
->   arch/riscv/kernel/vdso/Makefile     | 1 +
->   arch/s390/kernel/vdso/Makefile      | 1 +
->   arch/x86/entry/vdso/vdso64/Makefile | 2 +-
->   init/Kconfig                        | 5 +++++
->   7 files changed, 11 insertions(+), 2 deletions(-)
-> 
