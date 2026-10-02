@@ -1,317 +1,190 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 219DE49EC4C;
-	Fri,  2 Oct 2026 13:12:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B43C3EFFC0;
+	Fri,  2 Oct 2026 13:12:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790946723; cv=none; b=IM/oW2cJ5QO7L30D/Cp5czqs4/w3NMqdNOYwva6iIdlgAKLD/WUHN3B19iLnnNMjylNsvSUSMPb+jeWACDkMjjSdT/dq3lYroEQzD8MJxmXSmq2ani5IqaGrYPUL2KB+IWzJb2iXc8vMl7fIQavXEHs6j8k6axiRgssbOlAES8Q=
+	t=1790946770; cv=none; b=TNshvZtNqJwEylEIg/7RrB2AO72go2r9cRzJBxXwBMQJEhlTaPQ6pNSl5C+eJCbM1pgZc2B+tgCbZwtUTO0Q01VCl+OWjlt7kKguKUnoIKibIJwrHIB3OV0obNIhB8Dja0xf+K+PSdsDPsSUmwpjEcTT+sfaWO+p06rRLwxLZfU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790946723; c=relaxed/simple;
-	bh=jMQr+27cYOj9tTCex41lz4ztYXg71sAZs6qJakSxu24=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ejv/7QNbCnk2uz2NkFkJhUF8k0BspoEu8u0uLm2uSz2rd/WcnEhawpEItqYEMEEm20ipUhAuL34pYpVez/pLhP0EexfLFnHLLlC4XmQLKAkOYOL7OnTPfJcOY49ToSD+xkYqwcZ14Hs3t3V61xavuhKBMPHdNEaWoEJUqxRqzeA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EHWU0mbT; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790946770; c=relaxed/simple;
+	bh=xbfuGWEQ2ecShQl3GRMI7hfUjzSv8ye+WE+hKftm/08=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=awJk6U9NkR/hqVeNGdCToF2hZ8wS1ORjdzFn/8hVXb7+E82+xelR48/xuj64TggiE3P4nrNkAsCoqLdISXSM3QuxJka4N7n+2szLETduHaXoMlEShUsufGLrxZbvsaC+/1PJJEZ6nW6T4mhbw4qxOWLJWGjsHi0NrxMQQuiQr7I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ieMGCLHo; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EHWU0mbT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDC6B1F000FF;
-	Fri,  2 Oct 2026 13:11:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ieMGCLHo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 146F21F000FF;
+	Fri,  2 Oct 2026 13:12:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790946720;
-	bh=QbhUP9iXRT9busjJARvsVsEKsH2Ps/ZqLFS4bca4bFI=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=EHWU0mbTANCXNOi3Zz8vfaluwXiHb6NrEeQE3579lOgrAlHyG4bhLJxtrP5SUxJ53
-	 qyuyt7WwDms+J9SU6tj1doNb8ixs5S/dfzu1LKAyzLmCA11j1Lj0zCtK60fbB19ybx
-	 3qiK3mWy3UStlhPrmaJU1AZq+hxZAKISulldff17r1WWYubrmXtDF0LmP4+X+Wm6bd
-	 BOzsfTZ78ABQCyKcm+yss2YPRtG6Dauzuh8gKGZxzEuKnmayEwg8S4NJjxmkbEjVzs
-	 TlQyReq4OVNz5qAdPorvbksNtN11kzuoPIYJM5l9/ocKXRgGPmsMbmcutbMweewTer
-	 BEcqQ9TLZwBbw==
-Message-ID: <3387642b-c39f-4f19-ba0c-267bbd2fe91d@kernel.org>
-Date: Fri, 2 Oct 2026 15:11:27 +0200
+	s=k20260515; t=1790946769;
+	bh=aVf/lW0mxR5mXdPtanEkjzxn8Fb60gYR+l6Vjdu9n/c=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=ieMGCLHoWcdWZqqVFKPKXIS0eM9hbG1CO7Dc+7PdoebGcn+t/bHl9TBQM31iVvvKH
+	 sr6l9ON1qqrsQ4QD+q2zh6ZpqbK87lcUGEFjUxQpx8SShovUWaE4a8z7ueb6+gmknD
+	 NPlt8vSsqGncCUfFU0sJanXwSEXDF4kuuKDFCNUgsJVblssmLNEtYVCPgKZYvhvaQF
+	 E10xzk2JFaujiQhB9qemiQ70mRCz6twd561Pw5dPervZAYe73/tha+Z07Ie07NlG/n
+	 XYTcGsdeCSMiqcmGA4xMLtT6e6E0QRnGha7Rvbwp9K2B3v4WIWn3B57UNJOeuf8r7I
+	 Yvn+lZ6wx0gaQ==
+Date: Fri, 2 Oct 2026 14:12:35 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: Matthew Wilcox <willy@infradead.org>
+Cc: Barry Song <baohua@kernel.org>, Hongru Zhang <zhanghongru06@gmail.com>, 
+	akpm@linux-foundation.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+	surenb@google.com, david@kernel.org, liam@infradead.org, mhocko@suse.com, 
+	rppt@kernel.org, shakeel.butt@linux.dev, vbabka@kernel.org, zhaonanzhe@xiaomi.com, 
+	linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org, mark.rutland@arm.com, 
+	linux-arm-kernel@lists.infradead.org, chenhuacai@kernel.org, kernel@xen0n.name, 
+	loongarch@lists.linux.dev, maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com, 
+	chleroy@kernel.org, linuxppc-dev@lists.ozlabs.org, pjw@kernel.org, 
+	palmer@dabbelt.com, aou@eecs.berkeley.edu, alex@ghiti.fr, 
+	linux-riscv@lists.infradead.org, agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
+	hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@linux.ibm.com, 
+	svens@linux.ibm.com, linux-s390@vger.kernel.org, dave.hansen@linux.intel.com, 
+	luto@kernel.org, peterz@infradead.org, tglx@kernel.org, mingo@redhat.com, 
+	bp@alien8.de, x86@kernel.org, hpa@zytor.com, 
+	Hongru Zhang <zhanghongru@xiaomi.com>
+Subject: Re: [PATCH v6] mm: retry page faults once under the per-VMA lock
+Message-ID: <ar-o1TrOMGrrcxLX@gremlin>
+References: <20260911025613.1220845-1-zhanghongru@xiaomi.com>
+ <arFYRAa-i7CIwmHL@gremlin>
+ <arF-E3Nsw9ZliH0t@casper.infradead.org>
+ <arI_w2wTfA00Mgy9@gremlin>
+ <armexcXDiG8ryZd6@casper.infradead.org>
+ <CAGsJ_4xuFi7K+crAcFQ998SxXS0xPM6QeA34JV+6+Sy005rXLg@mail.gmail.com>
+ <ar7MsOb6IJLt4eLo@casper.infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 31/40] mm/vma: introduce vma[_flags]_is_persistent()
-To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
- Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
- Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
- Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>,
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>,
- Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>,
- Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
- Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>,
- Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>,
- "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
- "Martin K. Petersen" <mkp@kernel.org>, Jaya Kumar <jayalk@intworks.biz>,
- Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>,
- Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>,
- Peter Xu <peterx@redhat.com>, Masami Hiramatsu <mhiramat@kernel.org>,
- Oleg Nesterov <oleg@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>,
- Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>,
- Juri Lelli <juri.lelli@redhat.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin
- <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
- Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
- "Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>,
- Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>,
- Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- "David S. Miller" <davem@davemloft.net>,
- Andreas Larsson <andreas@gaisler.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>,
- Matthew Brost <matthew.brost@intel.com>,
- Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
- Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
- Ying Huang <ying.huang@linux.alibaba.com>,
- Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>,
- Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
- Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>,
- Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>,
- Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>,
- Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
- Wei Xu <weixugc@google.com>, Chengming Zhou <chengming.zhou@linux.dev>,
- Michal Hocko <mhocko@kernel.org>, Miklos Szeredi <miklos@szeredi.hu>,
- Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- linux-doc@vger.kernel.org, linux-usb@vger.kernel.org,
- linux-rdma@vger.kernel.org, selinux@vger.kernel.org,
- linux-sound@vger.kernel.org, bpf@vger.kernel.org,
- linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
- kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org,
- linux-s390@vger.kernel.org, sparclinux@vger.kernel.org,
- fuse-devel@lists.linux.dev
-References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
- <20260917-b4-mmap-prepare-vma-flag-sanify-v3-31-4583d8a23bca@kernel.org>
- <9bbdf4e8-6984-4477-a183-f0b236047381@kernel.org>
- <3557015d-23dd-41ef-9832-78b58587f3f4@kernel.org>
- <81e1e5ae-0aab-4584-81e6-3fc9c2634d07@kernel.org> <ar-b_Ug__TBzIZsb@gremlin>
- <2e5a4e6c-8f9c-4050-8998-454b83f4823b@kernel.org> <ar-luB9QVCRshtIw@gremlin>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
- dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
- QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
- XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
- Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
- PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
- WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
- UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
- jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
- B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzS5EYXZpZCBIaWxk
- ZW5icmFuZCAoQ3VycmVudCkgPGRhdmlkQGtlcm5lbC5vcmc+wsGQBBMBCAA6AhsDBQkmWAik
- AgsJBBUKCQgCFgICHgUCF4AWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaYJt/AIZAQAKCRBN
- 3hD3AP+DWriiD/9BLGEKG+N8L2AXhikJg6YmXom9ytRwPqDgpHpVg2xdhopoWdMRXjzOrIKD
- g4LSnFaKneQD0hZhoArEeamG5tyo32xoRsPwkbpIzL0OKSZ8G6mVbFGpjmyDLQCAxteXCLXz
- ZI0VbsuJKelYnKcXWOIndOrNRvE5eoOfTt2XfBnAapxMYY2IsV+qaUXlO63GgfIOg8RBaj7x
- 3NxkI3rV0SHhI4GU9K6jCvGghxeS1QX6L/XI9mfAYaIwGy5B68kF26piAVYv/QZDEVIpo3t7
- /fjSpxKT8plJH6rhhR0epy8dWRHk3qT5tk2P85twasdloWtkMZ7FsCJRKWscm1BLpsDn6EQ4
- jeMHECiY9kGKKi8dQpv3FRyo2QApZ49NNDbwcR0ZndK0XFo15iH708H5Qja/8TuXCwnPWAcJ
- DQoNIDFyaxe26Rx3ZwUkRALa3iPcVjE0//TrQ4KnFf+lMBSrS33xDDBfevW9+Dk6IISmDH1R
- HFq2jpkN+FX/PE8eVhV68B2DsAPZ5rUwyCKUXPTJ/irrCCmAAb5Jpv11S7hUSpqtM/6oVESC
- 3z/7CzrVtRODzLtNgV4r5EI+wAv/3PgJLlMwgJM90Fb3CB2IgbxhjvmB1WNdvXACVydx55V7
- LPPKodSTF29rlnQAf9HLgCphuuSrrPn5VQDaYZl4N/7zc2wcWM7BTQRVy5+RARAA59fefSDR
- 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
- VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
- /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
- iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
- 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
- zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
- azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
- FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
- sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
- 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
- EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
- IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
- 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
- Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
- sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
- yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
- 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
- r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
- 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
- CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
- qIws/H2t
-In-Reply-To: <ar-luB9QVCRshtIw@gremlin>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ar7MsOb6IJLt4eLo@casper.infradead.org>
 
-On 10/2/26 14:48, Lorenzo Stoakes (ARM) wrote:
-> On Fri, Oct 02, 2026 at 02:35:06PM +0200, David Hildenbrand (Arm) wrote:
->> On 10/2/26 14:08, Lorenzo Stoakes (ARM) wrote:
->>>
->>> No, see below.
->>>
->>>
->>> Anything that requires stuff not to be dropped behind the user's back, which is
->>> at least 4 cases!
->>>
->>> That being open-coded all over the place is a problem I think, and I think stuff
->>> like the PMD device private are a reminder that open-coding all over can cause
->>> problems.
->>>
->>>
->>> There are 4 open-coded checks that test four ad-hoc flag combinations checking
->>> for the same thing - 'can the kernel or a driver change things or discard stuff
->>> behind my back?'
->>>
->>> So abstracting that to a helper, alongside the other 'let's ask based on
->>> semantics' helpers, seems sensible.
->>>
->>> Maybe invert the meaning to make it clearer?
->>>
->>> 	vma_kernel_may_change_contents()?
->>>
->>
->> This is all super confusing and I don't think we should try to describe the
->> semantics that way.
->>
->> Just imagine having udmabuf use a PFNMAP of folios obtained from shmem. For sure
->> the kernel could now change the shmem pages that are mapped in some ordinary VMA.
-> 
-> There's always edge cases like this.
-> > In each of these conditionals that this helper replaces, that's exactly what's
-> being checked for.
-> 
-> A driver could GUP anything and access the page raw and do things like that
-> too...
-> 
-> Without this we lose all that and are back to arbitrary flag checks again. It
-> seems unwise.
-> 
->>
->>
->> Likely we don't have to squeeze everything into a single helper that is hard to
->> describe.
-> 
-> I'm not trying to do that :)
-> 
-> There are plenty of edge cases I left alone.
-> 
-> This one explicitly is one that can end up very easily broken in the future.
-> 
-> Already there's been issues as I recall with people forgetting about droppable.
-> 
->>
->> Maybe we can pull parts of it into a separate helper with semantics that are
->> easier to describe?
-> 
-> But then you lose the whole purpose of this, which is to not miss things.
+On Thu, Oct 01, 2026 at 10:12:16PM +0100, Matthew Wilcox wrote:
+> So what I didn't realise is that fork() waits for page faults to finish.
+> I don't think that's necessary, so we can just stop doing that (whitespace
+> damaged):
+>
+> diff --git a/mm/mmap.c b/mm/mmap.c
+> index 4bf26b0f1e6e..e79555247d3a 100644
+> --- a/mm/mmap.c
+> +++ b/mm/mmap.c
+> @@ -1739,9 +1739,6 @@ __latent_entropy int dup_mmap(struct mm_struct *mm, struct mm_struct *oldmm)
+>         for_each_vma(vmi, mpnt) {
+>                 struct file *file;
+>
+> -               retval = vma_start_write_killable(mpnt);
+> -               if (retval < 0)
+> -                       goto loop_out;
+>                 if (vma_test(mpnt, VMA_DONTCOPY_BIT)) {
+>                         retval = vma_iter_clear_gfp(&vmi, mpnt->vm_start,
+>                                                     mpnt->vm_end, GFP_KERNEL);
+>
+> I think this is safe.  I've booted a kernel with this change, and
 
-I think it's perfectly fine to instead have helper like
+I'm afraid it's not safe :)
 
-	vma_is_dumpable()
+We already actually did this (by mistake I think?) before. See commit
+fb49c455323f ("fork: lock VMAs of the parent process when forking") - we shipped
+that in 6.4.0 -> 6.4.2 and it corrupted memory all over the place.
 
-that maybe have a single purpose but are centralized and well documented. If we
-can construct them out of other helpers, great.
+Reports + a consistent reproducer:
 
-> 
->>
->>
->> vma_is_user_memory() && !vma_is_droppable_memory()
-> 
-> I find vma_is_user_memory() _very_ confusing :) I have no idea what that means.
+https://bugzilla.kernel.org/show_bug.cgi?id=217624
+https://lore.kernel.org/all/dbdef34c-3a07-5951-e1ae-e9c6e3cdf51b@kernel.org/
+https://lore.kernel.org/all/b198d649-f4bf-b971-31d0-e8433ec2a34c@applied-asynchrony.com/
 
-If we can find some way to describe "anon+pagecache" ... maybe something around
-folios (future oriented).
+Also we have asserts for this lock in copy_page_range() and
+copy_hugetlb_page_range() which will now fail (and possibly more further down
+the stack?)
 
-> 
-> And vma_is_droppable_memory() is a semi-pointless wrapper for checking the
-> droppable flag no?
+> My argument for why it's safe is that a thread which takes a page
+> fault during fork() might have taken the page fault either before or
+> after fork().  The faults will definitely happen in the parent process.
+> They may or may not have happened in the child process, which can't
+> possibly care whether or not they've happened.
 
-Sure, no strong opinion on that. It's a bit easier on the eye than bit checks.
-(and can have a nicer description maybe).
+The problem isn't the child it's the parent - copy_page_range() _modifies_ the
+_parent_'s page tables in-place, on assumption that nothing else can access
+them (for CoW).
 
+And actually nowadays things are _even_ worse, you could also have concurrent
+page faults, MADV_DONTNEED, MADV_FREE, MADV_GUARD_INSTALL/REMOVE, UFFDIO_COPY +
+UFFDIO_MOVE (yikes) all of which might introduce new issues + would have to be
+audited too.
 
-> 
->>
->> Although I am not sure user_memory is exactly precise (pagecache+anon) and what
->> we want? It's all super confusing (thanks for deciphering it).
-> 
-> That name isn't great, as userland memory is defined as that which can be mapped
-> in the userland portion of the virtual memory address map, and all VMAs describe
-> that :)
-> 
-> And then you can go on from there as to pedantic issues, the very same shmem
-> stuff you mention above can be put forward as an argument, etc. etc.
->>
->>
->>> vma_contents_may_change() is shorter but easily confused with something being
->>> writable by userland etc.
->>>
->>> Or maybe:
->>>
->>> 	vma_is_volatile()
->>>
->>> ?
->>>
->>> Which is analogous to the meaning of the volatile keyword.
->> This is all confusing because persistent and volatile are established concept
->> when talking about memory. And see my example above, it's not even clear what it
->> means that "the kernel can modify something".
-> 
-> Yep I guess volatile vs. non-volatile.
-> 
-> But a VMA describes a mapping not backing and 'volatile' in C is pretty clear -
-> something can be touched by something else so don't make assumptions.
-> 
-> I mean if people are confused they can look at the comment. We argue about
-> details meanwhile the code is full of terrible naming that's duplicated 100
-> times :)
-> 
-> And you can come up with edge cases to a lot of things. That doesn't invalidate
-> the intent.
-> 
-> Right now the code is duplicative and I found multiple instances of e.g. drivers
-> doing completely the wrong thing.
-> 
-> In any case, you seem to feel very strongly about this - so maybe best I drop
-> this patch from the series to be revisited later?
+So - it turns out a lot of stuff implicitly assumes VMA write lock now:
 
-I'd be very happy if we could find a clear way to describe "this is what we call
-user memory: anon+pagecache", if that could come handy in such a context.
+1. CoW - deferred TLB flush race
 
-In the end, it's mostly all about: this is nothing special (lol), it's just
-ordinary user memory (anon+pagecache), and in some cases we want to also ignore
-weird droppable mappings, because why e.g., dump them if the context is just
-irrelevant.
+(The issue above)
 
--- 
-Cheers,
+https://lore.kernel.org/all/20230705171213.2843068-2-surenb@google.com/
 
-David
+This happens because __copy_present_ptes() does wrprotect_ptes() on the parent
+without a TLB flush (that's deferred until the end of the fork).
+
+But unfortunately without a VMA write lock something can then replace the page
+table entry in the meantime and you can end up with data loss as a result.
+
+Same issue exists with hugetlb wp too. And god only knows with uffd wp :)
+
+2. THP - can destroy parent THP mappings
+
+copy_pmd_range() does:
+
+	if (pmd_is_huge(*src_pmd)) { copy_huge_pmd(); ... }
+	if (pmd_none_or_clear_bad(src_pmd))
+		continue;
+
+Without the write lock, a concurrent fault can install a huge PMD via
+do_huge_pmd_anonymous_page() or filemap_map_pmd()/do_set_pmd().
+
+The issue is that pmd_bad() fires for leaf PMD (ugh) on at least x86 and arm64,
+meaning that'll clear the page table entry.
+
+I think Hugh left a comment alluding to this before:
+
+	 * copy_pmd_range()'s prior pmd_none_or_clear_bad(src_pmd), and the
+	 * error handling here, assume that exclusive mmap_lock on dst and src
+	 * protects anon from unexpected THP transitions; ...
+
+It's like the mess around pmd_trans_unstable() :(
+
+3. copy_pte_range() skips the required pmd_same() recheck assuming write lock
+
+It uses pte_offset_map_rw_nolock() with a dummy pmdval and:
+
+	 * We already hold the exclusive mmap_lock, the copy_pte_range() and
+	 * retract_page_tables() are using vma->anon_vma to be exclusive, so
+	 * the PTE page is stable, and there is no need to get pmdval and do
+	 * pmd_same() check.
+
+(Probably needs updating for VMA write lock...)
+
+4. The asserts
+
+Mentioned above!
+
+I suspect there's more as well.
+
+Some of it could be changed, but it'd all be at the cost of behaving very
+strangely (no VMA lock but mmap write lock) while manipulating things.
+
+And I am not really happy with changing page table entries in the parent VMA
+(for CoW) without a VMA write lock held.
+
+I also wonder whether it would achieve all that much really - the issue is with
+holding the VMA lock across I/O, anything else that tries to grab a write lock
+is going to end up being the new thing that's blocked (mprotect, munmap, mremap,
+mlock etc.)
+
+I think doing something like this would need a very significant redesign and I'm
+not convinced it's one that really achieves what we want given all the other
+cases that'd get blocked by the VMA lock being held still.
+
+--
+Cheers, Lorenzo
