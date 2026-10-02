@@ -1,176 +1,146 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8ED5470456
-	for <linux-s390@vger.kernel.org>; Fri,  2 Oct 2026 09:13:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D9253B47D0
+	for <linux-s390@vger.kernel.org>; Fri,  2 Oct 2026 09:13:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790932408; cv=none; b=q1CaO+7da5Q1djNk1TKi4EIAli9uNfrU4i57pDBd4wrkT/7/sB478XQhRNR6JHc7psmRaq2JW17gdduKO5OmW6xaLG4jOZJT1JDiPXlHt87QPO6PvskWgLP+T/gATYtJmptywrUOZ8/n4SebdEa+LjXx/pslwuOEVvkDa41H0eM=
+	t=1790932408; cv=none; b=Oxys/HCc/aEBHYDMKs7j5RNTQQj28NbW/vCGyK1ucDsxLWcpfq53rK3u03RamCm1kTfE/mSHedW9xrAivbMTKwjaehqXa3ThFqM7tqKmxLoJNpa0Pf2vCb1aZH19xW0AW0oZ6ZYumie45QFW7iEIXrWAHqOTGUOvC4MTdo5HECU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1790932408; c=relaxed/simple;
-	bh=+X6sAmQu1bl0Ep0ZABXLfSYC49PWf6Dzw01zBb4YlvM=;
+	bh=XkqUVhs+UtWsWV3d6i5GRbncWoPMrSFWXXaJ6+fYfVA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=IUhClDFOuqlMx+Nf5z63XpL0SL9One6tI7IhrerD5a+0NuQGwnatWY3tjPEVc4E/y5qzt/acnmXUGTH1tIlxfSGnHnpvh4jbyOBhI8XrTuwm1NvvYnZVC/TjYeTi6SthUodBiVUFcY+eytH7iCFMQXfI1KKInH1OPjwHemkwwvU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jL5YeN84; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=AsxEkrFqANstXbMXp+wk+SqQnGa6Xr8xWeTYZOmJH8+LPCL0UmESkeyiu1uxv8jNJ8aaT+CJQthsgmaWsQgq1AAv2UZMp2o0Ce4XrmfNB3sFpWWc1lqDsHuSPn3jq0/8gUT98q8ZpF6N1BIkmi1VQSsEuZKL72jDxvGbcrzRrmc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q2QRkaPz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jL5YeN84"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56FC01F00893;
-	Fri,  2 Oct 2026 09:13:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q2QRkaPz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A2141F000FF;
+	Fri,  2 Oct 2026 09:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790932406;
-	bh=qq0NcbWfKcZUYUUfB0Bpm850ajH6mgS/4izOX/fuZ20=;
+	s=k20260515; t=1790932407;
+	bh=0m2OzXlXcb11jcoPfEqN1jT1RNmghEbUbOKrXLKjmiA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jL5YeN84r/58YF6K8C2gPgH+9lHpK36rRQLdClN7wp0Aowabt60ElB1hK2DJCbkts
-	 zgci8ij74YQqxnhWveuTZvIFPSyUgfThrx1lzZDAn8MPYaFRDdc8+2LncOsw3sazHZ
-	 78akEO83Y6vPSxRWYl15FgXwCitOZShyNC3mHEskeTeqv0uU/yCzu+DJJ/+xIiffy5
-	 dm/sawpo6sdRYISRBgKuH0hHRO1Mdi5mYVdx6861DnjAL0n9LOruuFGWuJIRY0hB97
-	 0aAh0CNLYssUoqUXUiXVrI4/0jN3394I7iEx5K0F/xbs3QWE6bOXWhSNTfHBEttZKN
-	 iG9fiDVeFyZ/Q==
+	b=Q2QRkaPzQ+r8fJwCiImfdsBlU8p6V1BFNoeuh7QDWcQC9XE9axmMyP8TCKPReUwAp
+	 ZKgRp8NFg6hucnsmfrr4sCMyJ5jpF2scfVuX/W70Bp+zTsNrvsfHZ+8Uokj2zs3/gN
+	 mQqMUESunlfxGtcLMhA4612kMsRg26MI1kg9dth1MbzDZSRH3I+IYVvmcnfd7lmJMK
+	 73kf5YZBoQIvsmK7J1Up3K/bsZe5NH4N/i+jGndnRaxkj+p9btw4FUL0QfshXxc/4s
+	 1mhtycMsf35+YLy1PSQahK9nRsF26+gev0EJX7rRb3lLlZODv43EXoTF8/K2pPVD9W
+	 fRfIvM84Hl7Mg==
 From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v3 07/13] s390/topology: Initialize sbm topology
- during topology_init_early()
+Subject: Re: [RFC PATCH v3 09/13] x86/cpu/topology: Initialize sbm topology
+ after topology parsing
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "K Prateek Nayak" <kprateek.nayak@amd.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20261001192849.74788-8-kprateek.nayak@amd.com>
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20261001192849.74788-10-kprateek.nayak@amd.com>
 References: <20261001192849.74788-1-kprateek.nayak@amd.com>
- <20261001192849.74788-8-kprateek.nayak@amd.com>
+ <20261001192849.74788-10-kprateek.nayak@amd.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 02 Oct 2026 09:13:25 +0000
-Message-Id: <20261002091326.56FC01F00893@smtp.kernel.org>
+Date: Fri, 02 Oct 2026 09:13:26 +0000
+Message-Id: <20261002091327.2A2141F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] s390/topology: OOB write in SBM due to underestimating max_threads=
-_per_instance
-- [High] s390/topology: arch_sbm_cpu_instance_id() fails to map secondary C=
-PUs
-- [Low] s390/topology: __configure_sbm_topology() counts dummy head node
+- [High] x86/topology: UB and incorrect topology IDs due to out-of-bounds s=
+ubtract in dom_shifts
 --
 
-commit 7e4b5901a7b8d62cc7a0551c478b49d8ad5ae92b
-Author: K Prateek Nayak <kprateek.nayak@amd.com>
+commit c4055a2c9b6199a420263b5bc2ed2a987d466f5a
+Author: Peter Zijlstra <peterz@infradead.org>
 
-s390/topology: Initialize sbm topology during topology_init_early()
+x86/cpu/topology: Initialize sbm topology after topology parsing
 
-This commit configures sparsebitmask (sbm) properties for the system using
-socket_info when the topology mode is TOPOLOGY_MODE_HW. It also adds
-arch_sbm_cpu_instance_id() to map CPUs to socket instance IDs during
-CPU hotplug events.
+This commit initializes the sparsebitmap (sbm) topology on x86 after parsing
+the CPU topology. It uses the maximum APICID and topology domain shifts to
+determine the maximum number of threads per LLC instance and the maximum
+number of instances.
 
-> diff --git a/arch/s390/kernel/topology.c b/arch/s390/kernel/topology.c
-> index 1377c6f3f6709..80dc51f5ce6f5 100644
-> --- a/arch/s390/kernel/topology.c
-> +++ b/arch/s390/kernel/topology.c
+> diff --git a/arch/x86/kernel/cpu/topology.c b/arch/x86/kernel/cpu/topolog=
+y.c
+> index 4913b64ec592d..150e098f0ef8f 100644
+> --- a/arch/x86/kernel/cpu/topology.c
+> +++ b/arch/x86/kernel/cpu/topology.c
 
 [ ... ]
 
-> @@ -561,6 +562,55 @@ static int __init detect_polarization(union topology=
-_entry *tle)
->  	return tl_core->pp !=3D POLARIZATION_HRZ;
+> @@ -449,13 +450,45 @@ static __init bool restrict_to_up(void)
+>  	return apic_is_disabled;
 >  }
 > =20
 > +int arch_sbm_cpu_instance_id(int cpu)
 > +{
-> +	struct mask_info *info =3D &socket_info;
-> +
-> +	/*
-> +	 * sbm core should not call this if sbm_set_topology() was
-> +	 * skipped below due to lack of topology information.
-> +	 */
-> +	if (WARN_ON_ONCE(topology_mode !=3D TOPOLOGY_MODE_HW))
-> +		return -1;
-> +
-> +	while (info) {
-> +		if (cpumask_test_cpu(cpu, &info->mask))
-> +			return info->id;
+> +	u32 sbm_shift =3D x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN] - 1;
 
 [Severity: High]
-Can this fail to map newly hotplugged CPUs?
+Does this code compute the wrong shift value by subtracting 1 from the
+shift amount instead of the domain index?
 
-Since hardware topology masks on s390 are updated asynchronously via a
-workqueue, the mask might not be populated before the CPU online callback
-executes during CPU hotplug.
+If x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN] happens to be 0 (such as on
+CPUs without SMT or cores), this evaluates to 0xFFFFFFFF since sbm_shift is
+an unsigned 32-bit integer. This would lead to undefined behavior when
+evaluating apicid >> sbm_shift later in the function.
 
-> +		info =3D info->next;
-> +	}
+Even if the shift value is non-zero, this subtracts 1 from the bit shift=20
+value itself, which calculates the wrong shift, inappropriately halving the=
+=20
+max threads per instance and generating incorrect SBM instance IDs.
+
+Should this instead be x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN - 1]?
+
+Please note that this bug appears to remain unfixed at the end of the patch
+series in commit 0b0c43c6e4d9b31b812d8407b146c5dc13783dc8.
+
+> +	u32 apicid =3D cpuid_to_apicid[cpu];
 > +
-> +	pr_warn_once("socket mapping for CPU%d not found! Mapping to ID 0", cpu=
-);
-> +	return 0;
+> +	if (boot_cpu_data.x86_vendor =3D=3D X86_VENDOR_AMD ||
+> +	    boot_cpu_data.x86_vendor =3D=3D X86_VENDOR_HYGON)
+> +		sbm_shift =3D x86_topo_system.dom_shifts[TOPO_TILE_DOMAIN] - 1;
 
 [Severity: High]
-If the mask check above fails due to the asynchronous update race, does
-falling back to instance 0 break SBM topology isolation by grouping all
-secondary CPUs into a single instance?
+Is the subtract from the value rather than the index also an issue here
+for AMD and Hygon systems?
 
+> +
+> +	return (apicid >> sbm_shift);
 > +}
 > +
-> +static void __configure_sbm_topology(void)
+> +static __init void init_sbm_topology(u32 max_apicid)
 > +{
-> +	int num_sbm_instances =3D 0, max_threads_per_instance =3D -1;
-> +	struct mask_info *info =3D &socket_info;
-
-[Severity: Low]
-Should this traversal start at info->next instead of the dummy head node?
-
-socket_info serves as a static dummy head, and alloc_masks() attaches newly
-allocated instances starting at socket_info.next.
-
-> +
-> +	/*
-> +	 * Consider single package if topology
-> +	 * information is unavailable.
-> +	 *
-> +	 * sbm core will handle the initialization.
-> +	 */
-> +	if (topology_mode !=3D TOPOLOGY_MODE_HW)
-> +		return;
-> +
-> +	while (info) {
-> +		num_sbm_instances +=3D 1;
-
-[Severity: Low]
-Counting the dummy head node as a valid instance appears to pass an inflated
-count to sbm_set_topology(), which would overallocate the SBM instance
-metadata arrays by exactly one element.
-
-> +		max_threads_per_instance =3D max_t(int,
-> +						 cpumask_weight(&info->mask),
-> +						 max_threads_per_instance);
+> +	u32 sbm_shift =3D x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN] - 1;
 
 [Severity: High]
-Does calculating the max threads per instance here underestimate the
-capacity?
+Could this also lead to undefined behavior or incorrect shift calculations
+during early boot initialization, for the same reasons as above?
 
-Because this is called during topology_init_early() when only the boot CPU
-is marked as present, info->mask will only contain the boot CPU's threads.
-This results in a drastically undersized max_threads_per_instance.
-
-When secondary CPUs come online later, alloc_sbm_index() assigns them
-local indices. Will returning an index that exceeds this undersized limit
-trigger an out-of-bounds write in the SBM core when accessing its internal
-arrays?
-
-> +		info =3D info->next;
-> +	}
+> +	int num_sbm_instances, max_threads_per_instance;
 > +
-> +	if (WARN_ON_ONCE(!num_sbm_instances || max_threads_per_instance < 1))
-> +		return;
+> +	/*
+> +	 * On Intel systems, memory controllers are present at TOPO_DIE_DOMAIN.
+> +	 * On newer AMD and Hygon systems, LLC is at TOPO_TILE_DOMAIN so use
+> +	 * that instead.
+> +	 */
+> +	if (boot_cpu_data.x86_vendor =3D=3D X86_VENDOR_AMD ||
+> +	    boot_cpu_data.x86_vendor =3D=3D X86_VENDOR_HYGON)
+> +		sbm_shift =3D x86_topo_system.dom_shifts[TOPO_TILE_DOMAIN] - 1;
+
+[Severity: High]
+Does this code also have the same issue with subtracting 1 from the array
+value instead of the array index during boot initialization?
+
+> +
+> +	num_sbm_instances =3D 1 + (max_apicid >> sbm_shift);
+> +	max_threads_per_instance =3D (1 << sbm_shift);
 > +
 > +	sbm_set_topology(num_sbm_instances, max_threads_per_instance);
 > +}
 
-[ ... ]
-
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261001192849.7478=
-8-1-kprateek.nayak@amd.com?part=3D7
+8-1-kprateek.nayak@amd.com?part=3D9
