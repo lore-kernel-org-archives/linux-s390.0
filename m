@@ -1,225 +1,119 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C900B3B47D0
-	for <linux-s390@vger.kernel.org>; Fri,  2 Oct 2026 09:13:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 963643B47D0
+	for <linux-s390@vger.kernel.org>; Fri,  2 Oct 2026 09:13:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790932402; cv=none; b=mzsyyCFsS0ISUOY5LOusqQXbGcokw7JrC72kz8eB5tHGB3ftXVbDe4rMQ/2LsTKE2UdwdaV/9bADV5qN0ZfVFVpLOm6ubcUcxkcV0Zu1BUx488kv5SfeXRsHhPCGUd/muFfrH6EwypW+FFXDNB8ohWla6FjyohZ3+drDUj5XyxU=
+	t=1790932403; cv=none; b=HtDY62LiDzp7OxAH/kfGGp/gyovTeRqJVeLzufH6LNK6hrTMejwXXyF2bqnaaOT9uzP1+t/v1GLEyTVtscSxyL7yzlWO1OjOtfOU80znBRYVVFdw9/WzIQ7DmjWqnm6dOup3bTSQ+OFoiWKakp6peSOi/2/UVY/7PS3gTVRy4og=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790932402; c=relaxed/simple;
-	bh=+vblMWLV0Ea3ECK1+KnsTe8kRYv5RWaUdCf2TXpfAzA=;
+	s=arc-20240116; t=1790932403; c=relaxed/simple;
+	bh=zk7vTapUp1PTrWkhFzbxhpzzTW40eYo+lfTnVPLZ5aA=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=s2omZhNOWXucpwNh12e7gfkJeiywU2cy7sE5rUHG2oGbqefJQdkFxM31dHfXN3JVl64s8A8fAtDT32LxiBKtp3bbV6UE15KDz31UXFNrpuCLVIBRK065z1GZt9k9mcgdb4PdFIUEN/UhTNxmW1n6XGB3UrZnh7g9vue1SoCzXBE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XqwbL/ou; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=ELkyLp4PHvy19NB8HRFoCfWbhofAv7q/2MNz2oY9AZkjuywYPuB9fRcplEJioWmLxz+ciUfiLmqL8jz2d07xkKRem6dOvYa0bXg6OWpRBDXRfM9QOlYkR85VSv/WC+jypQRVhjl9qK1z03F9Zk623y02g/FsOVEMT6UzrqjE5A0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=niROj0MJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XqwbL/ou"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C3B91F000FF;
-	Fri,  2 Oct 2026 09:13:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="niROj0MJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AA701F00893;
+	Fri,  2 Oct 2026 09:13:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790932400;
-	bh=WaHDBfY/K2oC+BvUPn35Kdfr+2AgL0k7Anb3yPSL6/s=;
+	s=k20260515; t=1790932402;
+	bh=O2IDWNcxWRyPba7YEjjDqsYcSCEHt9DsQaSIpxqco1g=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XqwbL/oupVNTvSEp/v+5VR+dhlAw252FEq1ab1y5zy8SzaKbxnK2tw1z8TWqcivDG
-	 YXXWEnq0WXf6uAXbUozDKzlvJYP9RfOoY/Z5u3aIXOizoPXJrvJp4C/SEAWH5/2VPJ
-	 97BTlRSUL4mqNObxGqvyqa6QSWAGB96SZ6ME1OZPRkvplpffWWD6KyuuBsF4Erwd2j
-	 2YX+hbscTnrwl73uMv3/rEAsYZbrr6siRbTGEcCNpOnVKlMlprw7pYTYeNPMdjJyEj
-	 B1NXPkPL/hvC8X3c658ft1JbPw9zRaDWZWEJW5Px7R5rLKnPG4oT2orZQKtoC1uGnM
-	 p9AeKtZnp9zcA==
+	b=niROj0MJzKhlE0dIWDthmzcgH2S955aLGbXO4Ed2w0d4iaflMtI7zo1a2Uq56gCq8
+	 pHXXYi/jJNx3AaVEI5Sb8hSxNIioCuPEURDU7ugGAuw0206oqlWtX5v1uUG6LOC2XR
+	 lV5HNZdFD0JE4oqyhxBwJ1NRD32fxUdYRU0E2gvVUaoQu9RzNJSENqLYC18MPBbjj1
+	 509iS3+TymYJr2IvxbuEHRjIPdFWGGRAYyutxgCMJsfT12a9JDAbYzjCrDYsz0McwL
+	 1MBADLWT105xXp+RHNi/yAHFe0fKvBLhbHgwjZYU+GnntqEym62+8W7BHGC6eeHBL9
+	 M0vbqzoxVcANg==
 From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v3 02/13] drivers/base/arch_topology: Add support
- for initializing sbm topology
+Subject: Re: [RFC PATCH v3 05/13] MIPS: Initialize sbm topology on
+ multi-node systems
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "K Prateek Nayak" <kprateek.nayak@amd.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20261001192849.74788-3-kprateek.nayak@amd.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20261001192849.74788-6-kprateek.nayak@amd.com>
 References: <20261001192849.74788-1-kprateek.nayak@amd.com>
- <20261001192849.74788-3-kprateek.nayak@amd.com>
+ <20261001192849.74788-6-kprateek.nayak@amd.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 02 Oct 2026 09:13:19 +0000
-Message-Id: <20261002091320.5C3B91F000FF@smtp.kernel.org>
+Date: Fri, 02 Oct 2026 09:13:21 +0000
+Message-Id: <20261002091322.2AA701F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] topology: 64-bit fw_token truncated to 32-bit int causing ID colli=
-sions
-- [High] topology: hardcoded 'cpu =3D=3D 0' fails initialization when CPU 0=
- is not possible
-- [Medium] topology: memory leak of 'count' on xa_store() failure
-- [Medium] topology: topology uniformity check silently ignores the first C=
-PU
-- [Medium] topology: mismatched cache type filtering causes inconsistent SB=
-M domains
+- [Low] mips: modpost section mismatch from cpu_node_probe() calling __init=
+ function
 --
 
-commit 3748179aae956b072baf4016333e144175bba72f
+commit a182a04b59c7d5076dc4fa89322bc392b7a56f93
 Author: K Prateek Nayak <kprateek.nayak@amd.com>
-Subject: drivers/base/arch_topology: Add support for initializing sbm topol=
-ogy
 
-This commit introduces support for initializing sparsebitmap (sbm) topology
-for architectures supporting GENERIC_ARCH_TOPOLOGY. It counts the number of
-unique LLCs or packages and the maximum threads per instance to set the sbm
-processor configuration.
+MIPS: Initialize sbm topology on multi-node systems
 
-> diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
-> index 8c5e47c28d9a3..f55745a932986 100644
-> --- a/drivers/base/arch_topology.c
-> +++ b/drivers/base/arch_topology.c
+For MIPS systems that support NUMA, configure the sparsebitmap (sbm)
+topology.
 
-[ ... ]
-
-> @@ -930,6 +931,114 @@ __weak int __init parse_acpi_topology(void)
->  int arch_sbm_cpu_instance_id(int cpu)
->  {
->  	if (last_level_cache_is_valid(cpu)) {
->  		struct cacheinfo *llc_info =3D get_cpu_cacheinfo_llc(cpu);
+> diff --git a/arch/mips/kernel/topology.c b/arch/mips/kernel/topology.c
+> index 9429d85a4703c..bb6d14bfe5ebb 100644
+> --- a/arch/mips/kernel/topology.c
+> +++ b/arch/mips/kernel/topology.c
+> [ ... ]
+> @@ -5,9 +5,52 @@
+>  #include <linux/node.h>
+>  #include <linux/nodemask.h>
+>  #include <linux/percpu.h>
+> +#include <linux/sbm.h>
 > =20
->  		if (!llc_info)
->  			goto out;
+>  static DEFINE_PER_CPU(struct cpu, cpu_devices);
 > =20
->  		if (llc_info->attributes & CACHE_ID)
->  			return llc_info->id;
-> =20
->  		/*
->  		 * XXX: fw_token be truncated from cast
->  		 * when the value is returned as an int.
->  		 */
->  		return (int)((long)llc_info->fw_token);
-
-[Severity: High]
-Does this explicit truncation risk SBM topology corruption?
-
-On 64-bit architectures using ACPI PPTT for cache topology, fw_token contai=
-ns
-a 64-bit pointer. By casting it down to a 32-bit int, the upper 32 bits are
-dropped. If two different cache structures collide in their lower 32 bits,
-CPUs that do not share an LLC might be incorrectly grouped into the same
-instance ID.
-
+> +#ifdef CONFIG_NUMA
+> +/* sbm setup data - only needed during init */
+> +static struct cpumask cpu_sbm_setup_map __initdata;
+> +static int __node_thread_count[NR_CPUS] __initdata;
+> +
+> +int arch_sbm_cpu_instance_id(int cpu)
+> +{
+> +	return cpu_to_node(cpu);
+> +}
+> +
+> +void __init configure_sbm_topology(void)
+> +{
+> [ ... ]
+> diff --git a/arch/mips/sgi-ip27/ip27-smp.c b/arch/mips/sgi-ip27/ip27-smp.c
+> index 62733e049570a..244f8d987f13b 100644
+> --- a/arch/mips/sgi-ip27/ip27-smp.c
+> +++ b/arch/mips/sgi-ip27/ip27-smp.c
+> [ ... ]
+> @@ -80,6 +81,8 @@ void cpu_node_probe(void)
+>  		highest =3D node_scan_cpus(nasid, highest);
 >  	}
->  out:
->  	return cpu_topology[cpu].package_id;
->  }
-
-[ ... ]
-
->  static void __init init_sbm_topology(void)
->  {
->  	int num_sbm_instances =3D 0, max_threads_per_instance =3D -1;
->  	bool has_cache =3D false, has_package =3D false;
->  	cpumask_var_t unique_cpus;
->  	struct xarray instances;
->  	unsigned long cpu, *count;
-
-[ ... ]
-
->  	for_each_possible_cpu(cpu) {
->  		bool found =3D false;
->  		int unique_cpu;
 > =20
->  		for_each_cpu(unique_cpu, unique_cpus) {
+> +	configure_sbm_topology();
 
-[Severity: Medium]
-Will this silently ignore the first CPU for the topology uniformity check?
+[Severity: Low]
+Does this cause a modpost section mismatch warning?
 
-When the first CPU is processed, unique_cpus is empty, so this inner
-for_each_cpu loop is completely skipped. Since has_cache and has_package
-are only updated inside this loop, the cache state for the first CPU is
-never recorded.
+Since configure_sbm_topology() is marked __init in
+arch/mips/kernel/topology.c, calling it from cpu_node_probe() creates a
+cross-section reference because cpu_node_probe() is not marked __init.
 
-If a subsequent CPU has a conflicting topology, won't the has_cache &&
-has_package check fail to detect the mismatch?
+While cpu_node_probe() might only be called during initialization,
+shouldn't it also be marked __init to prevent the .text section from
+referencing the freed .init.text section?
 
->  			/*
->  			 * XXX: Assumes last_level_cache_is_valid() is uniformly true
->  			 * across the entire system if it is true for one CPU.
->  			 */
->  			if (last_level_cache_is_valid(cpu)) {
-
-[Severity: Medium]
-Are we using mismatched cache type filtering rules?
-
-Here in init_sbm_topology(), last_level_cache_is_valid() is used, which does
-not filter out instruction caches. However, arch_sbm_cpu_instance_id() uses
-get_cpu_cacheinfo_llc(), which strictly filters out instruction caches and
-falls back to package_id.
-
-If the LLC is an instruction cache, won't the domain counting diverge from =
-ID
-assignment, leading to inconsistent SBM domains?
-
->  				has_cache =3D true;
->  				if (last_level_cache_is_shared(cpu, unique_cpu)) {
->  					found =3D true;
->  					break;
->  				}
-
-[ ... ]
-
->  		if (!found) {
->  			count =3D kzalloc_obj(*count);
->  			if (!count)
->  				goto out;
-> =20
->  			cpumask_set_cpu(cpu, unique_cpus);
->  			*count +=3D 1;
-> =20
->  			xa_store(&instances, cpu, count, GFP_KERNEL);
->  			continue;
-
-[Severity: Medium]
-Does this code leak the newly allocated count object if xa_store() fails?
-
-The return value of xa_store() can be an error pointer if internal memory
-allocation fails. If xa_store() fails here, count is not added to the xarra=
-y,
-but we continue the loop without freeing it, resulting in a memory leak.
-
->  		}
-
-[ ... ]
-
->  void __init init_cpu_topology(void)
->  {
->  	int cpu, ret;
-
-[ ... ]
-
->  	/*
->  	 * If fetch_cache_info() fails for first CPU,
->  	 * init_cpu_sbm_topology() will use pacakge_id instead.
->  	 *
->  	 * Uniform cache topology is a necessary since implementation
->  	 * assumes last_level_cache_is_valid() gives same result for
->  	 * all possible CPUs
->  	 */
->  	if (!ret || (cpu =3D=3D 0 && ret =3D=3D -ENOENT))
->  		init_sbm_topology();
-
-[Severity: High]
-Can this hardcoded check for cpu =3D=3D 0 silently bypass SBM initializatio=
-n if
-CPU 0 is offline or not possible?
-
-If fetch_cache_info() fails with -ENOENT for the first possible CPU, the
-loop preceding this block breaks and leaves that CPU in the cpu variable.
-If the first possible CPU is greater than 0, cpu =3D=3D 0 evaluates to fals=
-e,
-and init_sbm_topology() will never be called.
-
-Should this dynamically resolve the first valid CPU via
-cpumask_first(cpu_possible_mask) instead?
-
+> +
+>  	printk("Discovered %d cpus on %d nodes\n", highest + 1, num_online_node=
+s());
 >  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261001192849.7478=
-8-1-kprateek.nayak@amd.com?part=3D2
+8-1-kprateek.nayak@amd.com?part=3D5
