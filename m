@@ -1,254 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02D663AAF54;
-	Fri,  2 Oct 2026 14:56:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 832B72F39C2;
+	Fri,  2 Oct 2026 15:21:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790952995; cv=none; b=qfewKNWBllHv4Z5W3o+gaPBimGHrU349i4loD0QnHpuiVuIv/KRyrcVfYvktbgO2TbIhenvq0rP0SbeH0W8tBlr4d3PuzaBoaV5FlY/mdlUH6XFAsFClEXvKnBfkGbNxMCBSPe0L2T6sdLyJn0khb+x5G0SlQKgzLQ8TuiyWBCQ=
+	t=1790954466; cv=none; b=QR5ne7YMOX8EnkKlnQvE1M4etFxJS7XV1LEgMlOOgQ1CCRt6/5CzYTmHQPj4d1vR3n5CTrzrjopZXFyYuecGgxmMttQmqDX5vMawXSDdrvC9lwph9DUUIsSTv1QwB7XsyuyDNlYmkKf3SwjhxJtdp9BsG2M3J093t7uDnZU1k4A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790952995; c=relaxed/simple;
-	bh=vNF3N3IxUFgjfHwaXFhoUUdmxvTVJaq2s8vGsZwJrtA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tDRRoMZwwKDWQFbkBmzzMF7TsPkbSNJfobuF/S+vlifaw7wbrlV3WadnqzQAOyb51aIXuu/XCcsIroOluRnldBWMDT4bS3ZuQk2lL7RCspcvlfDZ1WaqEpYH9NlMKucJZof1YEOVwmtGfHlMak2n4FEl3J8z1e17T68P9P2dMWQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fdVzgh8v; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790954466; c=relaxed/simple;
+	bh=3fw+8DcujUAciexXxNVHY//R+Pw068CPn4JUUzFHsC4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aW7NCbiwtQC8+4iB4/Nw8r98YhbmI1q7yaXBRJh6P5XkxHlN2AHYkJjq7P/NGWrYI03TlIoDVCXVK8JksHbNUBIIyEz1AuVz1nO8XwYaZXPt02AnoOh3dvtbDzUCUlv3vLXfx+oDNC2XKqJKiTB1vq3AOiarTOP1DHFfaW0pKY8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=C/S/U0Qb; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fdVzgh8v"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C88791F00893;
-	Fri,  2 Oct 2026 14:56:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790952993;
-	bh=jQuiTsuvfiP4TjKhygdb17Hd1K9/CkYZDyLUI1EBmwE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=fdVzgh8vzUmdaKUlZe0VUNAIbLSN/FNhbQHH4wzlHFvv+hwCHSicNk7KjrZHYj3Yu
-	 iQlLhsYS9ojqwSku1HQOXWnmdKoCu8CHMkE9A7LZ/DH6hiJQldb++n4ez57oVgBl0V
-	 So8/jwrVJl3CEjbngowiXAkkkl3yvYCSfnXRCFedPo61Fs2XbO15rdcGoISGxqRB8K
-	 jXU4TLmv22BTp6yPLlF2Jpru5HvWTRYFQZfFHeldR1afhWGGXDAezdVopQG8Ave8bR
-	 CZFLT49VpC5WBX0wYA8iUka0IczATo+lcmXmrk2MeXbxiJX2meYd90/doZTa6tYh/0
-	 hugq9t44NIjiw==
-Date: Fri, 2 Oct 2026 15:56:04 +0100
-From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, 
-	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
-	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
-	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
-	Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
-	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
-	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
-	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
-	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
-	Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen" <mkp@kernel.org>, 
-	Jaya Kumar <jayalk@intworks.biz>, Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, 
-	Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
-	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
-	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
-	Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, Juri Lelli <juri.lelli@redhat.com>, 
-	Vincent Guittot <vincent.guittot@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
-	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
-	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>, 
-	Oliver Upton <oupton@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
-	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
-	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
-	Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
-	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
-	Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
-	Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
-	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
-	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
-	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
-	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
-	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
-	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev
-Subject: Re: [PATCH v3 15/40] mm/vma: add vma[_flags]_is_kernel_owned()
- predicates
-Message-ID: <ar_CYfkR5Pfb7J9b@gremlin>
-References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-0-4583d8a23bca@kernel.org>
- <20260917-b4-mmap-prepare-vma-flag-sanify-v3-15-4583d8a23bca@kernel.org>
- <0623ee06-00e5-421e-a24a-ed605abb559b@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="C/S/U0Qb"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 692DZgcj673266;
+	Fri, 2 Oct 2026 15:21:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=amrBudHCFLdV52P3zqeMXDn18uY182Ky/p0iE+8cc
+	1U=; b=C/S/U0QbWgD+2B1KYtBeCtX/a2ffNIxohkJZjkOtAG181iKbqgQ0fIYeg
+	6OBKz1KciMh8SSLeBvLAjoe/ivVi/j8pyzvvLyT/LKVfVCZfepW7rhyc5Fm+DNjk
+	m80cqID98wO4UJoK+VJj98zbKQJAT9eKBufWoLagiUQLolCHokOxgaalEH9v2wGa
+	z3UgRv3KRqrILMIibqWBvPxViLBVyRDw67EhwUoukgvlAyKh9dEuJ50H37xkm9oZ
+	yVjBvUGgKj+1u4bRBawK7zBcJLpP23uMTxaWSU0Jq6jjj6rsRhDvi5Gcphrm7Lhu
+	iFfVK3fjUBFKzdFw1c6HKubmwPidw==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4gx5j5t3r1-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Fri, 02 Oct 2026 15:21:01 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 692DWVd52562920;
+	Fri, 2 Oct 2026 15:21:00 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h0xcska9w-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 02 Oct 2026 15:21:00 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 692FKua737749132
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 2 Oct 2026 15:20:56 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 33FD620043;
+	Fri,  2 Oct 2026 15:20:56 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0D26F20040;
+	Fri,  2 Oct 2026 15:20:56 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  2 Oct 2026 15:20:56 +0000 (GMT)
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH 0/2] s390: Improve handling for stack register corruption
+Date: Fri,  2 Oct 2026 17:20:53 +0200
+Message-ID: <20261002152055.3305184-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0623ee06-00e5-421e-a24a-ed605abb559b@kernel.org>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDAyMDA2MCBTYWx0ZWRfX/3QVg+2Ww8Kb
+ TG1c+dUcdk7vIjwr76J0NE4kJdFb9uvOlYkwLxsRBsDPzO+VCZBJh8bBRsWcVw0Da6rDuYlyCCV
+ BnOso1igsu6ELnKr60VeDc1hXxk+9rc=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDAyMDA2MCBTYWx0ZWRfX2lJ219fggHmF
+ LBzCUS7bM8kzlte+dpK9T9iU93wrka6jMlEhpceoGy8noBsx6QOADBcDXeHJp8Yriv9xu6/rhDN
+ gtQBH/oqe75TCcD+EMkfoKO5BkJCpauLG7n1vVgbGT7oeHN4OQdgeSgzVD22MpY0piGMK3+MvzV
+ /kxSgAWoucImkcBTqZqCZ4QIssHClMeHAn5sXLdh6QPH1GaJoYknHG2t/0df4/UHriDysgSUr+z
+ 0uBio8m1PR6UQopWso6U+Z3OMaMcZEAEqdKB2cxr4OL2MRmiSG6/Lo8RlZEs8q5Koxd9PFv5kkg
+ 8PRWOT313k5IZvs8CmxvaSvW+Nf+aLR4OQhOHMl2nCOjamw1wQoKbrdPgd1hfH7dlvDV9Y3ij2M
+ nbmq5+ADcGFyd+KOggFSQTnXYqWk6BKtjoq4/41oqvD+iN+lLeyUm+tRQr9TTJQnLR+f0v/2oEA
+ wJEiAHWgFcTtszFbdAg==
+X-Proofpoint-GUID: ARlOYH-0JPwJ41ceWszPSyhfJZsCuKGp
+X-Authority-Analysis: v=2.4 cv=RKcmjIi+ c=1 sm=1 tr=0 ts=6abfcbdd cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=AI1S0lelkytbrRr2WCgA:9
+X-Proofpoint-ORIG-GUID: ARlOYH-0JPwJ41ceWszPSyhfJZsCuKGp
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-02_04,2026-10-01_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 priorityscore=1501 spamscore=0 bulkscore=0 impostorscore=0
+ adultscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610020060
 
-On Thu, Oct 01, 2026 at 02:36:40PM +0200, David Hildenbrand (Arm) wrote:
-> On 9/17/26 18:22, Lorenzo Stoakes (ARM) wrote:
-> > Rather than referring to VMA flags with uncertain meaning, add a new
-> > predicate that explicitly describes what possession of the VMA_PFNMAP_BIT
-> > or VMA_MIXEDMAP_BIT flags mean, and then refer to that function for
-> > determining VMA mergeability.
-> >
-> > Either flag means the contents of the mapping are owned by the kernel,
-> > usually a driver, rather than by the core mm: the memory may be MMIO,
-> > kernel-allocated pages or even ordinary pages the driver maps itself, but
-> > the core must not populate, reclaim, migrate, copy-on-write or merge the
-> > range on its own initiative.
-> >
-> > We initially also include VMA_IO_BIT here, as by implication, these must be
-> > kernel-owned. (mlock() also sets VMA_IO_BIT transiently on ordinary VMAs
-> > while locking them, which is addressed later in this series.)
-> >
-> > However the intent is to in future remove this, as no mapping should be
-> > marked as an I/O mapping without also being marked with VMA_PFNMAP_BIT.
-> >
-> > This forms the basis of further work intended to improve how we express VMA
-> > properties such as this.
-> >
-> > Also update the VMA userland tests to reflect the change.
-> >
-> > No functional change intended.
->
-> Of course I have to bitch about the naming :)
+Two small improvements:
 
-Yup :)
+- Copy last breaking event address to correct pt_regs location
 
->
-> Intuitively: kernel owned vs ... user owned?
->
-> No, it's kernel owned vs core-mm owned.
+- Save lowcore on invalid kernel stack to have more accurate data for
+  crash dump analysis
 
-I would say somebody who does:
+Thanks,
+Heiko
 
-	ptr = malloc(4096);
+Heiko Carstens (2):
+  s390/entry: Last breaking event vs invalid kernel stack
+  s390/entry: Save lowcore on invalid kernel stack
 
-Would think of that memory as 'owned' by them in the sense that they
-control the lifetime, they established its attributes, etc.
+ arch/s390/kernel/entry.S | 17 ++++++++++++++++-
+ arch/s390/kernel/entry.h |  4 ++++
+ arch/s390/kernel/traps.c |  6 ++++++
+ 3 files changed, 26 insertions(+), 1 deletion(-)
 
-So indeed, vs. user-owned.
+-- 
+2.53.0
 
->
-> Which implies core-mm is not part of the kernel?
->
-> Yes, this is confusing. ;)
-
-I think what you're missing here is what _creates_ or _establishes_ the mapping.
-
-Intuitively, if I do:
-
-	ptr = kmalloc(GFP_KERNEL);
-
-I, whether I am in the core kernel, or a driver, or whatever own it in any
-meaningful sense of the word.
-
-I think the issue here is you're confusing this with other things like the
-rmap and refcounting, etc.
-
-
->
-> I assume you're coming from "map_kernel_pages*", but that's rather "kernel
-> memory" and not "kernel owned".
->
-> Usually we say "driver owned" when not talking about pagecache/anon. Or user vs.
-> kernel memory.
-
-I think it would only add confusion:
-
-VDSO/VVAR, perf ring buffers, shmem mapped via PFN map, uprobes, etc. are
-all in this category and I doubt people would consider those driver-owned.
-
->
-> So is it really all about "is this (excluding CoW) no ordinary user memory that
-> we would track through the rmap" ?
-
-VMA_MIXEDMAP_BIT mappings can be refcounted and rmapped so that's not a
-correct description.
-
-The distinction is - who put them there and who's allowed to change them
-and who owns the lifecycle.
-
->
-> >
-> > Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
-> > ---
-> >  include/linux/mm.h              | 56 ++++++++++++++++++++++++++++++++++++++++-
-> >  tools/testing/vma/include/dup.h | 29 ++++++++++++++++++++-
-> >  2 files changed, 83 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/include/linux/mm.h b/include/linux/mm.h
-> > index 2a92193ac6a5..cab29d6e15c1 100644
-> > --- a/include/linux/mm.h
-> > +++ b/include/linux/mm.h
-> > @@ -1612,6 +1612,44 @@ static inline bool vma_is_shared_maywrite(const struct vm_area_struct *vma)
-> >  	return is_shared_maywrite(&vma->flags);
-> >  }
-> >
-> > +/**
-> > + * vma_flags_is_kernel_owned() - Do the specified VMA flags indicate that the
-> > + * contents of the VMA are owned by the kernel rather than the core mm?
-> > + * @flags: The VMA flags to test.
-> > + *
-> > + * A kernel-owned mapping is one whose contents are established and controlled
-> > + * by the kernel, typically a driver, rather than by the core mm's fault and
-> > + * rmap machinery.
-> > + *
-> > + * The mapping may be memory-mapped I/O, kernel-allocated pages or ordinary
-> > + * pages the owner has chosen to map itself (shmem via a PFN map, for instance).
-> > + *
-> > + * In all cases the core mm must not populate, reclaim, migrate, copy-on-write
-> > + * or merge it of its own accord.
-> > + *
-> > + * Pages mapped this way are not necessarily reference counted or map counted.
-> > + *
-> > + * Returns: true if the flags indicate a kernel-owned mapping.
-> > + */
-> > +static inline bool vma_flags_is_kernel_owned(const vma_flags_t *flags)
-> > +{
-> > +	return vma_flags_test_any(flags, VMA_PFNMAP_BIT, VMA_MIXEDMAP_BIT,
-> > +				  VMA_IO_BIT);
->
-> I thought we have cases where we drivers insert pages and neither set
-> VMA_PFNMAP_BIT nor VMA_MIXEDMAP_BIT.
-
-There were 4 - defio, cmt_speech, uprobes and the bpf arena, and I fixed
-all of them :)
-
-Other than the DAX-only case below of course.
-
-It's not correct behaviour and part of the point of this series is to
-structurally _forbid_ illegal behaviour by drivers.
-
->
-> I assume vmf_insert_page_mkwrite() is fine because it is DAX doing it (should we
-> limit this interface to DAX?).
-
-That is a DAX-only thing and DAX is precisely a case that should not be
-kernel-owned (and isn't!)
-
-This series actually fixes the FUSE case too, restricting this interface to
-DAX only seems like a sensible follow up as well.
-
-I could also add a patch to this series to do that too if you wanted?
-
---
-Cheers, Lorenzo
