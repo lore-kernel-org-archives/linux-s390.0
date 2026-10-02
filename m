@@ -1,146 +1,155 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D9253B47D0
-	for <linux-s390@vger.kernel.org>; Fri,  2 Oct 2026 09:13:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E9F8470456
+	for <linux-s390@vger.kernel.org>; Fri,  2 Oct 2026 09:13:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790932408; cv=none; b=Oxys/HCc/aEBHYDMKs7j5RNTQQj28NbW/vCGyK1ucDsxLWcpfq53rK3u03RamCm1kTfE/mSHedW9xrAivbMTKwjaehqXa3ThFqM7tqKmxLoJNpa0Pf2vCb1aZH19xW0AW0oZ6ZYumie45QFW7iEIXrWAHqOTGUOvC4MTdo5HECU=
+	t=1790932409; cv=none; b=hBQfSI4QE2Uj0t7mDVehpmfdosSdAyhnJhCRQHQnoj+ZrsKqqNV8LYwhjffABVoJDGkPTVQgJAPUvDsTsz6PzeVDYVp+cN9kpsBNJSrOOdCJlvhN+QjVeDpfYKawsxnUyoRguQU8ya8t27IxEDtKFyHnGF9y9hbhIaq2k6lj9fE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790932408; c=relaxed/simple;
-	bh=XkqUVhs+UtWsWV3d6i5GRbncWoPMrSFWXXaJ6+fYfVA=;
+	s=arc-20240116; t=1790932409; c=relaxed/simple;
+	bh=lUKg20weJ5YH0/T+RDTNlB8YlYEQWuGNyMNEPoRt6Ek=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=AsxEkrFqANstXbMXp+wk+SqQnGa6Xr8xWeTYZOmJH8+LPCL0UmESkeyiu1uxv8jNJ8aaT+CJQthsgmaWsQgq1AAv2UZMp2o0Ce4XrmfNB3sFpWWc1lqDsHuSPn3jq0/8gUT98q8ZpF6N1BIkmi1VQSsEuZKL72jDxvGbcrzRrmc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q2QRkaPz; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=YPqznUaJBCLNeZq5nRy5HPsiDJ5MNt2QXKzLvJRzdoCYKXcBjAqsXudK4osi/4Z8kx4JuB/BnUeTk9QhgJnJqn/jYcJE08cK9wCErwz0Qhn8vH6Hr5PIBB1V1E6AIgkcA7YEPEJQdn4+ymJdEU+QaNy4lSuX0LucNyKJQlQKp1o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Og5wjgNF; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q2QRkaPz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A2141F000FF;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Og5wjgNF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F173F1F00899;
 	Fri,  2 Oct 2026 09:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790932407;
-	bh=0m2OzXlXcb11jcoPfEqN1jT1RNmghEbUbOKrXLKjmiA=;
+	s=k20260515; t=1790932408;
+	bh=o7md0252Q93rVkqy4a4q1vzln/OIOOPyUpKs9GHTeFY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Q2QRkaPzQ+r8fJwCiImfdsBlU8p6V1BFNoeuh7QDWcQC9XE9axmMyP8TCKPReUwAp
-	 ZKgRp8NFg6hucnsmfrr4sCMyJ5jpF2scfVuX/W70Bp+zTsNrvsfHZ+8Uokj2zs3/gN
-	 mQqMUESunlfxGtcLMhA4612kMsRg26MI1kg9dth1MbzDZSRH3I+IYVvmcnfd7lmJMK
-	 73kf5YZBoQIvsmK7J1Up3K/bsZe5NH4N/i+jGndnRaxkj+p9btw4FUL0QfshXxc/4s
-	 1mhtycMsf35+YLy1PSQahK9nRsF26+gev0EJX7rRb3lLlZODv43EXoTF8/K2pPVD9W
-	 fRfIvM84Hl7Mg==
+	b=Og5wjgNFgTWLhGmenUHtLFmxyvAKmk6GVwTyMVDa5naqkxMCrkTa53R0fd93m3CyM
+	 smtd8VCXZjbri4qlW/lo1r7Do7ZFeraHFyj1FjMZ3b0M4qxs+L6ETxJWucoGB7wkwf
+	 AZMK9KqdwAMpDMY9lp4zinqk3+F5y+dFhL/g6jB06IF2tddnJDn7ZO50Ired+EO81h
+	 f3gMU/iA9M9LAYebThP34oSIlXUfceDkSxx+ugKldf+Y0I/rPyFUmc/jljnJvC7HT6
+	 uivQE+vRuKPgY8TM99IPQsu1DePn+PTwNG3Oo6wxR3AbuYU4cJQ+nXOWQS2FJwp1Rg
+	 mn/gRDC4q1kRg==
 From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v3 09/13] x86/cpu/topology: Initialize sbm topology
- after topology parsing
+Subject: Re: [RFC PATCH v3 11/13] lib/sbm: Add helpers to allocate, set,
+ clear, and traverse the bits on sbm
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "K Prateek Nayak" <kprateek.nayak@amd.com>
-Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>
-In-Reply-To: <20261001192849.74788-10-kprateek.nayak@amd.com>
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20261001192849.74788-12-kprateek.nayak@amd.com>
 References: <20261001192849.74788-1-kprateek.nayak@amd.com>
- <20261001192849.74788-10-kprateek.nayak@amd.com>
+ <20261001192849.74788-12-kprateek.nayak@amd.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 02 Oct 2026 09:13:26 +0000
-Message-Id: <20261002091327.2A2141F000FF@smtp.kernel.org>
+Date: Fri, 02 Oct 2026 09:13:27 +0000
+Message-Id: <20261002091327.F173F1F00899@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
 s) to consider:
-- [High] x86/topology: UB and incorrect topology IDs due to out-of-bounds s=
-ubtract in dom_shifts
+- [High] sched/fair: out-of-bounds memory corruption in __sbm_op() during C=
+PU hotplug
+- [High] lib/sbm: premature decrement of max index in free_sbm_index() hide=
+s active CPUs
+- [Low] lib/sbm: sbm_alloc() massively over-allocates cacheline-aligned mem=
+ory
 --
 
-commit c4055a2c9b6199a420263b5bc2ed2a987d466f5a
+commit 8d84c933216fc8041e9a487dfb8a2121359eb99f
 Author: Peter Zijlstra <peterz@infradead.org>
 
-x86/cpu/topology: Initialize sbm topology after topology parsing
+lib/sbm: Add helpers to allocate, set, clear, and traverse the bits on sbm
 
-This commit initializes the sparsebitmap (sbm) topology on x86 after parsing
-the CPU topology. It uses the maximum APICID and topology domain shifts to
-determine the maximum number of threads per LLC instance and the maximum
-number of instances.
+This commit introduces a set of helpers to allocate a sparsebitmap (sbm)=20
+structure based on architecture-configured lengths. It provides macros and=
+=20
+inline functions to set, clear, test, and iterate over bits in the sbm arra=
+y.
 
-> diff --git a/arch/x86/kernel/cpu/topology.c b/arch/x86/kernel/cpu/topolog=
-y.c
-> index 4913b64ec592d..150e098f0ef8f 100644
-> --- a/arch/x86/kernel/cpu/topology.c
-> +++ b/arch/x86/kernel/cpu/topology.c
+> diff --git a/include/linux/sbm.h b/include/linux/sbm.h
+> --- a/include/linux/sbm.h
+> +++ b/include/linux/sbm.h
+[ ... ]
+> @@ -9,12 +11,95 @@
+> +#define __sbm_op(sbm, func)				\
+> +({							\
+> +	int idx =3D sbm_cpu_to_idx(cpu);			\
+> +	int nr =3D idx >> __sbm_shift;			\
+> +	int bit =3D idx & __sbm_mask;			\
+> +							\
+> +	func(bit, &sbm[nr].bitmap);			\
+> +})
+
+[Severity: High]
+Can this sequence lead to out-of-bounds memory corruption during CPU
+hotplug?
+
+When a CPU is brought offline, free_sbm_index() sets its index to -1.
+If the dying CPU continues to run the idle task to tear down, it can
+trigger tick_nohz_idle_stop_tick() and consequently call sbm_cpu_set().
+
+Because __sbm_op lacks bounds checking on the mapped idx, computing
+idx =3D -1 results in nr =3D -1, which then unconditionally executes func()
+on &sbm[-1].bitmap.
+
+> diff --git a/lib/sbm.c b/lib/sbm.c
+> --- a/lib/sbm.c
+> +++ b/lib/sbm.c
+[ ... ]
+> @@ -45,6 +51,44 @@ int sbm_idx_to_cpu(int idx)
+[ ... ]
+> +struct sbm *sbm_alloc(void)
+> +{
+> +	return kzalloc_objs(struct sbm, sbm_max_threads_per_instance * sbm_num_=
+instance);
+> +}
+
+[Severity: Low]
+Does this code allocate significantly more memory than needed?
+
+Each struct sbm encapsulates a full bitmask that accommodates
+sbm_max_threads_per_instance CPUs. Since the index calculation
+nr =3D idx >> __sbm_shift directly corresponds to the leaf index, the
+array only seems to require exactly sbm_num_instance elements.
+
+Allocating sbm_max_threads_per_instance * sbm_num_instance elements
+appears to request considerably more cacheline-aligned memory than is
+actually necessary to map all bits.
 
 [ ... ]
-
-> @@ -449,13 +450,45 @@ static __init bool restrict_to_up(void)
->  	return apic_is_disabled;
+> @@ -127,6 +173,15 @@ void free_sbm_index(int cpu)
+[ ... ]
+>  	if (find_first_bit(&__sbm_idx_metadata[leaf].allocated_mask, BITS_PER_L=
+ONG) =3D=3D
+>  	    BITS_PER_LONG)
+>  		__sbm_idx_metadata[leaf].instance_id =3D -1;
+> +
+> +	if (leaf =3D=3D sbm_max_populated_index) {
+> +		for (idx =3D leaf - 1; idx > -1; idx--) {
+> +			if (__sbm_idx_metadata[idx].instance_id !=3D -1)
+> +				break;
+> +		}
+> +
+> +		WRITE_ONCE(sbm_max_populated_index, max(idx, 0));
+> +	}
 >  }
-> =20
-> +int arch_sbm_cpu_instance_id(int cpu)
-> +{
-> +	u32 sbm_shift =3D x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN] - 1;
 
 [Severity: High]
-Does this code compute the wrong shift value by subtracting 1 from the
-shift amount instead of the domain index?
+Could this prematurely shrink the maximum index and strand active CPUs?
 
-If x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN] happens to be 0 (such as on
-CPUs without SMT or cores), this evaluates to 0xFFFFFFFF since sbm_shift is
-an unsigned 32-bit integer. This would lead to undefined behavior when
-evaluating apicid >> sbm_shift later in the function.
+When clearing a bit in a leaf's allocated_mask, if the leaf matches
+sbm_max_populated_index, this loop unconditionally scans backward to find
+the next non-empty leaf and overwrites sbm_max_populated_index.
 
-Even if the shift value is non-zero, this subtracts 1 from the bit shift=20
-value itself, which calculates the wrong shift, inappropriately halving the=
-=20
-max threads per instance and generating incorrect SBM instance IDs.
+However, it does this without verifying if the current maximum leaf
+actually became completely empty (instance_id =3D=3D -1). If other CPUs
+remain actively allocated in that same leaf, they appear to be
+immediately hidden since the global max index is truncated below them.
 
-Should this instead be x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN - 1]?
-
-Please note that this bug appears to remain unfixed at the end of the patch
-series in commit 0b0c43c6e4d9b31b812d8407b146c5dc13783dc8.
-
-> +	u32 apicid =3D cpuid_to_apicid[cpu];
-> +
-> +	if (boot_cpu_data.x86_vendor =3D=3D X86_VENDOR_AMD ||
-> +	    boot_cpu_data.x86_vendor =3D=3D X86_VENDOR_HYGON)
-> +		sbm_shift =3D x86_topo_system.dom_shifts[TOPO_TILE_DOMAIN] - 1;
-
-[Severity: High]
-Is the subtract from the value rather than the index also an issue here
-for AMD and Hygon systems?
-
-> +
-> +	return (apicid >> sbm_shift);
-> +}
-> +
-> +static __init void init_sbm_topology(u32 max_apicid)
-> +{
-> +	u32 sbm_shift =3D x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN] - 1;
-
-[Severity: High]
-Could this also lead to undefined behavior or incorrect shift calculations
-during early boot initialization, for the same reasons as above?
-
-> +	int num_sbm_instances, max_threads_per_instance;
-> +
-> +	/*
-> +	 * On Intel systems, memory controllers are present at TOPO_DIE_DOMAIN.
-> +	 * On newer AMD and Hygon systems, LLC is at TOPO_TILE_DOMAIN so use
-> +	 * that instead.
-> +	 */
-> +	if (boot_cpu_data.x86_vendor =3D=3D X86_VENDOR_AMD ||
-> +	    boot_cpu_data.x86_vendor =3D=3D X86_VENDOR_HYGON)
-> +		sbm_shift =3D x86_topo_system.dom_shifts[TOPO_TILE_DOMAIN] - 1;
-
-[Severity: High]
-Does this code also have the same issue with subtracting 1 from the array
-value instead of the array index during boot initialization?
-
-> +
-> +	num_sbm_instances =3D 1 + (max_apicid >> sbm_shift);
-> +	max_threads_per_instance =3D (1 << sbm_shift);
-> +
-> +	sbm_set_topology(num_sbm_instances, max_threads_per_instance);
-> +}
+This would cause functions like sbm_empty() and sbm_find_next_bit() to
+permanently ignore these active CPUs during NOHZ idle load balancing.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261001192849.7478=
-8-1-kprateek.nayak@amd.com?part=3D9
+8-1-kprateek.nayak@amd.com?part=3D11
