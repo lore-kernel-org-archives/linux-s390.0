@@ -1,117 +1,67 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DD953B05A4;
-	Fri,  2 Oct 2026 09:02:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61568451996
+	for <linux-s390@vger.kernel.org>; Fri,  2 Oct 2026 09:13:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790931766; cv=none; b=qW17j6Ub4DyrtC/X7EQGKk6lYa4VtJ2ceBYcjpKzVQXDlM+m9/NLWPdKS/2cVZoyMyD5howa8isPfd/hXLmypYluiw3+CweHmVqfVamse0Q76wi9BlAIJV8GY8kWLA3wun8Uf4A8AVtAfjJdbTaT21jasbNfWkwgETyKIUq2wQg=
+	t=1790932398; cv=none; b=mS9nreEAmIRytTSbAxk6RBCJN4FnmrndYtLp6ltKeHnuRAKqb1qC4SChwv3F+gmk21x11mfvSjH/AG0b1YK90Ik36yKPexl2ZAGP8gw9OWzuBhx4eL7Ogsu8A/sJtrvZ7G1w8H9QyQ/rA6PtIw5+D/DDmVFJ29/oz10jwEBk+4s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790931766; c=relaxed/simple;
-	bh=rWcO8KFxXa2PK7YeSRIvLjsJER8mggXQ7JYXtV7+rXM=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=RHn24qlK4hDRvem01SorU5DYdsd3x8WgbNEWuGGbPMipRa6UrBWvj+NV42tXiEK1n5A+7W8+paGnyhFQOBviDeuMXHHWykE1WuME2b5/pgVi7xeve7OLcFpdQXODd95gEzT6w1BdeZbKud4FTp5MIoq9Qjk+O7FxrwvnLCXvckg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jOqGjIey; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1790932398; c=relaxed/simple;
+	bh=i/9Gw5L68iBMxWtmOCq/WZpUXO2XOTUek7+YMsaXeyE=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=iebNqOjpqbja9PnE2EbH8BZtpAbM7/nOu5mDxC3lhdWQsh0YjpNyglEfysK4LW9udAZk3YgNnYFiM1HRERU1QthynJI80Ooc4M/GZUKbol0+D4FiRE/JFX9SnVUKreCWWayXo3mTmjrqOsS237DQkdFOn6lLqE0/E2dx8pyvZoY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VbgBTB6E; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jOqGjIey"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E13F41F000FF;
-	Fri,  2 Oct 2026 09:02:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VbgBTB6E"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1D871F00893;
+	Fri,  2 Oct 2026 09:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790931764;
-	bh=QVMF5xJlxpruAChtkNj1qM1C4rtnjpVNs7oYQB53+ZY=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=jOqGjIeyGi1TXTU6JwZrpZ7QTHwotBwuHhTo+6TSuWiQCmCCCK7iX0yUflRxnM7PQ
-	 GCFD78clYw1rLgmWRfdO+fFaFVT4YtV+VYGZ1RaSxrS5dhFAYnRv7MpfgPKalyRAUs
-	 bNoR5zcLKTDOJHHaFbaoHyYn+F6JBysnAFCXlnYkp0ZPOdgxqailH7htMyV7Q6tzp4
-	 b/DVfXRgnxCTBijDILV9YDgNmcQOwSawb6OWvHqnny7HCXnrW5EvmoWF6F+wQaiXlg
-	 1abn+ZtjQKNQ9oQm+i+9ft/OSU+2ITCNqxzvn1FGC/JcJxmLBKB7JUXNSLWM2GBMHL
-	 HlFs0KjFMaYSA==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
-	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <maz@kernel.org>)
-	id 1xCZAA-0000000G8Wn-28pp;
-	Fri, 02 Oct 2026 09:02:42 +0000
-Date: Fri, 02 Oct 2026 10:02:41 +0100
-Message-ID: <86v77k326m.wl-maz@kernel.org>
-From: Marc Zyngier <maz@kernel.org>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: kvm@vger.kernel.org,
-	kvmarm@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andreas Grapentin <gra@linux.ibm.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@kernel.org>,
-	Friedrich Welter <fritz@linux.ibm.com>,
-	Gautam Gala <ggala@linux.ibm.com>,
-	Hariharan Mari <hari55@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Hendrik Brueckner <brueckner@linux.ibm.com>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Joey Gouly <joey.gouly@arm.com>,
-	Nico Boehr <nrb@linux.ibm.com>,
-	Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-	Oliver Upton <oupton@kernel.org>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Will Deacon <will@kernel.org>,
-	Zenghui Yu <yuzenghui@huawei.com>,
-	Fuad Tabba <fuad.tabba@linux.dev>
-Subject: Re: (subset) [PATCH v9 00/24] KVM: s390: Introduce arm64 KVM
-In-Reply-To: <20261002080015.22510-A-seiden@linux.ibm.com>
-References: <20260930173441.66762-1-seiden@linux.ibm.com>
-	<179085262878.3865846.5787241839391727949.b4-ty@b4>
-	<20261001132715.108643-A-seiden@linux.ibm.com>
-	<86wls1315l.wl-maz@kernel.org>
-	<20261002080015.22510-A-seiden@linux.ibm.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
- (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+	s=k20260515; t=1790932397;
+	bh=i/9Gw5L68iBMxWtmOCq/WZpUXO2XOTUek7+YMsaXeyE=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=VbgBTB6EDzLyTqL2BvaLE6fhwAOnOZtnw1oZ8jMKOGeydeFkObEzQgAkMlr1jbj9r
+	 p3eSnJEiJQ8f1vvCQZ/lz0oj6Q1IK7SHXpw8jAib5UETqLaVTnDh8CfdjCAYUJpphB
+	 DLn8BPj6sXrAGWF+I3hGN8dctwIrAVBWqhj1ikBPUVAdP9X7AXHWZq5UtuFh81ypT0
+	 SMAtV1GOGk06se5iehUQPy5KukG3H3TlU1ryLhWKShLklGlWZz3B5Yf8aBXzF4575y
+	 v5pxGMCyit+7sVAk6CWM6fg6zpW/jrTk5f5G0m+7JgxW85y55XHXs6fAxRb+O8R/a6
+	 F6MpITL8EjSgg==
+From: sashiko-bot@kernel.org
+Subject: Re: [RFC PATCH v3 04/13] LoongArch: Configure sbm topology during
+ SMP preparation
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "K Prateek Nayak" <kprateek.nayak@amd.com>
+Cc: "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20261001192849.74788-5-kprateek.nayak@amd.com>
+References: <20261001192849.74788-1-kprateek.nayak@amd.com>
+ <20261001192849.74788-5-kprateek.nayak@amd.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 02 Oct 2026 09:13:16 +0000
+Message-Id: <20261002091316.F1D871F00893@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: seiden@linux.ibm.com, kvm@vger.kernel.org, kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, agordeev@linux.ibm.com, gra@linux.ibm.com, arnd@arndb.de, catalin.marinas@arm.com, borntraeger@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, fritz@linux.ibm.com, ggala@linux.ibm.com, hari55@linux.ibm.com, hca@linux.ibm.com, brueckner@linux.ibm.com, iii@linux.ibm.com, frankja@linux.ibm.com, joey.gouly@arm.com, nrb@linux.ibm.com, oss@nina.schoetterlglausch.eu, oupton@kernel.org, pbonzini@redhat.com, seanjc@google.com, suzuki.poulose@arm.com, svens@linux.ibm.com, Ulrich.Weigand@de.ibm.com, gor@linux.ibm.com, will@kernel.org, yuzenghui@huawei.com, fuad.tabba@linux.dev
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-On Fri, 02 Oct 2026 09:00:15 +0100,
-Steffen Eiden <seiden@linux.ibm.com> wrote:
-> 
-> Yes the positioning of the functions look good. It builds on top of
-> kvmarm/next + this (sightly relocated (line numbes are different) patch
-> + arm on s390 stuff.
+> Configure the sparsebitmask (sbm) topology for multi-node processors
+> once SRAT is parsed and cpu_to_node() mappings are stable.
+>=20
+> Former commit enabled parsing node mappings for disabled CPUs during
+> SRAT parsing and every CPU will have a valid mapping before the sbm
+> topology parsing is attempted ensuring correct bounds for
+> max_threads_per_instance.
+>=20
+> XXX: If _PXM mappings cannot be trusted for disabled CPUs, an alternate
+> logic needs to be added. See PowerPC enablement later in the series.
+>=20
+> Signed-off-by: K Prateek Nayak <kprateek.nayak@amd.com>
 
-Cool. I've now pushed out the rebuilt kvmarm/next branch with this,
-and hopefully it will make it into -next today.
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-Let me know if anything else is amiss.
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261001192849.7478=
+8-1-kprateek.nayak@amd.com?part=3D4
 
-> I'll work on a verification tool for you guys to make this process
-> easier.
-
-I guess the ultimate verification tool is to build s390 with the rest
-of the patches, which I've just done. This doesn't lead to any error
-that wasn't already reported.
-
-Thanks,
-
-	M.
-
--- 
-Without deviation from the norm, progress is not possible.
