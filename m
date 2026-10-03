@@ -1,76 +1,103 @@
-Received: from mta1.migadu.com (out-76.mta1.migadu.com [95.215.58.76])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A4683537E8
-	for <linux-s390@vger.kernel.org>; Sat,  3 Oct 2026 09:09:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.76
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7A362CCC6;
+	Sat,  3 Oct 2026 13:17:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791018588; cv=none; b=GnLkZzOwoQYS/C8+AgOHM963t8LTSN2Uu9314w2SG3AkCrEeJmZKt60JHi8803xTRsOuMsOXFOAwyhc6CZu8Z44ih+H3GXkuWNWiz5pgUPfxYJV7GUp8lt0PKGBc7cDXwhlNWcr5ySCHapRfqv3woHarcbGRroHs760qAcHFPRQ=
+	t=1791033439; cv=none; b=sTSfZ9VX5Pix+m8pt8UasUlJQM70yeu2ROicI4r9bp/20xknINL2wItFWZyEzcZKV6ZkyZOn2TXqcCU6sQcBk5ASiOxNdw0pEz82Fo1i8RXva0RMBL1NMK0E097WxecHTvMvXeHKRSGftTtL+Hc+qLf5ln0JrI0hkbBsQkfwxxo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791018588; c=relaxed/simple;
-	bh=FSHH2lxVQ7W/7ZcDn6MGkBGZpq4xldC6pMHimCeppLE=;
+	s=arc-20240116; t=1791033439; c=relaxed/simple;
+	bh=iETBdhyd8YA5sdOaV2DmrYdJe9iH68XFXxBT/H5DVtY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MkUcaJXL//wTfR+2xHcva6isj4HzM7Z8n/ZeH/eLMzdUZOo1ATqj0wUjbYtsQ8J5BYISpSb0rMDbF5sIZbbJBsYp/dsUoCx+kvl/oxE4xafSUL8g9Q2ltE1NTXsUuZLwrdjfpZNMRO/kw+CW2hlyFijXIB4Y95vOI1pn5bYm97o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=NfrGPrpy; arc=none smtp.client-ip=95.215.58.76
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	 Content-Type:Content-Disposition:In-Reply-To; b=OtEbh5KxIeN5abM7wrfCQQ/AgTfKwa1PZyTtJSkEsDeUNSbclHQ5wq4fwvYiSxmlM1OiwU7NcALWy+b03FUazdA+V9ZWoJxCtoKfodtguil87gMhDrGH+01iXlFotOhsaCYSIoW0MyPB3vrckc6JwzP3dUXfjTJ3oR1fUKVcCgY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EgLBtik0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="NfrGPrpy"
-X-Envelope-To: linux-s390@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=FSHH2lxVQ7W/7ZcDn6MGkBGZpq4xldC6pMHimCeppLE=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1791018584; v=1; x=1791623384;
- b=NfrGPrpynlfLGKKORwxbqUJ9jWekm+WhjRX1N2s2hao7SjcpaAeK2noOCaX0NLjgWfPunq2h
- RWP6+EQsQnVKK5BQXIA3e1fyZBYiGMq23N2ycS6ztlgwzYu0jAevs/xitss7nAXiVcmGE6qQkXG
- c+T/RSTvjEIus7/mxlYtNBfI=
-X-Envelope-To: linux-s390@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 2747b1746997b9b8;
-	Sat, 03 Oct 2026 09:09:43 +0000
-X-Mizu-Trace-ID: 2747b1746997b9b8
-X-Migadu-Flow: FLOW_OUT
-Date: Sat, 3 Oct 2026 17:10:04 +0800
-From: Chen Yu <chen.yu@linux.dev>
-To: K Prateek Nayak <kprateek.nayak@amd.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Chen Yu <yu.c.chen@intel.com>,
-	Tim Chen <tim.c.chen@linux.intel.com>,
-	Ingo Molnar <mingo@redhat.com>, Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-mips@vger.kernel.org,
-	loongarch@lists.linux.dev, driver-core@lists.linux.dev,
-	Sudeep Holla <sudeep.holla@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Jiaxun Yang <jiaxun.yang@flygoat.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Thomas Gleixner <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	"H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [RFC PATCH v3 00/13] lib, sched: Introduce sparsebitmap (sbm)
-Message-ID: <asDGbBEHkDouWOwC@three-body>
-References: <20261001192849.74788-1-kprateek.nayak@amd.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EgLBtik0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98E6A1F0089B;
+	Sat,  3 Oct 2026 13:16:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791033437;
+	bh=/jEE4HcLwsM6TWLGremQKfzztE+rwvfFYJGPZmoq8a8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=EgLBtik0WJzJCXWY/9/TI+W7fRx1wIZ9UfQuWfc+RhMCCFMM/xZJ03UyprLnrZDIx
+	 +hSP6z4pIAKExuSJlxbZygGALgGCQywzqqoPN2+Boz6NDgyFCoTr0xtw8XwpV2ytvg
+	 iOEb69EMyCjSZk8NVHT0gmIKW0rVbZ0F8RMvb9s4VF2Dbo0UftiN8tf9aa6rRRTzuW
+	 Fpm1LnU0F8ufx8E3b1Xf3T36YgbMjc4jOyHoaXzj2tW9/dfBgzxbHqld35pMVHgUgN
+	 4zsEh/CAz3fCIdmxhWutMDOLIRfajy8aGYLGHSvm01TwlgzafI+V3dGI5soFrbsjYq
+	 SFWdbxe9eRGJQ==
+Date: Sat, 3 Oct 2026 14:16:46 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
+	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
+	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
+	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
+	Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen" <mkp@kernel.org>, 
+	Jaya Kumar <jayalk@intworks.biz>, Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, 
+	Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
+	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+	Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, Juri Lelli <juri.lelli@redhat.com>, 
+	Vincent Guittot <vincent.guittot@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>, 
+	Oliver Upton <oupton@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
+	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
+	Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
+	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
+	Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
+	Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
+	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
+	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
+	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev
+Subject: Re: [PATCH v3 31/40] mm/vma: introduce vma[_flags]_is_persistent()
+Message-ID: <asD6cgnNVJhZA98p@gremlin>
+References: <20260917-b4-mmap-prepare-vma-flag-sanify-v3-31-4583d8a23bca@kernel.org>
+ <9bbdf4e8-6984-4477-a183-f0b236047381@kernel.org>
+ <3557015d-23dd-41ef-9832-78b58587f3f4@kernel.org>
+ <81e1e5ae-0aab-4584-81e6-3fc9c2634d07@kernel.org>
+ <ar-b_Ug__TBzIZsb@gremlin>
+ <2e5a4e6c-8f9c-4050-8998-454b83f4823b@kernel.org>
+ <ar-luB9QVCRshtIw@gremlin>
+ <3387642b-c39f-4f19-ba0c-267bbd2fe91d@kernel.org>
+ <ar-ux41ILjI1Px9S@gremlin>
+ <a202523f-a696-4a8e-be77-7170c3913cdf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -79,70 +106,148 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261001192849.74788-1-kprateek.nayak@amd.com>
+In-Reply-To: <a202523f-a696-4a8e-be77-7170c3913cdf@kernel.org>
 
-Hello Prateek!
-
-Thanks for bringing this interesting topic,
-
-On Thu, Oct 01, 2026 at 07:28:36PM +0000, K Prateek Nayak wrote:
-> 
-> Problem
-> =======
-> 
->                                             %cycles vs global mask operation
-> 
-> global mask                                     : 100.0000%  (var: 3.28%)
-> per-NUMA mask                                   :  32.9209%  (var: 7.77%)
-> per-LLC mask                                    :   1.2977%  (var: 4.85%)
-> per-LLC mask (u8 operation; no LOCK prefix)     :   0.4930%  (var: 0.83%)
-> 
-
-This shows a significant latency improvement, especially in the per-LLC (u64, u8) case.
-May I know if schbench / sched-messaging were used?
-
-> 
-> Future work
-> ===========
-> 
-> o Interoperability with cpumaks since sbm lose the crucial optimizations
->   that come naturally from for_each_cpu_and() iterations.
+On Fri, Oct 02, 2026 at 11:43:53PM +0200, David Hildenbrand (Arm) wrote:
+> On 10/2/26 15:59, Lorenzo Stoakes (ARM) wrote:
+> > On Fri, Oct 02, 2026 at 03:11:27PM +0200, David Hildenbrand (Arm) wrote:
+> >> I'd be very happy if we could find a clear way to describe "this is what we call
+> >> user memory: anon+pagecache", if that could come handy in such a context.
+> >
+> > Rather than arguing about it, how about shifting things to 'what backs the
+> > mapping' and something like:
+> >
+> > /* big long kdoc... */
+> > static inline bool vma_flags_is_mm_backed(const vma_flags_t *flags)
+> > {
+> > 	/* hugetlb is a fixed mapping, but the mm owns it entirely. */
+> > 	if (vma_flags_is_hugetlb(flags))
+> > 		return true;
+> >
+> > 	/*
+> > 	 * Kernel-owned mappings are populated by their owner, and fixed mappings
+> > 	 * have a layout the mm cannot assume ordinary fault semantics over.
+> > 	 */
+> > 	if (vma_flags_is_kernel_owned(flags) ||
+> > 	    vma_flags_is_fixed_mapping(flags))
+> > 		return false;
+> >
+> > 	/* The mm has promised it may discard droppable memory at any time. */
+> > 	return !vma_flags_test_single_mask(flags, VMA_DROPPABLE);
+> > }
 >
-> o Different data representation - using the u8 variant for updates and
->   then perform a "gather" operation to build a dense mask.
-> 
-> o Extending sbm work to help in wakeup (and possibly resurrect Mel's
->   optimization from [4] in some form). The current sbm is still far away
->   from being used for wakeups since  updates  to sbm leaf, even on a
->   16CPUs per LLC system is visible in benchmark performance (~8-10%).
-> 
+> In my other mail I was wondering whether we could use vma_is_mm_managed() to
+> express !vma_is_kernel_owned(). Maybe vma_is_mm_backed() could fit into that
+> picture.
 
-If we leverage sbm for the wakeup path, it is a per-LLC mask, there seems to be
-no much difference from Mel Gorman's proposal of allocating per sd_share
-unsigned long idle_cpus_span[]? The frequent update to this mask might still cause
-c2c latency within 1 LLC. A wild guess is that maybe the u8 version is more suitable,
-because it has only max-to-8 CPUs touching the mask at the same time?
+Yeah, vma_is_mm_backed() = 'and the mm actually keeps it there' in effect :)
 
-My understanding is that the major case that sbm could fit is turning the global bitmask
-into a per-LLC bitmask, because it mainly avoids CPUs on different LLC/node writing the
-same cache line frequently (nohz.idle_cpus_mask set via nohz_balance_enter_idle() on
-many CPUs, etc), which might cause a costly cache RFO event storm. Meanwhile, with sbm,
-at the reader side, _nohz_idle_balance() could start scanning from the current CPU to find
-an idle CPU, so as to avoid the costly HITM event - the reader is on LLC1, while the writer
-is on LLC0 - so maybe:
+>
+> Reading above I am still confused why something that expresses "backed" talks
+> about "fixed mappings and ownership", sorry :(
 
-for_each_cpu_wrap(balance_cpu, nohz.idle_cpus_mask, this_cpu+1)
+I'll rework the kdoc to be clearer - I think with vma_is_mm_managed() the
+picture actually becomes clearer.
 
-could start from this_cpu's LLC sibling first, rather than this_cpu + 1, because this_cpu+1
-might not always be the LLC sibling of this_cpu.
+>
+> It's late here, and this is a hard nut to crack.
 
-I found that in the current code, there are also other global mask:
-rd->rto_mask(mentioned by Pan Deng when running ffmpeg[1])
-rd->dlo_mask
-tick_broadcast_**mask
-maybe they can also be converted into sbm.
+Yes :)
 
-[1] https://lore.kernel.org/lkml/a3207ebf537bbe5605ff5454f63b5604d83a04a0.1753076363.git.pan.deng@intel.com/
+Thanks for taking the time with this, I know some of it is pretty heavy going.
 
-thanks,
-Chenyu 
+>
+> What we have here is:
+>
+> 1) Is this an ordinary MM-managed VMA. So far so good, I understand that. (with
+>    a twist what I just learned about things that map random allocated pages
+>    through -> fault, but so far so good)
+
+Ack yeah. And ack on ->fault.
+
+It feels like we let ->fault be FAR too permissive. In retrospect, arbitrarily
+being able to put WHATEVER YOU WANT there was... unwise shall we say.
+
+>
+> 2) Is this MM "fixed" that makes expand/merge tricky, except if it's hugetlb
+>    where we can still handle it.
+
+Yeah the trickiest bit is the 'don't expand'.
+
+The hugetlb exception is ugh, but hugetlb was engineered terribly,
+essentially 'stick something in with total disregard for everything in core
+mm and make it an exception you just have to remember for everything'.
+
+I hope we all learn some lessons about what not to do from hugetlb and uffd
+:)
+
+>
+> I think VM_DONTEXPAND is also rather misnamed :( I assume it really means, using
+> sel_mmap_policy_ops() as an example: the MM manages the things that are getting
+> mapped in here (->fault), but the pages are not really pagecache/anon, but some
+> other shit. So we cannot expand the mapping.
+
+Yeah. And it is terribly named.
+
+>
+> Gah, so complicated.
+>
+> 3) Can the MM drop the pages at any time.
+>
+>
+> I still think that 3) does not quite fit into that picture. Using something like
+
+If you look at what the callers do it makes more sense - mlock pins pages,
+ksm merges them, dump writes them out and uffd hands their faults to userspace.
+
+All four need the page behind the mapping to be the mm's own and _still
+there the next time they look_.
+
+With that in place it's not stable so it's not right to let such callers
+have access, and all the callers have to remember to check that.
+
+>
+> "vma_is_mm_backed" to say "this is mm-managed, but all things in there come from
+> core-mm and not some other random shit people punch into ->fault" would work for me.
+
+Yeah agreed, I will update the kdoc to be clear about that.
+
+>
+> (not sure if there is still some other way how someone could get random pages
+> into a VMA ... or how to catch someone not setting the DONTEXPAND flag)
+
+vm_insert_pages() + friends sets VMA_MIXEDMAP_BIT now and
+vmf_insert_page_mkwrite() is DAX only (a follow up will make that a thing)
+so it's the damn ->fault that's the only thing left now.
+
+Right now I think that everyone that does something weird sets
+VMA_DONTEXPAND_BIT.
+
+It needs renaming to something like VMA_CUSTOM_FAULTED_BIT or
+something. That's probably a terrible name but you get the idea... :)
+
+>
+> God, this is all such a confusing mess with so many ways of getting stuff messed
+> up by other parts of the system. Thanks for working on cleaning that up.
+
+No worries :)
+
+The whole point of the series is to stop treating these flags as vague
+things (which VM_SPECIAL symbolised the most) so a. we can make sensible
+assumptions about flag combinations and b. people can use meaningful
+semantic checks rather than guessing (sometimes wrong).
+
+Hopefully the pain here is all worth it :)
+
+Thanks again for reviewing!
+
+I will respin with kdoc changes.
+
+>
+> --
+> Cheers,
+>
+> David
+
+--
+Cheers, Lorenzo
