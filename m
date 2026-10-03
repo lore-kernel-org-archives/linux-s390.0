@@ -1,81 +1,95 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mta1.migadu.com (out-39.mta1.migadu.com [95.215.58.39])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E065137E304;
-	Sat,  3 Oct 2026 01:33:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 319F2346ADC
+	for <linux-s390@vger.kernel.org>; Sat,  3 Oct 2026 08:27:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.39
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790991233; cv=none; b=th+jZFs22CbQB8UPuYIsUC8OZWTnR9sIuUNaupUeG96j5lDy/OYaaC7LI1Q1xgCh2W56t15YREihd6YV8B6u0diapgHukFRqBgDZe84sCfjegfaeTEqdKANBBsa2jSJy1CiqEIBXdWINZYjCP563DUygNPg9zyZI6a6VwAfoGd8=
+	t=1791016030; cv=none; b=K5/LWXpaVHTulaZVScbY3jG8rgk9dk/eCACZzbj+n+I98PrDroEVfltGiHqch4xrTo1MzWPkO1Relx3WLpvb1CJ8GV41M1QjydW9a3IKmiV79IhPqCF2DUWle2loLTl7/y9LYgPYp7Mreog2gvLSI1J7/y8xM5q3pSBnfBr3YOc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790991233; c=relaxed/simple;
-	bh=dnHLZYm3dHbErqikHaStOp5cWzH+pHqn/9ltin0H2kA=;
-	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=O4bt9MznoB7IjR9LXYVlk4BNvhiBgy84hTjBHTJOhEw1uCKQHI3Wie74zPEgBAgpRBH/b4LnoMmehxW3OTMaNRlyOAIXVcEJfKMSaDkGBtPiN8IyYfkpDJ7fwlv2+1IoVAuz+yPf0jFCATTjliVknddzZA1IwtZX+ckbqWSnpdc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BGWxAD15; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791016030; c=relaxed/simple;
+	bh=qTDcL7ZGZXpqyBImCymnV5HwYb1medCgU94t18ZKIYQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=H0NvhhFFiYWxrcExlZ+81E+9iZmoy/RAzzaxYuhCkO8B3cIopFXhzcDJfusjKMXABFzgH2JIJvd8L5KOFhQPKbXgoxTYCk0m3ff3XbklNJ6Jp/zxIqQb8gw5IQ3QZjt07eMstYteO3zt4lWWTyKp+s9GA+E2sHs4CvHQsCYhSgA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Ro55FjU9; arc=none smtp.client-ip=95.215.58.39
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BGWxAD15"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 250461F00898;
-	Sat,  3 Oct 2026 01:33:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1790991231;
-	bh=3tmMpCfScgMPkZKTkNH41u5I0qOqVIw1W29Avtfqx3Y=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BGWxAD15zPMuwSuA52GCDynnhkGDDxTfZrknQmJyRgHmHhJPaPT00R1ASKaKpArrK
-	 IwKFAtVayIUs8ZfMtC9ewLoiDqLO2Oh+5pIpgXkg+TqaLh5nNFjECzEI4dOjWn8KLc
-	 AnqTa+YJ/zsZ43Z41Da66vEhggrIV7/8YyyvZEhAWmKjbVwj5tqHmr8R9WDVeyD5w4
-	 t033EOssZNANG7pj8yaFn3Q4Qn7qttEOdJvQJ6DLpApLGSuKDYiO0+OTQAKuz5WIWl
-	 f8mkU/qmR23qWlRCb/TkS5crFA7jyQEo/AfI6nj6QALgc1RnXOPPhOq9gMEiJs3XNl
-	 XcERZkDvO5V4Q==
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 6.1.y] kvm: s390: Reject memory region operations for
- ucontrol VMs
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Artem Dinaburg" <artem@trailofbits.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20261002194904.21236-1-artem@trailofbits.com>
-References: <20261002194904.21236-1-artem@trailofbits.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Sat, 03 Oct 2026 01:33:50 +0000
-Message-Id: <20261003013351.250461F00898@smtp.kernel.org>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Ro55FjU9"
+X-Envelope-To: linux-s390@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=qTDcL7ZGZXpqyBImCymnV5HwYb1medCgU94t18ZKIYQ=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1791016026; v=1; x=1791620826;
+ b=Ro55FjU9eeo2D0bxe928BZCuk86eYPwp0remRwVEfjL0NlyNiE4s4ulIYkAixtuXqZL2bHsa
+ C5WpIBwuwX8NKmOvjiYIHOkaDBbncws84vHuePqLEFtzNJC08iR9CWU9nWbs0aAF9mUsoDfmCB7
+ RO2dMmIBMa9CdeufPMzClmK4=
+X-Envelope-To: linux-s390@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id 2a8746d844f124a8;
+	Sat, 03 Oct 2026 08:27:05 +0000
+X-Mizu-Trace-ID: 2a8746d844f124a8
+X-Migadu-Flow: FLOW_OUT
+Date: Sat, 3 Oct 2026 16:27:26 +0800
+From: Chen Yu <chen.yu@linux.dev>
+To: K Prateek Nayak <kprateek.nayak@amd.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Chen Yu <yu.c.chen@intel.com>,
+	Tim Chen <tim.c.chen@linux.intel.com>,
+	Ingo Molnar <mingo@redhat.com>, Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-mips@vger.kernel.org,
+	loongarch@lists.linux.dev, driver-core@lists.linux.dev,
+	Thomas Gleixner <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	Dietmar Eggemann <dietmar.eggemann@arm.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+	Valentin Schneider <vschneid@redhat.com>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	"H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [RFC PATCH v3 09/13] x86/cpu/topology: Initialize sbm topology
+ after topology parsing
+Message-ID: <asC8bgvYsVkkcVlO@three-body>
+References: <20261001192849.74788-1-kprateek.nayak@amd.com>
+ <20261001192849.74788-10-kprateek.nayak@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261001192849.74788-10-kprateek.nayak@amd.com>
 
-> From: Christoph Schlameuss <schlameuss@linux.ibm.com>
->=20
-> [ Upstream commit 7816e58967d0e6cadce05c8540b47ed027dc2499 ]
->=20
-> This change rejects the KVM_SET_USER_MEMORY_REGION and
-> KVM_SET_USER_MEMORY_REGION2 ioctls when called on a ucontrol VM.
-> This is necessary since ucontrol VMs have kvm->arch.gmap set to 0 and
-> would thus result in a null pointer dereference further in.
-> Memory management needs to be performed in userspace and using the
-> ioctls KVM_S390_UCAS_MAP and KVM_S390_UCAS_UNMAP.
->=20
-> Also improve s390 specific documentation for KVM_SET_USER_MEMORY_REGION
-> and KVM_SET_USER_MEMORY_REGION2.
->=20
-> [ Backport to 6.1.y: omitted KVM_SET_USER_MEMORY_REGION2 documentation
->   because that ioctl is absent from 6.1. ]
->=20
-> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
-> Fixes: 27e0393f15fc ("KVM: s390: ucontrol: per vcpu address spaces")
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Link: https://lore.kernel.org/r/20240624095902.29375-1-schlameuss@linux.i=
-bm.com
-> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-> [frankja@linux.ibm.com: commit message spelling fix, subject prefix fix]
-> Message-ID: <20240624095902.29375-1-schlameuss@linux.ibm.com>
-> Assisted-by: LLM
-> Signed-off-by: Artem Dinaburg <artem@trailofbits.com>
+Hello Prateek,
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+On Thu, Oct 01, 2026 at 07:28:45PM +0000, K Prateek Nayak wrote:
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261002194904.2123=
-6-1-artem@trailofbits.com?part=3D1
+[ snip ]
 
+> +static __init void init_sbm_topology(u32 max_apicid)
+> +{
+> +	u32 sbm_shift = x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN] - 1;
+
+As sashiko reported, and also mentioned here:
+https://lore.kernel.org/lkml/20260510155920.2587431-2-yu.c.chen@intel.com/
+Maybe x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN - 1] ?
+
+> +	int num_sbm_instances, max_threads_per_instance;
+> +
+> +	/*
+> +	 * On Intel systems, memory controllers are present at TOPO_DIE_DOMAIN.
+> +	 * On newer AMD and Hygon systems, LLC is at TOPO_TILE_DOMAIN so use
+> +	 * that instead.
+> +	 */
+> +	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
+> +	    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON)
+> +		sbm_shift = x86_topo_system.dom_shifts[TOPO_TILE_DOMAIN] - 1;
+
+Ditto.
+
+thanks,
+Chenyu
