@@ -1,87 +1,84 @@
 Received: from mail-dy2-f12.google.com (mail-dy2-f12.google.com [74.125.229.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36CC8372661
-	for <linux-s390@vger.kernel.org>; Sat,  3 Oct 2026 18:33:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83B3B37E5D9
+	for <linux-s390@vger.kernel.org>; Sat,  3 Oct 2026 18:33:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.229.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791052390; cv=none; b=SGg1RWFhqiMIbvKySYxi3UqXeCeg9pWtp02Smg4V1rpFvR3CZft8TBd6RL5GQU63acJer60MHWjjBRIVLgC705rWxz+Qi7UCQDqssWpCy2h3V/ljXoF6VRPKcvGypM0/zpkQk9JEf8S+L2EPLtuvOr58MTlNdMtf8xiHp+ee/7A=
+	t=1791052427; cv=none; b=nEBfbJnLmCmwhga6gL82y96VQ1ptSJovavy4fucFte8JXkuiJqZtClqRJMo20q4DQstyKaEszBl4t9POoW9il62Fujny2Yoybb9Accrof/yRXukDWMd/mmhIjhJdZYKmjGYJCyvSkG2bdodPbGhO4jxwXhGLnM9TItu4LdNC3PM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791052390; c=relaxed/simple;
-	bh=/h6lOlOa1TOSE6/YjJjYsJ0AjizmijOCWan0WqqB9oo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=r/RyAIQrGB0M6wgXkmxDI6Uf7YvQ0Pv1FmfXkDmd32U+ZBdLyFbn9JzLDFpQwcR0Oj2CxUpUqmKJp33FP2YzirvdzcJnDh2lpkq5hqsp7pTyYYKb7tVij5Sxamhv3Ar3ZodiVBpHSkCWohyhDm47v5e4cNkNoOCVJGWxdH2sU7g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F0WpIzaM; arc=none smtp.client-ip=74.125.229.12
+	s=arc-20240116; t=1791052427; c=relaxed/simple;
+	bh=UgOZ0GFL8cUJgtYosLRGRQWy7oMnRdA2GN6IgRIw/aI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lonbfDNRrNYZ7I/2/nPqbcKmMrMWI+wpWmZ7q8SgR0exILBdedviUKkTPoMpDnTV+y1iOhVtYxocgZYwWP3M7DL7KvtRcM+Q4MFwH2YLJ8K43OWAXJJ4Lt2hqLNeYWB6WfSGTEs6qbd1ILaK0hscY5ujtoGr5BC4Bdxsdyj51/Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AEGzxAZS; arc=none smtp.client-ip=74.125.229.12
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F0WpIzaM"
-Received: by mail-dy2-f12.google.com with SMTP id 5a478bee46e88-33bc6ff6cadso91491eec.0
-        for <linux-s390@vger.kernel.org>; Sat, 03 Oct 2026 11:33:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AEGzxAZS"
+Received: by mail-dy2-f12.google.com with SMTP id 5a478bee46e88-33bc6ff6cadso91538eec.0
+        for <linux-s390@vger.kernel.org>; Sat, 03 Oct 2026 11:33:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791052386; x=1791657186; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=cuY5nPRthZWhch4MsboYh+YgCm2kORhdKEQMo3rY0hU=;
-        b=F0WpIzaM6tSQn+CNycvLFISX+cx69ZeNXtg2a8BKWIg8Q2fWh4uiFviZ8Qis+H0Z2c
-         T4am0OTIweASubfA/lTGDoVFVnzet/hy2Z46tnNUQ9ETazQqdYP6G1B5ZxBwNdukx295
-         IgT6l0A51kYcvMVEgdS+yWicheKgJYsCndIG+pMnCFGIswrKTPmH8KRlC2RsJvjKoTM7
-         D/gK38O3zQC2EVdjChOIYSqDnJUp/WwqMEaRPcWVpXXevzk2HgxltgElN+jBpKqxLMBq
-         6KbPiI6c5qKfbo/aW3oXel0QmhvcI/bpRyuEVLs53VS1g9aGPuLL+wArLvxRw/cvqnvE
-         tRcw==
+        d=gmail.com; s=20251104; t=1791052425; x=1791657225; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=+WzRfvLcRZ3DtTlJg9GdruORS24wuPjSqAyK7FdnxtI=;
+        b=AEGzxAZSdx6poWSKgX8VOzHDAWFdojSXBh15aN/Lkb20fvg11Fm34ec+GdZoaQCi1G
+         YFNCkZ6AlUXsNnpWAI9nLFAv/9DXWAooCUO95ppSn3X+L8xXKx/K2F1BydxGQyDCeDKm
+         5VP3jwDIUXklZffb45uMT5H19O1orBMnpuWIRj4HQtCegGYWLzN8ux25Jk+3ZYFjg7v6
+         rPDab1Ztt3pIuJpn+wnwKUDzXA8FTLxm+p385xatKNvOcYvRiZ67u4BNIwDYX2Oq20GX
+         qmdq8jrgagIz1liMB6l/lI5j3bMAkyQmeCy5BIM7uHqnZqohyOE5ZvBe8irIYAxh2SDu
+         pG7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791052386; x=1791657186;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=cuY5nPRthZWhch4MsboYh+YgCm2kORhdKEQMo3rY0hU=;
-        b=LMVb6b2lpKe56/GdB1p9Dhd9UDqx3BjYgs65fT1ZPT2Z/jk1oaQfcZHdQFCl92+JjC
-         phvlPuOHoqxWSEmZ8cX/2OIH0lwqqXi6SzH5p0y93rxeJNM4NeBZ7WRkigzgA6KPh0eZ
-         NZnRpKgAZ2vUPBvMYVgV5TfH6wuQ0g+qskl/vQP+bZcwEJEY1qXLZzrIAl9tsgyVVGq4
-         Jbw5YR9LlOeoCNkXoik18vdH1rgJV5ly4/q0f8GXQ5Pd0+yHgjVYfQkXJ8Z8AKfpSVyK
-         V3gbge2zN81po9uYGfCvnYXBh7gMLVW9myZ4I5N7LMfqyxbPvUdu3H82PnOEoNjhEo5W
-         Yk7A==
-X-Forwarded-Encrypted: i=1; AKwUvBwitpXZRpTecn+Jy445kTCGfXgrNQ2Eedmmx2FeGcUqc7bIBra6BVI9sffxW4b0285ddmgX2z1VuOuy@vger.kernel.org
-X-Gm-Message-State: AFq9FYKGX3I9MtxFB30IIYcUBh1GKnSRa3JkWS0k77I2Zs2xqEqkXsvl
-	TDD68kmisZJ9PnxNFW/0sxn2llCeQ7jeaO3Dap7px0HWmmPxxxNNBlt2
-X-Gm-Gg: AYBFou3rdmWFZ+IgMNgUXI1E62p3VeuaZrNixKq/KDHX/LrD3TpyApf8FXgoz1PIgxi
-	uFfhuvwrvNIVOrglXfmPmyDQqm3GsnnxtiAe6t94ahRiLfgr0tMZp2HYKkRrUwhAvbV9JXWLr76
-	nRX5fsL6W78bx+2mCaKhiKLu+Mu0nsPWAN4Va2QzbiMn4/ymUWF7e48klWlhH67E+9kwC1sTXLp
-	+jcxDH8phM8M5nRWdNT1tlp93Nm4a343XXKeANVY4XjfIrcOC263wcquw/SgNEmKkgGm3tQOUuz
-	QAjYh45o/9jDqIefU75ka1j28LmA22zYsC0bZvVKaogKCOMGXmDna7ART4uY0j+ZVaUt1wtoAix
-	xb948MfeNtoaB3JpA5tJJ6h7WwyCy1ImHdiMoNoNeIbdvhG7wJH7niprNedxnpDfJBhoV+E8jJ5
-	FrNJhFJJGZOlJr6u3E0GwXCbLxF36HZ+9qnGRhx8eT7CB6GS1B460W8E9UAqsyo8QSukbmdu0/s
-	sEBCrAt4+b2NBVtcLb7UkNWXQg25KhlisXGh+j6DWmE8v9HK6IBwx8ds6Hc1dqTtpImiQ==
-X-Received: by 2002:a05:693c:8858:b0:33e:8552:6e06 with SMTP id 5a478bee46e88-34f06674f4fmr11369817eec.0.1791052386124;
-        Sat, 03 Oct 2026 11:33:06 -0700 (PDT)
+        d=1e100.net; s=20260707; t=1791052425; x=1791657225;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=+WzRfvLcRZ3DtTlJg9GdruORS24wuPjSqAyK7FdnxtI=;
+        b=tB6cLxFBuaPTg3ZkNM1g915ov7PqQN3TOG4WIvOdqsN+sSk0ujR3L7fRZ+9sJvI+1U
+         8bSfg4gwijFYV+i6ZLZlShl077KKDPCexeEz6HUN9a6o5cZUwPUqCs7dpAFWd9ueipIj
+         Nn32aN9lIdfsJB9MD+2ak/SUB/zbOlM/cAboJse9cQrlCOPUEwLC3arte53LgKCiW/Lo
+         Qbb5d/MrSus5kbcpiTbVPurPzXTc5LsqNVYHeIUOKQN6ggkpE5BZigMAU8TUEJbcQMrV
+         R/x91Xk45Fr49kqC4mxB+8Gs2Wmj3ZFMOkEa6Eq/6WQwLL0NxVNpETo431PLtKedAPJz
+         q+cg==
+X-Forwarded-Encrypted: i=1; AKwUvByFRdp2FvSDfrd0LNiXHvEv+j6bpc8htqUCcSNjyUfClKy8V05gdq9IK69pS1+p/SukzXJhjDO7dD31@vger.kernel.org
+X-Gm-Message-State: AFq9FYIuckm1rKU2VriqT4InWdfNEKTsjL5bWQSmBX7PwDNdfxufLq5H
+	ji0jgr+H0IRf6r1Hep9HVt2K6WPYAITdDsA+QjsKdZjytlGjahLF4OE2
+X-Gm-Gg: AYBFou3PYdOIG8AapUyqYDJWizjeFHrYnP3dfY7SDfZlroKk6tkuM1AAJqDv9bCABlg
+	u5zQIg6yZAwOAjQvu8m+L/3Ep/abwBApfTK8d+ws/FKkcD7/HFZKFgFNQr2l/sDOno/29y2RQC3
+	5uujL/QilBMcZ4C2XiysvCriKAb4VppfP9vY+Yobf887FSLGDFRhmO/1fXoeIOYvt1QbQfddUv3
+	xiLHkv5JxeqZMA+QT1o8wI7XPgaev2Tz/Rn0g1uaaByrKzKT9TaGGmXOhkCEmMWe9yJm9TDzITI
+	nu6lE9VELE0jBRDs+6uHMPdbSctQKIlbTZ9pa2WefPbd41qPnZe5Q4+bOfOAkX/DSnYz3DH+py+
+	Az3kNpC/U36aamW7Dlksl6B/JK68GvyLz4hkFlUrTZjCmex2GtdydfMi3V/ojBMre5T98dHIAC5
+	wFQsiFYclAAHewVtcWAsxLrz/ZxI7bHl67O/qdfevL9yE+8vxbVEIVIt7XLFzv2y0HM3V0Bjmq7
+	JHIJvGj/4P+B8IaA1vgSfIznos6jiUeS9l6zn9wupTAb3/kdo0Thj9+vHRzmFVezSawuQ==
+X-Received: by 2002:a05:693c:864b:10b0:33e:4e49:d08d with SMTP id 5a478bee46e88-3510d2815f3mr8300609eec.1.1791052424456;
+        Sat, 03 Oct 2026 11:33:44 -0700 (PDT)
 Received: from localhost.localdomain (95.169.12.199.16clouds.com. [95.169.12.199])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-34f14fd9698sm17118191eec.23.2026.10.03.11.33.02
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3510d1575e1sm11191328eec.25.2026.10.03.11.33.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 03 Oct 2026 11:33:05 -0700 (PDT)
+        Sat, 03 Oct 2026 11:33:44 -0700 (PDT)
 From: Chengfeng Ye <nicoyip.dev@gmail.com>
-To: alibuda@linux.alibaba.com,
-	dust.li@linux.alibaba.com,
-	sidraya@linux.ibm.com,
-	mjambigi@linux.ibm.com,
-	davem@davemloft.net,
-	edumazet@kernel.org,
-	kuba@kernel.org,
-	pabeni@redhat.com
-Cc: tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	horms@kernel.org,
+To: "D . Wythe" <alibuda@linux.alibaba.com>,
+	Dust Li <dust.li@linux.alibaba.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>
+Cc: Tony Lu <tonylu@linux.alibaba.com>,
+	Wen Gu <guwen@linux.alibaba.com>,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
 	linux-rdma@vger.kernel.org,
 	linux-s390@vger.kernel.org,
 	netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH net v2 2/2] net/smc: serialize early link group cleanup with termination
-Date: Sun,  4 Oct 2026 02:32:37 +0800
-Message-ID: <20261003183237.2284245-3-nicoyip.dev@gmail.com>
+	stable@vger.kernel.org,
+	Chengfeng Ye <nicoyip.dev@gmail.com>
+Subject: [PATCH net v2] net/smc: serialize clcsock access with its release
+Date: Sun,  4 Oct 2026 02:33:25 +0800
+Message-ID: <20261003183325.2289707-1-nicoyip.dev@gmail.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261003183237.2284245-1-nicoyip.dev@gmail.com>
-References: <20261003183237.2284245-1-nicoyip.dev@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -90,119 +87,313 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-smc_lgr_cleanup_early() enters __smc_lgr_terminate() even when another
-teardown path has already claimed lgr->freeing. Both callers can observe
-lgr->terminating clear before either sets it, then tear down the same
-link group, causing use-after-free and duplicate resource release.
+Link-group termination can release the CLC socket through
+smc_close_active_abort() while the SMC socket is still open, for example
+after shutdown(SHUT_WR). A file reference keeps the SMC socket alive but
+does not prevent this asynchronous release of its CLC socket.
 
-  BUG: KASAN: use-after-free in __smc_lgr_terminate+0x393/0x3a0
-  Write of size 1 at addr ffff8880bf2c0300 by task poc/106
+smc_getname() can race the pointer removal and sock_release(). The same
+missing lifetime synchronization affects smc_set_keepalive(), diagnostic
+address copying and an in-flight SMC-R CDC receiver. smc_shutdown() can
+also reach its final CLC shutdown after its close helper drops the socket
+lock and a concurrent abort closes the socket. Holding the SMC socket
+lock alone is insufficient because CLC release runs outside that lock.
+
+KASAN reported the getname failure:
+
+  BUG: KASAN: slab-use-after-free in smc_getname+0x19e/0x1b0
+  Read of size 8 at addr ffff888109abb4e0 by task poc/103
   Call Trace:
-   __smc_lgr_terminate+0x393/0x3a0
-   __smc_connect+0x2e3d/0x4930
-   smc_connect+0x42c/0x580
-   __sys_connect+0xfc/0x130
-   __x64_sys_connect+0x6d/0xb0
+   smc_getname+0x19e/0x1b0
+   do_getsockname+0xe5/0x170
+   __sys_getsockname+0x8c/0x100
 
-Check freeing under the link group list lock before unlinking the group
-or entering termination. The existing locked freeing transition then
-claims exclusive teardown ownership; an early cleanup that loses the
-claim leaves teardown to the existing owner and does not remove the group
-from a device teardown's private list.
+  Allocated by task 95:
+   sock_alloc_inode+0x1e/0x280
+   sock_alloc+0x3d/0x240
+   __sock_create+0x7e/0x430
+   smc_create+0x121/0x240
 
-Keep a temporary link group reference across smc_conn_free() and early
-cleanup in smc_conn_abort(). Once the connection is unregistered, a
-termination worker can finish without taking its socket lock. The extra
-reference keeps the allocation alive until the ownership check returns.
+  Freed by task 0:
+   kmem_cache_free+0xcc/0x340
+   rcu_core+0x50a/0x1850
 
-The registration failure path in smc_conn_create() needs the same
-protection. A new group is published before registration, but the
-connection reference is taken only on success. Concurrent termination
-can release the group after conns_lock is dropped and before early
-cleanup. Hold the new group before publication and release that temporary
-reference after failed-registration cleanup. On success, acquire the
-ordinary connection reference before releasing the temporary hold.
-Reused groups retain their existing reference protocol.
+  Last potentially related work creation:
+   evict+0x446/0x6c0
+   smc_clcsock_release+0xa8/0xd0
+   smc_close_active_abort+0x26a/0x3a0
+   __smc_lgr_terminate.part.0+0x137/0x2e0
 
-Fixes: f9aab6f2ce57 ("net/smc: immediate freeing in smc_lgr_cleanup_early()")
+Hold clcsock_release_lock across getname, the final shutdown callback
+and the TCP abort accesses, including dangling non-blocking connect
+cleanup. Keep the peer state check and callback errors unchanged, and
+return -EBADF from getname when the CLC socket is already gone.
+
+CDC receive runs in BH context, and diagnostics hold the hash-table
+read lock, so neither can use the mutex. Add a spinlock for these short
+accesses and for keepalive, whose TCP callback does not sleep. Use it
+for CLC pointer publication and detachment as well. Both release paths
+detach under the spinlock and call sock_release() after dropping it,
+while retaining the mutex to exclude sleeping readers. This protects
+both the socket wrapper and its sk until each reader finishes.
+
+Fixes: b03faa1fafc8 ("net/smc: postpone release of clcsock")
 Cc: stable@vger.kernel.org
 Assisted-by: GPT-6.1-Sol
 Signed-off-by: Chengfeng Ye <nicoyip.dev@gmail.com>
 ---
 Changes in v2:
-- Pin newly created link groups before publication, covering the
-  registration failure handoff to early cleanup. Drop the temporary hold
-  after cleanup on failure, or after the connection hold on success.
-- Send after the free-work scheduling fix and reuse its standalone
-  freeing bool and locked early-cleanup transition.
-- Pin the link group across the smc_conn_abort() early-cleanup ownership
-  check.
+- Cover the other readers sharing the getname bug's asynchronous CLC
+  release race, as identified by the public Sashiko review and source
+  audit. These races predate v1; its getname fix did not introduce them.
+- Cover keepalive, diagnostic and CDC readers with a BH-safe spinlock.
+- Serialize pointer publication and both published CLC release paths;
+  release the detached socket outside the spinlock.
+- Protect the final shutdown callback and TCP abort readers with the
+  release mutex, including dangling non-blocking connect cleanup.
 
-v1: https://lore.kernel.org/r/20260927063607.3691520-1-nicoyip.dev@gmail.com/
+v1: https://lore.kernel.org/r/20260926180404.2721010-1-nicoyip.dev@gmail.com/
+Review: https://lore.kernel.org/r/179072681701.434549.13763000893839581310@kernel.org/
 
- net/smc/af_smc.c   | 8 ++++++--
- net/smc/smc_core.c | 8 ++++++++
- 2 files changed, 14 insertions(+), 2 deletions(-)
+ net/smc/af_smc.c    | 46 +++++++++++++++++++++++++++++++++++----------
+ net/smc/smc.h       |  7 ++++---
+ net/smc/smc_cdc.c   |  2 ++
+ net/smc/smc_close.c | 11 +++++++----
+ net/smc/smc_diag.c  |  5 ++++-
+ 5 files changed, 53 insertions(+), 18 deletions(-)
 
 diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index e9f93b3ab435..97b0a0b51066 100644
+index e9f93b3ab435..eab9c42dd3cb 100644
 --- a/net/smc/af_smc.c
 +++ b/net/smc/af_smc.c
-@@ -1011,12 +1011,16 @@ static void smc_conn_abort(struct smc_sock *smc, int local_first)
- 	struct smc_link_group *lgr = conn->lgr;
- 	bool lgr_valid = false;
+@@ -116,7 +116,10 @@ static void smc_set_keepalive(struct sock *sk, int val)
+ {
+ 	struct smc_sock *smc = smc_sk(sk);
  
--	if (smc_conn_lgr_valid(conn))
-+	if (local_first && smc_conn_lgr_valid(conn)) {
- 		lgr_valid = true;
-+		smc_lgr_hold(lgr);
-+	}
- 
- 	smc_conn_free(conn);
--	if (local_first && lgr_valid)
-+	if (lgr_valid) {
- 		smc_lgr_cleanup_early(lgr);
-+		smc_lgr_put(lgr);
-+	}
+-	smc->clcsock->sk->sk_prot->keepalive(smc->clcsock->sk, val);
++	spin_lock_bh(&smc->clcsock_lock);
++	if (smc->clcsock)
++		smc->clcsock->sk->sk_prot->keepalive(smc->clcsock->sk, val);
++	spin_unlock_bh(&smc->clcsock_lock);
  }
  
- /* check if there is a rdma device available for this connection. */
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 478c8bc2759a..1918a79ff60e 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -693,6 +693,10 @@ void smc_lgr_cleanup_early(struct smc_link_group *lgr)
+ static struct sock *smc_tcp_syn_recv_sock(const struct sock *sk,
+@@ -340,8 +343,12 @@ int smc_release(struct socket *sock)
+ 	old_state = sk->sk_state;
  
- 	smc_lgr_list_head(lgr, &lgr_lock);
- 	spin_lock_bh(lgr_lock);
-+	if (lgr->freeing) {
-+		spin_unlock_bh(lgr_lock);
-+		return;
+ 	/* cleanup for a dangling non-blocking connect */
+-	if (smc->connect_nonblock && old_state == SMC_INIT)
+-		tcp_abort(smc->clcsock->sk, ECONNABORTED);
++	if (smc->connect_nonblock && old_state == SMC_INIT) {
++		mutex_lock(&smc->clcsock_release_lock);
++		if (smc->clcsock)
++			tcp_abort(smc->clcsock->sk, ECONNABORTED);
++		mutex_unlock(&smc->clcsock_release_lock);
 +	}
- 	/* do not use this link group for new connections */
- 	if (!list_empty(&lgr->list))
- 		list_del_init(&lgr->list);
-@@ -999,6 +1003,7 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
- 		lgr->buf_type = lgr->net->smc.sysctl_smcr_buf_type;
- 		atomic_inc(&lgr_cnt);
+ 
+ 	if (cancel_work_sync(&smc->connect_work))
+ 		sock_put(&smc->sk); /* sock_hold in smc_connect for passive closing */
+@@ -409,6 +416,7 @@ void smc_sk_init(struct net *net, struct sock *sk, int protocol)
+ 				      "sk_lock-AF_SMC", &smc_key);
+ 	spin_lock_init(&smc->accept_q_lock);
+ 	spin_lock_init(&smc->conn.send_lock);
++	spin_lock_init(&smc->clcsock_lock);
+ 	mutex_init(&smc->clcsock_release_lock);
+ 	smc_init_saved_callbacks(smc);
+ 	smc->limit_smc_hs = net->smc.limit_smc_hs;
+@@ -1787,7 +1795,9 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
+ 			new_clcsock->sk->sk_error_report = lsmc->clcsk_error_report;
  	}
-+	smc_lgr_hold(lgr); /* lgr_put in smc_conn_create() */
- 	smc->conn.lgr = lgr;
- 	spin_lock_bh(lgr_lock);
- 	list_add_tail(&lgr->list, lgr_list);
-@@ -2054,10 +2059,13 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
- 		write_unlock_bh(&lgr->conns_lock);
- 		if (rc) {
- 			smc_lgr_cleanup_early(lgr);
-+			smc_lgr_put(lgr); /* lgr_hold in smc_lgr_create() */
- 			goto out;
+ 
++	spin_lock_bh(&(*new_smc)->clcsock_lock);
+ 	(*new_smc)->clcsock = new_clcsock;
++	spin_unlock_bh(&(*new_smc)->clcsock_lock);
+ out:
+ 	return rc;
+ }
+@@ -1825,6 +1835,7 @@ struct sock *smc_accept_dequeue(struct sock *parent,
+ 				struct socket *new_sock)
+ {
+ 	struct smc_sock *isk, *n;
++	struct socket *clcsock;
+ 	struct sock *new_sk;
+ 
+ 	list_for_each_entry_safe(isk, n, &smc_sk(parent)->accept_q, accept_q) {
+@@ -1833,10 +1844,14 @@ struct sock *smc_accept_dequeue(struct sock *parent,
+ 		smc_accept_unlink(new_sk);
+ 		if (new_sk->sk_state == SMC_CLOSED) {
+ 			new_sk->sk_prot->unhash(new_sk);
+-			if (isk->clcsock) {
+-				sock_release(isk->clcsock);
+-				isk->clcsock = NULL;
+-			}
++			mutex_lock(&isk->clcsock_release_lock);
++			spin_lock_bh(&isk->clcsock_lock);
++			clcsock = isk->clcsock;
++			isk->clcsock = NULL;
++			spin_unlock_bh(&isk->clcsock_lock);
++			if (clcsock)
++				sock_release(clcsock);
++			mutex_unlock(&isk->clcsock_release_lock);
+ 			sock_put(new_sk); /* final */
+ 			continue;
  		}
+@@ -2784,6 +2799,7 @@ int smc_getname(struct socket *sock, struct sockaddr *addr,
+ 		int peer)
+ {
+ 	struct smc_sock *smc;
++	int rc = -EBADF;
+ 
+ 	if (peer && (sock->sk->sk_state != SMC_ACTIVE) &&
+ 	    (sock->sk->sk_state != SMC_APPCLOSEWAIT1))
+@@ -2791,7 +2807,11 @@ int smc_getname(struct socket *sock, struct sockaddr *addr,
+ 
+ 	smc = smc_sk(sock->sk);
+ 
+-	return smc->clcsock->ops->getname(smc->clcsock, addr, peer);
++	mutex_lock(&smc->clcsock_release_lock);
++	if (smc->clcsock)
++		rc = smc->clcsock->ops->getname(smc->clcsock, addr, peer);
++	mutex_unlock(&smc->clcsock_release_lock);
++	return rc;
+ }
+ 
+ int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+@@ -3003,8 +3023,10 @@ int smc_shutdown(struct socket *sock, int how)
+ 		/* nothing more to do because peer is not involved */
+ 		break;
  	}
- 	smc_lgr_hold(conn->lgr); /* lgr_put in smc_conn_free() */
-+	if (ini->first_contact_local)
-+		smc_lgr_put(conn->lgr); /* lgr_hold in smc_lgr_create() */
- 	if (!conn->lgr->is_smcd)
- 		smcr_link_hold(conn->lnk); /* link_put in smc_conn_free() */
- 	conn->freed = 0;
++	mutex_lock(&smc->clcsock_release_lock);
+ 	if (do_shutdown && smc->clcsock)
+ 		rc1 = kernel_sock_shutdown(smc->clcsock, how);
++	mutex_unlock(&smc->clcsock_release_lock);
+ 	/* map sock_shutdown_cmd constants to sk_shutdown value range */
+ 	sk->sk_shutdown |= how + 1;
+ 
+@@ -3353,10 +3375,11 @@ static const struct proto_ops smc_sock_ops = {
+ int smc_create_clcsk(struct net *net, struct sock *sk, int family)
+ {
+ 	struct smc_sock *smc = smc_sk(sk);
++	struct socket *clcsock;
+ 	int rc;
+ 
+ 	rc = sock_create_kern(net, family, SOCK_STREAM, IPPROTO_TCP,
+-			      &smc->clcsock);
++			      &clcsock);
+ 	if (rc)
+ 		return rc;
+ 
+@@ -3365,8 +3388,11 @@ int smc_create_clcsk(struct net *net, struct sock *sk, int family)
+ 	 * smc->sk is close()d, and TCP timers can be fired later,
+ 	 * which need net ref.
+ 	 */
+-	sk = smc->clcsock->sk;
++	sk = clcsock->sk;
+ 	sk_net_refcnt_upgrade(sk);
++	spin_lock_bh(&smc->clcsock_lock);
++	smc->clcsock = clcsock;
++	spin_unlock_bh(&smc->clcsock_lock);
+ 	return 0;
+ }
+ 
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index 427b6d63b993..7c6d80e8c9c0 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -288,6 +288,7 @@ struct smc_sock {				/* smc sock container */
+ 		struct inet_sock	icsk_inet;
+ 	};
+ 	struct socket		*clcsock;	/* internal tcp socket */
++	spinlock_t		clcsock_lock;	/* protects non-sleeping users */
+ 	void			(*clcsk_state_change)(struct sock *sk);
+ 						/* original stat_change fct. */
+ 	void			(*clcsk_data_ready)(struct sock *sk);
+@@ -325,9 +326,9 @@ struct smc_sock {				/* smc sock container */
+ 						 * flight
+ 						 */
+ 	struct mutex            clcsock_release_lock;
+-						/* protects clcsock of a listen
+-						 * socket
+-						 * */
++						/* protects sleeping clcsock
++						 * users and serializes release
++						 */
+ };
+ 
+ #define smc_sk(ptr) container_of_const(ptr, struct smc_sock, sk)
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 32d6d03df321..7ccca35b7b71 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -414,8 +414,10 @@ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+ 	}
+ 	if (smc_cdc_rxed_any_close_or_senddone(conn)) {
+ 		smc->sk.sk_shutdown |= RCV_SHUTDOWN;
++		spin_lock_bh(&smc->clcsock_lock);
+ 		if (smc->clcsock && smc->clcsock->sk)
+ 			smc->clcsock->sk->sk_shutdown |= RCV_SHUTDOWN;
++		spin_unlock_bh(&smc->clcsock_lock);
+ 		smc_sock_set_flag(&smc->sk, SOCK_DONE);
+ 		sock_hold(&smc->sk); /* sock_put in close_work */
+ 		if (!queue_work(smc_close_wq, &conn->close_work))
+diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+index bb0313ef5f7c..486e8b4c132f 100644
+--- a/net/smc/smc_close.c
++++ b/net/smc/smc_close.c
+@@ -28,11 +28,12 @@ void smc_clcsock_release(struct smc_sock *smc)
+ 	if (smc->listen_smc && current_work() != &smc->smc_listen_work)
+ 		cancel_work_sync(&smc->smc_listen_work);
+ 	mutex_lock(&smc->clcsock_release_lock);
+-	if (smc->clcsock) {
+-		tcp = smc->clcsock;
+-		smc->clcsock = NULL;
++	spin_lock_bh(&smc->clcsock_lock);
++	tcp = smc->clcsock;
++	smc->clcsock = NULL;
++	spin_unlock_bh(&smc->clcsock_lock);
++	if (tcp)
+ 		sock_release(tcp);
+-	}
+ 	mutex_unlock(&smc->clcsock_release_lock);
+ }
+ 
+@@ -130,11 +131,13 @@ void smc_close_active_abort(struct smc_sock *smc)
+ 	struct sock *sk = &smc->sk;
+ 	bool release_clcsock = false;
+ 
++	mutex_lock(&smc->clcsock_release_lock);
+ 	if (sk->sk_state != SMC_INIT && smc->clcsock && smc->clcsock->sk) {
+ 		sk->sk_err = ECONNABORTED;
+ 		if (smc->clcsock && smc->clcsock->sk)
+ 			tcp_abort(smc->clcsock->sk, ECONNABORTED);
+ 	}
++	mutex_unlock(&smc->clcsock_release_lock);
+ 	switch (sk->sk_state) {
+ 	case SMC_ACTIVE:
+ 	case SMC_APPCLOSEWAIT1:
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index bf0beaa23bdb..fe705f5143a0 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -39,8 +39,9 @@ static void smc_diag_msg_common_fill(struct smc_diag_msg *r, struct sock *sk)
+ 	memset(r, 0, sizeof(*r));
+ 	r->diag_family = sk->sk_family;
+ 	sock_diag_save_cookie(sk, r->id.idiag_cookie);
++	spin_lock_bh(&smc->clcsock_lock);
+ 	if (!smc->clcsock)
+-		return;
++		goto out;
+ 	r->id.idiag_sport = htons(smc->clcsock->sk->sk_num);
+ 	r->id.idiag_dport = smc->clcsock->sk->sk_dport;
+ 	r->id.idiag_if = smc->clcsock->sk->sk_bound_dev_if;
+@@ -55,6 +56,8 @@ static void smc_diag_msg_common_fill(struct smc_diag_msg *r, struct sock *sk)
+ 		       sizeof(smc->clcsock->sk->sk_v6_daddr));
+ #endif
+ 	}
++out:
++	spin_unlock_bh(&smc->clcsock_lock);
+ }
+ 
+ static int smc_diag_msg_attrs_fill(struct sock *sk, struct sk_buff *skb,
 -- 
 2.43.0
