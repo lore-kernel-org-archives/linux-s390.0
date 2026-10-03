@@ -1,112 +1,112 @@
-Received: from mail-ej2-f43.google.com (mail-ej2-f43.google.com [74.125.228.171])
+Received: from mail-ej2-f42.google.com (mail-ej2-f42.google.com [74.125.228.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7D743AAF54
-	for <linux-s390@vger.kernel.org>; Sat,  3 Oct 2026 19:37:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.228.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74D33379988
+	for <linux-s390@vger.kernel.org>; Sat,  3 Oct 2026 19:46:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.228.170
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791056256; cv=pass; b=Mm4ZI4NuVwkepz/lhbTAyLr6jIea+8YXjIhn51IkG34jfBlVLzzUEVEk6cNTKxL8t4EnD/7lFbzJgF6QS09cKwjfd4Qa29SiqHxDrKDOHt3nEQeYbclr3UA0c+1PWBoXSSkiTfmfC4s4Ic8xNnZsfy8H9jpGrPOESq02EoqFBTw=
+	t=1791056789; cv=pass; b=ZVwVkWgL/cEIfvx8+XoMedKkx1UbIw4xmyXpVRKPrioRg0fsy87QNJ5bCor+U8hAl64AS3smVLnKO0cWeuGmalkOoIClbd69/N2Jl3dPEgGPa+WG29oc2PqrvhThnA+TglS8wqrJdRSgWlbcxUOlgJIp9CB5fKLir1qgLvUIE14=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791056256; c=relaxed/simple;
-	bh=RQdISwCIeTHJRNNRYXKnQccif86ZtXCpqBErB1KRL7U=;
+	s=arc-20240116; t=1791056789; c=relaxed/simple;
+	bh=gyCEr85muo1IcZ8BEDAQBdXVw7XlrGoIbyEzokUqs70=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZHgKy7Bl/4KLbtiKFtw8cEYIT+c46R4SV82En8vgr361LBl2GQvmAG348iZPCucM8fJT8P0Pqo1slifAgI32fAfAtcU5OSJ0UuFFzRCD2r13lz+5YA0l4m9+4RiHVETFqfzciI82kE7MQAoJy9TLt0ZG1eqbcKJY8SiNLC/Y1B8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p2qBkOJb; arc=pass smtp.client-ip=74.125.228.171
+	 To:Cc:Content-Type; b=un2e5dqtw24fY6GpuZ34l5ZVpjU4oDPYkpmQ1gUb8irdfvcJz5mFELX3ws2BxhGlI6Fwtvr0AckKurR9vopsbWhMM22rXZsgO8ctHcFDMTkdC0lOOFbqWiJrJJXTXMJQsJ5/pu+38++qTJLSj677WTwq23IBB3/L69L/e0EYe00=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LYxMr7/y; arc=pass smtp.client-ip=74.125.228.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p2qBkOJb"
-Received: by mail-ej2-f43.google.com with SMTP id a640c23a62f3a-c2a837b0c2bso11414266b.3
-        for <linux-s390@vger.kernel.org>; Sat, 03 Oct 2026 12:37:33 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1791056252; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LYxMr7/y"
+Received: by mail-ej2-f42.google.com with SMTP id a640c23a62f3a-c2e675f73baso10342366b.1
+        for <linux-s390@vger.kernel.org>; Sat, 03 Oct 2026 12:46:24 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791056782; cv=none;
         d=google.com; s=arc-20260327;
-        b=NTUAu92ilEl7BpxVOhFMkzHfyoCzeckJpKvA8SyprbRCOwZCbMJyYk5cQXkEUmF8LB
-         UQhE1RyWkDkkNulD2KHsReWoRki8sU9ShPcX8NgPHqKc2I/D8/uMNHBPoHnUPXTVj4Nz
-         frVZSxcm8mCLffx66HNsaQ0V5gOt9kpYuN7EGcRqnELrYfY5V2NTeLfc2kdDni7LaTf2
-         yzvP1szdPG78ie5gvGwDP5EnXXlFHY1fH3+GiLAOIiWWg7l2S5djx6rP7Fgdsrm0UJxz
-         H8EwZubsZmVKLaUQ08ajWv6BaZ1kudByMiiR8bLWJ7Y3dKz4GXryDQ4HtYYxGu2cSkki
-         UBjQ==
+        b=JkeeLYa/jbSDxeuTNvZULJcH6IvJDfNe75Fy1lXBQuwRzkGFCv3uroGSc8QKx7VE9J
+         Th7pBtqa7RDVOVh8YkW2AUHVIeMYLgAa4qG252t9iyIoJnSuEN7r/FQiWdFftJcpu+bW
+         WwPJpF+8GsLBsryFNrisBnBgtAG3ylNNFL6m+x+ASLN9z7/eqnn9PNSFk016Nlufw7xh
+         ewnUlWUDjhOlfDQfmRqlCMKw6G8ymLUiRk4sIQnglFWzwjRw3gDWdYV86S/i/nkYEE9e
+         FaHyq3qmK/hg7Z7uBPdTf4/3FfXMhVhzeyJNof3mSYl7w+ERUznFm8ORan6CyNPBRNjz
+         /HwQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=+1sgNjTuEhjk9Api27Ek7GbjZW7LaWBth9pDAUxc4Wk=;
-        fh=Qy8XfNhkrTPToDgY4PibIy9h4t6osma9o25/6Mj93xE=;
-        b=RGECHHLVSaw+iIolCKx/ANNS+mebxlRFfpk9szobIroEinSxI9uza8Uf3PMNxnk4YA
-         Y2jBqMV/KCwdN2DNmS2GTJXiyaUF2gKddblir6WJw0C4rE68EpIJH1M1EF3Z1FsR8XXM
-         w2PyNJk30K3LtYO0lvZw1RcWjAdIKVnvDREiK7eeBabVeHVVKb3JtzB0RUsxmWEY2me7
-         VoYYvuyTsqSZIcQVdVQwKcmhqVONLyZ1b/pCUJlaANufz0xqN2cYDfWicIYb5laNcRlh
-         G7qz9wR7ilboUH7kAl+c/UspD1e3lWCJhZK1fLGKhTJ5qkmZ/ZfdMMo35hQgsCJK5PXc
-         Q4nQ==;
+        bh=+qV/L/2fUM1iBr4IKUcgQQzX7MgqliA4Mcl4KozKTq0=;
+        fh=Xiq6NVaEIB3Lt4y2jGBrjW48ppz9KjeuEGFEqOqvqvE=;
+        b=bVjq8c4BbIgh1q3ssPLPDy1aEMv1eV6OXy++ZsgDO1ohGNlpjC0YLTkGR+BzvbjNCH
+         Z0AmVVi3p/1w4UJqFudatgqilVMaxmmMiHW6TVO+VpKWUTpUTkYdVub7jxSpi2zGsg1M
+         5FZUASb8zo/mxHRVVzyO/ocy2cyU8TElUpN4d1SM8tctfxW4J8C8SzcF9cpNeOmtIK8D
+         zG4pwJaBKfp0jbpQB4MqQP3HHOU0TFyA6MOyLmhXZIQywhFs9is4TzYUxs6Kcz6cJbD+
+         3Kp1v4w7cZrn0juMyxWNQX5TmQhbrMUZqKG+wcXjwiZe0bSnyDlGhwrNAA6i2Q2axDxi
+         QYBg==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791056252; x=1791661052; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1791056782; x=1791661582; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=+1sgNjTuEhjk9Api27Ek7GbjZW7LaWBth9pDAUxc4Wk=;
-        b=p2qBkOJbe0JoIVZCajmcrQTxkDnY+IOH3/Tk7u4MNIVFwtr+MwYQD/b8Wiq+6L1Z5D
-         XH8mXaO7g+fmFom3HdXa+rO/y6TynLCKTZZpNl6SscUG+2P0WMrwx5aRc3kjGm6PfhRd
-         1Rr8zmBaUPRzZe1ZoIUjLsdfPRDUU8P5zuF9k9YDE+0VfkHUzJduxWdNTQ6ThddUKhmO
-         2M7odiGaEisdf693nRTuGLEe1H63qaLVrTKKCXqkbNhho+sqeZzA8Euk8bvc1Bq1rnMp
-         omDjAxvICJx04pmTcLSMIRTpsmpop8GR/dN9vInYBmrSD2ufRbKFagmEqiFPTI5+Rh+f
-         Ylcg==
+        bh=+qV/L/2fUM1iBr4IKUcgQQzX7MgqliA4Mcl4KozKTq0=;
+        b=LYxMr7/ymNj1BR0ht8qIimJZnsbLQQP1Nk9mOENyVHcjG4BdZVLoNzdQNz/JuQetMr
+         2IG4zg63Xtq59te5U5Rp9nzv0hNFJ2rcf0OFYig97G8OErEa3SR5+vEEwl2lpLLZT+Xz
+         8ZBQ4AX8jG7yFByHVFuDD9rcNs9wGlQPGgchjKLe09cabajiK84LROgNagC7q15Lbb69
+         nMIw75VgB2lLyVU3T2f7X52bUXo4/narmp7h/aMkDDsiyLDs3n25w+EB4BgLLWQDJa2H
+         xiWFAZIcz9v9d+pUM0rpEaH/gslZicUDfbq9pvDR2UU1nhFg9HgZ+LDzCW+K8+pUBdwL
+         oscg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791056252; x=1791661052;
+        d=1e100.net; s=20260707; t=1791056782; x=1791661582;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=+1sgNjTuEhjk9Api27Ek7GbjZW7LaWBth9pDAUxc4Wk=;
-        b=QSh3efcWneiWlssO7OT5U0A62gZH1LBrpSU3usI43ePkslcFVP3JziI7eu9e+Whdls
-         82Ou7FM5nuC52mkXEPgD1EFkImJH4KIjVQqUo6WAk06nBMBMMWxX8hzkzl3i+setHsNk
-         tB9zrN4xhhN96Z5sS6fhq6LnIayFH7wO+6mhQrJRlte9riffqC2X5o5in5NfnQF33HH4
-         xuy5i9gaOAA7Mkh0mdJBY6jlxRK279wL1+wZzISCXI8B7ThfEggug9bV5OzaA2cSDBBf
-         tIcm/bZIMU5Hr1HGR7GmeuTI/wNP1j3NGMuu43OJdNSP+LBxPebSeMPWEjJ5si2H9U2k
-         dG9Q==
-X-Forwarded-Encrypted: i=1; AKwUvBwLCirGTkCzQfY4Qo5UD47elM5ug7ogjXRe4yODe5LxB8RJw/cloKs/+F86R4phGz8hFGxXJkyHGh6F@vger.kernel.org
-X-Gm-Message-State: AFq9FYJuzEwwrGqButz4e38oeHWs+nBRckVKhCAtLsXKKRwN+icjDmzp
-	LGfet3AvQAcRI5afPPuDeeMogb921X7R+fRWUbzoN5gn0+nR3DFU+iZ/xv5DqGG1xrRDYiYE6au
-	OO+eyb9uPianMAJ3jC55xHBkrpRpEYTY=
-X-Gm-Gg: AYBFou2xitx+Ae+eIv47bUQasWcOZHohxG433GMvtyBt+gNejEv1dtDuj9PUhnWi0b7
-	nmTFzoeOrzbA+ayLNMOTVDlSv4hYrIWEaW4nC8eEoQYOisC9WbokH+Pj1x7Dco7aGeDOpj5kV4b
-	iCZwuWt6HIQu59xEug5pfTdMRsCZuYqcfHCvP4F+7Kcat6eTtmCDRMPMhdMr+Booxz1tmpk0zGI
-	dFlkyBqw7iRHr0+xMxYkOw5iIPiZ+ooVb6vOGBS63L393c9UztlY7CEux4FaZ8cTEZ0Oc0uVQ3z
-	myvGNz+mN/JZCUsIdfGVPM6T4gZWUC6YfzrMXFWspbMUSHMt+huBSaCf1Ufpuei4VAwawHRQwhS
-	M7CpV1Yc4RYDrywEPMhYKpA==
-X-Received: by 2002:a05:6402:1ed0:b0:6aa:a040:cc0b with SMTP id
- 4fb4d7f45d1cf-6af9e26f8demr6033264a12.1.1791056251842; Sat, 03 Oct 2026
- 12:37:31 -0700 (PDT)
+        bh=+qV/L/2fUM1iBr4IKUcgQQzX7MgqliA4Mcl4KozKTq0=;
+        b=R0mLhbrrjaR+3bKsk8tnkYkyC6uLOYUe1XiHjXUisELW8viHYcdFpV6ioKC+p0BNZI
+         dskLE4OtQUEaipqK6WlTfHM4++mnmQpUyRky1zNviwC0l1x7rE1xc3SKc9S5cVq5zXga
+         Gn9C9TCR7lNbjOqmPg1sg6idlQfdYK7ryqEaCd8u0j/6T+xX1dAqs5iTxytHOJp+pG/G
+         RbWWO9qwRcrUrRZqa1fnwMUtao3zjGJosApEXcRUdjf6z14OQmA3SydbM4QdRXLRWZJA
+         eaV0FKnylqDMZr4Cxwq3Yl0RGi154SPFO9pHy83pNlhvYPQKUDNUH0N2Nxnpb1i5ZELl
+         8fnw==
+X-Forwarded-Encrypted: i=1; AKwUvByFQkZXC+b17c/a21Ui9ccYeQw+bweaQJV3ACXbz3ERxLdoDjB/aZ4TYqKGWIRfkZ9CY8qv+Jvr2PC5@vger.kernel.org
+X-Gm-Message-State: AFuF++nsyhKxbExQ2vN8u6rWsramSdDe0x9inmq4MbEmc96cLmgcO6i5
+	s/wJeT16wQNtf25tG12zZBuP+5hnHcj63D0oOjRYfa2ozAJF7tkzl6dJyAhX+qkreQ6Fs0dR8rp
+	JDR0JfSp8MLiIJHTs5Pnw7C35dTn4WMk=
+X-Gm-Gg: AYBFou0kDuK6S2TP7/cilLaNHgeLWu56sOcD6Y90MwElSOHdS0azfuu+qK532yYv6JQ
+	EjlZLSfimN/Lr1Cd/Sz6lhStlVj57mt0YtuMauPxrgpTLBaBNJn8WW/otRpde1o8cE+f+7jHihK
+	LExMOz2KcmLPKPHyeYnaDa1niFn3JTCnbQhmQqfUWdWDZ0B0FMMQX7jumuuEGeXov3XeE/dkWWq
+	uZJJc103i6TguzBxqBjLV35Va7ZmlhKkUMUYtmWQT8waOn1AYA8Z0TPk0b2v3Bv3H28irBwyvn0
+	zG3wvtLYFRLOUXcwiTTndAMzUWTbe6KKyNkY8Y/Ho80UCERVPbC6IRoY+yCJyZwoUIw/yFbwSbo
+	QthWKyFnoPUvg
+X-Received: by 2002:a17:907:6d1f:b0:c24:908b:4e2e with SMTP id
+ a640c23a62f3a-c2e4adb6f57mr571051766b.4.1791056781598; Sat, 03 Oct 2026
+ 12:46:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260927063607.3691520-1-nicoyip.dev@gmail.com> <179072873236.434549.5842458403458661428@kernel.org>
-In-Reply-To: <179072873236.434549.5842458403458661428@kernel.org>
+References: <20260927074520.3694663-1-nicoyip.dev@gmail.com> <179072912501.434549.7831981029772644673@kernel.org>
+In-Reply-To: <179072912501.434549.7831981029772644673@kernel.org>
 From: Chengfeng Ye <nicoyip.dev@gmail.com>
-Date: Sun, 4 Oct 2026 03:37:18 +0800
-X-Gm-Features: AclHuK9p6aQ_J43EOVKpodci3vxNOzsM7jVie2jHyLl0wZCCleShlxslsIU4Ncg
-Message-ID: <CAAo+4rVATDapayqSFFjRaNxFod=bnUGk66opVVUgdwVBr48FNg@mail.gmail.com>
-Subject: Re: [PATCH net] net/smc: Serialize early link group cleanup with termination
+Date: Sun, 4 Oct 2026 03:46:10 +0800
+X-Gm-Features: AclHuK_L2GLX9bAEDsQkTzc7iq6mfzr6SnUv5Tc6X-n5RJVXG2AqpX2JSIzLkgw
+Message-ID: <CAAo+4rUezKDNgd8Fwjs7_YaBCBS-Kj26wZRzDcF+6nNkpYNxDQ@mail.gmail.com>
+Subject: Re: [PATCH net] net/smc: serialize link group free work scheduling
 To: netdev-bot+sashiko@kernel.org
 Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com, 
 	sidraya@linux.ibm.com, mjambigi@linux.ibm.com, tonylu@linux.alibaba.com, 
 	guwen@linux.alibaba.com, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, ubraun@linux.ibm.com, 
-	kgraul@linux.ibm.com, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, kgraul@linux.ibm.com, 
+	ubraun@linux.ibm.com, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
 	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 30, 2026 at 8:38=E2=80=AFAM <netdev-bot+sashiko@kernel.org> wro=
+On Wed, Sep 30, 2026 at 8:45=E2=80=AFAM <netdev-bot+sashiko@kernel.org> wro=
 te:
 >
 > Thank you for your contribution! Sashiko AI review found 2 potential
 > issue(s) to consider.
 >
-> Critical: 0 =C2=B7 High: 1 =C2=B7 Medium: 1 =C2=B7 Low: 0 (1)
+> Critical: 0 =C2=B7 High: 1 (1) =C2=B7 Medium: 1 =C2=B7 Low: 0
 >
 > If you believe none of the issues are legitimate, please reply to each
 > issue of Medium severity or higher and explain why the AI is wrong.
@@ -116,200 +116,218 @@ k
 y
 > (one such reply per series is enough).
 >
-> - [High] The patch covers only one of the two callers of
->   smc_lgr_cleanup_early().
-> - [Medium] Early cleanup can free the link group while a
->   smc_lgr_free_work() callback that has already started is still using=E2=
-=80=A6
+> - [High] The fix is incomplete.
+> - [Medium] The patch treats lgr_lock as the lock for lgr->freeing (the
+>   new comment reads 'protects lgr->freeing').
 >
 > Pre-existing issues:
-> - [Low] In __smc_lgr_terminate() (net/smc/smc_core.c:1573-1574), the
->   comment says "cancel free_work sync, will terminate when lgr->freeing=
+> - [High] Separately from the pending-timer rearm this patch fixes, a
+>   free_work callback that has already started can race with lgr teardown=
 =E2=80=A6
 >
 > --
 >
-> net/smc: Serialize early link group cleanup with termination
+> net/smc: serialize link group free work scheduling
 >
-> This commit makes smc_lgr_cleanup_early() check and claim lgr->freeing
-> under lgr_lock before it calls __smc_lgr_terminate(). This stops early
-> cleanup from racing with the other teardown paths. It also makes
-> smc_conn_abort() hold a temporary link group reference across
-> smc_conn_free() and early cleanup.
->
-> > diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> > index e9f93b3ab435b..97b0a0b510664 100644
-> > --- a/net/smc/af_smc.c
-> > +++ b/net/smc/af_smc.c
-> > @@ -1011,12 +1011,16 @@ static void smc_conn_abort(struct smc_sock *smc=
-, int local_first)
-> >       struct smc_link_group *lgr =3D conn->lgr;
-> >       bool lgr_valid =3D false;
-> >
-> > -     if (smc_conn_lgr_valid(conn))
-> > +     if (local_first && smc_conn_lgr_valid(conn)) {
-> >               lgr_valid =3D true;
-> > +             smc_lgr_hold(lgr);
-> > +     }
->
-> [Severity: High]
-> This adds a reference for the smc_conn_abort() caller, because the new
-> lgr->freeing check needs the link group to still be allocated. Does the
-> other caller of smc_lgr_cleanup_early() need the same protection?
->
-> net/smc/smc_core.c:smc_conn_create() {
->     ...
->                 write_lock_bh(&lgr->conns_lock);
->                 rc =3D smc_lgr_register_conn(conn, true);
->                 write_unlock_bh(&lgr->conns_lock);
->                 if (rc) {
->                         smc_lgr_cleanup_early(lgr);
->                         goto out;
->                 }
->         }
->         smc_lgr_hold(conn->lgr); /* lgr_put in smc_conn_free() */
->     ...
-> }
->
-> The hold is only taken after registration succeeds. On the failure path,
-> smc_lgr_cleanup_early() runs without a reference of its own.
->
-> For SMC-R first contact, smc_lgr_register_conn() fails through
-> smcr_lgr_conn_assign_link() only when the new link is no longer
-> SMC_LNK_ACTIVATING. As far as I can tell, that happens only when
-> __smcr_link_clear() resets the link inside a teardown's smc_lgr_free(). T=
-hat
-> teardown drops the link's lgr reference and then the initial one. For
-> example:
->
-> smc_smcr_terminate_all(NULL)   /* reboot notifier via smc_lgrs_shutdown()=
- */
->     list_splice_init(&smc_lgr_list.list, &lgr_free_list);
->     lgr->freeing =3D 1;
->     __smc_lgr_terminate(lgr, false)
->         smc_lgr_free()
->             smcr_link_clear()->__smcr_link_clear()  /* link UNUSED, lgr p=
-ut */
->             smc_lgr_put(lgr); /* theoretically last lgr_put */
->                 __smc_lgr_free()->kfree(lgr)
->
-> The connecting thread (connect() or the smc_hs_wq listen worker) then see=
+> This patch takes the link group list lock in smc_lgr_schedule_free_work()
+> around the lgr->freeing check and the mod_delayed_work() call. The goal i=
 s
-> registration fail and calls smc_lgr_cleanup_early() on the freed lgr. The=
-re,
-> smc_lgr_list_head() reads lgr->is_smcd and the new check reads
-> lgr->freeing.
+> to stop a concurrent smc_lgr_free_work() from setting freeing and cancell=
+ing
+> the work between the check and the rearm, which would leave a timer pendi=
+ng
+> on a freed link group.
 >
-> The commit message says:
->
->     The extra reference keeps the group alive until early cleanup has
->     checked teardown ownership.
->
-> The smc_conn_create() caller has the same lifetime requirement. Is a
-> use-after-free from early cleanup racing with termination still reachable
-> through that path? The window is narrow. It looks like it needs a teardow=
-n
-> such as a reboot to run during an SMC-R first-contact handshake.
->
-> >
-> >       smc_conn_free(conn);
-> > -     if (local_first && lgr_valid)
-> > +     if (lgr_valid) {
-> >               smc_lgr_cleanup_early(lgr);
-> > +             smc_lgr_put(lgr);
-> > +     }
-> >  }
-> >
-> >  /* check if there is a rdma device available for this connection. */
 > > diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> > index 9974149659c2f..b166a379753c7 100644
+> > index 9974149659c2f..8feb486ada562 100644
 > > --- a/net/smc/smc_core.c
 > > +++ b/net/smc/smc_core.c
-> > @@ -688,6 +688,11 @@ void smc_lgr_cleanup_early(struct smc_link_group *=
-lgr)
+> > @@ -80,6 +80,10 @@ static void smc_ibdev_cnt_dec(struct smc_link *lnk)
 > >
-> >       smc_lgr_list_head(lgr, &lgr_lock);
-> >       spin_lock_bh(lgr_lock);
-> > +     if (lgr->freeing) {
-> > +             spin_unlock_bh(lgr_lock);
-> > +             return;
-> > +     }
-> > +     lgr->freeing =3D 1;
+> >  static void smc_lgr_schedule_free_work(struct smc_link_group *lgr)
+> >  {
+> > +     spinlock_t *lgr_lock; /* protects lgr->freeing */
 >
 > [Severity: Medium]
-> Can early cleanup free the link group while a smc_lgr_free_work() callbac=
-k
-> that has already started is still using it?
+> Is lgr_lock enough to protect lgr->freeing? freeing is a 1-bit bitfield,
+> and it shares a u8 with sync_err and terminating:
 >
-> After freeing is claimed here, __smc_lgr_terminate() only does a
-> non-synchronous cancel:
+> net/smc/smc_core.h:struct smc_link_group {
+>         ...
+>         u8                      sync_err : 1;   /* lgr no longer fits to =
+peer */
+>         u8                      terminating : 1;/* lgr is terminating */
+>         u8                      freeing : 1;    /* lgr is being freed */
+>         ...
+> }
+>
+> Both neighbouring bits are written without lgr_lock. One example is
+> smc_clc_wait_msg():
+>
+>         smc->conn.lgr->sync_err =3D 1;
+>         smc_lgr_terminate_sched(smc->conn.lgr);
+>
+> Another is __smc_lgr_terminate():
+>
+>         lgr->terminating =3D 1;
+>
+> Each of these stores is a read-modify-write of the whole byte.
+> smc_smcd_terminate() and smc_lgr_free_work() set freeing =3D 1 under
+> lgr_lock. Can a concurrent sync_err or terminating store write back a sta=
+le
+> byte and lose that freeing =3D 1?
+>
+> In the sync_err case, smc_lgr_terminate_sched() then returns early becaus=
+e
+> the lgr is already unlinked, so freeing is never set again.
+>
+> Consider a later smc_conn_free() that passed its unlocked list_empty()
+> check before the unlink. Once __smc_lgr_terminate() has cancelled
+> free_work, that call could reach smc_lgr_schedule_free_work() with
+> conns_num =3D=3D 0. It would read freeing =3D=3D 0 under the new lock and=
+ rearm the
+> timer on an lgr that is about to be freed.
+>
+> Would it work better to give freeing its own storage (for example a bool)=
+,
+> or to make every writer of that byte hold lgr_lock?
+>
+> > +
+> > +     smc_lgr_list_head(lgr, &lgr_lock);
+> > +     spin_lock_bh(lgr_lock);
+> >       /* client link group creation always follows the server link grou=
+p
+> >        * creation. For client use a somewhat higher removal delay time,
+> >        * otherwise there is a risk of out-of-sync link groups.
+> > @@ -90,6 +94,7 @@ static void smc_lgr_schedule_free_work(struct smc_lin=
+k_group *lgr)
+> >                                               SMC_LGR_FREE_DELAY_CLNT :
+> >                                               SMC_LGR_FREE_DELAY_SERV);
+> >       }
+> > +     spin_unlock_bh(lgr_lock);
+> >  }
+>
+> [Severity: High]
+> Does this fully close the rearm race? The commit message says a rearm
+> "either precedes the freeing transition and is caught by the subsequent
+> cancellation, or sees freeing set and is skipped". That only holds if eve=
+ry
+> teardown path sets lgr->freeing under lgr_lock before it cancels free_wor=
+k.
+>
+> smc_lgr_cleanup_early() unlinks the lgr under lgr_lock but never sets
+> freeing:
+>
+> net/smc/smc_core.c:smc_lgr_cleanup_early() {
+>         ...
+>         spin_lock_bh(lgr_lock);
+>         /* do not use this link group for new connections */
+>         if (!list_empty(&lgr->list))
+>                 list_del_init(&lgr->list);
+>         spin_unlock_bh(lgr_lock);
+>         __smc_lgr_terminate(lgr, true);
+> }
+>
+> __smc_lgr_terminate() then cancels only once, outside the lock. It sets
+> terminating, not freeing:
 >
 > net/smc/smc_core.c:__smc_lgr_terminate() {
->     ...
+>         if (lgr->terminating)
+>                 return; /* lgr already terminating */
 >         /* cancel free_work sync, will terminate when lgr->freeing is set=
  */
 >         cancel_delayed_work(&lgr->free_work);
 >         lgr->terminating =3D 1;
->     ...
+>         ...
+>         smc_lgr_cleanup(lgr);
+>         smc_lgr_free(lgr);
 > }
 >
-> free_work is queued on system_percpu_wq, not lgr->tx_wq. So
-> destroy_workqueue(lgr->tx_wq) in smc_lgr_free() does not flush it. The
-> callback also holds no lgr reference.
+> On an SMC-D server, smc_listen_work() drops smc_server_lgr_pending after
+> it sends the ACCEPT. A second connection (conn2) from the same peer can
+> then join the first-contact lgr.
 >
-> Suppose the callback has started but has not yet reached the freeing chec=
-k:
+> If the first connection then fails (no CONFIRM, or a DECLINE), teardown
+> goes through:
+>
+> smc_listen_work()->smc_listen_decline()->smc_conn_abort()->
+>     smc_lgr_cleanup_early()->__smc_lgr_terminate()
+>
+> Meanwhile conn2 can be freed on another CPU:
+>
+> CPU0 (conn1 abort)                CPU1 (smc_conn_free(conn2))
+>                                   !list_empty(&lgr->list) is true
+>                                   smc_lgr_unregister_conn(conn2)
+> smc_lgr_cleanup_early()
+>   list_del_init(&lgr->list)
+>   __smc_lgr_terminate()
+>     cancel_delayed_work()
+>     lgr->terminating =3D 1
+>                                   lgr->conns_num =3D=3D 0
+>                                   smc_lgr_schedule_free_work()
+>                                     spin_lock_bh(lgr_lock)
+>                                     lgr->freeing =3D=3D 0
+>                                     mod_delayed_work()
+>     smc_lgr_free()
+>                                   smc_lgr_put() drops last reference
+>
+> This would leave free_work's timer pending on a kfree'd lgr, which is the
+> same __run_timers use-after-free as in the KASAN report.
+>
+> Should smc_lgr_cleanup_early() set lgr->freeing under lgr_lock? Or should
+> smc_lgr_schedule_free_work() also skip the rearm when the lgr is unlinked
+> or terminating?
+>
+> [Severity: High]
+> This is a pre-existing issue and was not introduced by this patch. Can a
+> smc_lgr_free_work() callback that has already started running race with
+> lgr teardown?
+>
+> smc_lgr_free_work() holds no reference on the lgr and dereferences it
+> straight away:
 >
 > net/smc/smc_core.c:smc_lgr_free_work() {
->     ...
+>         ...
 >         smc_lgr_list_head(lgr, &lgr_lock);
 >         spin_lock_bh(lgr_lock);
 >         if (lgr->freeing) {
->     ...
+>         ...
 > }
 >
-> Teardown can then run to completion. smc_lgr_free() drops the initial
-> reference, and the new smc_lgr_put() in smc_conn_abort() drops the last
-> one. __smc_lgr_free() then frees the lgr and its embedded free_work, and
-> the callback goes on to dereference freed memory.
+> Suppose the idle timer fires and the worker starts, but is delayed before
+> this point (by preemption, or on PREEMPT_RT). A teardown can then set
+> freeing and reach __smc_lgr_terminate(). Examples are smc_smcd_terminate(=
+)
+> from an ISM peer shutdown event in smcd_handle_sw_event(),
+> smc_lgr_terminate_sched(), and smc_smcd_terminate_all() or
+> smc_smcr_terminate_all(). The only cancellation there is:
 >
-> The commit message says:
+>         cancel_delayed_work(&lgr->free_work);
 >
->     This also prevents early cleanup from racing with the delayed free
->     worker
+> That call neither cancels nor waits for a callback that is already
+> running.
 >
-> It looks like the freeing flag only prevents a second teardown while the
-> object is still allocated. It does not keep the lgr alive for a worker th=
-at
-> lost the race. Is the commit message accurate here?
+> With no connections left, smc_lgr_free() destroys lgr->tx_wq. free_work i=
+s
+> on system_percpu_wq, so this does not drain it. smc_lgr_put() then calls
+> __smc_lgr_free(), which frees the lgr.
 >
-> To trigger this, the SMC_LGR_FREE_DELAY_* timer has to expire during the
-> creator's abort. That looks like it needs an unusual stall or a jiffies
-> jump.
+> When the worker resumes, it takes spin_lock_bh() on a lock pointer loaded
+> from freed memory. If the stale freeing bit reads 0, it also calls
+> list_del_init() and smc_lgr_free() a second time.
 >
-> [Severity: Low]
-> This isn't a bug introduced by this patch, but the comment in
-> __smc_lgr_terminate() quoted above says "cancel free_work sync". The code
-> calls cancel_delayed_work(), which does not wait for a callback that is
-> already running.
->
-> What protects a pending smc_lgr_free_work() is its own re-check of
-> lgr->freeing under lgr_lock, not a synchronous cancel. Early cleanup now
-> reaches this code after claiming freeing. Could the comment be updated to
-> match the code?
->
-> >       /* do not use this link group for new connections */
-> >       if (!list_empty(&lgr->list))
-> >               list_del_init(&lgr->list);
+> Should teardown use cancel_delayed_work_sync() where the context allows,
+> or should the queued work hold its own lgr reference?
 >
 > --
 > Sashiko AI review =C2=B7 https://netdev-ai.bots.linux.dev/sashiko/#/patch=
-set/20260927063607.3691520-1-nicoyip.dev%40gmail.com
+set/20260927074520.3694663-1-nicoyip.dev%40gmail.com
 
-The issues (incomplete fix and comment consistency) identified are
-addressed in v2
+v2 (in a patch series 1/2, fixed together with another issue net/smc:
+Serialize early link group cleanup with termination) has just been
+sent to address the issues reported by sashiko.
 https://lore.kernel.org/netdev/179105277608.1402591.16173087244761956438@ke=
-rnel.org/T/#t
+rnel.org/T/#m30bd40e302bc951b76e8507324f6457502e4512c.
 
 Best regards,
 Chengfeng
