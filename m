@@ -1,197 +1,150 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr2-f14.google.com (mail-wr2-f14.google.com [74.125.225.78])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 176933EF0AA;
-	Sun,  4 Oct 2026 07:48:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDA444156DA
+	for <linux-s390@vger.kernel.org>; Sun,  4 Oct 2026 08:34:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.78
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791100127; cv=none; b=o//XbTZI4Qc8J8LM7bRp8Px36D9MmrwzUwHZyzF9Eb1moptuQm9szca6MwbERC1i3Ku5fUFjXe3Es691S6tPYmYgCQ8S8GKDFpWHDZJt6298Ckus6N0RiclN0TRLd818yqqmFo1dPKh1yV9oozJcwWSyDHLDIf+LVlkaF9FOg9E=
+	t=1791102843; cv=none; b=mFtWmrB3PTO31szdK7dk6Ev4ALnH3Tj3fGIoRzbZ8sAXLZO0duir48JrYinMOBIjbM9tpPVcYU9phIL0QwsAm2rxerLoVrDjM+XW5wOms8cXbfmel/C275sSVh+9lDvFgAKfDlUU6E8+oDT3ZikqBEwd+NZC0zuTZF9vQsTVyy4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791100127; c=relaxed/simple;
-	bh=ufsoPI5ErQhfwid1FVxSilhHFg/Y1m4Cko/D3D3/ksk=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=I9KQ7ClqnsyVfxQiPfB4NHlypPCynjB27MyQNcf4uJlFLQRVTor/KAUMILGv0GnRvh+yR4WGFKLICTmfG9/H2d3dnaOTrNsiX8fyBz+OUPH5axx9IDQZyMbFmuZHyssWQvuaCVixAkxDdOty8ZZDJemnYOLNmaRWiQhr0Pq3yGs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ByMshHBk; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791102843; c=relaxed/simple;
+	bh=1sBv2SI3wnHyVQDHUJVigmIehBQG6EXZHnsM+TL5srs=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=NWh6tNneDyHbudRjKwkdpJsfOpPTjQHtS3F5d0lLnP+Go9Q237ct3k1s2uQTVVhDKk91neWAc+pssNjrFezcxoM8gkxYvyu4lvBUiTinD+s48vSYJnnitsVphsZapPNkhTtAFSCCW9BY373WahZlQ3ZOL1Eu4KL51TvvvObleNE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NdkAUfd2; arc=none smtp.client-ip=74.125.225.78
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ByMshHBk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06FB01F000FF;
-	Sun,  4 Oct 2026 07:48:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791100125;
-	bh=qWuqTnRYrVRWB+5EiFqkLhW64/Chnr+y9CqLPL+2oJE=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=ByMshHBkV60IasVbCdZNNg2rQnG1jxMlC+HK0R+UnGYFr2o7RYGP4OicJePP0RkqD
-	 I5ExPMP+uRewlI7zYRY88QZap1sgFcLB+7MfHcHC+/Pp4BO7lqJXaOUsD90SzU1XCH
-	 fWbqISa33KhHwOvUOpPScKDJP6Qj5zUrcL9dDgbISfa55xGscG7M9jAfvOOQOZz3N9
-	 47tO17ISvW7hoqiHvBi7WevUAgm4pnsoeeXsvG+RJjQhUncMbowaixeRm7FKAyYRmU
-	 PYLiKPdau4TV2oxk53q0WrIZUArM6ezFZkVFkdkYssLBykpNuBdfyfmA9H62pk3EYE
-	 B4Sh7wxgT0J0A==
-Subject: Re: [PATCH net v7] net/smc: fix lgr/lnk lifetime vs diag reader race
-From: netdev-bot+sashiko@kernel.org
-To: mjambigi@linux.ibm.com
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
- dust.li@linux.alibaba.com, sidraya@linux.ibm.com, hidayath@linux.ibm.com,
- pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, stable@vger.kernel.org, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Date: Sun, 04 Oct 2026 07:48:44 +0000
-Message-ID: <179110012456.434549.13805687630302688897@kernel.org>
-In-Reply-To: <20260930073029.1201202-1-mjambigi@linux.ibm.com>
-References: <20260930073029.1201202-1-mjambigi@linux.ibm.com>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NdkAUfd2"
+Received: by mail-wr2-f14.google.com with SMTP id ffacd0b85a97d-48b0622cc90so312766f8f.1
+        for <linux-s390@vger.kernel.org>; Sun, 04 Oct 2026 01:34:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791102840; x=1791707640; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=0HFDC0D77tUqEmXehAlYyAx2E0DK1wOzX1zKg1ym3bo=;
+        b=NdkAUfd2+KZTf3s9hEpqKwliTej8peJLCSWDISLUjLwt09egN/aiRz2XZCkpPnIhNC
+         aK2B8KkXrAsfSf5UqEl+SqvFza5LHgVUqAccsIdsuUTmlR+g8Uea5bMpAzd2qbdFBiCg
+         t8fADBhEweXTv2ZNQgB7eZ1zF3dsFM6vncUf/ADRkOjyLLHTRGIDP4eOp+lBBA8JuXeu
+         nBJoxu6110IVlbTfAnaegRILWMJ2WNttnECN9/fl0pH8w6q6eG9C43JEnC4p9zNrOs3x
+         cGQa4jIxiwUPFj88RAfsTL3tjVtRaEeC2g1Rjy8xyoFrbRQsWvwMztVhAx2Ih1bK6nsb
+         4faQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791102840; x=1791707640;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=0HFDC0D77tUqEmXehAlYyAx2E0DK1wOzX1zKg1ym3bo=;
+        b=xgEIaMcCBAqDh/XW1PruNemY/8+M3wJuA3WgWCmy5W/UJeKczitBjPjICQ4Nqtw/xz
+         ek0SGOy7wFPEdd/Ug9pLUZNYmbBlhbn276m2UqSvGpg2TxwnOSKNW4Eb6ODHmvi+TYUH
+         Co25oRwuMfUd8/CFjK0tGF/SJ5opNRANI+G/hQaBNVXC37xhqx/Op8KH0xx5ZSoOU2dC
+         8my5N60Cac6lhbIp9rWtHlmNUXUey3Oxxd7W9oLMGeJK887Y6xeG4GxkdxnwkE4lCbJm
+         GguVHZry9zVy9ukBkvuZlO2U78LiZTf5FCQrnOtzqTZRjPH+q0f3jo4bWCVBaJY/gTIQ
+         YYKw==
+X-Forwarded-Encrypted: i=1; AKwUvBytZJxuaCikY4YdCAHs9kju/Vkw7VadMJ0/xIdUx8bOHxjiu6WXceXX2DO7jfF+dQeM9dTXwt4Q9JuU@vger.kernel.org
+X-Gm-Message-State: AFq9FYKFuAd/SPmM6MtdbbDZ1fIrNmQDAVpTtaJXtWfPWMPClq8Zl+Dr
+	nmQQeCipilJEuoPr2Hhl0AV2UFPV2Cj7e1PFmaQHiMNDYCxwnzFTbnRn
+X-Gm-Gg: AYBFou24suWD9hG2+YBbgKPLKiU7NpvnwskGSe31qY985bgFrJY0txZhKZq0vPdYje0
+	5gbXfYR6r5dZoAHvhoZtwWH32L8+IFntw8vBWseQWKtHdRi8Vtzj0rNK/F8jBjrjoUECwn7cxaT
+	qIC/W8S/6U2gYik5Ci9emuzcovGVAAQTQLcYTpQgrhSiaMmRiyfaRc3DHhcWfne4ZkREEDjcjrp
+	MPRcPy80o/Z3PM4DifjxKq382E30DR+bBqrN2cBFK+/kacLMp5tdN/dK+vWeQnhRhGVZES2i7BN
+	XvF9s06Of5bOCIC5H/HO80MNTQzE4Dt8wDLC1cu1P3phiKwIWMzBzxe/wglk3RFdPBYxSYfjEFO
+	ZNb/ifuE6Da6NOUKk+XI8wMVbCtWDkno9pJJe0PDJjSVcQyxAzD+Qk0Mp8hdPF1wO+Ld0kF/CsS
+	U4yUH2qJllDQwXErQO3dXoCdSXcnPWPeavE1fAt34lWG07oSOhHUpRkjQf66j/Z3uXMDth4FsPI
+	2aelop8HPxD1+HHtdrD6px/Sdlcsbikzjc+hzvz7Hflvw==
+X-Received: by 2002:a5d:5d0f:0:b0:488:83f7:633a with SMTP id ffacd0b85a97d-48b12736b49mr11750202f8f.28.1791102839800;
+        Sun, 04 Oct 2026 01:33:59 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48b380f04f8sm17350793f8f.9.2026.10.04.01.33.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 04 Oct 2026 01:33:59 -0700 (PDT)
+Date: Sun, 4 Oct 2026 09:33:57 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Michal Wilczynski <m.wilczynski@samsung.com>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>, Nathan Chancellor
+ <nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, Bill
+ Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, Russell
+ King <linux@armlinux.org.uk>, Thomas Bogendoerfer
+ <tsbogend@alpha.franken.de>, "James E.J. Bottomley"
+ <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Thomas
+ Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
+ <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>, Minchan Kim <minchan@kernel.org>, Jens
+ Axboe <axboe@kernel.dk>, Andrew Morton <akpm@linux-foundation.org>,
+ linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-block@vger.kernel.org, Yann Collet <yann.collet.73@gmail.com>, Nick
+ Terrell <terrelln@meta.com>, Gao Xiang <xiang@kernel.org>, Chao Yu
+ <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>, Herbert Xu
+ <herbert@gondor.apana.org.au>, Phillip Lougher <phillip@squashfs.org.uk>,
+ Sungguk <sungguk.na@samsung.com>, Jaehoon Chung <jh80.chung@samsung.com>,
+ Marek Szyprowski <m.szyprowski@samsung.com>, linux-erofs@lists.ozlabs.org,
+ linux-f2fs-devel@lists.sourceforge.net, linux-crypto@vger.kernel.org
+Subject: Re: [PATCH RFC 1/9] lib/lz4: import upstream LZ4 sources verbatim
+Message-ID: <20261004093357.33a124b4@pumpkin>
+In-Reply-To: <fac0f401-bbd3-444b-a755-53cc393673de@samsung.com>
+References: <20260925-lz4-vendor-upstream-v1-0-1c7ffbe21c4b@samsung.com>
+	<CGME20260925113452eucas1p170bfdb34dfbf670a14a6f8f0c2f5094a@eucas1p1.samsung.com>
+	<20260925-lz4-vendor-upstream-v1-1-1c7ffbe21c4b@samsung.com>
+	<arn3TC7BgjTXWmdG@google.com>
+	<fac0f401-bbd3-444b-a755-53cc393673de@samsung.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issue(s) to consider.
+On Sun, 4 Oct 2026 01:50:39 +0200
+Michal Wilczynski <m.wilczynski@samsung.com> wrote:
 
-Critical: 0 · High: 1 · Medium: 1 · Low: 0
+> On 9/28/26 07:19, Sergey Senozhatsky wrote:
+> > On (26/09/25 13:27), Michal Wilczynski wrote:
+> > [..]  
+> >> +int LZ4_compress_fast_extState(void* state, const char* source, char* dest, int inputSize, int maxOutputSize, int acceleration)
+> >> +{
+> >> +    LZ4_stream_t_internal* const ctx = & LZ4_initStream(state, sizeof(LZ4_stream_t)) -> internal_donotuse;
+> >> +    assert(ctx != NULL);  
+> > 
+> > Probably in some other places as well:
+> > 
+> > LZ4_initStream() can return NULL, but the code immediately derefs
+> > the pointer.  The assert() check seems to be misplaced, unless I'm
+> > missing something.
+> > 
+> > I suppose those need to be decoupled.  First LZ4_initStream() call and
+> > NULL check, then stream->internal_donotuse.  
+> 
+> Good catch, this assert() is a noop in the kernel (as any build without
+> LZ4_DEBUG), so a NULL, undersized or misaligned wrkmem oopses in
+> LZ4_compress_fast(), and LZ4_compress_destSize() and LZ4_resetStreamHC()
+> carry on with an uninitialised state.
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+The assert() is also just a waste of code.
+Debugging the NULL pointer dereference is just as easy.
 
-- [High] The patch does not fully close the diag-reader vs. link-lifetime
-  race it says it fixes.
-- [Medium] The new safety gates in __smc_diag_dump() depend on a plain,
-  lockless load of sk->sk_state.
+David 
+ 
+> 
+> No in-tree caller hits it (all use kmalloc/vmalloc), and I listed the
+> alignment requirement as a behaviour change in the cover letter. Still,
+> the vendored files need to stay verbatim.
+> 
+> So in v2 our own entry points can check alignment with a WARN_ON_ONCE()
+> and bail out early. It might be something that we can fix upstream as
+> well.
+> 
+> 
+> >   
+> 
+> Best regards,
 
---
-
-net/smc: fix lgr/lnk lifetime vs diag reader race
-
-This patch tries to close races between the SMC sock_diag dump and
-teardown paths. The dump walks the socket hash under read_lock, while the
-teardown paths free lgr, lnk or sndbuf_desc state. The patch adds sk_state
-based guards for SMC_INIT and SMC_CLOSED sockets to __smc_diag_dump(), and
-unhashes the socket earlier in smc_conn_kill(), smc_close_active_abort()
-and smc_close_passive_work().
-
-> diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-> index bf0beaa23bdb6..b29bd34acf7b5 100644
-> --- a/net/smc/smc_diag.c
-> +++ b/net/smc/smc_diag.c
-> @@ -90,7 +90,8 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
->  	r->diag_state = sk->sk_state;
->  	if (smc->use_fallback)
->  		r->diag_mode = SMC_DIAG_MODE_FALLBACK_TCP;
-> -	else if (smc_conn_lgr_valid(&smc->conn) && smc->conn.lgr->is_smcd)
-> +	else if (sk->sk_state != SMC_INIT &&
-> +		 smc_conn_lgr_valid(&smc->conn) && smc->conn.lgr->is_smcd)
->  		r->diag_mode = SMC_DIAG_MODE_SMCD;
->  	else
->  		r->diag_mode = SMC_DIAG_MODE_SMCR;
-
-[Severity: Medium]
-Is a plain load of sk->sk_state enough to order the later loads of
-conn->alert_token_local, conn->lgr->is_smcd and conn->sndbuf_desc->len?
-
-This check, and the SMC_INIT/SMC_CLOSED guard added below, share no lock
-with the writer. Nothing sits between the sk_state load and the conn field
-loads: no READ_ONCE(), no smp_load_acquire(), no smp_rmb(). Only a control
-dependency links them, and that doesn't order load->load on weakly ordered
-CPUs.
-
-On the early abort path the writer runs under lock_sock():
-
-smc_conn_abort()
-  smc_conn_free()
-    smc_lgr_unregister_conn()    /* alert_token_local = 0 */
-  smc_lgr_cleanup_early()
-    __smc_lgr_terminate()
-      smc_lgr_free()             /* lgr and buffers freed, conn->lgr and
-                                    conn->sndbuf_desc left set */
-smc_switch_to_fallback()
-...
-sk->sk_state = SMC_ACTIVE
-
-On arm64, could the reader see sk_state == SMC_ACTIVE together with a
-stale non-zero alert_token_local? It would then read lgr->is_smcd or
-sndbuf_desc->len from freed memory and copy the value into the netlink
-reply.
-
-This can't happen on x86 or s390, which keep load-load order, and the
-writer's window is long. The Linux kernel memory model still allows it.
-
-Would READ_ONCE() or smp_load_acquire() on sk_state (or an smp_rmb()
-before the conn field loads), paired with release-ordered state changes,
-be needed here?
-
-> @@ -103,6 +104,9 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
->  	if (nla_put(skb, SMC_DIAG_FALLBACK, sizeof(fallback), &fallback) < 0)
->  		goto errout;
->  
-> +	if (sk->sk_state == SMC_INIT || sk->sk_state == SMC_CLOSED)
-> +		goto out;
-> +
-
-[Severity: High]
-Does this leave the conn->lnk replacement during SMC-R link failover still
-racing with the diag reader?
-
-For SMC_ACTIVE and closing-state sockets, the LGRINFO block further down
-still does this with only read_lock(&smc_hash->lock) held:
-
-net/smc/smc_diag.c:__smc_diag_dump() {
-    ...
-		struct smc_link *link = smc->conn.lnk;
-		...
-		memcpy(linfo.lnk[0].ibname, link->smcibdev->ibdev->name,
-		       sizeof(link->smcibdev->ibdev->name));
-    ...
-}
-
-The failover side doesn't take the hash lock and doesn't unhash the
-socket. For example, when the peer sends DELETE_LINK:
-
-smc_llc_process_cli_delete_link()
-  smc_switch_conns(lgr, lnk_del, false)
-    smc_switch_link_and_count(conn, to_lnk)
-      smcr_link_put(conn->lnk);
-      conn->lnk = to_lnk;
-  smcr_link_clear(lnk_del, true)
-    ...
-    __smcr_link_clear()
-      put_device(&lnk->smcibdev->ibdev->dev);
-      smcibdev = lnk->smcibdev;
-      memset(lnk, 0, sizeof(struct smc_link));
-      ...
-      atomic_dec_return(&smcibdev->lnk_cnt)
-
-A local RNIC or port going down reaches smc_switch_conns() the same way,
-through smcr_link_down().
-
-smc_switch_link_and_count() runs only under lgr->conns_lock and
-conn->send_lock. The diag reader takes neither lock.
-
-Suppose the reader loaded the old conn->lnk before the switch and was
-delayed before the later loads. Could it then dereference a NULL
-link->smcibdev after the memset()? Could it instead read a freed smcibdev
-or ibdev and copy those bytes to userspace?
-
-An unprivileged SOCK_DIAG dump that asks for SMC_DIAG_LGRINFO (for
-example smcss -R) can reach this.
-
-The socket stays hashed in SMC_ACTIVE or a closing state. So neither this
-guard nor the !list_empty(&smc->conn.lgr->list) check from 9dbe086c69b8
-filters it out.
-
-v2 of this patch protected the swap in smc_switch_link_and_count() with
-lgr_lnk_lock, but v3 dropped that. The patch still carries Fixes:
-9dbe086c69b8 and is titled "fix lgr/lnk lifetime vs diag reader race".
-Should the conn->lnk replacement also be covered, for example with a lock
-or RCU pairing on the link swap?
-
-[ ... ]
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260930073029.1201202-1-mjambigi%40linux.ibm.com
