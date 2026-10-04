@@ -1,171 +1,224 @@
-Received: from CH4PR04CU002.outbound.protection.outlook.com (mail-northcentralusazon11013013.outbound.protection.outlook.com [40.107.201.13])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8546F3B6BF4;
-	Sun,  4 Oct 2026 06:17:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.201.13
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791094634; cv=fail; b=LHD0Yekvb2ISPNriYN5myblE6p6JneOz0wVCiW3UlkSUsLLygZJHdMoanIK/u8uhr/TJ5Rg4BPu6hNyYdKwdOpBWzk8NebbST9C3Le7Sxh6cUpJqygVf/ph4SMy+cyK2a09iepcuzesipq5bNZ70lbjvnS9SE4p9CUEqNVrqT+0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791094634; c=relaxed/simple;
-	bh=vnYrxwZegkDAHKKXxWdFHxNd34svS8aPUUHzPaSgDG4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=LEvlD+haOPXo3TwyR5beDd20DuKvQUC/is+ZmYGQSj6QOnV/kwdw9eOUessux4ZNyjNOLgAKqxHSICHLxnfqhbcxmO7hjcgFh61pEoQRhDYSSZuBKLXLEtu4cO5NmEELvVqC/0qIfHJUrxfwOyqPPfzzLAKeKX2QM+rB2nCDE7A=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=0+QJ61+u; arc=fail smtp.client-ip=40.107.201.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 667A1222597;
+	Sun,  4 Oct 2026 07:17:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791098249; cv=none; b=CJJQ5Un2bsrPF1FjWylOBfgGUg94aKEQ2Ff9GPFuWzx9RTFhn9dxpSpfjq3ZEfCNKRgAS0c4pYNbIsLhZIbg3T5e0wYZ6g6e5X6GGHuM33/2PCc8budisiqtaSEiZD8NbnabHuZxh2BO79CXrbdOpJolNSxZxAuGTUkk22fS77o=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791098249; c=relaxed/simple;
+	bh=rmIHYaP77tuuviq0E3oDx4xol1a2WJ/HafzHs45rw2s=;
+	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=gDD1jq4IXxKufEbD+L3CkPdhKdRGHbb1U+DflO7QX8Sa8XX9ofhybGkw+POFmyX8wI9vxNPMofkJqgU/Ya/Y+kBGfT2i/44ViS2pYD+D6oXmiF6elkICfx2C9vQ+mR9LxD9wezFEXJT+ezoPJhNOonWzIo+CAEDujFI0r/uXFU8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YCFUBbIp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="0+QJ61+u"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=mYuY6iYmiS/NQLJxKOWQa7rQLGfSR+8x463KKc/zBP69fbPSQs+obqeO5cmoEO0vlWleawjwgW8cVVgYTgp9T11csjxsF3DZpLpxS7PFkzEfVY7OyiThX8Zgf9NeGQBx/Ug1I0peMjQ9cLXxCCB3eNlCwS0XQ4t2mJr1oc8PGuZn8J81p7Ke9QUMZOijVjNgOZ5zuMsSmkXX/ZWN3laFNgg1zeBrUxSX44diMV2v7fMVEOGW72Cxhw7SUYlraT+KA3wL/gVWkRPYX4KiTKG0pF18CUfk6naG8Ae3UueUDAKJJG10epvn2W2aNGuWH+gx3/pZ4kIHkjjnYtePvG3x4w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Ku8CI7n4fain/wPasM8PBLT2hTEvR9BKwe1pCJJTKL8=;
- b=h75BBEaIxV7ML2F0T44sVycDVXJ+tkJFC9qUbhQQWUgx3hg5OWM8dzyeYgJCy9oVER//nAzumrh4FNOceFHt0+GBR1q0lqsp3ME1/O1cvbdS+7xXAtRm84Aa6H3RcQYRRZFPL+sB3thLHGQBim9AuZOka3/JUNjfIphIEY6K0ToAfpFliGM5hSxW53twrPve+rYWW0hOIfbmu0nhr4dBpdovByr6pQdJByNRVhPA02+rJSU25Plf+eXu3vFlWBdq0AJs1aKZ5/GM+bCApmW1bUQLSRsFU1rJ5uuNjIHZZPsWjEj00cQK4/SWNPaQ7bEwe6ZtXyKJJ4/8Me09Akt9xQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=linux.dev smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Ku8CI7n4fain/wPasM8PBLT2hTEvR9BKwe1pCJJTKL8=;
- b=0+QJ61+upzSwSWep/+tRpPqO/jCB5HN1HYNcl3Zs2ZOV+dCAt/161fQAJt36OTV9GFsrY8QNVgDeNVsbT/XdUwW+HuSPA/sFIATCnglwg67eE0pJPgyeR3MePVRhZHsCvmeFqMHGpFZtV9vPmA0ROII9H1ns84FHqJ+RMey02TY=
-Received: from CH0PR04CA0116.namprd04.prod.outlook.com (2603:10b6:610:75::31)
- by CH4PR12MB026689.namprd12.prod.outlook.com (2603:10b6:610:506::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.472.20; Sun, 4 Oct
- 2026 06:17:07 +0000
-Received: from CH1PEPF0000A349.namprd04.prod.outlook.com
- (2603:10b6:610:75:cafe::23) by CH0PR04CA0116.outlook.office365.com
- (2603:10b6:610:75::31) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.472.20 via Frontend Transport; Sun, 4
- Oct 2026 06:17:07 +0000
-X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=pass (sender IP
- is 165.204.84.17) smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=satlexmb08.amd.com; pr=C
-Received: from satlexmb08.amd.com (165.204.84.17) by
- CH1PEPF0000A349.mail.protection.outlook.com (10.167.244.9) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.472.14 via Frontend Transport; Sun, 4 Oct 2026 06:17:07 +0000
-Received: from satlexmb08.amd.com (10.181.42.217) by satlexmb08.amd.com
- (10.181.42.217) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.49; Sun, 4 Oct
- 2026 01:17:07 -0500
-Received: from [172.30.0.12] (10.180.168.240) by satlexmb08.amd.com
- (10.181.42.217) with Microsoft SMTP Server id 15.2.2562.49 via Frontend
- Transport; Sun, 4 Oct 2026 01:17:04 -0500
-Message-ID: <aec728b2-b8f6-40e9-900a-0e16fc3524ce@amd.com>
-Date: Sun, 4 Oct 2026 11:47:02 +0530
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YCFUBbIp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12BC01F000FF;
+	Sun,  4 Oct 2026 07:17:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791098247;
+	bh=w0zwF8tVJjwBa8xQzkMItcnnUR65qIQYip0V0SzgzEQ=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=YCFUBbIp8XJyEsaT6vUj+fixda5mRuoC0bnt0Vm1bBLFqC5D/Z7mqcKJFUzd9RzAD
+	 OQq2p5BjfWUuNueLFAlxajd/IeZfyot7koCkoL5+V59DrFfIdV1pHL//DfeHm8p+06
+	 BqmzKlI+oG1l0giTVA/WlDDypSeqy/ygH2ShW0/aU1QPwb5xhWYsRbSPYBhnZ+QTvx
+	 7KxirmKAKfIn4Lptm9kFT2EypyiSl5K7OdmdECCaTFnteedamk3qg+rM1OVr+O0usd
+	 mEWazBDQcZKHTpzqlH+l6EZ9DcnAgRV0xTfvnDgACPvcUSkFTkg+046OtYHUfzX2Kt
+	 MOb2jb5uK6NPw==
+Subject:
+ Re: [PATCH net v4 2/2] s390/ctcm: Fix use-after-free in channel_remove()
+From: netdev-bot+sashiko@kernel.org
+To: nagamani@linux.ibm.com
+Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, wintera@linux.ibm.com,
+ aswin@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ kees@kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org
+Date: Sun, 04 Oct 2026 07:17:26 +0000
+Message-ID: <179109824657.434549.2788045083218312906@kernel.org>
+In-Reply-To: <20260930070234.569500-3-nagamani@linux.ibm.com>
+References: <20260930070234.569500-3-nagamani@linux.ibm.com>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v3 09/13] x86/cpu/topology: Initialize sbm topology
- after topology parsing
-To: Chen Yu <chen.yu@linux.dev>
-CC: Peter Zijlstra <peterz@infradead.org>, Chen Yu <yu.c.chen@intel.com>, Tim
- Chen <tim.c.chen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, Juri Lelli
-	<juri.lelli@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>, Andrew
- Morton <akpm@linux-foundation.org>, Arnd Bergmann <arnd@arndb.de>,
-	<linux-kernel@vger.kernel.org>, <linux-arch@vger.kernel.org>,
-	<linux-s390@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
-	<linux-mips@vger.kernel.org>, <loongarch@lists.linux.dev>,
-	<driver-core@lists.linux.dev>, Thomas Gleixner <tglx@kernel.org>, Borislav
- Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
-	<x86@kernel.org>, Dietmar Eggemann <dietmar.eggemann@arm.com>, Steven Rostedt
-	<rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, Mel Gorman
-	<mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>, Shrikanth Hegde
-	<sshegde@linux.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>
-References: <20261001192849.74788-1-kprateek.nayak@amd.com>
- <20261001192849.74788-10-kprateek.nayak@amd.com>
- <asC8bgvYsVkkcVlO@three-body>
-Content-Language: en-US
-From: K Prateek Nayak <kprateek.nayak@amd.com>
-In-Reply-To: <asC8bgvYsVkkcVlO@three-body>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH1PEPF0000A349:EE_|CH4PR12MB026689:EE_
-X-MS-Office365-Filtering-Correlation-Id: d707e28a-ea2c-43d5-b4bb-08df21df1e24
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|82310400026|376014|7416014|1800799024|36860700016|22082099003|18002099003|10067099003|13003099007|4143699003|56012099006|11063799006;
-X-Microsoft-Antispam-Message-Info:
-	FctTICb4hkLVQL8lNHUMe8SYsHrgUgn/85QYDHI6/UOs0CslYog24vcBxQRMMGt69Hwr856XIhheiWTtzHYfuMXpNNLpTTcmGVQr/pfIKzisu7iefj7dKXgAwqYhlql7vcpwMdPqCuieA1QxmhRbKl72BMSTSfeeVV63ub9kyWbgnDBbvngT1WahYvD7sF9oIabALvf71ipVeQtqgYBXlCrL84ZdISeB7dqym1LlTbXiwls68frEEJMlqO1kd12DQyZlcDOyzrBNhRpOB0XJps+v2kf0OGMiFDnfOaUFapBn55XIB6hypAgUAy27+PiGA1tODILHbkJvrHVitO/YlYuW8Aq1/vqmDPB6D4eYIYr0+ODIu1C2KhQkRrs9ZT+AX5WQNfvpuBabKRLA9hMIQIQ8dsdM0XzGJ2LoceOB2kjj2Ty4O52Usw5SZhyPMyI89DgDjSUzjXM4bIxz3npuxfJGpWXp74selmb+d03wyw7RVGtfvR5HnIAPUFvSrAeLmhYfXl6Zv1Nn5awbAbruLc5Ta9NoVdGH9ia9Vwuk784PSJ07snryiCtgPtB/F0wA40Dx+c9L2agithIp0hlHkaCPBNWo//VcSm4lSkQP4ajgelUmjkrFX1DKn2hLFm7KeHfzx3TSP5Oy6AmGuy3dftOJ8WnzNSXkNWjLbXB1jGU2F5I1M2OBCGbBYVQks6MBauhFzwEVaphn5yksKk/CQg==
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb08.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(23010399003)(82310400026)(376014)(7416014)(1800799024)(36860700016)(22082099003)(18002099003)(10067099003)(13003099007)(4143699003)(56012099006)(11063799006);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	FdAZv9hSsL4UJyE9LfkOJebz6PdP5XcXzBl/DkMMjvhgMLedr1DXM7TPdgS6ySgaVOAN/Xr9ufVRrlgkuUaJSDHYCdAIZHBcK/W/N5ioSoVNE3xDyCdV6fYHLNtE+Em1UeZcLHfnwUvMPVv9NC27dTLi0UoAK5/XCOLTG7XpvBufZn/dkvt6ibnB1/oe1JLg3OBBBg8UdH3Kgirg+Jb0gcfIFbf0FCJ0MSHvpe0S5TwoHOdggRsgI8Kdoxjl720JpSGYdgZdanjSOUtIVMCzCykRB3L4VSrw2S/bxxInliTtpjHYJsgPWQLaeN/xTnzeGLvYWZMmP+ZLNvAyogf5YRv4ZpZyzouAHLeG+Yd8NXWKYtj8gnDFXNlKfcp0FsffEwFpfcJbEngiIA7LDIK+zSH/9qZPxGxdFqVzP+1mZaz/qW0VItH4rjJyLxMsYe0t
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Oct 2026 06:17:07.6415
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: d707e28a-ea2c-43d5-b4bb-08df21df1e24
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb08.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CH1PEPF0000A349.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH4PR12MB026689
 
-Hello Chenyu,
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue(s) to consider.
 
-On 10/3/2026 1:57 PM, Chen Yu wrote:
-> Hello Prateek,
-> 
-> On Thu, Oct 01, 2026 at 07:28:45PM +0000, K Prateek Nayak wrote:
-> 
-> [ snip ]
-> 
->> +static __init void init_sbm_topology(u32 max_apicid)
->> +{
->> +	u32 sbm_shift = x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN] - 1;
-> 
-> As sashiko reported, and also mentioned here:
-> https://lore.kernel.org/lkml/20260510155920.2587431-2-yu.c.chen@intel.com/
-> Maybe x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN - 1] ?
+Critical: 0 · High: 1 (1) · Medium: 0 · Low: 0
 
-Ack!
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
 
-I was testing this on a 2CCX (TILE) = 1 CCD (DIE) machine and I
-failed to notice my mistake since:
+- [High] The patch waits for channel timers and tasklets too late.
 
-  x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN] - 1
+Pre-existing issues:
+- [High] This problem wasn't introduced by this patch, but it is the same
+  cancel-without-sync-then-free pattern in sibling fsm_timers.
 
-and
+--
 
-  x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN] - 1
+s390/ctcm: Fix use-after-free in channel_remove()
 
-were the same.
+In channel_remove(), this patch replaces fsm_deltimer() with
+timer_shutdown_sync() for ch->timer and ch->sweep_timer. It also moves
+the MPC tasklet_kill() calls and kfree(ch->discontact_th) so they run
+after the timers are shut down and before kfree_fsm(ch->fsm).
 
-> 
->> +	int num_sbm_instances, max_threads_per_instance;
->> +
->> +	/*
->> +	 * On Intel systems, memory controllers are present at TOPO_DIE_DOMAIN.
->> +	 * On newer AMD and Hygon systems, LLC is at TOPO_TILE_DOMAIN so use
->> +	 * that instead.
->> +	 */
->> +	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
->> +	    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON)
->> +		sbm_shift = x86_topo_system.dom_shifts[TOPO_TILE_DOMAIN] - 1;
-> 
-> Ditto.
+Link: https://sashiko.dev/#/patchset/20260922101913.239103-1-nagamani@linux.ibm.com?part=2
 
-Thank you! Will make sure I pull a VM with weird topology next time
-during my testing to see if everything is correct.
+> diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+> index 8b0d76a47d9f0..27a22dbc92806 100644
+> --- a/drivers/s390/net/ctcm_main.c
+> +++ b/drivers/s390/net/ctcm_main.c
+> @@ -211,9 +211,14 @@ static void channel_remove(struct channel *ch)
+>  	while (*c) {
+>  		if (*c == ch) {
+>  			*c = ch->next;
+> -			fsm_deltimer(&ch->timer);
+>  			if (IS_MPC(ch))
+> -				fsm_deltimer(&ch->sweep_timer);
+> +				timer_shutdown_sync(&ch->sweep_timer.tl);
+> +			timer_shutdown_sync(&ch->timer.tl);
+> +			if (IS_MPC(ch)) {
+> +				tasklet_kill(&ch->ch_tasklet);
+> +				tasklet_kill(&ch->ch_disc_tasklet);
+> +				kfree(ch->discontact_th);
+> +			}
+
+[Severity: High]
+Do these waits run too late to protect the state that the channel
+callbacks use?
+
+The only teardown caller of channel_remove() is ctcm_shutdown_device(),
+and it calls it after the net_device and its private state are gone:
+
+drivers/s390/net/ctcm_main.c:ctcm_shutdown_device() {
+    ...
+	if (dev) {
+		unregister_netdev(dev);
+		ctcm_free_netdevice(dev);
+	}
+    ...
+	ccw_device_set_offline(cgdev->cdev[1]);
+	ccw_device_set_offline(cgdev->cdev[0]);
+	channel_remove(priv->channel[CTCM_READ]);
+	channel_remove(priv->channel[CTCM_WRITE]);
+    ...
+}
+
+ctcm_free_netdevice() does kfree_fsm(grp->fsm), kfree(grp),
+priv->mpcg = NULL, kfree_fsm(priv->fsm) and priv->fsm = NULL. Under MODULE
+it also calls free_netdev(dev). The ccw_device_set_offline() calls in
+between can sleep, so a channel timer or tasklet can fire in that window.
+
+The channel callbacks reach this state through ch->netdev->ml_priv:
+
+  ctcm_chx_txretry() (ch->timer):
+	fsm_event(priv->fsm, DEV_EVENT_TXDOWN, dev);
+
+  ctcmpc_chx_send_sweep() (sweep_timer):
+	if (grp->in_sweep == 0)
+
+  ctcmpc_bh() (ch_tasklet):
+	while ((fsm_getstate(grp->fsm) != MPCG_STATE_FLOWC) &&
+
+  ctcm_ccw_check_rc()->ctcm_chx_iofatal():
+	fsm_event(priv->fsm, ...);
+
+The circular chain in the commit message also goes through priv->fsm or
+priv->mpcg. For example, mpc_action_go_inop() does this before it reaches
+tasklet_hi_schedule():
+
+	grp =  priv->mpcg;
+	grp->flow_off_called = 0;
+
+At channel_remove() time priv->fsm and priv->mpcg are already freed or
+NULL. Wouldn't that chain crash before it can re-arm anything?
+
+If so, timer_shutdown_sync() only waits for a callback that is already
+dereferencing freed or NULL memory. tasklet_kill() also lets a queued
+ch_tasklet run against the freed grp.
+
+channel_free() moves ch->fsm to CTC_STATE_IDLE, which has no handlers,
+so most late ch->fsm events do nothing. But that state change takes no
+lock. ctcm_irq_handler() runs FSM actions under the ccwdev lock, and for
+MPC ctcm_close() does nothing:
+
+	if (!IS_MPC(priv))
+		fsm_event(priv->fsm, DEV_EVENT_STOP, dev);
+
+As a result the MPC channels are not halted. An action that races
+channel_free() could leave the channel FSM in TXIDLE or TX with timers
+armed.
+
+ctcmpc_bh() never checks the ch->fsm state, and ctc_mpc_flow_control()
+can schedule it at any time.
+
+The ctcm_new_device() out_dev path uses the same order, but its channels
+were never started there.
+
+Could both channels' timers and tasklets be stopped, and the subchannels
+taken offline, before ctcm_free_netdevice() and kfree_fsm(priv->fsm) run?
+That would mean moving the quiescing out of channel_remove() instead of
+reordering it inside channel_remove().
+
+[Severity: High]
+This isn't a bug introduced by this patch, but the other fsm_timers in
+this driver seem to follow the same pattern: cancel without a sync, then
+free.
+
+priv->restart_timer is bound to priv->fsm by fsm_settimer() in
+ctcm_init_netdevice(). grp->timer is bound to grp->fsm by fsm_settimer()
+in ctcmpc_init_mpc_group(). Neither timer is ever cancelled with a sync
+call. The only cancellations are fsm_deltimer(), which is timer_delete().
+
+mpc_action_go_inop() always re-arms the restart timer:
+
+	fsm_deltimer(&priv->restart_timer);
+	fsm_addtimer(&priv->restart_timer, 500, DEV_EVENT_RESTART, dev);
+
+dev_action_restart() re-arms it for 1s in the MPC case. So during MPC
+group recovery the restart timer is usually pending.
+
+For MPC, ctcm_close() does nothing. So ctcm_shutdown_device() then calls
+ctcm_free_netdevice(), which frees grp->fsm, grp (which contains
+grp->timer) and priv->fsm while these timers may be pending or running.
+After that, ctcm_remove_device() does kfree(priv), and priv contains
+restart_timer.
+
+When one of these timers expires, fsm_expire_timer() calls
+fsm_event(this->fi, ...) on a freed fsm_instance. That reads the freed
+state and jumpmatrix, and calls a function pointer taken from freed
+memory. A timer still pending inside freed grp or priv memory can also
+corrupt the timer wheel.
+
+There is a similar ordering problem in ctcm_free_netdevice():
+
+	if (grp->fsm)
+		kfree_fsm(grp->fsm);
+	dev_kfree_skb(grp->xid_skb);
+	dev_kfree_skb(grp->rcvd_xid_skb);
+	tasklet_kill(&grp->mpc_tasklet2);
+	kfree(grp);
+
+Can a pending mpc_tasklet2 run here after its FSM has been freed?
+
+Should priv->restart_timer and grp->timer also get timer_shutdown_sync()
+before priv->fsm and grp are freed? And should mpc_tasklet2 be killed
+before kfree_fsm(grp->fsm)?
+
+[ ... ]
 
 -- 
-Thanks and Regards,
-Prateek
-
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20260930070234.569500-1-nagamani%40linux.ibm.com
