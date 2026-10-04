@@ -1,46 +1,46 @@
-Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11013004.outbound.protection.outlook.com [40.93.196.4])
+Received: from CH4PR04CU002.outbound.protection.outlook.com (mail-northcentralusazon11013013.outbound.protection.outlook.com [40.107.201.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2141B12B94;
-	Sun,  4 Oct 2026 06:13:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.196.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8546F3B6BF4;
+	Sun,  4 Oct 2026 06:17:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.201.13
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791094398; cv=fail; b=pIJ/QQFv5SqDFiwfL5Df17d4XW5THyXiV7PDeNrQSdYImBqeGiUA4TvF4hcyLibWWz60y4eg/5SDVj4+zVcnx0IGePF0jrABtCfCVUPWvlz8GigBMt578GmFg3SsGHBnqjyXzJQy1Cq8/Rdog2MbzKXR5z8PrFaZzGUvULlmKJ4=
+	t=1791094634; cv=fail; b=LHD0Yekvb2ISPNriYN5myblE6p6JneOz0wVCiW3UlkSUsLLygZJHdMoanIK/u8uhr/TJ5Rg4BPu6hNyYdKwdOpBWzk8NebbST9C3Le7Sxh6cUpJqygVf/ph4SMy+cyK2a09iepcuzesipq5bNZ70lbjvnS9SE4p9CUEqNVrqT+0=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791094398; c=relaxed/simple;
-	bh=vzYG003jc72LObNq1Nm6r1yZVdeWqvbj9MGIQj6cXBM=;
+	s=arc-20240116; t=1791094634; c=relaxed/simple;
+	bh=vnYrxwZegkDAHKKXxWdFHxNd34svS8aPUUHzPaSgDG4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=E5sKLBiaVvqgAHtOqj9MxHM3kIsiI4wXbS/L2I9Y//3dBr20d2TY+7UVL6BwyKamLqVHDamaqKalXtFf/dT1JaAjm5eOjPqy7L2R8opJwaJpocvgEFlC3DVhVb8jtdazjgXRJswSylE8lNbgyk3dFiz3JgIwKg+sBglRs9UleMg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=TNvh2viW; arc=fail smtp.client-ip=40.93.196.4
+	 In-Reply-To:Content-Type; b=LEvlD+haOPXo3TwyR5beDd20DuKvQUC/is+ZmYGQSj6QOnV/kwdw9eOUessux4ZNyjNOLgAKqxHSICHLxnfqhbcxmO7hjcgFh61pEoQRhDYSSZuBKLXLEtu4cO5NmEELvVqC/0qIfHJUrxfwOyqPPfzzLAKeKX2QM+rB2nCDE7A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=0+QJ61+u; arc=fail smtp.client-ip=40.107.201.13
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="TNvh2viW"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="0+QJ61+u"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=AgbGUQNc4pYUFd+oiJU9vkPP1uydSjwsafgssv67Sg4zL0t/Fofw2Ldvs0bzLdbr9f1TPn01iehCCrY8lx8TCZlhbSUY2XLbKb5MaGVN1G8BVVNBkCGW6wT6j7mChlYJ5MJ+9Fbrw+TxZgcgNPNiLgMTdyuETGWHCzKr4HcMietKZ5e9OuXA/vyqF4i/okjSxe42jSwzDlHd460qPhQWmnYRLen70Lqto5oHNtTWJuBt3JT/ZX5zCUBf7jJzsHrGNIJIshBgHLLht0TNxo8HtfhdYmLXkEXM68xFlHS2rTrkzWzf8oFBz6ZDcSrIIw0gfMnsqG+vqiOaekSLopcu5g==
+ b=mYuY6iYmiS/NQLJxKOWQa7rQLGfSR+8x463KKc/zBP69fbPSQs+obqeO5cmoEO0vlWleawjwgW8cVVgYTgp9T11csjxsF3DZpLpxS7PFkzEfVY7OyiThX8Zgf9NeGQBx/Ug1I0peMjQ9cLXxCCB3eNlCwS0XQ4t2mJr1oc8PGuZn8J81p7Ke9QUMZOijVjNgOZ5zuMsSmkXX/ZWN3laFNgg1zeBrUxSX44diMV2v7fMVEOGW72Cxhw7SUYlraT+KA3wL/gVWkRPYX4KiTKG0pF18CUfk6naG8Ae3UueUDAKJJG10epvn2W2aNGuWH+gx3/pZ4kIHkjjnYtePvG3x4w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=cr91y+Tu130DpA5XoHQ+2v5faKf/WQoFlRdgGMUbxBU=;
- b=tW7mvQUZajD+8e3IczH3G7IEySGvXQCvjQ+zBFJ1YP3+ObOl1EzTF7oj3U186hnzVQ1fYGRFgYbjP6VOnK9WQCR/PXu5KoPnJN8bgLrbEycySaUdtOcVdbeeJ4k9l1GexRD+TgIqYrjj3feon9ztAn3DzvKBphGfO7BYkxfAQ6ojTCrXRHNn3vQttbtCzbsCsO7De6ABymPJNMkbwF3qdlVQykwODFo6Mjl9BFMw+j0A0gccU4J8ve8rRa+l3PQn7vBDgqmXBdXkcaiJV0UJ8iFWhukcWpHBAiaeOkcqK++sTqHnrZn/HzoUJPy/o+bxJ0hIO5MmQYr2CsS6I5mh7g==
+ bh=Ku8CI7n4fain/wPasM8PBLT2hTEvR9BKwe1pCJJTKL8=;
+ b=h75BBEaIxV7ML2F0T44sVycDVXJ+tkJFC9qUbhQQWUgx3hg5OWM8dzyeYgJCy9oVER//nAzumrh4FNOceFHt0+GBR1q0lqsp3ME1/O1cvbdS+7xXAtRm84Aa6H3RcQYRRZFPL+sB3thLHGQBim9AuZOka3/JUNjfIphIEY6K0ToAfpFliGM5hSxW53twrPve+rYWW0hOIfbmu0nhr4dBpdovByr6pQdJByNRVhPA02+rJSU25Plf+eXu3vFlWBdq0AJs1aKZ5/GM+bCApmW1bUQLSRsFU1rJ5uuNjIHZZPsWjEj00cQK4/SWNPaQ7bEwe6ZtXyKJJ4/8Me09Akt9xQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=linux.dev smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=cr91y+Tu130DpA5XoHQ+2v5faKf/WQoFlRdgGMUbxBU=;
- b=TNvh2viWqm3kbfkfEqzssrk/NUAAbuU5or7Jxn7TND+9xRhKBs0SKTrrbUXlLW7b2QN7nKJYyWy+Z+4AihsIf7WG/tY4l4mkk693PgbAoXpmhX10rDh/mysDRrc7XRlOVhTp/trCmA4p90YWn8rcJImVGgHesbbcjWRgwzLlXks=
-Received: from BN9P222CA0028.NAMP222.PROD.OUTLOOK.COM (2603:10b6:408:10c::33)
- by CY5PR12MB6201.namprd12.prod.outlook.com (2603:10b6:930:26::16) with
+ bh=Ku8CI7n4fain/wPasM8PBLT2hTEvR9BKwe1pCJJTKL8=;
+ b=0+QJ61+upzSwSWep/+tRpPqO/jCB5HN1HYNcl3Zs2ZOV+dCAt/161fQAJt36OTV9GFsrY8QNVgDeNVsbT/XdUwW+HuSPA/sFIATCnglwg67eE0pJPgyeR3MePVRhZHsCvmeFqMHGpFZtV9vPmA0ROII9H1ns84FHqJ+RMey02TY=
+Received: from CH0PR04CA0116.namprd04.prod.outlook.com (2603:10b6:610:75::31)
+ by CH4PR12MB026689.namprd12.prod.outlook.com (2603:10b6:610:506::21) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.451.23; Sun, 4 Oct
- 2026 06:13:11 +0000
-Received: from LV8PEPF0000005B.namprd02.prod.outlook.com
- (2603:10b6:408:10c::4) by BN9P222CA0028.outlook.office365.com
- (2603:10b6:408:10c::33) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.472.20; Sun, 4 Oct
+ 2026 06:17:07 +0000
+Received: from CH1PEPF0000A349.namprd04.prod.outlook.com
+ (2603:10b6:610:75:cafe::23) by CH0PR04CA0116.outlook.office365.com
+ (2603:10b6:610:75::31) with Microsoft SMTP Server (version=TLS1_3,
  cipher=TLS_AES_256_GCM_SHA384) id 15.21.472.20 via Frontend Transport; Sun, 4
- Oct 2026 06:13:11 +0000
+ Oct 2026 06:17:07 +0000
 X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=pass (sender IP
  is 165.204.84.17) smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -48,18 +48,18 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
  165.204.84.17 as permitted sender) receiver=protection.outlook.com;
  client-ip=165.204.84.17; helo=satlexmb08.amd.com; pr=C
 Received: from satlexmb08.amd.com (165.204.84.17) by
- LV8PEPF0000005B.mail.protection.outlook.com (10.167.245.136) with Microsoft
+ CH1PEPF0000A349.mail.protection.outlook.com (10.167.244.9) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.472.14 via Frontend Transport; Sun, 4 Oct 2026 06:13:11 +0000
-Received: from satlexmb07.amd.com (10.181.42.216) by satlexmb08.amd.com
+ 15.21.472.14 via Frontend Transport; Sun, 4 Oct 2026 06:17:07 +0000
+Received: from satlexmb08.amd.com (10.181.42.217) by satlexmb08.amd.com
  (10.181.42.217) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.49; Sun, 4 Oct
- 2026 01:13:10 -0500
-Received: from [172.30.0.12] (10.180.168.240) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server id 15.2.2562.49 via Frontend
- Transport; Sun, 4 Oct 2026 01:13:03 -0500
-Message-ID: <08df1d81-7671-425b-85bb-51ee79c2eac7@amd.com>
-Date: Sun, 4 Oct 2026 11:43:02 +0530
+ 2026 01:17:07 -0500
+Received: from [172.30.0.12] (10.180.168.240) by satlexmb08.amd.com
+ (10.181.42.217) with Microsoft SMTP Server id 15.2.2562.49 via Frontend
+ Transport; Sun, 4 Oct 2026 01:17:04 -0500
+Message-ID: <aec728b2-b8f6-40e9-900a-0e16fc3524ce@amd.com>
+Date: Sun, 4 Oct 2026 11:47:02 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -67,7 +67,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v3 00/13] lib, sched: Introduce sparsebitmap (sbm)
+Subject: Re: [RFC PATCH v3 09/13] x86/cpu/topology: Initialize sbm topology
+ after topology parsing
 To: Chen Yu <chen.yu@linux.dev>
 CC: Peter Zijlstra <peterz@infradead.org>, Chen Yu <yu.c.chen@intel.com>, Tim
  Chen <tim.c.chen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, Juri Lelli
@@ -76,157 +77,93 @@ CC: Peter Zijlstra <peterz@infradead.org>, Chen Yu <yu.c.chen@intel.com>, Tim
 	<linux-kernel@vger.kernel.org>, <linux-arch@vger.kernel.org>,
 	<linux-s390@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
 	<linux-mips@vger.kernel.org>, <loongarch@lists.linux.dev>,
-	<driver-core@lists.linux.dev>, Sudeep Holla <sudeep.holla@kernel.org>, Greg
- Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki"
-	<rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>, Huacai Chen
-	<chenhuacai@kernel.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Jiaxun Yang <jiaxun.yang@flygoat.com>, Madhavan Srinivasan
-	<maddy@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
-	<gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, "David S.
- Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, Thomas
- Gleixner <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>, Dave Hansen
-	<dave.hansen@linux.intel.com>, <x86@kernel.org>, Dietmar Eggemann
-	<dietmar.eggemann@arm.com>, Steven Rostedt <rostedt@goodmis.org>, Ben Segall
-	<bsegall@google.com>, Mel Gorman <mgorman@suse.de>, Valentin Schneider
-	<vschneid@redhat.com>, Shrikanth Hegde <sshegde@linux.ibm.com>, WANG Xuerui
-	<kernel@xen0n.name>, Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin
-	<npiggin@gmail.com>, Christophe Leroy <chleroy@kernel.org>, Christian
- Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
-	"H. Peter Anvin" <hpa@zytor.com>
+	<driver-core@lists.linux.dev>, Thomas Gleixner <tglx@kernel.org>, Borislav
+ Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+	<x86@kernel.org>, Dietmar Eggemann <dietmar.eggemann@arm.com>, Steven Rostedt
+	<rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, Mel Gorman
+	<mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>, Shrikanth Hegde
+	<sshegde@linux.ibm.com>, "H. Peter Anvin" <hpa@zytor.com>
 References: <20261001192849.74788-1-kprateek.nayak@amd.com>
- <asDGbBEHkDouWOwC@three-body>
+ <20261001192849.74788-10-kprateek.nayak@amd.com>
+ <asC8bgvYsVkkcVlO@three-body>
 Content-Language: en-US
 From: K Prateek Nayak <kprateek.nayak@amd.com>
-In-Reply-To: <asDGbBEHkDouWOwC@three-body>
+In-Reply-To: <asC8bgvYsVkkcVlO@three-body>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV8PEPF0000005B:EE_|CY5PR12MB6201:EE_
-X-MS-Office365-Filtering-Correlation-Id: fede44a0-39df-4ecc-07c2-08df21de9119
+X-MS-TrafficTypeDiagnostic: CH1PEPF0000A349:EE_|CH4PR12MB026689:EE_
+X-MS-Office365-Filtering-Correlation-Id: d707e28a-ea2c-43d5-b4bb-08df21df1e24
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700016|1800799024|376014|7416014|82310400026|23010399003|11063799006|56012099006|4143699003|260925022911599003|260925021911599003|260925021311599003|10067099003|22082099003|18002099003|6133799003|13003099007;
+	BCL:0;ARA:13230040|23010399003|82310400026|376014|7416014|1800799024|36860700016|22082099003|18002099003|10067099003|13003099007|4143699003|56012099006|11063799006;
 X-Microsoft-Antispam-Message-Info:
-	9s9Y8a88riut8/izZPthm/lVlNLeqLHu/ZRy3XDqB6mApbsnrStOR1rLgsGW3uMbGtmR1iODKFvYO+RuQtGr7SDSGmHqttb/OGI127fB2Cvohzmid56b9uWu27NqFmaUCSPZgUJ82zbeMxeuZi7dr8ZvjYMt93kRhA1eL5lViWJW1U51eXNZMxxxK7gfOQpkYhyvOLXYStkawDR7FzkssXZBrthrWZmO6qhUXozs34w7gGkTscZgwGgcAvIQyUj+JxYNS0Vye2Wif0baw74Aftp8uEAoo3U5SrhNcV/6PhaYEP6GVh4WUBtKuxnlIiVWvd8IVKwgyaScZ5Yi/W4lpSzLh8EVolapa8UAl/A9CkdhaS8vQDD03Pon0zBpHDQUKQ11lghHaDFathKF1zXfUBAAiQ905UKvxUoEGoDxJrQRMc0r1CrXutgMlaKSPBZn9HiEPLLOgANsmza4BF1262TxJagFLAAdkisLMypqgL7roJgd5KXQr4SAJYp1dp64tx/MnQqOsrsPqMN/5Kv0P0IK6yHQ+s2iSFsaQSKbVVXeX3B6HKmgxvKmU+PDawQCJkbrMm0yVzha7V9TnQB71VW2YDNaD2sTV4rFzY2Qdtz468bjkR5aLiKSB0bygmNFcQAvTWTqJDNB6DdpSDsxs6R7XIde2cyo8qiQReq70fM=
+	FctTICb4hkLVQL8lNHUMe8SYsHrgUgn/85QYDHI6/UOs0CslYog24vcBxQRMMGt69Hwr856XIhheiWTtzHYfuMXpNNLpTTcmGVQr/pfIKzisu7iefj7dKXgAwqYhlql7vcpwMdPqCuieA1QxmhRbKl72BMSTSfeeVV63ub9kyWbgnDBbvngT1WahYvD7sF9oIabALvf71ipVeQtqgYBXlCrL84ZdISeB7dqym1LlTbXiwls68frEEJMlqO1kd12DQyZlcDOyzrBNhRpOB0XJps+v2kf0OGMiFDnfOaUFapBn55XIB6hypAgUAy27+PiGA1tODILHbkJvrHVitO/YlYuW8Aq1/vqmDPB6D4eYIYr0+ODIu1C2KhQkRrs9ZT+AX5WQNfvpuBabKRLA9hMIQIQ8dsdM0XzGJ2LoceOB2kjj2Ty4O52Usw5SZhyPMyI89DgDjSUzjXM4bIxz3npuxfJGpWXp74selmb+d03wyw7RVGtfvR5HnIAPUFvSrAeLmhYfXl6Zv1Nn5awbAbruLc5Ta9NoVdGH9ia9Vwuk784PSJ07snryiCtgPtB/F0wA40Dx+c9L2agithIp0hlHkaCPBNWo//VcSm4lSkQP4ajgelUmjkrFX1DKn2hLFm7KeHfzx3TSP5Oy6AmGuy3dftOJ8WnzNSXkNWjLbXB1jGU2F5I1M2OBCGbBYVQks6MBauhFzwEVaphn5yksKk/CQg==
 X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb08.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700016)(1800799024)(376014)(7416014)(82310400026)(23010399003)(11063799006)(56012099006)(4143699003)(260925022911599003)(260925021911599003)(260925021311599003)(10067099003)(22082099003)(18002099003)(6133799003)(13003099007);DIR:OUT;SFP:1101;
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb08.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(23010399003)(82310400026)(376014)(7416014)(1800799024)(36860700016)(22082099003)(18002099003)(10067099003)(13003099007)(4143699003)(56012099006)(11063799006);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	erS/vExZES4Rjw9K84yq94xZPDF4JeShklnbnyS8RINT/xJXKTOWSZQyEVPgpNx0CUsAdo1IpQeQA0erhePGot1Gkey3XlmdgJDkSgajRtSMYO9NVUsSLGf4SeUHiqjwhBVR+huqgVZuFXRdCEo6wXSwhHkUSKYfF/gc+fOdtKeQjcUgYSMs0vbziV0hi6Mbp9K8cBAdQ2AfHOxqbjUFaceZ3F5+L2hVDcnvVrofg4/M5uuMPM01DvpVqxAXCNQR9B5V3wo3Vs9p6HxBexYEpyxArk0FORGIiOA35x3GwNpZRuFT3+ixmklv/qw64ouPuGN6TsEkoSUSZT1Vb0NQK2fPtTsYUI03Ny9Gw1KcuyicUxBEb8Brir7GjbHKn+oBmeI0As0bSJ27/EU2DMKEH7R2EjsI7gei9viZ57B4fomfMSl9rfQksb74CuEufJ2d
+	FdAZv9hSsL4UJyE9LfkOJebz6PdP5XcXzBl/DkMMjvhgMLedr1DXM7TPdgS6ySgaVOAN/Xr9ufVRrlgkuUaJSDHYCdAIZHBcK/W/N5ioSoVNE3xDyCdV6fYHLNtE+Em1UeZcLHfnwUvMPVv9NC27dTLi0UoAK5/XCOLTG7XpvBufZn/dkvt6ibnB1/oe1JLg3OBBBg8UdH3Kgirg+Jb0gcfIFbf0FCJ0MSHvpe0S5TwoHOdggRsgI8Kdoxjl720JpSGYdgZdanjSOUtIVMCzCykRB3L4VSrw2S/bxxInliTtpjHYJsgPWQLaeN/xTnzeGLvYWZMmP+ZLNvAyogf5YRv4ZpZyzouAHLeG+Yd8NXWKYtj8gnDFXNlKfcp0FsffEwFpfcJbEngiIA7LDIK+zSH/9qZPxGxdFqVzP+1mZaz/qW0VItH4rjJyLxMsYe0t
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Oct 2026 06:13:11.0250
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Oct 2026 06:17:07.6415
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: fede44a0-39df-4ecc-07c2-08df21de9119
+X-MS-Exchange-CrossTenant-Network-Message-Id: d707e28a-ea2c-43d5-b4bb-08df21df1e24
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb08.amd.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	LV8PEPF0000005B.namprd02.prod.outlook.com
+	CH1PEPF0000A349.namprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6201
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH4PR12MB026689
 
 Hello Chenyu,
 
-On 10/3/2026 2:40 PM, Chen Yu wrote:
-> Hello Prateek!
+On 10/3/2026 1:57 PM, Chen Yu wrote:
+> Hello Prateek,
 > 
-> Thanks for bringing this interesting topic,
+> On Thu, Oct 01, 2026 at 07:28:45PM +0000, K Prateek Nayak wrote:
 > 
-> On Thu, Oct 01, 2026 at 07:28:36PM +0000, K Prateek Nayak wrote:
->>
->> Problem
->> =======
->>
->>                                             %cycles vs global mask operation
->>
->> global mask                                     : 100.0000%  (var: 3.28%)
->> per-NUMA mask                                   :  32.9209%  (var: 7.77%)
->> per-LLC mask                                    :   1.2977%  (var: 4.85%)
->> per-LLC mask (u8 operation; no LOCK prefix)     :   0.4930%  (var: 0.83%)
->>
+> [ snip ]
 > 
-> This shows a significant latency improvement, especially in the per-LLC (u64, u8) case.
-> May I know if schbench / sched-messaging were used?
-
-No, this was a custom benchmark with two threads per
-CPU - one setting the CPU on bitmask, and other clearing it,
-continuously yielding to each other.
-
-It gives an idea of what the worst case looks like when there
-may be short idling followed by a short runtime going in
-cycles.
-
+>> +static __init void init_sbm_topology(u32 max_apicid)
+>> +{
+>> +	u32 sbm_shift = x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN] - 1;
 > 
->>
->> Future work
->> ===========
->>
->> o Interoperability with cpumaks since sbm lose the crucial optimizations
->>   that come naturally from for_each_cpu_and() iterations.
->>
->> o Different data representation - using the u8 variant for updates and
->>   then perform a "gather" operation to build a dense mask.
->>
->> o Extending sbm work to help in wakeup (and possibly resurrect Mel's
->>   optimization from [4] in some form). The current sbm is still far away
->>   from being used for wakeups since  updates  to sbm leaf, even on a
->>   16CPUs per LLC system is visible in benchmark performance (~8-10%).
->>
-> 
-> If we leverage sbm for the wakeup path, it is a per-LLC mask, there seems to be
-> no much difference from Mel Gorman's proposal of allocating per sd_share
-> unsigned long idle_cpus_span[]?
+> As sashiko reported, and also mentioned here:
+> https://lore.kernel.org/lkml/20260510155920.2587431-2-yu.c.chen@intel.com/
+> Maybe x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN - 1] ?
 
-Ack! But the current form is still pretty expensive. I see about a
-10% overhead of just maintaining that mask which is what I'm trying
-to reduce.
+Ack!
 
-> The frequent update to this mask might still cause
-> c2c latency within 1 LLC. A wild guess is that maybe the u8 version is more suitable,
-> because it has only max-to-8 CPUs touching the mask at the same time?
+I was testing this on a 2CCX (TILE) = 1 CCD (DIE) machine and I
+failed to notice my mistake since:
 
-With a 64B cacheline, single cacheline can contain data for up to
-64 CPUs - unlike current sbm that uses first 8-bytes, this used
-the whole 64 bytes.
+  x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN] - 1
 
-P.S. All versions were tested with 16 CPUs per LLC on my systems.
+and
 
-Going from atomic u64 to plain u8 writes probably avoids an
-expensive atomic path in the H/W making them faster.
+  x86_topo_system.dom_shifts[TOPO_DIE_DOMAIN] - 1
 
-> My understanding is that the major case that sbm could fit is turning the global bitmask
-> into a per-LLC bitmask, because it mainly avoids CPUs on different LLC/node writing the
-> same cache line frequently (nohz.idle_cpus_mask set via nohz_balance_enter_idle() on
-> many CPUs, etc), which might cause a costly cache RFO event storm. Meanwhile, with sbm,
-> at the reader side, _nohz_idle_balance() could start scanning from the current CPU to find
-> an idle CPU, so as to avoid the costly HITM event - the reader is on LLC1, while the writer
-> is on LLC0 - so maybe:
-> 
-> for_each_cpu_wrap(balance_cpu, nohz.idle_cpus_mask, this_cpu+1)
-> 
-> could start from this_cpu's LLC sibling first, rather than this_cpu + 1, because this_cpu+1
-> might not always be the LLC sibling of this_cpu.
-
-Ah! Good point. Let me see if wrapping within the bitmask leaf
-first and then going out makes any difference. 
+were the same.
 
 > 
-> I found that in the current code, there are also other global mask:
-> rd->rto_mask(mentioned by Pan Deng when running ffmpeg[1])
-> rd->dlo_mask
-> tick_broadcast_**mask
-> maybe they can also be converted into sbm.
-
-Ack! I was juts getting started somewhere to see if there is an
-appetite for sbm :-)
-
+>> +	int num_sbm_instances, max_threads_per_instance;
+>> +
+>> +	/*
+>> +	 * On Intel systems, memory controllers are present at TOPO_DIE_DOMAIN.
+>> +	 * On newer AMD and Hygon systems, LLC is at TOPO_TILE_DOMAIN so use
+>> +	 * that instead.
+>> +	 */
+>> +	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
+>> +	    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON)
+>> +		sbm_shift = x86_topo_system.dom_shifts[TOPO_TILE_DOMAIN] - 1;
 > 
-> [1] https://lore.kernel.org/lkml/a3207ebf537bbe5605ff5454f63b5604d83a04a0.1753076363.git.pan.deng@intel.com/
-> 
-> thanks,
-> Chenyu 
+> Ditto.
+
+Thank you! Will make sure I pull a VM with weird topology next time
+during my testing to see if everything is correct.
 
 -- 
 Thanks and Regards,
