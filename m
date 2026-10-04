@@ -1,296 +1,231 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61CEC3BE623;
-	Sun,  4 Oct 2026 18:34:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791138868; cv=none; b=TIgnyY5cbJH9xGTHoeQOwMcElhi6Q+KVs9tr/Sh/wCEoKw4Bx6kMvAVFt4CeLy9RQXjUXmvnN0YbPze7XcKLZ2oUS0TdKXxD059YnxBEtCQGxrZVpc6AIHSwUKALmwSasCW3zWiSta4V9zSg2d86h2gO9bnKM2mQ+OtQFuE4ACs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791138868; c=relaxed/simple;
-	bh=ZoUL9vFrZiqSevq5Z1f//XJFOqm1V4r8RtSTtomzUaA=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=HTsBelLN0rWwD0FfrrZRW25PS2HcwO6mWVG858i9ZDhtVhlFaePPkiZaQibLt0s5B2vbg9UI3D1WxQQTq5PgOvyXYH5Nk/8Fv3eAlrgaSUjHc0pG2qVGbviXXPio79lM6CpltopAWyHzk5ZNnOEtiHWGX9a/mgwWm5xRPDoph0Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AZoFj3AM; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0117D47A89B
+	for <linux-s390@vger.kernel.org>; Sun,  4 Oct 2026 18:39:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.170
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791139164; cv=pass; b=j4bkBQhVBj5uADE9CK50CthEy547Z+RsaHUv10VLQijRpMCjSVqaypmXcvXwxvpLf4LtdOwbI6cuKzQQYDMAAAOtPqF8W5wtKuyJGwyfIBsyOQNGhe4RZCPjxqzpreLm7gmEPY2ZA0j8wrJvR1pPgghFGJfssnV/a+dEh6kmJdI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791139164; c=relaxed/simple;
+	bh=Q5SKncuQynV4x7Bps+RIZqUEFmiH2TTHOAAQrnnR074=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ZlIUVY+yYVdM05z73rHAF+Vzx5HYKr4bp+6DcBC+nVVaOdBiyCBPS0r4Sr/uRLYfmnMBWPWYb+PfFCpA9ecgxf968JtFpqJl3jbSZgo0LfP0UA4gES5XgsaOgQghbPYbFYB8vsNAp4F5zIpp7u1tKf9yXm6Ske6q5QTqHHTvAIg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=l0iHyxjb; arc=pass smtp.client-ip=209.85.160.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AZoFj3AM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3404C1F00893;
-	Sun,  4 Oct 2026 18:34:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791138867;
-	bh=HJ04tlP5TSoRPXEqINwFS/UNlbWsKcgl7Yc3k992UDs=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=AZoFj3AMFZYNDyAOhNP+hYrjoC7g3FwgX3Z6nDQ/q0g40EtHW5DI22Lzl6eEElldW
-	 UKVIuQZmTjPk2HpXjZV5GPbo1LcSNSjTmiJ3OV7Ow9YdvLst1TONZHdJQ2+dxkMJVh
-	 9w1uSMOyE0X5xDYyrVAmYT0bEtBjNT5uyQHeOH96LnA3Hr3rIHmMJ8JBU7FUWsKUai
-	 wSd2q78pLSYpS9gWZDo5znk9IJKeaiKs7/YO1NyVijYguYBRwzyLms9Ju5Hu3t2C3e
-	 mhY+8+sQdpYX7MbDPRbc0OM7Rg8O682czYxiYIBAiLWLB3GfsdGR1q+vxr3Kr7oBn9
-	 oL0h/4dsN7mmQ==
-Subject: Re: [PATCH net v2 2/2] net/smc: serialize early link group cleanup
- with termination
-From: netdev-bot+sashiko@kernel.org
-To: nicoyip.dev@gmail.com
-Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
- sidraya@linux.ibm.com, mjambigi@linux.ibm.com, davem@davemloft.net,
- edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com,
- tonylu@linux.alibaba.com, guwen@linux.alibaba.com, horms@kernel.org,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Date: Sun, 04 Oct 2026 18:34:25 +0000
-Message-ID: <179113886579.434549.12546097168507601074@kernel.org>
-In-Reply-To: <20261003183237.2284245-3-nicoyip.dev@gmail.com>
-References: <20261003183237.2284245-3-nicoyip.dev@gmail.com>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="l0iHyxjb"
+Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-5337fa12431so186711cf.1
+        for <linux-s390@vger.kernel.org>; Sun, 04 Oct 2026 11:39:21 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1791139161; cv=none;
+        d=google.com; s=arc-20260327;
+        b=rJYcHRo6/XCgomOmjZfoL70jrb9H7fggxLMb1QhqPdzQwBS/hUDT63kcYEaUaTA+YS
+         5LTki1d3Ad5/kQ/ZyzdJX+1bg0BcoJI4yaZjFKQtT2BOPvABZ9QwIbMsRxHrdU7tt3Iq
+         8IsmIXTwvhOOa90yCPAlD9EONas2L3JA1VPTEqcF7xoRNzR7w6xk7k2tROLLQCnOuhCa
+         Goha+BVlUyr+p71vKuyRsj3LycFb3ivSyO7StGpB893+VkHNXV/neb8bhRgSxcqm1i3/
+         kCUiVPWDw7KIOltndcW+B7ycLXdVTxWqoW3HB4HCsA396Y89dnSokw8tpk+rt92dRGT4
+         MFkg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=ZSC0w1neootLkbih9TUxoXkKPCkBI7t1n5ZaTzyKsnU=;
+        fh=aYp2o9LS1/7C6qX8OuFNM+sMefyaSecWmYBgc5LX9Hc=;
+        b=dgpZU6+bMd1paeRGTuvpMATpEI9Vn8HESTsr5G3BX+AIqby+NClcQ+mRzvCLQhShhB
+         wwog1jsnnmzIClRMTAlig3F79gNpYXDarfBcA2hezq8MVcXqz5CjiUaVDHU4Gkrq0fFx
+         cChmcxUaB1F58RA1ViQAFE8ZxFrcUZ3Z8lkvK94bpP3gT5ONM2D84098JWJBHkZQNwTr
+         wJgOgxDSnaHhCejLRCbfUU3Qe0m1y1JWumqwdVlB2sa6NS0lzQ7PGJ7G3zzx6J2sep/Q
+         KU4GL2fyMLMXoXBRy5LHZ9YFohGEyV/iteh84lD9nTzH3QJXZPTTCD7dXrcls2uVbUqa
+         G2tQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1791139161; x=1791743961; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=ZSC0w1neootLkbih9TUxoXkKPCkBI7t1n5ZaTzyKsnU=;
+        b=l0iHyxjbrFA0mj0qSWG3UEuOwCfeu39THooR7JdjvlpS5iPbcpbOGXWgFlwrHqiq17
+         g6OREDzEJg1B4R9e3NlLt/FQGfnUhJDJq9ugUkIwHD8Ouc6I0KCAE+AjFJ5im2Q3teHM
+         xpabytF01LqRy3edoNlhxz/KOOwY/glawDCIRDkU1ItyqnPxe60feD3VqcauD0MIeU4s
+         Cvv/OfjgN/b+SrE6g8xki0vgbqOIO/2Zkxe+N05IzJfOVKCkkH4F7eFCLA6UNgq7uegJ
+         Iz6k97ECHJF0Ws6uFXO0NrKMD645vu6jOd91RLmcYxQ0T3ig64z73JKnKEdXvgZ6oM2B
+         rqAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791139161; x=1791743961;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ZSC0w1neootLkbih9TUxoXkKPCkBI7t1n5ZaTzyKsnU=;
+        b=j3g9ivy2kAkAmOyrRxG9QNhMq/vdnYkuDlBwWjbzQZvLRFAQThImXCUNkzGmAus/IG
+         5jTW20em9qzyVYVfjwGUQWU8x0zMtMucXRz7R5pcfpdxYDrxVPOtqT/NNqo6w78gqfHa
+         95KTXZ0h7asLW+Dl+90jIf1Bpa8tr6nXR1Rg4qUI5YVxcsKZdoTDmEK1+PP7Tqfy2rzo
+         Ci+XehELUw2q0xyGxP3K98qiJpt+QsYLyChsBp+9fjf4ZhIW1kWeEYENVEfLSFtE+q/Z
+         cODciBKOI0mRLXBrGEDJU2whEX5kVKJ/bcIaoxuV3ZW8KVhrUi0a/xV6MA+pR/r/g97/
+         0DHA==
+X-Forwarded-Encrypted: i=1; AKwUvByIa9aWMlQYd83SeCg3t9+IuqUqyLee/edaFvDuIOjiUGocddrfe4TvdjAGmBNDzvDTOHKDTr8ZyTsx@vger.kernel.org
+X-Gm-Message-State: AFuF++kLL1fgTdGtdOLptMQ05Wo4Axh8j1E2j0zcxgiFmlaOMB6y4/hu
+	XOQlYcB41YE+DWlg2gooIi488uLb6ZyaHHlv49LpHjyCWMsJeTMcH7mO7o9+zzO9rKGONCZy37q
+	6yBjpp2N4tlWK4md97uXp+UyxKAC/XVaFI6cXyKW7
+X-Gm-Gg: AYBFou1oYbqOLjsqB4LH3cbIT3dh5ixwJkdmfCiz01sOn7VSmRKUSML/HkC/8e138m3
+	1n6CmxtTz+yFY1bOlWXDaHHSHOiohBJH3/6LmXEsrOf9f/K5wEp9YmRXVl2AwHGRbdZ+pZ3+MFX
+	rAWrkdGdQLKHViS85qM8iqXJBaM1llKcY17WonHDL8Tx17oDd1x6VIQ1aA5moabVN98SF6Qv/Gd
+	XNC3FDHCWwVUxHSQaw00M0J964c6aJJc/WtFrOWLjwp3GWY6LoikSydxd4N2wwOQ7aE/5FojcXs
+	qMBQiXE/XZHtRL3gixTXSPEaWMm+K5u0UPhw44EQXKCZJUD2qnAbxFAA
+X-Received: by 2002:a05:622a:a16:b0:531:282:6560 with SMTP id
+ d75a77b69052e-5351322e1b3mr19806961cf.15.1791139160071; Sun, 04 Oct 2026
+ 11:39:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+References: <20261003-b4-mmap-prepare-vma-flag-sanify-v4-0-a1f052500fd7@kernel.org>
+ <20261003-b4-mmap-prepare-vma-flag-sanify-v4-21-a1f052500fd7@kernel.org>
+In-Reply-To: <20261003-b4-mmap-prepare-vma-flag-sanify-v4-21-a1f052500fd7@kernel.org>
+From: Suren Baghdasaryan <surenb@google.com>
+Date: Sun, 4 Oct 2026 20:39:04 +0200
+X-Gm-Features: AclHuK-BFFMO7RL_23L1uoIyefqTPzoxo4liaojYggefG4PLZrnFo0OrrSwhSqQ
+Message-ID: <CAJuCfpGtyaqwi__OXcB=iy2+LUVzFnLo-Q=Rdxz728_EHdTaWA@mail.gmail.com>
+Subject: Re: [PATCH v4 21/38] uprobes: remove VM_IO, set VM_MIXEDMAP for
+ mapped kernel pages
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+	David Hildenbrand <david@kernel.org>, Mike Rapoport <rppt@kernel.org>, Michal Hocko <mhocko@suse.com>, 
+	Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
+	Leon Romanovsky <leon@kernel.org>, Paul Moore <paul@paul-moore.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Jaroslav Kysela <perex@perex.cz>, 
+	Takashi Iwai <tiwai@suse.com>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
+	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
+	Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	"Martin K. Petersen" <mkp@kernel.org>, Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, 
+	Sebastian Reichel <sre@kernel.org>, John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim <namhyung@kernel.org>, 
+	Mark Rutland <mark.rutland@arm.com>, Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, 
+	Juri Lelli <juri.lelli@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, 
+	Arnd Bergmann <arnd@arndb.de>, Muchun Song <muchun.song@linux.dev>, 
+	Oscar Salvador <osalvador@suse.de>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, 
+	Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, 
+	Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>, 
+	Ying Huang <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>, 
+	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
+	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, 
+	Baoquan He <baoquan.he@linux.dev>, Youngjun Park <youngjun.park@lge.com>, 
+	Johannes Weiner <hannes@cmpxchg.org>, Qi Zheng <qi.zheng@linux.dev>, 
+	Shakeel Butt <shakeel.butt@linux.dev>, Axel Rasmussen <axelrasmussen@google.com>, 
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
+	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, 
+	linux-usb@vger.kernel.org, linux-rdma@vger.kernel.org, 
+	selinux@vger.kernel.org, linux-sound@vger.kernel.org, bpf@vger.kernel.org, 
+	linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
+	kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, 
+	fuse-devel@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issue(s) to consider.
+On Sat, Oct 3, 2026 at 6:40=E2=80=AFPM Lorenzo Stoakes (ARM) <ljs@kernel.or=
+g> wrote:
+>
+> These are not MMIO pages so VMA_IO_BIT is an inappropriate flag to set.
+>
+> Instead, set them VMA_MIXEDMAP_BIT as they are kernel mappings and this i=
+s
+> the appropriate flag to set for those.
+>
+> This provides the semantics required - no VMA merging is permitted, but
+> does not prevent GUP.
+>
+> However this has no meaningful impact as these are refcounted and thus ca=
+n
+> be GUPed.
+>
+> A previous commit already prevented __mm_populate() from being invoked on
+> XOL areas, which VMA_IO_BIT was previously relied upon to do, so that is =
+no
+> longer required.
+>
+> Both VMAs set a VMA name, so always_dump_vma() returns true before
+> vma_dump_size() reaches its VMA_IO_BIT check, and thus there is no change
+> in core dump behaviour.
+>
+> Change this for both the core xol_add_vma() function and the x86-specific
+> get_uprobe_trampoline() function.
+>
+> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 
-Critical: 0 · High: 1 (1) · Medium: 0 · Low: 1
+Reviewed-by: Suren Baghdasaryan <surenb@google.com>
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
 
-- [High] The new temporary hold in smc_lgr_create()/smc_conn_create()
-  keeps only the struct smc_link_group memory alive across the window…
-- [Low] The fix only works if the preceding series patch "net/smc:
-  serialize link group free work scheduling" is also applied, and this…
-
-Pre-existing issues:
-- [High] This problem wasn't introduced by this patch, but the exclusive-
-  teardown protocol this patch builds on is unsafe against an already-…
-
---
-
-net/smc: serialize early link group cleanup with termination
-
-This patch makes smc_lgr_cleanup_early() check lgr->freeing under the link
-group list lock, so it does not tear down a group that another path
-already owns. It also takes a temporary lgr reference in smc_conn_abort().
-For newly created groups, it takes another temporary reference from
-publication in smc_lgr_create() until registration in smc_conn_create()
-finishes.
-
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index 478c8bc2759a0..1918a79ff60e4 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -693,6 +693,10 @@ void smc_lgr_cleanup_early(struct smc_link_group *lgr)
->  
->  	smc_lgr_list_head(lgr, &lgr_lock);
->  	spin_lock_bh(lgr_lock);
-> +	if (lgr->freeing) {
-> +		spin_unlock_bh(lgr_lock);
-> +		return;
-> +	}
-
-[Severity: Low]
-
-This early return only gives exclusive teardown ownership in combination
-with two other pieces: the lgr->freeing = 1 write later in
-smc_lgr_cleanup_early(), and freeing being a standalone bool instead of a
-bitfield that shares storage with sync_err and terminating.
-
-Both of those come from the earlier series patch "net/smc: serialize link
-group free work scheduling". The baseline smc_lgr_cleanup_early() never
-sets freeing.
-
-The commit body only says:
-
-    The existing locked freeing transition then claims exclusive teardown
-    ownership
-
-The explicit dependency is stated only in the v2 changelog below the ---
-line, and git am drops that part.
-
-The context lines of this hunk don't include the lgr->freeing = 1 line,
-so the hunk applies cleanly to a tree without the prerequisite. The two
-patches also carry different Fixes: tags (8e316b9e7260 and f9aab6f2ce57).
-
-Suppose a stable tree takes only this patch. smc_lgr_cleanup_early()
-would then check freeing but never claim it. Couldn't
-smc_lgr_terminate_sched(), smc_smcd_terminate() or
-smc_smcr_terminate_all() still claim the group after the check, so that
-both paths enter __smc_lgr_terminate()?
-
-Could the body mention the dependency? Another option is a "# needs ..."
-annotation on the Cc: stable line.
-
-[Severity: High]
-
-This is a pre-existing issue and wasn't introduced by this patch. Still,
-the exclusive teardown protocol that this check builds on doesn't seem
-safe against a free_work instance that is already running.
-
-smc_lgr_free_work() holds no lgr reference. It dereferences the group
-before it can see that freeing was claimed:
-
-net/smc/smc_core.c:smc_lgr_free_work() {
-    ...
-	smc_lgr_list_head(lgr, &lgr_lock);
-	spin_lock_bh(lgr_lock);
-	if (lgr->freeing) {
-    ...
-}
-
-__smc_lgr_terminate() only uses the non-synchronous cancel:
-
-	/* cancel pending free_work; a running instance rechecks freeing */
-	cancel_delayed_work(&lgr->free_work);
-
-Neither smc_lgr_free() nor __smc_lgr_free() waits for free_work before
-kfree(lgr).
-
-Can this sequence happen on an idle group (conns_num == 0)?
-
-CPU1 (free_work timer expired)
-smc_lgr_free_work()
-  <preempted before spin_lock_bh(lgr_lock)>
-
-CPU2 (peer DELETE_LINK with SMC_LLC_FLAG_DEL_LINK_ALL)
-smc_llc_process_cli_delete_link()
-  smc_lgr_terminate_sched()
-    lgr->freeing = 1;
-    schedule_work(&lgr->terminate_work);
-smc_lgr_terminate_work()
-  __smc_lgr_terminate()
-    cancel_delayed_work(&lgr->free_work);   <- does not wait
-    smc_lgr_free()
-      smc_lgr_put()
-        __smc_lgr_free()
-          kfree(lgr);
-
-CPU1 resumes
-  smc_lgr_list_head(lgr, &lgr_lock);   <- reads freed lgr
-  spin_lock_bh(lgr_lock);
-
-The resumed worker would take a spinlock through a pointer loaded from
-freed memory. If the slab has been reused and reads freeing == 0 with an
-empty tree, the worker could also run list_del_init() and smc_lgr_free()
-on foreign memory.
-
-Other terminators would reach the same window, for example an LLC protocol
-violation, or smc_smcd_terminate() from an ISM event.
-
-The smc_conn_abort()->smc_lgr_cleanup_early() path doesn't look like a
-realistic trigger here. smc_lgr_schedule_free_work() is only called once
-conns_num reaches zero, and the creating connection stays registered
-until its own abort.
-
-Could free_work hold its own lgr reference, taken when it is armed and
-dropped when the work exits or is cancelled successfully? Alternatively,
-the final put could use cancel_delayed_work_sync() when it is not running
-from free_work itself.
-
->  	/* do not use this link group for new connections */
->  	if (!list_empty(&lgr->list))
->  		list_del_init(&lgr->list);
-> @@ -999,6 +1003,7 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
->  		lgr->buf_type = lgr->net->smc.sysctl_smcr_buf_type;
->  		atomic_inc(&lgr_cnt);
->  	}
-> +	smc_lgr_hold(lgr); /* lgr_put in smc_conn_create() */
->  	smc->conn.lgr = lgr;
->  	spin_lock_bh(lgr_lock);
->  	list_add_tail(&lgr->list, lgr_list);
-> @@ -2054,10 +2059,13 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
->  		write_unlock_bh(&lgr->conns_lock);
->  		if (rc) {
->  			smc_lgr_cleanup_early(lgr);
-> +			smc_lgr_put(lgr); /* lgr_hold in smc_lgr_create() */
->  			goto out;
->  		}
->  	}
->  	smc_lgr_hold(conn->lgr); /* lgr_put in smc_conn_free() */
-> +	if (ini->first_contact_local)
-> +		smc_lgr_put(conn->lgr); /* lgr_hold in smc_lgr_create() */
-
-[Severity: High]
-
-The temporary hold taken in smc_lgr_create() keeps the lgr allocation
-alive between list_add_tail() and smc_lgr_register_conn(). Does it also
-stop a terminator from tearing the group down in that window?
-
-smc_conn_create() only takes lgr->conns_lock around
-smc_lgr_register_conn(conn, true). Nothing rechecks lgr->freeing under
-lgr_lock. For SMC-D, this sequence seems possible:
-
-CPU1 (first-contact connect or listen)
-smc_conn_create()
-  smc_lgr_create()
-    smc_lgr_hold(lgr);
-    list_add_tail(&lgr->list, lgr_list);
-
-CPU2 (peer ISM GID or shutdown event)
-smc_smcd_terminate()
-  lgr->peer_shutdown = 1;
-  list_move(&lgr->list, &lgr_free_list);
-  lgr->freeing = 1;
-  schedule_work(&lgr->terminate_work);
-smc_lgr_terminate_work()
-  __smc_lgr_terminate()
-    rb_first(&lgr->conns_all) is NULL, kill loop skipped
-    smc_lgr_free()
-      destroy_workqueue(lgr->tx_wq);
-      smc_ism_put_vlan(); put_device();
-      smc_lgr_put(lgr);   <- only the temporary hold remains
-
-CPU1
-  write_lock_bh(&lgr->conns_lock);
-  smc_lgr_register_conn(conn, true);  <- cannot fail for SMC-D,
-                                         sock_hold(), conns_num++
-  smc_lgr_hold(conn->lgr);
-  smc_lgr_put(conn->lgr);             <- temporary hold dropped
-  return 0;
-
-The kill loop never visited this connection, so conn->killed stays clear.
-Two problems seem to follow.
-
-First, smc_tx_consumer_update() can get -EPIPE from
-smc_cdc_get_slot_and_msg_send() because peer_shutdown is set. It would
-then queue work on the destroyed workqueue:
-
-		if ((smc_cdc_get_slot_and_msg_send(conn) < 0) &&
-		    !conn->killed) {
-			queue_delayed_work(conn->lgr->tx_wq, &conn->tx_work,
-					   SMC_TX_WORK_DELAY);
-
-Second, smc_conn_free() sees list_empty(&lgr->list) and skips
-smc_lgr_unregister_conn(). That leaks the sock_hold() taken at
-registration. The final smc_lgr_put() would then free the lgr while
-smc_conn_lgr_valid() still returns true for the connection.
-
-The publication-to-registration window itself predates this patch. Before
-it, the later write_lock_bh(&lgr->conns_lock) was a direct
-use-after-free.
-
-The commit message says "On success, acquire the ordinary connection
-reference before releasing the temporary hold". This handoff doesn't seem
-to serialize registration with the freeing claim.
-
-Could first-contact registration take lgr_lock, fail if lgr->freeing is
-set, and then take conns_lock and register? That would match the lock
-order of the reuse path. Alternatively, could the group be published only
-after its first connection is registered?
-
-The SMC-R variant looks mostly blocked. smc_lgr_free() clears the links,
-so registration then fails with SMC_CLC_DECL_NOACTLINK and takes the
-fixed failure path. It is unclear whether a concurrent smcr_link_clear()
-could still hand out a link while it is clearing.
-
->  	if (!conn->lgr->is_smcd)
->  		smcr_link_hold(conn->lnk); /* link_put in smc_conn_free() */
->  	conn->freed = 0;
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261003183237.2284245-1-nicoyip.dev%40gmail.com
+> ---
+>  arch/x86/kernel/uprobes.c | 2 +-
+>  kernel/events/uprobes.c   | 4 ++--
+>  2 files changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/arch/x86/kernel/uprobes.c b/arch/x86/kernel/uprobes.c
+> index 65a2de82ecd2..0f60c0d076b6 100644
+> --- a/arch/x86/kernel/uprobes.c
+> +++ b/arch/x86/kernel/uprobes.c
+> @@ -715,7 +715,7 @@ static struct vm_area_struct *get_uprobe_trampoline(s=
+truct mm_struct *mm, unsign
+>
+>         *new_mapping =3D true;
+>         return _install_special_mapping(mm, vaddr, PAGE_SIZE,
+> -                               VM_READ|VM_EXEC|VM_MAYEXEC|VM_MAYREAD|VM_=
+IO,
+> +                               VM_READ|VM_EXEC|VM_MAYEXEC|VM_MAYREAD|VM_=
+MIXEDMAP,
+>                                 &tramp_mapping);
+>  }
+>
+> diff --git a/kernel/events/uprobes.c b/kernel/events/uprobes.c
+> index 7709ea882477..b89cc5cee002 100644
+> --- a/kernel/events/uprobes.c
+> +++ b/kernel/events/uprobes.c
+> @@ -1726,8 +1726,8 @@ static int xol_add_vma(struct mm_struct *mm, struct=
+ xol_area *area)
+>         }
+>
+>         vma =3D _install_special_mapping(mm, area->vaddr, PAGE_SIZE,
+> -                               VM_EXEC|VM_MAYEXEC|VM_DONTCOPY|VM_IO|
+> -                               VM_SEALED_SYSMAP,
+> +                               VM_EXEC|VM_MAYEXEC|VM_DONTCOPY|
+> +                               VM_MIXEDMAP|VM_SEALED_SYSMAP,
+>                                 &xol_mapping);
+>         if (IS_ERR(vma)) {
+>                 ret =3D PTR_ERR(vma);
+>
+> --
+> 2.55.0
+>
