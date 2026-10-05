@@ -1,60 +1,60 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CECA330675F;
-	Mon,  5 Oct 2026 20:42:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BCC33AFB19;
+	Mon,  5 Oct 2026 21:55:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791232965; cv=none; b=SxPKhbKTLfMtX/AUifzjzKN1NvHItXZiuDjWjbkdDSjxCIrIhroxRWvViVyBtCFPqkYjwhU18Q57ofGdxAala9LY9/iCmMja0LTl7CvcBMKLlqFdRHK2kPp5xjT/0vNIE3VpmtfSg/Xjru22e3y4Nkzy1o8f0ADtmXtHvuVSxfI=
+	t=1791237317; cv=none; b=sSSRzl5hQYDIjKm6QnvS1BC/mDVouQy+RfSRwkFsIyDmN1amXClAlS2MrtmjLk61V+U7yyohHrU07jY3NQ4oYUT2w0zGlpnuod4L6H+Rl2WPjhISKx3flkovURMDoLfySonSymnPjTU7leQGY0je9NhtXEX7JoPH9BUhLXGXoM4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791232965; c=relaxed/simple;
-	bh=H1rDcLnvs+tVMwkQ8HT2YzGfCTT7hI24NBFt7RRxI24=;
+	s=arc-20240116; t=1791237317; c=relaxed/simple;
+	bh=KIuHd3IW+yo0ItNReYL7I4RSdvvYBsUEt8jE70Cop1o=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sC00Q3+/Wa2PC4O6Bf5pYxHePxxJ8cg6OuRG4dYkXIXu1n3WA5qSrd93r8jdCv35d+3cjBaxdK0s8uC0vJHUcYHSEWrMKm115sZGx93/QFNvyfmKoXBLQe/c8BsssD9hsiM89+HEIpuJWo3uwGz56rDQoGywTsosOyyLc17AK/k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RJ8+1wb2; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:Content-Type; b=fgJOQ+6MSO0cBH+O3o17ZRugCb82jPWS+1GweRl5/Vy/NPy6QjasjZX7UkWIt6S3KvhX+LMT8OUbk5JEpHbjggbLeBtQy77Zlm6y6k74aqSudVi+ztTdScWNEPKqKvYsjbxWrCk9V/3thg2jnHcSEwWPuKCO/LdKh9uLP/NqiqE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=DJNB1rGU; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RJ8+1wb2"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 695HZkLn1131408;
-	Mon, 5 Oct 2026 20:42:33 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="DJNB1rGU"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 695HZrl81257970;
+	Mon, 5 Oct 2026 21:55:09 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=+vlmp1
-	zJJpBqZRTmdGJXupvkLn88Fqty6R/95+2PujM=; b=RJ8+1wb2GqvWe1dpst7kKk
-	PlVaqM4hy1dtFnMPMO4EOCaE4bgm2z1GsVY2ysKouYwjfqd/uAJNgaAeYdGwmZ52
-	vctjZq/MFWg6RUq8HkqvoMN432VY+AEsa/C7pWB16Slkn9L01Empw/PWfJnqz4vs
-	UedlWLSRpXJXuBkfvF0Yqh3sz/nkOmRjyg6j77qUI9PowS1Od/YNToE9BizK97az
-	Z8asut0Eo6nERKMszaVdZtqcRtJcbq5upBojfyfrOuQJ55CMvXv+FS1sG+7G1IHh
-	sspz6nbdbsgZxxh4QVPKxeyo0DTyvvZW3uFIslLXa+Dh/dewPUCPBO1Zlqkg78Bw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=DUyTjy
+	IC90zgl3h8ubutATsKp084cLeuE/tG8+o98ZU=; b=DJNB1rGUfK4Ie2R9RBRWKS
+	PBxzy9KcBhM4vxSPdLFjFqAbgSkCBxsluompkpFN48RGWQiD6eBHnry8puITCnbw
+	kEtR1oOkdbNxhvVW+c0ab5kQzHWgWWqj9xEzEfDtQ8o0QeU5E70LFN0zmlmu9dtU
+	vdeVFa18qfgADpCeK0PoRBnUNnOonUUx0TtA14bfhyuMjvuaYBNgVRDVysJHvDwi
+	jyiUnjqoh6pk+OixlQcpd1SxncV+Pya752f1Oo/uM4kFW52JW1oz+lxvcGSS2U1t
+	/AZxtLW4WqfuzIe72iBHk9Qcg+J9aa6Zq4byECX2p5VD68oOgv0L/DoyBvzUZKTA
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2q4jm120-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2se5cmvj-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 05 Oct 2026 20:42:33 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 695HbVuU3231089;
-	Mon, 5 Oct 2026 20:42:32 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h3cdvq6gr-1
+	Mon, 05 Oct 2026 21:55:09 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 695HMbx83252062;
+	Mon, 5 Oct 2026 21:55:08 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h3eqy72wq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 05 Oct 2026 20:42:32 +0000 (GMT)
+	Mon, 05 Oct 2026 21:55:08 +0000 (GMT)
 Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 695KgVgw6816268
+	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 695Lt7KN20906532
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 5 Oct 2026 20:42:31 GMT
+	Mon, 5 Oct 2026 21:55:07 GMT
 Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 175D75805D;
-	Mon,  5 Oct 2026 20:42:31 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 961C958054;
+	Mon,  5 Oct 2026 21:55:07 +0000 (GMT)
 Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8B81A58054;
-	Mon,  5 Oct 2026 20:42:29 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 080A25805A;
+	Mon,  5 Oct 2026 21:55:06 +0000 (GMT)
 Received: from [9.61.34.243] (unknown [9.61.34.243])
 	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  5 Oct 2026 20:42:29 +0000 (GMT)
-Message-ID: <8feaefbb-93ce-431b-a038-8d9d28576526@linux.ibm.com>
-Date: Mon, 5 Oct 2026 16:42:29 -0400
+	Mon,  5 Oct 2026 21:55:05 +0000 (GMT)
+Message-ID: <238c3e40-13db-492b-9ed5-517f321ce8b7@linux.ibm.com>
+Date: Mon, 5 Oct 2026 17:55:05 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,8 +62,8 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 05/15] s390/vfio-ap: Callback to get/set vfio device
- mig state during guest migration
+Subject: Re: [PATCH v7 07/15] s390/vfio-ap: File ops called to save the vfio
+ device migration state
 To: "Jason J. Herne" <jjherne@linux.ibm.com>, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 Cc: borntraeger@de.ibm.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com,
@@ -71,257 +71,489 @@ Cc: borntraeger@de.ibm.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com,
         pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
         agordeev@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 References: <20260807221834.562851-1-akrowiak@linux.ibm.com>
- <20260807221834.562851-6-akrowiak@linux.ibm.com>
- <e94dfa4a-e2b3-4cda-904a-ef571d2277db@linux.ibm.com>
+ <20260807221834.562851-8-akrowiak@linux.ibm.com>
+ <9c69c913-49aa-4934-b46a-1ebddd425f76@linux.ibm.com>
 Content-Language: en-US
 From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <e94dfa4a-e2b3-4cda-904a-ef571d2277db@linux.ibm.com>
+In-Reply-To: <9c69c913-49aa-4934-b46a-1ebddd425f76@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: BeJV7Y1I8IzfSfdeNKKlbqb2NYDHQE8v
-X-Proofpoint-GUID: BeJV7Y1I8IzfSfdeNKKlbqb2NYDHQE8v
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA1MDA4MSBTYWx0ZWRfX5cwNbmZjYsLS
- hhXkNEcuqpsnoUc35mVa3PrOzYPkXr6eIQDs4p5A14DtTPb10IpMzweoQpKi16GFkpwmUxNOfp3
- thmJLxVQGF23XNSt1aL0B8ryXp73MgI=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA1MDA4MSBTYWx0ZWRfX6voQaVV+NvaU
- 52kdnYl57k7ifAHgXGvb91IxKACDULp413+vfOZopPuBgPwyDzvBcAYhEC3s9yhUqc41D3KRJQH
- CMC2956NXCPRwdaq1gIguaH7z0J5GsSGgefdt7DFtjxfwc6boHqpcwOoUPcNQrLPWtiWXjadF2U
- qblPdQvn/zdVp0hYKbHW3pbEOKHb3dqCuSOPkgc31r2MkP+AirtEL2+f1bsyGRV+IqMYrw9QSew
- mjXSbotsPYeTL27LCYmzL861jBZo7dtNiSi2K7AnBrVA9pPFkYwTgt0y2QLFmhxEM4FpOanFmgd
- ftt/xHvnKD0ofI8Qi/6BtIuqm4JC6v6T/Ip7pvlvxlr3GvcyBfKbO5Y+tK0465lsrLHDSjdWx0u
- HHgmOq04AU60LI0ou88IlD9Uuj4kFTygrM8Hk7tOySb++dNINBBNpOvweMvJ6J8mCFKXMmDsEMk
- pWfT6R/vPnmW+uzkFaQ==
-X-Authority-Analysis: v=2.4 cv=eYeo7LEH c=1 sm=1 tr=0 ts=6ac40bb9 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA1MDA4NSBTYWx0ZWRfXw3niMX/xt6ZY
+ /8RvNgn8Bt0V6rLB/t+7N/5+SP/blqnLRy4O54VGD1h4sBi/jVxVjcM0pcFAiTNQSGTGmx9OTHs
+ 7f4Qb4EYzYS9VV2qJm9l2o4MC8z+H+4=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA1MDA4NSBTYWx0ZWRfX3w/OpZSBpw21
+ cCiT+BVBhM8yPvLNj2JNGiByB8RLV+sMfzSphazEUJ2H1P5j/wZw2vnoK1bykx9AMSMEMhmR2DS
+ eKLwK93jW2bGRu09l+QzKHtEKmISuyNwg7qO/PVMFJO5Lvfv8YYXfYtwXO6vUWnzX1yohmj005q
+ bYCPQuKWl8xeF4/RnC9DRZVcXHeStODcNiZ17txrySbrWpfKtJ97R5AWF/ff5WYc59iUxf+BgCm
+ NH5dcDmWq+vsKgNzY3v8J3Bvr9g0fHroY+ElJMMqn/iJ52GIcTRkZSbZDcfCTg87g3Qgrck1PRC
+ GgefhUtLBxd6kSRHfPJTdS0FB93zwlIaVmyKeyePnbfmObTSnmDgIdgDJOtKB4xFe+uaHw/Q1Vd
+ tnfCXZpLbVAF7+HeJJmy3kTJe6MQtRDBnxGIEMhSUr6mmNolZ4h51IKxltCf6lT6wIUfTwaP7nE
+ XenicV9afubJ8PVJHkw==
+X-Proofpoint-GUID: BFbOJqsDbk1qMRgLqPw3G-rsRRJhT73o
+X-Authority-Analysis: v=2.4 cv=UNRIjyfy c=1 sm=1 tr=0 ts=6ac41cbd cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=c-Gg0e3jJgsNnJN__rUA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=xHGZ6dfit4Jw-R03iOAA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: BFbOJqsDbk1qMRgLqPw3G-rsRRJhT73o
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-05_05,2026-10-05_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 lowpriorityscore=0 phishscore=0 bulkscore=0 clxscore=1015
- spamscore=0 malwarescore=0 priorityscore=1501 impostorscore=0 suspectscore=0
+ spamscore=0 impostorscore=0 adultscore=0 bulkscore=0 lowpriorityscore=0
+ phishscore=0 clxscore=1015 priorityscore=1501 suspectscore=0 malwarescore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610050081
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610050085
 
 
 
-On 8/12/26 12:04 PM, Jason J. Herne wrote:
+On 8/13/26 11:08 AM, Jason J. Herne wrote:
 >
 >
 > On 8/7/26 6:18 PM, Anthony Krowiak wrote:
->> Implements two callbacks related to the current state of a vfio-ap 
->> device:
->> * The callback that sets a new migration state of a vfio-ap device 
->> during
->>    live migration of guests with pass-through access to AP devices. This
->>    callback is mandatory for VFIO_DEVICE_FEATURE_MIGRATION support.
+>> Implements the read callback function that was added to the
+>> file_operations structure for the file created to save the state of the
+>> vfio-ap device when the migration state transitioned from STOP to
+>> to the STOP_COPY state.
 >>
->>    The function pointer for this callback is specified via the
->>    'migration_set_state' field of the 'vfio_migration_ops' structure
->>    which is stored with the VFIO device when the 'vfio_device'
->>    structure representing the mediated device is initialized.
->>
->> * The callback that returns the current vfio device migration state 
->> during
->>    live migration of guests with pass-through access to AP devices.
->>
->>    The function pointer for this callback is specified via the
->>    'migration_get_state' field of the 'vfio_migration_ops' structure
->>    which is stored with the VFIO device when the 'vfio_device'
->>    structure representing the mediated device is initialized.
+>> This function copies the guest's AP configuration information to
+>> userspace. The information copied is comprised of the APQN of each queue
+>> device passed through to the guest along with its hardware information.
+>> This state data will be transferred to the vfio_ap device driver on the
+>> destination host when the state is transitioned to RESUMING.
 >>
 >> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
 >> ---
->>   drivers/s390/crypto/vfio_ap_migration.c | 130 +++++++++++++++++++++++-
->>   1 file changed, 128 insertions(+), 2 deletions(-)
+>>   drivers/s390/crypto/vfio_ap_migration.c | 287 +++++++++++++++++++++++-
+>>   1 file changed, 277 insertions(+), 10 deletions(-)
 >>
 >> diff --git a/drivers/s390/crypto/vfio_ap_migration.c 
 >> b/drivers/s390/crypto/vfio_ap_migration.c
->> index 1613813124b6..af740b177c97 100644
+>> index de693b308925..50781b61f7f1 100644
 >> --- a/drivers/s390/crypto/vfio_ap_migration.c
 >> +++ b/drivers/s390/crypto/vfio_ap_migration.c
->> @@ -128,16 +128,141 @@ static void 
->> vfio_ap_release_resuming_file(struct vfio_ap_migration_data *mig_dat
+>> @@ -117,9 +117,10 @@ struct vfio_ap_config {
+>>   static void
+>>   vfio_ap_release_stop_copy_file(struct vfio_ap_migration_data 
+>> *mig_data)
+>>   {
+>> -    /* Stub to be implemented when the 
+>> mig_data->stop_copy_mig_file.ap_config
+>> -     * object is allocated.
+>> -     */
+>> +    kvfree(mig_data->stop_copy_mig_file.ap_config);
+>> +    mig_data->stop_copy_mig_file.ap_config = NULL;
+>> +    mig_data->stop_copy_mig_file.config_sz = 0;
+>> +    mig_data->stop_copy_mig_file.filp = NULL;
+>>   }
+>>     static void vfio_ap_release_resuming_file(struct 
+>> vfio_ap_migration_data *mig_data)
+>> @@ -129,13 +130,6 @@ static void vfio_ap_release_resuming_file(struct 
+>> vfio_ap_migration_data *mig_dat
 >>        */
 >>   }
->>   +static struct file *
->> +vfio_ap_transition_to_state(struct ap_matrix_mdev *matrix_mdev,
->> +                enum vfio_device_mig_state new_state)
+>>   -static ssize_t
+>> -vfio_ap_stop_copy_read(struct file *, char __user *, size_t, loff_t *)
+>> -{
+>> -    /* TODO */
+>> -    return -EOPNOTSUPP;
+>> -}
+>> -
+>>   static int vfio_ap_release_mig_file(struct inode *file_inode, 
+>> struct file *filp)
+>>   {
+>>       struct ap_matrix_mdev *matrix_mdev = filp->private_data;
+>> @@ -150,6 +144,279 @@ static int vfio_ap_release_mig_file(struct 
+>> inode *file_inode, struct file *filp)
+>>       return 0;
+>>   }
+>>   +/**
+>> + * validate_stop_copy_read_parms: Validate the input parameters to the
+>> + *                                vfio_ap_stop_copy_read function
+>> + *
+>> + * @matrix_mdev: The object device containing the state to be read
+>> + * @filp: Pointer to the file stream used to read the vfio-ap device 
+>> state
+>> + * @pos:  The file offset from which to start reading data
+>> + * @len:  The length of the data to be read
+>> + *
+>> + * Verify the following:
+>> + * - @filp private data is an ap_matrix_mdev instance
+>> + * - @filp is the instance opened when state transitioned from STOP 
+>> to STOP_COPY
+>> + * - @pos + @len does not cause integer overflow
+>> + *
+>> + * Returns: 0 if the parameters pass validation; otherwise returns 
+>> an error
+>> + */
+>> +static int validate_stop_copy_read_parms(struct file *filp, loff_t 
+>> *pos,
+>> +                     size_t len)
 >> +{
 >> +    struct vfio_ap_migration_data *mig_data;
->> +    enum vfio_device_mig_state cur_state;
+>> +    struct ap_matrix_mdev *matrix_mdev;
+>> +    loff_t total_len;
 >> +
 >> +    lockdep_assert_held(&matrix_dev->mdevs_lock);
->> +    mig_data = matrix_mdev->mig_data;
->> +    cur_state = mig_data->mig_state;
->> +    dev_dbg(matrix_mdev->vdev.dev, "%s: %d -> %d\n", __func__, 
->> cur_state,
->> +        new_state);
 >> +
->> +    if (cur_state == VFIO_DEVICE_STATE_STOP &&
->> +        new_state == VFIO_DEVICE_STATE_STOP_COPY) {
->> +        /* TODO */
->> +        return ERR_PTR(-EOPNOTSUPP);
->> +    }
+>> +    if (check_add_overflow((loff_t)len, *pos, &total_len))
+>> +        return -EIO;
 >> +
->> +    if (cur_state == VFIO_DEVICE_STATE_STOP &&
->> +        new_state == VFIO_DEVICE_STATE_RESUMING) {
->> +        /* TODO */
->> +        return ERR_PTR(-EOPNOTSUPP);
->> +    }
+>> +    /*
+>> +     * matrix_mdev is guaranteed live here: 
+>> vfio_ap_open_file_stream() took
+>> +     * a vfio_device registration reference that is held until
+>> +     * vfio_ap_release_mig_file() runs, so the embedding matrix_mdev 
+>> cannot
+>> +     * be freed while this file descriptor is open.
+>> +     */
+>> +    matrix_mdev = filp->private_data;
 >> +
->> +    if ((cur_state == VFIO_DEVICE_STATE_RESUMING &&
->> +         new_state == VFIO_DEVICE_STATE_STOP) ||
->> +        (cur_state == VFIO_DEVICE_STATE_STOP_COPY &&
->> +         new_state == VFIO_DEVICE_STATE_STOP)) {
->> +        /* TODO */
->> +        return ERR_PTR(-EOPNOTSUPP);
->> +    }
->> +
->> +    if ((cur_state == VFIO_DEVICE_STATE_STOP &&
->> +         new_state == VFIO_DEVICE_STATE_RUNNING) ||
->> +        (cur_state == VFIO_DEVICE_STATE_RUNNING &&
->> +         new_state == VFIO_DEVICE_STATE_STOP)) {
->> +        /* TODO */
->> +        return ERR_PTR(-EOPNOTSUPP);
->> +    }
->> +
->> +    /* vfio_mig_get_next_state() does not use arcs other than the 
->> above */
->> +    WARN_ON(true);
->> +
->> +    return ERR_PTR(-EINVAL);
->> +}
->> +
->>   static struct file *vfio_ap_set_state(struct vfio_device *vdev,
->>                         enum vfio_device_mig_state  new_state)
->>   {
->> -    return NULL;
->> +    int ret;
->> +    struct file *filp = NULL;
->> +    struct ap_matrix_mdev *matrix_mdev;
->> +    enum vfio_device_mig_state next_state;
->> +    struct vfio_ap_migration_data *mig_data;
->> +
->> +    matrix_mdev = container_of(vdev, struct ap_matrix_mdev, vdev);
->
-> The container_of() pointer swizzle is done under lock in 
-> vfio_ap_get_state, but not here. Why? They should probably be handled 
-> consistently.
-
-The vdev pointer is stable. It is passed in as a function parameter from the
-VFIO core and is guaranteed valid for the callback duration. On the other
-hand, in the interest of consistency - as you explained - I'll move it after
-taking the mdevs_lock.
-
->
->> +
->> +    mutex_lock(&matrix_dev->mdevs_lock);
->> +    if (ap_is_se_guest()) {
->> +        dev_err_once(matrix_mdev->vdev.dev,
->> +                 "Migration not allowed from or to a Secure 
->> Execution guest\n");
->> +        mutex_unlock(&matrix_dev->mdevs_lock);
->> +        return ERR_PTR(-EPERM);
->> +    }
+>> +    if (!matrix_mdev->mig_data)
+>> +        return -ENODEV;
 >> +
 >> +    mig_data = matrix_mdev->mig_data;
 >> +
->> +    /*
->> +     * The mig_data pointer is set in the vfio_ap_init_migration_data
->> +     * function which is called when the vfio-ap device fd is opened.
->> +     * Since the implicit pre-open state is RUNNING, a request to set
->> +     * RUNNING is a no-op. Any other state transition is invalid before
->> +     * open_device.
->> +     */
->> +    if (!mig_data) {
->> +        mutex_unlock(&matrix_dev->mdevs_lock);
->> +        if (new_state == VFIO_DEVICE_STATE_RUNNING)
->> +            return NULL;
->> +        return ERR_PTR(-ENODEV);
->> +    }
->> +
->> +    dev_dbg(vdev->dev, "%s -> %d\n", __func__, new_state);
->> +
->> +    while (mig_data->mig_state != VFIO_DEVICE_STATE_ERROR &&
->> +           mig_data->mig_state != new_state) {
->> +        ret = vfio_mig_get_next_state(vdev, mig_data->mig_state,
->> +                          new_state, &next_state);
->> +        if (ret) {
->> +            filp = ERR_PTR(ret);
->> +            break;
->> +        }
->> +
->> +        filp = vfio_ap_transition_to_state(matrix_mdev, next_state);
->> +        if (IS_ERR(filp))
->> +            break;
->> +
->> +        mig_data->mig_state = next_state;
->> +
->> +        if (WARN_ON(filp && new_state != next_state)) {
->> +            fput(filp);
->> +            filp = ERR_PTR(-EINVAL);
->> +            break;
->> +        }
->> +    }
->> +
->> +    mutex_unlock(&matrix_dev->mdevs_lock);
->> +
->> +    return filp;
->>   }
->>     static int vfio_ap_get_state(struct vfio_device *vdev,
->>                    enum vfio_device_mig_state  *current_state)
->>   {
->> -    return -EOPNOTSUPP;
->> +    struct ap_matrix_mdev *matrix_mdev;
->> +    struct vfio_ap_migration_data *mig_data;
->> +
->> +    mutex_lock(&matrix_dev->mdevs_lock);
->> +
->> +    matrix_mdev = container_of(vdev, struct ap_matrix_mdev, vdev);
->> +    mig_data =  matrix_mdev->mig_data;
->
-> Why bother with temp variable? You could just access 
-> matrix_mdev->mig_data directly.
-
-No other reason than for readability and shortening lines of code that 
-access it multiple
-times. I see no good reason to remove it.
-
->
->> +
->> +    /*
->> +     * The mig_data pointer is set in the vfio_ap_init_migration_data
->> +     * function which is called when the vfio-ap device fd is opened.
->> +     * If mig_data is NULL, report RUNNING as the implicit pre-open 
->> state
->> +     * so userspace doesn't need to perform any state transition 
->> before the
->> +     * device becomes active.
->> +     */
->> +    *current_state = (mig_data) ? mig_data->mig_state :
->> +                      VFIO_DEVICE_STATE_RUNNING;
->> +
->> +    mutex_unlock(&matrix_dev->mdevs_lock);
+>> +    if (mig_data->stop_copy_mig_file.filp != filp)
+>> +        return -EINVAL;
 >> +
 >> +    return 0;
->>   }
->>     static int vfio_ap_get_data_size(struct vfio_device *vdev,
->> @@ -159,6 +284,7 @@ static const struct vfio_migration_ops 
->> vfio_ap_migration_ops = {
->>    */
->>   void vfio_ap_init_migration_capabilities(struct ap_matrix_mdev 
->> *matrix_mdev)
->>   {
->> +    /* Live guest migration is not supported for SE guests */
->>       if (ap_is_se_guest())
->>           return;
+>> +}
+>> +
+>> +static size_t vfio_ap_config_size(struct ap_matrix_mdev *matrix_mdev,
+>> +                  int *num_queues)
+>> +{
+>> +    size_t qinfo_size;
+>> +
+>> +    lockdep_assert_held(&matrix_dev->mdevs_lock);
+>> +
+>> +    *num_queues = 
+>> vfio_ap_mdev_get_num_queues(&matrix_mdev->shadow_apcb);
+>> +    qinfo_size = *num_queues * sizeof(struct vfio_ap_queue_info);
+>> +
+>> +    return qinfo_size + sizeof(struct vfio_ap_config);
+>> +}
+>> +
+>> +static int get_hardware_info_for_queue(const char *mdev_name,
+>> +                       struct ap_tapq_hwinfo *hwinfo,
+>> +                       unsigned long apqn)
+>> +{
+>> +    struct ap_queue_status status;
+>> +
+>> +    status = ap_tapq(apqn, hwinfo);
+>> +
+>> +    switch (status.response_code) {
+>> +    case AP_RESPONSE_NORMAL:
+>> +    case AP_RESPONSE_RESET_IN_PROGRESS:
+>> +    case AP_RESPONSE_DECONFIGURED:
+>> +    case AP_RESPONSE_CHECKSTOPPED:
+>> +    case AP_RESPONSE_BUSY:
+>> +        /* For all these RCs the tapq info should be available */
+>> +        return 0;
+>> +    case AP_RESPONSE_Q_NOT_AVAIL:
+>> +        pr_err_ratelimited("vfio_ap_mdev %s: Failed to get hwinfo 
+>> for queue %02lx.%04lx: TAPQ rc=%d",
+>> +                   mdev_name, AP_QID_CARD(apqn), AP_QID_QUEUE(apqn),
+>> +                   status.response_code);
+>> +        return -ENODEV;
+>> +    default:
+>> +        /*
+>> +         * Without a pending async error, the tapq info should be
+>> +         * available
+>> +         */
+>> +        if (status.async)
+>> +            return 0;
+>> +
+>> +        pr_err_ratelimited("vfio_ap_mdev %s:Failed to get hwinfo for 
+>> queue %02lx.%04lx: TAPQ rc=%d",
+>> +                   mdev_name, AP_QID_CARD(apqn), AP_QID_QUEUE(apqn),
+>> +                   status.response_code);
+>> +        return -EIO;
+>> +    }
+>> +}
+>> +
+>> +/**
+>> + * vfio_ap_store_queue_info:
+>> + *
+>> + * Stores the hardware information returned from the PQAP(TAPQ) 
+>> command for each
+>> + * queue device identified in the 'qinfo' field of the a vfio_ap_config
+>> + * object. If there are a large number of queues for which hardware 
+>> information
+>> + * must be retrieved, this function must be called without the 
+>> mdevs_lock
+>> + * held. This should not be a problem since the APQNs in the 'qinfo' 
+>> field
+>> + * should already have been snapshotted prior to calling this function.
 >
-> Comment is unrelated to the rest of the patch.
+> This warning message is ambiguous. What does large mean? What are the 
+> consequences of holding the lock during a long call? And, "This should 
+> not be a problem..." this whole thing seems to contradict the warning 
+> entirely. Can you clarify the situation? :)
 
-This belongs in patch 03/15. I'll move it.
+This is one of those issues reported by Sashiko. The problem here is 
+that mdevs_lock prevents
+access to every mdev under the control of the vfio_ap device driver. 
+This means that nothing
+can be done via the sysfs interfaces - i.e., assigning/unassinging 
+adapters, domains and control
+domains which also prevents hot plug of those devices - for as long as 
+the mutex lock is held.
+It also prevents starting any guests to which the mdev supplies an AP 
+configuration or any
+communication between userspace and the vfio_ap driver that is 
+associated with an mdev.
 
+Of course, what large means is dependent upon how long it takes to 
+execute a TAPQ for
+a queue device. The system wide limits for CEX8 cards are up to 60 
+adapters and 85 domains
+for a total of 5100 queues. This is probably highly unlikely since each 
+card has a maximum of
+2 adapters and 16 domains and the total is divided up between the LPARs. 
+I've just convinced
+myself that dropping the lock here is probably unnecessary. I should 
+have looked deeper
+into it rather than relying on AI. I think the lock drop creates a 
+window where the snapshotted
+APQN list can become stale, so I think I'm going to remove it.
+
+I think the answer to all of these performance issues created by a 
+global mdevs lock can
+probably be resolved by redesigning the locking mechanism and maybe 
+creating a
+lock per mdev. That is a major design change which is for another day.
+
+>
+>> + *
+>> + * @mdev_name:    The name (UUID) of the mediated device to use in 
+>> log messages
+>> + * @ap_config:    A reference to the vfio_ap_config instance in 
+>> which to store
+>> + *        the queue information. It is expected that each APQN 
+>> identifying
+>> + *        a queue device for which hardware information is to be 
+>> retrieved
+>> + *        shall be snapshotted prior to calling this function.
+>> + *
+>> + * Returns:    Zero (0) if the hardware information is retrieved for 
+>> each queue
+>> + *        device in the AP configuration; otherwise, returns an error.
+>> + */
+>> +static int vfio_ap_store_queue_info(const char *mdev_name,
+>> +                    struct vfio_ap_config *ap_config)
+>> +{
+>> +    struct ap_tapq_hwinfo source_hwinfo;
+>> +    unsigned long num_queues;
+>> +    int ret;
+>> +
+>> +    for (num_queues = 0; num_queues < ap_config->num_queues; 
+>> num_queues++) {
+>> +        ret = get_hardware_info_for_queue(mdev_name, &source_hwinfo,
+>> + ap_config->qinfo[num_queues].apqn);
+>> +        if (ret)
+>> +            return ret;
+>> +
+>> +        ap_config->qinfo[num_queues].data = source_hwinfo.value;
+>> +    }
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static int vfio_ap_get_config(struct ap_matrix_mdev *matrix_mdev)
+>> +{
+>> +    struct vfio_ap_config *ap_configuration;
+>> +    unsigned long *apm, *aqm, apid, apqi;
+>> +    const char *mdev_name;
+>> +    size_t ap_config_size;
+>> +    int ret, num_queues;
+>> +
+>> +    lockdep_assert_held(&matrix_dev->mdevs_lock);
+>> +
+>> +    ap_config_size = vfio_ap_config_size(matrix_mdev, (int 
+>> *)&num_queues);
+>> +
+>> +    ap_configuration = kvzalloc(ap_config_size, GFP_KERNEL_ACCOUNT);
+>> +    if (!ap_configuration)
+>> +        return -ENOMEM;
+>> +
+>> +    ap_configuration->magic   = VFIO_AP_MIG_MAGIC;
+>> +    ap_configuration->version = VFIO_AP_MIG_VERSION;
+>> +
+>> +    /*
+>> +     * num_queues must be set before writing qinfo[] elements; the
+>> +     * __counted_by(num_queues) annotation on qinfo[] causes the 
+>> compiler to
+>> +     * insert bounds checks that evaluate against 
+>> ap_configuration->num_queues.
+>> +     * Writing through qinfo[i] with num_queues still 0 would trap.
+>> +     */
+>> +    ap_configuration->num_queues = num_queues;
+>> +
+>> +    apm = matrix_mdev->shadow_apcb.apm;
+>> +    aqm = matrix_mdev->shadow_apcb.aqm;
+>> +    num_queues = 0;
+>> +    for_each_set_bit_inv(apid, apm, AP_DEVICES) {
+>> +        for_each_set_bit_inv(apqi, aqm, AP_DOMAINS) {
+>> +            ap_configuration->qinfo[num_queues].apqn =
+>> +                AP_MKQID(apid, apqi);
+>> +            num_queues += 1;
+>> +        }
+>> +    }
+>> +    memcpy(ap_configuration->adm, matrix_mdev->shadow_apcb.adm,
+>> +           sizeof(ap_configuration->adm));
+>> +    mdev_name = dev_name(matrix_mdev->vdev.dev);
+>> +
+>> +    /*
+>> +     * Unlock the mdevs_lock so other mdevs are not precluded from 
+>> being
+>> +     * accessed while a potentially long running operation is 
+>> performed.
+>> +     */
+>> +    mutex_unlock(&matrix_dev->mdevs_lock);
+>> +    ret = vfio_ap_store_queue_info(mdev_name, ap_configuration);
+>> +    mutex_lock(&matrix_dev->mdevs_lock);
+>
+> I'm confused by the locking strategy here. Why is it okay to release 
+> the lock, do stuff, then reacquire the lock? If that's okay, why do we 
+> need the lock at all? What changes are we protecting against? And can 
+> those changes land when we relase the lock to call 
+> vfio_ap_store_queue_info()?
+
+See my comment above.
+
+>
+>> +    if (ret) {
+>> +        kvfree(ap_configuration);
+>> +        return ret;
+>> +    }
+>> +
+>> +    if (!matrix_mdev->mig_data) {
+>> +        kvfree(ap_configuration);
+>> +        return -ENODEV;
+>> +    }
+>> +
+>> +    matrix_mdev->mig_data->stop_copy_mig_file.ap_config = 
+>> ap_configuration;
+>> +    matrix_mdev->mig_data->stop_copy_mig_file.config_sz = 
+>> ap_config_size;
+>> +
+>> +    return 0;
+>> +}
+>> +
+>> +static ssize_t vfio_ap_stop_copy_read(struct file *filp, char __user 
+>> *buf,
+>> +                      size_t len, loff_t *pos)
+>> +{
+>> +    struct vfio_ap_migration_file *mig_file;
+>> +    struct ap_matrix_mdev *matrix_mdev;
+>> +    loff_t read_pos;
+>> +    ssize_t ret;
+>> +
+>> +    /*
+>> +     * This file was opened with stream_open(), so pos should be 
+>> NULL for
+>> +     * sequential read() calls; a non-NULL pointer will be passed only
+>> +     * for positional pread() calls in which case we return an error
+>> +     * indicating broken pipe/illegal seek on a non-seekable file
+>> +     */
+>> +    if (pos)
+>> +        return -ESPIPE;
+>> +
+>> +    mutex_lock(&matrix_dev->mdevs_lock);
+>> +
+>> +    pos = &filp->f_pos;
+>> +
+>> +    ret = validate_stop_copy_read_parms(filp, pos, len);
+>
+> Why pass pos here? Can't validate_stop_copy_read_parms() just read it 
+> from fipl->f_pos?
+
+I suppose we can. I'll have to change validate_stop_copy_read_parms() too.
+
+
+>
+>> +    if (ret) {
+>> +        mutex_unlock(&matrix_dev->mdevs_lock);
+>> +        return ret;
+>> +    }
+>> +
+>> +    matrix_mdev = filp->private_data;
+>> +    mig_file = &matrix_mdev->mig_data->stop_copy_mig_file;
+>> +
+>> +    if (!mig_file->ap_config) {
+>> +        ret = vfio_ap_get_config(matrix_mdev);
+>> +        if (ret) {
+>> +            mutex_unlock(&matrix_dev->mdevs_lock);
+>> +            return ret;
+>> +        }
+>> +    }
+>
+> What's the point of this block? Under what circumstances can we get 
+> here not having set mig_file->ap_config?
+
+I'm using lazy intialization here:
+* vfio_ap_open_file_stream() initializes mig_file->ap_config = NULL
+   and config_sz = 0
+* vfio_ap_get_config() allocates the config, fills it, and stores it in
+   mig_file->ap_config along with config_sz on the first call to
+   vfio_ap_stop_copy_read().
+* The stream_open() file position (filp->f_pos) tracks read offset across
+   calls and the config is freed in vfio_ap_release_stop_copy_file()
+
+I'm going to put a doc block in to explain that
+
+>
+>
+>> +
+>> +    /*
+>> +     * Compute the offset and clamped length fully under the lock so 
+>> that
+>> +     * concurrent read()s on this stream file each see a consistent 
+>> view of
+>> +     * the current position.  *pos is advanced here while we still 
+>> hold the
+>> +     * lock; copy_to_user() then uses the snapshot read_pos. This 
+>> prevents
+>> +     * two threads from calculating the same offset and both copying 
+>> the
+>> +     * same region (or one reading past the end of the buffer).
+>> +     */
+>> +    if (*pos >= mig_file->config_sz) {
+>> +        mutex_unlock(&matrix_dev->mdevs_lock);
+>> +        return 0;
+>> +    }
+>> +
+>> +    len = min_t(size_t, mig_file->config_sz - *pos, len);
+>> +    if (len == 0) {
+>> +        mutex_unlock(&matrix_dev->mdevs_lock);
+>> +        return 0;
+>> +    }
+>> +
+>> +    read_pos = *pos;
+>> +    *pos += len;
+>> +
+>> +    /*
+>> +     * Drop the lock only for the copy_to_user().  The ap_config 
+>> buffer is
+>> +     * stable: it is allocated once in vfio_ap_get_config() and 
+>> freed only
+>> +     * in vfio_ap_release_stop_copy_file() which requires mdevs_lock.
+>> +     * Since we already advanced *pos above, no other thread will 
+>> compute an
+>> +     * overlapping region.
+>> +     */
+>> +    mutex_unlock(&matrix_dev->mdevs_lock);
+>> +
+>> +    if (copy_to_user(buf, (char *)mig_file->ap_config + read_pos, len))
+>> +        return -EFAULT;
+>> +
+>> +    return len;
+>> +}
+>> +
+>>   static const struct file_operations vfio_ap_stop_copy_fops = {
+>>       .owner = THIS_MODULE,
+>>       .read = vfio_ap_stop_copy_read,
+>
 
