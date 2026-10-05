@@ -1,73 +1,74 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72DDE46D558
-	for <linux-s390@vger.kernel.org>; Mon,  5 Oct 2026 12:08:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AE97471D1C
+	for <linux-s390@vger.kernel.org>; Mon,  5 Oct 2026 12:12:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791202126; cv=none; b=VWdYCoTaaaSPIMmDMjLAFHxn41P2R+iMZSfRG7BwsXLiUZYAgJbiHKRrEorYCTTH07QdIxkiBhsgd+NwzxoXsePklJ7ouL02WvboLRcYKh6eWvnMI5uZkvY6XTF/DMMFP1JBl3noSpOt34Sf3Zv2uKAtVANMyHuNjGp6se2vvVw=
+	t=1791202367; cv=none; b=U17eaq75ZfGGbUpk/B2gyVM2Mts82qC7kzXEg/X3fhypfPfm/MsoM1Wli2u/dN/bd4fl92ThcVAzVUgRUr7QjrP8kJQ5eC3wVPYhPtwsAHsEviuS9jpDdR8KvI3S2pgu/nJW26a9Sugl2POBFDn+vmLm5VYhhtAt7UpG9fLheY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791202126; c=relaxed/simple;
-	bh=ZrLk4xRj5C458a4QV32SAi6WRUJfb8u+GdQqkUtOPXw=;
+	s=arc-20240116; t=1791202367; c=relaxed/simple;
+	bh=PAM9SYK+Xc9hEPXoqcaE1hQPIzgUB+yMQddlaNvK0vg=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=VeQMyLvwaSkZGagwbrrCYBUw6YblhF0gW/I6hOYc5HL5rLkdbNkjauV0TOI9yN9uJHTbCD5JxWya+nX/e7dfDn5z9JgbmnWbmLh3Elk784lVPnGDRlIUB9hD4IGpTCba/BX80V23n+cX+8CGR1Q5ol3hwYxkZKRyAL1Fvi4rmLc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ltwxFqo/; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=uaL0LXlF4y3cD1NtAyClDcFN7+FvFCo3nDJMDQVefU48LkNprYtUfNmzSbcTUYizK18sWjEkGrBTF/cxXPfphT4EGEKsYaA546+yErgWxdIE/fIUFcvAmPygI1CvwWZtUvwoRBgaobW/ZI7cyugN+xBL/OnZNTgc9ESjOdrb3kM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FNWjlEJo; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ltwxFqo/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDC871F000FF;
-	Mon,  5 Oct 2026 12:08:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FNWjlEJo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA1CD1F000FF;
+	Mon,  5 Oct 2026 12:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791202125;
-	bh=BgtVgL4StLMv8cKhI86zCDTEcztk7A5vJhq4Hv1SLNk=;
+	s=k20260515; t=1791202366;
+	bh=PAM9SYK+Xc9hEPXoqcaE1hQPIzgUB+yMQddlaNvK0vg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ltwxFqo/24YplKxgZ8n4lyVa4Sn7q94xCabOf+JlgAzcqXUlJqoGbQnEhJaKh7X4f
-	 beYpUqi+xqV9Xkp0+R2t4jMg2iN1CZitcRSg2kLV8qwtSMIEKsZdgdZSyqAq9nL8yR
-	 3BW85tJXOvI5kwZIXUsDEoF9XQkBKHe5IHBxIUZyDpKD56qr6coXRh/V9m04n3exOH
-	 dE+xdFwM75Pxvg8CNvIHlpV7Fm6jg4pQ0pzFd6LWdVq5fzrUmC0Ri3UVMBITjjAgDS
-	 RwZgWB/hezNXV1XyHavlfKfCu4eXjgk4RqWatrnrwVeISO7L1gprjMQ0DsxxF5KuNE
-	 h043UBM00MSPw==
+	b=FNWjlEJoBg/O7AzbB3TBOm9BeU1y7pxfzGrpJ9M85x4t9dKIYFPo1yKan1dxoUYhh
+	 90HaM3JonXXeTiJo/KnSo67+DVf6jNCiqJpWy0JW5y80UJywLbdx25KApCZE86aKAz
+	 EAoDfgHs+sLPefiwKbcQlDQd8pqNH/u0IW70b96Cah4VVDjKUYH1UstysRXCsGXRTE
+	 9kc1OLGGh5sTvKo3K9lhu+R5U2/nwA/fL2rQMOCdYNfA3cM3xKBCxHkG4WffU5QB9y
+	 OXzpaGYsCfW3vo+Xf8gZDSLtKkFddVGgB8sxU2rOKF7+eT9byLXbiLuuw7Vduaq8rc
+	 J4ef2XNtI8fzw==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 6/7] s390/pci: Set MSI_FLAG_NO_AFFINITY at IRQ init
- time
+Subject: Re: [PATCH v2 1/7] s390/pci: Fix double-free and NULL deref in zpci
+ MSI domain cleanup
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Tobias Schumacher" <ts@linux.ibm.com>
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20261005-s390_irq_domain_fixes-v2-6-d45b824874c0@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <20261005-s390_irq_domain_fixes-v2-1-d45b824874c0@linux.ibm.com>
 References: <20261005-s390_irq_domain_fixes-v2-0-d45b824874c0@linux.ibm.com>
- <20261005-s390_irq_domain_fixes-v2-6-d45b824874c0@linux.ibm.com>
+ <20261005-s390_irq_domain_fixes-v2-1-d45b824874c0@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 05 Oct 2026 12:08:44 +0000
-Message-Id: <20261005120844.CDC871F000FF@smtp.kernel.org>
+Date: Mon, 05 Oct 2026 12:12:45 +0000
+Message-Id: <20261005121245.BA1CD1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> MSI_FLAG_NO_AFFINITY is added to zpci_msi_parent_ops.required_flags from
-> zpci_create_parent_msi_domain(), which runs for every new PCI bus,
-> including buses created at runtime from a hotplug availability event.
+> zpci_remove_parent_msi_domain() dereferences zbus->msi_parent_domain
+> unconditionally and does not clear it afterwards.
 >=20
-> That is a non-atomic read-modify-write on a field which
-> msi_lib_init_dev_msi_info() reads without a common lock while setting up
-> MSI for a device on an already existing bus:
+> zpci_bus_create_pci_bus() removes the domain when pci_create_root_bus()
+> fails, then zpci_bus_release() removes it again on the last kref_put(),
+> reading ->fwnode from the freed irq_domain and freeing it twice.
 >=20
->       required_flags =3D pops->required_flags;
+> If zpci_alloc_domain() or zpci_create_parent_msi_domain() fails, no domain
+> is created at all; zbus is kzalloc'd, so the same release path dereferenc=
+es
+> NULL.
 >=20
-> The stored value is always the same, so no caller observes a change, but
-> the race need not exist: irq_delivery is decided once in zpci_irq_init()
-> and never changes afterwards.
+> Return early when there is no domain, and clear the pointer after removing
+> one.
 >=20
-> Set the flag there instead, before any parent domain exists.
->=20
+> Fixes: f770950a4709 ("s390/pci: Migrate s390 IRQ logic to IRQ domain API")
+> Cc: stable@vger.kernel.org
 > Signed-off-by: Tobias Schumacher <ts@linux.ibm.com>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261005-s390_irq_d=
-omain_fixes-v2-0-d45b824874c0@linux.ibm.com?part=3D6
+omain_fixes-v2-0-d45b824874c0@linux.ibm.com?part=3D1
 
