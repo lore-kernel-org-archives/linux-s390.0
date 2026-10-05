@@ -1,216 +1,327 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E88C364052;
-	Mon,  5 Oct 2026 19:55:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CECA330675F;
+	Mon,  5 Oct 2026 20:42:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791230106; cv=none; b=MG1XL1yYuj28RY/YjyELiiwP/fWom83Rsv0N/EMv2xrZZRLGpg8oybzUHoBEay/kozP74PYSwHLu21V0RBbHqD46wKsoFPnKwDWNkR4hzbIuFOSuZRK//WPgTEpn1qCCZOfdsLo3AxBryo7t1rA0x0p0XSUCImjw35KL7mwlLso=
+	t=1791232965; cv=none; b=SxPKhbKTLfMtX/AUifzjzKN1NvHItXZiuDjWjbkdDSjxCIrIhroxRWvViVyBtCFPqkYjwhU18Q57ofGdxAala9LY9/iCmMja0LTl7CvcBMKLlqFdRHK2kPp5xjT/0vNIE3VpmtfSg/Xjru22e3y4Nkzy1o8f0ADtmXtHvuVSxfI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791230106; c=relaxed/simple;
-	bh=x4RJ9slhE19bh0sctfOAgtJX3+6KVlkfvvzHMfGESX4=;
-	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=f1j9Wf886P4TEYWsGoy+VsnhsYw28h3pH3CZ2keuYikjEQOb6fmQ92awX1lc01aLPcdY/9x7BhgcNyo6TJVsUr8o/FZ3HBZ8lrdmiDMvgu1VDfI5jMgPrtVOk9ICbDdtNQMmlwbSgkIP1n77MF8Y8pjw91FtBXbf2Vqfbade+lg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aHtxUSBQ; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1791232965; c=relaxed/simple;
+	bh=H1rDcLnvs+tVMwkQ8HT2YzGfCTT7hI24NBFt7RRxI24=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sC00Q3+/Wa2PC4O6Bf5pYxHePxxJ8cg6OuRG4dYkXIXu1n3WA5qSrd93r8jdCv35d+3cjBaxdK0s8uC0vJHUcYHSEWrMKm115sZGx93/QFNvyfmKoXBLQe/c8BsssD9hsiM89+HEIpuJWo3uwGz56rDQoGywTsosOyyLc17AK/k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RJ8+1wb2; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aHtxUSBQ"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 695HZOI51256926;
-	Mon, 5 Oct 2026 19:55:01 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RJ8+1wb2"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 695HZkLn1131408;
+	Mon, 5 Oct 2026 20:42:33 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=LtvyO7
-	ikMwu5WQTiyBbH02VDBqab3Q/tfzWW/s+e4IU=; b=aHtxUSBQ8mXrLTXZuLmNKE
-	rUly5D9UFNTFBUqP4tV+Yj34XSTZ/7LKvMHMWh3SIQerwD1SuilkhiU2KI5IEoDs
-	6EwN1SNzO+gaMBtaMP4urohzH2p9uy3/gxrMOBTaQBIqC8C4Vjti3WFp7+u7stkP
-	zzJZVVzfOvdgXl4oSVBHcPSZqpgaG+vCIkDm2v1Mzcu4InbeDSA+rS9v5BUwq6gV
-	WMxw+wJj7kuBPikCpPaAmAogLnK5pUQdCAVyhsV6oOiFjuvYcGZzXzq1OrRZE+Ln
-	7VdL2aHhTnpgY+hSRRnMFv9wXH5JguDmvqCW1Aoolw0bb0l131oa946IDuXHgtaw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=+vlmp1
+	zJJpBqZRTmdGJXupvkLn88Fqty6R/95+2PujM=; b=RJ8+1wb2GqvWe1dpst7kKk
+	PlVaqM4hy1dtFnMPMO4EOCaE4bgm2z1GsVY2ysKouYwjfqd/uAJNgaAeYdGwmZ52
+	vctjZq/MFWg6RUq8HkqvoMN432VY+AEsa/C7pWB16Slkn9L01Empw/PWfJnqz4vs
+	UedlWLSRpXJXuBkfvF0Yqh3sz/nkOmRjyg6j77qUI9PowS1Od/YNToE9BizK97az
+	Z8asut0Eo6nERKMszaVdZtqcRtJcbq5upBojfyfrOuQJ55CMvXv+FS1sG+7G1IHh
+	sspz6nbdbsgZxxh4QVPKxeyo0DTyvvZW3uFIslLXa+Dh/dewPUCPBO1Zlqkg78Bw
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2se5c6gd-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2q4jm120-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 05 Oct 2026 19:55:00 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 695HMbXU3280962;
-	Mon, 5 Oct 2026 19:54:59 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h3dhgpuyf-1
+	Mon, 05 Oct 2026 20:42:33 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 695HbVuU3231089;
+	Mon, 5 Oct 2026 20:42:32 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h3cdvq6gr-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 05 Oct 2026 19:54:59 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 695JswDk39256478
+	Mon, 05 Oct 2026 20:42:32 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 695KgVgw6816268
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 5 Oct 2026 19:54:58 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9341658043;
-	Mon,  5 Oct 2026 19:54:58 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3F3C75805D;
-	Mon,  5 Oct 2026 19:54:55 +0000 (GMT)
-Received: from [9.111.90.46] (unknown [9.111.90.46])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  5 Oct 2026 19:54:55 +0000 (GMT)
-Message-ID: <023ed9db17d9c7d785dad387fc18dff6bed862d8.camel@linux.ibm.com>
-Subject: Re: [PATCH v8 2/4] s390/pci: Reuse FMB buffer and preserve state
- in device re-enablement
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Omar Elghoul <oelghoul@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, mjrosato@linux.ibm.com,
-        alifm@linux.ibm.com, farman@linux.ibm.com, gbayer@linux.ibm.com,
-        pasic@linux.ibm.com, alex@shazbot.org, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com
-In-Reply-To: <20261005154557.57801-3-oelghoul@linux.ibm.com>
-References: <20261005154557.57801-1-oelghoul@linux.ibm.com>
-	 <20261005154557.57801-3-oelghoul@linux.ibm.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 05 Oct 2026 21:53:54 +0200
+	Mon, 5 Oct 2026 20:42:31 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 175D75805D;
+	Mon,  5 Oct 2026 20:42:31 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8B81A58054;
+	Mon,  5 Oct 2026 20:42:29 +0000 (GMT)
+Received: from [9.61.34.243] (unknown [9.61.34.243])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  5 Oct 2026 20:42:29 +0000 (GMT)
+Message-ID: <8feaefbb-93ce-431b-a038-8d9d28576526@linux.ibm.com>
+Date: Mon, 5 Oct 2026 16:42:29 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 05/15] s390/vfio-ap: Callback to get/set vfio device
+ mig state during guest migration
+To: "Jason J. Herne" <jjherne@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: borntraeger@de.ibm.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex@shazbot.org, kwankhede@nvidia.com, fiuczy@linux.ibm.com,
+        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
+        agordeev@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+References: <20260807221834.562851-1-akrowiak@linux.ibm.com>
+ <20260807221834.562851-6-akrowiak@linux.ibm.com>
+ <e94dfa4a-e2b3-4cda-904a-ef571d2277db@linux.ibm.com>
+Content-Language: en-US
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <e94dfa4a-e2b3-4cda-904a-ef571d2277db@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA1MDA3NyBTYWx0ZWRfX7eEmepvKfkdG
- GEOqPEuw3UMUdwnHPfclJsV9RvrgNsZKDhRnpnnChb+XVIgsrtDXLsQ5fqmGY7bh9CYljsMrPwT
- qfj+EGZEuHW0WIYOnokiMd7bpvSC7kE=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA1MDA3NyBTYWx0ZWRfX0dqZ1+mZ7mHY
- /z7VLMMVjRx3zGb6lhnFuV2DOVt7EUNjGNM+jfo/1GT44zdtPecF2gtNzlUQACQwm+wffBpWxrW
- qnsRDMi9qt8AUR6whrE5l0Yvmfk0JpR1Vg5dP1wP52xwTt6IKACCcSiuXcs58wmp5caXMpiWLm/
- PrhIR/n1ElmpRPh2EqXu+Sn+IQgaCWOrCNrDTSrzePf5EDLlSpVCwKLo7ip1GtDIW7Xz3MIKVxM
- d2KbI6qe5OM08YUOS6bsaoWaA/nmnISnSLvhq3DE806gpMmDKm4AxpANRn2Szxy6/BMiUWd9hd3
- H6hwJJDeRV2xWgN9MyPBgxhgbIREU01RMsejZ+F9T6CG+sEAsNC3bs8povxKr7DWrwPswjv3UgE
- I/B+7KG2i1f0i2D2rKjrlhEgehJIqHsccNFg/cR96UXDm3JcBEniNWCsArpUo/gbsK9VPVF7vKt
- BWPkI/2xU7GfWg0DViA==
-X-Proofpoint-GUID: CkgVKNwN_qePseuf8iUZc9VsJd9Xo_uy
-X-Authority-Analysis: v=2.4 cv=UNRIjyfy c=1 sm=1 tr=0 ts=6ac40094 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-ORIG-GUID: BeJV7Y1I8IzfSfdeNKKlbqb2NYDHQE8v
+X-Proofpoint-GUID: BeJV7Y1I8IzfSfdeNKKlbqb2NYDHQE8v
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA1MDA4MSBTYWx0ZWRfX5cwNbmZjYsLS
+ hhXkNEcuqpsnoUc35mVa3PrOzYPkXr6eIQDs4p5A14DtTPb10IpMzweoQpKi16GFkpwmUxNOfp3
+ thmJLxVQGF23XNSt1aL0B8ryXp73MgI=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA1MDA4MSBTYWx0ZWRfX6voQaVV+NvaU
+ 52kdnYl57k7ifAHgXGvb91IxKACDULp413+vfOZopPuBgPwyDzvBcAYhEC3s9yhUqc41D3KRJQH
+ CMC2956NXCPRwdaq1gIguaH7z0J5GsSGgefdt7DFtjxfwc6boHqpcwOoUPcNQrLPWtiWXjadF2U
+ qblPdQvn/zdVp0hYKbHW3pbEOKHb3dqCuSOPkgc31r2MkP+AirtEL2+f1bsyGRV+IqMYrw9QSew
+ mjXSbotsPYeTL27LCYmzL861jBZo7dtNiSi2K7AnBrVA9pPFkYwTgt0y2QLFmhxEM4FpOanFmgd
+ ftt/xHvnKD0ofI8Qi/6BtIuqm4JC6v6T/Ip7pvlvxlr3GvcyBfKbO5Y+tK0465lsrLHDSjdWx0u
+ HHgmOq04AU60LI0ou88IlD9Uuj4kFTygrM8Hk7tOySb++dNINBBNpOvweMvJ6J8mCFKXMmDsEMk
+ pWfT6R/vPnmW+uzkFaQ==
+X-Authority-Analysis: v=2.4 cv=eYeo7LEH c=1 sm=1 tr=0 ts=6ac40bb9 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=AKlWO90MWbHe4YM1njwA:9
- a=QEXdDO2ut3YA:10 a=O8hF6Hzn-FEA:10
-X-Proofpoint-ORIG-GUID: CkgVKNwN_qePseuf8iUZc9VsJd9Xo_uy
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=c-Gg0e3jJgsNnJN__rUA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-05_05,2026-10-05_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 impostorscore=0 adultscore=0 bulkscore=0 lowpriorityscore=0
- phishscore=0 clxscore=1011 priorityscore=1501 suspectscore=0 malwarescore=0
+ adultscore=0 lowpriorityscore=0 phishscore=0 bulkscore=0 clxscore=1015
+ spamscore=0 malwarescore=0 priorityscore=1501 impostorscore=0 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610050077
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610050081
 
-On Mon, 2026-10-05 at 11:45 -0400, Omar Elghoul wrote:
-> Don't free the FMB buffer when disabling measurement in
-> zpci_fmb_disable_device(). Instead, make the buffer persistent for the
-> lifetime of the device and reuse it across enable/disable cycles. Defer
-> freeing the buffer until teardown in zpci_release_device().
->=20
-> To support the persistent buffers, add the fmb_enabled bool to struct
-> zpci_dev to decouple whether FMB is enabled from whether the buffer has
-> been allocated. Audit the only consumer of zdev->fmb as a liveness check
-> and update it to reflect this change.
->=20
-> Introduce the function zpci_fmb_reenable_device() to ensure that the FMB
-> is enabled. If it was already enabled, disable it, zero the counters,
-> and re-enable it. This allows the function to be used in both first-time
-> enabling and re-enabling measurement. Call it in zpci_reenable_device()
-> to preserve the FMB enablement if it had been implicitly disabled by
-> firmware in zpci_disable_device().
 
-I think this causes a sequencing error in zpci_hot_reset_device().
-First the device gets disabled via zpci_disable_device(). This
-implicitly disables the FMB but keeps zdev->fmb_enabled set. Then we
-call zpci_fmb_reenable_device() in zpci_reenable_device(). Since zdev-
->fmb_enabled is set we don't first enable the FMB and instead go
-directly to disabling it but that is wrong since the FMB is already
-disabled as a side effect of the CLP Set PCI Function (Disable) in
-zpci_disable_device().
 
-Also, and I think Gerd mentioned this before, there is a disconnect in
-semantics between zpci_fmb_reenable_device() and zpci_reenable_device()
-that is quite confusing. While zpci_reenable_device() re-enables the
-device with existing interrupts and I/O address translations, after it
-was disabled, zpci_fmb_reenable_device() on the other hand does a
-disable and then enable cycle.
+On 8/12/26 12:04 PM, Jason J. Herne wrote:
+>
+>
+> On 8/7/26 6:18 PM, Anthony Krowiak wrote:
+>> Implements two callbacks related to the current state of a vfio-ap 
+>> device:
+>> * The callback that sets a new migration state of a vfio-ap device 
+>> during
+>>    live migration of guests with pass-through access to AP devices. This
+>>    callback is mandatory for VFIO_DEVICE_FEATURE_MIGRATION support.
+>>
+>>    The function pointer for this callback is specified via the
+>>    'migration_set_state' field of the 'vfio_migration_ops' structure
+>>    which is stored with the VFIO device when the 'vfio_device'
+>>    structure representing the mediated device is initialized.
+>>
+>> * The callback that returns the current vfio device migration state 
+>> during
+>>    live migration of guests with pass-through access to AP devices.
+>>
+>>    The function pointer for this callback is specified via the
+>>    'migration_get_state' field of the 'vfio_migration_ops' structure
+>>    which is stored with the VFIO device when the 'vfio_device'
+>>    structure representing the mediated device is initialized.
+>>
+>> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_migration.c | 130 +++++++++++++++++++++++-
+>>   1 file changed, 128 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_migration.c 
+>> b/drivers/s390/crypto/vfio_ap_migration.c
+>> index 1613813124b6..af740b177c97 100644
+>> --- a/drivers/s390/crypto/vfio_ap_migration.c
+>> +++ b/drivers/s390/crypto/vfio_ap_migration.c
+>> @@ -128,16 +128,141 @@ static void 
+>> vfio_ap_release_resuming_file(struct vfio_ap_migration_data *mig_dat
+>>        */
+>>   }
+>>   +static struct file *
+>> +vfio_ap_transition_to_state(struct ap_matrix_mdev *matrix_mdev,
+>> +                enum vfio_device_mig_state new_state)
+>> +{
+>> +    struct vfio_ap_migration_data *mig_data;
+>> +    enum vfio_device_mig_state cur_state;
+>> +
+>> +    lockdep_assert_held(&matrix_dev->mdevs_lock);
+>> +    mig_data = matrix_mdev->mig_data;
+>> +    cur_state = mig_data->mig_state;
+>> +    dev_dbg(matrix_mdev->vdev.dev, "%s: %d -> %d\n", __func__, 
+>> cur_state,
+>> +        new_state);
+>> +
+>> +    if (cur_state == VFIO_DEVICE_STATE_STOP &&
+>> +        new_state == VFIO_DEVICE_STATE_STOP_COPY) {
+>> +        /* TODO */
+>> +        return ERR_PTR(-EOPNOTSUPP);
+>> +    }
+>> +
+>> +    if (cur_state == VFIO_DEVICE_STATE_STOP &&
+>> +        new_state == VFIO_DEVICE_STATE_RESUMING) {
+>> +        /* TODO */
+>> +        return ERR_PTR(-EOPNOTSUPP);
+>> +    }
+>> +
+>> +    if ((cur_state == VFIO_DEVICE_STATE_RESUMING &&
+>> +         new_state == VFIO_DEVICE_STATE_STOP) ||
+>> +        (cur_state == VFIO_DEVICE_STATE_STOP_COPY &&
+>> +         new_state == VFIO_DEVICE_STATE_STOP)) {
+>> +        /* TODO */
+>> +        return ERR_PTR(-EOPNOTSUPP);
+>> +    }
+>> +
+>> +    if ((cur_state == VFIO_DEVICE_STATE_STOP &&
+>> +         new_state == VFIO_DEVICE_STATE_RUNNING) ||
+>> +        (cur_state == VFIO_DEVICE_STATE_RUNNING &&
+>> +         new_state == VFIO_DEVICE_STATE_STOP)) {
+>> +        /* TODO */
+>> +        return ERR_PTR(-EOPNOTSUPP);
+>> +    }
+>> +
+>> +    /* vfio_mig_get_next_state() does not use arcs other than the 
+>> above */
+>> +    WARN_ON(true);
+>> +
+>> +    return ERR_PTR(-EINVAL);
+>> +}
+>> +
+>>   static struct file *vfio_ap_set_state(struct vfio_device *vdev,
+>>                         enum vfio_device_mig_state  new_state)
+>>   {
+>> -    return NULL;
+>> +    int ret;
+>> +    struct file *filp = NULL;
+>> +    struct ap_matrix_mdev *matrix_mdev;
+>> +    enum vfio_device_mig_state next_state;
+>> +    struct vfio_ap_migration_data *mig_data;
+>> +
+>> +    matrix_mdev = container_of(vdev, struct ap_matrix_mdev, vdev);
+>
+> The container_of() pointer swizzle is done under lock in 
+> vfio_ap_get_state, but not here. Why? They should probably be handled 
+> consistently.
 
-I think the idea here is that zdev->fmb_enabled tries to track whether
-the FMB is supposed to be enabled rather than if it is enabled.  This
-makes some sense since the FMB can get disabled by the device entering
-the error state or a zpci_disable_device() and we want to know if we
-need to re-enable it at the re-enable of the device.
+The vdev pointer is stable. It is passed in as a function parameter from the
+VFIO core and is guaranteed valid for the callback duration. On the other
+hand, in the interest of consistency - as you explained - I'll move it after
+taking the mdevs_lock.
 
-Importantly, unlike the disablement of a device we always initiate the
-enablement. But then we can't try to disable the FMB without knowing if
-it was already disabled. I think a possible solution for this would be
-to have zpci_fmb_reenable_device() mean that we know that the FMB is
-disabled but should be enabled, which we know when we re-enable the
-device and zdev->fmb_enabled is set. Of course then it doesn't do a
-disable but only an enable despite zdev->fmb_enabled already being set,
-Then zpci_fmb_enable_device() on the other hand sets the flag initially
-and then uses zpci_fmb_reenable_device() or a shared helper. Of course
-we would then have to properly document zdev->fmb_enabled as being a
-the target rather than current state.
+>
+>> +
+>> +    mutex_lock(&matrix_dev->mdevs_lock);
+>> +    if (ap_is_se_guest()) {
+>> +        dev_err_once(matrix_mdev->vdev.dev,
+>> +                 "Migration not allowed from or to a Secure 
+>> Execution guest\n");
+>> +        mutex_unlock(&matrix_dev->mdevs_lock);
+>> +        return ERR_PTR(-EPERM);
+>> +    }
+>> +
+>> +    mig_data = matrix_mdev->mig_data;
+>> +
+>> +    /*
+>> +     * The mig_data pointer is set in the vfio_ap_init_migration_data
+>> +     * function which is called when the vfio-ap device fd is opened.
+>> +     * Since the implicit pre-open state is RUNNING, a request to set
+>> +     * RUNNING is a no-op. Any other state transition is invalid before
+>> +     * open_device.
+>> +     */
+>> +    if (!mig_data) {
+>> +        mutex_unlock(&matrix_dev->mdevs_lock);
+>> +        if (new_state == VFIO_DEVICE_STATE_RUNNING)
+>> +            return NULL;
+>> +        return ERR_PTR(-ENODEV);
+>> +    }
+>> +
+>> +    dev_dbg(vdev->dev, "%s -> %d\n", __func__, new_state);
+>> +
+>> +    while (mig_data->mig_state != VFIO_DEVICE_STATE_ERROR &&
+>> +           mig_data->mig_state != new_state) {
+>> +        ret = vfio_mig_get_next_state(vdev, mig_data->mig_state,
+>> +                          new_state, &next_state);
+>> +        if (ret) {
+>> +            filp = ERR_PTR(ret);
+>> +            break;
+>> +        }
+>> +
+>> +        filp = vfio_ap_transition_to_state(matrix_mdev, next_state);
+>> +        if (IS_ERR(filp))
+>> +            break;
+>> +
+>> +        mig_data->mig_state = next_state;
+>> +
+>> +        if (WARN_ON(filp && new_state != next_state)) {
+>> +            fput(filp);
+>> +            filp = ERR_PTR(-EINVAL);
+>> +            break;
+>> +        }
+>> +    }
+>> +
+>> +    mutex_unlock(&matrix_dev->mdevs_lock);
+>> +
+>> +    return filp;
+>>   }
+>>     static int vfio_ap_get_state(struct vfio_device *vdev,
+>>                    enum vfio_device_mig_state  *current_state)
+>>   {
+>> -    return -EOPNOTSUPP;
+>> +    struct ap_matrix_mdev *matrix_mdev;
+>> +    struct vfio_ap_migration_data *mig_data;
+>> +
+>> +    mutex_lock(&matrix_dev->mdevs_lock);
+>> +
+>> +    matrix_mdev = container_of(vdev, struct ap_matrix_mdev, vdev);
+>> +    mig_data =  matrix_mdev->mig_data;
+>
+> Why bother with temp variable? You could just access 
+> matrix_mdev->mig_data directly.
 
-Thanks,
-Niklas
+No other reason than for readability and shortening lines of code that 
+access it multiple
+times. I see no good reason to remove it.
+
+>
+>> +
+>> +    /*
+>> +     * The mig_data pointer is set in the vfio_ap_init_migration_data
+>> +     * function which is called when the vfio-ap device fd is opened.
+>> +     * If mig_data is NULL, report RUNNING as the implicit pre-open 
+>> state
+>> +     * so userspace doesn't need to perform any state transition 
+>> before the
+>> +     * device becomes active.
+>> +     */
+>> +    *current_state = (mig_data) ? mig_data->mig_state :
+>> +                      VFIO_DEVICE_STATE_RUNNING;
+>> +
+>> +    mutex_unlock(&matrix_dev->mdevs_lock);
+>> +
+>> +    return 0;
+>>   }
+>>     static int vfio_ap_get_data_size(struct vfio_device *vdev,
+>> @@ -159,6 +284,7 @@ static const struct vfio_migration_ops 
+>> vfio_ap_migration_ops = {
+>>    */
+>>   void vfio_ap_init_migration_capabilities(struct ap_matrix_mdev 
+>> *matrix_mdev)
+>>   {
+>> +    /* Live guest migration is not supported for SE guests */
+>>       if (ap_is_se_guest())
+>>           return;
+>
+> Comment is unrelated to the rest of the patch.
+
+This belongs in patch 03/15. I'll move it.
+
+
