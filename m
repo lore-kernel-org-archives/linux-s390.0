@@ -1,72 +1,74 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15F9443CE7C
-	for <linux-s390@vger.kernel.org>; Mon,  5 Oct 2026 09:25:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DE2F43C058
+	for <linux-s390@vger.kernel.org>; Mon,  5 Oct 2026 09:27:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791192330; cv=none; b=QjwogxZIAbv5NTxg5CarVuNFMxT8n4s3//GbUMWjMBpoFHbesjWZdsMCcfB2AVRplLGCxELcpEJU9H0hwLj513OC6ngThjT0PMiucuFTQsLbRvo8uJtJow1N1mzBozCl+7uhF4jX3TloiMI7tvfcPCZpcY6SX1cqCqFBbPoHWbE=
+	t=1791192461; cv=none; b=JKmqnF5zM5g/mpy6Bmj6znjg7flIQWErsXm6cjBM474H0SWAs/IfpoWzeEGWIIkk/Xd2g3u7n0J6+Feqc8G76+0JTAaoZOnKB9iQBs2Cprse5vUUCXTpnPZ590vEZhsTEdYIzXHYtJ7JSwUXXEeVswdy0WTNGCwVdoFau0JlzxQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791192330; c=relaxed/simple;
-	bh=6StwHxlhiYcVBXEs6F8/Mmm6Map1gli+Gghs6Tvjy+I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fgpPN7dFQWDTGxK/k1xPFdlYWAoLA/7Mf9NtV3p+X3jFjdi8mDxrVcp5NJY/qK88TDltr0uo4Ag3bupkdaSPYXS31GVMicbaJNsHexeplfQBjNsApGYl2HYGYy2yYHpcVKdSuIgfYiw0oC5k2S8+meijjlpTXF1fYbFq4SaT5V8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FJV0reND; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791192461; c=relaxed/simple;
+	bh=eIf4UjlK4sJ7sqAWqhpHzsK+xWCmqRS3DSgN0kEMtFI=;
+	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
+	 Message-Id; b=b/6wCCpLdXuN7+O9eVi+fKb8zGfyRI7hMAUr4OobdE19cq6KNZN3SXaR6YunbaFrhnSzbIz0oVYvJ4L3QSrp9OCTwuL7AEu5qKFvSiXVN3/dxfkcCtCLITHClQ2eQhJPDb2rMUxmYVM6HN1GBzx/Oah/D8Bc01shbNO+zA7Ena8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NOJ8HNLB; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FJV0reND"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1F2B1F000FF;
-	Mon,  5 Oct 2026 09:25:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NOJ8HNLB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F06FB1F000FF;
+	Mon,  5 Oct 2026 09:27:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791192329;
-	bh=CkUUeGIh3kP4fIVJghcEaOrcbgIUgfDuIpCQTsYKpyo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=FJV0reNDGvu7DY11soQZV1gb5UdplgsuFI33QImxR8yoJsZx4IbrISNf0obiGSLEw
-	 xP7qFWGncT085atN2IwdSmGV383pGxjetlhZ69f1Ipi7RTUm2aseNfxcv7s0NBgG7b
-	 T8dNpvPU/Ay2VKbi0+upMUNyi+H5F/83/1kC/2nAqXd/4LJ5+Wm3nlFmotUMutxlV6
-	 kgmO/xBcj7AtN2aLAU2BotQ48s7O3LHzFLYo+cWkpGs1ALRBMaILoG2PpZuCaj7s/q
-	 eMq3ZqyLQ4OI9gW9ccTp7+HW84iD63ThdKnJNQZ0eEepYm2LqE/2PF1gCNNvdQJu41
-	 NGGYBtBmhqkOA==
-Date: Mon, 5 Oct 2026 10:25:26 +0100
-From: Simon Horman <horms@kernel.org>
-To: Joseph Cathcart <josephc@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kexec@lists.infradead.org,
-	eoin.mcnamara@ibm.com, iii@de.ibm.com
-Subject: Re: [PATCH v2] kexec-tools/s390: add --reuseinitrd support
-Message-ID: <20261005092526.GE184916@horms.kernel.org>
-References: <20260820101350.4413-1-josephc@linux.ibm.com>
+	s=k20260515; t=1791192460;
+	bh=eIf4UjlK4sJ7sqAWqhpHzsK+xWCmqRS3DSgN0kEMtFI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=NOJ8HNLBwLQpay9RbfPQRFkJBX9auyFW1sSF0BykeSclriMixlKexVuCSgekU7LwG
+	 r2htg8JwBqRitHYbNx/qT98eFfX2R2fZdEOw/9GzvTPQsbPuvZt9cL4ONvNkJPzH2M
+	 AlGdG72nYg37yVeXPMxqCDE001nBJErPmhWbQkuIoJPdij5+GVvNiRUOQD8AriWW/C
+	 BUG/j/OwTnbteiIxDsWZgdAfjbH1WTS/ZaMK9bUXdrm+F1E8JLwHt+BXs4QeKAGX4M
+	 0NwOxyeMuz4FTnAqSMSxve2CafTM0kkQzWQo4hBRXoIOFp1Ueyfyqr3f1tlYKcaukD
+	 7h/APQXv+yqHw==
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2] s390/dis: Mark non-NUL-terminated character arrays
+ with __nonstring
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Heiko Carstens" <hca@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261005092256.2740363-1-hca@linux.ibm.com>
+References: <20261005092256.2740363-1-hca@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 05 Oct 2026 09:27:39 +0000
+Message-Id: <20261005092739.F06FB1F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260820101350.4413-1-josephc@linux.ibm.com>
 
-On Thu, Aug 20, 2026 at 12:13:50PM +0200, Joseph Cathcart wrote:
-> Currently, the --reuseinitrd param is not supported on s390. This
-> prevents testing kexec in environments such as virtme-ng, which by
-> default does not store the initrd on disk.
-> 
-> When --reuseinitrd is specified, fetch retained initrd memory range
-> from /proc/iomem and fill new kernel parmarea directly with retained
-> initrd base and size, rather than memory range of a new ramdisk.
-> 
-> Add die() cases for when user uses --reuseinitrd:
->         - in addition to --ramdisk or --initrd
->         - while booting a crash kernel.
->         - with kexec-file-load syscall (default syscall)
->         - and no initrd entry is found in /proc/iomem
-> 
-> Signed-off-by: Joseph Cathcart <josephc@linux.ibm.com>
+> With [1] the generated string initializers were changed to use an
+> array instead of a non-NUL-terminated string. The reason was that GCC 15
+> warns about string initializers that truncate the NUL terminator with
+> -Wunterminated-string-initialization.
+>=20
+> The better solution is to use the __nonstring annotation, which exists
+> to deal exactly with this problem. Therefore use it and basically
+> revert [1] in order to generate more readable initializers:
+>=20
+> Before:
+> [LONG_INSN_ALGHSIK] =3D { 'a', 'l', 'g', 'h', 's', 'i', 'k', },
+>=20
+> After:
+> [LONG_INSN_ALGHSIK] =3D "alghsik",
+>=20
+> [1] commit 7cbae7ea3de5 ("s390/tools: Use array instead of string initial=
+izer")
+>=20
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 
-Sorry if this is a duplicate.
-But it seems that I applied this patch some time ago
-but forgot to send out a notification about that.
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-So, FTR, this patch was applied as:
-
-- kexec-tools/s390: add --reuseinitrd support
-  https://git.kernel.org/pub/scm/utils/kernel/kexec/kexec-tools.git/commit/?id=43c5cba85ad2
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261005092256.2740=
+363-1-hca@linux.ibm.com?part=3D1
 
