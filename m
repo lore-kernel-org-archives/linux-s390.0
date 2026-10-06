@@ -1,61 +1,61 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A60149C4D2;
-	Tue,  6 Oct 2026 15:29:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22E4649DB8A;
+	Tue,  6 Oct 2026 15:34:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791300553; cv=none; b=kKp7v6/i+JRgIK0uz+7NDC6eb2lzWnC+jcJw5sxA6rfcgohRJPkNvQSWJ7iWqPPJoxJyuoSP0gzrgT6+nJL57kZMhXhN59WcnqXcDBZ/5vPcqKvGZQBqEo9xX+zvwKtuQ7yyuwr1foFtoodF9E7q1oScvI6HT+QkM21XdKOLvCU=
+	t=1791300887; cv=none; b=OrDS4lDG0dl3MfvSdBW/77kun2Afkt8hl3t4CJhfhZUR/KG1usjmgc1WGIU6ygCSGMbFh7jMJoNgji4y8eQmkpgloRLAUztXFNd+vpmMVTNJoSFYs+oTSOmn4brR7ckvxgTrkOVKu0QBG6JsCPDaRKQefAR6KLhxNpFp7XHcFao=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791300553; c=relaxed/simple;
-	bh=xEtJZDjPq3Ju9oR5UkVEoFO9DrVTQiUuxAiUuKEL348=;
+	s=arc-20240116; t=1791300887; c=relaxed/simple;
+	bh=ejME8MHyivvJkAXcja+B2HPeKR+IyYCKM6MFEN62k6U=;
 	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=BrbR0MvX6qeNk6fc8gpcKkrJG60AvYPDpaDSfsXsnhh7ZUCSDuK+/rDXZCQbK0K9tjJpeGXEA3R70/JvHdXp+/FNO1FIgxfTTkvvE8u8lD5YAjP75gHxkmC5DPE0ddSgK+0xiMsZiGDnB5+Uy17Ozt6KJRxW7kzkda7WkRB70WM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Cj49jyTW; arc=none smtp.client-ip=148.163.156.1
+	 Date:MIME-Version; b=PcVSC7kBLqZHyk68Eiq2u3Hp72oFHfhCzidPpGlpwx931qazn7fgQwvXKHuoMK/ORJH2jdNtYll0BGdyI6BHitCMm/K+37PGn7LY2ROJpPeKpvIc+EyLSBZ/i+e/STQK65DPehCuAD78GA7bQj60OInfD3SlK52Rd2K0HO04GHc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=fZbCyzlT; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Cj49jyTW"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 696EZLdZ2182157;
-	Tue, 6 Oct 2026 15:29:11 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="fZbCyzlT"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 696EZMkb4058911;
+	Tue, 6 Oct 2026 15:34:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=xEtJZD
-	jPq3Ju9oR5UkVEoFO9DrVTQiUuxAiUuKEL348=; b=Cj49jyTWhEgXEBf/kbFtwv
-	XevPzkgcyvBWy4H/HwCjI92XWLyHR9WlEzipPDyJf3PoafnuIbYJe+jrmKr5sTNh
-	fzBagPUzfgO6R1HVdyV44mEmAgKzaCkyQGMBuJ8PjQY7VO0J2bKtK9O4/HSxb07e
-	beDWpFjoFfoHtnzxaryadNRI4SkicRjqUheJaJiAXROn/KEOKuBy+yvvcEACvfgF
-	UvgluFGoYg+y69djdBr0xlmFx4gzX+mH7wSW8d5Mgg8lDWB2qELAK0uc8PTXWNxS
-	NfVDU4T/476x480s23b82g5R1JnvMinhvAX1nmU19R1cye0diWpJjK7QM5SdW1Kg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=fNPnLX
+	W8NS6VI/asA3dIfPHg9fKSryh55Tp2p2ewemI=; b=fZbCyzlTsKO57jyYKRp9iB
+	+Zf/46+0ZgaLMUafisJa1sEtzjO2ZikAsdIRuAV77X/eAGvfabks3E8NV9ogS8/w
+	xSgHocduQgeKH7OKN22B0rI+jmaHVOwbEDZO0xvtN4QihiStpVAzwEyPv+F9cqja
+	l7UBVVfBQOpEBKK+Ff8BNRG7B1JyYNmvpYH75InZ7GLZgvOGd5CWEHfrhLhkkju3
+	XstrzgoSCN+nSHWooiB4a9bU4yo8vhGl4KJwmEEdYBr2N+jqHHeTrYLpRKbZ3TvI
+	lPH9L58gGC3ZGix5oIv8zUIqHQWwGMXegWRY4G0gb05njcWr8qL3JqTqhr0CnVwQ
 	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2scrgsjf-1
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2s74rw76-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 06 Oct 2026 15:29:11 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 696EHULi424975;
-	Tue, 6 Oct 2026 15:29:10 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h3eqya9ah-1
+	Tue, 06 Oct 2026 15:34:45 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 696EHafM453074;
+	Tue, 6 Oct 2026 15:34:44 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h3dhgteww-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Oct 2026 15:29:10 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 696FT9m923986868
+	Tue, 06 Oct 2026 15:34:44 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 696FYhit18350666
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 6 Oct 2026 15:29:09 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F1B8658066;
-	Tue,  6 Oct 2026 15:29:08 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4B7FF58064;
-	Tue,  6 Oct 2026 15:29:06 +0000 (GMT)
+	Tue, 6 Oct 2026 15:34:43 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E7F1058065;
+	Tue,  6 Oct 2026 15:34:42 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 502B858059;
+	Tue,  6 Oct 2026 15:34:40 +0000 (GMT)
 Received: from [9.87.140.229] (unknown [9.87.140.229])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  6 Oct 2026 15:29:06 +0000 (GMT)
-Message-ID: <30c16838f7f4681c72aada3864dc9f1a9e8e8326.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 7/7] s390/pci: Drop the unused index argument of
- zpci_msi_clear_airq()
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  6 Oct 2026 15:34:40 +0000 (GMT)
+Message-ID: <7cf012ca23e9ac9fb648adc9467edc54f1e3f6cd.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 6/7] s390/pci: Set MSI_FLAG_NO_AFFINITY at IRQ init
+ time
 From: Niklas Schnelle <schnelle@linux.ibm.com>
 To: Tobias Schumacher <ts@linux.ibm.com>, Gerd Bayer
  <gbayer@linux.ibm.com>,
@@ -70,9 +70,9 @@ Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Sven Schnelle
  <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org
-In-Reply-To: <20261005-s390_irq_domain_fixes-v2-7-d45b824874c0@linux.ibm.com>
+In-Reply-To: <20261005-s390_irq_domain_fixes-v2-6-d45b824874c0@linux.ibm.com>
 References: <20261005-s390_irq_domain_fixes-v2-0-d45b824874c0@linux.ibm.com>
-	 <20261005-s390_irq_domain_fixes-v2-7-d45b824874c0@linux.ibm.com>
+	 <20261005-s390_irq_domain_fixes-v2-6-d45b824874c0@linux.ibm.com>
 Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
  /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
@@ -130,7 +130,7 @@ Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  3FZJPTo/OpqchMm8XIeDxC4NFFiPMpyLeYzIxO7eZpiGrAjVTE=
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 06 Oct 2026 17:28:05 +0200
+Date: Tue, 06 Oct 2026 17:33:39 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -139,55 +139,83 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA2MDA2MCBTYWx0ZWRfX4JWEyxAkGi/L
- VJm1W+tGKaJyAmGpeOeE1jU6+dvYiPvNxvIp0kFIhcGdpm9an3q1vj5vfn0MaBpHwUT72M7FVVF
- ncBeqD5M6+rOddt3C//xHUgM5tTzezo=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA2MDA2MCBTYWx0ZWRfX32QAQjvrVa8o
- 0yEfTjN0e0RcqdtBmeVvOgT/62WabgDJc4OoIUTRRW++WLbfbnCUpIZmOboxsYd4/pidpCZC2TY
- 1vtl19OiYhl4ezJ4DPVQrXvSWx6ziFqLtTXl+xeUkiPZoQvlrDSgy9mWMJywrLZbTR8ZKlOgt2P
- jl6qNJZBAeb7X/UdLZLsJ/51OVYAVcAQaW+5OYW0Aff/AUuCeC+ZHaYJmqi/Uceg1cvd/kyuUTE
- Rymdxhi1DyBKRQu24SMm6rUXynu6FHHCE3FMSxCEECI/76QDM3L/GlvLWZ47aoh9wfgxzt4IEqJ
- EGUQBK5PHi4bd8SxZhfKJ4JqDLAMQeoZtXQPBDB9lrD0hitizkvX3nBP3ben6mHPlkDMLYfOgr1
- 5E6kJYjixbf+Mk8fSiVelB+DUnBZY/TJbDzPzY5IYLKOF31bl/vdSauajxN94wykKUQO2dlWNPj
- /HJQzCipeAYZOoECKbA==
-X-Proofpoint-GUID: wLE2Irpq9uU66jQDQww_pm1y-VNu7EFy
-X-Proofpoint-ORIG-GUID: wLE2Irpq9uU66jQDQww_pm1y-VNu7EFy
-X-Authority-Analysis: v=2.4 cv=B7osQ+tM c=1 sm=1 tr=0 ts=6ac513c7 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-ORIG-GUID: KkT2UacLUQTjQY39xFlj_XMPZ5cbpilj
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA2MDA2MCBTYWx0ZWRfXyD5ADyc6utws
+ nxWf7jf/1nb8bb1R1ZWeMSb04512L7MgUQcTL4n5t+2UfJne/OOBdmXApUKfKITtstN7tyA40W9
+ EQLBo2oIXLtNZdmPzqAaUUbeexUjKnI=
+X-Proofpoint-GUID: KkT2UacLUQTjQY39xFlj_XMPZ5cbpilj
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA2MDA2MCBTYWx0ZWRfX4xVwD3Ia8Ceh
+ AJCu0EnkXgGi+sM6yXBQ6FF+xP1ASRC7C1/ybx4AnJ4Hsz7QSNUhWhEYtm/A/pgipiNB0d9d0VI
+ dpv50zUOj4NjB7MzNhCXBJpmbWRGideUB61Wpi7RecUh2yM9fL66/rKqUhGpXiUvSl4Lm6fAFlu
+ d+CQODhDpYd+ZsksmU7HUTSyc1v8SAGTJlPo12NEHgvu/nOGD4HGYOZWBeXESJyxZbtEwp/zqx4
+ A5uGoZ97fSNi6bJ23I9/3K08zBj7RVP9erevzjT09nBjrkZ/aLaECkPWZm19n7RbFBJ0fUPTYcZ
+ MKqfahKPNbXu+0YDmtjtpShJw8Vgvv+UtLuEmCVkoqJY8PvtYlhSjpnC5iGFtCBmf24zusg1k+4
+ ojoT9HFzkXpMMOhirbWn3Kar09S4iXT2IUMIHRxiiMAzRQZaAbzQ6aVK9reFfp4lCy2PaCM1aUu
+ TacoXN4rW/wjRJAiTjw==
+X-Authority-Analysis: v=2.4 cv=fM2sTpae c=1 sm=1 tr=0 ts=6ac51515 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=GD8W1rJbHNz6WrJPDTMA:9 a=QEXdDO2ut3YA:10
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=GWHo-SLf9ZsVjsKrVycA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-06_04,2026-10-06_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 bulkscore=0 malwarescore=0 impostorscore=0 phishscore=0
- clxscore=1015 spamscore=0 adultscore=0 lowpriorityscore=0 suspectscore=0
+ impostorscore=0 bulkscore=0 priorityscore=1501 spamscore=0 lowpriorityscore=0
+ phishscore=0 adultscore=0 malwarescore=0 clxscore=1015 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610060060
 
 On Mon, 2026-10-05 at 14:03 +0200, Tobias Schumacher wrote:
-> zpci_msi_domain_free() passes its loop index to zpci_msi_clear_airq(),
-> which adds it to an offset that already accounts for it.
-> zpci_msi_domain_alloc() stores hwirq + i for each vector, so
-> zpci_decode_hwirq_msi_index() hands back msi_index + i and bit is
-> already zdev->msi_first_bit + msi_index + i.
+> MSI_FLAG_NO_AFFINITY is added to zpci_msi_parent_ops.required_flags from
+> zpci_create_parent_msi_domain(), which runs for every new PCI bus,
+> including buses created at runtime from a hotplug availability event.
 >=20
-> The doubled index never selected a wrong entry. An irq domain's free()
-> callback is only ever invoked from irq_domain_free_irqs_hierarchy(),
-> which walks the range itself and passes a count of one. So, the loop in
-> zpci_msi_domain_free() runs once with an index of zero.
+> That is a non-atomic read-modify-write on a field which
+> msi_lib_init_dev_msi_info() reads without a common lock while setting up
+> MSI for a device on an already existing bus:
 >=20
-> Drop the parameter and the addition.
+>       required_flags =3D pops->required_flags;
 >=20
-> No functional change.
+> The stored value is always the same, so no caller observes a change, but
+> the race need not exist: irq_delivery is decided once in zpci_irq_init()
+> and never changes afterwards.
+>=20
+> Set the flag there instead, before any parent domain exists.
 >=20
 > Signed-off-by: Tobias Schumacher <ts@linux.ibm.com>
 > ---
+>  arch/s390/pci/pci_irq.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
+> index 682bceb6525e..661867a1ffad 100644
+> --- a/arch/s390/pci/pci_irq.c
+> +++ b/arch/s390/pci/pci_irq.c
+> @@ -523,9 +523,6 @@ int zpci_create_parent_msi_domain(struct zpci_bus *zb=
+us)
+>  		return -ENOMEM;
+>  	}
+> =20
+> -	if (irq_delivery =3D=3D FLOATING)
+> -		zpci_msi_parent_ops.required_flags |=3D MSI_FLAG_NO_AFFINITY;
+> -
+>  	zbus->msi_parent_domain =3D msi_create_parent_irq_domain(&info, &zpci_m=
+si_parent_ops);
+>  	if (!zbus->msi_parent_domain) {
+>  		irq_domain_free_fwnode(info.fwnode);
+> @@ -636,6 +633,9 @@ int __init zpci_irq_init(void)
+>  	if (s390_pci_force_floating)
+>  		irq_delivery =3D FLOATING;
+> =20
+> +	if (irq_delivery =3D=3D FLOATING)
+> +		zpci_msi_parent_ops.required_flags |=3D MSI_FLAG_NO_AFFINITY;
+> +
+>  	if (irq_delivery =3D=3D DIRECTED)
+>  		zpci_airq.handler =3D zpci_directed_irq_handler;
+> =20
 
-Good catch and a gppd explanation. Great work.
+Looks good to me and I agree the race is benign as everyone races to
+write the same value but this is certainly cleaner. Thanks.
 
 Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-
-Thanks,
-Niklas
