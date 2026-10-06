@@ -1,66 +1,66 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45AA046A5E4;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC9A73E1201;
 	Tue,  6 Oct 2026 14:01:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791295282; cv=none; b=ofEu7oV3p2P9nq++y4ozZjEl/JUrRehDITsXSpS1fGba5UiCbUqS2qJBD/geF2wej9+zybWhws7ZPeLR8FP8EPnRA7EgIQwIsmm6+qryIN7uQZjQVjrlAjtf9OvmE33YSklLLO7Hm2bvx/J8Mkfq560mjahqcIsMy9GvqmFi+Gk=
+	t=1791295282; cv=none; b=fvQGIZT3ekC4+JdeO+ELZsGg0C8b3ZoYptow+6D21XMgJCuOuGtat00j2y/NXuxOJDdvi5g9VV0P0nBdkeEJoiQFH9gCrT/o7W8sCwEfH1DM9vHn3m5J5oMbCUO05GbXd3qmzuCJcE2+iFKNGgSuBudrq0lVQIJ62610+0pp2Eo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1791295282; c=relaxed/simple;
-	bh=5cTWjD0mnj1yXOk6RfXezQeY0F59HG7VGw8r3u9d0sk=;
+	bh=qOCh9C+Evgp9lkCcnBVAgFlXEgQBvPUg5axfsVcsnVg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=StmhHRZKOKns0I5YUAZk9przSg45l9AXJ10X7eC/zCs0T8YUfmKsK14690fxR+i96XppNC7ZGvb77gYLxerP5GZM4bLQr2VZ4tENEWoveH+N7MMQsjmNE3rxCXAKDgaxKzv+xqsilCmA4vZUlnpOxo0gjgrqNemTZj9UNsKDZOw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KryX475h; arc=none smtp.client-ip=148.163.156.1
+	 MIME-Version; b=mgbi8ICYGPmuN1DxErof2R+ES75tuWOWrtQ6j9CNnTg4nyXhqo/dLaXMn13qp+Y4HeM7p+NZ/CwWuwin57EsqEnvu9jVCnkY7xCKSWw4UW+ob3GH45ka935xXSdQ4ISAZLI+0eQH/5muB5MezGbeYz2REuCz17O+E5DsWBe1YFk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oXcR4Q5s; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KryX475h"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 696DbIuH2059160;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oXcR4Q5s"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 696DZnk33868399;
 	Tue, 6 Oct 2026 14:01:19 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=i6h1GEC5HIyV6EYuF
-	OZnavVKR0eSGCP+tDoZBzqFbTE=; b=KryX475hFp+Ib7FWRRRXEfR15KLMOK+AG
-	TtiZwhOMUzo+tOdhzp9QPvhxzd2nYKdr7zB19qQrDVLooYO3UpmLpwY0ydlaQU7q
-	UPqO1H4VmKPOD06Njquh0PlIm1ZVimMGn8VNHv+a+4A931l/dpma5p6S8O48yw9O
-	4pUh6HObZTz+5+zGiW44eKq0y2fpJrwPDMoFgoEoklswG7rcfvV/xMRCPEgR+lTg
-	V8vOugK4v9M83JYadUbylA518X0qiy/FwRlOTazr+ua12TeZSCQF83j3j5cCDs6b
-	cJV0ASeAX0XLlyRBuJeuJRl4kZeFJhSxMZ63zKaG5xTxIkT+xg/gQ==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2scrgb20-1
+	:mime-version:references:subject:to; s=pp1; bh=/hcJ8UAceMbZDstty
+	NBdFJmrBIAcNJVwyA3a25u6Drw=; b=oXcR4Q5sOI7lWQEORrlJ8a9EZ99hK79zh
+	Hz5k0hH6rmogGxECZAyxCKH1JVXeOmhmxQjAEMzc0AuaFS9DSChX9bSONaASxsJQ
+	bKGOcmPTk5l5wYEjd+5kdzssaKid5wahSMrwvANijpU74LMBEs02+qQsvbswLuxq
+	1ywFAy54qD5Dk5ucNH7tIQ/P6e1YMOzcyo3w7z/dGr9EErObwHDHE9Mu+/JzIIIA
+	C4hqLzodnf8klTH5qEVib8GiVSG5i4ktu4iDbC72ifyiMgFPG4c8I6nWJKBM6cUG
+	O/vDiDLde4Fpgss99tbP0/0iOsX08PioCoj6D3tjlbpKDXmEPdl3A==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2sbv7bs1-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 06 Oct 2026 14:01:18 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 696DWTgs375214;
+	Tue, 06 Oct 2026 14:01:19 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 696DWp44403731;
 	Tue, 6 Oct 2026 14:01:18 GMT
 Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h3eqy9xvd-1
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h3dhgt3uj-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 06 Oct 2026 14:01:18 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 696E1E8K43778516
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 696E1EkM39059726
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Tue, 6 Oct 2026 14:01:14 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 78DE52004B;
+	by IMSVA (Postfix) with ESMTP id 308782004B;
 	Tue,  6 Oct 2026 14:01:14 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3A66820049;
-	Tue,  6 Oct 2026 14:01:14 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id E5D7D2004F;
+	Tue,  6 Oct 2026 14:01:13 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  6 Oct 2026 14:01:14 +0000 (GMT)
+	Tue,  6 Oct 2026 14:01:13 +0000 (GMT)
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH v2 2/2] s390/vtime: Remove vtimer infrastructure
-Date: Tue,  6 Oct 2026 16:01:13 +0200
-Message-ID: <20261006140113.3128582-3-hca@linux.ibm.com>
+Subject: [PATCH v2 1/2] s390/appldata: Emulate virtual timer with delayed work
+Date: Tue,  6 Oct 2026 16:01:12 +0200
+Message-ID: <20261006140113.3128582-2-hca@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261006140113.3128582-1-hca@linux.ibm.com>
 References: <20261006140113.3128582-1-hca@linux.ibm.com>
@@ -72,415 +72,312 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA2MDA1NCBTYWx0ZWRfX9pP/LwGt/d+k
- jQSFesGUUUIgGX6mTvizvDdwRID2q3A0ijdKt8aUdyYyNaMt02AfwwPvEBT2LjsF8bg3pIo/d6Q
- ILC0KTTjJ33kiPnRfAASkhuK1KnCgqM=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA2MDA1NCBTYWx0ZWRfX8dhvC52xZ0a7
- rZhUypo3HEp0vEXGdRC+5/a30nL0traLBWTOM6b1guEohZWnNb4LdnnFrMIGvQXMeJUwaLUAe7f
- 7KFc3tski0qSB+aTIFII1NBcBuGEfVtQAkaCH1j/s5W7b47cQuuIeDmjR+6A6SFB7jgOuRSCYwo
- 9dx07Upoll9TCBP5seaLZv5HqFFXSJWr9vKTzRYZSIjUL6XhSxEw9jRhtTQqp+EO7xXap3WtTn3
- 93ZaEry5N5FVTH5BuQX0jqwK68R1anQrCqzBcqkVVATnTsZHZ5TM+lZSmPeb3QN+7luVnpcoJdD
- 4A0vZXVUlnNFk+DOnquj62mBlmKMOErIGiBadFYTXIBVq2kEnTB1MPfiIkMpfsi7PmXHtJAXGPB
- 0Myd5CQTn5o5fVPdBZg5MztCSUBo5YPCQ56Bc9aJvUgqxAYOVneIwW1sofV951dPu2HlXBvONPv
- JN8t7WbG6CAo98jU3vQ==
-X-Proofpoint-GUID: 9kc0evu2eSQWLvWgrRlrH4g_PP7uYYtm
-X-Proofpoint-ORIG-GUID: 9kc0evu2eSQWLvWgrRlrH4g_PP7uYYtm
-X-Authority-Analysis: v=2.4 cv=B7osQ+tM c=1 sm=1 tr=0 ts=6ac4ff2e cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-ORIG-GUID: RGdXdDdTR-DcsXOgd6KXHpFHrNUH1rak
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA2MDA1NCBTYWx0ZWRfX8KC5qH8exRAU
+ dU7uxvlZYhSmLQSXlGnHJZGWamsZAQKh6Osx6DP2BIxaffZhRt01JS6M8FCAVJLoSrKpcyo9VCV
+ FmcDaKl8BaVdAF8FHJApPvofMjTQT3c=
+X-Authority-Analysis: v=2.4 cv=KJHPn1Fo c=1 sm=1 tr=0 ts=6ac4ff2f cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=4MNNjMLRCm2piMos7SkA:9
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=ii8wfsY1mSSEofDs_2AA:9
  a=O8hF6Hzn-FEA:10
+X-Proofpoint-GUID: RGdXdDdTR-DcsXOgd6KXHpFHrNUH1rak
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA2MDA1NCBTYWx0ZWRfXziA9vzzMhTxb
+ 88/dEOF3eZXsGQmCPlgjM9Q4/bFYyeTH5lUtCduFsGKuiCZ6j9RYSBxe2IKS4qJjmBXyaWoyBuj
+ XhNIZiVNYwOGSZVhG7pRs/0fT3nOmIS3N7aFo9+DMCAgZdSvAqIgMdDDYiO1TH0lCFmD3RW7TRY
+ 5xMvCTODeBWzt90mn1hHsnxHdwp+J1V+vMpdKGQMCd/Z6KoMfh9Wg0V7yDm9Jz9EnE0qcVKFzm1
+ W2HrLltjeB9k9lJcbE7/GV4O1gVv0/Jr1TBoVCImNPUHDOdh24Zi06MT6Nz8VjrB0dCNSJdzfNb
+ vPzt383dASP0IHlHKDRG3MyZ0yk+xLRrb+/vd27BuBQ95r6GmJeWskz+qLt9cDMPpWXj5kznEFO
+ 54/bauUgG3jrKbmltfSVIGrXyqn2Ww==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-06_04,2026-10-06_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 bulkscore=0 malwarescore=0 impostorscore=0 phishscore=0
- clxscore=1015 spamscore=0 adultscore=0 lowpriorityscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610060054
+ suspectscore=0 malwarescore=0 spamscore=0 adultscore=0 lowpriorityscore=0
+ phishscore=0 bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
+ definitions=main-2610060054
 
-The only user is gone - remove the vtimer infrastructure.
+Emulate the virtual timer in appldata using delayed work: the work is
+scheduled for the minimum possible wall-clock time until the
+configured CPU-time interval elapses (remaining CPU time / number of
+online CPUs), with a minimum delay of 100ms. The work then reads
+per-CPU statistics of all online CPUs to check whether enough CPU time
+has elapsed, and if so runs the registered callbacks.
+
+This is slightly more expensive, but allows to subsequently remove the
+entire vtimer infrastructure.
 
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/s390/include/asm/vtime.h  |   2 +
- arch/s390/include/asm/vtimer.h |  30 -----
- arch/s390/kernel/process.c     |   1 -
- arch/s390/kernel/smp.c         |   2 +-
- arch/s390/kernel/time.c        |   2 +-
- arch/s390/kernel/vtime.c       | 212 ++-------------------------------
- 6 files changed, 12 insertions(+), 237 deletions(-)
- delete mode 100644 arch/s390/include/asm/vtimer.h
+ arch/s390/appldata/appldata_base.c | 171 ++++++++++++++++++-----------
+ 1 file changed, 107 insertions(+), 64 deletions(-)
 
-diff --git a/arch/s390/include/asm/vtime.h b/arch/s390/include/asm/vtime.h
-index da116a93d3b6..22e494b22192 100644
---- a/arch/s390/include/asm/vtime.h
-+++ b/arch/s390/include/asm/vtime.h
-@@ -8,6 +8,8 @@
- 
- DECLARE_PER_CPU(u64, mt_cycles[8]);
- 
-+void vtime_init(void);
-+
- static inline void update_timer_sys(void)
- {
- 	struct lowcore *lc = get_lowcore();
-diff --git a/arch/s390/include/asm/vtimer.h b/arch/s390/include/asm/vtimer.h
-deleted file mode 100644
-index e601adaa6320..000000000000
---- a/arch/s390/include/asm/vtimer.h
-+++ /dev/null
-@@ -1,30 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--/*
-- *  Copyright IBM Corp. 2003, 2012
-- *  Virtual CPU timer
-- *
-- *  Author(s): Jan Glauber <jan.glauber@de.ibm.com>
-- */
--
--#ifndef _ASM_S390_TIMER_H
--#define _ASM_S390_TIMER_H
--
--#define VTIMER_MAX_SLICE (0x7fffffffffffffffULL)
--
--struct vtimer_list {
--	struct list_head entry;
--	u64 expires;
--	u64 interval;
--	void (*function)(unsigned long);
--	unsigned long data;
--};
--
--extern void init_virt_timer(struct vtimer_list *timer);
--extern void add_virt_timer(struct vtimer_list *timer);
--extern void add_virt_timer_periodic(struct vtimer_list *timer);
--extern int mod_virt_timer(struct vtimer_list *timer, u64 expires);
--extern int mod_virt_timer_periodic(struct vtimer_list *timer, u64 expires);
--extern int del_virt_timer(struct vtimer_list *timer);
--extern void vtime_init(void);
--
--#endif /* _ASM_S390_TIMER_H */
-diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
-index 416650ae4871..4c73d2528fcb 100644
---- a/arch/s390/kernel/process.c
-+++ b/arch/s390/kernel/process.c
-@@ -35,7 +35,6 @@
- #include <asm/cpu_mf.h>
- #include <asm/processor.h>
- #include <asm/ptrace.h>
+diff --git a/arch/s390/appldata/appldata_base.c b/arch/s390/appldata/appldata_base.c
+index 9cba4633c3f3..836c51da18f4 100644
+--- a/arch/s390/appldata/appldata_base.c
++++ b/arch/s390/appldata/appldata_base.c
+@@ -28,19 +28,14 @@
+ #include <linux/workqueue.h>
+ #include <linux/uaccess.h>
+ #include <linux/io.h>
++#include <linux/kernel_stat.h>
+ #include <asm/appldata.h>
 -#include <asm/vtimer.h>
- #include <asm/exec.h>
- #include <asm/fpu.h>
- #include <asm/irq.h>
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 32499cad86f0..f7c262a17c03 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -48,7 +48,7 @@
- #include <asm/setup.h>
- #include <asm/irq.h>
- #include <asm/tlbflush.h>
--#include <asm/vtimer.h>
-+#include <asm/vtime.h>
- #include <asm/abs_lowcore.h>
- #include <asm/sclp.h>
- #include <asm/debug.h>
-diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
-index 2b989bebd220..dd8a88cc9c4b 100644
---- a/arch/s390/kernel/time.c
-+++ b/arch/s390/kernel/time.c
-@@ -48,9 +48,9 @@
- #include <asm/vdso.h>
- #include <asm/irq.h>
- #include <asm/irq_regs.h>
--#include <asm/vtimer.h>
- #include <asm/stp.h>
- #include <asm/cio.h>
-+#include <asm/vtime.h>
- #include "entry.h"
+ #include <asm/smp.h>
  
- union tod_clock __bootdata_preserved(tod_clock_base);
-diff --git a/arch/s390/kernel/vtime.c b/arch/s390/kernel/vtime.c
-index efcbf406f03e..d9fd39c5732e 100644
---- a/arch/s390/kernel/vtime.c
-+++ b/arch/s390/kernel/vtime.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0
+ #include "appldata.h"
+ 
+-
+-#define APPLDATA_CPU_INTERVAL	10000		/* default (CPU) time for
+-						   sampling interval in
+-						   milliseconds */
+-
+-#define TOD_MICRO	0x01000			/* nr. of TOD clock units
+-						   for 1 microsecond */
++/* Default CPU time for sampling interval */
++#define APPLDATA_CPU_INTERVAL	(10 * NSEC_PER_SEC)
+ 
  /*
-- *    Virtual cpu timer based timer functions.
-+ *    Virtual CPU time accounting
-  *
-  *    Copyright IBM Corp. 2004, 2012
-  *    Author(s): Jan Glauber <jan.glauber@de.ibm.com>
-@@ -14,7 +14,6 @@
- #include <linux/time.h>
- #include <asm/alternative.h>
- #include <asm/cputime.h>
--#include <asm/vtimer.h>
- #include <asm/vtime.h>
- #include <asm/cpu_mf.h>
- #include <asm/idle.h>
-@@ -22,19 +21,14 @@
- 
- #include "entry.h"
- 
--static void virt_timer_expire(void);
--
--static LIST_HEAD(virt_timer_list);
--static DEFINE_SPINLOCK(virt_timer_lock);
--static atomic64_t virt_timer_current;
--static atomic64_t virt_timer_elapsed;
-+#define CPU_TIMER_MAX	0x7fffffffffffffffUL
- 
- DEFINE_PER_CPU(u64, mt_cycles[8]);
- static DEFINE_PER_CPU(u64, mt_scaling_mult) = { 1 };
- static DEFINE_PER_CPU(u64, mt_scaling_div) = { 1 };
- static DEFINE_PER_CPU(unsigned long, mt_scaling_jiffies);
- 
--static inline void set_vtimer(u64 expires)
-+static inline void cpu_timer_init(u64 value)
- {
- 	struct lowcore *lc = get_lowcore();
- 	u64 timer;
-@@ -42,18 +36,9 @@ static inline void set_vtimer(u64 expires)
- 	asm volatile(
- 		"	stpt	%0\n"	/* Store current cpu timer value */
- 		"	spt	%1"	/* Set new value imm. afterwards */
--		: "=Q" (timer) : "Q" (expires));
-+		: "=Q" (timer) : "Q" (value));
- 	lc->system_timer += lc->last_update_timer - timer;
--	lc->last_update_timer = expires;
--}
--
--static inline int virt_timer_forward(u64 elapsed)
--{
--	lockdep_assert_irqs_disabled();
--	if (list_empty(&virt_timer_list))
--		return 0;
--	elapsed = atomic64_add_return(elapsed, &virt_timer_elapsed);
--	return elapsed >= atomic64_read(&virt_timer_current);
-+	lc->last_update_timer = value;
- }
- 
- static void update_mt_scaling(void)
-@@ -125,7 +110,7 @@ static inline void vtime_reset_last_update(struct lowcore *lc)
-  * Update process times based on virtual cpu times stored by entry.S
-  * to the lowcore fields user_timer, system_timer & steal_clock.
-  */
--static int do_account_vtime(struct task_struct *tsk)
-+static void do_account_vtime(struct task_struct *tsk)
- {
- 	u64 timer, clock, user, guest, system, hardirq, softirq;
- 	struct lowcore *lc = get_lowcore();
-@@ -172,8 +157,6 @@ static int do_account_vtime(struct task_struct *tsk)
- 		account_system_index_scaled(tsk, hardirq, CPUTIME_IRQ);
- 	if (softirq)
- 		account_system_index_scaled(tsk, softirq, CPUTIME_SOFTIRQ);
--
--	return virt_timer_forward(user + guest + system + hardirq + softirq);
- }
- 
- void vtime_task_switch(struct task_struct *prev)
-@@ -203,8 +186,7 @@ void vtime_flush(struct task_struct *tsk)
- 	struct lowcore *lc = get_lowcore();
- 	u64 steal, avg_steal;
- 
--	if (do_account_vtime(tsk))
--		virt_timer_expire();
-+	do_account_vtime(tsk);
- 
- 	steal = lc->steal_timer;
- 	avg_steal = lc->avg_steal_timer;
-@@ -247,187 +229,9 @@ void vtime_account_hardirq(struct task_struct *tsk)
- 	get_lowcore()->hardirq_timer += vtime_delta();
- }
+  * /proc entries (sysctl)
+@@ -64,22 +59,14 @@ static const struct ctl_table appldata_table[] = {
+ 	},
+ };
  
 -/*
-- * Sorted add to a list. List is linear searched until first bigger
-- * element is found.
+- * Timer
 - */
--static void list_add_sorted(struct vtimer_list *timer, struct list_head *head)
--{
--	struct vtimer_list *tmp;
--
--	list_for_each_entry(tmp, head, entry) {
--		if (tmp->expires > timer->expires) {
--			list_add_tail(&timer->entry, &tmp->entry);
--			return;
--		}
--	}
--	list_add_tail(&timer->entry, head);
--}
--
+-static struct vtimer_list appldata_timer;
++static void appldata_work_fn(struct work_struct *work);
++static DECLARE_DELAYED_WORK(appldata_work, appldata_work_fn);
+ 
+-static DEFINE_SPINLOCK(appldata_timer_lock);
+-static int appldata_interval = APPLDATA_CPU_INTERVAL;
++static DEFINE_MUTEX(appldata_timer_lock);
++static u64 appldata_interval = APPLDATA_CPU_INTERVAL;
+ static int appldata_timer_active;
+ 
 -/*
-- * Handler for expired virtual CPU timer.
+- * Work queue
 - */
--static void virt_timer_expire(void)
--{
--	struct vtimer_list *timer, *tmp;
--	unsigned long elapsed;
--	LIST_HEAD(cb_list);
+-static struct workqueue_struct *appldata_wq;
+-static void appldata_work_fn(struct work_struct *work);
+-static DECLARE_WORK(appldata_work, appldata_work_fn);
 -
--	/* walk timer list, fire all expired timers */
--	spin_lock(&virt_timer_lock);
--	elapsed = atomic64_read(&virt_timer_elapsed);
--	list_for_each_entry_safe(timer, tmp, &virt_timer_list, entry) {
--		if (timer->expires < elapsed)
--			/* move expired timer to the callback queue */
--			list_move_tail(&timer->entry, &cb_list);
--		else
--			timer->expires -= elapsed;
--	}
--	if (!list_empty(&virt_timer_list)) {
--		timer = list_first_entry(&virt_timer_list,
--					 struct vtimer_list, entry);
--		atomic64_set(&virt_timer_current, timer->expires);
--	}
--	atomic64_sub(elapsed, &virt_timer_elapsed);
--	spin_unlock(&virt_timer_lock);
--
--	/* Do callbacks and recharge periodic timers */
--	list_for_each_entry_safe(timer, tmp, &cb_list, entry) {
--		list_del_init(&timer->entry);
--		timer->function(timer->data);
--		if (timer->interval) {
--			/* Recharge interval timer */
--			timer->expires = timer->interval +
--				atomic64_read(&virt_timer_elapsed);
--			spin_lock(&virt_timer_lock);
--			list_add_sorted(timer, &virt_timer_list);
--			spin_unlock(&virt_timer_lock);
--		}
--	}
--}
--
--void init_virt_timer(struct vtimer_list *timer)
--{
--	timer->function = NULL;
--	INIT_LIST_HEAD(&timer->entry);
--}
--EXPORT_SYMBOL(init_virt_timer);
--
--static inline int vtimer_pending(struct vtimer_list *timer)
--{
--	return !list_empty(&timer->entry);
--}
--
--static void internal_add_vtimer(struct vtimer_list *timer)
--{
--	if (list_empty(&virt_timer_list)) {
--		/* First timer, just program it. */
--		atomic64_set(&virt_timer_current, timer->expires);
--		atomic64_set(&virt_timer_elapsed, 0);
--		list_add(&timer->entry, &virt_timer_list);
--	} else {
--		/* Update timer against current base. */
--		timer->expires += atomic64_read(&virt_timer_elapsed);
--		if (likely((s64) timer->expires <
--			   (s64) atomic64_read(&virt_timer_current)))
--			/* The new timer expires before the current timer. */
--			atomic64_set(&virt_timer_current, timer->expires);
--		/* Insert new timer into the list. */
--		list_add_sorted(timer, &virt_timer_list);
--	}
--}
--
--static void __add_vtimer(struct vtimer_list *timer, int periodic)
--{
--	unsigned long flags;
--
--	timer->interval = periodic ? timer->expires : 0;
--	spin_lock_irqsave(&virt_timer_lock, flags);
--	internal_add_vtimer(timer);
--	spin_unlock_irqrestore(&virt_timer_lock, flags);
--}
--
++static u64 appldata_cputime_start;
+ 
+ /*
+  * Ops list
+@@ -89,14 +76,34 @@ static LIST_HEAD(appldata_ops_list);
+ 
+ 
+ /*************************** timer, work, DIAG *******************************/
 -/*
-- * add_virt_timer - add a oneshot virtual CPU timer
-- */
--void add_virt_timer(struct vtimer_list *timer)
--{
--	__add_vtimer(timer, 0);
--}
--EXPORT_SYMBOL(add_virt_timer);
--
--/*
-- * add_virt_timer_int - add an interval virtual CPU timer
-- */
--void add_virt_timer_periodic(struct vtimer_list *timer)
--{
--	__add_vtimer(timer, 1);
--}
--EXPORT_SYMBOL(add_virt_timer_periodic);
--
--static int __mod_vtimer(struct vtimer_list *timer, u64 expires, int periodic)
--{
--	unsigned long flags;
--	int rc;
--
--	BUG_ON(!timer->function);
--
--	if (timer->expires == expires && vtimer_pending(timer))
--		return 1;
--	spin_lock_irqsave(&virt_timer_lock, flags);
--	rc = vtimer_pending(timer);
--	if (rc)
--		list_del_init(&timer->entry);
--	timer->interval = periodic ? expires : 0;
--	timer->expires = expires;
--	internal_add_vtimer(timer);
--	spin_unlock_irqrestore(&virt_timer_lock, flags);
--	return rc;
--}
--
--/*
-- * returns whether it has modified a pending timer (1) or not (0)
-- */
--int mod_virt_timer(struct vtimer_list *timer, u64 expires)
--{
--	return __mod_vtimer(timer, expires, 0);
--}
--EXPORT_SYMBOL(mod_virt_timer);
--
--/*
-- * returns whether it has modified a pending timer (1) or not (0)
-- */
--int mod_virt_timer_periodic(struct vtimer_list *timer, u64 expires)
--{
--	return __mod_vtimer(timer, expires, 1);
--}
--EXPORT_SYMBOL(mod_virt_timer_periodic);
--
--/*
-- * Delete a virtual timer.
+- * appldata_timer_function()
 - *
-- * returns whether the deleted timer was pending (1) or not (0)
+- * schedule work and reschedule timer
 - */
--int del_virt_timer(struct vtimer_list *timer)
--{
--	unsigned long flags;
--
--	if (!vtimer_pending(timer))
--		return 0;
--	spin_lock_irqsave(&virt_timer_lock, flags);
--	list_del_init(&timer->entry);
--	spin_unlock_irqrestore(&virt_timer_lock, flags);
--	return 1;
--}
--EXPORT_SYMBOL(del_virt_timer);
--
--/*
-- * Start the virtual CPU timer on the current CPU.
-- */
- void vtime_init(void)
+-static void appldata_timer_function(unsigned long data)
++static u64 appldata_total_cpu_time_ns(void)
  {
--	/* set initial cpu timer */
--	set_vtimer(VTIMER_MAX_SLICE);
-+	cpu_timer_init(CPU_TIMER_MAX);
- 	/* Setup initial MT scaling values */
- 	if (smp_cpu_mtid) {
- 		__this_cpu_write(mt_scaling_jiffies, jiffies);
+-	queue_work(appldata_wq, (struct work_struct *) data);
++	u64 total = 0;
++	int cpu;
++
++	for_each_possible_cpu(cpu) {
++		total += kcpustat_cpu(cpu).cpustat[CPUTIME_USER];
++		total += kcpustat_cpu(cpu).cpustat[CPUTIME_NICE];
++		total += kcpustat_cpu(cpu).cpustat[CPUTIME_SYSTEM];
++		total += kcpustat_cpu(cpu).cpustat[CPUTIME_IRQ];
++		total += kcpustat_cpu(cpu).cpustat[CPUTIME_SOFTIRQ];
++	}
++	return total;
++}
++
++static void appldata_schedule_work(u64 remaining)
++{
++	unsigned int ncpus = num_online_cpus();
++	unsigned long delay = HZ / 10;
++
++	/*
++	 * At most ncpus CPUs consume CPU time simultaneously, so the
++	 * minimum wall-clock time until the remaining CPU time elapses
++	 * is remaining / ncpus.
++	 * Make sure the work is not scheduled more than once per 100ms.
++	 */
++	delay = max(delay, nsecs_to_jiffies(remaining / ncpus));
++	mod_delayed_work(system_percpu_wq, &appldata_work, delay);
+ }
+ 
+ /*
+@@ -106,9 +113,27 @@ static void appldata_timer_function(unsigned long data)
+  */
+ static void appldata_work_fn(struct work_struct *work)
+ {
+-	struct list_head *lh;
++	u64 now, elapsed, interval;
+ 	struct appldata_ops *ops;
++	struct list_head *lh;
++	bool expired = false;
+ 
++	now = appldata_total_cpu_time_ns();
++	mutex_lock(&appldata_timer_lock);
++	if (appldata_timer_active) {
++		interval = appldata_interval;
++		elapsed = now - appldata_cputime_start;
++		if (elapsed < interval) {
++			appldata_schedule_work(interval - elapsed);
++		} else {
++			appldata_cputime_start = now;
++			appldata_schedule_work(interval);
++			expired = true;
++		}
++	}
++	mutex_unlock(&appldata_timer_lock);
++	if (!expired)
++		return;
+ 	mutex_lock(&appldata_ops_mutex);
+ 	list_for_each(lh, &appldata_ops_list) {
+ 		ops = list_entry(lh, struct appldata_ops, list);
+@@ -162,33 +187,52 @@ int appldata_diag(char record_nr, u16 function, unsigned long buffer,
+ #define APPLDATA_MOD_TIMER	2
+ 
+ /*
+- * __appldata_vtimer_setup()
++ * __appldata_timer_setup()
+  *
+- * Add, delete or modify virtual timers on all online cpus.
+- * The caller needs to get the appldata_timer_lock spinlock.
++ * Add, delete or modify the appldata delayed work.
+  */
+-static void __appldata_vtimer_setup(int cmd)
++static void __appldata_timer_setup(int cmd)
+ {
+-	u64 timer_interval = (u64) appldata_interval * 1000 * TOD_MICRO;
++	static DEFINE_MUTEX(appldata_cancel_lock);
++	u64 now, elapsed, remaining;
+ 
+ 	switch (cmd) {
+ 	case APPLDATA_ADD_TIMER:
+-		if (appldata_timer_active)
+-			break;
+-		appldata_timer.expires = timer_interval;
+-		add_virt_timer_periodic(&appldata_timer);
+-		appldata_timer_active = 1;
++		mutex_lock(&appldata_cancel_lock);
++		mutex_lock(&appldata_timer_lock);
++		if (!appldata_timer_active) {
++			appldata_cputime_start = appldata_total_cpu_time_ns();
++			appldata_schedule_work(appldata_interval);
++			appldata_timer_active = 1;
++		}
++		mutex_unlock(&appldata_timer_lock);
++		mutex_unlock(&appldata_cancel_lock);
+ 		break;
+ 	case APPLDATA_DEL_TIMER:
+-		del_virt_timer(&appldata_timer);
+-		if (!appldata_timer_active)
++		mutex_lock(&appldata_cancel_lock);
++		mutex_lock(&appldata_timer_lock);
++		if (!appldata_timer_active) {
++			mutex_unlock(&appldata_timer_lock);
++			mutex_unlock(&appldata_cancel_lock);
+ 			break;
++		}
+ 		appldata_timer_active = 0;
++		mutex_unlock(&appldata_timer_lock);
++		cancel_delayed_work_sync(&appldata_work);
++		mutex_unlock(&appldata_cancel_lock);
+ 		break;
+ 	case APPLDATA_MOD_TIMER:
+-		if (!appldata_timer_active)
+-			break;
+-		mod_virt_timer_periodic(&appldata_timer, timer_interval);
++		mutex_lock(&appldata_timer_lock);
++		if (appldata_timer_active) {
++			now = appldata_total_cpu_time_ns();
++			elapsed = now - appldata_cputime_start;
++			remaining = appldata_interval - elapsed;
++			if (elapsed >= appldata_interval)
++				remaining = 1;
++			appldata_schedule_work(remaining);
++		}
++		mutex_unlock(&appldata_timer_lock);
++		break;
+ 	}
+ }
+ 
+@@ -215,12 +259,10 @@ appldata_timer_handler(const struct ctl_table *ctl, int write,
+ 	if (rc < 0 || !write)
+ 		return rc;
+ 
+-	spin_lock(&appldata_timer_lock);
+ 	if (timer_active)
+-		__appldata_vtimer_setup(APPLDATA_ADD_TIMER);
++		__appldata_timer_setup(APPLDATA_ADD_TIMER);
+ 	else
+-		__appldata_vtimer_setup(APPLDATA_DEL_TIMER);
+-	spin_unlock(&appldata_timer_lock);
++		__appldata_timer_setup(APPLDATA_DEL_TIMER);
+ 	return 0;
+ }
+ 
+@@ -234,7 +276,7 @@ static int
+ appldata_interval_handler(const struct ctl_table *ctl, int write,
+ 			   void *buffer, size_t *lenp, loff_t *ppos)
+ {
+-	int interval = appldata_interval;
++	int interval = appldata_interval / NSEC_PER_MSEC;
+ 	int rc;
+ 	struct ctl_table ctl_entry = {
+ 		.procname	= ctl->procname,
+@@ -247,10 +289,10 @@ appldata_interval_handler(const struct ctl_table *ctl, int write,
+ 	if (rc < 0 || !write)
+ 		return rc;
+ 
+-	spin_lock(&appldata_timer_lock);
+-	appldata_interval = interval;
+-	__appldata_vtimer_setup(APPLDATA_MOD_TIMER);
+-	spin_unlock(&appldata_timer_lock);
++	mutex_lock(&appldata_timer_lock);
++	appldata_interval = interval * NSEC_PER_MSEC;
++	mutex_unlock(&appldata_timer_lock);
++	__appldata_timer_setup(APPLDATA_MOD_TIMER);
+ 	return 0;
+ }
+ 
+@@ -392,19 +434,20 @@ void appldata_unregister_ops(struct appldata_ops *ops)
+ 
+ /******************************* init / exit *********************************/
+ 
+-/*
+- * appldata_init()
+- *
+- * init timer, register /proc entries
+- */
++static int appldata_cpu_online(unsigned int cpu)
++{
++	__appldata_timer_setup(APPLDATA_MOD_TIMER);
++	return 0;
++}
++
+ static int __init appldata_init(void)
+ {
+-	init_virt_timer(&appldata_timer);
+-	appldata_timer.function = appldata_timer_function;
+-	appldata_timer.data = (unsigned long) &appldata_work;
+-	appldata_wq = alloc_ordered_workqueue("appldata", 0);
+-	if (!appldata_wq)
+-		return -ENOMEM;
++	int rc;
++
++	rc = cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN, "s390/appldata:online",
++				       appldata_cpu_online, NULL);
++	if (rc < 0)
++		return rc;
+ 	register_sysctl(appldata_proc_name, appldata_table);
+ 	return 0;
+ }
 -- 
 2.53.0
 
