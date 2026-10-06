@@ -1,61 +1,52 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ADB23BBA09
-	for <linux-s390@vger.kernel.org>; Tue,  6 Oct 2026 14:08:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D9E642F708
+	for <linux-s390@vger.kernel.org>; Tue,  6 Oct 2026 14:09:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791295698; cv=none; b=SS29o430oVlhkb9S9jRlDagyJ1dO3TIy4sqc24PHkZ/hJ2hj3V71JRmVE6tW3WCM4KBOGBLR/pffxD9RxfA5R/1GnM5cf9v/HSC6Qb9zteuat+ByBaKuYiz4tmYRU4YuaDL3z61jLzXvL0nCsRLhncA/vCX87xzKXEAEYWIwhTk=
+	t=1791295794; cv=none; b=XH0+gU5mbRUZaCFsvXMhpVvHEsYFd8pK61fRVOyoh8myKK4n6FToRQq+bfEloqJp7H8i1vElbZKfadyjicF9APia7gR6EMa79nTqfRT0rVua3ABtTIKRm8ikNE1xxBuEEoX4QpGb/tU8N8GudjgkAaYAgSDc6GxjTTItteU70P4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791295698; c=relaxed/simple;
-	bh=LLNDPUliqm5Ff2QqlNQp3purZQbhc8EYVS9I4rjZA6I=;
+	s=arc-20240116; t=1791295794; c=relaxed/simple;
+	bh=ohx9jV5d0ji4LPRqIgOG+OzoG4VNioVqpj76EKrEF9k=;
 	h=From:Subject:To:Cc:In-Reply-To:References:Content-Type:Date:
-	 Message-Id; b=Il0GYkx3J58s0uT5gh4XbdczVNzYttN98Cs2wDSW/sP3hrRJybkxXQBOl1mtB9vULFTKSWUgM6Tk+otbT+3pfeclE9XgeaypEYfIkTbyKMzSy8qacpFfnuAd3yy2+X7QgzZxwJ2CRkeZa4rPDd3xVTXeFDPI6ZIJenFV3w7uR3w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fwFSZNae; arc=none smtp.client-ip=100.103.45.18
+	 Message-Id; b=HdCbwbgM+FlWpBebl6Grs9eBP+RNj1OZvFFIcYsPuHaAxWx/3kX+Z23YIagFE5uBqgMR8d28sCCDh5OuOzjkQ9m7ECTFln8kvGW+Tzcxx3RUrBNiGgmdIU5f+zNY5Dz5N0/nJHs+8KPHyw2Pf/9I4+VaFtbe6x3FaCqkm2CdUgg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KpKP+Vzz; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fwFSZNae"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69EA91F000FF;
-	Tue,  6 Oct 2026 14:08:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KpKP+Vzz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8A101F000FF;
+	Tue,  6 Oct 2026 14:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791295691;
-	bh=LLNDPUliqm5Ff2QqlNQp3purZQbhc8EYVS9I4rjZA6I=;
+	s=k20260515; t=1791295793;
+	bh=ohx9jV5d0ji4LPRqIgOG+OzoG4VNioVqpj76EKrEF9k=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=fwFSZNaeRUHR+PoVR+9seAQv6+hD7gVDZgPeNWx+LW5mcNO9mMBxNh8EA0bVRUUEG
-	 23DQ0LHeFLqAi1Du9FDYlORwBpZ2i3hBb5onXlxcGnqU/EFH1eaYXYRNPeZyyprvg0
-	 yQRY4xPD0ylH8h+r3MydoRvvt983yy9RR9PcIHHbBj4ophLquf7p7A9BUSmB6kThRf
-	 lXzaKwldYAgmuvC/hTBgLZhVh8McRE+IPcrY9ZYm8XG4vnVGPwEjzv92gb9NhVNWQe
-	 EmeCkjnXHYxG7pCX6EBYqWvduTkX7NKqU2J3JWmFr551B44oShp2NAwnliIi9fVhqt
-	 ecHsDlO9wlLOA==
+	b=KpKP+Vzz5Q9I6NWSjVBRQTDO1dpMFE93/ISEx/9BAulWFTVT+3d2/ufZbi2WSftSR
+	 NkOGu0cDdH2A3EXazQjTjRROgEHCKMB6S4DXUzTUI9BGj3MqRptqdw1eYhkHLxY5Is
+	 cuWNolkKXGN1OpIzKr9ek98V8yY9Iy8h13AM2K15E5SE/BvpiLnUjiQo73vcuaublM
+	 AR6MpDSAVEX1ZERI0QUiotvnQunineADRWFsW/UrlQVRgTs7b8K6i6GsaFz8Rq/G4e
+	 xs2EBMi/OhRwWz5eO26cnljsYwr63zzM+DrETquz2I16Eb7LRjVqwR2McTJIcWS5Rt
+	 lUoWeoiFxkxCA==
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/2] s390/appldata: Emulate virtual timer with
- delayed work
+Subject: Re: [PATCH v2 2/2] s390/vtime: Remove vtimer infrastructure
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Heiko Carstens" <hca@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>
-In-Reply-To: <20261006140113.3128582-2-hca@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261006140113.3128582-3-hca@linux.ibm.com>
 References: <20261006140113.3128582-1-hca@linux.ibm.com>
- <20261006140113.3128582-2-hca@linux.ibm.com>
+ <20261006140113.3128582-3-hca@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 06 Oct 2026 14:08:10 +0000
-Message-Id: <20261006140811.69EA91F000FF@smtp.kernel.org>
+Date: Tue, 06 Oct 2026 14:09:52 +0000
+Message-Id: <20261006140952.C8A101F000FF@smtp.kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> Emulate the virtual timer in appldata using delayed work: the work is
-> scheduled for the minimum possible wall-clock time until the
-> configured CPU-time interval elapses (remaining CPU time / number of
-> online CPUs), with a minimum delay of 100ms. The work then reads
-> per-CPU statistics of all online CPUs to check whether enough CPU time
-> has elapsed, and if so runs the registered callbacks.
->=20
-> This is slightly more expensive, but allows to subsequently remove the
-> entire vtimer infrastructure.
+> The only user is gone - remove the vtimer infrastructure.
 >=20
 > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 
@@ -63,5 +54,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261006140113.3128=
-582-1-hca@linux.ibm.com?part=3D1
+582-1-hca@linux.ibm.com?part=3D2
 
