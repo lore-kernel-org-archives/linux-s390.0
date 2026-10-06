@@ -1,61 +1,61 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCDB41448E0;
-	Tue,  6 Oct 2026 19:20:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D31F3376BF1;
+	Tue,  6 Oct 2026 19:24:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791314435; cv=none; b=O0v3HnPUl1ykDzzDph0eNh9gajoZOxpLE9tee8MBbzLHn+dC2KLBPjrYceUVfA4uNrSJf24MtGBEi0r/KLdWbIjnEemq9mfsvDVx0BETNtMdX4GBd0fj18K/KSXMBmjEX6N/crogZHsYHXLxG5GSMevmWIGtR204Fc9vnKSlaMM=
+	t=1791314688; cv=none; b=CW8bVG5/K698dQ148QhEKqTsBG05dovtgCgVg+8LP9WLaCHZyq71mOPcNlZhvXgQKLithy1GhNW6lru8EfNdQzZ7RRG2yoO7HJ4/WkF9K8oTK+RjY4dlnPCdPe0UEOSnkEjJw3vMvJi9yyEIRtJy7XxnpZays+wa7pbPDTXGSHU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791314435; c=relaxed/simple;
-	bh=JgVDVQaqY8PufyyF9ON5BxIHb0HWRJApCgtyNTvNffQ=;
+	s=arc-20240116; t=1791314688; c=relaxed/simple;
+	bh=Uh+bAZEKEplMe766G05nu/01RxpbGoP4fKgRC3UtmyA=;
 	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=UIPW6KATratgrBE6QBNvxJ+JEApwr9LamTtbIxKnlPahO33/J4w4C2Gx6wUWWV14eXEcvTe+0/Z2ML316Rg9jMXOa5YtIW2WnTNj4sLYVqfViioUlLiQNFlelc8aDVaLtk/S83Dj6AQPgnkWx9KsnHikcc7UOTkCZwds/Nx64gs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NndvIWB1; arc=none smtp.client-ip=148.163.158.5
+	 Date:MIME-Version; b=tf965bYU9OEHMEVuG6VPdyb81Pw4abDf2NqczGv/9iMydHOJkZpiFhw83kHTeJMA0XSX22ZI5NgoLkV57zIisHAhyzb9KkyUKrOAuCh4Ck9gz0ShI84qCYS79DXgDQO2u5WGxENayhDUSbnB4xVbAJmQaJgNhc5LQDpoKemnJ/s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hBByEmxg; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NndvIWB1"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 696I60qM239539;
-	Tue, 6 Oct 2026 19:20:32 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hBByEmxg"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 696I5bD2305070;
+	Tue, 6 Oct 2026 19:24:46 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=JgVDVQ
-	aqY8PufyyF9ON5BxIHb0HWRJApCgtyNTvNffQ=; b=NndvIWB1VEOSECUr6B3O84
-	4T1esFov2UnTWlnIWGTZ8Um4ramQUP6p1K9HcTGYKCjZ/ts/tO2EHwacHhyU7G1t
-	chc7tyapYB0Evi5GaAltHODeEmxlz0rZXjp11x2NxIyMNLqcQjyGvmU1RshBYF9i
-	n4sKWQuB81Qq8ttwqpdpd7QUh6vN+2/t8KIrkO4YVwS10rALsrY3GYxq8tqv+Sc8
-	SIWagB72zFKu3UXg/Igz52ktoYTeo1yJTvYP+vh8AboPyWNpYQRAkXrqL5NYUs4B
-	YkTfr8cuTylwxjwrtnyGGeO7EO9V0uLxL89kXhcKqijrzGiVbncddY0UgPdxnRRQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=eG2TaZ
+	LkKxcaIMrwfCR9zxEk3Ce94DpxYmHS2d9ZQgA=; b=hBByEmxgRh1XNlhfSg2Z7w
+	5UauvM14QiRT05bEGK0dO1p1p1KjiGvdmS4PRmxg5TrZWJ1MdOOhpd/ACFLgpcLu
+	CqywVPk3ifVX5nBp7w2KPfQjfBig1XLwhQGBgwRPyGwr2dRFF/BuE5qI3hxKtMqJ
+	LJClvDnSCC9ugCN/oUqCf9ourYCVSo+/DiB+8mhhdqXV23dlPCyGTTt/NSOp0aRZ
+	rZqHiU9eaWa3IkZE1dorIZ6ols+rHoKqYbXAQRsSLGGKZVSn+oPJgzZvtCJHrtd4
+	kzKr3R01fEPqvxGKrI2yvCvIQQ2wqGCS+lUoraXZCTAABwdXPklvYZGBxFVMHJFg
 	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2sbv8wrx-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2s74t0y3-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 06 Oct 2026 19:20:32 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 696HlWLq624149;
-	Tue, 6 Oct 2026 19:20:32 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h3d1juf3c-1
+	Tue, 06 Oct 2026 19:24:45 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 696HlT4g662499;
+	Tue, 6 Oct 2026 19:24:45 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h3eqyb85n-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Oct 2026 19:20:32 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 696JKV7e33817264
+	Tue, 06 Oct 2026 19:24:45 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 696JOhpZ28574302
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 6 Oct 2026 19:20:31 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F1A555803F;
-	Tue,  6 Oct 2026 19:20:30 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6A1F95804E;
-	Tue,  6 Oct 2026 19:20:28 +0000 (GMT)
+	Tue, 6 Oct 2026 19:24:43 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 467BC58060;
+	Tue,  6 Oct 2026 19:24:43 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 25D1F5803F;
+	Tue,  6 Oct 2026 19:24:41 +0000 (GMT)
 Received: from [9.87.140.229] (unknown [9.87.140.229])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  6 Oct 2026 19:20:28 +0000 (GMT)
-Message-ID: <f5817b10564942c8a3e1ee309b21ec0bdb803e97.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 5/7] s390/pci: Add error cleanup in
- zpci_directed_irq_init
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  6 Oct 2026 19:24:40 +0000 (GMT)
+Message-ID: <ff4e4c7cbd39dd457892589a5f75e9be0bcc060f.camel@linux.ibm.com>
+Subject: Re: [PATCH v2 4/7] s390/pci: Fix use-after-free race in zpci
+ floating interrupt cleanup
 From: Niklas Schnelle <schnelle@linux.ibm.com>
 To: Tobias Schumacher <ts@linux.ibm.com>, Gerd Bayer
  <gbayer@linux.ibm.com>,
@@ -70,9 +70,9 @@ Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Sven Schnelle
  <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
         linux-kernel@vger.kernel.org
-In-Reply-To: <20261005-s390_irq_domain_fixes-v2-5-d45b824874c0@linux.ibm.com>
+In-Reply-To: <20261005-s390_irq_domain_fixes-v2-4-d45b824874c0@linux.ibm.com>
 References: <20261005-s390_irq_domain_fixes-v2-0-d45b824874c0@linux.ibm.com>
-	 <20261005-s390_irq_domain_fixes-v2-5-d45b824874c0@linux.ibm.com>
+	 <20261005-s390_irq_domain_fixes-v2-4-d45b824874c0@linux.ibm.com>
 Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
  /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
@@ -130,7 +130,7 @@ Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  3FZJPTo/OpqchMm8XIeDxC4NFFiPMpyLeYzIxO7eZpiGrAjVTE=
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 06 Oct 2026 21:19:27 +0200
+Date: Tue, 06 Oct 2026 21:23:39 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -139,45 +139,86 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: h-B3NDSd4HKDajZA22jV4zalWGKbHM3l
-X-Authority-Analysis: v=2.4 cv=KJHPn1Fo c=1 sm=1 tr=0 ts=6ac54a00 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-ORIG-GUID: ZJ9TzATghbwFOwl1aeExPAO8hYKldN5q
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA2MDA3NiBTYWx0ZWRfX2ZZxiwjx+cSa
+ IRaBpf1BAfHd4xAcuhD50I6Z54Ix1fWPafb7sV81wha4vO/POZo3bloKB5/J6kq33kR+3HBojWL
+ sZbkGqSmRmm6mwHHhKG2j0NABpnT9/w=
+X-Proofpoint-GUID: ZJ9TzATghbwFOwl1aeExPAO8hYKldN5q
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA2MDA3NiBTYWx0ZWRfX/DtcW7Jbo3Aq
+ GGkwBOtGIjwYXxyphYRA8GCKmWUd3A3qyCUUakDXC+j7q6A/9q1XXBWXHn8Laet/JBz1WKpN0of
+ DRLEvytO4ADUKzVcnDaxlaIfgAjeYSCHVKXFREnJQcO/M46X/l/I7/lOzjhV/neh0YW3gT4Nusw
+ q58jTDH+KXyTFTxw6UQus1MilkP1EQitNGC5WxTsRPl966zciIOR4Ua5fWf0p2obW2tbjA8kvyA
+ YOgH1qo1mBqXPQFrpqAwqFpPkuzGSuOLrRgXem22RzyWKYIY5S1MoE/oGryBJfSJ0giDfy7uIPV
+ Zh/Nm9tYNavLRG7GfagSLHu9rZjdw54eJffuRmHMmwRr3iXHtUh6gq8mgWCKNnHCq/RLilyIT5u
+ nk8dSsNm0p+tdKvBrZCr+/Gl5MZtpSZYv2vMsxSHDTO2+4MxN5XmjcEIHLov2T3gLG1ddROe5Ty
+ JQ2cDSje1+L55xGLXCg==
+X-Authority-Analysis: v=2.4 cv=fM2sTpae c=1 sm=1 tr=0 ts=6ac54afd cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=q1NyNZ2JxNMCs0gEl_UA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: h-B3NDSd4HKDajZA22jV4zalWGKbHM3l
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA2MDA3NiBTYWx0ZWRfXzlJCbg3FqN84
- mmNtGypRA9d5Dn0mxdEg/FXhiTlOIwAr0VVB2sobKqWKr+Vio6QRFy3h0IiZGX0hoUh3eVdhFzq
- hNLUxNVxFo3eF6DgwCmthItMcpuXFlrpGhearFw/Y6gICDn1b1vBtcStY0CP/X8l8kEftxgHfHI
- ciYQpeh3pDKK6sI7ql4z56Fc1G4cxqtjmFpyWHlqtPdb5gozN7ep3uDOhcAD6iJsmGLAl6HrpYl
- gmP418XzyN0P2MNqkHjFxdZhXTk9qJW25SJdOIvd9wwpyFRyAtoGQZHx9k5iDojmBPkYUFUANW9
- 7wSCwf3ZJ2TFfAt7DGEIaqUB4YkIEMTn47/+BE89vhKKd4vLhvJhh/Rj5bp3yyhmx9xL0po+QB/
- eQw6YXEkolJJFISS/A9e5JsrXt56l56pWkp9rqg1/blGQ4fy8xXqX2sRpQzUuwYRAcZFE6d0vBG
- LntE1lyKU2O9sGM7Iiw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA2MDA3NiBTYWx0ZWRfX3koSyOoVZVTe
- 06VddYRbdbID4TRoHgeFifbx5QtvMLDGELqDcgBnKVhoazIyN0BuY028T4iKN00e0dhHIUiM3/4
- Miqm85jP8BfCWZT4vL/EQJzwzPBQbpE=
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=CZDj4HD-RPTIOyEXVBkA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-06_05,2026-10-06_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0
- priorityscore=1501 phishscore=0 impostorscore=0 adultscore=0 clxscore=1015
- bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2609040000
- definitions=main-2610060076
+ impostorscore=0 bulkscore=0 priorityscore=1501 spamscore=0 lowpriorityscore=0
+ phishscore=0 adultscore=0 malwarescore=0 clxscore=1015 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610060076
 
 On Mon, 2026-10-05 at 14:03 +0200, Tobias Schumacher wrote:
-> If per-CPU airq_iv allocation fails in the loop, previously allocated
-> vectors and arrays leak. Add proper error path to release all resources
-> on failure.
+> zpci_clear_irq() stops the adapter from raising new interrupts for the
+> function, but a zpci_floating_irq_handler() already running on another CP=
+U
+> can still be scanning zdev->aibv when zpci_msi_teardown_floating() releas=
+es
+> it.
 >=20
-> Fixes: e979ce7bced2 ("s390/pci: provide support for CPU directed interrup=
-ts")
+> Clear the zpci_ibv[] entry so no further handler picks the vector up, the=
+n
+> wait for a grace period before releasing it. The handler runs inside the
+> rcu_read_lock() section that do_airq_interrupt() holds across
+> airq->handler(), so synchronize_rcu() drains any handler still in flight.
+> Free the summary bit only after the grace period, so it cannot be handed =
+to
+> another device while a reader still holds the old pointer.
+>=20
+> zpci_ibv served both delivery modes, indexed by summary bit under
+> FLOATING and by cpu under DIRECTED. Only the floating vectors are
+> published to and torn down under the interrupt handler, so split the
+> directed vectors out into zpci_dibv and annotate zpci_ibv __rcu, which
+> lets sparse check the accessors above.
+>=20
+> Fixes: f770950a4709 ("s390/pci: Migrate s390 IRQ logic to IRQ domain API"=
+)
+> Cc: stable@vger.kernel.org
 > Signed-off-by: Tobias Schumacher <ts@linux.ibm.com>
+> ---
+>  arch/s390/pci/pci_irq.c | 60 +++++++++++++++++++++++++++----------------=
+------
+>  1 file changed, 33 insertions(+), 27 deletions(-)
+>=20
+--- snip ---
+> @@ -660,10 +664,12 @@ void __init zpci_irq_exit(void)
+> =20
+>  	if (irq_delivery =3D=3D DIRECTED) {
+>  		for_each_possible_cpu(cpu) {
+> -			airq_iv_release(zpci_ibv[cpu]);
+> +			airq_iv_release(zpci_dibv[cpu]);
+>  		}
+> +		kfree(zpci_dibv);
+> +	} else {
+> +		kfree(zpci_ibv);
+>  	}
+> -	kfree(zpci_ibv);
+>  	if (zpci_sbv)
+>  		airq_iv_release(zpci_sbv);
+>  	unregister_adapter_interrupt(&zpci_airq);
 
-Had my bot review my reviews and it noticed that this is missing Cc
-stable despite having a Fixes tag.
+This is pre-existing but my additional LLM review noticed it. It
+seems like a theoretical race and against the reverse cleanup vs setup
+rule, that kfree(zpci_ibv) is done before
+unregister_adapter_interrupt().=20
 
 Thanks,
 Niklas
