@@ -1,150 +1,66 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A35DE49F100;
-	Tue,  6 Oct 2026 16:18:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EC8C46EC79;
+	Tue,  6 Oct 2026 16:19:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791303531; cv=none; b=W1bbjkirhaDG9tBU1/uuu2Oq8AxTXqGOwLnCPDC36+BtGG0Qpw45gvtx3gPLU6b6axV8W2oRVtnJ0Ympilsbu9UimZi/VwVeRsmjb/nWOLgAG4R+xSZzp2MF9/NJfuQoVq2LSwBFJN4akGtSspWAuXaUn7rxc3UAursQinL1ceA=
+	t=1791303590; cv=none; b=ozWYl61fs6DLC7SaUhKZXIhgWU7xEndU3Y3moNqOl2JJ0wULYzGsK6ggEmGuaczVTWt3LM9cqu89iJTWwmRoxMeUpFbwV7odnVotWrYFcoB6yUH+0+pOZ50do/BBC3FUsNKtkJTHmJY9uv8goixD5YCKd05BH6PkCR9FbltotME=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791303531; c=relaxed/simple;
-	bh=tWLjRn+WCa3hiItjul4dgLRJFQiFSjaiNkF3CxJ1nBE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JWqZNmzF4bUnfX+aJDQIoCBbcIb2L3Enn/2UX+Cmr583ZFy+D52W1XaKpvsDmdiVj/l97EGkdjQSOH4Rt1/OxAMgroPDgQVuktXFK/o5Md+gdVSYqfyVTpO15qjLMPxAx4/Ty8xbtgp85UHAghVE2CYEDiheHZpqF3HzXmzztVY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=itoo5HJ9; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1791303590; c=relaxed/simple;
+	bh=6T3UrqCKTyMk8vGIcdKDFu9QX2W56F6hPd5EKDz0GQU=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=ubnOWLYVYxwcKS6D0yx/FxOlowSwTBeWb/CXYyUnXD9hpAeANHwh7ogyF1aDajxW9ycq9l80vuN1yPi8oQr80gZGi9D6+2zsQlryK2six89862ImKKhsK50S6qzEFPt746ZSBV7OQIiAFVsWZlsz3n4UVaq1nL7xjBHaTW/AaK0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PyPRUAKn; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="itoo5HJ9"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 696EZdFQ3852055;
-	Tue, 6 Oct 2026 16:18:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:sender:subject:to; s=pp1; bh=u8WNbSQ2NndjPV7iXRF4G6F
-	v0k/2ZGfjflcFjlvJ7aM=; b=itoo5HJ9p8Ott3EQNGX9ERsAWGMp3M35FoMCRzI
-	1/Tb6Ax8RzF9LxUhJtON1EDYlBj6kN5Kx/3ZJAar3StzBNafbraD8P9Bw9SB8c4N
-	rVrd46s9I+0AwEVcVwFAdbF+XoXhdk1vyFXpRHx5a7QLP2e8XWzemy7tdfBvAjVX
-	32SL/4bKI6MGZNjf1ZnxSXI+GEXnPAMd4UdBX1hpeEWPYRlut5QNW4+BZAsdFutU
-	n5/orjHiA6jx4d7GWzjTojXBBf3fBvXha6YnVZTgzUG3Hc3OElmVi6+blJolkFJN
-	NZfRjJrhjN+hdXRIj97au0KL5+CQABsKL2y7wQ60VsN6qGg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2q4jrey6-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 06 Oct 2026 16:18:14 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 696EHVVZ453041;
-	Tue, 6 Oct 2026 16:18:13 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h3dhgtkb7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Oct 2026 16:18:13 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 696GI75K28967516
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 6 Oct 2026 16:18:09 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 42FF72004B;
-	Tue,  6 Oct 2026 16:18:07 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 232F120040;
-	Tue,  6 Oct 2026 16:18:07 +0000 (GMT)
-Received: from vela (unknown [9.111.1.151])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue,  6 Oct 2026 16:18:07 +0000 (GMT)
-Received: from brueckner by vela with local (Exim 4.99.5)
-	(envelope-from <brueckner@linux.ibm.com>)
-	id 1xE7ri-00000000wFB-25qK;
-	Tue, 06 Oct 2026 18:18:06 +0200
-Date: Tue, 6 Oct 2026 18:18:06 +0200
-From: Hendrik Brueckner <brueckner@linux.ibm.com>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: kvm@vger.kernel.org, kvmarm@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@kernel.org>,
-        Friedrich Welter <fritz@linux.ibm.com>, Fuad Tabba <tabba@google.com>,
-        Gautam Gala <ggala@linux.ibm.com>,
-        Hariharan Mari <hari55@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>, Joey Gouly <joey.gouly@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Nico Boehr <nrb@linux.ibm.com>,
-        Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
-        Oliver Upton <oupton@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
-        Zenghui Yu <yuzenghui@huawei.com>
-Subject: Re: [PATCH v9 03/24] KVM: Replace CONFIG_KVM_MMIO with KVM_NO_MMIO
-Message-ID: <asUfPttGx9Mh9Q6D@linux.ibm.com>
-References: <20260930173441.66762-1-seiden@linux.ibm.com>
- <20260930173441.66762-4-seiden@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PyPRUAKn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F52F1F0089B;
+	Tue,  6 Oct 2026 16:19:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791303589;
+	bh=6T3UrqCKTyMk8vGIcdKDFu9QX2W56F6hPd5EKDz0GQU=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=PyPRUAKn3bB3aCQ8LuNQREQRm0cybifenX3a8VhU4osbaCHzsCoJeuhHZm41MYY4I
+	 MZsrKBSUii73YBnZC5lEEnFaVFe9mLO/rFgvCVNpj+CJmukHPbDsGSo67rUrpNhjAL
+	 YLUcwUwZBl8zS3BgDQRgK6GhaxlXcyHAJmFAfB42uyAIETw40Ulgf/GaTLX+Wsy9bB
+	 BmK1J8WMNwnGCRMCu0fwhwavlBogQVILXF0Vh3hhFg535ow92U7SmqWuXszqqSDXmn
+	 j/oRIAtzUYCiMg8O0bbM/iIiDJL0xBUCbNhpXGLDUuXiJk+UwHwBnLWazy7xIlcQyw
+	 Ov1dExz+ZDbRQ==
+Message-ID: <sashiko-outbox-162240@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v8 3/4] s390/pci: Fence FMB enable/disable via debugfs
+ for passthrough devices
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Omar Elghoul" <oelghoul@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, kvm@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261005154557.57801-4-oelghoul@linux.ibm.com>
+References: <20261005154557.57801-1-oelghoul@linux.ibm.com>
+ <20261005154557.57801-4-oelghoul@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 06 Oct 2026 16:19:48 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260930173441.66762-4-seiden@linux.ibm.com>
-Sender: Hendrik Brueckner <brueckner@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: ZQaIic_21IstwC9g1Aae6xM8uNoUTjIk
-X-Proofpoint-GUID: -diri8LhwNDbu0AyvUTAhE-ZvbnfI-Pu
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA2MDA2NCBTYWx0ZWRfX48QBrn+w0nnv
- ewO99Xt9kMPRL6JGRFNvKgKuM8XnKsdfcpp863vOIJe9EpvR7itwurzjVLBgO2jD/zfz3MkVGYP
- RmKn+ZsooGv8oIrvD52NPtt4VYRMdH0=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA2MDA2NCBTYWx0ZWRfX2/1OhitB30O8
- iXws3zZPHfh9D9yMRMC4haXynDtKHZp0nSHk8zuT6WQCpJKVY3GHmrkGzpB8YSrFxyTZ97ujvEZ
- TERBYrKUHWb1isxboA09YDBuhHzjGQkvB4tooWXRxULAHH252JEwQS3x1OPtrfT45PUUFzxh6le
- FZoSg0FYos2pzINhuWhbHBmMbBx35oG6U728PXQRNIvXw0m3b2qK+uxahVby7OlIokVvgyy7pTW
- npWMiyZVbHWFa33d8CBQwJTCBqOEgPt2UdRAMoTiY3wesEJ8y1k/knsBDLNCcRvLegCeh9SiihW
- kYo6eYV28cIykgYpCU0grkPsxlJ7tbsYjVKRwKrWpKjFBU5e3PDa7gU19raGnYjh+Ar39pL2Hyd
- EM6jE7JTNrxbzSSjHdRiuzlWxwv1B0T56WTZ6x0cSb4vkvCdjdpb0A66DFgftEpGGzR9dPlIG0n
- CXxl03Bpzmlnv69Kvlw==
-X-Authority-Analysis: v=2.4 cv=eYeo7LEH c=1 sm=1 tr=0 ts=6ac51f46 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=o_ygevbwOlYE398wOkEA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-06_04,2026-10-06_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 lowpriorityscore=0 phishscore=0 bulkscore=0 clxscore=1015
- spamscore=0 malwarescore=0 priorityscore=1501 impostorscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610060064
 
-On Wed, Sep 30, 2026 at 07:34:18PM +0200, Steffen Eiden wrote:
-> Defining KVM_MMIO is not flexible enough for multi-KVM systems where one
-> KVM implements MMIO but others do not. Therefore, remove KVM_MMIO from
-> the config space and use the macro KVM_NO_MMIO instead.
-> Define KVM_NO_MMIO for KVM/s390 and for selected KVM/powerpc
-> configurations.
-> 
-> coalesced_mmio.c is now always compiled&linked. However, for
-> architectures/configurations defining KVM_NO_MMIO this effectively
-> collapses to an empty object with no mmio code.
-> 
-> No functional changes.
+> Introduce a fence over enabling or disabling FMB via debugfs when the zPCI
+> device is associated with a KVM. This will prevent processes on the host
+> from tampering with the FMB while the guest is still using it, which may
+> cause partial counter resets and inconsistent reads which have no parallel
+> in the architecture.
+>=20
+> For VFIO devices that are not associated with a KVM (i.e., for userspace
+> drivers other than QEMU), this fence does not take effect.
+>=20
+> Signed-off-by: Omar Elghoul <oelghoul@linux.ibm.com>
 
-Changes look good to me.
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-> 
-> Suggested-by: Marc Zyngier <maz@kernel.org>
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261005154557.5780=
+1-1-oelghoul@linux.ibm.com?part=3D3
 
-Thanks!
-
-Acked-by: Hendrik Brueckner <brueckner@linux.ibm.com>
