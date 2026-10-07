@@ -1,143 +1,164 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A15C046D085;
-	Wed,  7 Oct 2026 10:43:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0645C469840;
+	Wed,  7 Oct 2026 11:07:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791369828; cv=none; b=VJyyKi8Odf7eWtiedj8FQ3pDb4G7GAS2r3V+enZ/N18Vj9xk4L28/YV3SJlN9xyDhaL2RBPApbr8OykGuRUey71iiasvJ/2EF5dhFmuK8hSOkhRE7TWcYSDYRSnCGhpska3t4eVhLDUQzuShnwHQS3uKCTIId/AF1DK+Q1E3+ro=
+	t=1791371280; cv=none; b=Zh6DrWW6PEiBPcFf3Ayr8lSCy6WLgUqs9+NTyN1Z6Q8oG4Y3CnsC+aO/vvf0rPAegcxGqe39A6s9x5VerdMLR5hruyftf/aGnZISHq40Zxi6gDQTnoKhJgqA8v+AmbX6uSYPYU2gHUXoA0emWxRypTjO+6itV9W2F17M7qsAT50=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791369828; c=relaxed/simple;
-	bh=4no4EBIa5yNr+kE5WtdIiQ6V9l3YNICeBciitWaIClg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KD6CAAvXXoZjH1Qie4c/fB+nZJmKhMyb6sHhizwnpF1IYks5zBomc0I7EEEG0WVGLlM+jYw1isnPaen8aQvjBnwb5Xl2mSuZv5oXkFXLvJam+jQkAdvfaaXnm359wqNXAR0w0CAC0yW0LqMddZkiHO0FUhPEJSWqz9XtAWRbYIE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KN8YV3SX; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791371280; c=relaxed/simple;
+	bh=LC1sbm6aIzFKWIvYJ5Pq7gsmG9bIkBDroGBXIvXe5DI=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=iQ07Kd9ewcggDPUcR8847EupefS4HSywUiJho7PfCLE4IvOmX42nNM2SFmghJ0L7257oPZD568xSNLS69vYjCcUZpXmhfr8+EUGT50qXEmFZ07tOpjKCeVpl0maecsWfDLBO1j8vvScmBcMg3RSh4ti5nQtSDSf3QcP0YDzwYjc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=FK1xmZ6C; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KN8YV3SX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C1281F0089B;
-	Wed,  7 Oct 2026 10:43:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791369800;
-	bh=dSfm8zGQjJ78+rtH0xMcl1bNgx4bDu9UJfcECSmeR6M=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=KN8YV3SX/+vPIl1z/SoJzky7kO3iOdA4eCZLo1Isxg0ipYiQYxsj//oMDVe5DeCgb
-	 +ZX1vOXpBD7AdvgI5nw4WLDz5dbF29s7hgAge6B7PwmKa1GBPPoltb+giqqMWm+qNw
-	 o+yKY8qUAvodMMP8XJR0xLtMKU4jBz+wTqpOD1RizC4SBgc30I38SANe3eP4rmIG+p
-	 RNzAxxe1agTFDTGezv+Jpsq1Fz5G4JWaspFxdRJqlOaPn73xQTvQ/uKIL3Sul9Dr3Z
-	 HkoDk1IjsaFDQ018+5v7dbi7LnM2VTHd/NtIVcLgo74xY8frMJePFisRyln/P2PrJB
-	 nWzH8B97sx6dQ==
-Date: Wed, 7 Oct 2026 11:43:06 +0100
-From: Will Deacon <will@kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
-	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Mark Rutland <mark.rutland@arm.com>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	"Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Jiaxun Yang <jiaxun.yang@flygoat.com>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
-	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	x86@kernel.org
-Subject: Re: [PATCH v6 6/8] dma: swiotlb: Centralize memory-encryption pool
- sizing
-Message-ID: <asYiOgskwi8JYLe_@willie-the-truck>
-References: <20260924060756.1325156-1-aneesh.kumar@kernel.org>
- <20260924060756.1325156-7-aneesh.kumar@kernel.org>
- <asVs3doaJ4WrT3M2@willie-the-truck>
- <asYZFXGyafRjjBS0@arm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="FK1xmZ6C"
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69785TkU1949135;
+	Wed, 7 Oct 2026 11:07:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=FW2Z3zHj6y08wOh+B9CYxoIef/P/
+	YUVE4X3vE3UID60=; b=FK1xmZ6CdI3B+lOAxEIfxCBXIxWnS+/W2easCx/5Gvt5
+	8LnFyYb6cMlJ4qa3juv1FPbUaaP2n5GeuiomY7yAd7OgYRkhnvJ/Dtw6Xzfg6Y36
+	2SgzP+wlYiD1UEQMU1ymegDEOozNSog2TD5yLElW9SkHAFXU/+zj8Q1OfTW/78mZ
+	3OqgcOY3VmYSzl4zHTHU5873RlNYTQU1FtNjITVwX07g/1LL3u/av484zfMJZ65E
+	89oFXRvk/dsemM2FkbXBcCOsDX41OMaF9KmMyKNyUvPk1oFs/z/4L/93fEb7y1Ev
+	3c/3wLLWcStyAK2YWDf36aHHMv1+CCFt5jlhU0Xzag==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2se5n0j6-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Wed, 07 Oct 2026 11:07:10 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6977lpcm1590533;
+	Wed, 7 Oct 2026 11:07:10 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h5a6dj59m-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 07 Oct 2026 11:07:09 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 697B76NT47776076
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 7 Oct 2026 11:07:06 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 525E920043;
+	Wed,  7 Oct 2026 11:07:06 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C68602004F;
+	Wed,  7 Oct 2026 11:07:05 +0000 (GMT)
+Received: from [127.0.1.1] (unknown [9.87.85.9])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  7 Oct 2026 11:07:05 +0000 (GMT)
+From: Gerd Bayer <gbayer@linux.ibm.com>
+Subject: [PATCH 0/3] s390/pci: Updates to PCI insn tracing
+Date: Wed, 07 Oct 2026 13:07:01 +0200
+Message-Id: <20261007-rpcit_trcfh_upstream-v1-0-8a2718cfb90b@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <asYZFXGyafRjjBS0@arm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MQQqAIBBA0avErBM0IaGrRITZTM2iktEiiO6et
+ HyL/x9IKIwJuuoBwYsTH3uBqSsIq98XVDwXQ6Ob1mjtlMTAecwSaB3PmLKg35TFlryzM5GZoKR
+ RkPj+t/3wvh/8uz9AZgAAAA==
+X-Change-ID: 20261007-rpcit_trcfh_upstream-3e6fa73dff1b
+To: Niklas Schnelle <schnelle@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        Ramesh Errabolu <ramesh@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        "Joerg Roedel (AMD)" <joro@8bytes.org>,
+        Farhan Ali <alifm@linux.ibm.com>, Cam Miller <cam@linux.ibm.com>,
+        Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        iommu@lists.linux.dev, Gerd Bayer <gbayer@linux.ibm.com>
+X-Mailer: b4 0.14.3
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA3MDA0NCBTYWx0ZWRfX9xX+PfwG80FV
+ e+Dcsy9h4/Svr7wJOdk9iC1jZufpw6xdLlQoFJwmsExgypanfIN7DsHs30kaScvNrTZsPGxpyB8
+ fVIHm/WZ/pkmanJSAaqJoLQE98JLaNY=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA3MDA0NCBTYWx0ZWRfXw9+3g9FHKIkC
+ 21JMw9Xc50BEiaHoMZKTY0QO+uF0+udpLHZzanTUR69UlBJBx/6LzhR54kvt61i5R1WokOaxjhF
+ sZ3ogX4Yf2BUazFV7f1xCS18UIwTkLcDeSXdF0VPm0emXAYPRPmWwgcEts221sOYi9I8W+SZw5R
+ wR3fE+m3LuMKUL340ShtPU6MaO50zrWAZdgFWlCmQLnFmIjbfP5Jbiisu3S0FqLaPOA+wRRE58s
+ Ex+C9nSKXhYsUo62UPJqNpey7K/ThquxtYwW2iDQlPTsdQ1GcglXp/wOqRqlIwNrtg2L+OMov5e
+ mNA9927Q5c9nUK4BmsUvocete1hNrqtfRddj0/0zwpAiIA2chnLKZ6cvLE/uMy2zfPG7YuCqqpe
+ kKsZGvX08FroC+8zAY6+THjs91pRQsj0dHJcv+7CXTkMoNUTEpKvrDm0SgykubkGfpcVmJG0y3o
+ fUepveEWwRvgF06swPg==
+X-Proofpoint-GUID: U984cgkh54MAL5ZQC8G1i1QKx7wNiUT3
+X-Authority-Analysis: v=2.4 cv=UNRIjyfy c=1 sm=1 tr=0 ts=6ac627de cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=xIqyEUT4ZkeEuoJ0Q4YA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: U984cgkh54MAL5ZQC8G1i1QKx7wNiUT3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-07_03,2026-10-06_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 impostorscore=0 adultscore=0 bulkscore=0 lowpriorityscore=0
+ phishscore=0 clxscore=1011 priorityscore=1501 suspectscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610070044
 
-On Wed, Oct 07, 2026 at 11:04:05AM +0100, Catalin Marinas wrote:
-> On Tue, Oct 06, 2026 at 10:49:17PM +0100, Will Deacon wrote:
-> > On Thu, Sep 24, 2026 at 11:37:54AM +0530, Aneesh Kumar K.V (Arm) wrote:
-> > > @@ -496,7 +516,8 @@ swiotlb_select_pool_policy(unsigned int flags)
-> > >  	if (swiotlb_force_disable)
-> > >  		return SWIOTLB_POOL_NONE;
-> > >  
-> > > -	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
-> > > +	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
-> > > +	    !restricted_dma_pool_present)
-> > >  		return SWIOTLB_POOL_CC_GUEST;
-> > 
-> > I think this check on the restricted DMA pool is too general -- the pool
-> > could be tied to a specific DMA-capable peripheral and so treating its
-> > presence as a global property isn't right.
-> 
-> I agree it's a hack but that was the simplest way to avoid the pVMs
-> getting a bounce buffer after this patch. More than happy to leave it
-> out and reduce the buffer on cmdline or we come up with some better
-> heuristics.
+While debugging some issues, I found that insn traces for RPCIT are
+lacking an indication for which PCI function translation tables needed
+to be synchronized with hypervisors and/or firmware and that the 64bit
+address fields are traced at odd addresses. While looking into how to
+address this, I found another small oddity in that the code leading to
+the RPCIT instruction was expanding the 32bit function handle to a 64bit
+value for the inline assembly way too high in the call-chain.
+    
+So I started this small series to address these three issues:
+1/3 - Insert padding into the insn trace at natural boundaries
+2/3 - Pass function handle in 32bit variables as long as possible
+3/3 - Introduce a RPCIT variant of insn trace - adding function handle
+    
+With this series applied (+ a test patch to trace RPCIT even in CC0
+situations) an entry in /sys/kernel/debug/s390dbf/pci_error/hex_ascii
+looks like the following (removed time-stamp and ASCII transcription,
+replaced instruction address with "<IA>"):
 
-Hrm, that does mean that reverting just this part will regress pVMs
-because they'll suddenly be allocating a tonne more memory for an
-entirely unused swiotlb buffer. So I think I'd prefer to drop the entire
-series until this has been worked out properly.
+ 2 - 0001 <IA>  52 00 00 00 00 00 00 00 85 00 32 2e 00 00 00 00
+                ^  ^  ^                 <--------->
+                |  |  Status              function handle
+                |  Condition Code
+                "encoded" insn
 
-> Another option could be the arch code passing another flag that it
-> doesn't want an encrypted pool (e.g. when running in a pKVM guest) but I
-> don't particularly this either. The arch code doesn't know whether
-> there's an alternative pool.
+ 2 - 0001 <IA>  00 00 00 01 ff 04 90 00 00 00 00 00 00 00 10 00
+                                        <--------------------->
+                <--------------------->       IOVA range
+                      start IOVA
 
-At that point, the default size may as well be driven by the
-drivers/virt/coco driver.
+I hope you'll find this useful,
+Gerd
 
-> That said, such heuristics should have been a separate patch to make it
-> easier to review/drop.
+Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+---
+Gerd Bayer (3):
+      s390/pci: Adjust alignment in insn trace
+      s390/pci: Use 32-bit fh outside of inline asm
+      s390/pci: Add function handle to RPCIT insn trace
 
-I think the only right way to get a semi-accurate heuristic is to take
-into account the set of dma-capable devices that will use the swiotlb
-pool, but that's fiddly and should probably be tackled as a separate
-series. Maybe a simpler hack in that direction would be to take the
-SWIOTLB_POOL_CC_GUEST if _any_ device is going to use swiotlb? You'll
-run into the usual problem of not being able to tell if a device is
-DMA-capable or not, but you could probably look for a global restricted
-DMA pool and, if that doesn't exist, check for per-device restricted pools
-on dma-coherent devices (since restricted DMA isn't supported by ACPI) as
-a reasonable approximation.
+ arch/s390/include/asm/pci_insn.h |  2 +-
+ arch/s390/pci/pci_insn.c         | 43 +++++++++++++++++++++++++++++++++-------
+ drivers/iommu/s390-iommu.c       |  8 +++-----
+ 3 files changed, 40 insertions(+), 13 deletions(-)
+---
+base-commit: 602042bf29f6efde39cfb5fdd9289bf4854bc0c5
+change-id: 20261007-rpcit_trcfh_upstream-3e6fa73dff1b
 
-Will
+Best regards,
+-- 
+Gerd Bayer <gbayer@linux.ibm.com>
+
