@@ -1,227 +1,318 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 552D3495ADF;
-	Wed,  7 Oct 2026 14:39:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39B523F54A4;
+	Wed,  7 Oct 2026 14:44:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791383968; cv=none; b=Y5B3LvSle3ZNHLAPuZxRuz/42WQgwPwH79C6lZje3axic3LIRYSvgo6VBoWRnNcEAkQG4P23Fa5WVT7I7K3nfTG4QDtwDMTc1glIQNyro68Hzh0GgnwY/qeHOqOhmeg0Tkt0sJXmOtKwLw9gu6GLuWu046QBbvpkDCIB8yxMM2o=
+	t=1791384295; cv=none; b=rtZfp6sPruQE2VgrD/RqGsrYg3W+e0C67TETPUsik01/MXShQOCY0wQ4A4b9Jshg6fhIVjyAyLGWvqVbXCkycGKWQCIdwcm7kM04L7fW3+Pn7BwF8IwYP2KSVnEvrQlXX5cSg7u4MHq5eMNuvP9pZ2YA0j4uGa825oJQILHpJVI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791383968; c=relaxed/simple;
-	bh=bTfuwFJ25dmoE4H2uokIlRdyzCB2N4rv8EzGk70c0WU=;
-	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=ja8biWU5ih5nB4l5Ft78pBPrHhtXvg/329V+vx5m5NJjZphkdXkK0HCjjzX8J+fUYxGokgnWMZumd6jwpVTzM33Qo/H308qcM1r9sLzctzRPJForEfqE3I8LQaf62lFxF0llzB/tpLeaEKKvt879rEOhavZT43FsJLXkKwniJ2A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HYqoZkcg; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1791384295; c=relaxed/simple;
+	bh=IaO0sEB2/gLfkTleDFEQK4E5yAMzvgvmlQJCsjdz4X4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=JUcEWXhNzFtJ+BvK9RRiQkBadFi8ns2weBQoPVr4R9EKGQ4Ij67mRnrIks1WJvBv9JoOw+xL65LMnHYSFC755jncgDoAYdQZwi69CBPXF+bNLo19ZSWMWAgRXs4VPqMnI6iQZVRr5IB83aN8hOOx5z94IAhmc8QjK5vv+6eX3LM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HHNMGaeg; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HYqoZkcg"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 697BZO332463008;
-	Wed, 7 Oct 2026 14:39:14 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HHNMGaeg"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 697BZudY596972;
+	Wed, 7 Oct 2026 14:43:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=M/Lrke
-	uKjkBdhkHU9yxaNYXaI2zc4dnacq90IN7m8O8=; b=HYqoZkcgmzksw/0LNQaffj
-	8xx2eQ3oX188H4/hPTgVR0Xim/lU8cKPcy0tSP7F9un3ER0AqqJday55iXA4d26t
-	rJU7rn8OfphyCoh9mRIf4+yVPvOdpm5ZaZZWSNqKElfDTuubtp264QIZ2JY1ag47
-	mr8jitue+uVzDD0heu8NFYcit5lap3S7jrcmDSCIJKYsM5pXwYldLotUIFWm2x0R
-	J+u58eKg6SHZTU0CI/1awtMv7qVYQO98I44A4vmSA7zxti5VbCkOouB5T8kc3peM
-	mNVPTHd+hCmxWaO6P+YGbaFJmqXuo1m3EKjJWW3ISOtC/dd9bojC0yjs3iZI2o/A
+	:message-id:mime-version:references:subject:to; s=pp1; bh=ybxBxT
+	W/b9UGnnvaf11PygeEajkZnxqfAob0DPzPA6o=; b=HHNMGaegvwb/jZA1S/qMlx
+	LZVh8AGURn1u1rbUjubxEJHQz5p4dzeVJvMJddHcREOSZrau0DrblKmNOsC8YbLV
+	KTz7Hfbe3lqYLsqSOl0G0GlsZ6EJ78N4Q/x1IaMPjmagjm+ZyG1dU+IvZbDJEHrh
+	FR24UnEmvgZvg4NTBbLerYo8AfCCcnuzGTP0LJFDrERA0YEEmZ+JVfHAPVMfEpbB
+	Z6lqs682VUUVXPVdOtPNl0laeKeUF0B0zBMRIcqfqpMwOlfoNQsaUZhcsuiig195
+	bNfbZPosJqsSAPa7fjFw/Cf4SAtGHBjcSR8xaPDziPCy8UAp+SJ0pIoeW9yqiHlg
 	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2s74x1v0-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2scrnyqq-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 07 Oct 2026 14:39:14 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 697BWgJr1841553;
-	Wed, 7 Oct 2026 14:39:13 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h5a6djvec-1
+	Wed, 07 Oct 2026 14:43:44 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 697Blf0Z1808496;
+	Wed, 7 Oct 2026 14:43:43 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h3cdvy396-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Oct 2026 14:39:13 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 697EdCsa28639872
+	Wed, 07 Oct 2026 14:43:43 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 697Ehdwr31916698
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 7 Oct 2026 14:39:12 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E9C858056;
-	Wed,  7 Oct 2026 14:39:12 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 279DD58052;
-	Wed,  7 Oct 2026 14:39:11 +0000 (GMT)
-Received: from [9.111.32.49] (unknown [9.111.32.49])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  7 Oct 2026 14:39:10 +0000 (GMT)
-Message-ID: <ef1ad0489e7606cffb8a1b7cdc13321a73c03453.camel@linux.ibm.com>
-Subject: Re: [PATCH 3/3] s390/pci: Add function handle to RPCIT insn trace
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Gerd Bayer <gbayer@linux.ibm.com>, sashiko-reviews@lists.linux.dev
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens
-	 <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>
-In-Reply-To: <d46130a7fa9b84dce30c8cf372be469cb615c7f7.camel@linux.ibm.com>
-References: <20261007-rpcit_trcfh_upstream-v1-0-8a2718cfb90b@linux.ibm.com>
-		 <20261007-rpcit_trcfh_upstream-v1-3-8a2718cfb90b@linux.ibm.com>
-		 <sashiko-outbox-162921@kernel.org>
-	 <d46130a7fa9b84dce30c8cf372be469cb615c7f7.camel@linux.ibm.com>
-Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 07 Oct 2026 16:38:09 +0200
+	Wed, 7 Oct 2026 14:43:39 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8D7E42004B;
+	Wed,  7 Oct 2026 14:43:39 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AC4DD20043;
+	Wed,  7 Oct 2026 14:43:29 +0000 (GMT)
+Received: from [9.39.25.200] (unknown [9.39.25.200])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  7 Oct 2026 14:43:29 +0000 (GMT)
+Message-ID: <61b01870-ddcf-4c4f-8604-dd63aa4a07a3@linux.ibm.com>
+Date: Wed, 7 Oct 2026 20:13:28 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH v3 06/13] powerpc/setup: Initialize sbm topology based
+ on coregroup / NUMA topology
+To: K Prateek Nayak <kprateek.nayak@amd.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Michael Ellerman
+ <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
+        Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <chleroy@kernel.org>, Chen Yu <yu.c.chen@intel.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-mips@vger.kernel.org, loongarch@lists.linux.dev,
+        driver-core@lists.linux.dev, Ritesh Harjani <ritesh.list@gmail.com>,
+        Srikar Dronamraju <srikar@linux.ibm.com>
+References: <20261001192849.74788-1-kprateek.nayak@amd.com>
+ <20261001192849.74788-7-kprateek.nayak@amd.com>
+Content-Language: en-US
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+In-Reply-To: <20261001192849.74788-7-kprateek.nayak@amd.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: VJQgf7lN_oW4_lH2ak0nERVwA3HWWZAe
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA3MDA1OCBTYWx0ZWRfX0nCayxoi6vJd
- ZNUOs/KSHw4rkqmbC84+ChIT0Hgw4dRcQxGS91IkRlYI+1okh7br9Y8V+DpWBz5Pcrm/ZdiIPIx
- BrV5+vdvJTMlQSuCyYHDb8MYRAW0z04=
-X-Proofpoint-GUID: VJQgf7lN_oW4_lH2ak0nERVwA3HWWZAe
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA3MDA1OCBTYWx0ZWRfX0tUnJVdSXw4B
- Q3Nwsmymd0x8A3kwbH1NaE9CrEIG/IEcEhTWOKb9K6+uXDctVxbba/etbH2UM6LB46NK+uGiY+8
- N2LsRnfsbtNdWwVZzy+othBSb83tpzx7nRDvM/PfHOnIxUucFY52GigGzKoxC7cUYoxfaQZkPly
- i4uR3ieh5d6PK7pPrzJ+jRYQm38KLx+CvIEEZ6QpVwh+aHp7Zvh7XBiF925bjRyGJ8JXDq3CoZz
- Vr54i0AiJndVH8hY+4UybjZFyfmp4Va0a9h7oJ7/Vu4jjnmgj8z/1JhKVNBoGrHuc0UCVsjSGI2
- 003l0MvH29iGPPxexleAs8mjMWX71xDMWLdmeSAizSdw9O2v3yw5cbTpUG1GDTJcmTjyXUK57+/
- yRShafwX22rrm43XCAqqlDa9+n8yLDrwSGJYHAvDxgcwN/PddEyeH5Ql/RvDcu03t1zeizgOD0G
- groGatEa6ZyKLzSYCQA==
-X-Authority-Analysis: v=2.4 cv=fM2sTpae c=1 sm=1 tr=0 ts=6ac65992 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA3MDA1OCBTYWx0ZWRfX5FGpZUbb+JPz
+ BHJgYCk2JcRqqYX6PtLJNa5oWRLui92CaJzh+kk+cJYYtsL9DvVbnTPi2oVWKb8TDyIAEm8hOmD
+ FGKjQpoXlK7m115eLETI1vF9AYUCs7I=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA3MDA1OCBTYWx0ZWRfX5ukkGIuMRNwg
+ S9ll+KBqsDVsWpue+RzZexXhXGs+9sGoeFG/u4Wu6A+E6OyYZ71mOCd2Q20F1QVNdakPxGjaiEy
+ ptwMnYDKm7R4U/GUs542r3EdUul1gMA3IKyVQys8a23qWFelENdYgZzE7U1nhsl7s9LXYRVJLXR
+ Cf8t5X+1SnkgPcoucNQXw7rjLGJMV3PnIVWcRpgyXhwijDKuAE4oXzod/WCNxBHA/TCBK2L4+9B
+ MIHUbR8tauqQlD87KArJYmj1xACotXtqp6RYpywTrvxtDL8quiPu3o6vB0d4xcDiPDO9pLRoe+j
+ kAYUZkV4YgDjJGVA8MLMbXqbS7EdU1t4JIxa18Mrkn1aVtvUx8mm+WbOGh+Ho6ngA3lu0E4s1Qf
+ vv/arXwuAVmAiVz9rJU4Ed93Zp1NaXaqT6ZEpLDXvu717FtECJ5JGjAsWeBBNoLo+lFt/WM4tHi
+ tyemFiieRzYpCge4Zfw==
+X-Proofpoint-GUID: kbjAw6at_gYi9kpW5NW2eW_Z3iPlVUmR
+X-Proofpoint-ORIG-GUID: RniLqba5eNFPG8ZKN9kokCpHs0UviAPN
+X-Authority-Analysis: v=2.4 cv=B7osQ+tM c=1 sm=1 tr=0 ts=6ac65aa1 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=Hnz3vQpt-q3VcrEhnlIA:9 a=QEXdDO2ut3YA:10
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=ID6ng7r3AAAA:8
+ a=zd2uoN0lAAAA:8 a=5-s5fGl8rxULNuXv-HYA:9 a=QEXdDO2ut3YA:10
+ a=AkheI1RvQwOzcTXhi5f4:22
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-07_04,2026-10-06_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 bulkscore=0 priorityscore=1501 spamscore=0 lowpriorityscore=0
- phishscore=0 adultscore=0 malwarescore=0 clxscore=1015 suspectscore=0
+ priorityscore=1501 bulkscore=0 malwarescore=0 impostorscore=0 phishscore=0
+ clxscore=1015 spamscore=0 adultscore=0 lowpriorityscore=0 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610070058
 
-On Wed, 2026-10-07 at 15:12 +0200, Gerd Bayer wrote:
-> On Wed, 2026-10-07 at 11:17 +0000, sashiko-bot@kernel.org wrote:
-> > Thank you for your contribution! Sashiko AI review found 1 potential is=
-sue(s) to consider:
-> > - [Medium] s390/pci: info leak of uninitialized struct padding in zpci_=
-err_insn_rpcit
-> > --
-> >=20
-> > commit 9deafec98847a2a1de20826fbaa6431e1e3c973f
-> > Author: Gerd Bayer <gbayer@linux.ibm.com>
-> >=20
-> > s390/pci: Add function handle to RPCIT insn trace
-> >=20
-> > In certain debug situations it would be helpful, if the insn trace for =
-a
-> > failing RPCIT would reveal the PCI function on which this was attempted=
-.
-> >=20
-> > Introduce a variant of zpci_err_insn_req() called zpci_err_insn_rpcit()
-> > that accepts an IO virtual address and a range parameter together with
-> > the req conveying the function handle. Switch zpci_refresh_trans() to
-> > use that new error trace.
-> >=20
-> > > diff --git a/arch/s390/pci/pci_insn.c b/arch/s390/pci/pci_insn.c
-> > > index 053afb3e7a990..ae9ed4aa2ec9c 100644
-> > > --- a/arch/s390/pci/pci_insn.c
-> > > +++ b/arch/s390/pci/pci_insn.c
---- snip ---
-> >=20
-> > [Severity: Medium]
-> > Does this code leak uninitialized stack memory to the s390dbf debug tra=
-ce
-> > buffer?
-> >=20
-> > According to the C standard, unnamed bit-fields do not participate in
-> > designated initialization. The struct zpci_err_insn_data starts with:
-> >=20
-> > struct zpci_err_insn_data {
-> > 	u8 insn;
-> > 	u8 cc;
-> > 	u8 status;
-> > 	u8: 8;
-> > 	u32: 32;
-> >     ...
-> >=20
-> > Because the unnamed bit-fields are skipped by the designated initialize=
-r here,
-> > up to 5 bytes of uninitialized kernel stack memory are left in the padd=
-ing
-> > of "data".
-> >=20
-> > Since sizeof(data) (which is 32 bytes) is then passed to zpci_err_hex_l=
-evel(),
-> > could these indeterminate stack bytes be copied into the trace buffer o=
-n every
-> > invocation of zpci_err_insn_rpcit()?
->=20
-> This is basically the same concern as with patch 1/3 - I'll replace the
-> unnamed bit-fields with dummy members of appropriate size in a v2.
+Hi Prateek.
 
-Same as for the other patch this sounds good to me and the rest of the
-change looks good too. Having the function handle could come in handy.
+On 10/2/26 12:58 AM, K Prateek Nayak wrote:
+> Initialize sparsebitmap (sbm) topology based on the coregroup
+> information. Each coregorup gets its own sparsemask leaf.
+> 
+> pSeries and memory hotplug are interesting since a hotplug can place a
+> newly added CPU on any online node. This requires special care to allow
+> estimating bitmask size considering the worst case scenarios - each CPU
+> onlined is on a separate node, and this is a new N_CPU node.
+> 
+> Platform may enforce a stricter standards for the CPUs being online and
+> what nodes they can be mapped to but the current implementations makes
+> no assumptions and considers each CPU can be onlined on a unique node.
+> 
 
-Thanks,
-Niklas
+I think this suffers the same fate as structures which are allocated at boot
+time such as runqueues.
+
+So your fallback option of putting all the disabled into singleton node may be
+sensible option. (If you are not doing that already)
+
+But yhea, will see more into it, this changing node stuff is new for me too.
+Also i need to read your patch series too :)
+
+> pSeries systems that can hotplug CPUs (detected using smp_ops) use the
+> NUMA topology instead for sbm initialization. arch_sbm_cpu_instance_id()
+> on these systems use cpu_to_node() mappings to match CPUs to sbm
+> instances.
+> 
+> XXX: This requires further optimizations to shorten sparsemask
+> traversals by keeping the number of leaf nodes to a minimum. If there
+> are nuances I'm not aware of, please reach out.
+> 
+> Signed-off-by: K Prateek Nayak <kprateek.nayak@amd.com>
+> ---
+> Tested on ppc64le_defconfig with:
+> 
+>    qemu-system-ppc64 \
+>    -M pseries \
+>    -cpu power10 \
+>    -smp sockets=2,cores=2,threads=4 \
+>    -m 10G -nographic \
+>    -kernel vmlinux \
+>    -append "root=/dev/ram sched_debug"
+> 
+> and also on ppce500 VM based on instructions in
+> https://www.qemu.org/docs/master/system/ppc/ppce500.html
+> ---
+>   arch/powerpc/kernel/setup-common.c           | 88 ++++++++++++++++++++
+>   arch/powerpc/platforms/pseries/hotplug-cpu.c | 10 +++
+>   2 files changed, 98 insertions(+)
+> 
+> diff --git a/arch/powerpc/kernel/setup-common.c b/arch/powerpc/kernel/setup-common.c
+> index 4afaba19b586..4b57ad553172 100644
+> --- a/arch/powerpc/kernel/setup-common.c
+> +++ b/arch/powerpc/kernel/setup-common.c
+> @@ -11,6 +11,7 @@
+>   #include <linux/export.h>
+>   #include <linux/panic_notifier.h>
+>   #include <linux/string.h>
+> +#include <linux/sbm.h>
+>   #include <linux/sched.h>
+>   #include <linux/init.h>
+>   #include <linux/kernel.h>
+> @@ -602,6 +603,87 @@ static __init int add_pcspkr(void)
+>   device_initcall(add_pcspkr);
+>   #endif	/* CONFIG_PCSPKR_PLATFORM */
+>   
+> +int arch_sbm_cpu_instance_id(int cpu)
+> +{
+> +	/*
+> +	 * In case of pSeries processors, sbm masks are
+> +	 * grouped by nodes where the cpuhotplug
+> +	 * operations can remove and re-add same logical
+> +	 * CPUs on different nodes.
+> +	 *
+> +	 * See comment in pseries_cpu_hotplug_init().
+> +	 */
+> +	if (smp_ops->cpu_disable)
+> +		return cpu_to_node(cpu);
+> +
+> +	return cpu_to_coregroup_id(cpu);
+> +}
+> +
+> +static void __init setup_sbm_topology(void)
+> +{
+> +	int num_sbm_instances, max_threads_per_instance = 1;
+> +	struct cpumask *cpu_sbm_setup_map;
+> +	int i, *__node_thread_count;
+> +	int disabled_cpus = 0;
+> +
+> +	cpu_sbm_setup_map = memblock_alloc_or_panic(cpumask_size(), __alignof__(long));
+> +	__node_thread_count = memblock_alloc_or_panic(nr_cpu_ids * sizeof(int),
+> +						      __alignof__(int));
+> +
+> +	memset(__node_thread_count, 0, nr_cpu_ids * sizeof(int));
+> +	memset(cpu_sbm_setup_map, 0, cpumask_size());
+> +
+> +	for_each_possible_cpu(i) {
+> +		bool found = false;
+> +		int j;
+> +
+> +		if (!cpu_present(i)) {
+> +			disabled_cpus += 1;
+> +			continue;
+> +		}
+> +
+> +		for_each_cpu(j, cpu_sbm_setup_map) {
+> +			if (cpu_to_coregroup_id(i) == cpu_to_coregroup_id(j)) {
+> +				found = true;
+> +				break;
+> +			}
+> +		}
+> +
+> +		if (!found) {
+> +			cpumask_set_cpu(i, cpu_sbm_setup_map);
+> +			__node_thread_count[i] = 1;
+> +			continue;
+> +		}
+> +
+> +		__node_thread_count[j] += 1;
+> +		max_threads_per_instance = max(max_threads_per_instance,
+> +					       __node_thread_count[j]);
+> +	}
+> +
+> +	/*
+> +	 * If CPUs are disabled, they may pop up on any online node.
+> +	 *
+> +	 * XXX: Any implementation nuances that can help this?
+> +	 * pSeries says only online nodes can be extended.
+> +	 */
+> +	if (disabled_cpus) {
+> +		num_sbm_instances = num_sbm_instances + disabled_cpus;
+> +	} else {
+> +		num_sbm_instances = cpumask_weight(cpu_sbm_setup_map);
+> +	}
+> +
+> +	/*
+> +	 * If disabled threads exists, assume the maximum threads per
+> +	 * instance can extend by the number of disabled threads if they
+> +	 * are all added to the same node.
+> +	 */
+> +	sbm_set_topology(num_sbm_instances,
+> +			 max_threads_per_instance + disabled_cpus);
+> +
+> +	memblock_free(__node_thread_count, nr_cpu_ids * sizeof(int));
+> +	memblock_free(cpu_sbm_setup_map, cpumask_size());
+> +}
+> +
+>   static char ppc_hw_desc_buf[128] __initdata;
+>   
+>   struct seq_buf ppc_hw_desc __initdata = {
+> @@ -1006,6 +1088,12 @@ void __init setup_arch(char **cmdline_p)
+>   
+>   	early_memtest(min_low_pfn << PAGE_SHIFT, max_low_pfn << PAGE_SHIFT);
+>   
+> +	/*
+> +	 * setup_arch() below can override topology for
+> +	 * pSeries platforms as a result of hotplug nuances.
+> +	 */
+> +	setup_sbm_topology();
+> +
+>   	if (ppc_md.setup_arch)
+>   		ppc_md.setup_arch();
+>   
+> diff --git a/arch/powerpc/platforms/pseries/hotplug-cpu.c b/arch/powerpc/platforms/pseries/hotplug-cpu.c
+> index bc6926dbf148..7c1c1ac3efde 100644
+> --- a/arch/powerpc/platforms/pseries/hotplug-cpu.c
+> +++ b/arch/powerpc/platforms/pseries/hotplug-cpu.c
+> @@ -19,6 +19,7 @@
+>   #include <linux/kernel.h>
+>   #include <linux/interrupt.h>
+>   #include <linux/delay.h>
+> +#include <linux/sbm.h>
+>   #include <linux/sched.h>	/* for idle_task_exit */
+>   #include <linux/sched/hotplug.h>
+>   #include <linux/cpu.h>
+> @@ -870,6 +871,15 @@ void __init pseries_cpu_hotplug_init(void)
+>   		return;
+>   	}
+>   
+> +	/*
+> +	 * find_cpu_id_range() only looks at online nodes.
+> +	 *
+> +	 * XXX: Is it possible for a CPU attached memory node to come
+> +	 * online after this point? May need num_possbile_nodes() then
+> +	 * unless there are platform nuances that can help optimize.
+> +	 */
+> +	sbm_set_topology(num_online_nodes(), num_possible_cpus());
+> +
+>   	smp_ops->cpu_offline_self = pseries_cpu_offline_self;
+>   	smp_ops->cpu_disable = pseries_cpu_disable;
+>   	smp_ops->cpu_die = pseries_cpu_die;
+
