@@ -1,45 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84A9039A7EF
-	for <linux-s390@vger.kernel.org>; Wed,  7 Oct 2026 11:49:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 750413CB570
+	for <linux-s390@vger.kernel.org>; Wed,  7 Oct 2026 11:50:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791373775; cv=none; b=OAImxYe8R/fAJXgntpMYlNiwedze9uSxTxKi3uW9j9cKWN3UXeEzdAIZx3pS78obrdHD8DyK1KCWbvpsyQMMxHUwWPSQJ7bB15wR0V3JiSFOQ8Lz2ZTEWik6XlZeTUprRB0OezFc40CjB3HAMj2HNcptljBagRWqlyaqlkKYzqs=
+	t=1791373832; cv=none; b=rfH6kBNvCrNtg2EMLpqFlHTiMR3IXtETZiaFIW19Xqt0AM3BQ2qCxaA8I6xh9edD/GyLfcOLi/kxGEZiKla/jDVmZbGCKinhQ4rgHiwbPVGFsX/4V0pnhweiNxrv0nf67KmKeNmPFtdtZC/9cUgxU0YsRbno+KzlAI5jAZNHYXE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791373775; c=relaxed/simple;
-	bh=lkL+ED29LEdM3ZrbwFW7SRE087yK2wq86xE4fVeAEGo=;
+	s=arc-20240116; t=1791373832; c=relaxed/simple;
+	bh=QI6y2hM7m+An4tAVDX4N19DKMwUevnavPT3bWayZl+U=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=J64tqlgOaqccPCJrfJre06M8wNdF6P+L2lcoly13ntIhNZjRZGaYXgyrrA0om0wjPBOxv6gjcpDudJnRZaQ3vFA/1SB0+YVbGzF8745f+JoEDiEcsX1eUbfhUCJncIof40iDaUvuy5W2Ja7U2rvm4XQr5a6Q732LPnC25JAqH0c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FHiwd9h0; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=UfYNo0t0Z1TYojIMjiXvBHFhXysWqI/RglIwzHGk2JGH+eW5ShkDhyyDowhcYYdFaYi/C1zRV7aWj2nY4sATzWrZxn6kJ8TZrLX9kZy9cpsuwsGKm3m4BjHAi3LrwTNQxU/4T/qm09O+/IW35iJQ7yIsafjVfcJadujKUMJ3Ai0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dRKJAm19; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FHiwd9h0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D0481F0089C;
-	Wed,  7 Oct 2026 11:49:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dRKJAm19"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D2B21F0089B;
+	Wed,  7 Oct 2026 11:50:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791373765;
-	bh=lkL+ED29LEdM3ZrbwFW7SRE087yK2wq86xE4fVeAEGo=;
+	s=k20260515; t=1791373820;
+	bh=QI6y2hM7m+An4tAVDX4N19DKMwUevnavPT3bWayZl+U=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=FHiwd9h0UmXjlGCA3ZJfkxhEjYttMOC6z3g/bV05AjFNpPekEKkh3HR2/L3Kddvw7
-	 lw0+88/j7TuCBOH62I9f39JjGovUca8SdBSyOH79FGp9FDGL4HRcDR6ThE77ohWbYz
-	 zqfhWiZWBZs4IwS4gk+GYsRYhyYA0Se0RAJw8bip3Nb2o6u/6yTVdG4cdKkzKUTZZ7
-	 JFlaAzpKZgQAPIVhr+hjL7pCigNLEItD3JLIESsukzDZp+vpzRLcxm1m6JLenA/dU2
-	 +Ku7W+P1pPP7JANj2UpzGI3soPVNacAq6c9IFfJgchVIv3HwHu2euXaoU1KnKVGwjm
-	 +zAaXLIitfqaQ==
-Message-ID: <sashiko-outbox-162939@kernel.org>
+	b=dRKJAm19GoxhPZ0/Uyl1llVDSrvcKU7xjKHTvM4lcrU0KrO5L85J973/5irqLn8KZ
+	 xnFpMLDvVu8jP/IZFzXwXaT4qSIb55KlHkXpmZ6suajKGlp3ujH6XQRMq9CSi9VOqF
+	 +E/Ef0+52EhGtk6+AAHZEgquOpogXzH7APqcaGlL/kcz92cLvo29In4Zi9jUrSaoxP
+	 QPwu5JTBUTj5vPpZooT/VX45H4nBgDpt5tugH+tKHIAjMdJFvkKceP8Uceax+aN6nQ
+	 oi9uHgpA6qOcTErh9hQh7HFXaH7e5ef6lwxxYMvrBKYEKIB+Kz51Qnfg/vHMMQH/sQ
+	 xsbROcOq/dOLA==
+Message-ID: <sashiko-outbox-162940@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 07/15] mm/kasan: use hw_pte_t for the early shadow
- PTE table
+Subject: Re: [PATCH v8 05/15] mm: convert PTE table entry to pte
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Alexander Gordeev" <agordeev@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko
- Carstens" <hca@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org
-In-Reply-To: <e24977fba12bae1a05e8eda80c6bebab423ae5e1.1791365932.git.agordeev@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>
+In-Reply-To: <4151437659f71c16a136c5be941bbb44d46e6dec.1791365932.git.agordeev@linux.ibm.com>
 References: <cover.1791365932.git.agordeev@linux.ibm.com>
- <e24977fba12bae1a05e8eda80c6bebab423ae5e1.1791365932.git.agordeev@linux.ibm.com>
+ <4151437659f71c16a136c5be941bbb44d46e6dec.1791365932.git.agordeev@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 07 Oct 2026 11:49:24 +0000
+Date: Wed, 07 Oct 2026 11:50:20 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -48,16 +48,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 > From: Muhammad Usama Anjum <usama.anjum@arm.com>
 >=20
-> kasan_early_shadow_pte is a complete PTE table rather than a software
-> PTE value. Declare and define its elements as hw_pte_t so the object uses
-> the PTE table storage type.
->=20
-> Read the first element through ptep_get(), which returns the software PTE
-> value expected by note_page_pte(), instead of accessing hw_pte_t storage
-> directly. This also uses the accessor selected by the architecture.
->=20
-> No architecture selects ARCH_HAS_HW_PTE_T at this point, so the storage
-> representation remains unchanged.
+> The non-MMU stub receives hw_pte_t but returns a software PTE value. It
+> has no attached PTE that requires ptep_get(), so convert only the stored
+> entry through __pte_from_hw().
 >=20
 > Signed-off-by: Muhammad Usama Anjum <usama.anjum@arm.com>
 
@@ -65,5 +58,5 @@ Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/cover.1791365932.gi=
-t.agordeev@linux.ibm.com?part=3D7
+t.agordeev@linux.ibm.com?part=3D5
 
