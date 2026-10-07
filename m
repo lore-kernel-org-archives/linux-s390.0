@@ -1,60 +1,60 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C09644C8FE6;
-	Wed,  7 Oct 2026 16:21:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D377A4D7950;
+	Wed,  7 Oct 2026 19:28:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791390085; cv=none; b=BqKWpBOUoE0UZ8Db4yf5EJamdgu8gSpyKwKJGDQydD8tj1+5RB5kcOjkJD3etQcyxBhmK7RNOzC0jZQx2NozxNB7ry/Llk90E1jrqgqmyWttS7qS3VnxUtd1yRzC8/nbLmpQWIq4FslZwJIYr411+Uuvl09cQ1I6cZMz6P2ETDY=
+	t=1791401320; cv=none; b=nOOsdMbSowoCDFSDNujwtsnBprwnOQbL5j2qg+QavUUV7h49ieuXVvOpAki4vfKLOXJDVKzC60+Qp0wRHclochg5Tfx4DdyT7MQY++ghVb7chmZpLEADVekup/wh3JGTeRuMbKKhMTuaNELUo4LpRhWEMySeLVOR7mCpjykY774=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791390085; c=relaxed/simple;
-	bh=KLXiY9/UgqFjWDtgeUfveOwf7I+TL11jAHE0FrWbfYI=;
+	s=arc-20240116; t=1791401320; c=relaxed/simple;
+	bh=71vo2jjzcOL+V5enHzqEG4+BeyCGaRVAjj1ZkjrHpVw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=aHVPD7RUNk6J97op4qtnB+xmeLiT7J1vgO0ADSQrhJmSuAu7Q0bP4YYH2G7MJRQXV9h1aT5TmUYJszQyXYoM7XS0rU+Zy+OSNFT7G8lnv2c14AefijS74Kq2I1MTi8MOhh6zPwjAy/1T2ne+GhVQ4ALeDwS5DtnFtJqjmLg9y3o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=QBBivA98; arc=none smtp.client-ip=148.163.156.1
+	 In-Reply-To:Content-Type; b=VI6yTm6lz4WlUGwl/46BuAj8tCsiH41RNB4iT2JQADQo6+Gbt69dhC9JdJti7ZLYCvE8tmeH7rGpFFXzgLDMcncklQFrI9G5ZeTXHxBztxGbGu/dHSdaBQDPES8O7O3o6Y4/XPVxQWdh0yIBCUdmBlrcwCyMOw1I0Avj6h0Qclk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ciNFnLzN; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="QBBivA98"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 697F5SNQ2910922;
-	Wed, 7 Oct 2026 16:21:18 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ciNFnLzN"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 697IZWJb3153088;
+	Wed, 7 Oct 2026 19:28:34 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=AkARvk
-	SskQdVvXfjnLWTDuuTebmu2z6MRFCUIE5BxKk=; b=QBBivA98CQNY87YyfpLd1M
-	SQfO/2vmJhZokwyxMiVqxhXL9AWN5S0zm+C4bsbg7a6bP8h8HACPQR8rxCXXrTSY
-	HD26yXmOKMYcsEdRmQbRRDxa0QuxObexHpXMnjlvQfctggDrqcDJAwDNdm8eA9eH
-	AJMmMI+/YVLWRkI2Gut2jDHR8U9Jxnw0uvgCKkqgLLB59Y9XIzw8Id/J3SclT6Fc
-	YD+zgFb7LiZmW+bVD2s3NHHobPMRI7stHOj8QSPmqZSa1IRnN8iufEOMlV01Ufjm
-	d9BfwAGYX3Tzm5tICN6J/6mmjK3UeePQCjpuhrsmZFFN+KK+V2TA9FE8XOy7IaMw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=BeQ8or
+	IWhaDfoy54B8h56dzMLwkRrjRpmhD9C2qlKe8=; b=ciNFnLzN5JhFt7Ir9XUQrU
+	guoNuQgHitl/crFt6Nbs+d0bdnl2TXiJd/Kjf5hHc8YY3FRvmq2B+jY2np0Vd+o8
+	EddqrD8ZBrF2s73LuoFkqoQy7Ns8g3xj+lD1cdWW64wpc0T1t4TCvN/ixt2/uHkD
+	e5SaRdVhL5EiE91/YiC7W+maOTipdYxEMsg1Ol0YAl+WExzjt3n+m0HZoqgc+nqk
+	WAaXPocLlna7oKvSXxRMQrv6ZNTTL1hr1l0CBVakHiDKEDX4Q51eDVp5r68qcGzr
+	DwUbie3v4Fb4mFyo3c3bfleorx75+EIGu7+rTwpHK3/pRj5Z6xn6JlHew1sen/PQ
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2s74xk7p-1
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2q4jxw2n-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 07 Oct 2026 16:21:18 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 697FooTr2074568;
-	Wed, 7 Oct 2026 16:21:17 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h5s34r3ue-1
+	Wed, 07 Oct 2026 19:28:33 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 697IHWWr2307797;
+	Wed, 7 Oct 2026 19:28:33 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h3dhh02a2-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Oct 2026 16:21:17 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 697GKVal23986850
+	Wed, 07 Oct 2026 19:28:33 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 697JSVre22348444
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 7 Oct 2026 16:20:31 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6098158054;
-	Wed,  7 Oct 2026 16:21:16 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8730A5803F;
-	Wed,  7 Oct 2026 16:21:15 +0000 (GMT)
-Received: from [9.61.15.56] (unknown [9.61.15.56])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  7 Oct 2026 16:21:15 +0000 (GMT)
-Message-ID: <9e3894fa-0a1e-432b-ba1d-76ea34d4f648@linux.ibm.com>
-Date: Wed, 7 Oct 2026 12:21:15 -0400
+	Wed, 7 Oct 2026 19:28:32 GMT
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B93DD58055;
+	Wed,  7 Oct 2026 19:28:31 +0000 (GMT)
+Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1CE815804B;
+	Wed,  7 Oct 2026 19:28:30 +0000 (GMT)
+Received: from [9.61.89.182] (unknown [9.61.89.182])
+	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  7 Oct 2026 19:28:29 +0000 (GMT)
+Message-ID: <1c8aa018-1342-48e5-8896-6d18667e5b12@linux.ibm.com>
+Date: Wed, 7 Oct 2026 15:28:29 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,179 +62,93 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/3] s390/pci: Use 32-bit fh outside of inline asm
-To: Gerd Bayer <gbayer@linux.ibm.com>, sashiko-reviews@lists.linux.dev,
-        Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-References: <20261007-rpcit_trcfh_upstream-v1-0-8a2718cfb90b@linux.ibm.com>
- <20261007-rpcit_trcfh_upstream-v1-2-8a2718cfb90b@linux.ibm.com>
- <sashiko-outbox-162922@kernel.org>
- <8086f631ce7ce60f1763171c8f05b050ff6c73fd.camel@linux.ibm.com>
+Subject: Re: [PATCH v7 12/15] s390/vfio-ap: Transition device migration state
+ from STOP to RUNNING and vice versa
+To: "Jason J. Herne" <jjherne@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: borntraeger@de.ibm.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex@shazbot.org, kwankhede@nvidia.com, fiuczy@linux.ibm.com,
+        pbonzini@redhat.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
+        agordeev@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+References: <20260807221834.562851-1-akrowiak@linux.ibm.com>
+ <20260807221834.562851-13-akrowiak@linux.ibm.com>
+ <8fcac646-b33c-44e2-90db-b517419f8f76@linux.ibm.com>
 Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <8086f631ce7ce60f1763171c8f05b050ff6c73fd.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <8fcac646-b33c-44e2-90db-b517419f8f76@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: BjrJsvZNyjM5Rk1QPNjm_2HVl1cfsngr
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA3MDA2NCBTYWx0ZWRfXz0kIyMbGmQkv
- viuw5Z/9KT+sBb/5aOfZDSla9Tsw1WT+lozv3PTUDUFo7jCd5Sk2cmvzHV12bb2ikgVzI5wtIHc
- IhFswVERFdOCyjmmkjeElpdgECducKE=
-X-Proofpoint-GUID: BjrJsvZNyjM5Rk1QPNjm_2HVl1cfsngr
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA3MDA2NCBTYWx0ZWRfX9aeVsm4N+rZx
- lzgOHea4tItpq7dDcVSESE7mlLJIit5WaNZlvNiB1tRnXTY6rZ/m9Cuq38daXiFDFqFgvFrF76d
- dB9a8T9ME9/PhnFNYRYkcUVGj0SN+dQnz9391YRoFl/ZLMamDzqdXAy3cAuJf/F8ZTbGGnvg7eG
- gBiGLhJQWXZ5qmEwEi8Rw4+I/pWVFlvExN28GgrhjtPlOUDKg1zkbeQwxAFyT4OHP6JNBQF4k7s
- mlEtzV9qkScneW5tM6YA68wLYHHTWD8ZQ9NHstxMff2ZY02hRhBOnZdOWoCQbRzppI9OzwFogTv
- /p7Z7aDnPUN5jMCQXSptYezEO2GfKZEgP6Mze3lwOgR2MxfuoqYHt/zknLYHIsQONNPrbCjMO+Q
- +Gmi3HKEonQZ0M71Q6YafkKNHFr5OI3+XcOwG+9FXOjAzI0rlXGs+hSjAxbz3hN6TNHv3N4uI+Z
- PSYfdPGxaLN228LxUUg==
-X-Authority-Analysis: v=2.4 cv=fM2sTpae c=1 sm=1 tr=0 ts=6ac6717e cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-ORIG-GUID: 6Y9cS8qFSGLhzCfiKXz0B-SOMZ3VBOd7
+X-Proofpoint-GUID: 6Y9cS8qFSGLhzCfiKXz0B-SOMZ3VBOd7
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA3MDA3NiBTYWx0ZWRfX1RXZMe1eIbT+
+ W18d+6wv3sZWOJKX49sfpcKRIDCG+y4w5cgp1UqDhpzW0BcZPxHOXs5aCBUQ3F6Bcpygy48CFI8
+ 0TF2uQJew/UNJmKhO/uDfKu4HHC5ioY=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA3MDA3NiBTYWx0ZWRfX19IsLFXJ8BKZ
+ xi/BC6W4OTtMirAuhNNMIO/ya2B84xR4jm713Awedo6nUIt7sw+/igwvGCT2Pc5fIRghft71DKQ
+ hVZ9QlZgntnmOGKq1Uw3qlmrT2TlTKoqjI5+IeDSfTwLdJjBMZsDFL/Io05S7MbuFl0Z4HgZLha
+ hHiKJa/VawG5nRJlPi/SVK/EsPigsP6HQtHce7KaAkryr8Y77WkLYQ1vIjt3taZAdcjKCIZA2UM
+ USqKnL++PQzlsHm7ogH4P+TY5oGU4uSmJg3t6fbp0ktC4nMoJNPwyTtbm4u4Knb2UDHn7lfx9WX
+ 8MhViKUvTW0tA1XSur4iMX2emWFvzoIWVDlsM23Ds4LqhyB8/P3IPI0pJBiM7Q0RbyJZq99rjRs
+ u7+HRTlghmCWdZNNtW9MiFUbr7SJT/GCqWdEemwdyQSe5gBYbeL/ng/wrJH5EiTSame2lXwQFV6
+ IV8UJ+M1aYPKAqB6lsA==
+X-Authority-Analysis: v=2.4 cv=eYeo7LEH c=1 sm=1 tr=0 ts=6ac69d61 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=i2SW2bYGNGrD0rdaJRgA:9 a=QEXdDO2ut3YA:10
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=QXbWHM80TDR-pc_dJdcA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-07_05,2026-10-06_03,2025-10-01_01
+ definitions=2026-10-07_06,2026-10-06_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 bulkscore=0 priorityscore=1501 spamscore=0 lowpriorityscore=0
- phishscore=0 adultscore=0 malwarescore=0 clxscore=1015 suspectscore=0
+ adultscore=0 lowpriorityscore=0 phishscore=0 bulkscore=0 clxscore=1015
+ spamscore=0 malwarescore=0 priorityscore=1501 impostorscore=0 suspectscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610070064
+ reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610070076
 
-On 10/7/26 10:46 AM, Gerd Bayer wrote:
-> On Wed, 2026-10-07 at 11:19 +0000, sashiko-bot@kernel.org wrote:
->> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
->> - [High] s390/pci: infinite loop in zpci_refresh_trans on CC=2
->> --
+
+
+On 8/20/26 8:45 AM, Jason J. Herne wrote:
+> On 8/7/26 6:18 PM, Anthony Krowiak wrote:
+>> The transition from STOP to RUNNING and vice versa indicates that
+>> the vfio device is operating normally and migration is not
+>> currently taking place. In this case, just set the new state.
 >>
->> commit 1c8706bb963f0d551da7d8535f804ca9f9b4305a
->> Author: Gerd Bayer <gbayer@linux.ibm.com>
+>> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_migration.c | 9 +++++++--
+>>   1 file changed, 7 insertions(+), 2 deletions(-)
 >>
->> s390/pci: Use 32-bit fh outside of inline asm
->>     
->> zpci_refresh_trans() declared the PCI function handle as a u64 type just
->> because the actual RPCIT machine instruction required that in a 64bit
->> register, while the function handle is architected as a 32bit type and
->> defined as such in the zpci_dev struct.
->>
->>> diff --git a/arch/s390/pci/pci_insn.c b/arch/s390/pci/pci_insn.c
->>> index 2ba787e2304b5..053afb3e7a990 100644
->>> --- a/arch/s390/pci/pci_insn.c
->>> +++ b/arch/s390/pci/pci_insn.c
->>> @@ -117,13 +117,14 @@ static inline u8 __rpcit(u64 fn, u64 addr, u64 range, u8 *status)
->>>  	return CC_TRANSFORM(cc);
->>>  }
->>>  
->>> -int zpci_refresh_trans(u64 fn, u64 addr, u64 range)
->>> +int zpci_refresh_trans(u32 fh, u64 addr, u64 range)
->>>  {
->>> +	u64 req = ZPCI_CREATE_REQ(fh, 0, 0);
->>>  	bool retried = false;
->>>  	u8 cc, status;
->>>  
->>>  	do {
->>> -		cc = __rpcit(fn, addr, range, &status);
->>> +		cc = __rpcit(req, addr, range, &status);
->>>  		if (cc == 2) {
->>>  			udelay(ZPCI_INSN_BUSY_DELAY);
->>
->> [Severity: High]
->> Does this retry loop risk causing an infinite loop or CPU stall when handling
->> large DMA spaces?
->>
+>> diff --git a/drivers/s390/crypto/vfio_ap_migration.c 
+>> b/drivers/s390/crypto/vfio_ap_migration.c
+>> index 30160e3ddded..24955f70e13e 100644
+>> --- a/drivers/s390/crypto/vfio_ap_migration.c
+>> +++ b/drivers/s390/crypto/vfio_ap_migration.c
+>> @@ -1524,12 +1524,17 @@ vfio_ap_transition_to_state(struct 
+>> ap_matrix_mdev *matrix_mdev,
+>>           return NULL;
+>>       }
+>>   +    /*
+>> +     * These states indicate migration has either not been initiated or
+>> +     * has completed and the vfio-ap device is operating normally. 
+>> Since the
+>> +     * vfio-ap device does not virtualize a DMA device, there is no 
+>> internal
+>> +     * device state to incorporate into the vfio-ap device on the 
+>> target.
+>> +     */
+>>       if ((cur_state == VFIO_DEVICE_STATE_STOP &&
+>>            new_state == VFIO_DEVICE_STATE_RUNNING) ||
+>>           (cur_state == VFIO_DEVICE_STATE_RUNNING &&
+>>            new_state == VFIO_DEVICE_STATE_STOP)) {
+>> -        /* TODO */
+>> -        return ERR_PTR(-EOPNOTSUPP);
+>> +        return NULL;
+>>       }
+>>         /* vfio_mig_get_next_state() does not use arcs other than the 
+>> above */
+>
+> I'd argue to integrate this one into the earlier patch and drop this one.
 
-This should really have been flagged as a pre-existing issue vs a new
-regression, it is not a behavior introduced (or changed) by your patch.
+It's a reasonable argument so I'll make it happen.
 
->> When the s390x RPCIT instruction sets CC=2, it indicates that it cannot complete
->> the operation in the allotted time. It then updates the address and range
->> registers to reflect the remaining uncompleted portion.
-> 
-> I've re-read the relevant ISA documentation a couple times now. I don't
-> find any mention of address and range being modified after RPCIT was
-> executed - regardless of condition code or status.
-> 
-> Maybe @Niklas or @Matt have an idea where this allegation of "CC=2
-> means partial completion and one should retry with an updated
-> iova/range" comes from?
-
-FWIW, it's not coming from QEMU -- we don't even have a CC=2 return case
-for RPCIT today, and we never update the iova/range on return.
-
-Perhaps, lacking access to the ISA documentation, it made an assumption
-that the range would be updated to shorten the next RPCIT as this would
-allow us to converge towards a smaller and smaller range each attempt to
-potentially not hit the busy condition eventually - sounds logical anyway?
-
-But I also find nothing that indicates the range will/should be updated
-on CC=2 (or otherwise) from RPCIT; so it does just sound like a bad
-assumption.
-
-> 
->> However, in __rpcit(), addr_range is passed using an input-only constraint ("d"
->> instead of "+d"), and the arguments are passed by value:
->>
->> arch/s390/pci/pci_insn.c:__rpcit() {
->> 	union register_pair addr_range = {.even = addr, .odd = range};
->> 	...
->> 		: [addr_range] "d" (addr_range.pair)
->> }
->>
->> Because the hardware's partial progress updates to addr and range are discarded,
->> this loop continually re-invokes __rpcit() with the unmodified original
->> addr and range.
-
-That matches your observation:  we indeed aren't taking updates to the
-range in __rpcit().  But as you say: there aren't supposed to be any.
-
->>
->> If scanning the initial portion consistently exhausts the hardware time slice
->> (such as during IOMMU TLB flushes on devices with large DMA spaces in
->> zpci_refresh_all()), will the operation fail to advance and loop infinitely?
-> 
-
-That concern sounds valid at face value; if we tried something and it
-couldn't be completed in time, from a linux perspective we are simply
-trying it again without changing anything and hoping everything works
-for the best this time.
-
-> I see that all the PCI related instructions in this file may retry
-> indefinitely (with delay) on CC=2. However, the architecture guarantees
-> that at some point the instruction will end with any of the other
-> condition codes.
-
-I think that is the rub.  Sashiko couldn't possibly know that such an
-architecture guarantee exists.
-
-I suspect the question is also a bit theoretical: what happens if the
-range is so big that it's impossible for the RPCIT to process it before
-the CC2 trigger point due simply to how big the range provided is?  Then
-you're guaranteed to hit it every time unless you 'chip away' at it by
-shrinking the range after each attempt.
-
-I would assume/hope that the SDMA-EDMA range limitation we impose on the
-aperture size already ensures that it is easily possible to handle a
-RPCIT from SDMA thru EDMA without tripping CC=2.
-So then the CC=2 case becomes purely situational vs a guaranteed result
-even for the largest possible RPCIT request.  That already makes it far
-more reasonable to simply try it again.
-
-So: assuming that architecture guarantee stands (we know RPCIT can
-possibly complete for the largest possible range SDMA-EDMA, and we have
-some architected guarantee that the loop will be broken otherwise e.g.
-architecture says it won't keep giving us CC2s forever) then it sounds
-like nothing to fix, but maybe worth a comment in a future patch that
-explains these guarantees, based on what you find in the ISA.
-
-I suppose we can consider whether linux should have its own redundancy
-here or not in addition to those guarantees.  That sounds well beyond
-the scope of this series and goes back to what I mentioned at the start:
- this is pre-existing bevahior and should not hold up this patch either way.
-
-Thanks,
-Matt
