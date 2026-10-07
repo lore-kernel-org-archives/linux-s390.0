@@ -1,72 +1,72 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 984424A5C41;
-	Wed,  7 Oct 2026 14:37:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 552D3495ADF;
+	Wed,  7 Oct 2026 14:39:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791383865; cv=none; b=gWTGVRnhNoDYqV25iD+rYRABscEzma24ei79rFqGxSQZn/ls+QewLWj7noDOwXkBWkUBYM7ZPEnTNdaih+qfxlZ2ecA3aRDjJTzWMN521IcR8HH8plaqXWbTYhC2NAwPFfmfYYo5iUB6T8dD8schxtRX854QwpOsZW0XLsY7DFc=
+	t=1791383968; cv=none; b=Y5B3LvSle3ZNHLAPuZxRuz/42WQgwPwH79C6lZje3axic3LIRYSvgo6VBoWRnNcEAkQG4P23Fa5WVT7I7K3nfTG4QDtwDMTc1glIQNyro68Hzh0GgnwY/qeHOqOhmeg0Tkt0sJXmOtKwLw9gu6GLuWu046QBbvpkDCIB8yxMM2o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791383865; c=relaxed/simple;
-	bh=bjwjesgvch3ytWiQ+s16NMuYKBi86UpT5AkvvibM928=;
+	s=arc-20240116; t=1791383968; c=relaxed/simple;
+	bh=bTfuwFJ25dmoE4H2uokIlRdyzCB2N4rv8EzGk70c0WU=;
 	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=iO2+wT2lr/ujvHWpDanubvoc5Sb7piYzn5QMAE+81j8OoF5Jdp+2+KhtDH00TrwILMvPKmPC1I/O5fLkyJN6HTpnePVJdAFau9xuYVTWOFEDgHRBBfbSaeNwkiFxpOhNV9vvuna8uSUClJIGSYvhHpXqnzEjf/3o7QsXC7GHF9g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kE1PYK/g; arc=none smtp.client-ip=148.163.156.1
+	 Date:MIME-Version; b=ja8biWU5ih5nB4l5Ft78pBPrHhtXvg/329V+vx5m5NJjZphkdXkK0HCjjzX8J+fUYxGokgnWMZumd6jwpVTzM33Qo/H308qcM1r9sLzctzRPJForEfqE3I8LQaf62lFxF0llzB/tpLeaEKKvt879rEOhavZT43FsJLXkKwniJ2A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HYqoZkcg; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kE1PYK/g"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HYqoZkcg"
 Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 697BZQAl2463019;
-	Wed, 7 Oct 2026 14:37:39 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 697BZO332463008;
+	Wed, 7 Oct 2026 14:39:14 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Twsm2P
-	W1HH1ASbSofCEQZZww582AH2IPi8/W8XtInbM=; b=kE1PYK/gGqAZalnaV2jkHL
-	pIVCAOMc++lw8eub2CUw19BNYp7qxMjHqyX8ufjty0Xe/ZzgxNOlW9FzB0rKGq/Y
-	OLHJflpvIFs4uQwXeoYuZfiA+BATTPCND6YgLUc60W/c/FXtpLT15jIlP/Al0RFX
-	NhjcbouCwWxYrfzp4cnhMxmqd35p+xpZSuNG8tznXY98Dg8cbR4y3fj7/FDOpBDE
-	l08oyyz9pzBAjn1i2wG4uHfa+nCi7gy+pfgLACrqG01G80BkQpYBnEPJQKMtubl+
-	RWmTUWZJiKeN75it2ScsdyxS/x0H5esCyeFbybi3WFQn4+qyQx4oU+SuNZLQTWjQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=M/Lrke
+	uKjkBdhkHU9yxaNYXaI2zc4dnacq90IN7m8O8=; b=HYqoZkcgmzksw/0LNQaffj
+	8xx2eQ3oX188H4/hPTgVR0Xim/lU8cKPcy0tSP7F9un3ER0AqqJday55iXA4d26t
+	rJU7rn8OfphyCoh9mRIf4+yVPvOdpm5ZaZZWSNqKElfDTuubtp264QIZ2JY1ag47
+	mr8jitue+uVzDD0heu8NFYcit5lap3S7jrcmDSCIJKYsM5pXwYldLotUIFWm2x0R
+	J+u58eKg6SHZTU0CI/1awtMv7qVYQO98I44A4vmSA7zxti5VbCkOouB5T8kc3peM
+	mNVPTHd+hCmxWaO6P+YGbaFJmqXuo1m3EKjJWW3ISOtC/dd9bojC0yjs3iZI2o/A
 	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2s74x1n6-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h2s74x1v0-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 07 Oct 2026 14:37:39 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 697BWdXq1789937;
-	Wed, 7 Oct 2026 14:37:38 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h58d5k7ug-1
+	Wed, 07 Oct 2026 14:39:14 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 697BWgJr1841553;
+	Wed, 7 Oct 2026 14:39:13 GMT
+Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h5a6djvec-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 07 Oct 2026 14:37:38 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 697Ebb8G33030768
+	Wed, 07 Oct 2026 14:39:13 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 697EdCsa28639872
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 7 Oct 2026 14:37:37 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F264A5805E;
-	Wed,  7 Oct 2026 14:37:36 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 55AA058058;
-	Wed,  7 Oct 2026 14:37:35 +0000 (GMT)
+	Wed, 7 Oct 2026 14:39:12 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6E9C858056;
+	Wed,  7 Oct 2026 14:39:12 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 279DD58052;
+	Wed,  7 Oct 2026 14:39:11 +0000 (GMT)
 Received: from [9.111.32.49] (unknown [9.111.32.49])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  7 Oct 2026 14:37:35 +0000 (GMT)
-Message-ID: <1c0ec9e2c7498db4c44087663b413383e3a13b4d.camel@linux.ibm.com>
-Subject: Re: [PATCH 1/3] s390/pci: Adjust alignment in insn trace
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  7 Oct 2026 14:39:10 +0000 (GMT)
+Message-ID: <ef1ad0489e7606cffb8a1b7cdc13321a73c03453.camel@linux.ibm.com>
+Subject: Re: [PATCH 3/3] s390/pci: Add function handle to RPCIT insn trace
 From: Niklas Schnelle <schnelle@linux.ibm.com>
 To: Gerd Bayer <gbayer@linux.ibm.com>, sashiko-reviews@lists.linux.dev
-Cc: Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens
+	 <hca@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Vasily Gorbik
- <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>
-In-Reply-To: <9d1fe490bc472cf9f77407afbbd7dae2c4cd7e6a.camel@linux.ibm.com>
+        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>
+In-Reply-To: <d46130a7fa9b84dce30c8cf372be469cb615c7f7.camel@linux.ibm.com>
 References: <20261007-rpcit_trcfh_upstream-v1-0-8a2718cfb90b@linux.ibm.com>
-		 <20261007-rpcit_trcfh_upstream-v1-1-8a2718cfb90b@linux.ibm.com>
-		 <sashiko-outbox-162918@kernel.org>
-	 <9d1fe490bc472cf9f77407afbbd7dae2c4cd7e6a.camel@linux.ibm.com>
+		 <20261007-rpcit_trcfh_upstream-v1-3-8a2718cfb90b@linux.ibm.com>
+		 <sashiko-outbox-162921@kernel.org>
+	 <d46130a7fa9b84dce30c8cf372be469cb615c7f7.camel@linux.ibm.com>
 Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
  /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
@@ -124,7 +124,7 @@ Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  3FZJPTo/OpqchMm8XIeDxC4NFFiPMpyLeYzIxO7eZpiGrAjVTE=
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 07 Oct 2026 16:36:34 +0200
+Date: Wed, 07 Oct 2026 16:38:09 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -133,24 +133,24 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: O6p1keu8JoxTgABN1v-OIeb8MIK_NdZ1
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA3MDA1OCBTYWx0ZWRfXznrRPIpLw1rp
- gdseiH3WlNw/JoikyilJIdbC901+mYHOH6DvGRjgR53pJuVkWup/BS+DGGkNpUdd/4aJ2OeiAKU
- d/r9QUPG7rVT+WjDcE3YlzTYNzriZfI=
-X-Proofpoint-GUID: O6p1keu8JoxTgABN1v-OIeb8MIK_NdZ1
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA3MDA1OCBTYWx0ZWRfX8MPjVxcoKlW3
- XxG62qcHD0f9LPf2ZFqeJuKTOtnGwrAb81nnWy/H7Xe3gIjetEhh3AVLJfw+3D8HONnIfAqxTqj
- fdyZTuSzbfgTMavg32qFZ4++KDiDZ/MpDs1u7yKsZU3q9/Z++vKKkeldmUt0432G2WCM7oWWnSo
- 2UX45LKZk6dSoobe50T4GwTaGPlnPPfY8B4DSgcZ6JHw2HZQhooYwA4+PjYOglAiw1aI7kgseP6
- 4iP6tjbcS+YkpRyHrCmLihCId6uAscB4O38DJFeUJSnwtlBQVM2Pb9fa/CZLyKqpnqfR3cUXAV8
- J0Ps7VLBIJ0mhImxf6a5Emr92tcytSJ4cl5mhl6MUYvXhUTx4pMiHz5ifs8H1a4DstIfthmgGAB
- 7nJAGvXhm9tdaheHOr81IuS0mIkIDIrrCQW3z7AdJbJ7pce1i0ygUVBOKidZO9GJIiScNT+pRjv
- Irm2oPPDA6U/aAavXKw==
-X-Authority-Analysis: v=2.4 cv=fM2sTpae c=1 sm=1 tr=0 ts=6ac65933 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+X-Proofpoint-ORIG-GUID: VJQgf7lN_oW4_lH2ak0nERVwA3HWWZAe
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA3MDA1OCBTYWx0ZWRfX0nCayxoi6vJd
+ ZNUOs/KSHw4rkqmbC84+ChIT0Hgw4dRcQxGS91IkRlYI+1okh7br9Y8V+DpWBz5Pcrm/ZdiIPIx
+ BrV5+vdvJTMlQSuCyYHDb8MYRAW0z04=
+X-Proofpoint-GUID: VJQgf7lN_oW4_lH2ak0nERVwA3HWWZAe
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA3MDA1OCBTYWx0ZWRfX0tUnJVdSXw4B
+ Q3Nwsmymd0x8A3kwbH1NaE9CrEIG/IEcEhTWOKb9K6+uXDctVxbba/etbH2UM6LB46NK+uGiY+8
+ N2LsRnfsbtNdWwVZzy+othBSb83tpzx7nRDvM/PfHOnIxUucFY52GigGzKoxC7cUYoxfaQZkPly
+ i4uR3ieh5d6PK7pPrzJ+jRYQm38KLx+CvIEEZ6QpVwh+aHp7Zvh7XBiF925bjRyGJ8JXDq3CoZz
+ Vr54i0AiJndVH8hY+4UybjZFyfmp4Va0a9h7oJ7/Vu4jjnmgj8z/1JhKVNBoGrHuc0UCVsjSGI2
+ 003l0MvH29iGPPxexleAs8mjMWX71xDMWLdmeSAizSdw9O2v3yw5cbTpUG1GDTJcmTjyXUK57+/
+ yRShafwX22rrm43XCAqqlDa9+n8yLDrwSGJYHAvDxgcwN/PddEyeH5Ql/RvDcu03t1zeizgOD0G
+ groGatEa6ZyKLzSYCQA==
+X-Authority-Analysis: v=2.4 cv=fM2sTpae c=1 sm=1 tr=0 ts=6ac65992 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
  a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=mg51Y-nc0UkAKdWhwVUA:9 a=QEXdDO2ut3YA:10
+ a=VnNF1IyMAAAA:8 a=Hnz3vQpt-q3VcrEhnlIA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-07_04,2026-10-06_03,2025-10-01_01
@@ -160,58 +160,68 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2609040000 definitions=main-2610070058
 
-On Wed, 2026-10-07 at 15:10 +0200, Gerd Bayer wrote:
-> On Wed, 2026-10-07 at 11:14 +0000, sashiko-bot@kernel.org wrote:
+On Wed, 2026-10-07 at 15:12 +0200, Gerd Bayer wrote:
+> On Wed, 2026-10-07 at 11:17 +0000, sashiko-bot@kernel.org wrote:
 > > Thank you for your contribution! Sashiko AI review found 1 potential is=
 sue(s) to consider:
-> > - [Medium] s390/pci: info leak of kernel stack memory in trace buffer d=
-ue to unnamed bit-fields
+> > - [Medium] s390/pci: info leak of uninitialized struct padding in zpci_=
+err_insn_rpcit
 > > --
 > >=20
-> > commit 9eddce7825c1b38a4a78855744726217e301528b
+> > commit 9deafec98847a2a1de20826fbaa6431e1e3c973f
 > > Author: Gerd Bayer <gbayer@linux.ibm.com>
 > >=20
+> > s390/pci: Add function handle to RPCIT insn trace
+> >=20
+> > In certain debug situations it would be helpful, if the insn trace for =
+a
+> > failing RPCIT would reveal the PCI function on which this was attempted=
+.
+> >=20
+> > Introduce a variant of zpci_err_insn_req() called zpci_err_insn_rpcit()
+> > that accepts an IO virtual address and a range parameter together with
+> > the req conveying the function handle. Switch zpci_refresh_trans() to
+> > use that new error trace.
+> >=20
+> > > diff --git a/arch/s390/pci/pci_insn.c b/arch/s390/pci/pci_insn.c
+> > > index 053afb3e7a990..ae9ed4aa2ec9c 100644
+> > > --- a/arch/s390/pci/pci_insn.c
+> > > +++ b/arch/s390/pci/pci_insn.c
 --- snip ---
 > >=20
 > > [Severity: Medium]
-> > Does this change unintentionally leak kernel stack memory into the s390=
-dbf
-> > debug trace ring buffer?
+> > Does this code leak uninitialized stack memory to the s390dbf debug tra=
+ce
+> > buffer?
 > >=20
-> > By using unnamed bit-fields for padding, these fields are explicitly
-> > excluded from zero-initialization when using a designated initializer.
+> > According to the C standard, unnamed bit-fields do not participate in
+> > designated initialization. The struct zpci_err_insn_data starts with:
 > >=20
-> > When zpci_err_insn_req() in arch/s390/pci/pci_insn.c initializes this
-> > structure on the stack without an explicit memset(), the unnamed paddin=
-g
-> > bytes retain their uninitialized stack memory:
+> > struct zpci_err_insn_data {
+> > 	u8 insn;
+> > 	u8 cc;
+> > 	u8 status;
+> > 	u8: 8;
+> > 	u32: 32;
+> >     ...
 > >=20
-> > static inline void zpci_err_insn_req(...)
-> > {
-> >         struct zpci_err_insn_data data =3D {
-> >                 .insn =3D insn, .cc =3D cc, .status =3D status,
-> >                 .req =3D req, .offset =3D offset};
+> > Because the unnamed bit-fields are skipped by the designated initialize=
+r here,
+> > up to 5 bytes of uninitialized kernel stack memory are left in the padd=
+ing
+> > of "data".
 > >=20
-> >         zpci_err_hex_level(lvl, &data, sizeof(data));
-> > }
-> >=20
-> > The subsequent call to zpci_err_hex_level() will copy the entire 32-byt=
-e
-> > structure to the trace buffer, exposing 13 bytes of uninitialized stack
-> > data.
-> >=20
-> > Will this also defeat the goal of having clean traces for humans, since
-> > the hex dumps will contain random stack data instead of zeroes?
+> > Since sizeof(data) (which is 32 bytes) is then passed to zpci_err_hex_l=
+evel(),
+> > could these indeterminate stack bytes be copied into the trace buffer o=
+n every
+> > invocation of zpci_err_insn_rpcit()?
 >=20
->=20
-> Alright, according to some research [1][2] unnamed bit-fields are not
-> guaranteed to be zero-initialized. I'll provide dummy-names for the
-> padding fields in the next iteration.
+> This is basically the same concern as with patch 1/3 - I'll replace the
+> unnamed bit-fields with dummy members of appropriate size in a v2.
 
-Agree and to be honest I do like named reserved fields better for
-readability too. Other than this issue this all looks good to me and
-should definitely make the hex_error easier to read.
+Same as for the other patch this sounds good to me and the rest of the
+change looks good too. Having the function handle could come in handy.
 
 Thanks,
 Niklas
-> >=20
