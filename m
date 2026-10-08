@@ -1,284 +1,214 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A98D33EC829;
-	Thu,  8 Oct 2026 08:50:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C181472F78;
+	Thu,  8 Oct 2026 08:53:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791449436; cv=none; b=AvpOCpiaReR00P9JfoVcFLvHYtiV5gW0AgQaTaRvl1Pyr6167N2UySuamYtrKiLH1YUGyuOvZ+XADvZep67K3yGujc7UuOgCqAb0eVm88PZ/WFfIaRN9QxqMZf3xStWQgG1aLWH6OxsOaLCmyyDsstMY+EZnADqfXetq/CxJbsg=
+	t=1791449626; cv=none; b=ErK3sFJMMxrVvXy9kT3wE2ONCtU3VUFza/GRf5vEY7M0y+f1jhIPglxgwummMyQMHroEMKUn4CXagZ9KK2TdpgYVdLZLUwIORFwiljcpr11DSwYdE1m/guxl4990uPF7p+8KsZGRP3FKIr9g3ZMirvi3A1BR/wQJlJW+ZZJpEd8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791449436; c=relaxed/simple;
-	bh=Juv2C+V0irH5GhmWxr15zigmYH1PMqK1Kz7ehUS9Ci8=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Kfm92x3mkMou7hckTO0F3IFx0EPC/SFE4nHfqPyz6orCl+rFcyhlVqsJk7GpUfwDShOwTfuJvpHtKPJ0oI/GttsKl0p4BnY+puKkQePaLGVWL+vZ9E7ajXSzwDzcPTzVL54Fj2SAzY2ltT3B0hbM79kzrEQ58iUIFx/X941se4I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=azkXNcWq; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1791449626; c=relaxed/simple;
+	bh=O3YnTtbd10Xw9sLF9/frn1oBli2TWFOYF+69kuWOGAQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=VZJ30OgKgpaZ2uxdywZ4Bpd88opcz0mz22MQowdfXbK+FWcN97LJCgw7pwuPz22Vr/kmcoz9UCULTSRdpNyxKXSYHrRh8HMvRzD29iDsYDIcUdK+ERq/rWtmonwmEYaa0ne3kVI/DajkzjEzoSyzVENgm7ILgF2KwucomeamYK8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=U13CQPwD; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="azkXNcWq"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6987ZZo9588932;
-	Thu, 8 Oct 2026 08:50:33 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="U13CQPwD"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6987Zbav731290;
+	Thu, 8 Oct 2026 08:53:39 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=8TiEl1
-	KAxxu4Kg6F4TmQ2agRG0ciLFMV0YNV1cCZzU8=; b=azkXNcWqpL4gu8awaNzpSA
-	HHWBHdMSwtfiZKdRsveLn6VPYpLS1ZrWsu9Enq1Xv2nvBuXy5HUIZp3GwhyC+Npc
-	JiOzZl7rEsKuO5HDdcE9Ya0GyEidYx3NSW+AQ9vHmDIQ/PRKHgx6lQ8dNbaMPaHH
-	CBQKqzZe3ANpQUoKNX6SWfwg7p5yLnwU4eRNlHQY7B/v7Jlv+sv7i0C1ZssOng0N
-	aGgyE2SIa3LuauZHXMmac0VUvp8zYgqSIKElaJht35ANoQKzIgdynmyR5uzuTM32
-	bioPmoAbMLau/bKFKjwXSzW5GuHE+WIVWo3IpABrN+NzojLm5tXD+vT7QWmXRbCg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=yCaVqR
+	c9yjueH1hFzVHbm+BxIaJ3wN3cQfVAJe78FX0=; b=U13CQPwDK8MQKGtwN1EIBt
+	VpZ2M5+3kmu+1U9A1ehMofwC2NySsm3QwhBMeZl54kFRmyVNTXkBpgBQrFgvuhb0
+	OKD/kcWTr6yv0iXjZmZpnIXCR7vLMdzTsXqLaFlbaaHQKv6/vWb2TM4gkVK65vbg
+	Cj4DYX/TBiEC+B8BjvV9CF8tHjWNvJg4GAYq9JSzmJnrzy1wnFVTFsGY6t7YFVSJ
+	W2IIaZkuQzu814T2sQ8eTrs3GMQiolm19+f7dyTD5D+F79RopHwU5KY1X/NEm3le
+	OrUk7N60t/uDXPWnkFlJq7SOO5tZ0HASy5wpzlRXh8WnTkJRbB3vdAAkm6S/trCg
 	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h5xjw29j3-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h5xjvj9jg-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 08 Oct 2026 08:50:33 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6987IUTv3149960;
-	Thu, 8 Oct 2026 08:50:32 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h5a6dpada-1
+	Thu, 08 Oct 2026 08:53:38 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6987XMQo3111519;
+	Thu, 8 Oct 2026 08:53:38 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h5s34u5fp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 Oct 2026 08:50:32 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6988oRl438732052
+	Thu, 08 Oct 2026 08:53:38 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6988rbFQ49348886
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 8 Oct 2026 08:50:27 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9E36620043;
-	Thu,  8 Oct 2026 08:50:27 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3250920040;
-	Thu,  8 Oct 2026 08:50:27 +0000 (GMT)
-Received: from [9.87.144.213] (unknown [9.87.144.213])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  8 Oct 2026 08:50:27 +0000 (GMT)
-Message-ID: <f082e43f024a3aa4a897b388b346eff4edea37ec.camel@linux.ibm.com>
-Subject: Re: [PATCH 2/3] s390/pci: Use 32-bit fh outside of inline asm
-From: Gerd Bayer <gbayer@linux.ibm.com>
-To: Matthew Rosato <mjrosato@linux.ibm.com>, sashiko-reviews@lists.linux.dev,
-        Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik	
- <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Christian Borntraeger	
- <borntraeger@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Gerd Bayer
-	 <gbayer@linux.ibm.com>
-Date: Thu, 08 Oct 2026 10:50:26 +0200
-In-Reply-To: <9e3894fa-0a1e-432b-ba1d-76ea34d4f648@linux.ibm.com>
-References: <20261007-rpcit_trcfh_upstream-v1-0-8a2718cfb90b@linux.ibm.com>
-	 <20261007-rpcit_trcfh_upstream-v1-2-8a2718cfb90b@linux.ibm.com>
-	 <sashiko-outbox-162922@kernel.org>
-	 <8086f631ce7ce60f1763171c8f05b050ff6c73fd.camel@linux.ibm.com>
-	 <9e3894fa-0a1e-432b-ba1d-76ea34d4f648@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
+	Thu, 8 Oct 2026 08:53:37 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4C9E158090;
+	Thu,  8 Oct 2026 08:53:37 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8B6B45807C;
+	Thu,  8 Oct 2026 08:53:31 +0000 (GMT)
+Received: from [9.124.217.43] (unknown [9.124.217.43])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  8 Oct 2026 08:53:31 +0000 (GMT)
+Message-ID: <b70659c4-c1c1-4e73-b67b-0b1ad3dc61ef@linux.ibm.com>
+Date: Thu, 8 Oct 2026 14:23:29 +0530
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v3] net/smc: protect clcsock lifetime in smc_getname
+To: Chengfeng Ye <nicoyip.dev@gmail.com>,
+        "D . Wythe" <alibuda@linux.alibaba.com>,
+        Dust Li
+ <dust.li@linux.alibaba.com>,
+        Sidraya Jayagond <sidraya@linux.ibm.com>
+Cc: Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet
+ <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20261008084444.787449-1-nicoyip.dev@gmail.com>
+Content-Language: en-US
+From: Mahanta Jambigi <mjambigi@linux.ibm.com>
+In-Reply-To: <20261008084444.787449-1-nicoyip.dev@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA4MDAzNCBTYWx0ZWRfXypB36NmXx2/8
- 8eRtJV4Px+0zNs58TJ1ucIOGFt0bteDMxVcXoJGfGFiFi3ILzHfMCCPnOAasOA9S8rofRdMXEho
- 7G6ZFZcboElA0YHSYe3igrtXaRmB9+s=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA4MDAzNCBTYWx0ZWRfX3wFrSXb/2Wjy
- UVcMbt+uJF2gHefpqBzlDEC3uCIz5s1fE8U6PrgtN9JXkGbiKlZ97ECQQxYm1MuyBdjeLsEeeQf
- UP/TdeA0cGgvHIeuuIh7bRQuGrmFsMpIxGx8lX/8IHT/ioeZeY7d7fba2goNikTIW6eohRB0TOk
- VFu3cpp++qvz8p410JdetbW4uNX2rZFZv8e/QKcGYAwZjB0AlunLxu8Aamjbw1MHdZJBRQMar2P
- eSJreU2FPEHQQCvnCJO520Y2hvW23UcBqNwCBBj7q4n2RWnzUt5VphuTo04mN+Aw2HfNISVl/RO
- fK15GaQO8Hcv+Vhx7lDIL7bNxvyx1GuykYUJW0ipj/nTEZ63TxX0J2UWZyYNJ0UVMtQzIpNlmOC
- HIscUvpINrXXSGqQyywGNS6aaZ5S6F41nBvpTytl1MhheNKHsFKx/X/nNGYYk0dKOlL4JWnnL2i
- n2myGV3NdZqr4gd+hlw==
-X-Proofpoint-GUID: lyGhy3qTWks-qMvbq45vU3OhBXKygFlg
-X-Proofpoint-ORIG-GUID: lyGhy3qTWks-qMvbq45vU3OhBXKygFlg
-X-Authority-Analysis: v=2.4 cv=XcwcX455 c=1 sm=1 tr=0 ts=6ac75959 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: agaMw4ZeHjn_ip_txaBPouXLAjfGHefl
+X-Proofpoint-ORIG-GUID: f9Z4xotu3fH-_uc5RIHv87pvYPVXRxqn
+X-Authority-Analysis: v=2.4 cv=FoOQbGrq c=1 sm=1 tr=0 ts=6ac75a12 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=uAU7TOegW6suiBGCkl8A:9 a=QEXdDO2ut3YA:10
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=pGLkceISAAAA:8 a=slhZEP1NsPBYwTPRAy0A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA4MDAzNCBTYWx0ZWRfXzFN9isecd6OQ
+ mt9jAmc/pDedw9fwnVBTLcAakBF/tSqxahfg1zL2h6og6qWSpYyvh9H4R3fmMxBkX71LDwN33tR
+ jyMdjydcqlTHrMCNvmNyk6qHeMaGHzw=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA4MDAzNCBTYWx0ZWRfX7KCiUly/dDUz
+ 3DtblOTSwHiwrUDAe7xgYQNiiesIbd0Bx7Eaakscf9DZK+zZpcAwnxGPc4YX0sIS4f//e7JRG7Y
+ TN42s1DIP+d1uwz/jb4i2qCV3KqpIgD0LlJlMk1cLsnUFVvAMbrJx3wBU1n5Kv2EI5T4zzI7eec
+ NkX4AdspB2ZKZhN/na1jJspOmXLzAQ3k1tzaYdXlvxZNryxlZiYVHXBIGxMWZ2SuQMy1priaiGJ
+ 7/a3gvs6Tjg0XeNiTMb081IBkBbOy6RKJoP87H7s2oC263gMsp2Htmg55VJaZx2el/2Ua+xPpos
+ Em9sloNcw86brVzr82RBPhTafjQ3kDiw7TO0SBRssb2vYSiNYTwvDLlX8TkXIuexQIfVFqB4T3/
+ QtvHMs30gyt3NfJ1HyRxb8hRQGcB7cvtgySNUFtRPWPlsvoXUCvypIUBoE6lfpG+x0aUyQ9kTfG
+ VrRJ2wE4o7Osj9ACpzA==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-08_03,2026-10-06_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 priorityscore=1501 phishscore=0
- malwarescore=0 bulkscore=0 adultscore=0 spamscore=0 suspectscore=0
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610020000
- definitions=main-2610080034
+ impostorscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0 bulkscore=0
+ adultscore=0 priorityscore=1501 spamscore=0 phishscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610020000 definitions=main-2610080034
 
-On Wed, 2026-10-07 at 12:21 -0400, Matthew Rosato wrote:
-> On 10/7/26 10:46 AM, Gerd Bayer wrote:
-> > On Wed, 2026-10-07 at 11:19 +0000, sashiko-bot@kernel.org wrote:
-> > > Thank you for your contribution! Sashiko AI review found 1 potential =
-issue(s) to consider:
-> > > - [High] s390/pci: infinite loop in zpci_refresh_trans on CC=3D2
-> > > --
-> > >=20
-> > > commit 1c8706bb963f0d551da7d8535f804ca9f9b4305a
-> > > Author: Gerd Bayer <gbayer@linux.ibm.com>
-> > >=20
-> > > s390/pci: Use 32-bit fh outside of inline asm
-> > >    =20
-> > > zpci_refresh_trans() declared the PCI function handle as a u64 type j=
-ust
-> > > because the actual RPCIT machine instruction required that in a 64bit
-> > > register, while the function handle is architected as a 32bit type an=
-d
-> > > defined as such in the zpci_dev struct.
-> > >=20
-> > > > diff --git a/arch/s390/pci/pci_insn.c b/arch/s390/pci/pci_insn.c
-> > > > index 2ba787e2304b5..053afb3e7a990 100644
-> > > > --- a/arch/s390/pci/pci_insn.c
-> > > > +++ b/arch/s390/pci/pci_insn.c
-> > > > @@ -117,13 +117,14 @@ static inline u8 __rpcit(u64 fn, u64 addr, u6=
-4 range, u8 *status)
-> > > >  	return CC_TRANSFORM(cc);
-> > > >  }
-> > > > =20
-> > > > -int zpci_refresh_trans(u64 fn, u64 addr, u64 range)
-> > > > +int zpci_refresh_trans(u32 fh, u64 addr, u64 range)
-> > > >  {
-> > > > +	u64 req =3D ZPCI_CREATE_REQ(fh, 0, 0);
-> > > >  	bool retried =3D false;
-> > > >  	u8 cc, status;
-> > > > =20
-> > > >  	do {
-> > > > -		cc =3D __rpcit(fn, addr, range, &status);
-> > > > +		cc =3D __rpcit(req, addr, range, &status);
-> > > >  		if (cc =3D=3D 2) {
-> > > >  			udelay(ZPCI_INSN_BUSY_DELAY);
-> > >=20
-> > > [Severity: High]
-> > > Does this retry loop risk causing an infinite loop or CPU stall when =
-handling
-> > > large DMA spaces?
-> > >=20
->=20
-> This should really have been flagged as a pre-existing issue vs a new
-> regression, it is not a behavior introduced (or changed) by your patch.
 
-Yes, I agree. This patch didn't touch/remove the capability to pass
-back a modified addr or range.
 
->=20
-> > > When the s390x RPCIT instruction sets CC=3D2, it indicates that it ca=
-nnot complete
-> > > the operation in the allotted time. It then updates the address and r=
-ange
-> > > registers to reflect the remaining uncompleted portion.
-> >=20
-> > I've re-read the relevant ISA documentation a couple times now. I don't
-> > find any mention of address and range being modified after RPCIT was
-> > executed - regardless of condition code or status.
-> >=20
-> > Maybe @Niklas or @Matt have an idea where this allegation of "CC=3D2
-> > means partial completion and one should retry with an updated
-> > iova/range" comes from?
->=20
-> FWIW, it's not coming from QEMU -- we don't even have a CC=3D2 return cas=
-e
-> for RPCIT today, and we never update the iova/range on return.
->=20
-> Perhaps, lacking access to the ISA documentation, it made an assumption
-> that the range would be updated to shorten the next RPCIT as this would
-> allow us to converge towards a smaller and smaller range each attempt to
-> potentially not hit the busy condition eventually - sounds logical anyway=
-?
->=20
-> But I also find nothing that indicates the range will/should be updated
-> on CC=3D2 (or otherwise) from RPCIT; so it does just sound like a bad
-> assumption.
+On 08/10/26 2:14 pm, Chengfeng Ye wrote:
+> smc_getname() dereferences smc->clcsock without holding
+> clcsock_release_lock. Link-group termination can release the CLC socket
+> through smc_close_active_abort() while the SMC socket is still open,
+> for example after shutdown(SHUT_WR).
+> 
+> A getsockname() caller can load smc->clcsock, then the termination worker
+> can clear the pointer and call sock_release() before the caller accesses
+> clcsock->ops or invokes getname(). This causes a use-after-free; if the
+> worker clears the pointer before the load, it causes a NULL dereference.
+> The syscall's file reference keeps the SMC socket alive but does not
+> prevent asynchronous release of its CLC socket.
+> 
+> KASAN reported the following with test-only timing instrumentation:
+> 
+>   BUG: KASAN: slab-use-after-free in smc_getname+0x19e/0x1b0
+>   Read of size 8 at addr ffff888109abb4e0 by task poc/103
+>   Call Trace:
+>    smc_getname+0x19e/0x1b0
+>    do_getsockname+0xe5/0x170
+>    __sys_getsockname+0x8c/0x100
+> 
+>   Allocated by task 95:
+>    sock_alloc_inode+0x1e/0x280
+>    sock_alloc+0x3d/0x240
+>    __sock_create+0x7e/0x430
+>    smc_create+0x121/0x240
+> 
+>   Freed by task 0:
+>    kmem_cache_free+0xcc/0x340
+>    rcu_core+0x50a/0x1850
+> 
+>   Last potentially related work creation:
+>    evict+0x446/0x6c0
+>    smc_clcsock_release+0xa8/0xd0
+>    smc_close_active_abort+0x26a/0x3a0
+>    __smc_lgr_terminate.part.0+0x137/0x2e0
+> 
+> Hold clcsock_release_lock across the pointer check and the getname()
+> callback to serialize with smc_clcsock_release(). Return -EBADF if the
+> CLC socket has already been released, preserving the existing peer
+> state check and the callback's return value otherwise.
+> 
+> Fixes: b03faa1fafc8 ("net/smc: postpone release of clcsock")
+> Cc: stable@vger.kernel.org
+> Assisted-by: GPT-6.1-Sol
+> Signed-off-by: Chengfeng Ye <nicoyip.dev@gmail.com>
+> ---
+> Changes in v3:
+> - Limit the fix to smc_getname(), as requested by Mahanta. The code
+>   change is identical to v1 and uses the existing release mutex.
+> - Drop the new clcsock_lock and the other v2 changes. Mahanta will
+>   address the other readers through the broader CLC lifetime changes
+>   discussed with Dust Li.
+> - Rebase onto current net/main; keep the stable Cc.
+> 
+> Review:
+> https://lore.kernel.org/r/4bb7f15e-2cd8-4598-9bab-1ea5f5d2bb59@linux.ibm.com/
+> v2:
+> https://lore.kernel.org/r/20261003183325.2289707-1-nicoyip.dev@gmail.com/
+> v1:
+> https://lore.kernel.org/r/20260926180404.2721010-1-nicoyip.dev@gmail.com/
+> 
+> Validation: W=1 builds of net/smc/ passed with IPv6 enabled and disabled.
+> The KASAN excerpt is the original report; no runtime test was run for v3.
+> 
+>  net/smc/af_smc.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index e9f93b3ab435b..8b3ee70f8433f 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
+> @@ -2784,6 +2784,7 @@ int smc_getname(struct socket *sock, struct sockaddr *addr,
+>  		int peer)
+>  {
+>  	struct smc_sock *smc;
+> +	int rc = -EBADF;
+>  
+>  	if (peer && (sock->sk->sk_state != SMC_ACTIVE) &&
+>  	    (sock->sk->sk_state != SMC_APPCLOSEWAIT1))
+> @@ -2791,7 +2792,11 @@ int smc_getname(struct socket *sock, struct sockaddr *addr,
+>  
+>  	smc = smc_sk(sock->sk);
+>  
+> -	return smc->clcsock->ops->getname(smc->clcsock, addr, peer);
+> +	mutex_lock(&smc->clcsock_release_lock);
+> +	if (smc->clcsock)
+> +		rc = smc->clcsock->ops->getname(smc->clcsock, addr, peer);
+> +	mutex_unlock(&smc->clcsock_release_lock);
+> +	return rc;
+>  }
+>  
+>  int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+> 
+> base-commit: 6d25ffca055a77787c21a36b66c253f76239411b
 
-Thanks for the confirmation.
+Reviewed-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
 
-> >=20
-> > > However, in __rpcit(), addr_range is passed using an input-only const=
-raint ("d"
-> > > instead of "+d"), and the arguments are passed by value:
-> > >=20
-> > > arch/s390/pci/pci_insn.c:__rpcit() {
-> > > 	union register_pair addr_range =3D {.even =3D addr, .odd =3D range};
-> > > 	...
-> > > 		: [addr_range] "d" (addr_range.pair)
-> > > }
-> > >=20
-> > > Because the hardware's partial progress updates to addr and range are=
- discarded,
-> > > this loop continually re-invokes __rpcit() with the unmodified origin=
-al
-> > > addr and range.
->=20
-> That matches your observation:  we indeed aren't taking updates to the
-> range in __rpcit().  But as you say: there aren't supposed to be any.
->=20
-> > >=20
-> > > If scanning the initial portion consistently exhausts the hardware ti=
-me slice
-> > > (such as during IOMMU TLB flushes on devices with large DMA spaces in
-> > > zpci_refresh_all()), will the operation fail to advance and loop infi=
-nitely?
-> >=20
->=20
-> That concern sounds valid at face value; if we tried something and it
-> couldn't be completed in time, from a linux perspective we are simply
-> trying it again without changing anything and hoping everything works
-> for the best this time.
->=20
-> > I see that all the PCI related instructions in this file may retry
-> > indefinitely (with delay) on CC=3D2. However, the architecture guarante=
-es
-> > that at some point the instruction will end with any of the other
-> > condition codes.
->=20
-> I think that is the rub.  Sashiko couldn't possibly know that such an
-> architecture guarantee exists.
->=20
-> I suspect the question is also a bit theoretical: what happens if the
-> range is so big that it's impossible for the RPCIT to process it before
-> the CC2 trigger point due simply to how big the range provided is?  Then
-> you're guaranteed to hit it every time unless you 'chip away' at it by
-> shrinking the range after each attempt.
->=20
-> I would assume/hope that the SDMA-EDMA range limitation we impose on the
-> aperture size already ensures that it is easily possible to handle a
-> RPCIT from SDMA thru EDMA without tripping CC=3D2.
-> So then the CC=3D2 case becomes purely situational vs a guaranteed result
-> even for the largest possible RPCIT request.  That already makes it far
-> more reasonable to simply try it again.
->=20
-> So: assuming that architecture guarantee stands (we know RPCIT can
-> possibly complete for the largest possible range SDMA-EDMA, and we have
-> some architected guarantee that the loop will be broken otherwise e.g.
-> architecture says it won't keep giving us CC2s forever) then it sounds
-> like nothing to fix, but maybe worth a comment in a future patch that
-> explains these guarantees, based on what you find in the ISA.
->=20
-> I suppose we can consider whether linux should have its own redundancy
-> here or not in addition to those guarantees.  That sounds well beyond
-> the scope of this series and goes back to what I mentioned at the start:
-> this is pre-existing bevahior and should not hold up this patch either wa=
-y.
-
-I went back to commit cd24834130ac ("s390/pci: base support") from 2012
-when RPCIT was introduced: The potentially endless loop on CC=3D2 was
-introduced at the very beginning.
-
-I found explicit words in the ISA specifying that "no other action is
-taken" when the instruction ends with CC=3D2. IIRC, CC=3D2 was introduced
-to signal a program that there are internal inhibitors present that
-prohibit to even start the requested "refresh" - or other PCI
-instructions. I still have to search for a statement that guarantees at
-the architecture level that CC=3D2 won't be presented forever. When I
-find that, I'll think about how to frame that into a future patch.
-
->=20
-> Thanks,
-> Matt
-
-Thank you,
-Gerd
