@@ -1,233 +1,600 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A72D41CB2E;
-	Thu,  8 Oct 2026 07:32:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0346C41D4F4
+	for <linux-s390@vger.kernel.org>; Thu,  8 Oct 2026 08:08:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791444738; cv=none; b=OgYqY0qrkgk8xCrivlDk0BA4nMxCNJ930IYkXEmloguPPrEicGUgakk+wiLJD08YLyb9osbLvtIofwGUX43u8dWdATzvWG+/5ZqDlfWoPCHQxsL7nF03Mej8LyZtSIn42Lxnxnug4xUjkBbd+GXa9synss0js9PZD0vUcFAen6c=
+	t=1791446914; cv=none; b=Y07c9ArNpYxFBkYxcCI8HM9MXCxgOlNgBAW5p4jnE04T+alrxeiKcfgb5hZq6K4R/PQg7j3YuaxGemdo6vpW++AdRDsaQggAhXaGRDcfzkEhb5cpWUDaDZqBFGpYbi/KOAoJbLaniQjP2NGGZllojqJQQ79rT/ZmOzY1/N04j6U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791444738; c=relaxed/simple;
-	bh=1H5ao11OpqcDBK1gtnGjlc3WEjMqPTLmxmkaQFoAt6M=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CG/Oq5gmpXVUShEojGnFaoRx+1cye/SoNtWaEZpdfdip9lDLxkbiF4phQXLH4pCrJN7i5vBACUaIR+cZGeQUL3+/65BYykYCZT0IW/NOQe8ElVa8Ub2L9k86b90muyOFkV/cnSbica4VssiIqv/I6RazfR0+2rt+CLQ/7qGESmI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=JwWTbJkF; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1791446914; c=relaxed/simple;
+	bh=qumSuAqZQ5XIl77QmdE0pKq5IkBDTlECcYqRQjEcBME=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=GZHucqELPZ+dw2zgY+0tuOP+GfvI7/yxIMmBdLl3fbKEnJot4lZJaIa0YQFDqxq20/CqDAFslQLqFF2MRq8hUr+JuMcxV3uPaYLNLN3YJnaB/0gslmKCrUvdgKlaifRYaXrnb36wXyvAa9TFT+Tms2jco7xJVrNQclEElCsiPfk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UoqclBuD; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="JwWTbJkF"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UoqclBuD"
 Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6984Zdfl2735873;
-	Thu, 8 Oct 2026 07:32:02 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6987aIx93122294
+	for <linux-s390@vger.kernel.org>; Thu, 8 Oct 2026 08:08:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=454br6
-	3ae/7yeUKzAmFzQqTylu9PzF1I1saksy/sCCA=; b=JwWTbJkFv1J6gdALgWEr8J
-	9x/VkUvzrxuwLk2euPnU83b6Q1r+ClApiuSmVY0yLKaw+8Dv2av0E6jtNcdlLBVG
-	51ssM87r7YS1xk+CcUcvQ6581S92bTzqKS7eDu6SGOXReXwY81IV9yjWU0u7j6Ks
-	OsJSWcN25F6rGUgKeBnpLatt8TdPOE5Vk6+zs5iSGaUeOYh/tUfXpxLnKyywx9Z5
-	emKm4rNc12odDV0bl2bZs0mfIGLEsCYsXBCF7q6MITwthY7b8uZae+t/baAV0NXp
-	w9gIcPUgyA7TFQ/K7LuMRHQazuV9wBoUPxnK6iOG/MYGE7T4Ad2DMdg9Xb3iPWiw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=sRxNqP
+	hcMCaJXgPivKRZ/M6x+pfgBdayQRpX+lCGDpo=; b=UoqclBuD4KOimIU/doEVRm
+	2+K7BKndeB1raeXG4Urs3YAfbzzwbqVFzQsupYdSX/6Zh8fxg+TbBZPNO0e+a2xl
+	ZyJsgbzjy+95qsHRcyboi8RMt4sexovYqA3PyDsdmaB83QhufpuUmp+lsujVAGBp
+	CZaooNg70C+9oLUBrUEJuqBX7NRMccr2HjLRc+umEoDkWwNAS3TYOzPsc+O+TKZx
+	OZWrtDKMT8y22kz6tx+i+ogazlc4TgVdh5495uxj/BBou3HKK8xeuJwqo07kfaxC
+	Cj3T9bepsZ2EygfJlEzBbLaBwwIokje1Hss/7uTifE/UbiKTfAtlOefNE3NjdHSw
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h5xjw24kw-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 08 Oct 2026 07:31:59 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6987IXkr3107263;
-	Thu, 8 Oct 2026 07:31:58 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h58ek6ckx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 Oct 2026 07:31:58 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6987VvuL33554990
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h5xjw2aph-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Thu, 08 Oct 2026 08:08:30 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6987IW083153182
+	for <linux-s390@vger.kernel.org>; Thu, 8 Oct 2026 08:08:29 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h3dhh28r8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Thu, 08 Oct 2026 08:08:29 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69888N8U47579570
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 8 Oct 2026 07:31:57 GMT
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3564D58069;
-	Thu,  8 Oct 2026 07:31:57 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3DC055805D;
-	Thu,  8 Oct 2026 07:31:51 +0000 (GMT)
-Received: from [9.124.217.43] (unknown [9.124.217.43])
-	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  8 Oct 2026 07:31:50 +0000 (GMT)
-Message-ID: <4bb7f15e-2cd8-4598-9bab-1ea5f5d2bb59@linux.ibm.com>
-Date: Thu, 8 Oct 2026 13:01:49 +0530
+	Thu, 8 Oct 2026 08:08:23 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id BAC5320043;
+	Thu,  8 Oct 2026 08:08:23 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 59EFE20040;
+	Thu,  8 Oct 2026 08:08:23 +0000 (GMT)
+Received: from [127.0.1.1] (unknown [9.87.85.9])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  8 Oct 2026 08:08:23 +0000 (GMT)
+From: Julian Ruess <julianr@linux.ibm.com>
+Date: Thu, 08 Oct 2026 10:08:05 +0200
+Subject: [PATCH 3/4] dibs: introduce dibs console peer device driver
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2] net/smc: serialize clcsock access with its release
-To: Chengfeng Ye <nicoyip.dev@gmail.com>,
-        "D . Wythe" <alibuda@linux.alibaba.com>,
-        Dust Li
- <dust.li@linux.alibaba.com>,
-        Sidraya Jayagond <sidraya@linux.ibm.com>
-Cc: Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet
- <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
-        linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20261003183325.2289707-1-nicoyip.dev@gmail.com>
-Content-Language: en-US
-From: Mahanta Jambigi <mjambigi@linux.ibm.com>
-In-Reply-To: <20261003183325.2289707-1-nicoyip.dev@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261008-console_server-v1-3-636b11ebf191@linux.ibm.com>
+References: <20261008-console_server-v1-0-636b11ebf191@linux.ibm.com>
+In-Reply-To: <20261008-console_server-v1-0-636b11ebf191@linux.ibm.com>
+To: schnelle@linux.ibm.com, wintera@linux.ibm.com, ts@linux.ibm.com,
+        oberpar@linux.ibm.com, gbayer@linux.ibm.com
+Cc: mjrosato@linux.ibm.com, alifm@linux.ibm.com, raspl@linux.ibm.com,
+        hca@linux.ibm.com, agordeev@linux.ibm.com, gor@linux.ibm.com,
+        julianr@linux.ibm.com, linux390-list@tuxmaker.boeblingen.de.ibm.com,
+        linux-s390@vger.kernel.org
+X-Mailer: b4 0.14.3
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: q2F9IXGVQIzMayWxBpIM2DNicJHxAFlJ
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA4MDAyOCBTYWx0ZWRfX9E8vBci6Wzuc
- kwn5Viq5UEJF8uwiBEXR3KBfcoZL3Ta5L0W0fHl4WlY39l342qg+AIwN8Qh5kR19j1JKvqKDOUf
- sQCLX0a93Pnrca4eAmzljObUJDE6iYdYQcKf9PR8RytmhosqCx2Sx+QW3h1NuseVD6D5xYsi6CQ
- ZF8hdQpmYrutbf7/wh6CQe3NKHxUYxczgOIHGTWi1kvm0KJ3olO3PJw9pkivPYwJodKKr5Ua3jE
- vr+gG6yblN46J+amero0HpNOco/itA97DBKXK1YhGKLU2ukWS3gS6f3P3G0fjrPREVEHEPk1ZNa
- aEvbe0QYjWf0nMx5rOBwVnmMvTO36XZm6QySkGRewpGzUMEx/6cfvwvpmPFF+Ecz04u/NlcIMSX
- o1hx5u7xnZctYTcjdHxbOYkUHSDhrBVRGoQfOqbO5JXLQNeKbLVMvlrl417mClBgDAMfte8lIU4
- ou3X3Rbt4oQBysBJxEg==
-X-Authority-Analysis: v=2.4 cv=cIt1IVeN c=1 sm=1 tr=0 ts=6ac746ef cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-GUID: ctf14MCDECJzlo6GmGgJqycYhx8Ypasr
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA4MDAzMiBTYWx0ZWRfXwC16IeGYaAYZ
+ nXWASvabNcl1whdKMJlxD890RrlP/81CPJTpwI5xKY/zHewKprjP7io8C0Gn00/YKhDEd7fSnf/
+ rJWlB0QX5jpI0t5EKCnS5XFheT59iReR7t4Hf+2XBfIRnO9kTfgbLc9fOix40TdIGs79O5rKuxj
+ mFQcgoXzqJo7R9OVVps0HzoD8luKRaciuA2NEezxufqapCT+iT1Ax4zjSldamC8qtqh3kLy+3nT
+ 8/dFUYKo+OPAiETbnF36+Bm1lT7/sIE0m2a+4tRc6vd+VgaucvaNmg0euvgGb+GFqS0PEfHLnk3
+ hdexDxVbrR9HmDv9VW4K7hUW1bm3fkdKi8jzDHD5uBPxFKbAQq3yjfqzB2lqKvr43tZgG0keYnK
+ 0t+OB++Ba/Wzds6M8KdK3sANMl4nEqxiyeoPk5TlqhTWefaoUmpO420+Mb79uY4TgNITmLzJcvd
+ F7rfjhFnuyXI147JE2w==
+X-Authority-Analysis: v=2.4 cv=cIt1IVeN c=1 sm=1 tr=0 ts=6ac74f7e cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
- a=SRrdq9N9AAAA:8 a=8oSq24xotcjpyH-63FsA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA4MDAyOCBTYWx0ZWRfX+SGf45hTQ8B+
- 1wuQQ9RpTsjT7K53v9IVJzYoi2fOU/rfQBzAWgatVw1XnYTAiySMuvV884vUxUpMETMN6ZGBHnU
- tcY2SU7NDR7WuSQN7kMGOtDKyksxscw=
-X-Proofpoint-ORIG-GUID: xlM9j_tYAlyiAIR9UZ92kv-f7uKfOZjY
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=biehI8zqAAAA:8 a=750IxlTKyOIG6DHasmIA:9 a=QEXdDO2ut3YA:10
+ a=hI-W2eA9asJdKFXjnL6t:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA4MDAzMiBTYWx0ZWRfXx7rZYBC7M1Nk
+ m2nWsaAfUX3/Zwdz/cflRDvZ7+yX5k2eFGAoJAca3+C0/VMKEWYhZQKI6ddyqCUrkiLC0TW9Sfn
+ xPTRYW5wVwaK8rWGhhPHNG4E08RqFn0=
+X-Proofpoint-ORIG-GUID: ctf14MCDECJzlo6GmGgJqycYhx8Ypasr
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-08_02,2026-10-06_03,2025-10-01_01
+ definitions=2026-10-08_03,2026-10-06_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1011 malwarescore=0 priorityscore=1501 adultscore=0 impostorscore=0
+ clxscore=1015 malwarescore=0 priorityscore=1501 adultscore=0 impostorscore=0
  lowpriorityscore=0 suspectscore=0 spamscore=0 phishscore=0 bulkscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610020000 definitions=main-2610080028
+ reason=mlx scancount=1 engine=8.22.0-2610020000 definitions=main-2610080032
 
+Introduce a virtual console device driver that makes use of the newly
+added dibs peer device bus.
 
+This allows to make use of tty's that connect two systems by using dibs
+devices on the same dibs fabric. This works on LPAR as well as z/VM
+without requiring a network setup.
 
-On 04/10/26 12:03 am, Chengfeng Ye wrote:
-> Link-group termination can release the CLC socket through
-> smc_close_active_abort() while the SMC socket is still open, for example
-> after shutdown(SHUT_WR). A file reference keeps the SMC socket alive but
-> does not prevent this asynchronous release of its CLC socket.
-> 
-> smc_getname() can race the pointer removal and sock_release(). The same
-> missing lifetime synchronization affects smc_set_keepalive(), diagnostic
-> address copying and an in-flight SMC-R CDC receiver. smc_shutdown() can
-> also reach its final CLC shutdown after its close helper drops the socket
-> lock and a concurrent abort closes the socket. Holding the SMC socket
-> lock alone is insufficient because CLC release runs outside that lock.
-> 
-> KASAN reported the getname failure:
-> 
->   BUG: KASAN: slab-use-after-free in smc_getname+0x19e/0x1b0
->   Read of size 8 at addr ffff888109abb4e0 by task poc/103
->   Call Trace:
->    smc_getname+0x19e/0x1b0
->    do_getsockname+0xe5/0x170
->    __sys_getsockname+0x8c/0x100
-> 
->   Allocated by task 95:
->    sock_alloc_inode+0x1e/0x280
->    sock_alloc+0x3d/0x240
->    __sock_create+0x7e/0x430
->    smc_create+0x121/0x240
-> 
->   Freed by task 0:
->    kmem_cache_free+0xcc/0x340
->    rcu_core+0x50a/0x1850
-> 
->   Last potentially related work creation:
->    evict+0x446/0x6c0
->    smc_clcsock_release+0xa8/0xd0
->    smc_close_active_abort+0x26a/0x3a0
->    __smc_lgr_terminate.part.0+0x137/0x2e0
+The vfio user space tooling on the remote system announces dibs peer
+devices of type tty to this instance. If the discovery mechanism of the
+dibs peer bus detects a hvc peer device, this driver will be probed via
+uevent.
 
-Hi Chengfeng,
+The number of the used hvc device (/dev/hvcX) can be accessed by reading
+'/sys/bus/dibs_peer/devices/<rgid>/hvc'
 
-Thanks for the KASAN report and the fix. The UAF in smc_getname is real
-and needs to go to net and stable. However, I think the v2 approach of
-adding a new spinlock and extending clcsock_release_lock to cover more
-readers is treating symptoms rather than the root cause. Let me explain
-what I think should happen instead. What to keep from your patch.
+Once the connection is set up, the tty can be accessed by using
+'/dev/hvcX'.
 
-Please send a v3 with only the smc_getname fix:
+Co-developed-by: Tobias Schumacher <ts@linux.ibm.com>
+Signed-off-by: Tobias Schumacher <ts@linux.ibm.com>
+Signed-off-by: Julian Ruess <julianr@linux.ibm.com>
+---
+ arch/s390/configs/debug_defconfig |   1 +
+ arch/s390/configs/defconfig       |   1 +
+ drivers/dibs/Kconfig              |  11 ++
+ drivers/dibs/Makefile             |   1 +
+ drivers/dibs/dibs_console.c       | 388 ++++++++++++++++++++++++++++++++++++++
+ include/linux/dibs.h              |   4 +
+ 6 files changed, 406 insertions(+)
 
-int smc_getname(struct socket *sock, struct sockaddr *addr,
-		int peer)
-{
-	struct smc_sock *smc;
-+	int rc = -EBADF;
+diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_defconfig
+index 23d6c59189cc..c4acf13aeaba 100644
+--- a/arch/s390/configs/debug_defconfig
++++ b/arch/s390/configs/debug_defconfig
+@@ -134,6 +134,7 @@ CONFIG_SMC_DIAG=m
+ CONFIG_DIBS=y
+ CONFIG_DIBS_LO=y
+ CONFIG_DIBS_PEER_BUS_DRV=y
++CONFIG_DIBS_CONSOLE=m
+ CONFIG_XDP_SOCKETS=y
+ CONFIG_XDP_SOCKETS_DIAG=m
+ CONFIG_INET=y
+diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
+index 3bffcd016be8..344724c56917 100644
+--- a/arch/s390/configs/defconfig
++++ b/arch/s390/configs/defconfig
+@@ -125,6 +125,7 @@ CONFIG_SMC_DIAG=m
+ CONFIG_DIBS=y
+ CONFIG_DIBS_LO=y
+ CONFIG_DIBS_PEER_BUS_DRV=y
++CONFIG_DIBS_CONSOLE=m
+ CONFIG_XDP_SOCKETS=y
+ CONFIG_XDP_SOCKETS_DIAG=m
+ CONFIG_INET=y
+diff --git a/drivers/dibs/Kconfig b/drivers/dibs/Kconfig
+index 98068bc541e5..a0ed49977274 100644
+--- a/drivers/dibs/Kconfig
++++ b/drivers/dibs/Kconfig
+@@ -32,3 +32,14 @@ config DIBS_PEER_BUS_DRV
+ 	  foundation for dibs peer device drivers that operate on top of dibs.
+ 	  It provides device discovery and lifecycle management for peer
+ 	  devices across the dibs fabric.
++
++config DIBS_CONSOLE
++	tristate "dibs device console support"
++	depends on DIBS && DIBS_PEER_BUS_DRV
++	select HVC_DRIVER
++	help
++	  Support for console access over dibs peer devices of type console.
++	  This peer device driver operates on the dibs peer bus and enables
++	  virtual console communication across systems in a dibs fabric. A
++	  device of type /dev/hvcN will be created for each peer device that is
++	  detected.
+diff --git a/drivers/dibs/Makefile b/drivers/dibs/Makefile
+index b1418f5149c2..a39a67020e05 100644
+--- a/drivers/dibs/Makefile
++++ b/drivers/dibs/Makefile
+@@ -7,3 +7,4 @@ dibs-y += dibs_main.o
+ obj-$(CONFIG_DIBS) += dibs.o
+ dibs-$(CONFIG_DIBS_LO) += dibs_loopback.o
+ dibs-$(CONFIG_DIBS_PEER_BUS_DRV) += dibs_peer_bus_drv.o
++obj-$(CONFIG_DIBS_CONSOLE) += dibs_console.o
+diff --git a/drivers/dibs/dibs_console.c b/drivers/dibs/dibs_console.c
+new file mode 100644
+index 000000000000..df53cbcf2fb5
+--- /dev/null
++++ b/drivers/dibs/dibs_console.c
+@@ -0,0 +1,388 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * dibs hypervisor console (HVC) device driver
++ *
++ * This hvc device driver provides terminal access using
++ * dibs peer devices of type tty.
++ *
++ * Copyright IBM Corp.
++ */
++
++#include "../tty/hvc/hvc_console.h"
++#include <linux/dibs.h>
++#include <linux/list.h>
++#include <linux/minmax.h>
++#include <linux/miscdevice.h>
++#include <linux/module.h>
++#include <linux/printk.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
++#include <linux/spinlock_types.h>
++#include <linux/stringify.h>
++#include <linux/uuid.h>
++#include <linux/workqueue.h>
++
++MODULE_DESCRIPTION("dibs hypervisor console (HVC) device driver");
++MODULE_ALIAS("dibs:peer_dev:" __stringify(PEER_DEV_TYPE_CONSOLE));
++
++static unsigned int dibs_con_max_timeout = 60;
++module_param(dibs_con_max_timeout, uint, 0644);
++MODULE_PARM_DESC(dibs_con_max_timeout,
++		 "Maximum timeout for dibs remote in seconds");
++
++enum { DIBS_CON_MAX_PUT_CHARS = 256 };
++enum { DIBS_CON_MAX_VTERMNOS = 8 };
++
++enum { DIBS_CON_PEER_DEV_HDR_VERSION = 1 };
++enum {
++	DIBS_CON_CONNECT_MSG = 1,
++	DIBS_CON_DATA_MSG = 2,
++	DIBS_CON_RESIZE_MSG = 4
++};
++
++#define DIBS_CON_PEER_DEV_BUFFER_SIZE 2048
++#define DIBS_CON_PEER_DEV_RING_SIZE (64 * 1024)
++#define DIBS_CON_PEER_DEV_MAX_RBE_SIZE 512
++
++#define DIBS_CON_PEER_DEV_DATA_MSG_MAX_DATALEN \
++	(DIBS_CON_PEER_DEV_MAX_RBE_SIZE - sizeof(struct dibs_msg_hdr))
++
++struct dibs_con_tty_data_msg {
++	u8 data[DIBS_CON_PEER_DEV_DATA_MSG_MAX_DATALEN];
++} __packed;
++
++struct dibs_con_resize_msg {
++	struct winsize ws;
++} __packed;
++
++struct dibs_con_connect_msg {
++	u64 dmb_tok;
++} __packed;
++
++struct dibs_con_pd_msg {
++	struct dibs_msg_hdr hdr;
++	union {
++		struct dibs_con_connect_msg cm;
++		struct dibs_con_tty_data_msg tdm;
++		struct dibs_con_resize_msg rm;
++	};
++};
++
++struct dibs_con_peer_dev_rbe {
++	union {
++		struct dibs_con_pd_msg pdm;
++		u8 reserved[DIBS_CON_PEER_DEV_MAX_RBE_SIZE];
++	};
++};
++
++struct dibs_con_peer_dev {
++	u8 vtermno;
++	int connect_msg_enqueued;
++	bool ring_registered;
++	struct dibs_peer_device *dpd;
++	struct hvc_struct *hvc;
++	struct kfifo fifo;
++	spinlock_t mr_spinlock /* protects the message ring */;
++};
++
++struct dibs_con_peer_dev *hvc_peer_devs[DIBS_CON_MAX_VTERMNOS] = { NULL };
++
++static void dibs_con_peer_dev_send_connect_msg(struct dibs_peer_device *dpd)
++{
++	struct dibs_con_peer_dev_rbe dcpdr;
++	struct dibs_con_peer_dev *dcpd;
++	int ret;
++
++	dcpd = dpd->drv_priv;
++
++	/* Write own DMB token to the other side */
++	dcpdr.pdm.hdr.version = DIBS_CON_PEER_DEV_HDR_VERSION;
++	dcpdr.pdm.hdr.type = DIBS_CON_CONNECT_MSG;
++	dcpdr.pdm.hdr.datalen = sizeof(dpd->rb.dmb.dmb_tok);
++	dcpdr.pdm.cm.dmb_tok = dpd->rb.dmb.dmb_tok;
++
++	ret = dibs_pbd_msg_send(&dpd->rb, &dcpdr.pdm.hdr);
++	if (!ret)
++		dcpd->connect_msg_enqueued = 1;
++}
++
++static void dibs_con_peer_dev_handle_irq(unsigned int dmbno,
++					 struct dibs_peer_device *peer_dev,
++					 u16 dmbemask)
++{
++	struct dibs_con_peer_dev *dcpd;
++	struct dibs_con_pd_msg *msg;
++	struct winsize winsize;
++	size_t count;
++	u16 datalen;
++
++	dcpd = peer_dev->drv_priv;
++
++	if (!dcpd->connect_msg_enqueued)
++		dibs_con_peer_dev_send_connect_msg(peer_dev);
++
++	while ((msg = (struct dibs_con_pd_msg *)dibs_pbd_msg_recv(&peer_dev->rb))) {
++		switch (msg->hdr.type) {
++		case DIBS_CON_DATA_MSG:
++			datalen = min_t(u16, READ_ONCE(msg->hdr.datalen),
++					DIBS_CON_PEER_DEV_DATA_MSG_MAX_DATALEN);
++			count = kfifo_in(&dcpd->fifo, &msg->tdm, datalen);
++			if (count < datalen)
++				pr_warn("%s: dropping %zu bytes of data\n",
++					__func__, datalen - count);
++			hvc_kick();
++			break;
++
++		case DIBS_CON_RESIZE_MSG:
++			winsize = msg->rm.ws;
++			hvc_resize(dcpd->hvc, winsize);
++			break;
++
++		default:
++			break;
++		}
++		dibs_pbd_msg_ack(&peer_dev->rb);
++	}
++}
++
++static void dibs_con_peer_dev_disconnect(struct dibs_peer_device *dpd)
++{
++	struct dibs_con_peer_dev *dcpd = dpd->drv_priv;
++
++	if (dcpd->ring_registered) {
++		if (dibs_pbd_unregister_ring_buffer(dcpd->dpd))
++			pr_err("%s: dibs_pbd_unregister_ring_buffer() returned with error\n",
++			       __func__);
++		dcpd->ring_registered = false;
++	}
++}
++
++/*
++ * dibs_con_get_chars()
++ * This function is called by the HVC thread to receive tty data.
++ *
++ * @vtermmno: HVC virtual terminal number
++ * @buf: buffer offered by HVC to store data. By calling hvc_kick()
++ *	this function is called again with a new buffer to transfer more data
++ *	to HVC.
++ */
++static ssize_t dibs_con_get_chars(u32 vtermno, u8 *buf, size_t count)
++{
++	struct dibs_con_peer_dev *dcpd = NULL;
++
++	dcpd = hvc_peer_devs[vtermno];
++	if (!dcpd)
++		return 0;
++
++	spin_lock(&dcpd->mr_spinlock);
++	count = kfifo_out(&dcpd->fifo, buf, count);
++	if (!kfifo_is_empty(&dcpd->fifo))
++		hvc_kick();
++
++	spin_unlock(&dcpd->mr_spinlock);
++	return count;
++}
++
++/*
++ * dibs_con_put_chars()
++ *
++ * This function is called by the HVC framework when new tty
++ * data is available. It enqueues the data in the dibs dmb ring
++ * to transfer it to the other side.
++ */
++static ssize_t dibs_con_put_chars(u32 vtermno, const u8 *buf, size_t count)
++{
++	struct dibs_con_peer_dev *dcpd = NULL;
++	struct dibs_con_peer_dev_rbe dcpdr;
++	size_t max_cnt;
++
++	dcpd = hvc_peer_devs[vtermno];
++	if (!dcpd)
++		return 0;
++	if (!dcpd->connect_msg_enqueued)
++		return 0;
++
++	max_cnt = dibs_pbd_msg_max_payload(&dcpd->dpd->rb);
++	if (!max_cnt)
++		return 0;
++
++	count = min(count, max_cnt);
++	dcpdr.pdm.hdr.version = DIBS_CON_PEER_DEV_HDR_VERSION;
++	dcpdr.pdm.hdr.type = DIBS_CON_DATA_MSG;
++	dcpdr.pdm.hdr.datalen = count;
++	memcpy(&dcpdr.pdm.tdm.data, buf, count);
++	if (!dibs_pbd_msg_send(&dcpd->dpd->rb, &dcpdr.pdm.hdr))
++		return (ssize_t)count;
++	else
++		return 0;
++}
++
++static const struct hv_ops dibs_con_ops = {
++	.get_chars = dibs_con_get_chars,
++	.put_chars = dibs_con_put_chars,
++};
++
++static int dibs_con_alloc_hvc(struct dibs_con_peer_dev *dcpd)
++{
++	int vtermno;
++	int ret;
++
++	for (vtermno = 0; vtermno < DIBS_CON_MAX_VTERMNOS; vtermno++) {
++		ret = hvc_instantiate(vtermno, vtermno, &dibs_con_ops);
++		if (ret)
++			continue;
++		dcpd->hvc = hvc_alloc(vtermno, vtermno, &dibs_con_ops,
++				      DIBS_CON_MAX_PUT_CHARS);
++		if (IS_ERR(dcpd->hvc)) {
++			ret = PTR_ERR(dcpd->hvc);
++			pr_err("%s: Cannot allocate HVC devices\n", __func__);
++			dcpd->hvc = NULL;
++			return ret;
++		}
++
++		hvc_peer_devs[vtermno] = dcpd;
++		dcpd->vtermno = vtermno;
++		dcpd->hvc->irq_requested = 1;
++		return 0;
++	}
++	return -EBUSY;
++}
++
++static ssize_t termid_show(struct device *dev, struct device_attribute *attr,
++			   char *buf)
++{
++	struct dibs_peer_device *dpd;
++	struct dibs_con_peer_dev *dcpd;
++
++	dpd = to_dibs_peer_device(dev);
++	dcpd = dpd->drv_priv;
++	if (dcpd->dpd == dpd)
++		return sysfs_emit(buf, "hvc%d\n", dcpd->hvc->index);
++	return 0;
++}
++static DEVICE_ATTR_RO(termid);
++
++static int dibs_con_peer_dev_probe(struct dibs_peer_device *dpd)
++{
++	struct dibs_con_peer_dev *dcpd;
++	int ret;
++
++	dpd->type = PEER_DEV_TYPE_CONSOLE;
++
++	dcpd = kzalloc_obj(*dcpd, GFP_KERNEL);
++	if (!dcpd)
++		return -ENOMEM;
++
++	dpd->drv_priv = dcpd;
++	dcpd->dpd = dpd;
++
++	ret = kfifo_alloc(&dcpd->fifo, DIBS_CON_PEER_DEV_BUFFER_SIZE,
++			  GFP_KERNEL);
++	if (ret)
++		goto err_alloc_fifo;
++
++	ret = dibs_con_alloc_hvc(dcpd);
++	if (ret)
++		goto err_alloc_hvc;
++	ret = sysfs_create_file(&dpd->dev.kobj, &dev_attr_termid.attr);
++	if (ret)
++		pr_warn("Adding hvc number to sysfs failed.\n");
++
++	ret = dibs_pbd_register_ring_buffer("dibs_con", dpd,
++					    DIBS_CON_PEER_DEV_RING_SIZE);
++	if (ret)
++		goto err_register_rb;
++
++	dcpd->ring_registered = true;
++	dibs_ring_set_rdmb_tok(&dpd->rb, dpd->rdmb_tok);
++
++	return 0;
++
++err_register_rb:
++	sysfs_remove_file(&dpd->dev.kobj, &dev_attr_termid.attr);
++	hvc_peer_devs[dcpd->vtermno] = NULL;
++	hvc_remove(dcpd->hvc);
++err_alloc_hvc:
++	kfifo_free(&dcpd->fifo);
++err_alloc_fifo:
++	dpd->drv_priv = NULL;
++	kfree(dcpd);
++	return ret;
++}
++
++static void dibs_con_peer_dev_remove(struct dibs_peer_device *dpd)
++{
++	struct dibs_con_peer_dev *dcpd = dpd->drv_priv;
++
++	if (dcpd->hvc)
++		hvc_remove(dcpd->hvc);
++	hvc_peer_devs[dcpd->vtermno] = NULL;
++	kfifo_free(&dcpd->fifo);
++
++	if (dcpd->ring_registered) {
++		dibs_pbd_unregister_ring_buffer(dcpd->dpd);
++		dcpd->ring_registered = false;
++	}
++
++	sysfs_remove_file(&dpd->dev.kobj, &dev_attr_termid.attr);
++
++	kfree(dcpd);
++}
++
++static int dibs_con_peer_dev_reconnect(struct dibs_peer_device *dpd)
++{
++	struct dibs_con_peer_dev *dcpd;
++	int ret;
++
++	dcpd = dpd->drv_priv;
++
++	dcpd->connect_msg_enqueued = 0;
++	if (dcpd->ring_registered) {
++		dibs_pbd_unregister_ring_buffer(dcpd->dpd);
++		dcpd->ring_registered = false;
++	}
++
++	ret = dibs_pbd_register_ring_buffer("dibs_con", dcpd->dpd,
++					    DIBS_CON_PEER_DEV_RING_SIZE);
++	if (ret) {
++		pr_err("%s: failed to register ring buffer\n", __func__);
++		return ret;
++	}
++	dcpd->ring_registered = true;
++	dibs_ring_set_rdmb_tok(&dcpd->dpd->rb, dcpd->dpd->rdmb_tok);
++
++	return ret;
++}
++
++static struct dibs_peer_dev_driver dibs_con_pdd = {
++	.drv = {
++		.owner = THIS_MODULE,
++		.name = "dibs_con",
++	},
++	.type = DIBS_CLIENT_TYPE_DIBS_CONSOLE,
++	.probe = dibs_con_peer_dev_probe,
++	.remove = dibs_con_peer_dev_remove,
++	.reconnect = dibs_con_peer_dev_reconnect,
++	.disconnect = dibs_con_peer_dev_disconnect,
++
++	.handle_irq = dibs_con_peer_dev_handle_irq,
++};
++
++static int __init dibs_con_init(void)
++{
++	int ret;
++
++	ret = dibs_pbd_driver_register(&dibs_con_pdd);
++
++	return ret;
++}
++
++static void __exit dibs_con_exit(void)
++{
++	dibs_pbd_driver_unregister(&dibs_con_pdd);
++}
++
++module_init(dibs_con_init);
++module_exit(dibs_con_exit);
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("IBM Corporation");
+diff --git a/include/linux/dibs.h b/include/linux/dibs.h
+index 8c24f7b33e6f..64e1f5505de5 100644
+--- a/include/linux/dibs.h
++++ b/include/linux/dibs.h
+@@ -572,6 +572,10 @@ void dibs_dev_del(struct dibs_dev *dibs);
+ #define PEER_DEV_DISCONNECTED 0
+ #define PEER_DEV_CONNECTED 1
+ 
++#define DIBS_CLIENT_TYPE_DIBS_CONSOLE 1
++
++#define PEER_DEV_TYPE_CONSOLE 1
++
+ struct dibs_peer_device {
+ 	u8 id;
+ 	uuid_t rgid;
 
-	if (peer && (sock->sk->sk_state != SMC_ACTIVE) &&
-	    (sock->sk->sk_state != SMC_APPCLOSEWAIT1))
-		return -ENOTCONN;
+-- 
+2.53.0
 
-	smc = smc_sk(sock->sk);
-
--	return smc->clcsock->ops->getname(smc->clcsock, addr, peer);
-+	mutex_lock(&smc->clcsock_release_lock);
-+	if (smc->clcsock)
-+		rc = smc->clcsock->ops->getname(smc->clcsock, addr, peer);
-+	mutex_unlock(&smc->clcsock_release_lock);
-+	return rc;
-}
-
-That is 4 lines against the confirmed KASAN-reported UAF, uses
-infrastructure that already exists (clcsock_release_lock is already held
-by smc_clcsock_release() when it frees clcsock, and already initialized
-in smc_sk_init()), and is a clean candidate for stable. Nothing else
-from v2 is needed for this specific bug.
-
-Drop the clcsock_lock spinlock, the CDC change, the diag change, the
-shutdown change, the connect-abort change, and the smc_accept_dequeue
-change. Those races are real but I will address them with a proper
-structural fix as Me & Dust Li have already discussed on LKML in August[1].
-
-Why the other races exist and what the right fix is
-
-Every race in your v2 — keepalive, CDC, diag, shutdown, the
-connect-abort path — has the same root cause: clcsock can be freed while
-the SMC socket is still alive. Several close paths call
-sock_release(clcsock) before the SMC socket's own refcount reaches zero:
-
-1) smc_close_active_abort() — for PEERCLOSEWAIT*, PROCESSABORT,
-APPFINCLOSEWAIT states
-2) smc_close_passive_work() — when the passive close work transitions to
-SMC_CLOSED
-3) __smc_release() — when sk_state == SMC_CLOSED
-
-Every access site that can race with those releases is then forced to
-take clcsock_release_lock and check if (!smc->clcsock). Your v2 adds a
-second lock on top of this for the BH/atomic readers that cannot take a
-mutex. This complexity is unnecessary because none of those early paths
-actually need to destroy the socket — they only need to stop it.
-tcp_abort() and kernel_sock_shutdown() are sufficient for that, and both
-are safe to call more than once. sock_release() is the exception: it
-frees memory and must happen exactly once.
-
-The fix is to move that single sock_release() call to smc_destruct() —
-the sk->sk_destruct callback that fires from __sk_free() when the last
-sock reference drops. At that point no concurrent user can exist:
-
-1) fd users are gone: smc_release() calls sock_orphan() before dropping
-its reference, so no file descriptor can reach the socket after that point
-2) workqueue contexts (close_work, smc_listen_work) hold a sock_hold()
-and therefore keep smc_destruct() from running while they are active
-3) accept-queue entries hold a sock_hold() via smc_accept_enqueue() for
-the same reason
-
-This gives us a simple invariant: clcsock is non-NULL for the entire
-lifetime of the SMC socket. With that invariant every reader becomes
-trivially safe — no lock needed, no NULL check needed, the race
-condition simply cannot occur.
-
-[1] https://lore.kernel.org/netdev/ao5bB9OCbJ5PQbEp@linux.alibaba.com/
