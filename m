@@ -1,164 +1,127 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B93D848F848;
-	Thu,  8 Oct 2026 10:33:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A159743F4BA;
+	Thu,  8 Oct 2026 10:52:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791455583; cv=none; b=uY6mhmlRBSubbKlwZ+KoRcNYlsMbHg148HorRPW1xgHiUuNlX+o+f0jTs74mRTmd2yNPduaVpjm/NUSY6win8kOEJMEOkcdjpjP+LxPxOGlSKD+2eT+WGHwLhT/NpvUgfXTGnC65sR4yrEMo3WJ8UpMXN8AZtvEQTgPRWdYxR1c=
+	t=1791456771; cv=none; b=egTErfxyc2nXW2srxMJjvFSQbk8zSXB7jJMDbZFbGyB9fEAgKnQsJ1hg/VNUXvNswEDQ8JFfbN8lXeyG0akaxWZr1GM3j6JhVdkDasTRrClj1RuyqMM2IPtK2FsDuTXaNn9sHuue0GZE0cTzW9UAKjupUQtKRXohZ/JRCvP63ow=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791455583; c=relaxed/simple;
-	bh=AI3ZBMAQ3eLWhZFlrVjzDdUZpkJemDx62honLkjULds=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PapshmBot6wfYKZKpF+OEa9F7V0qSpnXOhwpJnPWQ6sQZjquaqxT5kFKAkDAWZR+xSsIs8S17XrXv2Ssb9vL8Ei1nKLgIOrnVj45F+hLhZj3778FTRDO9+4yn9XUYwGemBK8tKStol2eHQQNkXnNElL0/5XhIVhVc6YN6azQdQQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=EaOyYSqC; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1791456771; c=relaxed/simple;
+	bh=ZzneI4HJw9HivCqJ6BXZ9EaoEOtf4Z5AxLsGYJUJuC8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MPyPF1rDsBkzUgcv+zghTuQz7iaFsCwUZfOaT+SmHYOL0J5YCC9fKK8G8GKxmPtm+4RkGxZoNXEblqEfArGHkBHLVKxlp2Xtr9pPb9DT6r75ALEa6bs4vmUykhllRrN9ql5HuXLSHzoQUl8w2LE6/Tv0kM9sxGIVd/8xImzqdg4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=YSc9qkB7; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="EaOyYSqC"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1791455581; x=1822991581;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=AI3ZBMAQ3eLWhZFlrVjzDdUZpkJemDx62honLkjULds=;
-  b=EaOyYSqCiXP5aflKju6O/h1rKvj18IFZw2vKMN2JrDO+8mWu6lXl38NQ
-   RILKfniYhS9g2+BovvaqM46MTle8ktrYavF2K3kAQJ/F2rkSj5GB0BEX3
-   z8m1b32Ym9h6vGDUsBmgYY1QD3TCB7LOu3/lEanbrt9cgS2t1vkRnPVzP
-   LoVX/24+pUH9m6AYHFEpd4uMSRcQ6l0eSMAMZ9m1cR9EcrLRUqj7y2v75
-   ffDgAyH9N5HlHYBJu0JwNzle0O81QbTKaRP7x6icwBO3jStCUF9DwO+WB
-   0PL3FAI4q+4mXwDrMX6u7qrWVI8D3gTKnmbQOc9R2kelr+VBISA5SnLMl
-   Q==;
-X-CSE-ConnectionGUID: eCqrmw84QsCQkPp5E++RIQ==
-X-CSE-MsgGUID: L3qk0o19TOa96Lf1V9Nw7w==
-X-IronPort-AV: E=McAfee;i="6800,10657,11928"; a="132379"
-X-IronPort-AV: E=Sophos;i="6.27,146,1787036400"; 
-   d="scan'208";a="132379"
-Received: from fmviesa012.fm.intel.com ([10.60.135.152])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Oct 2026 03:33:00 -0700
-X-CSE-ConnectionGUID: 35EGeBEQTcuoO28zWBm4cg==
-X-CSE-MsgGUID: yOdSKP5kTbGY5nEnkjYrcg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,146,1787036400"; 
-   d="scan'208";a="1835115"
-Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
-  by fmviesa012.fm.intel.com with ESMTP; 08 Oct 2026 03:32:57 -0700
-Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1xElQj-000000004Hu-3mTD;
-	Thu, 08 Oct 2026 10:32:53 +0000
-Date: Thu, 8 Oct 2026 18:32:15 +0800
-From: kernel test robot <lkp@intel.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	Muhammad Usama Anjum <usama.anjum@arm.com>,
-	linux-s390@vger.kernel.org, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, kasan-dev@googlegroups.com
-Subject: Re: [PATCH v8 11/15] s390: Distinguish hardware and software PTEs
-Message-ID: <202610081806.wcWlNqQf-lkp@intel.com>
-References: <c22ed0a2d9ff0f4fff69a17332a377c460d993dc.1791365932.git.agordeev@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="YSc9qkB7"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 698AbhHg3492196;
+	Thu, 8 Oct 2026 10:52:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=GucJJ/OfLhvUjMgfza0yOpLSfDOuy3kMBs9zzYPXK
+	e4=; b=YSc9qkB7U8xfXcFqpz3tw0Ev2dWCCfdOCTougTuVUqz9E3ZRsfmDnivr4
+	YoPb2be19GOjeYq4Y3lRZ28agw0kdXPdNWDzZHao8OU48EYSpyPWUngX4TcZ+zuQ
+	m8UzjynFBoXcaXQmwNWnnMXXXcPKmRRCBbPsOVjno/hlVBgVd/OFPxz/ilZx1czL
+	SiutBBdGBAhBduWxHTSqJ7TeM4xdy9R2YQ1P3UXnYdp2C44CXepcJNRq35LMKQlU
+	MSp+1GOvM0tdyyttq6pg1nf9BdPbGNUK5yPvlBgTSxcdm5nqF/CJgtBrG3tUXtcI
+	sOJoyv0iiieiKe9yj7+rXkih7vylA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h5xjw332r-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 08 Oct 2026 10:52:48 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 698Als1d3319390;
+	Thu, 8 Oct 2026 10:52:47 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h58d5q2gs-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 08 Oct 2026 10:52:47 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 698Aqh8737814666
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 8 Oct 2026 10:52:43 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 381EB2004E;
+	Thu,  8 Oct 2026 10:52:43 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F14DD20043;
+	Thu,  8 Oct 2026 10:52:42 +0000 (GMT)
+Received: from funtu2.ibm.com (unknown [9.224.94.37])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  8 Oct 2026 10:52:42 +0000 (GMT)
+From: Harald Freudenberger <freude@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        herbert@gondor.apana.org.au
+Cc: freude@linux.ibm.com, linux-s390@vger.kernel.org,
+        linux-crypto@vger.kernel.org
+Subject: [PATCH v2 0/2] Rework cpacf_kma() function
+Date: Thu,  8 Oct 2026 12:52:40 +0200
+Message-ID: <20261008105242.20730-1-freude@linux.ibm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c22ed0a2d9ff0f4fff69a17332a377c460d993dc.1791365932.git.agordeev@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: jvLHlj8G7HrojnsToH9AdP6s9IAw6SMH
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA4MDA0MiBTYWx0ZWRfX5obZvPNRkcMB
+ 71JXRaUfBPwu9hy3TIlyCBQ3VV8XMirN4Xy4Af4SSkg0kjQqdzHMYS48I+fdmrG+MJoxrxtOK51
+ SuUT66jhqWYJo4ulSJrWUqLJ4Mk8XkfASknB7XDqtmlaOs0ZbMw2rduSExu9LphqEZex+Y2X3Oy
+ Z2UWNZNtXwwKbn3hVRG8aep6N8+9N4dthRwcyiVbBscw/YRPdZho9VPmStU0HdxZoc54pjnXDtE
+ B1tLzQzZZ5IVRaoD/AnfjZyZAiAnsR1xJbW655fECvUIBfF1+2We0MdaAla4KOtgMHsdhm12nAC
+ RqPb2f0Yp4IobAUL+sQruCCugLuuYV1j9XW4g69JRaMmboLx+cYr9dueCK+L+jjfceu+92m4BAG
+ pfPW+kqKrR7WgS6Jya9nx35ssJ6wqea7r0F2vp5jqPcLDOlKd4+HgPSXcyU2H7BZpVnKyjwexcM
+ qskGD2Wxj+8tmmNWK7g==
+X-Authority-Analysis: v=2.4 cv=cIt1IVeN c=1 sm=1 tr=0 ts=6ac77600 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=fOsJ3xpZECLwqP2RnqUA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA4MDA0MiBTYWx0ZWRfXyp65lOprk0nn
+ 6Gn7sv/cPt5EVtf1FUk+bMB/cHOqhkFKSli2xWKutw/UIhplRmy5g0DRPtTnQwboo+XtlkFZWBa
+ qbdGPDBzxjnmFzhrI4iHkCqivsFyTr8=
+X-Proofpoint-ORIG-GUID: jvLHlj8G7HrojnsToH9AdP6s9IAw6SMH
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-08_04,2026-10-06_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 malwarescore=0 priorityscore=1501 adultscore=0 impostorscore=0
+ lowpriorityscore=0 suspectscore=0 spamscore=0 phishscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610020000 definitions=main-2610080042
 
-Hi Alexander,
+The CPACF inline function cpacf_kma() has return type void thus
+indicating no direct information about success or failure. The
+majori of the other CPACF inline functions do return either
+failure/success or the number of bytes processed.
 
-kernel test robot noticed the following build errors:
+Rework the CPACF inline function cpacf_kma() and the only caller - the
+AES GCM implementation in arch/s390/crypto/aes_s390.c to return the
+value of the condition code set on completion of the instruction.
 
-[auto build test ERROR on linus/master]
-[also build test ERROR on v7.3-rc6]
-[cannot apply to akpm-mm/mm-everything s390/features kvms390/next next-20261006]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+@Herbert Xu, @Heiko Carstens: As the main change is in cpacf.h and the
+slight rework in aes_s390.c is petty simple I would go with delivering
+this patches via s390 subsystem.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Alexander-Gordeev/mm-introduce-hw_pte_t-for-PTE-table-storage/20261007-134144
-base:   linus/master
-patch link:    https://lore.kernel.org/r/c22ed0a2d9ff0f4fff69a17332a377c460d993dc.1791365932.git.agordeev%40linux.ibm.com
-patch subject: [PATCH v8 11/15] s390: Distinguish hardware and software PTEs
-config: s390-allmodconfig (https://download.01.org/0day-ci/archive/20261008/202610081806.wcWlNqQf-lkp@intel.com/config)
-compiler: clang version 24.0.0git (https://github.com/llvm/llvm-project 80cd965b6323b208519f8ab1d5ee86e4ea9862f4)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261008/202610081806.wcWlNqQf-lkp@intel.com/reproduce)
+Changelog:
+v1: initial version
+v2: Added Holger's RB - no code changes.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202610081806.wcWlNqQf-lkp@intel.com/
+Harald Freudenberger (2):
+  s390/cpacf: Rework cpacf_kma() to return condition code
+  s390/crypto: Handle cpacf_kma() return code
 
-All errors (new ones prefixed by >>):
-
->> mm/damon/vaddr.c:303:45: error: incompatible pointer types passing 'pte_t *' to parameter of type 'hw_pte_t *' (aka 'struct __hw_pte_t *') [-Wincompatible-pointer-types]
-     303 |         *entry = huge_ptep_get_and_clear(mm, addr, pte, psize);
-         |                                                    ^~~
-   arch/s390/include/asm/hugetlb.h:34:40: note: passing argument to parameter 'ptep' here
-      34 |                                             unsigned long addr, hw_pte_t *ptep,
-         |                                                                           ^
-   mm/damon/vaddr.c:305:28: error: incompatible pointer types passing 'pte_t *' to parameter of type 'hw_pte_t *' (aka 'struct __hw_pte_t *') [-Wincompatible-pointer-types]
-     305 |         set_huge_pte_at(mm, addr, pte, *entry, psize);
-         |                                   ^~~
-   arch/s390/include/asm/hugetlb.h:22:18: note: passing argument to parameter 'ptep' here
-      22 |                      hw_pte_t *ptep, pte_t pte, unsigned long sz);
-         |                                ^
->> mm/damon/vaddr.c:318:40: error: incompatible pointer types passing 'hw_pte_t *' (aka 'struct __hw_pte_t *') to parameter of type 'pte_t *' [-Wincompatible-pointer-types]
-     318 |         referenced = damon_hugetlb_ptep_mkold(pte, mm, vma, addr, &entry);
-         |                                               ^~~
-   mm/damon/vaddr.c:296:45: note: passing argument to parameter 'pte' here
-     296 | static bool damon_hugetlb_ptep_mkold(pte_t *pte, struct mm_struct *mm,
-         |                                             ^
-   3 errors generated.
+ arch/s390/crypto/aes_s390.c   | 11 +++++++----
+ arch/s390/include/asm/cpacf.h | 24 ++++++++++++++++++------
+ 2 files changed, 25 insertions(+), 10 deletions(-)
 
 
-vim +303 mm/damon/vaddr.c
-
-3f49584b262cf8 SeongJae Park        2021-09-07  294  
-49f4203aae06ba Baolin Wang          2022-01-14  295  #ifdef CONFIG_HUGETLB_PAGE
-39c0ceedd54557 SJ Park              2026-09-07  296  static bool damon_hugetlb_ptep_mkold(pte_t *pte, struct mm_struct *mm,
-39c0ceedd54557 SJ Park              2026-09-07  297  		struct vm_area_struct *vma, unsigned long addr, pte_t *entry)
-39c0ceedd54557 SJ Park              2026-09-07  298  {
-39c0ceedd54557 SJ Park              2026-09-07  299  	unsigned long psize = huge_page_size(hstate_vma(vma));
-39c0ceedd54557 SJ Park              2026-09-07  300  
-39c0ceedd54557 SJ Park              2026-09-07  301  	if (!pte_young(*entry))
-39c0ceedd54557 SJ Park              2026-09-07  302  		return false;
-39c0ceedd54557 SJ Park              2026-09-07 @303  	*entry = huge_ptep_get_and_clear(mm, addr, pte, psize);
-39c0ceedd54557 SJ Park              2026-09-07  304  	*entry = pte_mkold(*entry);
-39c0ceedd54557 SJ Park              2026-09-07  305  	set_huge_pte_at(mm, addr, pte, *entry, psize);
-39c0ceedd54557 SJ Park              2026-09-07  306  	return true;
-39c0ceedd54557 SJ Park              2026-09-07  307  }
-39c0ceedd54557 SJ Park              2026-09-07  308  
-6ecdfd6e16f5f4 Muhammad Usama Anjum 2026-10-07  309  static void damon_hugetlb_mkold(hw_pte_t *pte, struct mm_struct *mm,
-49f4203aae06ba Baolin Wang          2022-01-14  310  				struct vm_area_struct *vma, unsigned long addr)
-49f4203aae06ba Baolin Wang          2022-01-14  311  {
-49f4203aae06ba Baolin Wang          2022-01-14  312  	bool referenced = false;
-e6c0c03245b14d Christophe Leroy     2024-07-02  313  	pte_t entry = huge_ptep_get(mm, addr, pte);
-6b7cea90c82e10 Kefeng Wang          2022-12-30  314  	struct folio *folio = pfn_folio(pte_pfn(entry));
-49f4203aae06ba Baolin Wang          2022-01-14  315  
-6b7cea90c82e10 Kefeng Wang          2022-12-30  316  	folio_get(folio);
-49f4203aae06ba Baolin Wang          2022-01-14  317  
-39c0ceedd54557 SJ Park              2026-09-07 @318  	referenced = damon_hugetlb_ptep_mkold(pte, mm, vma, addr, &entry);
-49f4203aae06ba Baolin Wang          2022-01-14  319  	if (mmu_notifier_clear_young(mm, addr,
-49f4203aae06ba Baolin Wang          2022-01-14  320  				     addr + huge_page_size(hstate_vma(vma))))
-49f4203aae06ba Baolin Wang          2022-01-14  321  		referenced = true;
-49f4203aae06ba Baolin Wang          2022-01-14  322  
-49f4203aae06ba Baolin Wang          2022-01-14  323  	if (referenced)
-6b7cea90c82e10 Kefeng Wang          2022-12-30  324  		folio_set_young(folio);
-49f4203aae06ba Baolin Wang          2022-01-14  325  
-6b7cea90c82e10 Kefeng Wang          2022-12-30  326  	folio_set_idle(folio);
-6b7cea90c82e10 Kefeng Wang          2022-12-30  327  	folio_put(folio);
-49f4203aae06ba Baolin Wang          2022-01-14  328  }
-49f4203aae06ba Baolin Wang          2022-01-14  329  
-
+base-commit: df2908090cda368b01ff43709f51890076c56157
 --
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.43.0
+
