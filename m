@@ -1,188 +1,137 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37EBF38AC99;
-	Thu,  8 Oct 2026 16:13:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3906C3876A1;
+	Thu,  8 Oct 2026 17:08:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791476001; cv=none; b=EuJil/DEBMOxwKIB8q1boVD6it3nfO5wGObpPvuVR5Adg1QI9fdpdzQg/XRW6+p/dxx73lsB7z+r4L3U8YVZh3aD8sWp1PZV5WiD9RAvDc4e7QlXoMtKVRsJ4rF1U59RaLrBdsZiboOVeoc27C/oD5NI9KKvfTpONzxlc87LCMY=
+	t=1791479316; cv=none; b=NQF4WK8Rt1XBaDqCxh177pE6kgrb8ZgVW9rCKV3NnImnqgnVNBdBiPxmOUYuJolDnMCJbg4D1eHbZUs2G/LpIdV0KJBly0JDv8gWDVZFZOvRhrT8b7O9d8WQtU8wpfrD3ly1e52nRzDMkFaOQ8fm+MIegqA4wGUtAkOQ6vdXOv4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791476001; c=relaxed/simple;
-	bh=I+xC+WZE121bT0mroLJdu1L8ddUbslmzPDc4dujPHac=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Yf63hxSRR1EbLJ1Ge0NayoZPHJNiheNRI7iHKdzLLhfr58RQftA4CQ34JsN5vM1ilgm0cQg/ZLiqAsLHhYxCNrg2eT/UYzcEquHcjeJI2i+qp7GYR4EiFXX131kByl4sx6FDiiQlE4FIBnDd13jzyWGIl0SQ6YrYewzFJp2/ijs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m3MQrl45; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791479316; c=relaxed/simple;
+	bh=uKhtdm15UpEJ6rf1smJSGQ/x5Ve0+w73qQ8J2jUc1/M=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=NJ8Kaxs0NfFSVNP9rKp4CTa2Ra9nFUpl2uPU693CfCJfBi+2C8qsKztRBN6M/+oi5JEQCpFJK9lLkitBEYMS3fokDaVGkLAeRnu6G+UE29oDhrajN2DBN77MsmW9Fdlzxh50mLqC8p60pf/CyC7iEF/83hDlQLkuyqzrlwqJIvU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=S+toEffk; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m3MQrl45"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E89A21F0089E;
-	Thu,  8 Oct 2026 16:13:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791475999;
-	bh=bR3lSv4dtTfWpHF6ntHioN9j/2JEJW6KkCIUr1O2GkU=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=m3MQrl45/OFi0u+vQPtD9nCP88Q+TCS8U/vZG4QTBVfNYOFDYTfyyCwTRIFxJhJkX
-	 XM1bPBBkjDdfaAmMt6Nx7sfw7IZgEmBRQzJyFvPOi7jrW9dPTfIkQzyK0WpATL9CJ4
-	 g2xdPJMhRBph1nRsPZywG7BUjDRCZ2+zNq7CUiTLfcrfhJ+oig7QHveFp5S1NF3nCO
-	 hvtadbFAgj97fJbb1dgeDZkX1juX5n8ZSwvG4drtuC2KAYRTdM738hTyWLR1p9gGpN
-	 1IeX2LXld5Hy1UdzwjIqG+GV5uyVqXDK9gw3UJuZHKPEIy99H4tGtSi3CbecbC7GXq
-	 LhkrNLUEqgKBg==
-Subject: Re: [PATCH net v8] net/smc: fix lgr/lnk lifetime vs diag reader race
-From: netdev-bot+sashiko@kernel.org
-To: mjambigi@linux.ibm.com
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
- dust.li@linux.alibaba.com, sidraya@linux.ibm.com, hidayath@linux.ibm.com,
- pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, stable@vger.kernel.org, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Date: Thu, 08 Oct 2026 16:13:18 +0000
-Message-ID: <179147599850.434549.17282557208373125996@kernel.org>
-In-Reply-To: <20261005131241.1575131-1-mjambigi@linux.ibm.com>
-References: <20261005131241.1575131-1-mjambigi@linux.ibm.com>
-X-sashiko-severity: Medium
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="S+toEffk"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 698EZOma3999550;
+	Thu, 8 Oct 2026 17:08:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=kNCkGa
+	XGMDGePOlXzA3Oop1Xv/eT8titudFVmWUrDq4=; b=S+toEffkKMldoLRVoY8UHg
+	KNt7i463vIzL9jMImhrg2f+lm3QQ4riWSwVkoseTLVydM/iZHZSisTiOg1T4yr5h
+	7csaSV3YvRm2EOx92NNJZN844B9s+VvxHFYajka4+Ifs8Z9/S80tO9+d/9RUldS6
+	38ZHM88ibYGg46/TYLW9vqUDI0yx1/ldn2DIl42idTlkHSvVLW2x08IOj+qUDanq
+	1LcJn8LCLWRzuDkM2nMXMlDrSq+oex+MtreyXWoDzoP9YG7yyFxQHcVfd9AyzA+t
+	XJzFHiZYFxD3u17CcU75guGYOPakATTh6DcoRsNCtcTFJap9uba2JBByik5RhlCA
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h5xjw5bvh-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 08 Oct 2026 17:08:34 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 698EmXJf3594012;
+	Thu, 8 Oct 2026 17:08:33 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h5s34w139-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 08 Oct 2026 17:08:33 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 698H8TGd46465472
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 8 Oct 2026 17:08:29 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 23E9A2004B;
+	Thu,  8 Oct 2026 17:08:29 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DA41D20043;
+	Thu,  8 Oct 2026 17:08:28 +0000 (GMT)
+Received: from thinkpad-T15 (unknown [9.224.89.120])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Thu,  8 Oct 2026 17:08:28 +0000 (GMT)
+Date: Thu, 8 Oct 2026 19:08:27 +0200
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian
+ Borntraeger <borntraeger@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] s390/appldata: Emulate virtual timer with
+ delayed work
+Message-ID: <20261008190827.1b9762c0@thinkpad-T15>
+In-Reply-To: <20261006140113.3128582-2-hca@linux.ibm.com>
+References: <20261006140113.3128582-1-hca@linux.ibm.com>
+	<20261006140113.3128582-2-hca@linux.ibm.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: jmzUe_cXvLQQUTZfRN_oTTR6LKLEYkkf
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA4MDA2OCBTYWx0ZWRfX6DA12v1f3E3m
+ xQeLCXfe7pSkC08tko9xOF6pK2fAv5Em9kF7fp0kweaq8rxc0jKYBZIWkIVCORSa6lcaneFe0vJ
+ 5suI7/hHG5tE6Rjmlw/vY5RRlWyBLiCfu0aGvsYVjWWTaAPc3jLfGlrtq4TkMaxpzqCRQyKPyTf
+ aMAZUuX0I7RoQ927h+bNasYZlyyfB/GQOB7jwjQvSSqmzCoT8Or1rzya3pOFsSLYzgMJBecpEBv
+ OHQ9Yd3YR9D+mRk9ydeY6EzAtbkBVj2y1rTYFRtWiidIHcpwUtHx69/qJYi2cGLUOLpN4FypYui
+ Xp/JcHPG2emKbdjwV5Lb7RZ42non+RGoeuI5Firu0mIIpRomd9MB6Qxibo3BqKkirprN6A0LrZz
+ knyGwyD6Evc6FTu98sH1ToYFZ1jphoHAf5oKb36+VOKn5VeTFsv90lOoJgPVeiox3/P6j9rRHKe
+ r/jSIl8/54HDSyDN/gA==
+X-Authority-Analysis: v=2.4 cv=cIt1IVeN c=1 sm=1 tr=0 ts=6ac7ce12 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=h2POmDZ-lxQGII9KrcoA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA4MDA2OCBTYWx0ZWRfX3XGnZGpAZSRc
+ 9lR9b9qR41y9Mrt8lO+Sf1g/cS82/rQ8iYQmnT1ZHIof3pIxLoNrnTKakjMKHYAs8a/3kSHWpWZ
+ Xwga/P4IXmIMsZMo8IS0qtgqmJ/cV6c=
+X-Proofpoint-ORIG-GUID: jmzUe_cXvLQQUTZfRN_oTTR6LKLEYkkf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-08_05,2026-10-08_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1011 malwarescore=0 priorityscore=1501 adultscore=0 impostorscore=0
+ lowpriorityscore=0 suspectscore=0 spamscore=0 phishscore=0 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610020000 definitions=main-2610080068
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issue(s) to consider.
+On Tue,  6 Oct 2026 16:01:12 +0200
+Heiko Carstens <hca@linux.ibm.com> wrote:
 
-Critical: 0 · High: 0 · Medium: 1 · Low: 1
+> Emulate the virtual timer in appldata using delayed work: the work is
+> scheduled for the minimum possible wall-clock time until the
+> configured CPU-time interval elapses (remaining CPU time / number of
+> online CPUs), with a minimum delay of 100ms. The work then reads
+> per-CPU statistics of all online CPUs to check whether enough CPU time
+> has elapsed, and if so runs the registered callbacks.
+> 
+> This is slightly more expensive, but allows to subsequently remove the
+> entire vtimer infrastructure.
+> 
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/appldata/appldata_base.c | 171 ++++++++++++++++++-----------
+>  1 file changed, 107 insertions(+), 64 deletions(-)
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+Nice improvement, with minimum wall-clock interval 100ms. Specifying a 1ms
+CPU-time interval was possible, but did not make much sense in practice.
+On very idle systems, the resulting wall-clock interval would also have
+been around 100ms, but as soon as they do some work, it would have become
+far too frequent.
 
-- [Medium] The commit message says the conn/lgr/lnk blocks of
-  __smc_diag_dump() are guarded for SMC_INIT and SMC_CLOSED sockets.
-- [Low] In __smc_diag_dump() (net/smc/smc_diag.c:93-97) the new
-  `r->diag_state != SMC_INIT &&` check in the diag_mode selection sends…
+Also tested it, and on a busy system there is now no noticeable difference
+for interval values 1-100, while idle systems still behave like before.
 
---
-
-net/smc: fix lgr/lnk lifetime vs diag reader race
-
-The patch closes races between the SMC diag dump and connection teardown.
-It skips the conn/lgr/lnk attribute blocks for SMC_INIT and SMC_CLOSED
-sockets, and pairs smp_load_acquire()/smp_store_release() on sk_state. It
-also unhashes the socket before smc_conn_free() or smcd_buf_detach() in
-several teardown paths, and copies the cached link->ibname.
-
-> diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-> index bf0beaa23bdb6..36a3b8f31f28d 100644
-> --- a/net/smc/smc_diag.c
-> +++ b/net/smc/smc_diag.c
-> @@ -87,10 +87,11 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
->  
->  	r = nlmsg_data(nlh);
->  	smc_diag_msg_common_fill(r, sk);
-> -	r->diag_state = sk->sk_state;
-> +	r->diag_state = smp_load_acquire(&sk->sk_state);
->  	if (smc->use_fallback)
->  		r->diag_mode = SMC_DIAG_MODE_FALLBACK_TCP;
-> -	else if (smc_conn_lgr_valid(&smc->conn) && smc->conn.lgr->is_smcd)
-> +	else if (r->diag_state != SMC_INIT &&
-> +		 smc_conn_lgr_valid(&smc->conn) && smc->conn.lgr->is_smcd)
->  		r->diag_mode = SMC_DIAG_MODE_SMCD;
->  	else
->  		r->diag_mode = SMC_DIAG_MODE_SMCR;
-
-[Severity: Low]
-Is this change to diag_mode intended? With the new r->diag_state !=
-SMC_INIT check, every non-fallback SMC_INIT socket falls into the else
-branch and is reported as SMC_DIAG_MODE_SMCR.
-
-Before this patch, an SMC_INIT socket with a registered SMC-D link group
-was reported as SMC_DIAG_MODE_SMCD.
-
-On the client side, this window runs from smc_conn_create() in
-smc_connect_ism() until the smp_store_release() to SMC_ACTIVE. On the
-server side it lasts until smc_listen_out_connected(), which includes
-waiting for the peer's CLC CONFIRM. During that time, sock_diag users see
-an SMC-D connection labelled as SMC-R. The "Mode of a connection" enum in
-include/uapi/linux/smc_diag.h has no "unknown" value for this case.
-
-The commit message says:
-
-  "Guard the conn/lgr/lnk blocks in __smc_diag_dump() for SMC_INIT and
-   SMC_CLOSED sockets; smcss already suppresses these attributes for
-   closed/unconnected sockets so there is no observability regression."
-
-It doesn't mention the diag_mode change, which only appears in the v6
-changelog below the --- line.
-
-Could the transport type be recorded in a field of struct smc_sock when
-the lgr is assigned? That would avoid both the lgr dereference and the
-wrong mode.
-
-[ ... ]
-
-> @@ -103,6 +104,9 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
->  	if (nla_put(skb, SMC_DIAG_FALLBACK, sizeof(fallback), &fallback) < 0)
->  		goto errout;
->  
-> +	if (r->diag_state == SMC_INIT || r->diag_state == SMC_CLOSED)
-> +		goto out;
-> +
-
-[Severity: Medium]
-The commit message says the conn/lgr/lnk blocks are guarded for both
-SMC_INIT and SMC_CLOSED. The diag_mode selection above excludes only
-SMC_INIT, and it runs before this early exit.
-
-For an SMC_CLOSED socket, can __smc_diag_dump() still call
-smc_conn_lgr_valid() and then dereference smc->conn.lgr->is_smcd?
-
-In the server handshake error path, a CLOSED socket stays hashed after
-its conn has been freed:
-
-smc_listen_decline()
-  smc_conn_abort()
-    smc_conn_free()
-      smc_lgr_unregister_conn()
-        write_lock_bh(&lgr->conns_lock);
-        __smc_lgr_unregister_conn()
-          conn->alert_token_local = 0;
-        write_unlock_bh(&lgr->conns_lock);
-      smcr_link_put(conn->lnk);
-      smc_lgr_put(lgr);          <-- conn->lgr is left set
-  smc_listen_out_err()
-    newsmcsk->sk_state = SMC_CLOSED;
-
-The SMC_CLOSED store in smc_listen_out_err() is a plain store, not the
-smp_store_release() this patch adds for SMC_ACTIVE.
-
-Between the alert_token_local reset and the CLOSED store, the only
-operations are release-ordered ones: write_unlock_bh(),
-refcount_dec_and_test() via smcr_link_put()/smc_lgr_put(), and
-sock_put(). None of them orders the later CLOSED store.
-
-On a weakly ordered CPU such as arm64, could the reader's
-smp_load_acquire() see SMC_CLOSED while alert_token_local still reads as
-non-zero? The reader would then dereference an lgr that the connection no
-longer holds a reference to. If link-group freeing runs concurrently,
-that read is a use-after-free.
-
-This needs a non-local-first lgr with a negative reason code, so that
-smc_lgr_cleanup_early() is not called. The window is narrow.
-
-Would it help to exclude SMC_CLOSED from the diag_mode condition as well,
-or to move this early exit ahead of the diag_mode selection? Publishing
-SMC_CLOSED in smc_listen_out_err() with smp_store_release() would also
-close the gap.
-
->  	if ((req->diag_ext & (1 << (SMC_DIAG_CONNINFO - 1))) &&
->  	    smc->conn.alert_token_local) {
->  		struct smc_connection *conn = &smc->conn;
-
-[ ... ]
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261005131241.1575131-1-mjambigi%40linux.ibm.com
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Tested-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
