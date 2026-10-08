@@ -1,117 +1,235 @@
-Received: from mail-106121.protonmail.ch (mail-106121.protonmail.ch [79.135.106.121])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36CF2488D95;
-	Thu,  8 Oct 2026 09:50:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.121
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 895AA48E0D5;
+	Thu,  8 Oct 2026 09:58:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791453054; cv=none; b=dMI0bnuyhxkxRzr/+1tunNCHF6mheWp0R6mmD2vmNSissQuRREJTM2p1PsWk6wcznG3j6cnYBtq2dnmWOpMWrrStPRQLvNp4SaqhiBlwv/j+JnDr4Hcj/dhM0JUPLfSZjqH2tXWtncCqoM/dtYqxOQaV0P1wIn41GT9U/v9TsJc=
+	t=1791453489; cv=none; b=Yj71Votwdt+Us+Xcfsl/UhvaFSTDImo12itbC0dyn+yBWEUIvuPxU4wMhSbvI2JU8oO9TTg0ucgk7YrvllfPVgHWDJfMzUo5+UCIFkw6MegB5doaG4tfc0t5J8L0bJl385t2T0SMa3bFFhvapz6TjiTCuqzTPI43P5WeltsFGGA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791453054; c=relaxed/simple;
-	bh=RkqGAR14G1OtyAFgFM5jnSLYgzOduqU58jb5n3uYyS0=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=EgOd+FK+qN3KbfWNOUM8ORbOExjDAUmRtBbmn3YUoY2ZREV4srn5rUFKoD0iDWAQWGJYTpVyBiyqcMYRJe1ZWGhnMCk5eQOD7SVg7gFtSKP1oJ4dH6mB9VFow392QMRYYPyy0yvMpGd/9b6nNAbtUQAVfT7LrCW6kkPtxtRTsCY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=LAuRBOEo; arc=none smtp.client-ip=79.135.106.121
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
+	s=arc-20240116; t=1791453489; c=relaxed/simple;
+	bh=uyh1ANIiY/EH3TF26YzPP6Fla40vsehTyFwa87AMftM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ltH+5y3BLLJHE3KWVAZgbHvqP8XH6lwNXXa0LzsA2IagNdoTpk3qs38mJr90xLJxYuOTZ7tvCbIykegDfY+DVnxjbpHPZilMoZiXy8m6AaUz8t0hLMUq3g/mDUe/yCX7CgMwGfyLLcyaAVWEv8LxzJSXURcntubDcYsBuJU8WYA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=pD05mRuT; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="LAuRBOEo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=protonmail2; t=1791453046; x=1791712246;
-	bh=B12ERDkm0RUyoC16X3Dd24W8xlHWTs5vNfBL0yUlN0M=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=LAuRBOEo/M/qa8vnKr5OLlGmYsvZPs5ztkjqzDVF/tLdZw6wag6zk/aNhdSXEj+iy
-	 ddM8tSmZXUZTW4Yx0X3ar9EyQxF2C+2GwOo1rNYJAHCkh3AG8At+kjJQEzk3ka5S4N
-	 Ow9egVRCltqnrjdCRtu2VSDPU7lcbHcQHax8qkd+JKVokr49aoLRIkVbdgt1DRekRA
-	 N4fnldgJG5RsPg+FHs6SjC56reIq/MnoyeFwWPHe+LyYZLvdwPI7WIxaNtA/spIXLv
-	 GVOtbYmi3q+CRgRpHmzFZ2KP6CZaXDvp9DlVwCY5ML1IT8FZHmqTvJBr8N7kcLUzBm
-	 UKrRLN5BzsXqw==
-Date: Thu, 08 Oct 2026 09:50:41 +0000
-To: Hidayath Khan <hidayath@linux.ibm.com>
-From: Bryam Vargas <hexlabsecurity@proton.me>
-Cc: Simon Horman <horms@kernel.org>, Wenjia Zhang <wenjia@linux.ibm.com>, "D . Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond <sidraya@linux.ibm.com>, Mahanta Jambigi <mjambigi@linux.ibm.com>, Wen Gu <guwen@linux.alibaba.com>, Tony Lu <tonylu@linux.alibaba.com>, Paolo Abeni <pabeni@redhat.com>, Ibrahim Hashimov <security@auditcode.ai>, netdev@vger.kernel.org, linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next] net/smc: abort the connection when the peer overruns the RMB
-Message-ID: <20261008095036.269598-1-hexlabsecurity@proton.me>
-In-Reply-To: <dbb06d1d-17cc-4316-8efc-8e27c9bbef2e@linux.ibm.com>
-References: <20260808081242.409253-1-hexlabsecurity@proton.me> <dbb06d1d-17cc-4316-8efc-8e27c9bbef2e@linux.ibm.com>
-Feedback-ID: 199661219:user:proton
-X-Pm-Message-ID: 3d8033bd71657ca3228f572195a0396d242ae5a2
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="pD05mRuT"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6987ZY3Q3705416;
+	Thu, 8 Oct 2026 09:58:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=Gj/ZDF0ueDprGDA8tIpYboHOxZC4
+	xUDWrbukfzt735Q=; b=pD05mRuTdM2MAD2cfKxZsocc9i2d8OZksUde3UIZFEQ/
+	eIsRKkAMAPbE6bSSCfNP4eY8HqNB6sK2LtyuYL2aVr8Tm0ZWXGIA02v78lI1nT7n
+	zNNL4t/LX2Phcqtk/7OxgOdIQ6IvNoRO/q6DW+1hSV43BS2VINMeGuYBdPZfDjjs
+	gsAlJZ1Vf4mWRv8ZIfV164cURKSYTGxUy19rsWMpQ4IyItS1Sxs50KztTxQs/9jr
+	yW+Y33bAzznm1qaNkDVeP45JMTIteNEQIr/C8RFMBn2syJpPHC/eGXyynqtVENBN
+	QlRwCJ3q2TuIsjj4sF7brdS+Wzp88MTuNQV4Uq95QQ==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h5xk1ak78-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 08 Oct 2026 09:58:04 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6987IUih3149960;
+	Thu, 8 Oct 2026 09:58:03 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h5a6dphka-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 08 Oct 2026 09:58:03 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6989vxne50987352
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 8 Oct 2026 09:57:59 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6FD8B2004B;
+	Thu,  8 Oct 2026 09:57:59 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4CDA920043;
+	Thu,  8 Oct 2026 09:57:59 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  8 Oct 2026 09:57:59 +0000 (GMT)
+From: Ajaykumar Rajappa <ajaykr@linux.ibm.com>
+To: linux-s390@vger.kernel.org, sashiko-reviews@lists.linux.dev
+Cc: Ajaykumar Rajappa <ajaykr@linux.ibm.com>
+Subject: [PATCH v5] zfcp: Fix integer underflow in status read buffer payload length
+Date: Thu,  8 Oct 2026 11:57:57 +0200
+Message-ID: <20261008095757.1813357-1-ajaykr@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=YtCa1IYX c=1 sm=1 tr=0 ts=6ac7692c cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=ni9HTG9aRuJYcwbUdVUA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA4MDAzOCBTYWx0ZWRfX8B5topjd2Uqc
+ DmSrJQGfSGZAAa4qTCuqt911TXmfQz68x5SCxyLbQsYtHUJ1Z58x4gvLz8THFV4EkLQan7juzyX
+ EO2YnwQM8CwCnJcuuq2bfuH1705J55paRb3yPCKBp6PBs+/YQn1b2eQJtBwHj4OI2G4nUm3xbIa
+ QERK2Nc8Npb96/i27zX+53bc7SRICCHjGWgSefi96UvqQe0dVHgWsyRKDwDNj+lHayRu6oMFqgL
+ lCWfwsInGZeStJAT2McZrxhgLM5nr7B02VvAL8Vs/gLpJu6faX/kjtu/JnzBBIxzCXhn7xcd9F3
+ 4xSoglv63rjdAy4pkeiFPBXMxT5v71SEQPOZqRwp0B4i19kb4fI/JWz4gsz+zaluhH2jwSAD40q
+ eGBImkS9KG5ElKu88rVx0d7l9VGlamrwjXy/1bhvf++cgYgqzCXt6SnHodp/jCHiygvqIt9dWQX
+ lsoBexgw4tkxeDL0z6g==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA4MDAzOCBTYWx0ZWRfX/HvvEjC7uu/W
+ jyKRbC8TSktk5U5p90n2XtpFqaKTEwr8k/jas88a14WJJ/NYwGcFkQM2ixKWiO2v7IU3wYpGaDi
+ V4nG9j21VLEFlJwS8sCFKHiwaQhWEnE=
+X-Proofpoint-GUID: jMzhEiF1DkIBtr8vVbYApSK86P_zP5x9
+X-Proofpoint-ORIG-GUID: jMzhEiF1DkIBtr8vVbYApSK86P_zP5x9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-08_03,2026-10-06_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 phishscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
+ lowpriorityscore=0 suspectscore=0 malwarescore=0 adultscore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610020000 definitions=main-2610080038
 
-Hidayath,
+zfcp_dbf_hba_fsf_uss() only guards against a zero-length status read
+buffer. If srb->length is smaller than the fixed header size of
+struct fsf_status_read_buffer, subtracting the payload offset
+underflows and can lead to an out-of-bounds read.
+ 
+zfcp_dbf_san_in_els() has the same issue, where the underflowed value
+is used as the scatterlist payload length.
+ 
+Fix both cases by validating payload access against the payload offset.
+If the reported buffer length does not reach the payload area, suppress
+payload reads and avoid constructing a scatterlist for non-existent
+payload data.
+ 
+For HBA tracing, preserve serviceability by unconditionally storing the
+value-shifted SRB length in pl_len. This retains a reversible mapping to
+the original channel-reported length without changing the existing trace
+record format, while payload data is only read when the reported buffer
+length reaches the payload area.
 
-Sorry this sat for two months -- a major earthquake here, then
-wrapping up my postgrad program.
+For SAN tracing, preserve the original channel-reported SRB length in
+the trace record and separately track the number of payload bytes that
+may be safely read. This retains trace evidence of anomalous
+firmware-reported lengths while preventing payload reads beyond the
+reported buffer.
+ 
+For valid payloads, preserve the existing tracing behavior.
 
-> Yes, please send the logs.
+Fixes: a54ca0f62f95 ("[SCSI] zfcp: Redesign of the debug tracing for HBA records.")
+Fixes: 2c55b750a884 ("[SCSI] zfcp: Redesign of the debug tracing for SAN records.")
+Signed-off-by: Ajaykumar Rajappa <ajaykr@linux.ibm.com>
+---
+Changes in v5:
+ - Address Steffen's review comments regarding HBA/SAN trace servicability.
+ - Preserve HBA pl_len semantics so trace readers can always assume the
+   value-shifted subtraction.
+ - Retain the original channel-reported SRB length in SAN trace records.
+ - Use a separate capped length to control payload reads in the SAN path.
+ - Prevent payload reads when the reported buffer length does not reach
+   the payload area.
+Changes in v4:
+ - Preserve the original channel-reported SRB length in SAN trace
+   records when no payload area exists.
+ - Distinguish between the recorded length and the payload length that
+   may be accessed using length/cap_length semantics.
+ - Use a capture length of zero to prevent payload access for malformed
+   status read buffers.
+ - Address both the underflow/OOB issue and the trace serviceability
+   concern in the same patch. 
+Changes in v3: 
+ - Rework payload length handling for srb->length < pay_offset and 
+   treat such cases as an empty payload.
+ - Prevent payload processing and scatterlist initialization when the 
+   reported buffer length does not reach the payload area.
+ - Keep the fix focused on the underflow/OOB issue and preserve the 
+   existing tracing behavior for valid payloads.
+Changes in v2: 
+ - Preserve anomalous short srb->length values by capping payload lengths
+   to srb->length instead of forcing them to 0.
+ - Introduce a local pay_offs₹et variable to avoid repeated offsetof()
 
-Log below, from today's re-run on v7.3-rc6. One note on the label
-first: it isn't stable across runs. My Aug 8 mail said
-slab-out-of-bounds, which is what the Jul 23 run printed; the Jul 11
-run said slab-use-after-free and today's says use-after-free, all on
-the same 327520-byte read (5 * len). The second chunk is read from ring
-offset 0, so its first 65504 bytes are still inside the RMB and the
-remaining 262016 run past it, and KASAN names it after whatever sits
-past the RMB. If the commit message names the bug type, take it from
-the log you paste.
+Changes on the git hub can be found at: 
+https://github.ibm.com/Ajay-Kumar-K-R/linux/tree/zfcp-fix-srb-length-underflow-v5
+---
+ drivers/s390/scsi/zfcp_dbf.c | 38 +++++++++++++++++++++++++-----------
+ 1 file changed, 27 insertions(+), 11 deletions(-)
 
-Repro: two AF_SMC sockets over SMC-D loopback, v7.3-rc6 with KASAN,
-rmb_desc->len 65504. The sender puts its producer cursor on the wire
-as wrap++ with count 0, six times. Each CDC passes every per-cursor
-bound and smc_curs_diff() returns len for each, so bytes_to_rcv
-reaches 393024 (6 * len). recv() returns 393024 and the second chunk
-is a 327520-byte read:
-
-  BUG: KASAN: use-after-free in _copy_to_iter+0x183/0x1390
-  Read of size 327520 at addr ffff88814a0f0020 by task smc_forge_test/1695
-  Call Trace:
-   _copy_to_iter+0x183/0x1390
-   smc_rx_recvmsg+0xbe0/0x27a0 [smc]
-   smc_recvmsg+0x1c9/0x3a0 [smc]
-   sock_recvmsg+0x14b/0x190
-   __sys_recvfrom+0x190/0x2a0
-   __x64_sys_recvfrom+0xdb/0x1b0
-   do_syscall_64+0xdd/0x4a0
-   entry_SYSCALL_64_after_hwframe+0x77/0x7f
-  The buggy address belongs to the physical page:
-  head: order:4 mapcount:0 entire_mapcount:0 nr_pages_mapped:0 pincount:0
-  Memory state around the buggy address:
-   ffff88814a0fff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  >ffff88814a100000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-
-Trimmed: KASAN's own frames, the "?" frames, registers and the page
-dump; full log on request. With our v6 cursor series applied (2/3
-bounds the receive length) the same run returns 65504 and KASAN stays
-quiet, and an unforged transfer is clean. I haven't run it against
-your patch. FWIW the forging is a test knob on the sender; on the rx
-side the test module only adds a read-only readback of bytes_to_rcv,
-which the test polls instead of sleeping, and a clamp toggle that
-stays off in this run.
-
-Ibrahim Hashimov raised the same accumulator gap on his "validate peer
-CDC cursor" thread in July and accepted the Suggested-by I offered him
-for the follow-up I had planned then. Your patch covers that
-follow-up, so I'm passing it on; your call:
-
-https://lore.kernel.org/all/20260724072117.73038-1-security@auditcode.ai/
-
-Of the two changes of mine you planned to rebase on, "net/smc:
-unregister the connection before draining the rx tasklet" is in
-mainline (36cdf5d48ca1), and "net/smc: order the CDC receive path
-against buffer publication" is not merged; its last posting is v4:
-
-https://lore.kernel.org/all/20260728-b4-disp-52ee4e7d-v4-1-0dda94b0f397@pro=
-ton.me/
-
-Thanks,
-Bryam
+diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
+index 81fb8af408e9..c5501eae9977 100644
+--- a/drivers/s390/scsi/zfcp_dbf.c
++++ b/drivers/s390/scsi/zfcp_dbf.c
+@@ -223,6 +223,7 @@ void zfcp_dbf_hba_fsf_uss(char *tag, struct zfcp_fsf_req *req)
+ 	struct zfcp_dbf_hba *rec = &dbf->hba_buf;
+ 	static int const level = 2;
+ 	unsigned long flags;
++	const u32 pay_offset = offsetof(struct fsf_status_read_buffer, payload);
+ 
+ 	if (unlikely(!debug_level_enabled(dbf->hba, level)))
+ 		return;
+@@ -253,13 +254,17 @@ void zfcp_dbf_hba_fsf_uss(char *tag, struct zfcp_fsf_req *req)
+ 	rec->u.uss.s_id = ntoh24(srb->s_id);
+ 	memcpy(&rec->u.uss.res4, &srb->res4, sizeof(rec->u.uss.res4));
+ 
+-	/* status read buffer payload length */
+-	rec->pl_len = (!srb->length) ? 0 : srb->length -
+-			offsetof(struct fsf_status_read_buffer, payload);
++	/* Unconditionally store value-shifted SRB length: pl_len is a bijective
++	 * map of srb->length (pl_len + pay_offset == srb->length). A bogus
++	 * srb->length < pay_offset wraps to a large non-zero pl_len, which is
++	 * unambiguously distinguishable from pl_len == 0(genuine empty payload)
++	 */
++	rec->pl_len = (u16)(srb->length - pay_offset);
+ 
+-	if (rec->pl_len)
++	/* Only access payload bytes when srb->length actually covers them. */
++	if (srb->length > pay_offset)
+ 		zfcp_dbf_pl_write(dbf, srb->payload.data, rec->pl_len,
+-				  "fsf_uss", req->req_id, ZFCP_DBF_PAY_LEVEL);
++				  "fsf_uss", req->req_id);
+ log:
+ 	debug_event(dbf->hba, level, rec, sizeof(*rec));
+ 	spin_unlock_irqrestore(&dbf->hba_lock, flags);
+@@ -714,17 +719,28 @@ void zfcp_dbf_san_in_els(char *tag, struct zfcp_fsf_req *fsf)
+ 	struct zfcp_dbf *dbf = fsf->adapter->dbf;
+ 	struct fsf_status_read_buffer *srb =
+ 		(struct fsf_status_read_buffer *) fsf->data;
+-	u16 length;
++	u16 length, cap_length;
+ 	struct scatterlist sg;
++	const u32 pay_offset = offsetof(struct fsf_status_read_buffer, payload);
+ 
+ 	if (unlikely(!debug_level_enabled(dbf->san, ZFCP_DBF_SAN_LEVEL)))
+ 		return;
+ 
+-	length = (u16)(srb->length -
+-			offsetof(struct fsf_status_read_buffer, payload));
+-	sg_init_one(&sg, srb->payload.data, length);
+-	zfcp_dbf_san(tag, dbf, "san_els", &sg, ZFCP_DBF_SAN_ELS, length,
+-		     fsf->req_id, ntoh24(srb->d_id), length);
++	/*
++	 * Store the original channel-reported SRB length in pl_len.
++	 * cap_length specifies the number of payload bytes that may be read.
++	 */
++	length = (u16)srb->length;
++	cap_length = 0;
++	if (srb->length > pay_offset) {
++		/* Payload present beyond the fixed header. */
++		cap_length = (u16)(srb->length - pay_offset);
++		sg_init_one(&sg, srb->payload.data, cap_length);
++	}
++
++	zfcp_dbf_san(tag, dbf, "san_els", cap_length ? &sg : NULL,
++		     ZFCP_DBF_SAN_ELS, length, fsf->req_id,
++		     ntoh24(srb->d_id), cap_length);
+ }
+ 
+ /**
+-- 
+2.53.0
 
