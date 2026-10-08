@@ -1,187 +1,153 @@
-Received: from mail-dy1-f174.google.com (mail-dy1-f174.google.com [74.125.82.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 956D94302FA
-	for <linux-s390@vger.kernel.org>; Thu,  8 Oct 2026 08:45:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B4203E8351
+	for <linux-s390@vger.kernel.org>; Thu,  8 Oct 2026 08:45:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791449103; cv=none; b=glvcMiZpV5ODEQRtdO+7cxWBvZTTcu/oRHCj66cyZQoZvKfhr6kOW9xg2jEhCZCZ9+qxUEKv1BrdXhZ/Umxn+F40nOhULqV+2kdS0IWz3TlN6gbzw+fXw2GykritEK/QCO8L5J7azh531yjVJrXXvSGZbC5DYNKn6tZiWPOGr0Y=
+	t=1791449128; cv=none; b=dnXzyOhepaHjE1wj4cOcEgQ99YCaRdO2/AP1qbeXANcv0W3saqUnWZn45+8g0orYMX0a55MeL1nWt6uYOoEzXd9dCFZk1TfmjYCdkyuLMMLA4YErhrr2Twa2sf/FjOhouMD/GCp+VnHjy8GPqQQ40rBfHhrFWvnk8wHcx5pRXd0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791449103; c=relaxed/simple;
-	bh=u3oXVAtMhpkIy8FTkaike0U6LNVunwKRWME9UqOPfNU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DeLFgJwkSKHmlWZRKmeHETNnUF6NgLBQV0Bqrs6L26aW0LeK1MYIcnK4eqd6xQ8GmzewSFCb7/CLpzu35qWuy7vf2LgaaoGJQlDwfgqByUFU8V5VC/yT5atWu+zP58UDARMUQJReFL5wzDnkhONexhao0T/Mbdovi/1Ktmadv0U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LcxbX7V5; arc=none smtp.client-ip=74.125.82.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791449128; c=relaxed/simple;
+	bh=MEmd7hDk4aRqIG5K7Czjs0twuIe/SkjKQWB+Hgv0Rlk=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=SxOXuUDJd9/8+vouAw9sVhGIFLaH9Cf+vqA7lw3a3v52Cr4o7MzwxlsGzIW1aHtjKPBMiWiRk2R44iwf4cbJjcVaTyzXRnZ8fE9DnOclZaOGOlRQUG23t2MCePSt3O+dk1ksguEhqUtleiR0AtB4XP+DYQR2TPR1vl6sPsTYk4E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ErpH59hy; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LcxbX7V5"
-Received: by mail-dy1-f174.google.com with SMTP id 5a478bee46e88-33e623bd651so86894eec.0
-        for <linux-s390@vger.kernel.org>; Thu, 08 Oct 2026 01:45:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791449102; x=1792053902; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=lwWsdIXelLbIWkcXFPRTLY38upfrcbnNJ647ZN9lsPA=;
-        b=LcxbX7V5XWLW9JQ3wdf03a4MZCWibSs4POCDBJSIcQLIYEOi50T2z5kkYwsWapz/xU
-         8NeE0EI6R5yx+WyaRZLhuttH0IOTE6GvjDqfKhqUcOY0LXJlZbLduF/ydIamrPFGbZSw
-         Q2fZCgmdc8UCsuzrNiI7xsYd5I7sOOgNcQ7CT6LoMUxKmLv2OGrGlIl03TdsSvcpgFh1
-         dFlVd/2HGLe8mee0uc0CsIyfWBiu4kbYqMapKdoZIplWMlCexpRjKUPxGVQrc5tH8hAZ
-         58S2HeACtgX3MLq9797wIPmOe8HAll0Wbij7xxzkIbriZBqGXbeFGJzYXORjPW/fWtro
-         EQaQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791449102; x=1792053902;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=lwWsdIXelLbIWkcXFPRTLY38upfrcbnNJ647ZN9lsPA=;
-        b=G1ueTuu+gg7bOi2NAUqSPigWEUfhcsMemFI4hwtPF3m0ASZs3UFtweEFy++3ta4mvi
-         1YH3ZdUc93IuaN6OLV2QFhHlu+I2D37Cru2TO4456rOEdtfD1Yrox+wRQoqWSWJFY1sG
-         Co1VYVNeCdRZfrXMn3FatqReJTo3etyt2TY8sHpJ2m6smjMsl2KKrqiTu0bSN6u95M0F
-         6JClBBff4RvHcYt57oy901eztTusJmIzgvsk3GxFSQd+5z86cCuf8FlK39izd1zn1muz
-         n84WyvvXy8lBDq6gP1kvbChJ2HC0B/Uow+eZWLZiABMhOj5hnm046zJiHr6mi8kvGHz/
-         VjBw==
-X-Forwarded-Encrypted: i=1; AKwUvBy+PIuzYE/XwKwaNZWujYg/KGT5d2Jv3Wc5qP+cPnR81nv80qgKAEnngk/+VjF1JL85/aiNtX/H4ohC@vger.kernel.org
-X-Gm-Message-State: AFq9FYJ6h3ldOdk8YEuvmilpZnuSwJen8YmjrxeT08O+JH8n19Xxp8ny
-	05XSde8Pu7MjxVmjbGGFfMPlQnoWM8y6lD+jYH88lauirM6I4Q0yweLd
-X-Gm-Gg: AYBFou2e1pR6ebe6ElgxL7s7RztCgxaYfwlGwycwNP6LFQ97wef8FGDs6GNRBQqO2yt
-	CWr4d4bOvTSYbDK/xrQqU5d2lix9kLIw6+X+N/wGDLyx1pBOmO2iMp++6lup68z6h/tU3EXVhPK
-	pfb69sDj4LweRHa5znI2XzmUVjlR4Qfq+KS3dC5hUHFAsCwVAnOUXPW6nTm16kw7lw3OydGIssR
-	WC9Id0TvgQP0om1e9kM7DKnCBirSKwWc1jLfKdl+/dLDSCGk7m5ui82dLboPUsO9zzD1ExuXTiL
-	U7ZGMyXJNTjbWouudpPa1/mt/GvpoDBEfFettwzd6ComSvdWNV9icH9hmIONTGzojzq+qspPCLx
-	QhgkfO9YM57x2yV8nu9terRxFWxkSTUP55T1oLnOkkhipuQ0KxGKjQ416qeqejXBqo9gTqftr5h
-	EfEwIpSqpaIKyRMrf9Kdzpj8qwHEZV5qD3rgUYuxJLWfoGTGSUoqG31Z9gtcMpW6taJB+Nq04AD
-	lDHX5Mbm0sbdSVcsk1TDT/mMnvsxisyPqelwIeGm+h++8cMIuphltcbquSBl5Um7hKxRw==
-X-Received: by 2002:a05:7300:80c6:b0:351:8cd9:7a53 with SMTP id 5a478bee46e88-3518cd97b86mr1994736eec.0.1791449101496;
-        Thu, 08 Oct 2026 01:45:01 -0700 (PDT)
-Received: from localhost.localdomain (95.169.12.199.16clouds.com. [95.169.12.199])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-351735e316fsm9920870eec.11.2026.10.08.01.44.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Oct 2026 01:45:01 -0700 (PDT)
-From: Chengfeng Ye <nicoyip.dev@gmail.com>
-To: "D . Wythe" <alibuda@linux.alibaba.com>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>
-Cc: Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	Chengfeng Ye <nicoyip.dev@gmail.com>
-Subject: [PATCH net v3] net/smc: protect clcsock lifetime in smc_getname
-Date: Thu,  8 Oct 2026 16:44:44 +0800
-Message-ID: <20261008084444.787449-1-nicoyip.dev@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ErpH59hy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C294B1F000FF;
+	Thu,  8 Oct 2026 08:45:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791449127;
+	bh=3VuDHmYrgF8nZfcIg274JbQWl9zQ7I/Q50M9J8CpJDc=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=ErpH59hy/i78mCBGjHLp+/6+mT4VEj1WnmkFJziyATmBSMADHJN9GKOn6mZ9ybw4t
+	 3bXG20JZQWXNhm6j+EdpkPLUAqrovcycWRtR46SOoUSEmd04a9CktvzZp1uShyEPSW
+	 rEUu8VpbpEG6Zcj0FfwoG7WwqW6Cn6UWjT+Ycw8OTPctuN0KXnCggMb6r9amKV3qR1
+	 K4F2VSAUg4MrJjAdj1Oi/Q580yOvq7LjkAs87DfucdGbJxWsvVCBQSt69LdCDPVT4C
+	 P1YC8H6RFUfgZ9xXnaQVlkF5x2ULAGbdsNfep9q0AmIAVy+spcb4VrgkmYkuvcAg7x
+	 ubcXHxYK2KKow==
+Message-ID: <sashiko-outbox-163852@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH RFC 1/2] kernel/sched: Introduce idle SMT priority
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Mete Durlu" <meted@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20261008-hiperdispatchfix-v1-1-73fe41081070@linux.ibm.com>
+References: <20261008-hiperdispatchfix-v1-0-73fe41081070@linux.ibm.com>
+ <20261008-hiperdispatchfix-v1-1-73fe41081070@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 08 Oct 2026 08:45:26 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-smc_getname() dereferences smc->clcsock without holding
-clcsock_release_lock. Link-group termination can release the CLC socket
-through smc_close_active_abort() while the SMC socket is still open,
-for example after shutdown(SHUT_WR).
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] sched: Unintended loss of SMT balancing within same-capacity clust=
+ers during wakeup
+--
 
-A getsockname() caller can load smc->clcsock, then the termination worker
-can clear the pointer and call sock_release() before the caller accesses
-clcsock->ops or invokes getname(). This causes a use-after-free; if the
-worker clears the pointer before the load, it causes a NULL dereference.
-The syscall's file reference keeps the SMC socket alive but does not
-prevent asynchronous release of its CLC socket.
+commit e7b6978e87f4966f837633079b0ad5b78914e3c2
+Author: Mete Durlu <meted@linux.ibm.com>
 
-KASAN reported the following with test-only timing instrumentation:
+kernel/sched: Introduce idle SMT priority
 
-  BUG: KASAN: slab-use-after-free in smc_getname+0x19e/0x1b0
-  Read of size 8 at addr ffff888109abb4e0 by task poc/103
-  Call Trace:
-   smc_getname+0x19e/0x1b0
-   do_getsockname+0xe5/0x170
-   __sys_getsockname+0x8c/0x100
+On systems with asymmetric CPU capacities and SMT, this patch introduces
+SCHED_IDLE_SMT_PRIO to allow architectures to prefer idle SMT siblings of
+busy high-capacity cores over fully idle low-capacity cores.
 
-  Allocated by task 95:
-   sock_alloc_inode+0x1e/0x280
-   sock_alloc+0x3d/0x240
-   __sock_create+0x7e/0x430
-   smc_create+0x121/0x240
+> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+> index 7455a83a6a990..3e21233ee2ce2 100644
+> --- a/kernel/sched/fair.c
+> +++ b/kernel/sched/fair.c
+> @@ -8813,11 +8813,14 @@ static int
+>  select_idle_capacity(struct task_struct *p, struct sched_domain *sd, int=
+ target)
+>  {
+>  	/*
+> -	 * On !SMT systems, has_idle_core is always false and preferred_core
+> -	 * is always true (CPU =3D=3D core), so the SMT preference logic below
+> -	 * collapses to the plain capacity scan.
+> -	 */
+> -	bool has_idle_core =3D sched_smt_active() && test_idle_cores(target);
+> +	 * On !SMT systems or when idle SMT thread priority is active,
+> +	 * has_idle_core is always false and preferred_core is always true
+> +	 * (CPU =3D=3D core), so the SMT preference logic below collapses to the
+> +	 * plain capacity scan.
+> +	 */
+> +	bool has_idle_core =3D sched_smt_active() &&
+> +			     !sched_idle_smt_prio_active() &&
+> +			     test_idle_cores(target);
 
-  Freed by task 0:
-   kmem_cache_free+0xcc/0x340
-   rcu_core+0x50a/0x1850
+[Severity: High]
+By unconditionally setting has_idle_core to false here when
+sched_idle_smt_prio_active() is true, does this bypass idle core detection
+system-wide for all capacities?
 
-  Last potentially related work creation:
-   evict+0x446/0x6c0
-   smc_clcsock_release+0xa8/0xd0
-   smc_close_active_abort+0x26a/0x3a0
-   __smc_lgr_terminate.part.0+0x137/0x2e0
+[ ... ]
 
-Hold clcsock_release_lock across the pointer check and the getname()
-callback to serialize with smc_clcsock_release(). Return -EBADF if the
-CLC socket has already been released, preserving the existing peer
-state check and the callback's return value otherwise.
+> @@ -8860,8 +8863,8 @@ select_idle_capacity(struct task_struct *p, struct =
+sched_domain *sd, int target)
+> =20
+>  		/*
+>  		 * Perfect fit: capacity satisfies util + uclamp and the CPU
+> -		 * sits on a fully-idle SMT core, this is a !SMT system, or
+> -		 * there is no idle core to find.
+> +		 * sits on a fully-idle SMT core, this is a !SMT system, idle
+> +		 * smt priority is active, or there is no idle core to find.
+>  		 * Short-circuit the rank-based selection and return
+>  		 * immediately.
+>  		 */
 
-Fixes: b03faa1fafc8 ("net/smc: postpone release of clcsock")
-Cc: stable@vger.kernel.org
-Assisted-by: GPT-6.1-Sol
-Signed-off-by: Chengfeng Ye <nicoyip.dev@gmail.com>
----
-Changes in v3:
-- Limit the fix to smc_getname(), as requested by Mahanta. The code
-  change is identical to v1 and uses the existing release mutex.
-- Drop the new clcsock_lock and the other v2 changes. Mahanta will
-  address the other readers through the broader CLC lifetime changes
-  discussed with Dust Li.
-- Rebase onto current net/main; keep the stable Cc.
+[Severity: High]
+Since has_idle_core is now false, preferred_core will evaluate to true
+for all CPUs scanned.
 
-Review:
-https://lore.kernel.org/r/4bb7f15e-2cd8-4598-9bab-1ea5f5d2bb59@linux.ibm.com/
-v2:
-https://lore.kernel.org/r/20261003183325.2289707-1-nicoyip.dev@gmail.com/
-v1:
-https://lore.kernel.org/r/20260926180404.2721010-1-nicoyip.dev@gmail.com/
+Could this cause the loop below:
 
-Validation: W=1 builds of net/smc/ passed with IPv6 enabled and disabled.
-The KASAN excerpt is the original report; no runtime test was run for v3.
+    if (fits > 0 && preferred_core)
+        return cpu;
 
- net/smc/af_smc.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+to short-circuit prematurely and return an idle SMT thread of a busy core,
+failing to scan for fully idle cores of the identical capacity? This appears
+to lead to an unintended loss of SMT balancing within same-capacity clusters
+during wakeup.
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index e9f93b3ab435b..8b3ee70f8433f 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2784,6 +2784,7 @@ int smc_getname(struct socket *sock, struct sockaddr *addr,
- 		int peer)
- {
- 	struct smc_sock *smc;
-+	int rc = -EBADF;
- 
- 	if (peer && (sock->sk->sk_state != SMC_ACTIVE) &&
- 	    (sock->sk->sk_state != SMC_APPCLOSEWAIT1))
-@@ -2791,7 +2792,11 @@ int smc_getname(struct socket *sock, struct sockaddr *addr,
- 
- 	smc = smc_sk(sock->sk);
- 
--	return smc->clcsock->ops->getname(smc->clcsock, addr, peer);
-+	mutex_lock(&smc->clcsock_release_lock);
-+	if (smc->clcsock)
-+		rc = smc->clcsock->ops->getname(smc->clcsock, addr, peer);
-+	mutex_unlock(&smc->clcsock_release_lock);
-+	return rc;
- }
- 
- int smc_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+[ ... ]
 
-base-commit: 6d25ffca055a77787c21a36b66c253f76239411b
--- 
-2.43.0
+> @@ -8936,15 +8939,17 @@ static inline bool asym_fits_cpu(unsigned long ut=
+il,
+>  		 * Return true only if the cpu fully fits the task requirements
+>  		 * which include the utilization and the performance hints.
+>  		 *
+> -		 * When SMT is active, also require that the core has no busy
+> -		 * siblings.
+> +		 * When SMT is active or idle SMT priority is disabled, also
+> +		 * require that the core has no busy siblings.
+>  		 *
+>  		 * Note: gating on is_core_idle() also makes the early-bailout
+>  		 * candidates in select_idle_sibling() (target, prev,
+>  		 * recent_used_cpu) idle-core-aware on ASYM+SMT, which the
+>  		 * NO_ASYM path does not do.
+>  		 */
+> -		return (!sched_smt_active() || is_core_idle(cpu)) &&
+> +		return (!sched_smt_active() ||
+> +		       sched_idle_smt_prio_active() ||
+> +		       is_core_idle(cpu)) &&
+>  		       (util_fits_cpu(util, util_min, util_max, cpu) > 0);
+>  	}
 
+[Severity: High]
+Does bypassing the is_core_idle() check here when sched_idle_smt_prio_activ=
+e()
+is true inadvertently allow the early-bailout candidates (target, prev,
+recent_used_cpu) to further exacerbate same-capacity SMT packing?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261008-hiperdispa=
+tchfix-v1-0-73fe41081070@linux.ibm.com?part=3D1
