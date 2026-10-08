@@ -1,181 +1,218 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 206F449E5DE;
-	Thu,  8 Oct 2026 12:51:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A061370ADF;
+	Thu,  8 Oct 2026 13:08:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791463911; cv=none; b=l1rw3vT9aBKEIiRf1lZMz5msfImZPrkfFf5mZ92gqwfVuMbdpqaK23H3LInmhPzPDHDLYyj33Z3s89OdSmVj6djL1GaKWd344Trn7PTxNULkwIwm0bM/ep1fQo7DavIhkE0fWpK3mu+El9BwWGLKWhIpaaes+1DVRuLYhM7Zxbs=
+	t=1791464923; cv=none; b=sflzO5o2EpP/y/yq+t3Ph8zkwX0hvB2lgVbI6mAZGp27X2urmcWC3+CDCPd3vOj7yM3CqLJ1KJ4OdBvlbrP7ig1FHeOHiPEbt/Vcpgy1jW2mhtbnj4o0BABrt83wETIZD5BooePyD0YAJMVDNC6UmHFwgpjH8gsUCeUfyhtGztI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791463911; c=relaxed/simple;
-	bh=yybsjxVTbzd8fZs72yNrXHsa7ZAel783Veu0/ZplOjs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WTrtNbkNd0y/0Hz0z1s91vLENHjfhuBN4BqsEccCqoDq8/e2IuNhFKtvk2FHJJB24eCx2ZZpVavWeRYnJZgH/i2vvkiGstcXFKB0/XGw0XADfzkbUwPjbEEhvHU4t6LJknPXlQQWz1BOkgH+KuKFUZI8oTikFm3um6hs7nAb+DU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=jHcYeO7P; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	s=arc-20240116; t=1791464923; c=relaxed/simple;
+	bh=H5NJEt7yqMOxy2xNJagzstQ0Al3T8AXoJEniT1Zx0ek=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=thMTF/4/QlnoOjtjyk60fLga5HxuMCr9jeK1UvffAx4t9RJggHPeIZ86cvfQl+K65u6+e8FGrvB53sLSkeghhbHz1S/Bm97KOFAzWAZ21Yt4JbEjV/Bpu5QXY1uvk2+1oHTkUuDUqASU6AHPmfn5Fd4eVOqMZ8auqwAK/Me9YtY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=PpWsnrIg; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="jHcYeO7P"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id EFD321516;
-	Thu,  8 Oct 2026 05:51:43 -0700 (PDT)
-Received: from arm.com (usa-sjc-mx-foss1.foss.arm.com [172.31.20.19])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 385483F66F;
-	Thu,  8 Oct 2026 05:51:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1791463907; bh=yybsjxVTbzd8fZs72yNrXHsa7ZAel783Veu0/ZplOjs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=jHcYeO7PQ4uywop/cdz4Sp+A+aFbl0MgQD1Ls+p5EdipEXi6WD0t37Ph73w/vv0DU
-	 zaE58iHLndSo+/C52KBqYxok8UD7CtjGoRjaBmsWgfa74P8A2xQIUgYTR13WaYMyPN
-	 MJYzbhW+p/gSjdnlF9y+DSqgMqvawjjqEWGiXB4w=
-Date: Thu, 8 Oct 2026 13:51:24 +0100
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
-Cc: Will Deacon <will@kernel.org>, iommu@lists.linux.dev,
-	linux-kernel@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Mark Rutland <mark.rutland@arm.com>, Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	"Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Jiaxun Yang <jiaxun.yang@flygoat.com>,
-	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
-	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	x86@kernel.org
-Subject: Re: [PATCH v6 6/8] dma: swiotlb: Centralize memory-encryption pool
- sizing
-Message-ID: <aseRzPshcoys7AJS@arm.com>
-References: <20260924060756.1325156-1-aneesh.kumar@kernel.org>
- <20260924060756.1325156-7-aneesh.kumar@kernel.org>
- <asVs3doaJ4WrT3M2@willie-the-truck>
- <asYZFXGyafRjjBS0@arm.com>
- <asYiOgskwi8JYLe_@willie-the-truck>
- <yq5awlrt3dwo.fsf@kernel.org>
- <yq5av77c92oo.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="PpWsnrIg"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 698BZjX5005448;
+	Thu, 8 Oct 2026 13:08:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=0S7Y1Y
+	G8Vfh/MGfmUDV8Mrn2GW3PZELRw5BkIarHP/U=; b=PpWsnrIgEM6DU0sNeu4rI6
+	JQvlLnMXdgKGLkJhivaSSiwjmJFfniwz2DL+J0CKGriYZCMSNoJri9JFZThb7znZ
+	/OiB4MvbtxPNSlhYWCKQh8UADK/kDq79WbVQg77QQbKdLGoGER1rtAUMvCugpMD2
+	zc+NINwRKAXhF+Ga+YA55zK8gMTPVfPvcTqNJCX0TlZL5bz8Gw7G63NgkRPs7PQc
+	sVHwFQlWZJIuGZjQ24YNhwmSJFNZqJcUOI8XiVeRqAscpfShTpTMF1CBmJiuVy7u
+	VhXgvaLn0Ip4pdrlqW4ib4BBVmwPWT35CG+xL5oXi14Y21hQ7Z4XdVuWGTNDkoEw
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h5xk1bhcq-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 08 Oct 2026 13:08:41 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 698BHsC52134675;
+	Thu, 8 Oct 2026 13:08:40 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h5f3tx9q1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 08 Oct 2026 13:08:40 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 698D8dMq28836392
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 8 Oct 2026 13:08:39 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 657C358055;
+	Thu,  8 Oct 2026 13:08:39 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B5C355805D;
+	Thu,  8 Oct 2026 13:08:38 +0000 (GMT)
+Received: from [9.61.89.182] (unknown [9.61.89.182])
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  8 Oct 2026 13:08:38 +0000 (GMT)
+Message-ID: <a73af766-7013-4598-83d9-60bd291fdc7d@linux.ibm.com>
+Date: Thu, 8 Oct 2026 09:08:38 -0400
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yq5av77c92oo.fsf@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 08/15] s390/vfio-ap: Transition device migration state
+ from STOP to RESUMING
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, kvm@vger.kernel.org,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>
+References: <20260807221834.562851-1-akrowiak@linux.ibm.com>
+ <20260807221834.562851-9-akrowiak@linux.ibm.com>
+ <20260807224158.85FFE1F000E9@smtp.kernel.org>
+Content-Language: en-US
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <20260807224158.85FFE1F000E9@smtp.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=YtCa1IYX c=1 sm=1 tr=0 ts=6ac795d9 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=yHdRKbl5wnh_rvcmk_oA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA4MDA1MiBTYWx0ZWRfXyCvVGaAd6Xdl
+ a5bxpWw9BuaXSjCKa7dzbo4r5l7c07CgkeLj5KA7b1vrLIg4NesZDrHdTJ5Xl6b48C9MtRpAkFI
+ LVl9tmFXNQgpgT98eDj8DHyZ7GS2KaEYk2lNtQZeeFLlQVUCsbyKfvRSlzbH06uhKIsZChBbWPh
+ 1lBYgz32N1VOtHZrGkMyLgOdzxL4xOliIT6ol4coE7slHwxY/upiG8wg10Gd5Hn46HxAylf82kZ
+ +m4CKQ2LFZxAzYaFOcqF6ubVh4dxhKh0U7Zf665hjSytuSPXWKO5haAX4JJ3Wgd1bLK6F92YaXK
+ LyLJ+MaeDmacZQ4SiiNhBR+ZEyh4VjoFy5RQBBu+IVNGb5Y1rFkd/QikF/KG6JvkREbY0dRvoWG
+ +VDfK3GYHR7sItW2QCe6CeS3IyIp6mz0w6vPFojk1lizns4z/W1BLeW2PcfOYlbxItSNIamljzE
+ ejCke8iXF2EeluEIzAA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA4MDA1MiBTYWx0ZWRfX1Rc9ncP5rm2a
+ AflzlRwhRfxPCQUODg586Hnipnwl6aDb12UU3D1+Y7jR28ndO+zO4KC85p2fUDiQgGAJeQMBJ0q
+ 1ig0Jd9gaSnhtQJAnvZ/WIhWCmzJtWc=
+X-Proofpoint-GUID: 8_4xDEgq1ZgqA4NPxc4S1UeYtHaccJs-
+X-Proofpoint-ORIG-GUID: 8_4xDEgq1ZgqA4NPxc4S1UeYtHaccJs-
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-08_04,2026-10-08_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 phishscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
+ lowpriorityscore=0 suspectscore=0 malwarescore=0 adultscore=0 impostorscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610020000 definitions=main-2610080052
 
-On Thu, Oct 08, 2026 at 11:03:27AM +0530, Aneesh Kumar K.V wrote:
-> Aneesh Kumar K.V <aneesh.kumar@kernel.org> writes:
-> > Will Deacon <will@kernel.org> writes:
-> >> On Wed, Oct 07, 2026 at 11:04:05AM +0100, Catalin Marinas wrote:
-> >>> On Tue, Oct 06, 2026 at 10:49:17PM +0100, Will Deacon wrote:
-> >>> > On Thu, Sep 24, 2026 at 11:37:54AM +0530, Aneesh Kumar K.V (Arm) wrote:
-> >>> > > @@ -496,7 +516,8 @@ swiotlb_select_pool_policy(unsigned int flags)
-> >>> > >  	if (swiotlb_force_disable)
-> >>> > >  		return SWIOTLB_POOL_NONE;
-> >>> > >  
-> >>> > > -	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
-> >>> > > +	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
-> >>> > > +	    !restricted_dma_pool_present)
-> >>> > >  		return SWIOTLB_POOL_CC_GUEST;
-> >>> > 
-> >>> > I think this check on the restricted DMA pool is too general -- the pool
-> >>> > could be tied to a specific DMA-capable peripheral and so treating its
-> >>> > presence as a global property isn't right.
-> >>> 
-> >>> I agree it's a hack but that was the simplest way to avoid the pVMs
-> >>> getting a bounce buffer after this patch. More than happy to leave it
-> >>> out and reduce the buffer on cmdline or we come up with some better
-> >>> heuristics.
-> >>
-> >> Hrm, that does mean that reverting just this part will regress pVMs
-> >> because they'll suddenly be allocating a tonne more memory for an
-> >> entirely unused swiotlb buffer. So I think I'd prefer to drop the entire
-> >> series until this has been worked out properly.
-> >>
-> >>> Another option could be the arch code passing another flag that it
-> >>> doesn't want an encrypted pool (e.g. when running in a pKVM guest) but I
-> >>> don't particularly this either. The arch code doesn't know whether
-> >>> there's an alternative pool.
-> >>
-> >> At that point, the default size may as well be driven by the
-> >> drivers/virt/coco driver.
-> >>
-> >>> That said, such heuristics should have been a separate patch to make it
-> >>> easier to review/drop.
-> >>
-> >> I think the only right way to get a semi-accurate heuristic is to take
-> >> into account the set of dma-capable devices that will use the swiotlb
-> >> pool, but that's fiddly and should probably be tackled as a separate
-> >> series. Maybe a simpler hack in that direction would be to take the
-> >> SWIOTLB_POOL_CC_GUEST if _any_ device is going to use swiotlb? You'll
-> >> run into the usual problem of not being able to tell if a device is
-> >> DMA-capable or not, but you could probably look for a global restricted
-> >> DMA pool and, if that doesn't exist, check for per-device restricted pools
-> >> on dma-coherent devices (since restricted DMA isn't supported by ACPI) as
-> >> a reasonable approximation.
-> >
-> > So, something like this?
-> >
-> > 	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
-> > 	    swiotlb_cc_guest_needs_default_pool())
-> > 		return SWIOTLB_POOL_CC_GUEST;
-> >
-> 
-> Detecting a DMA-capable device is not straightforward, and if we get it
-> wrong, we will enable SWIOTLB_POOL_CC_GUEST unnecessarily. Would the
-> code below be a reasonable approximation of what you suggested?
-> 
-> Another option would be to make swiotlb_cc_guest_needs_default_pool() a
-> weak function that architectures can override. arm64 pKVM could then use
-> a different scheme (for this patch series default to false). Would that
-> be preferable?
 
-Even the rmem check for each device is still a hack that may bite us in
-the future (private devices for example would not need swiotlb). I'm
-thinking more and more of leaving the sizing an arch-specific decision,
-don't bother generalising it at all.
 
-On pKVM vs CCA guests, there's really nothing specific here to pKVM
-guests. The only difference is that confidential guests that so far have
-run without a swiotlb buffer will regress if their memory is tight. For
-confidential guests without dedicated rmem (either CCA or pKVM), I think
-our options are either command line swiotlb sizing or dynamic swiotlb.
+On 8/7/26 6:41 PM, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
+> - [Critical] Dangling pointer dereference and Use-After-Free (UAF) in `vfio_ap_stop_copy_read` due to dropped lock.
+> --
+>
+> --- Patch [8]: [PATCH v7 08/15] s390/vfio-ap: Transition device migration state from STOP to RESUMING ---
+> commit d54f2e0efd43f553196ad099672d0319fbd7c8d9
+> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+>
+> s390/vfio-ap: Transition device migration state from STOP to RESUMING
+>
+> Transitioning from VFIO_DEVICE_STATE_STOP to VFIO_DEVICE_STATE_RESUMING
+> starts a process of restoring the device state of the vfio device on the
+> target system. To prepare for restoring the device state, open a file
+> stream to receive the guest's AP configuration saved when the device state
+> on the source system transitioned from VFIO_DEVICE_STATE_STOP to
+> VFIO_DEVICE_STATE_STOP_COPY.
+>
+>> diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypto/vfio_ap_migration.c
+>> index 50781b61f7f18..e2e7ae8515e55 100644
+>> --- a/drivers/s390/crypto/vfio_ap_migration.c
+>> +++ b/drivers/s390/crypto/vfio_ap_migration.c
+>> @@ -451,6 +451,26 @@ static struct file *vfio_ap_open_file_stream(struct ap_matrix_mdev *matrix_mdev,
+>>   	return filp;
+>>   }
+>>   
+>> +static ssize_t vfio_ap_resuming_write(struct file *filp, const char __user *buf,
+>> +				      size_t len, loff_t *pos)
+>> +{
+>> +	/* TODO */
+>> +	return -EOPNOTSUPP;
+>> +}
+>> +
+>> +static const struct file_operations vfio_ap_resume_fops = {
+>> +	.owner = THIS_MODULE,
+>> +	.write = vfio_ap_resuming_write,
+>> +	.release = vfio_ap_release_mig_file,
+>> +};
+> [Severity: Critical]
+> Can a concurrent device close or reset cause a use-after-free when reading the
+> migration state?
+>
+> While looking at the migration file operations, I noticed a potential regression
+> in vfio_ap_stop_copy_read() where mdevs_lock is acquired but explicitly dropped
+> before copy_to_user():
+>
+> drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_stop_copy_read() {
+>      ...
+>      mutex_unlock(&matrix_dev->mdevs_lock);
+>
+>      if (copy_to_user(buf, (char *)mig_file->ap_config + read_pos, len))
+>          return -EFAULT;
+> }
+>
+> If userspace concurrently issues a VFIO_DEVICE_RESET ioctl or closes the device
+> FD while the read thread has dropped mdevs_lock, vfio_ap_release_mig_files()
+> will acquire mdevs_lock and call kvfree() on
+> mig_data->stop_copy_mig_file.ap_config.
+>
+> When the read thread resumes, copy_to_user() will read from the freed buffer,
+> which could leak kernel memory contents to userspace.
+>
+> Additionally, mdevs_lock is also dropped in vfio_ap_get_config() for a
+> potentially long-running operation:
+>
+> drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_get_config() {
+>      ...
+>      mutex_unlock(&matrix_dev->mdevs_lock);
+>      ret = vfio_ap_store_queue_info(mdev_name, ap_configuration);
+>      mutex_lock(&matrix_dev->mdevs_lock);
+>      ...
+> }
+>
+> If the device is closed and re-opened during this window, mig_data itself can
+> be freed and reallocated.
+>
+> However, vfio_ap_stop_copy_read() caches a local pointer before calling
+> vfio_ap_get_config():
+>
+> drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_stop_copy_read() {
+>      ...
+>      mig_file = &matrix_mdev->mig_data->stop_copy_mig_file;
+>
+>      if (!mig_file->ap_config) {
+>          ret = vfio_ap_get_config(matrix_mdev);
+>      ...
+> }
+>
+> This leaves mig_file dangling when vfio_ap_get_config() returns. This could
+> lead to a use-after-free when subsequently accessing mig_file->config_sz or
+> mig_file->ap_config.
+>
+> Are there protections against mig_data or ap_config being freed while
+> mdevs_lock is dropped during these operations?
 
-Could you respin your series while leaving out the generic sizing? IOW,
-no x86 code generalisation. We can discuss the best strategy on sizing
-later (I haven't checked how much of this series still makes sense
-without the generic sizing).
+This is a legitimate observation.
+The fix will be to hold mdevs_lock for the full duration of
+vfio_ap_stop_copy_read(), including across copy_to_user() and the
+vfio_ap_store_queue_info() call in vfio_ap_get_config(). This
+serializes against vfio_ap_release_stop_copy_file() (called from
+both vfio_ap_reset_migration_state() and vfio_ap_release_migration_data()),
+eliminating both race windows.
 
--- 
-Catalin
+>
+> [ ... ]
+>
+
