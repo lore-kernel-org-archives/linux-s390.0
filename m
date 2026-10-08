@@ -1,297 +1,257 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A539395ACE;
-	Thu,  8 Oct 2026 19:08:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DD6A3C3C09;
+	Thu,  8 Oct 2026 19:38:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791486522; cv=none; b=NkEvx6Pk/kFXEEtdx8Ferji7Hv5Kx83Kyvl+CY3WMBwbA33Wqe8LIj6zNz5QHPWewOsDNyFqhTtBSu9f3RANZq2n4QYxdgDXpfF2opSiL4oisKUmb2d5BEcZZ/50gvLmgmEKnwgvidgr/VeDx591q0UIVkbrWAyrE3KvtWCFfn0=
+	t=1791488319; cv=none; b=EvGRxl/HzgTdqSJYQhWEuiSvzGNMCW39p+3PkFjx/bl1rUn/NrFTsQB/EqD4nj4me3BuGR6c38KyKredv5ZwJ2c0RfKyBpMgEBcIgqYUYPzbZB46XsBiR/tPU9NrMkznu8G4izd4NlWEgXFdD+fQQ09tjBj9qt/flTAT0nUafAI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791486522; c=relaxed/simple;
-	bh=StYwcVJ1alVLddXICE5IoIrpTLyz9IaJC9WC49McDrw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QXjXQFfdYayGrYH9xxxvZaA9Xq2UyjXB+r/bLD5V2PSeZ884Zc+ILYRd7PuMtZVJjJp8V2Z39IB3jJt9tNexd27/3QDsoGYJu86Uc92KTPr6Q1sPrtcD+94BKC6GDg+8Cqtk+IqQbdcd08xMX8wIOCPua0xJoy5js75tOTkZk4s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=g7CNWEiz; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1791488319; c=relaxed/simple;
+	bh=mQIazJIqR3/WyQmnb2Q8AmSqL7274j9UgAzqzoexPxI=;
+	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=rVobL9aU/Wu1R/5fw6QUaxwXCuceqvA0d23+C4W3abO3Buvxkgk2ecbCKe+BsRbmtZp6iSQAcflSbF9m5WAUEXlRXR6UEDTWrYtyJ7NL7lBV5e3irdYz3zL8YDIC6z5rijgo1hetBrW6KL1Fzyh2meV/oJ/HFoM8GcoSTxvAiwA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ECpmsvdX; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="g7CNWEiz"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 698HZYjO784902;
-	Thu, 8 Oct 2026 19:08:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=PcwPW0
-	aWVeE1fuJOObLYpYRuT0P35/KbPbBsjsP+03k=; b=g7CNWEizla0wEiyd7x8Yhr
-	Hq2WiOafiapR9X+OWZDhoDRg0MC2/UaMHUZkzRE7860uJH1jb+Q51EAP+LHJBfyd
-	o3CoVn0l+r8/RnnxF+OQ/z9fAgvvtSE2DCKeXOaf8CzaCYBJfdwSf3s7NFdz781v
-	FtytlLRqPxvXV5ArbTo5FxMs6SxtOr2IMY+e++rv6bBKqW1iaMtR0aWvcHvn3Vfa
-	DRJ8iwHAA93k5fvZ4sl9gE39mJ2k4XBT8nJR7baBZD20edOhnAXkHH7RJ0Pi5BOw
-	2bFNxNE4G1VhT54YddCtCAuiUIHZ9VLrFq73FqNuBfaWTLhvKW20Y9zBwlVo36Dw
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h5xk1dmng-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 08 Oct 2026 19:08:39 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 698HWgNp3783100;
-	Thu, 8 Oct 2026 19:08:39 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h58d5s2vn-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 08 Oct 2026 19:08:39 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 698J8bG929229624
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 8 Oct 2026 19:08:38 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D5E8A58055;
-	Thu,  8 Oct 2026 19:08:37 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2BC9F58043;
-	Thu,  8 Oct 2026 19:08:37 +0000 (GMT)
-Received: from [9.61.89.182] (unknown [9.61.89.182])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  8 Oct 2026 19:08:37 +0000 (GMT)
-Message-ID: <4cce992d-6fa4-414a-9889-23d8ac9f1098@linux.ibm.com>
-Date: Thu, 8 Oct 2026 15:08:36 -0400
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ECpmsvdX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4B491F000FF;
+	Thu,  8 Oct 2026 19:38:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791488317;
+	bh=sCzqnBefz7UooLlE97V5EqoPp7jO57vXhAVsV4fF8ag=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=ECpmsvdXhSyc6vRoh8djA5wuYMDkZRAeVyK8B1aSGVFuJebZjrmiqTUojcT1v6v0v
+	 ETrWhVcZwoZpDt1VRua7c9YBY9UCjV16Ok7UQAq12ANLvjz/ybsbNEr9Kb25ZOrk/8
+	 KBAhe9OZWcg0dDqq7XCXyO99C2NCPgcRjve4gBLxy/fYxSisKIDhYMFJp/Xxd+cVlw
+	 6jcvS9ICQ3I8SJC9RHBmPgLsidCYGI5de88pbAbYdOf1IE9X+CkFmtFg5wAjQ/rBSI
+	 Uiei9Y6M6hXEjRacFJCsOkyzGnXw8TrWI9MPwb1fDIYTynIc0ymS8KRm/5bbuwSTLA
+	 iCbM0p5OS1hkA==
+Subject:
+ Re: [PATCH net v3] net/smc: fix abort_work termination in smc_conn_free()
+From: netdev-bot+sashiko@kernel.org
+To: hidayath@linux.ibm.com
+Cc: alibuda@linux.alibaba.com, dust.li@linux.alibaba.com,
+ sidraya@linux.ibm.com, mjambigi@linux.ibm.com, andrew+netdev@lunn.ch,
+ tonylu@linux.alibaba.com, guwen@linux.alibaba.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ pasic@linux.ibm.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-rdma@vger.kernel.org
+Date: Thu, 08 Oct 2026 19:38:36 +0000
+Message-ID: <179148831634.434549.5613903090885439829@kernel.org>
+In-Reply-To: <20261006073550.1595003-1-hidayath@linux.ibm.com>
+References: <20261006073550.1595003-1-hidayath@linux.ibm.com>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 11/15] s390/vfio-ap: Transition device migration state
- to STOP
-To: sashiko-reviews@lists.linux.dev
-Cc: Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik
- <gor@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>
-References: <20260807221834.562851-1-akrowiak@linux.ibm.com>
- <20260807221834.562851-12-akrowiak@linux.ibm.com>
- <20260807225402.D7DB01F000E9@smtp.kernel.org>
-Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <20260807225402.D7DB01F000E9@smtp.kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=YtCa1IYX c=1 sm=1 tr=0 ts=6ac7ea37 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=8s1LejCmVXr28qEsvwkA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA4MDA3NiBTYWx0ZWRfX+9vuQIz9mr3L
- 1agjdxcGFV6Zta0Vti0u5BGZs+jJZ31ZjEr4Ao9T4HGmZj+abukoqyPczmSfEtPf31Om1YNn8fa
- V4qpY+CxRnhUXt/thWLg60pD8Dgyg2jkECzKTLwN+/7Be73eEuoAaYOky8gIfWv76yOGGVcxsC4
- veK3RixSU+Dr0vhnJXo0Xur3vUqPUkWrDWBJikQxWjTSv0WL37LJOVGNdgmp9KTewfFtN66muB7
- ijaODPQZapZk9/G2TWBQjqxc+/6PwY7ryVszYEaQfq9ey0CbdyQM0BDSTM/1RbiZf+zDFb0QyZ2
- dz8Va8P7N54tXfqP/gQZ6I0zn+KU2DoBs5o/478WXBKtTPy+rHtEjEX2i6pNhNf9pPeHgygXOjD
- bagJyQOl3U7h+S+CdUjf4Gds+5cixPZZTDdeRLXhtYPz+D8o8yXJvBOnl1F22t8Kmk42QNJxLbu
- 9WysNPYTzUb3XXNm6kg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA4MDA3NiBTYWx0ZWRfX9VUpdM6Juyij
- e57hBYAQP5rCnQTPXoYfhBEfmISP77L2RdVwI9xcdQKdLArZNcyIXC2SFXcRs34fR/AWWrsUIBd
- XUM2g5AW2vAs1iSUxhweLtLlQ16m6LA=
-X-Proofpoint-GUID: soWSRSutXb43V7-ufQgzmYsei86o9OWe
-X-Proofpoint-ORIG-GUID: soWSRSutXb43V7-ufQgzmYsei86o9OWe
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-08_06,2026-10-08_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 phishscore=0 bulkscore=0 clxscore=1015 priorityscore=1501
- lowpriorityscore=0 suspectscore=0 malwarescore=0 adultscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610020000 definitions=main-2610080076
 
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue(s) to consider.
 
+Critical: 0 · High: 1 (1) · Medium: 0 · Low: 0
 
-On 8/7/26 6:54 PM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 4 potential issue(s) to consider:
->
-> New issues:
-> - [High] Memory leak and silent transmission of stale device state due to missing buffer cleanup on FSM STOP transition.
-> - [High] Migration data file descriptors allow out-of-band manipulation of the active AP configuration.
->
-> Pre-existing issues:
-> - [Critical] Unprotected concurrent ioctls cause Use-After-Free, Double Free, and Memory Leaks during migration reads/writes.
-> - [High] RESUMING state machine is permanently broken by an incomplete reset.
-> --
->
-> --- Patch [11]: [PATCH v7 11/15] s390/vfio-ap: Transition device migration state to STOP ---
-> commit e7e2429c70da0ea0a7016c096567e78834fcc351
-> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
->
->      s390/vfio-ap: Transition device migration state to STOP
->      
->      This commit updates the VFIO AP migration state machine to handle
->      transitions to the STOP state from RESUMING or STOP_COPY. It returns
->      NULL instead of an error, stating that the VFIO migration framework
->      will clean up file streams and associated data when releasing files.
->
->> There  only thing to do at this point is return
->> NULL to the caller since the file streams and associated data will get
->> cleaned up as a result of the VFIO migration framework releasing the files.
-> [Severity: High]
-> Is this assumption about the file streams and associated data getting cleaned
-> up accurate?
->
-> Looking at the file release callback:
->
-> vfio_ap_release_mig_file() {
->      ...
->      vfio_device_put_registration(&matrix_mdev->vdev);
->      return 0;
-> }
->
-> The callback only releases the VFIO registration reference and does not free
-> the state buffers like stop_copy_mig_file.ap_config or
-> resuming_mig_file.ap_config.
->
-> Could this lead to a memory leak and the silent transmission of stale device
-> state to the destination host on subsequent migration attempts, for instance
-> if we skip allocating and fetching a fresh configuration in
-> vfio_ap_stop_copy_read() because ap_config was leaked and left populated?
->
->> diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypto/vfio_ap_migration.c
->> index 4dd7373c3d9d9..30160e3dddedd 100644
->> --- a/drivers/s390/crypto/vfio_ap_migration.c
->> +++ b/drivers/s390/crypto/vfio_ap_migration.c
->> @@ -1511,12 +1511,17 @@ vfio_ap_transition_to_state(struct ap_matrix_mdev *matrix_mdev,
->>   		return filp;
->>   	}
->>   
->> +	/*
->> +	 * Terminates the data transfer session of the vfio-ap device state
->> +	 * between the source and target hosts. Since the vfio-ap device does
->> +	 * not virtualize a DMA device, there is no internal device state to
->> +	 * incorporate into the vfio-ap device on the target.
->> +	 */
->>   	if ((cur_state == VFIO_DEVICE_STATE_RESUMING &&
->>   	     new_state == VFIO_DEVICE_STATE_STOP) ||
->>   	    (cur_state == VFIO_DEVICE_STATE_STOP_COPY &&
->>   	     new_state == VFIO_DEVICE_STATE_STOP)) {
->> -		/* TODO */
->> -		return ERR_PTR(-EOPNOTSUPP);
->> +		return NULL;
-> [Severity: High]
-> Does returning NULL here successfully change the FSM state without clearing
-> the active filp pointers in mig_data?
->
-> If userspace keeps the migration file descriptor open (or duplicates it)
-> during an FSM transition to RUNNING, and then issues a write on the stale
-> file descriptor, could this allow out-of-band manipulation of the KVM guest's
-> AP configuration while the guest is actively running?
->
-> The file operations like validate_resuming_write_parms() appear to only check
-> if the incoming filp pointer matches the stored pointer:
->
-> validate_resuming_write_parms() {
->      ...
->      if (filp != resuming_mig_file.filp)
->          return -ENXIO;
->      ...
-> }
->
-> This happens without ensuring the FSM is actually in the RESUMING state,
-> potentially permitting writes during RUNNING.
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
 
-The concern is legitimate. This will be fixed by calling
-vfio_ap_release_mig_files() on both the RESUMING→STOP and
-STOP→RUNNING transitions. This sets resuming_mig_file.filp to
-NULL, so any write on a stale migration fd will fail the filp
-equality check in validate_resuming_write_parms() with -ENXIO.
-Since STOP is the only intermediate state between RESUMING and
-RUNNING, every arc back to RUNNING will have cleared the filp
-before it is reached.
+- [High] Resetting conn->freed in smc_conn_create() re-arms a stale
+  abort_work, so the new disarm scheme fails when one socket gets a…
 
->
-> [Severity: High]
-> This is a pre-existing issue, but does a reset or an aborted RESUMING phase
-> leave the RESUMING state machine permanently broken?
->
-> When vfio_ap_release_resuming_file() is called, it frees
-> resuming_mig_file.ap_config but fails to clear resuming_config_buf.filled:
->
-> vfio_ap_release_resuming_file() {
->      kvfree(mig_data->resuming_mig_file.ap_config);
->      mig_data->resuming_mig_file.ap_config = NULL;
->      mig_data->resuming_mig_file.config_sz = 0;
->      mig_data->resuming_mig_file.filp = NULL;
-> }
->
-> If userspace initiates a new RESUMING phase, validate_resuming_write_parms()
-> will evaluate this condition as true:
->
->      if ((resuming_config_buf.filled && !resuming_mig_file.ap_config) ||
->          (!resuming_config_buf.filled && resuming_mig_file.ap_config))
->          return -EFAULT;
->
-> Would this unconditionally reject all subsequent writes with -EFAULT?
+Pre-existing issues:
+- [High] smc_cdc_msg_validate() (net/smc/smc_cdc.c:319-323) sets
+  conn->out_of_sync = 1, local_tx_ctrl.conn_state_flags.peer_conn_abort…
 
-This is already fixed in the next version of the series in response to
-review comments made by Jason.
-The two-phase allocation design — including the resuming_config_buf
-staging struct, the filled flag, and the invariant check in
-validate_resuming_write_parms() — hve been removed.
-validate_resuming_write_parms() will be simplified to check only
-the filp equality and bounds against a single pre-allocated
-worst-case buffer, eliminating the stale filled/ap_config
-inconsistency described.
+--
 
->
-> [Severity: Critical]
-> This is a pre-existing issue, but are the migration reads and writes protected
-> against concurrent ioctls?
->
-> For example, in vfio_ap_resuming_write(), mdevs_lock is dropped before
-> copying data from userspace and interacting with set_new_ap_configuration():
->
-> vfio_ap_resuming_write() {
->      ...
->      mutex_unlock(&matrix_dev->mdevs_lock);
->
->      if (copy_from_user((char *)ap_config + write_pos, buf, write_len)) {
->      ...
->      ret = set_new_ap_configuration(matrix_mdev, ap_config, cfg_sz);
->      ...
->      if (!new_allocation)
->          kvfree(ap_config);
->      ...
-> }
->
-> If a concurrent VFIO_DEVICE_RESET ioctl occurs while the lock is dropped,
-> could set_new_ap_configuration() assign a locally allocated ap_config into
-> the now-NULL resuming_mig_file.ap_config?
->
-> Would the outer function then call kvfree(ap_config), leaving a dangling
-> pointer in the device state that could subsequently be used and double-freed?
->
-> Similarly, in vfio_ap_stop_copy_read(), the lock is dropped before
-> copy_to_user():
->
-> vfio_ap_stop_copy_read() {
->      ...
->      mutex_unlock(&matrix_dev->mdevs_lock);
->
->      if (copy_to_user(buf, (char *)mig_file->ap_config + read_pos, len))
->          return -EFAULT;
->      ...
-> }
->
-> Could a concurrent reset free mig_file->ap_config before or during the copy,
-> leading to an information leak of freed kernel memory to userspace?
+net/smc: fix abort_work termination in smc_conn_free()
 
-The concern is legitimate. Both races will be fixed by holding
-locks for the full duration of the read and write operations.
+The patch replaces cancel_work_sync() in smc_conn_free() with a
+non-blocking cancel_work(). When cancel_work() removes a pending item, the
+patch drops that item's socket reference. smc_conn_abort_work() now skips
+smc_conn_kill() once conn->freed is set. INIT_WORK() for abort_work also
+moves from smc_conn_create() to smc_sk_init().
 
->
->>   	}
->>   
->>   	if ((cur_state == VFIO_DEVICE_STATE_STOP &&
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index 9974149659c2f..907530e1d6464 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
 
+[ ... ]
+
+> @@ -1276,8 +1280,13 @@ void smc_conn_free(struct smc_connection *conn)
+>  			smcd_buf_detach(conn);
+>  	} else {
+>  		smc_cdc_wait_pend_tx_wr(conn);
+> -		if (current_work() != &conn->abort_work)
+> -			cancel_work_sync(&conn->abort_work);
+> +		/* Do not wait here: the work takes the socket lock this
+> +		 * caller holds. An instance that is already running is
+> +		 * parked on that lock and will find conn->freed set; only a
+> +		 * still-pending one has to give its reference back.
+> +		 */
+> +		if (cancel_work(&conn->abort_work))
+> +			sock_put(&smc->sk);
+>  	}
+>  	if (!list_empty(&lgr->list)) {
+>  		smc_buf_unuse(conn, lgr); /* allow buffer reuse */
+
+[ ... ]
+
+> @@ -1750,7 +1759,12 @@ static void smc_conn_abort_work(struct work_struct *work)
+>  	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
+>  
+>  	lock_sock(&smc->sk);
+> -	smc_conn_kill(conn, true);
+> +	/* smc_conn_free() sets freed with this lock held and before it
+> +	 * releases anything, so an instance that was queued or parked by
+> +	 * then has nothing left to do.
+> +	 */
+> +	if (!conn->freed)
+> +		smc_conn_kill(conn, true);
+
+[Severity: High]
+Can a stale abort_work still run smc_conn_kill() on a later connection of
+the same socket?
+
+cancel_work() does not wait for an instance that is already running, and it
+does not block a later requeue. That leaves conn->freed as the only thing
+disarming the work. However, smc_conn_create() clears it unconditionally:
+
+net/smc/smc_core.c:smc_conn_create() {
+    ...
+	smc_lgr_hold(conn->lgr); /* lgr_put in smc_conn_free() */
+	if (!conn->lgr->is_smcd)
+		smcr_link_hold(conn->lnk); /* link_put in smc_conn_free() */
+	conn->freed = 0;
+    ...
+}
+
+On the listen side, the socket can get a second connection while
+smc_listen_work() still holds the socket lock:
+
+smc_listen_work()
+  smc_listen_find_device()
+    smc_find_rdma_v2_device_serv()
+      smc_listen_rdma_init()
+        smc_conn_create()              /* conn A, maybe reused lgr */
+      smc_listen_rdma_reg()
+        smcr_lgr_reg_rmbs()
+          smc_llc_do_confirm_rkey()    /* peer times out or RKEY_NEG */
+      smc_conn_abort()
+        smc_conn_free()                /* conn->freed = 1 */
+    smc_find_rdma_v1_device_serv()     /* when prfx_rc == 0 */
+      smc_listen_rdma_init()
+        smc_conn_create()              /* conn B, conn->freed = 0 */
+
+A failover_validation CDC for conn A can arrive in this window.
+smc_cdc_rx_handler() looks up conn A, drops lgr->conns_lock, and
+smc_cdc_msg_validate() queues abort_work. That work is either parked in
+lock_sock() or queued after the cancel_work() in smc_conn_free(A).
+
+In both cases it can only proceed after smc_listen_out() releases the socket
+lock. By then conn->freed is 0 again, so smc_conn_kill(conn, true) runs on
+conn B. That sends an abort, unregisters conn B and closes the socket.
+
+smc_conn_create() also never clears conn->out_of_sync or
+local_tx_ctrl.conn_state_flags.peer_conn_abort. smc_cdc_msg_validate() set
+both for conn A, so does conn B inherit them? If so, every CDC for conn B
+would be dropped by the out_of_sync check in smc_cdc_rx_handler().
+
+Triggering this needs a validation CDC with conn A's alert token before the
+CLC accept is sent. So it would take a misbehaving SMC-R peer that shares an
+existing link group, rather than a well-behaved one.
+
+Before this patch, the same sequence ran into cancel_work_sync() or re-ran
+INIT_WORK() on a pending item. So this looks like a gap in the fix rather
+than something new compared to the baseline.
+
+The commit message says:
+
+  "An instance that is running is parked on that lock and will find the
+  flag set; an instance queued afterwards finds the same."
+
+The new comment above smc_conn_free() also says conn->freed "disarms a
+pending or running abort_work".
+
+Do these statements still hold when the connection is re-created on the same
+socket? The commit message itself notes that smc_listen_find_device()
+creates a connection once per device it tries.
+
+Would a per-lifetime guard be needed here instead of the freed flag alone?
+For example, a generation number recorded when the work is queued and
+checked in smc_conn_abort_work(). Another option would be to reset the abort
+state and drain safely before re-creating the connection.
+
+>  	release_sock(&smc->sk);
+>  	sock_put(&smc->sk); /* sock_hold done by schedulers of abort_work */
+>  }
+> @@ -2059,7 +2073,6 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+>  	conn->local_tx_ctrl.len = SMC_WR_TX_SIZE;
+>  	conn->urg_state = SMC_URG_READ;
+>  	init_waitqueue_head(&conn->cdc_pend_tx_wq);
+> -	INIT_WORK(&smc->conn.abort_work, smc_conn_abort_work);
+>  	if (ini->is_smcd) {
+>  		conn->rx_off = sizeof(struct smcd_cdc_msg);
+>  		smcd_cdc_rx_init(conn); /* init tasklet for this conn */
+
+[Severity: High]
+This is a pre-existing issue, not one introduced by this patch. The same
+late-receiver window also lets smc_cdc_msg_validate() write connection
+state directly, without the socket lock and without taking link references:
+
+net/smc/smc_cdc.c:smc_cdc_msg_validate() {
+    ...
+		conn->out_of_sync = 1;	/* prevent any further receives */
+		spin_lock_bh(&conn->send_lock);
+		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
+		conn->lnk = link;
+		spin_unlock_bh(&conn->send_lock);
+    ...
+}
+
+smc_conn_create() and smc_conn_free() set and use conn->lnk under
+lock_sock() and never take conn->send_lock.
+
+Suppose a receiver that found conn A in smc_cdc_rx_handler() does these
+writes after smc_conn_free(A) and smc_conn_create(B), via the v2 -> v1
+device search above. Could conn B then end up with conn->lnk pointing at a
+link in conn A's link group that it never held?
+
+If so, __smc_lgr_unregister_conn() would decrement the wrong link's
+conn_cnt, and smc_conn_free(B) would then run:
+
+	smcr_link_put(conn->lnk); /* link_hold in smc_conn_create() */
+
+on a link with no matching hold. Can that drop the link's refcount to zero
+early and run __smcr_link_clear() while the link is still in use? The hold
+on conn B's real link would also be leaked, and its link group never freed.
+
+The race window is narrow, but it is driven by input from the remote link
+peer.
+
+The race aside, changing conn->lnk here skips the pairing that
+smc_switch_link_and_count() uses:
+
+	atomic_dec(&conn->lnk->conn_cnt);
+	/* link_hold in smc_conn_create() */
+	smcr_link_put(conn->lnk);
+	conn->lnk = to_lnk;
+	atomic_inc(&conn->lnk->conn_cnt);
+	/* link_put in smc_conn_free() */
+	smcr_link_hold(conn->lnk);
+
+Does a validation CDC that arrives on a link other than conn->lnk unbalance
+the link refcounts as well?
+
+The patch only makes the work item harmless. These direct writes from the
+receiver are still reachable in the window the commit message describes.
+
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261006073550.1595003-1-hidayath%40linux.ibm.com
