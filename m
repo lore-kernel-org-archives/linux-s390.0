@@ -1,231 +1,161 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF7B52BEC34;
-	Thu,  8 Oct 2026 05:33:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D8CD3C061D;
+	Thu,  8 Oct 2026 06:12:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791437626; cv=none; b=D+XF+1rDsbDJNGDyCHVQvMhRJmbevT3vjTZ1vVXdoOpyW0OWhpxEQ/OJEm/EI5J9ZvezL1MUvLx9ULCdI8wgbYz8jLPRybooaPz/xGZo50i+OnK4HFTjk+/hhpBQok5Z6pmPG8+OsgziL1lJK8oAaOnBKA8Zf0brazggA7wyLxQ=
+	t=1791439962; cv=none; b=Uotr6/QcNywm1/Dih4latT2FHu1mfgo+WbiMPrp1w3nIDjk3V51QXv9880t0HZG0A+SMm1/F0tFx7aM7/DNe67ohh5D2zdI34JcxDh3x/yG05brfQcboaColzPAHh/9OkW8Myj+VyfmjuEkHTBV6yyZL7wrr2/qxLLcGcNL97aA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791437626; c=relaxed/simple;
-	bh=Xr/3FGMXw2SythNdPq6WqsopLIGssI8wJikwFk2nM/U=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=DgTsaKNzcJzwUvbeuHBGLrl9Cpm9weWBOEf8zcRUe24kZtQnPhBC1AUP6lgApF5FSS2OJt3iDAN9845FhNY1JX1rYV5Qv/6z9aktF2+3NpwUFQu5NcLCusMDaNX5F8KBVLp0Yl0x7MZiOfrwdokt3WGQwhNdn3gsRVeTU05Azqg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MlFvX1x1; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791439962; c=relaxed/simple;
+	bh=NOH/+b/wT3w7k9Awy+XZ3D0MdqqaJxwJ1VpmPcpJ8dI=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=hjiNgibAi0YOq+hiCuuif9T9eY0ozW/kWNXKizsdwzwuWd+XLdh5ihqnWetiRXxHnVDWstMQz+W4uRO9GPi0NzGdRwzmgyb1cQHQo0eX4EjwkaEcFrCQFfRW89BqBu+7alVIdG844L0fgXI+QcJdzauhy0hq77J3l772Nno0iC4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qVhrULpe; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MlFvX1x1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADBD61F000FF;
-	Thu,  8 Oct 2026 05:33:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791437624;
-	bh=DiCB3zTU35Q/So7+8YpTI1O1VNazQCwPsoCqXsbVCxA=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=MlFvX1x1UhWZRY1blp5vdgZEPOMCBXQinqSZI84kOfHvYoEphDSM4c94C8k0YCneZ
-	 +CvWpN13IHO40ySHjg36SGLM6p3x45bPMR627QwPtHEOxGz1S8+sT5TicHHAqfnwbg
-	 bqFKdwKME2OoCRwQAo2p4meLpit9e42WrSXDC9nPxddpD1ycCgJPlJjEd5pDoDOqWs
-	 ennUOXzrVpLk3Kqhf1z0mNeMc81DduJcnqdwFkPFglVDZ80bS0a6JisTfrcpB+qHEQ
-	 B2B7dFO8dNiI2LLj/G2xvndmsNBdA4U85+1Ksxk77R/C0BzNaKttWJhMVtqisJgUfF
-	 7H/HlTSl2Xjzw==
-X-Mailer: emacs 31.1 (via feedmail 11-beta-1 I)
-From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
-To: Will Deacon <will@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>
-Cc: iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-	Robin Murphy <robin.murphy@arm.com>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Marc Zyngier <maz@kernel.org>,
-	Steven Price <steven.price@arm.com>,
-	Suzuki K Poulose <Suzuki.Poulose@arm.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Mostafa Saleh <smostafa@google.com>,
-	Petr Tesarik <ptesarik@suse.com>,
-	Alexey Kardashevskiy <aik@amd.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Xu Yilun <yilun.xu@linux.intel.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	"Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Russell King <linux@armlinux.org.uk>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Jiaxun Yang <jiaxun.yang@flygoat.com>,
-	Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>,
-	Alexandre Ghiti <alex@ghiti.fr>,
-	Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
-	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	x86@kernel.org
-Subject: Re: [PATCH v6 6/8] dma: swiotlb: Centralize memory-encryption pool
- sizing
-In-Reply-To: <yq5awlrt3dwo.fsf@kernel.org>
-References: <20260924060756.1325156-1-aneesh.kumar@kernel.org>
- <20260924060756.1325156-7-aneesh.kumar@kernel.org>
- <asVs3doaJ4WrT3M2@willie-the-truck> <asYZFXGyafRjjBS0@arm.com>
- <asYiOgskwi8JYLe_@willie-the-truck> <yq5awlrt3dwo.fsf@kernel.org>
-Date: Thu, 08 Oct 2026 11:03:27 +0530
-Message-ID: <yq5av77c92oo.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qVhrULpe"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 13737C2BCF5;
+	Thu,  8 Oct 2026 06:12:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1791439962;
+	bh=NOH/+b/wT3w7k9Awy+XZ3D0MdqqaJxwJ1VpmPcpJ8dI=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=qVhrULpeh4h+MO8MXRmrjuC6xHzPtt60RcV4TcvHBzESDGh76LUmpUyEtPiCFbCfJ
+	 qpi4p+Aa0NRCZ5lq3athwygEVgBBRnkTFYei3dyugD/3rk+ZuoBnJYmT+BY814aJB/
+	 vm4S2EACfB1CezfI9ncP44rJmkdj9oQc97AheJb4/KuNZoYqYoSa2WjiT00nnl/cdD
+	 pGcYotbKLYlR5GgHaxLQFdoC4nLllmr9BU8rgUQX5bZ1mQOgNfo5ZBjFFWGAkW/glq
+	 oYxopp3VtvUnIcHiU6vAGP1rSP7iKqb4MtrHFQtblm3ybkNFLhMcBuCx5bgCWIfGY0
+	 ymqLxT5DWkytg==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4F55CA600D;
+	Thu,  8 Oct 2026 06:12:41 +0000 (UTC)
+From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
+Date: Thu, 08 Oct 2026 01:12:41 -0500
+Subject: [PATCH net v6 1/3] net/smc: bound the wire-controlled producer
+ cursor to the RMB
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261008-b4-disp-f7cd3d96-v6-1-fba616c0920c@proton.me>
+References: <20261008-b4-disp-f7cd3d96-v6-0-fba616c0920c@proton.me>
+In-Reply-To: <20261008-b4-disp-f7cd3d96-v6-0-fba616c0920c@proton.me>
+To: Sidraya Jayagond <sidraya@linux.ibm.com>, 
+ "D. Wythe" <alibuda@linux.alibaba.com>, Eric Dumazet <edumazet@kernel.org>, 
+ Mahanta Jambigi <mjambigi@linux.ibm.com>, 
+ Dust Li <dust.li@linux.alibaba.com>, 
+ "David S. Miller" <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>, 
+ Jakub Kicinski <kuba@kernel.org>
+Cc: Stefan Raspl <raspl@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>, 
+ Hidayath Khan <hidayath@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, 
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Simon Horman <horms@kernel.org>, linux-s390@vger.kernel.org, 
+ linux-rdma@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>, 
+ Wenjia Zhang <wenjia@linux.ibm.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1791439960; l=3766;
+ i=hexlabsecurity@proton.me; s=default; h=from:subject:message-id;
+ bh=1BDYD5ToutxgSIvObJyWl5RpOt3eIit6fHCV4Vi1b0I=;
+ b=Jn78WCdxW/a76dAdbN/0bH20zBvLVUcOz1kSwwusGigyRFbb4r6anFiFED4UWj4x0Co6akUki
+ yWZaiOUErf6ADmI0SAbfjnR/wsMYBR2eauRulME97cV5Kn/VjPzW6g9
+X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
+ pk=xw1AhCtQdvuoQc+bOQIYy9o8G++cp4/VniI2G/tc3G8=
+X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
+ auth_id=893
+X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
+Reply-To: hexlabsecurity@proton.me
 
-Aneesh Kumar K.V <aneesh.kumar@kernel.org> writes:
+From: Bryam Vargas <hexlabsecurity@proton.me>
 
-> Will Deacon <will@kernel.org> writes:
->
->> On Wed, Oct 07, 2026 at 11:04:05AM +0100, Catalin Marinas wrote:
->>> On Tue, Oct 06, 2026 at 10:49:17PM +0100, Will Deacon wrote:
->>> > On Thu, Sep 24, 2026 at 11:37:54AM +0530, Aneesh Kumar K.V (Arm) wrote:
->>> > > @@ -496,7 +516,8 @@ swiotlb_select_pool_policy(unsigned int flags)
->>> > >  	if (swiotlb_force_disable)
->>> > >  		return SWIOTLB_POOL_NONE;
->>> > >  
->>> > > -	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
->>> > > +	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
->>> > > +	    !restricted_dma_pool_present)
->>> > >  		return SWIOTLB_POOL_CC_GUEST;
->>> > 
->>> > I think this check on the restricted DMA pool is too general -- the pool
->>> > could be tied to a specific DMA-capable peripheral and so treating its
->>> > presence as a global property isn't right.
->>> 
->>> I agree it's a hack but that was the simplest way to avoid the pVMs
->>> getting a bounce buffer after this patch. More than happy to leave it
->>> out and reduce the buffer on cmdline or we come up with some better
->>> heuristics.
->>
->> Hrm, that does mean that reverting just this part will regress pVMs
->> because they'll suddenly be allocating a tonne more memory for an
->> entirely unused swiotlb buffer. So I think I'd prefer to drop the entire
->> series until this has been worked out properly.
->>
->>> Another option could be the arch code passing another flag that it
->>> doesn't want an encrypted pool (e.g. when running in a pKVM guest) but I
->>> don't particularly this either. The arch code doesn't know whether
->>> there's an alternative pool.
->>
->> At that point, the default size may as well be driven by the
->> drivers/virt/coco driver.
->>
->>> That said, such heuristics should have been a separate patch to make it
->>> easier to review/drop.
->>
->> I think the only right way to get a semi-accurate heuristic is to take
->> into account the set of dma-capable devices that will use the swiotlb
->> pool, but that's fiddly and should probably be tackled as a separate
->> series. Maybe a simpler hack in that direction would be to take the
->> SWIOTLB_POOL_CC_GUEST if _any_ device is going to use swiotlb? You'll
->> run into the usual problem of not being able to tell if a device is
->> DMA-capable or not, but you could probably look for a global restricted
->> DMA pool and, if that doesn't exist, check for per-device restricted pools
->> on dma-coherent devices (since restricted DMA isn't supported by ACPI) as
->> a reasonable approximation.
->
-> So, something like this?
->
-> 	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
-> 	    swiotlb_cc_guest_needs_default_pool())
-> 		return SWIOTLB_POOL_CC_GUEST;
->
+smcr_cdc_msg_to_host() and smcd_cdc_msg_to_host() import a peer's
+producer cursor from the wire into conn->local_rx_ctrl.prod without
+bounding it against the receive buffer. The urgent-data path in
+smc_cdc_msg_recv_action() then uses that count as a raw index into the
+RMB, so a peer that advertises a producer cursor past rmb_desc->len
+reads out of bounds of the RMB allocation in the receive tasklet and
+can disclose adjacent kernel memory.
 
-Detecting a DMA-capable device is not straightforward, and if we get it
-wrong, we will enable SWIOTLB_POOL_CC_GUEST unnecessarily. Would the
-code below be a reasonable approximation of what you suggested?
+Bound the producer cursor count to rmb_desc->len at the wire-to-host
+conversion, for both SMC-R and SMC-D. Bound only the producer cursor:
+the consumer cursor indexes the peer's RMB and is bounded by
+peer_rmbe_size, so clamping it to our rmb_desc->len would under-credit
+peer_rmbe_space and stall transmit to a peer with a larger RMB.
+Conforming peers are unaffected.
 
-Another option would be to make swiotlb_cc_guest_needs_default_pool() a
-weak function that architectures can override. arm64 pKVM could then use
-a different scheme (for this patch series default to false). Would that
-be preferable?
+Fixes: de8474eb9d50 ("net/smc: urgent data support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
+---
+ net/smc/smc_cdc.h | 27 ++++++++++++++++++++++++---
+ 1 file changed, 24 insertions(+), 3 deletions(-)
 
-#ifdef CONFIG_DMA_RESTRICTED_POOL
-static bool __init swiotlb_of_dma_candidate(struct device_node *np)
-{
-	struct device_node *node __free(device_node) = of_node_get(np);
+diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+index 696cc11f2303..ca76ef630356 100644
+--- a/net/smc/smc_cdc.h
++++ b/net/smc/smc_cdc.h
+@@ -221,7 +221,8 @@ static inline void smc_host_msg_to_cdc(struct smc_cdc_msg *peer,
+ 
+ static inline void smc_cdc_cursor_to_host(union smc_host_cursor *local,
+ 					  union smc_cdc_cursor *peer,
+-					  struct smc_connection *conn)
++					  struct smc_connection *conn,
++					  int max_count)
+ {
+ 	union smc_host_cursor temp, old;
+ 	union smc_cdc_cursor net;
+@@ -235,6 +236,15 @@ static inline void smc_cdc_cursor_to_host(union smc_host_cursor *local,
+ 	if ((old.wrap == temp.wrap) &&
+ 	    (old.count > temp.count))
+ 		return;
++	/* The peer producer cursor is wire-controlled and is later used as a
++	 * raw index into our RMB by the urgent path; bound its count to the
++	 * RMB.  max_count == 0 leaves the consumer cursor unbounded here: it
++	 * indexes the peer's RMB (bounded by peer_rmbe_size, not our
++	 * rmb_desc->len), so clamping it to rmb_desc->len would under-credit
++	 * peer_rmbe_space and stall transmit to peers with a larger RMB.
++	 */
++	if (max_count && temp.count > max_count)
++		temp.count = max_count;
+ 	smc_curs_copy(local, &temp, conn);
+ }
+ 
+@@ -246,8 +256,13 @@ static inline void smcr_cdc_msg_to_host(struct smc_host_cdc_msg *local,
+ 	local->len = peer->len;
+ 	local->seqno = ntohs(peer->seqno);
+ 	local->token = ntohl(peer->token);
+-	smc_cdc_cursor_to_host(&local->prod, &peer->prod, conn);
+-	smc_cdc_cursor_to_host(&local->cons, &peer->cons, conn);
++	/* bound the wire-controlled producer cursor to our RMB (used as a raw
++	 * index by the urgent path); leave the consumer cursor unbounded -- it
++	 * indexes the peer's RMB and is bounded by peer_rmbe_size.
++	 */
++	smc_cdc_cursor_to_host(&local->prod, &peer->prod, conn,
++			       conn->rmb_desc->len);
++	smc_cdc_cursor_to_host(&local->cons, &peer->cons, conn, 0);
+ 	local->prod_flags = peer->prod_flags;
+ 	local->conn_state_flags = peer->conn_state_flags;
+ }
+@@ -260,6 +275,12 @@ static inline void smcd_cdc_msg_to_host(struct smc_host_cdc_msg *local,
+ 
+ 	temp.wrap = peer->prod.wrap;
+ 	temp.count = peer->prod.count;
++	/* the peer producer cursor is wire-controlled and is used as a raw
++	 * index into our RMB by the urgent path; bound it to the RMB.  The
++	 * consumer cursor below indexes the peer's RMB and is left unbounded.
++	 */
++	if (temp.count > conn->rmb_desc->len)
++		temp.count = conn->rmb_desc->len;
+ 	smc_curs_copy(&local->prod, &temp, conn);
+ 
+ 	temp.wrap = peer->cons.wrap;
 
-	/*
-	 * Ignore nodes that don't have compatible and reg property
-	 * So we don't wrongly consider a node as device node.
-	 */
-	if (!of_property_present(np, "compatible") ||
-	    !of_property_present(np, "reg"))
-		return false;
+-- 
+2.56.0
 
-	while (node) {
-		if (!of_device_is_available(node))
-			return false;
-		/*
-		 * Ignore reserved-memory nodes because that have compatible
-		 * and reg property
-		 */
-		if (node->parent == of_root &&
-		    of_node_name_eq(node, "reserved-memory"))
-			return false;
-		node = of_get_next_parent(node);
-	}
-	return of_dma_is_coherent(np);
-}
 
-static bool __init swiotlb_of_dma_needs_default_pool(struct device_node *np)
-{
-	if (!of_dma_get_restricted_pool(np))
-		return true;
-
-	return false;
-}
-#endif
-
-static bool __init swiotlb_cc_guest_needs_default_pool(void)
-{
-#ifdef CONFIG_DMA_RESTRICTED_POOL
-	struct device_node *np;
-	bool found = false;
-
-	if (!of_root)
-		return true;
-	/*
-	 * DMA capability is not explicitly described for every DT device.
-	 * Use coherent, addressed device nodes as an approximation, and keep
-	 * guest sizing unless every candidate has an initialized restricted
-	 * pool.
-	 */
-	for_each_of_allnodes(np) {
-		if (!swiotlb_of_dma_candidate(np))
-			continue;
-		found = true;
-		if (swiotlb_of_dma_needs_default_pool(np))
-			return true;
-	}
-
-	return !found;
-#else
-	return true;
-#endif
-}
