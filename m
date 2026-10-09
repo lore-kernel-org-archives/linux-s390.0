@@ -1,46 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E4CE44471C
-	for <linux-s390@vger.kernel.org>; Fri,  9 Oct 2026 06:29:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9D67446C01
+	for <linux-s390@vger.kernel.org>; Fri,  9 Oct 2026 06:32:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791527388; cv=none; b=CBEkyUnG2Rv+PfUBBML59AsEsVNQUX7noQNfnm1RrjFWzHjdAziIg6XJdRtUYK4YpAjo9GBshmspbTy5MWixA1agsSKFuJBFym64AdLJYIte+jG+RmhEfjXZyX+1HY/8eba2RVxP117WLb+4L/Zm0oZ3fS+jDm8xXIXg2iJS5ls=
+	t=1791527579; cv=none; b=R/823DCLU2zgnKkqC8Lp7lJWnAqJlgIq9uGnAWpRI3vbLN8v2xHysH4Vj4yUnQ6nTE4njZ+VC4EATFhsLa2sgw63wtzn/CwmRLWq7ceQ4bS4ZcOnNgGHRiFI3SHmF47EwhsfK++bK+9XvkLrkbjocct+spHkyu9tahXDSr6tVgY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791527388; c=relaxed/simple;
-	bh=shflh/WY3VvnRDLzlAAOdLIkk7WiBOgrzCpIjEyPMWg=;
+	s=arc-20240116; t=1791527579; c=relaxed/simple;
+	bh=mgftGTQVRoPofCT2AuPz365MaTQ9UCurhG6eLo7oIMI=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=X39TG4EdLedXEPuTT8kKVLpBS1yBGd8WtAH8XVMV8ESeB4SWGsFXbm7/eTj8gKjmFFMoyRlkeSRILGBCHyqaMh3WMt2+/SOXoQZfXeApPf86z8JuYf1rfrYeVQwMyDDhnaohBIqxdJNBbnJ/oD8WCy4MGZmNhhX6DH/kSumUYm0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NwkgYlzu; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=qEgMGzK2P39FZcpFG+D8wPjS920/w2BasoMLqyj9jMkHhz/E1FWbxFrOtQqpqtV6tqCEF4XrTn4+CsPzZahHkd7lSREZ7AQmONS8lujROXulnn/fQqSN1MF+v7FNI61EXeOFTl8vjonpEsmpWNm650f9mbCKhGPlH6uy8RS2+p4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FQNsTZTu; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NwkgYlzu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67D611F00893;
-	Fri,  9 Oct 2026 06:29:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FQNsTZTu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CFF01F000FF;
+	Fri,  9 Oct 2026 06:32:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791527385;
-	bh=1/YTtQ+flV/jt3HvHvaHDrwnLe4uxdi53wQJoNt+ANU=;
+	s=k20260515; t=1791527578;
+	bh=spQHKyBbGwxLUiWSSIkCJB9HbWTqXjyRc4bNGFVOZRw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NwkgYlzuR/P44FwRHBMOD1xbNV2h5A/DMwaUwBBOc5TcXZwwrBvJwiO/AHRQUzOVX
-	 ZvDySq/zcTXNWVpZsq0jj65xYd5ACO9S8DMBweBp0jh9+aNlb9YJCXZ3WbDYuJPve8
-	 MNSzaXpWiuZBIRJDyzHXvVC2aTQK59+56L2WyXSM5bqQphFHe2uDQaTqSX1ZZhyw/Z
-	 qcWHj+Dc6fhqPwBj5oDc5mLMn/AV5Vd29azTOzuSsMa959z6iUrfwsQliLbP8cTM4r
-	 CdqJFpHZ6nod5ht6k2nYgKMN0xEIoYhbQ035nBL9j6DPeeGXIdLT+qMv9OGKYbmECD
-	 axc9sXGNFLApQ==
-Message-ID: <sashiko-outbox-164943@kernel.org>
+	b=FQNsTZTuHs/7UUImwFzLfgwro352+HM380RiymcN9mPe1hyhyT5w15JkLCU5JpCrq
+	 e7IvtSNjeehbMkrj8DF90uMj3g1hPFEB/TAOgyy8vYM9Vc4Km0WvPSOlqYj9UP77qd
+	 2DC/YSnJVFrBvoSYo7sMtxQFIWo3NO3PtTj146fzglahi359dohEFIE+fX2uneNLdr
+	 J4NgNXpgZl8IDjlKnZ+vEIRLTP2r1tC8jK673pGZnyGOV4d6lKiUzaOidToU1Ijxkr
+	 aBn3/yaTT7F7/XxZnydlkS826jbxWAH1llBKL2am0WTwIXoEoZrdJFAeoqlY5LScZg
+	 cGBWNUOppsQuw==
+Message-ID: <sashiko-outbox-164948@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 8/8] s390/pci: Unregister the adapter interrupt first
- in zpci_irq_exit()
+Subject: Re: [PATCH v3 4/8] s390/pci: Fix use-after-free race in zpci
+ floating interrupt cleanup
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Tobias Schumacher" <ts@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20261009-s390_irq_domain_fixes-v3-8-ced19028da3c@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261009-s390_irq_domain_fixes-v3-4-ced19028da3c@linux.ibm.com>
 References: <20261009-s390_irq_domain_fixes-v3-0-ced19028da3c@linux.ibm.com>
- <20261009-s390_irq_domain_fixes-v3-8-ced19028da3c@linux.ibm.com>
+ <20261009-s390_irq_domain_fixes-v3-4-ced19028da3c@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 09 Oct 2026 06:29:44 +0000
+Date: Fri, 09 Oct 2026 06:32:57 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,68 +49,53 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] s390/pci: UAF memory corruption in MSI setup due to missing device=
- teardown
+- [High] s390/pci: pending directed MSIs cause spurious interrupts on reall=
+ocation
 --
 
-commit 4f6e192e648a7af5752afbd15f3be9f0172b9594
+commit 125383b5f8790de7f1cbeff916db7b71f9226ee6
 Author: Tobias Schumacher <ts@linux.ibm.com>
 
-s390/pci: Unregister the adapter interrupt first in zpci_irq_exit()
+s390/pci: Fix use-after-free race in zpci floating interrupt cleanup
 
-This commit modifies zpci_irq_exit() to unregister the adapter interrupt be=
-fore
-freeing the interrupt bit vectors. This aims to prevent vectors from being
-freed under a live handler during the pci_base_init() error path.
+This commit splits directed vectors from floating vectors into a separate
+zpci_dibv array and adds RCU synchronization to zpci_msi_teardown_floating()
+to prevent use-after-free issues. It also annotates zpci_ibv with __rcu to
+ensure safe access to floating vectors during teardown.
 
 > diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
-> index 4b8ebb987580b..16ae80ed2d139 100644
+> index d5763c5feb097..c5fabad381395 100644
 > --- a/arch/s390/pci/pci_irq.c
 > +++ b/arch/s390/pci/pci_irq.c
-> @@ -674,6 +674,7 @@ void __init zpci_irq_exit(void)
->  {
->  	unsigned int cpu;
+[ ... ]
+> @@ -342,13 +343,16 @@ static struct airq_struct zpci_airq =3D {
 > =20
-> +	unregister_adapter_interrupt(&zpci_airq);
->  	if (irq_delivery =3D=3D DIRECTED) {
->  		for_each_possible_cpu(cpu) {
->  			airq_iv_release(zpci_dibv[cpu]);
-> @@ -684,5 +685,4 @@ void __init zpci_irq_exit(void)
->  	}
->  	if (zpci_sbv)
->  		airq_iv_release(zpci_sbv);
+>  static void zpci_msi_teardown_directed(struct zpci_dev *zdev)
+>  {
+> -	airq_iv_free(zpci_ibv[0], zdev->msi_first_bit, zdev->msi_nr_irqs);
+> +	airq_iv_free(zpci_dibv[0], zdev->msi_first_bit, zdev->msi_nr_irqs);
 
 [Severity: High]
-Does this change fully resolve the use-after-free risk in the pci_base_init=
-()
-error path?
+Does this code leave pending DMA bits on remote CPUs intact?
 
-While moving unregister_adapter_interrupt() prevents the interrupt handler
-from accessing the vectors while they are being freed, it appears the devic=
-es
-registered earlier by zpci_scan_devices() are never unregistered when
-pci_base_init() fails during zpci_fw_sysfs_init().
+Only CPU 0's vector is passed to airq_iv_free() here, which clears the
+physical vector bits on CPU 0 but leaves them untouched on remote CPUs.
 
-If a driver later binds to one of these still-registered devices and calls
-pci_alloc_irq_vectors(), the PCI MSI setup accesses the freed zpci_sbv
-and zpci_ibv structures:
+If a hardware adapter interrupt was pending on a remote CPU in
+zpci_dibv[N]->vector, the bit remains set. Furthermore, there is no
+synchronization (such as synchronize_rcu() or draining) to ensure remote
+CPUs have finished processing the old bit before it is freed.
 
-arch/s390/pci/pci_irq.c:__alloc_airq() {
-    ...
-    /* Allocate adapter summary indicator bit */
-    *bit =3D airq_iv_alloc_bit(zpci_sbv);
-    ...
-    /* Wire up shortcut pointer */
-    rcu_assign_pointer(zpci_ibv[*bit], zdev->aibv);
-    ...
-}
+When a new device allocates the same MSI bit, it will overwrite the ptr and
+data fields across all CPUs without memory barriers. If a remote CPU then
+processes its delayed interrupt, it will read the newly populated ptr and
+data, resulting in a spurious interrupt delivered to the wrong device or a
+potential kernel panic from an inconsistent domain/hwirq pair.
 
-Could this lead to memory corruption when a driver attempts to set up MSI on
-a device that was not properly torn down?
-
-> -	unregister_adapter_interrupt(&zpci_airq);
+>  	zdev->msi_first_bit =3D -1U;
+>  	zdev->msi_nr_irqs =3D 0;
 >  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009-s390_irq_d=
-omain_fixes-v3-0-ced19028da3c@linux.ibm.com?part=3D8
+omain_fixes-v3-0-ced19028da3c@linux.ibm.com?part=3D4
