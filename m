@@ -1,132 +1,124 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3C548349CEF;
-	Fri,  9 Oct 2026 02:24:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BD1C30AD05;
+	Fri,  9 Oct 2026 06:12:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791512662; cv=none; b=QWavyFjZPI5VF509Ww6CT6zD++Dtg7EZ3vI5laLN3UL6adH1cTKUuhStpflV/MO50aXbCMXNdCY7EeDmziH7c+LgcUPXotlnqTvQR0H+52dJD6lnFYm+oBfeLTRwJkuowiVpcgEnXW77Z0eF7U0YKvEzRcS7Y0rJMfGTP+QPzw8=
+	t=1791526367; cv=none; b=I5snC7K2ZVmlcB8vETr1MMIsTHAl4mj9YA/x0CZgry3Yx4z0FiTcVQ1z8q0FIiqVFclz5Hy5IbJxnZh4OoUMhi3994eBTZheWywHYvgT9aiuP7gEbW9U96/wfyEGYQLQOQl30GvzrizAtc0kjG9tCpg0mRUQAonAAgXRnKLJj4A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791512662; c=relaxed/simple;
-	bh=2QLRKUYyFp8S6i+UXZO3Wxnz517D73K9DyPKeDJE9KQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lJrrqlOhMHeiMUd8Y7okO2NFy/IbCeHxNi7yQDdj0axq9khJ2nKZi60JhB6K890Z5Il5OtsjwuEYO1I3mln1khDC/RGvpLG50JU4hA3nCkLmbt1XxrpKEKKmPGSNE0ucNjsl5+Lut1BM3M2S2V6xNM6uo59WrguUOr/k53nDRM8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=cdimGt4B; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+	s=arc-20240116; t=1791526367; c=relaxed/simple;
+	bh=rW1+QOl6CAsz8HkXRATz37lmdJ3RdhiJLeNTq5W7IiQ=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=jsbBI0jeji7GFFcl8Sx1yA27OWdjBJ5rsbPuyV79vHSZoxAYz1xqGBbSeP5ZzmKxrPvh0ywGh9YRzrbcY2wVLGhxh3uvJQtT0tmm9DFBydQZ/9uemkFq4nQ/7NyjFsqTiJ9CvjpNk0ouRpuN3/vlVrEj4S+BdxkG+wl0DzivB6U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lmWim0+h; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="cdimGt4B"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0010F1692;
-	Thu,  8 Oct 2026 19:24:14 -0700 (PDT)
-Received: from localhost (a085714.arm.com [10.164.19.28])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 99E593F66F;
-	Thu,  8 Oct 2026 19:24:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1791512658; bh=2QLRKUYyFp8S6i+UXZO3Wxnz517D73K9DyPKeDJE9KQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=cdimGt4BwBkbC2kvqJXbpnU8+qL/O0F0HZ2Z0H4CpSxUOxCh+EcoJtLXctAWoTzrV
-	 OtcAfxF5iREGuxkwM6scrG4vYN4mDhOT5dXuCp6y3UYQNkA+QiuO7WX1/GccVSzj2V
-	 OoaC3kiLUtydOmdP9bIBEODXTrrr6BODQU57YXnw=
-Date: Fri, 9 Oct 2026 07:54:15 +0530
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-To: Andreas Larsson <andreas@gaisler.com>
-Cc: linux-mm@kvack.org, samuel.holland@sifive.com, 
-	David Hildenbrand <david@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
-	Andrew Morton <akpm@linux-foundation.org>, Lorenzo Stoakes <ljs@kernel.org>, 
-	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	Helge Deller <deller@gmx.de>, Huacai Chen <chenhuacai@kernel.org>, 
-	WANG Xuerui <kernel@xen0n.name>, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, 
-	linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, 
-	loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
-	sparclinux@vger.kernel.org, linux-um@lists.infradead.org, linux-arch@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH 8/8] mm: Drop pxd_ERROR()
-Message-ID: <y4zwpwqqxnjtwzm2j5xrdnnmdle5eiih7tsn7quywur7w2beh4@z3lk5ztxdz35>
-References: <20260831054331.625505-1-anshuman.khandual@arm.com>
- <20260831054331.625505-9-anshuman.khandual@arm.com>
- <c24fc419-7bee-4fe4-be12-9aa378d49af1@gaisler.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lmWim0+h"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8924A1F00893;
+	Fri,  9 Oct 2026 06:12:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791526366;
+	bh=r38nT3rgxcMhpN3S6ECNSW4Uv8zRvToSv8TwZsmUckY=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=lmWim0+hVu8sQKeMFeD4jqcvsvjfTYh+RT+qjfwjZgZnl649PmgPgylOoFTP1I45x
+	 4BYOvPbQbdaXU4J8+4ufluBGJbkRoEqfUWYsHUQ8/xmHCsPBYeq/rm1//53/p7fe0t
+	 JKJ5nAj/aGwuUh3tssCUMvg/g5NxQckirQLS6MUTo0LjUPAUPnOQhD7G7L0eHrqESF
+	 SJZRSvmPymLi1C8r7HaDdUtS++63ZpNvREnXSLkmu43QfvwqRzcMOuo5B9nL80WQoN
+	 3hllTWyh4jjyPP87JAZvHUSd9g9jJD3Nd7y9olhglNaPFK6uGtc/KwLu/BUN1rXPOf
+	 IF0u8Lmtnxndw==
+Message-ID: <sashiko-outbox-164917@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net v6 1/3] net/smc: bound the wire-controlled producer
+ cursor to the RMB
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Bryam Vargas" <hexlabsecurity@proton.me>
+Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>, linux-rdma@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>
+In-Reply-To: <20261008-b4-disp-f7cd3d96-v6-1-fba616c0920c@proton.me>
+References: <20261008-b4-disp-f7cd3d96-v6-0-fba616c0920c@proton.me>
+ <20261008-b4-disp-f7cd3d96-v6-1-fba616c0920c@proton.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 09 Oct 2026 06:12:45 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c24fc419-7bee-4fe4-be12-9aa378d49af1@gaisler.com>
 
-On Thu, Oct 08, 2026 at 11:20:14AM +0200, Andreas Larsson wrote:
-> On 2026-08-31 07:43, Anshuman Khandual wrote:
-> > There are no more users left for any pxd_ERROR() either in generic MM or in
-> > the platform MM. Hence all these platform macros along with their generic
-> > fallback could be dropped across the tree.
-> > 
-> > Cc: linux-alpha@vger.kernel.org
-> > Cc: linux-snps-arc@lists.infradead.org
-> > Cc: linux-arm-kernel@lists.infradead.org
-> > Cc: linux-csky@vger.kernel.org
-> > Cc: linux-hexagon@vger.kernel.org
-> > Cc: loongarch@lists.linux.dev
-> > Cc: linux-m68k@lists.linux-m68k.org
-> > Cc: linux-mips@vger.kernel.org
-> > Cc: linux-openrisc@vger.kernel.org
-> > Cc: linux-parisc@vger.kernel.org
-> > Cc: linuxppc-dev@lists.ozlabs.org
-> > Cc: linux-riscv@lists.infradead.org
-> > Cc: linux-s390@vger.kernel.org
-> > Cc: linux-sh@vger.kernel.org
-> > Cc: sparclinux@vger.kernel.org
-> > Cc: linux-um@lists.infradead.org
-> > Cc: linux-arch@vger.kernel.org
-> > Cc: linux-mm@kvack.org
-> > Cc: linux-kernel@vger.kernel.org
-> > Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k
-> > Acked-by: David Hildenbrand (Arm) <david@kernel.org>
-> > Acked-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
-> > Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> ...>  /*
-> >   * Encode/decode swap entries and swap PTEs. Swap PTEs are all PTEs that
-> >   * are !pte_none() && !pte_present().
-> > diff --git a/arch/sparc/include/asm/pgtable_32.h b/arch/sparc/include/asm/pgtable_32.h
-> > index f89b1250661d..5a5f54a090f5 100644
-> > --- a/arch/sparc/include/asm/pgtable_32.h
-> > +++ b/arch/sparc/include/asm/pgtable_32.h
-> > @@ -40,9 +40,6 @@ void load_mmu(void);
-> >  unsigned long calc_highpages(void);
-> >  unsigned long __init bootmem_init(unsigned long *pages_avail);
-> >  
-> > -#define pte_ERROR(e)   __builtin_trap()
-> > -#define pmd_ERROR(e)   __builtin_trap()
-> > -#define pgd_ERROR(e)   __builtin_trap()
-> >  
-> >  #define PTRS_PER_PTE    	64
-> >  #define PTRS_PER_PMD    	64
-> > diff --git a/arch/sparc/include/asm/pgtable_64.h b/arch/sparc/include/asm/pgtable_64.h
-> > index 0837ebbc5dce..44d1333065a6 100644
-> > --- a/arch/sparc/include/asm/pgtable_64.h
-> > +++ b/arch/sparc/include/asm/pgtable_64.h
-> > @@ -96,16 +96,6 @@ bool kern_addr_valid(unsigned long addr);
-> >  #define PTRS_PER_PUD	(1UL << PUD_BITS)
-> >  #define PTRS_PER_PGD	(1UL << PGDIR_BITS)
-> >  
-> > -#define pmd_ERROR(e)							\
-> > -	pr_err("%s:%d: bad pmd %p(%016lx) seen at (%pS)\n",		\
-> > -	       __FILE__, __LINE__, &(e), pmd_val(e), __builtin_return_address(0))
-> > -#define pud_ERROR(e)							\
-> > -	pr_err("%s:%d: bad pud %p(%016lx) seen at (%pS)\n",		\
-> > -	       __FILE__, __LINE__, &(e), pud_val(e), __builtin_return_address(0))
-> > -#define pgd_ERROR(e)							\
-> > -	pr_err("%s:%d: bad pgd %p(%016lx) seen at (%pS)\n",		\
-> > -	       __FILE__, __LINE__, &(e), pgd_val(e), __builtin_return_address(0))
-> > -
-> >  #endif /* !(__ASSEMBLER__) */
-> 
-> Perhaps a bit of a pity to lose the printing of the address of the pxd
-> that a number of architectures did before this series, but i have no
-> strong opinion.
-> 
-> Acked-by: Andreas Larsson <andreas@gaisler.com> # sparc
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] smc: NULL pointer deref in smcr_cdc_msg_to_host() via token guessi=
+ng race
+--
 
-Thanks Andreas.
+commit 841c4fb2c2d0123708a65170d68d2745b02a7ce8
+Author: Bryam Vargas <hexlabsecurity@proton.me>
+
+net/smc: bound the wire-controlled producer cursor to the RMB
+
+This commit bounds the wire-controlled producer cursor to the receive
+buffer length in smcr_cdc_msg_to_host() and smcd_cdc_msg_to_host(). This
+prevents a peer from advertising a producer cursor past the buffer bounds
+and disclosing adjacent kernel memory during urgent data path processing.
+
+> diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+> --- a/net/smc/smc_cdc.h
+> +++ b/net/smc/smc_cdc.h
+[ ... ]
+> @@ -246,8 +256,13 @@ static inline void smcr_cdc_msg_to_host(struct smc_h=
+ost_cdc_msg *local,
+>  	local->len =3D peer->len;
+>  	local->seqno =3D ntohs(peer->seqno);
+>  	local->token =3D ntohl(peer->token);
+> -	smc_cdc_cursor_to_host(&local->prod, &peer->prod, conn);
+> -	smc_cdc_cursor_to_host(&local->cons, &peer->cons, conn);
+> +	/* bound the wire-controlled producer cursor to our RMB (used as a raw
+> +	 * index by the urgent path); leave the consumer cursor unbounded -- it
+> +	 * indexes the peer's RMB and is bounded by peer_rmbe_size.
+> +	 */
+> +	smc_cdc_cursor_to_host(&local->prod, &peer->prod, conn,
+> +			       conn->rmb_desc->len);
+
+[Severity: High]
+Can this lead to a NULL pointer dereference?
+
+There appears to be a race window where conn->rmb_desc can be NULL when this
+code is executed. In af_smc.c, smc_connect_rdma() registers the connection
+via smc_conn_create() before the send buffer and RMB are created via
+smc_buf_create():
+
+af_smc.c:smc_connect_rdma() {
+    ...
+    reason_code =3D smc_conn_create(smc, ini);
+    ...
+    if (smc_buf_create(smc, false)) {
+    ...
+}
+
+During smc_conn_create(), smc_lgr_register_conn() is called, which makes the
+connection globally visible with a highly predictable token:
+
+smc_core.c:smc_lgr_register_conn() {
+    ...
+    while (!conn->alert_token_local) {
+        conn->alert_token_local =3D atomic_inc_return(&nexttoken);
+        if (smc_lgr_find_conn(conn->alert_token_local, conn->lgr))
+            conn->alert_token_local =3D 0;
+    }
+    smc_lgr_add_alert_token(conn);
+    ...
+}
+
+If an unauthenticated remote peer on the same RoCE network guesses the token
+and sends a CDC message over the active link before smc_buf_create() alloca=
+tes
+the rmb_desc, smc_cdc_rx_handler() will process the message and call
+smcr_cdc_msg_to_host(). This would cause a kernel panic when trying to acce=
+ss
+conn->rmb_desc->len.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261008-b4-disp-f7=
+cd3d96-v6-0-fba616c0920c@proton.me?part=3D1
