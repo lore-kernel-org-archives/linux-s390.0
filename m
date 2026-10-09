@@ -1,201 +1,181 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E94044C51D;
-	Fri,  9 Oct 2026 06:41:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B66124718F1;
+	Fri,  9 Oct 2026 07:10:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791528083; cv=none; b=lhFF0fOkXZRCfar/8fWXiQPd7gpR9x082q8NEWxSrowrJT9pdvOKbEILe4bemnM6vFdJfWYiBU3Y2D3te2eR8YhAN6xNXmhQQVXIL49TA5WR3DJEG6Y9XBercs0TMPHxeaRNwMp+FOOFGj0kyoSvFhFwEm35ZaMVIx2kGkDtxM0=
+	t=1791529855; cv=none; b=npNtZH4esAL4t4LATi6d/9b3nj6de8woY4JZi+Pc9pCr1JQ4d7wcAFI7whworV2riA618DpTZpdhOzmNDVdrxBNUHVxlG+ac83eNft5BPPH8TuJbkig+UMvcI7PXnEy4P6e9J9VaOQ1i7MiyZ9bYQzVkq+NGZYpt81KE8igzenU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791528083; c=relaxed/simple;
-	bh=5b7bEvA9D1R3qorEecj7lbUy+UeZj+EmNcJYtor+Izw=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=cA1HlrKtr6H1vet8orAOjAFEtin5g5g7KCk8kbPnBmNo1rZFYIwYzPeEuTo8JcofrKM0eJPbQIvHK/zCnZ1j1LE7bPTg2DQAbXRBMhI/dt0RiFdLKtZkncFMl290sXoqioi9KdjGGALmtDX7eUd/YTg0Cr7XbzaNwwW8UbaTdcg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T8VAtbVO; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791529855; c=relaxed/simple;
+	bh=gCry4cK3rUZDrsplRfukjZPAimHWsyChbpmyVJqyfMo=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=jIhTq/Z4i0t0IqqoxiTxjDWuKt1gZBh9MNfaQQmCBfRYhqSHt0EX2QVt80IJeJsE9GCbNT+YjmA+hX96TdkBIGrYSSIcrHWDiDHO/8T1N6BNk8VIf3Ab5vDH8VSbmsSAWkuieu2lxc/hl8VmMUNhMR0Fz1qZKlmlw/nb4xLCQ9Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ekh5V0Gu; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T8VAtbVO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5471B1F000FF;
-	Fri,  9 Oct 2026 06:41:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791528081;
-	bh=3/gbkzEDX1YSsF3k49PS/NV+iCMWzcitK5U03jM0BP8=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=T8VAtbVOuBa1Ye5d8d03QSCkbp/iRJjaONNklr+BXGSlMMg0kL9KaS/9kE0jDjZDv
-	 GHMlauRRxPpky9QHwahVofNgAVqug0A+2rEZ601nemODJOewvRdlAqdTjyVaZ/miJm
-	 Uxwg0ziiZ9U8isHpM57mwK/OGcIRpS0dH/O41akVNun1IyhPkydf4O7BnPf3k43Opr
-	 4bU6xGMXRTAN0EhuZlnxy7Xk1tVFDqQEqvgWDGvhgs9aLtq83TmFqxczG31hDh47rB
-	 pRxbogHCLEHveVHF514m3to5ltC0YcaFRzzBZExMi+Y6eFy+WR5W5GQqHtZuELVqZe
-	 BvRxLaipnzNpg==
-Subject: Re: [PATCH net v6 3/3] net/smc: bound the send length to the send
- buffer in smc_tx_sendmsg()
-From: netdev-bot+sashiko@kernel.org
-To: hexlabsecurity@proton.me
-Cc: sidraya@linux.ibm.com, alibuda@linux.alibaba.com, edumazet@kernel.org,
- mjambigi@linux.ibm.com, dust.li@linux.alibaba.com, davem@davemloft.net,
- pabeni@redhat.com, kuba@kernel.org, raspl@linux.ibm.com,
- tonylu@linux.alibaba.com, hidayath@linux.ibm.com, ubraun@linux.ibm.com,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, horms@kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
- guwen@linux.alibaba.com, wenjia@linux.ibm.com
-Date: Fri, 09 Oct 2026 06:41:19 +0000
-Message-ID: <179152807992.434549.3295281690534839972@kernel.org>
-In-Reply-To: <20261008-b4-disp-f7cd3d96-v6-3-fba616c0920c@proton.me>
-References: <20261008-b4-disp-f7cd3d96-v6-3-fba616c0920c@proton.me>
-X-sashiko-severity: Medium
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ekh5V0Gu"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6993ZbmW3209246;
+	Fri, 9 Oct 2026 07:10:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=8aBIZD
+	a+kJR/ZX//689ssl30RGMF9ZLB0YC8xlJA0/Q=; b=ekh5V0GuufY/K7AoYixY/g
+	F5Eu1hMyB+PKO4yzKPNfyM6kp1Xk1rWlshUox3U6y72AJ6hREfxnOJBycVJcLo1r
+	/BsgbkTv5//sestwhMPKKuk13SnILH1RmhzioYqRxWKuywHWW2loKseJoBeTHaGf
+	GWUD1gxq8mnDClG1ditdnG2xxCIPQy5QxOMmqmj8PPRSOcaqTCnviI7iLF0XHJ/K
+	L/sXaErUr2JUKCzqZ5szMVy3T8QTzyLNVqmrHljG+BmuET1EPUnpYdnGlGYtWDLd
+	R1ToHhP7Ohmqb0qbfHTSjAdyD9Dbwa84M5cT8wDwSQV/JAS6AsSDaLWydxPSuwcA
+	==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h5xjvrd14-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Fri, 09 Oct 2026 07:10:52 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6993HiFc290583;
+	Fri, 9 Oct 2026 07:10:51 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h5a6dtta6-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 09 Oct 2026 07:10:51 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6997Amo536897062
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 9 Oct 2026 07:10:48 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E9B7C2004B;
+	Fri,  9 Oct 2026 07:10:47 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8E1732004D;
+	Fri,  9 Oct 2026 07:10:47 +0000 (GMT)
+Received: from localhost (unknown [9.111.170.212])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  9 Oct 2026 07:10:47 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 09 Oct 2026 09:10:47 +0200
+Message-Id: <DM04BTXODU3S.39KDFFEEM0BNP@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, <linux-s390@vger.kernel.org>,
+        "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+        "Heiko Carstens"
+ <hca@linux.ibm.com>,
+        "Alexander Gordeev" <agordeev@linux.ibm.com>
+Subject: Re: [PATCH v3 8/8] s390/pci: Unregister the adapter interrupt first
+ in zpci_irq_exit()
+From: "Tobias Schumacher" <ts@linux.ibm.com>
+To: <sashiko-reviews@lists.linux.dev>, "Tobias Schumacher"
+ <ts@linux.ibm.com>
+X-Mailer: aerc HEAD-0d169b7
+References: <20261009-s390_irq_domain_fixes-v3-0-ced19028da3c@linux.ibm.com>
+ <20261009-s390_irq_domain_fixes-v3-8-ced19028da3c@linux.ibm.com>
+ <sashiko-outbox-164943@kernel.org>
+In-Reply-To: <sashiko-outbox-164943@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 4vBC3a0z-kFPYn2P6mc-HUmGhukpcHY3
+X-Proofpoint-ORIG-GUID: 4vBC3a0z-kFPYn2P6mc-HUmGhukpcHY3
+X-Authority-Analysis: v=2.4 cv=FoOQbGrq c=1 sm=1 tr=0 ts=6ac8937c cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
+ a=TzoSXx77MbkTK0BF7iQA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDA5MDAyOCBTYWx0ZWRfXx+D5+TWwZoEx
+ mLkg3cjk8nj+93OpdLNs4klIC97OUTX+27Gq5WtbiR/dw9cTyrLCK5jq64ah1I9/9hGUGNbfcQE
+ ZRXaF4KQ+a9SehKcoERvw4yf2sk2YVQ=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDA5MDAyOCBTYWx0ZWRfXyVCg7qVwtbUX
+ WGj4k6z4Vh1IuCHNOR+jizaVA2/pIiHn3MlT8VxGfqnsVUgKCqdRWNkhQGpzBMIoQ5VIdkw7W25
+ PRbDB6l+vp0QgeUWT3bkft2WtbrMCuUsyqChqGsX12KzqdU3p1H3SwvYPApwFfd31xDqwfi8ZJ2
+ K+PpueTGMil9BClH40Aj6yBUuHGoFyegnkSBhmXC5i8OklTU8HpN3HNE1+NfTaV3n3rybcLOybp
+ uQkih+53aSo1fRTHvbxAd6X/GrrTbbHG0j2fwvarhT+yBdGHM33P7YVazcT0c48H4e6NQgQNLkO
+ E4Ep/kHhn4xhmnsxZMmitf2OIR79dXoDBrESdCCCdjP97f27IufcCmhcyy2P7Y1mSruFctsi3Ce
+ dQ8IjGcrfcrmndgUkluWQjIluIEdMJ8nXTJKedP4z0pcM9YePlh+3YWVqVnlPmjcnFYOufYqy7B
+ k+GPChJHKoOb73W5YCQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-09_02,2026-10-08_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 suspectscore=0 clxscore=1011 lowpriorityscore=0 bulkscore=0
+ adultscore=0 priorityscore=1501 spamscore=0 phishscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610020000 definitions=main-2610090028
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issue(s) to consider.
+On Fri Oct 9, 2026 at 8:29 AM CEST, sashiko-bot wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issu=
+e(s) to consider:
+> - [High] s390/pci: UAF memory corruption in MSI setup due to missing devi=
+ce teardown
+> --
+>
+> commit 4f6e192e648a7af5752afbd15f3be9f0172b9594
+> Author: Tobias Schumacher <ts@linux.ibm.com>
+>
+> s390/pci: Unregister the adapter interrupt first in zpci_irq_exit()
+>
+> This commit modifies zpci_irq_exit() to unregister the adapter interrupt =
+before
+> freeing the interrupt bit vectors. This aims to prevent vectors from bein=
+g
+> freed under a live handler during the pci_base_init() error path.
+>
+>> diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
+>> index 4b8ebb987580b..16ae80ed2d139 100644
+>> --- a/arch/s390/pci/pci_irq.c
+>> +++ b/arch/s390/pci/pci_irq.c
+>> @@ -674,6 +674,7 @@ void __init zpci_irq_exit(void)
+>>  {
+>>  	unsigned int cpu;
+>>
+>> +	unregister_adapter_interrupt(&zpci_airq);
+>>  	if (irq_delivery =3D=3D DIRECTED) {
+>>  		for_each_possible_cpu(cpu) {
+>>  			airq_iv_release(zpci_dibv[cpu]);
+>> @@ -684,5 +685,4 @@ void __init zpci_irq_exit(void)
+>>  	}
+>>  	if (zpci_sbv)
+>>  		airq_iv_release(zpci_sbv);
+>
+> [Severity: High]
+> Does this change fully resolve the use-after-free risk in the pci_base_in=
+it()
+> error path?
+>
+> While moving unregister_adapter_interrupt() prevents the interrupt handle=
+r
+> from accessing the vectors while they are being freed, it appears the dev=
+ices
+> registered earlier by zpci_scan_devices() are never unregistered when
+> pci_base_init() fails during zpci_fw_sysfs_init().
+>
+> If a driver later binds to one of these still-registered devices and call=
+s
+> pci_alloc_irq_vectors(), the PCI MSI setup accesses the freed zpci_sbv
+> and zpci_ibv structures:
+>
+> arch/s390/pci/pci_irq.c:__alloc_airq() {
+>     ...
+>     /* Allocate adapter summary indicator bit */
+>     *bit =3D airq_iv_alloc_bit(zpci_sbv);
+>     ...
+>     /* Wire up shortcut pointer */
+>     rcu_assign_pointer(zpci_ibv[*bit], zdev->aibv);
+>     ...
+> }
+>
+> Could this lead to memory corruption when a driver attempts to set up MSI=
+ on
+> a device that was not properly torn down?
 
-Critical: 0 · High: 0 · Medium: 2 · Low: 0
+Right, this issue exists but is not addressed by this patch. This series
+fixes and cleans the s390 PCI IRQ code, so I'll fix that in a separate patc=
+h
+outside this series.
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
-
-- [Medium] The commit message's threat model does not match the code it
-  changes.
-- [Medium] The patch says it 'enforces the documented 0 <= sndbuf_space
-  <= sndbuf_desc->len invariant'.
-
---
-
-net/smc: bound the send length to the send buffer in smc_tx_sendmsg()
-
-This patch clamps the local writespace snapshot in smc_tx_sendmsg() to
-sndbuf_desc->len. A negative value is also treated as out of range. The
-stated goal is to prevent a heap out-of-bounds write in the wrap-around
-copy when the SMC-D DMB-merge path inflates conn->sndbuf_space from a
-forged consumer cursor.
-
-> On the SMC-D DMB-merge (nocopy) path, smc_cdc_msg_recv_action()
-> advances conn->sndbuf_space from the peer's wire-controlled consumer
-> cursor via smc_curs_diff(), which can return more than sndbuf_desc->len;
-> a forged cursor drives sndbuf_space past the send buffer, and over many
-> CDC messages overflows the signed counter negative. smc_tx_sendmsg()
-> reads it as the write space and does a wrap-around copy whose second
-> chunk is not re-bounded to sndbuf_desc->len, spilling the local
-> sender's outbound data past the send buffer at a peer-controlled
-> length: a heap out-of-bounds write.
-
-[Severity: Medium]
-Is "the peer's wire-controlled consumer cursor" accurate for this path?
-
-The diff_tx update in smc_cdc_msg_recv_action() only runs behind this
-check:
-
-	if (conn->lgr->is_smcd &&
-	    smc_ism_support_dmb_nocopy(conn->lgr->smcd)) {
-
-and smc_ism_support_dmb_nocopy() is:
-
-	/* for now only loopback-ism supports
-	 * merging sndbuf with peer DMB to avoid
-	 * data copies between them.
-	 */
-	return (smcd->dibs->ops->support_mmapped_rdmb &&
-		smcd->dibs->ops->support_mmapped_rdmb(smcd->dibs));
-
-The only in-tree provider of support_mmapped_rdmb is dibs_lo_ops in
-drivers/dibs/dibs_loopback.c. dibs_lo_query_rgid() accepts only its own
-GID, so the peer on this path is the same kernel's SMC stack.
-
-That kernel builds the consumer cursor from its own connection state in
-smcd_cdc_msg_send():
-
-	curs.acurs.counter = atomic64_read(&conn->local_tx_ctrl.cons.acurs);
-	cdc.cons.wrap = curs.wrap;
-	cdc.cons.count = curs.count;
-
-dibs_lo_move_data() then copies it into the DMB with a bounds check.
-Userspace does not write the CDC header area of the DMB.
-
-The buffer lengths also match. smcd_new_buf_create() sets rmb_desc->len
-to bufsize - sizeof(struct smcd_cdc_msg). smcd_buf_attach() sets the
-attached sndbuf_desc->len to dmb_len - sizeof(struct smcd_cdc_msg). So a
-conforming cursor should not produce a diff_tx larger than
-sndbuf_desc->len.
-
-Given this, is the patch hardening against a misbehaving in-kernel peer
-or a future nocopy-capable device, rather than fixing a heap
-out-of-bounds write that a peer can trigger? If so, could the commit
-message be reworded? The current wording and the Fixes: and Cc: stable
-tags describe a memory corruption that a remote peer controls.
-
-> diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
-> index 3144b4b1fe290..5916f02060fb9 100644
-> --- a/net/smc/smc_tx.c
-> +++ b/net/smc/smc_tx.c
-> @@ -233,6 +233,19 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
->  		/* initialize variables for 1st iteration of subsequent loop */
->  		/* could be just 1 byte, even after smc_tx_wait above */
->  		writespace = atomic_read(&conn->sndbuf_space);
-> +		/* sndbuf_space is advanced from the peer's wire-controlled
-> +		 * consumer cursor on the SMC-D DMB-merge path; a forged cursor
-> +		 * can inflate it past the send buffer, or overflow the signed
-> +		 * accumulator to a negative value across many CDC messages
-> +		 * (which a plain "> len" check would miss before the size_t
-> +		 * cast below turns it huge).  Bound it to the send buffer in
-> +		 * either case so the wrap-around write cannot run past
-> +		 * sndbuf_desc->len.  This enforces the documented
-> +		 * 0 <= sndbuf_space <= sndbuf_desc->len invariant at the
-> +		 * producer, race-free against the CDC tasklet.
-> +		 */
-> +		if (writespace < 0 || writespace > conn->sndbuf_desc->len)
-> +			writespace = conn->sndbuf_desc->len;
-
-[Severity: Medium]
-Does this enforce the invariant on conn->sndbuf_space itself? Only the
-local writespace snapshot is clamped. The shared atomic is never
-corrected.
-
-Later in smc_tx_sendmsg(), the subtraction still runs on the
-out-of-range value:
-
-		atomic_sub(copylen, &conn->sndbuf_space);
-		/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
-
-A negative counter goes further negative. A value of
-2 * sndbuf_desc->len stays at sndbuf_desc->len after a full-ring copy.
-
-The source of the value is also unchanged.
-smc_cdc_msg_recv_action() still adds diff_tx without a bound:
-
-			atomic_add(diff_tx, &conn->sndbuf_space);
-			/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
-
-smcd_cdc_msg_to_host() copies peer->cons without the wrap and count
-check that smc_cdc_cursor_to_host() does for SMC-R.
-
-If the premise in the commit message holds, the other readers would
-still see the bad value:
-
-  smc_tx_sendmsg():  if (!atomic_read(&conn->sndbuf_space) || ...
-  smc_tx_wait(), smc_tx_should_cork(), smc_poll() EPOLLOUT
-  smc_ioctl() SIOCOUTQ:
-	answ = smc->conn.sndbuf_desc->len -
-			atomic_read(&smc->conn.sndbuf_space);
-
-The counter would never reach zero, so sendmsg would not block. It
-would keep rewriting the whole ring over data the peer has not consumed
-yet. SIOCOUTQ could return a negative value or one larger than the
-buffer.
-
-The commit message also says the bound is applied "at the consumer",
-but this comment says "at the producer". Which one is meant?
-
-Would it be more accurate to describe this as bounding the copy length?
-Alternatively, diff_tx (or the cursor) could also be bounded where it is
-received, in smc_cdc_msg_recv_action().
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261008-b4-disp-f7cd3d96-v6-0-fba616c0920c%40proton.me
+Thanks
+Tobias
