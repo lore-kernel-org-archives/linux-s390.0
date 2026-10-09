@@ -1,46 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AB744D7D51;
-	Fri,  9 Oct 2026 11:53:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBF154D0CC1;
+	Fri,  9 Oct 2026 11:53:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791546794; cv=none; b=ZBydd18CvzLpWQZqDuc4XbDg5/wRBJM/NbnA6Rzyws4U+ypEfZCHbgF2BJ1j8dJrToJvBLWIVT0M2HupovivIjdbEWU7kAcbWrVRuYK8jSFWwMWhhgzfIlXy2wEQeJWabCBiNgbU5YM0e9gRznWYQznnEjhTr16omSjqJlK5NtI=
+	t=1791546819; cv=none; b=pVQ8IKae2cYLXbIjJFXo8E/KoFWGvsWcvW3qVQCDbIibqxsVkr9kJmLEFLlj5Auol9bWE2lBRhcIa65yxNzkRwgHBvsUDl4tgGY60FY7RzKtoUsLZJ9WcYCWd6RuW0PpsVgmR7LDOL/g5WbagFXSG7IkWZI/32+A00QDbzNAAhU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791546794; c=relaxed/simple;
-	bh=btwDbiunY6oLlEmqGvAFyOqHDL+6CvKnTLLF7Nr/yrA=;
+	s=arc-20240116; t=1791546819; c=relaxed/simple;
+	bh=rfTVmHPNHAii56G5QwnwOEAiCxz5PhUYG8i3+ULkr8U=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=ZgZ8fkap+q26bAOZCtnxeEdLSWXDBsQ/5aj5+b8TFUjrPMioF17X8kX8vk/LMKOv2p/afiJTo8zUnKftOMyNUGX++Xragl4Ei6w7/z/tfPW5G6yOt1BStIsQHcOX7+bFyl4Ch4gF4HLNlfwlANLwNgVaJVi/xTuvdXw31ZfFSFo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X0GmwLz3; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=OvfME3C+c1wgx+nPnGk/FI3S/D2WqRpBz79AL1wzKv71/Z7SS0l3p2GqpxnBSjbqkTzRjHKqq1WSXsqRJUm+ec/hgeM8ShPRyA4ibsLa4inWStZ2/5ogSCbcCnycqy7r6PbYdjQmpLq7A7waOGGxZ7zMjd8PwkDh8J6SLZADzaQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UJPuVARk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X0GmwLz3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4296A1F000FF;
-	Fri,  9 Oct 2026 11:53:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UJPuVARk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A15A1F000FF;
+	Fri,  9 Oct 2026 11:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791546784;
-	bh=s/euihaLGeB/PMopmMwZSFJxKGlA2n/ww357OC9k8mE=;
+	s=k20260515; t=1791546806;
+	bh=zxqJ1dGOmHRaC/UehFaQHY9Jh4AaVgaTrcpjSFIKHqc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=X0GmwLz3QHx9hzi0J9t6NL+j2tEHUJiw13O9WezuOscL6IPMfIafWGr7+gQ4OOrRS
-	 MsrGqBXwityklZgpiSjx1lzGMCV3SsSgIrXbZzHBGqX05InbhnwR67NClWPfZ0blLP
-	 /DWu95fNjSh2pWbKqLotw9MY/iKfmoEbb/q2wCriaExxz50vg2snHEWuFqKrt7N/ZA
-	 M6SESEffkuz3dOnfkLd/P4zOXf5I9P6IM5Aau/9Vqlw+8BL82frkx5V8nmwV8hRx/b
-	 Liqn0Yh/LOUU1dmIwFFqLlaIZ/JKXjBUTTBpRXprNCWXL43Z3XNWMODnnwBxhQHa3x
-	 xlvM4z0PsNm3g==
-Message-ID: <sashiko-outbox-165440@kernel.org>
+	b=UJPuVARkJM2+AfNBOv8HpiDqeJv7toDmyWQd1LDpl/1giAi4RrCW2QNrodELP4cns
+	 iqUiTLsXpjgbIZw/5u3fSyIItUd5UufkfpUZ5COkH8ObwC+fXfpbz1vw0td9vsg7P7
+	 Wyu4jkflmSWpx3xV9JUEpZPUgLeT5pkmBtYTS/7PxINB9P2sOlo71wqNBu3l87+C0N
+	 i8c2xTV+fFQDftFhOH1jEoPh3p2dM2nnAiwSYSKiiC45eQUxIctfRLXrvB99mz8CML
+	 iUYmV2KJKVBGY3DVaX/E69VS3arUjmcZqNPcNVMvSR1dkPWiI7d6uvHz3iJ27e6wVK
+	 VlcoCeIO49NRg==
+Message-ID: <sashiko-outbox-165442@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v8 10/15] s390/vfio-ap: Add method to set a new guest AP
- configuration
+Subject: Re: [PATCH v8 15/15] s390/vfio-ap: Add live guest migration chapter
+ to vfio-ap.rst
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>
-Cc: "Vasily Gorbik" <gor@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>, kvm@vger.kernel.org, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, linux-s390@vger.kernel.org, "Alexander
- Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20261009114244.1213173-11-akrowiak@linux.ibm.com>
+Cc: "Vasily Gorbik" <gor@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261009114244.1213173-16-akrowiak@linux.ibm.com>
 References: <20261009114244.1213173-1-akrowiak@linux.ibm.com>
- <20261009114244.1213173-11-akrowiak@linux.ibm.com>
+ <20261009114244.1213173-16-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 09 Oct 2026 11:53:03 +0000
+Date: Fri, 09 Oct 2026 11:53:24 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -49,55 +49,66 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Low] vfio_ap: duplicate prototype for vfio_ap_matrix_init()
+- [Low] doc: vfio-ap: incorrect host reference in destination host configur=
+ation section
 --
 
-commit e05cec73b2479bdf6aa3c63debaa31756d289ed2
+commit b9b160f01756abd52de1ef4f9e6032ef6704eaea
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-s390/vfio-ap: Add method to set a new guest AP configuration
+s390/vfio-ap: Add live guest migration chapter to vfio-ap.rst
 
-This patch adds a new vfio_ap_set_new_config function to set a guest's AP
-configuration. It refactors code from the ap_config_store function into a
-new, non-static function which is callable from both the sysfs attribute
-handler and the live guest migration code.
+Add a 'Live Guest Migration' chapter to the
+Documentation/arch/s390/vfio-ap.rst document to describe the details for
+initiating live guest migration for a guest to which AP adapters, domains
+and control domains have been passed through.
 
-> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/=
-vfio_ap_private.h
-> index 9044ef4408c87..3910b5c023c91 100644
-> --- a/drivers/s390/crypto/vfio_ap_private.h
-> +++ b/drivers/s390/crypto/vfio_ap_private.h
-> @@ -172,6 +172,8 @@ void vfio_ap_on_cfg_changed(struct ap_config_info *ne=
-w_config_info,
->  void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
->  			      struct ap_config_info *old_config_info);
-> =20
-> +void vfio_ap_matrix_init(struct ap_config_info *info, struct ap_matrix *=
-matrix);
+> diff --git a/Documentation/arch/s390/vfio-ap.rst b/Documentation/arch/s39=
+0/vfio-ap.rst
+> index ac0c07f76ddd7..02d7cbe5e4791 100644
+> --- a/Documentation/arch/s390/vfio-ap.rst
+> +++ b/Documentation/arch/s390/vfio-ap.rst
+[ ... ]
+> +  * Display the AP configuration of the destination host with the follow=
+ing
+> +    two commands:
+> +
+> +    .. code-block:: bash
+> +
+> +       lszcrypt -V
+> +       cat /sys/bus/ap/ap_control_domain_mask
+> +
+> +    .. note::
+> +       The ``lszcrypt -V`` command lists the AP cards (adapters) and que=
+ue
+> +       devices on the host system; for example:
+> +
+> +       .. code-block:: bash
+> +
+> +          =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D =3D=3D=3D=3D=3D =3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> +          CARD.DOMAIN TYPE  MODE         DRIVER
+> +          =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D =3D=3D=3D=3D=3D =3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> +          00          CEX5C CCA-Coproc   cex4card
+> +          00.0033     CEX5C CCA-Coproc   vfio_ap
+> +          00.003a     CEX5C CCA-Coproc   vfio_ap
+> +          =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D =3D=3D=3D=3D=3D =3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> +
+> +       Each bit in the ap_control_domain_mask corresponds to
+> +       domain numbers 0-255. If a bit is set to one, then
+> +       the control domain is available on the source host. For
+> +       example:
 
 [Severity: Low]
-This isn't a bug, but does this patch add a duplicate prototype for
-vfio_ap_matrix_init()? Looking further down in this header, the exact same
-declaration already exists just above the newly added
-vfio_ap_set_new_guest_config() prototype.
+Does this mistakenly refer to the "source host" instead of the "destination
+host"?
 
-> +
->  void vfio_ap_init_migration_capabilities(struct ap_matrix_mdev *matrix_m=
-dev);
-
-[ ... ]
-
-> @@ -235,4 +237,7 @@ assert_has_update_locks_for_mdev(struct ap_matrix_mde=
-v *matrix_mdev)
-> =20
->  void vfio_ap_matrix_init(struct ap_config_info *info, struct ap_matrix *=
-matrix);
-> =20
-> +int vfio_ap_set_new_guest_config(struct ap_matrix_mdev *matrix_mdev,
-> +				 struct ap_matrix *m_new);
-> +
->  #endif /* _VFIO_AP_PRIVATE_H_ */
+This section appears to be explaining the ap_control_domain_mask of the
+destination host based on the commands above it, which display the
+configuration for the destination host.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261009114244.1213=
-173-1-akrowiak@linux.ibm.com?part=3D10
+173-1-akrowiak@linux.ibm.com?part=3D15
