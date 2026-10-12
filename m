@@ -1,72 +1,85 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B43125B0BB;
-	Mon, 12 Oct 2026 08:04:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21F9C431A51;
+	Mon, 12 Oct 2026 08:10:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791792260; cv=none; b=Qj8wTOWkoM0OyZx0nCEIdGI+3ztL/3aXVbKESt+yuCUsi6X1k0PFleY/0O9B135+QfNz9vOkpo1wFwrVB8/sAvCVE6t3cDHYXNW8P9SxT1OxtoablTeTw5+fsgQSmyqWEtzHg+scARIgpB5OS6oqqbqB8z4T1mF1uaJFmaE0GmI=
+	t=1791792660; cv=none; b=D0+199AZ71TvY8e/vTV717lhtUmvdq0+24nCZ6MPh3qhgx3TnfaXBobBTQLm6TkhH5THvJIdTMOPiOvuIAWv+csr7Z2DdIwWQyVIwWtem9A9OHpsMnb0eBbpKpYWy2rXXE+EBKQbM69k6GCvzfzJgP9wpDMoTsq8JYSk5SUIljQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791792260; c=relaxed/simple;
-	bh=gp7PRv3WjAiMJrp0DvXpRvTv3mwC8R3NiezXzUE7FxE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=m+rvLx1wgK7FkChmMRgYNWeK+fajiTKqIpA4+h7Cr6LzlQ0zChgdzkCUt00LVNZF3BoHFproUQ6EYlziTRpMmnMyp8YyywTG8ZEehi7Vlu3buhs+Ih478vlESpOunehBuTiWZ2ucr/AjMa6VuDe5a4+S/OJcA6/MqYkj/4QFTwA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VHaVLlR/; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791792660; c=relaxed/simple;
+	bh=f31osDknqZLMxyTuOZvRMawO3DAQaXXjcNZcGehmM4k=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=bJwnStAlQ1v7E4ODhHAfffrieVSK1mHngSdgZ7PpI5yZWYadR+5UFKEuAMtJW+Z18hJ2PHse109+SlbW0I+vM0z6HG2DjsrZn16hrag0nY8kozBniXcrTC3indaAvo2yuQzZ1mbUOQ+KQChll3yzjeSXjHYDinqVcWamhFcO88U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TFKiQuqi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VHaVLlR/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BC5B1F0089B;
-	Mon, 12 Oct 2026 08:04:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TFKiQuqi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43F3F1F0089B;
+	Mon, 12 Oct 2026 08:10:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791792258;
-	bh=Z9zRtXHe/J1k/4/9wAeq1n+PwAt+ioXmV3zyjSNrjDw=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=VHaVLlR/q4q3Tug5ko6xs3b1nELLFX7X9hSnsH+/pauoSokuk7QVtTAH3cj4fLrOG
-	 HquraWKz/ftJGNyFyOGFGp46Vkh7HGv24P+VVpGR3P2Nz1BwBXR5tmiUbo3R1Nn/t1
-	 anF4GV0b0crXkMZYod0y1ovzDpv+p0pBfm0S7W8MOoqlfOoggvT6i7lFspKfqrtHDB
-	 EsgJn9dj6z2Y30FgGEG5gLPbTx9DCboIAhed7a+yDhICedUhsWB4P9ngGeusZRGgi/
-	 MH3JTXqsMK7cRgzPucQyQlfdNofQwWb+7Q2MgRffbLbBwXgcynLYUBVi09rFEx6+Z8
-	 YmfTD3Shu5S5w==
-From: netdev-bot+sinfo@kernel.org
-To: Mahanta Jambigi <mjambigi@linux.ibm.com>
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
- dust.li@linux.alibaba.com, sidraya@linux.ibm.com, hidayath@linux.ibm.com,
- pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, stable@vger.kernel.org, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net v9] net/smc: fix lgr/lnk lifetime vs diag reader race
-Date: Mon, 12 Oct 2026 08:04:17 +0000
-Message-ID: <179179225758.2527009.15422843250132893660@kernel.org>
+	s=k20260515; t=1791792658;
+	bh=f31osDknqZLMxyTuOZvRMawO3DAQaXXjcNZcGehmM4k=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=TFKiQuqiXoUISJ6+SVb0wni171l2X6dSIME517d2sIXVbg1tPcNsVrj233XT0DcQy
+	 8G+Ayi26NwU2HGTdeATWsx5yzYUDW+gRkvVF3b8VzTDGqp4fqfQqYnCBjEJGyP6Trx
+	 iK6qDcV4GB3OWvtfFI4axSq7noi70NufeUPCdFRqppyj9cfl6I4nCYbjUNg/R50dWs
+	 mk7bm1RYrlH29hIjWxBFXiarxRBY+xRVLAd28aEGVauYEKkk8qOQEzLnP5bYlSB70W
+	 4zTGU+4FFG0kk4lnSaOL6gdt6ECBjUCLGFfRwhxv8pjr9falBDCzvhe55H/Q79+PGp
+	 YNIu4VOAv4siQ==
+Message-ID: <sashiko-outbox-167827@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net v9] net/smc: fix lgr/lnk lifetime vs diag reader
+ race
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Mahanta Jambigi" <mjambigi@linux.ibm.com>
+Cc: linux-rdma@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>, "Heiko Carstens" <hca@linux.ibm.com>
 In-Reply-To: <20261012080034.38770-1-mjambigi@linux.ibm.com>
 References: <20261012080034.38770-1-mjambigi@linux.ibm.com>
-Auto-Submitted: auto-generated
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 12 Oct 2026 08:10:57 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
 
-Hi!
+> The diag dump walks the socket hash table under a read_lock and dereferen=
+ces
+> conn->lgr and conn->lnk. Four paths expose a window where a hashed socket=
+ has
+> freed or partially freed conn/lgr/lnk state.
+>=20
+> First, smc_conn_abort() calls smc_conn_free() during early handshake abor=
+ts
+> while the socket is still hashed in SMC_INIT, synchronously freeing the l=
+gr on
+> the smc_lgr_cleanup_early() path without holding the hash write_lock. A
+> concurrent diag reader can load a non-NULL conn->lgr and dereference
+> lgr->is_smcd after the kfree. Guard the conn/lgr/lnk blocks in __smc_diag=
+_dump()
+> for SMC_INIT and SMC_CLOSED sockets. As a side effect the diag_mode field=
+ is
+> reported as SMC_DIAG_MODE_SMCR for SMC-D sockets still in SMC_INIT; smcss
+> suppresses those rows before printing the mode string so there is no rend=
+ered
+> regression. Use smp_load_acquire() / smp_store_release() on sk_state to o=
+rder
+> these checks on weakly ordered CPUs.
+>=20
+> [ ... ]
+> Fixes: ae2be35cbed2 ("net/smc: {at|de}tach sndbuf to peer DMB if supporte=
+d")
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Hidayath Khan <hidayath@linux.ibm.com>
+> Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
+> Signed-off-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
 
-This is an automated message. This series looks like a fix, but its
-commit messages seem to be missing some information:
+Sashiko has reviewed this patch and found no issues. It looks great!
 
- - How the issue was discovered, e.g. hit in production, hit during
-   development, syzbot report, manual code inspection, LLM or static
-   analysis tool scan.
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261012080034.3877=
+0-1-mjambigi@linux.ibm.com?part=3D1
 
- - Whether the issue was actually triggered, or is only theoretical
-   (e.g. found by code inspection). If it was triggered please include
-   the symptoms, like the stack trace or error messages.
-
-Please do not repost the series just to address the above. Instead,
-reply to this email with the missing information, so that reviewers
-can take it into account. If the series needs another revision for
-other reasons, please include the information in the commit messages
-then.
-
-The evaluation is done by an LLM so it may be wrong, if you think
-that is the case please reply and explain.
