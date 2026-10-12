@@ -1,58 +1,58 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70427497B8F;
-	Mon, 12 Oct 2026 15:29:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EABBC48F856;
+	Mon, 12 Oct 2026 15:30:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791818961; cv=none; b=Ma/UASv2Dj0n6zQtmdb65Utrajbh2SCb1BbmLYiV54WTWi6pdzexc8kj1cr1E1A7MQIt74ER/fC0ll67T8yeY70Yx5Y5ORUVc+Ev+Tb0sgX5pbyX/qMrJY7iNa+MBjUpXMMJvCDVZO+tl4m924X+w17Wg/1/HuczbL6twzD5rCY=
+	t=1791819047; cv=none; b=fzafwHdSpX5Tdn0W5725fyvwpYGeXs5GhSjNHUsLyVILkkP6TYUWEZWhN1eis9yslRy6529TE9xIgM66m//uxH6+3NetB172so24bGAuXXNlvRpFZzmmJ8snTY5L8LOYa3Owfs5+wm4QKAMmfhAWMkc2gXU+sR3nGPJEwFlrpJU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791818961; c=relaxed/simple;
-	bh=QAOmRhoZomfYsLuluMtKsXytIUCvyzBeKw6xQHDltoA=;
+	s=arc-20240116; t=1791819047; c=relaxed/simple;
+	bh=V3s6IJDBCBrIQpiCggb4LNK0QLo+InCbXZEoM4iUY7c=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZgJ7voCw48fN3qbbPK2fKs7XsN06KHNHiFPLH6OtKEYaMFfaQBTPW1qAP8LkGVy2Nx2FC0N4CedSPjfJhltzaGLgh92RNyqGuWzmr3DIuwdtDeo1jCG+fmcR5DV4gbAbcDvqBNRQ1wA80cN42PcNV1gRAWd0P+Ca+ql3YyKkLLI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XyCMeT0J; arc=none smtp.client-ip=148.163.156.1
+	 Content-Type:Content-Disposition:In-Reply-To; b=YtvDXgoaRsqhMkZJOFErLWiBZQv2FxRc38SumURb/0SqxjqX5h6Xj2SzXS6ChvtnROxgK2MdACJs7dcr5EeNjprWJDGHR43RoXEsv0aA/cFw0AlMv5bgyHwY+ni0/HU7Vz8qgk+dQ6hP33Z/JjZtzY/q8bfpPuFNaJxG8brKEJk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=owxoHg4Z; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XyCMeT0J"
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69CCEcqq182992;
-	Mon, 12 Oct 2026 15:29:19 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="owxoHg4Z"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69CCESu0317275;
+	Mon, 12 Oct 2026 15:30:45 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=vaENsX/Xovj3/Z2BUashPqqcOp8TEY
-	AjAOWXTkt5n+Y=; b=XyCMeT0JbJ4zfSa4++xp9SqYs2nPegUZ/1bJrV8DseMQaH
-	u7SpMpi7AHpqa8/oDkfqxA8xr9cF2/ixLdGM6ky3vQ86pI3GpYhjCwHLPRdGGfVU
-	X/r89TrhLCnOpPB/AvijktIkZOBIG+A2eYxIJt4V+5hDf8KqtmTF7S/qsp4+Xk+H
-	DEKWsNTiYEoWr0SREO4JMRMCLhyBNAMFUA5uiCEhxhDQQRu455aNJ2Bqn14Drzbv
-	3ElVMFIfLNPFN7KGfWJekmveMMqAovKYWMjBG0rlF/s3nznVr9NDxI+7WCIo1AgF
-	dWmdZf5UHI75gAqzmGMqtbVVH+FsIqLh/WFmBZEg==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dv39m23-1
+	:references:subject:to; s=pp1; bh=iRvXaIUTAaxd49S6BsiLMvHBDKVSij
+	wseTraiJAequ0=; b=owxoHg4ZKv6q4/kOxNJHFatwF5WQhRd2fwUzkqPhuxVhp7
+	112Q29czbDkyWxJgrvcp2W1nlY/rkp787E684IbqhvkR5k9cLCQBsQzKxqckHc8V
+	SY18/mKDh0kdl9tHEH+3JZ+fUu+fMHyE7pnMynlZLbO5gMLpdkn2JlphiDJEoXkD
+	5Vjlb5I0qOZNQWngXqKU68g9txiowW8f9cPLSA4SoGCTkm3rgbrXsFLYv/I2STV2
+	kLzfUBcWCBfYC/fxPhkaCgYJqwGgk2lhqmSre1SCE/p8DW9iy89fFM1x6VfJ9j+5
+	mo3bOeoRqJz3Gi6TrrwiDTG9pbw60WktxESmZl5g==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dug9mq1-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 15:29:19 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69CC56fX1238622;
-	Mon, 12 Oct 2026 15:29:18 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h7yppnx8v-1
+	Mon, 12 Oct 2026 15:30:45 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69CC51v41287108;
+	Mon, 12 Oct 2026 15:30:43 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h816gwqbg-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 15:29:18 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69CFTELx48038244
+	Mon, 12 Oct 2026 15:30:42 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69CFUd0244433726
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 12 Oct 2026 15:29:15 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D9F9F20049;
-	Mon, 12 Oct 2026 15:29:14 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4535420040;
-	Mon, 12 Oct 2026 15:29:14 +0000 (GMT)
+	Mon, 12 Oct 2026 15:30:39 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EABF820043;
+	Mon, 12 Oct 2026 15:30:38 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 57E5820040;
+	Mon, 12 Oct 2026 15:30:38 +0000 (GMT)
 Received: from osiris (unknown [9.111.15.154])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 12 Oct 2026 15:29:14 +0000 (GMT)
-Date: Mon, 12 Oct 2026 17:29:12 +0200
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 12 Oct 2026 15:30:38 +0000 (GMT)
+Date: Mon, 12 Oct 2026 17:30:37 +0200
 From: Heiko Carstens <hca@linux.ibm.com>
 To: Ilya Leoshkevich <iii@linux.ibm.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -70,11 +70,14 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
         Janosch Frank <frankja@linux.ibm.com>,
         Claudio Imbrenda <imbrenda@linux.ibm.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 04/32] s390/bug: Indicate modified PSW in disassembly
-Message-ID: <20261012152912.19350H7e-hca@linux.ibm.com>
+Subject: Re: [PATCH 07/32] s390/traps: Handle nullifying program checks in
+ get_trap_ip()
+Message-ID: <20261012153037.19350I2c-hca@linux.ibm.com>
 References: <20261001103247.1989111-1-hca@linux.ibm.com>
- <20261001103247.1989111-5-hca@linux.ibm.com>
- <b85d6175-5587-4bca-9851-30241bc96158@linux.ibm.com>
+ <20261001103247.1989111-8-hca@linux.ibm.com>
+ <f7a81358-0ff9-404b-9b27-1ea11c095694@linux.ibm.com>
+ <20261012134221.19350F50-hca@linux.ibm.com>
+ <efd8f77f-f66e-481d-a67a-d4f2d0520ad1@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -83,50 +86,57 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <b85d6175-5587-4bca-9851-30241bc96158@linux.ibm.com>
+In-Reply-To: <efd8f77f-f66e-481d-a67a-d4f2d0520ad1@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: _S8CsJkbkM866M-fADW-oKrOwYetP4uB
-X-Proofpoint-ORIG-GUID: _S8CsJkbkM866M-fADW-oKrOwYetP4uB
-X-Authority-Analysis: v=2.4 cv=aqInmiZV c=1 sm=1 tr=0 ts=6accfccf cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Authority-Analysis: v=2.4 cv=Cr0q4X4D c=1 sm=1 tr=0 ts=6accfd25 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=nY3sA7zkoDGtY1Vn0XoA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEyMDA2MCBTYWx0ZWRfX2U/Xmrg3KPrh
- bTMpwaycf3KUVU6B+7IWoWbljOntYayzBCBDh2yfUKlUfLCSUXcBPCvarX8aFnT82owexbr2dc9
- PzKahnnOmLcUTjnPMn8JjugsKAyvaZE=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEyMDA2MCBTYWx0ZWRfXy/wjkpJyWjUR
- UR951S6fyLZWZTQrPM9w/CfZZvCCzeMBV3bZo6oqcotPRAi2BHDxvW2nv4rsxm/7xC9D7Qjo9wy
- qNpExxvwPkbjdeGNJoCh4vx3s6tDJZvcSH+7UOGwHsRui0jSWZ1HLkaPVT5NXua/cSryXKCXJrv
- Kty+vVIfdwXBYJPrGZD8SE/Viyh3bvB56yBHxh+ez36bnx1NwYiQPoy3FiMXxcJD4UsdzAGBFxr
- oJglAKEg+EjmC2ZyeedXDkzrkJQlyLimYQxp0i3ahUFlkfBf8jDfMGwXN2Rsk/2mGTIq0BFvObx
- POGiRM1mY9AIdJtIKwJWUHp2LpXArpBkt0OwM0jATDjstIt0yjctDvhlBTF/coWn5+p/MzxKvj+
- NFZSbDvqxJdp3/IWGcuCdX8XYGKN4X1Pl14TCcW8rFiP+mLhmTIzmI6Lt7adteQTpjsXy5ayIij
- mbA425aoMu6gnVSwW0A==
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=v2IaggXekx5fkVIIHtsA:9
+ a=CjuIK1q_8ugA:10 a=zgiPjhLxNE0A:10
+X-Proofpoint-GUID: lHP4tS0xFIcRemwaXLgY_Jr9eeJgB5Up
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEyMDA2MCBTYWx0ZWRfX9/rnviXJpiV6
+ oroqHiI1HKOuukxcSNhk36OKBPqj+o16nIfjJwOeAsGw62RGfOnsxkc8Fo9XG2Lj4tWkaQBYFmD
+ g2IhkkCJH92akHulcsE+zlPma2400v707T++rqOEge2tyFyvRDBiDdK6v9b38JzbKSAn6O8U/jV
+ SqS1U2b87Hg2efAS2hD2Ot9O8ynuQ7HZjKCWN0EDMtPq0UWMCZvieWS2VgRJH5EUUL8aOktmQi/
+ 6fIPA8AC+jsB2RGliSxDO8UfF6WsIPEeLwOG1fu/+v2oV3kV5mBsSW6VwgyynpqWa/xEAMmLUA8
+ TJcoJCXQ8+p7o0fYSbm3WbXhgbARGpsamXelcpDcIMm/zcT7SEyH/rvdjOEpLmOyPdcXC0e2Niv
+ y3Z7O5KYapgY8XAiE/1gaPd5vW+FIV71Q4Zk78dFIFRijvC3RCI6F/13kiNGe2NAqlNyMtHkhe0
+ BPXPKHYIH0ljJ/AzewA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEyMDA2MCBTYWx0ZWRfX9UMTMGIL4FSP
+ scWniz0jwTTihpceGEcBzZ+L1wFg966nkhK/zWet6odxVTGwqOzv+lXfTGlZO9QZmHck0OVf9K4
+ RZTcNk+k21Dq5lL6UysasWXOjty1WyI=
+X-Proofpoint-ORIG-GUID: lHP4tS0xFIcRemwaXLgY_Jr9eeJgB5Up
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-12_04,2026-10-09_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 clxscore=1015 spamscore=0 malwarescore=0 suspectscore=0
- bulkscore=0 adultscore=0 impostorscore=0 priorityscore=1501
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610080000
- definitions=main-2610120060
+ bulkscore=0 spamscore=0 adultscore=0 priorityscore=1501 suspectscore=0
+ malwarescore=0 clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610080000 definitions=main-2610120060
 
-On Mon, Oct 12, 2026 at 05:07:52PM +0200, Ilya Leoshkevich wrote:
-> > -		pr_cont("%s", buffer);
-> > -		ptr = buffer;
-> > -		ptr += sprintf(ptr, "\n          ");
-> > +		pr_cont("%s\n", buffer);
+On Mon, Oct 12, 2026 at 04:31:17PM +0200, Ilya Leoshkevich wrote:
+> On 10/12/26 15:42, Heiko Carstens wrote:
+> > On Mon, Oct 12, 2026 at 03:01:56PM +0200, Ilya Leoshkevich wrote:
 > 
-> Should this really be pr_cont() and not printk()?
-> The KERN_CONT doc says:
+> [...]
 > 
->     only done after a line that had no enclosing \n
+> > > Should location be moved inside the "if"? Now it reads weirdly: we cast
+> > > the pointer to __user before checking for user mode.
+> > > 
+> > > >    	if (user_mode(regs)) {
+> > > >    		if (get_user(opcode, location))
+> > 
+> > You are suggesting to move the assignment like this:
+> > 
+> > 	if (user_mode(regs)) {
+> > 		location = (void __user *)get_trap_ip(regs);
+> > 		if (get_user(opcode, location))
+> > 
+> > ? Or something else? Sure, why not. Just let me know what you prefer.
 > 
-> and the new code prints everything line-by-line.
+> Yes, and maybe also move the declaration there too.
 
-I guess it doesn't matter too much. The old code worked around that (by
-accident, not intentionally) by printing the new line the beginning.
-Which is most likely also not correct.
-So yes, I can change it to printk().
+Sure. I'm not going to send a new version. For only this. If I'm not
+mistaken there is only the other minor nit pr_cont() vs printk() which
+can be easily solved. No reason to spam everybody again :)
