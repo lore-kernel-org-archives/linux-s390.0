@@ -1,165 +1,153 @@
-Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11012018.outbound.protection.outlook.com [52.101.53.18])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CAF83546F4;
-	Mon, 12 Oct 2026 02:29:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.53.18
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791772199; cv=fail; b=HuMYGCJGvGheHaMzSG4GZKlO3V5DAUhlaFJcA96xYSZmoscmG+bBT5YAChKOZbM/ikXrsPpTR/UHcXcdePqDT1Us2OYK0LNSZ5aRBdMTh58N/mr8dSPVUruC/qrFpLhKBWQYy3Ck+hlh+vvJY6W254yZ9W6gNyb2DTGpFS1p0RU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791772199; c=relaxed/simple;
-	bh=kayeahorkkhySwyB0nfG2kkrC4gZ5cdlbIBsOjJYDl8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=gs93JLU7dLMPBzBHv8FYFjVSKo4TPoItNIdDZUlqud2jo+pTmyTYtEvt4dyrxnS9GzvzliSoW7TvpSyAwJSHgGyJb+Avx1ifFb4/DS6Ql+a9FpmOCT87PGEPsbXoAIw2sPfpdkLmou+0ahOKrHoW7NN0jB4ETOJqNqYGAVlmCAM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=Wh4+N8vW; arc=fail smtp.client-ip=52.101.53.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B8BE27A47F;
+	Mon, 12 Oct 2026 06:12:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1791785534; cv=none; b=hTjEd5XkqxzErT3wjyYbC2m9MQQJECX/cBhQuHMfSxefqOBhVruCaNpzkpX1bY1TrB7e/V11eJBqi2AEjE7cdXmuvTpNY6uOd9NafSb0QVjOeCNjXe4xroS3ppq882znkLEoWv0RcbXL3Zv+1S9S3dumnWcDI+ZwoFoO0J6gaSM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1791785534; c=relaxed/simple;
+	bh=AejdLHqNJuS+qrfHNbiaPnHQtObdu0DK5yNQu/dY9HY=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=C1APMatz1yBGW+Nh6cFEOdo23LvT6FsKyCz16z+Mbe3A+5ydZpZGN43V9uuS9+xagy2yOD+6kTI2knYOpdUgcwX4YXEZQCNuYAePsySzzWQ0st9db97+ZgZDZi5noVaaKRxSAqOODFBAUE71iZ2bCfoRPQpszijNkWirxmN6gvk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=E5X0mTVN; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="Wh4+N8vW"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=s8t6XxfKxRZVeUYjGdjefm3+E86nyvnxtyQCRLPLaWLi84J8M32999AQfX7RGhks5/lN/eMhXG8eHOyiCsPi2yG0TlQrtarq7HnrjAoWJ21GQ9hHIi7kkA8lEK067webVgcko1ZdfIMA5IfBpqAtKmlNw0dUc5FJ7WlQ3S7J/Y8s//KKV2V5WzQpfabPAZwICSJz2X/QZ7DjfcEOKFXiFs5bVfuFMmew4PcozeeDlqu/LK2q62PlB3WRfMW6orYRee0mM2B3Sui7yHFodNG3wDQNAoF9tL6OMikDygWMdYP3UEUCcjhSv3bsvhcARvnwHOsOrVgwTsXk8lQAzy8e4g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=biPO4041oltA6pcBUqVZAyuxffsWf2Xem0eqGjZWbfc=;
- b=nwNtP3lI41MngxXi+5u5hMSzz7w9p2MerBfY75I/AOfPbpqlLed1uYHhZ+p/Pltqs62ltHdOSVydjygBeNEShu95ElNWxyuJt4G7AMzDnbk/rfLdUgGdmXg1ARvCQMv50z0DW/2piaTzQ+Npxdblr508wng/3BdgNwz8rgivH93R3UrEAFW/g2MoW0XnWK1rmmLrpe/X98J9u7WapBT9BDP4A8rracmoFHD8ETmwmsflzaY7CN6p5uDH9KuFek9Dwmer45MWSeDmddQWXgOBQVHGA/B/1YFOJWKai/2r1dEIFR2X8pwhZ9glOhkFD8HAFJKOL5RstV4EBUk7bNZC0w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=linux.ibm.com smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=biPO4041oltA6pcBUqVZAyuxffsWf2Xem0eqGjZWbfc=;
- b=Wh4+N8vWXE0pB1KE0u++H5tdBHnhbpg4DV5L3KgYHLHB+e7/u0hENZAAO5FPvSqGXjoNFepGGrrGArqeh+NT7YfIRPW0baHEPxwyK404mgo/r/vUR//owdP5Jb6KuFTxjfBKOlurW9g6+4Pb6akrl7516HK0o0UCDdNrXyFTyK4=
-Received: from CH0P220CA0011.NAMP220.PROD.OUTLOOK.COM (2603:10b6:610:ef::13)
- by MN0PR12MB6173.namprd12.prod.outlook.com (2603:10b6:208:3c6::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.496.17; Mon, 12 Oct
- 2026 02:29:52 +0000
-Received: from CH2PEPF00000141.namprd02.prod.outlook.com
- (2603:10b6:610:ef:cafe::7f) by CH0P220CA0011.outlook.office365.com
- (2603:10b6:610:ef::13) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.496.5 via Frontend Transport; Mon, 12
- Oct 2026 02:29:52 +0000
-X-MS-Exchange-Authentication-Results: mx.microsoft.com 1; spf=pass (sender IP
- is 165.204.84.17) smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=satlexmb08.amd.com; pr=C
-Received: from satlexmb08.amd.com (165.204.84.17) by
- CH2PEPF00000141.mail.protection.outlook.com (10.167.244.74) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.522.6 via Frontend Transport; Mon, 12 Oct 2026 02:29:52 +0000
-Received: from Satlexmb09.amd.com (10.181.42.218) by satlexmb08.amd.com
- (10.181.42.217) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.53; Sun, 11 Oct
- 2026 21:29:46 -0500
-Received: from satlexmb07.amd.com (10.181.42.216) by satlexmb09.amd.com
- (10.181.42.218) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.53; Sun, 11 Oct
- 2026 21:29:46 -0500
-Received: from [10.136.45.168] (10.180.168.240) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server id 15.2.2562.53 via Frontend
- Transport; Sun, 11 Oct 2026 21:29:38 -0500
-Message-ID: <801adad4-fbcb-45f8-9283-c35676cd4d63@amd.com>
-Date: Mon, 12 Oct 2026 07:59:36 +0530
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="E5X0mTVN"
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69C5EGtP3479576;
+	Mon, 12 Oct 2026 06:12:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=9usDvnFmfqDsJsVnMt9jVkSnSCvHms
+	T8+YUnH855LaE=; b=E5X0mTVNhr8siawTyTQ+sGAMRVzTLQy+Ma3vzgLItxtpmn
+	GDhBjkh+bnbNyhI/RJYoKIiUzcqOqEabU996eYL3xHU8vM32P3we7Zdp+E6O3pgv
+	VmlNvrdpUBU8BjaxFhrgP5F5D5DmvXuaYGjmliHUzOfpv36b7ZBNGnd6gDCMnEdr
+	yJma54AhecBvXpY2ad2R0W2b2282+OHnMGTxbCEhJkHcuKknnIHAW6n657LrQ6fH
+	DJp26qBTp6/sFj6rUjf8XhIWgFMGTD9cHXKvgPCTvlipbnh84WUFkHZ4Qmws/SpG
+	hHYTgSuX8p3EtFnt7Vw573HTHOcDPAicnE/PQPHA==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7e1vy44f-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 12 Oct 2026 06:12:11 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69C55FGF804951;
+	Mon, 12 Oct 2026 06:12:10 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h82cybpa1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 12 Oct 2026 06:12:10 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69C6C6kh17826226
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 12 Oct 2026 06:12:06 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C98DC20043;
+	Mon, 12 Oct 2026 06:12:06 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AA3A420040;
+	Mon, 12 Oct 2026 06:12:06 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.87.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 12 Oct 2026 06:12:06 +0000 (GMT)
+From: Sven Schnelle <svens@linux.ibm.com>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik
+ <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH] s390/ptrace: Preserve ILC when updating system call number
+In-Reply-To: <20261009152132.1113325-1-hca@linux.ibm.com> (Heiko Carstens's
+	message of "Fri, 9 Oct 2026 17:21:31 +0200")
+References: <20261009152132.1113325-1-hca@linux.ibm.com>
+Date: Mon, 12 Oct 2026 08:12:06 +0200
+Message-ID: <yt9dcxtf30sp.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v3 06/13] powerpc/setup: Initialize sbm topology based
- on coregroup / NUMA topology
-To: Shrikanth Hegde <sshegde@linux.ibm.com>, Peter Zijlstra
-	<peterz@infradead.org>, Michael Ellerman <mpe@ellerman.id.au>,
-	<linuxppc-dev@lists.ozlabs.org>, Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Thomas Gleixner <tglx@linutronix.de>
-CC: Dietmar Eggemann <dietmar.eggemann@arm.com>, Steven Rostedt
-	<rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, Mel Gorman
-	<mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>, Nicholas Piggin
-	<npiggin@gmail.com>, Christophe Leroy <chleroy@kernel.org>, Chen Yu
-	<yu.c.chen@intel.com>, Tim Chen <tim.c.chen@linux.intel.com>, Ingo Molnar
-	<mingo@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, Vincent Guittot
-	<vincent.guittot@linaro.org>, Andrew Morton <akpm@linux-foundation.org>,
-	"Arnd Bergmann" <arnd@arndb.de>, <linux-kernel@vger.kernel.org>,
-	<linux-arch@vger.kernel.org>, <linux-s390@vger.kernel.org>,
-	<linux-mips@vger.kernel.org>, <loongarch@lists.linux.dev>,
-	<driver-core@lists.linux.dev>, Ritesh Harjani <ritesh.list@gmail.com>,
-	"Srikar Dronamraju" <srikar@linux.ibm.com>
-References: <20261001192849.74788-1-kprateek.nayak@amd.com>
- <20261001192849.74788-7-kprateek.nayak@amd.com>
- <61b01870-ddcf-4c4f-8604-dd63aa4a07a3@linux.ibm.com>
-Content-Language: en-US
-From: K Prateek Nayak <kprateek.nayak@amd.com>
-In-Reply-To: <61b01870-ddcf-4c4f-8604-dd63aa4a07a3@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH2PEPF00000141:EE_|MN0PR12MB6173:EE_
-X-MS-Office365-Filtering-Correlation-Id: 23a9f0a2-b7c1-4c8b-0673-08df2808b245
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|1800799024|36860700016|376014|7416014|23010399003|22082099003|18002099003|11063799006|56012099006|4143699003|10067099003;
-X-Microsoft-Antispam-Message-Info:
-	3nfhdf2Nopv53PQXfvy6t4oS5YcTQ4EsozTFUfYjbc6gOF4AqqCNidgTv2wTi8pyEkGtMGhT17Jo1tpMm5a+2LwUwryCzeAYMdPQfcyWbST9GGWexkQQHK6xCL9Fdl6tCxjHXcnLujZTxBo4RLXiBPv8hmsiUmz2pXw4LSHOzsqePwTpXJZbR158vsfkAh9MJmqv+58zv4yQ36uqMs2reQ5Jkm32ee3nreRqH0z9Vmx6LRBuaZ50x9KoPJDC4ASWSWrkkSMr73Wo63eaglQB0+l8Lv8QzENVsDsPHFTNjrkpZhaQdvl//rS4FCkjzDP9pLutwXQEt2h5GC+ZMTjK0y+qH5msjSkH3GkD+S4TAmG86JTB4Hr1g3fOvlXUUxjtMjf2bvV8Tw8B503eBzJLmglakRYyYY41PQ2tIWSz3zQ5T65BRMAbVAtwyIJIBkHMOjbFom13wUcjMtQpUKRoj7yvffdR4o1b+yl9BXLaMV2qDOtrdjG++v8VQ2Lq35TYRZ/MfPIkb6pCeZGLcPQluEw3G0ZwCO1Ea+g4bbTa0kmMuVZJXvyVc1aGhhcQWuJhOpcc+dtJ57Y5YzfO8o/Gnrsz4gxVr/FFrgD1HNMi9oZ6wB0WDfauF9Zqf0sazgGsTnYdIhAhmzlRRherAlyyiB5kCDUOcPeaIpW1UxHcrFLAv1m2BI0VXteQLgMWfUy1Fjbm7eqmmsssQzMDIHd5ng==
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb08.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(1800799024)(36860700016)(376014)(7416014)(23010399003)(22082099003)(18002099003)(11063799006)(56012099006)(4143699003)(10067099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	kf9AiQhl//3lnaN1h0NHHjRINv+s4GJq027bktm1OCnUJFtoH9M4pPTxnsAVnJP4hCMqvPL6VvQ065EPS2skTwcGlS0hRbaxMHeesyCcNAOgh5YOrS4+sI0LNIOhs/QX0UjziLmnN3X9lmUuYIN43gfRsdXf0ONoZKSLPH7pYuohrHC+Y9GTyS7V+hKrR6IqE003lhvXwmMGo6gptJsRDb7FiJsi4U3s8RKIPPw7+mRcLCrcV/naolvM0PDDsdI/1C0vNXJByl1rNyor5PZNwlseCQWSkBOZW+X95bXO1HYvl0qBk8ZwZW/hke0Snbs7vPvyTZMsED47/0RmUvQ1fJ5uMNgF8dtByDcamE0g1N+6db6B14z8grLaJLHV33cnm4+1WJMtOcaMlszTFynAoSQ+D+Pchjwq5OY4eJICd372IDrXfNvswKA2LeTOnGc8
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Oct 2026 02:29:52.5073
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 23a9f0a2-b7c1-4c8b-0673-08df2808b245
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb08.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CH2PEPF00000141.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN0PR12MB6173
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEyMDAyMiBTYWx0ZWRfX03Rta/ed0FPz
+ c5kW9+hgGEEO8gbwJvL/5DgDPKVgFDWFNVbbzmHR5aY7v+IsLJHWJt3qPALaLVVZ+RcejppIsI0
+ qdmCnMNM3EQTkbp7YKB69U1hiULtkng=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEyMDAyMiBTYWx0ZWRfXwPMTVoO0lkkK
+ /U/1uKBiT6HZgZk9y53+LdTsirCPx4sWUjCr1tuWrPt8ulFurVmDfnbCLKNirwURD7QOzQQzBnb
+ tAHyo4dH3r+wh0Pjc/s/lrQKAHukZy9FsRWPLnn9Nd/5O7+UIkYV+M7pXtUhXxu6fU8lLKY/67l
+ /8WmkQbuQ/Spb3Dv58WmPSoPTfYwv3S6409smA05uOIoSPCGSzpkbg0Aj2HPKkXu+OHRmBKk7HL
+ lCRrOVV38+yiTEDnkZMNhEFWtL6u5Gn1LEvg1cPE1wLGZAxcpWmuZy96vsHKTKihuFLVKiGDQGy
+ afEVAigxiBSHMb7cn+3NxbUoC+yN+eIa7hN0MkLSQxKjBEBvDaCm4+zx8/BdZ3LN7+nytxzATOU
+ 0eeTMVzPs/Q+Pi8OcyHJNJjGi5c5zdtcHDfYE/+RLOV+jXtB0wV0ohLDcdwG+jUVdIeg+rdaxC6
+ Ec66sDGWkv30zbAH1nw==
+X-Authority-Analysis: v=2.4 cv=E6pYNqdl c=1 sm=1 tr=0 ts=6acc7a3b cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=31u72ZEnUxVqjmpZp2QA:9
+X-Proofpoint-ORIG-GUID: srHuSWHhLNOzFUnmMXEsaJ0LsLguDThK
+X-Proofpoint-GUID: srHuSWHhLNOzFUnmMXEsaJ0LsLguDThK
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-12_02,2026-10-09_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 phishscore=0 clxscore=1015 bulkscore=0 priorityscore=1501
+ spamscore=0 adultscore=0 suspectscore=0 malwarescore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610080000 definitions=main-2610120022
 
-Hello Shrikanth,
+Heiko Carstens <hca@linux.ibm.com> writes:
 
-On 10/7/2026 8:13 PM, Shrikanth Hegde wrote:
-> Hi Prateek.
-> 
-> On 10/2/26 12:58 AM, K Prateek Nayak wrote:
->> Initialize sparsebitmap (sbm) topology based on the coregroup
->> information. Each coregorup gets its own sparsemask leaf.
->>
->> pSeries and memory hotplug are interesting since a hotplug can place a
->> newly added CPU on any online node. This requires special care to allow
->> estimating bitmask size considering the worst case scenarios - each CPU
->> onlined is on a separate node, and this is a new N_CPU node.
->>
->> Platform may enforce a stricter standards for the CPUs being online and
->> what nodes they can be mapped to but the current implementations makes
->> no assumptions and considers each CPU can be onlined on a unique node.
->>
-> 
-> I think this suffers the same fate as structures which are allocated at boot
-> time such as runqueues.
-> 
-> So your fallback option of putting all the disabled into singleton node may be
-> sensible option. (If you are not doing that already)
+> When an attached debugger changes gpr2 via PTRACE_POKEUSR while the
+> traced process has PIF_SYSCALL set, the int_code in pt_regs is also
+> updated. In case of an svc it contains the instruction length code
+> (ILC), as well as the system call number.
+>
+> The ptrace code sets the ILC unconditionally to a value which matches the
+> svc instruction. However the svc instruction also may have been executed
+> via the execute or execute relative long instruction, which have a
+> different length. Therefore preserve the ILC and only change the system
+> call number using syscall_set_nr().
+>
+> This makes sure that in case of a PSW rewind the instruction address
+> points to the correct instruction.
+>
+> Fixes: 56e62a737028 ("s390: convert to generic entry")
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/kernel/ptrace.c | 9 ++++-----
+>  1 file changed, 4 insertions(+), 5 deletions(-)
+>
+> diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+> index 125ca4c4e30c..d8d5e843859c 100644
+> --- a/arch/s390/kernel/ptrace.c
+> +++ b/arch/s390/kernel/ptrace.c
+> @@ -34,6 +34,7 @@
+>  #include <asm/ptrace.h>
+>  #include <asm/rwonce.h>
+>  #include <asm/fpu.h>
+> +#include <asm/syscall.h>
+>  
+>  #include "entry.h"
+>  
+> @@ -345,11 +346,9 @@ static int __poke_user(struct task_struct *child, addr_t addr, addr_t data)
+>  				return -EINVAL;
+>  		}
+>  
+> -		if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
+> -			addr == offsetof(struct user, regs.gprs[2])) {
+> -			struct pt_regs *regs = task_pt_regs(child);
+> -
+> -			regs->int_code = 0x20000 | (data & 0xffff);
+> +		if (addr == offsetof(struct user, regs.gprs[2])) {
+> +			if (test_pt_regs_flag(regs, PIF_SYSCALL))
+> +				syscall_set_nr(child, regs, data);
+>  		}
+>  		*(addr_t *)((addr_t) &regs->psw + addr) = data;
+>  	} else if (addr < offsetof(struct user, regs.orig_gpr2)) {
 
-For pSeries I allocate a humongous chunk of memory on sbm_alloc() and
-control how much of that memory needs traversing based on the set of
-online CPUs. Not ideal but yes, I will probably pivot to doing
-something like what per-cpu setup does by using ealy topology +
-assuming a few things about the rest.
-> But yhea, will see more into it, this changing node stuff is new for me too.
-> Also i need to read your patch series too :)
-
-Thank you again for taking a look at the series and early testing.
-
-_Me goes digs down on couple regressions I've noticed_
-
--- 
-Thanks and Regards,
-Prateek
-
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
