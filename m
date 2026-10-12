@@ -1,60 +1,61 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C724C488D8D;
-	Mon, 12 Oct 2026 14:22:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2685548EBEE;
+	Mon, 12 Oct 2026 14:22:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791814935; cv=none; b=Ah1yB8VpfI0tjiN92QUaTFH0PddQQ5+BgPydnSSe98Wk6sCIVAYD0l/l1giTXpnWB85LmHqhh3IHXASjdGeD52wWHIlwXkj94xWRWnDWBrFIV5lCeKC+k6kUiezhcS2FiW5n2a9nK3kEh8C8EjBWwYKyiz2EHDQhaha+rFq+Ltw=
+	t=1791814936; cv=none; b=I8F5c07UslN8K+7yI2yHsZjiYYzPLiaju3xab8XaUm62w72vjh4uakg6ZvBKOIkG3vOvXy4VgfpkKkksmodUPRVWWSHVRlxYrkX3BbraevhSPtCYUHMd9Oqu3HYmpjI+yPigm0PE+lKsGxTRMy+KKMd7Ypp1C5W6ucBoJOncYVE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791814935; c=relaxed/simple;
-	bh=JoqrmNeABnn31QnE9zJgIazKzg+uzkE3NvbM67uaMJ8=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=U17Vjw5SsgWpOBu/UDL3vl1z41W/UJBkxvZfiDvLJ/SA/e0U24SnccOWNhJNNb5hkyktD9dw8paBzWKPCxrn6uqBadQDTQprFfFpB6AsL3X7sQVpG6RjEPHtQKwyJdDgmZvwjESRhG2ebw4O2yT4nskGkLW9aa6N94I0SS7JAqY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WS3OC05s; arc=none smtp.client-ip=148.163.158.5
+	s=arc-20240116; t=1791814936; c=relaxed/simple;
+	bh=//6DzEGwaaaDvO6HsLFzXRJFsSQGHveSISHA3SvobjA=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=Ci3lxzKOSumdUPW+tPNNsIRBx03KAJiadVAdExDBqD17ib9zoEYI/17wSTRqZ0Kx0M+KpyDBe2wiHxPzmARil5e4cmpWedXI9+gGGqQz00CVJe+QUWAiknx7Q8+NCmI3Ni8oGs2rwdfco7RQhDeZPvqLk5lGSBw/6N+m5Ks1l1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Gxz4G0ER; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WS3OC05s"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69CCEE0d3209697;
-	Mon, 12 Oct 2026 14:22:06 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Gxz4G0ER"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69CCE8c42640427;
+	Mon, 12 Oct 2026 14:22:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pp1; bh=eFa+XD8VIJCS0lMBNDIBLvGZ2Ddh
-	37GmTwzv2TdBOz0=; b=WS3OC05sjHLS8WEHBS6tER/7PGn7GFGNgKmr74tznvMN
-	320/N28RUEndsTas5kBimdUc5GSKqyALQ5+5ua6AsZGFD3prES+BpdgMRLG4Z/Xa
-	7quUCfTGnUd3W9z74KKEBCCnHGgUbXJEHokeW9DXt4/E/pP/TopD33er8FBxntK7
-	A7uqZW3sysc/BBOZY8VCL99bts1M58TBZJzn0NPqWuZmeg7noJ+1wY7w0DTP6vkE
-	5YZhZRFE6pJZ0ccNqyoGUQqcqsGELJTPp0ukE+BZCXzyqCSQODL7cRl/nmmHlUkP
-	4xkHRI94RSI16wE6FyKuXS9LjIJ6Xh2DYFDOufuTAg==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dv090sk-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Kp0dKn
+	oKHIVDPObnuNhB5RsSYY9QQREqwD5OUz2Cj0s=; b=Gxz4G0ER0Hk8gSreF2NzFV
+	QX9WIQ7vadwmuX9X3s/qoLN83zpa5IsvwmjrC1yt6v9svaHNak+2qYU8mSYJzGZv
+	ozs4bd/8qBbaNsrFuOwgh+CekJsNTlm7mW646rjcPCx6I/nj03pK8w9ORN2yvFix
+	aflKUl+g5D+BLebZw6YVvct0OsZIgpHrqGdPqDPsIHR/ZMYKi6XTK1J4YMDIyp7g
+	08DLiVuwU7dLXjlFmT0uCXEOUPv8HK+gsvSWtLv2hj+3yg9oLfRlzfmBUcn9xPK5
+	txJ7TfT6AgfZVch3ZepBVNbl4gzG1Yw/OMu7LOG9kqiHpIyQVDDwb1DNkB7V1FVg
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dwh9aye-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 14:22:06 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69CC55la1238606;
-	Mon, 12 Oct 2026 14:22:05 GMT
+	Mon, 12 Oct 2026 14:22:07 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69CC50911287103;
+	Mon, 12 Oct 2026 14:22:06 GMT
 Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h7yppnp6u-1
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h816gwf50-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 14:22:05 +0000 (GMT)
+	Mon, 12 Oct 2026 14:22:06 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69CEM2R349086860
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69CEM2Gq49086862
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Mon, 12 Oct 2026 14:22:02 GMT
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 108B620043;
+	by IMSVA (Postfix) with ESMTP id 45CF420040;
 	Mon, 12 Oct 2026 14:22:02 +0000 (GMT)
 Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D0C4520040;
-	Mon, 12 Oct 2026 14:22:01 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 140F62004B;
+	Mon, 12 Oct 2026 14:22:02 +0000 (GMT)
 Received: from [127.0.1.1] (unknown [9.87.85.9])
 	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 12 Oct 2026 14:22:01 +0000 (GMT)
+	Mon, 12 Oct 2026 14:22:02 +0000 (GMT)
 From: Gerd Bayer <gbayer@linux.ibm.com>
-Subject: [PATCH v2 0/3] s390/pci: Updates to PCI insn tracing
-Date: Mon, 12 Oct 2026 16:21:48 +0200
-Message-Id: <20261012-rpcit_trcfh_upstream-v2-0-1812db73dfa5@linux.ibm.com>
+Date: Mon, 12 Oct 2026 16:21:49 +0200
+Subject: [PATCH v2 1/3] s390/pci: Adjust alignment in insn trace
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -63,11 +64,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/4WNWwqDMBBFtyLz3UgSQW2/ug8RSeKkDtQHkygWc
- e9N3UA/z4F77gEBmTDAIzuAcaNA85RA3zJwg5leKKhPDFrqUklZCV4cxS6y80O3LiEymlEUWHp
- TFb33ykKaLoye9ivbtIkHCnHmz/WyqZ/9E9yUkKI2ulK18/Yu7fNN07rnZMfczSO053l+AdGDz
- K+8AAAA
-X-Change-ID: 20261007-rpcit_trcfh_upstream-3e6fa73dff1b
+Message-Id: <20261012-rpcit_trcfh_upstream-v2-1-1812db73dfa5@linux.ibm.com>
+References: <20261012-rpcit_trcfh_upstream-v2-0-1812db73dfa5@linux.ibm.com>
+In-Reply-To: <20261012-rpcit_trcfh_upstream-v2-0-1812db73dfa5@linux.ibm.com>
 To: Niklas Schnelle <schnelle@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Benjamin Block <bblock@linux.ibm.com>,
@@ -85,88 +84,81 @@ Cc: Vasily Gorbik <gor@linux.ibm.com>,
         iommu@lists.linux.dev, Gerd Bayer <gbayer@linux.ibm.com>
 X-Mailer: b4 0.14.3
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEyMDA1NiBTYWx0ZWRfX7C/U3RVHnHzl
- mVbpGoC063G7wPBhmh6TNYuY8eNbkzm7b3+wz8otg/i2FW0yLVsSMMibYB69RsKBr8WZ4JhjV8C
- bjZS9VRrNtaTLBwnCEDnGyXz9VRBrM/qIR0hFvYlq9VzhtEDxKnMLZiv+06Z8lnu/Tfs6yoXemF
- sUqty2/E2OceYWmBqDHBfyUcYgH+u/ndCU1MF3Rva0QG6siMWZV87T7crXswe+5w5U3eLHyd4Bh
- 2UwwaTTUQRxr12/LAAvfhYbjjqc6Ky7E7gMTTWo9DyCsE7TsXUV8Qq1nWe9hnAXDHi3pnneuMEb
- DYNoq84gnI61WOavaQs61wnQcSgqbutvJAC6snLgX4p0xmahTwYTKZm52jnxNSpDD0Q6KIZCAPS
- Q5JPQPvj4snQ9UXppYhQxdm/KS/fuAel3nb5hrCDu/raJ2E83OODq2AuDfVqT6+6c8Ae+yW6FWo
- io3qiWjEZ82i9WS5oSw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEyMDA1NiBTYWx0ZWRfX+CDJ5ofEyNMT
- wLLZUiuGsK7QsLNburaAbsE6EkXe0u2o4Bv5PftJxPh/UJd7mp/0PCxumXzYLAKEfAIZ+4B9ySM
- 1gd3TUbySF2wB5uQ0LbtVz6+zypQL7Y=
-X-Proofpoint-ORIG-GUID: k-08AosCLcGPOIIerYh0tDQBydaPQ6Fc
-X-Authority-Analysis: v=2.4 cv=a6KlZkSF c=1 sm=1 tr=0 ts=6acced0e cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEyMDA1NiBTYWx0ZWRfXzf/c/u8AnKyO
+ mep+SSxZFiejHeciwnnucDDP+nERBYT6yYyhue/L4YUfkbMImKGgdc5KzJ79et/L4wm7BCTjv3X
+ un0dSWcxpr+WSBm2bOlmnvq5+3FpwT4=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEyMDA1NiBTYWx0ZWRfX+8iZ7pZoV4HC
+ qEFCyfeEDZ/qzuPiwqukyRxHGdvPEIC9pWgLjkXyPo4OgxwW5hkqsg6JRVPozaAARZnCvlKCt72
+ ssn+Ofovdg0RhATdCaSrZdZ7mfggzlDRXQJxAyEpAV8+db/TYhWiwcEQiIWrr6n+OIS4s1F6rQj
+ +xSN9ufqTmnnmK2pThHr+b8cIfAKXd9g7F049f9yudk9TW5M7ry3ZrBX95WQOmExsjFhEsUEBYI
+ jiGEf/0TP8t9UARloBfFha38KchJ7YiY2IvSKiuCEzya1E+J9AQ7TZXSNqyNUb4rFtMPtg+HwEq
+ bI+E8ZjJtQcZ58QDyf1CDYjER2dUt295/f2PsnQH4H1/KJsk3tfiUCQ2RHTr54tJub6qWgyU8QQ
+ 5xgi0AArHGsI29tKjR+yxgqTFz2Yvm6ADiyn3HJzqsSmt62GkAoj3VSOuEoVcjBUhyPlHGzXClo
+ 48Kw2SEZb8ceXE3B/qQ==
+X-Proofpoint-GUID: KZtf8oXs7DJJvQluifOC89ahWZnxhLSf
+X-Authority-Analysis: v=2.4 cv=RoFQvymK c=1 sm=1 tr=0 ts=6acced0f cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=xIqyEUT4ZkeEuoJ0Q4YA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: k-08AosCLcGPOIIerYh0tDQBydaPQ6Fc
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=Dtsizi7wGu1GIzxuX8kA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: KZtf8oXs7DJJvQluifOC89ahWZnxhLSf
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-12_04,2026-10-09_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 malwarescore=0 spamscore=0 suspectscore=0 clxscore=1015
- phishscore=0 priorityscore=1501 lowpriorityscore=0 impostorscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ priorityscore=1501 spamscore=0 phishscore=0 adultscore=0 bulkscore=0
+ impostorscore=0 suspectscore=0 malwarescore=0 clxscore=1015
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610080000
  definitions=main-2610120056
 
-While debugging some issues, I found that insn traces for RPCIT are
-lacking an indication for which PCI function translation tables needed
-to be synchronized with hypervisors and/or firmware and that the 64bit
-address fields are traced at odd addresses. While looking into how to
-address this, I found another small oddity in that the code leading to
-the RPCIT instruction was expanding the 32bit function handle to a 64bit
-value for the inline assembly way too high in the call-chain.
-    
-So I started this small series to address these three issues:
-1/3 - Insert padding into the insn trace at natural boundaries
-2/3 - Pass function handle in 32bit variables as long as possible
-3/3 - Introduce a RPCIT variant of insn trace - adding function handle
-    
-With this series applied (+ a test patch to trace RPCIT even in CC0
-situations) an entry in /sys/kernel/debug/s390dbf/pci_error/hex_ascii
-looks like the following (removed time-stamp and ASCII transcription,
-replaced instruction address with "<IA>"):
+Currently we have 64bit wide fields start at odd byte-offsets in the
+insn traces for pci_error in the s390dbf debug area, which are hard to
+decode in hex dumps. At the same time, trace entries are padded at the
+end.
 
- 2 - 0001 <IA>  52 00 00 00 00 00 00 00 85 00 32 2e 00 00 00 00
-                ^  ^  ^                 <--------->
-                |  |  Status              function handle
-                |  Condition Code
-                "encoded" insn
-
- 2 - 0001 <IA>  00 00 00 01 ff 04 90 00 00 00 00 00 00 00 10 00
-                                        <--------------------->
-                <--------------------->       IOVA range
-                      start IOVA
-
-I hope you'll find this useful,
-Gerd
+Drop the packed attribute on the struct definition to exploit the
+compiler's natural alignment, introduce explicit padding before and
+after the 64bit fields for humans, and add a static assertion to avoid
+accidential overruns of 2 lines in the s390dbf trace.
 
 Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
 ---
-Changes in v2:
-- 1/3 and 3/3: Replace unnamed bitfields with named dummy members for
-  padding (address Sashiko findings)
-- Link to v1: https://lore.kernel.org/r/20261007-rpcit_trcfh_upstream-v1-0-8a2718cfb90b@linux.ibm.com
+ arch/s390/pci/pci_insn.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
----
-Gerd Bayer (3):
-      s390/pci: Adjust alignment in insn trace
-      s390/pci: Use 32-bit fh outside of inline asm
-      s390/pci: Add function handle to RPCIT insn trace
+diff --git a/arch/s390/pci/pci_insn.c b/arch/s390/pci/pci_insn.c
+index 35ceb1bea1c6..1089b539aeb6 100644
+--- a/arch/s390/pci/pci_insn.c
++++ b/arch/s390/pci/pci_insn.c
+@@ -18,11 +18,13 @@
+ #include <asm/asm.h>
+ 
+ #define ZPCI_INSN_BUSY_DELAY	1	/* 1 microsecond */
++#define ZPCI_ERR_INSN_DATA_SIZE 32
+ 
+ struct zpci_err_insn_data {
+ 	u8 insn;
+ 	u8 cc;
+ 	u8 status;
++	u8 pad0[5];
+ 	union {
+ 		struct {
+ 			u64 req;
+@@ -33,7 +35,10 @@ struct zpci_err_insn_data {
+ 			u64 len;
+ 		};
+ 	};
+-} __packed;
++	u64 pad1;
++};
++
++static_assert(sizeof(struct zpci_err_insn_data) <= ZPCI_ERR_INSN_DATA_SIZE);
+ 
+ static inline void zpci_err_insn_req(int lvl, u8 insn, u8 cc, u8 status,
+ 				     u64 req, u64 offset)
 
- arch/s390/include/asm/pci_insn.h |  2 +-
- arch/s390/pci/pci_insn.c         | 42 +++++++++++++++++++++++++++++++++-------
- drivers/iommu/s390-iommu.c       |  8 +++-----
- 3 files changed, 39 insertions(+), 13 deletions(-)
----
-base-commit: 24a19b953e2a3d0ea5a8c4951a0ab8f32720c907
-change-id: 20261007-rpcit_trcfh_upstream-3e6fa73dff1b
-
-Best regards,
 -- 
-Gerd Bayer <gbayer@linux.ibm.com>
+2.53.0
 
