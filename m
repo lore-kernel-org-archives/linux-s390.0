@@ -1,57 +1,57 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B8BE27A47F;
-	Mon, 12 Oct 2026 06:12:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AAEC339361;
+	Mon, 12 Oct 2026 06:39:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791785534; cv=none; b=hTjEd5XkqxzErT3wjyYbC2m9MQQJECX/cBhQuHMfSxefqOBhVruCaNpzkpX1bY1TrB7e/V11eJBqi2AEjE7cdXmuvTpNY6uOd9NafSb0QVjOeCNjXe4xroS3ppq882znkLEoWv0RcbXL3Zv+1S9S3dumnWcDI+ZwoFoO0J6gaSM=
+	t=1791787147; cv=none; b=VHDhiHCydt9dLUBBWnJbXA1DzCZ2NCBwGxFmafzAfFjbPT2pP39rz6wMqYBEq35NFPlWE4CfWuJCqsoApQpy/fz1Pb6GjVvdqhnQBPn1VFVimQS9Hs5ZUU8OoOwNvzIGn1tMCEvUDQnqNCvL11IWPAL1fobp/bx6MMMZbx5X4HU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791785534; c=relaxed/simple;
-	bh=AejdLHqNJuS+qrfHNbiaPnHQtObdu0DK5yNQu/dY9HY=;
+	s=arc-20240116; t=1791787147; c=relaxed/simple;
+	bh=V7dZD6S4vkMjIkaJr4VxgOKsOxnqAOiL8J96nKBPvtU=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=C1APMatz1yBGW+Nh6cFEOdo23LvT6FsKyCz16z+Mbe3A+5ydZpZGN43V9uuS9+xagy2yOD+6kTI2knYOpdUgcwX4YXEZQCNuYAePsySzzWQ0st9db97+ZgZDZi5noVaaKRxSAqOODFBAUE71iZ2bCfoRPQpszijNkWirxmN6gvk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=E5X0mTVN; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version:Content-Type; b=H8sMKqruo9EU5o2d7ZU6umSzomwuqYUKvhuWSp6aGbZccRII0FVxWyS1BNN4+3mCE/p2kZFATRHcv4WKskl8V7LYpwcKMMZqyKyew4jTLEQpzvg2kFcphMN0bHVBBuKnk4bNEIR6ejrsGQZalRTLsKRQuoSobsw31noTabBJbrE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=mlVc7ohu; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="E5X0mTVN"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="mlVc7ohu"
 Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69C5EGtP3479576;
-	Mon, 12 Oct 2026 06:12:11 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69C5EZv13479824;
+	Mon, 12 Oct 2026 06:39:05 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=9usDvnFmfqDsJsVnMt9jVkSnSCvHms
-	T8+YUnH855LaE=; b=E5X0mTVNhr8siawTyTQ+sGAMRVzTLQy+Ma3vzgLItxtpmn
-	GDhBjkh+bnbNyhI/RJYoKIiUzcqOqEabU996eYL3xHU8vM32P3we7Zdp+E6O3pgv
-	VmlNvrdpUBU8BjaxFhrgP5F5D5DmvXuaYGjmliHUzOfpv36b7ZBNGnd6gDCMnEdr
-	yJma54AhecBvXpY2ad2R0W2b2282+OHnMGTxbCEhJkHcuKknnIHAW6n657LrQ6fH
-	DJp26qBTp6/sFj6rUjf8XhIWgFMGTD9cHXKvgPCTvlipbnh84WUFkHZ4Qmws/SpG
-	hHYTgSuX8p3EtFnt7Vw573HTHOcDPAicnE/PQPHA==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7e1vy44f-1
+	:references:subject:to; s=pp1; bh=bd7MbNt0RDXg84hCtPS//flzfZXtXG
+	PjVks/SEA4YX4=; b=mlVc7ohut4bs+9xTUqyQK+bT7ry5M1D9qsK2CxSnRadI2l
+	Q1cvRcVlFAcNrYcKMZaB1y6Ddce/bwZe24qN0T3GK7Z0oM/49nRRz0wfaYfq5GBd
+	kmBGLFCw3yRv8cWkYx4FKm6+AFwAbCv8hcT4HTJTd+68JvAPm4u/4xZU13gjt4RU
+	Pp86SMuWWE6XhoIz8VXgmE5qDWbbTIs6KKtFGwRWamgb6ZOBvvvGj0S87D/i1Sur
+	s4qjvsgO52MFEhl6RZROSXGAjw5Qjm1fkR0gXSHG+9l3IkPE4eClQRFZEXpYl7PZ
+	P5QUiIVW4/wxed9tAR8FYrO5vzugiaGrYAwArPvg==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7e1vy71g-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 06:12:11 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69C55FGF804951;
-	Mon, 12 Oct 2026 06:12:10 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h82cybpa1-1
+	Mon, 12 Oct 2026 06:39:04 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69C5Js9J769661;
+	Mon, 12 Oct 2026 06:39:04 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h802vm564-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 06:12:10 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69C6C6kh17826226
+	Mon, 12 Oct 2026 06:39:04 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69C6cxC140829344
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 12 Oct 2026 06:12:06 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C98DC20043;
-	Mon, 12 Oct 2026 06:12:06 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AA3A420040;
-	Mon, 12 Oct 2026 06:12:06 +0000 (GMT)
+	Mon, 12 Oct 2026 06:38:59 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id CE6B72004B;
+	Mon, 12 Oct 2026 06:38:59 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AF1BC20043;
+	Mon, 12 Oct 2026 06:38:59 +0000 (GMT)
 Received: from tuxmaker.linux.ibm.com (unknown [9.87.85.9])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 12 Oct 2026 06:12:06 +0000 (GMT)
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Mon, 12 Oct 2026 06:38:59 +0000 (GMT)
 From: Sven Schnelle <svens@linux.ibm.com>
 To: Heiko Carstens <hca@linux.ibm.com>
 Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
@@ -59,12 +59,12 @@ Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
  <gor@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
         linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH] s390/ptrace: Preserve ILC when updating system call number
-In-Reply-To: <20261009152132.1113325-1-hca@linux.ibm.com> (Heiko Carstens's
-	message of "Fri, 9 Oct 2026 17:21:31 +0200")
-References: <20261009152132.1113325-1-hca@linux.ibm.com>
-Date: Mon, 12 Oct 2026 08:12:06 +0200
-Message-ID: <yt9dcxtf30sp.fsf@linux.ibm.com>
+Subject: Re: [PATCH] s390/extable: Fix mvcos instruction decoding
+In-Reply-To: <20261002102750.1994830-1-hca@linux.ibm.com> (Heiko Carstens's
+	message of "Fri, 2 Oct 2026 12:27:50 +0200")
+References: <20261002102750.1994830-1-hca@linux.ibm.com>
+Date: Mon, 12 Oct 2026 08:38:59 +0200
+Message-ID: <yt9d33ub2zjw.fsf@linux.ibm.com>
 User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -74,23 +74,24 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEyMDAyMiBTYWx0ZWRfX03Rta/ed0FPz
- c5kW9+hgGEEO8gbwJvL/5DgDPKVgFDWFNVbbzmHR5aY7v+IsLJHWJt3qPALaLVVZ+RcejppIsI0
- qdmCnMNM3EQTkbp7YKB69U1hiULtkng=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEyMDAyMiBTYWx0ZWRfXwPMTVoO0lkkK
- /U/1uKBiT6HZgZk9y53+LdTsirCPx4sWUjCr1tuWrPt8ulFurVmDfnbCLKNirwURD7QOzQQzBnb
- tAHyo4dH3r+wh0Pjc/s/lrQKAHukZy9FsRWPLnn9Nd/5O7+UIkYV+M7pXtUhXxu6fU8lLKY/67l
- /8WmkQbuQ/Spb3Dv58WmPSoPTfYwv3S6409smA05uOIoSPCGSzpkbg0Aj2HPKkXu+OHRmBKk7HL
- lCRrOVV38+yiTEDnkZMNhEFWtL6u5Gn1LEvg1cPE1wLGZAxcpWmuZy96vsHKTKihuFLVKiGDQGy
- afEVAigxiBSHMb7cn+3NxbUoC+yN+eIa7hN0MkLSQxKjBEBvDaCm4+zx8/BdZ3LN7+nytxzATOU
- 0eeTMVzPs/Q+Pi8OcyHJNJjGi5c5zdtcHDfYE/+RLOV+jXtB0wV0ohLDcdwG+jUVdIeg+rdaxC6
- Ec66sDGWkv30zbAH1nw==
-X-Authority-Analysis: v=2.4 cv=E6pYNqdl c=1 sm=1 tr=0 ts=6acc7a3b cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEyMDAyNCBTYWx0ZWRfXwU8Gp3zqZ7qa
+ zVHlsg+htH174M2RPGtPDV3TlsFAkVhK3KPKq1dJzSSKWLpHOygvogXnXnCeecM6QFH4T7r0JEL
+ u5oF8hyZeyMM85K+ExjrWVY/VADJSF0=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEyMDAyNCBTYWx0ZWRfX9gkFpmIeQbTb
+ UoxTieT8BzZr8eC0gPiyWkA7YaCddWhQ50P6BtBcITESc9oP9MGokvgayCpsEny/eMERalfcyE1
+ c7V+GZTKyBdGl7dR7KqpSLOh7epSaJjltzDBIVkktsth+IHcnKuyh00gmJ/IXAzusH1aCcCTLqz
+ UXZ54eITuvIr3MIW0CQg/DakN/cm3h2eUOUUqHqw3tou6LOP0FurLqS11Ny455LmPGJfOSDoQC4
+ ODMlCM3/g8KubXnecRTgm04gZZN6cRolLt9JBxS9ZUaqlmLrYT4QC6mGzQf30ThLdCJc3qtTsgq
+ 644nBNr1YGyN2HG7dzumkeWCTkvcxCx2pilXPVeBWMqVLaUDYUFfDvcnHAKTeVGLTuqAsNv4NuU
+ eoPVkH9ZRTvPxgxdg/7rDXj/bvPA+kASeD3LtMjAgBAO+JQLKdgjkkXAYGfCNfjItmkG0ZsaFCl
+ jTO3WUKEAyUTfT9wGDQ==
+X-Authority-Analysis: v=2.4 cv=E6pYNqdl c=1 sm=1 tr=0 ts=6acc8088 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=31u72ZEnUxVqjmpZp2QA:9
-X-Proofpoint-ORIG-GUID: srHuSWHhLNOzFUnmMXEsaJ0LsLguDThK
-X-Proofpoint-GUID: srHuSWHhLNOzFUnmMXEsaJ0LsLguDThK
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=4RnNsjVToRJwR0ODri8A:9
+X-Proofpoint-ORIG-GUID: RSlqgEYwDxAwonlyXUnZeqBJUmPqe0wE
+X-Proofpoint-GUID: RSlqgEYwDxAwonlyXUnZeqBJUmPqe0wE
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-12_02,2026-10-09_01,2025-10-01_01
@@ -98,56 +99,43 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  impostorscore=0 phishscore=0 clxscore=1015 bulkscore=0 priorityscore=1501
  spamscore=0 adultscore=0 suspectscore=0 malwarescore=0 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610080000 definitions=main-2610120022
+ reason=mlx scancount=1 engine=8.22.0-2610080000 definitions=main-2610120024
 
 Heiko Carstens <hca@linux.ibm.com> writes:
 
-> When an attached debugger changes gpr2 via PTRACE_POKEUSR while the
-> traced process has PIF_SYSCALL set, the int_code in pt_regs is also
-> updated. In case of an svc it contains the instruction length code
-> (ILC), as well as the system call number.
+> If either the b1 or b2 field of the mvcos instruction is zero, register
+> zero is not used for address computation; zero is used instead, according
+> to the architecture. ex_handler_ua_mvcos() incorrectly uses the real
+> contents of register zero. Fix this.
 >
-> The ptrace code sets the ILC unconditionally to a value which matches the
-> svc instruction. However the svc instruction also may have been executed
-> via the execute or execute relative long instruction, which have a
-> different length. Therefore preserve the ILC and only change the system
-> call number using syscall_set_nr().
+> This shouldn't be a problem for any generated code, since the compiler
+> would only generate such code if it is possible to prove at compile time
+> that either the source or destination address is within the first 4kb of
+> the designated address space. Such code should not exist (also confirmed
+> by an allyesconfig build and decoding all ~7000 mvcos instructions).
 >
-> This makes sure that in case of a PSW rewind the instruction address
-> points to the correct instruction.
->
-> Fixes: 56e62a737028 ("s390: convert to generic entry")
+> Fixes: c488f5187a24 ("s390/uaccess: Shorten raw_copy_from_user() / raw_copy_to_user() inline assemblies")
+> Cc: stable@vger.kernel.org
 > Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 > ---
->  arch/s390/kernel/ptrace.c | 9 ++++-----
->  1 file changed, 4 insertions(+), 5 deletions(-)
+>  arch/s390/mm/extable.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 >
-> diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
-> index 125ca4c4e30c..d8d5e843859c 100644
-> --- a/arch/s390/kernel/ptrace.c
-> +++ b/arch/s390/kernel/ptrace.c
-> @@ -34,6 +34,7 @@
->  #include <asm/ptrace.h>
->  #include <asm/rwonce.h>
->  #include <asm/fpu.h>
-> +#include <asm/syscall.h>
->  
->  #include "entry.h"
->  
-> @@ -345,11 +346,9 @@ static int __poke_user(struct task_struct *child, addr_t addr, addr_t data)
->  				return -EINVAL;
->  		}
->  
-> -		if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
-> -			addr == offsetof(struct user, regs.gprs[2])) {
-> -			struct pt_regs *regs = task_pt_regs(child);
-> -
-> -			regs->int_code = 0x20000 | (data & 0xffff);
-> +		if (addr == offsetof(struct user, regs.gprs[2])) {
-> +			if (test_pt_regs_flag(regs, PIF_SYSCALL))
-> +				syscall_set_nr(child, regs, data);
->  		}
->  		*(addr_t *)((addr_t) &regs->psw + addr) = data;
->  	} else if (addr < offsetof(struct user, regs.orig_gpr2)) {
+> diff --git a/arch/s390/mm/extable.c b/arch/s390/mm/extable.c
+> index 7498e858c401..848855da9a70 100644
+> --- a/arch/s390/mm/extable.c
+> +++ b/arch/s390/mm/extable.c
+> @@ -106,9 +106,9 @@ static bool ex_handler_ua_mvcos(const struct exception_table_entry *ex,
+>  	regs->psw.addr = extable_fixup(ex);
+>  	insn = (struct insn_ssf *)regs->psw.addr;
+>  	if (from)
+> -		uaddr = regs->gprs[insn->b2] + insn->d2;
+> +		uaddr = (insn->b2 ? regs->gprs[insn->b2] : 0) + insn->d2;
+>  	else
+> -		uaddr = regs->gprs[insn->b1] + insn->d1;
+> +		uaddr = (insn->b1 ? regs->gprs[insn->b1] : 0) + insn->d1;
+>  	remainder = PAGE_SIZE - (uaddr & (PAGE_SIZE - 1));
+>  	if (regs->gprs[insn->r3] <= remainder)
+>  		remainder = 0;
 
 Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
