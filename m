@@ -1,60 +1,49 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D65924AE102;
-	Mon, 12 Oct 2026 17:00:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A6B24CCDC0
+	for <linux-s390@vger.kernel.org>; Mon, 12 Oct 2026 17:37:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791824435; cv=none; b=F0SR/qOmgKWJNf1Yhh+vvrru8MlYn77Xsz6v7FnRrabII4uqG/K/rN/HnUkGekckpHo7u0R1OMKY+blQ0Jtece5/BbvCGDc5TwyYFKbaO7GGmfOwuxaiRBJ2dBmyPF2jPD0QjLo8YBduNx6qHtBDcRi+UOlD6UeSMC4TOrihPR0=
+	t=1791826664; cv=none; b=VPe1y/e0trmkDuOmaVwqv9mkkJpUWZXB59NV4Gt3iNOLrLXeBxL1694Uu7djke5KrOy4DRWBYg4htJ96LuaWLqAqCqHFnyI2h7vNhAnDGcyBfx0Peu4hoAQmkYAb3W9ma6PY7TurJKgLRdnmWBCjisexeSlR8CCASu8WILowSR4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791824435; c=relaxed/simple;
-	bh=XlMpCsZwHRis/pEfyx/KdtAb+qbUzUUk9zbb6iUNNtY=;
+	s=arc-20240116; t=1791826664; c=relaxed/simple;
+	bh=ffCb0cZQI1u7Z1o6jBod+XbsTpEbBxvx5EOfB5b28sw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bICvSLuc6nJBNo3hzkN6bNMgOiULfLfqJIV4nii1D8j2cZpFWLtxATju414NW8R3Nov6Re7Z8fwWwvSZGcF9N2SaI90b2jUastonkZA7mFaLDTEGfGnq0IHcxHrvp7yX/lR2UBAzz98O10Hl1X36cErz+mJLT1JidALglgowmE8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=opNmfJ1R; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	 In-Reply-To:Content-Type; b=tdJ9KubCUImVn6p48J9o00orcNKg2IshYfoCm+pgG1fpieg+wIKPfuOp5qcaizWO0GFMjRxJam4EVE7JhSYMwAkUFhtVGcT/hjqDkxeSwhiDSt1M2kXH/4vv4av1xOza54zf+LdkCcL/zsjObsrPjz3VanEc8eFlzd2y0sdRdpg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=S7/WA+XJ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="opNmfJ1R"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69CFiCOa3074653;
-	Mon, 12 Oct 2026 17:00:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=MXefPC
-	WMnio4uh+OSGJ8+0/F2XFBxXe2DI0PeE+NXjc=; b=opNmfJ1Rknwmsp++gL910g
-	1ff6UQKnFeCgjDTUx+wT7jwwHL802QlPwRmhVR+yRricJic2DxmhTEM7LKjhsrD8
-	HUU/0CXS8GRgEc3SQXhATmYIICvGcoyynSfdhHI5ikbW0CmO1tii06su8YfhuaC4
-	rT2crBaPxueZS0uSRwBXuy/CQ1OkuxMM6UK/QQtHNDELhDbp4lvhZbbAUWVKQzk8
-	f5CI6h+Q45YM5ZZ2OPpwwKwdMPrqIgHtfyjdwUqQRtNs12rKEFwEqSUJYPYhkK5c
-	etdo/n7juWaZy5BcJ8GYnkFPg3k4Bak9Dxg7bLqUA8EC+b968NdivONxBK2kOuPg
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dwha0px-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 17:00:32 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69CFo24u1519780;
-	Mon, 12 Oct 2026 17:00:32 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h80pjp3pu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 17:00:32 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69CH0UTI28115626
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 12 Oct 2026 17:00:31 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DC0C158055;
-	Mon, 12 Oct 2026 17:00:30 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EA52858054;
-	Mon, 12 Oct 2026 17:00:29 +0000 (GMT)
-Received: from [9.61.159.45] (unknown [9.61.159.45])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 12 Oct 2026 17:00:29 +0000 (GMT)
-Message-ID: <e49d400b-adca-463a-8ff8-a18c04617e9f@linux.ibm.com>
-Date: Mon, 12 Oct 2026 13:00:29 -0400
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S7/WA+XJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1791826661;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=B3vbvBtlNN7GuHBRJgCbx9CjqY4Kc5AW5dSsOofPo7E=;
+	b=S7/WA+XJ1IaCQhs++roRqmAvW9r3jgv1twA4jyvVcf/q+XFHhky55n10PJmcz6Wm71OziP
+	SDz21EZXX+qtWMfT/lxhmGYhpnJW/UFCPwVw0FLa7gPSYNa2eL0Fl27SN9gILaD2B502XD
+	HGxTsSpsVC5DiFDdJc9+bP5QilNfEvA=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-629-abnZHSFsO7CR5VGg9_ysJw-1; Mon,
+ 12 Oct 2026 17:37:33 +0000
+X-MC-Unique: abnZHSFsO7CR5VGg9_ysJw-1
+X-Mimecast-MFC-AGG-ID: abnZHSFsO7CR5VGg9_ysJw_1791826649
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 482911953990;
+	Mon, 12 Oct 2026 17:37:28 +0000 (UTC)
+Received: from [100.90.56.12] (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 5F87A1956040;
+	Mon, 12 Oct 2026 17:37:19 +0000 (UTC)
+Message-ID: <e8e2cd2a-5458-431e-977a-2338b0e90f60@redhat.com>
+Date: Mon, 12 Oct 2026 19:37:16 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -62,139 +51,95 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 02/15] s390/vfio-ap: Data structures for facilitating
- vfio device migration
-To: sashiko-reviews@lists.linux.dev
-Cc: Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik
- <gor@linux.ibm.com>, kvm@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>
-References: <20261009114244.1213173-1-akrowiak@linux.ibm.com>
- <20261009114244.1213173-3-akrowiak@linux.ibm.com>
- <sashiko-outbox-165448@kernel.org>
+Subject: Re: [PATCH v9 03/24] KVM: Replace CONFIG_KVM_MMIO with KVM_NO_MMIO
+To: Steffen Eiden <seiden@linux.ibm.com>, kvm@vger.kernel.org,
+ kvmarm@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+ Andreas Grapentin <gra@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Claudio Imbrenda <imbrenda@linux.ibm.com>,
+ David Hildenbrand <david@kernel.org>, Friedrich Welter
+ <fritz@linux.ibm.com>, Fuad Tabba <tabba@google.com>,
+ Gautam Gala <ggala@linux.ibm.com>, Hariharan Mari <hari55@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Hendrik Brueckner <brueckner@linux.ibm.com>,
+ Ilya Leoshkevich <iii@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>,
+ Joey Gouly <joey.gouly@arm.com>, Marc Zyngier <maz@kernel.org>,
+ Nico Boehr <nrb@linux.ibm.com>,
+ Nina Schoetterl-Glausch <oss@nina.schoetterlglausch.eu>,
+ Oliver Upton <oupton@kernel.org>, Sean Christopherson <seanjc@google.com>,
+ Suzuki K Poulose <suzuki.poulose@arm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>, Will Deacon <will@kernel.org>,
+ Zenghui Yu <yuzenghui@huawei.com>
+References: <20260930173441.66762-1-seiden@linux.ibm.com>
+ <20260930173441.66762-4-seiden@linux.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <sashiko-outbox-165448@kernel.org>
+Autocrypt: addr=pbonzini@redhat.com; keydata=
+ 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
+In-Reply-To: <20260930173441.66762-4-seiden@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEyMDA2NiBTYWx0ZWRfX0bjIR/c1M1IW
- +r/lNOb9l4pi+7A+LtKFc5ISrnLL+I36N/ZO8w954eWxHv1xljBL95L/CQw+hQJOjQ00sgjc/fK
- 4bAEiwQBM6XIO6XUUQ5iJyl7rqNz8tw=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEyMDA2NiBTYWx0ZWRfX4zairLCsA61+
- /BXqQlBFO0/qdVpd668kKPi0GKz5IeA54bOSVE0xOSNawC3Y1jErn89b8tJ1H+32T4GDR3iCbRx
- yTXGo+X1GPzhRB8kToCQifsmT+D/Ct4OLllkdePLso4jOWf9luGhOkJ/XFQejpzh9GjIk3bt9vw
- hL3ebTocbXbrvn+p2WEcWNJIIyqD7fMFZA865wrqBmmfB/0JcYuamM6+KPbE2gOonBVqpXzW7yQ
- 7aT6pEmFbDXg5DlnGPLWf80+g4X7VZurB/J3jzten/b7Ve/2BLiCorMR+TCUbfYDa8fwKuHkMSV
- MP44nZFYFY8ilrN8aQGcdM/XHSEtMHQVPOWVJrIwc1Jirj5uoO/GvO307f1f9c2VkAzb3KZz4LS
- Sg4SPTX/Ch1i48y9e7Sgrs+n08/rgoVbpUy8nmFWnBaXjF3r6C3rQyGTzdLlaOuiteQnA2LPOoE
- enOmKPb1+jhS/8fegtQ==
-X-Proofpoint-GUID: -DIw7c5c5xv4bbVn7J6Gs-6gOij4Ez8n
-X-Authority-Analysis: v=2.4 cv=RoFQvymK c=1 sm=1 tr=0 ts=6acd1230 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=aZccLKEs_VlgDMQ2Sr4A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: -DIw7c5c5xv4bbVn7J6Gs-6gOij4Ez8n
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-12_05,2026-10-09_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 phishscore=0 adultscore=0 bulkscore=0
- impostorscore=0 suspectscore=0 malwarescore=0 clxscore=1015
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610080000
- definitions=main-2610120066
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
+On 9/30/26 19:34, Steffen Eiden wrote:
+> Defining KVM_MMIO is not flexible enough for multi-KVM systems where one
+> KVM implements MMIO but others do not. Therefore, remove KVM_MMIO from
+> the config space and use the macro KVM_NO_MMIO instead.
+> Define KVM_NO_MMIO for KVM/s390 and for selected KVM/powerpc
+> configurations.
 
+...
 
-On 10/9/26 7:55 AM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
-> - [High] vfio-ap: migration ABI layout depends on internal kernel macro AP_DOMAINS
-> - [High] s390/vfio-ap: missing interrupt state in migration ABI
-> --
->
-> commit a77ac9d23bc32798a481b033c179b8862ae321e5
-> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
->
-> s390/vfio-ap: Data structures for facilitating vfio device migration
->
-> This commit introduces the data structures used to facilitate state
-> transitions during vfio device migration for the s390 crypto subsystem.
-> It adds the foundational structures for saving and restoring AP configuration.
->
->> diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypto/vfio_ap_migration.c
->> new file mode 100644
->> index 0000000000000..f76d151a5ccec
->> --- /dev/null
->> +++ b/drivers/s390/crypto/vfio_ap_migration.c
-> [ ... ]
->
->> +struct vfio_ap_queue_info {
->> +	u64 data;
->> +	u16 apqn;
->> +	u8  reserved[6];
->> +};
-> [Severity: High]
-> Does this structure capture the necessary fields for interrupt configuration
-> state?
->
-> During live migration, the guest's saved_iova and saved_isc appear to be
-> dropped as they are omitted here. After live migration, will AP queues on the
-> destination host have interrupts disabled because the Notification Indicator
-> Byte (NIB) address is not restored, potentially causing guests waiting for
-> crypto operations to hang?
+> +#if !defined(CONFIG_KVM_BOOK3S_32_HANDLER) && \
+> +	!defined(CONFIG_KVM_BOOK3S_PR_POSSIBLE) && \
+> +	!defined(CONFIG_KVM_E500V2) && \
+> +	!defined(CONFIG_KVM_E500MC)
+> +#define KVM_NO_MMIO
+> +#endif
+This can be simplified to
 
-On the destination host, the queues come up with interrupts disabled. The
-guest's AP bus checks the IRQ state reported by the hardware each time it
-processes a queue (ap_sm_read()). When it sees interrupts disabled, it
-issues PQAP-AQIC again, and the destination host handles that in
-vfio_ap_irq_enable() using its own NIB pinning and GISC registration.
-Until then the AP bus polls rather than waiting for an interrupt, so the
-guest does not hang.
+#if defined(KVM_BOOK3S_HV_POSSIBLE) && \
+       !defined(CONFIG_KVM_BOOK3S_PR_POSSIBLE)
 
->
-> Furthermore, since the 6-byte reserved padding is too small to hold an 8-byte
-> saved_iova and 1-byte saved_isc, could this prevent non-destructively
-> extending the ABI later without breaking compatibility?
+which I have done.
 
-This vfio_ap_queue_info is contained in an array in struct vfio_ap_config.
-That structure has magic and version fields which are checked during
-the RESUMING phase of migration. These fields on the source and destination
-systems must match or the migration will be terminated.
-
->
-> [ ... ]
->
->> +struct vfio_ap_config {
->> +	u32				magic;
->> +	u32				version;
->> +	u32				num_queues;
->> +	u8				reserved[4];
->> +	u64				adm[DIV_ROUND_UP(AP_DOMAINS, 64)];
->> +	struct vfio_ap_queue_info	qinfo[] __counted_by(num_queues);
->> +};
-> [Severity: High]
-> Does relying on the internal AP_DOMAINS macro here tie the migration ABI
-> layout to potentially changing architecture limits?
->
-> Since this struct is directly read from and written to the migration file
-> stream as raw bytes, if the AP_DOMAINS macro increases in the future
-> to support new hardware limits, wouldn't the size of the adm array grow
-> and shift the start offset of the qinfo[] array?
->
-> This could silently break migration compatibility between older and newer
-> kernels without a protocol version bump, as the destination would read qinfo
-> elements from the wrong offset.
-
-AP_DOMAINS is an architected limit: the APQI is the low-order byte of the
-16-bit APQN, and the CRYCB ADM/AQM masks are architected as 256-bit fields.
-It cannot grow without an architecture change that would also alter the
-APQN format, and with it vfio_ap_queue_info, which would require a version
-bump anyway.
-
->
+Paolo
 
