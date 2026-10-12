@@ -1,133 +1,66 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1F0630DECB;
-	Mon, 12 Oct 2026 14:26:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 428D73B19BC
+	for <linux-s390@vger.kernel.org>; Mon, 12 Oct 2026 14:26:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791815182; cv=none; b=DNMajZhqW8HvKNehYWAdjGoxJXFXuSASV/0vVzdQFNpheIsSmT2KJ+HYhVBPwjrswZ/O1Br2nCTeAYHZhZdmr1Wzv0+7hUisi0TDFiLMngFaVRVPPpU89rSfzXatzebCYMKoYj7zciQgnXomd+bJVbbBZ7BAtFLvAeD9J4RBvV0=
+	t=1791815209; cv=none; b=YBtu+LwMEfWABw/iZZZI1tymMFM/NQTvO729wGP1D+bOLMKhPtMVkP3gnVVEtQRvw5QCCtASC/2eD5BP5opiYXdNQFA5ESUlFc4H90b1gX0EkgVB738C0XrMSWGDaKy7RpmaaZN5zzRL06IFMchm00nps6tgBogwDOTEwYn3ZRw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791815182; c=relaxed/simple;
-	bh=7tyMyuMY2RWMRQxVfWOIxbVAs3VMazs8/uFEG8xtf2A=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EzG0sB2NLjQLGEFoeS//kwpBvDUbQfBprInhEwAydFA1/FzFBzdwhhyF2oF8uCm9DpwxOX4cM13DGtStVqMEtPz7Si8n3ZLEBCiNVn18chSQMBS/wfubL46CuHjGFdXx8rEMsTZo+PDDcbrO/qelQqegakkFlsapjfw6UWL309k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NClHYtPH; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1791815209; c=relaxed/simple;
+	bh=vw5ol3eL60ulRDW6i9TPamjd+P+Bb3iyQ5IL0LKv70I=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=Hwb3T8EU0numRsh3dCD3LUpdHxpQ757yx4FHP1VRh6A/oIvlr5cYuSSBz/rFIyKOcvVtFxmyY/kg3/t7mzzQcjsynMeb+dsGVAaerJB8WYCHPphntmBayzylwQQXaw2E+ndy90Rm9wdEhz6AKB27KU9zrA66j6VMGWg8KaMQ8PA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aOoJntyk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NClHYtPH"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69CCE6DS315872;
-	Mon, 12 Oct 2026 14:26:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Pl/Qm1
-	jr3Pgq2D86R6t48HrmeA0/UhqCNElBDwe1p4s=; b=NClHYtPHwakl3/9hIFTJsE
-	+fFHeST1Iv/QgFya3CNPEF3ouXPgMb8Cr+GR9GgUQYTEAlI+O740TJelCHRbvksc
-	pBm+Vtw0yr5jV+u8lmQPKlsuT1Yx3IRJkauw/VBAsvlF52U5GFIRobtQy0w5IBFz
-	HSk+z2WNmAZCAgCPnkTgtgKhX7saEa/4zTHNt5MCM/Z8dxjWv8i3EswBQsm0VLuR
-	KBK2gQp0Z6fCQePb9QiK39zGchp8cPX8K3qm3Ys4dt8XxNKmR20LHY7DfrRK6KcW
-	zINLAFaDapfEiSWCvvDW8OSYkOQTMJlajJGeucgkCPZzjgKDfNZ+muJEG1MyekCg
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dug9bws-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 14:26:20 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69CC5AEm1238650;
-	Mon, 12 Oct 2026 14:26:19 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h7yppnppv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 14:26:19 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69CEQFqI39715078
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 12 Oct 2026 14:26:15 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9B09020043;
-	Mon, 12 Oct 2026 14:26:15 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 20D4320040;
-	Mon, 12 Oct 2026 14:26:15 +0000 (GMT)
-Received: from [0.0.0.0] (unknown [9.87.157.242])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 12 Oct 2026 14:26:15 +0000 (GMT)
-Message-ID: <b32c5481-32f4-485a-b8b0-96c3e79fdaa0@linux.ibm.com>
-Date: Mon, 12 Oct 2026 16:26:14 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aOoJntyk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D9EF1F0089B;
+	Mon, 12 Oct 2026 14:26:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791815207;
+	bh=vw5ol3eL60ulRDW6i9TPamjd+P+Bb3iyQ5IL0LKv70I=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=aOoJntykhB5DNzSGqDVs6QI/BA1XlIOYnkNvIQha3Y/alC/XmXJ2rMNChWiqjYBjT
+	 b01LdLVQ9qWsI6QGwrixvWbcO6xEmS7Pl17bkZCVw45WwLVaPosUDNixJLrVMV1xUc
+	 NUrXBjuNmOvacXXtRUfQtszBO6SUy+qepORAOMlNm5QiV9nT2m42FesM9GWA+SGi3s
+	 6wUmnP4aQE5msZOYCGuMwwX+Gn42N6hL6O6ascC56FqUSbask9CZrBorM1MJ5sZvvV
+	 5Y0iWwzB1RwWSBsDqjuQKQfriZ839VjQYhyYqXgviM7aaN/ui5/OiysvPho2OEBMv5
+	 Z5WDteIJmXcZQ==
+Message-ID: <sashiko-outbox-168257@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v2 1/3] s390/pci: Adjust alignment in insn trace
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Gerd Bayer" <gbayer@linux.ibm.com>
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, linux-s390@vger.kernel.org, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261012-rpcit_trcfh_upstream-v2-1-1812db73dfa5@linux.ibm.com>
+References: <20261012-rpcit_trcfh_upstream-v2-0-1812db73dfa5@linux.ibm.com>
+ <20261012-rpcit_trcfh_upstream-v2-1-1812db73dfa5@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 12 Oct 2026 14:26:47 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 23/32] s390/word-at-a-time: Convert inline assembly to
- EX_TABLE_INSN
-To: Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Holger Dengler <dengler@linux.ibm.com>,
-        Stefan Haberland
- <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20261001103247.1989111-1-hca@linux.ibm.com>
- <20261001103247.1989111-24-hca@linux.ibm.com>
-Content-Language: en-US
-From: Ilya Leoshkevich <iii@linux.ibm.com>
-In-Reply-To: <20261001103247.1989111-24-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Cr0q4X4D c=1 sm=1 tr=0 ts=6accee0c cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=W3_Q4jTRMHymxWg3qskA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: TcadONBcZBSJXxGddjmLXiEAWhGp61Qa
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEyMDA1NiBTYWx0ZWRfX+3u74Hg4W6zI
- KW5c47MlYkDL7sm1TqHNN847koHtqFwVJuNuUNzonGYj4cI/7KFoz/md0TLR2awiw4uF5J2ynXl
- DPJJFMOeKLHAh95D4kACmxjrosLK02Px9f4KXgL3ib2Qpx/czPSfa6cS5EDVmdumnRIXPu5vtJx
- MUqCtMwSAqnRI06ewPniqtAsGqtVOMh9BZsu93l9oQNxIsHXdG7/i7lDSf+JW01dEjwh8jRsoIB
- SMLX3DJB3m7Sj/0WNAEjv9UaOElukXrCzDOPcDb10jAdopVhVMDa8/dEffAiYHxvQh1TVccBdwx
- F7HIP1AG7jIhiDS5VsCvt/lN7zr57ifc8H5pHlUDb9X1h8TsVAs6T47wdb2uMM4nTefyQPZGc6+
- cqjS9ylVmjmb69Ntx9rg9KiWp4x+Qv5EileFIGLr0vIuXI0RsF4IoI43QEKYuWh3B8X7v7J55pO
- LAMzGcARc0lE0l5tozA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEyMDA1NiBTYWx0ZWRfX3mfDSo+o1cpl
- QllSUiaLcPBraTBqqZRb2dTHD4+/azigkWsb/S0REfay9J7ZzKmLXwWHm7OzmZkJhsdaJrKu9yX
- T5fc8HwS1zThbyP21HHws8wyXS0jIxU=
-X-Proofpoint-ORIG-GUID: TcadONBcZBSJXxGddjmLXiEAWhGp61Qa
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-12_04,2026-10-09_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 spamscore=0 adultscore=0 priorityscore=1501 suspectscore=0
- malwarescore=0 clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610080000 definitions=main-2610120056
 
+> Currently we have 64bit wide fields start at odd byte-offsets in the
+> insn traces for pci_error in the s390dbf debug area, which are hard to
+> decode in hex dumps. At the same time, trace entries are padded at the
+> end.
+>=20
+> Drop the packed attribute on the struct definition to exploit the
+> compiler's natural alignment, introduce explicit padding before and
+> after the 64bit fields for humans, and add a static assertion to avoid
+> accidential overruns of 2 lines in the s390dbf trace.
+>=20
+> Signed-off-by: Gerd Bayer <gbayer@linux.ibm.com>
 
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-On 10/1/26 12:32, Heiko Carstens wrote:
-> Convert the load_unaligned_zeropad exception table entries to use
-> EX_TABLE_INSN. With EX_TABLE_INSN entries always point to the faulting
-> instruction, so the duplicate entry and nopr padding are no longer
-> needed and removed.
-> 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->   arch/s390/include/asm/word-at-a-time.h | 5 ++---
->   1 file changed, 2 insertions(+), 3 deletions(-)
-
-Reviewed-by: Ilya Leoshkevich <iii@linux.ibm.com>
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261012-rpcit_trcf=
+h_upstream-v2-0-1812db73dfa5@linux.ibm.com?part=3D1
 
