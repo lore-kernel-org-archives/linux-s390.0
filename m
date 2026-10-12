@@ -1,546 +1,412 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE1CA4B8262;
-	Mon, 12 Oct 2026 17:41:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EB184BD352;
+	Mon, 12 Oct 2026 17:47:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791826871; cv=none; b=h+iSzQKBLbsjK98dDWCrx4uitErXGSH7KPWpzwXaOJwad6u2zFfypwp9dbF5kNuVKU555/idAOxUwWkO1dhUNLg7tKSbDmhoneGWw8AuSHfRsb1bufADyJoNwmxEf2lCnMBoGSlXnzEUXzzlU1MKc6yUWqDNPyoius/ta3lHWz8=
+	t=1791827221; cv=none; b=afROOSm+ddecHhYi9NE9VUjJOfWoYrxvGb3mdXiA+HSm9JuUM7sxCdNf9OelHnR6pi/0ZYf9zeQ4OO4MMqbbwfnz4g7wjyYHYuVWyquNsBUgLlFBtaY8rUpkYPMx6QJrlxneMYwMAIJcoooqBG+xlLLbNv1Daic2elaVt5dxi/o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791826871; c=relaxed/simple;
-	bh=VKXUlOxOu608S094FOJXDT1LqtRM2ShgCtmkrCFolrM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JQlcH/iqithPWx/uBU2lItjQ9lBqfT5IVLM6C8Du/kbbplJ+PnFtMVigZuByk0N2hLJ2w00YiExCuRUQ9S1z2hHmT+DcEM+CbmFV+24WsdSOo5+oj7CDjPfTJ2IQY2PEigWQhYMh4MULxrEwddD7+W86vqEUU9jJ5SrB4rybqjQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sqRLGpJD; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1791827221; c=relaxed/simple;
+	bh=nyKRRiQ3JiVmpS6jWZ8zWDpKiRl2pYCyNlDukVaFLMI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=K73chFCi7fOwlOF+mwk9IWwERPxU/PfWyAviVYaF86RqClDPMC70tFiyrVdSFWVEBAzCtMz53EgU5hPhjDur2DnTAcIk/BPrCoVRRw1JCSh9S4/JokMnV8oXxPKLEcqyrHwQ+cn2OVHknRXYZ59L3eLThURkvtpWPq9kC8CshXg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ihX6vADg; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sqRLGpJD"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69CFiUrQ664649;
-	Mon, 12 Oct 2026 17:41:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=09s+Mx
-	XtIoHjt1pZrBnTtti9mB+xNPpfbcSxwta6P5Y=; b=sqRLGpJDQb4Brr0Y4LqIQM
-	jNPosbJgo2d+pQD1jxp6qXj02HlE6BLXvwSaBckMxDiBimOTAvrbmUUCxzB7G1AY
-	W/YOj2R0nXkxohryOybbU/sYjGBaQSZnWjMMZZK8R0TYC/zqdB6tKv2/D8bb7gzu
-	OazsGzOHqju3WI+L7YAV67soBBm6VTWvzYvNpi4O6WJU4DLmdmWUlzHTn6vPts3O
-	7vs9K0igLitTXg5VI3zg8wicehug1MfxW58NtO7J1Wuiic5RlVo5n2u9dFCLzyrb
-	tVSogulYkJeJH+xw7zQm0y1SH/4Ny317XJn3cnkg5G0B3uyhZzstAxUINAu0acfw
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7e1w1tfh-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 17:41:06 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69CG4urp1564911;
-	Mon, 12 Oct 2026 17:41:06 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h802vpc5u-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 17:41:06 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69CHeJm825625224
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 12 Oct 2026 17:40:19 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F0A0958052;
-	Mon, 12 Oct 2026 17:41:04 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C496758056;
-	Mon, 12 Oct 2026 17:41:03 +0000 (GMT)
-Received: from [9.61.249.103] (unknown [9.61.249.103])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTPS;
-	Mon, 12 Oct 2026 17:41:03 +0000 (GMT)
-Message-ID: <4d6b3e6c-c1af-4a1f-9a8b-4266f386a299@linux.ibm.com>
-Date: Mon, 12 Oct 2026 13:41:03 -0400
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ihX6vADg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67E231F0089B;
+	Mon, 12 Oct 2026 17:46:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791827219;
+	bh=+g5TXryhSnKPgSPaqVMSsv6/T+/UMkqlwUebHC3VUds=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=ihX6vADgFuOE35cu0zGAhteEVahYq066vTf05uMn2wQqi0hmjfZuiiGTMFMR9hWXh
+	 xnW7REmcc8e1p3/WcFwjupa8SppqNwX/y9mIjcYy3VHazi7OTmaWgP2V5vUwjHi9I5
+	 kNk8dToyKFzBYNV18fU2ztlaDEJQ6Y1VLVwZP7qX7OVegsucIsOL5qeLI+kOAMdpKI
+	 5hOyy90zfW/wGKFCnCd4rlbFF+e0fhiASRsSS4s5sjVjyqospM0EHf5F1QM381KtzM
+	 1dGRP+bV4orEz850LW6SfHDrkY7tFGGxMVHygnSeQy06A/xo4vxVoddJq6QQzB1LU7
+	 8DAZLz8edumdA==
+Date: Mon, 12 Oct 2026 18:46:20 +0100
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	"Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+	Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
+	Michal Hocko <mhocko@suse.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
+	Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
+	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <nico.pache@linux.dev>, 
+	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+	Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
+	Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen" <mkp@kernel.org>, 
+	Simona Vetter <simona@ffwll.ch>, Helge Deller <deller@gmx.de>, Sebastian Reichel <sre@kernel.org>, 
+	John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, 
+	Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+	Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, Juri Lelli <juri.lelli@redhat.com>, 
+	Vincent Guittot <vincent.guittot@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
+	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, Marc Zyngier <maz@kernel.org>, 
+	Oliver Upton <oupton@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, Paul Walmsley <pjw@kernel.org>, 
+	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, 
+	Claudio Imbrenda <imbrenda@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, 
+	Andreas Larsson <andreas@gaisler.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Matthew Brost <matthew.brost@intel.com>, 
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
+	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
+	Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
+	Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
+	Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
+	Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
+	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, 
+	Chengming Zhou <chengming.zhou@linux.dev>, Michal Hocko <mhocko@kernel.org>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
+	linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-sound@vger.kernel.org, 
+	bpf@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	kvm@vger.kernel.org, kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, fuse-devel@lists.linux.dev, 
+	Ihor Solodrai <ihor.solodrai@linux.dev>, Bert Karwatzki <spasswolf@web.de>
+Subject: Re: [PATCH v5 07/38] mm: add mmap action for discontiguous kernel
+ page mapping
+Message-ID: <as0S-4wDLCJGEItq@gremlin>
+References: <20261009-b4-mmap-prepare-vma-flag-sanify-v5-0-923b70125b1e@kernel.org>
+ <20261009-b4-mmap-prepare-vma-flag-sanify-v5-7-923b70125b1e@kernel.org>
+ <56cc2787-134b-48f0-a9e2-840f57b28607@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v9 2/4] s390/pci: Reuse FMB buffer and preserve state in
- device re-enablement
-To: Gerd Bayer <gbayer@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, schnelle@linux.ibm.com,
-        mjrosato@linux.ibm.com, alifm@linux.ibm.com, farman@linux.ibm.com,
-        pasic@linux.ibm.com, alex@shazbot.org, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com
-References: <20261007135926.82935-1-oelghoul@linux.ibm.com>
- <20261007135926.82935-3-oelghoul@linux.ibm.com>
- <722e46379f3e7825ac1d40805ae67d236fcc6867.camel@linux.ibm.com>
-Content-Language: en-US
-From: Omar Elghoul <oelghoul@linux.ibm.com>
-In-Reply-To: <722e46379f3e7825ac1d40805ae67d236fcc6867.camel@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEyMDA2OCBTYWx0ZWRfX8/epJLFADu+5
- DIbsigP65oXrvb0XHSUsNAP+r11lc15h0vcpK64cTXr6t+Nx6SVrZYc/tzgNQ6ayaxmMHHbV894
- Prc4wYeiQNiyRTN4y8LFAt+Bb5o/JZk=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEyMDA2OCBTYWx0ZWRfX/hKTdQ5irUQ3
- k3kSpE1AaadlY609Ia9Iximfvd9gtm17Dc+nptPp5bQ3Vct2Q1qomZc7doXCtGYtmgkdXde6And
- GEf+41R8CQFb7MMoQmyEUllFA+PhY5B9gJHIOPZiIfMOv9AEt+xSRDtp7zXr5pv1sSumBA5uGLt
- qtbWBihezc9IiHdAhSwxmuB7WBh/ky2xb4uapu4W3Q5D1UixT/tAsriGNogbTQNR2Ef+uepu0Wq
- bUIGWDiE1o2JKKi7SGNZ+Jqy/a8NMmGoxuyWk0XoGnHfcC8fWtVeoxNIIWFPgdgayAfnoPbHNZW
- ZmcrAphWkX/daTkTFltRzh8ae0lGHsCvle3IndQcPL04v1tRSJKlj04iXHS26OZNdgdNhfEVcvE
- 8kqUgxgbBI8xIqoUjNZPACnA/O7Cn8+yHZLZ9zIb8Ml0bqlrK5KpbGSR8PsgRgk0tL47mpOXRyP
- xljHPd0Mmc5ucvlPpUA==
-X-Authority-Analysis: v=2.4 cv=E6pYNqdl c=1 sm=1 tr=0 ts=6acd1bb3 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=mWVGzeLskVhEkvpM98QA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: yp8yh1qBA6mx6VlJ2MQh5RPWVSGnquna
-X-Proofpoint-GUID: yp8yh1qBA6mx6VlJ2MQh5RPWVSGnquna
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-12_05,2026-10-09_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 phishscore=0 clxscore=1015 bulkscore=0 priorityscore=1501
- spamscore=0 adultscore=0 suspectscore=0 malwarescore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610080000 definitions=main-2610120068
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <56cc2787-134b-48f0-a9e2-840f57b28607@kernel.org>
 
-On 10/12/26 5:22 AM, Gerd Bayer wrote:
-> On Wed, 2026-10-07 at 09:59 -0400, Omar Elghoul wrote:
->> Don't free the FMB buffer when disabling measurement in
->> zpci_fmb_disable_device(). Instead, make the buffer persistent for the
->> lifetime of the device and reuse it across enable/disable cycles. Defer
->> freeing the buffer until teardown in zpci_release_device().
-> 
-> I lost track if this was discussed before: Would it make sense to break
-> this out into a separate patch, so that memory allocation/life-time
-> questions are decoupled from function-measurement preservation?
+On Mon, Oct 12, 2026 at 05:03:02PM +0200, David Hildenbrand (Arm) wrote:
+> On 10/9/26 20:04, Lorenzo Stoakes (ARM) wrote:
+> > The existing kernel page mapping mmap actions allow for partial and full
+> > mapping of an array of struct page pointers.
+> >
+> > However some drivers require the mapping of discontiguous ranges. Permit
+> > this by providing discontig_kernel_page_ops which allows a driver to
+> > specify how the operation should begin and how batches of pages should be
+> > retrieved.
+> >
+> > It uses the minimum exposed interface to do so, providing address, page
+> > offset and both vm_private_data state and a local private state object.
+> >
+> > ops->init can establish state for the operation, and ops->get outputs the
+> > pages to map and their count. Should an error arise the core unmaps the
+> > VMA, invoking vm_ops->close, which is therefore where any state established
+> > by ops->init is released.
+> >
+> > Also update the compatibility layer to do this too via
+> > compat_mmap_action_abort().
+> >
+> > Batches may not exceed the VMA, but may map less than its full range in
+> > case the driver wishes to allow the user to map an area larger than the
+> > available data.
+> >
+> > To use it, users invoke mmap_action_map_discontig_kernel_pages() with
+> > initial local private state and a set of operations.
+> >
+> > Users can then use one of the provided helper functions to perform an
+> > action:
+> >
+> > * discontig_kernel_map_abort() - Abort and leave the mapping as it has
+> >   been accumulated so far.
+> > * discontig_kernel_map_page() - Map a single page, or a compound page given
+> >   its head page.
+> > * discontig_kernel_map_page_range() - Maps a struct page ** array of a
+> >   specified count, mapping only those pages which fit in the VMA.
+> >
+> > While here, update vm_insert_page() and vm_insert_pages() to assert the
+> > mmap write lock is held rather than the bizarre assert !mmap_read_trylock()
+> > and use the new VMA API so all code paths are consistent.
+> >
+> > Also convert a BUG_ON() to a VM_WARN_ON_ONCE() in vm_insert_page().
+> >
+> > The userland VMA tests are updated accordingly.
+> >
+> > Acked-by: Zi Yan <ziy@nvidia.com>
+> > Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+>
+>
+> Finally finding time to go over this. In the future I want to have more time to
+> review such massive series, as it causes severe stress to be forced to review
+> this last minute before it goes upstream.
+>
+> So if I push back in order to give me some more room to breathe in the future
+> it's nothing personal, I just have to keep my sanity somehow.
+>
+> I hate being forced to review because we pick up stuff way to early. There is
+> just way too much other stuff going on.
+>
+> I'm planning on picking up most stuff I maintain in the next cycle. For
+> cross-component stuff (esp. VMA) I expect Andrew to pick stuff up until we
+> tackle this once cycle later.
 
-I think we did discuss that before and I expressed a preference for
-leaving them in together, but since this patch seems to be growing I
-guess splitting it would make review easier.
+OK I understand, sorry for sending such a large series.
 
-> 
->> Introduce the bool fmb_requested to struct zpci_dev to track whether FMB
->> enablement has been requested. This decouples tracking the enablement
->> from whether the buffer had been previously allocated, allowing us to
->> account for implicit disablement by firmware in zpci_disable_device().
->> Audit the only consumer of zdev->fmb and update its liveness check to
->> reflect this change.
->>
->> Separate the buffer allocation and measurement enablement step into the
->> new function zpci_fmb_reenable_device(), which allocates the FMB buffer
->> on first use, zeroes it on reuse, resets the software IOMMU counters,
->> and enables measurement. Make zpci_fmb_enable_device() delegate to this
->> function, and call the latter from zpci_reenable_device() when
->> fmb_requested is true.
->>
->> Signed-off-by: Omar Elghoul <oelghoul@linux.ibm.com>
->> ---
->>   arch/s390/include/asm/pci.h |   2 +
->>   arch/s390/pci/pci.c         | 106 +++++++++++++++++++++++-------------
->>   arch/s390/pci/pci_debug.c   |   2 +-
->>   3 files changed, 70 insertions(+), 40 deletions(-)
->>
->> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
->> index 88a125b92bdd..77c8c49ba6c8 100644
->> --- a/arch/s390/include/asm/pci.h
->> +++ b/arch/s390/include/asm/pci.h
->> @@ -208,6 +208,7 @@ struct zpci_dev {
->>   	struct zpci_fmb *fmb;
->>   	u16		fmb_update;	/* update interval */
->>   	u16		fmb_length;
->> +	bool		fmb_requested;	/* desired FMB enablement state */
-> 
-> How about calling this "statistics_on" - derived from the sysfs
-> attribute, to decouple this "user intent" even more from the actual ISA
-> level enablement?
+I already delayed it from last cycle and sent early in rc2, but I understand
+there's been a lot of volume in this one.
 
-Sure.
+I've been working evenings and weekends myself to keep up with review (and
+failing), so I get how thankless it can be (LPC was also unhelpfully timed!)
 
-> 
->>   
->>   	u8		version;
->>   	enum pci_bus_speed max_bus_speed;
->> @@ -351,6 +352,7 @@ void zpci_remove_parent_msi_domain(struct zpci_bus *zbus);
->>   /* FMB */
->>   int zpci_fmb_enable_device(struct zpci_dev *);
->>   int zpci_fmb_disable_device(struct zpci_dev *);
->> +int zpci_fmb_reenable_device(struct zpci_dev *zdev);
->>   
->>   /* Debug */
->>   int zpci_debug_init(void);
->> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
->> index c055a9ad0972..bda91d79bafd 100644
->> --- a/arch/s390/pci/pci.c
->> +++ b/arch/s390/pci/pci.c
->> @@ -167,43 +167,13 @@ int zpci_unregister_ioat(struct zpci_dev *zdev, u8 dmaas)
->>   /* Modify PCI: Set PCI function measurement parameters */
->>   int zpci_fmb_enable_device(struct zpci_dev *zdev)
->>   {
->> -	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_SET_MEASURE);
->> -	struct zpci_iommu_ctrs *ctrs;
->> -	struct zpci_fib fib = {0};
->> -	unsigned long flags;
->> -	u8 cc, status;
->> -
->>   	lockdep_assert_held(&zdev->fmb_lock);
->>   
->> -	if (zdev->fmb || sizeof(*zdev->fmb) < zdev->fmb_length)
->> +	if (zdev->fmb_requested || sizeof(*zdev->fmb) < zdev->fmb_length)
->>   		return -EINVAL;
->>   
->> -	zdev->fmb = kmem_cache_zalloc(zdev_fmb_cache, GFP_KERNEL);
->> -	if (!zdev->fmb)
->> -		return -ENOMEM;
->> -	WARN_ON((u64) zdev->fmb & 0xf);
->> -
->> -	/* reset software counters */
->> -	spin_lock_irqsave(&zdev->dom_lock, flags);
->> -	ctrs = zpci_get_iommu_ctrs(zdev);
->> -	if (ctrs) {
->> -		atomic64_set(&ctrs->mapped_pages, 0);
->> -		atomic64_set(&ctrs->unmapped_pages, 0);
->> -		atomic64_set(&ctrs->global_rpcits, 0);
->> -		atomic64_set(&ctrs->sync_map_rpcits, 0);
->> -		atomic64_set(&ctrs->sync_rpcits, 0);
->> -	}
->> -	spin_unlock_irqrestore(&zdev->dom_lock, flags);
->> -
->> -
->> -	fib.fmb_addr = virt_to_phys(zdev->fmb);
->> -	fib.gd = zdev->gisa;
->> -	cc = zpci_mod_fc(req, &fib, &status);
->> -	if (cc) {
->> -		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
->> -		zdev->fmb = NULL;
->> -	}
->> -	return cc ? -EIO : 0;
->> +	zdev->fmb_requested = true;
->> +	return zpci_fmb_reenable_device(zdev);
-> 
-> I'm not quite happy with "reenable" now becoming the "work horse" for
-> enabling function measurement at the pci device. I append a suggested
-> change at the end (since it's lengthy). My train of thought was:
-> Introduce symmetric zpci_fmb_req_{dis|en}able_device() that toggle the
-> "statistics_on" boolean, then call zpci_fmb_{dis|en}able_device() that
-> does the actual zpci_mod_fc(). This allowed zpci_reenable_device() to
-> call zpci_fmb_enable_device() if case of "statics_on", while the writes
-> into sysfs would call zpci_fmb_req_{dis|en}able_device().
-> 
-> And another after-thought, since the whole _device postfix on these
-> function names seems redundant, how about the following names:
-> 
-> zpci_request_fm_on()
-> zpci_request_fm_off()
-> zpci_enable_fm()
-> zpci_disable_fm()
+I will try to split things out more in future, this had a lot of dependencies so
+it wasn't clear that made sense + wouldn't just cause more stress over a longer
+period otherwise.
 
-That's fine by me. It makes sense and as an added bonus, it makes it
-easier to fix the issue you report where the state isn't correctly
-preserved after zpcictl reset (please see below.)
+>
+>
+> > +static inline
+> > +void mmap_action_map_discontig_kernel_pages(struct vm_area_desc *desc,
+> > +		void *init_private, const struct discontig_kernel_page_ops *ops)
+> > +{
+> > +	struct mmap_action *action = &desc->action;
+> > +
+> > +	action->type = MMAP_DISCONTIG_KERNEL_PAGES;
+> > +	action->map_kernel_discontig.init_private = init_private;
+> > +	action->map_kernel_discontig.ops = ops;
+> > +}
+> > +
+> >  int mmap_action_prepare(struct vm_area_desc *desc);
+> >  int mmap_action_complete(struct vm_area_struct *vma,
+> >  			 struct mmap_action *action, bool is_compat);
+>
+> There is a mixture of two tab vs. different in your changes.
 
-> 
-> 
->>   }
->>   
->>   /* Modify PCI: Disable PCI function measurement */
->> @@ -215,22 +185,68 @@ int zpci_fmb_disable_device(struct zpci_dev *zdev)
->>   
->>   	lockdep_assert_held(&zdev->fmb_lock);
->>   
->> -	if (!zdev->fmb)
->> +	if (!zdev->fmb_requested)
->>   		return -EINVAL;
->>   
->> +	zdev->fmb_requested = false;
->>   	fib.gd = zdev->gisa;
->>   
->>   	/* Function measurement is disabled if fmb address is zero */
->>   	cc = zpci_mod_fc(req, &fib, &status);
->>   	if (cc == 3) /* Function already gone. */
->>   		cc = 0;
->> +	if (cc)
->> +		return -EIO;
->>   
->> -	if (!cc) {
->> -		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
->> -		zdev->fmb = NULL;
->> +	return 0;
->> +}
->> +EXPORT_SYMBOL_GPL(zpci_fmb_disable_device);
->> +
->> +/* Re-enable PCI function measurement: clear the software IOMMU counters
->> + * and (re-)enable the FMB. This function is used to restore the desired
->> + * FMB enablement state when measurement may be implicitly disabled by
->> + * firmware (i.e., via CLP in zpci_disable_device())
->> + */
->> +int zpci_fmb_reenable_device(struct zpci_dev *zdev)
->> +{
->> +	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_SET_MEASURE);
->> +	struct zpci_iommu_ctrs *ctrs;
->> +	struct zpci_fib fib = {0};
->> +	unsigned long flags;
->> +	u8 cc, status;
->> +
->> +	lockdep_assert_held(&zdev->fmb_lock);
->> +
->> +	if (!zdev->fmb) {
->> +		zdev->fmb = kmem_cache_zalloc(zdev_fmb_cache, GFP_KERNEL);
->> +		if (!zdev->fmb)
->> +			return -ENOMEM;
->> +	} else {
->> +		/* reuse the same FMB buffer for as long the zdev lives */
->> +		memset(zdev->fmb, 0, sizeof(*zdev->fmb));
->>   	}
->> -	return cc ? -EIO : 0;
->> +
->> +	/* reset software counters */
->> +	spin_lock_irqsave(&zdev->dom_lock, flags);
->> +	ctrs = zpci_get_iommu_ctrs(zdev);
->> +	if (ctrs) {
->> +		atomic64_set(&ctrs->mapped_pages, 0);
->> +		atomic64_set(&ctrs->unmapped_pages, 0);
->> +		atomic64_set(&ctrs->global_rpcits, 0);
->> +		atomic64_set(&ctrs->sync_map_rpcits, 0);
->> +		atomic64_set(&ctrs->sync_rpcits, 0);
->> +	}
->> +	spin_unlock_irqrestore(&zdev->dom_lock, flags);
-> 
-> I know this is pre-existing, but how about breaking out the buffer and
-> counter preparation/clearing into a helper function?
+OK. mm is fairly inconsistent about this, I will convert all to 2 tabs.
 
-I believe it has been done in a previous version of this series at which
-point we had two callers for it. Since we don't have another caller now
-I didn't think of splitting it up.
+>
+> >
+> > +static inline void
+> > +discontig_kernel_map_abort(struct discontig_kernel_page_state *state)
+> > +{
+> > +	state->action = DISCONTIG_KERNEL_PAGE_ABORT;
+> > +}
+> > +
+> > +static inline void
+> > +discontig_kernel_map_page(struct discontig_kernel_page_state *state,
+> > +			  struct page *page)
+> > +{
+> > +	struct folio *folio = page_folio(page);
+> > +
+> > +	if (folio_test_large(folio)) {
+> > +		VM_WARN_ON_ONCE(page != folio_page(folio, 0));
+> > +		state->action = DISCONTIG_KERNEL_PAGE_MAP_COMPOUND_PAGE;
+> > +		state->__folio = folio;
+> > +		state->__nr_pages = min(state->nr_pages_remain,
+> > +					folio_nr_pages(folio));
+> > +	} else {
+> > +		state->action = DISCONTIG_KERNEL_PAGE_MAP_PAGE;
+> > +		state->__page = page;
+> > +		state->__nr_pages = 1;
+> > +	}
+>
+> Why are both separate? Isn't it sufficient to represent that through _page +
+> _nr_pages > 1 ? See below.
 
-> 
->> +
->> +	fib.fmb_addr = virt_to_phys(zdev->fmb);
->> +	fib.gd = zdev->gisa;
->> +	cc = zpci_mod_fc(req, &fib, &status);
->> +	if (cc)
->> +		return -EIO;
->> +
->> +	return 0;
->>   }
->> +EXPORT_SYMBOL_GPL(zpci_fmb_reenable_device);
->>   
->>   static int zpci_cfg_load(struct zpci_dev *zdev, int offset, u32 *val, u8 len)
->>   {
->> @@ -737,8 +753,14 @@ int zpci_reenable_device(struct zpci_dev *zdev)
->>   	}
->>   
->>   	rc = zpci_iommu_register_ioat(zdev, &status);
->> -	if (rc)
->> +	if (rc) {
->>   		zpci_disable_device(zdev);
->> +		return rc;
->> +	}
->> +
->> +	guard(mutex)(&zdev->fmb_lock);
->> +	if (zdev->fmb_requested)
->> +		zpci_fmb_reenable_device(zdev);
->>   
->>   	return rc;
->>   }
->> @@ -1003,6 +1025,12 @@ void zpci_release_device(struct kref *kref)
->>   	if (zdev->has_resources)
->>   		zpci_cleanup_bus_resources(zdev);
->>   
->> +	if (zdev->fmb) {
->> +		zdev->fmb_requested = false;
->> +		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
->> +		zdev->fmb = NULL;
->> +	}
->> +
->>   	zpci_bus_device_unregister(zdev);
->>   	zpci_destroy_iommu(zdev);
->>   	zpci_dbg(3, "rem fid:%x\n", zdev->fid);
->> diff --git a/arch/s390/pci/pci_debug.c b/arch/s390/pci/pci_debug.c
->> index c7ed7bf254b5..9a960310d4dd 100644
->> --- a/arch/s390/pci/pci_debug.c
->> +++ b/arch/s390/pci/pci_debug.c
->> @@ -97,7 +97,7 @@ static int pci_perf_show(struct seq_file *m, void *v)
->>   		return 0;
->>   
->>   	mutex_lock(&zdev->fmb_lock);
->> -	if (!zdev->fmb) {
->> +	if (!zdev->fmb_requested) {
->>   		mutex_unlock(&zdev->fmb_lock);
->>   		seq_puts(m, "FMB statistics disabled\n");
->>   		return 0;
-> 
-> Oh, and while playing around with this patch (with and without my
-> additional modifications), I realized that statistics/function
-> measurement gets re-enabled when I run `zpcictl --reset-fw <bdf>` to a
-> function - despite it being switched off before the reset.
+Ack yup that works.
 
-Great catch -- the FMB re-enablement in zpci_reenable_device() was just
-one of the two places that needed it, I missed to add it in
-pcibios_enable_device() instead of the existing unconditional enable. I
-will fix this in the next version.
+>
+> > +}
+> > +
+> > +static inline void
+> > +discontig_kernel_map_page_range(struct discontig_kernel_page_state *state,
+> > +				struct page **page_arr, unsigned long nr_pages)
+>
+> Is this actually "map_pages"? A range is rather a number of consectuive pages
+> part of the same folio/compound page, no?
+>
+> (we call insert_pages() later ... )
 
-re: splitting up the functions into a pair of request functions and a
-pair that actually do the MPCIFC: it will make resolving this issue more
-straightforward, because preserving the state in pcibios_enable_device()
-will require us to disable FMB without clearing its flag in
-pcibios_disable_device() as well, which is cleanly possible with the
-changes you suggested.
+Sure, can change.
 
-Thanks!
+>
+> > +{
+> > +	state->action = DISCONTIG_KERNEL_PAGE_MAP_PAGE_RANGE;
+> > +	state->__page_arr = page_arr;
+> > +	state->__nr_pages = min(nr_pages, state->nr_pages_remain);
+>
+> So we expect all of them to be non-compound?
 
-> 
-> Thanks,
-> Gerd
-> 
-> 
-> [ here's the patch to avoid zpci_fmb_reenable_device(): ]
-> 
-> 
-> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-> index 77c8c49ba6c8..26c6b616cc25 100644
-> --- a/arch/s390/include/asm/pci.h
-> +++ b/arch/s390/include/asm/pci.h
-> @@ -350,9 +350,10 @@ int zpci_create_parent_msi_domain(struct zpci_bus
-> *zbus);
->   void zpci_remove_parent_msi_domain(struct zpci_bus *zbus);
->   
->   /* FMB */
-> -int zpci_fmb_enable_device(struct zpci_dev *);
-> -int zpci_fmb_disable_device(struct zpci_dev *);
-> -int zpci_fmb_reenable_device(struct zpci_dev *zdev);
-> +int zpci_fmb_req_enable_device(struct zpci_dev *);
-> +int zpci_fmb_req_disable_device(struct zpci_dev *);
-> +int zpci_fmb_enable_device(struct zpci_dev *zdev);
-> +int zpci_fmb_disable_device(struct zpci_dev *zdev);
->   
->   /* Debug */
->   int zpci_debug_init(void);
-> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> index bda91d79bafd..c0bd76eac717 100644
-> --- a/arch/s390/pci/pci.c
-> +++ b/arch/s390/pci/pci.c
-> @@ -165,7 +165,7 @@ int zpci_unregister_ioat(struct zpci_dev *zdev, u8
-> dmaas)
->   }
->   
->   /* Modify PCI: Set PCI function measurement parameters */
-> -int zpci_fmb_enable_device(struct zpci_dev *zdev)
-> +int zpci_fmb_req_enable_device(struct zpci_dev *zdev)
->   {
->   	lockdep_assert_held(&zdev->fmb_lock);
->   
-> @@ -173,20 +173,25 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
->   		return -EINVAL;
->   
->   	zdev->fmb_requested = true;
-> -	return zpci_fmb_reenable_device(zdev);
-> +	return zpci_fmb_enable_device(zdev);
->   }
->   
->   /* Modify PCI: Disable PCI function measurement */
-> -int zpci_fmb_disable_device(struct zpci_dev *zdev)
-> +int zpci_fmb_req_disable_device(struct zpci_dev *zdev)
->   {
-> -	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0,
-> ZPCI_MOD_FC_SET_MEASURE);
-> -	struct zpci_fib fib = {0};
-> -	u8 cc, status;
-> -
->   	lockdep_assert_held(&zdev->fmb_lock);
->   
->   	if (!zdev->fmb_requested)
->   		return -EINVAL;
-> +	return zpci_fmb_disable_device(zdev);
-> +}
-> +EXPORT_SYMBOL_GPL(zpci_fmb_req_disable_device);
-> +
-> +int zpci_fmb_disable_device(struct zpci_dev *zdev)
-> +{
-> +	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0,
-> ZPCI_MOD_FC_SET_MEASURE);
-> +	struct zpci_fib fib = {0};
-> +	u8 cc, status;
->   
->   	zdev->fmb_requested = false;
->   	fib.gd = zdev->gisa;
-> @@ -200,14 +205,13 @@ int zpci_fmb_disable_device(struct zpci_dev
-> *zdev)
->   
->   	return 0;
->   }
-> -EXPORT_SYMBOL_GPL(zpci_fmb_disable_device);
->   
->   /* Re-enable PCI function measurement: clear the software IOMMU
-> counters
->    * and (re-)enable the FMB. This function is used to restore the
-> desired
->    * FMB enablement state when measurement may be implicitly disabled by
->    * firmware (i.e., via CLP in zpci_disable_device())
->    */
-> -int zpci_fmb_reenable_device(struct zpci_dev *zdev)
-> +int zpci_fmb_enable_device(struct zpci_dev *zdev)
->   {
->   	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0,
-> ZPCI_MOD_FC_SET_MEASURE);
->   	struct zpci_iommu_ctrs *ctrs;
-> @@ -246,7 +250,7 @@ int zpci_fmb_reenable_device(struct zpci_dev *zdev)
->   
->   	return 0;
->   }
-> -EXPORT_SYMBOL_GPL(zpci_fmb_reenable_device);
-> +EXPORT_SYMBOL_GPL(zpci_fmb_enable_device);
->   
->   static int zpci_cfg_load(struct zpci_dev *zdev, int offset, u32 *val,
-> u8 len)
->   {
-> @@ -660,7 +664,7 @@ int pcibios_enable_device(struct pci_dev *pdev, int
-> mask)
->   
->   	zpci_debug_init_device(zdev, dev_name(&pdev->dev));
->   	mutex_lock(&zdev->fmb_lock);
-> -	zpci_fmb_enable_device(zdev);
-> +	zpci_fmb_req_enable_device(zdev);
->   	mutex_unlock(&zdev->fmb_lock);
->   
->   	return pci_enable_resources(pdev, mask);
-> @@ -671,7 +675,7 @@ void pcibios_disable_device(struct pci_dev *pdev)
->   	struct zpci_dev *zdev = to_zpci(pdev);
->   
->   	mutex_lock(&zdev->fmb_lock);
-> -	zpci_fmb_disable_device(zdev);
-> +	zpci_fmb_req_disable_device(zdev);
->   	mutex_unlock(&zdev->fmb_lock);
->   	zpci_debug_exit_device(zdev);
->   }
-> @@ -760,7 +764,7 @@ int zpci_reenable_device(struct zpci_dev *zdev)
->   
->   	guard(mutex)(&zdev->fmb_lock);
->   	if (zdev->fmb_requested)
-> -		zpci_fmb_reenable_device(zdev);
-> +		zpci_fmb_enable_device(zdev);
->   
->   	return rc;
->   }
-> diff --git a/arch/s390/pci/pci_debug.c b/arch/s390/pci/pci_debug.c
-> index 9a960310d4dd..f2f0e7f44842 100644
-> --- a/arch/s390/pci/pci_debug.c
-> +++ b/arch/s390/pci/pci_debug.c
-> @@ -156,10 +156,10 @@ static ssize_t pci_perf_seq_write(struct file
-> *file, const char __user *ubuf,
->   	mutex_lock(&zdev->fmb_lock);
->   	switch (val) {
->   	case 0:
-> -		rc = zpci_fmb_disable_device(zdev);
-> +		rc = zpci_fmb_req_disable_device(zdev);
->   		break;
->   	case 1:
-> -		rc = zpci_fmb_enable_device(zdev);
-> +		rc = zpci_fmb_req_enable_device(zdev);
->   		break;
->   	}
->   	mutex_unlock(&zdev->fmb_lock);
+Yup this matches existing insert_pages() behaviour.
 
+>
+>
+> [...]
+>
+> > diff --git a/mm/internal.h b/mm/internal.h
+> > index fc4e249e2343..557e629db8c5 100644
+> > --- a/mm/internal.h
+> > +++ b/mm/internal.h
+> > @@ -1515,6 +1515,9 @@ int simple_ioremap_prepare(struct vm_area_desc *desc);
+> >  int map_kernel_pages_prepare(struct vm_area_desc *desc);
+> >  int map_kernel_pages_complete(struct vm_area_struct *vma,
+> >  			      struct mmap_action *action);
+> > +int map_discontig_kernel_pages_prepare(struct vm_area_desc *desc);
+> > +int map_discontig_kernel_pages_complete(struct vm_area_struct *vma,
+> > +					struct mmap_action *action);
+> >
+> >  static inline int io_remap_pfn_range_prepare(struct vm_area_desc *desc)
+> >  {
+> > diff --git a/mm/memory.c b/mm/memory.c
+> > index 448342883e9d..e5c1d1c35bc7 100644
+> > --- a/mm/memory.c
+> > +++ b/mm/memory.c
+> > @@ -2599,27 +2599,34 @@ int vm_insert_pages(struct vm_area_struct *vma, unsigned long addr,
+> >
+> >  	if (!range_in_vma(vma, addr, end))
+> >  		return -EFAULT;
+> > -	if (!(vma->vm_flags & VM_MIXEDMAP)) {
+> > -		VM_WARN_ON_ONCE(mmap_read_trylock(vma->vm_mm));
+> > -		VM_WARN_ON_ONCE(vma->vm_flags & VM_PFNMAP);
+> > -		vm_flags_set(vma, VM_MIXEDMAP);
+> > +	if (!vma_test(vma, VMA_MIXEDMAP_BIT)) {
+> > +		mmap_assert_write_locked(vma->vm_mm);
+> > +		VM_WARN_ON_ONCE(vma_test(vma, VMA_PFNMAP_BIT));
+>
+> I would prefer to have these changes in a separate patch. Or is it strictly
+> required to have this in this very patch?
+
+That was because Suren raised the 'assert on mmap_read_trylock()' thing and I
+wanted to get the other cases here to be consistent.
+
+I will split it out into another patch.
+
+>
+>
+> > +		vma_start_write(vma);
+> > +		vma_set_flags(vma, VMA_MIXEDMAP_BIT);
+> >  	}
+> >  	/* Defer page refcount checking till we're about to map that page. */
+> >  	return insert_pages(vma, addr, pages, num, vma->vm_page_prot);
+> >  }
+> >  EXPORT_SYMBOL(vm_insert_pages);
+> >
+> > +static void __map_kernel_pages_prepare(struct vm_area_desc *desc)
+> > +{
+> > +	if (vma_desc_test(desc, VMA_MIXEDMAP_BIT))
+> > +		return;
+> > +
+> > +	mmap_assert_write_locked(desc->mm);
+> > +	VM_WARN_ON_ONCE(vma_desc_test(desc, VMA_PFNMAP_BIT));
+> > +	vma_desc_set_flags(desc, VMA_MIXEDMAP_BIT);
+> > +}
+> > +
+> >  int map_kernel_pages_prepare(struct vm_area_desc *desc)
+> >  {
+> >  	const struct mmap_action *action = &desc->action;
+> >  	const unsigned long addr = action->map_kernel.start;
+> >  	unsigned long nr_pages, end;
+> >
+> > -	if (!vma_desc_test(desc, VMA_MIXEDMAP_BIT)) {
+> > -		VM_WARN_ON_ONCE(mmap_read_trylock(desc->mm));
+> > -		VM_WARN_ON_ONCE(vma_desc_test(desc, VMA_PFNMAP_BIT));
+> > -		vma_desc_set_flags(desc, VMA_MIXEDMAP_BIT);
+> > -	}
+> > +	__map_kernel_pages_prepare(desc);
+> >
+> >  	nr_pages = action->map_kernel.nr_pages;
+> >  	end = addr + PAGE_SIZE * nr_pages;
+> > @@ -2640,6 +2647,98 @@ int map_kernel_pages_complete(struct vm_area_struct *vma,
+> >  			    &nr_pages, vma->vm_page_prot);
+> >  }
+> >
+> > +int map_discontig_kernel_pages_prepare(struct vm_area_desc *desc)
+> > +{
+> > +	const struct mmap_action *action = &desc->action;
+> > +	const struct discontig_kernel_page_ops *ops =
+> > +		action->map_kernel_discontig.ops;
+> > +
+> > +	/* At minimum need to be able to get pages. */
+> > +	if (WARN_ON_ONCE(!ops || !ops->get))
+> > +		return -EINVAL;
+> > +
+> > +	__map_kernel_pages_prepare(desc);
+> > +	return 0;
+> > +}
+> > +
+> > +static int apply_discontig_action(struct vm_area_struct *vma,
+> > +				  struct discontig_kernel_page_state *state)
+> > +{
+> > +	unsigned long nr_pages = state->__nr_pages;
+> > +	unsigned long addr = state->addr;
+> > +	unsigned long i;
+> > +
+> > +	if (state->action == DISCONTIG_KERNEL_PAGE_MAP_PAGE)
+> > +		return insert_page(vma, addr, state->__page,
+> > +				   vma->vm_page_prot, /*mkwrite=*/false);
+> > +	if (state->action == DISCONTIG_KERNEL_PAGE_MAP_PAGE_RANGE)
+> > +		return insert_pages(vma, addr, state->__page_arr,
+> > +				    &nr_pages, vma->vm_page_prot);
+> > +
+> > +	/* Compound folio - have to iterate through each page. */
+> > +	for (i = 0; i < nr_pages; i++, addr += PAGE_SIZE) {
+> > +		struct page *page = folio_page(state->__folio, i);
+> > +		int err;
+> > +
+> > +		err = insert_page(vma, addr, page, vma->vm_page_prot,
+> > +				  /*mkwrite=*/false);
+> > +		if (err)
+> > +			return err;
+> > +	}
+>
+> Summarizing some of my comments below, I wonder if this could be:
+>
+> DISCONTIG_KERNEL_PAGE_MAP_PAGES - array of individual apges
+> DISCONTIG_KERNEL_PAGE_MAP_CONTIG_PAGES - 1..N contiguous pages
+
+OK.
+
+>
+>
+> if (state->action == DISCONTIG_KERNEL_PAGE_MAP_PAGES)
+> 	return insert_pages(vma, addr, state->__page_arr,
+> 			    &nr_pages, vma->vm_page_prot);
+>
+> VM_WARN_ON_ONCE(state->action != DISCONTIG_KERNEL_PAGE_MAP_CONTIG_PAGES)
+> for (i = 0; i < nr_pages; i++, addr += PAGE_SIZE) {
+> 	struct page *page = state->__page + i;
+> 	int err;
+>
+> 	err = insert_page(vma, addr, page, vma->vm_page_prot,
+> 			  /*mkwrite=*/false);
+> 	if (err)
+> 		return err;
+> }
+> ...
+
+OK. Will respin for v6.
+
+>
+> --
+> Cheers,
+>
+> David
+
+--
+Cheers, Lorenzo
