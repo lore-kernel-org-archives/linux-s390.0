@@ -1,73 +1,78 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF278470438;
-	Mon, 12 Oct 2026 08:51:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3A3D470EAF;
+	Mon, 12 Oct 2026 09:02:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791795095; cv=none; b=dJ4rnw/ckOu/jxxkSG2sfc7uQeT/BtL+eF0NK8gQCUaN/d3miSOvXa4rPtqTFb5vChN6296NzRVHXQQsmn57iUWt6fKvj2BL5DPu0vBD/3QVkvCbE6aIh/ModF5k9hPd+DouO4DCwJKg8PLVFaerzK00Ayf63a8ONdCd+LUDC6w=
+	t=1791795746; cv=none; b=Mhx3bYOEV+tzfdBDtwmu36Tqz7siJusspZ+Za+K3ABpuveGanHHHvjQrqCitqRHTW6sEEiQFhsOPL7fuaz3naFn9D2LSVLV8CwKsraqC7e4gASvokjf1TbXZw9lTmpIhGoc/jawygO4WSAJohNmtaWFo1IeozMFLuTJOsO5OYdI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791795095; c=relaxed/simple;
-	bh=r45O+/xXmTzQOIKeFrn9S7D05dFYzOMFhDO5HNP1t28=;
+	s=arc-20240116; t=1791795746; c=relaxed/simple;
+	bh=Av7/om/WS536+5PVfxK+RZky6nAQVbojLp2l03y5B2Y=;
 	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=KpHbasvGxu/Hqf/J/x6D8xt8dEXz25tphfGWvmb6omMlvnKpUjLyUwOhpTrp1T6S/ODIll0kfzuf0iWma6e32K7TgBFB7NkPuCSb2LsMyXxeVWqCFlALpT2Eb/cADa3oJBG1kvqqGvuQIdbKgZxe1itnOfqToiKKjUvvpo6r/CY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=WAKc5ntB; arc=none smtp.client-ip=148.163.158.5
+	 Date:MIME-Version; b=tdHFOm4WYJsGsGFIKtOXs9SON81BwelgkFvRu9ZsE23xKhbSUa1UJqqZazTBgX7Gr69M1Pa/BQnbssh+LrPNiv4T2g8+4f4HN56H08KMxo1II2Z3iig1lqPdbpRbCNxaOLXbvhlmR5MppO/h0spYu3CLjbIr1va7wn2ZxEgmuv8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=rpSsKSH8; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WAKc5ntB"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69C8iJ0n3810233;
-	Mon, 12 Oct 2026 08:51:26 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="rpSsKSH8"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69C8iIB84052991;
+	Mon, 12 Oct 2026 09:02:24 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=/OSjIU
-	WwVaZ47cwRPJEe1K6dVET6WakK8haYqFTR7fE=; b=WAKc5ntBdIMl+qtcEaKOKU
-	IpNxzSofp+TH5xgDhylenCeeYIEB5uzJKt3oYhgZ1QXI1NzMW5CHvctRlIFY6sRC
-	ggLfO8I6oat7o7+LIfCSbFSLPPY2AiamS5tFo/miAAzgsFPnbdbOWD43LDw69ihS
-	S/fXiZ5HdkZjNvayFoweL1SiVDz9Ew/9O5U+pnNBHMiHIwcs3JzmVroFH/XGYQXr
-	kIqoVk/SoN2WRbhcc8dJ2zXRaIev0ACs5g1bGMdDDjY78RqsNROqoo2OMebOJDhS
-	ueR9S9FTjRx8fmABCxbWR3vHuW5KgRE0hePmerPYM0IiHpayNCqJU/3h/cJl4Pxg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=N59rth
+	SyC7QXy7BUm39XHFb6d2FlHK55QInWMz4Xu1s=; b=rpSsKSH8wyhCrEOwjKEkUU
+	NDYB/cbgTeZ/dC7mONT2plGAecX9AGZ0rvpt/HlmunhzbVoe0ixH+RQ2RxOyhZcX
+	PYgo5xCmDP/DE4RKcO3xZZztILFVUQQnYDwUmfQmMhV05n4/K5sbj/iSW+N7+cZw
+	EUGGwW7h0EOxEnWIUPMWJGJH6gZgI83l+A5W+w4ulElwUOnbTgWWcpA/ur69MTQd
+	XQXT2mNEAbLeFR4CcJnKBbZjZKoMmLem3mLDz9Mm0tMbFobFt9qtnmtTjjn+itTO
+	DEl8BT6moc3X79cyi5ZiguPB3ggW+exJ1hbcp+eEWpm5kGxkdMDdiDyrFxyOXCsg
 	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dwhqqpc-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dug8274-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 08:51:26 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69C8K22L3934747;
-	Mon, 12 Oct 2026 08:51:25 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h81wfv7uq-1
+	Mon, 12 Oct 2026 09:02:24 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69C8Z38s978677;
+	Mon, 12 Oct 2026 09:02:23 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h802vmjhu-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 08:51:25 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69C8pOZj31785504
+	Mon, 12 Oct 2026 09:02:23 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69C92Ljq3146434
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 12 Oct 2026 08:51:24 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ACA5A5805A;
-	Mon, 12 Oct 2026 08:51:24 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5363658063;
-	Mon, 12 Oct 2026 08:51:23 +0000 (GMT)
+	Mon, 12 Oct 2026 09:02:21 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D68005815D;
+	Mon, 12 Oct 2026 09:02:21 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 34A045815C;
+	Mon, 12 Oct 2026 09:02:19 +0000 (GMT)
 Received: from [9.224.91.56] (unknown [9.224.91.56])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 12 Oct 2026 08:51:23 +0000 (GMT)
-Message-ID: <e99fe7f709317a8f5680112fe50995027e173181.camel@linux.ibm.com>
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 12 Oct 2026 09:02:18 +0000 (GMT)
+Message-ID: <33a598d7a415593a1bad5474afc7fd0e89a4956e.camel@linux.ibm.com>
 Subject: Re: [PATCH v3 8/8] s390/pci: Unregister the adapter interrupt
  first in zpci_irq_exit()
 From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Tobias Schumacher <ts@linux.ibm.com>, sashiko-reviews@lists.linux.dev
-Cc: Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Heiko Carstens
- <hca@linux.ibm.com>,
-        Alexander Gordeev	 <agordeev@linux.ibm.com>
-In-Reply-To: <DM04BTXODU3S.39KDFFEEM0BNP@linux.ibm.com>
+To: Tobias Schumacher <ts@linux.ibm.com>, Gerd Bayer
+ <gbayer@linux.ibm.com>,
+        Julian Ruess <julianr@linux.ibm.com>,
+        Farhan Ali
+ <alifm@linux.ibm.com>,
+        Christian Borntraeger	 <borntraeger@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Matthew Rosato	 <mjrosato@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle
+ <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20261009-s390_irq_domain_fixes-v3-8-ced19028da3c@linux.ibm.com>
 References: <20261009-s390_irq_domain_fixes-v3-0-ced19028da3c@linux.ibm.com>
 	 <20261009-s390_irq_domain_fixes-v3-8-ced19028da3c@linux.ibm.com>
-	 <sashiko-outbox-164943@kernel.org>
-	 <DM04BTXODU3S.39KDFFEEM0BNP@linux.ibm.com>
 Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
  /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
@@ -125,7 +130,7 @@ Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  3FZJPTo/OpqchMm8XIeDxC4NFFiPMpyLeYzIxO7eZpiGrAjVTE=
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 12 Oct 2026 10:50:21 +0200
+Date: Mon, 12 Oct 2026 11:01:18 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -134,119 +139,69 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEyMDAzNCBTYWx0ZWRfX6iIgofEOt9p6
- nvettxEAFRX0juWalfuYP4feJQMjWflNwqIuFDkpoHDRGIxa5zyEf5u42gNxSmYENjy/k7GbVlh
- 3zR+yxNkaMwwXbOHqOoMxmPgZN2ZHdLAmL+VRovGay8dvR9XRj+F3BOWsdskA/Hmg05freZ6gLk
- lXOP40UJ9h5VdXXzHBKBolbxbiYHkmRApgbTJKP1PA00vTOkWHWEIaDu8K3lLctAj/OQzaLk27j
- DACvR9XX9c5Og1qLBzuDfU0Qf4hTWN0xh8XYwp5neZtSbWHO2ESz7RJrVfFyo4YEE/UOCsAunmM
- EJ5ES57TMg6JDAM3AYjsNoXNvFHDq4HTIAfCnKfBy7pqzaCj7DEHsLyK7KpDfFcqbKpT2+NBTx5
- 7Iq/qTvbPoH7YfrB4fPzDv2pH667ErZGuzQaxBJ7fmZCxag1QctdqSwEsmvstIkUIBkb5acytsk
- ngXR3lzHPlhWZS4BvUg==
-X-Proofpoint-GUID: TQ9-LJlYCZjPk0EGvyh0aCeaMD9coupU
-X-Proofpoint-ORIG-GUID: TQ9-LJlYCZjPk0EGvyh0aCeaMD9coupU
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEyMDAzNCBTYWx0ZWRfX9D89eUZsnCC1
- //8TLv8RpdfFasBapTm0j9LhqdSGsybaWTrngA+lj2fymchRd+rddPcUBK0ShIrHxhe8fy//jDR
- zpiE4tfWfZHPlfxf1gEIc+MzcA10fkc=
-X-Authority-Analysis: v=2.4 cv=btHZl0ai c=1 sm=1 tr=0 ts=6acc9f8e cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Authority-Analysis: v=2.4 cv=Cr0q4X4D c=1 sm=1 tr=0 ts=6acca220 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=IOKMQBWHGGPYXvr662wA:9 a=QEXdDO2ut3YA:10
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=P2qMVndzReVlYjws9w0A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: 9g4PV0D_jXwcrYS8rEr6XqTSB6zA4k2k
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEyMDAzNCBTYWx0ZWRfX11eKLzcK+8Ka
+ WQ4Qn1KglO1vngX+f8cQs+xGPQ86RryDt0eUuXK7HAdjTC873GMZLixJ2mtaulRK7KQWcgk403L
+ g08H3SVLhF5CUX/iZYN41o7GSMW4J5yLpCAtqGLufAg9kRNm2vquVhwXABj2zsU5rrMuADNo/hp
+ h82zKFVxAH49CN+a6FXZJEqjrHt4dNkKyNUTR5hfjhdKN+u+a15rfQY6kYs1Yn7KwnKSJQm990V
+ elLTnZJO9/b91CgeMo4ycQzDRka/dey4KEWp99x+EJwPcbDhtfrT7PrFnArFRSXtHWy0aY6LIA0
+ CtZ6HIotX8YNzrHLZ27p6L7nAOV6Yamugj7VDsP6MVU8NbnYROLL5s8PajFd/UGLOHrDIOlihFD
+ kI8g5KE9qA7ox0zHvWLjXuNlTw3IRAJcjSsWIQcvm4Zf9gY2vGVJfr441J0DV/U7AUqzIU4nlXn
+ CsvBR7Yz7JVKE4kWbPQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEyMDAzNCBTYWx0ZWRfX6AN13MMayOkh
+ y8OGs4bHrPcHy/dinXH0LGMN38GMj50REOiMZBCXqvPuBsB7/cR+83Vzo8Y8e50ISgbbeBGvszA
+ tgaJVLHvrJh1lS/tclS8EzqwvJZP5hw=
+X-Proofpoint-ORIG-GUID: 9g4PV0D_jXwcrYS8rEr6XqTSB6zA4k2k
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-12_03,2026-10-09_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 malwarescore=0 phishscore=0 impostorscore=0 adultscore=0
- lowpriorityscore=0 priorityscore=1501 clxscore=1015 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610080000
- definitions=main-2610120034
+ bulkscore=0 spamscore=0 adultscore=0 priorityscore=1501 suspectscore=0
+ malwarescore=0 clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610080000 definitions=main-2610120034
 
-On Fri, 2026-10-09 at 09:10 +0200, Tobias Schumacher wrote:
-> On Fri Oct 9, 2026 at 8:29 AM CEST, sashiko-bot wrote:
-> > Thank you for your contribution! Sashiko AI review found 1 potential is=
-sue(s) to consider:
-> > - [High] s390/pci: UAF memory corruption in MSI setup due to missing de=
-vice teardown
-> > --
-> >=20
-> > commit 4f6e192e648a7af5752afbd15f3be9f0172b9594
-> > Author: Tobias Schumacher <ts@linux.ibm.com>
-> >=20
-> > s390/pci: Unregister the adapter interrupt first in zpci_irq_exit()
-> >=20
-> > This commit modifies zpci_irq_exit() to unregister the adapter interrup=
-t before
-> > freeing the interrupt bit vectors. This aims to prevent vectors from be=
-ing
-> > freed under a live handler during the pci_base_init() error path.
-> >=20
-> > > diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
-> > > index 4b8ebb987580b..16ae80ed2d139 100644
-> > > --- a/arch/s390/pci/pci_irq.c
-> > > +++ b/arch/s390/pci/pci_irq.c
-> > > @@ -674,6 +674,7 @@ void __init zpci_irq_exit(void)
-> > >  {
-> > >  	unsigned int cpu;
-> > >=20
-> > > +	unregister_adapter_interrupt(&zpci_airq);
-> > >  	if (irq_delivery =3D=3D DIRECTED) {
-> > >  		for_each_possible_cpu(cpu) {
-> > >  			airq_iv_release(zpci_dibv[cpu]);
-> > > @@ -684,5 +685,4 @@ void __init zpci_irq_exit(void)
-> > >  	}
-> > >  	if (zpci_sbv)
-> > >  		airq_iv_release(zpci_sbv);
-> >=20
-> > [Severity: High]
-> > Does this change fully resolve the use-after-free risk in the pci_base_=
-init()
-> > error path?
-> >=20
-> > While moving unregister_adapter_interrupt() prevents the interrupt hand=
-ler
-> > from accessing the vectors while they are being freed, it appears the d=
-evices
-> > registered earlier by zpci_scan_devices() are never unregistered when
-> > pci_base_init() fails during zpci_fw_sysfs_init().
-> >=20
-> > If a driver later binds to one of these still-registered devices and ca=
-lls
-> > pci_alloc_irq_vectors(), the PCI MSI setup accesses the freed zpci_sbv
-> > and zpci_ibv structures:
-> >=20
-> > arch/s390/pci/pci_irq.c:__alloc_airq() {
-> >     ...
-> >     /* Allocate adapter summary indicator bit */
-> >     *bit =3D airq_iv_alloc_bit(zpci_sbv);
-> >     ...
-> >     /* Wire up shortcut pointer */
-> >     rcu_assign_pointer(zpci_ibv[*bit], zdev->aibv);
-> >     ...
-> > }
-> >=20
-> > Could this lead to memory corruption when a driver attempts to set up M=
-SI on
-> > a device that was not properly torn down?
+On Fri, 2026-10-09 at 08:15 +0200, Tobias Schumacher wrote:
+> zpci_irq_exit() frees the interrupt bit vectors before unregistering the
+> adapter interrupt whose handler uses them. This is only called from the
+> pci_base_init() error path, where no handler is expected to run, but
+> unregister first anyway so the vectors are never freed under a live
+> handler.
 >=20
-> Right, this issue exists but is not addressed by this patch. This series
-> fixes and cleans the s390 PCI IRQ code, so I'll fix that in a separate pa=
-tch
-> outside this series.
+> Signed-off-by: Tobias Schumacher <ts@linux.ibm.com>
+> ---
+>  arch/s390/pci/pci_irq.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >=20
-> Thanks
-> Tobias
+> diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
+> index 4b8ebb987580..16ae80ed2d13 100644
+> --- a/arch/s390/pci/pci_irq.c
+> +++ b/arch/s390/pci/pci_irq.c
+> @@ -674,6 +674,7 @@ void __init zpci_irq_exit(void)
+>  {
+>  	unsigned int cpu;
+> =20
+> +	unregister_adapter_interrupt(&zpci_airq);
+>  	if (irq_delivery =3D=3D DIRECTED) {
+>  		for_each_possible_cpu(cpu) {
+>  			airq_iv_release(zpci_dibv[cpu]);
+> @@ -684,5 +685,4 @@ void __init zpci_irq_exit(void)
+>  	}
+>  	if (zpci_sbv)
+>  		airq_iv_release(zpci_sbv);
+> -	unregister_adapter_interrupt(&zpci_airq);
+>  }
 
-I agree and indeed it seems that if zpci_fw_sysfs_init() fails and
-we're still trying to probe devices we have bigger issues than
-registered interrupts because zpci_mem_exit() frees the iomap. I think
-one fix here would be to move the zpci_fw_syfs_init() up before
-zpci_scan_devices() such that we won't try probing drivers. Clearly
-this is out of scope for this patch though.
+As said in my reply to the Sashiko mail I think its concern is out of
+scope for this patch and this is a worthwhile, free standing cleanup.
+I agree that this is theoretical enough that we don't really need a
+Fixes tag or Cc stable though I'd leave it to you.
 
-On the plus side it seems rather unlikely that zpci_fw_sysfs_init()
-fails during boot and if it does I'd be quite concerned what else is
-broken.
+Feel free to add my:
 
-Thanks,
-Niklas
+Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
