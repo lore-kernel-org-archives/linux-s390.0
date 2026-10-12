@@ -1,204 +1,189 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C51CE3B4EBC;
-	Mon, 12 Oct 2026 22:17:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA3473B19AB;
+	Mon, 12 Oct 2026 22:22:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791843436; cv=none; b=TMEYufjdgXxnxZOTFXtmMeeCvtoKQvHu9mYee5LayvHQXSEi1M2e02XnEDFA9lE8HeWRm5UadSB3ved7Ohi9ImWFUR0svLZ9vEycpptYJIin16HhXppFIT042pgFmflxRyiY3BfHmm2Rg0oM4GBdBi6JDExpwCmY7P532DWKaww=
+	t=1791843731; cv=none; b=PcdK5/TaIY6pi23A0wrYo4l0hluOSdBKoIISHBWG0fXkGHHtdIFsWXPfVcSHriLsiidKkJa/ABg6eN1wgJPD45aDZapqVbXsrjwe0d87mQUq3S5RNCeN1s8IXtaXYk5iBpQJFTT/0N47YlcKl4XnfhkPYrUmHqfxUyrwdvTBcQU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791843436; c=relaxed/simple;
-	bh=4k++ZqYbmzGqUPJa/luIJHebzSfaEw5Li2kkNbpyAOM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=R2FOxUU1GlDW6984Snyg32JuLvSvn+/QlnezUgYGMqWbv0UFg4qNUnuMzAUady04RAvCNgcUfM/J69nZRyJGMOoCAFaHl/TOhyyqyW0x6tarDNePLtavPpPnYxJVGG7dRP1/5MB/NUWRO8ojldHJPDrFlhSl+1oy5ZsidICkO2k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qkfMRjQk; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1791843731; c=relaxed/simple;
+	bh=5iYML6suNYDZHpJCoRMwwkKPkNnfmUYM0wRwTPR5wTg=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=guALmCl2AedPAQMp+EvMbL5ACTB7wyzqZ9iYWDAhriHHv4EoZffyJjReLga1RY83D6h1WqyWtBjG1y5puIq3GFt1yzM0okWQoQe1T1/5ewInJa6Mg9X8r1DSimr1t160xMzFQfkAvwfYmaZ9S12xMRUNHXs3ZFGTf+zV7hwsLvs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FsVLRdfn; arc=none smtp.client-ip=192.198.163.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qkfMRjQk"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69CJiJwB3560113;
-	Mon, 12 Oct 2026 22:17:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=xllOav
-	8W2X9EPNglab9Mg+xrzszV6p27Nq/zLg7L+Ig=; b=qkfMRjQkcWT4YVYtK8+24I
-	F1OkxmdY1RPTOBE5b3IJkIDbkOuO78O8ZocsxGFzeESUlYVxz6r3ixQV/Y+ybF5x
-	bs1/i0gH0fms1vXAyP5pJiJ/9pNRq3YX8d6iiSf02BySM0HB4KNeJKHYOs+x7Vci
-	wokEbJjG6HUOd5JNCezeGoTJJXTBdXav3tBQOL4KnkqfJg/DDhQ/AUKwVr5QvBta
-	fEPmV+v6zSZqxDUy0oK6nIcdEBEtM+VCfToO0BOfNFkMJn7Sgs5j9TRMPIY6pG+e
-	sRPRi9r/5JQzkWRsotQdtypF3t9YxZhYl3LU5aMqLwcWLP1OVp5OMWyt4aVcK62w
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dwhb32a-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 22:17:13 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69CJOSIT587027;
-	Mon, 12 Oct 2026 22:17:13 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h81wfxxne-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 12 Oct 2026 22:17:13 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69CMHBV726608332
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 12 Oct 2026 22:17:11 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 75D375803F;
-	Mon, 12 Oct 2026 22:17:11 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9085958068;
-	Mon, 12 Oct 2026 22:17:10 +0000 (GMT)
-Received: from [9.61.159.45] (unknown [9.61.159.45])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 12 Oct 2026 22:17:10 +0000 (GMT)
-Message-ID: <bcd29f49-cbcf-40da-afb3-3dd988496f9f@linux.ibm.com>
-Date: Mon, 12 Oct 2026 18:17:10 -0400
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FsVLRdfn"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1791843730; x=1823379730;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:content-transfer-encoding:mime-version;
+  bh=5iYML6suNYDZHpJCoRMwwkKPkNnfmUYM0wRwTPR5wTg=;
+  b=FsVLRdfndIq9umfOohJ59wVxoB5cMmenzHhk5FXNdrMHFjq1EZ2FAQdC
+   Gv+CsmUt3bQ53xIlNPwNojyrA+3PqMqTmu6zdmRITzmLWEa0iQWtp9CZH
+   97blYR+ezHcRmAN2Ao3+josOzvTRPWbgdfj2XPTvzFoXeHZswIVUC/WeR
+   ZmfwBsp0HvTyCLBACGgl+EQWFJmkEpMCd/EFJQrB5+AoUKHehZftKVXCY
+   EDRQSHFyOohe9kRdNrae2NLk2iEb35o3E3z+YIxbYAwojUSD0CvoUxOg6
+   P+rXTIs/p7LKYz4+Xjr5bzZQdEPgYRawTUTrO6Ua60yCsGpyTikh4DHax
+   w==;
+X-CSE-ConnectionGUID: dKFb66kfQPO9401P+340Sw==
+X-CSE-MsgGUID: cvJ/1/WmTTevSek8ps/TpQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11933"; a="465269"
+X-IronPort-AV: E=Sophos;i="6.27,154,1787036400"; 
+   d="scan'208";a="465269"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Oct 2026 15:22:09 -0700
+X-CSE-ConnectionGUID: bsNifrMSSyi0AAQqyZ3Cpw==
+X-CSE-MsgGUID: qdV+tLJBSweNMNI+jxDX3g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,154,1787036400"; 
+   d="scan'208";a="974426"
+Received: from unknown (HELO [10.241.242.105]) ([10.241.242.105])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Oct 2026 15:22:09 -0700
+Message-ID: <460a7726022740feeee606538e4cf63adf6090c2.camel@linux.intel.com>
+Subject: Re: [RFC PATCH v3 01/13] lib/sbm: Introduce helpers for
+ architectures to configure LLC properties
+From: Tim Chen <tim.c.chen@linux.intel.com>
+To: K Prateek Nayak <kprateek.nayak@amd.com>, Peter Zijlstra	
+ <peterz@infradead.org>, Chen Yu <yu.c.chen@intel.com>, Ingo Molnar	
+ <mingo@redhat.com>, Juri Lelli <juri.lelli@redhat.com>, Vincent Guittot	
+ <vincent.guittot@linaro.org>, Andrew Morton <akpm@linux-foundation.org>, 
+ Arnd Bergmann	 <arnd@arndb.de>, linux-kernel@vger.kernel.org,
+ linux-arch@vger.kernel.org, 	linux-s390@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, 	linux-mips@vger.kernel.org,
+ loongarch@lists.linux.dev, 	driver-core@lists.linux.dev, Sudeep Holla
+ <sudeep.holla@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich	
+ <dakr@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, Thomas Bogendoerfer
+	 <tsbogend@alpha.franken.de>, Jiaxun Yang <jiaxun.yang@flygoat.com>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,  Alexander Gordeev
+ <agordeev@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>, Andreas
+ Larsson	 <andreas@gaisler.com>, Thomas Gleixner <tglx@kernel.org>, Borislav
+ Petkov	 <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org
+Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>, Steven Rostedt	
+ <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>, Mel Gorman	
+ <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>, Shrikanth
+ Hegde	 <sshegde@linux.ibm.com>, WANG Xuerui <kernel@xen0n.name>, Michael
+ Ellerman	 <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy	 <chleroy@kernel.org>, Christian Borntraeger
+ <borntraeger@linux.ibm.com>,  Sven Schnelle <svens@linux.ibm.com>, "H.
+ Peter Anvin" <hpa@zytor.com>
+Date: Mon, 12 Oct 2026 15:22:08 -0700
+In-Reply-To: <20261001192849.74788-2-kprateek.nayak@amd.com>
+References: <20261001192849.74788-1-kprateek.nayak@amd.com>
+	 <20261001192849.74788-2-kprateek.nayak@amd.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.58.1 (3.58.1-1.fc43) 
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 11/15] s390/vfio-ap: File ops called to resume the vfio
- device migration
-To: sashiko-reviews@lists.linux.dev
-Cc: Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>
-References: <20261009114244.1213173-1-akrowiak@linux.ibm.com>
- <20261009114244.1213173-12-akrowiak@linux.ibm.com>
- <sashiko-outbox-165452@kernel.org>
-Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <sashiko-outbox-165452@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEyMDA4OCBTYWx0ZWRfX1MDUH+pp+9YB
- XcAP3IRDKLGYGVM69806NkvlWBecq6KnEWm/oeTUzJjJ5pucz2VnmG4NXE1PfFRz4swXMFDXiSj
- USxjb2BewBhQESojhNgHWSvT3LUIKvM=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEyMDA4OCBTYWx0ZWRfX+koc2G4sqqGc
- 6HgBQPyUE0iXRfR/A5Mn7mqCw3RjfF2A1B1BUfbAIGJ4e70yF8uAZ3vjBFzQSKqpbj2gaEwidII
- ofhzJpFeRnRpy1uZ6IRc/VUIO4BycMYbM7Bs/eZ+7h9gseXl+0Kr2mt8nSvUx/Q8DMNFQ0QGRqD
- Lt6dGw12ksTsfHI0CTVrxB6PYyPWLLAH4wue/e3bSHqpHILz5YUVFJAHzNIueskPMGotXOQKLE+
- QWvX3rHvNFKEDke/lhc91N0qHzarhhaQjYgTwW9LcBRStWO4ZyTVzvLyHSM+XmaoTjf5ulJ6+uc
- YcFVZNtS+BlgrN3xbaZx+NnCmIoDtaf0a5sUaTiWS/atIZts2Yo4bsQTiV/AdkSsfNxeJga/1F+
- ym7xIOpSySiyfRNui8vCIcpsKSd/KjwRCKtIH6uZ0nfMjr/mwm4eMnH0ty48nx6gZwBbN1tR9tw
- QAGSCng4ZlPJ+Sf+VSQ==
-X-Proofpoint-GUID: 8XJiU4q8WpbwbPO2jIxVjWWsB2YZPCgM
-X-Authority-Analysis: v=2.4 cv=RoFQvymK c=1 sm=1 tr=0 ts=6acd5c69 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=1Ibm_CRvn4jo12nm47sA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: 8XJiU4q8WpbwbPO2jIxVjWWsB2YZPCgM
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-12_06,2026-10-09_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 phishscore=0 adultscore=0 bulkscore=0
- impostorscore=0 suspectscore=0 malwarescore=0 clxscore=1015
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610080000
- definitions=main-2610120088
 
+On Thu, 2026-10-01 at 19:28 +0000, K Prateek Nayak wrote:
+> Subsequent commits will add arch/ hooks to configure the sparsebitmask
+> (sbm) topology - number of sbm instance and the maximum CPUs that a
+> single instance can represent.
+>=20
+> Introduce sbm_set_topology() that helps architectures configure the sbm
+> topology. Also add arch_sbm_cpu_instance_id() which will be used to map
+> CPUs to the sbm instances during init to keep CPUs on the same instance
+> on the same sbm leaf.
+>=20
+> Individual arch/ users will be added one at a time in the subsequent
+> commits.
 
+Thanks for working on this series.
 
-On 10/9/26 7:56 AM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
-> - [High] locking: DoS via userfaultfd stalling under global mutexes in vfio_ap_resuming_write()
-> --
->
-> commit 0439535c7d2f8e78d7863822666908892163a421
-> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
-> s390/vfio-ap: File ops called to resume the vfio device migration
->
-> This commit implements the write callback for the file stream used to
-> restore the vfio-ap device state on a destination system during the
-> RESUMING migration phase. It copies the source guest's AP configuration
-> from userspace, validates its compatibility with the destination host,
-> and applies it if compatible.
->
->> diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypto/vfio_ap_migration.c
->> index 7b9851b79ec5f..caae95b47a9aa 100644
->> --- a/drivers/s390/crypto/vfio_ap_migration.c
->> +++ b/drivers/s390/crypto/vfio_ap_migration.c
-> [ ... ]
->> @@ -448,11 +504,644 @@ static struct file *vfio_ap_open_file_stream(struct ap_matrix_mdev *matrix_mdev,
->>   	return filp;
->>   }
-> [ ... ]
->> +static ssize_t vfio_ap_resuming_write(struct file *filp, const char __user *buf,
->> +				      size_t len, loff_t *pos)
->> +{
-> [ ... ]
->> +	/*
->> +	 * Hold ap_attr_mutex for the full duration of the write, just as
->> +	 * (un)assign_adapter_store() and (un)assign_domain_store() do.  This
->> +	 * prevents the AP bus apmask/aqmask attributes from being changed
->> +	 * while the guest's AP configuration is being updated.
->> +	 *
->> +	 * get_update_locks_for_mdev() then acquires guests_lock, kvm->lock,
->> +	 * and mdevs_lock in the correct order. This serialises
->> +	 * the entire operation against concurrent AP attribute writers
->> +	 * while the guest's AP configuration is being changed.
->> +	 *
->> +	 * Holding these locks for the full duration of a potentially chunked
->> +	 * write could in theory affect performance, but this is acceptable for
->> +	 * several reasons: migration is an infrequent operation; real-world
->> +	 * guest AP configurations are small (each CEX8 card has 2 adapters and
->> +	 * up to 16 domains, and the 85 cards in a system are shared across all
->> +	 * LPARs and guests); and each chunk write completes quickly.
->> +	 */
->> +	matrix_mdev = filp->private_data;
->> +	mutex_lock(&ap_attr_mutex);
->> +	get_update_locks_for_mdev(matrix_mdev);
->> +	pos = &filp->f_pos;
->> +
->> +	ret = validate_resuming_write_parms(filp, len);
->> +	if (ret)
->> +		goto out_unlock;
->> +
->> +	ap_config = matrix_mdev->mig_data->resuming_mig_file.ap_config;
->> +
->> +	if (copy_from_user((char *)ap_config + *pos, buf, len)) {
-> [Severity: High]
-> Does this code allow a malicious userspace process to stall the kernel
-> indefinitely using userfaultfd?
->
-> Holding global subsystem mutexes (ap_attr_mutex, matrix_dev->guests_lock,
-> matrix_dev->mdevs_lock) and the VM's kvm->lock during copy_from_user()
-> allows a compromised userspace process (such as a QEMU instance) to stall
-> execution by mapping the buffer with userfaultfd and never resolving the
-> page fault.
->
-> This would freeze all AP bus attribute changes and vfio_ap mdev lifecycle
-> operations globally across the host, and lock up the affected KVM instance.
-> Even without userfaultfd, normal page faults from swap or network
-> filesystems could cause unpredictable and severe global latency spikes.
+>=20
+> Signed-off-by: K Prateek Nayak <kprateek.nayak@amd.com>
+> ---
+>  include/linux/sbm.h |  8 ++++++++
+>  lib/Makefile        |  2 +-
+>  lib/sbm.c           | 27 +++++++++++++++++++++++++++
+>  3 files changed, 36 insertions(+), 1 deletion(-)
+>  create mode 100644 include/linux/sbm.h
+>  create mode 100644 lib/sbm.c
+>=20
+> diff --git a/include/linux/sbm.h b/include/linux/sbm.h
+> new file mode 100644
+> index 000000000000..adac12ed233a
+> --- /dev/null
+> +++ b/include/linux/sbm.h
+> @@ -0,0 +1,8 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _LINUX_SBM_H
+> +#define _LINUX_SBM_H
+> +
+> +int arch_sbm_cpu_instance_id(int cpu);
+> +void sbm_set_topology(int num_instances, int max_threads_per_instance);
+> +
+> +#endif /* _LINUX_SBM_H */
+> diff --git a/lib/Makefile b/lib/Makefile
+> index dfab958327c5..7776330f5b25 100644
+> --- a/lib/Makefile
+> +++ b/lib/Makefile
+> @@ -40,7 +40,7 @@ lib-y :=3D ctype.o string.o vsprintf.o cmdline.o \
+>  	 is_single_threaded.o plist.o decompress.o kobject_uevent.o \
+>  	 earlycpio.o seq_buf.o siphash.o dec_and_lock.o \
+>  	 nmi_backtrace.o win_minmax.o memcat_p.o \
+> -	 buildid.o objpool.o iomem_copy.o sys_info.o
+> +	 buildid.o objpool.o iomem_copy.o sys_info.o sbm.o
+> =20
+>  lib-$(CONFIG_UNION_FIND) +=3D union_find.o
+>  lib-$(CONFIG_PRINTK) +=3D dump_stack.o
+> diff --git a/lib/sbm.c b/lib/sbm.c
+> new file mode 100644
+> index 000000000000..82280e3306de
+> --- /dev/null
+> +++ b/lib/sbm.c
+> @@ -0,0 +1,27 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
 
-Agreed. Holding ap_attr_mutex, guests_lock, kvm->lock and mdevs_lock
-across copy_from_user() lets a buffer that blocks indefinitely stall
-all AP attribute updates and mdev operations on the host and the
-affected guest.
+Minor nits.  Convention is
 
-In the next version, vfio_ap_resuming_write() will copy the user data
-into a kernel buffer with vmemdup_user() before taking any lock and use
-memcpy to copy the contents of the buffer into ap_config instead of
-copy_from_user.
+// SPDX-License-Identifier: GPL-2.0=20
 
->
->> +		ret = -EFAULT;
->> +		goto out_unlock;
->> +	}
->> +
->> +	*pos += len;
-> [ ... ]
->
+for .c file according to
+Documentation/process/license-rules.rst
 
+checkpatch asks for a MAINTAINERS entry for include/linux/sbm.h and
+lib/sbm.c.
+
+Tim
+
+> +#include <linux/sbm.h>
+> +#include <linux/init.h>
+> +#include <linux/printk.h>
+> +
+> +static int sbm_max_threads_per_instance =3D -1;
+> +static int sbm_num_instance =3D -1;
+> +
+> +/*
+> + * In absence of an arch definition, consider all CPUs to
+> + * belong to the same sbm instance.
+> + */
+> +int __weak arch_sbm_cpu_instance_id(int cpu)
+> +{
+> +	return 0;
+> +}
+> +
+> +void __init sbm_set_topology(int num_instances, int max_threads_per_inst=
+ance)
+> +{
+> +	sbm_max_threads_per_instance =3D max_threads_per_instance;
+> +	sbm_num_instance =3D num_instances;
+> +
+> +	pr_info("sbm topology set to %d instance(s) with a maximum of %d thread=
+(s) per instance\n",
+> +		sbm_num_instance,
+> +		sbm_max_threads_per_instance);
+> +}
+> +
