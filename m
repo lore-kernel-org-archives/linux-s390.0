@@ -1,57 +1,57 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BD9351CF70;
-	Tue, 13 Oct 2026 14:42:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9C3E51DAF2;
+	Tue, 13 Oct 2026 14:42:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791902559; cv=none; b=GFMkBpZD2w6/k3dWRyMDedEz9WpYY7QPGcdf3miFopJpWwA5OUBqporP4xIalAqdDi+Ni1UAiRJoGL208pAv3uF68muB46ihUUriXwLuLVkES++sDFULHbB0XKsmO7/JZbt8nFiJb25As5UGykam8CflfrtCt3F671MD9oKMCsA=
+	t=1791902562; cv=none; b=pqlBG5W/CeTkMIARIMWOcTxwSg7kxwQGyjba1D4vKm3XGfimiHchqzWjs+9DcAt7hR2leQm1zCRj8cgyHjMD/ucAS+XDrnBX8417dGWXFX3GG1QDBmsiXjweYBXHYjsZUn2q/o05Pwb9joVP8KPPaugZwWiCrSEfxNdYerhIKis=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791902559; c=relaxed/simple;
-	bh=UmpNNzUoQfS74SMmJ+UcweBXJ78ydkaMnPdMO3k/M0o=;
+	s=arc-20240116; t=1791902562; c=relaxed/simple;
+	bh=gki4PqMyEFuaN3sYqYSnFREY/5dld7W0TIu+9NP9hSQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Ogss3jhTIlPPGSvu+xeHMBuHA2DwuTBm7G1QFcPx89J7Iw9zGpQGTNPWTdr0OtLhYfvKL2c72wx9NKFfnze9Vn0KIZZVVihQ3oTYmd7zOcgrS89JCjhzXrgcPpR9uJ1XbBlFebPOom/I3eaPLZiLWuZzE1nlMkE2VkMRu3MGfFk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=VXuAxM9J; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=T36AifnXrAjIEYjX1khZF9YA4kFqXozGc93WCUa5hOU8tq1Og2+DkpTUYXoR9l2GnVKESrgHguhH/bntYN4PUn1iHZmokIPUAqSxioVbiMxmdIyxqXHiQ9Usw47bsJAD/XGtabvJes2tfGlf0E6O6jEihUod/uBGb+8scNTsVlk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=eWsBQ6ae; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="VXuAxM9J"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69DDh4w2728342;
-	Tue, 13 Oct 2026 14:42:33 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eWsBQ6ae"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69DDm5o5151880;
+	Tue, 13 Oct 2026 14:42:37 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=MCJc6kbfImmOdEp6i
-	HLu04Lnqa8MxTHLK/O1r9pHhFc=; b=VXuAxM9JDJq6gOoc2REj9Fdz4o0e032R9
-	Pl75A1fRDqYm02JShTuUixXLgCbbfLz3r6F+UH5bRKSqgQC/hHTx+tplFp0bDfcR
-	aJoggj6/wIpwRyOHAESLiZ7lAELp0IihWyHsJ5cdSyLvYr1IGJStPQSCfgDPl4Lt
-	3CmFrj3bnjZOMFdrYzvT/TQPTRoeE4ahXlZDsLpM9PZQLZv/Z8eqlifKu5z5UqdZ
-	HiBq9dQNkJGVmmW6b1EaaBFMBxWSeABNFBseqhoL/QH4wDx9tJ6ugMFCt/gsZpW5
-	45AxJwMhYN7tuzmVO480JZ++YJ6JqCSbQVvPKwkTXEIxBrNdtLx9w==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dv0ebh4-1
+	:mime-version:references:subject:to; s=pp1; bh=sw0OuizzvLLn1DSCm
+	uK8oZtZtFWj4l5J0cwi4w/14s8=; b=eWsBQ6aer+foHbFYvf4pt5gSMUQA+za1w
+	apiR6upmr07RqQ9qEZs1H7rvTe4t9pkvWpwYtvzmA46K1ABjUoRaAJzYA1LV7sV2
+	49f4IwF0k1OB5dDc14fX8pCalf7gRhIWvVCH+7dq5ZdbR5NRRnijyNyyPN3qcy5h
+	QyHoFOF9tsluXJv8K0YXRWF97HRQDg89+HZ2R3pLiRofQ9NBvtJCUR1aC8xpCMik
+	1XZmtaqpt+/T9S7GCtJ3dVpqZZoCUSrPAuLkzL1fGXXYKj2C/IHqDC3hex12lLcN
+	jpTAuS8Xey6OLB9SMqCi/wmfL63cbbe56bMcTgiGLgUQjA5BAoegA==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dwherp5-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 13 Oct 2026 14:42:33 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69DCPtJ42712831;
-	Tue, 13 Oct 2026 14:42:32 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h82cyj484-1
+	Tue, 13 Oct 2026 14:42:36 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69DCHqLK2709289;
+	Tue, 13 Oct 2026 14:42:35 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h816h2ah7-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 13 Oct 2026 14:42:32 +0000 (GMT)
+	Tue, 13 Oct 2026 14:42:35 +0000 (GMT)
 Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69DEgVnN31720090
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69DEgYFd34079346
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 13 Oct 2026 14:42:31 GMT
+	Tue, 13 Oct 2026 14:42:34 GMT
 Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A04BE5805D;
+	by IMSVA (Postfix) with ESMTP id 4745B58068;
+	Tue, 13 Oct 2026 14:42:34 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E22BE5805D;
 	Tue, 13 Oct 2026 14:42:31 +0000 (GMT)
-Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 53C1F58068;
-	Tue, 13 Oct 2026 14:42:29 +0000 (GMT)
 Received: from t83lp65.lnxne.boe (unknown [9.87.84.240])
 	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 13 Oct 2026 14:42:29 +0000 (GMT)
+	Tue, 13 Oct 2026 14:42:31 +0000 (GMT)
 From: Gautam Gala <ggala@linux.ibm.com>
 To: borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
         kvm@vger.kernel.org, linux-s390@vger.kernel.org,
@@ -59,9 +59,9 @@ To: borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com,
 Cc: david@kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
         agordeev@linux.ibm.com, svens@linux.ibm.com, pbonzini@redhat.com,
         seanjc@google.com, shuah@kernel.org
-Subject: [PATCH 1/2] KVM: s390: fix ESSA addressing exception injection in migration mode
-Date: Tue, 13 Oct 2026 16:42:24 +0200
-Message-ID: <20261013144225.8885-2-ggala@linux.ibm.com>
+Subject: [PATCH 2/2] KVM: s390: selftests: add ESSA migration mode PGM_ADDRESSING regression test
+Date: Tue, 13 Oct 2026 16:42:25 +0200
+Message-ID: <20261013144225.8885-3-ggala@linux.ibm.com>
 X-Mailer: git-send-email 2.55.0
 In-Reply-To: <20261013144225.8885-1-ggala@linux.ibm.com>
 References: <20261013144225.8885-1-ggala@linux.ibm.com>
@@ -74,96 +74,157 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEzMDA1NiBTYWx0ZWRfX+IP7HLTE6zWo
- H0Etdoj2KUsgLVW84/qsFgKPYRR6+IFfgqufCm8rOU5Vf30OC4G3X/figGyVz+WQIbweRtWcK3c
- CVeiTsi9k9UOEhkuc6oXw6WNHDlry26CIhb/qQyCR9vkg1Tgf6kOeuysic/4VaQtVV5ub2Ab7Gq
- UW83kzHL2MbG+ezrzSTxwmiMWYis0tN2xcQrxaE0LXjAAbONWwquesXltU20RUecPrGGjETKZI6
- lkobpEDqYJk5DLQBRnVAj3N8varYOX3CJML9HdZaiA0SeQQ1cULrTQ1vFL96LpL47UICjvmDpUY
- XGpIvVcahzifq4BJR/RPrVCypUCsOxQCe++bT49P4EcLQHoNzi9jK0h6K52Ls/vMoIzff9k0BiI
- 7hPxbDW71HJZeFL3CyPDHG9A1fhwiWAV4aU8ftYyEH658bvgexyoAcvUdgykuRmgq7qFj7CZMBB
- HeRtXkSFGCe5J8y0xng==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEzMDA1NiBTYWx0ZWRfX6y5S3bwV5fCH
- qK3ba/3CwfglWwnmuXggM04ZIJzywNJR2tVQbq9Sap+z0gO9oSPl0K49hSncJNfOTrZ3G4lGX5M
- tWx2iLBqhwC9iGyNxHWTSl2YDu2d1VY=
-X-Proofpoint-ORIG-GUID: xpy5nsSEzaG2lej3zSrGR6Bdfaji44Gh
-X-Authority-Analysis: v=2.4 cv=a6KlZkSF c=1 sm=1 tr=0 ts=6ace4359 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEzMDA1NiBTYWx0ZWRfX5m7dnWBtUYZN
+ COeL0tk3RWIh0IIqI8s+nN/9zO5Oz6uSJS8NKRZnQMoKDRqRqT1z52r04Zjg49C994yA6FJSoOI
+ A4tm0oad9cRUCmfCsxObIwHQjyNuBIw=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEzMDA1NiBTYWx0ZWRfX6cirK3VY+GCz
+ Usn64JP/GLt9EiFL3mQWE3FmGCnUU/kV6Kzt7zmUMExSuSMV/fPR4GtHotTzd1EC26a+cHIYeDW
+ FWmFKvKQ1UxAlZbNji9YhXOrAR1vhFyeVwP0iljJHqVBP+pWQCjHfWvgmDwCcOhqam0CHc2jacT
+ LClmCJWFuL8uqvhqKkGUXHMZXjl+EYUA+JVB4CzzvRmV2X6isZ2K7Eb/Mv4Lm2MXwIwrR1W8mPw
+ RcJyVaE/VzO1sbi1HvAREKHzgBE6OHLdtY6MrqPWoDowHJmHfc9m1OR71ffHSXU2AocrjBGhRs+
+ WXKT/dE15BElOuGesSYvlhnx4ZJTY2ziKKs0Wh5bn5A9daNYJW8zL2DQ+2zrp224P2Msy7AKMWm
+ yM1zAy09xz115iutOwuVBZY5suQHEgb6VMfAiQhMrL7JS+kuo1k+pNlq3R4THMtLUIN/Zc9wfSN
+ 8apVrmy+CJhL3Nly7DQ==
+X-Proofpoint-GUID: sKx43bbwrGBZ3mRCRtpGd79olc5vpGSf
+X-Authority-Analysis: v=2.4 cv=RoFQvymK c=1 sm=1 tr=0 ts=6ace435d cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=LGCGonwXZdm1f9Whz7oA:9
-X-Proofpoint-GUID: jotDrcZZA2vxhp7cfK9XiX0SKfb83wHb
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=lRAwDPCLeQXcjmSgwEsA:9
+X-Proofpoint-ORIG-GUID: i6WN06vnnGBN8ceIgqgSyC8AVuM2nHWe
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-13_01,2026-10-09_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 malwarescore=0 spamscore=0 suspectscore=0 clxscore=1011
- phishscore=0 priorityscore=1501 lowpriorityscore=0 impostorscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ priorityscore=1501 spamscore=0 phishscore=0 adultscore=0 bulkscore=0
+ impostorscore=0 suspectscore=0 malwarescore=0 clxscore=1015
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610080000
  definitions=main-2610130056
 
-__do_essa() treated any negative return from dat_perform_essa() as the
-normal "no CBRL entry appended" case and returned 0, so a page-table
-walk failure silently dropped the addressing exception.
+Regression test for the bug where ESSA emulation in migration mode
+silently dropped addressing exceptions instead of injecting
+PGM_ADDRESSING into the guest.
 
-DAT_WALK_ANY is required in the dat_entry_walk() call so that a GFN
-backed by a large page (segment or region entry) does not return an
-error: the walk stops early but succeeds, leaving ptep as NULL, which is
-already handled by the existing "set exception state, return -1" path.
-Without DAT_WALK_ANY such addresses would fall through to the new error
-path and incorrectly inject PGM_ADDRESSING.
+The test is integrated into cmma_test alongside the existing CMMA
+migration tests.
 
-Return -PGM_ADDRESSING on a walk failure and inject the program
-interrupt in __do_essa() for the -PGM_ADDRESSING return value.
-
-Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
-Reported-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Suggested-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 Signed-off-by: Gautam Gala <ggala@linux.ibm.com>
 Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 ---
- arch/s390/kvm/gmap/dat.c  | 5 ++++-
- arch/s390/kvm/s390/priv.c | 4 +++-
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ tools/testing/selftests/kvm/s390/cmma_test.c | 79 ++++++++++++++++++++
+ 1 file changed, 79 insertions(+)
 
-diff --git a/arch/s390/kvm/gmap/dat.c b/arch/s390/kvm/gmap/dat.c
-index ff80d02c9f56..1bc6d2ec5b08 100644
---- a/arch/s390/kvm/gmap/dat.c
-+++ b/arch/s390/kvm/gmap/dat.c
-@@ -1084,6 +1084,7 @@ int dat_set_prefix_notif_bit(union asce asce, gfn_t gfn)
-  * * %1 if the page state has been altered and the page is to be added to the CBRL
-  * * %0 if the page state has been altered, but the page is not to be added to the CBRL
-  * * %-1 if the page state has not been altered and the page is not to be added to the CBRL
-+ * * %-PGM_ADDRESSING if the guest page-table walk failed
+diff --git a/tools/testing/selftests/kvm/s390/cmma_test.c b/tools/testing/selftests/kvm/s390/cmma_test.c
+index 15d81b2ed7ad..2b351b4fc894 100644
+--- a/tools/testing/selftests/kvm/s390/cmma_test.c
++++ b/tools/testing/selftests/kvm/s390/cmma_test.c
+@@ -8,6 +8,7 @@
+  *  Nico Boehr <nrb@linux.ibm.com>
   */
- int dat_perform_essa(union asce asce, gfn_t gfn, int orc, union essa_state *state, bool *dirty)
- {
-@@ -1092,7 +1093,9 @@ int dat_perform_essa(union asce asce, gfn_t gfn, int orc, union essa_state *stat
- 	union pte *ptep;
- 	int res = 0;
+ #include <fcntl.h>
++#include <signal.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+@@ -18,6 +19,12 @@
+ #include "kselftest.h"
+ #include "ucall_common.h"
+ #include "processor.h"
++#include "sie.h"
++
++#define PGM_ADDRESSING		0x05
++#define VCPU_RUN_TIMEOUT_S	2
++#define UNMAPPED_GFN		0xffff000UL
++#define __LC_PGM_NEW_PSW	0x1d0
  
--	if (dat_entry_walk(NULL, gfn, asce, 0, TABLE_TYPE_PAGE_TABLE, &crstep, &ptep)) {
-+	if (dat_entry_walk(NULL, gfn, asce, DAT_WALK_ANY, TABLE_TYPE_PAGE_TABLE, &crstep, &ptep))
-+		return -PGM_ADDRESSING;
-+	if (!ptep) {
- 		*state = (union essa_state) { .exception = 1 };
- 		return -1;
- 	}
-diff --git a/arch/s390/kvm/s390/priv.c b/arch/s390/kvm/s390/priv.c
-index b3cb2c2c3aa7..2abd1bdfdf32 100644
---- a/arch/s390/kvm/s390/priv.c
-+++ b/arch/s390/kvm/s390/priv.c
-@@ -1168,8 +1168,10 @@ static inline int __do_essa(struct kvm_vcpu *vcpu, const int orc)
- 	entries = (vcpu->arch.sie_block->cbrlo & ~PAGE_MASK) >> 3;
+ #define MAIN_PAGE_COUNT 512
  
- 	nappended = dat_perform_essa(vcpu->arch.gmap->asce, gfn, orc, &state, &dirtied);
-+	if (nappended == -PGM_ADDRESSING)
-+		return kvm_s390_inject_program_int(vcpu, -PGM_ADDRESSING);
- 	vcpu->run->s.regs.gprs[r1] = state.val;
--	if (nappended < 0)
-+	if (nappended == -1)
- 		return 0;
- 	/*
- 	 * It is possible that all the normal 511 slots were full, in which case
+@@ -651,6 +658,77 @@ static void test_get_skip_holes(void)
+ 	assert_no_pages_cmma_dirty(vm);
+ }
+ 
++static void pgm_handler_c(void)
++{
++	GUEST_SYNC(PGM_ADDRESSING);
++	for (;;)
++		;
++}
++
++static void guest_essa_unmapped(void)
++{
++	unsigned long addr = UNMAPPED_GFN << PAGE_SHIFT;
++
++	asm volatile(
++		"	lg   2,%[addr]\n"
++		/* ESSA r1,r2,orc=1 */
++		"	.insn rrf,0xb9ab0000,1,2,1,0\n"
++		"0:	j 0b\n"
++		:
++		: [addr] "Q"(addr)
++		: "r1", "r2", "cc", "memory"
++	);
++}
++
++static void handle_alarm(int sig __maybe_unused)
++{
++	ksft_test_result_fail(
++		"ESSA migration mode: vcpu_run timed out - PGM_ADDRESSING was not injected\n");
++	ksft_finished();
++}
++
++static void test_essa_migration_pgm(void)
++{
++	struct kvm_vcpu *vcpu;
++	struct kvm_vm *vm;
++	struct ucall uc;
++	char *lowcore;
++	u64 pgm_psw[2] = {};
++
++	vm = __vm_create(VM_SHAPE_DEFAULT, 1, 0);
++
++	enable_cmma(vm);
++
++	vcpu = vm_vcpu_add(vm, 0, guest_essa_unmapped);
++
++	lowcore = addr_gpa2hva(vm, 0);
++	pgm_psw[0] = vcpu->run->psw_mask;
++	pgm_psw[1] = (u64)pgm_handler_c;
++	memcpy(lowcore + __LC_PGM_NEW_PSW, pgm_psw, 16);
++
++	/* Migration mode requires dirty tracking on all memslots. */
++	vm_mem_region_set_flags(vm, 0, KVM_MEM_LOG_DIRTY_PAGES);
++	enable_migration_mode(vm);
++
++	signal(SIGALRM, handle_alarm);
++	alarm(VCPU_RUN_TIMEOUT_S);
++
++	vcpu_run(vcpu);
++
++	alarm(0);
++
++	TEST_ASSERT_EQ(vcpu->run->exit_reason, KVM_EXIT_S390_SIEIC);
++	TEST_ASSERT_EQ(vcpu->run->s390_sieic.icptcode, ICPT_INST);
++	TEST_ASSERT_EQ(vcpu->run->s390_sieic.ipa & 0xff00, 0x8300);   /* DIAG */
++	TEST_ASSERT_EQ(vcpu->run->s390_sieic.ipb >> 16, 0x501);
++
++	get_ucall(vcpu, &uc);
++	TEST_ASSERT_EQ(uc.cmd, UCALL_SYNC);
++	TEST_ASSERT_EQ(uc.args[1], PGM_ADDRESSING);
++
++	kvm_vm_free(vm);
++}
++
+ struct testdef {
+ 	const char *name;
+ 	void (*test)(void);
+@@ -659,6 +737,7 @@ struct testdef {
+ 	{ "GET_CMMA_BITS: basic calls", test_get_cmma_basic },
+ 	{ "GET_CMMA_BITS: all pages are dirty initially", test_get_initial_dirty },
+ 	{ "GET_CMMA_BITS: holes are skipped", test_get_skip_holes },
++	{ "ESSA migration mode: PGM_ADDRESSING injected on unmapped GFN", test_essa_migration_pgm },
+ };
+ 
+ /**
 -- 
 2.55.0
 
