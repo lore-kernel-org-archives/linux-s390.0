@@ -1,70 +1,79 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E60843BDB8;
-	Tue, 13 Oct 2026 16:06:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF0493D8122
+	for <linux-s390@vger.kernel.org>; Tue, 13 Oct 2026 16:08:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791907575; cv=none; b=diiuogTkXT4xmtwr65hLJX50ANftsPMPTruaUxI8jYCQFs/D3MiTVc1mzSBEmQ6r3z6pxQS3x2gZiLY/DabU17ca31cyktMaxE5p2uxwAdQh+3p8MRle880jznbo+kXD0sg1F5vCEWxMiAm7rwEWsNq87KWidGBZl6IhwjkbBj4=
+	t=1791907696; cv=none; b=hbfCG2MU/juWFpuspDJuaT9jTDHXzqHI8rFhv47K6RxKlu4YjpEXEvDCn9dOw6F/75ya40Dn8Be6ph1TyZzj3dwMoAgVEeQXfGhikV79uTmlt2mSMVk46S1KUjscP4+rILOM0ifC6SsRZvrKDE5Jk6iay6WeDuIG+MR9DC6q9Ts=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791907575; c=relaxed/simple;
-	bh=LzOduDt/4mA7QukV85aRiXsSb4GHMwpwafEBs9xQnuE=;
+	s=arc-20240116; t=1791907696; c=relaxed/simple;
+	bh=IC94WvpqH+KBwp5TMlXgTLPv2k/4q11jlVGeP0AZCtI=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=AndxdkxHrOqao9ASF3iZytJbUStezmmrswYm11bgiWqX5CCMYWS5S3vE58rigmlJy8oA73o4AoFgk/Zcn4DkHT/eLpQ05EUxk9A3HN0r9H1S7SDM4b+ttVxvWLVpKfAYSs9wqnHHCP9JrkT5+Ar0GqaP1kuYokTG4/zZre8/uPY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RqoDtv8A; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=duzEG4kwmOtfbxEPo8DBWJYlgJ/pDu2E/bphT4bliOPe9vKo+VCgADO9FXCF2Z1XE9OCKQ15Ee4OuvBkfsCiuQPK05lgLRTA24LNZDs7EpPW3vLiBL6MudLRYg6QHwBUTYNGTxCW5sDaI5fjGHHBPJfj4QS5fw99uR/LfQv1ido=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IAgSIUQp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RqoDtv8A"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 336D81F000FF;
-	Tue, 13 Oct 2026 16:06:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IAgSIUQp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EF501F00893;
+	Tue, 13 Oct 2026 16:08:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791907573;
-	bh=LzOduDt/4mA7QukV85aRiXsSb4GHMwpwafEBs9xQnuE=;
+	s=k20260515; t=1791907695;
+	bh=IC94WvpqH+KBwp5TMlXgTLPv2k/4q11jlVGeP0AZCtI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RqoDtv8APyvcS0a0RlPI03KPoE0ocmIBQVcc8udEkZ5mUC9HB/rf5+swlmUfAM63V
-	 H/RHhseJ+qK0PU569ilE4hV6wr4E7Oucl7lUtp8CQSWbvd4w7QPsrpq8x0jXII+sGZ
-	 21Sr73VZfobxmBeNHag5mRQ0WOkcjE+iFeExar2tiXSEJEx72Ttoitd52f40/jUyy0
-	 W1UJcapGu8vubp5m/VgR/f7Y1INR6dvOEk7kUsk1sQWXBBy9jDtYCbSRL/+kCHKZJD
-	 GnOy8bW14ickG5o88ZmwENENjxL6uzrpwKQU2f+yBxMEt05YMdwZnRmswt+lnbXWUr
-	 i2Rfp71S3A2mg==
-Message-ID: <sashiko-outbox-170087@kernel.org>
+	b=IAgSIUQpUfkbGvBRUw/4Adjf6pXfztrxf8rDU/KgaiCU4qFzTZmhoI6QzExBNR9OP
+	 QImwergpRoc8EvrW6zYNqE0XDPBh5aylfcrlUqrNfr+00k73UJBPOwnjJeTgknGts7
+	 VDmfu4oXWZf6ZYst/oW22EDCfNLUPLjeY9ezdx1HOwCyTvf8idlRSCPipF+Xl+gAqU
+	 H7/SGjgkt3ih2vFdKMRFq47GSqciHmaD8/UGTRW621vLAE8N56xs9Y+PmM4yyZVGBI
+	 AZchsCsd6m93Zy37rtaqSXk5V8JtmZKiSEaP626DWujluOAgfIzONvkBp8+1K+Tk0S
+	 H0L5ucedm9iWw==
+Message-ID: <sashiko-outbox-170090@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6 06/39] mm/vma: tidy up map kernel pages enum values
+Subject: Re: [PATCH v9 12/15] s390/vfio-ap: Transition device migration
+ state to from/to STOP
 Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?TG9yZW56byBTdG9ha2VzIChBUk0p?= <ljs@kernel.org>
-Cc: linux-usb@vger.kernel.org, linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+To: "Anthony Krowiak" <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261013-b4-mmap-prepare-vma-flag-sanify-v6-6-1aa3c9b139f9@kernel.org>
-References: <20261013-b4-mmap-prepare-vma-flag-sanify-v6-0-1aa3c9b139f9@kernel.org>
- <20261013-b4-mmap-prepare-vma-flag-sanify-v6-6-1aa3c9b139f9@kernel.org>
+In-Reply-To: <20261013153219.3534306-13-akrowiak@linux.ibm.com>
+References: <20261013153219.3534306-1-akrowiak@linux.ibm.com>
+ <20261013153219.3534306-13-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 13 Oct 2026 16:06:12 +0000
+Date: Tue, 13 Oct 2026 16:08:14 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> MMAP_MAP_KERNEL_PAGES is a mouthful, discard the MAP_ as that's implied by
-> MMAP.
+> VFIO_DEVICE_STATE_RESUMING to VFIO_DEVICE_STATE_STOP
+> VFIO_DEVICE_STATE_STOP_COPY to VFIO_DEVICE_STATE_STOP
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> Terminates the data transfer session of the vfio-ap device state
+> between the source and target hosts. Release the migration file
+> state (ap_config buffers and file pointers) so that a subsequent
+> migration captures a fresh AP configuration rather than serving
+> stale data. Since the vfio-ap device does not virtualize a DMA
+> device, there is no internal device state to incorporate into the
+> vfio-ap device on the target, so return NULL since no file stream
+> is needed in the STOP state.
 >=20
-> Also while we're here delete useless comments for mmap actions whose names
-> clearly indicate what they are for.
+> VFIO_DEVICE_STATE_STOP to VFIO_DEVICE_STATE_RUNNING
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> Migration has been cancelled. Release the migration file state so
+> that a subsequent migration captures a fresh AP configuration
+> rather than serving stale data.
 >=20
-> Also update the userland VMA tests to reflect this change.
+> VFIO_DEVICE_STATE_RUNNING to VFIO_DEVICE_STATE_STOP
+> ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> Migration has not yet been initiated. No migration file state
+> exists to release, so just return NULL.
 >=20
-> No functional change intended.
->=20
-> Reviewed-by: Suren Baghdasaryan <surenb@google.com>
-> Reviewed-by: Zi Yan <ziy@nvidia.com>
-> Reviewed-by: Gregory Price (Meta) <gourry@gourry.net>
-> Acked-by: David Hildenbrand (Arm) <david@kernel.org>
-> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013-b4-mmap-pr=
-epare-vma-flag-sanify-v6-0-1aa3c9b139f9@kernel.org?part=3D6
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013153219.3534=
+306-1-akrowiak@linux.ibm.com?part=3D12
 
