@@ -1,77 +1,74 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFAB05372F5
-	for <linux-s390@vger.kernel.org>; Tue, 13 Oct 2026 15:53:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 784FE516140
+	for <linux-s390@vger.kernel.org>; Tue, 13 Oct 2026 15:55:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791906789; cv=none; b=DRLUF3ulEBojPieUDmnXHj+8enZ7ozYqxPFCOfhw4dIrO/0Usgc2VkCgPnJe6zyJa09FhD7xQ1vmYy/cS/qbEQ0aBGuMZY4GaZoosFcOPvbIj+ahFXuw2VLcwslpuSJThLt2MTg6KgCah/X7+pUIxXBaf65jcq/kGZFZz4O7zRw=
+	t=1791906939; cv=none; b=nIBWiXmlE+9Ge0QDfOaCq4OzGlS2703wy60ptWOoWFpIlBdHgWiKAQvvvIdwU83xRDnH2ADwxi+a3Zj87TstJoLeb7n2leS8eQxFLremkP1al8Uy6fMBx+9Wyakigh+J0Tf+56rXJ1bQJvT/DMlRaBQ2/ZLWgEYMeh8BvyQpBmk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791906789; c=relaxed/simple;
-	bh=zf7tb1RehJWB36ccpkcNAQPo32LB71OH8RKjR0roLkY=;
+	s=arc-20240116; t=1791906939; c=relaxed/simple;
+	bh=VxLmm3woT1jolNG9zeVZs4NC0enDXGWmr6g4ssNh7Os=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=DuhE3AiS2VG4yhtzfpSlF4jkkyq6QDJARJFprzdPyZSDLJw30lUgXDiL1COBo3rogKsNyjb1H2TRaobcRNLZ1eQFyjj+cJ/6uLlk272l3VhH4jNqkYE/gJBpvHm5+EZgmDOw5zk18atEXZUyQ5cZ1uy6iUIrq3Xo2rB5fZ4nqP0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eyaq2c+o; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=rHyOu24NvPIHKl1eN3SsSmfl3iaN+jbuhorhngCaG4l5tiCaZtpHJ/1iu3cnYWR93hkLaQrc6J6Qi70kodb0U7V0CgN4m2Z3oOW6oIYS1d7MI88M/zlu3v0KpI4NRgDeVuvVDaRGV0oeSNlMiYx4n/f3VTTQirw4ZPDfK4nR4Yg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TE23+o8o; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eyaq2c+o"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 315E11F00893;
-	Tue, 13 Oct 2026 15:53:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TE23+o8o"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA1D71F000FF;
+	Tue, 13 Oct 2026 15:55:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791906788;
-	bh=MbtiwVEyWLZG12pb4x4VELcHzzdpmC3QzkQF82SO+kM=;
+	s=k20260515; t=1791906938;
+	bh=VxLmm3woT1jolNG9zeVZs4NC0enDXGWmr6g4ssNh7Os=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eyaq2c+oouTOWOvkDjxS4Bgjj/28Ygv/NiGAQwAFsVY7i1FiX9oRNj2r8lID1bfmo
-	 p1JEPevwljPqdnhEz1yV5qkLmEJc8QZXKjMq5hjsvi7G+UnxnkFPd50zSEnBh7TKAS
-	 7u7fEPNF91xblxZOJ91OPkrJGFpzVb/jOE3QFT/te4pguB+erMNa0+HoN/KOFnOLWM
-	 CycqopzgHu/aYm22SYDxFZqJk37NTKbW8Vbeey9vfJbwZJ0W1ey2B0jsynGudn/MFj
-	 Dwb28vNLRK4ghBOUaUbm/w6WpkWcAuakj2Pn2nRXPW2jNtIopYqIKdB9tIyQ8VL9ml
-	 welp6bGHlVgKA==
-Message-ID: <sashiko-outbox-170058@kernel.org>
+	b=TE23+o8oTayswfPXprUHBi5DK1LYjuoa3CiqOEv0J0HHP64Z9FZlHMf21I5qArlqY
+	 lY8qu6CH63VY0X6ojk2ddFU1+IprdgOzaB8OFETBbJvk+ML3FoTChfENnazJ8EzRHJ
+	 s2LwMCn7QCZuiATo+5POAaSAovMm8pVqYlcASxqGbnJmDKfjgo2xWg9CzJC8XYZ9I9
+	 OtnZG4Ears4LoSGq9KWm8N5VpohagF/3jexqU3glU4pV70d5FtpHRrf4WZGKtvb2Hs
+	 4dFlkUE90GgcqeIn72rYofKX6AfnnT4w3z1wUfSNJeFcRlsbq564N+wBXzOf0YCufi
+	 3Ausur131xjtQ==
+Message-ID: <sashiko-outbox-170063@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v6] scsi: zfcp: Fix out-of-bounds read of bogus status
- read buffer length in dbf
+Subject: Re: [PATCH v9 06/15] s390/vfio-ap: Transition guest migration state
+ from STOP to STOP_COPY
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Ajaykumar Rajappa" <ajaykr@linux.ibm.com>, linux-s390@vger.kernel.org
+To: "Anthony Krowiak" <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org
 Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261013154041.393716-1-ajaykr@linux.ibm.com>
-References: <20261013154041.393716-1-ajaykr@linux.ibm.com>
+In-Reply-To: <20261013153219.3534306-7-akrowiak@linux.ibm.com>
+References: <20261013153219.3534306-1-akrowiak@linux.ibm.com>
+ <20261013153219.3534306-7-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 13 Oct 2026 15:53:07 +0000
+Date: Tue, 13 Oct 2026 15:55:37 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-> zfcp_dbf_hba_fsf_uss() and zfcp_dbf_san_in_els() derive the payload
-> length to trace from the channel supplied srb->length without checking
-> it against the size of the status read buffer. A bogus srb->length makes
-> the 16-bit pl_len wrap or exceed the payload array, so the trace code
-> may read beyond srb->payload.data. In addition, the u16 pl_len cannot
-> represent the original 32-bit srb->length, so the raw value is lost.
+> The transition of the guest migration state from VFIO_DEVICE_STATE_STOP to
+> VFIO_DEVICE_STATE_STOP_COPY begins the process of saving the
+> vfio device state. The vfio device state is comprised of the guest's
+> AP configuration which specifies the adapters, domains and control
+> domains to which the guest will be given access.
 >=20
-> Add zfcp_dbf_srb_pl_len() to compute pl_len in one place, and use it in
-> both trace functions. Check bounds on the full 32-bit srb->length and
-> clamp the number of traced payload bytes to FSF_STATUS_READ_PAYLOAD_SIZE.
-> An oversized length is thereby not dropped, the readable part is still
-> traced.
+> To begin the process of saving the vfio device state, the VFIO AP device
+> driver opens a file stream that will be used to read the source guest's
+> AP configuration.
 >=20
-> If srb->length is neither 0 nor within header plus payload array size,
-> additionally write the raw 32-bit value as a separate "fsf_len" pay
-> [ ... ]
->    precedence over pl_len.
+> Note:
+> This commit introduces the file operations structure for migration state
+> files with a stub implementation of the read operation. The complete
+> implementation is provided in the subsequent commit.
 >=20
-> Fixes: a54ca0f62f95 ("[SCSI] zfcp: Redesign of the debug tracing for HBA =
-records.")
-> Fixes: 2c55b750a884 ("[SCSI] zfcp: Redesign of the debug tracing for SAN =
-records.")
-> Signed-off-by: Ajaykumar Rajappa <ajaykr@linux.ibm.com>
+> This incremental approach allows for easier review of the migration
+> infrastructure setup separate from the actual implementation logic.
+>=20
+> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
 
 Sashiko has reviewed this patch and found no issues. It looks great!
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013154041.3937=
-16-1-ajaykr@linux.ibm.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013153219.3534=
+306-1-akrowiak@linux.ibm.com?part=3D6
 
