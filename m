@@ -1,143 +1,80 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86E975372F0;
-	Tue, 13 Oct 2026 15:33:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 964C747AF69;
+	Tue, 13 Oct 2026 15:34:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791905583; cv=none; b=pcssRlVZ4blF5LLK/bhDxX5ihl9EpVmMVpnDnmmX0vwwtSmnfSjA/m67DOz4iQzWdLr6bU65e/I75m8g7lECVtkIjvk0wNTSfIKiS7n6GSUqMQ39PUtlTtgIaH5pepeDNqafnKMHMVoHmMCIzBzcyTUwXZFD3bCO90HTCIfDx9g=
+	t=1791905672; cv=none; b=f4IxuDR5MzWdgD5B6i2qCutUTYNCeocLzesVjhjQ3xh7BbcU+3iM7WRcLzQgy3C+gRqWhKUpHoFUdtJ2eGFubvwSY8G6bOWylicf2HygxvjmHM5ZRDL60gCtd10MNXzyY80QP4YTo/p07007F35S9Rr08osZOIxoG5xkv1wlbSQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791905583; c=relaxed/simple;
-	bh=1MNpwmfcMiZlbww9F5T8qk/Y3A+K5cCykLmyyzbsxII=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=J4ffK4rYcAfYmVFcV35MH/+DqPXJ2fERNWS56QU5h1Am98ebRLFUGbYV2lM1YDini+86agQJaeGC86pJ2xBy+P4LZ4n5WPmNKemzbbHMkRl2E4o8G+EEKH8V9u1BT1p0hhpP2Ig5Eh9hrBp89rrPUmvg6Tw1hRqS2bJuqcDttYk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=batOYBlA; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1791905672; c=relaxed/simple;
+	bh=S30RohOVYzrMBuZfvhMPezMqELdMMuQOqYxosGtFHq0=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=k/rznjhqEW5ENF2rJIhWRUlhU5ETH7kdHNfgUXAC4ONd7Mr5SjtQy+CaBZ0GauaoLhkz6idANYA7Z12lp7d6/XiBeueuDzuobKoYtznxCcgIjqOWOws8ISZ5REAaOSYT1tAOdkVLIvQCuIYT8fPXnerxAk8JGeQ2F4j9eEDDYmQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UKw2XfzS; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="batOYBlA"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69DCtlXH2016607;
-	Tue, 13 Oct 2026 15:32:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=qg4VdgFKzBFMkL6A+
-	koKUiGfjurci+RSLcEK9fmi54k=; b=batOYBlAta4258so7bVLjtaLcPKqW92lS
-	cBQPLWvjUy4x+pl3LgjFDh+b7j3U0tKNnmR4ORfIpnLLoOlgDxwMhYYQF0UQMjEt
-	DPTZr1TNkLOLgpCObVcRRvbjANAeFySMGUeuzGKL5gu5iN/5yLS5qaXmbgq5pqiu
-	/OcQT9uB8nidvlRwGxPc60zwkwA0Id5L+uVMIcEaVrhG9tYEMkGQn6PaX5vWnar7
-	aIrRpDbtFQQrNmZVQqGeowwyFYN7/OiJ+53dpknME36CqEYCgqpf56XE7pusMwzT
-	fZ+VWFFsso8NPjI+DoRk07eIte+okxsCPav+kiia6Rvtis/FPEblw==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dugf2pv-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 13 Oct 2026 15:32:49 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69DFWD3r2709367;
-	Tue, 13 Oct 2026 15:32:48 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h816h2jug-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 13 Oct 2026 15:32:48 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69DFWl4E23528138
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 13 Oct 2026 15:32:47 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6C4F158055;
-	Tue, 13 Oct 2026 15:32:47 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CC8585804B;
-	Tue, 13 Oct 2026 15:32:45 +0000 (GMT)
-Received: from li-4c4c4544-004d-4810-8043-b7c04f423534.ibm.com.com (unknown [9.61.17.246])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 13 Oct 2026 15:32:45 +0000 (GMT)
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com,
-        pasic@linux.ibm.com, alex@shazbot.org, kwankhede@nvidia.com,
-        fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com
-Subject: [PATCH v9 14/15] s390/vfio-ap: Add 'migratable' feature to sysfs 'features' attribute
-Date: Tue, 13 Oct 2026 11:32:18 -0400
-Message-ID: <20261013153219.3534306-15-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20261013153219.3534306-1-akrowiak@linux.ibm.com>
-References: <20261013153219.3534306-1-akrowiak@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UKw2XfzS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A53DF1F000FF;
+	Tue, 13 Oct 2026 15:34:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1791905671;
+	bh=S30RohOVYzrMBuZfvhMPezMqELdMMuQOqYxosGtFHq0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=UKw2XfzSFfN/YYb1OHDUVLqVbdY8Z9y6aBHds5/vSsICHNKDCc0UoOrLAggeW0/1Y
+	 LdoQ7TuoeBZh4Hy7DynypR4t/7+ISHjamju/ECH7TFiJgxBdvp+i9FLP16l2VYlm7o
+	 IjykinOcRVquQ3fwIf1aqdolpprvTufdQokwPF4bysi5tKiVBK26EnXX1SpqJ+4UFv
+	 88q8J62HjD9XH61MeO3Z8U6RguGOyv5oySWy9TAhVbwwicSzfNirUCdhuI6f4CnRM+
+	 urRbHvORM1NLBb46yNMkimNCNTAayqO+D50zOUDd2/pn4mcSnaVuWrHuiRoCwj9l76
+	 HlmxKAR0Lflfw==
+Message-ID: <sashiko-outbox-170018@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v6 01/39] mm/vma: fix mmap_prepare file handling, remove
+ file_doesnt_need_get
+Reply-To: sashiko-reviews@lists.linux.dev
+To: =?utf-8?b?TG9yZW56byBTdG9ha2VzIChBUk0p?= <ljs@kernel.org>
+Cc: linux-usb@vger.kernel.org, linux-rdma@vger.kernel.org, selinux@vger.kernel.org, linux-perf-users@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261013-b4-mmap-prepare-vma-flag-sanify-v6-1-1aa3c9b139f9@kernel.org>
+References: <20261013-b4-mmap-prepare-vma-flag-sanify-v6-0-1aa3c9b139f9@kernel.org>
+ <20261013-b4-mmap-prepare-vma-flag-sanify-v6-1-1aa3c9b139f9@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 13 Oct 2026 15:34:30 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Cr0q4X4D c=1 sm=1 tr=0 ts=6ace4f21 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=mmLkksitYsIcdlCVxmsA:9
-X-Proofpoint-GUID: mKdguggnKv5vA9ikB1JyaGYnzXGeAixX
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEzMDA2MCBTYWx0ZWRfX9Nk1UZqQSMVx
- 6DONiNntCo61hW5+QUd9Vzbr8s4+2d/t0kLwmda9p6E1ULxNRWSsBIhcZXTpDRKpNw7laAbYE3p
- on+sLr/ZrvB+eR9/iqXYDei6pIisLeyxcLK6u2w0ztkFdzeawgtJVdX4ecFwd8CCbdqpkDJBGH2
- 1REy2Sqc02BDWvYsWjxCVHWJYb9oTBYHanrbRYOMz2QEcv2H/vVBW7QWDDRKhRqvug16U04A7Pq
- JirXa4RA/k+w9byt5iXgWo2C/QLgZ7Ts/STIjolmht6r8Va0XLC8rDr1AIZ60rAYqy/S8T1szA8
- plq4CqBqlXdwjA3/5rwqu5vJB80+MFyM3mDtnK+PMCtwspNgzplkPSM9IHRcyqfTumFYxfv+b52
- ZKjcykU2MKBQi8s0JANK/c5lE0VP0L+4Lobqo36sgIPNlg3zyiw3ijbgyPhGG7NcC8HJO15jmz9
- aH2IX7V4assROarNe9A==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEzMDA2MCBTYWx0ZWRfX3g7wB0RzFPEL
- 0ZZ/d9Y//roQEz2CGr/lyaPbz3l08e30lf64xgb/AYRnxA33ydUk1Clfz+4tTEodD9bPipA5DYm
- /mrjwB2d2ivSr8VOBHHh91YEEO0XZEE=
-X-Proofpoint-ORIG-GUID: mKdguggnKv5vA9ikB1JyaGYnzXGeAixX
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-13_01,2026-10-09_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 spamscore=0 adultscore=0 priorityscore=1501 suspectscore=0
- malwarescore=0 clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610080000 definitions=main-2610130060
 
-Add the 'migration' feature to the features provided by the sysfs
-/sys/devices/vfio_ap/matrix/feature attribute to indicate that migration
-of vfio devices is supported. Since live guest migration is not supported
-for SE guests, the 'migration' feature will not be included when the
-feature attribute is displayed.
+> The map->file_doesnt_need_get flag is confusing and the existing
+> implementation has holes.
+>=20
+> Drivers are permitted to change the owning file of a mapping. If they do
+> so, they are required to take a reference on that file.
+>=20
+> The mmap() operation which ultimately invokes __mmap_region() is guarante=
+ed
+> to drop the refcount for the original file the mapping was made under, but
+> this is not true for the replaced file.
+>=20
+> This has been addressed so far by tracking map->file_doesnt_need_get, whi=
+ch
+> is rather poorly named and unfortunately fails to correctly track whether
+> or not an additional put were needed in a number of cases.
+>=20
+> Make life easier by removing this flag, and instead drop the reference for
+> [ ... ]
+> currently (no driver that does this is mergeable for one), so this does n=
+ot
+> need to be a fix.
+>=20
+> Reviewed-by: Suren Baghdasaryan <surenb@google.com>
+> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 
-Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_drv.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+Sashiko has reviewed this patch and found no issues. It looks great!
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 8e69ed286bb9..c63a050a2356 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -26,9 +26,21 @@ MODULE_LICENSE("GPL v2");
- struct ap_matrix_dev *matrix_dev;
- debug_info_t *vfio_ap_dbf_info;
- 
-+#define VFIO_AP_BASE_FEATURES	"guest_matrix hotplug ap_config"
-+#define VFIO_AP_SE_EXCLUDED_FEATURES "migration"
-+
- static ssize_t features_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
--	return sysfs_emit(buf, "guest_matrix hotplug ap_config\n");
-+	/*
-+	 * SE guests do not support live guest migration; emit only the base
-+	 * feature set for them.
-+	 */
-+	if (ap_is_se_guest())
-+		return sysfs_emit(buf, "%s\n", VFIO_AP_BASE_FEATURES);
-+
-+	/* Non-SE: base features plus those not available on SE guests */
-+	return sysfs_emit(buf, "%s %s\n", VFIO_AP_BASE_FEATURES,
-+			  VFIO_AP_SE_EXCLUDED_FEATURES);
- }
- static DEVICE_ATTR_RO(features);
- 
--- 
-2.53.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013-b4-mmap-pr=
+epare-vma-flag-sanify-v6-0-1aa3c9b139f9@kernel.org?part=3D1
 
