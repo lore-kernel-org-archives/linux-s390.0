@@ -1,118 +1,141 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f180.google.com (mail-dy1-f180.google.com [74.125.82.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEFEF3A0B24
-	for <linux-s390@vger.kernel.org>; Tue, 13 Oct 2026 09:06:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56CDC33F59C
+	for <linux-s390@vger.kernel.org>; Tue, 13 Oct 2026 09:17:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791882368; cv=none; b=CrfH8z2x9SZZN1lyTD70k5Oc486R88E82MwiSKh35vlXbEWJrCpWxkG8ETNtFDwyAXn8h13mrSPpKGK+oHj2N7aIDYlpWs6x5CRP4W5S4L7gmSLgZidtviYW3wC311WJcz3rtFTNgIcbym77uO9Q6qeoHVwvEXJ9W1XmavkQvJs=
+	t=1791883076; cv=none; b=nFcrax23wFpPhOtnLJn5iqGFratdeRnpuKH1wEYedoP+/rVWjgaCT+vz93pm/3bEJKTR6wAGckNn67gUhEmPsROjO4AGc6vOzf27xsFIaX2sOPBnOo+krvk9/AfyQUHzqdChia7olgIkCACefuQRN9KL+RawiJf3NahyVsEnhI4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791882368; c=relaxed/simple;
-	bh=u9VL4GuHh3TMLwf51Mv+EGBAFUXjVMJn9OQPeQBMBGc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=j+zvYGRJdvCJYNsxm4U1BJnRwTTXtXQBaga6PGuby0WR9J7L0nwuLh2yal9BopCIdJIeBTU/x/hqHVk93xdL9meDNJ/Sn2bUDEarf9j8NHQHyHv4I68+V3iMiqQZNXk2OLAaFCty41P5H8/G+ZjMMIK+IvVbFo4nXPPBIQ9cynM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OxndzTLt; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1791883076; c=relaxed/simple;
+	bh=b0WouZwkIzP19EsEq0Zzmc3OoBcJHUB8MdkLHNx6RI8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=X87Gp1t+ICaYXbisRqmZyqMYXJjVikDhiXQPNzaEzL9TSAjjGfJX0N4/aegRpRPJAneRZ8BMsn0f3cX2dihLgG4nakNKICvcBM5E1elTOogRPKM6ZgJ7/q7nSZ0kQZIIXGhHShRHgXR/oD8jrEuHyuzbXmYMVvWybkiTyYhUQUk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f0WfxoEw; arc=none smtp.client-ip=74.125.82.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OxndzTLt"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69D2F3AN1775867
-	for <linux-s390@vger.kernel.org>; Tue, 13 Oct 2026 09:06:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=+a6W/4SgDxqbN6o4SxJl9Ryf9FDJIe
-	xJS9nEKVxVAqQ=; b=OxndzTLtYDdDFt3cow/4hyWsvvlkiWK7NILi3H+TB4fMPL
-	o84Rfy6dxzYfbi4JuAdGOz1XEK/rSybg+qVYEjv4We27Ns0cx6+JzAdyYqIiUG3+
-	r4mTWzLVIuyWDyPUMz5mSUNRKx4DyAOzDShrjF4bNzDG9TPtmrCUBzvQOh8IcMgT
-	F9dpAQmpe6Wr+ZbVXXdEXbYbbLvm5Se8gKHcZZdh3+6f67Jl5QtwFDAaILAvrwaW
-	r6nTkDRckBV36MVXOfFA+UJ7QIsjzW0pyJYgsHerPOtM9iDPcCLx0xHrJdQoS1ZI
-	ppCTRTwRYooforJy71xR8ULVObX+MgnoDu83G8MA==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dwhvr85-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 13 Oct 2026 09:06:05 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69D8Tqb72660311;
-	Tue, 13 Oct 2026 09:06:04 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h7ypps5c3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 13 Oct 2026 09:06:04 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69D9602a29753620
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 13 Oct 2026 09:06:00 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5A76F2004E;
-	Tue, 13 Oct 2026 09:06:00 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1967620043;
-	Tue, 13 Oct 2026 09:06:00 +0000 (GMT)
-Received: from osiris (unknown [9.111.34.214])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 13 Oct 2026 09:06:00 +0000 (GMT)
-Date: Tue, 13 Oct 2026 11:05:58 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Sang-Heon Jeon <ekffu200098@gmail.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        linux-s390@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>
-Subject: Re: [PATCH] s390/sclp: Remove redundant memset after
- memblock_alloc_low
-Message-ID: <20261013090558.9443A44-hca@linux.ibm.com>
-References: <20261012150404.555918-1-ekffu200098@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f0WfxoEw"
+Received: by mail-dy1-f180.google.com with SMTP id 5a478bee46e88-33bb5afa736so292330eec.1
+        for <linux-s390@vger.kernel.org>; Tue, 13 Oct 2026 02:17:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791883074; x=1792487874; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=MIhtYvHUWNyU/lt1efJRDPOudyxWKfzxLqq2jTOG1dg=;
+        b=f0WfxoEwmmLYF4PLxdosm/HQ23XDjboFttsfEtyuUgup0BM76NJvHlbraYakKLdb9Y
+         jRaD3Y+sX7GU6DVzuJQ6hHZTJp0TpogKFDWzVZxaY8WF3qIFMCsvWFIhk/YQ3wrood1F
+         N9PMlmRjdhxJwWKRlLXs1OjOmLe6QRTrTRk3BFKlHnm2H+Tbjcx+ngDbEgj8/c02p0nX
+         R5obAX97644MNco9DL8KhBbW1H3dj5a1rPXvtMeyL5bUuIDcGnywXU0yDj/PO5l2Cb7E
+         OnpTKxONiAQO1j7dZU33EbF8dAf4uv6384N/aH5aiMm1SPQ1Uzx9uIGQjVpVvlMwrDUA
+         hrtw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791883074; x=1792487874;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=MIhtYvHUWNyU/lt1efJRDPOudyxWKfzxLqq2jTOG1dg=;
+        b=ma0YhoVnI2gQFwB/oAga+bRhOAmLoLk6umeAv0g82+I6PDz7lH2yg5UiTCn+8lLs+M
+         mQgdcN9fzq1R6ZXANMCjkyNcYCJyKqosFyr9Gou8eKrPU+X1Q7XGOHP8wNv9gMkd/m4e
+         3UaeNJbkDu9ES3JkUxbUeyeSoJs9+u2R/zFTHt3QIOGcjmnQBMCaQi04Kk4vOp6o2jhj
+         1Lk2I44YI2RXGQXeASgxbFXUZGWIEk1yL7iN6/R3qjW3B3RoO9Itzz8eG2mBDwcsuHRX
+         fQyWhi5tAwJf2YGb+BxJ8buMcyHg0thqGKc6b5LrrjlCvyVF7bAPBzuJL63CW0ifoo+I
+         7rfg==
+X-Forwarded-Encrypted: i=1; AKwUvBxQN5TsIndJMGggfyzBT8NL6oEGfCdtHX8IoUEYcBeJuu4z7IT+hz7QaS3SKPkmEmkZwEobuT8KobOW@vger.kernel.org
+X-Gm-Message-State: AFq9FYL7UyFe6z+U7d3PB0faVdPlg5h+b00xVA2EjnoC65pB012JaqMs
+	xeI1+3+BdxlclGYHt0X74uAVKAWmggmviXy383lU01ngmo6jT6xNb006
+X-Gm-Gg: AYBFou0qXUOEHmywcI60Q51FWmRmexAHPCcuNWIe1kcjqG3z8YOm/WXFs/NpEg6k6dk
+	9hYEPDwiak3m8cPrwYNwfeSUGK2I5bmVNGFemIR/TCctz/1D6swkKIF0MXNWf1CpgaIvQDHi3rF
+	mZhuYKbQMp9zvwVVt7E5NGsYfKn4hNiuB8Ig2l2XHwWxvXIvqp0U7uVc9zWKQaYx6nRxWLFVqYI
+	/jQGkzf7H0euZWeTRrZET9qnrg7pQrJsudexY8Kg+U0CJ5pSJr6pqLAFCfu0zHtfpgnCsXM7BX2
+	HRp0Yg8dO3Zq1h1EHWTKQ4R+a5sJwpCW9kb4MY88553F05E3Sn7Zuas4TaDGwCfkpcnokglnF3l
+	gCmRZ2F3vvU2sfrYZV/VJW7ABIvo7PXr6E7dyT8BvSw/6D+lgpS/6eAojNjxo8XDOznveK0A0FV
+	Ivqr/80oHuoFNzybD+q4hLNRDn81x0LhMfAypfqAW7775sfOMFPUklGCQU8lCJMcSNYMotKt1jj
+	XrK8i4UWsXbTLkwlS9xEUJtkeV9r9ND/2t/BfHBCUuV9KfYj3LDt34wh3Ddm5d5
+X-Received: by 2002:a05:7301:428b:b0:358:7ed4:a049 with SMTP id 5a478bee46e88-3587ee40938mr18688457eec.0.1791883074227;
+        Tue, 13 Oct 2026 02:17:54 -0700 (PDT)
+Received: from localhost.localdomain (45.78.65.84.16clouds.com. [45.78.65.84])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3537cb6a279sm41437975eec.30.2026.10.13.02.17.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Oct 2026 02:17:53 -0700 (PDT)
+From: Chengfeng Ye <nicoyip.dev@gmail.com>
+To: alibuda@linux.alibaba.com,
+	dust.li@linux.alibaba.com,
+	sidraya@linux.ibm.com,
+	mjambigi@linux.ibm.com,
+	davem@davemloft.net,
+	edumazet@kernel.org,
+	kuba@kernel.org,
+	pabeni@redhat.com
+Cc: tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	horms@kernel.org,
+	linux-rdma@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH net v3 0/3] net/smc: fix link group scheduling, registration and work lifetime
+Date: Tue, 13 Oct 2026 17:17:13 +0800
+Message-ID: <20261013091716.1210420-1-nicoyip.dev@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261012150404.555918-1-ekffu200098@gmail.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEzMDAzNCBTYWx0ZWRfX5Cnb/aCRodtx
- KPc7iEUT+rhB4k+Pv9+lwk0jCFWPzyfa/wImurx1GXWCKfXFPuJtDDjtTJ2gz9SsvE3Ku2teAki
- gWO3OQmJwacrAYj0D7DKV4VMBVPCbI9Js4rfnFBXVjtubzbZYvdDVf8MPEXeX56enorv/fV9G8x
- oUwqL8R8ZQVGyJjGpodmjkYHCGjyfp4CjZ6/xjkuo1YK7BBTCg0qfrmV13ymflK6IckUFQ8TKzr
- iCd7GEys8tKIj2+qXF2IsF8ZkbyJe0bdwJtymtMatXWtL3xp/mhMVnTqH9BO8GSFM4d/18AN6Kv
- O7c5fhqFjXqS+O4Gof1V2zk+IP0vdaiX1Rydpn5GlB6WlyrS4yU0bAotNOchRRovr8OJSoQu50N
- 6NH4kSA/Zm+j98/evpT+zUfWoEQOkjh6FeCIYqwqemDVk0m8lt7laMehxlAEt76B1RJENnDQkSV
- vpaExnizEpsyLfLWCGw==
-X-Proofpoint-GUID: FuAaOgdS_vi7ALTLzl4LgTqcrORIJNS1
-X-Proofpoint-ORIG-GUID: NFJs5XHMXJVAV5uqJMWWTic19AMoc_r5
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEzMDAzNCBTYWx0ZWRfX3k++8u1/T3pf
- S4IDTXld+wUgfEqKZGMlmkft+BGhjOzqVP/w5ir6JnPJvQZNODdb2Iw+oR+ugme4gN7ik0BR50b
- /Gw19BdU6qkfcXAtkb+yrKC/es34rrk=
-X-Authority-Analysis: v=2.4 cv=btHZl0ai c=1 sm=1 tr=0 ts=6acdf47d cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=pGLkceISAAAA:8
- a=Zc1Q7ITUHv_1_6mWdr4A:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-13_01,2026-10-09_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 malwarescore=0 phishscore=0 impostorscore=0 adultscore=0
- lowpriorityscore=0 priorityscore=1501 clxscore=1015 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610080000
- definitions=main-2610130034
+Content-Transfer-Encoding: 8bit
 
-On Tue, Oct 13, 2026 at 12:04:02AM +0900, Sang-Heon Jeon wrote:
-> memblock_alloc_low() returns zeroed memory, so the memset after the
-> allocation in sclp_early_get_core_info() is redundant.
-> 
-> So remove the memset.
-> 
-> No functional change.
-> 
-> Signed-off-by: Sang-Heon Jeon <ekffu200098@gmail.com>
-> ---
->  drivers/s390/char/sclp_early.c | 1 -
->  1 file changed, 1 deletion(-)
+This revises the two-patch v2 series and adds a separate fix for the
+running-free_work lifetime issue identified during review.
 
-Applied, thanks!
+Patch 1 serializes delayed-work admission with the freeing transition.
+Patch 2 gives early cleanup a single teardown owner, pins its callers,
+and rejects first registration after teardown has claimed a new group.
+Patch 3 gives queued/running free work its own group reference while
+retaining asynchronous cancellation to avoid the existing wait cycle.
+
+Each patch is a complete logical change. The work-reference acquisition,
+cancellation and release changes all appear together in patch 3. Patches
+2 and 3 record their prerequisites in their permanent commit messages.
+The pre-existing callback issue remains until patch 3; no earlier commit
+acquires a work reference that needs a later patch to release it.
+
+The original KASAN excerpts in patches 1 and 2 came from instrumented
+runs. The registration and running-callback gaps were identified by
+source review. No new runtime reproduction is claimed.
+
+Changes since v2:
+- Serialize first registration with the freeing claim, and clear conn->lgr
+  when registration is rejected before it acquires a connection reference.
+- Add the running-work lifetime fix as a separate third patch.
+- Correct the cancellation comment and document commit dependencies.
+- Rebase onto current net/main and validate each cumulative revision.
+
+Validation:
+- Applied the exported patches one at a time in a clean worktree; each
+  resulting tree and commit message matches the corresponding source commit.
+- Built net/smc/ with W=1 after each patch, with CONFIG_IPV6=y and disabled
+  (six successful builds; CONFIG_SMC, DIBS and INFINIBAND enabled).
+- Strict checkpatch: zero errors, warnings and checks for all three patches.
+- Runtime and SMC hardware testing have not been performed.
+
+v2: https://lore.kernel.org/r/20261003183237.2284245-1-nicoyip.dev@gmail.com/
+v1 scheduling: https://lore.kernel.org/r/20260927074520.3694663-1-nicoyip.dev@gmail.com/
+v1 early cleanup: https://lore.kernel.org/r/20260927063607.3691520-1-nicoyip.dev@gmail.com/
+
+Chengfeng Ye (3):
+  net/smc: serialize link group free work scheduling
+  net/smc: serialize early link group cleanup with termination
+  net/smc: hold a link group reference for free work
+
+ net/smc/af_smc.c   |  8 +++++--
+ net/smc/smc_core.c | 59 +++++++++++++++++++++++++++++++++++-----------
+ net/smc/smc_core.h |  2 +-
+ 3 files changed, 52 insertions(+), 17 deletions(-)
+
+
+base-commit: aaaaf87ea99b8766c9a8aa0e71aa42e6bc8a5320
+-- 
+2.43.0
+
