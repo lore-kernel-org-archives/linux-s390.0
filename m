@@ -1,35 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16D5551EDFD
-	for <linux-s390@vger.kernel.org>; Tue, 13 Oct 2026 22:56:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D910751D538
+	for <linux-s390@vger.kernel.org>; Tue, 13 Oct 2026 22:57:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791932216; cv=none; b=D9HZlP3C4R1dMYd/YNG2znB7o6btXQsuGEEDHmfa55YfBPvu4nssZtX+iwW0HBwtLiIJeWPxrBHFoxplwSzQLyuXCRlAPHpi0LeXYJ9YV58oToctqMMYZgpgWXP4YH4NSZWmiB3CIGIZ/TXCnTIa7DzAUpwLp8DbIXiGSzQx+bc=
+	t=1791932259; cv=none; b=C21VyJ8mKqzj23+dWS4x3vc6avTT6VNKyb1iE4m+Xxc1L0HqG6K2L57I2Ib+fv0Y5by3AaDPeREpWuJVP0DewqXUh7QPlFBBbeVy+h0PMfXzd+ReONH87pV68QG2CuKzqZ8dQFYlLiVPd8pKMHUkXlTfTfKeBOQk8DZGNaYanIs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791932216; c=relaxed/simple;
-	bh=/OiBLdMWYxWLHuhpfX8EUpXWitwq95gHYfYD1aOfa1M=;
+	s=arc-20240116; t=1791932259; c=relaxed/simple;
+	bh=p/1r0cRiOqmNQHo59ZT6X4W3YiYVuRkcdQHsw/WWFVA=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=HM9vAhCKxsDJKYpstwReBpOrNtoKsHWB0HV1oWPKgS2689WXF52ehhezBFbme09m/0EKrvPGzioRyadUZqec61zOcvd8KiEVVpe9qy+WD5V3TAEIvjYRWTPCWxzUDFxdNLN/PeR1d4kizMl4j0Wio2MiV60UW6ksZgpNg7ifCiM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ok+BWzW8; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=OIlQXFhhCqiY0BYR9hwsIwmoo+jtg3yAgcXXDPrnGZ547TgAb7SzrDa0dqPTEw0OqP3AtYLbe/RAEbQMqo53oUKm38cnlzsCR/EmpofG6CG9mez2WWr3ghi7BcwYiL27Fsz+5G5+5bbzckfOf75IxtQEYegbwkaUU30uXMAcQMc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MgFLhfUM; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ok+BWzW8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A340B1F000FF;
-	Tue, 13 Oct 2026 22:56:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MgFLhfUM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 184311F000FF;
+	Tue, 13 Oct 2026 22:57:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791932211;
-	bh=gjkgxxinhqTDIQGP/ABYkBIuyO2cHEre5iS+nuSjUYY=;
+	s=k20260515; t=1791932258;
+	bh=/tsBWa/AeIHpWYnSfggb/tcEzc59MfiSDgJMKAguNHg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ok+BWzW8LTbJHjPWuh2+er1A+/R/lxIJ7ow13QTtxixuHzRI9G7BfQ2KfZngeepEP
-	 +LQBLh2wQN8falGFtp17zZgWQjm+cKYDabUW8hLhYVMmz6U/XO0GptExn/p0pP31DL
-	 szpp9BUUkniN3hM2HsaDdfw/u+CK7YFTtG7lbG5CCOdzYN9IeWFBPXfdXJZNBhRICW
-	 imncxFIuwKTgSSLpzUSS4AEVdm+mT/kE5cp6JbpeDGOvVgXUSo4Gmd2OIp3KdcBS3k
-	 6SjUDuP4PlpmeaW+oAFD8tRn2sTBNkWkiyzwAwj22wy1ZkNDN1F1Cr100NF22xcJgH
-	 s/ophu6aLIzPg==
-Message-ID: <sashiko-outbox-170611@kernel.org>
+	b=MgFLhfUM1TXGEfGMJsgcAb6Y1wRILjIj+J3R430oMlOvQtyf5Jv0IB+lzvt1e4uzL
+	 67Q2NgzwDZcj0h0Gp+T4ZaD9fgQpqhU9WOBXb6JeIcXDiW/RmANUUDfYQ0h6pl/r4I
+	 hsAFKKlxYOd3LPAKeNTyC54ujuxFojj1SrrMesYXyVNqoCUi6IKFL2xce+4dIemMTs
+	 G6MjJFNmZLll7yoqdBaXLsVLdEvTrtoUCVBTfMvaHLChoNrsUz/e7sCt7ZqvxZmfgO
+	 q+KVRFyMjefBCAo4ERPG6jZrtvjqAE5PcsoFqWN9Ygr1Yn5uKAyTcrdqfg2Tg5EKX0
+	 R3ORV5tNZHeLQ==
+Message-ID: <sashiko-outbox-170614@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 11/11] kobject: Require explicit initialization of
- struct kobj_type::release
+Subject: Re: [PATCH 10/11] drm/amdkfd: Free queue in procfs_queue_type
+ kobject release callback
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Ian Rogers" <irogers@google.com>, "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>, "Rafael
  J . Wysocki" <rafael@kernel.org>, "Danilo Krummrich" <dakr@kernel.org>, "Miguel
@@ -49,146 +49,79 @@ Cc: "Nick Desaulniers" <ndesaulniers@google.com>, "Bill Wendling" <morbo@google.
  Schnelle" <svens@linux.ibm.com>, "Richard Weinberger" <richard@nod.at>, "Zhihao
  Cheng" <chengzhihao1@huawei.com>, "Felix Kuehling" <Felix.Kuehling@amd.com>, "Alex
  Deucher" <alexander.deucher@amd.com>, =?utf-8?b?Q2hyaXN0aWFuIEvDtm5pZw==?= <christian.koenig@amd.com>, linux-s390@vger.kernel.org, linux-mtd@lists.infradead.org, dri-devel@lists.freedesktop.org
-In-Reply-To: <20261013223946.1836757-12-irogers@google.com>
+In-Reply-To: <20261013223946.1836757-11-irogers@google.com>
 References: <20261013223946.1836757-1-irogers@google.com>
- <20261013223946.1836757-12-irogers@google.com>
+ <20261013223946.1836757-11-irogers@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 13 Oct 2026 22:56:49 +0000
+Date: Tue, 13 Oct 2026 22:57:36 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] sysfs: Use-After-Free in kobject delayed release via devm/memset
-- [Low] sysfs: incorrect documentation for dss_overlay_kobj_uninit() cleanup
+- [Medium] sysfs: WARNING in kernfs_remove_by_name_ns due to unconditionall=
+y deleting uninitialized kobject
 --
 
-commit 25c0a8c68e5a115989252d41a0d4731867415d79
+commit a813e5e5e38ff926a8859f22732d8fde3e0ed689
 Author: Ian Rogers <irogers@google.com>
-Subject: kobject: Require explicit initialization of struct kobj_type::rele=
-ase
 
-Annotate struct kobj_type::release with __require_explicit_initialization
-so the compiler diagnoses any struct kobj_type initializer that omits
-.release. For the remaining legacy struct kobj_type definitions where the
-kobject is static, per-CPU, or embedded inside a devm- or parent-managed
-structure rather than freed by kobject_put(), explicitly initialize
-.release =3D NULL.
+drm/amdkfd: Free queue in procfs_queue_type kobject release callback
 
-Link: https://lpc.events/event/20/contributions/2392/
+This commit adds a release callback to free the struct queue from the kobje=
+ct
+release function to prevent a use-after-free, and adjusts the kobject_put()
+locations accordingly.
 
-> diff --git a/drivers/dma/ioat/sysfs.c b/drivers/dma/ioat/sysfs.c
-> index e796ddb5383f8..7fdd0ca36b98a 100644
-> --- a/drivers/dma/ioat/sysfs.c
-> +++ b/drivers/dma/ioat/sysfs.c
-> @@ -167,6 +167,8 @@ static const struct attribute *const ioat_attrs[] =3D=
- {
->  ATTRIBUTE_GROUPS(ioat);
-> =20
->  const struct kobj_type ioat_ktype =3D {
-> +	/* ioatdma_chan is allocated via devm_kzalloc() rather than freed by ko=
-bject_put(). */
-> +	.release =3D NULL,
-
-[Severity: High]
-Does this setup cause a use-after-free when CONFIG_DEBUG_KOBJECT_RELEASE is
-enabled?
-
-When kobject_put() is called, it queues a delayed_work to execute
-kobject_cleanup() later. Because the struct is managed by devm_kzalloc(),
-the memory is freed immediately after unbind, leaving an active delayed_work
-pointing to the freed memory.
-
+> diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_process.c b/drivers/gpu/drm/a=
+md/amdkfd/kfd_process.c
+> --- a/drivers/gpu/drm/amd/amdkfd/kfd_process.c
+> +++ b/drivers/gpu/drm/amd/amdkfd/kfd_process.c
 [ ... ]
-
-> diff --git a/drivers/soc/hisilicon/kunpeng_hccs.c b/drivers/soc/hisilicon=
-/kunpeng_hccs.c
-> index 0cc2953d59a54..5d083d2b72caa 100644
-> --- a/drivers/soc/hisilicon/kunpeng_hccs.c
-> +++ b/drivers/soc/hisilicon/kunpeng_hccs.c
-> @@ -1038,6 +1038,8 @@ static struct attribute *hccs_port_default_attrs[] =
-=3D {
->  ATTRIBUTE_GROUPS(hccs_port_default);
+> @@ -701,7 +708,6 @@ void kfd_procfs_del_queue(struct queue *q)
+>  		return;
 > =20
->  static const struct kobj_type hccs_port_type =3D {
-> +	/* hccs_port_info is allocated via devm_kcalloc() rather than freed by =
-kobject_put(). */
-> +	.release =3D NULL,
+>  	kobject_del(&q->kobj);
 
-[Severity: High]
-Can this devm allocation cause a use-after-free for the delayed_work?
+[Severity: Medium]
+Can this trigger a kernel warning if sysfs creation fails?
 
-Similar to the ioat_ktype case, the devm_kcalloc allocation means the struct
-containing the kobject is freed upon driver unbind immediately after
-kobject_put() executes, leaving a pending delayed_work on freed memory.
+If kfd_procfs_add_queue() fails (for example, due to a memory allocation fa=
+ilure
+in sysfs), q->kobj.state_in_sysfs remains 0 and q->kobj.sd is null. However,
+pqm_create_queue() may ignore this sysfs failure and keep the queue operati=
+onal.
 
-[ ... ]
+Later, when pqm_destroy_queue() calls kfd_procfs_del_queue(), kobject_del()=
+ is
+called unconditionally.
 
-> diff --git a/drivers/video/fbdev/omap2/omapfb/dss/display-sysfs.c b/drive=
-rs/video/fbdev/omap2/omapfb/dss/display-sysfs.c
-> index ae937854403b1..3d787245f5b51 100644
-> --- a/drivers/video/fbdev/omap2/omapfb/dss/display-sysfs.c
-> +++ b/drivers/video/fbdev/omap2/omapfb/dss/display-sysfs.c
-> @@ -304,6 +304,8 @@ static const struct sysfs_ops display_sysfs_ops =3D {
->  };
-> =20
->  static struct kobj_type display_ktype =3D {
-> +	/* dssdev->kobj is embedded in struct omap_dss_device and zeroed in dis=
-play_uninit_sysfs(). */
-> +	.release =3D NULL,
+This results in a call chain to __kobject_del() which invokes
+sysfs_remove_groups() with a null kobj->sd. This eventually propagates to
+kernfs_remove_by_name_ns(), where a warning is triggered explicitly when
+its parent argument is null:
 
-[Severity: High]
-Does this zeroing pattern corrupt the active workqueue when
-CONFIG_DEBUG_KOBJECT_RELEASE is enabled?
-
-Looking at display_uninit_sysfs(), the code calls kobject_put() followed
-immediately by memset:
-
-void display_uninit_sysfs(struct omap_dss_device *dssdev)
-{
-	...
-	kobject_del(&dssdev->kobj);
-	kobject_put(&dssdev->kobj);
-
-	memset(&dssdev->kobj, 0, sizeof(dssdev->kobj));
+fs/kernfs/dir.c:kernfs_remove_by_name_ns() {
+    ...
+    if (!parent) {
+        WARN(1, KERN_WARNING "kernfs: can not remove '%s', no directory\n",=
+ name);
+        return -ENOENT;
+    }
+    ...
 }
 
-Since kobject_put() schedules a delayed_work, wouldn't the memset
-synchronously destroy the active work struct before it can run?
+Should we check if the kobject was successfully added to sysfs (such as che=
+cking
+q->kobj.state_in_sysfs) before calling kobject_del()?
 
-[ ... ]
-
-> diff --git a/drivers/video/fbdev/omap2/omapfb/dss/overlay-sysfs.c b/drive=
-rs/video/fbdev/omap2/omapfb/dss/overlay-sysfs.c
-> index 1da4fb1c77b4a..9aa16b3dee5ef 100644
-> --- a/drivers/video/fbdev/omap2/omapfb/dss/overlay-sysfs.c
-> +++ b/drivers/video/fbdev/omap2/omapfb/dss/overlay-sysfs.c
-> @@ -429,6 +429,8 @@ static const struct sysfs_ops overlay_sysfs_ops =3D {
->  };
-> =20
->  static struct kobj_type overlay_ktype =3D {
-> +	/* ovl->kobj is embedded in static overlays[]; dss_overlay_kobj_uninit(=
-) only calls kobject_del(). */
-> +	.release =3D NULL,
-
-[Severity: Low]
-Is this comment accurate?
-
-Looking at dss_overlay_kobj_uninit() in the same file:
-
-void dss_overlay_kobj_uninit(struct omap_overlay *ovl)
-{
-	kobject_del(&ovl->kobj);
-	kobject_put(&ovl->kobj);
-}
-
-The implementation contradicts the comment by explicitly calling
-kobject_put().
+> -	kobject_put(&q->kobj);
+>  }
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013223946.1836=
-757-1-irogers@google.com?part=3D11
+757-1-irogers@google.com?part=3D10
