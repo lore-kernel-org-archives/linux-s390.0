@@ -1,60 +1,60 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49DF63E7160;
-	Tue, 13 Oct 2026 10:25:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B79494CB8D7;
+	Tue, 13 Oct 2026 10:50:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791887110; cv=none; b=N6eO+nBydzPciznJ/P46kbxMJoJs1mCPadWBUecnNc5cnIQXDjv9kYn0yMH80t/4/RxvBJV6TXL2Ej658XD6FOhD8RDqORIOnRkx1EQX16SGO2KibIpdVkVeIcywX9R7RwdMhy0QIz1HyrnEdAuqPUfOUpu7jwAEJlRzBRrZ6mQ=
+	t=1791888646; cv=none; b=UeNDxGnBNfB5rXGXZFUlT/WX3eMHD/l1nONlfH1E7E6xGvOkUcxgiY1QceO6M39Z2buPsuNhn9usg+hKy9e7X+a4xiLPu85IWWi7lSSmZuW5wzmpfZOX9JSwyhygFqOxuz26VgNRQPFTfRCQYV030R2oPupSSkSR4XDSI31vbmg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791887110; c=relaxed/simple;
-	bh=BesGa+ZE6vlglbtO/iwDKisX92xov84fto8sWY9CkRA=;
+	s=arc-20240116; t=1791888646; c=relaxed/simple;
+	bh=XgnmF2YgwAt+dP+vLHjJO26js0PFTZ9QSq5rROxIW64=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JB5zRxQZAMC6Lw9rtB0qi0pyjaNqfVPjjirPDJlq9X8ywO7pu1fSV/TeP2yBMclzAVfKmulomcQSpcThXlDiiqBVcMctiTW1aGfGmqk6bxxo6Wt6X+DrpWQQZHlB2FPeKKvHxUcYxnrgdwugqjZ6WNh7QMFbH9oDHb0ll0vJ08w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=p0kEhrah; arc=none smtp.client-ip=148.163.158.5
+	 In-Reply-To:Content-Type; b=rmDGeBBsKKWdUvR78ldpPOgs7/yGojyJU777DugJfJxByouyO4FApRSwj8UEipkG25ejvhIhaaqwhPkn+mwmZqdIQ3V5Q43PrixnZKF6++X50swxZqR54ngt99Ukf5Tnovr9q2YvMhI6nKTr7N/+9GZOUqrYBgCkgqWcQTmwbTA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=NcXV8s4y; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="p0kEhrah"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69D2EI3N1774555;
-	Tue, 13 Oct 2026 10:24:44 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="NcXV8s4y"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69D2Exaa727076;
+	Tue, 13 Oct 2026 10:50:22 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=QMG155
-	OrXkbNDZgeHu5GM4zQOFcLYOJPsd29E5WNifU=; b=p0kEhrahRA4ZlPBJvpE97f
-	1OVuaZZOnOt1o22uH/6r3US369NZtuK8nASngjhtARhp2+vWHxDKvym1g1N0qX9Q
-	6R9CPUjb16MDgEGbJhosNyev61vPHZb+dFgitMOXs/36T9psSMzOjItjx6wkOz32
-	TOw24RpN0Ug5YjcTczO4JgUSCMHaB7qfwa5pCgx8BV/jKowIrwGbeAi+hWWaQA+Z
-	9zqYbn8jQ2thRBnBJQhcdcvnv/v/eg8AFBhWOnkQ1l1HRNS5oCLHDNRKXfHIf4Y9
-	qo9C/UKWDCYAmu+DSIgR/+kRH89SX3C+MxxhPPEmZw1fZbFWH8/4dEcsQE39QnBw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=O2aDD2
+	7dnQNnDMjEKgskhMm98/OczVteYy0IZf3/lv4=; b=NcXV8s4ybhwq0ZRbsAmk3p
+	YDQrxKS6aHwASnKy9711HQi9SMp2TRCOH4NHQ4YaEgeKzWgqNi53zCZI5BWXjy0S
+	brI1yvoeChTyOaP2miRgWjrZLKMim8fsDHi0rfoAOWFA9EwPeMbihcqfOYnm6sCZ
+	fRvCc0+B7KXTagjY7krIykr1qyDGQwTrYVdmDBT/0e3IwAgE8T8H3fl7RE/D0pYp
+	ciec3x4NvR2w+dF/+LHHkzXB7v8vATzrFv8U9p2cT/gVG6mh6jyf5KPRfRoad5Jl
+	a06sH4jKGBX3mKR6A3kOybBICsDC6h+CYGVPF9CpuDZny3k/oJEsSokYDHoXcqyg
 	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dwhw1xx-1
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dv0d2sa-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 13 Oct 2026 10:24:43 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69D8ToTi2712646;
-	Tue, 13 Oct 2026 10:24:42 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h82cyh007-1
+	Tue, 13 Oct 2026 10:50:20 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69D8Tqx42660311;
+	Tue, 13 Oct 2026 10:50:20 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h7yppsfv9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 13 Oct 2026 10:24:42 +0000 (GMT)
+	Tue, 13 Oct 2026 10:50:20 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69DAOcS051577336
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69DAoGRX55640384
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 13 Oct 2026 10:24:38 GMT
+	Tue, 13 Oct 2026 10:50:16 GMT
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 083BA2004B;
-	Tue, 13 Oct 2026 10:24:38 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 1F9C92004D;
+	Tue, 13 Oct 2026 10:50:16 +0000 (GMT)
 Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 309D520040;
-	Tue, 13 Oct 2026 10:24:37 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 5468B2004B;
+	Tue, 13 Oct 2026 10:50:15 +0000 (GMT)
 Received: from [9.87.128.189] (unknown [9.87.128.189])
 	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 13 Oct 2026 10:24:37 +0000 (GMT)
-Message-ID: <e7fd7d50-b124-42a0-ac19-ec12cca532bd@linux.ibm.com>
-Date: Tue, 13 Oct 2026 12:24:36 +0200
+	Tue, 13 Oct 2026 10:50:15 +0000 (GMT)
+Message-ID: <ce85388c-3ea0-4363-8c89-fe2bf71b284a@linux.ibm.com>
+Date: Tue, 13 Oct 2026 12:50:14 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -64,10 +64,11 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH RFC 0/2] sched: Introduce idle SMT priority for asymmetric
  capacity systems
-To: Shrikanth Hegde <sshegde@linux.ibm.com>, Andrea Righi <arighi@nvidia.com>
-Cc: Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+To: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Shrikanth Hegde <sshegde@linux.ibm.com>, Andrea Righi
+ <arighi@nvidia.com>,
+        Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
         Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
         Dietmar Eggemann <dietmar.eggemann@arm.com>,
         Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
         Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
@@ -83,116 +84,169 @@ Cc: Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
 References: <20261008-hiperdispatchfix-v1-0-73fe41081070@linux.ibm.com>
  <aseIPhrDGCYFtJNE@gpd4> <90454932-1d82-450a-ac4c-499acdedb9d7@linux.ibm.com>
  <ffbeae31-0e93-4386-8e0e-dba13960b283@linux.ibm.com>
- <cc926e51-7223-4d3b-9896-3ed8955b584f@linux.ibm.com> <askERc5Xa9NhAfk_@gpd4>
- <effe96a4-c995-4da4-aac6-bef195df36c2@linux.ibm.com>
- <6c4fcef6-6ff8-4733-a451-53744d2c821d@linux.ibm.com>
- <58c8e6cd-3fbe-4975-a0f3-9a16d5b7c604@linux.ibm.com>
+ <CAKfTPtCianGNWSu0s2J_B_aO_rtKWO17k9guYmwgXXLUHQE+SA@mail.gmail.com>
+ <d412d939-4704-4246-a9bd-b49b457099b8@linux.ibm.com>
+ <CAKfTPtAGiesy0FZQ3aOny_1QkqaX0P2MCOdkE42ERdihRJL99g@mail.gmail.com>
 Content-Language: en-US
 From: Mete Durlu <meted@linux.ibm.com>
-In-Reply-To: <58c8e6cd-3fbe-4975-a0f3-9a16d5b7c604@linux.ibm.com>
+In-Reply-To: <CAKfTPtAGiesy0FZQ3aOny_1QkqaX0P2MCOdkE42ERdihRJL99g@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
 X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEzMDA0MCBTYWx0ZWRfX+mwglDS7TlA0
- wEOkOvzNGSwn9cxj6/6q3nOm1D/HjiqEiV469Z0JMtfPSChA+enoplACmsWS0l+Ab1MdG2VEXnt
- Q3TE7i4vPXhX1eNtK+StkyGKDajRQmjUc2JDvnObDFumst9z7HAk1Iv6nTgdh2vPuIZdUrlxMHJ
- F0wSfpOV2OcHJsIoUGDot1f5V6RjmES3RyBrWCd246XAeCuRC50phSzadrjjO3Ei0/6Rlm5RO3p
- yFvnDbglCbuyKnDKNHfpyB17nFiFB89WtDeWo0wk879xWtIxFpZr065FvWpCy0u60tmFgMY4VlA
- 94Bzy0JMF3/GuXVqFfEJiPMRzqbwxphrHoaWl57rBpxMCDcU65yV+QF8beQEzfuWMr/rFhQNOE0
- pKl+AaD58Ug/2OdjG1pzSg6fNP55hfT7HWngxcRkRYZzC2y22RqObj3NAs3e5++TB8VdmCXGtZA
- IOxOlBSQE3TBpp8o48A==
-X-Proofpoint-GUID: NBk7Xm5vPZSzoleDnEaVakd7_MUC9CHa
-X-Proofpoint-ORIG-GUID: lv6dQPorUed_3kQ1HVn8JFsOWKitL826
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEzMDA0MCBTYWx0ZWRfX3B3tP216irDv
- u9bV1fsqw74Mhdp5fqZF/iGmQMK+Nh3smCeveP0MrCl6TVlzmyTZoSFn5p1VMsrjFe83paO0htU
- qg6V8CohJbdPwNryf9u2RZS/xfBb5kU=
-X-Authority-Analysis: v=2.4 cv=btHZl0ai c=1 sm=1 tr=0 ts=6ace06eb cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEzMDA0MiBTYWx0ZWRfXxO2iYJNVGU3W
+ 7AM6FSw17ZMv+2ehYsqrn7kUVAxYQZWGQuB0RvPsaqCCmmf5lIRi+23OQSMuQByHL9gs6ykVnq5
+ FeotQ4yL1VUC5PUtf9PEcE8An6LpVVTRKYd8OV1RseYbROTtQwqcnkTBJdWD/dQPMJ3g2eVmfB+
+ Ko0pTIh6bJ8ZyfFrD3OfTWjUWkcJx9OFIdiGn8fK5Hfq5XgJrT5N7wpN1EQO88FBZFboNtCfw6A
+ 16VY1xKix129X012X5t6zHeA18m5FwCnCKrGLdzlTlnIZqN+GiuzVj1Tr3uOA038F7JjyyMQf6i
+ RzQ/+es5S79JjeibVQpDuzkp4h2J2IRVYYR7FZZGg/D0/9Bw10FlqGimzsSYmva/TzMzsBPd1jK
+ L7YrX2LWKFxmIRiqduVay+gbOb0klfaA69mDzPy/pHrCdLkYOt9xIzBQUvnUzPwuPOcIhCztQZX
+ 2rrGZDYHdRYlbCHNCVw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEzMDA0MiBTYWx0ZWRfXyUfegSFwPkf8
+ cJEAvz0q7ZHN6P62xZalAiP1Us69kG8mUthd3dFSAssuqUytwNc4esbj2tdESdCuFQayM1KPfc+
+ ANIGi1Ez0rNZlUrJBIhW0Qae+K3MMcQ=
+X-Proofpoint-ORIG-GUID: Fhag1p3DR8Ydy9w6JtdMj-JBiqr_blM6
+X-Authority-Analysis: v=2.4 cv=a6KlZkSF c=1 sm=1 tr=0 ts=6ace0ced cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=nSUF7N_Uqdeu1bfaXI4A:9
- a=QEXdDO2ut3YA:10
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
+ a=_8vwSg6ZCyrHLbdd9ZAA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: -PrOdXHDGfBJ78zp3m1gmlFLTTCUb8aI
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-13_01,2026-10-09_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 malwarescore=0 phishscore=0 impostorscore=0 adultscore=0
- lowpriorityscore=0 priorityscore=1501 clxscore=1015 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ bulkscore=0 malwarescore=0 spamscore=0 suspectscore=0 clxscore=1015
+ phishscore=0 priorityscore=1501 lowpriorityscore=0 impostorscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610080000
- definitions=main-2610130040
+ definitions=main-2610130042
 
-[..snip..]
-
->> Andrea does this resemble what you were describing;
+On 12/10/2026 16:49, Vincent Guittot wrote:
+> On Mon, 12 Oct 2026 at 13:04, Mete Durlu <meted@linux.ibm.com> wrote:
 >>
->> 1-) (steal time == 0)
->> ====================================================================
->> cpu_preffered_mask = active_cpus
->> cpu_soft_affinity = 0
+>> On 09/10/2026 17:32, Vincent Guittot wrote:
+>>> On Thu, 8 Oct 2026 at 17:25, Mete Durlu <meted@linux.ibm.com> wrote:
+>>>>
+>>>> On 08/10/2026 16:58, Shrikanth Hegde wrote:
+>>>>> Hi Meter/Andrea.
+>>>>>
+>>>>> On 10/8/26 5:40 PM, Andrea Righi wrote:
+>>>>>> Hi Mete,
+>>>>>>
+>>>>>> On Thu, Oct 08, 2026 at 10:30:46AM +0200, Mete Durlu wrote:
+>>>>>>> Summary
+>>>>>>> ===========================================================================
+>>>>>>> On systems with asymmetric CPU capacities, the scheduler prefers
+>>>>>>> fully idle
+>>>>>>> cores over idle SMT siblings of busy cores. This works generally well
+>>>>>>> but
+>>>>>>> virtualized platforms where low capacity cores should be avoided are not
+>>>>>>> considered. Introduce a new config option and arch hook to prioritize
+>>>>>>> SMT utilization.
+>>>>>
+>>>>> That's true only under physical CPU contention right? or is it always?
+>>>>
+>>>> Right, because of that s390 treats all CPUs as equal and starts to
+>>>> assign lower capacities to CPUs with low entitlement once a certain
+>>>> steal time threshold is crossed (aka physical CPU contention).
 >>
->> All cpus are available for scheduler to pick and use.
->> Idle cores are preferred in case of asymmetric capacities.
+>> Hi,
+>> Sorry for causing a misunderstanding. I should have been more patient
+>> and detailed while writing my reply.
 >>
->> 2-) (steal time > 0) && (steal time <= initial_threshold*)
->> ====================================================================
->> cpu_preffered_mask = active_cpus
->> cpu_soft_affinity = entitled cpus
+>>> I'm not sure to get what your topology is because "if s390 treats all
+>>> CPUs as equal"  then you should never use select_idle_capacity()
+>>> because  their capacity should be fixed and equal and
+>>> SD_ASYM_CPUCAPACITY_FULL never set.
 >>
->> In this case entitled cores get fully filled (SMT siblings first)
->> before spilling load onto the rest of the cpus on preferred mask.
->> *Initial threshold is a value I just devised. Ideally arch specific
->> and dynamically configurable, setting it to just 0 should also
->> be an option.
+>> On s390 the entitlement of the vCPUs are signified by an arch specific
+>> value we call polarization. We can tell which vCPUs are assigned high
+>> and low entitlement. This entitlement value tells us which vCPUs are
+>> prone to experience steal time first. Without any contention all
+>> vCPUs behave and perform *almost* the same(of course, we want
+>> some priority for CPUs with high entitlement).
 >>
->> 3-) (steal time > initial_threshold)
->> ====================================================================
->> cpu_preffered_mask = entitled cpus + steal governor's modifications
->> cpu_soft_affinity = entitled cpus
+>> Prior to experiencing steal time(it's what we use to determine
+>> contention) to get the most out of the system we assign all vCPUs
+>> the same capacities, making the system symmetric like you say.
+>> While there is no contention s390's vCPUs also perform better if
+>> fully idle cores are selected for task placement.
 >>
->> Carrying the logic from case 2 but shrinking the preferred mask
->> according to the increased steal time value.
+>>> If your hypervisor lowers the capacity once a certain threshold is
+>>> crossed, we already account for the steal time in the scheduler with
+>>> irq and remove it from the capacity available for tasks but the
+>>> original capacity doesn't change.
+>> s390's linux implementation has a mechanism called hiperdispatch,
+>> that checks topology changes along with system steal time (and soon
+>> the total free capacity of the pyhsical machine) periodically and
+>> makes vCPU capacity adjustments accordingly.
 >>
->> Shrikanth/Andrea,
->> does what I describe above make sense and would it make a reasonable
->> addition to the vCPU backoff mechanism?
->>
+>> After steal time starts ramping up and cross a certain threshold,
+>> we start assigning lower capacities to vCPUs with low entitlement to
+>> hint the scheduler that they should be avoided.
 > 
-> I am confused. Are you talking about
-> 1. picking CPU to run idle load balancing?
-> Or
-> 2. actual task placement decisions?
+> If all your vCPUs starts with the same capacity, you should not use
+> asym_capacity or enabled it . What you describe above is system
+> pressure (steal time or other) on your vCPU that change over time but
+> not a capacity change. The value returned by arch_scale_cpu_capacity
+> is not supposed to change at runtime or you need to rebuild the
+> sched_domain topology. As an example, max_allowed_capacity does assume
+> capacity fixed otherwise the misfit detection will sometimes fails.
 
-I was talking about actual task placement decisions. I didn't really
-consider where idle load balancing should take place tbh. On s390
-even if it takes place on a non-preferred CPU, there shouldn't be
-too much of a penalty. Is there a specific reason why you are asking
-for idle load balancing case? I might be missing some conceptual depth
-here.
+Exactly for that reason on s390 we do topology updates after
+capacity updates. Topology changes caused by the underlying hypervisor
+or the cpu capacity changes can get reflected without a problem via
+topology rebuilds. Without topology rebuild we wouldn't even get
+the correct SD_ flags to trigger asym_capacity behavior like you say.
 
-[..snip..]
+> What you describe really fit into the prefered core that Shrikanth
+> Hegde has developped
 
-> If it is 2, I am not sure. getting soft affinity is kind of tricky with 
-> load balance.
-> It puts maximum effort in spreading the tasks. Since you have steal 
-> time, there is already
-> enough tasks to create physical CPU contention.
+I agree, but Shrikanth's solution can not bring some of the
+behavior changes required. cpu_preferred_mask can help
+direct task placement away from low capacity cores but idle
+core first approach still places tasks to fully idle low
+capacity cores. This patches proposal tries to move tasks
+first to the idle SMT siblings.
 
-I am not fully familiar with vCPU backoff yet, but couldn't the
-soft affinity be implemented in form of another cpu mask. We can
-traverse the new mask to make decisions there first and after its
-resources are depleted there, we can then move onto cpu_preferred_mask?
+Consider the following;
+On a system with 2 high capacity and 4 low capacity cpus.
+steal governor of vCPU backoff mechanism calculates 2 low capacity
+cpus should be taken off from the cpu_preferred_mask to decrease
+experienced steal time. cpu_preferred_mask has 2 high capacity
+and 2 low capacity cpus.
 
-> PS: Steal governor provides a tunable named low_threshold, which means 
-> any steal value
-> below is practically 0. So there is no soft affinity there.
+Current behavior tires to place tasks to fully idle cores first
+even if they are low capacity cores.
 
-Right, my initial instinct was to have an initial threshold like
-the low_threshold steal governor already has. I am not sure if it
-is a good idea to just use that with a higher default value but
-I need to think about this a bit more.
+       c0(high) c1(high)  c2(low)  c3(low)  ...
+-------------------------------------------
+SMT 0 task     task      task     task
+SMT 1
 
-What do you think, does it worth exploring?
 
-Thanks!
--Mete
+With the proposal, the fully idle core preference is circumvented
+and the most fitting SMT thread is selected.
+
+       c0(high) c1(high)  c2(low)  c3(low)  ...
+-------------------------------------------
+SMT 0 task     task
+SMT 1 task     task
+
+This is beneficial because at the time of contention(system pressure)
+low capacity cores could perform worse than SMT siblings of busy
+high capacity cores, even if there is not enough steal time for
+steal governor of Shrikanth's vCPU backoff to mark said low
+capacity cores as non-preferred.
+
+Andrea came up with an idea to extend Shrikanth's mechanism further
+by adding a soft affinity to a selected set of CPUs. Task placement
+would first fully load these CPUs before spilling load onto rest
+of the CPUs on cpu_preferred_mask. That would help achieve the
+behavior I describe above if the soft affinity covers high
+capacity CPUs.
+
+The discussion is still on going though. If Shrikanth thinks this is
+a worthwhile concept then I'd be glad to work on the implementation
+and provide the patches.
