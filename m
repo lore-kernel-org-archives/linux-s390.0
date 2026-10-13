@@ -1,226 +1,137 @@
-Received: from mail-dl1-f51.google.com (mail-dl1-f51.google.com [74.125.82.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AE3C3FAE15
-	for <linux-s390@vger.kernel.org>; Tue, 13 Oct 2026 09:18:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 537163D8100;
+	Tue, 13 Oct 2026 09:34:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791883114; cv=none; b=lLEtAp+ur+e0lz2/M+uGlqo1b92R6ufdo55F+NLxsgX+/2QYjGA7povy47q7wZejowX+Mt4J2gpM8QYbAtnvpx0TsMQlY+oiocErNZveY01EIh7xXTmRsSJ9Xi/FqMoqfkC2zl/Dk5G936hs2SsYu30ozuzVlXRS0okUyu9vUeU=
+	t=1791884051; cv=none; b=M/kQGns9NSLrRRqi3XOPtpNBiIG6WTWXBvPlTnkBFr8TR2NfgcLNr/CRaq8nioxXPdLzK3dREDKiWvA9NPAFdxWRMlUx6+EbKWL6UPqcdHNLt2UuEzSxYqB9DRgEBQAmMLULq8/V03N8SYN3UXLM2fZiHhYEISifiuyjUdz6wOs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791883114; c=relaxed/simple;
-	bh=Qw8zae9NOxAk0It4XupnieJPLdroSQEYcZSuuA8SXV4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KSpDwB3wEEK3j9b8jUBYf3UVF6Xkcbrt5KPN4kMU5J9LaVfX/DwBv759TtbHAljClnizhPuYHWtO4SZZ9gppkPszB1uwXsxYhuAMfiCuEicIUSKjYTDlc80KxYvW0zinwF3JVfnI+SngNZBhKIGXgj3GgxvJfi4LvT3iTxTPry0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hRSPCnVn; arc=none smtp.client-ip=74.125.82.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791884051; c=relaxed/simple;
+	bh=6ZKGxAb0Vnr7qs1xZDZDeWQAwTJ7MDOpOqkpsjJ4gKA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ni8hb8FOO4vo21rdETZKRoLEsWdlEp/VM4Na+ZWPayD+ufPtOD146/wtibrxV2mKJxXA3ZKorh+A/U3PWox9aLy1K0ntLlZwJrv7iF4FMAoFfh7BVTmJVG9sgMT4QKI0LTYw3QsQvj8L1CqAHV7PHAaamqQdNS9Ggc5vVkHL8Fc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=hYfnUwEb; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hRSPCnVn"
-Received: by mail-dl1-f51.google.com with SMTP id a92af1059eb24-150b2fbd784so131966c88.0
-        for <linux-s390@vger.kernel.org>; Tue, 13 Oct 2026 02:18:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791883108; x=1792487908; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=XJeGv4gE+1nP/kqGfhMNUpT5saqR4ArNAelaYTNhWl0=;
-        b=hRSPCnVnM+EHmuYlE6ocgu8bFlYbbx0yCbV2F6dkIDyPBWkKHOffX8JJhRlcrv5N8+
-         2zga9kSqa1Os9SMjjI/Dp+IA5OU8ID7CsEDA5DIGR1cqp3Ou4cjHYvmb/4KLprqJfk82
-         B9RDQdRqMDQgjt/cSOBuD8LRNW4CR142xkWL9vYPOcPkhyX3tD9RwSt0X/ByxWVBH8q2
-         Ajc6u9oqWonfo4LMiWOElLSBqwdiZWVKGVGolb029gkYrKiKXEejg8a0VlJYe++z1ndE
-         go/l1R8QZjlfOsa6SV9emb7iPHXHaIgLoNeAG2WQOCn89P+jkXmDXXecrNYXIPovevrV
-         iBvQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791883108; x=1792487908;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=XJeGv4gE+1nP/kqGfhMNUpT5saqR4ArNAelaYTNhWl0=;
-        b=vx4ih7zUGaO+RaaxpUKRySkYziLjYYb6R4MRKLVbPWwDgtlfSpfXRJsH3vkPneF5fX
-         GncbZkTdLt3PEcsqBWFWM8ZjXwt4CK88swRyF6O2v14xOjIKzCTlyI8fbz7U5g5P5fpl
-         9eIPSD7zN0TyM2Gexvg+aNG0V8VkXaIlhFT5w4MOFufS3dboxKcOAw+qzBAhbjUOkfXa
-         7PU56CuIFgJRCBjfW/C1zeQ9NzuGJ7rnAonkMHK+4TF+8R8GIcVi+r3RKwaDBKyRleRG
-         gk1bPLWui9grkHFJdkLBspNRwdfYArbi7VB4kkPaj4gtUu36RSCW4rSWxeTt4XnK5ZW6
-         5Cng==
-X-Forwarded-Encrypted: i=1; AKwUvByzqdVxIg5DfnhQduTYhWiVD0t8EKuBgka10x5segj/nsDcAX8fiNUv3Gv8APh9olNl5UqV6S3pAbqi@vger.kernel.org
-X-Gm-Message-State: AFq9FYLPaJwYnF2TAn3EKNdVdu94hdPkf3gHld2yoxJjfG4TDbAEz28F
-	HyyfkzIxjB5hA0G1mQwx4K/JIFFpzAT2TPQrUR3ICphT4He+HxJPMNkd
-X-Gm-Gg: AYBFou07+yqrF006IberfT/jS8x1++Ef2ee4lppnoDYZ0ZbA4G8X+miiDmtl8NY8LZK
-	jmHP1+wsEemI3v8R2aeGl36E+z6mnUoFLJ/QNTHl8FzB6+2AGvE8LWEEZwgcIUifcT2ajWYZH7R
-	ngB74JOsEjW2W/EsuZFl0/TBCO7rUJN/Wl6pchLjsoqEvZvnEQfiYgm36p+iFDqTMhSbt8B2kNq
-	2W81y+4PjN2b0q52OURb98GZc2giVzSYVR9RQewKyeFPEV7ltx2W422tI+5CNRdKwyP9H6U6HF3
-	lZaWSq30RPU0/x8StT89emsOQDzMZR2FQM1iBG2cPI3d7M9E+X1U3z2Lme15MzQyBX/dhVdTw9C
-	zgoJUQk7pJ19lYGJwWBjZDPS2P4GlAWQrA6+cLEpmU1pLblyKLI/dQBCYHhyT7QOcrq7rI+sxfR
-	CGkp25iY2Sf80QGlAmO+/JW4WngovMssJ2x7V3jmRqB5WPZ1OlDTKNXCf17PQasn62EzAQfkajd
-	vJc6QWZChWmo+BQg3ZzYOn3PeepQgTjkHzHN5z0/wtQ8l1Uy667flCyloTxQiG+k7T2H2ccxcA=
-X-Received: by 2002:a05:7300:d40a:b0:359:8492:20f8 with SMTP id 5a478bee46e88-35984922315mr16399593eec.2.1791883107751;
-        Tue, 13 Oct 2026 02:18:27 -0700 (PDT)
-Received: from localhost.localdomain (45.78.65.84.16clouds.com. [45.78.65.84])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3537cb6a279sm41437975eec.30.2026.10.13.02.18.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Oct 2026 02:18:26 -0700 (PDT)
-From: Chengfeng Ye <nicoyip.dev@gmail.com>
-To: alibuda@linux.alibaba.com,
-	dust.li@linux.alibaba.com,
-	sidraya@linux.ibm.com,
-	mjambigi@linux.ibm.com,
-	davem@davemloft.net,
-	edumazet@kernel.org,
-	kuba@kernel.org,
-	pabeni@redhat.com
-Cc: tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	horms@kernel.org,
-	linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH net v3 3/3] net/smc: hold a link group reference for free work
-Date: Tue, 13 Oct 2026 17:17:16 +0800
-Message-ID: <20261013091716.1210420-4-nicoyip.dev@gmail.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20261013091716.1210420-1-nicoyip.dev@gmail.com>
-References: <20261013091716.1210420-1-nicoyip.dev@gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="hYfnUwEb"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69D2EUWC725945;
+	Tue, 13 Oct 2026 09:34:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=XyXu/2RpH5p+BQXnwWDaDsAJjOVoJ2
+	19Tn/h1dA8EYI=; b=hYfnUwEbWXw4+9ECgL78e2GSrBUQRD6llmGLzjcfsOhgOE
+	l+z2KNeBAG6fR9bGlsH607Dvy8r0cb/qhDmDAc1yEJiqIYmNsmCL3XOQ3VJeSKyE
+	9l/iLdrtHoNrhoCJeHvSyvf3Mk8Mr5lPq/ZpkmXzs3yvMlhz5h7b2CNz7MG821ji
+	q86cu0nug4PmEGdMoB1q6GglPAygOfoth6BZlYxkcILcnph1OXduIu3gL/b2o9EO
+	UO52r3BgPI8AHD2aYfYK3CZZXBAkjSA3qsk7laBRDiGmJH9yklyvDuyOigQnnH4Z
+	lbk3nBgifOC0klvIXN7JEL4n2NlkSA9MVtb+J0dQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dv0csvr-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 13 Oct 2026 09:34:02 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69D8Tri72667556;
+	Tue, 13 Oct 2026 09:34:02 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h802vs6ru-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 13 Oct 2026 09:34:02 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69D9XwSk52953500
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 13 Oct 2026 09:33:58 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5964A2004D;
+	Tue, 13 Oct 2026 09:33:58 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B730020040;
+	Tue, 13 Oct 2026 09:33:57 +0000 (GMT)
+Received: from osiris (unknown [9.111.34.214])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 13 Oct 2026 09:33:57 +0000 (GMT)
+Date: Tue, 13 Oct 2026 11:33:56 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Gerd Bayer <gbayer@linux.ibm.com>
+Cc: Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+        "Joerg Roedel (AMD)" <joro@8bytes.org>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        Ramesh Errabolu <ramesh@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>, Cam Miller <cam@linux.ibm.com>,
+        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        iommu@lists.linux.dev
+Subject: Re: [PATCH v2 0/3] s390/pci: Updates to PCI insn tracing
+Message-ID: <20261013093356.9443B48-hca@linux.ibm.com>
+References: <20261012-rpcit_trcfh_upstream-v2-0-1812db73dfa5@linux.ibm.com>
+ <20261012160049.19350J7a-hca@linux.ibm.com>
+ <126474a4cf510aacd256dca642eb013f7e10dda1.camel@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <126474a4cf510aacd256dca642eb013f7e10dda1.camel@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDEzMDAzNiBTYWx0ZWRfX/qvKHyi8aK7n
+ z5FohrKWghYOJ7B0pDC1yhs8b+fiSwizUKJAZKdXmW9OX+zSffp2VN6D/HD6/itvE7MgOULWG2H
+ zs70A3mm9A3sBKH8x6MRcyD2PIUdNPddM96tWKlqqNvln8JIabAYwAwFpJMRrX1WOSQsKTKAMLM
+ lkZQDmQzAT80y9XH7tLVKZVy/C0mU4/tpMzQ48FVBTn+yfN3jJsdRF1J23kNdG75tQLrKnm4bNY
+ 6gZ9ctwhf1Lr+9ihDweAfGdf+j2NPm2UPVin9rwr4TSTaBYVkHNwoB39iEZmS6sqKNxaL/eY7pE
+ lyjHkJASoNjiyUbyIiI1zaf+cxm6nos9CbuXaocL2Dxl9c8k3bGWPccArp0PgGryAOIh02Oc0Bu
+ 6VWOJWVcLDHR70b3K9HXqCtaHGmLTpVWrFx2BwAsDacPLYOyUZeght1e/W5UXSUmS1k4ecftnjA
+ IkE8dlx2VonXZTjvv1A==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDEzMDAzNiBTYWx0ZWRfX0AmkRWNUowpK
+ 2Dt8iptAOO9Xut0Y/dxCj5LjxS61EvD/dUysNaCu8JWeIA4vPQS1rGAuCPRBSp0Af3JH9sTmK9a
+ z4JZmThrzRsq0a8wSr6dmdiGS7L7e5A=
+X-Proofpoint-ORIG-GUID: AQMMFFkaki-gBl9BIkrar06WyPTdKGZJ
+X-Authority-Analysis: v=2.4 cv=a6KlZkSF c=1 sm=1 tr=0 ts=6acdfb0a cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=9DNx3T0ovit8ovVIW74A:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: AQMMFFkaki-gBl9BIkrar06WyPTdKGZJ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-13_01,2026-10-09_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 malwarescore=0 spamscore=0 suspectscore=0 clxscore=1015
+ phishscore=0 priorityscore=1501 lowpriorityscore=0 impostorscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610080000
+ definitions=main-2610130036
 
-__smc_lgr_terminate() cancels free_work asynchronously. If the callback
-has already started, it can still access the group after the terminator
-drops the last reference. The callback has to dereference the group to
-find its list lock and check freeing, so that check cannot protect its
-own access to the allocation. This lifetime gap was identified during
-code review of the scheduling and early-cleanup fixes.
+On Mon, Oct 12, 2026 at 06:10:55PM +0200, Gerd Bayer wrote:
+> On Mon, 2026-10-12 at 18:00 +0200, Heiko Carstens wrote:
+> > On Mon, Oct 12, 2026 at 04:21:48PM +0200, Gerd Bayer wrote:
+> > > Gerd Bayer (3):
+> > >       s390/pci: Adjust alignment in insn trace
+> > >       s390/pci: Use 32-bit fh outside of inline asm
+> > >       s390/pci: Add function handle to RPCIT insn trace
+> > > 
+> > >  arch/s390/include/asm/pci_insn.h |  2 +-
+> > >  arch/s390/pci/pci_insn.c         | 42 +++++++++++++++++++++++++++++++++-------
+> > >  drivers/iommu/s390-iommu.c       |  8 +++-----
+> > >  3 files changed, 39 insertions(+), 13 deletions(-)
+> > 
+> > Even though this touches drivers/iommu/s390-iommu.c I assume this
+> > should go upstream via s390. Is this correct?
+> 
+> that was my assumption, yes. I hope the iommu-maintainers agree, since
+> patch 2 touches s390 internals, exclusively.
 
-Take a group reference before mod_delayed_work(). Keep it when a new
-execution is queued, including when a previous callback is still running.
-If the work was already pending, release the extra reference because that
-pending execution already owns one. Release the queued reference when
-cancellation succeeds, or at every callback exit when it executes.
+Ok, since the changes to s390-iommu.c are minimal/trivial I fixed up
+the typo reported by Matthew and applied the series.
 
-Use the reference-aware cancellation helper for connection reuse,
-termination and cancellation of a rearmed instance by the free worker.
-The callback's reference keeps the group alive even after smc_lgr_free()
-drops the teardown owner's reference.
-
-Keep cancellation asynchronous. Waiting for free_work from connection
-setup can deadlock: the free worker drains tx_wq, whose worker needs the
-socket lock held by setup.
-
-This builds on "net/smc: serialize link group free work scheduling" and
-"net/smc: serialize early link group cleanup with termination". Together
-they close admission before cancellation and give resource teardown a
-single owner; the work reference then protects callbacks that are already
-running when that owner cancels pending work.
-
-Link: https://lore.kernel.org/r/179113886433.434549.10069135669585050618@kernel.org/
-Fixes: 13085e1b5cab ("net/smc: fix deadlock triggered by cancel_delayed_work_syn()")
-Cc: stable@vger.kernel.org
-Assisted-by: GPT-6.1-Sol
-Signed-off-by: Chengfeng Ye <nicoyip.dev@gmail.com>
----
-New in v3:
-- Address the independent running-free_work lifetime issue reported against
-  both v2 patches by sashiko, with the complete reference protocol in this commit.
-- Cover new scheduling, rearming, all three cancellation sites and every
-  callback exit while retaining asynchronous cancellation.
-
-Review: https://lore.kernel.org/r/179113886433.434549.10069135669585050618@kernel.org/
-Review: https://lore.kernel.org/r/179113886579.434549.12546097168507601074@kernel.org/
-
- net/smc/smc_core.c | 32 +++++++++++++++++++++-----------
- 1 file changed, 21 insertions(+), 11 deletions(-)
-
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index c1bb284c4233..9b54f873c6a9 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -89,14 +89,22 @@ static void smc_lgr_schedule_free_work(struct smc_link_group *lgr)
- 	 * otherwise there is a risk of out-of-sync link groups.
- 	 */
- 	if (!lgr->freeing) {
--		mod_delayed_work(system_percpu_wq, &lgr->free_work,
--				 (!lgr->is_smcd && lgr->role == SMC_CLNT) ?
--						SMC_LGR_FREE_DELAY_CLNT :
--						SMC_LGR_FREE_DELAY_SERV);
-+		smc_lgr_hold(lgr); /* released by the worker or cancellation */
-+		if (mod_delayed_work(system_percpu_wq, &lgr->free_work,
-+				     (!lgr->is_smcd && lgr->role == SMC_CLNT) ?
-+					     SMC_LGR_FREE_DELAY_CLNT :
-+					     SMC_LGR_FREE_DELAY_SERV))
-+			smc_lgr_put(lgr); /* pending work already owns a reference */
- 	}
- 	spin_unlock_bh(lgr_lock);
- }
- 
-+static void smc_lgr_cancel_free_work(struct smc_link_group *lgr)
-+{
-+	if (cancel_delayed_work(&lgr->free_work))
-+		smc_lgr_put(lgr); /* cancelled work will not release its reference */
-+}
-+
- /* Register connection's alert token in our lookup structure.
-  * To use rbtrees we have to implement our own insert core.
-  * Requires @conns_lock
-@@ -733,19 +741,19 @@ static void smc_lgr_free_work(struct work_struct *work)
- 	spin_lock_bh(lgr_lock);
- 	if (lgr->freeing) {
- 		spin_unlock_bh(lgr_lock);
--		return;
-+		goto out;
- 	}
- 	read_lock_bh(&lgr->conns_lock);
- 	conns = RB_EMPTY_ROOT(&lgr->conns_all);
- 	read_unlock_bh(&lgr->conns_lock);
- 	if (!conns) { /* number of lgr connections is no longer zero */
- 		spin_unlock_bh(lgr_lock);
--		return;
-+		goto out;
- 	}
- 	list_del_init(&lgr->list); /* remove from smc_lgr_list */
- 	lgr->freeing = 1; /* this instance does the freeing, no new schedule */
- 	spin_unlock_bh(lgr_lock);
--	cancel_delayed_work(&lgr->free_work);
-+	smc_lgr_cancel_free_work(lgr);
- 
- 	if (!lgr->is_smcd && !lgr->terminating)
- 		smc_llc_send_link_delete_all(lgr, true,
-@@ -755,6 +763,8 @@ static void smc_lgr_free_work(struct work_struct *work)
- 	if (!lgr->is_smcd)
- 		smcr_lgr_link_deactivate_all(lgr);
- 	smc_lgr_free(lgr);
-+out:
-+	smc_lgr_put(lgr); /* smc_lgr_hold in smc_lgr_schedule_free_work() */
- }
- 
- static void smc_lgr_terminate_work(struct work_struct *work)
-@@ -1576,8 +1586,8 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr, bool soft)
- 
- 	if (lgr->terminating)
- 		return;	/* lgr already terminating */
--	/* cancel pending free_work */
--	cancel_delayed_work(&lgr->free_work);
-+	/* A running free_work holds its own link group reference. */
-+	smc_lgr_cancel_free_work(lgr);
- 	lgr->terminating = 1;
- 
- 	/* kill remaining link group connections */
-@@ -2029,8 +2039,8 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
- 			conn->lgr = lgr;
- 			rc = smc_lgr_register_conn(conn, false);
- 			write_unlock_bh(&lgr->conns_lock);
--			if (!rc && delayed_work_pending(&lgr->free_work))
--				cancel_delayed_work(&lgr->free_work);
-+			if (!rc)
-+				smc_lgr_cancel_free_work(lgr);
- 			break;
- 		}
- 		write_unlock_bh(&lgr->conns_lock);
--- 
-2.43.0
-
+Thanks!
