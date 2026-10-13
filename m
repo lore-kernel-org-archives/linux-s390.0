@@ -1,56 +1,56 @@
-Received: from mail-dy1-f200.google.com (mail-dy1-f200.google.com [74.125.82.200])
+Received: from mail-dy1-f198.google.com (mail-dy1-f198.google.com [74.125.82.198])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C84F560ACD
-	for <linux-s390@vger.kernel.org>; Tue, 13 Oct 2026 22:40:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF65956510E
+	for <linux-s390@vger.kernel.org>; Tue, 13 Oct 2026 22:40:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791931225; cv=none; b=OMEhUFwr0jiM/NLQB05LNQmUW/H1TBHdY9MwL4NxCT1hjYfsDcTdnSAfi4KFXfk3q/K3U4Ec0tl1b8H7jE1ZtGGezbdvd41c4uF/9A1Hygy4vfOoOVWPhm10MnlLfJV9qEAS37g3gNom8B62OrLFdLnwmbbORajD/4VAwPlQFrA=
+	t=1791931232; cv=none; b=GyzW5mxnMbV7tD8xC66/fd5JBEeX6Zz0ehk6Z72e7jrgTqRpfpS1uwshizQOOSDRFJGp2kkm4GCK1YzAe8As4MUj7s762V7NsJ558eNdFpaTIpePEKo13KPpLHBnytinpu1OAy1mM+VChNvXHv3upwSMjOdmng/XpfXfbfZn39A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791931225; c=relaxed/simple;
-	bh=uNMrTEMgpiVDbGIrdW7hNuAL0UJnSkmxUybVeT9BNfA=;
+	s=arc-20240116; t=1791931232; c=relaxed/simple;
+	bh=gnvJ+NGBHUiP7rcBqvmb8Qtfelr/NXSGH3U7nHCSNfw=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=QpIlPNODx7l/PSyh0r3hXGSdgAUBXgBYmIyL+W/5z1KQufIJLB4yQrd+5bKxW2+9qVF8wdYQJcTdp1WURJtz9WXsqzUAUWrrXr47XpQCzfh5T6Qb1AV30WB7eibStFPRRJ+MFEGo5uDB6H70ZpwNiVOnUlnQlc0AGhljT7UKDyU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=FsZmlZzc; arc=none smtp.client-ip=74.125.82.200
+	 To:Cc:Content-Type; b=nxF+2oz21SwsvSsLdrf3uO4QfcReX8jfJmOh8BIgBboy9pAgZXJZHSFfUlDtYj23GoVm3UecLQMuJLKSso8ueLXW3EkZpamOvO0Z0SKvHWKEUzSPZVHiwFXUaY9z3EkUe+eYoQmHlPsba/8wpDzMHqRcbZ/n06RLP6sgSEegnIk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=CO8odz/D; arc=none smtp.client-ip=74.125.82.198
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--irogers.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="FsZmlZzc"
-Received: by mail-dy1-f200.google.com with SMTP id 5a478bee46e88-35c5aef2a74so1454396eec.0
-        for <linux-s390@vger.kernel.org>; Tue, 13 Oct 2026 15:40:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="CO8odz/D"
+Received: by mail-dy1-f198.google.com with SMTP id 5a478bee46e88-3580c07911eso9019850eec.0
+        for <linux-s390@vger.kernel.org>; Tue, 13 Oct 2026 15:40:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1791931220; x=1792536020; darn=vger.kernel.org;
+        d=google.com; s=20251104; t=1791931224; x=1792536024; darn=vger.kernel.org;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=4r3hXDLd6Bqk9XmcFR/JS5uHIdkPs2TN+2FSnsngXIE=;
-        b=FsZmlZzc0RvrUW+y0hDBC5JKNTfUcZPl8087c9RJ/588DTf34u2tr5FCceleOGIHab
-         sAXH9yWcPYzJ1mlQuHR7PZ0C06ll9QlRj8MQu4tBMQkcqRPWtImeVqh8wQc2oeKhXzJy
-         p28zGdC26Br9BVOMB6tibBNlm79sAGnURrxNpns227/pFl3m+VWFKFYvYTp/Vc81MH3r
-         B6h51Ob2flQk0FAXpwzc3nuMbyxf6aOMGqHvO30wMtJHHuN9I9CCgodT/a1NTibddRUg
-         r0bbBDOvuyMxRvnLI02UzWITvbZMc6/TsfJuYuk1v3Nt5Gz5Zt5Sy1+QDHgDDrWxopVH
-         5kqg==
+        bh=qCnJ2cyf9mW8BNAz5Pcwsubr4iCDZba2S/P+mHJ/PnA=;
+        b=CO8odz/DQq+OMoVkWxaleG9zC7maZ4f+LtXDqo3KaEXY+ZH5NRrVxCFXDHEx1EwH7e
+         8zeQp5PvhWobxW4SepZ8Za5sKltUuKtf0w+miZIaqCHNmK+v4gaIr75AD4WT6BlH87jN
+         2BCZ6bHlq3pzWnSTeRQ0jGnWeP1rnr8++z+O5cc6epz/oGRFo0N7a004W8fmS4cI+nIs
+         EN9yPSJWzqWFOJKz4JSiNi9MYIOdj3yFm8fMFH6DfiAlrq+jKBxSLDSqlgrMcqul3Jz4
+         mZW5dJCRJwm9eIhwdEk1wHxDIg030BK9v9Qpm4MHc3ywPBAYBZ+8vnhcGBI3TVIG1V1l
+         L/aA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791931220; x=1792536020;
+        d=1e100.net; s=20260707; t=1791931224; x=1792536024;
         h=content-type:cc:to:from:subject:message-id:references:mime-version
          :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=4r3hXDLd6Bqk9XmcFR/JS5uHIdkPs2TN+2FSnsngXIE=;
-        b=qwZkbLDqsBUjjQrxVDhhZdPKLeIQMoonBZZ24Of3u5dUbyQt7N2Mw4Ey5VzMnt14uA
-         MVombHBbO6Ygo9XSZVYCEgddy5kRETNEITNabw2wye/gQAi3aLMIxE9CZwcVvBgsxNTP
-         i2ytOEfMarvApV76OLjHKf/R7xm4lWDHEYtnJwcNu584gbCsTZUgS04Cr7Pl9ZGKJmXi
-         Gtt1eob7eWJ8kxYOr1rFqeedP+JuQ4Y0N2SI6k0mx8yNdpGWKAFqrUPb7GRFnCrQP7xe
-         eI3VYOjs8V7/fXoJe/KuIIBY9RMgT9cD5Kq2YGknsTVZPih9J+DbTHpTmwNbU9M6bpwY
-         r//g==
-X-Forwarded-Encrypted: i=1; AKwUvBxWREtBKyQVR7u0pujwI2ZsiH6Z67qKjnuDGG+2cf4K5u1Zg9A9wl94AGooiSE7iX8slFOJzdd1s1h0@vger.kernel.org
-X-Gm-Message-State: AFq9FYKlJFLcDViYXtZhQYluoKbQ9pAOKAmuVPXtNJRDh7iXkvki/eC2
-	4mwECaG/O9UkBzFVOr8a20k5AOtWg3qG2YAYbkmTzHRNguGwQBJSRzqRrxLu/SBvmmif87WSHZs
-	boJvkAZTCXw==
-X-Received: from dyu6.prod.google.com ([2002:a05:693c:8106:b0:352:94e:a8c9])
- (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7301:71a8:b0:358:f717:ff61
- with SMTP id 5a478bee46e88-358f717ff90mr13337962eec.6.1791931219210; Tue, 13
- Oct 2026 15:40:19 -0700 (PDT)
-Date: Tue, 13 Oct 2026 15:39:38 -0700
+        bh=qCnJ2cyf9mW8BNAz5Pcwsubr4iCDZba2S/P+mHJ/PnA=;
+        b=ksPRXDZQpt4VCejE8L5832f3S8/9Xz22vOSza+82MPV0OgGb0m1wGaz1wKOZp55F2P
+         2dHKHGu787yNM3hl6fE/h0PQwTF7QL80+LGayiHkqvQO/40SWzjMCdoqORiBJhp5eHha
+         w1jxu275P1v+1bYGenU8GUsdzIN9rvfzwDcsgTZa39h/cBzpiUl4Uy6L5Dh3VzDwM6gV
+         FeKfwVQIsyuZmPZfWPu4FW0mXbaEPLkEz+zU1QAtqriUtY901zSclxMFnOnNejXlR0Gz
+         f4HgBr5ghfx4xJRSW+R+djTAHczIdybkURmq2Ojmw8U+li9j5OmbSOewUA3cmU0xwNDU
+         Fp9A==
+X-Forwarded-Encrypted: i=1; AKwUvBxlNlkIMri5U2PQ3WudVy7jecRZwVieO9rvo8DIgkirAsg0hEtaACoA3FTCs0q2YskHAHFljJx3TVrl@vger.kernel.org
+X-Gm-Message-State: AFq9FYK9oY8y2hmgPx+/O5peTpWtPLEHF+IcbPxoSrVuz3jRcBJjrdrv
+	GNnFW5QfDoCj0K4ORY++nfRUfBqvbWhKy6VJ8aPug+pMvs4PwPTYQa68v8mfaSqhipGmNd908EZ
+	nrDUh57PA7g==
+X-Received: from dybsc14.prod.google.com ([2002:a05:7301:4b0e:b0:351:7270:d79a])
+ (user=irogers job=prod-delivery.src-stubby-dispatcher) by 2002:a05:7300:f60a:b0:359:2edc:e1d8
+ with SMTP id 5a478bee46e88-3592edcf44bmr18703370eec.5.1791931221247; Tue, 13
+ Oct 2026 15:40:21 -0700 (PDT)
+Date: Tue, 13 Oct 2026 15:39:39 -0700
 In-Reply-To: <20261013223946.1836757-1-irogers@google.com>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -60,8 +60,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20261013223946.1836757-1-irogers@google.com>
 X-Mailer: git-send-email 2.56.0.385.gd3acb90ef8-goog
-Message-ID: <20261013223946.1836757-4-irogers@google.com>
-Subject: [PATCH 03/11] sh: sq: Add missing kobject release callback to ktype_percpu_entry
+Message-ID: <20261013223946.1836757-5-irogers@google.com>
+Subject: [PATCH 04/11] cpufreq: Initialize kobj_type release callback in
+ ondemand and conservative governors
 From: Ian Rogers <irogers@google.com>
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J . Wysocki" <rafael@kernel.org>, 
 	Danilo Krummrich <dakr@kernel.org>, Miguel Ojeda <ojeda@kernel.org>, Kees Cook <kees@kernel.org>, 
@@ -90,38 +91,88 @@ Cc: Nick Desaulniers <ndesaulniers@google.com>, Bill Wendling <morbo@google.com>
 	Ian Rogers <irogers@google.com>
 Content-Type: text/plain; charset="UTF-8"
 
-In sq_dev_add(), sq_kobject[cpu] is dynamically allocated with
-kzalloc_obj() and initialized with ktype_percpu_entry. When
-sq_dev_remove() calls kobject_put(kobj), the kobject is never freed
-because ktype_percpu_entry lacks a .release callback.
+Export cpufreq_dbs_data_release() and set .kobj_type.release in the
+ondemand and conservative governors so their gov_attr_set kobjects have
+a valid release callback, matching cpufreq_ governor_dbs.
 
-Provide a sq_kobj_release() callback that calls kfree(kobj).
+This prepares for annotating struct kobj_type::release with
+__require_explicit_initialization.
 
-Fixes: d7c30c682a27 ("sh: Store Queue API rework.")
+Fixes: c4435630361d ("cpufreq: governor: New sysfs show/store callbacks for governor tunables")
 Assisted-by: Antigravity:gemini-3.1-pro
 Signed-off-by: Ian Rogers <irogers@google.com>
 ---
- arch/sh/kernel/cpu/sh4/sq.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/cpufreq/cpufreq_conservative.c | 5 ++++-
+ drivers/cpufreq/cpufreq_governor.c     | 3 ++-
+ drivers/cpufreq/cpufreq_governor.h     | 1 +
+ drivers/cpufreq/cpufreq_ondemand.c     | 5 ++++-
+ 4 files changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/arch/sh/kernel/cpu/sh4/sq.c b/arch/sh/kernel/cpu/sh4/sq.c
-index 908a8e09113b..f33864958487 100644
---- a/arch/sh/kernel/cpu/sh4/sq.c
-+++ b/arch/sh/kernel/cpu/sh4/sq.c
-@@ -331,7 +331,13 @@ static const struct sysfs_ops sq_sysfs_ops = {
- 	.store	= sq_sysfs_store,
- };
+diff --git a/drivers/cpufreq/cpufreq_conservative.c b/drivers/cpufreq/cpufreq_conservative.c
+index 0b32ae28ec85..38c3bd5bf75a 100644
+--- a/drivers/cpufreq/cpufreq_conservative.c
++++ b/drivers/cpufreq/cpufreq_conservative.c
+@@ -316,7 +316,10 @@ static void cs_limits(struct cpufreq_policy *policy)
  
-+static void sq_kobj_release(struct kobject *kobj)
-+{
-+	kfree(kobj);
-+}
-+
- static struct kobj_type ktype_percpu_entry = {
-+	.release	= sq_kobj_release,
- 	.sysfs_ops	= &sq_sysfs_ops,
- 	.default_groups	= sq_sysfs_groups,
- };
+ static struct dbs_governor cs_governor = {
+ 	.gov = CPUFREQ_DBS_GOVERNOR_INITIALIZER("conservative"),
+-	.kobj_type = { .default_groups = cs_groups },
++	.kobj_type = {
++		.release = cpufreq_dbs_data_release,
++		.default_groups = cs_groups,
++	},
+ 	.gov_dbs_update = cs_dbs_update,
+ 	.alloc = cs_alloc,
+ 	.free = cs_free,
+diff --git a/drivers/cpufreq/cpufreq_governor.c b/drivers/cpufreq/cpufreq_governor.c
+index 710d93ec89b5..97b64985927d 100644
+--- a/drivers/cpufreq/cpufreq_governor.c
++++ b/drivers/cpufreq/cpufreq_governor.c
+@@ -404,7 +404,7 @@ static void free_policy_dbs_info(struct policy_dbs_info *policy_dbs,
+ 	gov->free(policy_dbs);
+ }
+ 
+-static void cpufreq_dbs_data_release(struct kobject *kobj)
++void cpufreq_dbs_data_release(struct kobject *kobj)
+ {
+ 	struct dbs_data *dbs_data = to_dbs_data(to_gov_attr_set(kobj));
+ 	struct dbs_governor *gov = dbs_data->gov;
+@@ -412,6 +412,7 @@ static void cpufreq_dbs_data_release(struct kobject *kobj)
+ 	gov->exit(dbs_data);
+ 	kfree(dbs_data);
+ }
++EXPORT_SYMBOL_GPL(cpufreq_dbs_data_release);
+ 
+ int cpufreq_dbs_governor_init(struct cpufreq_policy *policy)
+ {
+diff --git a/drivers/cpufreq/cpufreq_governor.h b/drivers/cpufreq/cpufreq_governor.h
+index 73b8ed7cfaae..c03d067f42eb 100644
+--- a/drivers/cpufreq/cpufreq_governor.h
++++ b/drivers/cpufreq/cpufreq_governor.h
+@@ -148,6 +148,7 @@ static inline struct dbs_governor *dbs_governor_of(struct cpufreq_policy *policy
+ }
+ 
+ /* Governor callback routines */
++void cpufreq_dbs_data_release(struct kobject *kobj);
+ int cpufreq_dbs_governor_init(struct cpufreq_policy *policy);
+ void cpufreq_dbs_governor_exit(struct cpufreq_policy *policy);
+ int cpufreq_dbs_governor_start(struct cpufreq_policy *policy);
+diff --git a/drivers/cpufreq/cpufreq_ondemand.c b/drivers/cpufreq/cpufreq_ondemand.c
+index 9942dbb38dae..7386d043c665 100644
+--- a/drivers/cpufreq/cpufreq_ondemand.c
++++ b/drivers/cpufreq/cpufreq_ondemand.c
+@@ -374,7 +374,10 @@ static struct od_ops od_ops = {
+ 
+ static struct dbs_governor od_dbs_gov = {
+ 	.gov = CPUFREQ_DBS_GOVERNOR_INITIALIZER("ondemand"),
+-	.kobj_type = { .default_groups = od_groups },
++	.kobj_type = {
++		.release = cpufreq_dbs_data_release,
++		.default_groups = od_groups,
++	},
+ 	.gov_dbs_update = od_dbs_update,
+ 	.alloc = od_alloc,
+ 	.free = od_free,
 -- 
 2.56.0.385.gd3acb90ef8-goog
 
