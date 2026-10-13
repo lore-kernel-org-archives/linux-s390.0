@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0519548548;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA1105476FD;
 	Tue, 13 Oct 2026 20:12:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791922370; cv=none; b=u79C8bbV6eqolSh8sAnBFx9vebN9nKcKGiEfxkJO/QZsIVRD7UAwtmo4P1FPciek0961adENYcMnwIZe2sQBpG9ymBLrH68+AAPkWeRAVkipYvxl8+MV0Jy+Tdjxd2AEXkedvbVpoUC6uwW/9QytKyMHojbwv3lm2IF/pn3cstA=
+	t=1791922369; cv=none; b=XXozII/1ga+UgKoX9gMVJhmjiKLLosfEttCEZJuUTbyi70/5YBS8gSywRYDmCw+8xWH+enZUIeiY8LmEXHaTVjQ5WqJFjPKKvRYtW0S2VRTlUdbVbl0kdOyp4bHWOKDrX4rdK/letDVQSU7pKeGGiRCAynIkFe1IDBuolBj6A70=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791922370; c=relaxed/simple;
-	bh=IXCu3AOkyIWIO2ajrw/IoCAtKoPvKD6T9k2uhXy3DPg=;
+	s=arc-20240116; t=1791922369; c=relaxed/simple;
+	bh=Lnl0XF0TzVvqTKPExTtZgk/B+UiY8r13RpWybMJhiPw=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=c80IZib19djSWSSpbHmNz6Y0+8uGBDHzHqZgCj1+5KSqT/Vsb7B/nSPPWIS0nRqXJEIFtjUuE3xZ5Y1MbVAtB/WK0MTo8IyiaqXoLF1WoL/ioJfR3xkKeYmu5PkNLEh7tLMqgAS5bEt0jC8D2Qpm3sb5SJznOIdDmngUbXNUovQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LCdfTkRX; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=rtBfnY7aj16nO9aUOYjui/xUXOaUB+fHiYqlpth00GGVy/PLSW05nwLQ2+0MjtmSN9rHvjU+JRHPzlt7zdg0JTE/d0z/nee6hvYJPqBzBOPmeE0MF/Uh6E1A5bcCRAI+0w7S+GY27dvsWauH/mMa7b+6a4YqobGkr0q0QdH88As=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GnOYDFpj; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LCdfTkRX"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id B10BCC32782;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GnOYDFpj"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 9F4F6C4AF0B;
 	Tue, 13 Oct 2026 20:12:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1791922369;
-	bh=IXCu3AOkyIWIO2ajrw/IoCAtKoPvKD6T9k2uhXy3DPg=;
+	bh=Lnl0XF0TzVvqTKPExTtZgk/B+UiY8r13RpWybMJhiPw=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=LCdfTkRXrhdf6ssojJmdvnZqHWOq/M7ok5jbknRWQq/8fwPaQUGw4dXYtR5OeIsre
-	 70YOSCq6PUfN11VkSFUZqShM4AVYYQ5IVLAL/Hwj+VpdeikgcmU1r1Jm0rqq00sDsV
-	 iG3tWokQCPJTFYjSRUpKoDc5Lq7x3wWJ5cUp81CaGLP8vQvKN3PfkL+tEQ8toaaAAz
-	 EVYxW/GlrevQRzLxAALpnvAK5Bv1eKa1wf+sGvX+p71alPLDBTgy4p3YySWeoxt/+C
-	 vb7WiarRbj7TDSYORaHq7fttJ0XHbAAoeZLAFV1r6jV6xKybq3+sjPzROKQkwhC1c7
-	 GiFkJwQxqG0nA==
+	b=GnOYDFpjhvSyr3njOPOq8O4vq7VeLn/PamIVQT88WkeWfJMK/H+I3U+JIzEqA3RLN
+	 jS6y79JeJqKCUcrTdfzZeEYHInSCLs3lM9w5jy3Oa5q6YyIhTXOzQv4DVDNjdYgUE2
+	 IvzcIshWzFv9nwBJ8VrQLZ/k9ZwbEjtXe8lONh6zrvXAWmE+Wjd6AqYzAPSfz1MiV1
+	 8os/BiPWmPdUxrxIIgaLwmVeAVztzSbFcErLZYHQm+ZZsAy4OyrCpkNOMpM92K6AaY
+	 br1q9ji6HPE/BLFo68C28e2O41nMkdN3yQ249hWi3dSL3hjYXuHQ0kwQrkvkaFrq0+
+	 x9JWbdlW5EKcg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BDE4CC6B19;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83121CC6B1A;
 	Tue, 13 Oct 2026 20:12:49 +0000 (UTC)
 From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
-Date: Tue, 13 Oct 2026 15:12:51 -0500
-Subject: [PATCH net v7 4/4] net/smc: bound the link failover cursor advance
- to the send buffer
+Date: Tue, 13 Oct 2026 15:12:50 -0500
+Subject: [PATCH net v7 3/4] net/smc: bound the send length to the send
+ buffer in smc_tx_sendmsg()
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261013-b4-disp-f345196c-v7-4-ef3dddfbfa68@proton.me>
+Message-Id: <20261013-b4-disp-f345196c-v7-3-ef3dddfbfa68@proton.me>
 References: <20261013-b4-disp-f345196c-v7-0-ef3dddfbfa68@proton.me>
 In-Reply-To: <20261013-b4-disp-f345196c-v7-0-ef3dddfbfa68@proton.me>
 To: "D. Wythe" <alibuda@linux.alibaba.com>, 
@@ -58,11 +58,11 @@ Cc: netdev@vger.kernel.org, Simon Horman <horms@kernel.org>,
  Stefan Raspl <raspl@linux.ibm.com>, Hidayath Khan <hidayath@linux.ibm.com>, 
  Wen Gu <guwen@linux.alibaba.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1791922368; l=2755;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1791922368; l=2633;
  i=hexlabsecurity@proton.me; s=default; h=from:subject:message-id;
- bh=WmGU8zUppN7BH0rV8o+Estl5Zae56D3SssXqw8plQEU=;
- b=A3NOyHr0oJ7D6eONfsU+V5uBJSVuv/KU5E1/NhUJkpSNObgkRkpdqMrywMz1DlFzcm+ftTPRW
- R+LFpRK7IhkD9tDv89mYG47MaUgCRO13Rs+dzCN+JZvvqMuSkxEY/Me
+ bh=lUNbhzoLihltUOk3ECDO1KVY6cuHiA2nFGBtBf+62Cw=;
+ b=jBsmKMJF65B6v5ECU9jhYs9tNrifsJ6m5nxP3hCM8A6y28WYuNNyFQzcThBMat0T39Q/yDNFJ
+ 7T7FooC6YHmDPp8YBC6Ik2CWrgAoBgFK8GJzkoLXJyzuvHurRBoFaAo
 X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
  pk=xw1AhCtQdvuoQc+bOQIYy9o8G++cp4/VniI2G/tc3G8=
 X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
@@ -72,65 +72,56 @@ Reply-To: hexlabsecurity@proton.me
 
 From: Bryam Vargas <hexlabsecurity@proton.me>
 
-On SMC-R link failover, smc_switch_cursor() rewinds the send and
-producer cursors to their values at the last completed CDC send, then
-advances them by however far the peer's consumer cursor is ahead. That
-cursor comes from the wire, so a forged one adds an arbitrary amount to
-sndbuf_space and to the cursors. smc_curs_add() wraps them only once, so
-the next RDMA write can take its source past the send buffer and its
-destination past the peer's RMB.
+conn->sndbuf_space can run past the send buffer. After an SMC-R link
+failover, a late completion from the old link can move tx_curs_fin back,
+and the next completion credits the same bytes again; across the ring
+end, smc_curs_diff() credits the step back itself as more than a whole
+ring, so even with a conforming peer sndbuf_space can reach three times
+the buffer. The failover catch-up and SMC-D DMB merge (only the loopback
+device today) also credit it from the peer's consumer cursor without a
+bound. smc_tx_sendmsg() takes it as the write space, and the second
+chunk of its copy writes past the send buffer.
 
-A conforming peer keeps its cursor count inside its RMB and cannot
-consume past the data in the send buffer. Advance only for such a count,
-and no further than tx_curs_prep. The pre-failover tx_curs_sent cannot
-be the bound: an earlier failover may have rewound it below the peer's
-cursor.
+Clamp writespace, which sizes the copy, to sndbuf_desc->len, negative
+values included, so the copy stays in the send buffer.
 
 Fixes: c6f02ebeea3a ("net/smc: switch connections to alternate link")
+Fixes: cc0ab806fc52 ("net/smc: adapt cursor update when sndbuf and peer DMB are merged")
 Cc: stable@vger.kernel.org
 Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+Reviewed-by: Sidraya Jayagond <sidraya@linux.ibm.com>
 ---
-Bounding the copy in smc_tx_sendmsg() (3/4) does not cover this: the
-RDMA write takes its offsets from the cursors.
+This keeps the copy inside the send buffer but does not undo the
+over-credit, so after such a failover send() can still overwrite data in
+the buffer that the peer has not received yet (by inspection; not
+tested). Fixing the credit in smc_cdc_tx_handler() needs a cursor
+compare that survives the u16 wrap rollover, which smc_curs_comp() does
+not do, so it is left out here. A negative value maps to len, not 0,
+since 0 would make the send loop spin.
 ---
- net/smc/smc_core.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ net/smc/smc_tx.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 8829517299de..36aee89e5f5f 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1034,7 +1034,7 @@ static int smc_switch_cursor(struct smc_sock *smc, struct smc_cdc_tx_pend *pend,
- 			     struct smc_wr_buf *wr_buf)
- {
- 	struct smc_connection *conn = &smc->conn;
--	union smc_host_cursor cons, fin;
-+	union smc_host_cursor cons, fin, prep;
- 	int rc = 0;
- 	int diff;
- 
-@@ -1043,12 +1043,18 @@ static int smc_switch_cursor(struct smc_sock *smc, struct smc_cdc_tx_pend *pend,
- 	/* set prod cursor to old state, enforce tx_rdma_writes() */
- 	smc_curs_copy(&conn->local_tx_ctrl.prod, &fin, conn);
- 	smc_curs_copy(&cons, &conn->local_rx_ctrl.cons, conn);
-+	smc_curs_copy(&prep, &conn->tx_curs_prep, conn);
- 
--	if (smc_curs_comp(conn->peer_rmbe_size, &cons, &fin) < 0) {
-+	if (cons.count < conn->peer_rmbe_size &&
-+	    smc_curs_comp(conn->peer_rmbe_size, &cons, &fin) < 0) {
- 		/* cons cursor advanced more than fin, and prod was set
--		 * fin above, so now prod is smaller than cons. Fix that.
-+		 * fin above, so now prod is smaller than cons. cons comes
-+		 * off the wire: catch up only for a count inside the peer's
-+		 * RMB and no further than the data in the send buffer.
- 		 */
--		diff = smc_curs_diff(conn->peer_rmbe_size, &fin, &cons);
-+		diff = min(smc_curs_diff(conn->peer_rmbe_size, &fin, &cons),
-+			   smc_curs_diff(conn->sndbuf_desc->len,
-+					 &conn->tx_curs_sent, &prep));
- 		smc_curs_add(conn->sndbuf_desc->len,
- 			     &conn->tx_curs_sent, diff);
- 		smc_curs_add(conn->sndbuf_desc->len,
+diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+index 3144b4b1fe29..58d9dfdcdf33 100644
+--- a/net/smc/smc_tx.c
++++ b/net/smc/smc_tx.c
+@@ -233,6 +233,14 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msghdr *msg, size_t len)
+ 		/* initialize variables for 1st iteration of subsequent loop */
+ 		/* could be just 1 byte, even after smc_tx_wait above */
+ 		writespace = atomic_read(&conn->sndbuf_space);
++		/* sndbuf_space can be out of range: late completions of an
++		 * old SMC-R link credit it again after a failover, and with
++		 * SMC-D DMB merge it follows the peer's consumer cursor.
++		 * Bound writespace, which sizes the copy; a negative value
++		 * would become huge in the size_t min_t() below.
++		 */
++		if (writespace < 0 || writespace > conn->sndbuf_desc->len)
++			writespace = conn->sndbuf_desc->len;
+ 		/* not more than what user space asked for */
+ 		copylen = min_t(size_t, send_remaining, writespace);
+ 		/* determine start of sndbuf */
 
 -- 
 2.56.0
