@@ -1,143 +1,112 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A27C492E32;
-	Wed, 14 Oct 2026 20:12:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 734BF48F82B;
+	Wed, 14 Oct 2026 20:12:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792008786; cv=none; b=oyCyWqP3/nsem9h58XA7MV/AgukakVTe2pXg7qpUjllS81DQKFj/pv2mvNWPK8LsaJkIZ4Tmeq0x/SQzEwesni5kFQOOCLjm9pq9yAPy+xWkC9YhP6F47RbN5BEGeH/mX4yrNsDQb6Gbp7MbwHbMpzo2itIHuLu8MYTwftTbXkI=
+	t=1792008786; cv=none; b=evY4VTgkeN2JnUj1z+K2TYs/h+Sqxs03J2x4w6NglC6Z3vbLIYmDIy/sEfdsXqj0TavXXgXtVWCbiq8YSaRJNoq5/26FLTponUWjTfBX1EqJyPKcXyZKlmHgOmn0F3CFZ8i9hgvsinHRipC15tj/e+Lwt1NAXr4cqHBQsI4114Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1792008786; c=relaxed/simple;
-	bh=hfaZQa0O46ns1+lIjtFEoazrhgmh4CWflUKN63OrJPI=;
+	bh=GIFVDql/ai0ZBa5z5UjlpQ1A8/t6dphkRFBpECuqTHI=;
 	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=VhiL3rVMLWm8oLr7mSzNhMIAoWcVjEe6FzXn1VbW+th8ejPLrN3jrg8Mkn89CIV71Vaay41n+Hq7Z9gvazWenQUCsX8CYBn/ONDMRk+Y+nNkWJuHEqAAUap80YH1g2S+muajeqO7pEZCjfEVGUP0l+LbjJRa6Dph9DR5Ju19lNQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XA3A/gvO; arc=none smtp.client-ip=100.103.45.18
+	 Date; b=XKV3cVVsDBkPxYrrb0L/We832xaTXbDRDntZL54tYiC+xP8C5rMrzNqtKCs+pQpwqrMI0CcgChcHXn8MhmIL26xxS8DR/G8zjPeLj+TEQw8vxlYAxunaz7yRP1LjGJevEwgvdvs+7985dFGizaFLOX6sm/bomeOx44RBz3pU7fQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bfVHG864; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XA3A/gvO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 678421F000C7;
-	Wed, 14 Oct 2026 20:12:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bfVHG864"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 872AA1F000C5;
+	Wed, 14 Oct 2026 20:12:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792008776;
-	bh=zq0VNMf9rJgF/JjPhMDguneFuINfQZWAHiiC+Es1+f8=;
+	s=k20260515; t=1792008774;
+	bh=yoieG2xtzmkUWK+b/AZnps7H1FErXTJ4CyjCpRBt5EI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XA3A/gvOXR1vhXe5Kkw2jMSieneF5iGMFhymccjp9JFLk0p6gyI0kJORAxzZ4eKe4
-	 EG0sHlrGdCdo4ulxn6XaTPgQo84aW+ZQOspQS0fH1YO0tgRsW6NZIja4f3t5MXxpwd
-	 9ksmM5lr8wJ/zFss7LnOOnp53+GvpoL80ecIV0XBSpH2Bho1ExGj9pjQY016fBcF6x
-	 qIAINoAc6+JCpu3/VCNvumDYVRis3VhWsNY61zEkOB31se333bODue0SKTGbj0SqV7
-	 s/1OaCFLVHGNzmq7QtkCgc5NDPtlC0dfB34FxTlAn8yGUqLWpILmStLXJlbOACc4Sj
-	 eY3beXMXC++0Q==
-Message-ID: <sashiko-outbox-171846@kernel.org>
+	b=bfVHG864/Uh5sDDSPnP23R4y4xz7MIP6aiXA1GWg54cUUs+qYMUZxSstz1a6msHD3
+	 1n/Glb6jnYWsJga/+tvGReAbQS4X7mQzErfK8ys8HZIFyQEmgXej4nZrg99waQpzP1
+	 O1X5WrLA3+PGstPSX8OLSOZsgAOiHaSO/ZGY7SV7cgL1T6EPiVOsO7Ul6CLvVqIOwq
+	 KB5JyhBNTW/2EsVo1pC4tAJZQzr/5ku1HEXwgz9VWc7eizr45Lm99speEgpbTHGR2o
+	 RUkWw84sKTfVjJDoszSGyqZut8zb9eS8rl63iiXy2OEzV3ak+x2xUbFBt7M/bGISNL
+	 S1sWn38XIJLXg==
+Message-ID: <sashiko-outbox-171844@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net v7 2/4] net/smc: bound the receive length to the RMB
+Subject: Re: [PATCH net v7 3/4] net/smc: bound the send length to the send
+ buffer in smc_tx_sendmsg()
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Bryam Vargas" <hexlabsecurity@proton.me>
 Cc: linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261013-b4-disp-f345196c-v7-2-ef3dddfbfa68@proton.me>
+In-Reply-To: <20261013-b4-disp-f345196c-v7-3-ef3dddfbfa68@proton.me>
 References: <20261013-b4-disp-f345196c-v7-0-ef3dddfbfa68@proton.me>
- <20261013-b4-disp-f345196c-v7-2-ef3dddfbfa68@proton.me>
+ <20261013-b4-disp-f345196c-v7-3-ef3dddfbfa68@proton.me>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 14 Oct 2026 20:12:56 +0000
+Date: Wed, 14 Oct 2026 20:12:54 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] net/smc: missing bounds check on bytes_to_rcv in poll/ioctl
-- [High] net: smc: UAF in smc_rx_recvmsg() if rmb_desc is freed during unlo=
-cked wait
+- [High] smc: flow control bypass and data corruption on negative sndbuf_sp=
+ace
 --
 
-commit 724586149d84b7c3037623750dccc8a10739e047
+commit 44a09d8e6fd4a65a3a6817c2d3b58d4da753540a
 Author: Bryam Vargas <hexlabsecurity@proton.me>
-Subject: net/smc: bound the receive length to the RMB
 
-This commit fixes an issue where a forged producer cursor can drive the
-receive byte count past the buffer size or into negative values. It
-bounds the data available in the receive buffer to the cached RMB length,
-preventing out-of-bounds memory accesses during receive operations.
+net/smc: bound the send length to the send buffer in smc_tx_sendmsg()
 
-Link: https://sashiko.dev/#/patchset/20261008-b4-disp-f7cd3d96-v6-0-fba616c=
-0920c@proton.me?part=3D2
-Link: https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261008-b4-disp-=
-f7cd3d96-v6-0-fba616c0920c%40proton.me?part=3D2
-Link: https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261008-b4-disp-=
-f7cd3d96-v6-0-fba616c0920c%40proton.me?part=3D1
+This commit limits the writespace to the size of the send buffer descriptor
+to prevent writing past the send buffer when sndbuf_space exceeds its
+bounds. It explicitly maps negative writespace values to the full buffer
+length.
+
+Cc: stable@vger.kernel.org
+
+> diff --git a/net/smc/smc_tx.c b/net/smc/smc_tx.c
+> --- a/net/smc/smc_tx.c
+> +++ b/net/smc/smc_tx.c
 
 [ ... ]
 
-> diff --git a/net/smc/smc_rx.h b/net/smc/smc_rx.h
-> index 994f5e42d1ba2..6bf44e3cc33a0 100644
-> --- a/net/smc/smc_rx.h
-> +++ b/net/smc/smc_rx.h
-> @@ -25,7 +25,16 @@ int smc_rx_wait(struct smc_sock *smc, long *timeo, siz=
-e_t peeked,
->  		int (*fcrit)(struct smc_connection *conn, size_t baseline));
->  static inline int smc_rx_data_available(struct smc_connection *conn, siz=
-e_t peeked)
->  {
-> -	return atomic_read(&conn->bytes_to_rcv) - peeked;
-> +	int avail =3D atomic_read(&conn->bytes_to_rcv);
-> +
-> +	/* bytes_to_rcv follows the peer's producer cursor and can be past
-> +	 * the RMB or negative. Report no more than fits in the RMB behind the
-> +	 * bytes already spliced or peeked. Compare before subtracting: near
-> +	 * INT_MIN, avail - peeked wraps. This also runs unlocked, possibly
-> +	 * after rmb_desc was freed, hence rmb_len.
-> +	 */
+> @@ -233,6 +233,14 @@ int smc_tx_sendmsg(struct smc_sock *smc, struct msgh=
+dr *msg, size_t len)
+>  		/* initialize variables for 1st iteration of subsequent loop */
+>  		/* could be just 1 byte, even after smc_tx_wait above */
+>  		writespace =3D atomic_read(&conn->sndbuf_space);
+> +		/* sndbuf_space can be out of range: late completions of an
+> +		 * old SMC-R link credit it again after a failover, and with
+> +		 * SMC-D DMB merge it follows the peer's consumer cursor.
+> +		 * Bound writespace, which sizes the copy; a negative value
+> +		 * would become huge in the size_t min_t() below.
+> +		 */
+> +		if (writespace < 0 || writespace > conn->sndbuf_desc->len)
+> +			writespace =3D conn->sndbuf_desc->len;
 
 [Severity: High]
-If this runs after rmb_desc was freed during an unlocked wait in
-smc_rx_recvmsg(), and returns true because avail is greater than peeked,
-won't the reader proceed to use the freed buffer?
+Does this mapping of negative writespace to the full buffer length bypass
+flow control and overwrite unacknowledged data?
 
-Looking at smc_rx_recvmsg() in net/smc/smc_rx.c, the base pointer is
-calculated before the wait:
+When sndbuf_space becomes negative due to over-credits, the earlier check
+in smc_tx_sendmsg() for !atomic_read(&conn->sndbuf_space) will evaluate to
+false, which completely skips smc_tx_wait().
 
-    rcvbuf_base =3D conn->rx_off + conn->rmb_desc->cpu_addr;
+By then forcing the negative writespace to conn->sndbuf_desc->len, the loop
+will copy up to the full buffer length over unacknowledged data.
 
-If the connection is closed and rmb_desc is freed during the wait, and
-smc_rx_recvmsg_data_available() returns true here, the code jumps directly
-to the copy phase:
+The subsequent atomic_sub() later in this loop will drive the space even
+further negative, creating an unthrottled copy loop until the user message
+is exhausted.
 
-    if (smc_rx_recvmsg_data_available(smc, peeked_bytes))
-        goto copy;
+Could we handle negative values by treating them as zero to properly wait
+for space, rather than mapping them to the maximum buffer length?
 
-Can this lead to a use-after-free when dereferencing the freed
-conn->rmb_desc->len in smc_curs_add() and reading from the stale
-rcvbuf_base pointer?
-
-[Severity: High]
-While this handles the negative value in recvmsg() by clamping it to 0, what
-happens to other readers of bytes_to_rcv when a forged cursor in
-smc_cdc_msg_recv_action() drives it negative?
-
-For instance, in smc_poll() in net/smc/af_smc.c:
-
-    if (atomic_read(&smc->conn.bytes_to_rcv))
-        mask |=3D EPOLLIN | EPOLLRDNORM;
-
-Does this evaluate to true for negative values, potentially causing an
-infinite epoll_wait loop?
-
-Also, in __smc_getsockopt() in net/smc/af_smc.c:
-
-    answ =3D atomic_read(&smc->conn.bytes_to_rcv);
-
-Could this leak the negative byte count to userspace via the SIOCINQ ioctl?
-
-> +	avail =3D min(avail, conn->rmb_len - atomic_read(&conn->splice_pending)=
-);
-> +	return avail > (int)peeked ? avail - (int)peeked : 0;
->  }
-> =20
->  #endif /* SMC_RX_H */
+>  		/* not more than what user space asked for */
+>  		copylen =3D min_t(size_t, send_remaining, writespace);
+>  		/* determine start of sndbuf */
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013-b4-disp-f3=
-45196c-v7-0-ef3dddfbfa68@proton.me?part=3D2
+45196c-v7-0-ef3dddfbfa68@proton.me?part=3D3
