@@ -1,122 +1,105 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 783D741D239;
-	Wed, 14 Oct 2026 12:20:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D98244E01E4
+	for <linux-s390@vger.kernel.org>; Wed, 14 Oct 2026 12:27:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791980441; cv=none; b=LrbQxvXdO/8+a1A2TygCW6aiKroZDmL5Sis3BvCO51qu0QODwvyNJzQksAHxDXniYM4Npdkg9JnCRA/5gbAixJUgEk8sB4KaXtJCUsi7aueslimMh6lP0cqtZCQ9chsPjNDrqEWjs9qOXR8N3nTWuh3ExAvAS+oBAa/jLqove9k=
+	t=1791980861; cv=none; b=a3zmsE+FoizFOQGx+URYPIr80n87S/gz4iW7bchQZP579+Z4OEqs45QcH7qKqSF2/4smwbAixVLdvtjFcyE2jYEseotHdJOZ2X74PnxyTp0wp9ipNDI0srNW0B1eRi0AL2Krn2tPr9I/WP2vNEQePH06PPSNeodn/iSr9LR6XSU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791980441; c=relaxed/simple;
-	bh=8wFPiyAlN7bZRRzc0eDJhxyslFZM3xPNRb3kQflYrPE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=etJmBbtPa440G+/wHCf7ITQQEdsGblv+YyGG/dB7GW5M7gZ/nw3pEdSQmcq7ePKUr14ekmrwW25F4pCvFiBMtmCamOLqPc0vFV90bWNmDhdF9xAsj/45S2lXxgLJjGS/trX9/uVTvpUdZCqEKE1RVAfo0k0+vDMYln6iCgmdbpQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bV3oIRrf; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1791980861; c=relaxed/simple;
+	bh=t+tXOJgINuHz5ua6C+34HLQge1ta50pjf8UE+NV3Ad8=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=HRPURdzqOeyqdXw9NWx/n5Dy7hN3ugNNzuZD+DOghrEE5aeEJj1gt77XlsAukuYjdPF6Ga4Uux+LgARZo7yEN9sfYeLURA+AR05LocKc1OPisH7vaahIhRqwLWwYuIePqtzNMhxdusX19GUqQFz+dY/N1/PyKbpb6IgpYBm/1pY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QKaI3MWJ; arc=none smtp.client-ip=209.85.221.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bV3oIRrf"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69EAZdkS1775178;
-	Wed, 14 Oct 2026 12:20:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=v0pAU/
-	+aOZgBAQla6dvbndZ7uBHuCsSWYhz85j8CZGE=; b=bV3oIRrfV1uS4CB58SAht/
-	FU0dlkk1byBXPIwjaUVuqyh7oVBASyzfI3Eb9NKjf8ualj6RisUEk6/iwibZIniO
-	bIlYP7qRsXM0CxTQ//q0Q98h+tdqsoPGiCNN2fdaX3Da/OP6vvUIJh10OrIkPD0a
-	csU1HJ9vmNf+dyTYJSiTc0R5zNfgZrZAswAZunBfzo9yQhttcrSlZjheG66llcw0
-	q9k/vGn8XOtWMwOE1GZckGNwza7EwfkXp3m9Q0onOHKr470way6NlUGWPT4MjG3R
-	PrzyS3mCWBvtd4QN8Ew0qQ3fugBTs+anc0LRU5EHrouKKw6t1augcHMc0abqnEAw
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dwj3srv-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 14 Oct 2026 12:20:39 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69EAdc3R3211854;
-	Wed, 14 Oct 2026 12:20:38 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h9q2ymqwm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 14 Oct 2026 12:20:38 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69ECKYF650266610
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 14 Oct 2026 12:20:35 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D27002004E;
-	Wed, 14 Oct 2026 12:20:34 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 98D3E20043;
-	Wed, 14 Oct 2026 12:20:34 +0000 (GMT)
-Received: from [0.0.0.0] (unknown [9.111.31.234])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 14 Oct 2026 12:20:34 +0000 (GMT)
-Message-ID: <6255e61c-6c0c-4a36-8d78-9157440919fe@linux.ibm.com>
-Date: Wed, 14 Oct 2026 14:20:34 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QKaI3MWJ"
+Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-48870973bddso2431194f8f.1
+        for <linux-s390@vger.kernel.org>; Wed, 14 Oct 2026 05:27:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1791980858; x=1792585658; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=bU5WoXEdNTnz+BAlcIBVqmgTpCbqy4PVyKMuyqbaZGE=;
+        b=QKaI3MWJ0JVmVSc1vGOVIC/GF97hRyT3l0VbMBfDtGdJck/2HBAOSMI/EpAmt6oiXL
+         Y6yzlzIqiy974y1UWonOY1sjE1KH+nSdpUsA3+0pvq18XIk7eGmEEeGiop56ke+uaCAb
+         ho3DjA0gXqIi/8TfhsI8VFrcCbq9xKAS4tqB7Gg5PPuCYFUjmzjX0Otg4AZ5CixfyP0k
+         +zbsPtMWLGjZ9DZSq2t16T7hoTZN2xWMWvk8eHx9bYxvm/IRzX4+HIllQmW9z9Yrd0g1
+         mdo1IqIEo+U3JOdwdR58vy9/iK4ZgZtQQWJeOzEc5JCyyr/1wW1APWmMtWufefDkg+wl
+         hvFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1791980858; x=1792585658;
+        h=content-transfer-encoding:content-type:mime-version:references
+         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=bU5WoXEdNTnz+BAlcIBVqmgTpCbqy4PVyKMuyqbaZGE=;
+        b=eVO/CEZG9AC0sZptQ+dnjxA5qCN4FgSZgq4kQaNfoEt2xG2WE1uYVGih/AYrdJ2dOM
+         PIjdmraZRjPI54NErEsifcbxLfficcQS99q1Rd4s3crIhGtXF05p8aLzEhFXqXyAErZ5
+         wtX4C0lzJJGSs64nCvjw9ngr+S8Fv6C8l4I/c7QPPpEYr5OtbQQ8PL1LF65qBB/B7x/d
+         rCuQVHUfqli8r2+w4/4vcp9z6j9Z/ODNzjuEhl/oXGZx+TiR+H2N5T32+xVAql1Fily7
+         zd6QK6NT+UoXZIhyFy82PUaWGZ3sYzolWeY1NdvwsCEZjgxjxdWhsm4p0WgveMelZHx6
+         cV8A==
+X-Forwarded-Encrypted: i=1; AKwUvBwQ/HBCiuhbuDnKGCiW6EY0I4EW4OHaLkEE1JOTeqRYm66Mj6/KsH+yIsel48Rjy1dpcMexazWG7xf5@vger.kernel.org
+X-Gm-Message-State: AFq9FYIh7HEjAi0hwMtLehyrcDdbhGRzzUUwfxYen13axwy05TjXNnOG
+	iFTWa9N5UmUzUo7+B8bTkjetnIDqYeC4Ri/W0wC0IA3HlQlPCYORhxLr
+X-Gm-Gg: AYBFou0Ud7BgiFkKRgYfyIyIBRfpPmPSG5crml9StdmwSiFCV5bAVL8ikZc7Mydbe5t
+	o8zyvOrkH2pncme4hNEUuBnDqbKb8wMelg1qCY4SERlRv3nx7RvLFSIZjSd2H79GbWsm1mVOsfh
+	0PN4TpQCfRzzD6wS4BNR1zbp7Rx+XwwRteDyd3x01JcIiVFWIpYkay1Vad8U8keRRSiIiBMHYzH
+	kaabPWhlcGVh7GE7P8rFAcx2ZGCqzpgGCYm6whhS3eY2bjfzYXHzuXq4VUIIkPVcaiAW02GObUT
+	D5t6BEbkdMHtKfcKBB+n9/ByjXCLN0hOJrlR1k/+L++5hdfz5n77phCLCabg9JTW3m76PT5r4S4
+	XDdTbaRda62oSO6JSLJJCpwSdy5GhaQve5p/wnDvmL/UMDX342VLBirEjWPE8ZPG/5zWc3cIMr/
+	Ugq8J/rXj5s0KP1uA29Hkj599FXU5FAUK6894JfQ7rX3Vxz9I+dU21HRGtCgxeOWs+7SNgWkZAG
+	8Gdlmvsc5JcGdRt8fZd/wrv7U0eB6re0V0=
+X-Received: by 2002:a05:6000:200f:b0:48c:5669:747b with SMTP id ffacd0b85a97d-48db9465ffdmr35843535f8f.8.1791980858010;
+        Wed, 14 Oct 2026 05:27:38 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48de0aaaad1sm11373355f8f.17.2026.10.14.05.27.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Oct 2026 05:27:37 -0700 (PDT)
+Date: Wed, 14 Oct 2026 13:27:36 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Ilya Leoshkevich
+ <iii@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik
+ <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+ linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH 2/4] s390/percpu: Drop unused output register from
+ arch_this_cpu_add()
+Message-ID: <20261014132736.10a32cfe@pumpkin>
+In-Reply-To: <4907dbfd-3c5c-483b-be25-b0df83af2d20-agordeev@linux.ibm.com>
+References: <20261012114249.2898572-1-hca@linux.ibm.com>
+	<20261012114249.2898572-3-hca@linux.ibm.com>
+	<4907dbfd-3c5c-483b-be25-b0df83af2d20-agordeev@linux.ibm.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] s390: Select ARCH_MEMORY_ORDER_TSO
-To: Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20261014115006.537790-1-hca@linux.ibm.com>
-Content-Language: en-US
-From: Ilya Leoshkevich <iii@linux.ibm.com>
-In-Reply-To: <20261014115006.537790-1-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDE0MDA0OCBTYWx0ZWRfX5nff2lZapeg3
- LfPNdFUN7T/lf6cGtcjtG1mo3jlrVqmhjblLqkJIH7eDU9g00/aaNbyV/SeeBUBBpqr0Z7Om8vB
- pKaJdoYmqPQJvh0HcB6ZnAuz2JA7KPPeBlNX07XrEl3JNSixz/KcqNzAVUSOunKXX4Wrrpq7tm2
- JFu6Gw85kQzBr/ipTfeduOOWAy9qRbHjVnPMo5iSpGRmS770z8D8xMQatlaIvwGsg+t+ky/gSgf
- C+tal3XqvcaGlUozxrqkAiKnyurAFW2mJ/AJF1bR6Emp22xUS8lNiPHkOBqF0vTG6Yy41IgZnbO
- rL03OzmKIjlBLpqsn6NgR3M2KCg1+cXdiBr4pXFP4b3fdrfKJjMphbjTim1ACxbFlvlVZsokPpt
- e1BRP+SL24bhN1PHoLzFqpHN46+nAtsvGt2ac7e+h07V+GF/iMvY3+u2KnJOeT0nCJ9zjRRR+WR
- kC/YzSIb+6op3MJdvPg==
-X-Proofpoint-GUID: uCwBFjm2xAEOKSmbwIAE9nXnnq5lcquQ
-X-Proofpoint-ORIG-GUID: uCwBFjm2xAEOKSmbwIAE9nXnnq5lcquQ
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDE0MDA0OCBTYWx0ZWRfX46fieTKEb/tc
- FSlOQkOTp3JrZ27IbSeSq+eWhFYbBvResoHTyF539T2ezWISeUlsZ/YK7Q0JjK672RvvbNweDOA
- pG4VbIp4z2Q9/1wgPC/mv3sRvEoJ9kY=
-X-Authority-Analysis: v=2.4 cv=btHZl0ai c=1 sm=1 tr=0 ts=6acf7397 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=LQFbTukdLxTeUF92zhsA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-13_01,2026-10-09_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 malwarescore=0 phishscore=0 impostorscore=0 adultscore=0
- lowpriorityscore=0 priorityscore=1501 clxscore=1015 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610080000
- definitions=main-2610140048
 
+On Mon, 12 Oct 2026 15:24:20 +0200
+Alexander Gordeev <agordeev@linux.ibm.com> wrote:
 
-
-On 10/14/26 13:50, Heiko Carstens wrote:
-> s390 is a Total Store Order (TSO) architecture. Therefore select
-> ARCH_MEMORY_ORDER_TSO which was introduced with [1]. As of now this has
-> only a small effect on futex_robust_unlock(), but that might change in
-> the future.
+> On Mon, Oct 12, 2026 at 01:42:47PM +0200, Heiko Carstens wrote:
+> > The laa/laag instructions return the old memory content, but
+> > arch_this_cpu_add() does not need it. Instead of allocating a dedicated
+> > output register old__ just to discard the returned value, change the
+> > val__ constraint from "d" to "+&d" so it is used as input/output
+> > register.
+> > 
+> > This reduces register pressure.  
 > 
-> [1] commit 6149fc36c09b ("uaccess: Provide unsafe_atomic_store_release_user()")
-> 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->   arch/s390/Kconfig | 1 +
->   1 file changed, 1 insertion(+)
+> Do you know whether the compiler is may be smart enough to select the
+> same register for old and val himself?
 
-Reviewed-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Given gcc tends to allocate a new register for x++ I doubt it
+(and then has to do a reg-reg move to put it back).
 
+David
