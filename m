@@ -1,123 +1,157 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from canpmsgout05.his.huawei.com (canpmsgout05.his.huawei.com [113.46.200.220])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD73847F3D6;
-	Wed, 14 Oct 2026 11:50:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3719259C82;
+	Wed, 14 Oct 2026 11:51:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.220
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791978618; cv=none; b=ketG6IQlI4rioZ7gmDgcBYN3K2FuLoHCpS7UnTxLYt9RypYNEKMfB1XthI4sSQkhoPFyCuPZsdreZaMUxNrdpdLfoy8eMtLGVuiFX1sXPPdn25ime48v6/BYUwERxZ44hFJ1TZGGBxVL49wUrS0xiONusXCszhvxKcltQc0jFHA=
+	t=1791978702; cv=none; b=jlMxZn2hkExQkXsZPWihFx8zQO8icEZs9+ZHh/gXEBtOtxWFK7eDNPHnP1XTE2QRQCwLIumb+4TNf1iY0MEszwzp4Q499Wd0F5CO+V9VNEq1h45T1dW1C5mXcfq+PJDIxViIHpFxUy8c3Kx6iRlJUhV3rbH0lFZhmDq5vuawQh4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791978618; c=relaxed/simple;
-	bh=KRMiirGqPExLNjUiwOOvq5jW3jHQqUSMdK0sC33+L2Y=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oZxF1kSlyrxae5+V0sWblupXGTjUf5JkS6fM0hIG3QlM454NB3/7uEhN1e9iEMTOkMNoKaaDoK5VKtL5bOckmylAhbcwUid6LPz6Fg7ZarK9ikk4tmW5h7qNAg+2fOkInoN/YZ3qXaJc7utg35/lxxmrMaJu2jH0HzbPELKBGSI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sy4MQUHc; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1791978702; c=relaxed/simple;
+	bh=332V8JwG+JWD45jKpNGkD4yH8RmdKzKFos55fW7jgCY=;
+	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=jTob6qNJoJo4zj/KN4b4glRFqZJGkQaJlAXqPcGs69F4Ikeg14Ndh64NG23UtKoO1r1F54gaMR+IapJWJyFG5MG4JrSOX/H5Ui2lcMZjvPc4rnX367svM+9sFildgiOyDjE+T8p2KIs/AENkEu2b2jFcOHspfZqKr3+gIne+BEg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=NRQ2Wyi3; arc=none smtp.client-ip=113.46.200.220
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sy4MQUHc"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69DMgvEM2017268;
-	Wed, 14 Oct 2026 11:50:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=x8PS802cU6ZGMgoHQFflaZCE94j/izX71TzjS6zXL
-	Ws=; b=sy4MQUHcStJCGaidT7/mIChw4GgMsocgsUohYKl9S5WjJD9cUlgQZm+KT
-	7vhDqPC2FgZE01zi9N0Q6T73dCcJ9Nl4f9Tx5MGuKJP9yHp8YkM4NdujqJHOJb57
-	sTguwZ0Uzwwzqcue6NdHQ+hjkHS6nRkJbt/q7CJAjiXaFulzdvk+0inUIlkeXWz6
-	JA5nANHHwpNIEYeRNLSjy6cniwlxwIOzwzeEIihYpHh3f2w6oFRQe8f7LpvBrnUM
-	+lzdNF5lwRLMBrgyw9/vosV8AZ31K+1V7tfypw0xGitc3IOtVcxBOLMD2uQ7X3vs
-	MWWnnevDvbF6DvLOGDD5N7B3kmuAw==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dugm364-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 14 Oct 2026 11:50:11 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69E8jMHZ2585762;
-	Wed, 14 Oct 2026 11:50:10 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h9wvg2cwt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 14 Oct 2026 11:50:10 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69EBo6x514549382
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 14 Oct 2026 11:50:06 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C47B420043;
-	Wed, 14 Oct 2026 11:50:06 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9E43220040;
-	Wed, 14 Oct 2026 11:50:06 +0000 (GMT)
-Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 14 Oct 2026 11:50:06 +0000 (GMT)
-From: Heiko Carstens <hca@linux.ibm.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: [PATCH] s390: Select ARCH_MEMORY_ORDER_TSO
-Date: Wed, 14 Oct 2026 13:50:06 +0200
-Message-ID: <20261014115006.537790-1-hca@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="NRQ2Wyi3"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=xVlOyYaOJuVGaDfnk3Cn8S4up3VyrQrAPSaBBvMWJK4=;
+	b=NRQ2Wyi38AJGPQbJ80NuIBLnWk6SwO8PaLyJaV87efjwedpEJ9wjoxegROCOJ8+sMuMWLGkWu
+	Rm4/b05wv/F91TtAb5MycVTFxtVEUQvci6R9jyHnyeOMNTzXjiNJSTCZN3PILjcWfI1v2zeSqLV
+	B62e3eM4uUujj0AqiqJDPNY=
+Received: from mail.maildlp.com (unknown [172.19.163.104])
+	by canpmsgout05.his.huawei.com (SkyGuard) with ESMTPS id 4j4Tkr1HPxz12LD9;
+	Wed, 14 Oct 2026 19:39:32 +0800 (CST)
+Received: from whupemo200011.china.huawei.com (unknown [7.152.185.179])
+	by mail.maildlp.com (Postfix) with ESMTPS id 24D014056E;
+	Wed, 14 Oct 2026 19:51:26 +0800 (CST)
+Received: from [10.174.178.46] (10.174.178.46) by
+ whupemo200011.china.huawei.com (7.152.185.179) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.45; Wed, 14 Oct 2026 19:51:21 +0800
+Subject: Re: [PATCH 09/11] ubifs: sysfs: Use kset_create_and_add() for
+ ubifs_kset
+To: Ian Rogers <irogers@google.com>, Greg Kroah-Hartman
+	<gregkh@linuxfoundation.org>, "Rafael J . Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>, Miguel Ojeda <ojeda@kernel.org>, Kees
+ Cook <kees@kernel.org>, Nathan Chancellor <nathan@kernel.org>
+CC: Nick Desaulniers <ndesaulniers@google.com>, Bill Wendling
+	<morbo@google.com>, Justin Stitt <justinstitt@google.com>, Jonathan Corbet
+	<corbet@lwn.net>, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman
+	<mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy
+	<chleroy@kernel.org>, Nayna Jain <nayna@linux.ibm.com>, Yoshinori Sato
+	<ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, John Paul Adrian
+ Glaubitz <glaubitz@physik.fu-berlin.de>, Viresh Kumar
+	<viresh.kumar@linaro.org>, David Teigland <teigland@redhat.com>, Alexander
+ Aring <aahringo@redhat.com>, Juergen Gross <jgross@suse.com>, Stefano
+ Stabellini <sstabellini@kernel.org>, Oleksandr Tyshchenko
+	<oleksandr_tyshchenko@epam.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily
+ Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle
+	<svens@linux.ibm.com>, Richard Weinberger <richard@nod.at>, Felix Kuehling
+	<Felix.Kuehling@amd.com>, Alex Deucher <alexander.deucher@amd.com>,
+	=?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
+	<driver-core@lists.linux.dev>, <llvm@lists.linux.dev>,
+	<linux-hardening@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+	<linuxppc-dev@lists.ozlabs.org>, <linux-sh@vger.kernel.org>,
+	<linux-pm@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
+	<gfs2@lists.linux.dev>, <xen-devel@lists.xenproject.org>,
+	<linux-s390@vger.kernel.org>, <linux-mtd@lists.infradead.org>,
+	<amd-gfx@lists.freedesktop.org>, <dri-devel@lists.freedesktop.org>,
+	<linux-kernel@vger.kernel.org>
+References: <20261013223946.1836757-1-irogers@google.com>
+ <20261013223946.1836757-10-irogers@google.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
+Message-ID: <3f6e7a0d-ba41-89dd-012f-9ac24e12da9d@huawei.com>
+Date: Wed, 14 Oct 2026 19:51:20 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+In-Reply-To: <20261013223946.1836757-10-irogers@google.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Cr0q4X4D c=1 sm=1 tr=0 ts=6acf6c73 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=VKxXeIzvFiKux1AIBa8A:9
-X-Proofpoint-GUID: 1xR7OU9AOMm7Xw5yWdZ9-zotVT1jWLb8
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDE0MDA0NiBTYWx0ZWRfXxHwN9ExA0ddE
- DiACD0nbK966vHikUMYF5B9VFq5rmjKLWe8sIsGNcjRlPVmAcfd7nfD6tQqHUaVSvM8vv5LeZvM
- 5juqzFJhCGg33PlvpobrxBGc+69+LUx6G62eVHl5ZgLSqIQgjuYEhPvVkam339X3rlN1btjkLgz
- QzqgbGWlEiWSZrAzXeHA4qk/++qGI1+xteQHToQDrJrlqsipTgUsKf23vdLLaZyg7mMBD+1Z1hZ
- MccvoO1Z95j5gIuKpI6sHQHD1VNoVlUHvljytOvwhC5+zLhrfGc+EB/JK681aT1i49dVKItzv2R
- 49Kjf6aOgvDBMlFJaaT9h4pQ8/AGCex1MGOqfcwTJMZ0yMZv9YFTZ5WNht2k7gXh86D4Z6KRcvr
- 0eKn3pVLohg+kQBbEDNi+lfKcrntyuveU9ikmwqSmfeozMZSJGovqyHXhh8spTvejur947PbfU0
- fGe9vorjaGqmadqcUug==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDE0MDA0NiBTYWx0ZWRfX5AD6tkDp4g6U
- xCSzTaJSwax4Y2ZfIXeNqC2OzCznr3bWpy9S3bN89FwZbu24y1aC84/n9waWyQJpoHAtfKHh+gN
- AHHenQZPf8IWMpAyrr1LH4Kzw7EDFFw=
-X-Proofpoint-ORIG-GUID: 1xR7OU9AOMm7Xw5yWdZ9-zotVT1jWLb8
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-13_01,2026-10-09_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 spamscore=0 adultscore=0 priorityscore=1501 suspectscore=0
- malwarescore=0 clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610080000 definitions=main-2610140046
+X-ClientProxiedBy: kwepems500001.china.huawei.com (7.221.188.70) To
+ whupemo200011.china.huawei.com (7.152.185.179)
 
-s390 is a Total Store Order (TSO) architecture. Therefore select
-ARCH_MEMORY_ORDER_TSO which was introduced with [1]. As of now this has
-only a small effect on futex_robust_unlock(), but that might change in
-the future.
+在 2026/10/14 6:39, Ian Rogers 写道:
+> ubifs_kset was a static struct kset using a custom ubifs_ktype that
+> had no default_groups and no .release callback. With
+> CONFIG_DEBUG_KOBJECT_RELEASE=y, unloading the ubifs module while delayed
+> kobject release is pending causes a use-after-free on the static kset.
+> 
+> Replace the static ubifs_kset and empty ubifs_ktype with a dynamically
+> allocated kset via kset_create_and_add().
+> 
+> Fixes: 203a55f04f66 ("ubifs: Fix memory leak in ubifs_sysfs_init()")
+> Assisted-by: Antigravity:gemini-3.1-pro
+> Signed-off-by: Ian Rogers <irogers@google.com>
+> ---
+>   fs/ubifs/sysfs.c | 24 +++++++-----------------
+>   1 file changed, 7 insertions(+), 17 deletions(-)
+> 
 
-[1] commit 6149fc36c09b ("uaccess: Provide unsafe_atomic_store_release_user()")
-
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
----
- arch/s390/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 4b51bc6e8948..ebdf9c8049af 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -145,6 +145,7 @@ config S390
- 	select ARCH_INLINE_WRITE_UNLOCK_BH
- 	select ARCH_INLINE_WRITE_UNLOCK_IRQ
- 	select ARCH_INLINE_WRITE_UNLOCK_IRQRESTORE
-+	select ARCH_MEMORY_ORDER_TSO
- 	select ARCH_MHP_MEMMAP_ON_MEMORY_ENABLE
- 	select ARCH_STACKWALK
- 	select ARCH_SUPPORTS_ATOMIC_RMW
--- 
-2.53.0
+Tested-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Reviewed-by: Zhihao Cheng <chengzhihao1@huawei.com>
+> diff --git a/fs/ubifs/sysfs.c b/fs/ubifs/sysfs.c
+> index dbf967dcf26e..e20931e3a62f 100644
+> --- a/fs/ubifs/sysfs.c
+> +++ b/fs/ubifs/sysfs.c
+> @@ -80,13 +80,7 @@ static const struct kobj_type ubifs_sb_ktype = {
+>   	.release	= ubifs_sb_release,
+>   };
+>   
+> -static const struct kobj_type ubifs_ktype = {
+> -	.sysfs_ops	= &ubifs_attr_ops,
+> -};
+> -
+> -static struct kset ubifs_kset = {
+> -	.kobj	= {.ktype = &ubifs_ktype},
+> -};
+> +static struct kset *ubifs_kset;
+>   
+>   int ubifs_sysfs_register(struct ubifs_info *c)
+>   {
+> @@ -107,7 +101,7 @@ int ubifs_sysfs_register(struct ubifs_info *c)
+>   		goto out_free;
+>   	}
+>   
+> -	c->kobj.kset = &ubifs_kset;
+> +	c->kobj.kset = ubifs_kset;
+>   	init_completion(&c->kobj_unregister);
+>   
+>   	ret = kobject_init_and_add(&c->kobj, &ubifs_sb_ktype, NULL,
+> @@ -139,18 +133,14 @@ void ubifs_sysfs_unregister(struct ubifs_info *c)
+>   
+>   int __init ubifs_sysfs_init(void)
+>   {
+> -	int ret;
+> +	ubifs_kset = kset_create_and_add("ubifs", NULL, fs_kobj);
+> +	if (!ubifs_kset)
+> +		return -ENOMEM;
+>   
+> -	kobject_set_name(&ubifs_kset.kobj, "ubifs");
+> -	ubifs_kset.kobj.parent = fs_kobj;
+> -	ret = kset_register(&ubifs_kset);
+> -	if (ret)
+> -		kset_put(&ubifs_kset);
+> -
+> -	return ret;
+> +	return 0;
+>   }
+>   
+>   void ubifs_sysfs_exit(void)
+>   {
+> -	kset_unregister(&ubifs_kset);
+> +	kset_unregister(ubifs_kset);
+>   }
+> 
 
