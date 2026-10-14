@@ -1,108 +1,123 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 776143F6C46;
-	Wed, 14 Oct 2026 20:01:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6DDB486650;
+	Wed, 14 Oct 2026 20:12:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792008113; cv=none; b=CjEw6HMF+kuocVgAwZgV7J+kIJWlFRzqTi20yCUUX1UoifRdT1l/VfeYdR+UdjzuvObcd2HHa4asDeoWB2st4Hctj4TskSymHX9U6m+0SPnmKyt/7GVrMIg9sse/+QFxpdpOQDbVdTGMSFft/fg0GS30Ye1A4ziUtavgzuolMI8=
+	t=1792008780; cv=none; b=Ef1fVtJQjNOL9tMULUyefMbGO34oUO1bcP6neTGc/m0xAEHb/Ji/NY5V/bmFxUsAln2ZyHbMuJ46taLjGqcV6D23Ws/oCYwQWHhdocmtwusW6UygXDkbxVAZggcX/tKr5OhnIhJqKVsG367MGzqrgJPeXPqzGLLDkmUdVpjBiVM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792008113; c=relaxed/simple;
-	bh=FSO1aVs2xOjSlXTyXhQOhP4+Sw/wcu+3L4EjwIrF/yI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gVJh86ZFNqCxRsYgg4BUpT1KEH+DINabHVuKZUjgJ6yUrJ9ci6v/1THz0q09oNbXxTOV0/Hkjyq2uQsLBl1crsPMY73TEFch+piPwt1/mO4HEK5QDERG+Q6UfU62RWitPmVlgvgBWt67aRZ/TNNIsT8w2S2/dQ2ZDAj1oT58jUA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X20flyHi; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792008780; c=relaxed/simple;
+	bh=me11QB/uJ9Wmp3JXTCpDOpGWZCIdCxfc1icbA6TR2nA=;
+	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
+	 Date; b=V72gIOtgl6ub8ZbNHnjcEZpz1BlxoytboPFxVc4KRAJrM0W8jPtjRpGmWb36tkZR2obRVBeI3J1NIvb/NTIkeIvesUtbvGLu8idLALd7Y+eqarg0Muj8d9gsfIYJdQwaueSzCl2Qa1JGrSVK9vj2lCig4h1vRJrDM5lWeuQQkw0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cQz497rJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X20flyHi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E86EC1F000C4;
-	Wed, 14 Oct 2026 20:01:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cQz497rJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B44E1F000C4;
+	Wed, 14 Oct 2026 20:12:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792008112;
-	bh=Rsic+Y+PmaC/Vsg5mTVmg514JRZUXBZ/4xelFR/iVKk=;
-	h=From:To:Cc:Subject:Date;
-	b=X20flyHiddFjfL6F/ORa4GvgSQladWZ07EIoy+IieSNPDJbtLXGqqlPfhJTfWhODX
-	 KqTZx7c/w9oNL7uBU4dtF8lkHwCejh4ogyhZM8IK8yTUhIGYEPipnlONLVY7uIj1Ta
-	 2490TqF2zpuyuJ1aYJbkcoc1UN+eIFEkXGCfcTwTLGkodudaixa3ScxlR4GBMwZyVD
-	 A/ENTpQySnbc80myHg5cJ5hLBI4++pkStG9cgyCVmBHBfDZXCzvfgZGfRATYYCFUyW
-	 3dv2wg35lhdGYJ24X4B6zCRnJgIUWwaBKf1ip98zcYuZcT26BgBEloGF1m6owZ1SLK
-	 hKVG3nMPTMYSQ==
-From: Sasha Levin <sashal@kernel.org>
-To: Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: Sasha Levin <sashal@kernel.org>,
-	David Hildenbrand <david@kernel.org>,
-	Steffen Eiden <seiden@linux.ibm.com>,
-	Shuah Khan <shuah@kernel.org>,
-	kvm@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-kselftest@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] selftests: drivers/s390x: select uvdevice tests using the target architecture
-Date: Wed, 14 Oct 2026 16:01:49 -0400
-Message-ID: <20261014200149.1365017-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.53.0
+	s=k20260515; t=1792008774;
+	bh=ZfFRWgll+/u/em5LmBjfJ9L3IYMVEO+MC+mYeJebVQM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=cQz497rJBk18tqtYLhCYA/JMrX4oriOxL8RwL1vHQA9VpMewqwCOgY/ogU/PynLHl
+	 tqir70SaDOxE1ekZChRZOjxShB/8ZX/OcZAs9kpYyXcVO0v/IZpvgsrXBrAWz5IUnK
+	 Kb2uuwD+DWT89f52s/ylchbDXkVjxvivOYZXZnD3Txbc66G976qX1syBzMuUanJwHP
+	 Qpr8paQ+LAksbc2szUqeUq9MOfCuEBV2hDv7qVrKNHFmmkhGbh/mtSLI+XLZ7UlSuT
+	 8ze31mDwAH5Z/c0bgDk+v/sdjLxKe/WBbLqDPxIm2CDQOxz/jvjbI4VNHGOiFVm8TD
+	 YmL4WlvmbyvUQ==
+Message-ID: <sashiko-outbox-171843@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net v7 1/4] net/smc: bound the wire-controlled producer
+ cursor to the RMB
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Bryam Vargas" <hexlabsecurity@proton.me>
+Cc: linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261013-b4-disp-f345196c-v7-1-ef3dddfbfa68@proton.me>
+References: <20261013-b4-disp-f345196c-v7-0-ef3dddfbfa68@proton.me>
+ <20261013-b4-disp-f345196c-v7-1-ef3dddfbfa68@proton.me>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 14 Oct 2026 20:12:53 +0000
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The uvdevice Makefile decides whether to build its test from uname -m,
-which describes the build host. A cross build for s390 on another host
-therefore silently omits the test, while the non-s390 branch provides
-no-op build and installation targets but no emit_tests target.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [High] net/smc: NULL pointer dereference in SMC CDC receive path
+--
 
-Select the test from the target ARCH when it is given and from the
-host's SUBARCH otherwise, accepting both the s390 and s390x spellings,
-and include lib.mk unconditionally so that other architectures build,
-install and emit an empty runlist. ARCH itself is left unset so that a
-native LLVM=1 build keeps using the compiler's native target.
+commit a66b04c40aa7b03be8e0d1b68a8b99f2014ef1fb
+Author: Bryam Vargas <hexlabsecurity@proton.me>
 
-Drop the include path derived from tools/arch/$(ARCH): the test only
-needs asm/uvdevice.h from the installed kernel headers, and the path
-does not exist for the s390x spelling.
+net/smc: bound the wire-controlled producer cursor to the RMB
 
-Fixes: cbac924200b8 ("selftests: drivers/s390x: Add uvdevice tests")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- .../selftests/drivers/s390x/uvdevice/Makefile | 19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
+smcr_cdc_msg_to_host() and smcd_cdc_msg_to_host() import the peer's
+producer cursor from the wire into conn->local_rx_ctrl.prod without
+bounding it to the RMB. This patch bounds the producer cursor count
+to rmb_desc->len when it comes off the wire for both SMC-R and SMC-D.
 
-diff --git a/tools/testing/selftests/drivers/s390x/uvdevice/Makefile b/tools/testing/selftests/drivers/s390x/uvdevice/Makefile
-index 755d164384c46..586a9aa6fb158 100644
---- a/tools/testing/selftests/drivers/s390x/uvdevice/Makefile
-+++ b/tools/testing/selftests/drivers/s390x/uvdevice/Makefile
-@@ -1,20 +1,13 @@
- include ../../../../../build/Build.include
- 
--UNAME_M := $(shell uname -m)
--
--ifneq ($(UNAME_M),s390x)
--nothing:
--.PHONY: all clean run_tests install
--.SILENT:
--else
-+top_srcdir ?= ../../../../../..
-+include $(top_srcdir)/scripts/subarch.include
-+ARCH_PROCESSED := $(or $(ARCH),$(SUBARCH))
- 
-+ifneq (,$(filter s390 s390x,$(ARCH_PROCESSED)))
- TEST_GEN_PROGS := test_uvdevice
- 
--top_srcdir ?= ../../../../../..
--LINUX_TOOL_ARCH_INCLUDE = $(top_srcdir)/tools/arch/$(ARCH)/include
--
--CFLAGS += -Wall -Werror -static $(KHDR_INCLUDES) -I$(LINUX_TOOL_ARCH_INCLUDE)
-+CFLAGS += -Wall -Werror -static $(KHDR_INCLUDES)
-+endif
- 
- include ../../../lib.mk
--
--endif
+> diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+> index 696cc11f2303b..4d630a3051184 100644
+> --- a/net/smc/smc_cdc.h
+> +++ b/net/smc/smc_cdc.h
+[ ... ]
+> @@ -246,8 +253,9 @@ static inline void smcr_cdc_msg_to_host(struct smc_ho=
+st_cdc_msg *local,
+>  	local->len =3D peer->len;
+>  	local->seqno =3D ntohs(peer->seqno);
+>  	local->token =3D ntohl(peer->token);
+> -	smc_cdc_cursor_to_host(&local->prod, &peer->prod, conn);
+> -	smc_cdc_cursor_to_host(&local->cons, &peer->cons, conn);
+> +	smc_cdc_cursor_to_host(&local->prod, &peer->prod, conn,
+> +			       conn->rmb_desc->len);
 
-base-commit: 4eb2586bd40db27d77cc5b724ca9386ed0c71d53
--- 
-2.53.0
+[Severity: High]
+Is it possible for conn->rmb_desc to be NULL here?
 
+If an existing SMC-R link group is reused for a new connection,
+smc_conn_create() inserts the connection into the globally visible
+lgr->conns_all RB-tree via smc_lgr_register_conn(conn, true) before
+the rmb_desc buffer is allocated by smc_buf_create().
+
+Since the QP is already in RTS state, could a malicious remote peer sharing
+the link group predict the new connection's alert_token_local (which is a
+predictable atomic counter) and send a CDC message during this race window?
+
+If so, smc_cdc_rx_handler() would find the connection and call
+smcr_cdc_msg_to_host() without checking sk_state or if conn->rmb_desc is
+allocated, leading to a NULL pointer dereference. Note that bh_lock_sock()
+does not block softirqs from pre-empting or running concurrently with the
+process-context lock_sock() held during setup.
+
+> +	smc_cdc_cursor_to_host(&local->cons, &peer->cons, conn, 0);
+>  	local->prod_flags =3D peer->prod_flags;
+>  	local->conn_state_flags =3D peer->conn_state_flags;
+>  }
+> @@ -260,6 +268,9 @@ static inline void smcd_cdc_msg_to_host(struct smc_ho=
+st_cdc_msg *local,
+> =20
+>  	temp.wrap =3D peer->prod.wrap;
+>  	temp.count =3D peer->prod.count;
+> +	/* as in smc_cdc_cursor_to_host(): bound prod, not cons */
+> +	if (temp.count > conn->rmb_desc->len)
+> +		temp.count =3D conn->rmb_desc->len;
+
+[Severity: High]
+Would the same race window affect SMC-D connections in smcd_cdc_msg_to_host=
+(),
+triggering a NULL pointer dereference if a CDC message is received before
+the rmb_desc buffer is allocated?
+
+>  	smc_curs_copy(&local->prod, &temp, conn);
+> =20
+>  	temp.wrap =3D peer->cons.wrap;
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261013-b4-disp-f3=
+45196c-v7-0-ef3dddfbfa68@proton.me?part=3D1
