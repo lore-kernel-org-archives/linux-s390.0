@@ -1,105 +1,141 @@
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D98244E01E4
-	for <linux-s390@vger.kernel.org>; Wed, 14 Oct 2026 12:27:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F30414CC273;
+	Wed, 14 Oct 2026 12:27:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791980861; cv=none; b=a3zmsE+FoizFOQGx+URYPIr80n87S/gz4iW7bchQZP579+Z4OEqs45QcH7qKqSF2/4smwbAixVLdvtjFcyE2jYEseotHdJOZ2X74PnxyTp0wp9ipNDI0srNW0B1eRi0AL2Krn2tPr9I/WP2vNEQePH06PPSNeodn/iSr9LR6XSU=
+	t=1791980872; cv=none; b=GDuDJAAollkG5zMQmCKVfO1QxUKWOOuTlgWAtYoAKkKgd7A0rNiuquLv2Jz0TtT1XNY68d5Gee3QFTOTpzK+HQN2DTFBZPmy3KTZQJnizJoGjowVLS+aSdo7giis5KEYbMlgZYe8/mQIxsbMvVhThhBm1EuRX0TRBsxwvJAjCQ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791980861; c=relaxed/simple;
-	bh=t+tXOJgINuHz5ua6C+34HLQge1ta50pjf8UE+NV3Ad8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=HRPURdzqOeyqdXw9NWx/n5Dy7hN3ugNNzuZD+DOghrEE5aeEJj1gt77XlsAukuYjdPF6Ga4Uux+LgARZo7yEN9sfYeLURA+AR05LocKc1OPisH7vaahIhRqwLWwYuIePqtzNMhxdusX19GUqQFz+dY/N1/PyKbpb6IgpYBm/1pY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QKaI3MWJ; arc=none smtp.client-ip=209.85.221.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1791980872; c=relaxed/simple;
+	bh=aGG2qbTWFN8mGxnmyVptsvYmWUnxywdFI1v/hG+RFS8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=X69xXGdvWgQ/xAWVlODfQpV7hE+a0OOlkqokZezGp2jPprVuu0QjA2ZLfQFBMW9jcXV8QyHuWPuLpCVXOjtyGVnZrohIpmUwJSult/mQESJvHb475A7udGnDuQktIqW3nd1bakWaZDv8kCWwEhAk7L3oiZYFlNqWtxJTtVRr5gI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gtE8SS2Y; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QKaI3MWJ"
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-48870973bddso2431194f8f.1
-        for <linux-s390@vger.kernel.org>; Wed, 14 Oct 2026 05:27:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1791980858; x=1792585658; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=bU5WoXEdNTnz+BAlcIBVqmgTpCbqy4PVyKMuyqbaZGE=;
-        b=QKaI3MWJ0JVmVSc1vGOVIC/GF97hRyT3l0VbMBfDtGdJck/2HBAOSMI/EpAmt6oiXL
-         Y6yzlzIqiy974y1UWonOY1sjE1KH+nSdpUsA3+0pvq18XIk7eGmEEeGiop56ke+uaCAb
-         ho3DjA0gXqIi/8TfhsI8VFrcCbq9xKAS4tqB7Gg5PPuCYFUjmzjX0Otg4AZ5CixfyP0k
-         +zbsPtMWLGjZ9DZSq2t16T7hoTZN2xWMWvk8eHx9bYxvm/IRzX4+HIllQmW9z9Yrd0g1
-         mdo1IqIEo+U3JOdwdR58vy9/iK4ZgZtQQWJeOzEc5JCyyr/1wW1APWmMtWufefDkg+wl
-         hvFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1791980858; x=1792585658;
-        h=content-transfer-encoding:content-type:mime-version:references
-         :in-reply-to:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=bU5WoXEdNTnz+BAlcIBVqmgTpCbqy4PVyKMuyqbaZGE=;
-        b=eVO/CEZG9AC0sZptQ+dnjxA5qCN4FgSZgq4kQaNfoEt2xG2WE1uYVGih/AYrdJ2dOM
-         PIjdmraZRjPI54NErEsifcbxLfficcQS99q1Rd4s3crIhGtXF05p8aLzEhFXqXyAErZ5
-         wtX4C0lzJJGSs64nCvjw9ngr+S8Fv6C8l4I/c7QPPpEYr5OtbQQ8PL1LF65qBB/B7x/d
-         rCuQVHUfqli8r2+w4/4vcp9z6j9Z/ODNzjuEhl/oXGZx+TiR+H2N5T32+xVAql1Fily7
-         zd6QK6NT+UoXZIhyFy82PUaWGZ3sYzolWeY1NdvwsCEZjgxjxdWhsm4p0WgveMelZHx6
-         cV8A==
-X-Forwarded-Encrypted: i=1; AKwUvBwQ/HBCiuhbuDnKGCiW6EY0I4EW4OHaLkEE1JOTeqRYm66Mj6/KsH+yIsel48Rjy1dpcMexazWG7xf5@vger.kernel.org
-X-Gm-Message-State: AFq9FYIh7HEjAi0hwMtLehyrcDdbhGRzzUUwfxYen13axwy05TjXNnOG
-	iFTWa9N5UmUzUo7+B8bTkjetnIDqYeC4Ri/W0wC0IA3HlQlPCYORhxLr
-X-Gm-Gg: AYBFou0Ud7BgiFkKRgYfyIyIBRfpPmPSG5crml9StdmwSiFCV5bAVL8ikZc7Mydbe5t
-	o8zyvOrkH2pncme4hNEUuBnDqbKb8wMelg1qCY4SERlRv3nx7RvLFSIZjSd2H79GbWsm1mVOsfh
-	0PN4TpQCfRzzD6wS4BNR1zbp7Rx+XwwRteDyd3x01JcIiVFWIpYkay1Vad8U8keRRSiIiBMHYzH
-	kaabPWhlcGVh7GE7P8rFAcx2ZGCqzpgGCYm6whhS3eY2bjfzYXHzuXq4VUIIkPVcaiAW02GObUT
-	D5t6BEbkdMHtKfcKBB+n9/ByjXCLN0hOJrlR1k/+L++5hdfz5n77phCLCabg9JTW3m76PT5r4S4
-	XDdTbaRda62oSO6JSLJJCpwSdy5GhaQve5p/wnDvmL/UMDX342VLBirEjWPE8ZPG/5zWc3cIMr/
-	Ugq8J/rXj5s0KP1uA29Hkj599FXU5FAUK6894JfQ7rX3Vxz9I+dU21HRGtCgxeOWs+7SNgWkZAG
-	8Gdlmvsc5JcGdRt8fZd/wrv7U0eB6re0V0=
-X-Received: by 2002:a05:6000:200f:b0:48c:5669:747b with SMTP id ffacd0b85a97d-48db9465ffdmr35843535f8f.8.1791980858010;
-        Wed, 14 Oct 2026 05:27:38 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48de0aaaad1sm11373355f8f.17.2026.10.14.05.27.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Oct 2026 05:27:37 -0700 (PDT)
-Date: Wed, 14 Oct 2026 13:27:36 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Ilya Leoshkevich
- <iii@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
- linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Subject: Re: [PATCH 2/4] s390/percpu: Drop unused output register from
- arch_this_cpu_add()
-Message-ID: <20261014132736.10a32cfe@pumpkin>
-In-Reply-To: <4907dbfd-3c5c-483b-be25-b0df83af2d20-agordeev@linux.ibm.com>
-References: <20261012114249.2898572-1-hca@linux.ibm.com>
-	<20261012114249.2898572-3-hca@linux.ibm.com>
-	<4907dbfd-3c5c-483b-be25-b0df83af2d20-agordeev@linux.ibm.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gtE8SS2Y"
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69EBOsnS2016029;
+	Wed, 14 Oct 2026 12:27:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=mRaORC
+	N7j9jug7Hta8uZhtHbGSVrv+WNH7LgT+Ln5Mk=; b=gtE8SS2YwGuxOEANkIlilp
+	fFrXM1rweF3zjuhVnMJEHUS9wXWb5r+zCSOxLeJEQSY9PeASg7rZYnIz5rDU7Tvm
+	BzWxf/ndNLzpJUDowXBQZoT8Y9OMn1VWM2qNljMJXek7UdktVWlsJzPjQ0LbcPbq
+	BiWHbtZ/T4WNcVmFlvblVPfx3muAHd5VF6W9DdZCBSPNzdo7PJnXiiiKbJZFw0mJ
+	tdbZ3+EgR+NW5NzuEyr221ksYB5P9j5pI7kRtd0rpnpnj7IlT79cqLR1VspYc+IU
+	yy9QTKIqLeGxB3jO+R1vgUUUrHObCNx5Nm2lufHBIfP+mMr+ABQkmB3KMwDBOvkg
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dugm8vp-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Wed, 14 Oct 2026 12:27:50 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69E8YMtq2585771;
+	Wed, 14 Oct 2026 12:27:49 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4h9wvg2h94-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 14 Oct 2026 12:27:49 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69ECRj7W55968094
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 14 Oct 2026 12:27:45 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B03DC2004B;
+	Wed, 14 Oct 2026 12:27:45 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6A0F120040;
+	Wed, 14 Oct 2026 12:27:45 +0000 (GMT)
+Received: from [0.0.0.0] (unknown [9.111.31.234])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 14 Oct 2026 12:27:45 +0000 (GMT)
+Message-ID: <f51e6630-080d-4eb6-9d28-51e177b00c30@linux.ibm.com>
+Date: Wed, 14 Oct 2026 14:27:45 +0200
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 2/2] s390/signal: Cleanup coding style
+To: Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20261013133453.2288894-1-hca@linux.ibm.com>
+ <20261013133453.2288894-3-hca@linux.ibm.com>
+Content-Language: en-US
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+In-Reply-To: <20261013133453.2288894-3-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Cr0q4X4D c=1 sm=1 tr=0 ts=6acf7546 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=T3KARuhPW4_36WootycA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: QmwmBom0gTzvuVveQn4Xr5RybgMHWUoz
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDE0MDA0OCBTYWx0ZWRfX2mAF/8H8m/xv
+ nXqHjSxCd6+ejEFBN4XDwPn5CwfDUnlzQBrk1SFIXzGogsHi+q5S6lWOhjXYjIrYObU2LooCcll
+ c1IDYaSrT5KcPm83PR986UdQwIKEsTTCnUh3c2yrgsasACXWd8MTFrapmQRTe3Z/RnyCRWlpJ4Z
+ vLAfE0VLYvmNzHCrvbmPrwQ66k9X72fQirLJ3RszYcTs74ZGBXQ4m8WmVQrmSHi3JKBWrcAqeqc
+ Oa6WzeUBr47oSD2ahLZgHC1eGwU/+MqtmwoXBYanTHMYB0/f26V/HAW6mD5+sM7HPRl5OsndxUo
+ 1Ar6PyEY6PjnNXs+HP+nsJ8oDZFDgn2oMbEj0HZL/+IhyyYC0ogRgCQaUx9VHDckP7hwZL2su++
+ a/6WzCn4LDrWvUBOnoA7amP8b4DTOW8FF45Zp93A2XQR01CWWc4BGUxVf0i2ZXOAbk2Ty3rtJdR
+ Glz9UTNVp8GmF7I4U7A==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDE0MDA0OCBTYWx0ZWRfX/rpBR007BR46
+ L61dCbzy4R0cIyFZB2O6SwZaldFacA3Vog3CExibq+NFWXYHWt1cKg9BInAXNmnvtQI2Dd6SqoA
+ 6oyhB2alWuqwF/bCjcpxL5v5QGX4q7s=
+X-Proofpoint-ORIG-GUID: QmwmBom0gTzvuVveQn4Xr5RybgMHWUoz
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-13_01,2026-10-09_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 spamscore=0 adultscore=0 priorityscore=1501 suspectscore=0
+ malwarescore=0 clxscore=1015 impostorscore=0 lowpriorityscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610080000 definitions=main-2610140048
 
-On Mon, 12 Oct 2026 15:24:20 +0200
-Alexander Gordeev <agordeev@linux.ibm.com> wrote:
 
-> On Mon, Oct 12, 2026 at 01:42:47PM +0200, Heiko Carstens wrote:
-> > The laa/laag instructions return the old memory content, but
-> > arch_this_cpu_add() does not need it. Instead of allocating a dedicated
-> > output register old__ just to discard the returned value, change the
-> > val__ constraint from "d" to "+&d" so it is used as input/output
-> > register.
-> > 
-> > This reduces register pressure.  
+
+On 10/13/26 15:34, Heiko Carstens wrote:
+> Only whitespace, comment, indentation and other trivial changes to
+> adopt signal.c to current coding style.
 > 
-> Do you know whether the compiler is may be smart enough to select the
-> same register for old and val himself?
+> No functional change.
+> 
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>   arch/s390/kernel/signal.c | 224 +++++++++++++++-----------------------
+>   1 file changed, 90 insertions(+), 134 deletions(-)
 
-Given gcc tends to allocate a new register for x++ I doubt it
-(and then has to do a reg-reg move to put it back).
+[...]
 
-David
+> @@ -257,94 +249,76 @@ SYSCALL_DEFINE0(rt_sigreturn)
+>   	return 0;
+>   }
+>   
+> -/*
+> - * Determine which stack to use..
+> - */
+> -static inline void __user *
+> -get_sigframe(struct k_sigaction *ka, struct pt_regs * regs, size_t frame_size)
+> +/* Determine which stack to use. */
+> +static inline void __user *get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size)
+
+Checkpatch complains: this is now longer than 100 characters.
+
+[...]
+
+
+Otherwise:
+
+Reviewed-by: Ilya Leoshkevich <iii@linux.ibm.com>
+
