@@ -1,269 +1,130 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D1C7542EFD;
-	Wed, 14 Oct 2026 14:16:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E357153CA85
+	for <linux-s390@vger.kernel.org>; Wed, 14 Oct 2026 14:21:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791987403; cv=none; b=c00uPZU65HxwqX/mJU0yD9VSh8kUfh7PufZaFdVH5ihWZwjI9ZV3UY9LrZDedkQ93I5iC0IImby5hzpM++mfQ5muKIYwstLUWI5H20fp0G0443HApAINgnHOorqFo5bSL7Bqh5cIiO3EulVp+zXBvggPrKBtDabvmfm6hha7zjw=
+	t=1791987697; cv=none; b=NgsXgDZExiqrpQmcgm6bGdEdXMjN6mka8wUg4klu2bYnzvmGgf6/7QE+wHXTX6sPf5SEoapSz9DcyNDP8nYOzhrzH7Nt4+n9L6+aFZKzcy+R7/SVLAC0LCMSD3cT5pj1eF0RgARYkpMjtEOlGB/PhKcQL3XBvhXeeawuYo1jmLY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791987403; c=relaxed/simple;
-	bh=gwZwIDXWH6+oX/jdGf1vh+hw9D/uky5YsV+364tExaI=;
-	h=Subject:From:To:Cc:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=qiFqhkksOX1a6FdQY9pwymvmtcKE7ERhWhtp1AlguYqUL5TPqtJtFHM3RLclZIK9r363ToPoKx8eVa6aZODF43IY5BGU6r8QxA4Znw/x6nbkeC+Gs4Dveq9WqT0MhxDmLsYVO/phR2YHZsf7ETP+T6qGWCqd4yEfRjypviNslaY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iZeEocH4; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1791987697; c=relaxed/simple;
+	bh=GMgnWVjPUWcwBkrzrFarf+1pyy06yXxlEMHZqyqQE1w=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=o0xUZ9ipQQquemwcQ7EV8ihudo5hk3vJ6R0xEFwZnrtW2jQh1PPCzEWFWoarUfeLiQKHFFeDkx+O9JGiaZHKHxQUySmW+L6PuYy7U9qjpav1FkwoHRekhyJSnRxVPNUskkv9b38GpKiEQoAwYQcOsOk+pP/HddgdLZtV83PoNus=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=kiSCAgzw; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iZeEocH4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 389FE1F000D4;
-	Wed, 14 Oct 2026 14:16:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1791987400;
-	bh=K7vsT8RC9p9fOYHpYIE8xbjNZ8+LExI8FP2yP+i0sqk=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=iZeEocH4uZ82CarWi/H3zlsVTfh9SLIyBxISWf/oJAfSzIFitloOejriv3kVPpv/W
-	 Rin2xi2RavGiefLkeIiiTeJzmYC1dw4UeeIE40+Ndw53O2+6ym71Eack60QmUtXlXk
-	 /nW2VVcChMqzipvocV1WJo9kGUAs/o/EK/Ldx4JBrJYbEyoex2gEVl+hoHgvnGSiIr
-	 qPlo5L+YOtBiZffmASK/Sv1RtAkAAeZnKf/y8slsI3FO2QFzDf51YO9SEzf5nznK8V
-	 kweC7DXWyfl0+4qpoIKzBI/hx1OE4WqTbQ5FGRhQ8/NFN1vk/IYHE0oRay5hQlkrER
-	 Ud23X4Vj3vplA==
-Subject: Re: [PATCH net v10] net/smc: fix lgr/lnk lifetime vs diag reader race
-From: netdev-bot+sashiko@kernel.org
-To: mjambigi@linux.ibm.com
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
- dust.li@linux.alibaba.com, sidraya@linux.ibm.com, hidayath@linux.ibm.com,
- pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, stable@vger.kernel.org, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Date: Wed, 14 Oct 2026 14:16:38 +0000
-Message-ID: <179198739873.434549.14480502288349527609@kernel.org>
-In-Reply-To: <20261013141510.2621698-1-mjambigi@linux.ibm.com>
-References: <20261013141510.2621698-1-mjambigi@linux.ibm.com>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="kiSCAgzw"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69EAPJwf150035
+	for <linux-s390@vger.kernel.org>; Wed, 14 Oct 2026 14:21:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
+	content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=N4MFhqcZI4oLwKjRneeibkFTZqVS
+	Zl2hqUjc9CSilYE=; b=kiSCAgzw1jp95T7zerL7ETQyKuPCs2MDs/FH+TLn6eEA
+	E8xbUWxKCpnTTkFNy4VU5Oc9WccBR4wnXzAU5iFzJaM3xwRmZJBc7zW7bJiNYzXa
+	m4QUJLav+ycsI6ERMYvKq/KLxaDWjjHu/XyIcmVGGBVtIPkYbQcteFzdAkRg8W7G
+	DKBfzFnH+jDOSkl9uc+T4k3xOnc3xVJje61rMWGduFIMLvBvdviFoBXbWa/xIKcH
+	tEnHur2mNh4Fz2YPSaGsD4TFu38u1bWvpBEMSFYBCaPyC7tUVJBpG67hi+UGXEzL
+	uBG2G+jY6v1nGsyjdSCB32zDdR9D/P3IX2CLqmd8vg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4h7dwhmvnw-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Wed, 14 Oct 2026 14:21:34 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69EB7BVg3212002
+	for <linux-s390@vger.kernel.org>; Wed, 14 Oct 2026 14:21:34 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4h9q2yn6wk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Wed, 14 Oct 2026 14:21:34 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69EELWBx44630318
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
+	for <linux-s390@vger.kernel.org>; Wed, 14 Oct 2026 14:21:32 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F087520049
+	for <linux-s390@vger.kernel.org>; Wed, 14 Oct 2026 14:21:31 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C25F420040
+	for <linux-s390@vger.kernel.org>; Wed, 14 Oct 2026 14:21:31 +0000 (GMT)
+Received: from li-c11aa8cc-2ecc-11b2-a85c-95df2f347b4c.ibm.com (unknown [9.111.69.112])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP
+	for <linux-s390@vger.kernel.org>; Wed, 14 Oct 2026 14:21:31 +0000 (GMT)
+From: Volkan Unal <vunal@linux.ibm.com>
+To: linux-s390@vger.kernel.org
+Subject: [PATCH v1] s390/dasd: Fix memory leak in FBA driver initialization
+Date: Wed, 14 Oct 2026 15:21:30 +0100
+Message-ID: <20261014142130.756272-1-vunal@linux.ibm.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDE0MDA1NiBTYWx0ZWRfX+A5PLAumx62d
+ oq7mFVLkfD1HohNMwBOXeogut3eavavV82WClJMNpP4XEaMV2Zmax0+ajQ+5H4X2Jb98jQbcXNe
+ iLuFdLejm3qCzxyRUjVodCEwk69jRpc=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDE0MDA1NiBTYWx0ZWRfX8nZVX9qgWytX
+ o/Fbp9jjCqcHAKeeYuYbGDenZIsx1qDi75ZccorZDQZin3RW6DYWZC9wStDpXh7vYNXuQFAryH0
+ DLbHb0ApUkHo9cUgbiJTcTqVwAge3uGZ+dptdcZyLRRZHtHtMENzu2cAxhcNM18q2Qu8cikBl1s
+ xp/9A6xOdQ61nmU2JT2jkKWvqxSlbjyjzVjZnItpeEp0j9fAMOwIUXay9mkxiyTxERQpAUHOfa2
+ 6b2zc6pR7iWIwlGwGpPnTi3pUDupOLR0ZIGC3waKgeTeYgsbzprMQ7r/lyrtiZd7hC2J7sSB7+6
+ bBsL7ZtBi/NZw1PCFeaaF1O8VoF2MblCafETNrebH0aEbFKYKU7us33eP1he6mfWxMJLs/PQHe8
+ ajVY57ygavWKIMnnQFtHifsoYON2xG229QEffLYiD0G1dDPohECtwRmEJSX+aWrio7khprAzXUB
+ EI/98GnuzicaSJ10HUg==
+X-Proofpoint-GUID: Lz-KAMClqmJMp1cOXorvWzRc-hIv0DeI
+X-Authority-Analysis: v=2.4 cv=RoFQvymK c=1 sm=1 tr=0 ts=6acf8fef cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=OZ06gVdjTFqNWBltAnYA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: Lz-KAMClqmJMp1cOXorvWzRc-hIv0DeI
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-13_01,2026-10-09_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 spamscore=0 phishscore=0 adultscore=0 bulkscore=0
+ impostorscore=0 suspectscore=0 malwarescore=0 clxscore=1015
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610080000
+ definitions=main-2610140056
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issue(s) to consider.
+Fix memory leak in dasd_fba_init() where the allocated zero page
+is not freed if ccw_driver_register() fails.
 
-Critical: 0 · High: 1 (1) · Medium: 1 · Low: 1
+Reviewed-by: Jan Höppner <hoeppner@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Volkan Unal <vunal@linux.ibm.com>
+---
+ drivers/s390/block/dasd_fba.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
-
-- [High] The fix still leaves a use-after-free between the diag reader
-  and the lgr.
-- [Medium] Switching to link->ibname removes the NULL dereference through
-  link->smcibdev->ibdev.
-- [Low] SMC_DIAG_LGRINFO now reports link->ibname, which
-  smcr_copy_dev_info_to_link() (smc_core.c:783-784) caches at link…
-
-Pre-existing issues:
-- [High] This problem wasn't introduced by this patch, but the teardown
-  sites it touches have a deadlock.
-
---
-
-net/smc: fix lgr/lnk lifetime vs diag reader race
-
-This patch tries to close races between the SMC sock_diag dump and the
-teardown of conn/lgr/lnk state. It skips the extension attributes for
-sockets in SMC_INIT or SMC_CLOSED and orders sk_state with acquire/release.
-It also unhashes the socket before several smc_conn_free() and
-smcd_buf_detach() calls, and uses the cached link->ibname in the LGRINFO
-dump.
-
-[ ... ]
-
-> diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-> index bb0313ef5f7c1..aa6363abdd747 100644
-> --- a/net/smc/smc_close.c
-> +++ b/net/smc/smc_close.c
-
-[ ... ]
-
-> @@ -433,6 +435,7 @@ static void smc_close_passive_work(struct work_struct *work)
->  		sk->sk_state_change(sk);
->  		if ((sk->sk_state == SMC_CLOSED) &&
->  		    (sock_flag(sk, SOCK_DEAD) || !sk->sk_socket)) {
-> +			sk->sk_prot->unhash(sk);
->  			smc_conn_free(conn);
-
-[Severity: High]
-This is a pre-existing issue and was not introduced by this patch. Can this
-smc_conn_free() call deadlock against abort_work?
-
-smc_close_passive_work() holds lock_sock(sk) here. For SMC-R,
-smc_conn_free() then does:
-
-		if (current_work() != &conn->abort_work)
-			cancel_work_sync(&conn->abort_work);
-
-The connection is still registered at this point. A CDC message with
-failover_validation and a seqno ahead can make smc_cdc_msg_validate()
-queue abort_work on smc_close_wq, and it does this without the socket lock.
-smc_close_wq can run that work alongside close_work, and
-smc_conn_abort_work() starts with:
-
-	lock_sock(&smc->sk);
-	smc_conn_kill(conn, true);
-
-If abort_work is already running and blocked in lock_sock(), would this
-thread wait forever in cancel_work_sync() while it holds that same socket
-lock? The current_work() check only stops abort_work from cancelling
-itself.
-
-smc_close_active_abort() also reaches smc_conn_free() with the socket lock
-held.
-
->  			if (smc->clcsock)
->  				release_clcsock = true;
-
-[ ... ]
-
-> diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-> index bf0beaa23bdb6..36a3b8f31f28d 100644
-> --- a/net/smc/smc_diag.c
-> +++ b/net/smc/smc_diag.c
-
-[ ... ]
-
-> @@ -103,6 +104,9 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
->  	if (nla_put(skb, SMC_DIAG_FALLBACK, sizeof(fallback), &fallback) < 0)
->  		goto errout;
->  
-> +	if (r->diag_state == SMC_INIT || r->diag_state == SMC_CLOSED)
-> +		goto out;
-> +
->  	if ((req->diag_ext & (1 << (SMC_DIAG_CONNINFO - 1))) &&
->  	    smc->conn.alert_token_local) {
->  		struct smc_connection *conn = &smc->conn;
-
-[Severity: High]
-Does this guard miss a fallback socket in SMC_ACTIVE that still has a stale
-alert_token_local after its lgr reference was dropped?
-
-On the server side, the peer can answer with a CLC DECLINE that has the
-first contact bit set instead of a CONFIRM. smc_clc_wait_msg() then does:
-
-net/smc/smc_clc.c:smc_clc_wait_msg() {
-    ...
-		if ((dclc->hdr.typev2 & SMC_FIRST_CONTACT_MASK) &&
-		    smc->conn.lgr) {
-			smc->conn.lgr->sync_err = 1;
-			smc_lgr_terminate_sched(smc->conn.lgr);
-		}
-    ...
-}
-
-smc_lgr_terminate_sched() calls list_del_init(&lgr->list).
-
-The handshake then aborts through
-smc_listen_decline()->smc_conn_abort()->smc_conn_free(). At that point
-lgr->list is empty:
-
-	if (!list_empty(&lgr->list)) {
-		smc_buf_unuse(conn, lgr); /* allow buffer reuse */
-		smc_lgr_unregister_conn(conn);
-	}
-
-So the connection is not unregistered and alert_token_local stays
-non-zero, but smc_lgr_put() still drops the lgr reference. The socket then
-falls back, smc_listen_out_connected() stores SMC_ACTIVE, and the socket
-stays hashed.
-
-Later, terminate_work runs __smc_lgr_terminate():
-
-		lock_sock(&smc->sk);
-		smc_conn_kill(conn, soft);
-		release_sock(&smc->sk);
-	...
-	smc_lgr_cleanup(lgr);
-	smc_lgr_free(lgr);
-
-For SMC-R and non-nocopy SMC-D, smc_conn_kill() does not unhash the
-socket. Nothing on this path takes the smc hash write_lock either.
-
-A diag reader that already saw a non-zero alert_token_local holds only
-read_lock(&smc_hash->lock). Can it then read conn->sndbuf_desc->len and
-conn->rmb_desc->len after smc_lgr_free() has freed them? The same question
-applies to conn->lgr->is_smcd and lgr->list in the LGRINFO/DMBINFO
-conditions.
-
-On non-RT kernels the window is small, but on PREEMPT_RT the read_lock is
-preemptible.
-
-Would it work to unregister the connection, or clear alert_token_local, in
-smc_conn_free() even when lgr->list is empty? Another option is to skip
-the CONNINFO/LGRINFO/DMBINFO blocks when conn->freed is set.
-
-[ ... ]
-
-> @@ -154,8 +158,7 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
->  			.lnk[0].link_id = link->link_id,
->  		};
->  
-> -		memcpy(linfo.lnk[0].ibname, link->smcibdev->ibdev->name,
-> -		       sizeof(link->smcibdev->ibdev->name));
-> +		memcpy(linfo.lnk[0].ibname, link->ibname, sizeof(link->ibname));
-
-[Severity: Medium]
-The commit message says this change is meant "to avoid racing with link
-clearing during SMC-R link failover". It removes the NULL dereference
-through link->smcibdev->ibdev, but is the race itself still there?
-
-This block loads link = smc->conn.lnk with a plain load. It then copies
-ibport, link_id, ibname, gid and peer_gid while holding only
-read_lock(&smc_hash->lock).
-
-At the same time, smcr_link_down()->smc_switch_conns()->
-smc_switch_link_and_count() can run:
-
-	atomic_dec(&conn->lnk->conn_cnt);
-	smcr_link_put(conn->lnk);
-	conn->lnk = to_lnk;
-
-This runs under lgr->conns_lock and conn->send_lock, and the diag reader
-takes neither. smcr_link_clear() then does the final
-smcr_link_put()->__smcr_link_clear():
-
-	memset(lnk, 0, sizeof(struct smc_link));
-	lnk->state = SMC_LNK_UNUSED;
-
-smcr_link_init() can later reuse the slot. smc_cdc_msg_validate() also
-rewrites conn->lnk under send_lock.
-
-The link is embedded in lgr->lnk[], so this is not a use-after-free.
-However, could user space get an SMC_DIAG_LGRINFO record with an empty
-ibname, ibport 0, link_id 0 and all-zero GIDs, or a mix of two links?
-
-Would taking conn->send_lock around the conn->lnk load and the copy, or
-holding a link reference, give a consistent snapshot? If not, could the
-commit message say that only the NULL dereference is avoided?
-
-[Severity: Low]
-This isn't a bug, but link->ibname is only written by
-smcr_copy_dev_info_to_link() when the link is created. SMC_NLA_DEV_IB_NAME
-in smc_nl_handle_smcr_dev() and the pnet table still use the live
-smcibdev->ibdev->name.
-
-After an ib_device_rename(), the name in SMC_DIAG_LGRINFO will not match
-the SMC device dump or the pnet configuration. The commit message
-documents this, and it matches the existing SMC_NLA_LINK_IB_DEV link dump.
-
->  		smc_gid_be16_convert(linfo.lnk[0].gid, link->gid);
->  		smc_gid_be16_convert(linfo.lnk[0].peer_gid, link->peer_gid);
-
-[ ... ]
-
+diff --git a/drivers/s390/block/dasd_fba.c b/drivers/s390/block/dasd_fba.c
+index 3f56b353b868..3b8d15e9a2de 100644
+--- a/drivers/s390/block/dasd_fba.c
++++ b/drivers/s390/block/dasd_fba.c
+@@ -804,10 +804,13 @@ dasd_fba_init(void)
+ 		return -ENOMEM;
+ 
+ 	ret = ccw_driver_register(&dasd_fba_driver);
+-	if (!ret)
+-		wait_for_device_probe();
++	if (ret) {
++		free_page((unsigned long)dasd_fba_zero_page);
++		return ret;
++	}
+ 
+-	return ret;
++	wait_for_device_probe();
++	return 0;
+ }
+ 
+ static void __exit
 -- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261013141510.2621698-1-mjambigi%40linux.ibm.com
+2.55.0
+
