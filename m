@@ -1,74 +1,159 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EF00384CD4
-	for <linux-s390@vger.kernel.org>; Thu, 15 Oct 2026 10:59:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2AD146C4C5;
+	Thu, 15 Oct 2026 11:53:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792061998; cv=none; b=j8Fe0H+2eunAtr31QLpvODjYsnl/ylqMQ7mMOjOlrIaO39eyzLxfeq5qPgOalulgVMahNrfLd46Tu9ZHyoY+vs2ggia0TKPBKo/gC3SZOVHIhPampGU1U7U7CAf93D0aMcsdrT5+tKvMrG3du01s6W0r39zinfjXnYOjYrYSOsw=
+	t=1792065212; cv=none; b=ry632iqa5iimJok/KF0ax6udLvO48jGTaLXcJgQlst0RNkccV1OanyxE2p5womz7vcm+vmfhk66bQuMqsMsqwH/vBGYcLAJYkP3QPOUkN5qGrOGR46ZrL7zkX9nsT/o0MpB/7rFn5cv6rGiJ01G5zfz1sgOpK5x371ZTIQIXxX4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792061998; c=relaxed/simple;
-	bh=a1oYN7dc4cyyVg0v45G/XH5EYJ1MXe4P73X2uXsPqMo=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=JWuOiJ/dUQExD+NWHMRWhxVRqL2LZU2SLllu2ry0LIPqnKLRyFqjhIP9+uDAyLBiLk+eRL5EmK4Sxf8rOBN/IATmH1ifcaqBQ6qEdMFfCXaKpiTY1iQ8VnFZ3wzzR17fZq3AzfhiezfpOIhTuKHxbtLLp11sqPx/4HcAK5d2oak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PnA33Hci; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792065212; c=relaxed/simple;
+	bh=ojTtm/s6ghvhqfVqGZpxsFVWWkyo0teHaxlRnB4svMw=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=q6A3uP84PRCktjxe8Fcz3CgoFY6wKouGvFuK8EleRmx8KGHMLsh7O2MJs+uTrf3AvF0uEFo+69DpSXO1+a+mn0xLdh6+RikvhUCirWLxxwPJFfJot4AvlAgwxAaQd7Jf1qgaSxwlEYGPqHS5Wq1rvvluWJQ0QG5N539M639ERLc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mjE832Lg; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PnA33Hci"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F6391F000C4;
-	Thu, 15 Oct 2026 10:59:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792061997;
-	bh=a1oYN7dc4cyyVg0v45G/XH5EYJ1MXe4P73X2uXsPqMo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=PnA33HciDSxS1GZcSImAg2SSIYK2N0p5IZ+mIYvgUIWEufJITozfhyw34E21mfsEa
-	 OR/QiXDoxiOIKKafYY6Py4CjBxZVQUbCnPR/wGXs453rJuOxEKWzcNr54XdYboh65y
-	 9y7h9NuvbxSEI8D9tr214pMuMB61j/t4kmCmScinQbOIutqp8TfYKJsjzgUsPOu3rO
-	 8sYubrrwV+M/Hi33N5PRQZIbWM2sF5TS/2vHtW9CDADWznzMpOT8VkCoOIhw/OnTBt
-	 TarFohjtEjjteT1y9U3x7iT4UgF1SObW0Jr8h7SDpP/gMrqRAg1vAZl4Ln9vZwWlt6
-	 QpqNfO8loEWFA==
-Message-ID: <sashiko-outbox-172702@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 1/2] KVM: s390: fix ESSA addressing exception
- injection in migration mode
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Gautam Gala" <ggala@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261015104822.77062-2-ggala@linux.ibm.com>
-References: <20261015104822.77062-1-ggala@linux.ibm.com>
- <20261015104822.77062-2-ggala@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Thu, 15 Oct 2026 10:59:56 +0000
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mjE832Lg"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 51E8FC2BCF5;
+	Thu, 15 Oct 2026 11:53:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1792065212;
+	bh=ojTtm/s6ghvhqfVqGZpxsFVWWkyo0teHaxlRnB4svMw=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=mjE832LgwODzHsag+3+oSlyY/5zqpyppi+Cr7+PB3IcP8YSqpDEXQNf/Go9pnrWNJ
+	 /OIXONLTlIT450NpVVOuFqUTuDgECTnw2K+8Ls3sboNnOd38HoXqwX1k8FeUdqLG3U
+	 eZtuIIAivgexcNOKYkB5pW2BKUMqEK1eX7Hs09SwFMp8ryZTswfp/WQ0Hd9CogJ8Sv
+	 kvguWSj0Wkx4a87MHLQkGL8ayD+ojYVifONSEB03ThY6BmNKTMGIytF6Zgqv9UScT8
+	 5nOJFDmDFm9JZKcaTJ4e1cOdU7LpBI1EoUm5RJdSvkw/jFVqEyALkV66mA+j8Ln3k+
+	 DXnT0Lb9nEteA==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BF5ACC6B33;
+	Thu, 15 Oct 2026 11:53:32 +0000 (UTC)
+From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
+Subject: [PATCH net v5 0/2] net/smc: order the CDC receive path against
+ buffer publication
+Date: Thu, 15 Oct 2026 06:53:30 -0500
+Message-Id: <20261015-b4-disp-2a8d85ef-v5-0-6b795e8263c9@proton.me>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yWMzQrCMBAGX6V8ZxeS0GjwVcRDfra6HmLJtiKUv
+ rtRjzMws0G5CSvOw4bGL1F51g7+MCDfY70xSekMZ9zRGuspjVREZ3IxlOB5IncaQ8rRGrYRPZs
+ bT/L+LS+ovOD6l7qmB+flO8O+fwBr0whpeQAAAA==
+X-Change-ID: 20261015-b4-disp-2a8d85ef-2748bca10e1a
+To: Jakub Kicinski <kuba@kernel.org>, Dust Li <dust.li@linux.alibaba.com>, 
+ Sidraya Jayagond <sidraya@linux.ibm.com>, 
+ "David S. Miller" <davem@davemloft.net>, Paolo Abeni <pabeni@redhat.com>, 
+ "D. Wythe" <alibuda@linux.alibaba.com>, 
+ Mahanta Jambigi <mjambigi@linux.ibm.com>, 
+ Eric Dumazet <edumazet@kernel.org>
+Cc: Simon Horman <horms@kernel.org>, Wenjia Zhang <wenjia@linux.ibm.com>, 
+ Ursula Braun <ubraun@linux.ibm.com>, Hans Wippel <hwippel@linux.ibm.com>, 
+ linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+ Tony Lu <tonylu@linux.alibaba.com>, linux-rdma@vger.kernel.org, 
+ Wen Gu <guwen@linux.alibaba.com>, linux-s390@vger.kernel.org
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1792065211; l=4756;
+ i=hexlabsecurity@proton.me; s=default; h=from:subject:message-id;
+ bh=ojTtm/s6ghvhqfVqGZpxsFVWWkyo0teHaxlRnB4svMw=;
+ b=5mPEIctDtJFLhlsm2cF1XuIpR/sLLdEmcojEZU0dDPbUQqwr2UFZxsJHTSX556dvjNZJdckwi
+ Li9k8jCumzKC5H8zD6DZk5i9vYJiZMocutX8FR5bur77tSwAyMPS1ea
+X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
+ pk=xw1AhCtQdvuoQc+bOQIYy9o8G++cp4/VniI2G/tc3G8=
+X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/default with
+ auth_id=893
+X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
+Reply-To: hexlabsecurity@proton.me
 
-> __do_essa() treated any negative return from dat_perform_essa() as the
-> normal "no CBRL entry appended" case and returned 0, so a page-table
-> walk failure silently dropped the addressing exception.
->=20
-> Return -PGM_ADDRESSING on a walk failure and inject the program
-> interrupt in __do_essa() for the -PGM_ADDRESSING return value.
->=20
-> DAT_WALK_ANY is required in the dat_entry_walk() call so that a GFN
-> backed by a large page (segment or region entry) does not return an
-> error: the walk stops early but succeeds, leaving ptep as NULL, which is
-> already handled by the existing "set exception state, return -1" path.
-> Without DAT_WALK_ANY such addresses would fall through to the new error
-> path and incorrectly inject PGM_ADDRESSING.
->=20
-> Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
-> Reported-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Suggested-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Signed-off-by: Gautam Gala <ggala@linux.ibm.com>
+A CDC can reach a connection before its RMB, or its SMC-D nocopy send
+buffer, is set, and smc_cdc_msg_recv_action() then derefs a NULL
+pointer in softirq. For the SMC-R RMB (1/2) the CDC comes from a peer
+in the link group that predicts the next token. For the nocopy sndbuf
+(2/2, SMC-D loopback only) it comes from the old peer of a reused DMB.
+Each patch sets its pointer last with a release store, and the rx path
+drops the CDC (1/2) or skips the nocopy accounting (2/2) while the
+pointer is unset.
 
-Sashiko has reviewed this patch and found no issues. It looks great!
+1/2 goes back to 69cb7dc0218b (v4.18), 2/2 to cc0ab806fc52 (v6.10).
+2/2 relies on b395dd319cea ("net/smc: do not dereference an unset send
+buffer on the SMC-D teardown path"), already in 6.12.y, 6.18.y and
+7.2.y.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261015104822.7706=
-2-1-ggala@linux.ibm.com?part=3D1
+The old peer can also close the new connection or, once the sndbuf is
+attached, push the new connection's sndbuf_space past the sndbuf size,
+with or without this series; 3/4 of my v7 series [1] bounds the send()
+copy, not sndbuf_space. FWIW smc_conn_free() releasing the RMB before
+the connection leaves the token tree [2] is pre-existing too.
+
+1/2 conflicts in __smc_buf_create() with v7 2/4: keep v7's rmb_len
+assignment at the top of the is_rmb block, before the release store,
+and the tree is the same in either merge order.
+
+v7 1/4 adds an rmb_desc->len load in smcr_cdc_msg_to_host() that any CDC
+in 1/2's window reaches (by inspection), as Sashiko flagged [3]. In C,
+net already loads rmb_desc->len later in smc_cdc_msg_recv_action(), as I
+told Paolo [4], but in my x86 and s390x builds that load only runs when
+the cursor wraps differ. 1/2 drops the CDC before both loads.
+
+Tested with KASAN on x86 (v7.3-rc6, whose net/smc differs from net only
+by 64a6b36b0e18) and on s390x under QEMU (net). Unpatched, two cases
+with the cursor wraps apart reach their NULL loads: a CDC forged with
+the next token (1/2, over rxe), and the old peer's consumer update to
+a reused DMB (2/2). In the second, nothing is forged, but the old peer
+times its read off a test-only counter and the new connect() is starved
+of CPU. KASAN reports a null-ptr-deref on x86; on s390x, with the
+default lowcore, each load reads page 0 and nothing faults. With the
+series, and test-only delays holding the windows open, test-only probes
+see the CDC dropped and the update skip the accounting with the cursor
+wraps apart. With either NULL check removed they see the NULL load
+again, and with either store moved back they see a CDC handled before
+the fields that go with the pointer are set. On top of the v7 series and
+two other net fixes [5] [6], the patched runs read the same. The
+ordering was also checked against LKMM. Test patch and logs on request.
+
+v5:
+ - Split in two, one patch per Fixes: tag, and rebased on net, which
+   now has the SMC-D teardown fixes 36cdf5d48ca1 and b395dd319cea.
+ - Dropped the sndbuf_desc check on the consumer trigger, unneeded
+   after b395dd319cea, and the tasklet's rmb_desc acquire, as
+   smcd->lock orders that load (by inspection). The sndbuf_desc
+   acquire moved into the nocopy branch.
+ - Kept per-buffer checks: one readiness flag would drop a conforming
+   client's first CDC on SMC-D, and registering the connection later
+   would reorder the connect and listen paths.
+ - The Closes: tag now points at Sashiko's report [3], not at a review
+   of v2. Dropped the R-b tags from Dust Li and Sidraya Jayagond, since
+   the patch changed.
+v4: https://lore.kernel.org/all/20260728-b4-disp-52ee4e7d-v4-1-0dda94b0f397@proton.me/
+v3: https://lore.kernel.org/all/20260716-b4-disp-aa52955a-v3-1-03a4411a7549@proton.me/
+v2: https://lore.kernel.org/all/20260714-b4-disp-835288a6-v2-1-581555ef2145@proton.me/
+v1: https://lore.kernel.org/all/20260711-b4-disp-c36a9798-v1-1-340b0c6053fb@proton.me/
+
+[1] https://lore.kernel.org/all/20261013-b4-disp-f345196c-v7-0-ef3dddfbfa68@proton.me/
+[2] https://lore.kernel.org/all/20260729165306.BE7C21F000E9@smtp.kernel.org/
+[3] https://lore.kernel.org/all/sashiko-outbox-164917@kernel.org/
+[4] https://lore.kernel.org/all/20260728172552.69349-1-hexlabsecurity@proton.me/
+[5] https://lore.kernel.org/all/20261013-b4-disp-872a3689-v1-1-2a4c63b04761@proton.me/
+[6] https://lore.kernel.org/all/20261013-b4-disp-193a2a59-v1-1-ed88ac10a41c@proton.me/
+
+---
+Bryam Vargas (2):
+      net/smc: order the CDC receive path against RMB publication
+      net/smc: skip the DMB nocopy accounting until the send buffer is set
+
+ net/smc/smc_cdc.c  | 16 ++++++++++++++--
+ net/smc/smc_core.c | 10 ++++++----
+ 2 files changed, 20 insertions(+), 6 deletions(-)
+---
+base-commit: 513444cc62e231a11c9b15ea88de0890da9b2b4f
+change-id: 20261015-b4-disp-2a8d85ef-2748bca10e1a
+
+Best regards,
+--  
+Bryam Vargas <hexlabsecurity@proton.me>
+
 
