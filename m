@@ -1,35 +1,36 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE1BB6189B8;
-	Mon, 19 Oct 2026 14:04:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBB31546422;
+	Mon, 19 Oct 2026 14:06:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792418659; cv=none; b=eWfvaSSqo9G9VwaWSG+MJKWEGizSOOdHfFfV1ZMnKwfWA9Y4wk46/Gk402J5XIpb7wAnD02fEfC8VqdYcUE1cYSciXJBSSiPosrMO4S1mIyfeR9Q6/d3eriSdTNaqRxt1SDiFqfQXMvlEPwyF4MK9DCiu9K7m+12+F24uOU6q4g=
+	t=1792418815; cv=none; b=DDiVbRdYyX1nbY7UVoi6R7rjekdpjbrj+aPH3uaMpSk7HaPBk9ZvIWZbvzeEHyBXdNxJK5V8YlUkl9DwkShTn4UBblrQYMQ10+Z1EmmHGci4+UWLBXTU8DI5uSDEmQ2f8ALk81HqgxPdrh35lDLORJdfGcjL33dLcuUl3HnMltQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792418659; c=relaxed/simple;
-	bh=TlDmeP1l/b9CFDL45t3ek8Dtjmnsqaq9WRqzufQvjVY=;
+	s=arc-20240116; t=1792418815; c=relaxed/simple;
+	bh=a96vZeOudisHkaTw5Le90gYqgV+c/SH9KynmdqrMl2A=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=a5f8H7pJ9P380TnL43QDOWHGKvLwoD3rZPqGi2nFM8eW/zQtuo6Q63mRZ43rcvyc6A8JyfHwcBlmYuGUmMx0XN45zGPvvt8Y+AOYaKAbCWWe3DF/J1WwW2cmUsYkpUKoE0iCaRZMlvpHybr57vAUG8aM6o1hEB2fQNkIRFkvkCA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QWRg59d1; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=SvQjO/fmZQ7/Q2UNfQyKtkAE07uKbLfIMU8sooC66tzP3rtDf4tsAIL1Hw1QlDQn57ucBQHOGglmlk75bE/2A5CjvUq6dAcO1KKYyg+Gvk/zohmq2oqpFszW4/pWIii2fz6gxiZwz07t62jxbR00phaDGuLg5TtwyCSIceqX8oc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cLbpZmi3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QWRg59d1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F1581F000C6;
-	Mon, 19 Oct 2026 14:04:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cLbpZmi3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9F6A1F000C7;
+	Mon, 19 Oct 2026 14:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792418656;
-	bh=SCr4BBJJW0EneM2gThIHMNghpsiw6Dl1HXjh37Woi30=;
+	s=k20260515; t=1792418809;
+	bh=4ZRgmKFdCpPDginywHt5VsDhsJlJuuAVf2iJq272ijA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=QWRg59d1h/yuyXJNCDMldkzXqlKCXco4re+EJWwV7hSNtop0RFy5xIyYrneHC4ZAj
-	 QAGOLe7imd7xOFl4bs41UZITZH00FeA3rTY8EMBSzWeAgBn41HCQc59XrDnMlWN3pP
-	 vfAxBOX2rxLoG0d1HOGZ/l1reqXr47xAU6hhxRlhDrXKIDoBgF8df36IVvyx9/GYWs
-	 LxAfRB5eGEYQ2ko6MOoGn5bW1byUHJnKmN0wn6DhiphO4lvCd6kRoOiZkdvs4rrHhh
-	 cg2sHXZ7Ky2609XW9UZsrJ4GiMkGe5JWnANXb64ECUprqbPEe7Q+cc0TsAkWFbFNO9
-	 ajqxBR1CzBuWg==
+	b=cLbpZmi3k+0UfjK47JYAv/pXN9wEGqiMsrqiABpC5iYD5kYaxAdheXOXk/9OUY2WB
+	 P/vlfRqF7bmIELWvR33jJKSC0hpPvXvl9WqBFd8J131UMdBe1XpeW5zZegWqxW9OVX
+	 wwSrjAo4j3pSoiMwPvpKLyrS00evPXpljc+ZNrYugq2R1RyCfYNcx/fljFhD2F2Qz5
+	 7Mp5Fsko9D7b++Hi/CGm9ycayvylQn636/k0aaUj2F737KWxtDDzBhDa17oE0eT6ek
+	 VZwv3W4WbN49hpXgjG0yyJ7MONNULM34JK1oLIN39WD65gKE3Td0Fb8YI09fRyW7Ln
+	 7ae9aDgqX6YDA==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
 Cc: Heiko Carstens <hca@linux.ibm.com>,
+	sashiko-bot <sashiko-bot@kernel.org>,
 	Christian Borntraeger <borntraeger@linux.ibm.com>,
 	Vasily Gorbik <gor@linux.ibm.com>,
 	Sasha Levin <sashal@kernel.org>,
@@ -37,9 +38,9 @@ Cc: Heiko Carstens <hca@linux.ibm.com>,
 	gerald.schaefer@linux.ibm.com,
 	linux-s390@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.18] s390/mm: Fix handling of vmalloc area in do_secure_storage_access()
-Date: Mon, 19 Oct 2026 09:51:35 -0400
-Message-ID: <20261019135441.1420968-404-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.18] s390/mm: Add missing mm check to do_secure_storage_access()
+Date: Mon, 19 Oct 2026 09:53:23 -0400
+Message-ID: <20261019135441.1420968-512-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261019135441.1420968-1-sashal@kernel.org>
 References: <20261019135441.1420968-1-sashal@kernel.org>
@@ -57,14 +58,14 @@ Content-Transfer-Encoding: 8bit
 
 From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit a2e5a9d853e015bc876399eb18435aa88101c60a ]
+[ Upstream commit 7cf227b2707ed0129018c283ffc8f893945586db ]
 
-Secure storage access exceptions in vmalloc area need to be handled
-separately since virt_to_phys() does not work on such addresses. Given
-that there cannot be a valid access let such exceptions fail
-immediately. The kernel will either fixup or crash.
+Similar like the normal exception handler the secure storage access
+exception handler needs to verify if mm is not NULL, which may happen
+with kernel threads.
 
-Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Reported-by: sashiko-bot <sashiko-bot@kernel.org>
+Closes: https://lore.kernel.org/all/20260717132345.539A11F00A3A@smtp.kernel.org/
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>> ---
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
@@ -73,434 +74,416 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
 
 LLM Generated explanations, may be completely bogus:
 
-I have enough history, the series context, and the local `fault.c` path
-to decide. The remaining work is to write the phase-by-phase analysis.
-
-## Phase 1: Commit message forensics
-
-**Step 1.1: PARSE THE SUBJECT LINE**
-Record: **[s390/mm]** **[Fix]** handling of vmalloc addresses in
-`do_secure_storage_access()` — kernel secure-storage exceptions on
-vmalloc must not go through `virt_to_folio()` / `virt_to_phys()`.
-
-**Step 1.2: PARSE ALL COMMIT MESSAGE TAGS**
-Record:
-- `Tested-by: Christian Borntraeger <borntraeger@linux.ibm.com>`
-- `Signed-off-by: Heiko Carstens <hca@linux.ibm.com>` (author; s390 arch
-  maintainer)
-- `Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>`
-  (KVM/s390)
-- `Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>` (s390 tree
-  maintainer)
-- No `Fixes:` tag (expected for this review pipeline)
-- No `Reported-by:`, `Link:`, or `Cc: stable@vger.kernel.org`
-- Ignore any later Sasha Levin SOB / “Upstream commit” markers (none on
-  the raw commit)
-
-**Step 1.3: ANALYZE THE COMMIT BODY TEXT**
-Record:
-- **Bug:** PGM 0x3d (secure storage access) on a vmalloc address is fed
-  to `virt_to_folio()` / `virt_to_phys()`, which are not valid for
-  vmalloc.
-- **Symptom:** wrong folio/PFN, then `uv_convert_from_secure()` on the
-  wrong physical page, or a failed get and an unresolved fault (retry
-  loop). Cover letter: kernel should fix up or crash, not convert a
-  random page.
-- **Version info in message:** none. Git places it in v7.3-rc1
-  (`v7.3-rc1~73^2~35`).
-- **Root cause (author):** vmalloc is not a linear kernel mapping; there
-  is no legitimate convert-from-secure for that address, so fail
-  immediately via the existing fault-error path.
-
-**Step 1.4: DETECT HIDDEN BUG FIXES**
-Record: Not hidden. Subject and body say **Fix**. Cover letter for v4 of
-the series lists this as a real pre-existing bug, distinct from two
-later “cosmetics” patches the author explicitly said were not bug fixes.
+The local tree is **7.3.0-rc4** (`v7.3-rc4-27-gf0100363d8c37`). The
+candidate is `7cf227b2707ed` (“s390/mm: Add missing mm check to
+do_secure_storage_access()”). The function and the unguarded
+`current->mm` path exist here; the decision is whether this fix belongs
+in this tree on technical merit.
 
 ---
 
-## Phase 2: Diff analysis
+## PHASE 1: COMMIT MESSAGE FORENSICS
 
-**Step 2.1: INVENTORY THE CHANGES**
-Record:
-- File: `arch/s390/mm/fault.c` (+2 / −0)
-- Function: `do_secure_storage_access()`
-- Scope: **single-file surgical fix**, two lines in the kernel-fault
-  branch
+**Step 1.1 — Subject line**
+- Record: **[s390/mm]** **[Add]** missing `mm` check in
+  `do_secure_storage_access()`. “Add missing … check” is a correctness
+  fix, not a feature.
 
-**Step 2.2: UNDERSTAND THE CODE FLOW CHANGE**
-Record:
-- **Before:** `is_kernel_fault()` → `virt_to_folio((void *)addr)` →
-  `folio_try_get` → `uv_convert_from_secure(folio_to_phys(folio))`.
-- **After:** if `is_vmalloc_addr(addr)`, `return
-  handle_fault_error_nolock(regs, 0)` (exception-table fixup, or
-  oops/`die`). Linear-map kernel faults unchanged.
-- Path: kernel (not user) PGM 0x3d on a vmalloc address.
+**Step 1.2 — Tags**
+- Record:
+  - `Reported-by: sashiko-bot <sashiko-bot@kernel.org>` — static/AI
+    review, not syzbot
+  - `Closes: https://lore.kernel.org/all/20260717132345.539A11F00A3A@smt
+    p.kernel.org/`
+  - `Signed-off-by: Heiko Carstens <hca@linux.ibm.com>` (author; s390
+    architecture maintainer)
+  - `Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>`
+    (KVM/s390)
+  - `Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>` (s390 maintainer,
+    applied)
+  - No `Fixes:`, no `Cc: stable` (expected for this pipeline)
+  - Ignore any Sasha Levin SOB (none on the real commit)
 
-**Step 2.3: IDENTIFY THE BUG MECHANISM**
-Record:
-- **Category:** memory-safety / logic — invalid virt-to-phys on vmalloc;
-  can become wrong-page UV export or an unresolved fault.
-- **Mechanism:** `virt_to_folio()` uses `virt_to_page()` → `__pa()`. On
-  s390 `__pa()` is identity/KASLR linear-map math
-  (`arch/s390/include/asm/page.h`), not a page-table walk. A vmalloc
-  address yields a bogus PFN. `uv_convert_from_secure()` then talks to
-  the Ultravisor about that PFN.
-- **Fix:** reject vmalloc up front; same helper already used on other
-  kernel-fault failures in this file.
+**Step 1.3 — Body**
+- Record:
+  - **Bug:** secure-storage exception handler did not check `current->mm
+    != NULL`, unlike `do_exception()`.
+  - **Symptom:** kernel thread with `mm == NULL` can hit PGM 0x3d and
+    then `mmap_read_lock(NULL)`.
+  - **Failure mode:** NULL dereference in the exception handler.
+  - **Root cause:** user-fault path assumed `current->mm` was always
+    valid.
+  - **Version info:** none in the message. Function dates to 2020
+    (`084ea4d611a3d0`).
 
-**Step 2.4: ASSESS THE FIX QUALITY**
-Record:
-- Obviously correct: vmalloc is not a valid convert-from-secure target;
-  the author states there is no valid access.
-- Minimal; no unrelated edits; no new API.
-- Regression risk is low. Kernel-mode `handle_fault_error_nolock(...,
-  0)` does not take the user `WARN_ON_ONCE(!si_code)` path; it
-  `fixup_exception()` or oopses. That matches “fixup or crash.”
-- Follow-up `ecb00aa6fb7f4` still keeps this check after switching to
-  `__pa(addr)`, which confirms the check is not a folio-API workaround.
+**Step 1.4 — Hidden bug fix?**
+- Record: Not hidden. Explicit missing-check / NULL-deref fix. Not
+  cleanup disguised as a fix.
 
 ---
 
-## Phase 3: Git history investigation
+## PHASE 2: DIFF ANALYSIS
 
-**Step 3.1: BLAME THE CHANGED LINES**
-Record:
-- Handler introduced in `084ea4d611a3` (2020, “s390/mm: add (non)secure
-  page access exceptions handlers”) — `phys_to_page(addr)` on
-  KERNEL_FAULT (virt treated as phys).
-- `b95e0e792822b` (v7.1-rc2) switched that to `virt_to_folio()` (“Fix
-  phys_to_folio() usage”). Correct for the linear map, still wrong for
-  vmalloc.
-- The two new lines are this commit, `a2e5a9d853e01` (Heiko Carstens,
-  2026-07-20).
-- Current tree still has them (blame on `arch/s390/mm/fault.c` lines
-  440–441).
+**Step 2.1 — Inventory**
+- Record:
+  - File: `arch/s390/mm/fault.c` (+2 / −3)
+  - Function: `do_secure_storage_access()`
+  - Scope: single-file surgical fix
 
-**Step 3.2: FOLLOW THE FIXES: TAG**
-Record: No `Fixes:` tag. Closest introduction of the *current* wrong
-helper is `b95e0e792822b`; the vmalloc hole exists conceptually since
-`084ea4d611a3`. Both are ancestors of this checkout.
+**Step 2.2 — Code flow**
+- Record:
+  - **Before:** user-fault path did `if (faulthandler_disabled())` then
+    `mm = current->mm; mmap_read_lock(mm)`.
+  - **After:** `mm = current->mm` is taken first; path is `if
+    (faulthandler_disabled() || !mm) return
+    handle_fault_error_nolock(regs, 0);`
+  - Affected path: non-kernel-fault PGM 0x3d (user mode, or kernel
+    uaccess via secondary space).
+  - `handle_fault_error_nolock()` is already the no-lock fallback: user
+    SIGSEGV, or kernel `fixup_exception()` / oops.
 
-**Step 3.3: CHECK FILE HISTORY FOR RELATED CHANGES**
-Record: Same-day series (AuthorDate 2026-07-20):
-1. `7cf227b2707ed` — NULL `mm` check (user path; Sashiko)
-2. `79ef8d384fdfb` — `lock_mm_and_find_vma()` (user path)
-3. **`a2e5a9d853e01` — this vmalloc check (kernel path)**
-4. `ecb00aa6fb7f4` — drop folio_try_get race; use `__pa()`
-5. `da1f5a7dcf182` / `e462200886fb5` — author-labeled cosmetics
-6. `656db3022083a` — re-enable `DCACHE_WORD_ACCESS`
+**Step 2.3 — Bug mechanism**
+- Record:
+  - **Category:** memory safety — NULL pointer dereference
+  - **Mechanism:** `mmap_read_lock(mm)` with `mm == NULL` (kernel
+    thread).
+  - **Fix:** same `!mm` guard as `do_exception()` at line 285.
 
-This hunk is on the kernel-fault branch only and does not depend on 1–2.
-Standalone as a two-line insert. `handle_fault_error_nolock` already
-existed (`a5600f05d3d7a`, v6.13 era) and was already used in this
-function (`b00be77302d7e`).
-
-**Step 3.4: CHECK THE AUTHOR'S OTHER COMMITS**
-Record: Heiko Carstens is the s390 arch maintainer and owns most of this
-function’s recent history. Christian Borntraeger tested and reviewed.
-Not a drive-by.
-
-**Step 3.5: CHECK FOR DEPENDENT/PREREQUISITE COMMITS**
-Record: Needs `is_kernel_fault()`, `is_vmalloc_addr()` (`<linux/mm.h>`,
-already included), and `handle_fault_error_nolock()`. All present here.
-Does **not** require re-enabling `DCACHE_WORD_ACCESS`. `git merge-base
---is-ancestor a2e5a9d853e01 HEAD` succeeds — already in this tree as a
-historical fact, not as a selection marker.
+**Step 2.4 — Fix quality**
+- Record:
+  - Obviously correct: one extra condition, same pattern as the normal
+    fault handler.
+  - Minimal; no unrelated edits.
+  - Regression risk is very low: the new path only avoids locking a NULL
+    `mm`. For kernel uaccess, `handle_fault_error_nolock()` runs
+    exception fixups and returns `-EFAULT`, which is the intended
+    behavior (same as `do_exception()` and as `11709abccf93b` for atomic
+    context).
 
 ---
 
-## Phase 4: Mailing list and external research
+## PHASE 3: GIT HISTORY
 
-**Step 4.1: FIND THE ORIGINAL PATCH DISCUSSION**
-Record:
-- `b4 dig -c a2e5a9d853e01` →
-  https://patch.msgid.link/20260720085834.898025-5-hca@linux.ibm.com
-- **[PATCH v4 4/8]** in “s390: Reintroduce support for
-  DCACHE_WORD_ACCESS”
-- Revisions: v1 (2026-07-16) → v2 → v3 → **v4 (applied)**
-- v3 changelog: “Fix two more pre-existing bugs reported by Sashiko”
-- Cover letter lists this as one of the real problems, separate from
-  kcore VM_SPARSE and from the folio-race patch
-- Direct review: Borntraeger `Reviewed-by`; no NAK
-- Vasily Gorbik: “Applied, thank you!”
-- lore.kernel.org HTTP fetch returned 403 (Anubis). Thread recovered via
-  `b4 dig -m`.
+**Step 3.1 — Blame**
+- Record:
+  - `do_secure_storage_access()` introduced in `084ea4d611a3d0`
+    (2020-01-21): already did `mm = current->mm;
+    down_read(&mm->mmap_sem)` with no NULL check.
+  - `11709abccf93b` (2025-06-03) added `faulthandler_disabled()` after a
+    real qemu crash (`copy_page_from_iter_atomic` → PGM 0x3d while
+    `in_atomic`), but still assigned `mm = current->mm` afterward with
+    no `!mm` check.
+  - The `!mm` check on this path is `7cf227b2707ed` itself.
+  - `do_exception()` has had `faulthandler_disabled() || !mm` for years
+    (`a12d622ad541b5` / `70ffdb9393a72`).
 
-**Step 4.2: CHECK WHO REVIEWED THE PATCH**
-Record (`b4 dig -w`): Heiko Carstens, Alexander Gordeev, Sven Schnelle,
-Vasily Gorbik, Christian Borntraeger, Janosch Frank, Claudio Imbrenda,
-David Hildenbrand; `linux-s390@`, `kvm@`, `linux-kernel@`. Right
-maintainers and lists.
+**Step 3.2 — Fixes: tag**
+- Record: No `Fixes:` tag. The incomplete guard is from `11709abccf93b`
+  (in this tree). The NULL-mm hole has existed since the handler was
+  added in 2020.
 
-**Step 4.3: SEARCH FOR THE BUG REPORT**
-Record: No syzbot/bugzilla. Concrete trigger is documented in the **same
-series**:
-- Cover letter: DCACHE_WORD_ACCESS was reverted in `37540b8c287fc`
-  because secure-storage handling was incomplete (endless exception
-  loop); that revert had `Cc: stable`.
-- Patch 1 (`aab0734094cef`): “The guest variable storage area is
-  allocated with **vmalloc** and then donated to the ultravisor. Any
-  kernel access to that area will result in a secure storage access
-  exception.” `/proc/kcore` via `vread_iter()` was a known short-
-  read/exception.
+**Step 3.3 — File history**
+- Record: This is v4 2/8 of “Reintroduce support for
+  DCACHE_WORD_ACCESS”. Neighbors:
+  - 1/8 VM_SPARSE (unrelated feature)
+  - 3/8 `lock_mm_and_find_vma()` (refactor; still needs `mm != NULL`)
+  - 4–7 more handler cleanups
+  - 8/8 DCACHE_WORD_ACCESS feature
+- This patch is standalone. It does not depend on 1/8 or 8/8.
 
-**Step 4.4: CHECK FOR RELATED PATCHES AND SERIES**
-Record: 8-patch v4 series. This patch is self-contained. Later
-`ecb00aa6fb7f4` keeps the vmalloc check. Re-enabling DCACHE_WORD_ACCESS
-is a **feature** and is not required for this fix.
+**Step 3.4 — Author**
+- Record: Heiko Carstens is s390 architecture maintainer (`MAINTAINERS`:
+  S390 ARCHITECTURE). He wrote the 2025 atomic-context fix and this
+  follow-up. Borntraeger reviewed.
 
-**Step 4.5: CHECK STABLE MAILING LIST HISTORY**
-Record: Direct lore.kernel.org/stable search blocked (403). Unverified
-whether anyone mailed stable@ for this SHA. The related revert
-`37540b8c287fc` **was** tagged `Cc: stable`, so stable trees that had
-word-at-a-time already treated this class of bug as important.
+**Step 3.5 — Prerequisites**
+- Record: None. It only adds `|| !mm` next to an existing
+  `faulthandler_disabled()` check. Applies standalone on this tree’s
+  `fault.c`.
 
 ---
 
-## Phase 5: Code semantic analysis
+## PHASE 4: MAILING LIST / EXTERNAL
 
-**Step 5.1: IDENTIFY KEY FUNCTIONS IN THE DIFF**
-Record: `do_secure_storage_access()` only.
+**Step 4.1 — Original discussion**
+- Record:
+  - `b4 dig -c 7cf227b2707ed` →
+    https://patch.msgid.link/20260720085834.898025-3-hca@linux.ibm.com
+  - `b4 dig -a`: v1/v2 were VM_SPARSE-only; v3 “Reintroduce
+    DCACHE_WORD_ACCESS”; v4 is the applied series. This mm-check first
+    appears as v4 2/8.
+  - Sashiko report (Closes:): **[High] Missing !mm check … kernel
+    threads faulting on user-space accesses … NULL pointer
+    dereference.** Example given: `copy_from_user()` onto a secure page
+    from a kernel thread, then `mmap_read_lock(NULL)`.
+  - Alexander Gordeev (S390 MM) called that sashiko note a **false
+    positive** on a related patch.
+  - Heiko still took the check: he wanted the handler to match
+    `do_exception()` and to address the sashiko reports. Borntraeger
+    gave `Reviewed-by` on this exact patch. No NAK.
 
-**Step 5.2: TRACE CALLERS**
-Record:
-- `arch/s390/kernel/traps.c` program-check table `[0x3d] =
-  do_secure_storage_access`
-- Hardware PGM 0x3d (secure-storage access), not a syscall helper
-- Compiled only under `#if IS_ENABLED(CONFIG_KVM)` in `fault.c`
+**Step 4.2 — Recipients (`b4 dig -w`)**
+- Record: Heiko, Gordeev, Schnelle, Gorbik, Borntraeger, Frank,
+  Imbrenda, Hildenbrand; `linux-s390@`, `kvm@`, `linux-kernel@`. Right
+  maintainers were on CC.
 
-**Step 5.3: TRACE CALLEES**
-Record: `is_vmalloc_addr()`, `handle_fault_error_nolock()` →
-`fixup_exception()` / `kfence_handle_page_fault()` / `die()`. Pre-fix
-callees: `virt_to_folio`, `folio_try_get`, `uv_convert_from_secure`,
-`folio_put`.
+**Step 4.3 — Bug report**
+- Record: Sashiko static finding, severity High. Not a user crash log
+  for the `!mm` case. The related 2025 bug *was* a real qemu oops on
+  this same handler. WebFetch/curl to lore returned 403; thread was
+  recovered with `b4 mbox`.
 
-**Step 5.4: FOLLOW THE CALL CHAIN**
-Record: Reachable from:
-- Kernel access to UV-donated **vmalloc** (guest variable storage;
-  kcore)
-- `load_unaligned_zeropad()` spanning into a donated page once
-  DCACHE_WORD_ACCESS is on (this tree has it again via `656db3022083a`)
-Unprivileged user can trigger kcore only with privilege; zeropad/dcache
-is a common kernel path (namei/dcache) and can touch adjacent pages.
-Protected-virt hosts are the affected population.
+**Step 4.4 — Series**
+- Record: Bundled with a feature series, but this hunk is an independent
+  NULL check. Other 2/8–7/8 patches are not required for this guard.
 
-**Step 5.5: SEARCH FOR SIMILAR PATTERNS**
-Record: No other `virt_to_folio` in this handler’s kernel-fault path
-after `ecb00aa6fb7f4`. `uv_convert_from_secure()` in
-`arch/s390/kernel/uv.c` takes a **physical** address; callers must not
-pass vmalloc virt.
-
----
-
-## Phase 6: Cross-referencing against the local tree
-
-**Step 6.1: DOES THE BUGGY CODE EXIST IN THIS TREE?**
-Record:
-- `git describe HEAD` → **v7.3-rc4-27-gf0100363d8c37**; `make
-  kernelversion` → **7.3.0-rc4**
-- This is mainline 7.3-rc, not a `-stable` y-tree
-- Function exists at `arch/s390/mm/fault.c:408`
-- Current kernel-fault path still has the vmalloc check (lines 440–441)
-  then `__pa(addr)`
-- Bug is real in any tree that still does `virt_to_folio`/`__pa` on the
-  fault address without a vmalloc guard — including this line of
-  development before `a2e5a9d853e01`
-
-**Step 6.2: CHECK FOR BACKPORT COMPLICATIONS**
-Record: Against **this** checkout the patch is already applied; the
-surrounding kernel-fault `if` matches the parent of `a2e5a9d853e01`.
-Expected difficulty on a tree that still has `folio =
-virt_to_folio((void *)addr);` in that `if`: **clean apply**. Helpers
-exist here.
-
-**Step 6.3: CHECK IF RELATED FIXES ARE ALREADY HERE**
-Record: This exact fix is already an ancestor of HEAD. That is mainline
-history, not “already selected for stable.” No substitute vmalloc guard
-appears before `a2e5a9d853e01`.
+**Step 4.5 — Stable list**
+- Record: **UNVERIFIED** — lore.kernel.org `/stable/` returned 403. No
+  stable discussion found in the saved v4 mbox (no `Cc: stable` in
+  review).
 
 ---
 
-## Phase 7: Subsystem and maintainer context
+## PHASE 5: CODE SEMANTICS
 
-**Step 7.1: IDENTIFY THE SUBSYSTEM AND ITS CRITICALITY**
-Record: **arch/s390 MM + KVM protected virtualization**. Criticality:
-**IMPORTANT** for s390 KVM PV (Ultravisor / confidential guests) — not
-universal, but confidentiality and host stability for that platform.
+**Step 5.1 — Functions**
+- Record: `do_secure_storage_access()` only.
 
-**Step 7.2: ASSESS SUBSYSTEM ACTIVITY**
-Record: Actively maintained (Heiko/Vasily/Borntraeger). Handler dates to
-2020; this is a long-standing hole, not a brand-new subsystem.
+**Step 5.2 — Callers**
+- Record: Trap table in `arch/s390/kernel/traps.c`: `[0x3d] =
+  do_secure_storage_access`. Hardware PGM 0x3d (secure storage access).
+  `COND_TRAP` weak-aliases to `default_trap_handler` if the symbol is
+  absent. Reached from `__do_pgm_check` → exception handler, not a
+  normal syscall helper.
 
----
+**Step 5.3 — Callees**
+- Record: After the check: `lock_mm_and_find_vma` / `mmap_read_lock`,
+  `folio_walk_*`, `arch_make_folio_accessible`. On the new path:
+  `handle_fault_error_nolock()` only (no lock, no folio walk).
 
-## Phase 8: Impact and risk assessment
+**Step 5.4 — Reachability**
+- Record: `is_kernel_fault()` is false for user mode, or kernel mode
+  with `teid.as == PSW_BITS_AS_SECONDARY` (uaccess). User processes have
+  an `mm`. Kernel threads have `current->mm == NULL` unless `use_mm()`.
+- Reachable in principle: kernel-thread uaccess to a secure page without
+  `use_mm()`.
+- Confirmed real traffic on this handler: `11709abccf93b` stack (qemu
+  `vfs_write` → `copy_page_from_iter_atomic` → PGM 0x3d). Those tasks
+  have an `mm`; they hit the atomic case, not `!mm`.
+- Userspace-reachable for normal tasks: yes, but they have `mm`, so this
+  check does not change that path.
 
-**Step 8.1: DETERMINE WHO IS AFFECTED**
-Record: **Platform-specific + config-specific:** s390, `CONFIG_KVM`,
-protected-virt host (pages donated to UV). Not all Linux users; all such
-hosts that can take PGM 0x3d on vmalloc.
-
-**Step 8.2: DETERMINE THE TRIGGER CONDITIONS**
-Record:
-- Kernel access to UV-donated vmalloc (documented: former vmalloc
-  stor_var + `/proc/kcore`)
-- Word-at-a-time / zeropad crossing into donated memory (this tree has
-  DCACHE_WORD_ACCESS again)
-- Not a userspace-unprivileged primitive in the usual sense; kcore needs
-  privilege; zeropad is kernel-internal but common on PV hosts
-
-**Step 8.3: DETERMINE THE FAILURE MODE SEVERITY**
-Record:
-- Wrong PFN → `uv_convert_from_secure()` on the **wrong** page: guest-
-  confidentiality break / host page state corruption → **CRITICAL** on
-  PV
-- `folio_try_get` fail → silent return → instruction retry → **endless
-  PGM 0x3d** (the failure mode that forced the DCACHE revert) →
-  **CRITICAL** (lockup)
-- Severity: **CRITICAL** when it hits; trigger is not every boot, but it
-  is a documented real path
-
-**Step 8.4: CALCULATE RISK-BENEFIT RATIO**
-Record:
-- **Benefit:** high for s390 PV — avoids wrong UV export and exception
-  storms
-- **Risk:** very low — two lines, existing helper, linear-map path
-  unchanged
-- **Ratio:** strongly favors backport
+**Step 5.5 — Similar patterns**
+- Record: `do_exception()` already uses `is_kernel_fault() ||
+  faulthandler_disabled() || !mm`. This commit brings the secure handler
+  in line. No other copy of this hole in `fault.c`.
 
 ---
 
-## Phase 9: Final synthesis
+## PHASE 6: LOCAL TREE
 
-**Step 9.1: COMPILE THE EVIDENCE**
+**Step 6.1 — Does the buggy code exist here?**
+- Record: Yes. Tree is **7.3.0-rc4**. `do_secure_storage_access()` is in
+  `arch/s390/mm/fault.c` under `CONFIG_KVM`. Current source already has
+  `if (faulthandler_disabled() || !mm)` at line 451 (`git merge-base
+  --is-ancestor 7cf227b2707ed HEAD` succeeded). The unguarded
+  `mmap_read_lock(current->mm)` pattern was present from 2020 until this
+  commit (v7.3-rc1).
 
-**FOR:**
-- Real bug: `virt_to_folio`/`__pa` on vmalloc is invalid on s390
-- Failure modes: wrong-page `uv_convert_from_secure`, unresolved fault /
-  infinite PGM 0x3d
-- Documented trigger: vmalloc UV storage; kcore; later zeropad
-- 2-line, surgical, uses existing `handle_fault_error_nolock`
-- Written/acked by s390 maintainers; Tested-by + Reviewed-by Borntraeger
-- Author treated it as a bug fix, not as the DCACHE feature patch
-- Follow-up kept the same check with `__pa`
-- Code and helpers exist in this 7.3-rc4 tree
+**Step 6.2 — Backport difficulty**
+- Record: Clean apply on this tree. Later refactors
+  (`lock_mm_and_find_vma`, goto, `__context_unsafe`) still keep the
+  `!mm` check.
 
-**AGAINST:**
-- s390 + KVM PV only (smaller user base than core mm)
-- Part of a larger DCACHE series — but this hunk does not enable that
-  feature
-- No `Fixes:` / `Cc: stable` (not a negative per the rules)
-- Direct stable@ lore search could not be completed (403)
+**Step 6.3 — Related fixes already here?**
+- Record: `11709abccf93b` is here (atomic/`faulthandler_disabled` only).
+  No earlier `!mm` fix on this path. This commit is the `!mm` fix.
 
-**UNRESOLVED:**
-- Whether stable@ already discussed this exact SHA (lore HTTP blocked)
-- Exact older-stable context outside this checkout — not used for the
-  verdict
+---
 
-**Step 9.2: APPLY THE STABLE RULES CHECKLIST**
-1. Obviously correct and tested? **PASS** — two-line guard; Tested-by
-   Borntraeger
-2. Fixes a real bug that affects users? **PASS** — wrong phys conversion
-   / exception loop on PV hosts
-3. Important (crash, security, corruption, deadlock)? **PASS** — UV
-   export of the wrong page and/or host lockup
-4. Small and contained? **PASS** — +2 lines, one function
-5. No new features or APIs? **PASS** — not the DCACHE re-enable
-6. Can apply to the local tree? **PASS** — helpers and call site exist;
-   this checkout already contains the change as mainline history
+## PHASE 7: SUBSYSTEM
 
-**Step 9.3: CHECK FOR EXCEPTION CATEGORIES**
-Record: None (not a device-ID/quirk/DT/build/doc exception). Qualifies
-as a normal important bug fix.
+**Step 7.1**
+- Record: **s390 MM / Secure Execution (Ultravisor) exception
+  handling**. Criticality: **IMPORTANT** on s390 with KVM/protected
+  virtualization; not core-universal. Not staging.
 
-**Step 9.4: MAKE YOUR DECISION**
+**Step 7.2**
+- Record: Active. Multiple 2025–2026 fixes on this same function (atomic
+  handling, donated-memory fixups, folio_walk, vmalloc). Mature handler,
+  still getting real-bug fixes.
 
-This tree is **Linux 7.3-rc4** (`v7.3-rc4-27-gf0100363d8c37`). The
-surrounding handler, `is_vmalloc_addr()`, and
-`handle_fault_error_nolock()` are all here. The bug is using linear-map
-virt-to-phys on a vmalloc PGM 0x3d, which can export the wrong page from
-secure storage or never resolve the fault.
+---
 
-The patch is two lines, maintainer-written, tested, and independent of
-re-enabling `DCACHE_WORD_ACCESS`. Benefit is high for s390 protected-
-virt; regression risk is very low. It meets the stable-kernel rules for
-**this** checkout.
+## PHASE 8: IMPACT AND RISK
+
+**Step 8.1 — Who is affected**
+- Record: s390 systems with `CONFIG_KVM` that take PGM 0x3d (Secure
+  Execution / protected virt). Not universal.
+
+**Step 8.2 — Trigger**
+- Record: Kernel thread (`current->mm == NULL`) takes a user/secondary-
+  space secure-storage exception (e.g. uaccess to a secure page).
+  Unprivileged users do not directly set `mm` to NULL. Likelihood is
+  lower than the 2025 atomic qemu case; Gordeev called the sashiko
+  report a false positive. Heiko still treated the check as required for
+  parity with `do_exception()`.
+
+**Step 8.3 — Failure mode**
+- Record: `mmap_read_lock(NULL)` → kernel oops. **Severity: HIGH** if
+  the path runs; **MEDIUM** if it is only defensive. Exception-handler
+  NULL deref is still a crash class of bug.
+
+**Step 8.4 — Risk vs benefit**
+- Record:
+  - **Benefit:** Medium–high. Prevents an oops on a path that already
+    crashed qemu in atomic context; completes the standard three-way
+    fault-handler guard.
+  - **Risk:** Very low. One condition, error-path only, same semantics
+    as `do_exception()`.
+  - **Ratio:** Favor including it.
+
+---
+
+## PHASE 9: SYNTHESIS
+
+**Step 9.1 — Evidence**
+
+**For:**
+- Real NULL-deref if `mm` is NULL before `mmap_read_lock()`.
+- Same guard `do_exception()` has used for years.
+- Same function already needed a production fix (`11709abccf93b`) for
+  kernel uaccess to secure pages.
+- 5-line, obviously correct change; `handle_fault_error_nolock()` is the
+  right fallback (exception fixup / `-EFAULT`).
+- Written by the s390 arch maintainer; Reviewed-by Borntraeger.
+- Sashiko rated the hole High and described the `copy_from_user` +
+  kernel-thread scenario.
+- Code exists in this 7.3-rc4 tree; no missing prerequisites.
+
+**Against:**
+- Gordeev called the sashiko `!mm` note a false positive (may not be hit
+  by real kernel threads that use `use_mm()`).
+- No live crash log for the `!mm` case (sashiko static analysis).
+- s390 + KVM + Secure Execution only.
+- Landed as 2/8 of a feature series (the hunk itself is independent).
+
+**Unresolved:**
+- Stable-list history (lore `/stable/` 403).
+- No public reproducer of a kernel-thread `!mm` crash.
+
+**Step 9.2 — Stable rules**
+1. Obviously correct and tested? **PASS** — one condition, reviewed by
+   KVM/s390, applied by s390 maintainer.
+2. Fixes a real bug that affects users? **PASS** — NULL `mm` then
+   `mmap_read_lock()` is a real oops; sibling path already crashed qemu.
+   Trigger may be uncommon, but the hole is real.
+3. Important (crash/security/corruption/deadlock)? **PASS** — exception-
+   handler NULL deref / oops.
+4. Small and contained? **PASS** — +2/−3 in one function.
+5. No new features/APIs? **PASS**.
+6. Applies to this tree? **PASS** — `fault.c` and the user-fault path
+   are present; patch is trivial here.
+
+**Step 9.3 — Exceptions**
+- Record: None (not a device ID, quirk, DT, build, or docs fix).
+  Qualifies as a normal crash-prevention fix.
+
+**Step 9.4 — Decision**
+This tree has the handler and had the unguarded `mm` use. The fix is a
+one-line NULL check that matches `do_exception()` and closes a crash
+path in the PGM 0x3d handler. Benefit outweighs risk.
 
 ---
 
 ### What the commit solves (for this tree)
 
-`do_secure_storage_access()` handled kernel PGM 0x3d by converting the
-fault address with `virt_to_folio()`. That is only valid for the
-identity/KASLR linear map. Vmalloc (including UV guest variable storage
-allocated with vmalloc, and later word-at-a-time probes) must not take
-that path. The fix fails those faults immediately so the kernel can
-exception-fixup or oops instead of converting a random physical page.
+`do_secure_storage_access()` handles s390 PGM 0x3d. On the
+user/secondary-space path it took `mmap_read_lock(current->mm)` without
+checking `mm`. Kernel threads have `mm == NULL`, so that is a NULL
+deref. `do_exception()` already checks `faulthandler_disabled() || !mm`.
+The 2025 commit added only the atomic half after a qemu oops; this
+commit adds the missing `!mm` half. On this 7.3-rc4 tree the function
+exists and the check is the right fix.
 
-### Verification
-- **[Phase 1]** Parsed tags: Tested-by/Reviewed-by Borntraeger; SOB
-  Heiko + Vasily; no Fixes/Cc stable/syzbot
-- **[Phase 2]** Diff: +2 lines in `do_secure_storage_access()` kernel-
-  fault branch; `is_vmalloc_addr` then `handle_fault_error_nolock`
-- **[Phase 2]** Read `arch/s390/include/asm/page.h` `__pa_nodebug`:
-  linear map only, not vmalloc
-- **[Phase 2]** Read `include/linux/mm.h` `virt_to_folio`:
-  `virt_to_page` → `__pa`
-- **[Phase 3]** `git describe HEAD` / `make kernelversion`: v7.3-rc4 /
-  7.3.0-rc4
-- **[Phase 3]** `git merge-base --is-ancestor a2e5a9d853e01 HEAD`: yes
-  (mainline ancestor, not a selection marker)
-- **[Phase 3]** `git show a2e5a9d853e01`: matches the provided diff
-- **[Phase 3]** `git blame` on `fault.c` 408–470: handler from
-  `084ea4d611a3` (2020); vmalloc lines from this commit
-- **[Phase 3]** `git show b95e0e792822b`: phys_to_folio → virt_to_folio
-  in v7.1-rc2; vmalloc still wrong
-- **[Phase 3]** `git show ecb00aa6fb7f4`: later `__pa` path **keeps**
-  the vmalloc check
-- **[Phase 3]** `git show 37540b8c287fc`: DCACHE revert; endless PGM
-  0x3d; `Cc: stable`
-- **[Phase 4]** `b4 dig -c/-a/-w/-m`: v4 4/8; lore msgid
-  `20260720085834.898025-5-hca@linux.ibm.com`; v1–v4; s390/KVM CCs;
-  Borntraeger R-b; Gorbik applied
-- **[Phase 4]** WebFetch lore.kernel.org: 403; discussion taken from b4
-  mbox instead
-- **[Phase 4]** Cover letter: this is a listed pre-existing bug, not
-  cosmetics
-- **[Phase 4]** `git show aab0734094cef`: stor_var was vmalloc then
-  donated to UV; kernel access → PGM 0x3d
-- **[Phase 5]** Callers: `traps.c` `[0x3d]`; `#if
-  IS_ENABLED(CONFIG_KVM)`
-- **[Phase 5]** Read `handle_fault_error_nolock`: kernel path fixup or
-  `die`
-- **[Phase 6]** Read current `fault.c` 439–449: vmalloc check still
-  present
-- **[Phase 8]** Failure mode: wrong UV export and/or infinite exception
-  — CRITICAL for s390 PV
-- **UNVERIFIED:** stable@ mailing-list threads for this SHA (lore 403)
+### Risk vs benefit
 
-The fix is small, obviously correct, and addresses a real
-crash/corruption/confidentiality bug on this tree’s s390 KVM PV path.
+Very low risk, meaningful crash-prevention benefit on s390 KVM/Secure
+Execution. No API or structural change.
+
+---
+
+Verification:
+- [Phase 1] Parsed tags: Reported-by sashiko-bot; Closes lore msgid
+  `20260717132345.539A11F00A3A`; Reviewed-by Borntraeger; SOB Heiko +
+  Gorbik; no Fixes/Cc-stable
+- [Phase 1] Body: kernel-thread `mm == NULL` vs normal exception handler
+- [Phase 2] Diff: `arch/s390/mm/fault.c` +2/−3; `if
+  (faulthandler_disabled() || !mm)` then `handle_fault_error_nolock`
+- [Phase 2] Confirmed `handle_fault_error_nolock()` does
+  fixup/SIGSEGV/oops and does not unlock `mm`
+- [Phase 3] `git show 7cf227b2707ed`; ancestor of HEAD
+- [Phase 3] Blame: function from `084ea4d611a3d0` (2020); `!mm` on
+  `do_exception` long-standing; `faulthandler_disabled` only from
+  `11709abccf93b` (2025)
+- [Phase 3] `git show 11709abccf93b`: real qemu stack, sleeping on
+  mmap_lock in atomic PGM 0x3d
+- [Phase 3] Series neighbors 79ef8d384fdfb…46a8c8d142ba8 do not replace
+  this check
+- [Phase 4] `b4 dig -c 7cf227b2707ed`:
+  https://patch.msgid.link/20260720085834.898025-3-hca@linux.ibm.com
+- [Phase 4] `b4 dig -a`: v4 is the applied series; this is 2/8
+- [Phase 4] `b4 dig -w`: s390 + KVM maintainers on CC
+- [Phase 4] `b4 mbox` of Closes: sashiko [High] NULL deref; Gordeev
+  “false positive”; Heiko still aligned with `do_exception()`
+- [Phase 4] WebFetch/curl lore: 403; UNVERIFIED: stable@ discussion
+- [Phase 5] `git grep do_secure_storage_access`: `traps.c` PGM 0x3d +
+  `entry.h`
+- [Phase 5] Read `is_kernel_fault()`: user mode or secondary AS → user
+  path
+- [Phase 6] `git describe HEAD` = v7.3-rc4-27-gf0100363d8c37; `make
+  kernelversion` = 7.3.0-rc4
+- [Phase 6] Current `fault.c:451` has `faulthandler_disabled() || !mm`
+- [Phase 7] MAINTAINERS: Heiko = S390 ARCHITECTURE; Gordeev = S390 MM
+- [Phase 8] Failure mode: NULL deref in exception handler; trigger
+  narrower than the 2025 atomic bug
+- UNVERIFIED: whether a kernel thread without `use_mm()` has hit this on
+  a production machine; Gordeev doubted it
+
+The fix is small, matches the existing fault-handler contract, and
+prevents an oops on this tree’s s390 secure-storage path.
 
 **YES**
 
- arch/s390/mm/fault.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/mm/fault.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 46e5748b5b1b3..9d7d3ef99fc16 100644
+index 069f72703a915..46e5748b5b1b3 100644
 --- a/arch/s390/mm/fault.c
 +++ b/arch/s390/mm/fault.c
-@@ -433,6 +433,8 @@ void do_secure_storage_access(struct pt_regs *regs)
- 		panic("Unexpected PGM 0x3d with TEID bit 61=0");
- 	}
- 	if (is_kernel_fault(regs)) {
-+		if (is_vmalloc_addr((void *)addr))
-+			return handle_fault_error_nolock(regs, 0);
- 		folio = virt_to_folio((void *)addr);
- 		if (unlikely(!folio_try_get(folio)))
- 			return;
+@@ -404,9 +404,9 @@ void do_secure_storage_access(struct pt_regs *regs)
+ {
+ 	union teid teid = { .val = regs->int_parm_long };
+ 	unsigned long addr = get_fault_address(regs);
++	struct mm_struct *mm = current->mm;
+ 	struct vm_area_struct *vma;
+ 	struct folio_walk fw;
+-	struct mm_struct *mm;
+ 	struct folio *folio;
+ 	int rc;
+ 
+@@ -448,9 +448,8 @@ void do_secure_storage_access(struct pt_regs *regs)
+ 		if (rc)
+ 			return handle_fault_error_nolock(regs, 0);
+ 	} else {
+-		if (faulthandler_disabled())
++		if (faulthandler_disabled() || !mm)
+ 			return handle_fault_error_nolock(regs, 0);
+-		mm = current->mm;
+ 		mmap_read_lock(mm);
+ 		vma = find_vma(mm, addr);
+ 		if (!vma)
 -- 
 2.53.0
 
