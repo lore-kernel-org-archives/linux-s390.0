@@ -1,91 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792442102;
-	b=o6slQhSkNSHMOBCqDf/ufjPyPqWquucCl20JL/jICGk6zHwmWT6rgymvL/cvdyLw3dOY
-	 vjVSGd2s7ks/ziVPI7S4Kvi0V6n0mbvQiyz23NnC81JbRZQf1Pw/x/zlsKtwsIWFY72Po
-	 LSfa9HLlrvl482/tYTcVoYaNYzVHI2YnyryHDi43d7bkSfjTsWc77zGvZih2DK5qQfvpg
-	 wKiJvuHgseoN9O/LBXgFD5ZbOomYLQMP/mJnv14M+I9+h49QEUPdkzedTeskGz99VEmXO
-	 7cwwFdxNuT1ehGXxic6+NJsMnHFjJu9J9gmAiE5SH+utwkbETympua7UNGKZSsRFSNw==
+	t=1792443224;
+	b=hjORljda1ZmZXSvSx672k0qnkF4NrY4cKc4uyB3ojK3slTCE+S0qJPWNs8xSaHxJ+r4q
+	 D4wbHKzRJAJUff0/IdEYbTOq7fXQoAAIFmdVmZ+2zgbY5d1NWlTelpMWYs7aBQD2T7ITc
+	 L9KnOFh/Gh+68iTAH69lXeYIe/gYQZbq86RngVh9jFbAgQe1kaIM1yClrxkNtgxjdkgi2
+	 O9ZsaPxcDWidgSIpieLyGb/LzoGGemDTEwtKDmSYpkGdj82c6H/ZhIHbUq5zhNgcbKjvl
+	 QCAPTXAbzVAlqaXzrlWOWCiPz+lmJJ5r/lg0EYtCtQ5zhifQ5KpfrSsGDU8ZX6SICmQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792442102;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=QiKFKvXps967wwyLmEJ59eoTg+fbLeK6RWK4w7bM5/w=;
-	b=036jWc8l2XZ726AcX/rW5fdyu80vRt6Rkxoj7zsrewOH/YSgYXgKN/nzHl1MYTldScD+
-	 fnIRE/CEckDjeHBcvj1lY7O5VyLTdPnh+8xUgZMTl6ByHz3Cqo6oDvzGenkfrRysC4oHd
-	 9wLi09MEij9I8ndUblscQ2tvMM7CqZuaaA+3EqP82/l2jQx4Sq+aqoQF/V6L0ioOASS+C
-	 b+AoLPjx36CcmrRDmIPn3WIUxYFM8PcFGF27kjplpEM7h1Bz2b9XqKRK2g354G6M4HI0v
-	 rSV4BUS9qzCKEQ3JWSbEEdqtm1aGcrBwSzMFaWNkegd2Xkq7AqP3VsAe0S9bAVDwzQw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792443224;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=HUXGBqAKUUw/5UV1ZkJ1Lmv7bu7TigkjFVaDq86o/Ps=;
+	b=nggaBN5Nc17hU5wTBCOaw66LMNCYl+w9/lMpncg1cVONvf4K/ukSjL2dlJDrNicjgN35
+	 4l/3r9DszwFRXG0A3TlKi8RN/Sf3SaBNVVuMRZiz98dprnh1q0ziXHHT+qyEn1ilEoBp2
+	 7M0AdpKrhOxin/5tPnMZ9ZGZO5QEFkrO1e+M4dc8BEP7ZZYXqIrqtvbJCltgunRWSsIvg
+	 He9Jl9kvtYX09pni9Fs3rZo01x+u+I9KrpmrOEpkYFOXjnx+yLJ4XshIzd/PfCR0xl9Kr
+	 IB88fd79wY/3brpW5gxmH2T8TdS374RXTNPHRVZxHPYNnd3cs5vQ9cJIZ7YBe3GHctA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=BZk3+FV5;
-	arc=none smtp.remote-ip=209.85.128.51
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PHC4AR0W;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFC85606A337
-	for <linux-s390@vger.kernel.org>; Mon, 19 Oct 2026 20:35:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CFC85606A337
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DDDD606A326
+	for <linux-s390@vger.kernel.org>; Mon, 19 Oct 2026 20:53:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=BZk3+FV5
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4956869750eso20458805e9.2
-        for <linux-s390@vger.kernel.org>; Mon, 19 Oct 2026 13:35:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792442100; x=1793046900; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=QiKFKvXps967wwyLmEJ59eoTg+fbLeK6RWK4w7bM5/w=;
-        b=BZk3+FV5sP7TvpXJf9JI4+NIrngTAnbwPLj5823EEz1Z0X5cG+mkg9zSiurXIUT7oG
-         jTRhyO7gBRMCKOJZvPC37cDLRbenfqi/xkzVh5VU6UqfsX6qSrHtAhN1J5qJisRGQB8R
-         ai2jRPg61ASl7Ys8//+9Ry1aGySqhbXR9hH1X2UdV+2jheAhovhf0sYxgK8lmS3kj3F5
-         4mEMFCBGQfbqD5inyct3EVbTiznmcU8UbYSPjol/pmTNiRURmX/zEZuAa8L+0Kp5WmLv
-         E2GbDFsdFbmlCx+95Pboyf/+atdik0lAnXIpYs0Y+a1W4TMOhrKe1eV4bR390Zpz+gx0
-         PfqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792442100; x=1793046900;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=QiKFKvXps967wwyLmEJ59eoTg+fbLeK6RWK4w7bM5/w=;
-        b=Zp7gaAxnNGyl5MjPHzaieswWhLa7O8tiGdere2ZSNysHxAKr1vhwrI4MHOipaiXGQh
-         oBszWEB8+02aMCbscOMb4lxm9V6Jc/9NlwMGldcbAjOB9swqryFJS1ZZuzyJhIY5gYCd
-         nfFCJv7g2E0QZzoOlzouvvMNpgt9tg/dX45CqhmcyZ0+s+6ZyWWnp+x6XXXX/HC1dI/0
-         A4RdXjNdSBcbim2B9ZlzN+oZQ1CDoCE6GduLm0HBP8gOuM+ktHbACIRoyjsQK7EtKq3W
-         mBU1esm8a2CDA+sy5uMrUalEynBSGNYvrIcsvJsZHv8mq8/AWaW6fCBWOssTMXVWkRXB
-         5Xqg==
-X-Forwarded-Encrypted: i=1; AKwUvBxljlwt6/GP3/vk0S4rkV/2J+u0286NpFHS7epwc9mnDg5zAOmIOZKqrn4GnEIcHMIu6Bezlj7MuwfD@vger.kernel.org
-X-Gm-Message-State: AFq9FYLBiEV6UJ0BJkHqDko7PPq7rI2W5GGscKPSEDXQ28l+Zf7o2QFj
-	Zqxl+3/2/E/+D4EhbljVUKfDm834Fa/nOexHRo8nwafR7JmE/nr/BI0=
-X-Gm-Gg: AYBFou0plYJpMYKOcWQoGZ5Dqcr3f2XXCqEqZPQ+5LyjeX54uvMIS34pWjrozoH2o6R
-	jjwv9wAM2M52mbIhxI2EGprtDiWAQMi/NBitHpLP18fX1sJSq2s66lqIQbv2iQsU01mWXeuU3hR
-	7WE9Ys0HCXPAqH/6IkOnPi068SHW+kmvvgznPhaNZXYVZutDnZszfIZOiwNKd1NziJZMwesJ9X9
-	MuPuQ8P2di44Gy2p2FoGvB1GDs8CFSgF4lk0qU5SBOaP0ONaAfooLGAJ6Pe1YRF9U5zx2eKVcac
-	Dj5k4oqmN9q0T/IvWyFSKf1u6t8hrhoIXjhfS6DfnQJTJjCs7+mm1KoxQrjonrbr8wqk1+qmOPk
-	MaQqRyyxyfeB/oWJ8cSeS8a5lrTaukD9lxwnNkiFwddcQ+b5tqBmdHi5W5G68tilwU0OIAjC2Nt
-	llZY5J3pRaxOthuslL8iwat0xlXbM08kQasjcV5lY=
-X-Received: by 2002:a05:600c:6217:b0:4a1:dda8:eb73 with SMTP id 5b1f17b1804b1-4a1dda8eca9mr131113225e9.27.1792442099905;
-        Mon, 19 Oct 2026 13:34:59 -0700 (PDT)
-Received: from debian.. ([2001:41d0:303:db6b::])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1f2d43242sm15802805e9.9.2026.10.19.13.34.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Oct 2026 13:34:59 -0700 (PDT)
-From: Tristan Madani <tristmd@gmail.com>
-To: Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>
-Cc: Stefan Bader <shbader@de.ibm.com>,
-	linux-s390@vger.kernel.org,
-	stable@vger.kernel.org,
-	Tristan Madani <tristan@talencesecurity.com>
-Subject: [PATCH] s390/tape: cancel delayed work before freeing device
-Date: Mon, 19 Oct 2026 20:34:57 +0000
-Message-ID: <20261019203458.1365046-1-tristmd@gmail.com>
-X-Mailer: git-send-email 2.47.3
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PHC4AR0W
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6959C1F000C4;
+	Mon, 19 Oct 2026 20:53:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792443223;
+	bh=HUXGBqAKUUw/5UV1ZkJ1Lmv7bu7TigkjFVaDq86o/Ps=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=PHC4AR0W2/8XZJFp6NZdZpbwVUZbkbQrxkjsBzvf6I0bLlarwM/SSV4XFH7aW6/+1
+	 zHP0ncO8J0U4iC62xr5a0rghzz7e4gxluOtk+28Ys1gUhkk16R+YU/6shsCBS0iRWW
+	 s9lpsLAghqkUp1qjNAEt3MkzLcyzrZcNvazKo3gdFGRzMJYgx7OdpnVx1fxW6mjxZR
+	 CI4GvPb7rGXCwKCfxRBJp7m+jrgPFwF45ScOnSOuSv1XnhU516gU7TCc3IeqoMb+34
+	 C+TnBiG+PTr9SdC+ioXhifrVhHWIu7j4MLFtNb4D5w2rcQnnG5bkQFmdRhu4NI9BsC
+	 Ok+6Q55UsGaHw==
+Message-ID: <sashiko-outbox-178195@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] s390/tape: cancel delayed work before freeing device
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Tristan Madani" <tristmd@gmail.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261019203458.1365046-1-tristmd@gmail.com>
+References: <20261019203458.1365046-1-tristmd@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 19 Oct 2026 20:53:42 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -94,39 +60,136 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Tristan Madani <tristan@talencesecurity.com>
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] s390/tape: sleep in atomic and deadlock in tape_put_device()
+- [High] s390/tape: unsafe and incomplete delayed work cancellation in tape=
+_put_device()
+--
 
-tape_put_device() frees the tape_device on the final reference drop
-without cancelling the pending delayed work tape_dnr. If
-tape_delayed_next_request() is still scheduled or running when the
-struct is freed, the work function accesses freed memory via
-container_of().
+commit e3b5b4c025b8afebd3737fb5bf4782522c4d545f
+Author: Tristan Madani <tristan@talencesecurity.com>
 
-Add cancel_delayed_work_sync() before kfree() to ensure the work is
-fully completed before the struct is freed.
+s390/tape: cancel delayed work before freeing device
 
-Fixes: 4111796d89b8c ("[PATCH] s390: channel tape fixes")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
----
- drivers/s390/char/tape_core.c | 1 +
- 1 file changed, 1 insertion(+)
+This commit adds a call to cancel_delayed_work_sync() in tape_put_device()
+when the reference count reaches zero to ensure the delayed work tape_dnr
+has finished before freeing the tape_device structure.
 
-diff --git a/drivers/s390/char/tape_core.c b/drivers/s390/char/tape_core.c
-index bd8e3deb11993..e3aacfab2cc7a 100644
---- a/drivers/s390/char/tape_core.c
-+++ b/drivers/s390/char/tape_core.c
-@@ -532,6 +532,7 @@ tape_put_device(struct tape_device *device)
- 	DBF_EVENT(4, "tape_put_device(%p) -> %i\n", device, count);
- 	BUG_ON(count < 0);
- 	if (count == 0) {
-+		cancel_delayed_work_sync(&device->tape_dnr);
- 		kfree(device->modeset_byte);
- 		kfree(device);
- 	}
--- 
-2.47.3
+> diff --git a/drivers/s390/char/tape_core.c b/drivers/s390/char/tape_core.c
+> index bd8e3deb11993..e3aacfab2cc7a 100644
+> --- a/drivers/s390/char/tape_core.c
+> +++ b/drivers/s390/char/tape_core.c
+> @@ -532,6 +532,7 @@ tape_put_device(struct tape_device *device)
+>  	DBF_EVENT(4, "tape_put_device(%p) -> %i\n", device, count);
+>  	BUG_ON(count < 0);
+>  	if (count =3D=3D 0) {
+> +		cancel_delayed_work_sync(&device->tape_dnr);
+>  		kfree(device->modeset_byte);
+>  		kfree(device);
+>  	}
 
+[Severity: High]
+Can calling cancel_delayed_work_sync() in tape_put_device() sleep in atomic
+context and self-deadlock?
+
+tape_delayed_next_request() holds get_ccwdev_lock(device->cdev) with
+interrupts disabled while calling __tape_start_next_request():
+
+drivers/s390/char/tape_core.c:tape_delayed_next_request()
+	spin_lock_irq(get_ccwdev_lock(device->cdev));
+	__tape_start_next_request(device);
+	spin_unlock_irq(get_ccwdev_lock(device->cdev));
+
+When starting or cancelling a queued request fails,
+__tape_start_next_request() invokes request->callback while still holding
+get_ccwdev_lock(device->cdev):
+
+drivers/s390/char/tape_core.c:__tape_start_next_request()
+		if (request->callback !=3D NULL)
+			request->callback(request, request->callback_data);
+
+For asynchronous requests such as medium sense queued via
+tape_3490_medium_sense_async() (which __tape_start_request() permits in
+TS_UNUSED and TS_INIT states), the callback __tape_3490_medium_sense() calls
+tape_free_request() -> tape_put_device(request->device).
+
+If tape_generic_remove() runs while the device is in TS_UNUSED or TS_INIT, =
+it
+does not call __tape_discard_requests(device) before dropping its reference:
+
+drivers/s390/char/tape_core.c:tape_generic_remove()
+		case TS_UNUSED:
+			tape_state_set(device, TS_NOT_OPER);
+			spin_unlock_irq(get_ccwdev_lock(device->cdev));
+			tape_cleanup_device(device);
+			break;
+
+This leaves request->device as the final reference on struct tape_device wh=
+ile
+device->tape_dnr is still pending. When tape_delayed_next_request() runs and
+__tape_start_io() fails on the non-operational device,
+__tape_3490_medium_sense() -> tape_free_request() -> tape_put_device() drops
+ref_count to 0 inside tape_delayed_next_request() under spin_lock_irq().
+
+At that point, cancel_delayed_work_sync(&device->tape_dnr) sleeps with
+interrupts disabled and deadlocks waiting for the currently executing
+tape_delayed_next_request() work item to finish (and if it returned,
+kfree(device) would free device before tape_delayed_next_request()
+dereferences device->cdev in spin_unlock_irq()).
+
+Similarly, __tape_do_irq() -> __tape_end_request(),
+tape_long_busy_timeout(), and __tape_discard_requests() also call
+tape_put_device() while holding get_ccwdev_lock(device->cdev) in hardirq or
+softirq context. If count =3D=3D 0 is reached there, cancel_delayed_work_sy=
+nc()
+will sleep in atomic context and deadlock if tape_delayed_next_request() is
+waiting on get_ccwdev_lock(device->cdev).
+
+[Severity: High]
+Also, is cancelling device->tape_dnr only when device->ref_count reaches 0
+sufficient to prevent tape_delayed_next_request() from accessing a freed
+struct ccw_device?
+
+In tapechar_open(), an open file descriptor holds a reference to struct
+tape_device in filp->private_data:
+
+drivers/s390/char/tape_char.c:tapechar_open()
+	rc =3D tape_open(device);
+	if (rc =3D=3D 0) {
+		filp->private_data =3D device;
+		stream_open(inode, filp);
+	} else
+		tape_put_device(device);
+
+If the ccw_device is removed via tape_generic_remove() while the character
+device is open and device->tape_dnr is scheduled:
+
+drivers/s390/char/tape_core.c:tape_generic_remove()
+	device =3D dev_get_drvdata(&cdev->dev);
+	if (device) {
+		sysfs_remove_group(&cdev->dev.kobj, &tape_attr_group);
+		dev_set_drvdata(&cdev->dev, NULL);
+		tape_put_device(device);
+	}
+
+tape_put_device(device) decrements device->ref_count to a non-zero value
+because filp->private_data still holds a reference, so
+cancel_delayed_work_sync(&device->tape_dnr) is not called during removal.
+
+Once tape_generic_remove() returns, the driver core can release and free
+cdev while device->tape_dnr remains pending. When tape_delayed_next_request=
+()
+subsequently runs before the user closes the file descriptor, won't
+spin_lock_irq(get_ccwdev_lock(device->cdev)) dereference the freed
+device->cdev?
+
+Would it make more sense to cancel device->tape_dnr (and discard any queued
+requests across all states) during device teardown in tape_generic_remove()
+after dropping get_ccwdev_lock(device->cdev), rather than inside
+tape_put_device()?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261019203458.1365=
+046-1-tristmd@gmail.com?part=3D1
