@@ -1,63 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.128.51
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792439580;
-	b=wgJ0tLup4h0X5hRCcFLYIA+N0hJZ+T9+RI8kKEuBmMF9I9D4O3aCLNUR/qZmaaK1mC7u
-	 e31kqEb8e4Iu+z74jS2eVKvpoEgiu87esAfoKVr6eNlbqqjxVJcwIj4eWb7SpdFUCBrrj
-	 cnRy9fvwiqvMm3OOkV9gn1Es2Bx88uhQlcs6p7epP0mEBQ3QvhDcuipTDulv8zKIqHW0P
-	 oHDevc23KJvqgZhl3mqaH2KmUObELx5kdVpCF3Hm22E/QrKm7i1Ftj1yzH8aL5EpLdOCQ
-	 N+3+icEkK2rfX80zhuj3mh8QClfS1bXyJmdYeBUyTd48GW9Gnz43VpKG5Dbpnbbew6g==
+	t=1792442102;
+	b=o6slQhSkNSHMOBCqDf/ufjPyPqWquucCl20JL/jICGk6zHwmWT6rgymvL/cvdyLw3dOY
+	 vjVSGd2s7ks/ziVPI7S4Kvi0V6n0mbvQiyz23NnC81JbRZQf1Pw/x/zlsKtwsIWFY72Po
+	 LSfa9HLlrvl482/tYTcVoYaNYzVHI2YnyryHDi43d7bkSfjTsWc77zGvZih2DK5qQfvpg
+	 wKiJvuHgseoN9O/LBXgFD5ZbOomYLQMP/mJnv14M+I9+h49QEUPdkzedTeskGz99VEmXO
+	 7cwwFdxNuT1ehGXxic6+NJsMnHFjJu9J9gmAiE5SH+utwkbETympua7UNGKZSsRFSNw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792439580;
-	h=Received:DKIM-Signature:Message-ID:Subject:From:To:Cc:Date:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:
-	 User-Agent:MIME-Version;
-	bh=/B8Sf2t/5DBguvLLrjlEO7Kkln0Oyn/55MT9a1pjZ1o=;
-	b=KdOqvTeGH8L9TI3ybkVU17ky7T3JY5rDUkUDmlMCX70LYfSaGdiEtrnaUBx0jkHFW0i8
-	 +eKVAQPPRGOwngyJtsG9v8YjDpx14Y7LjISGyT82Y9mYh6rc2Xe7RxDQsQhg2ccE7teNE
-	 O3XQtO/gS/FxXIgj7p36wMYQW8Mk5V2d3hJ4ew7pQB2g/qiPxh76PDKpTGyAT0RRsrWNK
-	 kLfI1uTvkmN3PsLsKBX+UHcqExFgU2rfd2HXtq9CXvTWxpLe26ecd9/nEye7aDky3XwiD
-	 STjNdxxoTGK0npf4Rgz7oLH5YpHSXXqx6JHuw95BKYDN9hCsTetML1ktZgqKfAShl3g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792442102;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=QiKFKvXps967wwyLmEJ59eoTg+fbLeK6RWK4w7bM5/w=;
+	b=036jWc8l2XZ726AcX/rW5fdyu80vRt6Rkxoj7zsrewOH/YSgYXgKN/nzHl1MYTldScD+
+	 fnIRE/CEckDjeHBcvj1lY7O5VyLTdPnh+8xUgZMTl6ByHz3Cqo6oDvzGenkfrRysC4oHd
+	 9wLi09MEij9I8ndUblscQ2tvMM7CqZuaaA+3EqP82/l2jQx4Sq+aqoQF/V6L0ioOASS+C
+	 b+AoLPjx36CcmrRDmIPn3WIUxYFM8PcFGF27kjplpEM7h1Bz2b9XqKRK2g354G6M4HI0v
+	 rSV4BUS9qzCKEQ3JWSbEEdqtm1aGcrBwSzMFaWNkegd2Xkq7AqP3VsAe0S9bAVDwzQw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XuNF1GbO;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=BZk3+FV5;
+	arc=none smtp.remote-ip=209.85.128.51
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 539B9606A319;
-	Mon, 19 Oct 2026 19:53:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFC85606A337
+	for <linux-s390@vger.kernel.org>; Mon, 19 Oct 2026 20:35:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CFC85606A337
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XuNF1GbO
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 592F91F000C4;
-	Mon, 19 Oct 2026 19:52:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792439579;
-	bh=/B8Sf2t/5DBguvLLrjlEO7Kkln0Oyn/55MT9a1pjZ1o=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=XuNF1GbOzd2BBEAJU6p1RypmvBu3/DMrL0b3wWdC+D++Poq0HXIRFWesrR1Oo8lL/
-	 mhtWvhuAYtWIocMai5rqtHzVncAteP+BI3w+hOW2hU6IBI6rvJPA15oR+4bdizjuTn
-	 dsf8kxRwLKdwlPv9l424Xna5CgBVMDCcZ1Jcc/qlP4AB/uOupNzjZvqcz7BE6QGBD7
-	 c7ltj0F3siFa6PMy6uq9tVAO//JSmGoFMld/h5nkyGLtrIXdadBY6yo0uZO+Vp3XbW
-	 h5+bZIQfi4A3lXHhXdvAJPgvsYBe0a+zHp1pPcLAaAFO9pB5lh38SAOIcLgJAfdjpA
-	 FaZxRbZ3iFzxw==
-Message-ID: <42964fa071bd8dcafd418c89be6d66856def4dc5.camel@kernel.org>
-Subject: Re: [linus:master] [sysctl]  8d75c338f0:
- BUG:KASAN:slab-use-after-free_in_touch_wq_lockdep_map
-From: Allison Henderson <achender@kernel.org>
-To: Oleg Nesterov <oleg@redhat.com>, Joel Granados <joel.granados@kernel.org>
-Cc: kernel test robot <yi1.lai@intel.com>, oe-lkp@lists.linux.dev, 
- lkp@intel.com, linux-kernel@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org,  linux-s390@vger.kernel.org,
- linux-fsdevel@vger.kernel.org,  netdev@vger.kernel.org,
- wireguard@lists.zx2c4.com, rds-devel@oss.oracle.com
-Date: Mon, 19 Oct 2026 12:52:58 -0700
-In-Reply-To: <atY42k00k0Waj6o4@redhat.com>
-References: <202610190310.9737b2e3-lkp@intel.com>
-	 <atYB0bm9eEXp8A2g@redhat.com> <atYW0K3t57puHeLW@hobbes>
-	 <atYuE1xnVYe0BDG4@redhat.com> <atY42k00k0Waj6o4@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.3-0ubuntu1.1 
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=BZk3+FV5
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4956869750eso20458805e9.2
+        for <linux-s390@vger.kernel.org>; Mon, 19 Oct 2026 13:35:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1792442100; x=1793046900; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=QiKFKvXps967wwyLmEJ59eoTg+fbLeK6RWK4w7bM5/w=;
+        b=BZk3+FV5sP7TvpXJf9JI4+NIrngTAnbwPLj5823EEz1Z0X5cG+mkg9zSiurXIUT7oG
+         jTRhyO7gBRMCKOJZvPC37cDLRbenfqi/xkzVh5VU6UqfsX6qSrHtAhN1J5qJisRGQB8R
+         ai2jRPg61ASl7Ys8//+9Ry1aGySqhbXR9hH1X2UdV+2jheAhovhf0sYxgK8lmS3kj3F5
+         4mEMFCBGQfbqD5inyct3EVbTiznmcU8UbYSPjol/pmTNiRURmX/zEZuAa8L+0Kp5WmLv
+         E2GbDFsdFbmlCx+95Pboyf/+atdik0lAnXIpYs0Y+a1W4TMOhrKe1eV4bR390Zpz+gx0
+         PfqA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792442100; x=1793046900;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=QiKFKvXps967wwyLmEJ59eoTg+fbLeK6RWK4w7bM5/w=;
+        b=Zp7gaAxnNGyl5MjPHzaieswWhLa7O8tiGdere2ZSNysHxAKr1vhwrI4MHOipaiXGQh
+         oBszWEB8+02aMCbscOMb4lxm9V6Jc/9NlwMGldcbAjOB9swqryFJS1ZZuzyJhIY5gYCd
+         nfFCJv7g2E0QZzoOlzouvvMNpgt9tg/dX45CqhmcyZ0+s+6ZyWWnp+x6XXXX/HC1dI/0
+         A4RdXjNdSBcbim2B9ZlzN+oZQ1CDoCE6GduLm0HBP8gOuM+ktHbACIRoyjsQK7EtKq3W
+         mBU1esm8a2CDA+sy5uMrUalEynBSGNYvrIcsvJsZHv8mq8/AWaW6fCBWOssTMXVWkRXB
+         5Xqg==
+X-Forwarded-Encrypted: i=1; AKwUvBxljlwt6/GP3/vk0S4rkV/2J+u0286NpFHS7epwc9mnDg5zAOmIOZKqrn4GnEIcHMIu6Bezlj7MuwfD@vger.kernel.org
+X-Gm-Message-State: AFq9FYLBiEV6UJ0BJkHqDko7PPq7rI2W5GGscKPSEDXQ28l+Zf7o2QFj
+	Zqxl+3/2/E/+D4EhbljVUKfDm834Fa/nOexHRo8nwafR7JmE/nr/BI0=
+X-Gm-Gg: AYBFou0plYJpMYKOcWQoGZ5Dqcr3f2XXCqEqZPQ+5LyjeX54uvMIS34pWjrozoH2o6R
+	jjwv9wAM2M52mbIhxI2EGprtDiWAQMi/NBitHpLP18fX1sJSq2s66lqIQbv2iQsU01mWXeuU3hR
+	7WE9Ys0HCXPAqH/6IkOnPi068SHW+kmvvgznPhaNZXYVZutDnZszfIZOiwNKd1NziJZMwesJ9X9
+	MuPuQ8P2di44Gy2p2FoGvB1GDs8CFSgF4lk0qU5SBOaP0ONaAfooLGAJ6Pe1YRF9U5zx2eKVcac
+	Dj5k4oqmN9q0T/IvWyFSKf1u6t8hrhoIXjhfS6DfnQJTJjCs7+mm1KoxQrjonrbr8wqk1+qmOPk
+	MaQqRyyxyfeB/oWJ8cSeS8a5lrTaukD9lxwnNkiFwddcQ+b5tqBmdHi5W5G68tilwU0OIAjC2Nt
+	llZY5J3pRaxOthuslL8iwat0xlXbM08kQasjcV5lY=
+X-Received: by 2002:a05:600c:6217:b0:4a1:dda8:eb73 with SMTP id 5b1f17b1804b1-4a1dda8eca9mr131113225e9.27.1792442099905;
+        Mon, 19 Oct 2026 13:34:59 -0700 (PDT)
+Received: from debian.. ([2001:41d0:303:db6b::])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4a1f2d43242sm15802805e9.9.2026.10.19.13.34.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Oct 2026 13:34:59 -0700 (PDT)
+From: Tristan Madani <tristmd@gmail.com>
+To: Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>
+Cc: Stefan Bader <shbader@de.ibm.com>,
+	linux-s390@vger.kernel.org,
+	stable@vger.kernel.org,
+	Tristan Madani <tristan@talencesecurity.com>
+Subject: [PATCH] s390/tape: cancel delayed work before freeing device
+Date: Mon, 19 Oct 2026 20:34:57 +0000
+Message-ID: <20261019203458.1365046-1-tristmd@gmail.com>
+X-Mailer: git-send-email 2.47.3
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -67,180 +95,38 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Mon, 2026-10-19 at 17:35 +0200, Oleg Nesterov wrote:
-> On 10/19, Oleg Nesterov wrote:
+From: Tristan Madani <tristan@talencesecurity.com>
 
-Hi Oleg, Joel,
+tape_put_device() frees the tape_device on the final reference drop
+without cancelling the pending delayed work tape_dnr. If
+tape_delayed_next_request() is still scheduled or running when the
+struct is freed, the work function accesses freed memory via
+container_of().
 
-Thanks for running this down.  Agreed we shouldn't just fail to init becaus=
-e
-sysctl is off.  Some comments below:
+Add cancel_delayed_work_sync() before kfree() to ensure the work is
+fully completed before the struct is freed.
 
+Fixes: 4111796d89b8c ("[PATCH] s390: channel tape fixes")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
+---
+ drivers/s390/char/tape_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-> >=20
-> > But. rds_init() can also fail even if CONFIG_SYSCTL=3Dy, after
-> > rds_sysctl_init(), so to me this looks like a bug in net/rds/.
-> >=20
-Yes that's a separate bug, so I'll send a separate fix for that.
-
-> >=20
-> > In any case, I guess net/rds/ init paths should not fail if
-> > CONFIG_SYSCTL=3Dn ?
->=20
-> So I think that something like the uncompiled/untested patch below makes
-> sense anyway even if doesn't fix all the potential problems with rds_wq.
->=20
-> What do you think?
->=20
-> Oleg.
-> ---
->=20
-> diff --git a/net/rds/ib_sysctl.c b/net/rds/ib_sysctl.c
-> index 2af678e71e3c..bccdb5c4df1d 100644
-> --- a/net/rds/ib_sysctl.c
-> +++ b/net/rds/ib_sysctl.c
-> @@ -36,19 +36,10 @@
-> =20
->  #include "ib.h"
-> =20
-> -static struct ctl_table_header *rds_ib_sysctl_hdr;
-> -
->  unsigned long rds_ib_sysctl_max_send_wr =3D RDS_IB_DEFAULT_SEND_WR;
->  unsigned long rds_ib_sysctl_max_recv_wr =3D RDS_IB_DEFAULT_RECV_WR;
->  unsigned long rds_ib_sysctl_max_recv_allocation =3D (128 * 1024 * 1024) =
-/ RDS_FRAG_SIZE;
-> -static unsigned long rds_ib_sysctl_max_wr_min =3D 1;
-> -/* hardware will fail CQ creation long before this */
-> -static unsigned long rds_ib_sysctl_max_wr_max =3D (u32)~0;
-> -
->  unsigned long rds_ib_sysctl_max_unsig_wrs =3D 16;
-> -static unsigned long rds_ib_sysctl_max_unsig_wr_min =3D 1;
-> -static unsigned long rds_ib_sysctl_max_unsig_wr_max =3D 64;
-> -
->  /*
->   * This sysctl does nothing.
->   *
-> @@ -61,6 +52,14 @@ static unsigned long rds_ib_sysctl_max_unsig_wr_max =
-=3D 64;
->   */
->  unsigned int rds_ib_sysctl_flow_control =3D 0;
-> =20
-> +#ifdef CONFIG_SYSCTL
-> +static unsigned long rds_ib_sysctl_max_wr_min =3D 1;
-> +/* hardware will fail CQ creation long before this */
-> +static unsigned long rds_ib_sysctl_max_wr_max =3D (u32)~0;
-> +
-> +static unsigned long rds_ib_sysctl_max_unsig_wr_min =3D 1;
-> +static unsigned long rds_ib_sysctl_max_unsig_wr_max =3D 64;
-> +
->  static struct ctl_table rds_ib_sysctl_table[] =3D {
->  	{
->  		.procname       =3D "max_send_wr",
-> @@ -105,6 +104,8 @@ static struct ctl_table rds_ib_sysctl_table[] =3D {
->  	},
->  };
-> =20
-> +static struct ctl_table_header *rds_ib_sysctl_hdr;
-> +
->  void rds_ib_sysctl_exit(void)
->  {
->  	if (rds_ib_sysctl_hdr)
-> @@ -118,3 +119,15 @@ int rds_ib_sysctl_init(void)
->  		return -ENOMEM;
->  	return 0;
->  }
-
-
-The real rds_sysctl_init() also does the runtime setup of
-rds_sysctl_reconnect_min_jiffies (msecs_to_jiffies(1)).  Without
-it, the reconnect back off is lost.
-
-Also, if register_net_sysctl_sz() returns NULL in rds_tcp_init_net(),
-it fails as an -ENOMEM.  So RDS/TCP would still fail to come up with
-CONFIG_SYSCTL=3Dn.  A simpler fix might be to just handle the NULL at the
-three call sites, e.g.:
-
-        rds_sysctl_reg_table =3D
-                register_net_sysctl(&init_net, "net/rds", rds_sysctl_rds_ta=
-ble);
-        if (!rds_sysctl_reg_table && IS_ENABLED(CONFIG_SYSCTL))
-                return -ENOMEM;
-
-And same for rds_ib_sysctl_init() and rds_tcp_init_net().  The exit
-paths are ok, since unregister_net_sysctl_table() is already a
-no-op stub when sysctl is off.
-
-Let me know if you want to respin or if you'd rather I send it.
-Either way is fine with me.
-
-Thanks
-Allison
-
-> +
-> +#else
-> +
-> +void rds_ib_sysctl_exit(void)
-> +{
-> +}
-> +
-> +int rds_ib_sysctl_init(void)
-> +{
-> +	return 0;
-> +}
-> +#endif
-> diff --git a/net/rds/sysctl.c b/net/rds/sysctl.c
-> index 025f518a4349..a0673a41633a 100644
-> --- a/net/rds/sysctl.c
-> +++ b/net/rds/sysctl.c
-> @@ -36,11 +36,6 @@
-> =20
->  #include "rds.h"
-> =20
-> -static struct ctl_table_header *rds_sysctl_reg_table;
-> -
-> -static unsigned long rds_sysctl_reconnect_min =3D 1;
-> -static unsigned long rds_sysctl_reconnect_max =3D ~0UL;
-> -
->  unsigned long rds_sysctl_reconnect_min_jiffies;
->  unsigned long rds_sysctl_reconnect_max_jiffies =3D HZ;
-> =20
-> @@ -49,6 +44,10 @@ unsigned int  rds_sysctl_max_unacked_bytes =3D (16 << =
-20);
-> =20
->  unsigned int rds_sysctl_ping_enable =3D 1;
-> =20
-> +#ifdef CONFIG_SYSCTL
-> +static unsigned long rds_sysctl_reconnect_min =3D 1;
-> +static unsigned long rds_sysctl_reconnect_max =3D ~0UL;
-> +
->  static struct ctl_table rds_sysctl_rds_table[] =3D {
->  	{
->  		.procname       =3D "reconnect_min_delay_ms",
-> @@ -91,6 +90,8 @@ static struct ctl_table rds_sysctl_rds_table[] =3D {
->  	},
->  };
-> =20
-> +static struct ctl_table_header *rds_sysctl_reg_table;
-> +
->  void rds_sysctl_exit(void)
->  {
->  	unregister_net_sysctl_table(rds_sysctl_reg_table);
-> @@ -107,3 +108,15 @@ int rds_sysctl_init(void)
->  		return -ENOMEM;
->  	return 0;
->  }
-> +
-> +#else
-> +
-> +void rds_sysctl_exit(void)
-> +{
-> +}
-> +
-> +int rds_sysctl_init(void)
-> +{
-> +	return 0;
-> +}
-> +#endif
->=20
+diff --git a/drivers/s390/char/tape_core.c b/drivers/s390/char/tape_core.c
+index bd8e3deb11993..e3aacfab2cc7a 100644
+--- a/drivers/s390/char/tape_core.c
++++ b/drivers/s390/char/tape_core.c
+@@ -532,6 +532,7 @@ tape_put_device(struct tape_device *device)
+ 	DBF_EVENT(4, "tape_put_device(%p) -> %i\n", device, count);
+ 	BUG_ON(count < 0);
+ 	if (count == 0) {
++		cancel_delayed_work_sync(&device->tape_dnr);
+ 		kfree(device->modeset_byte);
+ 		kfree(device);
+ 	}
+-- 
+2.47.3
 
