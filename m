@@ -1,72 +1,79 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 549862D3225
-	for <linux-s390@vger.kernel.org>; Mon, 19 Oct 2026 02:06:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83872496D49;
+	Mon, 19 Oct 2026 07:56:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1792375569; cv=none; b=UhexJMpilL/z/QghGr0QtkcShYm++MAUesz6TZ56uCS5vVdTTwLKpiyoInlIF0l7aRzTPx7d0FeX7ZzLdCt2M8eiSNtud32upjdYOXP5fgUjPewjGdKxP8RTcAY4Rzx6QOmkFegqbx0VneMQl31TJB31fw113slqL7GA+bFbw78=
+	t=1792396583; cv=none; b=UC0zBFJAnl4UtkjJX6ECyMl1tQUoYwEyX/YtJeT1WySYCv1qRRNtpHSR4jEuEto3q3Tue5Nbnbsd3gOdKn/1s/tkJoe4xUFvqv/5GgxfDWg133SZm9WEW7Qm6ZWY2FKnrqVCHUdbI7W6nAgJssTC2le5zHDOMjD+dIA1SgQZL6s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1792375569; c=relaxed/simple;
-	bh=iWDVUptBX0Vz6amr3J/N4hv5tAR7FH88zP0nsrp5Wys=;
-	h=Message-ID:From:Subject:To:Cc:In-Reply-To:References:Content-Type:
-	 Date; b=R3UIJZzk2nyWQr76YaxISTIPr3G/xqZex0HqcS5WTDxbTRywTd8Wqq0ePLvAYHX7D4jdEWtwyEvGDYcZz1va5xI921lfHvGGthyYwd+i58gA7PWMySXXCQFwAloV/yHBdJUdvM1Qfoi+ou5MyrNlpR5ngnQH+nRf4knBINo/GLM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QaRsBGQx; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1792396583; c=relaxed/simple;
+	bh=TgCp11TS45jPwnOT9kcVqhH23ZeASbRV/tVwNFU3PP4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=H0MNAb5efhlUTEvK9sXy2XBx0uy1W8tGkBhSVT+jcprcwxASTqVgusKAqLax2ueavDO6T2vzgVSaKLLC7IPn+j/MHl6wqbb9S69FE9MWdc2vVAPOXn2484FSPeAgVHVGpanL33LtA2l28W84KFiHQlEKbDSOkw6N+hhpmzHz4GI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=lpPC92ZQ; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QaRsBGQx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE1161F000C5;
-	Mon, 19 Oct 2026 02:06:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792375568;
-	bh=GEOuxovZb85iuTyvqD6fsGs4smYgbmTwoTmSxiglgNM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QaRsBGQxCztxtIMFO3EWMvjjeoSGNMygAhrpBWZHGff3S9Om6WDa1j9qgrz4vcawP
-	 fneyxP0+PICT+guhxqT0MNKCYSpdmEWZcobimBnhWIWiZ5vwh3E+h3p01sgpjfH4d3
-	 3Z7Ifphl16qaWbhSSq2uV2nvbV+C+TlanuZF0H949eAYQ6iKQ0g1kE6+nlcyi7XPKA
-	 C3u2aSvwUEravfieaXvllKjYVR9bYPL0EZ8L6MfCJwAJ0G0ea0NdW3R3emSdy5/j4c
-	 QobOEOPWxScRHFu+34qZoF2Lq8GwGpOrR/yhSgbqBSOrVlAqSamHcZesvYKwThNawi
-	 11ggkg6CY5rJA==
-Message-ID: <sashiko-outbox-176516@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 2/2] kasan/test: cover load_unaligned_zeropad()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Qiliang Yuan" <odys.yuan@gmail.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261019-bug-word-at-a-time-zeropad-kasan-v1-2-f21a3ed6a477@gmail.com>
-References: <20261019-bug-word-at-a-time-zeropad-kasan-v1-0-f21a3ed6a477@gmail.com>
- <20261019-bug-word-at-a-time-zeropad-kasan-v1-2-f21a3ed6a477@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 19 Oct 2026 02:06:07 +0000
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="lpPC92ZQ"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1792396569; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=TgCp11TS45jPwnOT9kcVqhH23ZeASbRV/tVwNFU3PP4=;
+	b=lpPC92ZQflm3dCz6D4bR+Sf4ZZnMCPRvM7ppuJ2BKDhz1WLqOVAArGO8A+QiVwZwGKmX9uA8oBoKZSysCwU+87uWPUjS/Y+NfVxFlBmftRXfbd5CGg9Q+F+/UcJtrgdwtEuzKSREs2pxG71x1ABHbTdbHW3UBpxY2kaQ/xC3LJs=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037009110;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0XD1w5KN_1792396569;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0XD1w5KN_1792396569 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 19 Oct 2026 15:56:09 +0800
+Date: Mon, 19 Oct 2026 15:56:08 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: tikipiya0531 <tikipiya0531@proton.me>,
+	"alibuda@linux.alibaba.com" <alibuda@linux.alibaba.com>,
+	"sidraya@linux.ibm.com" <sidraya@linux.ibm.com>,
+	"mjambigi@linux.ibm.com" <mjambigi@linux.ibm.com>
+Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+	"linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>
+Subject: Re: [net/smc] clcsock_release_lock not held on fallback
+ poll/sendmsg/... (follow-up to 64a6b36b)
+Message-ID: <atXNGOXEMZLlaRFH@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <Raqdw_agFcPtAnTmvvz2owgVpblVtRzIrVJdEpHDL4PYX7qC9ULPfcFRyimT6NUQmTf9f17Gp_nawYoiqOwPUM45xtk8G9OK_LjiTgZxG7s=@proton.me>
 Precedence: bulk
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Raqdw_agFcPtAnTmvvz2owgVpblVtRzIrVJdEpHDL4PYX7qC9ULPfcFRyimT6NUQmTf9f17Gp_nawYoiqOwPUM45xtk8G9OK_LjiTgZxG7s=@proton.me>
 
-> On architectures with CONFIG_DCACHE_WORD_ACCESS, load_unaligned_zeropad()
-> does the word loads of the dcache name compare and of path name
-> hashing.
->=20
-> None of the KASAN test cases reads memory through it, so nothing
-> noticed that KASAN did not check these loads at all.
->=20
-> Add a case that reads a freed object through load_unaligned_zeropad()
-> and expects a report. Skip it with hardware tag-based KASAN, since
-> arm64 turns tag checking off for this load:
->=20
->   kasan_load_unaligned_zeropad, x86_64, generic KASAN
->   without "word-at-a-time: check the first byte in
->   load_unaligned_zeropad()"                                 FAILED
->   with it                                                   PASSED
->=20
-> Signed-off-by: Qiliang Yuan <odys.yuan@gmail.com>
+On 2026-10-18 14:47:41, tikipiya0531 wrote:
+>Hello,
+>
+>Please find the full write-up attached as report-en.md (same content
+>summarized below for quick triage).
+>
+>Summary
+>-------
+>Commit 64a6b36b0e18 ("net/smc: protect clcsock lifetime in smc_getname")
+>added clcsock_release_lock around smc_getname() because link-group teardown
+>can call smc_clcsock_release() while the SMC socket is still open. The same
+>unlocked smc->clcsock access pattern still exists on several other paths that
+>touch the CLC socket in fallback mode (and in SOCK_DIAG fill), without holding
+>clcsock_release_lock.
+>
+>I am not claiming a reliable exploit on current mainline; I am asking for a
+>small hardening sweep similar to 64a6b36b and c0bf3d8a943b.
 
-Sashiko has reviewed this patch and found no issues.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261019-bug-word-a=
-t-a-time-zeropad-kasan-v1-0-f21a3ed6a477@gmail.com?part=3D2
+Hi tikipiya0531,
+
+If you are asking for a patch, please send a patch with real bug evidence
+in the commit message.
+The report you sent looks like a mess of AI-generated things without your
+understanding.
+
+Best regards,
+Dust
 
