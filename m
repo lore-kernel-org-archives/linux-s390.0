@@ -1,92 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.222.170
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792531494;
-	b=eTPE4MtqCg9ej2ASiJpAu41TnWrMgkB7MYHqvNgkLyrl4hNi7HiExwdZmHgHltEiLVYp
-	 oPe4JWPqdNOdcXMGzFfPkApo7lZONyQIFOXFySs50KgHOreef/9Jle0uR642o7LjK9R0V
-	 kvYaGXN3UxE5qMuBHsNuefAnGAd0oSa5VgHOTki9yBIYuc+VlCuBIdi3SnAThQo3FYGya
-	 qHqDFQ/Wkv7wsRO0k5qwY3Yq8JHbgTlyuKQQKj4wnIwME/rxDxzFCKgqaXcO54XGWjSwZ
-	 dRXW90AKGXXpFBn7uaQZmAJ6o6Ix8mAGMmNFyEZ3Qp9t2jhtLPCQlfVckKGwm/yi33g==
+	t=1792532832;
+	b=VlgHUB37zcFfJ43tEL6/cHxTKURDLrWIWmXMQEXfZzvu6wERgYX27K2FH9p9PwmgVyDA
+	 BeuKuzNVvuJAZb65gcA/QVaQMhEb5qcrBjQ4Y2JjFhCz/FQXTQ1ebaA6yRE1g5LtFl/8p
+	 VKBEVtKMWlLKCu8mApNgJU/bWe+sBSoYOUADN/3OFc1smTpijewfilH1nrAGuRUQoE4sq
+	 iBZWE8K0S4hQtOBXbLXt8FnXatjHLTL2stlPWqe5pBTrcAuI7NQoxdcNx6d/AmWTFj8Kr
+	 gp6J9Rklw5JK9DhTXA5XfZqsgg3vqdcvMZPyyw8EIF+D4VWFtN1eYO+qVfXjo+Rc7EQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792531494;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-TM-AS-GCONF:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
-	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=6RQihYAr9dVkEkw29YXGPB36yr3p0A1THWCT9OxZsH8=;
-	b=m6WFm8VFyBGZfOuN3+Uk1DRwP23GaI770cBFj+OHIwirdttAqhwzDdiWiun7E4ABqNC3
-	 YjzpRC0UJo4xVXZ8P926edaxWSmUXLHk90Hix2rLDSI8ucTqxel8spSYpsZZ6haMi7zkM
-	 syxZHErrzMEcdIUb4AE9v2hcPC17by9kRDJLYlMxR3dz/i9x7yNA0V/gXPru643JUJnzf
-	 MzMEpoOTBuKQtomGqnQIhb9ANBM6w9wDkFoN2EPapS4HmQEXU2PF03ARS+rV1V0quJZaJ
-	 XuG/2I9pOcuO+ka3b4uCwdD1RykIWMrMnLm6qsR1GwBBja+g3a6Tn9aDigL44ptVHNA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792532832;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:Subject:From:To:
+	 Cc:In-Reply-To:References:Date:Message-Id:X-Mailer;
+	bh=PvIPEfkdtZUqofHUAuuyqlxSRMhwpGZiFkVH0+y5Y1c=;
+	b=kdtirtS3dF4qQ4x9JhFbZM6RsSqGUe8fK2JM50caSqz2rQLhog79mkyJZcKUJVysMRW6
+	 y8lbUQurjKB7BmAmKafe2t9gotTCKU+DRVxpf/M8fyN4GF7AibtSQys2Q+FYDHOcIKJqd
+	 uwBycp8cfdgDaEWHN6F4DYXWVfevyNVCEfaLf0qg8t7mGZQotIW/a/Yz0YMxZDBf1+GZJ
+	 9D82Thc6e7LrkihBLlJNl/u4311ITaZT677hohOGjBcB1AR1c/QqjT8b091/zYZgJYeWL
+	 nubT2shNhbaHkXCU8VJdB7MO4QHI71PwdfFDaicAGxktSMb8rbvaSJg9DPeZEW/Qk0w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=bjWd3sFL;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=none header.from=gourry.net;
+	spf=pass smtp.mailfrom=gourry.net;
+	dkim=pass header.d=gourry.net header.i=@gourry.net header.a=rsa-sha256 header.s=google header.b="bzGQBu/X";
+	arc=none smtp.remote-ip=209.85.222.170
+Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ADAD606A336;
-	Tue, 20 Oct 2026 21:24:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1ADAD606A336
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A902B606A320
+	for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 21:47:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A902B606A320
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=bjWd3sFL
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69KLE6LE3561281;
-	Tue, 20 Oct 2026 21:24:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=6RQihYAr9dVkEkw29
-	YXGPB36yr3p0A1THWCT9OxZsH8=; b=bjWd3sFLGrhIc46RaysHiY+VKfesleAxd
-	xBMa/HKhuRVv0ab47Owhi/MnDKepOXuRclQogtbJqnuXYirbpZjSC0nJgkrFl0nd
-	yvXoYtPRBvhJADjnUt0DKXv/NVbcx1bjkY0vGk9MyuH/ZgY7DqDvKviUfgAXu2A+
-	6BMmeNYUFKg/ZsnbwhbHoeNcamOxOV0uRjHIKVDly337ZKUBxtc5Hn9oPoS5s4LR
-	4nP9s9sIeWUUXqXnC0Uqf9q3R/wmhXRog8mvcs9b1/iHBnlaL47wxxt6HdezrgxH
-	/HTGUq1gD+3Zt4K3TfGpWRdTID0UAb3gmXdqdmFf2qXgBelVnxsPg==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw59w9rc-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 20 Oct 2026 21:24:51 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69KL4sMi883650;
-	Tue, 20 Oct 2026 21:24:50 GMT
-Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hefss03cm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 20 Oct 2026 21:24:50 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69KLOlOO24772888
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 20 Oct 2026 21:24:47 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0805558060;
-	Tue, 20 Oct 2026 21:24:47 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7BD595805A;
-	Tue, 20 Oct 2026 21:24:45 +0000 (GMT)
-Received: from Mac.ibm.com (unknown [9.61.240.182])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 20 Oct 2026 21:24:45 +0000 (GMT)
-From: Omar Elghoul <oelghoul@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: oelghoul@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
-        schnelle@linux.ibm.com, mjrosato@linux.ibm.com, alifm@linux.ibm.com,
-        farman@linux.ibm.com, gbayer@linux.ibm.com, pasic@linux.ibm.com,
-        alex@shazbot.org, frankja@linux.ibm.com, imbrenda@linux.ibm.com
-Subject: [PATCH v10 5/5] vfio-pci/zdev: Add VFIO FMB device features
-Date: Tue, 20 Oct 2026 17:24:27 -0400
-Message-ID: <20261020212427.2561-6-oelghoul@linux.ibm.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261020212427.2561-1-oelghoul@linux.ibm.com>
-References: <20261020212427.2561-1-oelghoul@linux.ibm.com>
+	dkim=pass (2048-bit key, unprotected) header.d=gourry.net header.i=@gourry.net header.a=rsa-sha256 header.s=google header.b=bzGQBu/X
+Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-93ece7a73b9so12339485a.3
+        for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 14:47:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1792532830; x=1793137630; darn=vger.kernel.org;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:content-type:mime-version:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=PvIPEfkdtZUqofHUAuuyqlxSRMhwpGZiFkVH0+y5Y1c=;
+        b=bzGQBu/XirkovwO4btF+4VRDEbukUzB2MyeqAryrgq6z0Ot9GRluHKAdWmd5fgqg9t
+         ZDu1Ktz+4UNXtHT8IC+siP6Ocf6rz6GRd7VEDVjyYhhc80gWFNNErqfCtS122HNP5Gc8
+         Yal0So4C7N3M1J8V/qhZvVZ7b5BLxhon839NHBSmWkHKQIyfact/MXyN/ZAEema4adzb
+         SUU7/h8oZ0u1JgSGeXJ16nYCwQszRCgzO90AGkiTqyvJUiA3mP2bmXCGhJM9w9d1CxQS
+         8sB/rsSzNPtvRBIrbTgNFANrxD88h9a5euiEsg+ea243W67K/SX1bgUo9i0UjEZc4A10
+         XlGQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1792532830; x=1793137630;
+        h=message-id:date:references:in-reply-to:cc:to:from:subject
+         :content-transfer-encoding:content-type:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=PvIPEfkdtZUqofHUAuuyqlxSRMhwpGZiFkVH0+y5Y1c=;
+        b=unHzKRPSqvhE345aoXBuZnFfC5oN+viOyXMOSEF/dNUs0aKXEohpXGBLDFe9Bxf8Ze
+         9ektBqxbJL8zvySQJ5RIB2pg2VdZNIumfyVCy/zZNDzSW/2/zdYmb5IAzRa2F3+by15L
+         /qpMpdAFO7giL5vT5CHHN5RKd22U8MCPNyYwY3Eer6MNeXsd7oaJPCsE+6bNSWwqUSzb
+         Nd5v6k7oQFdGTr1Zg3JsFQZf7YAouhtqj/ldsGwMaRgQOhytSONzecVgu/6DZboriSXO
+         gR8RNEjVGTFN65tS0dtLJNGv4L40/h/v+VYee0bzXhDSDg7wwJGdFp71F5HnpYJahA9m
+         zh3g==
+X-Forwarded-Encrypted: i=1; AKwUvBxVkaEDxYuWyThUVQelBZxTUy9Lqf0z/SIDUJY00Nyyf4YibAH8Cv8Fk+s3pSdZLTtDlri9oRYnAooB@vger.kernel.org
+X-Gm-Message-State: AFq9FYJOeiGYleQT39mrQG7PY/OntAkTFLKYWqRqWGfzz4GeRJnRrTFq
+	rjcEA5TiokVi5d626gffnXkqd9L0l2I75oLh6OhZ50lsYmY56SfAQYqi6fwwU8JgafM=
+X-Gm-Gg: AYBFou0hPwob2xAfIbitAb5hhrZx72UXgMia4e2Yg89mMthkADCwzLNMj/CNB+UUxlK
+	ls420HZ7VjD4Lr5aZJcPkVHDwH1K0tUhYZCKgDEGLPHAvIcqOWrdsaZuJZo1kqcoUTJrnxhHH9N
+	QL2SGc/NmPMjOPU/trFBJAtSzPtHSoolLaQTzJd0z1X61+3/+VzKeyuFRCi5sZxrkDqZZZQMUwP
+	frs/x8YACJ5wn1XMRh91X6aEIJBQDjvAKe7PEc8UuVRjdAw5T7NLIyhPVMLKMpszEWFJ9Z/hfEe
+	CSAmzBjpLrrB1jC05ZYHo9EVwJvRYpArBRyHOLduJuRHTfXWs870AE3Ii7U3LarTBilvTqtK8T4
+	rH3BhLB784vbYmZSGaN4WTW0z96HU29sK42RxMeJNQJRbzqdVsqho4z77jjYtZGS/xH7khH4XXa
+	DCCuTd8PFYI5Ii9f4JMz3NiCfHMu0dOT8/r78Bkj7ozh1I01WVWRbf1CXpFeGWwqpYFPYL8e6nJ
+	lPkCJMhvllF0T4bXFUCiA4STVglHC/Aj/PI1jobunyZ31tkVkAgrHP4xtFzfmYcUa0mBF9ey0d8
+	2Mk3AsAnOynNpwqwG/kh1DQT9OM=
+X-Received: by 2002:a05:620a:198a:b0:93f:3391:d5a1 with SMTP id af79cd13be357-93f57f65930mr93498685a.75.1792532830268;
+        Tue, 20 Oct 2026 14:47:10 -0700 (PDT)
+Received: from [192.168.86.58] (pool-173-79-60-52.washdc.fios.verizon.net. [173.79.60.52])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-93f56d98978sm86912785a.10.2026.10.20.14.47.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Oct 2026 14:47:09 -0700 (PDT)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -96,209 +88,128 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIwMDA4NCBTYWx0ZWRfX1dhBgRaMwU6p
- glT47EDSDUlis3tFHQA6A5lLkCYd49Q9DGC8pZK0IvhKT98zQBvIN/genK5qf5m/zelknWCc850
- Law2SVPNLrctjKWJRGNAUUdE6NChk43Ri8PhQ9vmiCjOjy2zeR0IjGWC8UkP+eTkE+1p0LYuzWW
- bXH/Cp4IoDcC9wV4TcFXDZF5tbSI+WF/4T+4mRTzJBF/K6OpJsmmXp+O745stz+zZl+oh7t2wfb
- dKPRYxdnZGxzNLKbLX3nu52VrUMoZ/MAQrNP/kH4eTVIeBTM2Rec63ghE0NYEeikvqgmdM7OGF5
- Na+S3BWKxHAe0ZpUf13YjLWXKNzsJbKq6hw+/8OXnvEUJu8eNp/qfIrQ3ntyhx53otx47CnpBcC
- oRv9ff+CNYe7tLPowLBRMBzBjGjOQXO+2Y/LKKLU1CSnSrkLnVdRcrT9Um3SO1r5ajwk/+P1YzE
- e15/7KvSDqhBuE+QGoA==
-X-Proofpoint-ORIG-GUID: XydlGXQmnUXIHIUvAh_5kPdzUNLxBdTY
-X-Proofpoint-GUID: XydlGXQmnUXIHIUvAh_5kPdzUNLxBdTY
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIwMDA4NCBTYWx0ZWRfX+CQVEUT6r64f
- FBwPXaRQINbs+iFjuQy4kBKl7gmr18P/4Y6YM42dFs9/mgE7QUYC9si3OhWNohES0w8FzpK+OXc
- jDf0psYISOVIyvPNGZXWHeXTYPrKOwY=
-X-Authority-Analysis: v=2.4 cv=ZfSIpcVA c=1 sm=1 tr=0 ts=6ad7dc23 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=wtvrgtD0Hc2VqHSVShsA:9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-20_04,2026-10-19_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 malwarescore=0 spamscore=0 suspectscore=0
- clxscore=1015 phishscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610200084
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v6 01/39] mm/vma: fix mmap_prepare file handling,
+ remove file_doesnt_need_get
+From: "Gregory Price (Meta)" <gourry@gourry.net>
+To: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
+ Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>, 
+ David Hildenbrand <david@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
+ Jonathan Corbet <corbet@lwn.net>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>, 
+ Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, 
+ Paul Moore <paul@paul-moore.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+ Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, 
+ Kumar Kartikeya Dwivedi <memxor@gmail.com>, Zi Yan <ziy@nvidia.com>, 
+ Baolin Wang <baolin.wang@linux.alibaba.com>, 
+ Nico Pache <nico.pache@linux.dev>, Ryan Roberts <ryan.roberts@arm.com>, 
+ Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+ Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
+ Kiryl Shutsemau <kas@kernel.org>, Doug Gilbert <dgilbert@interlog.com>, 
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+ "Martin K. Petersen" <mkp@kernel.org>, Simona Vetter <simona@ffwll.ch>, 
+ Helge Deller <deller@gmx.de>, Sebastian Reichel <sre@kernel.org>, 
+ John Hubbard <jhubbard@nvidia.com>, Peter Xu <peterx@redhat.com>, 
+ Masami Hiramatsu <mhiramat@kernel.org>, Oleg Nesterov <oleg@redhat.com>, 
+ Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@kernel.org>, 
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+ Arnaldo Carvalho de Melo <acme@kernel.org>, 
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, 
+ Rik van Riel <riel@surriel.com>, Harry Yoo <harry@kernel.org>, 
+ Juri Lelli <juri.lelli@redhat.com>, 
+ Vincent Guittot <vincent.guittot@linaro.org>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ David Airlie <airlied@gmail.com>, Will Deacon <will@kernel.org>, 
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
+ Nick Piggin <npiggin@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
+ Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>, Jan Kara <jack@suse.cz>, 
+ Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>, 
+ Catalin Marinas <catalin.marinas@arm.com>, 
+ Madhavan Srinivasan <maddy@linux.ibm.com>, Anup Patel <anup@brainfault.org>, 
+ Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+ Albert Ou <aou@eecs.berkeley.edu>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Janosch Frank <frankja@linux.ibm.com>, 
+ Claudio Imbrenda <imbrenda@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Gerald Schaefer <gerald.schaefer@linux.ibm.com>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ "David S. Miller" <davem@davemloft.net>, 
+ Andreas Larsson <andreas@gaisler.com>, 
+ Alexander Viro <viro@zeniv.linux.org.uk>, 
+ Christian Brauner <brauner@kernel.org>, 
+ Matthew Brost <matthew.brost@intel.com>, 
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, 
+ Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>, 
+ Ying Huang <ying.huang@linux.alibaba.com>, 
+ Alistair Popple <apopple@nvidia.com>, Chris Li <chrisl@kernel.org>, 
+ Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, 
+ Nhat Pham <nphamcs@gmail.com>, Baoquan He <baoquan.he@linux.dev>, 
+ Youngjun Park <youngjun.park@lge.com>, Johannes Weiner <hannes@cmpxchg.org>, 
+ Qi Zheng <qi.zheng@linux.dev>, Shakeel Butt <shakeel.butt@linux.dev>, 
+ Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>, 
+ Wei Xu <weixugc@google.com>, Chengming Zhou <chengming.zhou@linux.dev>, 
+ Michal Hocko <mhocko@kernel.org>, Miklos Szeredi <miklos@szeredi.hu>, 
+ Xu Xin <xu.xin@linux.dev>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+ linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, 
+ linux-rdma@vger.kernel.org, selinux@vger.kernel.org, 
+ linux-sound@vger.kernel.org, bpf@vger.kernel.org, 
+ linux-scsi@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+ dri-devel@lists.freedesktop.org, linux-trace-kernel@vger.kernel.org, 
+ linux-perf-users@vger.kernel.org, linux-arch@vger.kernel.org, 
+ linux-fsdevel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ kvmarm@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org, 
+ kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+ linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, 
+ fuse-devel@lists.linux.dev, Ihor Solodrai <ihor.solodrai@linux.dev>, 
+ Bert Karwatzki <spasswolf@web.de>
+In-Reply-To: <20261013-b4-mmap-prepare-vma-flag-sanify-v6-1-1aa3c9b139f9@kernel.org>
+References: <20261013-b4-mmap-prepare-vma-flag-sanify-v6-0-1aa3c9b139f9@kernel.org>
+ <20261013-b4-mmap-prepare-vma-flag-sanify-v6-1-1aa3c9b139f9@kernel.org>
+Date: Tue, 20 Oct 2026 17:47:04 -0400
+Message-Id: <179253282492.1207257.6426479952081115792.b4-reply@b4>
+X-Mailer: b4 0.17-dev
 
-Introduce new VFIO features for zPCI devices to provide FMB passthrough to
-userspace.
+On 2026-10-13 16:04 +0100, Lorenzo Stoakes (ARM) wrote:
+> The map->file_doesnt_need_get flag is confusing and the existing
+> implementation has holes.
+> 
+> Drivers are permitted to change the owning file of a mapping. If they do
+> so, they are required to take a reference on that file.
+> 
+> The mmap() operation which ultimately invokes __mmap_region() is guaranteed
+> to drop the refcount for the original file the mapping was made under, but
+> this is not true for the replaced file.
+> 
+...
+> 
+> Reviewed-by: Suren Baghdasaryan <surenb@google.com>
+> Signed-off-by: Lorenzo Stoakes (ARM) <ljs@kernel.org>
 
-Allow the user to enable or disable the FMB using the SET-only feature
-VFIO_DEVICE_FEATURE_ZPCI_FMB_ENABLE. Likewise allow the user to read the
-latest FMB using the GET-only feature VFIO_DEVICE_FEATURE_ZPCI_FMB_READ
-in the case when the FMB is enabled.
+Have a nit below, but otherwise
 
-Signed-off-by: Omar Elghoul <oelghoul@linux.ibm.com>
----
- drivers/vfio/pci/vfio_pci_core.c |  4 +++
- drivers/vfio/pci/vfio_pci_priv.h | 18 ++++++++++
- drivers/vfio/pci/vfio_pci_zdev.c | 60 ++++++++++++++++++++++++++++++++
- include/uapi/linux/vfio.h        | 29 +++++++++++++++
- 4 files changed, 111 insertions(+)
+Reviewed-by: Gregory Price (Meta) <gourry@gourry.net>
 
-diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-index 6757054e9d87..3c827a77725b 100644
---- a/drivers/vfio/pci/vfio_pci_core.c
-+++ b/drivers/vfio/pci/vfio_pci_core.c
-@@ -1627,6 +1627,10 @@ int vfio_pci_core_ioctl_feature(struct vfio_device *device, u32 flags,
- 		return vfio_pci_core_feature_dma_buf(vdev, flags, arg, argsz);
- 	case VFIO_DEVICE_FEATURE_ZPCI_ERROR:
- 		return vfio_pci_zdev_feature_err(device, flags, arg, argsz);
-+	case VFIO_DEVICE_FEATURE_ZPCI_FMB_ENABLE:
-+		return vfio_pci_zdev_feature_fmb_enable(vdev, flags, arg, argsz);
-+	case VFIO_DEVICE_FEATURE_ZPCI_FMB_READ:
-+		return vfio_pci_zdev_feature_fmb_read(vdev, flags, arg, argsz);
- 	default:
- 		return -ENOTTY;
- 	}
-diff --git a/drivers/vfio/pci/vfio_pci_priv.h b/drivers/vfio/pci/vfio_pci_priv.h
-index 4e7162234a2e..e04d7e9d0c30 100644
---- a/drivers/vfio/pci/vfio_pci_priv.h
-+++ b/drivers/vfio/pci/vfio_pci_priv.h
-@@ -95,6 +95,10 @@ int vfio_pci_zdev_open_device(struct vfio_pci_core_device *vdev);
- void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev);
- int vfio_pci_zdev_feature_err(struct vfio_device *device, u32 flags,
- 			      void __user *arg, size_t argsz);
-+int vfio_pci_zdev_feature_fmb_enable(struct vfio_pci_core_device *vdev, u32 flags,
-+				     void __user *arg, size_t argsz);
-+int vfio_pci_zdev_feature_fmb_read(struct vfio_pci_core_device *vdev, u32 flags,
-+				   void __user *arg, size_t argsz);
- #else
- static inline int vfio_pci_info_zdev_add_caps(struct vfio_pci_core_device *vdev,
- 					      struct vfio_info_cap *caps)
-@@ -116,6 +120,20 @@ static inline int vfio_pci_zdev_feature_err(struct vfio_device *device,
- {
- 	return -ENOTTY;
- }
-+
-+static inline int vfio_pci_zdev_feature_fmb_enable(struct vfio_pci_core_device *vdev,
-+						   u32 flags, void __user *arg,
-+						   size_t argsz)
-+{
-+	return -ENOTTY;
-+}
-+
-+static inline int vfio_pci_zdev_feature_fmb_read(struct vfio_pci_core_device *vdev,
-+						 u32 flags, void __user *arg,
-+						 size_t argsz)
-+{
-+	return -ENOTTY;
-+}
- #endif
- 
- static inline bool vfio_pci_is_vga(struct pci_dev *pdev)
-diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
-index f47f36314a1c..c2afe60111d7 100644
---- a/drivers/vfio/pci/vfio_pci_zdev.c
-+++ b/drivers/vfio/pci/vfio_pci_zdev.c
-@@ -219,3 +219,63 @@ void vfio_pci_zdev_close_device(struct vfio_pci_core_device *vdev)
- 	if (zpci_kvm_hook.kvm_unregister)
- 		zpci_kvm_hook.kvm_unregister(zdev);
- }
-+
-+int vfio_pci_zdev_feature_fmb_enable(struct vfio_pci_core_device *vdev, u32 flags,
-+				     void __user *arg, size_t argsz)
-+{
-+	struct zpci_dev *zdev;
-+	struct vfio_device_feature_zpci_fmb_enable fmb_enable;
-+	int ret;
-+
-+	ret = vfio_check_feature(flags, argsz, VFIO_DEVICE_FEATURE_SET, sizeof(fmb_enable));
-+	if (ret != 1)
-+		return ret;
-+
-+	zdev = to_zpci(vdev->pdev);
-+	if (!zdev)
-+		return -ENODEV;
-+
-+	if (copy_from_user(&fmb_enable, arg, sizeof(fmb_enable)))
-+		return -EFAULT;
-+
-+	guard(mutex)(&zdev->fmb_lock);
-+
-+	if (fmb_enable.enabled) {
-+		zdev->statistics_on = true;
-+		return zpci_fmb_enable(zdev);
-+	}
-+
-+	return zpci_fmb_request_off(zdev);
-+}
-+
-+int vfio_pci_zdev_feature_fmb_read(struct vfio_pci_core_device *vdev, u32 flags,
-+				   void __user *arg, size_t argsz)
-+{
-+	struct zpci_dev *zdev;
-+	struct vfio_device_feature_zpci_fmb_read fmb_read;
-+	struct zpci_fmb fmb_bounce;
-+	int ret;
-+
-+	ret = vfio_check_feature(flags, argsz, VFIO_DEVICE_FEATURE_GET, sizeof(fmb_read));
-+	if (ret != 1)
-+		return ret;
-+
-+	zdev = to_zpci(vdev->pdev);
-+	if (!zdev)
-+		return -ENODEV;
-+
-+	if (copy_from_user(&fmb_read, arg, sizeof(fmb_read)))
-+		return -EFAULT;
-+	if (!fmb_read.data)
-+		return -EINVAL;
-+
-+	scoped_guard(mutex, &zdev->fmb_lock) {
-+		if (!zdev->statistics_on || !zdev->fmb)
-+			return -ENOMSG;
-+		memcpy(&fmb_bounce, zdev->fmb, zdev->fmb_length);
-+	}
-+
-+	if (copy_to_user(u64_to_user_ptr(fmb_read.data), &fmb_bounce, zdev->fmb_length))
-+		return -EFAULT;
-+	return 0;
-+}
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index e41437fa17ad..a8d501e42ef9 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -1555,6 +1555,35 @@ struct vfio_device_feature_zpci_err {
- 
- #define VFIO_DEVICE_FEATURE_ZPCI_ERROR 13
- 
-+/**
-+ * Upon VFIO_DEVICE_FEATURE_SET, enable or disable FMB for the VFIO zPCI device.
-+ *
-+ * enabled is treated as a bool, so any non-zero value evaluates to true. Nested
-+ * enabling resets the FMB counters to zero, and nested disabling fails.
-+ *
-+ * Returns: 0 on success, -1 and errno set appropriately on error.
-+ */
-+#define VFIO_DEVICE_FEATURE_ZPCI_FMB_ENABLE 14
-+
-+struct vfio_device_feature_zpci_fmb_enable {
-+	__u8 enabled;
-+};
-+
-+/**
-+ * Upon VFIO_DEVICE_FEATURE_GET, provide FMB passthrough for VFIO zPCI devices.
-+ *
-+ * The user-provided buffer must be at least fmb_length large, where fmb_length
-+ * is reported in VFIO_DEVICE_INFO_CAP_ZPCI_BASE.
-+ *
-+ * Returns: 0 on success, -1 and errno set appropriately on error. errno==ENOMSG
-+ * when the FMB is not enabled.
-+ */
-+#define VFIO_DEVICE_FEATURE_ZPCI_FMB_READ 15
-+
-+struct vfio_device_feature_zpci_fmb_read {
-+	__aligned_u64 data;
-+};
-+
- /* -------- API for Type1 VFIO IOMMU -------- */
- 
- /**
+> +static bool map_same_file(struct mmap_state *map)
+> +{
+> +	return map->vm_file == map->file;
+> +}
+>  
+
+Terrible function name :]
+
+~Gregory
+
 -- 
-2.56.0
-
+Gregory Price (Meta) <gourry@gourry.net>
