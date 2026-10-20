@@ -1,78 +1,78 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792531491;
-	b=XIUFe47UpIU2RiB0jsOtjVh34sK4EqTOwU782xDd3baumdq6ejG0JzVqsxPG6IN3Kp18
-	 nnYO3j7WoLUYDnHXdIZwREs/VNvxeJX4yvMjzVa/omOqHh0tPy11cG2YHak6n9QH9z1nX
-	 MD8szHMbAP5f8RMrcmyhNWcRRBrBwqvPZFqMCDHoGOCb7X0EJ0EeOvp/Jn9cpCl2ZLD/B
-	 EkdqjTna2CxuBX/O3QZ1fUbEB9lfNrTIpDWo6pO+Npn5Q9H5i0EtysD2F4ey4AOiVAopm
-	 fmN1/pI8O4Z2udACGOvOfeUlRXSEHd5O0VJ1DDgDOyPfGbKI68ySvCM6Dj8a02O2TTg==
+	t=1792531486;
+	b=VY8eKkD1tmgPqDTXE19u5fZxy4Q+reJtD+uS4d4TCFPxqd7kwc8S+XSob0q7AMrZVu8H
+	 T6I82Glj8l09JhnSY3S+OGCgkvwJVKZGoiHethQRgzCMghl+In4vhyQ52A+TUngY0BDAA
+	 3LLo8MdkfMzn7C0x2gQR9vSGikwkzR/P+bFaEb/l+fIHRR4WvrhhfYIDZIowEf/3N1HU+
+	 jf/0vRZLy9qruTJYzO0Qi+fGlmQ4Sz9xUptHxN/jDJF04qse4Ozgv4OKcPA3JsllULxXZ
+	 97v4ruzU8NgcqHWAJ9EIsbJAnRLQh9YaJdXOBazhG5XHjZFQ5XH8p0YPIerPVdm5MhA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792531491;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792531486;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-TM-AS-GCONF:X-Proofpoint-GUID:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Authority-Analysis:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=E54xKdORn13BGGmuZS6OIqNLEs0d6p1zOngaT9Q/Lms=;
-	b=zfiKo+PCwCpnTf87AcnKXHmWzqmSNkRBOfFBV+BAvuC7lJ7PL1sPJ8HAmz97dXHGrv64
-	 Tc6YAPHT+pQo6T+hOHuzEy/eGiXZw50bLbc/G5mQaCcj7Y/aZkYEiXUiwDasbYdY8oYA5
-	 Y8bZLsy7CUNLdzEo9H1DTn25A16R06TQ/vwJzb/I2yAKvRURsnkKje6YZHDMWdoV9fqWA
-	 x75nXDssgYatxnOdOqqiJNzPhXT6YL5/rLF5L66BwIJntwga0NME0JFeJIaxAi4gM6YPf
-	 0Mii9wrhx7qzVl5nK3gDoGfOZqkBuvhom5K2HosfWZgCO0EWhkah/FEfFCweLX6QkfQ==
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-TM-AS-GCONF:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
+	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=eeMJ9eik/6iTalfM1QbgiJM1YJJZpIiUixe5HbN7fAg=;
+	b=0wYKS+4hUM3X9TnDkR6GiB9f6Sb97dBnVKuq7BIV5vCURJZ0wGC/kW2yuMC45lVFw1IO
+	 lxp/Rpf970iB9pk3c+IdX7jCTFNB1o4ankvbqPbvOVQYiDyIDQ+nQQz1asYWggbxpAtGb
+	 cUCEXAIh5rFx/Z0Le9AjaY4EscmUb+vwzNHzSnmHmWf2j5GYL/mVkapzHj8lCcRufcAvQ
+	 tqvAW0CD66269Pcki4gA1clq1Sq3F8DRdJpJ9lAogurZjBSrg9qzHVd8ngfd8xcaqrnU7
+	 lPaJNZ+sKQMoRaiMDlqjjEvAiNpxwqjui34t3gA2pYd0IH+GvK17SxRjsDxxYUKNmwg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=IThYoLuD;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=jOxSyXfx;
 	arc=none smtp.remote-ip=148.163.156.1
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86E89606A31F;
-	Tue, 20 Oct 2026 21:24:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 86E89606A31F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BC39606A319;
+	Tue, 20 Oct 2026 21:24:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5BC39606A319
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=IThYoLuD
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69KLE3BO1864440;
-	Tue, 20 Oct 2026 21:24:47 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=jOxSyXfx
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69KLEEYl3671865;
+	Tue, 20 Oct 2026 21:24:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=E54xKdORn13BGGmuZ
-	S6OIqNLEs0d6p1zOngaT9Q/Lms=; b=IThYoLuDFPjdS8PUwZOyHzBDe3hX5jir4
-	3RAtiXQ1HSh2+/p/DmV06CN5bjPn5bQuPg3xUPk1lsupgSPmhGQP9TIBlQf6F/bG
-	Et+fMBdAvyVmUA01IXmuzV/zbun1j7ow5mzB4uCyP9ZZg6PouNobazxv+GmSFXJD
-	CnEaqJCAjzGiY149nsuwa2rnEXGqiSqi+Hsz0jMRh3giJmgry0UZnZo7p9oXXb6+
-	YED25W3POkc6UNhSRuXm7gNkEr58d2lNaG0cNxeE9GHhY2Cj3IM/9yh80mnxKw1J
-	dcqSWAoHTFrbLVsJG9FIpen5sW2CUoEv+hgvWUoSQiD3HHmaBD62A==
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=eeMJ9eik/6iTalfM1QbgiJM1YJJZpIiUixe5HbN7f
+	Ag=; b=jOxSyXfxsVvhuTPcJP6xSsMQG9ox9eg23+jf7PS5BEIrT1hcKZTKbHOzN
+	FpgYTRs/eypTZemM8kwOMY0MO9Hvs1deXKOrdCb722XoUUklFWmBnRRQzLWllk3q
+	d6Nm9l9mjixqCD9W56IwXjJZHnmWOLchIff7Q/RpAxQnDNZmFZ7j9hSbesGdrbKv
+	LWUqn2y+PJsDVK4rqKWb+cGx40YV13C3GzdBwTRDgVQ20wSmlSAOzd8oVPRLdt44
+	abBQPEUYFZWKdRdHOSOjwoZeerLUmf8qCMq5ZAC8TJ3P2FE9XpAT4NNfnQfN/yXQ
+	sn62xXt8VD1Sud4cj33GFOcXgLsWQ==
 Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw5bdgbf-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw58ngqc-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 20 Oct 2026 21:24:47 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69KL4x8m2114031;
-	Tue, 20 Oct 2026 21:24:46 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hcmuh41wt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 20 Oct 2026 21:24:46 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69KLOhYQ48169448
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 20 Oct 2026 21:24:44 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B77BC5803F;
 	Tue, 20 Oct 2026 21:24:43 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 30C7758060;
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69KL4wfU2113840;
+	Tue, 20 Oct 2026 21:24:42 GMT
+Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hcmuh41wf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Tue, 20 Oct 2026 21:24:42 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69KLOcIs23986758
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 20 Oct 2026 21:24:38 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B627F58056;
+	Tue, 20 Oct 2026 21:24:38 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 32C925803F;
+	Tue, 20 Oct 2026 21:24:37 +0000 (GMT)
 Received: from Mac.ibm.com (unknown [9.61.240.182])
 	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 20 Oct 2026 21:24:42 +0000 (GMT)
+	Tue, 20 Oct 2026 21:24:37 +0000 (GMT)
 From: Omar Elghoul <oelghoul@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org
@@ -81,12 +81,10 @@ Cc: oelghoul@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
         schnelle@linux.ibm.com, mjrosato@linux.ibm.com, alifm@linux.ibm.com,
         farman@linux.ibm.com, gbayer@linux.ibm.com, pasic@linux.ibm.com,
         alex@shazbot.org, frankja@linux.ibm.com, imbrenda@linux.ibm.com
-Subject: [PATCH v10 3/5] s390/pci: Improve function measurement state management
-Date: Tue, 20 Oct 2026 17:24:25 -0400
-Message-ID: <20261020212427.2561-4-oelghoul@linux.ibm.com>
+Subject: [PATCH v10 0/5] vfio-pci/zdev: Improved zPCI Function Measurement Support
+Date: Tue, 20 Oct 2026 17:24:22 -0400
+Message-ID: <20261020212427.2561-1-oelghoul@linux.ibm.com>
 X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261020212427.2561-1-oelghoul@linux.ibm.com>
-References: <20261020212427.2561-1-oelghoul@linux.ibm.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -98,232 +96,186 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Z0-mzEKtKvD8i0asOvvOeI2_gpyUKgHA
-X-Proofpoint-ORIG-GUID: Z0-mzEKtKvD8i0asOvvOeI2_gpyUKgHA
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIwMDA4NCBTYWx0ZWRfX/qGU60voUclE
- 8deOdtXNEMWb7UsqR6l4vR/ZNNkf1TDpVvbcA9gQ1KmT5+QtDqSBQvPSf0IlqWON18w+/0PQjOv
- 18AH5GgG7yxHA00lwNd8SbQwQyigkxk=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIwMDA4NCBTYWx0ZWRfX4FpQciuD/19/
- WjECzdZjl/hion1zPszgKmUQ6kS+cenCKgfJ1tcZEjF7bhsnVKtCGOSVl8Ik6RTRpwC2TR+rz29
- WsJRhHyfCnpVAK8BQQKQQaYMiXqXfQPv5hrbsWlC0n2WMq7mxP80hYwUmlJxjxgX220D3OpLWw7
- QBAlwjc+aBZFXPmzkDSmJnoHVD+GBjj1QuAGRNM2f5bQtJwqgIeOGIWFpMRnIUMVsp2HSqi+yar
- g0lWCnXV5cjbiV2NNemVgqfrXpa81ZKSqaZWRmRnZwRCiLXMkoBwx5adQxfi9Rlvw+LklWTuNhG
- BuPZs7gvc7cXOdF+GcVZYZkiXYMSm6wJMUV2Qrwd1N9lroo/HBYNL4I2Bdc8E49kp2wY2tsH5HT
- jV9x9qz6XceJjy8a+KnwAstb6b3bifmfV8jGYUgJE0XkLoxl5bNErRMgyLl2x9zGEEa/No2HoXe
- Szs4Fspf3KkYLF4UCaA==
-X-Authority-Analysis: v=2.4 cv=Gb2CDgXL c=1 sm=1 tr=0 ts=6ad7dc1f cx=c_pps
+X-Proofpoint-GUID: 89va64KW2VFdDL55j2S5c_GCKMCUCTYP
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIwMDA4NCBTYWx0ZWRfX6/cb3Si6oQm1
+ ic8712kVhIRUtTY8N1PnQZpSUCfnXgT6m2AO1um42kFVkpYcf88zprUXNvxKqFw0yqubltARYs8
+ yGVi4yfcCGIpr6sjvrGjnzpM1RQpyvM=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIwMDA4NCBTYWx0ZWRfXwOimkW/KyhjX
+ G16rt3iXC4WbVqK4hZpvYRzT/hFvh2s++RcivW44mH5qyAXCmq6F7xGV9rrD08BOHHdfVelxDBH
+ hpAdtqGkb1sIAIpxtxWu0mhDSy/yRaQc1ka3foAXGwdHRU5Q4njvw7ABeyPxbQnQfU4bLjce+sK
+ f01/Ov/kAlD3R1ZpjVurxfhQfL/6RbajaDHe8Jt2NAjQ5lLuOBtttBCg4r4uEQP0mH8m1IdTaGl
+ 5Jnj8uQVW9FOlp4oyv8Zrhr92smeZTeM91tecGwRviWNYx7oNC0oAJ9gjDfiAEE+7J3bqhvZb+8
+ FKgz4nlLsZADtqLwxkEKjjW/kOwKuy442gTpcBWdc0WxD8BJME/XvtRlcB6qYp/958m8KhgR+PB
+ 1XqvMddFvRWl1+EkoAlt/lE8ba0A5Rypf6zzVcEFfrvUU8BFPoMHUY+wKwmgXsCkgE5cb50t6Zm
+ zYLD3z2Qti05ZJShPhQ==
+X-Proofpoint-ORIG-GUID: 89va64KW2VFdDL55j2S5c_GCKMCUCTYP
+X-Authority-Analysis: v=2.4 cv=Ob4NnRTY c=1 sm=1 tr=0 ts=6ad7dc1b cx=c_pps
  a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=VaO1hkoxRiRHp-0gMLIA:9
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=6sK3PV2DqPywc776t1AA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-20_04,2026-10-19_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 adultscore=0 malwarescore=0 spamscore=0 phishscore=0
- clxscore=1015 bulkscore=0 impostorscore=0 lowpriorityscore=0
- priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ bulkscore=0 adultscore=0 phishscore=0 spamscore=0 suspectscore=0
+ lowpriorityscore=0 clxscore=1015 impostorscore=0 priorityscore=1501
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610190000
  definitions=main-2610200084
 
-When a zPCI function is disabled and re-enabled, the firmware implicitly
-disables function measurement while the kernel still believes it is
-enabled, leading to a disconnect between the user-visible state and the
-actual device state.
+Hi,
 
-Make statistics_on represent the requested state instead. Introduce the
-functions zpci_fmb_request_on() and off(), which call zpci_fmb_enable()
-or disable() to perform the actual firmware change. This decouples the
-enablement or disablement from managing the user's desired state.
+This patch series improves support for function measurement for zPCI
+passthrough devices on s390.
 
-Preserve the state in pcibios_enable_device(), pcibios_disable_device(),
-and zpci_reenable_device(), so measurement is restored automatically
-after a re-enable. New devices start with measurement on by default,
-unchanged from before.
+Changelog
+=========
+v9 -> v10:
+* Patches 2/5 and 3/5:
+  - Split the old 2/4 into two patches; the new patch 2/5 reuses one FMB
+    buffer per device, and 3/5 improves FMB state management
+  - Rework FMB management functions to decouple requesting enablement or
+    disablement from managing the user's intended state
+  - Preserve measurement state in pcibios_enable_device()
 
-Signed-off-by: Omar Elghoul <oelghoul@linux.ibm.com>
----
- arch/s390/include/asm/pci.h |  8 +++--
- arch/s390/pci/pci.c         | 63 ++++++++++++++++++++++++++++++-------
- arch/s390/pci/pci_debug.c   |  4 +--
- 3 files changed, 58 insertions(+), 17 deletions(-)
+v8 -> v9:
+* Patch 2/4:
+  - Remove the intermediate disable step from zpci_fmb_reenable_device()
+    for more uniform semantics
+  - Rename fmb_enabled to fmb_requested with the intent of tracking the
+    desired status of FMB enablement
+  - Make zpci_fmb_enable_device() delegate to zpci_fmb_reenable_device()
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index f4fea1c34746..dd7a17955362 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -208,7 +208,7 @@ struct zpci_dev {
- 	struct zpci_fmb *fmb;
- 	u16		fmb_update;	/* update interval */
- 	u16		fmb_length;
--	bool		statistics_on;
-+	bool		statistics_on;	/* desired FMB enablement */
- 
- 	u8		version;
- 	enum pci_bus_speed max_bus_speed;
-@@ -350,8 +350,10 @@ int zpci_create_parent_msi_domain(struct zpci_bus *zbus);
- void zpci_remove_parent_msi_domain(struct zpci_bus *zbus);
- 
- /* FMB */
--int zpci_fmb_enable_device(struct zpci_dev *);
--int zpci_fmb_disable_device(struct zpci_dev *);
-+int zpci_fmb_request_on(struct zpci_dev *zdev);
-+int zpci_fmb_request_off(struct zpci_dev *zdev);
-+int zpci_fmb_enable(struct zpci_dev *zdev);
-+int zpci_fmb_disable(struct zpci_dev *zdev);
- 
- /* Debug */
- int zpci_debug_init(void);
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 2a7e1ca0fa12..98a4e938865a 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -165,7 +165,37 @@ int zpci_unregister_ioat(struct zpci_dev *zdev, u8 dmaas)
- }
- 
- /* Modify PCI: Set PCI function measurement parameters */
--int zpci_fmb_enable_device(struct zpci_dev *zdev)
-+int zpci_fmb_request_on(struct zpci_dev *zdev)
-+{
-+	lockdep_assert_held(&zdev->fmb_lock);
-+
-+	if (zdev->statistics_on && zdev->fmb)
-+		return -EINVAL;
-+
-+	/*
-+	 * Record the user's intent first. If the enable fails, the flag stays set
-+	 * so we can retry enabling the FMB upon the next device (re-)enable. The
-+	 * consumer can detect that a measurement sample was never written if the
-+	 * timestamp is still zero, or if the FMB pointer is null.
-+	 */
-+	zdev->statistics_on = true;
-+	return zpci_fmb_enable(zdev);
-+}
-+
-+/* Modify PCI: Disable PCI function measurement */
-+int zpci_fmb_request_off(struct zpci_dev *zdev)
-+{
-+	lockdep_assert_held(&zdev->fmb_lock);
-+
-+	if (!zdev->statistics_on)
-+		return -EINVAL;
-+
-+	zdev->statistics_on = false;
-+	return zpci_fmb_disable(zdev);
-+}
-+EXPORT_SYMBOL_GPL(zpci_fmb_request_off);
-+
-+int zpci_fmb_enable(struct zpci_dev *zdev)
- {
- 	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_SET_MEASURE);
- 	struct zpci_iommu_ctrs *ctrs;
-@@ -175,7 +205,7 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
- 
- 	lockdep_assert_held(&zdev->fmb_lock);
- 
--	if (zdev->statistics_on || sizeof(*zdev->fmb) < zdev->fmb_length)
-+	if (sizeof(*zdev->fmb) < zdev->fmb_length)
- 		return -EINVAL;
- 
- 	if (!zdev->fmb) {
-@@ -206,12 +236,11 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
- 	if (cc)
- 		return -EIO;
- 
--	zdev->statistics_on = true;
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(zpci_fmb_enable);
- 
--/* Modify PCI: Disable PCI function measurement */
--int zpci_fmb_disable_device(struct zpci_dev *zdev)
-+int zpci_fmb_disable(struct zpci_dev *zdev)
- {
- 	u64 req = ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_SET_MEASURE);
- 	struct zpci_fib fib = {0};
-@@ -219,9 +248,6 @@ int zpci_fmb_disable_device(struct zpci_dev *zdev)
- 
- 	lockdep_assert_held(&zdev->fmb_lock);
- 
--	if (!zdev->statistics_on)
--		return -EINVAL;
--
- 	fib.gd = zdev->gisa;
- 
- 	/* Function measurement is disabled if fmb address is zero */
-@@ -231,7 +257,6 @@ int zpci_fmb_disable_device(struct zpci_dev *zdev)
- 	if (cc)
- 		return -EIO;
- 
--	zdev->statistics_on = false;
- 	return 0;
- }
- 
-@@ -647,7 +672,8 @@ int pcibios_enable_device(struct pci_dev *pdev, int mask)
- 
- 	zpci_debug_init_device(zdev, dev_name(&pdev->dev));
- 	mutex_lock(&zdev->fmb_lock);
--	zpci_fmb_enable_device(zdev);
-+	if (zdev->statistics_on)
-+		zpci_fmb_enable(zdev);
- 	mutex_unlock(&zdev->fmb_lock);
- 
- 	return pci_enable_resources(pdev, mask);
-@@ -658,7 +684,8 @@ void pcibios_disable_device(struct pci_dev *pdev)
- 	struct zpci_dev *zdev = to_zpci(pdev);
- 
- 	mutex_lock(&zdev->fmb_lock);
--	zpci_fmb_disable_device(zdev);
-+	if (zdev->statistics_on)
-+		zpci_fmb_disable(zdev);
- 	mutex_unlock(&zdev->fmb_lock);
- 	zpci_debug_exit_device(zdev);
- }
-@@ -740,8 +767,14 @@ int zpci_reenable_device(struct zpci_dev *zdev)
- 	}
- 
- 	rc = zpci_iommu_register_ioat(zdev, &status);
--	if (rc)
-+	if (rc) {
- 		zpci_disable_device(zdev);
-+		return rc;
-+	}
-+
-+	guard(mutex)(&zdev->fmb_lock);
-+	if (zdev->statistics_on)
-+		zpci_fmb_enable(zdev);
- 
- 	return rc;
- }
-@@ -850,6 +883,12 @@ struct zpci_dev *zpci_create_device(u32 fid, u32 fh, enum zpci_state state)
- 		goto error;
- 	zdev->state =  state;
- 
-+	/*
-+	 * Measurement is on by default for new functions, this will be honored
-+	 * by pcibios_enable_device().
-+	 */
-+	zdev->statistics_on = true;
-+
- 	mutex_init(&zdev->state_lock);
- 	mutex_init(&zdev->fmb_lock);
- 	mutex_init(&zdev->kzdev_lock);
-diff --git a/arch/s390/pci/pci_debug.c b/arch/s390/pci/pci_debug.c
-index 419c6a9200a2..e479763858cd 100644
---- a/arch/s390/pci/pci_debug.c
-+++ b/arch/s390/pci/pci_debug.c
-@@ -156,10 +156,10 @@ static ssize_t pci_perf_seq_write(struct file *file, const char __user *ubuf,
- 	mutex_lock(&zdev->fmb_lock);
- 	switch (val) {
- 	case 0:
--		rc = zpci_fmb_disable_device(zdev);
-+		rc = zpci_fmb_request_off(zdev);
- 		break;
- 	case 1:
--		rc = zpci_fmb_enable_device(zdev);
-+		rc = zpci_fmb_request_on(zdev);
- 		break;
- 	}
- 	mutex_unlock(&zdev->fmb_lock);
+* Patch 4/4:
+  - Set fmb_requested when the user enables measurement
+
+v7 -> v8:
+* Patch 2/4:
+  - Replace the fmb_enabled bitfield in struct zpci_dev with a dedicated
+    bool to avoid future tearing bugs
+  - Rewrite commit message for a more natural flow
+
+* Patch 4/4:
+  - Replace mutex_lock/unlock() in vfio_pci_zdev_feature_fmb_read() with
+    a scoped_guard()
+
+v6 -> v7:
+* Patch 2/4:
+  - Don't re-enable FMB if it wasn't already enabled
+
+v5 -> v6:
+* Patch 2/4:
+  - Rework the FMB re-enablement code to reuse the same buffer again
+  - Make the FMB buffer persistent once allocated for as long as the
+    device's lifetime to accommodate an architectural quirk
+* Patch 4/4:
+  - Update the liveness check to use the new FMB enabled bool
+
+v4 -> v5:
+* Typo in the cover letter
+* Swap the ordering of patches 3/4 and 4/4 to ease merging (i.e., to
+  ensure the three s390 patches are ordered before the VFIO patch)
+* Patch 2/4:
+  - Drop the refactor of zpci_fmb_enable_device() and the separation of
+    zpci_fmb_clear_iommu_ctrs() and zpci_fmb_do_enable()
+  - Allocate a new buffer in zpci_fmb_reenable_device() rather than
+    reusing the same buffer to avoid firmware edge cases
+
+* Patch 3/4 (previously 4/4):
+  - Avoid reading from userspace while holding kzdev_lock unnecessarily
+
+* Patch 4/4 (previously 3/4):
+  - Drop allowing usercopy of the FMB when initializing the kmem_cache
+  - Avoid copying to userspace while holding fmb_lock unnecessarily
+    - Restore the FMB bounce buffer to achieve this one
+  - Clarify uAPI documentation and ensure it accurately describes the
+    behavior of the VFIO features
+
+v3 -> v4:
+* Patch 2/4:
+  - Replace mutex_lock/unlock in zpci_reenable_device() with a guard
+
+* Patch 3/4:
+  - Allow usercopy of the FMB when initializing its kmem_cache
+  - Move the guard in vfio_pci_zdev_feature_fmb_enable() lower to only
+    protect the FMB
+  - Ensure vfio_pci_zdev_feature_fmb_enable() fails on double-enable for
+    consistency with the documentation
+  - Eliminate the bounce buffer in vfio_pci_zdev_feature_fmb_read()
+  - Replace the void pointer with __aligned_u64 in the FMB read uAPI
+    structure
+
+v2 -> v3:
+* Patch 1/4 (new patch):
+  - Fix race conditions in pcibios_enable/disable_device() with regard to
+    the FMB enable/disable
+  - Assert that fmb_lock is held within zpci_fmb_enable_device() and
+    zpci_fmb_disable_device()
+
+* Patch 2/4 (previously 1/3):
+  - Move the FMB enable logic into a static function zpci_fmb_do_enable()
+    to reduce code duplication between zpci_fmb_enable_device() and
+    zpci_fmb_reenable_device()
+  - Reword commit message to use the imperative voice more consistently
+
+* Patch 3/4 (previously 2/3):
+  - Split the previous VFIO feature into a SET-only and a GET-only feature
+    for enabling/disabling and reading the FMB respectively
+  - Remove FMB definitions from the VFIO uAPI and instead treat it as an
+    opaque structure
+
+* Patch 4/4 (previously 3/3):
+  - Clarify goto label name to reduce misunderstandings
+
+v1 -> v2:
+* Patch 1/3:
+  - Address a possible race condition in zpci_reenable_device() caused by
+    calling zpci_fmb_reenable_device() without holding fmb_lock
+  - Assert that fmb_lock is held within zpci_fmb_reenable_device()
+
+* Patch 3/3:
+  - Address a possible race condition in pci_perf_seq_write() caused by
+    consuming zdev->kzdev without holding kzdev_lock
+
+Motivation
+==========
+The firmware on s390x machines allows for tracking a variety of statistics
+relating to zPCI devices in a function measurement block (FMB). However,
+the kernel currently lacks a structured mechanism of sharing this
+information with userspace, beyond /sys/kernel/debug/pci/ID/statistics.
+This can lead to shortcomings when running a guest on KVM with PCI
+passthrough devices, as QEMU is unable to provide an accurate FMB snapshot
+to the guest.
+
+Proposal
+========
+We propose adding a new VFIO device feature to zPCI passthrough devices,
+allowing userspace programs to read the latest FMB snapshot as it is
+written by the firmware. We ensure that function measurement enablement is
+preserved across device resets on the host. Furthermore, we guard against
+host tampering with the FMB via sysfs when the zPCI device is in
+passthrough to protect the VM's state.
+
+I'd appreciate some feedback on these patches.
+
+Thanks in advance.
+
+Omar Elghoul (5):
+  s390/pci: Hold fmb_lock when enabling or disabling PCI devices
+  s390/pci: Reuse FMB buffer across enable and disable cycles
+  s390/pci: Improve function measurement state management
+  s390/pci: Fence FMB enable/disable via debugfs for passthrough devices
+  vfio-pci/zdev: Add VFIO FMB device features
+
+ arch/s390/include/asm/pci.h      |   7 ++-
+ arch/s390/pci/pci.c              | 102 ++++++++++++++++++++++++-------
+ arch/s390/pci/pci_debug.c        |  15 ++++-
+ drivers/vfio/pci/vfio_pci_core.c |   4 ++
+ drivers/vfio/pci/vfio_pci_priv.h |  18 ++++++
+ drivers/vfio/pci/vfio_pci_zdev.c |  60 ++++++++++++++++++
+ include/uapi/linux/vfio.h        |  29 +++++++++
+ 7 files changed, 207 insertions(+), 28 deletions(-)
+
 -- 
 2.56.0
 
