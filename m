@@ -1,60 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792487194;
-	b=lMIF5G8hSnIDsSNpEbkxFIjnUeYX1131ahtQPgSpZ7EmXcFQjcUCnZs3yDGLvRsYEduC
-	 weyeUGAYof/M8ARnJjSaKY0Fk73RunXGChIbwhUE9LgyjDx7RYqYKjJhgjkEYpzPvNQuA
-	 20lOF52d+DbHu7rxUIregTJqioGrdYKjicdJmmWMznhOGZBLO0CJ4I6zozPnhU3irSZu4
-	 80pAU3dykihT7EWhTMk+CzCM4Kbr5N8/R0Z7OgF7Fba7IC19JLhG3gLL9fxSVQFdfpQLD
-	 pDyEingtD0MCwmoygbHTGmFC3Rx3Whba2o3vstvkBteKh8YuB2ZoxO5ilOsQpAjm+Bw==
+	t=1792487532;
+	b=4LLBJP0/SAH6oxWg2T2wMVEQyw7MHRKzITiY7ocXVj13CC6x9cdFpUHCDmQYtSWVVjjW
+	 rm5jHghq3Xw8kivJ8iwk+jufoUs2SDMJKrYvzQ2yP6iOI+/FyywX615BNZxVL6LWlY0/l
+	 8LYfJGvf4Cv5K3gzKaURav3o0rEqCHXXY8bli1gD7YIJ3vK6WcAdY+2sl1bq9FqFBM+Kf
+	 5h1w5M5rTo+sDCXKeEWkluBBCKzI6NUwI4ONROX+sCSKZaHZk05AEYsRXA67wtfrdIAkx
+	 97aooEddVepqjT45IhjxheeU730r9ceMRgq9s9HlcWa9lbHYlEUCS/79YAwM7rVR9Rw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792487194;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=byMpnzMiLTG8THNjkNmp9UgpYnNMNTx0auzeW57yB8U=;
-	b=DtLJAWSm6u9JGHTnz96Wvg+QhH2eX/jIcBCHC5FDpLnhaEai4CX9+EbmCPlMT/xG/T/g
-	 CW0LzQ8qiZDZc3VWDwhcaY99OiGzizFQ0t2U5FFQkhNcLV+v3HAtyGQ76pnmQLyrKkFuM
-	 6WTbm6m4w65C+8+0aeEDcUVMDd8nOTGWR04X3BX1VHFCqINf7WsDkl4BkXL1MaQt1j75B
-	 nnR/TmjwXNweeA/9+yIp4ON5P9ocKrXSZ247duhXMK62Mc2RKKa0Eb85IJ3ZmRWAGYTx4
-	 bes00efT0Q30H4rxHD38hjt3C/4coTTT41xK3DaGXIZlKuryyX+3FVvV7ngnxKzbwyQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792487532;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=9XQ1D361GoW+BynHwFVr/UQ9YY8tow5TQgtwVuzWIp0=;
+	b=NbBtcGJIvBv/t9B8iEZQzaBLQPItg2eI1Wa+wkXOIHb59QmGL5npkJ0ztlaAnhb07u4C
+	 OHXmpMoHAkAxAcseZOlUg58mp/LU3ffG1Fjvty7ACwTqB5IHBxnxH6EGQ22P++lfkIPTj
+	 2Ed4AcKBDG4CpP/7XBU1IGEVFWU8RxEt+cMy9kt9V9PbYmNnBBVU/O/w/diITakVBJcAY
+	 dB7zLisen+KUeLZw/Vj0SyW4i+i6th51sfKC/vPfpUHwRgcyWh7awwS6bPJUYLS8WYmHG
+	 7c82oy4NpbMrjia34EoBdg5LTXhYYURqF/kg2CDnn1ou3RXHtCgk/fzeJgXjjewtkaA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RtgQErrW;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="DCnTNl/9";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03763606A31B;
-	Tue, 20 Oct 2026 09:06:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB391606A31A
+	for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 09:12:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RtgQErrW
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 340EF1F000C4;
-	Tue, 20 Oct 2026 09:06:33 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DCnTNl/9
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC9151F000C4;
+	Tue, 20 Oct 2026 09:12:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792487193;
-	bh=byMpnzMiLTG8THNjkNmp9UgpYnNMNTx0auzeW57yB8U=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=RtgQErrWcSXkn4om10fEUZVsYPQS8E0C/5ZMqJW739OOKCRRH5cgZYWz6k9JW+NEA
-	 TXlyeYKprnZiyrNMoxCJbbwx/VXBq45YssFHz1sFkjxDHLYntyV8QmG1eGeLwBJeXZ
-	 79cdAncfI+BcHaxn3CPdPzDm1iSaInRvneceLD7fGwATCqRl2B+GAqG6GeVWRk/KmF
-	 VR1bAD3ZDJ9IabcZtURZJUnMDYc5qfuKlPdxlUDPi5+ksFEQyy+2HiccWtke1b315Y
-	 4ytv3hocK/lsNGOKxbtNmiQHyzD5hUINETjPtNB7EMhCIC7slgaFYzF9BrNWaAmyJo
-	 lDTQCa4S6emGw==
-Date: Tue, 20 Oct 2026 11:06:18 +0200
-From: Joel Granados <joel.granados@kernel.org>
-To: Oleg Nesterov <oleg@redhat.com>
-Cc: Allison Henderson <achender@kernel.org>, 
-	kernel test robot <yi1.lai@intel.com>, oe-lkp@lists.linux.dev, lkp@intel.com, 
-	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, netdev@vger.kernel.org, wireguard@lists.zx2c4.com, 
-	rds-devel@oss.oracle.com
-Subject: Re: [linus:master] [sysctl]  8d75c338f0:
- BUG:KASAN:slab-use-after-free_in_touch_wq_lockdep_map
-Message-ID: <atctwUB5NlRLk4Wy@hobbes>
-References: <202610190310.9737b2e3-lkp@intel.com>
- <atYB0bm9eEXp8A2g@redhat.com>
- <atYW0K3t57puHeLW@hobbes>
- <atYuE1xnVYe0BDG4@redhat.com>
- <atY42k00k0Waj6o4@redhat.com>
+	s=k20260515; t=1792487531;
+	bh=9XQ1D361GoW+BynHwFVr/UQ9YY8tow5TQgtwVuzWIp0=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=DCnTNl/9cIjiDu0Rxgh+V33vQspBAcnWpkf0mLj0TJWny9RWTYtzgMkcOEDzha5cR
+	 sMBd8zV3O+zGuYNEIHun1jGY9Qnr9VM5YLgFXC79A2G/r8kv0Jv8RC9V25ZuB9F26F
+	 o76XBHsm0ae7U6IzmJPKuHJdXhgSYAFCMD4mdRsYAOMoOcYVwbOtEwsuybEOzdV183
+	 9vQP0/LKwos5G/dyXQMDpl/LOivvhIinAvoKzqyuAUeUrru4sDGdF2WWL5B5g7nd8b
+	 20P3El0B2s55eVe4r7oQ3pQJH5wkHQwrEYQlcN4YAN6HiJlTbpqObnKflJCvHsV9eF
+	 3bxk5aXO4ikDQ==
+Message-ID: <sashiko-outbox-178700@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v8 3/3] selftests/ptrace: add a test case for
+ PTRACE_SET_SYSCALL_INFO syscall skipping
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Renzo Davoli" <renzo@cs.unibo.it>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261020065635.490528-4-renzo@cs.unibo.it>
+References: <20261020065635.490528-1-renzo@cs.unibo.it>
+ <20261020065635.490528-4-renzo@cs.unibo.it>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 20 Oct 2026 09:12:10 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,227 +62,149 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="pcvh7stf5trtufk4"
-Content-Disposition: inline
-In-Reply-To: <atY42k00k0Waj6o4@redhat.com>
 
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [Medium] selftests/ptrace: tracee ASSERT_EQ() traps on write() before _ex=
+it()
+- [Medium] selftests/ptrace: set_syscall_info_seccomp() fails instead of sk=
+ipping
+--
 
---pcvh7stf5trtufk4
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [linus:master] [sysctl]  8d75c338f0:
- BUG:KASAN:slab-use-after-free_in_touch_wq_lockdep_map
-MIME-Version: 1.0
+commit cc1ccfdbe8397159a506a6d7612652b6af1ea5d4
+Author: Renzo Davoli <renzo@cs.unibo.it>
 
-On Mon, Oct 19, 2026 at 05:35:54PM +0200, Oleg Nesterov wrote:
-> On 10/19, Oleg Nesterov wrote:
-> >
-> > But. rds_init() can also fail even if CONFIG_SYSCTL=3Dy, after
-> > rds_sysctl_init(), so to me this looks like a bug in net/rds/.
-> >
-> >
-> > In any case, I guess net/rds/ init paths should not fail if
-> > CONFIG_SYSCTL=3Dn ?
->=20
-> So I think that something like the uncompiled/untested patch below makes
-> sense anyway even if doesn't fix all the potential problems with rds_wq.
->=20
-> What do you think?
+selftests/ptrace: add a test case for PTRACE_SET_SYSCALL_INFO syscall skipp=
+ing
 
-That is a good option. I also did not compile not test it, but guarding
-the error inside an ifdef would work and is a pattern that is used
-elsewhere.
+This commit adds a seccomp test case in set_syscall_info.c to verify
+PTRACE_SET_SYSCALL_INFO syscall skipping semantics, including setting return
+values, error values, and preventing syscall changes after skipping.
 
-You can also do this (also untested and not compiled):
-
-diff --git i/net/rds/ib_sysctl.c w/net/rds/ib_sysctl.c
-index 2af678e71e3c6..bc97a3eecad69 100644
---- i/net/rds/ib_sysctl.c
-+++ w/net/rds/ib_sysctl.c
-@@ -114,7 +114,7 @@ void rds_ib_sysctl_exit(void)
- int rds_ib_sysctl_init(void)
- {
-        rds_ib_sysctl_hdr =3D register_net_sysctl(&init_net, "net/rds/ib", =
-rds_ib_sysctl_table);
--       if (!rds_ib_sysctl_hdr)
-+       if (!rds_ib_sysctl_hdr && IS_ENABLED(CONFIG_SYSCTL))
-                return -ENOMEM;
-        return 0;
- }
-diff --git i/net/rds/sysctl.c w/net/rds/sysctl.c
-index 025f518a43495..41c65b98c94bd 100644
---- i/net/rds/sysctl.c
-+++ w/net/rds/sysctl.c
-@@ -93,7 +93,8 @@ static struct ctl_table rds_sysctl_rds_table[] =3D {
-
- void rds_sysctl_exit(void)
- {
--       unregister_net_sysctl_table(rds_sysctl_reg_table);
-+       if (rds_sysctl_reg_table)
-+               unregister_net_sysctl_table(rds_sysctl_reg_table);
- }
-
- int rds_sysctl_init(void)
-@@ -103,7 +104,7 @@ int rds_sysctl_init(void)
-
-        rds_sysctl_reg_table =3D
-                register_net_sysctl(&init_net, "net/rds", rds_sysctl_rds_ta=
-ble);
--       if (!rds_sysctl_reg_table)
-+       if (!rds_sysctl_reg_table && IS_ENABLED(CONFIG_SYSCTL))
-                return -ENOMEM;
-        return 0;
- }
-
-
-Both are ok IMO.
-
-Best
-
->=20
-> Oleg.
-> ---
->=20
-> diff --git a/net/rds/ib_sysctl.c b/net/rds/ib_sysctl.c
-> index 2af678e71e3c..bccdb5c4df1d 100644
-> --- a/net/rds/ib_sysctl.c
-> +++ b/net/rds/ib_sysctl.c
-> @@ -36,19 +36,10 @@
-> =20
->  #include "ib.h"
-> =20
-> -static struct ctl_table_header *rds_ib_sysctl_hdr;
-> -
->  unsigned long rds_ib_sysctl_max_send_wr =3D RDS_IB_DEFAULT_SEND_WR;
->  unsigned long rds_ib_sysctl_max_recv_wr =3D RDS_IB_DEFAULT_RECV_WR;
->  unsigned long rds_ib_sysctl_max_recv_allocation =3D (128 * 1024 * 1024) =
-/ RDS_FRAG_SIZE;
-> -static unsigned long rds_ib_sysctl_max_wr_min =3D 1;
-> -/* hardware will fail CQ creation long before this */
-> -static unsigned long rds_ib_sysctl_max_wr_max =3D (u32)~0;
-> -
->  unsigned long rds_ib_sysctl_max_unsig_wrs =3D 16;
-> -static unsigned long rds_ib_sysctl_max_unsig_wr_min =3D 1;
-> -static unsigned long rds_ib_sysctl_max_unsig_wr_max =3D 64;
-> -
->  /*
->   * This sysctl does nothing.
->   *
-> @@ -61,6 +52,14 @@ static unsigned long rds_ib_sysctl_max_unsig_wr_max =
-=3D 64;
->   */
->  unsigned int rds_ib_sysctl_flow_control =3D 0;
-> =20
-> +#ifdef CONFIG_SYSCTL
-> +static unsigned long rds_ib_sysctl_max_wr_min =3D 1;
-> +/* hardware will fail CQ creation long before this */
-> +static unsigned long rds_ib_sysctl_max_wr_max =3D (u32)~0;
-> +
-> +static unsigned long rds_ib_sysctl_max_unsig_wr_min =3D 1;
-> +static unsigned long rds_ib_sysctl_max_unsig_wr_max =3D 64;
-> +
->  static struct ctl_table rds_ib_sysctl_table[] =3D {
->  	{
->  		.procname       =3D "max_send_wr",
-> @@ -105,6 +104,8 @@ static struct ctl_table rds_ib_sysctl_table[] =3D {
->  	},
->  };
-> =20
-> +static struct ctl_table_header *rds_ib_sysctl_hdr;
-> +
->  void rds_ib_sysctl_exit(void)
->  {
->  	if (rds_ib_sysctl_hdr)
-> @@ -118,3 +119,15 @@ int rds_ib_sysctl_init(void)
->  		return -ENOMEM;
->  	return 0;
+> diff --git a/tools/testing/selftests/ptrace/set_syscall_info.c b/tools/te=
+sting/selftests/ptrace/set_syscall_info.c
+> index 1cc411a41cd6f..e8733c62177a9 100644
+> --- a/tools/testing/selftests/ptrace/set_syscall_info.c
+> +++ b/tools/testing/selftests/ptrace/set_syscall_info.c
+[ ... ]
+> @@ -516,4 +542,196 @@ TEST(set_syscall_info)
+>  	ASSERT_EQ(ptrace_stop, ARRAY_SIZE(si) * 2);
 >  }
-> +
-> +#else
-> +
-> +void rds_ib_sysctl_exit(void)
+> =20
+> +TEST(set_syscall_info_seccomp)
 > +{
-> +}
+> +	tracer_pid =3D getpid();
+> +	tracee_pid =3D fork();
 > +
-> +int rds_ib_sysctl_init(void)
-> +{
-> +	return 0;
-> +}
-> +#endif
-> diff --git a/net/rds/sysctl.c b/net/rds/sysctl.c
-> index 025f518a4349..a0673a41633a 100644
-> --- a/net/rds/sysctl.c
-> +++ b/net/rds/sysctl.c
-> @@ -36,11 +36,6 @@
-> =20
->  #include "rds.h"
-> =20
-> -static struct ctl_table_header *rds_sysctl_reg_table;
-> -
-> -static unsigned long rds_sysctl_reconnect_min =3D 1;
-> -static unsigned long rds_sysctl_reconnect_max =3D ~0UL;
-> -
->  unsigned long rds_sysctl_reconnect_min_jiffies;
->  unsigned long rds_sysctl_reconnect_max_jiffies =3D HZ;
-> =20
-> @@ -49,6 +44,10 @@ unsigned int  rds_sysctl_max_unacked_bytes =3D (16 << =
-20);
-> =20
->  unsigned int rds_sysctl_ping_enable =3D 1;
-> =20
-> +#ifdef CONFIG_SYSCTL
-> +static unsigned long rds_sysctl_reconnect_min =3D 1;
-> +static unsigned long rds_sysctl_reconnect_max =3D ~0UL;
+> +	ASSERT_LE(0, tracee_pid) {
+> +		TH_LOG("fork: %m");
+> +	}
 > +
->  static struct ctl_table rds_sysctl_rds_table[] =3D {
->  	{
->  		.procname       =3D "reconnect_min_delay_ms",
-> @@ -91,6 +90,8 @@ static struct ctl_table rds_sysctl_rds_table[] =3D {
->  	},
->  };
-> =20
-> +static struct ctl_table_header *rds_sysctl_reg_table;
+> +	/* tracee */
+> +	if (tracee_pid =3D=3D 0) {
+> +		tracee_pid =3D getpid();
+> +		ASSERT_EQ(0, sys_ptrace(PTRACE_TRACEME, 0, 0, 0)) {
+> +			TH_LOG("PTRACE_TRACEME: %m");
+> +		}
+> +		ASSERT_EQ(0, kill(tracee_pid, SIGSTOP)) {
+> +			/* cannot happen */
+> +			TH_LOG("kill SIGSTOP: %m");
+> +		}
 > +
->  void rds_sysctl_exit(void)
->  {
->  	unregister_net_sysctl_table(rds_sysctl_reg_table);
-> @@ -107,3 +108,15 @@ int rds_sysctl_init(void)
->  		return -ENOMEM;
->  	return 0;
->  }
-> +
-> +#else
-> +
-> +void rds_sysctl_exit(void)
-> +{
-> +}
-> +
-> +int rds_sysctl_init(void)
-> +{
-> +	return 0;
-> +}
-> +#endif
->=20
+> +		ASSERT_EQ(0, prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
+> +			TH_LOG("prctl: %m");
+> +		}
+> +		ASSERT_EQ(0, sys_seccomp(SECCOMP_SET_MODE_FILTER, 0,
+> +					(void *) &seccomp_prog)) {
+> +			TH_LOG("seccomp: %m");
+> +		}
 
---pcvh7stf5trtufk4
-Content-Type: application/pgp-signature; name="signature.asc"
+[Severity: Medium]
+Should set_syscall_info_seccomp skip the test instead of failing when
+sys_seccomp(SECCOMP_SET_MODE_FILTER, ...) is not supported by the kernel or
+architecture?
 
------BEGIN PGP SIGNATURE-----
+On kernels built without CONFIG_SECCOMP_FILTER (or on architectures that
+support PTRACE_SET_SYSCALL_INFO via CONFIG_HAVE_ARCH_TRACEHOOK but lack
+HAVE_ARCH_SECCOMP_FILTER), sys_seccomp() returns -1 with ENOSYS or EINVAL.
 
-iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmrXLwMACgkQupfNUreW
-QU9Yjwv/cCHjunDrXXsuyNvatzPDExXb5X0UzfkQLy2qA3coR/DKb4c6DSrxHAXb
-KpHrt6e9QT0I2SPoxXj4PltCuUz848uz0awIUBqnTzndf0VHj3hXQlnOzH0fZ65b
-Wn0qAyxnEitEIbt1uSa7Xq24CfbATRcSjtPthG34yTnbF733Fz4lvwVkXbJi4TPl
-uoyvrPEcXxnogCVN0W9XNu8u5UHk0CuHOFVj13NvhFcoykqRQbMQcpefAKpJzm2Y
-0yUyZK+zZ2CyFchpYt4khOGyW5RLiwV0d1kER0UKqD9lnH4cznErsgqU0tb34Rn1
-Xig5W0V/rLLEemKlyC6sdnq1ZeigxxSHlwcRUVMt1UOsECTmaTfaTaO79R2BVLSU
-y8a8NvfPWzuASlTcNMV+AT03DA/syjvh2OihVN7ec7ExnUAdfEmpibahUar/MDZA
-bBMHemB+kEmt61+nBWc6VAsa6/WJEzxKtDaaR4rMdSuyi20EQBPQsryOF1YPAYRT
-Lm5E7bEc
-=mg3e
------END PGP SIGNATURE-----
+Because this ASSERT_EQ() runs inside the already-ptraced child, a failure
+invokes __bail() -> abort(), which raises SIGABRT in the tracee and causes
+the tracer to fail with "unexpected stop, wait status 0x67f" instead of
+skipping the test via SKIP().
 
---pcvh7stf5trtufk4--
+> +
+> +		/* run getpid unmodified */
+> +		ASSERT_EQ(tracee_pid, getpid()) {
+> +			_exit(1);
+> +		}
+> +
+> +		/* run getppid instead of getpid */
+> +		ASSERT_EQ(tracer_pid, getpid()) {
+> +			_exit(1);
+> +		}
+> +
+> +		/* skip getpid and return 42 */
+> +		ASSERT_EQ(42, getpid()) {
+> +			_exit(1);
+> +		}
+> +
+> +		/* skip getpid and fail with ESRCH */
+> +		errno =3D 0;
+> +		ASSERT_EQ(-1, syscall(__NR_getpid)) {
+> +			_exit(1);
+> +		}
+> +		ASSERT_EQ(ESRCH, errno) {
+> +			_exit(1);
+> +		}
+> +		_exit(0);
+> +	}
+[ ... ]
+> +		ASSERT_LT(ptrace_stop, ARRAY_SIZE(expected_nr)) {
+> +			LOG_KILL_TRACEE("ptrace stop overflow");
+> +		}
+> +		ASSERT_FALSE(info.seccomp.nr =3D=3D __NR_exit_group && info.seccomp.ar=
+gs[0] =3D=3D 1) {
+> +			LOG_KILL_TRACEE("tracee error: %s",
+> +					testname[ptrace_stop]);
+> +		}
+> +		ASSERT_EQ(info.seccomp.nr, expected_nr[ptrace_stop]) {
+> +			LOG_KILL_TRACEE("syscall nr mismatch");
+> +		}
+
+[Severity: Medium]
+If any of the getpid() checks in the tracee fail, will the tracee ever reach
+_exit(1) to trigger the __NR_exit_group diagnostic check here?
+
+In tools/testing/selftests/kselftest_harness.h, ASSERT_EQ() expands to
+__EXPECT(), which logs to unbuffered stderr before running the optional
+handler block:
+
+#define __EXPECT(_expected, _expected_str, _seen, _seen_str, _t, _assert) d=
+o { \
+...
+			__TH_LOG("Expected %s (%ju) %s %s (%ju)", \
+				 _expected_str, __exp_print, #_t, \
+				 _seen_str, __seen_print); \
+...
+} while (0); OPTIONAL_HANDLER(_assert)
+
+Since seccomp_filter intercepts all syscalls other than __NR_restart_syscall
+with SECCOMP_RET_TRACE, the fprintf(stderr, ...) inside __TH_LOG() triggers=
+ a
+PTRACE_EVENT_SECCOMP stop on __NR_write before the { _exit(1); } block is
+reached.
+
+As a result, the tracer wakes up seeing info.seccomp.nr =3D=3D __NR_write r=
+ather
+than __NR_exit_group, bypasses the testname[ptrace_stop] diagnostic, fails
+at ASSERT_EQ(info.seccomp.nr, expected_nr[ptrace_stop]) with "syscall nr
+mismatch", and kills the tracee via LOG_KILL_TRACEE(). Plain if (...)
+_exit(1); checks in the tracee (similar to TEST(set_syscall_info)) would
+avoid issuing extra syscalls before _exit(1).
+
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261020065635.4905=
+28-1-renzo@cs.unibo.it?part=3D3
