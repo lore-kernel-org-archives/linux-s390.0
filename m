@@ -1,81 +1,84 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792487897;
-	b=Ms+PSwaYM3QzqIifVSLwWkfd66Ht6IoPxLTKOzsNFX0tvXyB3cFV1sdRkMQDkyrNhMeM
-	 aU2S/i9Zpftp7iL9emfhwDANmKkORGWMATYqFDaWzusxTvRHTsgFR2x3ehfoaMmRURz1B
-	 ra3QFgcxFv5agSAPGdpiS+2XRhUA2uHSfZm/+u+Ul6pqHN6O5vpCb0PT7twcqtOa9IMwK
-	 GBKotISyXFprXi3nhQdcp3pLysXcCO9gDDxyoD4/P1GBs57s9RKoKqbk07RKtFuibgXUg
-	 9UbSI8EJvctg+5dC1D0YeUr5hm5FfSSopswmKtMUoKB8b1TujieCJQeN+1v0gB7eP7A==
+	t=1792488294;
+	b=BiT5l8Gf2MzBO1mj+zJ6EG5Jz73nYaKpeAr0sJbvvGLu3V2iaMSw/rWr7WG5KW7XnxYR
+	 eQYnNaFxTuMaMeg3TtUHLN+SQC6L1nF1V+xNxQQs5ZL3krtQ/mJoq1R9ZCxz38LM2UTfa
+	 LmhDqM81FCj9YmG+2Sw4AJ67+UKnrZYGaP+YiKxtzmif+alth5apWoyoMwhlc5WK2AdYf
+	 i4pdu1ekp3/5UTCjdMOkQ24SGsIK0oINjYd2ZxFHztcUAce0+ZhNsNKiUQq3KhF+JW1ja
+	 go7hxCyHJtbNnDol2SzVdn2OV3oFeKCAzWVwAp+3eOnY1/D3b0AxDHNKjOBw03WtS6w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792487897;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:
-	 X-Authority-Analysis:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=zZae8cCLpGUPs+pgeY59E6wTBH/4CN2UxTfUiGkfupo=;
-	b=M9Mf81U3buyldj4gbgxyUIEmUSmxOX1OSEhZbE88GPgZ1TID+zQG5z8KxRC4F6ELz2BL
-	 gqiUDcive7rxXymrbTEsTnNE/ZDQpHUs/wOlp2rXgIJ6VGqAptnxnuySmDo8YQ2KZENvc
-	 obcZC+/ffFpEeVlAwvMsY6sX4XFWYljI38mOqoyTNDY+AEk2axVbZ1ndI5N/qg0kJdxTE
-	 VVx2MCkPWPHXSpWgp6ARHke5HPSLUSkF1ZdMsibHsAklXxCsjlOPfA/Nwwl+M+3R4RdUQ
-	 Q4mE4pv1jJUAK5NojO6dsgKIcSP/KDPBd+AZ16E2JbOaD/EjF80MkFsCPQEIiQbS25w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792488294;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:Received:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:X-Scanned-By;
+	bh=BznN/lY8tjRKb0k1WwnLhH6cM8dWen14mRHzzd6dYZk=;
+	b=vJKQegjAnNm2EK38BPwtBj+shb6ScaLdEDEVQ34wR8i3v89n3yuszVnoihNqT/7pJqot
+	 P46uqFz8OBdMZE1c0kUMCrdWtBtUk1422NVDAMVujeAtD/I8hTk8/x5BrgNwoDxH87c/m
+	 sT/15xJ54EwaI/ZSbTHNlQEZSCE745ScSbwjSeJyqpMSz2TjldmIwWUNg8Isy/HI+TlH1
+	 KldwXYOMKYZgSv6vydCECV5zk+IORnha4lecZbGkHBCibFaqYrlKJ40ruZ3O/gawsEtC4
+	 DQ4LMgWv9EaIwdOn8x35DusW82sDRigfOhCLGE6b06jtNOuXge0o9MYYbqfiQFFzVZg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=TSm1sS73;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ax+rfQLr;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 919EC606A319;
-	Tue, 20 Oct 2026 09:18:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 919EC606A319
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AED0F60A263F
+	for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 09:24:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AED0F60A263F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=TSm1sS73
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69K1EAwo4175533;
-	Tue, 20 Oct 2026 09:18:14 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=zZae8c
-	CLpGUPs+pgeY59E6wTBH/4CN2UxTfUiGkfupo=; b=TSm1sS7384MwU32CQ3D9TQ
-	EGjUlRiTBZseIomCBXlf2hHMHFOKW6hg519Buwm1HycLbjIwpd7IDYDtzkChh22Y
-	XOffHG9G2KLxwS99H0Hx5xnxBwqJsfO2WffinJdSiQy/5LdmBpF2POFsL4T0vE70
-	4f6m5WGTR0TWuKM5QFP5kLAUz3LfrhDmgIn3wUsbpZrUogONO372X5pG4Xv9DFSk
-	+Q/VC9/hEZR2KWpT+unY65zvbwBm8YEUU4UV7j5u/Q6J56x3et8+i1v1Ks+RwfJ6
-	510tEazYLwDy7BBbKjIo0UEvPWvT2+xDxQ/Zxyg6pCtBO33PWCgrdlMmjcKb7XFw
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw581vxx-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 20 Oct 2026 09:18:13 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69K6q9d63754457;
-	Tue, 20 Oct 2026 09:18:13 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hcnjh19cy-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 20 Oct 2026 09:18:13 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69K9I7IN31064644
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 20 Oct 2026 09:18:07 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 70C202004B;
-	Tue, 20 Oct 2026 09:18:07 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2AAA220043;
-	Tue, 20 Oct 2026 09:18:07 +0000 (GMT)
-Received: from [9.224.77.173] (unknown [9.224.77.173])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 20 Oct 2026 09:18:07 +0000 (GMT)
-Message-ID: <4e7493a4-98c1-42c9-8bfb-62dc41801568@linux.ibm.com>
-Date: Tue, 20 Oct 2026 11:18:06 +0200
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ax+rfQLr
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1792488292;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BznN/lY8tjRKb0k1WwnLhH6cM8dWen14mRHzzd6dYZk=;
+	b=ax+rfQLr7KirrDxQF5o3JZgfZx0J1JrwfVFWa7or/yPJzSAMCAdasp/BhIsyVVpsSCnjKB
+	592KeYi4O0hXdbMOtd81TDISGCGC2SxTct8uu6AR6e4bt2R/LDt/z3xEWoTspt8QCTfRQq
+	yKX5efIwBLcoyDY+H3g035xwKVCqaWU=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-447-yQTXnxNLNOSym5LCND7XSQ-1; Tue,
+ 20 Oct 2026 09:24:47 +0000
+X-MC-Unique: yQTXnxNLNOSym5LCND7XSQ-1
+X-Mimecast-MFC-AGG-ID: yQTXnxNLNOSym5LCND7XSQ_1792488285
+Received: from mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.95])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1459F18007F6;
+	Tue, 20 Oct 2026 09:24:45 +0000 (UTC)
+Received: from onestero-thinkpadp1gen7.tpbc.csb (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
+	by mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with SMTP id B3A68418;
+	Tue, 20 Oct 2026 09:24:41 +0000 (UTC)
+Received: by onestero-thinkpadp1gen7.tpbc.csb (nbSMTP-1.00) for uid 13628
+	oleg@redhat.com; Tue, 20 Oct 2026 11:24:44 +0200 (CEST)
+Date: Tue, 20 Oct 2026 11:24:40 +0200
+From: Oleg Nesterov <oleg@redhat.com>
+To: Joel Granados <joel.granados@kernel.org>
+Cc: Allison Henderson <achender@kernel.org>,
+	kernel test robot <yi1.lai@intel.com>, oe-lkp@lists.linux.dev,
+	lkp@intel.com, linux-kernel@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, netdev@vger.kernel.org,
+	wireguard@lists.zx2c4.com, rds-devel@oss.oracle.com
+Subject: Re: [linus:master] [sysctl]  8d75c338f0:
+ BUG:KASAN:slab-use-after-free_in_touch_wq_lockdep_map
+Message-ID: <atczWEzYbWO67aNd@redhat.com>
+References: <202610190310.9737b2e3-lkp@intel.com>
+ <atYB0bm9eEXp8A2g@redhat.com>
+ <atYW0K3t57puHeLW@hobbes>
+ <atYuE1xnVYe0BDG4@redhat.com>
+ <atY42k00k0Waj6o4@redhat.com>
+ <atctwUB5NlRLk4Wy@hobbes>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -85,97 +88,46 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 1/1] KVM: s390: pqap: fix AP status written to wrong
- half of GR1
-To: Gautam Gala <ggala@linux.ibm.com>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org,
-        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        svens@linux.ibm.com, akrowiak@linux.ibm.com, pasic@linux.ibm.com,
-        pmorel@linux.ibm.com
-References: <20261020082534.481867-1-ggala@linux.ibm.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <20261020082534.481867-1-ggala@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIwMDAzNiBTYWx0ZWRfX/S8XNpCXTvtr
- HKCx0g4FDFZJzpGQxB6+4+6+8GfvuQgiSR+SzvBJRGO/RZtkGA9Sq2T0iIN6Hl4oN2QDl5+Zu1T
- 59NQoFA4cjeMGlxQquuSV1xte7YiuVE=
-X-Proofpoint-GUID: MrG2SlkIfGcqEZcCSfbGtJD1xLcbKk-9
-X-Proofpoint-ORIG-GUID: MrG2SlkIfGcqEZcCSfbGtJD1xLcbKk-9
-X-Authority-Analysis: v=2.4 cv=UOBIjyfy c=1 sm=1 tr=0 ts=6ad731d5 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=_B2Ys1ejglQFZ4E6RQEA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIwMDAzNiBTYWx0ZWRfX+STS1bZaGM92
- gJRI12AYZAqP/IFShEBHnp7KuZZXgTdzud96Q77n3cGSOAyaogA6Q9DI+2ZaNy70TaTsLdZNtDG
- Z1pBq4HJNCbi7Yng0x0LG8WF4OUcI5how83KxZKn2nHooC+4aMIIDBKuspKdWH9+7al/337GD5X
- VJlwoL3C0znRc8L2lNajBBpC7Tsvf7IcaEtM5k234R6H6Rfyq7/I6vmxvbIPZr0J40ITS07QN/P
- 7W4ZBNbbB30mrn8zm4bQiCdGuB1yDctOU9xnMbCdC2VKUSuw26d+gIBklIG2jHJWA1maSUa1+Qp
- ASmuULRqbayNKIhzJK2MRP8opC2yDRytSHUizOP7apg3LYrZQExfDXTqhySeROu6ysEjBTxSW0S
- 03/Z0EM7BS/f8pdXJKmUk5qzl8jurlyKPgG2AYCr/6A+OVLXGnCQ0xK78/zASr1PaA/bgyPw/Ze
- FJMFgkjhMGDHQVpECuA==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-20_01,2026-10-19_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 clxscore=1015 suspectscore=0 spamscore=0 priorityscore=1501
- lowpriorityscore=0 adultscore=0 impostorscore=0 bulkscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610200036
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <atctwUB5NlRLk4Wy@hobbes>
+X-Scanned-By: MIMEDefang 3.6 on 10.30.177.95
 
-Am 20.10.26 um 10:25 schrieb Gautam Gala:
-> The AP Queue Status Word (APQSW) occupies bit positions 32-63 of GR1,
-> i.e. the low 32 bits of the 64-bit register, while the upper 32 bits
-> are reserved.
-> 
-> The no-hook fallback path in handle_pqap() synthesizes an APQSW and
-> copies struct ap_queue_status directly into GPR1 using memcpy(). On
-> big-endian s390 this places the APQSW in the upper 32 bits of the
-> register rather than in the architecturally defined APQSW field.
-> 
-> Use union ap_queue_status_reg and assign its value directly to GPR1.
-> This places APQSW in the correct half of the register and aligns the
-> fallback path with the register layout used by the AP infrastructure.
-> 
-> Fixes: e5282de93105 ("s390: ap: kvm: add PQAP interception for AQIC")
-> Reported-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Signed-off-by: Gautam Gala <ggala@linux.ibm.com>
+On 10/20, Joel Granados wrote:
+>
+> You can also do this (also untested and not compiled):
+>
+> diff --git i/net/rds/ib_sysctl.c w/net/rds/ib_sysctl.c
+> index 2af678e71e3c6..bc97a3eecad69 100644
+> --- i/net/rds/ib_sysctl.c
+> +++ w/net/rds/ib_sysctl.c
+> @@ -114,7 +114,7 @@ void rds_ib_sysctl_exit(void)
+>  int rds_ib_sysctl_init(void)
+>  {
+>         rds_ib_sysctl_hdr = register_net_sysctl(&init_net, "net/rds/ib", rds_ib_sysctl_table);
+> -       if (!rds_ib_sysctl_hdr)
+> +       if (!rds_ib_sysctl_hdr && IS_ENABLED(CONFIG_SYSCTL))
+>                 return -ENOMEM;
+>         return 0;
+>  }
+> diff --git i/net/rds/sysctl.c w/net/rds/sysctl.c
+> index 025f518a43495..41c65b98c94bd 100644
+> --- i/net/rds/sysctl.c
+> +++ w/net/rds/sysctl.c
+> @@ -93,7 +93,8 @@ static struct ctl_table rds_sysctl_rds_table[] = {
+>
+>  void rds_sysctl_exit(void)
+>  {
+> -       unregister_net_sysctl_table(rds_sysctl_reg_table);
+> +       if (rds_sysctl_reg_table)
+> +               unregister_net_sysctl_table(rds_sysctl_reg_table);
 
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Yes, this is what Allison suggested too. But he also pointed out that
+the changes in _exit() are not strictly needed, unregister_net_sysctl_table
+is nop if !CONFIG_SYSCTL. Plus we also need to change rds_tcp_init_net()
+the same way, see register_net_sysctl_sz().
 
-Thanks. applied.
+So, let me repeat, I agree in advance with anything you and Allison prefer.
 
-> ---
->   arch/s390/kvm/s390/priv.c | 6 +++---
->   1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/s390/priv.c b/arch/s390/kvm/s390/priv.c
-> index b3cb2c2c3aa7..ccb2a7830265 100644
-> --- a/arch/s390/kvm/s390/priv.c
-> +++ b/arch/s390/kvm/s390/priv.c
-> @@ -592,7 +592,7 @@ EXPORT_SYMBOL_FOR_MODULES(kvm_s390_is_gpa_in_memslot, "vfio_ap");
->    */
->   static int handle_pqap(struct kvm_vcpu *vcpu)
->   {
-> -	struct ap_queue_status status = {};
-> +	union ap_queue_status_reg status = {};
->   	crypto_hook pqap_hook;
->   	unsigned long reg0;
->   	int ret;
-> @@ -661,8 +661,8 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
->   	 * No hook means no driver to enable the SIE CRYCB and no queues.
->   	 * We send this response to the guest.
->   	 */
-> -	status.response_code = 0x01;
-> -	memcpy(&vcpu->run->s.regs.gprs[1], &status, sizeof(status));
-> +	status.status.response_code = 0x01;
-> +	vcpu->run->s.regs.gprs[1] = status.value;
->   	kvm_s390_set_psw_cc(vcpu, 3);
->   	return 0;
->   }
+Oleg.
 
