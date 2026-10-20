@@ -1,106 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.179
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1792515960;
-	b=VQZm4pT1oVR/HC6ETZE5RL7nK7DuoUqA+LXbKf7Hg39KL7dMcxXxbSkUt2Z5f7qhQIYR
-	 xAtgVBG+OpqRwc2NPXIFDMYLTqLPiCndV95wsIrXE1v9VVzVd1lAfN8+juFTrJGJeFXBr
-	 m4qlna03RjfkXjIY+PQo5ub4wF9BYmSX6R/iyN+Sfv6whPIljJV70ixYEEtgi96KfU0CF
-	 3dbfygxGw1eUpndRrRg1AxoIZsmfqg/o8T42shllKHwlCcxCI0C9ZuoSa5JIT/zhJs4EK
-	 KfHr9rHzyikmTiLo2lXTx4HrYBbeiHTfC7dctOpqWYx3SSldBjkhglRQpNxrzvp00RQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792515960;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Received:From:In-Reply-To:References:MIME-Version:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=CawfSGUltcTxf3WieqiwxZVbLh4EPDpBCzdr6aE2BVo=;
-	b=f8TdTnMqKGCfuWZ8NYBeanW8NsdK2xLsY3v5nVjovm6xcywgPxcOvMxp/nO2J+jVZaos
-	 mNmSjeRVExjuGIClP/pl2YciHjybIPnEi0aoM9D/mfO+yp6xQUhcMF1RK14J2CoVMNz49
-	 nsbty/E7JizSp4zIW5QoWYm6qPCTJf7mjY0MPK113Nn85MieMcotWGnZ2kfqMu9USVYWd
-	 m82suxcEI0gjO7g+CF8MmeoY7svXb2KAMASriMWhsxtTDtAQXlMmPVXClmRBhU4cjQFs5
-	 TWzyMPNUAAu9Ppk296e5QRk4XGT7WwomT12/AEGjWkf+HI93MNlz1QWTO3yNKewhfdQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b="EjiCtsY/";
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.128.179
-Received: from mail-yw1-f179.google.com (mail-yw1-f179.google.com [209.85.128.179])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1792519116;
+	b=TMzqeeaxeZLK4vwjIYEVRyIY7G72KKwWYt2u0Z8/7lluSWl3IJWMLNtG34qE2tFGhWGu
+	 9r/qXLj9U7TpnnSPBNgGTQBGZgePcwP/L9g+LCzyVcrARobLZJ7/Dd866AOp7giW9Mb+I
+	 w4ni+dHI/CrzTe4cS2Qlk8tzLsgxxICeqT6kDbnaEpw+wpGgcMQ5zwcgH90VPQF+bnq7L
+	 w+YxoRHm1Z5v9JbRhF+Vs9iRf+inG0ucXTl8CI2rgMWCBeQiecrxhsuoZjOc+SkHhHANU
+	 FIX9QHa1jFOXg85g78g00EO+Au/1/nQE6HTUKjSo/g91e0SebNzPBMdR+SeTlkhODHg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792519116;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-TM-AS-GCONF:X-Proofpoint-Reinject:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
+	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=HIzrdxg5oNPolRQcXv/OvKZmKqZ0PQMID/Gy8WOIXPY=;
+	b=Epz47BGGPwZetVcgXdf/itaKPXppwRV3SuE1/miZW34RIA6iy1ZtHyOnfDzixn9TQCE1
+	 aH96TnO7g/0W4kQ4CElgrkWDXWNOVyzvfySQ3Nsu18xuPk7Bd/puzoBrrBJzpQuk7m+Jq
+	 vtsSPLup0BFIHmea545cgO7eJFhnLFWUSeVOmehwbKIzK5/eoBH/1NnDHH1NlbSgktUfw
+	 Nh05rKxXs4JwDqPwl/76XDnnmCKB0TSR6SmEipcgWL33Vc1j2TZeFqIRf5DSbtV5SM/CV
+	 a4ZVhESjAYyXjEfGCSrboFEfsRRUpZbGdC4+EOdtwGhnSuy8cVBhbyGh6ngJeI/1FMA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=PBUJFw13;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0906606A331
-	for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 17:05:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E0906606A331
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78730606A31D;
+	Tue, 20 Oct 2026 17:58:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 78730606A31D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=EjiCtsY/
-Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-8a376759900so7167827b3.3
-        for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 10:05:59 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1792515959; cv=none;
-        d=google.com; s=arc-20260327;
-        b=DWolsCPeYZD48wSg6BFqOexgr47z1tt+DBINZ+X0AmcIfTARnOFXg8EnKzdcSzlkWz
-         gkPIN3wUUK1ftAZ4IXia25lYr9j1yruzz/ktNkggnKeBsKHzRM1QIZ4PA9h+PsPmqOd+
-         UCQSZqhTlXutCRojt1wqM8bKzoVFCHxdiGi872tVxB7Am4I+TJNjx1WSfSm89QX8UWKS
-         CQKoVFd46JZXfLFyeQtyYE2hvTStDwQBcAXB/iMLz/NR1DL1CX7kxMwfpcijf6GFatwV
-         ARLOgdTORhozGmhIBGCQUhBp75ZnA2+68P17QtpkyAotykKR3tHboR+m5Nfb49991/xR
-         Mb7A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
-         :from:dkim-signature;
-        bh=CawfSGUltcTxf3WieqiwxZVbLh4EPDpBCzdr6aE2BVo=;
-        fh=stGy0Ya/A+Q2sEakM1sFKQoU6I+aAlmCg58Cf9XzT1U=;
-        b=Apr/CeSoTB/w230Gx2kae9XezuZ9S7zLiGPgIRrK31cgaeqpko7DBs22y7Ts1YkqRe
-         Uyl0jDIk+SZzuc6vxUsODuzbV8W3r+2OgqXxvRkrbHY8SQj31/1z9/t7foyh/ZNivvm0
-         yoGluMJP0cTkEHKFuZHVD0U/1aVWzJrGeKamPFuxjlkIzvjRqcd5bB0AUn181eG5v63+
-         fH6iDsw8dq4K+gqaz5vf4a74EZv4G3k3FAeloYI7Uj4ttQ0svQFb/yS4QLvCqn6z0BaU
-         b0tOv1CbLDW3z0to+/L4yhHlGbEXweC77yBpc2rEdAmhWmm+mD8jnD/TGg2EWyKDL7Js
-         TePA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1792515959; x=1793120759; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:mime-version:references
-         :in-reply-to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=CawfSGUltcTxf3WieqiwxZVbLh4EPDpBCzdr6aE2BVo=;
-        b=EjiCtsY/ZOF90gjCs/BDy14TUFvLnpqFVe7zF4DpPHBfTP6HnmeZFgtdMcb9BvlJTp
-         4pxSbR5yKKYpyLVtBdpCBsvyBRD54nXnijUfOskpIyUAV1j2g35x18xFYvNJmyTIYgZt
-         0iuxf+Px6JyXIGwyCSNSM6+QMU9PoDZyA990d3LGTuvOicsVF4XRBN0VpNObEKNthGjJ
-         axPCwU/9cS7gMDkq+phYi5LAcbFA9Pi9h/h2LkktmB6IW4qqlRmTx/BLgILC5JIcw7dF
-         bhbJlMjF2Utkn9qL1MppP7RH2+AGU3g8+qlJjopyhCLl6gosrso1m+nEzVxM4AKoFKV1
-         xu9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792515959; x=1793120759;
-        h=content-type:cc:to:subject:message-id:date:mime-version:references
-         :in-reply-to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=CawfSGUltcTxf3WieqiwxZVbLh4EPDpBCzdr6aE2BVo=;
-        b=UtDPeXitxUe9IfCR79itwM5wFhfZQSS3rmcfcRv+FuaA2MLljBTwXnziHeuFWxVunC
-         sn2j83DChJH7FlY3tu2JtSZOdNIKOBtnCDvRoDLt23S3TLQLx4cZVOoYkiFMWowqz/4O
-         77VkcsMGzT/TrFt2sen9gBYca3ykJ3y6eYZafFaCFcGPXZW0+NA8qw0n8dQudWXZZhmR
-         TAMliQQxQ2RjAYw0AIS0HaQzAdLdWnB1qQt+hZCYZg5xdQNGO0exwe1fnmpqk1EX7nsj
-         8/qZwSosmZM7n5s+CIWodmw/z3nJacbc25Bj6p46+s3+lc0sBr+6SrC/bJWObSSG/snN
-         ooPw==
-X-Forwarded-Encrypted: i=1; AKwUvBy809YAzyEMFsit0lKEKCoK0gTAbQoLkbhF3rh9bWtqXdBi+IecZThmX5jgYhvBkfizFj9z2IqomkmR@vger.kernel.org
-X-Gm-Message-State: AFq9FYKBaOtPWCjsn0VZAc1sC07LEzMtKk4yHqR6VSBMgkiB1lxs2E0m
-	SV0uG62fqq+AESMQYElItpe4R4HQvx0NeMWcWeNq1HWzIsMJKEkDZTgV9f4oB044962opO7sp7l
-	TZuOkBg8ZyeRV1JZKFbXILcPYTHFABkw=
-X-Gm-Gg: AYBFou0Ljm+SgbPWaILYmoWL9ggLduLQe4iVwFnmBTalPbTFnGyRGa9Sz4ZyQG+kPjG
-	PHW1rzXSOxSyLEeTFuKNtzIxTjcMx/irnJM5xCMo5GPF179AlQOfTSQjYp0rAcd4yrfq+xY8pbz
-	2l2IhXf2GTl9F+mqlP45z34mFr3xSqMsv4LqqIUinzfcmldM/cWx9PyUPAssZpbvQp5Em40xGqf
-	h5RNi857ILc9uecZJvb4HxwnTgEcth/kCUVHPno6gG5sGjUQya26JeUe0wl+50g5187d8Apo4fF
-	QmU5d6O4aVknbM8CWctGQCAQrMwmZjKoGvsEeaD8AJfJHnldqSrMEg==
-X-Received: by 2002:a05:690c:6087:b0:8b0:da84:d1c1 with SMTP id
- 00721157ae682-8b0f1f1a89fmr64960787b3.0.1792515958898; Tue, 20 Oct 2026
- 10:05:58 -0700 (PDT)
-Received: from 95991385052 named unknown by gmailapi.google.com with HTTPREST;
- Tue, 20 Oct 2026 13:05:58 -0400
-Received: from 95991385052 named unknown by gmailapi.google.com with HTTPREST;
- Tue, 20 Oct 2026 13:05:57 -0400
-From: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-In-Reply-To: <20261019-bug-word-at-a-time-zeropad-kasan-v1-2-f21a3ed6a477@gmail.com>
-References: <20261019-bug-word-at-a-time-zeropad-kasan-v1-0-f21a3ed6a477@gmail.com>
- <20261019-bug-word-at-a-time-zeropad-kasan-v1-2-f21a3ed6a477@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=PBUJFw13
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69KHENid3067465;
+	Tue, 20 Oct 2026 17:58:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=HIzrdxg5oNPolRQcXv/OvKZmKqZ0PQMID/Gy8WOIX
+	PY=; b=PBUJFw13lvtB9CDBgD9eiLDX39drqctt8hnpZI1FThwk5ht8yNDD2by8i
+	TqjKiYvXhLgp7JsYijo76M/Xs9igsBiU2rP/fTDBMuiexTGa8+106kIv4UeMa7h8
+	mZyHwgF8doFqpAD+zwcp2IhHBwMoXvI4szP9KM/PRXghngfjow2sCm+pw4j7am0X
+	fTtek18sQVgz+NXiTko5zAYQ/tNuysXLUWir7qmt0hz57Nz/LTV8uqZ0XC8/5eHO
+	fw+XFDqPU8HTYqVNbfeyVrYdLhrU4FbLrnXBPBVZ+CbZn+CjmyhsJr+AyZeY7ceT
+	bG5agTXtGkvKeg9Km+SkAEfNH+/vg==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw59vbkv-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 20 Oct 2026 17:58:23 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69KH4rgJ1795921;
+	Tue, 20 Oct 2026 17:58:22 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4he6gq9ne9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Oct 2026 17:58:22 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69KHwLJY27001362
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 20 Oct 2026 17:58:21 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4616D5805A;
+	Tue, 20 Oct 2026 17:58:21 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9568058054;
+	Tue, 20 Oct 2026 17:58:19 +0000 (GMT)
+Received: from b35lp69.lnxne.boe (unknown [9.87.84.240])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 20 Oct 2026 17:58:19 +0000 (GMT)
+From: Christian Borntraeger <borntraeger@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>
+Cc: KVM <kvm@vger.kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-s390 <linux-s390@vger.kernel.org>, Shuah Khan <shuah@kernel.org>
+Subject: [PATCH v2 0/2] Fix error handling for async_pf
+Date: Tue, 20 Oct 2026 19:58:16 +0200
+Message-ID: <20261020175818.375700-1-borntraeger@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -110,50 +94,53 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Date: Tue, 20 Oct 2026 13:05:57 -0400
-X-Gm-Features: AclHuK_DtrU2XCq8YwSMY07NqOt7wGt-hW6PGZPkgwrcRUr2dimhQIUPQ6PwL98
-Message-ID: <CAPAsAGz89aKUHzm6U9PQZfkGq-GnWsm8AYHeo5+4u34LHk4uZQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] kasan/test: cover load_unaligned_zeropad()
-To: Qiliang Yuan <odys.yuan@gmail.com>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>, 
-	Shrikanth Hegde <sshegde@linux.ibm.com>, Paul Walmsley <pjw@kernel.org>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Alexandre Ghiti <alex@ghiti.fr>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H. Peter Anvin" <hpa@zytor.com>, Shuah Khan <shuah@kernel.org>, Marco Elver <elver@google.com>, 
-	Alexander Potapenko <glider@google.com>, Andrey Konovalov <andreyknvl@gmail.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Vincenzo Frascino <vincenzo.frascino@arm.com>, 
-	Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-arm-kernel@lists.infradead.org, Kees Cook <kees@kernel.org>, 
-	linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org, 
-	kasan-dev@googlegroups.com, linux-mm@kvack.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIwMDA3MCBTYWx0ZWRfX1bG11A86HdgZ
+ w0yYqbHwy+ufoCLrlkkC9Qwq2ublcqbRAIXRBA4UaxGLvO2l6/QvxmT/aGCKHJtXfNjCXRYScm4
+ ypHXb7G784KL+6LaenD81OR8SjatxYF80L547bunmBPN1W2AzpmGHn/MATqrdbBS8sPAledo2Yb
+ DxNxO4cRQyTuAYT4w0XIoYax6bDBwLVBiGN7BzdzOOoVZR1tDEthnxeawq+GcYaJa38Fq2W52be
+ dIE7vAAriJ7t7kmI2koo5GiIHvC4tFkfkkfU2jbupgD7wDLRkQc6QOL7nQQ1hACyc/5v1kDU7Xt
+ cfQQyHfIocjTkbnqkq6ut4i1smye/JXSF6l6DzJrTB5hdR+2xgj/DsSEaueKkfHi0tx6DNUU7v8
+ HA/kC93ByUmthqZ9KulEKnP5LAXGsf9rCnrr0CSgJOjidRQF4i/ueBeClvspad1AiuyaEzWNcGC
+ oAGayC73Nw/d8HoqegQ==
+X-Proofpoint-ORIG-GUID: ebKPFl1Mv8rN2aIPwOtBNweBe4pp7ip1
+X-Proofpoint-GUID: 2LMV4pCp912SHRs-HirMFPY9wICDxhd_
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIwMDA3MCBTYWx0ZWRfXyfrZAfE5/gv3
+ o7eQspZgJjSn0kJZ1iJGBPhufRXT9Opb+z2DedGTChe7SVXesRrEsIP4ZR9kh+J6baOO+6GJTdu
+ SmrkULnkkpDbWPQGQwNJ6b8EaGys2vQ=
+X-Authority-Analysis: v=2.4 cv=ZfSIpcVA c=1 sm=1 tr=0 ts=6ad7abbf cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=RzCfie-kr_QcCd8fBx8p:22 a=JYCxxj4wjfSeNEK2tAkA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-10-20_03,2026-10-19_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 impostorscore=0 malwarescore=0 spamscore=0 suspectscore=0
+ clxscore=1015 phishscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610200070
 
-Qiliang Yuan <odys.yuan@gmail.com> writes:
+Return mapping errors also for async_pf cases. Otherwise guests
+will loop forever. Nothing critical just missing error handling.
 
-> On architectures with CONFIG_DCACHE_WORD_ACCESS, load_unaligned_zeropad()
-> does the word loads of the dcache name compare and of path name
-> hashing.
->
-> None of the KASAN test cases reads memory through it, so nothing
-> noticed that KASAN did not check these loads at all.
->
-> Add a case that reads a freed object through load_unaligned_zeropad()
-> and expects a report. Skip it with hardware tag-based KASAN, since
-> arm64 turns tag checking off for this load:
->
->   kasan_load_unaligned_zeropad, x86_64, generic KASAN
->   without "word-at-a-time: check the first byte in
->   load_unaligned_zeropad()"                                 FAILED
->   with it                                                   PASSED
->
-> Signed-off-by: Qiliang Yuan <odys.yuan@gmail.com>
+v1->v2:
+- !npages instead of npages == 0 (Sean)
+- new block comment (Sean)
+- fix testcase to build with 7.3 and 7.4-rc
 
-Reviewed-by: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Christian Borntraeger (2):
+  KVM: Set up async page faults only for faults that need to wait
+  KVM: selftests: Test that KVM_RUN fails for unresolvable host faults
+
+ tools/testing/selftests/kvm/Makefile.kvm      |   1 +
+ .../selftests/kvm/faultin_sigbus_test.c       | 169 ++++++++++++++++++
+ virt/kvm/kvm_main.c                           |   3 +-
+ 3 files changed, 172 insertions(+), 1 deletion(-)
+ create mode 100644 tools/testing/selftests/kvm/faultin_sigbus_test.c
+
+-- 
+2.53.0
+
