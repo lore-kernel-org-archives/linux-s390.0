@@ -1,81 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792504411;
-	b=wNuoCjjVmVXnY66QsZblUXYgg0h3uLWxTRmCpNlCkwnNpoIk8I0o6/Ad3rDCgh9bwVgM
-	 9Yk7nHeKnbCWcp13ikKMHnKSBbQ3Mc8/8psEBAGhSUuvQlszr+GYtEKQPp0sPv2QOzuu1
-	 CLnCygncXVF0qeob/CL9CHN5vlgI9VvxsXvoknNcVwp3uB88TO5OWenHf3kQLkuTZwF9R
-	 PHoB3nplAgx0IIijttoWp4jQHgo0BBvdUZCPfGj6eJ9By3enChBD+Shwvte7eFrfRD6eU
-	 MJKCaj4SnDLFtwqhmFbnlTax2im+7d9/0fTeUCU5FSxLbqjpXud1TAsWb8tSraxWoWg==
+	t=1792504553;
+	b=vfhEt3ud8nMUCJBfREsVclKCdynK3PALpMWofafiComvFxbap//1U7jb7WLLRYdxOtG+
+	 ptDimCfgeQvymd0VtbhvXjinetWz3HbiB/xt4lRQPBne43FjmDUkWVPLVqAcegwpprYhC
+	 avNruD6vXqHJGN68pKJcpx4tNtThWnG8D9EIq5sFpwPla1vsFzNfeSpzCOJp05ijSlEcW
+	 W6XUCCDdfPPvYFR3GURcD4e6ZHX9TpyYDCrYg11r0lPP7V6CSv4gUQDPhSbUJ3UVIaKBN
+	 HueWfNJ3SOEkhROugV5YuuOTKxhExLU+wXiVdxcpniTgl8fL4JhGWi0c+RSExMIyilw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792504411;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792504553;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:References:Content-Language:From:In-Reply-To:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
 	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-GUID:X-Proofpoint-Spam-Info:X-Authority-Analysis:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=FDjvtoYYE6XOdBaPLjeW2hxv48wEydT3z7OE2Fw89Vc=;
-	b=kEpf0hZv50GTV1jPCfllTh97ZIOqsJLjkz9KDj5OnKbSabB9ZFxcJdXXOYQn9wrJY8zQ
-	 wyVrUfzWNozjqNu1HVifb9198pXzTXD+RnxmQ+/3Qv3I7g4mqTuTGNMJl/Gqs1wbf4kNM
-	 67xigB2p/mNPAN38+0zNlqguwDmHsQdigiYEMfsU5M8KjYvS5dqsB3vyAw81tWurdDrmK
-	 6KbzJk7XKDR68cYIWSuclcxVzd43wnvjjm2lO7qVI6yKzcHYrU4XbQYktIX5J9Y4suifw
-	 7IilIUqk0EEfdLKk9DA2FZRRfWCvVzyKOav+GV7w3dTeQ/xbOdnotDSUXMdSi52gyVA==
+	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=baLN8Zw8K5CP4rJAF2j58N3uFppr4FonBYEhPUnvlbI=;
+	b=ZoHk4MSRtxUz26iYsjKpE2Ew3Vqbmw6uAggzeN50dRoTi2BRr19uoufFdJLgPedqR32y
+	 JAGSgOoCuG95O8JuaZAnw2Yx5k26XOfsPopUAz1Zy66kzcms+IhF/DFyCht3MJIFJ7KK1
+	 V2y0ZTXkcEtnavnyv1Y1Vr5tbKb82zW79fPp9TIj297JHuhM7iohVevpTBSX8tsiYfM5r
+	 JFbqkwrEpepo5itO9e9DdXFLb/H1TnqRrpyf4nwe5XRifjNCyQvoU5zC7UK29sVVIw9Ye
+	 xr5FUTCl2JN3edsc8zlFMQQhG9AioqkdFG+aPxWxADb2ENfre8aqCPKY4xCm4l5CDCg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=pGn3gqyR;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="IIi/FyJN";
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D27A0606A333
-	for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 13:53:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D27A0606A333
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD28B606A31B;
+	Tue, 20 Oct 2026 13:55:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BD28B606A31B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=pGn3gqyR
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69KDEE4W2568728
-	for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 13:53:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=
-	content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=FDjvto
-	YYE6XOdBaPLjeW2hxv48wEydT3z7OE2Fw89Vc=; b=pGn3gqyR/lGdcSCfGSywbS
-	s7A59Ir9nrtb3nbKvmXJN7Q+xx5fwgxV+QrNdebus033nWF41v8srBdQcP+rGB7L
-	SZZmYUhdryfNJMjUqVFSgDQrjLXAJpmEBOdyZHOIExgest6CHILb3VPWmW9xEiRB
-	Ktujyr38GmyXeCNFvcQPAFTjW4fsHkWhvFWNCG/7DzmXGKckTyMISFqVFZSRxQI3
-	CQPUaYQd5U/UhH7g0tL3ljFZhvNjAn3+Bi8PhyP4GdP5Pfmr/pi39dMHDEhZOBzb
-	qT60ZNWeGbsXiiDSRP37AMiDIx2qmEOlL5o887YKjnYacgLaenNqdUp4fMG41yhw
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=IIi/FyJN
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69KDEOGH2679524;
+	Tue, 20 Oct 2026 13:55:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=baLN8Z
+	w8K5CP4rJAF2j58N3uFppr4FonBYEhPUnvlbI=; b=IIi/FyJNQ6ZiHPUERG3gHf
+	Y4iFXQWR7mdEQCC5cWo+2rM18fiFh8Jp4Wf/PGrwL0cIa/QDvdjeS0pvTlZMCn8Z
+	cK//BNaMSfcGeMVwVQqX7JsTbE/hFLdr6l9cEGeVIraAhaL5SwvNMoi24S8RPrhs
+	ASzmmW7/oJiqonE9LZIOWeqATEMDsrbBHvcyl+8KfeKzFmLRM2Oqw36g3WRj14Xy
+	ydgr5Bw17QvIiWFlQh2+Ut2DmIUou4pMCjC8dnqX5PY/jFZfDSKA2lqB6YjKrcOF
+	AuyfZ9JBuDavR91E0yu7rq5+t6OL4m7v1p9wGvYqBiYiRkJqrCcHNl0G3ln4PDxg
 	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw59u2et-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 13:53:29 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69KDK45r350979
-	for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 13:53:28 GMT
-Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hcnjh24ye-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 13:53:28 +0000 (GMT)
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw58k78y-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 20 Oct 2026 13:55:51 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69KDJs7T1542964;
+	Tue, 20 Oct 2026 13:55:51 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4he6gq8p7j-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 20 Oct 2026 13:55:51 +0000 (GMT)
 Received: from smtpav04.wdc07v.mail.ibm.com (smtpav04.wdc07v.mail.ibm.com [10.39.53.231])
-	by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69KDrST750397456
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK)
-	for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 13:53:28 GMT
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69KDtnLO56623600
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 20 Oct 2026 13:55:50 GMT
 Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0B9655805E
-	for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 13:53:28 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id C25A958045;
+	Tue, 20 Oct 2026 13:55:49 +0000 (GMT)
 Received: from smtpav04.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3E14458052
-	for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 13:53:27 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id D330458052;
+	Tue, 20 Oct 2026 13:55:46 +0000 (GMT)
 Received: from [9.39.31.249] (unknown [9.39.31.249])
-	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP
-	for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 13:53:26 +0000 (GMT)
-Message-ID: <fc3c650b-431f-439b-876f-4418e124c4a1@linux.ibm.com>
-Date: Tue, 20 Oct 2026 19:23:24 +0530
+	by smtpav04.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 20 Oct 2026 13:55:46 +0000 (GMT)
+Message-ID: <b54bb916-7e0e-4014-b0bb-e61ac0926b32@linux.ibm.com>
+Date: Tue, 20 Oct 2026 19:25:45 +0530
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -87,7 +88,11 @@ Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH net v12] net/smc: fix lgr/lnk lifetime vs diag reader race
-To: linux-s390@vger.kernel.org
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
 References: <20261019111008.3367567-1-mjambigi@linux.ibm.com>
  <sashiko-outbox-178883@kernel.org>
 Content-Language: en-US
@@ -96,32 +101,33 @@ In-Reply-To: <sashiko-outbox-178883@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIwMDA1NCBTYWx0ZWRfXzadKPu90Vhd8
- nkrPbf2RnTajio6kuEdRQ1PZ/+w1uH/vdYdFM9juZIx1nKNCYRBu5ElBG4zdbnehk5/gKdoXNtY
- 7eZgcTJKxcFerxhu4kgaWjUxoAsJxviwyqvYULS7FQjT9idBdyphDr7t435su+xIfgMQY7jtzO+
- ExKbCyeao6Kr/FaLiXKd2Z9nXNpX5zcn62NBqAP98xlqXnfa1r2lSfdsf48tkVhLRAdp+jnADIW
- gZrWg7N+glexRfNnAQ/3rp3UpLtvYzvWhrTP2qyttXaRjeTBbgIZataliDQBqvkbzyRpGWxt+KW
- arzcBlHpAw1ONK69hs6eizwJU6e0HGI0M4RAhzO+RS+wHdkcCBWJW2BF4+cUuSmFbWXR5covxos
- T5hcvcolX4ikSItx7BXAiiZAyrdJxOe5kGsKXdRXxSrH7DFibNh1qL/Awd7+cg3NQ3IiJDkXUXw
- pJZ+HDjDv32R6Z4FKrQ==
-X-Proofpoint-ORIG-GUID: k2nAPLe5moDUx43Y-_D5r9OVDmP1gHfX
-X-Proofpoint-GUID: k2nAPLe5moDUx43Y-_D5r9OVDmP1gHfX
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIwMDA1NCBTYWx0ZWRfX4baHXPAsthDG
- cCYAtWYqpT/+p7sEzfToRSpAsoZvNbENgOmNhDf4x7O4UIBg7ZTbIOaH33B02Ur8YFW2l/wA+X0
- f8jex4/fhE1+hsfjL0j9fxQCo4oTMcQ=
-X-Authority-Analysis: v=2.4 cv=ZfSIpcVA c=1 sm=1 tr=0 ts=6ad77259 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-GUID: EaHhtNhbKhYLwCACkzXhTXpR5SxvYtpf
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIwMDA1NCBTYWx0ZWRfX9pl7NyJQIAWs
+ Y8u6AIRFWucxiZWFxh/p1ld8bleJbOeIGDz8QPRl6MjyeUYMjeNwiKB4daOxcgowKxNv3lEPsqg
+ ZSMEbwSuVTpINon7PyFMTqHFSR7+Fks=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIwMDA1NCBTYWx0ZWRfX9eiyYjTXypuE
+ rIm5MuynyfdC29uPIFLRvoKt0SGGaluXb2YsFWgPAoF+ujsoQ7EdP7fp2v+0vfhHvzZVgjXhqFC
+ RExdlNiQ3vZ0ULyCsb3wNz4UIdoL5hx/UThzGxE9glwqUnM0ekXNJIKE6AuBVZL13Xuui9b1uLF
+ Y4KPrhcOpyRq0Z+n6Jp7VV2f8A4sLg5gAf0O5cWl2/uI8v3D1zQqxgc5ADBBOlmapRD7enEM6Os
+ riPPDNHTtrBbmeKejJiHP5jlK7kT7mkdkkaK0POFIjCPrS92HTkNhcNm/SXm2vQi0TVR+a4OcUE
+ gDspnJXdVp7BlbsuRsR+9aHjSNrekObc1slak4deyTWkOZzZPgEt849zvf+dyNj0Dlm5HfP/No1
+ JDjTrKcb/dK+avJ5W9emMSvUwSGcP+hpZBbp6FLt0wqtrArWtWejjo1tjm/XBlLKjHL78r4SbEu
+ W+lD28PeIPkOYVUjHbg==
+X-Proofpoint-ORIG-GUID: EaHhtNhbKhYLwCACkzXhTXpR5SxvYtpf
+X-Authority-Analysis: v=2.4 cv=Ob4NnRTY c=1 sm=1 tr=0 ts=6ad772e7 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
  a=VnNF1IyMAAAA:8 a=6t2IyP89yvAV8c14NKoA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-10-20_02,2026-10-19_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 malwarescore=0 spamscore=0 suspectscore=0
- clxscore=1015 phishscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610200054
+ bulkscore=0 adultscore=0 phishscore=0 spamscore=0 suspectscore=0
+ lowpriorityscore=0 clxscore=1015 impostorscore=0 priorityscore=1501
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610190000
+ definitions=main-2610200054
 
 
 
@@ -287,10 +293,11 @@ lifetime fix, out of scope for this diag reader race patch.
 > __smc_diag_dump() then see a stale non-zero alert_token_local and
 > dereference the freed smc->conn.lgr->is_smcd?
 
+
 On this path alert_token_local is cleared in the connect syscall, under
 conns_lock with the socket lock held. The SMC_INIT -> SMC_CLOSED store
 only happens later in close() -> smc_close_active() under lock_sock().
 The lock_sock()/release_sock() handoff and the conns_lock write_unlock
 between the two order the clear before the sk_state store, so a reader
-that sees SMC_CLOSED cannot see a stale non-zero alert_token_local.
+that sees SMC_CLOSED *cannot* see a stale non-zero alert_token_local.
 
