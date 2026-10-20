@@ -1,57 +1,60 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792451271;
-	b=JigHfWe/58gMixejKE1BaVq4ceE46als+zzyAQy0SxFV9KuBLivpGtOHpgtf/svhyU0f
-	 9tG45YiUmdcaBGDqaVEuDt8gBQuHLv9//WZSNMJK2n6PkDtL1rbUCKOFlnk9Fg15GLhyp
-	 qwqoeoeTEWe74hrUfsMU/iuEfvlVNeN5fC1raEqAHOmUxCHM+zZ67HaOJppQKRTL1fe26
-	 cx9jaaO1D18QTtWJwu+8oS10g+xVXrmb9BWy+4JUUhxMgnd/zdUVOe+fGrpBJ4qvVlW/1
-	 NNXtjawvVoVuuvsgC1OcxdMegkqFPcIdjrZb+Khm15i8kW32qhaJUbGyhUqa5Zdfusw==
+	t=1792459944;
+	b=h0AY5TcxGdLZXZsXkWTyvpH/4/Ba65nZadafqomOTiXYhbBXjiB67+iOUm3wafDix4PL
+	 7Qf0tdpfNJQrOw7E0v/qO6G6nlW8MJKtyOaUwoYRzJwL/DR7k4R64wwy8vjsk3JmVhAC5
+	 bR3yLNnj98aEhGZvSeMjrPhZywZ7wd79K24HEEUHAZHFVlle0PioARWImlbT6JH5+/Op/
+	 GPRvCqeWIWVA0dG14Xj5ybjYJo7B4D+/a6UoAHqOpRHQhYI9qrRjsO8oN+fyzXlIsMkhb
+	 0uhp1tsa/9mitCqs3YJGkww5Q04Vns5B9bmOUO9Wnm+FSVWQmW3jmE3VEeouBfyfsWw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792451271;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=cSXgC6O8N2aj5dfoxESO+wcVhdqYVlH3hC7bfE54fhI=;
-	b=AennqJQUwIL9uCoO2vGkNMn4AmkxA8/ZQKHShLRGg2XFNuI3BFsxPdbiGQpE/fY/pU5G
-	 VYd1h2XKrBSkuLLb3emn4bpFQnZgzQOgDRV8Ld0bwrSK7TFuUYYovZfMUR4WID4SDe+ee
-	 udHwf5TOhRLq/En6bLb/tf2fAC10/BZ/36yzjeyC2QsdOnQURpIgTgq6VyLdahKCIRbL/
-	 etmdQ7b/GIDWLWaoLsP9lxn4vjEO0CaP3AyR3NJfsXt+IWoWL8Iiz5JBxefyuJ923lFOn
-	 yptvIPN/ElD89j71zmbYTHQEbhV17Cgf7ElknzGxrEyhJ6GYNbvvq7h7vSm9snfJx5g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792459944;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=RHHZce2bisqZNUvfZX9Hgcl7uv7oyGBAYDbe5ybUc7g=;
+	b=l9+7a2ceEPug6ofE2ZIkInb7iv2x3durGq3z4GkLSAwarLDCOo7+L+XcQ7DhCN8fgdVM
+	 8Qiu+F5ptXKYIsNkAjV0HRELhEGMSUN2jpNRX00MpB+NwiPGM31T0dZn5g4+Zxpq7x0PW
+	 xPc73TSiV/NuHfMk8+D52vW4CA2SkFhcRcxu5gFErZaXoaG4nyLDD0HYtTR1QVHl6l4BH
+	 SSw13QReMk/9dSg7w6H++OmmnBilB7To0r5w67/FWMjzAjXIy8f+dM+WN6sfIvotlz4ah
+	 Q72gLBgddlNoKZXQFl0evQhHteotWiOsRBt1Ywi3QdACSHq0Aiuu9olGc0uphlzC4XA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Hqx2C4m0;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=m9fyw9BW;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF9DB606A319
-	for <linux-s390@vger.kernel.org>; Mon, 19 Oct 2026 23:07:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90EA8606A319;
+	Tue, 20 Oct 2026 01:32:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Hqx2C4m0
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA0A71F000C4;
-	Mon, 19 Oct 2026 23:07:49 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=m9fyw9BW
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA4FD1F000C4;
+	Tue, 20 Oct 2026 01:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792451270;
-	bh=cSXgC6O8N2aj5dfoxESO+wcVhdqYVlH3hC7bfE54fhI=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Hqx2C4m0RIOPKqMda6cz3sLDIGY1+NEDboZUXSj/XKfYUwBEZkxIrJ/9wOnpDBcvT
-	 5vxd2LOWgjJRNx0KOdRtEJ/UaKG+k7iggxalJ5zEX5y/6tc0X+bGWOCqMcvB9IkIJl
-	 QNdSoDNjQZ8Ckq9rCc84gV+1iIf5m1PDdVaLA3rPQOplAWEus1VSdriOSzF5gX3YSN
-	 jL4UoAQh4AsELbHG6+b1O6t9VquomrKE9j/QdhhbGaQMEnyaIKxpWby+s+LP+mfp/V
-	 njRruAHcZxWM91a9U3lzI77PM+CwleacYNuiLpTrOfu3pOcOq5QjOP2CDO1kM9yuf5
-	 BFF5SPeb9FXsA==
-Message-ID: <sashiko-outbox-178333@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2] s390/tape: cancel delayed work on device removal
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Tristan Madani" <tristmd@gmail.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261019225606.1864082-1-tristmd@gmail.com>
-References: <20261019225606.1864082-1-tristmd@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 19 Oct 2026 23:07:49 +0000
+	s=k20260515; t=1792459944;
+	bh=RHHZce2bisqZNUvfZX9Hgcl7uv7oyGBAYDbe5ybUc7g=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=m9fyw9BWEA2jRonWWI+6v7nTpS04pSAddzT88+LEFIeWb1PsUprhO9zMQPc1zK5WD
+	 SLSMsRI93ZzBBzkgyACFkTLREk9zB4pAynyKUZHGnAEC3XmTexo84HVMnzdxnVEHGD
+	 EuKtbZtUeN9N1VXkAhGtQ05T+JMTCPGXLqEziTp1aMO4IAyeuRES27cIlcC18cgRop
+	 Or9cL5mJel0UWcFbcNLQcGi0CHLDkuasEC0Hd5J/NPO0uBaLM+dA7zh08cJGwc3BJ/
+	 kHjmU4mnnjF9nbiFflwky6Ch4sDqy6Y5cG3tv12HZHAtx4ngFIHvtF0JTn1m0WnJ9/
+	 mGP5uyJ7A0/mw==
+Date: Mon, 19 Oct 2026 18:32:23 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
+Cc: hexlabsecurity@proton.me, Paolo Abeni <pabeni@redhat.com>, Thorsten
+ Winkler <twinkler@linux.ibm.com>, Eric Dumazet <edumazet@kernel.org>,
+ Alexandra Winter <wintera@linux.ibm.com>, "David S. Miller"
+ <davem@davemloft.net>, Nagamani PV <nagamani@linux.ibm.com>, Hidayath Khan
+ <hidayath@linux.ibm.com>, netdev@vger.kernel.org, Simon Horman
+ <horms@kernel.org>, linux-s390@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next] net/iucv: serialize HiperSockets receive with
+ the socket lock
+Message-ID: <20261019183223.49a59d6f@kernel.org>
+In-Reply-To: <20261011-b4-disp-410518f4-v1-1-753bf3258292@proton.me>
+References: <20261011-b4-disp-410518f4-v1-1-753bf3258292@proton.me>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -60,31 +63,14 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> From: Tristan Madani <tristan@talencesecurity.com>
->=20
-> tape_generic_remove() drops the device reference without cancelling
-> the pending delayed work tape_dnr. If tape_delayed_next_request() is
-> still scheduled or running when the struct is freed on the final
-> reference drop, the work function dereferences freed memory.
->=20
-> The cancel cannot go in tape_put_device() because that function is
-> called from atomic context (under get_ccwdev_lock with interrupts
-> disabled) and from within the work function itself, both of which
-> would deadlock or sleep in atomic context with cancel_delayed_work_sync().
->=20
-> Add cancel_delayed_work_sync() in tape_generic_remove() after
-> dev_set_drvdata() clears the device pointer and before dropping the
-> final reference. At this point the spinlock is not held and the device
-> is no longer reachable for new operations.
->=20
-> Fixes: 4111796d89b8c ("[PATCH] s390: channel tape fixes")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Tristan Madani <tristan@talencesecurity.com>
+On Sun, 11 Oct 2026 14:08:17 -0500 Bryam Vargas via B4 Relay wrote:
+> +static int afiucv_hs_dispatch(struct sock *sk, struct sk_buff *skb);
 
-Sashiko has reviewed this patch and found no issues.
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261019225606.1864=
-082-1-tristmd@gmail.com?part=3D1
-
+Please reorder the code to avoid forward decl, please respond to AI
+reviewer's feedback. Please trim the slop in the commit msg and notes.
+-- 
+pw-bot: cr
