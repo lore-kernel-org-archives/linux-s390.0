@@ -1,74 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=130.136.161.50
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792479430;
-	b=APnTQz75pGjHmdBRmxqFMYiJu2bwANFlh4c3GKWc0PtQILQYaFYSmFwEL/kQ1D2r+197
-	 PORRu7Mn4pZp8hCvJWWnfzgxnFKiEAI0IEcZ+ha8PRDCLBmik1d4Khd8ElXXREqn18m4n
-	 5pR3YRBk/ws03fbdn7yyetvs4GVnOKYkcVRyfs+MFoSi/NiX5HXUtKtikFCu6uvlGv5AC
-	 /jWnostJedrg3JH77BlIhy7+yS2lmHRNeYznNbhC4pWXhtgBN0XCm33yyiX/Yd160vj+1
-	 BCc0sxcirYG+rr23AKFcF//tWyPHmXwhiel1Wx3UB1XjqDffMELKouamSZ4qYQETmGQ==
+	t=1792482926;
+	b=gT6poeKVfHA4bNerE6umsgG8oh9yZicElyU5eQ4vSSUBwLxMfvK6tuHDPyLRxoZQSUJC
+	 aTd7fKgS5UKFxt4Fk9zDuAkyOMiiOKVV2wOGIohxT/FWI9jxKXWPyeRKgEnfUD7WQdw/3
+	 kE/psJIeBVOgJEVQKhZHuj0EU6Gjg14h/V0QRC7k1hOiTlOahJOH/ZEVaBgNkircgHwee
+	 s1fNfeROFbrZtRW53In6A1bZpJS4EMzHmEDFAIQmeb3rn22ZJeoMm7wFr2DR3XVB9hbJV
+	 usOXW2lOBMBhdmF0W5G0WFzCiqDZ2OFeppU/PNUVaW9sLGKJ1+SfcEwV01UZwluYibQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792479430;
-	h=DMARC-Filter:Received:DKIM-Signature:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=9xiLRq/FvSuxEQCUz2mtWUPSsNT9Rp2eWpRdkXKWi3U=;
-	b=2Xwj1XAtFJiXOG3DWFz8UL1ORiwTxsi24akTr5AI4DwHnJuLV9OaD3u9EljBpSeGYHcR
-	 k/K/7mVftMbvLVifA5oDcDUEaj0lAdq4I8cUXjq0+mTh8FXBsCMD14EZB4UgfZnruV92z
-	 GwqYeeGBoPQhzxTqOrTBvX7gLF0dS9zLqQuNF+kIOpxRMkuSm0tdpNHiVgRkQZChGoVHm
-	 RlgtyAToOh7GRHWFmfTonbsoFB1SCEOybvUfd7VYRFAkUUPihB8+lDqIyTf55YV+1G/FJ
-	 zjlbOwz2FNwKZUpnidoswCF+OI7DcTAo9jp1FnT2tbUOVtDGBgAWXTKUw/wOFL7fG2Q==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792482926;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=wiYcyYLmidZvaVJOjwXyMAgj6pRDKve8NH/1uX7Y5XE=;
+	b=B/eEuS64XcWEVp7dDlTsBT2trix8K/+ocIB1iBgbQKgj4X/LrnDOAVe0kwABPWpii6sp
+	 cdA94W8DmwFpWebaMpSukyATQrZczGG6by2huHPMGZqdT4hrjPeVBuMKlIM8Ibnn4ImeE
+	 ux9U6X/3+XLULf30It4FbyFw8BA0PveJj7YzKvfH88VnSORR3tObZk+zsXIZnen2WQ4js
+	 /ERwJet+/fVagHQAYeoTy1/ZK+iDyyEa1e65Ou2Bxx25nrUwU/08D0wG9mvQ5ML+5kDp3
+	 k0kpxQWbUPyOT1ryY4CY59ZZZxFUB+3vM5Ix5p+DQg+WJGVIyroY2uOF3+z/skIr2tA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=cs.unibo.it;
-	spf=pass smtp.mailfrom=cs.unibo.it;
-	dkim=pass header.d=cs.unibo.it header.i=@cs.unibo.it header.a=rsa-sha256 header.s=virtlab header.b=Op8UAR9b;
-	arc=none smtp.remote-ip=130.136.161.50
-Received: from mail.virtlab.unibo.it (mail.virtlab.unibo.it [130.136.161.50])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8763560A2637;
-	Tue, 20 Oct 2026 06:57:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8763560A2637
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cs.unibo.it
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cs.unibo.it
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MijKg5Pi;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51CB0606A31C;
+	Tue, 20 Oct 2026 07:55:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=cs.unibo.it header.i=@cs.unibo.it header.a=rsa-sha256 header.s=virtlab header.b=Op8UAR9b
-Received: from eipi10.cs.unibo.it (unknown [94.32.99.206])
-	by mail.virtlab.unibo.it (Postfix) with ESMTPA id 7DFAA1C0264;
-	Tue, 20 Oct 2026 08:57:02 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=cs.unibo.it;
-	s=virtlab; t=1792479422;
-	bh=YLvM5kTZTUZxbiEqEfgYFqvCjYtkBwewpbGRd+sVL+0=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Op8UAR9bME1DQ3zcNOBnqPTt0xtvm9OYKJjNqRmJH4YSETpj4QGpCdnz4GJSCaa8U
-	 TcoDUFzi82p2LP20FhAhvXBEazemHCtxcOycrrt5oqKQ052RNwdy2mzCF/RbYNfjJN
-	 NpaKkz2ec7PaR1nOJdpb/5flyJ9Nv0R2lMi0g6zA=
-From: Renzo Davoli <renzo@cs.unibo.it>
-To: linux-kernel@vger.kernel.org
-Cc: Renzo Davoli <renzo@cs.unibo.it>,
-	Oleg Nesterov <oleg@redhat.com>,
-	=?UTF-8?q?Michal=20Such=C3=A1nek?= <msuchanek@suse.de>,
-	Kees Cook <kees@kernel.org>,
-	Andy Lutomirski <luto@amacapital.net>,
-	Will Drewry <wad@chromium.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Shuah Khan <shuah@kernel.org>,
-	"Dmitry V . Levin" <ldv@strace.io>,
-	Alexey Gladkov <legion@kernel.org>,
-	Eugene Syromyatnikov <evgsyr@gmail.com>,
-	Davide Berardi <berardi.dav@gmail.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org,
-	linux-kselftest@vger.kernel.org,
-	strace-devel@lists.strace.io
-Subject: [PATCH v8 3/3] selftests/ptrace: add a test case for PTRACE_SET_SYSCALL_INFO syscall skipping
-Date: Tue, 20 Oct 2026 08:56:33 +0200
-Message-ID: <20261020065635.490528-4-renzo@cs.unibo.it>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20261020065635.490528-1-renzo@cs.unibo.it>
-References: <20261020065635.490528-1-renzo@cs.unibo.it>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MijKg5Pi
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EC1C1F000C4;
+	Tue, 20 Oct 2026 07:55:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792482926;
+	bh=wiYcyYLmidZvaVJOjwXyMAgj6pRDKve8NH/1uX7Y5XE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=MijKg5PiQSN4IeG87vq5Yt3/rVEOVOiaPlYoJcUIm++uXCodktoqH3rFHZJ3vXLg3
+	 MbEvGyMVcu8ta0JQAZ/6/CyKJfnVs4NOL4EO+SuFnsyFAQfDFloIovKzTmVtFaywE7
+	 5MMyInA6heob1AvwY1YlJuSGSYD2epYDU9VT0CA8ur5h1stMY9++8Pt69cam5D5j34
+	 iMie7hxbn7ltrvpnSMwsadaWIPXrdctRpqpTxvJSgyhCjtXz0Swx33L9AsJADIY7qi
+	 ei8UsEfMAQ9C9tuXNadnmHWd63vc/UzaTHUiXU8zbmpRzPsHDUkiwnCjZDGuQVEOE7
+	 6TBQDsjEdSP2g==
+Date: Tue, 20 Oct 2026 09:55:20 +0200
+From: Joel Granados <joel.granados@kernel.org>
+To: Oleg Nesterov <oleg@redhat.com>
+Cc: Allison Henderson <achender@kernel.org>, 
+	kernel test robot <yi1.lai@intel.com>, oe-lkp@lists.linux.dev, lkp@intel.com, 
+	linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, netdev@vger.kernel.org, wireguard@lists.zx2c4.com, 
+	rds-devel@oss.oracle.com
+Subject: Re: [linus:master] [sysctl]  8d75c338f0:
+ BUG:KASAN:slab-use-after-free_in_touch_wq_lockdep_map
+Message-ID: <atcS-NKX1TpbklyR@hobbes>
+References: <202610190310.9737b2e3-lkp@intel.com>
+ <atYB0bm9eEXp8A2g@redhat.com>
+ <atYW0K3t57puHeLW@hobbes>
+ <atYuE1xnVYe0BDG4@redhat.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -78,287 +63,115 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="a42qtuqnvg7yxrg6"
+Content-Disposition: inline
+In-Reply-To: <atYuE1xnVYe0BDG4@redhat.com>
 
-Check whether PTRACE_SET_SYSCALL_INFO syscall skipping semantics
-implemented in the kernel matches userspace expectations.
 
-Signed-off-by: Renzo Davoli <renzo@cs.unibo.it>
-[v8: also check an error return value, and that the syscall cannot be
- changed anymore once skipped while its return value still can;
- checkpatch fixes]
-Assisted-by: claude-opus-5-5
----
- .../selftests/ptrace/set_syscall_info.c       | 220 +++++++++++++++++-
- 1 file changed, 219 insertions(+), 1 deletion(-)
+--a42qtuqnvg7yxrg6
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [linus:master] [sysctl]  8d75c338f0:
+ BUG:KASAN:slab-use-after-free_in_touch_wq_lockdep_map
+MIME-Version: 1.0
 
-diff --git a/tools/testing/selftests/ptrace/set_syscall_info.c b/tools/testing/selftests/ptrace/set_syscall_info.c
-index 1cc411a41cd6..e8733c62177a 100644
---- a/tools/testing/selftests/ptrace/set_syscall_info.c
-+++ b/tools/testing/selftests/ptrace/set_syscall_info.c
-@@ -11,9 +11,15 @@
- #include <err.h>
- #include <fcntl.h>
- #include <signal.h>
-+#include <stdlib.h>
-+#include <stddef.h>
- #include <asm/unistd.h>
-+#include <sys/prctl.h>
- #include <linux/types.h>
- #include <linux/ptrace.h>
-+#include <linux/filter.h>
-+#include <linux/seccomp.h>
-+#include <linux/prctl.h>
- 
- #if defined(_MIPS_SIM) && _MIPS_SIM == _MIPS_SIM_NABI32
- /*
-@@ -36,6 +42,7 @@ struct si_exit {
- 
- static unsigned int ptrace_stop;
- static pid_t tracee_pid;
-+static pid_t tracer_pid;
- 
- static int
- kill_tracee(pid_t pid)
-@@ -64,6 +71,25 @@ sys_ptrace(int request, pid_t pid, unsigned long addr, unsigned long data)
- 		       ptrace_stop, ##__VA_ARGS__);		\
- 	} while (0)
- 
-+static int sys_seccomp(unsigned int operation, unsigned int flags, void *args)
-+{
-+	return syscall(__NR_seccomp, operation, flags, args);
-+}
-+
-+static struct sock_filter seccomp_filter[] = {
-+	BPF_STMT(BPF_LD+BPF_W+BPF_ABS, offsetof(struct seccomp_data, nr)),
-+
-+	BPF_JUMP(BPF_JMP+BPF_JEQ+BPF_K, __NR_restart_syscall, 0, 1),
-+	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW),
-+
-+	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_TRACE),
-+};
-+
-+static struct sock_fprog seccomp_prog = {
-+	.filter = seccomp_filter,
-+	.len = ARRAY_SIZE(seccomp_filter)
-+};
-+
- static void
- check_psi_entry(struct __test_metadata *_metadata,
- 		const struct ptrace_syscall_info *info,
-@@ -128,7 +154,6 @@ check_psi_exit(struct __test_metadata *_metadata,
- 
- TEST(set_syscall_info)
- {
--	const pid_t tracer_pid = getpid();
- 	const kernel_ulong_t dummy[] = {
- 		(kernel_ulong_t) 0xdad0bef0bad0fed0ULL,
- 		(kernel_ulong_t) 0xdad1bef1bad1fed1ULL,
-@@ -138,6 +163,7 @@ TEST(set_syscall_info)
- 		(kernel_ulong_t) 0xdad5bef5bad5fed5ULL,
- 	};
- 	int splice_in[2], splice_out[2];
-+	tracer_pid = getpid();
- 
- 	ASSERT_EQ(0, pipe(splice_in));
- 	ASSERT_EQ(0, pipe(splice_out));
-@@ -516,4 +542,196 @@ TEST(set_syscall_info)
- 	ASSERT_EQ(ptrace_stop, ARRAY_SIZE(si) * 2);
- }
- 
-+TEST(set_syscall_info_seccomp)
-+{
-+	tracer_pid = getpid();
-+	tracee_pid = fork();
-+
-+	ASSERT_LE(0, tracee_pid) {
-+		TH_LOG("fork: %m");
-+	}
-+
-+	/* tracee */
-+	if (tracee_pid == 0) {
-+		tracee_pid = getpid();
-+		ASSERT_EQ(0, sys_ptrace(PTRACE_TRACEME, 0, 0, 0)) {
-+			TH_LOG("PTRACE_TRACEME: %m");
-+		}
-+		ASSERT_EQ(0, kill(tracee_pid, SIGSTOP)) {
-+			/* cannot happen */
-+			TH_LOG("kill SIGSTOP: %m");
-+		}
-+
-+		ASSERT_EQ(0, prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0)) {
-+			TH_LOG("prctl: %m");
-+		}
-+		ASSERT_EQ(0, sys_seccomp(SECCOMP_SET_MODE_FILTER, 0,
-+					(void *) &seccomp_prog)) {
-+			TH_LOG("seccomp: %m");
-+		}
-+
-+		/* run getpid unmodified */
-+		ASSERT_EQ(tracee_pid, getpid()) {
-+			_exit(1);
-+		}
-+
-+		/* run getppid instead of getpid */
-+		ASSERT_EQ(tracer_pid, getpid()) {
-+			_exit(1);
-+		}
-+
-+		/* skip getpid and return 42 */
-+		ASSERT_EQ(42, getpid()) {
-+			_exit(1);
-+		}
-+
-+		/* skip getpid and fail with ESRCH */
-+		errno = 0;
-+		ASSERT_EQ(-1, syscall(__NR_getpid)) {
-+			_exit(1);
-+		}
-+		ASSERT_EQ(ESRCH, errno) {
-+			_exit(1);
-+		}
-+		_exit(0);
-+	}
-+
-+	int status;
-+
-+	/* tracer */
-+	ASSERT_LE(0, waitpid(-1, &status, 0)) {
-+		LOG_KILL_TRACEE("waitpid: %m");
-+	}
-+
-+	ASSERT_EQ(0, sys_ptrace(PTRACE_SETOPTIONS, tracee_pid, 0,
-+			(PTRACE_O_TRACESECCOMP | PTRACE_O_TRACESYSGOOD)))
-+		LOG_KILL_TRACEE("PTRACE_SETOPTIONS: %m");
-+
-+	ASSERT_EQ(0, sys_ptrace(PTRACE_CONT, tracee_pid, 0, 0)) {
-+		LOG_KILL_TRACEE("PTRACE_CONT: %m");
-+	}
-+
-+	static const char * const testname[] = {
-+		"unknown error",
-+		"getpid seccomp unchanged",
-+		"getpid seccomp nr change: getppid",
-+		"getpid seccomp skip+set retvalue",
-+		"getpid seccomp skip+set error"
-+	};
-+
-+	static const unsigned int expected_nr[] = {
-+		__NR_getpid,
-+		__NR_getpid,
-+		__NR_getpid,
-+		__NR_getpid,
-+		__NR_exit_group
-+	};
-+
-+	for (ptrace_stop = 0; ; ++ptrace_stop) {
-+		ASSERT_EQ(tracee_pid, wait(&status)) {
-+			/* cannot happen */
-+			LOG_KILL_TRACEE("wait: %m");
-+		}
-+
-+		if (WIFEXITED(status)) {
-+			tracee_pid = 0; /* the tracee is no more */
-+			ASSERT_EQ(0, WEXITSTATUS(status)) {
-+				LOG_KILL_TRACEE("unexpected exit status %u",
-+						WEXITSTATUS(status));
-+			}
-+			break;
-+		}
-+		ASSERT_FALSE(WIFSIGNALED(status)) {
-+			tracee_pid = 0; /* the tracee is no more */
-+			LOG_KILL_TRACEE("unexpected signal %u",
-+					WTERMSIG(status));
-+		}
-+		ASSERT_TRUE(WIFSTOPPED(status)) {
-+			LOG_KILL_TRACEE("unexpected wait status %#x", status);
-+		}
-+
-+		ASSERT_EQ(status >> 8, SIGTRAP | (PTRACE_EVENT_SECCOMP << 8)) {
-+			LOG_KILL_TRACEE("unexpected stop, wait status %#x", status);
-+		}
-+
-+		struct ptrace_syscall_info info = {
-+			.op = 0xff  /* invalid PTRACE_SYSCALL_INFO_* op */
-+		};
-+		size_t info_size = sizeof(info);
-+
-+		ASSERT_LT(0, sys_ptrace(PTRACE_GET_SYSCALL_INFO, tracee_pid,
-+					info_size, (uintptr_t) &info)) {
-+			LOG_KILL_TRACEE("PTRACE_GET_SYSCALL_INFO: %m");
-+		}
-+		ASSERT_EQ(PTRACE_SYSCALL_INFO_SECCOMP, info.op) {
-+			LOG_KILL_TRACEE("entry op mismatch: %m");
-+		}
-+		ASSERT_TRUE(info.arch) {
-+			LOG_KILL_TRACEE("entry arch mismatch: %m");
-+		}
-+		ASSERT_TRUE(info.instruction_pointer) {
-+			LOG_KILL_TRACEE("entry instruction_pointer mismatch: %m");
-+		}
-+		ASSERT_TRUE(info.stack_pointer) {
-+			LOG_KILL_TRACEE("entry stack_pointer mismatch: %m");
-+		}
-+
-+		ASSERT_LT(ptrace_stop, ARRAY_SIZE(expected_nr)) {
-+			LOG_KILL_TRACEE("ptrace stop overflow");
-+		}
-+		ASSERT_FALSE(info.seccomp.nr == __NR_exit_group && info.seccomp.args[0] == 1) {
-+			LOG_KILL_TRACEE("tracee error: %s",
-+					testname[ptrace_stop]);
-+		}
-+		ASSERT_EQ(info.seccomp.nr, expected_nr[ptrace_stop]) {
-+			LOG_KILL_TRACEE("syscall nr mismatch");
-+		}
-+		const struct ptrace_syscall_info seccomp_info = info;
-+
-+		switch (ptrace_stop) {
-+		case 0:
-+		case 4:
-+			break;
-+		case 1:
-+			info.seccomp.nr = __NR_getppid;
-+			break;
-+		case 2:
-+			info.op = PTRACE_SYSCALL_INFO_EXIT;
-+			info.exit.rval = 41;
-+			info.exit.is_error = 0;
-+			ASSERT_EQ(0, sys_ptrace(PTRACE_SET_SYSCALL_INFO,
-+						tracee_pid, info_size,
-+						(uintptr_t) &info)) {
-+				LOG_KILL_TRACEE("PTRACE_SET_SYSCALL_INFO: %m");
-+			}
-+			/* the syscall cannot be changed anymore once skipped */
-+			ASSERT_EQ(-1, sys_ptrace(PTRACE_SET_SYSCALL_INFO,
-+						 tracee_pid, info_size,
-+						 (uintptr_t) &seccomp_info)) {
-+				LOG_KILL_TRACEE("PTRACE_SET_SYSCALL_INFO after skip succeeded");
-+			}
-+			ASSERT_EQ(EINVAL, errno) {
-+				LOG_KILL_TRACEE("PTRACE_SET_SYSCALL_INFO after skip: %m");
-+			}
-+			/* but its return value can */
-+			info.exit.rval = 42;
-+			break;
-+		case 3:
-+			info.op = PTRACE_SYSCALL_INFO_EXIT;
-+			info.exit.rval = -ESRCH;
-+			info.exit.is_error = 1;
-+			break;
-+		}
-+
-+		ASSERT_EQ(0, sys_ptrace(PTRACE_SET_SYSCALL_INFO, tracee_pid,
-+					info_size, (uintptr_t) &info)) {
-+			LOG_KILL_TRACEE("PTRACE_SET_SYSCALL_INFO: %m");
-+		}
-+
-+		ASSERT_EQ(0, sys_ptrace(PTRACE_CONT, tracee_pid, 0, 0)) {
-+			LOG_KILL_TRACEE("PTRACE_CONT: %m");
-+		}
-+	}
-+}
-+
- TEST_HARNESS_MAIN
--- 
-2.55.0
+On Mon, Oct 19, 2026 at 04:49:55PM +0200, Oleg Nesterov wrote:
+> On 10/19, Joel Granados wrote:
+> >
+> > On Mon, Oct 19, 2026 at 01:41:05PM +0200, Oleg Nesterov wrote:
+> > > On 10/19, kernel test robot wrote:
+> > > >
+> > > >
+> > > > Hello,
+> > > >
+> > > > kernel test robot noticed "BUG:KASAN:slab-use-after-free_in_touch_w=
+q_lockdep_map" on:
+> > > >
+> > > > commit: 8d75c338f0bcecaa6c9af67f86c176b67b6acf3e ("sysctl: remove C=
+ONFIG_PROC_SYSCTL, it just mirrors CONFIG_SYSCTL") https://git.kernel.org/c=
+git/linux/kernel/git/torvalds/linux.git master
+> > >
+> > > I don't think that commit could cause such a problem. Please re-check.
+> > >
+> > > Oleg.
+> >
+> > That commit might not be the one that introduces the UAF, but it might
+> > be the one that exposes it?
+> >
+> > You have CONFIG_SYSCTL=3Dn & CONFIG_RDS=3Dy & CONFIG_RDS_RDMA=3Dy.
+> > Therefore rds_sysctl_init() returns -ENOMEM  and rds_ib_sysctl_init
+> > returns -ENOMEM.
+> >
+> > If rds_ib_sysctl_init is called after a failed rds_sysctl_init, then
+> > rds_ib_sysctl_init would call a flush_workqueue on a rds_wq that has
+> > already been freed by the failed rds_sysctl_init. Right?
+> >
+> > Please let me know if I missed anything.
+>=20
+> I think you are right...
+>=20
+> rds_init() does
+>=20
+> 	rds_threads_init()
+> 		rds_wq =3D create_singlethread_workqueue("krdsd");
+>=20
+> 	rds_sysctl_init()
+> 		fails due to CONFIG_SYSCTL=3Dn
+>=20
+> 	out_threads:
+> 		destroy_workqueue(rds_wq);
+>=20
+> After that any access to rds_wq is wrong.
+>=20
+> If rds_rdma_init() runs after that, rds_ib_init() will call
+> rds_ib_unregister_client() -> flush_workqueue(rds_wq).
+>=20
+> And this will equally happen before the blamed commit 8d75c338f0bc,
+> just you need CONFIG_PROC_SYSCTL=3Dn instead of CONFIG_SYSCTL=3Dn.
+>=20
+>=20
+> But. rds_init() can also fail even if CONFIG_SYSCTL=3Dy, after
+> rds_sysctl_init(), so to me this looks like a bug in net/rds/.
+>=20
+>=20
+> In any case, I guess net/rds/ init paths should not fail if
+> CONFIG_SYSCTL=3Dn ?
 
+That is up to net/rds.=20
+
+The question is: do you have to fail if a sysctl registration fails? Or
+another way to ask it is: Can't it (net/rds or others) run while not
+being tuned or queried through sysctl?
+
+If the answer to these questions is that the sysctl path is necessary,
+then the failure is reasonable. But if they can work without the sysctl,
+the failure is an overreaction (IMO).
+
+Best
+
+
+>=20
+> Oleg.
+>=20
+
+--a42qtuqnvg7yxrg6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmrXHlsACgkQupfNUreW
+QU912gv/eejjrtoxUgh51UagvsJXA0SMOI6Yaa+uIBcExUpCjVRcUBjhj2jT/GV9
+JRJK0zb9dOeEg4yIm/bzf4j3qYwBTqiRdVf5++8HB9yuqIx4w0NlVIbks9Q8YDQh
+QRXDBUAUoP6FxYb3jE1U49avWB37mPqj986qpNiwwqXq9nIRDKDf/9sPY/b2Vvyn
+RibI+hOi7hfCSUntOsrbN7NmOtV9e1FQtHZxCjHpdz51bQqn1S84/WJ0dDgy+RUT
+J1sLIQsUlmxKtJ78VYmaCPUJ+owrm3mFNvzmw2ERplHoA2JqT3r6lY1jP2G5Xi8y
+pRSKsCTfoRUgVrXh6yByuK/2ywuqzfTEneUTJ4F97bLgJClP+4FtYcUjnbZOvsrm
+l/VWLpeaTxFHDiDWu/rJ+K9YFs8JcsnTtmJqJ/pLJAW/IjvQ5sQsT6P+d04LgWQJ
+fRYc1/dcsViZ1Bz/LUpV4NWsMtqP70EPbjuvvPYA5GG5HRM1bj6x4hHL2e9gGsQ5
+vMczI+dC
+=OX/2
+-----END PGP SIGNATURE-----
+
+--a42qtuqnvg7yxrg6--
