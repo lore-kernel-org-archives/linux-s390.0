@@ -1,61 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792588213;
-	b=vfIaNZLtX3TmQ953offGnFotCdOI5CkE1AzSpvZZp7v6wZXgltVL0GirdT70Iea0sbYh
-	 CbYWQOhh1SGXmm9JfQWe9KjJBX/F/L8WTnBGKv4ay4W++LnPA62NTUXZh4iNtDhxvjmDJ
-	 8WQSzwSNHalD8k+iVhKwo0l6wU5BZ5doZtt2TdiaeSMAEsIlrVQY0XhlGoUoIef/V+Woz
-	 FPvtkBPvcyxdnB7/tugYzFYgyfpwoXnG6aVshGLxRuBfkXs3/k3x5I0dhovz2ONxVMwip
-	 LBQPUZ+7H/1BiyE5169WfzZ5POeHDUTVSSQvRtvrP92dKQUT97i3wNNJGgAUoFFdgiA==
+	t=1792588576;
+	b=J6S6F664XQ6cEQIfWP77dt4/ZClsnp8NQB0evInTFHxggY19ghFvcZCYtInf1S4HPPx+
+	 K1/TTQykQWxuvLlmQtTQcQag+856YWNqdP+PrImVT/l5T97daIBGXBVKfP4BR9BSv+tOS
+	 OEaVt/Q1hPvzx0GCjmKaL7jOQ9WBm1N48Xpe11GHHLEwi7gIW3KcI+akq7KMbU/d+tJw3
+	 CApCebLVoZbWkAbpOQBG1J2CCGkLRDIq0zA7DY92mNS1PhPSWUo5iA6hiCQge9TfvHO0m
+	 /2XKzZGZvaZBQ7wlOV4qBM2WY6dRMOZMr2qtcohPbR+O3PEZj2YKg8b7OO+m/1t7Iag==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792588213;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=wAu9HBWi61HBml8gtb2PatsPeIBadW0JdLkMJX2ihqM=;
-	b=jB9otuW6qII9yaHL2J6Ky/4zfFlu41R+8Xr00QbfLtRR4v93PzhLTpszTvWaXbY/QYHh
-	 4Khec6xKykhm19YMBiiNQkOnjY+H1o6mmlqtzFrmCH9yvHTAfvWeggdBzjHr+P5Dg+g4I
-	 5d7JefqgiLHiHQpZF13U61L9SnkGI819behykcm3hOBunD6pRGbOBgqHO8zWQx0JMLm9l
-	 cJZTBrA1Lh2sJHCqsVd7ZmsAJCJGMyWX0WsHTMgZFQHY0EhJNKaHr50WoNMU0L+dyPQsl
-	 9SfctcPCuKXcZgDHCuJfpw6E8KeRKr5A99kv5z/+gvfrUTw07Ol8alc1DxQnWtrYEVA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792588576;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To:X-TM-AS-GCONF:X-Authority-Analysis:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=iU1xaOEaqgLqg0ZhKNyHaBi2E8KIoL3aTv+hG1zdXRk=;
+	b=ghOIZTtRYmRke6ASQJfKYhmM9OF19SALqv870GTIAAeyq/paFz5VOTfKljmcXqG0HWi6
+	 37So5vxUl98DkmF2U4m9MU4mH8BE3w+Nd2U0FiJLVIfq5scIwIEffvITo+Rn/tmKIMRJK
+	 uyEhPKU4Rg+1YOxsMWo8rSlzgWi6ljnO2twNnyMoUcjt2sUWvTLm8PpRD7RN1JeB9lIPO
+	 r1TM8msup55dwK3//r8qhsXZ5G7bG3XCHrPT/m0AaGxo+BozpP307YktfCDgqxpybpU1z
+	 BlP2l38KbJuFJAzj5x+kkrId+QLjjF4mHienqub4NwAZLkpjReWOP75kvGMIHcT6Ipw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XW18dDuN;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ViI+tHSu;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D21E660A2603
-	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 13:10:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06357606A319
+	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 13:16:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 06357606A319
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=XW18dDuN
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1742C1F000C9;
-	Wed, 21 Oct 2026 13:10:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792588212;
-	bh=wAu9HBWi61HBml8gtb2PatsPeIBadW0JdLkMJX2ihqM=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=XW18dDuNZ5qvIVXV/OX9AHHCuV95wZOXti0wj4mGSR9g9PTX2zlDu2z579d8kKivy
-	 e9MjP59kR9xElmsn4LEjzCIx2vgq4gP1emILz6OG6+XuZrr6lBqS8fuaH/DKU5nkbE
-	 8H27MtN9WLvHQpiiT5PseydlhPgogqGfKnKYSfKj9zC5VMS2Wprr0M0xbCyScxpBrs
-	 xn5nGyoYQxQuUhVAuJXCSTiCLGc+UbYpYi2IbzcNFfEWjhnXoo8WdwwyBLo8TwSOcW
-	 FOpPEfBxE6RkmR+FIOsGActxI5A9m1uFd8xZNZd4qu7FV7cgcblopDyA3Bukcvh2K4
-	 RnouXUvVR/+pA==
-Message-ID: <sashiko-outbox-180290@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: rds_wq UAF
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Oleg Nesterov" <oleg@redhat.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <atdoGiW_sHlWgOwt@redhat.com>
-References: <202610190310.9737b2e3-lkp@intel.com>
- <atYB0bm9eEXp8A2g@redhat.com> <atYW0K3t57puHeLW@hobbes>
- <atYuE1xnVYe0BDG4@redhat.com> <atY42k00k0Waj6o4@redhat.com>
- <42964fa071bd8dcafd418c89be6d66856def4dc5.camel@kernel.org>
- <atdoGiW_sHlWgOwt@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 21 Oct 2026 13:10:11 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ViI+tHSu
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69LBiujw1008715
+	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 13:16:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=iU1xaOEaqgLqg0ZhKNyHaBi2E8KIoL
+	3aTv+hG1zdXRk=; b=ViI+tHSuLDjcYkIGVGjNIEOMBZbXLqevl7FZC1Nt4zGs3s
+	QNn5B5vLujFaxz1cxTVyVgbS/WCgpS7wnt6qaE3BNSbmkTNzcQP2WjCSvy+lpDp6
+	JTRO08ZdNVn4JHNuNkwUPrRMrbsTgh9rAtaSTwlULEv5oq1M7qSikzvKjSh4ZOP4
+	wkvfiJ1kDk2VgAdng4sdotoM3vcEapwPtGosq4xr3gtG2MyKZO9kZaazWDCsiAPV
+	QSQuhDDpnJNxFY936EagyF62FntLXawjWf8V76hRVNoN6/IoY/a51Dx1ovv28uRp
+	75uO0hRJOHUvxhGBPLEjZIxELSkQ+lc4lB972JHA==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw5aryju-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 13:16:14 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69LBo0Kx3085670
+	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 13:16:14 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4he8vhvyxc-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 13:16:13 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69LDGA6M17105302
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 21 Oct 2026 13:16:10 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 27E0D2004F;
+	Wed, 21 Oct 2026 13:16:10 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 02F7E2004E;
+	Wed, 21 Oct 2026 13:16:10 +0000 (GMT)
+Received: from osiris (unknown [9.224.90.220])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 21 Oct 2026 13:16:09 +0000 (GMT)
+Date: Wed, 21 Oct 2026 15:16:08 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH] s390/appldata: Fix error handling in
+ appldata_generic_handler()
+Message-ID: <20261021131608.10194A44-hca@linux.ibm.com>
+References: <20261021120426.1148360-1-gerald.schaefer@linux.ibm.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -64,116 +92,59 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261021120426.1148360-1-gerald.schaefer@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=X63Hu2Te c=1 sm=1 tr=0 ts=6ad8bb1e cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=2P35GisBvM6LwD4rxGgA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: 5m4QxbX3fpRfzrAg8M9rhoQoR31hb_um
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIxMDA1MiBTYWx0ZWRfXxu1m6YvqtXY0
+ Y1TKEbauXtxQ53ZlYjDbQ2/fnUgB/tTrpy7pNL5rGTyUPctmALqNo2/nGhK6uZqiIqUTneuiFRj
+ +nmfqpRG3G1D0sBECaFDJpBObA69EwTEU5e/k8/r2Zwccqu7/BtuTWefsW7LiT44GAeHanP8Iry
+ wdtODPGUVaJaD6lNYcY1JWkbb8pGJANzvcSEfNASKfVvsAaX92W3qYKx85UdAMa67JanUPqUnSS
+ TPeUtvior8si/97+UtYSRVbSq2puqprEORAnG2ufME9dZeeeSwITIUUhimmCCpF/W91VNTK3Xuq
+ cddKG1DESfqsJy6VDKSoM6/vj092RZSF8s9NNVyqmvuFYosvP8dMNAnDAwxmPCAAJG6bBR9fXTZ
+ vIoDCJ0od8/3h32ZC3f6GafuNmo2Axl8xlJpHJJjf9KGD1zhOYzSWPnLJ1D9Og6eVA0yhI4zXKx
+ votaUzbWBf+QdDFiHTw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIxMDA1MiBTYWx0ZWRfX5mZj3W3+tjOB
+ 4Ddt/yVIi86SoYWLGNlQI6M3tn5qkMF9wKNG77ITeTpzUGC9ammhZkdJ4efaSpZHJK0gX+rXRWA
+ DycjjWRpmr0Ou0U1cQjvCwP34VtCFfg=
+X-Proofpoint-GUID: 5m4QxbX3fpRfzrAg8M9rhoQoR31hb_um
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-10-21_03,2026-10-21_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 phishscore=0 bulkscore=0 adultscore=0 malwarescore=0
+ clxscore=1015 spamscore=0 impostorscore=0 lowpriorityscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610210052
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Critical] rds: ib: skipping flush_workqueue() in rds_ib_init() causes UA=
-F on error
-- [Critical] rds: rdma: rds_rdma_init() still accesses invalid rds_wq when =
-rds_init() fails
---
+On Wed, Oct 21, 2026 at 02:04:26PM +0200, Gerald Schaefer wrote:
+> appldata_generic_handler() always returns 0 after starting or stopping
+> monitor recording.
+> 
+> So "echo {0,1} > /proc/sys/appldata/{os,mem,net_sum}" returns success even
+> when DIAG 0xDC failed. A failed start would keep ops->active as 0, so
+> reading the sysctl later would correctly reflect this.
+> 
+> A failed stop would falsely set ops->active to 0 and decrement module
+> refcount. This would allow the data gathering module to be removed, and
+> the data buffer to be freed, while z/VM monitor service is still collecting
+> data from that buffer.
+> 
+> Fix this by returning -EIO when appldata_diag() failed, and only set
+> ops->active to 0 and decrement module refcount when it succeeded on stop
+> path.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> ---
+>  arch/s390/appldata/appldata_base.c | 12 ++++++++----
+>  1 file changed, 8 insertions(+), 4 deletions(-)
 
-commit 1ca141aafc7f21d383b77362aeece7748105d3b9
-Author: Oleg Nesterov <oleg@redhat.com>
-
-rds_wq UAF
-
-This commit replaces rds_ib_unregister_client() with
-ib_unregister_client(&rds_ib_client) on the rds_ib_init() error path to avo=
-id
-flushing a NULL or already-destroyed rds_wq.
-
-> diff --git a/net/rds/ib.c b/net/rds/ib.c
-> index 786f39169bc14..cde2d1bfabbd1 100644
-> --- a/net/rds/ib.c
-> +++ b/net/rds/ib.c
-> @@ -619,7 +619,7 @@ int rds_ib_init(void)
->  out_sysctl:
->  	rds_ib_sysctl_exit();
->  out_ibreg:
-> -	rds_ib_unregister_client();
-> +	ib_unregister_client(&rds_ib_client);
-
-[Severity: Critical]
-Could skipping flush_workqueue(rds_wq) here cause a use-after-free of
-rds_ib_mr_wq or the rds_rdma module?
-
-In rds_ib_init(), ib_register_client(&rds_ib_client) synchronously calls
-rds_ib_add_one() for every registered InfiniBand device.
-
-If rds_ib_add_one() fails after allocating rds_ibdev (for example at
-ib_alloc_pd() or rds_ib_create_mr_pool()), its put_dev path drops the
-reference count to zero and queues rds_ib_dev_free() onto rds_wq:
-
-net/rds/ib.c:rds_ib_dev_put()
-	if (refcount_dec_and_test(&rds_ibdev->refcount))
-		queue_work(rds_wq, &rds_ibdev->free_work);
-
-Similarly, if rds_ib_add_one() succeeds for one or more devices and a later
-step in rds_ib_init() fails (rds_ib_sysctl_init() or rds_ib_recv_init()),
-ib_unregister_client(&rds_ib_client) calls rds_ib_remove_one() for each add=
-ed
-device, which also drops the final reference and queues rds_ibdev->free_work
-(rds_ib_dev_free()) onto rds_wq.
-
-Commit 24fa163a4bae74 added flush_workqueue(rds_wq) in
-rds_ib_unregister_client() specifically to wait for rds_ib_dev_free() to
-complete:
-
-static void rds_ib_unregister_client(void)
-{
-	ib_unregister_client(&rds_ib_client);
-	/* wait for rds_ib_dev_free() to complete */
-	flush_workqueue(rds_wq);
-}
-
-Without that flush, rds_ib_init() proceeds directly to out_mr_exit and calls
-rds_ib_mr_exit() -> destroy_workqueue(rds_ib_mr_wq) while rds_ib_dev_free()
-is still pending or running on rds_wq and about to tear down
-rds_ibdev->mr_8k_pool and rds_ibdev->mr_1m_pool (which flushes and cancels
-delayed work on rds_ib_mr_wq).
-
-In addition, when CONFIG_RDS_RDMA=3Dm, returning from rds_ib_init() causes =
-the
-module loader to unmap rds_rdma.ko while rds_ib_dev_free() is still queued =
-or
-executing on rds_wq.
-
-[Severity: Critical]
-Also, if rds_init() has failed and destroyed rds_wq (or has not run yet so
-rds_wq is NULL), doesn't rds_rdma_init() still access the invalid rds_wq ev=
-en
-with this change?
-
-1. During rds_ib_init(), if an IB device is present and either
-   rds_ib_add_one() fails at put_dev or ib_unregister_client(&rds_ib_client)
-   calls rds_ib_remove_one(), rds_ib_dev_put() will still call
-   queue_work(rds_wq, &rds_ibdev->free_work) on the destroyed or NULL rds_w=
-q.
-
-2. In rds_rdma_init(), if rds_ib_init() succeeds and rds_rdma_listen_init()
-   fails, rds_ib_exit() is called, which still calls
-   rds_ib_unregister_client() -> flush_workqueue(rds_wq):
-
-net/rds/rdma_transport.c:rds_rdma_init()
-	ret =3D rds_ib_init();
-	if (ret)
-		goto out;
-
-	ret =3D rds_rdma_listen_init();
-	if (ret)
-		rds_ib_exit();
-
-3. If rds_rdma_init() (or rds_tcp_init()) succeeds after rds_init() has
-   failed and torn down RDS core resources in rds_threads_exit(), the
-   transport remains registered and active callbacks will queue work onto t=
-he
-   destroyed rds_wq.
-
->  out_mr_exit:
->  	rds_ib_mr_exit();
->  out:
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/atdoGiW_sHlWgOwt@re=
-dhat.com?part=3D1
+Applied, thanks!
