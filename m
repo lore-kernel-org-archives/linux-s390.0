@@ -1,57 +1,85 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792573789;
-	b=Q0SVm5t+RqzmFEcjKnTdlWc3L+pHo1dP0NSdUBqKcVpWAzfc08N9FPth2Ny9O/bqZYve
-	 kNNg7K9klok/CaNczL66mKKy37UarRar1z/RcTqGXoo/raXYR0HGiF8QEs2lS5NLLHm5K
-	 AFwMw/4uaP3pw6cJhm3xrOZ+4BsSsgyCPcdrZjgzPZZq7Ry3rVGul3rIDh9K3pK1WoLZ+
-	 21fOewDPaqmbv+9NyjrWFPpMrkG9JvAudXZudBBZVdxMsbUPC+4QOPtUptSjEILuyoaWX
-	 /EWs1edWdGnn4ERyUBRPEt14C69VlrSDK6vwdZj1ZZX48nbDE/7F09hr+f0erPs3j9Q==
+	t=1792575468;
+	b=aHfRuZywst3n01weUK0pAkRrVPRVet1wmdNKLVZ2u3ar2hdIoZmSdajlK94Q8yNMYDZ0
+	 LuAbIyUNqPHffx7jMVq2UaBVSIy7f2T/B7mrK5ssEDIyt1viM7a0X6O0kFmvI7ccKmQM4
+	 axcZSlEufey3Ql9c4Y6T/8ZEQJlbUfh3k7OnhuqwrGhwKk7sGPmQxq2rm86Ar3Wx8mfdP
+	 80zpSjbZb40rlfQ+6s+mEgEEXPmTrb8Q5la9RoZKpyXJZwS4I1LcOw1GdWY04KCou/Rmj
+	 SV1wE6yXsQZ+gGW+x4uHrLHxc60h2tXKMMeN7o/4lT/pTAwvCfU7qigrTFcBwiJkYCw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792573789;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ss8JCmnLTtIgvOQEI0VDlUEtgjU/ERKBUquXx4nsMOY=;
-	b=b66aWGtXkiztSpoe3A7OaqmADrRUJ2yQokY6CBcXRp4u11ZVuNZAY0PmsdIKJs34Gatz
-	 OX4nYrdAux9uIQxyMOGyPuqh2F08xHAYRsH5uzcsSVrh6dnR5D1SdQYW7C6rk0g1Parl9
-	 KAh4LmtiywgQqNrA3/PPls11GlL9KjggM/tHkdleeHBsdffxPWmVmupyqWJQQsR1+gVOe
-	 Zq9AHDpG29tbWsH11K4+NtlvCR+HTvfjp/sh8T1fG0G6toCsW3DIvwn+GyULLWkdtCqFo
-	 kRrxhxl6LfHYPXEJcRc63xAemPYM+pHt9fFP0Lmyqty1Fav+Ws/pNkqmViBs3U3CK/A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792575468;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:Received:Received:Date:From:To:Cc:
+	 Subject:Message-ID:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:X-Scanned-By;
+	bh=zYYaJ3Cx83d1i6W0tWGXSMXeldqRUTYijFYdQSWTCqk=;
+	b=xP4WALTe7WNqBad7tVHW7NV2vpQLqNxmVlwgUYKDVbZY7oW4m4xwupmoobx9oWJ5jn4r
+	 jio2gnBvL6c1nzUsuJONGUfhrXrBKl59QO1vFJgk/FtS/IjKgRFyRh62kX0q3Jobvdr3s
+	 scVV8rJj+6G0Ks4znpbRHF+COpmASJ/D+PMk2DNP1gAyLp/dl1B53F0O5LfxGlx1chf10
+	 76gRVRMJ4RKQcfUisAT9dbO7sdBmzt6Uiw35pk48C36UviuXtwWl+0SnJMOnQItR94xiO
+	 uLW/GpzGYg6LRQ4UvTZ86keg6u6SV7RxS6PNAm+b4FpnAE8U8samP/ym659UQVsDM5Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TrmDPMrv;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SMQFxkzS;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68C80606A319
-	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 09:09:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2AD5606A319
+	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 09:37:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E2AD5606A319
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TrmDPMrv
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3CB11F000C9;
-	Wed, 21 Oct 2026 09:09:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792573789;
-	bh=ss8JCmnLTtIgvOQEI0VDlUEtgjU/ERKBUquXx4nsMOY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=TrmDPMrvcQsEPXJ5Mc4aAlZ4h1xmFkQYlOIV2cvVB1T1UKfpgbkLOrwH65dI02pIv
-	 mRrVT84Zqyn0y5kw7Qi/LjK0SuhRz+wpyD76a+NN6eNyCcT/T6KbbROTSwndHAbGEh
-	 weO6o7GbEZdCWHcvQjKO2qTB+jvs23Kp5w0uudkPLJaGst9MLIdn8q6vnc8TpGziH0
-	 48NzWvPDK2RopNvwetWlCIFjlc+JuIQ8KyV7T9v9V5hn3Iu9U/PRIwr3D7mylyEaCt
-	 ZY5uSfFDeQepk3zGIn/Drpss9Kz5B7rdTctXwlilv1XYfRqxJhLkdfxNqjv6DZ3c2q
-	 zg32IjK33CZ0w==
-Message-ID: <sashiko-outbox-180011@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] s390/syscall: Set -ENOSYS return value before calling
- syscall_enter_from_user_mode_work()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Heiko Carstens" <hca@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261021085643.2442949-1-hca@linux.ibm.com>
-References: <20261021085643.2442949-1-hca@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 21 Oct 2026 09:09:48 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SMQFxkzS
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1792575467;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=zYYaJ3Cx83d1i6W0tWGXSMXeldqRUTYijFYdQSWTCqk=;
+	b=SMQFxkzSq/+0slfH3rITpdMlT8w550U6WKzvVBRSa9tbBtEYM88hD8GA4Wo6siYn5NdX9Y
+	49c2VuLRtIyMQDbADd/FFHTgVf3GhpMR5h8rssoxQ63x3hxb0C37UV7GDNgEUBMqMSeB2g
+	9UdP6yKxxylIw/j9DlXO7GlqsD86dDQ=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-613-_u7xX48KOf-yVVlOyNLt4A-1; Wed,
+ 21 Oct 2026 09:37:41 +0000
+X-MC-Unique: _u7xX48KOf-yVVlOyNLt4A-1
+X-Mimecast-MFC-AGG-ID: _u7xX48KOf-yVVlOyNLt4A_1792575460
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 826651800847;
+	Wed, 21 Oct 2026 09:37:39 +0000 (UTC)
+Received: from onestero-thinkpadp1gen7.tpbc.csb (headnet04.pony-001.prod.iad2.dc.redhat.com [10.2.32.116])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with SMTP id D87471956087;
+	Wed, 21 Oct 2026 09:37:35 +0000 (UTC)
+Received: by onestero-thinkpadp1gen7.tpbc.csb (nbSMTP-1.00) for uid 13628
+	oleg@redhat.com; Wed, 21 Oct 2026 11:37:39 +0200 (CEST)
+Date: Wed, 21 Oct 2026 11:37:34 +0200
+From: Oleg Nesterov <oleg@redhat.com>
+To: Allison Henderson <achender@kernel.org>
+Cc: Joel Granados <joel.granados@kernel.org>,
+	kernel test robot <yi1.lai@intel.com>, oe-lkp@lists.linux.dev,
+	lkp@intel.com, linux-kernel@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, netdev@vger.kernel.org,
+	wireguard@lists.zx2c4.com, rds-devel@oss.oracle.com
+Subject: Re: rds_wq UAF
+Message-ID: <atiH3sYO8XvnP-Vn@redhat.com>
+References: <202610190310.9737b2e3-lkp@intel.com>
+ <atYB0bm9eEXp8A2g@redhat.com>
+ <atYW0K3t57puHeLW@hobbes>
+ <atYuE1xnVYe0BDG4@redhat.com>
+ <atY42k00k0Waj6o4@redhat.com>
+ <42964fa071bd8dcafd418c89be6d66856def4dc5.camel@kernel.org>
+ <atdoGiW_sHlWgOwt@redhat.com>
+ <e7888169bdc76ea40fcfe782c2bc9b70e037dfc6.camel@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -60,44 +88,52 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e7888169bdc76ea40fcfe782c2bc9b70e037dfc6.camel@kernel.org>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-> On s390 gpr2 contains both the system call return value and the system ca=
-ll
-> number. With [1] it is expected to set gpr2 to -ENOSYS before calling
-> syscall_enter_from_user_mode_work(), so that a skipped system call has a
-> defined default return value, and not the system call number like today.
->=20
-> To make that work and stay compatible with existing ptrace users, replace
-> PIF_SYSCALL_RET_SET with PIF_SYSCALL_ENTRY. PIF_SYSCALL_ENTRY is set befo=
-re
-> syscall_enter_from_user_mode_work() is called and indicates that reads and
-> writes to gpr2 via PTRACE_PEEKUSR, PTRACE_POKEUSR, PTRACE_GETREGSET, and
-> PTRACE_SETREGSET are redirected to regs->int_code, which contains the
-> system call number. gpr2, which contains the system call return value, can
-> only be changed via syscall_set_return_value() (e.g. seccomp).
->=20
-> After syscall_enter_from_user_mode_work() returns, PIF_SYSCALL_ENTRY is
-> cleared and the code behaves as before.
->=20
-> PIF_SYSCALL_RET_SET was introduced with [2]. The flag was set by
-> syscall_set_return_value() and allowed seccomp to skip syscalls
-> and inject a return value despite the gpr2 aliasing.
->=20
-> Kernel seccomp and ptrace selftests, as well as strace selftests, show no
-> difference with and without this change.
->=20
-> [1] 05c033db7e9a ("entry, treewide: Make syscall_enter_from_user_mode[_wo=
-rk]() indicate syscall execution")
-> [2] 56e62a737028 ("s390: convert to generic entry")
->=20
-> Fixes: 05c033db7e9a ("entry, treewide: Make syscall_enter_from_user_mode[=
-_work]() indicate syscall execution")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+On 10/21, Allison Henderson wrote:
+>
+> On Tue, 2026-10-20 at 15:09 +0200, Oleg Nesterov wrote:
+> >
+> > Let me try to summarize.
+> >
+> > If rds_init() fails after rds_threads_init() for any reason,
+> > rds_threads_exit() will destroy/free rds_wq.
+> >
+> > If rds_rdma_init() is called after that, and rds_ib_init() fails
+> > after rds_ib_mr_init(), rds_ib_unregister_client() will try to
+> > flush the already freed rds_wq.
+> >
+> > But we have
+> >
+> > 	module_init(rds_init);		// net/rds/af_rds.c
+> > 	module_init(rds_rdma_init);	// net/rds/rdma_transport.c
+> >
+> > and IIUC the order of these initcalls is not defined. So if
+> > rds_rdma_init() -> rds_ib_init() is called before rds_init(), it
+> > can do flush_workqueue(rds_wq) when rds_wq == NULL on failure.
+>
+> It is sort of defined.  When built as modules the order is enforced by
+> symbol dependencies. rds_rdma and rds_tcp need symbols exported by rds
+> (rds_wq itself is one of them), so they can't be loaded unless rds_init()
+> succeeded.
 
-Sashiko has reviewed this patch and found no issues.
+Yes, somehow I forgot that rds_rdma depends on rds ...
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261021085643.2442=
-949-1-hca@linux.ibm.com?part=3D1
+> So the rds_wq == NULL case can't happen.
+
+Well, in theory rds_threads_init() -> create_singlethread_workqueue() can
+fail too and leave rds_wq = NULL. Nevermind.
+
+> So I think the fix belongs at the transport init: if the core didn't
+> come up, rds_rdma_init() and rds_tcp_init() should return early,
+> before they register anything.  I can send that along with the
+> sysctl change tomorrow.
+
+OK, thanks.
+
+Oleg.
 
