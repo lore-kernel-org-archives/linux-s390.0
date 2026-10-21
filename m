@@ -1,88 +1,63 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.178
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.30.133
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792540138;
-	b=PcN1PMDTUpWAFJyhJg9S+YF4bea7zjjsZeDeI8KtGmLFgcA0IMLawnLY8sjNCX6wW7mo
-	 JOWdxONKn4rYH3QrxROfpXCcx4COrS5Ny2r2TAQ0xkZ97iclzXUNX6rOnKe6tNFDbz8vK
-	 W40z06xJxi7BlyxDgxvzSbD4U0zZ6ynrAlAemdpVLvPEvQyO7Z4kIZZe4w1wZ1xbAY7e1
-	 bB31Kcoda0xwS6eaojDsGPK/grWhL55+8B1LLvQtS3gWjZS85hICdtVmXSQyr5BYriFpY
-	 o0NBg4FkgE6qTAnF6LOP12DazN9Fxz8nLP/TECDo8N16fuIZZhVFOzB/cCTyS0bGFUQ==
+	t=1792540950;
+	b=aSk8LF3a3RkM+qNXrnkTOFShkR3Yw3lV/l9bn1oKr/1mYy2Ye94C6iRn1IaPT67NfIhj
+	 icxr+WclPzS3n28OUIBbtAVJp9lDuqQeKXgwOivBEW5HiY43FlTrA78mCniLkd09MnBJK
+	 QAi/4Z09ItMaj2eEPnKOrkO5TOihcsncw/mV2GYlGs3Au+14B2rAYsEH7Pg3ksRhODcxK
+	 8ZX9//8IUVrYVpmaBUHLGQ17CaAv7/Nx873ifvxXR78kw0K6nCsgul6Q8So48UR7GtXaO
+	 tcrNUI/zKGbe37EbxB3PEy0LlZ6++oy+OriYsc5oUbSsf5loiRadXD13szgFnQkVbFA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792540138;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Received:X-Forwarded-Encrypted:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=D1Nuj0c85bvBmNt2X1dkz5A5qEMgMEBKUot79cJMsS8=;
-	b=fuqayaLN+Rb8W3AA5gx4YZr99nMgIkRf1VWKgOZsqJKB1X6G9SV2dU8bIy/XWODthJYr
-	 D75imIJcl8hA4j8K7nR5dv8bIyhOV597LYOroBnolG3Zs+TZsQODpYiTYlpp5t6n4WAHQ
-	 qDeb+qKYZCN4pvVuz1rHSle4yi127dhOS3ZuQu0cwV1bSHp9SY7IGQbJBNlPOfRwU/Yh6
-	 bw0Jb0UoKJv2dtP2uq1HB7hkAblZsJh8xr06ER6AT3qRJkHFzR2BlMrG7xAtU902SxKxR
-	 QJO7zAnc3UF6OymFwqfIU3qc8Y4jxTHSVIbD6LXUEy8eRbLRu/X/JB9fTgdCqY1sz1w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792540950;
+	h=DMARC-Filter:DKIM-Signature:X-Alimail-AntiSpam:Received:Date:From:To:
+	 Cc:Subject:Message-ID:Reply-To:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=L/iXX1PKqJsgt5/W9CiPqOLhRee36XHrCszd+bo5MDc=;
+	b=0FZ7JlGoNYGbudzrfnxbzWEwa/vrKVd6pll3lhSgXpIad9QvrqrnkWWvyUc+kHbVTEh7
+	 0YQJbxdV+KX3ti2OsjpuFkydtXN54I1g7s8Qz2HodWKN0R3PmVJPHbM5Vu9eAPW+yi0cf
+	 VSMM9tMO6a3gw/So5EPq8R3crgnx3i1EgZ72lecU9jyEYmIueT3lynnARg2omceyNIjdJ
+	 77ssXhW+QIzsa+sAZUaA9Q+3AVq7bAQhChzP2eAiFjr6dALAp0erh2VPxZv0zozLt5UDc
+	 hCNHNH3+KlfeHsG4uAVA9Cg4x9337XMVwWn9K3OmLm1+yuNHeImPdqryc+dm+386dGQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=chromium.org;
-	spf=pass smtp.mailfrom=chromium.org;
-	dkim=pass header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=V2htlUnQ;
-	arc=none smtp.remote-ip=209.85.210.178
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=linux.alibaba.com;
+	spf=pass smtp.mailfrom=linux.alibaba.com;
+	dkim=pass header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=DNhCiijw;
+	arc=none smtp.remote-ip=115.124.30.133
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B051606A31A
-	for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 23:48:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1B051606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58F55606A319;
+	Wed, 21 Oct 2026 00:02:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 58F55606A319
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=V2htlUnQ
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-8a064dcfcfdso43288b3a.2
-        for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 16:48:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1792540137; x=1793144937; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=D1Nuj0c85bvBmNt2X1dkz5A5qEMgMEBKUot79cJMsS8=;
-        b=V2htlUnQI4mFScVT4WCEJvCyFfvGwJOvLHy2fV6tjXSuw7qnBh21d0hLgJHA3Mlug8
-         itnzBgB3ZrO1GN6nXoftE23GS9PvFjqP94GTJ13t2/RR1IKmva9gigwohThc2d/Wwmd9
-         Qa1qkmjK1rrM89uFvO+Vd3hKf1Ve6M81TRK8k=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1792540137; x=1793144937;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=D1Nuj0c85bvBmNt2X1dkz5A5qEMgMEBKUot79cJMsS8=;
-        b=kBEJfJhKoyj6pLKPibHnwxN+KQgyA6l+RqIthRkmXaZJ4qjpFSdKms4GVW15Q3hMVc
-         LwWMPEpiULJjyH0hwDSmlI/saIkCJkbbT16A03zvScorMg7Sl6mk/sAWaqtqUsAr85rG
-         lIkKbnT0R44aO+cf0CI53qGamrLGS0qUavOYvust8brfr7e/tMfQWRA4GiNnd6t2w1FC
-         hoCi/q5ekAWzqLWiytkm2AZWTnhTch3+m/ZFXg5ukSd1P4FDD+KNxmfagjodmrRKN6Bk
-         Em337K5MWBip61j4e24wRig2EROhw91Wen+z4oG0jjeabIgJ1ldkl1fRliEs0CGFxsii
-         hqCw==
-X-Forwarded-Encrypted: i=1; AKwUvBy7q49owRQlzyI+ZeLGLlfbbAKJlaI4XNv+FoAhGhCPYGvSeMfTvyc8455fMbWbCNYHPV8jHnxn38Yp@vger.kernel.org
-X-Gm-Message-State: AFq9FYKLBD1EJUewrfnog9kxJ981Xmjm4B6B4EIio8uGbS6s9OC8GMgt
-	mo3OUSbXaj85moXSwR/OlAMYCff4j5TIMFvxWFyD/YaKTyas2FjXZZFV2lAjzN+kZoMDm9fbtiI
-	TJbThx7LN
-X-Gm-Gg: AYBFou3Xvx/bVLOpJfB5Do87NZO11oAULWsVEwBmD05fC1e9ahsUWlOjOe+3czlfVI8
-	0qS61Cg2O/BkcpwtYhSKsZxswuneUVAWWrRMv+hDz1zGIs8GQ4DdwO7LUoxgkaSOd5heXPgognu
-	JuEUSGpxeKmZ0XJCF+NWymG3eE/vjxwto/hZC2InC8ZqvEi4EIL6kXGuwRKrP9+N0Bjbu/at/mJ
-	Ydoz7K98NIU7eq5qbxfrUJ79DGrn8IJzsWCVkg2Nai7P49Yqt8CbGwXAUTQjImsNsDibtB08vg5
-	adiIXwfpFM5dHgr8zNS2XyfYdRAWO2Xt0FCXaNj7B3dq8VNfonRaCbk84kfi+ugayvAzo/zMgj9
-	Z2fVssI2zoRHcpTVPtLzK/7CrRK+NllAs5DnrC1xfTMAFLzcXFTjWkDAqNVTL6Ey8Zl2cC3XI1g
-	UKg1dfMeFzHbGZvTuxRWUZrL6X03RwKbt1AsqKPiWWLaMKiD5UCEbhv7AXXGk/h9egPXoO44k0Q
-	D8lk3+6kWbFaGGmhmylK539CWTtw7bItHc=
-X-Received: by 2002:a05:6a00:e11:b0:88b:9eca:951a with SMTP id d2e1a72fcca58-8a089c49a22mr335183b3a.1.1792540137411;
-        Tue, 20 Oct 2026 16:48:57 -0700 (PDT)
-Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com. [74.125.82.41])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8a0895dc12asm151730b3a.40.2026.10.20.16.48.56
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 20 Oct 2026 16:48:57 -0700 (PDT)
-Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-14fc585291cso16678c88.1
-        for <linux-s390@vger.kernel.org>; Tue, 20 Oct 2026 16:48:56 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBzJKyAyyIiIOIls8sjwjZ1LH43Vq+bP7tx86MGOQZ+S3QmZ0ZYzSWkgYf1//74v0+6KtjNSOppGK4hJ@vger.kernel.org
-X-Received: by 2002:a05:701b:270b:b0:187:a2b1:7b3a with SMTP id
- a92af1059eb24-190a6adcc50mr423407c88.41.1792540135068; Tue, 20 Oct 2026
- 16:48:55 -0700 (PDT)
+	dkim=pass (1024-bit key, unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=DNhCiijw
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1792540945; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=L/iXX1PKqJsgt5/W9CiPqOLhRee36XHrCszd+bo5MDc=;
+	b=DNhCiijw2Qhkm6O0SfsW+PRNH5zaSM1+up0Va9dsDb1uYCCofEoegYD24kGYr98YxSNAey+soKYgmKBxvfmpoDBKP90Qgm6qEuzczXppZJ/E1sEchSdDYmQsD9/SOmAgNA5ZBu89MoMx3U60rfAoeQG9+k1gHMsqSbNumu0bsl4=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045098064;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=16;SR=0;TI=SMTPD_---0XDERKvV_1792540943;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0XDERKvV_1792540943 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 21 Oct 2026 08:02:24 +0800
+Date: Wed, 21 Oct 2026 08:02:23 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Jakub Kicinski <kuba@kernel.org>, alibuda@linux.alibaba.com,
+	sidraya@linux.ibm.com, mjambigi@linux.ibm.com
+Cc: Chengfeng Ye <nicoyip.dev@gmail.com>, davem@davemloft.net,
+	edumazet@kernel.org, pabeni@redhat.com, tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com, horms@kernel.org,
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH net v3 0/3] net/smc: fix link group scheduling,
+ registration and work lifetime
+Message-ID: <atgBD0t0xHnMlwjX@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20261013091716.1210420-1-nicoyip.dev@gmail.com>
+ <20261020125849.67c40566@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -92,62 +67,30 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261020-kconfig-fix-mfentry-check-v1-0-428258bc0fc0@kernel.org>
-In-Reply-To: <20261020-kconfig-fix-mfentry-check-v1-0-428258bc0fc0@kernel.org>
-From: Ricardo Ribalda <ribalda@chromium.org>
-Date: Wed, 21 Oct 2026 08:48:40 +0900
-X-Gmail-Original-Message-ID: <CANiDSCt=7SorMBAUXTohsSV_-6BZPrHbC9u80-P7=kYO4NiUJw@mail.gmail.com>
-X-Gm-Features: AclHuK_NFTuQpEwblXCYU1ELdfOsTXBO_zAq82tRWKGwdXrwLnDaicFsmdlXQkQ
-Message-ID: <CANiDSCt=7SorMBAUXTohsSV_-6BZPrHbC9u80-P7=kYO4NiUJw@mail.gmail.com>
-Subject: Re: [PATCH 0/2] kbuild: Fallout from moving '-mfentry' check into
- Kconfig stage
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: Nicolas Schier <nsc@kernel.org>, Julian Braha <julianbraha@gmail.com>, 
-	"Lorenzo Stoakes (ARM)" <ljs@kernel.org>, Kees Cook <kees@kernel.org>, linux-kbuild@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261020125849.67c40566@kernel.org>
 
-Hi Nathan
+On 2026-10-20 12:58:49, Jakub Kicinski wrote:
+>On Tue, 13 Oct 2026 17:17:13 +0800 Chengfeng Ye wrote:
+>> This revises the two-patch v2 series and adds a separate fix for the
+>> running-free_work lifetime issue identified during review.
+>
+>SMC maintainers, please review.
 
-Thanks for the series, it fixes the issue for media-ci
+Hi Jakub,
 
-Tested-by: Ricardo Ribalda <ribalda@chromium.org>
+Since we usually require Sashiko's review comments to be addressed
+before merging, and we now have many more patches than before, I prefer
+to wait for its review before stepping in. That's why I always miss some
+patches.
 
+However, Sashiko doesn't send any notifications when no issues are
+found. I was wondering if Sashiko could send us a signal (or
+notification) when it passes without issues so that we know it's ready
+for our review.
 
-On Wed, 21 Oct 2026 at 06:52, Nathan Chancellor <nathan@kernel.org> wrote:
->
-> Hi all,
->
-> Ricardo reported an issue from moving the compiler test for '-mfentry'
-> into Kconfig. In testing that patch, I noticed that the kernel.org GCC
-> builds for s390 were not probing correctly for '-mfentry' support.
->
-> The first patch moves the check for '-mfentry' back into Kbuild where we
-> have the proper information for whether this flag is actually supported.
->
-> The second patch documents the reasons for these issues for future
-> travelers to hopefully avoid these problems.
->
-> I plan to take this via kbuild-fixes after sufficient review/comments.
->
-> ---
-> Nathan Chancellor (2):
->       kbuild: Move testing of '-mfentry' back to Makefile from Kconfig
->       scripts/Kconfig.toolchain: Highlight cc-option differences between Kconfig and Kbuild
->
->  Makefile                  |  3 ++-
->  scripts/Kconfig.toolchain | 23 +++++++++++++++++++----
->  2 files changed, 21 insertions(+), 5 deletions(-)
-> ---
-> base-commit: 997208ce9f43f01febac956cf9aeffe89945e3c1
-> change-id: 20261020-kconfig-fix-mfentry-check-50525bc5a6ca
->
-> Best regards,
-> --
-> Cheers,
-> Nathan
->
+Are there any guidelines or mechanisms that can help with this?
 
-
--- 
-Ricardo Ribalda
+Best regards,
+Dust
