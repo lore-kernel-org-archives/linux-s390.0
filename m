@@ -1,64 +1,65 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=194.13.80.246
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792543278;
-	b=LDwE4ChBg2CM1+DV40aRzemS0K6UjhHjR6qyikgwsRgj7ITd9JtGak89il0aUgogeHJp
-	 V/8jNVokuhOv3pJbpuHOky99L6p3WZhRBlh5+Q5PnRrRNfNywW/yUVJrcb2RfJtC0wB7/
-	 pyzdKL97lc3Xcez0cyHtQ2KsM8+4GOSWmw7F5AIpkgDkfIMz8sYci0OVGhj9hjhbtyrNA
-	 ybBjARKSEXia9482PQSDCSJhRnenSBtop/QoiKuNeTZwsPxQ40rj5AH7TzISXqwg6B5pm
-	 nUKCNZiMlFlhe36E6U6NwHM5p+WmxNVLz/P+MamcKi3l/RFer0oNScCNPdOZ951M2MA==
+	t=1792561479;
+	b=D7iFkDk+zWDzJYwPyHMwQgzXqeG6Og5cdpVseCORWt8aHvpFirP3CQF6pbZbGzn+WgCS
+	 Yc8hLs3Wj0f8GuNv1RtxAufIh6A96zQZua9s+zDjZ9Mys+ZeqIXWScmX6Lm4q1r11L4sy
+	 Uo8tQSjv1CXHmIyCoC+3lfZGSSIEBiSL0Bh0QL/Kss52dLXtmmv6sCMlXjXxCduFBXwDC
+	 6WUuZMQwajJKLj52WfzpiE32av2RimAcOkrbkXFuV7EA6WIYd2KsKKXUePXuPPicO5CwV
+	 VZt8VOsLySbT6sq1PvlpERZ2tkHDxMDa92mbevfxoOhfTSH54o+aVmaXKaGUD05YKFw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792543278;
-	h=Received:DKIM-Signature:Received:Subject:From:In-Reply-To:References:
-	 X-PR-Tracked-List-Id:X-PR-Tracked-Message-Id:X-PR-Tracked-Remote:
-	 X-PR-Tracked-Commit-Id:X-PR-Merge-Tree:X-PR-Merge-Refname:
-	 X-PR-Merge-Commit-Id:Message-Id:Date:To:Cc;
-	bh=4jFmdhgMuuqNWHGPZ7xAH43H6ajdHm0uvRRAj6HDcWg=;
-	b=iac4ovFxZmGqqq6NDkT85mR6RXqTV9U5wHHUEqHDIe3M0bi1Kaim1OXIgmNaIIeU35TO
-	 x9+opE7b2NLGf9+s+iDojMo1lI8+ZErfRzaPWnr5AcUjdXbg2bjiOq4bAstwJfOjJcoiA
-	 FoZkXkdkYsrqfLiGqIRk8qMgYu/fBR7XxgvPNrXDeo6Co5HJajXo0BeJtcsGDFs/7F3Am
-	 SGeaM8XqXSKjJDGR4NXK6n5hZ2HDMavUVYzhBakuATduWLnfebfUMBT02g/pvfKgFSITD
-	 YEHIOec7udeZUBVdrdsnWGRqwqm+Zdh/WCG8rIf5e5qevBfHHxHGnsKLIiwNlTqDNSw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792561479;
+	h=DMARC-Filter:Received:DKIM-Signature:Date:From:To:CC:Subject:
+	 User-Agent:In-Reply-To:References:Message-ID:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-Last-TLS-Session-Version;
+	bh=gjp0o7E7Pa+upNg0P/AiNTH4X61fq2ZotWdk2WRNMco=;
+	b=XUf7Z0r+CwFx9CNLQX1B8KhF1MzCjh+yD5+yhgwq0vCjI9BPll5K0fItr9VhujA2z7C9
+	 Ww8ZdLnbebHgy/cnK4IrKEZQz7XEmNcvzFTalx58Vf6ISd98tKzAkmhYFoslttgIsdpRy
+	 MnVQ+oEmpFkGpigL9gHFrIOWl7MjJxa27AfzrAk4wQPZdWr03Qcyp1kjf18KOSV/E9iNJ
+	 PjAIJ6jn1OK9EgWB4l9jRlyMPAjdf3rbNcEKoWFhYXrH6oGqsdISU7kyAVRL9tbgz0nvr
+	 UaaTvIpIMVMFsDWYFzefHRRVjUI38yTd2D/S5upYvxa4UmJJeo1MJTQ8cipbgtp16ag==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UTUVs+rk;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=none header.from=tipi-net.de;
+	spf=pass smtp.mailfrom=tipi-net.de;
+	dkim=pass header.d=tipi-net.de header.i=@tipi-net.de header.a=rsa-sha256 header.s=dkim header.b=V3ciHOJJ;
+	arc=none smtp.remote-ip=194.13.80.246
+Received: from mail.tipi-net.de (mail.tipi-net.de [194.13.80.246])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B353606A31D;
-	Wed, 21 Oct 2026 00:41:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D070606A319;
+	Wed, 21 Oct 2026 05:44:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3D070606A319
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=tipi-net.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tipi-net.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UTUVs+rk
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84A551F000CF;
-	Wed, 21 Oct 2026 00:41:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792543278;
-	bh=4jFmdhgMuuqNWHGPZ7xAH43H6ajdHm0uvRRAj6HDcWg=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc;
-	b=UTUVs+rkp3E3smLz+WpUc/qZxgpSmXLYd3hxJZ1SOtGSgTgGMzLo2dZC9F1fHuBmz
-	 0Giwxg1OeOUd6tCtf1u3w2LeaQFca71U5Pjemtl4LyfqAR0A9Tc19m2Y8bCzEs6Z23
-	 /y6WvPjzXGA4UNc7WT3Gpn5gMXDBr2VuPA1CQgqm3Ci8tBB49C3+6QDfziDBaSwnQk
-	 yxNMO5eNJ4/+FuW9V43FejRqXORYG6h1J23mCrJE4AmORU0HkQlpBI5VbqWw4Onflj
-	 604fEY5WiOkH2R8Knq9zv5/k+R5Ma5cfzRYV4RDyJ4Dhmwbcflb27jqGU4DBSyUFuO
-	 R+NDoqZJaVwmA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7B4053809A0D;
-	Wed, 21 Oct 2026 00:41:18 +0000 (UTC)
-Subject: Re: [GIT PULL] s390 updates for 7.4 merge window
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20261016181724.34355A7e-hca@linux.ibm.com>
-References: <20261016181724.34355A7e-hca@linux.ibm.com>
-X-PR-Tracked-List-Id: <linux-s390.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20261016181724.34355A7e-hca@linux.ibm.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-7.4-1
-X-PR-Tracked-Commit-Id: 3e30b96fab780110f62156d5a8cd5240152b3c59
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 375d5d57545f53d2bc3e15ada0e9da360fc68bea
-Message-Id: <179254327738.289274.8518010733726961969.pr-tracker-bot@kernel.org>
-Date: Wed, 21 Oct 2026 00:41:17 +0000
-To: Heiko Carstens <hca@linux.ibm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+	dkim=pass (2048-bit key, unprotected) header.d=tipi-net.de header.i=@tipi-net.de header.a=rsa-sha256 header.s=dkim header.b=V3ciHOJJ
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 0ADC4A1626;
+	Wed, 21 Oct 2026 07:44:30 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tipi-net.de; s=dkim;
+	t=1792561474; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=gjp0o7E7Pa+upNg0P/AiNTH4X61fq2ZotWdk2WRNMco=;
+	b=V3ciHOJJORHb1sccJArRGx++x1e5/i6Ztv8x2QIkL1Z4LVY1dYxuqWIcMjbuH/Uo3SZoEb
+	gsMWA4feDIY3fwmSyjzNBrg4/NCAIf27ulqePqypWotjBok8iIFfl40Wrs6QhsO4PgCLWj
+	amNn/YD/sA8l/F0QVHOrs8dTQpbcDpTKfBE0NJaNXHpmddGbUbxxqw2LluLZM/07DQwOzA
+	6NR23olpR/k1zNPJwriNnaeay0LyGfPwgcC6JgFeU84MwD6r8OdAGaD4PwvXl/npRo3fXm
+	v9CwokaNSiEzb4JS0L2wyb3SK094g6S4POZR9zvqU5SfITXAzdtlQjbpGuDzaw==
+Date: Wed, 21 Oct 2026 07:44:28 +0200
+From: Nicolai Buchwitz <nb@tipi-net.de>
+To: dust.li@linux.alibaba.com, Dust Li <dust.li@linux.alibaba.com>,
+ Jakub Kicinski <kuba@kernel.org>, alibuda@linux.alibaba.com,
+ sidraya@linux.ibm.com, mjambigi@linux.ibm.com
+CC: Chengfeng Ye <nicoyip.dev@gmail.com>, davem@davemloft.net,
+ edumazet@kernel.org, pabeni@redhat.com, tonylu@linux.alibaba.com,
+ guwen@linux.alibaba.com, horms@kernel.org, linux-rdma@vger.kernel.org,
+ linux-s390@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_net_v3_0/3=5D_net/smc=3A_fix_link_gro?=
+ =?US-ASCII?Q?up_scheduling=2C_registration_and_work_lifetime?=
+User-Agent: Thunderbird for Android
+In-Reply-To: <atgBD0t0xHnMlwjX@linux.alibaba.com>
+References: <20261013091716.1210420-1-nicoyip.dev@gmail.com> <20261020125849.67c40566@kernel.org> <atgBD0t0xHnMlwjX@linux.alibaba.com>
+Message-ID: <1F2D6162-5113-41DE-B649-0E67F037E8CD@tipi-net.de>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -67,16 +68,32 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Last-TLS-Session-Version: TLSv1.3
 
-The pull request you sent on Fri, 16 Oct 2026 20:17:24 +0200:
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-7.4-1
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/375d5d57545f53d2bc3e15ada0e9da360fc68bea
+On October 21, 2026 2:02:23 AM GMT+02:00, Dust Li <dust=2Eli@linux=2Ealiba=
+ba=2Ecom> wrote:
 
-Thank you!
+> [=2E=2E=2E]
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+>Are there any guidelines or mechanisms that can help with this?
+
+You can use suie and filter (funnel icon) for your driver(s)=2E The filter=
+ is AFAIK populated from MAINTAINERS file=2E
+
+For me this helps a lot, to keep an eye on patches and their state=2E
+
+[1] https://netdev=2Ebots=2Elinux=2Edev/suie=2Ehtml?delegate=3Dnetdev
+
+>
+>Best regards,
+>Dust
+>
+
+Regards,
+Nicolai
