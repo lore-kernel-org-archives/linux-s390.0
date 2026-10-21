@@ -1,81 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792591967;
-	b=ZJomfP5g7BmChULmJKEPZJWL6C7WfpiFVl7KksicpcXvJEfmwCgdfkqi2BofBD0EOsiP
-	 6pAeTpp3bSxvBUj/66RyHvnXCkEIT1J347wcQjlKYwSmwIBO7/Ict/2RjtK/kGHP7l8j3
-	 gOvjOIGQXVUMhlbHVHUDe27TPjR2RM7h9PC0TJX+5A5yuIWzTc5cjyXBIuq0yPPKFzX1Y
-	 w9JF0ZIfhqO9sYipVQWPpZXMEBr5FFHuN0md6QH4u1tjC53DWrBaJDxM4scainn9ZJuhn
-	 iALlLrCOwCkry4ouBTNS/GEEiu0SITsfkzK2DenHkHeDVIo0iPuIa3raWfMi/gPn81g==
+	t=1792593857;
+	b=EYbebAWjqR6qrM3MXWzxNhI7EkMx7YtcELCwEndm6j3txQjl+5eV4qrVm8AsbhHuaoaJ
+	 mUITn8yAbxfv6gbVibAiTJvpVG29xtmsaWF5i9wYd6gXXu7R5Rm1MqIwOBrcaawkvv/cE
+	 GkAMAcs2fZO4qdqyur7pRHENJz/b/B9bdE3WgZ3ebLSxZtz1vHwUROhidhdbBdC0c6KHR
+	 by5QJYOlpHv6I1I4h9mqSOVxAO0lvFn1l/5FYKw+aAqyMrFuFs9wYUNnEOABbCYo0SDI/
+	 o7hybB8Eqh1Ja/mWzjAs1oMYKKdkfPHybade8myIklRHBPlAJptMEZv1w4BdxO2aLog==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792591967;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-GUID:X-Proofpoint-Spam-Info:X-Authority-Analysis:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=n59qWlIxs7y37IelBhq2ntyzZue83vbhd7EcjKnkdc4=;
-	b=kvEbrVuNmI24DGY5aojvpogJWorW78i+rVrz/N8eP+8sv/woJ/Ht7vVBkQF0mpjuO8DM
-	 5AldbAqZ5xcRSDD93o95peD8cDZohZHTA7irqnlJ/8Qmf6Xo0+4AJ0bJFGnzMdDlPj/aY
-	 u16j+N0600HKSAb+4llDvkEb19hg9iqIPm77Ig0NEhbrff/N/PxodIVqvP6PB7sHlHYD0
-	 nctrJTVYYtbdu17hIQ9ro6W/ZC3AOxjcz4AF5yyEMLAbZmufq935Qzm0aj1CWnLyhnQdT
-	 iw+h9CsONfA9wj1wWrO2kLU8r5iVoRyHeTJ8TKaVCPE5Cp1psmyzLOKnnbZYYtvfkPg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792593857;
+	h=Received:DKIM-Signature:Date:From:To:CC:Subject:User-Agent:
+	 In-Reply-To:References:Message-ID:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=Y2tC8SXoBQ3oYesXX9enzJXSSVTIvRj44fi71d4FwrE=;
+	b=LMwvXdmaUkrWl5PfFM27eANAXxINmtewrYHTEC7DofOZsp5om4TfUbV31nCfw58TMviy
+	 4Zp3OdIZMpcrqLq0VHzCns5Dyo1nNsb+0qfuOX9TBIOkh3G9GxsHYLoHJ0PlztNS39ZpJ
+	 UvjYGsQrVhXPJ1TBfmn7j0X0eGgKPJmcqSvC78snTONIensekU62/0iwl0LO4jDkviR+9
+	 EkhSRQm7mtvD+VNjyAP5lc90d6fkLGxilWcQS5bELawaTsedsuAR+zP1mv+XzhZpAYbav
+	 Oo9uu293hfOYR0LxmBMvgBPGa1RtgvkE9opXJfnuTmACmV+fkmh+hqS3pLxa8gnJsbw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=LpHqN9OP;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mIa++Fwv;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CF58606A31E
-	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 14:12:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6CF58606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FEDF606A319;
+	Wed, 21 Oct 2026 14:44:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=LpHqN9OP
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69LBiaJK1092571
-	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 14:12:45 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=n59qWl
-	Ixs7y37IelBhq2ntyzZue83vbhd7EcjKnkdc4=; b=LpHqN9OP/3BpVp92+r58KJ
-	MwgCFN9DKIrPdiick8KrjMACu7Ks8bYbKSTKAlyeZRALzCe3DiQJUDurwcZWO4tr
-	ZsSL+fsks3X1cRO4KhIw7b2ttstBYdsHHE9aLEckUZuclPSDA2vdTU5FjeQdpPeU
-	KLMx1cMIUR057eLSAu8pGXlJW3h8nf3P1xb5p0CGPzx53XIG8bhr1KKKhdLgBZuE
-	dD9hftXACzO2XX+j85uzBYgao302QzJPF4Zrp/nlym0VscDkhDenOuozW1E3wHLA
-	kA3GLEYDIJkMJw7bL+HmBexPYJZgxKpZ19QzGh4uQusiDiNLqKGivN1uCjocXsHQ
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw5a17gv-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 14:12:44 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69LBnvaj2998793
-	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 14:12:44 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4he7bs5hsk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 14:12:44 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69LECepl51773806
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 21 Oct 2026 14:12:40 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6A72320049;
-	Wed, 21 Oct 2026 14:12:40 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3DE6220040;
-	Wed, 21 Oct 2026 14:12:40 +0000 (GMT)
-Received: from [9.224.76.67] (unknown [9.224.76.67])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 21 Oct 2026 14:12:40 +0000 (GMT)
-Message-ID: <64aee74d-a628-436a-8155-48fc3cf41a56@linux.ibm.com>
-Date: Wed, 21 Oct 2026 16:12:39 +0200
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mIa++Fwv
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3EED1F000C1;
+	Wed, 21 Oct 2026 14:44:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792593856;
+	bh=Y2tC8SXoBQ3oYesXX9enzJXSSVTIvRj44fi71d4FwrE=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References;
+	b=mIa++FwvTPmXGjfM82gOimKDgCaIkFs7zuS72xRTLcZA040J5hT6CDv0UGQpaIctO
+	 3VYr2B4M/x+ZVS8yxFtevloORtWaC/HA/qh79BHBLswkuh9Lj0Mk+OUSdAfhHD8MMA
+	 ph7D8CK+lQeKVzE/x4Q0SYxyq7xqxGuJ0NkidTg295rQ8J9K70/Dio4h+7NApvXoBT
+	 qBbZb24K498m2Tg/0zoSPp7+jl4ueKwcXdvuEVwH1hohRIEIs7ZskMkclEo06hA/sF
+	 hD2Ifwq6zJcJw0ecdt758RRi7YrIazjjox6p4VbQV2uNwZNYt5393qV7HjZHIanEvX
+	 BuNBnnRru6kFQ==
+Date: Wed, 21 Oct 2026 07:44:16 -0700
+From: Kees Cook <kees@kernel.org>
+To: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nsc@kernel.org>
+CC: Julian Braha <julianbraha@gmail.com>,
+ "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, linux-kbuild@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Ricardo Ribalda <ribalda@chromium.org>,
+ linux-s390@vger.kernel.org
+Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_1/2=5D_kbuild=3A_Move_testing_of_?=
+ =?US-ASCII?Q?=27-mfentry=27_back_to_Makefile_from_Kconfig?=
+User-Agent: K-9 Mail for Android
+In-Reply-To: <20261020-kconfig-fix-mfentry-check-v1-1-428258bc0fc0@kernel.org>
+References: <20261020-kconfig-fix-mfentry-check-v1-0-428258bc0fc0@kernel.org> <20261020-kconfig-fix-mfentry-check-v1-1-428258bc0fc0@kernel.org>
+Message-ID: <F643B506-5031-4BEA-8279-199E7E181721@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -85,98 +62,24 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/3] s390/diag: Add diag204 IOCTL to diag misc device
-To: Hendrik Brueckner <brueckner@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>, linux-s390@vger.kernel.org
-References: <20261021-diag204ioctl-v1-0-25645b97bf4e@linux.ibm.com>
- <20261021-diag204ioctl-v1-3-25645b97bf4e@linux.ibm.com>
- <atjFxOoK4GbbfZmh@linux.ibm.com>
-Content-Language: en-US
-From: Mete Durlu <meted@linux.ibm.com>
-In-Reply-To: <atjFxOoK4GbbfZmh@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIxMDA1NCBTYWx0ZWRfX/6+wjt8x/heF
- h9erb8WjH2+4m/NIqzHhEfQDGIO4cUAQCK2NxqlVJYMqju2xZgyvdgIIGqHa2+SA6QvX4wYAa/H
- /I7XVuJynW7+yt/CtL2bTARrc1bUBxAvfX6WSGOD+YV+9KLAvP70lDrhtRLW/K6YwL8h1+IoOTd
- iPhWUPltgrAMBs1h2pq8YqnZnXGLIYZ60OFEPuHVnipaJZXRyf3CnINuKHWLIKI163s4SEnWqqw
- WtFkWhuGcNjixbKkwlhghVpzx19QGjioRGTQEWW4lmI7tC5TUdALb5YFqY25ZmVqnvDpawjHfBR
- H1yoSMS4iny/BPxgv13/A6Pz7PHvUG/1qOtnGirtgpcNpJyVql9DmbeCxtPm3eBzaiWGfHIdzoi
- UVrUH/bhaGJcMK8rwsuCZnYdMgPgj3I12Nl3Px14Y+jhaZxrsa1ovJj+nweiEkym7a98/ksf+9o
- aBjdakS2ZU0xFsNIXaQ==
-X-Proofpoint-ORIG-GUID: Pt2L0Ct44pzdAP_qot4X2Tst3v7y6bVS
-X-Proofpoint-GUID: Pt2L0Ct44pzdAP_qot4X2Tst3v7y6bVS
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIxMDA1NCBTYWx0ZWRfX1QtIPnQD/16a
- cNnnMEqu2NW6xoSScTlkFHVkX3eWycyuJIYUT6OCjZ3A1tFnPzhjrmzUloV+TV/JW/tfq2oBo+i
- XCINQEBkQ9bWSUn9Q23s+9Z+gKJj35Q=
-X-Authority-Analysis: v=2.4 cv=ZfSIpcVA c=1 sm=1 tr=0 ts=6ad8c85c cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=V5kmTLyOG0YdflYEcagA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-10-21_03,2026-10-21_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 malwarescore=0 spamscore=0 suspectscore=0
- clxscore=1015 phishscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610210054
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On 21/10/2026 16:01, Hendrik Brueckner wrote:
-> On Wed, Oct 21, 2026 at 12:28:10PM +0200, Mete Durlu wrote:
->> Add IOCTL implementation necessary to fetch diag204 data from the new
->> diag misc device under /dev.
->>
->> Signed-off-by: Mete Durlu <meted@linux.ibm.com>
->> ---
->>   arch/s390/include/uapi/asm/diag.h  |  8 +++++++
->>   arch/s390/kernel/diag/diag204.c    | 43 ++++++++++++++++++++++++++++++++++++++
->>   arch/s390/kernel/diag/diag_ioctl.h |  3 +++
->>   arch/s390/kernel/diag/diag_misc.c  | 10 +++++++++
->>   4 files changed, 64 insertions(+)
-> 
-> [...]
-> 
->> index efffe02ea02e..ac263baf8d08 100644
->> --- a/arch/s390/kernel/diag/diag_misc.c
->> +++ b/arch/s390/kernel/diag/diag_misc.c
->> @@ -35,6 +35,16 @@ static long diag_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
->>   	case DIAG310_GET_MEMTOPBUF:
->>   		rc = diag310_memtop_buf(arg);
->>   		break;
->> +	case DIAG204_GET_LEN:
->> +		rc = -EPERM;
->> +		if (capable(CAP_SYS_ADMIN))
->> +			rc = diag204_len(arg);
->> +		break;
->> +	case DIAG204_GET_BUF:
->> +		rc = -EPERM;
->> +		if (capable(CAP_SYS_ADMIN))
-> 
-> Why do you restrict this to sys_admin cap? I think that access control could
-> be better managed through mode and ownership of the /dev/diag device.
 
-I don't know about other diag codes and I wanted to just preserve the
-current authorization level for diag204. If you think the /dev/diag
-ownership is a better solution, I wouldn't go against it.
 
-> Assuming that I like to run a service collecting information from diag204
-> would require to run with sys_admin capability (almost root authority).
-> 
-> On a /dev/diag, allowing root and group to access the device would allow
-> a service to run with regular and respective group privileges to access it
-> (w/o cap sys admin).
-> 
-> We should revisit the device .mode = 0444 setting and prefer using
-> 0440 to prohibit other users and restricting access to root/group ownership
-> only.
-> 
-Sounds like a separate one liner patch involving just
-arch/s390/kernel/diag/diag_misc.c
+On October 20, 2026 2:52:18 PM PDT, Nathan Chancellor <nathan@kernel=2Eorg=
+> wrote:
+>Unlike cc-option in Kbuild, cc-option in Kconfig does not test options
+>with either bit ('-m32' / '-m64') or endianness ('-mbig-endian' /
+>'-mlittle-endian') flags because which flag to use may depend on the
+>result of the configuration stage=2E
+
+Oooh, yeah=2E=2E=2E Do we have any silent failures due to this in other pl=
+aces? On x86 I worry we'll see similar problems=2E Stack protector arg chec=
+king comes to mind=2E I will go see if I can find anything=2E=2E=2E
+
+-Kees
+
+--=20
+Kees Cook
