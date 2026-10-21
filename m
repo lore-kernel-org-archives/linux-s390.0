@@ -1,82 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792578505;
-	b=hloNbFgO5ewyr8er9zIFRtUrBKVj3dEEwakkLFMXtxXPiMkjrMfJ99wG3BHnE5bRj8Q0
-	 G4lnCEBBPVjPPmVMhQcPn1wwU/hJ5CakFQVh2X+G+CgqmzP5Sn/bIUiUDSfWmVyYtlNj2
-	 KFXD+4CVkq147vAQxeZVTQR7pC2ubPCoP/indPoNfqIX4L4Pdh1B8qS6ZCevnMcLLpejM
-	 gF6RJjMbbPqG5TAKZB174uUG3pL5kQDhDfCjzkBAjl+wi6e1zxyaaBEnq3Zh5LUEirAI7
-	 IVO4zqcokDSEPpDVHASMViWzCf9VarQV9KtLM7jxrDT+/bjZ0LlM2Y9yRY0A9yfJHyg==
+	t=1792579962;
+	b=q64Ug159uen6iVwVQOqRN4xhpiN+O4uAwGj8qXcLqqnScdsZqX/ysOPDeoA8+Iv+LKCt
+	 DYJ7DrImMxbqgrDiIXo013y/nPrr4gVjvfLHCyVmQQ6OWPqZgnq5AUCKgdcccnBmnKMi6
+	 y/CCiKYyRmblPkb/aPpMrkdVyH2WeZtuBuN4gfXc2lme8c/kE3sqjkcGSHIk+5xJfTQTd
+	 TIeQ+WFZUuytoAHuL3ibK6kjpdIoCAaZtEYpsEub0YUocyxJ+VE3mj+ClRJ92euwKO0sX
+	 Y7OBQLGBehJAkjNNCTuPPeiGi5Gpl1ap5SncHQhEBxIaaWRJYbeOK3flnYuZWhjDz6g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792578505;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:From:Subject:Date:Message-Id:
-	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
-	 X-Change-ID:To:Cc:X-Mailer:X-TM-AS-GCONF:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-GUID:X-Proofpoint-Spam-Info:X-Authority-Analysis:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=4RNQAsq83g4chh/KpAHVnKO0YDJSxCUddz6Vt3QxUi0=;
-	b=o/yi/Y9BsfCOpPXPAhOeoMEoUw6o9/3sNhZ0UwDGMwYIb36lKmGfiivs4DuhT8ch3mEW
-	 l3WGVfFljILDVuCXQANWqVLQ8x2+Hs8rwGq6/wunexNtiBAbLbZ77Gb22RULbFAe8fIkZ
-	 nABo5Y6faemcmaBQDfp82jZeyd79xzmUJ/cgDTwVvnPsmgwb2+df7EPJcKei6Buq+ZaKq
-	 LQYa/8AVkH5IbRdvJ3FtF0aIy69KSb0n9dCySWFbT9zAKC/VbBgrQeBLe4qZeUEcWeG2u
-	 sgZ8EWzXjtK0z1I8sGmak7S90vk8PjFsENKu/MSLZtk7NuQJ/63h2q8+79m+iN8Pvhg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792579962;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=/AGMrSKzi92z5OdgcX/JjVuo06ukzyT9QHNl6pEJt/g=;
+	b=Sx5zidISLhXtElvSFRqnYN4HVMXL7ohRzibod1Bx6y0N5J5Er/188GHIqdeXzvZWJ0RS
+	 WSzCFVxb/Nl1SA08UhCGQMTrXBWlLbQ6KhyWR2PlHYDm6pTz+SG/MOwgAe15KAv53Gv3e
+	 EMjPNYpshr41yVl8fr2S444Wycuc6K30+L+2tHj23o3e7b9+q7UcsNvKZ1gvbmjTxBWEh
+	 diYlqUHVUm/sJQkRXlR4gF77sjQb88bpVb6Zs7V0NCaEeIYxZHBCLrhw+5zSuZmfg44fu
+	 5ZvPQ/T+fyKp1vz3sIZjuNDD8JS3l72dnOBWqKkb+jVFCSEIFSPWr72JFqohWS08OPA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=gZ4gJht2;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YMbcfrMD;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00015606A31A
-	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 10:28:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 00015606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7A11606A328
+	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 10:52:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=gZ4gJht2
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69LAEgmb907735
-	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 10:28:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pp1; bh=4RNQAsq83g4chh/KpAHVnKO0YDJS
-	xCUddz6Vt3QxUi0=; b=gZ4gJht2NKiavVxe+xbV5zZitrnJGZLdmi1L1cf7H2IH
-	LgN9l7xPreaOkvweclh0pFTG/+54Lf7F8t70Kqoh6s+tKiZvn41dGFYKk8FSxqZM
-	XehuARbGZQcQbAqm7eLRJcRbQPVNf67QwSGHsbcXZXOk72xNvV0ESwlstcmfYRVT
-	rtEYzoOg2MUXhXRaFB0y8NTs37Vtq/oioop3lfLvWV6uGahivWlQaGFD+qPDJb6x
-	q3svFN5uYbXJI68J5NYc87/pTd51QlPyOmJMxGfT2bdzOrhzZmYH98/wC23thZxN
-	wWaFWogQeK7BacY0182JpLZ4OayPDQCwo+YDRGkOdA==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw5a033d-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 10:28:23 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69LA50pE1739156
-	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 10:28:23 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hefss2fxe-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2026 10:28:23 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69LASIJZ50397606
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 21 Oct 2026 10:28:18 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5EB4220063;
-	Wed, 21 Oct 2026 10:28:18 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 31EE42004E;
-	Wed, 21 Oct 2026 10:28:18 +0000 (GMT)
-Received: from [9.224.76.67] (unknown [9.224.76.67])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 21 Oct 2026 10:28:18 +0000 (GMT)
-From: Mete Durlu <meted@linux.ibm.com>
-Subject: [PATCH 0/3] s390: Diag204 Rework
-Date: Wed, 21 Oct 2026 12:28:07 +0200
-Message-Id: <20261021-diag204ioctl-v1-0-25645b97bf4e@linux.ibm.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YMbcfrMD
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A5401F000D0;
+	Wed, 21 Oct 2026 10:52:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792579961;
+	bh=/AGMrSKzi92z5OdgcX/JjVuo06ukzyT9QHNl6pEJt/g=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=YMbcfrMDnbo7bB+gCoR7M9H2vCe1Bqh6j84JorzR3TOJw27rh84x4OFcAH557m9en
+	 d0kv/fj90wE/Wx/1rghP5/RQbtjBU5nfVHAMvK3Yhf5UoS+k0RpohcB2+mfZKTQjP/
+	 QlbXe2iPq4+O1sWeFG+dYhIgvPQby+Bp1yoKUF+X5HsjwG+ArEyWKFbHbpQ0MFfTgW
+	 rjmPkMGY4wvSUt9WT/AhH+iLs4/l5395TgjVO2LFlnxAc++hKvK3WFiagCNlIXMq4j
+	 vhp7Pd2lH9wTukjjQumqdNQU4ARTr53hEPWYwBnyQYPi82BzDyjkRZ2bwz5Dibmdk0
+	 HlWeoB3INNHww==
+Message-ID: <sashiko-outbox-180128@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 1/3] s390/diag204: Introduce diag204 rework
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Mete Durlu" <meted@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261021-diag204ioctl-v1-1-25645b97bf4e@linux.ibm.com>
+References: <20261021-diag204ioctl-v1-0-25645b97bf4e@linux.ibm.com>
+ <20261021-diag204ioctl-v1-1-25645b97bf4e@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 21 Oct 2026 10:52:40 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -85,200 +61,305 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MQQqAIBBA0avIrBNUpLCrRAvR0QZCQyMC8e5Jy
- 7f4v0HFQlhhZQ0KPlQppwE5MXCHTRE5+WFQQs1SSMM92aiEpuzuk2sfDApjgzILjOQqGOj9d9v
- e+wf2yr/QXgAAAA==
-X-Change-ID: 20261019-diag204ioctl-4df9e09af297
-To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, Mete Durlu <meted@linux.ibm.com>
-X-Mailer: b4 0.14.3
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIxMDA0MCBTYWx0ZWRfXy4KyTRokK+OQ
- 15sMVHPglOGQvxXHguY6YZkBSrLxI21U+TzBPg6evM1Xi0Yjx5UWqvWL8+U16R9LfSm9DS47CvM
- YzpgX5m8TOvNa4k9kfaTPIqMBwAHMS7wUGsdhWnlKtV1PtZ2ztpndwBz7j7PIy2bQPsX1CkTeKS
- 10TbLka9FmrANEHLTKrmG36UZpSxitHA7QF4i5usNCV5EOhOaqk5Sl341meJxb047GWqVI5VDwG
- f1762kes+bceFXWcZWzfYcuuwXKG2Oot/rJCu19YmLJIPNZiDM9/XPXhGJ3H2kaGK/bsBoPJGJy
- WQJcTjC+JKCFLCF5LOO0iWgHWlp/C3f7ggdR+urqxDNjU1RBsJm2rUfrAijk+DyHubjiZwPpX9L
- fO/7d7x12qIHTxLUh7pKqoIDC0ArrlyNXvu55Y4PZBGXsIwedJkXNXUA+a+Nnm71ac0ckw7hZ+w
- UkIifPzXum3IHH7PzxA==
-X-Proofpoint-ORIG-GUID: tpwsNffxACZ5eiYY-sF2SrOAQ4x4BLHD
-X-Proofpoint-GUID: tpwsNffxACZ5eiYY-sF2SrOAQ4x4BLHD
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIxMDA0MCBTYWx0ZWRfX3ekdfcPAiUSO
- CAdszNfGzC6rSAjqK8kyxG7vwYdst8+ehFdg62NST1aXmqL+PjeKUk5Aqq/3Af89LeHkgaJHOaT
- MfIkuDfJ/mR2Y2lsboHLQ/wFQ/B1Lzc=
-X-Authority-Analysis: v=2.4 cv=ZfSIpcVA c=1 sm=1 tr=0 ts=6ad893c7 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=Y2AKg0tF5yCgsJeplLoA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-10-21_03,2026-10-19_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 malwarescore=0 spamscore=0 suspectscore=0
- clxscore=1015 phishscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610210040
 
-Background
-========================================================================
-This patch series is another attempt at previous diag204 rework efforts
-from 2025: 20250507135250.34199-1-meted@linux.ibm.com
-The goal is to create a single source where all relevant diag204
-functionality is exposed and managed.
+Thank you for your contribution! Sashiko AI review found 5 potential issue(=
+s) to consider:
+- [Medium] s390/diag204: premature -EBUSY in diag204_update_cache() when ca=
+che is empty
+- [Medium] s390/diag204: wrong break check on error in diag204_cache_replac=
+e()
+- [Medium] s390/diag204: missing subcode 4 fallback in diag204_probe()
+- [Medium] s390/diag204: unexpected -ERESTARTSYS in diag204_store() when al=
+low_busy_wait is 0
+- [Low] s390/diag204: redundant work rearm after cache free in diag204_work=
+_fn()
+--
 
-The main problems being addressed are;
-* Diag204 is expensive and calling it too frequently can cause
-  performance issues and also data integrity problems. Rate limiting is
-  required.
-* Diag204 requires a prep phase to utilize properly which means code
-  duplication for each user.
-* Diag204's current interface in debugfs may not be easily reachable
-  as debugfs is seen as a security vulnarability by some distributions.
-  The new IOCTL diag device should offer alternartive for diag204.
+commit d2828ceeab655eb5035c6aab276ad1fae954baa3
+Author: Mete Durlu <meted@linux.ibm.com>
 
-This is also a prerequisite for utilizing diag204 data in hiperdispatch.
-There are plans to incorporate utilization data for making smarter
-decisions.
+s390/diag204: Introduce diag204 rework
 
-Patches
-========================================================================
-The first patch introduces a caching mechanism inspired by Sumanth
-Korikkar's diag324 implementation. Data buffer gets cached and cache
-access is serialized via mutexes. If unused for a defined period diag204
-data cache gets freed by a worker after a delay, that way it is
-guaranteed that if an LPAR has no diag204 users, no memory is consumed.
-This patch is split into two, first half is introducing the new diag204
-implementation and the second half is replacing the exisiting users.
-This is purely for easier review. Before pushing I expect first two
-patches to be squashed.
+This commit introduces a new diag204 implementation in
+arch/s390/kernel/diag/diag204.c that caches diag204 data for up to one
+second to rate-limit expensive hypervisor calls and frees the cache buffer
+via a delayed work item after a period of inactivity.
 
-The third patch brings diag204 functionality to the new diag misc device.
-Misc device gets two new magic values for diag204, one to fetch the data
-size and the other is to actually get the diag data.
-The uapi now has a new struct diag204_request for requesting the data.
-Struct holds a pointer address to the userspace buffer and two behavior
-altering flags; allow_busy and allow_busy_loop. Impact of said flags
-are explained in Considerations section below.
+> diff --git a/arch/s390/kernel/diag/diag204.c b/arch/s390/kernel/diag/diag=
+204.c
+> new file mode 100644
+> index 0000000000000..8e1909e6caf90
+> --- /dev/null
+> +++ b/arch/s390/kernel/diag/diag204.c
 
-Proposed Way of Diag204 Usage
-========================================================================
-Users from kernel and userspace are now exposed to a couple of common
-diag204 functions which should allow for a simpler way of utilizing
-with diag204.
-The new streamlined flow now looks like;
+[ ... ]
 
-...
-{
-	void *buf = diag204_allocate_buffer();
-	int rc = diag204_store(buf, allow_busy, allow_busy_wait);
+> +static void diag204_work_fn(struct work_struct *work)
+> +{
+> +	mutex_lock(&diag204_mutex);
+> +	if (!READ_ONCE(g_cache.buf))
+> +		goto unlock;
+> +	if (diag204_is_cache_valid(DIAG204_CACHE_EXPIRY))
+> +		goto rearm;
+> +	if (READ_ONCE(g_cache.updating))
+> +		goto rearm;
+> +	diag204_set_cache(NULL);
+> +rearm:
+> +	diag204_schedule_work();
+> +unlock:
+> +	mutex_unlock(&diag204_mutex);
+> +}
 
-	/* Do whatever with the diag data*/
+[Severity: Low]
+In diag204_work_fn(), when the cache has expired and is not being updated,
+diag204_set_cache(NULL) frees g_cache.buf and clears the pointer, but then
+execution falls through to the rearm label and calls diag204_schedule_work(=
+).
 
-	diag204_free_buffer(buf);
-...
+Should this jump to unlock after diag204_set_cache(NULL) instead of
+scheduling another delayed work run 10 seconds later when the cache is
+already empty?
 
-Most of the details of diag204 is now hidden away. Initial probing and
-availability check is done via a device_initcall().
+> +
+> +static int diag204_cache_new(void *buf, unsigned long subcode)
+> +{
+> +	int rc;
+> +
+> +	lockdep_assert_held(&diag204_mutex);
+> +	/*
+> +	 * Don't allow busy wait or busy looping when g_cache.buf has
+> +	 * no data yet. We first need a valid data cache before we
+> +	 * can do updates with busy looping.
+> +	 */
+> +	rc =3D diag204(subcode, g_info.pages, buf);
+> +	if (rc < 0)
+> +		return rc;
+> +	diag204_set_cache(buf);
+> +	return rc;
+> +}
+> +
+> +static int diag204_cache_replace(void *buf, unsigned long subcode, int a=
+llow_busy_wait)
+> +{
+> +	int rc;
+> +
+> +	lockdep_assert_held(&diag204_mutex);
+> +	if (!allow_busy_wait) {
+> +		rc =3D diag204(subcode, g_info.pages, buf);
+> +	} else {
+> +		/*
+> +		 * Unlock before BUSY loop so updater can sleep, we rely on
+> +		 * g_cache.updating flag here for synchronising with diag204
+> +		 * work function and other diag204 callers.
+> +		 */
+> +		mutex_unlock(&diag204_mutex);
+> +		do {
+> +			rc =3D diag204(subcode, g_info.pages, buf);
+> +			if (rc >=3D 0)
+> +				break;
+> +			if (signal_pending(current)) {
+> +				mutex_lock(&diag204_mutex);
+> +				return -ERESTARTSYS;
+> +			}
+> +			schedule_timeout_interruptible(DIAG204_BUSY_WAIT);
+> +		} while (rc =3D=3D -EBUSY);
 
-Implementation
-========================================================================
-Initial checks for diag204 support, determining which subcode to use and
-querying page count required to hold diag data are all done in a
-device_initcall() once. Page count returned is the maximum amount
-required for that CEC, subcodes should also stay the same during
-runtime.
+[Severity: Medium]
+In diag204_cache_replace(), when allow_busy_wait is set, the retry loop only
+breaks early on rc >=3D 0.
 
-Diag204 should be rate limited to a diag call per second at most.
-In order to achive the rate limiting while also allowing users to
-acquire data a caching mechanism similar to Sumanth's diag324
-implementation is proposed.
-The caching mechanism is slightly more complicated to allow support for
-interruptible busy waiting. When diag204's busy indication facility is
-installed users can specify a flag to put diag204_store() into a
-sleepable and interruptible loop that lasts until diag204 is no longer
-busy. This way the amount of diag calls and system calls from userspace
-are reduced.
-If busy indication facility is not present default fallback is the
-blocking diag204 call as before. Users don't get an indication about
-this.(IMO, it wouldn't be useful)
+If diag204() fails with a negative error other than -EBUSY (such as
+-EOPNOTSUPP or -EINVAL), won't this loop either overwrite the error with
+-ERESTARTSYS if a signal is pending, or sleep unnecessarily for
+DIAG204_BUSY_WAIT before checking the loop condition? Should the break
+condition check for rc !=3D -EBUSY instead?
 
-Diag204 calls are serialized with a mutex and cache updates are
-protected with help of a flag. Since busy wait loops can sleep they have
-to release the mutex before they sleep. The updating cache flag comes in
-here, it is only modified when the mutex is being held and if a cache
-update is taking place.
+> +		mutex_lock(&diag204_mutex);
+> +	}
+> +	if (rc < 0)
+> +		return rc;
+> +	diag204_set_cache(buf);
+> +	return rc;
+> +}
+> +
+> +static int diag204_update_cache(int allow_busy, int allow_busy_wait)
+> +{
+> +	unsigned long subcode;
+> +	void *buf;
+> +	int rc;
+> +
+> +	lockdep_assert_held(&diag204_mutex);
+> +	buf =3D diag204_allocate_buffer();
+> +	if (!buf)
+> +		return -ENOMEM;
+> +	subcode =3D g_info.type | g_info.subcode;
+> +	if (g_info.has_bif && allow_busy)
+> +		subcode |=3D DIAG204_BIF_BIT;
+> +	WRITE_ONCE(g_cache.updating, true);
+> +	if (!READ_ONCE(g_cache.buf))
+> +		rc =3D diag204_cache_new(buf, subcode);
+> +	else
+> +		rc =3D diag204_cache_replace(buf, subcode, allow_busy_wait);
 
-Utilizing diag204 arms a work function which periodically checks if the
-current cache is expired. If it finds that the cache is expired, it
-frees the cache buffer and stops.
+[Severity: Medium]
+In diag204_update_cache(), DIAG204_BIF_BIT is set in subcode when
+g_info.has_bif && allow_busy is true, before checking whether g_cache.buf is
+NULL.
 
-IOCTL Interface
-========================================================================
-A similar IOCTL interface to existing diag calls is implemented.
-Two new ioctl definitions along with a new data struct is added to the
-uapi. DIAG204_GET_LEN allows userspace to acquire required buffer
-length and DIAG204_GET_BUF fetches the diag204 data.
-When issuing an IOCTL call with DIAG204_GET_BUF users have to utilize
-the new diag204_request struct to specify the allocated buffer address
-along with the allow_busy an allow_busy_wait flags for diag204 store
-operation.
+When g_cache.buf is NULL (on the initial call to diag204_store() or after
+diag204_work_fn() has freed the expired cache) and a caller passes
+allow_busy =3D 1, diag204_cache_new() is called with DIAG204_BIF_BIT set in
+subcode.
 
-Considerations
-========================================================================
-* At the moment diag204 size request returns a page count requirement of
-  423. That is the maximum amount of space needed currently for a CEC to
-  service diag204.
-  With this series at times there will be ~6Mb (1.6Mb for each; cache,
-  temp, user buffer...) memory allocated for diag204 data per lpar.
+The comment in diag204_cache_new() notes that busy waiting or busy looping
+should not be used when g_cache.buf has no data yet, and diag204_cache_new()
+does not loop on -EBUSY. If the hypervisor is busy, won't diag204() return
+-EBUSY immediately instead of blocking to populate the initial cache (or
+performing the requested busy wait)?
 
-* With the new IOCTL interface, userspace is defaulted to the
-  largest diag204 data request subcode available(from subcodes 4, 6 and
-  7 always the largest available is used as it returns more data).
-  While this aligns with the existing behavior, question is, would
-  there be any value in allowing users to specify which subcode to use?
-  Although this also means more complicated implementation.
+> +	WRITE_ONCE(g_cache.updating, false);
+> +	if (rc < 0)
+> +		diag204_free_buffer(buf);
+> +	return rc;
+> +}
 
-* A new addition with the IOCTL interface are the allow_busy and
-  allow_busy_wait toggles. For sure there is benefit in allowing diag204
-  to return BUSY instead of waiting for longer durations when it is not
-  ready at the moment. allow_busy_wait adds an interruptable polling
-  loop around that, with that mechanism diag204 users from userspace can
-  wait for diag204 to return from its BUSY state within the same system
-  call. Obviously using only a single system call is better but diag204
-  users are not performance critical atm and the same polling can be
-  implemented from userspace side. This can help reduce some complexity
-  on the kernel code.
+[ ... ]
 
-Changes from the earlier series;
-* Address mutex lockdep issues (Sumanth Korikkar)
-* Add permission check for IOCTL (Sumanth Korikkar)
-* Pass buffers set to 0 when calling diag (Sumanth Korikkar)
+> +int diag204_store(void *buf, int allow_busy, int allow_busy_wait)
+> +{
+> +	int rc;
+> +
+> +	if (!diag204_is_available())
+> +		return -EOPNOTSUPP;
+> +	if (!allow_busy && allow_busy_wait)
+> +		return -EOPNOTSUPP;
+> +	if (!buf)
+> +		return -ENOMEM;
+> +	rc =3D 0;
+> +	if (allow_busy && !allow_busy_wait) {
+> +		mutex_lock(&diag204_mutex);
+> +		/*
+> +		 * Drop the lock if an update is ongoing, user allows to return
+> +		 * BUSY without waiting
+> +		 */
+> +		if (READ_ONCE(g_cache.updating)) {
+> +			mutex_unlock(&diag204_mutex);
+> +			diag204_schedule_work();
+> +			return -EBUSY;
+> +		}
+> +	} else {
+> +		/* Wait for the ongoing update to end */
+> +		while (1) {
+> +			mutex_lock(&diag204_mutex);
+> +			if (!READ_ONCE(g_cache.updating))
+> +				break;
+> +			mutex_unlock(&diag204_mutex);
+> +			if (signal_pending(current))
+> +				return -ERESTARTSYS;
+> +			schedule_timeout_interruptible(DIAG204_BUSY_WAIT);
+> +		}
+> +	}
 
----
-base-commit: c03c1a14507dfaf8b856c2608f9ac216021fc222
+[Severity: Medium]
+Can diag204_store() unexpectedly return -ERESTARTSYS when called with
+allow_busy =3D 0 and allow_busy_wait =3D 0?
 
-Mete Durlu (3):
-      s390/diag204: Introduce diag204 rework
-      s390/diag204: Replace diag204 users with new implementation
-      s390/diag: Add diag204 IOCTL to diag misc device
+If one thread calls diag204_store() with allow_busy =3D 1 and
+allow_busy_wait =3D 1 while g_cache.buf is non-NULL and expired,
+diag204_update_cache() -> diag204_cache_replace() sets g_cache.updating =3D=
+ true
+and drops diag204_mutex while sleeping in its -EBUSY loop.
 
- arch/s390/hypfs/hypfs_diag.c       | 140 ++------------
- arch/s390/hypfs/hypfs_diag.h       |   4 +-
- arch/s390/hypfs/hypfs_diag_fs.c    |   9 +-
- arch/s390/include/asm/diag.h       |   8 +-
- arch/s390/include/uapi/asm/diag.h  |   8 +
- arch/s390/kernel/diag/Makefile     |   2 +-
- arch/s390/kernel/diag/diag204.c    | 382 +++++++++++++++++++++++++++++++++++++
- arch/s390/kernel/diag/diag_ioctl.h |   3 +
- arch/s390/kernel/diag/diag_misc.c  |  10 +
- arch/s390/kernel/sthyi.c           |  28 +--
- 10 files changed, 437 insertions(+), 157 deletions(-)
+If a second thread concurrently calls diag204_store(buf, 0, 0), the
+allow_busy && !allow_busy_wait check is false, so it enters the else branch
+above, sees g_cache.updating =3D=3D true, drops diag204_mutex, and returns
+-ERESTARTSYS if a signal is pending on current, even though the caller did =
+not
+request an interruptible wait.
 
+In the follow-up commit "s390/diag204: Replace diag204 users with new
+implementation", callers such as hypfs_diag_create_files() (via
+hypfs_write_iter() after hypfs_delete_tree() has already removed the hypfs
+directory tree, and via hypfs_fill_super()) and diag204_get_data() in
+arch/s390/kernel/sthyi.c (via sthyi_fill(), including KVM's handle_sthyi()
+intercept handler) call diag204_store() with allow_busy =3D 0 and
+allow_busy_wait =3D 0 and do not expect -ERESTARTSYS, which can leave the h=
+ypfs
+tree deleted or abort STHYI emulation after SIE has already advanced the gu=
+est
+PSW.
+
+[ ... ]
+
+> +/*
+> + * diag204_probe() has to find out, which type of diagnose 204 implement=
+ation
+> + * we have on our machine. Currently there are three possible scanarios:
+> + *   - subcode 4   + simple data format (only one page)
+> + *   - subcode 4-6 + extended data format
+> + *   - subcode 4-7 + extended data format
+> + *
+> + * Subcode 5 is used to retrieve the size of the data, provided by subco=
+des
+> + * 6 and 7. Subcode 7 basically has the same function as subcode 6. In a=
+ddition
+> + * to subcode 6 it provides also information about secondary cpus.
+> + * In order to get as much information as possible, we first try
+> + * subcode 7, then 6 and if both fail, we use subcode 4.
+> + */
+> +static int diag204_probe(void)
+> +{
+> +	unsigned long subcode, type;
+> +	int pages, rc;
+> +	void *buf;
+> +
+> +	pages =3D diag204((unsigned long)DIAG204_INFO_EXT |
+> +			(unsigned long)DIAG204_SUBC_RSI, 0, NULL);
+> +	if (pages > 0) {
+> +		buf =3D __diag204_allocate_buffer(pages);
+> +		if (!buf) {
+> +			rc =3D -ENOMEM;
+> +			goto fail_alloc;
+> +		}
+> +		type =3D DIAG204_INFO_EXT;
+> +		if (diag204(DIAG204_SUBC_STIB7 | type, pages, buf) >=3D 0) {
+> +			subcode =3D DIAG204_SUBC_STIB7;
+> +			goto out;
+> +		}
+> +		if (diag204(DIAG204_SUBC_STIB6 | type, pages, buf) >=3D 0) {
+> +			subcode =3D DIAG204_SUBC_STIB6;
+> +			goto out;
+> +		}
+> +	} else {
+> +		/* extended data format is not available, fallback to simple */
+> +		pages =3D 1;
+> +		buf =3D __diag204_allocate_buffer(pages);
+> +		if (!buf) {
+> +			rc =3D -ENOMEM;
+> +			goto fail_alloc;
+> +		}
+> +		type =3D DIAG204_INFO_SIMPLE;
+> +		if (diag204(DIAG204_SUBC_STIB4 | type, pages, buf) >=3D 0) {
+> +			subcode =3D DIAG204_SUBC_STIB4;
+> +			goto out;
+> +		}
+> +	}
+> +	rc =3D -EOPNOTSUPP;
+> +	goto fail_store;
+
+[Severity: Medium]
+In diag204_init() -> diag204_probe(), the fallback to DIAG204_INFO_SIMPLE w=
+ith
+DIAG204_SUBC_STIB4 is inside the else branch of if (pages > 0).
+
+If the DIAG204_SUBC_RSI call returns pages > 0, but both DIAG204_SUBC_STIB7
+and DIAG204_SUBC_STIB6 fail, won't diag204_probe() skip the DIAG204_SUBC_ST=
+IB4
+fallback and fail with -EOPNOTSUPP, contrary to the function comment and the
+previous probe logic in arch/s390/hypfs/hypfs_diag.c?
+
+[ ... ]
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261021-diag204ioc=
+tl-v1-0-25645b97bf4e@linux.ibm.com?part=3D1
