@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792670643;
-	b=ekYiwztVPMUD5onbXZXyedTgoY7lQmiug+tA/oD39F6xO5P4GXJ8QbUSMuzZ27ctGkwN
-	 LRmOk0440x4KS7++THFVzl6hJe/IWL+hAuTIoASWfxBI2Q2rTElMyv+pxwG3tiWVbv1Ep
-	 PYhYpK0XIlGsVVgbjFKlzK2/DR4rNC0suB7OpENZzPVERSAylvo8D6x4gYzaIOwCh8FGZ
-	 xCs3hI3s55hGOldpkyXoeuHSvDGC6OiHLDwzoKFzNvBeZkNQskTlbDQt6rMLavfWoVKRN
-	 dPtG4Vwhvsd2jGMV1cmBUeLrw7YjQQqD2SG28OwqXMBh1HtfkcOHTYGhhfRolmiuLGQ==
+	t=1792670720;
+	b=t6XOBShMyftMqkBGbaOfRBcutD1Z8liEflSFhbbAQ/bHf4+l3U1SiOhRJfOBiEpnD8Xn
+	 cwrfODJB7i05mJmuFFx6cfCgvbhvQzOvzu2Uyj2SqfHwWWWqKy7o6nJ1odgXcsPyZWSjs
+	 ZQbViKiQqpjeF7M3pEVDeYthDbBDIQurHv3uOSuCjx7ZovJFhMvuqLCnSxkc0vmwt02Yf
+	 qrxSb2pQdXMyRcFMjNo545ePpaBHNuAAkVuMAh4ruXq6q8DPhaRBWJ6lNwjSsMzbR0hlT
+	 EbiGg+DJpHIWfRa0HipaWfz7S5nHsvaoSpbMnZl13UDqpqOH315QPQgA+/m3rBp5UkA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792670643;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792670720;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=IbQpMElBM+jgBi/8Iu3zioEMJo4s6jJpW/29NQUTfTE=;
-	b=ASBkCidKEj5W3xshl3oOUD6Vbb7M/td92dar5VU0ALQJc43gNnO52VTkJuOGkABR8LMQ
-	 3oJDYBkQzlXrVPETOA0xp7c4OGAZn3kwkS5yfKUv0u3GLnLNAhEDK114kACEAxTv365j9
-	 PjodDOs5FExd+YM8atB4cUATkUp1Zb/0zX4Zl6pt6z01cRzKlnQO9TW/lXlwkr4vUPx6L
-	 Xl0VcBsG5Vpt6mGRT1dBZ/Jn3+wjUv5dNgXTTBy62EKe5VxP6GQGOMn8azUofS3cd9/Zx
-	 5ZkNYpH+328vf2FaB2LHpNdEmjJCd89Ej6qM3+cDHGUCSxowFOTMphCmW10AXEKvWKQ==
+	bh=Xn2oOoyP3k3eXsSZD4vW+AvfcYpdsHhxuhnPFQzBvKk=;
+	b=Ffpu6kBE+ldaukc4CZAIDN+OUgqs8UzCNrle8/z6amN+mMuc4qyuqdDpwEPdcJpJ73cs
+	 B20ZqUFrgl6HxgCQv5HT7rh1uCn9ObP+8Ygmsuvf/WYxMiVKfGwhM6X2QW7eVHytN2+3S
+	 Ytm27rtGUJ2aLcDU8iQhVycbBkzxBF5MWjK6oL0c1lSWe8XnSZWvGeYtN8+g/VnjHKKPY
+	 dKyIQ5jL8GZeCu1GF36HRX0Qn7RSi6msF6KKk40ECLy7Gkocx6ukIdFLond/k3rZTtZjP
+	 ReZ6fr2JzHIxdephH8oM39Q6Uj/+gvyfNtn8K649xiAYrWkN6gwS3F2hw4YLFM/x1bg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D2Gx1Z1s;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="c0jjnk/f";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAF8C606A31A
-	for <linux-s390@vger.kernel.org>; Thu, 22 Oct 2026 12:04:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1BF8606A319
+	for <linux-s390@vger.kernel.org>; Thu, 22 Oct 2026 12:05:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D2Gx1Z1s
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAFB21F000C1;
-	Thu, 22 Oct 2026 12:04:01 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=c0jjnk/f
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8EDD1F000C1;
+	Thu, 22 Oct 2026 12:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792670642;
-	bh=IbQpMElBM+jgBi/8Iu3zioEMJo4s6jJpW/29NQUTfTE=;
+	s=k20260515; t=1792670719;
+	bh=Xn2oOoyP3k3eXsSZD4vW+AvfcYpdsHhxuhnPFQzBvKk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=D2Gx1Z1sCUB0vDU+UQIeQQdJUPjXH4U60Ss8y64Ku24DR2rMo2XukUL2o2o1W0tYn
-	 3gtKVcAOUFDlbyLRgOPRC2iDmS94dbfJI5OSWG49JrT37mOX5tkv6f9cv0DSwzDZ2z
-	 tM8EmNDTT8HHK+luwpBMQEy30M0FPov/FpY102OHJ/exJeL90RA5YZWKuuM+sMd1Ti
-	 KdgEORAt9ZPDPHGWHRFcJQXst+ND+pEsChgw2ruVGvLifgaAGRV4bDJGB0t/cgGYrJ
-	 oTvpVWueupiZcP+w1afsGGiB2YfEfGKkYBkt58Ukq0NoKW/+HtoIKce0LpNYPqRQRj
-	 x9/yUUkhbR6Jg==
-Message-ID: <sashiko-outbox-181410@kernel.org>
+	b=c0jjnk/fI2kyvN52OKVgIts6txXSLr1fWD6yre3UIunD+/CxWO8DZr2zrlABn4Pb8
+	 KS8Y+KqXBUJ3Aezaer0TM2AUSTu2ugydIejF8a2x/W2lmXjFmksgP0/mSb6LSIVq9/
+	 3/g7bVlz9gW6S8cpDnCaByBqOGGJRNFSiBWXHu7/Bvwoix2Lg5Q0VYx+qDAv0LYg5Y
+	 xFVd+O7AE+U07xUltMsD/OrdZ3Gy2JnTRy8kjvFCGPv9gnlui3Hxy5k5uXb6XaCvFi
+	 1Gi2sSRrQdRDX7F1KUfTWZZvVs1FYFLQX5JCBNEphqeqZmct4BsLAGddcKgDNrxgND
+	 1Grd5NGQWi3tA==
+Message-ID: <sashiko-outbox-181412@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 3/3] s390/diag: Add diag204 IOCTL to diag misc device
+Subject: Re: [PATCH v2 1/3] s390/diag204: Introduce diag204 rework
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Mete Durlu" <meted@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261022-diag204ioctl-v2-3-7e5a9d1cd21a@linux.ibm.com>
+In-Reply-To: <20261022-diag204ioctl-v2-1-7e5a9d1cd21a@linux.ibm.com>
 References: <20261022-diag204ioctl-v2-0-7e5a9d1cd21a@linux.ibm.com>
- <20261022-diag204ioctl-v2-3-7e5a9d1cd21a@linux.ibm.com>
+ <20261022-diag204ioctl-v2-1-7e5a9d1cd21a@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 22 Oct 2026 12:04:01 +0000
+Date: Thu, 22 Oct 2026 12:05:18 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -64,153 +64,196 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Critical] s390/diag: unlocked cache access and mutex unlock in diag204_s=
-tore()
-- [Medium] s390/diag: missing subcode metadata and non-UAPI types in diag20=
-4 ioctl
+- [High] s390/diag204: unlocked cache access and mutex unlock in diag204_st=
+ore()
+- [Medium] s390/diag204: memory leak of extended buffer in diag204_probe()
 --
 
-commit 8eea5b568c2725dd27a2e3675754996596fdf2e4
+commit f46a8c5c5620f265bdccaca5580ec5409ce81f8b
 Author: Mete Durlu <meted@linux.ibm.com>
 
-s390/diag: Add diag204 IOCTL to diag misc device
+s390/diag204: Introduce diag204 rework
 
-This commit adds ioctl handlers to the s390 diag misc device to query the
-diag204 buffer length and retrieve diag204 data from userspace.
-
-> diff --git a/arch/s390/include/uapi/asm/diag.h b/arch/s390/include/uapi/a=
-sm/diag.h
-> index b7e6ccb4ff6e4..985667b2917a5 100644
-> --- a/arch/s390/include/uapi/asm/diag.h
-> +++ b/arch/s390/include/uapi/asm/diag.h
-> @@ -22,11 +22,19 @@ struct diag310_memtop {
->  	__u64 nesting_lvl;
->  };
-> =20
-> +struct diag204_request {
-> +	__u64 address;
-> +	int allow_busy;
-> +	int allow_busy_wait;
-> +};
-> +
->  /* Diag ioctl definitions */
->  #define DIAG324_GET_PIBBUF	_IOWR(DIAG_MAGIC_STR, 0x77, struct diag324_pi=
-b)
->  #define DIAG324_GET_PIBLEN	_IOR(DIAG_MAGIC_STR, 0x78, size_t)
->  #define DIAG310_GET_STRIDE	_IOR(DIAG_MAGIC_STR, 0x79, size_t)
->  #define DIAG310_GET_MEMTOPLEN	_IOWR(DIAG_MAGIC_STR, 0x7a, size_t)
->  #define DIAG310_GET_MEMTOPBUF	_IOWR(DIAG_MAGIC_STR, 0x7b, struct diag310=
-_memtop)
-> +#define DIAG204_GET_LEN		_IOR(DIAG_MAGIC_STR, 0x7c, size_t)
-> +#define DIAG204_GET_BUF		_IOWR(DIAG_MAGIC_STR, 0x7d, struct diag204_requ=
-est)
-> =20
->  #endif /* __S390_UAPI_ASM_DIAG_H */
-
-[Severity: Medium]
-During boot, diag204_probe() in arch/s390/kernel/diag/diag204.c selects
-between subcodes 4, 6, and 7 and sets g_info.subcode and g_info.type
-(simple vs. extended format). When userspace calls diag_ioctl() ->
-diag204_buf(), the raw hardware buffer is copied to req.address via
-copy_to_user() without exposing g_info.subcode (diag204_get_subcode()) or
-g_info.type (diag204_get_info_type()).
-
-Unlike dbfs_d204_create() in arch/s390/hypfs/hypfs_diag.c, which prepends
-struct dbfs_d204_hdr containing d204->hdr.sc =3D diag204_get_subcode(), the
-raw hardware headers (struct diag204_info_blk_hdr and
-struct diag204_x_info_blk_hdr) do not contain a subcode or format field.
-Because simple and extended formats have different header and entry sizes
-(and subcodes 6 and 7 share the extended header layout while differing in
-secondary processor reporting), how can userspace determine which subcode
-or format was used to populate the buffer returned by diag204_buf()?
-
-Also, in struct diag204_request, should allow_busy and allow_busy_wait use
-fixed-width types (__u32 or __u64) instead of raw int, and should the
-ioctl definition use _IOW instead of _IOWR since diag204_buf() only reads
-struct diag204_request?
+This commit introduces a caching mechanism in arch/s390/kernel/diag/diag204=
+.c
+to limit diag204 calls to at most once per second across all users. A delay=
+ed
+work function frees the cached buffer when diag204 data is not fetched with=
+in
+the expiration window.
 
 > diff --git a/arch/s390/kernel/diag/diag204.c b/arch/s390/kernel/diag/diag=
 204.c
-> index 7f366ea12a673..3450a013258fd 100644
-> --- a/arch/s390/kernel/diag/diag204.c
+> new file mode 100644
+> index 0000000000000..7f366ea12a673
+> --- /dev/null
 > +++ b/arch/s390/kernel/diag/diag204.c
+> @@ -0,0 +1,290 @@
 
 [ ... ]
 
-> @@ -220,6 +222,45 @@ int diag204_store(void *buf, int allow_busy, int all=
-ow_busy_wait)
->  	return rc;
->  }
-
-[ ... ]
-
-> +long diag204_buf(unsigned long arg)
+> +static void diag204_set_cache(void *buf)
 > +{
-> +	struct diag204_request __user *udata;
-> +	int rc, allow_busy, allow_busy_wait;
-> +	u64 address;
+> +	diag204_free_buffer(READ_ONCE(g_cache.buf));
+> +	WRITE_ONCE(g_cache.buf, buf);
+> +	if (!buf)
+> +		WRITE_ONCE(g_cache.timestamp, 0);
+> +	else
+> +		WRITE_ONCE(g_cache.timestamp, ktime_get());
+> +}
+
+[ ... ]
+
+> +static int diag204_update_cache(int allow_busy, int allow_busy_wait)
+> +{
+> +	unsigned long subcode;
 > +	void *buf;
+> +	int rc;
 > +
-> +	if (!diag204_is_available())
-> +		return -EOPNOTSUPP;
-> +	udata =3D (struct diag204_request __user *)arg;
-> +	if (get_user(address, &udata->address))
-> +		return -EFAULT;
-> +	if (get_user(allow_busy, &udata->allow_busy))
-> +		return -EFAULT;
-> +	if (get_user(allow_busy_wait, &udata->allow_busy_wait))
-> +		return -EFAULT;
+> +	lockdep_assert_held(&diag204_mutex);
 > +	buf =3D diag204_allocate_buffer();
 > +	if (!buf)
 > +		return -ENOMEM;
-> +	rc =3D diag204_store(buf, allow_busy, allow_busy_wait);
+> +	subcode =3D g_info.type | g_info.subcode;
+> +	if (g_info.has_bif && allow_busy)
+> +		subcode |=3D DIAG204_BIF_BIT;
+> +	WRITE_ONCE(g_cache.updating, true);
+> +	mutex_unlock(&diag204_mutex);
+> +	do {
+> +		rc =3D diag204(subcode, g_info.pages, buf);
+> +		if (rc !=3D -EBUSY || !allow_busy_wait)
+> +			break;
+> +		if (signal_pending(current)) {
+> +			rc =3D -ERESTARTSYS;
+> +			break;
+> +		}
+> +		schedule_timeout_interruptible(DIAG204_BUSY_WAIT);
+> +	} while (allow_busy_wait);
+> +	mutex_lock(&diag204_mutex);
+> +	if (rc >=3D 0) {
+> +		diag204_set_cache(buf);
+> +		diag204_schedule_work();
+> +	} else {
+> +		diag204_free_buffer(buf);
+> +	}
+> +	WRITE_ONCE(g_cache.updating, false);
+> +	return rc;
+> +}
 
-[Severity: Critical]
-In diag_ioctl() -> diag204_buf() -> diag204_store(), user-controlled
-allow_busy and allow_busy_wait values are passed directly into
-diag204_store(). What happens if a caller passes allow_busy =3D=3D 0 and
-allow_busy_wait =3D=3D 0 while another thread is concurrently updating the
-cache (g_cache.updating is true)?
+[ ... ]
 
-Looking at arch/s390/kernel/diag/diag204.c:diag204_store():
+> +int diag204_store(void *buf, int allow_busy, int allow_busy_wait)
+> +{
+> +	int rc;
+> +
+> +	if (!diag204_is_available())
+> +		return -EOPNOTSUPP;
+> +	if (!allow_busy && allow_busy_wait)
+> +		return -EOPNOTSUPP;
+> +	if (!buf)
+> +		return -ENOMEM;
+> +	rc =3D 0;
+> +	do {
+> +		mutex_lock(&diag204_mutex);
+> +		/* Exit loop with lock taken if there is no concurrent update */
+> +		if (!READ_ONCE(g_cache.updating))
+> +			break;
+> +		mutex_unlock(&diag204_mutex);
+> +		if (allow_busy && !allow_busy_wait)
+> +			return -EBUSY;
+> +		if (signal_pending(current))
+> +			return -ERESTARTSYS;
+> +		schedule_timeout_interruptible(DIAG204_BUSY_WAIT);
+> +	} while (allow_busy_wait);
+> +	if (!diag204_is_cache_valid(DIAG204_CACHE_EXPIRY))
+> +		rc =3D diag204_update_cache(allow_busy, allow_busy_wait);
+> +	if (rc >=3D 0)
+> +		memcpy(buf, READ_ONCE(g_cache.buf), diag204_get_buf_size());
+> +	mutex_unlock(&diag204_mutex);
+> +	return rc;
+> +}
 
-	if (!allow_busy && allow_busy_wait)
-		return -EOPNOTSUPP;
-	if (!buf)
-		return -ENOMEM;
-	rc =3D 0;
-	do {
-		mutex_lock(&diag204_mutex);
-		/* Exit loop with lock taken if there is no concurrent update */
-		if (!READ_ONCE(g_cache.updating))
-			break;
-		mutex_unlock(&diag204_mutex);
-		if (allow_busy && !allow_busy_wait)
-			return -EBUSY;
-		if (signal_pending(current))
-			return -ERESTARTSYS;
-		schedule_timeout_interruptible(DIAG204_BUSY_WAIT);
-	} while (allow_busy_wait);
-	if (!diag204_is_cache_valid(DIAG204_CACHE_EXPIRY))
-		rc =3D diag204_update_cache(allow_busy, allow_busy_wait);
-	if (rc >=3D 0)
-		memcpy(buf, READ_ONCE(g_cache.buf), diag204_get_buf_size());
+[Severity: High]
+In arch/s390/kernel/diag/diag204.c, what happens in diag204_store() when a
+caller passes allow_busy =3D=3D 0 and allow_busy_wait =3D=3D 0 while anothe=
+r thread
+is concurrently updating the cache in diag204_update_cache()?
+
+While the first thread is inside diag204_update_cache(), it sets
+g_cache.updating to true and drops diag204_mutex across the diag204() call:
+
+	WRITE_ONCE(g_cache.updating, true);
 	mutex_unlock(&diag204_mutex);
 
-When g_cache.updating is true and both allow_busy and allow_busy_wait are
-0, the loop unlocks diag204_mutex, sleeps in
-schedule_timeout_interruptible(), and then terminates because
-allow_busy_wait is 0.
+If a second thread calls diag204_store(buf, 0, 0) during that window, it
+acquires diag204_mutex, sees READ_ONCE(g_cache.updating) is true, and calls
+mutex_unlock(&diag204_mutex). Because allow_busy is 0, the -EBUSY return is
+not taken. The thread then checks signal_pending(current) (returning
+-ERESTARTSYS even though allow_busy_wait is 0) or sleeps in
+schedule_timeout_interruptible(DIAG204_BUSY_WAIT).
 
-Doesn't this leave diag204_mutex unlocked for the remainder of
-diag204_store(), triggering lockdep assertions in diag204_is_cache_valid()
-and diag204_update_cache(), racing with vfree() of g_cache.buf in
-diag204_set_cache() and diag204_work_fn() during memcpy() (or reading a
-null g_cache.buf if the first cache fill has not completed), and calling
-mutex_unlock(&diag204_mutex) without holding the lock?
+At the end of the loop:
+
+	} while (allow_busy_wait);
+
+Because allow_busy_wait is 0, the loop terminates without holding
+diag204_mutex and without rechecking g_cache.updating.
+
+The second thread then calls diag204_is_cache_valid() and
+diag204_update_cache() (both of which assert lockdep_assert_held(&diag204_m=
+utex),
+with diag204_update_cache() also calling mutex_unlock(&diag204_mutex)), cop=
+ies
+from g_cache.buf via memcpy() while diag204_set_cache() or diag204_work_fn()
+may concurrently free or clear g_cache.buf via vfree(), and finally calls
+mutex_unlock(&diag204_mutex) at the end of diag204_store() on an unheld or
+other-thread-held mutex.
+
+Should the loop in diag204_store() keep waiting until g_cache.updating is
+false when allow_busy is 0, or how should non-busy callers synchronize with
+an in-progress update?
+
+> +static int diag204_probe(void)
+> +{
+> +	unsigned long subcode, type;
+> +	int pages, rc;
+> +	void *buf;
+> +
+> +	pages =3D diag204((unsigned long)DIAG204_INFO_EXT |
+> +			(unsigned long)DIAG204_SUBC_RSI, 0, NULL);
+> +	if (pages > 0) {
+> +		buf =3D __diag204_allocate_buffer(pages);
+> +		if (!buf) {
+> +			rc =3D -ENOMEM;
+> +			goto fail_alloc;
+> +		}
+> +		type =3D DIAG204_INFO_EXT;
+> +		if (diag204(DIAG204_SUBC_STIB7 | type, pages, buf) >=3D 0) {
+> +			subcode =3D DIAG204_SUBC_STIB7;
+> +			goto out;
+> +		}
+> +		if (diag204(DIAG204_SUBC_STIB6 | type, pages, buf) >=3D 0) {
+> +			subcode =3D DIAG204_SUBC_STIB6;
+> +			goto out;
+> +		}
+> +	}
+> +	/* extended data format is not available, fallback to simple */
+> +	pages =3D 1;
+> +	buf =3D __diag204_allocate_buffer(pages);
+
+[Severity: Medium]
+In diag204_probe() in arch/s390/kernel/diag/diag204.c, if the
+DIAG204_SUBC_RSI call returns pages > 0 and __diag204_allocate_buffer(pages)
+succeeds, but both the DIAG204_SUBC_STIB7 and DIAG204_SUBC_STIB6 calls fail,
+does falling through to the simple format fallback overwrite buf without
+calling vfree(buf) first and leak the extended vmalloc buffer?
+
+[ ... ]
+
+> +}
 
 [ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261022-diag204ioc=
-tl-v2-0-7e5a9d1cd21a@linux.ibm.com?part=3D3
+tl-v2-0-7e5a9d1cd21a@linux.ibm.com?part=3D1
