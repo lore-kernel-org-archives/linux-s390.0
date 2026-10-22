@@ -1,88 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792688951;
-	b=18+2Q/Tjqrz4py6QY4xJEtzEaxMbdfdMSI7zrADKTv1NHwm0TBZpfl2FjNtESsy1AFrN
-	 W+doMslPrebGQat3GeiLi7OC3APx+GCAj/BA0Xm0Gugh+1cnXmJqq61cSXi3NPjfTjWdq
-	 tcJzAK9qyPRn/VUuSrItlhxYIT+W86hxZFMWPyjy7VXSYGb7UNejsu4vK4wxosHlI7j/5
-	 4RuDWVzbrCVV6bqohU0ft1XIMYb0vFLtWvcJMEjbrpaunPHtBzGwPN+CICDB7WyFUnc5P
-	 M9mIoNz7E84IoY7uqZm8pqpG4lxMTOpFQmRFE/ne9gFYFrR8r3qJ+nSGY8Mi5NPQHtg==
+	t=1792689223;
+	b=nH6TLKcqeesdh7PcPkEOyx4IJ99MfVkVddVcJUbG0nQPpLekI/6K6dHrXqEGwV8j2n49
+	 /rxpvU9mfgFqhCs18WJKPtirEdEj49SqRYokw5lH3glIpcZ51qXR1xffO3rDu9woUON3Q
+	 4yNT6bN37o2TkhfT+Xa2NsPSCJGrsVbwudeO7mTJHSJHj7J1cO4sPoP8hT+DvrvyVXb2U
+	 7IgLN6s/GzoyCCCsnvqCJA9IQ4zGD5yj0/7Pm+B2VZGzjLFnrX/hzNofdZSJMkecX1A4k
+	 /3u86WqkakxnHOmNa9hQkqy98pEXjDbiBsuYVlJyFlJMNlYZDDExuCVmhuSXWWl8GWQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792688951;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-TM-AS-GCONF:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:X-Authority-Analysis:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=AJ5ANGdJVaZH+wUzAzhVB5ljNnp6sprJ0+FTwXBhctY=;
-	b=dfk7ZIpaa45X/ynMPxK5jx1aTaK0NAlGhrG1hW9LQWwfmdRzs80FjuUnblaINRKctS0r
-	 ocjTaVnbMjTf8aOw/d0GEhlNkfY/MAlFSD5ic2wfke97S1hbMDhKy6Qx0zCo7551LVUHO
-	 WfDaYDXeLywrKI/A1I6/4ZlegiIuXRx/MW7RlB2e2awT/IUEsokJvVuq+pqvSE9a6rHHN
-	 X2Uhj4ipjwrYNPPu86f/LSM69+CS2+xnsye2T91szt+FwZ/91AD4WlIV/zxJ++RhJgU87
-	 CMxwxQzY4ii7r5eRUknZQQf0NzzxqHhPaVnTLr9KinYxlNb8Ysnnyz3QmXa93bfW03g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792689223;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=oUQ6L2l1B4d2WH0wn6VK3uY+euWvowYu10mI+yzi6PI=;
+	b=oB+zVHBVxte5JsunYIanDdBYDC3ZrJmHWAiSfz30yc6DVcsNDQi2QQ5v14twCgFDyAnY
+	 J/b8RqkMfSvGMyy/fE3DeIFdXeIkGoR/Er7rHdZPhz3t7EYGrF+fwRlG+jhW8Rzk5k1a9
+	 jL4gM34VrDqEBFapqrWHVLo2I5fqndQulAsAeL+1cOQxpZ562KeQP8xjk7TRLrsHaF+/U
+	 FE7NbsbVjZSHqNAHvZjSCj5muh6VoJn8W/nNqi3FzKuN9DRaoJFIcsa6kOA7wlPWXVmAm
+	 9PkCaCD1EmvaQprz722LtyqhkUCzT/EYpgGwIFmsidlo/g0M8mHVPryF2kY72mGg7Yg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="OWcdFwX/";
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lv3lm5V3;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D519606A319;
-	Thu, 22 Oct 2026 17:09:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5D519606A319
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA03A606A31F;
+	Thu, 22 Oct 2026 17:13:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=OWcdFwX/
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69MEEGXB132754;
-	Thu, 22 Oct 2026 17:09:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=AJ5ANGdJVaZH+wUzA
-	zhVB5ljNnp6sprJ0+FTwXBhctY=; b=OWcdFwX/dHGym4TR/YqovfvBV6gx2cyLu
-	l4ZLPBpXfKYj7lm29Iu3wk1Ze20S+I+z3kN/f+VpbbZsxE8wj4ja6hfLOquViczz
-	TtjnbKdvHxYD9CPFaJcVC+vmiSOBb7mQjxadqU61U+NbpIRJaW0cp55MwS1NLojr
-	+tnbC3pucsoSZDy+Dg4b2XRS7k5wpy6m52K8Djbw3VrUb8zSGp8g0fX6bzAxTq7c
-	9xO9BiM/XSKWeL7R1ceuD7hEVC2dxfcYv4ITCJzCvdYk4sOFhR6wdlGqpV4l+qwH
-	mmM/dCim1q/h8pvnn5r7INRJu+7+VwxWVPrXSZnO2sdc7D+lJNibw==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw5agdhb-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 22 Oct 2026 17:09:10 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69MEYr1Q604663;
-	Thu, 22 Oct 2026 17:09:09 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hekdgg165-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 22 Oct 2026 17:09:09 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69MH95FT48365860
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 22 Oct 2026 17:09:05 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 404722004B;
-	Thu, 22 Oct 2026 17:09:05 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1875620043;
-	Thu, 22 Oct 2026 17:09:05 +0000 (GMT)
-Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 22 Oct 2026 17:09:05 +0000 (GMT)
-From: M Nikhil <nikh1092@linux.ibm.com>
-To: sashiko-reviews@lists.linux.dev, linux-s390@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Cc: niharp@linux.ibm.com, pasic@linux.ibm.com, bblock@linux.ibm.com
-Subject: [PATCH v13 1/2] zfcp: Replace sg-list with sg_table in zfcp_fsf_ct_els structure
-Date: Thu, 22 Oct 2026 19:08:27 +0200
-Message-ID: <20261022170828.4189701-2-nikh1092@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20261022170828.4189701-1-nikh1092@linux.ibm.com>
-References: <20261022170828.4189701-1-nikh1092@linux.ibm.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lv3lm5V3
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28D8B1F01825;
+	Thu, 22 Oct 2026 17:13:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792689222;
+	bh=oUQ6L2l1B4d2WH0wn6VK3uY+euWvowYu10mI+yzi6PI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=lv3lm5V3y1/WAyQwODofH/x9Y2hsc/V+RLzbGC0LFntqCy9+h1o4GMBm0GJlQ0ITM
+	 KRGn0LcyNxkmnhEHiC0teRJ5+l+ZONyXAoBQsP7/CP7utRQw6j66zFvx2sslsE2hkj
+	 nAi8VRRMdG06h5q5BiIFuBwrcGqgZ8SHfPaUCtsnIlmsLHwqatLy2mxqZhIsxRNHUj
+	 2Q3tR08FNuTOhbu2bJvf+Xwg5cmdFN8nOn6q/1lrL8RLzKTEws9BM/8bKXiyfUU1gT
+	 UU8xYd6/9cw1CrScCi/Ha+CawbV8GjPoOV95lJB/7GcodOLCwHe4BDE/ZCrC6u2p0n
+	 /ZcsstfTh+xGA==
+Message-ID: <sashiko-outbox-181848@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH] net/smc: reject CDC messages after connection teardown
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Weiming Shi" <bestswngs@gmail.com>
+Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261021171256.166870-2-bestswngs@gmail.com>
+References: <20261021171256.166870-2-bestswngs@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 22 Oct 2026 17:13:41 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -91,238 +60,109 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIyMDA2NiBTYWx0ZWRfX4J4nteOMsn/8
- E2sOgcjXHO4c4wWG5T1Fi4G5FJNLSXGkHBcy9iafEjvQOaE+yOTinPhsKTDUGIVIBW4jx4REFiL
- KAM43LEb5pr8DOJh6T7FmxN4+4yElmc=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIyMDA2NiBTYWx0ZWRfX98viGQpoiamG
- pCxA6qcV3kx2QcJXnjCn9fyBFQUVzlQNP83yOVO30VaYa/5Nl5sNOAtNOMfBCSnLNTeP6xm8sjN
- YdvQ7RIfTA6b4iftlYPdoTJsaGTyf86A9JlPnG9PIkoH8iRzJTlfuIQF9flXJl+Swql6ka9pKZe
- Y5qy30PJjCi2pUdniWBw6uENjMA1gkdkmGPh0rhFC1g6ChIfKFlTbfF+wz8bVYon4yrxiA34Akf
- mtVbgCa/RxoLpQSiNsEnFNY6Wsjn9E6BdUOJE1mBxKJjhkrbC7E/shiGpe/NgrBoUsV3nE2hcpc
- AGh9rSZ4bMvXklO/IKvQUMiYadWR/zYip5u51UA/uXpNsQuBScTmX5gmloWd0Ut6O2Oz8p3M5QH
- og1dje/AI7kScomBNIhO0BsjiNb1+6JZ5tfacbm/BCnW5tUQlgYemkDWwQd+2OXVfDZDjNUp/C2
- igEO/ggG7s+J1a725+w==
-X-Proofpoint-GUID: QW495p7KPgK_Q_x3gVQ4h7MBgmqrH9rZ
-X-Authority-Analysis: v=2.4 cv=JIKuIMKb c=1 sm=1 tr=0 ts=6ada4336 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=SPISVwao-ayoBmANS60A:9
- a=O8hF6Hzn-FEA:10
-X-Proofpoint-ORIG-GUID: QW495p7KPgK_Q_x3gVQ4h7MBgmqrH9rZ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-10-22_05,2026-10-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 malwarescore=0 lowpriorityscore=0 adultscore=0
- priorityscore=1501 spamscore=0 phishscore=0 bulkscore=0 clxscore=1015
- impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610190000
- definitions=main-2610220066
 
-The zfcp_fsf_ct_els data structure is updated to replace the sg_req and
-sg_resp members, which are of type struct scatterlist, with request and
-response sg_table instances.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Critical] net/smc: bh_lock_sock() in smc_cdc_msg_recv() does not exclude=
+ smc_conn_free()
+--
 
-These sg_table structure reference the corresponding scatterlists
-(sg_req and sg_resp) maintained in struct zfcp_fc_req.
+commit 64de84c513a98ece4d44144df98874a465343ddf
+Author: Weiming Shi <bestswngs@gmail.com>
 
-These changes allows to track the original and mapped scatterlist nents
-once zfcp is converted to use DMA-API for mapping the sg lists.
+net/smc: reject CDC messages after connection teardown
 
-Signed-off-by: M Nikhil <nikh1092@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Reviewed-by: Nihar Panda <niharp@linux.ibm.com>
----
- drivers/s390/scsi/zfcp_dbf.c | 16 ++++++++--------
- drivers/s390/scsi/zfcp_fc.c  | 36 ++++++++++++++++++++++++------------
- drivers/s390/scsi/zfcp_fsf.c |  6 ++++--
- drivers/s390/scsi/zfcp_fsf.h |  9 +++++----
- 4 files changed, 41 insertions(+), 26 deletions(-)
+This commit checks smc->conn.freed in smc_cdc_msg_recv() after acquiring
+bh_lock_sock(&smc->sk) to avoid processing CDC messages and dereferencing
+released receive buffer descriptors after connection teardown.
 
-diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
-index 81fb8af408e9..f7e737e076bf 100644
---- a/drivers/s390/scsi/zfcp_dbf.c
-+++ b/drivers/s390/scsi/zfcp_dbf.c
-@@ -617,9 +617,9 @@ void zfcp_dbf_san_req(char *tag, struct zfcp_fsf_req *fsf, u32 d_id)
- 	if (unlikely(!debug_level_enabled(dbf->san, ZFCP_DBF_SAN_LEVEL)))
- 		return;
- 
--	length = (u16)zfcp_qdio_real_bytes(ct_els->req);
--	zfcp_dbf_san(tag, dbf, "san_req", ct_els->req, ZFCP_DBF_SAN_REQ,
--		     length, fsf->req_id, d_id, length);
-+	length = (u16)zfcp_qdio_real_bytes(ct_els->sgt_req.sgl);
-+	zfcp_dbf_san(tag, dbf, "san_req", ct_els->sgt_req.sgl,
-+		     ZFCP_DBF_SAN_REQ, length, fsf->req_id, d_id, length);
- }
- 
- static u16 zfcp_dbf_san_res_cap_len_if_gpn_ft(char *tag,
-@@ -627,9 +627,9 @@ static u16 zfcp_dbf_san_res_cap_len_if_gpn_ft(char *tag,
- 					      u16 len)
- {
- 	struct zfcp_fsf_ct_els *ct_els = fsf->data;
--	struct fc_ct_hdr *reqh = sg_virt(ct_els->req);
-+	struct fc_ct_hdr *reqh = sg_virt(ct_els->sgt_req.sgl);
- 	struct fc_ns_gid_ft *reqn = (struct fc_ns_gid_ft *)(reqh + 1);
--	struct scatterlist *resp_entry = ct_els->resp;
-+	struct scatterlist *resp_entry = ct_els->sgt_resp.sgl;
- 	struct fc_ct_hdr *resph;
- 	struct fc_gpn_ft_resp *acc;
- 	int max_entries, x, last = 0;
-@@ -698,9 +698,9 @@ void zfcp_dbf_san_res(char *tag, struct zfcp_fsf_req *fsf)
- 	if (unlikely(!debug_level_enabled(dbf->san, ZFCP_DBF_SAN_LEVEL)))
- 		return;
- 
--	length = (u16)zfcp_qdio_real_bytes(ct_els->resp);
--	zfcp_dbf_san(tag, dbf, "san_res", ct_els->resp, ZFCP_DBF_SAN_RES,
--		     length, fsf->req_id, ct_els->d_id,
-+	length = (u16)zfcp_qdio_real_bytes(ct_els->sgt_resp.sgl);
-+	zfcp_dbf_san(tag, dbf, "san_res", ct_els->sgt_resp.sgl,
-+		     ZFCP_DBF_SAN_RES, length, fsf->req_id, ct_els->d_id,
- 		     zfcp_dbf_san_res_cap_len_if_gpn_ft(tag, fsf, length));
- }
- 
-diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
-index 05d081297879..1fb6f2c3b607 100644
---- a/drivers/s390/scsi/zfcp_fc.c
-+++ b/drivers/s390/scsi/zfcp_fc.c
-@@ -393,10 +393,12 @@ static int zfcp_fc_ns_gid_pn_request(struct zfcp_port *port,
- 	fc_req->ct_els.port = port;
- 	fc_req->ct_els.handler = zfcp_fc_complete;
- 	fc_req->ct_els.handler_data = &completion;
--	fc_req->ct_els.req = &fc_req->sg_req;
--	fc_req->ct_els.resp = &fc_req->sg_rsp;
-+	fc_req->ct_els.sgt_req.sgl = &fc_req->sg_req;
-+	fc_req->ct_els.sgt_resp.sgl = &fc_req->sg_rsp;
- 	sg_init_one(&fc_req->sg_req, gid_pn_req, sizeof(*gid_pn_req));
- 	sg_init_one(&fc_req->sg_rsp, gid_pn_rsp, sizeof(*gid_pn_rsp));
-+	fc_req->ct_els.sgt_req.orig_nents = sg_nents(&fc_req->sg_req);
-+	fc_req->ct_els.sgt_resp.orig_nents = sg_nents(&fc_req->sg_rsp);
- 
- 	zfcp_fc_ct_ns_init(&gid_pn_req->ct_hdr,
- 			   FC_NS_GID_PN, ZFCP_FC_CT_SIZE_PAGE);
-@@ -558,12 +560,14 @@ static int zfcp_fc_adisc(struct zfcp_port *port)
- 		return -ENOMEM;
- 
- 	fc_req->ct_els.port = port;
--	fc_req->ct_els.req = &fc_req->sg_req;
--	fc_req->ct_els.resp = &fc_req->sg_rsp;
-+	fc_req->ct_els.sgt_req.sgl = &fc_req->sg_req;
-+	fc_req->ct_els.sgt_resp.sgl = &fc_req->sg_rsp;
- 	sg_init_one(&fc_req->sg_req, &fc_req->u.adisc.req,
- 		    sizeof(struct fc_els_adisc));
- 	sg_init_one(&fc_req->sg_rsp, &fc_req->u.adisc.rsp,
- 		    sizeof(struct fc_els_adisc));
-+	fc_req->ct_els.sgt_req.orig_nents = sg_nents(&fc_req->sg_req);
-+	fc_req->ct_els.sgt_resp.orig_nents = sg_nents(&fc_req->sg_rsp);
- 
- 	fc_req->ct_els.handler = zfcp_fc_adisc_handler;
- 	fc_req->ct_els.handler_data = fc_req;
-@@ -706,8 +710,10 @@ static int zfcp_fc_send_gpn_ft(struct zfcp_fc_req *fc_req,
- 
- 	ct_els->handler = zfcp_fc_complete;
- 	ct_els->handler_data = &completion;
--	ct_els->req = &fc_req->sg_req;
--	ct_els->resp = &fc_req->sg_rsp;
-+	ct_els->sgt_req.sgl = &fc_req->sg_req;
-+	ct_els->sgt_resp.sgl = &fc_req->sg_rsp;
-+	ct_els->sgt_req.orig_nents = sg_nents(&fc_req->sg_req);
-+	ct_els->sgt_resp.orig_nents = sg_nents(&fc_req->sg_rsp);
- 
- 	ret = zfcp_fsf_send_ct(&adapter->gs->ds, ct_els, NULL,
- 			       ZFCP_FC_CTELS_TMO);
-@@ -865,8 +871,10 @@ static int zfcp_fc_gspn(struct zfcp_adapter *adapter,
- 
- 	ct_els->handler = zfcp_fc_complete;
- 	ct_els->handler_data = &completion;
--	ct_els->req = &fc_req->sg_req;
--	ct_els->resp = &fc_req->sg_rsp;
-+	ct_els->sgt_req.sgl = &fc_req->sg_req;
-+	ct_els->sgt_resp.sgl = &fc_req->sg_rsp;
-+	ct_els->sgt_req.orig_nents = sg_nents(&fc_req->sg_req);
-+	ct_els->sgt_resp.orig_nents = sg_nents(&fc_req->sg_rsp);
- 
- 	ret = zfcp_fsf_send_ct(&adapter->gs->ds, ct_els, NULL,
- 			       ZFCP_FC_CTELS_TMO);
-@@ -924,8 +932,10 @@ static void zfcp_fc_rspn(struct zfcp_adapter *adapter,
- 
- 	ct_els->handler = zfcp_fc_complete;
- 	ct_els->handler_data = &completion;
--	ct_els->req = &fc_req->sg_req;
--	ct_els->resp = &fc_req->sg_rsp;
-+	ct_els->sgt_req.sgl = &fc_req->sg_req;
-+	ct_els->sgt_resp.sgl = &fc_req->sg_rsp;
-+	ct_els->sgt_req.orig_nents = sg_nents(&fc_req->sg_req);
-+	ct_els->sgt_resp.orig_nents = sg_nents(&fc_req->sg_rsp);
- 
- 	ret = zfcp_fsf_send_ct(&adapter->gs->ds, ct_els, NULL,
- 			       ZFCP_FC_CTELS_TMO);
-@@ -1090,8 +1100,10 @@ int zfcp_fc_exec_bsg_job(struct bsg_job *job)
- 	if (!(atomic_read(&adapter->status) & ZFCP_STATUS_COMMON_OPEN))
- 		return -EINVAL;
- 
--	ct_els->req = job->request_payload.sg_list;
--	ct_els->resp = job->reply_payload.sg_list;
-+	ct_els->sgt_req.sgl = job->request_payload.sg_list;
-+	ct_els->sgt_resp.sgl = job->reply_payload.sg_list;
-+	ct_els->sgt_req.orig_nents = sg_nents(ct_els->sgt_req.sgl);
-+	ct_els->sgt_resp.orig_nents = sg_nents(ct_els->sgt_resp.sgl);
- 	ct_els->handler_data = job;
- 
- 	switch (bsg_request->msgcode) {
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index d407f16e77ef..a3b99839da9e 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -1242,7 +1242,8 @@ int zfcp_fsf_send_ct(struct zfcp_fc_wka_port *wka_port,
- 	}
- 
- 	req->status |= ZFCP_STATUS_FSFREQ_CLEANUP;
--	ret = zfcp_fsf_setup_ct_els(req, ct->req, ct->resp, timeout);
-+	ret = zfcp_fsf_setup_ct_els(req, ct->sgt_req.sgl, ct->sgt_resp.sgl,
-+				    timeout);
- 	if (ret)
- 		goto failed_send;
- 
-@@ -1342,7 +1343,8 @@ int zfcp_fsf_send_els(struct zfcp_adapter *adapter, u32 d_id,
- 	if (!zfcp_adapter_multi_buffer_active(adapter))
- 		zfcp_qdio_sbal_limit(qdio, &req->qdio_req, 2);
- 
--	ret = zfcp_fsf_setup_ct_els(req, els->req, els->resp, timeout);
-+	ret = zfcp_fsf_setup_ct_els(req, els->sgt_req.sgl, els->sgt_resp.sgl,
-+				    timeout);
- 
- 	if (ret)
- 		goto failed_send;
-diff --git a/drivers/s390/scsi/zfcp_fsf.h b/drivers/s390/scsi/zfcp_fsf.h
-index 4b92e85ec71d..22e7fd933a78 100644
---- a/drivers/s390/scsi/zfcp_fsf.h
-+++ b/drivers/s390/scsi/zfcp_fsf.h
-@@ -487,8 +487,9 @@ struct zfcp_blk_drv_data {
- 
- /**
-  * struct zfcp_fsf_ct_els - zfcp data for ct or els request
-- * @req: scatter-gather list for request, points to &zfcp_fc_req.sg_req or BSG
-- * @resp: scatter-gather list for response, points to &zfcp_fc_req.sg_rsp or BSG
-+ * @sgt_req: sg_table for request, its sgl points to &zfcp_fc_req.sg_req or BSG
-+ * @sgt_resp: sg_table for response, its sgl points to &zfcp_fc_req.sg_resp
-+ *            or BSG
-  * @handler: handler function (called for response to the request)
-  * @handler_data: data passed to handler function
-  * @port: Optional pointer to port for zfcp internal ELS (only test link ADISC)
-@@ -496,8 +497,8 @@ struct zfcp_blk_drv_data {
-  * @d_id: Destination ID of either open WKA port for CT or of D_ID for ELS
-  */
- struct zfcp_fsf_ct_els {
--	struct scatterlist *req;
--	struct scatterlist *resp;
-+	struct sg_table sgt_req;
-+	struct sg_table sgt_resp;
- 	void (*handler)(void *);
- 	void *handler_data;
- 	struct zfcp_port *port;
--- 
-2.53.0
+> diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+> index 32d6d03df3214..499a2473b79b4 100644
+> --- a/net/smc/smc_cdc.c
+> +++ b/net/smc/smc_cdc.c
+> @@ -428,7 +428,8 @@ static void smc_cdc_msg_recv(struct smc_sock *smc, st=
+ruct smc_cdc_msg *cdc)
+>  {
+>  	sock_hold(&smc->sk);
+>  	bh_lock_sock(&smc->sk);
+> -	smc_cdc_msg_recv_action(smc, cdc);
+> +	if (!smc->conn.freed)
+> +		smc_cdc_msg_recv_action(smc, cdc);
+>  	bh_unlock_sock(&smc->sk);
+>  	sock_put(&smc->sk); /* no free sk in softirq-context */
+>  }
 
+[Severity: Critical]
+Does checking smc->conn.freed under bh_lock_sock(&smc->sk) actually seriali=
+ze
+smc_cdc_msg_recv() against smc_conn_free()?
+
+Process-context callers of smc_conn_free(), such as smc_release() ->
+__smc_release() -> smc_conn_free(), hold the sleeping socket lock via
+lock_sock(&smc->sk). In net/core/sock.c:lock_sock_nested(), acquiring the
+user-context socket lock sets sk->sk_lock.owned =3D 1 and immediately drops
+sk->sk_lock.slock so the caller can sleep:
+
+net/core/sock.c:lock_sock_nested() {
+	spin_lock_bh(&sk->sk_lock.slock);
+	if (unlikely(sock_owned_by_user_nocheck(sk)))
+		__lock_sock(sk);
+	sk->sk_lock.owned =3D 1;
+	spin_unlock_bh(&sk->sk_lock.slock);
+}
+
+Meanwhile, smc_cdc_msg_recv() runs in tasklet context via
+smc_wr_rx_tasklet_fn() -> smc_cdc_rx_handler() -> smc_cdc_msg_recv() and
+calls bh_lock_sock(&smc->sk), which only acquires sk->sk_lock.slock without
+waiting on sk->sk_lock.owned. In fact, smc_cdc_msg_recv_action() in
+net/smc/smc_cdc.c explicitly checks sock_owned_by_user(&smc->sk) because it
+can run while a process holds lock_sock(&smc->sk):
+
+net/smc/smc_cdc.c:smc_cdc_msg_recv_action() {
+	...
+		if (!sock_owned_by_user(&smc->sk))
+			smc_tx_pending(conn);
+		else
+			conn->tx_in_release_sock =3D true;
+	...
+}
+
+In net/smc/smc_core.c:smc_conn_free(), conn->freed =3D 1 and smc_buf_unuse()
+run without holding bh_lock_sock(&smc->sk) and before
+smc_lgr_unregister_conn(conn):
+
+net/smc/smc_core.c:smc_conn_free() {
+	...
+	conn->freed =3D 1;
+	...
+	if (!list_empty(&lgr->list)) {
+		smc_buf_unuse(conn, lgr); /* allow buffer reuse */
+		smc_lgr_unregister_conn(conn);
+	}
+	...
+}
+
+If CPU 0 enters smc_cdc_msg_recv(), acquires bh_lock_sock(&smc->sk), and se=
+es
+!smc->conn.freed just before CPU 1 in smc_conn_free() sets conn->freed =3D 1
+and frees conn->rmb_desc or conn->sndbuf_desc via smc_buf_unuse(), can CPU 0
+still concurrently dereference the freed conn->rmb_desc->len in
+smc_cdc_msg_recv_action():
+
+net/smc/smc_cdc.c:smc_cdc_msg_recv_action() {
+	...
+	diff_prod =3D smc_curs_diff(conn->rmb_desc->len, &prod_old,
+				  &conn->local_rx_ctrl.prod);
+	...
+}
+
+Additionally, if smc_cdc_msg_recv_action() observes
+sock_owned_by_user(&smc->sk) while __smc_release() holds lock_sock(&smc->sk=
+),
+won't setting conn->tx_in_release_sock =3D true cause the subsequent
+release_sock(&smc->sk) in smc_release() to invoke smc_release_cb() ->
+smc_tx_pending() on a connection that smc_conn_free() has already torn down?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261021171256.1668=
+70-2-bestswngs@gmail.com?part=3D1
