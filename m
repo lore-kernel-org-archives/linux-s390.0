@@ -1,61 +1,106 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=193.142.43.55
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792678389;
-	b=hhO5JHZYZavBs9d8YMv8Sy/WC8Kg2YCV+86CyGkPFTCc2mHtoLJZXXeexicGcIwADh0H
-	 lVYlKToPv7y11d6yShvp64mECewvXz8OgMTdexXpSTfRBmr8zUjqBQLveABzIRIJ/S1KL
-	 v6sy1VlNUdML2gP9EIL0NJssX5ChxlPRnyc2Bsbu/Y+v1lsmXW9loRwkr0qVI1Ay5+naj
-	 ixZSlwTk6sdaVlAlZETYo49lpsEfqAdBlIkRVm8ZsVWnsCG4W+amWDcO0smq76RvZoNwM
-	 f1cXZRrBghDff+DjwM0Y9Bo7lMs7yfRweoD4/KgfRkm9u8OJMamMDHq0jYt5NGHM7sg==
+	t=1792679071;
+	b=RQBlRaSbTYSS84pBmWzvnhyqXq6SK3T6gissfIDc0TZguCV7xzjInskY6uLMeT5eTJYI
+	 OIHlmabFAdw7PJckhwmE0/1N8TFkf31hfOYo/VcK+v8qkScjzgibhsTGhUrySYDc1VNQK
+	 y0ihQqbL07un1RFovjWk6ukcf1gSW+FRir7yJfg9t/mop7cz9G/voFvKdWfwo6BwcxUw2
+	 BhA9w93u58cYh3yq1VKvodFWniQNlEhM5bXj/nu54fVzTIj5z4fSJFu/OG7O3O01wBO7B
+	 bNZjyzqv9WWrID1XIAFMAbt0OK2MAxp3pF9cnELGOcG7Ur5IIm1FP/hszbwigaaW+tQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792678389;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=lVyCsAyW+f6wFm05LptcX8c53okKTmSAzUoLzdTwIEs=;
-	b=wJUVwb65GyzNBnmIgsZHTSC0188HScAi2H3c6aHGDhYK7rWSyq1coxDQd+yJW1LsMmf2
-	 128UGxAErh/Zw69lnkMaaMhsEReZQM+uMnVl/M/+MJ8ICl2e3CkQWFYAcgZC9cAPRedGc
-	 uqW0LVT9x1zirm2KttV54xPy3huamSHge0BV9jqjikR5nvI3WKoQMHWTfmf3vPJeQJfud
-	 EBToCuG1kQx0tgzy2AF4MYRS3vpZaJkdLTS1myLurF2hry/+mOoavWDxrixJrryxc02eD
-	 MT4LU5O8QRzYNHV4y2s5wUhJJu6X3iUdvSlkCQeoDw4PZtl1oLT3FIfsWWuSBK3FB2w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792679071;
+	h=DMARC-Filter:Date:DKIM-Signature:DKIM-Signature:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 Content-Transfer-Encoding:In-Reply-To;
+	bh=ijcqFl4YNaIiVHZ0kMDDzDit0eQZX1zIOl9C/1G18QI=;
+	b=irDu32suvnN4EXemnSeM0fzNA54HhnRBhTrwrhIQqKToK+rucxxhGIr5ZUiLm89pGgjM
+	 z3owYGQ7IadeYjDcbhsvShoi3IoSBot/igVtcA8fEd2ZIZfNuEe7gwYTETAvhoBx1IKw8
+	 7dt3vhUevadbXTLXYhFpx4E1JuJaJK7rZyXAhRTWPMqwGSCIEnY+kmgqC57oWoMtmpXLU
+	 kMaTuE9FvRw3cD3ZPko3CTowybRrkqelPdI7jA0X2Wx3PqH9qhjoin3enchjmSJJI++Or
+	 4qgFxN8DMkRLTkrstxCG/l0RjZMa6YRYhKCQlcgROy1cDmLFs7ovFI7VNDVMVQe09Yw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GAkbFUMH;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linutronix.de;
+	spf=pass smtp.mailfrom=linutronix.de;
+	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=tGPqmIoU;
+	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b=lrzd8ZGd;
+	arc=none smtp.remote-ip=193.142.43.55
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6F76606A327;
-	Thu, 22 Oct 2026 14:13:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0402F606A31A;
+	Thu, 22 Oct 2026 14:24:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0402F606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GAkbFUMH
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CEC21F000C1;
-	Thu, 22 Oct 2026 14:13:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792678388;
-	bh=lVyCsAyW+f6wFm05LptcX8c53okKTmSAzUoLzdTwIEs=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=GAkbFUMHDzBKKbZkl3JMrYDZPR48XXJ7UUtT+UPPVA2uV+e+/Bb2HtlZP788n+FkH
-	 ZMCCmB7P83Rnq5jHIygQZX/3sc84m8JA3yUPhoOMVVZOjr6jH3P+mKP7DGrQS/f5Tc
-	 9n6bCpAiVJS84gXn3ReeSTa6C3CSBlrRDSieHtbCAc1yxtgIsQlFN5XnECNWJV6aZo
-	 YCKLb7UyAUaRU03heJdoNcQVaunmPK1D9FqJziOtIoQVyS3lobaFqh1COvt6RL39OZ
-	 pqT/zkr/kc4//vhqFCevmGdd8WrsWKwVYyUuAA2oIgVN225O3Jti6BCvh9bqk1uhE6
-	 iYAEOnOxddusQ==
-Subject: Re: [PATCH net v12] net/smc: fix lgr/lnk lifetime vs diag reader race
-From: netdev-bot+sashiko@kernel.org
-To: mjambigi@linux.ibm.com
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
- dust.li@linux.alibaba.com, sidraya@linux.ibm.com, hidayath@linux.ibm.com,
- pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, stable@vger.kernel.org, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Date: Thu, 22 Oct 2026 14:13:06 +0000
-Message-ID: <179267838686.3135.11610279010793695525@kernel.org>
-In-Reply-To: <20261019111008.3367567-1-mjambigi@linux.ibm.com>
-References: <20261019111008.3367567-1-mjambigi@linux.ibm.com>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key, unprotected) header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=tGPqmIoU;
+	dkim=pass header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b=lrzd8ZGd
+Date: Thu, 22 Oct 2026 16:24:25 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1792679067;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ijcqFl4YNaIiVHZ0kMDDzDit0eQZX1zIOl9C/1G18QI=;
+	b=tGPqmIoU7flznKuVvSgOzo2yd+DVKg7D73Wllg9sFRm9CC/iaoJaE55c3a0xpncefiwTWe
+	D0DcbKw7j7YI7N9iAD68KUbumDWDB4zuYjNIkgHfr2v+H6DCtaJTi+ZtcPVrTjX8s8nNNi
+	XYrPBSHr+CwiWmUAbayRxd1rMqP3P1fTDl5O65hszJdwi1iKQ6myUH0U2igUoTF8eZn+8r
+	G1OdblBxDgssdpqEoIOChx+/YLJ7ntbq+IsNh3ReV+JtcimJTFUP2numV2/sYLdIC+zwnD
+	aAZ46jrqFXnXLMoMGXtXmyYgRF8JauAVkMkAXxtjJDC2ZDnhWCO79rWsa0e06A==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1792679067;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ijcqFl4YNaIiVHZ0kMDDzDit0eQZX1zIOl9C/1G18QI=;
+	b=lrzd8ZGdzEWmJjZ9aZOFY32BVENA3ocTIaS/QQU0/Sv8YYe+ynbKZ/LG3OiCiXRqC6uBBI
+	wYJIr0JLNWZ7aTBw==
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org, Kees Cook <kees@kernel.org>,
+	Huacai Chen <chenhuacai@kernel.org>, loongarch@lists.linux.dev,
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+	linux-riscv@lists.infradead.org,
+	Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+	x86@kernel.org, Mark Rutland <mark.rutland@arm.com>,
+	Jinjie Ruan <ruanjinjie@huawei.com>,
+	Andy Lutomirski <luto@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
+	Richard Henderson <richard.henderson@linaro.org>,
+	Russell King <linux@armlinux.org.uk>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Guo Ren <guoren@kernel.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Helge Deller <deller@gmx.de>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Richard Weinberger <richard@nod.at>,
+	Chris Zankel <chris@zankel.net>,
+	linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org,
+	linux-csky@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+	linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+	linux-sh@vger.kernel.org, linux-um@lists.infradead.org,
+	Arnd Bergmann <arnd@arndb.de>, Vineet Gupta <vgupta@kernel.org>,
+	Will Deacon <will@kernel.org>, Brian Cain <bcain@kernel.org>,
+	Michal Simek <monstr@monstr.eu>, Dinh Nguyen <dinguyen@kernel.org>,
+	"David S. Miller" <davem@davemloft.net>,
+	Andreas Larsson <andreas@gaisler.com>,
+	linux-snps-arc@lists.infradead.org, linux-hexagon@vger.kernel.org,
+	linux-openrisc@vger.kernel.org, sparclinux@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	Michal =?utf-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>,
+	Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [patch 16/18] x86/entry: Get rid of the sys_ni_syscall()
+ indirection
+Message-ID: <20261022142425.3Wx-RrU5@linutronix.de>
+References: <20260707181957.433213175@kernel.org>
+ <20260707190254.493733289@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -65,239 +110,127 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20260707190254.493733289@kernel.org>
 
-Thank you for your contribution! Sashiko AI review found 3 potential
-issue(s) to consider.
+On 2026-07-07 21:07:01 [+0200], Thomas Gleixner wrote:
+> Invoking sys_ni_syscall() from a code path, which already knows that the
+> syscall number is invalid just to assign -ENOSYS to regs->ax is a pointle=
+ss
+> exercise. It's even redundant as the low level entry code already has set
+> regs->ax to -ENOSYS on entry.
+>=20
+> Remove the extra conditionals and the function calls.
 
-Critical: 0 · High: 1 · Medium: 0 · Low: 2
+Since this patch, tools/testing/selftests/x86/syscall_numbering_64
+throws in this:
+|[RUN]   Running tests under ptrace: modifying the default return
+|[RUN]       Checking system calls with msb =3D 0 (0x0)
+|[RUN]           Checking some common syscalls as 64 bit
+|[OK]                x64 syscall 0:0 returned 0 as expected
+|[OK]                x64 syscall 0:1 returned 0 as expected
+|[RUN]           Checking some 64-bit only syscalls as 64 bit
+|[OK]                x64 syscall 0:19 returned 0 as expected
+|[OK]                x64 syscall 0:20 returned 0 as expected
+|[RUN]           Checking out of range system calls
+|[FAIL]                  x32 syscall 0:-64 returned -9999, but it should ha=
+ve returned -ENOSYS
+=E2=80=A6
+|[FAIL]                  x32 syscall 0:-2 returned -9999, but it should hav=
+e returned -ENOSYS
+|[FAIL]              x32 syscalls 0:-64..-2 had 63 failure
+|[OK]                x32 syscall 0:-1 returned MODIFIED_BY_PTRACE as expect=
+ed
+|[FAIL]                  x64 syscall 0:1073741760 returned -9999, but it sh=
+ould have returned -ENOSYS
+=E2=80=A6
+|[FAIL]                  x64 syscall 0:1073741823 returned -9999, but it sh=
+ould have returned -ENOSYS
+|[FAIL]              x64 syscalls 0:1073741760..1073741823 had 64 failure
+|[FAIL]                  x64 syscall 0:-64 returned -9999, but it should ha=
+ve returned -ENOSYS
+=E2=80=A6
+|[FAIL]                  x64 syscall 0:547 returned -9999, but it should ha=
+ve returned -ENOSYS
+|[FAIL]              x64 syscalls 0:512..547 had 36 failure
+|[RUN]           Checking some common syscalls as x32
+|[OK]                x32 syscall 0:0 returned 0 as expected
+=E2=80=A6
+|[RUN]           Checking out of range system calls
+|[FAIL]                  x32 syscall 1:-64 returned -9999, but it should ha=
+ve returned -ENOSYS
+|[FAIL]              x32 syscalls 1:-64..-2 had 63 failure
+|[OK]                x32 syscall 1:-1 returned MODIFIED_BY_PTRACE as expect=
+ed
+|[FAIL]                  x64 syscall 1:1073741760 returned -9999, but it sh=
+ould have returned -ENOSYS
+=E2=80=A6
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+and so on=E2=80=A6 The test has
 
-- [High] The v12 `!lgr->terminating` guard in
-  smc_lgr_schedule_free_work() (net/smc/smc_core.c) does not close the…
-- [Low] The commit message says "Other kill paths leave the socket
-  hashed, since it can stay open until close()".
-- [Low] The commit message's 'Fifth' paragraph gets the mechanism of its
-  own example wrong.
+| #define MODIFIED_BY_PTRACE      -9999
 
---
+and the ptracer modifies the return code. However not always. Not sure
+if this was indeed a pointless exercise or not.
 
-net/smc: fix lgr/lnk lifetime vs diag reader race
+The test could be updated via the hunk below in case the new behaviour
+is what is expected. hpa made the extension to the test in commit
+795e2a023b808 ("selftests/x86/syscall: Add tests under ptrace to
+syscall_numbering_64").
 
-This patch closes several windows where the SMC sock_diag dump can
-dereference conn/lgr/lnk state that has already been freed. It skips the
-CONNINFO/LGRINFO/DMBINFO attributes for SMC_INIT and SMC_CLOSED sockets,
-orders sk_state with acquire/release, unhashes sockets before teardown in
-several paths, and copies the cached link->ibname. It also unregisters
-connections unconditionally in smc_conn_free() and stops arming free_work
-on a terminating link group.
+diff --git a/tools/testing/selftests/x86/syscall_numbering.c b/tools/testin=
+g/selftests/x86/syscall_numbering.c
+index ca0eca7b9dced..1435394fba022 100644
+--- a/tools/testing/selftests/x86/syscall_numbering.c
++++ b/tools/testing/selftests/x86/syscall_numbering.c
+@@ -250,6 +250,7 @@ static bool test_x32(void)
+ static void test_syscalls_common(int msb)
+ {
+ 	enum ptrace_pass pass =3D sh->ptrace_pass;
++	int expected_ret =3D -ENOSYS;
+=20
+ 	run("Checking some common syscalls as 64 bit\n");
+ 	check_zero(msb, SYS_READ);
+@@ -260,18 +261,22 @@ static void test_syscalls_common(int msb)
+ 	check_zero(msb, X64_WRITEV);
+=20
+ 	run("Checking out of range system calls\n");
+-	check_for(msb, -64, -2, -ENOSYS);
+ 	if (pass >=3D PTP_FUZZRET)
+-		check_for(msb, -1, -1, MODIFIED_BY_PTRACE);
+-	else
+-		check_for(msb, -1, -1, -ENOSYS);
+-	check_for(msb, X32_BIT-64, X32_BIT-1, -ENOSYS);
+-	check_for(msb, -64-X32_BIT, -1-X32_BIT, -ENOSYS);
+-	check_for(msb, INT_MAX-64, INT_MAX-1, -ENOSYS);
++		expected_ret =3D MODIFIED_BY_PTRACE;
++	check_for(msb, -64, -2, expected_ret);
++	check_for(msb, -1, -1, expected_ret);
++	check_for(msb, X32_BIT-64, X32_BIT-1, expected_ret);
++	check_for(msb, -64-X32_BIT, -1-X32_BIT, expected_ret);
++	check_for(msb, INT_MAX-64, INT_MAX-1, expected_ret);
+ }
+=20
+ static void test_syscalls_with_x32(int msb)
+ {
++	enum ptrace_pass pass =3D sh->ptrace_pass;
++	int expected_ret =3D -ENOSYS;
++
++	if (pass >=3D PTP_FUZZRET)
++		expected_ret =3D MODIFIED_BY_PTRACE;
+ 	/*
+ 	 * Syscalls 512-547 are "x32" syscalls.  They are
+ 	 * intended to be called with the x32 (0x40000000) bit
+@@ -279,7 +284,7 @@ static void test_syscalls_with_x32(int msb)
+ 	 * nonsense and should not work.
+ 	 */
+ 	run("Checking x32 syscalls as 64 bit\n");
+-	check_for(msb, 512, 547, -ENOSYS);
++	check_for(msb, 512, 547, expected_ret);
+=20
+ 	run("Checking some common syscalls as x32\n");
+ 	check_zero(msb, SYS_READ   | X32_BIT);
 
-> Fifth, on the smc_lgr_cleanup_early() path (e.g. server CLC decline with
-> SYNCERR) __smc_lgr_terminate() sets terminating=1 and unlinks the LGR
-> without setting freeing=1.
-
-[Severity: Low]
-Is the SYNCERR example here accurate? On the server, smc_clc_wait_msg()
-handles a DECLINE that carries SMC_FIRST_CONTACT_MASK like this
-(smc_clc_send_decline() sets that mask for SMC_CLC_DECL_SYNCERR):
-
-net/smc/smc_clc.c:smc_clc_wait_msg() {
-    ...
-		if ((dclc->hdr.typev2 & SMC_FIRST_CONTACT_MASK) &&
-		    smc->conn.lgr) {
-			smc->conn.lgr->sync_err = 1;
-			smc_lgr_terminate_sched(smc->conn.lgr);
-		}
-    ...
-}
-
-smc_lgr_terminate_sched() then unlinks the LGR itself and sets freeing:
-
-net/smc/smc_core.c:smc_lgr_terminate_sched() {
-    ...
-	list_del_init(&lgr->list);
-	lgr->freeing = 1;
-    ...
-}
-
-All of this happens before smc_listen_decline()->smc_conn_abort()->
-smc_conn_free(). Also, smc_conn_abort() calls smc_conn_free() before it
-calls smc_lgr_cleanup_early():
-
-	smc_conn_free(conn);
-	if (local_first && lgr_valid)
-		smc_lgr_cleanup_early(lgr);
-
-So in this example smc_lgr_terminate_sched() unlinks the LGR with freeing
-== 1, and the new !lgr->terminating check has no effect.
-
-The skipped smc_lgr_unregister_conn() that leaves alert_token_local
-non-zero does look real on this path. However, it is caused by the
-terminate_sched unlink, not by smc_lgr_cleanup_early(). The problem is
-only in the cited example and its freeing claim.
-
-Could this paragraph name smc_lgr_terminate_sched() for the SYNCERR case,
-or use a different example for the smc_lgr_cleanup_early() path?
-
-> diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-> index bb0313ef5f7c1..aa6363abdd747 100644
-> --- a/net/smc/smc_close.c
-> +++ b/net/smc/smc_close.c
-> @@ -154,6 +154,7 @@ void smc_close_active_abort(struct smc_sock *smc)
->  		if (sk->sk_state != SMC_PEERABORTWAIT)
->  			break;
->  		sk->sk_state = SMC_CLOSED;
-> +		sk->sk_prot->unhash(sk);
->  		smc_conn_free(&smc->conn);
->  		release_clcsock = true;
->  		sock_put(sk); /* passive closing */
-> @@ -165,6 +166,7 @@ void smc_close_active_abort(struct smc_sock *smc)
->  		if (sk->sk_state != SMC_PEERABORTWAIT)
->  			break;
->  		sk->sk_state = SMC_CLOSED;
-> +		sk->sk_prot->unhash(sk);
->  		smc_conn_free(&smc->conn);
->  		release_clcsock = true;
->  		break;
-
-[Severity: Low]
-The commit message says:
-
-  Other kill paths leave the socket hashed, since it can stay open until
-  close().
-
-Does that match the code? Every smc_conn_kill() ends in
-smc_close_active_abort(). These new unhash calls run in its
-PEERCLOSEWAIT1/PEERCLOSEWAIT2/PEERFINCLOSEWAIT branch and its
-PROCESSABORT/APPFINCLOSEWAIT branch.
-
-Sockets whose fd is still open can be in those states:
-
-  smc_close_shutdown_write()          ACTIVE -> SMC_PEERCLOSEWAIT1
-  smc_close_passive_work()            -> SMC_APPFINCLOSEWAIT
-                                      ("just shutdown, but not yet
-                                       closed locally")
-  smc_close_passive_abort_received()  -> SMC_PROCESSABORT
-
-When the link group terminates through __smc_lgr_terminate()->
-smc_conn_kill()->smc_close_active_abort(), these open sockets are removed
-from the SMC hash, and sock_prot_inuse is decremented before close().
-
-smc_close_active_abort() also sets SOCK_DEAD unconditionally. That means
-the SOCK_DEAD-gated unhash added to smc_close_passive_work() can fire for
-sockets whose fd is still open.
-
-The dmb_nocopy unhash in smc_conn_kill() has a similar effect. It hides
-ACTIVE/APPCLOSEWAIT sockets that stay open, but only on loopback-ism
-devices.
-
-The v10 changelog gives the opposite reasoning for the other paths ("they
-must stay visible to smcss and keep their inuse accounting"). Could the
-commit message say that killed sockets in these states are unhashed
-before close()? Could it also say that visibility to smcss now depends on
-the close state and the device type?
-
-[ ... ]
-
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index 9974149659c2f..9d8165d1b40c5 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -84,7 +84,7 @@ static void smc_lgr_schedule_free_work(struct smc_link_group *lgr)
->  	 * creation. For client use a somewhat higher removal delay time,
->  	 * otherwise there is a risk of out-of-sync link groups.
->  	 */
-> -	if (!lgr->freeing) {
-> +	if (!lgr->freeing && !lgr->terminating) {
->  		mod_delayed_work(system_percpu_wq, &lgr->free_work,
->  				 (!lgr->is_smcd && lgr->role == SMC_CLNT) ?
->  						SMC_LGR_FREE_DELAY_CLNT :
-
-[Severity: High]
-Does this check fully stop free_work from being re-armed on a
-terminating link group? The flag check and mod_delayed_work() are not
-done under any lock that __smc_lgr_terminate() also takes. On the other
-side, the cancel happens before the flag store:
-
-net/smc/smc_core.c:__smc_lgr_terminate() {
-	if (lgr->terminating)
-		return;	/* lgr already terminating */
-	/* cancel free_work sync, will terminate when lgr->freeing is set */
-	cancel_delayed_work(&lgr->free_work);
-	lgr->terminating = 1;
-    ...
-}
-
-smc_lgr_cleanup_early() never sets lgr->freeing, so on that path
-terminating is the only thing protecting free_work.
-
-On an SMC-D server, smc_listen_work() drops smc_server_lgr_pending right
-after sending the ACCEPT:
-
-	/* SMC-D does not need this lock any more */
-	if (ini->is_smcd)
-		mutex_unlock(&smc_server_lgr_pending);
-
-So a second connection B can join the LGR of first-contact connection A.
-Can the following interleaving happen?
-
-CPU1 (connection A, CONFIRM wait failed)
-smc_listen_decline()
-  smc_conn_abort(A, 1)
-    smc_conn_free(A)
-      smc_lgr_unregister_conn()        /* conns_num 1 */
-
-CPU2 (connection B)
-smc_conn_free(B)
-  smc_lgr_unregister_conn()            /* conns_num 0 */
-  smc_lgr_schedule_free_work()
-    if (!lgr->freeing && !lgr->terminating)   /* passes */
-
-CPU1
-    smc_lgr_cleanup_early()
-      list_del_init(&lgr->list)
-      __smc_lgr_terminate()
-        cancel_delayed_work()          /* nothing pending yet */
-        lgr->terminating = 1
-        /* conns_all is empty, B is not waited for */
-        smc_lgr_cleanup()
-        smc_lgr_free()                 /* drops base reference */
-
-CPU2
-    mod_delayed_work(..., &lgr->free_work, ...)
-  smc_lgr_put()                        /* last reference */
-    __smc_lgr_free()
-      kfree(lgr)
-
-__smc_lgr_free() does not cancel free_work again. The timer would then
-fire on freed memory after SMC_LGR_FREE_DELAY_SERV. The same window
-exists if CPU2's check lands between the cancel and the terminating
-store.
-
-Before this patch the race could happen through B passing the
-!list_empty(&lgr->list) check. With smc_lgr_unregister_conn() now called
-unconditionally in smc_conn_free(), conns_num can reach 0 at any point up
-to the terminating store.
-
-Another question: terminating:1 is written without lgr_lock, and
-freeing:1 is written under lgr_lock. Both share a bitfield byte with
-sync_err:1. Can concurrent read-modify-writes lose one of the flags this
-check relies on?
-
-The comment in __smc_lgr_terminate() says "cancel free_work sync, will
-terminate when lgr->freeing is set". However, the code uses a non-sync
-cancel, and this path never sets freeing.
-
-Would one of these work instead? Either publish terminating before the
-cancel, under a lock that smc_lgr_schedule_free_work() also holds across
-its check and mod_delayed_work(). Or do a cancel_delayed_work_sync() of
-free_work before the final kfree(lgr) in __smc_lgr_free().
-
-[ ... ]
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261019111008.3367567-1-mjambigi%40linux.ibm.com
+Sebastian
