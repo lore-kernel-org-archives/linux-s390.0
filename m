@@ -1,59 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792670562;
-	b=glCpv4XYTuXTDcsavaOa1lBybCdajYlzDaTVeepsQ6qc/7V2mLRlRhhnvf+LDTLelc5P
-	 v65KJ7Z+jtTrnrSKlveXbflm2gN7Dl7aWqoTbZ4zh+QKL8Vqvlgu3/cja18RIrRP4bqjH
-	 TFCKmYBckZbtZPz+Jvnf/6GDqAmSMqHWctQknQockN94VXgsvlJ3eqQqaP8uJ89vdrYVO
-	 f/J7QTd80Jb3zATJobftanB/Ii/sa/UdbWgtsUBt0rOktvPndrbMDsy020g+yJgv5lXMs
-	 EPWtqSCXA3aXgZYhFti+zpDapIJQcuqbWNAkEK8xWO38vTuGhun6IY+ktlSqKVOXozw==
+	t=1792670643;
+	b=ekYiwztVPMUD5onbXZXyedTgoY7lQmiug+tA/oD39F6xO5P4GXJ8QbUSMuzZ27ctGkwN
+	 LRmOk0440x4KS7++THFVzl6hJe/IWL+hAuTIoASWfxBI2Q2rTElMyv+pxwG3tiWVbv1Ep
+	 PYhYpK0XIlGsVVgbjFKlzK2/DR4rNC0suB7OpENZzPVERSAylvo8D6x4gYzaIOwCh8FGZ
+	 xCs3hI3s55hGOldpkyXoeuHSvDGC6OiHLDwzoKFzNvBeZkNQskTlbDQt6rMLavfWoVKRN
+	 dPtG4Vwhvsd2jGMV1cmBUeLrw7YjQQqD2SG28OwqXMBh1HtfkcOHTYGhhfRolmiuLGQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792670562;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792670643;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=HLFIyj3o6OA2wNp/GnYEAz8mnQLVU8N0bH4YqrKisBA=;
-	b=SIL7/+BhlCuEYMLqliV7ufoY0zUnbCaoL2aYEEKcUiwtN4csvTfhC79fAuoZ5Rr5Kptm
-	 WyyLlHgKnJ3KmpiqbHi4Eb08ZBczrY25fvmpLtjqxl3TzKKT+ltBZfQkGcgUVibBkfOXT
-	 6cTaqkKYUscpDw+FQYOD6Ze/9oosdvHICkNOxqzUMSluVmGJNwbunuUipBMie3l8KwWoO
-	 t/aXtLngqy3I+kmy+iAco0dUvB/RfzXdqWy5wddDMugMrh9z5S0h3GM+peePHRw6h4NfB
-	 0c2UhievrnTSLlKyiYcwyzddqkLLm7U8P31thDQ1ufbx3p3rvdbkWgC+ZSere5tFzlg==
+	bh=IbQpMElBM+jgBi/8Iu3zioEMJo4s6jJpW/29NQUTfTE=;
+	b=ASBkCidKEj5W3xshl3oOUD6Vbb7M/td92dar5VU0ALQJc43gNnO52VTkJuOGkABR8LMQ
+	 3oJDYBkQzlXrVPETOA0xp7c4OGAZn3kwkS5yfKUv0u3GLnLNAhEDK114kACEAxTv365j9
+	 PjodDOs5FExd+YM8atB4cUATkUp1Zb/0zX4Zl6pt6z01cRzKlnQO9TW/lXlwkr4vUPx6L
+	 Xl0VcBsG5Vpt6mGRT1dBZ/Jn3+wjUv5dNgXTTBy62EKe5VxP6GQGOMn8azUofS3cd9/Zx
+	 5ZkNYpH+328vf2FaB2LHpNdEmjJCd89Ej6qM3+cDHGUCSxowFOTMphCmW10AXEKvWKQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GyvWHm9f;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D2Gx1Z1s;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA7FF606A319
-	for <linux-s390@vger.kernel.org>; Thu, 22 Oct 2026 12:02:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAF8C606A31A
+	for <linux-s390@vger.kernel.org>; Thu, 22 Oct 2026 12:04:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GyvWHm9f
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BED2E1F000C1;
-	Thu, 22 Oct 2026 12:02:40 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=D2Gx1Z1s
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAFB21F000C1;
+	Thu, 22 Oct 2026 12:04:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792670561;
-	bh=HLFIyj3o6OA2wNp/GnYEAz8mnQLVU8N0bH4YqrKisBA=;
+	s=k20260515; t=1792670642;
+	bh=IbQpMElBM+jgBi/8Iu3zioEMJo4s6jJpW/29NQUTfTE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=GyvWHm9fYBY4GwKU/UrdhR9tdszlSQ+uaOtH+Ld7NwCvaJTA9p8zNBzOHPq3HEl1n
-	 v0XLYEKasjo4oU2HJQ92rX0HsUgr/gliAF0ec5deSb38Rkdeo7YRcGSv2zOLhBvo2Y
-	 yZ4ds9peD2quC1YjkF9QGRKeNtRezVL8jkKQIwUwg74QdmGksTNM6dElTu0wlz78LA
-	 Er0nXTd96h08qEjMpoLbThOrCcE6CK0ySvvfOVO+ydm01/LyOuCbQawRQ6VnevAmo2
-	 p4SjAqTIAS+/FNd7a+4/T1N3PS+kGsptoCTfzmYEhfTjrvzZZCuZuCzChWz4+t83u3
-	 pYx1A+xMo4NDQ==
-Message-ID: <sashiko-outbox-181408@kernel.org>
+	b=D2Gx1Z1sCUB0vDU+UQIeQQdJUPjXH4U60Ss8y64Ku24DR2rMo2XukUL2o2o1W0tYn
+	 3gtKVcAOUFDlbyLRgOPRC2iDmS94dbfJI5OSWG49JrT37mOX5tkv6f9cv0DSwzDZ2z
+	 tM8EmNDTT8HHK+luwpBMQEy30M0FPov/FpY102OHJ/exJeL90RA5YZWKuuM+sMd1Ti
+	 KdgEORAt9ZPDPHGWHRFcJQXst+ND+pEsChgw2ruVGvLifgaAGRV4bDJGB0t/cgGYrJ
+	 oTvpVWueupiZcP+w1afsGGiB2YfEfGKkYBkt58Ukq0NoKW/+HtoIKce0LpNYPqRQRj
+	 x9/yUUkhbR6Jg==
+Message-ID: <sashiko-outbox-181410@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/3] s390/diag204: Replace diag204 users with new
- implementation
+Subject: Re: [PATCH v2 3/3] s390/diag: Add diag204 IOCTL to diag misc device
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Mete Durlu" <meted@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261022-diag204ioctl-v2-2-7e5a9d1cd21a@linux.ibm.com>
+In-Reply-To: <20261022-diag204ioctl-v2-3-7e5a9d1cd21a@linux.ibm.com>
 References: <20261022-diag204ioctl-v2-0-7e5a9d1cd21a@linux.ibm.com>
- <20261022-diag204ioctl-v2-2-7e5a9d1cd21a@linux.ibm.com>
+ <20261022-diag204ioctl-v2-3-7e5a9d1cd21a@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 22 Oct 2026 12:02:40 +0000
+Date: Thu, 22 Oct 2026 12:04:01 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -65,180 +64,121 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 2 potential issue(=
 s) to consider:
-- [Critical] s390/diag204: unlocked cache access and unlock imbalance in di=
-ag204_store()
-- [Medium] s390/diag204: memory leak in diag204_probe() on simple format fa=
-llback
+- [Critical] s390/diag: unlocked cache access and mutex unlock in diag204_s=
+tore()
+- [Medium] s390/diag: missing subcode metadata and non-UAPI types in diag20=
+4 ioctl
 --
 
-commit 5ab79951b16e6e4f69656f47d09396782867bf4f
+commit 8eea5b568c2725dd27a2e3675754996596fdf2e4
 Author: Mete Durlu <meted@linux.ibm.com>
 
-s390/diag204: Replace diag204 users with new implementation
+s390/diag: Add diag204 IOCTL to diag misc device
 
-This commit converts the existing kernelspace diag204 users in hypfs and
-sthyi to use the new diag204 interface and enables building
-arch/s390/kernel/diag/diag204.c.
+This commit adds ioctl handlers to the s390 diag misc device to query the
+diag204 buffer length and retrieve diag204 data from userspace.
 
-> diff --git a/arch/s390/hypfs/hypfs_diag.c b/arch/s390/hypfs/hypfs_diag.c
-> index 08777f57bd244..c3eebe4667faf 100644
-> --- a/arch/s390/hypfs/hypfs_diag.c
-> +++ b/arch/s390/hypfs/hypfs_diag.c
-> @@ -22,139 +22,24 @@
-
-[ ... ]
-
-> -static int diag204_probe(void)
-> -{
-> -	void *buf;
-> -	int pages, rc;
-> -
-> -	buf =3D diag204_get_buffer(DIAG204_INFO_EXT, &pages);
-> -	if (!IS_ERR(buf)) {
-> -		if (diag204((unsigned long)DIAG204_SUBC_STIB7 |
-> -			    (unsigned long)DIAG204_INFO_EXT, pages, buf) >=3D 0) {
-> -			diag204_store_sc =3D DIAG204_SUBC_STIB7;
-> -			diag204_set_info_type(DIAG204_INFO_EXT);
-> -			goto out;
-> -		}
-> -		if (diag204((unsigned long)DIAG204_SUBC_STIB6 |
-> -			    (unsigned long)DIAG204_INFO_EXT, pages, buf) >=3D 0) {
-> -			diag204_store_sc =3D DIAG204_SUBC_STIB6;
-> -			diag204_set_info_type(DIAG204_INFO_EXT);
-> -			goto out;
-> -		}
-> -		diag204_free_buffer();
-> -	}
+> diff --git a/arch/s390/include/uapi/asm/diag.h b/arch/s390/include/uapi/a=
+sm/diag.h
+> index b7e6ccb4ff6e4..985667b2917a5 100644
+> --- a/arch/s390/include/uapi/asm/diag.h
+> +++ b/arch/s390/include/uapi/asm/diag.h
+> @@ -22,11 +22,19 @@ struct diag310_memtop {
+>  	__u64 nesting_lvl;
+>  };
+> =20
+> +struct diag204_request {
+> +	__u64 address;
+> +	int allow_busy;
+> +	int allow_busy_wait;
+> +};
+> +
+>  /* Diag ioctl definitions */
+>  #define DIAG324_GET_PIBBUF	_IOWR(DIAG_MAGIC_STR, 0x77, struct diag324_pi=
+b)
+>  #define DIAG324_GET_PIBLEN	_IOR(DIAG_MAGIC_STR, 0x78, size_t)
+>  #define DIAG310_GET_STRIDE	_IOR(DIAG_MAGIC_STR, 0x79, size_t)
+>  #define DIAG310_GET_MEMTOPLEN	_IOWR(DIAG_MAGIC_STR, 0x7a, size_t)
+>  #define DIAG310_GET_MEMTOPBUF	_IOWR(DIAG_MAGIC_STR, 0x7b, struct diag310=
+_memtop)
+> +#define DIAG204_GET_LEN		_IOR(DIAG_MAGIC_STR, 0x7c, size_t)
+> +#define DIAG204_GET_BUF		_IOWR(DIAG_MAGIC_STR, 0x7d, struct diag204_requ=
+est)
+> =20
+>  #endif /* __S390_UAPI_ASM_DIAG_H */
 
 [Severity: Medium]
-Does the replacement diag204_probe() in arch/s390/kernel/diag/diag204.c (now
-built via arch/s390/kernel/diag/Makefile) leak the extended format vmalloc
-buffer buf when falling back to DIAG204_INFO_SIMPLE?
+During boot, diag204_probe() in arch/s390/kernel/diag/diag204.c selects
+between subcodes 4, 6, and 7 and sets g_info.subcode and g_info.type
+(simple vs. extended format). When userspace calls diag_ioctl() ->
+diag204_buf(), the raw hardware buffer is copied to req.address via
+copy_to_user() without exposing g_info.subcode (diag204_get_subcode()) or
+g_info.type (diag204_get_info_type()).
 
-In the removed hypfs implementation above, diag204_free_buffer() freed the
-DIAG204_INFO_EXT buffer if both DIAG204_SUBC_STIB7 and DIAG204_SUBC_STIB6
-failed.
+Unlike dbfs_d204_create() in arch/s390/hypfs/hypfs_diag.c, which prepends
+struct dbfs_d204_hdr containing d204->hdr.sc =3D diag204_get_subcode(), the
+raw hardware headers (struct diag204_info_blk_hdr and
+struct diag204_x_info_blk_hdr) do not contain a subcode or format field.
+Because simple and extended formats have different header and entry sizes
+(and subcodes 6 and 7 share the extended header layout while differing in
+secondary processor reporting), how can userspace determine which subcode
+or format was used to populate the buffer returned by diag204_buf()?
 
-In arch/s390/kernel/diag/diag204.c:diag204_probe(), if DIAG204_SUBC_RSI
-returns pages > 0 and __diag204_allocate_buffer(pages) succeeds, but both
-DIAG204_SUBC_STIB7 and DIAG204_SUBC_STIB6 return a negative error code,
-execution falls through to the simple format fallback and overwrites buf
-without freeing the first allocation:
+Also, in struct diag204_request, should allow_busy and allow_busy_wait use
+fixed-width types (__u32 or __u64) instead of raw int, and should the
+ioctl definition use _IOW instead of _IOWR since diag204_buf() only reads
+struct diag204_request?
 
-arch/s390/kernel/diag/diag204.c:diag204_probe() {
-	if (pages > 0) {
-		buf =3D __diag204_allocate_buffer(pages);
-		if (!buf) {
-			rc =3D -ENOMEM;
-			goto fail_alloc;
-		}
-		type =3D DIAG204_INFO_EXT;
-		if (diag204(DIAG204_SUBC_STIB7 | type, pages, buf) >=3D 0) {
-			subcode =3D DIAG204_SUBC_STIB7;
-			goto out;
-		}
-		if (diag204(DIAG204_SUBC_STIB6 | type, pages, buf) >=3D 0) {
-			subcode =3D DIAG204_SUBC_STIB6;
-			goto out;
-		}
-	}
-	/* extended data format is not available, fallback to simple */
-	pages =3D 1;
-	buf =3D __diag204_allocate_buffer(pages);
-}
-
-Should vfree(buf) (or diag204_free_buffer(buf)) be called before overwriting
-buf in the fallback path?
+> diff --git a/arch/s390/kernel/diag/diag204.c b/arch/s390/kernel/diag/diag=
+204.c
+> index 7f366ea12a673..3450a013258fd 100644
+> --- a/arch/s390/kernel/diag/diag204.c
+> +++ b/arch/s390/kernel/diag/diag204.c
 
 [ ... ]
 
-> diff --git a/arch/s390/hypfs/hypfs_diag_fs.c b/arch/s390/hypfs/hypfs_diag=
-_fs.c
-> index 39621c3260103..13b5a2a4729d1 100644
-> --- a/arch/s390/hypfs/hypfs_diag_fs.c
-> +++ b/arch/s390/hypfs/hypfs_diag_fs.c
-> @@ -303,15 +303,14 @@ int hypfs_diag_create_files(struct dentry *root)
->  	struct dentry *systems_dir, *hyp_dir;
->  	void *time_hdr, *part_hdr;
->  	void *buffer, *ptr;
-> -	int i, rc, pages;
-> +	int i, rc;
-> =20
-> -	buffer =3D diag204_get_buffer(diag204_get_info_type(), &pages);
-> +	buffer =3D hypfs_diag204_get_buffer();
->  	if (IS_ERR(buffer))
->  		return PTR_ERR(buffer);
-> -	rc =3D diag204_store(buffer, pages);
-> -	if (rc)
-> +	rc =3D diag204_store(buffer, 0, 0);
-> +	if (rc < 0)
->  		return rc;
-> -
->  	systems_dir =3D hypfs_mkdir(root, "systems");
->  	if (IS_ERR(systems_dir))
->  		return PTR_ERR(systems_dir);
+> @@ -220,6 +222,45 @@ int diag204_store(void *buf, int allow_busy, int all=
+ow_busy_wait)
+>  	return rc;
+>  }
 
 [ ... ]
 
-> diff --git a/arch/s390/kernel/sthyi.c b/arch/s390/kernel/sthyi.c
-> index 5eae2e25997ae..9adb26588d5b5 100644
-> --- a/arch/s390/kernel/sthyi.c
-> +++ b/arch/s390/kernel/sthyi.c
-> @@ -305,29 +305,19 @@ static struct diag204_x_part_block *lpar_cpu_inf(st=
-ruct lpar_cpu_inf *part_inf,
-> =20
->  static void *diag204_get_data(bool diag204_allow_busy)
->  {
-> -	unsigned long subcode;
->  	void *diag204_buf;
-> -	int pages, rc;
-> -
-> -	subcode =3D DIAG204_SUBC_RSI;
-> -	subcode |=3D DIAG204_INFO_EXT;
-> -	pages =3D diag204(subcode, 0, NULL);
-> -	if (pages < 0)
-> -		return ERR_PTR(pages);
-> -	if (pages =3D=3D 0)
-> -		return ERR_PTR(-ENODATA);
-> -	diag204_buf =3D __vmalloc_node(array_size(pages, PAGE_SIZE),
-> -				     PAGE_SIZE, GFP_KERNEL, NUMA_NO_NODE,
-> -				     __builtin_return_address(0));
-> +	int rc;
+> +long diag204_buf(unsigned long arg)
+> +{
+> +	struct diag204_request __user *udata;
+> +	int rc, allow_busy, allow_busy_wait;
+> +	u64 address;
+> +	void *buf;
 > +
 > +	if (!diag204_is_available())
-> +		return ERR_PTR(-EOPNOTSUPP);
-> +	if (diag204_get_subcode() !=3D DIAG204_SUBC_STIB7)
-> +		return ERR_PTR(-EOPNOTSUPP);
-> +	diag204_buf =3D diag204_allocate_buffer();
->  	if (!diag204_buf)
->  		return ERR_PTR(-ENOMEM);
-> -	subcode =3D DIAG204_SUBC_STIB7;
-> -	subcode |=3D DIAG204_INFO_EXT;
-> -	if (diag204_has_bif() && diag204_allow_busy)
-> -		subcode |=3D DIAG204_BIF_BIT;
-> -	rc =3D diag204(subcode, pages, diag204_buf);
-> +	rc =3D diag204_store(diag204_buf, diag204_allow_busy, 0);
->  	if (rc < 0) {
-> -		vfree(diag204_buf);
-> +		diag204_free_buffer(diag204_buf);
->  		return ERR_PTR(rc);
->  	}
->  	return diag204_buf;
+> +		return -EOPNOTSUPP;
+> +	udata =3D (struct diag204_request __user *)arg;
+> +	if (get_user(address, &udata->address))
+> +		return -EFAULT;
+> +	if (get_user(allow_busy, &udata->allow_busy))
+> +		return -EFAULT;
+> +	if (get_user(allow_busy_wait, &udata->allow_busy_wait))
+> +		return -EFAULT;
+> +	buf =3D diag204_allocate_buffer();
+> +	if (!buf)
+> +		return -ENOMEM;
+> +	rc =3D diag204_store(buf, allow_busy, allow_busy_wait);
 
 [Severity: Critical]
-Can calling diag204_store() with allow_busy=3D0 and allow_busy_wait=3D0 from
-hypfs_diag_create_files() or fill_dst()->diag204_get_data() (when
-is_diag204_cached(sctns) is false) cause unlocked cache access and an
-unbalanced mutex_unlock(&diag204_mutex)?
+In diag_ioctl() -> diag204_buf() -> diag204_store(), user-controlled
+allow_busy and allow_busy_wait values are passed directly into
+diag204_store(). What happens if a caller passes allow_busy =3D=3D 0 and
+allow_busy_wait =3D=3D 0 while another thread is concurrently updating the
+cache (g_cache.updating is true)?
 
-In arch/s390/kernel/diag/diag204.c:diag204_update_cache(), the thread
-updating the cache sets g_cache.updating =3D true and unlocks diag204_mutex
-while invoking diag204().
+Looking at arch/s390/kernel/diag/diag204.c:diag204_store():
 
-If a second thread concurrently calls diag204_store(buf, 0, 0) while
-g_cache.updating is true:
-
-arch/s390/kernel/diag/diag204.c:diag204_store() {
+	if (!allow_busy && allow_busy_wait)
+		return -EOPNOTSUPP;
+	if (!buf)
+		return -ENOMEM;
+	rc =3D 0;
 	do {
 		mutex_lock(&diag204_mutex);
 		/* Exit loop with lock taken if there is no concurrent update */
@@ -256,27 +196,21 @@ arch/s390/kernel/diag/diag204.c:diag204_store() {
 	if (rc >=3D 0)
 		memcpy(buf, READ_ONCE(g_cache.buf), diag204_get_buf_size());
 	mutex_unlock(&diag204_mutex);
-}
 
-Because allow_busy is 0 and allow_busy_wait is 0, the loop unlocks
-diag204_mutex, does not take the -EBUSY return, sleeps once (or returns
--ERESTARTSYS on a pending signal), and then exits at while (allow_busy_wait)
-without holding diag204_mutex.
+When g_cache.updating is true and both allow_busy and allow_busy_wait are
+0, the loop unlocks diag204_mutex, sleeps in
+schedule_timeout_interruptible(), and then terminates because
+allow_busy_wait is 0.
 
-It then calls diag204_is_cache_valid(), diag204_update_cache(), and
-memcpy(buf, READ_ONCE(g_cache.buf), ...) without holding diag204_mutex
-(risking a NULL dereference or use-after-free on g_cache.buf against
-diag204_set_cache()), followed by an unbalanced mutex_unlock(&diag204_mutex=
-).
-
-Also, in hypfs_diag_create_files(), the previous diag204_store() set
-DIAG204_BIF_BIT when supported and waited interruptibly on -EBUSY. Should
-hypfs_diag_create_files() pass allow_busy=3D1, allow_busy_wait=3D1 (matching
-dbfs_d204_create()), and how should diag204_store() handle concurrent
-updates when allow_busy=3D0 and allow_busy_wait=3D0?
+Doesn't this leave diag204_mutex unlocked for the remainder of
+diag204_store(), triggering lockdep assertions in diag204_is_cache_valid()
+and diag204_update_cache(), racing with vfree() of g_cache.buf in
+diag204_set_cache() and diag204_work_fn() during memcpy() (or reading a
+null g_cache.buf if the first cache fill has not completed), and calling
+mutex_unlock(&diag204_mutex) without holding the lock?
 
 [ ... ]
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261022-diag204ioc=
-tl-v2-0-7e5a9d1cd21a@linux.ibm.com?part=3D2
+tl-v2-0-7e5a9d1cd21a@linux.ibm.com?part=3D3
