@@ -1,59 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792653914;
-	b=x8EksNXHPvIu2m4whx0c5qkWKobP7RzQWWgtEj4JB41ByxTC5MkPQAOh3iySlFBUgC/g
-	 RTFOnVTKfrDI6ydklmliT3X8o0O8Wo7RtmZK7kH9wek+n/9mcJToN+2CWUNftQuMcAAvq
-	 6/8KN3KD+/tqy5f+WoyH+rYJx7lPj1NOqmAIDj+OCjvB8KI2K3oaIMq972YVNVKURUhbW
-	 Q57Pb47dgr0BpMqDUWG/zjD9JJRH6bQrx+yfTbYYtaeqR8eyIKVjBJvyDGPnUK9MdNjNg
-	 +bM+TlYLx9mosytGGtQwnyicWTjaS2XXIzVJXBrVawnRtRQ/R8Eq+CHM6FeMR97XSeA==
+	t=1792655816;
+	b=wKv6mZhKSSWZsw7GJmUwERjjXYKtNduSMaXAd/NqG6Cbf7MwWm/S7P+qXWwMfOD1fgf8
+	 fz8OwWbAS4/2Ys78TDsoUVgg0F0Ge6HVwxXNcZfB8KauVbSQcl3sBeSPZ8/EryYcwbY5N
+	 hpbm5XyX1RgQX1w7luox9WFzE+lPpR7Fx+mTt64m4GATjbBYXWB1hM3BzUo5ldLkGjN+g
+	 mi+2+MgHGk3blcBgIavpcOAz53IZ/9RDvxQ4fDp/XeJRi1FNtVydrMwwrngtYRYqdLCNr
+	 LXK42qcE+EOUmy97fzKYeX++KxSRAeQPjfIM2/v6sWfsFyH9LzZf/x9NjKv2VW8Au4w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792653914;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=kY3rxeufBWnulhzLNXslToghbLfgKp38Kw8D+5p+OLA=;
-	b=x82Buc68AqXg1wM4CAm6MTlP5IB9wp9Z+1QrZ1P2ueCB1Eb/2OGo8IQ2N3EFoLaajLo8
-	 Yqm+n6jWetqBKCiKVh8hKN8HRPKL90eH2CQm0r8FRP38oyHhIfnBP9KYcsbUuk7yMx8ru
-	 x5O2hAzODJLt/7cbNa0E92Vy+6LddWdrBuuwHQSXeTK6tVoLou1Nk0YfJXZ7hFw8nneIw
-	 gSUWOET6FOu6ETkDO65ItDBKVLSnLOoadzk7e4eh/d6rU0Qx4ioWuKhSvwxSsK67nIZ2v
-	 hMn4Y1NoVkEW8hKS2fAdVEOgyMXbac7ucSrErs7yJqeZ4GoeZMAbe16eBpe6x9K+xsw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792655816;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To:X-TM-AS-GCONF:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
+	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=lZuPvHfcQCCINYKbPhFqyHUpZg95Ahi4/dqK/t3/A8w=;
+	b=sRVz6jr8AMKSkUYScudY2AmixSX6+Fs0ltjEaOsivTllU/UzYEJTvrylvqdYiwPQTYeK
+	 ab2GxdQ8YpdlfYZBJVwvZ6xHlzRxKz2kFEKceHKEbN/XqyHlG1IR5qVFPs3mNN6JWWdIl
+	 oCeTNJfMRYGeRM33sKPDhriOeD760XILy5YiuWrMFiFRnKpWeAwjGz5vmvAvaSzqqgz3Z
+	 J9FjrXZlVWQzyp/9ElhG7RFWFtx36wdWkrm8uRWzFG9IMoiqPEjsOTRUDuP1ReTYGYM3x
+	 RLHHZX8wacqx3JysVn4V6e34FZh+LqwiHPHXhu6RKHGzMxCUFFBPmj0Uu9s1rA2nLSg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AG1lraI8;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=V4QsO65o;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97ED7606A31E;
-	Thu, 22 Oct 2026 07:25:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AAB7606A319;
+	Thu, 22 Oct 2026 07:56:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7AAB7606A319
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AG1lraI8
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C9E51F000C1;
-	Thu, 22 Oct 2026 07:25:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792653913;
-	bh=kY3rxeufBWnulhzLNXslToghbLfgKp38Kw8D+5p+OLA=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=AG1lraI8+UjpC5FCk1hv1QZorsZYrs9nv8g4ADtlR17dPO0GhMmmfILvHM5nLeKWN
-	 SMX2uRvSGiJ2YI9pLxNo8cZEduejciJBLHVBN4lP98zChOLAjl9wYb2Duj9HdHoSWE
-	 DS3TywAXwXVvgX2rKTZI4s4ltMg1NkJcQ6p7zrETREvC6hsdqhozF1/WO5et7pywh5
-	 RMH+flt/TUpavP2GWJwpimmrJ//9Kjv2ZfQ1wXA5OVtvO5dSsmRaii0dUnrFNJ9wLX
-	 1ssLk+cuR5dADrkOF1sQTfD07GNoueHUdl8YJxwlWLvfp/SEyHq270SrU4Xw8AWgMY
-	 AVGlwHoZ4/HAQ==
-Subject: Re: [PATCH] iucv: fix lockless sk_for_each in afiucv_netdev_event
-From: netdev-bot+sashiko@kernel.org
-To: haoranwangsec@gmail.com
-Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
- edumazet@google.com, netdev@vger.kernel.org, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
- svens@linux.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Date: Thu, 22 Oct 2026 07:25:12 +0000
-Message-ID: <179265391209.3135.1121448339141763327@kernel.org>
-In-Reply-To: <179241612354.5916.12881323209252769976@whr>
-References: <179241612354.5916.12881323209252769976@whr>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=V4QsO65o
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69M7E64R3560983;
+	Thu, 22 Oct 2026 07:56:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=lZuPvHfcQCCINYKbPhFqyHUpZg95Ah
+	i4/dqK/t3/A8w=; b=V4QsO65o/inGZOaMQefLE6AvPkKh/sPSPakvixTgGxQS96
+	xRvhwoflgwo9wlt3Tsh7nQSdwOYB7VK4oGS40u1bJGBJJDNmHbC5Uj981pfyNyDR
+	O8YD1aEINxng5Ibn3slejbcv6ebdZu1+GTVvnnAi3OvXrXd8q75w/MopCBLZr0xA
+	GAuxuW8XUooW3ZWEKePZlsV+PNPFVXvnZYLYKtrknIxxY6OR2KGMYiOwndftprID
+	m+81ZQJ1c/c068cZNva5FT1eH8G9FeSVmQKFFZPMVAKRbOHyASNaoWG/1b7iFEQl
+	oD2MSw/SxsAKRqafhKoksct1BYSgkZchU7JXMjPg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw58wthc-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 22 Oct 2026 07:56:54 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69M74tIF089148;
+	Thu, 22 Oct 2026 07:56:53 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4he7bs925d-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 22 Oct 2026 07:56:53 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69M7umD952429230
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 22 Oct 2026 07:56:49 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DE8F12004B;
+	Thu, 22 Oct 2026 07:56:48 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C421B20043;
+	Thu, 22 Oct 2026 07:56:48 +0000 (GMT)
+Received: from osiris (unknown [9.224.90.220])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 22 Oct 2026 07:56:48 +0000 (GMT)
+Date: Thu, 22 Oct 2026 09:56:46 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Subject: Re: [RFC PATCH] s390/syscall: Sign extend system call number
+ retrieved via syscall_get_nr()
+Message-ID: <20261022075646.11120A92-hca@linux.ibm.com>
+References: <20261021125911.1550331-1-hca@linux.ibm.com>
+ <sashiko-outbox-180303@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,232 +93,78 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <sashiko-outbox-180303@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Y-roT4I9BUAtqE8rQaD99HkLX_z5xa7b
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIyMDAzMCBTYWx0ZWRfX2NkfHgfm4jiV
+ q86brYIQ3/c5BTjOb4nB+Md7lCrQAjriFsbakKLwtYlLwbUzq2W4QKjsVufMtB34tFpI3zV07Vo
+ k+p2ihZMzErUxI/OSOylzNYtdaKG/I8=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIyMDAzMCBTYWx0ZWRfX6KukPcWu7bz2
+ aMxSVEnk/KlqFlBOE2KGzYZgjbpcvkxTOP2UswP8ella4ryvFWHsmb0D3EjspA9c+rnPfDYb0/0
+ YAJ76V74kXYkT1felEakFVWf6CY/3EJE/s6jBm8LMeVmisf2MFsJFT8cND8LNFnowtCiCbE318T
+ 8EXj4o0xOhjBX6X/BwiISerkJJGGJssh//TrToBn2Q0pob6RE1box00IwDnn/VO+U3CUAQl0Sr2
+ phLlWEwSIPmuH3Ho6yvqnITWtGEmbkw3i4rZaEoQBrHbMPdOP1dSmC031eu2wlr6QLaXhAozMYa
+ T84YfpH93Q5wDaBtzN23SZ+qO9t5reTX2vctQpghOefnpwQRt5r7MSK/shYR1YOgoHqUKKem6jt
+ 5Gv4lGLnON4jZuLoW+avuMmdwBeO3e/IBgBFaphgwQzdJ24Qfo5qXB3RLLNZdZiFc9ercV6uodp
+ +MLEKtyA28Ob8ejZi7w==
+X-Proofpoint-ORIG-GUID: Y-roT4I9BUAtqE8rQaD99HkLX_z5xa7b
+X-Authority-Analysis: v=2.4 cv=Ob4NnRTY c=1 sm=1 tr=0 ts=6ad9c1c6 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=AGpjq-OJZXGNhh8UPtcA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-10-22_03,2026-10-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 adultscore=0 phishscore=0 spamscore=0 suspectscore=0
+ lowpriorityscore=0 clxscore=1015 impostorscore=0 priorityscore=1501
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610190000
+ definitions=main-2610220030
 
-Thank you for your contribution! Sashiko AI review found 5 potential
-issue(s) to consider.
+On Wed, Oct 21, 2026 at 01:27:30PM +0000, sashiko-bot@kernel.org wrote:
+> > @@ -20,7 +20,7 @@ static inline long syscall_get_nr(struct task_struct *task,
+> >  				  struct pt_regs *regs)
+> >  {
+> >  	return test_pt_regs_flag(regs, PIF_SYSCALL) ?
+> > -		(regs->int_code & 0xffff) : -1;
+> > +		(s16)(regs->int_code & 0xffff) : -1;
+> >  }
+> 
+> [Severity: High]
+> When a system call is skipped under SECCOMP_RET_TRACE on s390, can this cause
+> __do_syscall() to return the wrong value to userspace instead of -ENOSYS?
+> 
+> Previously, syscall_get_nr() returned an unsigned 16-bit value (65535 when nr
+> was set to -1), so after PTRACE_EVENT_SECCOMP in
+> kernel/seccomp.c:__seccomp_filter():
+> 
+> 	/* Check if the tracer forced the syscall to be skipped. */
+> 	this_syscall = syscall_get_nr(current, current_pt_regs());
+> 	if (this_syscall < 0)
+> 		goto skip;
 
-Critical: 0 · High: 2 · Medium: 2 · Low: 1
+This is addressed with:
+https://lore.kernel.org/all/20261021085643.2442949-1-hca@linux.ibm.com/
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+Read: should not happen anymore.
 
-- [High] Race with concurrent close() that can dereference a NULL hs_dev,
-  in afiucv_netdev_event() (net/iucv/af_iucv.c).
-- [High] Self-deadlock on iucv_sk_list.lock in afiucv_netdev_event()
-  (net/iucv/af_iucv.c, lines 2229 and 2244).
-- [Medium] New failure path in afiucv_netdev_event() (net/iucv/af_iucv.c,
-  lines 2240-2242) that skips the whole disconnect.
-- [Medium] In afiucv_netdev_event() (net/iucv/af_iucv.c), the second pass
-  stops at `if (n == count) break;`, but count was taken in an earlier,…
-- [Low] The commit fixes a user-reachable use-after-free: the lockless
-  sk_for_each() in afiucv_netdev_event() races with iucv_sock_kill() ->…
+> [Severity: Medium]
+> Should arch/s390/kernel/syscall.c:__do_syscall() and
+> arch/s390/include/asm/syscall.h:syscall_set_nr() also be updated to keep the
+> syscall number representation consistent with syscall_get_nr()?
+> 
+> In arch/s390/kernel/syscall.c:__do_syscall():
+> 
+> 	nr = regs->int_code & 0xffff;
+> 	if (likely(!nr)) {
+> 		nr = regs->gprs[1] & 0xffff;
+> 		regs->int_code &= ~0xffffUL;
+> 		regs->int_code |= nr;
+> 	}
+> 	regs->gprs[2] = nr;
 
---
-
-iucv: fix lockless sk_for_each in afiucv_netdev_event
-
-This patch takes iucv_sk_list.lock around the sk_for_each() traversal in
-afiucv_netdev_event(). Matching sockets are counted in a first pass. An
-array is then allocated and filled with sock_hold() references in a second
-pass, and iucv_send_ctrl(), the state change and sock_put() run after the
-lock is dropped.
-
-> Signed-off-by: Haoran Wang <haoranwangsec@gmail.com>
-
-[Severity: Low]
-This isn't a bug, but this fixes a use-after-free in the lockless
-traversal. Should it carry a Fixes: tag, and possibly Cc: stable? The
-function and its lockless sk_for_each() were added by:
-
-Fixes: 9fbd87d41392 ("af_iucv: handle netdev events")
-
-The sk_for_each() line itself was changed later by b67bfe0d42cac.
-
-> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-> index db261ecd19af..20c8943b85cd 100644
-> --- a/net/iucv/af_iucv.c
-> +++ b/net/iucv/af_iucv.c
-> @@ -2222,18 +2222,49 @@ static int afiucv_netdev_event(struct notifier_block *this,
->  
->  	switch (event) {
->  	case NETDEV_REBOOT:
-> -	case NETDEV_GOING_DOWN:
-> +	case NETDEV_GOING_DOWN: {
-> +		struct sock **matches;
-> +		int i, n = 0, count = 0;
-> +
-> +		read_lock(&iucv_sk_list.lock);
-
-[Severity: High]
-Can this deadlock against a softirq writer on the same CPU?
-
-The notifier runs in process context under RTNL with BH enabled. The same
-rwlock is also write-locked from softirq context:
-
-afiucv_hs_rcv()                 /* netif RX softirq */
-  afiucv_hs_callback_syn()
-    iucv_sock_alloc(NULL, ..., GFP_ATOMIC, 0)
-      iucv_sock_link()
-        write_lock_bh(&l->lock);
-
-The IUCV tasklet path iucv_callback_connreq()->iucv_sock_alloc() reaches
-the same writer. So do the error branches through
-iucv_sock_kill()->iucv_sock_unlink().
-
-Suppose a HiperSockets SYN arrives and NET_RX softirq runs on the CPU that
-holds the read lock in either pass. Wouldn't the writer then spin forever,
-waiting for a reader that can't run again on that CPU?
-
-The commit message says this matches the other two sites, but
-iucv_callback_connreq() and afiucv_hs_rcv() already run with BH disabled.
-The other process context users, iucv_sock_bind(), iucv_sock_autobind()
-and iucv_sock_link()/iucv_sock_unlink(), all use the _bh variants.
-
-Should both passes use read_lock_bh()/read_unlock_bh() instead?
-
->  		sk_for_each(sk, &iucv_sk_list.head) {
->  			iucv = iucv_sk(sk);
-> -			if ((iucv->hs_dev == event_dev) &&
-> -			    (sk->sk_state == IUCV_CONNECTED)) {
-> -				if (event == NETDEV_GOING_DOWN)
-> -					iucv_send_ctrl(sk, AF_IUCV_FLAG_FIN);
-> -				sk->sk_state = IUCV_DISCONN;
-> -				sk->sk_state_change(sk);
-> +			if (iucv->hs_dev == event_dev &&
-> +			    sk->sk_state == IUCV_CONNECTED)
-> +				count++;
-> +		}
-> +		read_unlock(&iucv_sk_list.lock);
-> +
-> +		if (!count)
-> +			break;
-> +		matches = kmalloc_array(count, sizeof(*matches), GFP_KERNEL);
-> +		if (!matches)
-> +			break;
-
-[Severity: Medium]
-If this allocation fails, does every socket bound to event_dev stay in
-IUCV_CONNECTED?
-
-The break skips the FIN, the move to IUCV_DISCONN and sk_state_change()
-for all matching sockets. __dev_close_many() ignores the notifier's return
-value and carries on with the shutdown. NETDEV_DOWN and NETDEV_UNREGISTER
-do nothing in this notifier, so nothing retries later.
-
-iucv_sock_poll() only sets EPOLLIN once sk_state is IUCV_DISCONN. Readers
-waiting for that would stay blocked.
-
-The previous loop did no allocation, so it could not fail this way.
-
-> +
-> +		read_lock(&iucv_sk_list.lock);
-> +		sk_for_each(sk, &iucv_sk_list.head) {
-> +			if (n == count)
-> +				break;
-
-[Severity: Medium]
-Can this cap skip sockets that were counted in the first pass?
-
-count comes from a separate critical section, and the lock is dropped
-around kmalloc_array(). NETDEV_GOING_DOWN is sent before
-__dev_close_many() clears __LINK_STATE_START, so RX is still active.
-
-In that window, afiucv_hs_callback_syn() can link a new socket on the same
-device:
-
-	niucv->hs_dev = iucv->hs_dev;
-	...
-	nsk->sk_state = IUCV_CONNECTED;
-
-Also, afiucv_hs_callback_synack() can move an existing BOUND socket to
-IUCV_CONNECTED.
-
-iucv_sock_link() uses sk_add_node(), which inserts at the head, so the new
-sockets fill matches[] first. Once n reaches count, the walk stops before
-it reaches older sockets that are still IUCV_CONNECTED on event_dev. Those
-sockets would get no FIN and no move to IUCV_DISCONN.
-
-> +			iucv = iucv_sk(sk);
-> +			if (iucv->hs_dev == event_dev &&
-> +			    sk->sk_state == IUCV_CONNECTED) {
-> +				sock_hold(sk);
-> +				matches[n++] = sk;
->  			}
->  		}
-> +		read_unlock(&iucv_sk_list.lock);
-> +
-> +		for (i = 0; i < n; i++) {
-> +			sk = matches[i];
-> +			if (event == NETDEV_GOING_DOWN)
-> +				iucv_send_ctrl(sk, AF_IUCV_FLAG_FIN);
-> +			sk->sk_state = IUCV_DISCONN;
-> +			sk->sk_state_change(sk);
-> +			sock_put(sk);
-> +		}
-
-[Severity: High]
-Can a concurrent close() set hs_dev to NULL before this loop runs?
-
-sock_hold() keeps the struct sock allocated, but this loop does not take
-lock_sock(). It also does not recheck hs_dev or sk_state after the list
-lock is dropped.
-
-close() goes through iucv_sock_release()->iucv_sock_close(). That path
-holds only lock_sock(), not RTNL, and ends with:
-
-net/iucv/af_iucv.c:iucv_sock_close() {
-    ...
-	if (iucv->hs_dev) {
-		dev_put(iucv->hs_dev);
-		iucv->hs_dev = NULL;
-		sk->sk_bound_dev_if = 0;
-	}
-    ...
-}
-
-If that runs between the second pass and this loop, iucv_send_ctrl() then
-computes:
-
-	blen = sizeof(struct af_iucv_trans_hdr) +
-	       LL_RESERVED_SPACE(iucv->hs_dev);
-
-That reads through a NULL hs_dev before afiucv_hs_send() gets to check
-skb->dev.
-
-The loop also writes sk->sk_state = IUCV_DISCONN on a socket that
-iucv_sock_close() has already moved to IUCV_CLOSED, which moves its state
-backwards. iucv_send_ctrl() also changes sk->sk_shutdown without the
-socket lock.
-
-The old code had the same check-then-use race, but the check and the use
-were back to back. Here the check happens during collection, and the use
-only comes after the whole list has been walked.
-
-For comparison, afiucv_hs_callback_fin() does this transition under the
-socket lock:
-
-	bh_lock_sock(sk);
-	if (sk->sk_state == IUCV_CONNECTED) {
-		sk->sk_state = IUCV_DISCONN;
-
-The commit message says:
-
-  sock_hold() pins each sk for the out-of-lock work, so a concurrent
-  close can no longer free it from under the notifier.
-
-Given the above, does that claim hold for the fields used here? Would it
-make sense to take lock_sock(sk) in this loop and recheck
-sk->sk_state == IUCV_CONNECTED and iucv->hs_dev == event_dev before
-acting?
-
-> +		kfree(matches);
->  		break;
-> +	}
-
-[ ... ]
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/179241612354.5916.12881323209252769976%40whr
+This is valid - things should be consistent.
