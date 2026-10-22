@@ -1,80 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792692412;
-	b=aHXX/EcURS1CLnM78umlp7w7keWWrsooKvzO3VJFpp20QXf27kYycDJeI3eMDmdEp+Pu
-	 DtoW0PKy8op1UsuD9O46cYQTt4pBKUWjjx1t17XSS9N5+KGDh201Z5uvmmPaALSvcyv/v
-	 VuykxA5M4ffSFt1ERyb/Mm56qOo03V972+MWdC2Uwv7p7IVeECZLumdGbiQBdA3wBPHaA
-	 8k0+BaSYQil4YzuRxgHISnncRbUS1Ug6ifj9x7Obhsj22IJd3dxiSkusnBNu1dzS6QrPi
-	 YvzLvsbXntiBBqg6jEf4boUcP1/hqS3DmjtufY2ODD2KkUb9R/B9AN+ptX3+pKYSnyg==
+	t=1792692943;
+	b=Hw0K0WIBZeL/b30cXdzYdpiE83bYjlZzHn5XMtS7F14bVsN7PqYEW4I5nl9169xNbue8
+	 AD+aeCVNKCfkieKfU3XvSvtj8Lb7hjxWgpSbnTgATR7DOrGWw/Nd7fY30RTPoiY7erX4Z
+	 /4nLboaoUYXJ4HbiXK2Rdp030eF78R5mv0jNZ/0in8Vns2EC1A+yJjVdw1iLSJz1LT5rQ
+	 daB7vstpmSbYXeObYN0QAh1FgVVydiGG6ywDYGTZhsjFs1Q4rypQgQoAzFTzhlov8nMKm
+	 QtaF9op7JNWNqYTg7GfM6rDsGi2RafywVd8b+5PIePH1z8jv1AiNNpTtFVvB7YhsEcQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792692412;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Mime-Version:
-	 Content-Transfer-Encoding:Content-Type:Date:Message-Id:To:Subject:
-	 From:Cc:X-Mailer:References:In-Reply-To:X-TM-AS-GCONF:
-	 X-Proofpoint-Reinject:X-Proofpoint-Spam-Info:X-Proofpoint-GUID:
-	 X-Proofpoint-ORIG-GUID:X-Authority-Analysis:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=15VBZ8uTc8xBQpA0RMeoetGdJtcrTGydQGm3SQqWWXc=;
-	b=X0v5EBhjfCEGMWOL5FsM+8IVv+ewt9jbJ1iI6VaxQW/0IbO9RxkxDabNWpps6+rU9CYI
-	 3NBnG87OgprN3ttyOaHBsjlqPtDxBQOC9lDLhIsi62ds9tUEHqdkYlYPfU4+0m3kMJWYm
-	 nqpgA0tMM3SInwc3XnfHz1OL1n8kIVSuizyU682TB84tsxI5x8s0JykcqKutx1NYSGCH5
-	 kfctYJ78kzRlc0kTksL8Xn28FkJOAc6Upq9ifr6IkfGBuDb0CfOqHf6cIppVgYYXB/nZN
-	 ftbExoKcQr0iXaXem/hZ76kZUXYGZ0bn5EXAjMov1BL3vgyRsPtgUXrKGA1RfW7Sezg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792692943;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=tp89RW5qJXm38q21HhpXXHw7A/8pfWxW5Tl9WI1AVZg=;
+	b=R0h0vALilG/ixozK8jXI7zEDAFFRVl2WvGl7NrAeoSW0r0eG5hcbGV5H5aX8g87MihAx
+	 bjhyNjWmlYRIWPu6ct862lTm2kYwoiSDYg12cU+uxqSUr3SiCYF+1/UpZeQEKb2aDv5EQ
+	 9t22yX4fhsPde1t2S+5YTaQVZaJg5B/3gntOmSQfreflI078tlqebGp9GPjYvvhfQ2tT3
+	 GZnXpK5CcTysJ8RH8icqXrHCjv6KFThaUR3g0M7wmgksx6Yyt8h1dLfwJ1l63Oh5BiA7P
+	 Lbo7FJb380v3FiBkXwMQ/wvx9y724tYwg1uuowghDnb7fDukSIvI30b7lsWfz0Q3uvg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=c1ufKJ6h;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hu6ZWzfE;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DB5B606A31B;
-	Thu, 22 Oct 2026 18:06:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3DB5B606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAAB6606A31A;
+	Thu, 22 Oct 2026 18:15:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=c1ufKJ6h
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69MEEhvI3183748;
-	Thu, 22 Oct 2026 18:06:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=15VBZ8
-	uTc8xBQpA0RMeoetGdJtcrTGydQGm3SQqWWXc=; b=c1ufKJ6hrx5AKROK+JXfb/
-	T4RFvaWQbpGR6vLzXJPcukA5O+2ZN6fF0J+jE8N883rOUTPQrJ5sfTg0HPG1YEj6
-	LC+UXKtK1B/P6IZZ+sN+Bsml8MujcweGJ7X93iibC6P0nP/LBk2nO9glsR2eEjE2
-	+Y9Fa745PWApdRE7Ty2dNyUrcYzuR17Mz+lONIedNx++m43FZSMdBcRVcN8ruj/K
-	hGari+STSLB8c/bChVXt33mzj7Qj1EKN3ij/cpbrxsPDoKv4PAiRFhK7W/bzhN7h
-	TJdhV2MTDUclM6ouMIK5QHsqE1zP4iv/Zp/bQYNSY+32sMZr3+dIZa8veAsRElDA
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw58g7ta-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 22 Oct 2026 18:06:47 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69MI55D2921302;
-	Thu, 22 Oct 2026 18:06:47 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hfgck1rak-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 22 Oct 2026 18:06:47 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69MI6hL239125472
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 22 Oct 2026 18:06:43 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0BB3920043;
-	Thu, 22 Oct 2026 18:06:43 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D214120040;
-	Thu, 22 Oct 2026 18:06:42 +0000 (GMT)
-Received: from darkmoore (unknown [9.111.5.109])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 22 Oct 2026 18:06:42 +0000 (GMT)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hu6ZWzfE
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8B391F01825;
+	Thu, 22 Oct 2026 18:15:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792692942;
+	bh=tp89RW5qJXm38q21HhpXXHw7A/8pfWxW5Tl9WI1AVZg=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=hu6ZWzfE/8B5s24IJ6vxQ+Lp0beDzTe/mIV7E5r6tu8HCqG1kYL8ZSl482TWSpsUV
+	 55uOhuow2o2Pv9oXS2XOm/frgF8YAmxtpo8hiDhI9YA6Hq1cz5xhTha+nMecgmkUak
+	 AGvclLSR3FxUNb0j3oxJqQlWrilMLjolu3gWV814QZ+B07lhTLNofj/oFfRuRW/BUg
+	 A2zgEbZkVNt6axnpTX5/2FxZCo6OvTmlLUq3pg2o8RQKZCmhqGuMLI0cKTsjYRYGNO
+	 sT7IV0AV0autyDIyOY5fY/yIi95CLkLWYi7ASuREqRgyvx6WhqAlhQdwJINGDe1sYj
+	 VvDiZsBrPK9eg==
+Message-ID: <sashiko-outbox-181906@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v13 2/2] zfcp: Use DMA streaming API to map I/O
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "M Nikhil" <nikh1092@linux.ibm.com>, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261022170828.4189701-3-nikh1092@linux.ibm.com>
+References: <20261022170828.4189701-1-nikh1092@linux.ibm.com>
+ <20261022170828.4189701-3-nikh1092@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 22 Oct 2026 18:15:41 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -83,146 +60,285 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 22 Oct 2026 20:06:57 +0200
-Message-Id: <DMBKFB62ET87.2BDLICLXRFYNS@linux.ibm.com>
-To: "Janosch Frank" <frankja@linux.ibm.com>,
-        "Christoph Schlameuss"
- <schlameuss@linux.ibm.com>,
-        <kvm@vger.kernel.org>, <linux-s390@vger.kernel.org>
-Subject: Re: [PATCH v7 12/21] KVM: s390: vsie: Add helper
- unshadow_intercept()
-From: "Christoph Schlameuss" <schlameuss@linux.ibm.com>
-Cc: "Alexander Gordeev" <agordeev@linux.ibm.com>,
-        "Christian Borntraeger"
- <borntraeger@linux.ibm.com>,
-        "Claudio Imbrenda" <imbrenda@linux.ibm.com>,
-        "David Hildenbrand" <david@kernel.org>,
-        "Eric Farman"
- <farman@linux.ibm.com>,
-        "Heiko Carstens" <hca@linux.ibm.com>,
-        "Nico Boehr"
- <nrb@linux.ibm.com>,
-        "Sven Schnelle" <svens@linux.ibm.com>,
-        "Vasily Gorbik"
- <gor@linux.ibm.com>,
-        "Paolo Bonzini" <pbonzini@redhat.com>,
-        "Shuah Khan"
- <shuah@kernel.org>,
-        "Sean Christopherson" <seanjc@google.com>
-X-Mailer: aerc 0.22.0
-References: <20260918-vsie-sigpi-v7-0-f39806eaae37@linux.ibm.com>
- <20260918-vsie-sigpi-v7-12-f39806eaae37@linux.ibm.com>
- <45f3d2f6-75af-41eb-b8b5-a7cf42f345fa@linux.ibm.com>
-In-Reply-To: <45f3d2f6-75af-41eb-b8b5-a7cf42f345fa@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIyMDA3MCBTYWx0ZWRfX2tdWCLflyklF
- BeduffXllthogpgaA4wRJMfpZWlrfEBKHYdZ7H5s5LGBYaxjKlJ2Bbj65gVSpYnu8xIifdzferS
- UNaAotPhOqXhJQNCGLlreZpmKevnCmw=
-X-Proofpoint-GUID: g0Z80MKV0HmxX5JpVgZtrcd0251712S4
-X-Proofpoint-ORIG-GUID: 9n4xJHSD1MWMJMtw2E88eEaPS8wLb68w
-X-Authority-Analysis: v=2.4 cv=UOBIjyfy c=1 sm=1 tr=0 ts=6ada50b8 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=d1qtHUbcx_84X537ZBEA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIyMDA3MCBTYWx0ZWRfX+6CEHYRUPO+t
- 7aKy9ekDlnaY6qREc6zUA8oqZOC9v3BpTvWuWs0VkmEWK0rR0JdTk2s2gSUpT4CXFlHHEGbEP4B
- O9j+8TwHNeoVZtav9S/p6hqOT1+qhLGlRy2lascirSISpqe5Z45710USrDWREyxkrtkAJM8gk1f
- B3yC1jOZgxTC+XnhgpIFz9N0Iu07vhcHZJvLdI67z1pvfT4Ifr37/1kZnOB1td+TBAGLTgBWGw7
- MPEeAyMhtktdX3d2H7f187BDSd/0qKy3sPpehwGUHOEeL5lyBZRQI1nxKQQ2H0a8dyE792CjhQp
- 7Yi0tBJwKJV1gyD5RrlY8uNBLx1TIFM64ZrfsU/KHWEcfchkhKjzZFvlhzgusRWgydViDzuKeMv
- 1rYs2Q+NgtMgfmD7rx7VTcAM+8LwMxJX3dyDs17IvhgF73SKjSAJklD5LYH/lm9tCd83OoM+AtX
- +RI3nfIrU+483TdgIzA==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-10-22_05,2026-10-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 clxscore=1015 suspectscore=0 spamscore=0 priorityscore=1501
- lowpriorityscore=0 adultscore=0 impostorscore=0 bulkscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610220070
 
-On Wed Sep 23, 2026 at 4:04 PM CEST, Janosch Frank wrote:
-> On 9/18/26 5:09 PM, Christoph Schlameuss wrote:
->> Extract helper method from existing code to reuse in new code.
->>=20
->> unshadow_intercept() acts like unshadow_scb() but only copies intercept
->> information. Used where the rest of the scb is not yet shadowed.
->>=20
->> Signed-off-by: Christoph Schlameuss <schlameuss@linux.ibm.com>
->> ---
->>   arch/s390/kvm/s390/vsie.c | 28 ++++++++++++++++++++--------
->>   1 file changed, 20 insertions(+), 8 deletions(-)
->>=20
->> diff --git a/arch/s390/kvm/s390/vsie.c b/arch/s390/kvm/s390/vsie.c
->> index 95baac9a1ccb..c42e2df4c0ab 100644
->> --- a/arch/s390/kvm/s390/vsie.c
->> +++ b/arch/s390/kvm/s390/vsie.c
->> @@ -565,18 +565,27 @@ static void prepare_ibc(struct kvm_vcpu *vcpu, str=
-uct vsie_page *vsie_page)
->>   	}
->>   }
->>  =20
->> -/* unshadow the scb, copying parameters back to the real scb */
->> -static void unshadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_=
-page)
->> +/*
->> + * Only write the interception fields back; avoid clobbering the timer =
-and
->> + * guest-state fields in scb_o.
->> + */
->> +static inline void unshadow_intercept(struct kvm_s390_sie_block *scb_o,
->> +				      struct kvm_s390_sie_block *scb_s)
->>   {
->> -	struct kvm_s390_sie_block *scb_s =3D &vsie_page->scb_s;
->> -	struct kvm_s390_sie_block *scb_o =3D vsie_page->scb_o;
->> -
->> -	/* interception */
->>   	scb_o->icptcode =3D scb_s->icptcode;
->>   	scb_o->icptstatus =3D scb_s->icptstatus;
->>   	scb_o->ipa =3D scb_s->ipa;
->>   	scb_o->ipb =3D scb_s->ipb;
->>   	scb_o->gbea =3D scb_s->gbea;
-> I have the feeling that we make things difficult for ourselves by not=20
-> writing SIE entry validities into the scb_o directly. And I think you=20
-> somewhat recognized that problem since you chose to write the validity=20
-> to scb_o and not scb_s in _shadow_sca_cpu() but I have yet to fully read=
-=20
-> that patch.
->
-> For 99% of the validities we've never even entered SIE so we copy data=20
-> twice for absolutely no reason other than symmetry. out_unshadow in=20
-> kvm_s390_handle_vsie() isn't really necessary, if pin_blocks() fails we=
-=20
-> can jump to unpin_scb() if we write the validity to scb_o.
->
-> Maybe we could move (un)shadow_scb() into vsie_run() and be done with it.
->
-> I have some more reading to do.
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+- [Critical] scsi: zfcp: premature DMA unmap in zfcp_scsi_eh_abort_handler()
+- [High] scsi: zfcp: double DMA unmap of scsi_cmnd in zfcp_scsi_eh_abort_ha=
+ndler()
+- [High] scsi: zfcp: type confusion on TMF requests in zfcp_scsi_forget_cmn=
+d()
+--
 
-The problem I am addressing here is that we can encounter validity problems=
- on
-the primary/entering or secondary cpus that we do not actively run yet.
-Since this would typically happen when we are shadowing the sca (directed t=
-o by
-the first scb of that configuration) we need to write the validity somewher=
-e
-before potentially even having properly shadowed any scb.
+commit 9c1fb6b4aad79a57f42f4a774fc0a9866fc4009c
+Author: M Nikhil <nikh1092@linux.ibm.com>
 
-I don't think I am a huge fan of the idea of pulling (un)shadow_scb() into
-vsie_run(), as that would mean to also pull in (un)pin_blocks() or risk lot=
-s of
-potential TOUTOC problems. We have to shadow before checking to avoid them.
+zfcp: Use DMA streaming API to map I/O
 
-Getting rid of the symmetry and writing to scb_o and failing from pin_block=
-s()
-to out_put would be fine IMO. The counter argument here clearly is that thi=
-s is
-complication for the hopefully rather cold error path.
+This commit converts zFCP I/O buffer mappings for QTCB, SRB, CT/ELS, and
+SCSI I/O requests to use the DMA streaming API via dma_map_sgtable() and
+dma_unmap_sgtable(). It also updates the SCSI abort and reset paths to
+unmap the scatter-gather lists associated with aborted or forgotten SCSI
+commands.
 
-Cheers,
-Christoph
+> diff --git a/drivers/s390/scsi/zfcp_scsi.c b/drivers/s390/scsi/zfcp_scsi.c
+> index ea4b968352f4d..99baca26c9bf0 100644
+> --- a/drivers/s390/scsi/zfcp_scsi.c
+> +++ b/drivers/s390/scsi/zfcp_scsi.c
+> @@ -184,6 +184,15 @@ static int zfcp_scsi_eh_abort_handler(struct scsi_cm=
+nd *scpnt)
+>  		zfcp_dbf_scsi_abort("abrt_or", scpnt, NULL);
+>  		return FAILED; /* completion could be in progress */
+>  	}
+> +
+> +	/*
+> +	 * Suppress the normal completion handler's unmap by clearing
+> +	 * req->data now, under the abort_lock write-side.  The actual
+> +	 * DMA unmap is deferred until the hardware has stopped using
+> +	 * the buffers (after wait_for_completion or after ERP has
+> +	 * quiesced the adapter), so that we never call dma_unmap_sgtable
+> +	 * while the FCP channel may still be writing into the pages.
+> +	 */
+>  	old_req->data =3D NULL;
+
+[Severity: High]
+Can this unmap scpnt->sdb.table and scpnt->prot_sdb->table a second time if
+zfcp_scsi_forget_cmnd() has already run for old_req?
+
+When a LUN or target reset TMF completes in zfcp_scsi_task_mgmt_function(),
+for instance via an SG_SCSI_RESET ioctl in scsi_ioctl_reset(), it calls
+zfcp_scsi_forget_cmnds() -> zfcp_scsi_forget_cmnd() under
+adapter->abort_lock. That function unmaps scpnt->prot_sdb->table and
+scpnt->sdb.table and sets old_req->data =3D NULL, while leaving old_req in
+adapter->req_list, scpnt->host_scribble set to old_req->req_id, and
+sgt->nents non-zero.
+
+Because old_req->data is now NULL, zfcp_fsf_fcp_cmnd_handler() will not
+call scsi_done(scpnt). If scpnt subsequently times out and enters
+zfcp_scsi_eh_abort_handler(scpnt) while old_req is still in
+adapter->req_list, zfcp_reqlist_find() still finds old_req:
+
+drivers/s390/scsi/zfcp_scsi.c:zfcp_scsi_eh_abort_handler()
+	write_lock_irqsave(&adapter->abort_lock, flags);
+
+	old_req =3D zfcp_reqlist_find(adapter->req_list, old_reqid);
+	if (!old_req) {
+		write_unlock_irqrestore(&adapter->abort_lock, flags);
+		zfcp_dbf_scsi_abort("abrt_or", scpnt, NULL);
+		return FAILED; /* completion could be in progress */
+	}
+	...
+	old_req->data =3D NULL;
+
+Unlike zfcp_fsf_fcp_cmnd_handler() and zfcp_scsi_forget_cmnd(),
+zfcp_scsi_eh_abort_handler() does not check whether old_req->data is
+already NULL before proceeding to out_unmap:, where zfcp_fsf_req_unmap_sg()
+is called on scpnt->prot_sdb->table and scpnt->sdb.table again.
+
+Should zfcp_scsi_eh_abort_handler() check if (!old_req || !old_req->data)
+under adapter->abort_lock before taking ownership of the unmap?
+
+> =20
+>  	/* don't access old fsf_req after releasing the abort_lock */
+> @@ -198,18 +207,34 @@ static int zfcp_scsi_eh_abort_handler(struct scsi_c=
+mnd *scpnt)
+>  		zfcp_erp_wait(adapter);
+>  		ret =3D fc_block_scsi_eh(scpnt);
+>  		if (ret) {
+> +			/*
+> +			 * fc_block_scsi_eh returned FAST_IO_FAIL: the
+> +			 * fast_io_fail_tmo fired.  ERP has already called
+> +			 * zfcp_fsf_req_dismiss_all() (which requires QDIO
+> +			 * to be down first), so the hardware is no longer
+> +			 * using the buffers.  Pass FAST_IO_FAIL back to
+> +			 * scsi_eh, but unmap first.
+> +			 */
+>  			zfcp_dbf_scsi_abort("abrt_bl", scpnt, NULL);
+> -			return ret;
+> +			retval =3D ret;
+> +			goto out_unmap;
+>  		}
+>  		if (!(atomic_read(&adapter->status) &
+>  		      ZFCP_STATUS_COMMON_RUNNING)) {
+> +			/*
+> +			 * Adapter is gone; ERP shut down QDIO and dismissed
+> +			 * all requests before clearing RUNNING.  Safe to
+> +			 * unmap now.
+> +			 */
+>  			zfcp_dbf_scsi_abort("abrt_ru", scpnt, NULL);
+> -			return SUCCESS;
+> +			retval =3D SUCCESS;
+> +			goto out_unmap;
+>  		}
+>  	}
+>  	if (!abrt_req) {
+>  		zfcp_dbf_scsi_abort("abrt_ar", scpnt, NULL);
+> -		return FAILED;
+> +		retval =3D FAILED;
+> +		goto out_unmap;
+>  	}
+> =20
+>  	wait_for_completion(&abrt_req->completion);
+> @@ -224,6 +249,28 @@ static int zfcp_scsi_eh_abort_handler(struct scsi_cm=
+nd *scpnt)
+>  	}
+>  	zfcp_dbf_scsi_abort(dbf_tag, scpnt, abrt_req);
+>  	zfcp_fsf_req_free(abrt_req);
+> +
+> +out_unmap:
+> +	/*
+> +	 * The hardware has stopped using the SCSI command's DMA buffers:
+> +	 * either the adapter confirmed the abort, ERP quiesced the adapter
+> +	 * (zfcp_fsf_req_dismiss_all requires QDIO down), or fc_block_scsi_eh
+> +	 * signalled link-level quiesce.  Unmap here, directly from scpnt,
+> +	 * because old_req must not be touched after the abort_lock was
+> +	 * released.  The normal completion handler (zfcp_fsf_fcp_cmnd_handler)
+> +	 * skips its own unmap when it sees req->data =3D=3D NULL, so there is =
+no
+> +	 * double-unmap.
+> +	 */
+> +	if ((scsi_get_prot_op(scpnt) !=3D SCSI_PROT_NORMAL) &&
+> +	    scsi_prot_sg_count(scpnt))
+> +		zfcp_fsf_req_unmap_sg(&adapter->ccw_device->dev,
+> +				      &scpnt->prot_sdb->table,
+> +				      scpnt->sc_data_direction);
+> +
+> +	zfcp_fsf_req_unmap_sg(&adapter->ccw_device->dev,
+> +			      &scpnt->sdb.table,
+> +			      scpnt->sc_data_direction);
+> +
+>  	return retval;
+>  }
+
+[Severity: Critical]
+Could jumping to out_unmap: on the failure and FAST_IO_FAIL paths in
+zfcp_scsi_eh_abort_handler() unmap scpnt->sdb.table and
+scpnt->prot_sdb->table while the FCP channel is still accessing those
+buffers?
+
+There appear to be three paths reaching out_unmap: where the hardware has
+not yet stopped using scpnt's DMA buffers:
+
+1. When all retries of zfcp_fsf_abort_fcp_cmnd(scpnt) return NULL (!abrt_re=
+q,
+dbf_tag =3D "abrt_ar", retval =3D FAILED) while adapter->status still has
+ZFCP_STATUS_COMMON_RUNNING and fc_block_scsi_eh(scpnt) returns 0 (for
+example, if zfcp_qdio_sbal_get() or zfcp_fsf_req_create() fails, or if
+zfcp_sdev->status lacks ZFCP_STATUS_COMMON_UNBLOCKED during LUN-level ERP
+while the rport remains ONLINE). No abort command was sent, QDIO remains
+active, and old_req is still in flight on the channel.
+
+2. When abrt_req completes without ZFCP_STATUS_FSFREQ_ABORTSUCCEEDED or
+ZFCP_STATUS_FSFREQ_ABORTNOTNEEDED (dbf_tag =3D "abrt_fa", retval =3D FAILED=
+),
+such as on FSF_ADAPTER_STATUS_AVAILABLE, FSF_LUN_BOXED, FSF_PORT_BOXED,
+FSF_LUN_HANDLE_NOT_VALID, FSF_PORT_HANDLE_NOT_VALID, or when abrt_req times
+out in zfcp_fsf_request_timeout_handler(). The adapter has not confirmed
+that old_req was terminated, and any ERP recovery is only scheduled
+asynchronously without waiting before out_unmap: runs.
+
+3. When fc_block_scsi_eh(scpnt) returns FAST_IO_FAIL (dbf_tag =3D "abrt_bl"=
+).
+fc_block_scsi_eh() waits on the rport's FC_PORTSTATE_BLOCKED state, which
+occurs during port-level ERP or link-down handling without shutting down
+QDIO or calling zfcp_fsf_req_dismiss_all(). In addition,
+fc_timeout_fail_rport_io() sets FC_RPORT_FAST_FAIL_TIMEDOUT before calling
+fc_terminate_rport_io():
+
+drivers/scsi/scsi_transport_fc.c:fc_timeout_fail_rport_io()
+	if (rport->port_state !=3D FC_PORTSTATE_BLOCKED)
+		return;
+
+	rport->flags |=3D FC_RPORT_FAST_FAIL_TIMEDOUT;
+	fc_terminate_rport_io(rport);
+
+And zfcp_scsi_terminate_rport_io() only queues zfcp_erp_port_forced_reopen()
+asynchronously without waiting for the port reopen to complete.
+
+Furthermore, because old_req->data was already cleared to NULL at the start
+of zfcp_scsi_eh_abort_handler(), neither zfcp_scsi_forget_cmnd() (during
+subsequent SCSI EH LUN/target reset escalation) nor
+zfcp_fsf_fcp_cmnd_handler() (during adapter reopen /
+zfcp_fsf_req_dismiss_all()) will unmap the buffers once the hardware
+actually quiesces.
+
+Should old_req->data remain set and the DMA unmap be skipped when
+zfcp_scsi_eh_abort_handler() does not confirm that old_req was aborted or
+that the adapter was quiesced, leaving the unmap to the subsequent reset or
+request dismissal path?
+
+> =20
+> @@ -237,6 +284,7 @@ static void zfcp_scsi_forget_cmnd(struct zfcp_fsf_req=
+ *old_req, void *data)
+>  {
+>  	struct zfcp_scsi_req_filter *filter =3D
+>  		(struct zfcp_scsi_req_filter *)data;
+> +	struct scsi_cmnd *scpnt;
+> =20
+>  	/* already aborted - prevent side-effects - or not a SCSI command */
+>  	if (old_req->data =3D=3D NULL ||
+> @@ -244,6 +292,8 @@ static void zfcp_scsi_forget_cmnd(struct zfcp_fsf_req=
+ *old_req, void *data)
+>  	    old_req->qtcb->header.fsf_command !=3D FSF_QTCB_FCP_CMND)
+>  		return;
+> =20
+> +	scpnt =3D old_req->data;
+> +
+>  	/* (tmf_scope =3D=3D FCP_TMF_TGT_RESET || tmf_scope =3D=3D FCP_TMF_LUN_=
+RESET) */
+>  	if (old_req->qtcb->header.port_handle !=3D filter->port_handle)
+>  		return;
+> @@ -253,6 +303,17 @@ static void zfcp_scsi_forget_cmnd(struct zfcp_fsf_re=
+q *old_req, void *data)
+>  		return;
+> =20
+>  	zfcp_dbf_scsi_nullcmnd((struct scsi_cmnd *)old_req->data, old_req);
+> +
+> +	if ((scsi_get_prot_op(scpnt) !=3D SCSI_PROT_NORMAL) &&
+> +	    scsi_prot_sg_count(scpnt))
+> +		zfcp_fsf_req_unmap_sg(&old_req->adapter->ccw_device->dev,
+> +				      &scpnt->prot_sdb->table,
+> +				      scpnt->sc_data_direction);
+> +
+> +	zfcp_fsf_req_unmap_sg(&old_req->adapter->ccw_device->dev,
+> +			      &scpnt->sdb.table,
+> +			      scpnt->sc_data_direction);
+> +
+>  	old_req->data =3D NULL;
+>  }
+
+[Severity: High]
+What happens in zfcp_scsi_forget_cmnd() if another FCP task management
+request is in flight in adapter->req_list for the same port or LUN?
+
+In zfcp_fsf_fcp_task_mgmt(), task management requests are also created with
+fsf_command =3D=3D FSF_QTCB_FCP_CMND, but req->data holds a struct scsi_dev=
+ice *
+rather than a struct scsi_cmnd *:
+
+drivers/s390/scsi/zfcp_fsf.c:zfcp_fsf_fcp_task_mgmt()
+	req =3D zfcp_fsf_req_create(qdio, FSF_QTCB_FCP_CMND,
+				  SBAL_SFLAGS0_TYPE_WRITE,
+				  qdio->adapter->pool.scsi_req);
+	...
+	req->data =3D sdev;
+	req->handler =3D zfcp_fsf_fcp_task_mgmt_handler;
+	req->qtcb->header.lun_handle =3D zfcp_sdev->lun_handle;
+	req->qtcb->header.port_handle =3D zfcp_sdev->port->handle;
+	req->qtcb->bottom.io.data_direction =3D FSF_DATADIR_CMND;
+
+If two TMF requests are in flight concurrently (for example, an
+SG_SCSI_RESET ioctl in scsi_ioctl_reset() racing with scsi_error_handler()
+or another SG_SCSI_RESET ioctl), zfcp_scsi_forget_cmnds() will invoke
+zfcp_scsi_forget_cmnd() on the other in-flight TMF request, cast its
+struct scsi_device * in old_req->data to struct scsi_cmnd *, pass fields of
+struct scsi_device to zfcp_fsf_req_unmap_sg(), and clear old_req->data to
+NULL (which zfcp_fsf_fcp_task_mgmt_handler() later dereferences).
+
+Should zfcp_scsi_forget_cmnd() also check that old_req is not a TMF request
+(for example, by checking old_req->qtcb->bottom.io.data_direction !=3D
+FSF_DATADIR_CMND or old_req->status & ZFCP_STATUS_FSFREQ_CLEANUP)?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261022170828.4189=
+701-1-nikh1092@linux.ibm.com?part=3D2
