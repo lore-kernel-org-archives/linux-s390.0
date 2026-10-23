@@ -1,13 +1,13 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792747289;
-	b=B2kwCjQD6iPdnvpwl5XB+5K/JHbXwBk7sfLfmD1Ws8RmNS8o2esNejzepxPM3BhrdWNt
-	 uadUt44Qs+z6FS32zK2TDOR1tFPmQHdM4KRYbyiDQHL41/yNNsBOeD4ur5ngfaaCnPxqg
-	 I4lmJqHE0atRonU8eIA64S++2HbOsSfrSxdlPjDKTh3Y6S7I9iU1iPwu+7U4v9pAHiQ6j
-	 ZqmIrElM5a6Fh028Lc8/1NphbyTScyW0DKamSfhyduqUez/jINlZ+XNgtPK6f8+Dgolx9
-	 t3wNfXQ5bPKVVYVYcMGmHUBL+GR/xahGzgux1Dawc0rXlC+Qb9qGvsPjZlAOLryqdDQ==
+	t=1792747290;
+	b=uIZMrwR0Eud7CCHCuukCl/szQlErHwpRBfYyAP0Mt3Hg/ZVP7rSrtXlCjrLxxCPmvtNp
+	 INAYw8uiJGr635F7ZIRmC34vveoW3I3DPYTQyqitWoVCxfp6XZM3ezXWFvM2oD2N0lbW+
+	 c1hTxzrfN5bHZDw/q07ujGYJPxymkAyU+YhAWyb/vCJVWO8X+GzF/aiI++7ilxIsXeCVC
+	 icFYSDYGkoqEJAYC33dFHKUqB90oM4gAjZEcAUuigfutZwC5MMwnsJ+ts2I/TmErLFule
+	 BnNgo8EWxU6mJ5sMoAdoGxtqyohXRKe8D8vhHMTk4+OlUfHpFpgKJpoEmT3/V/dqTPw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792747289;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792747290;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:Content-Type:
@@ -15,72 +15,72 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Details-Enc:
 	 X-Proofpoint-Spam-Info:X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=VOSC57FWK6sIt0B+McD6/+QZIG/HyjTDvquflYLJZYo=;
-	b=H3q1fTQRjz4yuQbfgPUGaIUdU7on/2GUr7aKYm08dfGsb/CaXybnu5iuSsuixvQslZeE
-	 QjFZlqWNdDfLGV8DBElYBh7BK8PtziMgihPz93UINQc9TJxj/ezb3470GivGEW3CpW9Sk
-	 jGhg6IUXq0JIhX7D3mptp2IPl6nAvYnfF7DLSpQwEwWMcvM2mIGSOaoJuiF4WoyjPfV9O
-	 ThST1FBIvfpOsQPuIuulPzmxLMnPKbNDA3P8nRE4SALdZI/w3au9VQC3xVHmR3t4Yws2T
-	 dNPNS/Q7NMYq1jPEkDFkWDkyzABNE71iGzMd8vgFUt2FFrEe4IgLAguSnd1W50JXIzA==
+	bh=9PZrQ5AN1wcEfiWz1+UkE0xyGHkXwgMOwYOZ40cFb8c=;
+	b=KaggIpDGOvMB13Mccp7t4ToNUZFv66vLm1SQJRS9/As37DSk7lIJgx8XD5zZbbvZPCqV
+	 OecHX/58R9605jFz4wgALGXHyzvdCegrpZCrs0PBdTQIc0ryqO2J8hOBd4NdJTselF1e0
+	 67idsgQPI3x4v3UnUuOJypSb/+sWDbBrSslNm/9UKMW3l5tnNDc9sbHzOXBOSH+2uj0kU
+	 iIYxpt4OGLDLMKLqnAaOiaExl7u/bkTTrm2RteCXskWbVPU6SK1uow45xHYNSdyEA45/J
+	 Xfd8rC4n1izKvaYrUelSySfalheeCWsnSa3eiiuZr0L70kAv0UOaKj8z+4z7eM0K7JQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=G5TSZkbb;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="eXefq/rV";
 	arc=none smtp.remote-ip=148.163.158.5
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F7F9606A31A
-	for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2026 09:21:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7F7F9606A31A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13AFB606A31B
+	for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2026 09:21:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 13AFB606A31B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=G5TSZkbb
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=eXefq/rV
 Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69N7EjRg2174937
-	for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2026 09:21:27 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69N7EqXn2175051
+	for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2026 09:21:29 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=VOSC57
-	FWK6sIt0B+McD6/+QZIG/HyjTDvquflYLJZYo=; b=G5TSZkbbIQeHh90Bb7Yhzm
-	xFNS5871fY/8TrVni1j5TM6oNONsS9gcyWNw+rEVjj8lKz5bYEuJKLnDzb/vSAdV
-	Gk/mYmdcMUXL9AD4OijSsXU4YNVe4IMR5E5h1hyw8mWkPYXqqxW6wUVLu2xtz2RQ
-	yIJro03D4L5o6tSovU1sLOR/BKFzgzigriOiteGZWrIa9PfRk7Db447RE5TaBAp0
-	+Riv6ro1Tg/v/1zQRn2kxrYa3+D5WCHvZ0H6stGt5zOhp9/6wo/j9Hmr6v2oOPGx
-	EOcFmsO7K4LiO6d7N9YdOOOYwuhI2Q3h9FfPjd7NDuhJOmx5jBgx4yD3EHVmXrEw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=9PZrQ5
+	AN1wcEfiWz1+UkE0xyGHkXwgMOwYOZ40cFb8c=; b=eXefq/rVWTR4YqhXC+AUol
+	enrYdHZW7ZGioB5GD2C6s5E42ULjHtDOb+jMR/POsqyLN/KIg0NAHKqWuqPMUc3v
+	7xtXGH546wCkl6SmhXkTvs1NaAn75Mxi9wyxTN1kUpydcw3XzFbwwdTQbYvG+81z
+	/Blcvizf43cN2LVdqA11vjTknzSeQufO2zrcTn5DE8+d8ww4fnyNvXWcHrzbnqF2
+	QNzzfnbUnD53RxN8joBiQpsWDDn0/mMQQgmBt2MrGtV1PqSt4GNalQfjBaei0Ggv
+	unyKbH2IDqK5+rKHQvzBp2sNJcjfmEaEcPZJ84fdq7iYohbni4qkLOlPsKUtXLWA
 	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw5b3r5c-1
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw5b3r5d-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2026 09:21:27 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69N7Jutj1800653
-	for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2026 09:21:26 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hfmpn3tcy-1
+	for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2026 09:21:28 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69N7JwNs1802314
+	for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2026 09:21:28 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hfgck4srx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2026 09:21:26 +0000 (GMT)
+	for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2026 09:21:28 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69N9LMwE41353478
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69N9LOu740042760
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 23 Oct 2026 09:21:22 GMT
+	Fri, 23 Oct 2026 09:21:24 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AEADA2004D;
-	Fri, 23 Oct 2026 09:21:22 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 45AA42004B;
+	Fri, 23 Oct 2026 09:21:24 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 99DEB20040;
-	Fri, 23 Oct 2026 09:21:22 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 306BE20043;
+	Fri, 23 Oct 2026 09:21:24 +0000 (GMT)
 Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 23 Oct 2026 09:21:22 +0000 (GMT)
+	Fri, 23 Oct 2026 09:21:24 +0000 (GMT)
 From: Stefan Haberland <sth@linux.ibm.com>
 To: linux-s390@vger.kernel.org
 Cc: Jan Hoeppner <hoeppner@linux.ibm.com>,
         Eduard Shishkin <edward6@linux.ibm.com>
-Subject: [PATCH 2/3] s390/dasd: Fix wrong free and refcount leak in build_check_tcw error path
-Date: Fri, 23 Oct 2026 11:21:17 +0200
-Message-ID: <20261023092118.3152286-3-sth@linux.ibm.com>
+Subject: [PATCH 3/3] s390/dasd: Don't trust userspace-supplied result field in format check
+Date: Fri, 23 Oct 2026 11:21:18 +0200
+Message-ID: <20261023092118.3152286-4-sth@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261023092118.3152286-1-sth@linux.ibm.com>
 References: <20261023092118.3152286-1-sth@linux.ibm.com>
@@ -96,25 +96,25 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=X63Hu2Te c=1 sm=1 tr=0 ts=6adb2717 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Authority-Analysis: v=2.4 cv=X63Hu2Te c=1 sm=1 tr=0 ts=6adb2718 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
  a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=c92rfblmAAAA:8
- a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=5Urbv5Un5dQKbQTN73gA:9 a=3ZKOabzyN94A:10
+ a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8 a=T2NVWVN1rChL1tsUD_4A:9 a=3ZKOabzyN94A:10
  a=QEXdDO2ut3YA:10 a=GvGzcOZaWPEFPQC_NcjD:22
-X-Proofpoint-ORIG-GUID: PHe-t2vgh6alWUpgpjqeJz5etyDo7zf8
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIzMDAzNiBTYWx0ZWRfX7s51zMGcMTfL
- oaWExt4VvSPoLJDxYd91YJchfi18MvH/SVDZ1fyQVvxSYJkPpoKxc8aYh9wgX6SVBSXpJaK1Vo8
- BFBigGFw9WR4YWnGp8QIdhoIF6KiJU86sZG3MQBV70K+3i55ZqHLCfapTquhAW7NZkv/PYfFcNh
- OgIY2AWcEt2fZ7y6rwLP7jFlnUEV/Sc7Mltj8PVyPT1UmbJ7uzXc8i1QqzfMvR4821y6vx4zvHH
- ZhGewz2Sl9LGoHoTyYjtHVvgG2clClHASgdQP0OiBHmht33nf2J24qqLUDZXsEFUzNsM/TM8Po+
- w5T7xKTccUbmoG9+bjXrSJfl+xrorzN2jcSQ+U/LddCOuddT2Ik+uLcEhLCBkJ7eYvg50RwFxnq
- 7LtBluzAZW7RxFO1l8EenCWCCVd8+/pzDAKzGz59Jh5A3dchW0Uu87Cv/Qy3zO/gA5eJzzNe4Ra
- /Dd4gLPszgSkvU5boVg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIzMDAzNiBTYWx0ZWRfX64tVKqwhXnOR
- IqA2E9GeKeNjWTh8frQlKPXdLYnZxYVT9RXFk7/gHyf8eJXMJV/lUesFrhLOfSih4TnhEbbh03t
- axwUWzvXko762V26E18sQhF6gm02Ox8=
-X-Proofpoint-GUID: PHe-t2vgh6alWUpgpjqeJz5etyDo7zf8
+X-Proofpoint-ORIG-GUID: VNO0QABkWX_qHJmX-CeQWUIW2Jo86HsJ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIzMDAzNiBTYWx0ZWRfX1tYm6XhP9E0x
+ tXnPoUco0jOBASkJkoWSZ/Qe2veOOLh/brSCO6YSjfsBnM+QORbmJ8w+jAqDSZ+6+KVnUh3YQ73
+ 5pa7NU+KdR3edOjWBDJbeRpY2C0hShxoKD9tVh8/RMYUv/rcI5Sucq3lQFVlb87kGw2wxWX0WXw
+ Upu4kNLiHZS7Db7io2nYExEfVuPrPjuc0E88ZquJthMBt1ksq6o8pr/wq4pTTj8DPQBMMd6H5hE
+ 8asTBLqDht5vPD6DwQnq17EvvLqll2Fe7trq/PCnbVQ9GdoB9+AOihtXeC6v1jrarZAnrcYKyzq
+ wuTRSa61ZMDWLsbxXKo7/Q8foj3Xtk3epL4WFGd7l5g96xLbiwV84CuB+6Wt5EYkjSDMmFXeTYS
+ jCGEek/wx3racr4toKn7wajekcOzgNJSZ8/ghfa873Emp1WRuKOsYnAw7nCq+dMTNrm763Q6akk
+ nuaQQ91zCNvSF67Peww==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIzMDAzNiBTYWx0ZWRfX0S3uRMwhQJs0
+ ZMGchZrskIHdbQ7RtvP70bPwX+B+cGGNqgctuPlfm8dY5NyCRqcdayuP7shpwCmnAAdgs7C6n/o
+ aamW/FtXgsnC6dsuUcUMXbqy/4Riqos=
+X-Proofpoint-GUID: VNO0QABkWX_qHJmX-CeQWUIW2Jo86HsJ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-10-23_02,2026-10-21_02,2025-10-01_01
@@ -124,41 +124,44 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610230036
 
-dasd_eckd_build_check_tcw() allocates its request with
-dasd_fmalloc_request(), but its out_err path frees it with
-dasd_sfree_request(). The latter uses a different pool and therefor,
-leading to invalid pointer arithmetic and a crash.
-Use the matching dasd_ffree_request() instead.
+BIODASDCHECKFMT used to copy the entire format_check_t struct from
+userspace, including the result/unit/rec/num_records/blksize/
+key_length fields that are output fields only.
+dasd_eckd_format_evaluate_tracks() relies on cdata->result being zero
+to decide whether to apply an index correction (i--/pos--) after a
+successful check. A caller that pre-sets result to a non-zero value
+can suppress that correction, leaving pos advanced past the last valid
+entry; the (partially out-of-bounds) fmt_buffer[pos] fields are then
+copied back to userspace, leaking heap contents.
 
-The same error path also leaves start_priv->count incremented
-without ever decrementing it again.
-This leaks a permanent reference on every build failure.
-Decrement it before freeing the request.
+Only expect is an Input field; copy just that member in and zero
+the rest of cdata.
 
+Fixes: 8fd575200db5 ("s390/dasd: Add new ioctl BIODASDCHECKFMT")
 Reported-by: Sashiko <sashiko-bot@kernel.org>
 Closes: https://sashiko.dev/#/patchset/20260722103704.1709668-1-sth@linux.ibm.com
-Fixes: 8fd575200db5 ("s390/dasd: Add new ioctl BIODASDCHECKFMT")
 Cc: stable@vger.kernel.org #4.7
 Reviewed-by: Jan Höppner <hoeppner@linux.ibm.com>
 Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- drivers/s390/block/dasd_eckd.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/s390/block/dasd_ioctl.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index e910d6b35f0f..687350504c3e 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -2764,7 +2764,8 @@ dasd_eckd_build_check_tcw(struct dasd_device *base, struct format_data_t *fdata,
- 	return cqr;
+diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
+index e5b8b413f5ab..2f2ec2bea333 100644
+--- a/drivers/s390/block/dasd_ioctl.c
++++ b/drivers/s390/block/dasd_ioctl.c
+@@ -303,7 +303,9 @@ static int dasd_ioctl_check_format(struct block_device *bdev, void __user *argp)
+ 		goto out_err;
+ 	}
  
- out_err:
--	dasd_sfree_request(cqr, startdev);
-+	start_priv->count--;
-+	dasd_ffree_request(cqr, startdev);
- 
- 	return ERR_PTR(rc);
- }
+-	if (copy_from_user(&cdata, argp, sizeof(cdata))) {
++	/* copy only input fields, clear the rest */
++	memset(&cdata, 0, sizeof(cdata));
++	if (copy_from_user(&cdata.expect, argp, sizeof(cdata.expect))) {
+ 		rc = -EFAULT;
+ 		goto out_err;
+ 	}
 -- 
 2.53.0
 
