@@ -1,86 +1,86 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792770943;
-	b=QTM5Xgf6P6fC0SAspKpRaNWNAlLorH8sjZDakZ7W5T5cjUKcWzXp8F7MsiLX/9Bqchw+
-	 u6HaX+U13fQA4PzyH7bZqj8QCqyav2AEz6Caz/jhqS8VZUrLq12EbZUoeIHxU4k1KEiUC
-	 8shSrKJ6Xhd1QUi5THDC0XoaQK2VVSmY65pryf8msxXQFSNAfCHvVWmHdiilA8rFpcc73
-	 hn38qXdek3ZP1d4QEzf83O/SZlcm5KcarxtK3Gc06rX3KKVycPYE9t0SVoFkEabt2Rk4x
-	 IuHVy2PVWBZ5mgDsri0UTvdGx76f7pumy5oQsRcFegpfO/7/iZyB/OP9ToFK4qq9o7w==
+	t=1792770944;
+	b=JZSGbwScOgMz0JvxHbzptz8vw/ELWLJFAXdW3mWZvtm8E0NLdpKDTpwPK9dZ8/L9LIgM
+	 QT9xcxOAC3/XZ45vdKw6I1vm/MSmfORd/Fk+x7RlkJ+1WDuifzzimioRsTqdP9taud5mu
+	 Q0ocwmUmBI9vMuNWDoiLesc7NqljkQi2cCYCeixkD1Av3x/ivzro8ZJTmesarA/gFhY76
+	 cYwn6ZyaOCG8uWNxLHv/3CogMJYpmrMapUnfLxWoMEAB9nZ/DSO12bh5UaZ3zW1npyzrf
+	 vgwjSys42vQs3D8t+FDCmY1WQd91x6Uhiaz+f2q39dYn5ZtwKiZfVkeCvOJA7yc/XgA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792770943;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792770944;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-TM-AS-GCONF:X-Proofpoint-GUID:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-ORIG-GUID:X-Authority-Analysis:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=gme1D6KaSjuykXViFrNAudx1w+FGp2xJgKly3H/xHe0=;
-	b=v5QaKJCZyhigwKxN1wCcbCmA3p5cSaUSI2Z9FzMxfi7YD9KBjZ34yWDg/F3+kcWVrH82
-	 X8lzTU9CFlV/LlNacRnHLBnWGhOFNthOYZGcYcv9hvTw6aF3ewueKB7kxhmHzE+t4IAxa
-	 J9NKwzyP6G4BvPYmAljO3Ga2clG9G+0bnFNpPGx4jznXLjE2N/wjmeajP6AIOcKw4U48B
-	 KBuvW8awLSxEJ6nDV4v5+FC5vmIAjaziW8L4smU+z+cQbnACPB47O997fBpFrYhXhGaUh
-	 8WTqCBZSyXdxFH3XBDdf/TmWXg9vcxBAO7ZbdZ76SpuNtnRIOiVkxSRb80BBBUh3MJg==
+	 Content-Transfer-Encoding:X-TM-AS-GCONF:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
+	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=hf24ZNEx1C3kVr4rCQi+eYynC80F2CyMyYOEhI6PKgc=;
+	b=xHzRDyjv2nePSMV5FPcRB/S91PD8G0R1sbB3z6WKmvmX7n+quHQow889a8bc7WfbiV4a
+	 A/plAVG9Nj3AOjsxVKxH1LQu6w7ZWjZKxNe1R7/EwwVIbNaIZedVVLvXuLKNmKihMivAs
+	 qME3iOMop25x+lKXfQztAkMIzstu+3CAh9+vS3APIvAWbKTj8GrDYCdXPOj67Tb9ZCzTt
+	 iKrHGO/DHnj2SZIls2IL8s8pw54uF9OItvunzsHWsNYUeST+sLwKZjfFU51XPvcAczG6w
+	 BtHSepj1guIU6FPXtNG/UU/QFZ+6fecz223tWvtEkqmvV8FIIPNIMseaiqOk5ZA+a3w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="pOyzlhO/";
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="g/CtrH3b";
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9C41606A327;
-	Fri, 23 Oct 2026 15:55:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E9C41606A327
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6FBE606A338;
+	Fri, 23 Oct 2026 15:55:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A6FBE606A338
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=pOyzlhO/
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69NEEDow3288886;
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=g/CtrH3b
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69NEENei3183811;
 	Fri, 23 Oct 2026 15:55:40 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=gme1D6KaSjuykXViF
-	rNAudx1w+FGp2xJgKly3H/xHe0=; b=pOyzlhO/PVRS6DqdoR2DnHrfc8zFpvTqH
-	3gocKg/hPl0p125WqCl/fOMUL053GvWYGNLkJSgIwunO+EQgn27gbKXVdxAJXi5v
-	FhiLsAyiIRXt2kgaJ8dOGz2cL58A3sRdQEUukTf3IwDRZ/lqC6lTExndPNU6pI0q
-	w52RCV5iB0gtRxl9N3H5MnJQgUFeKHWjxERi8R9UIjLTPRlPq/7it9uK3L60FXne
-	lhk8VsdthPXJtwqkx7V+sk+e1qTmgHsdKdnFZeCdrs1ipFlFE8oX2eTQqv5/PQJi
-	gcKGm4NpOuGLDUUJ8R9t0mo37uMzRIfBkioN/pEQaczj0bcW+x+kA==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw596692-1
+	:mime-version:references:subject:to; s=pp1; bh=hf24ZNEx1C3kVr4rC
+	Qi+eYynC80F2CyMyYOEhI6PKgc=; b=g/CtrH3bS5kZZExAJHfEFXzl/WoWsaa4c
+	JWc3SqryX7SGJqFqDAPGj/sSMEATEkHPo256rZX4PMMxDR15ayxZgZDOvG6cp6rh
+	0urEg2jFFP3GHCtJj8BZIIapJJJ4/aTz0F00DLEii9Ajxleh0TSVp2kneP1bJy4D
+	4ojw13PyE1kvC1L9V7/m7GewBLV9+U+igEt0gUiOXTl2zOAao8eXjAmQDK3VDhpa
+	bMRnXGCV3JeBaVmM2AMJ/Tv444jzMhpCL1pHNlKMwDk8WUlDCD2HRjTAWya9DAjU
+	OT2GjYt2/5EdBHGRKYXAJlblC+PPo193PgHGcC8zqlFREqZP3RJhw==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw5adejv-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
 	Fri, 23 Oct 2026 15:55:39 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69NE65Xq2263015;
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69NE65wH2220955;
 	Fri, 23 Oct 2026 15:55:39 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hfgck67dk-1
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hfj1x5veh-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 23 Oct 2026 15:55:38 +0000 (GMT)
+	Fri, 23 Oct 2026 15:55:39 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69NFtWGl31851212
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69NFtXLV48955826
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 23 Oct 2026 15:55:32 GMT
+	Fri, 23 Oct 2026 15:55:33 GMT
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8B12A20043;
-	Fri, 23 Oct 2026 15:55:32 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 405192004B;
+	Fri, 23 Oct 2026 15:55:33 +0000 (GMT)
 Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6BA072004D;
-	Fri, 23 Oct 2026 15:55:32 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 20B8E20043;
+	Fri, 23 Oct 2026 15:55:33 +0000 (GMT)
 Received: from p-imbrenda.ehn-de.ibm.com (unknown [9.224.75.30])
 	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 23 Oct 2026 15:55:32 +0000 (GMT)
+	Fri, 23 Oct 2026 15:55:33 +0000 (GMT)
 From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com,
         david@kernel.org, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
         gra@linux.ibm.com
-Subject: [PATCH v2 04/10] KVM: s390: Automatically enable storage keys for UCONTROL VMs
-Date: Fri, 23 Oct 2026 17:55:25 +0200
-Message-ID: <20261023155531.206113-5-imbrenda@linux.ibm.com>
+Subject: [PATCH v2 08/10] KVM: s390: Improve unmapping of large ranges
+Date: Fri, 23 Oct 2026 17:55:29 +0200
+Message-ID: <20261023155531.206113-9-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261023155531.206113-1-imbrenda@linux.ibm.com>
 References: <20261023155531.206113-1-imbrenda@linux.ibm.com>
@@ -95,77 +95,193 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: kCzN7cPOJe-OEJrIpVGEF3MSn7RBenyz
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIzMDA2MSBTYWx0ZWRfXwYEJJ1uP1HZf
- zK45akWLnNjRLfKC3ZtWAcDJieeTg9tKjSZjNk8N04OtlRtfucdWv3LRe+Ntq5AhLMtQ31ZSk5T
- Bdkn6Udg54Uv9UgRkRu12Ml2FcHl420=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIzMDA2MSBTYWx0ZWRfX2+q3YVEwgH8a
- IJGXx9FpSRDYCCq+vjv6FqYtqrOMnL8TiUEvfVWRqyhQXkYrHRgIj9ekDdCRXbx1nWYyLNyj8iA
- tI90QcnwBJgIZ2JKNC8c5TcR5DW1gV6Xu5FgaE8KCDwRvZ2NSJuazgsFipGq7pZnh4yPhQd789v
- yS/tKJfiJOXfArGkbxUksw9W4WxHAMmMZs+htBD3ZFCYPXUNj73Z+bYBNK9r7VYovofIpMcb73U
- d+YZQRTsEwhh0n6b2q2NXUIbfYpaPeNTCLyM3q5mrKwxKyMpfinv79+ao0PKkk5NqDAm+NGnkQE
- UDCdTyEYR8AjhwMzzKt2n/b0DQ8Wn27iCwgXqX4Ht84EZvy8u75ay3C7jDiA41YAkI89k3WfHG6
- ddOsm4DDW2qNQOMopZGQV2yEpBt/Em2s2ozBj+FOFvWfzL7qUoZxj1jGh9cjcjsBRtFOT7lxGGL
- 5B/ZrZLjNm+9HupMTLQ==
-X-Proofpoint-ORIG-GUID: kCzN7cPOJe-OEJrIpVGEF3MSn7RBenyz
-X-Authority-Analysis: v=2.4 cv=Ob4NnRTY c=1 sm=1 tr=0 ts=6adb837c cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIzMDA2MSBTYWx0ZWRfXxH4k4TufQKBB
+ m4/JK3aY48idKZYfFqw4A5XASVNwm10lejoZ1pjtwoxOR8WrSBWSPAyzBvCCR4JHitbVDJMThi+
+ NO03PF/C65oZqMUo01Gxz+MTpxqp1ENv6fxPLa83XRmJOR/D1KkIKP6Zl1Y3WdgGpikT1gyuFie
+ GAaYH6kqdi9/eJq8OVyC+YeSzH8vpyR2oqnOb7m0OPItIWjWKhb9mCO2P/3jRHu0hh6x+hwcFOp
+ dJL0smorz6I9bHdzxDhM0EXIhFJ+z0w9eN048x84pMZMAQ++PF5O2WQD4j6gb9ZmJ5ZPQ/jXAgi
+ TAoN9bAzdmYmX6BhqZj9GZV+IshJ6Tb6UhpdFCI1TnvgMOgDMp7o8x/c7PgFvfM5ZJIoPmdyPnp
+ 4sIAIiIOpgyC92fxooNFEqcnYh+iCNCOVRYpe2ZlLN/3bEgZOHdx1RnrJFfTxSQh//fBN6jmw+8
+ UWkgoksL7vM9XKyQhvg==
+X-Proofpoint-ORIG-GUID: PuyK7DrXK3xHMTBtc1aNJW0gblWRuXxd
+X-Proofpoint-GUID: PuyK7DrXK3xHMTBtc1aNJW0gblWRuXxd
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIzMDA2MSBTYWx0ZWRfX8W+f7226Tcj4
+ esrKpx00B9ru55MsQh4g2QyYf/KBu0zWTSh75uktz2PQ/l+BPf3tu4D1jfz1cdBBwKbErnISdNF
+ vF/93ZEMb6ZBieGsE/gJ19djohVzGKM=
+X-Authority-Analysis: v=2.4 cv=ZfSIpcVA c=1 sm=1 tr=0 ts=6adb837b cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=YbjXXk8-Ty8lgCeYkKMA:9
+ a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=a_yAbKu6etgibcV5VCMA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-10-23_04,2026-10-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 adultscore=0 phishscore=0 spamscore=0 suspectscore=0
- lowpriorityscore=0 clxscore=1015 impostorscore=0 priorityscore=1501
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610190000
- definitions=main-2610230061
+ priorityscore=1501 impostorscore=0 malwarescore=0 spamscore=0 suspectscore=0
+ clxscore=1015 phishscore=0 bulkscore=0 lowpriorityscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610230061
 
-Automatically enable storage keys for UCONTROL VMs upon creation. There
-is no point in leaving it to the lazy initialization, as storage keys
-will almost surely be used very early in the boot process of a UCONTROL
-guest. Furthermore, if storage keys initialization fails, it will
-prevent the VM from starting, instead of failing at runtime.
+When unmapping guest ranges, each individual leaf DAT entry is
+invalidated. When unmapping large ranges, this results in a very large
+amount of invalidations, which is time consuming. Moreover, since the
+unmap callback is called by KVM while holding a spinlock, this also
+leads to stall warnings.
 
-Opportunistically improve error handling if the fake memslot cannot be
-initialized properly.
+Improve the situation by invalidating DAT entries higher in the tree,
+instead of each leaf individually.
 
+For small invalidations (up to 1 segment = 1M of guest memory), and
+special cases (like protected VMs) regardless of the size, the old and
+slow invalidation is performed; all leaf entries are invalidated one by
+one.
+
+For large invalidations (larger than 1M of guest memory), the new
+strategy is used:
+ - Invalidate prefixes on the whole range, extending start and end to
+   1M granularity
+ - Iterate through the page table pointed to by each pmd and unshadow
+   entries as needed
+ - Detatch (invalidate) the pmd
+ - Save storage keys as needed
+ - Invalidate each (now detached) pte by simply overwriting it
+ - Reattach the old pmd to point to the updated page table
+
+Fixes: a2c17f9270cc ("KVM: s390: New gmap code")
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- arch/s390/kvm/s390/s390.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/s390/kvm/gmap/gmap.c | 112 ++++++++++++++++++++++++++++++++++----
+ 1 file changed, 101 insertions(+), 11 deletions(-)
 
-diff --git a/arch/s390/kvm/s390/s390.c b/arch/s390/kvm/s390/s390.c
-index e4912db67adc..dafcd104d316 100644
---- a/arch/s390/kvm/s390/s390.c
-+++ b/arch/s390/kvm/s390/s390.c
-@@ -3346,10 +3346,15 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 			.flags = 0,
- 		};
- 
-+		rc = gmap_enable_skeys(kvm->arch.gmap);
-+		if (rc)
-+			goto out_err;
- 		/* one flat fake memslot covering the whole address-space */
- 		mutex_lock(&kvm->slots_lock);
--		KVM_BUG_ON(kvm_set_internal_memslot(kvm, &fake_memslot), kvm);
-+		rc = kvm_set_internal_memslot(kvm, &fake_memslot);
- 		mutex_unlock(&kvm->slots_lock);
-+		if (KVM_BUG_ON(rc, kvm))
-+			goto out_err;
- 		set_bit(GMAP_FLAG_IS_UCONTROL, &kvm->arch.gmap->flags);
- 	} else {
- 		struct crst_table *table = dereference_asce(kvm->arch.gmap->asce);
-@@ -3369,6 +3374,8 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 
+diff --git a/arch/s390/kvm/gmap/gmap.c b/arch/s390/kvm/gmap/gmap.c
+index c10681f882c2..01d25aa1f605 100644
+--- a/arch/s390/kvm/gmap/gmap.c
++++ b/arch/s390/kvm/gmap/gmap.c
+@@ -437,17 +437,8 @@ static long _gmap_unmap_crste(union crste *crstep, gfn_t gfn, gfn_t next, struct
  	return 0;
- out_err:
-+	if (kvm->arch.gmap)
-+		kvm->arch.gmap = gmap_put(kvm->arch.gmap);
- 	free_page((unsigned long)kvm->arch.sie_page2);
- 	debug_unregister(kvm->arch.dbf);
- 	sca_dispose(kvm);
+ }
+ 
+-/**
+- * gmap_unmap_gfn_range() - Unmap a range of guest addresses.
+- * @gmap: The gmap to act on.
+- * @slot: The memslot in which the range is located.
+- * @start: The first gfn to unmap.
+- * @end: The gfn after the last one to unmap.
+- *
+- * Context: Called with the kvm mmu write lock held.
+- * Return: false
+- */
+-bool gmap_unmap_gfn_range(struct gmap *gmap, struct kvm_memory_slot *slot, gfn_t start, gfn_t end)
++static bool gmap_unmap_gfn_range_slow(struct gmap *gmap, struct kvm_memory_slot *slot,
++				      gfn_t start, gfn_t end)
+ {
+ 	const struct dat_walk_ops ops = {
+ 		.pte_entry = _gmap_unmap_pte,
+@@ -465,6 +456,105 @@ bool gmap_unmap_gfn_range(struct gmap *gmap, struct kvm_memory_slot *slot, gfn_t
+ 	return false;
+ }
+ 
++static long _gmap_unmap_pud_fast(union crste *crstep, gfn_t gfn, gfn_t next, struct dat_walk *w)
++{
++	union crste old = *crstep;
++
++	/* We only care about large puds */
++	if (!old.h.fc)
++		return 0;
++	if (!gfn)
++		gmap_unmap_prefix(w->priv, 0, next);
++	if (old.s.fc1.vsie_notif)
++		gmap_handle_vsie_unshadow_event(w->priv, gfn);
++
++	idte_crste(crstep, gfn, w->datt.asce);
++	*crstep = _CRSTE_EMPTY(old.h.tt);
++
++	return 0;
++}
++
++static long _gmap_unmap_pmd_fast(union crste *crstep, gfn_t gfn, gfn_t next, struct dat_walk *w)
++{
++	union crste old = *crstep;
++	struct page_table *pt;
++	gfn_t first, last;
++	unsigned int i;
++
++	if (old.h.fc) {
++		if (old.s.fc1.vsie_notif)
++			gmap_handle_vsie_unshadow_event(w->priv, gfn);
++
++		idte_crste(crstep, gfn, w->datt.asce);
++		WRITE_ONCE(*crstep, _CRSTE_EMPTY(old.h.tt));
++
++		return 0;
++	}
++
++	if (old.h.i)
++		return 0;
++
++	pt = dereference_pmd(old.pmd);
++	first = max(gfn, w->start) & (PTRS_PER_PTE - 1);
++	last = (min(next, w->end) - 1) & (PTRS_PER_PTE - 1);
++
++	for (i = first; i <= last; i++)
++		if (pte_needs_unshadow(pt->ptes[i], _PTE_EMPTY, pt->pgstes[i]))
++			gmap_handle_vsie_unshadow_event(w->priv, gfn + i);
++
++	/* Detach the page table */
++	idte_crste(crstep, gfn, w->datt.asce);
++
++	for (i = first; i <= last; i++) {
++		if (!pt->ptes[i].h.i && w->datt.uses_skeys)
++			pt->pgstes[i] = dat_save_storage_key_into_pgste(pt->ptes[i], pt->pgstes[i]);
++		pt->ptes[i] = _PTE_EMPTY;
++		pt->pgstes[i].vsie_notif = 0;
++		pt->pgstes[i].vsie_gmem = 0;
++		pt->pgstes[i].zero = 0;
++	}
++
++	barrier();
++	/* Reattach the modified page table */
++	WRITE_ONCE(*crstep, old);
++
++	return 0;
++}
++
++static bool gmap_unmap_gfn_range_fast(struct gmap *gmap, gfn_t start, gfn_t end)
++{
++	const struct dat_walk_ops ops = {
++		.pud_entry = _gmap_unmap_pud_fast,
++		.pmd_entry = _gmap_unmap_pmd_fast,
++	};
++	bool failed;
++
++	lockdep_assert_held_write(&gmap->kvm->mmu_lock);
++
++	gmap_unmap_prefix(gmap, ALIGN_DOWN(start, _PAGE_ENTRIES), ALIGN(end, _PAGE_ENTRIES));
++
++	failed = _dat_walk_gfn_range(start, end, gmap->datt, &ops, DAT_WALK_IGN_HOLES, gmap);
++	KVM_BUG_ON(failed, gmap->kvm);
++	return false;
++}
++
++/**
++ * gmap_unmap_gfn_range() - Unmap a range of guest addresses.
++ * @gmap: The gmap to act on.
++ * @slot: The memslot in which the range is located.
++ * @start: The first gfn to unmap.
++ * @end: The gfn after the last one to unmap.
++ *
++ * Context: Called with the kvm mmu write lock held.
++ * Return: false
++ */
++bool gmap_unmap_gfn_range(struct gmap *gmap, struct kvm_memory_slot *slot, gfn_t start, gfn_t end)
++{
++	if ((end - start <= _PAGES_PER_SEGMENT) || export_on_unmap(gmap) || is_ucontrol(gmap))
++		return gmap_unmap_gfn_range_slow(gmap, slot, start, end);
++	return gmap_unmap_gfn_range_fast(gmap, start, end);
++}
++
+ static union pgste __pte_test_and_clear_softdirty(union pte *ptep, union pgste pgste, gfn_t gfn,
+ 						  struct gmap *gmap)
+ {
 -- 
 2.56.0
 
