@@ -1,82 +1,57 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792758866;
-	b=q7nkBaT3f9eF+dzqmFyIktukxV+MWo43Or473Na9a9st0xRaTf04gTYrvWkzv1ChJuhk
-	 qhfcKGeRpjPJVOBOh5Y59BIjQeB2Zcv5mhQedDz37FO7Z3B1dfZNOacTm+FQ9ttPPWSBD
-	 IJn93uMMT4Wpj4X0H2sbQWVaLv/i6IBS0oz//xAXhI340yplv3IwcakyJlolsO+QoNYwT
-	 yPrL3D6HR8L2BBbL/NYDYZNe+rSyNUCokfgWbnnixnXOQZ615Lge+DLsM5BaVdeXIQ22e
-	 wzkE20F2y7d6ZARtXnS7N9pj33Bqy5MPEgbUrtxgwJT4OKrQOWZGTnSdXnoVEvrEd0w==
+	t=1792759299;
+	b=31e2hFgf+BrkIeW7BJC/ab1MIEFAAnDaFKYi5IRN7ROXJor/a8MV1DUQykqo15uo++bT
+	 30wV6fCuy7xyoGgN7ruTCbxjRoiPHhgZ01+VXl1NXWrtNpJzRvO8aWIDu5HahGSpEx4Iw
+	 r/7tK7eeaYvJh24mH3kPkgQUsUdP/N2pjdOwjIWQIx+Fywpwvf9bj7hIh16/S1glvTsvG
+	 0/nsvFApVCKobUBh9iLGxl1lxO2BKcxlU2Nf5gQDsiLW2KRdDc7Ma9FoWOeqQDVBvLzIf
+	 eux12BQAbf9hqBhXFEcqESGy0AA770h/6tcUfZsgh1c8hP3A4opZ/LffTJP1JEs6zxA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792758866;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-Reinject:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
-	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=SEnKZRG3NQWQDgPPDTektGULtiqs+sSwWNbWI9hnAis=;
-	b=rZ48lTLci2mk1wPLoKvzYxkqsX9G2F0EVFJQ7ZWXPTujdjMD5hrpD/6MreI9Qz1t4YQc
-	 ggmN3by86YOyE+bct2LTvjlmtWqXMpmwNjtkO0T5+nAZWZ01Ono9nxrsiylA4lCCPhnPG
-	 7mZuBMLK31k8GvakwIvkOsIKveedWnh0OK3qugWFZgiPdeQmlmyBW+XK2ceBi9bieT2j5
-	 02U1ymXQsHi8guMjr4nn6aeQt37xFW7NOM33WzBrS1+ixu/7IgYeFa1qjozC6g5DGs9M4
-	 C1f84HE+dBLIea3vGAiqY/+EdQn6Qs4KUG0kC0HXpXU8zzkTORJoeo8bglgl2o7sUFg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792759299;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=7GY5Id4SFAjXd4tO3ZLt+Ebu0Dx/V4xzzBPIZpAfv4M=;
+	b=BpmG/ZzxX2hMB/kb95sbPUjdM3pBHKxnALVl/lNI1hsxAap/ANmXdZeRcPeP8T3xwZ2t
+	 0qH91B0RzY09mdkrxatCvs1Fi8GTbaUGv4iFc+z56hOnaX+vnjnOVocszeZ9LFxYTfbYO
+	 iP/4rABsd9sGvMDF6roY+S1D09ZXd5GTfEHgg8pZBbivy+PU9OHLdsiUIcvHaBmaUbWSw
+	 6tZJeY3DeP9Cc3nu54cVuVQ5HshA5MtrLQJsI3dtCohF3pfHxAYwljLpWVVHqkXShNVYq
+	 +iQnQQs1f4LM8u5DD38xYxgLXPYsHjo0qnPsYAfBesdzqqeZ9UBXOAmca0sjP64wJ3Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=NEP9wtat;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bogUyCPW;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 752CC606A31A;
-	Fri, 23 Oct 2026 12:34:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 752CC606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14E6E606A31B;
+	Fri, 23 Oct 2026 12:41:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=NEP9wtat
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69NAEdmI2721319;
-	Fri, 23 Oct 2026 12:34:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=SEnKZR
-	G3NQWQDgPPDTektGULtiqs+sSwWNbWI9hnAis=; b=NEP9wtato995KGWDI2CQbA
-	uR1ShfrJn5PLyXhX1s6aPQI4SxdQWq2Je1qpWX4llzOIync+EIz3oiLCXOENFdnf
-	lSym46ksDKw5Tsnlolb1tm7NVFel+2npFnHoaS93pHgp36wrSwjKQbLKwATux+VY
-	7B1T5lk1J/ZscOokIA1cyRqwEQty9DUSbNqjAxZjabkPTxhNvesB6/9Li37Mv2rf
-	ZXMvOfrFwn6YbXAd/NxZ//HH2huMGvd4sCx+HYgjUlTwpdlGxNjAxckCG/pLvakm
-	KEfhFTojQ37ggBAd/KlMcZ0TBMwLMMRuGKXxZvP2EzejboJMUlBacgtDXSV6gchQ
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw5954yb-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 23 Oct 2026 12:34:22 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69NAK2x3763796;
-	Fri, 23 Oct 2026 12:34:21 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hg5exrgns-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 23 Oct 2026 12:34:21 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69NCYH6a17826192
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 23 Oct 2026 12:34:17 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B544A20043;
-	Fri, 23 Oct 2026 12:34:17 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 623FE20040;
-	Fri, 23 Oct 2026 12:34:17 +0000 (GMT)
-Received: from [9.111.18.82] (unknown [9.111.18.82])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 23 Oct 2026 12:34:17 +0000 (GMT)
-Message-ID: <50a3ff35-ae53-4372-a53c-c07f1d153627@linux.ibm.com>
-Date: Fri, 23 Oct 2026 14:35:27 +0200
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bogUyCPW
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FE241F01825;
+	Fri, 23 Oct 2026 12:41:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1792759298;
+	bh=7GY5Id4SFAjXd4tO3ZLt+Ebu0Dx/V4xzzBPIZpAfv4M=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=bogUyCPWIYLpw5LMmPS/RVVnQaR/a0X81cTPeqPUlxEwJx2K+EQWMPCrGZOESW23p
+	 Y1P8nOPUaEmC9Jm5F60l88Tm4W5lKU56t3Gld4x2Xsat3CAZruT40PuD6MRpI6gbuh
+	 jpKR2EWHiGc1HpJibX3ebQuH2KxS1Y5dfbxkvB3wxbrrhhEnD1Rs4pbVG1e8SZSGpy
+	 CPxV+T3YuwEKORaRiIf1R9IXmy90KHW4QUaJI8GHCMaMS8W2Ti/DT+3rEv45eu7E9l
+	 WBKjSMYnUInGdSWBSsO3yoGg9Q4/7BNk9DXLGFVOPQMvC5ABD/tVJjezG19mgMhft+
+	 6TCueshx0fcCA==
+Message-ID: <sashiko-outbox-182788@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v13 2/2] zfcp: Use DMA streaming API to map I/O
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "M Nikhil" <nikh1092@linux.ibm.com>, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org
+Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261023114046.4137557-3-nikh1092@linux.ibm.com>
+References: <20261023114046.4137557-1-nikh1092@linux.ibm.com>
+ <20261023114046.4137557-3-nikh1092@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 23 Oct 2026 12:41:37 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -85,104 +60,273 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] KVM: selftests: Test that KVM_RUN fails for
- unresolvable host faults
-To: Sean Christopherson <seanjc@google.com>
-Cc: Janosch Frank <frankja@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>, KVM <kvm@vger.kernel.org>,
-        linux-s390 <linux-s390@vger.kernel.org>, Shuah Khan <shuah@kernel.org>
-References: <20261020175818.375700-1-borntraeger@linux.ibm.com>
- <20261020175818.375700-3-borntraeger@linux.ibm.com>
- <atpTa2FMU19UGitv@google.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <atpTa2FMU19UGitv@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-GUID: 8bdNFdV1i6SC5MOG_urFovcqbJlNvj93
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIzMDA0NyBTYWx0ZWRfX5H0sqR8LHK9d
- jaLSQEppl4Nj4QU3KcAEQUVn1dd6zOmJIOK2Ov8yFEiKppyi4eKogjjmFC9PsnRPNxNaWoo9lYI
- 2xdUB/0Sza3lq/6p+iMVUPMBlryLDMM=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIzMDA0NyBTYWx0ZWRfX5dGk3lCocyC2
- 38EGmaABKnITzzg9dYgh2ayypRKZ2hGAE3/VseUVutrx33LdBU0bK3MxPosnfpbvXE8qxHU7uC4
- LjN04S9pSM6ff+6yYq3cLOL+a1tLLs3cif0BXHi1yVxrcxjoYIdq/l1a49flbzvM1z2U52P5Uad
- GBeUqSkYs52wl0VbH1g2KHxeX9/YGSx5U1pRPCwb34acxZz5yAJbMBVk8S3gVpFEqZciodPBlPg
- E5RgoqY49rCcR8yX73fdeKHroxx16cVkTeVlEE4ybkglNHeo5QzjZhrWrk81FRLQ9SUCVKK6qvm
- DPpTggnfAcMKFXL4//N2zVA8B0Dawc5zc+BV5ksA4fa/n9EyYHpuObuO34Xq3mqz/MQvNCjo6qc
- Qhh1rIdpXzRaCu+I+PjiTofe52BHxLNigxG8fuTPHlDDEJdsopb7Wb501yfFuErxue42lAyEV+b
- rg8jJ+aZYNEPHPrWk8g==
-X-Proofpoint-ORIG-GUID: SCQfF4KCkvw6cr_VFquXdAgKamNeCE4q
-X-Authority-Analysis: v=2.4 cv=Ob4NnRTY c=1 sm=1 tr=0 ts=6adb544e cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=qr_JO_wfw_wqWQrLoU8A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-10-23_03,2026-10-21_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 adultscore=0 phishscore=0 spamscore=0 suspectscore=0
- lowpriorityscore=0 clxscore=1015 impostorscore=0 priorityscore=1501
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610190000
- definitions=main-2610230047
 
+Thank you for your contribution! Sashiko AI review found 3 potential issue(=
+s) to consider:
+- [Critical] scsi: zfcp: scsi_cmnd UAF on abort failure in zfcp_scsi_eh_abo=
+rt_handler()
+- [High] scsi: zfcp: DMA mapping leak in zfcp_scsi_eh_abort_handler()
+- [Medium] zfcp: 31-bit coherent_dma_mask overwritten in zfcp_set_dma_mask_=
+for_adapter()
+--
 
+commit ee42d1a728b67714b2c6be28df7f409c25bc9e1f
+Author: M Nikhil <nikh1092@linux.ibm.com>
 
-Am 22.10.26 um 20:18 schrieb Sean Christopherson:
-> On Tue, Oct 20, 2026, Christian Borntraeger wrote:
->> Add a test in which the guest writes to a shmem-backed memslot beyond
->> the end of the file.  KVM_RUN must fail with -EFAULT.
->>
->> On x86 the guest enables interrupts, and on s390 the test sets up
->> pfault, so that KVM could handle the fault with an asynchronous page
->> fault.  If KVM mistakes the error for a fault that needs I/O, the vCPU
->> retries the access forever, and the test fails after a timeout.
->>
->> The test is not built for LoongArch, which handles a failed mapping as
->> an MMIO access.
->>
->> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
->> ---
->>   tools/testing/selftests/kvm/Makefile.kvm      |   1 +
->>   .../selftests/kvm/faultin_sigbus_test.c       | 169 ++++++++++++++++++
-> 
-> The "sigbus" part of this is confusing, because there is never actually a sigbus.
-> Kinda silly, but maybe faultin_efault_test?
+zfcp: Use DMA streaming API to map I/O
 
-Its Friday, so lets ask the British people and let them vote for Faulty_McFaultFace.c? ;-)
-Just kidding, what about async_pf_error_test.c ?
+This commit converts zFCP I/O buffer mappings (QTCB, SRB, CT/ELS, and SCSI
+I/O) from direct physical address translations to the DMA streaming API usi=
+ng
+dma_map_sgtable() and dma_unmap_sgtable().
 
+> diff --git a/drivers/s390/scsi/zfcp_aux.c b/drivers/s390/scsi/zfcp_aux.c
+> index fea573e00f9df..20c905c68e1e6 100644
+> --- a/drivers/s390/scsi/zfcp_aux.c
+> +++ b/drivers/s390/scsi/zfcp_aux.c
+> @@ -329,6 +329,19 @@ static void zfcp_destroy_adapter_work_queue(struct z=
+fcp_adapter *adapter)
+> =20
+>  }
+> =20
+> +static int zfcp_set_dma_mask_for_adapter(struct zfcp_adapter *adapter)
+> +{
+> +	int ret;
+> +
+> +	ret =3D dma_set_mask_and_coherent(&adapter->ccw_device->dev,
+> +					DMA_BIT_MASK(64));
+> +	if (ret)
+> +		dev_err(&adapter->ccw_device->dev,
+> +			"Setting the DMA mask failed for the FCP device.\n");
+> +
+> +	return ret;
+> +}
 
-> 
->> +static void arch_enable_async_pf(struct kvm_vm *vm, struct kvm_vcpu *vcpu)
->> +{
-> 
-> ...
-> 
->> +}
->> +#else
->> +/* x86 needs guest interrupts on, see guest_code(); nothing to do elsewhere. */
->> +static void arch_enable_async_pf(struct kvm_vm *vm, struct kvm_vcpu *vcpu)
-> 
-> Nit, maybe arch_enable_host_async_pf()?  Because x86 has PV async #PFs, where
+[Severity: Medium]
+Should zfcp_set_dma_mask_for_adapter() call dma_set_mask() instead of
+dma_set_mask_and_coherent()?
 
-Can do, I will follow your guidance as you have the x86 view.
+In drivers/s390/cio/css.c:css_alloc_subchannel() and
+drivers/s390/cio/device.c:io_subchannel_allocate_dev(), the s390 CIO core
+initializes cdev->dev.dma_mask to DMA_BIT_MASK(64) for streaming DMA while
+explicitly keeping cdev->dev.coherent_dma_mask at DMA_BIT_MASK(31):
 
->> +
->> +	TEST_ASSERT(!(r == -1 && errno == EINTR),
->> +		    "KVM_RUN did not return within %d seconds: the fault on the SIGBUS page is retried forever",
->> +		    TIMEOUT_SECS);
-> 
-> Rather than assert on EINTR, what if we have sig_alarm() explicitly TEST_FAIL()?
-> That way readers don't have to piece together that the EINTR is coming from the
-> alarm, and there's less chance of the test somehow getting a false pass because
-> KVM manages to morph the signal into EFAULT.  That would also allow using the
+drivers/s390/cio/css.c:css_alloc_subchannel() {
+	/*
+	 * The physical addresses for some of the dma structures that can
+	 * belong to a subchannel need to fit 31 bit width (e.g. ccw).
+	 */
+	ret =3D dma_set_coherent_mask(&sch->dev, DMA_BIT_MASK(31));
+	if (ret)
+		goto err;
+	/*
+	 * But we don't have such restrictions imposed on the stuff that
+	 * is handled by the streaming API.
+	 */
+	ret =3D dma_set_mask(&sch->dev, DMA_BIT_MASK(64));
+}
 
-I will have a try. Thanks for the feedback.
+Calling dma_set_mask_and_coherent() overwrites cdev->dev.coherent_dma_mask
+with a 64-bit mask even though zFCP only uses streaming DMA. If an online
+zFCP device is detached under z/VM or KVM, zfcp_ccw_notify() returns
+NOTIFY_OK on CIO_GONE and io_subchannel_sch_event() moves the struct
+ccw_device to the pseudo-subchannel orphanage via ccw_device_move_to_orph().
+When another CCW device (such as virtio-ccw) is later attached at the same
+device number and rebound via ccw_device_recog_done() ->
+ccw_device_do_unbind_bind(), coherent allocations via
+ccw_device_dma_zalloc() -> __cio_gp_dma_zalloc() will use the clobbered
+64-bit coherent_dma_mask, allowing dma_alloc_coherent() to return memory
+above 2 GiB and truncate dma_addr to 31-bit dma32_t.
 
+[ ... ]
+
+> diff --git a/drivers/s390/scsi/zfcp_scsi.c b/drivers/s390/scsi/zfcp_scsi.c
+> index ea4b968352f4d..32bfb7e4891ee 100644
+> --- a/drivers/s390/scsi/zfcp_scsi.c
+> +++ b/drivers/s390/scsi/zfcp_scsi.c
+> @@ -179,11 +179,20 @@ static int zfcp_scsi_eh_abort_handler(struct scsi_c=
+mnd *scpnt)
+>  	write_lock_irqsave(&adapter->abort_lock, flags);
+> =20
+>  	old_req =3D zfcp_reqlist_find(adapter->req_list, old_reqid);
+> -	if (!old_req) {
+> +	if (!old_req || !old_req->data) {
+>  		write_unlock_irqrestore(&adapter->abort_lock, flags);
+>  		zfcp_dbf_scsi_abort("abrt_or", scpnt, NULL);
+>  		return FAILED; /* completion could be in progress */
+>  	}
+> +
+> +	/*
+> +	 * Suppress the normal completion handler's unmap by clearing
+> +	 * req->data now, under the abort_lock write-side.  The actual
+> +	 * DMA unmap is deferred until the hardware has stopped using
+> +	 * the buffers (after wait_for_completion or after ERP has
+> +	 * quiesced the adapter), so that we never call dma_unmap_sgtable
+> +	 * while the FCP channel may still be writing into the pages.
+> +	 */
+>  	old_req->data =3D NULL;
+> =20
+>  	/* don't access old fsf_req after releasing the abort_lock */
+> @@ -198,18 +207,34 @@ static int zfcp_scsi_eh_abort_handler(struct scsi_c=
+mnd *scpnt)
+>  		zfcp_erp_wait(adapter);
+>  		ret =3D fc_block_scsi_eh(scpnt);
+>  		if (ret) {
+> +			/*
+> +			 * fc_block_scsi_eh returned FAST_IO_FAIL: the
+> +			 * fast_io_fail_tmo fired.  ERP has already called
+> +			 * zfcp_fsf_req_dismiss_all() (which requires QDIO
+> +			 * to be down first), so the hardware is no longer
+> +			 * using the buffers.  Pass FAST_IO_FAIL back to
+> +			 * scsi_eh, but unmap first.
+> +			 */
+>  			zfcp_dbf_scsi_abort("abrt_bl", scpnt, NULL);
+> -			return ret;
+> +			retval =3D ret;
+> +			goto out_unmap;
+>  		}
+>  		if (!(atomic_read(&adapter->status) &
+>  		      ZFCP_STATUS_COMMON_RUNNING)) {
+> +			/*
+> +			 * Adapter is gone; ERP shut down QDIO and dismissed
+> +			 * all requests before clearing RUNNING.  Safe to
+> +			 * unmap now.
+> +			 */
+>  			zfcp_dbf_scsi_abort("abrt_ru", scpnt, NULL);
+> -			return SUCCESS;
+> +			retval =3D SUCCESS;
+> +			goto out_unmap;
+>  		}
+>  	}
+>  	if (!abrt_req) {
+>  		zfcp_dbf_scsi_abort("abrt_ar", scpnt, NULL);
+> -		return FAILED;
+> +		retval =3D FAILED;
+> +		goto out_unmap;
+>  	}
+> =20
+>  	wait_for_completion(&abrt_req->completion);
+> @@ -224,6 +249,39 @@ static int zfcp_scsi_eh_abort_handler(struct scsi_cm=
+nd *scpnt)
+>  	}
+>  	zfcp_dbf_scsi_abort(dbf_tag, scpnt, abrt_req);
+>  	zfcp_fsf_req_free(abrt_req);
+> +
+> +out_unmap:
+> +	if (retval =3D=3D SUCCESS) {
+> +		/*
+> +		 * The hardware has stopped using the SCSI command's DMA buffers
+> +		 * either the adapter confirmed the abort (abrt_ok / abrt_nn), or
+> +		 * ERP has shutdown QDIO and cleared RUNNING (abrt_ru).
+> +		 */
+> +		if ((scsi_get_prot_op(scpnt) !=3D SCSI_PROT_NORMAL) &&
+> +		    scsi_prot_sg_count(scpnt))
+> +			zfcp_fsf_req_unmap_sg(&adapter->ccw_device->dev,
+> +					      &scpnt->prot_sdb->table,
+> +					      scpnt->sc_data_direction);
+> +
+> +		zfcp_fsf_req_unmap_sg(&adapter->ccw_device->dev,
+> +				      &scpnt->sdb.table,
+> +				      scpnt->sc_data_direction);
+> +	} else {
+> +		/*
+> +		 * Abort failed and adapter was not quiesced (abrt_ar, abrt_fa,
+> +		 * or abrt_bl). Do not unmap DMA buffers while hardware may still
+> +		 * be accessing them. Restore old_req->data so that subsequent
+> +		 * SCSI EH reset escalation (zfcp_scsi_forget_cmnd) or ERP
+> +		 * dismissal (zfcp_fsf_req_dismiss_all) unmaps the buffers
+> +		 * once the hardware has actually stopped.
+> +		 */
+> +		write_lock_irqsave(&adapter->abort_lock, flags);
+> +		old_req =3D zfcp_reqlist_find(adapter->req_list, old_reqid);
+> +		if (old_req)
+> +			old_req->data =3D scpnt;
+> +		write_unlock_irqrestore(&adapter->abort_lock, flags);
+> +	}
+> +
+>  	return retval;
+>  }
+
+[Severity: High]
+Does out_unmap in zfcp_scsi_eh_abort_handler() leak the DMA mappings for
+scpnt->sdb.table and scpnt->prot_sdb->table when retval !=3D SUCCESS and
+old_req was already removed from adapter->req_list?
+
+After zfcp_scsi_eh_abort_handler() sets old_req->data =3D NULL and drops
+adapter->abort_lock, old_req can complete or be dismissed by ERP via
+zfcp_qdio_close() -> zfcp_fsf_req_dismiss_all() -> zfcp_fsf_req_complete()
+while the abort handler is in its retry loop or waiting on
+abrt_req->completion. Because req->data is NULL, zfcp_fsf_fcp_cmnd_handler()
+returns early without unmapping scpnt's scatterlists, and old_req is removed
+from adapter->req_list and freed:
+
+drivers/s390/scsi/zfcp_fsf.c:zfcp_fsf_fcp_cmnd_handler() {
+	scpnt =3D req->data;
+	if (unlikely(!scpnt)) {
+		read_unlock_irqrestore(&req->adapter->abort_lock, flags);
+		return;
+	}
+}
+
+If zfcp_scsi_eh_abort_handler() then reaches out_unmap with retval !=3D SUC=
+CESS
+-- for example, when fc_block_scsi_eh() returns FAST_IO_FAIL ("abrt_bl",
+where the comment notes it should unmap first, but retval is FAST_IO_FAIL so
+the retval =3D=3D SUCCESS branch is skipped), when all retries of
+zfcp_fsf_abort_fcp_cmnd() return NULL ("abrt_ar"), or when abrt_req itself =
+is
+dismissed by ERP ("abrt_fa") -- execution enters the else branch. There,
+zfcp_reqlist_find(adapter->req_list, old_reqid) returns NULL because old_req
+is already gone, so neither out_unmap nor any later zfcp_scsi_forget_cmnd()
+or zfcp_fsf_req_dismiss_all() will ever unmap scpnt->sdb.table or
+scpnt->prot_sdb->table.
+
+[Severity: Critical]
+In the case where old_req is still in adapter->req_list when out_unmap ente=
+rs
+the else branch, can restoring old_req->data =3D scpnt cause a use-after-fr=
+ee
+on scpnt in zfcp_fsf_fcp_cmnd_handler()?
+
+Prior to this change, zfcp_scsi_eh_abort_handler() permanently cleared
+old_req->data =3D NULL under adapter->abort_lock so that
+zfcp_fsf_fcp_cmnd_handler() could never touch scpnt or call scsi_done(scpnt)
+once abort handling started.
+
+With old_req->data =3D scpnt restored on retval !=3D SUCCESS:
+
+1. If FAST_IO_FAIL is returned while old_req is still in adapter->req_list =
+--
+   either from fc_block_scsi_eh(scpnt) in zfcp_scsi_eh_abort_handler() (for
+   example, when a single remote port's fast_io_fail_tmo fires via
+   fc_timeout_fail_rport_io() -> zfcp_scsi_terminate_rport_io() ->
+   zfcp_erp_port_forced_reopen(), which closes the port asynchronously
+   without shutting down QDIO or calling zfcp_fsf_req_dismiss_all()), or
+   during subsequent EH escalation in zfcp_scsi_task_mgmt_function() when
+   fc_block_rport(rport) returns FAST_IO_FAIL before
+   zfcp_scsi_forget_cmnds() is reached:
+
+   drivers/s390/scsi/zfcp_scsi.c:zfcp_scsi_task_mgmt_function() {
+		ret =3D fc_block_rport(rport);
+		if (ret) {
+			zfcp_dbf_scsi_devreset("fiof", sdev, tm_flags, NULL);
+			return ret;
+		}
+   }
+
+   -- SCSI EH immediately finishes scpnt via scsi_eh_finish_cmd() ->
+   scsi_finish_command() -> scsi_free_sgtables(). That frees scpnt's
+   scatter-gather tables while they are still DMA-mapped and releases scpnt
+   for reuse while old_req->data still points to scpnt. When old_req later
+   completes or is dismissed, zfcp_fsf_fcp_cmnd_handler() will dereference
+   the freed or reused scpnt, unmap its freed sdb.table and prot_sdb->table,
+   and call scsi_done(scpnt).
+
+2. Even when FAST_IO_FAIL is not returned, restoring old_req->data =3D scpnt
+   allows any late completion or ERP dismissal of old_req during SCSI EH
+   escalation to execute zfcp_fsf_fcp_cmnd_handler(), modifying scpnt and
+   calling scsi_done(scpnt) concurrently with SCSI EH.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261023114046.4137=
+557-1-nikh1092@linux.ibm.com?part=3D2
