@@ -1,11 +1,11 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1792777448;
-	b=z6nFZ1a2uaZGFK0T3i6ztrCVGfw45Klt235f9IF4i47Nepnj7gzitclUuUnMvIMM9jCe
-	 jIdNHkYdo4lcQAb0wtSL4pT1ZN6ppixQZrtuQupkOPLJ2ApswNwXw3imhq41bibpQC/wZ
-	 Wzpi6Q7exOdMWYa/YKsXEXqiAmqytp7P/SGGg3UqfRG/8phTIGVG0pXS63uljakc7g0tY
-	 QlfVLvOV/xuScDTcgvLlmwRiyShCCohy9eWr8g2Kmv8c6tV7QUptJ1pejL1p1J4DWkizO
-	 dnh0VMdUHjeDKOqvIO0mmUcBshpnmHoQ0bdM2uyrdsJnQR+OOtiiU0Y0fGrE+1k6SNQ==
+	b=poRg21G9GnokpH0caRomy5LTUxAhkWh2r2Lb8y1HY9PL86yl6E3EEdeanb969L1P8NpZ
+	 6M8syhjuVE6Vc03tSCsfIldBHQMNSNNril2gPiHb1QUbFY4Nv7w/YTipefLqtRHyOkPty
+	 UlKD9jInO2r3QFD0QaOo0ocN/1dwp1PCY7pXtkCpd5jizlgsTOaUpARUN74Bj59FirI8D
+	 85BrumR1npjBaW4QuRNHlTg44WEvfxpYtwb0qpe5FEESp7imkhb2nx6Jp+HQ0RbuY3/Hp
+	 WHd6Vf8HOK8W4DSufB8Nq67B5NImYCN2NpL/gQDt2YObUypX4dR9intKe6b6rf07/eA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1792777448;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
@@ -15,64 +15,64 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:X-Authority-Analysis:
 	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=US1Zf3Q7+SX3f2wUt/dlQmRgPum9++xpzVsZ4yNy/Cw=;
-	b=vcMt7WX6E/qDVCTKUxUlSILyOtI1u1zAKfKXniTtgrYtjgYUkjvjiMI0DfkXMdgjlwf3
-	 wqCcwpq+R6So8XeVZVA4GqTlOx/oQlmzFDkzoeMouWtWtUbC6GJ8gRpQhbJg09zX1T9yd
-	 5cCH7SlW2MHJ35gQTzX2FoYaBgnHey+6GrKJqwmFqTGbY4VUwu7qQY00hZRL8XowRksD2
-	 3kbmJ1oXZEI4Gd9+DIVLVDrn9gw38worqo1ZQdlXOcv9otT0+Mf6jv3+ztQ1PZlDCK8MW
-	 uhEOjrAU5uxPYlECjvBimD20gYMU7bdwEpuxysUc0ZVKlc0MmkTroZZ8C+PgFLmM3YA==
+	bh=/ToWBIZfmzR4GXaVwU76viyXyle+CL9eITfkrYOaQSQ=;
+	b=CH34I9g3yZQCGe7qD7KqrlFUB2QrBH9VoJzmEFha0aQLr5ohWi2jiaKgv5Xu3I7H9Pl9
+	 p7ReeHi7KngQF9JX1XeJbE1EHpHwADMlPedgr5mbrdlpNgJvvuNj4sYN3iUXrRHDlKoqS
+	 EEXHRKtaPVLmfpz9fZEbbQtdphA8QjsObEd42xWOFRXUi33AlfTILlpFy6slSS1GjVAgP
+	 Z0FsQwEWlRlSQB1IxNUGfY+ijLW5bsDJqX4Be0kd1vu2G5AR5UFyrkw+fIl+IxQl9TvNl
+	 PodalEpmwdrsm2/n2E4dqn95fGGbFBFecpkZluDmvROXncRxhI4Bj3o1sCvhDoFe5XA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=fTz672kf;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=a2elVJsz;
 	arc=none smtp.remote-ip=148.163.158.5
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5BF5606A327;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFFC6606A337;
 	Fri, 23 Oct 2026 17:44:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C5BF5606A327
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CFFC6606A337
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=fTz672kf
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=a2elVJsz
 Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69NGoTQm2413863;
-	Fri, 23 Oct 2026 17:44:01 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69NGob4m2414191;
+	Fri, 23 Oct 2026 17:44:03 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=US1Zf3Q7+SX3f2wUt
-	/dlQmRgPum9++xpzVsZ4yNy/Cw=; b=fTz672kfNkNA5lkjTwHhdiZ3Gt7GE5yxl
-	mbU7mL0JkEkTWqdrmYyoMqbn1/AzWQ6W4+gtJcWn/jKTKgkjCvtbgB92dtY1vwha
-	KkpqkqNuuWVix0o5i/DsHCbptEwlmKxWIfHjI4qSzj7aCa9GeXYBYQYz8DOLZGTY
-	C5DEWE1RmVu1iXcjPyw07ibbYqjkymUo09fT3a5H8nWSekQfIx89MAmAI7hxLbPb
-	dH6WEArqAa1RBGskRDi4kQLC2cM0tXZPQXzOyqhEo8k2SRtNNSgmRne+BG+naF5b
-	Z4A8cyXxVKHJrCAaKqX4XyflMYJYOF6kFOt82R9de8mSBW16vY6xg==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw58nx41-1
+	:mime-version:references:subject:to; s=pp1; bh=/ToWBIZfmzR4GXaVw
+	U76viyXyle+CL9eITfkrYOaQSQ=; b=a2elVJszwaSyK3Ony2ulry5HDfMnOQ5FC
+	E4b+HmpcvNzVwJ8Kb78xbsWEBNxeYugThPouxABbXOkRpGqTDgcPohGWIbTGp0M4
+	0hddkRyy8pHVT+LmiJTrHqtxdasuW3LfjX9pgXqMcKWzGeC4yEeGojrQ/R2kn6mm
+	BLlJIDmuyir+yJIyWJHgKfMjkBlcPV96yxcDMxh0mVfZMFlS4kWGUfOmZAYK2cSd
+	XGgHwvFB3K0fZx3yozi0FR/hFs3aENsNbeDmEZFMN1Zb3kIQaD9gNgfe6iB5WGGT
+	Hth74K+UAr7np4jYzm1N0LuhVvekVMrZRY3N7M9gYUEZVL/MdHDww==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw58nx45-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 23 Oct 2026 17:44:00 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69NE640T2260505;
-	Fri, 23 Oct 2026 17:44:00 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hfmpn5nrj-1
+	Fri, 23 Oct 2026 17:44:02 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69NE66K12220968;
+	Fri, 23 Oct 2026 17:44:02 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hfj1x6a2m-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 23 Oct 2026 17:44:00 +0000 (GMT)
+	Fri, 23 Oct 2026 17:44:02 +0000 (GMT)
 Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69NHhwOv22741672
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69NHi0sA62325172
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 23 Oct 2026 17:43:59 GMT
+	Fri, 23 Oct 2026 17:44:00 GMT
 Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 959235805D;
+	by IMSVA (Postfix) with ESMTP id 5E94258054;
+	Fri, 23 Oct 2026 17:44:00 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C075F5805C;
 	Fri, 23 Oct 2026 17:43:58 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0356858054;
-	Fri, 23 Oct 2026 17:43:57 +0000 (GMT)
 Received: from li-4c4c4544-004d-4810-8043-b7c04f423534.ibm.com.com (unknown [9.61.48.60])
 	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 23 Oct 2026 17:43:56 +0000 (GMT)
+	Fri, 23 Oct 2026 17:43:58 +0000 (GMT)
 From: Anthony Krowiak <akrowiak@linux.ibm.com>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org
@@ -81,9 +81,9 @@ Cc: jjherne@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com,
         fiuczy@linux.ibm.com, pbonzini@redhat.com, frankja@linux.ibm.com,
         imbrenda@linux.ibm.com, agordeev@linux.ibm.com, hca@linux.ibm.com,
         gor@linux.ibm.com
-Subject: [PATCH v10 04/15] s390/vfio-ap: Reset migration state in VFIO_DEVICE_RESET ioctl handler
-Date: Fri, 23 Oct 2026 13:43:38 -0400
-Message-ID: <20261023174349.3545941-5-akrowiak@linux.ibm.com>
+Subject: [PATCH v10 05/15] s390/vfio-ap: Callback to get/set vfio device mig state during guest migration
+Date: Fri, 23 Oct 2026 13:43:39 -0400
+Message-ID: <20261023174349.3545941-6-akrowiak@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261023174349.3545941-1-akrowiak@linux.ibm.com>
 References: <20261023174349.3545941-1-akrowiak@linux.ibm.com>
@@ -98,23 +98,23 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIzMDA2NyBTYWx0ZWRfX3nOyvUR+T23m
- M6vkbLCEXhQrU8gqdeUV4sk41VR918vtmgeH7OHzMbitP14W8+ROTRsYaOiM/EqkUE3iLg5fRQc
- eXncEbdE+glc7kkE1yys+vhwTN6fArw=
-X-Proofpoint-GUID: c0Le2prUzXS0l4K2iDd8Kw46kYkpXVXD
-X-Proofpoint-ORIG-GUID: c0Le2prUzXS0l4K2iDd8Kw46kYkpXVXD
-X-Authority-Analysis: v=2.4 cv=UOBIjyfy c=1 sm=1 tr=0 ts=6adb9ce0 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIzMDA2OSBTYWx0ZWRfX/rl1sWAP8NMU
+ GsM6vKiyBTHMC13wv7mNGKSNEMo2U3XI18Gd5DxFKrLWv/3KCLMiapfnhiOi1U6bdNNLKkLwNJz
+ 1r8PBI/7F4ucCi9RJpXHXGHNPSwDf0U=
+X-Proofpoint-GUID: B3AImsPI783hPNB-evZql_6lQ4NRv89E
+X-Proofpoint-ORIG-GUID: B3AImsPI783hPNB-evZql_6lQ4NRv89E
+X-Authority-Analysis: v=2.4 cv=UOBIjyfy c=1 sm=1 tr=0 ts=6adb9ce2 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=OlMDtWmkmZCoppm_HCYA:9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIzMDA2NyBTYWx0ZWRfX12DH5xW5YJ7T
- cpzJISg3MJF9/VXl6fe8YZ0iLooPlVXx+smcl9ELvowjLjxOyTgNo3mPBkmPDbnAtYyL1HLaZP0
- m0+4nop2BmoZBLQLbsZffGIo3TeAyZhIQIENmXvqUDkEG7mCQjzezHslf9bRJXHlZlXl5ipK03l
- Rvd5i3/9PaUNHgnuRupLDieuV3gujJmzKrd8xkSkOkomm6MsnrByEiMFCBDxqQ8eA7SfuaB7CVn
- DneLDUGlfIOq6lM9DdGM0AuYmQ7dH+yTH4okHNGde4CeMDo9pwCFLDQ37r/EyxgU4eYUpvbR+m4
- 6BFpyfi0uwC0AG/oq0eBYlLxpnuqkWTyQ7gfOTHW5dllSufPQk52bc9sASsc/j8Lu42rC+/smFH
- Z/LYiyeogtrPDwZbfsqFyNjR6ub2VUJMvAQsJ3bIK8+q8wnSrzVm/G1epgcH/G3xvsF1qqikAdt
- Q0wB/zYfvy4ATqBzT5g==
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=34fSTTD2jMTnGACibWkA:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIzMDA2OSBTYWx0ZWRfX/DkaKWDCzjay
+ fWQK+u4FWxlQiEuwGPhhM2EbBzxPJh6o/Sm+02GxnJ+Jtl+6jBoBHdx0cTpDtp2d98QVtcJnnRF
+ JEshmJ5+Ba/U4AMskuzYLjOxHcYZtR9YxXzz1fOb4MytodSwqIf7QjziTFtmyxw+Fg65y7aXvrV
+ wfbxhynrjsqupQaHWWbKn2R9fN4DjQkH9ltdAoo6/neu1/IejyOQ81dQ9mkwa5TQXxGA+1X4XRE
+ IwVwm6ya9H1fXlvWDlyY7X4bZZ5PeXBSkzanxTTh4EbThUlCFBqhkiHaJg2cRnNzH817pQK/4yC
+ oav1kQp0NUaAIDFAfCc74YflBJM+x3Vke42wPrTnCc6LYn+6Y6tGG5X5XD3TkhBr8egcZdg5geW
+ N9raFlAn9Yr5yvJwhdSTeQ0yh5lJr4Vv3vPzidhHGUSN1fw/SttQDcc2OFEYSuQSSQDUnEb9iHR
+ f4UIzOFvOXVENS3PF/g==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-10-23_04,2026-10-21_02,2025-10-01_01
@@ -122,83 +122,186 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  malwarescore=0 clxscore=1015 suspectscore=0 spamscore=0 priorityscore=1501
  lowpriorityscore=0 adultscore=0 impostorscore=0 bulkscore=0 phishscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610230067
+ reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610230069
 
-According to the VFIO migration specifications, userspace must issue a
-VFIO_DEVICE_RESET ioctl if a vfio device enters an error state or fails a
-state transition to recover the device and return its migration state to
-RUNNING. This patch adds a function that is called when a VFIO_DEVICE_RESET
-is issued that releases any open migration file buffers and resets the
-migration state to RUNNING.
+Implements two callbacks related to the current state of a vfio-ap device:
+* The callback that sets a new migration state of a vfio-ap device during
+  live migration of guests with pass-through access to AP devices. This
+  callback is mandatory for VFIO_DEVICE_FEATURE_MIGRATION support.
+
+  The function pointer for this callback is specified via the
+  'migration_set_state' field of the 'vfio_migration_ops' structure
+  which is stored with the VFIO device when the 'vfio_device'
+  structure representing the mediated device is initialized.
+
+* The callback that returns the current vfio device migration state during
+  live migration of guests with pass-through access to AP devices.
+
+  The function pointer for this callback is specified via the
+  'migration_get_state' field of the 'vfio_migration_ops' structure
+  which is stored with the VFIO device when the 'vfio_device'
+  structure representing the mediated device is initialized.
 
 Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_migration.c | 20 ++++++++++++++++++++
- drivers/s390/crypto/vfio_ap_ops.c       | 11 +++++++++++
- drivers/s390/crypto/vfio_ap_private.h   |  1 +
- 3 files changed, 32 insertions(+)
+ drivers/s390/crypto/vfio_ap_migration.c | 144 ++++++++++++++++++++++++
+ 1 file changed, 144 insertions(+)
 
 diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypto/vfio_ap_migration.c
-index ba86a1afbb33..5d898be0d058 100644
+index 5d898be0d058..07a4b5c1d6dd 100644
 --- a/drivers/s390/crypto/vfio_ap_migration.c
 +++ b/drivers/s390/crypto/vfio_ap_migration.c
-@@ -216,3 +216,23 @@ void vfio_ap_release_migration_data(struct ap_matrix_mdev *matrix_mdev)
- 	kfree(matrix_mdev->mig_data);
- 	matrix_mdev->mig_data = NULL;
+@@ -139,6 +139,150 @@ static void vfio_ap_release_resuming_file(struct vfio_ap_migration_data *mig_dat
+ 	mig_data->resuming_mig_data_complete = false;
  }
-+
-+/**
-+ * vfio_ap_reset_migration_state - Reset the vfio-ap migration state
-+ *
-+ * @matrix_mdev: pointer to the object maintaining the vfio-ap device state
-+ *
-+ * Called during VFIO_DEVICE_RESET to clean up any active migration
-+ * state and reset the device to RUNNING state as required by the VFIO
-+ * migration specification.
-+ */
-+void vfio_ap_reset_migration_state(struct ap_matrix_mdev *matrix_mdev)
+ 
++static struct file *
++vfio_ap_transition_to_state(struct ap_matrix_mdev *matrix_mdev,
++			    enum vfio_device_mig_state new_state)
 +{
++	struct vfio_ap_migration_data *mig_data;
++	enum vfio_device_mig_state cur_state;
++
 +	lockdep_assert_held(&matrix_dev->mdevs_lock);
++	mig_data = matrix_mdev->mig_data;
++	cur_state = mig_data->mig_state;
++	dev_dbg(matrix_mdev->vdev.dev, "%s: %d -> %d\n", __func__, cur_state,
++		new_state);
 +
-+	if (!matrix_mdev->mig_data)
-+		return;
++	if (cur_state == VFIO_DEVICE_STATE_STOP &&
++	    new_state == VFIO_DEVICE_STATE_STOP_COPY) {
++		/* TODO */
++		return ERR_PTR(-EOPNOTSUPP);
++	}
 +
-+	vfio_ap_release_mig_files(matrix_mdev);
-+	matrix_mdev->mig_data->mig_state = VFIO_DEVICE_STATE_RUNNING;
++	if (cur_state == VFIO_DEVICE_STATE_STOP &&
++	    new_state == VFIO_DEVICE_STATE_RESUMING) {
++		/* TODO */
++		return ERR_PTR(-EOPNOTSUPP);
++	}
++
++	if ((cur_state == VFIO_DEVICE_STATE_RESUMING &&
++	     new_state == VFIO_DEVICE_STATE_STOP) ||
++	    (cur_state == VFIO_DEVICE_STATE_STOP_COPY &&
++	     new_state == VFIO_DEVICE_STATE_STOP)) {
++		/* TODO */
++		return ERR_PTR(-EOPNOTSUPP);
++	}
++
++	if ((cur_state == VFIO_DEVICE_STATE_STOP &&
++	     new_state == VFIO_DEVICE_STATE_RUNNING) ||
++	    (cur_state == VFIO_DEVICE_STATE_RUNNING &&
++	     new_state == VFIO_DEVICE_STATE_STOP)) {
++		/* TODO */
++		return ERR_PTR(-EOPNOTSUPP);
++	}
++
++	/* vfio_mig_get_next_state() does not use arcs other than the above */
++	WARN_ON(true);
++
++	return ERR_PTR(-EINVAL);
 +}
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 9cbc5ecb19d5..635c8a20af86 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -2320,6 +2320,17 @@ static ssize_t vfio_ap_mdev_ioctl(struct vfio_device *vdev,
- 		break;
- 	case VFIO_DEVICE_RESET:
- 		ret = vfio_ap_mdev_reset_queues(matrix_mdev);
-+		/*
-+		 * Reset the migration state unconditionally, regardless of
-+		 * whether the hardware queue reset succeeded. The migration
-+		 * state tracks the AP configuration transfer lifecycle and is
-+		 * independent of the hardware queue reset outcome. The VFIO
-+		 * migration spec designates VFIO_DEVICE_RESET as the mechanism
-+		 * to return device_state to RUNNING (e.g. to recover from
-+		 * ERROR), so the migration state must be cleaned up even when
-+		 * one or more queues fail to reset.
-+		 */
-+		vfio_ap_reset_migration_state(matrix_mdev);
- 		break;
- 	case VFIO_DEVICE_GET_IRQ_INFO:
- 		ret = vfio_ap_get_irq_info(arg);
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index aa8a22585204..c6e577064e7e 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -174,5 +174,6 @@ void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
- 
- int vfio_ap_init_migration_data(struct ap_matrix_mdev *matrix_mdev);
- void vfio_ap_release_migration_data(struct ap_matrix_mdev *matrix_mdev);
-+void vfio_ap_reset_migration_state(struct ap_matrix_mdev *matrix_mdev);
- 
- #endif /* _VFIO_AP_PRIVATE_H_ */
++
++static struct file *vfio_ap_set_state(struct vfio_device *vdev,
++				      enum vfio_device_mig_state  new_state)
++{
++	int ret;
++	struct file *filp = NULL;
++	struct ap_matrix_mdev *matrix_mdev;
++	enum vfio_device_mig_state next_state;
++	struct vfio_ap_migration_data *mig_data;
++
++	mutex_lock(&matrix_dev->mdevs_lock);
++
++	matrix_mdev = container_of(vdev, struct ap_matrix_mdev, vdev);
++	mig_data = matrix_mdev->mig_data;
++
++	/*
++	 * The mig_data pointer is set in the vfio_ap_init_migration_data
++	 * function which is called when the vfio-ap device fd is opened.
++	 * Since the implicit pre-open state is RUNNING, a request to set
++	 * RUNNING is a no-op. Any other state transition is invalid before
++	 * open_device.
++	 */
++	if (!mig_data) {
++		mutex_unlock(&matrix_dev->mdevs_lock);
++		if (new_state == VFIO_DEVICE_STATE_RUNNING)
++			return NULL;
++		return ERR_PTR(-ENODEV);
++	}
++
++	dev_dbg(vdev->dev, "%s -> %d\n", __func__, new_state);
++
++	while (mig_data->mig_state != new_state) {
++		ret = vfio_mig_get_next_state(vdev, mig_data->mig_state,
++					      new_state, &next_state);
++		if (ret) {
++			filp = ERR_PTR(ret);
++			break;
++		}
++
++		filp = vfio_ap_transition_to_state(matrix_mdev, next_state);
++		if (IS_ERR(filp))
++			break;
++
++		mig_data->mig_state = next_state;
++
++		if (WARN_ON(filp && new_state != next_state)) {
++			fput(filp);
++			filp = ERR_PTR(-EINVAL);
++			break;
++		}
++	}
++
++	if (mig_data->mig_state == VFIO_DEVICE_STATE_ERROR)
++		filp = ERR_PTR(-EIO);
++
++	mutex_unlock(&matrix_dev->mdevs_lock);
++
++	return filp;
++}
++
++static int vfio_ap_get_state(struct vfio_device *vdev,
++			     enum vfio_device_mig_state  *current_state)
++{
++	struct ap_matrix_mdev *matrix_mdev;
++	struct vfio_ap_migration_data *mig_data;
++
++	mutex_lock(&matrix_dev->mdevs_lock);
++
++	matrix_mdev = container_of(vdev, struct ap_matrix_mdev, vdev);
++	mig_data =  matrix_mdev->mig_data;
++
++	/*
++	 * The mig_data pointer is set in the vfio_ap_init_migration_data
++	 * function which is called when the vfio-ap device fd is opened.
++	 * If mig_data is NULL, report RUNNING as the implicit pre-open state
++	 * so userspace doesn't need to perform any state transition before the
++	 * device becomes active.
++	 */
++	*current_state = (mig_data) ? mig_data->mig_state :
++				      VFIO_DEVICE_STATE_RUNNING;
++
++	mutex_unlock(&matrix_dev->mdevs_lock);
++
++	return 0;
++}
++
++static int vfio_ap_get_data_size(struct vfio_device *vdev,
++				 unsigned long *stop_copy_length)
++{
++	return -EOPNOTSUPP;
++}
++
++static const struct vfio_migration_ops vfio_ap_migration_ops = {
++	.migration_set_state = vfio_ap_set_state,
++	.migration_get_state = vfio_ap_get_state,
++	.migration_get_data_size = vfio_ap_get_data_size,
++};
++
+ /**
+  * vfio_ap_init_migration_data - initialize migration data and functions
+  *
 -- 
 2.53.0
 
