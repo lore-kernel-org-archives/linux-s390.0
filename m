@@ -1,58 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792775854;
-	b=GUsI85YJomjCLsWDQ6nKFSq1zTc5meVS2pwgx5H5GOGt89fR4nvW61ySCfZFv5Lmepbg
-	 oAXT61dIGApCMutAzlqYAmUejMkCcWk/aSXr4imW0xS1moP6IigL05wM6CbHRR6AYZLwf
-	 1iv85filpCVwaQ7TGTN2n/ZGsmTbAy7zn2olg0HQAlvtSVf9jX6L9QeTwsunoacVsHTMf
-	 oVQC9hGAbIXTVdCbQf49XFYmoOYa1e+5+WLkVFyj51ohib8sFvYPKpHKB2T2Sl1hUNf34
-	 A53qvBz/YHLJ3B1xJk9IHw3psUVuisYkqu+UwBDFQcvoCtBm2FLHznCMn1k7rYm5IBQ==
+	t=1792775921;
+	b=stOCSYe4PtL284Utd4F719k+M2J5RvEOa/EFPucQDMxeLttQ+TL2GKmS+oNE07AjZ9bc
+	 UQHBoqG3HJo7sCEU3jpb+zto0QvfJiktLIkqqyMB8uqSGK6hI8XEQOT3Sq/J8CMYoWieP
+	 Nc6dsis8LUXVyHoRziQIm5EBcucJ1dxOiVBVK51C3rvOtZPdUdgq+vlH50WBtDjAm/CRk
+	 TWK8pc6MhTeMUVi1l4BSBRLyPRDQJU7E43qyBgrU0YS8YMuYXtHPVLbTEKzQe68w4gRGu
+	 X2xMV8m6DUaOdx9jzGZwDVU2POmgAb7TM+FBlCHfbKImOL6MfFRXt+gPgyJVkOBtXLQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792775854;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=HfBaRCSj53nWpDLHO1eD+/W9hko9c9addAFkAxeqTCw=;
-	b=v1WaHBmajnF0JaDtiOkvYXknBavUwWuCjBErbv1D2YwTuO7gEG1FGG6PiVSn7duUSnpK
-	 jcpuBbbn+CCI45/+qGlbsQIOkynTP58JwLHNP5x2fv0WYOoKPSuUiR1hKGhKb/c2v6ORz
-	 cUOvhK1dCxUSXv3nU5pi0rGo8dEF/Guy0ffxc0JdtDAqhNdB9EyFhrtQoTnNBudVLGcSY
-	 JaVs/X1YCeoKZjH17UVEYMzTKDmiREivMMQQWwtphwqwW/ljcBNhMYqVyM30BS07gIeuV
-	 0r55ryJchm0lwbYXFod1PEoaPwAgTWZyZJ5W5dJG7DQQ/Z0zxnxT/za4jkz4JvsMQ5A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792775921;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Proofpoint-Reinject:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
+	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=+PpTXqmlLnD1gkK9da5UA4ivV9Yaq55UolUi13Wutkg=;
+	b=bmWYUbWaw1n6Daz5T1XMrlF4eKV3l0iYhvZHIvbA3Pl7XNOMX1Pv3pWoARUnP2ySOPvp
+	 Lki9f/3dWed+vdAar3J52zXYKYnvnS7BvXRsIyuteFMse/5aBiPuzb3kjW/lvpHk2WSVl
+	 9OSFgc6xapxoB8PrN0R/asdhOwf6bdS8LrS/d3xjBxY9SAIfU3U2ZJSuEp9ugmj7vUbRY
+	 dei4XLdhlkafKGVWVOreT9GM7sQ4aPJ2F6SMFg9SSJBi0usTT6LGx1RPDgdLbLdYhuYDw
+	 jYaqSiADmcQ784JVooVO5/fpaf5WdOFT1z2mcHhtr+a85cqotAnpx/TVT4W2KqEWdxg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=StpvNeSr;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="AoFg/Mh0";
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B79EC606A31A;
-	Fri, 23 Oct 2026 17:17:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CED0360A2608;
+	Fri, 23 Oct 2026 17:18:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CED0360A2608
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=StpvNeSr
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECB291F01825;
-	Fri, 23 Oct 2026 17:17:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792775853;
-	bh=HfBaRCSj53nWpDLHO1eD+/W9hko9c9addAFkAxeqTCw=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=StpvNeSr/W3hr7n/Ox6+F0NCah82ZKsPqsMdKNiw0fHVLsv0kMYGYWpW7l675LLwA
-	 Nz8I8OE2JwoorV8ZKhXG8Lpf1bDLatCsuGWHYrKqOAvhOFSY+FM+QKHiLslKB2MXtL
-	 PjWBGluepKbZCjwjEnaSAb31VeVvTlggRbPE9EeuzGsH0ixfbpvQNSlT+TIRo+JEer
-	 ZmmE7brQMtDFRQp2grweAexqMOYn5fhfrLvSx2FvvNP0oD4I2FE7f3zs4ZMXoaF6We
-	 NWR7rV6hmLlIB+3d9UDoPEqWSOHh28jlOqowuqhj9so21PSzgCqdhlR5fQVKzVJt15
-	 Jk8Yum4ojqYAQ==
-Message-ID: <sashiko-outbox-182996@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 08/10] KVM: s390: Improve unmapping of large ranges
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261023155531.206113-9-imbrenda@linux.ibm.com>
-References: <20261023155531.206113-1-imbrenda@linux.ibm.com>
- <20261023155531.206113-9-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 23 Oct 2026 17:17:32 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=AoFg/Mh0
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69NGoToR3668699;
+	Fri, 23 Oct 2026 17:18:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=+PpTXq
+	mlLnD1gkK9da5UA4ivV9Yaq55UolUi13Wutkg=; b=AoFg/Mh0pNfHGvARrKU9rN
+	REmBY0KHAOdJTdNcXPEetMTT9VflTtuAt7wqK+D3l6CWUqZyP9hU4P9MGw8JFH9L
+	sAIq1HFCp0sIMO+qAU/2/F4ZZnRiHJdamDI0HwmA4C06KWpHDYqVIghSf/5fwljy
+	grzFO5BPje6MHOdncbAIKMydAtG6Jb/Pp692LkeVo77WMbykkZH6iT3gPvYryy9V
+	V1gJX0JpkI4+JgiE5TBVTx0V6FTT5KawcxFqKGUfUpEhF2S50EvqPCu5tTGIamL+
+	btL7N8p00+kskZtZbjjpZPqWcT0ADLuwbaGxxHd8/dz2iUkFWWlbc2+V6sHRmjmA
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hdw596ke0-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Fri, 23 Oct 2026 17:18:23 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69NE64fV1018552;
+	Fri, 23 Oct 2026 17:18:23 GMT
+Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hg5exsn5u-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 23 Oct 2026 17:18:22 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
+	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69NHIL5o15008382
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 23 Oct 2026 17:18:21 GMT
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 213B758059;
+	Fri, 23 Oct 2026 17:18:21 +0000 (GMT)
+Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 86F6C5805B;
+	Fri, 23 Oct 2026 17:18:13 +0000 (GMT)
+Received: from [9.124.220.1] (unknown [9.124.220.1])
+	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 23 Oct 2026 17:18:13 +0000 (GMT)
+Message-ID: <498db6da-c461-4bba-a2aa-2415e99aeb97@linux.ibm.com>
+Date: Fri, 23 Oct 2026 22:48:11 +0530
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -61,130 +85,78 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v13] net/smc: fix lgr/lnk lifetime vs diag reader race
+To: netdev-bot+sinfo@kernel.org
+Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
+        dust.li@linux.alibaba.com, sidraya@linux.ibm.com,
+        hidayath@linux.ibm.com, pasic@linux.ibm.com, horms@kernel.org,
+        tonylu@linux.alibaba.com, guwen@linux.alibaba.com,
+        stable@vger.kernel.org, netdev@vger.kernel.org,
+        linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
+References: <20261023150317.1163397-1-mjambigi@linux.ibm.com>
+ <179276799858.3327.5559074809059802819@kernel.org>
+Content-Language: en-US
+From: Mahanta Jambigi <mjambigi@linux.ibm.com>
+In-Reply-To: <179276799858.3327.5559074809059802819@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-GUID: 9_nVIsYayCM8tqTaQpAz10y9qEi_Oj3z
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDIzMDA2NyBTYWx0ZWRfX4gNvBXi7Rv7z
+ KsycYt2DKAE+PIzvggabMavLgIJfL99QbfgGOb41VwU4G+ztlHtG2BOXWvDK8UgL0XvgWakRGzj
+ zTiWcvkIGat5FvDhH9GynEvRlHJQidg=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDIzMDA2NyBTYWx0ZWRfX0mU0URRhcLQy
+ EpNvllxGNODaJx26ZnEPr7CSjLdLB1osXDCEedneduhAl1Ae50ZpBc4uqu6F8P+kDO33er3bsvn
+ 5amuDZmiTG4+nkG6RntAjkQnmrMjwL3Juhly/dNLYcyDKZwVdXxE/9KoCVnwD8zmvB6atEs5LRW
+ GxRaE9O2rzPVwBcF8uchyHVCGZO8EWxa+vU0gIinwdKPuuFuA9gUXmL7B5h9y/B4pApCaLPBpLV
+ wpok8foBxHg2k27wFgND6SY8j/4Ulk3DLkHLR3NTdDHwcy5BSXpl1U1ZFzxZLjNf6/mndNj8/f/
+ SBpJAi07MkemnikS5qGOagreskCEnGxS3NrdaoLOVNGzAXyzuSQaB7+t/Rx/kcDD5lngYKl8qxf
+ F77AovduAdS8GTVuSmNpLi5l3lI83U6b4gqa/mDwj+omSAAAvW5yZa35WrhFoqH51+FZyKBvoNr
+ 74py7VFjJjAx+ItC2PA==
+X-Proofpoint-ORIG-GUID: xcgnfAcm4n7m6sQxpLMWvQpIQzoJl6Ih
+X-Authority-Analysis: v=2.4 cv=Ob4NnRTY c=1 sm=1 tr=0 ts=6adb96e0 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
+ a=8WImSUdLa4LpenjYlHkA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-10-23_04,2026-10-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 adultscore=0 phishscore=0 spamscore=0 suspectscore=0
+ lowpriorityscore=0 clxscore=1015 impostorscore=0 priorityscore=1501
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610190000
+ definitions=main-2610230067
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] KVM: s390: _gmap_unmap_pmd_fast() overwrites pte_hole() entries wi=
-th _PTE_EMPTY
---
 
-commit e24d7490ad24c4b12cfd0f6fe018550a836e83db
-Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-KVM: s390: Improve unmapping of large ranges
+On 23/10/26 8:36 pm, netdev-bot+sinfo@kernel.org wrote:
+> Hi!
+> 
+> This is an automated message. This series looks like a fix, but its
+> commit messages seem to be missing some information:
+> 
+>  - How the issue was discovered, e.g. hit in production, hit during
+>    development, syzbot report, manual code inspection, LLM or static
+>    analysis tool scan.
 
-This patch optimizes unmapping of guest ranges larger than 1M by
-detaching the PMD, overwriting PTEs in bulk, and reattaching the PMD
-rather than invalidating leaf DAT entries individually.
+The issue was found by manual code inspection while reviewing the diag
+dump path in net/smc/smc_diag.c.
 
-> diff --git a/arch/s390/kvm/gmap/gmap.c b/arch/s390/kvm/gmap/gmap.c
-> index c10681f882c2d..01d25aa1f605f 100644
-> --- a/arch/s390/kvm/gmap/gmap.c
-> +++ b/arch/s390/kvm/gmap/gmap.c
-> @@ -465,6 +456,105 @@ bool gmap_unmap_gfn_range(struct gmap *gmap, struct=
- kvm_memory_slot *slot, gfn_t
-
-[ ... ]
-
-> +static long _gmap_unmap_pmd_fast(union crste *crstep, gfn_t gfn, gfn_t n=
-ext, struct dat_walk *w)
-> +{
-> +	union crste old =3D *crstep;
-> +	struct page_table *pt;
-> +	gfn_t first, last;
-> +	unsigned int i;
-> +
-> +	if (old.h.fc) {
-> +		if (old.s.fc1.vsie_notif)
-> +			gmap_handle_vsie_unshadow_event(w->priv, gfn);
-> +
-> +		idte_crste(crstep, gfn, w->datt.asce);
-> +		WRITE_ONCE(*crstep, _CRSTE_EMPTY(old.h.tt));
-> +
-> +		return 0;
-> +	}
-> +
-> +	if (old.h.i)
-> +		return 0;
-> +
-> +	pt =3D dereference_pmd(old.pmd);
-> +	first =3D max(gfn, w->start) & (PTRS_PER_PTE - 1);
-> +	last =3D (min(next, w->end) - 1) & (PTRS_PER_PTE - 1);
-> +
-> +	for (i =3D first; i <=3D last; i++)
-> +		if (pte_needs_unshadow(pt->ptes[i], _PTE_EMPTY, pt->pgstes[i]))
-> +			gmap_handle_vsie_unshadow_event(w->priv, gfn + i);
-> +
-> +	/* Detach the page table */
-> +	idte_crste(crstep, gfn, w->datt.asce);
-> +
-> +	for (i =3D first; i <=3D last; i++) {
-> +		if (!pt->ptes[i].h.i && w->datt.uses_skeys)
-> +			pt->pgstes[i] =3D dat_save_storage_key_into_pgste(pt->ptes[i], pt->pg=
-stes[i]);
-> +		pt->ptes[i] =3D _PTE_EMPTY;
-> +		pt->pgstes[i].vsie_notif =3D 0;
-> +		pt->pgstes[i].vsie_gmem =3D 0;
-> +		pt->pgstes[i].zero =3D 0;
-> +	}
-
-[Severity: High]
-Can _gmap_unmap_pmd_fast() overwrite pte_hole() entries with _PTE_EMPTY?
-
-In gmap_unmap_gfn_range_fast(), _dat_walk_gfn_range() is called with
-DAT_WALK_IGN_HOLES, which causes dat_crste_walk_range() to skip CRSTE holes.
-However, _gmap_unmap_pmd_fast() open-codes the PTE loop over
-pt->ptes[first..last] instead of going through dat_pte_walk_range(), which
-would normally skip PTE holes when DAT_WALK_IGN_HOLES is set:
-
-arch/s390/kvm/gmap/dat.c:dat_pte_walk_range() {
-	for ( ; gfn < end; idx++, gfn++) {
-		if (pte_hole(READ_ONCE(table->ptes[idx]))) {
-			if (!(w->flags & DAT_WALK_IGN_HOLES))
-				return -EFAULT;
-			if (!(w->flags & DAT_WALK_ANY))
-				continue;
-		}
-}
-
-When a memslot larger than 1M whose start or end GFN is not 1M-aligned
-(_PAGES_PER_SEGMENT) is deleted or moved via kvm_set_memslot(),
-kvm_invalidate_memslot() installs invalid_slot into the active
-slots->hva_tree before kvm_prepare_memory_region() ->
-s390_kvm_mmu_prepare_memory_region() calls dat_delete_slot() under
-kvm->mmu_lock:
-
-arch/s390/kvm/gmap/kvm_mmu.c:s390_kvm_mmu_prepare_memory_region() {
-	scoped_guard(write_lock, &kvm->mmu_lock) {
-		kvm_s390_update_cmma_dirty(kvm, old);
-		if (change =3D=3D KVM_MR_DELETE || change =3D=3D KVM_MR_MOVE)
-			rc =3D dat_delete_slot(kvm->arch.gmap->datt, old->base_gfn, old->npages);
-		if (!rc && (change =3D=3D KVM_MR_MOVE || change =3D=3D KVM_MR_CREATE))
-			rc =3D dat_create_slot(mc, kvm->arch.gmap->datt, new->base_gfn, new->npa=
-ges);
-	}
-}
-
-For any boundary 1M segment not completely covered by the deleted memslot,
-_dat_slot_crste() leaves the existing page table attached (!crste.h.fc &&
-!crste.h.i) and _dat_slot_pte() marks the deleted GFNs' PTEs as pte_hole()
-(_PTE_TOK(_DAT_TOKEN_PIC, PGM_ADDRESSING)).
-
-After s390_kvm_mmu_prepare_memory_region() drops kvm->mmu_lock and before
-kvm_delete_memslot() or kvm_move_memslot() removes invalid_slot from
-slots->hva_tree, a concurrent mmu_notifier invalidation
-(kvm_mmu_notifier_invalidate_range_start() -> kvm_mmu_unmap_gfn_range() ->
-gmap_unmap_gfn_range()) covering more than _PAGES_PER_SEGMENT pages will run
-_gmap_unmap_pmd_fast() on that boundary segment and overwrite the pte_hole()
-entries with _PTE_EMPTY.
-
-Since dat_entry_walk() checks pte_hole() to return PGM_ADDRESSING for
-unmapped GFNs inside a split segment, wouldn't overwriting those hole tokens
-with _PTE_EMPTY cause subsequent storage key (ISKE/SSKE/RRBE), ESSA, and CM=
-MA
-operations on those unmapped GFNs to treat them as valid guest pages instead
-of raising PGM_ADDRESSING or returning -EFAULT?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261023155531.2061=
-13-1-imbrenda@linux.ibm.com?part=3D8
+> 
+>  - Whether the issue was actually triggered, or is only theoretical
+>    (e.g. found by code inspection). If it was triggered please include
+>    the symptoms, like the stack trace or error messages.
+The races are theoretical — none of the three windows were triggered in
+practice. The smc_conn_kill() / smcd_buf_detach() race requires an
+active smcss poll to coincide with an SMC-D lgr termination on the
+dmb_nocopy path; the smc_close_active_abort() and
+smc_close_passive_work() races require a concurrent diag dump during the
+narrow teardown window between sk_state = SMC_CLOSED and
+smc_conn_free(). No stack trace or error message is available since the
+bugs were not hit in a running system.
