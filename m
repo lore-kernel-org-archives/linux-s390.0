@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1792778223;
-	b=uY/a6Nm0HKEvP7EtOctHhqkbac0mgCRaWXty5M4s0zLnchL1lE4/OIXl1FT83FaiSq2h
-	 fKFz58qojccquVT9ndLxuEqS29niJyE/62moMpAvEitfPSnVfs2NmZXGP+RjgPVPYA2JM
-	 NNAcOwzmfasEn+Gwulhov03wFSqDlp5OBmw0Kl1gNGdULwG61zJqW0Roquq6YqSW3S2xb
-	 cDyZNFNZqGrFfVz5epZ6a/0HZmNpdE+SvQi2DtYi0n3kLZnszh70xk/O4ZbI7I81WaqHg
-	 cB+USunBJQMqvZr8OzGXfjTEbJyfB6yeM7x2x2PW2p0ekPcqtJr4bXCizmoTRoJvTlA==
+	b=Rs+jMBd5UBvCyDALdrqGdyzCw7l1vrLxH5FicAbSuXZXrcS5ozxgF7LuWks6vOsM3yvx
+	 zDwwhcyjS+fjGoafUqV5wyRB4nsrBWXmyQUqiCh32oUxI4YDiMdwudUIfDt3FzeX9ZiKI
+	 uH3BFJOt0FBtB0w2Z7K/ZxF2j87tBq+4wt+LCVx/bGenKv4ysLds+lHw1ptSIjvTVQkfU
+	 6Nx4OxLv6I8iNurrlfkYszDpld3JD/eH/GQTRQFIMF5d0t+zVGiP4jwQToNfPM1ZcTlGw
+	 PUqu+ubNeJ8yxiM8kcbjTLgVpAkjlZGjEvicEdUAcyPIOMOc5THnBgv1EtBtgXqwNcQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1792778223;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=5IRst4UqWKmr+jAo7JWQkdSaq/HA8YQQMT3sMq4Cs0k=;
-	b=UcgopL8/FBLIfYrWbSNDzrFT4zPi+RP6BR/VA/pOa0TCsfnx3/4+Wz6Zt3eVc8FihyDp
-	 FUAt4AyrjkhN/4DO3iOHoo/o+b4THCyPdC6VF2m+nTQoTq8vLPkXcwaEvY2iyxqwBsBwF
-	 73gPTi1821C6/tolbs6g4U1Ym58fXSoyMz6EEaJelSiQS//dD/4kr5onJhDxPLEVfS/5T
-	 j9tqKi2b0qIV35aymv0NCaek2kp8cE4D2Q/2a7q9Bt58Xu5q6WzxQ0HJ1RdHpapYgcFT3
-	 z3f18hfXumtqbuB1aitHBAX8iVufV3EoFk9rQcJ/NRzhurMQwMtAF5yjVbWpaLre3Hw==
+	bh=6Jw9uCSZRxSggqm9YrH/jbJF1j9wfRLqeL1TtYmYAog=;
+	b=40KYTzypfwqgsuXPS64joeaKyFj+MoUbidM2zZo42HfA+hQtRi1S0e8MwfsFpKuSvLkO
+	 HC9lqwNNsW57lQ5ht0Qcb7VF4/f7+Vl0V8/sLPmYQ6tQMvsKr64W9ZgbABeE+QvMyUueS
+	 /RmbErcbXnCModzim+I+ysH01ll7fVtRlLMtfpFLZ7BZhGPmnpt6zzMv+JJ2qi2ixfPem
+	 rVWDI4mmPG8jlDG9BNhpoRtxeM6NrXb5Q/zeQPKEcg3lRgdkO3FUUuIOzahBmf7+IsE7L
+	 91QK8R3Y3bRP0ba3R6BE09pbFAEvUfFrognjYd7cg9EVvHOJujALoFe3nUeJTq2FTFw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Yv2I+pWj;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kJkJg54J;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B181560A5BCA
-	for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2026 17:57:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F3CA606A326
+	for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2026 17:57:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Yv2I+pWj
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F09ED1F01828;
-	Fri, 23 Oct 2026 17:57:01 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kJkJg54J
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C78581F01825;
+	Fri, 23 Oct 2026 17:57:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792778222;
-	bh=5IRst4UqWKmr+jAo7JWQkdSaq/HA8YQQMT3sMq4Cs0k=;
+	s=k20260515; t=1792778223;
+	bh=6Jw9uCSZRxSggqm9YrH/jbJF1j9wfRLqeL1TtYmYAog=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Yv2I+pWjCu24THAO3ktuqzVsdKWXP6JyZEJZt6u8O5NLGifSK5/eoKTiK9lyjZdq2
-	 2G/506eSFqLTBVOKwNq+xZkm+KgtBOfdIwbs1jdzKTU5RwWRyqFTYIzZjKtjvcgrjm
-	 6TBpilDouEqYHQCk5IZzUxRSy7eO+jtM9dWlh9LdCkNbMSbuVimazWfIGLenAjDCgu
-	 tI2iEJFNqOmK03i9jtEaEnmb18jTcfhyWtOe4Wf5XGuqw9vs6rKlUOuHOirERnx+XM
-	 6YaVUs7pS6YFYvKJuZk1eEYH7pz+lxMkE7h7kAVQPAZNGh/h6wkOExLYyOuLzQwZPn
-	 zuGHIVWXbEbuw==
-Message-ID: <sashiko-outbox-183024@kernel.org>
+	b=kJkJg54JC9DSv//trFrBfVWpvW1JPztXaR5b2fxjLvbxjUQhq7uHUcKMRgOlsQM+1
+	 lWWc61WSNRdUPQUitTMWPrcAL59nmPeMToaEG7SGY19LPYNTWNJmoNTDEgzv5QnL71
+	 zwn8wkdXPKyG6PnPoi1vxL1w+MAkoyF+Hk3m0doHJm0qlqvT76iFaDo39L7w6FyqFW
+	 ZbxPc/bvhlCO3h5G7+97eyjZ0W/x124t60NugcqAFbDSjxid/GeROuXPBuqEMmQjfs
+	 o4NjZnAvrX01KWxwYrXnv8Dwcgl6B831hjiwnMjE85OzYTMVvtXu1rdiP2NU/5/BrX
+	 WTPAFsbE69QWA==
+Message-ID: <sashiko-outbox-183025@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v10 02/15] s390/vfio-ap: Data structures for
- facilitating vfio device migration
+Subject: Re: [PATCH v10 09/15] s390/vfio-ap: Prepare lock helpers and matrix
+ init for cross-file use
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org
 Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261023174349.3545941-3-akrowiak@linux.ibm.com>
+In-Reply-To: <20261023174349.3545941-10-akrowiak@linux.ibm.com>
 References: <20261023174349.3545941-1-akrowiak@linux.ibm.com>
- <20261023174349.3545941-3-akrowiak@linux.ibm.com>
+ <20261023174349.3545941-10-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 23 Oct 2026 17:57:01 +0000
+Date: Fri, 23 Oct 2026 17:57:02 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,8 +62,18 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Creates the data structures used to facilitate state transitions during
-> vfio device migration.
+> Move get_update_locks_for_mdev() and release_update_locks_for_mdev() from
+> vfio_ap_ops.c into vfio_ap_private.h as static inline functions so they a=
+re
+> accessible to vfio_ap_migration.c in subsequent patches.
+>=20
+> Add assert_has_update_locks_for_mdev() to vfio_ap_private.h for lockdep
+> validation of these update locks across files.
+>=20
+> Make vfio_ap_matrix_init() non-static and add its declaration to
+> vfio_ap_private.h for the same reason.
+>=20
+> No functional change.
 >=20
 > Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
 
@@ -71,5 +81,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261023174349.3545=
-941-1-akrowiak@linux.ibm.com?part=3D2
+941-1-akrowiak@linux.ibm.com?part=3D9
 
