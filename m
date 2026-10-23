@@ -1,59 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792772361;
-	b=BxR/zTvu+NFv6Wyqv9kLYObL5wC9beMyfTiNe763tjTNBb10XIGV1sHTEIKBfNORDwjZ
-	 Ob1T5DOVjDxaumbDyLysx/7vTWsPygXfvxk4H60uKmfUTRut9CJ+lx/11lerTRcIIa+Du
-	 jz1MeH91jHhhL9iF+z3JWXhHbpRZOnY8Rem7LIZm6c0ciSNbLAEhR+RTxVBY/+K/6I3OL
-	 FDNPmPdjwz2XlfkC4pvdqkTNxtxVEA91d+/aWlaDkYE7gvVzfNEJpM0Q9gNFE4daib1L9
-	 2rpiPCV6k5TlCS4qAkrloiqtfDLNNTD/65cK3cnnTvAAw8VBoAcnRURe/B+cEmhdNWg==
+	t=1792772492;
+	b=VFQjGgq278V80c8szWwWg68q+DVu0q060B4c+H0DE2VehRPkvM5CjziRvvkbdYPU6BYY
+	 Sqt3YyV/baHaPbeRadxBZJoyJYcBm94WB1/vJ/GEdA/WWMKtdj3ql1Gsk6cIT3KYDEwRL
+	 y2BzourvogDmKyWIhv1ZmGgyMkUT87DWN7iQ6uHWB1jiSnJ11wQ5/iAKuU8CuYRihkVnI
+	 St4r/iNSDxS/n1Cf9SELTeYEHDsZQ/tbGc18r4G/Zg8d/zIrlZkqMaM9aODgoBHD8lVk/
+	 R61t3a4UWU+rQ3RkClSZ804+Vjenqi/DnBFhC6WCbl4N1tMxeus2RIlt80VHNekfZ4w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792772361;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792772492;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=yyKUA9bKUjv9tJnQVhC50Aa/PV7RKUYWzT76A0EFBp4=;
-	b=26bBXovCM0otv2ph2iva57iOJtwsWVw8ySH0nR8y2ojwAXTsrU1KUIYkKn/33rQ78tIz
-	 5Ss7MnQuLFWho+ZjcqvdVRiNmfnlCpmB9o3dybzMXBFVX1AFRTVLlgmhdpHqTNeMvT7qg
-	 8uhPOfh8O6+j6iZkgugJcEUkbwq1k30+pc3VkfbMUIlOEqIpyyoedoozHrxBQzhT3vF5v
-	 CVUm1l/CIshibcWr9CMjc3hQfbFzl4m61GWqsm3xKgFUwB/hN2RJoyJMX5bpuXu1NGbW8
-	 5etOIAf6vbHc1jDQZXEhyZWdxs4CepyryMwJ4jsIqPQOtJM4joDcP6VQc9Y0d9W2inw==
+	bh=pvS1NrLiQObW36ENkjaYM1eIQkybPA5n2HvBQdma5mA=;
+	b=ocykicEFrJWYQ2NWZyel1T7rmS+Ihlh8z8aJBuzwd27/S8RtN7btgt6XFYMI3mCD7S3O
+	 eIYQzhiryOL3ySIXAKwz6z86EEdP2t8H4HatqY+QItrPN4l2yy3GOAD+PIGGS0GKAmFa7
+	 BtWCpv6BYEUOqrR2hb0tDyVITyzaIzMOUeBCJOd1mYVn/oZ6AGWicVEs4hUSK+P4XHX38
+	 L1BvI1ZVH3wpKHKSNOc++UzhRde7hakoFOWrQP9m0AATX+ZUQPb1v3r7EkPaJqy72ey4U
+	 J+06YRXg5OnJpF0dp+BA5W7w4kwQZtIs7lWbPX0xqZWWypi9h3gZY+RO8zijoHaZdxw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iOQqWiqD;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="TMKV3W+/";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1C74606A31A
-	for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2026 16:19:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC792606A31A
+	for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2026 16:21:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iOQqWiqD
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DDA11F01825;
-	Fri, 23 Oct 2026 16:19:20 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TMKV3W+/
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 420551F01825;
+	Fri, 23 Oct 2026 16:21:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792772360;
-	bh=yyKUA9bKUjv9tJnQVhC50Aa/PV7RKUYWzT76A0EFBp4=;
+	s=k20260515; t=1792772491;
+	bh=pvS1NrLiQObW36ENkjaYM1eIQkybPA5n2HvBQdma5mA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iOQqWiqDxnJjot5vUdSLovVcqADpVVAiwj/ehzCDf8zYUkj+7YVDvYMo7W3dSNq/t
-	 IETU1RCLyPOwWU3eAick3fIz8FiYi7smJcgP63HiT8bF9yiykVzZQDe/cFEhvWTXsS
-	 yjNUBgZWSMscdBCtjUVo35OjuWx7Cl2U0xj080sP2Vcwwa+8R9EUAxmyOc547SnH2b
-	 KWcpojvZKMJ8zXb7jtNCLDQNZs/Edxo2Q/5hP9v8/g0/yucTnqNOu0TvcLhxhrJgGh
-	 kJzooBBNUHgTnk7n9YbNrcu2WMAddq1sWRjRQO9stl6+cAjBCrA48Bqa7e+C3dDwjL
-	 F+6jdXA2j4GAg==
-Message-ID: <sashiko-outbox-182944@kernel.org>
+	b=TMKV3W+/vShxEvNM34RnN/A047/BsVbGSX8kOR03WlGMVh/rhkM7Hri31ivysN3Q7
+	 VqjKVC+qAwPtqi9w266625HAvmBKL1veyfneDsZPbAHqolxC58GXqKW5NIaHFOazu4
+	 1sUF28z0I64c/yZUM6is52+iBcMSoD2PCRZOi/19Tqa8GpYWVHgMyemnQn/gqVh3JH
+	 xLQB7RQLh8D7C5LSTqrkxLqQPjkRl69tAPP7jXKy9Tx6BuFRGZ0bBC3XfN+9INDiQ+
+	 JyOLWvY/Zade1mVSURNo5FHSIQb1Yk4MYT6eg3tJWM1HjWCWA6jkP+1k4zPP3cYqmB
+	 SEA6/q6eRwHbA==
+Message-ID: <sashiko-outbox-182945@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 09/10] KVM: s390: vsie: Fix pinning using the wrong
- flag
+Subject: Re: [PATCH v2 06/10] KVM: s390: Rework some helper functions
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261023155531.206113-10-imbrenda@linux.ibm.com>
+In-Reply-To: <20261023155531.206113-7-imbrenda@linux.ibm.com>
 References: <20261023155531.206113-1-imbrenda@linux.ibm.com>
- <20261023155531.206113-10-imbrenda@linux.ibm.com>
+ <20261023155531.206113-7-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 23 Oct 2026 16:19:19 +0000
+Date: Fri, 23 Oct 2026 16:21:30 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,16 +62,11 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> When pinning guest memory using pin_blocks(), gfn_to_page() was used,
-> which under the hood uses FOLL_GET, which is the wrong type of flag for
-> memory that is accessed directly by hardware.
+> Introduce export_on_unmap() to make the code more readable
 >=20
-> Fix by using kvm_vcpu_{,un}map(), which uses FOLL_PIN and is the
-> correct thing to do.
->=20
-> While technically a bugfix, the previous behaviour can only lead to
-> guest corruption in extremely convoluted test scenarios that cannot
-> happen in real/production systems.
+> Move the #ifdef inside is_ucontrol(), make kvm_is_ucontrol() into a
+> wrapper around is_ucontrol(). This way the compiler can remove more
+> code when CONFIG_KVM_S390_UCONTROL is disabled.
 >=20
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
@@ -80,5 +74,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261023155531.2061=
-13-1-imbrenda@linux.ibm.com?part=3D9
+13-1-imbrenda@linux.ibm.com?part=3D6
 
