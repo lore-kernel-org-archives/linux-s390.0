@@ -1,61 +1,67 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=130.136.161.50
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792858545;
-	b=a8Xy/EtKXX7CBpX9dRADy9SKzRRlQGm4jfqB0R0ZYw//7eqaBEIKMCvY2iEw68mQTEsx
-	 jPVO/cEDincRe3NBLTgmPjlse4Ax5TkLmbFREdrEdRQZ8oHbQwCvhBXCb6+zNcEPel5gH
-	 LMqCynNL3CJLpfgkHWIwTG8wuFdf6Iy8kjHckiLWQRtq2HeVHYkKMLs5PzYapgcYRRKdp
-	 +PceZKoF2jE4gDf/gRlKZkviD2dDdbKfg3xLOBRHi7ar6Sv0Pvh6HJFFiC1R6YGs2XHnU
-	 26yECCig+tL5cpGRwTsi+HpJkUdGb8bj8pKWyf3mgdeAi/hFGJNJ3DgEX3csu837ezg==
+	t=1792861562;
+	b=IWLI+DAAGyDaEdS6honyNK3/m3plZbDimiyzkg4ahCnIklW5yez7fdeT/9vnK/ARXDMn
+	 lMHCYgi5Bmo4QeCQy6AFsUEyLu+VjBcpUCILtjs0JbIblLhIXLzjmLR3QNqmd4SoVxB0g
+	 0uiRMq26dpxHqYkVPcS+CNmNLxVIgIDAcpxWNFR36YVFx87/J4wRHWmVRft3nlpMHhQcn
+	 +yRhMhyhBr4Y/9yvzDA9BOkYABc22qS3ncwXuc8BDA3hQtw6UD+fwLPbsw/Sfbb4wmH6j
+	 M5dE9FdbTMAjTPfzs1ETh5OMAO9lnBg/ZhQRZ6W/0r2Y/sFn5iVmEdoem4VtBHNcAIw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792858545;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=1aAtzlGxYWM7+dYn3q9vh6JwVo0joCuPSK3S3WTbmy8=;
-	b=knqmezwnlYJ8hiXeuJUlQHLjjJuhnOIXbnQpI47LHb/2C0rMM3dg300YISEBzUkNPt/u
-	 5hToPcG43I7KV4Ljvk+nWZgNeGI2iuuuOad64Y4N6/XdCWCW3B1fEx5whhfa9dSBlUY/a
-	 UCp+Hqbyl51AeTInK9dLLRNmzj9UeLibH8SB9LCVUsUqgRbiCLeDveK0wI3AdoQYk143d
-	 fvv7GrcCCqh8qE4DOF66wWjFGbmsElm465K2mHj1gc5zBpxCd2nDhUB2KnCriO37uF6yJ
-	 64FvakzT+EhtG33druBYRZQ7JiY7aVyo5hpS4jkXqqsVieN83nyE2YHZ1ODGi5MJFUQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792861562;
+	h=DMARC-Filter:Received:DKIM-Signature:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To;
+	bh=ejcHXbbMJpCzIhflciAk29KX5ss42MtWupq3XSWtgN0=;
+	b=Zw2ITwdiLOzTeKmVKslUG535F82kudl5I/L+FOd3te1C+7Lg7LXVY2SYG4Nx35rB3VPY
+	 869HBIPon99xAiK3B6qBylqSRBoMX8POzan5B+WmQr6wnXbj87KWRvll8m0o7j1li2CU0
+	 MkWxW6/mIdFS6IZ4/jUNE2b4FmiWpf1c3eqY+ushvoC5hIuMchyzyfgvleXLzj+WqO0Gk
+	 PLhpnwKkRNhxlV+lqI/jTOAJNeP+S5le4D8HTFTm06T31nurv+ff20X+e43w4sVJgZjpm
+	 jq801jLgu4deyXW1ykN+SoFrWp56Or6oGju9UNmIGHyezLhqnzejTiXFFZ06knNXlMw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TcoWB7fR;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 10F3D606A326;
-	Sat, 24 Oct 2026 16:15:44 +0000 (UTC)
+	dmarc=pass header.from=cs.unibo.it;
+	spf=pass smtp.mailfrom=cs.unibo.it;
+	dkim=pass header.d=cs.unibo.it header.i=@cs.unibo.it header.a=rsa-sha256 header.s=virtlab header.b=F8syek8F;
+	arc=none smtp.remote-ip=130.136.161.50
+Received: from mail.virtlab.unibo.it (mail.virtlab.unibo.it [130.136.161.50])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id D0706606A31A;
+	Sat, 24 Oct 2026 17:05:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D0706606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cs.unibo.it
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cs.unibo.it
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=TcoWB7fR
-Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id 154991F01825;
-	Sat, 24 Oct 2026 16:15:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792858544;
-	bh=1aAtzlGxYWM7+dYn3q9vh6JwVo0joCuPSK3S3WTbmy8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=TcoWB7fRRWMyLohC2lkFRvLSlqJ/GNvY0zQ9o27oZ8ZosabXpwOMiTRdlwoL5kr3a
-	 yUmmz0BXuG1yjBRXMUKJEiU+Og28KE5C30wy38bQRaP2Tx3/UTOB89eiZldJWrZmNK
-	 +MumTs86sALmhOjEZ1ifdJWwMItNntI3V9G4K16J3HWgF2H+4u/aoR6LWQY0h4yJHi
-	 mHs3bC6JKkUBdBWMN7ip/3V0oHMVtfqbiXP5ag9nIfcp5hnK0B5y8Spv31pZEGf0hc
-	 lXYTJxZ6dZz80yBqaMixsQi/WsN4Tp2i5OUbWvh5RTuzVVW2hecO3qUKrTSLL/yHCr
-	 eZn59bFDckrbg==
-Date: Sat, 24 Oct 2026 19:15:40 +0300
-From: Jarkko Sakkinen <jarkko@kernel.org>
-To: sashiko-reviews@lists.linux.dev
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	David Howells <dhowells@redhat.com>, keyrings@vger.kernel.org,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, Kees Cook <kees@kernel.org>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	Anastasia Eskova <anastasia.eskova@ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	linux-s390@vger.kernel.org
-Subject: Re: [PATCH] s390/cert_store: Hold the keyring->sem while
- invalidating keys
-Message-ID: <atzZrGdjJhrivcQ0@kernel.org>
-References: <20261024144229.1546151-1-jarkko@kernel.org>
- <sashiko-outbox-183758@kernel.org>
+	dkim=pass (1024-bit key, unprotected) header.d=cs.unibo.it header.i=@cs.unibo.it header.a=rsa-sha256 header.s=virtlab header.b=F8syek8F
+Received: from cs.unibo.it (unknown [94.32.99.206])
+	by mail.virtlab.unibo.it (Postfix) with ESMTPSA id CD1DE1C006E;
+	Sat, 24 Oct 2026 19:05:56 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=cs.unibo.it;
+	s=virtlab; t=1792861557;
+	bh=ZNWhMp3SkHo6YJhNGOOEGIApQhV+Rkfdv5zH7iaEACA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=F8syek8FAyg2mpNsahUjsU2e4w0/y1pXgpffdoHwil2Ufr6PQNhTG6hvlZNky+nfC
+	 ONuMffhuWP3gfrUWLj+/Zs4GuGLfj7sNxBOUdTPaGEUh/yuUkWOWNNmhdy/D6OnG5O
+	 Vm3yiOpbLLvjQ5UvOB/hIZJe0IHV/0a1NfZobC1M=
+Date: Sat, 24 Oct 2026 19:05:55 +0200
+From: Renzo Davoli <renzo@cs.unibo.it>
+To: linux-kernel@vger.kernel.org
+Cc: Oleg Nesterov <oleg@redhat.com>,
+	Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>,
+	Kees Cook <kees@kernel.org>, Andy Lutomirski <luto@amacapital.net>,
+	Will Drewry <wad@chromium.org>, Thomas Gleixner <tglx@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Shuah Khan <shuah@kernel.org>, "Dmitry V . Levin" <ldv@strace.io>,
+	Alexey Gladkov <legion@kernel.org>,
+	Eugene Syromyatnikov <evgsyr@gmail.com>,
+	Davide Berardi <berardi.dav@gmail.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	linux-kselftest@vger.kernel.org, strace-devel@lists.strace.io
+Subject: Re: [PATCH v9 0/3] PTRACE_SET_SYSCALL_INFO: add support for seccomp
+ syscall skipping
+Message-ID: <atzlc9tg2MTdnRtj@cs.unibo.it>
+References: <20261020152945.575664-1-renzo@cs.unibo.it>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -67,15 +73,20 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <sashiko-outbox-183758@kernel.org>
+In-Reply-To: <20261020152945.575664-1-renzo@cs.unibo.it>
 
-On Sat, Oct 24, 2026 at 02:58:25PM +0000, sashiko-bot@kernel.org wrote: 
-> include/linux/cleanup.h notes that goto-based cleanup and scope-based cleanup
-> helpers should not be mixed within the same function. Could key_array also be
-> declared with __free(kfree) = NULL so the out label and goto can be dropped,
-> or should explicit down_read() and up_read() calls be used instead?
+On Tue, Oct 20, 2026 at 05:29:40PM +0200, Renzo Davoli wrote:
+> prerequisite-patch-id: abdd0fc0973bc3845ae7bfe84d855a7213ccd3d7
 
-This was actually a "design choice" as it is out of scope for the bug
-fix.
+This prerequisite-patch-id is no longer valid.
 
-Br, Jarkko
+The prerequisite patch "powerpc/syscall: Return the preset value of
+skipped syscalls" is now at v2:
+https://lore.kernel.org/lkml/20261023180735.853655-1-renzo@cs.unibo.it/
+
+Its new patch-id is 3d8d8f9a79821bdeb7e155201b85417e9137256d.
+This series still applies and builds on top of it, so no new
+version is needed.
+
+Best regards
+  renzo
