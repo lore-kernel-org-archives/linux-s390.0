@@ -1,58 +1,86 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792987407;
-	b=Q3eTRTzXX6P52Ov2a4reIEr+1M2LGnA6kxN3MzxW35LI2m7tKilFTe6b1dNf+ZKRcE7M
-	 h+itOagY0tZDPyaJ7ytouvUSX+iPyMByeJtIvzyIAqGEBqH2FWblyhuZKJ2V0NmCbuZs+
-	 qoJidxkQn2BjieMdDIQ0JThhpXB8xvI3y+/zcwv6US29gojIt8CnIrRLi3gB46SfcesfX
-	 WLeSL3wyLAvYmFoIgnQdPTmmVmGRYnpxFRmWNZaK7WpALue+tnV0tNT6GdLktOtFLAEZM
-	 O9B8MfFAm1cE2w4s0BwOX9hGsEb72L4/PKV2IUE8M5joeXSCCSgwb5jtoGAHrY/K4UA==
+	t=1792988224;
+	b=vDgqjw8yrZYRT/nQrzZdCR6yCQ2kJa/HKci+Ur4IUqufeBXQ53nMBlvl5p6XTkz030LV
+	 1sqzyiB1Qd3nMRhjj2XNBZs8gJ8X5U+eSuGhMxQDmipq0fy15LWdPzMJNUcG0NeI0kBXZ
+	 s6tfcGS3rAzEMjJjlg5rFscyCaaodDQAI7uqEJg60adev22crNfZrcpvdZinz5QVeqPzt
+	 P5MyNvx6muC8Iru/aKxpKralpVpSdC39w56MxLos7xQ+0qZoca30J0PG3yQ1yLUp/sjao
+	 kxJF6LxAEVMdetLKlWzTB44dFjUUvrrtuBWnYWohss6gQpK6+XKkKYyhUdt6U5oGYSQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792987407;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=UZp1COSWoy3dkBmZ5MRFM90yfnQonoRTNPpwCNCjHug=;
-	b=aOKV5FkTDbZbzsiVQvrclyI/vgBAXlZ41Rohe68f8Ge3XYBw/QC3PDnDDwWsOjrJc6AM
-	 X9iUXBagT2Kdcc8Gi/FnVKf4aEqApHR+mvwLD5nEDDafdDyEh/N8bcHvN0pI1VTRNnzBQ
-	 mmqYm1AGSHbRT9tcqpsXypdcwgYNg4/L5KQPy4Fd63aNvbUiiZEeNlkhULLsTQHGjPby/
-	 mWsoJYSGdLukA/umbUALQ9/HaIhzzrHNQAMmhZZefB6w2h2IIED3xAwQRW0djnlW+v44B
-	 18Xn7S4UpVQk6UC8RodjHZ+KCn7Ee9Lk90rYekOsp2ZGlpR01U/1+H1LVm8jRSxH29A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792988224;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-TM-AS-GCONF:X-Authority-Analysis:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=hW+j5hVH2NoEz7o0BKAh/O6CXz6kmzHAOPnvYWNp+FI=;
+	b=EbNfhb71Jegk3xRaCehjUJhz6x4R0535GkscMYBRwH+0oftK983G14uczT0yp1Lpj+J0
+	 HCyQEwMfWpYdp487vXoTXO7YGBnQam8KjqX7l74Q/nelneK/cCES8Qp8KOoJZLJwOFyCm
+	 pcZxB6b7eO2olk57rYHYhNeJ34+T9r403Iyo9Dv0scj8UQw20xi+73ygeDOGXlrmB0NL0
+	 WdFmkh1z2O6SbhShGA6QgxJvAQmNWENEdNyuMze1DtctqVY5vnEosLGgkvCQxVevNjXG1
+	 Dn4zA7b7KBetEkDAtuvrogVKkboDkzoNKvDYTPEKgQZ1v7Okqk8KcnvXyzMdLhlmYag==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DfhiwTzG;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ontQWzV7;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7072B606A31A;
-	Mon, 26 Oct 2026 04:03:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFAF3606A31A;
+	Mon, 26 Oct 2026 04:17:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EFAF3606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DfhiwTzG
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F6FA1F01828;
-	Mon, 26 Oct 2026 04:03:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1792987407;
-	bh=UZp1COSWoy3dkBmZ5MRFM90yfnQonoRTNPpwCNCjHug=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=DfhiwTzGhrkrmFd8KTV214mmP5j7/awrNrnh+nOWI5SIKKr9L0eiTrE/8oWbe/s6N
-	 RjrsPFDleF4hAK8spNotN8YbI3F4uVgik+cONew5J1dIItQ+/g/t54D26/7juBw7hU
-	 g+bYWGdlHwnpHeN+yVC1ZWYsZdPimPa8wvqRowhlIWhLMBJYgE22dAIY04SvE1mmSf
-	 cdcnKR0qDJ0p8nZW0ahn2PRF5ZGx7i+y+opHRWHrgw3wzSdFcIIK+LhGMVNiEin8Ls
-	 HYrVBXTv17jvboZU8LI1kO08lHkMtRBs8i7Me1wv7Ki1/m7F+Vpylz1D95TkI1JihD
-	 2atJr1OiXhkJw==
-Message-ID: <sashiko-outbox-184612@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH] net/smc: fix possible recursive locking in
- __smc_lgr_terminate()
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Anfernee Cao" <anferneemelokc5@gmail.com>
-Cc: linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <179290097759.51540.15412712294727302463@gmail.com>
-References: <179290097759.51540.15412712294727302463@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 26 Oct 2026 04:03:26 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ontQWzV7
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69Q2i6sD833002;
+	Mon, 26 Oct 2026 04:17:03 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=hW+j5hVH2NoEz7o0BKAh/O6CXz6kmzHAOPnvYWNp+
+	FI=; b=ontQWzV77lWHvfCbPp141QBeC6FlPuA1soK0vISrw/j3vbp45c77zyao/
+	qURQpy+rYmxi61Adj5nJHgZmfbKsGQfZJ24V/Nb3+4lvr2XsPe/uDOkGAI/iGYq2
+	ZEaVSRB0YKy7JUETO7tKMc6J83WTn0dxPjSVbXFf1KJxhCS20yZ87II1PT9g+g3v
+	GaHhIswexl4d7t/DtKBYPojVPDEsvoj84shTENTXgVlSTm0rFumGasjPCFe6CyIC
+	QLDqmaEaR8ivRgCJuDJpO5wJdA4N5EO6tg8b2ncZfXueSTxAIAmJIVPb30SU5+8i
+	uE+1qaTSfyrnvM2PNmNn17UA7xULQ==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hgk3fqsyf-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 26 Oct 2026 04:17:02 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69Q2KQws1924216;
+	Mon, 26 Oct 2026 04:17:02 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hh8ggv2dq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 26 Oct 2026 04:17:02 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69Q4GwY456230186
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 26 Oct 2026 04:16:58 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0489D2004D;
+	Mon, 26 Oct 2026 04:16:58 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D854B20043;
+	Mon, 26 Oct 2026 04:16:57 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 26 Oct 2026 04:16:57 +0000 (GMT)
+From: M Nikhil <nikh1092@linux.ibm.com>
+To: sashiko-reviews@lists.linux.dev, linux-s390@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Cc: niharp@linux.ibm.com, pasic@linux.ibm.com, bblock@linux.ibm.com
+Subject: [PATCH v13 0/2] zfcp: Use DMA streaming API to map I/O
+Date: Mon, 26 Oct 2026 05:16:52 +0100
+Message-ID: <20261026041654.2301619-1-nikh1092@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -61,149 +89,87 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=BOMmP1QG c=1 sm=1 tr=0 ts=6aded43e cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=Wd4ccqAm3J3WqkYLFQkA:9
+X-Proofpoint-ORIG-GUID: 4VQ7dfiLZTNR98kiIa3a8kK_A1u8q83e
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI2MDAxNiBTYWx0ZWRfXy9xzsYTGaNV9
+ inoWM5bzGoGABjRt0pf/Yb3X6W3d/nQb9fA5KM4GU9vHoVzVQJfuxWxCNSAHcBhLvrkR/P8rPtR
+ dTC4LcZ4bF1VIvy1pqET45ryyfmxHmwjqMOfdto90UVBiIo8QUkV62JeXeO3b+EO5ct3OoQqecu
+ Fxrdh3BIkVjEiP8FtBujjiL06xkXRyMl7YOU2R9M6heEmpDDFsmz4YbSiOe8XDrqz0pGYOlmMwa
+ ozxAfs3vnjnfsuFyokiYdXw8VfVYpWasKguO+IEmJJHv4Lw8AQ3ztvFQo/+ycOJYhZasy8lXiyh
+ UislMCSIdBlGWGjE/SvQEr8+0zz+8rpAobGjhQiVIBKyPi79IuBo7FsAEdI/JiQOus/8Xhly3Jl
+ 7l7cEMLJ6em8+yTAYgMgv/JsFDAGBZsIsZQIUy9/s162W0/NG0voUHhwUVae2t5cYzAo3Q2gxBT
+ m2KMgzjZRJAJugh1j/A==
+X-Proofpoint-GUID: 4VQ7dfiLZTNR98kiIa3a8kK_A1u8q83e
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI2MDAxNiBTYWx0ZWRfXyrXtqK8x+J5H
+ jkIOorZ/nbmKHdUflw8jEzvqmo9gQCwRgFcqOvChPXGTQ6cpCbvIgOStpf0CDhJbfwtWXVdwlzM
+ aly/nfFypttCIpvLJHuBZp6MxHLav5Q=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-10-26_01,2026-10-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 bulkscore=0 malwarescore=0 clxscore=1015 spamscore=0
+ phishscore=0 adultscore=0 impostorscore=0 priorityscore=1501
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610190000
+ definitions=main-2610260016
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] net/smc: self-deadlock in __smc_lgr_terminate() masked by lock_soc=
-k_nested()
-- [Medium] net/smc: lockdep subclass inversion and unannotated relock in sm=
-c_conn_kill()
---
+In the existing zFCP driver, virtual addresses are translated directly
+into bus (physical addresses) for DMA operations on all I/O buffers
+passing from zFCP driver to the device.
 
-commit 7303e5e7071cf52d837c7140d6a0e1615372a594
-Author: Anfernee Cao <anferneemelokc5@gmail.com>
+Need for using DMA-API in zFCP driver:
 
-net/smc: fix possible recursive locking in __smc_lgr_terminate()
+In a Secure Execution environment, the host must ensure that device DMA
+accesses are restricted to non-guest-private, page-sized memory blocks.
+This prevents I/O failures that can occur when a device attempts to
+access guest-private memory. Therefore, guest memory pages must be
+prepared by the hypervisor before they become accessible to an I/O
+device.
 
-This commit replaces lock_sock() with lock_sock_nested() in
-__smc_lgr_terminate() to suppress a lockdep recursive locking warning when
-smc_listen_work() aborts a connection and cleans up the link group early.
+To support this requirement, the host Linux kernel must be reliably
+informed whenever a memory region becomes eligible for device DMA access
+and when that access must be revoked. This information must be
+maintained correctly at least at page size granularity. To satisfy these
+requirements, all I/O buffers used by the zFCP driver should be mapped
+through the DMA API.
 
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index 6021322253e93..64c5ee592e641 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -1579,7 +1579,7 @@ static void __smc_lgr_terminate(struct smc_link_gro=
-up *lgr, bool soft)
->  		smc =3D container_of(conn, struct smc_sock, conn);
->  		sock_hold(&smc->sk); /* sock_put below */
->  		read_unlock_bh(&lgr->conns_lock);
-> -		lock_sock(&smc->sk);
-> +		lock_sock_nested(&smc->sk, SINGLE_DEPTH_NESTING);
+DMA API Integration in zFCP:
 
-[Severity: High]
-Can this mask a real self-deadlock on new_smc->sk rather than a false
-positive?
+The zFCP driver is updated to use the DMA streaming API's to map all the
+I/O buffers which will be passed to the device.
+All zFCP I/O buffers (QTCB, SRB, CT/ELS and SCSI I/O) are represented as
+scatter-gather lists and mapped through DMA API using dma_map_sgtable().
+Once the DMA transfer is complete, the corresponding mappings are
+released using dma_unmap_sgtable().
 
-The commit description assumes smc_conn_free() always unregisters new_smc
-from lgr->conns_all before smc_conn_abort() calls smc_lgr_cleanup_early().
-However, in net/smc/smc_core.c, smc_conn_free() only unregisters the
-connection if lgr->list is non-empty:
+By routing all device-visible memory through the DMA mapping layer, the
+driver ensures that:
+1. DMA access is properly authorized before use.
+2. DMA is revoked after use.
+3. Secure Execution memory restrictions are honored.
 
-net/smc/smc_core.c:smc_conn_free() {
-	...
-	if (!list_empty(&lgr->list)) {
-		smc_buf_unuse(conn, lgr); /* allow buffer reuse */
-		smc_lgr_unregister_conn(conn);
-	}
-	...
-}
+M Nikhil (2):
+  zfcp: Replace sg-list with sg_table in zfcp_fsf_ct_els structure
+  zfcp: Use DMA streaming API to map I/O
 
-When smc_listen_work() in net/smc/af_smc.c holds lock_sock(&new_smc->sk) and
-waits for a confirm message via smc_clc_wait_msg(), a peer decline message
-with the first-contact flag set causes smc_clc_wait_msg() in
-net/smc/smc_clc.c to schedule link group termination before returning:
+ drivers/s390/scsi/zfcp_aux.c  |  16 ++
+ drivers/s390/scsi/zfcp_dbf.c  |  16 +-
+ drivers/s390/scsi/zfcp_def.h  |   4 +
+ drivers/s390/scsi/zfcp_ext.h  |  12 +-
+ drivers/s390/scsi/zfcp_fc.c   |  48 +++--
+ drivers/s390/scsi/zfcp_fsf.c  | 325 +++++++++++++++++++++++++++++-----
+ drivers/s390/scsi/zfcp_fsf.h  |   9 +-
+ drivers/s390/scsi/zfcp_qdio.c |  40 +++--
+ drivers/s390/scsi/zfcp_qdio.h |  27 +--
+ drivers/s390/scsi/zfcp_scsi.c | 126 ++++++++++++-
+ 10 files changed, 518 insertions(+), 105 deletions(-)
 
-net/smc/smc_clc.c:smc_clc_wait_msg() {
-	...
-		if ((dclc->hdr.typev2 & SMC_FIRST_CONTACT_MASK) &&
-		    smc->conn.lgr) {
-			smc->conn.lgr->sync_err =3D 1;
-			smc_lgr_terminate_sched(smc->conn.lgr);
-		}
-	...
-}
+-- 
+2.53.0
 
-smc_lgr_terminate_sched() runs list_del_init(&lgr->list) and queues
-lgr->terminate_work asynchronously while lgr->terminating is still 0.
-
-When smc_listen_work() then calls
-smc_listen_decline() -> smc_conn_abort() -> smc_conn_free(),
-list_empty(&lgr->list) is already true, so smc_lgr_unregister_conn(conn) is
-skipped and new_smc->conn remains in lgr->conns_all:
-
-net/smc/af_smc.c:smc_conn_abort() {
-	...
-	smc_conn_free(conn);
-	if (local_first && lgr_valid)
-		smc_lgr_cleanup_early(lgr);
-}
-
-If smc_lgr_cleanup_early() -> __smc_lgr_terminate() runs before
-lgr->terminate_work sets lgr->terminating, rb_first(&lgr->conns_all) returns
-new_smc->conn itself. Using lock_sock_nested() here hides the recursive lock
-acquisition from lockdep by assigning subclass 1 while the current task
-already holds &new_smc->sk at subclass 0, causing the worker to hang in
-__lock_sock(). The same sequence also applies to client first-contact setup
-in smc_connect_rdma() and smc_connect_ism().
-
->  		smc_conn_kill(conn, soft);
-
-[Severity: Medium]
-Even when __smc_lgr_terminate() locks a different socket on the link group,
-does using subclass 1 here invert the existing lockdep subclass hierarchy a=
-nd
-leave unannotated relocks inside smc_conn_kill()?
-
-In net/smc/af_smc.c, smc_release() locks listening sockets with subclass 1
-before smc_close_active() -> smc_close_cleanup_listen() ->
-smc_close_non_accepted() locks child sockets at subclass 0:
-
-net/smc/af_smc.c:smc_release() {
-	...
-	if (sk->sk_state =3D=3D SMC_LISTEN)
-		/* smc_close_non_accepted() is called and acquires
-		 * sock lock for child sockets again
-		 */
-		lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
-	else
-		lock_sock(sk);
-	...
-}
-
-Locking a connection socket with subclass 1 in __smc_lgr_terminate() while
-smc_listen_work() holds new_smc->sk at subclass 0 establishes the reverse
-0 -> 1 ordering.
-
-In addition, smc_conn_kill() calls smc_close_active_abort() in
-net/smc/smc_close.c, which drops the socket lock and re-acquires it at
-subclass 0 via smc_close_cancel_work() and when releasing clcsock:
-
-net/smc/smc_close.c:smc_close_cancel_work() {
-	struct sock *sk =3D &smc->sk;
-
-	release_sock(sk);
-	if (cancel_work_sync(&smc->conn.close_work))
-		sock_put(sk);
-	if (cancel_delayed_work_sync(&smc->conn.tx_work))
-		sock_put(sk);
-	lock_sock(sk);
-}
-
-net/smc/smc_close.c:smc_close_active_abort() {
-	...
-	if (release_clcsock) {
-		release_sock(sk);
-		smc_clcsock_release(smc);
-		lock_sock(sk);
-	}
-	...
-}
-
-Wouldn't those plain lock_sock(sk) calls still trigger the recursive locking
-warning against new_smc->sk when killing another active connection in the
-link group?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/179290097759.51540.=
-15412712294727302463@gmail.com?part=3D1
