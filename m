@@ -1,58 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=113.46.200.221
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.9
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1792980258;
-	b=MCfTWCVccwY6y5dA8aNIHtIpGFadP7MFfZvTfdl7s+8Hjc3Lf3R7iRCp2j8yQ5AVtJvx
-	 v9Pncjc4P6M5ClKUuoP3JsTXk6pTwGXSO4bzJCPoJiKGZDBSjvM/EVLhHz/sddIZMJizb
-	 RlC2deCflysVDc2B0a37JrjLFQCPfAtTK1rrpGwOOnGuPdWzMJcV/pKS9HSoiEGw8NLXq
-	 ZpHboOdQIIaIM5soosg/M5QysfUXehMkHj+Hl3vYbfUyehTofbD9dXNLmt4+ik9ce/J/U
-	 Jfr7wimMVLYL4hUne3EscwQldemBcawnMhL1DQnHQskr1xbqamQ8dr01qfJusk75c8A==
+	t=1792981500;
+	b=LCkGfmW83NqMWJk5jEP4++TN8P0i3c9SgEqqhzvD2WUMi8J3uCSFJgLO5eW+R/j51Usp
+	 CXYm+YH5uFUaiir3Av0obhsQ38z83zMA+7X3Ndv11pMLICgmrtMYO93ikLzwFYzlPr6Be
+	 aqlBrF6CvK2fiLZtQISz+zaXdALwPZJTLGXdLU5893ok9xjJM8PcFNsFgDFLCGczuINHw
+	 awAkERe4yCQ+wFsTJMgAyNvdcPcraeL3puyRtv12SO3CT7pRAylugi3KjTbfvCGs9H0Ob
+	 XaRvifVp3ZweyitdZERkY+gMKMKXnZgSpLiVM/aaRfK9FrqVC2LR1r/JruWqdekCeyA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1792980258;
-	h=DMARC-Filter:dkim-signature:Received:Received:Received:Message-ID:
-	 Date:MIME-Version:User-Agent:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-Originating-IP:
-	 X-ClientProxiedBy;
-	bh=zkV0DSYY1q2xiz5WJX/niGx/d7Lw7ICLtD+7Nzqc/EE=;
-	b=cr6ezNr/KmUynKQUyY/11x12nI9gLoI/9Tt95hEQxo7kBtAbpu1FSGkOB7O+0yHg8lzj
-	 aaZNMVXoni2YCRUlqM2kUgrrREN54kuc9y9hhhpfQmcPlK14cGNTKqjUfTu4Fh1Co72+h
-	 lGQ1FOM5IRMsXp4hrfVDqNMb9qAcNRoQLlxYzQjGT4wJn8d+DoM6hdPeY71YqdkL7Nzwe
-	 3vVFr/suSeWtDTYPtueqscCQZy+LTNeq5KyttVnXVV+R1+P6vl9r9KlnEwerSyvfuNyhk
-	 4oTktmFyw6foTaEndYIs7+QXXBbX6Af4TKmX5Jmx6Adkbp4GxtH/LqJTk2Zdnd2K4hQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1792981500;
+	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
+	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
+	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Date:From:To:Cc:
+	 Subject:Message-ID:MIME-Version:Content-Type:Content-Disposition;
+	bh=YxJ4VVeK9bnbWTaneSho9D6B/EMJ1w2pVfFv/idBt/A=;
+	b=FrPlIPGF2XMu81yUyEI/cGxEdo+D8sUZkk5+x8GtG9DQ6HkjkBkCJSLdCd4j+9Z1ZLsg
+	 Us3BtFLz2yl0lNBO6kA8XmVU3cyu3wchz/2Qcpos9sEmOpw6Edz088+Nx2GAmVWq6LwZ4
+	 cbOOSJ5A1nGJZZc7dKOQ4C35mE1yuoYhJ9FVx3jw2Gxks387Y0YxClJ4QCeGhUdcdu6MV
+	 SvKRcu14kMto6VxWnxji7l55qYI7g21eBfCUsKISlroQf2kCIDcjF4kZInm0CcI/MT30q
+	 78sj5nbiIn7lzQnM3XTtjO1AVEstSR8COzXBlajO0PX5QF86KHRS5cCuxnyfutmolWQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=huawei.com;
-	spf=pass smtp.mailfrom=huawei.com;
-	dkim=pass header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b="A4/DwLqj";
-	arc=none smtp.remote-ip=113.46.200.221
-Received: from canpmsgout06.his.huawei.com (canpmsgout06.his.huawei.com [113.46.200.221])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=intel.com;
+	spf=pass smtp.mailfrom=intel.com;
+	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b="V2ukv/nl";
+	arc=none smtp.remote-ip=192.198.163.9
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6EED606A31A;
-	Mon, 26 Oct 2026 02:04:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B6EED606A31A
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67BB2606A31B;
+	Mon, 26 Oct 2026 02:24:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 67BB2606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=huawei.com header.i=@huawei.com header.a=rsa-sha256 header.s=dkim header.b=A4/DwLqj
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=zkV0DSYY1q2xiz5WJX/niGx/d7Lw7ICLtD+7Nzqc/EE=;
-	b=A4/DwLqj9bOFxt5jV1aHRDIbIvOm+m2aGeOnwHabNmmuXnOs+Peabb0o1Z/UV2H6NIOnZJZp0
-	uXbSQ9bcLJqQ0YRCDlMkBLaeUL+Wopvmw/TrIt2Ji3woo7Dc27yvo9Z2//TZk/IpOQQwsvXJ81I
-	STqRtfEiiseBYGD+s3ZMQe0=
-Received: from mail.maildlp.com (unknown [172.19.162.223])
-	by canpmsgout06.his.huawei.com (SkyGuard) with ESMTPS id 4jCcP63p9WzRhSF;
-	Mon, 26 Oct 2026 10:03:54 +0800 (CST)
-Received: from kwepemk200008.china.huawei.com (unknown [7.202.194.74])
-	by mail.maildlp.com (Postfix) with ESMTPS id 993D340575;
-	Mon, 26 Oct 2026 10:04:01 +0800 (CST)
-Received: from [10.67.110.68] (10.67.110.68) by kwepemk200008.china.huawei.com
- (7.202.194.74) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.45; Mon, 26 Oct
- 2026 10:03:59 +0800
-Message-ID: <02118069-9360-4055-bc61-2ee2dd3486c9@huawei.com>
-Date: Mon, 26 Oct 2026 10:03:58 +0800
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=V2ukv/nl
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1792981498; x=1824517498;
+  h=date:from:to:cc:subject:message-id:mime-version;
+  bh=p5EF9DrvTI9TWr4SfD0pPKgmrR5yJPb+Hj8Ptw3CoUk=;
+  b=V2ukv/nlmNg+fx02O6aVXXjM3rXQDlhbb5yRhwSGdDUrG6MowN8BpxKG
+   +mD9f4UFhyHWYpaaIjfs7HEC6/oXhr7zKrSXgCQ+QrmtbQFz1hM9f2Fhf
+   OE0HWv0ouFzyF4j+OW7XM1HX1bgkyHDRsKt8o71/fClZaqGxQc9bYoHPC
+   g5/BjqSw/lvsP+tDfCWJl4ppFl09FSeWWDZ9VADKwgLmQAuxcwROSEYwF
+   xfZLjJdQ3AoDboKMPTwA9e8vbr+zWeLW6yJLq8FaqjXXWnSDsr64Uym/W
+   8HaFlxpNNr1zokBbIMOdMqPwilzqRra9ae6A0LtxIn8Uqtdlme3XJl3pc
+   Q==;
+X-CSE-ConnectionGUID: 89OWNv54QXq4WU64NOfxQw==
+X-CSE-MsgGUID: pnjLdFCfTPWwkkwJv9RcfQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11946"; a="1530200"
+X-IronPort-AV: E=Sophos;i="6.27,178,1787036400"; 
+   d="scan'208";a="1530200"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Oct 2026 19:24:57 -0700
+X-CSE-ConnectionGUID: YLFJw+i3QFKha+6X0nM5mA==
+X-CSE-MsgGUID: qhSJhwe5REiQ6PJiIR00FA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.27,178,1787036400"; 
+   d="scan'208";a="4122800"
+Received: from ly-workstation.sh.intel.com (HELO ly-workstation) ([10.239.182.64])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Oct 2026 19:24:54 -0700
+Date: Mon, 26 Oct 2026 10:24:50 +0800
+From: kernel test robot <yi1.lai@intel.com>
+To: Christian Brauner <brauner@kernel.org>
+Cc: oe-lkp@lists.linux.dev, lkp@intel.com, linux-kernel@vger.kernel.org,
+	Arnd Bergmann <arnd@arndb.de>, Jeff Layton <jlayton@kernel.org>,
+	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+	sparclinux@vger.kernel.org, linux-arch@vger.kernel.org,
+	yi1.lai@intel.com
+Subject: [linus:master] [arch]  b36d4b6aa8:
+ WARNING:at_fs/nsfs.c:#is_current_namespace
+Message-ID: <202610260917.6248e316-lkp@intel.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,380 +82,142 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] sched/hotplug: Remove unused idle_task_exit
-To: Srikar Dronamraju <srikar@linux.ibm.com>, Ingo Molnar <mingo@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Guo
- Ren <guoren@kernel.org>, Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui
-	<kernel@xen0n.name>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Florian
- Fainelli <florian.fainelli@broadcom.com>, Broadcom internal kernel review
- list <bcm-kernel-feedback-list@broadcom.com>, Jiaxun Yang
-	<jiaxun.yang@flygoat.com>, "James E.J. Bottomley"
-	<James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Scott
- Wood <oss@buserror.net>, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael
- Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Paul Walmsley
-	<pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou
-	<aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, Heiko Carstens
-	<hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
-	<agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, Yoshinori Sato
-	<ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, John Paul Adrian
- Glaubitz <glaubitz@physik.fu-berlin.de>, "David S. Miller"
-	<davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, Thomas Gleixner
-	<tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov
-	<bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, <x86@kernel.org>,
-	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, Max
- Filippov <jcmvbkbc@gmail.com>
-CC: LKML <linux-kernel@vger.kernel.org>, Srikar Dronamraju
-	<srikar@linux.vnet.ibm.com>, Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Kees Cook <kees@kernel.org>, mrigendrachaubey <mrigendra.chaubey@gmail.com>,
-	Marc Zyngier <maz@kernel.org>, Pengjie Zhang <zhangpengjie2@huawei.com>,
-	Thierry Reding <treding@nvidia.com>, Xi Ruoyao <xry111@xry111.site>, "Rafael
- J. Wysocki (Intel)" <rafael@kernel.org>, Tiezhu Yang
-	<yangtiezhu@loongson.cn>, Rong Bao <rong.bao@csmantle.top>, Hui Wang
-	<hui.wang@canonical.com>, Frederic Weisbecker <frederic@kernel.org>, Thorsten
- Blum <thorsten.blum@linux.dev>, Josh Poimboeuf <jpoimboe@kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-csky@vger.kernel.org>,
-	<loongarch@lists.linux.dev>, <linux-mips@vger.kernel.org>,
-	<linux-parisc@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
-	<linux-riscv@lists.infradead.org>, <linux-s390@vger.kernel.org>,
-	<linux-sh@vger.kernel.org>, <sparclinux@vger.kernel.org>
-References: <20261016095711.1364609-1-srikar@linux.ibm.com>
-From: Jinjie Ruan <ruanjinjie@huawei.com>
-In-Reply-To: <20261016095711.1364609-1-srikar@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: kwepems100002.china.huawei.com (7.221.188.206) To
- kwepemk200008.china.huawei.com (7.202.194.74)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
 
-在 2026/10/16 17:56, Srikar Dronamraju 写道:
-> Commit 21641bd9a7a7 ("lazy tlb: fix hotplug exit race with
-> MMU_LAZY_TLB_SHOOTDOWN") moved the handling previously performed by
-> idle_task_exit() into the scheduler CPU hotplug path using
-> sched_force_init_mm().
-> 
-> As a result, idle_task_exit() is now an empty stub and the remaining
-> architecture call sites have no effect.
+Hello,
 
-Reviewed-by: Jinjie Ruan <ruanjinjie@huawei.com>
+kernel test robot noticed "WARNING:at_fs/nsfs.c:#is_current_namespace" on:
 
-> 
-> Remove the calls to idle_task_exit() and the now unused stub.
-> 
-> Signed-off-by: Srikar Dronamraju <srikar@linux.ibm.com>
-> ---
->  arch/arm/kernel/smp.c                        | 2 --
->  arch/arm64/kernel/smp.c                      | 2 --
->  arch/csky/kernel/smp.c                       | 2 --
->  arch/loongarch/kernel/smp.c                  | 2 --
->  arch/mips/cavium-octeon/smp.c                | 1 -
->  arch/mips/kernel/smp-bmips.c                 | 1 -
->  arch/mips/kernel/smp-cps.c                   | 1 -
->  arch/mips/loongson64/smp.c                   | 1 -
->  arch/parisc/kernel/process.c                 | 2 --
->  arch/powerpc/platforms/85xx/smp.c            | 2 --
->  arch/powerpc/platforms/powermac/smp.c        | 2 --
->  arch/powerpc/platforms/powernv/smp.c         | 1 -
->  arch/powerpc/platforms/pseries/hotplug-cpu.c | 2 --
->  arch/powerpc/platforms/pseries/pmem.c        | 1 -
->  arch/riscv/kernel/cpu-hotplug.c              | 2 --
->  arch/s390/kernel/smp.c                       | 1 -
->  arch/sh/kernel/smp.c                         | 1 -
->  arch/sparc/kernel/smp_64.c                   | 2 --
->  arch/x86/kernel/smpboot.c                    | 2 --
->  arch/xtensa/kernel/smp.c                     | 1 -
->  include/linux/sched/hotplug.h                | 2 --
->  21 files changed, 33 deletions(-)
-> 
-> diff --git a/arch/arm/kernel/smp.c b/arch/arm/kernel/smp.c
-> index b5fb4697bc3f..bbfbbe728b7a 100644
-> --- a/arch/arm/kernel/smp.c
-> +++ b/arch/arm/kernel/smp.c
-> @@ -319,8 +319,6 @@ void __noreturn arch_cpu_idle_dead(void)
->  {
->  	unsigned int cpu = smp_processor_id();
->  
-> -	idle_task_exit();
-> -
->  	local_irq_disable();
->  
->  	/*
-> diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
-> index a61dc3016a11..afb5aa65d737 100644
-> --- a/arch/arm64/kernel/smp.c
-> +++ b/arch/arm64/kernel/smp.c
-> @@ -370,8 +370,6 @@ void __noreturn cpu_die(void)
->  	unsigned int cpu = smp_processor_id();
->  	const struct cpu_operations *ops = get_cpu_ops(cpu);
->  
-> -	idle_task_exit();
-> -
->  	local_daif_mask();
->  
->  	/* Tell cpuhp_bp_sync_dead() that this CPU is now safe to dispose of */
-> diff --git a/arch/csky/kernel/smp.c b/arch/csky/kernel/smp.c
-> index 92dbbf3e0205..e6333ccc335a 100644
-> --- a/arch/csky/kernel/smp.c
-> +++ b/arch/csky/kernel/smp.c
-> @@ -294,8 +294,6 @@ void arch_cpuhp_cleanup_dead_cpu(unsigned int cpu)
->  
->  void __noreturn arch_cpu_idle_dead(void)
->  {
-> -	idle_task_exit();
-> -
->  	cpuhp_ap_report_dead();
->  
->  	while (!secondary_stack)
-> diff --git a/arch/loongarch/kernel/smp.c b/arch/loongarch/kernel/smp.c
-> index 11f54837f56c..6b21af1c25e0 100644
-> --- a/arch/loongarch/kernel/smp.c
-> +++ b/arch/loongarch/kernel/smp.c
-> @@ -478,7 +478,6 @@ static void __noreturn idle_play_dead(void)
->  	register uint64_t addr;
->  	register void (*init_fn)(void);
->  
-> -	idle_task_exit();
->  	local_irq_enable();
->  	set_csr_ecfg(ECFGF_IPI);
->  	__this_cpu_write(cpu_state, CPU_DEAD);
-> @@ -503,7 +502,6 @@ static void __noreturn poll_play_dead(void)
->  	register uint64_t addr;
->  	register void (*init_fn)(void);
->  
-> -	idle_task_exit();
->  	__this_cpu_write(cpu_state, CPU_DEAD);
->  
->  	__smp_mb();
-> diff --git a/arch/mips/cavium-octeon/smp.c b/arch/mips/cavium-octeon/smp.c
-> index 054e331b3202..0e557e76d616 100644
-> --- a/arch/mips/cavium-octeon/smp.c
-> +++ b/arch/mips/cavium-octeon/smp.c
-> @@ -344,7 +344,6 @@ void play_dead(void)
->  {
->  	int cpu = cpu_number_map(cvmx_get_core_num());
->  
-> -	idle_task_exit();
->  	cpuhp_ap_report_dead();
->  	octeon_processor_boot = 0xff;
->  	per_cpu(cpu_state, cpu) = CPU_DEAD;
-> diff --git a/arch/mips/kernel/smp-bmips.c b/arch/mips/kernel/smp-bmips.c
-> index 35b8d810833c..e4a523b7c988 100644
-> --- a/arch/mips/kernel/smp-bmips.c
-> +++ b/arch/mips/kernel/smp-bmips.c
-> @@ -391,7 +391,6 @@ static void bmips_cpu_die(unsigned int cpu)
->  
->  void __ref play_dead(void)
->  {
-> -	idle_task_exit();
->  	cpuhp_ap_report_dead();
->  
->  	/* flush data cache */
-> diff --git a/arch/mips/kernel/smp-cps.c b/arch/mips/kernel/smp-cps.c
-> index b01ebaace48e..51e68a42bcc8 100644
-> --- a/arch/mips/kernel/smp-cps.c
-> +++ b/arch/mips/kernel/smp-cps.c
-> @@ -804,7 +804,6 @@ void play_dead(void)
->  	unsigned int cpu;
->  
->  	local_irq_disable();
-> -	idle_task_exit();
->  	cpu = smp_processor_id();
->  	cpu_death = CPU_DEATH_POWER;
->  
-> diff --git a/arch/mips/loongson64/smp.c b/arch/mips/loongson64/smp.c
-> index e584299d0fde..73eca9c44b04 100644
-> --- a/arch/mips/loongson64/smp.c
-> +++ b/arch/mips/loongson64/smp.c
-> @@ -766,7 +766,6 @@ void play_dead(void)
->  	unsigned int cpu = smp_processor_id();
->  	void (*play_dead_at_ckseg1)(int *);
->  
-> -	idle_task_exit();
->  	cpuhp_ap_report_dead();
->  
->  	prid_imp = read_c0_prid() & PRID_IMP_MASK;
-> diff --git a/arch/parisc/kernel/process.c b/arch/parisc/kernel/process.c
-> index 703644e5bfc4..8606ecde4c30 100644
-> --- a/arch/parisc/kernel/process.c
-> +++ b/arch/parisc/kernel/process.c
-> @@ -164,8 +164,6 @@ EXPORT_SYMBOL(running_on_qemu);
->  void __noreturn arch_cpu_idle_dead(void)
->  {
->  #ifdef CONFIG_HOTPLUG_CPU
-> -	idle_task_exit();
-> -
->  	local_irq_disable();
->  
->  	/* Tell the core that this CPU is now safe to dispose of. */
-> diff --git a/arch/powerpc/platforms/85xx/smp.c b/arch/powerpc/platforms/85xx/smp.c
-> index 32fa5fb557c0..9dc81e4226f0 100644
-> --- a/arch/powerpc/platforms/85xx/smp.c
-> +++ b/arch/powerpc/platforms/85xx/smp.c
-> @@ -121,8 +121,6 @@ static void smp_85xx_cpu_offline_self(void)
->  	/* mask all irqs to prevent cpu wakeup */
->  	qoriq_pm_ops->irq_mask(cpu);
->  
-> -	idle_task_exit();
-> -
->  	mtspr(SPRN_TCR, 0);
->  	mtspr(SPRN_TSR, mfspr(SPRN_TSR));
->  
-> diff --git a/arch/powerpc/platforms/powermac/smp.c b/arch/powerpc/platforms/powermac/smp.c
-> index 88e92af8acf9..f8e674cfcdd7 100644
-> --- a/arch/powerpc/platforms/powermac/smp.c
-> +++ b/arch/powerpc/platforms/powermac/smp.c
-> @@ -925,7 +925,6 @@ static void pmac_cpu_offline_self(void)
->  	int cpu = smp_processor_id();
->  
->  	local_irq_disable();
-> -	idle_task_exit();
->  	pr_debug("CPU%d offline\n", cpu);
->  	generic_set_cpu_dead(cpu);
->  	smp_wmb();
-> @@ -940,7 +939,6 @@ static void pmac_cpu_offline_self(void)
->  	int cpu = smp_processor_id();
->  
->  	local_irq_disable();
-> -	idle_task_exit();
->  
->  	/*
->  	 * turn off as much as possible, we'll be
-> diff --git a/arch/powerpc/platforms/powernv/smp.c b/arch/powerpc/platforms/powernv/smp.c
-> index b1201dbafcaf..9a480c924020 100644
-> --- a/arch/powerpc/platforms/powernv/smp.c
-> +++ b/arch/powerpc/platforms/powernv/smp.c
-> @@ -172,7 +172,6 @@ static void pnv_cpu_offline_self(void)
->  
->  	/* Standard hot unplug procedure */
->  
-> -	idle_task_exit();
->  	cpu = smp_processor_id();
->  	DBG("CPU%d offline\n", cpu);
->  	generic_set_cpu_dead(cpu);
-> diff --git a/arch/powerpc/platforms/pseries/hotplug-cpu.c b/arch/powerpc/platforms/pseries/hotplug-cpu.c
-> index bc6926dbf148..1ade9a811157 100644
-> --- a/arch/powerpc/platforms/pseries/hotplug-cpu.c
-> +++ b/arch/powerpc/platforms/pseries/hotplug-cpu.c
-> @@ -19,7 +19,6 @@
->  #include <linux/kernel.h>
->  #include <linux/interrupt.h>
->  #include <linux/delay.h>
-> -#include <linux/sched.h>	/* for idle_task_exit */
->  #include <linux/sched/hotplug.h>
->  #include <linux/cpu.h>
->  #include <linux/of.h>
-> @@ -64,7 +63,6 @@ static void pseries_cpu_offline_self(void)
->  	unsigned int hwcpu = hard_smp_processor_id();
->  
->  	local_irq_disable();
-> -	idle_task_exit();
->  	if (xive_enabled())
->  		xive_teardown_cpu();
->  	else
-> diff --git a/arch/powerpc/platforms/pseries/pmem.c b/arch/powerpc/platforms/pseries/pmem.c
-> index 0f1d45f32e4a..af48dfebb640 100644
-> --- a/arch/powerpc/platforms/pseries/pmem.c
-> +++ b/arch/powerpc/platforms/pseries/pmem.c
-> @@ -9,7 +9,6 @@
->  #include <linux/kernel.h>
->  #include <linux/interrupt.h>
->  #include <linux/delay.h>
-> -#include <linux/sched.h>	/* for idle_task_exit */
->  #include <linux/sched/hotplug.h>
->  #include <linux/cpu.h>
->  #include <linux/of.h>
-> diff --git a/arch/riscv/kernel/cpu-hotplug.c b/arch/riscv/kernel/cpu-hotplug.c
-> index 0bc56d8381b6..348043122593 100644
-> --- a/arch/riscv/kernel/cpu-hotplug.c
-> +++ b/arch/riscv/kernel/cpu-hotplug.c
-> @@ -66,8 +66,6 @@ void arch_cpuhp_cleanup_dead_cpu(unsigned int cpu)
->   */
->  void __noreturn arch_cpu_idle_dead(void)
->  {
-> -	idle_task_exit();
-> -
->  	cpuhp_ap_report_dead();
->  
->  	cpu_ops->cpu_stop();
-> diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-> index 32499cad86f0..dd1d40ec5440 100644
-> --- a/arch/s390/kernel/smp.c
-> +++ b/arch/s390/kernel/smp.c
-> @@ -918,7 +918,6 @@ void __cpu_die(unsigned int cpu)
->  
->  void __noreturn cpu_die(void)
->  {
-> -	idle_task_exit();
->  	pcpu_sigp_retry(this_cpu_ptr(&pcpu_devices), SIGP_STOP, 0);
->  	for (;;) ;
->  }
-> diff --git a/arch/sh/kernel/smp.c b/arch/sh/kernel/smp.c
-> index 108d808767fa..afd57bdce04e 100644
-> --- a/arch/sh/kernel/smp.c
-> +++ b/arch/sh/kernel/smp.c
-> @@ -108,7 +108,6 @@ int native_cpu_disable(unsigned int cpu)
->  
->  void play_dead_common(void)
->  {
-> -	idle_task_exit();
->  	irq_ctx_exit(raw_smp_processor_id());
->  	mb();
->  
-> diff --git a/arch/sparc/kernel/smp_64.c b/arch/sparc/kernel/smp_64.c
-> index 371460e34484..e98b5ddebc9e 100644
-> --- a/arch/sparc/kernel/smp_64.c
-> +++ b/arch/sparc/kernel/smp_64.c
-> @@ -1290,8 +1290,6 @@ void cpu_play_dead(void)
->  	int cpu = smp_processor_id();
->  	unsigned long pstate;
->  
-> -	idle_task_exit();
-> -
->  	if (tlb_type == hypervisor) {
->  		struct trap_per_cpu *tb = &trap_block[cpu];
->  
-> diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-> index ba01a9e919b7..dcbaf3f27862 100644
-> --- a/arch/x86/kernel/smpboot.c
-> +++ b/arch/x86/kernel/smpboot.c
-> @@ -1407,8 +1407,6 @@ int native_cpu_disable(void)
->  
->  void play_dead_common(void)
->  {
-> -	idle_task_exit();
-> -
->  	cpuhp_ap_report_dead();
->  
->  	local_irq_disable();
-> diff --git a/arch/xtensa/kernel/smp.c b/arch/xtensa/kernel/smp.c
-> index e4c25d0c2158..094e1da933a6 100644
-> --- a/arch/xtensa/kernel/smp.c
-> +++ b/arch/xtensa/kernel/smp.c
-> @@ -336,7 +336,6 @@ void __noreturn arch_cpu_idle_dead(void)
->   */
->  void __ref cpu_die(void)
->  {
-> -	idle_task_exit();
->  	local_irq_disable();
->  	__asm__ __volatile__(
->  			"	movi	a2, cpu_restart\n"
-> diff --git a/include/linux/sched/hotplug.h b/include/linux/sched/hotplug.h
-> index 17e04859b9a4..18fa3e63123e 100644
-> --- a/include/linux/sched/hotplug.h
-> +++ b/include/linux/sched/hotplug.h
-> @@ -18,6 +18,4 @@ extern int sched_cpu_dying(unsigned int cpu);
->  # define sched_cpu_dying	NULL
->  #endif
->  
-> -static inline void idle_task_exit(void) {}
-> -
->  #endif /* _LINUX_SCHED_HOTPLUG_H */
+commit: b36d4b6aa88ef039647228b98c59a875e92f8c8e ("arch: hookup listns() system call") https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git master
 
--- 
-Best regards,
-Jinjie
+[test failed on linux-next/master 20a33c6b6cbe7e4805dfb6cd68816937443aa148]
+
+Our bisection first flagged commit b36d4b6aa88e ("arch: hookup listns() system call") as the first bad commit, since that is the commit that registers the listns() syscall number, making the warning reachable from userspace/trinity.
+
+We also tested the parent commit, 76b6f5dfb3fd ("nstree: add listns()"), and found that it already reproduces a WARNING of its own (see "Regarding the PARENT" below, via setns() this time). This suggests the nstree/listns() code was already not fully robust before b36d4b6aa88e, and that commit's role may simply be exposing/making reachable an issue that predates it, rather than introducing a new one.
+
+in testcase: trinity
+version: trinity-x86_64-d4c26f234-1_20261018
+with following parameters:
+
+	runtime: 300s
+	group: group-04
+	nr_groups: 5
+
+
+config: x86_64-randconfig-015-20251114
+compiler: gcc-14
+test machine: qemu-system-x86_64 -enable-kvm -cpu Icelake-Server-noTSX,enforce -smp 4 -m 16G
+
+(please refer to attached dmesg/kmsg for entire log/backtrace)
+
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <yi1.lai@intel.com>
+| Closes: https://lore.kernel.org/oe-lkp/202610260917.6248e316-lkp@intel.com
+
+
+[   44.455278][  T526] ------------[ cut here ]------------
+[   44.456351][  T526] WARNING: CPU: 0 PID: 526 at fs/nsfs.c:508 is_current_namespace+0x12f/0x440
+[   44.458109][  T526] Modules linked in:
+[   44.459285][  T526] CPU: 0 UID: 65534 PID: 526 Comm: trinity-c2 Tainted: G                T   6.18.0-rc2-00023-gb36d4b6aa88e #1 VOLUNTARY  e2643480911518fe6c6e798d49763b0f8bc0c2cc
+[   44.464118][  T526] Tainted: [T]=RANDSTRUCT
+[   44.465362][  T526] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[   44.468577][  T526] RIP: 0010:is_current_namespace+0x12f/0x440
+[   44.470566][  T526] Code: 48 c1 e8 03 80 3c 10 00 0f 85 5f 02 00 00 48 8b 3d 7e 55 6c 08 48 83 eb 70 e8 9d 04 78 ff 48 39 c3 5b 41 5c 0f 94 c0 5d c3 90 <0f> 0b 90 31 c0 5b 41 5c 5d c3 e8 c2 b7 2a 06 48 c7 c0 18 10 a3 8a
+[   44.476790][  T526] RSP: 0018:ffa000000184fce0 EFLAGS: 00010206
+[   44.478622][  T526] RAX: 0000000040000000 RBX: ffffffff8e0d4bc0 RCX: 0000000000000015
+[   44.481098][  T526] RDX: 1ffffffff1c1a978 RSI: ffffffff8ab98ec0 RDI: ffffffff8e0d4bc0
+[   44.483561][  T526] RBP: ffa000000184fcf0 R08: 0000000000000001 R09: fff3fc0000309fa6
+[   44.485976][  T526] R10: 0000000000000003 R11: 0000000000000200 R12: ffffffff8e0d4c78
+[   44.488478][  T526] R13: 1ff4000000309fa2 R14: ffffffff8e0d4bdc R15: ffffffff8e0d4bc0
+[   44.490935][  T526] FS:  00007f9b05b17900(0000) GS:0000000000000000(0000) knlGS:0000000000000000
+[   44.493641][  T526] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   44.495638][  T526] CR2: 00007f9b05742e10 CR3: 0000000134aca003 CR4: 0000000000771eb0
+[   44.498129][  T526] PKRU: 55555554
+[   44.499291][  T526] Call Trace:
+[   44.500271][  T526]  <TASK>
+[   44.501134][  T526]  legitimize_ns+0x25f/0x4c0
+[   44.502577][  T526]  ? lookup_ns_owner_at+0x400/0x400
+[   44.504165][  T526]  do_listns+0x185/0x5c0
+[   44.505452][  T526]  __do_sys_listns+0x13b/0x300
+[   44.506941][  T526]  ? do_listns_userns+0x580/0x580
+[   44.508435][  T526]  ? up_read+0x22/0x40
+[   44.509723][  T526]  __x64_sys_listns+0x97/0x100
+[   44.510619][  T526]  ? trace_hardirqs_on+0x21/0xc0
+[   44.511530][  T526]  x64_sys_call+0x21/0xa40
+[   44.512340][  T526]  do_syscall_64+0xb3/0x800
+[   44.513186][  T526]  entry_SYSCALL_64_after_hwframe+0x50/0x58
+[   44.514303][  T526] RIP: 0033:0x7f9b05c28779
+[   44.515114][  T526] Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 4f 86 0d 00 f7 d8 64 89 01 48
+[   44.518758][  T526] RSP: 002b:00007ffe8c345bb8 EFLAGS: 00000246 ORIG_RAX: 00000000000001d6
+[   44.520321][  T526] RAX: ffffffffffffffda RBX: 0000000000000002 RCX: 00007f9b05c28779
+[   44.521798][  T526] RDX: 0000000000000008 RSI: 00007f9b05740e10 RDI: 00007f9b05742e10
+[   44.523292][  T526] RBP: 00007f9b05912000 R08: 0000000000000000 R09: 0000000000000000
+[   44.524772][  T526] R10: 0000000000000000 R11: 0000000000000246 R12: 00007f9b05912000
+[   44.526247][  T526] R13: 00007f9b05b0f560 R14: 00007f9b05917050 R15: 00007f9b05b176c8
+[   44.527731][  T526]  </TASK>
+[   44.528282][  T526] irq event stamp: 54199
+[   44.529054][  T526] hardirqs last  enabled at (54211): [<ffffffff81bdc218>] __up_console_sem+0x58/0x80
+[   44.530820][  T526] hardirqs last disabled at (54224): [<ffffffff81bdc1fd>] __up_console_sem+0x3d/0x80
+[   44.532559][  T526] softirqs last  enabled at (54144): [<ffffffff81a83670>] handle_softirqs+0x470/0x900
+[   44.534358][  T526] softirqs last disabled at (54133): [<ffffffff81a846fe>] irq_exit_rcu+0xfe/0x140
+[   44.536055][  T526] ---[ end trace 0000000000000000 ]---
+
+Regarding the PARENT (76b6f5dfb3fd), which our bisection marked as the last known-good commit, we observed the following separate WARNING,
+indicating the nstree/listns() area already had an unrelated issue before b36d4b6aa88e landed:
+[   94.367090][  T535] ------------[ cut here ]------------
+[   94.370167][  T535] WARNING: CPU: 0 PID: 535 at include/linux/ns_common.h:311 nsproxy_ns_active_put+0x8cd/0x940
+[   94.375575][  T535] Modules linked in:
+[   94.377666][  T535] CPU: 0 UID: 65534 PID: 535 Comm: trinity-c3 Tainted: G                T   6.18.0-rc2-00022-g76b6f5dfb3fd #1 VOLUNTARY  cb1b9fe02910ecdede8a35f9462ebcf918b6f4e2
+[   94.384602][  T535] Tainted: [T]=RANDSTRUCT
+[   94.386182][  T535] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[   94.389939][  T535] RIP: 0010:nsproxy_ns_active_put+0x8cd/0x940
+[   94.392205][  T535] Code: e9 fc fd ff ff 90 0f 0b 90 e9 97 fe ff ff 90 0f 0b 90 e9 d6 f9 ff ff 90 0f 0b 90 e9 ad fa ff ff 90 0f 0b 90 e9 fa fa ff ff 90 <0f> 0b 90 e9 28 fe ff ff 90 0f 0b 90 e9 b2 f9 ff ff 90 0f 0b 90 e9
+[   94.399343][  T535] RSP: 0018:ffa000000188fda8 EFLAGS: 00010297
+[   94.401546][  T535] RAX: 0000000000000000 RBX: ff110001008d93a8 RCX: ffffffff8236dccb
+[   94.404421][  T535] RDX: 1ffffffff1657494 RSI: 0000000000000004 RDI: ffffffff8b2ba4a0
+[   94.407439][  T535] RBP: ffa000000188fdc0 R08: 0000000000000001 R09: fffffbfff16574a8
+[   94.410390][  T535] R10: ffffffff8b2ba543 R11: ffffffff810000ae R12: ffffffff8b2ba400
+[   94.413332][  T535] R13: ff1100013598c540 R14: ff11000122132440 R15: ff1100013598c540
+[   94.416277][  T535] FS:  00007fa7c6e86900(0000) GS:0000000000000000(0000) knlGS:0000000000000000
+[   94.419588][  T535] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   94.422023][  T535] CR2: 00007fa7c6b5f020 CR3: 00000001337f8005 CR4: 0000000000771eb0
+[   94.425020][  T535] PKRU: 55555564
+[   94.426319][  T535] Call Trace:
+[   94.427494][  T535]  <TASK>
+[   94.428612][  T535]  free_nsproxy+0x16/0x380
+[   94.430265][  T535]  put_nsset+0xa9/0x1c0
+[   94.431822][  T535]  __do_sys_setns+0x2d0/0x700
+[   94.433519][  T535]  ? switch_task_namespaces+0x100/0x100
+[   94.435616][  T535]  __x64_sys_setns+0x53/0x80
+[   94.437263][  T535]  ? trace_hardirqs_on+0x21/0xc0
+[   94.439158][  T535]  x64_sys_call+0x227/0xa40
+[   94.440781][  T535]  do_syscall_64+0xb3/0x700
+[   94.442581][  T535]  entry_SYSCALL_64_after_hwframe+0x50/0x58
+[   94.445676][  T535] RIP: 0033:0x7fa7c6f97779
+[   94.447948][  T535] Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 4f 86 0d 00 f7 d8 64 89 01 48
+[   94.459415][  T535] RSP: 002b:00007ffc93f4e248 EFLAGS: 00000246 ORIG_RAX: 0000000000000134
+[   94.464265][  T535] RAX: ffffffffffffffda RBX: 0000000000000002 RCX: 00007fa7c6f97779
+[   94.469222][  T535] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 00000000000001ac
+[   94.473612][  T535] RBP: 00007fa7c6c71000 R08: 0000000000000000 R09: 0000000000000000
+[   94.476937][  T535] R10: 0000000000000000 R11: 0000000000000246 R12: 00007fa7c6c71000
+[   94.479999][  T535] R13: 00007fa7c6e78440 R14: 00007fa7c6c76050 R15: 00007fa7c6e866c8
+[   94.483046][  T535]  </TASK>
+[   94.484138][  T535] irq event stamp: 47371
+[   94.485745][  T535] hardirqs last  enabled at (47395): [<ffffffff81bdc798>] __up_console_sem+0x58/0x80
+[   94.489275][  T535] hardirqs last disabled at (47408): [<ffffffff81bdc77d>] __up_console_sem+0x3d/0x80
+[   94.492766][  T535] softirqs last  enabled at (47392): [<ffffffff81a83570>] handle_softirqs+0x470/0x900
+
+
+The kernel config and materials to reproduce are available at:
+https://download.01.org/0day-ci/archive/20261026/202610260917.6248e316-lkp@intel.com
+
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 
