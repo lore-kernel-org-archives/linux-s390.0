@@ -1,57 +1,121 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793098542;
-	b=L1pjp3YMoH3CC2ZHPv/FwdRU4KBN+JOcVO2yx4F7leFrI91n8qlzRK+f30LM2d5n40QU
-	 ESn/AM3GW/sAljL4NUwIbDf+RVRNHtF/28c9//q01zJ1DXunrqR8Ws2HD4CLhK6guAxbN
-	 dfFs5zyv4ggB5tRKuLtFiCRUbNjtqhfkZMgHJDXktKX7QXwSololtl1rzrRLlSgoERomP
-	 GZRWfYTXyptpR5g4Sg+s2Jxl3t9MQ/OGGYevikqWr9u7FJwtffsakMIqKAJRSNVEBEuqM
-	 kWtu79W/CrcVmmjkmvljt0Zv5ArD6O8v1sxxuYpvT9Hj9zZrz3N7VC3wKYmQtI1gi+Q==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793098542;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=8BocTCGZMUpsE9lRakW/9wpa2Yt35PhpoqGWBBo8M9c=;
-	b=dnfV+Q8pqIv+OQKGogJQVFjG2Hu3ij4UswCA4+t4ubrQfmQeVOYc9Js6PK/JwbZIz/A4
-	 +suGHxXNFWHPpAl3mcs/WsXH1ipfU3KnDcV06DE508QoGQpzMiRz1jm17m07ggWyM1tqT
-	 vo7HzUkUOvQjVMNcvBi+HfxgEHDvYh/EP6b8r9nxzGQ0mh+Xf+7mLXnvuGf30HoVoUj85
-	 UnTPOHw4BGqvgHITGgoGX08ubPT46SSuPfaU7VIiYdXgLeUMrXpYyUTw6fB0GaxlooPk1
-	 zYHKb5FNd/LFMz2tmhPQSUaFqxjuOZ2bTX1pnUXjToDxYaLBoE3sRn215yJAMOQEkCA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ajTOEjCv;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=170.10.129.124
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793098911;
+	b=dB8kkKObUzPxUBZPmzFSWHlVF69yXENTzXXIPA885tQ2Cuksf1QtiggnmWwcgwoftXZB
+	 fMZJ8GLmCublCL8PAL3fi5QIoRA5Zy7DXnU4K29TekyyJHwCw4TZB7BCUBUjlB03aX0vF
+	 MQA0T3+NdYv6S7qMCEVT9aFcvHgJll07oYusBEywNRgfEwd9DSIxvYN8RYDoEn2y5/n0R
+	 mbD92ssexGP2Zz/vfTQXg43BvkN8flEdTxrXTy0oZMCOg6m+DoVq1N/LGP+JsD7W30dDb
+	 DT5FNXLnSEQys9u3kKHtqIKmLti5Vea//2tp3zkCbiYjmET/GX+u8TjH7X/5dDpaVEg==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793098911;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 X-Received:MIME-Version:References:In-Reply-To:From:Date:
+	 X-Gm-Features:Message-ID:Subject:To:Cc:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=mswFdaLeZadM3beKHgTV0+pA+8tp/9smRtFllvNXA0g=;
+	b=bPBjTtXdfwt80qlIUjQKYNzpf+UwpC4mcMD/Y8WS5IRSN2LJ92vIh5sJLOaTsekDFY6V
+	 7AuCXk9aeMNbQMmJNKDDa2mw4YDlMH9Mu5Oenrd6QbXU0sD28lxKvgn0/BExZTNYeQ7PX
+	 hG+vr4TaugEkRbBmSlrcKCv36FH85tSyTvifZgwWdLrShCDY7GoGIXarQ9hUQwF5DzGs6
+	 BjS3XJImTCHjGoReO94u47Msz4PjOOZi2YNhPU39vYafOG+mnB3caP4cc3PEVMGToAXAR
+	 lrIfqT+G1A585L1creAl+UACmWNG28bYLAPZ2UbD1Lv3C+2XB0GdgVCP7EtqOXj9FdQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AiPXEGUx;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=MyCJDhh4;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2F88606A31A
-	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 10:55:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 381FB606A323
+	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 11:01:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 381FB606A323
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ajTOEjCv
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0C371F01200;
-	Tue, 27 Oct 2026 10:55:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793098541;
-	bh=8BocTCGZMUpsE9lRakW/9wpa2Yt35PhpoqGWBBo8M9c=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ajTOEjCvUOoxJSReWF7o6uy7jQ9yCDWnZ3P5OEpeP5PJc2c8n2x9REI7/KapHPssN
-	 HeoS5Q12E8SQuk60FkSE+f5WYLmGvfEZEzgBvmKG+/I/ePumSwBvIXQ0+K+GZu7rNe
-	 8MpAJ5gntGjkgAIY4qkPzd90dGzulEm5beaWE8CECJvap3NVLIYnZ9GARnz5yndsZc
-	 mfmh5WcLJp6H7cL4L1ovv2dYUtig+RLrs3OD+Zk5moTlRgltRPo8ggLNLOu7gn4wO/
-	 Z6Zz4xSdQLy1q4ZuTzDKtk+4bklSLZ+1rc30Rngbn28+QY2iX8ozKhAtziZqXEyJ2Z
-	 FAHzapwaYTTQA==
-Message-ID: <sashiko-outbox-186407@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4] s390/diag204: Introduce diag204 rework
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mete Durlu" <meted@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261027-diag204ioctl-v4-1-d5e90b56112b@linux.ibm.com>
-References: <20261027-diag204ioctl-v4-1-d5e90b56112b@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 27 Oct 2026 10:55:40 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AiPXEGUx;
+	dkim=pass (2048-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=MyCJDhh4
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1793098910;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=mswFdaLeZadM3beKHgTV0+pA+8tp/9smRtFllvNXA0g=;
+	b=AiPXEGUxZJEFydOVe/xa62W7XNMHwECKpeeaYgUWJxDkxcVGI4o6M2ZwwlKHVdzALEHsQ1
+	Sgu4dKlwL1caNZKxUW6CFmPsfX7/UdfZ8ALB0q/w5li7VHBaeBHGNnFFgjXDoOuonHH37i
+	516Fum1pgH8MPQoVKQtFk3el/ji9vfI=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-97-XwlwD--zOhSnAaVBT552eA-1; Tue, 27 Oct 2026 07:01:47 -0400
+X-MC-Unique: XwlwD--zOhSnAaVBT552eA-1
+X-Mimecast-MFC-AGG-ID: XwlwD--zOhSnAaVBT552eA_1793098907
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4a20e41008cso27658895e9.1
+        for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 04:01:47 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1793098906; cv=none;
+        d=google.com; s=arc-20260327;
+        b=IZWHDXUFr51ujDS+GPHQ25xkKKVyutotEyzjEhMNaw5wmXkLn42qmAkp2MRXrKyWBc
+         j6Xkc2XXuJ68iMzJzcxee+ukBbpO+m+tNHZwhdB1WhkF3hS+N3ifzFIXpVlsJYLeULkd
+         6xuVr7Zz0gfoWjMZKiz+m1yejQ8FMNsUs0EDM36gXLZ3qA7cdsAkxVZDfO2y9Wb0673n
+         jDcvluIYds8WwRxPGfldWtisHsxctrOcl/1JF73iuGnZlpZ2sJuzmxKF9HPwsqwvGi3i
+         Nq1WPntmjdk97AJeoRy2xFOrmfIfVHIOgvUNIHkTO0qtLyDNt7M3MX4ddMc5t231UGgB
+         MLHQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=mswFdaLeZadM3beKHgTV0+pA+8tp/9smRtFllvNXA0g=;
+        fh=L2sZNI9cZvuRyLaIGIJW49hZv1Q0DCP0giPXn2peJco=;
+        b=jb3QH10ivP9jreAKqTRoMowD43/H6zDq4F5ziUmTiSCdO/EdYKR6fU9gjuEWLoHagB
+         fgIZct1ay7eQ5lnsprTcC3ie9vJbdGjUprs6Ib+a+idn2Wit/ZcgqifiPXLE2M4Mtbru
+         KyHoVwc/njyVLXnlKzZF/ds+aWzmDWfQpjSBtumVMj17DQfDzdYuvLHGt1HKJgLHbYs6
+         CSUdov5RvndcwdXKAu2MxsGkQJc145olhEOkrzCrcV5zDYtNhG61cGiCPbCveroGlc+z
+         RvIERzTxjnCOanGgQPssll0opL01sAz3uwkUamTUj5eHIMR9ZN79AYUxA+XfxkGpWFyx
+         XCsA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1793098906; x=1793703706; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=mswFdaLeZadM3beKHgTV0+pA+8tp/9smRtFllvNXA0g=;
+        b=MyCJDhh4t0awaj5ua+PfViuasF8XsJnahPe+pBlR28q7tHuIuUStaR8bdQCZS158LT
+         ItliZF+jla82QJvCswfC0cTiPS+xwMKf80jEBIQ3fZ75MIOIw6vSaHkEZg2FzQNPM+kf
+         lWJHWK0OInwhV5PdyUGpkSVl5Q1UapZ8O/uY3Lp6vUbmeVu4ItKwTrKm3pVA/gkP9qun
+         Rjdn1CqceEWVKyGmpGDbBSq2g8IX6TEkHh1wfGCKu+NcqsdowN6ExFGwVfKQqXyrGQBU
+         aiZtcSB7RAerVWoPaeZiytHtQLqgrKvVTyoyMv6lsFXjwWissUXi219M3SnjisyP9UoJ
+         tfKA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793098906; x=1793703706;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=mswFdaLeZadM3beKHgTV0+pA+8tp/9smRtFllvNXA0g=;
+        b=yyIZ4SRNA8j6jLBnWvvXAY32kaQ8c58fcqNYmLXCGmLa6djvut4tH4noQ2olE9+pyE
+         ppQZ8yVfvEhE/xtCnOYuN77BeqmWALW5DTpHKK6WwgQELIzC9XluevmUK2hsYbQfSU7I
+         gSCforCeoiPR2u0wadQi/7ZI4GuSH7F4aPUNUWxQoO7MWXnXFz9S3d2N0vVZbFDoz6pb
+         yYNdQ/rVSv+oxCF9hfNiWZmyIPSjyNHjCLWogR1T7xit5EPA6IXzYD2fbFugsLmWmRrF
+         10EqBBXX3PWrowe02lyJN4ZBGxs0zcqpjbVMJudv83EKlENbqWh+uIT5wHilKAnniRFQ
+         g7Dg==
+X-Forwarded-Encrypted: i=1; AKwUvByuHMVCSsz5p8jfz5HUBlQgt8tbl6bUMiS1cwPl2YXEvoatdQ7/KdrAFQ5wSUJjJl24QIiaiORXCx/A@vger.kernel.org
+X-Gm-Message-State: AFq9FYJ+KwZnycMyjREZb2eJfhGsEdXRplg9f9M+MrzviGS9b++EthqR
+	+d8OQeMXUHE9WHgaPqUdBwQRCHW+rhTtWDS+VJutfIDxOcer5rdEEfASJS23mML9+C1TMdArVx1
+	gauvvFkZZrPcZYJ9uX6ArTdrMHpc6+cDIefsnpALHWo5OJXNlzXbo/37p5N7fQH8FMpfPsxGr/W
+	OBXfRRlV8U7rWQHpebp+JZ+c7jnhTABwysyxnKIg==
+X-Gm-Gg: AYBFou2Vo9z0L84R6NA6xknnW8goVZ/cKz7Je9yjHdHvUEV0TwjasdOBWt3HHtsLOQt
+	HaoDUpLjeCp2z51vlC0cR84hQC63bsoQUgFq4gkt0UzASJlhc+qT9Ftu+NVCRfCxx0UeJgYZyPv
+	RDuIoh8nZO6EN5NbGDrFqaTlVWR+uDnJ9G8nMixndH1ZCUzIt1GC82+52MANIxjn/UdBKc/fzFh
+	d7JPthN9szqE4fH5KTVDIZAG2EiVKFKovkqWK5e1++N4PTFDY4g0OwNfHcJiA==
+X-Received: by 2002:a05:600c:8b6d:b0:4a7:669c:c988 with SMTP id 5b1f17b1804b1-4a7669cc9d8mr64989115e9.23.1793098906382;
+        Tue, 27 Oct 2026 04:01:46 -0700 (PDT)
+X-Received: by 2002:a05:600c:8b6d:b0:4a7:669c:c988 with SMTP id
+ 5b1f17b1804b1-4a7669cc9d8mr64987735e9.23.1793098905407; Tue, 27 Oct 2026
+ 04:01:45 -0700 (PDT)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -60,166 +124,55 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+References: <20260804120529.1730187-1-pbonzini@redhat.com> <at9ahKiYsVtH8kpU@google.com>
+In-Reply-To: <at9ahKiYsVtH8kpU@google.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Tue, 27 Oct 2026 12:01:32 +0100
+X-Gm-Features: AclHuK_gMHxkpSkqtzZpmI4E9n3tRQVDE0ExdUQ32JdSX7MqnvWed3WEPGPoNjU
+Message-ID: <CABgObfYgZ87=W+6E=N=WwTuyYkaoKU3hqd84JDTSAvT3_9dh6w@mail.gmail.com>
+Subject: Re: [PATCH v2 0/6] mm, drm: fix interaction of .pfn_mkwrite() with fixup_user_fault()
+To: Sean Christopherson <seanjc@google.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	Alex Williamson <alex@shazbot.org>, bcm-kernel-feedback-list@broadcom.com, 
+	Boris Brezillon <boris.brezillon@collabora.com>, Christian Koenig <christian.koenig@amd.com>, 
+	David Hildenbrand <david@kernel.org>, dri-devel@lists.freedesktop.org, 
+	Fei Li <fei1.li@intel.com>, Huang Rui <ray.huang@amd.com>, linux-mm@kvack.org, 
+	linux-s390@vger.kernel.org, Michal Hocko <mhocko@suse.com>, Peter Xu <peterx@redhat.com>, 
+	Sergio Lopez <slp@redhat.com>, Thomas Zimmermann <tzimmermann@suse.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [High] s390/diag204: unexpected signal interruption and -EBUSY in diag204=
-_store()
-- [Medium] s390/diag204: misplaced signal_pending() check in diag204_update=
-_cache()
---
-
-commit f09eadeabe189d5ced7bd69c8dae7f95a7f3195f
-Author: Mete Durlu <meted@linux.ibm.com>
-
-s390/diag204: Introduce diag204 rework
-
-This commit reworks diag204 support to rate-limit hypervisor calls to at
-most once per second using a shared cache, delayed work for buffer cleanup,
-and a common kernel interface. Existing in-kernel users in hypfs and sthyi
-are updated to use the new interface.
-
-> diff --git a/arch/s390/kernel/diag/diag204.c b/arch/s390/kernel/diag/diag=
-204.c
-> new file mode 100644
-> index 0000000000000..a68961bb8998d
-> --- /dev/null
-> +++ b/arch/s390/kernel/diag/diag204.c
-> @@ -0,0 +1,271 @@
-
-[ ... ]
-
-> +static int diag204_update_cache(int allow_busy, int allow_busy_wait)
-> +{
-> +	unsigned long subcode;
-> +	void *buf;
-> +	int rc;
-> +
-> +	buf =3D diag204_allocate_buffer();
-> +	if (!buf)
-> +		return -ENOMEM;
-> +	subcode =3D g_cache.type | g_cache.subcode;
-> +	if (g_cache.has_bif && allow_busy)
-> +		subcode |=3D DIAG204_BIF_BIT;
-> +	WRITE_ONCE(g_cache.updating, true);
-> +	mutex_unlock(&diag204_mutex);
-> +	do {
-> +		rc =3D diag204(subcode, g_cache.pages, buf);
-> +		if (!allow_busy_wait || rc !=3D -EBUSY)
-> +			break;
-> +		if (signal_pending(current)) {
-> +			rc =3D -ERESTARTSYS;
-> +			break;
-> +		}
-> +		schedule_timeout_interruptible(HZ);
-> +	} while (1);
-
-[Severity: Medium]
-When diag204_update_cache() is called with allow_busy_wait set (for example,
-via hypfs_diag_create_files() or dbfs_d204_create()) and diag204() returns
--EBUSY, a signal arriving while the task is sleeping in
-schedule_timeout_interruptible(HZ) wakes the task early.
-
-Because the loop immediately starts the next iteration and calls diag204()
-before checking signal_pending(current) again, doesn't a signal during the
-sleep trigger another expensive diag204() call immediately without waiting
-for the 1-second interval, and potentially miss returning -ERESTARTSYS if t=
+On Mon, Oct 26, 2026 at 2:50=E2=80=AFPM Sean Christopherson <seanjc@google.=
+com> wrote:
+> > To sum up:
+> >
+> > - patches 1-3 introduce the new MM API, and use it in the DRM .fault()
+> >   callbacks to install writable PTEs in response to write faults
+> >
+> > - patch 4 is a preparatory fix in KVM, eliminating inconsistencies in t=
 he
-second diag204() call succeeds?
+> >   handling of !VM_READ and !VM_WRITE VMAs; these would return different
+> >   error codes for a !VM_WRITE VMA depending on whether the PTE happens
+> >   to be mapped (but with wrong permissions).  This needs to be here
+> >   because the next patch would introduce even more inconsistencies.
+> >
+> > - patch 5 moves the check for writable PTEs from follow_pfnmap_start()'=
+s
+> >   callers to the function itself
+> >
+> > - finally, patch 6 is a KVM addendum that will have to wait until
+> >   the next merge window; it removes yet another inconsistency in
+> >   KVM's handling of !VM_WRITE but is technically userspace-visible,
+> >   and therefore it shouldn't be included in stable kernel releases
+> >   unlike the rest.
+>
+> What happened to this series?  It seemed liked something semi-urgent, but=
+ AFAICT
+> it got silently dropped?
 
-> +	mutex_lock(&diag204_mutex);
-> +	if (rc >=3D 0) {
-> +		diag204_replace_cache(buf);
-> +		mod_delayed_work(system_dfl_wq, &diag204_work, DIAG204_WORK_DELAY);
-> +	} else {
-> +		diag204_free_buffer(buf);
-> +	}
-> +	WRITE_ONCE(g_cache.updating, false);
-> +	return rc;
-> +}
+It ballooned a bit and getting acks from everyone involved is hard...
+Either I or Sergio will get back to it.
 
-[ ... ]
+Paolo
 
-> +int diag204_store(void *buf, int allow_busy, int allow_busy_wait)
-> +{
-> +	int rc;
-> +
-> +	if (!diag204_is_available())
-> +		return -EOPNOTSUPP;
-> +	if (!allow_busy && allow_busy_wait)
-> +		return -EOPNOTSUPP;
-> +	if (!buf)
-> +		return -ENOMEM;
-> +	rc =3D 0;
-> +	while (1) {
-> +		rc =3D mutex_lock_interruptible(&diag204_mutex);
-> +		if (rc)
-> +			return rc;
-> +		/* Exit loop with lock taken if there is no concurrent update */
-> +		if (!READ_ONCE(g_cache.updating))
-> +			break;
-> +		mutex_unlock(&diag204_mutex);
-> +		if (allow_busy && !allow_busy_wait)
-> +			return -EBUSY;
-> +		/* Update in progress, wait until flag is cleared */
-> +		rc =3D wait_event_interruptible(g_cache.wq, !READ_ONCE(g_cache.updatin=
-g));
-> +		if (rc)
-> +			return rc;
-> +	}
-
-[Severity: High]
-Can this loop in diag204_store() return unexpected -EINTR, -ERESTARTSYS, or
--EBUSY errors to callers that pass allow_busy_wait as 0?
-
-Specifically, sthyi_fill() -> sthyi_update_cache() -> fill_dst() ->
-diag204_get_data() calls diag204_store(diag204_buf, diag204_allow_busy, 0):
-
-arch/s390/kernel/sthyi.c:diag204_get_data() {
-	...
-	rc =3D diag204_store(diag204_buf, diag204_allow_busy, 0);
-	if (rc < 0) {
-		diag204_free_buffer(diag204_buf);
-		return ERR_PTR(rc);
-	}
-	...
-}
-
-Even though allow_busy_wait is 0, diag204_store() unconditionally uses
-mutex_lock_interruptible() and wait_event_interruptible(), which return
--EINTR or -ERESTARTSYS if a signal or notify_signal is pending while
-contending on diag204_mutex or waiting for g_cache.updating.
-
-When sthyi_fill() is invoked from KVM's SIE intercept handler in
-arch/s390/kvm/s390/intercept.c:handle_sthyi():
-
-	cc =3D sthyi_fill(sctns, &rc);
-	if (cc < 0)
-		return cc;
-
-and arch/s390/kvm/s390/s390.c:kvm_arch_vcpu_ioctl_run():
-
-	rc =3D __vcpu_run(vcpu);
-
-	if (signal_pending(current) && !rc) {
-		kvm_run->exit_reason =3D KVM_EXIT_INTR;
-		vcpu->stat.signal_exits++;
-		rc =3D -EINTR;
-	}
-
-if a signal is pending on the vCPU thread during a concurrent diag204 cache
-update, sthyi_fill() fails with -EINTR or -ERESTARTSYS after SIE has already
-advanced the guest PSW past the STHYI instruction, leaving the guest buffer
-and condition code unupdated and preventing kvm_arch_vcpu_ioctl_run() from
-setting KVM_EXIT_INTR.
-
-Also, when g_cache.updating is true and allow_busy && !allow_busy_wait hold=
-s,
-diag204_store() returns -EBUSY without checking g_cache.has_bif, whereas
-diag204_update_cache() checks g_cache.has_bif && allow_busy. Should the
-concurrent update check also gate -EBUSY on g_cache.has_bif, and use
-uninterruptible locking and waiting when allow_busy_wait is 0?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261027-diag204ioc=
-tl-v4-1-d5e90b56112b@linux.ibm.com?part=3D1
