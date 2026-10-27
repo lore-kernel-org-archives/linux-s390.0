@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793111817;
-	b=0CR67s0G+YUFhXn68txo70w1x5THUFg2gJddrkkbe1FpYY24bUFrI8Q1pBMEps6mkf9G
-	 tRBXmIBh9AumXGcFK3BsKCOXfKoVo8yzMfVab8I7HC/Z1qxmHgj//w0xUrWv7LHiKyD1j
-	 VCuJIypsrm4Xj5M4dsmiihyAOBAZrhIM6m4D86k/B2ihNnS4gejV1MHWUeJ8oUndGyh3g
-	 23LVClgv90sfM52AcJZmPOO1JadbSGEQVyErAx0XRzBNKXdX3s3CC8hCeQK6Xp33BuY3B
-	 F447vac2oYvwIoPLsmxD9b3jZWQAMFwJvhDQV3wXsDcoJrLyprfdWjAd6pKvHK+V61Q==
+	t=1793111823;
+	b=UyvP8hWsLS4bql3BqgDh4nSCadzrCXh6T7CWMD4VplrW9IoENlzyRH7WlcjQVyw5AdRJ
+	 20V/eg2dlEP4kX5PXtZJL8O9dR4O6XlZdShLQx/TCU1xleFA7mMf5t6f3dSgXymwc9rlc
+	 qNc4AH0fVMZQEkupJ6RKlkm7u7F1LOHU/8egnG+Kk8hicR1Y4/Esqt40JCE7mvfWAfllD
+	 BEcyfDNtBJSnIp86tV9KeZBCPGuxw9H3otViVp/nbiKOyN0TrQWcC6n/E45BqfyIV+5Rg
+	 M4Cf6F1Zo3IRrdecoC+v3VBml2x5DZKK3lonOeZB07wgXdDjphoy9CTBZHqWcsubOFw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793111817;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793111823;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=4vm1fkra0aTfCKh6qyBOIQmsH9SXZaCxxqsY/UxH8Ag=;
-	b=YH2b5l7ZJejQl1iY9efCoT1jdQSLIc3pxDWImJBi2JJWZ23U6lYhpj5lrdkncKKH76kZ
-	 XCg+kgRB1yVQSEETpcSxvi4grxKEDO5ZwdThDhQ0qwuS4WgzzjXF1XTnbmbcagYAwJ8TX
-	 SiDSltIS+yMoDfIcqdEXNShVVBg6bCuBsvtWcbyWcwewhzpvmEDk5wnQJYfq8+1Pa38M9
-	 nh0hkz32FLcCFpGBoUA6Md9BsDLhz2VBRsPQBExYXlSPoWLJSKn+30245ViNy9Kvv/gr8
-	 oDixPkcCy3gofQllYTu6/ejUCQl1rJOf7alSrupI+ruoRP02j4zRhQDejuQ+K2DsC4A==
+	bh=FsA8tmbfIUuVNSZg/U5QFwdqA0RAQalVEarSN9OD5fI=;
+	b=L7K84oaVgNWoxKnNYmfueVbsStYqxJvj/C/p2IVZxDIcDluBqTvkn9znqYa77zJva2oV
+	 UYBIYZAK6knCIrFinlPeKXa+KVluN5hfOX8W4SyvKvFn5aGryN825UX20vn1AYPJnrfJ4
+	 MNOKqV9hxlVRevyoiOf36wDpOl6qEuwDJU1ltwoNePz3p5AFxn4DIUdcTJtnuOYKLO/cY
+	 6ZPCJIiOYFi40vJfna5DO5Yog8aMRAR7sZjuQfCKBANbuEnTqPhfi3fs4VUVt7OLnZP5X
+	 Zgnl3K/51Uv9emuVPYTKLkTMsq1wv9oF/3T45dbeEW342niEMiubBfKUhvQhZ+lIoXQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=csYVBTPm;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AfRmLNPS;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 762EB606A31B
-	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 14:36:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22DE6606A320
+	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 14:37:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=csYVBTPm
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7B991F01828;
-	Tue, 27 Oct 2026 14:36:56 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AfRmLNPS
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A5221F031E0;
+	Tue, 27 Oct 2026 14:37:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793111817;
-	bh=4vm1fkra0aTfCKh6qyBOIQmsH9SXZaCxxqsY/UxH8Ag=;
+	s=k20260515; t=1793111822;
+	bh=FsA8tmbfIUuVNSZg/U5QFwdqA0RAQalVEarSN9OD5fI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=csYVBTPmdE07OvbCxvVRrfU2pE78Z8c5xtaQVtleD8Mtt+4dBZDTlb0dVlZRBtqVE
-	 mibdUvIWspnwrarYeeS5w3MDObdM063736fXJuUHtQYIB8PkSA92EzVe0WXuqPYax1
-	 yIkUKscvlXHpQ+0pvtB2FSm3gZfvsx1pJGlUQfC0lbL9n3ep1AkK1UM0Q5U1fIzLsG
-	 F9xTU9qYHdS5Ptk+QY+ZtAFwRlj/MW+99Z6q/oWWcS7XODkiHAzVRSAZlc1HIgGqaR
-	 O2k0EfOUmhn1OJxGfvjhz+1mhU+zSwE93shALzxZfXAD62uuBx5Xcz8zFiV1v9BqFy
-	 VcBMXQWLIbbvQ==
-Message-ID: <sashiko-outbox-186736@kernel.org>
+	b=AfRmLNPSRYYA6SuQKUGNGqJjkerymZMc8/kmR8oMPvYN9AS4GRpez9ayfSghX/LoC
+	 Zcfy/6GlTnFlh4li1aQoAwjSmUNZJFj2J4ln2cc7dCjW5ZqFHYERvD4iM9YQE2sK9y
+	 Xzfd79mL/jnWgwzON9aidt5byepwmzb8LZsW9wGNF5mrBsL7H5wIcpjRX87n0iE9CM
+	 iZHZ3PMkycMKfppE65pGupzH/8tmmA/IAj1RlEqqEcWf3VFT6iXcHiZ1Bks/TC4VdF
+	 4mT650YTXLqF1UvZNJ6S4yY3dlnWAJMvH1xxosIQYO3pXXyKwO2HibSJ2jr3aiVHnI
+	 r2qd1Zrari91A==
+Message-ID: <sashiko-outbox-186737@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 05/10] s390/module: Serialize text patching with
+Subject: Re: [PATCH v2 02/10] s390/ftrace: Serialize text patching with
  text_mutex
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Heiko Carstens" <hca@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261027143030.3154657-6-hca@linux.ibm.com>
+In-Reply-To: <20261027143030.3154657-3-hca@linux.ibm.com>
 References: <20261027143030.3154657-1-hca@linux.ibm.com>
- <20261027143030.3154657-6-hca@linux.ibm.com>
+ <20261027143030.3154657-3-hca@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 27 Oct 2026 14:36:56 +0000
+Date: Tue, 27 Oct 2026 14:37:02 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,8 +62,12 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Acquire text_mutex in apply_relocate_add() in order to serialize text
-> patching.
+> Add ftrace_arch_code_modify_prepare() and extend
+> ftrace_arch_code_modify_post_process() to acquire and release
+> text_mutex when ftrace code is modified.
+>=20
+> Also add locking to ftrace_init_nop(). This way s390 uses text_mutex
+> like e.g. x86 and riscv.
 >=20
 > This is part of larger series where at the end s390_kernel_write()
 > requires that callers hold text_mutex for serialization.
@@ -74,5 +78,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261027143030.3154=
-657-1-hca@linux.ibm.com?part=3D5
+657-1-hca@linux.ibm.com?part=3D2
 
