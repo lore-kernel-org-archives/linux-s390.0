@@ -1,59 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793141117;
-	b=40iBttYq/WCy+SHHa1+gfRt9JLEECCzbM1FIbdWl5Qndo1ayoTqWgtlEszJwAUV2lVg9
-	 V1APv7eYCOZ1KeRua0pWNcIBU8vTEnXjztxkx3+d9+uWKuaS3VscEfX+2DfPLbCU6w7oy
-	 bvMMjrpOME0Zq/L1qYTf+q+PyM2nznirb9IBwngtcTM4laAl980WOVxNGtQQXvHfTNsvk
-	 SxHa2utghU9vDbVa6AtnkCrH0c4qXzYf3pQeIrYHrJskQ/V+8RD7p3SXdqvGy1Jmkb78n
-	 9F7TwXupzRNbKGi8ir2bG6xP78S8fRowkHwYt/v/+LoO6ENYo1py265b9IkabLObXwg==
+	t=1793141158;
+	b=KdqwqhnNwbjfz25SuX7cBFHpnhYyTlGaErbFvag52NDY/u42bg3ps85QJ+IW35L09icJ
+	 6oHPYOja39GcLHVSXBftlrWkfM3GL2O5bWTUhA18983LPZYvLZZFp4Ko3jdUt4alRAjl9
+	 A4q0xG+TQVLEqxSMJ3Y+VT3/orkvy/LmzgK/Wx837ur+w5vGGklhIP/BLN3shMeC2SVJH
+	 LpgjYkfe52rIrybGrvk/9PfZKF78yvse21x07KM9X8fxf2tdn9PUrbwIjywmzDgiDdKE6
+	 EL9YjC9fHNwARcHofNINBVVFHOmTy0VPsemnVpFm0LxAT1uJBEW4DkrpwdBKM6U7psQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793141117;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793141158;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ge8wQrSctNgq+InjgGnUHJf4lvqXX3f0kK6as2obkmI=;
-	b=0ZBkoM/VVx6+gkLYbiGoNU0ABztSYX52ohnUYyf6Es1Nqp2H0z9vBE4hOxij+n2zDVX5
-	 H/wbl5BkMvhgH86FvLsmifa6WzaCinN0o+QWAlgOGFJQRtemVSTCQnqwMd+oC5sEKJaaf
-	 9lPGRkHJc4LM836Znm2MBI3XTm2MIgFG0BvnmnUphuCnWlB0AF5liLzdRKZ/Za7wO/O/8
-	 Kfelo+AUm5D5syCjkx5w94i4qNdmGtnjyOnN4dH1UxLetbmiaXHp01/9wYXmZUnBnn/Al
-	 BvPEOIf/FJOoiDyQ8+omUhxM0f4Q74e9oHVJ5cMmoiQeWmapZv/wLgt84ISR+WJSRuQ==
+	bh=TYW2PD3BGyeaZH6YMAFFVKfcPxZJvLBfN4S5TdOJvhk=;
+	b=1+pm/JGag0aUKgs+WUAoyVqKCkGSbJ9mJOKfF+aczMofLRWUqavXHICLh4Oc1D3JmyqD
+	 T70R4HRw4xJKPWnPmQwXHkRJs1gl7K7PR0iPGeoA41TYhP4IUv5WfYwcEXjY/uT4bhHHt
+	 2rt7x1eOT1461MX8N8p/Qx6FlCX7sNFvKLWXhXP6mXWGhoQ4l7Tl4P9bSIGh7rcoAX5t/
+	 dL9Lvb/wujLO8VPGEGWjIybAeH/E9KtbKSeVT2h2skHu+oEzxYKAhcGwCTuww1YY9Uyoa
+	 7m3+Kg/jmXSNOC9naSKwzfgcl4kQJF+xSMOuBWyoPbBKbWfxDu1VHZQxUKXtX8yhUXg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kJlxsqHF;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZyTI9Zvj;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 465F1606A31E
-	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 22:45:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 031F1606A323
+	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 22:45:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kJlxsqHF
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A1DD1F01825;
-	Tue, 27 Oct 2026 22:45:16 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZyTI9Zvj
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59D501F031E2;
+	Tue, 27 Oct 2026 22:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793141116;
-	bh=ge8wQrSctNgq+InjgGnUHJf4lvqXX3f0kK6as2obkmI=;
+	s=k20260515; t=1793141157;
+	bh=TYW2PD3BGyeaZH6YMAFFVKfcPxZJvLBfN4S5TdOJvhk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=kJlxsqHFN+KIpitUEdBRYhLrlCP4hXjJIXYx8gOW7dMOLwAE6xORQpTtvBuAmvOLm
-	 nFm0hz18exuDCpWhalfkCwXXFk0VpfaEW2tVIvd37uTNUUUbiDICCdOCmN0k3Pxe1k
-	 8Xia/eOnnL5uxzM/qxrBTWQKZg+OqEbP6dMmSN1vG3a04a3K7iod15bKwK+6HHF8xL
-	 zYlJ081BH8i1JWbgzJJXuPsGBEKwWQQc2wMB9xQ3oYiD6N6e0Q+jKRA9lyGUblO+bD
-	 ut31hG7jJscU1btVLJ5Zc+D+AaHp/X7Hb2adop/XxIpgtAxgGvQE3u9LPOVt9IB+HU
-	 w6704LQUpgYFQ==
-Message-ID: <sashiko-outbox-187175@kernel.org>
+	b=ZyTI9Zvjue4/B73ARuaUAUF0OooVCc8v91FnEBrgr+sItJhUyCNQklY2daOWbfX6b
+	 pTB+2zpVAYqppnjdlXhcAGy47w+4lMjIZhooFsR/0vtWsIOtRUUpin1HVoMtgmhF6s
+	 Fq6Bx5h1whStbCgIZ7RCKVgti12FvqemXaWNf8lB7hNMAJPEOM/2D2Qscwgh3IDymT
+	 a7Qb2hkK9Savsf51OaGo3AtiM3vs80IqhYGnd6R6qkjMJWQc+M+7zyAnF9UNq66kIN
+	 JBUygBaEiUQZOpwHcLJu202d+ErQHCcvadBpAENEcCKikHsvGGEmTuT1NQxFfI/rBS
+	 F7gewpNRSs7ew==
+Message-ID: <sashiko-outbox-187176@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 8/9] drm/amdkfd: Free queue in procfs_queue_type
- kobject release callback
+Subject: Re: [PATCH v2 5/9] dlm: Free dlm_ls in kobject release callback
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Ian Rogers" <irogers@google.com>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261027223847.652884-9-irogers@google.com>
+In-Reply-To: <20261027223847.652884-6-irogers@google.com>
 References: <20261027223847.652884-1-irogers@google.com>
- <20261027223847.652884-9-irogers@google.com>
+ <20261027223847.652884-6-irogers@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 27 Oct 2026 22:45:16 +0000
+Date: Tue, 27 Oct 2026 22:45:56 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,24 +62,27 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> struct queue embeds a struct kobject (q->kobj) for procfs entries, but
-> procfs_queue_type had no .release callback and uninit_queue() freed q
-> immediately after kfd_procfs_del_queue() called kobject_put(&q->kobj).
-> With CONFIG_DEBUG_KOBJECT_RELEASE=3Dy, this causes a use-after-free.
+> struct dlm_ls embeds a struct kobject (ls_kobj), but dlm_ktype lacked a
+> .release callback and dlm freed the lockspace structure directly via
+> kfree(ls). With CONFIG_DEBUG_KOBJECT_RELEASE=3Dy, freeing ls before the
+> delayed kobject release runs causes a use-after-free, and unloading the
+> module while the delayed release is pending results in an instruction
+> page fault.
 >=20
-> Add kfd_procfs_queue_release() to free struct queue from the kobject
-> release callback, change kfd_procfs_del_queue() to only remove the
-> kobject from sysfs via kobject_del(), and drop the final reference in
-> uninit_queue() via kobject_put(). Check q->kobj.state_in_sysfs before
-> calling kobject_del() in kfd_procfs_del_queue() to avoid warnings if
-> sysfs creation previously failed.
+> Add a completion ls_kobj_done and dlm_ls_release() to complete it when
+> the last kobject reference is dropped, waiting for it in free_lockspace()
+> before kfree(ls) and in the new_lockspace() error path before module_put(=
+).
+> Also delete the kobject via kobject_del() before stopping dlm_recoverd
+> to close the window where concurrent sysfs writes could wake the stopped
+> recovery task.
 >=20
-> Fixes: 6d220a7e7971 ("drm/amdkfd: Add queue information to sysfs")
+> Fixes: 3514faca19a6 ("kobject: remove struct kobj_type from struct kset")
 > Signed-off-by: Ian Rogers <irogers@google.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261027223847.6528=
-84-1-irogers@google.com?part=3D8
+84-1-irogers@google.com?part=3D5
 
