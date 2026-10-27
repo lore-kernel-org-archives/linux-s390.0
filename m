@@ -1,61 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793114146;
-	b=Eay1jgSQ0/m0PWQF/5xNGQ8bcHqv6b+3nKRFbhj9wvdRzPqmlZR64lSgJOeM+qs4nRne
-	 H8GhtTPt5Qm3A9g49TQ5UI4Q7nvT0DN7ZGl+XEkUOY5qLH1hZeHP0HFyCdslNQ+D9UdMG
-	 pRI6b+JdzDQxqrUFkePnRu9s3z7vfXmXlX2X6QDFLj2ZNQuBKN0TGnHSpS69GEmXySbvI
-	 pKD6DqxwHPYX2SOTz2DfZQmtp9c783MlOYl9fTfzm947YUI896g3o21bcrOXoH7B+wlrM
-	 Vwj/s/qPMp/zi44Q19oS+zRHt7we4VMWEhCpb9AiSeSc8eXuW4RU8rlrQZdTbo/n4oQ==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793114146;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=IvZFZXIpdj4sFPxJ4kZaPc0Pvo8gnHI83xUdJmroOIw=;
-	b=UDDHMOn3sM+bWKEn1QjSFSXbOprRxs8/RUs6NIW/qai6NBpJ7vT4sqp7sLxxz/J00jG7
-	 GDKK1vrLtNd4R/+fvLBDNqptGpChnj2+jdkBbdMLGlhxRk5WE2JfOwoXGuKEWw1QdPwuq
-	 96FPStUvOE1g3ulLCh4GH6f8lJZ9QhZsSK4TumPcxzu/68EHEqu4pWAzYHC+9ggjQq7Sm
-	 4AHcLJiT0gjylvsqjNMQVtEN1u306xCG4t4xfgyZ0lLSso51jCDg3q0kiagDoxaGSX0mh
-	 hWYp8AyVdEBngBWs9JfLbfRk5DFrnjEwJG2RmI1SiExQL7IjWSooGcaeQWGDu99ZDWA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="oqP/TSLl";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.49
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793115323;
+	b=b5J+j3EghUUfEwLFGWPwGfHBpH6jWX5i/swfMXnTmr+Xo+9WMd85srfIA5IhJtnciB7t
+	 Yf8XjzMAFo+ZtnONrDHeZ2WS96JKD+vp0OAeDF8t2+DOFTDUG3PeOsnkvSkjh02ZJqvhX
+	 +JuMoTLo+IY22GvsUf+j0HLIXPYX/lVD3Y5J9K2jdP1PsnIq/MH8OZU0F4z5EbwbvFvfx
+	 PUpIWkm4WHG/zGDKeNLSIkp59HiIX6/XWeq2i8/o8KfBDwCkE8D20SdYKXskX93kaSC5C
+	 KT7/Lj+ESE/E3tevfpMlEteTJU3XUgLnVpETVE2j636vScGoqUVRYGks609OBQx6nkA==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793115323;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=4zAei5lThhZDw5YSnMo1UVcmXVNHUE0mRv/Yv8V16b4=;
+	b=cJAwvWXeQS7M6mY565z1m+gkne6kt+APYG9BekvAcUOcFeBlNRwMtqlQzxXVmXUTkEob
+	 Sgev/uuObv+R7mHMxYpwa9SWwuozbF5ao93R3D8xkVNtix4/98DtjyVwnRk43mhBR0MNF
+	 38Yae31TZdJ8KnaF26XberCKHKcrVJPkrI+nyFsSDqQfSGTSMRf8QMv6WHtgEfZeNw/vQ
+	 7RrbAZLCOPaAAraebREpLHyyBwVTEx18zTErXtx50nHjeySSJVcXj3kpOoKhWv+93aLTv
+	 8JY015lJDzLngONVFRamcDkc4i8oFTlozLNIJf89q1MsZinCKTninhHN00acN5KN/oQ==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=gmail.com;
+	spf=pass smtp.mailfrom=gmail.com;
+	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jF+A3FID;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.49
+Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4243E606A31E;
-	Tue, 27 Oct 2026 15:15:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91CF8606A31E
+	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 15:35:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 91CF8606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oqP/TSLl
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EC9A1F01829;
-	Tue, 27 Oct 2026 15:15:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793114146;
-	bh=IvZFZXIpdj4sFPxJ4kZaPc0Pvo8gnHI83xUdJmroOIw=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=oqP/TSLl7GUDp1RRDJr64m0QXWHfFn4SS0GytZtETmTR1XkBYuPqdqeD5DxgLQ4q2
-	 bVhY5zA6w5vSErcJuqfrwZMSIXmP5f3pPgwFdI6KvMJPGf+oPe2Q2uMKXsF60WVo8A
-	 jGpZBJseB9W3QK3yvvKEhJ9WI/ewhwtuJVVJTEoBL5PCzTLf7iEmymloEXd9N808bU
-	 DWg9t6WNcrlraYwmmvUCGTrm61BIrEUgG6BerZ5gS3PHwFRffjqivK08MwgDXXq1Lw
-	 p9DV8k9r26TneeqBLpHSxovmgONKTn/FEj7N7C5BVtAizwwJ3Ni48/N2DMLOJPYpI4
-	 1esRJffeVcQ0A==
-Subject: Re: [PATCH net v13] net/smc: fix lgr/lnk lifetime vs diag reader race
-From: netdev-bot+sashiko@kernel.org
-To: mjambigi@linux.ibm.com
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
- dust.li@linux.alibaba.com, sidraya@linux.ibm.com, hidayath@linux.ibm.com,
- pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, stable@vger.kernel.org, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Date: Tue, 27 Oct 2026 15:15:44 +0000
-Message-ID: <179311414480.3134.15723255171112798704@kernel.org>
-In-Reply-To: <20261023150317.1163397-1-mjambigi@linux.ibm.com>
-References: <20261023150317.1163397-1-mjambigi@linux.ibm.com>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jF+A3FID
+Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-6ae15688f36so4197a12.1
+        for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 08:35:22 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1793115321; cv=none;
+        d=google.com; s=arc-20260327;
+        b=Ve7635mC5towdgDldd+uSsGb521MecYJ3ksmW/tmCkMdtxEj0m4w2RrjZ1J6leyhQV
+         SBRv6o9jQCe/XfTPnOCcmH12hT2ahaxZJQDZkv8M4teIPPB78NMo5UiWxAFaUbxdOc6o
+         dPa2/XFEz/nmZIchNVQ7vzVLirzY6rEur9J2xOTeAsMKPYQj6+uf36WHBUKOC7NMRhuw
+         3NxR7LDAtVRmxiwKFHy+yEaeODOt6vW5JIYf1AEDHvqWHpw+uALcfoFsXRoZv8v+fr09
+         NQqJdWgfxDbL5v4HzJaMRmRFLvM5Ut+J1vItcJ7tIrmrcM6oUBr4hHnBYwtNKNGr82Hx
+         2H2A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=4zAei5lThhZDw5YSnMo1UVcmXVNHUE0mRv/Yv8V16b4=;
+        fh=DiyL7i9IAT0etCoubIkFT5FSKUaA5JbRjy8K3uoU31g=;
+        b=hM5Gm80/e+A45FbEqNWggGdTBcEzNffbgjQdXNDR3pRTpMrMBacWjiSCnlZQV2cTK7
+         KhsFfF3ZV8M3NEuRGrgwX/i1bNR+QfM+v6FNzHnPz/aOoK606ZKYYmB3Voeov/etyYjN
+         QQUZ8Oi7YWsGzHc+8a0fn+Nz6h46+D0u6klykNYhWNdJlsN/aRwfEQzwhqXr6MEZcHcb
+         I1WXJwt9uFKrpuTr5McDoAQSEun1sWYsvP4GjNRj6foQsHnWStQTtFUMCc3o1/awn8pp
+         WuHKxV3jOcjePLynrMugUR+1Efs32pizbc5ZI6vdBR1QiIRrX3fkfxpXS9AVZ8ErHzCz
+         HV1A==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20260707; t=1793115321; x=1793720121; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=4zAei5lThhZDw5YSnMo1UVcmXVNHUE0mRv/Yv8V16b4=;
+        b=jF+A3FID7MCXLkbFOXlV2Qyb9mzjvWlVy6WXQCmEmtj76wEKreA2uZB1KMUiqNWF/H
+         lIFmGXjlNVRVN9NSqSTt9XGHfID96Cu/pg90x1+BPtQoDNSArLOImp8KMZY+Z6+4ifen
+         iBHTMnXp39uelX99Q1EudMGM4N1DT8pm8DQpV7uGx07v3EI3eguBu45dCS6g44/EK8f7
+         14/KnK7Ir84Vq04idf6TLM/HAb5o6rRt68Za4YS4TWXAlAy9JMZtkph1KOQSF5hMecTL
+         NjBBPXq6cy97hTPH0OMLu4yIYVjqnM1j+Jhlz4qn7WpQrAjabdu2CH4YAwJbge6PhFKj
+         og1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793115321; x=1793720121;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=4zAei5lThhZDw5YSnMo1UVcmXVNHUE0mRv/Yv8V16b4=;
+        b=NrxbTabeGzw4dDOzq9l/8MoaVsQlgEbw+vRJsIYf3enx1qBUDX2MV555PPc5L5sFmx
+         NwiACd3/ue19BfIiLhJtQ5PglaObKDDyEqVZLJPMpDkAj/f4iF3VFxeeZ+o2X1I0nkpo
+         ul64AulGi6nSD8o+DJ4+5MwkcsacEwbKlaEZKU4/VVtJiyu0pU5Zk3zNtzV+UzSBg9Rt
+         E6hhH2R5UYtO8bATJrD/a7kFiFdsomiNgNodo3koXlG7emiYGnE/nEH0oKjhcSIO6QZO
+         v4maf3Q7dQ71fTNyEEEBdXbEU6EWz04Kp+vEQvMdd5P2RRKs8g5dNYoDcBm1GeyJSe0i
+         HmFA==
+X-Forwarded-Encrypted: i=1; AKwUvBy+35leuWNXQyc574QY8Noe7c5kwqjLAR4k+V+JDjfDgT6PXhYFna1fqewRiN4W64RXF27pl+bg49A3@vger.kernel.org
+X-Gm-Message-State: AFq9FYJD+QJzI5Q42zu1qw2DEYLEwrMKBWkl5XLH9WPrEk1hIpkfkfDa
+	EmEnfrjp3ekPVhN6hZImx8TSpwq2KXiYSCeVebY6RAg1ynWTW88zUS0xBYILzgE2G5J3qgXRGYZ
+	npuznkk9UMbRQCYlI1gWuTHvQNOrXCvw=
+X-Gm-Gg: AYBFou14djLI9ZlIdB+St/dUGRDnU6iboW0UWJ4MT6RBTYY/m5N8rEgz3c5Nh5mUb5K
+	EeOs4yFR8q+K4jjUnQh4Ht4LguEz6geeD6UVuJHBS+PzfCRsQDXNwdbucubLSr/25n8QvdXfjA8
+	LpyFVow4ysj5xAYjF7WlhRyAmqiHVFWaSBUIYAP5JOQRGGbfm69AQb36/yK2vFk4CHIH9axuirl
+	15rGkey5AL3wp/AsIipOpZVH+NK5yImHmpcSruCZtJZARWd3pmLG+h3eJTrr0eetmlUY3OvTrHi
+	fystZCr8pr5P8ErFt0qS8E7dYlJ1ATocpRaa+4yRqa8ntfehzhlv5MkJwsRvy2kTR189xl3HrWy
+	+gVR66gUrBnz8pQzOYJvjn9ap+Qvzi/NHKr5Nt4zPeBUY8FgqiLETtCaRVbdeL4i6tA==
+X-Received: by 2002:a05:6402:a591:10b0:6b1:bc80:4167 with SMTP id
+ 4fb4d7f45d1cf-6b442ffe55dmr12581939a12.3.1793115320688; Tue, 27 Oct 2026
+ 08:35:20 -0700 (PDT)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -65,196 +104,282 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+References: <20261013091716.1210420-1-nicoyip.dev@gmail.com>
+ <20261013091716.1210420-3-nicoyip.dev@gmail.com> <atisUaV2eIC2yTvX@linux.alibaba.com>
+ <CAAo+4rXas4BS85yfiDSPvDhzpWkjoKBiZSHn9VeV0VcATTO0Aw@mail.gmail.com> <auCKK_VoWfbT0YH5@linux.alibaba.com>
+In-Reply-To: <auCKK_VoWfbT0YH5@linux.alibaba.com>
+From: Chengfeng Ye <nicoyip.dev@gmail.com>
+Date: Tue, 27 Oct 2026 23:35:09 +0800
+X-Gm-Features: AclHuK-q6wzo-d_UnijBgtiQqSa3gBQpSahxHf2XxIrV5y5aVuwki9XzpCI4K9g
+Message-ID: <CAAo+4rXn=Jbi+8yxz0=G=7-Jgx1s13AsNNXmzkhGcGdLMQuxUw@mail.gmail.com>
+Subject: Re: [PATCH net v3 2/3] net/smc: serialize early link group cleanup
+ with termination
+To: dust.li@linux.alibaba.com
+Cc: alibuda@linux.alibaba.com, sidraya@linux.ibm.com, mjambigi@linux.ibm.com, 
+	davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, 
+	tonylu@linux.alibaba.com, guwen@linux.alibaba.com, horms@kernel.org, 
+	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you for your contribution! Sashiko AI review found 2 potential
-issue(s) to consider.
+On Tue, Oct 27, 2026 at 7:25=E2=80=AFPM Dust Li <dust.li@linux.alibaba.com>=
+ wrote:
+>
+> On 2026-10-27 19:16:26, Chengfeng Ye wrote:
+> >Hi Dust,
+> >
+> >Sorry for the late reply.
+> >
+> >On Wed, Oct 21, 2026 at 8:13=E2=80=AFPM Dust Li <dust.li@linux.alibaba.c=
+om> wrote:
+> >>
+> >> On 2026-10-13 17:17:15, Chengfeng Ye wrote:
+> >> >smc_lgr_cleanup_early() enters __smc_lgr_terminate() even when anothe=
+r
+> >> >teardown path has already claimed lgr->freeing. Both callers can obse=
+rve
+> >> >lgr->terminating clear before either sets it, then tear down the same
+> >> >link group, causing use-after-free and duplicate resource release.
+> >> >
+> >> >  BUG: KASAN: use-after-free in __smc_lgr_terminate+0x393/0x3a0
+> >> >  Write of size 1 at addr ffff8880bf2c0300 by task poc/106
+> >> >  Call Trace:
+> >> >   __smc_lgr_terminate+0x393/0x3a0
+> >> >   __smc_connect+0x2e3d/0x4930
+> >> >   smc_connect+0x42c/0x580
+> >> >   __sys_connect+0xfc/0x130
+> >> >   __x64_sys_connect+0x6d/0xb0
+> >> >
+> >> >Check freeing under the link group list lock before unlinking the gro=
+up
+> >> >or entering termination. The existing locked freeing transition then
+> >> >claims exclusive teardown ownership; an early cleanup that loses the
+> >> >claim leaves teardown to the existing owner and does not remove the g=
+roup
+> >> >from a device teardown's private list.
+> >> >
+> >> >Keep a temporary link group reference across smc_conn_free() and earl=
+y
+> >> >cleanup in smc_conn_abort(). Once the connection is unregistered, a
+> >> >termination worker can finish without taking its socket lock. The ext=
+ra
+> >> >reference keeps the allocation alive until the ownership check return=
+s.
+> >> >
+> >> >A new group is published before its first connection is registered. H=
+old
+> >> >it before publication until registration or failed-registration clean=
+up
+> >> >finishes. The reference keeps the allocation alive, but teardown can =
+still
+> >> >destroy the group's resources before registration. Take the list lock
+> >> >around the freeing check and first registration, nesting conns_lock a=
+s in
+> >> >the reuse path. Reject a group already claimed for teardown and clear
+> >> >conn->lgr, since that connection never acquired a group reference.
+> >> >
+> >> >On success, acquire the connection reference before dropping the temp=
+orary
+> >> >hold. A later terminator sees the registered connection and must acqu=
+ire
+> >> >its socket lock before removing it. On failure, keep the temporary ho=
+ld
+> >> >through early cleanup and then release it. Reused groups retain their
+> >> >existing reference protocol.
+> >> >
+> >> >This depends on "net/smc: serialize link group free work scheduling" =
+for
+> >> >the standalone freeing bool and the locked early-cleanup transition.
+> >> >
+> >> >Fixes: f9aab6f2ce57 ("net/smc: immediate freeing in smc_lgr_cleanup_e=
+arly()")
+> >> >Cc: stable@vger.kernel.org
+> >> >Assisted-by: GPT-6.1-Sol
+> >> >Signed-off-by: Chengfeng Ye <nicoyip.dev@gmail.com>
+> >> >---
+> >> >Changes in v3:
+> >> >- Serialize first registration with the teardown claim under the grou=
+p list
+> >> >  lock, nesting conns_lock in the same order as connection reuse.
+> >> >- Reject groups already being freed and clear conn->lgr on that path.
+> >> >- Document the scheduling fix prerequisite in the permanent commit me=
+ssage.
+> >> >
+> >> >Changes in v2:
+> >> >- Pin newly created link groups before publication, covering the
+> >> >  registration failure handoff to early cleanup. Drop the temporary h=
+old
+> >> >  after cleanup on failure, or after the connection hold on success.
+> >> >- Send after the free-work scheduling fix and reuse its standalone
+> >> >  freeing bool and locked early-cleanup transition.
+> >> >- Pin the link group across the smc_conn_abort() early-cleanup owners=
+hip
+> >> >  check.
+> >> >
+> >> >v1: https://lore.kernel.org/r/20260927063607.3691520-1-nicoyip.dev@gm=
+ail.com/
+> >> >
+> >> >v2: https://lore.kernel.org/r/20261003183237.2284245-3-nicoyip.dev@gm=
+ail.com/
+> >> >
+> >> > net/smc/af_smc.c   |  8 ++++++--
+> >> > net/smc/smc_core.c | 21 ++++++++++++++++++---
+> >> > 2 files changed, 24 insertions(+), 5 deletions(-)
+> >> >
+> >> >diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> >> >index e9f93b3ab435..97b0a0b51066 100644
+> >> >--- a/net/smc/af_smc.c
+> >> >+++ b/net/smc/af_smc.c
+> >> >@@ -1011,12 +1011,16 @@ static void smc_conn_abort(struct smc_sock *s=
+mc, int local_first)
+> >> >       struct smc_link_group *lgr =3D conn->lgr;
+> >> >       bool lgr_valid =3D false;
+> >> >
+> >> >-      if (smc_conn_lgr_valid(conn))
+> >> >+      if (local_first && smc_conn_lgr_valid(conn)) {
+> >> >               lgr_valid =3D true;
+> >> >+              smc_lgr_hold(lgr);
+> >> >+      }
+> >> >
+> >> >       smc_conn_free(conn);
+> >> >-      if (local_first && lgr_valid)
+> >> >+      if (lgr_valid) {
+> >> >               smc_lgr_cleanup_early(lgr);
+> >> >+              smc_lgr_put(lgr);
+> >> >+      }
+> >> > }
+> >> >
+> >> > /* check if there is a rdma device available for this connection. */
+> >> >diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> >> >index 660cd41ec720..c1bb284c4233 100644
+> >> >--- a/net/smc/smc_core.c
+> >> >+++ b/net/smc/smc_core.c
+> >> >@@ -693,6 +693,10 @@ void smc_lgr_cleanup_early(struct smc_link_group=
+ *lgr)
+> >> >
+> >> >       smc_lgr_list_head(lgr, &lgr_lock);
+> >> >       spin_lock_bh(lgr_lock);
+> >> >+      if (lgr->freeing) {
+> >> >+              spin_unlock_bh(lgr_lock);
+> >> >+              return;
+> >> >+      }
+> >> >       /* do not use this link group for new connections */
+> >> >       if (!list_empty(&lgr->list))
+> >> >               list_del_init(&lgr->list);
+> >> >@@ -999,6 +1003,7 @@ static int smc_lgr_create(struct smc_sock *smc, =
+struct smc_init_info *ini)
+> >> >               lgr->buf_type =3D lgr->net->smc.sysctl_smcr_buf_type;
+> >> >               atomic_inc(&lgr_cnt);
+> >> >       }
+> >> >+      smc_lgr_hold(lgr); /* lgr_put in smc_conn_create() */
+> >> >       smc->conn.lgr =3D lgr;
+> >> >       spin_lock_bh(lgr_lock);
+> >> >       list_add_tail(&lgr->list, lgr_list);
+> >> >@@ -2049,15 +2054,25 @@ int smc_conn_create(struct smc_sock *smc, str=
+uct smc_init_info *ini)
+> >> >               if (rc)
+> >> >                       goto out;
+> >> >               lgr =3D conn->lgr;
+> >> >-              write_lock_bh(&lgr->conns_lock);
+> >> >-              rc =3D smc_lgr_register_conn(conn, true);
+> >> >-              write_unlock_bh(&lgr->conns_lock);
+> >> >+              spin_lock_bh(lgr_lock);
+> >> >+              if (lgr->freeing) {
+> >> >+                      conn->lgr =3D NULL;
+> >> >+                      rc =3D SMC_CLC_DECL_SYNCERR;
+> >>
+> >> This should not be SMC_CLC_DECL_SYNCERR, maybe SMC_CLC_DECL_INTERR or =
+add
+> >> a new error code.
+> >
+> >No problem, I will use SMC_CLC_DECL_INTERR in v4.
+> >
+> >> >+              } else {
+> >> >+                      write_lock_bh(&lgr->conns_lock);
+> >> >+                      rc =3D smc_lgr_register_conn(conn, true);
+> >> >+                      write_unlock_bh(&lgr->conns_lock);
+> >> >+              }
+> >> >+              spin_unlock_bh(lgr_lock);
+> >> >               if (rc) {
+> >> >                       smc_lgr_cleanup_early(lgr);
+> >> >+                      smc_lgr_put(lgr); /* lgr_hold in smc_lgr_creat=
+e() */
+> >>
+> >> smc_lgr_put() may call smcr_buf_free() -> vfree(), which may sleep.
+> >> And you put it in the spinlock.
+> >
+> >It seems the smc_lgr_put(lgr) is added after the
+> >spin_unlock_bh(lgr_lock). Were you referring to another lock held by a
+> >caller? I will keep this unchanged in v4, let me know if anything
+> >should be adjusted further.
+>
+> No, I mean this part in [PATCH net v3 3/3], sorry for replying to the wro=
+ng thread.
 
-Critical: 0 · High: 1 · Medium: 1 · Low: 0
+Thanks for the clarification. The smc_lgr_put(lgr) only calls the
+vfree() when the refcount reaches zero. I check the caller of
+smc_lgr_schedule_free_work() and it is only called from
+smc_conn_free(), and already hold a refcount. Furthermore, the added
+smc_lgr_put(lgr) also balances with the additional smc_lgr_hold(), so
+before smc_lgr_put(lgr) execution the refcount is at least 2 and will
+not call into the vfree().
 
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
+We can also make the smc_lgr_put() outside the spinlock region, just
+that the code will look like the following, which is a bit more messy
+(one extra if branch after unlock). An alternative is that we could
+keep the v3 and add extra comments above smc_lgr_schedule_free_work()
+like indicating the refcount it at least 1. Please let me know which
+you prefer and I will send the v4.
 
-- [High] Use-after-free read of the link group in __smc_diag_dump()
-  (net/smc/smc_diag.c, lines 93-94) for hashed SMC_CLOSED sockets that…
-- [Medium] The new state-based guard in __smc_diag_dump() (smc_diag.c:93
-  and 107-109) can be bypassed by a stale-registration socket that…
+        if (!lgr->freeing) {
+-               mod_delayed_work(system_percpu_wq, &lgr->free_work,
+-                                (!lgr->is_smcd && lgr->role =3D=3D SMC_CLN=
+T) ?
+-                                               SMC_LGR_FREE_DELAY_CLNT :
+-                                               SMC_LGR_FREE_DELAY_SERV);
++               smc_lgr_hold(lgr); /* released by the worker or cancellatio=
+n */
++               pending =3D mod_delayed_work(system_percpu_wq, &lgr->free_w=
+ork,
++                                          (!lgr->is_smcd && lgr->role
+=3D=3D SMC_CLNT) ?
++                                                  SMC_LGR_FREE_DELAY_CLNT =
+:
++                                                  SMC_LGR_FREE_DELAY_SERV)=
+;
+        }
++       spin_unlock_bh(lgr_lock);
++       if (pending)
++               smc_lgr_put(lgr); /* pending work already owns a reference =
+*/
 
---
 
-net/smc: fix lgr/lnk lifetime vs diag reader race
+>
+> @@ -89,14 +89,22 @@ static void smc_lgr_schedule_free_work(struct smc_lin=
+k_group *lgr)
+>          * otherwise there is a risk of out-of-sync link groups.
+>          */
+>         if (!lgr->freeing) {
+> -               mod_delayed_work(system_percpu_wq, &lgr->free_work,
+> -                                (!lgr->is_smcd && lgr->role =3D=3D SMC_C=
+LNT) ?
+> -                                               SMC_LGR_FREE_DELAY_CLNT :
+> -                                               SMC_LGR_FREE_DELAY_SERV);
+> +               smc_lgr_hold(lgr); /* released by the worker or cancellat=
+ion */
+> +               if (mod_delayed_work(system_percpu_wq, &lgr->free_work,
+> +                                    (!lgr->is_smcd && lgr->role =3D=3D S=
+MC_CLNT) ?
+> +                                            SMC_LGR_FREE_DELAY_CLNT :
+> +                                            SMC_LGR_FREE_DELAY_SERV))
+> +                       smc_lgr_put(lgr); /* pending work already owns a =
+reference */
+>         }
+>         spin_unlock_bh(lgr_lock);
+>
+> Best regards,
+> Dust
 
-This patch tries to close several windows where the SMC sock_diag dump
-can dereference a freed or partially freed conn/lgr/lnk on a socket that
-is still hashed. It adds an SMC_INIT/SMC_CLOSED/fallback guard in
-__smc_diag_dump(), pairs it with acquire/release on sk_state, and unhashes
-sockets before smc_conn_free() and smcd_buf_detach() in the teardown
-paths. It also uses the cached link->ibname for the LGRINFO attribute.
-
-[ ... ]
-
-> diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-> index bf0beaa23bdb6..84c45aabc196c 100644
-> --- a/net/smc/smc_diag.c
-> +++ b/net/smc/smc_diag.c
-> @@ -87,10 +87,11 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
->  
->  	r = nlmsg_data(nlh);
->  	smc_diag_msg_common_fill(r, sk);
-> -	r->diag_state = sk->sk_state;
-> +	r->diag_state = smp_load_acquire(&sk->sk_state);
->  	if (smc->use_fallback)
->  		r->diag_mode = SMC_DIAG_MODE_FALLBACK_TCP;
-> -	else if (smc_conn_lgr_valid(&smc->conn) && smc->conn.lgr->is_smcd)
-> +	else if (r->diag_state != SMC_INIT &&
-> +		 smc_conn_lgr_valid(&smc->conn) && smc->conn.lgr->is_smcd)
-
-[Severity: High]
-Can this still dereference a freed link group for a hashed socket in
-SMC_CLOSED?
-
-The diag_mode check here only excludes SMC_INIT. The new SMC_INIT /
-SMC_CLOSED / use_fallback guard comes later, after
-smc->conn.lgr->is_smcd has already been loaded.
-
-The v13 changelog describes how a stale alert_token_local can survive.
-Once smc_lgr_terminate_sched() has emptied lgr->list, smc_conn_free()
-skips the unregister but still drops the references:
-
-net/smc/smc_core.c:smc_conn_free() {
-    ...
-	if (!list_empty(&lgr->list)) {
-		smc_buf_unuse(conn, lgr); /* allow buffer reuse */
-		smc_lgr_unregister_conn(conn);
-	}
-    ...
-lgr_put:
-	if (!lgr->is_smcd)
-		smcr_link_put(conn->lnk); /* link_hold in smc_conn_create() */
-	smc_lgr_put(lgr); /* lgr_hold in smc_conn_create() */
-}
-
-On the server side this looks reachable as:
-
-smc_listen_work()
-  smc_conn_create()          <- joins existing SMC-R lgr L
-                             <- smc_lgr_terminate_sched(L) empties L->list
-  smc_clc_wait_msg()         <- peer resets, rc < 0 (-ECONNRESET/-EPROTO)
-  smc_listen_decline()
-    smc_conn_abort()
-      smc_conn_free()        <- unregister skipped, token stays set
-    smc_listen_out_err()     <- SMC_CLOSED, use_fallback false, hashed
-
-Since rc < 0 there is no fallback. The socket stays hashed in the accept
-queue or until smc_close_non_accepted() takes the sock lock. Later,
-terminate_work runs:
-
-__smc_lgr_terminate()
-  smc_conn_kill()            <- clears token under conns_lock
-    smc_close_active_abort() <- SMC_CLOSED case just breaks, no unhash
-  smc_lgr_cleanup()
-  smc_lgr_free()
-    smc_lgr_put()
-      __smc_lgr_free()       <- kfree(lgr)
-
-Nothing in that sequence synchronizes with the hash read_lock that the
-diag reader holds. A reader could see the non-zero token in
-smc_conn_lgr_valid() and then load smc->conn.lgr->is_smcd after the
-kfree. That would read freed memory.
-
-The "Fourth" paragraph of the commit message says this case must not
-happen: observing SMC_CLOSED and dereferencing an lgr whose reference was
-already dropped. The smp_store_release() added in smc_listen_out_err()
-only helps when the token was actually cleared, and here it was not.
-
-The client close() path (SMC_INIT -> SMC_CLOSED in smc_close_active())
-doesn't seem to be exploitable this way. The reader's read_lock blocks
-the unhash in __smc_release() while the sock lock is held. The server
-path above has no such protection.
-
-Could the SMC_INIT / SMC_CLOSED / use_fallback check move ahead of the
-diag_mode computation? Adding r->diag_state != SMC_CLOSED to this
-condition would also work.
-
->  		r->diag_mode = SMC_DIAG_MODE_SMCD;
->  	else
->  		r->diag_mode = SMC_DIAG_MODE_SMCR;
-> @@ -103,6 +104,10 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
->  	if (nla_put(skb, SMC_DIAG_FALLBACK, sizeof(fallback), &fallback) < 0)
->  		goto errout;
->  
-> +	if (r->diag_state == SMC_INIT || r->diag_state == SMC_CLOSED ||
-> +	    smc->use_fallback)
-> +		goto out;
-> +
-
-[Severity: Medium]
-Can a stale-registration socket get past this guard if it leaves
-SMC_INIT through passive close instead of fallback?
-
-Here is a scenario on an SMC-R client:
-
-smc_connect_rdma()
-  smc_conn_create()             <- registers conn in existing lgr L
-                                <- smc_lgr_terminate_sched(L) empties
-                                   L->list
-  smc_clc_send_confirm() fails  <- rc < 0
-  smc_conn_abort()
-    smc_conn_free()             <- unregister skipped, lgr/lnk refs
-                                   dropped
-smc_connect_decline_fallback()  <- rc < 0, returns without fallback
-
-A positive decline code followed by a failing smc_clc_send_decline()
-ends up in the same place.
-
-The socket stays hashed in SMC_INIT with use_fallback false. The conn is
-still in L->conns_all with its alert_token_local set, so
-smc_cdc_rx_handler() -> smc_lgr_find_conn() still finds it. The peer has
-the token from the confirm, or can guess it from the sequential counter.
-
-A CDC with close or abort flags then queues close_work, which moves the
-socket out of SMC_INIT:
-
-smc_close_passive_work():
-	case SMC_INIT:
-		sk->sk_state = SMC_APPCLOSEWAIT1;
-
-smc_close_passive_abort_received():
-	case SMC_INIT:
-	case SMC_ACTIVE:
-	case SMC_APPCLOSEWAIT1:
-		sk->sk_state = SMC_PROCESSABORT;
-
-At that point the state is neither SMC_INIT nor SMC_CLOSED, use_fallback
-is false, and smc_conn_lgr_valid() is true because of the stale token.
-The reader then dereferences:
-
-- smc->conn.lgr->is_smcd
-- conn->sndbuf_desc->len and conn->rmb_desc->len (still on L's lists,
-  since smc_buf_unuse() was skipped)
-- lgr->list and lgr->role
-- the conn->lnk fields
-
-Meanwhile __smc_lgr_terminate() -> smc_conn_kill() clears the token and
-calls smc_close_active_abort():
-
-- The ACTIVE/APPCLOSEWAIT branch never unhashes.
-- The PROCESSABORT branch now unhashes, but smc_conn_free() returns early
-  because conn->freed is already set.
-
-smc_lgr_free() -> __smc_lgr_free() then frees the buffers and kfree()s L.
-
-What makes that free wait for a diag reader that has already passed the
-token check? The v13 changelog names this stale-registration case, but it
-seems to handle only the variant where the socket falls back.
-
->  	if ((req->diag_ext & (1 << (SMC_DIAG_CONNINFO - 1))) &&
->  	    smc->conn.alert_token_local) {
->  		struct smc_connection *conn = &smc->conn;
-
-[ ... ]
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261023150317.1163397-1-mjambigi%40linux.ibm.com
+Best regards,
+Chengfeng
