@@ -1,87 +1,88 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793110113;
-	b=LZXU+LF6ow2Fhj5Kcz42m7M3B1daQIRix4MpkGLW6jcdVjQEDkJGYPFtkjKcvJJ0eYEE
-	 zOkrZNf6cPoNANTXg4ScFKpz2plIUXDAkNMZ69KJcHuHkw2X4QBHC+lOWMRf475V7wOX0
-	 kGQdujGVqKu4/SFqew+N5bDp/L6dRhsZZROIrToB7owUDzw7r4A6xqTAAWkFTIaSOm4Z+
-	 MLL9iUdYwZb1wfhJUMjAQ4viShGOqtO1STlKuhVLgbBuNo77eTFouGUj191379MydQPVB
-	 yLMMgGZMpvcmUpPEI/pZVkxm6cDmKtde/GFUUt2d4NcIMvLKMF17uJIhLRQTuFE9Y5A==
+	t=1793111437;
+	b=XyNY7q82BZsM6W4bddybjMvOef0CLWOPdTGbwDBPTinNVnOynDjHRYxTD+YWt/oJ+3IK
+	 l5Cn8f3Di4HrHuI2/dMeJiXeEbYShV+Oxh2uAMxvBUOQZX1+OvzQef2dGHI+wf3mq8GOt
+	 zXI5YdtRoBiZEAAEZ6RW78CiqTppQU8VSfQxbLdXF8LBadeCWrFwESYKKZwkqxF2vo+KJ
+	 L9eurVVOEhGnVAiblbOJeHRA6Z+f+95eSnxUrdoWMtEC4RBAjEie4hGHnZNjIt3Wh+MXU
+	 9scnQxraSjhLrRlfkqSIVulPSyWOakk5c3JJu71PEdcEgyh02DtXcy1LyalK2FLrzsw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793110113;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793111437;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
-	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To:X-TM-AS-GCONF:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
-	 X-Authority-Analysis:X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
+	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
+	 X-TM-AS-GCONF:X-Authority-Analysis:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=2DdP+FQjqenjSYcKVY1xKs03VjAkLGGa1B6720u0ouo=;
-	b=AQV33UnbkGH6Cv6+9UhfFfpbeXXTm2mtFXF46Ql8ywvkNVOqbc3pBtnf1T5KVI9c40Tu
-	 WvYncnLcEqP2WE4sljjT9Aui/KZhKm2G4B6pN85WCkmdvPTEUrYO97qjGdG+F6RCnt/MG
-	 a04nOlxolbmS8gN3ASIXiPNhWF+O5Cq0HXLRXZLXcaZeX6VyigRrjOp4maf5gNEGQG3eh
-	 SOAjyk1ln2aWcUyb+JtRuXX2GOrmV5Qt8ankwKRHrY1r8znhygs7amTQtvPxElDHYAHVr
-	 PqevxVO+ZOG1XF5+rhgKUS4kCM/5VGHOK5Zv9lD+FpxXBaQuLRIQ4kWZnWgA5QLYTkQ==
+	bh=64G8+dISdgGmkcmCrzMWc7X1BGz/9B9ZCw+wC4dp1oA=;
+	b=nxYbq+HAglqfvA8r9SZPSqoGjOKRJxF2kpWo4zUTXx8EOqsj8qoF4Q/JfnhsfjGYWTRt
+	 UacM+09EBeT981vaDM41bVaoEFVsdvjts3cViuIOxa3zwK89dX75FiV7rsifAVnSsx1gC
+	 /C9f3VGnb5qtWeFwO3yb9Up3fGoY1loL3MYI56zsLI1frN8W+w5PEWgfu5SZUljuGn/5O
+	 ps9P5Qq+JO2mkfOfasOVsvXCHx6cNIikSR5bd9nSdSys4wGo3cdIcFpr9zksLnyE5RPMi
+	 1fvgZ6MOMMT/HifTqh8Zn85W1eym0Xazp1WkEqmgKyHDCU8/oWyOZ+aEJwhehvvrgwA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=XOaZOaVG;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=lzdQKGlu;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3390606A326
-	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 14:08:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A3390606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6B43606A31B;
+	Tue, 27 Oct 2026 14:30:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E6B43606A31B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=XOaZOaVG
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69R5i5Ko1621777
-	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 14:08:32 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=lzdQKGlu
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69REEKL11518849;
+	Tue, 27 Oct 2026 14:30:35 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=pp1; bh=2DdP+FQjqenjSYcKVY1xKs03VjAkLG
-	Ga1B6720u0ouo=; b=XOaZOaVG7j0clSKylBnFL1QA4NXfYz8B30ODUDJqcUS8zc
-	NFZ9wWYUyb8hYvAQDS3wbmGJbIytKg9ZfYALKuxOv77k9rE/9GVOy9epvtBI7fZ5
-	U8B3vhwM305A1uIau+oNGOVcUTTB3L4s4el8zIe8f2dBnhSNCy1oMMHOreXRPLvM
-	AuDn5d33PQ8g81yA4SOgSCGOgxLhnRusT6Fn+ROTcp1PTUX/0ZvGkXyqVtBiWBP0
-	HXZpy7hPoaF+ua9VKNT+y6XaKT0ZBy7fuaSnZ+eWA9rrmHYlHtFapL9PjNdHmFGl
-	pSWGH0xrFn4jK3zjkGo0aTw1/Kclc9A6a+sx+zNg==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hgm63yurs-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 14:08:31 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69RDoii9053900
-	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 14:08:31 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hjsu7rvr8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 14:08:31 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69RE8QNG49676788
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=64G8+dISdgGmkcmCrzMWc7X1BGz/9B9ZCw+wC4dp1
+	oA=; b=lzdQKGluekEMqn3KDkP9hGd25Rd+u4AILGonamQF6PQChiwld78sqOi9q
+	yWo5x3rNgt2TDE9eq6zIAM1rtxadjbGiYJkmsQ3mt4OQTY5zBisoWcBcyYH0u6fq
+	5tPJ+xpuK1794lVx1QxobwryU1bJGm/q5/h0kmWFbn0nVTSEw8n7AMVKFIMNXhtF
+	UoOUauWSTjpQs7o/mZV8eEK1rte20AnLvPvKaQ5zRLkJewADwjI1IUUik200z8nu
+	7BoebKGDP98GqqwO8pjXVhvDOiV84L/SOS1wFB0/5I94NXoCN9GtWJN1Zw1qhLzR
+	G8KkKE0wHViRyDrTurypTsa/RX78g==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hgk3fysgf-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 27 Oct 2026 14:30:35 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69RDoPko4190088;
+	Tue, 27 Oct 2026 14:30:35 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hjtnn8sy3-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 27 Oct 2026 14:30:34 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69REUV8137028236
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 27 Oct 2026 14:08:27 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DED0220067;
-	Tue, 27 Oct 2026 14:08:26 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B6F482004E;
-	Tue, 27 Oct 2026 14:08:26 +0000 (GMT)
-Received: from osiris (unknown [9.111.40.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 27 Oct 2026 14:08:26 +0000 (GMT)
-Date: Tue, 27 Oct 2026 15:08:25 +0100
+	Tue, 27 Oct 2026 14:30:31 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 11C342004E;
+	Tue, 27 Oct 2026 14:30:31 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E05CB2004D;
+	Tue, 27 Oct 2026 14:30:30 +0000 (GMT)
+Received: from tuxmaker.lnxne.boe (unknown [9.87.85.9])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 27 Oct 2026 14:30:30 +0000 (GMT)
 From: Heiko Carstens <hca@linux.ibm.com>
-To: Mete Durlu <meted@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Subject: Re: [PATCH v4] s390/diag204: Introduce diag204 rework
-Message-ID: <20261027140825.11789B74-hca@linux.ibm.com>
-References: <20261027-diag204ioctl-v4-1-d5e90b56112b@linux.ibm.com>
- <20261027113242.11789A2c-hca@linux.ibm.com>
- <777a0294-2729-4389-a98e-b07fe0f4ae2c@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: [PATCH v2 00/10] s390: Consistent usage of text_mutex
+Date: Tue, 27 Oct 2026 15:30:20 +0100
+Message-ID: <20261027143030.3154657-1-hca@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -91,57 +92,89 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <777a0294-2729-4389-a98e-b07fe0f4ae2c@linux.ibm.com>
+Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI3MDA1NCBTYWx0ZWRfX/1/NgbzTEnef
- Se+AIfoetYm8HpcHytwqKKHg1TvSj4tA7+CO+NF+T9hEtZWs0J3s1SW6/9AH/Hqv83ZDac6DgHS
- MGqyHJbQCaqn9yg5hRKV41l3ZGzvLTc=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI3MDA1NCBTYWx0ZWRfX1VxM0alnoeNd
- g6MKIJ7Mx9jXiA9MjRBa1t57mP7AzE4eKbK6ATq4dsSaFPHbpIuOALigjVo59bCYcB61t3qgusQ
- 8r9qZzIy9pj6iXi+ldp5fgrqxbGMWZHZjhZnYwc28nJBHsq3NWoJGQvnrmIThAjha97ocfug7ER
- 2zHGpFY8hA6+yBgeznG1PM/tlKbC4PilGWdIhFVedkt38NLiZAe96PF8S2MmAU2fQps4dVXCTe1
- Zf1AiUzjD7UkHG00pLtnmuDLakMKmsnGhYY4j0/z4dMzywu/pzyrhUnzuXcuHHCFKVXEILW+kNn
- dgGjrPYlMMWzIgMcCwMEDA3EBQH8iB+MTbCsjeTCk2XzgnArOsryB1PseX7IqDFQvSNxd6lH4vz
- HaV/hWIPxkODwpWtdBChEJZEJEEXQSDWPBj8DKsFmSrCtFhfTxPbXBSbZ3/8DKlNCIUR3+bWsKa
- LFZmYcXzFyzcI4V6PBg==
-X-Proofpoint-ORIG-GUID: GIHUL7O2qZwM7fKJLWS_3Fyv7ux-akWP
-X-Authority-Analysis: v=2.4 cv=Uu32pOwB c=1 sm=1 tr=0 ts=6ae0b05f cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=cGL_shwQvlvIZo5zzOYA:9
- a=CjuIK1q_8ugA:10
-X-Proofpoint-GUID: GIHUL7O2qZwM7fKJLWS_3Fyv7ux-akWP
+X-Authority-Analysis: v=2.4 cv=BOMmP1QG c=1 sm=1 tr=0 ts=6ae0b58b cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=NVAJKBO_cAemxlG4CmYA:9
+X-Proofpoint-ORIG-GUID: dndyVhI_mIyL_dtErvxmpEdKPO8ws20-
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI3MDA1NiBTYWx0ZWRfX4dle1A4Ky1Mf
+ qx5rzqxorr+iRnZh+HyhnUldV/5sznhJr267H/vfftoVl2Cg1462AdTP6Fwfc4cTFeOFUcoaZ5H
+ hUxAmf+Rs4i3P1fZxu7qLDuBrXm4RBQXEi2UfL69RaVTFiBmBtoahnQtAVtFi+ntjr8as6XXYCE
+ nT78k1M2OBKSIb1dH6VqMqXK3CYt4k9L0zZSy++DBez7JEJ24hxcck8UjP27cQDbgQKTDHPZMhx
+ xI+4/yOYyitm2y8Ba/j/rjSN22jlqBvMWDXg00gwCaKVjJf8qVyAHM7C4ULr4Sd8Mhfciiq6JxL
+ 4mIS96pGxOE49KR/rVCN6UQWkqTGEPleSL/O+ebTNXajayobwwj4IIkbyD9SeE42bHEb25SCsaI
+ /iDiXE9nhzMAFXjTYTxJg+O1MKgj2dRhjKPZwC1M5bffIckt3hQy1hfXGuf3YWCpGh0hzTjTtvM
+ gcMyCn/tM4D7rBLcOFw==
+X-Proofpoint-GUID: dndyVhI_mIyL_dtErvxmpEdKPO8ws20-
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI3MDA1NiBTYWx0ZWRfX7B6suErsb44l
+ kyJ5ByDALoQh1nPhw7i3XJVCbuUUrLe2Y3kiHoUXYx38AsN8sLIxtmL0000KnCoy925oQnYWqEm
+ FA8srpwqZ+/ZR6b644cYUqaXJ5ptL8M=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-10-27_02,2026-10-21_02,2025-10-01_01
+ definitions=2026-10-27_03,2026-10-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 impostorscore=0 priorityscore=1501 spamscore=0 adultscore=0
- lowpriorityscore=0 malwarescore=0 clxscore=1015 suspectscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610270054
+ suspectscore=0 bulkscore=0 malwarescore=0 clxscore=1015 spamscore=0
+ phishscore=0 adultscore=0 impostorscore=0 priorityscore=1501
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610190000
+ definitions=main-2610270056
 
-On Tue, Oct 27, 2026 at 12:53:22PM +0100, Mete Durlu wrote:
-> > > + * diag204_init() has to find out, which type of diagnose 204 implementation
-> > > + * we have on the machine. Currently there are three possible scanarios:
-> > > + *   - subcode 4   + simple data format (only one page)
-> > > + *   - subcode 4-6 + extended data format
-> > > + *   - subcode 4-7 + extended data format
-> > > + *
-> > > + * Subcode 5 is used to retrieve the size of the data, provided by subcodes
-> > > + * 6 and 7. Subcode 7 basically has the same function as subcode 6. In addition
-> > > + * to subcode 6 it provides also information about secondary cpus.
-> > > + * In order to get as much information as possible, we first try
-> > > + * subcode 7, then 6 and if both fail, we use subcode 4.
-> > > + */
-> > 
-> > This looks like it was copied from the old code: please fix the documentation
-> > convert to use imperative mood when you move it.
-> 
-> Will do! Should it retain the details about which subcodes and
-> data formats can exist together?
+v2:
+- Use text mutex for all callers of s390_kernel_write(), and add lockdep
+  checking. [Based on a review comment from Ilya Leoshkevich, and also
+  Sashiko feedback]
 
-Sure, I don't see a reason to remove information.
+- Note: this takes now the mutex also at places where it is technically
+  not necessary (e.g. ftrace init nop patching). However this is not much
+  of a difference to before, where the spinlock in s390_kernel_write()
+  was always taken instead
 
-FWIW, it would be helpful if you would reply-to-all, and not only the list :)
+v1:
+Other architectures serialize kernel text patching with text_mutex. s390
+does not: __s390_kernel_write() relies on a private spinlock, and callers
+partially depend on implicit exclusion (e.g. no kprobe can be set on a
+jump label).
+
+Make s390 consistent with other architectures:
+
+- Patches 1-3 add text_mutex to the jump_label, ftrace and bpf text
+  patching paths
+
+- Patch 4 removes the redundant spinlock from __s390_kernel_write().
+  CPU serialization, previously done implicitly, is now explicit via
+  sync_core()
+
+Thanks,
+Heiko
+
+Heiko Carstens (10):
+  s390/jump_label: Serialize text patching with text_mutex
+  s390/ftrace: Serialize text patching with text_mutex
+  s390/bpf: Serialize text patching with text_mutex
+  s390/runtime-const: Serialize text patching with text_mutex
+  s390/module: Serialize text patching with text_mutex
+  s390/stackprotector: Serialize text patching with text_mutex
+  s390/nospec-branch: Serialize text patching with text_mutex
+  s390/alternative: Serialize text patching with text_mutex
+  s390/uaccess: Move s390_kernel_write() to asm/text-patching.h
+  s390/maccess: Remove spinlock from __s390_kernel_write()
+
+ arch/s390/include/asm/runtime-const.h |  4 +++-
+ arch/s390/include/asm/text-patching.h | 14 ++++++++++++++
+ arch/s390/include/asm/uaccess.h       |  9 ---------
+ arch/s390/kernel/alternative.c        |  6 +++++-
+ arch/s390/kernel/ftrace.c             | 11 +++++++++++
+ arch/s390/kernel/jump_label.c         |  3 ++-
+ arch/s390/kernel/kprobes.c            |  4 +++-
+ arch/s390/kernel/module.c             |  2 ++
+ arch/s390/kernel/nospec-branch.c      |  4 ++++
+ arch/s390/kernel/stackprotector.c     |  6 +++++-
+ arch/s390/mm/maccess.c                |  9 ++++-----
+ arch/s390/net/bpf_jit_comp.c          | 21 +++++++++++++++++----
+ 12 files changed, 70 insertions(+), 23 deletions(-)
+
+-- 
+2.53.0
+
