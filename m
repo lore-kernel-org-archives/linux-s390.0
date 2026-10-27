@@ -1,100 +1,73 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.49
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793115323;
-	b=b5J+j3EghUUfEwLFGWPwGfHBpH6jWX5i/swfMXnTmr+Xo+9WMd85srfIA5IhJtnciB7t
-	 Yf8XjzMAFo+ZtnONrDHeZ2WS96JKD+vp0OAeDF8t2+DOFTDUG3PeOsnkvSkjh02ZJqvhX
-	 +JuMoTLo+IY22GvsUf+j0HLIXPYX/lVD3Y5J9K2jdP1PsnIq/MH8OZU0F4z5EbwbvFvfx
-	 PUpIWkm4WHG/zGDKeNLSIkp59HiIX6/XWeq2i8/o8KfBDwCkE8D20SdYKXskX93kaSC5C
-	 KT7/Lj+ESE/E3tevfpMlEteTJU3XUgLnVpETVE2j636vScGoqUVRYGks609OBQx6nkA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793115323;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=4zAei5lThhZDw5YSnMo1UVcmXVNHUE0mRv/Yv8V16b4=;
-	b=cJAwvWXeQS7M6mY565z1m+gkne6kt+APYG9BekvAcUOcFeBlNRwMtqlQzxXVmXUTkEob
-	 Sgev/uuObv+R7mHMxYpwa9SWwuozbF5ao93R3D8xkVNtix4/98DtjyVwnRk43mhBR0MNF
-	 38Yae31TZdJ8KnaF26XberCKHKcrVJPkrI+nyFsSDqQfSGTSMRf8QMv6WHtgEfZeNw/vQ
-	 7RrbAZLCOPaAAraebREpLHyyBwVTEx18zTErXtx50nHjeySSJVcXj3kpOoKhWv+93aLTv
-	 8JY015lJDzLngONVFRamcDkc4i8oFTlozLNIJf89q1MsZinCKTninhHN00acN5KN/oQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jF+A3FID;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.49
-Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793118414;
+	b=Yn9LQvHhesDrb212hiYRknx/VXGUVlALCdVom6WDGMJMJVWf8EL4lBFPdbbndOYVCKL1
+	 QxBHmswrg29xP89eujocxaf2x23jKzkM90jqxwAQlatDFcTF4sC1LXRespUDhhEU8Zhes
+	 B/W0vlGN4N5NDAZOITV7ZIwVUVZ5oiSlvgJYh6v5qqJW4MF44X/zQnuMJ1JauUBJpDWuj
+	 ve62kh8GcXu6J7oneJSOLESWyNm4P74GXRABXbblYb8IgTJeLPQt8vsyIMjWrYQ3vx/GH
+	 sX7Zrb8sCQino+pWE15zwULRF2pTsdCq9GJ1AnkAQ1guAjyCKVBkNoWrcPt4sh9aBUw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793118414;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=PVztOefSr6RGv9a+LEvxXW9LNnBlncUZ/0ear6QgNKQ=;
+	b=oWVPSBXas2M0qHvh0v6oshJ4WvBuJJawY7H6T7s8LJ/y9cf8IGRgni1EzpbgeQqCrmKV
+	 xK4YVZJTW3gKMFuWjpJFvJYPqKD+R+j9NLCMCePSWpNsWe1J+vjgncrisXKftnJh/d/ze
+	 UoroIq9+A05jqOKPfmNIgyCY6wQlS+AUyG0PNT+GdNyae7NNnCDM1z9hH8DxWQvmgREFs
+	 gcT9XoQ2/XyBVMFh+LL4XKeefH8Or113KagM+xMwbu0WHyt0n3ya5U7dUkqcPyaC/Wnub
+	 zyQtBgeouaA3WuQ3LM4RHZlLqUK77TE4c4sheZnnSZits1zWOWi0J4Zwidq1qesg3aA==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AYF6Nujr;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91CF8606A31E
-	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 15:35:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 91CF8606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15220606A31D;
+	Tue, 27 Oct 2026 16:26:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=jF+A3FID
-Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-6ae15688f36so4197a12.1
-        for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 08:35:22 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1793115321; cv=none;
-        d=google.com; s=arc-20260327;
-        b=Ve7635mC5towdgDldd+uSsGb521MecYJ3ksmW/tmCkMdtxEj0m4w2RrjZ1J6leyhQV
-         SBRv6o9jQCe/XfTPnOCcmH12hT2ahaxZJQDZkv8M4teIPPB78NMo5UiWxAFaUbxdOc6o
-         dPa2/XFEz/nmZIchNVQ7vzVLirzY6rEur9J2xOTeAsMKPYQj6+uf36WHBUKOC7NMRhuw
-         3NxR7LDAtVRmxiwKFHy+yEaeODOt6vW5JIYf1AEDHvqWHpw+uALcfoFsXRoZv8v+fr09
-         NQqJdWgfxDbL5v4HzJaMRmRFLvM5Ut+J1vItcJ7tIrmrcM6oUBr4hHnBYwtNKNGr82Hx
-         2H2A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=4zAei5lThhZDw5YSnMo1UVcmXVNHUE0mRv/Yv8V16b4=;
-        fh=DiyL7i9IAT0etCoubIkFT5FSKUaA5JbRjy8K3uoU31g=;
-        b=hM5Gm80/e+A45FbEqNWggGdTBcEzNffbgjQdXNDR3pRTpMrMBacWjiSCnlZQV2cTK7
-         KhsFfF3ZV8M3NEuRGrgwX/i1bNR+QfM+v6FNzHnPz/aOoK606ZKYYmB3Voeov/etyYjN
-         QQUZ8Oi7YWsGzHc+8a0fn+Nz6h46+D0u6klykNYhWNdJlsN/aRwfEQzwhqXr6MEZcHcb
-         I1WXJwt9uFKrpuTr5McDoAQSEun1sWYsvP4GjNRj6foQsHnWStQTtFUMCc3o1/awn8pp
-         WuHKxV3jOcjePLynrMugUR+1Efs32pizbc5ZI6vdBR1QiIRrX3fkfxpXS9AVZ8ErHzCz
-         HV1A==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793115321; x=1793720121; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=4zAei5lThhZDw5YSnMo1UVcmXVNHUE0mRv/Yv8V16b4=;
-        b=jF+A3FID7MCXLkbFOXlV2Qyb9mzjvWlVy6WXQCmEmtj76wEKreA2uZB1KMUiqNWF/H
-         lIFmGXjlNVRVN9NSqSTt9XGHfID96Cu/pg90x1+BPtQoDNSArLOImp8KMZY+Z6+4ifen
-         iBHTMnXp39uelX99Q1EudMGM4N1DT8pm8DQpV7uGx07v3EI3eguBu45dCS6g44/EK8f7
-         14/KnK7Ir84Vq04idf6TLM/HAb5o6rRt68Za4YS4TWXAlAy9JMZtkph1KOQSF5hMecTL
-         NjBBPXq6cy97hTPH0OMLu4yIYVjqnM1j+Jhlz4qn7WpQrAjabdu2CH4YAwJbge6PhFKj
-         og1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793115321; x=1793720121;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=4zAei5lThhZDw5YSnMo1UVcmXVNHUE0mRv/Yv8V16b4=;
-        b=NrxbTabeGzw4dDOzq9l/8MoaVsQlgEbw+vRJsIYf3enx1qBUDX2MV555PPc5L5sFmx
-         NwiACd3/ue19BfIiLhJtQ5PglaObKDDyEqVZLJPMpDkAj/f4iF3VFxeeZ+o2X1I0nkpo
-         ul64AulGi6nSD8o+DJ4+5MwkcsacEwbKlaEZKU4/VVtJiyu0pU5Zk3zNtzV+UzSBg9Rt
-         E6hhH2R5UYtO8bATJrD/a7kFiFdsomiNgNodo3koXlG7emiYGnE/nEH0oKjhcSIO6QZO
-         v4maf3Q7dQ71fTNyEEEBdXbEU6EWz04Kp+vEQvMdd5P2RRKs8g5dNYoDcBm1GeyJSe0i
-         HmFA==
-X-Forwarded-Encrypted: i=1; AKwUvBy+35leuWNXQyc574QY8Noe7c5kwqjLAR4k+V+JDjfDgT6PXhYFna1fqewRiN4W64RXF27pl+bg49A3@vger.kernel.org
-X-Gm-Message-State: AFq9FYJD+QJzI5Q42zu1qw2DEYLEwrMKBWkl5XLH9WPrEk1hIpkfkfDa
-	EmEnfrjp3ekPVhN6hZImx8TSpwq2KXiYSCeVebY6RAg1ynWTW88zUS0xBYILzgE2G5J3qgXRGYZ
-	npuznkk9UMbRQCYlI1gWuTHvQNOrXCvw=
-X-Gm-Gg: AYBFou14djLI9ZlIdB+St/dUGRDnU6iboW0UWJ4MT6RBTYY/m5N8rEgz3c5Nh5mUb5K
-	EeOs4yFR8q+K4jjUnQh4Ht4LguEz6geeD6UVuJHBS+PzfCRsQDXNwdbucubLSr/25n8QvdXfjA8
-	LpyFVow4ysj5xAYjF7WlhRyAmqiHVFWaSBUIYAP5JOQRGGbfm69AQb36/yK2vFk4CHIH9axuirl
-	15rGkey5AL3wp/AsIipOpZVH+NK5yImHmpcSruCZtJZARWd3pmLG+h3eJTrr0eetmlUY3OvTrHi
-	fystZCr8pr5P8ErFt0qS8E7dYlJ1ATocpRaa+4yRqa8ntfehzhlv5MkJwsRvy2kTR189xl3HrWy
-	+gVR66gUrBnz8pQzOYJvjn9ap+Qvzi/NHKr5Nt4zPeBUY8FgqiLETtCaRVbdeL4i6tA==
-X-Received: by 2002:a05:6402:a591:10b0:6b1:bc80:4167 with SMTP id
- 4fb4d7f45d1cf-6b442ffe55dmr12581939a12.3.1793115320688; Tue, 27 Oct 2026
- 08:35:20 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AYF6Nujr
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D75B1F01825;
+	Tue, 27 Oct 2026 16:26:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793118413;
+	bh=PVztOefSr6RGv9a+LEvxXW9LNnBlncUZ/0ear6QgNKQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=AYF6Nujr9m//y5ikHA4j466AfvrCQx4vNn/XB/n7NEExqqcW6ZpNIEMDq3FFbZmBL
+	 o1Hur8PsCuovf3g9AxXHBJrE3r/kKSk4vTe1xjoUHFg4yAzCRq+xer6ywBG0Nd1vSD
+	 82Y9oCIPZQbhC3ypd1xjTPpPBsmljLlMoBgoJZnHErRqYEgAGT6XmSjYEOOttGbY6P
+	 ULahHSJEshFYy/gm0WSYHeg9Y6lx1PkcRYz+HE8gX+awXWIPCV1JNMaeFr8Jpt6yPs
+	 4K8gbzfPgF94BwtUft4WlXRuoSoaIrz5W7sZHkvwN8lZUnsIhvAoZExUL7TtjY1ASP
+	 u52r8Xsn29uPA==
+Date: Tue, 27 Oct 2026 16:26:39 +0000
+From: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>
+To: Matthew Wilcox <willy@infradead.org>
+Cc: Barry Song <baohua@kernel.org>, Hongru Zhang <zhanghongru06@gmail.com>, 
+	akpm@linux-foundation.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+	surenb@google.com, david@kernel.org, liam@infradead.org, mhocko@suse.com, 
+	rppt@kernel.org, shakeel.butt@linux.dev, vbabka@kernel.org, zhaonanzhe@xiaomi.com, 
+	linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org, mark.rutland@arm.com, 
+	linux-arm-kernel@lists.infradead.org, chenhuacai@kernel.org, kernel@xen0n.name, 
+	loongarch@lists.linux.dev, maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com, 
+	chleroy@kernel.org, linuxppc-dev@lists.ozlabs.org, pjw@kernel.org, 
+	palmer@dabbelt.com, aou@eecs.berkeley.edu, alex@ghiti.fr, 
+	linux-riscv@lists.infradead.org, agordeev@linux.ibm.com, gerald.schaefer@linux.ibm.com, 
+	hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@linux.ibm.com, 
+	svens@linux.ibm.com, linux-s390@vger.kernel.org, dave.hansen@linux.intel.com, 
+	luto@kernel.org, peterz@infradead.org, tglx@kernel.org, mingo@redhat.com, 
+	bp@alien8.de, x86@kernel.org, hpa@zytor.com, 
+	Hongru Zhang <zhanghongru@xiaomi.com>
+Subject: Re: [PATCH v6] mm: retry page faults once under the per-VMA lock
+Message-ID: <auDGPs8jzC-90-_y@gremlin>
+References: <20260911025613.1220845-1-zhanghongru@xiaomi.com>
+ <arFYRAa-i7CIwmHL@gremlin>
+ <arF-E3Nsw9ZliH0t@casper.infradead.org>
+ <arI_w2wTfA00Mgy9@gremlin>
+ <armexcXDiG8ryZd6@casper.infradead.org>
+ <CAGsJ_4xuFi7K+crAcFQ998SxXS0xPM6QeA34JV+6+Sy005rXLg@mail.gmail.com>
+ <ar7MsOb6IJLt4eLo@casper.infradead.org>
+ <ar-o1TrOMGrrcxLX@gremlin>
+ <ataDTEZIKOYtwhUF@casper.infradead.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -104,282 +77,224 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261013091716.1210420-1-nicoyip.dev@gmail.com>
- <20261013091716.1210420-3-nicoyip.dev@gmail.com> <atisUaV2eIC2yTvX@linux.alibaba.com>
- <CAAo+4rXas4BS85yfiDSPvDhzpWkjoKBiZSHn9VeV0VcATTO0Aw@mail.gmail.com> <auCKK_VoWfbT0YH5@linux.alibaba.com>
-In-Reply-To: <auCKK_VoWfbT0YH5@linux.alibaba.com>
-From: Chengfeng Ye <nicoyip.dev@gmail.com>
-Date: Tue, 27 Oct 2026 23:35:09 +0800
-X-Gm-Features: AclHuK-q6wzo-d_UnijBgtiQqSa3gBQpSahxHf2XxIrV5y5aVuwki9XzpCI4K9g
-Message-ID: <CAAo+4rXn=Jbi+8yxz0=G=7-Jgx1s13AsNNXmzkhGcGdLMQuxUw@mail.gmail.com>
-Subject: Re: [PATCH net v3 2/3] net/smc: serialize early link group cleanup
- with termination
-To: dust.li@linux.alibaba.com
-Cc: alibuda@linux.alibaba.com, sidraya@linux.ibm.com, mjambigi@linux.ibm.com, 
-	davem@davemloft.net, edumazet@kernel.org, kuba@kernel.org, pabeni@redhat.com, 
-	tonylu@linux.alibaba.com, guwen@linux.alibaba.com, horms@kernel.org, 
-	linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ataDTEZIKOYtwhUF@casper.infradead.org>
 
-On Tue, Oct 27, 2026 at 7:25=E2=80=AFPM Dust Li <dust.li@linux.alibaba.com>=
- wrote:
+(Thanks to Suren for his reply also, Replying to this mail to make it
+easier for me to quote :)
+
+On Mon, Oct 19, 2026 at 09:53:32PM +0100, Matthew Wilcox wrote:
+> On Fri, Oct 02, 2026 at 02:12:35PM +0100, Lorenzo Stoakes (ARM) wrote:
+> > On Thu, Oct 01, 2026 at 10:12:16PM +0100, Matthew Wilcox wrote:
+> > > So what I didn't realise is that fork() waits for page faults to finish.
+> > > I don't think that's necessary, so we can just stop doing that (whitespace
+> > > damaged):
+> > > I think this is safe.  I've booted a kernel with this change, and
+> >
+> > I'm afraid it's not safe :)
+> >
+> > We already actually did this (by mistake I think?) before. See commit
+> > fb49c455323f ("fork: lock VMAs of the parent process when forking") - we shipped
+> > that in 6.4.0 -> 6.4.2 and it corrupted memory all over the place.
+> >
+> > Reports + a consistent reproducer:
+> >
+> > https://bugzilla.kernel.org/show_bug.cgi?id=217624
+> > https://lore.kernel.org/all/dbdef34c-3a07-5951-e1ae-e9c6e3cdf51b@kernel.org/
+> > https://lore.kernel.org/all/b198d649-f4bf-b971-31d0-e8433ec2a34c@applied-asynchrony.com/
 >
-> On 2026-10-27 19:16:26, Chengfeng Ye wrote:
-> >Hi Dust,
-> >
-> >Sorry for the late reply.
-> >
-> >On Wed, Oct 21, 2026 at 8:13=E2=80=AFPM Dust Li <dust.li@linux.alibaba.c=
-om> wrote:
-> >>
-> >> On 2026-10-13 17:17:15, Chengfeng Ye wrote:
-> >> >smc_lgr_cleanup_early() enters __smc_lgr_terminate() even when anothe=
-r
-> >> >teardown path has already claimed lgr->freeing. Both callers can obse=
-rve
-> >> >lgr->terminating clear before either sets it, then tear down the same
-> >> >link group, causing use-after-free and duplicate resource release.
-> >> >
-> >> >  BUG: KASAN: use-after-free in __smc_lgr_terminate+0x393/0x3a0
-> >> >  Write of size 1 at addr ffff8880bf2c0300 by task poc/106
-> >> >  Call Trace:
-> >> >   __smc_lgr_terminate+0x393/0x3a0
-> >> >   __smc_connect+0x2e3d/0x4930
-> >> >   smc_connect+0x42c/0x580
-> >> >   __sys_connect+0xfc/0x130
-> >> >   __x64_sys_connect+0x6d/0xb0
-> >> >
-> >> >Check freeing under the link group list lock before unlinking the gro=
-up
-> >> >or entering termination. The existing locked freeing transition then
-> >> >claims exclusive teardown ownership; an early cleanup that loses the
-> >> >claim leaves teardown to the existing owner and does not remove the g=
-roup
-> >> >from a device teardown's private list.
-> >> >
-> >> >Keep a temporary link group reference across smc_conn_free() and earl=
-y
-> >> >cleanup in smc_conn_abort(). Once the connection is unregistered, a
-> >> >termination worker can finish without taking its socket lock. The ext=
-ra
-> >> >reference keeps the allocation alive until the ownership check return=
-s.
-> >> >
-> >> >A new group is published before its first connection is registered. H=
-old
-> >> >it before publication until registration or failed-registration clean=
-up
-> >> >finishes. The reference keeps the allocation alive, but teardown can =
-still
-> >> >destroy the group's resources before registration. Take the list lock
-> >> >around the freeing check and first registration, nesting conns_lock a=
-s in
-> >> >the reuse path. Reject a group already claimed for teardown and clear
-> >> >conn->lgr, since that connection never acquired a group reference.
-> >> >
-> >> >On success, acquire the connection reference before dropping the temp=
-orary
-> >> >hold. A later terminator sees the registered connection and must acqu=
-ire
-> >> >its socket lock before removing it. On failure, keep the temporary ho=
-ld
-> >> >through early cleanup and then release it. Reused groups retain their
-> >> >existing reference protocol.
-> >> >
-> >> >This depends on "net/smc: serialize link group free work scheduling" =
-for
-> >> >the standalone freeing bool and the locked early-cleanup transition.
-> >> >
-> >> >Fixes: f9aab6f2ce57 ("net/smc: immediate freeing in smc_lgr_cleanup_e=
-arly()")
-> >> >Cc: stable@vger.kernel.org
-> >> >Assisted-by: GPT-6.1-Sol
-> >> >Signed-off-by: Chengfeng Ye <nicoyip.dev@gmail.com>
-> >> >---
-> >> >Changes in v3:
-> >> >- Serialize first registration with the teardown claim under the grou=
-p list
-> >> >  lock, nesting conns_lock in the same order as connection reuse.
-> >> >- Reject groups already being freed and clear conn->lgr on that path.
-> >> >- Document the scheduling fix prerequisite in the permanent commit me=
-ssage.
-> >> >
-> >> >Changes in v2:
-> >> >- Pin newly created link groups before publication, covering the
-> >> >  registration failure handoff to early cleanup. Drop the temporary h=
-old
-> >> >  after cleanup on failure, or after the connection hold on success.
-> >> >- Send after the free-work scheduling fix and reuse its standalone
-> >> >  freeing bool and locked early-cleanup transition.
-> >> >- Pin the link group across the smc_conn_abort() early-cleanup owners=
-hip
-> >> >  check.
-> >> >
-> >> >v1: https://lore.kernel.org/r/20260927063607.3691520-1-nicoyip.dev@gm=
-ail.com/
-> >> >
-> >> >v2: https://lore.kernel.org/r/20261003183237.2284245-3-nicoyip.dev@gm=
-ail.com/
-> >> >
-> >> > net/smc/af_smc.c   |  8 ++++++--
-> >> > net/smc/smc_core.c | 21 ++++++++++++++++++---
-> >> > 2 files changed, 24 insertions(+), 5 deletions(-)
-> >> >
-> >> >diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-> >> >index e9f93b3ab435..97b0a0b51066 100644
-> >> >--- a/net/smc/af_smc.c
-> >> >+++ b/net/smc/af_smc.c
-> >> >@@ -1011,12 +1011,16 @@ static void smc_conn_abort(struct smc_sock *s=
-mc, int local_first)
-> >> >       struct smc_link_group *lgr =3D conn->lgr;
-> >> >       bool lgr_valid =3D false;
-> >> >
-> >> >-      if (smc_conn_lgr_valid(conn))
-> >> >+      if (local_first && smc_conn_lgr_valid(conn)) {
-> >> >               lgr_valid =3D true;
-> >> >+              smc_lgr_hold(lgr);
-> >> >+      }
-> >> >
-> >> >       smc_conn_free(conn);
-> >> >-      if (local_first && lgr_valid)
-> >> >+      if (lgr_valid) {
-> >> >               smc_lgr_cleanup_early(lgr);
-> >> >+              smc_lgr_put(lgr);
-> >> >+      }
-> >> > }
-> >> >
-> >> > /* check if there is a rdma device available for this connection. */
-> >> >diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> >> >index 660cd41ec720..c1bb284c4233 100644
-> >> >--- a/net/smc/smc_core.c
-> >> >+++ b/net/smc/smc_core.c
-> >> >@@ -693,6 +693,10 @@ void smc_lgr_cleanup_early(struct smc_link_group=
- *lgr)
-> >> >
-> >> >       smc_lgr_list_head(lgr, &lgr_lock);
-> >> >       spin_lock_bh(lgr_lock);
-> >> >+      if (lgr->freeing) {
-> >> >+              spin_unlock_bh(lgr_lock);
-> >> >+              return;
-> >> >+      }
-> >> >       /* do not use this link group for new connections */
-> >> >       if (!list_empty(&lgr->list))
-> >> >               list_del_init(&lgr->list);
-> >> >@@ -999,6 +1003,7 @@ static int smc_lgr_create(struct smc_sock *smc, =
-struct smc_init_info *ini)
-> >> >               lgr->buf_type =3D lgr->net->smc.sysctl_smcr_buf_type;
-> >> >               atomic_inc(&lgr_cnt);
-> >> >       }
-> >> >+      smc_lgr_hold(lgr); /* lgr_put in smc_conn_create() */
-> >> >       smc->conn.lgr =3D lgr;
-> >> >       spin_lock_bh(lgr_lock);
-> >> >       list_add_tail(&lgr->list, lgr_list);
-> >> >@@ -2049,15 +2054,25 @@ int smc_conn_create(struct smc_sock *smc, str=
-uct smc_init_info *ini)
-> >> >               if (rc)
-> >> >                       goto out;
-> >> >               lgr =3D conn->lgr;
-> >> >-              write_lock_bh(&lgr->conns_lock);
-> >> >-              rc =3D smc_lgr_register_conn(conn, true);
-> >> >-              write_unlock_bh(&lgr->conns_lock);
-> >> >+              spin_lock_bh(lgr_lock);
-> >> >+              if (lgr->freeing) {
-> >> >+                      conn->lgr =3D NULL;
-> >> >+                      rc =3D SMC_CLC_DECL_SYNCERR;
-> >>
-> >> This should not be SMC_CLC_DECL_SYNCERR, maybe SMC_CLC_DECL_INTERR or =
-add
-> >> a new error code.
-> >
-> >No problem, I will use SMC_CLC_DECL_INTERR in v4.
-> >
-> >> >+              } else {
-> >> >+                      write_lock_bh(&lgr->conns_lock);
-> >> >+                      rc =3D smc_lgr_register_conn(conn, true);
-> >> >+                      write_unlock_bh(&lgr->conns_lock);
-> >> >+              }
-> >> >+              spin_unlock_bh(lgr_lock);
-> >> >               if (rc) {
-> >> >                       smc_lgr_cleanup_early(lgr);
-> >> >+                      smc_lgr_put(lgr); /* lgr_hold in smc_lgr_creat=
-e() */
-> >>
-> >> smc_lgr_put() may call smcr_buf_free() -> vfree(), which may sleep.
-> >> And you put it in the spinlock.
-> >
-> >It seems the smc_lgr_put(lgr) is added after the
-> >spin_unlock_bh(lgr_lock). Were you referring to another lock held by a
-> >caller? I will keep this unchanged in v4, let me know if anything
-> >should be adjusted further.
+> I wonder if we still need this.  The commit message says:
 >
-> No, I mean this part in [PATCH net v3 3/3], sorry for replying to the wro=
-ng thread.
+>     A concurrent page fault on a page newly marked read-only by the page
+>     copy might trigger wp_page_copy() and a anon_vma_prepare(vma) on the
+>     source vma, defeating the anon_vma_clone() that wasn't done because the
+>     parent vma originally didn't have an anon_vma, but we now might end up
+>     copying a pte entry for a page that has one.
+>
+> But we're holding the mmap_lock for write here, and we need to hold the
+> mmap_lock for read in order to change a vma->anon_vma (asserted in
+> __anon_vma_prepare() with mmap_assert_locked()).
 
-Thanks for the clarification. The smc_lgr_put(lgr) only calls the
-vfree() when the refcount reaches zero. I check the caller of
-smc_lgr_schedule_free_work() and it is only called from
-smc_conn_free(), and already hold a refcount. Furthermore, the added
-smc_lgr_put(lgr) also balances with the additional smc_lgr_hold(), so
-before smc_lgr_put(lgr) execution the refcount is at least 2 and will
-not call into the vfree().
+I don't think that changed anything. Actually that paragraph is probably
+just a bad example, since previous to a373baed5a9d lock_vma_under_rcu()
+did:
 
-We can also make the smc_lgr_put() outside the spinlock region, just
-that the code will look like the following, which is a bit more messy
-(one extra if branch after unlock). An alternative is that we could
-keep the v3 and add extra comments above smc_lgr_schedule_free_work()
-like indicating the refcount it at least 1. Please let me know which
-you prefer and I will send the v4.
+	/*
+	 * find_mergeable_anon_vma uses adjacent vmas which are not locked.
+	 * This check must happen after vma_start_read(); otherwise, a
+	 * concurrent mremap() with MREMAP_DONTUNMAP could dissociate the VMA
+	 * from its anon_vma.
+	 */
+	if (unlikely(vma_is_anonymous(vma) && !vma->anon_vma))
+		goto inval_end_read;
 
-        if (!lgr->freeing) {
--               mod_delayed_work(system_percpu_wq, &lgr->free_work,
--                                (!lgr->is_smcd && lgr->role =3D=3D SMC_CLN=
-T) ?
--                                               SMC_LGR_FREE_DELAY_CLNT :
--                                               SMC_LGR_FREE_DELAY_SERV);
-+               smc_lgr_hold(lgr); /* released by the worker or cancellatio=
-n */
-+               pending =3D mod_delayed_work(system_percpu_wq, &lgr->free_w=
-ork,
-+                                          (!lgr->is_smcd && lgr->role
-=3D=3D SMC_CLNT) ?
-+                                                  SMC_LGR_FREE_DELAY_CLNT =
-:
-+                                                  SMC_LGR_FREE_DELAY_SERV)=
-;
-        }
-+       spin_unlock_bh(lgr_lock);
-+       if (pending)
-+               smc_lgr_put(lgr); /* pending work already owns a reference =
-*/
+So the example cited couldn't happen then either.
 
+I think fundamentally the biggest issue is that, for CoW, we update the
+_parent_ as well as the child to do wrprotect.
+
+So you can end up with a stale TLB entry, which can result in data loss:
+
+Thread A (Parent)          | Thread B (Parent)       | Thread C (Parent)
+---------------------------|-------------------------|----------------------
+< Fork >                   |                         | < has TLB entry >
+copy_present_ptes()        | < no TLB entry >        |
+  wrprotect parent page X  |                         |
+  -> 2 mappings, refs      | *ptr = x                |
+                           | < Page fault >          |
+                           | do_wp_page()            |
+                           |   < shared, so CoW >    |
+                           |   wp_page_copy()        |
+                           |     copy X -> new pg N  |
+                           |                         | *ptr = x;
+                           |                         | [ OOPS! stale TLB,
+                           |                         |   lands in X not N ]
+                           |     ptep_clear_flush()  |
+                           |       < TLB flush >     |
+                           |     parent PTE -> N     |
+                           |     [ X now child-only ]|
+                           |                         | ASSERT(*ptr == x);
+flush_tlb_mm(oldmm)        |                         | // fails! N lacks x
+  < far too late >         |                         |
+
+
+David raised this at:
+https://lore.kernel.org/all/7e3f35cc-59b9-bf12-b8b1-4ed78223844a@redhat.com/
+
+So the real hazard here is doing the copying with concurrent faults.
+
+I don't really think there's a sensible way around that, unfortunately.
+
+The above is also likely what the bugzilla observed.
 
 >
-> @@ -89,14 +89,22 @@ static void smc_lgr_schedule_free_work(struct smc_lin=
-k_group *lgr)
->          * otherwise there is a risk of out-of-sync link groups.
->          */
->         if (!lgr->freeing) {
-> -               mod_delayed_work(system_percpu_wq, &lgr->free_work,
-> -                                (!lgr->is_smcd && lgr->role =3D=3D SMC_C=
-LNT) ?
-> -                                               SMC_LGR_FREE_DELAY_CLNT :
-> -                                               SMC_LGR_FREE_DELAY_SERV);
-> +               smc_lgr_hold(lgr); /* released by the worker or cancellat=
-ion */
-> +               if (mod_delayed_work(system_percpu_wq, &lgr->free_work,
-> +                                    (!lgr->is_smcd && lgr->role =3D=3D S=
-MC_CLNT) ?
-> +                                            SMC_LGR_FREE_DELAY_CLNT :
-> +                                            SMC_LGR_FREE_DELAY_SERV))
-> +                       smc_lgr_put(lgr); /* pending work already owns a =
-reference */
->         }
->         spin_unlock_bh(lgr_lock);
+> At the time of this commit, lock_vma_under_rcu() contained:
 >
-> Best regards,
-> Dust
+>         /* find_mergeable_anon_vma uses adjacent vmas which are not locked */
+>         if (!vma->anon_vma && !vma_is_tcp(vma))
+>                 goto inval;
+>
+> so we really did have to wait for read holders to finish the fault.
+> But commit a373baed5a9d deferred the check for a NULL anon VMA until we
+> actually needed it, so I think commit fb49c455323f's logic was invalidated
+> by a373baed5a9d.
+>
+> Maybe I'm wrong.  This is all a bit out of my normal area.
+>
+> > Also we have asserts for this lock in copy_page_range() and
+> > copy_hugetlb_page_range() which will now fail (and possibly more further down
+> > the stack?)
+>
+> Possibly we have to adjust some assertions to check that either we have
+> the VMA locked or we have the MM write locked.  That doesn't seem
+> unreasonable.
 
-Best regards,
-Chengfeng
+Well, no, because the VMA locks are designed such that an mmap write lock
+doesn't exclude them, so that would be undermining their intent.
+
+The thing is that we allow VMA read locks without an mmap read lock lock, so if
+I hold an mmap write lock, I can have parallel reads of any VMA that is
+not explicitly VMA write locked.
+
+>
+> > > My argument for why it's safe is that a thread which takes a page
+> > > fault during fork() might have taken the page fault either before or
+> > > after fork().  The faults will definitely happen in the parent process.
+> > > They may or may not have happened in the child process, which can't
+> > > possibly care whether or not they've happened.
+> >
+> > The problem isn't the child it's the parent - copy_page_range() _modifies_ the
+> > _parent_'s page tables in-place, on assumption that nothing else can access
+> > them (for CoW).
+>
+> I was perhaps unclear.  What I mean is that the child may or may not
+> observe them as having happened.
+
+Sure, but the issue is in the parent. CoW really scuppers things here :)
+
+>
+> > And actually nowadays things are _even_ worse, you could also have concurrent
+> > page faults, MADV_DONTNEED, MADV_FREE, MADV_GUARD_INSTALL/REMOVE, UFFDIO_COPY +
+> > UFFDIO_MOVE (yikes) all of which might introduce new issues + would have to be
+> > audited too.
+>
+> Yup.
+>
+> > So - it turns out a lot of stuff implicitly assumes VMA write lock now:
+> >
+> > 1. CoW - deferred TLB flush race
+> >
+> > (The issue above)
+> >
+> > https://lore.kernel.org/all/20230705171213.2843068-2-surenb@google.com/
+> >
+> > This happens because __copy_present_ptes() does wrprotect_ptes() on the parent
+> > without a TLB flush (that's deferred until the end of the fork).
+> >
+> > But unfortunately without a VMA write lock something can then replace the page
+> > table entry in the meantime and you can end up with data loss as a result.
+>
+> Is it that fb49c455323f commit message is insufficient and we need to
+> prevent simultaneous fork/page fault for other reasons, then?
+
+Yeah, as above, the example given isn't great.
+
+>
+> > Same issue exists with hugetlb wp too. And god only knows with uffd wp :)
+> >
+> > 2. THP - can destroy parent THP mappings
+> >
+> > copy_pmd_range() does:
+> >
+> > 	if (pmd_is_huge(*src_pmd)) { copy_huge_pmd(); ... }
+> > 	if (pmd_none_or_clear_bad(src_pmd))
+> > 		continue;
+> >
+> > Without the write lock, a concurrent fault can install a huge PMD via
+> > do_huge_pmd_anonymous_page() or filemap_map_pmd()/do_set_pmd().
+> >
+> > The issue is that pmd_bad() fires for leaf PMD (ugh) on at least x86 and arm64,
+> > meaning that'll clear the page table entry.
+> >
+> > I think Hugh left a comment alluding to this before:
+> >
+> > 	 * copy_pmd_range()'s prior pmd_none_or_clear_bad(src_pmd), and the
+> > 	 * error handling here, assume that exclusive mmap_lock on dst and src
+> > 	 * protects anon from unexpected THP transitions; ...
+> >
+> > It's like the mess around pmd_trans_unstable() :(
+>
+> ... could we fix this by taking the ptlock during the copy operation?
+
+Well, that's a long time to hold that lock, and while it might address the
+pmd_none_or_clear_bad() thing, the CoW issue remains the same, since really
+the issue there is TLB invalidation.
+
+And the only way to address that is to just now allow faults to happen
+during fork.
+
+(I also fear there are other subtle bugs that might emerge from all this,
+we do like to make _implicit_ assumptions about things).
+
+Actually there's a pleasing thing you came up with at the time:
+
+	Calling fork() from a multi-threaded program is fraught with
+	danger.  It's a rare thing to do, and we don't need to optimise for
+	it.  It does, of course, need to not crash.  But we can slow it
+	down as much as we want to.  Slowing down single-threaded programs
+	calling fork is much less acceptable.
+
+https://lore.kernel.org/all/ZKQZnAfLRPVqnxiO@casper.infradead.org/
+
+:))
+
+It does feel a bit like we're bending over backwards for a broken use-case.
+
+And anyway, even if we did somehow find a way to make all this work, I fear
+we'd just move the contention somewhere else.
+
+Perhaps the 'genius' hack of mine isn't so bad after all? :P
+
+--
+Cheers, Lorenzo
