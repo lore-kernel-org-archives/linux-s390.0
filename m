@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793069425;
-	b=t+ot4aZbReBSBhJzW7XU6RXt7VgrKaWzp8x2nxFyexsXJuWz17XlTvMFfeW4Sr+9hUeL
-	 9MHyrzQQci/bo4SIJhd9UpjUpWt0nRXAqzdKVLooEgwIA5JZLVvuPwvfLVJeVS7Yh+9oT
-	 JpMTwpKY9jA+ucEGXmxw1S+ZGeRYzD0O+Ozq6OQuI66GOJR7HV4NS5dVF6lws8J//2t4d
-	 3A0GPYKEbgBh7a7EUWaM7ZPVKFhzbLkd0DyLSjodBKdG7wChsANvPQ4DJHRj8Uu8M2VO4
-	 kv5RsEpbiMIZ4dSOnOwt+N3lbfJwpTD92bfqspn7fe+/cC6YBLhbApsXuTs58WH5IRw==
+	t=1793069426;
+	b=I+C4ET7KkpH7yVxhGRlm8xGsfwDDL2xeMUZJHWYOyUGv7OhOWhLpPCTMFYXG2xtHyDrp
+	 QnNlg5LqkBywJEZjxnkjC9yi7iLPv614n/O1ijf2kyt5d/dXqHZZBTVBRr7QulZ1feuYo
+	 B9lL7HfPhcYFSKBI0ayh6BvsB8WMN5qgjARpodDzxlboM6x60Yb6ebcF4YgNjb0mkaU68
+	 OQ7tY5JBtyCxLfPt+mff6lZHMUGqwKXCaDd7BPCEHY69ECmqGlboKDd+wrGxFLgAZgsZh
+	 dW9z8x3o9JCH0SaGPF75eL9sv0Hui/tcoGeomUfjRt4g3GjZJB187Nbvj9L7xO5/UTw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793069425;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793069426;
 	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
 	 In-Reply-To:References:X-sashiko-severity:Content-Type:
 	 Content-Transfer-Encoding:MIME-Version;
-	bh=xruDv2a3bHWNqXV8RGWxU+fquzBodGLGa5mXEY4Eiog=;
-	b=GH95jV9O5Ub4ojm9dQr/SdFzwSM2rBa9+tNZEzKosrNGYHuV7wdRAd1I0AHwt0D2PLkb
-	 KYKLaIt0bep6TXQFyliOlTq4m9ziLrWRdV+kkIjM3UTjexDuKIGSfQnV1iK5gQv1RROEK
-	 OyPog8v9CVU+andYiCXAtV2yPKWfIDGZ1gOfbxXM//d9dz1X3/YJqC0vPKGZky5mAEPEZ
-	 TmtLstLO4HixhWYBY6GXN9M0+iCZBMZgHSDAoleuxdTUCznI97PCmxDGn9TB94P1TauGQ
-	 6P/d+fEK3WB9jtiwao/blgG3ZKCTMp9HOc/DVAnOOXunVldUiOmax0ihhhmhBBNvGzw==
+	bh=IyyCULW8SkmvNw1xg0vXA/Ay8zzqUNH3Bx42peKvByI=;
+	b=SDZ3MtLXhG4IFcvPUIMUoTGyFQn6nmsisZXtpAB+DwL18jYi0zot4KPTn0DBfSkbxg5x
+	 iGu2mHN0/HFSYmHH+c2ilhW88XWueOYtQ8YcdrDfGF3Ds847KmVnV2bVfgdRf+47TqapX
+	 qA8RE0WsR9o0FCVO6L6RqFRaVMJAw4yBOFBa7c3YkrbzzNgoXVVY6OruTB4IptQzEDisu
+	 OJdtroY2UTLT1ONPZrM3wqzlegeWJ6dorljIWiRSUMLZ/fhwFo+pAIVmtuqFcTY32DzqV
+	 DuMsYJeZ+o7pC42y2K28/mFBF62s6ovnZW0lHseaEVLMlBYocCtwzevOZ9BkrwsjUvA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QG9svXiu;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WmVIItqG;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DECB606A31A;
-	Tue, 27 Oct 2026 02:50:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CB73606A324;
+	Tue, 27 Oct 2026 02:50:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QG9svXiu
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33B9D1F01825;
-	Tue, 27 Oct 2026 02:50:24 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WmVIItqG
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 843C71F01828;
+	Tue, 27 Oct 2026 02:50:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793069424;
-	bh=xruDv2a3bHWNqXV8RGWxU+fquzBodGLGa5mXEY4Eiog=;
+	s=k20260515; t=1793069426;
+	bh=IyyCULW8SkmvNw1xg0vXA/Ay8zzqUNH3Bx42peKvByI=;
 	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=QG9svXiucGO/wO7RfIXOafyEtyGQSuvWea5zHZ+nm3mAMKp9+JdVsP08c2kUbazks
-	 HxNfony/+gr7E+vLH0Iq1rMcSoRlDfyt5fO7D/OwqTFt3eWFImis13lUiqewnq6gH5
-	 YcR5fImAri/wk71DY2W84GBtae05nQSgyeiUXfK+22eOzLPtQ40yGMruBPPS680oMH
-	 4TcqysXhdvqJzdr+FhKTFs7EI57fok4ENX/riASJ/x2eeNwCJ7EYw038xj14FoDZQK
-	 xFadJcZ/SyC3QY3eJyjOk4QgkvTU1H84cHI3PCpSy+FG3/5YNRd6UrcrIEia6Kk5jW
-	 hyFVbmk0fnbDA==
-Subject:
- Re: [PATCH net 1/2] net/iucv: clear hs_dev before dropping its reference
+	b=WmVIItqGCc5A4Ch6+AJmWJ3GM99Atb2ADWthQMCYMPbKENNZvMV84BgCXqvo6wAJ2
+	 AuvTP9dURmQ71BFq4o51cXwzIX3/MZF/qK93w447xvcQf0LS+xuaFg+5DdnWqvaiuL
+	 gGg1HtMwAfrCoh1IFrU7HnufVlCWtHHARYellARFN18LEX6UU6MN/huDHyIUO5OiNA
+	 HJ/ymwXyZzhFVcE83+qy9wsaBMrtCwPR0T1Bt/poWPZ3jofhqhklzXdUPxSQMp+lke
+	 zBTNrjU2AU2vUACQmz7Wb/fKyMlYLeGWmN2iyRHKXSUkmHGqU1eNTNg+68/c9HpaZe
+	 s+bmVoY6Wt+Mg==
+Subject: Re: [PATCH net 2/2] net/iucv: do not count the SHT frame against the
+ receive window
 From: netdev-bot+sashiko@kernel.org
 To: hexlabsecurity@proton.me
 Cc: edumazet@kernel.org, kuba@kernel.org, davem@davemloft.net,
  pabeni@redhat.com, wintera@linux.ibm.com, twinkler@linux.ibm.com,
  nagamani@linux.ibm.com, netdev@vger.kernel.org, hidayath@linux.ibm.com,
  linux-s390@vger.kernel.org, horms@kernel.org, linux-kernel@vger.kernel.org
-Date: Tue, 27 Oct 2026 02:50:23 +0000
-Message-ID: <179306942370.3134.2152050460964282662@kernel.org>
-In-Reply-To: <20261022-b4-disp-b35a9153-v1-1-d74645876195@proton.me>
-References: <20261022-b4-disp-b35a9153-v1-1-d74645876195@proton.me>
-X-sashiko-severity: Medium
+Date: Tue, 27 Oct 2026 02:50:25 +0000
+Message-ID: <179306942509.3134.1109951482403010755@kernel.org>
+In-Reply-To: <20261022-b4-disp-b35a9153-v1-2-d74645876195@proton.me>
+References: <20261022-b4-disp-b35a9153-v1-2-d74645876195@proton.me>
+X-sashiko-severity: High
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 X-Mailing-List: linux-s390@vger.kernel.org
@@ -68,7 +68,7 @@ MIME-Version: 1.0
 Thank you for your contribution! Sashiko AI review found 1 potential
 issue(s) to consider.
 
-Critical: 0 · High: 0 (3) · Medium: 1 · Low: 0
+Critical: 0 · High: 1 (1) · Medium: 0 (3) · Low: 0 (1)
 
 If you believe none of the issues are legitimate, please reply to each
 issue of Medium severity or higher and explain why the AI is wrong.
@@ -76,246 +76,265 @@ If any of them are legitimate and you plan to respin, please let patchwork
 know by including "pw-bot: cr" as a separate line at the end of your reply
 (one such reply per series is enough).
 
-- [Medium] In afiucv_hs_callback_syn(), the child now takes a reference
-  on skb->dev every time, instead of copying the listener's hs_dev.
+- [High] The patch adds `&& rlen` to the counting branch in
+  iucv_sock_recvmsg() (net/iucv/af_iucv.c:1324).
 
 Pre-existing issues:
-- [High] This problem wasn't introduced by this patch, but
-  afiucv_netdev_event() walks iucv_sk_list with sk_for_each() and holds…
-- [High] This problem wasn't introduced by this patch, but
-  afiucv_hs_callback_syn() leaks the child socket it allocates on every…
-- [High] This problem wasn't introduced by this patch, but the SYN
-  callback can publish a child into a listener's accept_q while that…
+- [High] A peer can grow iucv->backlog_skb_q without limit.
+- [Medium] A conforming HiperSockets peer can still end up in the
+  `msg_recv > msglimit` close in iucv_sock_recvmsg().
+- [Medium] On HiperSockets, a zero-length sendmsg() leaks one slot of the
+  peer's window when a receive credit is piggybacked on it.
+- [Medium] The classic IUCV transport still has a WARN that a peer can
+  trigger.
+- [Low] Two unsynchronized writes to sk->sk_shutdown can lose
+  RCV_SHUTDOWN.
 
 --
 
-net/iucv: clear hs_dev before dropping its reference
+net/iucv: do not count the SHT frame against the receive window
 
-This patch changes iucv_sock_close() so that iucv->hs_dev is cleared
-before dev_put(). It also marks the racing hs_dev and sk_bound_dev_if
-accesses with READ_ONCE()/WRITE_ONCE(). Finally, afiucv_hs_callback_syn()
-now takes the child's device reference and sk_bound_dev_if from skb->dev
-instead of from the listener's fields.
+This patch changes iucv_sock_recvmsg() so that zero-length HiperSockets
+frames, such as the SHT frame sent by shutdown(SHUT_WR), no longer count
+against msg_recv. It also removes the WARN_ON(1) from the over-window
+path, which still closes the socket and returns -EFAULT.
 
-Closes: https://lore.kernel.org/netdev/b3fea2ca-25ff-42c0-812c-f8cc6bb6667e@linux.ibm.com/
+Closes: https://lore.kernel.org/netdev/179183431327.434549.446348148837850426@kernel.org/
 
-> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-> index db261ecd19af1..501e758c5e68a 100644
-> --- a/net/iucv/af_iucv.c
-> +++ b/net/iucv/af_iucv.c
-> @@ -447,9 +447,16 @@ static void iucv_sock_close(struct sock *sk)
->  	}
->  
->  	if (iucv->hs_dev) {
-> -		dev_put(iucv->hs_dev);
-> -		iucv->hs_dev = NULL;
-> -		sk->sk_bound_dev_if = 0;
-> +		struct net_device *dev = iucv->hs_dev;
-> +
-> +		/* afiucv_hs_rcv() matches frames on hs_dev under
-> +		 * iucv_sk_list.lock, not the socket lock: clear it before the
-> +		 * reference goes, so the match can no longer find a device
-> +		 * this socket does not hold.
-> +		 */
-> +		WRITE_ONCE(iucv->hs_dev, NULL);
-> +		WRITE_ONCE(sk->sk_bound_dev_if, 0);
-> +		dev_put(dev);
->  	}
-
-[Severity: High]
-This is a pre-existing issue, but afiucv_netdev_event() also reads this
-field, and it holds neither iucv_sk_list.lock nor the socket lock:
-
-net/iucv/af_iucv.c:afiucv_netdev_event() {
-    ...
-	case NETDEV_GOING_DOWN:
-		sk_for_each(sk, &iucv_sk_list.head) {
-			iucv = iucv_sk(sk);
-			if ((iucv->hs_dev == event_dev) &&
-			    (sk->sk_state == IUCV_CONNECTED)) {
-				if (event == NETDEV_GOING_DOWN)
-					iucv_send_ctrl(sk, AF_IUCV_FLAG_FIN);
-    ...
-}
-
-iucv_sock_close() runs under lock_sock() only. Can it move the socket out
-of IUCV_CONNECTED and run this clear after the notifier's check but before
-its call to iucv_send_ctrl()?
-
-iucv_send_ctrl() reads hs_dev again and uses it without a NULL check:
-
-	blen = sizeof(struct af_iucv_trans_hdr) +
-	       LL_RESERVED_SPACE(iucv->hs_dev);
-
-The list walk itself also looks unprotected. iucv_sock_link() and
-iucv_sock_unlink() change the list under write_lock_bh(&iucv_sk_list.lock),
-and rtnl does not exclude them.
-
-Could a concurrent close() followed by iucv_sock_kill() unlink and free
-the node the notifier is on?
-
-Once this patch is applied, the notifier is the only unlocked,
-unannotated reader of hs_dev left. The notes below the commit message
-leave it to Nagamani PV's "net/iucv: fix races in afiucv_netdev_event()".
-
-[ ... ]
-
-> @@ -1912,9 +1919,14 @@ static int afiucv_hs_callback_syn(struct sock *sk, struct sk_buff *skb)
->  	memcpy(niucv->dst_user_id, trans_hdr->srcUserID, 8);
->  	memcpy(niucv->src_name, iucv->src_name, 8);
->  	memcpy(niucv->src_user_id, iucv->src_user_id, 8);
-> -	nsk->sk_bound_dev_if = sk->sk_bound_dev_if;
-> -	niucv->hs_dev = iucv->hs_dev;
-> -	dev_hold(niucv->hs_dev);
-> +	/* skb->dev is the device the lookup matched against the listener's
-> +	 * hs_dev; the listener's own fields are cleared by close() under
-> +	 * lock_sock(), which this softirq does not hold. nsk is in
-> +	 * iucv_sk_list already: hold, then publish.
-> +	 */
-> +	WRITE_ONCE(nsk->sk_bound_dev_if, skb->dev->ifindex);
-> +	dev_hold(skb->dev);
-> +	WRITE_ONCE(niucv->hs_dev, skb->dev);
+> A zero-length data frame sets RCV_SHUTDOWN, after which
+> afiucv_hs_callback_rx() drops every later data frame uncounted; the one
+> slot this patch no longer credits for it is lost like the slots of the
+> frames dropped after it.
 
 [Severity: Medium]
-Can this leak a reference on skb->dev when the SYN races with close() of
-the listener?
+This is a pre-existing issue, but does a zero-length data frame always
+arrive at the receiver as an empty data frame?
 
-The callback holds only bh_lock_sock(sk). That does not exclude
-iucv_sock_close() of the listener, which holds lock_sock(), and the
-callback never checks sock_owned_by_user(). This sequence looks possible:
+iucv_sock_sendmsg() has no zero-length guard, and it counts the send
+before the frame goes out:
 
-CPU1 (softirq)
-afiucv_hs_callback_syn()
-  bh_lock_sock(sk);
-  sk->sk_state == IUCV_LISTEN, check passes
+    atomic_inc(&iucv->msg_sent);
+    err = afiucv_hs_send(&txmsg, sk, skb, 0);
 
-CPU2 (process context)
-iucv_sock_close(listener)
-  iucv_sock_cleanup_listen()
-    drains accept_q
-  WRITE_ONCE(iucv->hs_dev, NULL);
-  dev_put(dev);
+With flags == 0, afiucv_hs_send() piggybacks any pending credit:
 
-CPU1
-  dev_hold(skb->dev);
-  WRITE_ONCE(niucv->hs_dev, skb->dev);
-  dev_queue_xmit(skb);
-  iucv_accept_enqueue(sk, nsk);
-  nsk->sk_state = IUCV_CONNECTED;
+    if (flags == AF_IUCV_FLAG_WIN || !flags) {
+            confirm_recv = atomic_xchg(&iucv->msg_recv, 0);
+            phs_hdr->window = confirm_recv;
+            if (confirm_recv)
+                    phs_hdr->flags = phs_hdr->flags | AF_IUCV_FLAG_WIN;
 
-The child then sits in IUCV_CONNECTED on the accept_q of a listener that
-has already been drained. Nothing accepts, closes or kills it.
+On the receiving side, afiucv_hs_rcv() then handles it as a pure window
+update:
 
-Before this patch, the callback read the listener's hs_dev as NULL in
-this interleaving, so dev_hold(NULL) did nothing and only the struct sock
-leaked. Now the child holds the ingress device.
+    case (AF_IUCV_FLAG_WIN):
+            err = afiucv_hs_callback_win(sk, skb);
+            if (skb->len == sizeof(struct af_iucv_trans_hdr)) {
+                    consume_skb(skb);
+                    break;
+            }
 
-In the other interleaving, where hs_dev was read before the clear, the
-old code already leaked the listener's device reference. This change
-extends the device leak to the case that used to leak only the sock.
+The frame never reaches afiucv_hs_callback_rx() or recvmsg(). It does not
+set RCV_SHUTDOWN, the receiver never credits it back, and the sender's
+msg_sent stays one too high.
 
-afiucv_netdev_event() does nothing on NETDEV_UNREGISTER. On
-NETDEV_GOING_DOWN it only moves the child to IUCV_DISCONN.
+If zero-length sends repeat while msg_recv is non-zero, they use up
+msglimit_peer. Eventually sendmsg() blocks in iucv_sock_wait() or returns
+-EAGAIN.
 
-Would unregister_netdevice() of that HiperSockets device then wait
-forever in netdev_wait_allrefs()?
+This patch does not touch that path. The sentence quoted above, though,
+does not hold when a credit is piggybacked.
 
-The notes below the commit message mention this orphaned child, and
-that it now holds the device the frame arrived on.
-
->  	afiucv_swap_src_dest(skb);
->  	trans_hdr->flags = AF_IUCV_FLAG_SYN | AF_IUCV_FLAG_ACK;
->  	trans_hdr->window = niucv->msglimit;
-
-[Severity: High]
-This isn't a bug introduced by this patch, but does
-afiucv_hs_callback_syn() leak the child socket nsk on every refused SYN?
-
-iucv_sock_alloc() runs before any of the checks. It clears SOCK_ZAPPED
-and links nsk into iucv_sk_list:
-
-net/iucv/af_iucv.c:iucv_sock_alloc() {
-    ...
-	sock_reset_flag(sk, SOCK_ZAPPED);
-
-	sk->sk_protocol = proto;
-	sk->sk_state	= IUCV_OPEN;
-
-	iucv_sock_link(&iucv_sk_list, sk);
-    ...
-}
-
-Two branches call iucv_sock_kill(nsk): the refusal branch (listener not
-in IUCV_LISTEN, or sk_acceptq_is_full()) and the dev_queue_xmit() failure
-branch. iucv_sock_kill() returns at once for a socket that is not zapped:
-
-net/iucv/af_iucv.c:iucv_sock_kill() {
-	if (!sock_flag(sk, SOCK_ZAPPED) || sk->sk_socket)
-		return;
-    ...
-}
-
-So nsk is never unlinked or freed. A HiperSockets peer can keep sending
-SYNs to a bound socket, or to a listener with a full backlog. Each leaked
-entry also makes the sk_for_each() walk in afiucv_hs_rcv() longer.
-
-On the dev_queue_xmit() failure branch, the leaked child has already done
-dev_hold(skb->dev) above.
-
-Can that reference also block unregister_netdevice() of the ingress
-device forever?
-
-The notes below the commit message say Hidayath Khan reported this in
-August and that his fix is pending.
+> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+> index 501e758c5e68a..a5142081bb6a6 100644
+> --- a/net/iucv/af_iucv.c
+> +++ b/net/iucv/af_iucv.c
+> @@ -1317,10 +1317,13 @@ static int iucv_sock_recvmsg(struct socket *sock, struct msghdr *msg,
+>  		}
+>  
+>  		consume_skb(skb);
+> -		if (iucv->transport == AF_IUCV_TRANS_HIPER) {
+> +		/* The peer counts only the data it sends against its window;
+> +		 * the SHT's empty frame is not among them. Over the window,
+> +		 * close without a WARN: a peer reaches this from the network.
+> +		 */
+> +		if (iucv->transport == AF_IUCV_TRANS_HIPER && rlen) {
 
 [Severity: High]
-This is a pre-existing issue, but can the child be published into the
-listener's accept_q while the listener is being torn down, and then be
-handled before it is fully set up?
+Can an empty frame read after the over-window close reach
+iucv_send_ctrl() while iucv->hs_dev is NULL?
 
-The callback holds only bh_lock_sock(sk), while iucv_sock_close() holds
-lock_sock(sk). iucv_accept_enqueue() makes the child visible before it
-sets the child's parent:
+When a data frame pushes msg_recv over msglimit, iucv_sock_close() runs
+and clears hs_dev:
 
-net/iucv/af_iucv.c:iucv_accept_enqueue() {
+iucv_sock_close()
     ...
-	spin_lock_irqsave(&par->accept_q_lock, flags);
-	list_add_tail(&iucv_sk(sk)->accept_q, &par->accept_q);
-	spin_unlock_irqrestore(&par->accept_q_lock, flags);
-	iucv_sk(sk)->parent = parent;
-	sk_acceptq_added(parent);
-}
-
-iucv_sock_cleanup_listen() calls iucv_accept_dequeue(parent, NULL). That
-function walks accept_q without accept_q_lock and, with newsock == NULL,
-takes any child whatever its state. It then calls iucv_accept_unlink():
-
-net/iucv/af_iucv.c:iucv_accept_unlink() {
+    skb_queue_purge(&iucv->send_skb_q);
+    skb_queue_purge(&iucv->backlog_skb_q);
     ...
-	struct iucv_sock *par = iucv_sk(iucv_sk(sk)->parent);
+    WRITE_ONCE(iucv->hs_dev, NULL);
 
-	spin_lock_irqsave(&par->accept_q_lock, flags);
+It does not purge sk_receive_queue, and it does not reset msg_recv.
+
+The next recvmsg() returns -ECONNRESET through sock_error() in
+__skb_try_recv_datagram(), and that call also clears sk_err. The
+recvmsg() after it dequeues whatever is still in sk_receive_queue, even
+though the socket is IUCV_CLOSED.
+
+If that frame is empty (an SHT, for example), rlen == 0 and the new gate
+skips the over-window return. backlog_skb_q is empty because close
+purged it, and msg_recv is still above msglimit, so this code runs:
+
+    if (iucv->transport == AF_IUCV_TRANS_HIPER &&
+        atomic_read(&iucv->msg_recv) >=
+                    iucv->msglimit / 2)
+            send_win = true;
     ...
-}
+    if (send_win) {
+            err = iucv_send_ctrl(sk, AF_IUCV_FLAG_WIN);
 
-sk_alloc() zeroes the sock, so parent is still NULL if the store in
-iucv_accept_enqueue() has not happened yet.
+iucv_send_ctrl() then computes:
 
-Is that a NULL pointer dereference?
+    blen = sizeof(struct af_iucv_trans_hdr) +
+           LL_RESERVED_SPACE(iucv->hs_dev);
 
-If the parent store has happened, cleanup goes on to iucv_sock_close()
-and iucv_sock_kill() the child, which drops both references. The callback
-then still does:
+This reads hard_header_len and needed_headroom through a NULL pointer,
+before afiucv_hs_send() gets a chance to check the device.
 
-		iucv_accept_enqueue(sk, nsk);
-		nsk->sk_state = IUCV_CONNECTED;
+For example, say the receiver has msglimit 2 and a small SO_RCVBUF, and
+the peer sends d1, d2, d3 and then SHTs:
 
-Would the write to nsk->sk_state then be a use-after-free?
+1. Reading d1 and d2 moves d3 and S1 into sk_receive_queue.
+2. Reading d3 closes the socket.
+3. The next read returns -ECONNRESET.
+4. The read after that consumes S1.
 
-The commit message leaves the case of a SYN accepted while the listener
-closes to the socket-locking rework.
+Before this patch, every frame read after the close went through the
+msg_recv > msglimit branch again and returned -EFAULT. send_win could not
+be reached on this path.
 
-[ ... ]
+On s390 with relocate_lowcore this would oops. On a default boot, blen
+would be computed from lowcore bytes and afiucv_hs_send() would fail with
+-ENODEV. recvmsg() would then move the IUCV_CLOSED socket back to
+IUCV_DISCONN.
+
+Could this return early once the socket is closed, or skip the window
+update after a close?
+
+>  			atomic_inc(&iucv->msg_recv);
+>  			if (atomic_read(&iucv->msg_recv) > iucv->msglimit) {
+> -				WARN_ON(1);
+
+[Severity: Medium]
+This is a pre-existing issue, but the classic IUCV transport still has a
+WARN that a peer can trigger, of the same kind as the one removed here.
+
+alloc_iucv_recv_skb() does:
+
+    WARN_ONCE(!skb,
+              "alloc of recv iucv skb len=%lu failed with errcode=%d\n",
+              len, err);
+
+len comes from the peer's message via iucv_msg_length(), called from
+iucv_callback_rx() or iucv_process_message_q(). iucv_callback_rx() checks
+it only against sk_rcvbuf, and iucv_process_message_q() does not check it
+at all.
+
+A message larger than MAX_SKB_FRAGS * PAGE_SIZE plus the linear part
+makes alloc_skb_with_frags() fail with -EMSGSIZE. A GFP_ATOMIC | GFP_DMA
+allocation failure under memory pressure has the same effect.
+
+With panic_on_warn, a peer can turn this into a panic. Should this
+WARN_ONCE() be removed as well?
+
+>  				iucv_sock_close(sk);
+>  				return -EFAULT;
+
+[Severity: High]
+This isn't a bug introduced by this patch, but this read-time check is
+the only window enforcement on the receive side. Can a peer that ignores
+its window grow iucv->backlog_skb_q without limit?
+
+afiucv_hs_callback_rx() queues frames like this:
+
+    if (skb_queue_empty(&iucv->backlog_skb_q)) {
+            if (__sock_queue_rcv_skb(sk, skb))
+                    /* handle rcv queue full */
+                    skb_queue_tail(&iucv->backlog_skb_q, skb);
+    } else
+            skb_queue_tail(&iucv_sk(sk)->backlog_skb_q, skb);
+
+Once sk_rcvbuf is full, or once the backlog holds any frames, every later
+data, SHT or WIN-with-payload frame goes onto backlog_skb_q. That queue
+has no length or memory limit, and these skbs are not charged to
+sk_rmem_alloc.
+
+msg_recv is only incremented in iucv_sock_recvmsg(). If the reader is
+idle or slow, kernel memory keeps growing until the reader runs or the
+system runs out of memory.
+
+[Severity: Medium]
+This is a pre-existing issue, but can a conforming peer still reach this
+close?
+
+The new comment says "a peer reaches this from the network". However,
+the check compares against the current iucv->msglimit, while the peer is
+bound by the window advertised in the SYN. afiucv_hs_send() fills that
+window in as:
+
+    phs_hdr->window = iucv->msglimit;
+
+iucv_sock_connect() sends the SYN and then waits in IUCV_BOUND. A
+blocking connect drops the socket lock inside iucv_sock_wait(), and a
+non-blocking connect returns -EAGAIN. In either case
+iucv_sock_setsockopt() still accepts SO_MSGLIMIT in that state:
+
+    case IUCV_BOUND:
+            if (val < 1 || val > U16_MAX)
+                    rc = -EINVAL;
+            else
+                    iucv->msglimit = val;
+
+So msglimit can be lowered below the window that was already advertised.
+
+While frames wait in backlog_skb_q, recvmsg() sends no WIN, so msg_recv
+climbs past the lowered limit. A peer that stayed inside its window then
+gets closed: the reader sees -EFAULT and the consumed frame is lost.
+
+The notes below the cut line mention this case and defer it to a rework
+that stores the advertised window separately. Could the commit message
+and the new comment also say that a conforming peer can still reach this
+path?
+
+>  			}
+
+[Severity: Low]
+This is a pre-existing issue, but can the RCV_SHUTDOWN set by the
+empty-frame read be lost?
+
+iucv_sock_recvmsg() runs without lock_sock() and does a plain
+read-modify-write:
+
+    if (!rlen)
+            sk->sk_shutdown = sk->sk_shutdown | RCV_SHUTDOWN;
+
+iucv_send_ctrl() saves and restores the whole mask. It can be called from
+a repeated shutdown(SHUT_WR) under lock_sock(), or from a concurrent
+recvmsg() sending WIN:
+
+    if (sk->sk_shutdown & SEND_SHUTDOWN) {
+            /* controlling flags should be sent anyway */
+            shutdown = sk->sk_shutdown;
+            sk->sk_shutdown &= RCV_SHUTDOWN;
+    }
+    ...
+    if (shutdown)
+            sk->sk_shutdown = shutdown;
+
+If the SHT read sets RCV_SHUTDOWN between the save and the restore, the
+restore clears it again. The current read still returns 0, but later
+reads may block or return -EAGAIN instead of EOF. afiucv_hs_callback_rx()
+would also start accepting data frames again.
 
 -- 
 Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261022-b4-disp-b35a9153-v1-0-d74645876195%40proton.me
