@@ -1,60 +1,100 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
-ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793069426;
-	b=I+C4ET7KkpH7yVxhGRlm8xGsfwDDL2xeMUZJHWYOyUGv7OhOWhLpPCTMFYXG2xtHyDrp
-	 QnNlg5LqkBywJEZjxnkjC9yi7iLPv614n/O1ijf2kyt5d/dXqHZZBTVBRr7QulZ1feuYo
-	 B9lL7HfPhcYFSKBI0ayh6BvsB8WMN5qgjARpodDzxlboM6x60Yb6ebcF4YgNjb0mkaU68
-	 OQ7tY5JBtyCxLfPt+mff6lZHMUGqwKXCaDd7BPCEHY69ECmqGlboKDd+wrGxFLgAZgsZh
-	 dW9z8x3o9JCH0SaGPF75eL9sv0Hui/tcoGeomUfjRt4g3GjZJB187Nbvj9L7xO5/UTw==
-ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793069426;
-	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
-	 In-Reply-To:References:X-sashiko-severity:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=IyyCULW8SkmvNw1xg0vXA/Ay8zzqUNH3Bx42peKvByI=;
-	b=SDZ3MtLXhG4IFcvPUIMUoTGyFQn6nmsisZXtpAB+DwL18jYi0zot4KPTn0DBfSkbxg5x
-	 iGu2mHN0/HFSYmHH+c2ilhW88XWueOYtQ8YcdrDfGF3Ds847KmVnV2bVfgdRf+47TqapX
-	 qA8RE0WsR9o0FCVO6L6RqFRaVMJAw4yBOFBa7c3YkrbzzNgoXVVY6OruTB4IptQzEDisu
-	 OJdtroY2UTLT1ONPZrM3wqzlegeWJ6dorljIWiRSUMLZ/fhwFo+pAIVmtuqFcTY32DzqV
-	 DuMsYJeZ+o7pC42y2K28/mFBF62s6ovnZW0lHseaEVLMlBYocCtwzevOZ9BkrwsjUvA==
-ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WmVIItqG;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.169
+ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
+	t=1793069877;
+	b=nteTXF20/IdyCK+914np3yh0hE8XbXYIkugtSWl7MdACEsPOpsJoLrYwf6XCY8h2gz5z
+	 ciGIwy73qNXOwWyyUJKkdXrWen9sBFN1y9zYIw/bOjdK2LJtZlwVb33/6IiaVC/zUKb7x
+	 Nsb8gCCv+NPdVv3Fr/n9X43cyRifRREP1Qi5ZPtAYLgRkhZ9vQo4VqUrJL+dgsjh1nJFW
+	 P88EA46gnV7lzvOxA4kmbX2Mq+AJ1SIJiyax5ghr6TeVWSOPYCNDgy38O2PKKy8gLjEA4
+	 F3mQ606G6v1aG5M+ocne86bJiNdcVtLOv1rXGIaMuNriutmuX5c4BPobQUhT4kq3WsQ==
+ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793069877;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
+	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
+	bh=veWNjOyx0q2aoHvEbX2sAz0cuq6dhXLamwz9eTavWpQ=;
+	b=YOsUxPo808AY6MyZxuTkSKDeMwTtlderkpjN2Da3GrKH4Xfjz0y8vlPE54JQuRy3S3xW
+	 ufBoA4MbBpidiJBSAPHK13xI+f9lQcfB6O0ErVEy8lx8mC0YOln/m80im2l/DXR9TbkqI
+	 G0ApchU0eoDSsfTyPtHTmeBIVVq5gfNZVogk0xNmYKYUz6ITmyjdCWeAv9fMvA3EkFkdm
+	 JByCKeEvUvimSeedySk2JJHVO1Ptc18TsY9WfsDYvO9FOOeFOgs7PZFTgqwuhSm7WgA3a
+	 Ww8i4POUlsktU+JPgrIbS6IS8BvETDoA4ob6Lv8BBbA3wIzOipdR3JccLC3oX0v5eSw==
+ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=ljZUanrR;
+	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.160.169
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CB73606A324;
-	Tue, 27 Oct 2026 02:50:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5394606A31F
+	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 02:57:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A5394606A31F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WmVIItqG
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 843C71F01828;
-	Tue, 27 Oct 2026 02:50:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793069426;
-	bh=IyyCULW8SkmvNw1xg0vXA/Ay8zzqUNH3Bx42peKvByI=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=WmVIItqGCc5A4Ch6+AJmWJ3GM99Atb2ADWthQMCYMPbKENNZvMV84BgCXqvo6wAJ2
-	 AuvTP9dURmQ71BFq4o51cXwzIX3/MZF/qK93w447xvcQf0LS+xuaFg+5DdnWqvaiuL
-	 gGg1HtMwAfrCoh1IFrU7HnufVlCWtHHARYellARFN18LEX6UU6MN/huDHyIUO5OiNA
-	 HJ/ymwXyZzhFVcE83+qy9wsaBMrtCwPR0T1Bt/poWPZ3jofhqhklzXdUPxSQMp+lke
-	 zBTNrjU2AU2vUACQmz7Wb/fKyMlYLeGWmN2iyRHKXSUkmHGqU1eNTNg+68/c9HpaZe
-	 s+bmVoY6Wt+Mg==
-Subject: Re: [PATCH net 2/2] net/iucv: do not count the SHT frame against the
- receive window
-From: netdev-bot+sashiko@kernel.org
-To: hexlabsecurity@proton.me
-Cc: edumazet@kernel.org, kuba@kernel.org, davem@davemloft.net,
- pabeni@redhat.com, wintera@linux.ibm.com, twinkler@linux.ibm.com,
- nagamani@linux.ibm.com, netdev@vger.kernel.org, hidayath@linux.ibm.com,
- linux-s390@vger.kernel.org, horms@kernel.org, linux-kernel@vger.kernel.org
-Date: Tue, 27 Oct 2026 02:50:25 +0000
-Message-ID: <179306942509.3134.1109951482403010755@kernel.org>
-In-Reply-To: <20261022-b4-disp-b35a9153-v1-2-d74645876195@proton.me>
-References: <20261022-b4-disp-b35a9153-v1-2-d74645876195@proton.me>
-X-sashiko-severity: High
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20251104 header.b=ljZUanrR
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-535f598d126so86171cf.1
+        for <linux-s390@vger.kernel.org>; Mon, 26 Oct 2026 19:57:56 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1793069875; cv=none;
+        d=google.com; s=arc-20260327;
+        b=EDtifeVb71csY8Ou25swxSbkHhKdV7szyEis7wU9MbYqOsrOG8WQKV9U6pbgyX85LA
+         74m9YrrJtC2wJZDsUEZcphXF5R6C/finjxhDhWYKfN5ea1QImLJjkqRUHV1E0viEC2s5
+         Fxs1lOHERE9MBwNuwPvLvM0IEXELjQ00NoiObFFQII5QL73w8fpUN2/Q4F7nFkd5lu4V
+         yli5mICaZIXzn2/2z6LWNVjB560WbIpaCH5xcZzi52tmDSDkbIR1+264qse5rn259Xth
+         MyQFY0xoZYmjRqguytJk+dhGXwtwuo4Ba+UFvwNelwCU0k04WZIk6JwO8uzP/dJEFPGX
+         IwPg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=veWNjOyx0q2aoHvEbX2sAz0cuq6dhXLamwz9eTavWpQ=;
+        fh=bcoublgJ6KWfRzobT1VpVd1ruuAvujmzY+q2kGt6MbY=;
+        b=LV+1Epk1SYjLtBEQpu5HFfDxA/d8ehlxK2mqNRtSpbcV0a2DQe2tQX1+o2Hu2+2j5j
+         7zxDau3qb5hBAmqC3+7TkanqO4Qm9SHJHhBp/r/3bbI/o2rdZ5pMMBAweJlCiiMqmjbw
+         yYTTejROa0FLvkFBZ0u6BsHPaQELg1Jbb78VavFmaap/rrVctPXPL6uzmvQcNxhGC2Ok
+         BfCFPvlL/B0ptVhxN7Yg0dpwsTOKtmEiHmzXgJmbSMbq8o4A5dBQ61QkYAjkNXbCqxy0
+         TR9cubU40+UdaOLDLUektlpahCsfNnFs3PLnQBEspqutKzAwILt5NXpfgGCk0ab7PP8z
+         4qhw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1793069875; x=1793674675; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=veWNjOyx0q2aoHvEbX2sAz0cuq6dhXLamwz9eTavWpQ=;
+        b=ljZUanrRb8gkmOH2/U/8OjqJFNLu56Bje1DpH4gOD78/Qgf0gWOk7Jtdo88IL22Xh/
+         CMyr34eaOOPZKgNkdaOo4dLZfCx592RdOdzPbz0CxRllc2Km7oKvrY8b614n1Di9uCR2
+         g95UDw+uQ4plCN6597Ehzhv0MrAE0pch9swGLp9phi493Qi/pOs5x3ejtBYafi1NSYXF
+         ydMOVjxbzZfWKfhnadYZ7MbT5VDVrHVQ9y6/YqRCXz54tACS88pLqGFTz/+ZeKoLpAoq
+         Q5cKEK1MC2zA4YlWi8VqxznACU56nP4fj2qviutRx98DfAmFnictzpYqA5sYh+tz9cVM
+         Cnig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793069875; x=1793674675;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=veWNjOyx0q2aoHvEbX2sAz0cuq6dhXLamwz9eTavWpQ=;
+        b=0+UM+BP2Jgor9dPB0y+r1Sk96mf2ucsMkUBPTLa9CQSvaPgQiv3bxcAQRDnD54AxQt
+         l9Pf7VXQXW9mdbllD4CW8q9NfgclVyoYXHN9tT6xKdn9f44QEqGWaXg36mh4r1oVy7l5
+         4F2V0ISMNBzOZieIWbxhUF4EkI1dhrMPqfrq7I/UaUqWIAW02CShza9S/+2peDjQDgul
+         YkoSShD/F180ySCuBPQ0SwHZn8N+krQ1/mZPQO6zXnLNdga5UyFjjX6pUUCvLPGYzNXs
+         rg5doC+4iCvCMSFqqWzzO5KlaocvLdTE8DlKuCNSyzI1cYCz8oa31MjLmZIsWLLUSliD
+         1qPg==
+X-Forwarded-Encrypted: i=1; AKwUvBwE606L/b5wGLv24eLhf8GFZiWfzqpZI+zSlJVS1MXOm3aBT3c1tC6zxvMdF78aZvG86Tjp2QzIU0KL@vger.kernel.org
+X-Gm-Message-State: AFq9FYIi8H9bkrdLuMsqQwiQXv6a3siWJzxcXz6OtC6S9pWyZMJk8l0Y
+	pAZwLJMZlDOGe5iOEGZMhWu99PWhcvtCAQA1bOhWfkPmZSz0by4P9kB6KWgTvpWQdt7BJc18OtQ
+	shZRmmGkGNaWjJ8H8hOo6iF0LTFJIbNjBvyLbbtYn
+X-Gm-Gg: AYBFou2NNnMUf3c7f3tE4GzfOJMRcQfss0QdRrwj5pl3mpSIpWRvLpj6ZrA8QhrgVa+
+	C/zzFuT2RLoyv8k3uj3/77xXZokpQdCuGIy21wjoqpWPjmLoh6LnIfCPUY5sBeQkDmEUIdnyzAu
+	lRoKpqM61GLurHbeJe1bPM6613ufIixHF7sNVse/tsUgsnzHmRmuzHbob2G+k6P9T0jR8nuPl73
+	JJMdAB5qyTQUZ1UauIid3SCKxsag/oBjHsbB+RNYGJGU8dGllzFQcAPKt88bywNxdxSoL+6YD44
+	uVorSLhJlYHAmj60DQRzCyN37wz0KVzpB01TOTmxKcAejAYbVx/4Lo/bO/h3NFxUeNlaY4Hh2Cg
+	0h6qFrCGeqprhVmfC3TiHCp+LqGEfMSbw0hlL
+X-Received: by 2002:ac8:5cd0:0:b0:534:b7b2:634f with SMTP id
+ d75a77b69052e-53e74f18ea0mr8347351cf.8.1793069874720; Mon, 26 Oct 2026
+ 19:57:54 -0700 (PDT)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -64,277 +104,364 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue(s) to consider.
-
-Critical: 0 · High: 1 (1) · Medium: 0 (3) · Low: 0 (1)
-
-If you believe none of the issues are legitimate, please reply to each
-issue of Medium severity or higher and explain why the AI is wrong.
-If any of them are legitimate and you plan to respin, please let patchwork
-know by including "pw-bot: cr" as a separate line at the end of your reply
-(one such reply per series is enough).
-
-- [High] The patch adds `&& rlen` to the counting branch in
-  iucv_sock_recvmsg() (net/iucv/af_iucv.c:1324).
-
-Pre-existing issues:
-- [High] A peer can grow iucv->backlog_skb_q without limit.
-- [Medium] A conforming HiperSockets peer can still end up in the
-  `msg_recv > msglimit` close in iucv_sock_recvmsg().
-- [Medium] On HiperSockets, a zero-length sendmsg() leaks one slot of the
-  peer's window when a receive credit is piggybacked on it.
-- [Medium] The classic IUCV transport still has a WARN that a peer can
-  trigger.
-- [Low] Two unsynchronized writes to sk->sk_shutdown can lose
-  RCV_SHUTDOWN.
-
---
-
-net/iucv: do not count the SHT frame against the receive window
-
-This patch changes iucv_sock_recvmsg() so that zero-length HiperSockets
-frames, such as the SHT frame sent by shutdown(SHUT_WR), no longer count
-against msg_recv. It also removes the WARN_ON(1) from the over-window
-path, which still closes the socket and returns -EFAULT.
-
-Closes: https://lore.kernel.org/netdev/179183431327.434549.446348148837850426@kernel.org/
-
-> A zero-length data frame sets RCV_SHUTDOWN, after which
-> afiucv_hs_callback_rx() drops every later data frame uncounted; the one
-> slot this patch no longer credits for it is lost like the slots of the
-> frames dropped after it.
-
-[Severity: Medium]
-This is a pre-existing issue, but does a zero-length data frame always
-arrive at the receiver as an empty data frame?
-
-iucv_sock_sendmsg() has no zero-length guard, and it counts the send
-before the frame goes out:
-
-    atomic_inc(&iucv->msg_sent);
-    err = afiucv_hs_send(&txmsg, sk, skb, 0);
-
-With flags == 0, afiucv_hs_send() piggybacks any pending credit:
-
-    if (flags == AF_IUCV_FLAG_WIN || !flags) {
-            confirm_recv = atomic_xchg(&iucv->msg_recv, 0);
-            phs_hdr->window = confirm_recv;
-            if (confirm_recv)
-                    phs_hdr->flags = phs_hdr->flags | AF_IUCV_FLAG_WIN;
-
-On the receiving side, afiucv_hs_rcv() then handles it as a pure window
-update:
-
-    case (AF_IUCV_FLAG_WIN):
-            err = afiucv_hs_callback_win(sk, skb);
-            if (skb->len == sizeof(struct af_iucv_trans_hdr)) {
-                    consume_skb(skb);
-                    break;
-            }
-
-The frame never reaches afiucv_hs_callback_rx() or recvmsg(). It does not
-set RCV_SHUTDOWN, the receiver never credits it back, and the sender's
-msg_sent stays one too high.
-
-If zero-length sends repeat while msg_recv is non-zero, they use up
-msglimit_peer. Eventually sendmsg() blocks in iucv_sock_wait() or returns
--EAGAIN.
-
-This patch does not touch that path. The sentence quoted above, though,
-does not hold when a credit is piggybacked.
-
-> diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-> index 501e758c5e68a..a5142081bb6a6 100644
-> --- a/net/iucv/af_iucv.c
-> +++ b/net/iucv/af_iucv.c
-> @@ -1317,10 +1317,13 @@ static int iucv_sock_recvmsg(struct socket *sock, struct msghdr *msg,
->  		}
->  
->  		consume_skb(skb);
-> -		if (iucv->transport == AF_IUCV_TRANS_HIPER) {
-> +		/* The peer counts only the data it sends against its window;
-> +		 * the SHT's empty frame is not among them. Over the window,
-> +		 * close without a WARN: a peer reaches this from the network.
-> +		 */
-> +		if (iucv->transport == AF_IUCV_TRANS_HIPER && rlen) {
-
-[Severity: High]
-Can an empty frame read after the over-window close reach
-iucv_send_ctrl() while iucv->hs_dev is NULL?
-
-When a data frame pushes msg_recv over msglimit, iucv_sock_close() runs
-and clears hs_dev:
-
-iucv_sock_close()
-    ...
-    skb_queue_purge(&iucv->send_skb_q);
-    skb_queue_purge(&iucv->backlog_skb_q);
-    ...
-    WRITE_ONCE(iucv->hs_dev, NULL);
-
-It does not purge sk_receive_queue, and it does not reset msg_recv.
-
-The next recvmsg() returns -ECONNRESET through sock_error() in
-__skb_try_recv_datagram(), and that call also clears sk_err. The
-recvmsg() after it dequeues whatever is still in sk_receive_queue, even
-though the socket is IUCV_CLOSED.
-
-If that frame is empty (an SHT, for example), rlen == 0 and the new gate
-skips the over-window return. backlog_skb_q is empty because close
-purged it, and msg_recv is still above msglimit, so this code runs:
-
-    if (iucv->transport == AF_IUCV_TRANS_HIPER &&
-        atomic_read(&iucv->msg_recv) >=
-                    iucv->msglimit / 2)
-            send_win = true;
-    ...
-    if (send_win) {
-            err = iucv_send_ctrl(sk, AF_IUCV_FLAG_WIN);
-
-iucv_send_ctrl() then computes:
-
-    blen = sizeof(struct af_iucv_trans_hdr) +
-           LL_RESERVED_SPACE(iucv->hs_dev);
-
-This reads hard_header_len and needed_headroom through a NULL pointer,
-before afiucv_hs_send() gets a chance to check the device.
-
-For example, say the receiver has msglimit 2 and a small SO_RCVBUF, and
-the peer sends d1, d2, d3 and then SHTs:
-
-1. Reading d1 and d2 moves d3 and S1 into sk_receive_queue.
-2. Reading d3 closes the socket.
-3. The next read returns -ECONNRESET.
-4. The read after that consumes S1.
-
-Before this patch, every frame read after the close went through the
-msg_recv > msglimit branch again and returned -EFAULT. send_win could not
-be reached on this path.
-
-On s390 with relocate_lowcore this would oops. On a default boot, blen
-would be computed from lowcore bytes and afiucv_hs_send() would fail with
--ENODEV. recvmsg() would then move the IUCV_CLOSED socket back to
-IUCV_DISCONN.
-
-Could this return early once the socket is closed, or skip the window
-update after a close?
-
->  			atomic_inc(&iucv->msg_recv);
->  			if (atomic_read(&iucv->msg_recv) > iucv->msglimit) {
-> -				WARN_ON(1);
-
-[Severity: Medium]
-This is a pre-existing issue, but the classic IUCV transport still has a
-WARN that a peer can trigger, of the same kind as the one removed here.
-
-alloc_iucv_recv_skb() does:
-
-    WARN_ONCE(!skb,
-              "alloc of recv iucv skb len=%lu failed with errcode=%d\n",
-              len, err);
-
-len comes from the peer's message via iucv_msg_length(), called from
-iucv_callback_rx() or iucv_process_message_q(). iucv_callback_rx() checks
-it only against sk_rcvbuf, and iucv_process_message_q() does not check it
-at all.
-
-A message larger than MAX_SKB_FRAGS * PAGE_SIZE plus the linear part
-makes alloc_skb_with_frags() fail with -EMSGSIZE. A GFP_ATOMIC | GFP_DMA
-allocation failure under memory pressure has the same effect.
-
-With panic_on_warn, a peer can turn this into a panic. Should this
-WARN_ONCE() be removed as well?
-
->  				iucv_sock_close(sk);
->  				return -EFAULT;
-
-[Severity: High]
-This isn't a bug introduced by this patch, but this read-time check is
-the only window enforcement on the receive side. Can a peer that ignores
-its window grow iucv->backlog_skb_q without limit?
-
-afiucv_hs_callback_rx() queues frames like this:
-
-    if (skb_queue_empty(&iucv->backlog_skb_q)) {
-            if (__sock_queue_rcv_skb(sk, skb))
-                    /* handle rcv queue full */
-                    skb_queue_tail(&iucv->backlog_skb_q, skb);
-    } else
-            skb_queue_tail(&iucv_sk(sk)->backlog_skb_q, skb);
-
-Once sk_rcvbuf is full, or once the backlog holds any frames, every later
-data, SHT or WIN-with-payload frame goes onto backlog_skb_q. That queue
-has no length or memory limit, and these skbs are not charged to
-sk_rmem_alloc.
-
-msg_recv is only incremented in iucv_sock_recvmsg(). If the reader is
-idle or slow, kernel memory keeps growing until the reader runs or the
-system runs out of memory.
-
-[Severity: Medium]
-This is a pre-existing issue, but can a conforming peer still reach this
-close?
-
-The new comment says "a peer reaches this from the network". However,
-the check compares against the current iucv->msglimit, while the peer is
-bound by the window advertised in the SYN. afiucv_hs_send() fills that
-window in as:
-
-    phs_hdr->window = iucv->msglimit;
-
-iucv_sock_connect() sends the SYN and then waits in IUCV_BOUND. A
-blocking connect drops the socket lock inside iucv_sock_wait(), and a
-non-blocking connect returns -EAGAIN. In either case
-iucv_sock_setsockopt() still accepts SO_MSGLIMIT in that state:
-
-    case IUCV_BOUND:
-            if (val < 1 || val > U16_MAX)
-                    rc = -EINVAL;
-            else
-                    iucv->msglimit = val;
-
-So msglimit can be lowered below the window that was already advertised.
-
-While frames wait in backlog_skb_q, recvmsg() sends no WIN, so msg_recv
-climbs past the lowered limit. A peer that stayed inside its window then
-gets closed: the reader sees -EFAULT and the consumed frame is lost.
-
-The notes below the cut line mention this case and defer it to a rework
-that stores the advertised window separately. Could the commit message
-and the new comment also say that a conforming peer can still reach this
-path?
-
->  			}
-
-[Severity: Low]
-This is a pre-existing issue, but can the RCV_SHUTDOWN set by the
-empty-frame read be lost?
-
-iucv_sock_recvmsg() runs without lock_sock() and does a plain
-read-modify-write:
-
-    if (!rlen)
-            sk->sk_shutdown = sk->sk_shutdown | RCV_SHUTDOWN;
-
-iucv_send_ctrl() saves and restores the whole mask. It can be called from
-a repeated shutdown(SHUT_WR) under lock_sock(), or from a concurrent
-recvmsg() sending WIN:
-
-    if (sk->sk_shutdown & SEND_SHUTDOWN) {
-            /* controlling flags should be sent anyway */
-            shutdown = sk->sk_shutdown;
-            sk->sk_shutdown &= RCV_SHUTDOWN;
-    }
-    ...
-    if (shutdown)
-            sk->sk_shutdown = shutdown;
-
-If the SHT read sets RCV_SHUTDOWN between the save and the restore, the
-restore clears it again. The current read still returns 0, but later
-reads may block or return -EAGAIN instead of EOF. afiucv_hs_callback_rx()
-would also start accepting data frames again.
-
--- 
-Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261022-b4-disp-b35a9153-v1-0-d74645876195%40proton.me
+References: <20260911025613.1220845-1-zhanghongru@xiaomi.com>
+ <arFYRAa-i7CIwmHL@gremlin> <arF-E3Nsw9ZliH0t@casper.infradead.org>
+ <arI_w2wTfA00Mgy9@gremlin> <armexcXDiG8ryZd6@casper.infradead.org>
+ <CAGsJ_4xuFi7K+crAcFQ998SxXS0xPM6QeA34JV+6+Sy005rXLg@mail.gmail.com>
+ <ar7MsOb6IJLt4eLo@casper.infradead.org> <ar-o1TrOMGrrcxLX@gremlin>
+ <ataDTEZIKOYtwhUF@casper.infradead.org> <CAJuCfpH88HGXyLzBr6YGxzTrOq18HaPcRvhN9RwEBxG_ptv7KQ@mail.gmail.com>
+In-Reply-To: <CAJuCfpH88HGXyLzBr6YGxzTrOq18HaPcRvhN9RwEBxG_ptv7KQ@mail.gmail.com>
+From: Suren Baghdasaryan <surenb@google.com>
+Date: Mon, 26 Oct 2026 19:57:43 -0700
+X-Gm-Features: AclHuK_KCyZzsUIRPigLpRqw3YeQAHnl6JHTenlWoPcunSyUcxCZShOICs2gDrI
+Message-ID: <CAJuCfpH6o1NAN_4W6VY6o3unxr9V+YCNFiLS8oCg7giWRLz8_g@mail.gmail.com>
+Subject: Re: [PATCH v6] mm: retry page faults once under the per-VMA lock
+To: Matthew Wilcox <willy@infradead.org>
+Cc: "Lorenzo Stoakes (ARM)" <ljs@kernel.org>, Barry Song <baohua@kernel.org>, 
+	Hongru Zhang <zhanghongru06@gmail.com>, akpm@linux-foundation.org, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, david@kernel.org, liam@infradead.org, 
+	mhocko@suse.com, rppt@kernel.org, shakeel.butt@linux.dev, vbabka@kernel.org, 
+	zhaonanzhe@xiaomi.com, linux@armlinux.org.uk, catalin.marinas@arm.com, 
+	will@kernel.org, mark.rutland@arm.com, linux-arm-kernel@lists.infradead.org, 
+	chenhuacai@kernel.org, kernel@xen0n.name, loongarch@lists.linux.dev, 
+	maddy@linux.ibm.com, mpe@ellerman.id.au, npiggin@gmail.com, 
+	chleroy@kernel.org, linuxppc-dev@lists.ozlabs.org, pjw@kernel.org, 
+	palmer@dabbelt.com, aou@eecs.berkeley.edu, alex@ghiti.fr, 
+	linux-riscv@lists.infradead.org, agordeev@linux.ibm.com, 
+	gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, 
+	borntraeger@linux.ibm.com, svens@linux.ibm.com, linux-s390@vger.kernel.org, 
+	dave.hansen@linux.intel.com, luto@kernel.org, peterz@infradead.org, 
+	tglx@kernel.org, mingo@redhat.com, bp@alien8.de, x86@kernel.org, 
+	hpa@zytor.com, Hongru Zhang <zhanghongru@xiaomi.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Oct 26, 2026 at 7:39=E2=80=AFPM Suren Baghdasaryan <surenb@google.c=
+om> wrote:
+>
+> On Mon, Oct 19, 2026 at 1:53=E2=80=AFPM Matthew Wilcox <willy@infradead.o=
+rg> wrote:
+> >
+> > On Fri, Oct 02, 2026 at 02:12:35PM +0100, Lorenzo Stoakes (ARM) wrote:
+> > > On Thu, Oct 01, 2026 at 10:12:16PM +0100, Matthew Wilcox wrote:
+> > > > So what I didn't realise is that fork() waits for page faults to fi=
+nish.
+> > > > I don't think that's necessary, so we can just stop doing that (whi=
+tespace
+> > > > damaged):
+> > > > I think this is safe.  I've booted a kernel with this change, and
+> > >
+> > > I'm afraid it's not safe :)
+> > >
+> > > We already actually did this (by mistake I think?) before. See commit
+> > > fb49c455323f ("fork: lock VMAs of the parent process when forking") -=
+ we shipped
+> > > that in 6.4.0 -> 6.4.2 and it corrupted memory all over the place.
+> > >
+> > > Reports + a consistent reproducer:
+> > >
+> > > https://bugzilla.kernel.org/show_bug.cgi?id=3D217624
+> > > https://lore.kernel.org/all/dbdef34c-3a07-5951-e1ae-e9c6e3cdf51b@kern=
+el.org/
+> > > https://lore.kernel.org/all/b198d649-f4bf-b971-31d0-e8433ec2a34c@appl=
+ied-asynchrony.com/
+> >
+> > I wonder if we still need this.  The commit message says:
+> >
+> >     A concurrent page fault on a page newly marked read-only by the pag=
+e
+> >     copy might trigger wp_page_copy() and a anon_vma_prepare(vma) on th=
+e
+> >     source vma, defeating the anon_vma_clone() that wasn't done because=
+ the
+> >     parent vma originally didn't have an anon_vma, but we now might end=
+ up
+> >     copying a pte entry for a page that has one.
+> >
+> > But we're holding the mmap_lock for write here, and we need to hold the
+> > mmap_lock for read in order to change a vma->anon_vma (asserted in
+> > __anon_vma_prepare() with mmap_assert_locked()).
+> >
+> > At the time of this commit, lock_vma_under_rcu() contained:
+> >
+> >         /* find_mergeable_anon_vma uses adjacent vmas which are not loc=
+ked */
+> >         if (!vma->anon_vma && !vma_is_tcp(vma))
+> >                 goto inval;
+> >
+> > so we really did have to wait for read holders to finish the fault.
+> > But commit a373baed5a9d deferred the check for a NULL anon VMA until we
+> > actually needed it, so I think commit fb49c455323f's logic was invalida=
+ted
+> > by a373baed5a9d.
+> >
+> > Maybe I'm wrong.  This is all a bit out of my normal area.
+> >
+> > > Also we have asserts for this lock in copy_page_range() and
+> > > copy_hugetlb_page_range() which will now fail (and possibly more furt=
+her down
+> > > the stack?)
+> >
+> > Possibly we have to adjust some assertions to check that either we have
+> > the VMA locked or we have the MM write locked.  That doesn't seem
+> > unreasonable.
+> >
+> > > > My argument for why it's safe is that a thread which takes a page
+> > > > fault during fork() might have taken the page fault either before o=
+r
+> > > > after fork().  The faults will definitely happen in the parent proc=
+ess.
+> > > > They may or may not have happened in the child process, which can't
+> > > > possibly care whether or not they've happened.
+> > >
+> > > The problem isn't the child it's the parent - copy_page_range() _modi=
+fies_ the
+> > > _parent_'s page tables in-place, on assumption that nothing else can =
+access
+> > > them (for CoW).
+> >
+> > I was perhaps unclear.  What I mean is that the child may or may not
+> > observe them as having happened.
+> >
+> > > And actually nowadays things are _even_ worse, you could also have co=
+ncurrent
+> > > page faults, MADV_DONTNEED, MADV_FREE, MADV_GUARD_INSTALL/REMOVE, UFF=
+DIO_COPY +
+> > > UFFDIO_MOVE (yikes) all of which might introduce new issues + would h=
+ave to be
+> > > audited too.
+> >
+> > Yup.
+> >
+> > > So - it turns out a lot of stuff implicitly assumes VMA write lock no=
+w:
+> > >
+> > > 1. CoW - deferred TLB flush race
+> > >
+> > > (The issue above)
+> > >
+> > > https://lore.kernel.org/all/20230705171213.2843068-2-surenb@google.co=
+m/
+> > >
+> > > This happens because __copy_present_ptes() does wrprotect_ptes() on t=
+he parent
+> > > without a TLB flush (that's deferred until the end of the fork).
+> > >
+> > > But unfortunately without a VMA write lock something can then replace=
+ the page
+> > > table entry in the meantime and you can end up with data loss as a re=
+sult.
+> >
+> > Is it that fb49c455323f commit message is insufficient and we need to
+> > prevent simultaneous fork/page fault for other reasons, then?
+>
+> Yes, I think so. It refers to one of the reasons VMA lock is needed
+> during fork, but as Lorenzo points out, there are a number of other
+> reasons that require fork to protect VMAs. Note that some of those
+> reasons, like MADV_GUARD_INSTALL and UFFDIO_MOVE did not exist at the
+> time fb49c455323f was written.
+
+I also have to agree with Lorenzo that allowing fork to run
+concurrently with page faults might only shift the mmap_lock
+contention from fork to some other operation (mmap/mprotect/etc.), so
+even if we fix all these cases we might end up with contention
+somewhere else.
+
+>
+> Below is the list that AI pointed out, and I think Lorenzo covered
+> most if not all of them:
+>
+> Without vma_start_write_killable(mpnt):
+>       1. In-flight VMA readers that locked mpnt before
+> mmap_write_lock_killable(oldmm) continue running concurrently with
+> dup_mmap().
+>       2. New VMA readers (page faults via lock_vma_under_rcu(),
+> madvise under MADVISE_VMA_READ_LOCK, userfaultfd via uffd_lock_vma() /
+> uffd_move_lock(), vma_start_read_unlocked(), etc.) continue to succeed
+> on mpnt while dup_mmap() duplicates its VMA metadata and page tables.
+>
+>   (Note: When this lock was originally added in fb49c455323f, one
+> prominent trigger was a concurrent fault calling anon_vma_prepare() on
+> a VMA with mpnt->anon_vma =3D=3D NULL while anon_vma_fork() /
+> vma_needs_copy() ran. Although __vmf_anon_prepare() now requires
+> mmap_read_trylock()
+>   when !vma->anon_vma, removing vma_start_write_killable(mpnt) today
+> still breaks several critical invariants.)
+>   =E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80=E2=94=80
+>   ### What would happen if we removed it
+>
+>   1. **Destruction of live 2MB THP mappings ("bad pmd" -> pmd_clear())
+> in copy_pmd_range()**
+>   As noted in the comment in copy_pte_range(), copy_pmd_range()
+> assumes no concurrent THP transitions on src_pmd:
+>     if (pmd_is_huge(*src_pmd)) { ... }
+>     if (pmd_none_or_clear_bad(src_pmd))
+>         continue;
+>   On an anonymous VMA that already has mpnt->anon_vma !=3D NULL, a
+> concurrent per-VMA-locked THP fault (do_huge_pmd_anonymous_page()) or
+> UFFDIO_MOVE can install a transparent huge PMD into *src_pmd right
+> after pmd_is_huge(*src_pmd) observed pmd_none.
+> pmd_none_or_clear_bad(src_pmd)
+>   then sees pmd_bad(*src_pmd) =3D=3D true (a THP leaf PMD satisfies
+> pmd_bad()), prints "bad pmd ...", and calls pmd_clear_bad(src_pmd) =E2=80=
+=94
+> wiping out the parent's live 2MB PMD without PTL, TLB flush, or
+> rmap/refcount/deposited-pgtable/RSS cleanup (corrupting parent memory
+> and
+>   triggering Bad rss-counter / nr_ptes bugs on exit).
+>       =E2=80=A2 The same race exists for huge PUDs in copy_pud_range()
+> (pud_none_or_clear_bad(src_pud)).
+>       =E2=80=A2 Similarly, copy_huge_pmd() reads special huge PMDs
+> (VM_PFNMAP/VM_MIXEDMAP) locklessly and skips rechecking *src_pmd under
+> src_ptl assuming it cannot change, so a concurrent MADV_DONTNEED under
+> MADVISE_VMA_READ_LOCK could leave the child mapping a stale/zapped PFN
+> PMD.
+>   2. **Silent CoW data corruption / lost parent writes due to deferred
+> flush_tlb_mm(oldmm)**
+>   __copy_present_ptes(), copy_huge_pmd(), and
+> copy_hugetlb_page_range() write-protect parent PTEs/PMDs without
+> flushing TLBs; dup_mmap() defers the flush to flush_tlb_mm(oldmm)
+> after all VMAs are copied. Normally, because each copied VMA remains
+> VMA-write-locked until
+>   mmap_write_unlock(oldmm), no parent thread can handle a CoW write
+> fault before flush_tlb_mm(oldmm) finishes.
+>   Without the VMA write lock, while CPU 0 is still in dup_mmap()
+> copying later VMAs:
+>       =E2=80=A2 CPU 1 (parent thread A) still holds a stale writable TLB =
+entry
+> to old_folio (now CoW-shared with the child).
+>       =E2=80=A2 CPU 2 (parent thread B, no cached TLB entry) writes to th=
+e
+> same page, faults on the R/O PTE under per-VMA read lock, enters
+> wp_page_copy(), and copies old_folio into new_folio
+> (__wp_page_copy_user()) before taking PTL and calling
+> ptep_clear_flush().
+>       =E2=80=A2 Any store by CPU 1 through its stale writable TLB entry a=
+fter
+> __wp_page_copy_user() and before ptep_clear_flush() lands directly in
+> old_folio while pte_same() still succeeds =E2=80=94 losing thread A's wri=
+te in
+> the parent (new_folio) and leaking it into the child (old_folio).
+>   3. Broken guard-page (MADV_GUARD_INSTALL) state and KCSAN race on vm_fl=
+ags
+>   madvise(MADV_GUARD_INSTALL) runs under MADVISE_VMA_READ_LOCK and
+> atomically sets VMA_MAYBE_GUARD_BIT on mpnt via vma_set_atomic_flag()
+> before installing PTE_MARKER_GUARD entries:
+>       =E2=80=A2 vm_area_dup(mpnt) asserts
+> ASSERT_EXCLUSIVE_WRITER(orig->vm_flags), which would trip under KCSAN.
+>       =E2=80=A2 If vm_area_dup(mpnt) copies mpnt->vm_flags just before
+> MADV_GUARD_INSTALL sets VMA_MAYBE_GUARD_BIT and installs
+> PTE_MARKER_GUARD PTEs:
+>           =E2=80=A2 On a file-backed VMA without anon_vma, tmp misses
+> VM_MAYBE_GUARD (part of VM_COPY_ON_FORK), so vma_needs_copy() returns
+> false and drops the guard regions in the child.
+>           =E2=80=A2 On a VMA with anon_vma !=3D NULL, copy_page_range() c=
+opies
+> the PTE_MARKER_GUARD entries into tmp, leaving the child VMA with
+> guard PTE markers without VM_MAYBE_GUARD set (breaking collapse checks
+> such as file_backed_vma_is_retractable() and future merges/forks).
+>
+>   4. Inconsistent address-space snapshots against UFFDIO_MOVE and
+> tcp_zerocopy_receive()
+>       =E2=80=A2 When UFFD_FEATURE_EVENT_FORK is not enabled, dup_userfaul=
+tfd()
+> never increments octx->mmap_changing. Because move_pages()
+> (UFFDIO_MOVE) only takes per-VMA read locks (uffd_move_lock()), it
+> could move an exclusive folio from a not-yet-copied src address/VMA
+> into an
+>       already-copied dst address/VMA (losing the page at both
+> addresses in the child), or move a zero page from an already-copied
+> src to a not-yet-copied dst (duplicating it at both). Even with
+> UFFD_FEATURE_EVENT_FORK, octx->mmap_changing is only incremented once
+> dup_mmap()
+>       reaches the first VMA using octx, so earlier non-uffd VMAs rely
+> on VMA write-locking to prevent cross-VMA moves.
+>       =E2=80=A2 tcp_mmap() sets VM_MIXEDMAP (in VM_COPY_ON_FORK, without
+> VM_DONTCOPY), so copy_page_range() would race with
+> tcp_zerocopy_receive() zapping and inserting pages under
+> vma_start_read_unlocked().
+>   5. Immediate debug assertions (CONFIG_DEBUG_VM)
+>   Both copy_page_range() and copy_hugetlb_page_range() call
+> vma_assert_write_locked(src_vma) on every CoW VMA, which immediately
+> fires VM_WARN_ON_ONCE_VMA(!__is_vma_write_locked(vma), vma) because
+> oldmm->mm_lock_seq was bumped by mmap_write_lock_killable(oldmm) while
+> mpnt-
+>   =EF=BF=BA>vm_lock_seq was never updated.
+>
+> >
+> > > Same issue exists with hugetlb wp too. And god only knows with uffd w=
+p :)
+> > >
+> > > 2. THP - can destroy parent THP mappings
+> > >
+> > > copy_pmd_range() does:
+> > >
+> > >       if (pmd_is_huge(*src_pmd)) { copy_huge_pmd(); ... }
+> > >       if (pmd_none_or_clear_bad(src_pmd))
+> > >               continue;
+> > >
+> > > Without the write lock, a concurrent fault can install a huge PMD via
+> > > do_huge_pmd_anonymous_page() or filemap_map_pmd()/do_set_pmd().
+> > >
+> > > The issue is that pmd_bad() fires for leaf PMD (ugh) on at least x86 =
+and arm64,
+> > > meaning that'll clear the page table entry.
+> > >
+> > > I think Hugh left a comment alluding to this before:
+> > >
+> > >        * copy_pmd_range()'s prior pmd_none_or_clear_bad(src_pmd), and=
+ the
+> > >        * error handling here, assume that exclusive mmap_lock on dst =
+and src
+> > >        * protects anon from unexpected THP transitions; ...
+> > >
+> > > It's like the mess around pmd_trans_unstable() :(
+> >
+> > ... could we fix this by taking the ptlock during the copy operation?
+> >
+> > > 3. copy_pte_range() skips the required pmd_same() recheck assuming wr=
+ite lock
+> > >
+> > > It uses pte_offset_map_rw_nolock() with a dummy pmdval and:
+> > >
+> > >        * We already hold the exclusive mmap_lock, the copy_pte_range(=
+) and
+> > >        * retract_page_tables() are using vma->anon_vma to be exclusiv=
+e, so
+> > >        * the PTE page is stable, and there is no need to get pmdval a=
+nd do
+> > >        * pmd_same() check.
+> > >
+> > > (Probably needs updating for VMA write lock...)
+> > >
+> > > 4. The asserts
+> > >
+> > > Mentioned above!
+> > >
+> > > I suspect there's more as well.
+> > >
+> > > Some of it could be changed, but it'd all be at the cost of behaving =
+very
+> > > strangely (no VMA lock but mmap write lock) while manipulating things=
+.
+> > >
+> > > And I am not really happy with changing page table entries in the par=
+ent VMA
+> > > (for CoW) without a VMA write lock held.
+> > >
+> > > I also wonder whether it would achieve all that much really - the iss=
+ue is with
+> > > holding the VMA lock across I/O, anything else that tries to grab a w=
+rite lock
+> > > is going to end up being the new thing that's blocked (mprotect, munm=
+ap, mremap,
+> > > mlock etc.)
+> > >
+> > > I think doing something like this would need a very significant redes=
+ign and I'm
+> > > not convinced it's one that really achieves what we want given all th=
+e other
+> > > cases that'd get blocked by the VMA lock being held still.
+> > >
+> > > --
+> > > Cheers, Lorenzo
