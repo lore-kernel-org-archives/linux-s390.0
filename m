@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793140949;
-	b=FKQw6l1a0vX93e3i5S3o20tPI7brCRqWwtxBeA2VXPHaGlXYXFc4cRUsjhsAEhO55Zup
-	 N4oksLzoBSgzdJnz7vLYCtPUX0jpiaFSjxaFLWPRDHwaF/i/Loq+dVANkwOMYAJL83zAO
-	 rP2hWzY8Y3qstngk3o0RnBabcdku06a3yGy0mcYIM0PslYbSrcJD1GPFfyeFZzCayRjn8
-	 aEj8ldOfX9vnvbbat4QaIRab3H30UTREXxYMmX12WzdIz9zrqo01pnFGDmkjn+T6Ph33d
-	 LsCqOzXhKd/rW5Hu5JoXzyumME0PlW+iUhYr4PJwCErc9DwERpdQsxTwbg/XuYx7rLw==
+	t=1793140995;
+	b=eOhDvMOq2zVEwxdhu3Y2Mt/mRimZI0OTzE/qismsFRcQPicqEnJLX5I9/Nr+rz8pZ6uB
+	 txCp5YU4zXcI1vF+7C8BW6HlENIQnWzNoaEqX/a6XJIp6ifySrz2TtRhn9nM0Ktv052Oa
+	 BnVic98mrB4PTWOubZkcxU7jJOa/F9O108tRyEWhSGMSxtM6BSJL8+M0wRvKXZ8Wa7FeS
+	 fhnemwzstMJ+Y9bsd3EhhxrKcFnal+d0mT1DCaus3pkqwILWlcL+KvkCp4dyOhPzRsOiH
+	 pKYHlD5rE4gL4+Cwtn4OvDypsxV6PwWsh+OWrQt0TBpc0xIi4QF9bOsBdRxAySZ3ZTw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793140949;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793140995;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=gp6uC/n5yBazVfPq9/szWD69XAgKFcosax5SlSX6k5s=;
-	b=XTbgHdxEBofYMPxxM0kOppvTt2C31ZBGSR8KuU3Atl4cX8yS+X9ORuWn8DtpSVJMYcpE
-	 VsK/msF1xLPO2qtwFfeO5Fb9F3PfG11+nCtxAz8UIk0HpiZFPAFvOSKqFVyWMoJcRYo5s
-	 lybBEeT06D8OvhH3gYwG1ezWOuwxk7lMN/54CTTTDA8Tf0Sfgr17TFmep8ieqKAYhWLpu
-	 oDu0Wvm/Xcn9T2Wwe6GbEdwqngGzCzxxccBKIhyNuYUh6Hz6b1qW5HqC+URLP696jIOP9
-	 t+VEph8Tf3mLDLxTDzG+mTi9ukpvjVfdGuKJb4sWXa7dirWVqZRXaG9v6cNLdDJHaOA==
+	bh=q3KbsETr+or17LqG8a5e8dtKY1wk41Abe8HIFI+j9ag=;
+	b=26gBvqJwC5cBtKEvBn0wPyJAO6wIf4jabVEOYSK84+KeFgwuebTS10Cox+xXffaW7sTs
+	 skcZ7NPZRLJu2scIooXrryR6zQnZTS4j+mc25Hsp9ydydvVA6zl0xWo0sxemWrCCBEweR
+	 funz3wDCVJ1pJtdiSzg3T60DZIxegLhnKUxS00tEOAsHs5+rLZu/6/MBjHD8yxM0pZb8J
+	 9H8eFanlyrsgKb9lv7qXDQGod48oxdyjuR773L2hTSWSHXagKO6mLqaOiaNZGKDycXxjV
+	 GBdxBBopG+Q4TbSpPvy9mrZwIbyOCOLC+/z8GwILTmohqju29/1JZa8ho3qVxz1kLZw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JNhMba+j;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hDqVWOvP;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0647606A31A
-	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 22:42:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94E1A606A31A
+	for <linux-s390@vger.kernel.org>; Tue, 27 Oct 2026 22:43:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JNhMba+j
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07F5A1F01825;
-	Tue, 27 Oct 2026 22:42:28 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hDqVWOvP
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D519B1F01825;
+	Tue, 27 Oct 2026 22:43:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793140949;
-	bh=gp6uC/n5yBazVfPq9/szWD69XAgKFcosax5SlSX6k5s=;
+	s=k20260515; t=1793140995;
+	bh=q3KbsETr+or17LqG8a5e8dtKY1wk41Abe8HIFI+j9ag=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JNhMba+je7Ab8iE3oW+KQLm+fhpElrK0EMQDVoJr1FiqVmJQF+obHhyoAw6sv1eaK
-	 e3Qoqc1dDTmMZUNj0nCYIxEqg3WKahLX71PpHG3YgLvYjjNbt6LitzNIAeQAZqeuyW
-	 hzUgQe+KiuMPctoRxd+avno4Qq3nvNbFhQcBJVlBFTAoYfCwYSTa2JNwhZxG/8MnjK
-	 6ij1rsoPIavyoP3JsBcW8NuVHNyUaQGnMO3RRQ3fY4YuyW3aB2u/Tyo+I3Bk8couyR
-	 1Xm5t4OZ2z3/C9UhDhYc/68grhoZnDAp2GtklyDP1/58J3wcOso2w9zLGMQQ0Syc35
-	 QMsl8yFyNlUzA==
-Message-ID: <sashiko-outbox-187172@kernel.org>
+	b=hDqVWOvPKO5e7W7p9CjONQjY6h4tOlj6Bb9yHLA7vWzK3/PflVHoSBsJwYFfyQHo4
+	 uWLckT4tq7lAx9un3ZlkN1v5xbVBsrkmpVurlasZhZpBrLo8j7XUeAPXN7rXx7Zuky
+	 1ffQkpqEnbooTdpl3NTbLeK53otCkCbM3uL1cMXVQnZNVu6jw+vQexUeUXX0jmesGY
+	 l2wAb2wRBu4R1RZHd5+YqmFwEQKWm6MG7p3TrWzcsTmIK1sOBgSiYf8wwrxz5PFyV/
+	 VLuGXR3wcEjpPTTyi6uaNUcuPmx6dPELDwaZj4O0x2h6KFKkHprQcLaxEvwTc7ZuzO
+	 z/J9gK0rQm8tw==
+Message-ID: <sashiko-outbox-187173@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 2/9] powerpc/secvar: Add missing kobject release
- callback to secvar_ktype
+Subject: Re: [PATCH v2 4/9] cpufreq: governor: Initialize kobj_type release
+ callback statically
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Ian Rogers" <irogers@google.com>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261027223847.652884-3-irogers@google.com>
+In-Reply-To: <20261027223847.652884-5-irogers@google.com>
 References: <20261027223847.652884-1-irogers@google.com>
- <20261027223847.652884-3-irogers@google.com>
+ <20261027223847.652884-5-irogers@google.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 27 Oct 2026 22:42:28 +0000
+Date: Tue, 27 Oct 2026 22:43:14 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,22 +63,20 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> In add_var(), a struct kobject is dynamically allocated with
-> kzalloc_obj() and initialized with secvar_ktype. If kobject_add() or
-> sysfs_create_file() fails, kobject_put(kobj) is called to clean up.
-> However, secvar_ktype does not define a .release callback, which results
-> in a memory leak of kobj (and a pr_debug warning in kobject_cleanup()
-> when CONFIG_DEBUG_KOBJECT_RELEASE is enabled).
+> Export cpufreq_dbs_data_release() and set .kobj_type.release statically
+> in the ondemand and conservative governors so their gov_attr_set
+> kobjects have a valid release callback statically initialized, matching
+> cpufreq_governor_dbs. Remove the redundant runtime assignment in
+> cpufreq_dbs_governor_init().
 >=20
-> Provide a secvar_release() callback that calls kfree(kobj).
+> This prepares for annotating struct kobj_type::release with
+> __must_init.
 >=20
-> Fixes: bd5d9c743d38 ("powerpc: expose secure variables to userspace via s=
-ysfs")
 > Signed-off-by: Ian Rogers <irogers@google.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261027223847.6528=
-84-1-irogers@google.com?part=3D2
+84-1-irogers@google.com?part=3D4
 
