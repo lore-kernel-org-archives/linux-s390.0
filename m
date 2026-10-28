@@ -1,49 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793218582;
-	b=U+uATjdQB49Swl5LBzL+XvNwNrYrjfmBAI65xQMk3XOZmvUD476arbV/0iKeRrsC7D/C
-	 dR24pNJ40d5AcDMcNEleold+WzF4Jid+u3yYEh0pkq8I5ZCefK4T4WtKY9hrUxPgNbROp
-	 Xp3zRmuZzgiwzvc9u0bSU+X8yobHELmruIzfnsbmh8GhRwcieuw6n8JuzEyr191EqMJfY
-	 vaHwhERWNPih7nOFyzVQH2ZegDvrEmR5uGnfxgCkYc25+mV3A3rrPuf7hQLMI0eUAlON5
-	 2iWNkJr0oZt4tw8IFT1Ht4cOQx4uHSCtyGQLbV9RLiuW/JTeP1pwUeVSDKjFYP1ulxA==
+	t=1793221193;
+	b=MGlI1/sBJ10Hz4EvZrkaSyZCSASIZoNstJHV6pY3LBcUqOQDz3u7tgRq440ZYYkjziFl
+	 39JUadqPF1HkY5rCOANwFjdu/qKIJsY0+ytrCzwT6DMI2WUAp+tRigvwXL9SgORBwZGcZ
+	 QpaQRgmZ2gEOI0ctrSPgvxqpzpiofasm9fwQjjMIWb8u7pJxlVXGSHJrGMxytvexv9Trr
+	 p/y6TULm6t6AhOQk7c4lXL8+l4cjaT+Q99Z+Xb02qTiwfkSMVwhLWdMo82EKUCgKKH54I
+	 +C98P2QIy4bUCzPb5cA/0oeSRYjX/SniwpbV6FZTAEBc1rx7cc9FnL/+R6fVPC0tKNg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793218582;
-	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
-	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=zVNhQTz4P8YErSCLT2d+RLkWNh4QNHlHkejr3ylktPI=;
-	b=kKzroczttMw/D5ql34hLqq6S8eFHU5JYwYWEjW4demzpouopzPf5no4xLjDfgUIO66U/
-	 bNR0HdtklAiYa531gSalvbFKv/HTRi+LqUPPUplI6U4i7HVxez8K2DElqh+w/ddzJDTOl
-	 zgTYtBknS8QNeHiaevfgwZHH/wtAgou8u8wEjG4iJ3a8zWohw2MCESp8X4EYqw2TnekSn
-	 ngHSnondnbhmPgeVqrMuUOgyJuFt+sNU/yJZQi79pfe7OVtA00Ci0ZXFJUxxbPWCkrrY6
-	 mUWLeazk3r0VSwJnrHb/1feyGHwy7Vab3wSzbW2nOx4mPV5dCq4E59Z6olUCLQJK6ig==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793221193;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-ORIG-GUID:X-Authority-Analysis:X-Proofpoint-GUID:
+	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
+	bh=B+ILGEghY39r13/JkwaxN9aY8a9WSldjM6rorjvMUhk=;
+	b=po9lnJQzIhe+1V6+5FKgJXWPOeeKDLQLlWXdlVego3e7SZq3cB6RSH7KJaa1tqCFwmRs
+	 oCdayMT9XfnKCK+omwYamj4y2vHg2HMS5gVo6yFHhcXk/+zSlX71TLAWRSS/gZSd0XYMV
+	 wioBmZ846I6IUE2AvbV0gF9yQFloCfeln+4KIgFKk3lQpZJe7MynKuOIs60tA93PTRCsa
+	 HmzKYjHYRQCrXzxeI4aGwNS4sTYNTHvZ7Ae84OkFhKHpSHOBpTcZgPPJ/Wmgmg4uMAQ/1
+	 0m3FAimGHsQW9dwo2Wfd5Ei6isDxIK2Im+IH7V6jrKFufFOGKwbTpYqjFAPznG1Pw5A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aBOiiwUW;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="paH15z/h";
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A70BD606A31D;
-	Wed, 28 Oct 2026 20:16:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 409F0606A31C;
+	Wed, 28 Oct 2026 20:59:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 409F0606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aBOiiwUW
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7093F1F031E1;
-	Wed, 28 Oct 2026 20:16:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793218581;
-	bh=zVNhQTz4P8YErSCLT2d+RLkWNh4QNHlHkejr3ylktPI=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=aBOiiwUW+1oShy4wpMapm/OmigTyXlwV71WiJYy0joVOtsxscBOIh4CrTbWU1y26E
-	 Qh3SXfmyynsjDqDUS6VO6r1Zl30nflHLTpUKvNpO/qRhf2L8YmTPAiO9JbqvWqfIIt
-	 +DEk91d75sdTgp90FOhuSDercjGUai18sC4+wzlPGJ3JX76YdAsk5rbRUZoLnYnsIr
-	 oUfB7DdLNNmG7sl+ro6ef45/wlEP0aibZihxpe8RR5fU/Ub1zfHen4T8csLBShjybg
-	 I8HWXXX9nNakee72T/ztM4cVghmeWufhV6OmujHWMoeP0+28u2AsMibCrw5JZ96zKQ
-	 oFZRrmQ2gOozQ==
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Date: Wed, 28 Oct 2026 21:13:43 +0100
-Subject: [PATCH 15/15] RFC: mm/hugetlb: delay anon folio rmap removal until
- after the TLB flush
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=paH15z/h
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69SJYsYe2340172;
+	Wed, 28 Oct 2026 20:59:52 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=B+ILGE
+	ghY39r13/JkwaxN9aY8a9WSldjM6rorjvMUhk=; b=paH15z/hwHdy5wVGhXeZtt
+	L82T1577Sv1lLspdy/d4IjMI0kpwgjmn/7YucyAMN1TimZXwHKo7K7j+a/oAoMMC
+	Tra7KG+Itqwp42hw3Gi0YH3A9aTauhFDdLhBnfo+SIUP2zkOinU6sTdxsIAPVmhN
+	a2xcjNZLT022iXAxlZo/u0XNSnDaMNuF8iebYHTpX1b5vDQt+gNPfhaE6fR58rQb
+	BDPbiTZmtM/eXHV3bpMR78/2q8b3cWEre3+m1EjvJN3DNUKncYJuwO1yxd9YR2lA
+	7k/UY53TeB0xPCkLN+gD5W2x6aUyoCNDSB6bzAx739V3ziU6pQ09cs8WuHthqyWA
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hgm646yv5-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Wed, 28 Oct 2026 20:59:52 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69SInjTE1983896;
+	Wed, 28 Oct 2026 20:59:51 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hk55pc2jn-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 28 Oct 2026 20:59:51 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69SKxldU47317300
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 28 Oct 2026 20:59:47 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 327C720043;
+	Wed, 28 Oct 2026 20:59:47 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DFA0020040;
+	Wed, 28 Oct 2026 20:59:46 +0000 (GMT)
+Received: from [0.0.0.0] (unknown [9.111.73.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 28 Oct 2026 20:59:46 +0000 (GMT)
+Message-ID: <11f7072d-3c4b-4ed5-9954-49c39a012d8b@linux.ibm.com>
+Date: Wed, 28 Oct 2026 21:59:46 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -53,282 +85,116 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 10/10] s390/maccess: Remove spinlock from
+ __s390_kernel_write()
+To: Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20261027143030.3154657-1-hca@linux.ibm.com>
+ <20261027143030.3154657-11-hca@linux.ibm.com>
+Content-Language: en-US
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+In-Reply-To: <20261027143030.3154657-11-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261028-fixes_hugetlb-v1-15-a0a033db180f@kernel.org>
-References: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
-In-Reply-To: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
-To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
- Naoya Horiguchi <nao.horiguchi@gmail.com>, 
- Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@suse.de>, 
- Andy Whitcroft <apw@canonical.com>, Miaohe Lin <linmiaohe@huawei.com>, 
- Michal Hocko <mhocko@suse.com>, Rik van Riel <riel@surriel.com>, 
- Hugh Dickins <hughd@google.com>, 
- Baolin Wang <baolin.wang@linux.alibaba.com>, 
- Vivek Kasireddy <vivek.kasireddy@intel.com>, 
- Dave Airlie <airlied@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
- Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>, 
- Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
- Suren Baghdasaryan <surenb@google.com>, Jonathan Corbet <corbet@lwn.net>, 
- Shuah Khan <skhan@linuxfoundation.org>, 
- Randy Dunlap <rdunlap@infradead.org>, Peter Xu <peterx@redhat.com>, 
- Breno Leitao <leitao@debian.org>, Will Deacon <will@kernel.org>, 
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
- Nick Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
- Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org, 
- linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, 
- "David Hildenbrand (Arm)" <david@kernel.org>, 
- Chris Mason <mason@kernel.org>
-X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=9027; i=david@kernel.org;
- h=from:subject:message-id; bh=/QKVObd/U9vskx+gsp/U8jaY46gGzOnFlcmK4jcuyIA=;
- b=owGbwMvMwCF2/OVpCdfQ3ZWMp9WSGLIehZcda+TP28LS9rxom+I+lpQZ+1Lv6eTwHtRuZjo/9
- cahH0xKHaUsDGIcDLJiiixBwfcNXr5cV1vtxscMM4eVCWQIAxenAExE5BQjw8F1rYf0c+2X8tYl
- Vs75/fEDM7/IzIOS55yzm6JEFz57WM3IML1RYF2DX9DUsjen9mY+1tWXeHpR6Wny0xcHavb6tXt
- I8QEA
-X-Developer-Key: i=david@kernel.org; a=openpgp;
- fpr=1BD9CAAD735C4C3A460DFCCA4DDE10F700FF835A
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI4MDA4MiBTYWx0ZWRfX2fKgjyz21dt5
+ QBNA0TQX7CmL3ClPQUGDGNmxT1sWYd7ciFzKlS8CuvELhVNpIDun6byDqczJry3gJ9EZZrN+NVA
+ U1oDUM+Sy6QCG6RmHbo60LjXJJbgUMw=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI4MDA4MiBTYWx0ZWRfX7xvIlHIQfss6
+ 6cE6WomK73JtdoyNY4Fvu7097Mcqprs0FtBwJpevfKI6QV9VN8QKAn/mffVQP0kw5jWHBuILJiS
+ XQvRKUbiWcVS4bpSyl1d+z6WR/xCl5NS0udUC3C7MZdVKbZBDvhMRPopF7PK3AfABGevarcub81
+ oQ5o8c02jyi2HY1EBf1V5LmTs+mFD1WcxIQdKZCPASrQH1lU5yVtOSw/TeAe9UaesNRZiXAmLrT
+ laT0q1vwZEhViOD1D6B5/0uPwh2psPxXs3oxmJB9kQwvV4wZRPm9XHIhglRHi65rYiO1Q6J2G78
+ Lunu+emFiO/qsO8F45ZkLOGqhgVicoE/jltqyiq4xRjxewJ291jHz+BHi98FDx+zsj59GZ/2HFT
+ PykPWMOsB+eMs1mIwQsIrqfxsEa24jJ5LhyeLgOKrv6nhyGjcwdz3nMoVrricQMYOjMjDe6iA7A
+ rEqai8h0oBcWRc2Gg/g==
+X-Proofpoint-ORIG-GUID: Wcq-VWVUn41p_v4DZtlw5fgIPp2vwJKA
+X-Authority-Analysis: v=2.4 cv=Uu32pOwB c=1 sm=1 tr=0 ts=6ae26248 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=5OG-X-8QiNZRF-oGS5oA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: Wcq-VWVUn41p_v4DZtlw5fgIPp2vwJKA
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-10-28_06,2026-10-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 impostorscore=0 priorityscore=1501 spamscore=0 adultscore=0
+ lowpriorityscore=0 malwarescore=0 clxscore=1015 suspectscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610280082
 
-After fork(), parent and child map anonymous folios read-only shared
-by CoW. On a write fault, hugetlb_wp() reuses an anonymous page instead of
-copying it if its mapcount is 1. As documented, switching to the safer
-refcount would cause more harm than help with these scarce resources.
 
-munmap() and MADV_DONTNEED unmap such folios and decrement the mapcount
-before the TLB is flushed. Until then, another thread of the process can
-still read the page through a stale TLB entry:
 
-    child: reader        child: munmap()       parent: writer
-    =============        ===============       ==============
-    reads the page
-                         clears the entry
-                         mapcount drops to 1
-                                               store to the page
-                                                 hugetlb_wp() reuses it
-    reads the store
-      /* leak */
-                         flushes the TLB
+On 10/27/26 15:30, Heiko Carstens wrote:
+> The spinlock in __s390_kernel_write() was introduced to serialize the
+> read-modify-write sequence against concurrent callers. Now that all
+> runtime callers of s390_kernel_write() hold the text_mutex, the
+> spinlock is not required anymore.
+> 
+> Replace it with preempt_disable() / preempt_enable() and sync_core().
+> Previously, CPU serialization was implicitly done by other
+> instructions. Make this explicit with sync_core() instead of
+> relying on that.
+> 
+> Preemption is disabled so that sync_core() issues the CPU serialization
+> instruction on the same CPU that executed the stores. This completes all
+> previous stores and makes them visible to other CPUs.
 
-Similar observations are also known and possible with things like
-vmsplice().
+Doesn't preemption happen only via interrupts, which always serialize?
+> Other CPUs need to perform CPU serialization, e.g. with text_poke_sync(),
+> to discard already prefetched instructions.
+> 
+> To verify that text_mutex is held instead of the spinlock, add a
+> lockdep_assert_held() call to s390_kernel_write(). To make that work
+> a change to the kprobes code is required:
+> 
+> swap_instruction(), which calls s390_kernel_write(), may be called in
+> stop_machine() context.
+> For that case the task which calls s390_kernel_write() is not the task
+> which called stop_machine() - lockdep_assert_held() will report that
+> text_mutex is not held by the current task, even though text_mutex is
+> held by the stop_machine() caller. Exclusive text write access is
+> guaranteed.
+> Work around that by calling the non-checking __s390_kernel_write(),
+> and add lockdep_assert_held() checks to arch_arm_kprobe() and
+> arch_disarm_kprobe().
+> 
+> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>   arch/s390/include/asm/text-patching.h | 7 +++++--
+>   arch/s390/kernel/kprobes.c            | 4 +++-
+>   arch/s390/mm/maccess.c                | 8 +++-----
+>   3 files changed, 11 insertions(+), 8 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/text-patching.h b/arch/s390/include/asm/text-patching.h
+> index c2f87f20ff97..a382a3e7c2f8 100644
+> --- a/arch/s390/include/asm/text-patching.h
+> +++ b/arch/s390/include/asm/text-patching.h
+> @@ -19,9 +19,12 @@ void *__s390_kernel_write(void *dst, const void *src, size_t size);
+>   
+>   static inline void *s390_kernel_write(void *dst, const void *src, size_t size)
+>   {
+> -	if (__is_defined(__DECOMPRESSOR))
+> -		return memcpy(dst, src, size);
+> +#ifdef __DECOMPRESSOR
+> +	return memcpy(dst, src, size);
+> +#else
+> +	lockdep_assert_held(&text_mutex);
+>   	return __s390_kernel_write(dst, src, size);
+> +#endif
+>   }
 
-Extend the mmu_gather delayed-rmap machinery to handle hugetlb folios.
-Defer anonymous hugetlb rmap removal until after the batched TLB flush.
+I assume #ifdef is required because lockdep_assert_held() is not
+available in decompressor and there are no stubs?
 
-Flush the TLB and remove pending rmaps when the batch fills and before
-leaving the VMA, then drain the batch so later rmap flushes cannot process
-the same entries again. This is very similar to how zap_present_ptes()
-operates.
 
-Skip deferral at exit. On UP, flush before removing the rmap. With
-MMU_GATHER_NO_GATHER, clearing the entry already flushes the TLB.
+Anyhow:
 
-Restore reservations after the actual rmap removal, preserving the existing
-mapcount check.
+Reviewed-by: Ilya Leoshkevich <iii@linux.ibm.com>
 
-This is very likely not stable-worthy, as hugetlb is commonly not used
-for applications with different parent vs. child trust boundaries.
-
-Fixes: 24669e58477e ("hugetlb: use mmu_gather instead of a temporary linked list for accumulating pages")
-Reported-by: Chris Mason <mason@kernel.org>
-Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
----
- arch/s390/include/asm/tlb.h |  5 +++--
- include/asm-generic/tlb.h   |  5 +++--
- include/linux/hugetlb.h     |  7 +++++++
- mm/hugetlb.c                | 38 +++++++++++++++++++++++++++++++++-----
- mm/mmu_gather.c             | 14 ++++++++++----
- 5 files changed, 56 insertions(+), 13 deletions(-)
-
-diff --git a/arch/s390/include/asm/tlb.h b/arch/s390/include/asm/tlb.h
-index 619fd41e710e..3408ee400d23 100644
---- a/arch/s390/include/asm/tlb.h
-+++ b/arch/s390/include/asm/tlb.h
-@@ -24,7 +24,7 @@
- 
- static inline void tlb_flush(struct mmu_gather *tlb);
- static inline bool __tlb_remove_page_size(struct mmu_gather *tlb,
--		struct page *page, int page_size);
-+		struct page *page, int page_size, bool delay_rmap);
- static inline bool __tlb_remove_folio_pages(struct mmu_gather *tlb,
- 		struct page *page, unsigned int nr_pages, bool delay_rmap);
- 
-@@ -45,8 +45,9 @@ static inline bool __tlb_remove_folio_pages(struct mmu_gather *tlb,
-  * s390 doesn't delay rmap removal.
-  */
- static inline bool __tlb_remove_page_size(struct mmu_gather *tlb,
--		struct page *page, int page_size)
-+		struct page *page, int page_size, bool delay_rmap)
- {
-+	VM_WARN_ON_ONCE(delay_rmap);
- 	free_folio_and_swap_cache(page_folio(page));
- 	return false;
- }
-diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-index fbe1114e9a44..0fd51970a87e 100644
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -245,7 +245,8 @@ struct mmu_gather_batch {
-  */
- #define MAX_GATHER_BATCH_COUNT	(10000UL/MAX_GATHER_BATCH)
- 
--extern bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page, int page_size);
-+bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page,
-+		int page_size, bool delay_rmap);
- bool __tlb_remove_folio_pages(struct mmu_gather *tlb, struct page *page,
- 		unsigned int nr_pages, bool delay_rmap);
- 
-@@ -465,7 +466,7 @@ static inline void tlb_flush_mmu_tlbonly(struct mmu_gather *tlb)
- static inline void tlb_remove_page_size(struct mmu_gather *tlb,
- 					struct page *page, int page_size)
- {
--	if (__tlb_remove_page_size(tlb, page, page_size))
-+	if (__tlb_remove_page_size(tlb, page, page_size, false))
- 		tlb_flush_mmu(tlb);
- }
- 
-diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index badb8790653e..96a83fe0b7d6 100644
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -275,6 +275,8 @@ long hugetlb_change_protection(struct vm_area_struct *vma,
- 		unsigned long cp_flags);
- void hugetlb_unshare_all_pmds(struct vm_area_struct *vma);
- void fixup_hugetlb_reservations(struct vm_area_struct *vma);
-+void hugetlb_folio_restore_rsv_on_unmap(struct vm_area_struct *vma,
-+		struct folio *folio);
- void hugetlb_split(struct vm_area_struct *vma, unsigned long addr);
- 
- unsigned int arch_hugetlb_cma_order(void);
-@@ -460,6 +462,11 @@ static inline void fixup_hugetlb_reservations(struct vm_area_struct *vma)
- {
- }
- 
-+static inline void hugetlb_folio_restore_rsv_on_unmap(struct vm_area_struct *vma,
-+		struct folio *folio)
-+{
-+}
-+
- static inline void hugetlb_split(struct vm_area_struct *vma, unsigned long addr) {}
- 
- #endif /* !CONFIG_HUGETLB_PAGE */
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 06ef8ba41df7..c8e3b8a6421a 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5310,7 +5310,7 @@ int move_hugetlb_page_tables(struct vm_area_struct *vma,
- }
- 
- /* Must be called after rmap removal. */
--static void hugetlb_folio_restore_rsv_on_unmap(struct vm_area_struct *vma,
-+void hugetlb_folio_restore_rsv_on_unmap(struct vm_area_struct *vma,
- 		struct folio *folio)
- {
- 	struct hstate *h = hstate_vma(vma);
-@@ -5377,6 +5377,8 @@ void __unmap_hugepage_range(struct mmu_gather *tlb, struct vm_area_struct *vma,
- 	last_addr_mask = hugetlb_mask_last_page(h);
- 	address = start;
- 	for (; address < end; address += sz) {
-+		bool delay_rmap = false;
-+
- 		ptep = hugetlb_walk(vma, address, sz);
- 		if (!ptep) {
- 			address |= last_addr_mask;
-@@ -5449,19 +5451,45 @@ void __unmap_hugepage_range(struct mmu_gather *tlb, struct vm_area_struct *vma,
- 					make_pte_marker(PTE_MARKER_UFFD_WP),
- 					sz);
- 		hugetlb_count_sub(pages_per_huge_page(h), mm);
--		hugetlb_remove_rmap(folio);
-+		/*
-+		 * hugetlb_wp() uses mapcount to decide whether an anonymous
-+		 * folio can be reused. Delay rmap removal until stale TLB
-+		 * entries are gone, unless the mm has no users left.
-+		 */
-+		if (folio_test_anon(folio) && !tlb->fullmm) {
-+			delay_rmap = tlb_delay_rmap(tlb);
-+			/*
-+			 * Without delay-rmap support, just flush before
-+			 * dropping the PTL. Except with MMU_GATHER_NO_GATHER
-+			 * where clearing already flushed the TLB.
-+			 */
-+			if (!delay_rmap && !IS_ENABLED(CONFIG_MMU_GATHER_NO_GATHER))
-+				flush_hugetlb_tlb_range(vma, address, address + sz);
-+		}
-+		if (!delay_rmap)
-+			hugetlb_remove_rmap(folio);
- 		spin_unlock(ptl);
- 
--		hugetlb_folio_restore_rsv_on_unmap(vma, folio);
-+		if (!delay_rmap)
-+			hugetlb_folio_restore_rsv_on_unmap(vma, folio);
- 
--		tlb_remove_page_size(tlb, folio_page(folio, 0),
--				     folio_size(folio));
-+		if (__tlb_remove_page_size(tlb, folio_page(folio, 0), sz,
-+					   delay_rmap)) {
-+			tlb_flush_mmu_tlbonly(tlb);
-+			tlb_flush_rmaps(tlb, vma);
-+			tlb_flush_mmu(tlb);
-+		}
- 		/*
- 		 * If we were instructed to unmap a specific folio, we're done.
- 		 */
- 		if (folio_provided)
- 			break;
- 	}
-+	if (tlb->delayed_rmap) {
-+		tlb_flush_mmu_tlbonly(tlb);
-+		tlb_flush_rmaps(tlb, vma);
-+		tlb_flush_mmu(tlb);
-+	}
- 	tlb_end_vma(tlb, vma);
- 
- 	huge_pmd_unshare_flush(tlb, vma);
-diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
-index 9f353f0e2ef4..b1f9f935e3b1 100644
---- a/mm/mmu_gather.c
-+++ b/mm/mmu_gather.c
-@@ -59,14 +59,19 @@ static void tlb_flush_rmap_batch(struct mmu_gather_batch *batch, struct vm_area_
- 
- 		if (encoded_page_flags(enc) & ENCODED_PAGE_BIT_DELAY_RMAP) {
- 			struct page *page = encoded_page_ptr(enc);
-+			struct folio *folio = page_folio(page);
- 			unsigned int nr_pages = 1;
- 
- 			if (unlikely(encoded_page_flags(enc) &
- 				     ENCODED_PAGE_BIT_NR_PAGES_NEXT))
- 				nr_pages = encoded_nr_pages(pages[++i]);
- 
--			folio_remove_rmap_ptes(page_folio(page), page, nr_pages,
--					       vma);
-+			if (folio_test_hugetlb(folio)) {
-+				hugetlb_remove_rmap(folio);
-+				hugetlb_folio_restore_rsv_on_unmap(vma, folio);
-+			} else {
-+				folio_remove_rmap_ptes(folio, page, nr_pages, vma);
-+			}
- 		}
- 	}
- }
-@@ -211,9 +216,10 @@ bool __tlb_remove_folio_pages(struct mmu_gather *tlb, struct page *page,
- 					     PAGE_SIZE);
- }
- 
--bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page, int page_size)
-+bool __tlb_remove_page_size(struct mmu_gather *tlb, struct page *page,
-+		int page_size, bool delay_rmap)
- {
--	return __tlb_remove_folio_pages_size(tlb, page, 1, false, page_size);
-+	return __tlb_remove_folio_pages_size(tlb, page, 1, delay_rmap, page_size);
- }
- 
- #endif /* MMU_GATHER_NO_GATHER */
-
--- 
-2.43.0
-
+[...]
