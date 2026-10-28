@@ -1,59 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793215694;
-	b=fN+csMLz+mgczGQ7wX7a+gb/5vsmjM0cH+3j1ZU1y6pfuFzxgOKCiSI2/k1lo9SxB/jI
-	 KW2WFaU13DCyaZKVmbiKAobM6SjS6lN51eeLnUguBtOKiQeUBXWN8ikpip6xxGsKkFk/u
-	 GGaOPRSJveWbwo90bozSa3XrgSS9T7TF2odp1IcpgqCg779cMpc37VV3x4DxDu4QM+Q7h
-	 AqhjIb0Yjvy8u58IzAjdKLjqyOImY+A+uahwomlJ4LC0/J7QBRZwQB02RYYmmzzezvgFJ
-	 C4iq8WhuB+LqEZtGy5sMvNfgInGXuwWZnjYEK1oO1y8TSiwvp2ZHMbatNhkeffGFPhw==
+	t=1793218434;
+	b=fiaEGZrkJff22NYJ/rYpHL9Q1CnOSa0VwZ/lxy14DkPfYh01XrEwwRkHV7kToc9KxdLw
+	 JpL/xC4I8PtsvR2xN+9EsFfJj5Nc1JN6VnpbdmFkSmxL3Jmi9+4Je7xcnaDvND4PDdlUS
+	 WnkkUeH4HMVMazUTSOzpFlBG2AoaffkpN/cnkF47zhO1cNNgRMIco+HgQIV060kvRg+Nr
+	 yaPw5eF1oGX/GtPIWqyysywOW4Ob4S/uO5Q++hW3N8NUI8vCdOmM+aP5f9chMG4ihth0I
+	 xg34HOnx7OnnIPjfIDu2qeltoX0YFkhZt+KKnlrHqgpOYKu3mb2dfL3nj6vzqE+A+QQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793215694;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=OttymoT+Gj7B3Pr54kafvxx7oIh2IVc8g1Kog35whCo=;
-	b=gyAr42Tz6qnBADlof1zvJBW8hbGPL9tsLSFm2vTegSnb6u4ilikQBH3aHLkbeHiE4ulB
-	 UkKvlaFUUL3xnkdtTKeTNrs5YgoHlZVfgeQQdvz0uzmptI7CkBAnrZgesKaMuBFEg6H2N
-	 6l9AbAbQmsz/nf1k+SI4faBvIVk99jY4t5Gddou2cAtixK7qKIgZKX0hnv2NV4xXU61Mc
-	 WgtRJ/6LE8BE5y3OXOp7G4Nw44mMc8w3OUWb2nNS8tyArgMhyBrFLc33zweyKyFwTatw9
-	 lsIfi2CaYGDNXp/wt/5zdYYxTZx3Y72aYc4aaRVCoeKQ1YwItWGI5CIfRsytIi64XNA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793218434;
+	h=Received:DKIM-Signature:From:Subject:Date:Message-Id:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
+	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=zblGlkWs1OXZ9bHPBTP+AfF1wpBrK3sa+fiGbxI6Tmk=;
+	b=xHxhJfiu1sQqw3kZ7zj+rz9115cWTdsrTCASZKEkFXl6FXt+w+JVzUqyBgUGHTD9JtGp
+	 EAYXuJtncnKUe9k9V3aDjUu29PzZvHs57tzJHxc3pdqg/+CK5ooP13NKD75BEbr0T3oiP
+	 0JGTnRH/lQcmc/3fu8vElnGsmvJp3TO/4I5HG3CgMicog/xB7U+B9D4V1J0mVVZ2kDyOL
+	 Bf2OjDeEg4UjjiS6oqJZsQXoLBBj6bg+adUFJRAIW/y5YuYm60PQi5rzYrNqFrVIpJP1F
+	 UPyzPWozvGU1DnfelRe9nQMtsbt7E6WywHJLLdo5CRJTDKT+Jx4wrhaOgOLfRzeK4jQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CHs9QdF8;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OC0jqLoF;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08C7E606A31F;
-	Wed, 28 Oct 2026 19:28:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3729E606A32E;
+	Wed, 28 Oct 2026 20:13:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CHs9QdF8
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A14A1F01825;
-	Wed, 28 Oct 2026 19:28:12 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OC0jqLoF
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7580C1F01825;
+	Wed, 28 Oct 2026 20:13:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793215693;
-	bh=OttymoT+Gj7B3Pr54kafvxx7oIh2IVc8g1Kog35whCo=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CHs9QdF88lJ9yx5KdbMUMjNXFUJMKhRgejE6Th5YBrOYZdEFphAuoedmcREOGiCH9
-	 5k8Otl7ufJxkW+FCAtKKZab3GW3+bxwxnRh6KRmVrO+kQOLEX04SqQ4LsrEU3z9Db9
-	 0Tg/c9WJl8I9+Sg+OcmOqSTmwnF2DejkW/lr7nbpq6vXJagdJdxjd49SRGY5sXS1oa
-	 aUyyW0ZZL+kx4UjRcCIKRO/HlB+0v4EMSpt3v8nfNCk4yNyw+xUW+DO2xcg6BM0H44
-	 a+YyMVmIkgZ3UfxOZIE3vrr136uUsdRZb7+DvmnD0l4TxJZXTx78fYjQjrJWWM/eOv
-	 /KcFDNz0kulwA==
-Message-ID: <sashiko-outbox-188352@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 7/7] KVM: s390: Allocate page tables when CMMA is
- used
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261028185422.272146-8-imbrenda@linux.ibm.com>
-References: <20261028185422.272146-1-imbrenda@linux.ibm.com>
- <20261028185422.272146-8-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 28 Oct 2026 19:28:12 +0000
+	s=k20260515; t=1793218433;
+	bh=zblGlkWs1OXZ9bHPBTP+AfF1wpBrK3sa+fiGbxI6Tmk=;
+	h=From:Subject:Date:To:Cc;
+	b=OC0jqLoFLAK/f7Y/IM8DLSn3wtoD+SuKLrY4GE7olSLvMuY17nKMUBtWNwwAWrUuW
+	 68eQ1fXTtwD1Mkz56lvNrm8yBb2YjWoFKe5MBwR/5ZdqiSNyl09FfN8The3pXc5f1O
+	 UnrwFdXA1g119nmQF6pwyJ/F0h/GnkfkMfLILeXOmj8YK63F4vv5+FWd6IXdkwhwbx
+	 mGKfWkYriQmacjifaD6SgllEGlNIvY/rte/RQ7KdgkTHDZ4grM7xPNOaUOQIzL1590
+	 mvFx6xd7CIyySiul2eebB73/k3iGQeWUHzP+MdDPt1R/pi4YlYfaquMD+Xp63xCRt6
+	 cVyzcMIDORuKw==
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Subject: [PATCH 00/15] mm/hugetlb: various fixes
+Date: Wed, 28 Oct 2026 21:13:28 +0100
+Message-Id: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,239 +52,137 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAGhX4moC/yXM0QpAQBCF4VfRXNtaQ5RXkcSaZSS0Y6Xk3S0uv
+ zr/uUDIMQmU0QWODhZel4AkjsCM7TKQ4j4YUGOeaCyU5ZOkGf1A+9wpNJnVaG2e6gxCszn6BiG
+ p6t/iu4nM/p7AfT82vNYJcQAAAA==
+X-Change-ID: 20261027-fixes_hugetlb-2c4f02ff6304
+To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+ Naoya Horiguchi <nao.horiguchi@gmail.com>, 
+ Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@suse.de>, 
+ Andy Whitcroft <apw@canonical.com>, Miaohe Lin <linmiaohe@huawei.com>, 
+ Michal Hocko <mhocko@suse.com>, Rik van Riel <riel@surriel.com>, 
+ Hugh Dickins <hughd@google.com>, 
+ Baolin Wang <baolin.wang@linux.alibaba.com>, 
+ Vivek Kasireddy <vivek.kasireddy@intel.com>, 
+ Dave Airlie <airlied@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, 
+ Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>, 
+ Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+ Suren Baghdasaryan <surenb@google.com>, Jonathan Corbet <corbet@lwn.net>, 
+ Shuah Khan <skhan@linuxfoundation.org>, 
+ Randy Dunlap <rdunlap@infradead.org>, Peter Xu <peterx@redhat.com>, 
+ Breno Leitao <leitao@debian.org>, Will Deacon <will@kernel.org>, 
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
+ Nick Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+ Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org, 
+ linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, 
+ "David Hildenbrand (Arm)" <david@kernel.org>, 
+ luojiajun <luojiajun3@huawei.com>, Josef Bacik <josef@toxicpanda.com>, 
+ stable@kernel.org, Chris Mason <mason@kernel.org>, 
+ Daehyeon Ko <4ncienth@gmail.com>, stable@vger.kernel.org
+X-Mailer: b4 0.16.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3500; i=david@kernel.org;
+ h=from:subject:message-id; bh=bNNIIjvmXZOTaOJfPgSy5HmuhJm0C5N8Ej36sP+bpik=;
+ b=owGbwMvMwCF2/OVpCdfQ3ZWMp9WSGLIehRelXeaZ1r1L/+uWb21rYmaZznX7zvzWpDXjLjtL4
+ 9XHN47d6yhlYRDjYJAVU2QJCr5v8PLlutpqNz5mmDmsTCBDGLg4BWAiRtMZGc6cuvFGgkFTpbsr
+ 2Szz7PXbmyN4WmwFa7g3nPvV1HUzVYyRYa6t9K2elrqoaPbnQkd4l0qxFx099ebfg5s7f3hlz9G
+ O5AAA
+X-Developer-Key: i=david@kernel.org; a=openpgp;
+ fpr=1BD9CAAD735C4C3A460DFCCA4DDE10F700FF835A
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
-- [Critical] KVM: s390: gmap_allocate_all_page_tables_best_effort() drops s=
-keys on split
-- [High] KVM: s390: hugepage flags left enabled when enabling CMMA in handl=
-e_essa()
-- [Medium] KVM: s390: race in handle_essa() setting GMAP_FLAG_USES_CMM befo=
-re allocation
-- [Medium] KVM: s390: page tables allocated after dat_set_cmma_bits() in kv=
-m_s390_set_cmma_bits()
+These fixes almost finished me.
+
+Oh. My. God, hugetlb, what have you become.
+
+And I am not talking about good old hugetlb. I am talking about all of the
+things we slapped on top of it over the years, including MAP_PRIVATE,
+reservation, UFFD, accounting and much more. I mean, I kept complaining
+about all that in the past, but I just had an 2 day-long reminder from
+hell.
+
+And don't get me started on some of the proposed AI fixes. Dear lord.
+There is a reason why I am the author on most of these fixes. And I
+try to not swear on the mailing list.
+
+Hey, at least huge PMD sharing was not involved this time, great
+success!
+
+Anyhow, nothing here is super urgent IMHO. Just a lot of unpleasant
+things and corner cases. Most of the issues reported by Anthropic, some
+found by me while poking at things.
+
+Two bigger changes as RFC. One of them documents some remaining
+problems, one of both being a hard nut to crack.
+
+I have some more complicated lower priority, hard to solve things
+leftover on the hugetlb front (besides some fixes that are already on the
+list), maybe I'll report them to hugetlb maintainers to share some of
+the "fun". ;)
+
+I threw some tests at it, but there are just too many combinations and
+corner cases.
+
+Next, likely we want a kernel config to disable MAP_PRIVATE and start
+deprecating it. It's simply unbearable.
+
+I won't pretend that I understood all the details of reservation and
+accounting, even rewriting some of the comments took me ages. If any
+fixes here go into the wrong direction, I'm happy if someone wants to
+take over this series, I tried to get the heavy lifting done.
+
+I guess, have fun reviewing? :)
+
+Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+---
+Chris Mason (3):
+      hugetlbfs: do not grow a sealed file in mmap()
+      mm/hugetlb: keep surplus folios that are reserved
+      mm/hugetlb: fix reservation leak on min_size= mounts
+
+David Hildenbrand (Arm) (10):
+      hugetlbfs: fix integer overflow in fallocate()
+      mm/hugetlb: compare against persistent count when freeing lowmem folios
+      mm/hugetlb: preserve reservations when shrinking on HIGHMEM
+      mm/hugetlb: account temporary folios separately
+      mm/hugetlb: fix mremap() racing with page migration
+      mm/hugetlb: serialize page-cache allocations with truncation
+      mm/memfd: recheck the page cache before allocating a hugetlb folio
+      mm/hugetlb: count again if the reserve map shrank
+      RFC: mm/hugetlb: account restored reservations before freeing folios
+      RFC: mm/hugetlb: delay anon folio rmap removal until after the TLB flush
+
+Josef Bacik (2):
+      mm/hugetlb: keep surplus folios when the pool shrinks
+      hugetlbfs: fix unmapping folios from private VMAs
+
+ Documentation/mm/hugetlbfs_reserv.rst |  30 +--
+ arch/s390/include/asm/tlb.h           |   5 +-
+ fs/hugetlbfs/inode.c                  |  36 +++-
+ include/asm-generic/tlb.h             |   5 +-
+ include/linux/hugetlb.h               |  24 +++
+ mm/hugetlb.c                          | 388 ++++++++++++++++++++++------------
+ mm/hugetlb_internal.h                 |  11 +
+ mm/hugetlb_sysfs.c                    |   2 +-
+ mm/memfd.c                            |  17 ++
+ mm/mmu_gather.c                       |  14 +-
+ 10 files changed, 361 insertions(+), 171 deletions(-)
+
+---
+
+base-commit: 65ba8f34ec886ec72b2c07ddc8cf3d815c32869d
+
+change-id: 20261027-fixes_hugetlb-2c4f02ff6304
+
 --
 
-commit 2d680e1a8c09302f7abfa247b43bee558b17d8ec
-Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cheers,
 
-KVM: s390: Allocate page tables when CMMA is used
+David
 
-This commit calls gmap_allocate_all_page_tables_best_effort() in
-handle_essa() and kvm_s390_set_cmma_bits() when GMAP_FLAG_USES_CMM is first
-set on the gmap, so that page tables are pre-allocated and existing large
-page mappings are split when CMMA is used.
-
-> diff --git a/arch/s390/kvm/s390/priv.c b/arch/s390/kvm/s390/priv.c
-> index 856939acf012f..4f0dd3173ab91 100644
-> --- a/arch/s390/kvm/s390/priv.c
-> +++ b/arch/s390/kvm/s390/priv.c
-> @@ -1248,7 +1248,10 @@ static int handle_essa(struct kvm_vcpu *vcpu)
->  		 * value really needs to be written to; if the value is
->  		 * already correct, we do nothing and avoid the lock.
->  		 */
-> -		set_bit(GMAP_FLAG_USES_CMM, &vcpu->arch.gmap->flags);
-> +		if (!uses_cmm(vcpu->arch.gmap)) {
-> +			set_bit(GMAP_FLAG_USES_CMM, &vcpu->arch.gmap->flags);
-> +			gmap_allocate_all_page_tables_best_effort(vcpu->arch.gmap);
-> +		}
-
-[Severity: Medium]
-What happens if two vCPUs in a multi-vCPU guest intercept on ESSA
-concurrently in handle_essa() when !READ_ONCE(vcpu->kvm->arch.migration_mod=
-e)?
-
-In this path only vcpu->mutex and the kvm->srcu read lock are held. When the
-first vCPU sees !uses_cmm(vcpu->arch.gmap), it immediately sets
-GMAP_FLAG_USES_CMM via set_bit() and then enters
-gmap_allocate_all_page_tables_best_effort(), which iterates over all memslo=
-ts
-while repeatedly dropping gmap->kvm->mmu_lock and sleeping in
-kvm_s390_mmu_cache_topup():
-
-arch/s390/kvm/gmap/gmap.c:gmap_allocate_all_page_tables_best_effort() {
-    ...
-		for (gfn =3D start; gfn < end; gfn +=3D _PAGE_ENTRIES) {
-			if (kvm_s390_mmu_cache_topup(mc))
-				break;
-
-			guard(write_lock)(&gmap->kvm->mmu_lock);
-
-			dat_entry_walk(mc, gfn, gmap->asce, DAT_WALK_ALLOC | DAT_WALK_SPLIT,
-				       TABLE_TYPE_PAGE_TABLE, &crstep, &ptep);
-		}
-}
-
-If a second vCPU enters handle_essa() while the first vCPU is still running
-gmap_allocate_all_page_tables_best_effort(), the second vCPU will observe
-uses_cmm(vcpu->arch.gmap) =3D=3D true, skip the allocation, set
-vcpu->arch.sie_block->ecb2 |=3D ECB2_CMMA, and retry ESSA in SIE before all
-page tables have been allocated and all large pages have been split.
-Conversely, because !uses_cmm() and set_bit() are not atomic or serialized =
-by
-a VM-wide lock such as kvm->slots_arch_lock, two vCPUs can both pass
-!uses_cmm() and run duplicate allocation walks across all memslots.
-
-Should the check, flag update, and page table allocation be serialized under
-a VM-wide lock so other vCPUs wait until allocation finishes before re-ente=
-ring
-SIE with ECB2_CMMA enabled?
-
-[Severity: Critical]
-Can calling gmap_allocate_all_page_tables_best_effort() here (and in
-kvm_s390_set_cmma_bits()) corrupt guest storage keys when splitting aged
-1M or 2G large pages?
-
-If storage keys are already enabled (GMAP_FLAG_USES_SKEYS) and a 1M large
-page has been aged via gmap_age_gfn() -> gmap_clear_young_crste() so that
-crste.h.i is set while the storage keys remain in the physical pages,
-gmap_allocate_all_page_tables_best_effort() calls dat_entry_walk() without
-DAT_WALK_USES_SKEYS:
-
-arch/s390/kvm/gmap/gmap.c:gmap_allocate_all_page_tables_best_effort()
-  -> dat_entry_walk(mc, gfn, gmap->asce, DAT_WALK_ALLOC | DAT_WALK_SPLIT, .=
-..)
-     -> dat_split_ste()
-
-Inside dat_split_ste() in arch/s390/kvm/gmap/dat.c, saving the physical
-storage keys into the newly allocated PGSTEs for an invalid segment entry is
-gated on uses_skeys from the walk flags:
-
-arch/s390/kvm/gmap/dat.c:dat_split_ste() {
-    ...
-			pgste_init.pcl =3D uses_skeys && init.h.i;
-			dat_init_pgstes(pt, pgste_init.val);
-		} else {
-			dat_init_page_table(pt, init.val, 0);
-		}
-
-		if (dat_pmdp_xchg_atomic(pmdp, old, new, gfn, asce)) {
-			if (!pgste_init.pcl)
-				return 0;
-			for (i =3D 0; i < _PAGE_ENTRIES; i++) {
-				union pgste pgste =3D pt->pgstes[i];
-
-				pgste =3D dat_save_storage_key_into_pgste(pt->ptes[i], pgste);
-				pgste_set_unlock(pt->ptes + i, pgste);
-			}
-    ...
-}
-
-Because DAT_WALK_USES_SKEYS is not passed, pgste_init.pcl is false and the =
-new
-PGSTEs are left with zeroed storage keys while pt->ptes[i].h.i =3D=3D 1. Wh=
-en
-those 4K pages are later faulted back in via _gmap_handle_minor_pte_fault()=
- ->
-__dat_ptep_xchg() (which does pass uses_skeys(gmap)), old.h.i && !new.h.i
-triggers dat_set_storage_key_from_pgste() and overwrites the guest's hardwa=
-re
-storage keys with zero.
-
-Should gmap_allocate_all_page_tables_best_effort() include
-(uses_skeys(gmap) ? DAT_WALK_USES_SKEYS : 0) in the flags passed to
-dat_entry_walk()?
-
-[Severity: High]
-Could leaving GMAP_FLAG_ALLOW_HPAGE_1M and GMAP_FLAG_ALLOW_HPAGE_2G set on
-gmap->flags when enabling CMMA lead to a guest vCPU infinite fault loop?
-
-When userspace enables KVM_CAP_S390_HPAGE_1M or KVM_CAP_S390_HPAGE_2G and
-also enables KVM_S390_VM_MEM_ENABLE_CMMA, neither handle_essa(),
-kvm_s390_set_cmma_bits(), nor gmap_allocate_all_page_tables_best_effort()
-clears GMAP_FLAG_ALLOW_HPAGE_1M or GMAP_FLAG_ALLOW_HPAGE_2G, and
-gmap_1m_allowed() / gmap_2g_allowed() in arch/s390/kvm/gmap/gmap.c do not
-check !uses_cmm(gmap):
-
-arch/s390/kvm/gmap/gmap.c:gmap_1m_allowed() {
-	return test_bit(GMAP_FLAG_ALLOW_HPAGE_1M, &gmap->flags) &&
-	       !((f->gfn ^ f->pfn) & ~_SEGMENT_FR_MASK) &&
-	       slot->base_gfn <=3D ALIGN_DOWN(f->gfn, _PAGES_PER_SEGMENT) &&
-	       slot->base_gfn + slot->npages >=3D ALIGN(f->gfn + 1, _PAGES_PER_SEG=
-MENT);
-}
-
-If gmap_allocate_all_page_tables_best_effort() bails out early on an
-allocation failure, if another vCPU faults on a segment not yet visited whi=
-le
-mmu_lock is dropped between segments, or if a memslot is added or moved aft=
-er
-GMAP_FLAG_USES_CMM is set (where s390_kvm_mmu_prepare_memory_region() ->
-dat_create_slot() installs _CRSTE_EMPTY entries without page tables),
-gmap_link() will install a valid 1M or 2G large CRSTE.
-
-When a vCPU with ECB2_CMMA set subsequently faults on that valid large page,
-kvm_s390_faultin_gfn() -> gmap_try_fixup_minor() ->
-gmap_handle_minor_crste_fault() sees:
-
-arch/s390/kvm/gmap/gmap.c:gmap_handle_minor_crste_fault() {
-    ...
-	/* Appropriate permissions already (race with another handler), nothing to=
- do. */
-	if (!oldcrste.h.i && !(f->write_attempt && oldcrste.h.p))
-		return 0;
-    ...
-}
-
-and returns 0 without splitting the large page, causing the vCPU to fault
-indefinitely. Should GMAP_FLAG_ALLOW_HPAGE_1M and GMAP_FLAG_ALLOW_HPAGE_2G =
-be
-cleared (or checked against uses_cmm(gmap)) before splitting existing large
-pages?
-
-> diff --git a/arch/s390/kvm/s390/s390.c b/arch/s390/kvm/s390/s390.c
-> index 18fb200f854a8..739e8c23c3ae0 100644
-> --- a/arch/s390/kvm/s390/s390.c
-> +++ b/arch/s390/kvm/s390/s390.c
-> @@ -2359,7 +2359,10 @@ static int kvm_s390_set_cmma_bits(struct kvm *kvm,
->  		}
->  	} while (r =3D=3D -ENOMEM);
-> =20
-> -	set_bit(GMAP_FLAG_USES_CMM, &kvm->arch.gmap->flags);
-> +	if (!uses_cmm(kvm->arch.gmap)) {
-> +		set_bit(GMAP_FLAG_USES_CMM, &kvm->arch.gmap->flags);
-> +		gmap_allocate_all_page_tables_best_effort(kvm->arch.gmap);
-> +	}
-
-[Severity: Medium]
-In kvm_s390_set_cmma_bits(), is it intentional that
-gmap_allocate_all_page_tables_best_effort() is called after
-dat_set_cmma_bits() rather than before it?
-
-Inside dat_set_cmma_bits() in arch/s390/kvm/gmap/dat.c, dat_entry_walk() is
-called under read_lock(&kvm->mmu_lock) with DAT_WALK_ALLOC and without
-DAT_WALK_SPLIT:
-
-arch/s390/kvm/gmap/dat.c:dat_set_cmma_bits() {
-    ...
-	for (cur =3D ALIGN_DOWN(gfn, _PAGE_ENTRIES); cur < gfn + count; cur +=3D _=
-PAGE_ENTRIES) {
-		rc =3D dat_entry_walk(mc, cur, asce, DAT_WALK_ALLOC, TABLE_TYPE_PAGE_TABL=
-E,
-				    &crstep, &ptep);
-		if (rc)
-			return rc;
-	}
-    ...
-}
-
-If any 1M or 2G large page mappings already exist in the target GFN range
-when KVM_S390_SET_CMMA_BITS is first invoked, dat_set_cmma_bits() will hit
-the unsplit large page entry in dat_entry_walk() and fail with -EFBIG before
-gmap_allocate_all_page_tables_best_effort() has had a chance to split it.
-
-In addition, because the !uses_cmm(kvm->arch.gmap) block runs unconditional=
-ly
-after the loop even when r !=3D 0, any error from dat_set_cmma_bits() (such=
- as
--EFBIG or PGM_ADDRESSING on an invalid GFN range) will still set
-GMAP_FLAG_USES_CMM and allocate page tables across all memslots before
-returning the error.
-
-Should the !uses_cmm(kvm->arch.gmap) check and
-gmap_allocate_all_page_tables_best_effort() happen before the
-dat_set_cmma_bits() loop (or be gated on success if placed after)?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028185422.2721=
-46-1-imbrenda@linux.ibm.com?part=3D7
