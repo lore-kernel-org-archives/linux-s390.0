@@ -1,61 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793171107;
-	b=Mg927AXnAaAFTLeETJPUMaFJI8DIXDcJuRQ0/UnTNlEme1Lr4DX7Gt7HMMsK/Y5RuHIU
-	 dZo/jkL5Co0sLpwVgqxLOHJntIbwlCnYZJdj921i/NWsDKX3E+eiaWWgk58F3F/k4lM80
-	 e/3m1xU6wYhQcNy8lYovundZLkarekJwwGlOGgJfw/vJUDlCyHz3DKM48tMoUzH/NdNea
-	 oP2Oa7/NgV52w6VLM2qqUiyrfJXFhSzYH5bD5neaxUCFpncSxWATRgYauq3xbTQCd1iwF
-	 IKhtDNd1WqmgRyT3DH5c8YP4X5gpYjvyqylu+bBjSuLX06sBMhiKaojnQlGgVVoxXVg==
+	t=1793172081;
+	b=HAavG2p2P1Ci96VAR+Gi6KiH7I1QBUUFtd6F/UAm/PP6pX4U4G/0nvwWFHIQ1KmD2i+j
+	 qdzr+Zj+O3JNrGr21T0bpzknmpnjuKYZ9VjoYoqbkLLmhr2XI+BsbfeqzYvrqSdFqZoBJ
+	 k1VH5ZYEzKsrIiCizMQ1dD6vAUpFbGr4W4Ux+w2k/ARoOzljNWxRsHCgoqttsbhnxdYNp
+	 B0aPMYfzF5bm98HSoUNc4uR/L3QNPmYb1mHphHoDf2kiThxQRM3y6gW6ZC5yVg5oVG7GS
+	 PcU2xF+PAFi/V/3SqwMSSGLZxRsZx1hF+g6d8Z1dsUw9zR5zgmoD95K5v7fguqYUa2w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793171107;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
-	 In-Reply-To:References:Auto-Submitted:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=Z9zRtXHe/J1k/4/9wAeq1n+PwAt+ioXmV3zyjSNrjDw=;
-	b=hxtukN8vLMbgPxheR+Gz5VbuD7pOBjN5QZLywwUeEcn4JI9J7EUfGGvv1huMvc5zf8pK
-	 kO05nhd3hsFv/mI/ePY0HVx3SSBRB0JI7We00jNbqZOrZ8veGTWRWvuVwv/QYQyJj0E0X
-	 oIFAJ2jtLByHJgynOkcGwn8YmUd7VM0csAmo+qSJiov6PZaTR+zZpsqWL1G54Yl0TCefV
-	 1sqfDkye4aPgsNQD81e5F5w2ESGCYVgu36GK4CW6xR3A5UjZ6iQQG0Z1iKhFTUmDXSFFX
-	 kotDvTLeFaa2xG8fHDGk5oQUk8PTM6PfRDE5AcY5ajcPx6bjaJD4smhgbHorQwDmEyw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793172081;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=qd9kn0TUz3ScHa8C2ONZDnL0z3Cv/bz1zoYGOXY7NMk=;
+	b=LZVFqhiOKvcuxb6U/dce9DInApY0wNbh1g59xe/kDiP+GSRHhc5jOI9004SRMByWS9wX
+	 b2uq6IODPkuUlfkjqRz3tydreI9jeXyKwwjBRBj29qF2qqTmijP7B1I5K8MCosW39tT1N
+	 xBbt9hMOggR1V4bFpPSWmQ/k8E+2XvxMQY2Amc2hdFdJvhLCCwZwb2NAtT0QcupJHs/VS
+	 0bZQeQ01jkAeq3XGyvTFV2Z4J2Ll9N4+yoe+jZ4DRuZ3giCDhDh6HSM5cmz8EXmLMm98/
+	 RBBp44lHWLCy9odQqMhb/0+/Bllid/2VUEM5eX1XDemoe6PR/G/qRK+iJKIfe+JN1Iw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="NtEIePh/";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dzEniKu5;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87F06606A31A;
-	Wed, 28 Oct 2026 07:05:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 481F4606A31A;
+	Wed, 28 Oct 2026 07:21:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NtEIePh/
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F1A11F01825;
-	Wed, 28 Oct 2026 07:05:06 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dzEniKu5
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 902481F01825;
+	Wed, 28 Oct 2026 07:21:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793171107;
-	bh=Z9zRtXHe/J1k/4/9wAeq1n+PwAt+ioXmV3zyjSNrjDw=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=NtEIePh/4VU0pQ6RJJArgaTkNONldbb/wLXiw3l2Bk0+GyH5tGTHUTe3wp4BpOfAZ
-	 /09vYGt5aCXsf5CPFRApo7YSLg3wYH6rZ8uY1Vh0eL0ds6GfsLyzfXI51kbaHwS8y8
-	 9oJdMoRUSFANcVYJjWLOK7oL+M5qM1XEF8FOUC2xhKnQQ50kcqUJXGFUbHIskwbT0x
-	 M7LVsRqV4ueAxEXu+ggt5VAWJq7Qu+daB8w+y3K5FqUURAiRT+mn3rYkhX47lbWr3E
-	 CiFHf42PHszCUcdfb3/XiZbLz7QdiI5DgJixSgX90VrvRrhmLkRMYaJYdV7Py7QTFz
-	 qb6BgVvuECVKA==
-From: netdev-bot+sinfo@kernel.org
-To: Mahanta Jambigi <mjambigi@linux.ibm.com>
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
- dust.li@linux.alibaba.com, sidraya@linux.ibm.com, hidayath@linux.ibm.com,
- pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, stable@vger.kernel.org, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: Re: [PATCH net v14] net/smc: fix lgr/lnk lifetime vs diag reader race
-Date: Wed, 28 Oct 2026 07:05:05 +0000
-Message-ID: <179317110565.3327.10865585380988219772@kernel.org>
+	s=k20260515; t=1793172080;
+	bh=qd9kn0TUz3ScHa8C2ONZDnL0z3Cv/bz1zoYGOXY7NMk=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=dzEniKu5NzA4a+iPWbmu0v1nWstrl5xGOGs6b2Fhfn0t5tYzoMZ5uMYV5PJ6CQU2V
+	 2+KVfwC7rBsZuZ2m6lyG2oxPcL0nRW6gS8WfHMvmxQAkN55+IqgXo6CQeo+xkkR6JW
+	 Gfst33IYpu2zVc4qgh7vTO2K8/9dYjGxHXxVURogpK8uUN+gPNtiZTXQQWG/gjIiEt
+	 CR66MaI1yBupXS+b12MYq7QILJ406D+SO7FT9bGwVqeQ4Amsj73tFsjdHz8LnfNNiv
+	 yuCTvJDG4b0r68pUeD8b5XjkLsz9l8sJ79aNQBWYiUUxcGkyM4AC8l2Hg5H39JWQaJ
+	 6hSYW2D5zBtMQ==
+Message-ID: <sashiko-outbox-187575@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net v14] net/smc: fix lgr/lnk lifetime vs diag reader
+ race
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Mahanta Jambigi" <mjambigi@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
 In-Reply-To: <20261028070210.1685136-1-mjambigi@linux.ibm.com>
 References: <20261028070210.1685136-1-mjambigi@linux.ibm.com>
-Auto-Submitted: auto-generated
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 28 Oct 2026 07:21:20 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -64,26 +61,34 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
 
-Hi!
+> The diag dump walks the socket hash table under a read_lock and
+> dereferences conn->lgr and conn->lnk. Four paths expose a window where a
+> hashed socket has freed or partially freed conn/lgr/lnk state.
+>=20
+> First, smc_conn_abort() calls smc_conn_free() during early handshake
+> aborts while the socket is still hashed in SMC_INIT, synchronously
+> freeing the lgr on the smc_lgr_cleanup_early() path without holding the
+> hash write_lock. A concurrent diag reader can load a non-NULL conn->lgr
+> and dereference lgr->is_smcd after the kfree. Skip the connection, link
+> group and DMB attributes in __smc_diag_dump() for sockets in SMC_INIT or
+> SMC_CLOSED, and for sockets that have fallen back to TCP, and do not
+> look at conn->lgr to determine diag_mode in SMC_INIT or SMC_CLOSED.
+>=20
+> This changes the sock_diag output for such sockets. SMC_DIAG_CONNINFO,
+> SMC_DIAG_LGRINFO and SMC_DIAG_DMBINFO are not read while a socket is in
+> [ ... ]
+> Fixes: f16a7dd5cf27 ("smc: netlink interface for SMC sockets")
+> Fixes: 9dbe086c69b8 ("net/smc: fix invalid link access in dumping SMC-R c=
+onnections")
+> Fixes: ae2be35cbed2 ("net/smc: {at|de}tach sndbuf to peer DMB if supporte=
+d")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Mahanta Jambigi <mjambigi@linux.ibm.com>
 
-This is an automated message. This series looks like a fix, but its
-commit messages seem to be missing some information:
+Sashiko has reviewed this patch and found no issues.
 
- - How the issue was discovered, e.g. hit in production, hit during
-   development, syzbot report, manual code inspection, LLM or static
-   analysis tool scan.
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028070210.1685=
+136-1-mjambigi@linux.ibm.com?part=3D1
 
- - Whether the issue was actually triggered, or is only theoretical
-   (e.g. found by code inspection). If it was triggered please include
-   the symptoms, like the stack trace or error messages.
-
-Please do not repost the series just to address the above. Instead,
-reply to this email with the missing information, so that reviewers
-can take it into account. If the series needs another revision for
-other reasons, please include the information in the commit messages
-then.
-
-The evaluation is done by an LLM so it may be wrong, if you think
-that is the case please reply and explain.
