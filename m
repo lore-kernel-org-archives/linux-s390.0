@@ -1,59 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793214613;
-	b=CaML6Htm7shlLcVpK6psnVzOMFp+HbMa91rNx6PMAN5oURqY+1p4VkfNh5etGbOV6A28
-	 EK04GjRrFJh0QVRJIYJ4UdwzW11lBAaSfJE9rOD35NNOmCYO+VNbu8SXVOvo/UHvOfJWh
-	 kRBAbv5JS+fbWX9I8gZ/sSnwlBKVP4LVbN0Us9wsnIvhffxm+MYbRtDTrSkpeK4qK0z5s
-	 Zudl2uGeNtsg5URZ9zH3H3KGDOO9sBGloWCTYhX3HtwTWuRGlC26A9QIjf1GEmcJgdrtw
-	 z7HtwarGHdXRrdpOl+5gZlC12CVDOjKDhOPDiHlwW2zaA/kF1zOns3lb3GgZRY6ZkUA==
+	t=1793214614;
+	b=YVHjOWlqLBHOqiVDRPemkGAftNoV/x7KEu7KAWnPA0wuXJnlNf1sL1YCWt6fT+ogsa+c
+	 JcdQdALIvBCaQR4JkaE0K12RjtXz/O0Y6V6cGej7YqeSZUNa8cwQC/IDgm5mGvPiKvEIO
+	 MSsd5fEXyc8n9YBMgX3LzzxWnL7Pqz+RgXlewlxboa1gs99RP6ZEtMxo3wb2GEEIA8hZ/
+	 kJNG1O2x6O3sci3HI2YH+UQaJcJRyl4FwU6Q4PHqdbac/FZ6wGuUHsuBmB9dctxQ6zD5k
+	 mA6r4C5doXnJ11hJX0DMGPoYe+HCHGsVa7XVNVBy+oV6ATY0AalsiFkYbQk2+p4CFng==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793214613;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793214614;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=zCgcXqHEvEyVgEpxAVIyx0DoRb/hM4ZRmy30a1vhzBs=;
-	b=whIsywRjDt7XzKst0AsXsgt6prV+M5akHOoBXCikGxIAmpGnq0d7/cLdm2Uyb+kIy28e
-	 zbhWRdofWBKBUvBWM+4cVkFVI6NNE9dgAWEQRGM1QzoU1osNRqAVWnFP7o37Hz+lHZvfm
-	 wFPTO6yY6S6VAFkdD3kSi4jEXLlw5uyWlffcv4pazL9YUfAwsjBVn+8tmRRu6OHKBJNyG
-	 sTIxlvshA1mTcWrGyl1JjLr3ZtuCt8cvAz9HBf049jbK0ujkU0MRvb2yu08QDbHbsfilc
-	 n54b8IGGNpTs5ayLVMwVYUnvI3WCy3+aWe/6Clesp26eBwG2pNZ7u0jER/TPttmbr8w==
+	bh=/JK3I4YwpyC6pX+GmJP3VhsjNAm4A9hfzYhfPC1P+R4=;
+	b=Sq0qfP8GBiJ3wO540H6ffze9GA5tYbN9A1BFU6u5JwPZ6prN3ddDIjcje/md2azAiZ/C
+	 Ng0FF2mhBSh0TqI31YVQu79JLLTcfv6cCntWZlUIp72gNnoNk4EoSaTY9zltwYJvtqXV4
+	 rT7ylH5UdVcMqq8afiNajTbqFVuxT/7KyLJtZLOXppXSpHqNprG/oRz4inqlKDMU0kdIT
+	 CzOiFY1vrShutHWVngJqRsClqKlRTd5AqapACOViEApSTPx1RntUwd//5iM42Hy5GwH/Y
+	 FDSnUM/uckU9iXmZdEE+T2kSVGIJOY1YK42/XaAcAhAra5vvXFF7YazdHv98cmHe/iQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ezgR5MKD;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=heVeqfKN;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38E36606AB1E;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF26F606AB25;
 	Wed, 28 Oct 2026 19:10:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ezgR5MKD
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A725B1F01828;
-	Wed, 28 Oct 2026 19:10:12 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=heVeqfKN
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72B121F01829;
+	Wed, 28 Oct 2026 19:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1793214613;
-	bh=zCgcXqHEvEyVgEpxAVIyx0DoRb/hM4ZRmy30a1vhzBs=;
+	bh=/JK3I4YwpyC6pX+GmJP3VhsjNAm4A9hfzYhfPC1P+R4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ezgR5MKDcshm56Myp7y8HBQjk+2Uoc5dQjYq4WlMCX96kmjDLZbeP07FYgZmQFw7w
-	 2GrtfonGkL4SfbXE5KeiGcsgfj4J5b8ETclXNpF48ubZ07fvw7xa6BGhJl32InCXFO
-	 fDKoSSc+HehjGEBQyRuV3hmDXzM8iF/ApqguER1yhgZfuoy0J7jSXmLPonEIJINlHl
-	 8or5uTREQzOsZzI3WNKW+pQV70rD7ddf4DxtRl0VYcbjeapid4xm+lh05eX54J2VQP
-	 4rpLnG4cXC5tCcI5e51EF7bMJVW7cqfE6ZS3trqCWTdZmFgh5xPZHg4AWQ/ILCp3Rz
-	 lvtCo4N/Y7ksA==
-Message-ID: <sashiko-outbox-188342@kernel.org>
+	b=heVeqfKNPA8dOLJ/TdtXP3XEvy+T5Y/0mDaVyF0nhLtR4zC0MO/oEMz9SDzYNXiu3
+	 Nyy7HHHjDowVvs9RbsdW9qsxIfpPv0MOsR+5rcTOBrmc5DVZgHVZwAXdRlj2JqV+t5
+	 SWUz4DayQhhB3gm6lG8NOa0L7fWy05CxVtZQW6T6nPIJ/dU3DKWMmHtEHZIc2tnNdT
+	 WzGjyhgdSp5T8oXXoBbljS1rYrD+blzWBXy9UncWlGvPZXB1U5J1O5GM98jKcX6jX/
+	 Dntl2FCBMBZVRJFriQzpf5H7spz3/E8b5DYYubaIMKpJOG1jKR5FKq1fIgdgF0v64g
+	 ktXdukJY9sjcw==
+Message-ID: <sashiko-outbox-188343@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 6/7] KVM: s390: Introduce
- gmap_allocate_all_page_tables_best_effort()
+Subject: Re: [PATCH v4 4/7] KVM: s390: Improve unmapping of large ranges
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261028185422.272146-7-imbrenda@linux.ibm.com>
+In-Reply-To: <20261028185422.272146-5-imbrenda@linux.ibm.com>
 References: <20261028185422.272146-1-imbrenda@linux.ibm.com>
- <20261028185422.272146-7-imbrenda@linux.ibm.com>
+ <20261028185422.272146-5-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 28 Oct 2026 19:10:12 +0000
+Date: Wed, 28 Oct 2026 19:10:13 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,126 +62,71 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [High] kvm: s390: pass DAT_WALK_USES_SKEYS to dat_entry_walk() on split
-- [Low] kvm: s390: use return on kvm_s390_mmu_cache_topup() failure
+- [Medium] KVM: s390: unit mismatch comparing gfn against _REGION3_SIZE in =
+gmap_unmap_gfn_range_fast()
 --
 
-commit 9e76b2f0d91bb75ee34f562ce5400b323e47a284
+commit a8a43df04b3daf5a4e6da5896223864c27f0c852
 Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-KVM: s390: Introduce gmap_allocate_all_page_tables_best_effort()
+KVM: s390: Improve unmapping of large ranges
 
-This commit introduces gmap_allocate_all_page_tables_best_effort() to
-walk all memslots of a running guest and allocate 4K page tables while
-splitting existing large page mappings on a best-effort basis.
+This commit speeds up unmapping of guest address ranges larger than 1M by
+detaching PMD entries, clearing the detached PTEs, and reattaching the PMDs
+instead of invalidating each leaf PTE individually.
 
 > diff --git a/arch/s390/kvm/gmap/gmap.c b/arch/s390/kvm/gmap/gmap.c
-> index 04f3ab03a041a..3ff08232cbb36 100644
+> index 225fdae3d57ca..04f3ab03a041a 100644
 > --- a/arch/s390/kvm/gmap/gmap.c
 > +++ b/arch/s390/kvm/gmap/gmap.c
-> @@ -1524,3 +1524,40 @@ struct gmap *gmap_create_shadow(struct kvm_s390_mm=
-u_cache *mc, struct gmap *pare
->  	}
->  	return new;
->  }
-> +
-> +/* Bail out for any allocation failure. This is only a best effort to al=
-locate all page tables. */
-> +void gmap_allocate_all_page_tables_best_effort(struct gmap *gmap)
+[ ... ]
+> @@ -462,6 +453,129 @@ bool gmap_unmap_gfn_range(struct gmap *gmap, struct=
+ kvm_memory_slot *slot, gfn_t
+[ ... ]
+> +static bool gmap_unmap_gfn_range_fast(struct gmap *gmap, gfn_t start, gf=
+n_t end)
 > +{
-> +	struct kvm_s390_mmu_cache *mc __free(kvm_s390_mmu_cache) =3D NULL;
-> +	struct kvm_memory_slot *ms;
-> +	struct kvm_memslots *slots;
-> +	gfn_t gfn, start, end;
-> +	union crste *crstep;
-> +	union pte *ptep;
-> +	int bkt;
+> +	const struct dat_walk_ops ops =3D {
+> +		.pud_entry =3D _gmap_unmap_pud_fast,
+> +		.pmd_entry =3D _gmap_unmap_pmd_fast,
+> +	};
+> +	gfn_t aligned_start =3D ALIGN_DOWN(start, _PAGE_ENTRIES);
+> +	gfn_t aligned_end =3D ALIGN(end, _PAGE_ENTRIES);
+> +	bool failed;
 > +
-> +	mc =3D kvm_s390_new_mmu_cache();
-> +	if (!mc)
-> +		return;
+> +	lockdep_assert_held_write(&gmap->kvm->mmu_lock);
 > +
-> +	guard(srcu)(&gmap->kvm->srcu);
-> +
-> +	slots =3D kvm_memslots(gmap->kvm);
-> +	if (!slots || kvm_memslots_empty(slots))
-> +		return;
-> +
-> +	kvm_for_each_memslot(ms, bkt, slots) {
-> +		start =3D ALIGN(ms->base_gfn, _PAGE_ENTRIES);
-> +		end =3D ALIGN_DOWN(ms->base_gfn + ms->npages, _PAGE_ENTRIES);
-> +
-> +		for (gfn =3D start; gfn < end; gfn +=3D _PAGE_ENTRIES) {
-> +			if (kvm_s390_mmu_cache_topup(mc))
-> +				break;
+> +	/* Prefixes are below 2G; if the start is above 2G, nothing to do */
+> +	if (aligned_start < _REGION3_SIZE)
+> +		gmap_unmap_prefix(gmap, aligned_start, aligned_end);
 
-[Severity: Low]
-Should this be a return instead of break?
+[Severity: Medium]
+In gmap_unmap_gfn_range_fast(), aligned_start is a gfn_t (in 4K page frames=
+),
+whereas _REGION3_SIZE is 2G in bytes (1UL << _REGION3_SHIFT, or 0x80000000).
 
-Using break here only exits the inner GFN loop for the current memslot,
-so kvm_for_each_memslot() will continue iterating over any remaining
-memslots and retrying allocations after kvm_s390_mmu_cache_topup(mc) has
-failed.
+Comparing aligned_start against _REGION3_SIZE checks whether the guest addr=
+ess
+is below 8T rather than 2G, causing gmap_unmap_prefix() to walk all vCPUs
+while holding kvm->mmu_lock in write mode for any fast-path unmap starting
+between 2G and 8T.
 
-> +
-> +			guard(write_lock)(&gmap->kvm->mmu_lock);
-> +
-> +			dat_entry_walk(mc, gfn, gmap->asce, DAT_WALK_ALLOC | DAT_WALK_SPLIT,
-> +				       TABLE_TYPE_PAGE_TABLE, &crstep, &ptep);
+Elsewhere in arch/s390/kvm/gmap/gmap.c, gmap_limit_to_type() shifts
+_REGION3_SIZE when comparing against a gfn_t:
 
-[Severity: High]
-Can splitting an aged large page here lose guest storage keys when
-uses_skeys(gmap) is true?
+	if (limit <=3D _REGION3_SIZE >> PAGE_SHIFT)
+		return TABLE_TYPE_SEGMENT;
 
-When a 1M or 2G large page is aged via gmap_age_gfn() ->
-gmap_clear_young_crste(), the entry is marked invalid (h.i =3D 1) while
-the guest storage keys for its 4K frames remain in hardware storage keys.
+And arch/s390/kvm/gmap/dat.h defines the region-3 page count directly:
 
-When dat_entry_walk() splits that invalid large PMD via dat_split_ste(),
-saving the hardware storage keys into the newly allocated 4K PGSTEs is
-gated on uses_skeys (from DAT_WALK_USES_SKEYS):
+#define _PAGES_PER_SEGMENT	_PAGE_ENTRIES
+#define _PAGES_PER_REGION3	(_PAGES_PER_SEGMENT * _CRST_ENTRIES)
 
-arch/s390/kvm/gmap/dat.c:dat_split_ste() {
-    ...
-			pgste_init.pcl =3D uses_skeys && init.h.i;
-			dat_init_pgstes(pt, pgste_init.val);
-		} else {
-			dat_init_page_table(pt, init.val, 0);
-		}
-
-		if (dat_pmdp_xchg_atomic(pmdp, old, new, gfn, asce)) {
-			if (!pgste_init.pcl)
-				return 0;
-			for (i =3D 0; i < _PAGE_ENTRIES; i++) {
-				union pgste pgste =3D pt->pgstes[i];
-
-				pgste =3D dat_save_storage_key_into_pgste(pt->ptes[i], pgste);
-				pgste_set_unlock(pt->ptes + i, pgste);
-			}
-    ...
-}
-
-Because DAT_WALK_USES_SKEYS is not passed to dat_entry_walk(),
-pgste_init.pcl is false and the new PGSTEs are left zeroed while the new
-PTEs have h.i =3D 1. When a subsequent minor fault validates the PTE via
-_gmap_handle_minor_pte_fault() -> gmap_ptep_xchg() -> __dat_ptep_xchg(),
-uses_skeys(gmap) is true, so __dat_ptep_xchg() restores the zeroed PGSTE
-over the hardware storage key:
-
-arch/s390/kvm/gmap/dat.c:__dat_ptep_xchg() {
-    ...
-	if (uses_skeys) {
-		if (old.h.i && !new.h.i)
-			/* Invalid to valid: restore storage keys from PGSTE. */
-			dat_set_storage_key_from_pgste(new, pgste);
-    ...
-}
-
-Should this pass (uses_skeys(gmap) ? DAT_WALK_USES_SKEYS : 0) in the
-dat_entry_walk() flags, similar to gmap_protect_rmap()?
+Should this check compare aligned_start against _PAGES_PER_REGION3 (or
+_REGION3_SIZE >> PAGE_SHIFT) instead of _REGION3_SIZE?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028185422.2721=
-46-1-imbrenda@linux.ibm.com?part=3D6
+46-1-imbrenda@linux.ibm.com?part=3D4
