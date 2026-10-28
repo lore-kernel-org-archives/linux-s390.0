@@ -1,48 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793218444;
-	b=Am+M09JUBKzdlAU08AqjAab0qnplxTqKMxhGkILjjjvQ+DnntlFnsEsrQHpTCo1C8cSD
-	 SHXuziATTab6EPnQAvhJMusYxU1ECJ2FgiMH6ypB9ZVikE00oOMT1ehnwxpdH24w26NRZ
-	 xNrgkY96POQA3IAUgJkOIgQbbhtAD1ao3NKTUJyJt8no6hjJGzpApDyl3GHULPeMtBGaS
-	 BBGS2y/biDfukWtN6rWTKPUCadnWbpUPgFft+B1aRJ273xp7RiIVe0klAUKlXAI4smxJN
-	 Ta+fgzDBPuigekwPueEqsdop6bsvnsLpDnQuhpKkjCo9QEd05wIRWZ3tFOHbgqkEXdg==
+	t=1793218464;
+	b=Z1M6YP4GI196sGRIwlAjaPLeSd0ge25TOuLHvl50NC4ccFODqsczRAQlWjeX7g8udXtS
+	 cMKd1q6fE14VRJSm5ejb3NknRgzWdVW9cxghQZtC2houWXk/nixppST45DyH5xftsPVX7
+	 tanZEUUdbR3pWmBAKA9oq3t9qEm3hr85kynv5z4jJHMAWCS9fTMC/kTb9lKjaEMKHloCE
+	 El+uSUfv8YNnXYRm8A/h//KJBgpbQ7dJ9hTpQWAkqXIo9s58GULUnw2nCb2bJGue3/rJW
+	 0llPYyix3qrYfidYo2NNdtKphtCZizMz/M6vRjF4n8KtiBTNl9Gr4ixkAOhMtmOtO8g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793218444;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793218464;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=kpnp0nKo1RLJPeIcxnHpYwtTOco9Mw53rg5cDi3/lLs=;
-	b=uJGcQgXFij2Hi8b6ClezpmeD6PwNYU0OjcIm8aNNfXJdGEMQQrYPic9/xEuImxc9THjX
-	 YpQaiKJMHZs7kG1wEEipSgvrb4ti3LNARJat29M+BXGDmSiZFjJc6BwyvYUPw0R7n3udi
-	 keXY1IaeYDtMxA01oIQOJT7VFsb44dF0ldHd9TG/6wlgZGEte7IDVHyRsPhAdbutRe/XF
-	 klV6zdCgRb7UiTWGQA7Z+R3r8Hb5LqnZRJHNoStHymojWOigs0ul5uPaOrkbf7pjDUCmn
-	 N/QB0hb7K7iR9zr3osLNdA7iorH7/oFoxmOXI4Bhi4Kt4VzJEdRuwpUlYWoLRsTZEQg==
+	bh=h6GqamuA001HPemkjnOqUKBb2WcS9teBrRtjEmx99fA=;
+	b=b6h7Q6cST4ueaiIBn9ChCE6rn/FmBgXi/mRA1Vy1GxwWbo9Y8Z0lXEOKvv70KIG8YVki
+	 EpXN4JGRNjqaeFBeRIBbf9tjNWMf+7FWRdN/inpqi/8SEctz/03fzHO66gisbov7v0BXt
+	 27d0Ekt3fNSESh62Q2ECd0PgwiBOtPUykZ7/FR6cRBlAmV9fcLzOT5NXngYObpt8uL/pH
+	 VkUUZwV4CDhP7xjOl0QnwWKblXBMlA2RYHIsysvEbmCgsTFzIOc3rkXw/xVU63pyTGglA
+	 BnJKNgZw/1eEQ3yfHxIWFxNkLscYoCHeyCEf4duainRBUWWxl0lx+DpEnknUErvzv9g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Kdh2USKD;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VmSj8+N2;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B5DA606A31C;
-	Wed, 28 Oct 2026 20:14:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEA06606A339;
+	Wed, 28 Oct 2026 20:14:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Kdh2USKD
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ECCE1F01829;
-	Wed, 28 Oct 2026 20:13:54 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=VmSj8+N2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 477271F031E3;
+	Wed, 28 Oct 2026 20:14:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793218444;
-	bh=kpnp0nKo1RLJPeIcxnHpYwtTOco9Mw53rg5cDi3/lLs=;
+	s=k20260515; t=1793218463;
+	bh=h6GqamuA001HPemkjnOqUKBb2WcS9teBrRtjEmx99fA=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=Kdh2USKDJZ0FkYnWxpwRhfUMZvge6+fv52eBOYXQE4K9FiM0K4U+BHJFNVSPa8SaR
-	 qz0fJopgw/70FToz7iDOKngca29X//VXT5/e8eP6xGe5f7GFhffQH6zeC2GOp/hleH
-	 n9o4bqtE3izozibZx0/EGpV6yc5ooao2ZOamV04m7ODd/0AjL324MpPNritM1bvgPV
-	 i4WVSj11U1NP3zYtWbfrCuQSbjPM+7EWyuQ7RkG3U4c8cWx2ojiZ48TgZhVuUFx9jj
-	 PTNmpfwlk+bKAkCQlPvJwDrVqWXVgoBNuxz+ZTVLJ/GThvLKqVUtebOP+aR2t9RJfI
-	 QneBInCwD8IQw==
+	b=VmSj8+N2GzA0MbyYqBFCd1q6TYu1wwu2CeQnYCY5NJMrnwzn9omLMG6o8jgBSmll4
+	 igFnOw111D4kzU5USzz+fQqulM7UVW2WVUrpKxUg4Dx3ZhL0i+82q053jOaO4pOhnH
+	 NQSTg94doN4gEENEUDmEkwCcjOGPwVZ443UxxiKO/e1Wj2XuHBNxmFJfp2Oee9xrHx
+	 3qNqIDpQZB7HlC7KnAACf4/1fJ4UpTvEwx9EAvHjGpkPgNp1iVLmxUrZm4jh8VtNeG
+	 D0Iwv6FZ0BaKeJxJW6UTIjr1is3S9ENjSOTRd4cIXTh43um9ft8vrt2PCM1VIjNnEM
+	 0vMa5Tdlrk2kA==
 From: "David Hildenbrand (Arm)" <david@kernel.org>
-Date: Wed, 28 Oct 2026 21:13:29 +0100
-Subject: [PATCH 01/15] hugetlbfs: fix integer overflow in fallocate()
+Date: Wed, 28 Oct 2026 21:13:31 +0100
+Subject: [PATCH 03/15] mm/hugetlb: preserve reservations when shrinking on
+ HIGHMEM
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -54,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261028-fixes_hugetlb-v1-1-a0a033db180f@kernel.org>
+Message-Id: <20261028-fixes_hugetlb-v1-3-a0a033db180f@kernel.org>
 References: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
 In-Reply-To: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
 To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
@@ -81,70 +82,92 @@ To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
 Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
  Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org, 
  linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, 
- "David Hildenbrand (Arm)" <david@kernel.org>, 
- luojiajun <luojiajun3@huawei.com>, Josef Bacik <josef@toxicpanda.com>, 
- stable@kernel.org
+ "David Hildenbrand (Arm)" <david@kernel.org>
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2170; i=david@kernel.org;
- h=from:subject:message-id; bh=I1sQzSgEyvJMIZxcUjk6PSvZ4Sdw/GRLUPVEqCN7UCk=;
- b=owGbwMvMwCF2/OVpCdfQ3ZWMp9WSGLIehZcebvr66cjyjsA4Z8MHays+f2Jax1wSNyGwXXO75
- bTlOWxcHaUsDGIcDLJiiixBwfcNXr5cV1vtxscMM4eVCWQIAxenAExk8xaG/zEmOY2li54ueRq3
- v7n3zJSkguNagnz6Ep+ZLr7Oe6t++x3DP/VXvov+1dmK3lywRTvn29Xfb744bo47787m7frugMi
- alUwA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2561; i=david@kernel.org;
+ h=from:subject:message-id; bh=fOag8m9aWaD8O5/vp5VjcGR+Ra7oerb0CGoQ+KJ8h0k=;
+ b=owGbwMvMwCF2/OVpCdfQ3ZWMp9WSGLIehZeG/by512hynePr08whB7ziv9zbXvip7y3nD7UDE
+ VeUl//t6yhlYRDjYJAVU2QJCr5v8PLlutpqNz5mmDmsTCBDGLg4BWAic1oYGZ4ufiQux71z0xLZ
+ pD8vZ3UwOj09OGuz0BxGRpciyXRdtacM/wtuzX9WWfrozIRFO0566Zs5qt54JsqZeXz916mzFpo
+ +2s8PAA==
 X-Developer-Key: i=david@kernel.org; a=openpgp;
  fpr=1BD9CAAD735C4C3A460DFCCA4DDE10F700FF835A
 
-hugetlbfs_fallocate() rounds the range end up by adding hpage_size - 1
-to offset + len. vfs_fallocate()'s existing overflow check only makes
-sure that offset + len does not overflow.
+try_to_free_low() drops the hugetlb_lock while freeing lowmem folios.
+set_max_huge_pages() then resumes freeing folios using the
+min_count computed before that unlock. Reservations created in between
+can consequently lose their backing.
 
-Once we overflow for valid endpoints near LLONG_MAX, we can get a
-negative temporary result that is then converted to a very large
-huge page index.
+Collect lowmem folios on the caller's existing page_list instead. Keep
+the hugetlb_lock held through both selection passes, and free the combined
+list at the caller's existing unlock point.
 
-A one-byte allocation ending at LLONG_MAX can therefore consume all
-available huge pages. Pages added beyond LLONG_MAX are skipped during
-inode eviction, leaking them and triggering the BUG_ON() in clear_inode().
+Likely not stable-worthy.
 
-To fix it, calculate the end index in a simpler way that cannot
-overflow. This also fixes the signed overflow reported by luojiajun in
-2019.
-
-Backporting notes: without commit a08c7193e4f18 ("mm/filemap: remove
-hugetlb special casing in filemap.c"), remove_inode_hugepages() must
-include the final huge page during truncate and eviction.
-
-Reported-by: luojiajun <luojiajun3@huawei.com>
-Closes: https://lore.kernel.org/all/1554775226-67213-1-git-send-email-luojiajun3@huawei.com/
-Reported-by: Josef Bacik <josef@toxicpanda.com>
-Fixes: 70c3547e36f5 ("hugetlbfs: add hugetlbfs_fallocate()")
-Cc: stable@kernel.org
+Fixes: 1121828a0c21 ("hugetlb: call update_and_free_page without hugetlb_lock")
 Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 ---
- fs/hugetlbfs/inode.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ mm/hugetlb.c | 20 ++++++--------------
+ 1 file changed, 6 insertions(+), 14 deletions(-)
 
-diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index 01c4d6f44ebe..5592cfc6cc8b 100644
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -721,11 +721,13 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 3a94ea1c9457..a78b2487c20c 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -3708,39 +3708,31 @@ static void __init report_hugepages(void)
+ 
+ #ifdef CONFIG_HIGHMEM
+ static void try_to_free_low(struct hstate *h, unsigned long count,
+-						nodemask_t *nodes_allowed)
++		nodemask_t *nodes_allowed, struct list_head *page_list)
+ {
+ 	int i;
+-	LIST_HEAD(page_list);
+ 
+ 	lockdep_assert_held(&hugetlb_lock);
+ 	if (hstate_is_gigantic(h))
+ 		return;
+ 
+-	/*
+-	 * Collect pages to be freed on a list, and free after dropping lock
+-	 */
++	/* Collect lowmem pages to free after dropping the lock. */
+ 	for_each_node_mask(i, *nodes_allowed) {
+ 		struct folio *folio, *next;
+ 		struct list_head *freel = &h->hugepage_freelists[i];
+ 		list_for_each_entry_safe(folio, next, freel, lru) {
+ 			if (count >= persistent_huge_pages(h))
+-				goto out;
++				return;
+ 			if (folio_test_highmem(folio))
+ 				continue;
+ 			remove_hugetlb_folio(h, folio, false);
+-			list_add(&folio->lru, &page_list);
++			list_add(&folio->lru, page_list);
+ 		}
+ 	}
+-
+-out:
+-	spin_unlock_irq(&hugetlb_lock);
+-	update_and_free_pages_bulk(h, &page_list);
+-	spin_lock_irq(&hugetlb_lock);
+ }
+ #else
+ static inline void try_to_free_low(struct hstate *h, unsigned long count,
+-						nodemask_t *nodes_allowed)
++		nodemask_t *nodes_allowed, struct list_head *page_list)
+ {
+ }
+ #endif
+@@ -3935,7 +3927,7 @@ static int set_max_huge_pages(struct hstate *h, unsigned long count, int nid,
+ 	}
+ 	min_count = h->resv_huge_pages + persistent_huge_pages(h) - persistent_free_count;
+ 	min_count = max(count, min_count);
+-	try_to_free_low(h, min_count, nodes_allowed);
++	try_to_free_low(h, min_count, nodes_allowed, &page_list);
  
  	/*
- 	 * Default preallocate case.
--	 * For this range, start is rounded down and end is rounded up
--	 * as well as being converted to page offsets.
-+	 * vfs_fallocate() guarantees that offset + len is positive and does
-+	 * not overflow. Avoid overflows when calculating the end huge page
-+	 * index: set it to one past the index of the huge page containing the
-+	 * last byte.
- 	 */
- 	start = offset >> hpage_shift;
--	end = (offset + len + hpage_size - 1) >> hpage_shift;
-+	end = ((offset + len - 1) >> hpage_shift) + 1;
- 
- 	inode_lock(inode);
- 
+ 	 * Collect pages to be removed on list without dropping lock
 
 -- 
 2.43.0
