@@ -1,59 +1,76 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793214010;
-	b=P7dlphgeLY4rLHPJSBB4ELt5XeM+nNwbBijaWoouyUUb/2V+RNn2L5vYd4DGVKFdUB9I
-	 uZGtXqIVT9KaU0iTL/FPnAV2IC6OHrtkDp8JMBp5badFDYMYKogcxuNQmvCZEu/UPhZPz
-	 Ybs8Tsk6tRy9M8FhtRRn7W0S/YzrYUpMY6NQX/OyAPPF4qhIRt04MeT7QTjuKdVx8rpPP
-	 nroQrYDO5Nmx7Gro/0+cvt+Yrm+u+Pz8uY4yUGQFWqTO9W6WNOtZHOVOJTK0gFIdpoeZF
-	 Vgmp/L419xiEEA5Z4yBqS0bs+1ioAcYzURRmTbi+malnkioMiqSppAshzmsma+kqMmg==
+	t=1793214163;
+	b=nAVdgo6GxcspWa6H3qj5KQJuwGoF75YnjafaYAiQYlKAsHT8HuVdLSYzVIY1KCID+6eD
+	 JkND+bBdLA1baHgKD3GGCUrRjavBI+uZspT7mWHTVembcuubfFHrNbq15lx5F359/it6B
+	 CxZYb4slH46DtPJWL1a89ZAarPrzjdzD/ZJ4XvkTtxWSrdLhIQ5DGtBywXtcUgGMrXN6P
+	 ywgk0a5f67l1cR1kX6wtXfKluku3Pzfbd0Hz3hyRSX3BkoQ0q/akAeR1K9on7yF4Am/uT
+	 2Q63bZQxgEOHVyMReOTIMIrMcPhIBI+GXMqqaMMabRWvPBkE3VcMeUn4y+D+AuMYwCg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793214010;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=JFF4dby5OUQ7vLygvlse8RwLwYn7BlZxeADYPPPbd4Y=;
-	b=W2tG0zWs8esZDw3g0ciQtIN5XQp8ss8vOLwF1UBDAI5FzMm13wzIO2sHoIFg/MDHzuWL
-	 ArArT4FmmwUwf0yuqV2zPq4NXrNz1IhXb0dmFjOh0bWPtTtKX8EDlPbnBGXW5dc9CNzcn
-	 lNGjWmA/AmqJJAVxr6mzgQkhPcfqnFUEB+xR2QDdp09oPNYZ1F7g0NWnEcvR0s5ulX69e
-	 hJD0+IPTsiY2oxzzo1X0lHuOj6meE9nS4iY1bKRTI9cMjbSGEemnBhJWKKOl2zqFdQLw8
-	 pDuLPTiwZsEQszDQb15GExEqYNHDwlyDYC2JLwqwwRKE2kbjfmsn25VsflO2HA3WXTw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793214163;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=YGMMhhJbzgW/QzPBpPTTD30RztuRbfCJwa//1MZPoEw=;
+	b=4z8npSAVoAynBFjo96uPwbyFG3ipqyhg4+LS99kroI+qlacsQ4quEmwJTVHUSqxgHqi0
+	 d+NnYdJIfxSzodmhg+q89f/9xy+FetT2k0PvXX30Iw+DF7vSPPUqftxMaKnvgVeJ6t5jg
+	 h8nsqsxhmOgFG6o8lldnI8NQPt/dmedTrz1nuDhmczEbqjzobAYzm9ZfCGQPOjoZKDJX2
+	 TSOP4kFy1C0os/c9tiXHgb7UUyNpDDrshRgcJKkdsjPVF/lhZejlGUr2Mwhg3VW4V5Iez
+	 bIN0t51A+0WCXhxZno7T7REB4dGuzkKE/2j4NeuUTuIcOyY1PThtOv2g9oo58oYk35w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=omdAVg70;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T+yeLqAF;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA154606A335
-	for <linux-s390@vger.kernel.org>; Wed, 28 Oct 2026 19:00:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0489C606A31D;
+	Wed, 28 Oct 2026 19:02:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=omdAVg70
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 567E81F031E0;
-	Wed, 28 Oct 2026 19:00:08 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T+yeLqAF
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DF981F01828;
+	Wed, 28 Oct 2026 19:02:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793214009;
-	bh=JFF4dby5OUQ7vLygvlse8RwLwYn7BlZxeADYPPPbd4Y=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=omdAVg70BpFAuEe7YKjSdZa+bRIyd9289DNLdLNq+twaA5pdWSZPq/M6Y6joYs5bV
-	 nJyodxji0imKnniW1KJMckM6RnfxpIWeQtACrIyQdNowRaqcZ4nCiotcphxodNY2cj
-	 o4y9SF9hGfCLRNR5A5iFzZVqTgpNA+0B2yCX5nSNmMzBmYbIaWRzyk7UtAZ5zLMw36
-	 kS+Ih7VQ7GoWaSrV4OkiSm4ZbrnGA9lJ9Nu1yYYykq/I6JZjHOnZTQBc53aFoDm8LP
-	 1jnVTNtQY62ftPZbfMgxFEz4lEqsRoInDNeYsMv5KV/+d/DMUCYnMj0zUGm5M1xrmY
-	 IX+A7rgwjgV1Q==
-Message-ID: <sashiko-outbox-188324@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 3/7] KVM: s390: Fix idte_crste() clobber and table
- type
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261028185422.272146-4-imbrenda@linux.ibm.com>
-References: <20261028185422.272146-1-imbrenda@linux.ibm.com>
- <20261028185422.272146-4-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 28 Oct 2026 19:00:07 +0000
+	s=k20260515; t=1793214162;
+	bh=YGMMhhJbzgW/QzPBpPTTD30RztuRbfCJwa//1MZPoEw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=T+yeLqAFaIV5ugdB5NjhA61e12w1L+BSrYB7OFrpfAcIR2R3bvk8VTeuph4Z05PLq
+	 lcmoQ2GTvN7w8itK8z23Fb7CvX7UrXcLfbyTBM3+olmVREQ8OYm4Vt9S2hUlYCCwvh
+	 YoLN/FbwlRtpVeWgrBQUKtpCMq2aSk6BZ96fzAPA1Zh/BUv05xwNUJnUgjyW+0NxCu
+	 MFHryYeChyS2NXG+hd5tU1QFjVZnyNZfQFjz6S4tMUSJw3XSKUGdfABAiPkqNVvbJb
+	 9OHQv7qk/nx3jGBDgbUSjb7yK9vqoj5fsPWRjo8ypvHtUbGQp1971XrK08vO1X/XlJ
+	 WlJINox/ORLVA==
+Date: Wed, 28 Oct 2026 12:02:33 -0700
+From: Nathan Chancellor <nathan@kernel.org>
+To: Kees Cook <kees@kernel.org>
+Cc: Ian Rogers <irogers@google.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Miguel Ojeda <ojeda@kernel.org>,
+	"Rafael J . Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Nick Desaulniers <ndesaulniers@google.com>,
+	Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+	Zhihao Cheng <chengzhihao1@huawei.com>,
+	Zhongqiu Han <zhongqiu.han@oss.qualcomm.com>,
+	Sumanth Korikkar <sumanthk@linux.ibm.com>,
+	Bill Wendling <morbo@google.com>,
+	Justin Stitt <justinstitt@google.com>, driver-core@lists.linux.dev,
+	llvm@lists.linux.dev, linux-hardening@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-acpi@vger.kernel.org, linux-pm@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-sh@vger.kernel.org,
+	linux-s390@vger.kernel.org, gfs2@lists.linux.dev,
+	xen-devel@lists.xenproject.org, linux-mtd@lists.infradead.org,
+	amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Andy Whitcroft <apw@canonical.com>, Joe Perches <joe@perches.com>
+Subject: Re: [PATCH v2 1/9] Compiler Attributes: Add __must_init macro
+Message-ID: <20261028190233.GA669046@ax162>
+References: <20261027223847.652884-1-irogers@google.com>
+ <20261027223847.652884-2-irogers@google.com>
+ <202610281155.4D2AA663@keescook>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,17 +79,25 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <202610281155.4D2AA663@keescook>
 
-> Fix idte_crste() to add the missing table-type bits and the missing
-> "memory" clobber.
->=20
-> Fixes: 5a74e3d93417 ("KVM: s390: KVM-specific bitfields and helper functi=
-ons")
-> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+On Wed, Oct 28, 2026 at 11:56:08AM -0700, Kees Cook wrote:
+> On Tue, Oct 27, 2026 at 03:38:36PM -0700, Ian Rogers wrote:
+> > Note that Clang does not yet diagnose file-scope objects declared
+> > without any initializer (initializers at file scope that omit the field
+> > are diagnosed), see https://github.com/llvm/llvm-project/issues/232483.
+...
+> As part of this, can you open a Clang bug for the lack of detecting
+> global initializers? It'd be nice to get that fixed.
 
-Sashiko has reviewed this patch and found no issues.
+Is that this linked issue or a different one? Looks like you filed that
+one and it got fixed in clang ToT about a week ago:
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028185422.2721=
-46-1-imbrenda@linux.ibm.com?part=3D3
+  https://github.com/llvm/llvm-project/commit/58936cb3678b4b5b96177f24cac3940b9a389fe3
 
+-- 
+Cheers,
+Nathan
