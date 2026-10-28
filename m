@@ -1,107 +1,89 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.remote-ip=74.125.224.49
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=fail;
-	t=1793211145;
-	b=tJI6S2q9ODP3s9i04IPSCN4J9Oe0EkxhtZ6oUCkmu8YDZpjX7G7ipo+9SM/oLws7ZrH5
-	 ieMyYkhvmWsLIfeJgmnkSzCFa/BMyHJLNiLrewQtG5TelaetYjn6WlKwNzPdkqws6wyvg
-	 hRbyrNGCulxvQ/RC6SfRtstlgUm30bt/Kw7KJRle8Ljo/DPxXkIDnLtTmJsBmcz8Dje6K
-	 aJscwxgHrGE5Q5tFWtUPuraio/fAlGMFy7eQG5PuHsnrhNhKCGrsKBLNacPiDyERtaCzm
-	 UwvSFDM/yN+z8je0wcYEk50DxYggwuQYybrKAShOX1X7aHhFB1dYdouDFiFacneoGgw==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793211145;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Received:From:In-Reply-To:References:MIME-Version:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type;
-	bh=p/wxxGxoBJyhbGLsecA52KNGsy8WsqvTWX50Wr5bw0M=;
-	b=0kVRhLKtDNvFjQFE6grFs0LR6mfznWr82+OmjsfB3AueE/PNpK6A/DeSHWwCmFa9NkBO
-	 rpLjid5s++YsFyFmdl52YDx7Jb0239NcsLp4/9cBfbeiQLUy64OR6CwrEHpLru+l0axUA
-	 VAvGoitLk+0ubgPOaMGLzdOP6LiVUpbolaRNak2HMAD9exg0Afjrbr/oEt0+tAiZ4XKk/
-	 lZvyuLF0kzdhJeXcQMjcM3FZzi9pqb9Gvzi7qNjPgqwVY/B9b3shZSVUmuJ8w23GYCWdA
-	 KbRdyK/JuBMHdOd4kBmYpusP4YeVqc3jc2M2M3t8GGFrnL//dR1DMOSWlz7VrJOtOCw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ALSf6WKa;
-	arc=fail smtp.remote-ip=74.125.224.49
-Received: from mail-yx1-f49.google.com (mail-yx1-f49.google.com [74.125.224.49])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793213672;
+	b=OkrLQSMpvmDsiu2cP4BraE2vkmpQMSJCAbjuXG23pruDUTE2rcBbvGxjW6b6ihhUobM8
+	 lUOUn3dNvdpz6tHzQevmdz1icrhDIwIDrOCY8JagmWLs08yWlP5WdzzTQ2g7C958qXn7c
+	 eSaQ/rJ4rQNFB9y+GEnwUuzCFQh5nIEaWzB/J5Luz/HlTnG868NfI6D58tCj5OJ7h7qIx
+	 IorG65lVTGCsBaMZ1d8QqiMYdZs2WejbJ+Hg56Hb4LZe6L+LFIXxKD7iUd+Bd7pw7572E
+	 pesrxichA7AwGKA8vHw2F8bm7TISLTmq7p9+XUAIcm3LcpO69y0OctwD4rKGY6hYQJw==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793213672;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-TM-AS-GCONF:X-Authority-Analysis:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-GUID:X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=NS1j9lVogng+5ldDAIMdZiwng3ol+ONe8hkzIucuqmU=;
+	b=vIWiuqsKEwM6uurfi50FyWLKvN8I/8ZyYFtGNMq+FlQ6xEBKO+w3IZ5tVYmo73iLMq5H
+	 GDFTdXLAZwzzxkZfEcMGO5rzaTeVkPv1mJEGU8pqBqAZ6I/xsx9pvgk8AD2fWDHtDR8es
+	 SsEYr0xoiyMP0SLcGERPxSDBmuMUc49oCWvwQE75KB56LLjLbAwY+mVIcVTXXX2SB0pxi
+	 BhXhMzGaxW/eWcq4Jzm+xTkpTc2lr5AnhDBNcorTFpGhuBZXXVY7065igGbjWW5ThUUiL
+	 zFsE8n6oIUdhyZolmynw+aAhWXsOZ1lTbEn0flI/21yTOr6vBu9fB45kEqOflh8ChbQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=UTzGSgya;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52878606A97C
-	for <linux-s390@vger.kernel.org>; Wed, 28 Oct 2026 18:12:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 52878606A97C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F06D5606A31C;
+	Wed, 28 Oct 2026 18:54:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F06D5606A31C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=ALSf6WKa
-Received: by mail-yx1-f49.google.com with SMTP id 956f58d0204a3-6790c2eb033so219564d50.3
-        for <linux-s390@vger.kernel.org>; Wed, 28 Oct 2026 11:12:25 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1793211144; cv=none;
-        d=google.com; s=arc-20260327;
-        b=miPtgJSJNbU2xJgMyshFZ2hvoifGIUKEJ22ZbR5ZW9BC4uT9Zb8jhaXKN3b3XE78nt
-         eHfxucyRDgjGTZ3D7DKwBB7qn3wrBOYRKR0o9yTGwwkm7K/vzhpRmopr+GUNTBTh7y8O
-         MS8b0HcqTPxnp9r3IIgql4UT2O9NWSwUSGYYrP0cHTX9/XeNdlAI0NfeD5FqFMxWdoxy
-         AzoMvCQ0LrB4hrpc9AWu20CIHRzF/4DNEwGu/qc1ZIUqmjMRCDYeJ83v6bbN9vK8uAwf
-         PX52M0i9gusA4Kfvc6ouOisAnvQekhdqROkFZr0EAx9ulD3u1NDYLe9u+jGWtbrWNSCs
-         55Zg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:mime-version:references:in-reply-to
-         :from:dkim-signature;
-        bh=p/wxxGxoBJyhbGLsecA52KNGsy8WsqvTWX50Wr5bw0M=;
-        fh=/zrBGykAIIFpihfUlQiTYUxhLFeWYIxAEsow0oEy/QY=;
-        b=JCFZIxCov/g0HFEmmrfsJ1kEaHylXxN6UOFmo2FMNM1uVbmsOcbaYEdwYqOQlxUZhQ
-         pPlzGdjLtpAMcoD/sAUdrLpuL0iLv8i3mwkMAKJCtCzaj/l/cIHs0nD8sNuiaBJan+1A
-         DtZeFb38lCEz+G2TOSpkP+uzXeDB6MZOu/lprctHjP4Z3zTVVry7YaohO2RE5SVEf3Lm
-         wFKqHQ6MXk/afOHu5H22TVuZeUtrnMsSJ84k6zkLSfakwfVTLiZ6nMrNcszIAL9pfOnM
-         2dVusavXr5OaNrGrq6uWHzIR/98Z19OSkVJLyAvl6oZiAMIeYvWX1qUIi7MNRAEzUTsu
-         nYGg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793211144; x=1793815944; darn=vger.kernel.org;
-        h=content-type:cc:to:subject:message-id:date:mime-version:references
-         :in-reply-to:from:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=p/wxxGxoBJyhbGLsecA52KNGsy8WsqvTWX50Wr5bw0M=;
-        b=ALSf6WKanFx5JvmwlsLgV8fFdqXM6xTDgPgW9yrrFjM6/vBGqYK5MP8vdjEFd6Sd98
-         NBVXpxDxP5phBJEQbTM6ZF819Et3/utRfYgAYvVe1/7CPYGeKwjbZCJN2+eWDd+DPgOJ
-         /JYgpa/2NylgB+nTergZPvZ1EvWvqMF606I1SYcSYUg7ByrEMXm1mMsFZ652rdG5agyO
-         B7s01u4kNZ/56+zsY+mpL/w7IdzRejnSTJl0usSaFROTaNzSYew6f1rFzZzNTYa/jteU
-         Duz/k0QuEMkQ11mraTPIuGOS/qrwrzXXpBwPJitSAC/lEqMeD/uihh/wLI3vDBA6yzMf
-         CDng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793211144; x=1793815944;
-        h=content-type:cc:to:subject:message-id:date:mime-version:references
-         :in-reply-to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=p/wxxGxoBJyhbGLsecA52KNGsy8WsqvTWX50Wr5bw0M=;
-        b=wK6+cJW7w8IPEnmo0/s2aB/Tqo4j2PEyJUjbyty9gRbttUJgkCJDKlVTM+9lz3gAd0
-         xe+1NNUn0v6L7ST7xc4/2rPX0JwGMIVbn+bo9zRfOOFBYRxmkeRShcEIFYpBZQR40wor
-         6VxrgtqrJMnPU9IZKHzKy68fEtkpU3hwXcb7stH0HayTZw+Ktg78VqH9Bz1lEE7ICdxS
-         c7mkgW5QSPd0Kgyjee6SlUSQI+lQlT/vXTHvAtc9iTHenmZZm3yvIJyrjaJLakbbrM/D
-         A3PmVysNm5Rq6V2HZg8yQUto+6fJIo8Yl/ukAuWAtSoJtJT/se0C2G1hXeF4Qs2u4HGJ
-         h54g==
-X-Forwarded-Encrypted: i=1; AKwUvBxGDCIEY2CWRsYZPyuvU7+OMVxv+eO9MdBb9a0c3nMhevI6z+uBWwKB1Un3AlYgn/vh/Sz0FpW+EaZx@vger.kernel.org
-X-Gm-Message-State: AFq9FYIViB7ihOXlzLpxxF6XD6E7zSZYGjBeDLMVa6yY/Yb0cmHWZB7o
-	UhbnpPKm1sLrAo08GOpMUcpeOEP27KmcC3rb0RGzV4+B3pQARyl3qhTTACSpN2srYPmiLsY0EeI
-	z+nCovfBHGRNchJbomtZyou8HVaJoBos=
-X-Gm-Gg: AYBFou1Rjos/XUupYOrfvycby6+8Iwl6E6qfTCedpQ+pQ7vMPaO790YGBvOBCaJSDzL
-	UtXz/LVc92DrBjfdeoeZsP7wEfb6XzbOiQOs/gCf7HzmJdEvpT5UnHiYytErH4zlK0hsKiOXn7x
-	KOksDPkQ51vysureerXH4PFiWV5bZvMUOk2ZgynPND5Ned3Jixxs5heeNXJ5Yw2/+mVecTLeLcx
-	40tROx7URUxt2QcXHVZIv7dsN8l/PFWkSq060+b2rtl3hmi8ZjWQjcWem3BtHyoANOXeG5WpGD7
-	rR9AXNiI+UydnvV/PU3EXhqLshPyJ4eBHrE0y4Rgi/kyE5aPn1jNZ0ZyFI9zxVeNm/ON7ixW4Ko
-	5eaM/rBW2gOcttxCd0V0GcA1f/pbqARspQXU=
-X-Received: by 2002:a05:690e:a4e:b0:675:6f06:5642 with SMTP id
- 956f58d0204a3-67a7b9945d2mr4650525d50.1.1793211144098; Wed, 28 Oct 2026
- 11:12:24 -0700 (PDT)
-Received: from 95991385052 named unknown by gmailapi.google.com with HTTPREST;
- Wed, 28 Oct 2026 11:12:22 -0700
-Received: from 95991385052 named unknown by gmailapi.google.com with HTTPREST;
- Wed, 28 Oct 2026 11:12:22 -0700
-From: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-In-Reply-To: <20261023-bug-word-at-a-time-zeropad-kasan-v2-1-be0ecfbae847@gmail.com>
-References: <20261023-bug-word-at-a-time-zeropad-kasan-v2-0-be0ecfbae847@gmail.com>
- <20261023-bug-word-at-a-time-zeropad-kasan-v2-1-be0ecfbae847@gmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=UTzGSgya
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69SIiDkN869278;
+	Wed, 28 Oct 2026 18:54:29 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=NS1j9lVogng+5ldDA
+	IMdZiwng3ol+ONe8hkzIucuqmU=; b=UTzGSgyaRGLyaDWcuaeEXJEgp6OtBwXZ7
+	Ro3wFmQvcb8TRlZilolchIcKwH7urs8ir33voVoeyf/RVY7bQAWcHlto6Sz9vpds
+	5Q+NzHiZe9d8/1GPqFb1ekRBrwux+XvpukBIY1/VnkaxpLGOTgGExRUJK4xuExq1
+	kTEjNabJiBQEbO0epskUJTTXNUIYKWCEaev7hyN2FH5zmmCfkmDvBAt1b1Hw7UEX
+	MNMN2Q6Ze1hKCbS988CJ8S5e016JP/kI/wg2tjnw8p6y/Un6eUvbZvhafo2TEvq1
+	zMBMeBr897AvFWmQa03Jxt++IVAxyrMSt1o/0T4DsNfwSaTCXs+SA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hgk3g69fj-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Wed, 28 Oct 2026 18:54:29 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69SIYpRJ1900425;
+	Wed, 28 Oct 2026 18:54:29 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hjtnnedys-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 28 Oct 2026 18:54:28 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69SIsMYE51708190
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 28 Oct 2026 18:54:23 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E1AB420040;
+	Wed, 28 Oct 2026 18:54:22 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C291B2004D;
+	Wed, 28 Oct 2026 18:54:22 +0000 (GMT)
+Received: from p-imbrenda.ehn-de.ibm.com (unknown [9.68.31.243])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 28 Oct 2026 18:54:22 +0000 (GMT)
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com,
+        david@kernel.org, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
+        gra@linux.ibm.com
+Subject: [PATCH v4 3/7] KVM: s390: Fix idte_crste() clobber and table type
+Date: Wed, 28 Oct 2026 19:54:18 +0100
+Message-ID: <20261028185422.272146-4-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.56.0
+In-Reply-To: <20261028185422.272146-1-imbrenda@linux.ibm.com>
+References: <20261028185422.272146-1-imbrenda@linux.ibm.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -111,63 +93,75 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Date: Wed, 28 Oct 2026 11:12:22 -0700
-X-Gm-Features: AclHuK-o5YV67AfwlA9WNsjqOxV_ScugEYWYzUg986KltKOOqPQjM_oQFfVaIog
-Message-ID: <CAPAsAGyEUL1fj2-1=NGBDDO-z47cOHmcFDFexY9T_1_1LCMQJQ@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] word-at-a-time: check the first byte in load_unaligned_zeropad()
-To: Qiliang Yuan <odys.yuan@gmail.com>, Russell King <linux@armlinux.org.uk>, 
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
-	Mark Rutland <mark.rutland@arm.com>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>, 
-	Shrikanth Hegde <sshegde@linux.ibm.com>, Paul Walmsley <pjw@kernel.org>, 
-	Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
-	Alexandre Ghiti <alex@ghiti.fr>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H. Peter Anvin" <hpa@zytor.com>, Shuah Khan <shuah@kernel.org>, Marco Elver <elver@google.com>, 
-	Alexander Potapenko <glider@google.com>, Andrey Konovalov <andreyknvl@gmail.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Vincenzo Frascino <vincenzo.frascino@arm.com>, 
-	Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-arm-kernel@lists.infradead.org, Kees Cook <kees@kernel.org>, 
-	linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, 
-	linux-s390@vger.kernel.org, linux-kselftest@vger.kernel.org, 
-	kasan-dev@googlegroups.com, linux-mm@kvack.org, 
-	Peter Collingbourne <peter@pcc.me.uk>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=BOMmP1QG c=1 sm=1 tr=0 ts=6ae244e5 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=B6i_w3R9oO7yGhDFKykA:9
+X-Proofpoint-ORIG-GUID: ZoYwu7bxefpWm6Scj2I73RTXQ7mbyW56
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI4MDA3NCBTYWx0ZWRfX8rru6nPUF2/p
+ wroRrn3D5pH0q52sTQd7468TH2+SzUhjjQgEJTiM0Ivry/xTw9JkwYtQkEChsIhzJ3CeEc9rAoX
+ ixnaOmwOnGFdfqJw/A9pyu/7Joo3yZwkWREhNOWRaVsNaPq2V0StlVSNKhzCEyKGz0x6YhlXnoM
+ Dp+bwKGvi2AcyUVPu8eUpCiXih6JNfpFD8FfJ9bQ5GXfYxYPDSX8Go67Dx2yPbkwPqRgSA9UmBl
+ qT8dLJR8vOZSYlhFlfYHf6yFAIeNQP91Q6QFQ0DMMMmrofucnySaIMMF9s8ktH5DGaUiuxWzvz8
+ VmaPwfCXqcBZZ0FFcAsoUqL2td/c7oByxJnuSO6tqRe4KHy+jPQXHbox6dknjlQ5EGwKbx/ZCCS
+ oD/LSXa1/c6i+D2iPIEX2kgk/lGai7xAEyb0FFsjUo0pOPT/UfNUuyG8KpiTObjrbIwMArKjEZm
+ wsr0TIdz4IVLHFk10+g==
+X-Proofpoint-GUID: ZoYwu7bxefpWm6Scj2I73RTXQ7mbyW56
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI4MDA3NCBTYWx0ZWRfXxBfcArlKcrVs
+ okkgdlPdf8liRQkdi41F6c6aQc3/NIInNDRTlYLvaLDfAM9GbDlUU3CJsFIraWND6AY0XUlVDGL
+ PWzl+2h3kcZrupevxAAWimaAfQzuv1U=
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-10-28_06,2026-10-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 bulkscore=0 malwarescore=0 clxscore=1015 spamscore=0
+ phishscore=0 adultscore=0 impostorscore=0 priorityscore=1501
+ lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610190000
+ definitions=main-2610280074
 
-Qiliang Yuan <odys.yuan@gmail.com> writes:
+Fix idte_crste() to add the missing table-type bits and the missing
+"memory" clobber.
 
-> load_unaligned_zeropad() reads a word that may run into an unmapped
-> page and recovers through an exception fixup. It does the word loads of
-> sized_strscpy() and of the name compare in dentry_string_cmp(), path
-> components in hash_name() and hashlen_string(), and the trailing bytes
-> in x86's csum_partial().
->
-> It is inline assembly on every architecture that implements it, so
-> KASAN and KCSAN never see these loads, while read_word_at_a_time() at
-> least checks the first byte of each word. A use-after-free or
-> out-of-bounds read of a name handed to path lookup goes unreported, and
-> so does strscpy() reading from a bad source, which the kasan_strings
-> KUnit case expects to be reported. On x86_64 with generic KASAN:
->
->   KASAN and string KUnit suites      failures
->                                   before    after
->   CONFIG_FORTIFY_SOURCE=n              1        0
->   CONFIG_FORTIFY_SOURCE=y              1        0
->
-> Check the first byte with instrument_read() at the start of
-> load_unaligned_zeropad() on every architecture, as read_word_at_a_time()
-> does. All callers only load a word whose first byte belongs to the
-> string or buffer they read, so the check does not flag their intended
-> reads past the end. Add a no-op instrument_read() for the powerpc
-> selftest that builds the header in user space.
->
-> Suggested-by: Peter Collingbourne <peter@pcc.me.uk>
-> Signed-off-by: Qiliang Yuan <odys.yuan@gmail.com>
-> Reviewed-by: Marco Elver <elver@google.com>
-> ---
+Fixes: 5a74e3d93417 ("KVM: s390: KVM-specific bitfields and helper functions")
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: stable@vger.kernel.org # 7.0+
+---
+ arch/s390/kvm/gmap/dat.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Reviewed-by: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+diff --git a/arch/s390/kvm/gmap/dat.h b/arch/s390/kvm/gmap/dat.h
+index 687e1fa904d6..fb7e839a355f 100644
+--- a/arch/s390/kvm/gmap/dat.h
++++ b/arch/s390/kvm/gmap/dat.h
+@@ -640,20 +640,22 @@ static __always_inline void idte_crste(union crste *crstep, gfn_t gfn, unsigned
+ 	unsigned long table_origin = __pa(crste_table_start(crstep));
+ 	unsigned long gaddr = gfn_to_gpa(gfn) & HPAGE_MASK;
+ 
++	table_origin |= crstep->val & _REGION_ENTRY_TYPE_MASK;
++
+ 	if (__builtin_constant_p(opt) && opt == 0) {
+ 		/* flush without guest asce */
+ 		asm volatile("idte	%[table_origin],0,%[gaddr],%[local]"
+ 			: "+m" (*crstep)
+ 			: [table_origin] "a" (table_origin), [gaddr] "a" (gaddr),
+ 			  [local] "i" (local)
+-			: "cc");
++			: "cc", "memory");
+ 	} else {
+ 		/* flush with guest asce */
+ 		asm volatile("idte %[table_origin],%[asce],%[gaddr_opt],%[local]"
+ 			: "+m" (*crstep)
+ 			: [table_origin] "a" (table_origin), [gaddr_opt] "a" (gaddr | opt),
+ 			  [asce] "a" (asce.val), [local] "i" (local)
+-			: "cc");
++			: "cc", "memory");
+ 	}
+ }
+ 
+-- 
+2.56.0
+
