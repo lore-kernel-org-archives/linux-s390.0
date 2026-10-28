@@ -1,49 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793218434;
-	b=fiaEGZrkJff22NYJ/rYpHL9Q1CnOSa0VwZ/lxy14DkPfYh01XrEwwRkHV7kToc9KxdLw
-	 JpL/xC4I8PtsvR2xN+9EsFfJj5Nc1JN6VnpbdmFkSmxL3Jmi9+4Je7xcnaDvND4PDdlUS
-	 WnkkUeH4HMVMazUTSOzpFlBG2AoaffkpN/cnkF47zhO1cNNgRMIco+HgQIV060kvRg+Nr
-	 yaPw5eF1oGX/GtPIWqyysywOW4Ob4S/uO5Q++hW3N8NUI8vCdOmM+aP5f9chMG4ihth0I
-	 xg34HOnx7OnnIPjfIDu2qeltoX0YFkhZt+KKnlrHqgpOYKu3mb2dfL3nj6vzqE+A+QQ==
+	t=1793218444;
+	b=Am+M09JUBKzdlAU08AqjAab0qnplxTqKMxhGkILjjjvQ+DnntlFnsEsrQHpTCo1C8cSD
+	 SHXuziATTab6EPnQAvhJMusYxU1ECJ2FgiMH6ypB9ZVikE00oOMT1ehnwxpdH24w26NRZ
+	 xNrgkY96POQA3IAUgJkOIgQbbhtAD1ao3NKTUJyJt8no6hjJGzpApDyl3GHULPeMtBGaS
+	 BBGS2y/biDfukWtN6rWTKPUCadnWbpUPgFft+B1aRJ273xp7RiIVe0klAUKlXAI4smxJN
+	 Ta+fgzDBPuigekwPueEqsdop6bsvnsLpDnQuhpKkjCo9QEd05wIRWZ3tFOHbgqkEXdg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793218434;
-	h=Received:DKIM-Signature:From:Subject:Date:Message-Id:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:X-B4-Tracking:X-Change-ID:To:
-	 Cc:X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=zblGlkWs1OXZ9bHPBTP+AfF1wpBrK3sa+fiGbxI6Tmk=;
-	b=xHxhJfiu1sQqw3kZ7zj+rz9115cWTdsrTCASZKEkFXl6FXt+w+JVzUqyBgUGHTD9JtGp
-	 EAYXuJtncnKUe9k9V3aDjUu29PzZvHs57tzJHxc3pdqg/+CK5ooP13NKD75BEbr0T3oiP
-	 0JGTnRH/lQcmc/3fu8vElnGsmvJp3TO/4I5HG3CgMicog/xB7U+B9D4V1J0mVVZ2kDyOL
-	 Bf2OjDeEg4UjjiS6oqJZsQXoLBBj6bg+adUFJRAIW/y5YuYm60PQi5rzYrNqFrVIpJP1F
-	 UPyzPWozvGU1DnfelRe9nQMtsbt7E6WywHJLLdo5CRJTDKT+Jx4wrhaOgOLfRzeK4jQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793218444;
+	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
+	 X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=kpnp0nKo1RLJPeIcxnHpYwtTOco9Mw53rg5cDi3/lLs=;
+	b=uJGcQgXFij2Hi8b6ClezpmeD6PwNYU0OjcIm8aNNfXJdGEMQQrYPic9/xEuImxc9THjX
+	 YpQaiKJMHZs7kG1wEEipSgvrb4ti3LNARJat29M+BXGDmSiZFjJc6BwyvYUPw0R7n3udi
+	 keXY1IaeYDtMxA01oIQOJT7VFsb44dF0ldHd9TG/6wlgZGEte7IDVHyRsPhAdbutRe/XF
+	 klV6zdCgRb7UiTWGQA7Z+R3r8Hb5LqnZRJHNoStHymojWOigs0ul5uPaOrkbf7pjDUCmn
+	 N/QB0hb7K7iR9zr3osLNdA7iorH7/oFoxmOXI4Bhi4Kt4VzJEdRuwpUlYWoLRsTZEQg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OC0jqLoF;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Kdh2USKD;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3729E606A32E;
-	Wed, 28 Oct 2026 20:13:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B5DA606A31C;
+	Wed, 28 Oct 2026 20:14:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OC0jqLoF
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7580C1F01825;
-	Wed, 28 Oct 2026 20:13:43 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Kdh2USKD
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ECCE1F01829;
+	Wed, 28 Oct 2026 20:13:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793218433;
-	bh=zblGlkWs1OXZ9bHPBTP+AfF1wpBrK3sa+fiGbxI6Tmk=;
-	h=From:Subject:Date:To:Cc;
-	b=OC0jqLoFLAK/f7Y/IM8DLSn3wtoD+SuKLrY4GE7olSLvMuY17nKMUBtWNwwAWrUuW
-	 68eQ1fXTtwD1Mkz56lvNrm8yBb2YjWoFKe5MBwR/5ZdqiSNyl09FfN8The3pXc5f1O
-	 UnrwFdXA1g119nmQF6pwyJ/F0h/GnkfkMfLILeXOmj8YK63F4vv5+FWd6IXdkwhwbx
-	 mGKfWkYriQmacjifaD6SgllEGlNIvY/rte/RQ7KdgkTHDZ4grM7xPNOaUOQIzL1590
-	 mvFx6xd7CIyySiul2eebB73/k3iGQeWUHzP+MdDPt1R/pi4YlYfaquMD+Xp63xCRt6
-	 cVyzcMIDORuKw==
+	s=k20260515; t=1793218444;
+	bh=kpnp0nKo1RLJPeIcxnHpYwtTOco9Mw53rg5cDi3/lLs=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=Kdh2USKDJZ0FkYnWxpwRhfUMZvge6+fv52eBOYXQE4K9FiM0K4U+BHJFNVSPa8SaR
+	 qz0fJopgw/70FToz7iDOKngca29X//VXT5/e8eP6xGe5f7GFhffQH6zeC2GOp/hleH
+	 n9o4bqtE3izozibZx0/EGpV6yc5ooao2ZOamV04m7ODd/0AjL324MpPNritM1bvgPV
+	 i4WVSj11U1NP3zYtWbfrCuQSbjPM+7EWyuQ7RkG3U4c8cWx2ojiZ48TgZhVuUFx9jj
+	 PTNmpfwlk+bKAkCQlPvJwDrVqWXVgoBNuxz+ZTVLJ/GThvLKqVUtebOP+aR2t9RJfI
+	 QneBInCwD8IQw==
 From: "David Hildenbrand (Arm)" <david@kernel.org>
-Subject: [PATCH 00/15] mm/hugetlb: various fixes
-Date: Wed, 28 Oct 2026 21:13:28 +0100
-Message-Id: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
+Date: Wed, 28 Oct 2026 21:13:29 +0100
+Subject: [PATCH 01/15] hugetlbfs: fix integer overflow in fallocate()
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -55,10 +54,9 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAGhX4moC/yXM0QpAQBCF4VfRXNtaQ5RXkcSaZSS0Y6Xk3S0uv
- zr/uUDIMQmU0QWODhZel4AkjsCM7TKQ4j4YUGOeaCyU5ZOkGf1A+9wpNJnVaG2e6gxCszn6BiG
- p6t/iu4nM/p7AfT82vNYJcQAAAA==
-X-Change-ID: 20261027-fixes_hugetlb-2c4f02ff6304
+Message-Id: <20261028-fixes_hugetlb-v1-1-a0a033db180f@kernel.org>
+References: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
+In-Reply-To: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
 To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
  Naoya Horiguchi <nao.horiguchi@gmail.com>, 
  Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@suse.de>, 
@@ -85,104 +83,69 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, 
  "David Hildenbrand (Arm)" <david@kernel.org>, 
  luojiajun <luojiajun3@huawei.com>, Josef Bacik <josef@toxicpanda.com>, 
- stable@kernel.org, Chris Mason <mason@kernel.org>, 
- Daehyeon Ko <4ncienth@gmail.com>, stable@vger.kernel.org
+ stable@kernel.org
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3500; i=david@kernel.org;
- h=from:subject:message-id; bh=bNNIIjvmXZOTaOJfPgSy5HmuhJm0C5N8Ej36sP+bpik=;
- b=owGbwMvMwCF2/OVpCdfQ3ZWMp9WSGLIehRelXeaZ1r1L/+uWb21rYmaZznX7zvzWpDXjLjtL4
- 9XHN47d6yhlYRDjYJAVU2QJCr5v8PLlutpqNz5mmDmsTCBDGLg4BWAiRtMZGc6cuvFGgkFTpbsr
- 2Szz7PXbmyN4WmwFa7g3nPvV1HUzVYyRYa6t9K2elrqoaPbnQkd4l0qxFx099ebfg5s7f3hlz9G
- O5AAA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2170; i=david@kernel.org;
+ h=from:subject:message-id; bh=I1sQzSgEyvJMIZxcUjk6PSvZ4Sdw/GRLUPVEqCN7UCk=;
+ b=owGbwMvMwCF2/OVpCdfQ3ZWMp9WSGLIehZcebvr66cjyjsA4Z8MHays+f2Jax1wSNyGwXXO75
+ bTlOWxcHaUsDGIcDLJiiixBwfcNXr5cV1vtxscMM4eVCWQIAxenAExk8xaG/zEmOY2li54ueRq3
+ v7n3zJSkguNagnz6Ep+ZLr7Oe6t++x3DP/VXvov+1dmK3lywRTvn29Xfb744bo47787m7frugMi
+ alUwA
 X-Developer-Key: i=david@kernel.org; a=openpgp;
  fpr=1BD9CAAD735C4C3A460DFCCA4DDE10F700FF835A
 
-These fixes almost finished me.
+hugetlbfs_fallocate() rounds the range end up by adding hpage_size - 1
+to offset + len. vfs_fallocate()'s existing overflow check only makes
+sure that offset + len does not overflow.
 
-Oh. My. God, hugetlb, what have you become.
+Once we overflow for valid endpoints near LLONG_MAX, we can get a
+negative temporary result that is then converted to a very large
+huge page index.
 
-And I am not talking about good old hugetlb. I am talking about all of the
-things we slapped on top of it over the years, including MAP_PRIVATE,
-reservation, UFFD, accounting and much more. I mean, I kept complaining
-about all that in the past, but I just had an 2 day-long reminder from
-hell.
+A one-byte allocation ending at LLONG_MAX can therefore consume all
+available huge pages. Pages added beyond LLONG_MAX are skipped during
+inode eviction, leaking them and triggering the BUG_ON() in clear_inode().
 
-And don't get me started on some of the proposed AI fixes. Dear lord.
-There is a reason why I am the author on most of these fixes. And I
-try to not swear on the mailing list.
+To fix it, calculate the end index in a simpler way that cannot
+overflow. This also fixes the signed overflow reported by luojiajun in
+2019.
 
-Hey, at least huge PMD sharing was not involved this time, great
-success!
+Backporting notes: without commit a08c7193e4f18 ("mm/filemap: remove
+hugetlb special casing in filemap.c"), remove_inode_hugepages() must
+include the final huge page during truncate and eviction.
 
-Anyhow, nothing here is super urgent IMHO. Just a lot of unpleasant
-things and corner cases. Most of the issues reported by Anthropic, some
-found by me while poking at things.
-
-Two bigger changes as RFC. One of them documents some remaining
-problems, one of both being a hard nut to crack.
-
-I have some more complicated lower priority, hard to solve things
-leftover on the hugetlb front (besides some fixes that are already on the
-list), maybe I'll report them to hugetlb maintainers to share some of
-the "fun". ;)
-
-I threw some tests at it, but there are just too many combinations and
-corner cases.
-
-Next, likely we want a kernel config to disable MAP_PRIVATE and start
-deprecating it. It's simply unbearable.
-
-I won't pretend that I understood all the details of reservation and
-accounting, even rewriting some of the comments took me ages. If any
-fixes here go into the wrong direction, I'm happy if someone wants to
-take over this series, I tried to get the heavy lifting done.
-
-I guess, have fun reviewing? :)
-
+Reported-by: luojiajun <luojiajun3@huawei.com>
+Closes: https://lore.kernel.org/all/1554775226-67213-1-git-send-email-luojiajun3@huawei.com/
+Reported-by: Josef Bacik <josef@toxicpanda.com>
+Fixes: 70c3547e36f5 ("hugetlbfs: add hugetlbfs_fallocate()")
+Cc: stable@kernel.org
 Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 ---
-Chris Mason (3):
-      hugetlbfs: do not grow a sealed file in mmap()
-      mm/hugetlb: keep surplus folios that are reserved
-      mm/hugetlb: fix reservation leak on min_size= mounts
+ fs/hugetlbfs/inode.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-David Hildenbrand (Arm) (10):
-      hugetlbfs: fix integer overflow in fallocate()
-      mm/hugetlb: compare against persistent count when freeing lowmem folios
-      mm/hugetlb: preserve reservations when shrinking on HIGHMEM
-      mm/hugetlb: account temporary folios separately
-      mm/hugetlb: fix mremap() racing with page migration
-      mm/hugetlb: serialize page-cache allocations with truncation
-      mm/memfd: recheck the page cache before allocating a hugetlb folio
-      mm/hugetlb: count again if the reserve map shrank
-      RFC: mm/hugetlb: account restored reservations before freeing folios
-      RFC: mm/hugetlb: delay anon folio rmap removal until after the TLB flush
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index 01c4d6f44ebe..5592cfc6cc8b 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -721,11 +721,13 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
+ 
+ 	/*
+ 	 * Default preallocate case.
+-	 * For this range, start is rounded down and end is rounded up
+-	 * as well as being converted to page offsets.
++	 * vfs_fallocate() guarantees that offset + len is positive and does
++	 * not overflow. Avoid overflows when calculating the end huge page
++	 * index: set it to one past the index of the huge page containing the
++	 * last byte.
+ 	 */
+ 	start = offset >> hpage_shift;
+-	end = (offset + len + hpage_size - 1) >> hpage_shift;
++	end = ((offset + len - 1) >> hpage_shift) + 1;
+ 
+ 	inode_lock(inode);
+ 
 
-Josef Bacik (2):
-      mm/hugetlb: keep surplus folios when the pool shrinks
-      hugetlbfs: fix unmapping folios from private VMAs
-
- Documentation/mm/hugetlbfs_reserv.rst |  30 +--
- arch/s390/include/asm/tlb.h           |   5 +-
- fs/hugetlbfs/inode.c                  |  36 +++-
- include/asm-generic/tlb.h             |   5 +-
- include/linux/hugetlb.h               |  24 +++
- mm/hugetlb.c                          | 388 ++++++++++++++++++++++------------
- mm/hugetlb_internal.h                 |  11 +
- mm/hugetlb_sysfs.c                    |   2 +-
- mm/memfd.c                            |  17 ++
- mm/mmu_gather.c                       |  14 +-
- 10 files changed, 361 insertions(+), 171 deletions(-)
-
----
-
-base-commit: 65ba8f34ec886ec72b2c07ddc8cf3d815c32869d
-
-change-id: 20261027-fixes_hugetlb-2c4f02ff6304
-
---
-
-Cheers,
-
-David
+-- 
+2.43.0
 
