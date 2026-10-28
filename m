@@ -1,55 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793187552;
-	b=F4wiLhb6DvDItb+rT8A+I582tFoVRF2flVRxyUAN1Hfp4p923Mex5Wyzn7+p5YH7IueA
-	 CimZPgSeqqLK5tpH4nNsDUcchkgWgxe2LEow3eDde2gB6aKlFSYkKVcwzorDEiqpVWiEj
-	 Ys2XbWmsI44heMv/Ox4Aka4GKLh7Es0tIjrFyb+/z+5AB1fbCyTIdbrv9upA8yYgpjMAK
-	 72xHfJzIxSlafcYqKpFFECdSHEBzEWvUanR5in6RLOKYUHQLDVEYOkzz2XGbtCoJAf+Ka
-	 nJyfxesD+P1ShQna6oLDdbfoQdU8I7Z7twjO/l6cois8tN+LlC4SzDKCUiB6GyFSsqQ==
+	t=1793190157;
+	b=Paxoae7ICNPR4yXO1ZgGw+KEH1wCViesBtAmZ5tq+TF5o+mMQ6MIBLtioeaSOWoa/vUr
+	 OcbdmWq2LXisA56mqBcy1YIimNqAxa0thK/i1IHkD4GOntwQfPPemYV3W0UKwv+96IuMq
+	 q2kuKdws88yF6lHWCJ2hFDwZPBJxb2mIxeJOlPSJUYQTMhBskglguVXLFHvn5ZrXPfISb
+	 9MEfBZy531Vk8au1marz4QoHvh8ZKhbFeFIxF1/i0HJDCUF/txzHjiDHGNCVGOjlw1/AZ
+	 mzCpZu3VrGmwbCWOv2vFceAvJyI0mUMEhmOQ98W+0BdAU85u5b0WzxjcCCJNCswkmnQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793187552;
-	h=Received:DKIM-Signature:Received:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Received:MIME-Version:References:In-Reply-To:
-	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
-	 Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=sOScShlNJOoFQgumDsqaC2sVgmpV4+y6Yzg+EW5P6X4=;
-	b=xIg0OXjOHfWcaZuM4OhdsIslCX4NZM1Kg8X3QTLgtVs43pbWKpvBXNP4JQ8wP8vn3+II
-	 kAl+q2YVusos+PSpnXC+eS0z4GAnMFN6+pd+wwoHrkDgJzJi60hErYAcscO82/pmuE8c4
-	 qtcOKHzVr/BThfz0fNH+aVJjGAjhEjjS2yPjz/D9CVFPfT9LVkO2ICuJ7RyV4uU6QZeL8
-	 kV5RBa56z4Z1EeSaNua1KNDdwpuE00RYtQ43hyGiFSbRsb1vqgSuChBafsQoAhuiOJ+uI
-	 aJbx9NpU3Rshev5T1Jf38eaJzjS47DYpoYLbFT7dYKZLHtsU5RTtVGsHpkbH3w64rhQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793190157;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Authority-Analysis:X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
+	bh=2hp+ePVo0Df0QKNzjsR8x3ObN6A0CjwbnTyVCMTeVjE=;
+	b=SdLEEYp/MJh4wCvsYj4GpCZDM/9ttUdUMBtpDd+LyX83a92Zxd030P32dRxiqv1hoFpH
+	 4VuOXskndA+gts8VdIUIqZDQoEkWcPCvDDD4P/WouVektB1P1EiX+KFz9PrRF/DnWHRTh
+	 Goa6cGc0kp8PTC9A7DaMAgV/xzin4WULZn5vFkjkvEKefesM9X3Nsy4g6cRKX2gKsKEWG
+	 F2POxAXpIIa74gcewKMjUyfJof/cNPA/QMM+QklFgjrEqxyYXq2qPLTwJmHdr1WOHZdNH
+	 ImUzfrkr3r3sCUxzK6hAlxxmCL0W5tTdtR3GH6N0tUdgWMDouq5+esKuEjryTHCtOJg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NCqulnQV;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=Hhf5PdT0;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57921606A326
-	for <linux-s390@vger.kernel.org>; Wed, 28 Oct 2026 11:39:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE480606A31F;
+	Wed, 28 Oct 2026 12:22:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CE480606A31F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NCqulnQV
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C3521F031E9
-	for <linux-s390@vger.kernel.org>; Wed, 28 Oct 2026 11:39:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793187551;
-	bh=sOScShlNJOoFQgumDsqaC2sVgmpV4+y6Yzg+EW5P6X4=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=NCqulnQV1h+oVFLj/JhvH88k7PyrmAZ6XFGU/jiu5vwmg6MjMT387K4TYKodpqyNq
-	 MA0BGC2UYvKstLU/+8/cU5Hij1Qun59tjJw/DfIwq+KOZ2E09VTvYib4JyxzD8A5vR
-	 9FMKKj0khUwFeMGpJ36F9Yqb8MQuFJfMvFW+1Xa1LhcKkL7/unEYyqXLa8aM1bpZEA
-	 8dVngYrjEWSjp8xk5SkQO9dzrkVfgOUKD2fJzEqMBvE5ibg3bcu5KhMtDARfyRNLPC
-	 kqtSBBmkS9cFqnZa7WvMACuYyHl+L9D+bWWczw59zel2Twkqi/4fhm8hAddVbD+Xhz
-	 2H9eXmztHew9Q==
-Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5bb7c6980f1so957777e87.2
-        for <linux-s390@vger.kernel.org>; Wed, 28 Oct 2026 04:39:11 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBxw+s1x5p41Zkpvbx3ezDCOTLZnOeAjjKx1MX/f+Yc9wCWQF5AZ0+69dmNVUO3u17M10RpyxjoSmxXH@vger.kernel.org
-X-Gm-Message-State: AFq9FYI7NFzmVdO1wLJzqxMuUmSOFKxfU8DzLiesWC6IRIN8Uv6By+sC
-	9TqR2RosPArGddmr34GYWpB2yvC4I50KmheSqLlyG+3x+Jn6RpqEsGj7SGJ40FCQHZuRYGfp4T/
-	swvW2fxkefxggtrMKP5CjPAupD/+CK30=
-X-Received: by 2002:a05:6512:1111:b0:5b9:6603:d451 with SMTP id
- 2adb3069b0e04-5bfcad31c8emr697328e87.3.1793187548999; Wed, 28 Oct 2026
- 04:39:08 -0700 (PDT)
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=Hhf5PdT0
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69SBi6lR1133889;
+	Wed, 28 Oct 2026 12:22:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=2hp+eP
+	Vo0Df0QKNzjsR8x3ObN6A0CjwbnTyVCMTeVjE=; b=Hhf5PdT0yVPsSuwfudgTxB
+	Vf7qOCp6hG4ZeqzInT5ziUkjlGMNKmu/FLQGg6PsckpE0fQfNVgaDUIzAryGUxzg
+	f0d8Gn5SG+ctd1ndqrbiCMSN6wx2AgodXZxFTGm9J6CujSODHZYhOUOCOZ/dYVku
+	f4XZiQGn37KrIaaETlyDGE3B74RRK63JkHsPY2+G4Y96qcwtTtDFh7yU1CSiQY8T
+	90Ewhpw8nuLsYw7GhtKPYhJs5lXsYOcXZb+wNz9Rq5IUSDd1n4wYwL5b29ysehbN
+	yqbwzc21fwT3SFvGZvZxbPqdualydggzMsqBRqkcU9CoShjKetDnuMy19DT0Uzhg
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hgmd74m0p-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Wed, 28 Oct 2026 12:22:36 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69SC4uNJ1522922;
+	Wed, 28 Oct 2026 12:22:35 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hk55pa751-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 28 Oct 2026 12:22:35 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69SCMV6m39518490
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 28 Oct 2026 12:22:31 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 29CE620043;
+	Wed, 28 Oct 2026 12:22:31 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id E2B9720040;
+	Wed, 28 Oct 2026 12:22:30 +0000 (GMT)
+Received: from [0.0.0.0] (unknown [9.111.73.9])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 28 Oct 2026 12:22:30 +0000 (GMT)
+Message-ID: <48b38efa-86df-4654-91a9-88c3118ae372@linux.ibm.com>
+Date: Wed, 28 Oct 2026 13:22:30 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -59,141 +85,70 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-References: <20261027223847.652884-1-irogers@google.com> <20261027223847.652884-5-irogers@google.com>
-In-Reply-To: <20261027223847.652884-5-irogers@google.com>
-From: "Rafael J. Wysocki (Intel)" <rafael@kernel.org>
-Date: Wed, 28 Oct 2026 12:38:56 +0100
-X-Gmail-Original-Message-ID: <CAJZ5v0juvZ2ZVRBkY6FxBM=NhPt9vMA3+yRugXc5u=U1jO9AXg@mail.gmail.com>
-X-Gm-Features: AclHuK-NXF3tWCMDzaNjIN417c7ZMuQGYjVHoQ_x6BSITeW_KdKoI_jbnClXt6k
-Message-ID: <CAJZ5v0juvZ2ZVRBkY6FxBM=NhPt9vMA3+yRugXc5u=U1jO9AXg@mail.gmail.com>
-Subject: Re: [PATCH v2 4/9] cpufreq: governor: Initialize kobj_type release
- callback statically
-To: Ian Rogers <irogers@google.com>
-Cc: Kees Cook <kees@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Miguel Ojeda <ojeda@kernel.org>, "Rafael J . Wysocki" <rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>, 
-	Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, 
-	Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, 
-	=?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	Zhihao Cheng <chengzhihao1@huawei.com>, Zhongqiu Han <zhongqiu.han@oss.qualcomm.com>, 
-	Sumanth Korikkar <sumanthk@linux.ibm.com>, Bill Wendling <morbo@google.com>, 
-	Justin Stitt <justinstitt@google.com>, driver-core@lists.linux.dev, llvm@lists.linux.dev, 
-	linux-hardening@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-doc@vger.kernel.org, linux-acpi@vger.kernel.org, 
-	linux-pm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-sh@vger.kernel.org, linux-s390@vger.kernel.org, gfs2@lists.linux.dev, 
-	xen-devel@lists.xenproject.org, linux-mtd@lists.infradead.org, 
-	amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
-	linux-kernel@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 04/10] s390/runtime-const: Serialize text patching with
+ text_mutex
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+References: <20261027143030.3154657-1-hca@linux.ibm.com>
+ <20261027143030.3154657-5-hca@linux.ibm.com>
+ <034dc4fa-520b-4ad5-9d9d-8ae469692698@linux.ibm.com>
+ <20261028110926.8417C5c-hca@linux.ibm.com>
+Content-Language: en-US
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+In-Reply-To: <20261028110926.8417C5c-hca@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=ZYOIpcVA c=1 sm=1 tr=0 ts=6ae1e90c cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=9crZ_efNTruLh8Wr0lgA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI4MDA0OCBTYWx0ZWRfX6HWuSOhf+wrm
+ CSHHXxgqhuP8TuHNejxO0dO974rANhDDfv8dilbUO+GJMY1NbSgqNs3dUl1umIowywe+VqAmX3o
+ AY2QcR75/ZWycrUGg0w/2t62pihdx+eYiz8e0jNfx9CDQAONXIZwMUH1OLygPWPcXhfQNWCJfVd
+ rdC6MlXT+iD22U1whoeLxbmL2fDiWzl6SmZdyvDkAFbJ4A1lWkium47i2l+bDJsH3azpVPJm7SY
+ M/cOzHmzPbWpH9jwNfDBLG6FHm+NyguDkUOsKP4bpbysWy0bG9s3ESIQ0o2QVpURz6177/rYmtN
+ nuv/7qU1P5Ab47wiLUWM67OWKAFfOFBPdbj+j1eveIo0zFl4njpfU3vpr5LDhmSA+B5sCpAqTxK
+ 1v94PWRVSZYk7RoXGfVg7lSwzOPjlK+gbDJIrllGFtwqQ6eNmvD57FGjwZ8l00zVfZC997K+fBu
+ bJh2n6QB7QTnu8l1kyg==
+X-Proofpoint-GUID: vZ_ziWSG3o4lWqdOdxUT-k1uaRBNHBpT
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI4MDA0OCBTYWx0ZWRfXxoInPDD1FT9a
+ ruu75oXxtiRorgPyQYPCcq9q0kCenM5dmxqgqCsttiftHxetnwWUBTp2pG1qehYlzH61MOlADTG
+ Jlf5XNU/fDbc7eqJzhWZBXX1y8i2Vf8=
+X-Proofpoint-ORIG-GUID: vZ_ziWSG3o4lWqdOdxUT-k1uaRBNHBpT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-10-28_04,2026-10-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 priorityscore=1501 suspectscore=0 phishscore=0 clxscore=1015
+ bulkscore=0 malwarescore=0 lowpriorityscore=0 spamscore=0 adultscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610280048
 
-On Tue, Oct 27, 2026 at 11:39=E2=80=AFPM Ian Rogers <irogers@google.com> wr=
-ote:
->
-> Export cpufreq_dbs_data_release() and set .kobj_type.release statically
-> in the ondemand and conservative governors so their gov_attr_set
-> kobjects have a valid release callback statically initialized, matching
-> cpufreq_governor_dbs. Remove the redundant runtime assignment in
-> cpufreq_dbs_governor_init().
->
-> This prepares for annotating struct kobj_type::release with
-> __must_init.
->
-> Signed-off-by: Ian Rogers <irogers@google.com>
 
-Do you want stuff to be picked up by maintainers, or do you want to
-route it yourself?
 
-> ---
->  drivers/cpufreq/cpufreq_conservative.c | 5 ++++-
->  drivers/cpufreq/cpufreq_governor.c     | 4 ++--
->  drivers/cpufreq/cpufreq_governor.h     | 1 +
->  drivers/cpufreq/cpufreq_ondemand.c     | 5 ++++-
->  4 files changed, 11 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/cpufreq/cpufreq_conservative.c b/drivers/cpufreq/cpu=
-freq_conservative.c
-> index 02bfd46543e9..146a2353b1a2 100644
-> --- a/drivers/cpufreq/cpufreq_conservative.c
-> +++ b/drivers/cpufreq/cpufreq_conservative.c
-> @@ -318,7 +318,10 @@ static void cs_limits(struct cpufreq_policy *policy)
->
->  static struct dbs_governor cs_governor =3D {
->         .gov =3D CPUFREQ_DBS_GOVERNOR_INITIALIZER("conservative"),
-> -       .kobj_type =3D { .default_groups =3D cs_groups },
-> +       .kobj_type =3D {
-> +               .release =3D cpufreq_dbs_data_release,
-> +               .default_groups =3D cs_groups,
-> +       },
->         .gov_dbs_update =3D cs_dbs_update,
->         .alloc =3D cs_alloc,
->         .free =3D cs_free,
-> diff --git a/drivers/cpufreq/cpufreq_governor.c b/drivers/cpufreq/cpufreq=
-_governor.c
-> index f3bd3dbe7c41..f8b5aca09b6b 100644
-> --- a/drivers/cpufreq/cpufreq_governor.c
-> +++ b/drivers/cpufreq/cpufreq_governor.c
-> @@ -419,7 +419,7 @@ static void free_policy_dbs_info(struct policy_dbs_in=
-fo *policy_dbs,
->         gov->free(policy_dbs);
->  }
->
-> -static void cpufreq_dbs_data_release(struct kobject *kobj)
-> +void cpufreq_dbs_data_release(struct kobject *kobj)
->  {
->         struct dbs_data *dbs_data =3D to_dbs_data(to_gov_attr_set(kobj));
->         struct dbs_governor *gov =3D dbs_data->gov;
-> @@ -427,6 +427,7 @@ static void cpufreq_dbs_data_release(struct kobject *=
-kobj)
->         gov->exit(dbs_data);
->         kfree(dbs_data);
->  }
-> +EXPORT_SYMBOL_GPL(cpufreq_dbs_data_release);
->
->  int cpufreq_dbs_governor_init(struct cpufreq_policy *policy)
->  {
-> @@ -488,7 +489,6 @@ int cpufreq_dbs_governor_init(struct cpufreq_policy *=
-policy)
->         policy->governor_data =3D policy_dbs;
->
->         gov->kobj_type.sysfs_ops =3D &governor_sysfs_ops;
-> -       gov->kobj_type.release =3D cpufreq_dbs_data_release;
->         ret =3D kobject_init_and_add(&dbs_data->attr_set.kobj, &gov->kobj=
-_type,
->                                    get_governor_parent_kobj(policy),
->                                    "%s", gov->gov.name);
-> diff --git a/drivers/cpufreq/cpufreq_governor.h b/drivers/cpufreq/cpufreq=
-_governor.h
-> index 806d8fb4dff1..1026712bb79b 100644
-> --- a/drivers/cpufreq/cpufreq_governor.h
-> +++ b/drivers/cpufreq/cpufreq_governor.h
-> @@ -150,6 +150,7 @@ static inline struct dbs_governor *dbs_governor_of(st=
-ruct cpufreq_policy *policy
->  }
->
->  /* Governor callback routines */
-> +void cpufreq_dbs_data_release(struct kobject *kobj);
->  int cpufreq_dbs_governor_init(struct cpufreq_policy *policy);
->  void cpufreq_dbs_governor_exit(struct cpufreq_policy *policy);
->  int cpufreq_dbs_governor_start(struct cpufreq_policy *policy);
-> diff --git a/drivers/cpufreq/cpufreq_ondemand.c b/drivers/cpufreq/cpufreq=
-_ondemand.c
-> index 9942dbb38dae..7386d043c665 100644
-> --- a/drivers/cpufreq/cpufreq_ondemand.c
-> +++ b/drivers/cpufreq/cpufreq_ondemand.c
-> @@ -374,7 +374,10 @@ static struct od_ops od_ops =3D {
->
->  static struct dbs_governor od_dbs_gov =3D {
->         .gov =3D CPUFREQ_DBS_GOVERNOR_INITIALIZER("ondemand"),
-> -       .kobj_type =3D { .default_groups =3D od_groups },
-> +       .kobj_type =3D {
-> +               .release =3D cpufreq_dbs_data_release,
-> +               .default_groups =3D od_groups,
-> +       },
->         .gov_dbs_update =3D od_dbs_update,
->         .alloc =3D od_alloc,
->         .free =3D od_free,
-> --
-> 2.56.0.313.g2479322e68-goog
->
->
+On 10/28/26 12:09, Heiko Carstens wrote:
+> On Wed, Oct 28, 2026 at 11:58:27AM +0100, Ilya Leoshkevich wrote:
+>>> @@ -88,6 +89,7 @@ static inline void __runtime_fixup_mask(void *where, unsigned long val)
+>>>    static inline void runtime_const_fixup(void (*fn)(void *, unsigned long),
+>>>    				       unsigned long val, s32 *start, s32 *end)
+>>>    {
+>>> +	guard(mutex)(&text_mutex);
+>>>    	while (start < end) {
+>>>    		fn(*start + (void *)start, val);
+>>>    		start++;
+>>
+>> Interesting, so clang is able to propagate context even through indirect
+>> calls without explicit annotations?
+> 
+> There is no clang context analysis involved here - this is purely lockdep
+> based (with the last patch of this series, which adds lockdep_assert_held()
+> to s390_kernel_write()).
+
+Ah, I see, it's stated right in the first line of the cover letter.
+Did you consider using it though?
