@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793218543;
-	b=nJNqf0PDjQ9GjGqtVPgQZAbvoBro2NfOgn3tJdK1LLmoZuse4Y8JCILd1LvXeX0YLgrg
-	 4mVo2FutixysLlojho/56WZFkmPr+b1MPiSnxeicOu0NsTEucwFs3ZFX3w1w0Xb74OPmm
-	 olhag+/6SFYbH2sXiDklBqF5q9zqymNhMcJg774hCA1T+OiWzosU3t0wY+gaRkyQ9cDhk
-	 oTHElF8WlHIvCJgyu+H65tqEifU6DHyiOMpTKoP2u3gnLH3yFbAGTAnScwyMSsoKQbyLM
-	 XlIrscCr1ZFQGWwE1PVfs5Pitq0wOFBPK5zi2zS6ZdRZrwUGQknwOpa9E3nfWRWt5jA==
+	t=1793218553;
+	b=4Cp0BiSC7EHxQ7R6Jz+e6u2NBSsAAVGas3VjAzZV1GFExoR3U545bmu3GsYknVBjvwzD
+	 ZVNinDKDiK/mfIkTRccUFS9QzFFTtjiCFS89OCeaI3fnTrRL1TgPfAZhXm2lt1AMfRTh7
+	 MCM0PORcJae0Qu7xJH/nOYaiELcDycS+or8r/6blw3QXZvaWM26CQZMTNEjguauKwtTEl
+	 Ty0he7goKMOvBAY+Xuplmd2X5eb81n3zC7a6Eg8hs1gGvSRCYfznrAnw+KlfGVu9NdLWv
+	 trv0lCydvjIMboVzMr0rblo1YNRmnbtj0hXi6s8X9eqAhZFWr0oYWBjDwFDBy2byO3A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793218543;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793218553;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=dhlOcylSqv6vV3g9yAiSRK5LeWK6PvVVUjVeVgzCiQQ=;
-	b=fgsvVMihLpSKRRVEs/pdn6uVmryRdLuyNjHO+tJ6YpharApgD0hqbz9ZLMge332hX8Fj
-	 I3DQnWmX5t2xBoRlfvEKGiWJGEUAK7MxkZPkz5Q5nIWN2Na6KAkbHe6BDti8Rqz/q098h
-	 xSaI4T1hhE9aZEQC08sPeT7gIsRXB6PDHLMML0D4GaHgZi/h5RUOMDQw+0PsL+k4pHSMh
-	 21agToq3s8XHvgnYME/87FqGtJiJqbnV86EsB0Ub9l+5Ya2fncowHkOwODwVaPySd4exN
-	 c/a+BZZhbjLEKWQVH0Gr3sTF3cmH7iQpgWZVYmLIT8V2e5XpQDHfktnKWJUtYhY42rw==
+	bh=PD4hDhqXAiKFSflF7fULM3AAKFj+yDTHa7fJ5vGqNRQ=;
+	b=th4jxfJ43WCGiNBrmgW8mrG1svuI2/pIzSrh6n+MZ7emxqGbU94QTo53n0pPzq47k+zL
+	 u9jVFeqW4YQOAE55y/JIV5risVbZwesbcne3XUKTE/UESVCLpdoYXNULJDF6pqY1NF0oq
+	 FkHsj41XJgNVs9OKQYKZmTIeA4MeyzUYzNrEbwX1epUH3hxvgT71veweE7Rx1qkJAF/fz
+	 HxOGRzUjufiv9sEZBXD8QVpSVGw1kxNyJrCNntrCtwEHA+fFgZo0g4YhEPn3yQbRMmEdB
+	 D3cLEl9fs0g+waNxK8NTVXBf6Nbcty+2IaFBFCBoTq2ReFVgMIsokeUAPc9KfbqT2Hg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MDryEfII;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EFqeG8xC;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C91A0606A31E;
-	Wed, 28 Oct 2026 20:15:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D62E8606A337;
+	Wed, 28 Oct 2026 20:15:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MDryEfII
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5134A1F01828;
-	Wed, 28 Oct 2026 20:15:33 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EFqeG8xC
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECA231F01829;
+	Wed, 28 Oct 2026 20:15:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793218542;
-	bh=dhlOcylSqv6vV3g9yAiSRK5LeWK6PvVVUjVeVgzCiQQ=;
+	s=k20260515; t=1793218552;
+	bh=PD4hDhqXAiKFSflF7fULM3AAKFj+yDTHa7fJ5vGqNRQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=MDryEfIIbBaBrNLjVh8hACudAmXfL/S1kjrTLh5SZ08bjgHV6iWXaXp31ewgzfKe+
-	 zWNEbZUYhL/laZa4wmO5uWL429aLw9BrkwUNg9TYVRY5iPDgN5wldEw1bIoxGd9Toq
-	 PQh1eb5oeGrVkia/U2LFeH3hWctk396bHN/cwEVZW1towoLPmbhcF0C5pzLxc9fE9x
-	 6yZmXjQs8uIOijZ0DoGLNB78fF56/72A3d+tDxUxf6iGgw2KYtvPos5F1X+diqmqMt
-	 c4S8d2I/GmOne7rKz5V+Z0nCjCzEAmelHZpDitJZ2FTrtPqI24uifZXvNp1VdlE5I5
-	 GxDSJ1FqFqmYQ==
+	b=EFqeG8xC5Mwi0UZUzqPwuieIuWaq9ZyZgwDIxWXkII2L/P/PHr0qV8jMBbtSdKAC9
+	 AOZ6HfEN3h2XaPhzF6ibD4Cu2x0rs1DsAzHggynmtm9pKTYt/OE8H5thdZcMDOQKVR
+	 XDEEEaqhW72tk4o43Nm/R7jfSWsfWM1j4b7tvIQxXpSl+OU48MXWcRojnn0oLlmppe
+	 2PSNAsXd3xDKkrXuc8C7qKr8GkN2MoIINkXDc0ShqvKBandfQWmoJaojETBvk56xfx
+	 UupoRquhv8uXkKegpdvG7yPBDhXgpUwUK1z9sLkIVrJ71zFbmHPjieAjhmEvZG6YAB
+	 CTKdWmE2ePXvw==
 From: "David Hildenbrand (Arm)" <david@kernel.org>
-Date: Wed, 28 Oct 2026 21:13:39 +0100
-Subject: [PATCH 11/15] hugetlbfs: do not grow a sealed file in mmap()
+Date: Wed, 28 Oct 2026 21:13:40 +0100
+Subject: [PATCH 12/15] mm/hugetlb: keep surplus folios that are reserved
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -54,7 +54,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261028-fixes_hugetlb-v1-11-a0a033db180f@kernel.org>
+Message-Id: <20261028-fixes_hugetlb-v1-12-a0a033db180f@kernel.org>
 References: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
 In-Reply-To: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
 To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
@@ -84,58 +84,63 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  "David Hildenbrand (Arm)" <david@kernel.org>, 
  Chris Mason <mason@kernel.org>, stable@kernel.org
 X-Mailer: b4 0.16.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1642; i=david@kernel.org;
- h=from:subject:message-id; bh=jfkxciSMrikjpjxL1MRSlSwGiIzaViEI3tCQWSWiOnE=;
- b=owGbwMvMwCF2/OVpCdfQ3ZWMp9WSGLIehZfd+Xd4tvvyz5xvlh03sXngfnuSyoGrLxMOfbHTm
- 3vghl/O2o5SFgYxDgZZMUWWoOD7Bi9frqutduNjhpnDygQyhIGLUwAmoqzM8M8qr+y2cslv7tel
- Yjo7GTnfTlNcYyIkuzDX4J/kGgX2Qm1GhvU6GhpWRcdurZr0NYObk8Vxq9uH12bhR/KXcU2N2hW
- gzAoA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2040; i=david@kernel.org;
+ h=from:subject:message-id; bh=/mlxy/iaq1GeHcDtTEJ64LQetJjrHzqcoYxh6NLur8s=;
+ b=owGbwMvMwCF2/OVpCdfQ3ZWMp9WSGLIehZdN+Xi05eUjzYILfC+fuJ1Y2aXUbPSp52qkL6919
+ ONM3gm3OkpZGMQ4GGTFFFmCgu8bvHy5rrbajY8ZZg4rE8gQBi5OAZhIUzTDP2Wea2ev6vxQPPag
+ xdXkcdHF6UWLH7ap3bx8PKUi4OF7m3KG/wEXcix2KZzf+/nGKpbonqSCqwu5q7ZtNnG4GZa+KPn
+ jdWYA
 X-Developer-Key: i=david@kernel.org; a=openpgp;
  fpr=1BD9CAAD735C4C3A460DFCCA4DDE10F700FF835A
 
 From: Chris Mason <mason@kernel.org>
 
-hugetlbfs_file_mmap() grows a file when a writable mapping extends beyond
-EOF. We are missing seal checks similar to hugetlbfs_setattr() and
-hugetlbfs_fallocate(), allowing a user to grow a file that has F_SEAL_GROW
-set.
+free_huge_folio() may restore a reservation, but still returns the folio
+to the page allocator if its node has surplus huge pages.
 
-To fix it, skip the resize when F_SEAL_GROW is set; mmap() still succeeds
-without growing the file.
+For example, start with no hugetlb folios and allow one surplus 2 MiB
+folio:
 
-We currently also allow CoW mappings to grow a file. Disallowing this,
-maybe even only for read-only file descriptors, could break existing
-userspace, so we have to be more careful. QEMU's file backend is an
-example user that might rely on such things, and would suddenly start
-getting SIGBUS when faulting in memory outside EOF.
+  1. Mount hugetlbfs with pagesize=2M,min_size=2M. This allocates and
+     reserves one surplus folio: free=1, reserved=1.
+  2. Create a 2 MiB file and write to a shared mapping of it. The fault
+     consumes the folio and its reservation: free=0, reserved=0.
+  3. Unmap the file and truncate it to zero. The mount's reservation is
+     restored, but the surplus folio is freed: free=0, reserved=1.
 
-So be careful and focus on F_SEAL_GROW for now.
+Besides losing a hugetlb folio that is required for a reservation, this
+can also make available_huge_pages() underflow and cause other issues.
+
+Keep the folio in the pool if it is needed to cover reservations,
+including any reservation we just restored.
 
 Fix generated by an LLM and sent by Chris Mason in private.
 
-Fixes: ff62a3421044 ("hugetlb: implement memfd sealing")
+Fixes: 07443a85ad90 ("mm, hugetlb: return a reserved page to a reserved pool if failed")
 Cc: stable@kernel.org
 Signed-off-by: Chris Mason <mason@kernel.org>
-[ david: drop comment; simplify+extend description ]
+[ david: simplify comment and description ]
 Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 ---
- fs/hugetlbfs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/hugetlb.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index 174455e10d0f..47da18bb3490 100644
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -156,7 +156,8 @@ static int hugetlbfs_file_mmap(struct file *file, struct vm_area_struct *vma)
- 		goto out;
- 
- 	ret = 0;
--	if (vma_test(vma, VMA_WRITE_BIT) && inode->i_size < len)
-+	if (vma_test(vma, VMA_WRITE_BIT) && inode->i_size < len &&
-+	    !(HUGETLBFS_I(inode)->seals & F_SEAL_GROW))
- 		i_size_write(inode, len);
- out:
- 	inode_unlock(inode);
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 06d2a78c7170..32ecac4e0d3e 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1774,8 +1774,9 @@ void free_huge_folio(struct folio *folio)
+ 		remove_hugetlb_folio(h, folio, false);
+ 		spin_unlock_irqrestore(&hugetlb_lock, flags);
+ 		update_and_free_hugetlb_folio(h, folio, true);
+-	} else if (h->surplus_huge_pages_node[nid]) {
+-		/* remove the page from active list */
++	} else if (h->surplus_huge_pages_node[nid] &&
++		   h->free_huge_pages >= h->resv_huge_pages) {
++		/* Free this surplus folio that is not required globally. */
+ 		remove_hugetlb_folio(h, folio, true);
+ 		spin_unlock_irqrestore(&hugetlb_lock, flags);
+ 		update_and_free_hugetlb_folio(h, folio, true);
 
 -- 
 2.43.0
