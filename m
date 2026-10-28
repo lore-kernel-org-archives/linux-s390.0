@@ -1,58 +1,61 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793203051;
-	b=WnLOrc1mBBkSgfLI9dYg4q1RQTm2hF1LgVTY8jabo3XaQXwwIIT8xh6h1a2iM8mS0bgP
-	 7pqQfkN2egfVThnaYEanX8XwQTixsYMMcoHs0TXaO0MNLLl11nJ71hIEuEeLGTaz9N53M
-	 O93DgMFn+kVD/fS2fk9vkvG5dhSAYLKRNRwFlGvQ7TJaKO1zRy88dPGTDPZ3zUzNgfCr/
-	 QaGnONiOmzColQWR7yty7lqIj30NIIboC5YLx75HUqqR7gOvCPJnYQL2O1WAcHT+pe229
-	 NduI5y0896Yu0m6VnbVX5DiTVNuAHWAwsbuBvPBS3zp0SaNtFB7NlYWNCiQMOkJFjgw==
+	t=1793203165;
+	b=g6JRA02wLnP2z9LsH4Vz+PgKVMKPHiSn58i1+lNHdBMi1jvXcNP112gtg+8YtgiYGI5V
+	 FkjPDo1Be+HD/IN6IliwsFwb7YTIpKp6yFTA2oYrR99/98QH5Uugcrvv9rAfiYeNS9Cb/
+	 2aDWDCOqLlQnCG6gKmWwKJMelCaZQ4f/sJEJg2/NWMDau0691NNvUlj4QYglDo/o+Wle/
+	 UGI2Rco+goqsZmDC3FF2fCTCHwLltcOdJQPhBijvBYmDtgrBGXapcc/EZWeYlLN4SlioR
+	 C/A4nC745iHB78Me5w2ZYb0yt4CbRj/7KM14hMLW8iGxsRyPH3Rz49F83XgFy8UEIvw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793203051;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=OEeKqe9HslIK7Y/i+++z8SmzLdxvpVPzZ7R7nw7YHZ4=;
-	b=LIWafqioUXQnxNcT7Ke//sGEZKdxFQO8SI1x3B1dy21WNdaUbuyzWC7sFa9EYNLf0cdm
-	 tLOUKT0Vlvxh9S8mirOmT58c7W9IECgsNrH36QjdImdGp2mF0Pc29SKuuseVKYt//6PvO
-	 uJd+rYmNfM/pFOeNf+R9J+EGDWMgCENkYGsPlFjOZKZD8OYSTTiDedjRW2rFXmie+Qntn
-	 jky5sWfoS+XK9Eu36q9E+atbc9p+YxsK81Kp15+B2Buy9cYyArattczwBECVVIuLKg04q
-	 gXe1klE2QVVxUdNS441pVpOySyhi/ObFh3Ey3ACc+7oDknpQXHL/60nTJ8PPv61f05g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793203165;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=yVrRn+kNyHMN16qkTjjCdFdFIshmK/rzY5bBip8I5Z0=;
+	b=122lpQK9TvlXmclutnsRAvZJEUSVcInilSe94haRQjWSKSTJTqUpR9ooMooeWLUQYi+p
+	 qLNR/2QRtRBezpwT53LYASXsn//KT03PnP9NUQ5ChZUbIxq4sXE2mUsHn/4cJ3FVT/v+L
+	 uFortng0HecrLT5mlN0MnrsANa2Quw2f0XYaKwRm58n0IOhYVfKaxi6NjVOg5Lk3NjNtO
+	 muhtWm3t3ddVaJ1rqRbx+6En9UXYWyXz83PAaFGr3cSHGwqwv34FzFOO7jEvrw5sJdtyO
+	 fc/Gq1lEmoWIijNS5B50SJ20PKUR5KsmaLaCS46UwZ0KaorWLOITtqqIJexZ86DGb0g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IAxEa9va;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=haEwZa92;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DB82606A321
-	for <linux-s390@vger.kernel.org>; Wed, 28 Oct 2026 15:57:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id 99C09606A324;
+	Wed, 28 Oct 2026 15:59:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IAxEa9va
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42BB91F01825;
-	Wed, 28 Oct 2026 15:57:30 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=haEwZa92
+Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id A21A11F01829;
+	Wed, 28 Oct 2026 15:59:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793203050;
-	bh=OEeKqe9HslIK7Y/i+++z8SmzLdxvpVPzZ7R7nw7YHZ4=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=IAxEa9vafOnCB0vqadE79IQOE7RDpR21PpzOODx2bHzoTYw36sfmwHHeJWTiXvKYO
-	 GCWnX1g9Wz+XuL6c65hffDvM74fhn7ubD8/ayAVygAGv2rYgRaNMq8jqlJZ9XODDbb
-	 GrV7auN/Mcu2SiZdW1Y3XyS+Irvw5SotDTVj5BmX9/0QbY5lKWrSj1VRJu9XMrf5lm
-	 Jkk1gVOE8WEKJQPchdsRe/Lg8zTrZI0dt3mKT7cMxC+KuE/mOzkGqLujsGyaoXOQMQ
-	 wIMRh5Mwagbu6IbMfInZB6VePLbyV3mu26fPFz6oT0yAU1A3OoDcRiUCYj9+4Kgrx5
-	 UTENvZ1vrWUiw==
-Message-ID: <sashiko-outbox-188106@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 2/5] s390/pci: Improve function measurement state
- management
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Omar Elghoul" <oelghoul@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261028154352.15108-3-oelghoul@linux.ibm.com>
-References: <20261028154352.15108-1-oelghoul@linux.ibm.com>
- <20261028154352.15108-3-oelghoul@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 28 Oct 2026 15:57:29 +0000
+	s=k20260515; t=1793203165;
+	bh=yVrRn+kNyHMN16qkTjjCdFdFIshmK/rzY5bBip8I5Z0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=haEwZa927ysjydVPPZvQacM6MQzUQamA8aF+y/8oZE1NXqZ5v6mecBENbp0DIN5O7
+	 dixNmuuLzrhsRhKvn6jagAqSBHBR7wDWR3HRAQrOEykAzgNm5NgqGK4BIihFa5PrE8
+	 0eZe7qMiSCTgtvrSgwapjuHUy71kSSIjPNqbIdsnlhih/7ob5CdXGbRbmsy2p39Oz7
+	 2R7bXKbCteqlv0sJIBt8rYNaWAicnVLm5JP9GHOlEjIrbfIpppXSAuHLkl9u4T9yyJ
+	 B/7ilsOgRpnLLCoLHCN7WDH32TPmT7YgjVSnz/EwPDi6p/ZWEIX0UMEOC7iOuqFfn+
+	 ldNZmUV8ncjMg==
+Date: Wed, 28 Oct 2026 17:59:21 +0200
+From: Jarkko Sakkinen <jarkko@kernel.org>
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	David Howells <dhowells@redhat.com>, keyrings@vger.kernel.org,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, Kees Cook <kees@kernel.org>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	Anastasia Eskova <anastasia.eskova@ibm.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390/cert_store: Hold the keyring->sem while
+ invalidating keys
+Message-ID: <auIb2VIyDPqcgSgS@kernel.org>
+References: <20261024144229.1546151-1-jarkko@kernel.org>
+ <20261028153419.8417E3b-hca@linux.ibm.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -61,28 +64,46 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20261028153419.8417E3b-hca@linux.ibm.com>
 
-> When a zPCI function is disabled and re-enabled, the firmware implicitly
-> disables function measurement while the kernel still believes it is
-> enabled, leading to a disconnect between the user-visible state and the
-> actual device state.
->=20
-> Add the statistics_on field to struct zpci_dev to track the desired FMB
-> state. Introduce the functions zpci_fmb_request_on() and off(), which
-> defer to zpci_fmb_enable() or disable() to perform the actual firmware
-> change. This decouples the enablement or disablement step from managing
-> the user's requested state.
->=20
-> Preserve the state in pcibios_enable_device(), pcibios_disable_device(),
-> and zpci_reenable_device(), so measurement is restored automatically
-> after a re-enable. New devices start with measurement on by default,
-> unchanged from before.
->=20
-> Signed-off-by: Omar Elghoul <oelghoul@linux.ibm.com>
+On Wed, Oct 28, 2026 at 04:34:19PM +0100, Heiko Carstens wrote:
+> On Sat, Oct 24, 2026 at 05:42:25PM +0300, Jarkko Sakkinen wrote:
+> > invalidate_keyring_keys() does not hold keyring->sem while calling
+> > keyring_read(), which is contrary to what keyring assumes from its callers,
+> > and can lead to reoccuring bugs.
+> > 
+> > KEY_FLAG_KEEP alone does not e.g.,  protect from  the following call path:
+> > 
+> > 1. keyctl_keyring_move()
+> > 2. key_move()
+> > 3. __key_unlink()
+> > 
+> > Address the issue by guarding the critical section.
+> > 
+> > Fixes: 8cf57d7217c3 ("s390: add support for user-defined certificates")
+> > Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+> > ---
+> > This came up as a side product while working on assoc_array to
+> > rhashtable migration and going through various callers of the keyring.
+> > It's made by me but please keep in mind that I don't even have a
+> > toolchain for s390 setup so it is based only on reading code and I have
+> > not even compiled this.
+> > 
+> > Just wanted to clarify the background for this fix as I'm not a regular
+> > contributor over here. If for any reason it turned out to be false
+> > positive, I'm fine with that too.
+> 
+> It is not a false positive. There seem to be more bugs in the code.
+> I'll take your patch and create a series with other fixes.
 
-Sashiko has reviewed this patch and found no issues.
+OK, great :-)
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028154352.1510=
-8-1-oelghoul@linux.ibm.com?part=3D2
+> 
+> Thanks a lot!
 
+You're welcome!
+
+Br, Jarkko
