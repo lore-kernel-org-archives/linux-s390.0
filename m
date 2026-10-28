@@ -1,81 +1,93 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793190411;
-	b=BrkLwWZsD8y2e2o+J5yfT20CdUfmKxCP6MBU35k3mbSCpOOG227Mto0GVA7ObqppUaAO
-	 bYeY859Lio0CFep5v+S4Gh9wln0fHKXUnDtw+VCJwg3Y+dxLmWxUvOmNXDyAG8UpuMHGA
-	 tmFl0Lc5sVGld2qSszef8Til1MWNIsDtzL3UujYWY6OsRu4aqefO3JhdvsuBi52LtsIL0
-	 QchVRqWvShO+FGmbrfyAc++jBetUky7e50HPuqujtL+f1UPco0y/+M+Wh9DHwSDjHliRD
-	 sfqWhXKG+QWB4FC/3NuTkkbNYmAe3fsOOhChQ7PCCJ4pc3cxUa2jwhQwDhpQqj/k0Og==
+	t=1793195045;
+	b=wUQTAglQnb6INNQbXTrP2aKPrRzNspwi4+bKER5yFI8thDTuTY1gRpXYZfK/ZytenqwA
+	 m3Oh1qJzGE5LT7mkzfmDn5IIFQy3AIcwV7OZZPo7M1E4stbcd2RegreMwPvFkHgkiqnOw
+	 SBKVAVP96w7Hbm07sw+dLb+ZQxSNb6D+190c7jieC9JbvI5VdUb2AJ2NDyeQvvOhed5mG
+	 ijS1VKEJL+CpVtrCCr1jYvU3LiWxuxvb+T40JChvlK4wCbHdP7CBrZsPExTpH5f4cm5iv
+	 Rd+XyqL5bC/QCVrHHs2LuYwXx1GFWb2iatFJKBwz6Ol05Iw93J1GxPb25vV2x2dQ2wA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793190411;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793195045;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Authority-Analysis:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=6fFsoWZl/hQgO2KEWWTSORqh///dhnSFc0KzuvLF+Ig=;
-	b=OUgAlIHqQRZ2UQseb0pAaEs6MnIb6bQi717nrtOC6IxtpQv5d2DRlEAoH5PC7fczhmWC
-	 hQ1G9ScgjW7l3kCbK8/GJeHlJdeli5WLXfSyhnpH7lKzBJZ/Ktizdn6vVqZXVUpVCH6oM
-	 mE2Tbvr2Xn3hv6Gqwxr1vWjY1u7i22Htri1AvcT9oaU5XfrQXdQ72JR2BUThvDj00jZ3U
-	 StSPPmAMIULqI35T3MVWruoTVHPw2pBaHwdWoLQeegxAUxwE6pfIwmlRvN3kv1sb9c/RL
-	 qxOmVGEOue7yxBqySgdQfdy+MQFVnhnIonUXFHwdxh9vsRGFbihJ3iBBxzqWjzNyepw==
+	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To:X-TM-AS-GCONF:X-Authority-Analysis:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=Jo5q6dulHzwuHAQGXXzo+AUQBJOKU1ngsYkW6Rj6zTs=;
+	b=CxZ6YaWyC/l7poScAq5NsD8PcyS0c73qq/w8oK5p3fq31zjCqmRrF6jIAAi6N8cK9Myi
+	 0y/350vkMOYMpAAqIRnXJqDwVGKHnpSi9nCYNK16OwL3M7hauTG6Gt39TJDaUc8j78C7D
+	 XRllFJ1mApejPepJRLhcz93GZwllBeLx+4iLTUcGfBVWo5kXds3u7LcBR9/3k7B0zRbcv
+	 wn2ezdhCDQ5hf45nOP8CgibmZ7qxmdJEnLMuPo2NRz88Dh+TsMMefKhBU/zFeF0XMny9l
+	 jHnr5HnldwmqoEa9+23dsbf2/j9g5aEYf/Th0c+g3buTv0b7N0alrSkRyjHzjUKS5Aw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=P8PguemO;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=gfUUJpN2;
 	arc=none smtp.remote-ip=148.163.158.5
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5E27606A31F;
-	Wed, 28 Oct 2026 12:26:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A5E27606A31F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABA20606A31E;
+	Wed, 28 Oct 2026 13:44:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ABA20606A31E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=P8PguemO
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69SBibqM1159946;
-	Wed, 28 Oct 2026 12:26:49 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=gfUUJpN2
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69SBiEYG4175125;
+	Wed, 28 Oct 2026 13:44:03 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=6fFsoW
-	Zl/hQgO2KEWWTSORqh///dhnSFc0KzuvLF+Ig=; b=P8PguemO6wBWUQfE8vl3Lk
-	6c2SEga+Apw86s6/RiP1AGMX5WvuosctjDdGREnyJaBtWdv9QEht0VZHQ1uJlzTH
-	kuhHp+UJqY7kKjGZLFIwCyKbgIGj8rynRbGV6Eaf4trX/ERbRpcCPlPE2fViHX8y
-	dU/mfY0SHX262ejcGLd4LsmaL33pf+nGurm3216LVt17+Z+JhZ2p5vpoVvJtEZdy
-	WCOJfaiLgjSVrCZh6YzFgGSK0xgmvQqpA4qVlxKQxI7G3TGT9xxwUg0FMf5YevCg
-	NJmFBpgWCnVYRbFCFWNqOx4Wy6VFdLaUcVCQKVpK/GwKMNH7hJDP+7lihyJwk1/Q
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hgmavm536-1
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=Jo5q6dulHzwuHAQGXXzo+AUQBJOKU1
+	ngsYkW6Rj6zTs=; b=gfUUJpN2CLPGGoKVAE0yaCEPKNZ1dT/9fT+CA05DH/BuwZ
+	X4FyOIVNgEy/7e6N29VVVfCqJ3nF7uFY1pamX+gMtX/JX/0dvzolXgnIh2JsGx5f
+	thCxTnydnsr2hoE/z1FJMYQSsSzKnpIsvanaq+zvLhIzThw3eAzjJniSbIiztLie
+	mpH8F0qMUE4tNkMg7wxfFOUIny1TSdvDkHHysEcyF3/6KmPxG4sDEAPthS1tEBPw
+	iheNzj1X6Fy1+00KY9Yqi1UWDzXZApccIASGMMiKn0BIDY24KTaZEiR5+tqHL/l2
+	V9W66xg/w8JSMY9q8Lt7zfLbp6/3HHYYC6KcoQuA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hgk3g4s9j-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 28 Oct 2026 12:26:49 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69SBo67b1550075;
-	Wed, 28 Oct 2026 12:26:48 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hh8gh785x-1
+	Wed, 28 Oct 2026 13:44:03 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69SBntJJ1441982;
+	Wed, 28 Oct 2026 13:44:02 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hjtnnd7bx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 28 Oct 2026 12:26:48 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69SCQjdQ48496952
+	Wed, 28 Oct 2026 13:44:02 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69SDhwaM44892516
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 28 Oct 2026 12:26:45 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EB7C62004B;
-	Wed, 28 Oct 2026 12:26:44 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AFF8820040;
-	Wed, 28 Oct 2026 12:26:44 +0000 (GMT)
-Received: from [0.0.0.0] (unknown [9.111.73.9])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 28 Oct 2026 12:26:44 +0000 (GMT)
-Message-ID: <eb9b4dd0-730d-4efe-8317-0934a84c9492@linux.ibm.com>
-Date: Wed, 28 Oct 2026 13:26:44 +0100
+	Wed, 28 Oct 2026 13:43:58 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 64BAF2004D;
+	Wed, 28 Oct 2026 13:43:58 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4248A20043;
+	Wed, 28 Oct 2026 13:43:58 +0000 (GMT)
+Received: from osiris (unknown [9.68.31.201])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 28 Oct 2026 13:43:58 +0000 (GMT)
+Date: Wed, 28 Oct 2026 14:43:56 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 04/10] s390/runtime-const: Serialize text patching
+ with text_mutex
+Message-ID: <20261028134356.8417D0b-hca@linux.ibm.com>
+References: <20261027143030.3154657-1-hca@linux.ibm.com>
+ <20261027143030.3154657-5-hca@linux.ibm.com>
+ <034dc4fa-520b-4ad5-9d9d-8ae469692698@linux.ibm.com>
+ <20261028110926.8417C5c-hca@linux.ibm.com>
+ <48b38efa-86df-4654-91a9-88c3118ae372@linux.ibm.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -85,70 +97,62 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 09/10] s390/uaccess: Move s390_kernel_write() to
- asm/text-patching.h
-To: Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
-References: <20261027143030.3154657-1-hca@linux.ibm.com>
- <20261027143030.3154657-10-hca@linux.ibm.com>
-Content-Language: en-US
-From: Ilya Leoshkevich <iii@linux.ibm.com>
-In-Reply-To: <20261027143030.3154657-10-hca@linux.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <48b38efa-86df-4654-91a9-88c3118ae372@linux.ibm.com>
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=P8SvFSAu c=1 sm=1 tr=0 ts=6ae1ea09 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=ifOuXc17KlXt5XTgyocA:9 a=QEXdDO2ut3YA:10 a=zZCYzV9kfG8A:10
-X-Proofpoint-GUID: Ztlw3DyrTiseLCtb4J5xlY_ZML6PZidf
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI4MDA0OCBTYWx0ZWRfX2611g5nkJEXw
- UVVL6vjEd0GJnHoHVtcM5MhALdqxf+31jHci5ffyX0Od23CilslMDq3njI8jkhbWnzfMnfjCqIn
- oc8t+45UhIOCUPJ+n0RJxH4DhrYoZPA=
-X-Proofpoint-ORIG-GUID: Ztlw3DyrTiseLCtb4J5xlY_ZML6PZidf
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI4MDA0OCBTYWx0ZWRfX7m25THRd2pbR
- bQTgNOCWpQfUqOrny47nvkRYsaU0gHusDgJebcSWuZJfWBDQRiE8lueiZY757h/eNbH2DrKgszs
- V+2nWumDLHfjNt2gaAI69xviRPgqHJuO02nki7kbKEbxVetyZ/H87uNh71LkdDirh5ECdNVXSAx
- Kor32QSJHMgUG+CwpdVWCEvfHGUql6746UXCdsFRuA/QlhW0PdFayswOd+P3TNZ62oDditG/IBm
- P/bJ1w7ywTGEzh+gUcLapUUKayWodHIqFeCaTPTtRsSjtL+1g6tjkscrXjYufKLmwuffwDu722v
- qbNOlfA6n3I7ZsWpBHwuOkOcsBHcFs1qsGk/3/JjpxvvJxLyQvHXEDoWducp4YvvEUqJ2VRZJxv
- 4kOyiEAFgaOwGgApqKAZ8Jd68u4hl1I6yFLu93AgUfTiaRSl6iahwx/VKzo0dacz02FPHsno5jr
- 6wRn2W2fcPVfycRFT9g==
+X-Authority-Analysis: v=2.4 cv=BOMmP1QG c=1 sm=1 tr=0 ts=6ae1fc23 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=sdVNXsAZ8R04oH_nJ-YA:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: sroLhmCdr0Edsmksvub_bg88hNIr5LVt
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI4MDA1NCBTYWx0ZWRfX9yQv8GBDQVyu
+ CTJnIS8lC/qbuL1xeFx5f93wkP9P34x+MCSLmjyxWiDL90MXCpbVzbZx5DCr+fMhLFD1tSd5Yi3
+ BduhGlwJv5q+LbZOwSinDysRvytSyGejQn9EZf3b/oN7pVREJsUnfOyOD6kABEW72wllKwXqQu9
+ 3ANgxMjEtfOyM8y1QIFBG+LYPg1Jy/b0jvztXZwCP2sbw4w8FPpcg597p0v9S3cpzpMCAbJFP5l
+ E/+LI5gWEZ4/5HfKy1d+e3++AQwc2mgcFCprL1gvFdLXFoaxs7GdtW9F/1LuR+p4NjppIoaJWeo
+ SFmsO+girwmgif0NxhO2gcjBX2vVzsS7K0Z+CiKKVdJUXKlzxtwJu3lwXIAz85Qo8IU2W+Unm8W
+ PCallGtEB9MKa7GptSPNQowP2kvbq23kc2VBrXb9iT714a31a7iNYyAR65f1dceIYX3P5Yk7Tdi
+ wjxTmjumiKWPHdm1N6A==
+X-Proofpoint-GUID: sroLhmCdr0Edsmksvub_bg88hNIr5LVt
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI4MDA1NCBTYWx0ZWRfX4doLCR4J/cE6
+ HFHRb2s5zYBN/rP/zf17zZPD8OYT6zTWbyugHzovZG340hs8K9PYV7B6Jl+A+SHVIeVu4UkUkLJ
+ TNSNPcnQr00GnSd1Fzjc8+WXF7s6p5c=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-10-28_04,2026-10-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 adultscore=0 malwarescore=0 phishscore=0 spamscore=0
- clxscore=1015 bulkscore=0 suspectscore=0 priorityscore=1501
+ suspectscore=0 bulkscore=0 malwarescore=0 clxscore=1015 spamscore=0
+ phishscore=0 adultscore=0 impostorscore=0 priorityscore=1501
  lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610190000
- definitions=main-2610280048
+ definitions=main-2610280054
 
-
-
-On 10/27/26 15:30, Heiko Carstens wrote:
-> s390_kernel_write() is a text-patching primitive, not a user access
-> function. Move its declaration and the inline wrapper from uaccess.h
-> to text-patching.h.
+On Wed, Oct 28, 2026 at 01:22:30PM +0100, Ilya Leoshkevich wrote:
+> On 10/28/26 12:09, Heiko Carstens wrote:
+> > On Wed, Oct 28, 2026 at 11:58:27AM +0100, Ilya Leoshkevich wrote:
+> > > > @@ -88,6 +89,7 @@ static inline void __runtime_fixup_mask(void *where, unsigned long val)
+> > > >    static inline void runtime_const_fixup(void (*fn)(void *, unsigned long),
+> > > >    				       unsigned long val, s32 *start, s32 *end)
+> > > >    {
+> > > > +	guard(mutex)(&text_mutex);
+> > > >    	while (start < end) {
+> > > >    		fn(*start + (void *)start, val);
+> > > >    		start++;
+> > > 
+> > > Interesting, so clang is able to propagate context even through indirect
+> > > calls without explicit annotations?
+> > 
+> > There is no clang context analysis involved here - this is purely lockdep
+> > based (with the last patch of this series, which adds lockdep_assert_held()
+> > to s390_kernel_write()).
 > 
-> Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-> ---
->   arch/s390/include/asm/runtime-const.h |  2 +-
->   arch/s390/include/asm/text-patching.h | 11 +++++++++++
->   arch/s390/include/asm/uaccess.h       |  9 ---------
->   arch/s390/kernel/alternative.c        |  2 +-
->   arch/s390/kernel/jump_label.c         |  1 -
->   arch/s390/kernel/module.c             |  1 +
->   arch/s390/kernel/nospec-branch.c      |  2 ++
->   arch/s390/kernel/stackprotector.c     |  2 +-
->   arch/s390/mm/maccess.c                |  1 +
->   9 files changed, 18 insertions(+), 13 deletions(-)
+> Ah, I see, it's stated right in the first line of the cover letter.
+> Did you consider using it though?
 
-Reviewed-by: Ilya Leoshkevich <iii@linux.ibm.com>
-
-
+Yes I did, but if I add __must_hold(text_mutex) to the inlined
+s390_kernel_write(), then clang cannot prove at all call sites that the lock
+is actually held - so plenty of additional annotations would be required (if
+possible at all), and then I decided to drop that approach and rely only on
+lockdep.
