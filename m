@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793214614;
-	b=YVHjOWlqLBHOqiVDRPemkGAftNoV/x7KEu7KAWnPA0wuXJnlNf1sL1YCWt6fT+ogsa+c
-	 JcdQdALIvBCaQR4JkaE0K12RjtXz/O0Y6V6cGej7YqeSZUNa8cwQC/IDgm5mGvPiKvEIO
-	 MSsd5fEXyc8n9YBMgX3LzzxWnL7Pqz+RgXlewlxboa1gs99RP6ZEtMxo3wb2GEEIA8hZ/
-	 kJNG1O2x6O3sci3HI2YH+UQaJcJRyl4FwU6Q4PHqdbac/FZ6wGuUHsuBmB9dctxQ6zD5k
-	 mA6r4C5doXnJ11hJX0DMGPoYe+HCHGsVa7XVNVBy+oV6ATY0AalsiFkYbQk2+p4CFng==
+	t=1793214943;
+	b=epXwM6XRac6mS69MvvO/K7tXkkx5NYGtAcFHiSFr8fFLrtrmuTUPP6rCv8E+4iCUNnWT
+	 lBduiiC7T2PD5/DloMkYnti5dCOZ7GlDBedpvDNM473Gn1z956ouilBw+RHieRA7dKuI9
+	 V6oomNUF4urwGprjoe18w6+YuQ46dtAU5iuxMEY/EXSvbGuIDUqb8/3leZaraVlK/1Syo
+	 OHfPuwEmLccYldr3T0m/8VEDc69aEiazvnXcy3mxg5pBQUgu/qfr7Wipzre/4qLsWBnNs
+	 QMFg3Y2M/rM+/t8Pn7YjXiFXghUkB4HNim2LzgElx1hQ9sPG80ts0wQ7MlMQJm5+XtA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793214614;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793214943;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=/JK3I4YwpyC6pX+GmJP3VhsjNAm4A9hfzYhfPC1P+R4=;
-	b=Sq0qfP8GBiJ3wO540H6ffze9GA5tYbN9A1BFU6u5JwPZ6prN3ddDIjcje/md2azAiZ/C
-	 Ng0FF2mhBSh0TqI31YVQu79JLLTcfv6cCntWZlUIp72gNnoNk4EoSaTY9zltwYJvtqXV4
-	 rT7ylH5UdVcMqq8afiNajTbqFVuxT/7KyLJtZLOXppXSpHqNprG/oRz4inqlKDMU0kdIT
-	 CzOiFY1vrShutHWVngJqRsClqKlRTd5AqapACOViEApSTPx1RntUwd//5iM42Hy5GwH/Y
-	 FDSnUM/uckU9iXmZdEE+T2kSVGIJOY1YK42/XaAcAhAra5vvXFF7YazdHv98cmHe/iQ==
+	bh=w/sdlVL7e521paInlVGPXeRSGyEf8ci6lJZqdL6F8Kw=;
+	b=o0GdAPVaTeTt/dM/Jc2FCws6kVpIc9LYnggJR7EBMqo3eKzEGATeieGf3liBQQi4Jrny
+	 vCT4ZmGmSB//fBNrxCoBHRkew5X5+WOxc72fcwLtr0LPiutc0Nfb3W/gsvOZGnLn1pibk
+	 9GT+j0ZxtA4FlS31DzN80rUVtyb/qKNVR34LZhlSu31rbWHgOcIDQVYyfzukgQ4pn6miL
+	 vXFaNeds9oc71WfmEA5YTpxZtVqfnHIlhw+nA7yPXs+9wKhAgYF3cWPEaC6jR98Ha6Hlh
+	 43h0PMs7J1n7iDRWIKzN0yVqe3rgJHTVolIpmkunQb1hHxer8CZguEBlcaZglK/zyOQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=heVeqfKN;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QWuK+tPW;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF26F606AB25;
-	Wed, 28 Oct 2026 19:10:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E25F9606A31D;
+	Wed, 28 Oct 2026 19:15:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=heVeqfKN
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72B121F01829;
-	Wed, 28 Oct 2026 19:10:13 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QWuK+tPW
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BC0D1F01825;
+	Wed, 28 Oct 2026 19:15:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793214613;
-	bh=/JK3I4YwpyC6pX+GmJP3VhsjNAm4A9hfzYhfPC1P+R4=;
+	s=k20260515; t=1793214942;
+	bh=w/sdlVL7e521paInlVGPXeRSGyEf8ci6lJZqdL6F8Kw=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=heVeqfKNPA8dOLJ/TdtXP3XEvy+T5Y/0mDaVyF0nhLtR4zC0MO/oEMz9SDzYNXiu3
-	 Nyy7HHHjDowVvs9RbsdW9qsxIfpPv0MOsR+5rcTOBrmc5DVZgHVZwAXdRlj2JqV+t5
-	 SWUz4DayQhhB3gm6lG8NOa0L7fWy05CxVtZQW6T6nPIJ/dU3DKWMmHtEHZIc2tnNdT
-	 WzGjyhgdSp5T8oXXoBbljS1rYrD+blzWBXy9UncWlGvPZXB1U5J1O5GM98jKcX6jX/
-	 Dntl2FCBMBZVRJFriQzpf5H7spz3/E8b5DYYubaIMKpJOG1jKR5FKq1fIgdgF0v64g
-	 ktXdukJY9sjcw==
-Message-ID: <sashiko-outbox-188343@kernel.org>
+	b=QWuK+tPWzqKOV20bQnyK064xRtRsP+dElRESjfGlFawPeOlaX+T5jMWAHAjvIurrG
+	 YhK4OfMM08f0sN1pZHdMRssL7kZiqbyvxYCJQ26hV8afBfrVwPoj4nvkyiLI+fSrxz
+	 6bD1/TLgL5IXBfPnG/M/bmBKN9H9J0pVE3PxasCvqdtAKKS+msArXMTdpWDU5gcbmn
+	 DDKbJ1Lo6LPRKniaK8EebtESJdBfXlSE7dvnXCb9E9ShFX0IFkDHP6jeKfPRlZ0ksN
+	 1yrcVDnnAQ5PcCXuDXedyUcxk+QIo2Q8DkrdF5NG9UijMjnMHJYuwamkxzpfzk1Joz
+	 3mClGKwg0JRZg==
+Message-ID: <sashiko-outbox-188344@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v4 4/7] KVM: s390: Improve unmapping of large ranges
+Subject: Re: [PATCH v4 1/7] KVM: s390: Fix UCONTROL inconsistencies
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261028185422.272146-5-imbrenda@linux.ibm.com>
+In-Reply-To: <20261028185422.272146-2-imbrenda@linux.ibm.com>
 References: <20261028185422.272146-1-imbrenda@linux.ibm.com>
- <20261028185422.272146-5-imbrenda@linux.ibm.com>
+ <20261028185422.272146-2-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Wed, 28 Oct 2026 19:10:13 +0000
+Date: Wed, 28 Oct 2026 19:15:41 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -64,69 +64,116 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Medium] KVM: s390: unit mismatch comparing gfn against _REGION3_SIZE in =
-gmap_unmap_gfn_range_fast()
+- [High] KVM: s390: _crste_ucas() entries are misclassified by _crste_hole()
 --
 
-commit a8a43df04b3daf5a4e6da5896223864c27f0c852
+commit ae2a9cbd52d9a1b0705430e97b065c3fd62e60bc
 Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-KVM: s390: Improve unmapping of large ranges
+KVM: s390: Fix UCONTROL inconsistencies
 
-This commit speeds up unmapping of guest address ranges larger than 1M by
-detaching PMD entries, clearing the detached PTEs, and reattaching the PMDs
-instead of invalidating each leaf PTE individually.
+This patch updates mapped-but-unallocated UCONTROL segment entries to use a
+new combination of flags (_UCAS_ENTRY_LENGTH and _UCAS_ENTRY_OFFSET) so they
+no longer collide with the present bit, and adds DAT_WALK_IGN_HOLES to the
+UCAS walk paths.
 
-> diff --git a/arch/s390/kvm/gmap/gmap.c b/arch/s390/kvm/gmap/gmap.c
-> index 225fdae3d57ca..04f3ab03a041a 100644
-> --- a/arch/s390/kvm/gmap/gmap.c
-> +++ b/arch/s390/kvm/gmap/gmap.c
-[ ... ]
-> @@ -462,6 +453,129 @@ bool gmap_unmap_gfn_range(struct gmap *gmap, struct=
- kvm_memory_slot *slot, gfn_t
-[ ... ]
-> +static bool gmap_unmap_gfn_range_fast(struct gmap *gmap, gfn_t start, gf=
-n_t end)
+> diff --git a/arch/s390/kvm/gmap/dat.h b/arch/s390/kvm/gmap/dat.h
+> index 90389d47ba4e0..4665c1112bb91 100644
+> --- a/arch/s390/kvm/gmap/dat.h
+> +++ b/arch/s390/kvm/gmap/dat.h
+> @@ -109,6 +109,8 @@ union pte {
+>  #define _REGION3_FR_MASK	(_REGION3_MASK >> PAGE_SHIFT)
+>  #define _PAGES_PER_SEGMENT	_PAGE_ENTRIES
+>  #define _PAGES_PER_REGION3	(_PAGES_PER_SEGMENT * _CRST_ENTRIES)
+> +#define _UCAS_ENTRY_LENGTH	0
+> +#define _UCAS_ENTRY_OFFSET	3
+> =20
+>  /* Soft dirty, needed as macro for atomic operations on ptes */
+>  #define _PAGE_SD 0x002
+> @@ -421,6 +423,17 @@ static inline union crste _crste_fc0(kvm_pfn_t pfn, =
+int tt)
+>  	return res;
+>  }
+> =20
+> +static inline union crste _crste_ucas(kvm_pfn_t pfn)
 > +{
-> +	const struct dat_walk_ops ops =3D {
-> +		.pud_entry =3D _gmap_unmap_pud_fast,
-> +		.pmd_entry =3D _gmap_unmap_pmd_fast,
-> +	};
-> +	gfn_t aligned_start =3D ALIGN_DOWN(start, _PAGE_ENTRIES);
-> +	gfn_t aligned_end =3D ALIGN(end, _PAGE_ENTRIES);
-> +	bool failed;
+> +	union crste res =3D { .val =3D PFN_PHYS(pfn) };
 > +
-> +	lockdep_assert_held_write(&gmap->kvm->mmu_lock);
-> +
-> +	/* Prefixes are below 2G; if the start is above 2G, nothing to do */
-> +	if (aligned_start < _REGION3_SIZE)
-> +		gmap_unmap_prefix(gmap, aligned_start, aligned_end);
+> +	res.h.i =3D 1;
+> +	res.h.tt =3D TABLE_TYPE_SEGMENT;
+> +	res.h.fc0.tl =3D _UCAS_ENTRY_LENGTH;
+> +	res.h.fc0.tf =3D _UCAS_ENTRY_OFFSET;
+> +	return res;
+> +}
 
-[Severity: Medium]
-In gmap_unmap_gfn_range_fast(), aligned_start is a gfn_t (in 4K page frames=
-),
-whereas _REGION3_SIZE is 2G in bytes (1UL << _REGION3_SHIFT, or 0x80000000).
+[Severity: High]
+Can _crste_ucas() entries be misclassified by _crste_hole() and
+dat_entry_walk() when walking a UCONTROL gmap without DAT_WALK_IGN_HOLES?
 
-Comparing aligned_start against _REGION3_SIZE checks whether the guest addr=
-ess
-is below 8T rather than 2G, causing gmap_unmap_prefix() to walk all vCPUs
-while holding kvm->mmu_lock in write mode for any fast-path unmap starting
-between 2G and 8T.
+In _crste_ucas(), PFN_PHYS(pfn) is stored in bits 0..51 of res.val while
+res.h.fc0.tl =3D 0 (clearing tok.pr) and res.h.fc0.tf =3D 3 (in bits 56..57=
+).
+However, _crste_hole() and _crste_none() only inspect crste.tok.type (bits
+0..15 of res.val) and do not check crste_is_ucas():
 
-Elsewhere in arch/s390/kvm/gmap/gmap.c, gmap_limit_to_type() shifts
-_REGION3_SIZE when comparing against a gfn_t:
+arch/s390/kvm/gmap/dat.h:
+static inline bool _crste_hole(union crste crste)
+{
+	return crste.h.i && !crste.tok.pr && crste.tok.type !=3D _DAT_TOKEN_NONE;
+}
 
-	if (limit <=3D _REGION3_SIZE >> PAGE_SHIFT)
-		return TABLE_TYPE_SEGMENT;
+static inline bool _crste_none(union crste crste)
+{
+	return crste.h.i && !crste.tok.pr && crste.tok.type =3D=3D _DAT_TOKEN_NONE;
+}
 
-And arch/s390/kvm/gmap/dat.h defines the region-3 page count directly:
+And in dat_entry_walk():
 
-#define _PAGES_PER_SEGMENT	_PAGE_ENTRIES
-#define _PAGES_PER_REGION3	(_PAGES_PER_SEGMENT * _CRST_ENTRIES)
+arch/s390/kvm/gmap/dat.c:dat_entry_walk() {
+	...
+	if (crste_hole(entry) && !ign_holes)
+		return entry.tok.type =3D=3D _DAT_TOKEN_PIC ? entry.tok.par : -EFAULT;
+	...
+	if (entry.pmd.h.i && !entry.pmd.h.fc) {
+		if (!allocate)
+			return any ? 0 : -ENOENT;
+		rc =3D dat_split_ste(mc, &(*last)->pmd, gfn, asce, uses_skeys);
+	...
+}
 
-Should this check compare aligned_start against _PAGES_PER_REGION3 (or
-_REGION3_SIZE >> PAGE_SHIFT) instead of _REGION3_SIZE?
+Because crste.tok.type overlaps (PFN_PHYS(pfn) >> 48) & 0xffff and
+crste.tok.par overlaps (PFN_PHYS(pfn) >> 32) & 0xffff, two problems can
+occur when a caller walks vcpu->arch.gmap->asce without DAT_WALK_IGN_HOLES
+(for example via KVM_S390_MEM_OP -> vcpu_check_access_key_gpa() ->
+dat_get_storage_key(), or storage-key and CMMA handlers such as
+handle_sske(), handle_pfmf(), or dat_perform_essa()):
+
+1. When PFN_PHYS(pfn) < (1UL << 48) (256 TiB, which is true for all 3-level
+   s390x user address spaces), crste.tok.type is 0 (_DAT_TOKEN_NONE).
+   _crste_hole() returns false instead of treating the UCAS entry as a hole.
+   If dat_entry_walk() was called with DAT_WALK_ALLOC (for instance via
+   dat_set_storage_key(), dat_cond_set_storage_key(), or
+   dat_set_cmma_bits()), it falls through to dat_split_ste(), overwriting
+   the UCAS segment entry with a newly allocated page table that has
+   PTVAL_VMADDR =3D=3D 0, wasn't allocated in gmap->parent->asce, and is le=
+aked
+   when the child gmap is destroyed because GMAP_FLAG_OWNS_PAGETABLES is not
+   set on vcpu->arch.gmap.
+
+2. When (PFN_PHYS(pfn) >> 48) =3D=3D _DAT_TOKEN_PIC (1, i.e. 256 TiB <=3D
+   user_addr < 512 TiB under 5-level page tables), _crste_hole() returns
+   true, but dat_entry_walk() sees entry.tok.type =3D=3D _DAT_TOKEN_PIC and
+   returns entry.tok.par (bits 16..31 of the user address) instead of
+   -EFAULT. Callers interpret positive return values as a guest Program
+   Interruption Code, or if bits 16..31 happen to be 0, dat_entry_walk()
+   returns 0 with *ptepp =3D=3D NULL, causing callers like dat_perform_essa=
+()
+   to dereference a NULL ptep.
+
+Should _crste_hole() (and _crste_none()) account for crste_is_ucas(crste),
+or should dat_entry_walk() explicitly check for crste_is_ucas(entry) before
+inspecting entry.tok.type?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028185422.2721=
-46-1-imbrenda@linux.ibm.com?part=3D4
+46-1-imbrenda@linux.ibm.com?part=3D1
