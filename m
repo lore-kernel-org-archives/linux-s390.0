@@ -1,58 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.213
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793228261;
-	b=GgottF6BQG6pRfqm4ye1iJeS+x59l+8yICWFJ+baki2V0KCpoB3FtSXI68xmBorE14gm
-	 mypXod+V/ZPFImBnmnYgJgQl7sZH0LM8by7kn8QvdBJXimN0OH3zAyCbkAQ+3sxF8PgwJ
-	 zJKouLKPh+avTmzLH3otqFWfY+uQ4GbBu8p/g1Lpj5rIwQSD2Jcn4SDY2D5KqSIFWpE8d
-	 pyoPK96tOkTXZvQnK23YD1LtiHRVb1denDteIC9fWbGMlPaBaYn6lEdCatJnL/AXeHE3H
-	 W2+eK08JnNtqkhZxtlSSxB1eFsUhgz8ppJt0kRni45oxOGNo0XjSzzT6h5MMRmGNcOw==
+	t=1793245054;
+	b=dSMRkONZNZBBY/1vxlUPK/kkNkAx5LJnFtEfNPru/Mb2XNSgMiWm2z09dqKo9gRI5v0M
+	 VuY7+80TuS1adcm15KpS+GXPBSQSJvCY5DnyjWxGWjlW3oLnfq+oZl94npFvZfaaWklXc
+	 DOP492lhKL6tJDJyZ2vjzL0xDoPsLpvVip2O7qyuiwLhqvNdFzUGrDFubi4fF6FscPISi
+	 pgRCtBHlIRn+HKLgGYG4s5Axo/3w9EZTsH6nog2NAJFGa4FCQaM/ljCOdTlOyrHIwfAjr
+	 fJ1X8bFM/yc1DNqWR1/epJWtzRjCMfCEOmaJ4Yg18QyARrF5ixfV7iaV4/AVwrusm/w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793228261;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=4VWNpwR37uhQq3f6cJYqlxMwxDhgPV2ouIP5BZGW4UA=;
-	b=idQRG/y5c2Diq58GuFkCIj9ABmUsHo9jm8K3QtxwJC6z58UQabEMh/JCUrIao0zUS42F
-	 ns3ys/xhRSe6tAFnjMu5YDYt0OO/sWKFtMzBiTMIKBR/hRxVSfdFeDa/HkOMce2TJ8SSS
-	 vwA+G7f89H+MU1Dq5Q2kHImqsdaT3hTl/7PDVex5h9TtSnLOIz/m1+jH3B6an+lOF9EtG
-	 /1jE8oAonGR16vx4Ki2bHkAiEde8zMgQQCW3ZBtVJ1kBsvBHPtDwSMNRSS3jnzBEsKJJZ
-	 UyttBoySuzqjdD+NUGQVTZuONq0emE0w6dwlSDiql8N92IPaoMMhumQYP9yQNy74MVQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793245054;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:Content-Type:Mime-Version:Subject:From:
+	 In-Reply-To:Date:Cc:Content-Transfer-Encoding:Message-Id:References:
+	 To:X-Mailer;
+	bh=0TYkcz3oi8Hce4FiXDXGEUsAkrCmcslpFK3fxjBXOUw=;
+	b=VGLqjx7icNsgtVPxfj/9CHLuyzbNkgQllSQiqQtQPwZbfPazD4/LSAa8qhMOyGl3Gemf
+	 48Sq9CXP1du3TaWtLXH1pCxp+d3qITGn1vZKODirL8et1RWvKm3FYUXAqB+5sBrgI8LF6
+	 EvcNFnOIdqwLBpbhZXq9IbQF9wRYWgH7Coz609qD5liNe1J/fFKfaMY4NB0tjLnnfjs59
+	 tI0xHzOIXaZuGQpiuZ9JFQOPD7LmGF/yetIEmaQsmLkN1SGZrM18E/3jJLOPN/wBHvzRI
+	 tIg8CMl1hs3F49PSzPduOuzC9qzuvg1Ny5OSB5I+P4TS6BJdox0F1qdWhF3cEbGs1ag==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NnuPstmT;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=EwhdD0ta;
+	arc=none smtp.remote-ip=95.215.58.213
+Received: from mta1.migadu.com (out-213.mta1.migadu.com [95.215.58.213])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E02E606A31A;
-	Wed, 28 Oct 2026 22:57:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DBEE606A31E
+	for <linux-s390@vger.kernel.org>; Thu, 29 Oct 2026 03:37:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3DBEE606A31E
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=NnuPstmT
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50CA71F01825;
-	Wed, 28 Oct 2026 22:57:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793228260;
-	bh=4VWNpwR37uhQq3f6cJYqlxMwxDhgPV2ouIP5BZGW4UA=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=NnuPstmT6IcbtPZyZWKmmt5+U/tHVFSqsN8x6rkL2kuRD7el0ISiuIanCbqNPI03p
-	 AJPHflNTwSkD06MIEdGN10PeSRv2PWkSHlVRu9H0EdHu/FwQ4PfJzTaX8//A9+cgYq
-	 S3WVyVMH6YdtSeUx+idu1wYA/DMbEcmb6R7lpsMSKrmx2eGPNQFQ8Rh1duXSMnC/Q0
-	 eCAlwp0GfoJRxaf4NNRE1DGaGI1mHGsinK5RgOg1KQi1T8+v6fcLEx1OURnNNF3odf
-	 HRyvxWxx07SRUxY1Q17TIn7/gWJn8GuO3EjO+Wio75isR744wNFccdDEu6QH3R1MGB
-	 Ga2tVOaD45w8A==
-Message-ID: <sashiko-outbox-188536@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH net] net/smc: fix limit_smc_hs sysctl on big-endian
- architecture
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Fernando Fernandez Mancera" <fmancera@suse.de>
-Cc: linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261028225350.3753-1-fmancera@suse.de>
-References: <20261028225350.3753-1-fmancera@suse.de>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Wed, 28 Oct 2026 22:57:39 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=EwhdD0ta
+X-Envelope-To: linux-s390@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=0TYkcz3oi8Hce4FiXDXGEUsAkrCmcslpFK3fxjBXOUw=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1793245046; v=1; x=1793849846;
+ b=EwhdD0taQspvWOf1jRfVxj3kKfbzBcoW1Zh6PIQfZnIs/iXQRocbPuPpJfyNmtIfGQm3KGHU
+ Oh06JsdTIGrNthlWEpv+6QrXR0Zdq/Zd63qqHMkLytRK+ku2AIn63jTXNRRnmPotzFTLiJNDfR3
+ LZIOVGY4YGYH1FAzvkJnfq8Q=
+X-Envelope-To: linux-s390@vger.kernel.org
+Received: by mta12.migadu.com with ESMTPS id b3dc07f6f034e3dc;
+	Thu, 29 Oct 2026 03:37:25 +0000
+X-Mizu-Trace-ID: b3dc07f6f034e3dc
+X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain;
+	charset=us-ascii
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -61,26 +57,101 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3901.100.1.1.12\))
+Subject: Re: [PATCH 01/15] hugetlbfs: fix integer overflow in fallocate()
+From: Muchun Song <muchun.song@linux.dev>
+In-Reply-To: <20261028-fixes_hugetlb-v1-1-a0a033db180f@kernel.org>
+Date: Thu, 29 Oct 2026 11:37:01 +0800
+Cc: Oscar Salvador <osalvador@suse.de>,
+ Naoya Horiguchi <nao.horiguchi@gmail.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Mel Gorman <mgorman@suse.de>,
+ Andy Whitcroft <apw@canonical.com>,
+ Miaohe Lin <linmiaohe@huawei.com>,
+ Michal Hocko <mhocko@suse.com>,
+ Rik van Riel <riel@surriel.com>,
+ Hugh Dickins <hughd@google.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ Vivek Kasireddy <vivek.kasireddy@intel.com>,
+ Dave Airlie <airlied@redhat.com>,
+ Jason Gunthorpe <jgg@ziepe.ca>,
+ Lorenzo Stoakes <ljs@kernel.org>,
+ "Liam R. Howlett" <liam@infradead.org>,
+ Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>,
+ Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>,
+ Randy Dunlap <rdunlap@infradead.org>,
+ Peter Xu <peterx@redhat.com>,
+ Breno Leitao <leitao@debian.org>,
+ Will Deacon <will@kernel.org>,
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+ Nick Piggin <npiggin@gmail.com>,
+ Peter Zijlstra <peterz@infradead.org>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Arnd Bergmann <arnd@arndb.de>,
+ linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ linux-doc@vger.kernel.org,
+ linux-arch@vger.kernel.org,
+ linux-s390@vger.kernel.org,
+ luojiajun <luojiajun3@huawei.com>,
+ Josef Bacik <josef@toxicpanda.com>,
+ stable@kernel.org
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <497E3E4E-B423-46FA-AB00-5D2ABFB833A0@linux.dev>
+References: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
+ <20261028-fixes_hugetlb-v1-1-a0a033db180f@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+X-Mailer: Apple Mail (2.3901.100.1.1.12)
 
-> net->smc.limit_smc_hs is a bool, but its sysctl entry uses
-> proc_dointvec_minmax() with .maxlen =3D sizeof(int), so the handler
-> accesses four bytes at the address of a one-byte field.
->=20
-> On little-endian this works with the extra bytes being written in struct
-> padding. On big-endian (tested on s390x) the bool sits at the most
-> significant byte of the int therefore the bool stays false and the "1"
-> goes into padding. The sysctl reads back 1 but SMC sockets created
-> afterwards see limit_smc_hs as disabled.
->=20
-> Fix this by using proc_dobool() handler and adjust the maxlen to the
-> right value.
->=20
-> Fixes: f8406a2fd279 ("net/smc: add sysctl for smc_limit_hs")
-> Signed-off-by: Fernando Fernandez Mancera <fmancera@suse.de>
 
-Sashiko has reviewed this patch and found no issues.
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028225350.3753=
--1-fmancera@suse.de?part=3D1
+> On Oct 29, 2026, at 04:13, David Hildenbrand (Arm) <david@kernel.org> =
+wrote:
+>=20
+> hugetlbfs_fallocate() rounds the range end up by adding hpage_size - 1
+> to offset + len. vfs_fallocate()'s existing overflow check only makes
+> sure that offset + len does not overflow.
+>=20
+> Once we overflow for valid endpoints near LLONG_MAX, we can get a
+> negative temporary result that is then converted to a very large
+> huge page index.
+>=20
+> A one-byte allocation ending at LLONG_MAX can therefore consume all
+> available huge pages. Pages added beyond LLONG_MAX are skipped during
+> inode eviction, leaking them and triggering the BUG_ON() in =
+clear_inode().
+>=20
+> To fix it, calculate the end index in a simpler way that cannot
+> overflow. This also fixes the signed overflow reported by luojiajun in
+> 2019.
+
+Amazing that you remember something from so long ago!
+
+>=20
+> Backporting notes: without commit a08c7193e4f18 ("mm/filemap: remove
+> hugetlb special casing in filemap.c"), remove_inode_hugepages() must
+> include the final huge page during truncate and eviction.
+>=20
+> Reported-by: luojiajun <luojiajun3@huawei.com>
+> Closes: =
+https://lore.kernel.org/all/1554775226-67213-1-git-send-email-luojiajun3@h=
+uawei.com/
+> Reported-by: Josef Bacik <josef@toxicpanda.com>
+> Fixes: 70c3547e36f5 ("hugetlbfs: add hugetlbfs_fallocate()")
+> Cc: stable@kernel.org
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+
+LGTM.
+
+Acked-by: Muchun Song <muchun.song@linux.dev>
+
+Thanks.
 
