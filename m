@@ -1,82 +1,91 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793264738;
-	b=ZkV9T4ZucfW9GaNH0IHdg2z3Wu+zesMwmkGjgPXIiFnyP8KS7DQp7d09zdYtqzlH/Urc
-	 I9qA/pfduRtYBFP86zhiyxUMD6fMyXuiq09gfGud1RXZo0+kgKJY0gi4rH5nDi6CLeobg
-	 hmqPLXMiifa15K57yXSVrRyDQqMO5CMyIdE8Gnp911+n9RhXRJef0/uAt/mywhLing80J
-	 dcLFffM9BCXqKV6WmX0D+sRoSGenqgsaZZw0Zt+/ksPjur0KbbOiiQFg2R2nuH9Uj+n2P
-	 rJU8POp3APdN8DTpy9eqcrinsgSYaYmok6TrD40IJwKTUTMfSHER24RoNAAAVgXwxvA==
+	t=1793271488;
+	b=ZlbDgIiphpaKHnXD4TFJiEdMq+Kga+geAQdQahUn/+x2LnQUf6+2+398eDqcSi6Mthdj
+	 4GN7haQ4j1N3p7cFXdayi3+10G3Se+eCUuXPkDarbDlMmTGDz4PRptAK6sS3bEJXMeY0M
+	 swLgHqLN4aj0QieyoRStA5hWaTltqrFuqJJ9n5GFl7GIz57YOQLBjkMEg9a7Qj1cfulAa
+	 o8VrodVOuaaAb6M6fzZdx8ejoJIo79QyaxHJ6RFmUQ3KwDWKKqjvP+/YFCcXNBXXPdE16
+	 q3eKHDLhuG0xMjv1eWKTd+OeSDIa1W0ZRQawtseFCXYqLCcSREnxMSV0BfFc0wlrZQA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793264738;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=DUwEU5VFVcm3BSvlIi+qnX1DNEYOOSjt0f4UAgjp/q0=;
-	b=QzhJGxfuzYtwALHp2k4yc9YFoXwj8p86kIhkbZDQMNnZtw7UxRvpMk2a7cqWOQgqKIyM
-	 4Buv78mwmkTaWRUjXfvmFGMrrXoP413/+uVkUPpr0dWK3ckvd5gxUtia47daAhdKpHRd5
-	 I5UqNLJakMt5I/iRaiBpNQgAV49y4q0wZ7MVHd/ihpLqDxv11g2RHMeyfUAdXO3ZiWPIf
-	 wKwXRXkZXyUQaha3NjZKPxBYfXAAjm9hE4uMhUhldVpkit2cPs69g0SUDSeWET0pLAVoI
-	 1UE0sMVvQOflwcK3C6NjcIKW4NJEpEXjbB7OgfukFK2YOx8esi4G4sCJQgPlPX2FVaA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793271488;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To:X-TM-AS-GCONF:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
+	 X-Authority-Analysis:X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=XDklzb9gvQ1GspRWCspuPTLVlFG+zCbQzRS72KSJzOc=;
+	b=JhcNEXVQtWGpMvUAt3+clzPkwyT6cVNVhkHfopEgMaLhYKUecjjUyI4PYppmMmmdqNBy
+	 L//eHR9BWCohPilPryo+TAZhjfhUV+pk4PXYIrarzDzexmFOH2x+dqaKYVS5w0+7Xi9Bz
+	 Na+UDl3Wprybe5ALryk85UYoPiO9Fjr8xmig3GMhuL/z5tG5RJF24pCS/RPyIgibhFLlT
+	 X9/vbEFGMzj8YLY94NEcCtZtUNbERsblZI1j4TIeM5Ei9NJzBiclcFwMnWjQAEfQTtMU2
+	 Ka9Ga/giUdmZ5qqK9pyNzDbctWrDPUZ9T0qLNiTepRX0LPO4T6rU3C70/X/FxEAv63Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UE3pYWlM;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="LEK/lA2c";
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69EDE606A31A;
-	Thu, 29 Oct 2026 09:05:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE7C5606A321;
+	Thu, 29 Oct 2026 10:58:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BE7C5606A321
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UE3pYWlM
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2A921F01825;
-	Thu, 29 Oct 2026 09:05:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793264738;
-	bh=DUwEU5VFVcm3BSvlIi+qnX1DNEYOOSjt0f4UAgjp/q0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=UE3pYWlMUN95Niu9Wtfdm3GxQH1knhbb/MKIkHh7IJ2bNicQLmFbrF5q1JQYXasKZ
-	 z4wj8JOiEhU74QBIK5Z3ndUsaoUU7BgPFSWCBeuERZPO3ckPct4MAT1NQXxFWPotl5
-	 3i4GCG3NFPUMorcuASu/L6ZAEoZhkGOXw/tsOQO/6H/H44u5pat8YWBJUuOu3ki+V2
-	 KAKWF+F84fZVsfsKHbUWbgWYZEJmQi3SAEIGzUMfPCObb6n0XuCf1xftEBPCFS6xsP
-	 Vc8DWMIvSEyRad1nF+CqBRxXHhLFv2v0K/4MEQgAEFYgnycFzyJiqU3PCodskvl2oV
-	 Tq71mQ2U6LTyg==
-Date: Thu, 29 Oct 2026 10:05:25 +0100
-From: "Oscar Salvador (SUSE)" <osalvador@kernel.org>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
-	Naoya Horiguchi <nao.horiguchi@gmail.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Mel Gorman <mgorman@suse.de>, Andy Whitcroft <apw@canonical.com>,
-	Miaohe Lin <linmiaohe@huawei.com>, Michal Hocko <mhocko@suse.com>,
-	Rik van Riel <riel@surriel.com>, Hugh Dickins <hughd@google.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Vivek Kasireddy <vivek.kasireddy@intel.com>,
-	Dave Airlie <airlied@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Randy Dunlap <rdunlap@infradead.org>, Peter Xu <peterx@redhat.com>,
-	Breno Leitao <leitao@debian.org>, Will Deacon <will@kernel.org>,
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
-	Nick Piggin <npiggin@gmail.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-	Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-s390@vger.kernel.org,
-	luojiajun <luojiajun3@huawei.com>,
-	Josef Bacik <josef@toxicpanda.com>, stable@kernel.org
-Subject: Re: [PATCH 01/15] hugetlbfs: fix integer overflow in fallocate()
-Message-ID: <auMMVcK_80irHLkP@localhost.localdomain>
-References: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
- <20261028-fixes_hugetlb-v1-1-a0a033db180f@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=LEK/lA2c
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69T9E6vg3962695;
+	Thu, 29 Oct 2026 10:58:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=XDklzb9gvQ1GspRWCspuPTLVlFG+zC
+	bQzRS72KSJzOc=; b=LEK/lA2ct13CJArUK4pj0u5Xaw1CqzCewAXaOqeyryUKNc
+	UCSg+d976WjZqopjAECIsUoPQRnLmh0gJOoqU7UI8jdnyrx/ckw0zXk75rCj7/SL
+	N8ka9b7H1jVfwrGyFZxD7cWbHGk+Bs5D0VCTOrc6mReyK7c3PNUeL2UesL4kPR/0
+	Q3vvzpHce4oml8tr3YHWvExMbT3L3qr+0qcTDnmsVHmts8eAL+zpiNEHbHzujUbL
+	6e3NV1rXYLKEVmDyffUQ1pcpsoxIGuhkoHvWbrYwOi5HnrNTWA2H9TpqkWWAuiA7
+	l9+9+IcRuXeOXvax1AH5pezYkfv7cT+HYLMQHHrQ==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hgm649na8-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 29 Oct 2026 10:58:06 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69T9K4KY2914955;
+	Thu, 29 Oct 2026 10:58:05 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hk55pedp4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 29 Oct 2026 10:58:05 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69TAw1Wh36503926
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 29 Oct 2026 10:58:01 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A37752004E;
+	Thu, 29 Oct 2026 10:58:01 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 542802004B;
+	Thu, 29 Oct 2026 10:58:01 +0000 (GMT)
+Received: from osiris (unknown [9.111.38.86])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 29 Oct 2026 10:58:01 +0000 (GMT)
+Date: Thu, 29 Oct 2026 11:57:59 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+To: Ilya Leoshkevich <iii@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 10/10] s390/maccess: Remove spinlock from
+ __s390_kernel_write()
+Message-ID: <20261029105759.23372B93-hca@linux.ibm.com>
+References: <20261027143030.3154657-1-hca@linux.ibm.com>
+ <20261027143030.3154657-11-hca@linux.ibm.com>
+ <11f7072d-3c4b-4ed5-9954-49c39a012d8b@linux.ibm.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -88,68 +97,80 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261028-fixes_hugetlb-v1-1-a0a033db180f@kernel.org>
+In-Reply-To: <11f7072d-3c4b-4ed5-9954-49c39a012d8b@linux.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI5MDA0MSBTYWx0ZWRfX7XyybQB5fQFh
+ MhWxB913qVex8DOHs+xhI0+wvOunnco46sBOB5hmD9YRlT43/8rbUSuDe5PwcOJwlWAYYkTU4Jt
+ gqcSFZTgOjWtXtVwKwrLd7rCPFxgZQk=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI5MDA0MSBTYWx0ZWRfX0M+TCopkPeN6
+ IroWBOpMWNV+vr4j2wCsIkstvXu4pGBPtXxVDSb6lyRx6w9Tm3Kvr7cp7svb9wyijyJ7Ny2R7mk
+ nsruuXYjSVFa7F6sZPbuezlmtanbOn+Wb6pPh6M8Vek7aJKaocGK1R6dsBy4Df2wU9egp0/Czh9
+ iVD3mUVULtVTzFTfE7wmRiFtNHUcWCKlGEA/Ok91oLfZ9dqNW7iP79ioSMkfn9Ni1C2vkRgrfDu
+ rePP4y6A7Y9WKEUtnNTqJdzn4UISfxJUv3/LVvYrfZsLNt09xAFoNSt1iTCcWJl+VOqe+zx8fke
+ 9UwL4r5D95EuN4RpmLxAci4kHx652JCXLaeb4wlFj+r1rlfiuvhWdGpJAyyVWzaw5ivIMVENWcA
+ xGpnzGNVAFELOEFfarofaYSbDO1mRyHVp61mM4ZseKVSwtA10I5ngsqyNHudkZJonb2wFw8010p
+ kKCzVSnX5ICiWwvdU+g==
+X-Proofpoint-ORIG-GUID: 3gVxxP-ZTZ6c99rw6w9VsvHfko1ZGLoJ
+X-Authority-Analysis: v=2.4 cv=Uu32pOwB c=1 sm=1 tr=0 ts=6ae326be cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=kj9zAlcOel0A:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=LVeCw0fSqMdSN_YE6mYA:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-GUID: 3gVxxP-ZTZ6c99rw6w9VsvHfko1ZGLoJ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-10-29_03,2026-10-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 impostorscore=0 priorityscore=1501 spamscore=0 adultscore=0
+ lowpriorityscore=0 malwarescore=0 clxscore=1015 suspectscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610290041
 
-On Wed, Oct 28, 2026 at 09:13:29PM +0100, David Hildenbrand (Arm) wrote:
-> hugetlbfs_fallocate() rounds the range end up by adding hpage_size - 1
-> to offset + len. vfs_fallocate()'s existing overflow check only makes
-> sure that offset + len does not overflow.
+On Wed, Oct 28, 2026 at 09:59:46PM +0100, Ilya Leoshkevich wrote:
+> On 10/27/26 15:30, Heiko Carstens wrote:
+> > The spinlock in __s390_kernel_write() was introduced to serialize the
+> > read-modify-write sequence against concurrent callers. Now that all
+> > runtime callers of s390_kernel_write() hold the text_mutex, the
+> > spinlock is not required anymore.
+> > 
+> > Replace it with preempt_disable() / preempt_enable() and sync_core().
+> > Previously, CPU serialization was implicitly done by other
+> > instructions. Make this explicit with sync_core() instead of
+> > relying on that.
+> > 
+> > Preemption is disabled so that sync_core() issues the CPU serialization
+> > instruction on the same CPU that executed the stores. This completes all
+> > previous stores and makes them visible to other CPUs.
 > 
-> Once we overflow for valid endpoints near LLONG_MAX, we can get a
-> negative temporary result that is then converted to a very large
-> huge page index.
-> 
-> A one-byte allocation ending at LLONG_MAX can therefore consume all
-> available huge pages. Pages added beyond LLONG_MAX are skipped during
-> inode eviction, leaking them and triggering the BUG_ON() in clear_inode().
-> 
-> To fix it, calculate the end index in a simpler way that cannot
-> overflow. This also fixes the signed overflow reported by luojiajun in
-> 2019.
-> 
-> Backporting notes: without commit a08c7193e4f18 ("mm/filemap: remove
-> hugetlb special casing in filemap.c"), remove_inode_hugepages() must
-> include the final huge page during truncate and eviction.
-> 
-> Reported-by: luojiajun <luojiajun3@huawei.com>
-> Closes: https://lore.kernel.org/all/1554775226-67213-1-git-send-email-luojiajun3@huawei.com/
-> Reported-by: Josef Bacik <josef@toxicpanda.com>
-> Fixes: 70c3547e36f5 ("hugetlbfs: add hugetlbfs_fallocate()")
-> Cc: stable@kernel.org
-> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+> Doesn't preemption happen only via interrupts, which always serialize?
 
-Acked-by: Oscar Salvador <osalavador@suse.de>
+Yes, but again, that's an implicit serialization. The idea of this was to make
+the code not relying on rather subtle architecture details (as written above,
+the "implicit" part).
 
-> ---
->  fs/hugetlbfs/inode.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
-> 
-> diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-> index 01c4d6f44ebe..5592cfc6cc8b 100644
-> --- a/fs/hugetlbfs/inode.c
-> +++ b/fs/hugetlbfs/inode.c
-> @@ -721,11 +721,13 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
->  
->  	/*
->  	 * Default preallocate case.
-> -	 * For this range, start is rounded down and end is rounded up
-> -	 * as well as being converted to page offsets.
-> +	 * vfs_fallocate() guarantees that offset + len is positive and does
-> +	 * not overflow. Avoid overflows when calculating the end huge page
-> +	 * index: set it to one past the index of the huge page containing the
-> +	 * last byte.
->  	 */
->  	start = offset >> hpage_shift;
-> -	end = (offset + len + hpage_size - 1) >> hpage_shift;
-> +	end = ((offset + len - 1) >> hpage_shift) + 1;
->  
->  	inode_lock(inode);
->  
-> 
-> -- 
-> 2.43.0
-> 
+Even if interrupts wouldn't serialize: when scheduling the task away there is
+almost certainly a compare and swap instruction for taking some lock executed
+on the CPU before the next task runs.
 
--- 
-Oscar Salvador
-SUSE Labs
+So this part is more about making things explicit, instead of relying on
+something that is implicitly happening.
+
+But the main point is of course to get rid of our private locking.
+
+> >   static inline void *s390_kernel_write(void *dst, const void *src, size_t size)
+> >   {
+> > -	if (__is_defined(__DECOMPRESSOR))
+> > -		return memcpy(dst, src, size);
+> > +#ifdef __DECOMPRESSOR
+> > +	return memcpy(dst, src, size);
+> > +#else
+> > +	lockdep_assert_held(&text_mutex);
+> >   	return __s390_kernel_write(dst, src, size);
+> > +#endif
+> >   }
+> 
+> I assume #ifdef is required because lockdep_assert_held() is not
+> available in decompressor and there are no stubs?
+
+To be honest, I didn't even try; I didn't want to rely on even more things for
+the decompressor.
