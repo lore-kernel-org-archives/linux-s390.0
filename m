@@ -1,81 +1,92 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793292168;
-	b=FIg91Bn8FD0EFZGYydPewOC3eVYaAH+jH/8zMHWDWMoOl4PkDANqvPJPLJlCU7W4b2Tc
-	 DzDowVtLwwij5V+jh29hQsMZma5p6Jh5HztaVKcLOYMgoil90RcQBebYEUk6j5J8xuI13
-	 PNgBnCSHdFHHIBuz09fLr2AsJd76B0CnHfgmiBLeMTxMRnaRq7kiOcumZ4NpOpwctiGIk
-	 JkDflN1zG3Qi6CyiMMsXqvsCVYadHZLzOLVMfqhFzeCkKPCYHsh4LMxOHWqFt3+rrpnU9
-	 rTkmy6gwkS5+syvGrVzU2vC+0CRxIpNb/0tTBzxXWMa2tUv1J7nLeDiBVbg13KmZAnw==
+	t=1793292741;
+	b=GNYEki7KgHcThpxvPHi+dxvb3ZH5GE29hmtuOFQfxx4vOdjfwq8dL9Cfzw7Pm4OUJFgw
+	 iQvm2PFUQ623UoRy3hZlzhlI2yWC7VNM0Toq4atRrbDRbC5KeQEJnrZPgNl5YYXsTP4f0
+	 KjpVGNHiIs4UL+zMTxv30Kdjzjp3XfE79G6intgWUD5hslsEFwnafVctAa9+F9cLpYK6w
+	 Z8b5hfTGLFlJGdsGkQc2vxhAT2zZ0fWbntc16arBr9AsoGXqa8fjVxBhAzT5zlMFwMFj+
+	 B6gviyl8XJBYdTjMdM0kXD7Sr5AVw/DgJACyZvoynTNmmOV9Cpp5NEVVdz5DoxnRemQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793292168;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793292741;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:In-Reply-To:References:Organization:X-Mailer:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Details-Enc:
-	 X-Authority-Analysis:X-Proofpoint-GUID:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=RM6qhy2ivXjlJLMl9pIvXAmkCvlP1do4LZqnyTbsr8k=;
-	b=tMfcJGzuLuplL599bxvWhFYeCc3ZH8MCUzffA4SNI++8YmJ44rexupg2QpaBDzJGLyOE
-	 ClzatYtgGUKQxb+qvX6SDeXSX8by+AaqeNsYzvH5cn6bhLn6Uml+MCr5EYS/uPdyLr7Ls
-	 xEja55GREBIDwMAShOW6C3tE4We81l5LkXUx82CT6KpBAVV4pKof0pdpCeyi9wrkjSI5I
-	 b9wRtZ+vb3Bf6LhcHmMmDacufJIAMf775uO0U8N/t3pyChR36fVOz5SYL1l93/K+szMzG
-	 0vvxt2pYy6xHuNwlBDziDECG1Y160063LYeEd8oSzhqCqTBXd4CQTfhOkQaSNUqDQ/w==
+	 X-Proofpoint-Reinject:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
+	 X-Authority-Analysis:X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=JooeTFkFeZdEQkl6ND7vys5Grz+V81uWtbjw+kB5qQ8=;
+	b=vENKwM8TlZH6vereWWmPN7LC4wNpVugMHR+/4cAWjsWRdyO1oPxaZnYYXhX3+ngzVqFp
+	 n+Iq3qeTSIBaSLzkwpJQeuLJFnGq1DdaoFAEdPbGg4J2W6qmhtRrJTrEscHY3dpSPEM0+
+	 0mdt1/3+I8mgzJpoF3UXpgyGJFcKSWeGAO/cbRRbVbJai/ho/w029SoeTZzxEMXjIJBNr
+	 FWxMkSVU98UyNEJlhuEp3pJvh4ZDyFzAa0EA950Ut7a4Xb6VJaTi/zZ/ZbedsN2s1SWpp
+	 MbHRsKfwGSAO6yvg1fXx3iHqZEovCYdZ7z91WUY+p7b3Jf4zrgUXfuH6/DcRjc4rNHw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=WS2dm2xl;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=RDyID258;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC92C606A31C;
-	Thu, 29 Oct 2026 16:42:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org CC92C606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54B8F606A31A;
+	Thu, 29 Oct 2026 16:52:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 54B8F606A31A
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=WS2dm2xl
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69TGEMG83505361;
-	Thu, 29 Oct 2026 16:42:46 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=RDyID258
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69TGE57P671549;
+	Thu, 29 Oct 2026 16:52:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=RM6qhy
-	2ivXjlJLMl9pIvXAmkCvlP1do4LZqnyTbsr8k=; b=WS2dm2xlc8AI56OTAlBlcR
-	fjnc1F2xuJ3GrZa4CF2c+mi5TLRfYg48/3OvZZUxzhky7Z8qLVMSOAtm5AweazvJ
-	icsbrx/sruGCEyIu9XGOZ7A9WaGQeJsXEWqtis7VIG7rxDPfbMkTv/We7hSAju9+
-	C3/wHXdLYcXS7239WqP7GpC5m4XpZZpXSPiBEY9Px0YM5cd0xuLNIac8t4xoZgSL
-	JeDC7fFGQRZ7K++AHcdFerLc4gTKnP3AVehxDyzq61HljEwuCgQjFH+U/rOHaDbf
-	MSDHb7qdMUwifTLWemcR4Dc4TjqdNYGvy49vLNyEkYCfZnzHNbvpeEysxGIIXRWw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=JooeTF
+	kFeZdEQkl6ND7vys5Grz+V81uWtbjw+kB5qQ8=; b=RDyID258cMyxLC1tKGbIxk
+	NTASEu9fgPKTPLE2ewpsnanMes2HliyTztOFCwFm5iBQiumW8JN7Hfyg/FWy9e8A
+	mPq9l0SF2iMmVI2TlUDmTp+yl6AbGz/BdVLSsupeNii6UfbTRN+kzAfKTYe/2MCA
+	24a8FBsDCHPmfnPYVIaX1cwPu9+VrowNPVYb+1ar0hCL1jSg9+VD3EYKdAve7tnt
+	RPKfUPbXTpceQ5u8/gYjXe15KByL6YXHTyD7zldH/3qoaQ89gyd8NX+yDB8KcON/
+	bJoaptuufUH087LxWIRO/rso3raafTX16MzsIgE3U8/8mJvMpAsi/jA2B9ZNqA9A
 	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hgk3gb9f3-1
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hgm64bknt-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 29 Oct 2026 16:42:46 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69TGYkcv3418653;
-	Thu, 29 Oct 2026 16:42:46 GMT
-Received: from smtprelay05.dal12v.mail.ibm.com ([172.16.1.7])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hk55pfvad-1
+	Thu, 29 Oct 2026 16:52:08 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69TGJnmE3392668;
+	Thu, 29 Oct 2026 16:52:07 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hm69e12v5-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 29 Oct 2026 16:42:46 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay05.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69TGgjIh33751726
+	Thu, 29 Oct 2026 16:52:07 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69TGq5qm56492346
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 29 Oct 2026 16:42:45 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E69C05805C;
-	Thu, 29 Oct 2026 16:42:44 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 62B955805F;
-	Thu, 29 Oct 2026 16:42:44 +0000 (GMT)
-Received: from [9.61.101.238] (unknown [9.61.101.238])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 29 Oct 2026 16:42:44 +0000 (GMT)
-Message-ID: <2c59ec30-cfe4-4bc1-ac1f-c18beb5655ae@linux.ibm.com>
-Date: Thu, 29 Oct 2026 12:42:43 -0400
+	Thu, 29 Oct 2026 16:52:05 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D26C12004B;
+	Thu, 29 Oct 2026 16:52:05 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B0E3320043;
+	Thu, 29 Oct 2026 16:52:05 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.68.31.243])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Thu, 29 Oct 2026 16:52:05 +0000 (GMT)
+Date: Thu, 29 Oct 2026 17:52:03 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Carlos =?UTF-8?B?TMOzcGV6?= <clopez@suse.de>
+Cc: kvm@vger.kernel.org, linux-mm@kvack.org, seanjc@google.com,
+        pbonzini@redhat.com, linux-s390@vger.kernel.org
+Subject: Re: [RFC PATCH 0/4] KVM: x86/mmu: don't zap secondary MMU on
+ permission upgrade
+Message-ID: <20261029175203.5bdd51d7@p-imbrenda>
+In-Reply-To: <20261029143336.390231-3-clopez@suse.de>
+References: <20261029143336.390231-3-clopez@suse.de>
+Organization: IBM
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -85,186 +96,181 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v10 13/15] s390/vfio-ap: Set up for vfio-ap device
- migration
-To: sashiko-reviews@lists.linux.dev, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>
-References: <20261023174349.3545941-1-akrowiak@linux.ibm.com>
- <20261023174349.3545941-14-akrowiak@linux.ibm.com>
- <sashiko-outbox-183054@kernel.org>
-Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <sashiko-outbox-183054@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: z9G76iLPwvvsNELktTGXKB52XpAyWoYc
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI5MDA2MyBTYWx0ZWRfX0DpwqKX6Zub8
- Drbz2wC/VFLFDYpIjAD7sOBc7lBVNJWVHv7+qLyWvYVN6CrcIOqOm3GYd3YHc9wgpmQ2mJiJxte
- dwscE41MLq3BgiKwt7V2H35zZLFFfbE2L3srfiPldfmiC5ykZI9Q9QPoh+7HJYSzACdEpNV0KFZ
- X3cdt31IJ2sbT4VdTmaR+pG0nw2P6oFu55uQo6j/g/7QkY9MGLRgTvY50KqUe+QjmGDjmghiCY0
- 5SEUjTjOHUqSmrWTWurooU/FV4UAaLPDccVpgT2P+g0j/Ldheo9st0S6lL01DfEm5D26JTsgPfy
- zA8PWZ30g+xqy9VvFCSIeMC/wtN8xGcYfOjS6o9hvGz3/ElvdFCKpMsi3yMtAaNFG0nsT3sCLJj
- IrfMopr+WWz8793JLpsniZumdM6eVw==
-X-Authority-Analysis: v=2.4 cv=BOMmP1QG c=1 sm=1 tr=0 ts=6ae37786 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI5MDA2NSBTYWx0ZWRfXx6UdmsdZJ5uq
+ 4SBWHjKCj33E/5AWMgEh0WWGowV4uCTCnYMbLs+41hJTD62QDwxEiTmH99XxHhcR7lmLesqH+NG
+ cPO9LA5wX9aBsdU7K9FqhzaAc8IaE9U=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI5MDA2NSBTYWx0ZWRfX3Op2rO17bqhc
+ N3aweLd5V5+ZMeNtlsQNeDD3L8VyTvx9o3+3D9zRmFnCa/c2u1gxWAXB2kj4peUifDA7d2o7I0J
+ xvk+ON9ChQRqultX9hFQfI1cQxZjWnFajXwkjiNrnv6YvfMhktdffwQeKKlmHM8/0tKNykc2rdi
+ mNFfmMMbUejGR+npYqJUMSdyh+kUhFSvWSD+m7I/qNHW5Zb3QDvquE2lecsxCYPFkwwVAoRWyiv
+ PktYORk2ftmckyhkyTHkgJYgF3w4rkvxsxDsl3Q2aTQyoWGltQ59Wyg2vqKpe5gpSMke8U4/O9b
+ X5w9po5gnipiCnmITp8Otc+zLWTeDHmfPeAi/eNatmlDfoa0gG73Nn41e/u5TWXtFcgBeTObzu0
+ EWel+Pg4cyqgmn46cMMAIf7QMJitnPHGXqM0JnuJI11OI3SNuUSA8STn7phDHWcLrsHJqTDIlbH
+ Y6USDixlNawTaWzQ/qw==
+X-Proofpoint-ORIG-GUID: qOGToXewIEgxE8Z0yvQ72HahQG9QDnh5
+X-Authority-Analysis: v=2.4 cv=Uu32pOwB c=1 sm=1 tr=0 ts=6ae379b8 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=R3hAm40xv4kPzBdIJ08A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: z9G76iLPwvvsNELktTGXKB52XpAyWoYc
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI5MDA2MyBTYWx0ZWRfX3/Syw61OVnLZ
- DONLwvYkmvGXHZCCi9+NlyDmx1nUw+3Upq0/5ahKHrUiZGIcjtFCz7wx7Gx8HFQXWz0t9mVbdmw
- FKYwIJwNpIryMG45iMfEoGkpaOdz6t0=
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
+ a=Ikd4Dj_1AAAA:8 a=1XWaLZrsAAAA:8 a=OGjWj8McAAAA:8 a=ByQFhZ5OTr0xIyoFu1UA:9
+ a=QEXdDO2ut3YA:10 a=UYjydHh6ynBBc6_pBLvz:22
+X-Proofpoint-GUID: uZy4EJwURba9PQ9Xme3MN3woR2o8K-CV
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-10-29_05,2026-10-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 bulkscore=0 malwarescore=0 adultscore=0 phishscore=0
- spamscore=0 lowpriorityscore=0 classifier=typeunknown authscore=0 authtc=
- authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.22.0-2610190000 definitions=main-2610290063
+ bulkscore=0 impostorscore=0 priorityscore=1501 spamscore=0 adultscore=0
+ lowpriorityscore=0 malwarescore=0 clxscore=1011 suspectscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610290065
 
+On Thu, 29 Oct 2026 15:33:33 +0100
+Carlos L=C3=B3pez <clopez@suse.de> wrote:
 
+> Prevent x86 KVM from over-zapping its secondary MMU on PTE permission
+> upgrades, which leave the PFNs unchanged and do not revoke access.
+> Permissions for SPTEs that KVM holds are updated on the next fault, so
+> dropping them early gains nothing.
+>=20
+> Do this by adding a new MMU notifier flag to signal that a
+> MMU_NOTIFY_PROTECTION_VMA strictly upgrades (loosens) permissions on a
+> particular range.
+>=20
+> See below for benchmark results.
+>=20
+> Background
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>=20
+> change_protection() pairs every protection change with an
+> MMU_NOTIFY_PROTECTION_VMA invalidation, and KVM zaps its SPTEs in
+> response, as it cannot tell whether permissions widened or narrowed.
+> This is costly e.g. during a QEMU background snapshot, which relies on
+> uffd-wp to write-protect guest RAM and then restore permissions as each
+> page is saved. Without this series, the permission restore causes the
+> guest to re-fault read-only memory needlessly.
+>=20
+> Note, the reverse situation is already handled for secondary MMUs
+> that reuse the CPU page tables (e.g. ARM SMMU, IOMMU/ATS). They cannot
+> refault, so they are notified of a permission upgrade on the CPU
+> TLB-flush path [1].
+>=20
+> KVM, however, owns separate page tables and faults permissions on demand,
+> so it needs no such notification (as Sean noted when that signalling
+> was first proposed on the fault path [2]). This series applies the same
+> principle to the change_protection() path, signalling the permission
+> upgrade so KVM can avoid the unnecessary zap.
+>=20
+> RFC Considerations
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>=20
+> 1. Having the zap skip in KVM's arch-independent code does not seem
+>    obviously correct, as s390 caches additional translation state
+>    that may not be rebuilt by refaults. Maybe an expert can correct
+>    me. The skip could be extended to arm64 and RISC-V, but I have not
+>    benchmarked the benefits and I'd like to get feedback first. Hence,
+>    x86-only for now.
+>=20
+> 2. change_protection() could simply not emit the invalidation at all
+>    for a pure permission upgrade (shared-page-table MMUs invalidate
+>    on the CPU TLB-flush path, as noted above, so they do not need it).
+>    But again, the s390 case could be broken, and even then, that would
+>    seem too much intrusion for KVM's benefit.
+>=20
+> 3. The flag reaches KVM as a bool on struct kvm_gfn_range.
+>    Alternatively, KVM could forward the notifier event, as Claudio
+>    Imbrenda suggested at LPC [3] and others have proposed in the past
+>    for different purposes [4] [5]. That, along with the event flags,
+>    could serve the same purpose. I'd be happy to take that approach if
+>    there is agreement that other consumers would want it.
+>=20
+>    (The LPC talk recording has some audio issues so I am not too sure
+>    on what the final agreement was)
 
-On 10/23/26 2:14 PM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
-> - [High] s390/vfio-ap: wrong SE guest check via ap_is_se_guest() on KVM host
-> - [Medium] s390/vfio-ap: stale completion flag and f_pos advance in vfio_ap_resuming_write()
-> --
->
-> commit 7adada8cbaf0b3057bf058ad4617540b9cea4ec9
-> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
->
-> s390/vfio-ap: Set up for vfio-ap device migration
->
-> This commit wires up VFIO migration operations and sets the
-> VFIO_MIGRATION_STOP_COPY flag on the vfio-ap mdev during device probe to
-> enable live migration support.
->
->> diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypto/vfio_ap_migration.c
->> index 38098968eaa2c..660b5a21fe9e8 100644
->> --- a/drivers/s390/crypto/vfio_ap_migration.c
->> +++ b/drivers/s390/crypto/vfio_ap_migration.c
->> @@ -212,6 +212,30 @@ static int vfio_ap_release_mig_file(struct inode *file_inode, struct file *filp)
->>   	return 0;
->>   }
->>   
->> +static const struct vfio_migration_ops vfio_ap_migration_ops;
->> +
->> +/**
->> + * vfio_ap_setup_vfio_device_migration:
->> + *
->> + * Plug the object containing the function pointers to the migration callbacks
->> + * required to facilitate VFIO AP migration into the mdev
->> + *
->> + *
->> + * @matrix_mdev: pointer to object containing the mdev state
->> + */
->> +void vfio_ap_setup_vfio_device_migration(struct ap_matrix_mdev *matrix_mdev)
->> +{
->> +	/*
->> +	 * Live guest migration is not supported for SE guests, so there is no
->> +	 * need to initialize the migration capabilities.
->> +	 */
->> +	if (ap_is_se_guest())
->> +		return;
-> [Severity: High]
-> Does calling ap_is_se_guest() here and in vfio_ap_init_migration_data()
-> actually detect a Secure Execution guest on the KVM host?
+AFAIR the consensus was:
+- adding the reason to the kvm kvm_gfn_range is fine.
+- having a return value from the notifier to pass information back is
+  _not_ fine; I should add a new callback instead.
 
-No, but it checks whether the host on which it is executed is an SE
-guest, in which case a nested SE guest can not be migrated.
+regarding this series:
 
->
-> In drivers/s390/crypto/ap_bus.c, ap_is_se_guest() checks whether the
-> currently running kernel is itself a Protected Virtualization guest:
->
-> bool ap_is_se_guest(void)
-> {
-> 	return is_prot_virt_guest() && ap_sb_available();
-> }
->
-> Since vfio_ap runs in the KVM host kernel where is_prot_virt_guest() is
-> always false, ap_is_se_guest() will always evaluate to false on the host.
->
-> Furthermore, at vfio_ap_mdev_probe() -> vfio_ap_setup_vfio_device_migration()
-> time, matrix_mdev->kvm is still NULL, and a guest only enters Protected
-> Virtualization mode at runtime via KVM_S390_PV_COMMAND. Should the SE guest
-> check instead be performed dynamically against matrix_mdev->kvm via
-> kvm_s390_pv_is_protected() when handling migration state transitions in
-> vfio_ap_set_state() or vfio_ap_transition_to_state()?
+on x86 you don't care what the new permissions are, because you're
+updating when re-faulting (if I understood correctly).
 
-Performing the check dynamically in vfio_ap_set_state() or
-vfio_ap_transition_to_state() would also be wrong for a second
-reason: ap_is_se_guest() at probe time is the correct place
-because the host's SE guest status is fixed at boot. Deferring
-the check to the first state transition would mean advertising
-migration capability to QEMU via mig_ops and
-VFIO_MIGRATION_STOP_COPY and then failing at runtime — which
-is worse behavior than simply not advertising the capability
-in the first place.
+for s390 it might be beneficial to know what the new permissions are;
+of course we could look up the vma and find out, but since you are
+already checking the permissions, maybe you can find a way to also
+convey the new permission bits?
 
->
->> +
->> +	matrix_mdev->vdev.migration_flags = VFIO_MIGRATION_STOP_COPY;
->> +	matrix_mdev->vdev.mig_ops = &vfio_ap_migration_ops;
->> +}
-> [Severity: Medium]
-> Now that vfio_ap_migration_ops is wired up and exposes the migration stream
-> and state transitions to userspace, can vfio_ap_resuming_write() leave
-> resuming_mig_data_complete set to true or leave filp->f_pos advanced when a
-> write fails?
->
-> In drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_resuming_write():
->
-> 	memcpy((char *)ap_config + *pos, kbuf, len);
-> 	*pos += len;
->
-> 	if (*pos >= offsetofend(struct vfio_ap_config, num_queues)) {
-> 		size_t expected_sz;
->
-> 		if (ap_config->num_queues > MAX_AP_QUEUES) {
-> 			ret = -EINVAL;
-> 			goto out_unlock;
-> 		}
->
-> 		expected_sz = sizeof(struct vfio_ap_config) +
-> 			      ap_config->num_queues *
-> 			      sizeof(struct vfio_ap_queue_info);
->
-> 		if (*pos > (loff_t)expected_sz) {
-> 			ret = -EINVAL;
-> 			goto out_unlock;
-> 		}
->
-> 		if (*pos == (loff_t)expected_sz) {
-> 			ret = do_post_copy_validation(matrix_mdev, ap_config);
-> 			matrix_mdev->mig_data->resuming_mig_data_complete = !ret;
-> 		}
-> 	}
->
-> If userspace writes a valid payload where *pos == expected_sz,
-> resuming_mig_data_complete is set to true. If userspace then issues an extra
-> write to the resuming FD before transitioning to VFIO_DEVICE_STATE_STOP, the
-> extra bytes are copied into ap_config, *pos is incremented past expected_sz,
-> and the function returns -EINVAL without clearing resuming_mig_data_complete.
-> A subsequent transition from VFIO_DEVICE_STATE_RESUMING to
-> VFIO_DEVICE_STATE_STOP in vfio_ap_transition_to_state() only checks
-> mig_data->resuming_mig_data_complete and will still succeed.
->
-> Also, when any of the checks on num_queues, expected_sz, or
-> do_post_copy_validation() fail, *pos has already been incremented even though
-> vfio_ap_resuming_write() returns an error. Should the validation happen
-> before advancing *pos and clear resuming_mig_data_complete on error?
+that would make our life on s390 easier :)
 
-This is a duplicate of questions asked and answered in previous commit 
-reviews.
-
->
+>=20
+> Benchmarks
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>=20
+> AMD EPYC 9654 96-Core Processor host running a recent Linux kernel
+> (6b4b543fa187), with a 64GB, 64-vCPU guest running stress-ng --vm while
+> the host takes a QEMU background snapshot. All results are aggregated
+> over 5 runs, and compared between the stock kernel and one with this
+> patch series. Guest is rebooted across each individual run, and NUMA
+> balancing is disabled.
+>=20
+> pf/s and tlb/s (per-second deltas of KVM's pf_taken and remote_tlb_flush
+> debugfs stats) clearly improve:
+>=20
+>   guest pattern          baseline                    patched
+>   -----------------------------------------------------------------------
+>   read64   (read)        pf/s=3D950,015   tlb/s=3D1,440  pf/s=3D2,503 tlb=
+/s=3D0.1
+>   rand-set (read+write)  pf/s=3D1,004,353 tlb/s=3D862    pf/s=3D4,073 tlb=
+/s=3D0.3
+>   write64  (write)       pf/s=3D968,018   tlb/s=3D94     pf/s=3D2,292 tlb=
+/s=3D0.3
+>=20
+> Guest read latency was sampled with a paced probe thread in the
+> guest, reading one byte per page with an idle gap between reads, while
+> stress-ng ran with read64. Each figure is the median across 5 runs, with
+> the run-to-run min and max, in ns:
+>=20
+>   metric           baseline             patched
+>   ------------------------------------------------------
+>   p50 (min max)      340     (270 380)   260   (250 260)
+>   p99 (min max)    19789 (16885 20200)  5207 (4076 5638)
+>   p99.9 (min max)  23445 (22845 24036)  6850 (6259 7110)
+>=20
+> The median improves modestly and the refault cost shows in the tail,
+> where p99 drops ~3.8x.
+>=20
+> A separate stress-ng run with write64 and --verify showed no data
+> corruption and no livelocks.
+>=20
+> References
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>=20
+> [1] https://lore.kernel.org/linux-mm/cover.1eca029b8603ef4eebe5b41eae51fa=
+cfc5920c41.1690292440.git-series.apopple@nvidia.com/
+> [2] https://lore.kernel.org/linux-mm/ZGu1vsbscdO48V6h@google.com/
+> [3] https://lpc.events/event/20/contributions/2552/
+> [4] https://lore.kernel.org/all/20240801183453.57199-1-seanjc@google.com
+> [5] https://lore.kernel.org/all/20231110003734.1014084-1-jackyli@google.c=
+om
+>=20
+> Carlos L=C3=B3pez (4):
+>   mm/mprotect: add MM_CP_PERM_UPGRADE
+>   mm/mmu_notifier: add MMU_NOTIFIER_RANGE_PERM_UPGRADE
+>   KVM: plumb MMU_NOTIFIER_RANGE_PERM_UPGRADE into kvm_gfn_range
+>   KVM: x86/mmu: don't zap the secondary MMU on permission upgrade
+>=20
+>  arch/x86/kvm/mmu/mmu.c       |  7 +++++++
+>  include/linux/kvm_host.h     |  1 +
+>  include/linux/mm.h           |  8 ++++++++
+>  include/linux/mmu_notifier.h |  5 +++++
+>  mm/hugetlb.c                 |  6 +++++-
+>  mm/mprotect.c                | 20 +++++++++++++++++++-
+>  virt/kvm/kvm_main.c          |  4 ++++
+>  7 files changed, 49 insertions(+), 2 deletions(-)
+>=20
 
