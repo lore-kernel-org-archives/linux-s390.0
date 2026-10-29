@@ -1,100 +1,95 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793285087;
-	b=pE1I16N0CZIlUY0vzdmZPcX0JyVuZFRGybyE5dx5+3ouD9zj3wQ1npcTm7z3C70ftjQM
-	 rZL1S2F3K/oPsykFurApBv/aZ12SC4fOSNcVl6L5WbAzo3c796fPuKKwe2vuUxZk6ReU1
-	 zwaEDQQFVW++5RXXjpsE5LmS9Wzhqf+Sx0YwWHLrDPgPCM/0S0u38sX4pBoMOQEjdpnw9
-	 jqFvusSZPrAb/VK+e4WAA09ee3w7ojzKK2tN12NPBga9tpNkF2MZagLFRNdhryIB9NaGV
-	 8oMAvHV/TxYUz9m5k7ggDhID7aIYvXE5kSJwjZpD8KlkDs4yRxwU5ZHiLM1aampctBw==
+	t=1793285084;
+	b=fP5/ViXISwdz2fvgXoXwFuuxkHLhwgi+W6RzP7Xa+fqWvMzuVa8lY+xBrPJvCAokMdtw
+	 irvlBycMeqzI6LkZGgP+s25gn3I7Ri9ikz7/4FXM8r4Qx9jcUayA1syXzTsG+oQyzvAoF
+	 3SUc2dDQErzySrgB1BMmzdo5fbB5FbgfjqDUsRonkm0NQOfiL9tUqA0PlR7fNpbNxed45
+	 U4xmjPjxAahjJjyHbEed7vIuIbNnIFs+EqhQLgvopmSrf6Y3GV6aO1eM08u8dhiW9Fwnd
+	 6b79KCcxeBhfOP2h8vQgzSnxGVrvVK7CibRtqKIAd4AIsegqH6yV2gjudamwGMViugQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793285087;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793285084;
 	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
 	 DKIM-Signature:Received:Received:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:In-Reply-To:References:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:X-Spam-Flag:X-Spam-Level:X-Spamd-Result:
-	 X-Spam-Score;
-	bh=On/WzBslNRdooO2nM6+KcAg+UNarkQsFuaUhWqaMpyc=;
-	b=lpnZnKIaMFh6J8zzB81Hd1xm23Xiz9gW90vL+ZkaslNZJiQJKtB6QILXwyUb3kE3DUBc
-	 8q5mGx0KYIZJLE/NUeRobJkVCt9xju7aQM0qMHYRgnO0gVTsHFcJMupJJb0uy4FRRKg2M
-	 TvtGPcm4x6Y1fa3CZVlTyd8/gMB2Ux3PS/NBFkFERc5MqqKZjVxWbjXB2UXe6WIdkIKgl
-	 ti44630LjVrDlGvQhnPDNV44FlteBYf0KE30IdsBMOvNxBoQs1sMVuk3WZm9QE8CgQyAa
-	 8gMuyJ8LxfwPw15LKiV4dqGX9i/jAOXjUkkgPoTDY2FC2SKxu6zDyUZyKYdYF4a4Tqg==
+	 X-Mailer:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	 X-Spam-Flag:X-Spam-Level:X-Spamd-Result:X-Spam-Score;
+	bh=Ma02zVhR/wiqxtMf4JB5WMp1YLmgiNfWHzj9kC5VbP4=;
+	b=vcHfMbbwaMBBgY23XHp1EdO7FcQ9gIxTnwrj81ihsw380r6Xcn4q31gms+tBzExRWzdn
+	 PcdgpF8SElx85LeOaPUHI/GPvk2UUorV2/5Gr6Lp81ob2jNLVQM/K0eBW4gY0bd0o8nF1
+	 bNNOZM5x9AunqYVt7GB/Av0NvGlaWxkGNd0QlLien1hD72hd9grxoNT32CWMPLWOKoqzY
+	 mNyCi1eVano5RD+D55VFBiCDsawFgZ0ak//sNyax4HQdWcdAgH72ZWxynkB9pyz/h7nTB
+	 Spg1+JzpDOCZNMdfnec3P98QyKdExM8MopDRxWWI88NnR0P3ZKtCVLlUSKMIUtS4DUg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=suse.de;
 	spf=pass smtp.mailfrom=suse.de;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=UrdyCeEM;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=GWyd71jI;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=UrdyCeEM;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=GWyd71jI;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=GnyP3M+w;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=ROvK8zHR;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=ANlbcIDE;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=TE5h7LM7;
 	arc=none smtp.remote-ip=195.135.223.130
 Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BF2D606A33C;
-	Thu, 29 Oct 2026 14:44:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4BF2D606A33C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAA8F606A31C;
+	Thu, 29 Oct 2026 14:44:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DAA8F606A31C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=UrdyCeEM;
-	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=GWyd71jI;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=UrdyCeEM;
-	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=GWyd71jI
+	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=GnyP3M+w;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=ROvK8zHR;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=ANlbcIDE;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=TE5h7LM7
 Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id B54C22210D;
-	Thu, 29 Oct 2026 14:44:45 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 12955220FF;
+	Thu, 29 Oct 2026 14:44:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1793285085; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1793285082; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=On/WzBslNRdooO2nM6+KcAg+UNarkQsFuaUhWqaMpyc=;
-	b=UrdyCeEMKHhopqmzqB8HSWFgIEcKTFU4pSYcOCLxn3f/ee6De+XpoEYELmPbxsMduW0d3a
-	596LYkT6TmeSIL8H/20MEj37EoRurGIvmzIGn+C7tiHkb9FRgi3NS1/YJIcCio8Xnl0i2D
-	pRhue5Oo8xf5WTkSNWH5zZ+V+BQ3HvA=
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Ma02zVhR/wiqxtMf4JB5WMp1YLmgiNfWHzj9kC5VbP4=;
+	b=GnyP3M+wrwXhfJ/mt8bOmompb4hK95hgUZ/AVXEh5csJs5Ib/dgmCnuaPudHkUqdrXPhsI
+	vyBNhxct2C3EFj/hIQGCB/q+ReLyCIqZGSAnaiWkj2iUNvPi61Ecgf9lZZBR8VCiVcUMDY
+	eZk/LWvfT3jQirSJG7nSL/jcyqToZlQ=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1793285085;
+	s=susede2_ed25519; t=1793285082;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=On/WzBslNRdooO2nM6+KcAg+UNarkQsFuaUhWqaMpyc=;
-	b=GWyd71jI75LiMrHVSGXVpQz70/7L7+unh/faDaAFEJ33aAcmosuQKzFL6yk0+RBTU3mlPx
-	hi/UyO4w4CAHTyCQ==
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Ma02zVhR/wiqxtMf4JB5WMp1YLmgiNfWHzj9kC5VbP4=;
+	b=ROvK8zHR1ViPfnRb/wmNmOKvd8+ruKEHb/fsjoBtaEmA1ibnYHuMv2PjV6tP/Z2h8rqaH7
+	NiuqW16IlbbtAtDw==
 Authentication-Results: smtp-out1.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1793285085; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1793285081; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=On/WzBslNRdooO2nM6+KcAg+UNarkQsFuaUhWqaMpyc=;
-	b=UrdyCeEMKHhopqmzqB8HSWFgIEcKTFU4pSYcOCLxn3f/ee6De+XpoEYELmPbxsMduW0d3a
-	596LYkT6TmeSIL8H/20MEj37EoRurGIvmzIGn+C7tiHkb9FRgi3NS1/YJIcCio8Xnl0i2D
-	pRhue5Oo8xf5WTkSNWH5zZ+V+BQ3HvA=
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Ma02zVhR/wiqxtMf4JB5WMp1YLmgiNfWHzj9kC5VbP4=;
+	b=ANlbcIDEbB6Ur4cFIftmZkdDNofc1vc/RFGI8xElieroJEETE6m5QsP9p/Njs8SPd1BhAU
+	OrOzudm0cx7TCWwaJGzU5BMwp25N95N5zklBKKyU8PQ/1CgPztIoIuIBbr1oSYDbP869cd
+	GTTIOkA1T4ZhbivjJzjGM3IDUqC+r+A=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1793285085;
+	s=susede2_ed25519; t=1793285081;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=On/WzBslNRdooO2nM6+KcAg+UNarkQsFuaUhWqaMpyc=;
-	b=GWyd71jI75LiMrHVSGXVpQz70/7L7+unh/faDaAFEJ33aAcmosuQKzFL6yk0+RBTU3mlPx
-	hi/UyO4w4CAHTyCQ==
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Ma02zVhR/wiqxtMf4JB5WMp1YLmgiNfWHzj9kC5VbP4=;
+	b=TE5h7LM72RerrFOljyHghrWN+OB5oGMt47TWKid72KLd5VvVanU/6NKTm6YLGwiBfS3VqK
+	kZ0jQYdje30fHEBw==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C9C7C1339F;
-	Thu, 29 Oct 2026 14:44:44 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 742A81339F;
+	Thu, 29 Oct 2026 14:44:40 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id iNqFENhb42qRUwAAD6G6ig:T5
-	(envelope-from <clopez@suse.de>); Thu, 29 Oct 2026 14:44:44 +0000
+	id iNqFENhb42qRUwAAD6G6ig
+	(envelope-from <clopez@suse.de>); Thu, 29 Oct 2026 14:44:40 +0000
 From: =?UTF-8?q?Carlos=20L=C3=B3pez?= <clopez@suse.de>
 To: kvm@vger.kernel.org,
 	linux-mm@kvack.org,
@@ -102,20 +97,11 @@ To: kvm@vger.kernel.org,
 	pbonzini@redhat.com
 Cc: linux-s390@vger.kernel.org,
 	imbrenda@linux.ibm.com,
-	=?UTF-8?q?Carlos=20L=C3=B3pez?= <clopez@suse.de>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	x86@kernel.org (maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)),
-	"H. Peter Anvin" <hpa@zytor.com>,
-	linux-kernel@vger.kernel.org (open list:X86 ARCHITECTURE (32-BIT AND 64-BIT))
-Subject: [RFC PATCH 4/4] KVM: x86/mmu: don't zap the secondary MMU on permission upgrade
-Date: Thu, 29 Oct 2026 15:33:37 +0100
-Message-ID: <20261029143336.390231-7-clopez@suse.de>
+	=?UTF-8?q?Carlos=20L=C3=B3pez?= <clopez@suse.de>
+Subject: [RFC PATCH 0/4] KVM: x86/mmu: don't zap secondary MMU on permission upgrade
+Date: Thu, 29 Oct 2026 15:33:33 +0100
+Message-ID: <20261029143336.390231-3-clopez@suse.de>
 X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20261029143336.390231-3-clopez@suse.de>
-References: <20261029143336.390231-3-clopez@suse.de>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -129,65 +115,146 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Flag: NO
 X-Spam-Level: 
-X-Spamd-Result: default: False [-16.30 / 50.00];
+X-Spamd-Result: default: False [-12.30 / 50.00];
 	SUSE_INTERNAL_BYPASS(-9.00)[];
-	REPLY(-4.00)[];
 	BAYES_HAM(-3.00)[100.00%];
 	MID_CONTAINS_FROM(1.00)[];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
 	NEURAL_HAM_SHORT(-0.20)[-1.000];
 	MIME_GOOD(-0.10)[text/plain];
 	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	RCPT_COUNT_SEVEN(0.00)[11];
 	RCVD_TLS_ALL(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_SEVEN(0.00)[7];
 	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
 	FROM_HAS_DN(0.00)[];
 	TO_DN_SOME(0.00)[];
 	FROM_EQ_ENVFROM(0.00)[];
 	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:email]
-X-Spam-Score: -16.30
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo]
+X-Spam-Score: -12.30
 
-When an mmu_notifier invalidation only upgrades permissions
-(MMU_NOTIFIER_RANGE_PERM_UPGRADE), keep the existing SPTEs instead of
-zapping them. The PFN is unchanged and no access is revoked, so a held
-SPTE is at most as permissive as before. Permissions for the SPTE are
-updated on the next fault, so dropping them early gains nothing.
+Prevent x86 KVM from over-zapping its secondary MMU on PTE permission
+upgrades, which leave the PFNs unchanged and do not revoke access.
+Permissions for SPTEs that KVM holds are updated on the next fault, so
+dropping them early gains nothing.
 
-The motivating case is a userfaultfd-wp dirty tracker such as QEMU's
-background snapshot, which unprotects every guest page as it saves it.
-Zapping on each unprotect makes the guest refault its whole working
-set. On a 64GB guest under a background snapshot, a read-mostly workload
-drops secondary-MMU refaults from ~1M/s to ~2.5K/s and cross-vCPU TLB
-shootdowns from ~1400/s to near zero. Uses of mprotect() that only add
-access benefit likewise.
+Do this by adding a new MMU notifier flag to signal that a
+MMU_NOTIFY_PROTECTION_VMA strictly upgrades (loosens) permissions on a
+particular range.
 
-Signed-off-by: Carlos López <clopez@suse.de>
----
- arch/x86/kvm/mmu/mmu.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+See below for benchmark results.
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index dc2aef72ffdd..a4258a8c0c89 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -1719,6 +1719,13 @@ bool kvm_unmap_gfn_range(struct kvm *kvm, struct kvm_gfn_range *range)
- 	lockdep_assert_once(kvm->mmu_invalidate_in_progress ||
- 			    lockdep_is_held(&kvm->slots_lock));
- 
-+	/*
-+	 * Do not bother zapping SPTEs if this is only a protection upgrade.
-+	 * Permissions will be faulted-in on demand.
-+	 */
-+	if (range->perm_upgrade)
-+		return false;
-+
- 	if (kvm_memslots_have_rmaps(kvm))
- 		flush = __kvm_rmap_zap_gfn_range(kvm, range->slot,
- 						 range->start, range->end,
+Background
+==========
+
+change_protection() pairs every protection change with an
+MMU_NOTIFY_PROTECTION_VMA invalidation, and KVM zaps its SPTEs in
+response, as it cannot tell whether permissions widened or narrowed.
+This is costly e.g. during a QEMU background snapshot, which relies on
+uffd-wp to write-protect guest RAM and then restore permissions as each
+page is saved. Without this series, the permission restore causes the
+guest to re-fault read-only memory needlessly.
+
+Note, the reverse situation is already handled for secondary MMUs
+that reuse the CPU page tables (e.g. ARM SMMU, IOMMU/ATS). They cannot
+refault, so they are notified of a permission upgrade on the CPU
+TLB-flush path [1].
+
+KVM, however, owns separate page tables and faults permissions on demand,
+so it needs no such notification (as Sean noted when that signalling
+was first proposed on the fault path [2]). This series applies the same
+principle to the change_protection() path, signalling the permission
+upgrade so KVM can avoid the unnecessary zap.
+
+RFC Considerations
+==================
+
+1. Having the zap skip in KVM's arch-independent code does not seem
+   obviously correct, as s390 caches additional translation state
+   that may not be rebuilt by refaults. Maybe an expert can correct
+   me. The skip could be extended to arm64 and RISC-V, but I have not
+   benchmarked the benefits and I'd like to get feedback first. Hence,
+   x86-only for now.
+
+2. change_protection() could simply not emit the invalidation at all
+   for a pure permission upgrade (shared-page-table MMUs invalidate
+   on the CPU TLB-flush path, as noted above, so they do not need it).
+   But again, the s390 case could be broken, and even then, that would
+   seem too much intrusion for KVM's benefit.
+
+3. The flag reaches KVM as a bool on struct kvm_gfn_range.
+   Alternatively, KVM could forward the notifier event, as Claudio
+   Imbrenda suggested at LPC [3] and others have proposed in the past
+   for different purposes [4] [5]. That, along with the event flags,
+   could serve the same purpose. I'd be happy to take that approach if
+   there is agreement that other consumers would want it.
+
+   (The LPC talk recording has some audio issues so I am not too sure
+   on what the final agreement was)
+
+Benchmarks
+==========
+
+AMD EPYC 9654 96-Core Processor host running a recent Linux kernel
+(6b4b543fa187), with a 64GB, 64-vCPU guest running stress-ng --vm while
+the host takes a QEMU background snapshot. All results are aggregated
+over 5 runs, and compared between the stock kernel and one with this
+patch series. Guest is rebooted across each individual run, and NUMA
+balancing is disabled.
+
+pf/s and tlb/s (per-second deltas of KVM's pf_taken and remote_tlb_flush
+debugfs stats) clearly improve:
+
+  guest pattern          baseline                    patched
+  -----------------------------------------------------------------------
+  read64   (read)        pf/s=950,015   tlb/s=1,440  pf/s=2,503 tlb/s=0.1
+  rand-set (read+write)  pf/s=1,004,353 tlb/s=862    pf/s=4,073 tlb/s=0.3
+  write64  (write)       pf/s=968,018   tlb/s=94     pf/s=2,292 tlb/s=0.3
+
+Guest read latency was sampled with a paced probe thread in the
+guest, reading one byte per page with an idle gap between reads, while
+stress-ng ran with read64. Each figure is the median across 5 runs, with
+the run-to-run min and max, in ns:
+
+  metric           baseline             patched
+  ------------------------------------------------------
+  p50 (min max)      340     (270 380)   260   (250 260)
+  p99 (min max)    19789 (16885 20200)  5207 (4076 5638)
+  p99.9 (min max)  23445 (22845 24036)  6850 (6259 7110)
+
+The median improves modestly and the refault cost shows in the tail,
+where p99 drops ~3.8x.
+
+A separate stress-ng run with write64 and --verify showed no data
+corruption and no livelocks.
+
+References
+==========
+
+[1] https://lore.kernel.org/linux-mm/cover.1eca029b8603ef4eebe5b41eae51facfc5920c41.1690292440.git-series.apopple@nvidia.com/
+[2] https://lore.kernel.org/linux-mm/ZGu1vsbscdO48V6h@google.com/
+[3] https://lpc.events/event/20/contributions/2552/
+[4] https://lore.kernel.org/all/20240801183453.57199-1-seanjc@google.com
+[5] https://lore.kernel.org/all/20231110003734.1014084-1-jackyli@google.com
+
+Carlos López (4):
+  mm/mprotect: add MM_CP_PERM_UPGRADE
+  mm/mmu_notifier: add MMU_NOTIFIER_RANGE_PERM_UPGRADE
+  KVM: plumb MMU_NOTIFIER_RANGE_PERM_UPGRADE into kvm_gfn_range
+  KVM: x86/mmu: don't zap the secondary MMU on permission upgrade
+
+ arch/x86/kvm/mmu/mmu.c       |  7 +++++++
+ include/linux/kvm_host.h     |  1 +
+ include/linux/mm.h           |  8 ++++++++
+ include/linux/mmu_notifier.h |  5 +++++
+ mm/hugetlb.c                 |  6 +++++-
+ mm/mprotect.c                | 20 +++++++++++++++++++-
+ virt/kvm/kvm_main.c          |  4 ++++
+ 7 files changed, 49 insertions(+), 2 deletions(-)
+
 -- 
 2.51.0
 
