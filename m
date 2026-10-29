@@ -1,82 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793276784;
-	b=pA+ljIoixh++k9y335zGWYduwQ4ZuYMvF3Nlpl99Pk4QqHzTi6SSnAmEfLBFPFZ2C/81
-	 VeN13EYHblM5g79B42u9Xl3fYKZRgQJN4hGC/dbJXvWfOH4UXAKxBleML56rcg3LmZeCo
-	 Yz2pajDpToVvR3qSEkON+/gtcx/jUCMa+jSrfunxJZnHYJWXEHoXT7BFyUJ/rcGYSCwaB
-	 SGUeyf843+QPnE5sJhGgJOCEhqv1lFQ2aKw0kTUtsKqyS4PhT7mZjTXZuVG1Mdj194zyy
-	 cgkaYj2ojF0qlx28gYkZtPCULttB8C/h+uSCrk/JR642zDTEYpOA3hyG9wAOesulgqw==
+	t=1793276882;
+	b=NsZwYH5XiVm8jARgF54S4Pyi894LE82xEyPtu5pCrkLxknkdzt8HC9OvBXcmzjZkTWuy
+	 KNTYaBm8oz9e7Qk8Yf3SHn3BYtr3ZE7GjV3+/KEnA5ACWaOG6i/HuJI5J6S27xuaUErXs
+	 tXP9rNR8WKb8ZqAYAS5hwHEufhKdVKd2STuJEn2OfjabQce5P3rIfM4SUs9TClNXzAwNu
+	 FlMhHryrMD+zt8V1DMQg3HEgpfuGYdWYM7GU+/AT5DCni7942AXQBzgmnDhkxjT+RBUNg
+	 l8TTz8l5g2bZkaYZJPagnjf+dvG2RrVDGc0KItVsC2NQIKC7FGTcQaxiMiwbh9KqqSw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793276784;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793276882;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:From:Content-Language:In-Reply-To:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-Reinject:X-Authority-Analysis:X-Proofpoint-GUID:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=NhZM8bfaMOlAUskRwuZdYFdBouah6ljFuWI4CEHi4OM=;
-	b=Skg8Jt4rpNiISQH+voOpsalkroDtp/FAohCQKHcwOpdEM8GO7JPeiKaSa/fWnU7lPl1y
-	 ZvqXV213f3zupvu5iX+nFa+ALIrqc0ZsxMJNOcXYLeiTKtbCV9CpU9xYH3btwrd/yOwLd
-	 pNZREYtxMwZsRAOsPL7B/rBzBShXsi4oWdJomgSDXxYJJaR5xjgD5L6mLDroNZvOTIs5N
-	 nZxmFfKGUptUR4HvrV5H+9WGp8qZ242tO04zId3nqHwmdmpdrLkLZP79pQjOv1CnXS6HN
-	 klRJ11W7W+DGKh/mHSsbnBFVqqD5hrpkkQHzoFrJzBG/gNxO01llyMCE9iyhEaPRuKg==
+	 X-Proofpoint-Spam-Info:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-ORIG-GUID:X-Authority-Analysis:X-Proofpoint-GUID:
+	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
+	bh=afURIQgSjuNj8H/0h9C1lu4HfwqgVmdt+unp2XHI2sc=;
+	b=Gmm0QnGuOFrEtqJlQ/P52KVPXm9oI6oKsooDi+d+0R5ezkZhnygTbxdZf0XAhk3m9CfI
+	 JoPtHEjhKlOPx2c8Mg7HL8+1iT/hk3ilx5vX1LYdLFYum015d+XcXSCKWRRh6m7JPQsKk
+	 Qigt9N9hXgK7arSMR3+JW6aZizNDnH4O/zg3riAZESqfsg9bGEbRdbUFssJXSsFTC/Qea
+	 Uz232Pr02TrprW9agGeM9MflSh4jioGHX2xpPHit/YqwPnwfhmm+5sntkTHvxCbZdMIQT
+	 ewkGacRnxnBOjllk41Raf12bjtZYZ0yRXkFqszXjbY3OEtw0wkVzkfmmjQz9BITbNGg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="YUMSvKh/";
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=XwSz1H3S;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D33B3606A31A;
-	Thu, 29 Oct 2026 12:26:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D33B3606A31A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D247E606A327;
+	Thu, 29 Oct 2026 12:28:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D247E606A327
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=YUMSvKh/
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69T9Ep8V3777010;
-	Thu, 29 Oct 2026 12:25:55 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=XwSz1H3S
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 69T9E6Fi3962704;
+	Thu, 29 Oct 2026 12:28:01 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=NhZM8b
-	faMOlAUskRwuZdYFdBouah6ljFuWI4CEHi4OM=; b=YUMSvKh/JCtiZUqTtFZsI0
-	zOYVJron2zNzSyPMNA8prDp/B1LIArQrgQgq7XkD8SFkwFMUfeRqHKtwoxeKKJ9m
-	XTy/aC8y1SSSuHN9Ve/XhAZBa1zc+TZ4fnpBtc1p2NZRjiikAi3FlbWTLwHvEJeV
-	hJ+GXsYKGrmjjhbWVIK4YjPaj9mIV/2wuZvzvMAz4ZV8L5kfSqBadPaqenTbiiCP
-	bHQcBL0KwK2tzIwhJGoJjC6fNNJhoVG2JhRzEyGzSRiXYR4ClkfPqbt4ahosnVgs
-	Zw8Lk1rBLyiE0eHfhUw0nfQ5j2PHbftKHhIIJHvDS94pIcQjcoumgqKZhSv2IV/A
+	:message-id:mime-version:references:subject:to; s=pp1; bh=afURIQ
+	gSjuNj8H/0h9C1lu4HfwqgVmdt+unp2XHI2sc=; b=XwSz1H3S+ehfJpOsyQJMNr
+	/y1+Z4O9umyNW8bmUU+0n0KMj4klj5qbDl1zekqtDcf+8lqbICw4pv42AtzvpDR9
+	bM3LmWlXku/PBjIgmKFa0b4lyWrcYd7xEElIcq1TFS/lzsVE+1GlemDmlO1EfEvP
+	zsufi5SpoJppUbIYhSmXrtoEN/kGQsEaF8Ln6n9JyBJhOrLvZgoMK6Zk3ssN3Uoo
+	RzltouhJpA1kg/qTyonSeXBzLIlZ9HfmjwG7Eaw1VQkaVXYzmr9vc4YROHbz8tz9
+	NAzmro/8mZZ4ZQs5dHt9mu/ZPt4WTS+hjL2Tz+VXqlISWYoDVYSS6j3L1A5ztTkA
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hgmavsj40-1
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hgm64a3q1-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 29 Oct 2026 12:25:55 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69T952Et2945443;
-	Thu, 29 Oct 2026 12:25:54 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hh8ghbsjt-1
+	Thu, 29 Oct 2026 12:28:00 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 69T950Fc2829705;
+	Thu, 29 Oct 2026 12:27:59 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hjtnnhhkw-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 29 Oct 2026 12:25:54 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69TCPn9C30605828
+	Thu, 29 Oct 2026 12:27:59 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 69TCRwe260424512
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 29 Oct 2026 12:25:50 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D109B20040;
-	Thu, 29 Oct 2026 12:25:49 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id E95972004E;
-	Thu, 29 Oct 2026 12:25:44 +0000 (GMT)
-Received: from [9.124.223.8] (unknown [9.124.223.8])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 29 Oct 2026 12:25:44 +0000 (GMT)
-Message-ID: <261148c1-48ba-4ede-bad6-24c18ed9d545@linux.ibm.com>
-Date: Thu, 29 Oct 2026 17:55:43 +0530
+	Thu, 29 Oct 2026 12:27:58 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5591B58052;
+	Thu, 29 Oct 2026 12:27:58 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6E62B5805E;
+	Thu, 29 Oct 2026 12:27:57 +0000 (GMT)
+Received: from [9.61.241.59] (unknown [9.61.241.59])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTPS;
+	Thu, 29 Oct 2026 12:27:57 +0000 (GMT)
+Message-ID: <fd754769-c15b-4d59-b259-d4d044598a52@linux.ibm.com>
+Date: Thu, 29 Oct 2026 08:27:56 -0400
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -87,114 +86,108 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 0/2] sched: Introduce idle SMT priority for asymmetric
- capacity systems
-To: Mete Durlu <meted@linux.ibm.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Andrea Righi <arighi@nvidia.com>, Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
-        Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
-        K Prateek Nayak <kprateek.nayak@amd.com>,
-        Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+Subject: Re: [PATCH v11 3/5] s390/pci: Reuse FMB buffer across enable and
+ disable cycles
+To: Niklas Schnelle <schnelle@linux.ibm.com>, sashiko-reviews@lists.linux.dev,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
         Alexander Gordeev <agordeev@linux.ibm.com>,
         Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>, Chen Yu <yu.c.chen@intel.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-s390@vger.kernel.org
-References: <20261008-hiperdispatchfix-v1-0-73fe41081070@linux.ibm.com>
- <aseIPhrDGCYFtJNE@gpd4> <90454932-1d82-450a-ac4c-499acdedb9d7@linux.ibm.com>
- <ffbeae31-0e93-4386-8e0e-dba13960b283@linux.ibm.com>
- <CAKfTPtCianGNWSu0s2J_B_aO_rtKWO17k9guYmwgXXLUHQE+SA@mail.gmail.com>
- <d412d939-4704-4246-a9bd-b49b457099b8@linux.ibm.com>
- <CAKfTPtAGiesy0FZQ3aOny_1QkqaX0P2MCOdkE42ERdihRJL99g@mail.gmail.com>
- <ce85388c-3ea0-4363-8c89-fe2bf71b284a@linux.ibm.com>
- <CAKfTPtC70sx58uiaMEXv=vOk+o-Q_1PcHewiVjGCWMd_kvn=tA@mail.gmail.com>
- <e560fc10-f0f4-4cfe-b86d-4df4e2ba3120@linux.ibm.com>
-From: Shrikanth Hegde <sshegde@linux.ibm.com>
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>, Gerd Bayer <gbayer@linux.ibm.com>
+References: <20261028154352.15108-1-oelghoul@linux.ibm.com>
+ <20261028154352.15108-4-oelghoul@linux.ibm.com>
+ <sashiko-outbox-188110@kernel.org>
+ <72ddf1a4-d672-4d9f-a205-07aec3db1248@linux.ibm.com>
+ <1cd8eed2c5268a02df5f8600ae469d023761754c.camel@linux.ibm.com>
 Content-Language: en-US
-In-Reply-To: <e560fc10-f0f4-4cfe-b86d-4df4e2ba3120@linux.ibm.com>
+From: Omar Elghoul <oelghoul@linux.ibm.com>
+In-Reply-To: <1cd8eed2c5268a02df5f8600ae469d023761754c.camel@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Authority-Analysis: v=2.4 cv=P8SvFSAu c=1 sm=1 tr=0 ts=6ae33b53 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI5MDA0NyBTYWx0ZWRfXznUojVge8K1B
+ TU+gip8I1KoPtvphJmv2K+9guUj0gRqZWOYUfq54225LbNrQgtnPW32f41+dr0QAjBgBQ37Jk+N
+ HzgwS2ySyLZ/a/OO6WmNvJ11mpQ0k90=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI5MDA0NyBTYWx0ZWRfXwn+XuJgWFKKB
+ qx0u0ePBkON5r63RpvY+yosw6zSdrgt9KcznxCRFnpyvQi1Uh0Eu3km4nFTtC7/8wnzN9iRWSDh
+ JqI5IMQWDS/syhM0ge8je16wUVxiiQdRzB6mmmIpLEdWNdl7e2jN4xxyE+auGs1XnRKa0gP1Raw
+ aRE59/S9pp1ymeMvkTH148ZUmarshBuJfU2zMH+1FYAU0/Forn6E7UOVG75U8eNLFYyXVKnv5qu
+ SH6LnvjI+jFKdlZliFIok4+QD2gtwmJxuo/Me22CZJDKpoExGT/1ztlkGv20+eBi04lKTdxICQ/
+ huT1X5kcMyxQY0KJOapX6DO8bX6vGPJatCnjj+KGIFbwfsy4ikHin222CukYeMxjTIGuDJtKhYH
+ /Jp4V3OUZBI7XGVl3LfgUh0/RZkpN9gxuQq4CFvvMuCVWQPfm4W1WE/MgwUWx1AVxleUlJUYe/d
+ Uj391iszzRSgfD3lf+g==
+X-Proofpoint-ORIG-GUID: 8P_4t0yUzvnV1XjYo-IcylLa9K6G3iG8
+X-Authority-Analysis: v=2.4 cv=Uu32pOwB c=1 sm=1 tr=0 ts=6ae33bd0 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=IkcTkHD0fZMA:10 a=660iZSQnnn4A:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=b4NwTnLg8QrBWy7gGLMA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: qPilgbHAXR4fdbQFrM_chj1dNSsLwUpW
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMDI5MDA0NyBTYWx0ZWRfX16fUt37wj3XE
- 4pXnRVwr+VKeaTccfKEn0eHeMcxMxrvcpdnsO9qrhKb5R696jpw82cm70i/KUhPhEROVgwOfWlf
- QlJ037wJ3DpuPdGuN4G2WeTfkrK84OA=
-X-Proofpoint-ORIG-GUID: PKm2xy41HcAiQd2hM2YwRMLd-yz0ZfJZ
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMDI5MDA0NyBTYWx0ZWRfX4koadrSnndvG
- qJdFq2fda7SOWZXBSKUlm0y94DcBenut/Hy9CsorzxqkUr2FVjzwGrIP1HrtSrbjLzzNH7VatSv
- r6fFU1C8LdOeb76DGAaGNnDTUcG4x3dRI1UptqCLcLUmASwwFAc3qe+F9V9XN/HU+X2LZupWb7e
- v5uK200Qvb2hhO4cUkhOQyoTZNM6p6X0FfHhyKSf77Di6gvwWIy6mmUmK7n9njSzIUgAWetXQL6
- 7ubGWzDtZxnRAuHK2wkuta9XZLGWdqRosBWsGKPA7V2bLjI9OdGvbU5Dabr4p+wV2+k5LWdq0Ef
- cMZx3KIIdFS8Q0Voby8xXDFkUKF/LamZhdbPvzNzwH0nxCZNZkBw+4g59YRpNiFj7AIqLHw4nQN
- lH48Nf+9tE7ejYp6Bjt+ipp0vIv/ANTtZzvAS8TbG3gk5JrRDCBXlK99cc8o84ELB/bx6ZQL2xX
- XfBwki/0GQ65b+ZFC5w==
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=ULb8jbz8dg8js5G6V90A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: 8P_4t0yUzvnV1XjYo-IcylLa9K6G3iG8
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-10-29_03,2026-10-21_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 adultscore=0 malwarescore=0 phishscore=0 spamscore=0
- clxscore=1015 bulkscore=0 suspectscore=0 priorityscore=1501
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610190000
- definitions=main-2610290047
+ bulkscore=0 impostorscore=0 priorityscore=1501 spamscore=0 adultscore=0
+ lowpriorityscore=0 malwarescore=0 clxscore=1015 suspectscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610190000 definitions=main-2610290047
 
-Hi Mete.
-
-On 10/20/26 2:43 PM, Mete Durlu wrote:
-> Hi again,
-> 
->>>> What you describe really fit into the prefered core that Shrikanth
->>>> Hegde has developped
+On 10/28/26 5:12 PM, Niklas Schnelle wrote:
+> On Wed, 2026-10-28 at 12:15 -0400, Omar Elghoul wrote:
+>> On 10/28/26 11:59 AM, sashiko-bot@kernel.org wrote:
+>> [...]
 >>>
->>> I agree, but Shrikanth's solution can not bring some of the
->>> behavior changes required. cpu_preferred_mask can help
->>> direct task placement away from low capacity cores but idle
->>> core first approach still places tasks to fully idle low
->>> capacity cores. This patches proposal tries to move tasks
->>> first to the idle SMT siblings.
+>>> [Severity: Medium]
+>>> Can keeping zdev->fmb non-NULL when zpci_mod_fc() fails in zpci_fmb_enable()
+>>> leave the FMB enablement state inconsistent?
 >>
->> We have compute capacity to decide which CPU is better than others.
->> The capacity of SMT CPU has also been somewhat random, but we should
->> find a way to fix this instead of adding a threshold to decide whether
->> to pack or spread tasks onto idle cores. With correct per CPU
->> capacity, we can easily decide if an idle low core is better or not
->> than the sibling of an already busy high core.
+>> Valid concern, but unfortunately I think this is a tradeoff we are going
+>> to have to accept. Based on this discussion [1] under a previous version
+>> of the series, we can accept these stale reads because as Niklas said,
+>> the firmware-written sample includes a timestamp of the last write. So
+>> we're already transparent about giving the user stale data, and in the
+>> unlikely event that this happens, the user will be able to recover by
+>> disabling and re-enabling statistics via debugfs or simply re-enabling
+>> it directly via vfio.
 >>
-> After thinking about this a bit more, I have decided to work
-> on a different approach rather than trying to integrate
-> into Shrikanth's vCPU backoff or trying to expand this series.
+>> Thanks
+>>
+>> [1]
+>> https://lore.kernel.org/all/a24337bd66864dd70ae61e28d86590052ac0fc5d.camel@linux.ibm.com/
+>>>
 > 
-> I'll come back with another series after I become more familiar
-> with how the SMT capacities are calculated and incorporated in
-> the decision making process. My gut says the real challenge is
-> going to be finding a way to benefit all architectures that
-> configure asymmetric capacities but I'll give it a shot.
->
+> I think the problem is a slightly different one. With patch 2
+> statistics_on tracks if the statistics should be on and zdev->fmb !=
+> NULL tracks if they are on. With this patch zdev->fmb loses that
+> meaning. So when the zpci_mod_fc() in zpci_fmb_enable() in
+> pcibios_enable_device() fails the removal of the "if (cc)" block now
+> means that we still do the zpci_fmb_disable() in
+> pcibios_disable_device() but that is a sequencing error.
 
-I think you can split this issues into two.
+In the unlikely case zpci_fmb_enable() in pcibios_enable_device() fails,
+the FMB simply stays disabled from the firmware's perspective. Then the
+user will see zeroes or stale counters. AFAIK the architecture doesn't
+forbid double-disabling, so IMHO I think the extra disable step in
+pcibios_disable_device() in this case is redundant at worst.
 
-1. Does choosing idle vertical high SMT CPU is always better than
-    an idle vertical low SMT core. This isn't related to any system pressure
-    or steal time. If yes, you may need something like ASYM_PACKING, or
-    select_idle_capacity etc.
+> 
+> So, as we want to keep the FMB associated to prevent the platform from
+> overwriting an already kmem_cache freed different FMB and thus can't
+> have zdev->fmb NULL at any point after having it enabled we need to
+> track the actual enablement state separately. I'd add another bool to
+> zdev for this maybe "fmb_enabled".
 
-2. If you want to avoid vertical low cores when under high steal time, then
-    using steal governor is probably right direction.
-    We could add arch specific hooks if current logic doesn't achieve it.
-    But this is only under HW pressure, not always.
-  
-> Thanks for the valuable comments and guidance.
-> -Mete
+I think this will introduce a lot more complexity than is needed for FMB
+handling, and even then it will still be really messy to get right and
+account for all the cases where firmware can disable measurement without
+the user requesting that. That's largely why I thought the tradeoffs of
+occasionally giving the user stale counters and allowing them to recover
+via debugfs or vfio if needed were acceptable.
+
+Thanks
+
+> 
+> Thanks,
+> Niklas
 
