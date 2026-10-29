@@ -1,75 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793304999;
-	b=swmPTBcYuYoclbCmfQ3btenVHFYuF7Kz+ELjwFXEwfzCFTygTinEkGJsuFVRg9+Hn3w0
-	 JeKacL4M7TgLnt5ckiBAx9iSqLInYwa9Rv/5jzA9QtGNfDX4G1VG1sdkB5AOkHe8dkGUN
-	 oRQ15NKk1edEdgZXxGXWniZzklJYl3BDVJ7a85nwCBuwO2hu/G3yjJFt7BnAA3THuBO5D
-	 ZuWgb/IhLAkx3bHaVgxuv/0dyuMfjLkxyYWbEyTtbPuwD2vm7HEI8dIeHfK2D4qsuAIOy
-	 fo/7U5IAh0JpAwq4tgpnvm5Mxm3vOW0iQNik4E8LqPCLlzKHXn5uTc1f1/BAAS5LbXg==
+	t=1793305001;
+	b=xLSsPL/uRKstjiw974byK48a6KkpEYb9YhYjAesGYOARfsNvVf0HrxboFxXrPkmclUya
+	 IqU8KEgBS9x5059JZJDavGKkV8nNFeyOYsYdzHMNR8Nlg8RJdEYHS+lHgdWq4LaBbeMPk
+	 j7nUeFrPslnp9K8jAd+TQhR3YogGDBx4YuN3u/xlfpdwctoj537C8E33XZ8a6dKJ4kcC7
+	 Wj0GbbkR2u/sr6dW5pXVBuwj+TXvGUyJwHjrwB5azrB+bgM3d8qEAOXZLXl0GG4F3ElCA
+	 UxQTvzdrZ1alwFiv7KDXlASlE3TJzqGtTU5LFfBJBSRtBbQXhNY4t7uVweufu1ok7bw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793304999;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793305001;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=KH5tlWQ/a/2Qjgu8uulzrQfDKvIAF8TNZYluLjZyVHQ=;
-	b=WgtOFKv4rTemxGPOBYl/FgXFdWFl8gi1y/ZyVKOcEUdVBnUJlAQeEvk1qrWFJvRM4eX7
-	 kyIWq3dRlnGhpzjPJHskyHei0JF02tKvc3JMtsrdOKxGxyOJo26+VrO31VhTMeNdQfC1D
-	 Dm7MHCsqSY4A9ckZrjdpZsk45QYwPIuujhbuV4JKttdiPT29LtiXnl4bmazP02CCBB310
-	 pC3CWzqrL/hK/mj5Bg21mllssXb1Du2a9ZyC03QGvND/eN5JbOCZ6f3r/acVRhq50UlCq
-	 V/e7jqk0bqRhDwQ7fR/lnV1amqzQbSQlk3GJnMV0gz+j3hDAnfF90hf+dUrPPggo3iQ==
+	bh=CLl1E7GgCQeN9Eb94Wl3WRP1HKmEbKBjCFmcVd2CpUQ=;
+	b=10HDy56ma7zDinn5LJtsFMag20cVIDtARh2mVEOHDC7a1n3pRtx+BZz6/4xgOhGFhMFr
+	 BgriNd+Yz2ukJdgRRb0vhxyd5FC8mchea2dO2r7MNhNXFpRv8km7d7lvd35xGZnVSNZng
+	 fP7rfKK1gKOXyni4hnRxxyPGskrH5+oSGUyLVp8tOi9p+mw0vlSzk/h136L0CfWbTTnyf
+	 Fqky35JFyLoeS+/AF6+vnxRMf3Ct02akiyX6uEAAbrOOSSd5Auvkta5QANQp/tQTp/SbL
+	 Scfy+MYVebuq+ocIsT0aL1trtLV3Qd+pYfXDf0u1Gkwt3txA8MNSAmvPZSN5EOra96w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=O+9sPb3f;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OqkM4Itt;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5699B606A31D
-	for <linux-s390@vger.kernel.org>; Thu, 29 Oct 2026 20:16:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5038606A31C
+	for <linux-s390@vger.kernel.org>; Thu, 29 Oct 2026 20:16:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=O+9sPb3f
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66EA31F01824;
-	Thu, 29 Oct 2026 20:16:37 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OqkM4Itt
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6C931F01816;
+	Thu, 29 Oct 2026 20:16:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
 	s=k20260515; t=1793304999;
-	bh=KH5tlWQ/a/2Qjgu8uulzrQfDKvIAF8TNZYluLjZyVHQ=;
+	bh=CLl1E7GgCQeN9Eb94Wl3WRP1HKmEbKBjCFmcVd2CpUQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=O+9sPb3f7yAtRAyhhCNGswCMWiCYDVQL4n8UUKxe1WRm/wsE5VtYsSBFghyAadl8m
-	 d+5FxKOS+U6sSVWx7EMPqSqLor99ZnqzQU6HU0s7e0nk2xFBgdv16Li+jUVZKyZitf
-	 Tx3+QgDMuHHJ5q3rGwjVVfV24ACUwm2+XfTUu9xG2X2ZCmdq2Xyak42LYjat2y192n
-	 tUuaCAlodVI2XdQbDMW+ekmLf8IguGSsh6il0wWHhyYwH0hPqqGfxQzZrGvQRKRL5T
-	 5CoWb/6xfta/g48few6SxzPuPWD43jJfxh2berx/ezg/MAR9z5eeuwZh2y678lcqWz
-	 6DELTiWg7tatA==
-Message-ID: <sashiko-outbox-189914@kernel.org>
+	b=OqkM4IttRuVF3JpnYm7U6xsPZQadFnR3RZ4kQLbMlksyK18DeuBA32exG7TMsFGqk
+	 hFFLY8aEec3Phst/oVoVhCWra1dD6caBrcuSxn0p9OgubsL1+/Y/UK6oEiT9wgr9l1
+	 TLvcE2jK71SFTx8pQcwOGyX0hufNutLHA1MmM+VD8A4+tyShx3/FTQOrpznYXUy3Bc
+	 +VYw9WC/tfh1+1ZK+wvw5/jHKPGI9zaurzujiXeloklTA6W0ppOSARZ54Z/vBTINji
+	 peI9gly76V2R/8WVov03O2bpezYcT2DebmAqRsSOtbNhwT78kJlRI02jQtqEyseIFT
+	 yLnPTt0lKmRaw==
+Message-ID: <sashiko-outbox-189915@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 14/15] RFC: mm/hugetlb: account restored reservations
- before freeing folios
+Subject: Re: [PATCH 15/15] RFC: mm/hugetlb: delay anon folio rmap removal
+ until after the TLB flush
 Reply-To: sashiko-reviews@lists.linux.dev
-To: =?utf-8?b?RGF2aWQgSGlsZGVuYnJhbmQgKEFybSk=?= <david@kernel.org>, "Muchun
- Song" <muchun.song@linux.dev>, "Oscar Salvador" <osalvador@suse.de>, "Naoya
- Horiguchi" <nao.horiguchi@gmail.com>, "Andrew Morton" <akpm@linux-foundation.org>, "Mel
- Gorman" <mgorman@suse.de>, "Andy Whitcroft" <apw@canonical.com>, "Miaohe
- Lin" <linmiaohe@huawei.com>, "Michal Hocko" <mhocko@suse.com>, "Rik van
- Riel" <riel@surriel.com>, "Hugh Dickins" <hughd@google.com>, "Baolin Wang" <baolin.wang@linux.alibaba.com>, "Vivek
- Kasireddy" <vivek.kasireddy@intel.com>, "Dave Airlie" <airlied@redhat.com>, "Jason
- Gunthorpe" <jgg@ziepe.ca>, "Lorenzo Stoakes" <ljs@kernel.org>, "Liam R.
- Howlett" <liam@infradead.org>, "Vlastimil Babka" <vbabka@kernel.org>, "Mike
- Rapoport" <rppt@kernel.org>, "Suren Baghdasaryan" <surenb@google.com>, "Jonathan
- Corbet" <corbet@lwn.net>, "Shuah Khan" <skhan@linuxfoundation.org>, "Randy
- Dunlap" <rdunlap@infradead.org>, "Peter Xu" <peterx@redhat.com>, "Breno
- Leitao" <leitao@debian.org>, "Will Deacon" <will@kernel.org>, "Aneesh Kumar
- K.V" <aneesh.kumar@kernel.org>, "Nick Piggin" <npiggin@gmail.com>, "Peter
- Zijlstra" <peterz@infradead.org>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+To: =?utf-8?b?RGF2aWQgSGlsZGVuYnJhbmQgKEFybSk=?= <david@kernel.org>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, "Sven Schnelle" <svens@linux.ibm.com>, "Arnd
- Bergmann" <arnd@arndb.de>
-Cc: linux-mm@kvack.org, "Gerd Hoffmann" <kraxel@redhat.com>, linux-s390@vger.kernel.org, "Josef
- Bacik" <josef@toxicpanda.com>
-In-Reply-To: <20261028-fixes_hugetlb-v1-14-a0a033db180f@kernel.org>
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261028-fixes_hugetlb-v1-15-a0a033db180f@kernel.org>
 References: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
- <20261028-fixes_hugetlb-v1-14-a0a033db180f@kernel.org>
+ <20261028-fixes_hugetlb-v1-15-a0a033db180f@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 29 Oct 2026 20:16:37 +0000
+Date: Thu, 29 Oct 2026 20:16:39 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -79,137 +63,33 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [High] mm/hugetlb: gather_surplus_pages() over-allocates and retains surp=
-lus folios
---
+> After fork(), parent and child map anonymous folios read-only shared
+> by CoW. On a write fault, hugetlb_wp() reuses an anonymous page instead of
+> copying it if its mapcount is 1. As documented, switching to the safer
+> refcount would cause more harm than help with these scarce resources.
+>=20
+> munmap() and MADV_DONTNEED unmap such folios and decrement the mapcount
+> before the TLB is flushed. Until then, another thread of the process can
+> still read the page through a stale TLB entry:
+>=20
+>     child: reader        child: munmap()       parent: writer
+>     =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D        =3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D       =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>     reads the page
+>                          clears the entry
+>                          mapcount drops to 1
+>                                                store to the page
+> [ ... ]
+> for applications with different parent vs. child trust boundaries.
+>=20
+> Fixes: 24669e58477e ("hugetlb: use mmu_gather instead of a temporary link=
+ed list for accumulating pages")
+> Reported-by: Chris Mason <mason@kernel.org>
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
-commit d5256483029a06972dd519de19de57831de33af4
-Author: David Hildenbrand (Arm) <david@kernel.org>
-
-RFC: mm/hugetlb: account restored reservations before freeing folios
-
-This commit updates anonymous hugetlb folio unmapping to increment
-resv_huge_pages immediately when restoring the VMA reservation rather than
-waiting for the folio to be freed. Because resv_huge_pages can now
-temporarily exceed free_huge_pages while unmapped folios still have
-elevated reference counts, available_huge_pages() is updated to clamp at
-zero.
-
-> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-> index 69a5d2c73ee1d..06ef8ba41df7c 100644
-> --- a/mm/hugetlb.c
-> +++ b/mm/hugetlb.c
-[ ... ]
-> @@ -5313,6 +5309,45 @@ int move_hugetlb_page_tables(struct vm_area_struct=
- *vma,
->  	return len + old_addr - old_end;
->  }
-> =20
-> +/* Must be called after rmap removal. */
-> +static void hugetlb_folio_restore_rsv_on_unmap(struct vm_area_struct *vm=
-a,
-> +		struct folio *folio)
-> +{
-> +	struct hstate *h =3D hstate_vma(vma);
-> +	unsigned long address;
-> +	long rc;
-> +
-> +	/*
-> +	 * Restore only on the last unmap, otherwise the owner could reuse
-> +	 * the reservation while the folio is still mapped by a child.
-> +	 *
-> +	 * TODO: Handle migration temporarily dropping the mapcount to zero.
-> +	 * TODO: Prevent reservation reuse before the folio is freed.
-> +	 */
-> +	if (!folio_test_anon(folio) || !__vma_private_lock(vma) ||
-> +	    folio_mapped(folio))
-> +		return;
-> +
-> +	address =3D vma_anon_address(vma, folio->index, 1);
-> +	rc =3D vma_needs_reservation(h, vma, address);
-> +	if (!rc)
-> +		vma_end_reservation(h, vma, address);
-> +	if (rc <=3D 0)
-> +		return;
-> +
-> +	rc =3D vma_add_reservation(h, vma, address);
-> +	if (rc < 0)
-> +		return;
-> +
-> +	/* The restored reservation owns the subpool charge. */
-> +	hugetlb_set_folio_subpool(folio, NULL);
-> +
-> +	/* Account before the VMA can close or fault again. */
-> +	spin_lock_irq(&hugetlb_lock);
-> +	h->resv_huge_pages++;
-> +	spin_unlock_irq(&hugetlb_lock);
-> +}
-
-[Severity: High]
-With h->resv_huge_pages now able to exceed h->free_huge_pages while an
-unmapped folio is still referenced (for example, via vmsplice() or GUP),
-can a concurrent hugetlb_acct_memory() -> gather_surplus_pages() over-alloc=
-ate
-surplus folios and retain them in the pool?
-
-In surplus_pages_needed():
-
-	static long surplus_pages_needed(struct hstate *h, long delta, long alloca=
-ted)
-	{
-		long global_free =3D (long)h->free_huge_pages + allocated;
-		long allowed_free =3D (long)allowed_mems_nr(h) + allocated;
-
-		return max((long)h->resv_huge_pages + delta - global_free,
-			   delta - allowed_free);
-	}
-
-When h->resv_huge_pages > h->free_huge_pages, (long)h->resv_huge_pages +
-delta - global_free includes the deficit from the in-flight unmapped
-folios on top of delta.
-
-If gather_surplus_pages() succeeds, needed +=3D allocated equals delta +
-(h->resv_huge_pages - h->free_huge_pages), so it allocates and enqueues
-extra surplus folios beyond delta (or fails with -ENOMEM if
-nr_overcommit_huge_pages only had room for delta).
-
-Furthermore, when gather_surplus_pages() cleans up unused or aborted
-folios at the free label:
-
-	free:
-		spin_unlock_irq(&hugetlb_lock);
-
-		/*
-		 * Free unnecessary surplus pages to the buddy allocator.
-		 * Pages have no ref count, call free_huge_folio directly.
-		 */
-		list_for_each_entry_safe(folio, tmp, &surplus_list, lru)
-			free_huge_folio(folio);
-
-free_huge_folio() checks:
-
-	} else if (h->surplus_huge_pages_node[nid] &&
-		   h->free_huge_pages >=3D h->resv_huge_pages) {
-		/* Free this surplus folio that is not required globally. */
-		remove_hugetlb_folio(h, folio, true);
-		spin_unlock_irqrestore(&hugetlb_lock, flags);
-		update_and_free_hugetlb_folio(h, folio, true);
-	} else {
-		arch_clear_hugetlb_flags(folio);
-		enqueue_hugetlb_folio(h, folio);
-		spin_unlock_irqrestore(&hugetlb_lock, flags);
-	}
-
-While h->free_huge_pages < h->resv_huge_pages, free_huge_folio() will
-enqueue the aborted surplus folios into the hugetlb pool instead of
-returning them to the buddy allocator. If the in-flight unmapped folio is
-a persistent folio on node A (where surplus_huge_pages_node[nid_A] =3D=3D 0)
-and the surplus folio was allocated on node B, dropping the last reference
-to the persistent folio on node A will not free the surplus folio on
-node B either, leaving the surplus folio stranded in the pool.
+Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261028-fixes_huge=
-tlb-v1-0-a0a033db180f@kernel.org?part=3D14
+tlb-v1-0-a0a033db180f@kernel.org?part=3D15
+
