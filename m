@@ -1,60 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=109.224.244.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=109.224.244.16
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793247491;
-	b=aQSURMozeT4gCWsagi0T9935ka9O0SPEpgG9GMt9KwHWqNArlKvUsmjJdvAEnwIseaRa
-	 NqrvhEZSNM0KBccZXJlB4mITe+iUKSb9iiZOL6CKcB/5WiwvNpT+2ncqwNGBan+1NZ13Z
-	 gU6CkdlpW1ouz4KcqzQjqZ/LxhehJ6bny1+ka22F8ebVc0RtrfIoOop5NRsNs1ew4yXW5
-	 sXTJupdyX9txFVHJoXTiSxHdJC2tv6TSgt7MWvI560zlheLAZMLupyGahd/q5AWWb2aM+
-	 gNN0C00ALbzZDUwcimo6LZ94pUL8ZI9WZ3DKfVrUwA6VgA0oukpfBdkTAGi+ngYH2pw==
+	t=1793247497;
+	b=rYU/9bN78ch1IJXleWzAN0YSOR1Gz/XCKfHa/Cm2gTIPdOu+bhTMKFpVdpUskgbfVbOd
+	 OrFaNbpscFj6+SB+btEJCNwV+TMw2/7QsZ5h0TkcUmh5ovcyJaLMxY0zBgbpNljP4jZvp
+	 7uKodhHF91Q2bVI62iPbOAJsRZmUKVME1V+EC2quDOXu+jcRVe6bYgb2HQbR8iV/m7gc/
+	 FqWVcPcAZVqs042hiQO9lXB08quc11Lkaws++EwniqBJa+BRTpNDBlCcBhtn6Uo0WwA4X
+	 nflLng4uTOgB+3Tcm4gVNgF27mctp35XcXPS77lgc8P83YGXQQjRinPLmi9srTjAr8A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793247491;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793247497;
 	h=DMARC-Filter:DKIM-Signature:Date:To:From:Cc:Subject:Message-ID:
 	 In-Reply-To:References:Feedback-ID:X-Pm-Message-ID:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=vB+OZ8NrRNDhLXXAozzAgkR9olHTNIXhHGtzlEYfuPg=;
-	b=lconeWscxINCeLaPPRFa3c+Hv1rBrHWeFFzrYT4D1b2BObKK57cc9nInqrXdWvK6UNVt
-	 /7GsakwatP9OLTc7CA5UPjKoEvqz0RufWqnk+3O7NpSw/yiAl6cP2dvKvBvu2PjOkAcEx
-	 WbLKukO5sBLd34BeKDveXPVmCkmPNCYTBnJUP3I8tR+vEXxV2pOJVbqoJ/YBsucWQ5GEH
-	 4/FJsqrdzYR1VG+nhkVdAdSWOLgKS5k9AstywnDXI8MtOEG2mEgRK9fZvolhdOVH9fq2s
-	 V4cfWYYj0lCssmpktoPPmHHTkegsAs1wztm8bnsXNyF+GTbohrIfipToDtBYKziDKOA==
+	bh=4V1QY5rnLtUFHVy7j/lGfFmVKAOrcLlyIp4tAu9on10=;
+	b=cbdMugp8i3voMnsgNy23nYIGuqRohcKWOGf6e+Z6z9YZoh9jVyhJAt5kRaQaXx6ejbb4
+	 Jvngme29X/ki9W6XekAb+UthC0DmLlJ+lAGMj3A8RdQzLtm7eWdM5P3ArVjUKHo1KmN6u
+	 DA5SbdwXVKmZJ5OPPcubzg2dWWBqS14uw12WXjz2irOWpAiL7aDSVzCxUZBTxOgKGk7lM
+	 VtKcak6yQpL8RunflYJQrVfvXcDQWy822wAHb4WxWKFxKfNtLVut/kyusEodCDG40lZkN
+	 OntOQNEjTGE2g7CZsT5WVDoeMWqg5ZDdG4A7mUjsFOlA/+zVbdoC4ncbN7CKURyBzAA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=proton.me;
 	spf=pass smtp.mailfrom=proton.me;
-	dkim=pass header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b=jYrE+NTz;
-	arc=none smtp.remote-ip=109.224.244.18
-Received: from mail-24418.protonmail.ch (mail-24418.protonmail.ch [109.224.244.18])
+	dkim=pass header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b=fHRp8W2g;
+	arc=none smtp.remote-ip=109.224.244.16
+Received: from mail-24416.protonmail.ch (mail-24416.protonmail.ch [109.224.244.16])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE943606A31C
-	for <linux-s390@vger.kernel.org>; Thu, 29 Oct 2026 04:18:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AE943606A31C
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1EE4606A321
+	for <linux-s390@vger.kernel.org>; Thu, 29 Oct 2026 04:18:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E1EE4606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b=jYrE+NTz
+	dkim=pass (2048-bit key, unprotected) header.d=proton.me header.i=@proton.me header.a=rsa-sha256 header.s=protonmail2 header.b=fHRp8W2g
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
-	s=protonmail2; t=1793247483; x=1793506683;
-	bh=vB+OZ8NrRNDhLXXAozzAgkR9olHTNIXhHGtzlEYfuPg=;
+	s=protonmail2; t=1793247494; x=1793506694;
+	bh=4V1QY5rnLtUFHVy7j/lGfFmVKAOrcLlyIp4tAu9on10=;
 	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
 	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
 	 Message-ID:BIMI-Selector;
-	b=jYrE+NTz97zVvl/+FrrFmraJFExEb9fqeq2j50bDvOp2z/KJxglSoZkRr6k8QIvTW
-	 WT2kuvlntQcT8qWI8YQT4omDeqN14+6Ca+reteKfO+WIrdg4XOvgmIMGKxFk3INi2c
-	 4Y/FKyOOzJ4Y/XmXyTOUlP9Czc2S0HECjOXThDfjRHO+yZmCetL5QOd7/AVg8sSfkh
-	 zPXkXJd+VSjmF2ioG40/htemiTKCVLpvtMbQB3n/3oO9Tqx7PTBdtcARc5w1QzyHYC
-	 7rPSl+oWNjfwZN7RtldG6M9G+47EL+WgxWClnA2efvOVPj9T0YZdLu1NkmHmjTnzWU
-	 ScNgrYIRNMPtw==
-Date: Thu, 29 Oct 2026 04:17:58 +0000
+	b=fHRp8W2gJD0gY0Fo5rTfRNWS7qxDo2ppPVVSc62ChZObnOe3b5vwCQy/NOsQtYEWq
+	 VHDNQU/8RS70HsOooNpvhfSuLjwQ+sfzz4i31Drzp4/2PRtfPCLFaOLesJfh7fg4gV
+	 FISGAtcmL05utbMMn7IecyJupEJrit2550Fl9sg7nTRbcLRMnopbY9xHmqZ67D0e9H
+	 llpk1REyDaMdis86iAo2aN05NVwmmGVhQcmrIEUZny0M4STGdQea+4CcOXpaEJUopm
+	 PJVq4bndCvif/YfDDMNj/R8Wzm48jIvOtsc07sW6IcDYX0bdLdDioOQ/GVS8SZE6Ce
+	 Mkhih7RqKvEZg==
+Date: Thu, 29 Oct 2026 04:18:08 +0000
 To: netdev-bot+sashiko@kernel.org, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Eric Dumazet <edumazet@kernel.org>, "David S . Miller" <davem@davemloft.net>, Alexandra Winter <wintera@linux.ibm.com>, Thorsten Winkler <twinkler@linux.ibm.com>
 From: Bryam Vargas <hexlabsecurity@proton.me>
 Cc: Simon Horman <horms@kernel.org>, Hidayath Khan <hidayath@linux.ibm.com>, Nagamani PV <nagamani@linux.ibm.com>, linux-s390@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net 1/2] net/iucv: clear hs_dev before dropping its reference
-Message-ID: <20261029041746.406667-1-hexlabsecurity@proton.me>
-In-Reply-To: <179306942370.3134.2152050460964282662@kernel.org>
-References: <20261022-b4-disp-b35a9153-v1-1-d74645876195@proton.me> <179306942370.3134.2152050460964282662@kernel.org>
+Subject: Re: [PATCH net 2/2] net/iucv: do not count the SHT frame against the receive window
+Message-ID: <20261029041801.406712-1-hexlabsecurity@proton.me>
+In-Reply-To: <179306942509.3134.1109951482403010755@kernel.org>
+References: <20261022-b4-disp-b35a9153-v1-2-d74645876195@proton.me> <179306942509.3134.1109951482403010755@kernel.org>
 Feedback-ID: 199661219:user:proton
-X-Pm-Message-ID: a5c27ba48a12583e2c95a0035b93cc33208ff2be
+X-Pm-Message-ID: 18184e39b0757656a9ad30fcbcf0ef6c97309a0d
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -67,43 +67,74 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 27 Oct 2026 02:50:23 +0000, netdev-bot+sashiko@kernel.org wrote:
-> - [Medium] In afiucv_hs_callback_syn(), the child now takes a reference
->   on skb->dev every time, instead of copying the listener's hs_dev.
+On Tue, 27 Oct 2026 02:50:25 +0000, netdev-bot+sashiko@kernel.org wrote:
+> [Severity: High]
+> Can an empty frame read after the over-window close reach
+> iucv_send_ctrl() while iucv->hs_dev is NULL?
 
-Right, that interleaving exists, and it is the orphan the notes below
-the patch describe: a SYN that passes the IUCV_LISTEN check after
-close() drained the accept queue leaves a child nobody accepts or
-kills. Pre-existing: bh_lock_sock() in the callback does not exclude
-lock_sock() in close(). The locking series [1] is what closes it (the
-callback runs under the socket lock there, so a SYN sees the listener
-or a closed socket, never the gap).
+Yes. The close purges backlog_skb_q, not sk_receive_queue, msg_recv
+stays over the limit, and with the length test an empty frame read
+after it skips the -EFAULT branch and lands in the window update. Repro
+on the emulated s390x setup with SO_MSGLIMIT 2: the peer sends twice
+(the window), then from a tap on its interface one data frame over the
+window, its SHUT_WR for the SHT, and 16 more data frames behind it, so
+backlog_skb_q is not empty and no read sends a window update before
+the close (a Linux peer blocks at the window; the overrun is injected).
+Six reads: 1, 1, -EFAULT (the close), -ECONNRESET, 0 (the SHT),
+-EFAULT (a data frame behind the SHT closes again). On v1 the fifth
+read enters iucv_send_ctrl() once, with nothing leaving the adapter.
+The reads are the same with and without the bug: on a default boot the
+NULL read lands in the lowcore and afiucv_hs_send() fails with -ENODEV,
+as you say, so nothing shows from user space. v2 sends the update only
+while the socket is connected; the same run then shows no attempt
+after the close.
 
-What 1/2 changes is which reference the orphan holds. Before, it held
-the listener's device or nothing, depending on which side of the clear
-the callback read; now it holds the ingress device, which after
-80230a18c164 is the same device. IOW the device leak was already there
-in one of the two interleavings and 1/2 extends it to the other. Yes,
-an unregister of that device then waits in netdev_wait_allrefs() for a
-reference nothing drops. Both go away with the series, and I'd rather
-not add a state re-check in the callback that the series removes
-again. 1/2 is unchanged in v2.
+> [Severity: Medium]
+> This is a pre-existing issue, but does a zero-length data frame always
+> arrive at the receiver as an empty data frame?
 
-The three pre-existing items: the notifier's unlocked walk and its
-iucv_send_ctrl() with hs_dev cleared (Nagamani PV's patch [2] and
-Haoran Wang's [3]), the child leaked on every refused SYN (Hidayath
-Khan's [4]), and the child published before its parent is set (the
-series).
+No. With a credit piggybacked it is a window update to afiucv_hs_rcv()
+and never reaches recvmsg(). v2 narrows the sentence to "a zero-length
+data frame that reaches recvmsg()". The slot the sender loses there is
+the tx side's own accounting, not this patch's.
 
-[1] https://lore.kernel.org/netdev/20261022-b4-disp-1d26b87a-v2-0-7ee1264d8=
-12a@proton.me/
-[2] https://lore.kernel.org/netdev/20260917071706.23831-1-nagamani@linux.ib=
-m.com/
-[3] https://lore.kernel.org/netdev/179241612354.5916.12881323209252769976@w=
-hr/
-[4] https://lore.kernel.org/netdev/5f88daf4-cd8e-4464-b132-ac45be205121@lin=
-ux.ibm.com/
+> [Severity: Medium]
+> This is a pre-existing issue, but the classic IUCV transport still has a
+> WARN that a peer can trigger, of the same kind as the one removed here.
+
+Same kind, agreed, and iucv_process_message_q() retries the oversize
+message on every read. That is the z/VM transport, not this path; out
+of scope here.
+
+> [Severity: High]
+> This isn't a bug introduced by this patch, but this read-time check is
+> the only window enforcement on the receive side. Can a peer that ignores
+> its window grow iucv->backlog_skb_q without limit?
+
+Today it can: nothing on arrival counts against the window, and
+backlog_skb_q is neither bounded nor charged. This patch takes a WARN
+off that check and does not move the enforcement; the bound belongs on
+the rx side at arrival and is not this patch's.
+
+> [Severity: Medium]
+> This is a pre-existing issue, but can a conforming peer still reach this
+> close?
+
+Yes, by lowering SO_MSGLIMIT in IUCV_BOUND below the window the SYN
+advertised; that is the case in the notes below the patch. Not in the
+commit message or the comment: 2/2 only stops counting the SHT and
+takes the WARN off, and the socket enforcing a window other than the
+one it advertised is the series' fix. The locking series keeps the
+advertised window in its own field, so the budget, this check and the
+update threshold read the same number.
+
+> [Severity: Low]
+> Two unsynchronized writes to sk->sk_shutdown can lose RCV_SHUTDOWN.
+
+Pre-existing; the series puts both writes under the same lock.
 
 Thanks,
 Bryam
+
+pw-bot: cr
 
