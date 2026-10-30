@@ -1,92 +1,104 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=207.54.90.49
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793357437;
-	b=kjji1KTRKRaX+eS2fzoIDIJFSCsGF8yazuqpYEX8W7QIrC79XJ+W4roAmL8NbOeVD/F7
-	 zz3bcVsUVZ4LmlHgA1rwvBQgAaIfCKaNtoqSmGY2wjJVH2tUs/YgjVXtig6ahgVJql8D6
-	 N4AVLZVFOBDpG7ybKpQXD3SvI22BaZ0fd5hbWZA9/bOzei886MNWidHfZhdkccotHFi2c
-	 vX5Q8NHA9sPrwmFhyVdc+0BxznfMJi1o2PvcLqBtL8Y2mJAqJipnIlmgO3ppZv8k5Z029
-	 +WecV4LU49x+5T6qEKxDkCfxJvBjP6vdBD8cbU69bRFJCMB7ztjIet7zz7yr40K2SGw==
+	t=1793358676;
+	b=pvBe8as4fgXtdwXp7uWYoNC6tQS3jdyEhPZgvdn5It3S9uzlqfzrIhDd+qC/TE6E9FZP
+	 t/Izxe8dWLq1CovvV2DrJ/JCfPfgDIQCFEN3OWZXKIswv9q1ps070ca4EZeJO9SM2z45p
+	 xXrzjE/hg5tx2yCLIVJMUII5p1PQo6e11jY2eVfJXhcHmj4Ka16g1AczKEBOyeSQhH1B+
+	 h29ezWZv7r96V8QXGSdmYR8a78wuTxtC+fpVstjpP0vgaBPsUWT/xMy5yt5VV8Eb6AUN9
+	 28KGm57K58p4Dt9SBddJMAzWEK2iC1YvdoFWYEtMz04w0xlwLnrgZaM4f/TH47PLPPw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793357437;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:Received:Received:Received:Date:
-	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=MZqMRfPEVUiuMNxLqgmTIf03oB0BvArhy/TSmIC7oCY=;
-	b=mI+5y4lWo+kgJEslYEYsNwoAO1XD0NugJij5vOS9JSDf0rgtHFvf8lGnWGkbpugSQZR/
-	 mK1vYqWb2qxu3SrXXu+0JwHx9j1ChSNW7WNkiZ/j6d6iH4uWLMx21Tk4jT71KtgZIn5rq
-	 5N+bPa/qAjpqg+2uAUzZg+YCSz7UfD1m4HIEDTLK4XpWg7/aFarU/AH+GGg21Pkfd2+/W
-	 izA+icoKhzUH/fh+jlMV+WEHNr835fkm8TL0Jk+5ueNIbs0zgHeHHt4wpyIhxtkhpfxF8
-	 PA5aZzxA6Ct972Mk59pnIe/7EaxhP3kwVuIwrKICnCTwa08HPwpf7IQViX5a4TQ7z3g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793358676;
+	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
+	 DKIM-Signature:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:From:Content-Language:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-Spamd-Result:X-Rspamd-Server:
+	 X-Rspamd-Action:X-Spam-Flag:X-Spam-Score:X-Spam-Level:
+	 X-Rspamd-Queue-Id;
+	bh=nszrMrMC8JlryWKVnrpBXd9LzP9yZlaTn4MSY8r3MBU=;
+	b=XcqqtiS4Ay09Oxx96k4TQqFbj3OCMQsk3v0CsEQvuacYzfKmoVh3Ef+wLpx4xO/EJWRE
+	 IjNM0OO/cyc/GVJFQRhEDJ9qgNj+XBZHvMSDeNppYlsHyXYP4K2KgQ5fHAqZThmzjwMEY
+	 oCxhlwZiBZL6dtk/EFdgTlzGNNTAUnKfhWwJCcmMQMh0AIWEY5UtswWPd481Wcn4fy3hd
+	 ZuqxdnsHaIrGqsCQwf6/6UVDgy/BRywZ4YrrRVTPsQFalSdOjkxczPa3atBj+kbFSkO8G
+	 qUl5cEVoIZmHnnRbXbuaFfLdjZCOrUYz4yFalnBAyIYYcGVY546UrmD2GILsyVJyUkA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=fujitsu.com;
-	spf=pass smtp.mailfrom=fujitsu.com;
-	dkim=pass header.d=fujitsu.com header.i=@fujitsu.com header.a=rsa-sha256 header.s=fj2 header.b=mQOzLOqZ;
-	arc=none smtp.remote-ip=207.54.90.49
-Received: from esa3.hc1455-7.c3s2.iphmx.com (esa3.hc1455-7.c3s2.iphmx.com [207.54.90.49])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=suse.de;
+	spf=pass smtp.mailfrom=suse.de;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=ekkmc0iv;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=meBZKaxc;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=euVkA99P;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=pJldxYkT;
+	arc=none smtp.remote-ip=195.135.223.130
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3972160A2630;
-	Fri, 30 Oct 2026 10:50:35 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3972160A2630
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=fujitsu.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fujitsu.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56CEA606A334;
+	Fri, 30 Oct 2026 11:11:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 56CEA606A334
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=fujitsu.com header.i=@fujitsu.com header.a=rsa-sha256 header.s=fj2 header.b=mQOzLOqZ
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=fujitsu.com; i=@fujitsu.com; q=dns/txt; s=fj2;
-  t=1793357437; x=1824893437;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=8Bk02kov5eXaN4fQMM0pbL4dj5jWKbTsBzV8w285UiE=;
-  b=mQOzLOqZghPqjPfvrqnK/5Y35rROQztIuU4EyC5XFxjQ9N6/ClVLhT6j
-   9jXCKGdak9HrbI6ImiktplMzc7Iy6T3bBuxuzdpefRJfTDGXkiWaw91m1
-   9OwAnC1TmLx4JKNGm1uXvK9vRZkU9KfAuJvuvqwEZoMoqmYpFP4drssSY
-   7dpYM9s0pwwWomcqH595uQGfjUFFtBhZIW3pu4pt5aSwscf2STUwHpms7
-   OLrFMy7ZRWaFOsi6t4lFfpBy2PBf5hZAabTqZetEYShS84Xl0ukvB8Qqr
-   wSbguWJlR+LC0kXP8r4SBEHezIEO0eA7A7FCWxUZoLHyhO+dECB7V3Fh0
-   A==;
-X-CSE-ConnectionGUID: PrbQclnpQVq9jN08gysTzQ==
-X-CSE-MsgGUID: T7jqwKNdQTWsrTu6cn1pIQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11950"; a="260016297"
-X-IronPort-AV: E=Sophos;i="6.27,186,1786978800"; 
-   d="scan'208";a="260016297"
-Received: from gmgwnl01.global.fujitsu.com ([52.143.17.124])
-  by esa3.hc1455-7.c3s2.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Oct 2026 19:50:30 +0900
-Received: from az2nlsmgm4.fujitsu.com (unknown [10.150.26.204])
+	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=ekkmc0iv;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=meBZKaxc;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=euVkA99P;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=pJldxYkT
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by gmgwnl01.global.fujitsu.com (Postfix) with ESMTPS id C6A9D404812;
-	Fri, 30 Oct 2026 10:50:28 +0000 (UTC)
-Received: from az2uksmom2.o.css.fujitsu.com (unknown [10.151.22.203])
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 35D83221DB;
+	Fri, 30 Oct 2026 11:11:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1793358673; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nszrMrMC8JlryWKVnrpBXd9LzP9yZlaTn4MSY8r3MBU=;
+	b=ekkmc0ivszyK/vAY6lBPUE6qzElfnru/iUuzfCgKurIOdUPfpTcZe4CQ5WdHK6uL3HpPe+
+	ivAE/pEXQy7dDGEFw+qX3s0Z84oKfI3yKDuaJBvFZLVbH9Dkd8KiHbWtIywrqaQlvaQFUc
+	JKeBzBRaWoSBGTLsp7OUQf30CTmgbgI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1793358673;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nszrMrMC8JlryWKVnrpBXd9LzP9yZlaTn4MSY8r3MBU=;
+	b=meBZKaxcQdo5M64Civ0W8Qi/p8wiRzpNc0CNoDYaq1bku7e9AvD+TUTvwGMpyXcIQ/SeL8
+	wvr3F55IIX8v5dDQ==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=euVkA99P;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=pJldxYkT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1793358672; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nszrMrMC8JlryWKVnrpBXd9LzP9yZlaTn4MSY8r3MBU=;
+	b=euVkA99P02W0HOtNgkwVGJU0eZPovuI7Z5vIQKYRCLeaKtnfmcUQBmK3vxdh6dKKmhhli2
+	7VmJSetuGoiMj9Tt+ITO9lvykXuyB5MampsGDXUfJZJXuFRdpQsw/WiPiRkNlPyyF9QkVr
+	T3K6swpXqDdQnzSF0lLDFSeJgKqgcXU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1793358672;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=nszrMrMC8JlryWKVnrpBXd9LzP9yZlaTn4MSY8r3MBU=;
+	b=pJldxYkTA1CYZE9/K7+AqoHKGny9M0DH5G+YPoB8VymsOdj36c0gEmwgZx6L4ggLfJsNAW
+	vXLPyJhRAoJlUZCw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by az2nlsmgm4.fujitsu.com (Postfix) with ESMTPS id 79CA71000392;
-	Fri, 30 Oct 2026 10:50:28 +0000 (UTC)
-Received: from FCCLS0092175.localdomain (unknown [10.9.203.66])
-	by az2uksmom2.o.css.fujitsu.com (Postfix) with SMTP id EC18C140769F;
-	Fri, 30 Oct 2026 10:50:23 +0000 (UTC)
-Date: Fri, 30 Oct 2026 19:50:20 +0900
-From: Kohei Enju <enju.kohei@fujitsu.com>
-To: "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>
-Cc: iommu@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev, linux-mips@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, 
-	x86@kernel.org
-Subject: Re: [PATCH v6 6/8] dma: swiotlb: Centralize memory-encryption pool
- sizing
-Message-ID: <auR0fT1yrKQ9wbm8@FCCLS0092175.localdomain>
-References: <20260924060756.1325156-1-aneesh.kumar@kernel.org>
- <20260924060756.1325156-7-aneesh.kumar@kernel.org>
- <asVs3doaJ4WrT3M2@willie-the-truck>
- <asYZFXGyafRjjBS0@arm.com>
- <asYiOgskwi8JYLe_@willie-the-truck>
- <yq5awlrt3dwo.fsf@kernel.org>
- <yq5av77c92oo.fsf@kernel.org>
- <aseRzPshcoys7AJS@arm.com>
- <yq5ao6d48dqr.fsf@kernel.org>
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A7654132C9;
+	Fri, 30 Oct 2026 11:11:11 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id nEf3HE975GrwSAAAD6G6ig
+	(envelope-from <clopez@suse.de>); Fri, 30 Oct 2026 11:11:11 +0000
+Message-ID: <df9dc526-4275-4784-8a0c-2e4fa8e96402@suse.de>
+Date: Fri, 30 Oct 2026 12:11:07 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -96,146 +108,211 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <yq5ao6d48dqr.fsf@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 0/4] KVM: x86/mmu: don't zap secondary MMU on
+ permission upgrade
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-mm@kvack.org, seanjc@google.com,
+ pbonzini@redhat.com, linux-s390@vger.kernel.org
+References: <20261029143336.390231-3-clopez@suse.de>
+ <20261029175203.5bdd51d7@p-imbrenda>
+From: =?UTF-8?Q?Carlos_L=C3=B3pez?= <clopez@suse.de>
+Content-Language: en-US
+In-Reply-To: <20261029175203.5bdd51d7@p-imbrenda>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-13.50 / 50.00];
+	SUSE_INTERNAL_BYPASS(-9.00)[];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	XM_UA_NO_VERSION(0.01)[];
+	MX_GOOD(-0.01)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_DN_SOME(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	RCPT_COUNT_FIVE(0.00)[6];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	DKIM_TRACE(0.00)[suse.de:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[lpc.events:url,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:dkim]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -13.50
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 35D83221DB
 
-On 10/08 20:02, Aneesh Kumar K.V wrote:
-> Catalin Marinas <catalin.marinas@arm.com> writes:
+On 10/29/26 5:52 PM, Claudio Imbrenda wrote:
+> On Thu, 29 Oct 2026 15:33:33 +0100
+> Carlos López <clopez@suse.de> wrote:
 > 
-> > On Thu, Oct 08, 2026 at 11:03:27AM +0530, Aneesh Kumar K.V wrote:
-> >> Aneesh Kumar K.V <aneesh.kumar@kernel.org> writes:
-> >> > Will Deacon <will@kernel.org> writes:
-> >> >> On Wed, Oct 07, 2026 at 11:04:05AM +0100, Catalin Marinas wrote:
-> >> >>> On Tue, Oct 06, 2026 at 10:49:17PM +0100, Will Deacon wrote:
-> >> >>> > On Thu, Sep 24, 2026 at 11:37:54AM +0530, Aneesh Kumar K.V (Arm) wrote:
-> >> >>> > > @@ -496,7 +516,8 @@ swiotlb_select_pool_policy(unsigned int flags)
-> >> >>> > >  	if (swiotlb_force_disable)
-> >> >>> > >  		return SWIOTLB_POOL_NONE;
-> >> >>> > >  
-> >> >>> > > -	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
-> >> >>> > > +	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
-> >> >>> > > +	    !restricted_dma_pool_present)
-> >> >>> > >  		return SWIOTLB_POOL_CC_GUEST;
-> >> >>> > 
-> >> >>> > I think this check on the restricted DMA pool is too general -- the pool
-> >> >>> > could be tied to a specific DMA-capable peripheral and so treating its
-> >> >>> > presence as a global property isn't right.
-> >> >>> 
-> >> >>> I agree it's a hack but that was the simplest way to avoid the pVMs
-> >> >>> getting a bounce buffer after this patch. More than happy to leave it
-> >> >>> out and reduce the buffer on cmdline or we come up with some better
-> >> >>> heuristics.
-> >> >>
-> >> >> Hrm, that does mean that reverting just this part will regress pVMs
-> >> >> because they'll suddenly be allocating a tonne more memory for an
-> >> >> entirely unused swiotlb buffer. So I think I'd prefer to drop the entire
-> >> >> series until this has been worked out properly.
-> >> >>
-> >> >>> Another option could be the arch code passing another flag that it
-> >> >>> doesn't want an encrypted pool (e.g. when running in a pKVM guest) but I
-> >> >>> don't particularly this either. The arch code doesn't know whether
-> >> >>> there's an alternative pool.
-> >> >>
-> >> >> At that point, the default size may as well be driven by the
-> >> >> drivers/virt/coco driver.
-> >> >>
-> >> >>> That said, such heuristics should have been a separate patch to make it
-> >> >>> easier to review/drop.
-> >> >>
-> >> >> I think the only right way to get a semi-accurate heuristic is to take
-> >> >> into account the set of dma-capable devices that will use the swiotlb
-> >> >> pool, but that's fiddly and should probably be tackled as a separate
-> >> >> series. Maybe a simpler hack in that direction would be to take the
-> >> >> SWIOTLB_POOL_CC_GUEST if _any_ device is going to use swiotlb? You'll
-> >> >> run into the usual problem of not being able to tell if a device is
-> >> >> DMA-capable or not, but you could probably look for a global restricted
-> >> >> DMA pool and, if that doesn't exist, check for per-device restricted pools
-> >> >> on dma-coherent devices (since restricted DMA isn't supported by ACPI) as
-> >> >> a reasonable approximation.
-> >> >
-> >> > So, something like this?
-> >> >
-> >> > 	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
-> >> > 	    swiotlb_cc_guest_needs_default_pool())
-> >> > 		return SWIOTLB_POOL_CC_GUEST;
-> >> >
-> >> 
-> >> Detecting a DMA-capable device is not straightforward, and if we get it
-> >> wrong, we will enable SWIOTLB_POOL_CC_GUEST unnecessarily. Would the
-> >> code below be a reasonable approximation of what you suggested?
-> >> 
-> >> Another option would be to make swiotlb_cc_guest_needs_default_pool() a
-> >> weak function that architectures can override. arm64 pKVM could then use
-> >> a different scheme (for this patch series default to false). Would that
-> >> be preferable?
-> >
-> > Even the rmem check for each device is still a hack that may bite us in
-> > the future (private devices for example would not need swiotlb). I'm
-> > thinking more and more of leaving the sizing an arch-specific decision,
-> > don't bother generalising it at all.
-> >
-> > On pKVM vs CCA guests, there's really nothing specific here to pKVM
-> > guests. The only difference is that confidential guests that so far have
-> > run without a swiotlb buffer will regress if their memory is tight. For
-> > confidential guests without dedicated rmem (either CCA or pKVM), I think
-> > our options are either command line swiotlb sizing or dynamic swiotlb.
-> >
-> > Could you respin your series while leaving out the generic sizing? IOW,
-> > no x86 code generalisation. We can discuss the best strategy on sizing
-> > later (I haven't checked how much of this series still makes sense
-> > without the generic sizing).
-> >
+>> Prevent x86 KVM from over-zapping its secondary MMU on PTE permission
+>> upgrades, which leave the PFNs unchanged and do not revoke access.
+>> Permissions for SPTEs that KVM holds are updated on the next fault, so
+>> dropping them early gains nothing.
+>>
+>> Do this by adding a new MMU notifier flag to signal that a
+>> MMU_NOTIFY_PROTECTION_VMA strictly upgrades (loosens) permissions on a
+>> particular range.
+>>
+>> See below for benchmark results.
+>>
+>> Background
+>> ==========
+>>
+>> change_protection() pairs every protection change with an
+>> MMU_NOTIFY_PROTECTION_VMA invalidation, and KVM zaps its SPTEs in
+>> response, as it cannot tell whether permissions widened or narrowed.
+>> This is costly e.g. during a QEMU background snapshot, which relies on
+>> uffd-wp to write-protect guest RAM and then restore permissions as each
+>> page is saved. Without this series, the permission restore causes the
+>> guest to re-fault read-only memory needlessly.
+>>
+>> Note, the reverse situation is already handled for secondary MMUs
+>> that reuse the CPU page tables (e.g. ARM SMMU, IOMMU/ATS). They cannot
+>> refault, so they are notified of a permission upgrade on the CPU
+>> TLB-flush path [1].
+>>
+>> KVM, however, owns separate page tables and faults permissions on demand,
+>> so it needs no such notification (as Sean noted when that signalling
+>> was first proposed on the fault path [2]). This series applies the same
+>> principle to the change_protection() path, signalling the permission
+>> upgrade so KVM can avoid the unnecessary zap.
+>>
+>> RFC Considerations
+>> ==================
+>>
+>> 1. Having the zap skip in KVM's arch-independent code does not seem
+>>    obviously correct, as s390 caches additional translation state
+>>    that may not be rebuilt by refaults. Maybe an expert can correct
+>>    me. The skip could be extended to arm64 and RISC-V, but I have not
+>>    benchmarked the benefits and I'd like to get feedback first. Hence,
+>>    x86-only for now.
+>>
+>> 2. change_protection() could simply not emit the invalidation at all
+>>    for a pure permission upgrade (shared-page-table MMUs invalidate
+>>    on the CPU TLB-flush path, as noted above, so they do not need it).
+>>    But again, the s390 case could be broken, and even then, that would
+>>    seem too much intrusion for KVM's benefit.
+>>
+>> 3. The flag reaches KVM as a bool on struct kvm_gfn_range.
+>>    Alternatively, KVM could forward the notifier event, as Claudio
+>>    Imbrenda suggested at LPC [3] and others have proposed in the past
+>>    for different purposes [4] [5]. That, along with the event flags,
+>>    could serve the same purpose. I'd be happy to take that approach if
+>>    there is agreement that other consumers would want it.
+>>
+>>    (The LPC talk recording has some audio issues so I am not too sure
+>>    on what the final agreement was)
 > 
-> It would mostly consist of the first three cleanup patches, followed by
-> three patches that replace the addressing_limit argument with flags.
+> AFAIR the consensus was:
+> - adding the reason to the kvm kvm_gfn_range is fine.
+> - having a return value from the notifier to pass information back is
+>   _not_ fine; I should add a new callback instead.
 > 
-> #define SWIOTLB_VERBOSE	(1 << 0) /* verbose initialization */
-> /* Initialize a pool for devices with limited DMA addressing. */
-> #define SWIOTLB_INIT_ADDRESSING_LIMIT	(1 << 1)
-> /* Initialize a pool that requires architecture remapping. */
-> #define SWIOTLB_INIT_REMAP		(1 << 2)
-> /* Initialize a pool for DMA to memory-encrypted host or guest memory. */
-> #define SWIOTLB_INIT_MEM_ENCRYPT		(1 << 3)
-> /* Initialize a pool for unaligned kmalloc bouncing. */
-> #define SWIOTLB_INIT_KMALLOC		(1 << 4)
-> /* Do not initialize a pool unless SWIOTLB is explicitly required. */
-> #define SWIOTLB_INIT_DEFAULT_OFF		(1 << 5)
+> regarding this series:
 > 
-> This results in the large change below. I'm not sure we want to do this
-> for no real benefit other than making swiotlb_should_init() slightly
-> easier to follow.
-> 
-> static bool __init swiotlb_should_init(unsigned int flags)
-> {
-> 	if (swiotlb_force_disable)
-> 		return false;
-> 
-> 	if (swiotlb_force_bounce)
-> 		return true;
-> 
-> 	if (flags & (SWIOTLB_INIT_REMAP | SWIOTLB_INIT_MEM_ENCRYPT)))
-> 		return true;
-> 
-> 	/* Explicit requirements override an architecture's default opt-out. */
-> 	if (flags & SWIOTLB_INIT_DEFAULT_OFF)
-> 		return false;
-> 
-> 	return flags & (SWIOTLB_INIT_ADDRESSING_LIMIT | SWIOTLB_INIT_KMALLOC);
-> }
->  [...]
+> on x86 you don't care what the new permissions are, because you're
+> updating when re-faulting (if I understood correctly).
 
-Hi Aneesh,
+Correct.
 
-I can reproduce the CCA regression discussed in this thread:
-  https://lore.kernel.org/all/yq5azeyxyfol.fsf@kernel.org/#t
+> for s390 it might be beneficial to know what the new permissions are;
+> of course we could look up the vma and find out, but since you are
+> already checking the permissions, maybe you can find a way to also
+> convey the new permission bits?
+> 
+> that would make our life on s390 easier :)
 
-The guest runs out of SWIOTLB slots, causing disk I/O to fail and
-preventing the guest from booting.
+Right, getting the new bits from vma->flags should be trivially done
+from the MMU_NOTIFY_PROTECTION_VMA callsites. There'd be no users in
+this series though. The rest of architectures still need the notifier to
+tell them if the change is an upgrade, since they don't have an easy way
+to grab the old RWX bits. Passing the old RWX bits from the MMU notifier
+does not seem trivial to me either.
 
-I would like to test the fix on real CCA hardware. Could you please Cc
-me when you respin the series? I follow LKML, but I may still miss the
-posting by chance.
+So what I can do is to plumb down the event and flags into KVM, and
+leave it open for you to come back and forward the permission bits you
+need via the range flags, if the MM maintainers are okay with it.
 
-Thanks,
-Kohei
+However, I tried to understand the s390 code better with AI, and it
+seems to think that skipping the zap is also safe there (and an
+improvement). It could be further optimized by passing down the new W
+bit to eagerly fix the gmap when restoring write permissions.
+
+>>
+>> Benchmarks
+>> ==========
+>>
+>> AMD EPYC 9654 96-Core Processor host running a recent Linux kernel
+>> (6b4b543fa187), with a 64GB, 64-vCPU guest running stress-ng --vm while
+>> the host takes a QEMU background snapshot. All results are aggregated
+>> over 5 runs, and compared between the stock kernel and one with this
+>> patch series. Guest is rebooted across each individual run, and NUMA
+>> balancing is disabled.
+>>
+>> pf/s and tlb/s (per-second deltas of KVM's pf_taken and remote_tlb_flush
+>> debugfs stats) clearly improve:
+>>
+>>   guest pattern          baseline                    patched
+>>   -----------------------------------------------------------------------
+>>   read64   (read)        pf/s=950,015   tlb/s=1,440  pf/s=2,503 tlb/s=0.1
+>>   rand-set (read+write)  pf/s=1,004,353 tlb/s=862    pf/s=4,073 tlb/s=0.3
+>>   write64  (write)       pf/s=968,018   tlb/s=94     pf/s=2,292 tlb/s=0.3
+>>
+>> Guest read latency was sampled with a paced probe thread in the
+>> guest, reading one byte per page with an idle gap between reads, while
+>> stress-ng ran with read64. Each figure is the median across 5 runs, with
+>> the run-to-run min and max, in ns:
+>>
+>>   metric           baseline             patched
+>>   ------------------------------------------------------
+>>   p50 (min max)      340     (270 380)   260   (250 260)
+>>   p99 (min max)    19789 (16885 20200)  5207 (4076 5638)
+>>   p99.9 (min max)  23445 (22845 24036)  6850 (6259 7110)
+>>
+>> The median improves modestly and the refault cost shows in the tail,
+>> where p99 drops ~3.8x.
+>>
+>> A separate stress-ng run with write64 and --verify showed no data
+>> corruption and no livelocks.
+>>
+>> References
+>> ==========
+>>
+>> [1] https://lore.kernel.org/linux-mm/cover.1eca029b8603ef4eebe5b41eae51facfc5920c41.1690292440.git-series.apopple@nvidia.com/
+>> [2] https://lore.kernel.org/linux-mm/ZGu1vsbscdO48V6h@google.com/
+>> [3] https://lpc.events/event/20/contributions/2552/
+>> [4] https://lore.kernel.org/all/20240801183453.57199-1-seanjc@google.com
+>> [5] https://lore.kernel.org/all/20231110003734.1014084-1-jackyli@google.com
+>>
+>> Carlos López (4):
+>>   mm/mprotect: add MM_CP_PERM_UPGRADE
+>>   mm/mmu_notifier: add MMU_NOTIFIER_RANGE_PERM_UPGRADE
+>>   KVM: plumb MMU_NOTIFIER_RANGE_PERM_UPGRADE into kvm_gfn_range
+>>   KVM: x86/mmu: don't zap the secondary MMU on permission upgrade
+>>
+>>  arch/x86/kvm/mmu/mmu.c       |  7 +++++++
+>>  include/linux/kvm_host.h     |  1 +
+>>  include/linux/mm.h           |  8 ++++++++
+>>  include/linux/mmu_notifier.h |  5 +++++
+>>  mm/hugetlb.c                 |  6 +++++-
+>>  mm/mprotect.c                | 20 +++++++++++++++++++-
+>>  virt/kvm/kvm_main.c          |  4 ++++
+>>  7 files changed, 49 insertions(+), 2 deletions(-)
+>>
+> 
+
