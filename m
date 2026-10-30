@@ -1,112 +1,62 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793369343;
-	b=Xb6jSr/GZii/+sPyq7VmOgPlHQcA1ZoL13xJ5tC11QdHKcR7DizlJFezVkvmllFzPkYA
-	 nMfyfE8sf9FLKZPzKZ6bQCfCMlCNYHoHj52VOP5cEmkbsa5BiCIhldxdJU5kLmNIXevGB
-	 inCPk5oGHVnBUY3utG5Syf0pcBfT8LOhAIQVD52RirbXvgVsd5Vr58DUAWeV9hV2h6wEv
-	 ZRkXzjK//rowprFOTLatyG5lP5dklAjSvmRrBO3qfJJ4/9YcKmP8Y4ZMICqetKSdXN2hX
-	 ZrwALdFYfLLAgvWU1CcX0K0oaCUrlQWC9Z56/7ntCnbwUjG1zjKNcT8x0eIIaHM3NlA==
+	t=1793371493;
+	b=yKF5FLEzakjaGI6UzrhIJLpZp4ujxFhZmncZ+0hTCzk2Vql1ya2apyrklg02zAq1K9aX
+	 DczGywp03AS4IOD+7GvTccCDU6B2/y5uCvJHmewy42EzTSXdwDDcgybj2D6oBdT0viaKh
+	 6hG0GECBc/dCJjazktSuTbjlbDY4kj0fF1w56/n9qdHAZbBzglFf4gxS3cq9xToeNr9dq
+	 baceANwA3LJK/LAwBnZbXLZ9BSOZS1E6bWhO5e7HCbVux3yNs5xdBQ9tq4de13dj0EGdz
+	 VT3yD5JkFy4ATC/2sAQqNhTaE7oGf+Pq5LYVII18bmB2BqidKPQ7EpzKl2nrmxtPQww==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793369343;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:In-Reply-To:References:
-	 MIME-Version:Content-Transfer-Encoding;
-	bh=7LJMYWoYmIHNoc3jkSVD82Cusuww5fSrsmAjGXum89E=;
-	b=qnXUVedRKxMTdSLSJ+s+nokjs4nesgmoG6jSdGJYVmS8IzprHZcaJlJvu2X3lyJiPKYe
-	 POV7UeQyy2hpHfVSk6lYpWM+H+YPP4BwoY4pdkztZZ3gIBDZ1ucuPVU086gMPTWqm3ZIG
-	 dbnmmTuPQQWjh0uTAQUNo0wGc0mUhbCS1AGIjJJDep95pMjp6oWm+K4Fcvp5N62BUv1mW
-	 x3ZyHzg43aSAYJXBrog3K9V76dz8GOyA3TvJrbHP1VO0wnSHTppwU7bEP6qEDVINXETCo
-	 T2Wu8MRUuHMb99XH/2cPhBwcdO7P2ok0LRlfa8NU9WcbJcHOS2lMIJm4WauVv4Q99yw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793371493;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=aZXf/CiAEOj3syudgngCaaHilsxgeSJVS9oPEnBDhwo=;
+	b=r6kuoprEUPlFmL/5kQWsJbgaTAC6Evr2bVQXqA/vTcVAudh7R12DxM7uLBJHIjB8KpEr
+	 QYH3tXBDQl//ESj3FtlHzgA8vHGSQv7uRp/RvvpogNhfqwF0irH6ZgSyWDV44Nm3NkT84
+	 kB+B4GZBS5bKdgeeJNEyQEWhbfnkHLCAovVnXlJNKv7Qu2fCG7BcSjNApnrzkIaAGwTQ8
+	 wnBKp3EHNH3QlzkdRfPVgN+uwJh1GIvfYMIuwOQEaY+A3KLDKjFED1FPLV1osINeqeO97
+	 L2+id0qli6AjydA8QpOi1SRVQ5WZcwSGfaBmt7DD5cR+KXsnBvEcq5WOLRqdN0aYCag==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=bytedance.com;
-	spf=pass smtp.mailfrom=bytedance.com;
-	dkim=pass header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=QIcXzVl+;
-	arc=none smtp.remote-ip=209.85.214.175
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SRBbpSBh;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25753606A326
-	for <linux-s390@vger.kernel.org>; Fri, 30 Oct 2026 14:09:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 25753606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE404606A31A;
+	Fri, 30 Oct 2026 14:44:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=QIcXzVl+
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2e9cf928dc9so9093345ad.0
-        for <linux-s390@vger.kernel.org>; Fri, 30 Oct 2026 07:09:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1793369341; x=1793974141; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=7LJMYWoYmIHNoc3jkSVD82Cusuww5fSrsmAjGXum89E=;
-        b=QIcXzVl+nrVNJTaDVx7syMf72uu/ISPfCBi3RKY+CwRenRpJS3Y0YPszwuVa5eVWsR
-         07QLpJacZWrKXj4A2GAGRqnnPuEzoF7SuxuK8OlSIlf/qrUeoghbl8r+GZM15xZPWH3z
-         TiB/UKSt4eOGiHtUu84rr4PPuRxAFSaz/UVnH29tRNmf/EROHXxByQk/2F08tGJrxcSz
-         FtrC+W8qT4L33pi80Vu12OOzTAt26wMpz/HpIP/sc3AVtb/KnmtByWoV5/6a7NrcXKXh
-         JqIjAz1X2mKwrxLhgSaf7bJkxdH58sXLj26zVJCFD2yPzG9rGf3fqqJzFHxCG6zEZrmB
-         O7vg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793369341; x=1793974141;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=7LJMYWoYmIHNoc3jkSVD82Cusuww5fSrsmAjGXum89E=;
-        b=FV3XSU54iyBMRoA2YiT6msPi6X50KDIRGxFf1LtAWXJU5EEr3+fmxcOYBTXIxc2XTq
-         GBefe+fm8LXS81p4djnUx9XeGxoViBUz+4SuasTBstsx3a8RA9RcKXqWUXIuQurDOEIk
-         v0LrZQIpnb2Ea8aur39fdorCHkxsLY2vMOrErZjq1jlcAOdKrN6vnUA8xfqPsRlnOHPO
-         +OVyppS3S/qrGhEumEhsO6BGjaS44KiNmuevHUX435Qp+N77ysbRkNBr43fl9HhJIWu6
-         vjLJnsoEezhH8khfHBsR+65SMZdB8RFTHwuvtVidRHbm/6v4WGoK4YvKzi+KB7GiXUXN
-         OMLQ==
-X-Forwarded-Encrypted: i=1; AKwUvBzuoiNyDqPiqZhYDtzKMXLnmWLXNVG5vaQK0RtI7dtIVt7jgy6AYMg2rOF5akDfYpg1mps0iR0shO3S@vger.kernel.org
-X-Gm-Message-State: AFq9FYLfj90HXqWe2F6Hr9Gtiloll2n8AO5mso8X7NZB7iGd5U333Thk
-	5A8RAsaZCTDLWVupQa7HMEU6DiVtB3FVKF0Jih9/TWqKiYdbyMCFKBJzdoRXpAZrYqk=
-X-Gm-Gg: AYBFou3CHoNMlTMyKGLlZbtyCuH6R+DmSY4BAPOP7LTYLrECi4YghkjhpUIw/+n55hl
-	bTDY0W1uzayDCMjzab2/4/tlZR89wIrz3uoPpD/jutBsbF2UcLjEY8XfjrjXoka08VsGUm2YrmK
-	AhnrOBQELBtDG/HqoSmOOhHbnVAYLVywxgNJtCzVrFgeO4IdIZiCQt+zNZSfRo7Y37hrlsoRvL7
-	NhYznIrtEe6R/7rlOHwqiJMFHua6B0FzHCrNToxxvpefGjgpTyMw5737fiyAssRMRBRrQh6S70k
-	wfYwceQQ9jjyOAld4fyULUsvARW+zfl5fPOfKFipNYP0ajbCamQKQ7A2GZmSYb2WXpY4IhLKVVX
-	O4Iw0L5b0aGosMpX4dJmuN47BgZ65VmTsC7QUMpalRcYsaT78hMancdgIG0gUz5kEtl2lKEvhZ2
-	K/Kt30uDTgSiTgP5P2oPFv6N8AaRbveaZp44E9tQR9kSXcaX5NJdxiH+5B9VgMfvaA3LkhhrnJG
-	y00utGwvRXGg7a/OiiCtp5wOBts2i2jKL89b1g2MipPMl6Ut3G7L1jMyaK7DzedEgaH5BcFP1Nv
-	9vmvLdsypXlposK6jqgAFj683y+igRkB5PGmke6rOyc6EBZ/DT7X
-X-Received: by 2002:a17:903:190:b0:2df:b004:df28 with SMTP id d9443c01a7336-2eb365055admr19567355ad.35.1793369341336;
-        Fri, 30 Oct 2026 07:09:01 -0700 (PDT)
-Received: from n232-176-004.byted.org ([36.110.163.100])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2eb3929b27bsm7601795ad.62.2026.10.30.07.08.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Oct 2026 07:09:00 -0700 (PDT)
-From: Muchun Song <songmuchun@bytedance.com>
-To: David Hildenbrand <david@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Mike Rapoport <rppt@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>
-Cc: Lance Yang <lance.yang@linux.dev>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	Ritesh Harjani <ritesh.list@gmail.com>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	Oscar Salvador <osalvador@suse.de>,
-	Qi Zheng <qi.zheng@linux.dev>,
-	Muchun Song <muchun.song@linux.dev>,
-	linux-mm@kvack.org,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-riscv@lists.infradead.org,
-	x86@kernel.org,
-	loongarch@lists.linux.dev,
-	linux-s390@vger.kernel.org,
-	Muchun Song <songmuchun@bytedance.com>
-Subject: [PATCH 4/4] mm/sparse-vmemmap: drop @pgmap from vmemmap population APIs
-Date: Fri, 30 Oct 2026 22:07:20 +0800
-Message-ID: <20261030140720.1256062-5-songmuchun@bytedance.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20261030140720.1256062-1-songmuchun@bytedance.com>
-References: <20261030140720.1256062-1-songmuchun@bytedance.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=SRBbpSBh
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 991E51F000C1;
+	Fri, 30 Oct 2026 14:44:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793371492;
+	bh=aZXf/CiAEOj3syudgngCaaHilsxgeSJVS9oPEnBDhwo=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=SRBbpSBhbpzYPTxEYvVPe0YqNeqeeZXvc40Xfp6E/6NNdDO/YIaX1fQ9xoLaydR/l
+	 M2KlDhSlKxubUE46HvQ8IqmdNWYZrcwWW0rYCpOC8z9eOomi+qBXtW7djAyVYPileJ
+	 +PzoyM10G3unV5KEiQPfN0St5VDMkiFKoQfNFbdBE8xvvgcfkSHazcCfakn6zZPfet
+	 cpZ5PrZ+eSWWsn97mve67wdNmQ+N/b1rVa8wT4L2I9P/WU2XIe0PhfoH7MSIkTEHOr
+	 bqzInNADbdgGCR8YpCMJhAIZFeb+HHPjt+FFh9bSprH3bsl5nEAuJKQ2Tm8QnNWzpb
+	 eWYFbkFOCP7nQ==
+Message-ID: <sashiko-outbox-191117@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [RFC PATCH 1/4] mm/mprotect: add MM_CP_PERM_UPGRADE
+Reply-To: sashiko-reviews@lists.linux.dev
+To: =?utf-8?b?Q2FybG9zIEzDs3Bleg==?= <clopez@suse.de>, kvm@vger.kernel.org, linux-mm@kvack.org, seanjc@google.com, pbonzini@redhat.com
+Cc: linux-s390@vger.kernel.org, imbrenda@linux.ibm.com, "Andrew Morton" <akpm@linux-foundation.org>, "David
+ Hildenbrand" <david@kernel.org>, "Lorenzo Stoakes" <ljs@kernel.org>, "Liam
+ R. Howlett" <liam@infradead.org>, "Vlastimil Babka" <vbabka@kernel.org>, "Mike
+ Rapoport" <rppt@kernel.org>, "Suren Baghdasaryan" <surenb@google.com>, "Michal
+ Hocko" <mhocko@suse.com>, "Jann Horn" <jannh@google.com>, "Pedro Falcato" <pfalcato@suse.de>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261029143336.390231-4-clopez@suse.de>
+References: <20261029143336.390231-3-clopez@suse.de>
+ <20261029143336.390231-4-clopez@suse.de>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 30 Oct 2026 14:44:51 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -115,405 +65,166 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The vmemmap population and memory hotplug paths no longer need @pgmap
-to decide whether a mapping can be optimized. That state is now carried
-in mem_section, and the architecture-specific population code can make
-the remaining decisions internally.
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] mm/mprotect: MM_CP_PERM_UPGRADE set when change_protection() revok=
+es write
+- [Medium] mm/mprotect: vma_flags_is_perm_upgrade() ignores arch-specific p=
+rot flags
+--
 
-Drop the @pgmap parameter from the vmemmap population helpers and the
-related memory hotplug interfaces, and remove the remaining
-dev_pagemap-specific coupling from those call chains.
+commit f3d5a380cac712469a433d985427420721eea496
+Author: Carlos L=C3=B3pez <clopez@suse.de>
 
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
----
- arch/arm64/mm/mmu.c                        |  5 ++---
- arch/loongarch/mm/init.c                   |  5 ++---
- arch/powerpc/include/asm/book3s/64/radix.h |  1 -
- arch/powerpc/mm/mem.c                      |  5 ++---
- arch/riscv/mm/init.c                       |  5 ++---
- arch/s390/mm/init.c                        |  5 ++---
- arch/x86/mm/init_64.c                      |  5 ++---
- include/linux/memory_hotplug.h             |  8 +++-----
- include/linux/mm.h                         |  3 +--
- mm/memory_hotplug.c                        | 16 +++++++--------
- mm/memremap.c                              |  4 ++--
- mm/sparse-vmemmap.c                        | 23 ++++++++++------------
- mm/sparse.c                                |  6 ++----
- 13 files changed, 37 insertions(+), 54 deletions(-)
+mm/mprotect: add MM_CP_PERM_UPGRADE
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 19459a4a870a..a6b5774005b6 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -2038,13 +2038,12 @@ int arch_add_memory(int nid, u64 start, u64 size,
- 	return ret;
- }
- 
--void arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap,
--			struct dev_pagemap *pgmap)
-+void arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 
--	__remove_pages(start_pfn, nr_pages, altmap, pgmap);
-+	__remove_pages(start_pfn, nr_pages, altmap);
- 	__remove_pgd_mapping(swapper_pg_dir, __phys_to_virt(start), size);
- }
- 
-diff --git a/arch/loongarch/mm/init.c b/arch/loongarch/mm/init.c
-index f801f7097f03..22d35e98d871 100644
---- a/arch/loongarch/mm/init.c
-+++ b/arch/loongarch/mm/init.c
-@@ -119,13 +119,12 @@ int arch_add_memory(int nid, u64 start, u64 size, struct mhp_params *params)
- 	return ret;
- }
- 
--void arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap,
--			struct dev_pagemap *pgmap)
-+void arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 
--	__remove_pages(start_pfn, nr_pages, altmap, pgmap);
-+	__remove_pages(start_pfn, nr_pages, altmap);
- }
- #endif
- 
-diff --git a/arch/powerpc/include/asm/book3s/64/radix.h b/arch/powerpc/include/asm/book3s/64/radix.h
-index df67209b0c5b..0c9195dd50c9 100644
---- a/arch/powerpc/include/asm/book3s/64/radix.h
-+++ b/arch/powerpc/include/asm/book3s/64/radix.h
-@@ -316,7 +316,6 @@ static inline int radix__has_transparent_pud_hugepage(void)
- #endif
- 
- struct vmem_altmap;
--struct dev_pagemap;
- extern int __meminit radix__vmemmap_create_mapping(unsigned long start,
- 					     unsigned long page_size,
- 					     unsigned long phys);
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index b617b69452cd..2432ff888c03 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -158,13 +158,12 @@ int __ref arch_add_memory(int nid, u64 start, u64 size,
- 	return rc;
- }
- 
--void __ref arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap,
--			      struct dev_pagemap *pgmap)
-+void __ref arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 
--	__remove_pages(start_pfn, nr_pages, altmap, pgmap);
-+	__remove_pages(start_pfn, nr_pages, altmap);
- 	arch_remove_linear_mapping(start, size);
- }
- #endif
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 6f6b04795bb2..8bb48c270c2f 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -1734,10 +1734,9 @@ int __ref arch_add_memory(int nid, u64 start, u64 size, struct mhp_params *param
- 	return ret;
- }
- 
--void __ref arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap,
--			      struct dev_pagemap *pgmap)
-+void __ref arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
- {
--	__remove_pages(start >> PAGE_SHIFT, size >> PAGE_SHIFT, altmap, pgmap);
-+	__remove_pages(start >> PAGE_SHIFT, size >> PAGE_SHIFT, altmap);
- 	remove_linear_mapping(start, size);
- 	flush_tlb_all();
- }
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index be7e009e7b59..91c0edccbb12 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -293,13 +293,12 @@ int arch_add_memory(int nid, u64 start, u64 size,
- 	return rc;
- }
- 
--void arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap,
--			struct dev_pagemap *pgmap)
-+void arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 
--	__remove_pages(start_pfn, nr_pages, altmap, pgmap);
-+	__remove_pages(start_pfn, nr_pages, altmap);
- 	vmem_remove_mapping(start, size);
- }
- #endif /* CONFIG_MEMORY_HOTPLUG */
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index 8b6d86fb5a42..2a635b7f78ea 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1273,13 +1273,12 @@ kernel_physical_mapping_remove(unsigned long start, unsigned long end)
- 	remove_pagetable(start, end, true, NULL);
- }
- 
--void __ref arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap,
--			      struct dev_pagemap *pgmap)
-+void __ref arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 
--	__remove_pages(start_pfn, nr_pages, altmap, pgmap);
-+	__remove_pages(start_pfn, nr_pages, altmap);
- 	kernel_physical_mapping_remove(start, start + size);
- }
- #endif /* CONFIG_MEMORY_HOTPLUG */
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index b39605d30896..ec71debc0673 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -136,10 +136,9 @@ static inline bool movable_node_is_enabled(void)
- 	return movable_node_enabled;
- }
- 
--extern void arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap,
--			       struct dev_pagemap *pgmap);
-+extern void arch_remove_memory(u64 start, u64 size, struct vmem_altmap *altmap);
- extern void __remove_pages(unsigned long start_pfn, unsigned long nr_pages,
--			   struct vmem_altmap *altmap, struct dev_pagemap *pgmap);
-+			   struct vmem_altmap *altmap);
- 
- /* reasonably generic interface to expand the physical pages */
- extern int __add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
-@@ -320,8 +319,7 @@ extern int sparse_add_section(int nid, unsigned long pfn,
- 		unsigned long nr_pages, struct vmem_altmap *altmap,
- 		struct dev_pagemap *pgmap);
- extern void sparse_remove_section(unsigned long pfn, unsigned long nr_pages,
--				  struct vmem_altmap *altmap,
--				  struct dev_pagemap *pgmap);
-+				  struct vmem_altmap *altmap);
- extern struct zone *zone_for_pfn_range(enum mmop online_type,
- 		int nid, struct memory_group *group, unsigned long start_pfn,
- 		unsigned long nr_pages);
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 4fb48fbe712d..b4b63f89d188 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -5345,8 +5345,7 @@ static inline void print_vma_addr(char *prefix, unsigned long rip)
- #endif
- 
- struct page * __populate_section_memmap(unsigned long pfn,
--		unsigned long nr_pages, int nid, struct vmem_altmap *altmap,
--		struct dev_pagemap *pgmap);
-+		unsigned long nr_pages, int nid, struct vmem_altmap *altmap);
- void *vmemmap_alloc_block(unsigned long size, int node);
- struct vmem_altmap;
- void *vmemmap_alloc_block_buf(unsigned long size, int node,
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index c9cc42e54f05..1e5fbc154123 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -415,8 +415,7 @@ int __add_pages(int nid, unsigned long pfn, unsigned long nr_pages,
- 		err = sparse_add_section(nid, pfn, cur_nr_pages, altmap,
- 					 params->pgmap);
- 		if (err) {
--			__remove_pages(start_pfn, pfn - start_pfn, altmap,
--				       params->pgmap);
-+			__remove_pages(start_pfn, pfn - start_pfn, altmap);
- 			break;
- 		}
- 		cond_resched();
-@@ -564,7 +563,6 @@ void remove_pfn_range_from_zone(struct zone *zone,
-  * @pfn: starting pageframe (must be aligned to start of a section)
-  * @nr_pages: number of pages to remove (must be multiple of section size)
-  * @altmap: alternative device page map or %NULL if default memmap is used
-- * @pgmap: device page map or %NULL if not ZONE_DEVICE
-  *
-  * Generic helper function to remove section mappings and sysfs entries
-  * for the section of the memory we are removing. Caller needs to make
-@@ -572,7 +570,7 @@ void remove_pfn_range_from_zone(struct zone *zone,
-  * calling offline_pages().
-  */
- void __remove_pages(unsigned long pfn, unsigned long nr_pages,
--		    struct vmem_altmap *altmap, struct dev_pagemap *pgmap)
-+		    struct vmem_altmap *altmap)
- {
- 	const unsigned long end_pfn = pfn + nr_pages;
- 	unsigned long cur_nr_pages;
-@@ -587,7 +585,7 @@ void __remove_pages(unsigned long pfn, unsigned long nr_pages,
- 		/* Select all remaining pages up to the next section boundary */
- 		cur_nr_pages = min(end_pfn - pfn,
- 				   SECTION_ALIGN_UP(pfn + 1) - pfn);
--		sparse_remove_section(pfn, cur_nr_pages, altmap, pgmap);
-+		sparse_remove_section(pfn, cur_nr_pages, altmap);
- 	}
- }
- 
-@@ -1420,7 +1418,7 @@ static void remove_memory_blocks_and_altmaps(u64 start, u64 size)
- 		memory_block_put(mem);
- 
- 		remove_memory_block_devices(cur_start, memblock_size);
--		arch_remove_memory(cur_start, memblock_size, altmap, NULL);
-+		arch_remove_memory(cur_start, memblock_size, altmap);
- 		altmap_free(altmap);
- 	}
- }
-@@ -1460,7 +1458,7 @@ static int create_altmaps_and_memory_blocks(int nid, struct memory_group *group,
- 		ret = create_memory_block_devices(cur_start, memblock_size, nid,
- 						  params.altmap, group);
- 		if (ret) {
--			arch_remove_memory(cur_start, memblock_size, params.altmap, NULL);
-+			arch_remove_memory(cur_start, memblock_size, params.altmap);
- 			altmap_free(params.altmap);
- 			goto out;
- 		}
-@@ -1547,7 +1545,7 @@ static int __add_memory_resource(int nid, struct resource *res, mhp_t mhp_flags,
- 		/* create memory block devices after memory was added */
- 		ret = create_memory_block_devices(start, size, nid, NULL, group);
- 		if (ret) {
--			arch_remove_memory(start, size, params.altmap, NULL);
-+			arch_remove_memory(start, size, params.altmap);
- 			goto error;
- 		}
- 	}
-@@ -2308,7 +2306,7 @@ static int try_remove_memory(u64 start, u64 size)
- 		 * No altmaps present, do the removal directly
- 		 */
- 		remove_memory_block_devices(start, size);
--		arch_remove_memory(start, size, NULL, NULL);
-+		arch_remove_memory(start, size, NULL);
- 	} else {
- 		/* all memblocks in the range have altmaps */
- 		remove_memory_blocks_and_altmaps(start, size);
-diff --git a/mm/memremap.c b/mm/memremap.c
-index accba23aef28..683a77dd679d 100644
---- a/mm/memremap.c
-+++ b/mm/memremap.c
-@@ -97,10 +97,10 @@ static void pageunmap_range(struct dev_pagemap *pgmap, int range_id)
- 				   PHYS_PFN(range_len(range)));
- 	if (pgmap->type == MEMORY_DEVICE_PRIVATE) {
- 		__remove_pages(PHYS_PFN(range->start),
--			       PHYS_PFN(range_len(range)), NULL, pgmap);
-+			       PHYS_PFN(range_len(range)), NULL);
- 	} else {
- 		arch_remove_memory(range->start, range_len(range),
--				pgmap_altmap(pgmap), pgmap);
-+				pgmap_altmap(pgmap));
- 		kasan_remove_zero_shadow(__va(range->start), range_len(range));
- 	}
- 	mem_hotplug_done();
-diff --git a/mm/sparse-vmemmap.c b/mm/sparse-vmemmap.c
-index 43559593107c..df71125a6ee2 100644
---- a/mm/sparse-vmemmap.c
-+++ b/mm/sparse-vmemmap.c
-@@ -461,8 +461,7 @@ int __meminit vmemmap_populate_hugepages(unsigned long start, unsigned long end,
- }
- 
- struct page * __meminit __populate_section_memmap(unsigned long pfn,
--		unsigned long nr_pages, int nid, struct vmem_altmap *altmap,
--		struct dev_pagemap *pgmap)
-+		unsigned long nr_pages, int nid, struct vmem_altmap *altmap)
- {
- 	unsigned long start = (unsigned long) pfn_to_page(pfn);
- 	unsigned long end = start + nr_pages * sizeof(struct page);
-@@ -559,11 +558,9 @@ void offline_mem_sections(unsigned long start_pfn, unsigned long end_pfn)
- }
- 
- static struct page * __meminit populate_section_memmap(unsigned long pfn,
--		unsigned long nr_pages, int nid, struct vmem_altmap *altmap,
--		struct dev_pagemap *pgmap)
-+		unsigned long nr_pages, int nid, struct vmem_altmap *altmap)
- {
--	struct page *page = __populate_section_memmap(pfn, nr_pages, nid, altmap,
--						      pgmap);
-+	struct page *page = __populate_section_memmap(pfn, nr_pages, nid, altmap);
- 
- 	memmap_pages_add(section_nr_vmemmap_pages(pfn, nr_pages));
- 
-@@ -571,7 +568,7 @@ static struct page * __meminit populate_section_memmap(unsigned long pfn,
- }
- 
- static void depopulate_section_memmap(unsigned long pfn, unsigned long nr_pages,
--		struct vmem_altmap *altmap, struct dev_pagemap *pgmap)
-+		struct vmem_altmap *altmap)
- {
- 	unsigned long start = (unsigned long) pfn_to_page(pfn);
- 	unsigned long end = start + nr_pages * sizeof(struct page);
-@@ -652,7 +649,7 @@ static int fill_subsection_map(unsigned long pfn, unsigned long nr_pages)
-  * usage map, but still need to free the vmemmap range.
-  */
- static void section_deactivate(unsigned long pfn, unsigned long nr_pages,
--		struct vmem_altmap *altmap, struct dev_pagemap *pgmap)
-+		struct vmem_altmap *altmap)
- {
- 	struct mem_section *ms = __pfn_to_section(pfn);
- 	bool section_is_early = early_section(ms);
-@@ -690,7 +687,7 @@ static void section_deactivate(unsigned long pfn, unsigned long nr_pages,
- 	 * section_activate() and pfn_valid() .
- 	 */
- 	if (!section_is_early)
--		depopulate_section_memmap(pfn, nr_pages, altmap, pgmap);
-+		depopulate_section_memmap(pfn, nr_pages, altmap);
- 	else if (memmap)
- 		free_map_bootmem(memmap);
- 
-@@ -739,9 +736,9 @@ static struct page * __meminit section_activate(int nid, unsigned long pfn,
- 		return pfn_to_page(pfn);
- 
- 	section_set_compound_order_range(pfn, nr_pages, order);
--	memmap = populate_section_memmap(pfn, nr_pages, nid, altmap, pgmap);
-+	memmap = populate_section_memmap(pfn, nr_pages, nid, altmap);
- 	if (!memmap) {
--		section_deactivate(pfn, nr_pages, altmap, pgmap);
-+		section_deactivate(pfn, nr_pages, altmap);
- 		return ERR_PTR(-ENOMEM);
- 	}
- 
-@@ -805,13 +802,13 @@ int __meminit sparse_add_section(int nid, unsigned long start_pfn,
- }
- 
- void sparse_remove_section(unsigned long pfn, unsigned long nr_pages,
--		struct vmem_altmap *altmap, struct dev_pagemap *pgmap)
-+		struct vmem_altmap *altmap)
- {
- 	struct mem_section *ms = __pfn_to_section(pfn);
- 
- 	if (WARN_ON_ONCE(!valid_section(ms)))
- 		return;
- 
--	section_deactivate(pfn, nr_pages, altmap, pgmap);
-+	section_deactivate(pfn, nr_pages, altmap);
- }
- #endif /* CONFIG_MEMORY_HOTPLUG */
-diff --git a/mm/sparse.c b/mm/sparse.c
-index 6acb628c8a73..0b9a6c23a227 100644
---- a/mm/sparse.c
-+++ b/mm/sparse.c
-@@ -204,8 +204,7 @@ void __init sparse_sections_init(void)
- }
- #ifndef CONFIG_SPARSEMEM_VMEMMAP
- struct page __init *__populate_section_memmap(unsigned long pfn,
--		unsigned long nr_pages, int nid, struct vmem_altmap *altmap,
--		struct dev_pagemap *pgmap)
-+		unsigned long nr_pages, int nid, struct vmem_altmap *altmap)
- {
- 	const unsigned long size = PAGE_ALIGN(sizeof(struct page) * PAGES_PER_SECTION);
- 
-@@ -236,8 +235,7 @@ static void __init sparse_metadata_init_nid(int nid,
- 		if (section_nr >= end_section_nr)
- 			break;
- 
--		mem_map = __populate_section_memmap(pfn, PAGES_PER_SECTION, nid,
--						    NULL, NULL);
-+		mem_map = __populate_section_memmap(pfn, PAGES_PER_SECTION, nid, NULL);
- 		if (!mem_map)
- 			panic("Failed to allocate memmap for section %lu\n",
- 			      section_nr);
--- 
-2.54.0
+This commit introduces the MM_CP_PERM_UPGRADE flag for change_protection()
+when mprotect() updates VMA permissions to a superset of the previous
+permissions without changing the protection key, allowing MMU notifier
+consumers to avoid invalidating PTEs.
 
+> diff --git a/mm/mprotect.c b/mm/mprotect.c
+> index 754333698c1ea..96e32e0159166 100644
+> --- a/mm/mprotect.c
+> +++ b/mm/mprotect.c
+> @@ -756,6 +756,17 @@ static const struct mm_walk_ops prot_none_walk_ops =
+=3D {
+>  	.walk_lock		=3D PGWALK_WRLOCK,
+>  };
+> =20
+> +static bool vma_flags_is_perm_upgrade(vma_flags_t old_vma_flags,
+> +				       vma_flags_t new_vma_flags)
+> +{
+> +	vm_flags_t old =3D vma_flags_to_legacy(old_vma_flags);
+> +	vm_flags_t new =3D vma_flags_to_legacy(new_vma_flags);
+> +	vm_flags_t rwx =3D VM_READ | VM_WRITE | VM_EXEC;
+> +
+> +	return !(old & rwx & ~new) &&
+> +	       (old & ARCH_VM_PKEY_FLAGS) =3D=3D (new & ARCH_VM_PKEY_FLAGS);
+> +}
+
+[Severity: Medium]
+Does vma_flags_is_perm_upgrade() also need to check architecture-specific
+protection flags that mprotect() can modify?
+
+In do_mprotect_pkey(), newflags is computed via calc_vm_prot_bits() (which
+calls arch_calc_vm_prot_bits()) and masks off VM_FLAGS_CLEAR (which includes
+VM_ARCH_CLEAR):
+
+mm/mprotect.c:do_mprotect_pkey() {
+    ...
+    mask_off_old_flags =3D VM_ACCESS_FLAGS | VM_FLAGS_CLEAR;
+
+    new_vma_pkey =3D arch_override_mprotect_pkey(vma, prot, pkey);
+    newflags =3D calc_vm_prot_bits(prot, new_vma_pkey);
+    newflags |=3D (vma->vm_flags & ~mask_off_old_flags);
+    ...
+}
+
+Several architectures expose PROT_* flags in mprotect() that set or clear
+VMA flags affecting hardware PTE protection or attribute bits in
+vm_get_page_prot():
+
+- On arm64, arch_calc_vm_prot_bits() maps PROT_BTI to VM_ARM64_BTI (cleared
+  via VM_ARCH_CLEAR when omitted) and PROT_MTE to VM_MTE. In
+  arch/arm64/mm/mmap.c:vm_get_page_prot(), VM_ARM64_BTI sets PTE_GP (which
+  restricts execution by faulting on indirect branches to non-BTI landing
+  pads) and VM_MTE sets PTE_ATTRINDX(MT_NORMAL_TAGGED) (which enables MTE
+  tag check faults).
+- On sparc64, PROT_ADI sets VM_SPARC_ADI (cleared via VM_ARCH_CLEAR when
+  omitted), which sets _PAGE_MCD_4V in
+  arch/sparc/mm/init_64.c:vm_get_page_prot() to enable hardware ADI tag
+  checking traps.
+- On powerpc64, PROT_SAO sets VM_SAO, which sets _PAGE_SAO in
+  arch/powerpc/mm/book3s64/pgtable.c:vm_get_page_prot() to alter hardware
+  memory ordering attributes.
+
+Because vma_flags_is_perm_upgrade() only inspects VM_READ | VM_WRITE |
+VM_EXEC and ARCH_VM_PKEY_FLAGS, if userspace calls mprotect() to enable
+PROT_BTI, PROT_MTE, PROT_ADI, or PROT_SAO while keeping the read/write/exec
+bits identical (or a superset) and the pkey unchanged, won't this set
+MM_CP_PERM_UPGRADE and allow MMU notifier consumers to skip secondary MMU
+invalidation when access restrictions were tightened or PTE attributes
+changed?
+
+> +
+>  int
+>  mprotect_fixup(struct vma_iterator *vmi, struct mmu_gather *tlb,
+>  	       struct vm_area_struct *vma, struct vm_area_struct **pprev,
+> @@ -836,6 +847,8 @@ mprotect_fixup(struct vma_iterator *vmi, struct mmu_g=
+ather *tlb,
+>  	vma_flags_reset_once(vma, &new_vma_flags);
+>  	if (vma_wants_manual_pte_write_upgrade(vma))
+>  		mm_cp_flags |=3D MM_CP_TRY_CHANGE_WRITABLE;
+> +	if (vma_flags_is_perm_upgrade(old_vma_flags, new_vma_flags))
+> +		mm_cp_flags |=3D MM_CP_PERM_UPGRADE;
+>  	vma_set_page_prot(vma);
+> =20
+>  	change_protection(tlb, vma, start, end, mm_cp_flags);
+
+[Severity: High]
+Can setting MM_CP_PERM_UPGRADE when the VMA already had VM_WRITE (or on a
+hugetlb VMA) violate the invariant that no access is revoked and the PFN
+stays the same?
+
+Follow-up commits ("mm/mmu_notifier: add MMU_NOTIFIER_RANGE_PERM_UPGRADE",
+"KVM: plumb MMU_NOTIFIER_RANGE_PERM_UPGRADE into kvm_gfn_range", and
+"KVM: x86/mmu: don't zap the secondary MMU on permission upgrade") wire
+MM_CP_PERM_UPGRADE to MMU_NOTIFIER_RANGE_PERM_UPGRADE so that
+kvm_unmap_gfn_range() skips zapping secondary MMU SPTEs.
+
+However, when a VMA already has VM_WRITE and mprotect() adds permissions
+(for example, upgrading PROT_READ | PROT_WRITE to
+PROT_READ | PROT_WRITE | PROT_EXEC, or PROT_WRITE to
+PROT_READ | PROT_WRITE), vma_set_page_prot() computes vma->vm_page_prot
+(newprot) without write permission for all MAP_PRIVATE mappings (COW) and
+for MAP_SHARED mappings where vma_wants_writenotify() is true.
+
+When change_protection() applies this read-only newprot across the VMA,
+there are several paths where write permission is stripped from existing
+entries or entries are unmapped in the primary MMU while MM_CP_PERM_UPGRADE
+is set:
+
+1. In mprotect_fixup(), vma_wants_manual_pte_write_upgrade(vma) is called
+   after vma_flags_reset_once() but before vma_set_page_prot(vma). For
+   MAP_SHARED VMAs without vm_ops->page_mkwrite that use writenotify for
+   VM_UFFD_WP or soft-dirty tracking (such as shmem),
+   vma_wants_writenotify(vma, vma->vm_page_prot) compares the old read-only
+   vma->vm_page_prot against vma_pgprot_modify(vm_page_prot, vma->flags)
+   (which still has VMA_SHARED_BIT | VMA_WRITE_BIT) and returns false. As a
+   result, MM_CP_TRY_CHANGE_WRITABLE is not set, vma_set_page_prot()
+   computes a read-only vma->vm_page_prot, and change_present_ptes() /
+   change_huge_pmd() strip write permission from all writable PTEs and PMDs
+   in the VMA.
+
+2. In mm/hugetlb.c:hugetlb_change_protection(), MM_CP_TRY_CHANGE_WRITABLE
+   is not handled, so huge_pte_modify(old_pte, newprot) unconditionally
+   strips write permission from already-writable COW huge PTEs in
+   MAP_PRIVATE hugetlb VMAs; in addition, huge_pmd_unshare() unmaps shared
+   PMD tables via pud_clear().
+
+3. In mm/huge_memory.c:change_huge_pud(), MM_CP_TRY_CHANGE_WRITABLE is not
+   handled, so pud_modify(oldpud, newprot) strips write permission from
+   writable huge PUDs in writenotify DAX mappings.
+
+4. In mm/mprotect.c:change_softleaf_pte(),
+   mm/huge_memory.c:change_non_present_huge_pmd(), and
+   mm/hugetlb.c:hugetlb_change_protection(), writable migration entries
+   (softleaf_is_migration_write()) and writable device-private entries
+   (softleaf_is_device_private_write()) are unconditionally downgraded to
+   read-only entries via make_readable_exclusive_migration_entry(),
+   make_readable_migration_entry(), or make_readable_device_private_entry().
+
+5. In change_present_ptes() and change_huge_pmd(), pte_modify() /
+   pmd_modify() strip write permission and do not restore it under
+   MM_CP_TRY_CHANGE_WRITABLE when !folio in a private PFN/mixed mapping or
+   when a shared writenotify PTE was cleaned (!pte_dirty(ptent)).
+
+Wouldn't skipping secondary MMU invalidation in these cases leave secondary
+MMUs (such as KVM SPTEs) with stale writable mappings to pages that
+change_protection() has write-protected or unmapped in the primary MMU?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261029143336.3902=
+31-3-clopez@suse.de?part=3D1
