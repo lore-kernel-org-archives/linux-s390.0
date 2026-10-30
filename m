@@ -1,76 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.217.43
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.118
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793353166;
-	b=UP4f0gyeHzGlocbyB6Fej7bY4Co9Bdke0+P9MWpRWDHwneiomYj/Evki4qbsjusz1bmx
-	 XbtNzkjhyF8el2Xyw263qKI3xKWvW8taCYYGuPaeqFK69lc3N9RF1HNqm8cVcbQuTjn8f
-	 AnZSU5Mo6j7NinDOtTt2AmlDR39Gd8PYoK84Pse4zFa+EgSMTtGYSgybD/hklUPzvroqT
-	 GLLVPfPhRAGuZIYDJptW4/eOoW7JlWuNJQ2Da7iuY4FzPb/oQjU/ZCcAPQLiTDz3K9hPO
-	 SW4dPjrZjSQyg2hSS/iWjGeTlNWdwI1/ZEHf8rEZvRaeh2FUpgCs6x0LTkhS9OZzqgA==
+	t=1793353205;
+	b=s9la0+HwGS/Rb7Kaxb4vAW9oQl8P79DGvoskmmjlWW9L+8kbiQOmh0f5n9chjWQmM6Zf
+	 wmr7OV6CAau0qlcNajelyb0iXi9LVCpZaYLcnx4nBpFMOdhGqKlvaCUiNCSjnCOJFNg+t
+	 3hzabOBN+nvjgFBx5i45z3IKBk4EPC9jt4AW25C8zFuQRTNPsR0HU6+ishuSodND/EqH8
+	 LlrVMIZqew+bsU1K3ekI4uJyIX9AIxOSJHMK/0mIZ5m0T/cDoI4Y0rPT28PClK5q42fX1
+	 fCwoitr5rHI6/9IBFN7GkRhxXxVunG6inIxGitehoWUOqDfhjN+K8T76Q5mDgFyO+Dw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793353166;
-	h=DMARC-Filter:Received:X-Google-DKIM-Signature:X-Forwarded-Encrypted:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:Received:Received:
-	 X-Forwarded-Encrypted:X-Received:MIME-Version:References:In-Reply-To:
-	 From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:Message-ID:
-	 Subject:To:Cc:Content-Type;
-	bh=q8Bp4lvQqYUsZT0k0dArzQOZC6e3m0dIfgAJwvcDsr4=;
-	b=Bq0cAwCG6N7HD7ZHwakXr73uMkJyI4sS7OY8f3usZFtHyZgZacrIcIB//u+KI5j1iyM1
-	 oojBxT4TkiVhnY/2gV0kcHI0TYDgnvJa1HJI8OW3WSQhffS80XeGWG3Lnqjzdl9dUx7eP
-	 5YBViuvWtouQ+eMe87k2aTm1O7OWHXHoFKxwAcYy7ZDSRjqyClcVwof1rOWxieyN0Zysx
-	 mmwfAPNaVIxgM2si9ql4XnSMtyaq56yBJitHYUnK90s5UeUMOOhjR8VWgCOt1ujCvmdHA
-	 k1gZstkvGuqBqdb9oMRMpCfoZFVq+3HsF0cEL2FRmSgHVIltFVqRpZ5vY5ipTxoZAFA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793353205;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:Content-Type:Mime-Version:Subject:From:
+	 In-Reply-To:Date:Cc:Content-Transfer-Encoding:Message-Id:References:
+	 To:X-Mailer;
+	bh=GjoByvQgZF8hrJ3bMrfVpCnfunVN4IpvJDxs7mkxVe4=;
+	b=WTZDd23jm4S3A+of8azaP8j2+La7di3iQIfWQbkEPnzuPoibcRIE8ci9en/xxioCCNT+
+	 sG1qTCbsJUoh7NSc8bnjiy9HPMt2VWA4YJFPoJqNrOXNbwWixfwnxGnqafmyg+YWnrSwW
+	 ZUHMgeqHJvj0+GbdyBpkZi2x7sLnkf1lYL9zkdQHK6eYjlRR3A2Pmern3YntKrJ6n+kdb
+	 JRtTpmQVvEWdOx0pO8RnqQD2xzttkkCL16JxzdccZH8F5Zv2tFCWbNIWdxataVFP4iCQ6
+	 wPM8x355jJPvjJmBiGNE8+Lj5XYm+m88Z3pZi4mUSyd7S4ZqMhkQ0wMYcOiWPDvraxA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=linux-m68k.org;
-	spf=pass smtp.mailfrom=gmail.com;
-	arc=none smtp.remote-ip=209.85.217.43
-Received: from mail-vs1-f43.google.com (mail-vs1-f43.google.com [209.85.217.43])
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=qZexjLA3;
+	arc=none smtp.remote-ip=95.215.58.118
+Received: from mta1.migadu.com (out-118.mta1.migadu.com [95.215.58.118])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27FBD606A31E
-	for <linux-s390@vger.kernel.org>; Fri, 30 Oct 2026 09:39:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 27FBD606A31E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vs1-f43.google.com with SMTP id ada2fe7eead31-78fb1fb9508so1364891137.1
-        for <linux-s390@vger.kernel.org>; Fri, 30 Oct 2026 02:39:26 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793353165; x=1793957965;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=q8Bp4lvQqYUsZT0k0dArzQOZC6e3m0dIfgAJwvcDsr4=;
-        b=KSaYTVtW4mCF/ofJpi3ZqEq6x4e5LQo/DQeY7usqkBc2yJ/6AScbiYxxZBfekK+cpX
-         Fy7qlJDEAaH1+VG3EOl9szX+eC5vkp2eCl9ByhEa2Gy3KjdB2KvjFTbUGJBSJm8edbUJ
-         LzHhI/aMOX9/trCrUZT8+Y75gIW+0kUp9R1RDIfkaXpQPupGpuAmBy0X3JlrqLwKZgXE
-         KlA1up8/jBsOTFHN4eQgC19XDFHwxHvV+eGfjPEGFmuRdOQomDAJ9yYdsfYOtkpdCMO/
-         OEJjMudWn4wNd8VVHM+ahebRBC8khrVp2V/vXPEjuIqefhljvlB1juzp65nf7rQo4MDh
-         CU5w==
-X-Forwarded-Encrypted: i=1; AKwUvByiaVQDOYijnqZgaGsu1C6MJ52IqHmFYWsvkayInbEfhmxUtCvrTxIH1PDdJAaGQGJgrgpCaxEnhhWv@vger.kernel.org
-X-Gm-Message-State: AFq9FYL9gGVEjiXto69ej/C1PGEPq4wBW9jdi7dUc0x004S+lppg3pEA
-	swYT5F+AqwFbhBgrVDE+fc4iVozullXseOxdK+HEAuZrl1zksQ8Oj0sMx9M7+kbR
-X-Gm-Gg: AYBFou2yLzhKDIKXt472VmRj4MALwSoljubiE8btfA8pmjKFJ/cCuwj1hOVPG1TddVB
-	Tma+8KFJ6pUFVwbWThHcN6NmKCQaZqe7SbhuiY0+H5G+J+zd0hteMuenx3PNaycNczZX2swBSn2
-	Hv0L/BVNG2JlZtyHuXUXNr7Ogf4NXN8Hi3g+wIPhIg7DgspTgS9qZqUgw2kVP9UPidPd8TtMdgi
-	4rLJUopH4V0YXVT+XpLzAQIw4bcDuiJYYUXvKCOTieOuk2/W477P/suTb1StggIrjM/C4kYvx3s
-	ezCAmGramJOn7J+/s7HiETxjKeH3EGVPBtaDwyAchgqecWekvKH4E26XeZu6slLQg/ud4W2Y2kH
-	nmrYrbGKorhHp7juWL/CEoz/yX9IiW+LRwd8G79cXMFQf/QRDcHV37gxKcEwZwI5hmmO0IEy5Ui
-	APRRnwtPVHF4HTraDETLE13Tek3RVqdtaUuo23QHbgLpBNB34u0RnafruJ+Z0/wD0neBYLRCkL1
-	W5ntKtIWVn4EVxKkhjeMMrfqLsVMKqYq9+Njtpx5z67Gq+O+k86iWgA0M/9WoqlSoeBVHPE8S9Y
-	++DvKIvM91ZvdESVFlu6Qqj3VWBsHHcgpTni38XvEao05AdBqqZicXMpKOvOMk1WeS4=
-X-Received: by 2002:a67:e103:0:b0:7cc:a367:c4ff with SMTP id ada2fe7eead31-7d05435bc31mr1256474137.37.1793353165222;
-        Fri, 30 Oct 2026 02:39:25 -0700 (PDT)
-Received: from mail-ua1-f47.google.com (mail-ua1-f47.google.com. [209.85.222.47])
-        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-992ee4e7453sm1867397241.11.2026.10.30.02.39.23
-        for <linux-s390@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 30 Oct 2026 02:39:24 -0700 (PDT)
-Received: by mail-ua1-f47.google.com with SMTP id a1e0cc1a2514c-9912c47367cso450438241.1
-        for <linux-s390@vger.kernel.org>; Fri, 30 Oct 2026 02:39:23 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AKwUvBzn4U+S0keyP6ndspURhREzcutorv/f+6LjZcjozU68GpoO+RQqmZjnyas6ErO7qc4U8GgXjolOhvUa@vger.kernel.org
-X-Received: by 2002:a05:6102:605a:b0:7ca:8f2d:5c29 with SMTP id
- ada2fe7eead31-7d0542ccab3mr1591386137.27.1793353163338; Fri, 30 Oct 2026
- 02:39:23 -0700 (PDT)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55A98606A31A
+	for <linux-s390@vger.kernel.org>; Fri, 30 Oct 2026 09:40:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 55A98606A31A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=qZexjLA3
+X-Envelope-To: linux-s390@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=GjoByvQgZF8hrJ3bMrfVpCnfunVN4IpvJDxs7mkxVe4=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1793353201; v=1; x=1793958001;
+ b=qZexjLA3z72ct6BDu7Dc0m9BncpgG3hK4j1b3DwD3NTBjBZ20OkGtqQCD+B6oCyJi38c8XHe
+ 9b2RX+szEZRshADVCh8gg+NONUQycTdJN52pAqQDMvLEgbE702NFZ3cLusXxVA4wy+dTS9SAuUR
+ yzwDlzgYu4KRlYFifvWrzh7g=
+X-Envelope-To: linux-s390@vger.kernel.org
+Received: by mta10.migadu.com with ESMTPS id 391089da5ea8dc07;
+	Fri, 30 Oct 2026 09:40:00 +0000
+X-Mizu-Trace-ID: 391089da5ea8dc07
+X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain;
+	charset=us-ascii
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -79,54 +57,90 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-References: <20261030083800.599152-1-songmuchun@bytedance.com> <20261030083800.599152-2-songmuchun@bytedance.com>
-In-Reply-To: <20261030083800.599152-2-songmuchun@bytedance.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 30 Oct 2026 10:39:10 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdVjr+-4GA=jBNpL3nig6QfQ0Fm8ob+c-OkLADPUJSaNqw@mail.gmail.com>
-X-Gm-Features: AclHuK-5feC2ixWlfC3xXKJ1XowEcUrdLUZ-UGAaez_2WzCy_48TVc-7hVrg-7U
-Message-ID: <CAMuHMdVjr+-4GA=jBNpL3nig6QfQ0Fm8ob+c-OkLADPUJSaNqw@mail.gmail.com>
-Subject: Re: [PATCH 1/2] mm: remove pagetable_dtor_free()
-To: Muchun Song <songmuchun@bytedance.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
-	Oscar Salvador <osalvador@suse.de>, Alistair Popple <apopple@nvidia.com>, Will Deacon <will@kernel.org>, 
-	"Aneesh Kumar K . V" <aneesh.kumar@kernel.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
-	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
-	"David S . Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	linux-m68k@lists.linux-m68k.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
-	sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, Muchun Song <muchun.song@linux.dev>
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3901.100.1.1.12\))
+Subject: Re: [PATCH 07/15] hugetlbfs: fix unmapping folios from private VMAs
+From: Muchun Song <muchun.song@linux.dev>
+In-Reply-To: <20261028-fixes_hugetlb-v1-7-a0a033db180f@kernel.org>
+Date: Fri, 30 Oct 2026 17:39:38 +0800
+Cc: Oscar Salvador <osalvador@suse.de>,
+ Naoya Horiguchi <nao.horiguchi@gmail.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Mel Gorman <mgorman@suse.de>,
+ Andy Whitcroft <apw@canonical.com>,
+ Miaohe Lin <linmiaohe@huawei.com>,
+ Michal Hocko <mhocko@suse.com>,
+ Rik van Riel <riel@surriel.com>,
+ Hugh Dickins <hughd@google.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ Vivek Kasireddy <vivek.kasireddy@intel.com>,
+ Dave Airlie <airlied@redhat.com>,
+ Jason Gunthorpe <jgg@ziepe.ca>,
+ Lorenzo Stoakes <ljs@kernel.org>,
+ "Liam R. Howlett" <liam@infradead.org>,
+ Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>,
+ Jonathan Corbet <corbet@lwn.net>,
+ Shuah Khan <skhan@linuxfoundation.org>,
+ Randy Dunlap <rdunlap@infradead.org>,
+ Peter Xu <peterx@redhat.com>,
+ Breno Leitao <leitao@debian.org>,
+ Will Deacon <will@kernel.org>,
+ "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>,
+ Nick Piggin <npiggin@gmail.com>,
+ Peter Zijlstra <peterz@infradead.org>,
+ Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Arnd Bergmann <arnd@arndb.de>,
+ linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ linux-doc@vger.kernel.org,
+ linux-arch@vger.kernel.org,
+ linux-s390@vger.kernel.org,
+ Josef Bacik <josef@toxicpanda.com>,
+ stable@kernel.org,
+ Daehyeon Ko <4ncienth@gmail.com>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <EE1BEB7B-295B-4F93-9876-C397C2FF473B@linux.dev>
+References: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
+ <20261028-fixes_hugetlb-v1-7-a0a033db180f@kernel.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+X-Mailer: Apple Mail (2.3901.100.1.1.12)
 
-On Fri, 30 Oct 2026 at 09:38, Muchun Song <songmuchun@bytedance.com> wrote:
-> pagetable_free() now runs pagetable_dtor() for pages that have gone
-> through a page-table constructor, so pagetable_dtor_free() no longer
-> provides distinct behavior.
->
-> Use pagetable_free() directly at the remaining call sites and remove
-> the redundant helper. This keeps the decision to run the destructor in
-> the common free path.
->
-> Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-> ---
->  arch/m68k/include/asm/mcf_pgalloc.h |  4 ++--
->  arch/m68k/mm/motorola.c             |  2 +-
-
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k
-
-Gr{oetje,eeting}s,
-
-                        Geert
 
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> On Oct 29, 2026, at 04:13, David Hildenbrand (Arm) <david@kernel.org> =
+wrote:
+>=20
+> From: Josef Bacik <josef@toxicpanda.com>
+>=20
+> hugetlb_unmap_file_folio() assumes vm_private_data points to a struct
+> hugetlb_vma_lock when hugetlb_vma_trylock_write() fails. Since hugetlb =
+VMA
+> locking was extended to private VMAs, this can also happen when
+> vm_private_data contains a resv_map pointer; treating it as a
+> hugetlb_vma_lock corrupts memory and can cause crashes or hangs.
+>=20
+> Only take the VMA lock when a shareable lock exists, as additional =
+locking
+> is only needed for PMD table sharing. The fault mutex and i_mmap_rwsem
+> already provide the required protection for private VMAs.
+>=20
+> Fix generated by an LLM and sent by Josef Bacik in private.
+>=20
+> Fixes: bf4916922c60 ("hugetlbfs: extend hugetlb_vma_lock to private =
+VMAs")
+> Cc: stable@kernel.org
+> Tested-by: Daehyeon Ko <4ncienth@gmail.com>
+> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+> [ david: simplify description and comment ]
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Acked-by: Muchun Song <muchun.song@linux.dev>
+
+Thanks.
+
