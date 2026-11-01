@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793571374;
-	b=l5KH+YHtWSf6jGkQiSckXj328xaHiIZ7DqoJSXLh+Q6eVFZz9HZfwZbsScygPXI6wcak
-	 0hAvKprTjXz5aM7sOVqsl+64FTsBUPg/fkRyuJXy4br9ZEqF7fci3bjaAWkgcW7Ajp2QY
-	 gqyxyfZxHgqXbM5VfPTM2D3eSO8HPnidEdBgVtRgaYrwXz9A2zscAxKwju/wSSRmwpUSW
-	 Xf3UtvvnikT7sdyZHLmguSYLfBOpdFDnWAC4zwHFxXGAWqAmz0px6ud04EmznzYO8BPAM
-	 ptUjqVw4/+hMELbb6NLWZyQRLaEZsZwo0c0lCLXniDDbCq50j0Y5M4FmU2Azi6zu7Yg==
+	t=1793571392;
+	b=eLxcl05CbRRCkS+vUVPMr9Ia5+2g4VRrNudk5/HPwKclxw8uIjxirl5pkVXmaDUfl6Oy
+	 b7a34Xref5iNTkakHWZpDrvg2NQEw6RDxTUXcXuP56PzN85nptoQ3lyLSdnYUS9lopWBb
+	 qqyvQwWOzxDTPoS3qMyqoub0iGn9YLJk3yAgE/NpLCXjHrF5nU1FdWz3SmZzycHH8cr19
+	 8/svyYxbWcbJXT2sa1oWaA/w9yXKGCQGbVPVR8w2darXvcwwt7cFHe9Uj+RI4ESedXQei
+	 G0l5slWoo4exY7aKHeNP41XXVKA02HzeEKKLhOTOkkji6CYve78k82AwqzmEML8RLBQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793571374;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793571392;
 	h=Received:DKIM-Signature:Received:Content-Type:MIME-Version:
 	 Content-Transfer-Encoding:Subject:From:Message-Id:Date:References:
 	 In-Reply-To:To:Cc;
-	bh=k1DWd8TsBWg5NBBxBu42AFkg72eDnbidrtlPTmYRtJY=;
-	b=kb7UrpmxCpp/rNPSsRZeWOoRvHootzjsnyT2ts+zvIG6ZvIEd1A7tItpCgaDmwcPFmMn
-	 H4bSjspg95jE0Gy4AvT/XXe1ILL19LTQJgVKWLLBOgQNa4agVbvKaYMhS0XVLEwh0DuX/
-	 WyrYgpRzaVAQRjzHFjX57cEtkF9K16AGIbmiWJRe9VNK2gR/8aox7E5Ovxhr69CLZDyMJ
-	 DlHtZ2WdcHc7+LnGb796z4/KD3So1YM4Er56bp3nTLbNaOa21034o+/SddnkRNxaDhamP
-	 FjnP3yIlIUKnynbUlyBwjB6aKoPBSi8bsHTjj4auRtJkuH42EuXbmHtHVCctH3GWFEw==
+	bh=7jMaG7E0faIciRuA0j8698KDnNXPdfgqG5SZCjrpwFM=;
+	b=v/MZbUthF9+Jdc4t5l5H4AQQIMWFhoxdOOoUJQlREtiuEX2rcAVAbBmR7FNY/j9oIbts
+	 zVKpkwmQfqpBvj1t17rEtetATynziVj3CYz8rZue17bD4JrtIU+wdAczgoOKxEyPKLpQD
+	 MvV1y2BZggk/UrjKdmXZcKYA1L1lQ2VbgTtN/ZJmHBlMELFQUBZRACXFaEcAE6B+Gs4w1
+	 cmMkt7MN0yL/y55SUWCFXepem3gLE+KH5XOjzKyBsve6pYSg1BGEAlK/jurnUeC/Q/8Gx
+	 C/Hi6N4GbwNnXKjVATYh9NZ/oqJ+GNj38bHK1U0WRjKmTjHcJ7C/UWmHUQmBOm8Av0w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=l4nmcWS6;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RI6vqfud;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E10360A3829;
-	Sun,  1 Nov 2026 22:16:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8573C606E500;
+	Sun,  1 Nov 2026 22:16:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=l4nmcWS6
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CE641F00A2C;
-	Sun,  1 Nov 2026 22:16:14 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RI6vqfud
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D4D81F000C1;
+	Sun,  1 Nov 2026 22:16:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793571374;
-	bh=k1DWd8TsBWg5NBBxBu42AFkg72eDnbidrtlPTmYRtJY=;
+	s=k20260515; t=1793571392;
+	bh=7jMaG7E0faIciRuA0j8698KDnNXPdfgqG5SZCjrpwFM=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=l4nmcWS6A/4Hr5O71oODbuTRUfO0NkWJ85KjSmxpc4wtkYxkpb1bOMwK0jr4BmFWY
-	 lYIEM9ylgDV6SUrYMpJIE2KKFpoD2nnt+UGewiExEhxyhKTMOjm+T52MFPeK8Yd0J+
-	 p4q/4axVz0UfZx3L63VYvsm1IdHUsRWd2LlParmpMe2U//B6WU2rzsRD4qt6poBS3X
-	 9nvXcpbi8Wvh3JxnKjFOreSdRvTy7KVewOW8UsbJ5RSKNcsm8ZfOb0TAb1yKpjZZPl
-	 L41yoUudqhZYHKnzicNfUykC9EKnM+e9w4aN1yX+WbAJDCsXR56xtkURsIUpOdA2Bn
-	 Z4trFEgXz6Wyg==
+	b=RI6vqfudUDAPQJyogDLl2CpARmQSYi02Z/r+Di8qbeK3KcSdM0cWSldHGeHFd7Wmg
+	 oZkcWTzbyfmhEOg5tcfCHfhpf6iaGm+isSH86qaujprBW88A0OM503IaD8+WPv9717
+	 bpcrsoSfdrv6EFgcaHxAfgeqBVd+9Lh2jlei+lTKhKmrMmF1DDRxKwuNJ2YAzniH64
+	 bTK3lBMxJ6uc9UCiWTe96qjtjhpAxsSnnRxROmumhMt3+M7z/8Bl4vxi21IO/fXVoH
+	 wUHNq2epY1lAcTmYzulW8paMq9f4RX7rYBp2SAoAq4o7yj3fGB1UzuSY/Wrq1aK7S0
+	 zpB9EvUeVfZow==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 030DB38003B8;
-	Sun,  1 Nov 2026 22:16:14 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 5347838003B8;
+	Sun,  1 Nov 2026 22:16:32 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -54,56 +54,62 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v3 0/6] arch, mm/execmem: resolve confusion about
- set_direct_map_valid_noflush()
+Subject: Re: [PATCH 0/8] mm: Drop pxd_ERROR()
 From: patchwork-bot+linux-riscv@kernel.org
 Message-Id: 
- <179357137254.2624073.6914916059318534007.git-patchwork-notify@kernel.org>
-Date: Sun, 01 Nov 2026 22:16:12 +0000
-References: <20260903-execmem-set-vm-perms-v0-2-v3-0-949b64a9f755@kernel.org>
-In-Reply-To: <20260903-execmem-set-vm-perms-v0-2-v3-0-949b64a9f755@kernel.org>
-To: Mike Rapoport <rppt@kernel.org>
-Cc: linux-riscv@lists.infradead.org, akpm@linux-foundation.org,
- abarnas@google.com, aou@eecs.berkeley.edu, agordeev@linux.ibm.com,
- alex@ghiti.fr, luto@kernel.org, bp@alien8.de, brendan.jackman@linux.dev,
- catalin.marinas@arm.com, borntraeger@linux.ibm.com,
- dave.hansen@linux.intel.com, david@kernel.org, gerald.schaefer@linux.ibm.com,
- hca@linux.ibm.com, chenhuacai@kernel.org, mingo@redhat.com, lenb@kernel.org,
- palmer@dabbelt.com, pjw@kernel.org, pavel@kernel.org, peterz@infradead.org,
- hpa@zytor.com, rafael@kernel.org, ryan.roberts@arm.com, svens@linux.ibm.com,
- tglx@kernel.org, urezki@gmail.com, gor@linux.ibm.com, kernel@xen0n.name,
- will@kernel.org, x86@kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org,
- linux-s390@vger.kernel.org, loongarch@lists.linux.dev
+ <179357139104.2624073.10186400247460209292.git-patchwork-notify@kernel.org>
+Date: Sun, 01 Nov 2026 22:16:31 +0000
+References: <20260831054331.625505-1-anshuman.khandual@arm.com>
+In-Reply-To: <20260831054331.625505-1-anshuman.khandual@arm.com>
+To: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: linux-riscv@lists.infradead.org, linux-mm@kvack.org,
+ samuel.holland@sifive.com, david@kernel.org, rppt@kernel.org,
+ akpm@linux-foundation.org, ljs@kernel.org, ysato@users.sourceforge.jp,
+ dalias@libc.org, glaubitz@physik.fu-berlin.de,
+ James.Bottomley@HansenPartnership.com, deller@gmx.de, chenhuacai@kernel.org,
+ kernel@xen0n.name, linux-alpha@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+ linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org,
+ loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-openrisc@vger.kernel.org,
+ linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
+ sparclinux@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
 Hello:
 
 This series was applied to riscv/linux.git (fixes)
 by Andrew Morton <akpm@linux-foundation.org>:
 
-On Thu, 03 Sep 2026 12:28:26 +0300 you wrote:
-> Recent discussion about implementation of execmem's ROX caches on arm64
-> revealed a confusion about how set_direct_map_valid_noflush()
-> implemented on different architectures.
+On Mon, 31 Aug 2026 11:13:22 +0530 you wrote:
+> pxd_ERROR() macros have been provided by all platforms, which are very much
+> identical and can be dropped off completely if these pgtable printing could
+> be moved to callers in generic MM aka all pxd_clear_bad().
 > 
-> On arm64 it sets or clears the PTE_VALID bit marking a PTE as present or
-> not present.
+> But first cleanups and re-organizations are required in some platforms that
+> are using these macros internally. Afterwards [pte|pmd|pud|p4d|pgd]_ERROR()
+> macros have been completely dropped from the entire tree.
 > 
 > [...]
 
 Here is the summary with links:
-  - [v3,1/6] set_memory: add number of pages parameter to set_direct_map APIs
-    https://git.kernel.org/riscv/c/be7dacb9c1d4
-  - [v3,2/6] mm/vmalloc: set area's page_order after allocation succeeds
-    https://git.kernel.org/riscv/c/40702f168a9e
-  - [v3,3/6] mm/vmalloc: constify vm parameter of get_vm_area_page_order()
-    https://git.kernel.org/riscv/c/1f73dfdeb9c2
-  - [v3,4/6] mm/vmalloc: make set_area_direct_map HUGE_VMAP friendly
-    https://git.kernel.org/riscv/c/86dc0280b807
-  - [v3,5/6] mm/execmem: use VM_FLUSH_RESET_PERMS for ROX cache allocations
-    https://git.kernel.org/riscv/c/4c4b2ed5b783
-  - [v3,6/6] Revert "arch: introduce set_direct_map_valid_noflush()"
-    https://git.kernel.org/riscv/c/0e774fdb2ed6
+  - [1/8] mm: Make ptval_to_str() generally available
+    (no matching commit)
+  - [2/8] mm: Stop using pxd_ERROR()
+    https://git.kernel.org/riscv/c/0666fc9d4432
+  - [3/8] loongarch/mm: Stop using pte_ERROR()
+    https://git.kernel.org/riscv/c/ea8763ac3af7
+  - [4/8] parisc/mm: Directly use generic [pmd|pgd]_clear_bad()
+    https://git.kernel.org/riscv/c/94d6c5466d1a
+  - [5/8] sh/mm: Stop using pte_ERROR()
+    https://git.kernel.org/riscv/c/6858e42cc2bc
+  - [6/8] sh/mm: Stop using [p4d|pud|pmd]_ERROR()
+    https://git.kernel.org/riscv/c/3b225ce37f62
+  - [7/8] sh/mm: Stop using pgd_ERROR()
+    https://git.kernel.org/riscv/c/66a0441a1791
+  - [8/8] mm: Drop pxd_ERROR()
+    https://git.kernel.org/riscv/c/c970236c300f
 
 You are awesome, thank you!
 -- 
