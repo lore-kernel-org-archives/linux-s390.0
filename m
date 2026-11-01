@@ -1,54 +1,63 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.196
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793414605;
-	b=RKYi8CQkCrsstEKWJyB5iba6v++/aUYyTFx9bSvD/G2so/doW93VdGiy0MilYByiwIHf
-	 QkeSIW6JZEDkiYDb4YALQ17d8reIQ2AkDO6vWcZyPw66/oiQ6uqUBE01bNXZHQgsv9gGh
-	 ouYI1/WvKX7cgxJ8RGQ8PwALuJl+JBzk/oOEsjLM8wgjVrmgq/jHqDglRHM4njkZ36HQf
-	 kfsd7c1ZSB8KobkVAFgc432W0ahsUSpJheGUDmfwa/9lQ4uiqZGywRBqqs9si1jnJ7Il1
-	 mmQNlHBT/MoKxFxKXQ6mLLaiDCyhs5MwFQXoEwy2eRXt40c136ql25YUp1OKO+RA+RQ==
+	t=1793506634;
+	b=YqiKp+h3dWFCZ6TG9e5sizqHPKQb0XJ3SQqobV1lb4e2S2KLP29zKQAL+j//9OTRW0HO
+	 vRzS4znXXoRqpENfRdKWGYalpuq+LcP3u901oExt1sk47wr68foiQb4GfzaL706ivLl8P
+	 YNywpM5C+SpIqMBKpmf9T5GPxfQxLQXQ4AX5CxdqljmIJimKWlN5miRtJ3D8TfrTPrt7w
+	 rzDDKfzq1dUzTJVpINWbu9mNYTSrivmkSIejPKWZg/g/Yz5Uz0SkpH7BypWPklWYcAINO
+	 n+hsaTmCM6z+Be4e+Si0TFlDImmFYGiRoLhyT9bkr/DjVku11zhfavR3ys1ZscuJM8w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793414605;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:Content-Type:Mime-Version:Subject:From:
-	 In-Reply-To:Date:Cc:Content-Transfer-Encoding:Message-Id:References:
-	 To:X-Mailer;
-	bh=2ekXJ0a8Q3aeP50m9J5zFbJe2TWONi3l/1vhiVAvAmk=;
-	b=CUZNzOSAIAmuYGEj7UNk8osrW/PxQu/OLqyQKe2logHkZsxV0yg2ZIvNtzfztHraN09S
-	 KXQihZbAm/HmO9Q1b3PpvOAxfWMnqsiYahWNsWa0TNkIEMuywVI48h/dfFN+ut/SNu6cU
-	 YSsQsmVTLqXm8OmsunpW8Co8dJuQb2GYr6q1uN6o7MuwbUY0EV1w1WR/PrLapsoSEFTPn
-	 1P4ihyn/A9UZhvwVjxk2k6SCnQpPltcPoNW1G2+QxxszL/H6HCzyuzBY3DrnG2yYhGmKr
-	 0E3BEYb8nxtn+rdScE2fjWEXohj7+oRUgDuhIvtH/ozc16PXGQXTolboxzOjv3uN6JQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793506634;
+	h=Received:DKIM-Signature:X-Mailer:From:To:Cc:Subject:In-Reply-To:
+	 References:Date:Message-ID:MIME-Version:Content-Type;
+	bh=mUqu+6HsBuPxnZ0xvfhrdFnRGtvir4qjhgMAVr4T9Ko=;
+	b=TZsF4WtDpQtIBUQco5CYMqf7pyMAN2hcLnT70ccOgCAWICdFxn5dxyCiDWPciakeScyr
+	 R7r98aQtjDyr/1iC5ooNac1yADZB+JPfPbckmeRbUSrspkE8F/8YkYnjaNCLiKAI/Atmm
+	 fj8qJ6rYAG/xhW6c1Jo3X6/ChZL5/FAdwpTN19i9xXFtexMQ2f3AfW8Iw2+VIqQGIIpGF
+	 ixK8p/f/0ExwhB1SNCP42xNAL32Wm1CXiPcFHfyg9lkZbEpBb/p3afdt1iwmkVPrkqo93
+	 dXml2ExgRnbVik1lkmKbWKsZxCz2mkfAb1X7GirwLhPZBp7N1NlUi0mHkPCma8gABKA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.dev;
-	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=TnVG+t3V;
-	arc=none smtp.remote-ip=95.215.58.196
-Received: from mta1.migadu.com (out-196.mta1.migadu.com [95.215.58.196])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Szc8bvtd;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F27F606A31D
-	for <linux-s390@vger.kernel.org>; Sat, 31 Oct 2026 02:43:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5F27F606A31D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78A0C606A324;
+	Sun,  1 Nov 2026 04:17:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=TnVG+t3V
-X-Envelope-To: linux-s390@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=WsjTDowD69vaAV5c8r7Aevhgcpf9hq/Quk1PYoegTg0=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1793414600; v=1; x=1794019400;
- b=TnVG+t3VjS9fZ1tMp5GpjwAe+LVdBvZPHiltUW4cB4RrFWTGiqTMOIH/ctF97EJmz87H0ehE
- dsmGxXmOi/bko1nnb0o0vwMJHmmSLTtxBx0A91vbjeXkJ9bnHYsWZxPqfh7CchVuduqe4rFw/hd
- YwQ8Qh3h470eIxU/jjEjL/H4=
-X-Envelope-To: linux-s390@vger.kernel.org
-Received: by mta12.migadu.com with ESMTPS id dc0478d27c2ffce3;
-	Sat, 31 Oct 2026 02:43:19 +0000
-X-Mizu-Trace-ID: dc0478d27c2ffce3
-X-Migadu-Flow: FLOW_OUT
-Content-Type: text/plain;
-	charset=utf-8
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Szc8bvtd
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B3681F000C1;
+	Sun,  1 Nov 2026 04:17:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793506633;
+	bh=mUqu+6HsBuPxnZ0xvfhrdFnRGtvir4qjhgMAVr4T9Ko=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=Szc8bvtdgyfePD3Lcy+welmLY8PIM/MtSN+SWIMLPjyxSAUjFYbtzX/kg/Gk5W6ob
+	 AYPG16F5BppYWK28ekq6B4oHkbVsa+lhdlIX9kk2K7luf1zP8bvyIiQlN7cxKLefnz
+	 AoI6Ac242CTEeqI3aifav4i4kabOUAzpWrpQTkliA8ZqivaSs5YfaonNvidpfoWMJa
+	 6jPJ8xnrDXxGgY7hl5m0qHxKAk5XJempL3eDIBY50vaX+CFknAYUnPM1R+RrTcypkl
+	 ukEcKPlOK+p0kKrGynfvdOLrmP1tOsJWpENln+kYeylBrjzAxWzp/+bUv9vsW/XkIc
+	 9w+/Glq+JuypQ==
+X-Mailer: emacs 31.1 (via feedmail 11-beta-1 I)
+From: Aneesh Kumar K.V <aneesh.kumar@kernel.org>
+To: Kohei Enju <enju.kohei@fujitsu.com>
+Cc: iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
+	linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
+	x86@kernel.org
+Subject: Re: [PATCH v6 6/8] dma: swiotlb: Centralize memory-encryption pool
+ sizing
+In-Reply-To: <auR0fT1yrKQ9wbm8@FCCLS0092175.localdomain>
+References: <20260924060756.1325156-1-aneesh.kumar@kernel.org>
+ <20260924060756.1325156-7-aneesh.kumar@kernel.org>
+ <asVs3doaJ4WrT3M2@willie-the-truck> <asYZFXGyafRjjBS0@arm.com>
+ <asYiOgskwi8JYLe_@willie-the-truck> <yq5awlrt3dwo.fsf@kernel.org>
+ <yq5av77c92oo.fsf@kernel.org> <aseRzPshcoys7AJS@arm.com>
+ <yq5ao6d48dqr.fsf@kernel.org> <auR0fT1yrKQ9wbm8@FCCLS0092175.localdomain>
+Date: Sun, 01 Nov 2026 09:47:05 +0530
+Message-ID: <yq5a8q3d9oe6.fsf@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -57,276 +66,150 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3901.100.1.1.12\))
-Subject: Re: [PATCH 3/4] mm/sparse-vmemmap: drop vmemmap_can_optimize()
-From: Muchun Song <muchun.song@linux.dev>
-In-Reply-To: <sashiko-outbox-191687@kernel.org>
-Date: Sat, 31 Oct 2026 10:42:56 +0800
-Cc: Muchun Song <songmuchun@bytedance.com>,
- David Hildenbrand <david@kernel.org>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Mike Rapoport <rppt@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- Lance Yang <lance.yang@linux.dev>,
- Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>,
- Christophe Leroy <chleroy@kernel.org>,
- Ritesh Harjani <ritesh.list@gmail.com>,
- Shrikanth Hegde <sshegde@linux.ibm.com>,
- Oscar Salvador <osalvador@suse.de>,
- Qi Zheng <qi.zheng@linux.dev>,
- linux-mm@kvack.org,
- x86@kernel.org,
- linux-s390@vger.kernel.org,
- Heiko Carstens <hca@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <5841D61D-50CB-4AA9-AC72-BD6AE8033589@linux.dev>
-References: <20261030140720.1256062-1-songmuchun@bytedance.com>
- <20261030140720.1256062-4-songmuchun@bytedance.com>
- <sashiko-outbox-191687@kernel.org>
-To: sashiko-reviews@lists.linux.dev
-X-Mailer: Apple Mail (2.3901.100.1.1.12)
+MIME-Version: 1.0
+Content-Type: text/plain
 
+Kohei Enju <enju.kohei@fujitsu.com> writes:
 
-
-> On Oct 31, 2026, at 08:54, sashiko-bot@kernel.org wrote:
->=20
-> Thank you for your contribution! Sashiko AI review found 3 potential =
-issue(s) to consider:
-> - [High] mm/sparse-vmemmap: dropping vmemmap_can_optimize() bypasses =
-DAX arch config
-> - [Medium] mm/sparse-vmemmap: section_activate() stores =
-non-optimizable compound order
-> - [Low] mm/sparse-vmemmap: missing header include breaks powerpc =
-init_64.c build
-> --
->=20
-> commit 4171e4b9fc2abb84bf0e245a60563f33f94a263d
-> Author: Muchun Song <muchun.song@linux.dev>
->=20
-> mm/sparse-vmemmap: drop vmemmap_can_optimize()
->=20
-> This commit removes the DAX-specific vmemmap_can_optimize() helper =
-from
-> include/linux/mm.h and relies on section_vmemmap_optimizable() to =
-determine
-> whether a section uses vmemmap optimization.
->=20
->> diff --git a/include/linux/mm.h b/include/linux/mm.h
->> index e875f73b0c6ff..4fb48fbe712d2 100644
->> --- a/include/linux/mm.h
->> +++ b/include/linux/mm.h
->> @@ -38,7 +38,6 @@
->> #include <linux/bitops.h>
->> #include <linux/iommu-debug-pagealloc.h>
->> #include <linux/kcsan-checks.h>
->> -#include <linux/vmemmap-optimization.h>
->=20
-> [Severity: Low]
-> Does removing this include break the 64-bit PowerPC build when
-> CONFIG_SPARSEMEM_VMEMMAP=3Dy is enabled?
->=20
-> In arch/powerpc/mm/init_64.c, vmemmap_populate() calls
-> section_set_compound_order():
->=20
->    section_set_compound_order(__pfn_to_section(page_to_pfn((struct =
-page *)start)), 0);
->=20
-> Previously, arch/powerpc/mm/init_64.c got the declaration of
-> section_set_compound_order() transitively via include/linux/mm.h. =
-Without
-> including linux/vmemmap-optimization.h in arch/powerpc/mm/init_64.c,
-> compiling it will fail with an implicit function declaration error.
-
-I should include this header in the patch 2 to fix this, because I don't =
-like
-this implicit way of header file inclusion.
-
->=20
->> struct mempolicy;
->> struct anon_vma;
->> @@ -5395,42 +5394,6 @@ static inline void vmem_altmap_free(struct =
-vmem_altmap *altmap,
+> On 10/08 20:02, Aneesh Kumar K.V wrote:
+>> Catalin Marinas <catalin.marinas@arm.com> writes:
+>> 
+>> > On Thu, Oct 08, 2026 at 11:03:27AM +0530, Aneesh Kumar K.V wrote:
+>> >> Aneesh Kumar K.V <aneesh.kumar@kernel.org> writes:
+>> >> > Will Deacon <will@kernel.org> writes:
+>> >> >> On Wed, Oct 07, 2026 at 11:04:05AM +0100, Catalin Marinas wrote:
+>> >> >>> On Tue, Oct 06, 2026 at 10:49:17PM +0100, Will Deacon wrote:
+>> >> >>> > On Thu, Sep 24, 2026 at 11:37:54AM +0530, Aneesh Kumar K.V (Arm) wrote:
+>> >> >>> > > @@ -496,7 +516,8 @@ swiotlb_select_pool_policy(unsigned int flags)
+>> >> >>> > >  	if (swiotlb_force_disable)
+>> >> >>> > >  		return SWIOTLB_POOL_NONE;
+>> >> >>> > >  
+>> >> >>> > > -	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
+>> >> >>> > > +	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
+>> >> >>> > > +	    !restricted_dma_pool_present)
+>> >> >>> > >  		return SWIOTLB_POOL_CC_GUEST;
+>> >> >>> > 
+>> >> >>> > I think this check on the restricted DMA pool is too general -- the pool
+>> >> >>> > could be tied to a specific DMA-capable peripheral and so treating its
+>> >> >>> > presence as a global property isn't right.
+>> >> >>> 
+>> >> >>> I agree it's a hack but that was the simplest way to avoid the pVMs
+>> >> >>> getting a bounce buffer after this patch. More than happy to leave it
+>> >> >>> out and reduce the buffer on cmdline or we come up with some better
+>> >> >>> heuristics.
+>> >> >>
+>> >> >> Hrm, that does mean that reverting just this part will regress pVMs
+>> >> >> because they'll suddenly be allocating a tonne more memory for an
+>> >> >> entirely unused swiotlb buffer. So I think I'd prefer to drop the entire
+>> >> >> series until this has been worked out properly.
+>> >> >>
+>> >> >>> Another option could be the arch code passing another flag that it
+>> >> >>> doesn't want an encrypted pool (e.g. when running in a pKVM guest) but I
+>> >> >>> don't particularly this either. The arch code doesn't know whether
+>> >> >>> there's an alternative pool.
+>> >> >>
+>> >> >> At that point, the default size may as well be driven by the
+>> >> >> drivers/virt/coco driver.
+>> >> >>
+>> >> >>> That said, such heuristics should have been a separate patch to make it
+>> >> >>> easier to review/drop.
+>> >> >>
+>> >> >> I think the only right way to get a semi-accurate heuristic is to take
+>> >> >> into account the set of dma-capable devices that will use the swiotlb
+>> >> >> pool, but that's fiddly and should probably be tackled as a separate
+>> >> >> series. Maybe a simpler hack in that direction would be to take the
+>> >> >> SWIOTLB_POOL_CC_GUEST if _any_ device is going to use swiotlb? You'll
+>> >> >> run into the usual problem of not being able to tell if a device is
+>> >> >> DMA-capable or not, but you could probably look for a global restricted
+>> >> >> DMA pool and, if that doesn't exist, check for per-device restricted pools
+>> >> >> on dma-coherent devices (since restricted DMA isn't supported by ACPI) as
+>> >> >> a reasonable approximation.
+>> >> >
+>> >> > So, something like this?
+>> >> >
+>> >> > 	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
+>> >> > 	    swiotlb_cc_guest_needs_default_pool())
+>> >> > 		return SWIOTLB_POOL_CC_GUEST;
+>> >> >
+>> >> 
+>> >> Detecting a DMA-capable device is not straightforward, and if we get it
+>> >> wrong, we will enable SWIOTLB_POOL_CC_GUEST unnecessarily. Would the
+>> >> code below be a reasonable approximation of what you suggested?
+>> >> 
+>> >> Another option would be to make swiotlb_cc_guest_needs_default_pool() a
+>> >> weak function that architectures can override. arm64 pKVM could then use
+>> >> a different scheme (for this patch series default to false). Would that
+>> >> be preferable?
+>> >
+>> > Even the rmem check for each device is still a hack that may bite us in
+>> > the future (private devices for example would not need swiotlb). I'm
+>> > thinking more and more of leaving the sizing an arch-specific decision,
+>> > don't bother generalising it at all.
+>> >
+>> > On pKVM vs CCA guests, there's really nothing specific here to pKVM
+>> > guests. The only difference is that confidential guests that so far have
+>> > run without a swiotlb buffer will regress if their memory is tight. For
+>> > confidential guests without dedicated rmem (either CCA or pKVM), I think
+>> > our options are either command line swiotlb sizing or dynamic swiotlb.
+>> >
+>> > Could you respin your series while leaving out the generic sizing? IOW,
+>> > no x86 code generalisation. We can discuss the best strategy on sizing
+>> > later (I haven't checked how much of this series still makes sense
+>> > without the generic sizing).
+>> >
+>> 
+>> It would mostly consist of the first three cleanup patches, followed by
+>> three patches that replace the addressing_limit argument with flags.
+>> 
+>> #define SWIOTLB_VERBOSE	(1 << 0) /* verbose initialization */
+>> /* Initialize a pool for devices with limited DMA addressing. */
+>> #define SWIOTLB_INIT_ADDRESSING_LIMIT	(1 << 1)
+>> /* Initialize a pool that requires architecture remapping. */
+>> #define SWIOTLB_INIT_REMAP		(1 << 2)
+>> /* Initialize a pool for DMA to memory-encrypted host or guest memory. */
+>> #define SWIOTLB_INIT_MEM_ENCRYPT		(1 << 3)
+>> /* Initialize a pool for unaligned kmalloc bouncing. */
+>> #define SWIOTLB_INIT_KMALLOC		(1 << 4)
+>> /* Do not initialize a pool unless SWIOTLB is explicitly required. */
+>> #define SWIOTLB_INIT_DEFAULT_OFF		(1 << 5)
+>> 
+>> This results in the large change below. I'm not sure we want to do this
+>> for no real benefit other than making swiotlb_should_init() slightly
+>> easier to follow.
+>> 
+>> static bool __init swiotlb_should_init(unsigned int flags)
+>> {
+>> 	if (swiotlb_force_disable)
+>> 		return false;
+>> 
+>> 	if (swiotlb_force_bounce)
+>> 		return true;
+>> 
+>> 	if (flags & (SWIOTLB_INIT_REMAP | SWIOTLB_INIT_MEM_ENCRYPT)))
+>> 		return true;
+>> 
+>> 	/* Explicit requirements override an architecture's default opt-out. */
+>> 	if (flags & SWIOTLB_INIT_DEFAULT_OFF)
+>> 		return false;
+>> 
+>> 	return flags & (SWIOTLB_INIT_ADDRESSING_LIMIT | SWIOTLB_INIT_KMALLOC);
 >> }
->> #endif
->>=20
->> -#ifdef CONFIG_ARCH_WANT_OPTIMIZE_DAX_VMEMMAP
->> -static inline bool __vmemmap_can_optimize(struct vmem_altmap =
-*altmap,
->> -					  struct dev_pagemap *pgmap)
->> -{
->> -	unsigned long nr_pages;
->> -	unsigned long nr_vmemmap_pages;
->> -
->> -	if (!IS_ENABLED(CONFIG_VMEMMAP_OPTIMIZATION))
->> -		return false;
->> -
->> -	if (!pgmap || !is_power_of_2(sizeof(struct page)))
->> -		return false;
->> -
->> -	nr_pages =3D pgmap_vmemmap_nr(pgmap);
->> -	nr_vmemmap_pages =3D ((nr_pages * sizeof(struct page)) >> =
-PAGE_SHIFT);
->> -	/*
->> -	 * For vmemmap optimization with DAX we need minimum 2 vmemmap
->> -	 * pages. See layout diagram in =
-Documentation/mm/vmemmap_dedup.rst
->> -	 */
->> -	return !altmap && (nr_vmemmap_pages > =
-VMEMMAP_OPTIMIZATION_PAGES);
->> -}
->> -/*
->> - * If we don't have an architecture override, use the generic rule
->> - */
->> -#ifndef vmemmap_can_optimize
->> -#define vmemmap_can_optimize __vmemmap_can_optimize
->> -#endif
->> -
->> -#else
->> -static inline bool vmemmap_can_optimize(struct vmem_altmap *altmap,
->> -					   struct dev_pagemap *pgmap)
->> -{
->> -	return false;
->> -}
->> -#endif
->=20
-> [Severity: High]
-> With vmemmap_can_optimize() removed, nothing in C code checks
-> CONFIG_ARCH_WANT_OPTIMIZE_DAX_VMEMMAP anymore. Could this unintendedly
-> enable DAX vmemmap optimization on architectures that only select
-> ARCH_WANT_OPTIMIZE_HUGETLB_VMEMMAP, such as 64-bit LoongArch?
+>>  [...]
+>
+> Hi Aneesh,
+>
+> I can reproduce the CCA regression discussed in this thread:
+>   https://lore.kernel.org/all/yq5azeyxyfol.fsf@kernel.org/#t
+>
+> The guest runs out of SWIOTLB slots, causing disk I/O to fail and
+> preventing the guest from booting.
+>
+> I would like to test the fix on real CCA hardware. Could you please Cc
+> me when you respin the series? I follow LKML, but I may still miss the
+> posting by chance.
+>
 
-You are right. This patch will enable vmemmap-optimization for device =
-DAX
-on LoongArch.
+The conclusion was to either use CONFIG_SWIOTLB_DYNAMIC or swiotlb kernel command line
+option
 
-Because I plan to remove ARCH_WANT_OPTIMIZE_HUGETLB_VMEMMAP completely =
-in
-the future, so I'll add a new commit before this one to disable HVO for
-device DAX on LoongArch. It'll be easy to do this, just like patch 2 =
-does
-for PowerPC.
-
-On LoongArch, HugeTLB HVO is supported without gigantic HugeTLB pages. =
-So
-there is no users of section-based vmemmap optimization. So just =
-disabling
-vmemmap optimization in architectural vmemmap_populate() is enough.
-
->=20
-> When CONFIG_HUGETLB_PAGE_OPTIMIZE_VMEMMAP=3Dy and CONFIG_ZONE_DEVICE=3Dy=
- are
-> both enabled on 64-bit LoongArch, CONFIG_VMEMMAP_OPTIMIZATION is =
-selected.
-> In section_activate(), order is now set from pgmap->vmemmap_shift, and
-> section_vmemmap_optimizable() -> vmemmap_optimizable_order() only =
-checks
-> IS_ENABLED(CONFIG_VMEMMAP_OPTIMIZATION).
->=20
-> As a result, activating a DAX section with pgmap->vmemmap_shift >=3D
-> VMEMMAP_OPTIMIZATION_MIN_ORDER on LoongArch will map read-only shared =
-tail
-> PTEs and grab references to vmemmap_shared_tail_page via =
-vmemmap_alloc_pte().
-> However, LoongArch's vmemmap_free() in arch/loongarch/mm/init.c is an =
-empty
-> no-op stub:
->=20
->    void vmemmap_free(unsigned long start, unsigned long end, struct =
-vmem_altmap *altmap)
->    {
->    }
->=20
-> On section_deactivate(), those shared tail page references are leaked =
-and
-> the read-only PTEs remain mapped, causing subsequent section =
-activations to
-> either trigger WARN_ON_ONCE(vmemmap_optimizable_pfn(pfn)) and fail =
-with
-> -ENOMEM in vmemmap_pte_populate(), or fault in kernel mode when =
-writing to
-> struct pages through the stale read-only PTEs.
->=20
-> [ ... ]
->=20
->> diff --git a/mm/sparse-vmemmap.c b/mm/sparse-vmemmap.c
->> index 3e9d6617c4bb2..43559593107c9 100644
->> --- a/mm/sparse-vmemmap.c
->> +++ b/mm/sparse-vmemmap.c
->=20
-> [ ... ]
->=20
->> @@ -699,10 +707,9 @@ static struct page * __meminit =
-section_activate(int nid, unsigned long pfn,
->> 	struct mem_section *ms =3D __pfn_to_section(pfn);
->> 	struct mem_section_usage *usage =3D NULL;
->> 	struct page *memmap;
->> -	unsigned int order;
->> +	unsigned int order =3D pgmap ? pgmap->vmemmap_shift : 0;
->> 	int rc;
->>=20
->> -	order =3D vmemmap_can_optimize(altmap, pgmap) ? =
-pgmap->vmemmap_shift : 0;
->> 	if (nr_pages < PAGES_PER_SECTION && section_compound_order(ms))
->> 		return ERR_PTR(-EOPNOTSUPP);
->=20
-> [Severity: Medium]
-> What happens in section_activate() when pgmap->vmemmap_shift is =
-non-zero,
-> but is not actually optimizable (for example, when 0 < =
-pgmap->vmemmap_shift
-> < VMEMMAP_OPTIMIZATION_MIN_ORDER, or when !is_power_of_2(sizeof(struct =
-page)))?
-
-Even though this issue is unreachable, I'm still going to fix it since =
-it is easy.
-Something like:
-
-diff --git a/include/linux/vmemmap-optimization.h =
-b/include/linux/vmemmap-optimization.h
-index fa9e9abd6656..104f7275a49f 100644
---- a/include/linux/vmemmap-optimization.h
-+++ b/include/linux/vmemmap-optimization.h
-@@ -42,7 +42,9 @@ static inline void section_set_compound_order(struct =
-mem_section *section,
- {
-        VM_WARN_ON(section_compound_order(section) && order &&
-                   section_compound_order(section) !=3D order);
--       section->compound_page_order =3D order;
-+
-+       if (vmemmap_optimizable_order(order))
-+               section->compound_page_order =3D order;
- }
-
-
-Thanks.
-
->=20
-> Previously, order was forced to 0 when vmemmap_can_optimize() returned
-> false. Now, section_activate() passes the raw pgmap->vmemmap_shift to
-> section_set_compound_order_range(pfn, nr_pages, order).
->=20
-> Because __populate_section_memmap() only resets the order when both =
-altmap
-> and section_vmemmap_optimizable(ms) are true:
->=20
->    if (altmap && section_vmemmap_optimizable(ms))
->            section_set_compound_order(ms, 0);
->=20
-> ms->compound_page_order remains non-zero for unoptimizable non-zero =
-orders.
-> Since section_activate() checks section_compound_order(ms) rather than
-> section_vmemmap_optimizable(ms), wouldn't a subsequent partial-section
-> activation (nr_pages < PAGES_PER_SECTION) in that section be =
-erroneously
-> rejected with -EOPNOTSUPP even though vmemmap optimization was never =
-used?
->=20
-> --=20
-> Sashiko AI review =C2=B7 =
-https://sashiko.dev/#/patchset/20261030140720.1256062-1-songmuchun@bytedan=
-ce.com?part=3D3
-
+-aneesh
