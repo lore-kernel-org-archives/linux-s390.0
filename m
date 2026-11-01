@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793571349;
-	b=ZyYH4MARGNQLS+U/IbWY11/l++A8Fgh2Av7C4fn0dKsOGLMOKgsLtXjEnhZtHVQQVjGq
-	 DB7Y8OD72gkHGPBLVL02mTBgbapfFBXD4OjQt8LpY5ckpO0KWxl56ntwjib6T5YiZPSao
-	 m2X3f9kBnfxK9m2vwi45esq8hBjiK/iovV+fls8pnTG6xibNaNRWaw977OLaWb4nyPgl2
-	 6sxn6njwmPXdt9ijL8c45ksvE1kgPg1IseAKNLISf3kBrAdLsh5fP3zrkwwWHbVHvd11T
-	 p9Xy64iphEWE6kS/Ckkp7ttEA6GBSdsi1A47iu08e5NcFcVqK/o0RqY2d9Qj6ofcxeg==
+	t=1793571358;
+	b=veHfLDZGJU0MgoCpB5PsrNcLoLq2Y2PnYj0MYs3RCyPbVSw5HPn6zHMF1SJ0RpAL+p3l
+	 xRm6T/rISKcmLMThqn0s8suz+qgpyb97jeEkMiY0Hww4M4dYA31XBA6i2HXbzT6t4Q8rc
+	 80Bm5CLStEhejRfsNOB0qK+NJ7eoRpluBBWhwp0I/y3oj4SXhLEKSQ6K961oDIPiTM8CP
+	 bu8ipGDiETkUKAtlrw+FCkoh+2nmQTDTBZUoKLJ7BuiWexYaJ0x56oCz/SBvTYKW2M5j0
+	 BNHuU74Bc0uHzWcITYs4qhHIRhH7UaLownNQTF+QChsbLlIQ+B5bP72mrKt7GJkeYYA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793571349;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793571358;
 	h=Received:DKIM-Signature:Received:Content-Type:MIME-Version:
 	 Content-Transfer-Encoding:Subject:From:Message-Id:Date:References:
 	 In-Reply-To:To:Cc;
-	bh=zWjchA1R3k2PWinfdPa1bmSSkYcmsFonhHSsoHtMyf0=;
-	b=RYfm5yroD962OEJ1i2RDYgUGoCWDrHVp/iL8lyOvwkxg0KraAWDWipNLolN7zSI+N1Yy
-	 J/BggXTYJDLJojgzMAbPcniQN2zv65/q99UGxogU3v+ZpeXcXvxjyveVDw4IGDqXXuSOJ
-	 tZtiPhCzakTqNaSWYBmcZPEciw/jCXdwU5o5ka7VO4F4uyBJBPgPlU/Z2iRrJFJa/3G/k
-	 rlJw2tl5ypn2CXbBaMmJ80AbzKTjujdepQ526fu0IloFRsb7tA2LQemkyrHexIkf5o/e/
-	 IbdAZUsBWArhyM0qvZb9SFlB63qSIAPT5RFKP61nHMwSmAiqHgjP0Ewx1kk32kwtMFQ==
+	bh=22yhHEiHUWVm81OxkB+6UNZ5/HC7Jn4HF5eln+k49OY=;
+	b=K8EcHu6lVqonfolAhZwajlCpfHKnOWLpTdx+8cnsx6DwP/WmXhIpjngGUCtFxo/grNxy
+	 wDylyBCRZoU2tCI4jdaEkOpE8sTpJ4DKCfW4RTMbzUrA8Y5t2qLv9CBOti1fvdQeohIoq
+	 EFVmT5GlSzOT8UpVUoD6h7oITLDJu7hACScJYUl3CrAoQ3HXaua+X5zS991BZggtMQtSx
+	 gW5D47JwnwMfLfFhoTH2FFukBFHYuXkfNR1P/RoJXe5h+0pqGmg5YUUISHwF91gqLjdHr
+	 D0pDeqwy8M/ZFoMRwrWIm4jtJsi6zKgbzpe6H6xrwsjpsURIlHqVs+Nbg7ITtCi14Xg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YLtzwK85;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AXmvtNOq;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05E45606A32E;
-	Sun,  1 Nov 2026 22:15:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BACD760A262D;
+	Sun,  1 Nov 2026 22:15:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YLtzwK85
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8672C1F000C1;
-	Sun,  1 Nov 2026 22:15:48 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AXmvtNOq
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BEAA1F01578;
+	Sun,  1 Nov 2026 22:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793571348;
-	bh=zWjchA1R3k2PWinfdPa1bmSSkYcmsFonhHSsoHtMyf0=;
+	s=k20260515; t=1793571357;
+	bh=22yhHEiHUWVm81OxkB+6UNZ5/HC7Jn4HF5eln+k49OY=;
 	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=YLtzwK85l4hGxLyA70UvP4j1W3M7aK0AnO65y/AzsiFBwFu+o+am4lM03VbtHtJ5K
-	 SS29sY8vrSYrA6jdvWzfwe5K90LxJtzoHxZZu0mTSUAvpZkN1PYLCGRsEs6UgYx0aB
-	 97oKuIhcSNLzzTU7IsY2JDbPwHgALU8UUMTUIacoZU37AQpC6KtulGbzQ30fh/1Pj7
-	 439Gr0UJypJlNRfMtvA0ZTTdkqVe4hPq7HarsqK8Usmvu9Wk0QYv2Bnam4S5juFWnH
-	 d/jArMh+zoyROvtkvZe5ytr6PBXG3TqNVsxhJFaqiJVBj+Botefdp40TKRHbDajTSy
-	 ztyxsj6TJTA0w==
+	b=AXmvtNOqtLjopWWCQdkY1kf58r2tsshOv49SBa++XWevEZbozepPlSlFvrN1dcXpb
+	 9cANlomEUPj0ZBiZL28+j2QgAXsMv3s2laIiduoGI+ce38Y8h1u9SB0tbHS5wH5wGm
+	 +MC9Oi6Swj6nPVmYgaYL1CAKQ9ojJ66d0jdnEvjYS8ncAFvCnZtFlP7tikcjqtWDG5
+	 Nh59YfDcc4DI14trFqfgqkMwwd0YKiYIlqlolp6obAZrN5CV473iUawTOR6ZCcdra9
+	 V8ouXGtGQ2ZtYTopFX4ZriYxCryYodGD8Ier/J+MdgFsg9Z8lfVl/h7OVFyYY5TBQC
+	 LvCqYqw3qq3fA==
 Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7D5C738003B8;
-	Sun,  1 Nov 2026 22:15:48 +0000 (UTC)
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7D5B538003B8;
+	Sun,  1 Nov 2026 22:15:57 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -54,70 +54,90 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH 00/15] vdso: Clean up the vsyscall.h headers
+Subject: Re: [PATCH v5 00/12] mm: make userland page table freeing RCU-safe
 From: patchwork-bot+linux-riscv@kernel.org
 Message-Id: 
- <179357134704.2624073.7289302544673229273.git-patchwork-notify@kernel.org>
-Date: Sun, 01 Nov 2026 22:15:47 +0000
-References: 
- <20260909-vdso-asm-generic-vsyscall-h-v1-0-63ae856cc659@linutronix.de>
-In-Reply-To: 
- <20260909-vdso-asm-generic-vsyscall-h-v1-0-63ae856cc659@linutronix.de>
-To: =?utf-8?q?Thomas_Wei=C3=9Fschuh_=3Cthomas=2Eweissschuh=40linutronix=2Ede=3E?=@aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org
-Cc: linux-riscv@lists.infradead.org, luto@kernel.org, tglx@kernel.org,
- vincenzo.frascino@arm.com, linux-kernel@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-arch@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
- linux-mips@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- sparclinux@vger.kernel.org
+ <179357135604.2624073.12750471724213497880.git-patchwork-notify@kernel.org>
+Date: Sun, 01 Nov 2026 22:15:56 +0000
+References: <20260925-rcu-pagetable-freeing-v5-0-31e91065fea4@kernel.org>
+In-Reply-To: <20260925-rcu-pagetable-freeing-v5-0-31e91065fea4@kernel.org>
+To: Lorenzo Stoakes (ARM) <ljs@kernel.org>
+Cc: linux-riscv@lists.infradead.org, akpm@linux-foundation.org,
+ david@kernel.org, ziy@nvidia.com, baolin.wang@linux.alibaba.com,
+ liam@infradead.org, nico.pache@linux.dev, ryan.roberts@arm.com,
+ dev.jain@arm.com, baohua@kernel.org, lance.yang@linux.dev,
+ usama.arif@linux.dev, kas@kernel.org, guoren@kernel.org, bcain@kernel.org,
+ geert@linux-m68k.org, dinguyen@kernel.org, schuster.simon@siemens-energy.com,
+ jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com,
+ dalias@libc.org, glaubitz@physik.fu-berlin.de, pjw@kernel.org,
+ palmer@dabbelt.com, aou@eecs.berkeley.edu, alex@ghiti.fr,
+ linux@armlinux.org.uk, vgupta@kernel.org, monstr@monstr.eu, chris@zankel.net,
+ jcmvbkbc@gmail.com, will@kernel.org, aneesh.kumar@kernel.org,
+ npiggin@gmail.com, peterz@infradead.org, davem@davemloft.net,
+ andreas@gaisler.com, richard.henderson@linaro.org, mattst88@gmail.com,
+ linmag7@gmail.com, catalin.marinas@arm.com, mark.rutland@arm.com,
+ chenhuacai@kernel.org, kernel@xen0n.name, tsbogend@alpha.franken.de,
+ James.Bottomley@HansenPartnership.com, deller@gmx.de, maddy@linux.ibm.com,
+ mpe@ellerman.id.au, chleroy@kernel.org, hca@linux.ibm.com, gor@linux.ibm.com,
+ agordeev@linux.ibm.com, borntraeger@linux.ibm.com, svens@linux.ibm.com,
+ richard@nod.at, anton.ivanov@cambridgegreys.com, johannes@sipsolutions.net,
+ tglx@kernel.org, mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+ x86@kernel.org, hpa@zytor.com, arnd@arndb.de, vbabka@kernel.org,
+ rppt@kernel.org, surenb@google.com, mhocko@suse.com, jgg@ziepe.ca,
+ jhubbard@nvidia.com, peterx@redhat.com, ysato@users.sourceforge.jp,
+ shakeel.butt@linux.dev, corbet@lwn.net, rdunlap@infradead.org,
+ linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-csky@vger.kernel.org,
+ linux-hexagon@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-openrisc@vger.kernel.org, linux-sh@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-snps-arc@lists.infradead.org,
+ linux-arch@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-alpha@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+ linux-um@lists.infradead.org, hughd@google.com, qi.zheng@linux.dev,
+ linux-doc@vger.kernel.org, gerg@linux-m68k.org
 
 Hello:
 
 This series was applied to riscv/linux.git (fixes)
-by Thomas Gleixner <tglx@kernel.org>:
+by Andrew Morton <akpm@linux-foundation.org>:
 
-On Wed, 09 Sep 2026 10:51:13 +0200 you wrote:
-> The vsyscall.h headers are a mess. Some of that was necessary back when
-> some architectures where not using the generic vDSO infrastructure.
-> Now that this is not necessary anymore, the headers can be cleaned up
-> and many of the can be deleted altogether.
+On Fri, 25 Sep 2026 21:09:35 +0100 you wrote:
+> The majority of architectures in the kernel defer page table freeing until
+> an RCU grace period has elapsed, this series converts all remaining
+> architectures to do so too and eliminates CONFIG_MMU_GATHER_RCU_TABLE_FREE
+> altogether.
 > 
-> The recipient list is trimmed to only the vDSO maintainers and the
-> architecture lists.
+> This is important because it enables safe lockless page table walking under
+> RCU alone.
 > 
 > [...]
 
 Here is the summary with links:
-  - [01/15] vdso: Move the kernel-side time update helpers to a new header
-    https://git.kernel.org/riscv/c/35f0a96848a7
-  - [02/15] vdso/gettimeofday: Define fallback __arch_get_vdso_u_time_data() in gettimeofday.c
-    https://git.kernel.org/riscv/c/4fba7bb3e73a
-  - [03/15] vdso/getrandom: Define fallback __arch_get_vdso_u_rng_data() in getrandom.c
-    https://git.kernel.org/riscv/c/ca0da001d3cf
-  - [04/15] vdso/vsyscall: Define fallback time synchronization functions in vsyscall.c
-    https://git.kernel.org/riscv/c/e4eeeaa14d8d
-  - [05/15] vdso: Delete asm-generic/vdso/vsyscall.h
-    https://git.kernel.org/riscv/c/8579b901d150
-  - [06/15] x86/vdso: Move vDSO page definitions to asm/vdso.h
-    https://git.kernel.org/riscv/c/8051a0f482e6
-  - [07/15] sparc/vdso: Move __VDSO_PAGES to asm/vdso.h
-    https://git.kernel.org/riscv/c/782478555fc6
-  - [08/15] s390/vdso: Delete asm/vdso/vsyscall.h inclusions
-    https://git.kernel.org/riscv/c/d5b1dadd2ef0
-  - [09/15] sparc/vdso: Delete asm/vdso/vsyscall.h inclusion
-    https://git.kernel.org/riscv/c/cc729f844815
-  - [10/15] x86/vdso: Delete asm/vdso/vsyscall.h inclusions
-    https://git.kernel.org/riscv/c/3086b69ee00f
-  - [11/15] arm64/vdso: Delete asm/vdso/vsyscall.h inclusions
-    https://git.kernel.org/riscv/c/128b1c7d3ac8
-  - [12/15] riscv/hwprobe: Include vdso/datapage.h
-    https://git.kernel.org/riscv/c/0d10af5db481
-  - [13/15] vdso: Remove unnecessary vdso/vsyscall.h includes
-    https://git.kernel.org/riscv/c/d6df494a0135
-  - [14/15] vdso: Add asm-generic/vdso/vsyscall.h
-    https://git.kernel.org/riscv/c/996b01393e93
-  - [15/15] vdso: Remove __ASSEMBLER__ guards from vsyscall.h
-    https://git.kernel.org/riscv/c/9e61cabcce2b
+  - [v5,01/12] mm/khugepaged: deposit a newly allocated page table on collapse
+    https://git.kernel.org/riscv/c/eb823057e092
+  - [v5,02/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for most 2-level architectures
+    https://git.kernel.org/riscv/c/d22254fd57f0
+  - [v5,03/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU riscv
+    https://git.kernel.org/riscv/c/5ae75414416f
+  - [v5,04/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for MMU arm
+    https://git.kernel.org/riscv/c/8e645d98fb78
+  - [v5,05/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for arc, microblaze, xtensa
+    https://git.kernel.org/riscv/c/799bd3c4be5f
+  - [v5,06/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for sparc64
+    https://git.kernel.org/riscv/c/461a24a81215
+  - [v5,07/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for m68k-coldfire
+    https://git.kernel.org/riscv/c/ccdaaf591664
+  - [v5,08/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for sh-X2
+    https://git.kernel.org/riscv/c/a72df945113a
+  - [v5,09/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for m68k-motorola
+    https://git.kernel.org/riscv/c/0f5cbeebe00e
+  - [v5,10/12] mm: enable MMU_GATHER_RCU_TABLE_FREE for sparc32
+    https://git.kernel.org/riscv/c/35dd856770f3
+  - [v5,11/12] mm: userland pgtable freeing is RCU-safe now, remove leftover bits
+    https://git.kernel.org/riscv/c/35e340a47888
+  - [v5,12/12] mm: change the contract for free_pgtables(), update docs
+    https://git.kernel.org/riscv/c/a5c0a39d0e57
 
 You are awesome, thank you!
 -- 
