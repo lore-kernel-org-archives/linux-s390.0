@@ -1,13 +1,13 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.196.22
 ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793560932;
-	b=EBUwqigKRISzbCCRaR29ZswwD3ED0AfvYm0y8guBgI412afdoSEj3e30P/fqt/D33rXU
-	 jFtx9HxM7Ili9KwTmzt9GBmMnYKF+lfRi5UUyCeKj5ij/rORH9+ixof9EWX06EM+Xdu0H
-	 8lAGHMQhXewYETinl1obRebNFENn/lVO7utUUFmvsDJeAq4zZx0JnX3bYmDcg2IsCGDB0
-	 EF8u8zOP3UiuNZI17zNNJPiiZ0wXB5C4G7UjOcbp0ppZei5ltokQfwGV3G3TUOByrBctU
-	 WbPoXPWPi4gdwE3IQd2KDmI+c2/o7Arn8lyOW4Xt3ulVaW9QDpN4xCqHSh0ZbVN/RaQ==
+	t=1793560934;
+	b=twyFUNJ8KQcg0FPpjHGbiIW/NN0p5TRdCl1Dd5HFYjU85GncmS4Fw6jjUvTwxowNPSaE
+	 KyM2uFB986lnynEYBtYbXf2HZUkB9fVNcT7Y5n9kuxjx+cDwoevXfNxkzRcoUWHxAmdI3
+	 t+I8Nkeg4eUIjHTopMOtPoZGysXogBcKpJSpteyj2PtC9L2QsGxOGbwvVgil6BZqtQwKc
+	 ynxweoR0FSDC0oEn/xNqgx1LYsoLIjjy3SuKtfObXqKxcXW8shvdJMtcuoF7KaeGAHfl8
+	 CEDcxgAN5jNtCcHJv+Dv4TlYh0RY6KlNlop7nGWyMucSaIaxYkrAMOVLw+y0Y4Z+ZJg==
 ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793560932;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793560934;
 	h=DMARC-Filter:DKIM-Signature:Received:Received:From:To:Cc:Subject:
 	 Date:Message-ID:X-Mailer:In-Reply-To:References:
 	 Content-Transfer-Encoding:Content-Type:X-ClientProxiedBy:MIME-Version:
@@ -24,54 +24,54 @@ ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
 	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
 	 X-MS-Exchange-CrossTenant-UserPrincipalName:
 	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=/7YB5m627xJTh/Ih3HR4uLHG0eyhSXyYzQgkF79lAjY=;
-	b=F7QwaRkEL0L9481I6qm4qGf3FqK4MAYDbOLoKTY3VZijisTlwPd9TStTTowzXcgVR0yL
-	 2+QHolpiJdVk06Xb2xUE6R6/9xF4AfId7UV/tXhEcIe+Ik/tbpxfSxYN/yRRaOM+c88BZ
-	 tjSWO0bROWPZlUf7NA5zvdh4ElUhL+Osb8qt2Mbxy9mGuoR415o9ssKGCLfQgfrjmZNHY
-	 fGyawsC3xevGHtjoG+nUwhUA/fxlObrlNzQm6HDL3jzw5uL54YBMxxwj+IZdwURaXZ1+x
-	 4HjY5Z6q0CbYh7Rat/KiWrKCi4vNIBcCdhw2m5rrdZUBPkPtbL/N4Hq41NRrYb0z/vg==
+	bh=V7FMoZ7htv8VTgR/QP/XVQAnhbcR4Mx7ycM6RFQcfVY=;
+	b=bFQigA4jW76P1b4KjTI32UlZ2ICL+jzOz+jhPlarVbbN+hG58zP/NCGmYUgGbWpRo9yV
+	 Y5jXarJMivKM7QkZV/0gMv2k/XaKCqg2yUOpfDcAujPay9FKRJolbCAb/AKmtKgZ7O76N
+	 dgcl6lpCmI0bcV3oqp1VX29b/svPixLzb15l/QT9e9pF0c/6sBj8euJpDhylMW2iMy+pA
+	 fjpqUq9Vnz1oKqprE53MGtw4W8BVEWlU6ralNIqgn5FpWzixV4SAT7tFa4pIUdMkNFhXn
+	 YnyrcMUoK0v+lAEGiWehIuWBhe/J02jTN2vUvDeKp+Kz+1PHxG6yhHS1bkLg5o/XDCA==
 ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=nvidia.com;
 	spf=fail smtp.mailfrom=nvidia.com;
-	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Y7qCjCb3;
+	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=uROkSiU7;
 	arc=pass header.oldest-pass=0 smtp.remote-ip=40.93.196.22
 Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11013022.outbound.protection.outlook.com [40.93.196.22])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D619606A32F;
-	Sun,  1 Nov 2026 19:22:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4D619606A32F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED162606A324;
+	Sun,  1 Nov 2026 19:22:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ED162606A324
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Y7qCjCb3
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=uROkSiU7
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=BmBL1PcrK9GqjGEr81L/6OboRTc0oK6ektpfNgM7wZk/yQ9QeE+MgFmb4vfQbv/5nPdqtUtS9dFkwYoL2lQ+yIlXDoPxfYJIJvgCXKYj8ThfOsHBsj822+QVfHoajI08l4wgqkrARWaU3Zjqlzh1KLomW4/oAlE0hFdgIgBXP5OD+a4noFElmBlMVU0egkG55kwiRSJ7cpSFrQVSKssgQ5vpGEdShe8mGeqpYRFNVRCe6PPxSndcnnkapSthSqe+SyBUcZYZp5FoSg+XNIG734PgHwaPdWtjNPCRSAMe3+7Y76zmeRMuqTiw93Uy6+z/ov+uNTPik+pl3uwsgxTeUw==
+ b=M0aG17xIU1oZ4NSTXDmV4EqVbvtQtieZPqgpl95BBBbrQHWZYC49EZ2rS3NcGQk7kOmdzwy4p/w3AHVUVD7ckq/jtqwcG3S/DPLA0XiHePTloaPvtsDMtsG0K/RVqVGX6uM6ac3kWfEhOlvpENIJfDwY43W2DMAv00QXalqEDMVtvmpY5NthsZylA7fyz0kEieJdOQqMTh+/iiXiPsWS/qWeqmyopGvaBqT5XpRXBnKicnG3osuc63TdsAUXRvL6pfhGskuzXx0/UGTK8ghk2GTJHVDZ+FTz6F/CzFfKnFdCnlAB/8gYFsnAQqLtegzBiSAKF85ANR+y02dAxGa+Jw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=/7YB5m627xJTh/Ih3HR4uLHG0eyhSXyYzQgkF79lAjY=;
- b=jNJZus6jydxeQZffeIOd5Ul7awQ5vqu9egP29rezOXsiwwBrV0QACbFHRjXUXglGgBFdZIwGuzUmfDHh5x8zPCcM/YPursfqu+WkpA8m6uhJeTTbRqMwY5s9UImBKHbixUdLLOl1DPmYMo5Uk73pCZNob5lVmg+d3nHCD6RctEk731DwGjnNZ1LTr/HlDqOoM9iX40bIa5fUjrL//yn1rqv5eWDI4N/taEwOtTDU/kiBuseYY1isjWD51azl8TVrituees+D0yIHR8mcixv4EmqH/1viBl3ss713cUy6XGiVFmMsI/MvU2LGst2vMoj1fQhKvP9PBfWlzf6shzhViw==
+ bh=V7FMoZ7htv8VTgR/QP/XVQAnhbcR4Mx7ycM6RFQcfVY=;
+ b=Dhgw2ePk1A3RzVDKYrjpsWa2PsspXO8ah7rjjQdv6Yq24TINLexymlYUwMD+g+Dp8dvPfX2V6l07mpiObm1m9oDAj7X7rEvVrWd1FFoHv65ZkCcarc87oMQzFPuD/GGqUzML2bSfa50FHGmOZ+nwPkieIv/F7PzZXRuHaVCAX82FNvppXLwTiZIlqE3xoMVxI7t9kXCe2X0oUV26z3lC3wBX9PStxN91NlkZvvP7naIL20xpWoA597zq0qgP6pFa2SSh3/g3rxFmEZOPex4c8PKUN2r1ym5JB+8BHd1sS1MZEWsGMDmJVtOF1x5BWnOOaXrSpSvM5JylRv32G6lxyw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/7YB5m627xJTh/Ih3HR4uLHG0eyhSXyYzQgkF79lAjY=;
- b=Y7qCjCb3qrEZowdU0yDP56Em7GJXLSmuCBUPaaVVOZIPLMqCQG6C5KMI2Qpa2m8fuFrp5sevEmjQ+WsPMMk3G9FugZyiRlIsvbseSN40ctnRqw+H7wubvB3CkRIy0M62ptK36FuQ9HkQabGfiBRjQDbFoDd+o6EV6NrTeyQRFFoinbh4xe610qKBC7DCxBS7j3ZbpZmFksgt8+MZlPUv3pEULSb62lGFMb2ybiPAGlFhIjuEkXos7pdzOm/5w/fT9lYdAZkootd4TbzNvQ4aR8/+Ub1eH8Im9nmg5n7XE+MK4VGee5QBbTGYXD1ygo/xsWXLK842fZE4SoqXBy7vPA==
+ bh=V7FMoZ7htv8VTgR/QP/XVQAnhbcR4Mx7ycM6RFQcfVY=;
+ b=uROkSiU7zDm2lNsGdsVZPCxzZrhFlmfnej+Yz8uDCvZyh2ZkuOSq+Ig2uuWRLDZNkQNXyVV1omzazQrhJmgqLmXax7yT47Zd1kt1fuyUwZv7Afyhsf0S0JuhnHMM+St/TC4cDFgiSjmCo48o3dQIe3HdYVF5hrize9uWC+T7CSDAsmKmFVpsqk1I9ustq1u7j1JN/8WrQU0ZB5T61QpS/i3Z8WfFxlKbKCd5aKR1LpIx6pnxM6vL9qlOVEscJKHtGkPMPYm7wQtJEQytQu/DDm2pZ+rB/EPM9XILw/RdmXeOcRTkWcnl9gJNdmvl4CeVopkT8sPQnLoHyD3tn1mfCQ==
 Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from LV3PR12MB9356.namprd12.prod.outlook.com (2603:10b6:408:20c::21)
  by PH7PR12MB5830.namprd12.prod.outlook.com (2603:10b6:510:1d5::15) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.569.12; Sun, 1 Nov
- 2026 19:22:07 +0000
+ 2026 19:22:10 +0000
 Received: from LV3PR12MB9356.namprd12.prod.outlook.com
  ([fe80::1c36:31b4:c420:6286]) by LV3PR12MB9356.namprd12.prod.outlook.com
  ([fe80::1c36:31b4:c420:6286%5]) with mapi id 15.21.0569.011; Sun, 1 Nov 2026
- 19:22:07 +0000
+ 19:22:10 +0000
 From: Yury Norov <ynorov@nvidia.com>
 To: Peter Zijlstra <peterz@infradead.org>,
 	Ingo Molnar <mingo@redhat.com>,
@@ -106,16 +106,16 @@ Cc: Yury Norov <ynorov@nvidia.com>,
 	linux-doc@vger.kernel.org,
 	driver-core@lists.linux.dev,
 	linux-s390@vger.kernel.org
-Subject: [PATCH 1/6] sched: decouple PREFERRED_CPU from PARAVIRT in Kconfig.preempt
-Date: Sun,  1 Nov 2026 14:21:57 -0500
-Message-ID: <20261101192203.6979-2-ynorov@nvidia.com>
+Subject: [PATCH 3/6] sched: Restore preferred CPUs when hotplug removes the last one
+Date: Sun,  1 Nov 2026 14:21:59 -0500
+Message-ID: <20261101192203.6979-4-ynorov@nvidia.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261101192203.6979-1-ynorov@nvidia.com>
 References: <20261101192203.6979-1-ynorov@nvidia.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: BN9PR03CA0437.namprd03.prod.outlook.com
- (2603:10b6:408:113::22) To LV3PR12MB9356.namprd12.prod.outlook.com
+X-ClientProxiedBy: BN9PR03CA0762.namprd03.prod.outlook.com
+ (2603:10b6:408:13a::17) To LV3PR12MB9356.namprd12.prod.outlook.com
  (2603:10b6:408:20c::21)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -128,132 +128,97 @@ Precedence: list
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: LV3PR12MB9356:EE_|PH7PR12MB5830:EE_
-X-MS-Office365-Filtering-Correlation-Id: 36cf8ff4-94de-4041-c99b-08df384d6b3f
+X-MS-Office365-Filtering-Correlation-Id: c8d544dd-a091-4728-fd6a-08df384d6cd5
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|10070799003|1800799024|366016|376014|7416014|261021130227099003|261021123027099003|261021121427099003|261021133027099003|261021135927099003|261022115727099003|261022113327099003|261022105027099003|261022075727099003|261009223027099003|261026130827099003|261026140227099003|261026121527099003|261026135527099003|261028144727099003|11063799006|10067099003|56012099006|260925022911599003|260925021911599003|260925021311599003|22082099003|18002099003|6133799003;
+	BCL:0;ARA:13230040|23010399003|10070799003|1800799024|366016|376014|7416014|261021121427099003|261022105027099003|261022075727099003|261026140227099003|261028144727099003|11063799006|10067099003|56012099006|22082099003|18002099003;
 X-Microsoft-Antispam-Message-Info:
-	SMk95LXgq/qh52GPE6UTfa65HhjrfsrVNtp8HkpATFWBTmBjz73LxP5Iuc0nMQBKzREbZejVE3zFBGThqxJiwD5niDRdbz72Ei54OqUx/fcQoypBlwX+f2Oe3+WwMwbztsFZ3uwIIvn9iEeILl4PB4lPbjslCL7divjCN5RXHT+6IVyzhhJ4qVOryPdKZW2f4b1OSW/lfZN8M3vBEb223NaCXnHDuLljMs1LiJKWICLwhAIUT8gu92eGAf91yXuQLfFRqcOWLTnzRPcqWG0cdmWkC4ey+o/yJRAZ9V+CxuGdpXKjevWeAk3+dtXbum5w01iswzmM1ydTq65pNXzlMVKb/yQEXHQ4gycK9BmDUebG9SA4L7+4gDVtiuI0YY6lLwT1QQ7VUyZ20DqRBvNxrGbB60CPIMlbEt21pzAVmCGIJ/vf15FI/jlyrnfcgVjploZro/y+Gz6JvZkWTHSTqOehcJBVQRQWal8aev/tHfzYWZv9G0mfRvX+DUfhrEybkfhWBZSQylKGwfz4rKZo2bcUioiZsK/z7xKIBhJV0qlZReX/m9o33Fp0DAMejcsGrAeuzR7L9DEi78GE9uudUrHsphyh1hXlMOGlKVmE4c5NjLlqoufdvZnxyvVLMT4uvFM7vV2maoeBGfBTk+XE7XjnZCSOHHG/HokXbVeQnPc=
+	57hVIQVPC7p3f+h/uRTNuaR7UGxcHQGVIAbT+F6fY6YDrwefdEd5nUZwjKL43wYv3JKcwZqS4OY2d7ufHxdCfvchKILq6ZzuGOQv55E7x4LX8JA7z4S9rpWy9tN88DhUbSWnsajDUjVYsZCB4aWsZyVwzfUdhFhbjSWWG6CjwyQ9qy3jJVdnWl0UpCE35pZDO/GQ+T2d+oWncg5hTSm3GRorfR9OuSBwPcqr2DPhhmHxMSEc0sJxT0zuTmh/Q7kzvvp3DaI4bvqPR6QCssAie25YJJugom7P9YrGlSmRjpgErK6VPjKm4bX0FCoJX2GNr1/IXsTq8EwMefYyAgDgPeL8Bsff2/npPfpDhc1DOXr1bSvPs+/oePdeobLU2F1fja2ZULCiSNgbsHHHpx8oie1KWlDhPxq3fbqk7188TFfzgp6TjFckcJVDdaQfe+xF/mOpAZCMR3SgRMvy8baVqbcBk4M9KPiDCWpHvrLjCXGNziRTGPxnoYk7ZA+dLmsNSeuz33VxulBeMsIVSr08khHL1EUkTtsozyxC5s4u5F5SIuxK6ZPFvVMlgMadBgz4L6T5bo50nas4TiQnp5dIWm7YBgMeXneyF2X1MmWpLmLqH+kphyJFiaHzqZBN32cirl64eQVy1yADgIjAxuXgtGKL7UzXzwCbZYaU558pS4g=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9356.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(10070799003)(1800799024)(366016)(376014)(7416014)(261021130227099003)(261021123027099003)(261021121427099003)(261021133027099003)(261021135927099003)(261022115727099003)(261022113327099003)(261022105027099003)(261022075727099003)(261009223027099003)(261026130827099003)(261026140227099003)(261026121527099003)(261026135527099003)(261028144727099003)(11063799006)(10067099003)(56012099006)(260925022911599003)(260925021911599003)(260925021311599003)(22082099003)(18002099003)(6133799003);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9356.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(10070799003)(1800799024)(366016)(376014)(7416014)(261021121427099003)(261022105027099003)(261022075727099003)(261026140227099003)(261028144727099003)(11063799006)(10067099003)(56012099006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?Dmw9HI8y0w2gJI2ZOqtF5qwhQLZ+DAs2nvagXKlmSr39HTT+/ZeiFcjonxN8?=
- =?us-ascii?Q?9lI545r4G3oAz7SjBP5jOjZ6nN+Qrbv9GS2YOceVWnLHISbpuJUTHaZNUiUd?=
- =?us-ascii?Q?pT3Gb8oZ2bejcLG0ocWg+j+Ab8R9zq2O2d2pnzBs0zJULzaHcT6XNXW3NhQI?=
- =?us-ascii?Q?7x3GG4Ufp5dBUpmrIJzd783yLrnhegjp50OhcpjBauJUBMM8B1XoKn+MaL22?=
- =?us-ascii?Q?cu/DG82q+/UrAqV72AzQ+QX5bYSE8Wj2TlvcYnH4HCllEoMFVpjNICwDmzs7?=
- =?us-ascii?Q?rBVnuEkOaiJBJDRaTe8uEiupUVrVVrXYGHCCViVCMoVioUl83A8M8Axsv23q?=
- =?us-ascii?Q?bje/NSq8sjw4p/H4SQta3hBqP1/dmDqNMKdEISGmzu+jQ4rRIHl9Owf4ekuI?=
- =?us-ascii?Q?thIWxg1YliveSzwgFkaFrQ0ZkL2h+KuJHiK9aKF3M64qTiFChUhXiDegAmO5?=
- =?us-ascii?Q?6EwXzHsh8DEJqJpgsCYRh8XpVDgRj1Llo7UjXJzvKGVgHs62JOsJkHfXgr6T?=
- =?us-ascii?Q?lvd0DQt6xJhlNf7jgn0iQDwAV/ScBzlC2qMgRa3pNQl84XyuaSDvO+LO/mux?=
- =?us-ascii?Q?AvvJcbGUlBCMFUZTJN7b8XxHJyVTVYNHC3xgRT4JD2Bj4jW6ZHm/Z+fuL/kU?=
- =?us-ascii?Q?xJcNFignmMLxZQPsJONxcXN004gDRQizW6RxWn1ZLodFe6Y47nM+PABvyzXq?=
- =?us-ascii?Q?qaAj/BPl0CP1brcuaH89KTDlajeg09RFO8LU5ZGGiC8MGQh4I3w7BLyzjpPq?=
- =?us-ascii?Q?jhdvqWXo+Lasm8VxhwMMD4wH3ot1VvaFnsdTHXXotOS0kTjAzoydBA8p0uCG?=
- =?us-ascii?Q?yjIhAN3uXoMEXFbfRkFcMXhuGdX/89OzXl/uywA9DEWTFQ2rYaQDXSxC3QTV?=
- =?us-ascii?Q?/plZHAjN5pHm0Kul8X1LB9NaS9sDpGst06dVgRMIEdRNURqnHvJi8yvY97og?=
- =?us-ascii?Q?DdK7pVDvalY3Rvq6jYmP9+9+mzWf7Y9L/65VjSzU+vXmv1h8YF6DCpAnNAhr?=
- =?us-ascii?Q?A8yOS9Du93imKWnw4V+zdV/NnrvIDir+WKOEOXwcDb+8MMKZB3PRG9Y15qpS?=
- =?us-ascii?Q?pLeuvdsefD1zOd9oKkd0bYbje5ntf609GlXw/WSsnuReasEnBgcyXCFdSzAv?=
- =?us-ascii?Q?snzDZgOqYP6ZvtdkRaGaws/sYBKO7p+dY5rUNICa4uIATWhaA1BcjGsKrzAI?=
- =?us-ascii?Q?BssZA/69FXoP23ZmKRtUHptAh+n4SxczDALqM6rCdc9NPsLh4vs5H8BuJwZ3?=
- =?us-ascii?Q?XjHNfHeGKBsufd73gy8FIntF0xW13bFhHOOwL7WJIjNJ9NF4Y2mFFlgJPL3i?=
- =?us-ascii?Q?AQxVWdegkInhXEIRvwcxtlkBomIfrAyyg5AK35FdXtnHIV77VcyDLT8M32Tn?=
- =?us-ascii?Q?8d/aiV4gz1hN/DDhHKHBQQwBeh76T4lApPYuW12MekEvS2ajpqPDdUZ/IrZM?=
- =?us-ascii?Q?m8tqKfgh1+xkvbe4oGEnRtcxxqrI+cxPP2SmG53I3LfmhsstPAXEwVNAK8Wz?=
- =?us-ascii?Q?KUTMx/tU5kVDV1x0QHKLMkkiD3jyVLKnM0rjyDGaSwhOnun9EuimqDu6A84T?=
- =?us-ascii?Q?oqh708ftgJV2LBuZE7OaL7Zs+KRF7JQz6IxpxZwhTykKPhnr0bAcbrk3Rmb0?=
- =?us-ascii?Q?agBzFPvsG7N5Vr2+X8pwYceugwgMINFnv6x+1ydjPYTN+btkhY3zhxsToemB?=
- =?us-ascii?Q?xpIhogaX5jwUhNhkAus7r7y0nKM6it91G7Q9j9QeuGaeJYPgRt9lziNjzvZE?=
- =?us-ascii?Q?9vSf7/8yb+3mP09tcAka2fno3GtmD+MxF1azMeoLMSAj/O8BGscp?=
+	=?us-ascii?Q?92hYwLZ/kZp3I0rccl2CKP8rZRhx/4RwTOvqZC3ixFm0t2urdwuSV/YWymkJ?=
+ =?us-ascii?Q?ml4mzY6nk00IomN5pioa45wn172zpO6jxB1oo1DIoFdS9x6bWfsSJ8h2snB1?=
+ =?us-ascii?Q?134Ueugz8rttbkElDgcvlHkQIMsJbTHsuQmCycbE7zTx7r958mooH8ubFQ31?=
+ =?us-ascii?Q?TVwQqX0g8NCLVZju4nnl2OUGQIf3jwmAKJnVyLcaMkg/Nyq6fs8W6GLYewde?=
+ =?us-ascii?Q?HMttpn6oB+9vlYDvIBW60u9+aQpfWRx4MGHO8XMK0XcOzMVwAjSj/JlnWt3z?=
+ =?us-ascii?Q?abgkvCCamNQtBHWlgrAUwNJumHYHszlv4LKEGxuoAWqmeC83qvFAvbSE33FZ?=
+ =?us-ascii?Q?3eioLoMAOXw/VxlsTdsL42phsgi+BQKa5OeLNNX/gm1S+yID2W4ZvK2hcX78?=
+ =?us-ascii?Q?+kPDamJ99tmrvpI4Edi2kMvOYv05i0Rg9IA7ERCwUY4ndbf95MmyqtGMnjBP?=
+ =?us-ascii?Q?et8JY6z+bTnv8oGBqlOq5I+NTMlq4jd1cjfCzNzhtmOvDDUmo+ivfFM3uWph?=
+ =?us-ascii?Q?zoFU9OsCUebKKxMqmSlEzunw/MUnKa6r65/a43HWeGZW+9CbhUBqQX7K12i4?=
+ =?us-ascii?Q?mAMdqkOBE4B1ScLFUxFnCsHaCoOb3UKKSrFMuN67dTYdV15eCXgndxhz9w9A?=
+ =?us-ascii?Q?4nM6kDNbYUrYo4A9LcUO2no7WMheQtwLFCq8gZj1niVSN/arBHLuLOJLH6j0?=
+ =?us-ascii?Q?PM9mtTs7lKRBLUZj2yX/kymg8tt+T+iEvTvNFFSHvzbT88q//9pYoedfNmza?=
+ =?us-ascii?Q?5fGrW2Onc2G7G9S6WVrck2ljiMcCHx20+lihB86LruW0SR37iPRPWqUBfD3Q?=
+ =?us-ascii?Q?IFhlI4DPAd5yNCdT3B+njORl0D4pMDpyNHDF/bK80dqi/rmRlzEPszruY9f4?=
+ =?us-ascii?Q?GmgCgQAWoofHDxc8xT/hJhS0cLYYdauL+njPgE3rmteu3J38r9e35YzbxypS?=
+ =?us-ascii?Q?4VOglcrA4aiacmxUEu5W+POeusSH0X1Gf89bquRKfJ/2abH/Hbyu4KI4rDMW?=
+ =?us-ascii?Q?zVL82V4MxYf2yOw3tXK3F5Ah5q5yLfdendTJW3vlsPgvfwMhUYz8H/wkMhaZ?=
+ =?us-ascii?Q?1vrqc8UNilPJcWjPu//LK5ha2DjkVvB/DvP+CnZeH/+ZMOD/xIjqvmDwMW13?=
+ =?us-ascii?Q?12LwuNJiqFPUhzGA1TSnTTWXlrqL66XG6+jXyCOhkNkhQo9L9PnLy6+uZjN5?=
+ =?us-ascii?Q?9hJSOp1jH4YIxIPIUkm8JoA+xPk08sbGH/hXhD/lN5zd9J6IK76Ph8mvYDFk?=
+ =?us-ascii?Q?O7CfiNGjvWdjl5bnNQk7ExUHY94tlQUf6LuQAXEOg0z0eVJEWIDEk/j8Ow0M?=
+ =?us-ascii?Q?4Mul6aMtVFjWE9Dm+cW4gmWavwqO9v9HQiUSe/yGYsJOboAqWDfa6IPEJnEp?=
+ =?us-ascii?Q?0GMe61b/ylJ/St7h/hrcGFmgyTGwP8UV3Lpfs1Qc1ewWr9t548Dt6erwN6GW?=
+ =?us-ascii?Q?x30OvQfFjIwK4TeVXqM0qp/cCUVlCDHsrNxGssho4n5NEMd8iY0xEGm5l8LL?=
+ =?us-ascii?Q?RDZu1OoJtCZv5dNVqxGxbM5y5c/XvD55ktQCNbuSm1qm3YGIekgez2yijRC5?=
+ =?us-ascii?Q?wxWSfaH9rafgecm6zl3AwAF71BBo7KHPAb/XCUK049pZeMGF0W+6jZTyYB3U?=
+ =?us-ascii?Q?Co0D+UP7biUfLdJRAY/hAv0g7y198vNLnbwpREnolnY63hnFsHZ5ap9Y2TRC?=
+ =?us-ascii?Q?Zemib5GX5UOU0cUGG5IZXSHxRt/OSeRpgYlZVMZTaVUD5uzI34N5RWy1hC0l?=
+ =?us-ascii?Q?7oT7cFvb8CCJVS05v3kQQlGCY99y/qAHB4GEXXVzcm8YM5mxesIj?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 36cf8ff4-94de-4041-c99b-08df384d6b3f
+X-MS-Exchange-CrossTenant-Network-Message-Id: c8d544dd-a091-4728-fd6a-08df384d6cd5
 X-MS-Exchange-CrossTenant-AuthSource: LV3PR12MB9356.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Nov 2026 19:22:07.4063
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Nov 2026 19:22:10.0510
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 0VGlbKKKe+7Ruzz/kub+IfxJOywVim5fepEKRl9ZOfRNQ3b2MJtfYalSE3vyvHbjKBrx7ZMrMlHyTG7ChUPGWQ==
+X-MS-Exchange-CrossTenant-UserPrincipalName: oxzzEJeqvw9NL4Z80JgkxJD6CgdV2/ZYzEJipytzJUSNr9t8odeCuyn41sXOnmGYLNz4ooYdpI8f/nR5ym5Y2A==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5830
 
-The IBM s390 doesn't enable PARAVIRT config for their hardware
-virtualized Logical Partitions (LPAR). However, the steal time is
-accounted for the LPARs, once the config VIRT_CPU_ACCOUNTING_NATIVE
-is enabled.
+Offlining the last preferred CPU leaves cpu_preferred_mask empty. Normal
+fair load balancing stops, potentially leaving CPUs idle while tasks
+remain queued.
 
-Preferred cpumask doesn't rely on any feature gated by PARAVIRT config,
-and requires it to minimize the configuration space and runtime overhead,
-with the lack of non-paravirt user. Now that s390 wants to adopt preferred
-cpumask, there's no reason to keep it coupled to paravirt.
+Currently, the steal governor is the only module that may modify the mask,
+so it takes care of this by resetting the mask to mirror the active
+cpumask, but stops sampling after that.
 
-Make PREFERRED_CPU a user-configurable option, even if paravirtualization
-is not enabled, and drop PARAVIRT dependency on the steal governor.
+This series adds more ways to control the preferred cpumask, so steal
+governor may not be active.
 
-Keep the default module selection conditional on PARAVIRT so other SMP
-configurations can opt in without enabling the governor by default.
+Restore all remaining active CPUs as preferred in sched_cpu_deactivate()
+path, without relying on the steal governor to recover.
 
-Link: https://lore.kernel.org/all/4605dad5-aab2-49e3-b919-bf9897181834@linux.ibm.com/
-CC: Mete Durlu <meted@linux.ibm.com>
 Signed-off-by: Yury Norov <ynorov@nvidia.com>
 ---
-Can be applied independently from the rest of the series.
+ kernel/sched/core.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
- drivers/virt/Kconfig   |  8 ++++++--
- kernel/Kconfig.preempt | 12 ++++++++++--
- 2 files changed, 16 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/virt/Kconfig b/drivers/virt/Kconfig
-index eeb84e578ddf..2e79ece24a77 100644
---- a/drivers/virt/Kconfig
-+++ b/drivers/virt/Kconfig
-@@ -43,9 +43,9 @@ config FSL_HV_MANAGER
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 04b62c16fa8c..98f4f9434965 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -8712,6 +8712,14 @@ int sched_cpu_deactivate(unsigned int cpu)
  
- config STEAL_GOVERNOR
- 	tristate "Dynamic vCPU management based on steal time"
--	depends on PARAVIRT && SMP
-+	depends on SMP
- 	select PREFERRED_CPU
--	default m
-+	default m if PARAVIRT
- 	help
- 	  This driver helps to reduce the steal time in paravirtualized
- 	  environments, thereby reducing vCPU preemption costs.
-@@ -55,6 +55,10 @@ config STEAL_GOVERNOR
- 	  preferred CPUs could become subset of active CPUs.
- 	  More details are at: Documentation/driver-api/steal-governor.rst
+ 	set_cpu_active(cpu, false);
  
-+	  It doesn't depend on config PARAVIRT because certain architectures
-+	  like LPAR on s390 don't enable PARAVIRT for their hardware assisted
-+	  virtualization, while providing steal time accounting.
++#ifdef CONFIG_PREFERRED_CPU
++	if (cpumask_empty(cpu_preferred_mask)) {
++		pr_notice("sched: last preferred CPU%u offlined; make all active CPUs preferred\n",
++			  cpu);
++		reset_preferred_cpumask();
++	}
++#endif
 +
- 	  It is recommended to build it as module and load the module
- 	  to enable it.
- 
-diff --git a/kernel/Kconfig.preempt b/kernel/Kconfig.preempt
-index edc067a0c422..fa6d0eba5b23 100644
---- a/kernel/Kconfig.preempt
-+++ b/kernel/Kconfig.preempt
-@@ -196,5 +196,13 @@ config SCHED_CLASS_EXT
- 	    https://github.com/sched-ext/scx
- 
- config PREFERRED_CPU
--	bool
--	depends on SMP && PARAVIRT
-+	bool "Preferred CPU scheduling"
-+	depends on SMP
-+	help
-+	  Allow the fair scheduler to favor a subset of active CPUs while
-+	  respecting task CPU affinity. Non-preferred CPUs remain online
-+	  and can still run tasks whose affinity requires it.
-+
-+	  See Documentation/scheduler/sched-paravirt.rst for details.
-+
-+	  If unsure, say N.
+ 	/*
+ 	 * From this point forward, this CPU will refuse to run any task that
+ 	 * is not: migrate_disable() or KTHREAD_IS_PER_CPU, and will actively
 -- 
 2.53.0
 
