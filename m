@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793561572;
-	b=U9LhlqOKk65zGCmsdhJS+r0+wU/SzLsQjvr5B2BuULFDBN9WmpOmvsM3AUc5ncmwXobx
-	 QnxvN2kEuRO0a8wB4L3vxJwdK3kAg84Stb4EJlXi9O4TRCymYpeedJMQm7W3KGVeIplLw
-	 N60F8jKpurRZlUS1BHKssw9eltyBHHATbrXtm3vufm693c0p8Qu2Sa94KIRBRQ3u9grua
-	 5jBjy9YRgwiqbRUfFSLnBjRha92gtWtmaJXNDYwyPYIpDB8jikNctD7eNQffsnQ6FePAQ
-	 ODhGxnvs7L9xnVxHIS4/a1mYFEhxO2ejKHr7wbae4b1UidiOGOYpFySXprMPC268evw==
+	t=1793561807;
+	b=BvTp+wtIdCSFpdoQQWrPxilNR5/HsWGW6t6JOsz6rbLbQqsI22m9Is2tqWkiVz223CvP
+	 gi3ZzUbrhHJoqgeBI37UhVpVr50Ym7gQ1ZIg9MI4qn5g7uLnGs/nbM3YpWqV8WbbJmHso
+	 BoOKG9Cw608dM7E1CPeDXpzBUwmmSNCfWcJpi84aufu2tjqYVqFVklW5r1igmoo9Twkz+
+	 YTpk0zoQDhR+5GptKIlk9o1n4t7oaDE3kxbvO+wgdNXoDB+fMt/H+G409r4CqTQFXGqQ0
+	 Jh1lWAsIZJA1CBjVemLyTWqvJAgJg6Ylku0FHBAWFw3XwfXVH6fNZ8MfseenuFjCB9g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793561572;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793561807;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=GibSDogJL29M2tk+n2kzQK6Ae7jztTplR5FFwKNoNaA=;
-	b=Ue3zj16X7U5ieI4XUPjKoM5+T0/SrsE0rnfa5zrb+/EUfTmy3I5bsw2NVj/bJkUmvIYD
-	 wGkWcAMKQxxWJX4v1Zo6sfw68qSaHUQWIZqw7YOV2Zf+RuLi+qgNPoE8tlKYUF9j20BSN
-	 Ivl0orJ3vNKxnikDNWVDNVMqHxRD6kQDYXMkt5x2l63XEybqvm2SmKg6o9wI7QCcZ7mij
-	 VLRPY9xAsA59USlLJSUgG+GyqtMlcyMpGx71vpzR0DmUa8ez8Lu1GT/nqEJMLJtHW5l9v
-	 b/AUaPn4i2X9QrLg1Je5c7nf518YLxRieoTfdmN7/s2zWXRJ1eGYY/lDMXIVFRvz92w==
+	bh=tI1B5GsYdwBzx+bmM8Fk2nf13tOEeTVDCFsGK3YvUVI=;
+	b=VWULqTA4xvCX370qFKGR9AfU6JTrZiVkOt51jhN+FR1hfXIpI4OPb0QtO8oeKGHTyosX
+	 4YpQajivkcFP6WpUsXp84F2HhTJS/z+KO6ifLVRUzHF7IJoXLQnBAKzGLc5do6gRl6dCX
+	 1+aCAEKGlATvPWT2Gf3l1+bMG7jhIiUzDVrI8sMxSL6cSMJfa0Ee/YGH3q9l4+H9BUgMa
+	 zGySTroYEcYDfvCii60JOOekqx54qXiZ5dwgt03cGmb/VM1iSA+9CzsRLeN8+rKyD/Sgd
+	 7LPoeY+1q+EyX62o2TgYEclMB08IXmOcwNtFjvhgctkf8RAU1OePuDOUY0t/bxvlLlw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="eln6/kZt";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jz3kqnNq;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02D40606A324
-	for <linux-s390@vger.kernel.org>; Sun,  1 Nov 2026 19:32:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53EBC606A324
+	for <linux-s390@vger.kernel.org>; Sun,  1 Nov 2026 19:36:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eln6/kZt
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A178F1F00919;
-	Sun,  1 Nov 2026 19:32:49 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jz3kqnNq
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 795941F000C1;
+	Sun,  1 Nov 2026 19:36:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793561571;
-	bh=GibSDogJL29M2tk+n2kzQK6Ae7jztTplR5FFwKNoNaA=;
+	s=k20260515; t=1793561806;
+	bh=tI1B5GsYdwBzx+bmM8Fk2nf13tOEeTVDCFsGK3YvUVI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=eln6/kZtqYq93hsTm9gBGYDrBkiTeqkJYV8wPwpu4UukpI16UGAICKzh7QGsOjKDk
-	 DEiFLy3kolPlEzBv0pwbeHO6AMy0gVAePCr+l4/Mz9xP8TAi2P8TY9pH9oqO0BlNYu
-	 MV2WLcaL8qz9TnhY3Yt3CuehFVJpIUxpJPlv9vE7eExmUa32+0qTNw16NXdeugiSdn
-	 AJkZeTRyOfvDwiwW9vH1IP66WyTwyKYkPpLfR5PyRCE8W+N3so9urWdSaRMtD6PlnR
-	 /oXEqR5VmldYKwtT3hFRPtfZX7FXgCgQVP5y6p/BL44l0aS7w6ojn3OCI3ewkTM4tu
-	 AvygLJ2MS7P8w==
-Message-ID: <sashiko-outbox-192615@kernel.org>
+	b=jz3kqnNqiiJ7XPQStufaBrnZS3FoagJk7TDmcYQvQTmYEYLPXCgANFZozcSB17yM/
+	 84mTN13OBPyxD+k/y1spRyGnCzWGFw16cFP09+4QeWFyiXQg0vM7iiDW54gXBvfKYz
+	 t0jsoErEK/+SwNdG5+KGqoTDxBA0pu3bvKxm69uHE3NQSTU6AQbb/uOVvT+tuWsTkf
+	 JhWlN0h24g/BP059EPy69A8hs3PpZl+ET+frC3Q/SURcB68oGSrgRtdvmOzrgBm6at
+	 yq9Syq14lRXIKI2FXm8xBvfZMilNql8byUa8sDCk4qiG9dk6boIzDjq+a/Iw+phO1C
+	 Iq/P2vziwtTOg==
+Message-ID: <sashiko-outbox-192624@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH 3/6] sched: Restore preferred CPUs when hotplug removes
- the last one
+Subject: Re: [PATCH 5/6] virt: steal_governor: Warn on unexpected preferred
+ mask states
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Yury Norov" <ynorov@nvidia.com>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261101192203.6979-4-ynorov@nvidia.com>
+In-Reply-To: <20261101192203.6979-6-ynorov@nvidia.com>
 References: <20261101192203.6979-1-ynorov@nvidia.com>
- <20261101192203.6979-4-ynorov@nvidia.com>
+ <20261101192203.6979-6-ynorov@nvidia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Sun, 01 Nov 2026 19:32:48 +0000
+Date: Sun, 01 Nov 2026 19:36:46 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,25 +63,57 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Offlining the last preferred CPU leaves cpu_preferred_mask empty. Normal
-> fair load balancing stops, potentially leaving CPUs idle while tasks
-> remain queued.
->=20
-> Currently, the steal governor is the only module that may modify the mask,
-> so it takes care of this by resetting the mask to mirror the active
-> cpumask, but stops sampling after that.
->=20
-> This series adds more ways to control the preferred cpumask, so steal
-> governor may not be active.
->=20
-> Restore all remaining active CPUs as preferred in sched_cpu_deactivate()
-> path, without relying on the steal governor to recover.
->=20
-> Signed-off-by: Yury Norov <ynorov@nvidia.com>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] virt: steal_governor: unreachable WARN_ON() in decrease_preferred_c=
+pus()
+--
 
-Sashiko has reviewed this patch and found no issues.
+commit 735c9f0cd33ee22cf920d749e3d1bde33a6cf851
+Author: Yury Norov <ynorov@nvidia.com>
+
+virt: steal_governor: Warn on unexpected preferred mask states
+
+This commit adds WARN_ON() checks in decrease_preferred_cpus() and
+steal_governor_loop() to warn if cpu_preferred_mask enters an unexpected
+state.
+
+> diff --git a/drivers/virt/steal_governor.c b/drivers/virt/steal_governor.c
+> index bc3936e69eed9..5679b7ddc078f 100644
+> --- a/drivers/virt/steal_governor.c
+> +++ b/drivers/virt/steal_governor.c
+> @@ -145,7 +145,9 @@ static void decrease_preferred_cpus(void)
+>  	/* Always leave first housekeeping core as preferred. */
+>  	first_hk_core =3D topology_sibling_cpumask(cpu);
+>  	cpu =3D cpumask_last(cpu_preferred_mask);
+> -	if (cpu >=3D nr_cpu_ids)
+> +
+> +	/* We can't end up with no preferred CPUs under normal conditions. */
+> +	if (WARN_ON(cpu >=3D nr_cpu_ids))
+>  		return;
+
+[Severity: Low]
+Can this WARN_ON() in decrease_preferred_cpus() ever be reached?
+
+Just above this check in drivers/virt/steal_governor.c,
+decrease_preferred_cpus() already checks whether the intersection of the
+housekeeping cpumask and cpu_preferred_mask is empty while holding
+cpus_read_lock() and cpu_preferred_mutex:
+
+	cpu =3D cpumask_first_and(housekeeping_cpumask(HK_TYPE_KERNEL_NOISE),
+				cpu_preferred_mask);
+	if (cpu >=3D nr_cpu_ids)
+		return;
+
+If cpu_preferred_mask is empty on entry, cpumask_first_and() returns
+nr_cpu_ids and decrease_preferred_cpus() returns early before reaching
+cpumask_last(cpu_preferred_mask). Otherwise, at least one bit in
+cpu_preferred_mask is set, so cpumask_last(cpu_preferred_mask) is guaranteed
+to be less than nr_cpu_ids.
+
+Should this check be removed, or should the warning be placed on the earlier
+check if an empty preferred mask is what this is meant to catch?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261101192203.6979=
--1-ynorov@nvidia.com?part=3D3
-
+-1-ynorov@nvidia.com?part=3D5
