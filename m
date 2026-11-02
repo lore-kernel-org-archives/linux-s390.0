@@ -1,49 +1,94 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793629406;
-	b=Sf27/VLbpAO9SzYUvnND6VHOAJ/hWsqesL9vX2v6N9NPSUyNUkZvCCK+4jNJZJmM+UuM
-	 ZOqFmgOKewInW4+zJ2/cdpyHcLTstOKAO2INj+g/9Sga6qZYchRckEXmBEmLvdHh38njZ
-	 Z+phxVM/o2t8ZAfa9Z9xEqTDWcRUZZnSlUuQ0qyQtGeAn0G18dOcbAaCVnTdeYoEailoI
-	 ujPVc0/YmnzBlL7JQ/gDDhZ70PNS0sWqR6BOFnkhBVrFypp3Ki/Cs2KBlU2SDSgNzqqB3
-	 ZZWMhhn6TTi6483okZjw4JOqpmn5Dyv+xxwZOqsvLvFxvhxNklpcUVsEzFQZMqY2Bdw==
+	t=1793629419;
+	b=geell1TqkIYJMANIaSVMSpOP7Rb55asJqdib63C7y4cEcZVoH8AK+e5MJT36t4z70X5y
+	 JI+8j7ual1BjCoRZL/+LdUMXpnFGpMrM+SMV04kyBcBRHERrwSLci8aXN1DBWD2xP6QOY
+	 EX98ZzYqLN3teLgpGe4cI87m2GbqXZxD0fNykZTBj8YJQ3t5xvKKOXrOXYT3Dpl//diCh
+	 7JMWt1qG6RiO4Xyerb40aW0sXM1bOhxstm+TORRwTbEgVKPcMTPEnM2SPZaSrDnRzvx1y
+	 POd78volpLmIcIaAaoM4zTawJwzh8j3swPzbLq4X1HBRKeq72EdiVdOEGmxv5m/NL4g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793629406;
-	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
-	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=Ayyh3GSY9IX8l/NxmtUwOJrSt8ohKQ1xsnTJeKuAZFg=;
-	b=qZXGiu+UrDk0afyENWgb/KVUTqpXFnqUoJSlYONBLuWXnJ0znW/7C5LYnKoonC/F2RQN
-	 7XnIcLb+vEcB5bi1E64dzm4+amgoGBSc5Ey43WOYiSBtEqBFkBGMnWl0OMwmhBaGSRPl3
-	 cRhKdPdwj8KUyi6wsku52b/JlOq/aoEG1XYPkI4ExG3VD6YccpKWOVKkIldxzY41Mht4R
-	 3AJ6hq1LAdhU2hDaLcRUZcSPonRAm+eTlVL2iR8WHwkRTZ1j2z7EuOeG0MwR5Q83Wpt5e
-	 s2kMdNHhMVphb79IyCMXuvIIh2fNxAj2lbrT/jKOb+nwDh8Hvtu+E1DVOlR4z4XMVfw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793629419;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:In-Reply-To:References:Organization:X-Mailer:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:X-Authority-Analysis:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
+	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
+	bh=wPBQLIAY0/WQRpqDTmMmr5ue3zR9tk6+/FHV656Ch1A=;
+	b=Pzlps8RLZVxEqRdvXdR6vIFpY0uhQrCEierg/ALbq7NcKEpC4mKsq6UUD8AN92dy+RRu
+	 yZ7fZM9GcuCjR8lw3dOvwk6aCveIoqP3+i/+Wh6V4MxOic18s+4OkkvDC1z3L30DXpOUu
+	 vTkfcv/OeLjirU8/dd82Kf9MKRnJQI1HZGSV7Rb7wm3G9RUI/enqTF1oCSaDu4i2D564T
+	 fMJK3Yo06qPw1/4X0zbrMne0E5sscXQ6n0CqyOh24V5qkIqsp/nBlxHfEnSpDURS54hkP
+	 vBXN5zyFztMkW0WRPr6Z76B0rcz/DCJKJXq1qnWQ0UzxJLDmmvKCqRWEPCRGp+9/+7A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tw8JvCxX;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=XyYkTLwG;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDF4E606D807;
-	Mon,  2 Nov 2026 14:23:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A22DA606E011;
+	Mon,  2 Nov 2026 14:23:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A22DA606E011
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tw8JvCxX
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48C471F00A18;
-	Mon,  2 Nov 2026 14:23:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793629405;
-	bh=Ayyh3GSY9IX8l/NxmtUwOJrSt8ohKQ1xsnTJeKuAZFg=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=Tw8JvCxX+km1KBPRoMXNm8sioLL/SiBihZfuVNjDsAkWtVzRRNmE5Cc7zY4ut+0X5
-	 Rl0KHYQi1x1Sz9PF1RgpgzXpUFQuZfg50HWRXxjw+hQiC/PXAgk/eR8W2vWm2wLiWv
-	 tvpKqETwrDFgD85oMKX9xozlc6S0OZ/W5Nh9uZD5F+uNOl4/1vY/ZNRsBNo6TVAbtO
-	 9xct4ES9MUcb8Lk4gqF+MaFsGvGgcXWCF6AdUApSp4FQtJeMZ864LzSIASS1Tvf3o+
-	 oWd+nrIhC/gdzolHINRzQeTdVxMRiw3oiAWCylK9VGym+o8EZsK7NBzyrg6pK/30lF
-	 lKmpkvKak5tHQ==
-From: Christian Brauner <brauner@kernel.org>
-Date: Mon, 02 Nov 2026 15:21:22 +0100
-Subject: [PATCH RFC 07/38] powerpc/rtas_flash: don't read past the validate
- message
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=XyYkTLwG
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2EEO7L3044590;
+	Mon, 2 Nov 2026 14:23:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=wPBQLI
+	AY0/WQRpqDTmMmr5ue3zR9tk6+/FHV656Ch1A=; b=XyYkTLwG3O6jx12i87N57E
+	MOZot+Ob7I5yOMa8kcAmWolE52VYM8ZSjJPEURaBOeJJhfq77Mvc0NN7Y6C1wzIU
+	fD6mLYt3JIhkbswc4LQaOBKDft4q9Q/e5Fe8PNIwJOIEpdFvk2C2luQMXEHSlSXp
+	qFpjEJaytV1PkLI1piKGUU2ysulviL8sQkH6RR1u41iVZ4F7cSAIHy9hLT5gob51
+	EHXDW/Ca/k1v4jyjagMAVKIbhaaXTEfFWOvQXpa0zIrDH6ZMYrcLbnYj9IkXpn8J
+	MqTHyF3zOnVZU9m9VBy6UIfpOKnte1tcJZoGhmiV8NL1rNr6+KZ34R7eUJFPBMCw
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn5rhh4xw-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 02 Nov 2026 14:23:35 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2E5xcl1034506;
+	Mon, 2 Nov 2026 14:23:35 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hnu1ve9c7-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Nov 2026 14:23:35 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A2ENTqH52953386
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 2 Nov 2026 14:23:29 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1F76D20043;
+	Mon,  2 Nov 2026 14:23:29 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 41C2520040;
+	Mon,  2 Nov 2026 14:23:28 +0000 (GMT)
+Received: from p-imbrenda (unknown [9.111.14.46])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
+	Mon,  2 Nov 2026 14:23:28 +0000 (GMT)
+Date: Mon, 2 Nov 2026 15:23:25 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
+        david@kernel.org, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
+        gra@linux.ibm.com
+Subject: Re: [PATCH v4 3/7] KVM: s390: Fix idte_crste() clobber and table
+ type
+Message-ID: <20261102152325.1e5a2c31@p-imbrenda>
+In-Reply-To: <be03627c-edee-4ada-a40f-85a0f5b3068b@linux.ibm.com>
+References: <20261028185422.272146-1-imbrenda@linux.ibm.com>
+	<20261028185422.272146-4-imbrenda@linux.ibm.com>
+	<be03627c-edee-4ada-a40f-85a0f5b3068b@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -53,80 +98,87 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261102-work-procfs-bugfixes-v1-7-59422ed3e465@kernel.org>
-References: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
-In-Reply-To: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
-To: linux-fsdevel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, 
- Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, 
- Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, 
- NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>, 
- Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
- Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
- Greg Kroah-Hartman <gregkh@suse.de>, 
- Joel Granados <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, 
- Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
- linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
- linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org, 
- linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
- linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, 
- linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, 
- ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org, 
- coreteam@netfilter.org, kexec@lists.infradead.org, 
- linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
- netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
- ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net, 
- linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- linux-cifs@vger.kernel.org, linux-fbdev@vger.kernel.org, 
- linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-sh@vger.kernel.org, 
- linux-usb@vger.kernel.org, samba-technical@lists.samba.org, 
- sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
- linux-doc@vger.kernel.org, linux-serial@vger.kernel.org, 
- linux-atm-general@lists.sourceforge.net, Takashi Iwai <tiwai@suse.de>, 
- linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
- linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, 
- linux-debuggers@vger.kernel.org, 
- "Christian Brauner (Amutable)" <brauner@kernel.org>, 
- Chuck Lever <cel@kernel.org>, stable@vger.kernel.org
-X-Mailer: b4 0.17-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1303; i=brauner@kernel.org;
- h=from:subject:message-id; bh=7JHU1Fe1PUKfNakrIeb+3f7MU5rT/9SRwlQjBFg57NM=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9mJN1X2VyVJzM0zaD4pd5IsePH+N4ZpyQLfS98+Jal
- 7bIPwn8HaUsDGJcDLJiiiwO7Sbhcst5KjYbZWrAzGFlAhnCwMUpADf5CyPDy8QjOeKy0icXe9kL
- dWRVXnzVHu/eWiK//28XY7LslJsLGf4XMiSre1zfdibVUb/UVG51TJRjtezPFx79q/9o//kddZk
- LAA==
-X-Developer-Key: i=brauner@kernel.org; a=openpgp;
- fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: vKh8ZBwAZVk9tNhL-IOEXrDUa1BPF8MO
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAyMDA1NiBTYWx0ZWRfX1zdgeX/QpndS
+ w/JiJTE0ROFF9ly3oYDsBhDK+sBZ8JmvAsVY6wy+EtbpakpGejDjS36wDL+c8lbM/2S86DWnk2V
+ LPeHOJMfmPOXayDtekJhVmyVmKHywYg=
+X-Authority-Analysis: v=2.4 cv=LokHWXdc c=1 sm=1 tr=0 ts=6ae89ce7 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
+ a=VwQbUJbxAAAA:8 a=Mw0xrJ1rqFrOZ_elNaUA:9 a=CjuIK1q_8ugA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAyMDA1NiBTYWx0ZWRfX10rMJLKcQhkI
+ K4cj0djOwOC8Ho179TwuLpmGNjgasDVWVT88xq+xkbafu9KEZwca4fhN6otV+kq5lL9RRUOmu/+
+ sPR78y5Oix60XYnUfACKl/jezY7pYbKGd0693UbGyG8Uv8duS73FRPqw65VtFbKp1Ml1H2Ct4qT
+ WLWLPwSuYhXXl+XW2POC6tmCmAU/anKLM6h9c3dPbRVqhXRqZAvE7Ys/kTirRAdqs1PUbvoNbdi
+ vmVcv197B9xLniAwGnvffwIOfFAAmvEkGDAVkAzi2kEDrUQBV+fZqxLsl9fjiMdlwdb0FpgzVF4
+ RTlhcUFMI5M2QTB550fQXOMoKQcGcRw4ADcJydmrrrX96k90Q2D5bXeLt4pbTDAMLoMvInbwxWB
+ SWXd9grZDiL1e58uEifGF2glAIpaXo+O/8s/wIrLbsTiQPOJX1NNhDq3ybtr0weiqVwD9MDC7RF
+ YX7IfvQi6pmj9Jf08Nw==
+X-Proofpoint-GUID: vKh8ZBwAZVk9tNhL-IOEXrDUa1BPF8MO
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-02_04,2026-11-02_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 lowpriorityscore=0 clxscore=1015 impostorscore=0
+ priorityscore=1501 suspectscore=0 phishscore=0 malwarescore=0 bulkscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
+ definitions=main-2611020056
 
-get_validate_flash_msg() adds up what snprintf() returns, which is the
-length of the whole string and not what fit into msg. If the update
-results the firmware hands back don't fit into what is left of the 256
-bytes, the length ends up larger than msg and validate_flash_read()
-copies whatever follows it on the stack to userspace. Use scnprintf().
+On Mon, 2 Nov 2026 15:12:07 +0100
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-Fixes: a94a14720eaf ("powerpc/rtas_flash: Fix validate_flash buffer overflow issue")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
----
- arch/powerpc/kernel/rtas_flash.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> On 10/28/26 7:54 PM, Claudio Imbrenda wrote:
+> > Fix idte_crste() to add the missing table-type bits and the missing
+> > "memory" clobber.
+> > 
+> > Fixes: 5a74e3d93417 ("KVM: s390: KVM-specific bitfields and helper functions")
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > Cc: stable@vger.kernel.org # 7.0+
+> > ---
+> >   arch/s390/kvm/gmap/dat.h | 6 ++++--
+> >   1 file changed, 4 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/arch/s390/kvm/gmap/dat.h b/arch/s390/kvm/gmap/dat.h
+> > index 687e1fa904d6..fb7e839a355f 100644
+> > --- a/arch/s390/kvm/gmap/dat.h
+> > +++ b/arch/s390/kvm/gmap/dat.h
+> > @@ -640,20 +640,22 @@ static __always_inline void idte_crste(union crste *crstep, gfn_t gfn, unsigned
+> >   	unsigned long table_origin = __pa(crste_table_start(crstep));
+> >   	unsigned long gaddr = gfn_to_gpa(gfn) & HPAGE_MASK;
+> >   
+> > +	table_origin |= crstep->val & _REGION_ENTRY_TYPE_MASK;  
+> 
+> Why don't you just OR crestp->tt ?
 
-diff --git a/arch/powerpc/kernel/rtas_flash.c b/arch/powerpc/kernel/rtas_flash.c
-index 722dbfb6fbf8..f1cd105f7426 100644
---- a/arch/powerpc/kernel/rtas_flash.c
-+++ b/arch/powerpc/kernel/rtas_flash.c
-@@ -448,7 +448,7 @@ static int get_validate_flash_msg(struct rtas_validate_flash_t *args_buf,
- 		n = sprintf(msg, "%d\n", args_buf->update_results);
- 		if ((args_buf->update_results >= VALIDATE_CUR_UNKNOWN) ||
- 		    (args_buf->update_results == VALIDATE_TMP_UPDATE))
--			n += snprintf(msg + n, msglen - n, "%s\n",
-+			n += scnprintf(msg + n, msglen - n, "%s\n",
- 					args_buf->buf);
- 	} else {
- 		n = sprintf(msg, "%d\n", args_buf->status);
+table_origin |= crstep->h.tt << 2;
 
--- 
-2.53.0
+not sure if it's more readable, but I do not have any preference
+
+> 
+> > +
+> >   	if (__builtin_constant_p(opt) && opt == 0) {
+> >   		/* flush without guest asce */
+> >   		asm volatile("idte	%[table_origin],0,%[gaddr],%[local]"
+> >   			: "+m" (*crstep)
+> >   			: [table_origin] "a" (table_origin), [gaddr] "a" (gaddr),
+> >   			  [local] "i" (local)
+> > -			: "cc");
+> > +			: "cc", "memory");
+> >   	} else {
+> >   		/* flush with guest asce */
+> >   		asm volatile("idte %[table_origin],%[asce],%[gaddr_opt],%[local]"
+> >   			: "+m" (*crstep)
+> >   			: [table_origin] "a" (table_origin), [gaddr_opt] "a" (gaddr | opt),
+> >   			  [asce] "a" (asce.val), [local] "i" (local)
+> > -			: "cc");
+> > +			: "cc", "memory");
+> >   	}
+> >   }
+> >     
+> 
 
