@@ -1,81 +1,81 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793627160;
-	b=VXv+KViDjEvboEVUnaXLdTXbWy81ZNBKncv/KmSL4ZSCYTw74+Q1eG8ismeo7XoVBYnr
-	 OXuDOsM9Jo3kaeEhxqD6VK8Zt46E+xO+sjU4xRNvR8a4o4xdI3MhE+zOgAD2esrxfNCO1
-	 nPkXn94PcCjpaD53zleDfXl9j3tvPfAnHBXNDwAi1Ryld5lemq/mOl/X5yiepnaW58zkA
-	 EhlczEBVfT6CXa5SRiG4EXQziWdOWb4CVQCHU3MAvtPGVjBvakzNTJwGymPhQetGOidxR
-	 JBYYk/YXThPCAs4NyYj4Lek6fwAILAowVuCvkX734xedFH+wV7HSq6wsj3isL+Ok6sw==
+	t=1793628738;
+	b=mru0/b+YCj4wfX3KgcnZDFNYeruQgIH7Q+gOHJBbtqM7Yvfek/tRiMI2mFoIGCwxpsaQ
+	 V6jD+stcuo9g0sskcZy9/pWmhroA42lj9uU6FabE7yNQu8BefHwgmtKzj/wbP822ClnM+
+	 l9i5vJqhqXaHBhj6EfmOZ/ii5XoyP3QA4DaEDCtmC0yGCWWX0rhK/Qwveb120vUO8/u7U
+	 Tw0gO0sLIGI/Hvz9xFdDLqu7gXStcKRcZKBeShtkw3Iju9H2kxwVdu1H1rlINmY4X6j/Q
+	 QOwxpPMMHBLFhcQVcjqrExCUt5R9C6c0upqmiMXtnwhH6v4eF+TE6QYumsgCmIQxK4Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793627160;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793628738;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
 	 User-Agent:Subject:To:Cc:References:Content-Language:From:Autocrypt:
 	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-GUID:X-Authority-Analysis:
+	 X-Authority-Analysis:X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
 	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=nZhmsjnBxJ+8r+QA6vO1iYcrgzf+pJHTtUwizal9m68=;
-	b=3QhKrUzp7mByoEwYCDIO0GIn5Oh3w5N/ERUMSB26Zn5/zFY18CJO5MPNfGrFm1ta4grA
-	 8kNXieuj1jrUK/+KDUw5D6Jx8QTFU3JjV0vRBgeaq1XJpF58VeWNUfv/KoaBFPa3dLOg9
-	 p2TJ5oXIuzAvQxNV2OFCDSo+iV2Y/1IhFKrJ/+sTHfNVrqEi0ivx+P+l/cZEbjM3ZuAwe
-	 FLcqgHK4UmZBH4l2B1OKsBXdo1Orj9FDotXwQ54u2grbxypNVzb92FCMJg+RufUfyOXfb
-	 6xn+5boQTqtkp31hA203dcypYk1QBA4sUv3GTyYLh97zjnbQEVYQKCdcdh+PRAhzCGg==
+	bh=s/J2/DwUZgAZNbn4idCOmjTBElBD9bBffjm8meAiLbs=;
+	b=M/kDC8Lkt5GOWoSUDXDdOaNDF9/WH5vkW3xpd+3GQHtfZnoelgyXFOCSJ87zYU8BAHs1
+	 BU86gQyji/Qm+y7phs1AP9LTte48lgGIWM70mTOxNxexsfwcb8DXipAipIByd69WawNeq
+	 QNEQE0v+Vfm82f6xLAcuTUUmiqhYtS1LO1Q2jwVLV2H/BBq2YZSI1T5E5eMHwTSTwJ7rv
+	 rsP9k+73P61WomXXaAi5XHeyFiM21lKmnNrcJi7A2Ryd3Sdz3LokqbD8PYq4SyKg20maE
+	 e7Y3E3eZAisVOGVyJyKuYDlDpMgu883CGwZ0LbOmXoxC6IU5QNFIxUUrigNqfb5WMQQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=XZkorKFa;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=Sou3u6eg;
 	arc=none smtp.remote-ip=148.163.156.1
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CA77606A33F;
-	Mon,  2 Nov 2026 13:45:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7CA77606A33F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86294606A33C;
+	Mon,  2 Nov 2026 14:12:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 86294606A33C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=XZkorKFa
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2DE7c42975966;
-	Mon, 2 Nov 2026 13:45:57 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=Sou3u6eg
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2DEq8W3208967;
+	Mon, 2 Nov 2026 14:12:15 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=nZhmsj
-	nBxJ+8r+QA6vO1iYcrgzf+pJHTtUwizal9m68=; b=XZkorKFah0vGIbfQ4uZWT4
-	m+YGMQTlUT0cYrtvIArcj6bwCMhnHQm2IUR4NPZ49KudV7kuNX76HWwrfXN5KQLE
-	Vbba2rKLWXyLFZkNq4U8XEZzGhCfYzZdqwURwvPYARDZmi3znf6OhDsHNiitMXs0
-	z8D/lzzffwW14SrYGBNwmSKGVMXhdKCm4zKbrvO1ZkKSEv4BKiNOp+JvKOtVMQZk
-	5P9WY0+GbnDmlMSmgjxU+6mEVB+oUtv7rwoDnDrS+uZtMNSolQqbr5mKKXw3kIvo
-	05Y2zejIFbGkxZWLneZLzGOUekKOQE10UDw4W5iRy8o48t7ygwenuVxBiOtWAGuw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=s/J2/D
+	wUZgAZNbn4idCOmjTBElBD9bBffjm8meAiLbs=; b=Sou3u6egS+u9+MHyY83FLs
+	RzJYCUV/qlEf8Qv1oOFyz1iQJcav1mfmHHwVyzFyrYp+SDx0I20mWfgtjYHVs9+I
+	YfLEDHlO6bjzSfYM4mGxAXGDuJfNJK8ybNUtceYCckPmhRY5w2yXrHz6iLy57LqG
+	eQAsubuC76SqX1AES3a+d9wPJuD5BZCUy+jM/pwRxKRtCEpZad5ObWdHyeY8+fXw
+	JlO5+4k2N8I3qyv+LuwkYADsDHyBM7V+Wsg7mUHqXI5rnwI6gChpEORV4x1bmXmR
+	YKcNaSTinyl5UVvQR1esJgdKPRi64o7CYRnJVK2n5CYYAdR7T2C9yvQpO2/982ZA
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn826gr02-1
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn7u38ww6-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 02 Nov 2026 13:45:56 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2DJxto1031291;
-	Mon, 2 Nov 2026 13:45:55 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hnv5gnxaa-1
+	Mon, 02 Nov 2026 14:12:15 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2Dp2B0932176;
+	Mon, 2 Nov 2026 14:12:14 GMT
+Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hnunjx4uu-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Nov 2026 13:45:55 +0000 (GMT)
+	Mon, 02 Nov 2026 14:12:14 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A2DjndB26804822
+	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A2EC7ua30605754
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 2 Nov 2026 13:45:49 GMT
+	Mon, 2 Nov 2026 14:12:07 GMT
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6716620049;
-	Mon,  2 Nov 2026 13:45:49 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id CC12220040;
+	Mon,  2 Nov 2026 14:12:07 +0000 (GMT)
 Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2DF3C20040;
-	Mon,  2 Nov 2026 13:45:49 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 922632004B;
+	Mon,  2 Nov 2026 14:12:07 +0000 (GMT)
 Received: from [9.111.82.55] (unknown [9.111.82.55])
 	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  2 Nov 2026 13:45:49 +0000 (GMT)
-Message-ID: <73347a6b-1224-415d-905a-aec1a62dd13a@linux.ibm.com>
-Date: Mon, 2 Nov 2026 14:45:48 +0100
+	Mon,  2 Nov 2026 14:12:07 +0000 (GMT)
+Message-ID: <be03627c-edee-4ada-a40f-85a0f5b3068b@linux.ibm.com>
+Date: Mon, 2 Nov 2026 15:12:07 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -86,12 +86,12 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 1/7] KVM: s390: Fix UCONTROL inconsistencies
+Subject: Re: [PATCH v4 3/7] KVM: s390: Fix idte_crste() clobber and table type
 To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, david@kernel.org,
         nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
 References: <20261028185422.272146-1-imbrenda@linux.ibm.com>
- <20261028185422.272146-2-imbrenda@linux.ibm.com>
+ <20261028185422.272146-4-imbrenda@linux.ibm.com>
 Content-Language: en-US
 From: Janosch Frank <frankja@linux.ibm.com>
 Autocrypt: addr=frankja@linux.ibm.com; keydata=
@@ -136,111 +136,78 @@ Autocrypt: addr=frankja@linux.ibm.com; keydata=
  DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
  Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
  phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20261028185422.272146-2-imbrenda@linux.ibm.com>
+In-Reply-To: <20261028185422.272146-4-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: pNHWYOw7n9uv1daxksidSM_yctJiXE7G
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAyMDA1NCBTYWx0ZWRfXwAUJ76ZEqoy7
- uT4J4nHtZGYqmUI7B01Ynpu+C6f0CehE+FpYvv8TT/noo/55I8ZQfz9xaGSTaYBX8InISRI0WLM
- BsXBbKZJGheVaQwvbijtd/YyfECSBUNa5ShQ3t4sjxMitPir004BFL0yAtUCaaVJjZEeLl8xcOM
- +9q48hOhgAIYx1aPhOPnLSgWVns/emv7kcpGTiE+Ql8qVKRVVVcFR4zYqgW83ULksAv2Rz2TZVp
- L+T6R5ZIXtI5vZxATu8qt5lgJHCdTjSE56LUloKsQpfvt/LnXDVXErEIhx4PdrSHIRwXUBSSxD9
- PTos2/tbZMSzTBPFzZV6uMSgxxswv7IQe0CWKScci05Etq8dnhzKMV1MsYeorJh6nCMRNkRQZJ9
- VCCPyTTU4RfAAZfFc2yKNzxobJGIs1XUnSmBBS5OnUP3AuHIkkv7NT6PbR1y4TI3HtqCEgnILnq
- CwZJLFiUBEh5agIJcTQ==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAyMDA1NCBTYWx0ZWRfX69S7UrUUqcWp
- o4AvYKxFf1d1ghsGEqWX8Tp3gH5lR19LNJWKjwQBuAXMJv/aQYdndgb6si2xmR/2AtVqMKIjPDl
- AmUUwgtbgfF5sFgiDDieJznsBc89wZU=
-X-Proofpoint-GUID: pNHWYOw7n9uv1daxksidSM_yctJiXE7G
-X-Authority-Analysis: v=2.4 cv=EsJHPicA c=1 sm=1 tr=0 ts=6ae89414 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Authority-Analysis: v=2.4 cv=Zsp4uN7G c=1 sm=1 tr=0 ts=6ae89a3f cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=AO8tPHvIc8Hd2HLRh-MA:9 a=QEXdDO2ut3YA:10
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=VwQbUJbxAAAA:8 a=63I7vew4H1gMsoJh5SgA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: bch4EPSqVtx6eRl9fb5rFvStfLt6kVTC
+X-Proofpoint-GUID: bch4EPSqVtx6eRl9fb5rFvStfLt6kVTC
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAyMDA1NCBTYWx0ZWRfX7S5XcRz6RHIv
+ hFqHOSYBB1NbW72U5WQgSjRswZzpjwExbXXG4JLWjGc8+poAQ963lxpXH/l8O/3nRZTyzUnGDy5
+ liTQ7KR6KuBG2a0f6+8VuPP7kp5+CBVUwFvehHYj6n5M5daIABthvzC8xuoAl7A0Kgr1H0WajHK
+ Pr0GXlqjW97LrS3Wz2c+lQLDJXt0cdJm0bNt/x2rXfJ0POmwHY2WAVscuAm/E6ZsHPPCjI+mtit
+ aVRBftnIyxpRKeNhbQznIGaoHC5mLkzm6B7+ApsGVdtG5+2db8RV37i46AlcJG0N88fX+0PoR3I
+ btYWt1ND0mKmnkN4NZRjlCKOvYtT2WWZ1fJfg7h+oyUh3+4/eXvXQrNX/E1hcD2K+uoWvlFCjAC
+ 7cNN3Z6xKGj8CHVUjpMzdgQzveC+bW5blcuT1e6by0fKrB190PaMRxw8W+xWLoTlDz2nmjZs3Fl
+ xT4uuUiTUvjtOfriSUQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAyMDA1NCBTYWx0ZWRfXzOz0K/MSO9ZQ
+ NK/jkLgNb084ttn7l/jsZ6HnAEOKv2gcOUbV9gci9vVHH/z9C7Hf22u5qjE3ulITQDd2uMksnLN
+ EZ9TGuBVAIXnwl1IjTw51mFS8n44iqc=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-02_03,2026-11-02_02,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 clxscore=1015 lowpriorityscore=0 malwarescore=0
- priorityscore=1501 adultscore=0 impostorscore=0 phishscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
- definitions=main-2611020054
+ lowpriorityscore=0 adultscore=0 priorityscore=1501 bulkscore=0 clxscore=1015
+ impostorscore=0 spamscore=0 malwarescore=0 suspectscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610300000 definitions=main-2611020054
 
 On 10/28/26 7:54 PM, Claudio Imbrenda wrote:
-> For UCONTROL VMs, when a vCPU segment entry is mapped but unallocated,
-> the tl field was set to 1. This collides with the present bit, which
-> means that other parts of gmap would mistake the entry for a present
-> one.
+> Fix idte_crste() to add the missing table-type bits and the missing
+> "memory" clobber.
 > 
-> Refactor the code to use a different combination of flags to indicate a
-> mapped but unallocated segment.
-> 
-> The new flags combination will result in several functions returning
-> -EFAULT when used on UCONTROL guests. This is fine, since those
-> interfaces should not be used for UCONTROL guests to begin with.
-> 
-> Proper fencing of the interfaces that are not allowed for UCONTROL
-> guests is outside the scope of this patch.
-> 
-> Fixes: a2c17f9270cc ("KVM: s390: New gmap code")
+> Fixes: 5a74e3d93417 ("KVM: s390: KVM-specific bitfields and helper functions")
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 > Cc: stable@vger.kernel.org # 7.0+
 > ---
->   arch/s390/kvm/gmap/dat.h  | 16 +++++++++++-
->   arch/s390/kvm/gmap/gmap.c | 54 +++++++++++++++++++--------------------
->   2 files changed, 41 insertions(+), 29 deletions(-)
+>   arch/s390/kvm/gmap/dat.h | 6 ++++--
+>   1 file changed, 4 insertions(+), 2 deletions(-)
 > 
 > diff --git a/arch/s390/kvm/gmap/dat.h b/arch/s390/kvm/gmap/dat.h
-> index 90389d47ba4e..4665c1112bb9 100644
+> index 687e1fa904d6..fb7e839a355f 100644
 > --- a/arch/s390/kvm/gmap/dat.h
 > +++ b/arch/s390/kvm/gmap/dat.h
-> @@ -109,6 +109,8 @@ union pte {
->   #define _REGION3_FR_MASK	(_REGION3_MASK >> PAGE_SHIFT)
->   #define _PAGES_PER_SEGMENT	_PAGE_ENTRIES
->   #define _PAGES_PER_REGION3	(_PAGES_PER_SEGMENT * _CRST_ENTRIES)
-> +#define _UCAS_ENTRY_LENGTH	0
-> +#define _UCAS_ENTRY_OFFSET	3
-
-Both of these together in combination with tt=segment are essentially a 
-flag for a ucontrol mapping that's mapped but not allocated?
-
+> @@ -640,20 +640,22 @@ static __always_inline void idte_crste(union crste *crstep, gfn_t gfn, unsigned
+>   	unsigned long table_origin = __pa(crste_table_start(crstep));
+>   	unsigned long gaddr = gfn_to_gpa(gfn) & HPAGE_MASK;
 >   
->   /* Soft dirty, needed as macro for atomic operations on ptes */
->   #define _PAGE_SD 0x002
-> @@ -421,6 +423,17 @@ static inline union crste _crste_fc0(kvm_pfn_t pfn, int tt)
->   	return res;
+> +	table_origin |= crstep->val & _REGION_ENTRY_TYPE_MASK;
+
+Why don't you just OR crestp->tt ?
+
+> +
+>   	if (__builtin_constant_p(opt) && opt == 0) {
+>   		/* flush without guest asce */
+>   		asm volatile("idte	%[table_origin],0,%[gaddr],%[local]"
+>   			: "+m" (*crstep)
+>   			: [table_origin] "a" (table_origin), [gaddr] "a" (gaddr),
+>   			  [local] "i" (local)
+> -			: "cc");
+> +			: "cc", "memory");
+>   	} else {
+>   		/* flush with guest asce */
+>   		asm volatile("idte %[table_origin],%[asce],%[gaddr_opt],%[local]"
+>   			: "+m" (*crstep)
+>   			: [table_origin] "a" (table_origin), [gaddr_opt] "a" (gaddr | opt),
+>   			  [asce] "a" (asce.val), [local] "i" (local)
+> -			: "cc");
+> +			: "cc", "memory");
+>   	}
 >   }
 >   
-> +static inline union crste _crste_ucas(kvm_pfn_t pfn)
-> +{
-> +	union crste res = { .val = PFN_PHYS(pfn) };
-> +
-> +	res.h.i = 1;
-> +	res.h.tt = TABLE_TYPE_SEGMENT;
-> +	res.h.fc0.tl = _UCAS_ENTRY_LENGTH;
-> +	res.h.fc0.tf = _UCAS_ENTRY_OFFSET;
 
-You're missusing this field in order to get to bits 57 and 58 which 
-aren't actually the tf field for a segment, right?
-
-If so, then this might be easier on the eyes since you don't use a 
-bitmask but it's horrible for the brains of anyone other than yourself. 
-Especially since there's no comment explaining the shenanigans.
-
-> +	return res;
-> +}
-> +
->   /**
->    * _crste() - Useful constructor for union crste with FC=1
->    * @pfn: the pfn this pte should point to.
-> @@ -985,7 +998,8 @@ static inline int dat_create_slot(struct kvm_s390_mmu_cache *mc, union asce asce
->   
->   static inline bool crste_is_ucas(union crste crste)
->   {
-> -	return is_pmd(crste) && crste.h.i && crste.h.fc0.tl == 1 && crste.h.fc == 0;
-> +	return is_pmd(crste) && crste.h.i && !crste.h.fc &&
-> +	       crste.h.fc0.tl == _UCAS_ENTRY_LENGTH && crste.h.fc0.tf == _UCAS_ENTRY_OFFSET;
->   }
->   
