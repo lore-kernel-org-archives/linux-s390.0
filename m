@@ -1,90 +1,49 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793632590;
-	b=0gIW0OdtKo8lzUiznFfBQH8SZKVEVSSGmQ7ntFeKWO/6B9cBMCw4rfp+JhKp9oBr8RpC
-	 bkW6MS6A0TB2+wAWFYZe0v6Bn3+0gOBSM4hKS0CoektGgnWWXcJf3V8l3EVTM5M+xWcQv
-	 EqNw1vVweGrdjOvDwi2xL4DIlOUkueTzjy6PlKyrezMf9s76SHoflCsLBb/RL5e8AdieO
-	 j19/EkmhGv+pnnzRR2oi//Q22FEmAB13smNLYGOu+EQ7F6N6lLs1ei7gQi0VaLIMJ6C5g
-	 DdbEV+XU//Z8Ni/A0tutoM54A3qU98w9QcNhnRWapjmF/Cv4/CjkQ4BG7p/Q8KtC1ag==
+	t=1793632594;
+	b=y45ybW5nbgxmVPGoKsE6/qu7QxY5S02quzzNguOj7cs4bjAGblKSdcP2vCyULncPz7hJ
+	 VBkMtZMfmr86jhz8gzmPSvbhc36T1sPkb8i1+rxXLbsUSJdeXJU7WRgn0/EjvPG+NLtAG
+	 PQ7DE32ujQ0kqGjOpsAW0Zbo8iBMwHs40ywI3R+EOAMb+BQMLA/W7JrwzejY6bh5/pCle
+	 2VWL9gb9a7c8m5dtdZknPdQiJ7wRp4j1PR7EqnK1mhMqbl6BsPYwFUjTx+7An6CLsuCK/
+	 1aEq3F0kjywsYEoMqRq0iNsg9xFXTJfp62WRu7lGa4N1/reV17Xwd8QlUXX2BcniM6w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793632590;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-TM-AS-GCONF:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-GUID:X-Authority-Analysis:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=faMoFAkyez9tsTH3nm4z3LYH710V6RsXShM7y6hT9ik=;
-	b=UR++nA0694gA+If7R3tFvWO3EchMfzxF5Jr4xKsmtrflN2fPGuZjheiFhAnx8gI/YvlP
-	 iPiNCq+LXcXX9kSFfJ91Eeu6eJwXryquoSsO1OUcCeVslcMvWoISdpjrwd2Cx2kHVZxy3
-	 7i0HhiATGeJ809CYhsVGCnJR5Xep/UX+NYuhV54Um9SxXehxbNgKD0Voi/813I+SOxoiU
-	 G3hh336veyeuHaF9omP+Zb6BEGLO2tpJQs0IW781ii6xE2sla/2DSFF5Bqqs7r0cA4jzb
-	 aYFaW5heUUaHOwk9vf2CLp846/l86PLOLm0U/SPRSBdMCQvL1DBmYWk6ynhWxAuJd3w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793632594;
+	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
+	 X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=zft31zEOyoxpoaQra2tyBUnsx6CBcNbPccBHjIcKUVg=;
+	b=3tb306VMPfHx/JdhQ9HG/YAiTUtsvKHcP3ekkkChp2OdR36IGmMp9u3WNZyaJepP4/8P
+	 9MxHRUeAFh3Wjky0/4tk6pKOF7Tscyac6p/3Q2ewj3O8JRntbDE2p2Yx31r4mgCZL/OSb
+	 Z3RCzTrmX/fKrZaJWKWmcA707aVHCXRfdwM/ForGipjZAPAP6y5qCwvzRnapuPcL0vBEx
+	 yw1B8Nv43v9vsze7YG1Mkt/sq9aZwPhypi1NT7Uf/TDh6BZqWyPe0HWSj3xbNQIonXuMw
+	 7067gI5AQWUQha4T7IglKY/rCrCRHIUcCrZogM3YTcxTd+s2u5u3UVqr/AEzI+nHJDA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=bm+rWvwV;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lwKeAIr5;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D35176074A7E;
-	Mon,  2 Nov 2026 15:16:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D35176074A7E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C88EA60BA901;
+	Mon,  2 Nov 2026 15:16:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=bm+rWvwV
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2EE9cA3103393;
-	Mon, 2 Nov 2026 15:16:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=faMoFAkyez9tsTH3n
-	m4z3LYH710V6RsXShM7y6hT9ik=; b=bm+rWvwV7wM/AokLqf4bYLQuyM9eFyWCl
-	FJrpK0yOBAZrlWLYhbwtaHyu6abN1Q7HoOUjA52uQ/bzoze6/F/OjYt43+rWitlj
-	HafBBXbxPF2+RoEZ3BC8ms3x0LIetqSlnfXqDicyhEADWH/81ydWIXDo9l7qIZbN
-	OrOMsvLx95Mmaf8zD+lrAaYxHsIhSFhU9gNKGNeDK+Z+6o8sauehKIOY9F1sEUu9
-	6bHGqAjrm+irxxYWeAV55PrQxmgsnpjtEbX626qJPq7xKanlSwZxjoi2V+YuKF6o
-	/mJIySnhCdZz/CESwbSCwdPi34eNLfddNQceqy27V4+dyJA5eYBwA==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn826h8tq-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 02 Nov 2026 15:16:24 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2E5xjb1034511;
-	Mon, 2 Nov 2026 15:16:23 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hnu1vej7x-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Nov 2026 15:16:23 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A2FGLr931064664
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 2 Nov 2026 15:16:22 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CE2945805A;
-	Mon,  2 Nov 2026 15:16:21 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 98D965805C;
-	Mon,  2 Nov 2026 15:16:20 +0000 (GMT)
-Received: from li-4c4c4544-004d-4810-8043-b7c04f423534.ibm.com.com (unknown [9.61.57.150])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  2 Nov 2026 15:16:20 +0000 (GMT)
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: jjherne@linux.ibm.com, freude@linux.ibm.com, borntraeger@de.ibm.com,
-        cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com,
-        alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com
-Subject: [PATCH v11 11/14] s390/vfio-ap: Callback to get the size of data to be migrated during guest migration
-Date: Mon,  2 Nov 2026 10:14:51 -0500
-Message-ID: <20261102151604.2150055-12-akrowiak@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20261102151604.2150055-1-akrowiak@linux.ibm.com>
-References: <20261102151604.2150055-1-akrowiak@linux.ibm.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lwKeAIr5
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 700B71F00A17;
+	Mon,  2 Nov 2026 15:16:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793632593;
+	bh=zft31zEOyoxpoaQra2tyBUnsx6CBcNbPccBHjIcKUVg=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=lwKeAIr5gfFdOVWI9d9xeAawLRX/+XVqTfNIZzgNtLrSPX6u/1CsXECEJL5tNDzMA
+	 81vHXmP4nFBhwRmc/4DERMlJX3QJMwM96cPu9uFbIdibRRS+aHrZI2E5D8a9x1Uv1l
+	 y72FYfS6k5k1GClENyne0V+By+vwxAzdEjY9MbyHJUJx3+nI4+K7kwwgkmi1p0ISO4
+	 9ghnaezbHX5aMMMApF32QawdIaGRPpRDQgJtdD1vqFI5zB7VZbE3n4IduXje7eWoWa
+	 uAZM2qTjPRKpyLwg4MYMHyPaKwvk2dOe0ToVz3+E2luGZiMaQunD5RVbSRamL0hSZ+
+	 ETwAKz10Wwghg==
+From: Christian Brauner <brauner@kernel.org>
+Date: Mon, 02 Nov 2026 16:07:25 +0100
+Subject: [PATCH RFC 18/23] wifi: ipw2x00: let procfs copy in writes to the
+ debug level
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -94,72 +53,94 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 7UR6Zf4TLSb35XQ7iEHft1nOOjk-1xXs
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAyMDA2MCBTYWx0ZWRfX32ZjAjzhGgiI
- Eq3Z8jY0pkrMEWhHqqX9Z/594fAOxjx2DESJl7d730WrorcpuQBMPt2yTGdIjOMqJvKr3mikrGU
- auPWFQoyiufTxcG6gDOVmRPqV8Z27DsPNIUhWIOhTlLK5bENIRmyko0lxlRLyKB36Sc77w6/gIe
- Gh1yR6CvIiXQlIsYfwdB+8M12f3kPSOBzFH4MtfHGdTkc7v8nXDbmtKuemb7Y0lUN3JZRIuZA0L
- 8h7IOG9pqMiOExUIxYXGYv9S2DjnQmlLyqklAoAki2nPD3tCfQI8vv4pODX0kR26VEUazWSRnL+
- wib1AEhQeA/knzDYYMXQD7UT2U7NZbLYPse/GuMLAHfBJs25s4B/ptChg9CsmhvaSot0IvTCCPL
- TdyHa9lNJPISpTB2i9yWh75/3FLv8N5dV11SmTTraHdwLmNUlnbiA2tg0S+mWyhyW8cJc6ymuSH
- h4KweqAsBlTnB30K6OA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAyMDA2MCBTYWx0ZWRfX8DTcTJmUUTwL
- Fe0o58mUgfBkvIHv3Co2sIcuFONriJokYVD1rTdV034gVzai94jWtEiNQAq2Ezmxwcq8LOknCPl
- b1pnBIE7Mb60u55V6NilsS8m+B3y2cY=
-X-Proofpoint-GUID: 7UR6Zf4TLSb35XQ7iEHft1nOOjk-1xXs
-X-Authority-Analysis: v=2.4 cv=EsJHPicA c=1 sm=1 tr=0 ts=6ae8a948 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=vZ-Ft76KQvoWVpZ_:21 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=dNOmgfuV3ZSo10a98CMA:9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-02_04,2026-11-02_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 clxscore=1015 lowpriorityscore=0 malwarescore=0
- priorityscore=1501 adultscore=0 impostorscore=0 phishscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
- definitions=main-2611020060
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261102-work-procfs-drivers-v1-18-a994bd4d3b1a@kernel.org>
+References: <20261102-work-procfs-drivers-v1-0-a994bd4d3b1a@kernel.org>
+In-Reply-To: <20261102-work-procfs-drivers-v1-0-a994bd4d3b1a@kernel.org>
+To: linux-fsdevel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, 
+ Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, 
+ Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, 
+ NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>, 
+ Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
+ Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
+ Greg Kroah-Hartman <gregkh@suse.de>, 
+ Joel Granados <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, 
+ Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
+ linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
+ linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+ linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, 
+ linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, 
+ ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org, 
+ coreteam@netfilter.org, kexec@lists.infradead.org, 
+ linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
+ netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+ ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net, 
+ linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-cifs@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+ linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-sh@vger.kernel.org, 
+ linux-usb@vger.kernel.org, samba-technical@lists.samba.org, 
+ sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
+ linux-doc@vger.kernel.org, linux-serial@vger.kernel.org, 
+ linux-atm-general@lists.sourceforge.net, Takashi Iwai <tiwai@suse.de>, 
+ linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
+ linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, 
+ linux-debuggers@vger.kernel.org, 
+ "Christian Brauner (Amutable)" <brauner@kernel.org>, 
+ Chuck Lever <cel@kernel.org>
+X-Mailer: b4 0.17-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1605; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=SZl2laNUZYNGFN2sYGUP5fs3tBGCqMuq/D28k7CZWwo=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9WG64euvV9Mi0G6e/pc2cvZ5tAkOWU9ijuqL1VrnM1
+ 97MmMJxqaOUhUGMi0FWTJHFod0kXG45T8Vmo0wNmDmsTCBDGLg4BWAiBnMY/pddjIrb5bFlB/vq
+ T/1p1gs8F8lNfdO6cLPPKu/tLFWSX2UZ/mk7OAg3F8ZXtHXzM/o7ck37wd4VdH5/R8b9gzV2lT9
+ NGAA=
+X-Developer-Key: i=brauner@kernel.org; a=openpgp;
+ fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-Callback to get the estimated data length of the data that will be required
-to complete reading of the vfio device's internal state. It's mandatory for
-VFIO_DEVICE_FEATURE_MIGRATION migration support.
+Implement ->proc_write_buf() so procfs copies in what is written before
+it pins the entry, and parse the level from that copy. Writes larger
+than PAGE_SIZE - 1 bytes fail with -EINVAL now, and a buffer that can't
+be read fails with -EFAULT instead of looking like it was written.
 
-The function pointer for this callback is specified via the
-'migration_get_data_size' field of the 'vfio_migration_ops' structure
-which is stored with the VFIO device when the 'vfio_device'
-structure representing the mediated device is initialized.
-
-Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Jason J. Herne <jjherne@linux.ibm.com>
+Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- drivers/s390/crypto/vfio_ap_migration.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/ipw2x00/libipw_module.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypto/vfio_ap_migration.c
-index c5534c6ee3ce..7c282d396f50 100644
---- a/drivers/s390/crypto/vfio_ap_migration.c
-+++ b/drivers/s390/crypto/vfio_ap_migration.c
-@@ -1308,7 +1308,15 @@ static int vfio_ap_get_state(struct vfio_device *vdev,
- static int vfio_ap_get_data_size(struct vfio_device *vdev,
- 				 unsigned long *stop_copy_length)
- {
--	return -EOPNOTSUPP;
-+	struct ap_matrix_mdev *matrix_mdev;
-+	int num_queues;
-+
-+	mutex_lock(&matrix_dev->mdevs_lock);
-+	matrix_mdev = container_of(vdev, struct ap_matrix_mdev, vdev);
-+	*stop_copy_length = vfio_ap_config_size(matrix_mdev, &num_queues);
-+	mutex_unlock(&matrix_dev->mdevs_lock);
-+
-+	return 0;
+diff --git a/drivers/net/wireless/intel/ipw2x00/libipw_module.c b/drivers/net/wireless/intel/ipw2x00/libipw_module.c
+index 15d9a5efb581..08cc0d7f57c1 100644
+--- a/drivers/net/wireless/intel/ipw2x00/libipw_module.c
++++ b/drivers/net/wireless/intel/ipw2x00/libipw_module.c
+@@ -216,14 +216,13 @@ static int debug_level_proc_show(struct seq_file *m, void *v)
  }
  
- static const struct vfio_migration_ops vfio_ap_migration_ops = {
+ static ssize_t debug_level_proc_write(struct file *file,
+-		const char __user *buffer, size_t count, loff_t *pos)
++		char *buffer, size_t count, loff_t *pos)
+ {
+ 	char buf[] = "0x00000000\n";
+ 	size_t len = min(sizeof(buf) - 1, count);
+ 	unsigned long val;
+ 
+-	if (copy_from_user(buf, buffer, len))
+-		return count;
++	memcpy(buf, buffer, len);
+ 	buf[len] = 0;
+ 	if (sscanf(buf, "%li", &val) != 1)
+ 		printk(KERN_INFO DRV_NAME
+@@ -236,7 +235,7 @@ static ssize_t debug_level_proc_write(struct file *file,
+ 
+ static const struct proc_ops debug_level_proc_ops = {
+ 	.proc_show	= debug_level_proc_show,
+-	.proc_write	= debug_level_proc_write,
++	.proc_write_buf	= debug_level_proc_write,
+ };
+ #endif				/* CONFIG_LIBIPW_DEBUG */
+ 
+
 -- 
 2.53.0
 
