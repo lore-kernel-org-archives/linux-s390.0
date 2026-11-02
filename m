@@ -1,58 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.208.46
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793642252;
-	b=ZqhPhFj3NScCoiCOT7Dw1NDwVaGAz8FxR709FpA3tt/Te9LI69CknVLpmAuwXs6QW0gQ
-	 W5TOpf0+nwtqSSQWOBab18i+jX8oKCNKNrhoR3iX4eXumJloEvMMBE/rXMhDi3UaDfFed
-	 bbGRhPCwhv6ZMzv4HNeuxgbwQyVV/16IIOC9TLIBLrSW9m6Ji9DqTejqQHFg8i0j+RaOY
-	 uq4UbZRFcnWFLRTFiEdcb7yrWFMjpjp3SjHl1qOsXLTYqrx8zCWxMVPIzx4DTNv0qsQt4
-	 v3IU7OeHayKv5LS2pG1t9xFWiFxaBfFQsNybd3iKJWyG0BA6QEPEwswtVq20A1G4YzA==
+	t=1793642353;
+	b=r4a/xKzlxBaFD9sRlQNe+zonXdUGPx8CBlLVr1S38fvbEK8LCZCnhySVqXwAror0k8YX
+	 rvdPXLoLu8etR30nm+tV/idPaVip6DWzpiyITGqg1uUttLD+lZX0j6nT82VMdq6GfodqU
+	 3ZT3YY2eofQ9hDpg2CGafII0bGJnzlPoFe2ieYXQdpg+YNzstWyOdaPy8F0BMBWtjQM/0
+	 2B5/MwPneILLKqoSa0CnAJgvX6Ss1C1T7aME4AG3y4SV8KKG4Mr08U16jtZawI3v7g10/
+	 xvpSL51axZ8lWKmjnANsbULjES+v/krfj0Mn6BCCns6AT4HHoK6DVACmwGGoDXiFueQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793642252;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=G7I040ofB4XjWpmjfyg+NPMbXtFY2nOQvFDXAjxGsNY=;
-	b=bfTdGpM2ZlR39OBHvojEZU/8MCeLqfeRw1njmdsTEe+YyuzYkUPGjWdNAqX9DcK35C1D
-	 Ca6gaSVQz+koPxcPpKdlOF7Ro4Iyu0m2YNrLk32O7EIsbvc6FvIjaC9A9ySk39OJOvZLg
-	 PxUAAdm2+PWLjc06aMXix0vtr4/gPEtNj2oOGVOsWwAzE1Bj0KX2zhu5LQ4nKcaFJFF8S
-	 1JS56scb5ZNw+BFgcamsvYXh4fnNn+RlWgCfIei/oFiGIVBfSaw8n6KbdKdHgF4LwDCEl
-	 2RVjk584vc4zUIxgj1fbJW+oIKOIhNcAkWWUIKEZIJbOC6tCZEnzbdsZXk8eyvWQr7g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793642353;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 Received:X-Forwarded-Encrypted:X-Received:MIME-Version:References:
+	 In-Reply-To:From:Date:X-Gmail-Original-Message-ID:X-Gm-Features:
+	 Message-ID:Subject:To:Cc:Content-Type;
+	bh=/vXXDZI2TLqXD/tqTZGHj/cF0YcMq0fXP1TpWYkM2ME=;
+	b=DghokFA0prJfmdVX6wSmG0qPivICpM6hP0fCJwOdKLYr58aAgkfDIoOmsWI4IeQqNOiq
+	 D8YAyFdq71dF4xSpX9w54C3TpdlXcl4dag1kYrh2okPPrLur9K5KMsxVSLCSm80IQrNq3
+	 GmtpFAUkQ4fa+wk0C7bbbNBE8AqaFwA7Y9EqKQD3Euuo6epdEFlpQdr0fvT+fOvzUs9BW
+	 f0WQlHaPUwecQNsbvwqV0ofx2PSQzP/kKS5xdcCPF0jPNihBAR2oQ+Fzoen/jFADIuxMG
+	 kt9bWITEWo9WOXRgjShCY4iUTTB4KPQ1lmThpk0i8rWtlgIYhx4eI5Z+1l9OFfwTZ0Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dCb9Y9GV;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=none header.from=linux-foundation.org;
+	spf=pass smtp.mailfrom=linuxfoundation.org;
+	dkim=pass header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=ekg5TOf8;
+	arc=none smtp.remote-ip=209.85.208.46
+Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com [209.85.208.46])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A74960716E1;
-	Mon,  2 Nov 2026 17:57:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F05E8606A5AA
+	for <linux-s390@vger.kernel.org>; Mon,  2 Nov 2026 17:59:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F05E8606A5AA
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dCb9Y9GV
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 983391F00A21;
-	Mon,  2 Nov 2026 17:57:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793642252;
-	bh=G7I040ofB4XjWpmjfyg+NPMbXtFY2nOQvFDXAjxGsNY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=dCb9Y9GVa4E3rLkioXKpfvc/9XxIJbXYCwA6ngqaEwAmOmvCwf1yMXUVuVvGxWlwC
-	 WWEP41S5OD7JqJAQm3D9pkrNOtEw4UJnGXVLL3g7oGD/i51l62AanBO503r/NFsEWk
-	 E/MWeaj9k5P6rNz0KGi8QynIj6K9R2emtl3r61pfLasIwU8CJDmtMb6M7TbAKixNFC
-	 3P11EPRVZCNLyDaL+367cyMrOZcY/8ci4tOXcQUkOK/FH7yUZWsEf+zHplXgCPZZx+
-	 y4uOs/CqWgFjEgj9jBN31LSqguEv/2NpbtX1hPZewM03pauVsb97TjwRYGw6dda8nc
-	 9fJ4H42ONTSjQ==
-Message-ID: <sashiko-outbox-193886@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 12/14] s390/vfio-ap: Set up for vfio-ap device
- migration
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Anthony Krowiak" <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261102151604.2150055-13-akrowiak@linux.ibm.com>
-References: <20261102151604.2150055-1-akrowiak@linux.ibm.com>
- <20261102151604.2150055-13-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 02 Nov 2026 17:57:31 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=ekg5TOf8
+Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-6acb9c018ffso4855932a12.1
+        for <linux-s390@vger.kernel.org>; Mon, 02 Nov 2026 09:59:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1793642351; x=1794247151; darn=vger.kernel.org;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=/vXXDZI2TLqXD/tqTZGHj/cF0YcMq0fXP1TpWYkM2ME=;
+        b=ekg5TOf8PXlbMPoS4qdrUH0qtWO732M+jubYVeFRHzubEalPOb+31Lw828wpBa++rq
+         hzAaV9LYLYH4oiPKof8252Jsp9PZHQCBmEyGXQ16X2cSkMFbWYT0UcG8eZrNpE8TZTsq
+         aQpK1vS0JWFQvV2YncXbbT/3XzBR73lEvrSrI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793642351; x=1794247151;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=/vXXDZI2TLqXD/tqTZGHj/cF0YcMq0fXP1TpWYkM2ME=;
+        b=Yb+4pug8Iuo7DopLI5hbixwuH0ScmoOcVJ9ngyj/UOt/GUEjMLNoatDXkYv9qaUnoH
+         PkImwaATGVClVJ8Qwr/UTMuxIN4uEymN9jdjs3Tq0wrwwfnDmuGsj3i9RcYfTpjj1Kcz
+         MF9JOamHr1wXs1tEgA4VJ1IhZ8M8BtOGKkUgj4OdkNpldFEIjiRBntRuhQN9+rgIcncK
+         ArFfG9CIq9DT81fwNq3fAmhE71r8ku0D/h53RmUqgUie93gaPBdvLJxi/5t+04vTMWx6
+         /px4RrKIYi5bwl9LhPsSkFo4qm29U6zi5wNngEhxAdvF+c4cmRxd5ssLG+X/K5bnlxY1
+         YS2Q==
+X-Forwarded-Encrypted: i=1; AKwUvBy3eB7uwmVHtYLkqf6thW2gsPdD0ONub0MvlEGveZkiC8oqGi5BRCv2jgfykSHaQc6hZiq5CKU/8c8d@vger.kernel.org
+X-Gm-Message-State: APuU4Z/gRssYEU9K4JbHKre7WODvUb5pXmb2xDBfniWdoKqUsZ7nweQn
+	IIzWvK7oe7L/N07476p4QreAa4yzZ8TER1iLCSFg8+nPt7l354aIQqA6z7K8t3+7N+BOPy1Sv/5
+	gbd+Cr9I=
+X-Gm-Gg: AYBFou32sVgYgFhTAlKZJHJCYPFoKftjfjoT546kLCXzOMwsekhpBf1TDVrBhmb8yww
+	6u7QTylbYS5n5mARCZwhmydCrlVO+VNbMEQerjDKFh1AosOLeuAnJCMFn4c8iecbR4vZpD0DMxy
+	Qp8a3AJRmiHOaZWc+EEBb2ACELZ1mrU0GjtWVQkNU8ZqeSCaghoefVullbQfKRUlNHQ6mZBsNsT
+	MLL+UWJfS/HLPS6sUgNCk2yMhknMAoJw2IsNlTMbIwxJdMdXwcU00YmAzL30LvQzksGT9dm7Vwp
+	oI+3izPzENxDEI+kGaOE9DrkMLSrx7JY5UM9RUmPsmYPCDiABvsfltTYQ30OJxUzOlOVbGLMgPS
+	Z5lrKovzU+2mgQ+bIwLuMw083FLXiZFNAKTRtSwcsib0hdhL0/r2hBT8rthXEh67gpT/rCCRDSP
+	Ihgs+7IGW5owcacMH0N2ikvTMuQolNRBNtHbm1Bg/W5hsH79bzxm5Qya4KQ3tXkigwlgPv/GxJh
+	ypGt+AeJhs+/i6KMJ54Upy/N7BMS+UlKdNphKKFaTJEvApUgBrGxEnfH6RNknU1RYR0ykqbLEXF
+	dKeEOmbrwqPZk2P4r3pCewsFVkLAHSFdsy2dur3ZAX4D1auGhZnLDDm2Ishxmka0/VIptYOMVKQ
+	SDw==
+X-Received: by 2002:aa7:d645:0:b0:6aa:e144:7290 with SMTP id 4fb4d7f45d1cf-6b4b0c0e54fmr7691714a12.17.1793642351225;
+        Mon, 02 Nov 2026 09:59:11 -0800 (PST)
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com. [209.85.208.50])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6b52f3c18a9sm518155a12.16.2026.11.02.09.59.08
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 02 Nov 2026 09:59:09 -0800 (PST)
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-6b1aa27963eso7716047a12.1
+        for <linux-s390@vger.kernel.org>; Mon, 02 Nov 2026 09:59:08 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AKwUvBwBZa7+XwK/2bmViQaGK/V8nvBXiO7IEAeB5HVndnfxiPMGciFxSitcszehWnPcLiwjDVxdCpdlj4Nc@vger.kernel.org
+X-Received: by 2002:a17:907:d94:b0:c2d:c80e:8366 with SMTP id
+ a640c23a62f3a-c4ca7426f6emr874452266b.0.1793642348398; Mon, 02 Nov 2026
+ 09:59:08 -0800 (PST)
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -61,197 +93,61 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+References: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org> <20261102-work-procfs-bugfixes-v1-1-59422ed3e465@kernel.org>
+In-Reply-To: <20261102-work-procfs-bugfixes-v1-1-59422ed3e465@kernel.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Mon, 2 Nov 2026 09:58:51 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wiSA7-mqmAjTQDaU7UjUyWt0TxYwXHafL8ZAPudy+B_uQ@mail.gmail.com>
+X-Gm-Features: AclHuK_qZTBVsLQIdymgRHScSFenC6XsGggUDmcuOugjrSTbuVkeASUmC_hYPZo
+Message-ID: <CAHk-=wiSA7-mqmAjTQDaU7UjUyWt0TxYwXHafL8ZAPudy+B_uQ@mail.gmail.com>
+Subject: Re: [PATCH RFC 01/38] PCI/proc: don't truncate the position of config
+ space accesses
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, Jann Horn <jannh@google.com>, 
+	Josef Bacik <josef@toxicpanda.com>, Chris Mason <mason@kernel.org>, 
+	Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>, 
+	Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
+	Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, Greg Kroah-Hartman <gregkh@suse.de>, 
+	Joel Granados <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, Jan Kara <jack@suse.cz>, 
+	Jan Kara <jack@suse.com>, linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
+	linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+	linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, ntfs3@lists.linux.dev, 
+	platform-driver-x86@vger.kernel.org, coreteam@netfilter.org, 
+	kexec@lists.infradead.org, linux-pci@vger.kernel.org, 
+	linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, ibm-acpi-devel@lists.sourceforge.net, 
+	jfs-discussion@lists.sourceforge.net, linux-alpha@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org, 
+	linux-fbdev@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org, 
+	linux-sh@vger.kernel.org, linux-usb@vger.kernel.org, 
+	samba-technical@lists.samba.org, sparclinux@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org, 
+	linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net, 
+	Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
+	linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, 
+	linux-debuggers@vger.kernel.org, Chuck Lever <cel@kernel.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Thank you for your contribution! Sashiko AI review found 2 potential issue(=
-s) to consider:
-- [Critical] s390/vfio-ap: use-after-free of mig_file in vfio_ap_release_mi=
-g_file()
-- [High] s390/vfio-ap: fortify_panic() on chunked writes in vfio_ap_resumin=
-g_write()
---
+On Mon, 2 Nov 2026 at 06:22, Christian Brauner <brauner@kernel.org> wrote:
+>
+> proc_bus_pci_write() truncates the file position to an int. A pwrite()
+> at an offset like 0xfffff000 turns it negative [..]
 
-commit 8f5bd5cbf7956f3cc86d039dd21c5869a7e36482
-Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+I think this would actually be better with rw_verify_area() just
+checking a per-file maxbytes.
 
-s390/vfio-ap: Set up for vfio-ap device migration
+We already have that logic for lseek and friends - using that fairly
+hacky combination of s_maxbytes and !unsigned_offsets().
 
-This commit plugs in the vfio_migration_ops callbacks and sets the
-VFIO_MIGRATION_STOP_COPY migration flag during vfio-ap mediated device probe
-when not running in an SE guest.
+We should combine s_maxbytes and unsigned_offsets() at file open time
+into f_maxbytes and check that not just at lseek but in
+rw_verify_area.
 
-> diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypt=
-o/vfio_ap_migration.c
-> index 7c282d396f502..57cfaafec4d97 100644
-> --- a/drivers/s390/crypto/vfio_ap_migration.c
-> +++ b/drivers/s390/crypto/vfio_ap_migration.c
-> @@ -217,6 +217,30 @@ static int vfio_ap_release_mig_file(struct inode *fi=
-le_inode, struct file *filp)
->  	return 0;
->  }
-> =20
-> +static const struct vfio_migration_ops vfio_ap_migration_ops;
-> +
-> +/**
-> + * vfio_ap_setup_vfio_device_migration:
-> + *
-> + * Plug the object containing the function pointers to the migration cal=
-lbacks
-> + * used to facilitate migration into the vfio device and set the flags
-> + * indicating migration states STOP, STOP_COPY and RESUMING are supporte=
-d.
-> + *
-> + * @matrix_mdev: pointer to object containing the vfio device (vdev)
-> + */
-> +void vfio_ap_setup_vfio_device_migration(struct ap_matrix_mdev *matrix_m=
-dev)
-> +{
-> +	/*
-> +	 * Live guest migration is not supported for SE guests, so there is no
-> +	 * need to initialize the migration capabilities.
-> +	 */
-> +	if (ap_is_se_guest())
-> +		return;
-> +
-> +	matrix_mdev->vdev.migration_flags =3D VFIO_MIGRATION_STOP_COPY;
-> +	matrix_mdev->vdev.mig_ops =3D &vfio_ap_migration_ops;
-> +}
+And then things like proc_bus_pci could set it's size limit in one single place.
 
-[Severity: Critical]
-As reported by Sashiko on v5 [1], now that vfio_ap_migration_ops is wired u=
-p,
-can closing the VFIO device file descriptor while a migration file descript=
-or
-remains open trigger a use-after-free of matrix_mdev->mig_data and its
-embedded mig_file structs?
+Hmm?
 
-In drivers/s390/crypto/vfio_ap_migration.c, resuming_mig_file and
-stop_copy_mig_file are embedded inside the heap-allocated struct
-vfio_ap_migration_data (matrix_mdev->mig_data) rather than inside struct
-ap_matrix_mdev:
-
-struct vfio_ap_migration_data {
-	enum vfio_device_mig_state	mig_state;
-	bool				resuming_mig_data_complete;
-	struct vfio_ap_migration_file	resuming_mig_file;
-	struct vfio_ap_migration_file	stop_copy_mig_file;
-};
-
-When transitioning to VFIO_DEVICE_STATE_STOP_COPY or
-VFIO_DEVICE_STATE_RESUMING, vfio_ap_open_file_stream() takes a registration
-reference via vfio_device_try_get_registration(&mig_file->matrix_mdev->vdev)
-and sets filp->private_data to mig_file. That registration reference keeps
-struct ap_matrix_mdev alive, but it does not prevent the VFIO device FD from
-being closed.
-
-If the VFIO device FD is closed before the migration FD (for example, by
-userspace or during process exit when close_files() closes a lower-numbered
-VFIO device FD before a higher-numbered migration FD),
-vfio_ap_mdev_close_device() -> vfio_ap_release_migration_data() destroys the
-mig_file mutexes and frees matrix_mdev->mig_data:
-
-void vfio_ap_release_migration_data(struct ap_matrix_mdev *matrix_mdev)
-{
-	lockdep_assert_held(&matrix_dev->mdevs_lock);
-
-	if (!matrix_mdev->mig_data)
-		return;
-
-	vfio_ap_release_mig_files(matrix_mdev);
-	mutex_destroy(&matrix_mdev->mig_data->stop_copy_mig_file.lock);
-	mutex_destroy(&matrix_mdev->mig_data->resuming_mig_file.lock);
-	kfree(matrix_mdev->mig_data);
-	matrix_mdev->mig_data =3D NULL;
-}
-
-Once matrix_mdev->mig_data is freed while the migration FD is still open:
-
-1. Closing the migration FD afterwards invokes vfio_ap_release_mig_file(),
-   which dereferences mig_file->matrix_mdev in freed memory:
-
-static int vfio_ap_release_mig_file(struct inode *file_inode, struct file *=
-filp)
-{
-	struct vfio_ap_migration_file *mig_file =3D filp->private_data;
-
-	vfio_device_put_registration(&mig_file->matrix_mdev->vdev);
-	return 0;
-}
-
-2. Any subsequent or concurrent vfio_ap_stop_copy_read() or
-   vfio_ap_resuming_write() on the open migration FD accesses
-   filp->private_data (mig_file) and locks or unlocks mig_file->lock after
-   mig_data has been destroyed and freed (or while vfio_ap_stop_copy_read()
-   holds mig_file->lock across copy_to_user() after dropping
-   matrix_dev->mdevs_lock).
-
-[Severity: High]
-With vfio_ap_migration_ops exposed to userspace, can chunked writes to the
-RESUMING migration file descriptor trigger a fortify_panic() in
-vfio_ap_resuming_write() under CONFIG_FORTIFY_SOURCE?
-
-In drivers/s390/crypto/vfio_ap_migration.c, struct vfio_ap_config annotates
-its flexible array member with __counted_by(num_queues):
-
-struct vfio_ap_config {
-	u32				magic;
-	u32				version;
-	u32				num_queues;
-	u8				reserved[4];
-	u64				adm[DIV_ROUND_UP(AP_DOMAINS, 64)];
-	struct vfio_ap_queue_info	qinfo[] __counted_by(num_queues);
-};
-
-Although vfio_ap_resuming_init() initializes ap_config->num_queues to
-MAX_AP_QUEUES when allocating the VFIO_AP_CONFIG_MAX_SIZE buffer,
-vfio_ap_resuming_write() copies each incoming chunk directly into ap_config
-before validating expected_sz:
-
-	ap_config =3D mig_file->ap_config;
-	memcpy((char *)ap_config + *pos, kbuf, len);
-	*pos +=3D len;
-
-	if (*pos >=3D offsetofend(struct vfio_ap_config, num_queues)) {
-		size_t expected_sz;
-
-		if (ap_config->num_queues > MAX_AP_QUEUES) {
-			ret =3D -EINVAL;
-			goto out_unlock;
-		}
-
-		expected_sz =3D sizeof(struct vfio_ap_config) +
-			      ap_config->num_queues *
-			      sizeof(struct vfio_ap_queue_info);
-
-		if (*pos > (loff_t)expected_sz) {
-			ret =3D -EINVAL;
-			goto out_unlock;
-		}
-
-When CONFIG_FORTIFY_SOURCE is enabled, memcpy((char *)ap_config + *pos, kbu=
-f,
-len) evaluates __builtin_dynamic_object_size() using the current in-memory
-value of ap_config->num_queues before copying:
-
-1. If an earlier write chunk sets ap_config->num_queues to a smaller value N
-   (where N < MAX_AP_QUEUES) and a subsequent write chunk writes past
-   expected_sz (while still within VFIO_AP_CONFIG_MAX_SIZE), the fortified
-   memcpy() sees the smaller object size derived from ap_config->num_queues=
- =3D=3D
-   N and calls fortify_panic() before reaching the *pos > expected_sz check.
-
-2. Because s390x is big-endian, MAX_AP_QUEUES (0x00010000) has bytes
-   {0x00, 0x01, 0x00, 0x00} at offsets 8..11. For any valid migration stream
-   with num_queues < 65536 (where the upper two bytes are 0x00, 0x00), if a
-   chunked write splits across the num_queues field after its second or thi=
-rd
-   byte, ap_config->num_queues in memory temporarily becomes 0. If the next
-   write chunk copies the rest of the header and any queue info entries, the
-   fortified memcpy() evaluates ap_config->num_queues =3D=3D 0 before copyi=
-ng the
-   remaining bytes of num_queues and triggers fortify_panic().
-
-[1] https://lore.kernel.org/r/20260724182949.EA9C51F000E9@smtp.kernel.org
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261102151604.2150=
-055-1-akrowiak@linux.ibm.com?part=3D12
+                   Linus
