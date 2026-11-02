@@ -1,94 +1,109 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793629091;
-	b=pFsbmSTFFay601t1zQsC35heoxlERDN82wFUd/26Lvo/N8zKu3igSYs72QI838bupNH+
-	 ihDQZOXIJW7m1LuMloR1OVbbwUZhwvaIm0LkFRZKmQGw/rpEhf8fEJuqPZeLdNsf7+4Vp
-	 SWeF6gQ3oP24//HNYEsh8CkO1AmCtoa20100k+RLuRrw3VzpVAPUf/K8LwHgRAEAH2wTW
-	 RJryYSiZySVT7CiQAYsXB8CcxOVQefWQyys702z8Ob7u+zvfyUCgNyJUKCWs1hT0X6kZQ
-	 y6uX8NC+KQ/zckgwNcjCd91/4uyABZTCO6J9kEbu1aEQ7bKlTnjADMY103iwbzinZjw==
+	t=1793629260;
+	b=pCpHSVZDMMdk6s2/SWjI0YYQxt3cLXCpszddhZgCLrD+zL+P1nSYoDjGmWwEsPGQRuoS
+	 cAF+bgvb4//kt5Wwy5h30dajrh4j4Oyu4lOfrLg9hYjc+HhlN9WcTQLOx97AxD9fJDKmY
+	 GImIjoJ0o5r6bMWBreBX3aZy2fGlhnYDKn1wJzqL6Wxaav6MS4KzJC9Z5/1wzOzE8CLt9
+	 t9NIHnDkbziEWw6zFMPilZPTpBAKhNswWQpO6JtBnrRLy7fpM3gm/E/DWhUO8j+IB6HnY
+	 wm503hZLiIrM4tF2OY8MYwnk+JmVUbqFEciduIYQE6lhvx0uU1BUyMmhHg3uQqZ/32g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793629091;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
-	 Message-ID:In-Reply-To:References:Organization:X-Mailer:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Authority-Analysis:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=8eW9phS8sj7+2ncq+kortnmMQd52WyTjCVvQHyuNmaw=;
-	b=t7R/PnlyZa1IABg5PfXwJY5nNOox5Je5tVAOLle8bk6Z7N9brO0r/0RROmweuu7VkoyZ
-	 +/+XMEWZXydxV0643IcdpG+gUixKQsezzSVETJ+elwpDWTF7HkA4AUaUURLVQHBTC7KbG
-	 zqcSZuq5LHMmuT2gVrXZdBBfVpVUKAA9WZLyW950dusTARlZdNza78me+i/SAmfgtSV1Z
-	 LnnNX9i4TFxjF+gGFHd1zJAdDOTO3/8LfSB9X0WP58Uhcy4Wxed0GCl30s8R4cTuR3E4m
-	 pi6cUOVixKK0VT/sshqr0yV3Pb1xjdyU7h12o3dj/I/N+2QiPbyNR7/kHKgtaLo1Eqg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793629260;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Type:X-Developer-Signature:X-Developer-Key:
+	 Content-Transfer-Encoding;
+	bh=AMQhAUoLjC1OsRhPIF0X/aZZvhoGLtnfpHmE2nV4Wn8=;
+	b=w0iUuu25LcgkA3xGhaCiKMEKC4+WEmJvuCSsM7a4JcQzbZkbzH95lmjyghuNDSZ636lM
+	 zDqlTkdA53RBUQ/pfPUtP35lwyf23hoIVTza23nSQ/mxH15ctyh9mOtI68HNAhD4vZQq2
+	 H1pAwc8FT0JABLkWPADeSKIfS3K0Si2FdjU7nGK5JKm78OPZr0ETnE6cVeYr9JSM8ejlT
+	 qSV26qfr4m9ADzs0JeKUvRhT3WqpTt1yNreGV/9s3Zy1LwstRqheSzSloj1kmuJYwmew3
+	 hQf23VzxVy8e0WCjv8ctXarDx8UwmqgUEp8H2W9zOkRKd4ZYX1BHGBPLKByfm8j/6Qg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="O/GI6FrS";
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=i0H9lG0B;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B181606B5D7;
-	Mon,  2 Nov 2026 14:18:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 1B181606B5D7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 821D9606A327;
+	Mon,  2 Nov 2026 14:21:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=O/GI6FrS
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2EEjkE3114971;
-	Mon, 2 Nov 2026 14:18:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=8eW9ph
-	S8sj7+2ncq+kortnmMQd52WyTjCVvQHyuNmaw=; b=O/GI6FrSwQXVaTh1n3KCRl
-	H/lVHGWwnWoYjjg0Dj6BGodZaPMdTnkzOww+9pV6/oRbxgvmDDdA3SiHU8AMvpEY
-	styBxBShDCYFGjeNNPrF/k51U0nXvL3AlbbK7NFd8gdVA7kjNyW9u2i+OIjfGRCs
-	oJsgCo2NYKnfhtRuekD1BaAtp2DEzcqYUjJdxY6oAUnG2INEujVLdtAvtb+33bPN
-	kwgccw6f6lYzoNzfGQa1S3SPiKGTWvl/kYeBjuub7XYicmBfgK9pYUsZuJU1iYLX
-	qr7aSUqMYswoqSDXw8hac917H96XwQ8Eaco03MXAPDP7Gn1mYdGclsyJR7yZFwlg
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn7yrrtsk-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 02 Nov 2026 14:18:06 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2DpOPv4016040;
-	Mon, 2 Nov 2026 14:18:06 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hnvvfp149-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 02 Nov 2026 14:18:06 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A2EI04x43909490
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 2 Nov 2026 14:18:00 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1F4DF20043;
-	Mon,  2 Nov 2026 14:18:00 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 335ED20040;
-	Mon,  2 Nov 2026 14:17:59 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.111.14.46])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Mon,  2 Nov 2026 14:17:59 +0000 (GMT)
-Date: Mon, 2 Nov 2026 15:17:56 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        david@kernel.org, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
-        gra@linux.ibm.com
-Subject: Re: [PATCH v4 1/7] KVM: s390: Fix UCONTROL inconsistencies
-Message-ID: <20261102151756.0625f117@p-imbrenda>
-In-Reply-To: <73347a6b-1224-415d-905a-aec1a62dd13a@linux.ibm.com>
-References: <20261028185422.272146-1-imbrenda@linux.ibm.com>
-	<20261028185422.272146-2-imbrenda@linux.ibm.com>
-	<73347a6b-1224-415d-905a-aec1a62dd13a@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=i0H9lG0B
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EED4A1F00A24;
+	Mon,  2 Nov 2026 14:20:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793629260;
+	bh=AMQhAUoLjC1OsRhPIF0X/aZZvhoGLtnfpHmE2nV4Wn8=;
+	h=From:To:Cc:Subject:Date;
+	b=i0H9lG0Be05TEfu/3sSSx1mNu2tXsbt81HU4VhWr1YaNjWqP1nbmV2PU6N9fCZNuw
+	 nivi01r4yhBVK5q6ZZ/2sNWNfeS1/SVvtod3GB/cMk9XHlaJxrROzU9uNyaCbwueWN
+	 AE/rw/aIukHRd/bUpfVF3u6Oo+d1/1nWu8xicACG8hfScuBzUWJR1oSKGUI3TT1yza
+	 I6qw7gNhliBS+HPnhAgAxa3M/VUpvB8uzbr6ovyo5O6M56NbveIxMw0j6pJhZqxruk
+	 pALxbTScur8TNXplk3A0Y4Q0gW4y8sE5l288k+10HrKs8+OO7WmnOZctFatwni3om7
+	 HzOPbsKYJ2AYQ==
+From: Christian Brauner <brauner@kernel.org>
+To: linux-fsdevel@vger.kernel.org
+Cc: Christian Brauner <brauner@kernel.org>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	Jann Horn <jannh@google.com>,
+	Josef Bacik <josef@toxicpanda.com>,
+	Chris Mason <mason@kernel.org>,
+	Jeff Layton <jlayton@kernel.org>,
+	NeilBrown <neil@brown.name>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Al Viro <viro@zeniv.linux.org.uk>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Christoph Hellwig <hch@lst.de>,
+	Greg Kroah-Hartman <gregkh@suse.de>,
+	Joel Granados <joel.granados@kernel.org>,
+	Kees Cook <kees@kernel.org>,
+	Jan Kara <jack@suse.cz>,
+	Jan Kara <jack@suse.com>,
+	linux-kernel@vger.kernel.org,
+	linux-nfs@vger.kernel.org,
+	linux-acpi@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-wireless@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	netdev@vger.kernel.org,
+	ntfs3@lists.linux.dev,
+	platform-driver-x86@vger.kernel.org,
+	coreteam@netfilter.org,
+	kexec@lists.infradead.org,
+	linux-pci@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	netfilter-devel@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	ibm-acpi-devel@lists.sourceforge.net,
+	jfs-discussion@lists.sourceforge.net,
+	linux-alpha@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-cifs@vger.kernel.org,
+	linux-fbdev@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-sh@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	samba-technical@lists.samba.org,
+	sparclinux@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	linux-doc@vger.kernel.org,
+	linux-serial@vger.kernel.org,
+	linux-atm-general@lists.sourceforge.net,
+	Chuck Lever <chuck.lever@oracle.com>,
+	Takashi Iwai <tiwai@suse.de>,
+	linux-input@vger.kernel.org,
+	linux-raid@vger.kernel.org,
+	linux-ext4@vger.kernel.org,
+	linux-modules@vger.kernel.org,
+	linux-debuggers@vger.kernel.org
+Subject: [PATCH RFC 0/7] proc: move procfs to what kernfs does
+Date: Mon,  2 Nov 2026 15:19:15 +0100
+Message-ID: <20261102-defizit-jobaussicht-kurios-7016c6e67442@brauner>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -98,124 +113,129 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Mcr5KJ/f c=1 sm=1 tr=0 ts=6ae89b9e cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=KJou_Y6U8xQNuixg6DQA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAyMDA1NiBTYWx0ZWRfX7dDK15ZLh4VN
- PjFR30I3cCKE6frw0BGYf1Yjz4mWbNsUTRc2ZZ/oELTzEg2B5uwLFE/X9AbOrRRxlBvAZ1YxCfa
- ska49DYxoSX0KV1mT78B5VU52vd63K0=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAyMDA1NiBTYWx0ZWRfXyc567bhszyCD
- h1mMvi1ahvBR+EpQ0PihPG+oujvbFlCwoHMaA2sbzYvxa96xUFPeT3A/qGoabbQuWFzmnwiOPhZ
- e3La6aJtOrvF58ZQeyEqTKG1jsaqcx68j60lNE/A2a53XgmiAGJOrorOD6Y4ZTa0PISBH93F/qH
- p+6yJfISWHDvVq+8CjyN1TWNzQa+SM1i0+KsyZZsff7xuvsMu6EsMT+vHW5UaC90VGCpXr420Jd
- BRZtvPxgtWNQZt3AwdLyWQeXABJkkPX954Y4ooNJovMDzn+vZXZa5aso6q74+6jtCNFrNgzEHvD
- ENXAAFvrOhGmrRVyTXGkXgzzhk7HoGRClQz1MV3fnbukjhVGDG+R+ODAkOb81/L3H/XyJNcTS4X
- nn69B+hN1nEeCNkBHbVYVI6jZ0Rq2ruxwm2RIHMJwC3aRC/53u22NTJphofv8Ozr30TxQyOa3ke
- 1BmlmvVyIAHCXlWg10Q==
-X-Proofpoint-GUID: RTdD8L1UkI4V_M4hYAzPRTaNqgbPFz9O
-X-Proofpoint-ORIG-GUID: RTdD8L1UkI4V_M4hYAzPRTaNqgbPFz9O
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-02_04,2026-11-02_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 priorityscore=1501
- clxscore=1015 impostorscore=0 adultscore=0 spamscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610300000 definitions=main-2611020056
+Content-Type: text/plain; charset="utf-8"
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6321; i=brauner@kernel.org; h=from:subject:message-id; bh=DeFgfcqlv/TY20j7H/EH1gPUF0B7m3TaniK1kcChAz8=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9mGNqL7pz+vPzk4KWfT6wfNmBh/f/+az2dnquniC7r OfbdVtpkY5SFgYxLgZZMUUWh3aTcLnlPBWbjTI1YOawMoEMYeDiFICJLNFkZJi9z+Wc51MV9sWG KyZ0i3EcLl3135Rh1V/p2TenWEnnPCln+F99gMWOyX62xk4Du399RQ9XTQsXMmEy4ArfuSn16RK 3R1wA
+X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
+Content-Transfer-Encoding: 8bit
 
-On Mon, 2 Nov 2026 14:45:48 +0100
-Janosch Frank <frankja@linux.ibm.com> wrote:
+Ok, as mentioned off-list I have an RFC version of getting rid of page
+fault induced stalls in procfs when removing entry which plagues
+networking devices among others.
 
-> On 10/28/26 7:54 PM, Claudio Imbrenda wrote:
-> > For UCONTROL VMs, when a vCPU segment entry is mapped but unallocated,
-> > the tl field was set to 1. This collides with the present bit, which
-> > means that other parts of gmap would mistake the entry for a present
-> > one.
-> > 
-> > Refactor the code to use a different combination of flags to indicate a
-> > mapped but unallocated segment.
-> > 
-> > The new flags combination will result in several functions returning
-> > -EFAULT when used on UCONTROL guests. This is fine, since those
-> > interfaces should not be used for UCONTROL guests to begin with.
-> > 
-> > Proper fencing of the interfaces that are not allowed for UCONTROL
-> > guests is outside the scope of this patch.
-> > 
-> > Fixes: a2c17f9270cc ("KVM: s390: New gmap code")
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > Cc: stable@vger.kernel.org # 7.0+
-> > ---
-> >   arch/s390/kvm/gmap/dat.h  | 16 +++++++++++-
-> >   arch/s390/kvm/gmap/gmap.c | 54 +++++++++++++++++++--------------------
-> >   2 files changed, 41 insertions(+), 29 deletions(-)
-> > 
-> > diff --git a/arch/s390/kvm/gmap/dat.h b/arch/s390/kvm/gmap/dat.h
-> > index 90389d47ba4e..4665c1112bb9 100644
-> > --- a/arch/s390/kvm/gmap/dat.h
-> > +++ b/arch/s390/kvm/gmap/dat.h
-> > @@ -109,6 +109,8 @@ union pte {
-> >   #define _REGION3_FR_MASK	(_REGION3_MASK >> PAGE_SHIFT)
-> >   #define _PAGES_PER_SEGMENT	_PAGE_ENTRIES
-> >   #define _PAGES_PER_REGION3	(_PAGES_PER_SEGMENT * _CRST_ENTRIES)
-> > +#define _UCAS_ENTRY_LENGTH	0
-> > +#define _UCAS_ENTRY_OFFSET	3  
-> 
-> Both of these together in combination with tt=segment are essentially a 
-> flag for a ucontrol mapping that's mapped but not allocated?
+There was a hackish very narrow AI solution to a part of this bug class
+that was floated off-list. It used a second buffering mechanism on top
+of seqfiles which was really nasty. Plus, it didn't fix the whole bug
+class, it only eliminated a small portion. If we want to get rid of the
+whole page fault issue we need a bigger hammer. So I tried to work
+through that over the last couple of weeks. The series in a shape where
+it's not totally insane to have someone else look at it. So here it is.
 
-correct
+I understand it's big but I thought it's probably nicer to look at the
+end result than just making a promise of what it might end up looking
+like.
 
-> 
-> >   
-> >   /* Soft dirty, needed as macro for atomic operations on ptes */
-> >   #define _PAGE_SD 0x002
-> > @@ -421,6 +423,17 @@ static inline union crste _crste_fc0(kvm_pfn_t pfn, int tt)
-> >   	return res;
-> >   }
-> >   
-> > +static inline union crste _crste_ucas(kvm_pfn_t pfn)
-> > +{
-> > +	union crste res = { .val = PFN_PHYS(pfn) };
-> > +
-> > +	res.h.i = 1;
-> > +	res.h.tt = TABLE_TYPE_SEGMENT;
-> > +	res.h.fc0.tl = _UCAS_ENTRY_LENGTH;
-> > +	res.h.fc0.tf = _UCAS_ENTRY_OFFSET;  
-> 
-> You're missusing this field in order to get to bits 57 and 58 which 
-> aren't actually the tf field for a segment, right?
+It's not super polished yet and I haven't gotten into sorting out all
+the warts as there were some really gnarly bugs in there like the whole
+readdir mess that repeated entries or terminated early. I think we could
+go a lot further there if we wanted to but I think that blows this out
+of proportion and at some point it becomes difficult to grasp the scope.
+So I'd rather delay that until I have a sense of how acceptable this all
+is.
 
-yes
+remove_proc_entry() waits until every call into the entry has returned,
+and most of those calls copy to or from userspace with the entry pinned.
 
-> If so, then this might be easier on the eyes since you don't use a 
-> bitmask but it's horrible for the brains of anyone other than yourself. 
+A reader or writer can make a page fault in that copy take as long as
+it wants, with userfaultfd or by punching holes into a memfd over and
+over. And the callers of remove_proc_entry() like to hold locks while
+they wait. addrconf holds RTNL when it removes /proc/net/dev_snmp6/<dev>
+and xt_hashlimit holds a mutex that all network namespaces share.
 
-you're assuming that I don't find it horrible just because I wrote it ;D
+Every network device with IPv6 gets a /proc/net/dev_snmp6/<dev> that
+everyone can read, and addrconf_ifdown() removes it with RTNL held. So
+any local user can keep RTNL for as long as their read stays stalled.
+Until then no device can be registered, removed or renamed and no
+network namespace can be created or torn down.
 
-> Especially since there's no comment explaining the shenanigans.
+Without privileges a FUSE mount in a user namespace whose daemon never
+answers is enough to stall the copy. Killing the reader ends it, but
+until then whoever removes the file sits in D state.
 
-comments will be added
+xt_hashlimit removes the proc file of a table with hashlimit_mutex
+held. Every rule insert in every network namespace takes that mutex and
+so does network namespace cleanup. cleanup_net() runs on a single
+workqueue with pernet_ops_rwsem held, so a stalled reader also stops
+every later network namespace teardown and every module load that
+registers pernet operations. xt_recent does the same with recent_mutex.
 
-> 
-> > +	return res;
-> > +}
-> > +
-> >   /**
-> >    * _crste() - Useful constructor for union crste with FC=1
-> >    * @pfn: the pfn this pte should point to.
-> > @@ -985,7 +998,8 @@ static inline int dat_create_slot(struct kvm_s390_mmu_cache *mc, union asce asce
-> >   
-> >   static inline bool crste_is_ucas(union crste crste)
-> >   {
-> > -	return is_pmd(crste) && crste.h.i && crste.h.fc0.tl == 1 && crste.h.fc == 0;
-> > +	return is_pmd(crste) && crste.h.i && !crste.h.fc &&
-> > +	       crste.h.fc0.tl == _UCAS_ENTRY_LENGTH && crste.h.fc0.tf == _UCAS_ENTRY_OFFSET;
-> >   }
-> >     
+And it's not specific to networking. remove_proc_entry(), proc_remove()
+and remove_proc_subtree() have over 200 callers and plenty of them hold
+locks. A stalled reader of /proc/fs/ext4/<dev>/options holds up the
+unmount of that filesystem with s_umount held, and every sync(2) with
+it. The same goes for PCI hot-removal, for freeing IRQ descriptors,
+which CPU bring-up waits on, and for unplugging a USB sound card.
+syzbot has hit removal under locks before (cf. [1]), and the xt_recent
+deadlock fixed in (1) below is another one.
 
+Stalling the kernel in a copy to or from userspace is a well-known
+exploitation primitive. It's why unprivileged userfaultfd can't do it
+by default anymore since v5.11 (d0d4730ac2e4), and FUSE has been used
+the same way.
+
+kernfs doesn't have that problem. The code of a kernfs file only ever
+runs with the node pinned and never touches userspace memory, kernfs
+copies in and out itself. This moves procfs over to the same scheme.
+
+sysfs has only held its active reference around ->show() and ->store()
+since v2.6.23, the same release that made remove_proc_entry() wait for
+the entry's callers. A copy to userspace couldn't be stalled for long
+back then. userfaultfd only came in v4.3 and FUSE in user namespaces in
+v4.18. configfs moved its copies out of its active reference in v5.3
+and DRM copies ioctl arguments in and out around the driver's handler
+the same way. debugfs still holds its reference across the copies,
+ran into a deadlock with wifi drivers because of it and grew an API to
+cancel operations instead (cf. [2]).
+
+That touches just about every ->proc_read(), ->proc_write() and
+->proc_ioctl() in the tree, so I've split it up into seven series. They
+go out as replies to this mail:
+
+(1) proc: fix a few old bugs in /proc handlers (38 patches)
+
+    Bugs in the handlers and in procfs itself that are a lot older than
+    the conversion and that reviewing it turned up. Most of them are for
+    stable. They come first so they can go there on their own and the
+    conversion doesn't have to bother with that crap.
+
+(2) proc: let procfs own the data path (16 patches)
+
+    The procfs side. procfs owns the seq_file of an entry, copies in
+    writes, copies out reads and copies ioctl arguments in and out, and
+    only calls into an entry with it pinned. proc_create_seq() and
+    friends and the plain seq_file users are switched over here too.
+
+(3) proc: convert the arch and platform entries (22 patches)
+(4) proc: convert the driver entries (23 patches)
+(5) proc: convert the fs, kernel and mm entries (27 patches)
+(6) proc: convert the net entries and the kfifo samples (11 patches)
+
+(7) proc: drop the __user methods (5 patches)
+
+    Drops the old methods for every entry that can be removed and gives
+    the new ones the names kernfs uses, ->proc_read(), ->proc_write()
+    and ->proc_ioctl(). This needs all four conversion series.
+
+The series should all indicate cleanly what dependencies they have so b4
+should be able to pull it for review. But I could be wrong.
+
+With all of it on a KASAN and lockdep kernel the removal selftests of
+every part pass, the proc, pktgen and allocinfo selftests behave like
+without it and the bugs from (1) that reproduce in a VM are gone. Every
+patch builds on its own on x86_64 and i386, and with W=1 on the
+architectures it touches.
+
+[1]: https://lore.kernel.org/r/000000000000f24f4705b6988f3e@google.com
+[2]: https://lore.kernel.org/r/20231109212251.213873-7-johannes@sipsolutions.net
+
+-- 
+Christian Brauner <brauner@kernel.org>
