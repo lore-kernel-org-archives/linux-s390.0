@@ -1,110 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=95.215.58.14
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793626289;
-	b=oYp5HheXg+9sOnGNjqveRh3tJhJt25RBy5/UVkHXeiPp6wlGFKyoLL+pZ93E/3u9GtQB
-	 Z394ZfCXErTSGDx5n4r3UmbIfOirS7JbfHMV8nsX38Kv+kx8++zhC+YEe1Kfz0qxtdt7/
-	 89fbaAHmwlrs1L9IqvHNTsafJGqi30YCI3T2G3O2397whzZtvC/g2C7/Qyg0M6r/L3+JA
-	 9A5hy5h9ezjB1kVeEaknXzN3JK9UsU/GJi3cu0A61rz8G0rfiic4O+9PnR07fY3uEzV//
-	 6FK7cnTyRw2yhNrBT/73+QGYWMDuNV9vDNBhrbOTWsTns/o5aNQEkDfaLi1mca/b1Cg==
+	t=1793626937;
+	b=0gKA5ZWFldDZ+g4J0jRw84+Y/uMZ97J6PqEmrXfLDkCd9nUTkFslriCZn9albCFWH6GT
+	 2slFg8xUAygnJ+56MHscjIkdtmyB2xO3SDCXpMRVI2kdBw9wF/4n0zQ67Qsdi+kWiJZaQ
+	 irdg/haOhSavHbmk9S4f/uQ3sCtgfSYqy5FS8Xxk0IxgTmuhC9f2J16mTjps1s5JcQKt1
+	 py3Z0aw9CsdV+wz09CxjDrtUGdKDj0MB3kEIP4NMtQLodU0Qz9C8xX7z8J8yjtyqXTicC
+	 RqhzVviYVgDpzxi6uUXXrHtLYEP7WdBR3vh9xW3IgVGND/X3JyRNuH60CIwpR9GUviA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793626289;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-Id:
-	 X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=6l/5Q7V+G395n7qszK2Zqbz7twxOAQjD3Y28a75NNCY=;
-	b=AbNDRTu892oEg2LpzUtLv9TiQy4iXfG89q/WKWiFqgl0fjjUH7Ka/d2yn/RB73Vf7w0m
-	 SbjlDjOc8qj9cb4ec5lIXnqEHypm3wS7E6u4BvN62ktKKf3KJn5K94pbO+7zc3+IUEXWG
-	 JVOD0We4OGIbTNFs0SSpE59xk1xla+oiG/+8uTlX7aL2GaY2U2d9/+JcsWTmn8tSgdQrf
-	 cU9bOVP3vcR+A6azh+fHnliWD3FiDKfenRIBNNUUE0LwYe84rt0w/LnmURGVNIV/RgmNm
-	 vniiT8LMrxxrZUe8npQdLm9SHy6NpMRe8hbIWIB4Z1S9oVrUjU9clDUYLAofkun+6yQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793626937;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Proofpoint-Reinject:X-Authority-Analysis:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=UEpcSuoFqEU8xXewyaWkpW5bmOJntelIEVu5k49doYk=;
+	b=ZB5hLZcIkXOXq9EpvMyXDfrDOH/CQjMBgq0PI+DpoMJsag+hXSFB2oXG7svbvXxmj57T
+	 7J6akg8AI6Y+L2+lqCsLef++/qRzDDvpilAIOqK3tlDF4Q/oUf8/B7d6MBkacfWGGirHE
+	 uw/JI4tEOjf06KybFgg/uJ2r3kXwso8VDIeTfKJIdgAZ46Z+y6D6fk1gRihqhoDQsOOYT
+	 J38iJZo5/j2vHyBb9Z9bOHlape2avxZc81akREOzd+ACQgJ5GUHsHT/IrsLfWDD5ZPEd2
+	 SegOvDuGFmyeGmgn4UAmAPJFwnsX7ArfVVkFG/eALJNJJEcvCG6UaEuxQ80y7dqJmxg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.dev;
-	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=OjysKMwE;
-	arc=none smtp.remote-ip=95.215.58.14
-Received: from mta1.migadu.com (out-14.mta1.migadu.com [95.215.58.14])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=WGDyMGgm;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81C9D606A331
-	for <linux-s390@vger.kernel.org>; Mon,  2 Nov 2026 13:31:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 81C9D606A331
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0B84606A326;
+	Mon,  2 Nov 2026 13:42:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E0B84606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=OjysKMwE
-X-Envelope-To: linux-s390@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=lF+VCblZ//xtA3m1I+S7udymzBDeLTRik/KSnJiaJWw=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1793626285; v=1; x=1794231085;
- b=OjysKMwEB9pmMvUQjCWIeDB59z4ZaxfhtYvZMeptMBIjEbNqn7O4qw+t56CXR031HhkbItss
- BtPSCkWHUhxRtfn+QEYT8ZWKssUWVrM3A49Jnn9XJrhejmYOsCbRFU9AjLC2q5pn0/WKtj9PAdR
- aZ3kwFBiNGh787yuUpwyA2Gg=
-X-Envelope-To: linux-s390@vger.kernel.org
-Received: by mta11.migadu.com with ESMTPS id 0cc75e2f04caf587;
-	Mon, 02 Nov 2026 13:31:25 +0000
-X-Mizu-Trace-ID: 0cc75e2f04caf587
-X-Migadu-Flow: FLOW_OUT
-From: xu.xin@linux.dev
-To: xu.xin@linux.dev
-Cc: acme@kernel.org,
-	adrian.hunter@intel.com,
-	agordeev@linux.ibm.com,
-	akpm@linux-foundation.org,
-	alexander.shishkin@linux.intel.com,
-	apopple@nvidia.com,
-	baohua@kernel.org,
-	baolin.wang@linux.alibaba.com,
-	borntraeger@linux.ibm.com,
-	byungchul@sk.com,
-	chengming.zhou@linux.dev,
-	david@kernel.org,
-	dev.jain@arm.com,
-	gerald.schaefer@linux.ibm.com,
-	gor@linux.ibm.com,
-	gourry@gourry.net,
-	harry@kernel.org,
-	hca@linux.ibm.com,
-	irogers@google.com,
-	james.clark@linaro.org,
-	jannh@google.com,
-	jolsa@kernel.org,
-	joshua.hahnjy@gmail.com,
-	kas@kernel.org,
-	lance.yang@linux.dev,
-	liam@infradead.org,
-	linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-s390@vger.kernel.org,
-	ljs@kernel.org,
-	mark.rutland@arm.com,
-	matthew.brost@intel.com,
-	mhiramat@kernel.org,
-	mhocko@suse.com,
-	mingo@redhat.com,
-	namhyung@kernel.org,
-	nico.pache@linux.dev,
-	oleg@redhat.com,
-	peterz@infradead.org,
-	riel@surriel.com,
-	rppt@kernel.org,
-	ryan.roberts@arm.com,
-	surenb@google.com,
-	svens@linux.ibm.com,
-	usama.arif@linux.dev,
-	vbabka@kernel.org,
-	ying.huang@linux.alibaba.com,
-	ziy@nvidia.com,
-	xialonglong2025@163.com,
-	Longlong Xia <xialonglong@kylinos.cn>
-Subject: [PATCH v2 4/4] ksm: add find_mergeable_vma_locked() to use per-VMA locking
-Date: Mon,  2 Nov 2026 21:31:03 +0800
-Message-Id: <20261102133103.302832-1-xu.xin@linux.dev>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20261102132416.300084-1-xu.xin@linux.dev>
-References: <20261102132416.300084-1-xu.xin@linux.dev>
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=WGDyMGgm
+Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2DEgSR2988247;
+	Mon, 2 Nov 2026 13:41:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=UEpcSu
+	oFqEU8xXewyaWkpW5bmOJntelIEVu5k49doYk=; b=WGDyMGgmcCIA+EQ+yL/0Fx
+	CFnXpp6JQ+mK4Hm6Pjcpo+j0r9Hya4GbG1gg7J9UohE0VkWJYq5kbt0JjrNT5e1z
+	UuYsU3TnDkOwgM/D+EQA6YhQpLBgsFPjpTH7Uqlf4dWstNCDXUeUXM085Av/9K+K
+	nxjVk11rhS5VAsHPBSxioSkJx+jjJL0KwBwEzh0uDWRlUkuh9GA6zjaXLJ6lHy77
+	Mex79E6OIX8mEjeb2qUk0jCeRO0BEk4OGCZrUfPm5U2AnrIcqJlfn/lE74f4Q1xn
+	NjhUSsYDotCWFZoZeJtkBoQChiklmYvVTwRKOYQCORt3v4XFzOBgZ9XTDNMijTEQ
+	==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn7yrrm6q-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 02 Nov 2026 13:41:44 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2DJsRu3980386;
+	Mon, 2 Nov 2026 13:41:43 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hnvvfnug1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Nov 2026 13:41:43 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A2Dfdg747120682
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 2 Nov 2026 13:41:39 GMT
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A9EC720043;
+	Mon,  2 Nov 2026 13:41:39 +0000 (GMT)
+Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 665E820040;
+	Mon,  2 Nov 2026 13:41:38 +0000 (GMT)
+Received: from [0.0.0.0] (unknown [9.111.80.131])
+	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  2 Nov 2026 13:41:38 +0000 (GMT)
+Message-ID: <efe1657f-b1c6-4096-8868-fb53097b1847@linux.ibm.com>
+Date: Mon, 2 Nov 2026 14:41:38 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -114,255 +86,170 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/6] sched: decouple PREFERRED_CPU from PARAVIRT in
+ Kconfig.preempt
+To: Shrikanth Hegde <sshegde@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Mete Durlu <meted@linux.ibm.com>, Yury Norov <ynorov@nvidia.com>
+Cc: Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Yury Norov <yury.norov@gmail.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrea Righi
+ <arighi@nvidia.com>, Ben Segall <bsegall@google.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Danilo Krummrich <dakr@kernel.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Heiko Carstens <hca@linux.ibm.com>, Johan Hovold <johan@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        K Prateek Nayak <kprateek.nayak@amd.com>, Mel Gorman <mgorman@suse.de>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Steven Rostedt
+ <rostedt@goodmis.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Valentin Schneider <vschneid@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org, driver-core@lists.linux.dev,
+        linux-s390@vger.kernel.org
+References: <20261101192203.6979-1-ynorov@nvidia.com>
+ <20261101192203.6979-2-ynorov@nvidia.com>
+ <388636ac-4521-4523-bb5b-b6bc71591ff6@linux.ibm.com>
+ <20261102110026.GG1813469@noisy.programming.kicks-ass.net>
+ <9273846b-d815-4c40-a7a0-960281515878@linux.ibm.com>
+ <66ccd713-5571-4c1a-b59e-29adbc9852e3@linux.ibm.com>
+Content-Language: en-US
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+In-Reply-To: <66ccd713-5571-4c1a-b59e-29adbc9852e3@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=Mcr5KJ/f c=1 sm=1 tr=0 ts=6ae89318 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=Ikd4Dj_1AAAA:8 a=2ZLY2jDhLclDGvpxdKIA:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAyMDA1MiBTYWx0ZWRfX69IfUWuXTaKy
+ lgapWBy+4j0Db8jWpHuOaqVb4/k38jkUggDwHhkZ+cAL0qa1YWqK60q+fkWAeF1iHPjJdwi9Bno
+ cnUMwqkCtBYs4YPzMDbRtGQoDYASDpk=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAyMDA1MiBTYWx0ZWRfX8ehtqKALxD9L
+ ST32w2EwWwZB9HWoyUnI+Y5+AuZNgSWl8N//MyjhJXxqXie2DwTc1GwxexF5GN6UeoomF/T9fj8
+ aFHCHE85Imccbx16229F9mqbt0kZnr+uriGgUaNpX8vzKCb2Yn6oABvg7yTP2c61Leh0acbPxqU
+ Hp+lqnxFw94BYVd2LLCeotULH//5XnbuETrISaCjIN2Q1+BTxZcQLhqKnf+sxi5qf963kk7SxZ1
+ RkxRybBpfjXtkiz+k7opRYDIsXwI2xy0FpIl8N+AlHxQcJAJjovoYEL66PFxqtZS1usCBRs27aQ
+ kNt3z0jmxUcbti8u0dDHSEgmXohJEwChK7TfQzcBvrwHvteajRbglWn9LgQ/0pND6l+ZKQ1Suyv
+ yZPc4ORAkqxZHvXnDhLXr6/VCllJ1nK5Yqu0Eh68nUv5J2edaUCBhw50N8/LrjtTbnuGbfjcJBZ
+ wMLsR1pdgyxH40C7iyg==
+X-Proofpoint-GUID: WV_hIbVvQLek2yXOApJDBgykXKFSyc_m
+X-Proofpoint-ORIG-GUID: A8u9pJY9wVFah2z3BUYt1cdxZpJkRdOT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-02_03,2026-11-02_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 priorityscore=1501
+ clxscore=1015 impostorscore=0 adultscore=0 spamscore=0 lowpriorityscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610300000 definitions=main-2611020052
 
-From: Xu Xin <xu.xin@linux.dev>
 
-Longlong Xia reported that get_mergeable_page() takes mmap_read_lock()
-on every merge, which becomes a contention point under load [1]. David
-Hildenbrand suggested switching to per-VMA locking to avoid the
-process-wide mmap lock [2].
 
-Add find_mergeable_vma_locked(), which is similar to find_tcp_vma(),
-using the universal per-VMA locking helper vma_start_read_unlocked() to
-look up and read-lock a VM_MERGEABLE VMA without taking
-mmap_read_lock().  All KSM call sites that previously used
-find_mergeable_vma() under mmap_read_lock() are converted to the new
-helper, and the locking in get_mergeable_page() is switched to
-PGWALK_VMA_RDLOCK_VERIFY so that folio_walk_start() can verify the
-per-VMA lock is held.
+On 11/2/26 14:00, Shrikanth Hegde wrote:
+> Hi.
+> 
+> 
+> On 11/2/26 5:04 PM, Ilya Leoshkevich wrote:
+>>
+>>
+>> On 11/2/26 12:00, Peter Zijlstra wrote:
+>>> On Mon, Nov 02, 2026 at 11:16:30AM +0100, Ilya Leoshkevich wrote:
+>>>>
+>>>>
+>>>> On 11/1/26 20:21, Yury Norov wrote:
+>>>>> The IBM s390 doesn't enable PARAVIRT config for their hardware
+>>>>> virtualized Logical Partitions (LPAR). However, the steal time is
+>>>>> accounted for the LPARs, once the config VIRT_CPU_ACCOUNTING_NATIVE
+>>>>> is enabled.
+>>>>>
+>>>>> Preferred cpumask doesn't rely on any feature gated by PARAVIRT 
+>>>>> config,
+>>>>> and requires it to minimize the configuration space and runtime 
+>>>>> overhead,
+>>>>> with the lack of non-paravirt user. Now that s390 wants to adopt 
+>>>>> preferred
+>>>>> cpumask, there's no reason to keep it coupled to paravirt.
+>>>>>
+>>>>> Make PREFERRED_CPU a user-configurable option, even if 
+>>>>> paravirtualization
+>>>>> is not enabled, and drop PARAVIRT dependency on the steal governor.
+>>>>>
+>>>>> Keep the default module selection conditional on PARAVIRT so other SMP
+>>>>> configurations can opt in without enabling the governor by default.
+>>>>>
+>>>>> Link: https://lore.kernel.org/all/4605dad5-aab2-49e3-b919- 
+>>>>> bf9897181834@linux.ibm.com/
+>>>>> CC: Mete Durlu <meted@linux.ibm.com>
+>>>>> Signed-off-by: Yury Norov <ynorov@nvidia.com>
+>>>>> ---
+>>>>> Can be applied independently from the rest of the series.
+>>>>>
+>>>>>    drivers/virt/Kconfig   |  8 ++++++--
+>>>>>    kernel/Kconfig.preempt | 12 ++++++++++--
+>>>>>    2 files changed, 16 insertions(+), 4 deletions(-)
+>>>>
+>>>> This is really useful to us, since even though s390 is nominally
+>>>> paravirtualized, it does not technically benefit from defining
+>>>> CONFIG_PARAVIRT.
+>>>
+>>> And therefore removing PARAVIRT is the only possible solution?
+>>>
+>>>> Specifically, steal time accounting happens by
+>>>> computing a difference between wall time and CPU time, and not by
+>>>> explicitly querying the hypervisor.
+>>>
+>>> Nobody explicitly asks the hypervisor, that would be horrendously slow.
+>>>
+>>> Something trivial like this should do.
+>>>
+>>> ---
+>>>   arch/Kconfig                           | 9 +++++++++
+>>>   arch/powerpc/platforms/pseries/Kconfig | 1 +
+>>>   arch/s390/Kconfig                      | 1 +
+>>>   drivers/virt/Kconfig                   | 2 +-
+>>>   4 files changed, 12 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/arch/Kconfig b/arch/Kconfig
+>>> index 1163736de1f9..8980054beb52 100644
+>>> --- a/arch/Kconfig
+>>> +++ b/arch/Kconfig
+>>> @@ -1080,6 +1080,15 @@ config HAVE_IRQ_TIME_ACCOUNTING
+>>>   config HAVE_PV_STEAL_CLOCK_GEN
+>>>       bool
+>>> +#
+>>> +#  Archs that can account CPUTIME_STEAL; normal route is through 
+>>> PARAVIRT which
+>>> +#  selects HAVE_PV_STEAL_CLOCK_GEN. Directly selected by s390 and 
+>>> PPC-LPAR
+>>> +#  which have their own thing and don't go through generic cputime 
+>>> accounting.
+>>> +#
+>>> +config HAVE_CPUTIME_STEAL
+>>> +    bool
+>>> +    default y if HAVE_PV_STEAL_CLOCK_GEN
+>>> +
+> 
+> Can't PARAVIRT_TIME_ACCOUNTING be the kconfig we can rely upon.
+> s390 can add it to the config (similar to HAVE_CPUTIME_STEAL)?
+> 
+> I guess it is selected currently where the steal time reporting happens.
 
-Switching to per-VMA locking also changes how ksmd is synchronized with
-a process that is exiting.  __ksm_exit() previously relied on a plain
-mmap_write_lock() to serialize against ksmd, but that no longer blocks
-a ksmd walk that holds only a per-VMA read lock.  So __ksm_exit() now
-also write-locks every VMA (vma_start_write()) while holding
-mmap_write_lock(): this blocks until any in-flight ksmd walk drops its
-per-VMA read lock, and prevents new ones from starting, since
-vma_start_read_unlocked() backs out when a VMA is write-locked.  The
-per-VMA write locks are released by mmap_write_unlock() via
-vma_end_write_all().  This is safe because __mmput() runs ksm_exit()
-after mm_users has gone to zero and before exit_mmap() frees the page
-tables, so any new ksmd walk backs out via ksm_test_exit().
+Looking at update_rq_clock_task(), s390 would still need to provide a
+pointless dummy paravirt_steal_clock() implementation in this case.
 
-Performance
-===========
-As a test, I construct a testcase which follows the approach: Create
-one victim and several churner threads sharing one mm_struct [3]; The
-victim registers a 32 MiB anonymous VM_MERGEABLE region containing
-8192 pages totally:churners hammer mmap_lock via mmap/munmap
-repeatedly; ksmd merges the victim's pages; Compare latency baseline
-VS this per-VMA patch.
-
-                 Before patched         After Patched
-0 churner:     1.627 seconds          1.426 seconds
-4 churners:    72.45 seconds          36.61 seconds
-
-In conclusion, when no mmap_lock contention (0 churner), there is little
-difference between the baseline kernel and the per-VMA optimized kernel;
-But under interference from 4 churner threads, the merge time of the
-per-VMA KSM-optimized kernel is significantly reduced by 50%.
-
-[1] https://lore.kernel.org/all/20260909023507.1408925-1-xialonglong2025@163.com/
-[2] https://lore.kernel.org/all/91cf8129-d705-4ebd-b420-129bab7ed261@kernel.org/
-[3] https://lore.kernel.org/all/20260911162242418ODBbr9wspxxIXDS8uvpeZ@zte.com.cn/
-
-Reported-by: Longlong Xia <xialonglong@kylinos.cn>
-Signed-off-by: Xu Xin <xu.xin@linux.dev>
----
- mm/ksm.c | 82 +++++++++++++++++++++++++++++++++++++++++---------------
- 1 file changed, 60 insertions(+), 22 deletions(-)
-
-diff --git a/mm/ksm.c b/mm/ksm.c
-index 84d363dabdc8..64f9e803b99e 100644
---- a/mm/ksm.c
-+++ b/mm/ksm.c
-@@ -669,6 +669,8 @@ enum ksm_walk_lock {
- 	KSM_WALK_MMAP_RDLOCK,
- 	/* walk under mmap_write_lock() */
- 	KSM_WALK_MMAP_WRLOCK,
-+	/* walk with the vma already read-locked (per-VMA locking) */
-+	KSM_WALK_VMA_RDLOCK,
- };
- 
- static enum page_walk_lock ksm_walk_lock_to_pgwalk(enum ksm_walk_lock lock)
-@@ -676,6 +678,8 @@ static enum page_walk_lock ksm_walk_lock_to_pgwalk(enum ksm_walk_lock lock)
- 	switch (lock) {
- 	case KSM_WALK_MMAP_WRLOCK:
- 		return PGWALK_WRLOCK;
-+	case KSM_WALK_VMA_RDLOCK:
-+		return PGWALK_VMA_RDLOCK_VERIFY;
- 	default:
- 		return PGWALK_RDLOCK;
- 	}
-@@ -784,15 +788,36 @@ static bool vma_ksm_compatible(struct vm_area_struct *vma)
- 	return ksm_compatible(vma->vm_file, vma->flags);
- }
- 
--static struct vm_area_struct *find_mergeable_vma(struct mm_struct *mm,
--		unsigned long addr)
-+/**
-+ * find_mergeable_vma_locked() - Find the VMA covering 'address' which is
-+ * VM_MERGEABLE and read-lock it by per-VMA locks. Please use vma_end_read()
-+ * to unlock vma after finishing reading the VMA (non-NULL).
-+ *
-+ * Return: If a VMA exists which spans @address, return that VMA, read-locked.
-+ * If no VMA is mapped there or, very unlikely, a reference count overflow
-+ * occurred, return NULL, and no read-locked.
-+ *
-+ * IMPORTANT: If a VMA exists but is not VM_MERGEABLE or has no anon_vma,
-+ * this function releases the per-VMA read lock before returning NULL.
-+ * Callers must NOT call vma_end_read() on a NULL return value.
-+ */
-+static struct vm_area_struct *find_mergeable_vma_locked(struct mm_struct *mm,
-+		unsigned long address)
- {
- 	struct vm_area_struct *vma;
-+
- 	if (ksm_test_exit(mm))
- 		return NULL;
--	vma = vma_lookup(mm, addr);
--	if (!vma || !(vma->vm_flags & VM_MERGEABLE) || !vma_has_anon_rmap(vma))
-+
-+	vma = vma_start_read_unlocked(mm, address);
-+	if (!vma)
- 		return NULL;
-+
-+	if (!(vma->vm_flags & VM_MERGEABLE) || !vma->anon_vma) {
-+		vma_end_read(vma);
-+		return NULL;
-+	}
-+
- 	return vma;
- }
- 
-@@ -818,11 +843,12 @@ static void break_cow(struct ksm_rmap_item *rmap_item)
- 	 */
- 	rmap_item->linear_page_index = 0;
- 
--	mmap_read_lock(mm);
--	vma = find_mergeable_vma(mm, addr);
--	if (vma)
--		break_ksm(vma, addr, addr + PAGE_SIZE, KSM_WALK_MMAP_RDLOCK);
--	mmap_read_unlock(mm);
-+	vma = find_mergeable_vma_locked(mm, addr);
-+	if (!vma)
-+		return;
-+
-+	break_ksm(vma, addr, addr + PAGE_SIZE, KSM_WALK_VMA_RDLOCK);
-+	vma_end_read(vma);
- }
- 
- static struct page *get_mergeable_page(struct ksm_rmap_item *rmap_item)
-@@ -833,13 +859,12 @@ static struct page *get_mergeable_page(struct ksm_rmap_item *rmap_item)
- 	struct page *page = NULL;
- 	struct folio *folio;
- 	struct folio_walk fw = {
--		.walk_lock  = PGWALK_RDLOCK,
-+		.walk_lock  = PGWALK_VMA_RDLOCK_VERIFY,
- 	};
- 
--	mmap_read_lock(mm);
--	vma = find_mergeable_vma(mm, addr);
-+	vma = find_mergeable_vma_locked(mm, addr);
- 	if (!vma)
--		goto out;
-+		return NULL;
- 
- 	folio = folio_walk_start(&fw, vma, addr, 0);
- 	if (folio) {
-@@ -850,12 +875,12 @@ static struct page *get_mergeable_page(struct ksm_rmap_item *rmap_item)
- 		}
- 		folio_walk_end(&fw, vma);
- 	}
--out:
-+
- 	if (page) {
- 		flush_anon_page(vma, page, addr);
- 		flush_dcache_page(page);
- 	}
--	mmap_read_unlock(mm);
-+	vma_end_read(vma);
- 	return page;
- }
- 
-@@ -1596,14 +1621,14 @@ static int try_to_merge_with_zero_page(struct ksm_rmap_item *rmap_item,
- 	if (ksm_use_zero_pages && (rmap_item->oldchecksum == zero_checksum)) {
- 		struct vm_area_struct *vma;
- 
--		mmap_read_lock(mm);
--		vma = find_mergeable_vma(mm, rmap_item->address);
-+		vma = find_mergeable_vma_locked(mm, rmap_item->address);
- 		if (vma) {
- 			err = try_to_merge_one_page(vma, page,
- 					ZERO_PAGE(rmap_item->address));
- 			trace_ksm_merge_one_page(
- 				page_to_pfn(ZERO_PAGE(rmap_item->address)),
- 				rmap_item, mm, err);
-+			vma_end_read(vma);
- 		} else {
- 			/*
- 			 * If the vma is out of date, we do not need to
-@@ -1611,7 +1636,6 @@ static int try_to_merge_with_zero_page(struct ksm_rmap_item *rmap_item,
- 			 */
- 			err = 0;
- 		}
--		mmap_read_unlock(mm);
- 	}
- 
- 	return err;
-@@ -1630,10 +1654,9 @@ static int try_to_merge_with_ksm_page(struct ksm_rmap_item *rmap_item,
- 	struct vm_area_struct *vma;
- 	int err = -EFAULT;
- 
--	mmap_read_lock(mm);
--	vma = find_mergeable_vma(mm, rmap_item->address);
-+	vma = find_mergeable_vma_locked(mm, rmap_item->address);
- 	if (!vma)
--		goto out;
-+		goto out_trace;
- 
- 	err = try_to_merge_one_page(vma, page, kpage);
- 	if (err)
-@@ -1653,7 +1676,8 @@ static int try_to_merge_with_ksm_page(struct ksm_rmap_item *rmap_item,
- 	rmap_item->linear_page_index = linear_anon_page_index(vma, rmap_item->address);
- 	get_anon_vma(vma->anon_vma);
- out:
--	mmap_read_unlock(mm);
-+	vma_end_read(vma);
-+out_trace:
- 	trace_ksm_merge_with_ksm_page(kpage, page_to_pfn(kpage ? kpage : page),
- 				rmap_item, mm, err);
- 	return err;
-@@ -3119,6 +3143,7 @@ void __ksm_exit(struct mm_struct *mm)
- {
- 	struct ksm_mm_slot *mm_slot = NULL;
- 	struct mm_slot *slot;
-+	struct vm_area_struct *vma;
- 	int easy_to_free = 0;
- 
- 	/*
-@@ -3153,7 +3178,20 @@ void __ksm_exit(struct mm_struct *mm)
- 		mm_flags_clear(MMF_VM_MERGEABLE, mm);
- 		mmdrop(mm);
- 	} else if (mm_slot) {
-+		/*
-+		 * ksmd may be walking this mm's page tables under a per-VMA
-+		 * read lock (see find_mergeable_vma_locked()).  A plain
-+		 * mmap_write_lock() does not exclude such readers, so also
-+		 * write-lock every VMA: this blocks until any in-flight ksmd
-+		 * walk drops its per-VMA read lock, and prevents new ones
-+		 * from starting (vma_start_read_unlocked() backs out when a
-+		 * VMA is write-locked).  The per-VMA write locks are released
-+		 * by mmap_write_unlock() via vma_end_write_all().
-+		 */
- 		mmap_write_lock(mm);
-+		VMA_ITERATOR(vmi, mm, 0);
-+		for_each_vma(vmi, vma)
-+			vma_start_write(vma);
- 		mmap_write_unlock(mm);
- 	}
- 
--- 
-2.34.1
-
+[...]
