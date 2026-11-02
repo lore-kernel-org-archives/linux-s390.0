@@ -1,58 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793637747;
-	b=QwcJEoC6LlsdhSorlmQD9Z9Q7ljuGko4BohOrrriHIseWqx7tqfRPj1YQi/EiPDUlXi0
-	 er6850Yf/sa/BFtBz/sToqPAS4S+s0oxuRZbD+/Goh2LY0rs2YkZ2RZREKEikBe9p7FoB
-	 dY735lNoDRjpWVltKw7vWcc9xlDXm4dJOgn+1EkajM2glKTa9BoJxe9RrtUvoHhN7bPNC
-	 3pu0o3yCczbmTk8FdB4BtViTfjDQ8m/F9R1AI+gRA2jhVuP6pCWHcHPtBuhNCKtS6msT9
-	 4B3MaG+e97gF0/Kb877NjX6VZXiKzfhY72Oum7yeV2GL50uK26O+Lh3xlEtEu0Oi23A==
+	t=1793638278;
+	b=ekzjqQ2uPDaR041C+z79kuLXcNBsNN0Gb6H1PS5xhfhCgtBNzjs27S9vrYHGZrkamDcU
+	 cbxEYVyUNXG//fpbTRCSI2OOZ47CjsN3SHksE33igPcE84aO+hC+p8S6gGJuiIyrZP7Pb
+	 qauuCznqSbUujMB42VMEYLq7GQADDxfAEF5aKLGWjTSa+ufY0ZgcpvmXoEt72nKBiePH1
+	 1WWEaPhDV9IgK1V/1hPKh6VfzlGXPlvLcukc/akaA90uyjCmZh+BXCrO79YK1RoDxzSot
+	 t4eKp3fr4kkuTlxbEjQILi1LsQiyXCJImP7LljuqLk+xdlvZJraqAmQChFj5gRW/YLg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793637747;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=dckK3H+RIDJQcqGJtt0qcxDRO5LIQCgLJ8L7OAGIdhY=;
-	b=xvuGSfl/DHG5EIYy2CE1qT6skKXzlhKk1TJLvaXvyu3E1tslvyUwAPMoIhrO7XvJSCX3
-	 +tB80FVX3uG2A3ZzhARSVY9hcVmq1hCMQe5YhGXHsciijETPMtvMbhEhfyJAgq4xfrXay
-	 GtK93a0kL4G+Rr+jIga9Vkst4fLxjKS25JPwL/0mMarNk4D2Z37wSgFpp58F/hb2Sqlpd
-	 IWlpW4EbY6+A1L5Q/4Psm+xD6kwrigA56sY0eDrK5y9O9yF+RUroEl2kXSXAyEsLcHJWR
-	 fp+UIvwFeDjbiDv6M6GKMoqc9jzJnhrO9ReoHu4/lzZVtWtPkHHIb9pIP6WiPYNtK2g==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793638278;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:From:Date:Subject:MIME-Version:
+	 Content-Type:Content-Transfer-Encoding:Message-Id:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-TM-AS-GCONF:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-GUID:X-Authority-Analysis:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=+U/mjWVawnE0BkPpR4MVwaR9xy7TVaZQVjZw7XRSOGw=;
+	b=XwYC66wW0bkt8z1vVYlLFF4RC3JBroyfiVeoE7SU/I0dXBLGpsG+7PYURQ/G9OcCK100
+	 iDql2MaPW8t9qWlgNaIbHLUJWCHsScksYXgAvU3YQm2jdKlzb9X0Eze+SrN95AlWRkb5i
+	 tfeVp4//KSPtuylxfCyR5QSJMIsHF1lg8Mvx/VPhsGcz/T8FKpJ6lW31qVTVzUUH7RZo5
+	 ittT9M1+icQExHyL6Mdflx8lpcweH4cYRXxjj4/Yj9Xw7oLVFxtqGfyjqvDT2hE52WRFZ
+	 GeRQ6Z+Zj+hDKHiRbQ46wRTfqNlE1llCfzMWJbHgamai6zCFsPZegSbPMz5XS38qOdA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CpiEA1Qn;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=aFXg8vDL;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23FB560A1DAA;
-	Mon,  2 Nov 2026 16:42:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F265E60A8C03;
+	Mon,  2 Nov 2026 16:51:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F265E60A8C03
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CpiEA1Qn
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52A001F00A1D;
-	Mon,  2 Nov 2026 16:42:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793637746;
-	bh=dckK3H+RIDJQcqGJtt0qcxDRO5LIQCgLJ8L7OAGIdhY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CpiEA1QnuLsFEakcXzd9i58CLNZldQO9FS2xOLPCiA6afb7pJ6bZVDcelvYTFLGA0
-	 AFtvQWeLxiQDDR11Z8nO8nHHNtSZXhUqBO1MZv7vUN2mN1VCxdLapTrjkZmvQM6t7x
-	 9E0UHwPSqLC4z6+ajRyAyqzPx6UaEnQggRGU23I3CD0+z1q+yB1VzcmID9GArYh4Fn
-	 OItqkB3OaTXWwoGMeuLDfPl/b9xvfH30qqFNd2qBGWIRyV0QrTAeDQc5DU7gglK2XI
-	 6TqedufojRhN7NAZcNf3SuwILkeuI49SxljZFIH2scZwyVbIwYB6btaV+HDcNj45Zy
-	 20gQGGqyKiRQw==
-Message-ID: <sashiko-outbox-193762@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 08/14] s390/vfio-ap: Transition device migration
- state from STOP to RESUMING
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Anthony Krowiak" <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261102151604.2150055-9-akrowiak@linux.ibm.com>
-References: <20261102151604.2150055-1-akrowiak@linux.ibm.com>
- <20261102151604.2150055-9-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 02 Nov 2026 16:42:25 +0000
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=aFXg8vDL
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2GiIAH3421707;
+	Mon, 2 Nov 2026 16:51:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=+U/mjWVawnE0BkPpR4MVwaR9xy7T
+	VaZQVjZw7XRSOGw=; b=aFXg8vDLvsB8Ue6yhAu6e5DUJQM4SafqO6291ZRxMMm8
+	xaxryBkA4BYOG8/dDQf9pVd+uwfhq7j8WteBEO9fZXHNCzJl0sNsNce0kUwmC/n1
+	gruBH+8+ovteR78OwHljJaTJUHI3xEfRa6VB9Y8+mLEJRkMK3v7eHYr1hEevBzxJ
+	mIqmEJ9UDF7/U3jByNtaSC1QHjJw0VUFVRaV5JXEysn4BY6aPoQgud12rPgv70y3
+	LJ/Yu4iB3GeqYQfh5Jk87Ecqc5nDOZboO+fCJkAT6qGJDZencgDuLDg5sXafMfFh
+	tmKZIZnVAnoVDeR2K7+RFf9x1pp/zmwLgQSw2Vwzbg==
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn826hrnw-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 02 Nov 2026 16:51:17 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2GZ06g1242310;
+	Mon, 2 Nov 2026 16:51:16 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hnwbxxmpb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Nov 2026 16:51:16 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A2GpCLq51315040
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 2 Nov 2026 16:51:12 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 9104720043;
+	Mon,  2 Nov 2026 16:51:12 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 71B5020040;
+	Mon,  2 Nov 2026 16:51:12 +0000 (GMT)
+Received: from [127.0.1.1] (unknown [9.87.85.9])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  2 Nov 2026 16:51:12 +0000 (GMT)
+From: Steffen Eiden <seiden@linux.ibm.com>
+Date: Mon, 02 Nov 2026 17:51:03 +0100
+Subject: [PATCH] s390: Add assembler-level include guard to
+ insn-common-asm.h
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -61,168 +85,89 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261102-insn-v1-1-df048a0be0d5@linux.ibm.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIzNDQwMj3cy84jxdU+OU5OQkg2TDtLQUJaDSgqLUtMwKsDHRsbW1AMtkFsJ
+ WAAAA
+X-Change-ID: 20261102-insn-53dccb0c1ffd
+To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Steffen Eiden <seiden@linux.ibm.com>
+X-Mailer: b4 0.14.3
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: h3GZoAjGTZFjABmbEirmgWufsaTY54A1
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAyMDA2NiBTYWx0ZWRfX2F6z6wOMcKyy
+ Z9D2pwHerjoFFQbhKGJoMDLs6N5x1x5MtJ6CCdUDqtesBqWakkkaGZQdKVVFQdytldbbDdRz/yj
+ TL1VhYFO89DuowxkpqcinSshfwcGUbq9/DHzogLXKgy0FgURAJpiwJ5bOt79D4TNNc5DHb6cIa7
+ ZxhHqxKhy3OGQ3zHpIdR/QkyEU50ogb7ByV1pU+CIG5l9ummAa6VYnsz02MOv8oWfc23SzCZk+0
+ N2H+qVQO5FNNB1QXT3jdIM2WL9qd9ZJkT5IMyBYEeBdTPQFPSWcS+npeIgj4v5qur3omYfUArJ4
+ zJKjA5xwkV/CIUqpCGcrtOGHxLjtZCU9rg0DvSfdCjfU8o/ixHkWskWWlxvdybuixh5qOI2IiZr
+ kIsXciqBXMAK7X3R0HqKLaYhvkuUwzAkG1NAT5mQ3SqSdSKT6M83QkqxQ3CTJ5KJ91Ej0HO2mvV
+ kUd8Upin6fMqOadaixA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAyMDA2NiBTYWx0ZWRfXzqYxe6W2VdjV
+ Iiaz4qh1VoXax/jnPzlmvxt7iKOaDzGaIpYnd4qiFKbx0VEIoLnsh9Z3j/fOeEKZxxWh56GDLpx
+ BoRJhviPKHk1QJbwwHfy4VnwkajQFIk=
+X-Proofpoint-GUID: h3GZoAjGTZFjABmbEirmgWufsaTY54A1
+X-Authority-Analysis: v=2.4 cv=EsJHPicA c=1 sm=1 tr=0 ts=6ae8bf85 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=5vy43KvvU7CKeNUKWJ0A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-02_04,2026-11-02_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 malwarescore=0
+ priorityscore=1501 adultscore=0 impostorscore=0 phishscore=0 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
+ definitions=main-2611020066
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Critical] s390/vfio-ap: use-after-free of mig_file in vfio_ap_release_mi=
-g_file()
---
+The CPP include guard of insn-common-asm.h is ineffective when the file
+is read via a gas-level .include from inline asm. The assembler ignores
+all '#' lines, so every .include redefines GR_NUM/VX_NUM and fails with
+"Macro was already defined" if a translation unit emits more than one
+such include. This is not the case right now but may lead to future
+build issues.
 
-commit 8958f5c47ab29cef8a0a38994bae03335dbb5b69
-Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+Add a .ifndef guard with an L-prefixed (local, non-emitted) symbol so
+the file can be include multiple times per assembly unit.
 
-s390/vfio-ap: Transition device migration state from STOP to RESUMING
+Fixes: 495bc70aa3225 ("s390/fpu: Move GR_NUM / VX_NUM macros to separate header file")
+Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+---
+ arch/s390/include/asm/insn-common-asm.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-This commit implements the transition from VFIO_DEVICE_STATE_STOP to
-VFIO_DEVICE_STATE_RESUMING in vfio_ap_transition_to_state() by pre-allocati=
-ng
-the receive buffer for the guest's AP configuration and opening a write-only
-anonymous inode file stream for the resuming migration data.
+diff --git a/arch/s390/include/asm/insn-common-asm.h b/arch/s390/include/asm/insn-common-asm.h
+index fd9b3cacb7c5..060116719846 100644
+--- a/arch/s390/include/asm/insn-common-asm.h
++++ b/arch/s390/include/asm/insn-common-asm.h
+@@ -9,6 +9,10 @@
+ 
+ #ifdef __ASSEMBLER__
+ 
++/* Prevent duplicated GAS macro definitions. CPP guards have no effect for GAS.*/
++.ifndef .Lasm_s390_insn_common_asm_h
++.Lasm_s390_insn_common_asm_h = 1
++
+ /*
+  * GR_NUM - Retrieve general-purpose register number
+  *
+@@ -49,5 +53,7 @@
+ 	.endif
+ .endm
+ 
++.endif	/* .Lasm_s390_insn_common_asm_h */
++
+ #endif	/* __ASSEMBLER__ */
+ #endif	/* __ASM_S390_INSN_COMMON_ASM_H */
 
-> diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypt=
-o/vfio_ap_migration.c
-> index b64ce092a41b1..526d83e8590d9 100644
-> --- a/drivers/s390/crypto/vfio_ap_migration.c
-> +++ b/drivers/s390/crypto/vfio_ap_migration.c
 
-[ ... ]
 
-> @@ -456,6 +466,67 @@ static struct file *vfio_ap_open_file_stream(struct =
-vfio_ap_migration_file *mig_
->  	return filp;
->  }
-> =20
-> +static ssize_t vfio_ap_resuming_write(struct file *filp, const char __us=
-er *buf,
-> +				      size_t len, loff_t *pos)
-> +{
-> +	/* TODO */
-> +	return -EOPNOTSUPP;
-> +}
-> +
-> +static const struct file_operations vfio_ap_resume_fops =3D {
-> +	.owner =3D THIS_MODULE,
-> +	.write =3D vfio_ap_resuming_write,
-> +	.release =3D vfio_ap_release_mig_file,
-> +};
-
-[ ... ]
-
-> +static struct file *vfio_ap_resuming_init(struct vfio_ap_migration_file =
-*mig_file)
-> +{
-> +	struct vfio_ap_config *ap_config;
-> +	struct file *filp;
-> +
-> +	lockdep_assert_held(&matrix_dev->mdevs_lock);
-> +
-> +	ap_config =3D kvzalloc(VFIO_AP_CONFIG_MAX_SIZE, GFP_KERNEL_ACCOUNT);
-> +	if (!ap_config)
-> +		return ERR_PTR(-ENOMEM);
-> +
-> +	ap_config->num_queues =3D MAX_AP_QUEUES;
-> +
-> +	filp =3D vfio_ap_open_file_stream(mig_file, &vfio_ap_resume_fops, O_WRO=
-NLY);
-> +
-> +	if (IS_ERR(filp)) {
-> +		kvfree(ap_config);
-> +		return filp;
-> +	}
-> +
-> +	mig_file->ap_config =3D ap_config;
-> +	mig_file->config_sz =3D VFIO_AP_CONFIG_MAX_SIZE;
-> +	mig_file->filp =3D filp;
-> +
-> +	return filp;
-> +}
-> +
->  static struct file *
->  vfio_ap_transition_to_state(struct ap_matrix_mdev *matrix_mdev,
->  			    enum vfio_device_mig_state new_state)
-> @@ -488,10 +559,19 @@ vfio_ap_transition_to_state(struct ap_matrix_mdev *=
-matrix_mdev,
->  		return filp;
->  	}
-> =20
-> +	/*
-> +	 * Begins the process of restoring the vfio device state by creating and
-> +	 * returning a streaming data_fd to be used to read in the internal
-> +	 * state of the vfio-ap device on the destination host.
-> +	 */
->  	if (cur_state =3D=3D VFIO_DEVICE_STATE_STOP &&
->  	    new_state =3D=3D VFIO_DEVICE_STATE_RESUMING) {
-> -		/* TODO */
-> -		return ERR_PTR(-EOPNOTSUPP);
-> +		struct file *filp =3D vfio_ap_resuming_init(&mig_data->resuming_mig_fi=
-le);
-> +
-> +		if (IS_ERR(filp))
-> +			return ERR_CAST(filp);
-> +
-> +		return filp;
->  	}
-
-[Severity: Critical]
-Can closing the VFIO device file descriptor before the migration stream file
-descriptor trigger a use-after-free in vfio_ap_release_mig_file()?
-
-In vfio_ap_transition_to_state(), vfio_ap_resuming_init() passes
-&mig_data->resuming_mig_file (and the STOP_COPY path similarly passes
-&mig_data->stop_copy_mig_file) to vfio_ap_open_file_stream(), which stores
-mig_file in filp->private_data and pins the vfio_device registration:
-
-drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_open_file_stream() {
-	if (!vfio_device_try_get_registration(&mig_file->matrix_mdev->vdev))
-		return ERR_PTR(-ENODEV);
-
-	filp =3D anon_inode_getfile("vfio_ap_mig_file", fops, mig_file, flags);
-}
-
-Pinning the registration keeps matrix_mdev alive, but resuming_mig_file and
-stop_copy_mig_file are embedded in struct vfio_ap_migration_data
-(matrix_mdev->mig_data), which is dynamically allocated when the VFIO device
-file descriptor is opened and freed when it is closed via
-vfio_ap_mdev_close_device() -> vfio_ap_release_migration_data():
-
-drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_release_migration_data() {
-	if (!matrix_mdev->mig_data)
-		return;
-
-	vfio_ap_release_mig_files(matrix_mdev);
-	mutex_destroy(&matrix_mdev->mig_data->stop_copy_mig_file.lock);
-	mutex_destroy(&matrix_mdev->mig_data->resuming_mig_file.lock);
-	kfree(matrix_mdev->mig_data);
-	matrix_mdev->mig_data =3D NULL;
-}
-
-If the VFIO device file descriptor is closed while the migration stream file
-descriptor is still open (for example, if a userspace VMM exits or crashes
-during migration and close_files() closes descriptors in ascending order),
-matrix_mdev->mig_data is freed while filp->private_data still points into i=
-t.
-
-When the migration stream file descriptor is subsequently accessed or close=
-d,
-vfio_ap_release_mig_file() dereferences mig_file->matrix_mdev from the freed
-mig_data allocation:
-
-drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_release_mig_file() {
-	struct vfio_ap_migration_file *mig_file =3D filp->private_data;
-	...
-	vfio_device_put_registration(&mig_file->matrix_mdev->vdev);
-	return 0;
-}
-
-And any concurrent or subsequent read/write on that migration file descript=
-or
-will also lock the destroyed and freed mig_file->lock.
-
-Should mig_data (or the vfio_ap_migration_file structures) be embedded in
-struct ap_matrix_mdev or otherwise tied to the lifetime of the open migrati=
-on
-file descriptors?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261102151604.2150=
-055-1-akrowiak@linux.ibm.com?part=3D8
