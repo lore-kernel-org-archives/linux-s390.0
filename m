@@ -1,58 +1,63 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793643569;
-	b=mhSGZXwXSDjepFljZSSAFxXSTMs/OABjwr71S9TpzTEkQVhz6QGKgv9hSlgMKdL/r6DV
-	 ywH1kzHfYwrU+aSEQUfQjqcIcLbYYjq4hzPIN+euOXMcfJkaB4Mnpjg36sF8wHV+xgrlF
-	 SF8qZFy/+EcrzsnU+H6nSvUMbm2zqaqoJ/z3iPLwlF4+NV1wjBHpdgE86nwaYQhzbWK3k
-	 WVKyf7tvNXLyWL2erCvFiWbbdDvg7AlKk+dg2pMXZ4epNuxgYIovdSli2JbJp2gg7Nele
-	 1AeEZhF8t/dHM6hONkCsJpPYIErpp8nZDXLTYGvdgBJozxNctrvKgRL16KF2FoAjlpw==
+	t=1793643873;
+	b=miSHPkPrFAicFJZ/0zzrCnqK8alUB1C3lZpbh3yvEzIlGuOO9PUvg8VML2RKVqP8dOZi
+	 UEO2nR4Sxt8Lf3aDqw3t0godxkcj5bGNy/di4LHbl8V/JJ0D2IKLGoa5ZLExtvtGvfHOc
+	 q1dN//WnIP5tiReZ8HV6jhKbXwlPnyfk8TYAEyj0js2ktQNgIdXPfqek5VYJ97Uz1GkKG
+	 P+8InHdFur4StNoKBlXZ3oquQojdW7+gZNGerNOwW+hLH6GjJLqZ/1nTFX0mHfGn5WlFE
+	 /Vj9pkTt5Jp1nM8nXql3mlBF77W3jP51FRc+dXEcYkhpQaqxk7LIV//VPQzaW79eXRw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793643569;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=ZZ/0QkKqbQDrL6gDZD1igN44tGnGYCJvCg5zZ6xZA1s=;
-	b=dSmOSUBPnNcYePjFvcd+L1ifk+sHM2CNNewhZO5kIXnbXqEIqvTqoCo1QVffL5s1vo96
-	 SzXW95LvO4cVvjOih6mkFKme4Hyq2sRTNNB9N+J/B3F7cldd5Q28/SiN5DqOu28qev81y
-	 XI6aOwQzVSBlJ+ziJfrxh1y8amaoqWxPz0Thre3WyrThlsa/w4sov7BajwV4kT8YSNRqB
-	 zslQHNzafRRcqc3Ami9fuVm23q8K9xexI0KEVquMGI8kSvctn1PSp/AvwFEHSehlhet59
-	 DoWdno22ZAV2nBfAp2LrZpohwT0bAIAAwGOILlIEeoe56+owoHXnFG3mYSBTxcaZLCA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793643873;
+	h=Received:DKIM-Signature:Subject:From:To:Cc:Date:Message-ID:
+	 In-Reply-To:References:X-sashiko-severity:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=zQOgtK1Q5lTQF+oypvJ7p+u9t+1NRbd2bvqvbKtTwZE=;
+	b=wXQoN7MIWOJxZFiSOVjiMRm2eYNPuYDQBS01WJRbDz91pmIgiD0DG78Ze7K2MiHHPx9G
+	 fS6zk/vR23vCrHngPsSxV/VcXpxFKjZLc8oVN/0j2P7Q8I8fOMaCCJi02EzN0VjGSmLux
+	 XPmWoSvIGi17gcrFAPyOPFnL+wfGTrPjoZh20ecV6D32q4hawG3RckB37IqHAGhgYoSOn
+	 9pFzUlg3Pot+k0iiDmprv5ABkK8cvnWcDAQdTC3gt17bUHZP342On9SzZHJ6Nkdj56tma
+	 9S+M0IYagCxXa6Zx1DxhPIS8r3JvN5yqfx7/EuaoHlS96RDLT+z/iACzNnxZAzINNhQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="K35/EQNs";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FcR8HmKy;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C956606D804;
-	Mon,  2 Nov 2026 18:19:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B85C2606A335;
+	Mon,  2 Nov 2026 18:24:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=K35/EQNs
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 492921F00A18;
-	Mon,  2 Nov 2026 18:19:28 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=FcR8HmKy
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E9E71F00A17;
+	Mon,  2 Nov 2026 18:24:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793643568;
-	bh=ZZ/0QkKqbQDrL6gDZD1igN44tGnGYCJvCg5zZ6xZA1s=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=K35/EQNseL3QXNnJVA2m5fsdywTG8ROKkraLR0FBxyKsWICbEFLxx1Z9LfCAc2RXx
-	 1w8RfHysO9C/bPSMyzUSGh2sdqRFJmP7feOKt2vzZV+7jIG2QEf0nhN+ikETJacWNu
-	 rzRZ6KAzsIeUkjGXYAMw/lyWA81f7GLGeB35wSwG9aH8ma5RpF3g5JEracrxBupWfL
-	 P0Ig8re1hZhDZAEDE0aQ2wH77oTGZaO6MF+nCIJkJBruSB2ZRlA9TXULlzf4bzQZE0
-	 lCW/lHpHx3gClEE5vCGhgRzvVMDqMnkUcvQ/m2fWomO/56MsoEnhL3q+96Ok+IuD3Z
-	 YzwR8BOW2S+yA==
-Message-ID: <sashiko-outbox-193924@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 14/14] s390/vfio-ap: Add live guest migration
- chapter to vfio-ap.rst
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Anthony Krowiak" <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261102151604.2150055-15-akrowiak@linux.ibm.com>
-References: <20261102151604.2150055-1-akrowiak@linux.ibm.com>
- <20261102151604.2150055-15-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 02 Nov 2026 18:19:27 +0000
+	s=k20260515; t=1793643872;
+	bh=zQOgtK1Q5lTQF+oypvJ7p+u9t+1NRbd2bvqvbKtTwZE=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References;
+	b=FcR8HmKyW5M9r2g8b+TyIka8JtcnwI6Ta5We5GcbLoVeEjHI9K09qtC4RUyeKXIGe
+	 gnex4ESxaxMsK98oVrjJMmNtO2VuITBQ3fRq0MwBW681FylmJ5SiRCjV665kUfDMYf
+	 rHE+O//SQ4SqFYJXRjUkMloVC2fvYfmUekkzbF3AEubHIVsGl/HzA/w+ehUJd8htdS
+	 V4jEPc3emYrbWZXdWN87BPXW3A0aaB6nsk7LQG0pd8Shb8YgDz3H5B0eUxVse1IlOl
+	 U6oNPq990Uy1nLNRj8olUK5gwY3LQW8/LqXaesEJbiWTreG4REZ0qADhW0u6FktkHO
+	 gqPnLaZDnBbSA==
+Subject: Re: [PATCH net v8 2/4] net/smc: bound the receive length to the RMB
+From: netdev-bot+sashiko@kernel.org
+To: hexlabsecurity@proton.me
+Cc: sidraya@linux.ibm.com, kuba@kernel.org, mjambigi@linux.ibm.com,
+ pabeni@redhat.com, alibuda@linux.alibaba.com, davem@davemloft.net,
+ dust.li@linux.alibaba.com, edumazet@kernel.org,
+ guangguan.wang@linux.alibaba.com, ubraun@linux.ibm.com, raspl@linux.ibm.com,
+ linux-s390@vger.kernel.org, guwen@linux.alibaba.com,
+ linux-kernel@vger.kernel.org, hidayath@linux.ibm.com, horms@kernel.org,
+ wenjia@linux.ibm.com, tonylu@linux.alibaba.com, linux-rdma@vger.kernel.org,
+ netdev@vger.kernel.org
+Date: Mon, 02 Nov 2026 18:24:30 +0000
+Message-ID: <179364387064.3131.5492897013975868107@kernel.org>
+In-Reply-To: <20261029-b4-disp-33001ace-v8-2-f9bb96e17827@proton.me>
+References: <20261029-b4-disp-33001ace-v8-2-f9bb96e17827@proton.me>
+X-sashiko-severity: High
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -61,183 +66,250 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
 
-Thank you for your contribution! Sashiko AI review found 3 potential issue(=
-s) to consider:
-- [Critical] s390/vfio-ap: use-after-free of mig_file when device FD closes=
- before migration FD
-- [Low] s390/vfio-ap: pointer signedness mismatch in vfio_ap_get_data_size()
-- [Low] s390/vfio-ap: stray comment fix in vfio_ap_mdev_probe() in document=
-ation commit
+Thank you for your contribution! Sashiko AI review found 2 potential
+issue(s) to consider.
+
+Critical: 0 · High: 1 (2) · Medium: 0 · Low: 1
+
+If you believe none of the issues are legitimate, please reply to each
+issue of Medium severity or higher and explain why the AI is wrong.
+If any of them are legitimate and you plan to respin, please let patchwork
+know by including "pw-bot: cr" as a separate line at the end of your reply
+(one such reply per series is enough).
+
+- [High] The patch says that reordering splice_pending in
+  smc_rx_pipe_buf_release() means 'no reader counts them twice', which…
+- [Low] The new conn->rmb_len field exists so it can be read without the
+  socket lock: the patch's comment in smc_rx_data_available() says the…
+
+Pre-existing issues:
+- [High] This problem wasn't introduced by this patch, but it is a
+  reachable local DoS.
+- [High] This problem wasn't introduced by this patch, but it is a real
+  accounting bug.
+
 --
 
-commit 678cd90abd6549f06a0dbfc0140b0ae844762cfe
-Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+net/smc: bound the receive length to the RMB
 
-s390/vfio-ap: Add live guest migration chapter to vfio-ap.rst
+This commit clamps smc_rx_data_available() to what fits in the RMB behind
+the spliced and peeked bytes, never returning a negative count. poll(),
+SIOCINQ and the deferred accept now use this helper too. It also caches the
+RMB length in conn->rmb_len for unlocked waiters, and moves the
+splice_pending decrement in smc_rx_pipe_buf_release() ahead of the consumer
+cursor update.
 
-This series implements VFIO live guest migration support for the s390
-vfio-ap mediated device driver and documents the migration requirements and
-setup in Documentation/arch/s390/vfio-ap.rst.
-
-> diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypt=
-o/vfio_ap_migration.c
-> new file mode 100644
-> index 0000000000000..57cfaafec4d97
-> --- /dev/null
-> +++ b/drivers/s390/crypto/vfio_ap_migration.c
+> diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+> index d10244af5bd29..d492c77161283 100644
+> --- a/net/smc/af_smc.c
+> +++ b/net/smc/af_smc.c
 
 [ ... ]
 
-> +static size_t vfio_ap_config_size(struct ap_matrix_mdev *matrix_mdev,
-> +				  unsigned int *num_queues)
-> +{
-> +	size_t qinfo_size;
-> +
-> +	lockdep_assert_held(&matrix_dev->mdevs_lock);
-> +
-> +	*num_queues =3D vfio_ap_mdev_get_num_queues(&matrix_mdev->shadow_apcb);
-> +	qinfo_size =3D *num_queues * sizeof(struct vfio_ap_queue_info);
-> +
-> +	return qinfo_size + sizeof(struct vfio_ap_config);
-> +}
+> @@ -2939,7 +2939,7 @@ __poll_t smc_poll(struct file *file, struct socket *sock,
+>  						mask |= EPOLLOUT | EPOLLWRNORM;
+>  				}
+>  			}
+> -			if (atomic_read(&smc->conn.bytes_to_rcv))
+> +			if (smc_rx_data_available(&smc->conn, 0))
+>  				mask |= EPOLLIN | EPOLLRDNORM;
+
+[Severity: High]
+This isn't a bug introduced by this patch, but can smc_rx_recvmsg() loop
+forever while splice_pending is non-zero?
+
+When data is available and an earlier splice() is still pending, the top of
+the loop jumps straight to copy:
+
+		if (smc_rx_recvmsg_data_available(smc, peeked_bytes))
+			goto copy;
+
+That skips the !timeo, signal_pending() and sk_err checks. At copy, msg &&
+splbytes is true:
+
+		if (!readable || (msg && splbytes)) {
+			if (splbytes)
+				func = smc_rx_data_available_and_no_splice_pend;
+			else
+				func = smc_rx_data_available;
+			smc_rx_wait(smc, &timeo, peeked_bytes, func);
+			continue;
+		}
+
+smc_rx_data_available_and_no_splice_pend() stays false until the pipe
+buffers are released. The return value of smc_rx_wait() is ignored.
+
+With MSG_DONTWAIT, recv() never returns -EAGAIN; each pass sleeps about a
+jiffy and loops again. With a signal pending, including SIGKILL,
+wait_woken() returns at once and the task busy-loops. The only ways out are
+splice_pending draining or conn->killed. If the same process holds the pipe,
+the pipe buffers would never be released.
+
+smc_poll() now reports EPOLLIN from smc_rx_data_available(conn, 0). That
+helper uses splice_pending only to cap the length, but recvmsg() refuses to
+copy anything while splice_pending is non-zero. While a splice is pending,
+does the commit message's claim that these paths "all see the same length"
+hold?
+
+>  			if (sk->sk_shutdown & RCV_SHUTDOWN)
+>  				mask |= EPOLLIN | EPOLLRDNORM | EPOLLRDHUP;
 
 [ ... ]
 
-> +static int vfio_ap_get_data_size(struct vfio_device *vdev,
-> +				 unsigned long *stop_copy_length)
-> +{
-> +	struct ap_matrix_mdev *matrix_mdev;
-> +	int num_queues;
-> +
-> +	mutex_lock(&matrix_dev->mdevs_lock);
-> +	matrix_mdev =3D container_of(vdev, struct ap_matrix_mdev, vdev);
-> +	*stop_copy_length =3D vfio_ap_config_size(matrix_mdev, &num_queues);
-> +	mutex_unlock(&matrix_dev->mdevs_lock);
-> +
-> +	return 0;
-> +}
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index 6021322253e93..fe6e4a2f7935a 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -2505,6 +2505,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
+>  
+>  	if (is_rmb) {
+>  		conn->rmb_desc = buf_desc;
+> +		conn->rmb_len = buf_desc->len;
 
 [Severity: Low]
-Does passing &num_queues here trigger a -Wpointer-sign compiler warning?
+The new comment in smc_rx_data_available() says conn->rmb_len is read
+without the socket lock:
 
-In vfio_ap_get_data_size(), num_queues is declared as int, whereas
-vfio_ap_config_size() takes unsigned int *num_queues. Should num_queues in
-vfio_ap_get_data_size() be declared as unsigned int to match
-vfio_ap_get_config()?
+	 * INT_MIN, avail - peeked wraps. This also runs unlocked, possibly
+	 * after rmb_desc was freed, hence rmb_len.
+	 */
+	avail = min(avail, conn->rmb_len - atomic_read(&conn->splice_pending));
+
+Should this store and that load use WRITE_ONCE() and READ_ONCE()?
+
+For example, during a non-blocking connect,
+smc_connect_work()->__smc_connect()->smc_buf_create()->__smc_buf_create()
+writes rmb_len under lock_sock(). At the same time, smc_poll() on the
+SMC_INIT socket reads it without the lock. The first unlocked evaluation of
+the condition in sk_wait_event() has the same pattern.
+
+KCSAN would report this as a data race. There is no functional effect today,
+since bytes_to_rcv is 0 at that point.
+
+>  		conn->rmbe_size_comp = bufsize_comp;
+>  		smc->sk.sk_rcvbuf = bufsize * 2;
+>  		atomic_set(&conn->bytes_to_rcv, 0);
+
+> diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+> index 197fddc6271f0..85654d9f321b0 100644
+> --- a/net/smc/smc_rx.c
+> +++ b/net/smc/smc_rx.c
+> @@ -118,15 +118,20 @@ static void smc_rx_pipe_buf_release(struct pipe_inode_info *pipe,
+>  	struct smc_connection *conn = &priv->smc->conn;
+>  	struct smc_sock *smc = priv->smc;
+>  	struct sock *sk = &smc->sk;
+> +	bool drained;
+>  
+>  	lock_sock(sk);
+>  	if (conn->freed) {
+>  		release_sock(sk);
+>  		goto out;
+>  	}
+> +	/* drop the released bytes from splice_pending before cons moves
+> +	 * past them, so no reader counts them twice
+> +	 */
+> +	drained = atomic_sub_and_test(priv->len, &conn->splice_pending);
+
+[Severity: High]
+The commit message says this reorder means "no reader counts them twice".
+Is there still a path where spliced bytes are counted twice?
+
+In smc_rx_recvmsg(), a copy that wraps past the end of the RMB is done in two
+chunks. If the first chunk succeeds and the second fails, the error path
+jumps over the bytes_to_rcv and consumer cursor update:
+
+				if (rc < 0) {
+					if (!read_done)
+						read_done = -EFAULT;
+					goto out;
+				}
+
+read_done already includes the first chunk. For splice, smc_rx_splice() has
+already added that chunk to splice_pending:
+
+	bytes = splice_to_pipe(pipe, &spd);
+	if (bytes > 0)
+		atomic_add(bytes, &smc->conn.splice_pending);
+
+Those bytes are then counted in both bytes_to_rcv and splice_pending. The
+second chunk can fail with -EAGAIN from splice_to_pipe() when the pipe has
+only one free slot. It can also fail with -ENOMEM or -EPIPE.
+
+On the next splice(), the start offset is cons + splice_pending, which skips
+the first chunk. The readable count still includes it:
+
+	avail = min(avail, conn->rmb_len - atomic_read(&conn->splice_pending));
+
+Would that splice() return stale ring contents from beyond the producer
+cursor?
+
+When those pipe buffers are released, cons would move past prod, and
+smc_tx_consumer_update() would send that cursor to the peer. bytes_to_rcv
+would also stay inflated for good.
+
+In the recvmsg path, a fault in memcpy_to_msg() on the second chunk returns
+the first chunk to userspace without consuming it. Would the next recv()
+deliver those bytes again?
+
+The new clamp keeps the read inside the RMB, so this corrupts the stream
+rather than memory. But it looks like the same double count that the commit
+message says is fixed.
+
+>  	smc_rx_update_cons(smc, priv->len);
+>  	release_sock(sk);
+> -	if (atomic_sub_and_test(priv->len, &conn->splice_pending))
+> +	if (drained)
+>  		smc_rx_wake_up(sk);
+>  out:
+>  	kfree(priv);
+> @@ -506,7 +511,7 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
+>  			/* increased in recv tasklet smc_cdc_msg_rcv() */
+>  			smp_mb__before_atomic();
+>  			atomic_sub(copylen, &conn->bytes_to_rcv);
+
+[Severity: High]
+This is a pre-existing issue, but is a short successful splice counted here
+as if the whole chunk went through?
+
+For SMC-R with a virtually contiguous RMB, smc_rx_splice() works out the
+number of pipe entries from the page offset:
+
+	nr_pages = !lgr->is_smcd && smc->conn.rmb_desc->is_vm ?
+		   PAGE_ALIGN(len + offset) / PAGE_SIZE : 1;
+
+do_splice_read() limits len by the free slot count but ignores the source
+page offset:
+
+	p_space = pipe->max_usage - pipe_buf_usage(pipe);
+	len = min_t(size_t, len, p_space << PAGE_SHIFT);
+
+Take an empty 16 slot pipe, len = 65536 and an unaligned offset o.
+smc_rx_splice() builds 17 entries and splice_to_pipe() returns 65536 - o.
+smc_rx_splice() adds that short count to splice_pending.
+
+smc_rx_recvmsg() only checks rc < 0, and then counts the full chunk:
+
+			read_remaining -= chunk_len;
+			read_done += chunk_len;
+
+It also subtracts the full copylen from bytes_to_rcv here.
+
+Would splice() then report o more bytes than reached the pipe, and leave
+bytes_to_rcv o bytes below the real unread amount?
+
+The pipe release only moves cons forward by what was actually queued, so the
+deficit would add up. That could lose trailing data at EOF, or stall the
+connection once the deficit gets close to the RMB size.
+
+> -			/* guarantee 0 <= bytes_to_rcv <= rmb_desc->len */
+> +			/* can be out of range, see smc_rx_data_available() */
+>  			smp_mb__after_atomic();
+>  			if (msg && smc_rx_update_consumer(smc, cons, copylen))
+>  				goto out;
 
 [ ... ]
 
-> +static void vfio_ap_release_mig_files(struct ap_matrix_mdev *matrix_mdev)
-> +{
-> +	struct vfio_ap_migration_data *mig_data;
-> +
-> +	lockdep_assert_held(&matrix_dev->mdevs_lock);
-> +
-> +	mig_data =3D matrix_mdev->mig_data;
-> +	vfio_ap_release_stop_copy_file(mig_data);
-> +	vfio_ap_release_resuming_file(mig_data);
-> +}
-> +
-> +/**
-> + * vfio_ap_release_migration_data: reclaim private migration data
-> + *
-> + * @matrix_mdev: pointer to the object containing the state of the mdev
-> + */
-> +void vfio_ap_release_migration_data(struct ap_matrix_mdev *matrix_mdev)
-> +{
-> +	lockdep_assert_held(&matrix_dev->mdevs_lock);
-> +
-> +	if (!matrix_mdev->mig_data)
-> +		return;
-> +
-> +	vfio_ap_release_mig_files(matrix_mdev);
-> +	mutex_destroy(&matrix_mdev->mig_data->stop_copy_mig_file.lock);
-> +	mutex_destroy(&matrix_mdev->mig_data->resuming_mig_file.lock);
-> +	kfree(matrix_mdev->mig_data);
-> +	matrix_mdev->mig_data =3D NULL;
-> +}
-
-[Severity: Critical]
-Can closing the VFIO device file descriptor before an open migration file
-descriptor cause a use-after-free on mig_file?
-
-When vfio_ap_open_file_stream() creates a migration file descriptor, it pins
-matrix_mdev->vdev via vfio_device_try_get_registration() and sets
-filp->private_data to &mig_data->stop_copy_mig_file or
-&mig_data->resuming_mig_file, which are embedded directly inside
-struct vfio_ap_migration_data:
-
-struct vfio_ap_migration_data {
-	enum vfio_device_mig_state	mig_state;
-	bool				resuming_mig_data_complete;
-	struct vfio_ap_migration_file	resuming_mig_file;
-	struct vfio_ap_migration_file	stop_copy_mig_file;
-};
-
-However, when the VFIO device file descriptor is closed,
-vfio_ap_mdev_close_device() calls vfio_ap_release_migration_data(), which
-destroys stop_copy_mig_file.lock and resuming_mig_file.lock and frees
-matrix_mdev->mig_data with kfree() even if the migration file descriptor is
-still open in userspace.
-
-Although the vfio_device registration reference keeps matrix_mdev alive,
-filp->private_data (mig_file) points into the freed matrix_mdev->mig_data
-allocation:
-
-1. When the migration file descriptor is later closed,
-   vfio_ap_release_mig_file() dereferences mig_file->matrix_mdev from freed
-   memory:
-
-   static int vfio_ap_release_mig_file(struct inode *file_inode,
-                                       struct file *filp)
-   {
-           struct vfio_ap_migration_file *mig_file =3D filp->private_data;
-           ...
-           vfio_device_put_registration(&mig_file->matrix_mdev->vdev);
-           return 0;
-   }
-
-2. If userspace calls read() or write() on the migration file descriptor
-   after or concurrently with vfio_ap_mdev_close_device(),
-   vfio_ap_stop_copy_read() and vfio_ap_resuming_write() call
-   mutex_lock(&mig_file->lock) on a destroyed mutex in freed memory and
-   dereference mig_file->filp and mig_file->matrix_mdev in
-   validate_stop_copy_read_parms() and validate_resuming_write_parms().
-
-3. If vfio_ap_stop_copy_read() drops matrix_dev->mdevs_lock while copying to
-   userspace (or if read()/write() is waiting on ap_attr_mutex or
-   matrix_dev->mdevs_lock after acquiring mig_file->lock), a concurrent
-   vfio_ap_mdev_close_device() will destroy mig_file->lock while it is held
-   and free mig_data before the reader or writer unlocks mig_file->lock.
-
-Would embedding or lifetime-tying the migration state to struct ap_matrix_m=
-dev
-(freed in vfio_ap_mdev_release_dev() after all registration references drop)
-avoid freeing mig_file while a migration file descriptor is still open?
-
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio=
-_ap_ops.c
-> index 969e7c6dacc18..94c524e952f79 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -816,7 +816,7 @@ static int vfio_ap_mdev_probe(struct mdev_device *mde=
-v)
->  		return PTR_ERR(matrix_mdev);
-> =20
->  	/*
-> -	 * Wet up vfio-ap device migration before calling
-> +	 * Setting up for vfio device migration must be done before calling
->  	 * vfio_register_emulated_iommu_dev; otherwise, the VFIO core
->  	 * will see mig_ops as NULL during the registration. This could
->  	 * prevent the VFIO core from properly setting up migration
-
-[Severity: Low]
-This isn't a bug, but should this comment fix in vfio_ap_mdev_probe() be
-squashed into earlier commit 8f5bd5cbf795 ("s390/vfio-ap: Set up for vfio-ap
-device migration") where the comment was introduced, rather than included in
-the documentation commit?
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261102151604.2150=
-055-1-akrowiak@linux.ibm.com?part=3D14
+-- 
+Sashiko AI review · https://netdev-ai.bots.linux.dev/sashiko/#/patchset/20261029-b4-disp-33001ace-v8-0-f9bb96e17827%40proton.me
