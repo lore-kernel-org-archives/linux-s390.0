@@ -1,49 +1,90 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793632575;
-	b=hh6GoLBRd3wrsg8+UAxpG/WpAK56UjGE8Jjj5Scs0tfyBF1ybl3H9PxMrDim7pdHX0rC
-	 gPYlV/K5P+UVrYeQwIfBJV0zHkri3SE6fPMhQpv+NxLaSj4Vj3bnh4eB88OyFCMKQ1xar
-	 sy+Bj5H9641lfrutfN8hGyA9EjUa9dIWchqxyWHqQiWMdx10I0Zf5c1WZE2gI2y3EvWiJ
-	 VIKDz3XnR67+fTe9XMgFhxTYlYoYsyA11oyTUtqyUZ6WDjJbpHU68Z4mAG1aHEeBfuuDm
-	 QIw6avpP28pjxNUuEVRE4oPHgxANfiDu7lykMnljwYImTjEM14LOruM703s0awX1/bQ==
+	t=1793632590;
+	b=uLnpENNd6PegfkBTW+/NzWYGmaHA2DJ28yUXkNXfYuObZny2RZOEO0xupB54FzPgMJVP
+	 ON8ieOBlhJqLk64tXV9EPGRAdbEyjNZTXIZ/gLl6rDY7E5ACIfVIP89PeN8qOBST9mepm
+	 rRzNqaHeDuzIP6jd0IxgfZm22gQWf9IFDOC53mR297OP6q7hiDxzTSkHZqaWx2lUEv3G6
+	 lUm/ELVHcJsTj0AFvQxwmFHs2tUngbxiC1uKU+dg4EMCcjLT5pJqme8g9Ge5TZaiC5ty0
+	 Eb3y/I+ZIA97CDGhm457C6elKIpqZPl3EfKculhTIQIJMAttoP6BVST1r4K7+1Z5WJw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793632575;
-	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
-	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
-	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=goLGxFor5aDHmq+/63YZ7VsFVk0WPo8/IlwPxf0/q/E=;
-	b=PvViG6YL6Q022EZFeB5bsQFq6rDBKnbA/JoaN3tHMcrLjHohnRf2eqUIFqO7QOVLI0KB
-	 3HP6CDXan7JovGefOYN87bfBc/rrqJ8p+LmwTG/X2rNqFa6WFg2NUsmxhlcRoc+o0j3PQ
-	 UV9gLGZ2SDcZDOm59GPJIvpoo61jOUyxrpKehjf3yJqFFArnsu6n8TQr2BJJiW05xc6PX
-	 sS1NpSdRuhLyJq1uLd6y5oA+VV3qPXeB8yefAroAzI4tu01Cyn9+GCAcOxHpnAeoK8E25
-	 wf48zJfbCq2U6CsqDOAgm1YAGh251NNlJvNHYz0nlGLY00j+HaJ1yQrmd1dxRNplrqw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793632590;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
+	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding:X-TM-AS-GCONF:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
+	 X-Proofpoint-GUID:X-Authority-Analysis:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=SEaPWp3K/rPaeqRnCZ/8y39yKjtG81qXXQ+0xI2HXtc=;
+	b=4R/eAQ9a/LmTUDchF45gyB8C9Jnswi63iEToCPbUrSvHs1Gnq8eWC2H7tAF1IgTdFtVu
+	 SoqvHCHTV6K4XKp4k74YW3acGX/mxSb5MkYntawRTSm3iG95rEXic1GmcdDInhEGxaQKZ
+	 Lx3fbftETrdkVSeN1aknuZi5TT7F+CXNPU4RfBKmzp4gk7FSCSZ3VzcQRdi1XXExLJzbJ
+	 AiUtjcul0dET0IMKKKOzuezUsVFZthBFQOsqAeSrEozvWRHV3P+uSVQsFPMJOMm7ikX+c
+	 o2A/ArzSPtnJ7RihykL0csxge8t+bFtXK9Yn+dLlc1Q4Tue094PzMQsjib1y86thDKQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="ej70vPT/";
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=DfvNIfUu;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37C4A606A592;
-	Mon,  2 Nov 2026 15:16:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D34AE6074A7D;
+	Mon,  2 Nov 2026 15:16:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D34AE6074A7D
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ej70vPT/
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B757A1F00A16;
-	Mon,  2 Nov 2026 15:15:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793632574;
-	bh=goLGxFor5aDHmq+/63YZ7VsFVk0WPo8/IlwPxf0/q/E=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=ej70vPT/y7NrhBgRnVeJZJCWCJCY4Ir+tDI0qb3+EynguB83LrhQsFn2l3M5OZtXE
-	 2VH+S87/JA3tEOQ5oF6NbafdeM5dvCGs7k+Pl66iGGY0VzHGdvfeTuOHMGET++saO9
-	 8CMGsO+isRtfapDtsUOvJJ1+uTuGk8RHjvFSx0T6P4hnrtLPTR2SSKodt/mLQIBmk2
-	 SzbEgwffy1kv1xXhMujkkGK8afuda14vw1NrfhyqY3qJhPF7pdO3kkpnpsfKhmpNYh
-	 jxGaC2jmsD4TftiMbXuIK38lcVEqXr7YxWPTdZiDHhvMHLfLf4/cExgZfn7c5HC9H0
-	 J+psMOIMcn0fQ==
-From: Christian Brauner <brauner@kernel.org>
-Date: Mon, 02 Nov 2026 16:07:24 +0100
-Subject: [PATCH RFC 17/23] usb: gadget: function: rndis: let procfs copy in
- writes
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=DfvNIfUu
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2EEF2v3103445;
+	Mon, 2 Nov 2026 15:16:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=SEaPWp3K/rPaeqRnC
+	Z/8y39yKjtG81qXXQ+0xI2HXtc=; b=DfvNIfUu+lUUHxrrVq+BK8J6Rqc4Lk3rr
+	ZL1bCmk3WtDLEFp0X4X9eaemXeeQemvdtP04x/qVHtqSKI31sDlOcuGdzPY9EApG
+	L/haYyNqR+AQGv/LmhewgIosIeVYo6lEzFCG6KYwaF+pyeWqiE6BeoDCPIblb5s8
+	K9J0sYCkjq+TEBehSxiIUnmBXX8l4Qd3nbXtDO6cLZOWD3VMGnpWTocIbzDqPVxg
+	z3virs+GfUCzXXvTres3n0kV4FzJ+KgaGT724VxgxIu9yRnbepWZHQ/QmzY98vQy
+	hgb7Jh61EESx9Z7X1m7GcdswgtTIg+G5TXG5PUrkOvLE9fZJvyNnw==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn826h8tv-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 02 Nov 2026 15:16:25 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2Dp8Tl932243;
+	Mon, 2 Nov 2026 15:16:24 GMT
+Received: from smtprelay04.wdc07v.mail.ibm.com ([172.16.1.71])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hnunjxf5k-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Nov 2026 15:16:24 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
+	by smtprelay04.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A2FGNit59376040
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 2 Nov 2026 15:16:23 GMT
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 3A95D58066;
+	Mon,  2 Nov 2026 15:16:23 +0000 (GMT)
+Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 04D555805C;
+	Mon,  2 Nov 2026 15:16:22 +0000 (GMT)
+Received: from li-4c4c4544-004d-4810-8043-b7c04f423534.ibm.com.com (unknown [9.61.57.150])
+	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  2 Nov 2026 15:16:21 +0000 (GMT)
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc: jjherne@linux.ibm.com, freude@linux.ibm.com, borntraeger@de.ibm.com,
+        cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com
+Subject: [PATCH v11 12/14] s390/vfio-ap: Set up for vfio-ap device migration
+Date: Mon,  2 Nov 2026 10:14:52 -0500
+Message-ID: <20261102151604.2150055-13-akrowiak@linux.ibm.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261102151604.2150055-1-akrowiak@linux.ibm.com>
+References: <20261102151604.2150055-1-akrowiak@linux.ibm.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -53,98 +94,133 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20261102-work-procfs-drivers-v1-17-a994bd4d3b1a@kernel.org>
-References: <20261102-work-procfs-drivers-v1-0-a994bd4d3b1a@kernel.org>
-In-Reply-To: <20261102-work-procfs-drivers-v1-0-a994bd4d3b1a@kernel.org>
-To: linux-fsdevel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, 
- Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, 
- Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, 
- NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>, 
- Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
- Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
- Greg Kroah-Hartman <gregkh@suse.de>, 
- Joel Granados <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, 
- Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
- linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
- linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org, 
- linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
- linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, 
- linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, 
- ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org, 
- coreteam@netfilter.org, kexec@lists.infradead.org, 
- linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
- netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
- ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net, 
- linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- linux-cifs@vger.kernel.org, linux-fbdev@vger.kernel.org, 
- linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-sh@vger.kernel.org, 
- linux-usb@vger.kernel.org, samba-technical@lists.samba.org, 
- sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
- linux-doc@vger.kernel.org, linux-serial@vger.kernel.org, 
- linux-atm-general@lists.sourceforge.net, Takashi Iwai <tiwai@suse.de>, 
- linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
- linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, 
- linux-debuggers@vger.kernel.org, 
- "Christian Brauner (Amutable)" <brauner@kernel.org>, 
- Chuck Lever <cel@kernel.org>
-X-Mailer: b4 0.17-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1569; i=brauner@kernel.org;
- h=from:subject:message-id; bh=saz4p5rW2UOPmCRi+6zEslqjX7E5721ehvji7/y2TLU=;
- b=kA0DAAoWkcYbwGV43KIByyZiAGropzGhaJWnu9+4zvQgXLhUThJNad18i/diIL3NsOXTHFLIm
- Yh1BAAWCgAdFiEEQIc0Vx6nDHizMmkokcYbwGV43KIFAmropzEACgkQkcYbwGV43KIUZwD+IHp+
- nA7hxed0nI3IkqLBHaX8l90Mx69iUsGXRMOlkboA/3KH9SLJ/MMw6rQ8ujZlKhQxzG1q+lU/vjC
- oZkDuYDUH
-X-Developer-Key: i=brauner@kernel.org; a=openpgp;
- fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 78I1fCQMcqGC3S-RtO2Fn850nobStURy
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAyMDA2MCBTYWx0ZWRfX5ecMDKnRgS7x
+ J/oDidwv7MbgIga4EOoOMSpRf8TfTyFQKdtQqpy+pxVElnBxyvQ80hEyEjICIOtWAAnQQUN+gL8
+ AprN4v9Y4yvAu6hmV1nQWgjoGXOu+132rdcqRybELX8Va/+MjoU8j2+/cm7BdO9ipf4MJpUWS7P
+ FNObyX1t1cGliSmkmYUozPRd/I8J9mho8M4qyTxoOBgJNTGntjaMwLF0HRxlZZHhvbPZOVNYlBe
+ ndpCvkQ6bzsdLjqBUvSHXUYxf/x/1T3J2aH0unNahdsFOxPtV2OFgOvpykCzNgn/O7R3pwe+Okk
+ xLSbjRFK8YXnu+PRHqnCdQ97+H6MN1u88bte26l6db5uhgHfhshx2nvrPBKN8kiW6pl9Gg94N+U
+ +ajQEYt10oTIFnxrNgicURRTFBIAFAVoF0ED29jGh3P9FQw/Jsos1wywuWk9+xwj3fvYplF6OM4
+ S1kEHzqK4bqUf0+eplQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAyMDA2MCBTYWx0ZWRfXz+VbhFiBEPzU
+ d6S/yVVTDLoWIy1NgBZCjebTTFRA0CI2hNqPV2AbX1rlnLxY2QeD3mY1iLcQ9Th1jb/rwya2Qps
+ NAjsAqDeUQV0gBuqfzonKhb71PUlNOA=
+X-Proofpoint-GUID: 78I1fCQMcqGC3S-RtO2Fn850nobStURy
+X-Authority-Analysis: v=2.4 cv=EsJHPicA c=1 sm=1 tr=0 ts=6ae8a949 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=HPJWAd_ergi89gPIvREA:9
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-02_04,2026-11-02_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 malwarescore=0
+ priorityscore=1501 adultscore=0 impostorscore=0 phishscore=0 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
+ definitions=main-2611020060
 
-Implement ->proc_write_buf() so procfs copies in what is written to
-/proc/driver/rndis-<n> before it pins the entry, and handle the
-commands from that copy. Writes larger than PAGE_SIZE - 1 bytes fail
-with -EINVAL now.
+In order to facilitate vfio-ap device migration:
 
-Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+* The function pointers to the callbacks used to facilitate migration of a
+  vfio-ap device must be plugged in. These function pointers are specified
+  via the fields contained in a struct vfio_migration_ops instance:
+
+  	migration_set_state: Set the migration state of the vfio-ap device
+  	migration_get_state: Get the migration state of the vfio-ap device
+  	migration_get_data_size: Get the estimated data number bytes of
+  				 data that will be required to complete
+  				 STOP_COPY
+* The migration_flags field of the struct vfio_device instance is set to
+  VFIO_MIGRATION_STOP_COPY to indicate that STOP, STOP_COPY and RESUMING
+  are the migration states supported for vfio-ap device migration.
+
+* The initial migration state of the vfio-ap device is set to RUNNING
+
+* The boolean flag indicating that all data sent from userspace during the
+  RESUMINMG phase has been received is initialized to false.
+
+Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
 ---
- drivers/usb/gadget/function/rndis.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/s390/crypto/vfio_ap_migration.c | 24 ++++++++++++++++++++++++
+ drivers/s390/crypto/vfio_ap_ops.c       | 10 ++++++++++
+ drivers/s390/crypto/vfio_ap_private.h   |  1 +
+ 3 files changed, 35 insertions(+)
 
-diff --git a/drivers/usb/gadget/function/rndis.c b/drivers/usb/gadget/function/rndis.c
-index 3c7bd30b8a3a..e05e0c6ae8fb 100644
---- a/drivers/usb/gadget/function/rndis.c
-+++ b/drivers/usb/gadget/function/rndis.c
-@@ -1138,7 +1138,7 @@ static int rndis_proc_show(struct seq_file *m, void *v)
+diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypto/vfio_ap_migration.c
+index 7c282d396f50..57cfaafec4d9 100644
+--- a/drivers/s390/crypto/vfio_ap_migration.c
++++ b/drivers/s390/crypto/vfio_ap_migration.c
+@@ -217,6 +217,30 @@ static int vfio_ap_release_mig_file(struct inode *file_inode, struct file *filp)
  	return 0;
  }
  
--static ssize_t rndis_proc_write(struct file *file, const char __user *buffer,
-+static ssize_t rndis_proc_write(struct file *file, char *buffer,
- 				size_t count, loff_t *ppos)
- {
- 	rndis_params *p = pde_data(file_inode(file));
-@@ -1146,9 +1146,8 @@ static ssize_t rndis_proc_write(struct file *file, const char __user *buffer,
- 	int i, fl_speed = 0;
- 
- 	for (i = 0; i < count; i++) {
--		char c;
--		if (get_user(c, buffer))
--			return -EFAULT;
-+		char c = *buffer;
++static const struct vfio_migration_ops vfio_ap_migration_ops;
 +
- 		switch (c) {
- 		case '0':
- 		case '1':
-@@ -1185,7 +1184,7 @@ static ssize_t rndis_proc_write(struct file *file, const char __user *buffer,
++/**
++ * vfio_ap_setup_vfio_device_migration:
++ *
++ * Plug the object containing the function pointers to the migration callbacks
++ * used to facilitate migration into the vfio device and set the flags
++ * indicating migration states STOP, STOP_COPY and RESUMING are supported.
++ *
++ * @matrix_mdev: pointer to object containing the vfio device (vdev)
++ */
++void vfio_ap_setup_vfio_device_migration(struct ap_matrix_mdev *matrix_mdev)
++{
++	/*
++	 * Live guest migration is not supported for SE guests, so there is no
++	 * need to initialize the migration capabilities.
++	 */
++	if (ap_is_se_guest())
++		return;
++
++	matrix_mdev->vdev.migration_flags = VFIO_MIGRATION_STOP_COPY;
++	matrix_mdev->vdev.mig_ops = &vfio_ap_migration_ops;
++}
++
+ /**
+  * validate_stop_copy_read_parms: Validate the input parameters to the
+  *                                vfio_ap_stop_copy_read function
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 79f016a43f56..d4585ea73383 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -811,9 +811,19 @@ static int vfio_ap_mdev_probe(struct mdev_device *mdev)
  
- static const struct proc_ops rndis_proc_ops = {
- 	.proc_show	= rndis_proc_show,
--	.proc_write	= rndis_proc_write,
-+	.proc_write_buf	= rndis_proc_write,
- };
+ 	matrix_mdev = vfio_alloc_device(ap_matrix_mdev, vdev, &mdev->dev,
+ 					&vfio_ap_matrix_dev_ops);
++
+ 	if (IS_ERR(matrix_mdev))
+ 		return PTR_ERR(matrix_mdev);
  
- #define	NAME_TEMPLATE "driver/rndis-%03d"
-
++	/*
++	 * Wet up vfio-ap device migration before calling
++	 * vfio_register_emulated_iommu_dev; otherwise, the VFIO core
++	 * will see mig_ops as NULL during the registration. This could
++	 * prevent the VFIO core from properly setting up migration
++	 * infrastructure like debugfs entries.
++	 */
++	vfio_ap_setup_vfio_device_migration(matrix_mdev);
++
+ 	ret = vfio_register_emulated_iommu_dev(&matrix_mdev->vdev);
+ 	if (ret)
+ 		goto err_put_vdev;
+diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+index c6e577064e7e..19772e59fdc6 100644
+--- a/drivers/s390/crypto/vfio_ap_private.h
++++ b/drivers/s390/crypto/vfio_ap_private.h
+@@ -173,6 +173,7 @@ void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
+ 			      struct ap_config_info *old_config_info);
+ 
+ int vfio_ap_init_migration_data(struct ap_matrix_mdev *matrix_mdev);
++void vfio_ap_setup_vfio_device_migration(struct ap_matrix_mdev *matrix_mdev);
+ void vfio_ap_release_migration_data(struct ap_matrix_mdev *matrix_mdev);
+ void vfio_ap_reset_migration_state(struct ap_matrix_mdev *matrix_mdev);
+ 
 -- 
 2.53.0
 
