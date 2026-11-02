@@ -1,47 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793626975;
-	b=faxNcJHL7IE/iUmefENgS04/4ZPBi5ILIMMZ+20oBJhhRcHR78mrldT1Kp87J+D7/uZE
-	 Wb17DhE58BgdIIhVR/JldHmE5hELazLA86kU0E4Szki9ugXzaj0dB480OmtPJYYCeoxgO
-	 KOs1rDGMBiI5I9Z8DkdGKMryJZn84+H4lJoXqbc64dUZaMRjU+FYv9Kl2E0r9CKv+Kyx1
-	 CCRyGqPc4bjNt8NrXsqwS61Ya0x+u7FgHprtYc6TVSzp+eS8s0583N8Fg4UJ53sB/zURz
-	 8LUjquR9u/bEIs8U2lSdODLxTATHDczpyPwVg0jq29W73o32rc4O9LMzJFQn9Elx18A==
+	t=1793627160;
+	b=VXv+KViDjEvboEVUnaXLdTXbWy81ZNBKncv/KmSL4ZSCYTw74+Q1eG8ismeo7XoVBYnr
+	 OXuDOsM9Jo3kaeEhxqD6VK8Zt46E+xO+sjU4xRNvR8a4o4xdI3MhE+zOgAD2esrxfNCO1
+	 nPkXn94PcCjpaD53zleDfXl9j3tvPfAnHBXNDwAi1Ryld5lemq/mOl/X5yiepnaW58zkA
+	 EhlczEBVfT6CXa5SRiG4EXQziWdOWb4CVQCHU3MAvtPGVjBvakzNTJwGymPhQetGOidxR
+	 JBYYk/YXThPCAs4NyYj4Lek6fwAILAowVuCvkX734xedFH+wV7HSq6wsj3isL+Ok6sw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793626975;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=N92l3jjvO00CtpEZOu8rveygTDy+OqbCyAbm8AeBzYI=;
-	b=GbqpJuLhRMKsKFKMOQJKXkJ+Jahc8KsNswsdEYyuR1p7lH6/9T2cPSO1q2d0wA7IJUPP
-	 lvN3m6eeXys9fC4GzubBOnxjjaPVjIQBVJ7M5EZa3yOWXKDBOuYx6No0ZhX0yh/BHD+f6
-	 BInUWLEDjYgtcbRF4jbDDh6b65D2yysMfW2sl8HDqFHzVrZCwJEt/U6jx5VEVpoRvE+Ma
-	 UnXfsQjX8kfQvFYJQ4vmnORaCV/Nz7iNIDnoptbdBZyVViuQaXHGTQlxULQDLspWPiE7B
-	 e2lhp3Rjyhu/t9jJdB81eJpmK4hQcrJhlC82yf2EXyDLDftLeDOdbqNGERvUuZ9c51w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793627160;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:Autocrypt:
+	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-GUID:X-Authority-Analysis:
+	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
+	bh=nZhmsjnBxJ+8r+QA6vO1iYcrgzf+pJHTtUwizal9m68=;
+	b=3QhKrUzp7mByoEwYCDIO0GIn5Oh3w5N/ERUMSB26Zn5/zFY18CJO5MPNfGrFm1ta4grA
+	 8kNXieuj1jrUK/+KDUw5D6Jx8QTFU3JjV0vRBgeaq1XJpF58VeWNUfv/KoaBFPa3dLOg9
+	 p2TJ5oXIuzAvQxNV2OFCDSo+iV2Y/1IhFKrJ/+sTHfNVrqEi0ivx+P+l/cZEbjM3ZuAwe
+	 FLcqgHK4UmZBH4l2B1OKsBXdo1Orj9FDotXwQ54u2grbxypNVzb92FCMJg+RufUfyOXfb
+	 6xn+5boQTqtkp31hA203dcypYk1QBA4sUv3GTyYLh97zjnbQEVYQKCdcdh+PRAhzCGg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tl7djDwB;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=XZkorKFa;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3AAC606A324;
-	Mon,  2 Nov 2026 13:42:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CA77606A33F;
+	Mon,  2 Nov 2026 13:45:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7CA77606A33F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Tl7djDwB
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11AEB1F00A17;
-	Mon,  2 Nov 2026 13:42:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793626974;
-	bh=N92l3jjvO00CtpEZOu8rveygTDy+OqbCyAbm8AeBzYI=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Tl7djDwBaHB0P3Kuzzh7diRALB/XJy9zz68TIIVk13VN6FbCQF9rlMQTZ+oud5OLl
-	 HWdrdGu92Aug5rumrxIjAlxSeiiGCK05JPKz7CjySd03tUiGnIMPEeY4RxKPlM4i80
-	 DBwyqwD33qgtQ032BD3Wqd/FqZfcfOycAsImhKBSBE9gr0LdZkH3MJO08/pvLlQQVj
-	 svMwhggPT2rj+R+FeAo817O/t8DLzYJ8t2drgE6WPataY85jbXk9eJTHug2kgBiV1n
-	 0IhhxesRgcT5odVtnYFc1IRsmkrSeAyFybeAQwiHqdguNoJt3cghZKbcXpqjTLdDii
-	 ocf436Tuj7SfA==
-Message-ID: <12d9eb7a-a9eb-4e3a-b5fe-abc49f67f212@kernel.org>
-Date: Mon, 2 Nov 2026 14:42:44 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=XZkorKFa
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2DE7c42975966;
+	Mon, 2 Nov 2026 13:45:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=nZhmsj
+	nBxJ+8r+QA6vO1iYcrgzf+pJHTtUwizal9m68=; b=XZkorKFah0vGIbfQ4uZWT4
+	m+YGMQTlUT0cYrtvIArcj6bwCMhnHQm2IUR4NPZ49KudV7kuNX76HWwrfXN5KQLE
+	Vbba2rKLWXyLFZkNq4U8XEZzGhCfYzZdqwURwvPYARDZmi3znf6OhDsHNiitMXs0
+	z8D/lzzffwW14SrYGBNwmSKGVMXhdKCm4zKbrvO1ZkKSEv4BKiNOp+JvKOtVMQZk
+	5P9WY0+GbnDmlMSmgjxU+6mEVB+oUtv7rwoDnDrS+uZtMNSolQqbr5mKKXw3kIvo
+	05Y2zejIFbGkxZWLneZLzGOUekKOQE10UDw4W5iRy8o48t7ygwenuVxBiOtWAGuw
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn826gr02-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 02 Nov 2026 13:45:56 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A2DJxto1031291;
+	Mon, 2 Nov 2026 13:45:55 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hnv5gnxaa-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Nov 2026 13:45:55 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A2DjndB26804822
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 2 Nov 2026 13:45:49 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6716620049;
+	Mon,  2 Nov 2026 13:45:49 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2DF3C20040;
+	Mon,  2 Nov 2026 13:45:49 +0000 (GMT)
+Received: from [9.111.82.55] (unknown [9.111.82.55])
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  2 Nov 2026 13:45:49 +0000 (GMT)
+Message-ID: <73347a6b-1224-415d-905a-aec1a62dd13a@linux.ibm.com>
+Date: Mon, 2 Nov 2026 14:45:48 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -52,235 +86,161 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 14/15] RFC: mm/hugetlb: account restored reservations
- before freeing folios
-To: sashiko-reviews@lists.linux.dev, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>, Naoya Horiguchi
- <nao.horiguchi@gmail.com>, Andrew Morton <akpm@linux-foundation.org>,
- Mel Gorman <mgorman@suse.de>, Andy Whitcroft <apw@canonical.com>,
- Miaohe Lin <linmiaohe@huawei.com>, Michal Hocko <mhocko@suse.com>,
- Rik van Riel <riel@surriel.com>, Hugh Dickins <hughd@google.com>,
- Baolin Wang <baolin.wang@linux.alibaba.com>,
- Vivek Kasireddy <vivek.kasireddy@intel.com>, Dave Airlie
- <airlied@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>,
- Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>,
- Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Jonathan Corbet <corbet@lwn.net>,
- Shuah Khan <skhan@linuxfoundation.org>, Randy Dunlap
- <rdunlap@infradead.org>, Peter Xu <peterx@redhat.com>,
- Breno Leitao <leitao@debian.org>, Will Deacon <will@kernel.org>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin
- <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>
-Cc: linux-mm@kvack.org, Gerd Hoffmann <kraxel@redhat.com>,
- linux-s390@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>
-References: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
- <20261028-fixes_hugetlb-v1-14-a0a033db180f@kernel.org>
- <sashiko-outbox-189914@kernel.org>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
+Subject: Re: [PATCH v4 1/7] KVM: s390: Fix UCONTROL inconsistencies
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, david@kernel.org,
+        nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
+References: <20261028185422.272146-1-imbrenda@linux.ibm.com>
+ <20261028185422.272146-2-imbrenda@linux.ibm.com>
 Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <sashiko-outbox-189914@kernel.org>
-Content-Type: text/plain; charset=UTF-8
+From: Janosch Frank <frankja@linux.ibm.com>
+Autocrypt: addr=frankja@linux.ibm.com; keydata=
+ xsFNBFubpD4BEADX0uhkRhkj2AVn7kI4IuPY3A8xKat0ihuPDXbynUC77mNox7yvK3X5QBO6
+ qLqYr+qrG3buymJJRD9xkp4mqgasHdB5WR9MhXWKH08EvtvAMkEJLnqxgbqf8td3pCQ2cEpv
+ 15mH49iKSmlTcJ+PvJpGZcq/jE42u9/0YFHhozm8GfQdb9SOI/wBSsOqcXcLTUeAvbdqSBZe
+ zuMRBivJQQI1esD9HuADmxdE7c4AeMlap9MvxvUtWk4ZJ/1Z3swMVCGzZb2Xg/9jZpLsyQzb
+ lDbbTlEeyBACeED7DYLZI3d0SFKeJZ1SUyMmSOcr9zeSh4S4h4w8xgDDGmeDVygBQZa1HaoL
+ Esb8Y4avOYIgYDhgkCh0nol7XQ5i/yKLtnNThubAcxNyryw1xSstnKlxPRoxtqTsxMAiSekk
+ 0m3WJwvwd1s878HrQNK0orWd8BzzlSswzjNfQYLF466JOjHPWFOok9pzRs+ucrs6MUwDJj0S
+ cITWU9Rxb04XyigY4XmZ8dywaxwi2ZVTEg+MD+sPmRrTw+5F+sU83cUstuymF3w1GmyofgsU
+ Z+/ldjToHnq21MNa1wx0lCEipCCyE/8K9B9bg9pUwy5lfx7yORP3JuAUfCYb8DVSHWBPHKNj
+ HTOLb2g2UT65AjZEQE95U2AY9iYm5usMqaWD39pAHfhC09/7NQARAQABzSVKYW5vc2NoIEZy
+ YW5rIDxmcmFua2phQGxpbnV4LmlibS5jb20+wsF3BBMBCAAhBQJbm6Q+AhsjBQsJCAcCBhUI
+ CQoLAgQWAgMBAh4BAheAAAoJEONU5rjiOLn4p9gQALjkdj5euJVI2nNT3/IAxAhQSmRhPEt0
+ AmnCYnuTcHRWPujNr5kqgtyER9+EMQ0ZkX44JU2q7OWxTdSNSAN/5Z7qmOR9JySvDOf4d3mS
+ bMB5zxL9d8SbnSs1uW96H9ZBTlTQnmLfsiM9TetAjSrR8nUmjGhe2YUhJLR1v1LguME+YseT
+ eXnLzIzqqpu311/eYiiIGcmaOjPCE+vFjcXL5oLnGUE73qSYiujwhfPCCUK0850o1fUAYq5p
+ CNBCoKT4OddZR+0itKc/cT6NwEDwdokeg0+rAhxb4Rv5oFO70lziBplEjOxu3dqgIKbHbjza
+ EXTb+mr7VI9O4tTdqrwJo2q9zLqqOfDBi7NDvZFLzaCewhbdEpDYVu6/WxprAY94hY3F4trT
+ rQMHJKQENtF6ZTQc9fcT5I3gAmP+OEvDE5hcTALpWm6Z6SzxO7gEYCnF+qGXqp8sJVrweMub
+ UscyLqHoqdZC2UG4LQ1OJ97nzDpIRe0g6oJ9ZIYHKmfw5jjwH6rASTld5MFWajWdNsqK15k/
+ RZnHAGICKVIBOBsq26m4EsBlfCdt3b/6emuBjUXR1pyjHMz2awWzCq6/6OWs5eANZ0sdosNq
+ dq2v0ULYTazJz2rlCXV89qRa7ukkNwdBSZNEwsD4eEMicj1LSrqWDZMAALw50L4jxaMD7lPL
+ jJbazsFNBFubpD4BEADAcUTRqXF/aY53OSH7IwIK9lFKxIm0IoFkOEh7LMfp7FGzaP7ANrZd
+ cIzhZi38xyOkcaFY+npGEWvko7rlIAn0JpBO4x3hfhmhBD/WSY8LQIFQNNjEm3vzrMo7b9Jb
+ JAqQxfbURY3Dql3GUzeWTG9uaJ00u+EEPlY8zcVShDltIl5PLih20e8xgTnNzx5c110lQSu0
+ iZv2lAE6DM+2bJQTsMSYiwKlwTuv9LI9Chnoo6+tsN55NqyMxYqJgElk3VzlTXSr3+rtSCwf
+ tq2cinETbzxc1XuhIX6pu/aCGnNfuEkM34b7G1D6CPzDMqokNFbyoO6DQ1+fW6c5gctXg/lZ
+ 602iEl4C4rgcr3+EpfoPUWzKeM8JXv5Kpq4YDxhvbitr8Dm8gr38+UKFZKlWLlwhQ56r/zAU
+ v6LIsm11GmFs2/cmgD1bqBTNHHcTWwWtRTLgmnqJbVisMJuYJt4KNPqphTWsPY8SEtbufIlY
+ HXOJ2lqUzOReTrie2u0qcSvGAbSfec9apTFl2Xko/ddqPcZMpKhBiXmY8tJzSPk3+G4tqur4
+ 6TYAm5ouitJsgAR61Cu7s+PNuq/pTLDhK+6/Njmc94NGBcRA4qTuysEGE79vYWP2oIAU4Fv6
+ gqaWHZ4MEI2XTqH8wiwzPdCQPYsSE0fXWiYu7ObeErT6iLSTZGx4rQARAQABwsFfBBgBCAAJ
+ BQJbm6Q+AhsMAAoJEONU5rjiOLn4DDEP/RuyckW65SZcPG4cMfNgWxZF8rVjeVl/9PBfy01K
+ 8R0hajU40bWtXSMiby7j0/dMjz99jN6L+AJHJvrLz4qYRzn2Ys843W+RfXj62Zde4YNBE5SL
+ jJweRCbMWKaJLj6499fctxTyeb9+AMLQS4yRSwHuAZLmAb5AyCW1gBcTWZb8ON5BmWnRqeGm
+ IgC1EvCnHy++aBnHTn0m+zV89BhTLTUal35tcjUFwluBY39R2ux/HNlBO1GY3Z+WYXhBvq7q
+ katThLjaQSmnOrMhzqYmdShP1leFTVbzXUUIYv/GbynO/YrL2gaQpaP1bEUEi8lUAfXJbEWG
+ dnHFkciryi092E8/9j89DJg4mmZqOau7TtUxjRMlBcIliXkzSLUk+QvD4LK1kWievJse4mte
+ FBdkWHfP4BH/+8DxapRcG1UAheSnSRQ5LiO50annOB7oXF+vgKIaie2TBfZxQNGAs3RQ+bga
+ DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
+ Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
+ phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
+In-Reply-To: <20261028185422.272146-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: pNHWYOw7n9uv1daxksidSM_yctJiXE7G
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAyMDA1NCBTYWx0ZWRfXwAUJ76ZEqoy7
+ uT4J4nHtZGYqmUI7B01Ynpu+C6f0CehE+FpYvv8TT/noo/55I8ZQfz9xaGSTaYBX8InISRI0WLM
+ BsXBbKZJGheVaQwvbijtd/YyfECSBUNa5ShQ3t4sjxMitPir004BFL0yAtUCaaVJjZEeLl8xcOM
+ +9q48hOhgAIYx1aPhOPnLSgWVns/emv7kcpGTiE+Ql8qVKRVVVcFR4zYqgW83ULksAv2Rz2TZVp
+ L+T6R5ZIXtI5vZxATu8qt5lgJHCdTjSE56LUloKsQpfvt/LnXDVXErEIhx4PdrSHIRwXUBSSxD9
+ PTos2/tbZMSzTBPFzZV6uMSgxxswv7IQe0CWKScci05Etq8dnhzKMV1MsYeorJh6nCMRNkRQZJ9
+ VCCPyTTU4RfAAZfFc2yKNzxobJGIs1XUnSmBBS5OnUP3AuHIkkv7NT6PbR1y4TI3HtqCEgnILnq
+ CwZJLFiUBEh5agIJcTQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAyMDA1NCBTYWx0ZWRfX69S7UrUUqcWp
+ o4AvYKxFf1d1ghsGEqWX8Tp3gH5lR19LNJWKjwQBuAXMJv/aQYdndgb6si2xmR/2AtVqMKIjPDl
+ AmUUwgtbgfF5sFgiDDieJznsBc89wZU=
+X-Proofpoint-GUID: pNHWYOw7n9uv1daxksidSM_yctJiXE7G
+X-Authority-Analysis: v=2.4 cv=EsJHPicA c=1 sm=1 tr=0 ts=6ae89414 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=VwQbUJbxAAAA:8 a=AO8tPHvIc8Hd2HLRh-MA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-02_03,2026-11-02_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 malwarescore=0
+ priorityscore=1501 adultscore=0 impostorscore=0 phishscore=0 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
+ definitions=main-2611020054
 
-On 10/29/26 21:16, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 1 potential issue(s) to consider:
-> - [High] mm/hugetlb: gather_surplus_pages() over-allocates and retains surplus folios
-> --
+On 10/28/26 7:54 PM, Claudio Imbrenda wrote:
+> For UCONTROL VMs, when a vCPU segment entry is mapped but unallocated,
+> the tl field was set to 1. This collides with the present bit, which
+> means that other parts of gmap would mistake the entry for a present
+> one.
 > 
-> commit d5256483029a06972dd519de19de57831de33af4
-> Author: David Hildenbrand (Arm) <david@kernel.org>
+> Refactor the code to use a different combination of flags to indicate a
+> mapped but unallocated segment.
 > 
-> RFC: mm/hugetlb: account restored reservations before freeing folios
+> The new flags combination will result in several functions returning
+> -EFAULT when used on UCONTROL guests. This is fine, since those
+> interfaces should not be used for UCONTROL guests to begin with.
 > 
-> This commit updates anonymous hugetlb folio unmapping to increment
-> resv_huge_pages immediately when restoring the VMA reservation rather than
-> waiting for the folio to be freed. Because resv_huge_pages can now
-> temporarily exceed free_huge_pages while unmapped folios still have
-> elevated reference counts, available_huge_pages() is updated to clamp at
-> zero.
+> Proper fencing of the interfaces that are not allowed for UCONTROL
+> guests is outside the scope of this patch.
 > 
->> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
->> index 69a5d2c73ee1d..06ef8ba41df7c 100644
->> --- a/mm/hugetlb.c
->> +++ b/mm/hugetlb.c
-> [ ... ]
->> @@ -5313,6 +5309,45 @@ int move_hugetlb_page_tables(struct vm_area_struct *vma,
->>  	return len + old_addr - old_end;
->>  }
->>  
->> +/* Must be called after rmap removal. */
->> +static void hugetlb_folio_restore_rsv_on_unmap(struct vm_area_struct *vma,
->> +		struct folio *folio)
->> +{
->> +	struct hstate *h = hstate_vma(vma);
->> +	unsigned long address;
->> +	long rc;
->> +
->> +	/*
->> +	 * Restore only on the last unmap, otherwise the owner could reuse
->> +	 * the reservation while the folio is still mapped by a child.
->> +	 *
->> +	 * TODO: Handle migration temporarily dropping the mapcount to zero.
->> +	 * TODO: Prevent reservation reuse before the folio is freed.
->> +	 */
->> +	if (!folio_test_anon(folio) || !__vma_private_lock(vma) ||
->> +	    folio_mapped(folio))
->> +		return;
->> +
->> +	address = vma_anon_address(vma, folio->index, 1);
->> +	rc = vma_needs_reservation(h, vma, address);
->> +	if (!rc)
->> +		vma_end_reservation(h, vma, address);
->> +	if (rc <= 0)
->> +		return;
->> +
->> +	rc = vma_add_reservation(h, vma, address);
->> +	if (rc < 0)
->> +		return;
->> +
->> +	/* The restored reservation owns the subpool charge. */
->> +	hugetlb_set_folio_subpool(folio, NULL);
->> +
->> +	/* Account before the VMA can close or fault again. */
->> +	spin_lock_irq(&hugetlb_lock);
->> +	h->resv_huge_pages++;
->> +	spin_unlock_irq(&hugetlb_lock);
->> +}
+> Fixes: a2c17f9270cc ("KVM: s390: New gmap code")
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> Cc: stable@vger.kernel.org # 7.0+
+> ---
+>   arch/s390/kvm/gmap/dat.h  | 16 +++++++++++-
+>   arch/s390/kvm/gmap/gmap.c | 54 +++++++++++++++++++--------------------
+>   2 files changed, 41 insertions(+), 29 deletions(-)
 > 
-> [Severity: High]
-> With h->resv_huge_pages now able to exceed h->free_huge_pages while an
-> unmapped folio is still referenced (for example, via vmsplice() or GUP),
-> can a concurrent hugetlb_acct_memory() -> gather_surplus_pages() over-allocate
-> surplus folios and retain them in the pool?
-> 
-> In surplus_pages_needed():
-> 
-> 	static long surplus_pages_needed(struct hstate *h, long delta, long allocated)
-> 	{
-> 		long global_free = (long)h->free_huge_pages + allocated;
-> 		long allowed_free = (long)allowed_mems_nr(h) + allocated;
-> 
-> 		return max((long)h->resv_huge_pages + delta - global_free,
-> 			   delta - allowed_free);
-> 	}
-> 
-> When h->resv_huge_pages > h->free_huge_pages, (long)h->resv_huge_pages +
-> delta - global_free includes the deficit from the in-flight unmapped
-> folios on top of delta.
-> 
-> If gather_surplus_pages() succeeds, needed += allocated equals delta +
-> (h->resv_huge_pages - h->free_huge_pages), so it allocates and enqueues
-> extra surplus folios beyond delta (or fails with -ENOMEM if
-> nr_overcommit_huge_pages only had room for delta).
-> 
-> Furthermore, when gather_surplus_pages() cleans up unused or aborted
-> folios at the free label:
-> 
-> 	free:
-> 		spin_unlock_irq(&hugetlb_lock);
-> 
-> 		/*
-> 		 * Free unnecessary surplus pages to the buddy allocator.
-> 		 * Pages have no ref count, call free_huge_folio directly.
-> 		 */
-> 		list_for_each_entry_safe(folio, tmp, &surplus_list, lru)
-> 			free_huge_folio(folio);
-> 
-> free_huge_folio() checks:
-> 
-> 	} else if (h->surplus_huge_pages_node[nid] &&
-> 		   h->free_huge_pages >= h->resv_huge_pages) {
-> 		/* Free this surplus folio that is not required globally. */
-> 		remove_hugetlb_folio(h, folio, true);
-> 		spin_unlock_irqrestore(&hugetlb_lock, flags);
-> 		update_and_free_hugetlb_folio(h, folio, true);
-> 	} else {
-> 		arch_clear_hugetlb_flags(folio);
-> 		enqueue_hugetlb_folio(h, folio);
-> 		spin_unlock_irqrestore(&hugetlb_lock, flags);
-> 	}
-> 
-> While h->free_huge_pages < h->resv_huge_pages, free_huge_folio() will
-> enqueue the aborted surplus folios into the hugetlb pool instead of
-> returning them to the buddy allocator. If the in-flight unmapped folio is
-> a persistent folio on node A (where surplus_huge_pages_node[nid_A] == 0)
-> and the surplus folio was allocated on node B, dropping the last reference
-> to the persistent folio on node A will not free the surplus folio on
-> node B either, leaving the surplus folio stranded in the pool.
-> 
+> diff --git a/arch/s390/kvm/gmap/dat.h b/arch/s390/kvm/gmap/dat.h
+> index 90389d47ba4e..4665c1112bb9 100644
+> --- a/arch/s390/kvm/gmap/dat.h
+> +++ b/arch/s390/kvm/gmap/dat.h
+> @@ -109,6 +109,8 @@ union pte {
+>   #define _REGION3_FR_MASK	(_REGION3_MASK >> PAGE_SHIFT)
+>   #define _PAGES_PER_SEGMENT	_PAGE_ENTRIES
+>   #define _PAGES_PER_REGION3	(_PAGES_PER_SEGMENT * _CRST_ENTRIES)
+> +#define _UCAS_ENTRY_LENGTH	0
+> +#define _UCAS_ENTRY_OFFSET	3
 
-Damn that's confusing. What an overengineered mess :)
+Both of these together in combination with tt=segment are essentially a 
+flag for a ucontrol mapping that's mapped but not allocated?
 
-Surplus pages ... another thing that should have never been merged.
+>   
+>   /* Soft dirty, needed as macro for atomic operations on ptes */
+>   #define _PAGE_SD 0x002
+> @@ -421,6 +423,17 @@ static inline union crste _crste_fc0(kvm_pfn_t pfn, int tt)
+>   	return res;
+>   }
+>   
+> +static inline union crste _crste_ucas(kvm_pfn_t pfn)
+> +{
+> +	union crste res = { .val = PFN_PHYS(pfn) };
+> +
+> +	res.h.i = 1;
+> +	res.h.tt = TABLE_TYPE_SEGMENT;
+> +	res.h.fc0.tl = _UCAS_ENTRY_LENGTH;
+> +	res.h.fc0.tf = _UCAS_ENTRY_OFFSET;
 
-I guess we'd have to clamp also in surplus_pages_needed:
+You're missusing this field in order to get to bits 57 and 58 which 
+aren't actually the tf field for a segment, right?
 
-@@ -2317,11 +2312,13 @@ static nodemask_t *policy_mbind_nodemask(gfp_t gfp)
-  */
- static long surplus_pages_needed(struct hstate *h, long delta, long allocated)
- {
--	long global_free = (long)h->free_huge_pages + allocated;
--	long allowed_free = (long)allowed_mems_nr(h) + allocated;
-+	long available = min(available_huge_pages(h), allowed_mems_nr(h));
+If so, then this might be easier on the eyes since you don't use a 
+bitmask but it's horrible for the brains of anyone other than yourself. 
+Especially since there's no comment explaining the shenanigans.
 
--	return max((long)h->resv_huge_pages + delta - global_free,
--		   delta - allowed_free);
-+	return delta - available - allocated;
- }
-
-
-And in gather_surplus_pages() we'd then have to be more careful about which
-surplus folios we're actually freeing.
-
--- 
-Cheers,
-
-David
+> +	return res;
+> +}
+> +
+>   /**
+>    * _crste() - Useful constructor for union crste with FC=1
+>    * @pfn: the pfn this pte should point to.
+> @@ -985,7 +998,8 @@ static inline int dat_create_slot(struct kvm_s390_mmu_cache *mc, union asce asce
+>   
+>   static inline bool crste_is_ucas(union crste crste)
+>   {
+> -	return is_pmd(crste) && crste.h.i && crste.h.fc0.tl == 1 && crste.h.fc == 0;
+> +	return is_pmd(crste) && crste.h.i && !crste.h.fc &&
+> +	       crste.h.fc0.tl == _UCAS_ENTRY_LENGTH && crste.h.fc0.tf == _UCAS_ENTRY_OFFSET;
+>   }
+>   
