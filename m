@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793637138;
-	b=tq5KCjtd4BDJHxd4rYR9AzapYiubBgPUBIxMnNIAu+IE0Xm+Yrq4Qi/ThfeJaOzI09tq
-	 XqYXo3HFXoRJ2uIjkgQaMsLws4ylVgrelHCI2ZuedIJdmSM6rj1z+ZTCBDOWpqq4V+jmH
-	 x2VKyt3A5I2gWU3tnmN5KV+Un4EIL8owcodi8hUjr2UBYkTaEMF9zWHd4QpyUlpId2xAW
-	 zlNvG19DgkfLeohbft9IZrzezPbLon2hYKgE+4hWYUEybd87y/IbD5wV/SDbwJB8R3ikF
-	 FGWjNZFi3N4SsNcpRTfUG9BJCEzrj9KQrwlqqZBt6CmGzlNGiSBsO7OdREA3z3cGJjg==
+	t=1793637747;
+	b=QwcJEoC6LlsdhSorlmQD9Z9Q7ljuGko4BohOrrriHIseWqx7tqfRPj1YQi/EiPDUlXi0
+	 er6850Yf/sa/BFtBz/sToqPAS4S+s0oxuRZbD+/Goh2LY0rs2YkZ2RZREKEikBe9p7FoB
+	 dY735lNoDRjpWVltKw7vWcc9xlDXm4dJOgn+1EkajM2glKTa9BoJxe9RrtUvoHhN7bPNC
+	 3pu0o3yCczbmTk8FdB4BtViTfjDQ8m/F9R1AI+gRA2jhVuP6pCWHcHPtBuhNCKtS6msT9
+	 4B3MaG+e97gF0/Kb877NjX6VZXiKzfhY72Oum7yeV2GL50uK26O+Lh3xlEtEu0Oi23A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793637138;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793637747;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=BHtTtcYi04zl9O9bzQ6Ir6M454wMIOiUEHs4hDmq31Q=;
-	b=jGSfYPpx/AgFIkAtDs6UHnJgY3+Q/VLu6cwGA1C2RcHidpDk05HspO8G9wii4wXBmq86
-	 YPVO5i6Q7Nl4/ZE6zXSEu/Vl0WRiUi+R5sYQUCADDSgmBTRjNphQVfeq6reGIIOwaVicl
-	 wS8XhUTotX38LYffMrWR2EB6p1O9y5e5D5+npbxqnzikgNlDEFnqCdTXDAYp5flr4kbau
-	 DParjwrg9/V+RWpDylZDb5e6XHsVE2cwng9dU6CW4yB2O0yio2R0sqcOEdFYETZDPwklq
-	 pwrIffE00qYBVGJ948fBeQSycvp5PpSO1Ti1KdX2bY2EkV8+n9dWDr308Fkt7wLcTDQ==
+	bh=dckK3H+RIDJQcqGJtt0qcxDRO5LIQCgLJ8L7OAGIdhY=;
+	b=xvuGSfl/DHG5EIYy2CE1qT6skKXzlhKk1TJLvaXvyu3E1tslvyUwAPMoIhrO7XvJSCX3
+	 +tB80FVX3uG2A3ZzhARSVY9hcVmq1hCMQe5YhGXHsciijETPMtvMbhEhfyJAgq4xfrXay
+	 GtK93a0kL4G+Rr+jIga9Vkst4fLxjKS25JPwL/0mMarNk4D2Z37wSgFpp58F/hb2Sqlpd
+	 IWlpW4EbY6+A1L5Q/4Psm+xD6kwrigA56sY0eDrK5y9O9yF+RUroEl2kXSXAyEsLcHJWR
+	 fp+UIvwFeDjbiDv6M6GKMoqc9jzJnhrO9ReoHu4/lzZVtWtPkHHIb9pIP6WiPYNtK2g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CKJr2l4P;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CpiEA1Qn;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FB36606A931;
-	Mon,  2 Nov 2026 16:32:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23FB560A1DAA;
+	Mon,  2 Nov 2026 16:42:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CKJr2l4P
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ECC11F00A17;
-	Mon,  2 Nov 2026 16:32:17 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=CpiEA1Qn
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52A001F00A1D;
+	Mon,  2 Nov 2026 16:42:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793637137;
-	bh=BHtTtcYi04zl9O9bzQ6Ir6M454wMIOiUEHs4hDmq31Q=;
+	s=k20260515; t=1793637746;
+	bh=dckK3H+RIDJQcqGJtt0qcxDRO5LIQCgLJ8L7OAGIdhY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=CKJr2l4PA81b2Y85JkPHb/1cQONsqqb+wWp9X1zK8VEdjeWhVHJuE/l2fW1e/5JSm
-	 EEifwfj0LvfA6OULLPzkiW7CfNHylYIlMXyJlDCEg7oYY/8henabr1bxbTFFrdvQUp
-	 zPMN5KyBqHiR/XqVrTrQGYT5Cd5Ros+5k2YTFEl+9Vqnooy2ft/PWx0t86dTyZjcon
-	 s9x3W48SxqcgnyH81mTR7qM83BNXhfKyaCx0IvSkOCyAJ0Uqv3Qgqd3B79RbtpSdyf
-	 q1ZMTR9b/6AMYRmUPb5isoAp4x4DymNyvc+ENCwV9VIyj1f4F3mzjqZqZiT+KFtMRj
-	 cy7RYx2iWxiiA==
-Message-ID: <sashiko-outbox-193752@kernel.org>
+	b=CpiEA1QnuLsFEakcXzd9i58CLNZldQO9FS2xOLPCiA6afb7pJ6bZVDcelvYTFLGA0
+	 AFtvQWeLxiQDDR11Z8nO8nHHNtSZXhUqBO1MZv7vUN2mN1VCxdLapTrjkZmvQM6t7x
+	 9E0UHwPSqLC4z6+ajRyAyqzPx6UaEnQggRGU23I3CD0+z1q+yB1VzcmID9GArYh4Fn
+	 OItqkB3OaTXWwoGMeuLDfPl/b9xvfH30qqFNd2qBGWIRyV0QrTAeDQc5DU7gglK2XI
+	 6TqedufojRhN7NAZcNf3SuwILkeuI49SxljZFIH2scZwyVbIwYB6btaV+HDcNj45Zy
+	 20gQGGqyKiRQw==
+Message-ID: <sashiko-outbox-193762@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 07/14] s390/vfio-ap: File ops called to save the
- vfio device migration state
+Subject: Re: [PATCH v11 08/14] s390/vfio-ap: Transition device migration
+ state from STOP to RESUMING
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Anthony Krowiak" <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261102151604.2150055-8-akrowiak@linux.ibm.com>
+In-Reply-To: <20261102151604.2150055-9-akrowiak@linux.ibm.com>
 References: <20261102151604.2150055-1-akrowiak@linux.ibm.com>
- <20261102151604.2150055-8-akrowiak@linux.ibm.com>
+ <20261102151604.2150055-9-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Mon, 02 Nov 2026 16:32:17 +0000
+Date: Mon, 02 Nov 2026 16:42:25 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -64,145 +64,126 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Critical] s390/vfio-ap: use-after-free of mig_file in vfio_ap_stop_copy_=
-read()
+- [Critical] s390/vfio-ap: use-after-free of mig_file in vfio_ap_release_mi=
+g_file()
 --
 
-commit 6f641fc7194e9bced026956cec2ed8bc278c6d77
+commit 8958f5c47ab29cef8a0a38994bae03335dbb5b69
 Author: Anthony Krowiak <akrowiak@linux.ibm.com>
 
-s390/vfio-ap: File ops called to save the vfio device migration state
+s390/vfio-ap: Transition device migration state from STOP to RESUMING
 
-This commit implements the vfio_ap_stop_copy_read() callback for the migrat=
-ion
-file created when transitioning from STOP to STOP_COPY, snapshotting and
-copying the guest's AP configuration and queue hardware information to
-userspace.
+This commit implements the transition from VFIO_DEVICE_STATE_STOP to
+VFIO_DEVICE_STATE_RESUMING in vfio_ap_transition_to_state() by pre-allocati=
+ng
+the receive buffer for the guest's AP configuration and opening a write-only
+anonymous inode file stream for the resuming migration data.
 
 > diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypt=
 o/vfio_ap_migration.c
-> index 48028b12b26f9..b64ce092a41b1 100644
+> index b64ce092a41b1..526d83e8590d9 100644
 > --- a/drivers/s390/crypto/vfio_ap_migration.c
 > +++ b/drivers/s390/crypto/vfio_ap_migration.c
 
 [ ... ]
 
-> @@ -167,6 +160,269 @@ static int vfio_ap_release_mig_file(struct inode *f=
-ile_inode, struct file *filp)
->  	return 0;
+> @@ -456,6 +466,67 @@ static struct file *vfio_ap_open_file_stream(struct =
+vfio_ap_migration_file *mig_
+>  	return filp;
 >  }
 > =20
-> +/**
-> + * validate_stop_copy_read_parms: Validate the input parameters to the
-> + *                                vfio_ap_stop_copy_read function
-> + *
-> + * @mig_file:	Pointer to the object used for storing the vfio-ap device =
-state
-> + * @filp:	File stream to which to write source guest's AP configuration
-> + * @len:	The length of the data to be read
-> + *
-> + * Verify the following:
-> + * - @filp is the instance opened when state transitioned from STOP to S=
-TOP_COPY
-> + * - @filp->f_pos + @len does not cause integer overflow
-> + * - @mig_file->matrix_mdev is not NULL
-> + * - @mig_file->matrix_mdev->mig_data is not NULL
-> + *
-> + * Returns: 0 if the parameters pass validation; otherwise returns an er=
-ror
-> + */
-> +static int validate_stop_copy_read_parms(struct vfio_ap_migration_file *=
-mig_file,
-> +					 struct file *filp,
-> +					 size_t len)
-> +{
-> +	loff_t total_len;
-> +
-> +	lockdep_assert_held(&mig_file->lock);
-> +	lockdep_assert_held(&matrix_dev->mdevs_lock);
-> +
-> +	if (filp !=3D mig_file->filp)
-> +		return -EINVAL;
-> +
-> +	if (check_add_overflow((loff_t)len, filp->f_pos, &total_len))
-> +		return -EIO;
-> +
-> +	if (!mig_file->matrix_mdev || !mig_file->matrix_mdev->mig_data)
-> +		return -ENODEV;
-> +
-> +	return 0;
-> +}
-
-[ ... ]
-
-> +static ssize_t vfio_ap_stop_copy_read(struct file *filp, char __user *bu=
-f,
+> +static ssize_t vfio_ap_resuming_write(struct file *filp, const char __us=
+er *buf,
 > +				      size_t len, loff_t *pos)
 > +{
-> +	struct vfio_ap_migration_file *mig_file;
-> +	void *bounce;
-> +	ssize_t ret;
+> +	/* TODO */
+> +	return -EOPNOTSUPP;
+> +}
 > +
-> +	/*
-> +	 * This file was opened with stream_open(), so pos should be NULL for
-> +	 * sequential read() calls; a non-NULL pointer will be passed only
-> +	 * for positional pread() calls in which case we return an error
-> +	 * indicating broken pipe/illegal seek on a non-seekable file
-> +	 */
-> +	if (pos)
-> +		return -ESPIPE;
-> +
-> +	/*
-> +	 * mig_file is guaranteed live here: vfio_ap_open_file_stream() took
-> +	 * a vfio_device registration reference that is held until
-> +	 * vfio_ap_release_mig_file() runs, so the embedding mig_file cannot
-> +	 * be freed while this file descriptor is open.
-> +	 */
-> +	mig_file =3D filp->private_data;
-> +	mutex_lock(&mig_file->lock);
-> +	mutex_lock(&matrix_dev->mdevs_lock);
-> +
-> +	ret =3D validate_stop_copy_read_parms(mig_file, filp, len);
-> +	if (ret) {
-> +		mutex_unlock(&matrix_dev->mdevs_lock);
-> +		mutex_unlock(&mig_file->lock);
-> +		return ret;
-> +	}
+> +static const struct file_operations vfio_ap_resume_fops =3D {
+> +	.owner =3D THIS_MODULE,
+> +	.write =3D vfio_ap_resuming_write,
+> +	.release =3D vfio_ap_release_mig_file,
+> +};
 
 [ ... ]
 
-> +	memcpy(bounce, (char *)mig_file->ap_config + *pos, len);
-> +	mutex_unlock(&matrix_dev->mdevs_lock);
+> +static struct file *vfio_ap_resuming_init(struct vfio_ap_migration_file =
+*mig_file)
+> +{
+> +	struct vfio_ap_config *ap_config;
+> +	struct file *filp;
 > +
-> +	if (copy_to_user(buf, bounce, len)) {
-> +		kfree(bounce);
-> +		mutex_unlock(&mig_file->lock);
-> +		return -EFAULT;
+> +	lockdep_assert_held(&matrix_dev->mdevs_lock);
+> +
+> +	ap_config =3D kvzalloc(VFIO_AP_CONFIG_MAX_SIZE, GFP_KERNEL_ACCOUNT);
+> +	if (!ap_config)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	ap_config->num_queues =3D MAX_AP_QUEUES;
+> +
+> +	filp =3D vfio_ap_open_file_stream(mig_file, &vfio_ap_resume_fops, O_WRO=
+NLY);
+> +
+> +	if (IS_ERR(filp)) {
+> +		kvfree(ap_config);
+> +		return filp;
 > +	}
 > +
-> +	*pos +=3D len;
-> +	mutex_unlock(&mig_file->lock);
-> +	kfree(bounce);
-> +	return len;
+> +	mig_file->ap_config =3D ap_config;
+> +	mig_file->config_sz =3D VFIO_AP_CONFIG_MAX_SIZE;
+> +	mig_file->filp =3D filp;
+> +
+> +	return filp;
 > +}
+> +
+>  static struct file *
+>  vfio_ap_transition_to_state(struct ap_matrix_mdev *matrix_mdev,
+>  			    enum vfio_device_mig_state new_state)
+> @@ -488,10 +559,19 @@ vfio_ap_transition_to_state(struct ap_matrix_mdev *=
+matrix_mdev,
+>  		return filp;
+>  	}
+> =20
+> +	/*
+> +	 * Begins the process of restoring the vfio device state by creating and
+> +	 * returning a streaming data_fd to be used to read in the internal
+> +	 * state of the vfio-ap device on the destination host.
+> +	 */
+>  	if (cur_state =3D=3D VFIO_DEVICE_STATE_STOP &&
+>  	    new_state =3D=3D VFIO_DEVICE_STATE_RESUMING) {
+> -		/* TODO */
+> -		return ERR_PTR(-EOPNOTSUPP);
+> +		struct file *filp =3D vfio_ap_resuming_init(&mig_data->resuming_mig_fi=
+le);
+> +
+> +		if (IS_ERR(filp))
+> +			return ERR_CAST(filp);
+> +
+> +		return filp;
+>  	}
 
 [Severity: Critical]
-As reported by Sashiko on v6 [1], can closing the vfio device file descript=
-or
-while the migration file descriptor remains open cause a use-after-free of
-mig_file in vfio_ap_stop_copy_read() and vfio_ap_release_mig_file()?
+Can closing the VFIO device file descriptor before the migration stream file
+descriptor trigger a use-after-free in vfio_ap_release_mig_file()?
 
-The comment in vfio_ap_stop_copy_read() notes that vfio_ap_open_file_stream=
-()
-takes a vfio_device registration reference via
-vfio_device_try_get_registration() until vfio_ap_release_mig_file() runs.
-However, that reference only keeps matrix_mdev alive; stop_copy_mig_file is
-embedded inside struct vfio_ap_migration_data (matrix_mdev->mig_data), which
-is allocated separately in vfio_ap_init_migration_data().
+In vfio_ap_transition_to_state(), vfio_ap_resuming_init() passes
+&mig_data->resuming_mig_file (and the STOP_COPY path similarly passes
+&mig_data->stop_copy_mig_file) to vfio_ap_open_file_stream(), which stores
+mig_file in filp->private_data and pins the vfio_device registration:
 
-When userspace closes the vfio device file descriptor,
-vfio_ap_mdev_close_device() -> vfio_ap_release_migration_data() runs under
-matrix_dev->mdevs_lock:
+drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_open_file_stream() {
+	if (!vfio_device_try_get_registration(&mig_file->matrix_mdev->vdev))
+		return ERR_PTR(-ENODEV);
+
+	filp =3D anon_inode_getfile("vfio_ap_mig_file", fops, mig_file, flags);
+}
+
+Pinning the registration keeps matrix_mdev alive, but resuming_mig_file and
+stop_copy_mig_file are embedded in struct vfio_ap_migration_data
+(matrix_mdev->mig_data), which is dynamically allocated when the VFIO device
+file descriptor is opened and freed when it is closed via
+vfio_ap_mdev_close_device() -> vfio_ap_release_migration_data():
 
 drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_release_migration_data() {
 	if (!matrix_mdev->mig_data)
@@ -215,35 +196,33 @@ drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_release_migration_data() {
 	matrix_mdev->mig_data =3D NULL;
 }
 
-Because filp->private_data on the still-open migration file descriptor poin=
-ts
-to &mig_data->stop_copy_mig_file, freeing matrix_mdev->mig_data frees
-mig_file itself:
+If the VFIO device file descriptor is closed while the migration stream file
+descriptor is still open (for example, if a userspace VMM exits or crashes
+during migration and close_files() closes descriptors in ascending order),
+matrix_mdev->mig_data is freed while filp->private_data still points into i=
+t.
 
-1. If vfio_ap_stop_copy_read() runs after vfio_ap_mdev_close_device(),
-   mig_file =3D filp->private_data points into freed memory.
-   mutex_lock(&mig_file->lock) operates on a destroyed mutex in freed slab
-   memory, and validate_stop_copy_read_parms() dereferences mig_file->filp =
-and
-   mig_file->matrix_mdev from freed memory before checking
-   !mig_file->matrix_mdev->mig_data.
+When the migration stream file descriptor is subsequently accessed or close=
+d,
+vfio_ap_release_mig_file() dereferences mig_file->matrix_mdev from the freed
+mig_data allocation:
 
-2. If vfio_ap_stop_copy_read() is already in progress and drops
-   matrix_dev->mdevs_lock before copy_to_user() while holding mig_file->lock
-   (or is waiting to acquire matrix_dev->mdevs_lock after locking
-   mig_file->lock), a concurrent vfio_ap_mdev_close_device() ->
-   vfio_ap_release_migration_data() will destroy mig_file->lock while it is
-   locked and kfree(matrix_mdev->mig_data), causing the subsequent
-   mutex_unlock(&mig_file->lock) in vfio_ap_stop_copy_read() to write to fr=
-eed
-   memory.
+drivers/s390/crypto/vfio_ap_migration.c:vfio_ap_release_mig_file() {
+	struct vfio_ap_migration_file *mig_file =3D filp->private_data;
+	...
+	vfio_device_put_registration(&mig_file->matrix_mdev->vdev);
+	return 0;
+}
 
-3. When the migration file descriptor is later closed,
-   vfio_ap_release_mig_file() dereferences mig_file->matrix_mdev from the
-   freed mig_data structure.
+And any concurrent or subsequent read/write on that migration file descript=
+or
+will also lock the destroyed and freed mig_file->lock.
 
-[1] https://lore.kernel.org/r/20260727180224.027021F000E9@smtp.kernel.org
+Should mig_data (or the vfio_ap_migration_file structures) be embedded in
+struct ap_matrix_mdev or otherwise tied to the lifetime of the open migrati=
+on
+file descriptors?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261102151604.2150=
-055-1-akrowiak@linux.ibm.com?part=3D7
+055-1-akrowiak@linux.ibm.com?part=3D8
