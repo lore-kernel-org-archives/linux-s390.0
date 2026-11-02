@@ -1,76 +1,49 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.70
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793633491;
-	b=PNOngEW6Jybnmc/XX7sD73EUpnoh5KTcWdN39WIvrQH67S4kwjfGyj1FBTJD14TlYjnF
-	 +nVbpitZhUNb7jRnHUcsOYCNUp7BCOGmvhdNlPoX2Y3WRHf+nYp/hD8PxNjQNNosGhu2a
-	 TVdpGARiXPqTJ+uyCNYVIftDW4JJSKOzAoosMfrBE7ezCsblSvene/AZBqXIiVdN7HzMT
-	 3SpLzYwpExSYkC7g8v2dJpcRA45jqembv9Ec/vAZvHFGCeZ6OV+mZYUCzNaqoV+TSB25P
-	 DFsoqd+Vgx0vQUZljuxe2+pHpltILec76BlQ9FswWWWEKLzbK/0s1acA9Czzg7aTt7w==
+	t=1793633487;
+	b=y6tB8mnD+nx74PJPjfppSgewMl/7ShPXGExXp49Hoiol2nK4g2lf72/lXrxWZg5d7EqN
+	 nNXMp51mFKq3lmkGi2HIh18/tyzXFwPWFT4tqftFt/3Mo0+zgLpDP47rbUVMvHpOgiNnj
+	 JL4MIO6fhQ9e4y7I6+ur0QTkRYQtQRPUTnFKnq9fFaqX/uSnSHkd6bSBxvMkFfwfV7gBn
+	 6kPn7UMo8eRJTt3f/CYVdZaC5BQVtux0JxWuZtrVcYU5UNCmg8PNG0MufhKJaR2ZTs/+7
+	 6Fp4HsBtw2RVVIRJr2igPAnXHKy5zyYU430wVIRKrQHxhnJrMJT1u1trbgENw/pF9Cg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793633491;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:In-Reply-To:
-	 Mime-Version:References:Message-ID:Subject:From:To:Cc:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=Q7x6yP+yOfvdzdlAu2HNp3jLSAowdMqE0gkj3ywLMGc=;
-	b=rlJUhdNjZC+ohISUbhTbLNqCY4SdAuntGgCU2eaEMxGDqkStl7ZnsKw7RvscV4aEhvJY
-	 +AQnbaqFIabV3DKrSfHfHeXBnreh2XwuFbdWPdzuRH1MZWZXDIMOGSTbqYQq37BFQ+E/i
-	 9Ox7HGMNy+q7zhttHY4ZpC8NbPM1e/Z8sazfH1aF6fBCyj8DhpskyqHQ4QOpTs7FVZI8X
-	 kwzHYqlVpi1y3vfUG/QHw/gB4jRbw1Ifuk7ulMi2EMSblwfArYWTP+cDyhcZLv5udaLf8
-	 dz9AioT4F4UOnOocaXmO3s3EUsR98HrV/Gc7+l0EXGvfN3LxJDtK15Bv4UBLyT+FvMQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793633487;
+	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
+	 X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=vwjxO3TYvy6WGJQYdN5saH6B1iVdIocyydf/9B8LfXQ=;
+	b=ejap+jFTxjfrt8K3cPiYH+Wdp0fj/4mDAYCxeOF28LTKrYKVUoWAskpO/S6yCjP2TiAa
+	 eLhItJU1VWukS132sRSTDD5nRsIfhQZCUlgNoCDemy0YrZU0Asp2aMih8M/4IO0dFEvJs
+	 0ACJPyIMrpxhsRLEpoD9gYEGQoe8yXdnSEyzG7GMrnK5e03K18WHYGmaGeH6MYWIJbdkm
+	 34LEzJVqv5rnmmWXtglVTIj19/rGRl/7KHY/eRKoJYy5VnPL3+TvrUfkPBbxINRjkZzMB
+	 R+AyCSJCIbgJIkPCewXFdz2rwCvvFpgfxnbD76fJ9L9rS17ZqfmBkXXq1vz3CDUNDYA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=google.com;
-	spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=Nl7hY7qt;
-	arc=none smtp.remote-ip=209.85.216.70
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com [209.85.216.70])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="UbE/GY/P";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2BC86072234
-	for <linux-s390@vger.kernel.org>; Mon,  2 Nov 2026 15:31:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F2BC86072234
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4F9D607228E;
+	Mon,  2 Nov 2026 15:31:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=Nl7hY7qt
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-3ad840053c7so2553346a91.1
-        for <linux-s390@vger.kernel.org>; Mon, 02 Nov 2026 07:31:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20260707; t=1793633490; x=1794238290; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:references:mime-version:in-reply-to:date:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=Q7x6yP+yOfvdzdlAu2HNp3jLSAowdMqE0gkj3ywLMGc=;
-        b=Nl7hY7qtUztBhR/ooRIbWQrpDZI/7LILqgN2jjYhmkN3vQXLtzeLV4vEMKt94sHvKV
-         PK/QHGLZu2w+eBthbWQB50Z4/APFytDDHvtopEIAPq7ULoH08xM7FtCHvqcuqIs2u7SW
-         Y8jpOMQ3XojwhK2WuR6Du+deA9fXL+9TM4AEe0VD+f5VzpbAsYlnODdaVRUU0CpGTCZ0
-         P7JWfjXujnz/UDl31W0DlBylHteLD0uz9hyOw21rLARZIKGFHJ03bRUkP5NOXR7x47ZG
-         f6pWfc5F61E9/QzeY2Y7ufsIK4g0NXR9X11nHQOdAm5ybpoJa52pxwQffWB8d86GeFXO
-         GpHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793633490; x=1794238290;
-        h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:references:mime-version:in-reply-to:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Q7x6yP+yOfvdzdlAu2HNp3jLSAowdMqE0gkj3ywLMGc=;
-        b=yEJ/BWc7EK2HRV626TWIvQEZyUk2vMjbG44gHyq6rCx4X/C5aqI+joX14AMN2rA7GJ
-         Fp8513Ykq4BERWg5FDm2+FV08LhHjvPRA2wPtncVkDvTGCUHeBKXglHLBQupG8W8adRS
-         PAcEezsvUxljs9s8rG8j+fIYSLKna1UZeVXWvOJJxoFwvEg39Web98yO+380KQH4wQB2
-         CfVdixIw8dmgO8hRzTTIYRWANemEHZ3KjJuO1h3DeJXja/5n+UA3sJViU16pjaELS+Tw
-         eygRUrzEeRGSTV1frTRz1U88BsGFWtzeUq1qYFV4gThA1DakwxqItB1n+IoMQB0jTuLA
-         n1RQ==
-X-Forwarded-Encrypted: i=1; AKwUvByTMheSBSXiB/5V0/B+yj2ael99MLN9h7pD9IRdir3+I+mJO0maFP/U5Teg+kKqAhPkcDbr3NP9NsbG@vger.kernel.org
-X-Gm-Message-State: APuU4Z+D84I6r/Ut101Ftr0pci7rc4lCQzQ2ee2rrbqGpsCAZELo13sa
-	Bea5WQOU7NpdGMR3l0lJzKvWQ38k0r/ubn4EIrGrhlBue8Qa0zloaSWxCHucDNJLH3KGNJFPOn1
-	p7NRlXQ==
-X-Received: from pjbgo15.prod.google.com ([2002:a17:90b:3cf:b0:3b0:7a3d:ca4b])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:33ce:b0:3ac:ffb8:1809
- with SMTP id 98e67ed59e1d1-3ae897e230bmr7958871a91.39.1793633490047; Mon, 02
- Nov 2026 07:31:30 -0800 (PST)
-Date: Mon, 2 Nov 2026 07:31:29 -0800
-In-Reply-To: <20261030133939.630e29af@p-imbrenda>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UbE/GY/P
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89ABC1F00A17;
+	Mon,  2 Nov 2026 15:31:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793633486;
+	bh=vwjxO3TYvy6WGJQYdN5saH6B1iVdIocyydf/9B8LfXQ=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=UbE/GY/PYzhi2Fi7si7/s3It7tNz4DO7UQGlprH7NLzpJSufJcUt6S7sLl4ETioTn
+	 lSrxhrhtFMtQb6rZpoE6MoG5MG9eu/oVVRZmwnTVdQmH/Uc8YanZxUbAPJ3I9S4O7q
+	 z0m2i9CWxWD03GNLvtDJCEzS1ywzTD672wOGOyzXiiTxjSmYm4JDOfioeSmLQa60Ds
+	 a3wnZ+yTE9KkhVTKNfGA/bKsony/u5hTU2nvptIrn6VLRSoxE92Hyqh1vP22R1USo3
+	 fnoX0h5mvFahCSUZxRECbsbRhCqA2NVJbxVIwTQPsraXYkSxXkM4wzwb15ZC+dp27b
+	 y5/kCl5AgK1UA==
+From: Christian Brauner <brauner@kernel.org>
+Date: Mon, 02 Nov 2026 16:07:16 +0100
+Subject: [PATCH RFC 02/11] l2tp: let procfs own the seq_file of
+ /proc/net/pppol2tp
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -79,50 +52,114 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-References: <20261029143336.390231-3-clopez@suse.de> <20261029175203.5bdd51d7@p-imbrenda>
- <df9dc526-4275-4784-8a0c-2e4fa8e96402@suse.de> <20261030133939.630e29af@p-imbrenda>
-Message-ID: <auis0SaMkRB6odsK@google.com>
-Subject: Re: [RFC PATCH 0/4] KVM: x86/mmu: don't zap secondary MMU on
- permission upgrade
-From: Sean Christopherson <seanjc@google.com>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: "Carlos =?utf-8?B?TMOzcGV6?=" <clopez@suse.de>, kvm@vger.kernel.org, linux-mm@kvack.org, 
-	pbonzini@redhat.com, linux-s390@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261102-work-procfs-net-v1-2-982104a4f592@kernel.org>
+References: <20261102-work-procfs-net-v1-0-982104a4f592@kernel.org>
+In-Reply-To: <20261102-work-procfs-net-v1-0-982104a4f592@kernel.org>
+To: linux-fsdevel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, 
+ Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, 
+ Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, 
+ NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>, 
+ Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
+ Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
+ Greg Kroah-Hartman <gregkh@suse.de>, 
+ Joel Granados <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, 
+ Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
+ linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
+ linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+ linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, 
+ linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, 
+ ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org, 
+ coreteam@netfilter.org, kexec@lists.infradead.org, 
+ linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
+ netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+ ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net, 
+ linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-cifs@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+ linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-sh@vger.kernel.org, 
+ linux-usb@vger.kernel.org, samba-technical@lists.samba.org, 
+ sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
+ linux-doc@vger.kernel.org, linux-serial@vger.kernel.org, 
+ linux-atm-general@lists.sourceforge.net, Takashi Iwai <tiwai@suse.de>, 
+ linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
+ linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, 
+ linux-debuggers@vger.kernel.org, 
+ "Christian Brauner (Amutable)" <brauner@kernel.org>, 
+ Chuck Lever <cel@kernel.org>
+X-Mailer: b4 0.17-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1918; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=/g5R4n0Ms+FYrKqMM/T6cxyrF8YI/t11/rZZuOTaMss=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9WG78rF41UVcn6s+kRfI/lJTvq/TI+ez8kiHKd3vOn
+ QnBrmtYO0pZGMS4GGTFFFkc2k3C5ZbzVGw2ytSAmcPKBDKEgYtTACYi9oyRYf/NOSUiv50MPlxP
+ STf7vX/f6RkVu0Vzktw3n+teH3BIfwcjQ6e+2UWHa43H2pdHS7s1ZT76oqVzw0iU/67rXo/gM16
+ nuAA=
+X-Developer-Key: i=brauner@kernel.org; a=openpgp;
+ fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-On Fri, Oct 30, 2026, Claudio Imbrenda wrote:
-> On Fri, 30 Oct 2026 12:11:07 +0100
-> Carlos L=C3=B3pez <clopez@suse.de> wrote:
->=20
-> [...]
->=20
-> > > regarding this series:
-> > >=20
-> > > on x86 you don't care what the new permissions are, because you're
-> > > updating when re-faulting (if I understood correctly). =20
-> >=20
-> > Correct.
-> >=20
-> > > for s390 it might be beneficial to know what the new permissions are;
-> > > of course we could look up the vma and find out, but since you are
-> > > already checking the permissions, maybe you can find a way to also
-> > > convey the new permission bits?
-> > >=20
-> > > that would make our life on s390 easier :) =20
-> >=20
-> > Right, getting the new bits from vma->flags should be trivially done
-> > from the MMU_NOTIFY_PROTECTION_VMA callsites. There'd be no users in
-> > this series though.  The rest of architectures still need the notifier =
-to
-> > tell them if the change is an upgrade, since they don't have an easy wa=
-y
-> > to grab the old RWX bits. Passing the old RWX bits from the MMU notifie=
-r
-> > does not seem trivial to me either.
+Declare the seq_operations and the size of the iterator state and let
+procfs open and free the seq_file. ->proc_open() only takes the
+reference to the network namespace now and ->proc_release() drops that
+and the references the iterator holds. Reading the file then no longer
+holds up its removal.
 
-But why is core MM even doing mmu_notifier_invalidate_range_{start,end}() i=
-n the
-first place?  I.e. why add MMU_NOTIFIER_RANGE_PERM_UPGRADE?  Just skip the
-"invalidation".
+Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+---
+ net/l2tp/l2tp_ppp.c | 20 ++++++++------------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
+
+diff --git a/net/l2tp/l2tp_ppp.c b/net/l2tp/l2tp_ppp.c
+index 4f311d473a64..499e37eb788a 100644
+--- a/net/l2tp/l2tp_ppp.c
++++ b/net/l2tp/l2tp_ppp.c
+@@ -1596,21 +1596,17 @@ static const struct seq_operations pppol2tp_seq_ops = {
+ 	.show		= pppol2tp_seq_show,
+ };
+ 
++/* procfs opened the seq_file and allocated @pd */
+ static int pppol2tp_proc_open(struct inode *inode, struct file *file)
+ {
+-	struct net *net = pde_data(inode);
+-	struct pppol2tp_seq_data *pd;
++	struct seq_file *seq = file->private_data;
++	struct pppol2tp_seq_data *pd __maybe_unused = seq->private;
++	struct net *net;
+ 
+-	net = maybe_get_net(net);
++	net = maybe_get_net(pde_data(inode));
+ 	if (!net)
+ 		return -ENXIO;
+ 
+-	pd = __seq_open_private(file, &pppol2tp_seq_ops, sizeof(*pd));
+-	if (!pd) {
+-		put_net(net);
+-		return -ENOMEM;
+-	}
+-
+ #ifdef CONFIG_NET_NS
+ 	pd->p.net = net;
+ 	netns_tracker_alloc(net, &pd->p.ns_tracker, GFP_KERNEL);
+@@ -1633,13 +1629,13 @@ static int pppol2tp_proc_release(struct inode *inode, struct file *file)
+ #else
+ 	put_net(&init_net);
+ #endif
+-	return seq_release_private(inode, file);
++	return 0;
+ }
+ 
+ static const struct proc_ops pppol2tp_proc_ops = {
++	.proc_seq_ops	= &pppol2tp_seq_ops,
++	.proc_state_size = sizeof(struct pppol2tp_seq_data),
+ 	.proc_open	= pppol2tp_proc_open,
+-	.proc_read	= seq_read,
+-	.proc_lseek	= seq_lseek,
+ 	.proc_release	= pppol2tp_proc_release,
+ };
+ 
+
+-- 
+2.53.0
+
