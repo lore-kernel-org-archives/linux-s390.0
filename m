@@ -1,47 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793624057;
-	b=VYpJWcRXUB7zGOvqG792pOfYWkDwncTSyR9RDxfXxX9m5OsJavbwPVqUhmJZOCYkihrc
-	 p5vvQR10zaBBLZMEal6PKTJiQ9meRUsXKWMxH649tieqzqlbtg2M9/WYuNoGOL2kr93fF
-	 xu5Bzk/TtWTrQuemm2/eJ7/bQ0A/ZFE3zuTmy4TXqwvEo2ak/G4fIFxVv1EhrIkeM34TD
-	 FpONckx2/NFcJXkwVvFXQ3zc62Q3/aH95qMJ3s5MfgkWdEXA/uSwQshI1lBAxSTdoRNrz
-	 cDWpi66o9kZCGsa3NBlfuWeQD9ryzIhWuz2epqAVD6tFfYxGW16HL15T+mTxch82iZQ==
+	t=1793624211;
+	b=FqfE5YhV5IxC/74WwdsDomEbftVSpa1XrQdsCBOJbYhrbty8/6at+9u1M7mZrtxYDuhG
+	 0G2C3xQJQB+Bge/UnHRTD2sJy67aOZGB000FnghZqX8V4Fn39Cgy7470zwRHZmzd3qsPk
+	 0TQ7Fdc/s01EB3TB4NUK84Pikw0nNwlCemEuzniWjWyytkVnQC853qsDRzZZLDQdtsDMZ
+	 0FZ+3bZMtAcBRsfqa6UNwUYpH7jzZzb0S0Vlq3H9qbAPEvpoK1+jnN16n4kwhRmcLiZHY
+	 ozFWu9kiQkjtzf+1nVtibY9Gyay2LVLVNhMk5Z1vcQJ8f21PYA6Ty54i27W0KICMOtg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793624057;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793624211;
 	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
 	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding;
-	bh=MYKdbODKc1prEg/TSIAKCpPLWFj9bHZOX1ZDiVmUN/E=;
-	b=cU+5HdMn4vk+M8njCEk1fzCiN2XDvebwJ57E9cRWDwYrTVHI4/ufb00+Ynln8VdUyneQ
-	 7XUpXGuALUQ4USpBbO7NDWUV+w5NEpN1lMy1br6K0qOulvLqver709uBEl1X2zj4stZgQ
-	 9T6nWkCMDj5mBNxHSzScje2a2zlGBz1CgITFqee82p2gcOQIRynLMkw0T9JIi8N/5otv9
-	 Op7qvgAZGxNqLLz66MaN80fN/lda4nrzF7+I52gYWoA569OVPfEKMZg+gquZuEuznHv0y
-	 GvUEUfa1XtsX2CXo+HiPYz25Bw0QOIrpYW6HwwwzAdX+Gs+wWTrKyrpkZHI5RdlMVIg==
+	bh=blL8YXc+drVTz8krqBB5UB1MrPCv3ruMb4bo9ij/yX8=;
+	b=sZIPs7k5TX/sbJfMUo7zktqSd9OusqxJOXnG8HFcq+J3S2AsAbaH8jTkbP8XflQkbN3E
+	 shmJyGsebfBqBaSe5bQrg41rw9bdIOOczumvHi44pBvTtdlXDh4pOPaTgSCLiW+bWPUlU
+	 x57Q69oSbN3hBJ1m/7Zv4D+NzbAuK+NaA8J3totvMqajpm0nXHyQ+MOEgL0VZ84l+ywbK
+	 vM7tJG0329mX2HpenvHTTBmb2eik7evBZwDjnW7iI7trhV9MOpAjc3k1F3qRPjf9FIPIT
+	 Gtlb8aANjDQx1H+AF6XZ/jZKndXyPhseRJmh/dNNIcj39xa8/cEkU+8/yLXEt8dJdzw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=csvcTsOU;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=irnEG9J2;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB61A606A326;
-	Mon,  2 Nov 2026 12:54:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3FB8606A32C;
+	Mon,  2 Nov 2026 12:56:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=csvcTsOU
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67B651F00A16;
-	Mon,  2 Nov 2026 12:54:09 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=irnEG9J2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D58C1F00A1B;
+	Mon,  2 Nov 2026 12:56:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793624056;
-	bh=MYKdbODKc1prEg/TSIAKCpPLWFj9bHZOX1ZDiVmUN/E=;
+	s=k20260515; t=1793624210;
+	bh=blL8YXc+drVTz8krqBB5UB1MrPCv3ruMb4bo9ij/yX8=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=csvcTsOUYC23IF5THZRKLkyoa8+bR3vOPOvcfHV1GbL03Pc0uq4mCw9+53mIF4ErN
-	 MtvQVl9QC1exMlpUh/LNqLsdxSLvFxPPkCNJuwA6bMm++7lghNlev2lLb67EfsqjSk
-	 4WLj/TyIG906qxCp+7j1OM8uKsUVLiPYjJRwQMQbm5RlSiV9xdyUgX5kOTFs3SZ2VZ
-	 8dUQakbFT6sWB0GBISiaRU2M6b9amfOtTvYlM9z1T28yTAz7Grux/KR7DRiMIoqhza
-	 87k9tQ+6GTFFRzU4v2SQ4mtWHCViIeMReaJNBIG/DbWU10n/S+lfFR6SfaIY8HW469
-	 ll4JZH22VNegg==
-Message-ID: <47abd304-e269-42dd-9d9a-3b7300ce23e3@kernel.org>
-Date: Mon, 2 Nov 2026 13:54:06 +0100
+	b=irnEG9J2fS0STJK2Hxj5gTVa481M+mWppQY4mrkdog3E0PEnjFBG4xB6z/22UrzGK
+	 pb3izZ4bzSiD8hi/MXvOud4UIGcCNN9fTVaBBuDMNwIqIG7U+0JJnio/4QQwvu74rZ
+	 wga0hL5FXQappjSIPyWKosl1EPA7PBD2ixWdyIFOzGo/P1qo/N47zNgfB5dL3N+BYl
+	 jKDO9GlLb9kJDLfT/Smrism3UeWT/3M8s2IG/ITMWlNioda+S142G1d6Sa9D3C6vBY
+	 swRcYPc6lAJCGNP4p8lRIm+6KkLqM1ZwBKnimhBYVQbkR7uF5J1CfTNOv9qaUVKXAJ
+	 gSDT467oYpa4g==
+Message-ID: <c6208509-9175-480b-a6f9-f60a999e9317@kernel.org>
+Date: Mon, 2 Nov 2026 13:56:40 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -52,10 +52,8 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 02/15] mm/hugetlb: compare against persistent count when
- freeing lowmem folios
-To: Muchun Song <muchun.song@linux.dev>
-Cc: Oscar Salvador <osalvador@suse.de>,
+Subject: Re: [PATCH 04/15] mm/hugetlb: account temporary folios separately
+To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
  Naoya Horiguchi <nao.horiguchi@gmail.com>,
  Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@suse.de>,
  Andy Whitcroft <apw@canonical.com>, Miaohe Lin <linmiaohe@huawei.com>,
@@ -74,13 +72,13 @@ Cc: Oscar Salvador <osalvador@suse.de>,
  Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
  Alexander Gordeev <agordeev@linux.ibm.com>,
  Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
- linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, stable@kernel.org
+ linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, stable@kernel.org,
+ Josef Bacik <josef@toxicpanda.com>
 References: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
- <20261028-fixes_hugetlb-v1-2-a0a033db180f@kernel.org>
- <68EFA1E5-4898-4278-8718-06B1A010DFFD@linux.dev>
+ <20261028-fixes_hugetlb-v1-4-a0a033db180f@kernel.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -127,50 +125,108 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <68EFA1E5-4898-4278-8718-06B1A010DFFD@linux.dev>
+In-Reply-To: <20261028-fixes_hugetlb-v1-4-a0a033db180f@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 10/29/26 04:39, Muchun Song wrote:
+On 10/28/26 21:13, David Hildenbrand (Arm) wrote:
+> Hugetlb migration might have to allocate a temporary folio through
+> alloc_migrate_hugetlb_folio(). Such folios are currently accounted in
+> "nr_huge_pages" but not in "surplus_huge_pages". persistent_huge_pages()
+> can mistake them as persistent huge pages, as it merely calculates the
+> difference.
 > 
+> If set_max_huge_pages() shrinks the pool at the wrong time, it will turn
+> hugetlb folios into surplus folios until persistent_huge_pages() returns
+> the desired number.
 > 
->> On Oct 29, 2026, at 04:13, David Hildenbrand (Arm) <david@kernel.org> wrote:
->>
->> try_to_free_low() gets a target number of persistent folios, but
->> compares it with "nr_huge_pages", which includes surplus folios. As a
->> result, it can free lowmem folios below that target.
->>
->> For example, with two persistent folios and one surplus folio, a target
->> of two can still end up freeing one persistent folio.
->>
->> Compare against persistent_huge_pages() instead. Convert the macro to a
->> helper function and place it before try_to_free_low().
->>
->> Fixes: 7893d1d505d5 ("hugetlb: Try to grow hugetlb pool for MAP_PRIVATE mappings")
->> Cc: stable@kernel.org
->> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+> After the migration (successful or unsuccessful) either the new (temporary)
+> folio or the old folio gets freed: this will reduce "nr_huge_pages" but
+> not "surplus_huge_pages", to undo what was done when allocating a
+> temporary folio.
 > 
-> Acked-by: Muchun Song <muchun.song@linux.dev>
+> This can result in having more surplus folios than actually allocated
+> folios:
 > 
-> One nit bellow.
+>   HugePages_Total:       0
+>   HugePages_Surp:        1
 > 
->> ---
->> mm/hugetlb.c | 8 ++++++--
->> 1 file changed, 6 insertions(+), 2 deletions(-)
->>
->> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
->> index da5d04edf7c1..3a94ea1c9457 100644
->> --- a/mm/hugetlb.c
->> +++ b/mm/hugetlb.c
->> @@ -1335,6 +1335,11 @@ static unsigned long available_huge_pages(struct hstate *h)
->> 	return h->free_huge_pages - h->resv_huge_pages;
->> }
->>
->> +static unsigned long persistent_huge_pages(struct hstate *h)
+> From then on persistent_huge_pages() returns garbage.
 > 
-> Better to make *h const?
+> To fix it, add internal temporary counters and subtract them when
+> calculating persistent pool sizes. Update persistent_huge_pages() and add
+> persistent_huge_pages_node() to make the code easier to read.
+> 
+> Count migration targets and rejected surplus allocations as temporary.
+> Transfer the per-node temporary count along with the temporary flag on
+> migration, such that folio freeing will always do the right thing.
+> 
+> Take care of calling account_new_hugetlb_folio() only after setting the
+> folios to be temporary.
+> 
+> For now, keep temporary folios in nr_huge_pages, so HugePages_Total and
+> Hugetlb continue to include them and overcommit accounting remains
+> unchanged. The new temporary counters are internal for now and are not
+> exported to userspace.
+> 
+> Fixes: ab5ac90aecf5 ("mm, hugetlb: do not rely on overcommit limit during migration")
+> Cc: stable@kernel.org
+> Reported-by: Josef Bacik <josef@toxicpanda.com>
+> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
+> ---
+>  include/linux/hugetlb.h |  3 +++
+>  mm/hugetlb.c            | 65 +++++++++++++++++++++++++++++--------------------
+>  2 files changed, 42 insertions(+), 26 deletions(-)
+> 
+> diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
+> index 5029c7241863..d49cb15d13e6 100644
+> --- a/include/linux/hugetlb.h
+> +++ b/include/linux/hugetlb.h
+> @@ -701,6 +701,8 @@ struct hstate {
+>  	unsigned long free_huge_pages;
+>  	unsigned long resv_huge_pages;
+>  	unsigned long surplus_huge_pages;
+> +	/* Included in nr_huge_pages; not exported separately to userspace. */
+> +	unsigned long temporary_huge_pages;
+>  	unsigned long nr_overcommit_huge_pages;
+>  	struct list_head hugepage_activelist;
+>  	struct list_head hugepage_freelists[MAX_NUMNODES];
+> @@ -708,6 +710,7 @@ struct hstate {
+>  	unsigned int nr_huge_pages_node[MAX_NUMNODES];
+>  	unsigned int free_huge_pages_node[MAX_NUMNODES];
+>  	unsigned int surplus_huge_pages_node[MAX_NUMNODES];
+> +	unsigned int temporary_huge_pages_node[MAX_NUMNODES];
+>  	char name[HSTATE_NAME_LEN];
+>  };
+>  
+> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+> index a78b2487c20c..110a5c2d9e50 100644
+> --- a/mm/hugetlb.c
+> +++ b/mm/hugetlb.c
+> @@ -115,7 +115,7 @@ early_param(str, func##args)
+>  
+>  /*
+>   * Protects updates to hugepage_freelists, hugepage_activelist, nr_huge_pages,
+> - * free_huge_pages, and surplus_huge_pages.
+> + * free_huge_pages, surplus_huge_pages, and temporary_huge_pages.
+>   */
+>  __cacheline_aligned_in_smp DEFINE_SPINLOCK(hugetlb_lock);
+>  
+> @@ -1337,7 +1337,13 @@ static unsigned long available_huge_pages(struct hstate *h)
+>  
+>  static unsigned long persistent_huge_pages(struct hstate *h)
+>  {
+> -	return h->nr_huge_pages - h->surplus_huge_pages;
+> +	return h->nr_huge_pages - h->surplus_huge_pages - h->temporary_huge_pages;
+> +}
+> +
+> +static unsigned long persistent_huge_pages_node(struct hstate *h, int nid)
+> +{
+> +	return h->nr_huge_pages_node[nid] - h->surplus_huge_pages_node[nid] -
+> +	       h->temporary_huge_pages_node[nid];
+>  }
 
-Agreed, thanks!
+I'll also use const pointer here.
 
 -- 
 Cheers,
