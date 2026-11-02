@@ -1,47 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793624211;
-	b=FqfE5YhV5IxC/74WwdsDomEbftVSpa1XrQdsCBOJbYhrbty8/6at+9u1M7mZrtxYDuhG
-	 0G2C3xQJQB+Bge/UnHRTD2sJy67aOZGB000FnghZqX8V4Fn39Cgy7470zwRHZmzd3qsPk
-	 0TQ7Fdc/s01EB3TB4NUK84Pikw0nNwlCemEuzniWjWyytkVnQC853qsDRzZZLDQdtsDMZ
-	 0FZ+3bZMtAcBRsfqa6UNwUYpH7jzZzb0S0Vlq3H9qbAPEvpoK1+jnN16n4kwhRmcLiZHY
-	 ozFWu9kiQkjtzf+1nVtibY9Gyay2LVLVNhMk5Z1vcQJ8f21PYA6Ty54i27W0KICMOtg==
+	t=1793624519;
+	b=K2Qs+vE/rCR6obJ0MNgIeUTPBAYHyo48PSzJ4d6W/vKP9OL4RCmkppeRN/wQUqDX8gZP
+	 H93+ZPMif0UIcQHsuDAX/nZB3LAagmBNAe1Rjej4adBeNxQmI38MABYUYXrH3EIVvGxto
+	 VyHGE5tpfFyS32ouIAua6FEBwtOxknr325kAYr/FV5PsX8gy3Bf/XRyhPaOmJcEoIA8wF
+	 DRgQ0ZcaTNfubRtkwJqyNo5DsDKRgOqbJP2ZbXRGOw/U7AN+6XyusGah3HRpvxmaaW4DV
+	 bjigoigmdV0G9VYxJnMSy//YZ6HA9OUy9VlzoSMI3paQhS02BF7kBhVIn8cUWTi9PRw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793624211;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=blL8YXc+drVTz8krqBB5UB1MrPCv3ruMb4bo9ij/yX8=;
-	b=sZIPs7k5TX/sbJfMUo7zktqSd9OusqxJOXnG8HFcq+J3S2AsAbaH8jTkbP8XflQkbN3E
-	 shmJyGsebfBqBaSe5bQrg41rw9bdIOOczumvHi44pBvTtdlXDh4pOPaTgSCLiW+bWPUlU
-	 x57Q69oSbN3hBJ1m/7Zv4D+NzbAuK+NaA8J3totvMqajpm0nXHyQ+MOEgL0VZ84l+ywbK
-	 vM7tJG0329mX2HpenvHTTBmb2eik7evBZwDjnW7iI7trhV9MOpAjc3k1F3qRPjf9FIPIT
-	 Gtlb8aANjDQx1H+AF6XZ/jZKndXyPhseRJmh/dNNIcj39xa8/cEkU+8/yLXEt8dJdzw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793624519;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:From:Content-Language:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Proofpoint-Reinject:X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:
+	 X-Authority-Analysis:X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
+	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
+	bh=2W2cWo3uXPAbaEwXMsjPtD62QlF6or4emsdQLJHxWK4=;
+	b=zEB0mBKT4IJ2aq0CskcCcie8EA9VSQdpfUCg92XpbWUGFfDnqgd0KglY/oZRWzGWKm49
+	 1R71BAvKalrM6hbTom96zbM+U79IthKq/EMsRO3KDjL85JzSbETRCVwpXAusig5ImrAUT
+	 EHVSJuptFwtdD4mcgZiYqodHngHQYnfFzNB6BFZH5jDhvSlcnPEdK/tdkIOHmViwXHUIi
+	 iEvKiCgyvxArCNEjfc5b+oCq2aukIeXZE93gg3ZR+lZO47nNqIi5hWPT6VgloEtF9LlNM
+	 6XC3XNXgvHMN1g+e5yatp0s6cNsLGRY7eXN/v9/IKe2rplyX1eCemUuRZwx1Ql/Yykw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=irnEG9J2;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=M9gGLV+3;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3FB8606A32C;
-	Mon,  2 Nov 2026 12:56:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AA57606A33A;
+	Mon,  2 Nov 2026 13:01:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3AA57606A33A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=irnEG9J2
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D58C1F00A1B;
-	Mon,  2 Nov 2026 12:56:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793624210;
-	bh=blL8YXc+drVTz8krqBB5UB1MrPCv3ruMb4bo9ij/yX8=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=irnEG9J2fS0STJK2Hxj5gTVa481M+mWppQY4mrkdog3E0PEnjFBG4xB6z/22UrzGK
-	 pb3izZ4bzSiD8hi/MXvOud4UIGcCNN9fTVaBBuDMNwIqIG7U+0JJnio/4QQwvu74rZ
-	 wga0hL5FXQappjSIPyWKosl1EPA7PBD2ixWdyIFOzGo/P1qo/N47zNgfB5dL3N+BYl
-	 jKDO9GlLb9kJDLfT/Smrism3UeWT/3M8s2IG/ITMWlNioda+S142G1d6Sa9D3C6vBY
-	 swRcYPc6lAJCGNP4p8lRIm+6KkLqM1ZwBKnimhBYVQbkR7uF5J1CfTNOv9qaUVKXAJ
-	 gSDT467oYpa4g==
-Message-ID: <c6208509-9175-480b-a6f9-f60a999e9317@kernel.org>
-Date: Mon, 2 Nov 2026 13:56:40 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=M9gGLV+3
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A29EDRp2429580;
+	Mon, 2 Nov 2026 13:01:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=2W2cWo
+	3uXPAbaEwXMsjPtD62QlF6or4emsdQLJHxWK4=; b=M9gGLV+34HWQCSjn2fnzix
+	0KtiZDZzU82i8e2XRZPalyfBRSJw1JRVCmVWRJSwul8a3Synz3COzl0qPzWnBHNY
+	BqB2pSIXWm2ZixA3jRU4sneHxlTv+m013HQ8rDrhUMnuW/rKoG/r/ColDtcoIR0H
+	/+9v9uIMbMMRVwWrov8B7Omer0JMLOiGTLP6FHIsk8qqr+nDvWf7d6jA4eBOUsRO
+	shL29zPvd0QdmJTvTV+Zap9LQMk14jPUO0MtVy5OeA4Av3ISyvg9nmYsSuOrfg5g
+	iy7FYyHHfpgLHp1Rme4KlxAe2PRUogssa90aKeuLzD+//N7205Xkbd7P5uq5Fj7g
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn5rhgpwv-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 02 Nov 2026 13:01:08 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A29ZCfU730591;
+	Mon, 2 Nov 2026 13:01:07 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hnu1vdwry-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Nov 2026 13:01:07 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A2D13oM37749108
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 2 Nov 2026 13:01:03 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 584BC2004B;
+	Mon,  2 Nov 2026 13:01:03 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5C43020040;
+	Mon,  2 Nov 2026 13:00:56 +0000 (GMT)
+Received: from [9.124.210.123] (unknown [9.124.210.123])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  2 Nov 2026 13:00:56 +0000 (GMT)
+Message-ID: <66ccd713-5571-4c1a-b59e-29adbc9852e3@linux.ibm.com>
+Date: Mon, 2 Nov 2026 18:30:55 +0530
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -52,183 +86,208 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 04/15] mm/hugetlb: account temporary folios separately
-To: Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
- Naoya Horiguchi <nao.horiguchi@gmail.com>,
- Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@suse.de>,
- Andy Whitcroft <apw@canonical.com>, Miaohe Lin <linmiaohe@huawei.com>,
- Michal Hocko <mhocko@suse.com>, Rik van Riel <riel@surriel.com>,
- Hugh Dickins <hughd@google.com>, Baolin Wang
- <baolin.wang@linux.alibaba.com>, Vivek Kasireddy
- <vivek.kasireddy@intel.com>, Dave Airlie <airlied@redhat.com>,
- Jason Gunthorpe <jgg@ziepe.ca>, Lorenzo Stoakes <ljs@kernel.org>,
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>,
- Randy Dunlap <rdunlap@infradead.org>, Peter Xu <peterx@redhat.com>,
- Breno Leitao <leitao@debian.org>, Will Deacon <will@kernel.org>,
- "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Nick Piggin
- <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Alexander Gordeev <agordeev@linux.ibm.com>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Sven Schnelle <svens@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- Gerd Hoffmann <kraxel@redhat.com>, linux-doc@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, stable@kernel.org,
- Josef Bacik <josef@toxicpanda.com>
-References: <20261028-fixes_hugetlb-v1-0-a0a033db180f@kernel.org>
- <20261028-fixes_hugetlb-v1-4-a0a033db180f@kernel.org>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
+Subject: Re: [PATCH 1/6] sched: decouple PREFERRED_CPU from PARAVIRT in
+ Kconfig.preempt
+To: Ilya Leoshkevich <iii@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Mete Durlu <meted@linux.ibm.com>, Yury Norov <ynorov@nvidia.com>
+Cc: Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Yury Norov <yury.norov@gmail.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrea Righi
+ <arighi@nvidia.com>, Ben Segall <bsegall@google.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Danilo Krummrich <dakr@kernel.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Heiko Carstens <hca@linux.ibm.com>, Johan Hovold <johan@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        K Prateek Nayak <kprateek.nayak@amd.com>, Mel Gorman <mgorman@suse.de>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Steven Rostedt
+ <rostedt@goodmis.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Valentin Schneider <vschneid@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org, driver-core@lists.linux.dev,
+        linux-s390@vger.kernel.org
+References: <20261101192203.6979-1-ynorov@nvidia.com>
+ <20261101192203.6979-2-ynorov@nvidia.com>
+ <388636ac-4521-4523-bb5b-b6bc71591ff6@linux.ibm.com>
+ <20261102110026.GG1813469@noisy.programming.kicks-ass.net>
+ <9273846b-d815-4c40-a7a0-960281515878@linux.ibm.com>
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
 Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20261028-fixes_hugetlb-v1-4-a0a033db180f@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <9273846b-d815-4c40-a7a0-960281515878@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: qU77n7JZ2HH830HkwO0bh0WO8uhjgO_U
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAyMDA1MCBTYWx0ZWRfX+boVVfYoh5pU
+ uSy2Xet2uaIK8F8jcnLEz9KvVlwHt4/nzaouvwJwgK+WHXl9MM/bLSKTKPh6AwJ1fArqPd3qKmU
+ UZsRhQNicnN5ZSdFrf1BXh7lG3tJgxQ=
+X-Authority-Analysis: v=2.4 cv=LokHWXdc c=1 sm=1 tr=0 ts=6ae88994 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=Ikd4Dj_1AAAA:8 a=P4Rk32GvQtOlVBIN6qsA:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAyMDA1MCBTYWx0ZWRfX3TPH1gWhup/2
+ hNf5WzFq5tTCdMXFbS+JYJM1TtSbJvAD40Cpf1WxAWsgOKtIxGCVesiN3BGHnitOAbGab2koK9V
+ 2Cn9CXcYYpVc2X9LVCsUb+TixybIHwpVXj84G9WQU4tKX0lVX4NkodW0UWzvIKsIYG047QJyOU1
+ mGAGAQGJ+cuCeHETQ9HmDhArHR8Begyb8huoiWDDvIzTL9RJPI8V9RwKEmi3pG8uQVCWjJeocpg
+ 7hD4hgF9q+JQHZnxHd5oMOw8jRH2REZT5Mr4Gs9Y3YvXlRcJzi7bO4bKupBflC3DERBx+u3QDH+
+ belhz225nMoZu/cPv3s+z0Wg1+ItSKuMktPgB4kv0qWBy7FZQnnL7DVRnE90NfNl/Kaop+uiM4H
+ 8NRCtVwDzfrK+yToXMExJHVUWyckrBrt0JNUCsKSsF4I18uksfBZxdd7kVOy4lW7UvbP4JqMyza
+ gzE4YqaNRR4vxVeAH1Q==
+X-Proofpoint-GUID: 2gVp4-yn7BK2860rxFA_OE5c206VNWaf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-02_03,2026-10-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 lowpriorityscore=0 clxscore=1011 impostorscore=0
+ priorityscore=1501 suspectscore=0 phishscore=0 malwarescore=0 bulkscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
+ definitions=main-2611020050
 
-On 10/28/26 21:13, David Hildenbrand (Arm) wrote:
-> Hugetlb migration might have to allocate a temporary folio through
-> alloc_migrate_hugetlb_folio(). Such folios are currently accounted in
-> "nr_huge_pages" but not in "surplus_huge_pages". persistent_huge_pages()
-> can mistake them as persistent huge pages, as it merely calculates the
-> difference.
-> 
-> If set_max_huge_pages() shrinks the pool at the wrong time, it will turn
-> hugetlb folios into surplus folios until persistent_huge_pages() returns
-> the desired number.
-> 
-> After the migration (successful or unsuccessful) either the new (temporary)
-> folio or the old folio gets freed: this will reduce "nr_huge_pages" but
-> not "surplus_huge_pages", to undo what was done when allocating a
-> temporary folio.
-> 
-> This can result in having more surplus folios than actually allocated
-> folios:
-> 
->   HugePages_Total:       0
->   HugePages_Surp:        1
-> 
-> From then on persistent_huge_pages() returns garbage.
-> 
-> To fix it, add internal temporary counters and subtract them when
-> calculating persistent pool sizes. Update persistent_huge_pages() and add
-> persistent_huge_pages_node() to make the code easier to read.
-> 
-> Count migration targets and rejected surplus allocations as temporary.
-> Transfer the per-node temporary count along with the temporary flag on
-> migration, such that folio freeing will always do the right thing.
-> 
-> Take care of calling account_new_hugetlb_folio() only after setting the
-> folios to be temporary.
-> 
-> For now, keep temporary folios in nr_huge_pages, so HugePages_Total and
-> Hugetlb continue to include them and overcommit accounting remains
-> unchanged. The new temporary counters are internal for now and are not
-> exported to userspace.
-> 
-> Fixes: ab5ac90aecf5 ("mm, hugetlb: do not rely on overcommit limit during migration")
-> Cc: stable@kernel.org
-> Reported-by: Josef Bacik <josef@toxicpanda.com>
-> Signed-off-by: David Hildenbrand (Arm) <david@kernel.org>
-> ---
->  include/linux/hugetlb.h |  3 +++
->  mm/hugetlb.c            | 65 +++++++++++++++++++++++++++++--------------------
->  2 files changed, 42 insertions(+), 26 deletions(-)
-> 
-> diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-> index 5029c7241863..d49cb15d13e6 100644
-> --- a/include/linux/hugetlb.h
-> +++ b/include/linux/hugetlb.h
-> @@ -701,6 +701,8 @@ struct hstate {
->  	unsigned long free_huge_pages;
->  	unsigned long resv_huge_pages;
->  	unsigned long surplus_huge_pages;
-> +	/* Included in nr_huge_pages; not exported separately to userspace. */
-> +	unsigned long temporary_huge_pages;
->  	unsigned long nr_overcommit_huge_pages;
->  	struct list_head hugepage_activelist;
->  	struct list_head hugepage_freelists[MAX_NUMNODES];
-> @@ -708,6 +710,7 @@ struct hstate {
->  	unsigned int nr_huge_pages_node[MAX_NUMNODES];
->  	unsigned int free_huge_pages_node[MAX_NUMNODES];
->  	unsigned int surplus_huge_pages_node[MAX_NUMNODES];
-> +	unsigned int temporary_huge_pages_node[MAX_NUMNODES];
->  	char name[HSTATE_NAME_LEN];
->  };
->  
-> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-> index a78b2487c20c..110a5c2d9e50 100644
-> --- a/mm/hugetlb.c
-> +++ b/mm/hugetlb.c
-> @@ -115,7 +115,7 @@ early_param(str, func##args)
->  
->  /*
->   * Protects updates to hugepage_freelists, hugepage_activelist, nr_huge_pages,
-> - * free_huge_pages, and surplus_huge_pages.
-> + * free_huge_pages, surplus_huge_pages, and temporary_huge_pages.
->   */
->  __cacheline_aligned_in_smp DEFINE_SPINLOCK(hugetlb_lock);
->  
-> @@ -1337,7 +1337,13 @@ static unsigned long available_huge_pages(struct hstate *h)
->  
->  static unsigned long persistent_huge_pages(struct hstate *h)
->  {
-> -	return h->nr_huge_pages - h->surplus_huge_pages;
-> +	return h->nr_huge_pages - h->surplus_huge_pages - h->temporary_huge_pages;
-> +}
-> +
-> +static unsigned long persistent_huge_pages_node(struct hstate *h, int nid)
-> +{
-> +	return h->nr_huge_pages_node[nid] - h->surplus_huge_pages_node[nid] -
-> +	       h->temporary_huge_pages_node[nid];
->  }
+Hi.
 
-I'll also use const pointer here.
 
--- 
-Cheers,
+On 11/2/26 5:04 PM, Ilya Leoshkevich wrote:
+> 
+> 
+> On 11/2/26 12:00, Peter Zijlstra wrote:
+>> On Mon, Nov 02, 2026 at 11:16:30AM +0100, Ilya Leoshkevich wrote:
+>>>
+>>>
+>>> On 11/1/26 20:21, Yury Norov wrote:
+>>>> The IBM s390 doesn't enable PARAVIRT config for their hardware
+>>>> virtualized Logical Partitions (LPAR). However, the steal time is
+>>>> accounted for the LPARs, once the config VIRT_CPU_ACCOUNTING_NATIVE
+>>>> is enabled.
+>>>>
+>>>> Preferred cpumask doesn't rely on any feature gated by PARAVIRT config,
+>>>> and requires it to minimize the configuration space and runtime overhead,
+>>>> with the lack of non-paravirt user. Now that s390 wants to adopt preferred
+>>>> cpumask, there's no reason to keep it coupled to paravirt.
+>>>>
+>>>> Make PREFERRED_CPU a user-configurable option, even if paravirtualization
+>>>> is not enabled, and drop PARAVIRT dependency on the steal governor.
+>>>>
+>>>> Keep the default module selection conditional on PARAVIRT so other SMP
+>>>> configurations can opt in without enabling the governor by default.
+>>>>
+>>>> Link: https://lore.kernel.org/all/4605dad5-aab2-49e3-b919-bf9897181834@linux.ibm.com/
+>>>> CC: Mete Durlu <meted@linux.ibm.com>
+>>>> Signed-off-by: Yury Norov <ynorov@nvidia.com>
+>>>> ---
+>>>> Can be applied independently from the rest of the series.
+>>>>
+>>>>    drivers/virt/Kconfig   |  8 ++++++--
+>>>>    kernel/Kconfig.preempt | 12 ++++++++++--
+>>>>    2 files changed, 16 insertions(+), 4 deletions(-)
+>>>
+>>> This is really useful to us, since even though s390 is nominally
+>>> paravirtualized, it does not technically benefit from defining
+>>> CONFIG_PARAVIRT.
+>>
+>> And therefore removing PARAVIRT is the only possible solution?
+>>
+>>> Specifically, steal time accounting happens by
+>>> computing a difference between wall time and CPU time, and not by
+>>> explicitly querying the hypervisor.
+>>
+>> Nobody explicitly asks the hypervisor, that would be horrendously slow.
+>>
+>> Something trivial like this should do.
+>>
+>> ---
+>>   arch/Kconfig                           | 9 +++++++++
+>>   arch/powerpc/platforms/pseries/Kconfig | 1 +
+>>   arch/s390/Kconfig                      | 1 +
+>>   drivers/virt/Kconfig                   | 2 +-
+>>   4 files changed, 12 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/arch/Kconfig b/arch/Kconfig
+>> index 1163736de1f9..8980054beb52 100644
+>> --- a/arch/Kconfig
+>> +++ b/arch/Kconfig
+>> @@ -1080,6 +1080,15 @@ config HAVE_IRQ_TIME_ACCOUNTING
+>>   config HAVE_PV_STEAL_CLOCK_GEN
+>>       bool
+>> +#
+>> +#  Archs that can account CPUTIME_STEAL; normal route is through PARAVIRT which
+>> +#  selects HAVE_PV_STEAL_CLOCK_GEN. Directly selected by s390 and PPC-LPAR
+>> +#  which have their own thing and don't go through generic cputime accounting.
+>> +#
+>> +config HAVE_CPUTIME_STEAL
+>> +    bool
+>> +    default y if HAVE_PV_STEAL_CLOCK_GEN
+>> +
 
-David
+Can't PARAVIRT_TIME_ACCOUNTING be the kconfig we can rely upon.
+s390 can add it to the config (similar to HAVE_CPUTIME_STEAL)?
+
+I guess it is selected currently where the steal time reporting happens.
+
+>>   config HAVE_MOVE_PUD
+>>       bool
+>>       help
+>> diff --git a/arch/powerpc/platforms/pseries/Kconfig b/arch/powerpc/platforms/pseries/Kconfig
+>> index 7d125e288f6e..3c49baf606d7 100644
+>> --- a/arch/powerpc/platforms/pseries/Kconfig
+>> +++ b/arch/powerpc/platforms/pseries/Kconfig
+>> @@ -41,6 +41,7 @@ config PPC_SPLPAR
+>>       depends on PPC_PSERIES
+>>       select PARAVIRT_SPINLOCKS if PPC_QUEUED_SPINLOCKS
+>>       select PARAVIRT_TIME_ACCOUNTING if VIRT_CPU_ACCOUNTING_GEN
+>> +    select HAVE_CPUTIME_STEAL
+>>       default y
+>>       help
+>>         Enabling this option will make the kernel run more efficiently
+>> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+>> index 7138d923d86f..03a884355218 100644
+>> --- a/arch/s390/Kconfig
+>> +++ b/arch/s390/Kconfig
+>> @@ -291,6 +291,7 @@ config S390
+>>       select USER_STACKTRACE_SUPPORT
+>>       select VDSO_GETRANDOM
+>>       select VIRT_CPU_ACCOUNTING
+>> +    select HAVE_CPUTIME_STEAL
+>>       select VMAP_STACK
+>>       select ZONE_DMA
+>>       # Note: keep the above list sorted alphabetically
+>> diff --git a/drivers/virt/Kconfig b/drivers/virt/Kconfig
+>> index eeb84e578ddf..a3721d34a55c 100644
+>> --- a/drivers/virt/Kconfig
+>> +++ b/drivers/virt/Kconfig
+>> @@ -43,7 +43,7 @@ config FSL_HV_MANAGER
+>>   config STEAL_GOVERNOR
+>>       tristate "Dynamic vCPU management based on steal time"
+>> -    depends on PARAVIRT && SMP
+>> +    depends on SMP && HAVE_CPUTIME_STEAL
+>>       select PREFERRED_CPU
+>>       default m
+>>       help
+> 
+> I can't comment on the PPC part, but for s390 this works fine with the
+> following addition:
+> 
+> --- a/kernel/Kconfig.preempt
+> +++ b/kernel/Kconfig.preempt
+> @@ -197,4 +197,4 @@ config SCHED_CLASS_EXT
+> 
+>   config PREFERRED_CPU
+>          bool
+> -       depends on SMP && PARAVIRT
+> +       depends on SMP && HAVE_CPUTIME_STEAL
+
+PS: I haven't read the series yet.
+Will try to do so when it get little bit of time.
