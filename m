@@ -1,49 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793629641;
-	b=tIQYH0MThFIqfthk3KQNwQ5skdJjUQ74OcG3EOlc6X1U1PLt/LKw6zuN+kPePNOrOSi6
-	 TGJWno/6RBvppP5NzmKgmz4j8O09x+EONEKqZb62xIu7gbNzPKs+ObxgdtLrnuJY4sTCO
-	 KBf3V06zB3SjSj21juNUO8JhDUjNGShyQ0fefTJA8k0sO90d9PxDJFybUShDUXKBx9jZN
-	 Pq5fFxRvh3pzenMvH+/6S210IdNkL73ilCpj9lorcW86PgaquYtfNOI9L8h5q4qIOY1JY
-	 xQ4bXeryXeAix/fHJp6opJW+ve8yw3ooijfvfr4J8tnEzNPYQhyhKrG97oqphvQHP9A==
+	t=1793629667;
+	b=Ap+qbSjEyyKPy4fJwkzT4SIDxTGsJLbwlbl2vQQykQqfQY07LSjBtmf0AduBfB/Smhb/
+	 b+PxwB7YHJTGeB+ftkby4VJ49dG6EnkIML1DghoMJHHKM1ir0F71Q0b/19wo/0vzZ2khW
+	 W4YQ7igoMCApqgFBhLIiMJcAAx1Vvc1jDwvv8x5LApOROO+UPL/lq1pWOGIotMxCpaJWP
+	 EhKrFwnEYIZ3572h4aIxrMPPmiXidBN6yOIzhdAwzRnD2gtzgZ6OsE1M3Y6FT0xCHyjrR
+	 YDFWvYSKmknx4ouQHRufybEFtnPyWNJQErtjmSJj24PC3FDYLFVXSopcCgeiZCXqaqA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793629641;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793629667;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer:X-Developer-Signature:X-Developer-Key;
-	bh=xlRe6ByN3zpYNOlJQq83OVbC6fU3d9RayIfuGISBpLE=;
-	b=Y21CVR5nXjzO6Nq0ZIP/7qHKvelij1GHwemzbmNLoURmfGfSkFKV//qMtS71Th4Gdzzl
-	 G0xAX8hioSmvepHE9LWmr06uOv2nQy8NuW8uXMImx37Q6OoBCcoJZXmmB38VzQ6I+wV1c
-	 i+jC8IzKPBVBV02OWkJzvsH0UTF+9mA3cM8Rs1RvK0hXyaI+ygqddV0nKWKPowe4VftM8
-	 Wz76DOSI49ClCAvKIvsFDgB5QTgVChnaKcNVlVRYcwlqrwcoTgZtq/rUwwNi+boEfdjIz
-	 13gQK5c7Fqao8PSUkbds0tv6HDk3AuLrSKMBipyklmRW77ARG0zVVvsUZ0sYISLLlWQ==
+	bh=a3x3EcOd04d3k5+O3dMfsGmWB77s9fU2q2h860UaVdk=;
+	b=cx1zn+lHiUqWlSj4ap+/hfGIDN6adM1sUHyNPVHhy2OO3D4MpuNMXBXW0jY0U5JCMD49
+	 ii5f0/qFrMLV0w3KthhJs7ash56vosuTioJMX6dqMVENuuvvYFwpI5TXuUVmBNlvf+xM4
+	 mH565AFfH+8+RNiOOd4nOBEzV3yqB3g/n+mn21yLI/to9vg6p6565UjZHmvZGA6nAP98w
+	 T14MqkiBZYGzMGxaIvvlq0TtNfeXduCSEZePYJxmU5PIgrteGkLjXvO1RJ2msfqw5JqNj
+	 tYH6CZMEgejLRbWSQT3uoFWjHH0/GNIoZ5PD2EPkGCnVuSJqDipLAY8486rHkB9bvWw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DrI+PNek;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RVwyyj26;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0D37607B465;
-	Mon,  2 Nov 2026 14:27:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AF36607E0D4;
+	Mon,  2 Nov 2026 14:27:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DrI+PNek
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2FE31F00A1C;
-	Mon,  2 Nov 2026 14:27:07 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RVwyyj26
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D5CA1F00A16;
+	Mon,  2 Nov 2026 14:27:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793629640;
-	bh=xlRe6ByN3zpYNOlJQq83OVbC6fU3d9RayIfuGISBpLE=;
+	s=k20260515; t=1793629666;
+	bh=a3x3EcOd04d3k5+O3dMfsGmWB77s9fU2q2h860UaVdk=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=DrI+PNekNretHUZ1kn1KtVLM1VAQ4asWCX4darvbDfIiADMbVebIHhgZrW1oD/LQm
-	 ET27Dsfxtbv5Bx6RMcyog3VOgeXPBOtvOh2VXPyT8GPO6Ybp+ewD3KRsx4thesz8VP
-	 QA7RHgKiSLQ1nhgNIeJZ4ihrXQPO5LDA6Zn+C6+rSuuh9NM+5LbiX/ev4owvWjFJK+
-	 w88KxP2goEYkeNG1aUmgx8CoQpiUa0JgLD5JUUs48hMCG8PnbgpkAsa8uZGjQLF3EQ
-	 k2GluFIjmgjBfX+GXD3ZOzpKoAHK50KNKTlCQq/MS76QVFek5Vdqcyn24CZ5KtXYnN
-	 gpYlqS5cSCEuw==
+	b=RVwyyj26nRGz0YAa3qJjLMbMcY59GFv7k2/Yo4WgpVWb59sfMb8Zl9naRaGYP0rou
+	 MMpo/iaTuwZ+wi6sRL6CWH+xBh8p8Hh0LzLpasPr6e/4udRG/oCcZ29xKchnIx3/p+
+	 B3Jo+wFAlApWU/ThwP5etPS2jmB2GKh3nFbyeKDeBWGAaYO2fqeijfiRa42kJVjmo5
+	 eE8+TH9zCGeavvC5T8ODN/DYi8pcd4vmfSKYG4AUNTrxGouYTZAQo3PNclBsTunvuS
+	 i1W58HX+mcpImcnTaTchfOLoReuEjUSRmdexvU8N4yNjatMl7C5uOyxR6YUyGiu2Qj
+	 eJ8cshD06UL+w==
 From: Christian Brauner <brauner@kernel.org>
-Date: Mon, 02 Nov 2026 15:21:39 +0100
-Subject: [PATCH RFC 24/38] proc/vmcore: don't let vmcore_cleanup() run
- twice at once
+Date: Mon, 02 Nov 2026 15:21:41 +0100
+Subject: [PATCH RFC 26/38] powerpc/crash_dump: recover from a machine check
+ in copy_oldmem_page()
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -55,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261102-work-procfs-bugfixes-v1-24-59422ed3e465@kernel.org>
+Message-Id: <20261102-work-procfs-bugfixes-v1-26-59422ed3e465@kernel.org>
 References: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
 In-Reply-To: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
 To: linux-fsdevel@vger.kernel.org
@@ -91,56 +91,62 @@ Cc: Linus Torvalds <torvalds@linux-foundation.org>,
  "Christian Brauner (Amutable)" <brauner@kernel.org>, 
  Chuck Lever <cel@kernel.org>, stable@vger.kernel.org
 X-Mailer: b4 0.17-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1758; i=brauner@kernel.org;
- h=from:subject:message-id; bh=gmON/Vwu30bm66aR7FLjt15bWl4pslPspuVjwp92LoI=;
- b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9mJN9ymzS0mChk/OuHxLcK7hCIChOYcKK3y/vZOxX9
- hTemFvv2lHKwiDGxSArpsji0G4SLrecp2KzUaYGzBxWJpAhDFycAjCRv4kM/3SchYRYG9b+Xrc8
- wduJ9XImq3xMwSbxeTeYAicKTFfkvcLIcC/DZqdZ5/W1Oa+zPiduuy4Y56u/3qrMJ2nqgj3fHed
- 9YgUA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2160; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=46QTFCl18GYq9rYmjhc3/nfnECuPknUgrDKXTEluZq8=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9mJNjfd/SLtTaSr/hcs8Or+rV/z323q+aevR7v4GS5
+ AXFwhMXOkpZGMS4GGTFFFkc2k3C5ZbzVGw2ytSAmcPKBDKEgYtTACYyv5Xhf9Ujn1e//n02s36h
+ 97fg8AGx5+WqXD/VJ1+ZtszhE6fMyz2MDAuiVhYyzznyU29ZeOz86L3bl/VWxVxten6I87kdz7q
+ Q9ZwA
 X-Developer-Key: i=brauner@kernel.org; a=openpgp;
  fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-vmcore_cleanup() has a single caller, fadump's release_mem_store() on
-powerpc. That checks fw_dump.dump_active without a lock and calls
-vmcore_cleanup() without one, and kernfs only serializes the writers of
-one open file. So two tasks that write to
-/sys/kernel/fadump/release_mem through different files run
-vmcore_cleanup() at the same time.
+A capture kernel reads the memory of the crashed kernel, and that memory
+may well have uncorrectable errors. On powerpc a machine check in the
+kernel is only recovered from if the instruction that took it has an
+exception table entry (cf. mce_common_process_ue()). copy_oldmem_page()
+copies with copy_to_iter(). For a read() of /proc/vmcore that is a user
+copy, all of whose loads have exception table entries, so the machine
+check turns into a short copy and read_from_oldmem() returns -EFAULT.
 
-The first one removes /proc/vmcore and waits for its readers in
-proc_remove(). The second one finds the entry already unlinked, returns
-from proc_remove() right away and frees vmcore_list, the ELF headers
-and the device dumps while those readers still walk them. Or both of
-them free the same lists at once.
+But since commit 4a22fd20379c ("vmcore: convert __read_vmcore to use an
+iov_iter") /proc/vmcore can be spliced too, and splice(), sendfile()
+and copy_file_range() copy into kernel pages with memcpy(), which has
+no exception table entries. A machine check there panics the capture
+kernel. The same goes for the reads of the ELF headers and notes that
+vmcore does itself.
 
-Serialize vmcore_cleanup() with a mutex of its own. It can't be
-vmcore_mutex, removing /proc/vmcore calls release_vmcore() which takes
-it. The second caller then finds nothing left to free.
+Copy with _copy_mc_to_iter() instead. PPC64 selects ARCH_HAS_COPY_MC
+and there it uses copy_mc_generic() for kernel and user destinations
+alike, which has the exception table entries. Everywhere else it is
+_copy_to_iter().
 
 Reported-by: Chris Mason <mason@kernel.org>
-Fixes: b500afff11f6 ("fadump: Invalidate registration and release reserved memory for general use.")
+Fixes: 4a22fd20379c ("vmcore: convert __read_vmcore to use an iov_iter")
 Cc: stable@vger.kernel.org
 Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 ---
- fs/proc/vmcore.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/powerpc/kernel/crash_dump.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
-index 1fe70c4ecc54..ccb795b85509 100644
---- a/fs/proc/vmcore.c
-+++ b/fs/proc/vmcore.c
-@@ -1764,6 +1764,11 @@ fs_initcall(vmcore_init);
- /* Cleanup function for vmcore module. */
- void vmcore_cleanup(void)
- {
-+	/* Not vmcore_mutex, removing /proc/vmcore calls release_vmcore(). */
-+	static DEFINE_MUTEX(vmcore_cleanup_mutex);
-+
-+	/* Two writers of fadump's release_mem can get here at once. */
-+	guard(mutex)(&vmcore_cleanup_mutex);
- 	if (proc_vmcore) {
- 		proc_remove(proc_vmcore);
- 		proc_vmcore = NULL;
+diff --git a/arch/powerpc/kernel/crash_dump.c b/arch/powerpc/kernel/crash_dump.c
+index 1543917bd3e1..ca7e019ae3e9 100644
+--- a/arch/powerpc/kernel/crash_dump.c
++++ b/arch/powerpc/kernel/crash_dump.c
+@@ -83,12 +83,12 @@ ssize_t copy_oldmem_page(struct iov_iter *iter, unsigned long pfn,
+ 
+ 	if (memblock_is_region_memory(paddr, csize)) {
+ 		vaddr = __va(paddr);
+-		csize = copy_to_iter(vaddr + offset, csize, iter);
++		csize = _copy_mc_to_iter(vaddr + offset, csize, iter);
+ 	} else {
+ 		vaddr = ioremap_cache(paddr, PAGE_SIZE);
+ 		if (!vaddr)
+ 			return -ENOMEM;
+-		csize = copy_to_iter(vaddr + offset, csize, iter);
++		csize = _copy_mc_to_iter(vaddr + offset, csize, iter);
+ 		iounmap(vaddr);
+ 	}
+ 
 
 -- 
 2.53.0
