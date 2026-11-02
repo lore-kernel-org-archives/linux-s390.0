@@ -1,89 +1,59 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793617241;
-	b=sm3n0sxtrZSmIrfQDihImVTWwxCo62dLrk+7QcwdiQgyvyrP5+ASz1k2E8p37dPvcH/r
-	 ufwB1KK3Rxf3uAxfdPLmQUznPaBDuLSGsOva6OlEfXmd5cvJOZE4PUQTi3mlxUy2YM7AZ
-	 ccPz1AfCxHJyl6vhRuRiyHVW2TKRkzQoczlB1paHi0DkF55rCpOkeslXEoXCvgqU/E8WY
-	 MlhofLMYjjR0pUXve24HIJ2NBb/LeMSuoU6iJwUY5DJxRG2+191BJg/nEwP/xlEEPf2EG
-	 qFK58Q+1qXsijeiz5+Znnr3KHpdur7pBZd9kLA++Ak+62/Bgglw2O9QuPRKZW6LRRVA==
+	t=1793619311;
+	b=NruqolSh8B9Kju1vcQAoWUUY3X23Vqi7aQ3il0bQ25UmXopIh0MNQNZ9prECScJJdip6
+	 h8NhvdJfUXcHcsM+LHIt9OCgWTb4pNBgOdmfO2Yc3kDcz5Hn/wgAK6pfjti0tqKEA2tBG
+	 1rK3yNmRsSgVjWbYG+hhZWEjoaR7rk2Tm1Ue5LfzOyxtX+/K7OfSfcZHJ72jkpgPyVOZT
+	 q1hm+hSpQ4wKtcZ8Bkq6Wgtd9wjdHicDsh/0QiZJigcGlorVNUVtovjKpUSBwFgKvPcJh
+	 jMeLB48/bxbuEEKbN/YD4j3u8b6HPI/4MIrWQZOceVWh6u3k1PAn1qXTPYhWWKyi0qg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793617241;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=gmu1a3NLHJfVVFwt2LsdZOjGhk0iaWLym4PaWiReE/U=;
-	b=qDCufLmt2SE/L43wwClP6lnWj6qjd8QjltTWf+bpwQfQH74uQ95VBzpuHGQruRy10NiN
-	 oLQCYP5WQBQ/aVRugR4G5wvoXZjZnvi2y7+nf2Bl1/nLLWnj7/baBMDIiqjMeYxVI6NHv
-	 dCv1+HiPzqt57altQcRxeW2+toeqe17FYmYGE5UL78mvrxcdQB/zy2WU5pdZjhnoS3zST
-	 v+tKBTm6pylsM3AJVyUMHnQNoD4MP7NFPsP/wwPb5qbIwiNldqC1Vv62fYgFRqWv/gLyM
-	 iznESBm+ucB7jKuD1Cc+/SUsQNHFkj8SL3gCvgQIKWGccrxynDd98ebDVSZYVjreoEw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793619311;
+	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
+	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
+	bh=vR0MOdE6VqWSATr+1Il0VzNgeR3rfufNqV+M7Kt2OcI=;
+	b=DeQYnusgWxkjrXdefl/6wHVu6YorMPeKsYLZypuCOLtZxRWqfMyL6ixHYUxEr9UF7Z7b
+	 sutRPHHpezoL5MmyORbrQxNBPzEHNupxt5OTC3ewydQm7kbQpThY0IItyyahKnbay5qiz
+	 uKXXVLQjQs0/lEzIf9ln7sRJDwt9B7ic67nj9vVzkM1QSsxEkjQWWim2WWiiw1sdOZ5Mk
+	 gjXIBWVBNS3DVF5z+Q97b5iOLW0zfWKubMGwiwK+om/tEyt/GjpvzKRGuzDPqxR7T+dXC
+	 SbsosW5EbvsUFYop7LyIh3nQlB0fzrf31yfrdifG6pn2Ykc95ErVrosTa7dked4FAGQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=infradead.org;
-	spf=pass smtp.mailfrom=infradead.org;
-	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=pFIIuG9I;
-	arc=none smtp.remote-ip=90.155.92.199
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g6zkhLwA;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C5CB606A32D;
-	Mon,  2 Nov 2026 11:00:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 9C5CB606A32D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C238606A324;
+	Mon,  2 Nov 2026 11:35:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=pFIIuG9I
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=gmu1a3NLHJfVVFwt2LsdZOjGhk0iaWLym4PaWiReE/U=; b=pFIIuG9Ix79G8xtMZU7N6Ru1g/
-	ZU3lybPoXV7qM675SevAwh7hG+KsUjzeYFFwu7JmsN+Tf6o0YExqPLv0X6j+PsEXW8OFJ0oruSiLy
-	JcWmASAayz6MW29RAESxTQi1aJGAjIwToi+cSjZSylBV5lus3FTCmYwRmVQNk2442enb21IFLrr/X
-	HO0cxL7jYPNZuBK2fg3Zfn3qpay6yRrHiVqOzMdKRkI/ES7fwqc1dLw6iOZUzrFNFQdvcMlEVdwb1
-	yuaB5WAUaaap65CXZHSE9Uym6hjsnuN8j8ysKdQWfg4XKxpQi3fknF/733Vgd+n3xZAxKog42HbsP
-	luZ4SBJw==;
-Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
-	by desiato.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
-	id 1xNpm8-00000002PBW-3HSe;
-	Mon, 02 Nov 2026 11:00:29 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id AE3153002ED; Mon, 02 Nov 2026 12:00:26 +0100 (CET)
-Date: Mon, 2 Nov 2026 12:00:26 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Yury Norov <ynorov@nvidia.com>, Ingo Molnar <mingo@redhat.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	Yury Norov <yury.norov@gmail.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andrea Righi <arighi@nvidia.com>, Ben Segall <bsegall@google.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Heiko Carstens <hca@linux.ibm.com>, Johan Hovold <johan@kernel.org>,
-	Jonathan Corbet <corbet@lwn.net>,
-	K Prateek Nayak <kprateek.nayak@amd.com>,
-	Mel Gorman <mgorman@suse.de>, Mete Durlu <meted@linux.ibm.com>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Vasily Gorbik <gor@linux.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org, driver-core@lists.linux.dev,
-	linux-s390@vger.kernel.org
-Subject: Re: [PATCH 1/6] sched: decouple PREFERRED_CPU from PARAVIRT in
- Kconfig.preempt
-Message-ID: <20261102110026.GG1813469@noisy.programming.kicks-ass.net>
-References: <20261101192203.6979-1-ynorov@nvidia.com>
- <20261101192203.6979-2-ynorov@nvidia.com>
- <388636ac-4521-4523-bb5b-b6bc71591ff6@linux.ibm.com>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=g6zkhLwA
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 579401F00A16;
+	Mon,  2 Nov 2026 11:35:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793619310;
+	bh=vR0MOdE6VqWSATr+1Il0VzNgeR3rfufNqV+M7Kt2OcI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=g6zkhLwAnoufeUkSHBbY1muUICbYtYW0myU8YFpk0XArDOylrRviClHs9P29yaRNS
+	 gYSF+H1Xj7pHMFjecDJkFkggIPjZtB+IouV9m6J3/v/Nwt0BXEE9CSt/9yVpxGTYLA
+	 M0i3HkmQsVAy7s6U/D/AUMJorCPb4vWxAhaR4/XDTxnP4DgdmyyquhZ0u43X/M21r2
+	 z9ktjFgecvp8tA2LL0I2z9XgCY1qH+SYoxzURQK41xoygeVUSyUzx2qFMpLlakYczz
+	 P8isBcP44v1vbCFNHuUDXmnmxKiNXRC29Rwb9tDSiL1LlUF4FQlIfi/yD51Rmq4P0g
+	 JF7HKHAxyd5mw==
+Date: Mon, 2 Nov 2026 11:35:05 +0000
+From: Simon Horman <horms@kernel.org>
+To: Bryam Vargas <hexlabsecurity@proton.me>
+Cc: Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
+	Alexandra Winter <wintera@linux.ibm.com>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Thorsten Winkler <twinkler@linux.ibm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Hidayath Khan <hidayath@linux.ibm.com>,
+	Ursula Braun <ursula.braun@de.ibm.com>, linux-s390@vger.kernel.org,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH net v3] net/iucv: take a private, writable frame before
+ rewriting it in place
+Message-ID: <20261102113505.GY257209@horms.kernel.org>
+References: <20261028-b4-disp-1edbbc34-v3-1-13495411f5b9@proton.me>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -95,113 +65,44 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <388636ac-4521-4523-bb5b-b6bc71591ff6@linux.ibm.com>
+In-Reply-To: <20261028-b4-disp-1edbbc34-v3-1-13495411f5b9@proton.me>
 
-On Mon, Nov 02, 2026 at 11:16:30AM +0100, Ilya Leoshkevich wrote:
+On Wed, Oct 28, 2026 at 11:47:13PM -0500, Bryam Vargas wrote:
+> afiucv_hs_rcv() rewrites the frame in place -- EBCASC() on four name
+> fields, then afiucv_swap_src_dest() swaps them and pushes an Ethernet
+> header -- and can hand the same skb to dev_queue_xmit(), without making
+> it private first, so a packet socket that also gets the frame reads the
+> rewritten names. An ETH_P_ALL tap runs first and leaves af_iucv a
+> cloned skb; a socket opened for ETH_P_AF_IUCV sits on a ptype_specific
+> list, walked after ptype_base[], so deliver_skb() takes a reference and
+> af_iucv runs on an skb that is shared but not cloned.
 > 
+> Unshare, then cow, in that order: skb_cow() can reach
+> pskb_expand_head(), which has BUG_ON(skb_shared()). skb_cow() tests
+> skb_cloned(), which is what a rewrite of the data needs; skb_cow_head()
+> tests only the header. Asking for ETH_HLEN also covers the unchecked
+> push in afiucv_swap_src_dest(); on the ordinary path eth_type_trans()
+> has already pulled that much, so it only compares.
 > 
-> On 11/1/26 20:21, Yury Norov wrote:
-> > The IBM s390 doesn't enable PARAVIRT config for their hardware
-> > virtualized Logical Partitions (LPAR). However, the steal time is
-> > accounted for the LPARs, once the config VIRT_CPU_ACCOUNTING_NATIVE
-> > is enabled.
-> > 
-> > Preferred cpumask doesn't rely on any feature gated by PARAVIRT config,
-> > and requires it to minimize the configuration space and runtime overhead,
-> > with the lack of non-paravirt user. Now that s390 wants to adopt preferred
-> > cpumask, there's no reason to keep it coupled to paravirt.
-> > 
-> > Make PREFERRED_CPU a user-configurable option, even if paravirtualization
-> > is not enabled, and drop PARAVIRT dependency on the steal governor.
-> > 
-> > Keep the default module selection conditional on PARAVIRT so other SMP
-> > configurations can opt in without enabling the governor by default.
-> > 
-> > Link: https://lore.kernel.org/all/4605dad5-aab2-49e3-b919-bf9897181834@linux.ibm.com/
-> > CC: Mete Durlu <meted@linux.ibm.com>
-> > Signed-off-by: Yury Norov <ynorov@nvidia.com>
-> > ---
-> > Can be applied independently from the rest of the series.
-> > 
-> >   drivers/virt/Kconfig   |  8 ++++++--
-> >   kernel/Kconfig.preempt | 12 ++++++++++--
-> >   2 files changed, 16 insertions(+), 4 deletions(-)
+> Fixes: 3881ac441f64 ("af_iucv: add HiperSockets transport")
+> Closes: https://sashiko.dev/#/patchset/20260813-b4-disp-60433a46-v1-1-509e1200533e@proton.me?part=1
+> Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+> ---
+> v3: skb_cow() instead of skb_cow_head(), as Paolo and the netdev AI
+>     review asked: the rewrite is in the data, and skb_cow_head()'s
+>     skb_header_cloned() test would leave it shared with a nohdr holder
+>     (none reaches af_iucv today; still the wrong contract). One-word
+>     change, rebased on net. v2 carried Alexandra's Reviewed-by; v3
+>     changes the helper on Paolo's point, so it is not carried. Same
+>     s390x QEMU A/B as v2, re-run on v3: same eight boots, same table.
+>     Unpatched, the tap and the ETH_P_AF_IUCV socket both read the 48
+>     name bytes in ASCII and a SYN with no listener never reaches the
+>     socket; with this version every frame arrives as sent. Drop
+>     skb_share_check() and the socket is broken again; drop skb_cow() and
+>     both are.
 > 
-> This is really useful to us, since even though s390 is nominally
-> paravirtualized, it does not technically benefit from defining
-> CONFIG_PARAVIRT.
+> v2: https://lore.kernel.org/all/20261008-b4-disp-bf46f1ba-v2-1-46ff1ea9c40b@proton.me/
+> v1: https://lore.kernel.org/all/20260815-b4-disp-dc82fde4-v1-0-e83b10b22ce9@proton.me/
 
-And therefore removing PARAVIRT is the only possible solution?
+Reviewed-by: Simon Horman <horms@kernel.org>
 
-> Specifically, steal time accounting happens by
-> computing a difference between wall time and CPU time, and not by
-> explicitly querying the hypervisor.
-
-Nobody explicitly asks the hypervisor, that would be horrendously slow.
-
-Something trivial like this should do.
-
----
- arch/Kconfig                           | 9 +++++++++
- arch/powerpc/platforms/pseries/Kconfig | 1 +
- arch/s390/Kconfig                      | 1 +
- drivers/virt/Kconfig                   | 2 +-
- 4 files changed, 12 insertions(+), 1 deletion(-)
-
-diff --git a/arch/Kconfig b/arch/Kconfig
-index 1163736de1f9..8980054beb52 100644
---- a/arch/Kconfig
-+++ b/arch/Kconfig
-@@ -1080,6 +1080,15 @@ config HAVE_IRQ_TIME_ACCOUNTING
- config HAVE_PV_STEAL_CLOCK_GEN
- 	bool
- 
-+#
-+#  Archs that can account CPUTIME_STEAL; normal route is through PARAVIRT which
-+#  selects HAVE_PV_STEAL_CLOCK_GEN. Directly selected by s390 and PPC-LPAR
-+#  which have their own thing and don't go through generic cputime accounting.
-+#
-+config HAVE_CPUTIME_STEAL
-+	bool
-+	default y if HAVE_PV_STEAL_CLOCK_GEN
-+
- config HAVE_MOVE_PUD
- 	bool
- 	help
-diff --git a/arch/powerpc/platforms/pseries/Kconfig b/arch/powerpc/platforms/pseries/Kconfig
-index 7d125e288f6e..3c49baf606d7 100644
---- a/arch/powerpc/platforms/pseries/Kconfig
-+++ b/arch/powerpc/platforms/pseries/Kconfig
-@@ -41,6 +41,7 @@ config PPC_SPLPAR
- 	depends on PPC_PSERIES
- 	select PARAVIRT_SPINLOCKS if PPC_QUEUED_SPINLOCKS
- 	select PARAVIRT_TIME_ACCOUNTING if VIRT_CPU_ACCOUNTING_GEN
-+	select HAVE_CPUTIME_STEAL
- 	default y
- 	help
- 	  Enabling this option will make the kernel run more efficiently
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 7138d923d86f..03a884355218 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -291,6 +291,7 @@ config S390
- 	select USER_STACKTRACE_SUPPORT
- 	select VDSO_GETRANDOM
- 	select VIRT_CPU_ACCOUNTING
-+	select HAVE_CPUTIME_STEAL
- 	select VMAP_STACK
- 	select ZONE_DMA
- 	# Note: keep the above list sorted alphabetically
-diff --git a/drivers/virt/Kconfig b/drivers/virt/Kconfig
-index eeb84e578ddf..a3721d34a55c 100644
---- a/drivers/virt/Kconfig
-+++ b/drivers/virt/Kconfig
-@@ -43,7 +43,7 @@ config FSL_HV_MANAGER
- 
- config STEAL_GOVERNOR
- 	tristate "Dynamic vCPU management based on steal time"
--	depends on PARAVIRT && SMP
-+	depends on SMP && HAVE_CPUTIME_STEAL
- 	select PREFERRED_CPU
- 	default m
- 	help
