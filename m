@@ -1,58 +1,49 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793633000;
-	b=syOGGSj85j7zAnDKrZ8v/0QquN587bMgi9cyoSv3WbRT9ci6tMr8deNOl4W7I51L5s4/
-	 /zPtqszHXjZm2/2ELXD8DQSpRiiRcOwp8sagpEzbDrncBuGO5Mp602bgxr29jc2gaNtDj
-	 zDnunzG5k0Bm3eITxSnuuWMVnZigvk1F/sU+/eV0MzUuqbs73Lhprc7gssjdkGoR9Fnny
-	 NtFI6uewmVYWR6mgjEGDYamtxplHcNBdSzmBhb9QL1kXRaY325Hb4YbWiCe/QgSCaPyrp
-	 +U1Kr+zWtQL5Jx+NsFjuXg3be9/qEgjn+H4WPyP4AJe6soWlBhAhzbMFN1pIVuP4vTQ==
+	t=1793633012;
+	b=Hwqs6XMN0961bqDiJlhL7xM/MWH2UlR00KTmm3ur3shoVIhSkDuucO4ZBFw9JtryDlt4
+	 p4jCGyLb6PGS74MaPAHPSXZoCTjkHRBMCupKglSa33XGgw3JEQwpfL1N8a7j/fUn3A3xj
+	 AZd4GWlHBvFr0iQ5VmrVcfZzqnKj4GeLz2Ve/jK/PFHnJn2+8j2BszpSVdKpjx43Ylcc/
+	 a+kTLA7qmpWXJCkw+4hkRf8nlwtyAOQ1bmB2kA97CMRNZsieF/RZK0piJyalCTM9vLNci
+	 797TJxB0RFZ/5mJ9FjBu/9DtV+1rQcfYn6c+88OflrGwteCVBF53f7aUpMCXJ3yotpQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793633000;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=wSOEpiIwaQvP3QhHsQBh5Z1j6Oj5btERHdL+QJjOEcY=;
-	b=dwc+1QucZAOIB4s4xA8FhTaR9MC9OGm5GvMdwza3d7WWqVcxJqSNlzzEfg9fAGzWZwfN
-	 wY0I114kIrQkArDZ9BhJu294NwGhaPg70PermmEUhU8JPzUaXMfJkjf03EvVLhY+DhnP3
-	 rw/4ag/FL8yaHQnxLFhWEywyXfIKTONg+kwA1OAjGMwAvo9fI2bi+EZ9vTi36Gfn3pI4w
-	 8vPoK+hBWQtB0j5SL/jYsdP9cRA1T2DiAElOT+D0OFkpquqKZNxVx4bNknPsiWFS1bs32
-	 RnZ/pGSVyVWWoFgi049SZkjgRGB0NffJ8vvOa378QCjC4CHcDWeY++PyP2pkUdL9/lg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793633012;
+	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
+	 X-Mailer:X-Developer-Signature:X-Developer-Key;
+	bh=yr3akMspnIWFpqWJkjrAgv6glOgJhJX8fSAifemHFwA=;
+	b=eNw3bBYW4LT4hflHvIHHvCdp3jQPBQ8LQIGS3UHwqfbvGrkbKcX3rHKpBvWioNhGc/lj
+	 7pXhc6FI7DYosF4VfuWxRHFchrHa9uB53MXZMdoy9WHJy2WiXVDuL78/fpzQFDmsm/tT3
+	 rqshuwJlRpaFSIWc38QCuL2f3ezTCKlJsNFMldZ0W0hHSxjw305f6wY5CS50UmqyKn/pt
+	 mffqzokCK/Bl9wZnSEcd040luBcASnBC3bs0xpiEP6XuWDIJNG9q7e+DafF9LhoQIZ851
+	 e8Eao9FBjzJhSJ3RForVn4/7M7vIQIdtdBwwcYdkRa/bMtp4HArlO2Z4t40aE8cDUNA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="L+k/9v55";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YJCSbelw;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F345C60A6F47
-	for <linux-s390@vger.kernel.org>; Mon,  2 Nov 2026 15:23:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAF6860A6F6E;
+	Mon,  2 Nov 2026 15:23:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L+k/9v55
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E8BF1F00A16;
-	Mon,  2 Nov 2026 15:23:19 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YJCSbelw
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9111F1F00A1B;
+	Mon,  2 Nov 2026 15:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793632999;
-	bh=wSOEpiIwaQvP3QhHsQBh5Z1j6Oj5btERHdL+QJjOEcY=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=L+k/9v55UsEP5uLZxm8JEjrLp7N3ENsw4elkC5K4JW36C0jMU6oitzcRhZ2Sbelfp
-	 RtI1mK6kC1C7pe77xosRc+jNgOctE7cLO0uz+/yO4OmJOUW6hW/gw/eT0iVlBCDq6x
-	 4saVMEp36j2aWjq5Jly/k+K1Vff1dCaqWEaS3NAK4cKqY1+I276ToaWtvJXinDkH4U
-	 R/MkeeywsUKTqqVWP3FQjvO063Ht2Yq+Kx1fu6PYwu19XDQ7lAdjANkUztKSosST1+
-	 H8F1gWWagHB2YsGBgZRtJKE7wOoumOF5QoNmjuh72i0guRr/TRq71zJa1UfjNJnDBW
-	 O6tyUgwMT+fZA==
-Message-ID: <sashiko-outbox-193656@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v11 01/14] s390/vfio-ap: Provide function to get the
- number of queues assigned to mdev
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Anthony Krowiak" <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org
-Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261102151604.2150055-2-akrowiak@linux.ibm.com>
-References: <20261102151604.2150055-1-akrowiak@linux.ibm.com>
- <20261102151604.2150055-2-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Mon, 02 Nov 2026 15:23:18 +0000
+	s=k20260515; t=1793633011;
+	bh=yr3akMspnIWFpqWJkjrAgv6glOgJhJX8fSAifemHFwA=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=YJCSbelwTMu+lkg0XhQdoj8LyLuu8oZ2pe/iy53Q06xxAeDwqlvsnJcfvKWPrL8nO
+	 1LPsdJ6f92UxNgYIH2elZX5cKB2Bn/cwnYbrr5FGX2EiostBzZYZDEJohQQBKlZ100
+	 p7HUnoW1j6UUmYnSxVo38pqZI9irmD68pXikF1kIKMo2LkpHXgXPDrrJi4p7Z6BTEm
+	 Ho/gXdwOiakESPZcb3mkuegm2OWR2/e5jdgZUaERpTqlL7W8/AYhca74N335/39sZi
+	 ng2uaNbyx5FiMaSAp2/TUfphsXmLg87fQ3ClWdiErCTiRsq4P0nmjoEgLpLSQ0erqr
+	 l9l+F4V475wRA==
+From: Christian Brauner <brauner@kernel.org>
+Date: Mon, 02 Nov 2026 16:07:21 +0100
+Subject: [PATCH RFC 11/27] latencytop: let procfs copy in writes to
+ /proc/latency_stats
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -61,15 +52,88 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20261102-work-procfs-fs-v1-11-d09a996317b3@kernel.org>
+References: <20261102-work-procfs-fs-v1-0-d09a996317b3@kernel.org>
+In-Reply-To: <20261102-work-procfs-fs-v1-0-d09a996317b3@kernel.org>
+To: linux-fsdevel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, 
+ Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, 
+ Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, 
+ NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>, 
+ Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>, 
+ Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
+ Greg Kroah-Hartman <gregkh@suse.de>, 
+ Joel Granados <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>, 
+ Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
+ linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, 
+ linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+ linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, 
+ linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, 
+ ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org, 
+ coreteam@netfilter.org, kexec@lists.infradead.org, 
+ linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
+ netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+ ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net, 
+ linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-cifs@vger.kernel.org, linux-fbdev@vger.kernel.org, 
+ linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-sh@vger.kernel.org, 
+ linux-usb@vger.kernel.org, samba-technical@lists.samba.org, 
+ sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
+ linux-doc@vger.kernel.org, linux-serial@vger.kernel.org, 
+ linux-atm-general@lists.sourceforge.net, Takashi Iwai <tiwai@suse.de>, 
+ linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
+ linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, 
+ linux-debuggers@vger.kernel.org, 
+ "Christian Brauner (Amutable)" <brauner@kernel.org>, 
+ Chuck Lever <cel@kernel.org>
+X-Mailer: b4 0.17-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1161; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=9/PXHkkWFBWwJpiw0GjnsftfBxXIsWStv0RQuWJfsao=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9WG6Uxf1FUCLiA19Y3u9pcme5JklFv7e+/n/G+vrUZ
+ 5GZL6Y4dJSyMIhxMciKKbI4tJuEyy3nqdhslKkBM4eVCWQIAxenAEwkpIORYdf3e/NXsH6/4133
+ rv1C3AUbjW+79J6LeEzq8giUbOXbd4uRYa5Xn0HazZ7z2x9NiNU/Zf+6XrKpZKKX2K/DOgyTKn0
+ MWQE=
+X-Developer-Key: i=brauner@kernel.org; a=openpgp;
+ fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-> Provides a function that returns the number of queues that are or will be
-> passed through to a guest when the mdev is attached to a guest.
->=20
-> Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+Implement ->proc_write_buf() so procfs copies in what is written before
+it pins the entry. The write only clears the statistics and doesn't look
+at what was written anyway. Writes larger than PAGE_SIZE - 1 bytes fail
+with -EINVAL now.
 
-Sashiko has reviewed this patch and found no issues.
+Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+---
+ kernel/latencytop.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261102151604.2150=
-055-1-akrowiak@linux.ibm.com?part=3D1
+diff --git a/kernel/latencytop.c b/kernel/latencytop.c
+index b764f47606d3..35f73ca07656 100644
+--- a/kernel/latencytop.c
++++ b/kernel/latencytop.c
+@@ -267,8 +267,7 @@ static int lstats_show(struct seq_file *m, void *v)
+ }
+ 
+ static ssize_t
+-lstats_write(struct file *file, const char __user *buf, size_t count,
+-	     loff_t *offs)
++lstats_write(struct file *file, char *buf, size_t count, loff_t *offs)
+ {
+ 	clear_global_latency_tracing();
+ 
+@@ -277,7 +276,7 @@ lstats_write(struct file *file, const char __user *buf, size_t count,
+ 
+ static const struct proc_ops lstats_proc_ops = {
+ 	.proc_show	= lstats_show,
+-	.proc_write	= lstats_write,
++	.proc_write_buf	= lstats_write,
+ };
+ 
+ static int __init init_lstats_procfs(void)
+
+-- 
+2.53.0
 
