@@ -1,61 +1,107 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793712706;
-	b=RYmQ6fdMJQ0eauxutnNgXhwU9qx+TV0nWTe9niDXmyPA8KrrmXyY66sEN8IzzL1JH89F
-	 LmWNUyrKLTTz+6ZKI60nhoXSkrY7wMObLWW6gmvtr80SVcGPfTNSdQIOJv56SZQ/06bnp
-	 9Yle469QzyYv9VpC2b7FWIQDNU/Volf713REsqGrGgPHcFnWevaN/ZK8ZiOj1Y+PtZO+s
-	 /AGn+LORIM68Ptb0kuITy8t0c1SrbwtzOD23beHM6grbbdiWTZleFnLldyrApdK0W9wAA
-	 AHCUWjTwP/iN0fsmPE79zJYeeA8fPyiDacaKUeneCR6mHenSXi6ANwm7bX7MZK2e7cg==
+	t=1793715523;
+	b=kefI1XGsIfw6y2Fh/HGWxMHt9stjhPDlAzbdR02Eb3KVFeUMnHcLQZ9q6AImsUQo7A+K
+	 azD3K7g9YwARJoddLoziWPx+kIWwmwq+BcwWWdO0VkN9SRQy5s7Dzq3lhoG8OXJgycmaA
+	 NDFl8WYYpWyKc5HEwSYA+SCwNkg36LaxHDTBYnimK/ks0hutBK1QkIcoOQoHvTHLvfVp3
+	 VDX+oSrfY1g/udfMl9/tqZL1te7HQzkOsI/4L9sNAJk9D/GbTMpByTUDn9cnF6H/YUNsk
+	 MVxWmm+lCHTfxFpp90/gTOz8mrSJGVogO1z9Two132c5GnLQipYUW5nn2ciP+PeBa5g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793712706;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=nQy4/KiLdZZPv+GoMlioUJJnOOIyJoyjE4A+4aiPp4o=;
-	b=JtiI/xaRqNfu753oc+9iudQMgF8CSW2j5B78kqvLudW8dqhZ0NAZGPG54GFjXBzUtJpX
-	 kp1Nm1yQnvMGEj6EgukZq3Her8vuZ2qmOHum/XRo29mayg+bd4JJdO5lbHLE8yjy5myah
-	 jgEL0+zEtXeaUfn8d2BOFQU/mN8H7hsxrKg8E+sbMP4rwg0SIh19Fo4FTC0hcJsJti2az
-	 1dcnRuApIryJTA1OmT/5qNetNq1ng5zIYFAKbFNjd6vyH3vb6EYJETIVQr/cDPUDN6EEm
-	 WrpWBOaNKIPxH0Ox+alZKRazNkzddhgZSXlo4FVL90+vAgERqcJ7VQDGHaWFgNe6U9A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793715523;
+	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
+	 X-Mimecast-MFC-AGG-ID:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Gm-Gg:X-Received:X-Received:Received:Message-ID:
+	 Date:MIME-Version:User-Agent:Subject:To:Cc:References:
+	 Content-Language:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=87L8NH0chbxJMXxlwkxaucZepbhcei/lYwpnUvY2jS4=;
+	b=tilMCQaHZGZK5v3fYcb0180kaMklnQQT186pB9fYGQkr2zxq+SiBaJktPWEw8FJlz/tL
+	 g8QR6p0SK4HN7SS1uUXbCQ2oBlOhZWdBsZxWZU6xsZbzLIsyQNHUfH6hys7oD10Gn687L
+	 /PfYsyH5UNx1OvDNSVx9YqWMEKMpyh6w8MVa2kIhJe49LaQhSaZ6RkBNQs1/N3L7r4LAC
+	 IiQhtStCGwC097pictJP6QZxnDUtCFOWzKnCUB9IBTeZJC4s+ZlqEfAXFL4aZWkXH4KEc
+	 dHXONhIVr9BtzvAGJJqpe/FKjRld8Kn9Qd8QC/OS0deLIQajwKok6kf5LEC5IM9vEsA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=P8ckjZYk;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=redhat.com;
+	spf=pass smtp.mailfrom=redhat.com;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=d2VuZdJs;
+	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=UgDLLBfc;
+	arc=none smtp.remote-ip=170.10.129.124
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C7D5606A33C
-	for <linux-s390@vger.kernel.org>; Tue,  3 Nov 2026 13:31:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D023606A336
+	for <linux-s390@vger.kernel.org>; Tue,  3 Nov 2026 14:18:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4D023606A336
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=P8ckjZYk
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97F221F00A16;
-	Tue,  3 Nov 2026 13:31:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793712705;
-	bh=nQy4/KiLdZZPv+GoMlioUJJnOOIyJoyjE4A+4aiPp4o=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=P8ckjZYk6fxnduGVkh75x/CjvcqQvKgxrG09iO0cSdqipCB/hlH17g149+BdVz4p3
-	 UlccnHSw2qO11AflRKeMQ9avaLVCL/gjf3Ax+ksRNF1aZxqDY3I+aVjSG9zLziXDlM
-	 b5K3oSq4AVSLY48ixr6kLMM4JPKPlELJWSjGH3bdWSlbKI5GHdoPuRRaW6e6QP6bLD
-	 h8soc4qmEl/ThHDVKvk8xW4D4tZAgugSOOMvlGXtvTpLqAUgx+KqnslukBCTydDwZD
-	 0dRnRUj7Uv3yU97be5yoM/yFxhWQ54OXgz7N+exEmTsGHabXFHEW/27lEkSIk6QZft
-	 GVza9d85UKI5g==
-Message-ID: <sashiko-outbox-195355@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v2 4/4] ksm: add find_mergeable_vma_locked() to use
- per-VMA locking
-Reply-To: sashiko-reviews@lists.linux.dev
-To: xu.xin@linux.dev
-Cc: acme@kernel.org, adrian.hunter@intel.com, "Alexander Gordeev" <agordeev@linux.ibm.com>, akpm@linux-foundation.org, alexander.shishkin@linux.intel.com, apopple@nvidia.com, baohua@kernel.org, baolin.wang@linux.alibaba.com, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>, byungchul@sk.com, chengming.zhou@linux.dev, david@kernel.org, dev.jain@arm.com, gerald.schaefer@linux.ibm.com, "Vasily
- Gorbik" <gor@linux.ibm.com>, gourry@gourry.net, harry@kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, irogers@google.com, james.clark@linaro.org, jannh@google.com, jolsa@kernel.org, joshua.hahnjy@gmail.com, kas@kernel.org, lance.yang@linux.dev, liam@infradead.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, ljs@kernel.org, mark.rutland@arm.com, matthew.brost@intel.com, mhiramat@kernel.org, mhocko@suse.com, mingo@redhat.com, namhyung@kernel.org, nico.pache@linux.dev, oleg@redhat.com, peterz@infradead.org, riel@surriel.com, rppt@kernel.org, ryan.roberts@arm.com, surenb@google.com, svens@linux.ibm.com, usama.arif@linux.dev, vbabka@kernel.org, ying.huang@linux.alibaba.com, ziy@nvidia.com, xialonglong2025@163.com, "Longlong
- Xia" <xialonglong@kylinos.cn>
-In-Reply-To: <20261102133103.302832-1-xu.xin@linux.dev>
-References: <20261102132416.300084-1-xu.xin@linux.dev>
- <20261102133103.302832-1-xu.xin@linux.dev>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Tue, 03 Nov 2026 13:31:43 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=d2VuZdJs;
+	dkim=pass (2048-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=UgDLLBfc
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1793715522;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=87L8NH0chbxJMXxlwkxaucZepbhcei/lYwpnUvY2jS4=;
+	b=d2VuZdJsG9PeUOo4SXfGhpBqTNlnJEubVtaF3lW2dbZqAHJseun0u4wZwx4ukzgutJx1SB
+	jU3NNjlFZuM+472LdQIQKQXnLrEhj6u0Gmwo0tGfeZ/PYiBONKJ61GUJyhurAWL4M3gUZL
+	e5SQtWvN90dpmb7RVQ13blBG36lrJdI=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-499-NXbOa343NuOf9B7eP4d3rQ-1; Tue, 03 Nov 2026 09:18:39 -0500
+X-MC-Unique: NXbOa343NuOf9B7eP4d3rQ-1
+X-Mimecast-MFC-AGG-ID: NXbOa343NuOf9B7eP4d3rQ_1793715519
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-48e29c25101so2280821f8f.3
+        for <linux-s390@vger.kernel.org>; Tue, 03 Nov 2026 06:18:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1793715519; x=1794320319; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=87L8NH0chbxJMXxlwkxaucZepbhcei/lYwpnUvY2jS4=;
+        b=UgDLLBfc/bXJiOyeTY9h3E/2b9NcVvDXC2LHhKd1RL9yvya9KWHlPTuzXFDRw/ZYkI
+         SyMPuW8h+ac1OXG31eFAmG8xUx4mrLWdqwU8VefOMWepj8xXAmYr50zgPseM24oVZBGf
+         pVQwm2sgTBDxEbvuBBhORrgapJVaQMcBDxU8ILnrhmQNpHDzS9eiJOk4sX4J2gkAAuRD
+         4ChNUmaElJnviB+3xvHvIp/S9vPdcGqNS19YHNj28eFbYlShAQ5dLnkz+44TX2vn1ovf
+         nUPmyUsZjhbGga0wb0SxvRgRLABPX0orDHe1hm+r1Wbx9w+eU97m0oY43FVB85m4IP9Z
+         17gQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793715519; x=1794320319;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=87L8NH0chbxJMXxlwkxaucZepbhcei/lYwpnUvY2jS4=;
+        b=UWxvb8HolKSS8+G0wpxgl6nNYniRMXO5Uv/YLmVl38laxnF3aVbFVeG96R5ZWtbT67
+         5SOq3Di/V5EA8R+KjAxtw6FKLhwRHMP6IJaJqN150LAkbZDSTBa9Pk1wIO6vIXyGZfQR
+         /2Byv7+/ecI8RQZnQAFCx6mCxzffFkJtMHhecVO7j+fzcyhg3NnPpHiiytdgxmiJqvIM
+         UKeSF2b4AuGFVyWXQR2KQFFLXKVH8dNsptMsZsvV21dyyLMmTc/+U7LJgNpejWf8KVV2
+         6CQON6j9NEdHTl74/fxA6/Wj/CnDnidTSObwdf5FSAIqgatc6He9nfXX3VD2a0RIfpFl
+         KDog==
+X-Gm-Message-State: APuU4Z9pSA1qNewFLhPNzEAJRm9vrNrPHPJ5DcBpElnPbHdb6hDCXp1a
+	g7XoMsXFzeb71Tlq+xkuNXMIdRtgD6QxCmkR7Kd+niC+jt3zvOPBMpy/YHFNyZ+nc1AciwFknIC
+	U4e7w9ZoX5BR/F2mocP3RLqqZAjZm90uDxCXx6ER8rSGcrpWhQ/WdB3w/T5hlsTQ=
+X-Gm-Gg: AYBFou36MD/hbnxcN7ix98Uykj9rrNuuiur+ean5FweMAxmgOzjI72X9w2jZrDnc2Vk
+	DxX00/yqDlvXR8lEU3ivw1LvcqBt7EO6a+zi+/Uin4T6/v69FQe52H3jME8sfLRsRL5zVNDF4nw
+	NenimvC6aNpbOdkds8yMwkQLmMi5GpajE9zmjM9WeVq05Jr+dNHBdMgNLVBS4X+/jR9G5VDST/g
+	akB2H7r9Bal4SbXDbyAK7vfcrE3EjiHoaZL31IM06qfIx37Q8r4lCxnRVDRVn6cqipWkRKxmIVw
+	fs4N4ZxdC16+lIYd17KNGQUUT1dJi2VPmj1bINyWZ7GF9tJS8jnZJE50GTkstBhjRqrV+9uZBP2
+	4fnzsiX4mPXh39ZNomZv8l33iJvwlpY/YqNbUt2F6sJUrOCckw1Wkf8GhdMshdQU7FTWkV7q7p7
+	cpgqH0J7YjH6rHvSKzs0Ux/LksgAOa5oG+qAZ28mp4lP8=
+X-Received: by 2002:a05:600d:c:b0:4af:83ad:8f70 with SMTP id 5b1f17b1804b1-4af83ad8fa7mr160826645e9.35.1793715518723;
+        Tue, 03 Nov 2026 06:18:38 -0800 (PST)
+X-Received: by 2002:a05:600d:c:b0:4af:83ad:8f70 with SMTP id 5b1f17b1804b1-4af83ad8fa7mr160826195e9.35.1793715518348;
+        Tue, 03 Nov 2026 06:18:38 -0800 (PST)
+Received: from [192.168.88.30] (ip231-128-192-82.pool-bba.aruba.it. [82.192.128.231])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4b2ab3ea6a9sm91268795e9.15.2026.11.03.06.18.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 03 Nov 2026 06:18:37 -0800 (PST)
+Message-ID: <4d97a782-8d88-4dd0-b819-fb704582f2ec@redhat.com>
+Date: Tue, 3 Nov 2026 15:18:36 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -64,323 +110,47 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v2] net/smc: don't spin in smc_rx_recvmsg() while a
+ pipe holds spliced data
+To: Bryam Vargas <hexlabsecurity@proton.me>,
+ Dust Li <dust.li@linux.alibaba.com>, "D. Wythe" <alibuda@linux.alibaba.com>,
+ Mahanta Jambigi <mjambigi@linux.ibm.com>,
+ Sidraya Jayagond <sidraya@linux.ibm.com>,
+ "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+ Eric Dumazet <edumazet@kernel.org>
+Cc: linux-s390@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>,
+ linux-rdma@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
+ Wenjia Zhang <wenjia@linux.ibm.com>, netdev@vger.kernel.org,
+ Stefan Raspl <raspl@linux.ibm.com>, Hidayath Khan <hidayath@linux.ibm.com>,
+ Simon Horman <horms@kernel.org>, Ursula Braun <ubraun@linux.ibm.com>,
+ linux-kernel@vger.kernel.org
+References: <20261029-b4-disp-da7f8e6a-v2-1-9052904adf72@proton.me>
+Content-Language: en-US
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20261029-b4-disp-da7f8e6a-v2-1-9052904adf72@proton.me>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thank you for your contribution! Sashiko AI review found 4 potential issue(=
-s) to consider:
-- [Critical] mm: ksm: race with exit_mmap() in find_mergeable_vma_locked() =
-and __ksm_exit()
-- [High] mm: ksm: missing FAULT_FLAG_VMA_LOCK in break_ksm() under per-VMA =
-read lock
-- [Low] mm: ksm: unmarked vma->anon_vma read in find_mergeable_vma_locked()
-- [Low] mm: ksm: missing kernel-doc params for find_mergeable_vma_locked()
---
+On 10/29/26 09:03, Bryam Vargas wrote:
+> While bytes spliced off the RMB are still in a pipe, recvmsg() waits
+> for the pipe to release them before it copies the data behind them.
+> The path to that wait skips the timeout and signal checks, and
+> smc_rx_wait() returns at once on RCV_SHUTDOWN. With a signal pending,
+> after SHUT_RD, or once the peer closes or shuts down writing,
+> recvmsg() spins on a CPU until the pipe is drained, and SIGKILL cannot
+> stop it. MSG_DONTWAIT and an expired SO_RCVTIMEO wait there too
+> instead of returning -EAGAIN.
+> 
+> Check the timeout and signals before that wait, and end it when the
+> pipe releases the data or the connection is killed, not on RCV_SHUTDOWN.
+> A zero-length read returns 0 without waiting for the pipe; a
+> non-blocking one returns -EAGAIN while poll() still reports the socket
+> readable (splice() can still take those bytes).
 
-commit 984120154ab3ef7af44dc3dbb32b8522a336aefe
-Author: Xu Xin <xu.xin@linux.dev>
+@SMC experts, please review. IMHO the above trade-off sounds like a better
+solution is needed.
 
-ksm: add find_mergeable_vma_locked() to use per-VMA locking
+/P
 
-This commit introduces find_mergeable_vma_locked() to look up and read-lock
-VM_MERGEABLE VMAs using per-VMA locks instead of mmap_read_lock() across KSM
-page-scanning and merging paths. It also updates __ksm_exit() to write-lock
-each VMA under mmap_write_lock() to synchronize with in-flight per-VMA read=
-ers
-when a process exits.
-
-Link: https://lore.kernel.org/all/20260909023507.1408925-1-xialonglong2025@=
-163.com/
-Link: https://lore.kernel.org/all/91cf8129-d705-4ebd-b420-129bab7ed261@kern=
-el.org/
-Link: https://lore.kernel.org/all/20260911162242418ODBbr9wspxxIXDS8uvpeZ@zt=
-e.com.cn/
-
-> diff --git a/mm/ksm.c b/mm/ksm.c
-> index 84d363dabdc8a..64f9e803b99e2 100644
-> --- a/mm/ksm.c
-> +++ b/mm/ksm.c
-> @@ -669,6 +669,8 @@ enum ksm_walk_lock {
->  	KSM_WALK_MMAP_RDLOCK,
->  	/* walk under mmap_write_lock() */
->  	KSM_WALK_MMAP_WRLOCK,
-> +	/* walk with the vma already read-locked (per-VMA locking) */
-> +	KSM_WALK_VMA_RDLOCK,
->  };
-> =20
->  static enum page_walk_lock ksm_walk_lock_to_pgwalk(enum ksm_walk_lock lo=
-ck)
-> @@ -676,6 +678,8 @@ static enum page_walk_lock ksm_walk_lock_to_pgwalk(en=
-um ksm_walk_lock lock)
->  	switch (lock) {
->  	case KSM_WALK_MMAP_WRLOCK:
->  		return PGWALK_WRLOCK;
-> +	case KSM_WALK_VMA_RDLOCK:
-> +		return PGWALK_VMA_RDLOCK_VERIFY;
->  	default:
->  		return PGWALK_RDLOCK;
->  	}
-> @@ -784,15 +788,36 @@ static bool vma_ksm_compatible(struct vm_area_struc=
-t *vma)
->  	return ksm_compatible(vma->vm_file, vma->flags);
->  }
-> =20
-> -static struct vm_area_struct *find_mergeable_vma(struct mm_struct *mm,
-> -		unsigned long addr)
-> +/**
-> + * find_mergeable_vma_locked() - Find the VMA covering 'address' which is
-> + * VM_MERGEABLE and read-lock it by per-VMA locks. Please use vma_end_re=
-ad()
-> + * to unlock vma after finishing reading the VMA (non-NULL).
-> + *
-> + * Return: If a VMA exists which spans @address, return that VMA, read-l=
-ocked.
-> + * If no VMA is mapped there or, very unlikely, a reference count overfl=
-ow
-> + * occurred, return NULL, and no read-locked.
-> + *
-> + * IMPORTANT: If a VMA exists but is not VM_MERGEABLE or has no anon_vma,
-> + * this function releases the per-VMA read lock before returning NULL.
-> + * Callers must NOT call vma_end_read() on a NULL return value.
-> + */
-> +static struct vm_area_struct *find_mergeable_vma_locked(struct mm_struct=
- *mm,
-> +		unsigned long address)
-
-[Severity: Low]
-This isn't a bug, but since this comment above find_mergeable_vma_locked() =
-in
-mm/ksm.c starts with the /** kernel-doc marker, won't scripts/kernel-doc (w=
-hen
-building with W=3D1) warn about the missing @mm and @address parameter
-descriptions?
-
->  {
->  	struct vm_area_struct *vma;
-> +
->  	if (ksm_test_exit(mm))
->  		return NULL;
-> -	vma =3D vma_lookup(mm, addr);
-> -	if (!vma || !(vma->vm_flags & VM_MERGEABLE) || !vma_has_anon_rmap(vma))
-> +
-> +	vma =3D vma_start_read_unlocked(mm, address);
-> +	if (!vma)
->  		return NULL;
-> +
-> +	if (!(vma->vm_flags & VM_MERGEABLE) || !vma->anon_vma) {
-
-[Severity: Low]
-In find_mergeable_vma_locked() in mm/ksm.c, replacing !vma_has_anon_rmap(vm=
-a)
-with a plain !vma->anon_vma read under the per-VMA read lock drops the
-data_race() annotation and vma_assert_stabilised() check from
-vma_has_anon_rmap() in mm/vma.h:
-
-mm/vma.h:vma_has_anon_rmap() {
-	if (vma_is_attached(vma))
-		vma_assert_stabilised(vma);
-	/* KCSAN gets confused about the optimistic check. Silence it. */
-	return data_race(vma->anon_vma);
-}
-
-When another thread concurrently faults in the first anonymous page on the
-same VMA and initializes vma->anon_vma in __anon_vma_prepare() under
-mm->page_table_lock, won't this trigger a KCSAN data-race warning? Should
-find_mergeable_vma_locked() continue to use !vma_has_anon_rmap(vma) here?
-
-> +		vma_end_read(vma);
-> +		return NULL;
-> +	}
-> +
->  	return vma;
->  }
-> =20
-> @@ -818,11 +843,12 @@ static void break_cow(struct ksm_rmap_item *rmap_it=
-em)
->  	 */
->  	rmap_item->linear_page_index =3D 0;
-> =20
-> -	mmap_read_lock(mm);
-> -	vma =3D find_mergeable_vma(mm, addr);
-> -	if (vma)
-> -		break_ksm(vma, addr, addr + PAGE_SIZE, KSM_WALK_MMAP_RDLOCK);
-> -	mmap_read_unlock(mm);
-> +	vma =3D find_mergeable_vma_locked(mm, addr);
-> +	if (!vma)
-> +		return;
-> +
-> +	break_ksm(vma, addr, addr + PAGE_SIZE, KSM_WALK_VMA_RDLOCK);
-> +	vma_end_read(vma);
->  }
-
-[Severity: High]
-When break_cow() in mm/ksm.c calls break_ksm() with KSM_WALK_VMA_RDLOCK, on=
-ly
-the per-VMA read lock is held, without mm->mmap_lock. However, break_ksm()
-still calls handle_mm_fault() without FAULT_FLAG_VMA_LOCK:
-
-mm/ksm.c:break_ksm() {
-	...
-	do {
-		int ksm_page;
-
-		cond_resched();
-		ksm_page =3D walk_page_range_vma(vma, addr, end, &ops, &addr);
-		if (ksm_page <=3D 0)
-			return ksm_page;
-		ret =3D handle_mm_fault(vma, addr,
-				      FAULT_FLAG_UNSHARE | FAULT_FLAG_REMOTE,
-				      NULL);
-	} while (!(ret & (VM_FAULT_SIGBUS | VM_FAULT_SIGSEGV | VM_FAULT_OOM)));
-}
-
-Because break_ksm_pmd_entry() drops the PTE lock before returning, the PTE =
-at
-addr can be modified (for example, zapped by concurrent MADV_DONTNEED or
-truncation, or turned into a device-private swap entry) before
-handle_pte_fault() inspects it.
-
-Without FAULT_FLAG_VMA_LOCK set in vmf->flags, handle_mm_fault() and its
-callees assume mm->mmap_lock is held:
-
-1. In mm/memory.c, vmf_can_call_fault() checks !(vmf->flags &
-   FAULT_FLAG_VMA_LOCK) and allows do_read_fault() to invoke
-   vma->vm_ops->fault() on a ksm_compatible() MAP_PRIVATE file-backed VMA
-   without holding mm->mmap_lock.
-
-2. In include/linux/mm.h, assert_fault_locked() checks
-   mmap_assert_locked(vmf->vma->vm_mm) when FAULT_FLAG_VMA_LOCK is not set,
-   and release_fault_lock() calls mmap_read_unlock() on the unheld
-   mm->mmap_lock (e.g. if handle_userfault() or migration entry waiting is
-   reached).
-
-3. If FAULT_FLAG_VMA_LOCK were passed, any path returning VM_FAULT_RETRY
-   would release the per-VMA read lock via vma_end_read(vma), which neither
-   the loop in break_ksm() nor the unconditional vma_end_read(vma) in
-   break_cow() accounts for.
-
-Can break_ksm() safely call handle_mm_fault() under only a per-VMA read loc=
-k?
-
-[ ... ]
-
-> @@ -3153,7 +3178,20 @@ void __ksm_exit(struct mm_struct *mm)
->  		mm_flags_clear(MMF_VM_MERGEABLE, mm);
->  		mmdrop(mm);
->  	} else if (mm_slot) {
-> +		/*
-> +		 * ksmd may be walking this mm's page tables under a per-VMA
-> +		 * read lock (see find_mergeable_vma_locked()).  A plain
-> +		 * mmap_write_lock() does not exclude such readers, so also
-> +		 * write-lock every VMA: this blocks until any in-flight ksmd
-> +		 * walk drops its per-VMA read lock, and prevents new ones
-> +		 * from starting (vma_start_read_unlocked() backs out when a
-> +		 * VMA is write-locked).  The per-VMA write locks are released
-> +		 * by mmap_write_unlock() via vma_end_write_all().
-> +		 */
->  		mmap_write_lock(mm);
-> +		VMA_ITERATOR(vmi, mm, 0);
-> +		for_each_vma(vmi, vma)
-> +			vma_start_write(vma);
->  		mmap_write_unlock(mm);
->  	}
-
-[Severity: Critical]
-Does this synchronization in __ksm_exit() in mm/ksm.c actually prevent ksmd
-from acquiring a per-VMA read lock in find_mergeable_vma_locked() and racing
-with exit_mmap()?
-
-Unlike normal callers of vma_start_read_unlocked(), ksmd only holds mm_count
-(via mmgrab()), not mm_users. Previously, callers took mmap_read_lock(mm)
-first and then checked ksm_test_exit(mm) inside find_mergeable_vma() under
-mmap_read_lock(mm), which serialized against mmap_write_lock(mm) in
-__ksm_exit().
-
-With this patch, find_mergeable_vma_locked() in mm/ksm.c checks
-ksm_test_exit(mm) locklessly before calling vma_start_read_unlocked(mm,
-address), and never re-checks ksm_test_exit(mm) after acquiring the per-VMA
-read lock:
-
-mm/ksm.c:find_mergeable_vma_locked() {
-	if (ksm_test_exit(mm))
-		return NULL;
-
-	vma =3D vma_start_read_unlocked(mm, address);
-	if (!vma)
-		return NULL;
-	...
-}
-
-Contrary to the comment in __ksm_exit(), vma_start_read_unlocked() in
-mm/mmap_lock.c does not back out when a VMA is write-locked; when
-lock_vma_under_rcu() returns NULL, it enters the slow path and blocks on
-mmap_read_lock(mm):
-
-mm/mmap_lock.c:vma_start_read_unlocked() {
-	vma =3D lock_vma_under_rcu(mm, address);
-	if (vma)
-		return vma;
-
-	/* Slow path: preclude VMA writers by temporarily getting mmap read lock. =
-*/
-	mmap_read_lock(mm);
-	vma =3D vma_lookup(mm, address);
-	if (vma && !vma_start_read_locked(vma))
-		vma =3D NULL;
-	mmap_read_unlock(mm);
-
-	return vma;
-}
-
-And in __ksm_exit(), mmap_write_unlock(mm) calls vma_end_write_all(mm), whi=
-ch
-immediately releases all of the per-VMA write locks just acquired.
-
-If mm->mm_users drops to 0 right after find_mergeable_vma_locked() passes
-ksm_test_exit(mm) (in get_mergeable_page(), try_to_merge_with_zero_page(),
-try_to_merge_with_ksm_page(), or break_cow()):
-
-1. If ksmd calls vma_start_read_unlocked() while __ksm_exit() holds
-   mmap_write_lock(mm), lock_vma_under_rcu() fails and ksmd waits on
-   mmap_read_lock(mm) in the slow path. As soon as __ksm_exit() calls
-   mmap_write_unlock(mm) (which also calls vma_end_write_all(mm)), ksmd
-   acquires mmap_read_lock(mm), looks up the VMA, and acquires the per-VMA
-   read lock via vma_start_read_locked(vma). Or if ksmd enters
-   vma_start_read_unlocked() right after __ksm_exit() calls
-   mmap_write_unlock(mm), lock_vma_under_rcu() succeeds directly because the
-   per-VMA write locks were already released.
-
-   Because find_mergeable_vma_locked() does not re-check ksm_test_exit(mm),
-   ksmd proceeds to walk and modify page tables (and invoke MMU notifiers)
-   under only the per-VMA read lock after __ksm_exit() and
-   mmu_notifier_release() have finished, racing with exit_mmap() running
-   unmap_vmas() and free_pgtables() (which frees page tables before
-   tear_down_vmas() detaches the VMAs).
-
-2. Because mm_users is not pinned across vma_start_read_unlocked(),
-   exit_mmap() in mm/mmap.c can run concurrently with
-   vma_start_read_unlocked():
-
-mm/mmap.c:exit_mmap() {
-	...
-	mmap_write_lock(mm);
-	unmap.mm_wr_locked =3D true;
-	mt_clear_in_rcu(&mm->mm_mt);
-	unmap_pgtable_init(&unmap, &vmi);
-	free_pgtables(&tlb, &unmap);
-	tlb_finish_mmu(&tlb);
-	nr_accounted =3D tear_down_vmas(mm, &vmi, vma, ULONG_MAX);
-destroy:
-	__mt_destroy(&mm->mm_mt);
-	mmap_write_unlock(mm);
-	...
-}
-
-   In exit_mmap(), mt_clear_in_rcu(&mm->mm_mt) clears MT_FLAGS_USE_RCU and
-   __mt_destroy(&mm->mm_mt) frees maple tree nodes synchronously without RCU
-   callbacks, while lock_vma_under_rcu() -> mas_walk() in ksmd may still be
-   walking mm->mm_mt under rcu_read_lock(), leading to a use-after-free on
-   maple tree nodes (or a maple tree lockdep warning in the slow path's
-   vma_lookup() after __mt_destroy() clears MT_FLAGS_LOCK_EXTERN).
-
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261102132416.3000=
-84-1-xu.xin@linux.dev?part=3D4
