@@ -1,57 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793718930;
-	b=ADq6uVslqoQZT3vAZJtJmabcPZW6U6NIKzB9XbrL9uzzeixQz0CLNZNTB8c2Pbj2RXlO
-	 LaNMkZ39eMLbA4mLnKzcB359wrk1Ra+xo2IsP6z5Kld0ty6SsOMAcxNGmGfWFZQLQjzyf
-	 F25iBh7XscAzKzOrahicypmLpK/R/iCMpal3kOCS7rO+CWr8DlbwoH2/8g4i2mrf6eAHR
-	 mk49PFdc9gc82zptJd5tMniBaCsHUar5+ALZU8gVYTQDftzhewx3OmdErRCJ/7UjfF+nW
-	 GpxgXp3MLmah9mRYEGlDT/7Tn969q8foyaCGLuzRmw7u3kjcWHLdnH8Czaw9yyAUUag==
+	t=1793719043;
+	b=d4C/8HutDqknBkNb8UVTN7/Yv2rhhAXcD2gh8IqC+ny8sl7U2W4RIseKjxhEmrimgeQn
+	 db20Lpc8ddeSfOatII9bh9A9l1SdjxkS9JyYg3xD7ujLsvuMk6TmN7HNADtlCwRpbbXC7
+	 oYvtgNzU9U8yrhWbY7VjegNN/oKblkbV23GgIVtzsSDQIQsfiCgqi4UzHtYbQWjOB+tgz
+	 Gsbq72WWtwKNKrZt3RczmX4NrukH6j4/PLiKfJyQnoQINhZv5WeN4oQGYJr8PyyMqSGGd
+	 GDCQSXVIfe5X/YP7Gf5KHCrEzr+Cv58GmjtwnelZ/oDuBLg3lFMLYd68FItBpXc6jGQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793718930;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793719043;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=mI3CFwUuzvcIOODehtEbWIXPGEGMeTOZrw8tS2JfCIQ=;
-	b=mFYkBAuJMpx6VC+1t9up32/izP6vPESg2vU/vJOK/BATH4OVGR4En7Iu6Y3r67u9npkv
-	 GdW1Ke+LxdkMUTWYWEIeGNFJxXbLgvz4I3ZJFNZ7nTh4davx8zKd+oyml52L3/UQ3MnvD
-	 rhjrMO5c/aXjAw81XUQl59XLuXMzg93t7dx6/Ro8J1Y/Cz0F129f8HU5eaMCb7vkIESnC
-	 FiVFCdJslZbJOsR4DwPtH6VI9aNZcbmBAZLbxDkSotUkxu9yR07aDxWMvFgaY5wDhcabv
-	 2TlGNp7GfUzBzjZpPU2wpUTjO4aDIUC0jW8tqPKiwHuQjzaTcv662TFgoptIS8c++AA==
+	bh=RvDMrSwdCMAnZG6OnuLDpdI82b0RcKD5Iz5ctCKZdzI=;
+	b=Rl1rWM6BDfuoXxEZ4tnZw+VP0GXDRBjIn5PSNxugS8+wDhJzCmoZWmUWo+ggG20qtc+h
+	 tokALHSz8YyUVzi257j5gAA42q0MZY6DUPS8YhhrLOPQQjQrIxmbSEN9zh51GKP8UgIz8
+	 TUPdxH8d1/OEXJZ21LK+b6TfYbF/Ckl6JKcRQBqH70FAkgLGXANa85HseblmY577RNUma
+	 Fk/3MEs6PvWiIFfJeYytqTTNEw3EcLYvo8jgWp0Jx+UEGMjdehEgd5GGIa+FqFqWjiD2k
+	 oTwtRI+8P6dsKrpeoJwkwcRsCM69OWxNjhmHYlQMyMUfSyeR/Q5IqDKAKmkxulg7Baw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=P9D89k5W;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hc1e1VkG;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D176606EEAA;
-	Tue,  3 Nov 2026 15:15:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 633FE606A326
+	for <linux-s390@vger.kernel.org>; Tue,  3 Nov 2026 15:17:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=P9D89k5W
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D256B1F00A23;
-	Tue,  3 Nov 2026 15:15:29 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hc1e1VkG
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4B401F000C1;
+	Tue,  3 Nov 2026 15:17:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793718930;
-	bh=mI3CFwUuzvcIOODehtEbWIXPGEGMeTOZrw8tS2JfCIQ=;
+	s=k20260515; t=1793719043;
+	bh=RvDMrSwdCMAnZG6OnuLDpdI82b0RcKD5Iz5ctCKZdzI=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=P9D89k5W4gPRK3aF36dQI9RlWFxgCfl7QijD7Dpl9kLItprnRnowYqyKdVAoqhgQv
-	 omCdEgq7z7JLY3eByFNwRHwDsnUQKkKJ2PeTTGmbfu34ddZTkO3sh2Nd61UmiQqEJm
-	 J9ETrMB4D/yiQNXhbYg97UDRPIhrGVkHgjxPJBg/Zj1FLgcfqSYrtKOYiQAZHT+jja
-	 byMgwl885xClqDM2ivNS7sRA3+neRYvA8T5dOrdR9mnP/HxEhNhh3kOKCsUKKNdSJn
-	 iqFpQj/0q6zr3yxG7JJtbXmMXaV5Q7cJ/DUxZgn8JkxOxBDLNtoFZcIc2+V6aOLGYp
-	 EZ66JFGQ0S8gQ==
-Message-ID: <sashiko-outbox-195573@kernel.org>
+	b=hc1e1VkGUQxrkZGFOsHgeS7l+kKUg9mDDxL4Rbig6ZdLbsB5jzrjRYjhiEh08qIt0
+	 O8Vwqj/3kDvXfoIeC+obUE8o0o/kyVm5hK+smBGHEKtxmWokdeu8AGd9UHKaYiSeHd
+	 Ak6P+5mtfM9RWyGXBUdV7eUr8hoGcjr/w2m5QXOJYV1bwUl/2uu73E1olyIW3E7+BU
+	 XBdbG4ly135uFkjxdwBlXCz1t0ansNxvNRZk1dxAI82Qx9Y2HPFcWZvO63tYsK3EYy
+	 P12Cj1HoFl2Fy0CqPD+bmH07AgdF7BpU1LovyMLnCG26kN7zlUZL3Oi5nHu7rhSfLB
+	 Zwx3BdKZVZZvQ==
+Message-ID: <sashiko-outbox-195579@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v12 3/5] s390/pci: Improve FMB memory management
+Subject: Re: [PATCH v12 2/5] s390/pci: Improve function measurement state
+ management
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Omar Elghoul" <oelghoul@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: "Omar Elghoul" <oelghoul@linux.ibm.com>, linux-s390@vger.kernel.org
 Cc: "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261103150114.68873-4-oelghoul@linux.ibm.com>
+In-Reply-To: <20261103150114.68873-3-oelghoul@linux.ibm.com>
 References: <20261103150114.68873-1-oelghoul@linux.ibm.com>
- <20261103150114.68873-4-oelghoul@linux.ibm.com>
+ <20261103150114.68873-3-oelghoul@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 03 Nov 2026 15:15:29 +0000
+Date: Tue, 03 Nov 2026 15:17:22 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -61,112 +62,26 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential issue(=
-s) to consider:
-- [Medium] s390/pci: fmb_enabled not cleared when function is already disab=
-led
---
+> When a zPCI function is disabled and re-enabled, the firmware implicitly
+> disables function measurement while the kernel still believes it is
+> enabled, leading to a disconnect between the user-visible state and the
+> actual device state.
+>=20
+> Add the statistics_on field to struct zpci_dev to track the desired FMB
+> state. Introduce the functions zpci_fmb_request_on()/_off(), which defer
+> to zpci_fmb_enable()/_disable() to perform the actual firmware change.
+> This decouples the enablement or disablement step from managing the
+> user's requested state.
+>=20
+> Restore the state in pcibios_enable_device(), pcibios_disable_device(),
+> and zpci_reenable_device(). New devices start with measurement on by
+> default, unchanged from before.
+>=20
+> Signed-off-by: Omar Elghoul <oelghoul@linux.ibm.com>
 
-commit ca3a9f4958dfbbed1e7f4c289498cd7e117c52ca
-Author: Omar Elghoul <oelghoul@linux.ibm.com>
-
-s390/pci: Improve FMB memory management
-
-This commit replaces the dedicated kmem_cache for Function Measurement
-Blocks (FMB) with kzalloc_obj() and retains the allocated FMB buffer across
-disable cycles until device release. Because a non-NULL zdev->fmb pointer no
-longer indicates whether measurement is active, it adds a zdev->fmb_enabled
-flag to track FMB state.
-
-> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> index f49736386eb7c..f066a7ffc35c1 100644
-> --- a/arch/s390/pci/pci.c
-> +++ b/arch/s390/pci/pci.c
-[ ... ]
-> @@ -205,13 +203,17 @@ int zpci_fmb_enable(struct zpci_dev *zdev)
-> =20
->  	lockdep_assert_held(&zdev->fmb_lock);
-> =20
-> -	if (zdev->fmb || sizeof(*zdev->fmb) < zdev->fmb_length)
-> +	if (zdev->fmb_enabled || sizeof(*zdev->fmb) < zdev->fmb_length)
->  		return -EINVAL;
-[ ... ]
-> @@ -802,6 +805,12 @@ int zpci_disable_device(struct zpci_dev *zdev)
->  	} else {
->  		rc =3D -EIO;
->  	}
-> +
-> +	if (!rc) {
-> +		guard(mutex)(&zdev->fmb_lock);
-> +		zdev->fmb_enabled =3D 0;
-> +	}
-> +
->  	return rc;
->  }
->  EXPORT_SYMBOL_GPL(zpci_disable_device);
-
-[Severity: Medium]
-Can zdev->fmb_enabled remain set to 1 when the PCI function is disabled by
-firmware during reset or error recovery, preventing zpci_reenable_device()
-from re-enabling FMB measurement?
-
-In zpci_disable_device(), when clp_disable_fh() returns
-CLP_RC_SETPCIFN_ALRDY because the function is already disabled in firmware,
-clp_refresh_fh() updates zdev->fh to the disabled handle and sets rc to
--EINVAL:
-
-arch/s390/pci/pci.c:zpci_disable_device() {
-	cc =3D clp_disable_fh(zdev, &fh);
-	if (!cc) {
-		zpci_update_fh(zdev, fh);
-	} else if (cc =3D=3D CLP_RC_SETPCIFN_ALRDY) {
-		...
-		rc =3D clp_refresh_fh(zdev->fid, &fh);
-		if (!rc) {
-			zpci_update_fh(zdev, fh);
-			rc =3D -EINVAL;
-		}
-	} else {
-		rc =3D -EIO;
-	}
-
-	if (!rc) {
-		guard(mutex)(&zdev->fmb_lock);
-		zdev->fmb_enabled =3D 0;
-	}
-}
-
-Because zdev->fmb_enabled is only cleared when rc is 0, it stays set to 1 on
-the -EINVAL path. Similarly, when a platform error event disables the
-function on LPAR, __zpci_event_error() updates zdev->fh to the disabled
-handle via zpci_update_fh() without clearing zdev->fmb_enabled.
-
-When zpci_hot_reset_device() (or _do_recover() in pci_sysfs.c) then runs:
-
-arch/s390/pci/pci.c:zpci_hot_reset_device() {
-	if (zdev_enabled(zdev)) {
-		rc =3D zpci_disable_device(zdev);
-		if (rc =3D=3D -EINVAL)
-			rc =3D 0;
-		if (rc)
-			return rc;
-	}
-
-	rc =3D zpci_reenable_device(zdev);
-}
-
-zpci_reenable_device() re-enables the function in firmware (where FMB
-measurement starts disabled) and calls zpci_fmb_enable(zdev). However,
-since zdev->fmb_enabled is still 1, zpci_fmb_enable() immediately returns
--EINVAL without calling zpci_mod_fc() to register the FMB address with
-firmware, leaving FMB measurement disabled in firmware while
-zdev->fmb_enabled reports it as enabled.
-
-Should zdev->fmb_enabled also be cleared when the function is confirmed
-disabled on the CLP_RC_SETPCIFN_ALRDY path (or whenever zpci_update_fh()
-observes a disabled function handle, or before zpci_fmb_enable() in
-zpci_reenable_device())?
+Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103150114.6887=
-3-1-oelghoul@linux.ibm.com?part=3D3
+3-1-oelghoul@linux.ibm.com?part=3D2
+
