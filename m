@@ -1,92 +1,76 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.199
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793718117;
-	b=jecMC5Kpl/GjLQUHxnBM7pBJ+cBGg1EwkjxEcdrW8cD0HoqbwyHusrTlBPRffjdLjNYZ
-	 zoN/wZIkT669BKkNekrnaiJBQdKc5HerCKeYCr5vw5M0aTofikRuBriMDGhOj1t/EMCOi
-	 13CQU6R6ixE9FaC2H1O5wKFTDiDFtj7KaYJMUj/U14S9W0cl2gYH1KE+WsdETeT62xtQ6
-	 +5qvBMSx1m3Y2cUL1MrjcxXbTabglxx2/jo1gh6JRafY/z/+poST1TmI7txhGkRgC49V9
-	 lQvXZnqeZUick+pZ9bwQYUu4LNxXOmmDCb8N+SbvgpWZTdty1nVdOdVCPVGaRmWY1gQ==
+	t=1793718214;
+	b=mSDObXcx7DfdJ2XstgEprwewpfD5wk+LCQr2ODfIvbgdwzzq2kicZ9o8lZuhtOJycVvk
+	 bSeIqhrzkp4dcOKtP7/TLRlItu8/d2xE13w9knu8E6c+0nvUVqQlA+RgCAtWtEqD9pDQL
+	 IsuGa+bJ8XhJEf/HX8K+HxYih6AZlWM97xzweFbU/04eM+g89KykNjUZ5vpZac4zDxJFr
+	 w3uFo3KmUGpTx9QhYbhSj/AtNjRQVh9f67qyssI7Dk4+K70OuCGSy1TKqxAQ0zvEOaGPF
+	 3psMnBfI1+MCxWV3q2haHaI6Qc59xPkugWuD9jtEjUVfS4c+fXMSt1FynpOnP0mUyDA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793718117;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding:X-TM-AS-GCONF:X-Authority-Analysis:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=2pkUrBoyH40amtVGREy64CNaOtDz9u8h22hfKScE3TU=;
-	b=Cgn7F9iFd8RfiT/a7SDCxM2bkQ8CJyHPli/HJWUW65SB46kW9nT+PMmxnpM/IyvNZbNP
-	 /EwjCU3zL7CYItvb1nZSXtzQrj265AzzgdSIuS4Q95fCxIjg+IIlWQ3gBXEcpCjwBOsZ+
-	 M9iZGG0cBF/VU6n50UVuRF5xBJA666pz4fhayxhicutWUZQ0XPFkcn0gemt6+5ftZpBlm
-	 P648fDCMo5AGiQGoftwhWhP8W8oKzrrr/Bj7WFvU60ApBVutXsScFp1tL6XmRkTeJIS/O
-	 cHqXRRvpxAZEUvIPKkwEplpaLNeoNHPlRN9H80o5dZAkr9ZGnE4c6Lgwhesb8gRHEHw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793718214;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:In-Reply-To:
+	 Mime-Version:References:Message-ID:Subject:From:To:Cc:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=U1cgiMD/xdrAAoWIqAxeQiqT29OTjecADPn89igAbnA=;
+	b=1eSt/dW5KSBkl964RuOFgFEMdNFvx6p2LW7Rgv7TCMAYOW6LRfStx/5pRp0RPLXVlLdE
+	 zdk0Fv6yoYQ8TFWy5if2D5Qv2/mFMN7usIh61sYJpgCfXBT3FhYmbP2ydHvGUbb9OtHoJ
+	 z/w+wlU1zcMrSv7fRTJzXTa6yTx2g6of4ZZNv6S/PntdRJztBH+1izgAvMkYnDvYPWp9/
+	 fPD3+SNKBu4S5XNLcXci8gVKqCjOKm+sbcY/YJe9VC29972lc0fTFRZCPYYVpvvnJXbMC
+	 HHbw8aEVRYbBAPyePGeBRbrzkXNIwQsL7N/XWvG7B+5mti9IXuWP3k3b9Unzw2Hz+Mw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=MmSzGv2d;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=WYSLWugz;
+	arc=none smtp.remote-ip=209.85.215.199
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com [209.85.215.199])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D937C606A338;
-	Tue,  3 Nov 2026 15:01:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D937C606A338
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31BA8606B271
+	for <linux-s390@vger.kernel.org>; Tue,  3 Nov 2026 15:03:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 31BA8606B271
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=MmSzGv2d
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3EEBog2025819;
-	Tue, 3 Nov 2026 15:01:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=2pkUrBoyH40amtVGR
-	Ey64CNaOtDz9u8h22hfKScE3TU=; b=MmSzGv2dPMpknoVlInR7LOnVPusXaqdWP
-	KqMUOBQWati7pkmeXdumLKygtMznzOuJ1EotTLs1CJdZO3wcR8/NZXe9GRZZw9NA
-	2UprfRDFGITXfdATsFvmtlBTsewnCg43o/blH3H0sTSdaqCDY2mHSuJ6U0/t2P2z
-	7IZl7DfrVAYZohJGQP+gO+zCv2e/J3qsXgOHq9l5w7YAr3pM8B4jJgByJO/ScKAX
-	2Q9WAn6UINOaj6516kDgInmhzk8jO/jv75B0JDV1BUTfLUKfHTsw5m3eqL0n3pnc
-	KCLZ+sRGu+loPa5tP6JxNnwhvC2LBo06CwlweG5u8s78iIMGAn6Bg==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn7yrx5av-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 03 Nov 2026 15:01:27 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3EZ3wr2652734;
-	Tue, 3 Nov 2026 15:01:27 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hnu1vk1tx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 03 Nov 2026 15:01:27 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A3F0Zel18940640
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 3 Nov 2026 15:00:36 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5DAC45806F;
-	Tue,  3 Nov 2026 15:01:24 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CFD885803F;
-	Tue,  3 Nov 2026 15:01:22 +0000 (GMT)
-Received: from Mac.ibm.com (unknown [9.61.243.67])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  3 Nov 2026 15:01:22 +0000 (GMT)
-From: Omar Elghoul <oelghoul@linux.ibm.com>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, schnelle@linux.ibm.com,
-        mjrosato@linux.ibm.com, alifm@linux.ibm.com, farman@linux.ibm.com,
-        gbayer@linux.ibm.com, pasic@linux.ibm.com, alex@shazbot.org,
-        frankja@linux.ibm.com, imbrenda@linux.ibm.com
-Subject: [PATCH v12 3/5] s390/pci: Improve FMB memory management
-Date: Tue,  3 Nov 2026 10:01:12 -0500
-Message-ID: <20261103150114.68873-4-oelghoul@linux.ibm.com>
-X-Mailer: git-send-email 2.56.0
-In-Reply-To: <20261103150114.68873-1-oelghoul@linux.ibm.com>
-References: <20261103150114.68873-1-oelghoul@linux.ibm.com>
+	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=WYSLWugz
+Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-cdaf2a74482so2220097a12.3
+        for <linux-s390@vger.kernel.org>; Tue, 03 Nov 2026 07:03:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20260707; t=1793718213; x=1794323013; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:from:subject
+         :message-id:references:mime-version:in-reply-to:date:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=U1cgiMD/xdrAAoWIqAxeQiqT29OTjecADPn89igAbnA=;
+        b=WYSLWugzFuNm4Kq224vW+Mtkvsl2neSTgZBMrPgSmEKac3ov2ufcElfcvoyepJJn6f
+         JxnkQBp8SHxk8VB+L0keiYB1AMoFJ5f9ba1S8NanI1pf6f4huAEPxuLXeTJgl2gQ60a+
+         HQhmM5JqlPBt8lVUK8hIOVtUdNfOWTZvu8F5RWqWzRLAhu0TcdpXLYqO6fNF2oREz7k3
+         XryMJ/6DA3O6a1N/l8ybWr85Ta3prQYffWP0qlmXpH+hrTSSzsilEM/FEcVJ7On+Y9zh
+         3VAKC5vThgpSeJT17ky9XTa3Ll3OdZ5oakw8OkcxH7BQzM+uqaA5T97fOsetveJ1XdD/
+         oQfQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793718213; x=1794323013;
+        h=content-transfer-encoding:content-type:cc:to:from:subject
+         :message-id:references:mime-version:in-reply-to:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=U1cgiMD/xdrAAoWIqAxeQiqT29OTjecADPn89igAbnA=;
+        b=oi/vWwGxGs4oITRQov/vy+QkYQPEILcUKJpFzDDYyOl6QYh/IzZCjIxhCrJJdWJE6G
+         EzIVjx2LAR+gjp+wMtNh8OP9u0LRYVLpYnfw5XYQ/cOU8Ye+euqpHOQSzljPzNCYxaOc
+         +l0cCYLlHASAioCsvWK2omBWuGrk4V8qact9MI+wzdAnDnhN21GZszJ31+dXfeFr9rUc
+         q/QtexdH3yUHDld0aQiCAH0RMAlA9GY+6TSZzis3SCD1muXSSf+lL5R8HElKG54ZuYQ1
+         5wlRNocRc+xyJtLRe5qiDhntmVfH3SgLB8L7Z5r9ytzIPO2rzPZwXZdSocjPtU1+FxQy
+         UGrQ==
+X-Forwarded-Encrypted: i=1; AKwUvBz8LG4jD687fPH2GUZgbxgKZtFk6eQyjMCc4XJ9v+Y52zfDhrJCHUvDfc762nr8Ie9l2t+f1ygMlaqc@vger.kernel.org
+X-Gm-Message-State: APuU4Z8z3UTZr/neuq0QjuRU6/JAr8kt6gCAcXlNgJCcuMqrRGaBZdx3
+	Yo7ZvSjgn0gOv4Pi3EuaKqoLdllr51WpjsHMy0nzdM51aZGFsJih0W+VJq3bC8sBo6SEnHeQzL/
+	rgQVUWw==
+X-Received: from pjdn32.prod.google.com ([2002:a17:90a:2ca3:b0:3a8:837d:95c7])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:52c5:b0:3ac:a11a:7c79
+ with SMTP id 98e67ed59e1d1-3ae89776aebmr10680806a91.16.1793718213083; Tue, 03
+ Nov 2026 07:03:33 -0800 (PST)
+Date: Tue, 3 Nov 2026 07:03:31 -0800
+In-Reply-To: <b9ed9dd4-a1d0-466b-a6cd-89a4e70abed0@suse.de>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -95,213 +79,135 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Mcr5KJ/f c=1 sm=1 tr=0 ts=6ae9f747 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8 a=ANRpRwoEbYyGjrzp4ocA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAzMDA1OCBTYWx0ZWRfX1+P18M3kiD4C
- GwL+Y54ptIxE5C5izVtKN03O1g2zPmyPF8VFIUk2fnF2tWmc37HcDkFYRxF3v/s/b7JJZiwukqw
- 8Fe2D+LC0IvdaPATqfElInxy7ci6aw0=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAzMDA1OCBTYWx0ZWRfX6qUnnAK0iQTQ
- kuEQFuNqWQUZCi5oncGfdbHYkQhDsRN+yQo58QtulTqwWcVE4hh4ha6jHyDMMCGwrMw73CHjPCw
- QgZ+pgErFh8SlAUlc0eB6ji8gkTSwFqfEFWlWUUMp8WkN5+s5iLVHun1hNOCS4QtmYDqXxrWvV4
- rC8knufI2SljkbjFdi+hFJzaqHcMiuu5V8e5dEv/Jwp5Z79G1GkslpOA/H66C76vwjY7+4MyQ1J
- nsM7xbixHqPvFVyVU5gQChYx7yzyOcmEt4hI2v0ONCtJlEmceFwCTjq76+gsNRIREnMeczrMuz2
- kp9PnJD0IaFF0kdchR0171Kxd1PSoRMRVBdx/RhUIzw8C3I7qq70ZGHdWGg4ZlMOJubKmDr/8nH
- P4f5XfVufoPf1zb9db1PSG+W6emSye52lti8tFgssm1v9uw9nKWQ+AOibkmmDXOAKCsqx5rKxdB
- JdrTtuC6HfhRVTndo3g==
-X-Proofpoint-GUID: 9-4GzO5Js40RjmU0dEb7XXSGMRLGuqbM
-X-Proofpoint-ORIG-GUID: 9-4GzO5Js40RjmU0dEb7XXSGMRLGuqbM
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-03_03,2026-11-03_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 priorityscore=1501
- clxscore=1015 impostorscore=0 adultscore=0 spamscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610300000 definitions=main-2611030058
+Mime-Version: 1.0
+References: <20261029143336.390231-3-clopez@suse.de> <20261029175203.5bdd51d7@p-imbrenda>
+ <df9dc526-4275-4784-8a0c-2e4fa8e96402@suse.de> <20261030133939.630e29af@p-imbrenda>
+ <auis0SaMkRB6odsK@google.com> <b9ed9dd4-a1d0-466b-a6cd-89a4e70abed0@suse.de>
+Message-ID: <aun3w8gxwlmRy-GW@google.com>
+Subject: Re: [RFC PATCH 0/4] KVM: x86/mmu: don't zap secondary MMU on
+ permission upgrade
+From: Sean Christopherson <seanjc@google.com>
+To: "Carlos =?utf-8?B?TMOzcGV6?=" <clopez@suse.de>
+Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, linux-mm@kvack.org, 
+	pbonzini@redhat.com, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-Refactor the FMB memory management code to use kzalloc() instead of a
-dedicated kmem_cache. kzalloc() already guarantees adequate alignment
-for power-of-two sizes, rendering the kmem_cache approach unnecessary.
-This simplifies both the initialization and cleanup procedures.
+On Tue, Nov 03, 2026, Carlos L=C3=B3pez wrote:
+> On 11/2/26 4:31 PM, Sean Christopherson wrote:
+> > On Fri, Oct 30, 2026, Claudio Imbrenda wrote:
+> >> On Fri, 30 Oct 2026 12:11:07 +0100
+> >> Carlos L=C3=B3pez <clopez@suse.de> wrote:
+> >>
+> >> [...]
+> >>
+> >>>> regarding this series:
+> >>>>
+> >>>> on x86 you don't care what the new permissions are, because you're
+> >>>> updating when re-faulting (if I understood correctly). =20
+> >>>
+> >>> Correct.
+> >>>
+> >>>> for s390 it might be beneficial to know what the new permissions are=
+;
+> >>>> of course we could look up the vma and find out, but since you are
+> >>>> already checking the permissions, maybe you can find a way to also
+> >>>> convey the new permission bits?
+> >>>>
+> >>>> that would make our life on s390 easier :) =20
+> >>>
+> >>> Right, getting the new bits from vma->flags should be trivially done
+> >>> from the MMU_NOTIFY_PROTECTION_VMA callsites. There'd be no users in
+> >>> this series though.  The rest of architectures still need the notifie=
+r to
+> >>> tell them if the change is an upgrade, since they don't have an easy =
+way
+> >>> to grab the old RWX bits. Passing the old RWX bits from the MMU notif=
+ier
+> >>> does not seem trivial to me either.
+> >=20
+> > But why is core MM even doing mmu_notifier_invalidate_range_{start,end}=
+() in the
+> > first place?  I.e. why add MMU_NOTIFIER_RANGE_PERM_UPGRADE?  Just skip =
+the
+> > "invalidation".
+>=20
+> I briefly mention this in the cover letter, but in short, denying other
+> users the notification seems like an overly intrusive change for KVM's
+> benefit.=20
 
-Allocate the FMB once upon first enable and keep it for the lifetime of
-the zdev instead of freeing it on every disable. Defer freeing the
-buffer until device teardown in zpci_release_device(). Add the field
-fmb_enabled to struct zpci_dev as the new FMB liveness bool, since a
-non-null FMB pointer no longer implies FMB enablement.
+There are all of two other users:
 
-Signed-off-by: Omar Elghoul <oelghoul@linux.ibm.com>
----
- arch/s390/include/asm/pci.h |  1 +
- arch/s390/pci/pci.c         | 59 +++++++++++++++++++++----------------
- arch/s390/pci/pci_debug.c   |  2 +-
- 3 files changed, 35 insertions(+), 27 deletions(-)
+  $ git grep -w "\.invalidate_range_start"
+  drivers/gpu/drm/nouveau/nouveau_svm.c:  .invalidate_range_start =3D nouve=
+au_svmm_invalidate_range_start,
+  drivers/infiniband/hw/hfi1/mmu_rb.c:    .invalidate_range_start =3D mmu_n=
+otifier_range_start,
+  virt/kvm/kvm_main.c:    .invalidate_range_start =3D kvm_mmu_notifier_inva=
+lidate_range_start,
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index dd58c48ac2ed..6d3c1b8ac75b 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -209,6 +209,7 @@ struct zpci_dev {
- 	u16		fmb_update;	/* update interval */
- 	u16		fmb_length;
- 	u8		statistics_on	: 1; /* desired FMB enablement */
-+	u8		fmb_enabled	: 1; /* actual FMB enablement */
- 
- 	u8		version;
- 	enum pci_bus_speed max_bus_speed;
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index f49736386eb7..f066a7ffc35c 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -62,8 +62,6 @@ EXPORT_SYMBOL_GPL(zpci_iomap_start);
- 
- DEFINE_STATIC_KEY_FALSE(have_mio);
- 
--static struct kmem_cache *zdev_fmb_cache;
--
- /* AEN structures that must be preserved over KVM module re-insertion */
- union zpci_sic_iib *zpci_aipb;
- EXPORT_SYMBOL_GPL(zpci_aipb);
-@@ -205,13 +203,17 @@ int zpci_fmb_enable(struct zpci_dev *zdev)
- 
- 	lockdep_assert_held(&zdev->fmb_lock);
- 
--	if (zdev->fmb || sizeof(*zdev->fmb) < zdev->fmb_length)
-+	if (zdev->fmb_enabled || sizeof(*zdev->fmb) < zdev->fmb_length)
- 		return -EINVAL;
- 
--	zdev->fmb = kmem_cache_zalloc(zdev_fmb_cache, GFP_KERNEL);
--	if (!zdev->fmb)
--		return -ENOMEM;
--	WARN_ON((u64) zdev->fmb & 0xf);
-+	if (!zdev->fmb) {
-+		zdev->fmb = kzalloc_obj(*zdev->fmb, GFP_KERNEL);
-+		if (!zdev->fmb)
-+			return -ENOMEM;
-+	} else {
-+		/* reuse the same FMB buffer for as long as the zdev lives */
-+		memset(zdev->fmb, 0, sizeof(*zdev->fmb));
+and AFAICT neither of them wants an invalidation even for protection upgrad=
+es
+either.
+
+> A flag allows users to opt in instead.
+>=20
+> It is also not clear to me that secondary MMUs are not relying on the
+> notification in some subtle way. In fact, Sashiko points out in reply to
+> patch 4 that the notification lets KVM retry the APIC access page reload
+> in case userspace shoots itself in the foot by calling
+> mprotect(PROT_READ) on it. This would require a really weird VMM,
+
+s/weird/misbehaving
+
+> as it would need to go looking for the page's address, but breaking this
+> would be a "regression" nonetheless. I will address this in v2.
+
+Nah, there's zero chance any real VMM is doing mprotect() on the APIC acces=
+s page.
+
+More importantly, doing nothing if updating the mapping fails and APICv is =
+enabled
+is wrong.  KVM needs to ensure vmcs.APIC_ACCESS_ADDR is fresh when running =
+a vCPU
+with APICv enabled, even if that means putting the vCPU into an infinite lo=
+op.
+VMX doesn't support "inhibiting" the APIC access page, i.e. the memslot can=
+'t
+disappear while the VM is alive, and if userspace mucks with the VMA, then =
+KVM
+needs to prevent running the vCPU until the mapping is restored, irrespecti=
+ve of
+mmu_notifiers.
+
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 464d6ed862d5..11b24a42e482 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -6928,8 +6928,10 @@ void vmx_set_apic_access_page_addr(struct kvm_vcpu *=
+vcpu)
+ 	 * APICv is enabled, but paranoia won't hurt in this case.
+ 	 */
+ 	slot =3D id_to_memslot(slots, APIC_ACCESS_PAGE_PRIVATE_MEMSLOT);
+-	if (!slot || slot->flags & KVM_MEMSLOT_INVALID)
++	if (WARN_ON_ONCE(!slot || slot->flags & KVM_MEMSLOT_INVALID)) {
++		kvm_make_request(KVM_REQ_APIC_PAGE_RELOAD, vcpu);
+ 		return;
 +	}
- 
- 	/* reset software counters */
- 	spin_lock_irqsave(&zdev->dom_lock, flags);
-@@ -229,11 +231,12 @@ int zpci_fmb_enable(struct zpci_dev *zdev)
- 	fib.fmb_addr = virt_to_phys(zdev->fmb);
- 	fib.gd = zdev->gisa;
- 	cc = zpci_mod_fc(req, &fib, &status);
--	if (cc) {
--		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
--		zdev->fmb = NULL;
--	}
--	return cc ? -EIO : 0;
-+
-+	if (cc)
-+		return -EIO;
-+
-+	zdev->fmb_enabled = 1;
-+	return 0;
- }
- 
- /* Modify PCI: Disable PCI function measurement */
-@@ -245,7 +248,7 @@ int zpci_fmb_disable(struct zpci_dev *zdev)
- 
- 	lockdep_assert_held(&zdev->fmb_lock);
- 
--	if (!zdev->fmb)
-+	if (!zdev->fmb_enabled)
- 		return -EINVAL;
- 
- 	fib.gd = zdev->gisa;
-@@ -255,11 +258,11 @@ int zpci_fmb_disable(struct zpci_dev *zdev)
- 	if (cc == 3) /* Function already gone. */
- 		cc = 0;
- 
--	if (!cc) {
--		kmem_cache_free(zdev_fmb_cache, zdev->fmb);
--		zdev->fmb = NULL;
--	}
--	return cc ? -EIO : 0;
-+	if (cc)
-+		return -EIO;
-+
-+	zdev->fmb_enabled = 0;
-+	return 0;
- }
- 
- static int zpci_cfg_load(struct zpci_dev *zdev, int offset, u32 *val, u8 len)
-@@ -802,6 +805,12 @@ int zpci_disable_device(struct zpci_dev *zdev)
- 	} else {
- 		rc = -EIO;
- 	}
-+
-+	if (!rc) {
-+		guard(mutex)(&zdev->fmb_lock);
-+		zdev->fmb_enabled = 0;
+=20
+ 	/*
+ 	 * Ensure that the mmu_notifier sequence count is read before KVM
+@@ -6946,8 +6948,10 @@ void vmx_set_apic_access_page_addr(struct kvm_vcpu *=
+vcpu)
+ 	 * if APICv is permanently inhibited, i.e. the memslot won't reappear.
+ 	 */
+ 	pfn =3D __kvm_faultin_pfn(slot, gfn, FOLL_WRITE, &writable, &refcounted_p=
+age);
+-	if (is_error_noslot_pfn(pfn))
++	if (is_error_noslot_pfn(pfn)) {
++		kvm_make_request(KVM_REQ_APIC_PAGE_RELOAD, vcpu);
+ 		return;
 +	}
-+
- 	return rc;
- }
- EXPORT_SYMBOL_GPL(zpci_disable_device);
-@@ -1047,6 +1056,12 @@ void zpci_release_device(struct kref *kref)
- 	if (zdev->has_resources)
- 		zpci_cleanup_bus_resources(zdev);
- 
-+	if (zdev->fmb) {
-+		zdev->fmb_enabled = 0;
-+		kfree(zdev->fmb);
-+		zdev->fmb = NULL;
-+	}
-+
- 	zpci_bus_device_unregister(zdev);
- 	zpci_destroy_iommu(zdev);
- 	zpci_dbg(3, "rem fid:%x\n", zdev->fid);
-@@ -1122,11 +1137,6 @@ static int zpci_mem_init(void)
- 	BUILD_BUG_ON((CONFIG_ILLEGAL_POINTER_VALUE + 0x10000 > ZPCI_IOMAP_ADDR_BASE) &&
- 		     (CONFIG_ILLEGAL_POINTER_VALUE <= ZPCI_IOMAP_ADDR_MAX));
- 
--	zdev_fmb_cache = kmem_cache_create("PCI_FMB_cache", sizeof(struct zpci_fmb),
--					   __alignof__(struct zpci_fmb), 0, NULL);
--	if (!zdev_fmb_cache)
--		goto error_fmb;
--
- 	zpci_iomap_start = kzalloc_objs(*zpci_iomap_start, ZPCI_IOMAP_ENTRIES);
- 	if (!zpci_iomap_start)
- 		goto error_iomap;
-@@ -1143,8 +1153,6 @@ static int zpci_mem_init(void)
- error_iomap_bitmap:
- 	kfree(zpci_iomap_start);
- error_iomap:
--	kmem_cache_destroy(zdev_fmb_cache);
--error_fmb:
- 	return -ENOMEM;
- }
- 
-@@ -1152,7 +1160,6 @@ static void zpci_mem_exit(void)
- {
- 	kfree(zpci_iomap_bitmap);
- 	kfree(zpci_iomap_start);
--	kmem_cache_destroy(zdev_fmb_cache);
- }
- 
- static unsigned int s390_pci_probe __initdata = 1;
-diff --git a/arch/s390/pci/pci_debug.c b/arch/s390/pci/pci_debug.c
-index 06e2e8bb2f82..454121bc274c 100644
---- a/arch/s390/pci/pci_debug.c
-+++ b/arch/s390/pci/pci_debug.c
-@@ -97,7 +97,7 @@ static int pci_perf_show(struct seq_file *m, void *v)
- 		return 0;
- 
- 	mutex_lock(&zdev->fmb_lock);
--	if (!zdev->fmb) {
-+	if (!zdev->fmb_enabled) {
- 		mutex_unlock(&zdev->fmb_lock);
- 		seq_puts(m, "FMB statistics disabled\n");
- 		return 0;
--- 
-2.56.0
-
+=20
+ 	read_lock(&vcpu->kvm->mmu_lock);
+ 	if (mmu_invalidate_retry_gfn(kvm, mmu_seq, gfn))
