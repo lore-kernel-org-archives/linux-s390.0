@@ -1,73 +1,72 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793654102;
-	b=Vl0jbq1YddNvBA8YmyzyA2STUSMZ4etYWnNi7jt1lpUo7xCEFcYuJjmDrQZuARKh/2tb
-	 Bgb3q01PgDlIKi2a11DWy4HSgXq222cHQTcgZSPQDzvxV2q5CZ8+VricdF3am1uwHQcwv
-	 H4Oc2AVCGsV/TjGKtRfW5WM654xKLKyc4rKw6C6TkA9JqHTCBC4J5v+LbGz3ZbjfZF3Ru
-	 uJ+1TwPV6/OrKDvv2uYKrfE4ZhSuKbnVIuB+FpQ/fE25Cg1hd6qzm5r0eecIbGkudbCer
-	 DZQnE3kFQ+aJXeXlCTdkGhXBvnSCqB7jNJVF2FiwkFGDpYlhMjwUwOB2Iuu0M+f739Q==
+	t=1793674994;
+	b=o2NbgrH+mCDecH97UIxORjoKGFwYtcCrPUih1HHFvl6me+6njpBDgsIeO6rqhTq0OuvG
+	 txLzyULRjD5nO7Ti4u9ndTwEmfxLJrykkG3JoF9GyZkpfMOkAV3C5uCxdD+zhEtVekPsc
+	 wJPq80TVeGMYepY0RLFMHk555xyBp2TtOoXXcB8exiJg+Tlr/8xv8IOyCuepJ7zjC8GoJ
+	 2m1ZnQJa5nsVieQk5joFcvixMzMF7m1KkT08puafd1BanzTcLnuYKM+XaELvzSAtxwVNo
+	 Mz9soMOzbNbK7KEYVM3AqpRetMa8vmbQXVkY8R4C9Txz3Yy5HsgdonPjHt7Ok4mJLKg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793654102;
-	h=Received:DKIM-Signature:Received:Received:X-ME-Sender:
-	 X-ME-Proxy-Cause:X-ME-Proxy:Feedback-ID:Received:X-Mailer:
-	 MIME-Version:X-ThreadId:Date:From:To:Cc:Message-Id:In-Reply-To:
-	 References:Subject:Content-Type:Content-Transfer-Encoding;
-	bh=IboT5prE1F2zgLUjN3M8JJkwTsSKYt9w9Q1ZY5Lm5jE=;
-	b=hLYDz3PA19h9Y9dZiVnP5KwgeXd7vQh2nzZMMsKtGA4/+GXfXVeGyjgmnJBnNTyKGs7J
-	 CHvEMMxiBaFEd6reHxQ0goHYWX4Kz5PPYb7te+xj5lQLdKORtElHXzr6T3uCZXsLK8P8C
-	 b8praB0HyoY1n34SYZZcwGOSC+x7lsTk2gBBo5m3IZLJfwUQmMl81Q87wbeXNlba92r3/
-	 7oVKzyXOCAt/nuDAXFsp3JHi60/Jxt71HS33yRdxmND3M3hbuMLJD4OglFZZE+Nsl6xD+
-	 m4CbrgSgL+Au+9CGoMp4d3X/ZuUC5+OYZm/nOBkbkHjF3GPqz7Dczif4TUKQT7iZRAA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793674994;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
+	bh=YXT02xbx+UMV7krC+PiVzw1JOPl0AyHZ+SyCM1OQfcg=;
+	b=nbKZTJ5h790dbXsieFVmGCh83qC9CLUYErKdftDlAHNJ1uag3eXxcX0iMgAT/6D6XF6T
+	 bijY50kXNl1HsXqNRTAFs5QNUMj0jGvhyTcRApk1ykAA8li+bvmPPrO8/nDc7ryzwHcTd
+	 z88vaZ2wYfvob8tsD68ocEK1LltDm+cngYV3QEKXkpw5z1l/gzCxwLwzMPnUYQnUx2ouC
+	 yv30rZNXYUgGFsvVpe3xIQ4HJ+7FFVS8y37587ep6OqFHkyEGMb8kBqeyFrgtnAgZ70SL
+	 EBL9TaJtL+0V+X2IQaVOT57dAUasS6XaU0gj6fEl3rsLZLP8FN6Tr7q/4fpEox/MEtQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="i4XS/+Qp";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=boN83dZ1;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC7B8606D834;
-	Mon,  2 Nov 2026 21:15:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id EDAAD606A329;
+	Tue,  3 Nov 2026 03:03:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=i4XS/+Qp
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 405B91F00A1C;
-	Mon,  2 Nov 2026 21:14:59 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=boN83dZ1
+Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id 0FE401F00919;
+	Tue,  3 Nov 2026 03:03:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793654101;
-	bh=IboT5prE1F2zgLUjN3M8JJkwTsSKYt9w9Q1ZY5Lm5jE=;
-	h=Date:From:To:Cc:In-Reply-To:References:Subject;
-	b=i4XS/+Qp/XJpkpHyhLatkkxrTnb76H0AyrbluP9UrYsSjjvFvYed65zWeP+n5bDMR
-	 T4jrppxwRxmsiUoLJtpEDBZOQUgSEb2I7JAqNJICoUtmRZqGDSr+AkbMY5KraB9hcp
-	 LJSetra0CCoguNvIXys8kMbF38qG79C7rZIljzi9OxsucTBr2qJtAKy2hNxphivV7X
-	 SqR7z4TvF6OS2jxQo3eWdNU0GD2TA876qUhcb25obxs7Qa0hq+gMR1c2AKZ0TYfXxl
-	 /PRnwvUkfYbroZLwoik/xUkslivJlp+q60cSPVqp80BDXlYt0jmnPbIlU0+2JbsucT
-	 rjIixFbj3/TrQ==
-Received: from phl-compute-10.internal (phl-compute-10.internal [10.202.2.50])
-	by mailfauth.phl.internal (Postfix) with ESMTP id 3FB84F4006B;
-	Mon,  2 Nov 2026 16:14:59 -0500 (EST)
-Received: from phl-imap-15 ([10.202.2.104])
-  by phl-compute-10.internal (MEProxy); Mon, 02 Nov 2026 16:14:59 -0500
-X-ME-Sender: <xms:U_3oagUAPKL0KahIhejOYJwKEPfYb6twqYG_HHugM7_eLn8Er-TgPg>
-    <xme:U_3oavZTuzGHMfK0qXbinG0nc7CYskrIhJQ5eHOz_Ha7XvQtwnXU_T7hJPsGo9qg4
-    BhXiwA3Pdzj3QiIOE4JzHYJnc55BkwZtZcinLkFBcrDsA6sylLxQvo7>
-X-ME-Proxy-Cause: dmFkZTGSCWblgfsMhzNjEIN00ph1bmXztXGhYrK6FQCSJysx8m5mqsCTJHkCuZD0tpZuBG
-    pYnx6qST1krVMCyjpYhoMBo2TltjSYVP2LKGOkZnOBb4t//k/nGoJ/SIXKKJyIATQl84il
-    BuXRlRV3aPeB88TAd/llIDq/9PMZ1EzorVjUV4ox06mXS/IOKUqdbOTFcr2gFtJFq3Gx7F
-    Zq0nEujwlkDiPcDOX28riG6oQW7iLTgD6BaMnfnV9H0ADvTknFe8adm4EFa+o6I1mSuG3K
-    LJ3epAVfTBg3DuzNRu88aZuYWYeuI7KoVJah/eioVIkx6sAoHZjqyTVRvcNhYqHYgvNdOh
-    F7RoapMXPpPy7fnRDGp1EnOzRafp7mYLbQvUWevKonPpL0zVugnrni/xwOB0ZUdq15K6LL
-    U4eIWAyGEDjfaCYO/Dppo1HoBBuP1Ugp4Zki+kXZHcTkA1gjEQVaV70KrwrPcut26vPd/h
-    q5yJSVyn3x/Ch0xklWbVCXPbWoaIS17brwWPL/guaVzJxizQ0P/jgX0plm53NXTsLd+70V
-    110yVl467ZsRMKGBWdC4JnWQHbcxAMHjeZkhkyAsfOuCVSLebxwzvInrQKLcoImyb5UwHY
-    pO0Oc+d4/j2oJCRnrCOkOe51eLIclfMVgyBLq7y/6qqZiV8XA97NvuTzr1lg
-X-ME-Proxy: <xmx:U_3oatxqYhX0hWpcSGJgdTO64UmbQLn1zkSvkgmn2QN3P9YNu5WJ0w>
-    <xmx:U_3oav5HgW2k6KeJbHXAdQUNPTjXcBKAkESvLUwa5JME7gNZc5c0tQ>
-    <xmx:U_3oasSgNqIt2BaGeBZ12VcERyFoy0lpk1cdl0eiT57vWKlvWpphXg>
-    <xmx:U_3oaifZ0cTDaYHT72Jch7KjTqrgvVpyqwgckwFzCeMt7Uwl9HyKaw>
-    <xmx:U_3oapwU7EvPML2sBaImLYgTk9SsDSGibfYemkcHEOBIYG1GVrkdWT-b>
-Feedback-ID: ifa6e4810:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 181AE78273B; Mon,  2 Nov 2026 16:14:59 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
+	s=k20260515; t=1793674993;
+	bh=YXT02xbx+UMV7krC+PiVzw1JOPl0AyHZ+SyCM1OQfcg=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=boN83dZ1Gwykx0l1Wr8brt/OVt0lXGbwXXNyL/4RZsqUI2YwzywyyXipKCMiipNDE
+	 rGeepw+aNZKSBAvl2lkh78+i+IC0BMjKSs0rgjpmAomAhenapWJnvvtd6bwMtWWuz4
+	 RA6oKG7XVBCMWq0Bes/8ROK5hL6PobPmwrIRpJ91xh6FGfMMzVSmbqny2dd/ljIrTg
+	 7tdh91GF+OEuIPObRwkAN/t+nOqUwcdShfId53sRQIS7whi/3JlLUi0iSdCTCRNgl0
+	 z79e6ncUsRV4taIOEeE5VlmE/WoFjXGcoZi0zB3t4tnafAUy6/8xySd0hg5f3ov5AQ
+	 qkmu9nFkea4gw==
+From: Jarkko Sakkinen <jarkko@kernel.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Eric Biggers <ebiggers@kernel.org>,
+	linux-integrity@vger.kernel.org,
+	Mimi Zohar <zohar@linux.ibm.com>,
+	keyrings@vger.kernel.org,
+	Jarkko Sakkinen <jarkko@kernel.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Roberto Sassu <roberto.sassu@huawei.com>,
+	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+	Eric Snowberg <eric.snowberg@oracle.com>,
+	Paul Moore <paul@paul-moore.com>,
+	James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	Ilya Leoshkevich <iii@linux.ibm.com>,
+	linux-s390@vger.kernel.org (open list:S390 ARCHITECTURE),
+	linux-kernel@vger.kernel.org (open list),
+	linux-security-module@vger.kernel.org (open list:SECURITY SUBSYSTEM)
+Subject: [RFC PATCH v2 06/11] s390/cert_store: Track subsystem keys instead of re-registering key_type
+Date: Tue,  3 Nov 2026 05:02:11 +0200
+Message-ID: <20261103030226.2685251-7-jarkko@kernel.org>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20261103030226.2685251-1-jarkko@kernel.org>
+References: <20261103030226.2685251-1-jarkko@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -77,61 +76,295 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-ThreadId: AlKaHQIBeldV
-Date: Mon, 02 Nov 2026 16:14:38 -0500
-From: "Chuck Lever" <cel@kernel.org>
-To: "Christian Brauner" <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
-Cc: "Linus Torvalds" <torvalds@linux-foundation.org>,
- "Jann Horn" <jannh@google.com>, "Josef Bacik" <josef@toxicpanda.com>,
- "Chris Mason" <mason@kernel.org>, "Jeff Layton" <jlayton@kernel.org>,
- NeilBrown <neil@brown.name>, "Eric Dumazet" <edumazet@kernel.org>,
- "Thomas Gleixner" <tglx@kernel.org>,
- "Alexander Viro" <viro@zeniv.linux.org.uk>,
- "Jonathan Corbet" <corbet@lwn.net>, "Christoph Hellwig" <hch@lst.de>,
- "Greg Kroah-Hartman" <gregkh@suse.de>,
- "Joel Granados" <joel.granados@kernel.org>, "Kees Cook" <kees@kernel.org>,
- "Jan Kara" <jack@suse.cz>, "Jan Kara" <jack@suse.com>,
- linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org,
- linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-s390@vger.kernel.org,
- "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
- linux-um@lists.infradead.org, linux-wireless@vger.kernel.org,
- "Linuxppc Dev" <linuxppc-dev@lists.ozlabs.org>, netdev@vger.kernel.org,
- ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org,
- coreteam@netfilter.org, kexec@lists.infradead.org, linux-pci@vger.kernel.org,
- linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, ibm-acpi-devel@lists.sourceforge.net,
- jfs-discussion@lists.sourceforge.net, linux-alpha@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org,
- linux-fbdev@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org,
- linux-sh@vger.kernel.org, linux-usb@vger.kernel.org,
- samba-technical@lists.samba.org, sparclinux@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org,
- linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net,
- "Takashi Iwai" <tiwai@suse.de>, linux-input@vger.kernel.org,
- linux-raid@vger.kernel.org, linux-ext4@vger.kernel.org,
- linux-modules@vger.kernel.org, linux-debuggers@vger.kernel.org
-Message-Id: <961e7e3d-2117-48ee-8a7e-a7a851ec8ef8@app.fastmail.com>
-In-Reply-To: <20261102-work-procfs-fs-v1-6-d09a996317b3@kernel.org>
-References: <20261102-work-procfs-fs-v1-0-d09a996317b3@kernel.org>
- <20261102-work-procfs-fs-v1-6-d09a996317b3@kernel.org>
-Subject: Re: [PATCH RFC 06/27] nfsd: let procfs own the seq_file of
- /proc/fs/nfs/exports
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+cert_store refreshes its keyring by unregistering and re-registering
+key_type_cert_store_key so key_type_dead garbage collection sweeps old
+keys, while leaving userspace-linked keys behind.
 
+The removal of key_type_dead will eliminate that sweep.
 
-On Mon, Nov 2, 2026, at 10:07 AM, Christian Brauner wrote:
-> Declare the seq_operations and let procfs open and free the seq_file.
-> ->proc_open() and ->proc_release() only set up ->private and take and
-> drop the reference to the network namespace now. Reading the file then
-> no longer holds up its removal.
->
-> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+Register key_type_cert_store_key once during init before creating sysfs
+attributes, and track subsystem-created keys explicitly so refresh
+unlinks and invalidates previous entries directly.
 
-Acked-by: Chuck Lever <cel@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+---
+ arch/s390/kernel/cert_store.c | 161 ++++++++++++++--------------------
+ 1 file changed, 67 insertions(+), 94 deletions(-)
 
-
+diff --git a/arch/s390/kernel/cert_store.c b/arch/s390/kernel/cert_store.c
+index 998f2da56175..ab1a78cdfd4c 100644
+--- a/arch/s390/kernel/cert_store.c
++++ b/arch/s390/kernel/cert_store.c
+@@ -17,6 +17,7 @@
+ #include <linux/key.h>
+ #include <linux/keyctl.h>
+ #include <linux/kobject.h>
++#include <linux/list.h>
+ #include <linux/module.h>
+ #include <linux/seq_file.h>
+ #include <linux/slab.h>
+@@ -296,6 +297,18 @@ static int check_certificate_valid(const struct vce *vce)
+ 	return check_certificate_hash(vce);
+ }
+ 
++struct cert_store_key {
++	struct list_head list;
++	struct key *key;
++};
++
++static DEFINE_MUTEX(cs_refresh_lock);
++/* Owned references, protected by cs_refresh_lock. */
++static LIST_HEAD(cs_keys);
++static struct key *active_cs_keyring;
++static struct key *cs_keyring_parent;
++
++/* Return an owned reference to the user session keyring. */
+ static struct key *get_user_session_keyring(void)
+ {
+ 	key_ref_t us_keyring_ref;
+@@ -305,118 +318,66 @@ static struct key *get_user_session_keyring(void)
+ 	if (IS_ERR(us_keyring_ref)) {
+ 		pr_dbf_msg("Couldn't get user session keyring: %ld",
+ 			   PTR_ERR(us_keyring_ref));
+-		return ERR_PTR(-ENOKEY);
++		return ERR_CAST(us_keyring_ref);
+ 	}
+-	key_ref_put(us_keyring_ref);
+ 	return key_ref_to_ptr(us_keyring_ref);
+ }
+ 
+-/* Invalidate all keys from cert_store keyring. */
+-static int invalidate_keyring_keys(struct key *keyring)
+-{
+-	unsigned long num_keys, key_index;
+-	size_t keyring_payload_len;
+-	key_serial_t *key_array;
+-	struct key *current_key;
+-	int rc;
+-
+-	keyring_payload_len = key_type_keyring.read(keyring, NULL, 0);
+-	num_keys = keyring_payload_len / sizeof(key_serial_t);
+-	key_array = kzalloc_objs(key_serial_t, num_keys);
+-	if (!key_array)
+-		return -ENOMEM;
+-
+-	rc = key_type_keyring.read(keyring, (char *)key_array, keyring_payload_len);
+-	if (rc != keyring_payload_len) {
+-		pr_dbf_msg("Couldn't read keyring payload");
+-		goto out;
+-	}
+-
+-	for (key_index = 0; key_index < num_keys; key_index++) {
+-		current_key = key_lookup(key_array[key_index]);
+-		pr_dbf_msg("Invalidating key %08x", current_key->serial);
+-
+-		key_invalidate(current_key);
+-		key_put(current_key);
+-		rc = key_unlink(keyring, current_key);
+-		if (rc) {
+-			pr_dbf_msg("Couldn't unlink key %08x: %d", current_key->serial, rc);
+-			break;
+-		}
+-	}
+-out:
+-	kfree(key_array);
+-	return rc;
+-}
+-
+-static struct key *find_cs_keyring(void)
+-{
+-	key_ref_t cs_keyring_ref;
+-	struct key *cs_keyring;
+-
+-	cs_keyring_ref = keyring_search(make_key_ref(get_user_session_keyring(), true),
+-					&key_type_keyring, CERT_STORE_KEYRING_NAME,
+-					false);
+-	if (!IS_ERR(cs_keyring_ref)) {
+-		cs_keyring = key_ref_to_ptr(cs_keyring_ref);
+-		key_ref_put(cs_keyring_ref);
+-		goto found;
+-	}
+-	/* Search default locations: thread, process, session keyrings */
+-	cs_keyring = request_key(&key_type_keyring, CERT_STORE_KEYRING_NAME, NULL);
+-	if (IS_ERR(cs_keyring))
+-		return NULL;
+-	key_put(cs_keyring);
+-found:
+-	return cs_keyring;
+-}
+-
+ static void cleanup_cs_keys(void)
+ {
+-	struct key *cs_keyring;
++	struct cert_store_key *entry, *tmp;
++	int rc;
+ 
+-	cs_keyring = find_cs_keyring();
+-	if (!cs_keyring)
++	if (!active_cs_keyring)
+ 		return;
+ 
+-	pr_dbf_msg("Found cert_store keyring. Purging...");
+-	/*
+-	 * Remove cert_store_key_type in case invalidation
+-	 * of old cert_store keys failed (= severe error).
+-	 */
+-	if (invalidate_keyring_keys(cs_keyring))
+-		unregister_key_type(&key_type_cert_store_key);
++	/* Invalidate even certificates unlinked or linked into other keyrings. */
++	list_for_each_entry_safe(entry, tmp, &cs_keys, list) {
++		key_invalidate(entry->key);
++		key_put(entry->key);
++		list_del(&entry->list);
++		kfree(entry);
++	}
+ 
+-	keyring_clear(cs_keyring);
+-	key_invalidate(cs_keyring);
+-	key_put(cs_keyring);
+-	key_unlink(get_user_session_keyring(), cs_keyring);
++	rc = keyring_clear(active_cs_keyring);
++	if (rc)
++		pr_dbf_msg("Couldn't clear cert_store keyring: %d", rc);
++	key_invalidate(active_cs_keyring);
++	rc = key_unlink(cs_keyring_parent, active_cs_keyring);
++	if (rc)
++		pr_dbf_msg("Couldn't unlink cert_store keyring: %d", rc);
++	key_put(active_cs_keyring);
++	key_put(cs_keyring_parent);
++	active_cs_keyring = NULL;
++	cs_keyring_parent = NULL;
+ }
+ 
++/* Return a borrowed reference; cleanup_cs_keys() owns the keyring. */
+ static struct key *create_cs_keyring(void)
+ {
+-	static struct key *cs_keyring;
++	struct key *cs_keyring, *parent;
+ 
+ 	/* Cleanup previous cs_keyring and all associated keys if any. */
+ 	cleanup_cs_keys();
++	parent = get_user_session_keyring();
++	if (IS_ERR(parent))
++		return parent;
++
+ 	cs_keyring = keyring_alloc(CERT_STORE_KEYRING_NAME, GLOBAL_ROOT_UID,
+ 				   GLOBAL_ROOT_GID, current_cred(),
+ 				   (KEY_POS_ALL & ~KEY_POS_SETATTR) | KEY_USR_VIEW | KEY_USR_READ,
+ 				   KEY_ALLOC_NOT_IN_QUOTA | KEY_ALLOC_SET_KEEP,
+-				   NULL, get_user_session_keyring());
++				   NULL, parent);
+ 	if (IS_ERR(cs_keyring)) {
+ 		pr_dbf_msg("Can't allocate cert_store keyring");
+-		return NULL;
++		key_put(parent);
++		return cs_keyring;
+ 	}
+ 
++	active_cs_keyring = cs_keyring;
++	cs_keyring_parent = parent;
+ 	pr_dbf_msg("Successfully allocated cert_store keyring: %08x", cs_keyring->serial);
+ 
+-	/*
+-	 * In case a previous clean-up ran into an
+-	 * error and unregistered key type.
+-	 */
+-	register_key_type(&key_type_cert_store_key);
+-
+ 	return cs_keyring;
+ }
+ 
+@@ -454,6 +415,7 @@ static char *get_key_description(struct vcssb *vcssb, const struct vce *vce)
+ static int create_key_from_vce(struct vcssb *vcssb, struct vce *vce,
+ 			       struct key *keyring)
+ {
++	struct cert_store_key *entry;
+ 	key_ref_t newkey;
+ 	char *desc;
+ 	int rc;
+@@ -462,6 +424,13 @@ static int create_key_from_vce(struct vcssb *vcssb, struct vce *vce,
+ 	if (!desc)
+ 		return -ENOMEM;
+ 
++	/* Reserve cleanup tracking before the key can be linked elsewhere. */
++	entry = kmalloc_obj(*entry);
++	if (!entry) {
++		rc = -ENOMEM;
++		goto out;
++	}
++
+ 	newkey = key_create_or_update(
+ 		make_key_ref(keyring, true), CERT_STORE_KEY_TYPE_NAME,
+ 		desc, (u8 *)vce + vce->vce_hdr.vc_offset,
+@@ -473,10 +442,12 @@ static int create_key_from_vce(struct vcssb *vcssb, struct vce *vce,
+ 	if (rc) {
+ 		pr_dbf_msg("Couldn't create a key from Certificate Entry (%d)", rc);
+ 		rc = -ENOKEY;
++		kfree(entry);
+ 		goto out;
+ 	}
+ 
+-	key_ref_put(newkey);
++	entry->key = key_ref_to_ptr(newkey);
++	list_add_tail(&entry->list, &cs_keys);
+ out:
+ 	kfree(desc);
+ 	return rc;
+@@ -704,19 +675,18 @@ static int fill_cs_keyring(void)
+ 	if (rc)
+ 		goto cleanup_keys;
+ 
+-	rc = -ENOMEM;
+ 	cs_keyring = create_cs_keyring();
+-	if (!cs_keyring)
++	if (IS_ERR(cs_keyring)) {
++		rc = PTR_ERR(cs_keyring);
+ 		goto cleanup_keys;
++	}
+ 
+ 	rc = add_certificates_to_keyring(vcssb, cs_keyring);
+ 	if (rc)
+-		goto cleanup_cs_keyring;
++		goto cleanup_keys;
+ 
+ 	goto out;
+ 
+-cleanup_cs_keyring:
+-	key_put(cs_keyring);
+ cleanup_keys:
+ 	cleanup_cs_keys();
+ out:
+@@ -724,7 +694,6 @@ static int fill_cs_keyring(void)
+ 	return rc;
+ }
+ 
+-static DEFINE_MUTEX(cs_refresh_lock);
+ static int cs_status_val = -1;
+ 
+ static ssize_t cs_status_show(struct kobject *kobj,
+@@ -794,14 +763,18 @@ static int __init cert_store_init(void)
+ 	if (!cert_store_kobj)
+ 		goto cleanup_dbf;
+ 
+-	rc = sysfs_create_files(cert_store_kobj, cert_store_attrs);
++	rc = register_key_type(&key_type_cert_store_key);
+ 	if (rc)
+ 		goto cleanup_kobj;
+ 
+-	register_key_type(&key_type_cert_store_key);
++	rc = sysfs_create_files(cert_store_kobj, cert_store_attrs);
++	if (rc)
++		goto cleanup_key_type;
+ 
+ 	return rc;
+ 
++cleanup_key_type:
++	unregister_key_type(&key_type_cert_store_key);
+ cleanup_kobj:
+ 	kobject_put(cert_store_kobj);
+ cleanup_dbf:
 -- 
-Chuck Lever (Come to NFS bake-a-thon! https://nfsv4bat.org)
+2.47.3
+
