@@ -1,92 +1,93 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793740188;
-	b=atTbXT7XMZcsSs9Q4XLzWy5PPQHJhD9SYKZhiBSI/DjmzYQsoDEkfI+5sdHbOo26xz+/
-	 l+gHwjAXI8AVYIxqx0NVNaK0nkgkGrvsh93SKMt/WZYlH7FBzzpGjNgRAAxuFk1m7T+V4
-	 WwONqGj7XtdcKWmgGoI/EYbcWiTFrwwn+8vjbdPNusoWK1ZN58062pNfXRY3NNtwLFI8A
-	 NIZXqnRGwESXyZgLEJDwXf/nEbinL5D6GF1uoFIv57343rvbU8VUVCH+cMqCIfx14sz9N
-	 N5s+8OKN0l/wYBn00btkwUbGR94VGAMdL/0H3UdtEiVvMiJpkp255n0NeWiobR1Zm3A==
+	t=1793741637;
+	b=0lUOvv6vfBVMrYlaIn9Mn4RbjjZjJtT+P1a9Som2dYzCyuYiYBXFR7wM7BTRXSkAROo+
+	 Thgb+YRNVkYx8JqDkHlVLiSZrPQEg/fsmrjzgvtYUgs5eW1hWZaaZFmm6q5egWlUT/dCM
+	 vpOSUk14q5xMmWALvQbZCIHrFFew8ZzAZir127UaXlH1nqMLgi0fp4eoIKc51xxP7Iw+w
+	 Dtfk2mXmZqG4TQJeg7LLNaFxJpuAR3u24XshQfev46mplHBprH2CY7agPHhjGZwwVV16A
+	 oHtJKvBhEgT4Ij+pY779LCbss8h/wkT99KeCu9SqsfHnyMFVUnl6IZIb3IE1NGuKWbA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793740188;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793741637;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:Message-ID:Subject:From:To:Cc:
 	 In-Reply-To:References:Autocrypt:Content-Type:
 	 Content-Transfer-Encoding:Date:MIME-Version:User-Agent:X-TM-AS-GCONF:
-	 X-Authority-Analysis:X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:
+	 X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:
 	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=pbuaBlkeDfILQZS3CoQ/rYggLvu4O1PZ8Fc4Ks8Xak8=;
-	b=Cb7fV74lOc0xelGESo2zqhAv0xCof142nBk1U//4Tooh79SXODKK9f/ONBhOmA9ULzti
-	 j9z5vZVH/4QG/n9qdIWdGKVF5Yyb/Gl5yKK50cRx3UPaDAKYEfp/elwJj9Wi7PbUfiNH5
-	 y5/Ew1NfVJDtbBDE5UNDnS8ZdKlDWU1stY3tTzSsw/ZZONbiBWKTTYkwnplqiWJvvd4H9
-	 67cA9NAEhrVv3LPYB24tcVwagqz8P8zSOrr43h6p3VlalNq3a1ocOC02SA6S569wUiKSb
-	 wrFFqXTEd2tKl+/CPklLwefArOv2HpMli26ocAQ8a2U9vMKr0boQ4/bzl2uRnujcDCA==
+	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=0LIGQSqzoLWGtA16u3vLkplNm5SsVdd6wSEh7ArW4YA=;
+	b=onbtXy1fpiWV1pwPI6eSLLb1278vzliGkANqHpQLqOidjUCkb4bdiHcf7V/ZT8fzUg7w
+	 5dPJ8sONaLSNt5fNc4omehiHxHJ+ezp2zKSMMrzhPuTqV7HolIqfahTzjILvAEm+kqj57
+	 xPF1HnZWP+hENMgnIAzlmMKcYSBbg2R/0/EWpRWs7DI4Yu/Qtbh5YsVHTJKnksff6+Gca
+	 dnBoLKT7Kfrw90xCRBHCut95UIFQLPksiSif+sMtb8aqTHE9bDbh04bmyRdoTWfDZJTkY
+	 YbdjoMNiKTmCaFlpLJgcnd6TheImUzrvlPf40PbWlQFhLgoFpMLVW6ttqwlo7yZPYdQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="B0WSdO2/";
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=LYAvhz2G;
 	arc=none smtp.remote-ip=148.163.156.1
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 385AA606A31B;
-	Tue,  3 Nov 2026 21:09:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 385AA606A31B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38014606A31B;
+	Tue,  3 Nov 2026 21:33:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 38014606A31B
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=B0WSdO2/
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3IiQfv2834630;
-	Tue, 3 Nov 2026 21:09:45 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=LYAvhz2G
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3Ii6Qq991355;
+	Tue, 3 Nov 2026 21:33:56 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=pbuaBl
-	keDfILQZS3CoQ/rYggLvu4O1PZ8Fc4Ks8Xak8=; b=B0WSdO2/GwfsastNDjywbe
-	f4+paReq4rtccHar4FHnVGaAHToL4TJdYs0mOxD2vkrjuVVdj3rPvytzCvCHWWJH
-	b2N5PwbDHfMnt35qv5vcXGOmDmuca0CLV20LlwJtaBY/pvPLMQAjvZl8INgH8Uhd
-	SlTl9Z+vb6AFtXGP4xEvxqJCFneoLN4QrcSw7CX8+2fBdDEP9BSTtm7UyQSiKbYr
-	xDfC+ev8QdewNCNrGMjWutKzFAGpgNkBoxErkQsXM2QEmEgAzKJMTjX0GjAG5SdM
-	F/SdtDyNnMRHfABr1Cs5KOYh0Eg+eFjkOjsaLSBVwJRx6qBYtCshPgQZePX6lyOw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=0LIGQS
+	qzoLWGtA16u3vLkplNm5SsVdd6wSEh7ArW4YA=; b=LYAvhz2G63h89pa2Fai4TU
+	hwHgxjIoRytOqzI55udRYL4jt73aGKGZpXZGEXe/HmTdoM9ZG1WUB7HmqpdWBBb+
+	Gj8NwoUEbAI79hdFYOZoTTbF8fak3z/gyHcJ1afDy+iiHtZRxEPM6GAc5CtP3S2p
+	06QWRKT7vW5PpBygNCV3rXnCX0SYGr1cA1VkSFksAd763xUydzWI/+iB70TKn2I1
+	2lMAzgNPbFTam/BXof48bSbKmxGTw2cM5lJf2Mcf0TeaqYFgsZdLC9+WdEIFgFXB
+	UeHbbYjHNzwg7rxIIHotxR1cIcDYMIzA9W4cFfo2SQl+uIPiRG0M+GjrEVomo4gA
 	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn7u3gfed-1
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn80srhqm-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 03 Nov 2026 21:09:44 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3IaZEn2936191;
-	Tue, 3 Nov 2026 21:09:43 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hqbqkbag1-1
+	Tue, 03 Nov 2026 21:33:56 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3LMeKU1955475;
+	Tue, 3 Nov 2026 21:33:55 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hnvvfvmwq-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 03 Nov 2026 21:09:43 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A3L9fNw29754062
+	Tue, 03 Nov 2026 21:33:55 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A3LXrKX33227458
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 3 Nov 2026 21:09:42 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BC69758060;
-	Tue,  3 Nov 2026 21:09:41 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 252135805E;
-	Tue,  3 Nov 2026 21:09:39 +0000 (GMT)
+	Tue, 3 Nov 2026 21:33:54 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id AA06458065;
+	Tue,  3 Nov 2026 21:33:53 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 34B6758052;
+	Tue,  3 Nov 2026 21:33:52 +0000 (GMT)
 Received: from [9.87.159.144] (unknown [9.87.159.144])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  3 Nov 2026 21:09:38 +0000 (GMT)
-Message-ID: <15fbeb951c380ba6a200651d6ff69b783c96a375.camel@linux.ibm.com>
-Subject: Re: [PATCH v12 5/5] vfio-pci/zdev: Add VFIO FMB device features
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  3 Nov 2026 21:33:52 +0000 (GMT)
+Message-ID: <71ec3caa1782d7af71c1a2c141aac7c5e3b52c7f.camel@linux.ibm.com>
+Subject: Re: [PATCH v12 3/5] s390/pci: Improve FMB memory management
 From: Niklas Schnelle <schnelle@linux.ibm.com>
-To: Omar Elghoul <oelghoul@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, mjrosato@linux.ibm.com,
-        alifm@linux.ibm.com, farman@linux.ibm.com, gbayer@linux.ibm.com,
-        pasic@linux.ibm.com, alex@shazbot.org, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com
-In-Reply-To: <20261103150114.68873-6-oelghoul@linux.ibm.com>
+To: sashiko-reviews@lists.linux.dev, Omar Elghoul <oelghoul@linux.ibm.com>,
+        linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger
+ <borntraeger@linux.ibm.com>
+In-Reply-To: <sashiko-outbox-195573@kernel.org>
 References: <20261103150114.68873-1-oelghoul@linux.ibm.com>
-	 <20261103150114.68873-6-oelghoul@linux.ibm.com>
+	 <20261103150114.68873-4-oelghoul@linux.ibm.com>
+	 <sashiko-outbox-195573@kernel.org>
 Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  keydata=mQINBGHm3M8BEAC+MIQkfoPIAKdjjk84OSQ8erd2OICj98+GdhMQpIjHXn/RJdCZLa58k
  /ay5x0xIHkWzx1JJOm4Lki7WEzRbYDexQEJP0xUia0U+4Yg7PJL4Dg/W4Ho28dRBROoJjgJSLSHwc
@@ -144,7 +145,7 @@ Autocrypt: addr=schnelle@linux.ibm.com; prefer-encrypt=mutual;
  3FZJPTo/OpqchMm8XIeDxC4NFFiPMpyLeYzIxO7eZpiGrAjVTE=
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 03 Nov 2026 22:08:38 +0100
+Date: Tue, 03 Nov 2026 22:32:51 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -156,99 +157,139 @@ Precedence: list
 MIME-Version: 1.0
 User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Zsp4uN7G c=1 sm=1 tr=0 ts=6aea4d98 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-GUID: onTkyKh5taemNrcKnA8X3wn_CmPr4FgJ
+X-Proofpoint-ORIG-GUID: onTkyKh5taemNrcKnA8X3wn_CmPr4FgJ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAzMDA4NCBTYWx0ZWRfX6leTvwDYVy+4
+ LdvI/Nk4w2bS1/6OYp2IPH8ffBGPt2wurBsyz8CyE8+YF1zNdAKd5HgD8+d8s9P0mTYaTFkwqeA
+ eNaffK7MTgJ9AoOVyaTIHdf8Lo7/Nx+myyeXhqu8XhletPZ30EdXdVsFJz/mlDbGoNBC+SXGDFa
+ FDbKmlQCxB3ch0YRKY4SNuimaMVqhiD2LOgTFoB7AwpLYWDqlJdg0HX0egpAnKImkKUBX7sjt1G
+ JRIJUblI+Ac0Eb9wlLMcVbnf5At4SB9t5zWIHKQT6d2Wo0fj+KymuQIFCu0DkcqB8Q4z0SHfMgH
+ z8g0nr+VLHehdjJMDEIs8V9Bxi430vX6B1pktvGdGF11lCqzFGNxD3Mh9VuT6wsANRjD22bZaKv
+ eEdqmhR5KuOSDAAOB22WN5QTYbX34z2PwlOaIfX8gJug1eSM3tsKbxFXsCEtiQIZuHCjP6TzSNV
+ V40LS7mWkw1U2uoEXVA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAzMDA4NCBTYWx0ZWRfXzFn8uuRHYvI2
+ dPyyXbQNhHsG2cI50lttPHHCOJj9bZbscyrv/TMCQchFMgUVi9JHBk13oyhd/amtbVumBujvRE8
+ 4NjfVdzl7PeH5nEONlVKN6l0WhZBUq0=
+X-Authority-Analysis: v=2.4 cv=FIqOVOos c=1 sm=1 tr=0 ts=6aea5344 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
- a=r1p2_3pzAAAA:8 a=SplykyD-GKlIp8uzigcA:9 a=QEXdDO2ut3YA:10
- a=r_pkcD-q9-ctt7trBg_g:22
-X-Proofpoint-ORIG-GUID: nVoEV-5N3W4ksAFyjZlZLV8JUI8ttfLR
-X-Proofpoint-GUID: nVoEV-5N3W4ksAFyjZlZLV8JUI8ttfLR
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAzMDA4MiBTYWx0ZWRfXweuaBvb1OtaO
- p9QPnezyg/bEd6jDEMv8+A3YptcO4zgsxdj8HO19bS3AhZN6lzD2IMz7NjSWhCizXL3Et1ApFgg
- Jpkh3G7ykl79Ja5f8UbWTtON7M0/BxhwwwydssW15ak274YVfHP0IWTDJxW4D/vP2yJpQ1T0XgA
- iNqmf7l6HiXU2KozcaymBIszFWJI8IyZWokvxxqsnhbtj0H4FC0A5m18RWFu0X9/dDnRS3+x7bs
- 9dui1Er0vYCv9HZmuCcVaHQy+icEZ9Pb8P1vPmPu1d8ysPNC4x1kMavR7ZCcUuaaUVr1B21I7xP
- OUP9iYewazHJ6ZZkXUWO1xIaOqtQiRBFUwjzqehlsjY9pNVH8cAFu7KpsWI5lGylrq5p3/aYCu4
- ImsmpXtTZevEemB25sEJrndpVmpFckwxlMIcvs8mNuglcXXkZkxzVf1zZ4jxTqMAjWsZvseJign
- QA4GZM7MM14cyxAy0kQ==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAzMDA4MiBTYWx0ZWRfX1dJlKpb+SyRn
- KrPCrdEMY/KA+mvfJ5ZULNtpM5zMF3Z6nJe5OLSCVeKOEvJzdcclRbNrdEXgNTULlT89xdPay4G
- OBnb3nTdE+doQo8/6ab93NCwWmeczQg=
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=4D6RPE3fgF7gyByhpikA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-03_04,2026-11-03_04,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 adultscore=0 priorityscore=1501 bulkscore=0 clxscore=1015
- impostorscore=0 spamscore=0 malwarescore=0 suspectscore=0 phishscore=0
+ adultscore=0 malwarescore=0 impostorscore=0 spamscore=0 lowpriorityscore=0
+ bulkscore=0 suspectscore=0 clxscore=1015 priorityscore=1501 phishscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610300000 definitions=main-2611030082
+ reason=mlx scancount=1 engine=8.22.0-2610300000 definitions=main-2611030084
 
-On Tue, 2026-11-03 at 10:01 -0500, Omar Elghoul wrote:
-> Introduce new VFIO features for zPCI devices to provide FMB passthrough t=
-o
-> userspace.
+On Tue, 2026-11-03 at 15:15 +0000, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 1 potential issu=
+e(s) to consider:
+> - [Medium] s390/pci: fmb_enabled not cleared when function is already dis=
+abled
+> --
 >=20
-> Allow the user to enable or disable the FMB using the SET-only feature
-> VFIO_DEVICE_FEATURE_ZPCI_FMB_ENABLE. Likewise allow the user to read the
-> latest FMB using the GET-only feature VFIO_DEVICE_FEATURE_ZPCI_FMB_READ
-> in the case when the FMB is enabled.
+> commit ca3a9f4958dfbbed1e7f4c289498cd7e117c52ca
+> Author: Omar Elghoul <oelghoul@linux.ibm.com>
 >=20
-> Signed-off-by: Omar Elghoul <oelghoul@linux.ibm.com>
-> Acked-by: Alex Williamson <alex@shazbot.org>
-> ---
->  drivers/vfio/pci/vfio_pci_core.c |  4 ++
->  drivers/vfio/pci/vfio_pci_priv.h | 18 +++++++++
->  drivers/vfio/pci/vfio_pci_zdev.c | 64 ++++++++++++++++++++++++++++++++
->  include/uapi/linux/vfio.h        | 30 +++++++++++++++
->  4 files changed, 116 insertions(+)
+> s390/pci: Improve FMB memory management
 >=20
---- snip ---
-> +
-> +int vfio_pci_zdev_feature_fmb_read(struct vfio_pci_core_device *vdev, u3=
-2 flags,
-> +				   void __user *arg, size_t argsz)
-> +{
-> +	struct zpci_dev *zdev;
-> +	struct vfio_device_feature_zpci_fmb_read fmb_read;
-> +	struct zpci_fmb fmb_bounce;
-> +	int ret;
-> +
-> +	ret =3D vfio_check_feature(flags, argsz, VFIO_DEVICE_FEATURE_GET, sizeo=
-f(fmb_read));
-> +	if (ret !=3D 1)
-> +		return ret;
-> +
-> +	zdev =3D to_zpci(vdev->pdev);
-> +	if (!zdev)
-> +		return -ENODEV;
-> +
-> +	if (copy_from_user(&fmb_read, arg, sizeof(fmb_read)))
-> +		return -EFAULT;
-> +	if (!fmb_read.data)
-> +		return -EINVAL;
-> +
-> +	scoped_guard(mutex, &zdev->fmb_lock) {
-> +		if (!zdev->fmb_enabled)
-> +			return -ENOMSG;
+> This commit replaces the dedicated kmem_cache for Function Measurement
+> Blocks (FMB) with kzalloc_obj() and retains the allocated FMB buffer acro=
+ss
+> disable cycles until device release. Because a non-NULL zdev->fmb pointer=
+ no
+> longer indicates whether measurement is active, it adds a zdev->fmb_enabl=
+ed
+> flag to track FMB state.
+>=20
+> > diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> > index f49736386eb7c..f066a7ffc35c1 100644
+> > --- a/arch/s390/pci/pci.c
+> > +++ b/arch/s390/pci/pci.c
+> [ ... ]
+> > @@ -205,13 +203,17 @@ int zpci_fmb_enable(struct zpci_dev *zdev)
+> > =20
+> >  	lockdep_assert_held(&zdev->fmb_lock);
+> > =20
+> > -	if (zdev->fmb || sizeof(*zdev->fmb) < zdev->fmb_length)
+> > +	if (zdev->fmb_enabled || sizeof(*zdev->fmb) < zdev->fmb_length)
+> >  		return -EINVAL;
+> [ ... ]
+> > @@ -802,6 +805,12 @@ int zpci_disable_device(struct zpci_dev *zdev)
+> >  	} else {
+> >  		rc =3D -EIO;
+> >  	}
+> > +
+> > +	if (!rc) {
+> > +		guard(mutex)(&zdev->fmb_lock);
+> > +		zdev->fmb_enabled =3D 0;
+> > +	}
+> > +
+> >  	return rc;
+> >  }
+> >  EXPORT_SYMBOL_GPL(zpci_disable_device);
+>=20
+> [Severity: Medium]
+> Can zdev->fmb_enabled remain set to 1 when the PCI function is disabled b=
+y
+> firmware during reset or error recovery, preventing zpci_reenable_device(=
+)
+> from re-enabling FMB measurement?
+>=20
+> In zpci_disable_device(), when clp_disable_fh() returns
+> CLP_RC_SETPCIFN_ALRDY because the function is already disabled in firmwar=
+e,
+> clp_refresh_fh() updates zdev->fh to the disabled handle and sets rc to
+> -EINVAL:
+>=20
+> arch/s390/pci/pci.c:zpci_disable_device() {
+> 	cc =3D clp_disable_fh(zdev, &fh);
+> 	if (!cc) {
+> 		zpci_update_fh(zdev, fh);
+> 	} else if (cc =3D=3D CLP_RC_SETPCIFN_ALRDY) {
+> 		...
+> 		rc =3D clp_refresh_fh(zdev->fid, &fh);
+> 		if (!rc) {
+> 			zpci_update_fh(zdev, fh);
+> 			rc =3D -EINVAL;
+> 		}
+> 	} else {
+> 		rc =3D -EIO;
+> 	}
+>=20
+> 	if (!rc) {
+> 		guard(mutex)(&zdev->fmb_lock);
+> 		zdev->fmb_enabled =3D 0;
+> 	}
+> }
+>=20
 
-For those who were also wondering what would happen if the zdev has an
-FMB length too large for this kernel's version of struct zpci_fmb. In
-that case zpci_fmb_enable() fails the FMB enablement leaving zdev-
->fmb_enabled false and then the check above also covers the memcpy()
-here even if user-space ignores that the FMB is not enabled.
+Before anyone thinks we didn't test error recovery it turns out that
+actually works despite this issue being real. During error recovery
+drivers end up calling pcibios_disable_device() before the
+zpci_hot_reset_device() that gets us out of the error state so the
+zdev->fmb_enabled gets cleared. Note that the current code also relies
+on this mechanism already so this actually isn't changed by this patch
+that just replaces zdev->fmb NULL checks with an explicit flag.
 
-> +		memcpy(&fmb_bounce, zdev->fmb, zdev->fmb_length);
-> +	}
-> +
-> +	if (copy_to_user(u64_to_user_ptr(fmb_read.data), &fmb_bounce, zdev->fmb=
-_length))
-> +		return -EFAULT;
-> +
-> +	return 0;
-> +}
+Looking at it from a fresh angle I think the real solution isn't to
+just clear zdev->fmb_enabled in both branches above. Instead we should
+clear zdev->fmb_enabled in zpci_update_fh() if and only if that
+transitions the function handle from enabled to disabled. That covers
+both the !cc and CLP_RC_SETPCIFN_ALRDY branches above but also any
+other place where we might learn that the platform has disabled the
+device and also have zdev_enabled(zdev) reporting go from true to
+false.=C2=A0
 
-Looks good, looking forward to having function measurement in KVM
-guests.
+Due to the nature of learning of changes to the actual state of the
+device via events this of course happens with a delay so we can still
+run into cases where we try to disable an FMB and it's already disabled
+under us. There's no way around that. It's sadly just quite finicky to
+have synchronous transitions on one side and the hard reality of
+"someone pulled the plug" on the other.
 
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Thanks,
+Niklas
