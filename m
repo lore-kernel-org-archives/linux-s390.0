@@ -1,81 +1,47 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793685010;
-	b=jMlyYUr2ONHzm5WjCW56tdlNg8y/j7ehPqhw18YmTP0zhTeRKFShOMKS8GgtWMuFEcYw
-	 6+rkRRM5m4fRYLbAa8X7Twobi1Ynh/QHhJurqPQ8Am6pYdKuNfysKCDMM9LrFpNzOPG8R
-	 QXYKB+rtYXnNuD0ZE59yJ98EaW+hlL3hOfF36HUwnEaG03JMX1jrgE73cEsW5mTmitGUo
-	 zTFyk7EQ668jo8une4PpC7G2g4IF5Em7XuqS7mVkDwPPcZhHfi9+AJzYXdNnyFa407GmW
-	 QKDHLvt2vF9lUYWfZCnokOEIFkye3M4vrZPJbukYbIt/MWXg8M4gZZjQe5wvtTp6EmA==
+	t=1793688876;
+	b=hzgqnxm3zgzuf0aUiAo+TwbFOHepCXmvsaus4+O16k1bbnO3tlMmS7GNAK/SQbdP73Wx
+	 xzOwuyw17pzLskYehOZKR01L4HyqMkAwrhloAtnQYaLWRgX5Rs/yrtIHrweYslhVn6IcK
+	 5eqreAaTkJs7AG6hEGnM44Bx1G2OzTfXuk+OMdgcjYlJEbhMEwrN+GEiyDeuvQrQThuPC
+	 Ouk0Qu8+orBy7D4vdsbuDAohgoazM3TDZGQOq89zItMIirS0tNttMsfXc/Dh5VDgdO4mg
+	 13lD5Y/t/jfmnd6XcL+jeZEx6/Imiv0ZTsk8HzaRaTu+LUKiTj28eRMK++TurW7lIWQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793685010;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-Reinject:X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:
-	 X-Authority-Analysis:X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=oEZv5xTdgeP9X/uO6g9HMr199joVAXGoTWQpcGadm9Q=;
-	b=FpcZbfG/Y305fUTIwfTcZq+qPZnB7NTxNm8IlM6d4OpYyAnLlU32aDmHF1HacT29NJBW
-	 TDNvCBZiTrwWeRGRIBUWioxOZPHc9V6YB6kf05SMllIR89ADekyB4LjweSUgOCkuNetbk
-	 ZDUv0EeIlxgJHnZ2zlUOH+d0ps6slEJ0Q+7cybEHYgLIEq+HFLyueBkIG6xWC+UjFR2vk
-	 CJEZe4eaBUOeq9N5OJLXjOgncmqwf5B1G1Z7yhdo/t1+BGqcz1O0YLLY6i3nQaqXP+CF8
-	 a3zcEMPbOG0scLAdY6kNqN14OStGtKN4NkQKLJsVDXEam0c5wdSFOwaGJxgZ7XzeQfg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793688876;
+	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
+	 Subject:To:Cc:References:Content-Language:From:Autocrypt:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding;
+	bh=pI+R0vssS3+rBEwGlEmrhAJtAWwC+K6R2fL7Q2wxluc=;
+	b=kHpHcYPZNySrVpcXOaZLKz7xVjV1Av85dZ82VFATW6ctQdNLvHkXM8xPm8vTEwpgtxuC
+	 PzvUVZcMmuK4xW9wuQUrRhISAEDM/i2eLIbmqaHah1ydPBfvqtdCLKxILkTz/bClasLEb
+	 02/LAN95Mz+aVP9ZIR9IYM7nDdFt7t1Zl+JJIuoupoibtIcnfINE5AVg7WrJGidH1jGI4
+	 829cycOww4c4If2fp9RJAZeSjSVW50H8YBv7rAHGwNexqAYmGBxmtJ1E4ZwXseO87faFy
+	 jrFAKpILH896Zgxs8XETeVpx2YPPDQbndp4cA+JCgBmecLIy2XG4qj3v57PsvEJEw6g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=UyeccGag;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HVwwGpgK;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED223606A324;
-	Tue,  3 Nov 2026 05:50:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ED223606A324
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3EAD606A334;
+	Tue,  3 Nov 2026 06:54:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=UyeccGag
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A31iMpg236041;
-	Tue, 3 Nov 2026 05:49:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=oEZv5x
-	TdgeP9X/uO6g9HMr199joVAXGoTWQpcGadm9Q=; b=UyeccGagKpF3KDWFh2ldnI
-	/xZ1H+rduhEzrfXwYRxKUigqihnzqdOJo3rDA5qxn2M8AFwl/9QEHqwvPbM4XoI5
-	ObTtOrZ2pTpzrqBFbamngc634lvSKtbcjyYh3fierEknos57sWtkSzNAG0UssTaj
-	NpA1Mi327z71LrVLhOLOxV8BjpJyaYKtum2JUzWyE80yCv6l6M/4hqJ15LjVCB/v
-	LNx+wxOpCxy2vPDIVRtDlNvBIdZPwsaHopXQMPNwwY9M9D+oOnPW/s5gfntxpgSE
-	EObzgZXvkSC4Jzv+jL7n6wu7uhLs18277iVfZfH+dOXsB0eyTStCfdRwV4X6TGCQ
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn5rhm4py-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 03 Nov 2026 05:49:43 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A31ntH51870571;
-	Tue, 3 Nov 2026 05:49:42 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hnv5grwnd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 03 Nov 2026 05:49:42 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A35ncNO16777672
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 3 Nov 2026 05:49:38 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 090CA20040;
-	Tue,  3 Nov 2026 05:49:38 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F02F020043;
-	Tue,  3 Nov 2026 05:49:30 +0000 (GMT)
-Received: from [9.124.212.4] (unknown [9.124.212.4])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  3 Nov 2026 05:49:30 +0000 (GMT)
-Message-ID: <439758ce-c807-4b5b-b2e5-31fb9f1c6f11@linux.ibm.com>
-Date: Tue, 3 Nov 2026 11:19:29 +0530
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HVwwGpgK
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57D471F000C1;
+	Tue,  3 Nov 2026 06:54:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793688875;
+	bh=pI+R0vssS3+rBEwGlEmrhAJtAWwC+K6R2fL7Q2wxluc=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=HVwwGpgKph2PTCR3kNBpzgeJl9Fiv96ILTSVlqr7otzEN5KOe+3Oq36TZyy3FWiTn
+	 B5JC9rU3ADl82tq64bDRGFlV2NLyjhAO9fPnLejhbwzeG1Z9dc6ee0GVq9fDWJMr9G
+	 uEn9b1MhNhFVniqfmxfA0bqOs/QBhcC6kPjZ8hJFtdA34IHlyTNGGcCj68Y62ICtjk
+	 Ouq+kpEpWGx9PHR9MkFKZswgqiZXimSJHDR7+eldSuTYGotHgFLXgZCx0dKYEpIAcw
+	 6pYXyTE/pVVs21IvMkWqyQ4k+6ZNZ7Rqbrs3FA5NB7/Klj97W0Huza14rR1CDkHC3E
+	 tLDaFtIRr3wRA==
+Message-ID: <a0736b1b-707e-4f24-8249-c7363c673a43@kernel.org>
+Date: Tue, 3 Nov 2026 07:54:21 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -86,172 +52,139 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/6] sched: decouple PREFERRED_CPU from PARAVIRT in
- Kconfig.preempt
-To: Ilya Leoshkevich <iii@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Mete Durlu <meted@linux.ibm.com>, Yury Norov <ynorov@nvidia.com>
-Cc: Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Yury Norov <yury.norov@gmail.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Andrea Righi
- <arighi@nvidia.com>, Ben Segall <bsegall@google.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Danilo Krummrich <dakr@kernel.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Heiko Carstens <hca@linux.ibm.com>, Johan Hovold <johan@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        K Prateek Nayak <kprateek.nayak@amd.com>, Mel Gorman <mgorman@suse.de>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Steven Rostedt
- <rostedt@goodmis.org>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Valentin Schneider <vschneid@redhat.com>,
-        Vasily Gorbik <gor@linux.ibm.com>, linux-kernel@vger.kernel.org,
-        linux-doc@vger.kernel.org, driver-core@lists.linux.dev,
-        linux-s390@vger.kernel.org
-References: <20261101192203.6979-1-ynorov@nvidia.com>
- <20261101192203.6979-2-ynorov@nvidia.com>
- <388636ac-4521-4523-bb5b-b6bc71591ff6@linux.ibm.com>
- <20261102110026.GG1813469@noisy.programming.kicks-ass.net>
- <9273846b-d815-4c40-a7a0-960281515878@linux.ibm.com>
- <66ccd713-5571-4c1a-b59e-29adbc9852e3@linux.ibm.com>
- <efe1657f-b1c6-4096-8868-fb53097b1847@linux.ibm.com>
+Subject: Re: [PATCH RFC 19/23] tty: sysrq: let procfs copy in writes to
+ /proc/sysrq-trigger
+To: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@linux-foundation.org>,
+ Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>,
+ Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>,
+ NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>,
+ Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>,
+ Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>,
+ Greg Kroah-Hartman <gregkh@suse.de>, Joel Granados
+ <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>,
+ Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>,
+ linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org,
+ linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
+ linux-um@lists.infradead.org, linux-wireless@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org,
+ ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org,
+ coreteam@netfilter.org, kexec@lists.infradead.org,
+ linux-pci@vger.kernel.org, linux-sound@vger.kernel.org,
+ netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net,
+ linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-cifs@vger.kernel.org, linux-fbdev@vger.kernel.org,
+ linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-sh@vger.kernel.org,
+ linux-usb@vger.kernel.org, samba-technical@lists.samba.org,
+ sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
+ linux-doc@vger.kernel.org, linux-serial@vger.kernel.org,
+ linux-atm-general@lists.sourceforge.net, Takashi Iwai <tiwai@suse.de>,
+ linux-input@vger.kernel.org, linux-raid@vger.kernel.org,
+ linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org,
+ linux-debuggers@vger.kernel.org, Chuck Lever <cel@kernel.org>
+References: <20261102-work-procfs-drivers-v1-0-a994bd4d3b1a@kernel.org>
+ <20261102-work-procfs-drivers-v1-19-a994bd4d3b1a@kernel.org>
 Content-Language: en-US
-From: Shrikanth Hegde <sshegde@linux.ibm.com>
-In-Reply-To: <efe1657f-b1c6-4096-8868-fb53097b1847@linux.ibm.com>
+From: Jiri Slaby <jirislaby@kernel.org>
+Autocrypt: addr=jirislaby@kernel.org; keydata=
+ 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
+In-Reply-To: <20261102-work-procfs-drivers-v1-19-a994bd4d3b1a@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: 06K1uN32fnwmS5VV0MjvNToEtF3khrN2
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAzMDAyMiBTYWx0ZWRfXzZ+xB9otBfCh
- DtoReLZhszPxKjeckAJBG7TNsvIUf76Titegnm5vZ9s9fpMfU2XMPlWTSfJjrjGJ0k0aUC7QRT1
- IYIud+R9ZTZ7/+5aFuWk9Y5UmiBrKjQ=
-X-Authority-Analysis: v=2.4 cv=LokHWXdc c=1 sm=1 tr=0 ts=6ae975f7 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=Ikd4Dj_1AAAA:8 a=A7k3Bbt6i4iCUiqUcE0A:9 a=3ZKOabzyN94A:10
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAzMDAyMiBTYWx0ZWRfX47H2TT4fxrNI
- dKcIaIIeiJH9WxrreMDUuKl+r+YZQPLbvcPHZm59MJAiVJtqWCcoA6/+neZkv12rgfiFE9xhgl1
- Y2503FTMcL4YzATlfyp55RJpCIpFgPNwMauaLgKIaPB/8Adz+HVDeWrFYrs5kydYZJ5Jet93h7r
- GMJSskgxvLawv29TZz9/BFatBAhwO7faGOsa9YTnP38gcnwwnFIMpPVP2sDf4jqlrOIGXgtmunT
- RdGxNSGiYO6lIuBIUNQBRU8Y2aojfYvw7vOwS/SZ5g5mZKnfZQeSinV8kNU+L2EFyawcc7A/Hzt
- B+9C8I0QC/0f+wCBRNerHWGFzWqLaLIIG0dVeeEKAPCQR1yPDaCnlXsHERKxD132Z5hXjK8oYma
- bpV01sLxXIZuQySojJN4Lfj+IVmsfbs0fjUvTpFDXRPX9oqSQRBRqajtWKFVvlwc5nqW6UYQ9pV
- UMX9uQEZYGfvHyytQIA==
-X-Proofpoint-GUID: wzujVa4uD6spEvCaJi-IgRNS-FcdMrr4
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-03_01,2026-11-02_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 clxscore=1015 impostorscore=0
- priorityscore=1501 suspectscore=0 phishscore=0 malwarescore=0 bulkscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
- definitions=main-2611030022
+Content-Transfer-Encoding: 7bit
 
-Hi Ilya,
+On 02. 11. 26, 16:07, Christian Brauner wrote:
+> Implement ->proc_write_buf() so procfs copies in what is written before
+> it pins the entry, and handle the keys from that copy. Writes larger
+> than PAGE_SIZE - 1 bytes fail with -EINVAL now. They used to trigger the
+> first key, or all of them in bulk mode. procfs allocates the copy, which
+> is as small as the write, opening the file allocated as much already.
+> 
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
-On 11/2/26 7:11 PM, Ilya Leoshkevich wrote:
-> 
-> 
-> On 11/2/26 14:00, Shrikanth Hegde wrote:
->> Hi.
->>
->>
->> On 11/2/26 5:04 PM, Ilya Leoshkevich wrote:
->>>
->>>
->>> On 11/2/26 12:00, Peter Zijlstra wrote:
->>>> On Mon, Nov 02, 2026 at 11:16:30AM +0100, Ilya Leoshkevich wrote:
->>>>>
->>>>>
->>>>> On 11/1/26 20:21, Yury Norov wrote:
->>>>>> The IBM s390 doesn't enable PARAVIRT config for their hardware
->>>>>> virtualized Logical Partitions (LPAR). However, the steal time is
->>>>>> accounted for the LPARs, once the config VIRT_CPU_ACCOUNTING_NATIVE
->>>>>> is enabled.
->>>>>>
->>>>>> Preferred cpumask doesn't rely on any feature gated by PARAVIRT config,
->>>>>> and requires it to minimize the configuration space and runtime overhead,
->>>>>> with the lack of non-paravirt user. Now that s390 wants to adopt preferred
->>>>>> cpumask, there's no reason to keep it coupled to paravirt.
->>>>>>
->>>>>> Make PREFERRED_CPU a user-configurable option, even if paravirtualization
->>>>>> is not enabled, and drop PARAVIRT dependency on the steal governor.
->>>>>>
->>>>>> Keep the default module selection conditional on PARAVIRT so other SMP
->>>>>> configurations can opt in without enabling the governor by default.
->>>>>>
->>>>>> Link: https://lore.kernel.org/all/4605dad5-aab2-49e3-b919- bf9897181834@linux.ibm.com/
->>>>>> CC: Mete Durlu <meted@linux.ibm.com>
->>>>>> Signed-off-by: Yury Norov <ynorov@nvidia.com>
->>>>>> ---
->>>>>> Can be applied independently from the rest of the series.
->>>>>>
->>>>>>    drivers/virt/Kconfig   |  8 ++++++--
->>>>>>    kernel/Kconfig.preempt | 12 ++++++++++--
->>>>>>    2 files changed, 16 insertions(+), 4 deletions(-)
->>>>>
->>>>> This is really useful to us, since even though s390 is nominally
->>>>> paravirtualized, it does not technically benefit from defining
->>>>> CONFIG_PARAVIRT.
->>>>
->>>> And therefore removing PARAVIRT is the only possible solution?
->>>>
->>>>> Specifically, steal time accounting happens by
->>>>> computing a difference between wall time and CPU time, and not by
->>>>> explicitly querying the hypervisor.
->>>>
->>>> Nobody explicitly asks the hypervisor, that would be horrendously slow.
->>>>
->>>> Something trivial like this should do.
->>>>
->>>> ---
->>>>   arch/Kconfig                           | 9 +++++++++
->>>>   arch/powerpc/platforms/pseries/Kconfig | 1 +
->>>>   arch/s390/Kconfig                      | 1 +
->>>>   drivers/virt/Kconfig                   | 2 +-
->>>>   4 files changed, 12 insertions(+), 1 deletion(-)
->>>>
->>>> diff --git a/arch/Kconfig b/arch/Kconfig
->>>> index 1163736de1f9..8980054beb52 100644
->>>> --- a/arch/Kconfig
->>>> +++ b/arch/Kconfig
->>>> @@ -1080,6 +1080,15 @@ config HAVE_IRQ_TIME_ACCOUNTING
->>>>   config HAVE_PV_STEAL_CLOCK_GEN
->>>>       bool
->>>> +#
->>>> +#  Archs that can account CPUTIME_STEAL; normal route is through PARAVIRT which
->>>> +#  selects HAVE_PV_STEAL_CLOCK_GEN. Directly selected by s390 and PPC-LPAR
->>>> +#  which have their own thing and don't go through generic cputime accounting.
->>>> +#
->>>> +config HAVE_CPUTIME_STEAL
->>>> +    bool
->>>> +    default y if HAVE_PV_STEAL_CLOCK_GEN
->>>> +
->>
->> Can't PARAVIRT_TIME_ACCOUNTING be the kconfig we can rely upon.
->> s390 can add it to the config (similar to HAVE_CPUTIME_STEAL)?
->>
->> I guess it is selected currently where the steal time reporting happens.
-> 
-> Looking at update_rq_clock_task(), s390 would still need to provide a
-> pointless dummy paravirt_steal_clock() implementation in this case.
-> 
-> [...]
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
 
-Other possible option is, you could use CONFIG_HAVE_PV_STEAL_CLOCK_GEN which
-defines the dummy implementation and you don't update that method. That way
-you may implement PARAVIRT_TIME_ACCOUNTING mostly with kconfig changes.
+> ---
+>   drivers/tty/sysrq.c | 9 +++------
+>   1 file changed, 3 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
+> index f4571d05b496..99363e1b59ed 100644
+> --- a/drivers/tty/sysrq.c
+> +++ b/drivers/tty/sysrq.c
+> @@ -1200,17 +1200,14 @@ EXPORT_SYMBOL(unregister_sysrq_key);
+>    * However, if the first character is an underscore,
+>    * all characters are processed.
+>    */
+> -static ssize_t write_sysrq_trigger(struct file *file, const char __user *buf,
+> +static ssize_t write_sysrq_trigger(struct file *file, char *buf,
+>   				   size_t count, loff_t *ppos)
+>   {
+>   	bool bulk = false;
+>   	size_t i;
+>   
+>   	for (i = 0; i < count; i++) {
+> -		char c;
+> -
+> -		if (get_user(c, buf + i))
+> -			return -EFAULT;
+> +		char c = buf[i];
+>   
+>   		if (c == '_')
+>   			bulk = true;
+> @@ -1225,7 +1222,7 @@ static ssize_t write_sysrq_trigger(struct file *file, const char __user *buf,
+>   }
+>   
+>   static const struct proc_ops sysrq_trigger_proc_ops = {
+> -	.proc_write	= write_sysrq_trigger,
+> +	.proc_write_buf	= write_sysrq_trigger,
+>   	.proc_lseek	= noop_llseek,
+>   };
+>   
+> 
 
-But it needs the arch to implement static calls. I am not sure if s390 has it.
+
+-- 
+js
+suse labs
