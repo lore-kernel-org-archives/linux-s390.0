@@ -1,71 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793724048;
-	b=CgzKZpbQwpeMyWBrDi3KTT8fRkUVee/dxY1YSESOlpM9HqXYFhEyzXSufHp5OtRB1N/B
-	 A/ZHwzFZmtS74ANAWgC0Qdsc3p2vzRylSVBxSKYBE7bsG2Gj6WudOa/ckoc4g6FMzl14f
-	 Fp3UbMS9IQqLMJbkChwM8lUYx3U3q3lruxNMyRaiyHFlYLHkdfcf//WWMfPFQAAvuno70
-	 4JrkgtgBgazZaYrhUd/21+O7+4sqAeo882O6FaHSzexo2rBtGyuoNHpBtpovmECHpJmVN
-	 4JutxRAGbthilE38FZR/J6ASMYU0RpdDdfZ6m9svUbEJ3t59kzanEJYiTnqDOiIl+SQ==
+	t=1793724088;
+	b=amJj9+36cqUJVOtkM398QwXBUHBkIjGILv5TUXU76taGsgAR0TuF8x2Xa+IzK2ylRgJ+
+	 6R9HTlYSkJVtwSlE6hEmmX70R9NfY43IgndnQfGIWKxJTU+ApK2OhMci0f3JptQCwTnxe
+	 ZuJzdpcEr28ZaUnrY6gESNvHaoSmLPeAGC0VEEh6JbWWecGN14XjYplE7+1iIzMp1XaI3
+	 Tp/THJBPxPnfcU6qKdJ7WTEcbgLqx4692gW4YvbcIbhthaKLbBKD1svzH5CYaXiA3uUMM
+	 0AeVbHBLLZhkrIdQwB7PWI/3alBEVNwrst1FWrB89WmKlG1NaMqflgkHSvz97/AsPUQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793724048;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=3/pwRZodtv5H9vRDvB09UF4TkDVIqcbW+/AB21sxSLI=;
-	b=FgyyR37QKb6g5dDdoFRb1gjKRZNCoqtQQHPr4EDCmDUoVNupZJbg/rsVv82hHIy/yzp5
-	 9lBMfEDCTRINmv0TyVbjfwkqLv5YKdu4rAG9JM8slUFsltrZ2F+XNEHYVeVGZfqCBQm7G
-	 ymfKy8KbiBBZ4wiywYpty0GXOYte6gseR6p6f7iVC+zpd4B44yDfEWTDVNZMu5Q6Q+aaw
-	 syAm87otK0QsTriSolo7NJN2cTz0o1zQIEEZvsMJ1eKnL+hIx7xRa+wIKElSn51gx7514
-	 hKQRyutHDFSjwqNKHaPoZdr4tTjC0KGfgeJqyTbdiiCtJxSFXN8LAC/Xa9Z/7TKCJPQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793724088;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=9kHg9nNA5vhD1AAPFVtpoy01o5mPZIm5bM/rQr7WDMM=;
+	b=Jk0fIRzYSo+tZBgYWpvK4k9eXsv1o/5d61IZVWE09viKtb4LjWIHaPFcJa4SnOPuoGdi
+	 +MkeVPmRzB4uYr6aNaX6bCJ9WVbtcbt3nj/uhiKf658NrPsj7pnb7wZ1YDFtw0hfyjFM5
+	 adDuSYBG6N8vpvCbX0TQky0GURGRQq6WGWCsa9/iOEk9aExlX8uxBuAthFxiqvpcVjgPN
+	 Ev8aqmHWVl6AankEdYEGd0SHlARtx6xaDAm3UwZD4YeTyLLSTu5/k8KVnzmQVBDsGJBIP
+	 rNa2iE5g09ZndUvmchZgMHJJnOZs1ZAebdEIAJj0IWs4r49iwgp/1uha2OqhuRlwfOQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kcCk3E9D;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kkAsjW0+;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0055D606D836;
-	Tue,  3 Nov 2026 16:40:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61528608361A
+	for <linux-s390@vger.kernel.org>; Tue,  3 Nov 2026 16:41:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kcCk3E9D
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BE5F1F00919;
-	Tue,  3 Nov 2026 16:40:38 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=kkAsjW0+
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92CAE1F00A16;
+	Tue,  3 Nov 2026 16:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793724047;
-	bh=3/pwRZodtv5H9vRDvB09UF4TkDVIqcbW+/AB21sxSLI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=kcCk3E9DDzqb581VxJ5reyHZgYV3mxqJrzazBrWKk/8awLxY14WY1qQjIrfNtyW9+
-	 +fgInAFIOA8pbj4OnlZMuT+n3NlUcuq2yEYeXQNrWe8ebUqvrivCfRVtWDr/3yvXbz
-	 /BWBSYNXk+FF83ZDTD4OKx7IKTkClzRWexwwPPed/RG1Xv+LYlKNqShYqAnmueVcHC
-	 gTpUG+UUL6OOUv1NGnTCJgrYlEvrsdp0yuuXL06dDPAQlPxzRqYs0ah3iWC0gI9/Bt
-	 TyO0WuPIBe1MXUewf/anvSyELn8SkDADqP4mdxifTwWZEneQ2Nc7h/8SBuhSMroZc5
-	 ZN0fxv3D5A0Jw==
-Date: Tue, 3 Nov 2026 17:40:36 +0100
-From: Christian Brauner <brauner@kernel.org>
-To: sashiko-reviews@lists.linux.dev
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, 
-	Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, 
-	Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>, 
-	Eric Dumazet <edumazet@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Al Viro <viro@zeniv.linux.org.uk>, Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
-	Greg Kroah-Hartman <gregkh@suse.de>, Joel Granados <joel.granados@kernel.org>, 
-	Kees Cook <kees@kernel.org>, Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
-	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, coreteam@netfilter.org, 
-	kexec@lists.infradead.org, linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org, 
-	linux-usb@vger.kernel.org, samba-technical@lists.samba.org, sparclinux@vger.kernel.org, 
-	linux-m68k@lists.linux-m68k.org, linux-serial@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, 
-	linux-input@vger.kernel.org, linux-raid@vger.kernel.org, linux-ext4@vger.kernel.org, 
-	linux-modules@vger.kernel.org, Chuck Lever <cel@kernel.org>, tytso@mit.edu, 
-	dmitry.torokhov@gmail.com, Petr Pavlu <petr.pavlu@suse.com>, 
-	Anna Schumaker <anna@kernel.org>, yukuai@fygo.io, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>
-Subject: Re: [PATCH RFC 32/38] selftests/proc: check a sysctl listing while
- entries come and go
-Message-ID: <20261103-unwichtig-puten-tauglich-389f0d95257d@brauner>
-References: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
- <20261102-work-procfs-bugfixes-v1-32-59422ed3e465@kernel.org>
- <sashiko-outbox-195504@kernel.org>
+	s=k20260515; t=1793724087;
+	bh=9kHg9nNA5vhD1AAPFVtpoy01o5mPZIm5bM/rQr7WDMM=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=kkAsjW0+hOgjbj3XCfgwetx0fxv9K//mB5LAzpmCfkvlPNQ/SEeMWP8VZkmtdQvF6
+	 kHiHHY7B3rIgz3EBdOOg2qmSApZ/eBSkDp0wZnkHk7nK1z1g804Shq5DKwQVB4Lguf
+	 TrlMFgvDz15Vl/wWs1N9gatMLU7WLxscVelPjwHhDh1Ldt3tT2IhO3/3aBm7JUxqsT
+	 ZsWa5xQhXlsAAX5BttM0hsHkEIu6NvlKDJtwT2ovkcOR9gQf3uNeZhiaAMozV3i9Jl
+	 C+Epvq7SGN7azVjoAAbO1KfJOX/P8Gf4mE4SP5atMEuPSRQmgTYHSU0qqOM1m9SF05
+	 xZN4nCu049GiQ==
+Message-ID: <sashiko-outbox-195736@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH 3/3] KVM: s390: arm64: Fix kvm_arm64 module naming
+ consistency
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Andreas Grapentin" <gra@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261103-s390_arm64_kvm_fixups-v1-3-21c36fedd878@linux.ibm.com>
+References: <20261103-s390_arm64_kvm_fixups-v1-0-21c36fedd878@linux.ibm.com>
+ <20261103-s390_arm64_kvm_fixups-v1-3-21c36fedd878@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 03 Nov 2026 16:41:27 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -74,12 +62,16 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <sashiko-outbox-195504@kernel.org>
 
-On Tue, Nov 03, 2026 at 02:48:31PM +0000, sashiko-bot@kernel.org wrote:
-> - [Low] selftests/proc: proc-sysctl-readdir-churn duplicates proc-readdir-churn
+> the module build for the kvm_arm64 module produced kvm-arm64.ko, fix the
+> Makefile to produce kvm_arm64.ko instead, so the output file name
+> matches the module name.
+>=20
+> Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
 
-My appetite for churn due to "low" issues in tests is low.
+Sashiko has reviewed this patch and found no issues.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103-s390_arm64=
+_kvm_fixups-v1-0-21c36fedd878@linux.ibm.com?part=3D3
+
