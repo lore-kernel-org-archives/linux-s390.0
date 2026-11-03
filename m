@@ -1,74 +1,63 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793730694;
-	b=X64emhsmCcdPLKYSn3I0C/ghydZ6wu7Z5SQw9RWz9SWbCTctk/TOhSvdXl4PXVG4pj85
-	 p0yYP027n+vkAxG8SjPJcgVq2O7+gCFXZ1XRBAFdLfzdQ8OAW1tUFg9y7NelPEh0Z6zaG
-	 3tlYtgRAxKguv8XsIYAqVFpprPZ7f2gbPn+uLC40C9XJbc5GaO1zWmhWqbJ+kcuNW1cB7
-	 5RJElPfBTTvifH8gaNkxcYLUqC6YpjsrmXzsdzgkTph8P9Ib50s3JKoqtIo9vmcAatJS1
-	 6ASSZDpVjTDBpOq2RGFCfMxsU26YPWGCsJr9XobTQ1b4EfjpgNVD29mULt2tzN50aqg==
+	t=1793737630;
+	b=AS85dqhBsvZ93wbskSXY0apYwqmpZDL4QejM6GW4Y3Mkr+9hVb+muuvJOiCD8LcyN/P1
+	 SQLW6wWCska9CFUa3G1x9bXXWj7Hf7J4t38apHGp7uRmBaGhfQ6fbnFjoRIjM0ultcMV2
+	 yS1I/pCTaNUV+jhm07towojs19qDUjJEvaggmpp+f/K6/yQTaj9SbVNmmGkDhNu5fAjhR
+	 xqzPoKgrg2oZ7iwSxazjOn11m9wBMoXQokJsMWI7wDUJuI85dGn4VCQbzlF/lPi5tY3Db
+	 M6JGZYdFRe9maz0Ltfw8ZtqXtAaFYZel0iI1NS9zI07xsUb4fhyYgy8M2vSJJQ+svzA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793730694;
-	h=Received:DKIM-Signature:Received:Date:Message-ID:From:To:Cc:Subject:
-	 In-Reply-To:References:User-Agent:MIME-Version:Content-Type:
-	 X-SA-Exim-Connect-IP:X-SA-Exim-Rcpt-To:X-SA-Exim-Mail-From:
-	 X-SA-Exim-Scanned;
-	bh=jbU+wfPnPFIh6lU3pnI3zzPid1+8Ib7N5XiDr9+QpkQ=;
-	b=PxKeXSzzZraVi3byfhImbdFyXPbMBJn3x1MTh//TbeptJdxJZYFHeIJ7dXvxx3wnsY1K
-	 Gdl9eJKwBnYeiNhCGLsUbAguo23K+dalMI/cHrm3G0qBXf7X1Gx1VrnzCmCtjlcDy8IO0
-	 bmfj3wLBIO456SAMyDrAaI3cZT3HMxhZhUpMbITpMW73mIGKEmW7cqpH4GToYI+R/Y9k6
-	 09MH7ft1yAn2HDNmgWHmBFsrZTPYSmfLt3QaLpeJIDOtRXtn0rYvbpE0j3WFcHymH0Yr7
-	 TRWG8/Mps9+Z9gul6MpEE6ahjkNmANdA65kwGu/mEMOXNto+M+z0eOG9n93OdyxpMNg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793737630;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:In-Reply-To:References:
+	 Date:Message-ID:MIME-Version:Content-Type;
+	bh=Cs/42Kl/t30L3HxFjgoCIiYXaRNlNAdJ3TsWsjzk5PE=;
+	b=GCFsT7o94XKojuTwbfbBsjKZEJekJrKE0Nh8d2YLZ2F2VnTGSg1svBgqMyEsL6ZJsvnn
+	 PBTnCwE6dlSHW+o2f4ozcdS6myNyzEAfUkrZ8h4TR+9CX9O8D4Q2TCdXLDltvGy0He25O
+	 UUynK/rk3YxXhkUgIbZ9kR7qaHhJhHAPMD6/iDEMrUR7r+uMiGtmyb1hn9n6slkdp+DKT
+	 RJPolGpzhfL4WbRz0k7fvJoqjP95Q2gxVm03yByafpthHtWHne02+XM41bYvJ8WGyUv5G
+	 O99QbtoEr3VzK8dnPk4a3c7oGT/B7N1yMZAO/WSM7qwR3dYL47oAMn8AJIAuPHgDATw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nSLxeaC+;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IwitLGcF;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA1FE606A324;
-	Tue,  3 Nov 2026 18:31:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84C5C606A31B;
+	Tue,  3 Nov 2026 20:27:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nSLxeaC+
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 740FF1F000C1;
-	Tue,  3 Nov 2026 18:31:33 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=IwitLGcF
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 752131F00919;
+	Tue,  3 Nov 2026 20:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793730693;
-	bh=jbU+wfPnPFIh6lU3pnI3zzPid1+8Ib7N5XiDr9+QpkQ=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=nSLxeaC+0k0qqm/z6aBhDoxwlCX6ThGf5pYYsanb1WX5thiEb8Z3DtLF75GxsW/O5
-	 GMZC0aJl7GJbnrQLRX1qmH3bLGpJhgxDDVEhPbajvei1ZmVZkZZuKQzsXclDvS3FLz
-	 JqDgzwsqEUqFc+JbYH9Jkshn6+yY178WxD/xHneQaYDS5r/n+JnUy1w6odyVUa4STI
-	 QwQAZn8yXcGME+v83nj3qlGT6VVMYmnc3AQP3FswYICcENEKw201/R2MXLFwQheg7+
-	 pBh/mDCkGKGk4YhBLJSsePnm6voVwlDUGi2Rh7gymWPjmN3vqh/ipKu1A8THywHHi1
-	 /6f51GaJd9vlQ==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
-	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <maz@kernel.org>)
-	id 1xOJIB-0000000AeGq-2TYK;
-	Tue, 03 Nov 2026 18:31:31 +0000
-Date: Tue, 03 Nov 2026 18:31:31 +0000
-Message-ID: <864idx3gxo.wl-maz@kernel.org>
-From: Marc Zyngier <maz@kernel.org>
-To: Andreas Grapentin <gra@linux.ibm.com>
-Cc: Steffen Eiden <seiden@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Janosch Frank <frankja@linux.ibm.com>,
-	Claudio Imbrenda <imbrenda@linux.ibm.com>,
-	David Hildenbrand <david@kernel.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	kvm@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] KVM: s390: arm64: Fixes for arm64 KVM support
-In-Reply-To: <20261103-s390_arm64_kvm_fixups-v1-0-21c36fedd878@linux.ibm.com>
-References: <20261103-s390_arm64_kvm_fixups-v1-0-21c36fedd878@linux.ibm.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
- (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+	s=k20260515; t=1793737630;
+	bh=Cs/42Kl/t30L3HxFjgoCIiYXaRNlNAdJ3TsWsjzk5PE=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=IwitLGcFtpFhnU0BryNLtD7K3IlR1Z24CzjxC+AKlTcsty5Gjf3KiIU9UKbA6/Pzx
+	 CjZDON9KS9Ad6OHQoo9cTNCtmGuBQ3D4P9ieNXkQNHIBG94WLR0yK9aovGeUQjjzpY
+	 0hUFiw6xZlNh/ijwoI8VIUnRC9J1zkMOlpu6sjwrJ1j4xe3XMSJr+muqk8B6GMzgyr
+	 n03uzcMIEQpPEZwoEDaBML7ooncJm5F3shT5LypJZgDE9dc5iIbbpT3RR5gEmVdv/l
+	 CZVnYL1jg1qexQJESfNx2L5vIR/ALEvoKcxw+M186CjvRnafQMRIwvwQ4zu8eEMlXt
+	 Ho/Mj9BuFxGIA==
+From: Thomas Gleixner <tglx@kernel.org>
+To: sashiko-reviews@lists.linux.dev
+Cc: linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, Heiko Carstens
+ <hca@linux.ibm.com>, Vasily
+ Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian
+ Borntraeger <borntraeger@linux.ibm.com>
+Subject: Re: [PATCH V2] x86/entry: Fix ptrace regression
+In-Reply-To: <sashiko-outbox-192559@kernel.org>
+References: <20260707181957.433213175@kernel.org>
+ <20260707190254.493733289@kernel.org>
+ <20261022142425.3Wx-RrU5@linutronix.de> <87fqxx1r80.ffs@fw13>
+ <87cxt11ktr.ffs@fw13> <1149A39E-BEBA-46EA-94F4-4DFFC4733EF5@zytor.com>
+ <871p9g1s3w.ffs@fw13> <87y0boze95.ffs@fw13>
+ <C6D7BF04-4CF7-48D1-93B5-E80D52C2617D@zytor.com> <87se1wyvs8.ffs@fw13>
+ <87mrrvxaty.ffs@fw13> <87ecd4xwlr.ffs@fw13>
+ <sashiko-outbox-192559@kernel.org>
+Date: Tue, 03 Nov 2026 21:27:07 +0100
+Message-ID: <875wydy82s.ffs@fw13>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -77,46 +66,13 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: gra@linux.ibm.com, seiden@linux.ibm.com, borntraeger@linux.ibm.com, frankja@linux.ibm.com, imbrenda@linux.ibm.com, david@kernel.org, hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com, svens@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+MIME-Version: 1.0
+Content-Type: text/plain
 
-On Tue, 03 Nov 2026 16:37:01 +0000,
-Andreas Grapentin <gra@linux.ibm.com> wrote:
-> 
-> Some fixups for the previous series that introduced arm64 KVM support on
-> s390. Forward-declare enum vcpu_sysreg because we are definitely going
-> to need that, then make the module naming consistent and iron out an
-> inconsistency in the definition of vcpu->arch.pause between s390 and
-> native arm64 KVM.
+On Sun, Nov 01 2026 at 18:07, sashiko-bot@kernel.org wrote:
+> [Severity: High]
+> Does the inner if (nr != -1UL) statement in do_syscall_32_irqs_on() have an
+> unmatched opening brace that leaves the function unclosed and breaks the
+> build when CONFIG_X86_32 or CONFIG_IA32_EMULATION is enabled?
 
-It's an interesting one. Obviously, this wasn't caught by building the
-upstream code. I guess this triggered with the rest of the patches?
-
-> 
-> No functional changes intended on either arm64 or s390.
-> 
-> Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
-> ---
-> Andreas Grapentin (2):
->       KVM: s390: arm64: Declare enum vcpu_sysreg
->       KVM: s390: arm64: Fix kvm_arm64 module naming consistency
-> 
-> Steffen Eiden (1):
->       KVM: s390: arm64: Turn vcpu->arch.pause into a counter
-> 
->  arch/s390/include/asm/kvm_host_arm64.h |  8 ++++----
->  arch/s390/kvm/arm64/Makefile           | 12 ++++++------
->  2 files changed, 10 insertions(+), 10 deletions(-)
-
-Looks all reasonable to me.
-
-Acked-by: Marc Zyngier <maz@kernel.org>
-
-	M.
-
--- 
-Without deviation from the norm, progress is not possible.
+Duh. Yes.
