@@ -1,116 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.193.46
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793724554;
-	b=j4Bd2sJc3AQLv5gNBNyqTU9AjwEM2H7QlF2cC5zvBKvLbT3sGndSKqZO9s8+r2jXUunq
-	 2/XErzNfcccB1VY6teoLzJ2NKoeevJ5oWbQ/tnHTuk09YCtvlQ2pvfsCJ75V91oXcXVXr
-	 A8dvYaaJYvxaOjA7QSPwEnLgZN18S0dV56MTTEAwkVvsN3DjwebPCJTaBRFcXOz3W6bCN
-	 UVzCyzDheIoqx0RfOyHIK/jEb1/e4dBwS8GzHUrwn4+5tM78jgMfQGLUbDNwI4pc4R1Nz
-	 TljvsrBSZw4n7OaP1SIjb1ZoWqht9TsE9qExkiMExxQD49WKB8F9QgYKoFF7dT+5UiA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793724554;
-	h=DMARC-Filter:DKIM-Signature:Received:Received:Date:From:To:Cc:
-	 Subject:Message-ID:References:Content-Type:Content-Disposition:
-	 In-Reply-To:X-ClientProxiedBy:MIME-Version:X-MS-PublicTrafficType:
-	 X-MS-TrafficTypeDiagnostic:X-MS-Office365-Filtering-Correlation-Id:
-	 X-MS-Exchange-SenderADCheck:X-MS-Exchange-AntiSpam-Relay:
-	 X-Microsoft-Antispam:X-Microsoft-Antispam-Message-Info:
-	 X-Forefront-Antispam-Report:
-	 X-MS-Exchange-AntiSpam-MessageData-ChunkCount:
-	 X-MS-Exchange-AntiSpam-MessageData-0:X-OriginatorOrg:
-	 X-MS-Exchange-CrossTenant-Network-Message-Id:
-	 X-MS-Exchange-CrossTenant-AuthSource:X-MS-Exchange-CrossTenant-AuthAs:
-	 X-MS-Exchange-CrossTenant-OriginalArrivalTime:
-	 X-MS-Exchange-CrossTenant-FromEntityHeader:
-	 X-MS-Exchange-CrossTenant-Id:X-MS-Exchange-CrossTenant-MailboxType:
-	 X-MS-Exchange-CrossTenant-UserPrincipalName:
-	 X-MS-Exchange-Transport-CrossTenantHeadersStamped;
-	bh=2SjriM5Ft1OJ4vP4Azv/JbwDOxIimZIjo4YeuW1ymvQ=;
-	b=fmBNAroL2e+KuD6c1smhk14CUpt58ywuz6u+kXwecBsNyxkPv3QQIohV3styZvv4zC6Y
-	 pSS0SD7cHdDSLdQTyp41gYOGF3Her5ZoaFrJrdhqMeC/E4XqYUqXGn80wohG8WoOmk3be
-	 8EooM29bowMjHUyF0vO1/JX76smuO9iX1QnlpIb6AnfNaw4JwA3tx4paf+Z0US8A/Bvbq
-	 EnSTprKj0jFFcTO7jnJdEKKmDi8pcQ51p8DKWoWzvmgXGUJke2tL4ACcwfC6nenewf+jq
-	 HM9HdHMAuLwY4EcKaa/1TrjM+LEA6HinuVr5PURF4v25gbW82O7aBJ3KCyH3/Me87Zw==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=nvidia.com;
-	spf=fail smtp.mailfrom=nvidia.com;
-	dkim=pass header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Xu4oWslE;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=52.101.193.46
-Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010046.outbound.protection.outlook.com [52.101.193.46])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793725343;
+	b=zEu77TdgGS7F9hVE+rBXFBnEJu77Ph2KOkdo6KJyrlJkR6WmW2vgMLVrmQRnmVbE4Aup
+	 bdwEQruzRWujdDyvH5mJj9aCAJfjrmP3sC6T/SYpNYCPo47i3gBwqcylf6vK3OxzRyz49
+	 U3QHCbGScFS7Sa8zQ9u3+8f7+ddXA4wADjDNpdrFWImYCLHsC4UMIMGW3meJqVvpKAC/T
+	 KTMqUoZDD502+4QL9FI7rUwQ9kE5nITz7iAiNDVS4ywic75I7muW5GdutRyEjkDJaUwsI
+	 P1BL+yxZSm4Y+SRi9kBwrLqxnUFdBIk5wi6lRflA3fCQ7py3mu18RkOivE2weRagRIA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793725343;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Message-ID:Subject:From:To:Cc:
+	 Date:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:
+	 User-Agent:MIME-Version:X-TM-AS-GCONF:X-Proofpoint-GUID:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-Spam-Info:X-Authority-Analysis:
+	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
+	bh=C5yiDQM3xzILX7PXhEnjdYcIagea0VimbnGH52vufrU=;
+	b=IfyzQ1wcunsOGig8gwPGVU7KOrC/MuoDOHAmY0VkaZ9X8YJq3tSwxL4tFnxIVGPsdmbK
+	 DJJRJtei6GR8H0ve6NAjNJtFsA1sTofbLS0QGD9oqDt47SyOgypqYTpdnFp0OlL4gP0eX
+	 NshmJZiPHMYE1xl99EIFcKw0JkgBHcO+AEULm/a3N7aRFLeX4pQ1vaZSxvr+IPWcYVwix
+	 7Gx5cvl06Ongk2IF4+ROd6350ctCJq7DYQz0w3eN30RSrShqeWSrU8VlhaokmolVHCY0x
+	 1H8+2mZ81TGZDi8fgIcb2WKjPwHAzwjRKFhqwZ+3ShOJ9ybWXtulibKPkJ3z3TTNQaQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ZQPIT822;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (secp384r1) server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 673F2606A32C;
-	Tue,  3 Nov 2026 16:49:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 673F2606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 818EA606A327;
+	Tue,  3 Nov 2026 17:02:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 818EA606A327
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Xu4oWslE
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=WQT5Gy72zRbqxFxMaN1LIKKUPuP91FxRkzJmO+65f5cmz3V/2xGNonGhcyTCtty5lB6+CmpV7GFbXCBnLG/eOSfKwse45D+CJkYXihuAIH6J2+l2JJIVftr+/P9Zdv0qRMsl0cPCM0vO+KvLbMjbdIt5b+IbdaCvk9xTXsc0cc1STmvstA8OECY31V0AMMiwSbJjxJ+un4rd9BGs7MuWl2NeQNkOE5Xw5sfrCxA1oKdcplQ5enJCiwOsgNoaxnXSaopbBLcKX5hQGdYEgpAKnpL0NGmIvW6ETtxdc6BInEy4BX4P8KCBZWcROYf4w20BdxLXt0G8yY5IE4CarVTMEg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2SjriM5Ft1OJ4vP4Azv/JbwDOxIimZIjo4YeuW1ymvQ=;
- b=r60SgJgHB4PlRJkTx7MhnYlPk6hDb839B+R7xHumi2WxDj24GONoO8c+WpciDaxDNLQTGv4B8ZkBHFgXwRqV895/qwKpzufLWYo9tN80A26zZSIkP8d3AHovVQcxSdGgPvESdVHW0ST0vAdcMexkiDtukkiQ07sxVy5gRgZcOBjb1ahX/eNiVD11jGi5BsWGf4IDuUJW5KQNnMubPB1ymsRV/Qo87tjIJeRnkroihPE8NAc2XkYU08AvjTh4dy3zE8fKys8aOaLzrQ94GVAruB7o/8c5IdiFpbChzyTII3slL04DTZfNYsP13RZt9Dv4zluxx/QM1iIokm8xNW13hA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2SjriM5Ft1OJ4vP4Azv/JbwDOxIimZIjo4YeuW1ymvQ=;
- b=Xu4oWslE22EwbgxbfRPnafhEbJgaAv6Wqug9IGz6ewmM6Lg6QC4cQLfQccyOQplrFR//sBRHlHDyEszrAIRdISAn4siwSZM5piZXp7a021n6Cxpm18mTErkYamZa6MTvrCB9bG5VnxvspAHhJGvnsXf6GHR3pJsVGzRrfcprbwUjh12+eGZ7dZ4501Z5qFDD9+/eRjFoJQJXVHgMZhLbaLynIz31Z/J4ZJmxmV0cj62X+2BHg/n5mhTCj0Za8O+ay/PcMAWJh7hcqXj0YJwYtL//KgS5IvTN3213keDMfMZTvvLyBtzjTeO93JGam6j/D2PyKrAc8q9fdo82jCTDwA==
-Authentication-Results: mx.microsoft.com 1; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV3PR12MB9356.namprd12.prod.outlook.com (2603:10b6:408:20c::21)
- by DS0PR12MB9058.namprd12.prod.outlook.com (2603:10b6:8:c6::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.569.12; Tue, 3 Nov
- 2026 16:49:04 +0000
-Received: from LV3PR12MB9356.namprd12.prod.outlook.com
- ([fe80::1c36:31b4:c420:6286]) by LV3PR12MB9356.namprd12.prod.outlook.com
- ([fe80::1c36:31b4:c420:6286%5]) with mapi id 15.21.0569.011; Tue, 3 Nov 2026
- 16:49:04 +0000
-Date: Tue, 3 Nov 2026 11:49:02 -0500
-From: Yury Norov <ynorov@nvidia.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
-	Juri Lelli <juri.lelli@redhat.com>,
-	Vincent Guittot <vincent.guittot@linaro.org>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	Yury Norov <yury.norov@gmail.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Andrea Righi <arighi@nvidia.com>, Ben Segall <bsegall@google.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Dietmar Eggemann <dietmar.eggemann@arm.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Heiko Carstens <hca@linux.ibm.com>, Johan Hovold <johan@kernel.org>,
-	Jonathan Corbet <corbet@lwn.net>,
-	K Prateek Nayak <kprateek.nayak@amd.com>,
-	Mel Gorman <mgorman@suse.de>, Mete Durlu <meted@linux.ibm.com>,
-	Randy Dunlap <rdunlap@infradead.org>,
-	Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Valentin Schneider <vschneid@redhat.com>,
-	Vasily Gorbik <gor@linux.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org, driver-core@lists.linux.dev,
-	linux-s390@vger.kernel.org
-Subject: Re: [PATCH 0/6] sched: Expose writable interface for preferred CPUs
- mask
-Message-ID: <auoQfjpg3CRvV5yG@yury>
-References: <20261101192203.6979-1-ynorov@nvidia.com>
- <20261102084704.GQ1779021@noisy.programming.kicks-ass.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20261102084704.GQ1779021@noisy.programming.kicks-ass.net>
-X-ClientProxiedBy: BN9PR03CA0895.namprd03.prod.outlook.com
- (2603:10b6:408:13c::30) To LV3PR12MB9356.namprd12.prod.outlook.com
- (2603:10b6:408:20c::21)
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ZQPIT822
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3EEI4Y407338;
+	Tue, 3 Nov 2026 17:02:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=C5yiDQ
+	M3xzILX7PXhEnjdYcIagea0VimbnGH52vufrU=; b=ZQPIT8222dGV1o7tih/O/P
+	4GNNnSiyUPp0bPx7n8772avj0ZHJnDjWgWDj13nalH+WcaOrVgsEUE4cM5u8oLRl
+	3yeapXzuQxTEQH2lwz44OoxV5AF1c2o0XrzL7Rjlt3zmziv3z8IVEXgBnX/Ihu31
+	VVdyBrODe+FBwjmvO7UyFKSyufZqHVviEsb9hvEeXZflOQwTgi5JqKaZzXJ07LAR
+	rHQtKUO/cP/WxSY1nXErP+jt1TxvaNu+tHVrx+oS0cG9Xr8JieXIhTZtu9P0fPPx
+	QDi1uzS+Sg69sD0M+mUBY+QhlW+IREr33O+bHIp3B7NK4wU8+0vym7ptMBjhXZJA
+	==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn80sq5p0-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 03 Nov 2026 17:02:19 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3EK4GI2558213;
+	Tue, 3 Nov 2026 17:02:18 GMT
+Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hqcrca0dy-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 03 Nov 2026 17:02:18 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
+	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A3H2EjT46203206
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 3 Nov 2026 17:02:14 GMT
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8169E20043;
+	Tue,  3 Nov 2026 17:02:14 +0000 (GMT)
+Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 414312004D;
+	Tue,  3 Nov 2026 17:02:14 +0000 (GMT)
+Received: from [9.68.14.168] (unknown [9.68.14.168])
+	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  3 Nov 2026 17:02:14 +0000 (GMT)
+Message-ID: <712b9ec90b4020131144ce5cd7976568ca5d2efa.camel@linux.ibm.com>
+Subject: Re: [PATCH v11 2/5] s390/pci: Improve function measurement state
+ management
+From: Gerd Bayer <gbayer@linux.ibm.com>
+To: Omar Elghoul <oelghoul@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, schnelle@linux.ibm.com,
+        mjrosato@linux.ibm.com, alifm@linux.ibm.com, farman@linux.ibm.com,
+        pasic@linux.ibm.com, alex@shazbot.org, frankja@linux.ibm.com,
+        imbrenda@linux.ibm.com, Gerd Bayer <gbayer@linux.ibm.com>
+Date: Tue, 03 Nov 2026 18:02:14 +0100
+In-Reply-To: <20261028154352.15108-3-oelghoul@linux.ibm.com>
+References: <20261028154352.15108-1-oelghoul@linux.ibm.com>
+	 <20261028154352.15108-3-oelghoul@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.60.2 (3.60.2-2.fc44) 
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -120,139 +101,254 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV3PR12MB9356:EE_|DS0PR12MB9058:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4a78dddd-a216-4cf3-fa4a-08df39ca5e7f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|10070799003|7416014|23010399003|1800799024|366016|3023799007|10067099003|22082099003|18002099003|261102123227099003|56012099006|4143699003|5023799004|11063799006|261022075727099003|261022105027099003|261026140227099003|261021121427099003|261028144727099003|261009223027099003|261026121527099003;
-X-Microsoft-Antispam-Message-Info:
-	B4ebKSrdSCQ5vc5bibu4xdtv0YpjtTAIVfLsUBilyOh0Gnb+Lltkvmz4/AqyVzfrwQjkENjZPsFTr735x5Q4m6TCgR9TIOv9fAbRoQMBPE4iD1Nn8lkgXrXkSYVsWpoDha35tjmmMTAlp7dIddSJGjgX/G+0LN0sXdtb5nCHVK8z6OLhqBeQzdlW+waDP+JfA62hEEVKJZiP3R9YDr+/neJJh+87sutkgzzw1b+2x661S7srI1W7mAD+xoCPoYujrzeszsRTkYL8hO62jRn7exHCHOnlydvEGL/bcmsnJ/dXF0/SoZnTP4bxkY9Jc3B72j8TApSgjd2pdSa5JIkr80N9vs2QpX0XfOR46dOv0Jm8sTEEQUay++wowQkav+OQGZBYgvvYaF81Q4cwcsTNuQj5AAJucz8G303T5v6xgeQpVTWFRhnIoCIVnLtlcrE2fJtEigLBziiabCHG5iC+VHw7NFrfOFpiagMYR1zZVlNRlqSANCHfDCmp/61svKPKOHXScuErru079UbPd2pPUWbbOY424iiKfGuoCS73OcvP/QDXFAt8+BQ0QsTI4Z3JTEb9mRJ2rVpuMb6ECyxu3J49UdlOE/APJ/bHma+gl4q/fSb6EL6eJDYpxashiJ9XdAJZG8Iwi3CcdkZpzGtShZMCPPF+Ur9/2oAssg0RTNM=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9356.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(10070799003)(7416014)(23010399003)(1800799024)(366016)(3023799007)(10067099003)(22082099003)(18002099003)(261102123227099003)(56012099006)(4143699003)(5023799004)(11063799006)(261022075727099003)(261022105027099003)(261026140227099003)(261021121427099003)(261028144727099003)(261009223027099003)(261026121527099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?01lR2o1x+E18aqfxn5y/rk4yDe8FYhsZFk/g7uY6zU8g42foz0w+eLPSj8Cw?=
- =?us-ascii?Q?VTkyMolbUUojalt+Z8ITySciknTuBh7hhijysQXaaiOY4vPt78n/bSVFjIh1?=
- =?us-ascii?Q?ATPz9nCpN/UI9n3ad09p29WI5hpAGGGzIYAZ6qS1WwvhDqKIAOP2y5h7q2Vq?=
- =?us-ascii?Q?qsxAjS1aBpWE632cRJ6OVZuNdEGHXL13kWjyKHOLOj3FipEk9pbP8EsIttjj?=
- =?us-ascii?Q?5FpIZWf402tkAbN/UEZLRZdqa/yFF0yIxaVbmPu2RpM5A8vFQwI6Cy0x/iXx?=
- =?us-ascii?Q?mvbuGaRhMOh1i6ZzGQKLHWAdDicfWU54ai+ouh2DmvGfSe9yp2Kh2M5Gxj+N?=
- =?us-ascii?Q?s4mLKVWB7C2vE3Eij21stz+78/cWHx1T0Us/KZgcFEwq3sziX5Mj40mJI+md?=
- =?us-ascii?Q?pjrU6ubW7OkFqtjcymP2/sYK44Etw0xYOJD4jrliS4xFDnivNgfKL8CpjDNV?=
- =?us-ascii?Q?iN5iIFfyWNy6NfDg8mEIgFmFwgx4qu4Ee5ZxGbKPai2c24SDBCJQ7HtzZNJn?=
- =?us-ascii?Q?uir2cXaRoq25WF1EC9zrCg4jqURfK7cBT3+eo4vD974gqLCJAlkqDuGAmWgO?=
- =?us-ascii?Q?8eS4KkuAu/AhDGZ0eQ5EgXxdGUCODV3l5Smp1rOeMH0ck47A427LfFO8sFm4?=
- =?us-ascii?Q?G9B1Xw469SoChmA3mOoPn8+0J58jjGwTuKKot+8S6AcJ0bmde3PRriA8DD0q?=
- =?us-ascii?Q?XKaqzVsEtgC60kmddZmJRLybBnnQY1GaM8pICUwzLvLwxXXkt9DABZQgy+nj?=
- =?us-ascii?Q?eqmkx6I6JdmhlWmbw3rxrIp3mfsXDJjcOZ5V7XtofkpbWxtQDmilsmej5eZw?=
- =?us-ascii?Q?caazOKmZJ90dTJ1w/6iTyTKFRoF9NeTqIMMVfF4Zrztgh9HK4bVyyDZ3i0IR?=
- =?us-ascii?Q?MUNtJFdHrhn7j/LqWh7VkdrEzjADgzQhwv5ZdqEmu7EGTGUyX8TmScOng4dv?=
- =?us-ascii?Q?CTDicj8Dd9qF254RWA1oVWP10vOOS4gIpHorYK8oLLwbjYojA9PCdqQw9Sg+?=
- =?us-ascii?Q?kXeB+rXOlIfEI7YW9rorW6UVp1sNUzKrEVtlKIcsi2K9yYApn1dpVzEeDQXD?=
- =?us-ascii?Q?6pYfyrC7nyOOtl16QKxAon60MeCcY+10WScuLuOrY2LlE9eSwt7SKdFBRYHu?=
- =?us-ascii?Q?F8PbIXGRcseJ2jPiJvKnTDon+D8IBaAtgSH7uyAwiUdoXolbNvXsxdPQBvB9?=
- =?us-ascii?Q?HiEt52HbVUBYNsq9WtBfjK8xN1zPjni/aKA+IS/qz7f8kUeC2QZ/3SeiJYsa?=
- =?us-ascii?Q?RUx/BD5NGpJKa15SLgjkXTp7V7SilIHxQwuCtjknkxj47P7kchKSSWidQ5+0?=
- =?us-ascii?Q?3FqA6iNwiizEOpPYBDsWhUA077w0TDst6PHmzImvrChHkyC6eVZeLFhtg7pw?=
- =?us-ascii?Q?3eJKtVA5pOZPDucXxRhcxdglKp6aQUCfQ/dSXSuvUQT8+YSllLdvXMNKeNv6?=
- =?us-ascii?Q?U0C1rNF2QI5S8VSgA/5dXF58J5yQChHNxM1L34DJR8h7ekI4NCLpGyxboie8?=
- =?us-ascii?Q?GP/9PEGNYS15vHyjUr+hMMYX31rdikPD7eFJFn6Q7hT0S0OIJfyaGILOeemE?=
- =?us-ascii?Q?Svd7kkcx3UjdcR5yPe+jngXji5lGpk2EmBKMvcAxGO9VNSKYjh60CnIa3DFn?=
- =?us-ascii?Q?RWbBbJvX9cth+mW/ErJTxZ8Sv63R8rkyjQB3Md+6Uj2+3EEeo7lqCL+PydQN?=
- =?us-ascii?Q?/G0PRMcHQTuOJdezfU9sBWQDRduqjQBKjRyjgW2JjN6unRPX0Tpfj7tRFd0D?=
- =?us-ascii?Q?UnCVHOwOPBRNYLSlCqFwxRYbIPPgFV8CqzRe6tHgFTMEMXEXfGvK?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4a78dddd-a216-4cf3-fa4a-08df39ca5e7f
-X-MS-Exchange-CrossTenant-AuthSource: LV3PR12MB9356.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Nov 2026 16:49:04.3532
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: /DqTHAPT+U+vZwK2dwmV23nhvtap1R7aEwCPowSTEuFJqkjQYFwmBlyNHR27qA0ZXbz89nIP7BovGOMeHeLCHA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB9058
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 9AACiBN6ELJz4-WzvTchN0FPBDBs9w0H
+X-Proofpoint-ORIG-GUID: 9AACiBN6ELJz4-WzvTchN0FPBDBs9w0H
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAzMDA2NiBTYWx0ZWRfX212fEVWl/hYd
+ JMzMvoLKulrtpKB+Pfw9u8TigbHRGcpPHt5R6BZiiDd/Z9I86G49WtueeBzp1sG08esO4wKk3+s
+ RWi11vQLCtQg+yKLIQPChxYQhAyomvoBIm1OI0CHtSWJud+oeg727LeQlGL9HEmrFMnJjmt2bL6
+ kJmRQQsfReZmSMQ6ePcqGZ0qzzUmwpG73SJpbMWCv91PDwGflt09zdG1170HdT7dR2nhPDk+egi
+ xHsSAYX70mS5d7EkVci2Eq0/bkv/cdaRnkTIcBQLi20AiMk0sgXmsQ4TOYu/CEu86caVJAwJr2l
+ wxWZTbNJSXb6hI0+WLk+QPJxH4yNUSraRUsdkddSuaqBER/5AINn6tGgXo/YvAl8lxPR/bbQCHv
+ jpadx0WumC0bZx9GUuQBEnRK/bmo+mvw/ABgHWw8zXQSdjmkLhne/DJadAqfTEMzjWPI0wSEmQz
+ PVi1pEt3xb4t3uWfqqg==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAzMDA2NiBTYWx0ZWRfXy/qziD5MGcjP
+ 6FSAffkrXRgk7Oyp2KpOKY6zhDx3l0PoRXinm6W0ce/g6ttKA1lMjbtjXjLe/8unH4EjEdGAz3g
+ h34UzP4UV3mJ9MMaJaDqdR0p466BMbs=
+X-Authority-Analysis: v=2.4 cv=FIqOVOos c=1 sm=1 tr=0 ts=6aea139b cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=Ne-WxhAMbWJmMnziED4A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-03_03,2026-11-03_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 malwarescore=0 impostorscore=0 spamscore=0 lowpriorityscore=0
+ bulkscore=0 suspectscore=0 clxscore=1015 priorityscore=1501 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610300000 definitions=main-2611030066
 
-On Mon, Nov 02, 2026 at 09:47:04AM +0100, Peter Zijlstra wrote:
-> On Sun, Nov 01, 2026 at 02:21:56PM -0500, Yury Norov wrote:
-> > The preferred CPU mask currently lets the steal governor reduce vCPU
-> > demand when physical CPUs are contended. This series adds manual control,
-> > opening more use cases.
-> 
-> Sceptical, I am.
-> 
-> > For example, setting CPUs aside for selected fair tasks at runtime while
-> > steering other fair tasks toward the remaining CPUs.
-> 
-> That's exactly the kind of nonsense we don't need and makes me want to
-> stop reading right here.
+On Wed, 2026-10-28 at 11:43 -0400, Omar Elghoul wrote:
+> When a zPCI function is disabled and re-enabled, the firmware implicitly
+> disables function measurement while the kernel still believes it is
+> enabled, leading to a disconnect between the user-visible state and the
+> actual device state.
+>=20
+> Add the statistics_on field to struct zpci_dev to track the desired FMB
+> state. Introduce the functions zpci_fmb_request_on() and off(), which
+> defer to zpci_fmb_enable() or disable() to perform the actual firmware
+> change. This decouples the enablement or disablement step from managing
+> the user's requested state.
+>=20
+> Preserve the state in pcibios_enable_device(), pcibios_disable_device(),
+> and zpci_reenable_device(), so measurement is restored automatically
+> after a re-enable. New devices start with measurement on by default,
+> unchanged from before.
+>=20
+> Signed-off-by: Omar Elghoul <oelghoul@linux.ibm.com>
+> ---
+>  arch/s390/include/asm/pci.h |  7 +++--
+>  arch/s390/pci/pci.c         | 60 +++++++++++++++++++++++++++++++++----
+>  arch/s390/pci/pci_debug.c   |  6 ++--
+>  3 files changed, 63 insertions(+), 10 deletions(-)
+>=20
+> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+> index 88a125b92bdd..dd7a17955362 100644
+> --- a/arch/s390/include/asm/pci.h
+> +++ b/arch/s390/include/asm/pci.h
+> @@ -208,6 +208,7 @@ struct zpci_dev {
+>  	struct zpci_fmb *fmb;
+>  	u16		fmb_update;	/* update interval */
+>  	u16		fmb_length;
+> +	bool		statistics_on;	/* desired FMB enablement */
+> =20
+>  	u8		version;
+>  	enum pci_bus_speed max_bus_speed;
+> @@ -349,8 +350,10 @@ int zpci_create_parent_msi_domain(struct zpci_bus *z=
+bus);
+>  void zpci_remove_parent_msi_domain(struct zpci_bus *zbus);
+> =20
+>  /* FMB */
+> -int zpci_fmb_enable_device(struct zpci_dev *);
+> -int zpci_fmb_disable_device(struct zpci_dev *);
+> +int zpci_fmb_request_on(struct zpci_dev *zdev);
+> +int zpci_fmb_request_off(struct zpci_dev *zdev);
+> +int zpci_fmb_enable(struct zpci_dev *zdev);
+> +int zpci_fmb_disable(struct zpci_dev *zdev);
+> =20
+>  /* Debug */
+>  int zpci_debug_init(void);
+> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+> index c055a9ad0972..5889dd227009 100644
+> --- a/arch/s390/pci/pci.c
+> +++ b/arch/s390/pci/pci.c
+> @@ -164,8 +164,44 @@ int zpci_unregister_ioat(struct zpci_dev *zdev, u8 d=
+maas)
+>  	return cc;
+>  }
+> =20
+> +int zpci_fmb_request_on(struct zpci_dev *zdev)
+> +{
+> +	int rc;
+> +
+> +	lockdep_assert_held(&zdev->fmb_lock);
+> +
+> +	if (zdev->statistics_on)
+> +		return -EINVAL;
 
-OK, I started with the wrong argument. Please consider this as the argument
-#3.
+It's perhaps a question of taste, but is this strict rejection of
+double-enable really necessary? Wouldn't it be more defensive if the
+enable was just let to pass?
+Ah nevermind: That would allocate a new FMB buffer from zdev_fmb_cache
+and is a memory leak.
 
-#1 is: conceptually, preferred cpumask improves performance because it
-moves the scheduling decision from host to the guest level. The guest
-can do it better because it knows more about the workload. But then we'd
-consider moving steal governor logic to the guest userspace, because it
-knows the nature of user workload even more.
 
-#2: convenience and scope. Some systems don't allow loading modules -
-either on config level, through selinux, or somehow else. They don't
-even have compiler installed sometimes. The sysfs, on the other hand,
-is typically available.
+> +
+> +	rc =3D zpci_fmb_enable(zdev);
+> +	if (rc)
+> +		return rc;
+> +
+> +	zdev->statistics_on =3D true;
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(zpci_fmb_request_on);
+> +
+> +int zpci_fmb_request_off(struct zpci_dev *zdev)
+> +{
+> +	int rc;
+> +
+> +	lockdep_assert_held(&zdev->fmb_lock);
+> +
+> +	if (!zdev->statistics_on)
+> +		return -EINVAL;
 
-I want to be able to write a simple userspace daemon that implements
-steal governing without loading any modules; and i want to be able to
-tailor my daemon to my specific workload. That all requires write
-interface.
+Same question here: Would a double-disable hurt anybody?
+Doh: Yeah, you don't want to go down that route...
 
-> we already have cpusets that is more than capable of doing this.
+> +
+> +	rc =3D zpci_fmb_disable(zdev);
+> +	if (rc)
+> +		return rc;
+> +
+> +	zdev->statistics_on =3D false;
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(zpci_fmb_request_off);
+> +
+>  /* Modify PCI: Set PCI function measurement parameters */
+> -int zpci_fmb_enable_device(struct zpci_dev *zdev)
+> +int zpci_fmb_enable(struct zpci_dev *zdev)
+>  {
+>  	u64 req =3D ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_SET_MEASURE);
+>  	struct zpci_iommu_ctrs *ctrs;
+> @@ -207,7 +243,7 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
+>  }
+> =20
+>  /* Modify PCI: Disable PCI function measurement */
+> -int zpci_fmb_disable_device(struct zpci_dev *zdev)
+> +int zpci_fmb_disable(struct zpci_dev *zdev)
+>  {
+>  	u64 req =3D ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_SET_MEASURE);
+>  	struct zpci_fib fib =3D {0};
+> @@ -644,7 +680,8 @@ int pcibios_enable_device(struct pci_dev *pdev, int m=
+ask)
+> =20
+>  	zpci_debug_init_device(zdev, dev_name(&pdev->dev));
+>  	mutex_lock(&zdev->fmb_lock);
+> -	zpci_fmb_enable_device(zdev);
+> +	if (zdev->statistics_on)
+> +		zpci_fmb_enable(zdev);
+>  	mutex_unlock(&zdev->fmb_lock);
+> =20
+>  	return pci_enable_resources(pdev, mask);
+> @@ -655,7 +692,8 @@ void pcibios_disable_device(struct pci_dev *pdev)
+>  	struct zpci_dev *zdev =3D to_zpci(pdev);
+> =20
+>  	mutex_lock(&zdev->fmb_lock);
+> -	zpci_fmb_disable_device(zdev);
+> +	if (zdev->statistics_on)
+> +		zpci_fmb_disable(zdev);
+>  	mutex_unlock(&zdev->fmb_lock);
+>  	zpci_debug_exit_device(zdev);
+>  }
+> @@ -737,8 +775,14 @@ int zpci_reenable_device(struct zpci_dev *zdev)
+>  	}
+> =20
+>  	rc =3D zpci_iommu_register_ioat(zdev, &status);
+> -	if (rc)
+> +	if (rc) {
+>  		zpci_disable_device(zdev);
+> +		return rc;
+> +	}
+> +
+> +	guard(mutex)(&zdev->fmb_lock);
+> +	if (zdev->statistics_on)
+> +		zpci_fmb_enable(zdev);
 
-Then why do we need the steal governor at all? We can steer all
-processes away from a given vCPU without any driver, only by playing
-with each individual process' affinity. For vCPU throttling, task
-isolation, or whatever purpose.
+But that discussion about double-enable above makes me wonder:
+Would we leak an FMB buffer, here - at least until patch 3 comes to the
+rescue? Maybe the two patches are not so independent after all?
 
-Because of the overhead and convenience to use. Setting an explicit
-affinity for each task would require preserving the original cpumask,
-not mentioning that it's much more invasive.
+So, I experimented a little with patch 1 and 2 applied in an LPAR: I
+injected PCI auto-recovery with 'zpcictl --reset-fw' to a NETD PF and a
+NVMe PF and was pleasantly surprised that no resources were leaked
+*and* statistics were enabled before and after the PCI auto-recovery.
 
-The overhead grows linearly with the number of threads. On my working
-station right now the number of processes is over 500, and number of
-threads is over 1500, and it runs pretty much idle.
+Turns out that both the mlx5 and the nvme drivers pci_error_handlers
+callbacks for error_detected() switch off statistics by way of
+pci_disable_device() which calls pcibios_disable_device() - and the
+callback for slot_reset (mlx5) resp. reset_done (nvme) restore the
+statistics setting again by way of pci_enable_device() which calls
+pcibios_enable_device().
 
-This is so impractical that people would rather use boot-time isolcpus,
-not to mess with thousands of individual affinities on runtime.
- 
-> > a user can mark a cpu non-preferred and pin a workload to it. fair tasks
-> > whose affinity includes preferred cpus are steered away, while tasks
-> > whose allowed cpus contain no preferred cpu can still run there. the cpu
-> > stays online, task affinity is preserved, and the selection can be
-> > reversed without rebooting:
-> > 
-> >     # rmmod steal_governor
-> >     # echo 0 > /sys/devices/system/cpu/cpu3/preferred
-> >     # taskset -c 3 ./my_workload
-> >     # echo 1 > /sys/devices/system/cpu/cpu3/preferred
-> > 
-> > the current preferred list is still readable from:
-> > 
-> >     /sys/devices/system/cpu/preferred
-> > 
-> > This provides task-placement isolation similar to a use of
-> > isolcpus=domain, with a runtime interface. Scheduling domains remain
-> > intact, tick suppression, RCU offloading, and managed-IRQ avoidance
-> > can be configured separately when needed.
-> > 
-> > Different preferred cpumask governors may coexist; all update the
-> > same mask under common locking. Manual settings are not privileged,
-> > and later governor updates may override them.
-> 
-> That is a recipe for disaster.
+So one could argue, that at least for the PCI auto-recovery case, this
+conditional call to zpci_fmb_enable() is not needed?
 
-OK, that's fair. I can make it mutually exclusive. 
+> =20
+>  	return rc;
+>  }
+> @@ -847,6 +891,12 @@ struct zpci_dev *zpci_create_device(u32 fid, u32 fh,=
+ enum zpci_state state)
+>  		goto error;
+>  	zdev->state =3D  state;
+> =20
+> +	/*
+> +	 * Measurement is on by default for new functions, this will be honored
+> +	 * by pcibios_enable_device().
+> +	 */
+> +	zdev->statistics_on =3D true;
+> +
+>  	mutex_init(&zdev->state_lock);
+>  	mutex_init(&zdev->fmb_lock);
+>  	mutex_init(&zdev->kzdev_lock);
+> diff --git a/arch/s390/pci/pci_debug.c b/arch/s390/pci/pci_debug.c
+> index c7ed7bf254b5..e479763858cd 100644
+> --- a/arch/s390/pci/pci_debug.c
+> +++ b/arch/s390/pci/pci_debug.c
+> @@ -97,7 +97,7 @@ static int pci_perf_show(struct seq_file *m, void *v)
+>  		return 0;
+> =20
+>  	mutex_lock(&zdev->fmb_lock);
+> -	if (!zdev->fmb) {
+> +	if (!zdev->statistics_on || !zdev->fmb) {
+>  		mutex_unlock(&zdev->fmb_lock);
+>  		seq_puts(m, "FMB statistics disabled\n");
+>  		return 0;
+> @@ -156,10 +156,10 @@ static ssize_t pci_perf_seq_write(struct file *file=
+, const char __user *ubuf,
+>  	mutex_lock(&zdev->fmb_lock);
+>  	switch (val) {
+>  	case 0:
+> -		rc =3D zpci_fmb_disable_device(zdev);
+> +		rc =3D zpci_fmb_request_off(zdev);
+>  		break;
+>  	case 1:
+> -		rc =3D zpci_fmb_enable_device(zdev);
+> +		rc =3D zpci_fmb_request_on(zdev);
+>  		break;
+>  	}
+>  	mutex_unlock(&zdev->fmb_lock);
 
-Thanks,
-Yury
+But overall, this is looking good!
+Thanks, Gerd
