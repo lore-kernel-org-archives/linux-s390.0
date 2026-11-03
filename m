@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793717256;
-	b=cAmr+vID9xYBs92eeGjjPuTuPgSWY2R7QpJBaIzyWu8r9IocI4bLJ4twVAmqTWxm3xJT
-	 kqoKirm2KEkQO20qpkBVM++sB2QfVhV6gBLyEEaNj0/PaXR5DpbWLIbj9kGpumVX/siPx
-	 FKSGp++4ttHVl/yDO22afJJbsA7qI4bqh2lp3QF11eu8V0xMRAeeTc4rvF5V4PRJbnp/f
-	 arN6dq4/bd1wg23F90Fc8aB/jS+8jv+ci34fxmMUFD5WOn0dZFpH5iN14FkMHeCjeU9Pb
-	 SdsVx82ub3T7+Li4o9b61OMYJjGmMuuNAJMGTWWb5o4m2g7AQ8Qzaz0icsazaex8pEg==
+	t=1793717262;
+	b=qVElLNp+YOAlH8Hu9yPog5uPGFjEaTTj6wVjyGfRlKZxMBSWgjanKT1eAdYdwgqNRI/7
+	 ftFq4sfXmNJKnEeHjiuF5Ppj59NAtIRRM4dbFZcMBybzbLQkS06ZhOFG42RkfnnASKvbS
+	 LL5pX9+NyUNTIc3hoVEHDkEgr7baFSHaPtFalrnw+UKZI8V7eN6I0SdxiA5VN10K5JCmo
+	 pd2eYt/K4WhsylmS5XWEKUAKln1Zo8kyAO5v6WvCNQEBtsg1avWdPYXcVnYLD+3ti3NO4
+	 pQzPgcWgmbBeBn1iuZmS97t8Y0W5ayLiIdwIlfUeZ21twkIw1kfsTe+HZz+d8Cu67Ow==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793717256;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793717262;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=q0d4FPmWtZwKMh/sPGL0i6hRLuYL8e+WwbXcE1bGJN4=;
-	b=cTt0jR6iNrpyNGRE/DEb4mbsff+HV0V6vPt7UqSoB200gSnC6vIwUr0d5BblsIeqLc3J
-	 VcKw5TyFIzxZzOx/QAiTe7zQ7t0j9Y7tt/B2O8xye/I7A8XsaHcBQKoXBUyuj1yrFkl7c
-	 dHPD8x7WbrtHOGAFpKOIFH9CJAgoAfZ8j4v1hANPAT/w5FnlFvUVqeU7LFYaK2WHMoFgo
-	 icKZ2HfC0xtWSLqfPz/LgtLyd5G+DSCGoKItRFaLauisAO3+YZhisk4cJDLSFsLG0k5Rn
-	 6mwvRzxihGrHJfX7ivMozLY0jxVOXKxCmQG05QDjuOGor5NIXTHSVgn3t7EmGZTzuNQ==
+	bh=qAOPaMWfnZdlwVSHYL+9rw86rJbtw6B991RXjr/ZT6w=;
+	b=5ACk6W/DoRILihz83PmnAu5sO73+vR5unGyohjtxgiUuzbwT93kdcxRViXXrsWBLeUq5
+	 /W/XMXuBRwqv+56zIvjOL1oB/e059XXhkTVlMMj/GUqRYttd8UeK1YaSby8hayeb1q5A6
+	 eqse4u7islwx5r399zayrXKPJ1PhcWUe5SMzElUeg1SpKu8Wj1Y0juj6VH0gufX8FBmEF
+	 mbhN8zb8TUFjQKL5OQXWrM0UtPoji6y3KkObwnCBXYWEQYgQ8WoWSD1uWvDveP2wqbOE2
+	 4JmXggwbAQql44uEpr3kCM2uAEKE7IEh7Bz1dnMTTg+PYWQZZugNnvryWVACiXoEcjA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ecNUXxnh;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="A468O/vZ";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB1D0606A333;
-	Tue,  3 Nov 2026 14:47:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFCEC606A324;
+	Tue,  3 Nov 2026 14:47:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ecNUXxnh
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E75901F00A16;
-	Tue,  3 Nov 2026 14:47:33 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=A468O/vZ
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16B431F0093A;
+	Tue,  3 Nov 2026 14:47:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793717255;
-	bh=q0d4FPmWtZwKMh/sPGL0i6hRLuYL8e+WwbXcE1bGJN4=;
+	s=k20260515; t=1793717261;
+	bh=qAOPaMWfnZdlwVSHYL+9rw86rJbtw6B991RXjr/ZT6w=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ecNUXxnh2OcVVvSa0U3huTG0L9O+PzIB1xuXCxIUp/GZPPPzipCpRc1/qlsk4J6CA
-	 x7U8X9eMczAWPO2ZaCpsl6YNtO0NoBu0+DXnA39JSuS9XY9AjGBFyXlc/Ccq4RTQY0
-	 UAugm1HYHytJJ48gGhh5Ikw7HuDNMAn11k6igesT8J9xgHn79oAIaLwhkpwX1VrdQQ
-	 +5bvleOIuzZz7sQeEwq2Hki4vo4gTrOnLMNutAIHZebuy2qBXQktzKVc8aWpJCw5wT
-	 EMd2yrUC+CDD8BIHuYrdGWQwA/PwlqJVUVRxCdpabP9PdTkesHJyvmQoHa6OBE4VbX
-	 e+c9Js8H66prA==
-Message-ID: <sashiko-outbox-195476@kernel.org>
+	b=A468O/vZdHBCD7UZ8UlB4cSW6Wo1lS1VWajhi1pTgPoFKYre1RGq69cqrrhcrxsuF
+	 k422eyUGzdP7ofPMeyLy6mjVTMbhvybiUdIWqaAx7URHqDYYBVQn6dZGzbDmUfE6un
+	 qzuotRGPVzOaL405ACUuj2CaDtKcaw8pCw0kTqtzCJN67C+LtIgWy3OieZgcrwMx2t
+	 zcaPbLjrTJ+q8VGMuwdq9ud2hPp8483QXmk3XHJSNg2Z2p61qNJyklOPHI9wXFujkU
+	 I6veXuBMM5qIzCu924WMLvJ6+BN/lGnAxoVA5YXv2Dy7ECUP/Z98JhXC/AIwYDtl6B
+	 3k+Ju+9+jEFyA==
+Message-ID: <sashiko-outbox-195479@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 04/38] s390/dasd: don't look in front of the buffer
- on an empty write
+Subject: Re: [PATCH RFC 07/38] powerpc/rtas_flash: don't read past the
+ validate message
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -55,12 +55,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261102-work-procfs-bugfixes-v1-4-59422ed3e465@kernel.org>
+In-Reply-To: <20261102-work-procfs-bugfixes-v1-7-59422ed3e465@kernel.org>
 References: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
- <20261102-work-procfs-bugfixes-v1-4-59422ed3e465@kernel.org>
+ <20261102-work-procfs-bugfixes-v1-7-59422ed3e465@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 03 Nov 2026 14:47:33 +0000
+Date: Tue, 03 Nov 2026 14:47:39 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -70,11 +70,14 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> dasd_get_user_string() strips a trailing newline by looking at the last
-> byte that was written. For an empty write that's the byte in front of
-> the buffer it just allocated. Only look if something was written.
+> get_validate_flash_msg() adds up what snprintf() returns, which is the
+> length of the whole string and not what fit into msg. If the update
+> results the firmware hands back don't fit into what is left of the 256
+> bytes, the length ends up larger than msg and validate_flash_read()
+> copies whatever follows it on the stack to userspace. Use scnprintf().
 >=20
-> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> Fixes: a94a14720eaf ("powerpc/rtas_flash: Fix validate_flash buffer overf=
+low issue")
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
@@ -82,5 +85,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261102-work-procf=
-s-bugfixes-v1-0-59422ed3e465@kernel.org?part=3D4
+s-bugfixes-v1-0-59422ed3e465@kernel.org?part=3D7
 
