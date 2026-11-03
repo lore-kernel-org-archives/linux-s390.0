@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793717316;
-	b=3S/f7lXmkrNi+xZiU4JYtkWoh61pK3hQOxuSE1iUKBnQJbomEoHoBYnFtSzl7UqJUj32
-	 sz6hK0MrH/UjBr5AVWRsIHBVYagwx/0Zdb1FDc23yWp3YYK9EJzhuw2vo3nthgwCMV5hp
-	 n0IjKWSi2BW3zxaTttbZB7rUZBqLOaYiNPk5sGx7q89KbVagKssANjaQ0e8bCx2aFhi2c
-	 shOZa5QJSv40p3zo6zOGOeH6KdUHGj2wgW4ic9LrGuY7s8yG5y4xKkNhrfHtDb5wvu91A
-	 eVEAfOHuUqqlc+Q6Z70AICEOyZMOnnBO9N9KuXTRBXrAsPDCj6tkdHTVjdt/WNAgsNg==
+	t=1793717311;
+	b=Gn0/6MobQ8oD8ktUK/dsT6wWh+62cJO9IE0N9A+Iv6VcnQS7mOEKE4+vAmJzIM1DxqI5
+	 0nb1qph1+WMd3QKC6A/Mimyk49xMo+ig2aMmBzLZ0OrsaGC4LEpRZZa+IVzDa3AHjs7F+
+	 Fp8jCH/HrpQZjtrlpVmfV2v7t7gp9K+QSko6CgYyXHxTGFxvvTTXEZ25VhfVavIzAQ94Z
+	 7mkPIA+chu8+GYK8J36JDle0J1e2QY33QTP1uN2PtkchdXDQIBrIy3tjzqz+dEAUcUAbd
+	 f7kbWqezxx8JA9VCigSXAdl9taHIwrfg6BoAIcIKg+qypDo7M3MZs9oSsV/yjc1R2bg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793717316;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793717311;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=8ompXbSfKTmar/iuaOX9JIZ9dqke8qGTDkyO8zZl7i8=;
-	b=W4MzX7ttA0Wg5PdhL5B3SD2+DhSG1pU7hZ5tnFUR32aP9rWpK6HZ4jAkRv6EpR6P3Zsm
-	 gYdilldoOUjbXwoRPnGJyqCBbS7JSk4E6xem8oh5UdJZAtemZP+2p+v+6XScXbSEPX+Ab
-	 MqSU5bZFMI2gpUz1QYJ1JmPk7qelS4w+Ro44B38LbxGrevZ7/AactQRnPqS2MwkAT8E0H
-	 yGdSr0DXNjwS21SxiYUUXwNsmiLKjrmz6xCsUEUBc56w6B2EZDuqKY3eHElopwhfJGevv
-	 3l6Ns9sA9Lc0PcTM+D0OwAoPavkMi/+/4C8oK+nFH1YXO8yZswjSlGZHfVyv8X5K5vg==
+	bh=YPSq1R8mvv3m/ZWA/l/xhrxB9LISO8x35dE2LzyDV9A=;
+	b=IYT0w11QuL3Tpxvg2yY9jiyoCiPWdmgt81f4J6LqD+D0IeiWy7FcdBdxbzwjVnwixQDV
+	 +R/ZrE41H9+y9vfYYzkD0xlmOFhbH1OLNkGkm5+art1fgAEdNDAsPckEOWoFMWS6tQU6n
+	 /FzEECLx4SkEK+T7iJZRXqpbKVEEHiYATbEvkVt8rYEjyhdtcuj47GlljW1xKL1zbMKpH
+	 8IYiyAwT2qj0jCBd17W1FjIihi1FgEWsE4UpbMkJrT6I6kd3o+Z84qvOkPteyvb3BwTAs
+	 6Dzkon53R2XeLCK/ynjnqiNFxbadLgz11sJoBZULjIj4aI9DVCeBPJIq7U8G1jZncJA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="T/AbEilE";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oh72y6aD;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34AA86082BC7;
-	Tue,  3 Nov 2026 14:48:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92B0C606BA19;
+	Tue,  3 Nov 2026 14:48:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T/AbEilE
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5079B1F00919;
-	Tue,  3 Nov 2026 14:48:34 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=oh72y6aD
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7FC31F00A15;
+	Tue,  3 Nov 2026 14:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793717315;
-	bh=8ompXbSfKTmar/iuaOX9JIZ9dqke8qGTDkyO8zZl7i8=;
+	s=k20260515; t=1793717311;
+	bh=YPSq1R8mvv3m/ZWA/l/xhrxB9LISO8x35dE2LzyDV9A=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=T/AbEilEPu+993/i5YrlBe/LjW0S5UQfpCu5Iccbvzqd12sRlTgFWsgrSVjw2w1Ji
-	 feLhyt4/KDJ0nKFxA0iTxvtabCMgfYDOWi9/8DtzToqxMu4kRB3J0iRi9xaoOeAiQe
-	 bxCJ50IHJLdREO77IDUbG52cQ8VgBxK7kEVyzcedFS7bENBc+uy9QX+tlio1XnTzH5
-	 DAdRilCYdO6cIMJKRAY4DvOH9JBzziLKOpYIkd+hmD6OOYQHSsSMOdLVBXppMe1DNg
-	 BVkpW9rOFYDyLgabcNoUfGp6p/nPWyKE4kB6moR5RMrDeUbDs9DqAMXxdrGzppmBuD
-	 Pn7dOj5o6ylrg==
-Message-ID: <sashiko-outbox-195505@kernel.org>
+	b=oh72y6aDbLhFaPXdBI2yRygfRhwg2WDjGU9Aug43O88w0qr0cxbFG4trwNS0j/8Ev
+	 r3EdnMEC8dYVFGPL3Wcol2YUeQfOLab3n/En1SWiK+eGFj7nW7qcJjXcKvZwh0bzbV
+	 RNoz4+GhaJ8KyC0GD8TuMTV2UnfppqTuBq2YabUDkZgm0/NdhEq9hKM9qswXM7cQIV
+	 3840K5dlCFENAoaul71/Ny6o5tT8/kxIu/OwJtSVoult59fuGjHPNvvwTaeLvVLhWe
+	 WiVKYH1JDAxg78SUefAwd/eYv47zsNpa3fqoONjQuFAGyobDs9zKSbT6KgrEXQYbJS
+	 oTCDW/6YY7CWA==
+Message-ID: <sashiko-outbox-195503@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 33/38] proc: sysctl: copy to and from userspace
- without holding the table
+Subject: Re: [PATCH RFC 31/38] proc: sysctl: resume readdir after the last
+ name it returned
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -55,12 +55,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261102-work-procfs-bugfixes-v1-33-59422ed3e465@kernel.org>
+In-Reply-To: <20261102-work-procfs-bugfixes-v1-31-59422ed3e465@kernel.org>
 References: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
- <20261102-work-procfs-bugfixes-v1-33-59422ed3e465@kernel.org>
+ <20261102-work-procfs-bugfixes-v1-31-59422ed3e465@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 03 Nov 2026 14:48:33 +0000
+Date: Tue, 03 Nov 2026 14:48:29 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -70,26 +70,31 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> proc_sys_call_handler() grabs the table, copies in what is written,
-> calls the handler and copies what it produced out to userspace before
-> it lets go of the table again. Unregistering a table waits until nobody
-> uses it anymore. So a reader or writer whose copy faults for as long as
-> it wants, with userfaultfd or a stalled FUSE mapping, keeps
-> unregister_sysctl_table() waiting, and its callers like to hold locks
-> while they do that. addrconf unregisters the ipv6 sysctls of a device
-> with RTNL held, so a stalled read of /proc/sys/net/ipv6/conf/<dev>/mtu
-> holds up every RTNL user until the reader gives up.
+> proc_sys_readdir() counts the entries of a directory and resumes a
+> listing at the number getdents64() stopped at. The entries are sorted
+> by name, so one that is registered or unregistered in between shifts
+> everything behind it by one. Listing /proc/sys/net/ipv4/conf with a
+> buffer that holds ".", ".." and "all" and registering a device whose
+> name sorts before "all" makes the next call return "all" a second time.
+> Unregistering one that sorted before the position makes it skip an
+> entry instead. So a listing that takes more than one call shows a name
+> twice, or not at all. Even the 64k buffer of ls needs a second call to
+> find the end of the directory, so a device that comes up right then
+> repeats the last entry.
 >=20
-> Copy in before grabbing the table and copy out after letting go of it,
-> like procfs and kernfs do for their files. The buffer is ours, nothing
-> needs the table for the copies.
+> So remember the name of the last entry a call emitted in the file and
+> resume at the first usable entry after it, like kernfs resumes after
+> the node it stopped at. The entry itself can't be pinned across calls,
+> unregistering waits for that. If the position was moved by a seek in
+> between the listing counts from the start like before, seeking to an
+> arbitrary position has never been better than that.
 >=20
-> That moves the allocation and the copy in before the permission check.
-> A write that can't be copied in, or a request that is too large, now
-> fails with -EFAULT or -ENOMEM where it used to fail with -EPERM.
+> That also takes one walk down the tree to resume instead of a walk over
+> every entry in front of the position with a round trip through
+> sysctl_lock for each of them.
 >=20
-> Fixes: 330d57fb98a9 ("[PATCH] Fix sysctl unregistration oops (CVE-2005-27=
-09)")
+> Fixes: 77b14db502cb ("[PATCH] sysctl: reimplement the sysctl proc support=
+")
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
@@ -97,5 +102,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261102-work-procf=
-s-bugfixes-v1-0-59422ed3e465@kernel.org?part=3D33
+s-bugfixes-v1-0-59422ed3e465@kernel.org?part=3D31
 
