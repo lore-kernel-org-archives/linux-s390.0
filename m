@@ -1,81 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793720145;
-	b=DFPQ29Y2HlpHLo9IAnQGoWprcDUQyP6i761M3pYA7BHRbZdivky464hHviw99PLESkGK
-	 UV4L3WgyX0gFzcSwNfaCJwNetUpq+VY53aiRsIxQMmejcmIKw6NlU6pT5DD9TwrYdp0YZ
-	 zQlFXyGoXI4NUoNE8uZkC5kBoRsRItVQJn9XMbP5WHOk3EP7UDA6bFKXGB5hAM0QmTOK+
-	 nKuso4DYxnZFo7OZ6aiV79PnwsyHkK0nzA+0BRwAeFXaTUAlww3XewJcGtPw4tjAq4naq
-	 fUFlWgIDpoMFvp+Gktqa6Ceicg3NxInNGHwqmMM5U5HfVkP0PSoMx7SOFOwittdhjbw==
+	t=1793720163;
+	b=fmp0S+O6xTuqYWLmInca7nR590HLd5iQqtRVIEPdbv58Pbi0jVZl3pzpax/sbCoxMyY7
+	 g3vHowJupLJqocTqIG+zuAZ99eV3z6xHgDUfTOQeZ3ttPt/WsR8OCjm7WF/LfYtq6XMUy
+	 9SQRkPp4f+lPeee/mf8520BpEI3oiXMXcZfhujH5tpsKPAiyPL83mPmx5/iBRSOab9aVe
+	 r0kzsBnM8Kg3zKvpAt7BqawWDjUNEpntUxe/nDqo3wGLtK5ltJX7Ny/SRc70TseGsjvw1
+	 5XSPCrT7vR6WJvWcYCdn6afYoc+sUGGYDTabzsiXh/mxFMp81ByTbk++8onxvua8A3g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793720145;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793720163;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
 	 User-Agent:Subject:To:Cc:References:Content-Language:From:Autocrypt:
 	 In-Reply-To:Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Spam-Info:X-Authority-Analysis:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=R/hGYgiHygNOpp3cx7VI3ytqaHjU0REZP4KCrAKoNZ0=;
-	b=SDMVjG/x1ddrznQppctko/j2nkyaXXOMMO5QQmIRu+vIpZEnXrSewm/rzocea8EnZKOb
-	 GtGDuBPdvnZJOxJ9Kku5XHgrmsM1Jmfh7Sygj03VZQFAE0bbj9cvtk6zp8O8V3HpG/h2U
-	 FtT3Bdyc3D7yk6BZH0FSWZ0hRszA4kuMeAXh6KklsrZ3oylBwDafUAtzd5/k63axl9bcj
-	 wCOiPegT7CWD12kw0j4w3K6akt2YeM71jhkwrkSjI1caR7X0v+xgb6UnLN1wPOWvZwGdJ
-	 3O5RpLCSC3kMsFXt2mo2PRzI3wt81vy0W0kQhPO5spCD28WJUplkcKD2PwG484yqFxQ==
+	 X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
+	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
+	 X-Proofpoint-Spam-Details;
+	bh=Jr17BN+JExKAscipxWuR7GwAi/NCXznnsA5wbwnKKvA=;
+	b=0+HaFtrpMCurMHCCK9Bcnn89OJ4VUFim1xNJNQh2KCFaoJxpS4qv1WXhDqKFZD8NAARd
+	 tnKjUKZkJNrRiyXfvcqgwassAglRmRNZhqLEoF89whruUT1NZlzzHXa6uLj4X/p4kgRZV
+	 WOn1fa4iuLS/n6CVV15/k/mdoH6Cqu8x8496zMTJEWeS5yejGHAOtm8aLRnnReUNY7PvW
+	 z70TAtVm4HaACQClqWAz9CZ5Id2/saks3O+8xICJvm9WbduYE4ukDH0HfW03OK/MYW4av
+	 U0GiAzt0RplDsMEakIHqL5psxws8S8104DB85qK43DjBM1UnlBeq1qvSTa42JX/bBWg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="bMtw3e/R";
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=oFwFxQZb;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B351606A324;
-	Tue,  3 Nov 2026 15:35:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0B351606A324
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 480C2606A326;
+	Tue,  3 Nov 2026 15:36:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 480C2606A326
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=bMtw3e/R
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3EEDLs860814;
-	Tue, 3 Nov 2026 15:35:42 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=oFwFxQZb
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3EELij407375;
+	Tue, 3 Nov 2026 15:36:01 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=R/hGYg
-	iHygNOpp3cx7VI3ytqaHjU0REZP4KCrAKoNZ0=; b=bMtw3e/RMkZdomOCP+5AMO
-	+gYelTNsOhY6nIA78/7dWqZn6ZvA+7LgBQcV1+/qgW0ajw/IJvQlbx43qhHUlq+T
-	hyB0pkATFTh+Eh7AvXcW60x8p9d9dArBmcJvqrFe2pSjBf8MavcMEKqOlSaVWOGX
-	+5qBx2Bx6Pqyz2i0rmo2o/msKDycmtr4GKorGEcOhMu7Y2P5Zq0U6Z+BLjR1VmtQ
-	irA6LdQzud4Y5AH/A3bvM2XZ+TADSlkvD7+3eb4HbxRYnSiUQFbTvxF3UkVypffK
-	bmdK7HxcWvnoue9Wv0CMEwcajpFAN57cgMzoD8wztObZo+nj4wBfvgWC/3iPhKqw
+	:message-id:mime-version:references:subject:to; s=pp1; bh=Jr17BN
+	+JExKAscipxWuR7GwAi/NCXznnsA5wbwnKKvA=; b=oFwFxQZbjUI8BS8ZiLPUVD
+	4grCiPqUG7/ymzaODsrLaSg06N2HbeV1QMy8u67707UELn2acj8+2Ph15VS4uxEp
+	btWMwbidNznp2QfTwQLIo2v/jAUIyEtWf5o5nxi4lMdP5MBgi2L+YKkYDG9f4P7A
+	HNoyHPR9LPT4TH49AWRSOVltodyhnn5VHb96APD+ga6U1yltcLaF3RJrBoUEGzA4
+	R5hKJpZz6INrakHD6xZVkHF6Gw37VqDCMsNBdB2Zaw28K3IlHJPsflBMqjy78VVs
+	QMhnKTe+PjqUVMdbKmqWa+9EIiJ/H6tfUUPY394b5Ph49DPNKoHPi0uLMgr+MdEg
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn6rd6fpm-1
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn80spm9e-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 03 Nov 2026 15:35:42 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3EK5HM2695665;
-	Tue, 3 Nov 2026 15:35:41 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hnv5gu325-1
+	Tue, 03 Nov 2026 15:36:01 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3EK2gk2625442;
+	Tue, 3 Nov 2026 15:36:00 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hqbqk9sr1-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 03 Nov 2026 15:35:41 +0000 (GMT)
+	Tue, 03 Nov 2026 15:36:00 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A3FZY5J50528626
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A3FZsDI14549352
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 3 Nov 2026 15:35:34 GMT
+	Tue, 3 Nov 2026 15:35:54 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C8B352004D;
-	Tue,  3 Nov 2026 15:35:34 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2FAD420040;
+	Tue,  3 Nov 2026 15:35:54 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 91FB82004B;
-	Tue,  3 Nov 2026 15:35:34 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id E66422004D;
+	Tue,  3 Nov 2026 15:35:53 +0000 (GMT)
 Received: from [9.111.16.80] (unknown [9.111.16.80])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  3 Nov 2026 15:35:34 +0000 (GMT)
-Message-ID: <b9d75f09-bef0-47b4-994e-cc47f2f9ac64@linux.ibm.com>
-Date: Tue, 3 Nov 2026 16:35:34 +0100
+	Tue,  3 Nov 2026 15:35:53 +0000 (GMT)
+Message-ID: <1983b3eb-53a8-4a87-99d1-a96fc3df9241@linux.ibm.com>
+Date: Tue, 3 Nov 2026 16:35:53 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -86,13 +87,12 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 6/7] KVM: s390: Introduce
- gmap_allocate_all_page_tables_best_effort()
+Subject: Re: [PATCH v4 7/7] KVM: s390: Allocate page tables when CMMA is used
 To: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, david@kernel.org,
         nrb@linux.ibm.com, schlameuss@linux.ibm.com, gra@linux.ibm.com
 References: <20261028185422.272146-1-imbrenda@linux.ibm.com>
- <20261028185422.272146-7-imbrenda@linux.ibm.com>
+ <20261028185422.272146-8-imbrenda@linux.ibm.com>
 Content-Language: en-US
 From: Janosch Frank <frankja@linux.ibm.com>
 Autocrypt: addr=frankja@linux.ibm.com; keydata=
@@ -137,50 +137,57 @@ Autocrypt: addr=frankja@linux.ibm.com; keydata=
  DchCqFm5adiSP5+OT4NjkKUeGpBe/aRyQSle/RropTgCi85pje/juYEn2P9UAgkfBJrOHvQ9
  Z+2Sva8FRd61NJLkCJ4LFumRn9wQlX2icFbi8UDV3do0hXJRRYTWCxrHscMhkrFWLhYiPF4i
  phX7UNdOWBQ90qpHyAxHmDazdo27gEjfvsgYMdveKknEOTEb5phwxWgg7BcIDoJf9UMC
-In-Reply-To: <20261028185422.272146-7-imbrenda@linux.ibm.com>
+In-Reply-To: <20261028185422.272146-8-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: f5qu-LlX5RS89-yUc6Fy14ffeAX_A9_s
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAzMDA2MCBTYWx0ZWRfX7ZUjipZIQhgJ
- cKGYva0t6VZ3xcO7VWQE8ZC5aMIpz1ir+jI2BKZ3BRlmQyo85lABoakKeLKN2ZNjtq8maiRYpD8
- duqLx9Qx32UWqRDXW4e6t6aaN/uwLOoOJ/u/JGNXqs8fZHGsa9Znjt4sQx12GTmBVBrqSJwMdLA
- Mvym284fAVEd6xaQZrVS2bBAIyShsMepzryn7fOFQqm4kHr0PGVuc5ztuNGHbhHEPTwDCrgKp8H
- DDLkAa1hHdUTEJK0XV3XZznqQcMd+3yP4PI9H4AdU1073cZL9O2Q3xCiR1aZMsmcRvZAyzIGOzj
- CdxikhUcBFr1sO2Ea888O6eKw5Xp3MqCQ3bjlFXFFfgyZid26if5E/igmKm+INL6oM45s5ouYjV
- wZRmwgp1bFFlkDFdBkZpL/BcQ5GZVezj39RKesV1Kaur5l+5KVYvkM/EldNYy4MH0+PUciEV6W6
- OH7ePskKxaSKR+hQfnw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAzMDA2MCBTYWx0ZWRfX8rhhNXQTPE/h
- 1zowOK2x3RUnjFNb0o4qcZuB+GSzRIosy8OH7bmLLwpdu9DesGcbMVzXiYnizFDX92NiVOAx3+x
- 80q0Kcvm7rQ/ojty8m+WSPEnziadfnU=
-X-Authority-Analysis: v=2.4 cv=QK391QLL c=1 sm=1 tr=0 ts=6ae9ff4e cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-GUID: wC97zEMl5zULnhsglKw5ifLFTnCEPVEI
+X-Proofpoint-ORIG-GUID: wC97zEMl5zULnhsglKw5ifLFTnCEPVEI
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAzMDA2MCBTYWx0ZWRfXz9tV/lFQf95j
+ wpmz1/MAxXjGkxlPxVyjmCWOec+2W1Wy5hPZItU3kInWBWuh7Nh6YRYxRuU2wW5Lf0DsR9ZruXo
+ lwsSnHYO/4bv7uDGVZdHFM6IA9AHGKch0cQulkis/AQzupj7PKCMXr8Ea8bRYQuNGQj0sjtSrJw
+ c11PDESPznqGiURf+vdvmXaQUZr0GimXLkPCEOrnyg+0Qs85TgBhtU4wItSn7zKCr1KCL7YoQSq
+ Yag/kWZLYsPnzOiWm6O1u4rszuDNNzcXsqZyPTeMLNyLpSz0Thcap2mF8wHw/XrHhqsCuuPlgyQ
+ qlgjT0TU2V2sOUfbtihib8jBIOYsmhpjT2QhpLEo+so9SDUDU4VB0hkpl1kQTzOw6IJfu0Lm/Z3
+ M3h14NPGmSl6OARqAgI6a8lopekzdh7KDsx6EonkfKurmqeq1LVNaK+acvQk2tjTq0c06MY2F6s
+ 1Nz6ePCVY3eT2bej1jg==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAzMDA2MCBTYWx0ZWRfX5VdunYa5cpSy
+ MtHSJnsyN6ESg25cF8D/Sby8NcoFEvB+QSf9eRYZo8vKlVt6Sz+AB+6rG/1L4wooClI6cZ5O+Yk
+ azgNS/14SRy2jVmFO7QV0fXBljNyY14=
+X-Authority-Analysis: v=2.4 cv=FIqOVOos c=1 sm=1 tr=0 ts=6ae9ff61 cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=IaT-QKbObLOp2u_Hl_MA:9 a=QEXdDO2ut3YA:10 a=ZXulRonScM0A:10
- a=zZCYzV9kfG8A:10
-X-Proofpoint-ORIG-GUID: f5qu-LlX5RS89-yUc6Fy14ffeAX_A9_s
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=nR0qH_vgA-MvJPG0f6MA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-03_03,2026-11-03_03,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0
- impostorscore=0 clxscore=1015 lowpriorityscore=0 adultscore=0
- priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
- definitions=main-2611030060
+ adultscore=0 malwarescore=0 impostorscore=0 spamscore=0 lowpriorityscore=0
+ bulkscore=0 suspectscore=0 clxscore=1015 priorityscore=1501 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2610300000 definitions=main-2611030060
 
 On 10/28/26 7:54 PM, Claudio Imbrenda wrote:
-> Introduce gmap_allocate_all_page_tables_best_effort() to attempt to
-> allocate all page tables of a running guest. This means that all
-> hugepages will be mapped with 4k pages regardless of the hpage
-> parameter.
+> When ESSA is executed in the guest for the first time, allocate all
+> page tables and split all existing large page mappings, regardless of
+> the hpage parameter.
 > 
-> Existing mappings with large pages will be split.
+> With the page tables present (even if all the entries within are not
+> present), ESSA will not cause page faults.
 > 
-> If any memory allocation fails, ignore the error and give up. This is
-> only a best effort.
+> Without this fix, ESSA will cause a fault on the first page of each
+> segment (1M block). If userspace is backing the guest with huge pages
+> (hugetlbfs or THP), the page fault will be resolved by faulting in the
+> whole huge page. The result is that at startup the whole guest memory
+> is faulted in, since the guest will mark all of its memory at boot.
 > 
+> With this fix, no extra guest memory is allocated. This will also
+> prevent the first page in each segment from being faulted in, regardless
+> of hugepages.
+> 
+> Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
 > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Cc: stable@vger.kernel.org # 7.0+: prerequisite for the next patch
+
 Acked-by: Janosch Frank <frankja@linux.ibm.com>
+
