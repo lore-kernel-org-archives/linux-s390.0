@@ -1,72 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793674994;
-	b=o2NbgrH+mCDecH97UIxORjoKGFwYtcCrPUih1HHFvl6me+6njpBDgsIeO6rqhTq0OuvG
-	 txLzyULRjD5nO7Ti4u9ndTwEmfxLJrykkG3JoF9GyZkpfMOkAV3C5uCxdD+zhEtVekPsc
-	 wJPq80TVeGMYepY0RLFMHk555xyBp2TtOoXXcB8exiJg+Tlr/8xv8IOyCuepJ7zjC8GoJ
-	 2m1ZnQJa5nsVieQk5joFcvixMzMF7m1KkT08puafd1BanzTcLnuYKM+XaELvzSAtxwVNo
-	 Mz9soMOzbNbK7KEYVM3AqpRetMa8vmbQXVkY8R4C9Txz3Yy5HsgdonPjHt7Ok4mJLKg==
+	t=1793685010;
+	b=jMlyYUr2ONHzm5WjCW56tdlNg8y/j7ehPqhw18YmTP0zhTeRKFShOMKS8GgtWMuFEcYw
+	 6+rkRRM5m4fRYLbAa8X7Twobi1Ynh/QHhJurqPQ8Am6pYdKuNfysKCDMM9LrFpNzOPG8R
+	 QXYKB+rtYXnNuD0ZE59yJ98EaW+hlL3hOfF36HUwnEaG03JMX1jrgE73cEsW5mTmitGUo
+	 zTFyk7EQ668jo8une4PpC7G2g4IF5Em7XuqS7mVkDwPPcZhHfi9+AJzYXdNnyFa407GmW
+	 QKDHLvt2vF9lUYWfZCnokOEIFkye3M4vrZPJbukYbIt/MWXg8M4gZZjQe5wvtTp6EmA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793674994;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
-	 In-Reply-To:References:MIME-Version:Content-Transfer-Encoding;
-	bh=YXT02xbx+UMV7krC+PiVzw1JOPl0AyHZ+SyCM1OQfcg=;
-	b=nbKZTJ5h790dbXsieFVmGCh83qC9CLUYErKdftDlAHNJ1uag3eXxcX0iMgAT/6D6XF6T
-	 bijY50kXNl1HsXqNRTAFs5QNUMj0jGvhyTcRApk1ykAA8li+bvmPPrO8/nDc7ryzwHcTd
-	 z88vaZ2wYfvob8tsD68ocEK1LltDm+cngYV3QEKXkpw5z1l/gzCxwLwzMPnUYQnUx2ouC
-	 yv30rZNXYUgGFsvVpe3xIQ4HJ+7FFVS8y37587ep6OqFHkyEGMb8kBqeyFrgtnAgZ70SL
-	 EBL9TaJtL+0V+X2IQaVOT57dAUasS6XaU0gj6fEl3rsLZLP8FN6Tr7q/4fpEox/MEtQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793685010;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Proofpoint-Reinject:X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:
+	 X-Authority-Analysis:X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
+	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
+	bh=oEZv5xTdgeP9X/uO6g9HMr199joVAXGoTWQpcGadm9Q=;
+	b=FpcZbfG/Y305fUTIwfTcZq+qPZnB7NTxNm8IlM6d4OpYyAnLlU32aDmHF1HacT29NJBW
+	 TDNvCBZiTrwWeRGRIBUWioxOZPHc9V6YB6kf05SMllIR89ADekyB4LjweSUgOCkuNetbk
+	 ZDUv0EeIlxgJHnZ2zlUOH+d0ps6slEJ0Q+7cybEHYgLIEq+HFLyueBkIG6xWC+UjFR2vk
+	 CJEZe4eaBUOeq9N5OJLXjOgncmqwf5B1G1Z7yhdo/t1+BGqcz1O0YLLY6i3nQaqXP+CF8
+	 a3zcEMPbOG0scLAdY6kNqN14OStGtKN4NkQKLJsVDXEam0c5wdSFOwaGJxgZ7XzeQfg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=boN83dZ1;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=UyeccGag;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with UTF8SMTPS id EDAAD606A329;
-	Tue,  3 Nov 2026 03:03:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED223606A324;
+	Tue,  3 Nov 2026 05:50:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org ED223606A324
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=boN83dZ1
-Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id 0FE401F00919;
-	Tue,  3 Nov 2026 03:03:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793674993;
-	bh=YXT02xbx+UMV7krC+PiVzw1JOPl0AyHZ+SyCM1OQfcg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=boN83dZ1Gwykx0l1Wr8brt/OVt0lXGbwXXNyL/4RZsqUI2YwzywyyXipKCMiipNDE
-	 rGeepw+aNZKSBAvl2lkh78+i+IC0BMjKSs0rgjpmAomAhenapWJnvvtd6bwMtWWuz4
-	 RA6oKG7XVBCMWq0Bes/8ROK5hL6PobPmwrIRpJ91xh6FGfMMzVSmbqny2dd/ljIrTg
-	 7tdh91GF+OEuIPObRwkAN/t+nOqUwcdShfId53sRQIS7whi/3JlLUi0iSdCTCRNgl0
-	 z79e6ncUsRV4taIOEeE5VlmE/WoFjXGcoZi0zB3t4tnafAUy6/8xySd0hg5f3ov5AQ
-	 qkmu9nFkea4gw==
-From: Jarkko Sakkinen <jarkko@kernel.org>
-To: David Howells <dhowells@redhat.com>
-Cc: Eric Biggers <ebiggers@kernel.org>,
-	linux-integrity@vger.kernel.org,
-	Mimi Zohar <zohar@linux.ibm.com>,
-	keyrings@vger.kernel.org,
-	Jarkko Sakkinen <jarkko@kernel.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Roberto Sassu <roberto.sassu@huawei.com>,
-	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-	Eric Snowberg <eric.snowberg@oracle.com>,
-	Paul Moore <paul@paul-moore.com>,
-	James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>,
-	Ilya Leoshkevich <iii@linux.ibm.com>,
-	linux-s390@vger.kernel.org (open list:S390 ARCHITECTURE),
-	linux-kernel@vger.kernel.org (open list),
-	linux-security-module@vger.kernel.org (open list:SECURITY SUBSYSTEM)
-Subject: [RFC PATCH v2 06/11] s390/cert_store: Track subsystem keys instead of re-registering key_type
-Date: Tue,  3 Nov 2026 05:02:11 +0200
-Message-ID: <20261103030226.2685251-7-jarkko@kernel.org>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20261103030226.2685251-1-jarkko@kernel.org>
-References: <20261103030226.2685251-1-jarkko@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=UyeccGag
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A31iMpg236041;
+	Tue, 3 Nov 2026 05:49:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=oEZv5x
+	TdgeP9X/uO6g9HMr199joVAXGoTWQpcGadm9Q=; b=UyeccGagKpF3KDWFh2ldnI
+	/xZ1H+rduhEzrfXwYRxKUigqihnzqdOJo3rDA5qxn2M8AFwl/9QEHqwvPbM4XoI5
+	ObTtOrZ2pTpzrqBFbamngc634lvSKtbcjyYh3fierEknos57sWtkSzNAG0UssTaj
+	NpA1Mi327z71LrVLhOLOxV8BjpJyaYKtum2JUzWyE80yCv6l6M/4hqJ15LjVCB/v
+	LNx+wxOpCxy2vPDIVRtDlNvBIdZPwsaHopXQMPNwwY9M9D+oOnPW/s5gfntxpgSE
+	EObzgZXvkSC4Jzv+jL7n6wu7uhLs18277iVfZfH+dOXsB0eyTStCfdRwV4X6TGCQ
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn5rhm4py-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 03 Nov 2026 05:49:43 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A31ntH51870571;
+	Tue, 3 Nov 2026 05:49:42 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hnv5grwnd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 03 Nov 2026 05:49:42 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A35ncNO16777672
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 3 Nov 2026 05:49:38 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 090CA20040;
+	Tue,  3 Nov 2026 05:49:38 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id F02F020043;
+	Tue,  3 Nov 2026 05:49:30 +0000 (GMT)
+Received: from [9.124.212.4] (unknown [9.124.212.4])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  3 Nov 2026 05:49:30 +0000 (GMT)
+Message-ID: <439758ce-c807-4b5b-b2e5-31fb9f1c6f11@linux.ibm.com>
+Date: Tue, 3 Nov 2026 11:19:29 +0530
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -76,295 +85,173 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/6] sched: decouple PREFERRED_CPU from PARAVIRT in
+ Kconfig.preempt
+To: Ilya Leoshkevich <iii@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Mete Durlu <meted@linux.ibm.com>, Yury Norov <ynorov@nvidia.com>
+Cc: Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Yury Norov <yury.norov@gmail.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Andrea Righi
+ <arighi@nvidia.com>, Ben Segall <bsegall@google.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Danilo Krummrich <dakr@kernel.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Heiko Carstens <hca@linux.ibm.com>, Johan Hovold <johan@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        K Prateek Nayak <kprateek.nayak@amd.com>, Mel Gorman <mgorman@suse.de>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Steven Rostedt
+ <rostedt@goodmis.org>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Valentin Schneider <vschneid@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org, driver-core@lists.linux.dev,
+        linux-s390@vger.kernel.org
+References: <20261101192203.6979-1-ynorov@nvidia.com>
+ <20261101192203.6979-2-ynorov@nvidia.com>
+ <388636ac-4521-4523-bb5b-b6bc71591ff6@linux.ibm.com>
+ <20261102110026.GG1813469@noisy.programming.kicks-ass.net>
+ <9273846b-d815-4c40-a7a0-960281515878@linux.ibm.com>
+ <66ccd713-5571-4c1a-b59e-29adbc9852e3@linux.ibm.com>
+ <efe1657f-b1c6-4096-8868-fb53097b1847@linux.ibm.com>
+Content-Language: en-US
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+In-Reply-To: <efe1657f-b1c6-4096-8868-fb53097b1847@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: 06K1uN32fnwmS5VV0MjvNToEtF3khrN2
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAzMDAyMiBTYWx0ZWRfXzZ+xB9otBfCh
+ DtoReLZhszPxKjeckAJBG7TNsvIUf76Titegnm5vZ9s9fpMfU2XMPlWTSfJjrjGJ0k0aUC7QRT1
+ IYIud+R9ZTZ7/+5aFuWk9Y5UmiBrKjQ=
+X-Authority-Analysis: v=2.4 cv=LokHWXdc c=1 sm=1 tr=0 ts=6ae975f7 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=Ikd4Dj_1AAAA:8 a=A7k3Bbt6i4iCUiqUcE0A:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAzMDAyMiBTYWx0ZWRfX47H2TT4fxrNI
+ dKcIaIIeiJH9WxrreMDUuKl+r+YZQPLbvcPHZm59MJAiVJtqWCcoA6/+neZkv12rgfiFE9xhgl1
+ Y2503FTMcL4YzATlfyp55RJpCIpFgPNwMauaLgKIaPB/8Adz+HVDeWrFYrs5kydYZJ5Jet93h7r
+ GMJSskgxvLawv29TZz9/BFatBAhwO7faGOsa9YTnP38gcnwwnFIMpPVP2sDf4jqlrOIGXgtmunT
+ RdGxNSGiYO6lIuBIUNQBRU8Y2aojfYvw7vOwS/SZ5g5mZKnfZQeSinV8kNU+L2EFyawcc7A/Hzt
+ B+9C8I0QC/0f+wCBRNerHWGFzWqLaLIIG0dVeeEKAPCQR1yPDaCnlXsHERKxD132Z5hXjK8oYma
+ bpV01sLxXIZuQySojJN4Lfj+IVmsfbs0fjUvTpFDXRPX9oqSQRBRqajtWKFVvlwc5nqW6UYQ9pV
+ UMX9uQEZYGfvHyytQIA==
+X-Proofpoint-GUID: wzujVa4uD6spEvCaJi-IgRNS-FcdMrr4
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-03_01,2026-11-02_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 lowpriorityscore=0 clxscore=1015 impostorscore=0
+ priorityscore=1501 suspectscore=0 phishscore=0 malwarescore=0 bulkscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
+ definitions=main-2611030022
 
-cert_store refreshes its keyring by unregistering and re-registering
-key_type_cert_store_key so key_type_dead garbage collection sweeps old
-keys, while leaving userspace-linked keys behind.
+Hi Ilya,
 
-The removal of key_type_dead will eliminate that sweep.
+On 11/2/26 7:11 PM, Ilya Leoshkevich wrote:
+> 
+> 
+> On 11/2/26 14:00, Shrikanth Hegde wrote:
+>> Hi.
+>>
+>>
+>> On 11/2/26 5:04 PM, Ilya Leoshkevich wrote:
+>>>
+>>>
+>>> On 11/2/26 12:00, Peter Zijlstra wrote:
+>>>> On Mon, Nov 02, 2026 at 11:16:30AM +0100, Ilya Leoshkevich wrote:
+>>>>>
+>>>>>
+>>>>> On 11/1/26 20:21, Yury Norov wrote:
+>>>>>> The IBM s390 doesn't enable PARAVIRT config for their hardware
+>>>>>> virtualized Logical Partitions (LPAR). However, the steal time is
+>>>>>> accounted for the LPARs, once the config VIRT_CPU_ACCOUNTING_NATIVE
+>>>>>> is enabled.
+>>>>>>
+>>>>>> Preferred cpumask doesn't rely on any feature gated by PARAVIRT config,
+>>>>>> and requires it to minimize the configuration space and runtime overhead,
+>>>>>> with the lack of non-paravirt user. Now that s390 wants to adopt preferred
+>>>>>> cpumask, there's no reason to keep it coupled to paravirt.
+>>>>>>
+>>>>>> Make PREFERRED_CPU a user-configurable option, even if paravirtualization
+>>>>>> is not enabled, and drop PARAVIRT dependency on the steal governor.
+>>>>>>
+>>>>>> Keep the default module selection conditional on PARAVIRT so other SMP
+>>>>>> configurations can opt in without enabling the governor by default.
+>>>>>>
+>>>>>> Link: https://lore.kernel.org/all/4605dad5-aab2-49e3-b919- bf9897181834@linux.ibm.com/
+>>>>>> CC: Mete Durlu <meted@linux.ibm.com>
+>>>>>> Signed-off-by: Yury Norov <ynorov@nvidia.com>
+>>>>>> ---
+>>>>>> Can be applied independently from the rest of the series.
+>>>>>>
+>>>>>>    drivers/virt/Kconfig   |  8 ++++++--
+>>>>>>    kernel/Kconfig.preempt | 12 ++++++++++--
+>>>>>>    2 files changed, 16 insertions(+), 4 deletions(-)
+>>>>>
+>>>>> This is really useful to us, since even though s390 is nominally
+>>>>> paravirtualized, it does not technically benefit from defining
+>>>>> CONFIG_PARAVIRT.
+>>>>
+>>>> And therefore removing PARAVIRT is the only possible solution?
+>>>>
+>>>>> Specifically, steal time accounting happens by
+>>>>> computing a difference between wall time and CPU time, and not by
+>>>>> explicitly querying the hypervisor.
+>>>>
+>>>> Nobody explicitly asks the hypervisor, that would be horrendously slow.
+>>>>
+>>>> Something trivial like this should do.
+>>>>
+>>>> ---
+>>>>   arch/Kconfig                           | 9 +++++++++
+>>>>   arch/powerpc/platforms/pseries/Kconfig | 1 +
+>>>>   arch/s390/Kconfig                      | 1 +
+>>>>   drivers/virt/Kconfig                   | 2 +-
+>>>>   4 files changed, 12 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/arch/Kconfig b/arch/Kconfig
+>>>> index 1163736de1f9..8980054beb52 100644
+>>>> --- a/arch/Kconfig
+>>>> +++ b/arch/Kconfig
+>>>> @@ -1080,6 +1080,15 @@ config HAVE_IRQ_TIME_ACCOUNTING
+>>>>   config HAVE_PV_STEAL_CLOCK_GEN
+>>>>       bool
+>>>> +#
+>>>> +#  Archs that can account CPUTIME_STEAL; normal route is through PARAVIRT which
+>>>> +#  selects HAVE_PV_STEAL_CLOCK_GEN. Directly selected by s390 and PPC-LPAR
+>>>> +#  which have their own thing and don't go through generic cputime accounting.
+>>>> +#
+>>>> +config HAVE_CPUTIME_STEAL
+>>>> +    bool
+>>>> +    default y if HAVE_PV_STEAL_CLOCK_GEN
+>>>> +
+>>
+>> Can't PARAVIRT_TIME_ACCOUNTING be the kconfig we can rely upon.
+>> s390 can add it to the config (similar to HAVE_CPUTIME_STEAL)?
+>>
+>> I guess it is selected currently where the steal time reporting happens.
+> 
+> Looking at update_rq_clock_task(), s390 would still need to provide a
+> pointless dummy paravirt_steal_clock() implementation in this case.
+> 
+> [...]
 
-Register key_type_cert_store_key once during init before creating sysfs
-attributes, and track subsystem-created keys explicitly so refresh
-unlinks and invalidates previous entries directly.
+Other possible option is, you could use CONFIG_HAVE_PV_STEAL_CLOCK_GEN which
+defines the dummy implementation and you don't update that method. That way
+you may implement PARAVIRT_TIME_ACCOUNTING mostly with kconfig changes.
 
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
----
- arch/s390/kernel/cert_store.c | 161 ++++++++++++++--------------------
- 1 file changed, 67 insertions(+), 94 deletions(-)
-
-diff --git a/arch/s390/kernel/cert_store.c b/arch/s390/kernel/cert_store.c
-index 998f2da56175..ab1a78cdfd4c 100644
---- a/arch/s390/kernel/cert_store.c
-+++ b/arch/s390/kernel/cert_store.c
-@@ -17,6 +17,7 @@
- #include <linux/key.h>
- #include <linux/keyctl.h>
- #include <linux/kobject.h>
-+#include <linux/list.h>
- #include <linux/module.h>
- #include <linux/seq_file.h>
- #include <linux/slab.h>
-@@ -296,6 +297,18 @@ static int check_certificate_valid(const struct vce *vce)
- 	return check_certificate_hash(vce);
- }
- 
-+struct cert_store_key {
-+	struct list_head list;
-+	struct key *key;
-+};
-+
-+static DEFINE_MUTEX(cs_refresh_lock);
-+/* Owned references, protected by cs_refresh_lock. */
-+static LIST_HEAD(cs_keys);
-+static struct key *active_cs_keyring;
-+static struct key *cs_keyring_parent;
-+
-+/* Return an owned reference to the user session keyring. */
- static struct key *get_user_session_keyring(void)
- {
- 	key_ref_t us_keyring_ref;
-@@ -305,118 +318,66 @@ static struct key *get_user_session_keyring(void)
- 	if (IS_ERR(us_keyring_ref)) {
- 		pr_dbf_msg("Couldn't get user session keyring: %ld",
- 			   PTR_ERR(us_keyring_ref));
--		return ERR_PTR(-ENOKEY);
-+		return ERR_CAST(us_keyring_ref);
- 	}
--	key_ref_put(us_keyring_ref);
- 	return key_ref_to_ptr(us_keyring_ref);
- }
- 
--/* Invalidate all keys from cert_store keyring. */
--static int invalidate_keyring_keys(struct key *keyring)
--{
--	unsigned long num_keys, key_index;
--	size_t keyring_payload_len;
--	key_serial_t *key_array;
--	struct key *current_key;
--	int rc;
--
--	keyring_payload_len = key_type_keyring.read(keyring, NULL, 0);
--	num_keys = keyring_payload_len / sizeof(key_serial_t);
--	key_array = kzalloc_objs(key_serial_t, num_keys);
--	if (!key_array)
--		return -ENOMEM;
--
--	rc = key_type_keyring.read(keyring, (char *)key_array, keyring_payload_len);
--	if (rc != keyring_payload_len) {
--		pr_dbf_msg("Couldn't read keyring payload");
--		goto out;
--	}
--
--	for (key_index = 0; key_index < num_keys; key_index++) {
--		current_key = key_lookup(key_array[key_index]);
--		pr_dbf_msg("Invalidating key %08x", current_key->serial);
--
--		key_invalidate(current_key);
--		key_put(current_key);
--		rc = key_unlink(keyring, current_key);
--		if (rc) {
--			pr_dbf_msg("Couldn't unlink key %08x: %d", current_key->serial, rc);
--			break;
--		}
--	}
--out:
--	kfree(key_array);
--	return rc;
--}
--
--static struct key *find_cs_keyring(void)
--{
--	key_ref_t cs_keyring_ref;
--	struct key *cs_keyring;
--
--	cs_keyring_ref = keyring_search(make_key_ref(get_user_session_keyring(), true),
--					&key_type_keyring, CERT_STORE_KEYRING_NAME,
--					false);
--	if (!IS_ERR(cs_keyring_ref)) {
--		cs_keyring = key_ref_to_ptr(cs_keyring_ref);
--		key_ref_put(cs_keyring_ref);
--		goto found;
--	}
--	/* Search default locations: thread, process, session keyrings */
--	cs_keyring = request_key(&key_type_keyring, CERT_STORE_KEYRING_NAME, NULL);
--	if (IS_ERR(cs_keyring))
--		return NULL;
--	key_put(cs_keyring);
--found:
--	return cs_keyring;
--}
--
- static void cleanup_cs_keys(void)
- {
--	struct key *cs_keyring;
-+	struct cert_store_key *entry, *tmp;
-+	int rc;
- 
--	cs_keyring = find_cs_keyring();
--	if (!cs_keyring)
-+	if (!active_cs_keyring)
- 		return;
- 
--	pr_dbf_msg("Found cert_store keyring. Purging...");
--	/*
--	 * Remove cert_store_key_type in case invalidation
--	 * of old cert_store keys failed (= severe error).
--	 */
--	if (invalidate_keyring_keys(cs_keyring))
--		unregister_key_type(&key_type_cert_store_key);
-+	/* Invalidate even certificates unlinked or linked into other keyrings. */
-+	list_for_each_entry_safe(entry, tmp, &cs_keys, list) {
-+		key_invalidate(entry->key);
-+		key_put(entry->key);
-+		list_del(&entry->list);
-+		kfree(entry);
-+	}
- 
--	keyring_clear(cs_keyring);
--	key_invalidate(cs_keyring);
--	key_put(cs_keyring);
--	key_unlink(get_user_session_keyring(), cs_keyring);
-+	rc = keyring_clear(active_cs_keyring);
-+	if (rc)
-+		pr_dbf_msg("Couldn't clear cert_store keyring: %d", rc);
-+	key_invalidate(active_cs_keyring);
-+	rc = key_unlink(cs_keyring_parent, active_cs_keyring);
-+	if (rc)
-+		pr_dbf_msg("Couldn't unlink cert_store keyring: %d", rc);
-+	key_put(active_cs_keyring);
-+	key_put(cs_keyring_parent);
-+	active_cs_keyring = NULL;
-+	cs_keyring_parent = NULL;
- }
- 
-+/* Return a borrowed reference; cleanup_cs_keys() owns the keyring. */
- static struct key *create_cs_keyring(void)
- {
--	static struct key *cs_keyring;
-+	struct key *cs_keyring, *parent;
- 
- 	/* Cleanup previous cs_keyring and all associated keys if any. */
- 	cleanup_cs_keys();
-+	parent = get_user_session_keyring();
-+	if (IS_ERR(parent))
-+		return parent;
-+
- 	cs_keyring = keyring_alloc(CERT_STORE_KEYRING_NAME, GLOBAL_ROOT_UID,
- 				   GLOBAL_ROOT_GID, current_cred(),
- 				   (KEY_POS_ALL & ~KEY_POS_SETATTR) | KEY_USR_VIEW | KEY_USR_READ,
- 				   KEY_ALLOC_NOT_IN_QUOTA | KEY_ALLOC_SET_KEEP,
--				   NULL, get_user_session_keyring());
-+				   NULL, parent);
- 	if (IS_ERR(cs_keyring)) {
- 		pr_dbf_msg("Can't allocate cert_store keyring");
--		return NULL;
-+		key_put(parent);
-+		return cs_keyring;
- 	}
- 
-+	active_cs_keyring = cs_keyring;
-+	cs_keyring_parent = parent;
- 	pr_dbf_msg("Successfully allocated cert_store keyring: %08x", cs_keyring->serial);
- 
--	/*
--	 * In case a previous clean-up ran into an
--	 * error and unregistered key type.
--	 */
--	register_key_type(&key_type_cert_store_key);
--
- 	return cs_keyring;
- }
- 
-@@ -454,6 +415,7 @@ static char *get_key_description(struct vcssb *vcssb, const struct vce *vce)
- static int create_key_from_vce(struct vcssb *vcssb, struct vce *vce,
- 			       struct key *keyring)
- {
-+	struct cert_store_key *entry;
- 	key_ref_t newkey;
- 	char *desc;
- 	int rc;
-@@ -462,6 +424,13 @@ static int create_key_from_vce(struct vcssb *vcssb, struct vce *vce,
- 	if (!desc)
- 		return -ENOMEM;
- 
-+	/* Reserve cleanup tracking before the key can be linked elsewhere. */
-+	entry = kmalloc_obj(*entry);
-+	if (!entry) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
-+
- 	newkey = key_create_or_update(
- 		make_key_ref(keyring, true), CERT_STORE_KEY_TYPE_NAME,
- 		desc, (u8 *)vce + vce->vce_hdr.vc_offset,
-@@ -473,10 +442,12 @@ static int create_key_from_vce(struct vcssb *vcssb, struct vce *vce,
- 	if (rc) {
- 		pr_dbf_msg("Couldn't create a key from Certificate Entry (%d)", rc);
- 		rc = -ENOKEY;
-+		kfree(entry);
- 		goto out;
- 	}
- 
--	key_ref_put(newkey);
-+	entry->key = key_ref_to_ptr(newkey);
-+	list_add_tail(&entry->list, &cs_keys);
- out:
- 	kfree(desc);
- 	return rc;
-@@ -704,19 +675,18 @@ static int fill_cs_keyring(void)
- 	if (rc)
- 		goto cleanup_keys;
- 
--	rc = -ENOMEM;
- 	cs_keyring = create_cs_keyring();
--	if (!cs_keyring)
-+	if (IS_ERR(cs_keyring)) {
-+		rc = PTR_ERR(cs_keyring);
- 		goto cleanup_keys;
-+	}
- 
- 	rc = add_certificates_to_keyring(vcssb, cs_keyring);
- 	if (rc)
--		goto cleanup_cs_keyring;
-+		goto cleanup_keys;
- 
- 	goto out;
- 
--cleanup_cs_keyring:
--	key_put(cs_keyring);
- cleanup_keys:
- 	cleanup_cs_keys();
- out:
-@@ -724,7 +694,6 @@ static int fill_cs_keyring(void)
- 	return rc;
- }
- 
--static DEFINE_MUTEX(cs_refresh_lock);
- static int cs_status_val = -1;
- 
- static ssize_t cs_status_show(struct kobject *kobj,
-@@ -794,14 +763,18 @@ static int __init cert_store_init(void)
- 	if (!cert_store_kobj)
- 		goto cleanup_dbf;
- 
--	rc = sysfs_create_files(cert_store_kobj, cert_store_attrs);
-+	rc = register_key_type(&key_type_cert_store_key);
- 	if (rc)
- 		goto cleanup_kobj;
- 
--	register_key_type(&key_type_cert_store_key);
-+	rc = sysfs_create_files(cert_store_kobj, cert_store_attrs);
-+	if (rc)
-+		goto cleanup_key_type;
- 
- 	return rc;
- 
-+cleanup_key_type:
-+	unregister_key_type(&key_type_cert_store_key);
- cleanup_kobj:
- 	kobject_put(cert_store_kobj);
- cleanup_dbf:
--- 
-2.47.3
-
+But it needs the arch to implement static calls. I am not sure if s390 has it.
