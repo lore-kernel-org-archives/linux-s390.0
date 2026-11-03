@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793717284;
-	b=1JrnT+Yw9dGQ50acJNC8M28OQymadH58M8dPQwYgukONWv7oFoAoJwq4TReMYYAUwpOm
-	 JKb3IIwbPLGeXRS4Q4heCqTeDx8kuIoZ5oh3E73f4YX4jbebypv1zjJSf5Y1+hKJTyw0T
-	 ihBwP5gIVelcZVyPb8ib7l8DV1ZFITrpW7NkWDadjk8RGG5iVnY8U9F1HzyCQBRlm/vNu
-	 IKRYvsLEhPwevPmHSReyUntHp5qCXuXj7X4ZoWOmyDIcM6937j9oLipRCUGRCuhXtyXda
-	 g5w917I5vRocqFc65OKf/EoAFWxpTMJ2NPaIxCNnGK3vHdgt23YdOQ4uDPYSgfK6iIw==
+	t=1793717288;
+	b=ePcb4R1PV+Umi0MbQn4sU6lDMRP3YXulXPD4EcLAphk/rj3V1TWyHTfoMJtjsdJhdyo+
+	 8HBrBk61+AXIRnnM2bJoK7Bjz3YaswxCWTXPbaYI79nuB7uPYYqR037zp/nhWFLOCTMhb
+	 CaudRzA+3vC12rCuQU90WD9KdrlgMx5+71TsgCg9t7VpwL+jNab+yank+e0auttxR0U1D
+	 nzgcDG5FQQPYnMRFTOt7EXjj9gQ8Bb1nLhtSvzrg1QnmxmDEO4oPZ4WvmRApfPnEoqDbJ
+	 WiljxkitD7tscp5nWtBiO3Mv1UXC8kDIIATg2+6IZYShX0WsvQxQgAJnSTo1nhoJUKA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793717284;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793717288;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=4gvOaN3wvXGJv+/IY1E7diuO1bBr8yQTbePx2Vj3hKc=;
-	b=AM6eRSN5KM4rEL4DeZ1lqtDKRXYdu370YtotNDr+nuBu5qMz/GRRIftDiqb1qP/Cjqg2
-	 RWx7qV+jy0nezywfDK+Uh/H3Yw8zGELNbvFBLOxgRf0GuY4sf7AYZ626Gvpz+36Gs0RoN
-	 dzjPcvDyJ+ppsivstEGyX37o+3tdVIKoDejlLRW5/WnvUe19MHVcQjpVUh2LPyxAeWRJF
-	 RdjKwZfJ6j85UEWH1Mq6egbdKo6zn/51uVB1LXEyc32AiiHG5Cfr2NE4qM62Y6AEUFD4B
-	 kNBIpxNywwD4Oilut8qjHpeRSoBDT2/vm6yvlRL7YBN26yE+ttzYbnQfk4AiLNI60pw==
+	bh=Icn35Mi91pQ+tLfg0mCdB4U+ZmjGBtIaKsilMrrc5tY=;
+	b=UHuLhnuokubDREKU0OoPyz2Y07or7VE+52g8I4n1UaPNKmzK2eUsY6vzCKNkNN2ugJ8C
+	 /CYrb0VzP/T8wacAVpTZAytrsAJW6PJV0HiiA7i0mGOq/3lvVSITThle0NV79cAqY17wg
+	 OdC2WBDN0rOV1VA+dLUoIBKWAHfhmLjiRQokKFb8WfXeWfCfs//7eCg3pQUBcURLGxq9C
+	 /pCn0LTDKQ6qTKAqtOX63PchLkfXFoKNvdseKCx9gMhD1YE19LHfvQYuOU0GraM/tcKRl
+	 jM3HxX5SX7zpLMAaVIf2WCnCB+IPgDP7G35CUYT3/ZyvKJW+AuIzUJoXfU/DLSyly4A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YmTKMbVB;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dh1dKt+S;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED41C60A2630;
-	Tue,  3 Nov 2026 14:48:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCA7160A3833;
+	Tue,  3 Nov 2026 14:48:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YmTKMbVB
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 522C41F0093A;
-	Tue,  3 Nov 2026 14:48:02 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dh1dKt+S
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 441281F00A1E;
+	Tue,  3 Nov 2026 14:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793717283;
-	bh=4gvOaN3wvXGJv+/IY1E7diuO1bBr8yQTbePx2Vj3hKc=;
+	s=k20260515; t=1793717287;
+	bh=Icn35Mi91pQ+tLfg0mCdB4U+ZmjGBtIaKsilMrrc5tY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=YmTKMbVB6uRZLjXwEmTGCZh1HbdFcP+8zoHGrBVs3FcW7jqNS/aLVG4BlExyxSsDi
-	 38dJvpm2rvf1W7GZ/BeJ3ROdtFFaZsXbBtoCEGTFCOYaKI0Lf6z06i3opj5SfVmYH4
-	 ipI9MxfbEk4PvoPknKAXGNPzP1ISdgwyfESt8i+pcLKN52RF6XDNuCpDPwR9Uc9/+1
-	 HQqdQmf6H6L8RFmo6HwRaJux2HSFx1o2jASbcWG8qnKo8kDaCAB0CSVzN8mB9vSXlJ
-	 T8PYlXW1wwmvUUuV+8j3OkHlmGF3wk7bmeAtlTk04ChojfBfTSX1bouOrIZWxXnqoh
-	 yIYT9uP9AsuWQ==
-Message-ID: <sashiko-outbox-195490@kernel.org>
+	b=dh1dKt+STUs/pEoLctpFFtQkyKCAxxWJoxXDNG9HNkYmLm1AdEmDmmdWV64Js6Az7
+	 D7xeBzM6wvr24BHDVnxZNsmdK8y72d/Sc8fRWz9vjYY2X1n981YMEB3CvPmhvXhzoT
+	 CdEliGimDf4eL7SpBrWs7GBDY9OjYAOjox1SovFaGTGUyI/vN6Vhs36589r0zEyUdi
+	 mVeMd6wVewqD9lCD3HCijfRClz6bHq3RpQ/3lZQUAdmOC5lUq0F8u4W8MwAYT72JS1
+	 NFUnHmQbjcLibYcuMjtBUE9DfbW903ryc3o/4VSRPIMZquWia85CdIpJWlxt1Ne+x1
+	 8PIhBdEx8sqOA==
+Message-ID: <sashiko-outbox-195492@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RFC 18/38] proc: don't WARN about a name that is already
- registered
+Subject: Re: [PATCH RFC 20/38] selftests/proc: check a /proc listing while
+ entries come and go
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -55,12 +55,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261102-work-procfs-bugfixes-v1-18-59422ed3e465@kernel.org>
+In-Reply-To: <20261102-work-procfs-bugfixes-v1-20-59422ed3e465@kernel.org>
 References: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
- <20261102-work-procfs-bugfixes-v1-18-59422ed3e465@kernel.org>
+ <20261102-work-procfs-bugfixes-v1-20-59422ed3e465@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Tue, 03 Nov 2026 14:48:01 +0000
+Date: Tue, 03 Nov 2026 14:48:05 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -70,32 +70,27 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> proc_register() WARNs when the directory already has an entry of the
-> same name and fails the registration. Callers that pick their names
-> themselves should never get there but some take names from userspace.
-> pktgen creates a file for each device a writer of "add_device" adds,
-> named after the device. A device can have any name, including "pgctrl"
-> or "kpktgend_0", the names of pktgen's own files:
+> List /proc/net/dev_snmp6 of a new network namespace while a tun device
+> comes and goes:
 >=20
->   ip link set lo name pgctrl
->   ip link set pgctrl up
->   echo "add_device pgctrl" > /proc/net/pktgen/kpktgend_0
+> - with a buffer that holds the dots and "lo", add a device whose name
+>   sorts first, finish the listing: "lo" is listed once
 >=20
->   proc_dir_entry 'pktgen/pgctrl' already registered
->   WARNING: fs/proc/generic.c:404 at proc_register+0x555/0x8b0, CPU#0: bas=
-h/241
->   Call Trace:
->    proc_create_data+0x9f/0xf0
-> [ ... ]
+> - with that device added and a buffer that holds the dots and it,
+>   remove it, finish the listing: "lo" is still listed
 >=20
-> Reported-by: Chris Mason <mason@kernel.org>
-> Fixes: 6c2f91e077f1 ("proc: use WARN() rather than printk+backtrace")
-> Cc: stable@vger.kernel.org
+> - with that device added, stall getdents64() on a userfaultfd page
+>   while it writes the device's entry, remove the device, finish the
+>   listing: "lo" is still listed
+>=20
+> All three fail without the fix, the first lists "lo" twice, the other
+> two not at all.
+>=20
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261102-work-procf=
-s-bugfixes-v1-0-59422ed3e465@kernel.org?part=3D18
+s-bugfixes-v1-0-59422ed3e465@kernel.org?part=3D20
 
