@@ -1,128 +1,66 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.210.171
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793719120;
-	b=c2iHiib4AXd+BqxukwslKLRL7hkRRJnWlpuiLO+pZGcqqd10WBq4vjOOpYK5tFuh9dKo
-	 bU7VkbLC8FPniGI+XDfBTS0rclDOMWviR8Qv4VHpGwr4UZjCIbNoFw/HAskgMcxNMLUZw
-	 sDHcdHf3pjCoukXrXW3MGZWRD3aJM4ZV8fH1eC5Py12r37AGkcnsusaY8D8TA5yu4RYlU
-	 IsKEamA4ZIVbMGT1FzxWXC2IsRXMNYcC4NeK1Nb8omuf2UMytctFgVbjw86FJ68NazsA0
-	 WwmCRcPRpp6UNrClmRa3OutzW8KQB2c5l5hoE8TTbLzdD04Rzppsr5kqXRcMF/799NQ==
+	t=1793719113;
+	b=17DlNIAqPd0n15Xt8CY2xvQ6kYNW95+bEvlHtLgLeKlGN0MHgIOqOFg5t948kygtllCL
+	 YL9+b7KlGmyRveamyvc0IHBKY4Hmzd7er7YE78qi0ex3mmzV+JgUmYYW7oLoObDaTg7ZY
+	 MQLGrgKFP7ce1Xf4fRDksZPOlzxENKW/orA9UCt+J4g7ALblZ6QWtfTeXOtUTx4fKv0aX
+	 rKu0i0flM3Wt5iWGO7Tsd764iUm2GXc26jiQo3tBOi9p6U92S9IFIdi0bZBlakoQ1XGdv
+	 wbQ/KXwjqw+egc8PTY+YT9DGNDbRinr+7jvP0lNOGaTUUst7qExTfhXzpS1MHx3+4kg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793719120;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
-	 Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To:User-Agent;
-	bh=wslCY1XSUoR3v4P9N4tk1erDlQSR29c2WrcvV4W33z8=;
-	b=gbMBTIrYg6uJ9iPE2rXrK7kDkEdnfB1/3ovoAeB81+BVnX4ITkxNSoqFHqLTyyj5QbEQ
-	 2YKtoOco/NO8xhieKhZoSwz+lHG/QTZhoZ5kNThQsgqRT7sHOmV0eZ2uCkvWPoWe9viQk
-	 2+P4+zVoTsiUwnu2icbnA7cNf7frnrecMkZDsf6Nkshn4MxcACcQV4JKHNR7qPBfSsM0z
-	 s6b4Qi0PKGKtPfIRNne0VJqgYPnfIg8AZx4gAGWeEj0D4BJS3sH8GftC6MWg6Tjeui3px
-	 I4rJ/YdOhDRzJyMVC1KWC6I/A+2YgzOPc5ogt/EYujQ4SekcftUJsAmZ4foW5ad3FfQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793719113;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=nuG+HoslXVqgC4BtSCGH4CAYwdyBqlwjqRu8aNivsSg=;
+	b=eY2gUpC/Qf+Z3Yt2NvP4BaQcO0dNrMNcbZE0K2v18K0crlRcMEfSfJKOWf4HQvy+tE+V
+	 BNzjsbc2ZWHi0R+C32BOG+rOk6xrFX01zzk8n7KHByntAjx+soNQdnkt56/2JB09o+7RV
+	 Rb5GHIvl9wX6WNxk5avQheXNWT9uIFPizdWV9dLDOlWm0NtAgEgETuKc56R29fQqGIKX6
+	 TD3uwWaQT+HeZIVgq86WdbpohlT1KZk8HLxiVwpMRmeDMJTpe3JJCfKbM719CRlkeMQ19
+	 ha6TxhQxHX1MEkZGTOxuKTKe7C7uZB9l6Lfl3IJT7fQg1npv25NT1MksjbLibm4TnHQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=chrisdown.name;
-	spf=pass smtp.mailfrom=chrisdown.name;
-	dkim=pass header.d=chrisdown.name header.i=@chrisdown.name header.a=rsa-sha256 header.s=google header.b=NzH9v5uE;
-	arc=none smtp.remote-ip=209.85.210.171
-Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JfXbUGlb;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D5BB606FCEB
-	for <linux-s390@vger.kernel.org>; Tue,  3 Nov 2026 15:18:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3D5BB606FCEB
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=chrisdown.name
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chrisdown.name
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6964E606F603;
+	Tue,  3 Nov 2026 15:18:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=chrisdown.name header.i=@chrisdown.name header.a=rsa-sha256 header.s=google header.b=NzH9v5uE
-Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-8a064dcfcfdso1544404b3a.2
-        for <linux-s390@vger.kernel.org>; Tue, 03 Nov 2026 07:18:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chrisdown.name; s=google; t=1793719118; x=1794323918; darn=vger.kernel.org;
-        h=user-agent:in-reply-to:content-disposition:content-type
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to:content-type;
-        bh=wslCY1XSUoR3v4P9N4tk1erDlQSR29c2WrcvV4W33z8=;
-        b=NzH9v5uEH+MPtdumNErHcLU8TI7esovID+0FCTg4cq4Ny7OB6Jbv2iuLnSDCRB39Vh
-         z1jm9WbnlKgC0FM/ImPLdCDbfHy1wPtGKCnh7nLr66I2ZWRMh6r61Gw1Myi8kqqxygS/
-         MP+GB+led6l0lrR+WCQZnEEeUcd7JizQOJMcs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793719118; x=1794323918;
-        h=user-agent:in-reply-to:content-disposition:content-type
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=wslCY1XSUoR3v4P9N4tk1erDlQSR29c2WrcvV4W33z8=;
-        b=2dqfmjLT4JuxVwKFUi9pNDnlhcyLu2cURnJ0kOWowigp2bq5mDb8lPvv8GSG0ghDCz
-         E9P6a6fjaOqiZQACYYXTI/CDpdufPME/5Bq6VBpBgRDmRg79bwZVfM7uKvR5+PJUP/+a
-         LsEffEToLxOB8rjDhY4QFjuv9sO7APrOdgT/9TqFhyYz8TTCvgNmBfVSV9b2usL3ymaU
-         zC3wscjg64K1hX0fcf4LuFhm3uzom5BwoO6SVf6bpmpVfjf9bXdH3dgg4aYySJB56m5c
-         6e8W6eE6ZgDXep2ReBTnG+P6+DVT0cGXUxspvzw63CZfCspo1tfOqiJV/3qPiGcCuLtm
-         1IuQ==
-X-Forwarded-Encrypted: i=1; AKwUvBxrJYINWvrdFRk2Q24u8Sbg5XfHQMjEJ9JLWPr9LkOzEjkoeb1EK53UC7kk/PkxvWrigO6I5zfYsFJX@vger.kernel.org
-X-Gm-Message-State: APuU4Z83lElSDq2EpDDrrnZq5qaYTr+buWSVdJGWV8HPH2tsDvxY2WnB
-	zySbn2NlBs1O+UMyy2IsLaQ0e1Ls4w8MaZYsHR05tQvUcAf2paFaTj0H6YQ3q8ABoC4=
-X-Gm-Gg: AYBFou3YcTJnWuob7omq6FAC49td/5An9u3I3MDkAZ8uu8LT5otU8Ym/Dq2ihDvm16e
-	0rWcPb1oozcX/BApJwr3bfDvExeQXwx0pSk62lNEF7mE7m4DCGhqWt8yDPUlJ64unLio2v8cj2Y
-	LlkdK4PnWIhWhtyk8/til8Bm71vjTvfWMvMnzUCxg4vLGubnRGQFBxwsoxGBqKkExQLbw+RGaTJ
-	70JuP9JCyq2BcuUDgvvxqMDZmtNUnM+k1pzcZBZfxXbheLtS7dXmt9IXRGr47D1Lzu1RpBVQ1+z
-	HYzrrRPX/8KFYlxYI4MNcue4DXDwzGa3J6ivNLWbp+awnYzC2+CImJyiKr2eXkzJB20s68UWjk9
-	335uVPnUFPDmF0ufTX2mD1OQC5oyXsRRMLr21XuldMtzGWBxQGGa15uaNM/ZkHzhod+guC0zIFD
-	pb0jQuPDOMiguN7Y1+eyrOdXQOyNEbvPMSEN8iCXupp6BkaLMrqIL6KclwV1NqzNWQmxix+6hWF
-	BIi04CnN/yXdqKL02gbJRg1LpvLCZxgGR9Puv78/jJaS1xjN6dShH1jXhdDh8E9ssQaBYlZWgNb
-	CUolKb1ehBCsWKgT1VWWTN25FO/Q+UJ1rYna9aOiW6Ii0NzpVGrSn2dHjQ6S1K8O6NT8lWNcC5i
-	Hk5SCsRlVJ8rOpu2qbEeN2GaDB2P3tUfopsOuy7bPKFokk1CqJK+3Vxcx0N0zU6zJijzIuhpCUj
-	j3l49cLgSJCq7CBzbeVg==
-X-Received: by 2002:a05:6a20:914a:b0:3dd:a009:3182 with SMTP id adf61e73a8af0-3e928e2909amr12529216637.42.1793719118513;
-        Tue, 03 Nov 2026 07:18:38 -0800 (PST)
-Received: from localhost ([116.86.153.182])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cdb362ab313sm1592131a12.0.2026.11.03.07.18.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Nov 2026 07:18:35 -0800 (PST)
-Date: Tue, 3 Nov 2026 23:18:33 +0800
-From: Chris Down <chris@chrisdown.name>
-To: Andrew Morton <akpm@linux-foundation.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Lorenzo Stoakes <ljs@kernel.org>
-Cc: Jeff Xu <jeffxu@google.com>, David Hildenbrand <david@kernel.org>,
-	Vlastimil Babka <vbabka@kernel.org>, Jann Horn <jannh@google.com>,
-	Pedro Falcato <pfalcato@suse.de>, Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>, Kees Cook <kees@kernel.org>,
-	Andrey Vagin <avagin@gmail.com>,
-	Alexander Mikhalitsyn <alexander@mihalicyn.com>,
-	Shuah Khan <shuah@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>, Jiri Olsa <jolsa@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>, Paul Walmsley <pjw@kernel.org>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Vincenzo Frascino <vincenzo.frascino@arm.com>,
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Randy Dunlap <rdunlap@infradead.org>, linux-mm@kvack.org,
-	linux-hardening@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	linux-doc@vger.kernel.org, linux-security-module@vger.kernel.org,
-	linux-trace-kernel@vger.kernel.org, x86@kernel.org,
-	linux-arm-kernel@lists.infradead.org, loongarch@lists.linux.dev,
-	linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kernel-team@meta.com
-Subject: [PATCH v2 5/8] uprobes/x86: Leave sealed trampolines in place on
- optimisation failure
-Message-ID: <eafd3da2cd2c3e2c4d137a46f50351dc6290c5ea.1793718940.git.chris@chrisdown.name>
-References: <cover.1793718940.git.chris@chrisdown.name>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JfXbUGlb
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53A371F00A15;
+	Tue,  3 Nov 2026 15:18:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793719113;
+	bh=nuG+HoslXVqgC4BtSCGH4CAYwdyBqlwjqRu8aNivsSg=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=JfXbUGlbvISf8zKQVvmPeH7ogBauIaWPB+eTLP4FmHFU2NwqFU4DKL8ypk7Ux6mf0
+	 gWh03iGMVC4HC0spyzQoLzUAhOUm1D8aZBt0IEBTrp1vzV/eyz2ttWkBahOXZ1jdDM
+	 bF7l8JbcCU4WdpekYFK5RkGFPYb06/MtBCIdfY5wL6E9B972eWQ4Jt8sqM73HWB744
+	 FRmkQPByZErjf4SpqiFbdtppIJezhzfc6o4zUlNKVldgtxJJ0F2xJrpbqDKUhS9g+O
+	 aCCXO1MJqJ0Usnfho11AdOJXIk9MakMNQl6YJ71siIXnfOPILI08yBzL9lAyQ8T9HM
+	 fvUE2tPgCHfig==
+Message-ID: <sashiko-outbox-195584@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH RFC 04/23] PCI/proc: let procfs copy out config space
+ reads
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Christian Brauner" <brauner@kernel.org>
+Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
+ Bacik" <josef@toxicpanda.com>, "Chris Mason" <mason@kernel.org>, "Jeff
+ Layton" <jlayton@kernel.org>, NeilBrown <neil@brown.name>, "Eric Dumazet" <edumazet@kernel.org>, "Thomas
+ Gleixner" <tglx@kernel.org>, "Al Viro" <viro@zeniv.linux.org.uk>, "Jonathan
+ Corbet" <corbet@lwn.net>, "Christoph Hellwig" <hch@lst.de>, "Greg
+ Kroah-Hartman" <gregkh@suse.de>, "Joel Granados" <joel.granados@kernel.org>, "Kees
+ Cook" <kees@kernel.org>, "Jan Kara" <jack@suse.cz>, "Jan Kara" <jack@suse.com>, linux-s390@vger.kernel.org, coreteam@netfilter.org, kexec@lists.infradead.org, linux-pci@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-usb@vger.kernel.org, samba-technical@lists.samba.org, linux-m68k@lists.linux-m68k.org, linux-serial@vger.kernel.org, "Takashi
+ Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261102-work-procfs-drivers-v1-4-a994bd4d3b1a@kernel.org>
+References: <20261102-work-procfs-drivers-v1-0-a994bd4d3b1a@kernel.org>
+ <20261102-work-procfs-drivers-v1-4-a994bd4d3b1a@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Tue, 03 Nov 2026 15:18:29 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -131,41 +69,20 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1793718940.git.chris@chrisdown.name>
-User-Agent: Mutt/2.3.3 (9073d26d) (2026-06-12)
 
-If swbp_optimize() fails, __arch_uprobe_optimize() unmaps the
-trampoline it has just created. The next patch seals all special
-mappings when CONFIG_MSEAL_SYSTEM_MAPPINGS is enabled, which includes
-uprobe trampolines, and then this do_munmap() would fail with -EPERM
-and warn a second time.
+> Implement ->proc_read_buf() so procfs copies what is read to userspace
+> after it unpinned the entry, and read the config space into procfs'
+> buffer with put_unaligned_le16() and put_unaligned_le32() instead of
+> put_user(). A read into a buffer that can't be written used to report
+> success. It fails with -EFAULT now. A page holds all of the config
+> space, so a single read of it still works, libpci treats a short read as
+> an error.
+>=20
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
-Nothing is really leaked if we leave the trampoline mapped in that
-case, since get_uprobe_trampoline() reuses any existing trampoline
-which is in reach of the probe. So let's just leave it in place when
-it's sealed.
+Sashiko has reviewed this patch and found no issues.
 
-Signed-off-by: Chris Down <chris@chrisdown.name>
----
- arch/x86/kernel/uprobes.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/x86/kernel/uprobes.c b/arch/x86/kernel/uprobes.c
-index 0f60c0d076b6..fb895bfc09e0 100644
---- a/arch/x86/kernel/uprobes.c
-+++ b/arch/x86/kernel/uprobes.c
-@@ -1183,7 +1183,7 @@ static int __arch_uprobe_optimize(struct arch_uprobe *auprobe, struct mm_struct
- 	if (IS_ERR(tramp))
- 		return PTR_ERR(tramp);
- 	ret = swbp_optimize(auprobe, vma, vaddr, tramp->vm_start);
--	if (WARN_ON_ONCE(ret) && new_mapping)
-+	if (WARN_ON_ONCE(ret) && new_mapping && !vma_test(tramp, VMA_SEALED_BIT))
- 		WARN_ON_ONCE(do_munmap(mm, tramp->vm_start, PAGE_SIZE, NULL));
- 	return ret;
- }
--- 
-2.54.0
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261102-work-procf=
+s-drivers-v1-0-a994bd4d3b1a@kernel.org?part=3D4
 
