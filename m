@@ -1,108 +1,123 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.130
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793701332;
-	b=EO6Q4iJLoXGy6f64CnLJ2WdaZDJT//cW1Vek32QgCNtkE826Qf2ss4u77QwxxIArrp0f
-	 gxByorQFjaVZ1HoqY4SYB7IQnEOi+wdjfqq9MmB2aDNpmawODnktmcEbd9g2SCQ4+OHEZ
-	 mSF8qev+DRpgm2e3AAXmTSul4NJq7fymWqgb7PH5Ty2YviE84kBCqezC9a36z+pyar72X
-	 E3qgwPsj8tsR/g96n4ESbvSGCMPNreEoG9CxcKzIfzXnm8PaJINowcfr4uI2a761f1ubp
-	 DAsFEoYubtR6+oywQOWZDAGwP2ML6PrcGUziPDBlTNPOGXPSzer5rExuqQUrvx4JtLg==
+	t=1793702481;
+	b=rNYQKEDqsmiP3MogOH/JR171y9Bs0RPAUwcIkgx4wTrTnXiX0EkZzzdiNOoeGUQkJk/N
+	 emtRRJKWq4qI4yD5eWKjFrg065QOuhwb0g69WMOfcom9AczxxmJltma8tJ60qZmDgFI9X
+	 PCFnKfrJzpIayLsjNj1HSXwQYPc1HnpU+UVHoPVucU7VypwaMApYrYxv0w/YEU7iS0B4a
+	 1aMbLFDImW5tkACbeKz65AcT0DCBaMAQoLT2qEitamQvh8IzAE10Fzlwl8LyXjw0f/GVf
+	 41fVQbwRW+xf5uThEmf7ALfYfLztxSin0PNIvk48UJoFuZWdj4cyOcsf3woGgeozWOA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793701332;
-	h=DMARC-Filter:DKIM-Signature:Received:X-MC-Unique:
-	 X-Mimecast-MFC-AGG-ID:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 X-Received:Received:Message-ID:Date:MIME-Version:User-Agent:Subject:
-	 To:Cc:References:Content-Language:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=UFZrl8Gqjh0zbtPSbe7UBmuFSffWEbXhNMJ/JvbVAN8=;
-	b=snUlIzDySChpIejJG9oVXrydu6Jao2v/gTHRf7Rlv3LfvcD+3zzWm4U3ybOexD7slKbJ
-	 zmO3dHYWx7A5si4/oMPXpjOiBS51oTR6HONGtIu/JSM3GBdOQseD/0BIg3MIN046c9duN
-	 n5EvtP8/ohraGIWD+7SfEOSJeJFZRwsjoZ+lFb8FTwmWTAecu9hI/rlsmHm3hb5dyPtmi
-	 Lv+71RKimbdTKjjqwTsagJQ47GTDVF03VXQqV5jMLVJ1lpov1t92FdpNwb1Ytd1gwBQWj
-	 2i7WYCgZ41FG0EmiEnKbMCdSpCKpqL0MruGpSKcXqNN+Qvh23smIoskfcZSZ28CkqYg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793702481;
+	h=DMARC-Filter:Received:Received:Received:Date:Message-ID:From:To:Cc:
+	 Subject:In-Reply-To:References:User-Agent:MIME-Version:Content-Type:
+	 X-Rspamd-Pre-Result:X-Rspamd-Server:X-Spamd-Result:X-Spam-Flag:
+	 X-Spam-Score:X-Spam-Level:X-Rspamd-Queue-Id:X-Rspamd-Pre-Result:
+	 X-Rspamd-Action;
+	bh=n3928gBIWqHxVcE0Q0TQTSHKUQ5+JmJrD1oVco54lEw=;
+	b=HwjEIW3xc83Pm0CwR2K/jkKioKJQAd99tyX6Cj6/AI9N9iW/GZLJnxdXlQ0Md8xjAhXp
+	 UE7o9jZIB+LI63ZtxP6vN6y+Xa2ri8buth6IGDfiJmvMTMZhzbTH0SsXovYkLzVbKMXXq
+	 vFiXEDLAkZ+L9q6fw4jUwFncyR3YRX4/Enl/UY62hCFlYX14DcVGD2BOI8gPoV+9s44Gh
+	 NTh6As2zyA8On/8V/FwUCthQCAD8QE6ugtIC2CMxuUVLpLwWQObkkycenc7WWO7gIR9OU
+	 N7zwdfKQiWgR5tYfGnHvdPnsVNyCZZ3iwLafK2p+H23NKktgtnQh2Lj+IsH/Ghh3akA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=redhat.com;
-	spf=pass smtp.mailfrom=redhat.com;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UM1TOyql;
-	dkim=pass header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=jYIQepxw;
-	arc=none smtp.remote-ip=170.10.129.124
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	dmarc=pass header.from=suse.de;
+	spf=pass smtp.mailfrom=suse.de;
+	arc=none smtp.remote-ip=195.135.223.130
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7834A606EE8F
-	for <linux-s390@vger.kernel.org>; Tue,  3 Nov 2026 10:22:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 7834A606EE8F
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UM1TOyql;
-	dkim=pass (2048-bit key, unprotected) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=google header.b=jYIQepxw
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1793701325;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=UFZrl8Gqjh0zbtPSbe7UBmuFSffWEbXhNMJ/JvbVAN8=;
-	b=UM1TOyqlocBaUTmEXF41uKr1iZWdgdewvuH7z3ARWlnjM6T6yaOjzqeK5tMA3Ib3NDzVzx
-	eR6T7nuyxBqr1Oo9rNtfd9uoWoci4CHQq85MUmrrsDLhEk6oIHQL2C3i0ZeBUELJ5/5Xkl
-	b9vbwgOP+W/JYZoqFD/6tvTQdD/FQps=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-623-DSvkrm_0PIWt0uNLXxFS0A-1; Tue, 03 Nov 2026 05:22:04 -0500
-X-MC-Unique: DSvkrm_0PIWt0uNLXxFS0A-1
-X-Mimecast-MFC-AGG-ID: DSvkrm_0PIWt0uNLXxFS0A_1793701323
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4a80bd45e1cso14674775e9.3
-        for <linux-s390@vger.kernel.org>; Tue, 03 Nov 2026 02:22:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1793701323; x=1794306123; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=UFZrl8Gqjh0zbtPSbe7UBmuFSffWEbXhNMJ/JvbVAN8=;
-        b=jYIQepxw5jpnE/O/Q+sT96141cHnoCYT7ktbI905uuCcQiuHZvhQz9xQI5Q6XLYLWk
-         ydgMp9p2bhDlP1OyE5F6q1FBjIakzIsFJOI5KLWlE4205bkD1SnjkgYWdj/e4zT5bWUK
-         y57Zl+kTN8DsWMdfW54S4i/s1ix6OJCYsoEqezWZvoaKpdTcIwVNAKZwz7yYUhnbD7oX
-         YvbrYFXulXIrz1+oD9xV15ZQ3Txp4/0g7HAetCE4y17op4DxJbTtXkRp1c0wpTADOwfH
-         LLvfbxM35+I85+l6sUeZbr2GiJUs4PcYip0u2feXEbBCQUZSdBI9fSeCEHBlwfZi7CVn
-         7UgQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793701323; x=1794306123;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=UFZrl8Gqjh0zbtPSbe7UBmuFSffWEbXhNMJ/JvbVAN8=;
-        b=lMPa6ZvBLVWpochwOT0+zlJq55b0CPx3N1oKKEkT0F1UOZEepDR3LER3Ktybcbugsr
-         SlN0o1JEm70txynSRX+WU17fbvC/tWwHiTyhpiX+rhTwNB7lyeq1E632ezsxkigfTX76
-         tXCIu0xo5h/h0opob+Hvi0hx9uoMPtOu+I0ZvN2Ctxz3W3ub+7LjKUz7MeVAPn+36VVq
-         A/ApqAqeUaGiNJKtHKdA13orYV0hwriiDPCbxKEGOr4DYux1iobrWi4BqWTPwDGqqOub
-         r77FuV+Et1ra607X5meWkWuaa189vpeb5aBFM6Wbp0tfd+VX/3JwfoEFPJHvM8/o/McJ
-         Ze2w==
-X-Forwarded-Encrypted: i=1; AKwUvBzgiDd8N66MDkjZBty0ud/N9kyX2Gi9SBerVzzOfuxiYp1b18aeaRw0jHycgRcC1FpiURM9oIpJRObg@vger.kernel.org
-X-Gm-Message-State: APuU4Z/hjrTTT0u/j3sFHd0YLW/peoU+YPtTUB7ieSE3Wx5QAWzps0ef
-	JbpmwF3ZycJ/LDLgtufDVJioJhVTG7QxR69x62FXQs/xm6iyh9bR409On9LeiRoddw36nV9C2C0
-	EJk3u/NFSX1dlG4/6BXzsLRGhuNSMHHfnbzNkaPt9F1agAucVofYdynkGMaHXgBQ=
-X-Gm-Gg: AYBFou2M/LnE8Gc0TwwGF4AZtjOkBqRCJzY4wT26IAPVWoHEx/0owycoXNUP27rhIs9
-	gNmFEXl4KlHREiVOQ9ktfbknbzwGmm42kwfhnHWKI+pbkY643vmk5swtUAfDjAJjyUqLA9x6KR4
-	IizRzAeQIXUoV3QUr+ecaKnhz8r0qkcU/b6pX1sIPF0FrdAJTOXnqMQPZX1YjcW+3mAjrThoaUA
-	giE3SCG1MZxULl2LgSpWD+A/yke3KsvIoskUBfdkmWZgTzcjvv7/sk+3s7WSfB2WQ+t4n1WO4ke
-	Y2eyrG4JK6PwZPbgc2wl9BKpSo1ys9Q5AIpXdT4c9R2Vc/O6JxGsMyVnzCXl+WPCPSNPGAW+/Op
-	jRFiBUPfgcqvAMpV/6IFFOrQldShQVTc1l73Ij8s1oUByAoWiETqjLwwGvLLbxQNhj4/bGAWVTP
-	FQEhFDh2anUUBzDOoDvkZGWWfBzwSfVfj2BqTbDl8Qi3g=
-X-Received: by 2002:a05:600c:e41a:b0:4b2:406b:f3bd with SMTP id 5b1f17b1804b1-4b2406bf3d2mr59717635e9.23.1793701323093;
-        Tue, 03 Nov 2026 02:22:03 -0800 (PST)
-X-Received: by 2002:a05:600c:e41a:b0:4b2:406b:f3bd with SMTP id 5b1f17b1804b1-4b2406bf3d2mr59717075e9.23.1793701322587;
-        Tue, 03 Nov 2026 02:22:02 -0800 (PST)
-Received: from [192.168.88.30] (ip231-128-192-82.pool-bba.aruba.it. [82.192.128.231])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4abe7700c3bsm293753565e9.0.2026.11.03.02.22.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Nov 2026 02:22:01 -0800 (PST)
-Message-ID: <fc454b46-b66c-4a16-aa1c-3ea0c2e91d15@redhat.com>
-Date: Tue, 3 Nov 2026 11:22:00 +0100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23D3A606A81C;
+	Tue,  3 Nov 2026 10:41:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 23D3A606A81C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 8017122D12;
+	Tue,  3 Nov 2026 10:41:18 +0000 (UTC)
+Authentication-Results: smtp-out1.suse.de;
+	none
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A98D41350A;
+	Tue,  3 Nov 2026 10:41:17 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id fPJkIE266WqxEgAAD6G6ig
+	(envelope-from <tiwai@suse.de>); Tue, 03 Nov 2026 10:41:17 +0000
+Date: Tue, 03 Nov 2026 11:41:09 +0100
+Message-ID: <87ik2exkmy.wl-tiwai@suse.de>
+From: Takashi Iwai <tiwai@suse.de>
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	Jann Horn <jannh@google.com>,
+	Josef Bacik <josef@toxicpanda.com>,
+	Chris Mason <mason@kernel.org>,
+	Jeff Layton <jlayton@kernel.org>,
+	NeilBrown <neil@brown.name>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Al Viro <viro@zeniv.linux.org.uk>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Christoph Hellwig <hch@lst.de>,
+	Greg Kroah-Hartman <gregkh@suse.de>,
+	Joel Granados <joel.granados@kernel.org>,
+	Kees Cook <kees@kernel.org>,
+	Jan Kara <jack@suse.cz>,
+	Jan Kara <jack@suse.com>,
+	linux-kernel@vger.kernel.org,
+	linux-nfs@vger.kernel.org,
+	linux-acpi@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-wireless@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	netdev@vger.kernel.org,
+	ntfs3@lists.linux.dev,
+	platform-driver-x86@vger.kernel.org,
+	coreteam@netfilter.org,
+	kexec@lists.infradead.org,
+	linux-pci@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	netfilter-devel@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	ibm-acpi-devel@lists.sourceforge.net,
+	jfs-discussion@lists.sourceforge.net,
+	linux-alpha@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-cifs@vger.kernel.org,
+	linux-fbdev@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-sh@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	samba-technical@lists.samba.org,
+	sparclinux@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	linux-doc@vger.kernel.org,
+	linux-serial@vger.kernel.org,
+	linux-atm-general@lists.sourceforge.net,
+	Takashi Iwai <tiwai@suse.de>,
+	linux-input@vger.kernel.org,
+	linux-raid@vger.kernel.org,
+	linux-ext4@vger.kernel.org,
+	linux-modules@vger.kernel.org,
+	linux-debuggers@vger.kernel.org,
+	Chuck Lever <cel@kernel.org>,
+	stable@vger.kernel.org
+Subject: Re: [PATCH RFC 09/38] ALSA: info: don't write past the end of a data entry
+In-Reply-To: <20261102-work-procfs-bugfixes-v1-9-59422ed3e465@kernel.org>
+References: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
+	<20261102-work-procfs-bugfixes-v1-9-59422ed3e465@kernel.org>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/30.2 Mule/6.0
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -111,47 +126,64 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v8 4/4] net/smc: bound the link failover cursor
- advance to the send buffer
-To: netdev-bot+sashiko@kernel.org, hexlabsecurity@proton.me
-Cc: sidraya@linux.ibm.com, kuba@kernel.org, mjambigi@linux.ibm.com,
- alibuda@linux.alibaba.com, davem@davemloft.net, edumazet@kernel.org,
- guangguan.wang@linux.alibaba.com, ubraun@linux.ibm.com, raspl@linux.ibm.com,
- linux-s390@vger.kernel.org, guwen@linux.alibaba.com,
- linux-kernel@vger.kernel.org, hidayath@linux.ibm.com, horms@kernel.org,
- wenjia@linux.ibm.com, tonylu@linux.alibaba.com, linux-rdma@vger.kernel.org,
- netdev@vger.kernel.org, dust.li@linux.alibaba.com
-References: <20261029-b4-disp-33001ace-v8-4-f9bb96e17827@proton.me>
- <179364387382.3131.13471253186660322977@kernel.org>
-Content-Language: en-US
-From: Paolo Abeni <pabeni@redhat.com>
-In-Reply-To: <179364387382.3131.13471253186660322977@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-4.00 / 50.00];
+	REPLY(-4.00)[]
+X-Spam-Flag: NO
+X-Spam-Score: -4.00
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 8017122D12
+X-Rspamd-Pre-Result: action=no action;
+	module=replies;
+	Message is reply to one we originated
+X-Rspamd-Action: no action
 
-On 11/2/26 19:24, netdev-bot+sashiko@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 3 potential
-> issue(s) to consider.
+On Mon, 02 Nov 2026 15:21:24 +0100,
+Christian Brauner wrote:
 > 
-> Critical: 0 · High: 0 (2) · Medium: 2 · Low: 1
+> snd_info_entry_write() clamps the count to what is left of the entry
+> by computing entry->size - pos as a size_t. For a position past the end
+> that wraps and the write goes to the driver unclamped, for opl4 into
+> sample memory outside of what the entry covers. At the end of the entry
+> the driver gets a count of 0 and vmalloc(0) warns. Before the clamp
+> moved into the common code the driver ignored such writes. Fail them
+> with -ENOSPC instead, like a block device does at the end of the
+> device. Returning 0 would make writers that use stdio retry forever.
 > 
-> If you believe none of the issues are legitimate, please reply to each
-> issue of Medium severity or higher and explain why the AI is wrong.
-> If any of them are legitimate and you plan to respin, please let patchwork
-> know by including "pw-bot: cr" as a separate line at the end of your reply
-> (one such reply per series is enough).
+> Fixes: d97e1b78239c ("ALSA: info - Check file position validity in common layer")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+
+
+thanks,
+
+Takashi
+
+> ---
+>  sound/core/info.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> - [Medium] The patch adds a cons.count < peer_rmbe_size gate to
->    smc_switch_cursor().
-> - [Medium] The new bound in smc_switch_cursor(), diff <=
->    smc_curs_diff(len, &tx_curs_sent, &prep), is computed from a snapshot…
-I think the above are the last 2 comments standing that need to be addressed,
-(the high one in patch 1 is addressed by patch 2, the high one in patch 2 is
-addressed by a separate patch).
-
-Also patch 2 and 4 still lack review from the smc crew.
-
-/P
-
+> diff --git a/sound/core/info.c b/sound/core/info.c
+> index c4d57d0809ad..982087bc8575 100644
+> --- a/sound/core/info.c
+> +++ b/sound/core/info.c
+> @@ -171,6 +171,8 @@ static ssize_t snd_info_entry_write(struct file *file, const char __user *buffer
+>  	pos = *offset;
+>  	if (!valid_pos(pos, count))
+>  		return -EIO;
+> +	if (pos >= entry->size)
+> +		return count ? -ENOSPC : 0;
+>  	if (count > 0) {
+>  		size_t maxsize = entry->size - pos;
+>  		count = min(count, maxsize);
+> 
+> -- 
+> 2.53.0
+> 
