@@ -1,75 +1,82 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793723196;
-	b=de0t5tAyrnyXAbkQbiTZ2C+cbAYfDQs2cTyl/SqxKfDJG3XHdMeMj3022Ufe+mERdVAT
-	 +ZzygmdJOITO18ZCTcF6Hze1dneVPtjYSJLLNNOZ4bq4JZQoTyhfB2H4OWGAlSDtbAp8X
-	 lMw+lQb0HBhfuqekU6sPU6XOcgN62V2BzWtztyYNkR5lDMcxukdlo1ZJ+1pazOpZmQLfn
-	 yWXqCMjxYFEfYAIrmYqyKPh7vya7mLyXWm99lwJ3Yunl0DlePoZ15H46ZKsOVXA5XjajR
-	 amsBuX0CyCvpY0OOus2YL65Do0Uox5LMAGQG9R6+YMBItQrG2k2yVSvVPsokIp2mzZA==
+	t=1793723858;
+	b=vJyRfMcz2NO4AUZ/3xHtjTzHXJ54oLzu1f5vWdQhuILIwI1++yXFI8h6N3wAv/CApODz
+	 0CQ+8PYsgzgNF1hK4jwLLrENnf5fdS387DxioOsRTNLkZ88R/S/I+IAGVwTv+GuRWh/0/
+	 f0WoXfovViGRjCPnRm4zB3a8qtyORRLoEUtNrlb8ABT9AVWpxYRd0iaC+/FGX/4J9a2KQ
+	 wW+2FYzEvoMKejt2qSyo+uAuPJVwQ4+eeppKTFX0jOhg0u7SHoXdz/pRnqF8YgldtBHPm
+	 TLWamHD8wOlV2F9n3IDQXW3mI4VdfmvQ+V1t5+pIpfYzpDPyY2BYMbBMEMy7et+eamg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793723196;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To;
-	bh=88x5nWCU4/5DUnm5J75+/44oJREtwTCj+m3lJcaJoNE=;
-	b=tdawQlYfgDrb3alGEDfr439O5Cw+xIZMzgxuDQTvu1eq98R7olpfgWnXNElxe+6RNneW
-	 +WtM6uldUVExM54iZpuquygLBgV4ss9v1DdlPrhBRgjlpJsdA9htasb5VqBuKI9xdRRZQ
-	 mXNqPuVznzoA01sj3DERKYaelKX3fIa36NpOutkvXGqh8Mxsj0eSKWhsIaJedFVEQIxti
-	 n7X9odVx6mncFTtIw7BeW8JUrJIaRC0dbILM11QFF47/8afyZkTDuml9E/fnFFfGtarJY
-	 +ME6FErInGL9MCUfBY7Ykc5Ds6s17BJZSRUQzGoG5BB1MPpvwHhtpkwzrDzTAt0asVQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793723858;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:From:Subject:Date:Message-Id:
+	 MIME-Version:Content-Type:Content-Transfer-Encoding:X-B4-Tracking:
+	 X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
+	 X-TM-AS-GCONF:X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-GUID:X-Authority-Analysis:
+	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
+	bh=7XkGbG3ZreJ3g3XCJQU1byivid8nFcUliR5Eu/URDuM=;
+	b=Hn5xlSj+yZEgiPkG/6hWqynP7YRHGRu/Actg4MjeRE70ukurnd2Zuxur/985aJCQe87d
+	 KbCyW7CYbL8/7Q0D3b64hIJHNdlG61XRIfRWlTCkMAJlwYPhTee9AqtYhn8jxMZx8w0ur
+	 CBUKhuka0sD0pZtg/swUmDzVf9ZD5Uh/evFMTQ086PM7dx5Xp5JPSbopQW6oTwciLR18K
+	 ZxjCo/PJlNGStSRcRxRzWcwroFqqrhX05GFfcr/ADDTnuWmUIrl/spgFr+GMhtBm4YVQp
+	 5EvMIf+vVfggOH4MwlAZUs/YGJifkwkkhwIrRalVRqphtHQWMvNKyRXYb/BgqRfTh1A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HyDteQG2;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=iNRayfNx;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 259F4606A327;
-	Tue,  3 Nov 2026 16:26:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36EDF606D815;
+	Tue,  3 Nov 2026 16:37:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 36EDF606D815
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HyDteQG2
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09A721F000C1;
-	Tue,  3 Nov 2026 16:26:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793723195;
-	bh=88x5nWCU4/5DUnm5J75+/44oJREtwTCj+m3lJcaJoNE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=HyDteQG2VBDz2pwudxJvRFZ3NzuhMM1n/qoJyRpSIEa+4sIo8qfNjCKCMkx9fqPnu
-	 PTXEB3HB8c+csEYJbUqrD18YNji+Wb3P0nPR4rCDriU41qd0d35Q951xfxtaew6zqD
-	 xTRV7HQa/evoV4YEWVb3yEGxlVh8/pDAOnR650sPVOaA2QtXNMiUjYtFVGzVyuFmxJ
-	 cuqSFcaDMPcPNDAwdq/HarCHKLW8nQ/TcudxBJnTO/IQN1HpQ6LTm2xHx92xHn7YRV
-	 9GYQVIg2n29fkajQrtiWC1hueIuFYRrAfwMXbzDr3+UFxfeou5MMiBIFbN+ZYhp4th
-	 RFlMkVbcaKQDw==
-Date: Tue, 3 Nov 2026 17:26:21 +0100
-From: Christian Brauner <brauner@kernel.org>
-To: Chuck Lever <cel@kernel.org>
-Cc: linux-fsdevel@vger.kernel.org, 
-	Linus Torvalds <torvalds@linux-foundation.org>, Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, 
-	Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>, 
-	Eric Dumazet <edumazet@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
-	Greg Kroah-Hartman <gregkh@suse.de>, Joel Granados <joel.granados@kernel.org>, 
-	Kees Cook <kees@kernel.org>, Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
-	linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, linux-acpi@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org, 
-	"linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, 
-	Linuxppc Dev <linuxppc-dev@lists.ozlabs.org>, netdev@vger.kernel.org, ntfs3@lists.linux.dev, 
-	platform-driver-x86@vger.kernel.org, coreteam@netfilter.org, kexec@lists.infradead.org, 
-	linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, ibm-acpi-devel@lists.sourceforge.net, 
-	jfs-discussion@lists.sourceforge.net, linux-alpha@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org, linux-fbdev@vger.kernel.org, 
-	linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-sh@vger.kernel.org, 
-	linux-usb@vger.kernel.org, samba-technical@lists.samba.org, sparclinux@vger.kernel.org, 
-	linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org, linux-serial@vger.kernel.org, 
-	linux-atm-general@lists.sourceforge.net, Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, 
-	linux-raid@vger.kernel.org, linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, 
-	linux-debuggers@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH RFC 27/38] sunrpc: make queue_wait a global wait queue
- again
-Message-ID: <20261103-lufttemperatur-absondern-zweifach-31d272ad55ab@brauner>
-References: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
- <20261102-work-procfs-bugfixes-v1-27-59422ed3e465@kernel.org>
- <16f91f93-16b4-49b1-b7fa-cec69759c349@app.fastmail.com>
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=iNRayfNx
+Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3EEAi82027548;
+	Tue, 3 Nov 2026 16:37:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pp1; bh=7XkGbG3ZreJ3g3XCJQU1byivid8n
+	FcUliR5Eu/URDuM=; b=iNRayfNx7KP6lvWJ6AKOcTUth1te0Z48hODQXKz9xS8D
+	/L0L/LZfZN6VzVlBj8gX6a4Q4Cl7aYqwWC/hrK9K3vGlKxcVE1gHf3H4zfRyDWsY
+	CXIRzAlTteVtrhpiWZv0Q9gCkcd9pXLEIDgJyYaU2LOAnpDPjak6BG0nMECYup7n
+	t5eATdD+VML142kUDXl2bmdm6zY+HmMALFfvQzhXjpPix0toYk6r0dQekInY2aZ5
+	fjN28MIEtNQQHw2SsmoVfMd2J9R6h9Ou3VL161azaFuoqCltfjML7NLD/NUZHu/j
+	n5rUKlqLXI7hVa4Z91E4H7TSuCM5kJj6YentcgxxtA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn826pyc5-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 03 Nov 2026 16:37:22 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3EK1092558164;
+	Tue, 3 Nov 2026 16:37:21 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hqcrc9urb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 03 Nov 2026 16:37:21 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A3GbKOi41222602
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 3 Nov 2026 16:37:20 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A749658059;
+	Tue,  3 Nov 2026 16:37:20 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2A29358043;
+	Tue,  3 Nov 2026 16:37:18 +0000 (GMT)
+Received: from a46lp21.lnxne.boe (unknown [9.87.84.240])
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  3 Nov 2026 16:37:17 +0000 (GMT)
+From: Andreas Grapentin <gra@linux.ibm.com>
+Subject: [PATCH 0/3] KVM: s390: arm64: Fixes for arm64 KVM support
+Date: Tue, 03 Nov 2026 17:37:01 +0100
+Message-Id: <20261103-s390_arm64_kvm_fixups-v1-0-21c36fedd878@linux.ibm.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -79,72 +86,93 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <16f91f93-16b4-49b1-b7fa-cec69759c349@app.fastmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x2MWwqAIBAArxL7naCmUl0lQsq2WqIHLkUQ3T3pc
+ xhmHmCMhAx19kDEi5j2LYHKMwhzt00oaEgMWmqnlCwEF5X0XVyd8cu1+pHu82DR69I6a0atTID
+ UHhGT+b9N+74fp5/S3GcAAAA=
+X-Change-ID: 20261103-s390_arm64_kvm_fixups-b285654f214c
+To: Steffen Eiden <seiden@linux.ibm.com>, Marc Zyngier <maz@kernel.org>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        David Hildenbrand <david@kernel.org>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Andreas Grapentin <gra@linux.ibm.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=994; i=gra@linux.ibm.com;
+ h=from:subject:message-id; bh=jHLcle9l49TtS+XmeknS26ssV7Eo5vngn9V9pifqYM4=;
+ b=owEBbQKS/ZANAwAKAXUg1t0k8konAcsmYgBq6g21L8ZGNt14p0N2y56JyutgIdUbwwj1SQqT3
+ 8N9/xOFhP2JAjMEAAEKAB0WIQRrKkreGscL2VvlPix1INbdJPJKJwUCauoNtQAKCRB1INbdJPJK
+ J6ulD/49uGyB500yyZpYRxM8GWGToYzREeXBFdIAMWqNyS0eKgqxpPuYaPWSXFuFGyo5isfnUBR
+ 3lSYaGehL7J9QrqBuwGh86AstkX2vvzMKryF9yisJHa9MVvAPIinX5fa1XvCEHttdoBN8MukVjT
+ dzBdVK0KEon1yBaqDKL7YnF4Q1TvdXCznMpHlijR3SmCsZj9eE2+eHwaUGgGbkYHYiR8LHtAHJo
+ 5kFG7sc4FkTGxahM5488+yjYCMGP2hxLikw+a8qWyDLvTqu4EQIDqJqcQRIDYHf3IjE93ZX/CO2
+ ogy9K+gAuWaF/MFBpR/++rNridkb8IfVSs8j7snceLhpLaIziKJ1XTb8P9iJ1YLU9f0D/fBGKhF
+ 0emhmq0JyuehNO2TcvnUIWtsjGXXd6jXGIEQp+q79HuIVgiItau5uhKB6EPYM7CFKJePMELNekP
+ BCddWQoKfYhd2IjTWsx+aU5FDfItvO8oHOW2Qq+UMbOLAduRMVYDpsWwWCeMhjBdYMf7i8ObHkX
+ sVPt5Q1tATZRAOiputUn6nQ0ZZoJB0oBHMHYFUc8FLE9TMyWmIKWX0M4Ye8iggsb8pP5DhN8tPS
+ DhX8iX9nG9YdheIUB/W43Xc9laba1nOrzCgLYmJzn2hPrK6iQwegt/mHSTLmfOnRAN929DDlfhW
+ fFcITjNvYzjbbNA==
+X-Developer-Key: i=gra@linux.ibm.com; a=openpgp;
+ fpr=3B910193D094AA78FD974A04D8BFC37DD553D93F
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ZBauaj-ukwFFkSR8NLqysR2ljswT07gb
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAzMDA2NCBTYWx0ZWRfX70Gj+NQaL8VA
+ 3jQBcEIjlaANgfa+o2rvm3XOTEhnC14Kd13X94ToCchmABzIPGcHZNY1Lsm/duJjBTNvW2uVoHW
+ wdVkBqvPIGznqNKQ2OfFdw92eSkGmyC9Ei0kHhTb9K1ase1jZF8I7wX0jfuiRxhuGLpkTBSIj0Y
+ mub0bxcGeS0xlvb3KKPkLX0mn9o1TRH8TAfHQZa26BghvIQSuXmTmm7foeWSKaZ6KcRuxzL9bWD
+ JrpOuvYrDEqao+nckNMZwnAAsw7+33pHMKMbC78N+vkGfAzr9JmrxS9CFoG3yCEZObWS0FlqKYx
+ Jw2xR6ovlOqArSd9N8RLEN73SmvB7ShmF6uypFcGNLGWU2Eqh1pneSQjP0J0oeFt942dEdyuhKe
+ 9srD1o8ebGGrLhvZHdRQOUDmCLAWWG4UkqILZzjDtwqWaqV4FITYecL0vMYYx4jvkIXZvXPAhdZ
+ ae5bhUePAQ0s/bYL0ug==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAzMDA2NCBTYWx0ZWRfX4Yvn1kSx/Jrs
+ vgjE6vjHvxvwbULvyqlERrvgFW5+tgKQ/jKxi2kAYjWHaNi8w3EJzD7Zq2BwmHRuSzyON2ZGN6i
+ NiqHdqina3ybD/ircfvtXCGfzkaMFPY=
+X-Proofpoint-GUID: ZBauaj-ukwFFkSR8NLqysR2ljswT07gb
+X-Authority-Analysis: v=2.4 cv=EsJHPicA c=1 sm=1 tr=0 ts=6aea0dc2 cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
+ a=dzDyAoYdbE52XmjKz3IA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-03_03,2026-11-03_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 clxscore=1015 lowpriorityscore=0 malwarescore=0
+ priorityscore=1501 adultscore=0 impostorscore=0 phishscore=0 spamscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
+ definitions=main-2611030064
 
-On Mon, Nov 02, 2026 at 10:12:12AM -0500, Chuck Lever wrote:
-> 
-> 
-> On Mon, Nov 2, 2026, at 9:21 AM, Christian Brauner wrote:
-> > Since commit 552d0e17ea04 ("sunrpc: convert queue_wait from global to
-> > per-cache-detail waitqueue") poll() and epoll queue their waiters for a
-> > channel file on the queue_wait head in struct cache_detail. But the
-> > cache_detail can be freed while its channel file is still open and
-> > waited on.
-> >
-> > The procfs channel files of a network namespace are removed when the
-> > namespace goes away. Removing a procfs file waits for the callers that
-> > are in one of its methods right now and then calls ->release on every
-> > file that is still open (cf. close_pdeo()). The waiters that poll() and
-> > epoll left on the head stay queued until their file is really closed.
-> > So:
-> >
-> >   sunrpc_exit_net()
-> >   -> ip_map_cache_destroy()
-> >      -> cache_unregister_net()
-> >         -> remove_cache_proc_entries()
-> >            -> proc_remove()      // ->release, the waiters stay queued
-> >      -> cache_destroy_net()      // kfree(cd)
-> >
-> > and when poll() returns remove_wait_queue() writes to the freed
-> > cache_detail:
-> >
-> >   BUG: KASAN: slab-use-after-free in _raw_spin_lock_irqsave+0x4b/0xa0
-> >   Read of size 1 at addr ff110001131bb570 by task sunrpc-poll-uaf/242
-> >   Call Trace:
-> >    remove_wait_queue+0x22/0x1c0
-> >    poll_freewait+0xc2/0x230
-> >    do_sys_poll+0x9ba/0xd50
-> >    __x64_sys_poll+0x165/0x470
-> >   Freed by task 12:
-> >    kfree+0x267/0x620
-> >    sunrpc_exit_net+0x34/0x80
-> >    ops_undo_list+0x271/0x8d0
-> >    cleanup_net+0x3f3/0x860
-> >
-> > Closing an epoll instance that watches the file gets there through
-> > ep_unregister_pollwait() instead.
-> >
-> > The channel files of a network namespace belong to the root of its
-> > user namespace and cache_open() doesn't check for a capability. So an
-> > unprivileged user can open the channel file of a namespace of its own
-> > from the outside, poll it and let the namespace die.
-> >
-> > Go back to a single static wait queue that never goes away. A wakeup
-> > for one cache wakes the waiters of all caches again but cache_poll()
-> > reports per cache_detail so that's just a spurious wakeup. procfs
-> > should really own the wait queue of its files like kernfs does but
-> > that's nothing for stable.
-> >
-> > Reported-by: Chris Mason <mason@kernel.org>
-> > Fixes: 552d0e17ea04 ("sunrpc: convert queue_wait from global to 
-> > per-cache-detail waitqueue")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
-> 
-> Acked-by: Chuck Lever <cel@kernel.org>
+Some fixups for the previous series that introduced arm64 KVM support on
+s390. Forward-declare enum vcpu_sysreg because we are definitely going
+to need that, then make the module naming consistent and iron out an
+inconsistency in the definition of vcpu->arch.pause between s390 and
+native arm64 KVM.
 
-Fwiw, I have a patch series on top of this that makes procfs own the
-waitqueue and then this whole UAF issues goes away structurally and you
-get to elide that global thing here.
+No functional changes intended on either arm64 or s390.
+
+Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
+---
+Andreas Grapentin (2):
+      KVM: s390: arm64: Declare enum vcpu_sysreg
+      KVM: s390: arm64: Fix kvm_arm64 module naming consistency
+
+Steffen Eiden (1):
+      KVM: s390: arm64: Turn vcpu->arch.pause into a counter
+
+ arch/s390/include/asm/kvm_host_arm64.h |  8 ++++----
+ arch/s390/kvm/arm64/Makefile           | 12 ++++++------
+ 2 files changed, 10 insertions(+), 10 deletions(-)
+---
+base-commit: 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
+change-id: 20261103-s390_arm64_kvm_fixups-b285654f214c
+
+Best regards,
+-- 
+Andreas Grapentin <gra@linux.ibm.com>
+
