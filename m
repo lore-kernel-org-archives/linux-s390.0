@@ -1,81 +1,109 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793812444;
-	b=4uVmwnuu44hSmd0u4NsDH7j9acKSvL2mJnGpIAzWe01H5RfpeQcSe3cpiyp//KTXBnm8
-	 kNtkvrwDoH9s7fgIYoyWb/l/W8bsFHVszLKOajM5XHVRrxZUSXbRFfvBf1+02NyyyhEGJ
-	 VwEH38NgoJkFb9ugHqkyG9zQCAJG6f+4ufVWDhsGo0FD2gV7hi3J/A2uBecN13PBqylmv
-	 QZ/0HCI9HwiuRFzEtiIpMob0I3CKS46ps1Se4vWv3PlZgIBf9Swb1K2bke43P0C8ak2uT
-	 TIVUlnEZBiOc62Ca7eldK52rkLOStHLgTxinSKz9/e5cqOrhZ5/Os+Px6Ws3lc8+4AA==
+	t=1793813235;
+	b=VT+CHFjcvPEAgNJ6+VqvZusDNtCjBnBGgwpv4f0cJK+pdQN3vof5C7ILJ9reT9wAiQwU
+	 +vO1gnWTBrg3VD5nlPisj15euTKml7sU997i0ReM6UB5HTUA83QaVC02/1xcrLCOwUHDq
+	 RJPC0bS70e1YyHRhKj0ZPeVbmbFlJB3r/fAqO3HeEObW69Y4S/y4uk8xXlgXbVpLwjamN
+	 6RXntyvIwEwdtfdQd72Wu3LmS83BnUpfIJKse+sYCl+a3J+TpZl3jY4O/358SPSuXrj/F
+	 xi+umOGvddyKs17GSj9y8dPToeuEW6MjTUhfgUxGhuDlGxXRIJoM09nkvWS/EoPKQEA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793812444;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Details-Enc:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-GUID:X-Authority-Analysis:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=+oa80km94hmaMeq/3OIriRDTZZb4ODl9Ey/VzJCTaIE=;
-	b=o+1WgeFDs23Aj2KQA0IbfomqsroTcdcmIz6dM8HqxAgm8efrr3PABcLF/tR4O/kq4DMd
-	 sHtmkcHRPyHMTYqaf06CZut43J3ATzb3jabCqxmcxgjEhaNL/kg04IcgV0ESFCDGXGe4h
-	 Uuc9K9qKbkTwkWxynFmgVJSLf1Uc9e5uTQcYkyCFeBjva4sBiXA0IauH3JnKJVILmfiLZ
-	 AF8m/pOeWBth/VxFZDFQ6iQxaoYXpUgWkiDS2he2yGCDeWm6/ROH+iKaQtlEFaNk1iFjF
-	 LmQAFFaDSyeSvDB7UA6ppMNgCqRpAOAIhpW2Ljx2mYFHhkNnLJDksKR34iwteBAZWmg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793813235;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Type:X-Developer-Signature:X-Developer-Key:
+	 Content-Transfer-Encoding;
+	bh=lAdqJZq7DckAfewXRPAVCUONZuQAofOCOPOWHFZTOPQ=;
+	b=fIb3GrfxEMAb3J/TzQgMWEuqnTwJve6bWH10eKuv5MqyXyYRZQr76yC+ok+64mA1ndL0
+	 l3WZzVQYkB6SAS2NIhuuEQ8eH0mfseAieh3DkOHgxfUTSL4b5PVCsljQ8fk5pmILOz7su
+	 JJ8GyKRk8pgO6+W9ZcnFp6m7/lNOozjAJW/hkNfREyU4TmBmTSJkvhvUD+Ei/tJZgLGj6
+	 XOQQEcnhQLa5JCF1y1RcxAv/S10jf5lw/10/4hNdp75bC39qL4LI1Ba+3hrP+gkLZQRbJ
+	 VancSZ4eBI2GoUNnoNMTyiNUwh+Oaxh3yTPHwJxMFBqh0c2OImeH2+TGCiHrg1qgfMg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=qkknJySG;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QnqKLYh2;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52341606A326;
-	Wed,  4 Nov 2026 17:14:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 52341606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D07F6606A31B;
+	Wed,  4 Nov 2026 17:27:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=qkknJySG
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A4Fi2TX959075;
-	Wed, 4 Nov 2026 17:13:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=+oa80k
-	m94hmaMeq/3OIriRDTZZb4ODl9Ey/VzJCTaIE=; b=qkknJySG/0ltIHzczrI5cM
-	d76ZlbL6GdOHAvrjl8TFsWZoU/5SBDOlzF7QNPxvxcSTYyYJcw/QXn9mwptXF8wh
-	+ssMFRbvNEzatoLvC5PuCVaAOCJkD0gkQ7Ucg5KUGAzgNaaa7+r+w5Det43I4QTb
-	Ycja1Ct0zrnfEy3kOpCVTvK4At/HSHm0nHDlYcwS1X8bIhXSu3EKVzEP+/FDThJR
-	mcVDyKQkmThgn8ZhdAHcb4k9Era0LHrPq6/hN87CAjuWIKq+IC+nHJp4CTZl8HPr
-	uLJkhYxynhS3FRYgcA8t2L8bzvCohwgwJtAKCz5sTIXE5/7QOBPa+axe5ZO/m/Ow
-	==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn826w6mb-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 04 Nov 2026 17:13:53 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A4FnxmJ204445;
-	Wed, 4 Nov 2026 17:13:52 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hqf0gen63-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Nov 2026 17:13:52 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A4HDnKZ52035964
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 4 Nov 2026 17:13:49 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EEFE32005A;
-	Wed,  4 Nov 2026 17:13:48 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C43202004B;
-	Wed,  4 Nov 2026 17:13:48 +0000 (GMT)
-Received: from [9.68.29.38] (unknown [9.68.29.38])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  4 Nov 2026 17:13:48 +0000 (GMT)
-Message-ID: <0551c1e6-f456-42d1-b3ea-ce22fd9bd5ee@linux.ibm.com>
-Date: Wed, 4 Nov 2026 18:13:48 +0100
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QnqKLYh2
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4F031F00A02;
+	Wed,  4 Nov 2026 17:26:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793813234;
+	bh=lAdqJZq7DckAfewXRPAVCUONZuQAofOCOPOWHFZTOPQ=;
+	h=From:To:Cc:Subject:Date;
+	b=QnqKLYh2fAMD+U5HTXeOnACd1cOBaWr2au0sexyO6Tega8pNFvJ3KwBqyWlewJUso
+	 MIi2fzXRHEQROZC9gLvS1bZZ/9/KcmfDhERzkLaXXdIl+Qf8wPegziV2OdOn/5z79r
+	 3iTqL/OK9DAdbhv97um4MytPwotOejrYkLFgVhoshHzNg842ittp+lNu4zRCpPsoG2
+	 KqhP8Ng8p49cNRXsXj5NGkMfzBM+kKXiniguFgYtTFtMwPvnenK73TWNMd887NGQbI
+	 1pG3OChIWDhqEolCKBiLCVppfrBMevoWgaGWalA6fc1c1Jt43H5RxZZPnk2L1SezgW
+	 Bq+TYnLLsbzyA==
+From: Christian Brauner <brauner@kernel.org>
+To: linux-fsdevel@vger.kernel.org
+Cc: Christian Brauner <brauner@kernel.org>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	Jann Horn <jannh@google.com>,
+	Josef Bacik <josef@toxicpanda.com>,
+	Chris Mason <mason@kernel.org>,
+	Jeff Layton <jlayton@kernel.org>,
+	NeilBrown <neil@brown.name>,
+	Eric Dumazet <edumazet@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Al Viro <viro@zeniv.linux.org.uk>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Christoph Hellwig <hch@lst.de>,
+	Greg Kroah-Hartman <gregkh@suse.de>,
+	Joel Granados <joel.granados@kernel.org>,
+	Kees Cook <kees@kernel.org>,
+	Jan Kara <jack@suse.cz>,
+	Jan Kara <jack@suse.com>,
+	linux-kernel@vger.kernel.org,
+	linux-nfs@vger.kernel.org,
+	linux-acpi@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-wireless@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	netdev@vger.kernel.org,
+	ntfs3@lists.linux.dev,
+	platform-driver-x86@vger.kernel.org,
+	coreteam@netfilter.org,
+	kexec@lists.infradead.org,
+	linux-pci@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	netfilter-devel@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	ibm-acpi-devel@lists.sourceforge.net,
+	jfs-discussion@lists.sourceforge.net,
+	linux-alpha@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-cifs@vger.kernel.org,
+	linux-fbdev@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-sh@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	samba-technical@lists.samba.org,
+	sparclinux@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org,
+	linux-doc@vger.kernel.org,
+	linux-serial@vger.kernel.org,
+	linux-atm-general@lists.sourceforge.net,
+	Chuck Lever <chuck.lever@oracle.com>,
+	Takashi Iwai <tiwai@suse.de>,
+	linux-input@vger.kernel.org,
+	linux-raid@vger.kernel.org,
+	linux-ext4@vger.kernel.org,
+	linux-modules@vger.kernel.org,
+	linux-debuggers@vger.kernel.org
+Subject: [PATCH v2 0/7] proc: move procfs to what kernfs does
+Date: Wed,  4 Nov 2026 18:26:54 +0100
+Message-ID: <20261104-trompete-gejagt-raddampfer-9fb5640a6102@brauner>
+X-Mailer: git-send-email 2.53.0
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -85,117 +113,141 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2 2/2] net/iucv: do not count the SHT frame against
- the receive window
-To: hexlabsecurity@proton.me, Thorsten Winkler <twinkler@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Cc: linux-s390@vger.kernel.org, Nagamani PV <nagamani@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        Hidayath Khan <hidayath@linux.ibm.com>,
-        Simon Horman <horms@kernel.org>
-References: <20261028-b4-disp-dd3e4ebb-v2-0-3747658d59bd@proton.me>
- <20261028-b4-disp-dd3e4ebb-v2-2-3747658d59bd@proton.me>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20261028-b4-disp-dd3e4ebb-v2-2-3747658d59bd@proton.me>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MbLNqIDSx1KRLp7c3dLDbLtkC7omfo3e
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA0MDA2OCBTYWx0ZWRfXyeqbxfpWA1mY
- YWCKxJcuR6RsS/c5PgZdRXVayoFBIr/TCaUKjznxLp6bYRXs/Hw+c3LaIT4LCxzCOV9z9mFbLmA
- I+1vy3fjpbGyd257s+Vr9Q2ZbqCR2RtQnuLSZzbMJHp1pugH0PClsgH1fuoZQvNzbv5wwKd18fm
- EXUOiMNRjb4tkUsMrxJc2u2oHwmtAn9TRLQwkmV68uIx8XTr5Cu3cRnBIFxfGb794PcOqVoHO3d
- RufX/2BXSYrblMA9PBtwpetSu+bwH9HVYVnKDALBJMmGg9EdP1FJPUZ5YsusILmD3w2+e4ToNBD
- ZdLyUB34lXaNYUZ1IkEsk5Tcf4iim+3MAaSdZAh/xfGterO9niof7PxLxHJ759V/Ek+BO94Kkr0
- ysprhcIRc3UgI251fOGApeMoRnBZE9C5eDM6enISoyGVv1HsKSIHW/t1Wy+lyLVHqrzPmXdf7GV
- TQEBsK/7yhTmMWHGkJQ==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA0MDA2OCBTYWx0ZWRfX8Du7jndDImgJ
- ysrR862IiCfIPAr9+j6WsbHLngtU+no7kbfFHrMlq/amJHuPgMB0gtslievO05l0Cg7UCTJ6DVa
- zgs71mhrrzxUyOzLfw86+1FuS6qvYpA=
-X-Proofpoint-GUID: MbLNqIDSx1KRLp7c3dLDbLtkC7omfo3e
-X-Authority-Analysis: v=2.4 cv=EsJHPicA c=1 sm=1 tr=0 ts=6aeb67d1 cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=mUOIDo_B9oOLisAdC-oA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-04_05,2026-11-04_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 clxscore=1015 lowpriorityscore=0 malwarescore=0
- priorityscore=1501 adultscore=0 impostorscore=0 phishscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
- definitions=main-2611040068
+Content-Type: text/plain; charset="utf-8"
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6699; i=brauner@kernel.org; h=from:subject:message-id; bh=vwrWu4QhJtoloSbOepgjr6FTno3vPTd4Ym/VDTikOkw=; b=owGbwMvMwCU28Zj0gdSKO4sYT6slMWS9zrofyGH5UuGlf8QM041zGftlZmtyqi7/2jv5suCKX cadvXNTOkpZGMS4GGTFFFkc2k3C5ZbzVGw2ytSAmcPKBDKEgYtTACaSkMjI8PXT/ahLzms2tG95 p/y6Wd4h+MQHNf/VL1dGn7i1utyl/SQjw+WcTXp/Xn+/v4hxooZnZYRWmPKsDU2ur9N2RKRMsj5 7gh0A
+X-Developer-Key: i=brauner@kernel.org; a=openpgp; fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
+Content-Transfer-Encoding: 8bit
 
+This series aims to get rid of copying to and from userspace while pinning
+procfs entries allowing userspace to delay removal as long as it wants.
 
+In essence, it aligns procfs with what kernfs is already doing. That
+gets rid of a big attack surface and a whole bug class in one go. The
+bounce buffer will come with some costs but luckily some codepaths (like
+readdir) have been so criminally slow and buggy that massaging them ends
+up speeding things up or at least leaving them on par with mainline even
+with a bounce buffer in the mix.
 
-On 29.10.26 05:46, Bryam Vargas via B4 Relay wrote:
-> From: Bryam Vargas <hexlabsecurity@proton.me>
-> 
-> iucv_sock_recvmsg() counts every HiperSockets frame it consumes in
-> msg_recv, the SHT's empty one included, while the peer counts only what
-> sendmsg() sends against the window it was granted; the SHT goes out
-> through iucv_send_ctrl() uncounted, one per shutdown(SHUT_WR) call. The
-> next window update zeroes msg_recv and takes the surplus with it, but
-> recvmsg() sends none while frames wait in backlog_skb_q, and an SHT read
-> in that state pushes msg_recv past msglimit: WARN_ON(1) fires, the socket
-> is closed and the reader gets -EFAULT instead of EOF. A peer that sends
-> past its window reaches the same WARN from the network; with
-> panic_on_warn that is a remote panic. The SHT frame dates from
-> 82492a355fac, the WARN and the close from 800c5eb7b5eb.
+There was a hackish and very narrow AI solution to a small part of this
+bug class which was sent off-list. In essence, it used a second
+buffering mechanism on top of seqfiles which was really nasty. It also
+didn't address any of the non-seqfile users.
 
-I agree with the ananlysis, at least the WARN_ON needs to go away.
-I will try to reproduce it.
+If we want to get rid of the this whole bug class we need a bigger
+hammer. That means reworking how procfs handles data. So I tried to work
+through all of that. The series is now in a decent shape (I'm not saying
+"glorious" as there's so so many warts. If they were ironed out it could
+be a lot nicer but that's for another day.).
 
+I understand it's big but I think it is nicer to be able to look at the
+end result since we have some transitory states that are gone at the end
+of the series.
 
-> 
-> The SHT reaches recvmsg() as a zero-length frame, like a zero-length
-> data frame, so test the length: count only frames that still carry
-> data when the read consumes them (rlen; a partial SOCK_STREAM read
-> requeues above this point, so each data frame counts once), and close a
-> socket over the window without the WARN; -EFAULT is kept and nothing is
-> logged. 
+I have polished this a bit more and have sorted out a few more bugs and
+tried to clean up some codepaths given the current constraints. Again, I
+think we could go a lot further there if we wanted to but I think that
+blows this out of proportion and at some point it becomes difficult to
+grasp the scope.
 
-I understand that after this patch this path can only be reached /
-reproduced by a modified sender?
+So, remove_proc_entry() waits until every call into the procfs entry has
+returned. Most of those calls copy to or from userspace with the entry
+pinned.
 
-A zero-length data frame that reaches recvmsg() sets
-> RCV_SHUTDOWN, after which afiucv_hs_callback_rx() drops every later
-> data frame uncounted; the one slot this patch no longer credits for it
-> is lost like the slots of the frames dropped after it.
-> 
-> The close over the window purges backlog_skb_q, not sk_receive_queue,
-> and nothing resets msg_recv; once empty frames are not counted, a read
-> of an empty frame from that queue after the close would skip the
-> -EFAULT branch and reach the window update, where iucv_send_ctrl()
-> sizes the skb through the cleared hs_dev. Send the update only while
-> the socket is connected.
+A reader or writer can induce a page fault in that copy take as long as
+it wants. For example, with userfaultfd or by punching holes into a
+memfd over and over. Plus, the callers of remove_proc_entry() like to
+hold locks while they wait. For example, addrconf holds RTNL when it
+removes /proc/net/dev_snmp6/<dev> and xt_hashlimit holds a mutex that
+all network namespaces share.
 
-Shouldn't the 'HiperSockets receive path with the socket lock'
-prevent this?
+So every network device with IPv6 gets a /proc/net/dev_snmp6/<dev> that
+everyone can read, and addrconf_ifdown() removes it with RTNL held. So
+any local user can keep RTNL for as long as their read stays stalled.
+Until then no device can be registered, removed or renamed and no
+network namespace can be created or torn down.
 
-[...]
->  			}
-> @@ -1357,7 +1360,11 @@ static int iucv_sock_recvmsg(struct socket *sock, struct msghdr *msg,
->  		}
->  		spin_unlock_bh(&iucv->message_q.lock);
->  
-> -		if (send_win) {
-> +		/* iucv_sock_close() clears hs_dev but leaves sk_receive_queue
-> +		 * readable: a frame read after the over-window close must not
-> +		 * send a window update.
-> +		 */
-> +		if (send_win && sk->sk_state == IUCV_CONNECTED) {
+If the caller lacks privileges for userfaultfd a FUSE mount in a user
+namespace whose daemon never answers is enough to stall the copy.
+Killing the reader ends it, but until then whoever removes the file sits
+in D state.
 
-without the socket lock, this can be false the next cycle, right?
+xt_hashlimit removes the proc file of a table with hashlimit_mutex
+held. Every rule insert in every network namespace takes that mutex and
+so does network namespace cleanup. cleanup_net() runs on a single
+workqueue with pernet_ops_rwsem held, so a stalled reader also stops
+every later network namespace teardown and every module load that
+registers pernet operations. xt_recent does the same with recent_mutex.
 
->  			err = iucv_send_ctrl(sk, AF_IUCV_FLAG_WIN);
->  			if (err) {
->  				sk->sk_state = IUCV_DISCONN;
-> 
+And of course, it's not specific to networking. remove_proc_entry(),
+proc_remove() and remove_proc_subtree() have over 200 callers and plenty
+of them hold locks. For example, a stalled reader of
+/proc/fs/ext4/<dev>/options holds up the unmount of that filesystem with
+s_umount held, and every sync(2) with it. The same goes for PCI
+hot-removal, for freeing IRQ descriptors, which CPU bring-up waits on,
+and for unplugging a USB sound card.
 
+And btw, syzbot has hit removal under locks before (cf. [1]), and the
+xt_recent deadlock fixed in (1) below is another one.
+
+Stalling the kernel in a copy to or from userspace is a well-known
+exploitation primitive. It's why unprivileged userfaultfd can't do it
+by default anymore since v5.11 (d0d4730ac2e4), and FUSE has been used
+the same way.
+
+This series touches just about every ->proc_read(), ->proc_write() and
+->proc_ioctl() in the tree, so I've split it up into seven series. They
+go out as replies to this mail:
+
+Part 1/7: proc: fix a few old bugs in /proc handlers (51 patches)
+
+    Bugs in the handlers and in procfs itself that are a lot older than
+    the conversion and that reviewing it turned up. Most of them are for
+    stable. They come first so they can go there on their own and the
+    conversion doesn't have to bother with that crap.
+
+Part 2/7: proc: let procfs own the data path (23 patches)
+
+    The procfs side. procfs owns the seq_file of an entry, copies in
+    writes, copies out reads and copies ioctl arguments in and out, and
+    only calls into an entry with it pinned. The open files procfs has
+    to know and the wait queue a pollable entry is polled on live in an
+    open node that only those entries get, the entry is pinned around
+    the vm_operations of its mappings, and lockdep checks the pin.
+    proc_create_seq() and friends and the plain seq_file users are
+    switched over here too.
+
+Part 3/7: proc: convert the arch and platform entries (23 patches)
+Part 4/7: proc: convert the driver entries (26 patches)
+Part 5/7: proc: convert the fs, kernel and mm entries (30 patches)
+Part 6/7: proc: convert the net entries and the kfifo samples (13 patches)
+
+Part 7/7: proc: drop the __user methods (6 patches)
+
+    Drops the old methods. kcore, kmsg and the kpage files, which are
+    never removed and keep reading straight into userspace, get
+    file_operations of their own, so nothing in struct proc_ops takes a
+    __user pointer anymore, and the new methods get the names kernfs
+    uses, ->proc_read(), ->proc_write() and ->proc_ioctl(). The last
+    patch takes the poll_table away from ->proc_poll(). This needs all
+    four conversion series.
+
+Parts 1 and 2 are the base. Parts 3 to 6 go on top of part 2 in any
+order and don't depend on each other. Part 7 needs all four.
+
+The series should all indicate cleanly what dependencies they have so b4
+should be able to pull it for review.
+
+With all of it on a KASAN and lockdep kernel the removal selftests of
+every part pass, the proc, pktgen and allocinfo selftests behave like
+without it and the bugs from (1) that reproduce in a VM are gone. Every
+patch builds on its own on x86_64 and i386, and with W=1 on the
+architectures it touches.
+
+[1]: https://lore.kernel.org/r/000000000000f24f4705b6988f3e@google.com
+[2]: https://lore.kernel.org/r/20231109212251.213873-7-johannes@sipsolutions.net
+
+---
+Link to v1: https://patch.msgid.link/20261102-defizit-jobaussicht-kurios-7016c6e67442@brauner
+
+-- 
+Christian Brauner <brauner@kernel.org>
