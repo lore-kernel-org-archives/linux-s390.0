@@ -1,57 +1,63 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=159.226.251.21
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793759289;
-	b=WYXCrXMV79aIsWwdtXNqUc/pyuEVvYfbg7QWdsmsx3D+UsuJM8X2+JcfYD5mm+ztKdnW
-	 NHy+XtXKwCye2NgN/+C0mPFxkge/FEu5UWRpoZCaG23xOkNvcve7ot6L9LmV+iPqq5yRJ
-	 QDXM8oxf3P18p48gk3XPqogV0QEtrYu0IpGIap8hg0Rr3CuR86LAN50/nRfmFEh4ir34C
-	 vd4tawYP6P6rPkMdRokfV5mu+8Uy8Amsxre67dKl4Jo8R4gtZeOj8Ok8NiyjdLgjHE6Pe
-	 WHzgrwuqawkGkiriQXv0jWpR74ReXwiXua0s6lYA5q8B9q0FbnDJliB585c4zfmSkJw==
+	t=1793759561;
+	b=tyow476PIuSvNgKJ0lcqwESURdkbWizVPRwckPsnQ7hVc2wslAWovxF0/F5GSCXBlHVL
+	 IWmAerDgxo2zSpnWqOd1Se/C11nlBUsMNkoXZGqkemC44Fpyp0VURMw2i+c3RWcjayZyH
+	 o7ZQnz1c1LMn1sm/5dzDHIP4JfEO2mK0qMTL/S/C8b9mE5tekfgGKnHTNIJ5/aV66C9k0
+	 EWb5rNTQMXB8VXdSyTS7lD0Rlt8p48nYIA0F1s/JhIMHGpckGeEDc8apyxfeeWso64+dJ
+	 7KoTBEklMY9krmCC/SEcj0JNZhl6ieR3ES7h6EJBEtX6VTgVM5bgyQdYAFU95BHdrAg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793759289;
-	h=DMARC-Filter:Received:From:To:Cc:Subject:Date:Message-Id:X-Mailer:
-	 MIME-Version:Content-Transfer-Encoding:X-CM-TRANSID:
-	 X-Coremail-Antispam:X-Originating-IP:X-CM-SenderInfo;
-	bh=Ojrc+x8JHkngO7OdqeCuGVdfBdyZz/qzrjANOLDklpE=;
-	b=csDaPVHy4FdOaeH1w3ohYmz138WKG/9r4AOVdzMVnsdG6HWF6i4whk4N7fbUB/oYufs6
-	 n4zScJ8gH5jOHEG6ru2bWou3J/AE+aUEsQNuwGcCNuq8FjdjCemCVsi0AurgjUivbOAKH
-	 4wGxG499of8OCQz+73kiG5wmK4R6w9agR1UH1FONBW9TTSoseP2NG0r9F6aqsAaFI19sB
-	 jkjeIHCge7SZWcJ56N461ztiEWQ3zEJtHoH6uUfLqtegAiDuzZAuSR5CzkvaT3nz8XoER
-	 0NBgs44mI5OhykWFj3iIrEpRtfNkNSZTdv/wFXaUp6vFY6vgBhyNsbud7PUZ6hPW0Uw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793759561;
+	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
+	 In-Reply-To:References:Auto-Submitted:Content-Type:
+	 Content-Transfer-Encoding:MIME-Version;
+	bh=Z9zRtXHe/J1k/4/9wAeq1n+PwAt+ioXmV3zyjSNrjDw=;
+	b=dtteq37MHedx+rE8JLWFOa+4G8437Cq3toUxDHQ3mCM3TFouEEy/fDJOrEqXfH/CagI4
+	 wrHd0U+1ibFuOaCjTe1cuSjw45EOCZAEczjHKRYk0OUJDMa2o3EGh5N73MlhDoNBohAxu
+	 91KsXJaUg3vxlG/03nujknTLdd+ryJGkuv3aXxP7UH8LTOk2ycWaXk6KsYQoCGDJ88d8q
+	 iiD/ipOi+MutsyUZdwbjw4zTmHzEi6QlUlEFJLtY9nuqMAc6179T0u+PuLywG8xVkZNKp
+	 thy5bkYEr0Gx+0VGSMQ2hS7DBWoy1/yIUEOpTneoX1PuQS9xcvYSfuefCacXIrF1xBw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=none header.from=iscas.ac.cn;
-	spf=pass smtp.mailfrom=iscas.ac.cn;
-	arc=none smtp.remote-ip=159.226.251.21
-Received: from cstnet.cn (smtp21.cstnet.cn [159.226.251.21])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="lkfV48H/";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45B26606D805;
-	Wed,  4 Nov 2026 02:28:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 45B26606D805
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from dfae2b116770.home.arpa (unknown [36.110.52.2])
-	by APP-01 (Coremail) with SMTP id qwCowABHcPozmOpqvps+AA--.42060S2;
-	Wed, 04 Nov 2026 10:28:03 +0800 (CST)
-From: Wentao Liang <vulab@iscas.ac.cn>
-To: "D. Wythe" <alibuda@linux.alibaba.com>,
-	Dust Li <dust.li@linux.alibaba.com>,
-	Sidraya Jayagond <sidraya@linux.ibm.com>,
-	Mahanta Jambigi <mjambigi@linux.ibm.com>,
-	Tony Lu <tonylu@linux.alibaba.com>,
-	Wen Gu <guwen@linux.alibaba.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>
-Cc: linux-rdma@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	netdev@vger.kernel.org
-Subject: [PATCH] net/smc: deregister the MR when SG mapping fails
-Date: Wed,  4 Nov 2026 02:28:12 +0000
-Message-Id: <20261104022812.1484233-1-vulab@iscas.ac.cn>
-X-Mailer: git-send-email 2.34.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 415F3606A31B;
+	Wed,  4 Nov 2026 02:32:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lkfV48H/
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C4031F000C1;
+	Wed,  4 Nov 2026 02:32:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793759560;
+	bh=Z9zRtXHe/J1k/4/9wAeq1n+PwAt+ioXmV3zyjSNrjDw=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=lkfV48H/ZsicWO/FBwG0JxlqHR9bDDvJ7m3UmhwjeXvfyK2posHfj3PVDfYpnWc3h
+	 6Vt0JBym/XMiwKTRSt2tQPF1xQy1ONL77TfWKYRDCbroZ6cGB9Dm9W3M86LzP5sqMo
+	 Ft5I5tH/XFYn+0ms6f2rj5FYl9Akdz/sj7ChKSaME0l2OMXtrxFe0Yd6GMaQLIwhAI
+	 R9SLAx5/oEEpHwcFasNJ3fcwfZurnvuYoSGGQWRJQr20C6bgHjZQIh7WqYXZqY2LR3
+	 T/2GlJKqh9TJVY93In1N6Gw5tbbGi61qdiQ9/kFQbL0pSvBZMFx+mw6SrijXcsVr0/
+	 RQzFx3O8bW6uA==
+From: netdev-bot+sinfo@kernel.org
+To: Wentao Liang <vulab@iscas.ac.cn>
+Cc: "D. Wythe" <alibuda@linux.alibaba.com>,
+ Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond <sidraya@linux.ibm.com>,
+ Mahanta Jambigi <mjambigi@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>,
+ Wen Gu <guwen@linux.alibaba.com>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
+ netdev@vger.kernel.org
+Subject: Re: [PATCH] net/smc: deregister the MR when SG mapping fails
+Date: Wed, 04 Nov 2026 02:32:39 +0000
+Message-ID: <179375955951.488859.4992369766072112123@kernel.org>
+In-Reply-To: <20261104022812.1484233-1-vulab@iscas.ac.cn>
+References: <20261104022812.1484233-1-vulab@iscas.ac.cn>
+Auto-Submitted: auto-generated
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -61,64 +67,25 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qwCowABHcPozmOpqvps+AA--.42060S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7AF15AryDWrykZr4fAF18Xwb_yoW8XryDp3
-	yfCrWvkryfJF12vw1Iyr18uas0kanrKryUCrWkCwn09wn7Jr1UAFn2gF12qFn8CFWkCF4a
-	vr4rt3yrWr4UAr7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUBjb7Iv0xC_Kw4lb4IE77IF4wAFc2x0x2IEx4CE42xK8VAvwI8I
-	cIk0rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2
-	AK021l84ACjcxK6xIIjxv20xvE14v26w1j6s0DM28EF7xvwVC0I7IYx2IY6xkF7I0E14v2
-	6r4UJVWxJr1l84ACjcxK6I8E87Iv67AKxVWxJr0_GcWl84ACjcxK6I8E87Iv6xkF7I0E14
-	v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xf
-	McIj6xIIjxv20xvE14v26rWY6Fy7McIj6I8E87Iv67AKxVW8Jr0_Cr1UMcvjeVCFs4IE7x
-	kEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwACI402YVCY1x02628vn2kIc2xKxwCY1x0262kK
-	e7AKxVWUtVW8ZwCF04k20xvY0x0EwIxGrwCF04k20xvE74AGY7Cv6cx26r48ZrWUJr1UMx
-	C20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAF
-	wI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20x
-	vE14v26F1j6w1UMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UMIIF0xvE42xK8VAv
-	wI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWxJVW8Jr1lIxAIcVC2z280aVCY1x0267
-	AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x07bzhL5UUUUU=
-X-CM-SenderInfo: pyxotu46lvutnvoduhdfq/1tbiDAQBA2rqY+TJjQAAsJ
 
-When smc_ib_map_mr_sg() maps fewer entries than the SG table holds,
-smc_ib_get_memory_region() returns -EINVAL with the memory region
-still allocated and its pointer left in buf_slot->mr[link_idx].
-The caller only undoes the DMA mapping and frees the SG table, and
-because buf_desc->is_map_ib[] is set only after this function
-succeeds, smcr_buf_unmap_link() later skips the buffer.  Both the
-MR and the pd->usecnt reference taken by ib_alloc_mr() are lost.
+Hi!
 
-The stale pointer is also harmful: a retry takes the "already done"
-shortcut and treats a memory region that was never mapped as valid.
+This is an automated message. This series looks like a fix, but its
+commit messages seem to be missing some information:
 
-Deregister the memory region and clear the slot before returning.
+ - How the issue was discovered, e.g. hit in production, hit during
+   development, syzbot report, manual code inspection, LLM or static
+   analysis tool scan.
 
-Fixes: 897e1c245773 ("net/smc: use separate memory regions for RMBs")
-Cc: stable@vger.kernel.org
-Assisted-by: DeepSeek-V4.1-Flash and OpenAI Codex
-Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
----
- net/smc/smc_ib.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ - Whether the issue was actually triggered, or is only theoretical
+   (e.g. found by code inspection). If it was triggered please include
+   the symptoms, like the stack trace or error messages.
 
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index daaa8a72da90..fa21d269196e 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -735,8 +735,11 @@ int smc_ib_get_memory_region(struct ib_pd *pd, int access_flags,
- 	}
- 
- 	if (smc_ib_map_mr_sg(buf_slot, link_idx) !=
--			     buf_slot->sgt[link_idx].orig_nents)
-+			     buf_slot->sgt[link_idx].orig_nents) {
-+		smc_ib_put_memory_region(buf_slot->mr[link_idx]);
-+		buf_slot->mr[link_idx] = NULL;
- 		return -EINVAL;
-+	}
- 
- 	return 0;
- }
--- 
-2.34.1
+Please do not repost the series just to address the above. Instead,
+reply to this email with the missing information, so that reviewers
+can take it into account. If the series needs another revision for
+other reasons, please include the information in the commit messages
+then.
 
+The evaluation is done by an LLM so it may be wrong, if you think
+that is the case please reply and explain.
