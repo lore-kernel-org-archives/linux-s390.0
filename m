@@ -1,81 +1,70 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=115.124.30.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793808896;
-	b=oBPTmLwbdvQmR7A2eK+HcYWT4XwPjh6w9a05bBy8AEjYzrn+VdYzyXDwXsbEklXv3SMr
-	 O+Bh/r1ndwUOUuFMMykuaY5ujL3BWmvHJl/mxI5skjpVKmMb2gIOwrTfM9+Fz9dFm+b8E
-	 AZQk6fer1n9KOsODW7RAWVfM5HlmFRJQnltPD96IMolb3cKykWWTWDztmN4SuLXZkI33z
-	 lYtn4sISb1dXU6KNaQsjxty50LV21gE0StOBnVnn4hSohgVJ4dS8v+u6Je/nhiPElPV+z
-	 myG33T54YdJiVJ52CBmt+eSn2L+pF/aX20oMlQciyzIF1RKAfGZHC1WcQhm/mJoExBA==
+	t=1793811411;
+	b=tB0E/JLKheOElIrsYEiB4J7d6sEzYDLpe1HJrQjUNZT9JkZRqXVZOFEuSsar7aIBcl50
+	 RNyDhWy72DAG0U9cOfqvpGUwSZoNkz040i17OCa983uAmBA0akLumuGvoRqrsvtR/6dV5
+	 4CB7jh5gG3VPCj0AREhdaJ65q5Elyx10D9x38xPaR4CFdl4eAtHkljEidnvBR2ArF6YsY
+	 btBb+cHejc7FNmIO1RHAKk2Ulh5HsKF+vBt53mokyF5BfIXnaCalCaJ6v2tZHkc/zAWgZ
+	 iyWIgCmKkWLg2UjUSQqzORjI2ggtHBuzl4NiC8ErJJOP1OkeVhop2aoYw3FIBTKpH4w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793808896;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:X-Authority-Analysis:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=R6KJM2GfJyrMMrkottRzcbbvzHNZxrDYP8okpIqoI28=;
-	b=jdqzBJPRzFnAIg+OuIlx7FeVIqThRXmkaFNGJqO+9PwF+rezQUyS4n5MiGl3dY0jYjCY
-	 eGqaiIHGcaWtsGY8eqeW8aWfZyFkHE1xTpebQNDeXOJsuCjkxiLCkiYr5oER16LcPoHuG
-	 ibImz+vP9kj55RPNKFz+wg3nOZIk/VPkXXxGSxkTEACcrtWi3YAE/XBzjK8xUmdCjxNBt
-	 iNpVJHJ9ZZhMdpxizc8JzOdZJagJ+9qxch9YmpXUgAxXg1kHsNqo1iCFMsZLFIxIIW5YD
-	 bUQPgcR3RugR/U4Yqt0+L2uAt/zKdap2rn/fyqCSvhAWmmsxVxcVKwYQTSeU3UMRKsA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793811411;
+	h=DMARC-Filter:DKIM-Signature:X-Alimail-AntiSpam:Received:Date:From:To:
+	 Cc:Subject:Message-ID:Reply-To:References:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To;
+	bh=7oCUzc0IQ+/X/VuHpS7xyE9gBpY1n2hc0ad7jzb6Ehw=;
+	b=JqeMU1HbckVczoRcweA15kajEGoDWhEZ6j9/88qR0S1aPmtI0VF07jpFdCO4p5E1Zfzk
+	 kLB/j0jQtXrXbcFZBO2j0a2feEwKUOZeB+A2puavJUUkygtTKjDA/R0lk/SjjNbRT9ftE
+	 yh1CzIsnH908RpU1f+B/Q/gwdVmyCJuaH1gSouLX+oq9FErGUfIetnxX4D7WOZo/wUJGx
+	 a3IZwrlO1yW3uuYwrTLZ/hubqRwN8cVHrANWzf/nAw1gUk/WQFf2yk1vWOo0tWl3Yitph
+	 zMX8ekZPc3Xs2TKr2eEN1NI1o3Zm2uB+uvfJDmSvtIdFSIT6oS8iZCaki4jzLQCLZ5A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=HyrO65IS;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dmarc=pass header.from=linux.alibaba.com;
+	spf=pass smtp.mailfrom=linux.alibaba.com;
+	dkim=pass header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=mqOaBcjR;
+	arc=none smtp.remote-ip=115.124.30.131
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 625C8606A326;
-	Wed,  4 Nov 2026 16:14:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 625C8606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC3BB606A329;
+	Wed,  4 Nov 2026 16:56:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BC3BB606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=HyrO65IS
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A4FiAwr899006;
-	Wed, 4 Nov 2026 16:14:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=R6KJM2
-	GfJyrMMrkottRzcbbvzHNZxrDYP8okpIqoI28=; b=HyrO65ISP9j1iuwknCLRh4
-	nceJom/4oo8+MTk9TQQ3KWR0Mqfv4gbFe3jWxyqJLQ5SJFLDVze0R6itWQEthFNV
-	bnZowbQ1yp+6oVU73QnmVfHkEsC8otttnz1+xUsnTgqmvqqopSBTTfkJyl5x/dP1
-	5moCs4gexVZtev9G+/xb/RsxwA3VvfmNgonGABljxxOQ5RbJUzXa5t2v4cGN9+9V
-	9gREMvXYP1EjLza/OPk5jNhTj89En2GGDY2m9pv84c+ZFdGLZw0k6y85iT2oZB/5
-	BYhfIWRnbw99PM4SqGhVlBp/DKQfB+BX7lQoElLi//yJKR0ZMMe+PAHJiyro3+DA
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn5rhvrxr-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 04 Nov 2026 16:14:46 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A4FntbE232228;
-	Wed, 4 Nov 2026 16:14:46 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hnv5h0g9c-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Nov 2026 16:14:45 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A4GEeft46989748
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 4 Nov 2026 16:14:40 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A4BAE2004D;
-	Wed,  4 Nov 2026 16:14:40 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6E0B32004B;
-	Wed,  4 Nov 2026 16:14:40 +0000 (GMT)
-Received: from [9.68.29.38] (unknown [9.68.29.38])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  4 Nov 2026 16:14:40 +0000 (GMT)
-Message-ID: <307b169a-6ac8-4ae3-aded-b40a86608d01@linux.ibm.com>
-Date: Wed, 4 Nov 2026 17:14:40 +0100
+	dkim=pass (1024-bit key, unprotected) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.a=rsa-sha256 header.s=default header.b=mqOaBcjR
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1793811401; h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type;
+	bh=7oCUzc0IQ+/X/VuHpS7xyE9gBpY1n2hc0ad7jzb6Ehw=;
+	b=mqOaBcjRpqGpjCGLVzSSRUeVouDO/Ewh7UfRw6Wwf+fNKP31s1voVAX4AQofQ2zLAm0XXJbmrLtGePnFwmq4ixu32m2FLvUxD/S59b3s6Q9nUTmgOC4RMk7Xxnf74VoEeGqQkE2nuThQXQThuDEJcWHJ4Rh6DLoCJhq6GHggoak=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=dust.li@linux.alibaba.com;NM=1;PH=DS;RN=19;SR=0;TI=SMTPD_---0XE6Ix9y_1793811400;
+Received: from localhost(mailfrom:dust.li@linux.alibaba.com fp:SMTPD_---0XE6Ix9y_1793811400 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 05 Nov 2026 00:56:40 +0800
+Date: Thu, 5 Nov 2026 00:56:40 +0800
+From: Dust Li <dust.li@linux.alibaba.com>
+To: Paolo Abeni <pabeni@redhat.com>,
+	Bryam Vargas <hexlabsecurity@proton.me>,
+	"D. Wythe" <alibuda@linux.alibaba.com>,
+	Mahanta Jambigi <mjambigi@linux.ibm.com>,
+	Sidraya Jayagond <sidraya@linux.ibm.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Eric Dumazet <edumazet@kernel.org>
+Cc: linux-s390@vger.kernel.org, Wen Gu <guwen@linux.alibaba.com>,
+	linux-rdma@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
+	Wenjia Zhang <wenjia@linux.ibm.com>, netdev@vger.kernel.org,
+	Stefan Raspl <raspl@linux.ibm.com>,
+	Hidayath Khan <hidayath@linux.ibm.com>,
+	Simon Horman <horms@kernel.org>,
+	Ursula Braun <ubraun@linux.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net v2] net/smc: don't spin in smc_rx_recvmsg() while a
+ pipe holds spliced data
+Message-ID: <autjyLEDJ_quR4Nm@linux.alibaba.com>
+Reply-To: dust.li@linux.alibaba.com
+References: <20261029-b4-disp-da7f8e6a-v2-1-9052904adf72@proton.me>
+ <4d97a782-8d88-4dd0-b819-fb704582f2ec@redhat.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -85,115 +74,45 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net v2 1/2] net/iucv: clear hs_dev before dropping its
- reference
-To: hexlabsecurity@proton.me, Thorsten Winkler <twinkler@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Cc: linux-s390@vger.kernel.org, Nagamani PV <nagamani@linux.ibm.com>,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        Hidayath Khan <hidayath@linux.ibm.com>,
-        Simon Horman <horms@kernel.org>
-References: <20261028-b4-disp-dd3e4ebb-v2-0-3747658d59bd@proton.me>
- <20261028-b4-disp-dd3e4ebb-v2-1-3747658d59bd@proton.me>
-Content-Language: en-US
-From: Alexandra Winter <wintera@linux.ibm.com>
-In-Reply-To: <20261028-b4-disp-dd3e4ebb-v2-1-3747658d59bd@proton.me>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: zTWu1t3rqYi1_KhLqc9qZx1GyO8A7ZMy
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA0MDA2NCBTYWx0ZWRfX7bVXr6nJp+oE
- hsCowFVf1SwwVIXl5ClINkIUBRQB/ZZF/hVyx4faRZPTASlNu+yQhYMB9Ye4pYeb81HVXYi2A15
- uvATIkvOQKxqbYDbxY8r4XDvDikXfs8=
-X-Authority-Analysis: v=2.4 cv=LokHWXdc c=1 sm=1 tr=0 ts=6aeb59f6 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=EuISxwL7kJT2UulSNDkA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA0MDA2NCBTYWx0ZWRfX1M/S3xwzPChJ
- AJWmoOsauEqNIFedEvjqDN/nKKx4PaW/UJ7huVunjivxGFYirnrbP2Rl2iEro14i3Dtreix0SJv
- RfDqTkbDEGlcDXQRmOpXP30h7gBa+f6kTt8O3Az4h4JXlbTJkrjuJy+M6/O8k+Ym4Ed54yfj7LM
- 4QF2L/1dBe8WRqO7zNhBTxD63MEm7IbgxdNgSp9+aHGh+3P5VRRnEj/Ybdu9/QJxynnVa8rGkX9
- cINA6//G+wcJj71fS+0QnqoHX/F/ADV0Ad2T33JZ18w5hIPa/cDwmuWrEVp9PcLFh3iwZRPGnZo
- smyKE6LAnym7z7rN2tmeLoNDNSYf91mnK7f8UH+Fvk4rJf2GPaWG1I1b6SdrWfS0YElnXfYf7wF
- eKrVM5vOffBP55cyS7SPtkGY9Hda7ZL95lhfm1hTJUvbKbQ7LWcR8itG980lKFrRTP1LGDV+2ZJ
- D9lqNQ7kRItZQ6JO3IA==
-X-Proofpoint-GUID: zTWu1t3rqYi1_KhLqc9qZx1GyO8A7ZMy
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-04_05,2026-11-04_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 clxscore=1011 impostorscore=0
- priorityscore=1501 suspectscore=0 phishscore=0 malwarescore=0 bulkscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
- definitions=main-2611040064
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4d97a782-8d88-4dd0-b819-fb704582f2ec@redhat.com>
 
+On 2026-11-03 15:18:36, Paolo Abeni wrote:
+>On 10/29/26 09:03, Bryam Vargas wrote:
+>> While bytes spliced off the RMB are still in a pipe, recvmsg() waits
+>> for the pipe to release them before it copies the data behind them.
+>> The path to that wait skips the timeout and signal checks, and
+>> smc_rx_wait() returns at once on RCV_SHUTDOWN. With a signal pending,
+>> after SHUT_RD, or once the peer closes or shuts down writing,
+>> recvmsg() spins on a CPU until the pipe is drained, and SIGKILL cannot
+>> stop it. MSG_DONTWAIT and an expired SO_RCVTIMEO wait there too
+>> instead of returning -EAGAIN.
+>> 
+>> Check the timeout and signals before that wait, and end it when the
+>> pipe releases the data or the connection is killed, not on RCV_SHUTDOWN.
+>> A zero-length read returns 0 without waiting for the pipe; a
+>> non-blocking one returns -EAGAIN while poll() still reports the socket
+>> readable (splice() can still take those bytes).
+>
+>@SMC experts, please review. IMHO the above trade-off sounds like a better
+>solution is needed.
 
+Hi Bryam, Paolo,
 
-On 29.10.26 05:46, Bryam Vargas via B4 Relay wrote:
-> iucv_sock_close() drops the socket's reference on its HiperSockets
-> device and only then clears iucv->hs_dev,
+Yes, I agree this is a trade-off. But I think this was not introduced by
+this patch; rather, it is a pre-existing bug. And sadly, I don't have a
+good solution to solve it yet.
 
-I agree on the analysis that this order is wrong.
+So for now, I prefer to accept this as a stable fix.
 
- while afiucv_hs_rcv() compares
-> that field against the ingress device for every socket in the list,
-> under iucv_sk_list.lock and not the socket lock. Between the two it
-> compares a pointer the socket no longer holds; KCSAN reports the plain
-> read against the plain write. 
+As for the long-term fix: the follow-up I have in mind is to remove the
+zero-copy mode for splice in SMC, which will simplify things a lot.
+Since splice doesn't map easily to a ring buffer like SMC's, and this is
+not a very common path as we have seen, falling back to copy is
+acceptable IMO.
 
-Could you add an excerpt of the KCSAN report to the commit message?
+Happy to hear if anyone has better ideas.
 
-
-The order dates from 800c5eb7b5eb, the
-> compare from 80230a18c164. No user-visible effect is known: the receive
-> path holds the ingress device, so the stale pointer is compared, never
-> dereferenced.
-> 
-
-I agree, I cannot see how reading a stale pointer can result in a real
-problem. So this is not urgent to fix.
-
-
-
-> Clear the pointer first, through a local, then drop the reference, and
-> mark the lookup's read and the two stores that race with it: the clear
-> in close() and the child's store in afiucv_hs_callback_syn() (the child
-> is in iucv_sk_list from iucv_sock_alloc() on). The child now takes its
-> device and sk_bound_dev_if from the frame the lookup matched, held
-> before it is published, instead of reading the listener's fields:
-> close() clears them under lock_sock(), which the bh_lock_sock() in
-> afiucv_hs_callback_syn() does not exclude, so the callback can pass its
-> IUCV_LISTEN check and then read a field close() has cleared. That a SYN
-> can be accepted while the listener closes is left to the socket-locking
-> rework; this is its KCSAN-visible part. bind()'s hs_dev store runs
-> under the list's write lock and stays plain. sk_bound_dev_if, which
-> getsockopt() reads without the lock, is marked where close(), bind()
-> and the child store it; annotation only.
-> 
-[...]
-> ---
-> Nagamani PV's "net/iucv: fix races in afiucv_netdev_event()" [1] marks
-> the same store in close(); Alexandra Winter asked him to hold it for the
-> locking series and he agreed [2]. This one goes out now, on a new and
-> independent KCSAN report, and its close() hunk subsumes his, which marks
-> the store but keeps dev_put() first; once this is applied, the
-> afiucv_netdev_event() read is what remains for his patch.
-
-
-Just thinking out loud:
-Would it be a simpler alternative to clear iucv->hs_dev  in
-iucv_sock_kill after iucv_sock_unlink? then it also would help for the
-afiucv_netdev_event() issue (read still needs to be put under lock).
-
-It's hard to discuss this with an AI, while the locking series is still
-missing. I would still prefer to fix that first.
-
-
-
-
-
+Best regards,
+Dust
