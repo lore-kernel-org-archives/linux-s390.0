@@ -1,95 +1,58 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793791105;
-	b=5V8GcgVrF9ZZ9B65Dq9RmKvl0WzZ1I6HAbcpXH8kw2gw934j0mx5HtbkL71o7WCWh67f
-	 1E2k8nVhcnOq0F8U8P9ESSjO6lZSV/3GpJB0W2Q3/2r4cKftA27xTMrNcaXoIzGngOcTD
-	 nZ/v29TvTKBrSylYYcSP/ka1rBE00r7DeGYihWAkf804RsiC1KsP8XqzL3R6J13C7egas
-	 CufTLIzqUICejSVixEomQTeC4QSmkdV9/hKVYxmHRV7HwgwLJzqwtNx8Yaufm4bZ/zhqA
-	 B9aOhhhJsN+zQxe7Gbxuroxg4CEvrx7V6SSOo1qzk60D7xwvF1AIClMRxAOemMA9FZg==
+	t=1793796014;
+	b=PedW0xDYleKOb/driltL4fHqh62b3VNfGdZ1dCnfHKL/p6AgQWzXpNfgRpGES9vf7AcU
+	 YVAL8lZa6cwuW54AivO31jWXIrGKbvhD+6cRTc/4PXrD0A7i/qbxS7j5x8n0ZX2ADePQR
+	 F+zlIfe3ESpxoVw01bB8sbrANrgR7XTNvtjQSpQURIfgJv5Sfh3OgTmUZUTR4U1xWYipa
+	 N4Iz7uxupKbuaTtv29ekCVYb7NFT0wDRu+tg2EBSbBGHotDSZWHRFVLnlMW3EX2LY4djg
+	 DKLt+DZWdTAeZu7NM4vRt95oqWwvNqffsWdbiSNnY1Dy9JTHzjs2nPZsxlApotU5sLw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793791105;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
-	 Message-ID:In-Reply-To:References:Organization:X-Mailer:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Authority-Analysis:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=JeBiRUxiLSmLiDQcpBLwTCe3hNTjIzn+WtvUlP0PG6U=;
-	b=U828FDb+aw+3uJqqC1kZOFWVC9+JYkJh6ozSurp6is/460xKgY28DSZbYOBLJud5UG2j
-	 ACLh4XnYkoHPQoa4qzBV6iTiN4aqbunnveJQDFLIOpqYMSCEN9Tv2w4VKth0wZJ1gphPB
-	 PsbgOP/PxpTqZqYXWAZE2AP/zFax2anE1ZTfGGTaHL2ns1lr/cwS1uFi9/mS3jJ7e0Cqg
-	 ONK8TG8i2DVouA0PehdS1tuYWllIx9UoHteyo9+d5qkB1P/01ohq3S9Q0ZBX2avLLdxbF
-	 ANfFRL+E0PGHOH8st9Bgx7semRWF9jHHim3UTDWa020X+VCG3l1Tq3eJ+FFsAqbAeZA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793796014;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=HmwZRIDXWrBpj2sZSITHJ9b0qDFSIwzwrskGykW8+Vo=;
+	b=xX5w4n4Mt7v0DIofKyagWenkArYpeSpuvrLXkjFhTp6tKQ1g7K4DHlgM7Y8QJ/TAzphC
+	 lBD08mxPHzNTT5O/YEs+8cSbcHnMszx68J03k9mx50N3S5xblR/TXU+ykocQSJ+IkfpLk
+	 K61H6yE1tyQJggrEcE+MYC1JK0hJeTyZSreIDHVKVqfIKr1mRlAxFr8eMLSt2jQOF45/5
+	 8LxFoHGi9R5SIyDYrERiyaXHLcv/twVFY2duYbdxFnu1a0sF3v2AgZwaF6V+SUgcuyaPT
+	 pIsdlxDAhKoxGVIsg9SyQNfyZKul3cGWh0zowMr0pK5XTksD0yvnEq16sJGPI38MLOQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=FFNCMwyw;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gsST8B85;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F739606A31B;
-	Wed,  4 Nov 2026 11:18:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0F739606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 037A2606A329;
+	Wed,  4 Nov 2026 12:40:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=FFNCMwyw
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A4BEtOF399789;
-	Wed, 4 Nov 2026 11:18:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=JeBiRU
-	xiLSmLiDQcpBLwTCe3hNTjIzn+WtvUlP0PG6U=; b=FFNCMwywEFF0SMheApDhZ5
-	uIcRM7gzJ5xZuQyViWtyLbRjzu9obYB+X1IRB1AUmPt876uQJvztWdL6vkJYHSc7
-	ShWeUYIlIV0wiAtG8rjVp0gwyp0z98VeEvvumwEB5zcYTa/+Ptv4ssqEbab9IC0G
-	vK+cVnR1+wVKLIu2mKPjIX82PAfzop6D56bFw8KOrujm/ijEDHp4C5BMr2q41qKT
-	N7I/DQPPXgwutrYfWqZlWKF7fJMMfZ3bzpy5XJxtdetm7aSjsQRb664RFjwG1QcP
-	iJXkr/Z33tCmXBBhL7BO8mo5hi9VB7d4RuN8LYrsD+DrJWGW/FTNN30GB0bfYRfQ
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn7ys32a5-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 04 Nov 2026 11:18:21 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A4B5X7R4027038;
-	Wed, 4 Nov 2026 11:18:21 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hqbqke1hw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Nov 2026 11:18:21 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A4BIFIJ17695030
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 4 Nov 2026 11:18:15 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7C75220043;
-	Wed,  4 Nov 2026 11:18:15 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5AA4820040;
-	Wed,  4 Nov 2026 11:18:15 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.68.31.243])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Wed,  4 Nov 2026 11:18:15 +0000 (GMT)
-Date: Wed, 4 Nov 2026 12:18:11 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com,
-        david@kernel.org, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
-        gra@linux.ibm.com
-Subject: Re: [PATCH v4 5/7] KVM: s390: vsie: Fix pinning using the wrong
- flag
-Message-ID: <20261104121811.024f3097@p-imbrenda>
-In-Reply-To: <8a182c71-6198-4d5d-9391-802d3ad67f8c@linux.ibm.com>
-References: <20261028185422.272146-1-imbrenda@linux.ibm.com>
-	<20261028185422.272146-6-imbrenda@linux.ibm.com>
-	<8a182c71-6198-4d5d-9391-802d3ad67f8c@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=gsST8B85
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E5951F00919;
+	Wed,  4 Nov 2026 12:40:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793796013;
+	bh=HmwZRIDXWrBpj2sZSITHJ9b0qDFSIwzwrskGykW8+Vo=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=gsST8B85AowBQXTlkPG57duQGHyKfHVTdC5pwLZGucVgXGHYL4j74MOqMZcTtXoLM
+	 i33QLgFgy2kCh2xkI2vRSoCMF+62OYukyVKUshIhQKTinmNW/X6QZR5ec/6O4Hkdvl
+	 vrxmQlya35RBmjoJoNUfHiYbQ46sTXkXu0r7rny2auSeRr/kSRfVbvMbeiJrHQdpZD
+	 XaJ18Aozl7JP/BBflK/GQjV/oSDrn9qka2O1GinbDbIrbiYvqHIep0yVrZedsS094Y
+	 cvZrc4m1Wtw10+oXnC8TnPjTJfRTascVdpFXfBjmSI5iBddkHPsyLBNNTX1lkk2o82
+	 A4kAcPSnDv+/g==
+Message-ID: <sashiko-outbox-197280@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH net] net/smc: fix handshake abort on a terminating link
+ group
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Mahanta Jambigi" <mjambigi@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261103123955.47454-1-mjambigi@linux.ibm.com>
+References: <20261103123955.47454-1-mjambigi@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 04 Nov 2026 12:40:12 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -98,166 +61,206 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=Mcr5KJ/f c=1 sm=1 tr=0 ts=6aeb147e cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=VwQbUJbxAAAA:8 a=2TDH5Pokhx7QKVwfa0AA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA0MDA0NCBTYWx0ZWRfX5OMfhLRI0cns
- higBfY7sq04T3AOVQ6yZD7sW4MSTlpczJjGUfQRbuinTM/p97+A4zg0pfZ7CXteG6gYK3GHNbBX
- /TEYlz7i/9j2IqjKjXTupBxI0PIBGEU=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA0MDA0NCBTYWx0ZWRfXztciftShxmU1
- LxMdQLzBGxeKpGs5cwljCknJC456Bm8OAw2hEmgwx9Odp71AJo0AV+ZQBmBe//Bv8XoIkRxWywo
- qvYtyqzMs4LMlTj09S7hiVqrObYxsT2bTr8G40QguNanbf9lY+mfgEBS01VrHMr/zqNyi6JFExG
- msL/QG8Oox0sruBg78odYzNSO/n0pbUUaYEh8Ff2TpoFM6uEnCF8+oEiXYOF8yZCt/SxjcVt08h
- lkHYevQ1zxWwuNNTOH6vBIHLmr1VIUwY4ob7/HVXyLdfxQL1pTQmM6w8XTNMl1OdIqIyCLyAbuX
- SaaWzO/4XqnY1KPg1p+fIlMCVUyU3HTREGj/WmX9dfTwESmNf0yaPNa3mkW9k3XWwuNM/sOhEkS
- x2XjPovthZtmVQWoEoEXLemleV6Q4ujfzySSTzYJz4E9cMrvgy2kIWgTRCryNBn2NTlJTbnC3mO
- GSqbf184eFARzApIVVg==
-X-Proofpoint-GUID: JyGXIIrqOHJi_CaXDizG24YMdeOhmtx8
-X-Proofpoint-ORIG-GUID: JyGXIIrqOHJi_CaXDizG24YMdeOhmtx8
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-04_03,2026-11-03_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 priorityscore=1501
- clxscore=1015 impostorscore=0 adultscore=0 spamscore=0 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610300000 definitions=main-2611040044
 
-On Tue, 3 Nov 2026 16:31:50 +0100
-Janosch Frank <frankja@linux.ibm.com> wrote:
+Thank you for your contribution! Sashiko AI review found 2 potential issue(=
+s) to consider:
+- [High] net/smc: rbtree corruption in smc_conn_kill() on device fallback r=
+etry
+- [High] net/smc: missing lgr->freeing check and set in smc_lgr_cleanup_ear=
+ly()
+--
 
-> On 10/28/26 7:54 PM, Claudio Imbrenda wrote:
-> > When pinning guest memory using pin_blocks(), gfn_to_page() was used,
-> > which under the hood uses FOLL_GET, which is the wrong type of flag for
-> > memory that is accessed directly by hardware.
-> > 
-> > Fix by using kvm_vcpu_{,un}map(), which uses FOLL_PIN and is the
-> > correct thing to do.
-> > 
-> > While technically a bugfix, the previous behaviour can only lead to
-> > guest corruption in extremely convoluted test scenarios that cannot
-> > happen in real/production systems.
-> > 
-> > Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> > Cc: stable@vger.kernel.org #7.0+
-> > ---
-> >   arch/s390/kvm/s390/vsie.c | 135 ++++++++++++++------------------------
-> >   1 file changed, 49 insertions(+), 86 deletions(-)
-> > 
-> > diff --git a/arch/s390/kvm/s390/vsie.c b/arch/s390/kvm/s390/vsie.c
-> > index 5926689fa226..6dd06ed52bb8 100644
-> > --- a/arch/s390/kvm/s390/vsie.c
-> > +++ b/arch/s390/kvm/s390/vsie.c
-> > @@ -49,20 +49,21 @@ struct vsie_page {
-> >   	/* address of the last reported fault to guest2 */
-> >   	unsigned long fault_addr;		/* 0x0228 */
-> >   	/* calculated guest addresses of satellite control blocks */
-> > -	gpa_t sca_gpa;				/* 0x0230 */
-> > -	gpa_t itdba_gpa;			/* 0x0238 */
-> > -	gpa_t gvrd_gpa;				/* 0x0240 */
-> > -	gpa_t riccbd_gpa;			/* 0x0248 */
-> > -	gpa_t sdnx_gpa;				/* 0x0250 */
-> > +	struct kvm_host_map sca_map;		/* 0x0230 */
-> > +	struct kvm_host_map itdba_map;		/* 0x0260 */
-> > +	struct kvm_host_map gvrd_map;		/* 0x0290 */
-> > +	struct kvm_host_map riccbd_map;		/* 0x02c0 */
-> > +	struct kvm_host_map sdnx_map;		/* 0x02f0 */
-> > +	struct kvm_host_map scb_map;		/* 0x0320 */  
-> 
-> Not sure if it makes sense to add offset comments for structs that we 
-> don't control ourselves.
+commit e77e324c5a7154d6e8cb873cd42b560cca1a0bfa
+Author: Mahanta Jambigi <mjambigi@linux.ibm.com>
 
-tbh I agree, but I wanted to keep the existing structure
+net/smc: fix handshake abort on a terminating link group
 
-> 
-> OT:
-> Well, does it make sense to have them at all, this is not a HW struct 
-> after all? We do have a 4k limit in place so we don't need to count 
-> bytes to avoid crossing a page.
+This commit avoids calling __smc_lgr_terminate() in smc_lgr_cleanup_early()
+when lgr->list is already empty, and updates smc_conn_kill() to unregister
+and skip connections that already have conn->freed set.
 
-some things require special alignment (but I guess we can align them on
-a case by case basis)
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index 6021322253e93..4e10da5bd8142 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -688,9 +688,15 @@ void smc_lgr_cleanup_early(struct smc_link_group *lg=
+r)
+> =20
+>  	smc_lgr_list_head(lgr, &lgr_lock);
+>  	spin_lock_bh(lgr_lock);
+> +	if (list_empty(&lgr->list)) {
+> +		/* another context already removed the link group from the
+> +		 * list and will terminate it
+> +		 */
+> +		spin_unlock_bh(lgr_lock);
+> +		return;
+> +	}
+>  	/* do not use this link group for new connections */
+> -	if (!list_empty(&lgr->list))
+> -		list_del_init(&lgr->list);
+> +	list_del_init(&lgr->list);
+>  	spin_unlock_bh(lgr_lock);
+>  	__smc_lgr_terminate(lgr, true);
+>  }
 
-> 
-> I won't hold back this patch for the comments, I just noticed that this 
-> looks weird.
-> 
-> >   	/*
-> >   	 * guest address of the original SCB. Remains set for free vsie
-> >   	 * pages, so we can properly look them up in our addr_to_page
-> >   	 * radix tree.
-> >   	 */
-> > -	gpa_t scb_gpa;				/* 0x0258 */
-> > +	gpa_t scb_gpa;				/* 0x0350 */
-> >   	/* the shadow gmap in use by the vsie_page */
-> > -	struct gmap_cache gmap_cache;		/* 0x0260 */
-> > -	__u8 reserved[0x06f8 - 0x0278];		/* 0x0278 */
-> > +	struct gmap_cache gmap_cache;		/* 0x0358 */
-> > +	__u8 reserved[0x06f8 - 0x0370];		/* 0x0370 */
-> >   	struct kvm_s390_crypto_cb crycb;	/* 0x06f8 */
-> >   	__u8 fac[8 + S390_ARCH_FAC_LIST_SIZE_BYTE];/* 0x07f8 */
-> >   };
-> > @@ -681,72 +682,45 @@ static int map_prefix(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page, struct
-> >   }
-> >     
-> 
-> [...]
-> 
-> > -/* Unpins a page previously pinned via pin_guest_page, marking it as dirty. */
-> > -static void unpin_guest_page(struct kvm *kvm, gpa_t gpa, hpa_t hpa)
-> > -{
-> > -	kvm_release_page_dirty(pfn_to_page(phys_to_pfn(hpa)));
-> > -	/* mark the page always as dirty for migration */
-> > -	mark_page_dirty(kvm, gpa_to_gfn(gpa));
-> > +	if (kvm_vcpu_map(vcpu, gpa_to_gfn(gpa), map))
-> > +		return 0;
-> > +	if (!kvm_vcpu_mapped(map))
-> > +		return 0;  
-> 
-> That's a duplicated check, no?
-> 
-> kvm_vcpu_map() returns this:
-> return map->hva ? 0 : -EFAULT;
-> 
-> And kvm_vcpu_mapped() returns:
-> return !!map->hva;
+[Severity: High]
+Should smc_lgr_cleanup_early() also check lgr->freeing and lgr->terminating,
+and set lgr->freeing =3D 1 before dropping lgr_lock, similar to
+smc_lgr_terminate_sched()?
 
-I swear it made sense when I wrote it :D
+In smc_smcd_terminate(), smc_smcd_terminate_all(), and
+smc_smcr_terminate_all(), link groups are moved onto a stack-local
+lgr_free_list and marked with lgr->freeing =3D 1 under lgr_lock before the
+lock is dropped:
 
-I'll remove it
+net/smc/smc_core.c:smc_smcd_terminate() {
+	...
+			list_move(&lgr->list, &lgr_free_list);
+			lgr->freeing =3D 1;
+		}
+	}
+	spin_unlock_bh(&dev->lgr_lock);
 
-> 
-> 
-> > +	return (hpa_t)PFN_PHYS(map->pfn) + (gpa & ~PAGE_MASK);
-> >   }
-> >   
-> >   /* unpin all blocks previously pinned by pin_blocks(), marking them dirty */
-> >   static void unpin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
-> >   {
-> >   	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
-> > -	hpa_t hpa;
-> >   
-> > -	hpa = (u64) scb_s->scaoh << 32 | scb_s->scaol;
-> > -	if (hpa) {
-> > -		unpin_guest_page(vcpu->kvm, vsie_page->sca_gpa, hpa);
-> > -		vsie_page->sca_gpa = 0;
-> > -		scb_s->scaol = 0;
-> > -		scb_s->scaoh = 0;
-> > -	}
-> > +	kvm_vcpu_unmap(vcpu, &vsie_page->sca_map);
-> > +	scb_s->scaol = 0;
-> > +	scb_s->scaoh = 0;  
-> 
-> This looks soooo much nicer.
-> Thanks for cleaning this up.
-> 
-> The rest looks fine to me.
-> 
+	/* cancel the regular free workers and actually free lgrs */
+	list_for_each_entry_safe(lgr, l, &lgr_free_list, list) {
+		list_del_init(&lgr->list);
+		schedule_work(&lgr->terminate_work);
+	}
+}
 
+If smc_lgr_cleanup_early() runs after dev->lgr_lock is released but before
+the second loop runs list_del_init(&lgr->list), list_empty(&lgr->list) is
+still false because lgr->list is linked into the other thread's stack-local
+lgr_free_list. Wouldn't smc_lgr_cleanup_early() then corrupt lgr_free_list
+with an unsynchronized list_del_init(&lgr->list) and proceed into
+__smc_lgr_terminate() while holding the socket lock?
+
+Conversely, when smc_lgr_cleanup_early() wins lgr_lock and unlinks
+lgr->list without setting lgr->freeing =3D 1, __smc_lgr_terminate() only
+calls non-synchronous cancel_delayed_work(&lgr->free_work), relying on
+lgr->freeing to stop a concurrent smc_lgr_free_work():
+
+net/smc/smc_core.c:smc_lgr_free_work() {
+	...
+	smc_lgr_list_head(lgr, &lgr_lock);
+	spin_lock_bh(lgr_lock);
+	if (lgr->freeing) {
+		spin_unlock_bh(lgr_lock);
+		return;
+	}
+	...
+}
+
+If smc_lgr_free_work() is already running and waiting on lgr_lock, or is
+scheduled again before termination finishes, could it see lgr->freeing =3D=
+=3D 0
+and call smc_lgr_free(lgr) concurrently with __smc_lgr_terminate()?
+
+> @@ -1519,6 +1525,17 @@ static void smc_conn_kill(struct smc_connection *c=
+onn, bool soft)
+>  {
+>  	struct smc_sock *smc =3D container_of(conn, struct smc_sock, conn);
+> =20
+> +	if (conn->freed) {
+> +		/* connection was already freed, e.g. by an aborted
+> +		 * handshake, but kept its entry because smc_conn_free() skips
+> +		 * the unregister for a link group that is no longer on the lgr
+> +		 * list. Remove the stale entry, but do not kill a socket that
+> +		 * may be an established fallback connection.
+> +		 */
+> +		smc_lgr_unregister_conn(conn);
+> +		return;
+> +	}
+
+[Severity: High]
+Can deferring smc_lgr_unregister_conn(conn) until smc_conn_kill() corrupt
+lgr->conns_all or cause an infinite loop in __smc_lgr_terminate() when a
+server handshake retries another device or SMC version on the same
+new_smc->conn?
+
+During server handshake in smc_listen_work(), lock_sock(&new_smc->sk) is
+held across smc_listen_find_device(), which tries candidate ISM and RDMA
+devices and versions in sequence:
+
+  smc_listen_work()
+    lock_sock(&new_smc->sk)
+    smc_listen_find_device()
+      smc_find_ism_v2_device_serv()
+      smc_find_ism_v1_device_serv()
+      smc_find_rdma_v2_device_serv()
+      smc_find_rdma_v1_device_serv()
+
+In each candidate helper, if smc_conn_create() registers new_smc->conn in
+a link group (say lgr1) that is concurrently removed from lgr_list for
+termination, the subsequent buffer creation or RMB registration (such as
+smc_listen_rdma_reg() -> smcr_lgr_reg_rmbs() -> smc_llc_flow_initiate(),
+which fails with -ENOLINK when list_empty(&lgr1->list) is true) fails and
+calls smc_conn_abort(new_smc, ini->first_contact_local):
+
+net/smc/af_smc.c:smc_find_rdma_v2_device_serv() {
+	...
+	rc =3D smc_listen_rdma_init(new_smc, ini);
+	if (!rc) {
+		rc =3D smc_listen_rdma_reg(new_smc, ini->first_contact_local);
+		if (rc)
+			smc_conn_abort(new_smc, ini->first_contact_local);
+	}
+	...
+}
+
+Because list_empty(&lgr1->list) is true, smc_conn_free() skips
+smc_lgr_unregister_conn() and leaves new_smc->conn->alert_node in
+lgr1->conns_all with a non-zero conn->alert_token_local, while
+smc_lgr_cleanup_early() now returns immediately. Meanwhile,
+__smc_lgr_terminate(lgr1) cannot run smc_conn_kill() yet because
+smc_listen_work() still holds lock_sock(&new_smc->sk).
+
+When smc_listen_find_device() moves on to the next candidate device or
+version while still holding lock_sock(&new_smc->sk), it calls
+smc_conn_create() -> smc_lgr_register_conn() again on the same
+new_smc->conn:
+
+net/smc/smc_core.c:smc_lgr_register_conn() {
+	...
+	if (!conn->lgr->is_smcd) {
+		rc =3D smcr_lgr_conn_assign_link(conn, first);
+		if (rc) {
+			conn->lgr =3D NULL;
+			return rc;
+		}
+	}
+	/* find a new alert_token_local value not yet used by some connection
+	 * in this link group
+	 */
+	sock_hold(&smc->sk); /* sock_put in smc_lgr_unregister_conn() */
+	while (!conn->alert_token_local) {
+		conn->alert_token_local =3D atomic_inc_return(&nexttoken);
+		if (smc_lgr_find_conn(conn->alert_token_local, conn->lgr))
+			conn->alert_token_local =3D 0;
+	}
+	smc_lgr_add_alert_token(conn);
+}
+
+At that point:
+
+1. If the second smc_lgr_register_conn() succeeds on another link group
+   lgr2, it sets conn->lgr =3D lgr2, takes a second sock_hold(&smc->sk),
+   reuses the stale conn->alert_token_local, inserts conn->alert_node into
+   lgr2->conns_all while it is still linked in lgr1->conns_all, and clears
+   conn->freed =3D 0. When lock_sock(&new_smc->sk) is later released,
+   __smc_lgr_terminate(lgr1) wakes up and runs smc_conn_kill(), which sees
+   conn->freed =3D=3D 0, aborts the active connection on lgr2, and unregist=
+ers
+   conn from conn->lgr (lgr2) instead of lgr1.
+
+2. If the second smc_lgr_register_conn() fails in
+   smcr_lgr_conn_assign_link(), it sets conn->lgr =3D NULL. When
+   __smc_lgr_terminate(lgr1) later acquires lock_sock(&new_smc->sk) and
+   calls smc_conn_kill() -> smc_lgr_unregister_conn(conn),
+   smc_conn_lgr_valid(conn) is false because conn->lgr is NULL, so
+   conn->alert_node is never removed from rb_first(&lgr1->conns_all) and
+   __smc_lgr_terminate(lgr1) loops forever.
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103123955.4745=
+4-1-mjambigi@linux.ibm.com?part=3D1
