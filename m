@@ -1,94 +1,76 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.199
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793804771;
-	b=H625gFa1jePZ7rzDFFIYG/VBoIGJCZezaNCMdmG5uNsj3nCc5Yp+KDJEUhw7YIX1y7q0
-	 WmmFOxtlYP8ikDRdOMnS2RZjy9R7e4oOzL/YAZ7jywm7/Tq3dgVzYdADDKXHEjSIoPzBn
-	 GyOzl2snlK2SB9aDzZgOw/qGLfSPI35S1wHmaeBg/KfePghfceYtvgIggZ3MVnZqXVRNS
-	 rVkbSGCUScuyNLuzIH7ghx7S8IK4jlSPulbeaEvGiCCRVPW+m3IU0Hk4TelWm9/FUkC0U
-	 zEn8CQdZqLsi6LhCR45xwO5ivsbq+6ybwAUcqK+o7eP7vvDVTvu2BkTT8RmE6qEUxQg==
+	t=1793806727;
+	b=Z/3msHuVhiSJFUPXNDDGiwij15CdTL0WjWqLRjlbmxJ/kCq1GZ240Vr8OmqpLyEIC1Vd
+	 zbOP9s45dqsAuexZeHnohYFQgTpL/tPOPtrxbInh7O3nnUzODwqTlBtTN5QtgmiXkcR3g
+	 3F1oA4y+OYF2Sucx5hQG393L3hxLtKWw5M+qAGIy/uiDDH0TKWTuqNJhMrh66GotcJ63S
+	 eTbwazLI+dEtwX933S0civpcw5V5820W255b2IUC4Zv69jvwSGZg0hV27tbzpmQZe7OxR
+	 JejGNUZ/dVMoYN4bRYdPnJ8nubBsnaUcxPBDhEoxYjm0+t0C+LeTqYuz4MUuOdJCoOw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793804771;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
-	 Message-ID:In-Reply-To:References:Organization:X-Mailer:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:X-Authority-Analysis:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
-	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=0on+FX88kbjKDIgT8gJnpNAKZ+JU/nrW4Lm72tYTJpY=;
-	b=csBa2QNw+2TvLVpq5RxOfwXLRz8Ogma5G9p2I7knXXEBl5gUOQN7nRA/AqOXjy7Rt44Y
-	 h65xx+vsqLe8ltkDFOgAr5J73KsoO7+cdmmVbMNNSMOl1aO5ZvaIaWpaotkYI72trfMcD
-	 IonqX8yMU5TDfgVPfj22CDjqtBbCp0UVcNHBn4f9XAjpKfFXDmnxUVC05pwzIX1xM3V7s
-	 edehzl46oWkX8fIpQttevKbj7N/MBSLcI6ywcvlyUNPPBURZw1eDOtp2Vd51m07Y7yyto
-	 moRO5qxd2X0rwG0bclYYFPUJkUdgut3I5nyzD4T1nmVxy7lZ+oCcYLO/LRcZG6/9K7w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793806727;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:In-Reply-To:
+	 Mime-Version:References:Message-ID:Subject:From:To:Cc:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=BgXz8h+/nQ9U/ZFrmreR3nTmSbeRNY7GAtat9khBnZw=;
+	b=hcpQFF4g88TB6aBxE9YeJTGjIaJ5SnWepuZy8pwEoNyr2LK4Wy5VNHJd/6ANrqH33E7u
+	 pUZMNFPliYK0aDUFBnISOuojRkEU/c3OASJ14LwwX1sJy1n3DjqVUGRUEqoUCoxIBeyQe
+	 9sRwPQ7d/hUCYtd76X11AAjHQSG1Q1yCXwbVLfK63ss6ojjwNOD5stlN4c451SHYwk7UF
+	 wicA3Ds8fiOB4wwO05hmVNB0A+lmt+NvWRsBW+y3Xwx5PsdTFhNGCad8mgbYyfK+d0yNg
+	 0ncAmcnylLJazLcsppVhLEADilNBnh8cTgiB17024MMpw5JzQ8PGIIq8PEjimn0sUAw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=WXvUYYCx;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	dmarc=pass header.from=google.com;
+	spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com;
+	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b="k60/cWcu";
+	arc=none smtp.remote-ip=209.85.215.199
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com [209.85.215.199])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67614606A334;
-	Wed,  4 Nov 2026 15:06:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 67614606A334
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32CAB6083633
+	for <linux-s390@vger.kernel.org>; Wed,  4 Nov 2026 15:38:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 32CAB6083633
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=WXvUYYCx
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A4Bi8tI387910;
-	Wed, 4 Nov 2026 15:06:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=0on+FX
-	88kbjKDIgT8gJnpNAKZ+JU/nrW4Lm72tYTJpY=; b=WXvUYYCxHXBzo3ClgLKZz4
-	uRPzgVOYbDfLBUwZy5epUrI9vKgZ8ITcx466Doilhp6M0ofyAzSm55jrY5fmufMp
-	oRvKrqAJE6MT7b24umZJtYxOgQ0YuJVDne6axLJQNcyUw7Wd+qvR2KoFk0cRzrEM
-	Yy9RKujEBnw/z4JxlUUVVIhPf5LIuktK1dsg9fKLMPuCZH1Fij1vp1Qnzb38jDqk
-	cJjbT8TtHcgl5f17tjGIWlROdPkPgpglr145Bs4MuYwjIahNXVyhvOOCO1fV54SR
-	fcdK1hDOEabXslmsb1b7NFrzUp/1lL6pvQjfWfaXVTvHtRmlnyVZM6nagC7UFbOA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn5rhvd5m-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 04 Nov 2026 15:06:07 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A4BaldD2894843;
-	Wed, 4 Nov 2026 15:06:06 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hqsf5b2su-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Nov 2026 15:06:06 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A4F606s26739140
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 4 Nov 2026 15:06:00 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 793BD2004B;
-	Wed,  4 Nov 2026 15:06:00 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4C3F920043;
-	Wed,  4 Nov 2026 15:06:00 +0000 (GMT)
-Received: from p-imbrenda (unknown [9.68.31.243])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Wed,  4 Nov 2026 15:06:00 +0000 (GMT)
-Date: Wed, 4 Nov 2026 16:05:58 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
-        david@kernel.org, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
-        gra@linux.ibm.com
-Subject: Re: [PATCH v4 7/7] KVM: s390: Allocate page tables when CMMA is
- used
-Message-ID: <20261104160558.4bfab884@p-imbrenda>
-In-Reply-To: <4fe568ee-bc18-4899-8ced-853046949bd2@de.ibm.com>
-References: <20261028185422.272146-1-imbrenda@linux.ibm.com>
-	<20261028185422.272146-8-imbrenda@linux.ibm.com>
-	<4fe568ee-bc18-4899-8ced-853046949bd2@de.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=k60/cWcu
+Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-cbb92868263so567713a12.2
+        for <linux-s390@vger.kernel.org>; Wed, 04 Nov 2026 07:38:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20260707; t=1793806726; x=1794411526; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:from:subject
+         :message-id:references:mime-version:in-reply-to:date:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=BgXz8h+/nQ9U/ZFrmreR3nTmSbeRNY7GAtat9khBnZw=;
+        b=k60/cWcu0pkGc7cd1FnzHVa4LKXDGgriJrIpz1RFwsEIJOnw5JFHmCUyNY0IOHskiZ
+         bartBh1Ruag9njIoguxRQCRQqBZQBg2lwfP6pCE/RGNCFlRFdcsH7YnkSoh332dXiqSC
+         4kbSa7ySDV3T3LRz20vpcFwFraHll8xZ5FDqQe5Q5ADOQW0Wyq70+MF+Y8njcwlUa3/y
+         4oZMutPoVESQuQfvz1SSB9ZoBciidOm2pq3RdgJnNQQLN61QxmRmFdyKEcpQ1ZWIIP5E
+         9sXwEOYyQBagULkULsPq/YttZCiZkM3zuFQUT5DT96+KBqE1/VGvmfO+QisrcDSJsJ6m
+         YZFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793806726; x=1794411526;
+        h=content-transfer-encoding:content-type:cc:to:from:subject
+         :message-id:references:mime-version:in-reply-to:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=BgXz8h+/nQ9U/ZFrmreR3nTmSbeRNY7GAtat9khBnZw=;
+        b=MeTq84CitS2WeDvOJ1tP1hvS9nGx5fl4/UfW6s4xfhOjHHgKnsOrI80LN07fSyg9+6
+         58ehKwRBeoW75eF31Xj3+nqJaiv9AWfaeln/C9yiKAauKVQMSHrdqRV9e/l0iLDOpGMq
+         Hryp9wBN1/rzOdRBPkE+6YsSva+VZbRLF3Uk26Q7ru6NmxNDd6lo/FtuxQ0fm0vvpO7j
+         TgZ1ITSdy/Ot6D7LaoL9k+qayRSavniIVJluDiWQdT+3+VlC6RqZx6ojkt/zvuMJ8a/J
+         OKQqxudv3WHpJNz+oXziRjgGIasIXJOh/Wga4iW6NmGU6OnrMypyi9KEYdba28S0eJ7i
+         5HdQ==
+X-Forwarded-Encrypted: i=1; AKwUvBwmRd4hk8F6ugGQmGeUORCgNhmSm4D7XInvmq7ALn2q4MpqYqotsbWuh+jF485KBS8NQ1EYCTo2m50B@vger.kernel.org
+X-Gm-Message-State: APuU4Z8vnAB5p6oOB8ycoLh0beBA8EF20a1pupxd8VsLyS/tdLzJCWWw
+	K32HQLidXO/TiVB7cZoHWsF6MmeLqOqowbzIqZL/UPnPn2Cwn4zpQNz0sYIFv5jFpu4v/BzNO5C
+	rMXLKKA==
+X-Received: from pjbnc12.prod.google.com ([2002:a17:90b:37cc:b0:3ab:5803:73a5])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:3806:b0:39d:f08e:e6e7
+ with SMTP id 98e67ed59e1d1-3ae89574d67mr12860378a91.9.1793806726299; Wed, 04
+ Nov 2026 07:38:46 -0800 (PST)
+Date: Wed, 4 Nov 2026 07:38:45 -0800
+In-Reply-To: <7ba2ca65-1eab-40fd-ae4c-f7cd9e156d8c@suse.de>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -97,111 +79,148 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MykE6Ji0ThPeAFJhWinnRId9yfYvAFFf
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA0MDA1OCBTYWx0ZWRfX/d6GxzCRWSA9
- Nt02K8/cSqI+y0watoHoSRVYgw2NjF5SudYVrxmoZCQGU+zwqOBcgG5g3nzNs2m2RJk7i0S1WtP
- gAGFUU31j7dXjsdmoN1f3GJGcUjMTbs=
-X-Authority-Analysis: v=2.4 cv=LokHWXdc c=1 sm=1 tr=0 ts=6aeb49df cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=1hq0dM-71BVALnanI5MA:9 a=CjuIK1q_8ugA:10
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA0MDA1OCBTYWx0ZWRfXzVtyys4XqD8/
- JgpVqEYOjF+Ambd3iqBtgsKTfAZAY8JzN2lt3/UEnnmlwkb2QhYVjMaa+fR2vT77mgZT/et1+S3
- 7aUeeBrd5Jdz4CwF49JT18DLCSKPNK0jZxprdniC/yCRQ1Rp0+nNhtvi/tr0OdhgcILH+IHmTiU
- mXWhqqG71dwos6W9Qltb6+VgihEBgmM5MS1Riv2dsMtrMTRz9ncex3DNOAF6JFiPwAEvUqkIrEx
- UBsoHwkpyL3pOKRXIKmCFIaM+zC1NnvKX5Zj2e6ii1dRD1xze0DNew6Imju3zRZzG3h2EPwMDRq
- cgST8B2IiZjX+leBIqcs7DEes62yAOG2LhNO0jqo202VxZfUxmh6x1965zgMq33Rn9rQ6AVNVSA
- MmmvcrkmlSDaSoCUax3HKU/BVdPwoKtFTFJCA89ROn+un4Q5NMjL55BdHH+Mns0azV0lvsbJOlG
- usTsoHUADwTULZjNtxQ==
-X-Proofpoint-GUID: MykE6Ji0ThPeAFJhWinnRId9yfYvAFFf
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-04_04,2026-11-03_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 clxscore=1015 impostorscore=0
- priorityscore=1501 suspectscore=0 phishscore=0 malwarescore=0 bulkscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
- definitions=main-2611040058
+Mime-Version: 1.0
+References: <20261029143336.390231-3-clopez@suse.de> <20261029175203.5bdd51d7@p-imbrenda>
+ <df9dc526-4275-4784-8a0c-2e4fa8e96402@suse.de> <20261030133939.630e29af@p-imbrenda>
+ <auis0SaMkRB6odsK@google.com> <b9ed9dd4-a1d0-466b-a6cd-89a4e70abed0@suse.de>
+ <aun3w8gxwlmRy-GW@google.com> <7ba2ca65-1eab-40fd-ae4c-f7cd9e156d8c@suse.de>
+Message-ID: <autRhZjOfLyw2OXo@google.com>
+Subject: Re: [RFC PATCH 0/4] KVM: x86/mmu: don't zap secondary MMU on
+ permission upgrade
+From: Sean Christopherson <seanjc@google.com>
+To: "Carlos =?utf-8?B?TMOzcGV6?=" <clopez@suse.de>
+Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, linux-mm@kvack.org, 
+	pbonzini@redhat.com, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 4 Nov 2026 14:28:02 +0100
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+On Wed, Nov 04, 2026, Carlos L=C3=B3pez wrote:
+> On 11/3/26 4:03 PM, Sean Christopherson wrote:
+> > On Tue, Nov 03, 2026, Carlos L=C3=B3pez wrote:
+> >> On 11/2/26 4:31 PM, Sean Christopherson wrote:
+> >>> On Fri, Oct 30, 2026, Claudio Imbrenda wrote:
+> >>>> On Fri, 30 Oct 2026 12:11:07 +0100
+> >>>> Carlos L=C3=B3pez <clopez@suse.de> wrote:
+> >>>>
+> >>>> [...]
+> >>>>
+> >>>>>> regarding this series:
+> >>>>>>
+> >>>>>> on x86 you don't care what the new permissions are, because you're
+> >>>>>> updating when re-faulting (if I understood correctly). =20
+> >>>>>
+> >>>>> Correct.
+> >>>>>
+> >>>>>> for s390 it might be beneficial to know what the new permissions a=
+re;
+> >>>>>> of course we could look up the vma and find out, but since you are
+> >>>>>> already checking the permissions, maybe you can find a way to also
+> >>>>>> convey the new permission bits?
+> >>>>>>
+> >>>>>> that would make our life on s390 easier :) =20
+> >>>>>
+> >>>>> Right, getting the new bits from vma->flags should be trivially don=
+e
+> >>>>> from the MMU_NOTIFY_PROTECTION_VMA callsites. There'd be no users i=
+n
+> >>>>> this series though.  The rest of architectures still need the notif=
+ier to
+> >>>>> tell them if the change is an upgrade, since they don't have an eas=
+y way
+> >>>>> to grab the old RWX bits. Passing the old RWX bits from the MMU not=
+ifier
+> >>>>> does not seem trivial to me either.
+> >>>
+> >>> But why is core MM even doing mmu_notifier_invalidate_range_{start,en=
+d}() in the
+> >>> first place?  I.e. why add MMU_NOTIFIER_RANGE_PERM_UPGRADE?  Just ski=
+p the
+> >>> "invalidation".
+> >>
+> >> I briefly mention this in the cover letter, but in short, denying othe=
+r
+> >> users the notification seems like an overly intrusive change for KVM's
+> >> benefit.=20
+> >=20
+> > There are all of two other users:
+> >=20
+> >   $ git grep -w "\.invalidate_range_start"
+> >   drivers/gpu/drm/nouveau/nouveau_svm.c:  .invalidate_range_start =3D n=
+ouveau_svmm_invalidate_range_start,
+> >   drivers/infiniband/hw/hfi1/mmu_rb.c:    .invalidate_range_start =3D m=
+mu_notifier_range_start,
+> >   virt/kvm/kvm_main.c:    .invalidate_range_start =3D kvm_mmu_notifier_=
+invalidate_range_start,
+> >=20
+> > and AFAICT neither of them wants an invalidation even for protection up=
+grades
+> > either.
+>=20
+> There are more users that register for notifications via
 
-> Am 28.10.26 um 19:54 schrieb Claudio Imbrenda:
-> > When ESSA is executed in the guest for the first time, allocate all
-> > page tables and split all existing large page mappings, regardless of
-> > the hpage parameter.
-> > 
-> > With the page tables present (even if all the entries within are not
-> > present), ESSA will not cause page faults.
-> > 
-> > Without this fix, ESSA will cause a fault on the first page of each
-> > segment (1M block). If userspace is backing the guest with huge pages
-> > (hugetlbfs or THP), the page fault will be resolved by faulting in the
-> > whole huge page. The result is that at startup the whole guest memory
-> > is faulted in, since the guest will mark all of its memory at boot.
-> > 
-> > With this fix, no extra guest memory is allocated. This will also
-> > prevent the first page in each segment from being faulted in, regardless
-> > of hugepages.
-> > 
-> > Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
-> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>  
-> 
-> Will that prevent THP?
+Ugh, I didn't realize we gained a variant of .invalidate_range_{start,end}(=
+),
+I thought those were for what is now arch_invalidate_secondary_tlbs().
 
-technically not, but it will be ineffective, as KVM will always use 4k.
+> mmu_interval_notifier_insert():
+>=20
+>   $ git grep -l -e "mmu_interval_notifier_insert(" \
+>           -e "mmu_interval_notifier_insert_locked(" -- drivers/ | wc -l
+>   12
+>=20
+> I haven't audited all of them, but I'd say that at least amdkfd relies
+> on the invalidation for upgrades. Without XNACK, GPU page faults are not
+> retried, so the driver maps ranges up front with the VMA permissions
+> (svm_range_validate_and_map()) and relies on an invalidation to remap
+> them when those change. So mprotect(PROT_READ) followed by
+> mprotect(PROT_READ|PROT_WRITE) would cause the GPU mapping to stay
+> read-only and the next GPU write to fault. Unlike the APIC access page,
+> this is the application's own memory, mprotect() should be perfectly vali=
+d.
+>=20
+> This is the kind of subtle reliance that I mentioned before, and why I'd
+> rather not open that can of worms.
 
-there is no way to have cmma and THP and not allocate the whole guest
-memory at boot.
+Yeah, agreed.
 
-please note that I am planning to drop the last 2 patches in this
-series for now, since they currently have issues and I currently do not
-have enough bandwidth.
+> >> A flag allows users to opt in instead.
+> >>
+> >> It is also not clear to me that secondary MMUs are not relying on the
+> >> notification in some subtle way. In fact, Sashiko points out in reply =
+to
+> >> patch 4 that the notification lets KVM retry the APIC access page relo=
+ad
+> >> in case userspace shoots itself in the foot by calling
+> >> mprotect(PROT_READ) on it. This would require a really weird VMM,
+> >=20
+> > s/weird/misbehaving
+> >=20
+> >> as it would need to go looking for the page's address, but breaking th=
+is
+> >> would be a "regression" nonetheless. I will address this in v2.
+> >=20
+> > Nah, there's zero chance any real VMM is doing mprotect() on the APIC a=
+ccess page.
+> >=20
+> > More importantly, doing nothing if updating the mapping fails and APICv=
+ is enabled
+> > is wrong.  KVM needs to ensure vmcs.APIC_ACCESS_ADDR is fresh when runn=
+ing a vCPU
+> > with APICv enabled, even if that means putting the vCPU into an infinit=
+e loop.
+> > VMX doesn't support "inhibiting" the APIC access page, i.e. the memslot=
+ can't
+> > disappear while the VM is alive, and if userspace mucks with the VMA, t=
+hen KVM
+> > needs to prevent running the vCPU until the mapping is restored, irresp=
+ective of
+> > mmu_notifiers.
+>=20
+> Fair point. Should I just carry the diff below in v2 with your
+> Signed-off-by?
 
-> 
-> 
-> > ---
-> >   arch/s390/kvm/s390/priv.c | 5 ++++-
-> >   arch/s390/kvm/s390/s390.c | 5 ++++-
-> >   2 files changed, 8 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/arch/s390/kvm/s390/priv.c b/arch/s390/kvm/s390/priv.c
-> > index 856939acf012..4f0dd3173ab9 100644
-> > --- a/arch/s390/kvm/s390/priv.c
-> > +++ b/arch/s390/kvm/s390/priv.c
-> > @@ -1248,7 +1248,10 @@ static int handle_essa(struct kvm_vcpu *vcpu)
-> >   		 * value really needs to be written to; if the value is
-> >   		 * already correct, we do nothing and avoid the lock.
-> >   		 */
-> > -		set_bit(GMAP_FLAG_USES_CMM, &vcpu->arch.gmap->flags);
-> > +		if (!uses_cmm(vcpu->arch.gmap)) {
-> > +			set_bit(GMAP_FLAG_USES_CMM, &vcpu->arch.gmap->flags);
-> > +			gmap_allocate_all_page_tables_best_effort(vcpu->arch.gmap);
-> > +		}
-> >   		/*
-> >   		 * If we are here, we are supposed to have CMMA enabled in
-> >   		 * the SIE block. Enabling CMMA works on a per-CPU basis,
-> > diff --git a/arch/s390/kvm/s390/s390.c b/arch/s390/kvm/s390/s390.c
-> > index 18fb200f854a..739e8c23c3ae 100644
-> > --- a/arch/s390/kvm/s390/s390.c
-> > +++ b/arch/s390/kvm/s390/s390.c
-> > @@ -2359,7 +2359,10 @@ static int kvm_s390_set_cmma_bits(struct kvm *kvm,
-> >   		}
-> >   	} while (r == -ENOMEM);
-> >   
-> > -	set_bit(GMAP_FLAG_USES_CMM, &kvm->arch.gmap->flags);
-> > +	if (!uses_cmm(kvm->arch.gmap)) {
-> > +		set_bit(GMAP_FLAG_USES_CMM, &kvm->arch.gmap->flags);
-> > +		gmap_allocate_all_page_tables_best_effort(kvm->arch.gmap);
-> > +	}
-> >   
-> >   	return r <= 0 ? r : -EFAULT;
-> >   }  
-> 
+Nah, I'll send a standalone patch.  It doesn't have a direct relationship t=
+o your
+series, and the bug is pre-existing despite what Sashiko thinks.
 
+Thanks!
