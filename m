@@ -1,63 +1,60 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793759561;
-	b=tyow476PIuSvNgKJ0lcqwESURdkbWizVPRwckPsnQ7hVc2wslAWovxF0/F5GSCXBlHVL
-	 IWmAerDgxo2zSpnWqOd1Se/C11nlBUsMNkoXZGqkemC44Fpyp0VURMw2i+c3RWcjayZyH
-	 o7ZQnz1c1LMn1sm/5dzDHIP4JfEO2mK0qMTL/S/C8b9mE5tekfgGKnHTNIJ5/aV66C9k0
-	 EWb5rNTQMXB8VXdSyTS7lD0Rlt8p48nYIA0F1s/JhIMHGpckGeEDc8apyxfeeWso64+dJ
-	 7KoTBEklMY9krmCC/SEcj0JNZhl6ieR3ES7h6EJBEtX6VTgVM5bgyQdYAFU95BHdrAg==
+	t=1793761387;
+	b=Gqzxk/GTVncYwvEAEIUqLT9q8dT4dpWdLHmWCkBwQsEzcYj6eUxJQYJLaFZS2G5E2jc9
+	 McQiwZSTbjxQqwoGITOSm/0KKUaOl5vkciFMkuBemhvpIJphMUZMo9d/+bZrFjhrRzOcV
+	 4UBx/+QysDos9Urv1LfXkosYfL7EdN4FLD5eJzg2WSzQ23StHW9zLXsOt43bzoqRDwgWa
+	 hajgmIJUWYjVtC0P/F5GhICguV/9TPpMSTsWfCifG18wTmm0gzdll9VDbAB3aIaur1beO
+	 JVgO23QCEl4YC98m/vQF/zSUdoNAfVSEaPrLVSQDktO2r7cTnklZ6dEJZVSpIfRGBRQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793759561;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
-	 In-Reply-To:References:Auto-Submitted:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=Z9zRtXHe/J1k/4/9wAeq1n+PwAt+ioXmV3zyjSNrjDw=;
-	b=dtteq37MHedx+rE8JLWFOa+4G8437Cq3toUxDHQ3mCM3TFouEEy/fDJOrEqXfH/CagI4
-	 wrHd0U+1ibFuOaCjTe1cuSjw45EOCZAEczjHKRYk0OUJDMa2o3EGh5N73MlhDoNBohAxu
-	 91KsXJaUg3vxlG/03nujknTLdd+ryJGkuv3aXxP7UH8LTOk2ycWaXk6KsYQoCGDJ88d8q
-	 iiD/ipOi+MutsyUZdwbjw4zTmHzEi6QlUlEFJLtY9nuqMAc6179T0u+PuLywG8xVkZNKp
-	 thy5bkYEr0Gx+0VGSMQ2hS7DBWoy1/yIUEOpTneoX1PuQS9xcvYSfuefCacXIrF1xBw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793761387;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=M2H8fq/p0DnSe/H5cA3C1yV2zObpFD5Jy+kby1QkUDQ=;
+	b=goSSOr7HGH6eZMdmn65du2juOp3nuRWTD+U/A1voWhDt4heoIVVTBOTR3C8LIuB0oc4q
+	 WzxglhifnLTGlvX6A9QX5JBhTwBNANdr6NDi1P4oPkV7L/NGYFhyc6RpwGAOApLVIQ6VS
+	 1vTW+oGig5YU8eglX4gJR76fYMuUEyFvJh2JDerbwZr2RZHPkD5fbC3CzZDN/DPz1PQsP
+	 P7ovU+pMb8u9b8vaVn7LVFgJUsSr5j9qWxvngy1LG6ulB0MbrVEk182XU4XH15ibggiHZ
+	 9aBqh/QNAgbJ2liMsRJ+aKKYJfFY6eLdLTWfGbtzGSFUWPy6TdHhO/e2iGIlwKvmDDA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="lkfV48H/";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hxZmFt2s;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 415F3606A31B;
-	Wed,  4 Nov 2026 02:32:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34429606A337;
+	Wed,  4 Nov 2026 03:03:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lkfV48H/
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C4031F000C1;
-	Wed,  4 Nov 2026 02:32:39 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hxZmFt2s
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B77751F000C1;
+	Wed,  4 Nov 2026 03:03:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793759560;
-	bh=Z9zRtXHe/J1k/4/9wAeq1n+PwAt+ioXmV3zyjSNrjDw=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=lkfV48H/ZsicWO/FBwG0JxlqHR9bDDvJ7m3UmhwjeXvfyK2posHfj3PVDfYpnWc3h
-	 6Vt0JBym/XMiwKTRSt2tQPF1xQy1ONL77TfWKYRDCbroZ6cGB9Dm9W3M86LzP5sqMo
-	 Ft5I5tH/XFYn+0ms6f2rj5FYl9Akdz/sj7ChKSaME0l2OMXtrxFe0Yd6GMaQLIwhAI
-	 R9SLAx5/oEEpHwcFasNJ3fcwfZurnvuYoSGGQWRJQr20C6bgHjZQIh7WqYXZqY2LR3
-	 T/2GlJKqh9TJVY93In1N6Gw5tbbGi61qdiQ9/kFQbL0pSvBZMFx+mw6SrijXcsVr0/
-	 RQzFx3O8bW6uA==
-From: netdev-bot+sinfo@kernel.org
-To: Wentao Liang <vulab@iscas.ac.cn>
-Cc: "D. Wythe" <alibuda@linux.alibaba.com>,
- Dust Li <dust.li@linux.alibaba.com>, Sidraya Jayagond <sidraya@linux.ibm.com>,
- Mahanta Jambigi <mjambigi@linux.ibm.com>, Tony Lu <tonylu@linux.alibaba.com>,
- Wen Gu <guwen@linux.alibaba.com>, "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org,
- netdev@vger.kernel.org
-Subject: Re: [PATCH] net/smc: deregister the MR when SG mapping fails
-Date: Wed, 04 Nov 2026 02:32:39 +0000
-Message-ID: <179375955951.488859.4992369766072112123@kernel.org>
-In-Reply-To: <20261104022812.1484233-1-vulab@iscas.ac.cn>
-References: <20261104022812.1484233-1-vulab@iscas.ac.cn>
-Auto-Submitted: auto-generated
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	s=k20260515; t=1793761387;
+	bh=M2H8fq/p0DnSe/H5cA3C1yV2zObpFD5Jy+kby1QkUDQ=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=hxZmFt2sUH/hMbiZBMzr8BZkZyfuPvKKj9RXjaaVx0UIdq3dqRxrawnyt+/AveQI8
+	 2qO64kmu7VohiNZSPX3sMFaZ33IFqcDflpj1bhCZHYTdo897vOW1wsf5Aozi4clARr
+	 V1kE7L5WGAohoQycxcENfvxRDyPkPlAg2tdlYnyvjwk+So7gYSr56ZegVILvcvgpq9
+	 Zih/HwB3Erb9fcumxZqozOuwBC0jSM1IEnEDT806gElXFaNfDZU5PC6lmPKAdWOtg+
+	 V2yz92KDmXw1nyi2PoMkEyF5ja5Bh9oGOiPiTnzuKNh75rHTiQ3oUhg+sKTG8QWeu5
+	 9Rt/0/8AQRoQg==
+Message-ID: <sashiko-outbox-196570@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [RFC PATCH v2 06/11] s390/cert_store: Track subsystem keys
+ instead of re-registering key_type
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Jarkko Sakkinen" <jarkko@kernel.org>
+Cc: =?utf-8?b?b3BlbiBsaXN0OlMzOTAgQVJDSElURUNUVVJF?= <linux-s390@vger.kernel.org>,
+ =?utf-8?b?b3BlbiBsaXN0OlNFQ1VSSVRZIFNVQlNZU1RFTQ==?= <linux-security-module@vger.kernel.org>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261103030226.2685251-7-jarkko@kernel.org>
+References: <20261103030226.2685251-1-jarkko@kernel.org>
+ <20261103030226.2685251-7-jarkko@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Wed, 04 Nov 2026 03:03:06 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -66,26 +63,22 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
 
-Hi!
+> cert_store refreshes its keyring by unregistering and re-registering
+> key_type_cert_store_key so key_type_dead garbage collection sweeps old
+> keys, while leaving userspace-linked keys behind.
+>=20
+> The removal of key_type_dead will eliminate that sweep.
+>=20
+> Register key_type_cert_store_key once during init before creating sysfs
+> attributes, and track subsystem-created keys explicitly so refresh
+> unlinks and invalidates previous entries directly.
+>=20
+> Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 
-This is an automated message. This series looks like a fix, but its
-commit messages seem to be missing some information:
+Sashiko has reviewed this patch and found no issues.
 
- - How the issue was discovered, e.g. hit in production, hit during
-   development, syzbot report, manual code inspection, LLM or static
-   analysis tool scan.
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261103030226.2685=
+251-1-jarkko@kernel.org?part=3D6
 
- - Whether the issue was actually triggered, or is only theoretical
-   (e.g. found by code inspection). If it was triggered please include
-   the symptoms, like the stack trace or error messages.
-
-Please do not repost the series just to address the above. Instead,
-reply to this email with the missing information, so that reviewers
-can take it into account. If the series needs another revision for
-other reasons, please include the information in the commit messages
-then.
-
-The evaluation is done by an LLM so it may be wrong, if you think
-that is the case please reply and explain.
