@@ -1,82 +1,102 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793745923;
-	b=2icyiVr1n9iDf2jquLZX3uMYqI4mwzaXzkBjUGjCi1cl5Gb5V6UdxCG0DBCH+6d0lIcc
-	 KYy3bSLqvEpwNk9sJqIBRiK/hZFa+ZImOlnGCVAp44VWkZnvgy37cp+A9FeM8U8qc1FvB
-	 FZW5sHccMYHqrf7RgO/yKAgEypvh5zeA5VSz1hsJU7myN/k1OnowOHRF24cCYKr+/9eX4
-	 caXAfayvhuQYFOIKb9T4WfUofBZQLM5i3HaylW/grPw9MaL3mg0a8AZ1aCJnAlCUdxTkY
-	 IgoqESHHtGE/YrEl+QdqtFEXMCYdo/L1SgZm8LvKlsTWVF50X344XXzWtO50RpaqWWQ==
+	t=1793752708;
+	b=JsMfrPrpS/L+/jW7C9C2bnl/1/wkwE0BHhV7eSXQiWNU1vb/1az0GjthgfZIdGI7xgdk
+	 cNKV0SD5fphi+0/UOBagKqgl30dJLkf6hKsDccG7e1okgrJwhufFO7hF6m/2cL5fsMBVP
+	 MKOrDQwTfbK0L1l1NlW/AsyCGKhvAs6OiTY4Kq/xNAGIqp2ZzWWTtfOe3Y/tqofKSXUdy
+	 WAlGk97yzKUxoq5Yxht4H9wG18+CC/7M+TAWyMRUv0ejKsCj84JLm3aLkr0jLkU6qDbnJ
+	 8XcIfbOwUiXtDEV2/hwwOGBuex4+zg1Uov/Z4AYu5smCwhs/DkhOqZGEYk54DiFbqQQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793745923;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
-	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=/GO2ExICahF7BId12law/TW5FYBAReP12IVhUOS5pJg=;
-	b=p0WL8EHkc2r63tVsaAL+C1GDpVkGkCSakDYA9uLRw0KjSQYX8/CQjFEw44EZ+M8lks7S
-	 ViANDAkyxUY30A+qYJ9u1HBIFBYuZHk5C5FQK/01ZeQaKSIyg5Qi+qylGcES5KWKYRu0n
-	 RyO9V7394+mUyR6Pu7r/omyS8w19cPYrPTUC6L4uymZgnPI3BAw7nOYK29lrpcrIosMXC
-	 rHXPjXgweggbzr/lTlGvf9Xsnr0C26fAoS++bqK4huFbT3YL+U1qDXymlDrEKfI4i/cKU
-	 P8ITKhmYr0+TJ3TxVfK4lo9d39z5I979FhPScBDGSpubnZrGdjHMSUZkatQwiLJqiFQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793752708;
+	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
+	 DKIM-Signature:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:From:Content-Language:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-Spamd-Result:X-Spam-Score:
+	 X-Spam-Level:X-Spam-Flag;
+	bh=/JbHR9SIBAy4VraxiGZbUfiitTfcvjB9kaCB6rQcVIE=;
+	b=YHaOfxnZ28FgEYdncWmcx1l5OiMLtVxs333ifdFpIGk48Qgk4MZOj9Iedo5FPAMHnepg
+	 BcwqxKQlINoQ9dxCvELS3KBZFWQng2w85y/h/ikmoMi+XBBPvZAct+WZI2xUfdgCJyGNM
+	 ZRIbo61a6nZ3SyaANmvx/7mm5grLqian8I/eSnCvpCTzdusxXOt5HXQteDfLB/yrtjzt9
+	 XF0oaZMeCDDGCN36+zqt5W0y7UPokCtWG6X651b2arsgfoSw/+CUHAUmfMC/wuBSuMKr4
+	 fERDPD/gPByYFPQGlvQ+2hgKJJXfvsyFT77yLFseCEIaoXYRDhaSuXptj9w6GABho6w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=EaHGzLNS;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dmarc=pass header.from=suse.de;
+	spf=pass smtp.mailfrom=suse.de;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=hMeETv55;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=RAzpJdiv;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=hMeETv55;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=RAzpJdiv;
+	arc=none smtp.remote-ip=195.135.223.131
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16C51606A329;
-	Tue,  3 Nov 2026 22:45:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 16C51606A329
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 406E5606A31B;
+	Wed,  4 Nov 2026 00:38:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 406E5606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=EaHGzLNS
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3Licp91361207;
-	Tue, 3 Nov 2026 22:45:20 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=/GO2Ex
-	ICahF7BId12law/TW5FYBAReP12IVhUOS5pJg=; b=EaHGzLNS48ceBLvv5Sq3Tf
-	c/Tiv3nb2e8bcMsJ9d5V3fKmjnMY5GuthfZkkOfyamr8OgnY/T/aolqqqVH9yBTR
-	IgKX2HrM6ik9Va+Tcd02xpsPOZGVxQMqLBDooKNwBjY6PGSiOvgsdYF0THB1w9Kd
-	JYyie8CJuG77C0suLCtIlCYpZEv81HIIIzkLWdA4lwfNAL4+ixvFPyP4BA5Md/Gw
-	h+QUplE6PdYCSWdIHoJFK/Ec6WbE8JcedVnZsoPb8CDA1l4LV80T/MqPtNkLgZmK
-	mzLX38tsLnOgKaGkIDrRYx6otvgJReRfgjtimG/skauVAOmN4LOBRZmbAcD2PWTg
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn80srs5v-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 03 Nov 2026 22:45:20 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A3LMdKq3061459;
-	Tue, 3 Nov 2026 22:45:19 GMT
-Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hqcrcbd9f-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 03 Nov 2026 22:45:19 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A3MjHaE18874960
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 3 Nov 2026 22:45:18 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D425A58054;
-	Tue,  3 Nov 2026 22:45:17 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 465145805D;
-	Tue,  3 Nov 2026 22:45:16 +0000 (GMT)
-Received: from [9.61.96.67] (unknown [9.61.96.67])
-	by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  3 Nov 2026 22:45:16 +0000 (GMT)
-Message-ID: <bfac1711-65a2-40ec-8506-790661351530@linux.ibm.com>
-Date: Tue, 3 Nov 2026 17:45:15 -0500
+	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=hMeETv55;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=RAzpJdiv;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=hMeETv55;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=RAzpJdiv
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 48D231FBFA;
+	Wed,  4 Nov 2026 00:38:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1793752706; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=/JbHR9SIBAy4VraxiGZbUfiitTfcvjB9kaCB6rQcVIE=;
+	b=hMeETv5530ymyrmx6uaNyir9LG6FBv0uQEl0WwmKicpUSBvRCnBi/EFlzkwrOdHSffoszn
+	IZeJVADnNtfHp7lImgCYnmoFu3/kY74RyqE2giHL+KMLqzZp89a8feFt9brP76376iYif5
+	eEHqenwPS4xADyWP82Xcpyjnps0ZiOA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1793752706;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=/JbHR9SIBAy4VraxiGZbUfiitTfcvjB9kaCB6rQcVIE=;
+	b=RAzpJdivgGshNrHzYe/w5E5DSJibua0ozUzsjj6q8zz3RRQDhKh2fMv5EBNSmaCY83ixH4
+	3wCgewfKfRUSHvCg==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1793752706; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=/JbHR9SIBAy4VraxiGZbUfiitTfcvjB9kaCB6rQcVIE=;
+	b=hMeETv5530ymyrmx6uaNyir9LG6FBv0uQEl0WwmKicpUSBvRCnBi/EFlzkwrOdHSffoszn
+	IZeJVADnNtfHp7lImgCYnmoFu3/kY74RyqE2giHL+KMLqzZp89a8feFt9brP76376iYif5
+	eEHqenwPS4xADyWP82Xcpyjnps0ZiOA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1793752706;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=/JbHR9SIBAy4VraxiGZbUfiitTfcvjB9kaCB6rQcVIE=;
+	b=RAzpJdivgGshNrHzYe/w5E5DSJibua0ozUzsjj6q8zz3RRQDhKh2fMv5EBNSmaCY83ixH4
+	3wCgewfKfRUSHvCg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C07B9134A0;
+	Wed,  4 Nov 2026 00:38:25 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 4fW7I4F+6mqncAAAD6G6ig
+	(envelope-from <clopez@suse.de>); Wed, 04 Nov 2026 00:38:25 +0000
+Message-ID: <7ba2ca65-1eab-40fd-ae4c-f7cd9e156d8c@suse.de>
+Date: Wed, 4 Nov 2026 01:38:21 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -87,61 +107,164 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v12 5/5] vfio-pci/zdev: Add VFIO FMB device features
-To: Niklas Schnelle <schnelle@linux.ibm.com>,
-        Omar Elghoul <oelghoul@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, alifm@linux.ibm.com,
-        farman@linux.ibm.com, gbayer@linux.ibm.com, pasic@linux.ibm.com,
-        alex@shazbot.org, frankja@linux.ibm.com, imbrenda@linux.ibm.com
-References: <20261103150114.68873-1-oelghoul@linux.ibm.com>
- <20261103150114.68873-6-oelghoul@linux.ibm.com>
- <15fbeb951c380ba6a200651d6ff69b783c96a375.camel@linux.ibm.com>
+Subject: Re: [RFC PATCH 0/4] KVM: x86/mmu: don't zap secondary MMU on
+ permission upgrade
+To: Sean Christopherson <seanjc@google.com>
+Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org,
+ linux-mm@kvack.org, pbonzini@redhat.com, linux-s390@vger.kernel.org
+References: <20261029143336.390231-3-clopez@suse.de>
+ <20261029175203.5bdd51d7@p-imbrenda>
+ <df9dc526-4275-4784-8a0c-2e4fa8e96402@suse.de>
+ <20261030133939.630e29af@p-imbrenda> <auis0SaMkRB6odsK@google.com>
+ <b9ed9dd4-a1d0-466b-a6cd-89a4e70abed0@suse.de> <aun3w8gxwlmRy-GW@google.com>
+From: =?UTF-8?Q?Carlos_L=C3=B3pez?= <clopez@suse.de>
 Content-Language: en-US
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-In-Reply-To: <15fbeb951c380ba6a200651d6ff69b783c96a375.camel@linux.ibm.com>
+In-Reply-To: <aun3w8gxwlmRy-GW@google.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: eQOide1Nl49tr_hewoghzcQktMMQdVdC
-X-Proofpoint-ORIG-GUID: eQOide1Nl49tr_hewoghzcQktMMQdVdC
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTAzMDA5MCBTYWx0ZWRfXxIIcUsO4Xe64
- WpHb9oAyqT0tf7Q6FoZoQyu4h/Bb520VTlbU92RM8pCj1qA5Zgqy8wlWRc80tfZ+XFWBwjoc4jD
- zVEY22wqpijjlBdrqukYAl7eMpxo28FX4BpPRunTb8/AKUyciaNNewGy7iBNkrnBXGqMQhbFr7E
- Btt/vUmrU/CjcyPEwCR8XmwDdoaXqXCOMUUsi+HOBmP7tVM11Gg4oJzUXhoxhtIehXzabLlQ/uJ
- JNu/0SPuR+1R1fcWI8vWspJgd4oU9uu9R9rBvf/4jSycJVWwbrNgb4CQ2IpSYrOwaUbaWStvHzY
- JGJH/sUCLJd9jejv4nGRpotfWFHVkAfAWiL83Tg8IaY1SDOOSydF6wrroBlq/j92aSLlcIeORer
- EKknDLg9MH5L55jemp5goRH5bHdFdcG6O2GmiDDsr0+YUTf622cgPFXef61g0cXzRcljbCJcgyY
- ESYAqpEfnywdiZJOBcA==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTAzMDA5MCBTYWx0ZWRfX7TuInsBj410L
- lnVrZ6IT5Go31JGZ7A3cIHe4U02TnaFJDx/fhcWTTe/CFPVxptRNuBfBPOJM4elmefwQBN3AwDe
- WVEiEf8gCd7RjfXbA68W8GI/HktQOo4=
-X-Authority-Analysis: v=2.4 cv=FIqOVOos c=1 sm=1 tr=0 ts=6aea6400 cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=r1p2_3pzAAAA:8 a=F7dn7BFMEDAEK2aV7o8A:9 a=QEXdDO2ut3YA:10
- a=r_pkcD-q9-ctt7trBg_g:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-03_05,2026-11-03_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 malwarescore=0 impostorscore=0 spamscore=0 lowpriorityscore=0
- bulkscore=0 suspectscore=0 clxscore=1015 priorityscore=1501 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2610300000 definitions=main-2611030090
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-13.29 / 50.00];
+	SUSE_INTERNAL_BYPASS(-9.00)[];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-0.998];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	XM_UA_NO_VERSION(0.01)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	TO_DN_SOME(0.00)[];
+	ARC_NA(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	RCPT_COUNT_FIVE(0.00)[6];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:email]
+X-Spam-Score: -13.29
+X-Spam-Level: 
+X-Spam-Flag: NO
 
-On 11/3/26 4:08 PM, Niklas Schnelle wrote:
-> On Tue, 2026-11-03 at 10:01 -0500, Omar Elghoul wrote:
->> Introduce new VFIO features for zPCI devices to provide FMB passthrough to
->> userspace.
+On 11/3/26 4:03 PM, Sean Christopherson wrote:
+> On Tue, Nov 03, 2026, Carlos López wrote:
+>> On 11/2/26 4:31 PM, Sean Christopherson wrote:
+>>> On Fri, Oct 30, 2026, Claudio Imbrenda wrote:
+>>>> On Fri, 30 Oct 2026 12:11:07 +0100
+>>>> Carlos López <clopez@suse.de> wrote:
+>>>>
+>>>> [...]
+>>>>
+>>>>>> regarding this series:
+>>>>>>
+>>>>>> on x86 you don't care what the new permissions are, because you're
+>>>>>> updating when re-faulting (if I understood correctly).  
+>>>>>
+>>>>> Correct.
+>>>>>
+>>>>>> for s390 it might be beneficial to know what the new permissions are;
+>>>>>> of course we could look up the vma and find out, but since you are
+>>>>>> already checking the permissions, maybe you can find a way to also
+>>>>>> convey the new permission bits?
+>>>>>>
+>>>>>> that would make our life on s390 easier :)  
+>>>>>
+>>>>> Right, getting the new bits from vma->flags should be trivially done
+>>>>> from the MMU_NOTIFY_PROTECTION_VMA callsites. There'd be no users in
+>>>>> this series though.  The rest of architectures still need the notifier to
+>>>>> tell them if the change is an upgrade, since they don't have an easy way
+>>>>> to grab the old RWX bits. Passing the old RWX bits from the MMU notifier
+>>>>> does not seem trivial to me either.
+>>>
+>>> But why is core MM even doing mmu_notifier_invalidate_range_{start,end}() in the
+>>> first place?  I.e. why add MMU_NOTIFIER_RANGE_PERM_UPGRADE?  Just skip the
+>>> "invalidation".
 >>
->> Allow the user to enable or disable the FMB using the SET-only feature
->> VFIO_DEVICE_FEATURE_ZPCI_FMB_ENABLE. Likewise allow the user to read the
->> latest FMB using the GET-only feature VFIO_DEVICE_FEATURE_ZPCI_FMB_READ
->> in the case when the FMB is enabled.
+>> I briefly mention this in the cover letter, but in short, denying other
+>> users the notification seems like an overly intrusive change for KVM's
+>> benefit. 
+> 
+> There are all of two other users:
+> 
+>   $ git grep -w "\.invalidate_range_start"
+>   drivers/gpu/drm/nouveau/nouveau_svm.c:  .invalidate_range_start = nouveau_svmm_invalidate_range_start,
+>   drivers/infiniband/hw/hfi1/mmu_rb.c:    .invalidate_range_start = mmu_notifier_range_start,
+>   virt/kvm/kvm_main.c:    .invalidate_range_start = kvm_mmu_notifier_invalidate_range_start,
+> 
+> and AFAICT neither of them wants an invalidation even for protection upgrades
+> either.
+
+There are more users that register for notifications via
+mmu_interval_notifier_insert():
+
+  $ git grep -l -e "mmu_interval_notifier_insert(" \
+          -e "mmu_interval_notifier_insert_locked(" -- drivers/ | wc -l
+  12
+
+I haven't audited all of them, but I'd say that at least amdkfd relies
+on the invalidation for upgrades. Without XNACK, GPU page faults are not
+retried, so the driver maps ranges up front with the VMA permissions
+(svm_range_validate_and_map()) and relies on an invalidation to remap
+them when those change. So mprotect(PROT_READ) followed by
+mprotect(PROT_READ|PROT_WRITE) would cause the GPU mapping to stay
+read-only and the next GPU write to fault. Unlike the APIC access page,
+this is the application's own memory, mprotect() should be perfectly valid.
+
+This is the kind of subtle reliance that I mentioned before, and why I'd
+rather not open that can of worms.
+
+>> A flag allows users to opt in instead.
 >>
->> Signed-off-by: Omar Elghoul <oelghoul@linux.ibm.com>
->> Acked-by: Alex Williamson <alex@shazbot.org>
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> It is also not clear to me that secondary MMUs are not relying on the
+>> notification in some subtle way. In fact, Sashiko points out in reply to
+>> patch 4 that the notification lets KVM retry the APIC access page reload
+>> in case userspace shoots itself in the foot by calling
+>> mprotect(PROT_READ) on it. This would require a really weird VMM,
+> 
+> s/weird/misbehaving
+> 
+>> as it would need to go looking for the page's address, but breaking this
+>> would be a "regression" nonetheless. I will address this in v2.
+> 
+> Nah, there's zero chance any real VMM is doing mprotect() on the APIC access page.
+> 
+> More importantly, doing nothing if updating the mapping fails and APICv is enabled
+> is wrong.  KVM needs to ensure vmcs.APIC_ACCESS_ADDR is fresh when running a vCPU
+> with APICv enabled, even if that means putting the vCPU into an infinite loop.
+> VMX doesn't support "inhibiting" the APIC access page, i.e. the memslot can't
+> disappear while the VM is alive, and if userspace mucks with the VMA, then KVM
+> needs to prevent running the vCPU until the mapping is restored, irrespective of
+> mmu_notifiers.
+
+Fair point. Should I just carry the diff below in v2 with your
+Signed-off-by?
+
+> diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+> index 464d6ed862d5..11b24a42e482 100644
+> --- a/arch/x86/kvm/vmx/vmx.c
+> +++ b/arch/x86/kvm/vmx/vmx.c
+> @@ -6928,8 +6928,10 @@ void vmx_set_apic_access_page_addr(struct kvm_vcpu *vcpu)
+>  	 * APICv is enabled, but paranoia won't hurt in this case.
+>  	 */
+>  	slot = id_to_memslot(slots, APIC_ACCESS_PAGE_PRIVATE_MEMSLOT);
+> -	if (!slot || slot->flags & KVM_MEMSLOT_INVALID)
+> +	if (WARN_ON_ONCE(!slot || slot->flags & KVM_MEMSLOT_INVALID)) {
+> +		kvm_make_request(KVM_REQ_APIC_PAGE_RELOAD, vcpu);
+>  		return;
+> +	}
+>  
+>  	/*
+>  	 * Ensure that the mmu_notifier sequence count is read before KVM
+> @@ -6946,8 +6948,10 @@ void vmx_set_apic_access_page_addr(struct kvm_vcpu *vcpu)
+>  	 * if APICv is permanently inhibited, i.e. the memslot won't reappear.
+>  	 */
+>  	pfn = __kvm_faultin_pfn(slot, gfn, FOLL_WRITE, &writable, &refcounted_page);
+> -	if (is_error_noslot_pfn(pfn))
+> +	if (is_error_noslot_pfn(pfn)) {
+> +		kvm_make_request(KVM_REQ_APIC_PAGE_RELOAD, vcpu);
+>  		return;
+> +	}
+>  
+>  	read_lock(&vcpu->kvm->mmu_lock);
+>  	if (mmu_invalidate_retry_gfn(kvm, mmu_seq, gfn))
+
