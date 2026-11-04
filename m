@@ -1,76 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.199
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793806727;
-	b=Z/3msHuVhiSJFUPXNDDGiwij15CdTL0WjWqLRjlbmxJ/kCq1GZ240Vr8OmqpLyEIC1Vd
-	 zbOP9s45dqsAuexZeHnohYFQgTpL/tPOPtrxbInh7O3nnUzODwqTlBtTN5QtgmiXkcR3g
-	 3F1oA4y+OYF2Sucx5hQG393L3hxLtKWw5M+qAGIy/uiDDH0TKWTuqNJhMrh66GotcJ63S
-	 eTbwazLI+dEtwX933S0civpcw5V5820W255b2IUC4Zv69jvwSGZg0hV27tbzpmQZe7OxR
-	 JejGNUZ/dVMoYN4bRYdPnJ8nubBsnaUcxPBDhEoxYjm0+t0C+LeTqYuz4MUuOdJCoOw==
+	t=1793808896;
+	b=oBPTmLwbdvQmR7A2eK+HcYWT4XwPjh6w9a05bBy8AEjYzrn+VdYzyXDwXsbEklXv3SMr
+	 O+Bh/r1ndwUOUuFMMykuaY5ujL3BWmvHJl/mxI5skjpVKmMb2gIOwrTfM9+Fz9dFm+b8E
+	 AZQk6fer1n9KOsODW7RAWVfM5HlmFRJQnltPD96IMolb3cKykWWTWDztmN4SuLXZkI33z
+	 lYtn4sISb1dXU6KNaQsjxty50LV21gE0StOBnVnn4hSohgVJ4dS8v+u6Je/nhiPElPV+z
+	 myG33T54YdJiVJ52CBmt+eSn2L+pF/aX20oMlQciyzIF1RKAfGZHC1WcQhm/mJoExBA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793806727;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Received:Date:In-Reply-To:
-	 Mime-Version:References:Message-ID:Subject:From:To:Cc:Content-Type:
-	 Content-Transfer-Encoding;
-	bh=BgXz8h+/nQ9U/ZFrmreR3nTmSbeRNY7GAtat9khBnZw=;
-	b=hcpQFF4g88TB6aBxE9YeJTGjIaJ5SnWepuZy8pwEoNyr2LK4Wy5VNHJd/6ANrqH33E7u
-	 pUZMNFPliYK0aDUFBnISOuojRkEU/c3OASJ14LwwX1sJy1n3DjqVUGRUEqoUCoxIBeyQe
-	 9sRwPQ7d/hUCYtd76X11AAjHQSG1Q1yCXwbVLfK63ss6ojjwNOD5stlN4c451SHYwk7UF
-	 wicA3Ds8fiOB4wwO05hmVNB0A+lmt+NvWRsBW+y3Xwx5PsdTFhNGCad8mgbYyfK+d0yNg
-	 0ncAmcnylLJazLcsppVhLEADilNBnh8cTgiB17024MMpw5JzQ8PGIIq8PEjimn0sUAw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793808896;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
+	 X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:X-Authority-Analysis:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
+	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
+	bh=R6KJM2GfJyrMMrkottRzcbbvzHNZxrDYP8okpIqoI28=;
+	b=jdqzBJPRzFnAIg+OuIlx7FeVIqThRXmkaFNGJqO+9PwF+rezQUyS4n5MiGl3dY0jYjCY
+	 eGqaiIHGcaWtsGY8eqeW8aWfZyFkHE1xTpebQNDeXOJsuCjkxiLCkiYr5oER16LcPoHuG
+	 ibImz+vP9kj55RPNKFz+wg3nOZIk/VPkXXxGSxkTEACcrtWi3YAE/XBzjK8xUmdCjxNBt
+	 iNpVJHJ9ZZhMdpxizc8JzOdZJagJ+9qxch9YmpXUgAxXg1kHsNqo1iCFMsZLFIxIIW5YD
+	 bUQPgcR3RugR/U4Yqt0+L2uAt/zKdap2rn/fyqCSvhAWmmsxVxcVKwYQTSeU3UMRKsA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=google.com;
-	spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com;
-	dkim=pass header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b="k60/cWcu";
-	arc=none smtp.remote-ip=209.85.215.199
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com [209.85.215.199])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=HyrO65IS;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32CAB6083633
-	for <linux-s390@vger.kernel.org>; Wed,  4 Nov 2026 15:38:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 32CAB6083633
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 625C8606A326;
+	Wed,  4 Nov 2026 16:14:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 625C8606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=google.com header.i=@google.com header.a=rsa-sha256 header.s=20260707 header.b=k60/cWcu
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-cbb92868263so567713a12.2
-        for <linux-s390@vger.kernel.org>; Wed, 04 Nov 2026 07:38:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20260707; t=1793806726; x=1794411526; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:references:mime-version:in-reply-to:date:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=BgXz8h+/nQ9U/ZFrmreR3nTmSbeRNY7GAtat9khBnZw=;
-        b=k60/cWcu0pkGc7cd1FnzHVa4LKXDGgriJrIpz1RFwsEIJOnw5JFHmCUyNY0IOHskiZ
-         bartBh1Ruag9njIoguxRQCRQqBZQBg2lwfP6pCE/RGNCFlRFdcsH7YnkSoh332dXiqSC
-         4kbSa7ySDV3T3LRz20vpcFwFraHll8xZ5FDqQe5Q5ADOQW0Wyq70+MF+Y8njcwlUa3/y
-         4oZMutPoVESQuQfvz1SSB9ZoBciidOm2pq3RdgJnNQQLN61QxmRmFdyKEcpQ1ZWIIP5E
-         9sXwEOYyQBagULkULsPq/YttZCiZkM3zuFQUT5DT96+KBqE1/VGvmfO+QisrcDSJsJ6m
-         YZFQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793806726; x=1794411526;
-        h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:references:mime-version:in-reply-to:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=BgXz8h+/nQ9U/ZFrmreR3nTmSbeRNY7GAtat9khBnZw=;
-        b=MeTq84CitS2WeDvOJ1tP1hvS9nGx5fl4/UfW6s4xfhOjHHgKnsOrI80LN07fSyg9+6
-         58ehKwRBeoW75eF31Xj3+nqJaiv9AWfaeln/C9yiKAauKVQMSHrdqRV9e/l0iLDOpGMq
-         Hryp9wBN1/rzOdRBPkE+6YsSva+VZbRLF3Uk26Q7ru6NmxNDd6lo/FtuxQ0fm0vvpO7j
-         TgZ1ITSdy/Ot6D7LaoL9k+qayRSavniIVJluDiWQdT+3+VlC6RqZx6ojkt/zvuMJ8a/J
-         OKQqxudv3WHpJNz+oXziRjgGIasIXJOh/Wga4iW6NmGU6OnrMypyi9KEYdba28S0eJ7i
-         5HdQ==
-X-Forwarded-Encrypted: i=1; AKwUvBwmRd4hk8F6ugGQmGeUORCgNhmSm4D7XInvmq7ALn2q4MpqYqotsbWuh+jF485KBS8NQ1EYCTo2m50B@vger.kernel.org
-X-Gm-Message-State: APuU4Z8vnAB5p6oOB8ycoLh0beBA8EF20a1pupxd8VsLyS/tdLzJCWWw
-	K32HQLidXO/TiVB7cZoHWsF6MmeLqOqowbzIqZL/UPnPn2Cwn4zpQNz0sYIFv5jFpu4v/BzNO5C
-	rMXLKKA==
-X-Received: from pjbnc12.prod.google.com ([2002:a17:90b:37cc:b0:3ab:5803:73a5])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:3806:b0:39d:f08e:e6e7
- with SMTP id 98e67ed59e1d1-3ae89574d67mr12860378a91.9.1793806726299; Wed, 04
- Nov 2026 07:38:46 -0800 (PST)
-Date: Wed, 4 Nov 2026 07:38:45 -0800
-In-Reply-To: <7ba2ca65-1eab-40fd-ae4c-f7cd9e156d8c@suse.de>
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=HyrO65IS
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A4FiAwr899006;
+	Wed, 4 Nov 2026 16:14:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=R6KJM2
+	GfJyrMMrkottRzcbbvzHNZxrDYP8okpIqoI28=; b=HyrO65ISP9j1iuwknCLRh4
+	nceJom/4oo8+MTk9TQQ3KWR0Mqfv4gbFe3jWxyqJLQ5SJFLDVze0R6itWQEthFNV
+	bnZowbQ1yp+6oVU73QnmVfHkEsC8otttnz1+xUsnTgqmvqqopSBTTfkJyl5x/dP1
+	5moCs4gexVZtev9G+/xb/RsxwA3VvfmNgonGABljxxOQ5RbJUzXa5t2v4cGN9+9V
+	9gREMvXYP1EjLza/OPk5jNhTj89En2GGDY2m9pv84c+ZFdGLZw0k6y85iT2oZB/5
+	BYhfIWRnbw99PM4SqGhVlBp/DKQfB+BX7lQoElLi//yJKR0ZMMe+PAHJiyro3+DA
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn5rhvrxr-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Wed, 04 Nov 2026 16:14:46 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A4FntbE232228;
+	Wed, 4 Nov 2026 16:14:46 GMT
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hnv5h0g9c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 04 Nov 2026 16:14:45 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A4GEeft46989748
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 4 Nov 2026 16:14:40 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A4BAE2004D;
+	Wed,  4 Nov 2026 16:14:40 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6E0B32004B;
+	Wed,  4 Nov 2026 16:14:40 +0000 (GMT)
+Received: from [9.68.29.38] (unknown [9.68.29.38])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed,  4 Nov 2026 16:14:40 +0000 (GMT)
+Message-ID: <307b169a-6ac8-4ae3-aded-b40a86608d01@linux.ibm.com>
+Date: Wed, 4 Nov 2026 17:14:40 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -79,148 +84,116 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-Mime-Version: 1.0
-References: <20261029143336.390231-3-clopez@suse.de> <20261029175203.5bdd51d7@p-imbrenda>
- <df9dc526-4275-4784-8a0c-2e4fa8e96402@suse.de> <20261030133939.630e29af@p-imbrenda>
- <auis0SaMkRB6odsK@google.com> <b9ed9dd4-a1d0-466b-a6cd-89a4e70abed0@suse.de>
- <aun3w8gxwlmRy-GW@google.com> <7ba2ca65-1eab-40fd-ae4c-f7cd9e156d8c@suse.de>
-Message-ID: <autRhZjOfLyw2OXo@google.com>
-Subject: Re: [RFC PATCH 0/4] KVM: x86/mmu: don't zap secondary MMU on
- permission upgrade
-From: Sean Christopherson <seanjc@google.com>
-To: "Carlos =?utf-8?B?TMOzcGV6?=" <clopez@suse.de>
-Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>, kvm@vger.kernel.org, linux-mm@kvack.org, 
-	pbonzini@redhat.com, linux-s390@vger.kernel.org
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net v2 1/2] net/iucv: clear hs_dev before dropping its
+ reference
+To: hexlabsecurity@proton.me, Thorsten Winkler <twinkler@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, Eric Dumazet <edumazet@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc: linux-s390@vger.kernel.org, Nagamani PV <nagamani@linux.ibm.com>,
+        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+        Hidayath Khan <hidayath@linux.ibm.com>,
+        Simon Horman <horms@kernel.org>
+References: <20261028-b4-disp-dd3e4ebb-v2-0-3747658d59bd@proton.me>
+ <20261028-b4-disp-dd3e4ebb-v2-1-3747658d59bd@proton.me>
+Content-Language: en-US
+From: Alexandra Winter <wintera@linux.ibm.com>
+In-Reply-To: <20261028-b4-disp-dd3e4ebb-v2-1-3747658d59bd@proton.me>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: zTWu1t3rqYi1_KhLqc9qZx1GyO8A7ZMy
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA0MDA2NCBTYWx0ZWRfX7bVXr6nJp+oE
+ hsCowFVf1SwwVIXl5ClINkIUBRQB/ZZF/hVyx4faRZPTASlNu+yQhYMB9Ye4pYeb81HVXYi2A15
+ uvATIkvOQKxqbYDbxY8r4XDvDikXfs8=
+X-Authority-Analysis: v=2.4 cv=LokHWXdc c=1 sm=1 tr=0 ts=6aeb59f6 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=EuISxwL7kJT2UulSNDkA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA0MDA2NCBTYWx0ZWRfX1M/S3xwzPChJ
+ AJWmoOsauEqNIFedEvjqDN/nKKx4PaW/UJ7huVunjivxGFYirnrbP2Rl2iEro14i3Dtreix0SJv
+ RfDqTkbDEGlcDXQRmOpXP30h7gBa+f6kTt8O3Az4h4JXlbTJkrjuJy+M6/O8k+Ym4Ed54yfj7LM
+ 4QF2L/1dBe8WRqO7zNhBTxD63MEm7IbgxdNgSp9+aHGh+3P5VRRnEj/Ybdu9/QJxynnVa8rGkX9
+ cINA6//G+wcJj71fS+0QnqoHX/F/ADV0Ad2T33JZ18w5hIPa/cDwmuWrEVp9PcLFh3iwZRPGnZo
+ smyKE6LAnym7z7rN2tmeLoNDNSYf91mnK7f8UH+Fvk4rJf2GPaWG1I1b6SdrWfS0YElnXfYf7wF
+ eKrVM5vOffBP55cyS7SPtkGY9Hda7ZL95lhfm1hTJUvbKbQ7LWcR8itG980lKFrRTP1LGDV+2ZJ
+ D9lqNQ7kRItZQ6JO3IA==
+X-Proofpoint-GUID: zTWu1t3rqYi1_KhLqc9qZx1GyO8A7ZMy
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-04_05,2026-11-04_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 lowpriorityscore=0 clxscore=1011 impostorscore=0
+ priorityscore=1501 suspectscore=0 phishscore=0 malwarescore=0 bulkscore=0
+ adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
+ definitions=main-2611040064
 
-On Wed, Nov 04, 2026, Carlos L=C3=B3pez wrote:
-> On 11/3/26 4:03 PM, Sean Christopherson wrote:
-> > On Tue, Nov 03, 2026, Carlos L=C3=B3pez wrote:
-> >> On 11/2/26 4:31 PM, Sean Christopherson wrote:
-> >>> On Fri, Oct 30, 2026, Claudio Imbrenda wrote:
-> >>>> On Fri, 30 Oct 2026 12:11:07 +0100
-> >>>> Carlos L=C3=B3pez <clopez@suse.de> wrote:
-> >>>>
-> >>>> [...]
-> >>>>
-> >>>>>> regarding this series:
-> >>>>>>
-> >>>>>> on x86 you don't care what the new permissions are, because you're
-> >>>>>> updating when re-faulting (if I understood correctly). =20
-> >>>>>
-> >>>>> Correct.
-> >>>>>
-> >>>>>> for s390 it might be beneficial to know what the new permissions a=
-re;
-> >>>>>> of course we could look up the vma and find out, but since you are
-> >>>>>> already checking the permissions, maybe you can find a way to also
-> >>>>>> convey the new permission bits?
-> >>>>>>
-> >>>>>> that would make our life on s390 easier :) =20
-> >>>>>
-> >>>>> Right, getting the new bits from vma->flags should be trivially don=
-e
-> >>>>> from the MMU_NOTIFY_PROTECTION_VMA callsites. There'd be no users i=
-n
-> >>>>> this series though.  The rest of architectures still need the notif=
-ier to
-> >>>>> tell them if the change is an upgrade, since they don't have an eas=
-y way
-> >>>>> to grab the old RWX bits. Passing the old RWX bits from the MMU not=
-ifier
-> >>>>> does not seem trivial to me either.
-> >>>
-> >>> But why is core MM even doing mmu_notifier_invalidate_range_{start,en=
-d}() in the
-> >>> first place?  I.e. why add MMU_NOTIFIER_RANGE_PERM_UPGRADE?  Just ski=
-p the
-> >>> "invalidation".
-> >>
-> >> I briefly mention this in the cover letter, but in short, denying othe=
-r
-> >> users the notification seems like an overly intrusive change for KVM's
-> >> benefit.=20
-> >=20
-> > There are all of two other users:
-> >=20
-> >   $ git grep -w "\.invalidate_range_start"
-> >   drivers/gpu/drm/nouveau/nouveau_svm.c:  .invalidate_range_start =3D n=
-ouveau_svmm_invalidate_range_start,
-> >   drivers/infiniband/hw/hfi1/mmu_rb.c:    .invalidate_range_start =3D m=
-mu_notifier_range_start,
-> >   virt/kvm/kvm_main.c:    .invalidate_range_start =3D kvm_mmu_notifier_=
-invalidate_range_start,
-> >=20
-> > and AFAICT neither of them wants an invalidation even for protection up=
-grades
-> > either.
->=20
-> There are more users that register for notifications via
 
-Ugh, I didn't realize we gained a variant of .invalidate_range_{start,end}(=
-),
-I thought those were for what is now arch_invalidate_secondary_tlbs().
 
-> mmu_interval_notifier_insert():
->=20
->   $ git grep -l -e "mmu_interval_notifier_insert(" \
->           -e "mmu_interval_notifier_insert_locked(" -- drivers/ | wc -l
->   12
->=20
-> I haven't audited all of them, but I'd say that at least amdkfd relies
-> on the invalidation for upgrades. Without XNACK, GPU page faults are not
-> retried, so the driver maps ranges up front with the VMA permissions
-> (svm_range_validate_and_map()) and relies on an invalidation to remap
-> them when those change. So mprotect(PROT_READ) followed by
-> mprotect(PROT_READ|PROT_WRITE) would cause the GPU mapping to stay
-> read-only and the next GPU write to fault. Unlike the APIC access page,
-> this is the application's own memory, mprotect() should be perfectly vali=
-d.
->=20
-> This is the kind of subtle reliance that I mentioned before, and why I'd
-> rather not open that can of worms.
+On 29.10.26 05:46, Bryam Vargas via B4 Relay wrote:
+> iucv_sock_close() drops the socket's reference on its HiperSockets
+> device and only then clears iucv->hs_dev,
 
-Yeah, agreed.
+I agree on the analysis that this order is wrong.
 
-> >> A flag allows users to opt in instead.
-> >>
-> >> It is also not clear to me that secondary MMUs are not relying on the
-> >> notification in some subtle way. In fact, Sashiko points out in reply =
-to
-> >> patch 4 that the notification lets KVM retry the APIC access page relo=
-ad
-> >> in case userspace shoots itself in the foot by calling
-> >> mprotect(PROT_READ) on it. This would require a really weird VMM,
-> >=20
-> > s/weird/misbehaving
-> >=20
-> >> as it would need to go looking for the page's address, but breaking th=
-is
-> >> would be a "regression" nonetheless. I will address this in v2.
-> >=20
-> > Nah, there's zero chance any real VMM is doing mprotect() on the APIC a=
-ccess page.
-> >=20
-> > More importantly, doing nothing if updating the mapping fails and APICv=
- is enabled
-> > is wrong.  KVM needs to ensure vmcs.APIC_ACCESS_ADDR is fresh when runn=
-ing a vCPU
-> > with APICv enabled, even if that means putting the vCPU into an infinit=
-e loop.
-> > VMX doesn't support "inhibiting" the APIC access page, i.e. the memslot=
- can't
-> > disappear while the VM is alive, and if userspace mucks with the VMA, t=
-hen KVM
-> > needs to prevent running the vCPU until the mapping is restored, irresp=
-ective of
-> > mmu_notifiers.
->=20
-> Fair point. Should I just carry the diff below in v2 with your
-> Signed-off-by?
+ while afiucv_hs_rcv() compares
+> that field against the ingress device for every socket in the list,
+> under iucv_sk_list.lock and not the socket lock. Between the two it
+> compares a pointer the socket no longer holds; KCSAN reports the plain
+> read against the plain write. 
 
-Nah, I'll send a standalone patch.  It doesn't have a direct relationship t=
-o your
-series, and the bug is pre-existing despite what Sashiko thinks.
+Could you add an excerpt of the KCSAN report to the commit message?
 
-Thanks!
+
+The order dates from 800c5eb7b5eb, the
+> compare from 80230a18c164. No user-visible effect is known: the receive
+> path holds the ingress device, so the stale pointer is compared, never
+> dereferenced.
+> 
+
+I agree, I cannot see how reading a stale pointer can result in a real
+problem. So this is not urgent to fix.
+
+
+
+> Clear the pointer first, through a local, then drop the reference, and
+> mark the lookup's read and the two stores that race with it: the clear
+> in close() and the child's store in afiucv_hs_callback_syn() (the child
+> is in iucv_sk_list from iucv_sock_alloc() on). The child now takes its
+> device and sk_bound_dev_if from the frame the lookup matched, held
+> before it is published, instead of reading the listener's fields:
+> close() clears them under lock_sock(), which the bh_lock_sock() in
+> afiucv_hs_callback_syn() does not exclude, so the callback can pass its
+> IUCV_LISTEN check and then read a field close() has cleared. That a SYN
+> can be accepted while the listener closes is left to the socket-locking
+> rework; this is its KCSAN-visible part. bind()'s hs_dev store runs
+> under the list's write lock and stays plain. sk_bound_dev_if, which
+> getsockopt() reads without the lock, is marked where close(), bind()
+> and the child store it; annotation only.
+> 
+[...]
+> ---
+> Nagamani PV's "net/iucv: fix races in afiucv_netdev_event()" [1] marks
+> the same store in close(); Alexandra Winter asked him to hold it for the
+> locking series and he agreed [2]. This one goes out now, on a new and
+> independent KCSAN report, and its close() hunk subsumes his, which marks
+> the store but keeps dev_put() first; once this is applied, the
+> afiucv_netdev_event() read is what remains for his patch.
+
+
+Just thinking out loud:
+Would it be a simpler alternative to clear iucv->hs_dev  in
+iucv_sock_kill after iucv_sock_unlink? then it also would help for the
+afiucv_netdev_event() issue (read still needs to be put under lock).
+
+It's hard to discuss this with an AI, while the locking series is still
+missing. I would still prefer to fix that first.
+
+
+
+
+
