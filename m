@@ -1,47 +1,97 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.100
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793898420;
-	b=2+BObUHXi5LHOu1/+oAy3mbXHbNn4grZZVxVx0nYWNy+grJ2KI9VW8zZAACIJrOawUAb
-	 35+ogWEJsKQ32XZvZeYcAqHmSRVOYqOkFZf8gg7YrObYJ8KMphey1yMXLpGsEsUM32bY/
-	 AVwv42s+xXVI3exPVRxvffxgVbDdqBTVamN7WwOwO6sSHf2ZslP+BF/uKnM2Rb+WXWthW
-	 L04plGbzaD0emxgT4PJOKT0rLMktUuCv63BDyEaE8k3M9Pxk0jYy8KLim9Q+GfH6dPEgV
-	 j8Nl6xkRG15F5Ueuq7ypB2WBO5sjQ8Hdo8yhrPGhjUU5+ItK8dUWvGjA/87y4Kz7H9g==
+	t=1793904041;
+	b=sU2cmBG5JLdV41m/5FxqK0Ajwa6qGCO1nTedNfqxUHrAxnKsNDGE/XpH/L1ubwB+fv1S
+	 3FORtEjjDqR2Z/oxrFBvOyrxoF2WtOmwTcbz6fIwAmhaulNFRV0XDPXrbWWNxrnJ20wVk
+	 OLRM7Zzsc/z3NYfnXU0m5IyFja0KI2icen9G30iBwAXRpuFwC2uqdz6ndh7wpOPGiym+b
+	 U3dakL6bbERWjDnG3JDol3Cjbu4A4DQPw5Iw4+yWCfDoJ+CvrPKOPqDYhhd+PpTtXpBd3
+	 8tWLKCQINIpBvWKvmgW4lMKDOwo51oWGz6Ng+w3ViaC6jbhbQllVw/ke6AeZoU18zrg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793898420;
-	h=Received:DKIM-Signature:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:From:Content-Language:Autocrypt:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=+BKEtapVg9ZvVExUrrwjchlBg9HiJLaq+cPGzmG6490=;
-	b=vzSHu+RXWleNxIuzuN8YX7aR76zN6kT01Wg6WPuxMpuqmQ5HmZsV296kP7WgIArjJfg1
-	 5uUC5RfvBE1yKcCRd0qMiUjoSjpfuj76L2zf7t4BdSjfqD8DLAtl1IBPo8K4v2v55FLgf
-	 aoMj5TwQFcoC5YQ+mpB6UuK/hC4lmPeXM8s65EVnxa2kGnm+8VLgY6V5z2asKUMAfYjPt
-	 imLPalho1JbbSksGSH+oHhmM7ys3L2ovTGFLHMORHXYBanvHCcib1PR50JsI87zgac+ff
-	 /za6gNOOh8n7PVe/MTFCIXEqDNINoBRCUH6sDnKb1eD++6e6CvvZPVV6Vy89TgFVnVg==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793904041;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=BW1nQsutnrZitd0IEzC284qt4pUoWTmeWnhpOQZQ17M=;
+	b=dYjPJfwwWkaM0wju2+ntk68du7uDf4HaJh7sasLUx0sKFeiinYbghCc9bABIR0mQiyU9
+	 IB85DIm/ar2XB4Nb/o6iX/98s/ho+9a/5ovxZt81iS5fQ/TgPajyra0lReMjJyg4Eo+72
+	 uCXsiEIHghD8pU8Q+6Aob+5i5yKC9Sn9RPkL5z+ToWIHPRxZYSOG6yIfmXxfPG9sXdxaj
+	 HCFyE5sFLlET6I9bCLO5BMK0C3DPe8lHlDq8JyebNs586sgZYUiRJXwTxNizZjpAXna51
+	 J97pGIX+z+f73AXGypiW6gosnDxaUnk0d8YvPUwSdYODPK4b/M9GCOpWs7G1ZEO83QQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nCBJ4Wja;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=xiFtTF+U;
+	arc=none smtp.remote-ip=91.218.175.100
+Received: from mta0.migadu.com (out-100.mta0.migadu.com [91.218.175.100])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 822BA606A328;
-	Thu,  5 Nov 2026 17:07:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58CA9606A31B
+	for <linux-s390@vger.kernel.org>; Thu,  5 Nov 2026 18:40:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 58CA9606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=nCBJ4Wja
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C36961F000C1;
-	Thu,  5 Nov 2026 17:06:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793898420;
-	bh=+BKEtapVg9ZvVExUrrwjchlBg9HiJLaq+cPGzmG6490=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=nCBJ4WjaV9h7VqVSkn+QKi1XYE0fRlYAYNMppPShoj71GS4tfxkkkZwdzDtxKAKKl
-	 r0jtdIYZA2tq51uKkJAA13EqrgdCxvdUluOASXfXnfu1CRG2qZr5IuDwogdQzQNzQA
-	 y6zVuI1EE+wXeR4KVNis97tkbm05Kqpcp0c0e0xgJKQp9WypE2FyKaaISltCHvtAMI
-	 DJvnfFo2MpFIgEuBmbVBX/x0EEgTAANTpwoQC+6dN5AQS7FlQ6udIY0JtXubxV//jH
-	 E13rtGeBQqTBb5vbueganPKWeP54WeJDqCuNi19/YwwAadmoojigQ0slNYvhOOnCwB
-	 B/Y4ZkDZEcZyw==
-Message-ID: <60c4f0a0-e3c9-42dc-b2e0-0860ab6e30f0@kernel.org>
-Date: Thu, 5 Nov 2026 18:06:51 +0100
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=xiFtTF+U
+X-Envelope-To: linux-s390@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=wz3IjU8MmdepamXobqBOtTMChOSj7PBIYvSm39xyfBE=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1793904038; v=1; x=1794508838;
+ b=xiFtTF+Ui1yW1hheZjC/GYAEq7qkv2Pn/Ap+dIotL/UKmFuuwNaxgA3PGhI3gWuvk1j+kRDt
+ 7UaK0xTSrhxeGop6VjjFG822+hZlOJmPTT9Jwf+C8kYCgXbyourH4IYuvppWPO35RAeLBzxJTf+
+ ZN25/Xwwi/rO8Y9VuKrFZ0w0=
+X-Envelope-To: linux-s390@vger.kernel.org
+Received: by mta11.migadu.com with ESMTPS id 50c412d95539fb94;
+	Thu, 05 Nov 2026 18:40:37 +0000
+X-Mizu-Trace-ID: 50c412d95539fb94
+X-Migadu-Flow: FLOW_OUT
+From: Usama Arif <usama.arif@linux.dev>
+To: Andrew Morton <akpm@linux-foundation.org>,
+	david@kernel.org,
+	chrisl@kernel.org,
+	kasong@tencent.com,
+	ljs@kernel.org,
+	ziy@nvidia.com,
+	linux-mm@kvack.org
+Cc: chenhuacai@kernel.org,
+	ying.huang@linux.alibaba.com,
+	Baoquan He <baoquan.he@linux.dev>,
+	willy@infradead.org,
+	youngjun.park@lge.com,
+	hannes@cmpxchg.org,
+	riel@surriel.com,
+	shakeel.butt@linux.dev,
+	alex@ghiti.fr,
+	kas@kernel.org,
+	baohua@kernel.org,
+	dev.jain@arm.com,
+	baolin.wang@linux.alibaba.com,
+	Nico Pache <nico.pache@linux.dev>,
+	Liam R. Howlett <liam@infradead.org>,
+	ryan.roberts@arm.com,
+	Vlastimil Babka <vbabka@kernel.org>,
+	lance.yang@linux.dev,
+	linux-kernel@vger.kernel.org,
+	nphamcs@gmail.com,
+	shikemeng@huaweicloud.com,
+	yosry@kernel.org,
+	qi.zheng@linux.dev,
+	luizcap@redhat.com,
+	kernel-team@meta.com,
+	Usama Arif <usama.arif@linux.dev>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	linux-s390@vger.kernel.org
+Subject: [PATCH v9 06/32] s390: mm: add PMD swap-exclusive helpers
+Date: Thu,  5 Nov 2026 10:38:50 -0800
+Message-ID: <20261105183940.2236717-7-usama.arif@linux.dev>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20261105183940.2236717-1-usama.arif@linux.dev>
+References: <20261105183940.2236717-1-usama.arif@linux.dev>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -51,132 +101,80 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 5/9] mm/mprotect: keep writable entries writable on
- permission upgrades
-To: =?UTF-8?Q?Carlos_L=C3=B3pez?= <clopez@suse.de>, kvm@vger.kernel.org,
- linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
- linux-riscv@lists.infradead.org, seanjc@google.com, pbonzini@redhat.com,
- akpm@linux-foundation.org, peterx@redhat.com, ljs@kernel.org,
- imbrenda@linux.ibm.com, borntraeger@linux.ibm.com, frankja@linux.ibm.com,
- Zi Yan <ziy@nvidia.com>, Baolin Wang <baolin.wang@linux.alibaba.com>,
- "Liam R. Howlett" <liam@infradead.org>, Nico Pache <nico.pache@linux.dev>,
- Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
- Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
- Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>,
- Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>
-References: <20261105165004.2663799-4-clopez@suse.de>
- <20261105165004.2663799-9-clopez@suse.de>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20261105165004.2663799-9-clopez@suse.de>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On 11/5/26 17:50, Carlos López wrote:
-> change_protection() applies vma->vm_page_prot, which lacks the write bit
-> for CoW and write-notified mappings, so it write-protects every entry
-> in them. When an entry would simply be made writable on fault without
-> further checks (e.g. dirty PTEs in shared mappings, exclusive anonymous
-> pages), MM_CP_TRY_CHANGE_WRITABLE makes the entry writable again to
-> avoid the future fault.
-> 
-> However, writable entries in shared mappings that are not dirty still
-> become read-only. For example, a uffd-wp unprotect makes clean shmem
-> PTEs read-only even if they were never write-protected, e.g. when they
-> were mapped by a read fault before uffd-wp was registered. The next
-> write to each of them causes a fault that only restores the write bit.
-> 
-> Now that MM_CP_PERM_UPGRADE indicates whether mprotect() only adds
-> permissions, change_protection() can tell, together with the
-> userfaultfd unprotect flags, when a change revokes no access. Keep
-> writable entries writable in these cases, at the PTE, PMD and PUD
-> levels. This is consistent with the write fault handler, as an entry
-> that is already writable needs no write fault.
-> 
-> Signed-off-by: Carlos López <clopez@suse.de>
-> ---
->  mm/huge_memory.c | 7 +++++++
->  mm/internal.h    | 7 +++++++
->  mm/mprotect.c    | 4 ++++
->  3 files changed, 18 insertions(+)
-> 
-> diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-> index 506e1e61c0fd..6e23d0e4ae66 100644
-> --- a/mm/huge_memory.c
-> +++ b/mm/huge_memory.c
-> @@ -2809,6 +2809,10 @@ int change_huge_pmd(struct mmu_gather *tlb, struct vm_area_struct *vma,
->  	if (userfaultfd_rwp(vma) && pmd_uffd(entry))
->  		entry = pmd_modify(entry, PAGE_NONE);
->  
-> +	/* See change_present_ptes(). */
-> +	if (mm_cp_is_perm_upgrade(cp_flags) && pmd_write(oldpmd))
-> +		entry = pmd_mkwrite(entry, vma);
-> +
->  	/* See change_pte_range(). */
->  	if ((cp_flags & MM_CP_TRY_CHANGE_WRITABLE) && !pmd_write(entry) &&
->  	    can_change_pmd_writable(vma, addr, entry))
-> @@ -2885,6 +2889,9 @@ int change_huge_pud(struct mmu_gather *tlb, struct vm_area_struct *vma,
->  	 */
->  	oldpud = pudp_invalidate(vma, addr, pudp);
->  	entry = pud_modify(oldpud, newprot);
-> +	/* See change_present_ptes(). */
-> +	if (mm_cp_is_perm_upgrade(cp_flags) && pud_write(oldpud))
-> +		entry = pud_mkwrite(entry);
+Prepare for keeping a PMD-mapped anonymous THP mapped by a PMD across the
+swap round-trip, which makes PG_anon_exclusive have to survive in a swap
+PMD and not just in a swap PTE.
 
-That looks completely hacked on. We do have can_change_pud_writable() below to
-make such decisions.
+s390 is the one architecture where a swap PMD is not a swap PTE in
+disguise: it is an RSTE with its own layout, converted to a fake PTE swap
+entry for the common code. Give it its own exclusive bit rather than
+borrowing the PTE-format macro, and document it in the RSTE swap layout,
+where bit 52 was listed as unused.
 
-Whaatever you propose here is either wrong or way too shaky, sorry.
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Usama Arif <usama.arif@linux.dev>
+---
+ arch/s390/include/asm/pgtable.h | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
+diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
+index 2d5c2ab06de98..2c6b5205ee3bc 100644
+--- a/arch/s390/include/asm/pgtable.h
++++ b/arch/s390/include/asm/pgtable.h
+@@ -333,6 +333,7 @@ void setup_protection_map(void);
+ /* Common bits in region and segment table entries, for swap entries */
+ #define _RST_ENTRY_COMM		0x0010	/* Common-Region/Segment, marks swap entry */
+ #define _RST_ENTRY_INVALID	0x0020	/* invalid region/segment table entry */
++#define _RST_ENTRY_SWP_EXCLUSIVE 0x0800	/* SW exclusive swap bit, see mk_swap_rste() */
+ 
+ #define _CRST_ENTRIES	2048	/* number of region/segment table entries */
+ #define _PAGE_ENTRIES	256	/* number of page table entries	*/
+@@ -893,6 +894,21 @@ static inline pmd_t pmd_clear_soft_dirty(pmd_t pmd)
+ }
+ 
+ #ifdef CONFIG_ARCH_HAS_PMD_SOFTLEAVES
++static inline bool pmd_swp_exclusive(pmd_t pmd)
++{
++	return pmd_val(pmd) & _RST_ENTRY_SWP_EXCLUSIVE;
++}
++
++static inline pmd_t pmd_swp_mkexclusive(pmd_t pmd)
++{
++	return set_pmd_bit(pmd, __pgprot(_RST_ENTRY_SWP_EXCLUSIVE));
++}
++
++static inline pmd_t pmd_swp_clear_exclusive(pmd_t pmd)
++{
++	return clear_pmd_bit(pmd, __pgprot(_RST_ENTRY_SWP_EXCLUSIVE));
++}
++
+ #define pmd_swp_soft_dirty(pmd)		pmd_soft_dirty(pmd)
+ #define pmd_swp_mksoft_dirty(pmd)	pmd_mksoft_dirty(pmd)
+ #define pmd_swp_clear_soft_dirty(pmd)	pmd_clear_soft_dirty(pmd)
+@@ -1900,15 +1916,15 @@ static inline swp_entry_t __swp_entry(unsigned long type, unsigned long offset)
+  * Bits 59 and 63 are used to indicate the swap entry. Bit 58 marks the rste
+  * as invalid.
+  * A swap entry is indicated by bit pattern (rste & 0x011) == 0x010
+- * |			  offset			|Xtype |11TT|S0|
++ * |			  offset			|Etype |11TT|S0|
+  * |0000000000111111111122222222223333333333444444444455|555555|5566|66|
+  * |0123456789012345678901234567890123456789012345678901|234567|8901|23|
+  *
+  * Bits 0-51 store the offset.
++ * Bit 52 (E) is used to remember PG_anon_exclusive (_RST_ENTRY_SWP_EXCLUSIVE).
+  * Bits 53-57 store the type.
+  * Bit 62 (S) is used for softdirty tracking.
+  * Bits 60-61 (TT) indicate the table type: 0x01 for REGION3 and 0x00 for SEGMENT.
+- * Bit 52 (X) is unused.
+  */
+ 
+ #define __SWP_OFFSET_MASK_RSTE	((1UL << 52) - 1)
 -- 
-Cheers,
+2.53.0-Meta
 
-David
