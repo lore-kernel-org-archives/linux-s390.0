@@ -1,97 +1,129 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793898000;
-	b=C7Mnu3EbS2ukJ6i0TxgozPwqzyP92uy0z/sJt8ZsSgGEQm+MlRNDP2tIJq/1Hbkr7uki
-	 bYKk93jFlSi1PKmoS0vPhcM6XapdXEvUA7WS1qj/aP3n9Zo7++lZdpD4IJn49dVLgdYKx
-	 Gp6wA/0kQEQgWRIQJYvlsO/UdqCMfY1JhSbfB6NQ1cU+kLSU1Cxmr6Ep9rMmhq2O0fSDi
-	 r+inSLohbr0Ha+v/8w9+ncv4Ztj84k+1+xTur9PHoEeQ87BGs4crndixa4+pl0wOohNwE
-	 aYq4BqmxwwxILJm5QctFCXUTKY0Yv/VaPNg2Qnb+pr3SfsVRXwMJQDQVTqerRpL6EjQ==
+	t=1793898055;
+	b=w7+FpIwFBy+QnjpfB/Mlgo13lIrFWtPNJC+o5JhWx5oOkITKcQtwtTLkyF4Qt2X3l1wY
+	 Djvz9H2jtrClK68zFb/xQeLkOoxlTyYCR2uDPgryk9ubeZGPhvYqxxHo6n4lTR9q3jAs8
+	 Plm5yrcrnJ5VqG4qm6ZKT7Z0KRQ1a7GXCQVSHtm1if+RUZpFFtE2bMNQti9lfrMPP1fWH
+	 aCjYZIeML7I7cMepMTuPOqHEUcGrgQxjoYjvyXebYuMCNQ3V7Vrp8h4yswxmAgYnaLDK9
+	 knzNS16oBtn6a+7Cr04dVMh6wO/hTSf/6qNMnaI/OGHniWlYLw87xNjmAPJnbtVEceg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793898000;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Subject:From:To:Cc:
-	 Date:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:
-	 User-Agent:MIME-Version:X-TM-AS-GCONF:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-GUID:X-Authority-Analysis:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=4VdMmw9IgQMj60w2SfS0ONa+3TaIIoExykF4uE26k34=;
-	b=Ie1xOhUE8++rwtSD1MRlFeus9oHAHcjJ6umrNcPgCLTOHoTNDEpuQvTEP0valAxZHE0V
-	 fe3Qfeahs2KvEKXaQG1izCK5cCgbH/0qe7VtApGE/EaN+J42L4L1K2u0S3PEC8kCJ/yDT
-	 O+9YO1rfgEgAQMQYmYJgMzk2l8MpCCD/jFToTLwbvHwFTRVGT1TGRmEavGc4ZLWQ4DYN5
-	 gWgbsFLUPMqtK24f99k5IALjVmIXoOtVJe9gLIyQe2M8/maa8OxyC1CIQuceslXhz6/AJ
-	 5I/7eCyj2xwuqQ/R5biiOpPUZS7iX596teMRx5NaqfJ7Ja+QRSgXDFoBDkIn6SnuMqA==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793898055;
+	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
+	 DKIM-Signature:Received:Received:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:X-Spamd-Result:X-Rspamd-Server:
+	 X-Rspamd-Action:X-Spam-Flag:X-Spam-Score:X-Spam-Level:
+	 X-Rspamd-Queue-Id;
+	bh=wLnVsJjCToHG/C28VTmqNBcIFpk1g6vauHuX2+bvyeo=;
+	b=FeOqzX1mC11Turd3irXuv1J2cyK0KNHRetp5TQP4efE+KP/d5saYOYpHquJSRirLa3V9
+	 UUGW89ydGPH1xlK+kIgoyXHqiBXS/QO8/Q5eSvso+OwHNhZJ0KyX89T6QzQX8NNMRZTFg
+	 6QGOhKKjJsCYVB41HaINYo7NeuK8cFackf8Ve9I7uZnQNtChChUME7ebkzWKysGVjgObM
+	 ZYupzVNmPn3BehqnoE7ZED4dUpuUmDE/yublB8SR/Y35KYRFGYxF16yCy6gnD1eM8KNMY
+	 49qWSAxmkUOi7193L/lN0CPI4hK6sqRPIilHWcAxP0bov9z+UopKPFdFqYEW/sK0fNw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=h6eF5DSI;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dmarc=pass header.from=suse.de;
+	spf=pass smtp.mailfrom=suse.de;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b="AtWih/Q5";
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b="/1ksPkT9";
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b="AtWih/Q5";
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b="/1ksPkT9";
+	arc=none smtp.remote-ip=195.135.223.131
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1AE2606A326;
-	Thu,  5 Nov 2026 16:59:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org C1AE2606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E290B606A31B;
+	Thu,  5 Nov 2026 17:00:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E290B606A31B
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=h6eF5DSI
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A5EiG8w3787897;
-	Thu, 5 Nov 2026 16:59:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=4VdMmw
-	9IgQMj60w2SfS0ONa+3TaIIoExykF4uE26k34=; b=h6eF5DSICEoAPw2m+QFrPo
-	VfyyLsBf95vEVvVWrZG8fqyte37gS6PS+D6RV+Wo3B6Nh3ACPHiO6kMeo7tmJRpA
-	yzkmBe72wJYNi0ey4SR9r0Ne4T9Xg1C1vUkJcvh1zCdeiV67wQyzqAC4gPPJAgai
-	tAg7156hH9dzoq9g8P1cDUk7wg0uvEGj+88WFfs/8I75wIMHqBIjUz4/kCAhC2gC
-	DtNS729NtJkS3rEq6Kng5FwvC4pTewRl67cjU2ToZTAGgwB6c6UXC139aF/wsTSc
-	XkiZZLcay+slEQyVtB+QyO9Liw/R2Ciz446FcCyK5X3KcLvzw1hjHZ210X4Qmzdw
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn8273vfp-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 05 Nov 2026 16:59:56 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A5Gs6fj1685693;
-	Thu, 5 Nov 2026 16:59:55 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hrmrek01h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 05 Nov 2026 16:59:55 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A5GxpXD42926360
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 5 Nov 2026 16:59:51 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B470D20043;
-	Thu,  5 Nov 2026 16:59:51 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7D78D20040;
-	Thu,  5 Nov 2026 16:59:51 +0000 (GMT)
-Received: from [9.68.14.168] (unknown [9.68.14.168])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu,  5 Nov 2026 16:59:51 +0000 (GMT)
-Message-ID: <5ba403bebb619e0361d9963c98c8c978c2000e07.camel@linux.ibm.com>
-Subject: Re: [PATCH v12 2/5] s390/pci: Improve function measurement state
- management
-From: Gerd Bayer <gbayer@linux.ibm.com>
-To: Omar Elghoul <oelghoul@linux.ibm.com>, linux-s390@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
-        borntraeger@linux.ibm.com, svens@linux.ibm.com, schnelle@linux.ibm.com,
-        mjrosato@linux.ibm.com, alifm@linux.ibm.com, farman@linux.ibm.com,
-        pasic@linux.ibm.com, alex@shazbot.org, frankja@linux.ibm.com,
-        imbrenda@linux.ibm.com, Gerd Bayer <gbayer@linux.ibm.com>
-Date: Thu, 05 Nov 2026 17:59:51 +0100
-In-Reply-To: <20261103150114.68873-3-oelghoul@linux.ibm.com>
-References: <20261103150114.68873-1-oelghoul@linux.ibm.com>
-	 <20261103150114.68873-3-oelghoul@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.60.2 (3.60.2-3.fc44) 
+	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=AtWih/Q5;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=/1ksPkT9;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=AtWih/Q5;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=/1ksPkT9
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 32F211FB3F;
+	Thu,  5 Nov 2026 17:00:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1793898053; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wLnVsJjCToHG/C28VTmqNBcIFpk1g6vauHuX2+bvyeo=;
+	b=AtWih/Q5UNeIcyR295m20gTBxLNQQlEW/6jV44r/WyqnpGBlFrxfzrmeI4eK5R/FG9mP8B
+	5UwO65a5cCQ1VzYek0nbWAcmTzFXkXz50rqaQTjIh5y0Ds3XEVC9sq3K8x0IZsLdslgQ+1
+	YvtRNvhR6Xxc9QjvOip6VNdLyvZvEFg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1793898053;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wLnVsJjCToHG/C28VTmqNBcIFpk1g6vauHuX2+bvyeo=;
+	b=/1ksPkT9jyto6rEIVfPDgN8Dim3k3Ljbfr+TqqyZUZIMXx716QVdLySR0RyEa8lGTYD3/4
+	QsAvYC5IPlJGx8Aw==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="AtWih/Q5";
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b="/1ksPkT9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1793898053; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wLnVsJjCToHG/C28VTmqNBcIFpk1g6vauHuX2+bvyeo=;
+	b=AtWih/Q5UNeIcyR295m20gTBxLNQQlEW/6jV44r/WyqnpGBlFrxfzrmeI4eK5R/FG9mP8B
+	5UwO65a5cCQ1VzYek0nbWAcmTzFXkXz50rqaQTjIh5y0Ds3XEVC9sq3K8x0IZsLdslgQ+1
+	YvtRNvhR6Xxc9QjvOip6VNdLyvZvEFg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1793898053;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wLnVsJjCToHG/C28VTmqNBcIFpk1g6vauHuX2+bvyeo=;
+	b=/1ksPkT9jyto6rEIVfPDgN8Dim3k3Ljbfr+TqqyZUZIMXx716QVdLySR0RyEa8lGTYD3/4
+	QsAvYC5IPlJGx8Aw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C24CE134F6;
+	Thu,  5 Nov 2026 17:00:51 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id HMEkC0K27GqWRwAAD6G6ig:T2
+	(envelope-from <clopez@suse.de>); Thu, 05 Nov 2026 17:00:51 +0000
+From: =?UTF-8?q?Carlos=20L=C3=B3pez?= <clopez@suse.de>
+To: kvm@vger.kernel.org,
+	linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-riscv@lists.infradead.org,
+	seanjc@google.com,
+	pbonzini@redhat.com,
+	akpm@linux-foundation.org,
+	david@kernel.org,
+	peterx@redhat.com,
+	ljs@kernel.org,
+	imbrenda@linux.ibm.com,
+	borntraeger@linux.ibm.com,
+	frankja@linux.ibm.com,
+	=?UTF-8?q?Carlos=20L=C3=B3pez?= <clopez@suse.de>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Jann Horn <jannh@google.com>,
+	Pedro Falcato <pfalcato@suse.de>,
+	Peter Feiner <pfeiner@google.com>
+Subject: [PATCH v2 1/9] mm: fix eager write-bit restore for write-notified shared mappings
+Date: Thu,  5 Nov 2026 17:49:58 +0100
+Message-ID: <20261105165004.2663799-5-clopez@suse.de>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20261105165004.2663799-4-clopez@suse.de>
+References: <20261105165004.2663799-4-clopez@suse.de>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -101,209 +133,119 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: gOJ5I3V8KOJWN5GBoZRATia1TjtZk9wM
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA1MDA2NiBTYWx0ZWRfX5DKQz1onL+ZQ
- i/vySttEmNgRIOv8Np7YM9AybSuN1MOf4qTI2lI8sNjSs4rfCT++DQXr3JiMcc1u2Mc5ue1OsMl
- 1swJGb0hcqztvm2eBlNNyBHOKd29wYEPTK1agwFywbDG3MTndjMgmgFTDJRhdm37ZN+ZXaG6b1r
- qWyixodtrJu/iumxCJ1MPk+1mjqMTHZaXc9m0h/75q/ZTC/u/zRWlcVf0FoK3caxw5M8URWVUy0
- HgwozHop862k6lcvwrOonom0rsyHmeU5tspXgJD7tLxcN62uHGFmsTF2q2Gj71LTjmgD/kxhBVi
- Nem6pOmOJmWexB3o62ZV+pvonFw6tCTH8hznaT8y9ffZg5phLUuv9CM0H/99uiJA6d/fXHlSh+4
- k7wPj7rxSQEB/381e0KeJAeX2THPJ2bl5WRGr0PkHexYqAfmVOZI0UY5eVPjrobOhwJTJUaPhGj
- lYbD9EPItyIJXdKEWJg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA1MDA2NiBTYWx0ZWRfX1LyTnZEWbjdG
- kWhq8S4m5HtjOhm7cdEILYQoSym8x9QYpDHLQ5GvBVeUYNp6Gr0pSueiqH2szFzRY1omRFUoV+Q
- x4/T0RJuPWISTu/AirAen8HgNIGLSbU=
-X-Proofpoint-GUID: gOJ5I3V8KOJWN5GBoZRATia1TjtZk9wM
-X-Authority-Analysis: v=2.4 cv=EsJHPicA c=1 sm=1 tr=0 ts=6aecb60c cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8
- a=YjtKywxNojFmjcD5IdkA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-05_04,2026-11-04_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0 clxscore=1015 lowpriorityscore=0 malwarescore=0
- priorityscore=1501 adultscore=0 impostorscore=0 phishscore=0 spamscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
- definitions=main-2611050066
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-12.51 / 50.00];
+	SUSE_INTERNAL_BYPASS(-9.00)[];
+	BAYES_HAM(-3.00)[100.00%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[20];
+	RCVD_TLS_ALL(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:dkim,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -12.51
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 32F211FB3F
 
-On Tue, 2026-11-03 at 10:01 -0500, Omar Elghoul wrote:
-> When a zPCI function is disabled and re-enabled, the firmware implicitly
-> disables function measurement while the kernel still believes it is
-> enabled, leading to a disconnect between the user-visible state and the
-> actual device state.
->=20
-> Add the statistics_on field to struct zpci_dev to track the desired FMB
-> state. Introduce the functions zpci_fmb_request_on()/_off(), which defer
-> to zpci_fmb_enable()/_disable() to perform the actual firmware change.
-> This decouples the enablement or disablement step from managing the
-> user's requested state.
->=20
-> Restore the state in pcibios_enable_device(), pcibios_disable_device(),
-> and zpci_reenable_device(). New devices start with measurement on by
-> default, unchanged from before.
->=20
-> Signed-off-by: Omar Elghoul <oelghoul@linux.ibm.com>
-> ---
->  arch/s390/include/asm/pci.h |  7 +++--
->  arch/s390/pci/pci.c         | 54 +++++++++++++++++++++++++++++++++----
->  arch/s390/pci/pci_debug.c   |  4 +--
->  3 files changed, 56 insertions(+), 9 deletions(-)
->=20
-> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-> index 88a125b92bdd..dd58c48ac2ed 100644
-> --- a/arch/s390/include/asm/pci.h
-> +++ b/arch/s390/include/asm/pci.h
-> @@ -208,6 +208,7 @@ struct zpci_dev {
->  	struct zpci_fmb *fmb;
->  	u16		fmb_update;	/* update interval */
->  	u16		fmb_length;
-> +	u8		statistics_on	: 1; /* desired FMB enablement */
-> =20
->  	u8		version;
->  	enum pci_bus_speed max_bus_speed;
-> @@ -349,8 +350,10 @@ int zpci_create_parent_msi_domain(struct zpci_bus *z=
-bus);
->  void zpci_remove_parent_msi_domain(struct zpci_bus *zbus);
-> =20
->  /* FMB */
-> -int zpci_fmb_enable_device(struct zpci_dev *);
-> -int zpci_fmb_disable_device(struct zpci_dev *);
-> +int zpci_fmb_request_on(struct zpci_dev *zdev);
-> +int zpci_fmb_request_off(struct zpci_dev *zdev);
-> +int zpci_fmb_enable(struct zpci_dev *zdev);
-> +int zpci_fmb_disable(struct zpci_dev *zdev);
-> =20
->  /* Debug */
->  int zpci_debug_init(void);
-> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-> index c055a9ad0972..f49736386eb7 100644
-> --- a/arch/s390/pci/pci.c
-> +++ b/arch/s390/pci/pci.c
-> @@ -164,8 +164,38 @@ int zpci_unregister_ioat(struct zpci_dev *zdev, u8 d=
-maas)
->  	return cc;
->  }
-> =20
-> +int zpci_fmb_request_on(struct zpci_dev *zdev)
-> +{
-> +	int rc;
-> +
-> +	lockdep_assert_held(&zdev->fmb_lock);
-> +
-> +	rc =3D zpci_fmb_enable(zdev);
-> +	if (rc)
-> +		return rc;
-> +
-> +	zdev->statistics_on =3D 1;
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(zpci_fmb_request_on);
-> +
-> +int zpci_fmb_request_off(struct zpci_dev *zdev)
-> +{
-> +	int rc;
-> +
-> +	lockdep_assert_held(&zdev->fmb_lock);
-> +
-> +	rc =3D zpci_fmb_disable(zdev);
-> +	if (rc)
-> +		return rc;
-> +
-> +	zdev->statistics_on =3D 0;
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL_GPL(zpci_fmb_request_off);
-> +
->  /* Modify PCI: Set PCI function measurement parameters */
-> -int zpci_fmb_enable_device(struct zpci_dev *zdev)
-> +int zpci_fmb_enable(struct zpci_dev *zdev)
->  {
->  	u64 req =3D ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_SET_MEASURE);
->  	struct zpci_iommu_ctrs *ctrs;
-> @@ -207,7 +237,7 @@ int zpci_fmb_enable_device(struct zpci_dev *zdev)
->  }
-> =20
->  /* Modify PCI: Disable PCI function measurement */
-> -int zpci_fmb_disable_device(struct zpci_dev *zdev)
-> +int zpci_fmb_disable(struct zpci_dev *zdev)
->  {
->  	u64 req =3D ZPCI_CREATE_REQ(zdev->fh, 0, ZPCI_MOD_FC_SET_MEASURE);
->  	struct zpci_fib fib =3D {0};
-> @@ -644,7 +674,8 @@ int pcibios_enable_device(struct pci_dev *pdev, int m=
-ask)
-> =20
->  	zpci_debug_init_device(zdev, dev_name(&pdev->dev));
->  	mutex_lock(&zdev->fmb_lock);
-> -	zpci_fmb_enable_device(zdev);
-> +	if (zdev->statistics_on)
-> +		zpci_fmb_enable(zdev);
->  	mutex_unlock(&zdev->fmb_lock);
-> =20
->  	return pci_enable_resources(pdev, mask);
-> @@ -655,7 +686,8 @@ void pcibios_disable_device(struct pci_dev *pdev)
->  	struct zpci_dev *zdev =3D to_zpci(pdev);
-> =20
->  	mutex_lock(&zdev->fmb_lock);
-> -	zpci_fmb_disable_device(zdev);
-> +	if (zdev->statistics_on)
-> +		zpci_fmb_disable(zdev);
->  	mutex_unlock(&zdev->fmb_lock);
->  	zpci_debug_exit_device(zdev);
->  }
-> @@ -737,8 +769,14 @@ int zpci_reenable_device(struct zpci_dev *zdev)
->  	}
-> =20
->  	rc =3D zpci_iommu_register_ioat(zdev, &status);
-> -	if (rc)
-> +	if (rc) {
->  		zpci_disable_device(zdev);
-> +		return rc;
-> +	}
-> +
-> +	guard(mutex)(&zdev->fmb_lock);
-> +	if (zdev->statistics_on)
-> +		zpci_fmb_enable(zdev);
-> =20
->  	return rc;
->  }
-> @@ -847,6 +885,12 @@ struct zpci_dev *zpci_create_device(u32 fid, u32 fh,=
- enum zpci_state state)
->  		goto error;
->  	zdev->state =3D  state;
-> =20
-> +	/*
-> +	 * Measurement is on by default for new functions, this will be honored
-> +	 * by pcibios_enable_device().
-> +	 */
-> +	zdev->statistics_on =3D 1;
-> +
->  	mutex_init(&zdev->state_lock);
->  	mutex_init(&zdev->fmb_lock);
->  	mutex_init(&zdev->kzdev_lock);
-> diff --git a/arch/s390/pci/pci_debug.c b/arch/s390/pci/pci_debug.c
-> index c7ed7bf254b5..06e2e8bb2f82 100644
-> --- a/arch/s390/pci/pci_debug.c
-> +++ b/arch/s390/pci/pci_debug.c
-> @@ -156,10 +156,10 @@ static ssize_t pci_perf_seq_write(struct file *file=
-, const char __user *ubuf,
->  	mutex_lock(&zdev->fmb_lock);
->  	switch (val) {
->  	case 0:
-> -		rc =3D zpci_fmb_disable_device(zdev);
-> +		rc =3D zpci_fmb_request_off(zdev);
->  		break;
->  	case 1:
-> -		rc =3D zpci_fmb_enable_device(zdev);
-> +		rc =3D zpci_fmb_request_on(zdev);
->  		break;
->  	}
->  	mutex_unlock(&zdev->fmb_lock);
+change_protection() applies vma->vm_page_prot, which lacks
+the write bit for CoW and write-notified mappings. To avoid
+needless write faults, callers set MM_CP_TRY_CHANGE_WRITABLE when
+vma_wants_manual_pte_write_upgrade() returns true, so that entries that
+can be written without a fault, such as dirty PTEs in a shared mapping,
+are made writable right away.
 
-Yeah - this looks good to me!
-Reviewed-by: Gerd Bayer <gbayer@linux.ibm.com>
+For shared mappings, that function passes vma->vm_page_prot to
+vma_wants_writenotify(). Once writenotify is enabled, this protection
+lacks the write bit, while the vma_pgprot_modify() result it is compared
+against adds it back. The two never match, so vma_wants_writenotify()
+returns false before checking for soft-dirty, uffd-wp and writeback.
 
-Thank you for your work!
+As a result, write-notified shmem mappings never get
+MM_CP_TRY_CHANGE_WRITABLE, and their dirty PTEs stay read-only after a
+protection change. For example, commit 931298e103c2 ("mm/userfaultfd:
+rely on vma->vm_page_prot in uffd_wp_range()") made uffd-wp unprotect
+set MM_CP_TRY_CHANGE_WRITABLE so that dirty shmem PTEs become writable
+again, but this never takes effect. Unprotecting N dirty shmem pages
+still leads to N faults that only set the write bit.
+
+This dates back to the commit in the Fixes tag, which moved the
+equivalent check in mprotect_fixup() before vma_set_page_prot().
+
+Fix this by passing the protection recomputed from the VMA flags, as
+vma_set_page_prot() does. Note that this is a performance-only fix, as
+the write bit is restored on the next page fault anyway.
+
+Fixes: 64e455079e1b ("mm: softdirty: enable write notifications on VMAs after VM_SOFTDIRTY cleared")
+Signed-off-by: Carlos López <clopez@suse.de>
+---
+ mm/vma.h | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
+
+diff --git a/mm/vma.h b/mm/vma.h
+index 3fc3b47a954b..e83700e248e4 100644
+--- a/mm/vma.h
++++ b/mm/vma.h
+@@ -589,6 +589,14 @@ int split_vma(struct vma_iterator *vmi, struct vm_area_struct *vma,
+ 	      unsigned long addr, int new_below);
+ #endif
+ 
++#ifdef CONFIG_MMU
++static inline pgprot_t vma_pgprot_modify(pgprot_t oldprot, vma_flags_t vma_flags)
++{
++	const pgprot_t prot = vma_flags_to_page_prot(vma_flags);
++
++	return pgprot_modify(oldprot, prot);
++}
++
+ static inline bool vma_wants_manual_pte_write_upgrade(struct vm_area_struct *vma)
+ {
+ 	/*
+@@ -596,19 +604,16 @@ static inline bool vma_wants_manual_pte_write_upgrade(struct vm_area_struct *vma
+ 	 * if we can't do that automatically for all PTEs in a mapping. For
+ 	 * private mappings, that's always the case when we have write
+ 	 * permissions as we properly have to handle COW.
++	 *
++	 * vma->vm_page_prot lacks the write bit if writenotify is already
++	 * enabled, so pass it with the bits restored, as vma_set_page_prot()
++	 * does.
+ 	 */
+ 	if (vma->vm_flags & VM_SHARED)
+-		return vma_wants_writenotify(vma, vma->vm_page_prot);
++		return vma_wants_writenotify(vma,
++		       vma_pgprot_modify(vma->vm_page_prot, vma->flags));
+ 	return !!(vma->vm_flags & VM_WRITE);
+ }
+-
+-#ifdef CONFIG_MMU
+-static inline pgprot_t vma_pgprot_modify(pgprot_t oldprot, vma_flags_t vma_flags)
+-{
+-	const pgprot_t prot = vma_flags_to_page_prot(vma_flags);
+-
+-	return pgprot_modify(oldprot, prot);
+-}
+ #endif
+ 
+ static inline struct vm_area_struct *vma_prev_limit(struct vma_iterator *vmi,
+-- 
+2.51.0
+
