@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793908704;
-	b=y6vlPPQLhRd4qhW9Nh2XNwwp2Kx/i1H1qbYwId2eu5e1I8Ji4nMjH4yXvIxCIsMxz/il
-	 YXtSV8VS9SY8StOJ7o+RnlBXgqn5pbJ5SsHjNvB6bY1Kw/tjL5L3JcqgF7rho7zuuQzug
-	 34mB86H/o2OBDvEYDA+ZCa08mmK60IuqUW1gPFMV3IR3jyelmClPGt7yuGcyTBt43EqOh
-	 9AOpOOL9noSSpKhHmDSDm1s0I33OU5vny0EFiFTRRRjP4KjpSSFq2V6Yn5stSP9XSWGin
-	 7umML4THYBjqe5Cfv7sZsHzBc1tWu1/1MGx3aczIBixIOtTUIW4XP6TUB4B0c8XSOMg==
+	t=1793908702;
+	b=Z4vFWTUSYRau9Vn34unrsh/775qYNKj+JSAiGn1OpZDBGJsX7S9MnzxNrKvOCK95lHCx
+	 v6oJr+H9u0aRlxq+Bs3+9W1qsjoDcFMsGN1/sXjjh2CUCNLld9scLsmtDMxenIRDx/+5b
+	 LMtjh5A4dPpEcqzmtGqgZJtvsez3A7UOOr6ZdjC7P85UUFHXFJX8166PuM4BdmDFz8r11
+	 /HSBlcaTZv6AvDCoyP0Syo+Gh2ObfPWCEhbt6iks8u68BwlrN2w+GvcsKndJi1F2DC0lk
+	 QQZKLi7il2SD+PyeTRQcN3h3Cugs2Os/PxO32nv0e1eLX4PTbNuKkeWNk4ba7NbVMbg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793908704;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793908702;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=R/3/g2fG5Ih3FrXZKD6wYYWFmbxOB3C9DuUCxAhNm2k=;
-	b=l8/YvK6xvUONI4RKw01V7QfhA5FgKYDhbpueKN2NmtXlGh8PGpBkmJzOOLz8gWbwNmij
-	 M2Elp3jD3I7BtZNXTMQL6r8RNDDOwth/CCjtko3ZEtPlzxpaXn/FaS/sj6clh0MRQxKi4
-	 vf4T+cSX3ptqnhkAQq3obMVC25Lkzroan+9tcKe2Gz1HwY9wPEDsIT+zA34Db13rQ9nwI
-	 dTxpwXpHI0LhjAtvgPI6AUnH5nPKts8I+9G/AYkjF/1/ksugq8unsxxwQn4IOm7ZFr1uR
-	 uVSbwLo29GuB+P8Jzys+Aws2fJbPClOo+GhEW9/NwNxKJGIm3WUoXtU48XadrO1oScw==
+	bh=7/aaKuldQgClq8ReLax1ykoSxafbF3ZgLD9HjMju1WU=;
+	b=kPiGIccfZZ/+DaSGFdEoYhOQ6cqMR8GucYz9CqoK+5Q+9JjGo0Qnz/iW1bdzpZKF/ufC
+	 9bi1sIp1W4PthXYV+I4bRz85N34cCldYHfb6hhQjzAVtFsYK0HAFAHehzSleaDKjJ9yvR
+	 xv2CcQpDNethcyxf5i06u5CSgrfsHNhT+0GqrUWtuYLVBLw64osK9OaNHQHnWIHsUaXV5
+	 NyaXxC+PHIvtO7hrpOH8DMA4r6+6TjOd5LCf5wEPRgzL1gOLuofqa2jqFTZuTmye+mH4h
+	 MFa6L6NsNvmEX8moSFwaEZGHBlfuDJdApbbAefBKCZSvfP1n02+yo73LqQ9mDZ8jDTQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RC0Bdglu;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=an+GaGrP;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0356A606EE8E;
-	Thu,  5 Nov 2026 19:58:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A4D6606EE81;
+	Thu,  5 Nov 2026 19:58:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=RC0Bdglu
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 323861F008A5;
-	Thu,  5 Nov 2026 19:58:22 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=an+GaGrP
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D3891F008A1;
+	Thu,  5 Nov 2026 19:58:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793908703;
-	bh=R/3/g2fG5Ih3FrXZKD6wYYWFmbxOB3C9DuUCxAhNm2k=;
+	s=k20260515; t=1793908701;
+	bh=7/aaKuldQgClq8ReLax1ykoSxafbF3ZgLD9HjMju1WU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=RC0BdgluSVhj4ol2IdHageodVMrz1ruWf/U0VxnqQ4YpmT+3H+KpS1pFcokN5n4WU
-	 x39afKlNtYk+2xyAOEVfn030cpNGvf1y+B+2c12eu1zaXEjJ5E5Ymn0Ehw1xNQbjXq
-	 GqmH6aUhXM6WJpczF2jaIDB/vcvoOfnmd8aGdAMKEu/PUeWZVuBOzczMgkJgepjE7S
-	 5TyQrDbgTzzs+fyS320ark9Hh7Hesh6X3zd5yacoQTwB2YFlyh4RmsILA0baND1l/r
-	 yFJg2G8biRNchELzTifjspykyjR5pSfS1xYVZosKkAo3Jk/WZ/fEnqCmI7QJA6WoQS
-	 ThsQ78KLs2cBA==
-Message-ID: <sashiko-outbox-200060@kernel.org>
+	b=an+GaGrP6TdrpWnLckWrPSepsWmHkQ5XptZk4tHL+HpcEfNPQTKp/wIE0YEjMyswu
+	 OrhN9uEyMFoYjQkeHuikFpy3e0zddTttGDFkpuIaMkcA6eGsZ9PG+nZXuKxpHyCsrC
+	 SNCEbh0wSxS6z/Jb7uu4cFZEto4+IHTnO2FVyeKD50/Tzzg7HbxicNYxazMsJsheZU
+	 1/idVdBK3MZnCoSpbo06TdxRXrO5ag6849zDW70fe0dwn4m5M5QgW3y7jxda2zX6CR
+	 doTY9qkj5Jd95Yv6hY1F0fz7SIzfsktjfoFB86+JK9Sn5qjY0BS4iz7RIoQ4TBqsQz
+	 j9OtHEdlaVesA==
+Message-ID: <sashiko-outbox-200059@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 26/30] alloc_tag: let procfs copy the ioctl
- arguments of /proc/allocinfo
+Subject: Re: [PATCH RESEND v2 25/30] alloc_tag: let procfs own the seq_file
+ of /proc/allocinfo
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -55,12 +55,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-fs-v2-26-319e0f9a8aae@kernel.org>
+In-Reply-To: <20261104-work-procfs-fs-v2-25-319e0f9a8aae@kernel.org>
 References: <20261104-work-procfs-fs-v2-0-319e0f9a8aae@kernel.org>
- <20261104-work-procfs-fs-v2-26-319e0f9a8aae@kernel.org>
+ <20261104-work-procfs-fs-v2-25-319e0f9a8aae@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:58:21 +0000
+Date: Thu, 05 Nov 2026 19:58:19 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -70,10 +70,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Implement ->proc_ioctl_buf() so procfs copies the arguments in before
-> it pins the entry and back out after unpinning it. The commands encode
-> their arguments. procfs converts the pointers of 32-bit tasks, so
-> allocinfo_compat_ioctl() goes away.
+> Declare the seq_operations and the size of the private state and let
+> procfs open and free the seq_file. ->proc_open() and ->proc_release()
+> only set up and destroy the ioctl lock now.
 >=20
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
@@ -81,5 +80,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-fs-v2-0-319e0f9a8aae@kernel.org?part=3D26
+s-fs-v2-0-319e0f9a8aae@kernel.org?part=3D25
 
