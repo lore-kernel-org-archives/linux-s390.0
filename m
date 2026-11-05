@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793908200;
-	b=qh3qM1oVV+B1ljIIHywIssN+qJdoWbKgycY2wmukXYCfBg9bIbgLMM84CGOG4bhIGGnr
-	 7YR/QgwGeyycSXrkT6JQTrZrb+u9FlF8pWW5znmDX31lgBLzx9DI4t0uj/iotcDeyovLc
-	 SFNPC16h3tjrzTYQ57XlAWqSubUq2dVfzeCOMxDDaIWTV0dd16SQrv5wgFae4vb/xgcM8
-	 t7aT8HK+toHNi17sQIcq4H7guTqwJYHIbvcreMcS47PDLPXBVNia+yKH8GgirLFbOxZFo
-	 cxUNlZkg2kAQBmheaIa0XuqHm89tGz/VNdlUmbaDjaMo+y4/xc6jav3Iycac9g0Vpaw==
+	t=1793908196;
+	b=ieFa8OrP909DTkiPhzaUIhGb/nnp6pDCOMAZwJdyU2nu01Vn30nXExTPAxwsFXWsnEI8
+	 13sVHoXWetv3mJF+qXESobyHgIyaitEzSU1k68qBmlgSwgG6C5nOyxbXDvr5nJXzUDc8v
+	 iYV2aG2/gq7joh+SdJ8a+BLtra8twHjHcLQ4tO7B2M1Ks7qwsOT1E/sX4XnUaUa6eNgPl
+	 h80UyOucbc0goy1QG04bcgA6Ju3aQ0XK9B3tz6qqoId3xg2aVgUC4mwvbeCJd70JUXUwF
+	 YOPFxFDdd9diWoHtlw4m7l4Uzql+f8EJOdOZ14rBhZ2kth6f/VSYYY4zVAJZm6D3tNg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793908200;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793908196;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=mJTbTSNaksdvlnijZLFCGOr4psTGJIHnmxgFlkDd4gI=;
-	b=mw/5fQ+OYzfKnQ5BGcf7lNARXTUWvd5gIFDeFFh4BhFe96Y1tkS+u1Sb2rQL6ZVorc1e
-	 nKnA+MnYB1N2fZbNeD4zhcP/5zCnbxT++ZSELYJkHIMuD8yDoDg2Ymtj/3ECg0/h52Kq6
-	 fgymXV3hXiEXIk/ocgO9UVEv5FbHD+p8fG+CbCF0vcKKWL89X7zyDsH1VSHgDN8KEmclD
-	 /K8Hdkqp/L4/hXy8NXRrt9P6AIZRzlVNX+TsI7cEGctFtojMnWx0Y2o8zGCBOr+qSM1fV
-	 n+9L5VD+EGHOHrrw4wvRavtZpFWCM8P8Zo6ds9LGzVoj7l7T6WEpADOIvtiSFXbMR5A==
+	bh=s7WmN61TcEwSAmrgBFcR3i/+X59X7MghGqj63dVkFh4=;
+	b=5QNSMtjx/87owZ7ZQCiFALRd1+lPFUsELCX14oNChZumlAogUAw1EAVXb6qacQ/7Mfsc
+	 uHddcSYbBRS4CJW3+48wJydJIp7PszmInApfOLpEo5w5tSHuHLzAbhyd+6lYgjdlrHh+Y
+	 TVxgt4YHB+E7dYxnbdXjkK4GQ+L+bsyVjfN4FcPPv2EccaeyXfAD6FZo4bSRgNOWWUaLQ
+	 6uMj4RmAoJzu0leAIYpqvxiSmZFUdE+GSKpM5roJyWTfe6Y+G6/groanRKIsM5Tga3NAf
+	 oJJGc8/msLRd/WExzYe+MLo0cD/GfpZCEM8Dcnitv/LLtOHMo1j5JAY3jAHfrzgTKUw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BiP3vWa5;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T2Onwvw3;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D20966079C33;
-	Thu,  5 Nov 2026 19:49:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2DFC6077CAB;
+	Thu,  5 Nov 2026 19:49:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=BiP3vWa5
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D4531F0089F;
-	Thu,  5 Nov 2026 19:49:58 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=T2Onwvw3
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4085F1F008BD;
+	Thu,  5 Nov 2026 19:49:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793908199;
-	bh=mJTbTSNaksdvlnijZLFCGOr4psTGJIHnmxgFlkDd4gI=;
+	s=k20260515; t=1793908195;
+	bh=s7WmN61TcEwSAmrgBFcR3i/+X59X7MghGqj63dVkFh4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=BiP3vWa5C7VCqt3Apwn3UEuoadJLOFVATCUGY/TCkjTG6EioUj7msFuDm+u6S80/v
-	 F/ovWS0/vbG4NoPvX3oaC4Ju6kOgutrh42xA82zotUqEKnnIjJM8ubgYbG3hMNjSXM
-	 Swiblg6S0THlNhJQxthAwOda244CN8fXsj3HotdqSR0fAud3TJ7au54xUuBJ8QVgNK
-	 I5516bErhTjW+BnoKXFgRN3a76QQkuKdwJlNjT9I9qk0/OjcS7X9lfr0QyejL4LM2h
-	 sFNh7YOripcN6NumdxOyC3c7UON5Z1tyyMYNW5N1EuFPeMdzK1EbeZGlbAlbQ0aysz
-	 NQ51S20K/BX4Q==
-Message-ID: <sashiko-outbox-200010@kernel.org>
+	b=T2Onwvw39ZN0/OoOXxQL/uqI7Po22o2Y48NdiniZqCP/DDbIer53/gM/4OjA9lEb1
+	 ZcA7n+7DOArqei7j/E+89ZPKGaiUE1Emcmgj5cNgnfKk3nHic6m/MnYB7RXIp2aTDx
+	 GhNaIma7ViRMcjw2Q1iINaa6BRamWn/B1y14v2KnCxNcnpxa6PdzbCS6ZMZ1DEeckZ
+	 YWnktcnAhZ0oNTq/YekqSeJaTix4kwO8wQBjblo16bnpQWE3/ln/50BkNHNm01s0ZB
+	 /g6GiX3KmmymfcwBQUEuk9hji1rPknI18H3GRTuIJg5WNlSHp1zjuKJTaQng099E5q
+	 xL6S0rA3UEzKw==
+Message-ID: <sashiko-outbox-200008@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 24/26] ALSA: info: let procfs copy out reads
- of data entries
+Subject: Re: [PATCH RESEND v2 22/26] ALSA: info: let procfs own the seq_file
+ of text entries
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -55,12 +55,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-drivers-v2-24-245e54e87116@kernel.org>
+In-Reply-To: <20261104-work-procfs-drivers-v2-22-245e54e87116@kernel.org>
 References: <20261104-work-procfs-drivers-v2-0-245e54e87116@kernel.org>
- <20261104-work-procfs-drivers-v2-24-245e54e87116@kernel.org>
+ <20261104-work-procfs-drivers-v2-22-245e54e87116@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:49:57 +0000
+Date: Thu, 05 Nov 2026 19:49:53 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -70,19 +70,10 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Implement ->proc_read_buf() for data entries so procfs copies what is
-> read to userspace after it unpinned the entry. ->read() of struct
-> snd_info_entry_ops fills procfs' buffer now. opl4 reads the sample
-> memory into it without a vmalloc() buffer of its own, gus, cs46xx,
-> emu10k1, scarlett2, cs4281 and mixart copy into it instead of to
-> userspace. The driver guide still told raw callbacks to copy to and from
-> userspace, so update its example as well. Data entries ask for
-> PROC_ENTRY_FULL_READS so that reading all of an entry at once keeps
-> working. A read that faults on its buffer in a later piece returns the
-> pieces before it now instead of failing with -EFAULT.
->=20
-> Unbinding a card then no longer waits for a reader that faults on its
-> buffer.
+> Declare the show function and let procfs open and free the seq_file.
+> ->proc_open() only sets up the private data and preallocates the buffer
+> now and ->proc_release() no longer releases the seq_file. Reading an
+> entry then no longer holds up its removal when the card goes away.
 >=20
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
@@ -90,5 +81,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-drivers-v2-0-245e54e87116@kernel.org?part=3D24
+s-drivers-v2-0-245e54e87116@kernel.org?part=3D22
 
