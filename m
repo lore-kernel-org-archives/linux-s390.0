@@ -1,96 +1,93 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.8
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793878599;
-	b=LU4Lw8iw3L4t8K/n9Hh6UJocvA+pzDOKA0VqDcJycGal9N9qVKv7jP40LTqCwmsDG66c
-	 GWerN5hzcQ+OcZNSUwp/UMiVhb4fXgnfGvP3sq8ArzqS60SepQ0IEOYh8eqyhMw+WdAHb
-	 xuhmdYlauENK5eAJsb4pjzkK9ziARyy8yFo+zbPd/4qvbxWMXT6dcmpey5FJuaTVwiTPy
-	 G7GetQSk5HEVd1DPBc2+4IddUJAVrFzwgoeYeBH4TsiBk2Nm6Ji/RB48GKXb6p72Ie8Mm
-	 ZLf3qzjHDrsWGIxEZth9e/Mbx6UQd/vShHRA42fUoWDV12vA+zsCez3IUmJSNvEmu1w==
+	t=1793878863;
+	b=phlaKSjocDbeVIhQUcpJEZRfDnsBWubDIssF5hpPmtajMdpDBsXypmVtnqC/jadMGhH3
+	 rvsC9CCnSMpemB/GIdWZKNk8rBpQo42aFwEWZcVig/cPyakCsukKcBB3vw/psUwcd5vy9
+	 rVNMv+zm1E+fpR/kFDooqhkrznN0EacNGtl5dY3Em5eth2upl1AlEoo3JKRrFHBmXmMO7
+	 D9epftVHpVRjrLi2jFn600RaVQh9LG5IFjdXYubKBDUBdsqPPG4v6RWEYIGCWu0BjsirA
+	 SIyq07ZTai+OwKf7Nu+6utT57Fs/d/hFCAgL9nNFOE6tJZqNrxACDypv7vS/xQd6pvw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793878599;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
-	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=30J4sbOlYJiNq7Z4tRszcjWu8hBcWrg7tEn3jlctPwo=;
-	b=xRxzWa8Xy4evAl6NaL+mYks4IQacTnLfihp+tzxY8uHo+NLYRbz3tSNSLnEL+1FfvDD2
-	 D3UZh7Sdoe6MocHg6nC5GUObrjQ/GPDZebN/rvGlBt+1pRd49aXzeOiCNfAVhObDYPjqo
-	 SYF5bSg2fqmzfE6lfpcNInuPiYYpxbPm5jQMqdiSoPLRyOvQtnFWh3lLz86ILih1SIJts
-	 zAyaf9Iz+mUIYRg/rSH7RZB2uaEGoZgCQ8tPkFM8HvoH9nbKCfxaFijqflQL51ChPlssy
-	 7VDNqq3k9XuUeQNw96pJK2OJHqW/ogIy4nTJ9Ufw8pEGM3hW82pHdNSrea78h3Z3XpQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793878863;
+	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
+	 Received:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To:X-TM-AS-GCONF:X-Proofpoint-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
+	 X-Authority-Analysis:X-Proofpoint-ORIG-GUID:
+	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
+	bh=APCybssPVDEk08dxo9yYemACe7ZseVauIwXpk4cGm1k=;
+	b=T5KMhABQsN/LhlFayAOLzSlwJD/CQjjgf/cgcoUmlbruj0Y6D3SfK3/rWTXVEDm4dzSD
+	 JVx+doPtzrWBt4kV/QGrJKkhx9/4sHEW/3VUlhJ4KcVKESgpOMrYUnar/065fnlxLPTYl
+	 lPo4ipPfns9Cra8bH+MG4z/lXGJGH32+WaB8/6dHanIdfJRki836ZtiA6ESn9QtX6VucG
+	 aM+2rq3sULKHmUNrtbwdxgongg6ps5i/jVFHrf272hh5TTumkEZAYHyOxtvGOFI29RbSC
+	 UKEMUzPSVCyrR90oPot/CWzwSiPXINZv55Lc1z4HwOkNgFAGK1uATa1ZjoDHvjksNKw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=kH6kTpAi;
-	arc=none smtp.remote-ip=192.198.163.8
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=linux.ibm.com;
+	spf=pass smtp.mailfrom=linux.ibm.com;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ZsPJKRVJ;
+	arc=none smtp.remote-ip=148.163.158.5
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79418606A336;
-	Thu,  5 Nov 2026 11:36:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 79418606A336
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18A31606A326;
+	Thu,  5 Nov 2026 11:41:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 18A31606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=kH6kTpAi
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1793878598; x=1825414598;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=J9dOmPMshDIpYmZ/TrqPMjz7mHsp3Z6+Ou1qHQ88q2c=;
-  b=kH6kTpAiQCWPXNnHfol4Ir8+s9VJjZqKUrEiOYYXZ519D9v6B5xP2gry
-   GnxiwbeLFhRczydH6mZJ0OLOiGGGZE6rGnuWsdi7YptLDmfnzWYK9ipH0
-   dFC+58sXrURL/5et1b81u3MYRwTIazl4W9H6PFyG6JrBjGDynR8P86946
-   XGW7UEKjEwT0v0iPok/BKikScign00RZapSIvNNIiIqAoLcjFjvBcwcNF
-   mL/HcsTXXDUec0Erc9ynncQVAqW6Z3TJ/1Z9sXlIVcBTPVZLkkuPAbbCG
-   vltsW6FpoPg9oXfRHm1xluCStSwpy0jt6Dfl66lBwsO3byRFQOjk4dw6n
-   g==;
-X-CSE-ConnectionGUID: cQ8hzN4ESnqlamJQ6T0ujw==
-X-CSE-MsgGUID: KjYgmGU8SNG9TKQz2y0m6w==
-X-IronPort-AV: E=McAfee;i="6800,10657,11956"; a="2547422"
-X-IronPort-AV: E=Sophos;i="6.27,197,1787036400"; 
-   d="scan'208";a="2547422"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2026 03:36:37 -0800
-X-CSE-ConnectionGUID: NU49M+y7SoqJQQ7rq8Z1Cw==
-X-CSE-MsgGUID: /gbM1bnkQwynnPU6B2caeg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,197,1787036400"; 
-   d="scan'208";a="7163862"
-Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
-  by fmviesa003.fm.intel.com with ESMTP; 05 Nov 2026 03:36:29 -0800
-Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1xOvlZ-00000000m7v-0S9w;
-	Thu, 05 Nov 2026 11:36:25 +0000
-Date: Thu, 5 Nov 2026 19:35:46 +0800
-From: kernel test robot <lkp@intel.com>
-To: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, Jann Horn <jannh@google.com>,
-	Josef Bacik <josef@toxicpanda.com>,
-	Chris Mason <chris.mason@fusionio.com>,
-	Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>,
-	Eric Dumazet <edumazet@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Al Viro <viro@zeniv.linux.org.uk>, Jonathan Corbet <corbet@lwn.net>,
-	Christoph Hellwig <hch@lst.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Joel Granados <joel.granados@kernel.org>,
-	Kees Cook <kees@kernel.org>, Jan Kara <jack@suse.cz>,
-	linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org,
-	linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
-	linux-um@lists.infradead.org, linux-wireless@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org,
-	ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org,
-	coreteam@netfilter.org, kexec@lists.infradead.org,
-	linux-pci@vger.kernel.org
-Subject: Re: [PATCH RESEND v2 01/51] alloc_tag: don't remove /proc/allocinfo
- under the codetag module lock
-Message-ID: <202611051923.pLSSWWkA-lkp@intel.com>
-References: <20261104-work-procfs-bugfixes-v2-1-021c84d852e0@kernel.org>
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ZsPJKRVJ
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A5AEKit2060001;
+	Thu, 5 Nov 2026 11:41:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=pp1; bh=APCybssPVDEk08dxo9yYemACe7ZseV
+	auIwXpk4cGm1k=; b=ZsPJKRVJ/YwC57J9TIMRO0cK8XskuadtVmTVgYPP2LSAXI
+	w0RTUXzDMqsz9U5Vd261SjK7VnWkef0ygkQgSGuFk68dQrAKjMY2bEPQM2JWBFDm
+	VAltUAtLj2aEDcZ0jiCJ5GEpmeTMBrh71xHTYBUElgzf4qW4ZO5UB2gt17wrnRJQ
+	iUvlAU+XlR8VGQJxyLU10606XCB6kNG7bV4+rxD2Lbo/mXuwT/JQTedC5xyzgzeg
+	XI9N/sdz1qEG4ZrIZzNGjveMuJY3/Ic2PaBAAv9iWmO9SjRJYVHOJUDunKAOCshP
+	kYWaWfSVB5S8myE4MjmxdaDEwa9Uei2EGvC3z+9Q==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn6rdhfkm-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 05 Nov 2026 11:41:01 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A5A4xw4271729;
+	Thu, 5 Nov 2026 11:41:01 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hqsf5g77y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 05 Nov 2026 11:41:01 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A5BevOD30737000
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 5 Nov 2026 11:40:57 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4653B20043;
+	Thu,  5 Nov 2026 11:40:57 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 26A9020040;
+	Thu,  5 Nov 2026 11:40:57 +0000 (GMT)
+Received: from localhost (unknown [9.111.35.118])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Thu,  5 Nov 2026 11:40:57 +0000 (GMT)
+Date: Thu, 5 Nov 2026 12:40:56 +0100
+From: Andreas Grapentin <gra@linux.ibm.com>
+To: Steffen Eiden <seiden@linux.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390: Add assembler-level include guard to
+ insn-common-asm.h
+Message-ID: <auxq_7KszQp0JXGE@li-d8547bcc-2d90-11b2-a85c-a70f2a37009a.ibm.com>
+References: <20261102-insn-v1-1-df048a0be0d5@linux.ibm.com>
+ <9b3348d9-7510-48e4-8be8-31efabbf152c-agordeev@linux.ibm.com>
+ <20261104084033.8132-D-seiden@linux.ibm.com>
+ <auxlzfQe32jZHc_4@li-d8547bcc-2d90-11b2-a85c-a70f2a37009a.ibm.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -102,52 +99,66 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261104-work-procfs-bugfixes-v2-1-021c84d852e0@kernel.org>
+In-Reply-To: <auxlzfQe32jZHc_4@li-d8547bcc-2d90-11b2-a85c-a70f2a37009a.ibm.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: FwUkmL8A8fpsVpBFwJcQ78jtKBCcAtTX
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA1MDA0NCBTYWx0ZWRfXw8Q3L2b5dAqN
+ lZB8goHQZmBv04yNBU9fpboWdljlqffibyfudCl6TFHRXV9C/scQGji/eIMuyB8S0D2plSIuVEJ
+ fS7h1A2Xt3MTupbvrRthp6RMbJaeo4hDQT+CogLdghDeZ8xI7vYTD2b9+IDBZ4nJj5zEGgaum3g
+ pXEfcO9vfHTszLaHO+Pfejp34567sf/eRx6+PEWaJ+wgSx72/9w1WD85NPTM+1dkhGXMghF+PIj
+ d6A8WjujwawK6GSn3J3EWpxyD5wxagNdZKu+pDSarUtWqJqhUJghHEF0OGEgXspxK/jl2sr01+u
+ K+oELai4A7+tQ0jSnaBUlYPzTrkOfcqSFhnglcZs7eYRIJzEzzRTsTrwN4okp8a401PVbGtLwJY
+ psdKDJXXy91Ek4yGPk1N/m9epqsa5vaB28OyivbNeMeRlAohGdXZl3ku5cTOPGAMidX0x0xlSwE
+ 3/WAFOZAXKHcL1j0AEw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA1MDA0NCBTYWx0ZWRfX4UGaKWya6aTf
+ qa28qUaWjaaI3vLku9ha9/AcyzaUwDn6jnm90WcJfbzQlbadi0aPcHe5AK5JXM+i6BJGXxubSP0
+ bQAYLkTjYkQ6XwO3WmGrwm8KTnf8BRo=
+X-Authority-Analysis: v=2.4 cv=QK391QLL c=1 sm=1 tr=0 ts=6aec6b4d cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+ a=kj9zAlcOel0A:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=U-2YEEF98ZwNu8pyFNsA:9
+ a=CjuIK1q_8ugA:10
+X-Proofpoint-ORIG-GUID: FwUkmL8A8fpsVpBFwJcQ78jtKBCcAtTX
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
+ definitions=2026-11-05_03,2026-11-04_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0
+ impostorscore=0 clxscore=1015 lowpriorityscore=0 adultscore=0
+ priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
+ definitions=main-2611050044
 
-Hi Christian,
+On Nov 05 26, Andreas Grapentin wrote:
+> The same should also work if we wrap the asm(.include...) in another
+> header.
 
-kernel test robot noticed the following build warnings:
+Something like this (compile tested):
 
-[auto build test WARNING on 6628e7d4c6b25c8d18f1345e3a20d21829aae7e4]
+diff --git a/arch/s390/include/asm/fpu-insn.h b/arch/s390/include/asm/fpu-insn.h
+index eeb0a233d5c7..f1167aa2ab45 100644
+--- a/arch/s390/include/asm/fpu-insn.h
++++ b/arch/s390/include/asm/fpu-insn.h
+@@ -15,7 +15,7 @@
+ #include <linux/kmsan.h>
+ #include <asm/asm-extable.h>
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Christian-Brauner/alloc_tag-don-t-remove-proc-allocinfo-under-the-codetag-module-lock/20261104-200606
-base:   6628e7d4c6b25c8d18f1345e3a20d21829aae7e4
-patch link:    https://lore.kernel.org/r/20261104-work-procfs-bugfixes-v2-1-021c84d852e0%40kernel.org
-patch subject: [PATCH RESEND v2 01/51] alloc_tag: don't remove /proc/allocinfo under the codetag module lock
-config: sh-randconfig-1001-20261105 (https://download.01.org/0day-ci/archive/20261105/202611051923.pLSSWWkA-lkp@intel.com/config)
-compiler: sh4-linux-gcc (GCC) 16.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261105/202611051923.pLSSWWkA-lkp@intel.com/reproduce)
+-asm(".include \"asm/insn-common-asm.h\"\n");
++#include <asm/insn-common-asm-emit.h>
+ asm(".include \"asm/fpu-insn-asm.h\"\n");
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202611051923.pLSSWWkA-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> mm/alloc_tag.c:620:13: warning: 'shutdown_mem_profiling_async' defined but not used [-Wunused-function]
-     620 | static void shutdown_mem_profiling_async(void)
-         |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-vim +/shutdown_mem_profiling_async +620 mm/alloc_tag.c
-
-   613	
-   614	/*
-   615	 * A module's tags are reserved with the codetag module lock held for
-   616	 * writing, and a reader of /proc/allocinfo takes that lock with the entry
-   617	 * pinned. Removing the entry there would wait for that reader for good, so
-   618	 * let a work item do it.
-   619	 */
- > 620	static void shutdown_mem_profiling_async(void)
-   621	{
-   622		if (!mem_profiling_support)
-   623			return;
-   624		shutdown_mem_profiling(false);
-   625		schedule_work(&remove_allocinfo_work);
-   626	}
-   627	
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+ /*
+diff --git a/arch/s390/include/asm/insn-common-asm-emit.h b/arch/s390/include/asm/insn-common-asm-emit.h
+new file mode 100644
+index 000000000000..26a31e8439bf
+--- /dev/null
++++ b/arch/s390/include/asm/insn-common-asm-emit.h
+@@ -0,0 +1,8 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++
++#ifndef __ASM_S390_INSN_COMMON_ASM_EMIT_H
++#define __ASM_S390_INSN_COMMON_ASM_EMIT_H
++
++asm(".include \"asm/insn-common-asm.h\"\n");
++
++#endif /* __ASM_S390_INSN_COMMON_ASM_EMIT_H */
