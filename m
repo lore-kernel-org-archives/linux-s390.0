@@ -1,48 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793907348;
-	b=cO6Y2A1Fz1hdZ1ap3g2S0S5fmPUdlh2K7VmL41oiCRPZeR+C8zVX0TXkmTiGUnZ8iYna
-	 XF6gc1ZHH1RLQ56ffBSshjhTBSw6adf9DycIeSJtMkBPZ4v0mpf335/eeKB4LsSHBIspL
-	 M/8T4Ctvi6s0AxbFZ/WGxRaTyOgEKLy9jYTqMyYk93iSn8R4Ha3ZsxjqY0R1IakjYdk+G
-	 NUvaiUQsYFX6IeBS63s6VRYEv8kAXpjuL/xuDxLxmLEHLbEnK99PkWoJaKD69x2KOXbKW
-	 TpBZORLz7/u2QtYtW7e4JBHfxynNGIDq9FosC1DyQ/sHG9Aud/XNhyYEgorCYxy8qYg==
+	t=1793907360;
+	b=M4qA1mx2kY+mGlogUUXq2B/s3jD8Hn1jdLsGnxx7RUPsKchx2U+Ml6CSLOnJ2FwY1RDW
+	 gQp4WVlnA9AgvKRn3HfHjsMKLNfdb8BtEcw89WfnVDkSUZgQV2sssv4Ldm5OlI5yCnlts
+	 sivp4GRwUn0EcOf37nLzRIvEP6FyshjhT8p1luSGjXawjbm75AiyjAYCmL6Bol9puyksC
+	 w0BFopuObpQ8tpR0h+dWzR/AAnrqPDXAlALJ9v5aZl441Iu2ga+oAEtGnAauoMAHTIw7T
+	 Y6TOxznj4Z7Ov+tY2Qcif6MJopbxP9f9Rth9kWluMHoxcF1NbciEhUQHakOaT+5kHWQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793907348;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793907360;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=1MugNV8TCf3DcwhciMioHkCDdfBEvJqmJegZE7T3Anc=;
-	b=InNX0+epFldCpEeGNpurNV1NXTAAgoLkEF6Wga0NjjcyHMFiCHKE9E8JTVFOHn3U4Ki/
-	 qSoB6JlI49gwS1dNIZ/DgXjIUnwNPoEF1DzMWpcx7OnGQhYZxbYVHiesp+T8S4fJ3osoP
-	 oaWrE40xiqxCwJtCLzHN1XujqHib3h7pzOFZ/BgQaQiuaTG5T8dG/R1HKrhUVmAz3eulM
-	 pdLtpwfUULN0jJyLJlHdY3f5b4J9/3qm5P7tWsHLYJNlnwvtjPwlS0qsvq4xRZHJLXAjc
-	 Tdt++riBVcqVsMiqU2jeUDmCn9bnfy8Hk0Yl6rbaHZWfl9CJnL9KSDMDLbH0mn9ZoRQ==
+	bh=f7pbLgB+bOANV7ZH7bSfet1egKll+CXGNKYzJQU3Yrk=;
+	b=haJn/pwekRyTyY2x8MgY8XyGVhTJe4Nswqyzdc+JTxZ1h6mCc7kURtkkw5UiJ6z4EVh2
+	 KWUGXOCofRjp6sSGOmoZdo61B4qez1UO7k9j6tqZbbWOsbEpIyoC2OQoV4kizbHdaZ7fO
+	 MbOAbI2x6WzZJtEQyf57LejpSlvumj9g5AP5eKg7QgHGYif5b1izcRMjzxUg9/3jHY5xI
+	 38CdWIWRZ45xdUTQP7c2UcpHzo8FQVdbqxNbtFckX9vXMOPlHSy6r1cscQazv/ewnwr/N
+	 Ef+z2IdkhujdJ+EMm5GslWywHqqL+xkLC7Dl3tuevg7n5WD+an3EpL5W5snjuC6mUiA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JxUDwRLS;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iMGngCoO;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44D60607956B;
-	Thu,  5 Nov 2026 19:35:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2347A606D811;
+	Thu,  5 Nov 2026 19:35:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JxUDwRLS
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B6371F0089E;
-	Thu,  5 Nov 2026 19:35:46 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iMGngCoO
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4E9A1F008A3;
+	Thu,  5 Nov 2026 19:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793907348;
-	bh=1MugNV8TCf3DcwhciMioHkCDdfBEvJqmJegZE7T3Anc=;
+	s=k20260515; t=1793907359;
+	bh=f7pbLgB+bOANV7ZH7bSfet1egKll+CXGNKYzJQU3Yrk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=JxUDwRLS659AKy9L6EF/sMAUNJPV9IWLdEGgYT37J3Q3xoM9Rgl+/f5tJog9D28GT
-	 YMaZHCMQxAz8Q/YhL7D2HkKgLdWMS13ODeIvOVS2cO3Xyt1UiWgXthVq8iKNCfiwYC
-	 CBZKMuWNvUYO3GRSHNobx37W6/E4wT6vFZKwM2U+b9rd+Q0o+xU/Q/0vCpfhxieJT7
-	 F6OAqSTAk8K2MFcN+drjgRiXeceRcYXDu/MhOHTrRoTOf/Jcy6qlsQJs6CLNabmhUG
-	 q0HrKvIx+/XHSn3ssmSRL1+tCAkBs5GI7/FQwPFk1on24fvEEyzBWmsp3oEib+CbCf
-	 nnIC8BG7tI46Q==
-Message-ID: <sashiko-outbox-199946@kernel.org>
+	b=iMGngCoOl/U4CYIB1rTzS3RguQRqLRp2sKfBp3odJCcMgrP4Y2V8PmtfZZo1x5Xkv
+	 FLC9VNWmdujwFQtrFCf8Mg1QUR9V0cBoPIZOnqaamHivU1nhWiKlmj37JQBwx8Nw4V
+	 gnJGb6AJHKNc0HghHI9fJU1uQS16q3fA1JPSybQgU9VxlezkJg9W+I3Lt4LPHuBS+G
+	 M91zjKny9mmSeWhknnqhOUNYocrnIZ20lXgBv1WbhSSK7LtbVS4MpUGhBLakgtch3v
+	 NiR+5uPctDAbSjOlOz7BSSMrEU1NCpxJBHKCCILKG0ymIlPQ81348+1c7a3Gat7yd+
+	 kdKHITt2fXI3g==
+Message-ID: <sashiko-outbox-199951@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 16/23] proc: let procfs copy out reads that
- don't go through seq_file
+Subject: Re: [PATCH RESEND v2 21/23] proc: let lockdep check the pin
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -57,12 +56,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Pavlu" <petr.pavlu@suse.com>, "Anna Schumaker" <anna@kernel.org>, yukuai@fygo.io, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-core-v2-16-76ace653a773@kernel.org>
+In-Reply-To: <20261104-work-procfs-core-v2-21-76ace653a773@kernel.org>
 References: <20261104-work-procfs-core-v2-0-76ace653a773@kernel.org>
- <20261104-work-procfs-core-v2-16-76ace653a773@kernel.org>
+ <20261104-work-procfs-core-v2-21-76ace653a773@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:35:45 +0000
+Date: Thu, 05 Nov 2026 19:35:57 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -74,67 +73,65 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Low] proc: define and initialize __free(kvfree) variable buf in pde_read=
-_buf()
+- [Low] proc: kernel-doc mismatch on __proc_create_net_single_write()
 --
 
-commit 19cf278eb9fee57b90ee19764f6b076d9cab553d
+commit 095fce4c95ecbe25e644f1a3fe90061f695e9271
 Author: Christian Brauner <brauner@kernel.org>
 
-proc: let procfs copy out reads that don't go through seq_file
+proc: let lockdep check the pin
 
-This commit adds ->proc_read_buf() and PROC_ENTRY_FULL_READS to proc_ops so
-that non-seq_file procfs entries can fill a kernel buffer while pinned and
-let procfs copy it to userspace after unpinning the entry.
+This commit adds lockdep tracking to proc_dir_entry pinning so lockdep can
+detect deadlocks between proc entry methods and removal under held locks.
+Entries created via proc_create_single() and related helpers receive a
+per-registration-site lock_class_key via wrapper macros.
 
-> diff --git a/fs/proc/inode.c b/fs/proc/inode.c
-> index df1caa0f238df..caa47933c233d 100644
-> --- a/fs/proc/inode.c
-> +++ b/fs/proc/inode.c
+> diff --git a/fs/proc/proc_net.c b/fs/proc/proc_net.c
+> index b78d627b024f8..9ddd7c323dfcd 100644
+> --- a/fs/proc/proc_net.c
+> +++ b/fs/proc/proc_net.c
+
 [ ... ]
-> @@ -377,11 +379,67 @@ static loff_t proc_reg_llseek(struct file *file, lo=
-ff_t offset, int whence)
->  	return rv;
->  }
-> =20
-> +/*
-> + * The entry fills a kernel buffer and procfs copies that to userspace a=
-fter
-> + * unpinning the entry. A reader that faults on its buffer then doesn't =
-hold
-> + * up remove_proc_entry().
-> + */
-> +static ssize_t pde_read_buf(struct proc_dir_entry *pde, struct kiocb *io=
-cb,
-> +			    struct iov_iter *iter)
-> +{
-> +	struct file *file =3D iocb->ki_filp;
-> +	char *buf __free(kvfree) =3D NULL;
-> +	ssize_t rv, done =3D 0;
-> +	size_t len, count;
-> +	loff_t pos;
-> +
-> +	if (!iov_iter_count(iter))
-> +		return 0;
-> +	/* neither the allocation nor the entry can honor IOCB_NOWAIT */
-> +	if ((iocb->ki_flags & IOCB_NOWAIT) && !(file->f_flags & O_NONBLOCK))
-> +		return -EAGAIN;
-> +	len =3D min_t(size_t, iov_iter_count(iter), pde->read_size);
-> +	buf =3D kvmalloc(len, GFP_KERNEL);
+
+> @@ -232,11 +233,12 @@ EXPORT_SYMBOL_GPL(proc_create_net_single);
+>   * pde_data() on the file inode.  The network namespace must be accessed=
+ by
+>   * calling seq_file_single_net() on the seq_file struct.
+>   */
+> -struct proc_dir_entry *proc_create_net_single_write(const char *name, um=
+ode_t mode,
+> -						    struct proc_dir_entry *parent,
+> -						    int (*show)(struct seq_file *, void *),
+> -						    proc_write_t write,
+> -						    void *data)
+> +struct proc_dir_entry *__proc_create_net_single_write(const char *name, =
+umode_t mode,
+> +						      struct proc_dir_entry *parent,
+> +						      int (*show)(struct seq_file *, void *),
+> +						      proc_write_t write,
+> +						      void *data,
+> +						      struct lock_class_key *key)
 
 [Severity: Low]
-As reported by Sashiko on RFC [1], this isn't a bug, but in pde_read_buf()
-in fs/proc/inode.c, buf is declared with __free(kvfree) =3D NULL at the top
-of the function before the early returns and then assigned later at the
-kvmalloc() call. Could buf be defined and initialized in a single statement
-at the allocation site:
+When proc_create_net_single_write() in fs/proc/proc_net.c is renamed to
+__proc_create_net_single_write() and given the new key parameter, the
+preceding kernel-doc block still documents the old name and omits @key:
 
-	char *buf __free(kvfree) =3D kvmalloc(len, GFP_KERNEL);
+/**
+ * proc_create_net_single_write - Create a writable net_ns-specific proc fi=
+le
+ * @name: The name of the file.
+ * @mode: The file's access mode.
+ * @parent: The parent directory in which to create.
+ * @show: The seqfile show method with which to read the file.
+ * @write: The write method with which to 'modify' the file.
+ * @data: Data for retrieval by pde_data().
 
-to follow the cleanup.h conventions?
-
-[1] https://lore.kernel.org/r/sashiko-outbox-195540@kernel.org
+Should this kernel-doc comment be updated to match
+__proc_create_net_single_write() and document @key (or moved to the
+proc_create_net_single_write() macro in include/linux/proc_fs.h) to avoid
+scripts/kernel-doc warnings when building with W=3D1?
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-core-v2-0-76ace653a773@kernel.org?part=3D16
+s-core-v2-0-76ace653a773@kernel.org?part=3D21
