@@ -1,58 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793894667;
-	b=iGjR57uiAm0iKBozRnFJs10JFKFEmhnU47IJJfHxT4uEhMBsua1m5/4ebsbFyDko9SMW
-	 FML+B7tP1tvnrzIjm2IzfoaUn6C8hThAB18/pokMcRQImcRfliMtlFU22BQ7oRb4DDsnk
-	 35TEeax/OaGJmyLRkYgyqey3IDN74UAAmFPemoxmtVx+NlrPr7WawKWyY9Tv7+nVJ53Y4
-	 b2TQGe7LHmf3pi8eVz9B+UgqE6D17r+fJLbp37/faDTTf0Y1HT3+F6B8nb1+DifZF6zuo
-	 jTTN0fMrnbv0z/mmE9v4erWlyHH90DU6YyjJcZQYXlgAA3+bzxttw92Di9sBnFAnCug==
+	t=1793895626;
+	b=QernInpXIGxphRTldCAvxWfhWVwyLK6O2YYBocgE/3BaRgvUWDcBll+DifLwfsji1aiG
+	 tuS+U7dxf+p6ofSbG3geT57G0APV1GItk5jjCRIyl/XcM1m0bMorJwDI4EfGLh2MOrm/R
+	 /DARAy24Dw3Wm9xbi+KXuGq/aOtBMw40rzLPtyG2adbjYPO/8w08ig4lStHzjbWlW9zhC
+	 T87T/B//jVKNdDrQE8pqLygYi3B3Xo/CHgKak9jXVW+oEgbsjmou7hz8ou66DlSpHbKoJ
+	 6iQwKLLkaEvhtgV+yCb/VjHdd0Ps//s+x9GeC92tVhT9TsnE9qLcuHouPsAMeBfVi2Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793894667;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793895626;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=p2HVoVKNtJLEmeLikyDu7fJaObAEiEXf1XhGA+/s5Z4=;
-	b=MY/32tOUbo6j5FXBr08N0mXxArRM3EQ8QNWvqCRVH8AGKwZveCV1BvmOaQjsiWPNnRmM
-	 7jeVNgQ+2xsXZPTNKOW9LIZYtuiOUVV9k0tyKXuOJKn4NE61y2aEfhfQbGZqSkBLtt3uh
-	 iBg21eUvDXwz+wLLjHyfA7fQld0HsOlCwGZ5YY1MxigHMWODKLQT7DLTaRkXlyfOcac5l
-	 sY6ododLDlAWJO5hEjH1JejJvz2KrQcgnAD7j+nuEB2xGHMrM8zD+I4TOy/vgl0ePTWI8
-	 JSb5n2RWcRM+AaoExO2T2osjImajrwyeenAels21IJeEba5peD81W4og3l2gDVR0dbA==
+	bh=ZQQBnn/48mc4O/706Aywbc0VwtDEdzyDvNG5j+PDrpo=;
+	b=y0Euk6MK4W+u1IDkczfbXsdFGLi+nL8cILSEIje4F9sQogM3EmIS5AaeTyOG4TWydARt
+	 Siix57vcp25tb8/qhgzI0qByFeZO4DCn7X6T9cNum3dcL3RXePbzN+nyKbwIwWkdR6uBX
+	 9ZOrIS29ubup9Qs28JhJWFtT1qCweLKhzbNBdHfjgQHJuScWMmDwQFihy0a6Lr5GP+0Vm
+	 lBQydzYDU/JtTgTRTEgYflfDujQz0XQBL1HyCHryiHo7Tk+JzIMiIWMubn1CU2GgwpJV0
+	 pxDWa+sJ+uFpwdCrLZ7yo9lAj7uAmiveRo0wgGKELUlLj+Kg6IRPExiIw+zPYfGGSEA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="S/khrhvk";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=elOMPbCl;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6485B606A332
-	for <linux-s390@vger.kernel.org>; Thu,  5 Nov 2026 16:04:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61EE1606A33F;
+	Thu,  5 Nov 2026 16:20:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=S/khrhvk
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E476E1F000C1;
-	Thu,  5 Nov 2026 16:04:26 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=elOMPbCl
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB5641F00A02;
+	Thu,  5 Nov 2026 16:20:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793894667;
-	bh=p2HVoVKNtJLEmeLikyDu7fJaObAEiEXf1XhGA+/s5Z4=;
+	s=k20260515; t=1793895626;
+	bh=ZQQBnn/48mc4O/706Aywbc0VwtDEdzyDvNG5j+PDrpo=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=S/khrhvkGCiy9gGVTm51hCKyGOBjCl0y81MvIbPlgcCaRbgRlFCLZFmMbX67ldaFe
-	 Ts2T49NvXeO3UmK69d0dGZjDfVa6Ng2EaFxNJtuNwSRLmlykca6O1OhWGMiQay8V0S
-	 3IEHuYVXOUhorHMU9d6kQFJjw9VoXhzvTOup0a/h5zARKApXi2FsdiB1A2/2jdruh5
-	 y16k26gsBVzIyFezYJrdiSZHphdXy3bMBzMqIlwr+V5BCYHdS+Jkp4s9wv+PQ99UpR
-	 SQ2x4M8HMbn/1LfhWICX7HXJ6vuXczis2hGs2BW7g5+bjcdeCA61Kj4VVohhNjZVeb
-	 Cz2owZjPGdGFA==
-Message-ID: <sashiko-outbox-199402@kernel.org>
+	b=elOMPbClkuNnEJ6NeqrWR76OWX0I5arBY1h06JRuVRXqUl4FE5QdI4r580Atpzukn
+	 RzlMc6uDf1qhq20ic0tdygnuQXW5g+GWlPgDXugdEPrvkzq2QDRT4QW85fakR+o62/
+	 h9yGWSl387dDWPQfCB3/wP9rGggs4GltSYA3YdoX/OweCtys/eQxxTotT+cBPQuY5N
+	 VTigdvvAdKW/L58lqqdTeOEP8uLlO7cLkbRL3xD0l+bVuVLgw+BULn/yuCRALoOOf5
+	 ejrycZsc3qnbC/HP/Xndi+GafuuAY1GP/UWRwX0XIYV4QEHobogSmaj8jEfziKcKJY
+	 qzaOSma+eXrqQ==
+Message-ID: <sashiko-outbox-199468@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v5] s390/diag204: Add common diag204 interface with
- caching
+Subject: Re: [PATCH v6 1/5] KVM: s390: Fix UCONTROL inconsistencies
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Mete Durlu" <meted@linux.ibm.com>
+To: "Claudio Imbrenda" <imbrenda@linux.ibm.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-diag204ioctl-v5-1-87a96638d58a@linux.ibm.com>
-References: <20261104-diag204ioctl-v5-1-87a96638d58a@linux.ibm.com>
+In-Reply-To: <20261105153705.208516-2-imbrenda@linux.ibm.com>
+References: <20261105153705.208516-1-imbrenda@linux.ibm.com>
+ <20261105153705.208516-2-imbrenda@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 16:04:26 +0000
+Date: Thu, 05 Nov 2026 16:20:25 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -64,130 +64,138 @@ Precedence: list
 
 Thank you for your contribution! Sashiko AI review found 1 potential issue(=
 s) to consider:
-- [Low] s390/diag204: diag204_allocate_buffer() does not zero buffer as doc=
-umented
+- [High] KVM: s390: _crste_ucas() collides with crste.tok in _crste_hole()
 --
 
-commit 58fe47d5083de8e19767f3f73d70eeda63fea0cc
-Author: Mete Durlu <meted@linux.ibm.com>
+commit a4c739d060e46a8362a876fd2edc730f00fb6503
+Author: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-s390/diag204: Add common diag204 interface with caching
+KVM: s390: Fix UCONTROL inconsistencies
 
-This commit introduces a shared diag204 implementation in
-arch/s390/kernel/diag/diag204.c with a one-second data cache and converts
-hypfs and sthyi to use it.
+This commit updates how mapped-but-unallocated UCONTROL segment entries
+are encoded in union crste so they do not set the tl field to 1 and
+collide with the present bit, and adjusts UCAS walks to ignore holes.
 
-> diff --git a/arch/s390/kernel/diag/diag204.c b/arch/s390/kernel/diag/diag=
-204.c
-> new file mode 100644
-> index 0000000000000..dc4b9df8ba925
-> --- /dev/null
-> +++ b/arch/s390/kernel/diag/diag204.c
-
-[ ... ]
-
-> +static void *__diag204_allocate_buffer(int pages)
+> diff --git a/arch/s390/kvm/gmap/dat.h b/arch/s390/kvm/gmap/dat.h
+> index 90389d47ba4e0..e6215c0b571f9 100644
+> --- a/arch/s390/kvm/gmap/dat.h
+> +++ b/arch/s390/kvm/gmap/dat.h
+> @@ -109,6 +109,8 @@ union pte {
+>  #define _REGION3_FR_MASK	(_REGION3_MASK >> PAGE_SHIFT)
+>  #define _PAGES_PER_SEGMENT	_PAGE_ENTRIES
+>  #define _PAGES_PER_REGION3	(_PAGES_PER_SEGMENT * _CRST_ENTRIES)
+> +#define _UCAS_ENTRY_LENGTH	0
+> +#define _UCAS_ENTRY_OFFSET	3
+> =20
+>  /* Soft dirty, needed as macro for atomic operations on ptes */
+>  #define _PAGE_SD 0x002
+> @@ -421,6 +423,23 @@ static inline union crste _crste_fc0(kvm_pfn_t pfn, =
+int tt)
+>  	return res;
+>  }
+> =20
+> +static inline union crste _crste_ucas(kvm_pfn_t pfn)
 > +{
-> +	return __vmalloc_node(array_size(pages, PAGE_SIZE),
-> +			      PAGE_SIZE, GFP_KERNEL, NUMA_NO_NODE,
-> +			      __builtin_return_address(0));
-> +}
+> +	union crste res =3D { .val =3D PFN_PHYS(pfn) };
 > +
-> +/**
-> + * diag204_allocate_buffer() - Allocate a buffer for diag204
-> + *
-> + * Allocate a zeroed, page aligned vmalloc'ed buffer of diag204_get_buf_=
-size()
-> + * bytes, as required by diag204. The size is determined at initializati=
-on
-> + * of diag204. Must only be called if diag204_is_available() returns tru=
-e.
-> + *
-> + * Context: Can sleep (GFP_KERNEL).
-> + * Return: Pointer to the buffer on success, NULL on failure.
-> + */
-> +void *diag204_allocate_buffer(void)
-> +{
-> +	return __diag204_allocate_buffer(diag204_cache_info.pages);
+> +	res.h.i =3D 1;
+> +	res.h.tt =3D TABLE_TYPE_SEGMENT;
+> +	/*
+> +	 * Segment entries do not have a TF or TL field; reuse those bits to
+> +	 * indicate that this is a special mappped-but-not-allocated UCAS
+> +	 * entry. Setting TL to 0 ensures that the entry will always be
+> +	 * considered not present.
+> +	 */
+> +	res.h.fc0.tl =3D _UCAS_ENTRY_LENGTH;
+> +	res.h.fc0.tf =3D _UCAS_ENTRY_OFFSET;
+> +	return res;
 > +}
 
-[ ... ]
+[Severity: High]
+As reported by Sashiko on v5 [1], does _crste_ucas() collide with
+crste.tok.type and crste.tok.par when checked by _crste_hole(),
+_crste_none(), and dat_entry_walk()?
 
-> +/**
-> + * diag204_store() - Store diag204 data
-> + * @buf:             Diag204 data buffer allocated using
-> + *                   diag204_allocate_buffer() or a page aligned, zeroed=
- buffer
-> + *                   with a size acquired from diag204_get_buf_size().
-> + * @allow_busy:      Allow diag204 to return -EBUSY instead of blocking =
-and
-> + *                   return early when there is a concurrent updater.
-> + *
-> + * Diag204 queries CPU utilization data from the hypervisor. Per CPU
-> + * utilization information is returned either only for the current guest
-> + * or, with authorization for all guests configured.
-> + *
-> + * Context: diag204_store() can sleep and holds diag204_mutex to seriali=
-ze
-> + *          diag204 cache access.
-> + *
-> + * Return:
-> + * * 0 on success
-> + * * -EOPNOTSUPP diag204 is not supported
-> + * * -EINVAL if @buf is NULL
-> + * * -ENOMEM if the temporary buffer could not be allocated
-> + * * -EBUSY if @allow_busy is set and diag204 or a concurrent cache upda=
-te
-> + *    is busy
-> + * * -EINTR if interrupted by a signal
-> + */
-> +int diag204_store(void *buf, bool allow_busy)
-> +{
-> +	int rc;
-> +
-> +	if (!diag204_is_available())
-> +		return -EOPNOTSUPP;
-> +	if (!buf)
-> +		return -EINVAL;
-> +	rc =3D 0;
-> +	if (allow_busy) {
-> +		if (!mutex_trylock(&diag204_mutex))
-> +			return -EBUSY;
-> +	} else {
-> +		if (mutex_lock_killable(&diag204_mutex))
-> +			return -EINTR;
-> +	}
-> +	if (diag204_is_cache_valid())
-> +		goto copy;
-> +	rc =3D diag204_update_cache(allow_busy);
-> +	if (rc)
-> +		goto out;
-> +copy:
-> +	memcpy(buf, diag204_cache_info.buf, diag204_get_buf_size());
-> +out:
-> +	mutex_unlock(&diag204_mutex);
-> +	return rc;
-> +}
+In union crste, tok.type occupies the top 16 bits (val >> 48) and tok.par
+occupies the next 16 bits ((val >> 32) & 0xffff), while h.fc0.tf sits in
+the unnamed 26-bit padding of struct tok and setting h.fc0.tl =3D 0 sets
+tok.pr =3D 0:
 
-[Severity: Low]
-This isn't a bug for current in-tree callers since diag204_update_cache()
-zeroes diag204_cache_info.buf with memset() and diag204_store() overwrites
-the caller buffer via memcpy(), but does diag204_allocate_buffer() actually
-zero the allocated memory as documented?
+arch/s390/kvm/gmap/dat.h:
+	union {
+		struct {
+			unsigned long type :16; /* Token type */
+			unsigned long par  :16; /* Token parameter */
+			unsigned long      :26;
+			unsigned long i    : 1; /* Must be 1 */
+			unsigned long      : 1;
+			unsigned long tt   : 2;
+			unsigned long      : 1;
+			unsigned long pr   : 1; /* Must be 0 */
+		};
 
-In arch/s390/kernel/diag/diag204.c, diag204_allocate_buffer() calls
-__diag204_allocate_buffer(), which invokes __vmalloc_node() with GFP_KERNEL
-and without __GFP_ZERO, returning uninitialized memory despite the
-kernel-doc stating that it allocates a zeroed buffer.
+Because _crste_ucas(pfn) stores PFN_PHYS(pfn) in val, crste.tok.type is
+(PFN_PHYS(pfn) >> 48) & 0xffff and crste.tok.par is
+(PFN_PHYS(pfn) >> 32) & 0xffff.
 
-Similarly, the kernel-doc for diag204_store() states that buf must be a
-page-aligned, zeroed buffer, even though diag204_store() only copies from
-diag204_cache_info.buf into buf via memcpy().
+However, _crste_hole() and _crste_none() do not check crste_is_ucas():
 
-Should __diag204_allocate_buffer() pass GFP_KERNEL | __GFP_ZERO, or should
-the kernel-doc comments on diag204_allocate_buffer() and diag204_store() be
-updated to match the implementation?
+arch/s390/kvm/gmap/dat.h:
+static inline bool _crste_hole(union crste crste)
+{
+	return crste.h.i && !crste.tok.pr && crste.tok.type !=3D _DAT_TOKEN_NONE;
+}
+
+and dat_entry_walk() checks:
+
+arch/s390/kvm/gmap/dat.c:dat_entry_walk() {
+	...
+	if (crste_hole(entry) && !ign_holes)
+		return entry.tok.type =3D=3D _DAT_TOKEN_PIC ? entry.tok.par : -EFAULT;
+	...
+	if (entry.pmd.h.i && !entry.pmd.h.fc) {
+		if (!allocate)
+			return any ? 0 : -ENOENT;
+		rc =3D dat_split_ste(mc, &(*last)->pmd, gfn, asce, uses_skeys);
+}
+
+When a segment is mapped via KVM_S390_UCAS_MAP (kvm_vm_ioctl_ucas_map() ->
+gmap_ucas_map() -> gmap_ucas_map_one()) before the parent segment is
+allocated, gmap_ucas_map_one() installs _crste_ucas(p_gfn) into the child
+vcpu->arch.gmap->asce. If another gmap function then walks
+vcpu->arch.gmap->asce without DAT_WALK_IGN_HOLES:
+
+1. When PFN_PHYS(p_gfn) < (1UL << 48) (i.e. host user address < 256 TiB),
+entry.tok.type is 0 (_DAT_TOKEN_NONE), so crste_hole(entry) returns false
+instead of failing with -EFAULT. If DAT_WALK_ALLOC is set (for example via
+handle_sske() or handle_pfmf() -> dat_cond_set_storage_key(), or via
+dat_set_storage_key() or dat_set_cmma_bits()), dat_entry_walk() calls
+dat_split_ste() on the UCAS entry in vcpu->arch.gmap->asce. That allocates
+a page table in the child gmap (which is leaked on gmap_dispose() because
+GMAP_FLAG_OWNS_PAGETABLES is cleared on UCONTROL child gmaps) with zeroed
+PGSTEs (PTVAL_VMADDR =3D=3D 0), causing subsequent gmap_ucas_translate() ca=
+lls
+to translate the segment to GPA 0 in gmap->parent instead of the mapped
+user_addr.
+
+2. When (PFN_PHYS(p_gfn) >> 48) =3D=3D _DAT_TOKEN_PIC (1) (i.e. 256 TiB <=3D
+user_addr < 512 TiB), crste_hole(entry) is true and dat_entry_walk()
+returns entry.tok.par ((PFN_PHYS(p_gfn) >> 32) & 0xffff) instead of
+-EFAULT. If entry.tok.par is 0, dat_entry_walk() returns 0 with
+*ptepp =3D=3D NULL and *last pointing to the non-leaf UCAS entry, causing
+dat_cond_set_storage_key() and dat_set_storage_key() to spin endlessly at
+if (!crste_leaf(crste)) goto again; while holding
+read_lock(&vcpu->kvm->mmu_lock). If entry.tok.par is non-zero, callers
+such as handle_iske(), handle_rrbe(), handle_pfmf(), and
+vcpu_check_access_key_gpa() treat those address bits as a guest Program
+Interruption Code.
+
+Should _crste_hole(), _crste_none(), and dat_entry_walk() explicitly
+handle crste_is_ucas() so unallocated UCAS entries are always treated as
+non-PIC holes?
+
+[1] https://lore.kernel.org/r/20261029130044.125032-2-imbrenda@linux.ibm.com
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-diag204ioc=
-tl-v5-1-87a96638d58a@linux.ibm.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105153705.2085=
+16-1-imbrenda@linux.ibm.com?part=3D1
