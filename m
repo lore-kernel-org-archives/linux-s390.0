@@ -1,97 +1,68 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.100
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793904041;
-	b=sU2cmBG5JLdV41m/5FxqK0Ajwa6qGCO1nTedNfqxUHrAxnKsNDGE/XpH/L1ubwB+fv1S
-	 3FORtEjjDqR2Z/oxrFBvOyrxoF2WtOmwTcbz6fIwAmhaulNFRV0XDPXrbWWNxrnJ20wVk
-	 OLRM7Zzsc/z3NYfnXU0m5IyFja0KI2icen9G30iBwAXRpuFwC2uqdz6ndh7wpOPGiym+b
-	 U3dakL6bbERWjDnG3JDol3Cjbu4A4DQPw5Iw4+yWCfDoJ+CvrPKOPqDYhhd+PpTtXpBd3
-	 8tWLKCQINIpBvWKvmgW4lMKDOwo51oWGz6Ng+w3ViaC6jbhbQllVw/ke6AeZoU18zrg==
+	t=1793906930;
+	b=dM3Ob315+huGezSffZQusx2JRpZ0VB6D68IQ9usQaoZNTR/pgovcR1R3rxFO0b/3At8n
+	 FFoUIlX12qLHQjOvs+n7fg5qRpIBhK4xtPrCnTxhu6FBvy27vtriDKCPc+/dsu6k5acVr
+	 yPAYA1YlLJg9uRuReDTdFohJekuqLnT9b/m6LK7DRUayZAzoVqwfwo8bhbYq1Upec4BbV
+	 ptwRMdjQiInB8MWQ3oCoIKvYk92UA3hQukMeI3XcyhuQUG4IBuCJRDlljkDgnVqtrpO77
+	 ijtu+m7bZXB8zL1mFNv4Eqf4J3x9ng7Zq1m67HA6rNpNFcBriNa3Y4qs/fuVUsr+xlw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793904041;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
-	 X-Mailer:In-Reply-To:References:MIME-Version:
-	 Content-Transfer-Encoding;
-	bh=BW1nQsutnrZitd0IEzC284qt4pUoWTmeWnhpOQZQ17M=;
-	b=dYjPJfwwWkaM0wju2+ntk68du7uDf4HaJh7sasLUx0sKFeiinYbghCc9bABIR0mQiyU9
-	 IB85DIm/ar2XB4Nb/o6iX/98s/ho+9a/5ovxZt81iS5fQ/TgPajyra0lReMjJyg4Eo+72
-	 uCXsiEIHghD8pU8Q+6Aob+5i5yKC9Sn9RPkL5z+ToWIHPRxZYSOG6yIfmXxfPG9sXdxaj
-	 HCFyE5sFLlET6I9bCLO5BMK0C3DPe8lHlDq8JyebNs586sgZYUiRJXwTxNizZjpAXna51
-	 J97pGIX+z+f73AXGypiW6gosnDxaUnk0d8YvPUwSdYODPK4b/M9GCOpWs7G1ZEO83QQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793906930;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=t5ltLRfeO7A4ze3tr9EcZS3s3I93T55/6iRGXRatBcI=;
+	b=PtXNdly4ke+9IphNrzx4KpktNqAQlX+JMHpCeRgDUPF5C5bC7zpa/9E6L8Dv6Nfm0+y8
+	 tSx5UCZlwvbaCK5qFjhVCCwByClP3Qh3BFrXUrpCCCtpFX7MTTUSxhPzf0s6iG5JGlyTP
+	 qxhzFXH278YH4PU+WDAtvlQ52AxARp5ZgVIASxIWQR+bm5ksAHSchGZNa/P1/QJmePcx1
+	 9gPmxBgXY6kGwo2BSDAhaHqgJ8nYV84j5u1Uc5qiZE2z9001kLKEm6MrcfAbMTSNc6nwT
+	 EXEhMeInHHihMX85IhycQpFWzWtCm3QJn/7TIGN2JFX8g8c8K+D5vCgv2O1RxjIJOeA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.dev;
-	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=xiFtTF+U;
-	arc=none smtp.remote-ip=91.218.175.100
-Received: from mta0.migadu.com (out-100.mta0.migadu.com [91.218.175.100])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=N8czzOm3;
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58CA9606A31B
-	for <linux-s390@vger.kernel.org>; Thu,  5 Nov 2026 18:40:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 58CA9606A31B
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E84E606A33E;
+	Thu,  5 Nov 2026 19:28:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=xiFtTF+U
-X-Envelope-To: linux-s390@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=wz3IjU8MmdepamXobqBOtTMChOSj7PBIYvSm39xyfBE=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1793904038; v=1; x=1794508838;
- b=xiFtTF+Ui1yW1hheZjC/GYAEq7qkv2Pn/Ap+dIotL/UKmFuuwNaxgA3PGhI3gWuvk1j+kRDt
- 7UaK0xTSrhxeGop6VjjFG822+hZlOJmPTT9Jwf+C8kYCgXbyourH4IYuvppWPO35RAeLBzxJTf+
- ZN25/Xwwi/rO8Y9VuKrFZ0w0=
-X-Envelope-To: linux-s390@vger.kernel.org
-Received: by mta11.migadu.com with ESMTPS id 50c412d95539fb94;
-	Thu, 05 Nov 2026 18:40:37 +0000
-X-Mizu-Trace-ID: 50c412d95539fb94
-X-Migadu-Flow: FLOW_OUT
-From: Usama Arif <usama.arif@linux.dev>
-To: Andrew Morton <akpm@linux-foundation.org>,
-	david@kernel.org,
-	chrisl@kernel.org,
-	kasong@tencent.com,
-	ljs@kernel.org,
-	ziy@nvidia.com,
-	linux-mm@kvack.org
-Cc: chenhuacai@kernel.org,
-	ying.huang@linux.alibaba.com,
-	Baoquan He <baoquan.he@linux.dev>,
-	willy@infradead.org,
-	youngjun.park@lge.com,
-	hannes@cmpxchg.org,
-	riel@surriel.com,
-	shakeel.butt@linux.dev,
-	alex@ghiti.fr,
-	kas@kernel.org,
-	baohua@kernel.org,
-	dev.jain@arm.com,
-	baolin.wang@linux.alibaba.com,
-	Nico Pache <nico.pache@linux.dev>,
-	Liam R. Howlett <liam@infradead.org>,
-	ryan.roberts@arm.com,
-	Vlastimil Babka <vbabka@kernel.org>,
-	lance.yang@linux.dev,
-	linux-kernel@vger.kernel.org,
-	nphamcs@gmail.com,
-	shikemeng@huaweicloud.com,
-	yosry@kernel.org,
-	qi.zheng@linux.dev,
-	luizcap@redhat.com,
-	kernel-team@meta.com,
-	Usama Arif <usama.arif@linux.dev>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	linux-s390@vger.kernel.org
-Subject: [PATCH v9 06/32] s390: mm: add PMD swap-exclusive helpers
-Date: Thu,  5 Nov 2026 10:38:50 -0800
-Message-ID: <20261105183940.2236717-7-usama.arif@linux.dev>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20261105183940.2236717-1-usama.arif@linux.dev>
-References: <20261105183940.2236717-1-usama.arif@linux.dev>
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=N8czzOm3
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17F791F00919;
+	Thu,  5 Nov 2026 19:28:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793906929;
+	bh=t5ltLRfeO7A4ze3tr9EcZS3s3I93T55/6iRGXRatBcI=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=N8czzOm3uss/Nev41wWI2HCgtA/JJ30J5ZI/5HvqHyryejYB/vPH/hBylXVkVGrv6
+	 OielTQZZJsAgzXMX0XY5+ywbGo0mmqbyFRwY2koxZomesAs/TJ9/gk+vP/71ryRjrz
+	 T4vkNotZqPxmBNAvJ14HURgj7iVi6JGCZi7FoFu5UsPJYhvBEXafmV8KZulQt0TLUa
+	 bnhBhsrybsI04J6qaEoTmohzhtxxwuJRWFtL3gmSrI+vhB1bjBR5l4UtjzfZC6c0lO
+	 DCD02LTUhjPPRIlhUjpD4vyOQAhRmKBCDZpyL6ta2I03KLDunRpmQHSavStcgYROjy
+	 RlifknHgKJUtA==
+Message-ID: <sashiko-outbox-199864@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH RESEND v2 01/51] alloc_tag: don't remove /proc/allocinfo
+ under the codetag module lock
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Christian Brauner" <brauner@kernel.org>
+Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
+ Bacik" <josef@toxicpanda.com>, "Chris Mason" <mason@kernel.org>, "Jeff
+ Layton" <jlayton@kernel.org>, NeilBrown <neil@brown.name>, "Eric Dumazet" <edumazet@kernel.org>, "Thomas
+ Gleixner" <tglx@kernel.org>, "Al Viro" <viro@zeniv.linux.org.uk>, "Jonathan
+ Corbet" <corbet@lwn.net>, "Christoph Hellwig" <hch@lst.de>, "Greg
+ Kroah-Hartman" <gregkh@suse.de>, "Joel Granados" <joel.granados@kernel.org>, "Kees
+ Cook" <kees@kernel.org>, "Jan Kara" <jack@suse.cz>, "Jan Kara" <jack@suse.com>, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, coreteam@netfilter.org, kexec@lists.infradead.org, linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-usb@vger.kernel.org, samba-technical@lists.samba.org, sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-serial@vger.kernel.org, "Takashi
+ Iwai" <tiwai@suse.de>, linux-input@vger.kernel.org, linux-raid@vger.kernel.org, linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, "Chuck
+ Lever" <cel@kernel.org>, tytso@mit.edu, dmitry.torokhov@gmail.com, "Petr
+ Pavlu" <petr.pavlu@suse.com>, "Anna Schumaker" <anna@kernel.org>, yukuai@fygo.io, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261104-work-procfs-bugfixes-v2-1-021c84d852e0@kernel.org>
+References: <20261104-work-procfs-bugfixes-v2-0-021c84d852e0@kernel.org>
+ <20261104-work-procfs-bugfixes-v2-1-021c84d852e0@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 05 Nov 2026 19:28:47 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -100,81 +71,68 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Prepare for keeping a PMD-mapped anonymous THP mapped by a PMD across the
-swap round-trip, which makes PG_anon_exclusive have to survive in a swap
-PMD and not just in a swap PTE.
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] alloc_tag: unused function shutdown_mem_profiling_async() when !CON=
+FIG_MODULES
+--
 
-s390 is the one architecture where a swap PMD is not a swap PTE in
-disguise: it is an RSTE with its own layout, converted to a fake PTE swap
-entry for the common code. Give it its own exclusive bit rather than
-borrowing the PTE-format macro, and document it in the RSTE swap layout,
-where bit 52 was listed as unused.
+commit ec0095b3ecdd2d01651f48bc80cc81d976e06106
+Author: Christian Brauner <brauner@kernel.org>
 
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Usama Arif <usama.arif@linux.dev>
----
- arch/s390/include/asm/pgtable.h | 20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+alloc_tag: don't remove /proc/allocinfo under the codetag module lock
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 2d5c2ab06de98..2c6b5205ee3bc 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -333,6 +333,7 @@ void setup_protection_map(void);
- /* Common bits in region and segment table entries, for swap entries */
- #define _RST_ENTRY_COMM		0x0010	/* Common-Region/Segment, marks swap entry */
- #define _RST_ENTRY_INVALID	0x0020	/* invalid region/segment table entry */
-+#define _RST_ENTRY_SWP_EXCLUSIVE 0x0800	/* SW exclusive swap bit, see mk_swap_rste() */
- 
- #define _CRST_ENTRIES	2048	/* number of region/segment table entries */
- #define _PAGE_ENTRIES	256	/* number of page table entries	*/
-@@ -893,6 +894,21 @@ static inline pmd_t pmd_clear_soft_dirty(pmd_t pmd)
- }
- 
- #ifdef CONFIG_ARCH_HAS_PMD_SOFTLEAVES
-+static inline bool pmd_swp_exclusive(pmd_t pmd)
-+{
-+	return pmd_val(pmd) & _RST_ENTRY_SWP_EXCLUSIVE;
-+}
-+
-+static inline pmd_t pmd_swp_mkexclusive(pmd_t pmd)
-+{
-+	return set_pmd_bit(pmd, __pgprot(_RST_ENTRY_SWP_EXCLUSIVE));
-+}
-+
-+static inline pmd_t pmd_swp_clear_exclusive(pmd_t pmd)
-+{
-+	return clear_pmd_bit(pmd, __pgprot(_RST_ENTRY_SWP_EXCLUSIVE));
-+}
-+
- #define pmd_swp_soft_dirty(pmd)		pmd_soft_dirty(pmd)
- #define pmd_swp_mksoft_dirty(pmd)	pmd_mksoft_dirty(pmd)
- #define pmd_swp_clear_soft_dirty(pmd)	pmd_clear_soft_dirty(pmd)
-@@ -1900,15 +1916,15 @@ static inline swp_entry_t __swp_entry(unsigned long type, unsigned long offset)
-  * Bits 59 and 63 are used to indicate the swap entry. Bit 58 marks the rste
-  * as invalid.
-  * A swap entry is indicated by bit pattern (rste & 0x011) == 0x010
-- * |			  offset			|Xtype |11TT|S0|
-+ * |			  offset			|Etype |11TT|S0|
-  * |0000000000111111111122222222223333333333444444444455|555555|5566|66|
-  * |0123456789012345678901234567890123456789012345678901|234567|8901|23|
-  *
-  * Bits 0-51 store the offset.
-+ * Bit 52 (E) is used to remember PG_anon_exclusive (_RST_ENTRY_SWP_EXCLUSIVE).
-  * Bits 53-57 store the type.
-  * Bit 62 (S) is used for softdirty tracking.
-  * Bits 60-61 (TT) indicate the table type: 0x01 for REGION3 and 0x00 for SEGMENT.
-- * Bit 52 (X) is unused.
-  */
- 
- #define __SWP_OFFSET_MASK_RSTE	((1UL << 52) - 1)
--- 
-2.53.0-Meta
+This commit defers removing /proc/allocinfo to a work item when
+reserve_module_tags() fails, avoiding a deadlock between remove_proc_entry()
+waiting on active procfs readers and allocinfo_start() waiting on the codet=
+ag
+module lock.
 
+> diff --git a/mm/alloc_tag.c b/mm/alloc_tag.c
+> index 82e2c3448dcf2..7d7ad67049537 100644
+> --- a/mm/alloc_tag.c
+> +++ b/mm/alloc_tag.c
+
+[ ... ]
+
+> @@ -604,6 +605,26 @@ static void shutdown_mem_profiling(bool remove_file)
+>  	mem_profiling_support =3D false;
+>  }
+> =20
+> +static void remove_allocinfo_file(struct work_struct *work)
+> +{
+> +	remove_proc_entry(ALLOCINFO_FILE_NAME, NULL);
+> +}
+> +static DECLARE_WORK(remove_allocinfo_work, remove_allocinfo_file);
+> +
+> +/*
+> + * A module's tags are reserved with the codetag module lock held for
+> + * writing, and a reader of /proc/allocinfo takes that lock with the ent=
+ry
+> + * pinned. Removing the entry there would wait for that reader for good,=
+ so
+> + * let a work item do it.
+> + */
+> +static void shutdown_mem_profiling_async(void)
+> +{
+> +	if (!mem_profiling_support)
+> +		return;
+> +	shutdown_mem_profiling(false);
+> +	schedule_work(&remove_allocinfo_work);
+> +}
+
+[Severity: Low]
+All callers of shutdown_mem_profiling_async() are in reserve_module_tags(),
+which is inside the #ifdef CONFIG_MODULES block further down in
+mm/alloc_tag.c.
+
+When building with CONFIG_MEM_ALLOC_PROFILING=3Dy and CONFIG_MODULES=3Dn, w=
+ill
+defining remove_allocinfo_file(), remove_allocinfo_work, and
+shutdown_mem_profiling_async() outside #ifdef CONFIG_MODULES trigger an
+unused-function compiler warning?
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
+s-bugfixes-v2-0-021c84d852e0@kernel.org?part=3D1
