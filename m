@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793906943;
-	b=xwQrzQ0YUeiM8vPWfSIR1D6kFusW/lyCtDBndCMQ8ENf5gxPrdJp1Vm/BBYi5H9qLrgG
-	 TS05aehYbJYc376uwmMpYEXUNLMGb3xrxRwmXcIuQV5X1xrKqZATvQbJ0zKB1Qt3ByTPc
-	 7a8/T5dlNFDsYjoLzgkCIDwNU+UNVk6Vd6zZpC/5BZpPsntaZ1wbNiFrvLeCBwXd5I+E0
-	 x1LlwmcUVJacYTzTlAJnfyf7d9fayHrIujC8XiVgDbTJCKyu7dCV4M0/2TRDtup/9wvSl
-	 oNOzH7YiW0DfEaqoqOIMECDL5cwHmEQkroR7YdThmtz64czeMDeqztd/9ayAV80urFA==
+	t=1793906944;
+	b=Clp4KRKiQ8MDiDyOXR1gSROg+qgHexDCLoS928D66H/Wf0Ch547EVy7L+l51tolNLO6p
+	 1AEmqQm4mnvRfWONdg0+lZGEegXSidKQ5a+b8Y9QliOjPkAh8nKcZxyH+xZ//c5EirQSZ
+	 hgI+hLWHFJhzO8OStVSM0EXeDdEiEvruO5zCxFVbu4AzuN1ABaRVvOubl3RvcfbBIytiI
+	 BfJlwQPfBGEHJb0JQxi3c0wJWcCQ4SzEQuW6X76rym4gsKUHUZk5Rgbs1QWxHRolmsePY
+	 1cKQi7r/bq80nCs/LSSv6hScCfc/E9qEAHpkAgA7XAhm8NZwiV072Pw1XHdLLWX5REw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793906943;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793906944;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=RPopwINq+xMgMWtXglTyha+UOv+CcUS7lcSD7KMhNFg=;
-	b=SpOxT6izbrBwzNrQHarmZN/+fHgRMG+NfIVSf0B+k4ntRk4rxklxUi4rGYzGrdNGaOkZ
-	 9x7f2LZ/rGXUqsAyQ9IWlwdhpCL/QsAyuKl4Z+SapU8Q1JBVTvP3kyE6jiXSEDxTQCQ+t
-	 NLgCH49V55krvjuDe4QGKqNFUHRxHtrskvCEG3tLHdoj9GmAwARKIHE6h+BpsbFMr6pf3
-	 rtPlkxHDyHg6wHXdgvnwarFjbd61/mQfKen0rD+Jhb2PyMIrQFoZ8vR3qyZvTksjD3GWC
-	 LIW1V0zgw6sgRSZr9ABX9kCmFCrlQQC6FB9jzVsaj9kPcSvk6CQSMhC2aCiIM/EBvjQ==
+	bh=r1ycZKD70M2O9nWABnZxAo0Y7x59PNQr/eG96uelaDQ=;
+	b=OXPo3IrIjDjerZm9VBZRpviD2V8FYn0l3DKVi4AfpU/JZ3ZHlSPsfQXkeF4lhEAd+jZh
+	 3jNw3VoMCov4SCvVKK9fgCoSuDI0aFUPJ+b1D20RGQ+JGyZ+llOqfdDBpB7oSolglsBDi
+	 M2PEJIB7hvTywj2InIR0SPNPQHvv6nycMY2AAChmc6LI+8/XbHX686KJrmQHyrDQju216
+	 9K/ZJ8mnV/vCkkTrA1FoOcQbaDDwI7oPxGfv1OHAqdYpYFDxkfgpVW/jLk7B/v0JrFzWX
+	 RfDt19BqaEkkEqbjZTnHopO2aoas2tKFrec3q/UPnNEqVe8PjxJrYXriR7VH3o1y+Gg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MRlIi4Su;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=necGus7b;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C53BE606A332;
-	Thu,  5 Nov 2026 19:29:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85412606A334;
+	Thu,  5 Nov 2026 19:29:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MRlIi4Su
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEB1C1F00A18;
-	Thu,  5 Nov 2026 19:29:00 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=necGus7b
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA70D1F00919;
+	Thu,  5 Nov 2026 19:29:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793906942;
-	bh=RPopwINq+xMgMWtXglTyha+UOv+CcUS7lcSD7KMhNFg=;
+	s=k20260515; t=1793906944;
+	bh=r1ycZKD70M2O9nWABnZxAo0Y7x59PNQr/eG96uelaDQ=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=MRlIi4SuEm+9lYf675R0mxP3GdNLM2xUEtY8ZG2WMxPIoEfeSqyBFYM2gtCBsBs3m
-	 WLw30oAHvmuPRU77FU8jeUvz4+Ind8Zmzv1Ekyjvc/tn8qGqLccX6vUQqQSX7hq1/k
-	 Y8Bgfu+NLVYMkBEN9Y8HxMzqgT+miO99k+v6W3uJKkYJtPSLid+kFxUhwkrKegwdQq
-	 aec8VpuFnlT1J+sjdVpGBEgq/WGixqqQvkO/tslmViTsizxwSIjmrkO988XX0OlAJW
-	 1qP4k5WxxEbBvXF8Yd4+nLhk3lLXIWrGZE5yrlrRH0hPB/6I0M1oCh0q2rmSXP6Ekk
-	 kU0ykjAB0e/9w==
-Message-ID: <sashiko-outbox-199870@kernel.org>
+	b=necGus7bPU63UQk4B7+jV3XV3fUR+Vt0nlBwWy50VqFwECBf1aibdVwEQjnZEn+Ny
+	 Nk1eietSenvm5xqR/gzPNGNzZbvkkvnODaOzH7V35V/oaIZYKDA69EZlf4qtIWl0+y
+	 CLJx1JYEb1VEmZX7/x/KIzKFm4AvmAQYSTJwVI3oNBp4hYilo3LyLI/24/DmSHB0xR
+	 KeFmM+pyBdtCJHSurwLaWys6yP1tn08WuWeskCI8YOyZaldAhv0TS5sXvEaDm8Qah0
+	 JT7nN2+bgKA94sYD+FKbGDigc0ESaJpkTtOL2xP5JtOlGB9U35VVcN7RlPkTRv1UsF
+	 KJpyB6HzUFV7w==
+Message-ID: <sashiko-outbox-199871@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 07/51] lockd: don't hand out the terminator of
- nlm_end_grace
+Subject: Re: [PATCH RESEND v2 08/51] powerpc/pseries/lparcfg: don't drop the
+ last byte of a write
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -55,12 +55,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-bugfixes-v2-7-021c84d852e0@kernel.org>
+In-Reply-To: <20261104-work-procfs-bugfixes-v2-8-021c84d852e0@kernel.org>
 References: <20261104-work-procfs-bugfixes-v2-0-021c84d852e0@kernel.org>
- <20261104-work-procfs-bugfixes-v2-7-021c84d852e0@kernel.org>
+ <20261104-work-procfs-bugfixes-v2-8-021c84d852e0@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:29:00 +0000
+Date: Thu, 05 Nov 2026 19:29:02 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -70,16 +70,19 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> nlm_end_grace_read() answers with "Y\n" or "N\n" from a three byte
-> buffer and hands out all three bytes, the terminating NUL included.
-> Leave the NUL out.
+> lparcfg_write() terminates its copy of the write by overwriting the
+> last byte, so a write without a trailing newline loses its last
+> character: "partition_entitled_capacity=3D5" is parsed as an empty value
+> and fails with -EINVAL. Terminate behind the copy instead, and refuse a
+> write that fills the whole buffer, which can't be terminated.
 >=20
-> Fixes: d68e3c4aa416 ("lockd: add a /proc/fs/lockd/nlm_end_grace file")
+> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> Cc: stable@vger.kernel.org
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-bugfixes-v2-0-021c84d852e0@kernel.org?part=3D7
+s-bugfixes-v2-0-021c84d852e0@kernel.org?part=3D8
 
