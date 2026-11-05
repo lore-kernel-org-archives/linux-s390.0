@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793907338;
-	b=Rug1S/bZJjDRoqMgSUMKB2H2ckeGf4tzFEu9SB+q3SeJp/qAAGKes45k4eqxqCKK16i6
-	 wf8lwycd99D5EKi3cr5TggJX3mWQ0VDrYE7+LjL0R5k4Z4hzCtfE925mxi2yzWJLq6Kyk
-	 nqPPBW1MzijUscgRAKXJWGzHa+MMNbnlpqjK9yk2Qrsn5H31h0A9WspDusEE32DRr1f4+
-	 RcgUII+vfN0O1B0m0L0G9Mrm08f7ooQygIgkdjdyLMq7Bl6QRQV0WW3jdWUNRXy3RLnqg
-	 ERsuBRS7kpV5Fl8/aA4EJJgtEC0Z3+wpBDPoDb/mmdgOn7jtBI2URq2epVMrWuqh39A==
+	t=1793907346;
+	b=tZEZ3dbkxFdvFTg5EshxD9gM8FJvkwb103UAhcktghDF5li3ijwTtrN4QA6dce0PBAns
+	 NksB78BFv3W4uGG2JjtE9yM7wU+IUb3pY+g1uc3N2ElriaejSsl0reg8IXQaCce6T/vov
+	 mUUDMYUj+rzmH0ZFAqE5/GBKgFVcysWdHqx95jXQ5uH2s+uzCHGK/4wJa/Vk8Rd8mmHPM
+	 ECh7f9DoSD8Py5xAseQ7/0LHtysjzw6ivM56qRCzcQp6PNwQL/4Dvm3nIeNHxPSmP8PIU
+	 gDECVZjrTahdKjAGshZgRNc5uXtxxSdyaRNznnoXvIAmJ/G6Bc8pfPXPltHkjrfEy7A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793907338;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793907346;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=1DrTL1ac6XN1wKtHpceRQArmb2bB9IIZ8TJ6poNHDCM=;
-	b=dxGPqZHbQqKIZ2fLEcaKWKeQyL59a/yZlpQXT/PpPyk2dAXLbWtyAJBihDePZYkQlN2j
-	 8S8sKLhogcT73KDcdzTWYQO/ikjAWUeFFoNDYVVoLRYf/1KT6yUJaiiiIh7fRgzKfn5la
-	 wqpSSPfV1zq3uWZ3hLaQl5+ATDBQlX8PLGoj129qTjhfgl3AIzhItT6FhhIEziJmaowrF
-	 yGaQn3aH/aHh7XYIOEzjCAMl6Jiv6M1VSWwKJvOAxA8+o2fkKXv6uBs/Q5tH1PZnj62FJ
-	 mBLG8s4/zd4ZW6rfFuCpD1MXSBIiZNAMI/qBV4WZXnYiO6SZSYMAiQx7yrePsfJ5dMQ==
+	bh=gJEjJHr+63DkRgcn2DucJbOp2pD2WNeYTaMSKLiQVEU=;
+	b=vy6EEKpUOhwpn2107sMtT9ndgO4xOj2giOz8ctiQ3UIqFi6nH5QMdPlFoj7JYGFBS4Xh
+	 dDB9eIVDU/1T5ovo//TcEXdEWx3H/2Tq7xZVTxViMwRtwZwsOSkayQXezifxJfvuVSzGE
+	 J9u56WVNWeLpMquwmmKVPdRQhA6b3MhcA2TX84QACy+leyRsRcjW/VlqIK+RbS3XYZfqM
+	 KnI45T4Fx5zmlulzX2wFqiw5IsdDHNzj2LuEve50ZW9rWLL9ES6Kt6qVRHyORmWL1uuwA
+	 whZMhD6QudPXEzmeD28SDhgqO/sa4O/wIfjPW717aHu3fvq8Ge7pCsnoYspenqicN7A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HfWNy4Y5;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lowCxpM8;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC03B60A2609;
-	Thu,  5 Nov 2026 19:35:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7D98607955C;
+	Thu,  5 Nov 2026 19:35:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=HfWNy4Y5
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1946E1F0089E;
-	Thu,  5 Nov 2026 19:35:36 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=lowCxpM8
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30A151F008A3;
+	Thu,  5 Nov 2026 19:35:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793907337;
-	bh=1DrTL1ac6XN1wKtHpceRQArmb2bB9IIZ8TJ6poNHDCM=;
+	s=k20260515; t=1793907345;
+	bh=gJEjJHr+63DkRgcn2DucJbOp2pD2WNeYTaMSKLiQVEU=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=HfWNy4Y5RPfNBoKBQHLyyjYyTxbbnjJDdOqRHr0CwmBLc51x1jcm75ZAAgEad1VZu
-	 tS6QZvZfn8sUpNi6mOF5f5DFfUZLIhS4vvvi+iGswUv6KjXZx0o+EpcIZvbbxZe+4c
-	 w+eyoQ8QFIDLRMjiWYtJN8zfopCPPudrCbntig5HUXMXa/Rmrt2bn8OYImFZC4VNa2
-	 R+83Zs+Eu4feiqusBCRRhe6e1B6nEi14J/AHyHRRYVVXAOiMjE6L8AhoiK91X8uzKE
-	 CLf8tyLGMi9vrUilCTGfT/2QMby2aoyrPQEHnvKWwCxXAzjQDLba28dyRTo132ATHY
-	 jJoKKmYLJAz8A==
-Message-ID: <sashiko-outbox-199941@kernel.org>
+	b=lowCxpM80XbQiSSCcFv25ROY9iPwr8AIjymBRSEeCKy3QRBb1FptmRHlNq0Wjq1/k
+	 K8/iyufGkzQLPaSJrtMq7r0Q59oLYpv7F1FIe+/GUzbkWybOWjrwtgx6MUmauz5Wt4
+	 oV10UyRGTXNAt7W7iafOiQPj3dtAFzUh5XC4pmHZNFWGPa3YcQCFuCi93JRRZ+uDtH
+	 jVMDhvp+8GKhMC9jEJ2uzOHXpPQBE2ukBHORlZ+DaGIimf+CjVuQPWP5HCJVMkLor/
+	 vhFuj9C4hZBYSNwdm7GtQwF9416SSchhrxNZmyQgRKmmww+fsBfmslktFGiW+AZaab
+	 bv76fZfTqneZQ==
+Message-ID: <sashiko-outbox-199945@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 11/23] selftests/proc: check that a faulting
- reader doesn't hold up removal
+Subject: Re: [PATCH RESEND v2 15/23] proc: copy in writes to the network
+ namespace entries before pinning
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -55,12 +55,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-core-v2-11-76ace653a773@kernel.org>
+In-Reply-To: <20261104-work-procfs-core-v2-15-76ace653a773@kernel.org>
 References: <20261104-work-procfs-core-v2-0-76ace653a773@kernel.org>
- <20261104-work-procfs-core-v2-11-76ace653a773@kernel.org>
+ <20261104-work-procfs-core-v2-15-76ace653a773@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:35:35 +0000
+Date: Thu, 05 Nov 2026 19:35:43 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -70,18 +70,15 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Read /proc/net/dev_snmp6/<dev> of a tun device into a buffer whose first
-> page is backed by userfaultfd and remove the device while the reader
-> sleeps in its copy to userspace:
+> proc_simple_write() already hands ->write() a kernel copy of what was
+> written but makes that copy with the entry pinned. Let procfs make it
+> before it pins the entry instead. That covers everything created with
+> proc_create_net_data_write() and proc_create_net_single_write(), the
+> afs files and the rxrpc stats.
 >=20
-> - removing the entry doesn't wait for the reader
->=20
-> - the reader still gets what was printed before the removal
->=20
-> - and the next read fails with -EIO
->=20
-> The entry is removed under RTNL, so a regression stalls the test for
-> five seconds before it fails.
+> So a write to a proc_create_net_single() file without ->write() can
+> fail with -EINVAL or -EFAULT now before proc_simple_write() gets to
+> refuse it with -EACCES.
 >=20
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
@@ -89,5 +86,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-core-v2-0-76ace653a773@kernel.org?part=3D11
+s-core-v2-0-76ace653a773@kernel.org?part=3D15
 
