@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793906960;
-	b=gjYxXONgTw7qGu68/19Z6xmQQjovw6uKUfJEh7BhtibR2Ok6sXgHD/hZBay+tSe+Q/8s
-	 dwUawyXJYUpykn7yXWJQgeboMYPzfcuH8hO4RPqbUSDYoxmd+N2ys1iq+3s31gHTJnq0B
-	 3W2W+/FLT3L+pBuSLC/9A/mWs8Z8VV+p9YnLUcFSP+NAGzGFyf0SFW4r600xrelyBO/Hi
-	 fhzlwwaAEItHjP3Yapp6Hx2vLYBt2OTMHwj6kU+fA8L0mxAfaAfXO2s8ZX8zVMhn+h9bi
-	 zVbiP+qFEJQ6MLAICrYPFjbEgueN8zMtzmoXDOGtm66sAuh6jqzcbIWDsDPlz4PIeLA==
+	t=1793906958;
+	b=QsR+DTdFbLRd1WTqkuZ4+XIcyMH/dR26OBcSlRcIRHe+Uq8dcVXtidOy1uihpFJezrcd
+	 exaQ7vm8a+ggh4Ym4u9DPEzsCizHtojlvqZ5NqilwN0OzM3Ujfu1K2a4ZtJAHGc1ooi6C
+	 kl0jqQIJWE2O7xfBW355qNB9PY5mNuM4DHg7Pa07jhtsMkSDWnHTnrfITZ/CMmYq+vIaV
+	 Asvp3hqskB3UAYIrOhoGr7/Xbe31LwsYsUvZqzLOEyvV20GjQY1RMCUJZRxmLm1t4dCS+
+	 Cp0OewQd0vjAogBL52R0oZofQNhONMItdss16yfzIoiJjcnTtjyHy4np9Gn1Hxi69rw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793906960;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793906958;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=Qw513NKzixnVetQs2aPch799inLwFwvqjGlTZsHFgHc=;
-	b=JF7A80URZJsZxlv9VeG7Uhz532Ydulkk0bZZxjcFowAIy2ifVW5j0SpMh3tO0eZPfK6Y
-	 lIoHbRqmBsQ3q41yn3EPbELK/1FhdE9W1kOdmi98P1GBxrz2rj9iWBKlnv7PPhweYkdrz
-	 tZd8DJh98nsc7YFk5HU/mQdD691bQGZlwlb74E0BQHQFwKbpToF0h1aylFmslTO/o+7XY
-	 d4JTv5SAiGLjCBYEzgEvYOSLFn4tBGFnwFOJy/RgWqMTNaGZitTOX1INC0WOLdc0w70Oc
-	 qMxMv3habGhWfICaVsKyA93S/N/P3ZWJrLtyRbyvL3sOq9cvjmVpTINFT9QtZYJ6GkQ==
+	bh=2jOjP+w+HiO6pPFlf+UtXLVpbUo8fVoVCMG/gzgxPSY=;
+	b=ws5sFPOJy4jx5iNbCvJIHK32hAE/GTgH1eLx2Ni4DsH/mWEvDxfwi3Xzx6zrxBBUsFKt
+	 kN8AiB5WDHyfZbik3CE2864bHinJpOk7bzVnwCBjxiUJRSee407sUgALUHmlh1z7rd6dz
+	 OggYErAssf43Ans+1YksaJY/gFl6UCKn1I9GAM5+3R0NcIZxFY1UW2BRjBin1bv6zw+UO
+	 bd1/+2gTU1q/w2Z4Wxk5uoP3/CQYVP51IKCmJ4xTGNcZ/H7iSNj4GtQErdddzEmPbDZ8A
+	 teyt2pMptZnN//ENHnPHuaXXcFx/PtXAC9JIe0I5WmDHxj4fxmrMEu6XzcP62RXvk/w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WP5zysBl;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="dlMl9M/r";
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 910BB606D83D;
-	Thu,  5 Nov 2026 19:29:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=WP5zysBl
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF3F21F000C1;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E485606D80F;
 	Thu,  5 Nov 2026 19:29:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=dlMl9M/r
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1D611F00919;
+	Thu,  5 Nov 2026 19:29:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793906960;
-	bh=Qw513NKzixnVetQs2aPch799inLwFwvqjGlTZsHFgHc=;
+	s=k20260515; t=1793906958;
+	bh=2jOjP+w+HiO6pPFlf+UtXLVpbUo8fVoVCMG/gzgxPSY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=WP5zysBlV6QoE+ebdO994NPOQCHtVK69BSl7GA0TkgCejzw4yv+Qi/dIb/BiTtwJI
-	 CtwiPcppWeOxu8qxGDLb2NNs4muOnWOkbdTfgMZetnT6EYIraiEzVZgwrSfKYuy20p
-	 lq1YQ+ODYgN/fNYKxtV+Y3MBG2phtgSlbN/PnX4DhhLfO11dC92+odtKZZNAdRC5BY
-	 cOK2uw6yB5xGSlQ2pqLEJNTrF9NrssiHaYNsRIIVDX79TmltA0T6xLv6ahSmhYnicd
-	 7xH40xuqXjCm2XXdHJHYyElfh7nUle5CnSYYX4imcJF/N71eKI1RK/06V3FFapNV/j
-	 F1VfvpFqH1/NA==
-Message-ID: <sashiko-outbox-199878@kernel.org>
+	b=dlMl9M/rPNxEZu6+Ri3OXa9FPI28S+nKPOVBymLRvAUIbEdACYesn7GaasG71a1si
+	 Jkdk1nguj1FW0I6rEhmRyL6rCf6iGgz0RsNmgA2Aax7T6dfl/bLd0reMK3dxl47No2
+	 cZOPksbLnHyzXhnv8X6aqtgNCaUxaH8zvMCcgysEle4NYPvSVucRgboVQsljfhslI1
+	 t38Nm+rBEGJUAgtRVOrBLiUgvSsBb85o5UOO6lhjVE/GMpZGzwjSdxGKJTR11kjWCO
+	 BXN98+TIo2Yx9dB8Tl/s4rDba6W5uK4F2hW8KmNF5r4lJJBlBYlOLW1lUh+7tDsUMj
+	 MzavIifWHwTQQ==
+Message-ID: <sashiko-outbox-199877@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 15/51] PCI/proc: don't truncate the position
- of config space accesses
+Subject: Re: [PATCH RESEND v2 14/51] proc: sysctl: don't stop readdir at an
+ entry that is being unregistered
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -55,12 +55,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-bugfixes-v2-15-021c84d852e0@kernel.org>
+In-Reply-To: <20261104-work-procfs-bugfixes-v2-14-021c84d852e0@kernel.org>
 References: <20261104-work-procfs-bugfixes-v2-0-021c84d852e0@kernel.org>
- <20261104-work-procfs-bugfixes-v2-15-021c84d852e0@kernel.org>
+ <20261104-work-procfs-bugfixes-v2-14-021c84d852e0@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:29:18 +0000
+Date: Thu, 05 Nov 2026 19:29:16 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -70,24 +70,25 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> proc_bus_pci_write() truncates the file position to an int. A pwrite()
-> at an offset like 0xfffff000 turns it negative, the check against the
-> size of the config space passes and the count it clamps to ends up
-> larger than what was written. The loop then reads past the end of the
-> caller's buffer and writes all of it into config space at negative
-> offsets, which pci_user_write_config_*() pass on to the config
-> accessors unchecked. The write also returns more than it was asked to
-> write.
+> proc_sys_fill_cache() creates the inode of an entry that has no dentry
+> yet. Since ace0c791e6c3 ("proc/sysctl: Don't grab i_lock under
+> sysctl_lock.") proc_sys_make_inode() refuses to do that once the table
+> is being unregistered and fails with -ENOENT. readdir takes every table
+> it lists into use and unregister_sysctl_table() marks the table as
+> being unregistered before it waits for readdir to let go of it. So an
+> entry that is unregistered right then makes proc_sys_fill_cache() fail,
+> proc_sys_readdir() stops there and returns 0. If that getdents64() call
+> hadn't emitted anything before that entry userspace sees the end of the
+> directory and never gets the entries behind it. A listing of
+> /proc/sys/net/ipv6/conf can end early that way while a device goes
+> away.
 >=20
-> An offset above 4G that truncates to a small positive value writes to
-> the start of config space instead. proc_bus_pci_read() keeps the
-> position in an unsigned int, so a read at such an offset returns the
-> start of config space instead of hitting EOF.
+> So skip an entry whose table is being unregistered, like readdir
+> already skips a link it can't follow. Lookup treats such an entry as
+> gone too since ea5751ccd665 ("proc/sysctl: don't return ENOMEM on
+> lookup when a table is unregistering").
 >=20
-> Check the position against the size of the config space before
-> narrowing it.
->=20
-> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> Fixes: ace0c791e6c3 ("proc/sysctl: Don't grab i_lock under sysctl_lock.")
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
@@ -95,5 +96,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-bugfixes-v2-0-021c84d852e0@kernel.org?part=3D15
+s-bugfixes-v2-0-021c84d852e0@kernel.org?part=3D14
 
