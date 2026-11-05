@@ -1,54 +1,111 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.199
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.216.53
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793844847;
-	b=h2H3ZHhT60ko2NJPqtn8VZ1tnsdGhoM3cX4WbQbn1B/F5Nb3Aej+iHL//tgBt+rlUCBg
-	 BGzFJ+BOeDJK7zxgzRLGqnrbDzMAYIOdCxHj+T8WYDeAoEyw1cAAPnWwDSoCMXa0lbdQM
-	 QfN2GlAejx/MmjrgupDvlAzAhjiRbP4Y8Y8tdlrUcq/rsWHdJsgwHKaK2U0NU3K6l51MT
-	 Pp9mJ1zZjnjEh3W61grjj8nSp18XQYVygmks1p0Ox/Uc+U6Xo4SaEnGly0SqEjbRS792a
-	 BbHR0E7M1EkISZDZafWtkcHLDJDuXnzQb8Blw/JsVgCe/3NkakWlhMmQZPjm8bQtMZg==
+	t=1793859155;
+	b=nbjvs1eUYHIHxiRwXghRz/Xh+xlSp+7OT6QYo80vhpqEGqonr/tz3T933Dg6UzJnCwEs
+	 AjgxpLe+0BX4/8actlwsn4UkpATAcu6LaGnVPaFvaWAN9+c8qpNa4Ugh8qLPnQjVbXubn
+	 UCuR5rr6KXadYf29bcoRc4lcyXkM0CtiiM2Db/HJUmrAqtsuVzEaJH5UPHaRxZ0IHOkLp
+	 uI01CdfnHR7Ep2hJX2Gl6YE72Y9oam0zrU4NFNMX0Ef0GubqDx2PAdFrFQUI5gaPNTPcm
+	 OTsAFBgpaje9xGzkRtE5NbWIQUttS+ANH2BPxkKrxYvO0mn29bjzIfLRXwG0WZMldtA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793844847;
-	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
-	 X-Mizu-Trace-ID:X-Migadu-Flow:Message-ID:Date:MIME-Version:User-Agent:
-	 Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=tXeq94tKXH8bHOz1amsH5XRU51n2PYOOTkgxfF1PjyI=;
-	b=VpiWUHRMY/bGfrpNTsE8ATRcohYNHy1xrTRh+bJIxjgRYE3IeqQBSwmRIzmZvlFduLQw
-	 UgDvEHqU3UUe3ZZ36Rbbl8qEfg5bZYpOo2b+HeY6eO7pLQCyN07mLdsCH9vL3YxTCKAZE
-	 xqJ74NWQCthDdYWW3ryyPBRzWRSt1Oak7Q3fUgu8VAxjD8J8rZek/GtUNmn0sKpzD/Vub
-	 LSS4lnQhCNGbrglUBeQ8HtX4FaG17sbw5Drbt2L7Q90lI0qQsrDuZerpY3ZhQ+0ltrJMW
-	 MUv3Kh/5zo2kEOPh9wt4x3HVeUr3ngRpf5/RLS4pqzJvXJ81Qi2n6en6dWnP6exNAYw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793859155;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=86mQJyKlXA+m+CUFz+gI1B4tAIO9REzBudSQUtfJrm0=;
+	b=0A+NcFXyt2ioLHhpmrA/G2BpU2q6hrAK6izghPyGxZLDXr4oyPpaLkuCHlAPAtNlqTCb
+	 0ZcKM/Uj97aslhPn3qC1tROzdZaFkpXWy/nGCAXXeYa7aqgjJXwMpmc0uVV9Ir3quTtWV
+	 d+DUZg+jlwtXOgdh8jmyner1Ro6YL4OtCVHV61r56Oum+nk7JiBAUV67DO6sFIz3S629J
+	 DOW7w1Hdda0782cthjNSm2MUg2qHNT+GrGW61MSn3qM31NSKgw4BMRqrgwR+QHq+Qz92u
+	 FmX5Zwe9dBaTi5znaOa6PheOyIYfb3ZyMUzcqfBEZGMn3iEgpC8ptAKzrwDbAEeqliA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.dev;
-	spf=pass smtp.mailfrom=linux.dev;
-	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=j2sTp789;
-	arc=none smtp.remote-ip=91.218.175.199
-Received: from mta0.migadu.com (out-199.mta0.migadu.com [91.218.175.199])
+	dmarc=pass header.from=bytedance.com;
+	spf=pass smtp.mailfrom=bytedance.com;
+	dkim=pass header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=Bp5MW+a7;
+	arc=none smtp.remote-ip=209.85.216.53
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F333F606A326
-	for <linux-s390@vger.kernel.org>; Thu,  5 Nov 2026 02:14:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org F333F606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8974D606A326
+	for <linux-s390@vger.kernel.org>; Thu,  5 Nov 2026 06:12:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8974D606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=j2sTp789
-X-Envelope-To: linux-s390@vger.kernel.org
-DKIM-Signature: a=rsa-sha256; bh=l5hRS8qgzR0WOCPLF0tQbQ+of37lp1oZsgw+XUQqwhg=;
- c=simple/simple; d=linux.dev;
- h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
- t=1793844844; v=1; x=1794449644;
- b=j2sTp789TAzH4+lGZ7lYWfaDwj4tzc9cwnz9VymVYz+93eIx1j2P1wIewQP0NcIfVbJQKLyf
- 0DO8NIIghKzDouBSBnDym1wAnQyGpqJsD9irj2dQSZrGObeDZJB96QtjMGxheDIwPErfv1cfpzT
- zdnAQ3fG/Xx2Ge3hDWonFfXo=
-X-Envelope-To: linux-s390@vger.kernel.org
-Received: by smtp.migadu.com with ESMTPS id 7ce234fbb2517b84;
-	Thu, 05 Nov 2026 02:14:03 +0000
-X-Mizu-Trace-ID: 7ce234fbb2517b84
-X-Migadu-Flow: FLOW_OUT
-Message-ID: <fc4939cc-84ec-4c5c-88a7-658ca800377d@linux.dev>
-Date: Thu, 5 Nov 2026 10:15:13 +0800
+	dkim=pass (2048-bit key, unprotected) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=Bp5MW+a7
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-3b09a65c76dso1089184a91.1
+        for <linux-s390@vger.kernel.org>; Wed, 04 Nov 2026 22:12:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1793859154; x=1794463954; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=86mQJyKlXA+m+CUFz+gI1B4tAIO9REzBudSQUtfJrm0=;
+        b=Bp5MW+a7fGIv/7pTtYa3B2e1LhOCTCnK6GRwFYZT5vkcgLqZ8V8/SOaEEdzRIiXp01
+         leju/Xa5AeZzZGikWexBA9GTDkYdVsV/DdrwZLuxDSMxS3Svl1VkYPWR795d/iZ1IvCC
+         uGIK+Ml1tDM/D+fJLdWpkNBkTBzWBzuTU7/UkI1UIOR8USH+52nBRpcSJV9Nh5c7CmV3
+         N95XAhWV+TXMh6gW1scO3WqQKDn03ibwh4ugu9mA+sy+Pi8ARwjac7k1sC348U8ucUAz
+         Jsfm0DSjGVylU5zPIklTDCo5MHTj/gngSwoZcPM0kZ7MB/iE/H1qeV/fmCtTFGnCEFOZ
+         jjgA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1793859154; x=1794463954;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=86mQJyKlXA+m+CUFz+gI1B4tAIO9REzBudSQUtfJrm0=;
+        b=wDPilSSoyUC9jBQfC+Xz3P0YeXyFh1zRNNCfShASk/zpvECa1k7PLuKEN/i3MqHMpV
+         6Tjmm5wG4aA/RxhOX1sV6l4LRgWMdsVb7zjM9Z6Y8p/X3RsXstkfmzor+IYTtJlSkpoY
+         6u3YC2w9LQ1TTlMHKnyqj6NTqn2XgXWzF13hlzjYDIxR7f1RLQhZtwtn/8EuUUWS86Pu
+         aLlBrFklTlS/7d8zKDb0FjMSMs0DFhLRkQ4WzGG+sV9fXfh0LIkQ2DvxqYfQwJxXNyLH
+         u6sUN54514pRdVaBHOsT3VkDeGY2vozZz7f/8TmSWH0vrI4mvO/YiUUIWyHtDEehWGhl
+         HEzA==
+X-Forwarded-Encrypted: i=1; AKwUvBwUQ5JbWZe8gS2ZSaP7DUGRJGq21u3btUuG17Lqf+EsIff0CciH9R/icHFP6I4jWW31Upkr8SJ1c2nr@vger.kernel.org
+X-Gm-Message-State: APuU4Z+xhMDLamaVBJu3vse94nTglkVC4qdIrqB7yArFRrnSGuwE9Jz0
+	Ny4KKoH8UjnanTHC24Sh0h2BixA30zQDCCqQgshgwRBd+dF4THNs4XRjd0z9dgLWigA=
+X-Gm-Gg: AYBFou1ZpWcXFyOrdlftKla+SHGzo8noK0AlZHKc4Yycc1yxnNSOqcWz6UvTz23aKiu
+	MzEgR9LIb9cIc/Q2bNdP0/C3lV0Z36ZV0yV17DghxlqFjAJgGufXx2SLVCtKdcdkVIcPickXtOH
+	sIeiGZeOk+5SdrL+tgQuypqhbqPO0bBtsiLSb8RrgUcDCPO0EUay5omYlNxqW/UGCERxKvxKYNp
+	wZusqjwh/uGNBKSh8bjGAI31INe/OuLRlJUWIZDux30EmWwmUt3hrzjC98yMneQzTanm0GAGbVA
+	nfBdJsttF53DNGswatJ3N7RFD0ztMqVseD5hy+LmSNhWJ+SorBLEDQ//fZMF7BCO/GfmgSqRjZB
+	h7RRyRb5CjFzE1Ojd8jJjPcj3pWwAGIRFQXOjGF9AapPcqRKKohGSUR7QUrz4VsWVuBCRFqUg1Q
+	0MbCwlvOq57nv7p6m0X6oRcEwxykgOCEurrZ8/iuHiNLFqQRZ8XpH67eiHRmAOLwqns9TWsM+XG
+	UIlP1moGw5ff4etzNWVt9YL31nSdgxs0c10bRJQJvroVs+zylkTYXUS0g4ZdCfLHUsjlzNI0eWO
+	RGG9RA5KpkNJtMORD9+1m6t9/ZnN3dkvowxo8ZO+bnNjHZ/NdV4jrlqsvSGSum35pQ==
+X-Received: by 2002:a17:90b:3844:b0:3ab:36c4:b502 with SMTP id 98e67ed59e1d1-3ae89814e4fmr15532805a91.30.1793859153687;
+        Wed, 04 Nov 2026 22:12:33 -0800 (PST)
+Received: from G6L4RL2QG9.bytedance.net ([61.213.176.8])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b0b323a1fdsm2107528a91.5.2026.11.04.22.12.27
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Wed, 04 Nov 2026 22:12:32 -0800 (PST)
+From: Muchun Song <songmuchun@bytedance.com>
+To: David Hildenbrand <david@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Mike Rapoport <rppt@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>
+Cc: Lance Yang <lance.yang@linux.dev>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Ritesh Harjani <ritesh.list@gmail.com>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	Oscar Salvador <osalvador@suse.de>,
+	Qi Zheng <qi.zheng@linux.dev>,
+	Muchun Song <muchun.song@linux.dev>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	linux-mm@kvack.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-riscv@lists.infradead.org,
+	x86@kernel.org,
+	loongarch@lists.linux.dev,
+	linux-s390@vger.kernel.org,
+	Muchun Song <songmuchun@bytedance.com>
+Subject: [PATCH v2 0/5] mm: Simplify device DAX vmemmap optimization plumbing
+Date: Thu,  5 Nov 2026 14:12:12 +0800
+Message-ID: <20261105061217.13302-1-songmuchun@bytedance.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -58,189 +115,78 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RESEND v2 01/51] alloc_tag: don't remove /proc/allocinfo
- under the codetag module lock
-To: Christian Brauner <brauner@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
- Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>,
- Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>,
- NeilBrown <neil@brown.name>, Eric Dumazet <edumazet@kernel.org>,
- Thomas Gleixner <tglx@kernel.org>, Al Viro <viro@zeniv.linux.org.uk>,
- Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>,
- Greg Kroah-Hartman <gregkh@suse.de>, Joel Granados
- <joel.granados@kernel.org>, Kees Cook <kees@kernel.org>,
- Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>,
- linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org,
- linux-acpi@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org,
- linux-um@lists.infradead.org, linux-wireless@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org,
- ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org,
- coreteam@netfilter.org, kexec@lists.infradead.org,
- linux-pci@vger.kernel.org, linux-sound@vger.kernel.org,
- netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org,
- ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net,
- linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-cifs@vger.kernel.org, linux-fbdev@vger.kernel.org,
- linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-sh@vger.kernel.org,
- linux-usb@vger.kernel.org, samba-technical@lists.samba.org,
- sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org,
- linux-doc@vger.kernel.org, linux-serial@vger.kernel.org,
- linux-atm-general@lists.sourceforge.net, Takashi Iwai <tiwai@suse.de>,
- linux-input@vger.kernel.org, linux-raid@vger.kernel.org,
- linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org,
- linux-debuggers@vger.kernel.org, Chuck Lever <cel@kernel.org>,
- stable@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- Suren Baghdasaryan <surenb@google.com>
-References: <20261104-work-procfs-bugfixes-v2-0-021c84d852e0@kernel.org>
- <20261104-work-procfs-bugfixes-v2-1-021c84d852e0@kernel.org>
-Content-Language: en-US
-From: Hao Ge <hao.ge@linux.dev>
-In-Reply-To: <20261104-work-procfs-bugfixes-v2-1-021c84d852e0@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-Cc Suren
+Hi,
 
-Hi Christian
+This series is split out from the earlier, larger series "mm: Generalize
+HVO for HugeTLB and device DAX" [1]. While the parent series generalizes
+vmemmap optimization across HugeTLB and device DAX, this subset addresses
+a single, self-contained step: simplifying the device DAX vmemmap
+optimization plumbing.
 
-On 2026/11/5 03:06, Christian Brauner wrote:
-> codetag_alloc_module_section() takes the codetag type's mod_lock for
-> writing and calls reserve_module_tags() with it held. When that can't
-> reserve the tags, because the section's alignment doesn't fit, because
-> there are too many tags for the page flag bits or because the memory
-> for them can't be allocated, it shuts memory allocation profiling down
-> and removes /proc/allocinfo, still with mod_lock held.
-> 
-> remove_proc_entry() waits until every reader of the entry has let go of
-> it, and a reader of /proc/allocinfo takes mod_lock for reading in
-> allocinfo_start() while it holds the entry. So a module load that hits
-> one of those paths while /proc/allocinfo is being read waits for the
-> reader and the reader waits for the module load, for good.
-> 
-> Let a work item remove the entry in that case. The profiling is shut
-> down right away like before, the file just goes a moment later.
-> 
-> Fixes: 4835f747d3ed ("alloc_tag: support for page allocation tag compression")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+After device DAX was converted to section-based vmemmap optimization,
+whether a mapping can be optimized is carried in mem_section, and the
+architecture-specific population path can handle any remaining fallback.
+The code still retains the DAX-specific vmemmap_can_optimize() helper, a
+PowerPC override, and @pgmap arguments threaded through lower-level
+vmemmap population and memory-removal interfaces. These duplicate the
+section-order policy and keep otherwise generic paths coupled to
+dev_pagemap.
 
-Thanks.
+This series removes that obsolete plumbing by consolidating the
+optimization policy around memory-section metadata and simplifying the
+generic and architecture-specific population paths. This also eliminates
+dependencies that are no longer needed once the optimization state is
+carried by the memory section.
 
-is this a problem you have hit in practice?
-Sashiko discovered this issue earlier and reported it as follows:
+This leaves the section compound order as the single source of truth for
+vmemmap optimization and decouples the generic sparse-vmemmap and
+memory-hotplug paths from device DAX.
 
-> diff --git a/mm/alloc_tag.c b/mm/alloc_tag.c
-> index 2070e682fe106..112a014d4b890 100644
-> --- a/mm/alloc_tag.c
-> +++ b/mm/alloc_tag.c
-> @@ -950,10 +950,12 @@ static void *reserve_module_tags(struct module *mod, unsigned long size,
->  		int grow_res;
->  
->  		module_tags.size = offset + size;
-> -		if (mem_alloc_profiling_enabled() && !tags_addressable()) {
-> +		if (!tags_addressable()) {
->  			shutdown_mem_profiling(true);
-This is a pre-existing issue, but does this shutdown_mem_profiling(true) call
-introduce an AB-BA deadlock between /proc/allocinfo file readers (pde->in_use)
-and module loading (cttype->mod_lock)?
-A user reading /proc/allocinfo acquires the procfs in_use reference in
-use_pde(), then blocks on down_read(&alloc_tag_cttype->mod_lock) in
-allocinfo_start().
-Concurrently, if a module loads and tags_addressable() fails,
-codetag_alloc_module_section() holds down_write(&cttype->mod_lock) and calls
-shutdown_mem_profiling(true), which removes the proc entry. This removal waits
-indefinitely for the in_use reference to drop to zero, hanging both procfs
-reads and module loading.
-> -			pr_warn("With module %s there are too many tags to fit in %d page flag bits. Memory allocation profiling is disabled!\n",
-> -				mod->name, NR_UNUSED_PAGEFLAG_BITS);
-> +			pr_warn_once("With module %s there are too many tags to fit in %d page flag bits. Memory allocation profiling is disabled!\n",
-> +				     mod->name, NR_UNUSED_PAGEFLAG_BITS);
-> +			release_module_tags(mod, false);
-> +			return ERR_PTR(-EAGAIN);
->  		}
->  
->  		grow_res = vm_module_tags_populate();
+This is another smaller step toward the broader HVO generalization.
 
-I previously sent a patch with a comparable idea, though Sashiko remained unconvinced.
+[1] https://lore.kernel.org/20260513130542.35604-1-songmuchun@bytedance.com/
 
-[patch]: https://lore.kernel.org/all/20260817062726.106511-3-hao.ge@linux.dev/
+v2:
+- Rebase onto mm-new at dba8aba0a9a0
+- Add section_vmemmap_optimization_disable() and use it for PowerPC,
+  LoongArch, and altmap fallbacks.
+- Add a LoongArch patch that keeps device DAX vmemmap optimization
+  disabled while leaving HugeTLB HVO unchanged.
+- Ignore section compound orders that cannot be optimized.
+- Add direct vmemmap-optimization.h includes for architecture users.
 
-[Sashiko's objections]: https://sashiko.dev/#/patchset/20260817062726.106511-1-hao.ge@linux.dev
+v1: https://lore.kernel.org/20261030140720.1256062-1-songmuchun@bytedance.com/
 
-Could this patch perhaps wait for mine? No worries if this is inconvenient.
+Muchun Song (5):
+  powerpc/mm: make vmemmap_populate_compound_pages() static
+  powerpc/mm: drop powerpc vmemmap_can_optimize()
+  loongarch/mm: disable device DAX vmemmap optimization
+  mm/sparse-vmemmap: drop vmemmap_can_optimize()
+  mm/sparse-vmemmap: drop @pgmap from vmemmap population APIs
 
-Best regards                                                                                                                                                                                                                                                                  
-Hao
+ arch/arm64/mm/mmu.c                        |  5 +-
+ arch/loongarch/mm/init.c                   |  7 +--
+ arch/powerpc/include/asm/book3s/64/radix.h | 12 -----
+ arch/powerpc/mm/book3s64/radix_pgtable.c   | 23 +++------
+ arch/powerpc/mm/init_64.c                  |  2 +
+ arch/powerpc/mm/mem.c                      |  5 +-
+ arch/riscv/mm/init.c                       |  5 +-
+ arch/s390/mm/init.c                        |  5 +-
+ arch/x86/mm/init_64.c                      |  5 +-
+ include/linux/memory_hotplug.h             |  8 ++--
+ include/linux/mm.h                         | 40 +---------------
+ include/linux/vmemmap-optimization.h       | 56 +++++++++++++++++-----
+ mm/memory_hotplug.c                        | 16 +++----
+ mm/memremap.c                              |  4 +-
+ mm/sparse-vmemmap.c                        | 29 ++++++-----
+ mm/sparse.c                                |  6 +--
+ mm/sparse.h                                |  5 --
+ 17 files changed, 97 insertions(+), 136 deletions(-)
 
-> ---
->  mm/alloc_tag.c | 27 ++++++++++++++++++++++++---
->  1 file changed, 24 insertions(+), 3 deletions(-)
-> 
-> diff --git a/mm/alloc_tag.c b/mm/alloc_tag.c
-> index 82e2c3448dcf..7d7ad6704953 100644
-> --- a/mm/alloc_tag.c
-> +++ b/mm/alloc_tag.c
-> @@ -15,6 +15,7 @@
->  #include <linux/seq_file.h>
->  #include <linux/string_choices.h>
->  #include <linux/vmalloc.h>
-> +#include <linux/workqueue.h>
->  #include <linux/kmemleak.h>
->  #include <uapi/linux/alloc_tag.h>
->  
-> @@ -604,6 +605,26 @@ static void shutdown_mem_profiling(bool remove_file)
->  	mem_profiling_support = false;
->  }
->  
-> +static void remove_allocinfo_file(struct work_struct *work)
-> +{
-> +	remove_proc_entry(ALLOCINFO_FILE_NAME, NULL);
-> +}
-> +static DECLARE_WORK(remove_allocinfo_work, remove_allocinfo_file);
-> +
-> +/*
-> + * A module's tags are reserved with the codetag module lock held for
-> + * writing, and a reader of /proc/allocinfo takes that lock with the entry
-> + * pinned. Removing the entry there would wait for that reader for good, so
-> + * let a work item do it.
-> + */
-> +static void shutdown_mem_profiling_async(void)
-> +{
-> +	if (!mem_profiling_support)
-> +		return;
-> +	shutdown_mem_profiling(false);
-> +	schedule_work(&remove_allocinfo_work);
-> +}
-> +
->  void __init alloc_tag_sec_init(void)
->  {
->  	struct alloc_tag *last_codetag;
-> @@ -855,7 +876,7 @@ static void *reserve_module_tags(struct module *mod, unsigned long size,
->  		align = 1;
->  
->  	if (!ensure_alignment(align, &prepend)) {
-> -		shutdown_mem_profiling(true);
-> +		shutdown_mem_profiling_async();
->  		pr_err("%s: alignment %lu is incompatible with allocation tag indexing. Memory allocation profiling is disabled!\n",
->  			mod->name, align);
->  		return ERR_PTR(-EINVAL);
-> @@ -905,14 +926,14 @@ unlock:
->  
->  		module_tags.size = offset + size;
->  		if (mem_alloc_profiling_enabled() && !tags_addressable()) {
-> -			shutdown_mem_profiling(true);
-> +			shutdown_mem_profiling_async();
->  			pr_warn("With module %s there are too many tags to fit in %d page flag bits. Memory allocation profiling is disabled!\n",
->  				mod->name, NR_UNUSED_PAGEFLAG_BITS);
->  		}
->  
->  		grow_res = vm_module_tags_populate();
->  		if (grow_res) {
-> -			shutdown_mem_profiling(true);
-> +			shutdown_mem_profiling_async();
->  			pr_err("Failed to allocate memory for allocation tags in the module %s. Memory allocation profiling is disabled!\n",
->  			       mod->name);
->  			return ERR_PTR(grow_res);
-> 
+
+base-commit: dba8aba0a9a00ff781c03d82ae534fc6f8c2e263
+-- 
+2.54.0
+
