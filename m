@@ -1,55 +1,55 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=213.97.179.56
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793909198;
-	b=HQn1DZBEIjcNN/2a28szHIqiZebSOAEnDnss82iIEtC4asHHkScP46IpSDE4D7At6949
-	 e/2/F/TudARvpJd8r4i0bYws+CJTICH6sF4l+ox+uzmteugUC2oWp2Wa96JMDyyTyvRqy
-	 s8HjJ453iY+Lqz4I0Zb1I10A6EnEAnQMzGUcFXi+S+vQQTzzFJqV+KkaNAzjCfLDzL1W4
-	 L82ll2LLz7giUj6AbgjkYMKE9MF5UFEXCf/EwmLjwLEAOExiCUJcZ48cPKQ1gw97Jkcu7
-	 6YhkQwbrbRGKWNNhSjG3NfoVzK50ipTOxl0koUytEs5XxcXt5yFTXkoP7wYqSgJaZ+Q==
+	t=1793909201;
+	b=BLFqZp9J3VSRiwSX3cyovm7n9B1MasUbj+hZ4nXOLpACmd2PzvHRZEtbyCr9JVXtvKA7
+	 XWizLmkB0XMIf9dKGbG9j6iaj9YtGmftHnxXPaln0dxz/O2WulnMbZLiMISl2Hv7YhZlM
+	 RzpUH9+3MLcbhsnBoh3iu1ghXVuiP+PqBjJGSdDLDeUad6/D4Kz7/WBoTjcBrn0TeLW4C
+	 jvC2spZG18A9jXEHUIlNhPYXahweGZFOdS7eNLXhSHFIRd3Doj7zTVh7w939I6k0j0wSX
+	 Snf91tF+TtWyucvh6WG47iHUkke3cOtq8H2vp0wAQlt22Kcfx60uepx6V9hp4nKLriA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793909198;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793909201;
 	h=DMARC-Filter:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
 	 In-Reply-To:To:Cc:X-Mailer;
-	bh=XBoDNkj8Cq94G4H4wOo3RFCe630bVSgYY6+2WlgI/M4=;
-	b=dGG7xmWFXjC7DB1TxOF4Z7jpvmM6BrJ6IUdQo2ifRSZI8Zxfr7FSmw/Qpa2UpxpZhnFH
-	 T/hDYejx2yidP4k3uEzOHf7s7cetbuhCx6aurU1kNYI3BbNpp+/Y91vTAkINVDmVKMYMk
-	 ZVvHAaDAnr8XlMUJrioJL3MczeGnsYH/WX8mYQg4jeNtDU073uRoabnOm7iXySSSpSRAZ
-	 RNclymE16RsXHFzgpp7OsUexyK/NxQwRIwpQ/1CTVT2epKLxNU3/t3dK+uBKuod53wd5M
-	 jRK+3GzQddlOrizPvtICz+SO0w6QuUtEV74K8Oe8tIfsvAXd7fCiYFLBx5VMGYcZRZg==
+	bh=L7svFljblYiTK4kK5H5XiTJiOf5f3bWHWj0lw93O9Rc=;
+	b=n4CCT4f6jcwyEDiSbAeoQGoMsYLwAqg1IawMDBrw9MMg4yuq7Ay1RoTWLaNrz36Q5TjG
+	 3FLGrLYCuwWMw0Hejpi+hYSnsjNMLaI+60jkO1XK1ddcpZdsQW1uWjHaCoetR8XHGm/oT
+	 kxpNSam/+u5S71cYW1Hs/38lbS5rzw5ss6nz1yV2K0vIkIavK8VXRQTTZlcXHsSaXXLPn
+	 C+6Xv6O7NqE+5ZJqJc6mxziHZXEcrD77TbALatfNVbfQuc8GjMh9fXVbm34FVTxtuUAsF
+	 /r+OK71z/vIHdBOhcQ3acyBdslX+FQyIpOrZ3oQ1b1bI8gpnvv+Dlu3i3nGca8LP40w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=igalia.com;
 	spf=pass smtp.mailfrom=igalia.com;
-	dkim=pass header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=cpFGq1vP;
+	dkim=pass header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=BzFYU+7z;
 	arc=none smtp.remote-ip=213.97.179.56
 Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BA1E606A31B;
-	Thu,  5 Nov 2026 20:06:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2BA1E606A31B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CC9A6082BDF;
+	Thu,  5 Nov 2026 20:06:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 4CC9A6082BDF
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=igalia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=cpFGq1vP
+	dkim=pass (2048-bit key, unprotected) header.d=igalia.com header.i=@igalia.com header.a=rsa-sha256 header.s=20170329 header.b=BzFYU+7z
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
 	s=20170329; h=Cc:To:Message-Id:Content-Transfer-Encoding:Content-Type:
 	MIME-Version:Subject:Date:From:From:Reply-To;
-	bh=XBoDNkj8Cq94G4H4wOo3RFCe630bVSgYY6+2WlgI/M4=; t=1793909197; x=2109269197; 
-	b=cpFGq1vPG00mC/C5LufDxQKrvulJxpd+d/tN7XRN9qrYv2GPrnyoxoON1VjXN/fdUM91kmY2wpH
-	8IP+r2MCJf0yzh/ssumuyrs7XlyMohsGrxVqhsEew/2KqPxClzz/6y8dr5YnFbIIiN+a8+q1S2+So
-	bMcwfBWrGaERYELO76zit97VbfyMF7HzMHrI+T7BzrmS1lrx9krY98Bv7hQ3mVamyPD3m2s3PKePc
-	hcv81eGuR+FSVLEexV2pgsvqR6JNSeJVmmbMyCIGWnR7l1QkpXjwb1BSq/kDK2EUeKGSiJHUeISqD
-	zeR/WOrHfAz0OZxWKrQdRXljlU//hnc3LkFg==;
+	bh=L7svFljblYiTK4kK5H5XiTJiOf5f3bWHWj0lw93O9Rc=; t=1793909201; x=2109269201; 
+	b=BzFYU+7zN+krgDfsXUP85boa2cJtj3shGHYGM9SV4ebQMMxeLRsZ3SqNJQ9fEyBi4kumQCw1WHf
+	TVJyDgDjWOhG/OIGq6P6V6kDLcfhovFoWw/7ZY6LLW2Tur4OzwgE3HzeySHq4TWIf5rqC/0hIAyaS
+	+WO+ehnsI8KQJ/a/K0KrYDB2QXPksNlD/3xNjR4IY/N9IsFfbNQ8xuKi7rfKM0kl4Vf42Yn1D2QK+
+	2y9LmcPSbd1SU83YgOZUuykb/mveucZTn+Cn9rg+scxwQI0uZCTFWPhINOqNETldZuFmjFs3Rt98Y
+	BV/gi0y+CYPrp5aqGpEFrZjEDAKQpvBuEskQ==;
 Received: from [177.172.122.137] (helo=[192.168.15.100])
 	by fanzine2.igalia.com with esmtpsa 
 	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim)
-	id 1xP3jH-003hS1-Ki; Thu, 05 Nov 2026 21:06:35 +0100
+	id 1xP3jL-003hS1-6M; Thu, 05 Nov 2026 21:06:39 +0100
 From: =?utf-8?q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
-Date: Thu, 05 Nov 2026 17:05:44 -0300
-Subject: [PATCH v9 09/15] syscalls: Add an option for offsetting the common
- table
+Date: Thu, 05 Nov 2026 17:05:45 -0300
+Subject: [PATCH v9 10/15] alpha: Define entry point for
+ set_mempolicy_home_node syscall
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -61,7 +61,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20261105-tonyk-syscall_table-v9-9-8d1275885d9c@igalia.com>
+Message-Id: <20261105-tonyk-syscall_table-v9-10-8d1275885d9c@igalia.com>
 References: <20261105-tonyk-syscall_table-v9-0-8d1275885d9c@igalia.com>
 In-Reply-To: <20261105-tonyk-syscall_table-v9-0-8d1275885d9c@igalia.com>
 To: Masami Hiramatsu <mhiramat@kernel.org>, Arnd Bergmanon <arnd@arndb.de>
@@ -71,171 +71,39 @@ Cc: Christian Brauner <brauner@kernel.org>, linux-kernel@vger.kernel.org,
  linux-alpha@vger.kernel.org, linux-s390@vger.kernel.org, 
  linux-arm-kernel@lists.infradead.org, soc@lists.linux.dev, 
  linux-mips@vger.kernel.org, sparclinux@vger.kernel.org, 
+ Magnus Lindholm <linmag7@gmail.com>, 
  =?utf-8?q?Andr=C3=A9_Almeida?= <andrealmeid@igalia.com>
 X-Mailer: b4 0.15.2
 
-To better support architectures that doesn't share the same syscall
-numbers, but have them in the same sequence, add an new option to offset
-the common syscall table numbers by a value. This make it possible to reuse
-the common syscall table for alpha.
+Instead of explicitly defining set_mempolicy_home_node as sys_ni_sycall in
+the syscall table, define it as the real syscall entry point,
+sys_set_mempolicy_home_node. As per commit fdb7d9b7acd0 ("alpha: remove
+DISCONTIGMEM and NUMA"), alpha doesn't have NUMA support, so none of the
+mempolicy sycalls will ever be compiled for alpha, resulting in the
+COND_SYSCALL() fallback being used to result in the sys_ni_syscall.
 
+There's no function change here, but this step helps to unify the syscall
+tables and create a common table to rule them all.
+
+Acked-by: Magnus Lindholm <linmag7@gmail.com>
 Signed-off-by: André Almeida <andrealmeid@igalia.com>
 ---
-Changes from v4:
- - I was reusing the logic from --offset to apply the --common-offset, but
- the logic is different: --offset does a string concat, and --common-offset
- does a addition to the number
----
- scripts/syscallhdr.sh | 26 ++++++++++++++++++--------
- scripts/syscalltbl.sh | 20 +++++++++++++++-----
- 2 files changed, 33 insertions(+), 13 deletions(-)
+ arch/alpha/kernel/syscalls/syscall.tbl | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/scripts/syscallhdr.sh b/scripts/syscallhdr.sh
-index 8f7dfcf19a4c..cf6bba3019b1 100755
---- a/scripts/syscallhdr.sh
-+++ b/scripts/syscallhdr.sh
-@@ -16,17 +16,18 @@
- set -e
- 
- usage() {
--	echo >&2 "usage: $0 [--abis ABIS] [--emit-nr] [--offset OFFSET] [--prefix PREFIX] [--common-tbl PATH] INFILE OUTFILE" >&2
-+	echo >&2 "usage: $0 [--abis ABIS] [--emit-nr] [--offset OFFSET] [--prefix PREFIX] [--common-tbl PATH] [--common-offset NR] INFILE OUTFILE" >&2
- 	echo >&2
- 	echo >&2 "  INFILE    input syscall table"
- 	echo >&2 "  OUTFILE   output header file"
- 	echo >&2
- 	echo >&2 "options:"
--	echo >&2 "  --abis ABIS        ABI(s) to handle (By default, all lines are handled)"
--	echo >&2 "  --emit-nr          Emit the macro of the number of syscalls (__NR_syscalls)"
--	echo >&2 "  --offset OFFSET    The offset of syscall numbers"
--	echo >&2 "  --prefix PREFIX    The prefix to the macro like __NR_<PREFIX><NAME>"
--	echo >&2 "  --common-tbl PATH  Use the common number table"
-+	echo >&2 "  --abis ABIS             ABI(s) to handle (By default, all lines are handled)"
-+	echo >&2 "  --emit-nr               Emit the macro of the number of syscalls (__NR_syscalls)"
-+	echo >&2 "  --offset OFFSET         The offset of syscall numbers"
-+	echo >&2 "  --prefix PREFIX         The prefix to the macro like __NR_<PREFIX><NAME>"
-+	echo >&2 "  --common-tbl PATH       Use the common number table"
-+	echo >&2 "  --common-offset NR      Add an offset for the numbers of the common table"
- 	exit 1
- }
- 
-@@ -34,6 +35,7 @@ usage() {
- abis=
- emit_nr=
- offset=
-+common_offset=
- prefix=
- common_tbl=
- common_tbl_path=
-@@ -57,6 +59,9 @@ do
- 		common_tbl=1
- 		common_tbl_path=$2
- 		shift 2;;
-+	--common-offset)
-+		common_offset=$2
-+		shift 2;;
- 	-*)
- 		echo "$1: unknown option" >&2
- 		usage;;
-@@ -98,14 +103,19 @@ emit_end_guard() {
- }
- 
- max=0
--# gen_hdr(infile)
-+# gen_hdr(infile, offset_nr)
- gen_hdr() {
- 	input=$1
- 	tmpfile=$(mktemp)
-+	offset_nr=$2
- 
- 	grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis" "$input" > $tmpfile
- 	while read nr abi name native compat; do
- 
-+		if [ -n "$offset_nr" ]; then
-+			nr=$((nr + offset_nr))
-+		fi
-+
- 		max=$nr
- 
- 		if [ -n "$offset" ]; then
-@@ -123,7 +133,7 @@ emit_start_guard > $outfile
- gen_hdr $infile >> $outfile
- 
- if [ -n "$common_tbl" ]; then
--	gen_hdr $common_tbl_path  >> "$outfile"
-+	gen_hdr $common_tbl_path $common_offset >> "$outfile"
- fi
- 
- if [ -n "$emit_nr" ]; then
-diff --git a/scripts/syscalltbl.sh b/scripts/syscalltbl.sh
-index 70da0039ab22..1e9cac32c02d 100755
---- a/scripts/syscalltbl.sh
-+++ b/scripts/syscalltbl.sh
-@@ -16,14 +16,15 @@
- set -e
- 
- usage() {
--	echo >&2 "usage: $0 [--abis ABIS] [--common-tbl PATH] INFILE OUTFILE" >&2
-+	echo >&2 "usage: $0 [--abis ABIS] [--common-tbl PATH] [--common-offset NR] INFILE OUTFILE" >&2
- 	echo >&2
- 	echo >&2 "  INFILE    input syscall table"
- 	echo >&2 "  OUTFILE   output header file"
- 	echo >&2
- 	echo >&2 "options:"
--	echo >&2 "  --abis ABIS        ABI(s) to handle (By default, all lines are handled)"
--	echo >&2 "  --common-tbl PATH  Use the common syscall number table"
-+	echo >&2 "  --abis ABIS             ABI(s) to handle (By default, all lines are handled)"
-+	echo >&2 "  --common-tbl PATH       Use the common syscall number table"
-+	echo >&2 "  --common-offset OFFSET  Add an offset for the numbers of the common table"
- 	exit 1
- }
- 
-@@ -31,6 +32,7 @@ usage() {
- abis=
- common_tbl=
- common_tbl_path=
-+common_offset=
- 
- while [ $# -gt 0 ]
- do
-@@ -42,6 +44,9 @@ do
- 		common_tbl=1
- 		common_tbl_path=$2
- 		shift 2;;
-+	--common-offset)
-+		common_offset=$2
-+		shift 2;;
- 	-*)
- 		echo "$1: unknown option" >&2
- 		usage;;
-@@ -59,14 +64,19 @@ outfile="$2"
- 
- nxt=0
- 
--# gen_tbl(infile)
-+# gen_tbl(infile, offset_nr)
- gen_tbl() {
- 	input=$1
- 	tmpfile=$(mktemp)
-+	offset_nr=$2
- 
- 	grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis" "$input" > $tmpfile
- 	while read nr abi name native compat noreturn; do
- 
-+                if [ -n "$offset_nr" ]; then
-+                        nr=$((nr + offset_nr))
-+                fi
-+
- 		if [ $nxt -gt $nr ]; then
- 			echo "error: $input: syscall table is not sorted or duplicates the same syscall number" >&2
- 			exit 1
-@@ -108,5 +118,5 @@ gen_tbl() {
- gen_tbl $infile  > "$outfile"
- 
- if [ -n "$common_tbl" ]; then
--	gen_tbl $common_tbl_path >> "$outfile"
-+	gen_tbl $common_tbl_path $common_offset >> "$outfile"
- fi
+diff --git a/arch/alpha/kernel/syscalls/syscall.tbl b/arch/alpha/kernel/syscalls/syscall.tbl
+index 52e3538cc7df..8fc4701a6328 100644
+--- a/arch/alpha/kernel/syscalls/syscall.tbl
++++ b/arch/alpha/kernel/syscalls/syscall.tbl
+@@ -489,7 +489,7 @@
+ # 557 reserved for memfd_secret
+ 558	common	process_mrelease		sys_process_mrelease
+ 559	common  futex_waitv                     sys_futex_waitv
+-560	common	set_mempolicy_home_node		sys_ni_syscall
++560	common	set_mempolicy_home_node		sys_set_mempolicy_home_node
+ 561	common	cachestat			sys_cachestat
+ 562	common	fchmodat2			sys_fchmodat2
+ 563	common	map_shadow_stack		sys_map_shadow_stack
 
 -- 
 2.56.0
