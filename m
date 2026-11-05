@@ -1,95 +1,129 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793880879;
-	b=eYU1EFyaw6/bWymRcmQU79+KAGfn6jkqyGCP/8uU/dq1ELmHlC+kGr1HkH6eCVl/gDZL
-	 yl+xdDlwUcrapcSNH+wwpGi49nmg/DqJcHi6QTrV8shgvgaxh7/JMOaSx6Kz9poOU7gDX
-	 tNthoYPjGKPZwTcRNxUyfQMPL0ygv7snCBI4Ao1dyUI0f6zdf3w/aa4esJh89MsdC4OtE
-	 Ub8MpZPiBRGYh2Hy6iYolcwbtt+zDpyQJN/neTLBlyrMPci+debMIHDgors16cRifVdp1
-	 YVydCowJmfljMHIp62QToBtEm/1hd7zRmH1jft4hagrYawZHexfIEH8vJ2rqjXfUI1w==
+	t=1793881017;
+	b=ljlfIxlYHrLjdN12JYZvm15+CyDA2hydyG+p13Ww7+zXBSqTEp4AnVKJq7Mn75f1r8DB
+	 +9O31RfBfVBYuiYXxHrooGz2s2la/h5RLiVhnqrJvBM0i0+xGYlquhPS6c3x9m6TABfgA
+	 KatCB12rLNO3MF4A/7BEXgfYyLalBya0/kVBzyArs8Qdx42Uwq/3AWYkGqZzlL1/+cuW9
+	 NNpk0GPZOQDsJz8LeT5MmpYDLcAhGHlTrq+O80m4vuBQUUO+rrAUNt2gXBYjxf0VvRfYA
+	 zhN/iBN8Y+88lOfAE0PS7/GAZSQ4Dr7Z/2jHuzyP3cOJeB+dFlj2wrB1LtzdiZRGXFQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793880879;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
-	 Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To;
-	bh=cRwA5sbmlFTv4dr/TsrihpefpRsTJ7E+PJDAiAJhZlc=;
-	b=uJ7Kv+r0nren0Cxc102iBT47VrzxBNN19TZ4okY3nF5mnAbYTJUueBMmjQI0drp5fXGX
-	 +SNPpz1p0IVMHVm0KqHNJvJiAxaUP1A5DDqHfJc6VTop36WdHw9x5UQizWRuFlnqpUksR
-	 wcaSpoXHbZVK9LryeOpI/Q4catypLv2nZLjnd+0C9D0aQRSRBFbqTkPbn24iLeqhTkuPz
-	 N/ATRAOzE41yMqPCTX0mdiw8VWHHi4eMjz38Rd0e00U6N2Kco2YQcoSSo/dUQjpDitje8
-	 jDZ82NNClVQzNyAusaK9glSQMWPFHBfIjZhzapIub/uDkaUDTvXzLyEmqKXdZH9NwOQ==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793881017;
+	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
+	 DKIM-Signature:Received:Received:Received:Date:From:To:Cc:Subject:
+	 Message-ID:References:MIME-Version:Content-Type:Content-Disposition:
+	 In-Reply-To:X-Spamd-Result:X-Rspamd-Server:X-Rspamd-Action:
+	 X-Spam-Flag:X-Spam-Score:X-Spam-Level:X-Rspamd-Queue-Id;
+	bh=ADzlvyamTQU4UnQoclm/eaQzV+qRhdj3W0LtVIZccYw=;
+	b=LsnINoozfAegRNqL8gA539tnQZBRx0I0sYN02EaYQ0MGx1SZfOHyrxTFDCbESVGRWGb2
+	 bx0s4p0Zsfy3zDTZ6Co5m815DWIIvwEPs7JrUbEnnmNJHNkSzy4CmsrBsvtOO+Lpsf/FL
+	 k0ZXURbvm/095R7sSrhrtU/qhsFemcaGSAifrj4kUNuIIgavpXiqML47OZ0Xs3DUHVnQG
+	 Y2IMNSJwX3mZ5R0HqIqc3zlc7aRVdDvLpff5rQ+aKRPPTKYIztbQpflcJGnyghrBk4NYY
+	 cNnhCjZaW/Qmvf9pms0QXnwLHCF7ldBCKfMF3es/th7JWID5zy+/mcTckfXJZuKHa/w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=KtCaKHyM;
-	arc=none smtp.remote-ip=192.198.163.13
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=none header.from=suse.cz;
+	spf=pass smtp.mailfrom=suse.cz;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=cYe8TYsk;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=QIbMvVJs;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=qcWXmYyb;
+	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=YQFOqDtq;
+	arc=none smtp.remote-ip=195.135.223.131
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32769606D81E;
-	Thu,  5 Nov 2026 12:14:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 32769606D81E
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F656606A329;
+	Thu,  5 Nov 2026 12:16:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6F656606A329
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=KtCaKHyM
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1793880879; x=1825416879;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=hNZG3p/TmBT75mwn4JDU6B5IEwPzDkrT+siPwGcILcw=;
-  b=KtCaKHyMHxxht9DcYBJOaBrxoQ2w4pqfTvJ0n4e1LIgsQONR8E2mTAad
-   4x5LkcUHtl/MH0qClFiVu6l4alj7X7tArZlo7MZXhsnktxhk4CjPG7hjO
-   39eb2laydF4uCPMd+ZGeHUCXYLVK3XWNZYgXBQJYj5FaZO3yRxbwujkte
-   jfb3Zhw/wVvXrgbfwgGxhhIBla75nyrhWS16DL4csPsobeG7naU9nl63n
-   J10c6g+VbSmXL4KJpruQI5+cztiLLVyN554tjVxxnSLgVdWiRdn8rku4Y
-   MMBeIyCdaaTJhrp783ahqjsFu7BE1uFh8Ais1kn6roistt1Wr0sUi7xEA
-   A==;
-X-CSE-ConnectionGUID: p0LUOfGiTRKShOMkA1Oo/A==
-X-CSE-MsgGUID: tC/iXHxZRNS6I1xlBcTGiQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11956"; a="2659729"
-X-IronPort-AV: E=Sophos;i="6.27,197,1787036400"; 
-   d="scan'208";a="2659729"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Nov 2026 04:14:38 -0800
-X-CSE-ConnectionGUID: n1CgJxqsSv2cC6PyZtAf1Q==
-X-CSE-MsgGUID: PaUjo+ZjS1y3BQJZcClOSA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,197,1787036400"; 
-   d="scan'208";a="7401165"
-Received: from lkp-server01.sh.intel.com (HELO 0caa9d2d175c) ([10.239.97.150])
-  by fmviesa007.fm.intel.com with ESMTP; 05 Nov 2026 04:14:33 -0800
-Received: from kbuild by 0caa9d2d175c with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1xOwMP-00000000mAX-3Cl8;
-	Thu, 05 Nov 2026 12:14:29 +0000
-Date: Thu, 5 Nov 2026 20:13:50 +0800
-From: kernel test robot <lkp@intel.com>
-To: Muchun Song <songmuchun@bytedance.com>,
-	David Hildenbrand <david@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Mike Rapoport <rppt@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	Linux Memory Management List <linux-mm@kvack.org>,
-	Lance Yang <lance.yang@linux.dev>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	Ritesh Harjani <ritesh.list@gmail.com>,
-	Shrikanth Hegde <sshegde@linux.ibm.com>,
-	Oscar Salvador <osalvador@suse.de>, Qi Zheng <qi.zheng@linux.dev>,
-	Muchun Song <muchun.song@linux.dev>,
-	Huacai Chen <chenhuacai@kernel.org>,
-	WANG Xuerui <kernel@xen0n.name>, linuxppc-dev@lists.ozlabs.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-riscv@lists.infradead.org, x86@kernel.org,
-	loongarch@lists.linux.dev, linux-s390@vger.kernel.org
-Subject: Re: [PATCH v2 2/5] powerpc/mm: drop powerpc vmemmap_can_optimize()
-Message-ID: <202611052055.TcIXFI7V-lkp@intel.com>
-References: <20261105061217.13302-3-songmuchun@bytedance.com>
+	dkim=pass (1024-bit key, unprotected) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=cYe8TYsk;
+	dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=QIbMvVJs;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=qcWXmYyb;
+	dkim=neutral header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=YQFOqDtq
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 58A511F458;
+	Thu,  5 Nov 2026 12:16:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1793881014; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ADzlvyamTQU4UnQoclm/eaQzV+qRhdj3W0LtVIZccYw=;
+	b=cYe8TYskNgcCDl9X/k1KW8A+of6s9HPRYsn3eNTPIV5RsFlT7AWS/MQE3Ksi3uh3QV4KD5
+	Hi2guTuJU7x2qqFFTRs6JOAz8i6Q55GuiUnI2xO+KTPomgEeNxSjhoYwnOYxznNqbm63Mo
+	5qtfkmh5zv/NMPGB0+8MSe7zifKcXmA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1793881014;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ADzlvyamTQU4UnQoclm/eaQzV+qRhdj3W0LtVIZccYw=;
+	b=QIbMvVJsr8XvPWk78XYqkteMct1dWNms40BmNTEwa1LXYhQgAGTS+dajwGjNJCINSsxxSt
+	HemSrC/mVhMQ9jBA==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=qcWXmYyb;
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=YQFOqDtq
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1793881013; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ADzlvyamTQU4UnQoclm/eaQzV+qRhdj3W0LtVIZccYw=;
+	b=qcWXmYyb5+mCW0254eM18Rdi4r0I1vVFScoBAC1JoCDgbQr+JVrkM2hgqEp84Kj2sVZnX6
+	yOxI9PyPOhb6xWYpHefOBtPtMSEL6Mz2dqvUxPwKWIeCnNhnabJauUjOIrpt/Ne/cxy6NC
+	ZAMNOvP3NI2+Dh4POTu44wQ8ZjW2uSA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1793881013;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ADzlvyamTQU4UnQoclm/eaQzV+qRhdj3W0LtVIZccYw=;
+	b=YQFOqDtq+4SGdkOEWqs8BsjsIPs8cBY5Z7x8DRzRezIETmSxSypiEkth9ev7JNqvuGFopt
+	jijBqci6GEVKGZDw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 1F927133F6;
+	Thu,  5 Nov 2026 12:16:53 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 8uYuO7Rz7GpKHAAAD6G6ig
+	(envelope-from <jack@suse.cz>); Thu, 05 Nov 2026 12:16:53 +0000
+Received: by quack.suse.cz (Postfix, from userid 1000)
+	id A35F0B6D5; Thu, 05 Nov 2026 13:16:52 +0100 (CET)
+Date: Thu, 5 Nov 2026 13:16:52 +0100
+From: Jan Kara <jack@suse.cz>
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, 
+	Linus Torvalds <torvalds@linux-foundation.org>, Jann Horn <jannh@google.com>, Josef Bacik <josef@toxicpanda.com>, 
+	Chris Mason <mason@kernel.org>, Jeff Layton <jlayton@kernel.org>, NeilBrown <neil@brown.name>, 
+	Eric Dumazet <edumazet@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+	Al Viro <viro@zeniv.linux.org.uk>, Jonathan Corbet <corbet@lwn.net>, Christoph Hellwig <hch@lst.de>, 
+	Greg Kroah-Hartman <gregkh@suse.de>, Joel Granados <joel.granados@kernel.org>, 
+	Kees Cook <kees@kernel.org>, Jan Kara <jack@suse.cz>, Jan Kara <jack@suse.com>, 
+	linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, linux-acpi@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, 
+	linux-um@lists.infradead.org, linux-wireless@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	netdev@vger.kernel.org, ntfs3@lists.linux.dev, platform-driver-x86@vger.kernel.org, 
+	coreteam@netfilter.org, kexec@lists.infradead.org, linux-pci@vger.kernel.org, 
+	linux-sound@vger.kernel.org, netfilter-devel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	ibm-acpi-devel@lists.sourceforge.net, jfs-discussion@lists.sourceforge.net, 
+	linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org, 
+	linux-fbdev@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org, 
+	linux-sh@vger.kernel.org, linux-usb@vger.kernel.org, samba-technical@lists.samba.org, 
+	sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-doc@vger.kernel.org, 
+	linux-serial@vger.kernel.org, linux-atm-general@lists.sourceforge.net, 
+	Takashi Iwai <tiwai@suse.de>, linux-input@vger.kernel.org, linux-raid@vger.kernel.org, 
+	linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, linux-debuggers@vger.kernel.org, 
+	Chuck Lever <cel@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH RFC 31/38] proc: sysctl: resume readdir after the last
+ name it returned
+Message-ID: <ba3zz2mphlmojth4kk3gvistj555c2sos6ft4ofb6cm5xfcsnp@3xas2kz2irvu>
+References: <20261102-work-procfs-bugfixes-v1-0-59422ed3e465@kernel.org>
+ <20261102-work-procfs-bugfixes-v1-31-59422ed3e465@kernel.org>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -101,159 +135,83 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20261105061217.13302-3-songmuchun@bytedance.com>
+In-Reply-To: <20261102-work-procfs-bugfixes-v1-31-59422ed3e465@kernel.org>
+X-Spamd-Result: default: False [-11.51 / 50.00];
+	SUSE_INTERNAL_BYPASS(-9.00)[];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_RHS_NOT_FQDN(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	RCVD_TLS_LAST(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_COUNT_THREE(0.00)[3];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	DKIM_TRACE(0.00)[suse.cz:+];
+	R_RATELIMIT(0.00)[to_ip_from(RLpnapcpkwxdkc5mopt1ezhhna)];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCPT_COUNT_GT_50(0.00)[60];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MISSING_XM_UA(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,suse.cz:email,suse.cz:dkim,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -11.51
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 58A511F458
 
-Hi Muchun,
+On Mon 02-11-26 15:21:46, Christian Brauner wrote:
+> proc_sys_readdir() counts the entries of a directory and resumes a
+> listing at the number getdents64() stopped at. The entries are sorted
+> by name, so one that is registered or unregistered in between shifts
+> everything behind it by one. Listing /proc/sys/net/ipv4/conf with a
+> buffer that holds ".", ".." and "all" and registering a device whose
+> name sorts before "all" makes the next call return "all" a second time.
+> Unregistering one that sorted before the position makes it skip an
+> entry instead. So a listing that takes more than one call shows a name
+> twice, or not at all. Even the 64k buffer of ls needs a second call to
+> find the end of the directory, so a device that comes up right then
+> repeats the last entry.
+> 
+> So remember the name of the last entry a call emitted in the file and
+> resume at the first usable entry after it, like kernfs resumes after
+> the node it stopped at. The entry itself can't be pinned across calls,
+> unregistering waits for that. If the position was moved by a seek in
+> between the listing counts from the start like before, seeking to an
+> arbitrary position has never been better than that.
+> 
+> That also takes one walk down the tree to resume instead of a walk over
+> every entry in front of the position with a round trip through
+> sysctl_lock for each of them.
+> 
+> Fixes: 77b14db502cb ("[PATCH] sysctl: reimplement the sysctl proc support")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
-kernel test robot noticed the following build errors:
+Just one coding style nit below. Otherwise feel free to add:
 
-[auto build test ERROR on dba8aba0a9a00ff781c03d82ae534fc6f8c2e263]
+Reviewed-by: Jan Kara <jack@suse.cz>
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Muchun-Song/powerpc-mm-make-vmemmap_populate_compound_pages-static/20261105-141213
-base:   dba8aba0a9a00ff781c03d82ae534fc6f8c2e263
-patch link:    https://lore.kernel.org/r/20261105061217.13302-3-songmuchun%40bytedance.com
-patch subject: [PATCH v2 2/5] powerpc/mm: drop powerpc vmemmap_can_optimize()
-config: loongarch-allmodconfig (https://download.01.org/0day-ci/archive/20261105/202611052055.TcIXFI7V-lkp@intel.com/config)
-compiler: clang version 19.1.7 (https://github.com/llvm/llvm-project cd708029e0b2869e80abe31ddb175f7c35361f90)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261105/202611052055.TcIXFI7V-lkp@intel.com/reproduce)
+> +	if (!name) {
+> +		after = rb_first(&dir->root);
+> +	} else for (node = dir->root.rb_node; node;) {
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202611052055.TcIXFI7V-lkp@intel.com/
+This indentation looks too inventive to me :) I'd just use
+	} else {
+		for (...) {
 
-All errors (new ones prefixed by >>):
-
-   In file included from arch/loongarch/kernel/asm-offsets.c:11:
-   In file included from include/linux/mm.h:31:
-   In file included from include/linux/pgtable.h:6:
-   In file included from arch/loongarch/include/asm/pgtable.h:75:
-   include/linux/vmemmap-optimization.h:62:9: error: call to undeclared function 'vmemmap_optimizable_order'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-      62 |         return vmemmap_optimizable_order(section_compound_order(section));
-         |                ^
->> include/linux/vmemmap-optimization.h:68:22: error: use of undeclared identifier 'vmemmap'; did you mean 'mem_map'?
-      68 |         unsigned long pfn = page_to_pfn((struct page *)start);
-         |                             ^
-   include/asm-generic/memory_model.h:73:21: note: expanded from macro 'page_to_pfn'
-      73 | #define page_to_pfn __page_to_pfn
-         |                     ^
-   include/asm-generic/memory_model.h:47:54: note: expanded from macro '__page_to_pfn'
-      47 | #define __page_to_pfn(page)     (unsigned long)((page) - vmemmap)
-         |                                                          ^
-   include/linux/mmzone.h:1452:21: note: 'mem_map' declared here
-    1452 | extern struct page *mem_map;
-         |                     ^
-   In file included from arch/loongarch/kernel/asm-offsets.c:11:
-   In file included from include/linux/mm.h:31:
-   In file included from include/linux/pgtable.h:6:
-   In file included from arch/loongarch/include/asm/pgtable.h:75:
-   include/linux/vmemmap-optimization.h:138:20: error: conflicting types for 'vmemmap_optimizable_order'
-     138 | static inline bool vmemmap_optimizable_order(unsigned int order)
-         |                    ^
-   include/linux/vmemmap-optimization.h:62:9: note: previous implicit declaration is here
-      62 |         return vmemmap_optimizable_order(section_compound_order(section));
-         |                ^
-   In file included from arch/loongarch/kernel/asm-offsets.c:11:
-   In file included from include/linux/mm.h:36:
-   In file included from include/linux/rcuwait.h:6:
-   In file included from include/linux/sched/signal.h:7:
-   include/linux/signal.h:98:11: warning: array index 3 is past the end of the array (that has type 'unsigned long[1]') [-Warray-bounds]
-      98 |                 return (set->sig[3] | set->sig[2] |
-         |                         ^        ~
-   include/uapi/asm-generic/signal.h:62:2: note: array 'sig' declared here
-      62 |         unsigned long sig[_NSIG_WORDS];
-         |         ^
-   In file included from arch/loongarch/kernel/asm-offsets.c:11:
-   In file included from include/linux/mm.h:36:
-   In file included from include/linux/rcuwait.h:6:
-   In file included from include/linux/sched/signal.h:7:
-   include/linux/signal.h:98:25: warning: array index 2 is past the end of the array (that has type 'unsigned long[1]') [-Warray-bounds]
-      98 |                 return (set->sig[3] | set->sig[2] |
-         |                                       ^        ~
-   include/uapi/asm-generic/signal.h:62:2: note: array 'sig' declared here
-      62 |         unsigned long sig[_NSIG_WORDS];
-         |         ^
-   In file included from arch/loongarch/kernel/asm-offsets.c:11:
-   In file included from include/linux/mm.h:36:
-   In file included from include/linux/rcuwait.h:6:
-   In file included from include/linux/sched/signal.h:7:
-   include/linux/signal.h:99:4: warning: array index 1 is past the end of the array (that has type 'unsigned long[1]') [-Warray-bounds]
-      99 |                         set->sig[1] | set->sig[0]) == 0;
-         |                         ^        ~
-   include/uapi/asm-generic/signal.h:62:2: note: array 'sig' declared here
-      62 |         unsigned long sig[_NSIG_WORDS];
-         |         ^
-   In file included from arch/loongarch/kernel/asm-offsets.c:11:
-   In file included from include/linux/mm.h:36:
-   In file included from include/linux/rcuwait.h:6:
-   In file included from include/linux/sched/signal.h:7:
-   include/linux/signal.h:101:11: warning: array index 1 is past the end of the array (that has type 'unsigned long[1]') [-Warray-bounds]
-     101 |                 return (set->sig[1] | set->sig[0]) == 0;
-         |                         ^        ~
-   include/uapi/asm-generic/signal.h:62:2: note: array 'sig' declared here
-      62 |         unsigned long sig[_NSIG_WORDS];
-         |         ^
-   In file included from arch/loongarch/kernel/asm-offsets.c:11:
-   In file included from include/linux/mm.h:36:
-   In file included from include/linux/rcuwait.h:6:
-   In file included from include/linux/sched/signal.h:7:
-   include/linux/signal.h:114:11: warning: array index 3 is past the end of the array (that has type 'const unsigned long[1]') [-Warray-bounds]
-     114 |                 return  (set1->sig[3] == set2->sig[3]) &&
-         |                          ^         ~
-   include/uapi/asm-generic/signal.h:62:2: note: array 'sig' declared here
-      62 |         unsigned long sig[_NSIG_WORDS];
-         |         ^
-   In file included from arch/loongarch/kernel/asm-offsets.c:11:
-   In file included from include/linux/mm.h:36:
-   In file included from include/linux/rcuwait.h:6:
-   In file included from include/linux/sched/signal.h:7:
-   include/linux/signal.h:114:27: warning: array index 3 is past the end of the array (that has type 'const unsigned long[1]') [-Warray-bounds]
-     114 |                 return  (set1->sig[3] == set2->sig[3]) &&
-         |                                          ^         ~
-   include/uapi/asm-generic/signal.h:62:2: note: array 'sig' declared here
-      62 |         unsigned long sig[_NSIG_WORDS];
-         |         ^
-   In file included from arch/loongarch/kernel/asm-offsets.c:11:
-   In file included from include/linux/mm.h:36:
-   In file included from include/linux/rcuwait.h:6:
-   In file included from include/linux/sched/signal.h:7:
-   include/linux/signal.h:115:5: warning: array index 2 is past the end of the array (that has type 'const unsigned long[1]') [-Warray-bounds]
-     115 |                         (set1->sig[2] == set2->sig[2]) &&
-         |                          ^         ~
-   include/uapi/asm-generic/signal.h:62:2: note: array 'sig' declared here
-      62 |         unsigned long sig[_NSIG_WORDS];
-         |         ^
-   In file included from arch/loongarch/kernel/asm-offsets.c:11:
-   In file included from include/linux/mm.h:36:
-   In file included from include/linux/rcuwait.h:6:
-   In file included from include/linux/sched/signal.h:7:
-   include/linux/signal.h:115:21: warning: array index 2 is past the end of the array (that has type 'const unsigned long[1]') [-Warray-bounds]
-     115 |                         (set1->sig[2] == set2->sig[2]) &&
-         |                                          ^         ~
-   include/uapi/asm-generic/signal.h:62:2: note: array 'sig' declared here
-      62 |         unsigned long sig[_NSIG_WORDS];
-
-
-vim +68 include/linux/vmemmap-optimization.h
-
-    64	
-    65	static inline void section_vmemmap_optimization_disable(unsigned long start,
-    66			unsigned long end)
-    67	{
-  > 68		unsigned long pfn = page_to_pfn((struct page *)start);
-    69		unsigned long nr_pages = (end - start) / sizeof(struct page);
-    70		struct mem_section *section = __pfn_to_section(pfn);
-    71	
-    72		if (nr_pages < PAGES_PER_SECTION) {
-    73			VM_WARN_ON_ONCE(section_vmemmap_optimizable(section));
-    74			return;
-    75		}
-    76	
-    77		VM_WARN_ON_ONCE(!IS_ALIGNED(pfn | nr_pages, PAGES_PER_SECTION));
-    78		section_set_compound_order(section, 0);
-    79	}
-    80	
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+								Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
