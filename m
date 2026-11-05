@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793907029;
-	b=K7PAqft9wIMdljuXKRG7d++VGFwzhkFLJma8GppuDBmR7RDfowE42Epa2oB4XzYM6N6t
-	 xHxJfcCNXouQB7MYOb6nGNX6eR8wUR8QJNLy2d/EkugM1V7m4aepJMvfTm00EJcGDdUky
-	 VOwxKs+9x17XnMuvp6BFbNj97XDfwMCWOD1/GJMYaZmWPPoV80+1DdXtLoWjnY9N1+M5+
-	 RCY/DcL7oSEzszyWGdyYQebHwDz31pNiZCwdgtxcBrfrLTDEQXGtlEIPis8ajXhxrveO3
-	 7+P9mPW5R6nriQ/hVAIpWlN7gCtrS1A4GFdf9encxmvcPr3AAmkQ616xORxJtQr0Buw==
+	t=1793907025;
+	b=nmu3vc3AQa0/0fkkNylRAdbJ5aiS6+Sc+xrI6YORnVCn9N5GhwzxNxw5xgZfy/vhE/nT
+	 i+1fHaW7jGPJJcPXIyQ8VpKwmmgKrLgmjMrhjB6GWkwVyBQEcasVamXNt6VD7csMu6Wnn
+	 ajlQ/ay0OtB6/usN5ZUYohT1E6N1HQffOKtSippUwKLtdTZhcOnlWY93qmwdrQyUbo+Mi
+	 bOA5PlTMaoKkwONGPo0XX+C4zHoTo9EbUpj0+qRXM/VTy6kM9gk1ad6TUkgthi/M5alz7
+	 mDNOq9kIPdmwXA/596hsHTfUkEhKL6CgBVIppUkEmNSvMdW08iD5EaF/AJYh/kNTF1g==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793907029;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793907025;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=TUEa7eIRLkYlG50VJyzFVsWpbL0zjSyXV5JMm1JJ87k=;
-	b=RRA2GTDcIPQHue/19b5cKK2TayYvmMJFuumie/Y0d1BC2t2UcFMmjwzxEa41juGRtlyQ
-	 AZ51TKYi1j9S6qy+UduCq8zgGI7f09VfrAOd9Yz+V+MtZDdSnA4/NxZDHNOTWyzklqOuu
-	 wG+qmTx/RRZ4h/IjrLk+BxX+SaPXNtxuN/Z1UdGntdEOW8YvWnNRTfj+PLaFfXJh2biZc
-	 cbLQNKYpPr9/A71UwxUHf0RNLuz6F2Edp39wE1rhB9n1zIrJLBwjZWvmF2yNgiqCILoSG
-	 L55VCfa5R15U0g5+h5E2tqgdsZ9iDWxyhVYCuoGOSvfw3wSOLpIfxdmtsj7G9yqyBQQ==
+	bh=2ZEFR6gjnP3wVSksugK0Xi/aHT+AN/UQkRBLfUojuMA=;
+	b=Udq8ePYyq2vBnXecrQLvf6Y5YO00oK713LxSo0hSpJTmEGQZOhD1HynX8PwPRmT8rOnL
+	 2s9oVlc3+fxXKTWCqMNpAJ5/Vk+xgrxcyhkAi3/qFkwEz1n5fhEzmqlOrE/a6GCvXTAeO
+	 yo4Jz8+thkv35rD8eRS16WF2LNrQRpsTQZdJqo1VAlUj5MHkuHk1Io1vZAGhwy7Ft2xVq
+	 vbn/rImksLrFAYXMXUwIoT9G7A4/dZqvmUSQY54fLXTqqpYAHuQmIGGrVSJq4o7VSAH9f
+	 MzZoHte01/sQ5LqQtzLLdj7TB3ev6NDzuaDZ6JljvJvE2kDmXbMnIaKNyby0bwQ7dCQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="EzE5K//c";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aFb5Yznl;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44FCA606A336;
-	Thu,  5 Nov 2026 19:30:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D6AB606B9C7;
+	Thu,  5 Nov 2026 19:30:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EzE5K//c
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F291F00A02;
-	Thu,  5 Nov 2026 19:30:27 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=aFb5Yznl
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C2801F00919;
+	Thu,  5 Nov 2026 19:30:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793907028;
-	bh=TUEa7eIRLkYlG50VJyzFVsWpbL0zjSyXV5JMm1JJ87k=;
+	s=k20260515; t=1793907024;
+	bh=2ZEFR6gjnP3wVSksugK0Xi/aHT+AN/UQkRBLfUojuMA=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=EzE5K//cJCfees6tq1n/aL2ZXIFBE5phY+UQOmHq0vN8UPvYS/t9kkzR12V91SBSS
-	 mhS7JX+wWb8SSFsgjQLGWb/WG0xY7lURsW1aoepv/YNSVEiw0q1fXhrM33YsC2iYcX
-	 Y+waIrwUG/i8Vo4xsrxYyrlh/w1ZXi6PT5QOp69R3v0bZCzhRKgl7jMf/20Nx+KlzW
-	 0im/yzY5zXpuAl+QtNTMGdrxcjVY3ep9xLEZXfFos47R/RaVosKingXECZ1lFQe2/a
-	 3/8aSX9eI5PmGSLMxslCDj4GFhqROFpYezwD6KMYwTFTCdln5UIo/LVBxVD2dGdOQo
-	 DMN8N2/pVc/WQ==
-Message-ID: <sashiko-outbox-199911@kernel.org>
+	b=aFb5YznlYnipR19+u+Im8pSQa+/x3WULY7AoYCqTywnkISPlw9ZNAM38Fkr0pYgvi
+	 6cp1ijVNCZRYHKjlbb7mp7pruaep/7wtvEt054PrL+Zxw8V6yne8Cd+u9HQSVVaeWR
+	 /crGUSwOp+7vR5Uci9LlccyoZkEnJUeSmLK9Ve7s/+EFwq4GsVFjKdQehhVg+5wuGX
+	 w0RgAwmJ2guiBQr2AyG8R5mOMd+mWgU2cUDkOUbrm62IVqlgFWh8+X0/UvbreN6eUd
+	 orSAqTkhmHMjsXQrmyGsTaiwsc4DUpcbRA79TZz6uGLjaUzMpDTmJ0UWgvZ1kT77o6
+	 QnN26MXG0YM6A==
+Message-ID: <sashiko-outbox-199909@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 48/51] proc: sysctl: don't hold the tables
- while readdir copies to userspace
+Subject: Re: [PATCH RESEND v2 46/51] proc: sysctl: copy to and from
+ userspace without holding the table
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -55,12 +55,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-bugfixes-v2-48-021c84d852e0@kernel.org>
+In-Reply-To: <20261104-work-procfs-bugfixes-v2-46-021c84d852e0@kernel.org>
 References: <20261104-work-procfs-bugfixes-v2-0-021c84d852e0@kernel.org>
- <20261104-work-procfs-bugfixes-v2-48-021c84d852e0@kernel.org>
+ <20261104-work-procfs-bugfixes-v2-46-021c84d852e0@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:30:26 +0000
+Date: Thu, 05 Nov 2026 19:30:23 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -70,26 +70,26 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> proc_sys_readdir() holds the directory's table for the whole readdir
-> and the table of each entry while dir_emit() copies its name to
-> userspace. Unregistering a table waits until nobody uses it anymore. So
-> a getdents64() whose buffer faults for as long as it wants keeps
-> unregister_sysctl_table() waiting, just like a stalled read() does.
-> Listing /proc/sys/net/ipv6/conf/<dev>/ that way holds up the removal of
-> the device under RTNL.
+> proc_sys_call_handler() grabs the table, copies in what is written,
+> calls the handler and copies what it produced out to userspace before
+> it lets go of the table again. Unregistering a table waits until nobody
+> uses it anymore. So a reader or writer whose copy faults for as long as
+> it wants, with userfaultfd or a stalled FUSE mapping, keeps
+> unregister_sysctl_table() waiting, and its callers like to hold locks
+> while they do that. addrconf unregisters the ipv6 sysctls of a device
+> with RTNL held, so a stalled read of /proc/sys/net/ipv6/conf/<dev>/mtu
+> holds up every RTNL user until the reader gives up.
 >=20
-> So don't take any table into use for a listing. A header counts what
-> refers to its memory, the inodes made for it, and unregistering doesn't
-> wait for those. readdir takes one of those references on the entry it is
-> at instead, which keeps the header around and nothing else. Under
-> sysctl_lock, where unregistering erases an entry, it finds the entry,
-> copies its name, follows a link to the entry it stands for and pins
-> that. Then it looks the dentry up, creates the inode if there is none,
-> [ ... ]
-> directory was done.
+> Copy in before grabbing the table and copy out after letting go of it,
+> like procfs and kernfs do for their files. The buffer is ours, nothing
+> needs the table for the copies.
 >=20
-> Fixes: 77b14db502cb ("[PATCH] sysctl: reimplement the sysctl proc support=
-")
+> That moves the allocation and the copy in before the permission check.
+> A write that can't be copied in, or a request that is too large, now
+> fails with -EFAULT or -ENOMEM where it used to fail with -EPERM.
+>=20
+> Fixes: 330d57fb98a9 ("[PATCH] Fix sysctl unregistration oops (CVE-2005-27=
+09)")
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
@@ -97,5 +97,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-bugfixes-v2-0-021c84d852e0@kernel.org?part=3D48
+s-bugfixes-v2-0-021c84d852e0@kernel.org?part=3D46
 
