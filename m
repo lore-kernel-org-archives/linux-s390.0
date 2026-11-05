@@ -1,47 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793907316;
-	b=YPDtmjWc/NhI8FhgmpGz4zHtOdbv4IhoHvTP2f0PXmSl8eBOuXsJXbCYtcUBncGWQsTf
-	 4C7fJo9FJbgc2P8w4uIonNbyK8jnBOnggQADR50QpG9WTZQouOKmHhyVfUi/jyEED3kmm
-	 H/lrjXNg0dfFmjkrHwkXT7wCGWciBCFC3XGRUHq7WluZoF4o/+EjW5orJpW0rLRHJ0NVl
-	 VMvUd9tOiOpbjQrNZTaAKrx8UsDH708VdD9sTZIDasBkr/tKfJqGBc7G5AJ3Q59R0z8+E
-	 fMwHb0/p/98Jp9an8QK5htm3tNKp1YTEy85MtQblM3lhImisoyJWhnCZ+DCHonplxfQ==
+	t=1793907329;
+	b=IgUPyo5rJJalfO06OdtS5tY+Q5TiPV40m5oSIcojKRXayTFrxYXrDaJCWqbX8ykLB7EE
+	 QveED9b+Uv5RXMybnjYehnqTPIiRFpZFnZU+uD7MEpAUsaWy5xtGCUSwqLzvngDlGaKAr
+	 Nk41soYslYCOJABqlHrBwg/BGEmZ9n4UmjRm/Q71p5vHzEztxwSf5HYESfQMcPJws7wKS
+	 gRFsyyypvykJuQxoKM15U70vLQh3+1qn76JwZsc7moZKpNWlV2QMDNmPU2ogeRwGXcmNN
+	 HIUrXBp9Nf6F11v6GFwmkGOcY25sjxUIZqboScoTeGqBHCg63K/GKhU9DiywDLINyHw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793907316;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793907329;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=6hoRvIBjdvZcFdce6OvLL9wYKZneWoJGVeTND16Hg0g=;
-	b=N7jvtC3GxIg9zUZRIOOJRNxmWNQs2fTZwwF9CDzDLyFm6/bHR+h9R/DrABG3cq5k3Sh8
-	 QD6jDEAJE+Od8ct+3VFx6EmUvB/xqm8/2FdRqNrOQ0XvVtC+KVuwqFiwggDkD/DZjUOl9
-	 gAspL2aV3VR+PWyf0qHMnaW7F1qTLo+E3oknTnQa+5akJR0loDNB0OfvOxNPHSsrCVY5Q
-	 VsbjYwnqIfxeWRb9VXVeEEvcFtzYebSqf+AQx2GHlGbioJUxFj1ewfp1GljXkeaqM77dU
-	 TQ1CWJuIi4dsQp6hUq1z9k5PZTxuFcFTWGSlyLt86DOQBGbcBzoQ0wB4ZtYx4jBecYw==
+	bh=6+3rBZSpmL6AwycDiybym7wulbxgrmRFLRhclCECa3Y=;
+	b=4rJD6v6T0gO5LDhE0X1B/u/37MADBakFL/cLDGXqq5/42kzPSm++uS+z1Q/okjXQBwT2
+	 bv9Ocvq2zd4y8cL3EgOSjxd8zWr65EVeOq9ebsQPM6J/Cc752uy9EOnA3tj8tlRZ0M+dr
+	 FfMcEQSPWGSw4IBQiLCvlYZn58oQxLZbaA+5C+nslx4qnwPESKZZZ4klVMek1S3wuTV01
+	 OsOoBa6QMLbS5yofqNqQK3J5r0nn5S29g02TelwuUftdOjhFAleGzSS29dXUNgpCVBBzZ
+	 JmR/EtQbt3D23QnXlTyJNDM/YfXqkwOz8CkRA9FVqubOqIzRmQN34779ZHmDw30Dy9Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="H/IGA7VD";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AOZbcgp7;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1C4A6077281;
-	Thu,  5 Nov 2026 19:35:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58CFA608363B;
+	Thu,  5 Nov 2026 19:35:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=H/IGA7VD
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24FE91F0089F;
-	Thu,  5 Nov 2026 19:35:14 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=AOZbcgp7
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B0871F0089E;
+	Thu,  5 Nov 2026 19:35:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793907315;
-	bh=6hoRvIBjdvZcFdce6OvLL9wYKZneWoJGVeTND16Hg0g=;
+	s=k20260515; t=1793907329;
+	bh=6+3rBZSpmL6AwycDiybym7wulbxgrmRFLRhclCECa3Y=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=H/IGA7VDolTlFuDSzsR9PpNCLOc+MOL9Jlb497kin2aM9CsKSdGuinZsObzzhjKLu
-	 vZB5+O9pGI8nVCo/32oLJsm4VfhHALYRw69cQLc/OwWudG08CrlbhwGxTj7hUqCvjm
-	 zVfPAInrWuotxqB48n1/G7DlipPyNWJuwaJ2BWS/mluZe9QG+3hr62O+EHJHS7JbdH
-	 R5EBZoDlSrf8ybUt+J6V3XvBz3x5hj9FNHwo4MzJlMjxhvX4Q3MmE7R6Wst9YwTNGO
-	 WDDxetp3K1AY572xeDhT4SHRoltfwdfx2B4GtWjR4CUKwVTi5TNf8KO6vilhKxp27B
-	 EnYkpbISY24IQ==
-Message-ID: <sashiko-outbox-199931@kernel.org>
+	b=AOZbcgp7KiL117k9ZomLZgNAYCqNPQoGYDGu7VInBnlWN2ACci5GdQGHH77Td5fl0
+	 PMqHuG9PSJ1eIcSmO4aE/jRhciTEEC+kaCXQzAkbjSAbEmqIqcFbZPKSNSF+Dz8T5g
+	 YNFTdQpoP5CWmhjRyUKESuR+HN1YN/5/HAbEbhU6EhzWiOxUQMENP1CQBZlkoEyGB/
+	 kvCg4HTLMHqDXXlApPNo3yFstryquziH9LGxCkx8CbvvTATNAM/9L15zEUZlS5NclP
+	 lcEIpX6mHh0IBDkqZ7elF8XDMRhP8BOx6XbMw7DhMmLmu7mHjpMwm0/m66xJ9XieZX
+	 C64c3NTX5BZ5A==
+Message-ID: <sashiko-outbox-199937@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 01/23] proc: drop the compat file operations
+Subject: Re: [PATCH RESEND v2 07/23] proc: let procfs own the seq_file of
+ seq_file entries
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -54,12 +55,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-core-v2-1-76ace653a773@kernel.org>
+In-Reply-To: <20261104-work-procfs-core-v2-7-76ace653a773@kernel.org>
 References: <20261104-work-procfs-core-v2-0-76ace653a773@kernel.org>
- <20261104-work-procfs-core-v2-1-76ace653a773@kernel.org>
+ <20261104-work-procfs-core-v2-7-76ace653a773@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:35:12 +0000
+Date: Thu, 05 Nov 2026 19:35:27 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -69,27 +70,31 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> procfs has both sets of file operations twice, with and without
-> ->compat_ioctl(), and picks the one with it for entries that have
-> ->proc_compat_ioctl(). That's from commit 778f3dd5a13c ("Fix procfs
-> compat_ioctl regression") when a file without ->compat_ioctl() went
-> through the translation tables in fs/compat_ioctl.c and one with it
-> didn't. Those tables are gone since commit 77b9040195de ("compat_ioctl:
-> simplify the implementation"). compat_sys_ioctl() answers -ENOTTY for a
-> file without ->compat_ioctl() now, which is what
-> proc_reg_compat_ioctl() answers for an entry without
-> ->proc_compat_ioctl().
+> remove_proc_entry() waits until every call into the entry has returned.
+> For a seq_file entry that's all of seq_read_iter(), including the copy
+> to userspace. A page fault in that copy can be made to take as long as
+> the reader wants, e.g. with userfaultfd or by punching holes into a
+> memfd over and over. And callers of remove_proc_entry() like to hold
+> locks while they wait. xt_hashlimit holds hashlimit_mutex, which all
+> network namespaces share, and addrconf holds RTNL.
 >=20
-> So always set ->compat_ioctl() and drop the second set of file
-> operations and the flag that picked it.
+> But the entry's code only runs between ->start() and ->stop() and the
+> copies to userspace happen outside of that. So let procfs own the
+> seq_file the way kernfs does. An entry declares its seq_operations, or
+> just a show function, and the size of its private state in struct
+> proc_ops. procfs then opens the seq_file with seq_operations it builds
+> for the entry when it is registered: the entry's own ->next() and
+> ->show() with a ->start() and ->stop() of procfs around them that pin
+> [ ... ]
 >=20
-> No functional changes.
+> No users yet.
 >=20
+> Suggested-by: Jann Horn <jannh@google.com>
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-core-v2-0-76ace653a773@kernel.org?part=3D1
+s-core-v2-0-76ace653a773@kernel.org?part=3D7
 
