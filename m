@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793906998;
-	b=GlLTFzfX8WKvZFKo9VXxlq7GNKkkD+X0e2kSDSO/Iwi236U3StaaqZ8UE9ywibZeTf9a
-	 cb09utvvTbzF9bcsIL1GMr+KdQUc0+B0D/DDvqvWoO8u2hrW6c3cVh5RrknaK++X5cFia
-	 2r4ibqnYL3cjxVZpSRZgIQdR+Wzp9SP+TQmsGkXqpDAuGj0nCwI5/UCADE6dl6q+veFR9
-	 wle8vjt4ALX1i8fsqZ9A7cY9+KU1HfGKqP2V1fsa4Qw2AyEkP/TaQoLWUDonHURPjNg1K
-	 L/kbzxYkjKcHXDgu8PB5Wloe/lHZOiNXYkXGq9pFwxNoYcZHyY00ITtfX2DwlKBlMXg==
+	t=1793907006;
+	b=dWNx4/B3g9EWNTwYOSU2vxDXS0b2fhXwUDez2zITRWe2FJTYQ9bG6tv5VhcH6+CZ92px
+	 EG+9BXYEpelgHu4KN0pv9bRO8rCio6bUHUU5ljDGXkzE0bUXLiHeiYKL9ewb79DVnUTbq
+	 ONKOUGvFS33MECjU3er13YhCdxl1YcZfZOeuvGSBwbuMi5bUx1R5issc2TdtJtHuMyV8B
+	 csMtsBby/40HKEHXlhqpk0Tkm6+UuAElkf4RJvNjfIS+bKzuzk+FEwM7Qv/tSLviwUp/Z
+	 sPficZur/doDTiRiovdRvGCnPDm4yFahE8/84PtWF7mls5bTQjIDvQpug8wmJ5Yn41Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793906998;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793907006;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=99n2ODOrbk/um2zwUpcCRu9OBem/Bf8KyNf1gWCS5EU=;
-	b=DzfcS1D5XOtnuc79B3aBYnEOejHlHHnfxtHx0G1KMGT/X6WDaTqnM+wbkHzVvXpDNTa6
-	 E3O2LenpVf3IVRkiJ/ERB4796dVel1+1QcnR0x3di9Sngc8X4y/XgPSSQerdIS6l7T9lX
-	 mD7DSKriqGrmqDNPkn3NK8N/uw2TD5HvLV+Y1L63cGTyywG/OZtLYRGdU/fxTLOEJEa47
-	 mgWxNsPozVL6I0pB1SBdWzK/F6o1c8AmQGIk9WNdXha4Gc/ITKK/QeEI3hQv75f1zcRgB
-	 1cLFLcfkUc3M788NKoGs4APwdGE9dRo/x666pp5UT9qTYlRchgAkO1i8o0cCpYA40Rg==
+	bh=hsy7qPadddcHp1yz4RskpjuPCs9z+iyUZQjRxWR0tno=;
+	b=Q8Swup0DCIWAl4qVWDGt73vWJ7tMz6Oa8f8P46S269G8VD4aH/ASV5+oaGidM6vd2hEU
+	 5r9ZhhR8vOrNa/DPVygsThhw2le1/j31Lgtvtb9DB4or/qkEnsKToBYAzQGd+qITQ1Q0N
+	 3JsyRI/gwiCsctRJ2pWIco6Ygy4VE4OKbxB79ApdpMPw7k8gX8kcMWQERNSbxu5kYqp5D
+	 Z5m2E8vo4g71LlK5aqDKJ29sQf25970FtdNypwLVyU/lCaIxk9SB6ZoLqbV0hgChPicwt
+	 +fbTUYcJdVtAMLHdsLEpU23vWmrYE7meCMTOjpHd2MUHPr3q5XUYy862GC8zQihxHfA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="M/LPrtHi";
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n1pRV84z;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97F2660A3836;
-	Thu,  5 Nov 2026 19:29:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A88D8606D823;
+	Thu,  5 Nov 2026 19:30:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=M/LPrtHi
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD6F81F00919;
-	Thu,  5 Nov 2026 19:29:56 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=n1pRV84z
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D006D1F000C1;
+	Thu,  5 Nov 2026 19:30:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793906998;
-	bh=99n2ODOrbk/um2zwUpcCRu9OBem/Bf8KyNf1gWCS5EU=;
+	s=k20260515; t=1793907005;
+	bh=hsy7qPadddcHp1yz4RskpjuPCs9z+iyUZQjRxWR0tno=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=M/LPrtHijTR3RtO9AShzhQ19Zy5Kl5YlzepW0MBPoQGraVjX/QE98eHLqfNiVwE2W
-	 C1UMVWmoW+TyJVni1OuvV4a4mXWG+qagXGKRLgUbC4j9LV1740dwMCB8C+TsrHbQTF
-	 2uHmzIHBpCoO+mXz8Z9IsohhYJr1jQBdiHQKaHAIMz4YzzN8aFm39Yp482vS8dhXIB
-	 MXvy6YjsBiCNXf2trYuQ0BhqcErucVFF2clU1PSF3obpkmtHf0jhEvMnYWRJ9cS54E
-	 2jxXTltfO1qXjaW4YvahpH63B9VKj+NIvBinZspqJjXvsxnB9IrHfzidrPZ8jB0NRQ
-	 WxxAtB2Y2uCEw==
-Message-ID: <sashiko-outbox-199897@kernel.org>
+	b=n1pRV84zJKUUtgUv1TYLImkQPkvmaqLjvwYZrx2oyTCwObzhdrQFqivFQJG2KSTyQ
+	 eTIbvYnu/am2gKJ0v2gg99xx3HGgCRhK3jtKYYV/hEN32FiOkUwOd5qfCd1EvNlRbU
+	 /wDWKpQlTW9sg368vKkBt979aVtHTwB7aqgs1lZ3cZ7yuOwpmH/5K72S+3ZXzvHDZJ
+	 zCVaJA/NGoQ3f5O/ZIg5OD8CZV38pYz/7PwHfRkFO2BSCEBpwk5KemMFv7yST4FY/7
+	 ke1edsHonMb+SJ+aejvls7v7xGnvSnNsG3bwmscXuAXx4DTCqwdtiudcPMpO6x6AMq
+	 QMz7+TNSVPVMQ==
+Message-ID: <sashiko-outbox-199900@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 34/51] proc: let proc_remove() remove the
- entry it was given
+Subject: Re: [PATCH RESEND v2 37/51] proc/vmcore: don't let vmcore_cleanup()
+ run twice at once
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -55,12 +55,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-bugfixes-v2-34-021c84d852e0@kernel.org>
+In-Reply-To: <20261104-work-procfs-bugfixes-v2-37-021c84d852e0@kernel.org>
 References: <20261104-work-procfs-bugfixes-v2-0-021c84d852e0@kernel.org>
- <20261104-work-procfs-bugfixes-v2-34-021c84d852e0@kernel.org>
+ <20261104-work-procfs-bugfixes-v2-37-021c84d852e0@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:29:56 +0000
+Date: Thu, 05 Nov 2026 19:30:03 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -70,32 +70,32 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> proc_remove() looks the entry up by its name in its parent and removes
-> whatever it finds there:
+> vmcore_cleanup() has a single caller, fadump's release_mem_store() on
+> powerpc. That checks fw_dump.dump_active without a lock and calls
+> vmcore_cleanup() without one, and kernfs only serializes the writers of
+> one open file. So two tasks that write to
+> /sys/kernel/fadump/release_mem through different files run
+> vmcore_cleanup() at the same time.
 >=20
->   remove_proc_subtree(de->name, de->parent);
+> The first one removes /proc/vmcore and waits for its readers in
+> proc_remove(). The second one finds the entry already unlinked, returns
+> from proc_remove() right away and frees vmcore_list, the ELF headers
+> and the device dumps while those readers still walk them. Or both of
+> them free the same lists at once.
 >=20
-> If the entry was removed already, say along with its parent, that is
-> either nothing or a different entry that got the same name in the
-> meantime, and de->parent may well be gone. Two removals of the same
-> entry are a bug in the caller, but going by the name turns it into
-> removing an entry that belongs to somebody else.
->=20
-> Since commit 895b4c0c79b0 ("fs/proc: fix uaf in proc_readdir_de()")
-> an entry that was unlinked has an empty rb node. So check for that
-> under proc_subdir_lock and otherwise remove the entry itself, with the
-> loop of remove_proc_subtree() moved into a helper both of them use.
-> Nothing can help a caller that passes an entry that has been freed
-> already.
+> Serialize vmcore_cleanup() with a mutex of its own. It can't be
+> vmcore_mutex, removing /proc/vmcore calls release_vmcore() which takes
+> it. The second caller then finds nothing left to free.
 >=20
 > Reported-by: Chris Mason <mason@kernel.org>
-> Fixes: a8ca16ea7b0a ("proc: Supply a function to remove a proc entry by P=
-DE")
+> Fixes: b500afff11f6 ("fadump: Invalidate registration and release reserve=
+d memory for general use.")
+> Cc: stable@vger.kernel.org
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-bugfixes-v2-0-021c84d852e0@kernel.org?part=3D34
+s-bugfixes-v2-0-021c84d852e0@kernel.org?part=3D37
 
