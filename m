@@ -1,48 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793907012;
-	b=HmBAlKBCpUVZ5c/+XJXoEw3eDFwEfl2iZy2NdBTav4nHCH84mzLSb7ioqfOHyH1WppPG
-	 rexwTVvjM3LtZY7/ncsj6too7jS16osUc6YCFaZ9CvaTcyE+OoUZKwN/M097QgDpS8mbw
-	 Yocr8H9bKYvCzKVzRNH64gTALT8eBy0P49I+CTMud6L4KNb0fOxm5EbMYsPMrnzn+4Rhk
-	 Sc+9KMD8Kd8YTtK+FRpiUnsCRKiSy+B5ZFS36P/aA6TjIZ+Cgt8X8CcNJMNUzXFo1N26q
-	 1kSzU9gvUczI94QFKmVC1LSaBDxYlQgwK5Dk5Y86wb7FiiYtRLPV71yI3lYTxyTaZ2g==
+	t=1793907004;
+	b=q/rOt2p1xcGTt+qw/jJIXEnasQDw4sGfyFqkhy0do5AJKxIcAX6bB/cwqieWAQ/vu0+s
+	 9+lPa8Z42FuMNWypAPZ3BweexnMCfFBbxfwi1IKJOpD7th6PHa2Fe0+cV/ylcfaju3ZB9
+	 liF3I4Lymnt1kH4x81g6dyPEXEzvr8/AAX7LS6PKe+jVziLKzq13c8TWjedV5o+/DHmff
+	 Dw3z4Kjv2kLmC6E8CZS0cWNxScVZBYadfMBEkcJ02cPi70tY8snZOzWyVQjvLGEF+/nS9
+	 P6oXkR4B/nzvMLz/oiXE+e9g/OoPP+P8oNYsm7ekuD4ZooK7GlPoVIRl6p/yYYULUyw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793907012;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793907004;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=T7HKYtQp5vMTiukaVd7EQNWwSXS9b7eC5j/PqagBtrM=;
-	b=Kz4m0+BRoUe5cvmd1n9czoxf7it17jeT/YxLa6aU5Qn+892e6SLfBydRU1mM4qBIcKEg
-	 sv5BXByrPVje+WA8NsTRJ4+zGjIKkEOpSYoH/6lRCxOeiYJvp/rVnLDpg87KYlvrhlsu1
-	 h7JDbe82OrNWNUiy6f7y2P2nqVVRGPKHhr/tY9dCWd5RD+tE3rGtbxyO4dBfQOnrpJSBA
-	 YHhh1/xDydxvBBcOvCVY0i7yW//nh19jHyxbiyHohqO3db0JhnORf3F7kAec7mONJ45wL
-	 d6j3qXxrJ3ZfQs8XHKtZcObD95fSBmmokAeNwv7V1PqinXpZIzofxNC9qxekZCuta8g==
+	bh=bT7cdtBA3g4ZjNdxCADmBOubkwzRkbH+TQ0hoqO6tiY=;
+	b=fabEpdKLLxh6bMqs/EpdPyd2tRq/1uXeRE3/Cth9yk08k1snbqxEEzc9pVofI/qEtgm8
+	 7gawkova9bRviP5d30RkSbZ74KNlGSvj6b0sKX+Xtt69ZJly3pMGXPDyPbRKRdKhN1eyG
+	 jURGt6RAC5pkSUKeoOWmrC+cAxXUgMbBeFCE/UQ8UtC+1+7Y4Cj9h61KDDcnHJrjXLIBo
+	 m1nnm0CCCD8uVxlY8sU8uW9QUzh7FttL2Mtt08NuzXx/chOxIQABsktq7FeoujbAApKc1
+	 05dPqJ0+5op+6/bu0nPxPrH7axV7Q4PFEWZCs9CHaFOuzJ2cM9jMQOAwlNwsaZ5BL6A==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=B6WJiRfI;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZFkFtso3;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 526F6606A6DB;
-	Thu,  5 Nov 2026 19:30:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFC9D60A5BDA;
+	Thu,  5 Nov 2026 19:30:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=B6WJiRfI
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A13601F00A16;
-	Thu,  5 Nov 2026 19:30:10 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZFkFtso3
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 551AC1F00A17;
+	Thu,  5 Nov 2026 19:30:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793907012;
-	bh=T7HKYtQp5vMTiukaVd7EQNWwSXS9b7eC5j/PqagBtrM=;
+	s=k20260515; t=1793907003;
+	bh=bT7cdtBA3g4ZjNdxCADmBOubkwzRkbH+TQ0hoqO6tiY=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=B6WJiRfIIOZmOenToT8Gl5tE/rjKUnG8bXyiNR5Srz9jcDxPJtwtowXS9szFn8cZr
-	 WN8BdWyUKqvCnlBB0nB37arSWwZ4beEyi9ft4NxFCy8Ur5VfbU/c52RTQ9hy3/QF1U
-	 v8/Ob/jZ2E7l/WVUEKgZTcfqZIxhwV0avNcWMK5lb15TTd5+xb7ZJRFOTEDpL/V4LQ
-	 qqiDfkcwDN94YOHXnBhonf/JZ0Eqfk+ZCjvAseT2pzEyIrELKIXF+gmxk2Mho54u/K
-	 HI7UbMQ3PVHktWHk2inE3o+Ppb+j2wOf42ropi7s62Nha54jVE7mLXq+Gbm6pXyIYe
-	 37E10HbcM17tQ==
-Message-ID: <sashiko-outbox-199903@kernel.org>
+	b=ZFkFtso3C96AnTUnqfat70nSvPWig/+mlWw5M0UhnuCp5QJxgxNGQrORhQlrQkJ/y
+	 hC3IYuBkO3IUK23KYNgrztoNyDYmU4MR+D9gL2C8VjvK7vkMSvevOunoGmfWD0JNml
+	 vsF9OIiPC1HM3aRMk6Mbu6p74Dq5+9CvuKroZEovRvm/WILib1QicWaO1x2FWXQ/Gh
+	 4URR7CizufYYPnmywgHmy0LbSoLzZeP9pgnBeUiBSkH3rjb0o92yRGCn9Np6O+kLCX
+	 Go0H2HcVBVV+M9zicMMj4k9ffVIUnGBdI26ePeddA9J3Se+pxAShijM1YnU9ctvKg+
+	 O8G91Qj2o2VRQ==
+Message-ID: <sashiko-outbox-199899@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 40/51] sunrpc: make queue_wait a global wait
- queue again
+Subject: Re: [PATCH RESEND v2 36/51] proc: don't let NOMMU map procfs files
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -55,12 +54,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-bugfixes-v2-40-021c84d852e0@kernel.org>
+In-Reply-To: <20261104-work-procfs-bugfixes-v2-36-021c84d852e0@kernel.org>
 References: <20261104-work-procfs-bugfixes-v2-0-021c84d852e0@kernel.org>
- <20261104-work-procfs-bugfixes-v2-40-021c84d852e0@kernel.org>
+ <20261104-work-procfs-bugfixes-v2-36-021c84d852e0@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:30:10 +0000
+Date: Thu, 05 Nov 2026 19:30:00 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -70,26 +69,26 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Since commit 552d0e17ea04 ("sunrpc: convert queue_wait from global to
-> per-cache-detail waitqueue") poll() and epoll queue their waiters for a
-> channel file on the queue_wait head in struct cache_detail. But the
-> cache_detail can be freed while its channel file is still open and
-> waited on.
+> Every procfs file has a ->mmap since commit 786d7e1612f0 ("Fix
+> rmmod/read/write races in /proc entries"), whether the entry has a
+> ->proc_mmap or not. On NOMMU validate_mmap_request() takes that to mean
+> the file can be mapped. procfs has no ->mmap_capabilities so a regular
+> file gets NOMMU_MAP_COPY, and a private mapping never calls ->mmap at
+> all. Instead do_mmap() takes nommu_region_sem for writing and
+> do_mmap_private() reads the file into the copy with kernel_read().
 >=20
-> The procfs channel files of a network namespace are removed when the
-> namespace goes away. Removing a procfs file waits for the callers that
-> are in one of its methods right now and then calls ->release on every
-> file that is still open (cf. close_pdeo()). The waiters that poll() and
-> epoll left on the head stay queued until their file is really closed.
-> So:
+> Reading /proc/maps takes nommu_region_sem as well:
 >=20
->   sunrpc_exit_net()
->   -> ip_map_cache_destroy()
+>   mmap(NULL, 4096, PROT_READ, MAP_PRIVATE, open("/proc/maps", O_RDONLY), =
+0)
+>=20
+>   do_mmap()                          // down_write(&nommu_region_sem)
+>   -> do_mmap_private()
+>      -> kernel_read()
 > [ ... ]
+>=20
 > Reported-by: Chris Mason <mason@kernel.org>
-> Fixes: 552d0e17ea04 ("sunrpc: convert queue_wait from global to per-cache=
--detail waitqueue")
-> Acked-by: Chuck Lever <cel@kernel.org>
+> Fixes: 786d7e1612f0 ("Fix rmmod/read/write races in /proc entries")
 > Cc: stable@vger.kernel.org
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
@@ -97,5 +96,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-bugfixes-v2-0-021c84d852e0@kernel.org?part=3D40
+s-bugfixes-v2-0-021c84d852e0@kernel.org?part=3D36
 
