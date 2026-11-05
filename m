@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793908693;
-	b=uGAAdxGIQdco+vQAMIU2YNkuFt5al6x2Sqqb+k835sGPPIgc8nYWakNsQ5HFFBZtyLxw
-	 nB6C7L9EG7FW3ps91P+mxBfg/rMwbaIhH/t5T5bfgDO/AXtKld9kbsV00Bw6u9yRuB1r4
-	 mDnV1aaquyCG/o/4DEY5WLDv/2/Png5NeYTXxPjxHQaf984Hz3Ml27BExfeEF6lLmMnDx
-	 eRvPLcMzatVxkzY4LZvkac+q9ekBkhzYmgF75ggkRGU949jAmaNAgEJmUUtsx6yBmUCJu
-	 B9g5PwvUxjqIJ7cm7tGEiXBGG/Rz6tPne78BvlPFx7r6B5AAN2O6bVXQPrndV5kM2RQ==
+	t=1793908698;
+	b=C/S2IS8f93iGDzJpsuOwOOF3JrcNjY3s+ktiigixRUKHV7XT3JDum2WuBjyZ2F2NnD8B
+	 U4QuEYtwixTImktkmDp5+0k6y6VB8P729SMAAnLrAV5q4/TEHoSL9SVhlpc57Sa0TwMC5
+	 1JVCvRINRkBCF16eLbXoxaFfOunfl6lWdP7q1DiIpmeF/cUA4EOTHsrCfo+V4wWebegL8
+	 i8Vlaem6/7/MaRrXMIDRJqMBO1L4+2qcm46DZhgpyb5xL+su6KjcB7oY5NBzeW6vFqKBL
+	 ssclA0HhQu2B8+d2HLuedU9lDth01Y99fC0Hv9u7MW2sbs9JFOlXVGrG8w27kCAXxkQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793908693;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793908698;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=YYAZKkMFX6DHW8NngSlh8ql7fjU785sF7HqECiCsMnE=;
-	b=pHlv3m25lqq8atCn70ThvGWyCSAfo7kPRBXKWAmlOujv0m4jthhc2hTtHzUeEBIdb3Os
-	 1v2bRicF+ZMVP7jDYPei4I8AXbVElaxif79/Z2D0072ZNmzy57pSWEqKU8oBJkvroN/IT
-	 0nZaj9kGQzxlEo+HFlJyaFjskaNU+3wV9QNz7MX2GQC9kq3dcNnyec6wu0N85/OKrkj1P
-	 yA36ZowE90uqObBwgi+XpjtYM3CeTQRPqvv6ymz34iDWp79bk1LFj4NUh79r2BeBOb8Og
-	 aECgp5KU/k7LNi5iH1p5GTkXeP1feVtdAfJDfAyNbTlj99BU7Q0QMJhN1gcBraiWt7w==
+	bh=Di4Zv2+bgkX+HhZmCpdKbhvfGlZoAaFGwpTTtNZDf1w=;
+	b=i5tzjQcgsuqMsSCQTJHoFpbqLoNVVO74kdGqgDtWP8l4sHNpGkcNVRKtU44uz9qgdsks
+	 vWah2q0RtiHy+cPTIAkkABT8FxSuPgdZNzz1UGVBa4ZxqXb/VbzkIr8lV3T+FWpf59gis
+	 uUSlNz8UbVBB2j4xjj81OaLcHiI914spWBwDRbhrVLZqAEYhRUxQN5KmxLBrPdYxb66u3
+	 D4s5Kr0WdtJ3N7kNo7uY7/J2tu617I3Qh/N2O5ott1xCJnCSOBmf1cntMcZLEyFJ6t+y4
+	 hTOQrWEbdqG1GusB6tHlo/hO/GuSuFV2WgeqFyZ4DqQr0tYW5AXdcFtFpkibWVC05Pg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ghRyAMem;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PS7EuTM4;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16317606A6DA;
-	Thu,  5 Nov 2026 19:58:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6997606A6D9;
+	Thu,  5 Nov 2026 19:58:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ghRyAMem
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AF031F0089F;
-	Thu,  5 Nov 2026 19:58:11 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=PS7EuTM4
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E4B01F008A2;
+	Thu,  5 Nov 2026 19:58:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793908692;
-	bh=YYAZKkMFX6DHW8NngSlh8ql7fjU785sF7HqECiCsMnE=;
+	s=k20260515; t=1793908697;
+	bh=Di4Zv2+bgkX+HhZmCpdKbhvfGlZoAaFGwpTTtNZDf1w=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ghRyAMemqCpDi7g7rwz8fZ2fD4rQ64uE3KXgrCCHOvgfk5ulfB39FlQp35/h4yLvz
-	 dJdBvRlAWS/PTN7GeRmMV78w7VqDHy1yw1SgfdLtFs5/ro8pCEevp9I5o2mEV4hsre
-	 QbUCFmiC0JedW6U3cu7OBk36CzsUKVdpFd8AlKrLBUaNINm0Rq05xkuO59vGhcKc2W
-	 MbZC6M0cbvo1WoSsE5wbuIKHahbDptO0PVuWiY8t7K6A87m6Vc4FyueopwrwYcHZaN
-	 KqSAWANwgQUzptp7Pyc6sWx7RRBy4Y1o0Tz3+nWkyqFbUtHlNjL5USIuJJe5DNfQ2k
-	 Q92b2uhcE9aIg==
-Message-ID: <sashiko-outbox-200055@kernel.org>
+	b=PS7EuTM4dqldTrwdAR0onQbkCjogqgjpUy8oBN5Oi/jsHPd1HPHlgSGbxScX7TULM
+	 hRB6vR+pRSsaVGMqkA0T2yAO/9EP8dfTHiI3smO+XSdOQTs0WaU0CSspRWwNIygWmH
+	 xxyaJ/jl5nVv4oGCeueAnyoM+i/SNOz1yePgzX6SBUyU7ID4QMKKDqnCau9Fzxv22l
+	 9yUUQnAUlAQfxJYnkuFIsPSnTWbDHjOSLzPYjAQnKTCY8vnyzOnX2r4MnJUC80Xsxq
+	 9G6Oxyszcx5C+PQB+DFxzoyTPD+CIGBL43AvNqSOHfSpIHjw0LBt6ISDjfycxH6Ryo
+	 K9q3hUiMFf+cA==
+Message-ID: <sashiko-outbox-200057@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 21/30] kallsyms: let procfs own the seq_file
- of /proc/kallsyms
+Subject: Re: [PATCH RESEND v2 23/30] dyndbg: let procfs copy in writes to
+ /proc/dynamic_debug/control
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -51,16 +51,18 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Gleixner" <tglx@kernel.org>, "Al Viro" <viro@zeniv.linux.org.uk>, "Jonathan
  Corbet" <corbet@lwn.net>, "Christoph Hellwig" <hch@lst.de>, "Greg
  Kroah-Hartman" <gregkh@suse.de>, "Joel Granados" <joel.granados@kernel.org>, "Kees
- Cook" <kees@kernel.org>, "Jan Kara" <jack@suse.cz>, "Jan Kara" <jack@suse.com>, linux-s390@vger.kernel.org, coreteam@netfilter.org, kexec@lists.infradead.org, linux-pci@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-usb@vger.kernel.org, samba-technical@lists.samba.org, linux-m68k@lists.linux-m68k.org, linux-serial@vger.kernel.org, "Takashi
- Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
+ Cook" <kees@kernel.org>, "Jan Kara" <jack@suse.cz>, "Jan Kara" <jack@suse.com>, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, coreteam@netfilter.org, kexec@lists.infradead.org, linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hwmon@vger.kernel.org, linux-mm@kvack.org, linux-usb@vger.kernel.org, samba-technical@lists.samba.org, sparclinux@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-serial@vger.kernel.org, "Takashi
+ Iwai" <tiwai@suse.de>, linux-input@vger.kernel.org, linux-raid@vger.kernel.org, linux-ext4@vger.kernel.org, linux-modules@vger.kernel.org, "Chuck
+ Lever" <cel@kernel.org>, tytso@mit.edu, dmitry.torokhov@gmail.com, "Petr
+ Pavlu" <petr.pavlu@suse.com>, "Anna Schumaker" <anna@kernel.org>, yukuai@fygo.io, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-fs-v2-21-319e0f9a8aae@kernel.org>
+In-Reply-To: <20261104-work-procfs-fs-v2-23-319e0f9a8aae@kernel.org>
 References: <20261104-work-procfs-fs-v2-0-319e0f9a8aae@kernel.org>
- <20261104-work-procfs-fs-v2-21-319e0f9a8aae@kernel.org>
+ <20261104-work-procfs-fs-v2-23-319e0f9a8aae@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:58:11 +0000
+Date: Thu, 05 Nov 2026 19:58:14 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -70,15 +72,70 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Declare the seq_operations and the size of the iterator and let procfs
-> open and free the seq_file. ->proc_open() only initializes the iterator
-> now.
->=20
-> Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
+Thank you for your contribution! Sashiko AI review found 1 potential issue(=
+s) to consider:
+- [Low] dyndbg: split declaration and assignment of __free() in ddebug_proc=
+_write()
+--
 
-Sashiko has reviewed this patch and found no issues.
+commit 1bfaabab91de2989a4d10ae03eef349ab77809d6
+Author: Christian Brauner <brauner@kernel.org>
+
+dyndbg: let procfs copy in writes to /proc/dynamic_debug/control
+
+This commit factors the query execution logic out of ddebug_proc_write() in=
+to
+ddebug_proc_write_buf() and switches proc_fops to use .proc_write_buf and
+.proc_write_size so procfs copies in the user buffer before pinning the ent=
+ry.
+
+> diff --git a/lib/dynamic_debug.c b/lib/dynamic_debug.c
+> index 64a2112908725..1d6012c9eb41f 100644
+> --- a/lib/dynamic_debug.c
+> +++ b/lib/dynamic_debug.c
+> @@ -1002,11 +1002,28 @@ __setup("dyndbg=3D", dyndbg_setup);
+
+[ ... ]
+
+>  static ssize_t ddebug_proc_write(struct file *file, const char __user *u=
+buf,
+>  				  size_t len, loff_t *offp)
+>  {
+> -	char *tmpbuf;
+> -	int ret;
+> +	char *tmpbuf __free(kfree) =3D NULL;
+> =20
+>  	if (len =3D=3D 0)
+>  		return 0;
+> @@ -1017,15 +1034,7 @@ static ssize_t ddebug_proc_write(struct file *file=
+, const char __user *ubuf,
+>  	tmpbuf =3D memdup_user_nul(ubuf, len);
+>  	if (IS_ERR(tmpbuf))
+>  		return PTR_ERR(tmpbuf);
+> -	v2pr_info("read %zu bytes from userspace\n", len);
+> -
+> -	ret =3D ddebug_exec_queries(tmpbuf, NULL);
+> -	kfree(tmpbuf);
+> -	if (ret < 0)
+> -		return ret;
+> -
+> -	*offp +=3D len;
+> -	return len;
+> +	return ddebug_proc_write_buf(file, tmpbuf, len, offp);
+>  }
+
+[Severity: Low]
+In ddebug_proc_write(), tmpbuf is declared with __free(kfree) =3D NULL at t=
+he
+top of the function before the early length checks and then assigned later =
+via
+memdup_user_nul().
+
+Per the cleanup.h guidelines, could tmpbuf be defined and initialized in a
+single statement at the allocation site instead:
+
+	char *tmpbuf __free(kfree) =3D memdup_user_nul(ubuf, len);
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-fs-v2-0-319e0f9a8aae@kernel.org?part=3D21
-
+s-fs-v2-0-319e0f9a8aae@kernel.org?part=3D23
