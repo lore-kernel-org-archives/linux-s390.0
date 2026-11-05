@@ -1,11 +1,11 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1793893037;
-	b=Z35cMz92Z1Lq83Jyx2sEpwQ7JqTv0+9xrKQs39guYBAXsOd7KSXspChxCIoSlTgiM+93
-	 DZUuJD5OpmvM/7Bras8MDkjLne+VQ69l6waEW2u1OOa/Bs601ZX8VAlIHouJO0VDD84X2
-	 mgDENGbCDUocvxHRbYtYof6w7cW1meJsKycGn9GtfO3buXZIq/bo/GUdVj41CKaHGKoq/
-	 kZMql0httr34S1IZkewA3TEEAi/hzDz7WDQJYaFHUzgIE94F3058/pHr04nzYZ7MdVzpD
-	 x8KynuB2cr7MsarW5zwFGcvnIpWFUIwWGwMOo4eacOiyqPThp4Xji2Fj9fevMmRFePA==
+	b=MLBzjfIxPM0yflnPXYh1Ty1AdquUbW9S2nisQ1rG78Ahs1HUpvgLpJKo1m+s68Zxdsiy
+	 jiCFyooTt9KD0y+p0+AWK9qCs+JtkfPTZLpR1qr8bnBzdpjtNCVm0lgTOEmNSBU8UyI/9
+	 w1JTaiJJLSofYCDT2vla1KyCDdwjuxVaDFJLAgp0z2A5re/C2hXvZPCMxr5fu3oomr0ef
+	 ojPHcGVPG1m0RDwdGN9nDIjXK3negWQVvJkOlGi9JtMnVA4h2Z3VsUoJ8o5QguBxUadoi
+	 jjI8NMWnS6NdEmjBAKhToOsHByyxUFd5jVhRAInofsKXu1FvUrxYIvWwXpAi42erSww==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793893037;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
@@ -15,60 +15,60 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
 	 X-Proofpoint-GUID:X-Authority-Analysis:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=/EWXU/hTYceNfI5JVXxgUnfaX/Va5utnPc+dCOrE978=;
-	b=h+hAPqVgQVhAtQifvA14voOszelLibQHh8YhPILo90wXGp5jbLt9Lhq+iLRQLrzeztOR
-	 XNVW01JLKi6FFc5NmgCScbHTjES+ookoanD0MBHZQf5JiO/YyPFct8WjF+Y7UcgxwCnLb
-	 7eaF5169WDpZNb2+SUEuA/9I4EfZxppnCNyXTO9Vu1UAG0olol3jggcGqweEgNv8Wl1bU
-	 YH7HsMrA5Fm6lZlGUaaUMg+MzFAaNHe9XC7BR7Fzqi2GgRqKqPFIKe9vz+xbAOx75zoBn
-	 Aku3NeGAlU6f3+RmIKql7wYRtCHlHsvtt1s+v7uyfn2rJxW16haOLJU0PGhw120S7mg==
+	bh=Iw76mMMB93dHCVelA5y10fkWJaHjfd/A0VdbGgQy89A=;
+	b=xBw1JJpgAuhGHItkcYLLnOhzXHCJSYD/BanGbf6CuDBM/RkFv8aTrh05ZoNoeLBi0EpV
+	 c/l1n5fBPGYcLIYyFDIFd8tikRExi1H2G0al/4pGll+jl2Y3T0+WMm9AUvuryB43rU54r
+	 kfMOYLM3tPUwwNp5Y8l5W6hLSPKFign+oLnmUtXisLo3d1r4aQhHA+85PZhjUTcBlluLK
+	 gayb2ubR0L3o8EkyZZVwl5jVodLU/BlTXuGUS3A8fINj7qbjejuPha6LPPrpq1+w280M6
+	 cm9E5JFjIoJ6jYg/5CWXaCK+6aXzL6/koL+BrrHXNE9jSuwJJFpMXLgXaqqEXy51cOw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=H9h0FKfM;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=iz71zmbq;
 	arc=none smtp.remote-ip=148.163.156.1
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 858B5606A33B;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7F2D606D804;
 	Thu,  5 Nov 2026 15:37:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 858B5606A33B
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D7F2D606D804
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=H9h0FKfM
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=iz71zmbq
 Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A5EiAEp3787424;
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A5Ei8OF3787406;
 	Thu, 5 Nov 2026 15:37:14 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=/EWXU/hTYceNfI5JV
-	XxgUnfaX/Va5utnPc+dCOrE978=; b=H9h0FKfMe3pOD9tmNWGFCq7wzaCCC6yr0
-	Htfm4KZwNfD8WPrtmsbsDuPrk4lYg/6HC79iVFgc0KHVP05Xzb5ob1uvAdk3fsri
-	w/drVNCcLb0DgrcIWrY1QwpdvhLTgBrGHMTsX2+zndh1EJ+ePla9xQI4048tf9xi
-	JmsM5xRytVm67nqXheIf+fNDaWpqe5e0YbvZb0at25ZZfUW75Oco56otUXhMfgnn
-	uPRbsb1aHY0fzeLX3XEK/sdo6H3GSI+Szid1NZz2NdvOVZIhMI1fZVMbdwodTT59
-	ImS5Ml9E3cW9qXtfN4j3HRZuWLqWhmixNq+rhlzuq+yFf2JDxajUg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn82736uq-1
+	:mime-version:references:subject:to; s=pp1; bh=Iw76mMMB93dHCVelA
+	5y10fkWJaHjfd/A0VdbGgQy89A=; b=iz71zmbqGnHVZa1lAIO9eeh3UvZn1mIwe
+	q+dl7Qq5fsbgPt0skLFQt0T7AXaf1S5ySU0xs8hRQFbqJ4DVWw72W2Ctzt5HW0NY
+	IHgT6NFvHUtwoBaKKrPqGu0Q3kTTzgsL3QkvcfwV76zHLYUuVx/8ZhnxywYc0bV+
+	zYR823KPkZzRUv0B+qfnnSAvZpp61oxdx4gKHVqVOEomt28EHLzud6wPenkLRjkV
+	pDSg98TqZT43zgknx5FpKG1rrR8l47JnJ8vBmeSbyp3w2vjFo3jH3SUz26A8x1bk
+	aZ11rPsac0ODeCZGhF2+pG0Z9029xcSDY3REgmNeBcwBFlDOFXJqg==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hn82736ur-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
 	Thu, 05 Nov 2026 15:37:13 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A5EYxxo1829834;
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A5EZ1Xr1685877;
 	Thu, 5 Nov 2026 15:37:12 GMT
 Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hrdd7m82a-1
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hrmrejdkc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Thu, 05 Nov 2026 15:37:12 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A5Fb6Dg30999204
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A5Fb6T917039736
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 5 Nov 2026 15:37:06 GMT
+	Thu, 5 Nov 2026 15:37:07 GMT
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A57C32004B;
+	by IMSVA (Postfix) with ESMTP id D220020040;
 	Thu,  5 Nov 2026 15:37:06 +0000 (GMT)
 Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 872A020043;
+	by IMSVA (Postfix) with ESMTP id AA2AC2004D;
 	Thu,  5 Nov 2026 15:37:06 +0000 (GMT)
 Received: from p-imbrenda.ehn-de.ibm.com (unknown [9.68.31.243])
 	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTP;
@@ -78,9 +78,9 @@ To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com,
         david@kernel.org, nrb@linux.ibm.com, schlameuss@linux.ibm.com,
         gra@linux.ibm.com
-Subject: [PATCH v6 4/5] KVM: s390: Improve unmapping of large ranges
-Date: Thu,  5 Nov 2026 16:37:04 +0100
-Message-ID: <20261105153705.208516-5-imbrenda@linux.ibm.com>
+Subject: [PATCH v6 5/5] KVM: s390: vsie: Fix pinning using the wrong flag
+Date: Thu,  5 Nov 2026 16:37:05 +0100
+Message-ID: <20261105153705.208516-6-imbrenda@linux.ibm.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261105153705.208516-1-imbrenda@linux.ibm.com>
 References: <20261105153705.208516-1-imbrenda@linux.ibm.com>
@@ -95,24 +95,24 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 1CV_dOk7yWaWZ2XqMRmjxElUDSeQj5i3
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA1MDA2MCBTYWx0ZWRfX+XrGXde77tqm
- GM2mpRqSL6Ok1JN9l0C6On5HOUFiBt15rkbkz1icriHm/4da/S2ZkLTFj17EntBQcgxwQ87uG58
- y+hki7VHJ/oidKluw2zL2saO08QrRcs8fusKbJHdA8dD3GwDTTdO0AIEWkga8Qbk27IekWCYae9
- sNWyhYTclKkGVsVTLK2dpbZxUwM+Z8mtvoHeYH5vGhYEPhYr2mPGYF/hMdxe5BQapYCCuGI0sZR
- ZogaIJ+Eu4hmCLaxpe4lj9bMxPMmt25SJv7vcfcBDE3JE7UcGAAm/M/Iune1/Tgk3bs9dShiN4N
- /OKzKSiGsZiJgdna0C5TotneiUo3tmaQNwoaTz9dknPfgG44nAwO5Mrd1o/W7MA1Siiub3F8WET
- AIR7bviL5WkjBEcdt7o0aBpKGOgkTcX6u8SWYzXVh4j+OPQlJsK4Vc7HWVg5eC9aiIrVTTTfet0
- tJqQVhYNrUav3K4fUgg==
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA1MDA2MCBTYWx0ZWRfXxuQIGodqgi+T
- YDOq2U9x1s6SzqfpZ/dA3rsFQf4rqhbUMq6DeLcZH7qIOMoHge1dhbwj9bV0gBRIH6k6YkRpJ3G
- MtX+tBUeDLFBaM5TBP82ei80axPPnaQ=
-X-Proofpoint-GUID: 1CV_dOk7yWaWZ2XqMRmjxElUDSeQj5i3
+X-Proofpoint-ORIG-GUID: 6pHgacSmtDvv7M8V7D2vrzDQJn1MAbrs
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA1MDA2MCBTYWx0ZWRfXxcOcl4wadRXw
+ mEO/7W8gC5mLo7XXe97KmFNnhffz7b8WIUtlNr6jkcjmUraZnTDLDb6zXpLuWEiiX+PBq+aBM1h
+ WS7Ua60K5AgXrMtGjdfrGummkW4hxhbm4scov1b1DLcq62zl3bNDmkQ4M9hzwrhZ2qGSGcnA7/3
+ 9ZqO4FT0MBV30aDbwA3qkTFMP1cMWoPHndhRedPSeq9+ii/MNvW2vkIHlLf2W3ABPsAhpaQ5BXX
+ Tv4qFJXeOcmEYAGDr2+Qrzz4yhwMIQR7m93pYj2Krm5Q2D3d7pXbVw4b1tMDwsk21MmJACcRWwN
+ KE0PNsktlaAMBeERpOzgdiHEMaTrE2su8n0sWz6Ww0o3TPJHW0lACv92B+o1VDyKeVtCLHgIvRA
+ Uo5znnumcZNOYQJ0wA/DoBMcWi6ZxLSj9e5z7p36UBlb7cfoTEeoBfm7C9I8gXYpmARm/BXAjM9
+ vH8s/Zx0ilOmQgfE6MQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA1MDA2MCBTYWx0ZWRfX1HK362puBd9t
+ acIPfCs1s/DTL8u4GKnWE6I1nc29zjynaO9Mw5Lm4bE2b8XbqgGmRrG/ouam9OXvgvRbpj26CKj
+ qpigoxDfM8k/uMMmLLHc9/WnoUw7boo=
+X-Proofpoint-GUID: 6pHgacSmtDvv7M8V7D2vrzDQJn1MAbrs
 X-Authority-Analysis: v=2.4 cv=EsJHPicA c=1 sm=1 tr=0 ts=6aeca2a9 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
  a=U7nrCbtTmkRpXpFmAIza:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
- a=HzXv01lb-o0jQ-3OhD0A:9
+ a=ugznIdUm-YL1OzzZZBQA:9
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-05_04,2026-11-04_01,2025-10-01_01
@@ -123,193 +123,271 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2610300000
  definitions=main-2611050060
 
-When unmapping guest ranges, each individual leaf DAT entry is
-invalidated. When unmapping large ranges, this results in a very large
-amount of invalidations, which is time consuming. Moreover, since the
-unmap callback is called by KVM while holding a spinlock, this also
-leads to stall warnings.
+When pinning guest memory using pin_blocks(), gfn_to_page() was used,
+which under the hood uses FOLL_GET, which is the wrong type of flag for
+memory that is accessed directly by hardware.
 
-Improve the situation by invalidating DAT entries higher in the tree,
-instead of each leaf individually.
+Fix by using kvm_vcpu_{,un}map(), which uses FOLL_PIN and is the
+correct thing to do.
 
-For small invalidations (up to 1 segment = 1M of guest memory), and
-special cases (like protected VMs) regardless of the size, the old and
-slow invalidation is performed; all leaf entries are invalidated one by
-one.
+While technically a bugfix, the previous behaviour can only lead to
+guest corruption in extremely convoluted test scenarios that cannot
+happen in real/production systems.
 
-For large invalidations (larger than 1M of guest memory), the new
-strategy is used:
- - Invalidate prefixes on the whole range, extending start and end to
-   1M granularity
- - Iterate through the page table pointed to by each pmd and unshadow
-   entries as needed
- - Detach (invalidate) the pmd
- - Save storage keys as needed
- - Invalidate each (now detached) pte by simply overwriting it
- - Reattach the old pmd to point to the updated page table
-
-Fixes: a2c17f9270cc ("KVM: s390: New gmap code")
+Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
 Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: stable@vger.kernel.org # 7.0+
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Cc: stable@vger.kernel.org #7.0+
 ---
- arch/s390/kvm/gmap/gmap.c | 136 +++++++++++++++++++++++++++++++++++---
- 1 file changed, 125 insertions(+), 11 deletions(-)
+ arch/s390/kvm/s390/vsie.c | 133 ++++++++++++++------------------------
+ 1 file changed, 47 insertions(+), 86 deletions(-)
 
-diff --git a/arch/s390/kvm/gmap/gmap.c b/arch/s390/kvm/gmap/gmap.c
-index 225fdae3d57c..b9d92bef5459 100644
---- a/arch/s390/kvm/gmap/gmap.c
-+++ b/arch/s390/kvm/gmap/gmap.c
-@@ -434,17 +434,8 @@ static long _gmap_unmap_crste(union crste *crstep, gfn_t gfn, gfn_t next, struct
- 	return 0;
+diff --git a/arch/s390/kvm/s390/vsie.c b/arch/s390/kvm/s390/vsie.c
+index 5926689fa226..3ce133f20fa2 100644
+--- a/arch/s390/kvm/s390/vsie.c
++++ b/arch/s390/kvm/s390/vsie.c
+@@ -49,20 +49,21 @@ struct vsie_page {
+ 	/* address of the last reported fault to guest2 */
+ 	unsigned long fault_addr;		/* 0x0228 */
+ 	/* calculated guest addresses of satellite control blocks */
+-	gpa_t sca_gpa;				/* 0x0230 */
+-	gpa_t itdba_gpa;			/* 0x0238 */
+-	gpa_t gvrd_gpa;				/* 0x0240 */
+-	gpa_t riccbd_gpa;			/* 0x0248 */
+-	gpa_t sdnx_gpa;				/* 0x0250 */
++	struct kvm_host_map sca_map;		/* 0x0230 */
++	struct kvm_host_map itdba_map;		/* 0x0260 */
++	struct kvm_host_map gvrd_map;		/* 0x0290 */
++	struct kvm_host_map riccbd_map;		/* 0x02c0 */
++	struct kvm_host_map sdnx_map;		/* 0x02f0 */
++	struct kvm_host_map scb_map;		/* 0x0320 */
+ 	/*
+ 	 * guest address of the original SCB. Remains set for free vsie
+ 	 * pages, so we can properly look them up in our addr_to_page
+ 	 * radix tree.
+ 	 */
+-	gpa_t scb_gpa;				/* 0x0258 */
++	gpa_t scb_gpa;				/* 0x0350 */
+ 	/* the shadow gmap in use by the vsie_page */
+-	struct gmap_cache gmap_cache;		/* 0x0260 */
+-	__u8 reserved[0x06f8 - 0x0278];		/* 0x0278 */
++	struct gmap_cache gmap_cache;		/* 0x0358 */
++	__u8 reserved[0x06f8 - 0x0370];		/* 0x0370 */
+ 	struct kvm_s390_crypto_cb crycb;	/* 0x06f8 */
+ 	__u8 fac[8 + S390_ARCH_FAC_LIST_SIZE_BYTE];/* 0x07f8 */
+ };
+@@ -681,72 +682,43 @@ static int map_prefix(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page, struct
  }
  
--/**
-- * gmap_unmap_gfn_range() - Unmap a range of guest addresses.
-- * @gmap: The gmap to act on.
-- * @slot: The memslot in which the range is located.
-- * @start: The first gfn to unmap.
-- * @end: The gfn after the last one to unmap.
-- *
-- * Context: Called with the kvm mmu write lock held.
-- * Return: false
-- */
--bool gmap_unmap_gfn_range(struct gmap *gmap, struct kvm_memory_slot *slot, gfn_t start, gfn_t end)
-+static bool gmap_unmap_gfn_range_slow(struct gmap *gmap, struct kvm_memory_slot *slot,
-+				      gfn_t start, gfn_t end)
- {
- 	const struct dat_walk_ops ops = {
- 		.pte_entry = _gmap_unmap_pte,
-@@ -462,6 +453,129 @@ bool gmap_unmap_gfn_range(struct gmap *gmap, struct kvm_memory_slot *slot, gfn_t
- 	return false;
- }
- 
-+static long _gmap_unmap_pud_fast(union crste *crstep, gfn_t gfn, gfn_t next, struct dat_walk *w)
-+{
-+	union crste old = *crstep;
-+
-+	/* We only care about large puds */
-+	if (!old.h.fc)
-+		return 0;
-+	/*
-+	 * The caller did not unmap prefixes outside the original range, which
-+	 * does not necessarily cover the whole pud.
-+	 * Since all prefixes are below 2G, the first pud covers them all;
-+	 * make sure all prefixes are unmapped whenever the first pud is being
-+	 * unmapped.
-+	 */
-+	if (!gfn)
-+		gmap_unmap_prefix(w->priv, 0, next);
-+	if (old.s.fc1.vsie_notif)
-+		gmap_handle_vsie_unshadow_event(w->priv, gfn);
-+
-+	if (machine_has_tlb_guest())
-+		idte_crste(crstep, gfn, IDTE_GUEST_ASCE, w->asce, 0);
-+	else
-+		idte_crste(crstep, gfn, 0, w->asce, 0);
-+	*crstep = _CRSTE_EMPTY(old.h.tt);
-+
-+	return 0;
-+}
-+
-+static long _gmap_unmap_pmd_fast(union crste *crstep, gfn_t gfn, gfn_t next, struct dat_walk *w)
-+{
-+	union crste old = *crstep;
-+	struct page_table *pt;
-+	gfn_t first, last;
-+	unsigned int i;
-+
-+	if (old.h.fc) {
-+		if (old.s.fc1.vsie_notif)
-+			gmap_handle_vsie_unshadow_event(w->priv, gfn);
-+
-+		if (machine_has_tlb_guest())
-+			idte_crste(crstep, gfn, IDTE_GUEST_ASCE, w->asce, 0);
-+		else
-+			idte_crste(crstep, gfn, 0, w->asce, 0);
-+		WRITE_ONCE(*crstep, _CRSTE_EMPTY(old.h.tt));
-+
-+		return 0;
-+	}
-+
-+	if (old.h.i)
-+		return 0;
-+
-+	pt = dereference_pmd(old.pmd);
-+	first = max(gfn, w->start) & (PTRS_PER_PTE - 1);
-+	last = (min(next, w->end) - 1) & (PTRS_PER_PTE - 1);
-+
-+	for (i = first; i <= last; i++)
-+		if (pte_needs_unshadow(pt->ptes[i], _PTE_EMPTY, pt->pgstes[i]))
-+			gmap_handle_vsie_unshadow_event(w->priv, gfn + i);
-+
-+	/* Detach the page table */
-+	if (machine_has_tlb_guest())
-+		idte_crste(crstep, gfn, IDTE_GUEST_ASCE, w->asce, 0);
-+	else
-+		idte_crste(crstep, gfn, 0, w->asce, 0);
-+
-+	for (i = first; i <= last; i++) {
-+		if (pte_hole(pt->ptes[i]))
-+			continue;
-+		if (!pt->ptes[i].h.i && uses_skeys(w->priv))
-+			pt->pgstes[i] = dat_save_storage_key_into_pgste(pt->ptes[i], pt->pgstes[i]);
-+		pt->ptes[i] = _PTE_EMPTY;
-+		pt->pgstes[i].vsie_notif = 0;
-+		pt->pgstes[i].vsie_gmem = 0;
-+		pt->pgstes[i].zero = 0;
-+		pt->pgstes[i].prefix_notif = 0;
-+	}
-+
-+	barrier();
-+	/* Reattach the modified page table */
-+	WRITE_ONCE(*crstep, old);
-+
-+	return 0;
-+}
-+
-+static bool gmap_unmap_gfn_range_fast(struct gmap *gmap, gfn_t start, gfn_t end)
-+{
-+	const struct dat_walk_ops ops = {
-+		.pud_entry = _gmap_unmap_pud_fast,
-+		.pmd_entry = _gmap_unmap_pmd_fast,
-+	};
-+	gfn_t aligned_start = ALIGN_DOWN(start, _PAGE_ENTRIES);
-+	gfn_t aligned_end = ALIGN(end, _PAGE_ENTRIES);
-+	bool failed;
-+
-+	lockdep_assert_held_write(&gmap->kvm->mmu_lock);
-+
-+	/* Prefixes are below 2G; if the start is above 2G, nothing to do */
-+	if (aligned_start < _PAGES_PER_REGION3)
-+		gmap_unmap_prefix(gmap, aligned_start, aligned_end);
-+
-+	failed = _dat_walk_gfn_range(start, end, gmap->asce, &ops, DAT_WALK_IGN_HOLES, gmap);
-+	KVM_BUG_ON(failed, gmap->kvm);
-+	return false;
-+}
-+
-+/**
-+ * gmap_unmap_gfn_range() - Unmap a range of guest addresses.
-+ * @gmap: The gmap to act on.
-+ * @slot: The memslot in which the range is located.
-+ * @start: The first gfn to unmap.
-+ * @end: The gfn after the last one to unmap.
+ /*
+- * Pin the guest page given by gpa and set hpa to the pinned host address.
++ * pin_guest_page() - Pin the given guest page and return its hpa.
++ * @vcpu: the vCPU
++ * @gpa: the gpa to pin
++ * @map: the map representing this pinning.
 + *
-+ * Context: Called with the kvm mmu write lock held.
-+ * Return: false
-+ */
-+bool gmap_unmap_gfn_range(struct gmap *gmap, struct kvm_memory_slot *slot, gfn_t start, gfn_t end)
-+{
-+	if ((end - start <= _PAGES_PER_SEGMENT) ||
-+	    test_bit(GMAP_FLAG_EXPORT_ON_UNMAP, &gmap->flags) || is_ucontrol(gmap))
-+		return gmap_unmap_gfn_range_slow(gmap, slot, start, end);
-+	return gmap_unmap_gfn_range_fast(gmap, start, end);
-+}
-+
- static union pgste __pte_test_and_clear_softdirty(union pte *ptep, union pgste pgste, gfn_t gfn,
- 						  struct gmap *gmap)
+  * Will always be pinned writable.
+  *
+- * Returns: - 0 on success
+- *          - -EINVAL if the gpa is not valid guest storage
++ * Returns: - 0 if the gpa is not valid guest storage,
++ *          - The host hpa of the pinned page in case of success
+  */
+-static int pin_guest_page(struct kvm *kvm, gpa_t gpa, hpa_t *hpa)
+-{
+-	struct page *page;
+-
+-	page = gfn_to_page(kvm, gpa_to_gfn(gpa));
+-	if (!page)
+-		return -EINVAL;
+-	*hpa = (hpa_t)page_to_phys(page) + (gpa & ~PAGE_MASK);
+-	return 0;
+-}
+-
+-/* Unpins a page previously pinned via pin_guest_page, marking it as dirty. */
+-static void unpin_guest_page(struct kvm *kvm, gpa_t gpa, hpa_t hpa)
++static hpa_t pin_guest_page(struct kvm_vcpu *vcpu, gpa_t gpa, struct kvm_host_map *map)
  {
+-	kvm_release_page_dirty(pfn_to_page(phys_to_pfn(hpa)));
+-	/* mark the page always as dirty for migration */
+-	mark_page_dirty(kvm, gpa_to_gfn(gpa));
++	if (kvm_vcpu_map(vcpu, gpa_to_gfn(gpa), map))
++		return 0;
++	return (hpa_t)PFN_PHYS(map->pfn) + (gpa & ~PAGE_MASK);
+ }
+ 
+ /* unpin all blocks previously pinned by pin_blocks(), marking them dirty */
+ static void unpin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ {
+ 	struct kvm_s390_sie_block *scb_s = &vsie_page->scb_s;
+-	hpa_t hpa;
+ 
+-	hpa = (u64) scb_s->scaoh << 32 | scb_s->scaol;
+-	if (hpa) {
+-		unpin_guest_page(vcpu->kvm, vsie_page->sca_gpa, hpa);
+-		vsie_page->sca_gpa = 0;
+-		scb_s->scaol = 0;
+-		scb_s->scaoh = 0;
+-	}
++	kvm_vcpu_unmap(vcpu, &vsie_page->sca_map);
++	scb_s->scaol = 0;
++	scb_s->scaoh = 0;
+ 
+-	hpa = scb_s->itdba;
+-	if (hpa) {
+-		unpin_guest_page(vcpu->kvm, vsie_page->itdba_gpa, hpa);
+-		vsie_page->itdba_gpa = 0;
+-		scb_s->itdba = 0;
+-	}
++	kvm_vcpu_unmap(vcpu, &vsie_page->itdba_map);
++	scb_s->itdba = 0;
+ 
+-	hpa = scb_s->gvrd;
+-	if (hpa) {
+-		unpin_guest_page(vcpu->kvm, vsie_page->gvrd_gpa, hpa);
+-		vsie_page->gvrd_gpa = 0;
+-		scb_s->gvrd = 0;
+-	}
++	kvm_vcpu_unmap(vcpu, &vsie_page->gvrd_map);
++	scb_s->gvrd = 0;
+ 
+-	hpa = scb_s->riccbd;
+-	if (hpa) {
+-		unpin_guest_page(vcpu->kvm, vsie_page->riccbd_gpa, hpa);
+-		vsie_page->riccbd_gpa = 0;
+-		scb_s->riccbd = 0;
+-	}
++	kvm_vcpu_unmap(vcpu, &vsie_page->riccbd_map);
++	scb_s->riccbd = 0;
+ 
+-	hpa = scb_s->sdnxo;
+-	if (hpa) {
+-		unpin_guest_page(vcpu->kvm, vsie_page->sdnx_gpa, hpa);
+-		vsie_page->sdnx_gpa = 0;
+-		scb_s->sdnxo = 0;
+-	}
++	kvm_vcpu_unmap(vcpu, &vsie_page->sdnx_map);
++	scb_s->sdnxo = 0;
+ }
+ 
+ /*
+@@ -783,13 +755,12 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 			 ((gpa + offsetof(struct bsca_block, cpu[0]) - 1) & PAGE_MASK))
+ 			rc = set_validity_icpt(scb_s, 0x003bU);
+ 		if (!rc) {
+-			rc = pin_guest_page(vcpu->kvm, gpa, &hpa);
+-			if (rc)
++			hpa = pin_guest_page(vcpu, gpa, &vsie_page->sca_map);
++			if (!hpa)
+ 				rc = set_validity_icpt(scb_s, 0x0034U);
+ 		}
+ 		if (rc)
+ 			goto unpin;
+-		vsie_page->sca_gpa = gpa;
+ 		scb_s->scaoh = (u32)((u64)hpa >> 32);
+ 		scb_s->scaol = (u32)(u64)hpa;
+ 	}
+@@ -801,12 +772,11 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 			goto unpin;
+ 		}
+ 		/* 256 bytes cannot cross page boundaries */
+-		rc = pin_guest_page(vcpu->kvm, gpa, &hpa);
+-		if (rc) {
++		hpa = pin_guest_page(vcpu, gpa, &vsie_page->itdba_map);
++		if (!hpa) {
+ 			rc = set_validity_icpt(scb_s, 0x0080U);
+ 			goto unpin;
+ 		}
+-		vsie_page->itdba_gpa = gpa;
+ 		scb_s->itdba = hpa;
+ 	}
+ 
+@@ -820,12 +790,11 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		 * 512 bytes vector registers cannot cross page boundaries
+ 		 * if this block gets bigger, we have to shadow it.
+ 		 */
+-		rc = pin_guest_page(vcpu->kvm, gpa, &hpa);
+-		if (rc) {
++		hpa = pin_guest_page(vcpu, gpa, &vsie_page->gvrd_map);
++		if (!hpa) {
+ 			rc = set_validity_icpt(scb_s, 0x1310U);
+ 			goto unpin;
+ 		}
+-		vsie_page->gvrd_gpa = gpa;
+ 		scb_s->gvrd = hpa;
+ 	}
+ 
+@@ -836,13 +805,12 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 			goto unpin;
+ 		}
+ 		/* 64 bytes cannot cross page boundaries */
+-		rc = pin_guest_page(vcpu->kvm, gpa, &hpa);
+-		if (rc) {
++		hpa = pin_guest_page(vcpu, gpa, &vsie_page->riccbd_map);
++		if (!hpa) {
+ 			rc = set_validity_icpt(scb_s, 0x0043U);
+ 			goto unpin;
+ 		}
+ 		/* Validity 0x0044 will be checked by SIE */
+-		vsie_page->riccbd_gpa = gpa;
+ 		scb_s->riccbd = hpa;
+ 	}
+ 	if (((scb_s->ecb & ECB_GS) && !(scb_s->ecd & ECD_HOSTREGMGMT)) ||
+@@ -866,12 +834,11 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		/* Due to alignment rules (checked above) this cannot
+ 		 * cross page boundaries
+ 		 */
+-		rc = pin_guest_page(vcpu->kvm, gpa, &hpa);
+-		if (rc) {
++		hpa = pin_guest_page(vcpu, gpa, &vsie_page->sdnx_map);
++		if (!hpa) {
+ 			rc = set_validity_icpt(scb_s, 0x10b0U);
+ 			goto unpin;
+ 		}
+-		vsie_page->sdnx_gpa = gpa;
+ 		scb_s->sdnxo = hpa | sdnxc;
+ 	}
+ 	return 0;
+@@ -881,13 +848,9 @@ static int pin_blocks(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ }
+ 
+ /* unpin the scb provided by guest 2, marking it as dirty */
+-static void unpin_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
+-		      gpa_t gpa)
++static void unpin_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ {
+-	hpa_t hpa = virt_to_phys(vsie_page->scb_o);
+-
+-	if (hpa)
+-		unpin_guest_page(vcpu->kvm, gpa, hpa);
++	kvm_vcpu_unmap(vcpu, &vsie_page->scb_map);
+ 	vsie_page->scb_o = NULL;
+ }
+ 
+@@ -901,12 +864,10 @@ static int pin_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page,
+ 		   gpa_t gpa)
+ {
+ 	hpa_t hpa;
+-	int rc;
+ 
+-	rc = pin_guest_page(vcpu->kvm, gpa, &hpa);
+-	if (rc) {
+-		rc = kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
+-		WARN_ON_ONCE(rc);
++	hpa = pin_guest_page(vcpu, gpa, &vsie_page->scb_map);
++	if (!hpa) {
++		WARN_ON_ONCE(kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING));
+ 		return 1;
+ 	}
+ 	vsie_page->scb_o = phys_to_virt(hpa);
+@@ -1601,7 +1562,7 @@ int kvm_s390_handle_vsie(struct kvm_vcpu *vcpu)
+ out_unshadow:
+ 	unshadow_scb(vcpu, vsie_page);
+ out_unpin_scb:
+-	unpin_scb(vcpu, vsie_page, scb_addr);
++	unpin_scb(vcpu, vsie_page);
+ out_put:
+ 	put_vsie_page(vsie_page);
+ 
 -- 
 2.56.0
 
