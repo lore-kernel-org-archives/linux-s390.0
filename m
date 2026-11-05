@@ -1,47 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793908682;
-	b=a5YAX3fCdbYoHbTrNzoSSmRwpJs+Pr1juIYz6MO+WS8XCt5ycMO+8X5fxarkD5YSOQL3
-	 PmVvM9jpQ6bHyfiuUMI7tzvHXhUpVsvOIDXAt9f0BMZgAVm472IueALCTeUloKmFepAy6
-	 VzSkYNPpJlvUdcn+OD37aNilhxmNR9vZhxYj1DUqNNo5skmqHs0Bs21q5y/QT7JZ66kep
-	 bDM5LDKvPHzU9QvLW6hg4XE8UNVdvzqY/udnkZdmB9kN1SSAbFym3Ay/yzRPBrARCdOz3
-	 6qrq11Mq957MUT8Vu+8D7amw5FYGo2HGO1zh18QKHP+hRAoswa9ODdmpQPX+1l+buNA==
+	t=1793908684;
+	b=JKUuyEKwsLJPfHkArOaG0HyIFBaaFa+wZ83FLm9IfkdT7AScgLmihJEb2Rs11nlUtDvX
+	 vAev4+JFYg2zU4K0pbQfz9vH16UQ0y8Vf+aoD6NqT97H2vWQIFX11TZ4RzzocpEXXreUq
+	 23cGQcy68TqJRSjHO2hfz72de/igTcVDPU0eABUTVXBVCvIgyGasftShJu6NdL2Etp7UR
+	 4+Ema2xnAWp4Y2gpikGYm5x+D2E9DdrPL1cl5bJm4HYRu2D/rHRGI0LvyhFgxdlUvxUTM
+	 ZmIy9AYc5shKLHfKdsyIkFpcdUbUE9cxqlPtfPO6fq7HMYBh+d5Hczr3U85rh0Xh/eA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793908682;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793908684;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=qvTECsoQq7diLH63c67HY1Y+MAl91kcvdxj3Yxdj/RM=;
-	b=d77zCJqMqFev3dsw9kRkfW2u6BUJBfXGR+2Pz6rYl9QZQPv3MtNGRT3Vhlyli4ORhdVr
-	 r7rVGFsoAa0b7DZJUAMJFFMbdDeqwKGUfDfPoL/f7rKtQCOwOL3elISx5M6c9oHWW4JR8
-	 UU3hCnYrsvsWDtH6eAi6AGHGRJVsPzZS5nqtzHmZlnW5CPe74ToGaUesH+oaFfnxoevfa
-	 9UiyEIUEIW7TT+YcSqyNYN0Nw0UF6qFVkFmN3x3ThgbP/8AvT3/RLn7dDqwOlMlm3O80a
-	 D271ArgnyIU0fIIs5d0ZL4IWXhwMl6KW8y/A3PAaFy92XYNGQEuN45eWUXNh/35LdwQ==
+	bh=xQw5Y21Jefdqk+NLJ1bgD2wYB6yjyjtlILHzStlkXtg=;
+	b=J1iwFlLZrwTijW+oRlyZr9P0gMwMkzs+V3/hRIXp6FWm8494AyIt7IRGYeukBAZCoykl
+	 OOP9QFvO9JqOD6rbZH3pDpCpAX8ykn5CMAoi2e9uluFuIIgKVo1CKqcKSNmHWjScpVOvR
+	 cYKsJSAkm2NYxMbge7gztJaI/rqpOTuWVnGQxVM6yr0NnOaUKu6a6DjKDG+VthxF71BG1
+	 SJTIQFdPBYRY8LesuL6QPFM6Wcmd55SiD4iB/GdWhvy0szZC/PG56kuZEDnLAVWs/KI+1
+	 W9VathjkkC/7Te1NFudVxnaLbDOrgHMKZITckrA3HLFFHGsiGjR7F11IFA55pxTnhmQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iTDh6JUZ;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DLjGD6ne;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D080606D52F;
-	Thu,  5 Nov 2026 19:58:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06DDB606B052;
+	Thu,  5 Nov 2026 19:58:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iTDh6JUZ
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 547E41F008A1;
-	Thu,  5 Nov 2026 19:58:00 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=DLjGD6ne
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69FFC1F008A2;
+	Thu,  5 Nov 2026 19:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793908681;
-	bh=qvTECsoQq7diLH63c67HY1Y+MAl91kcvdxj3Yxdj/RM=;
+	s=k20260515; t=1793908683;
+	bh=xQw5Y21Jefdqk+NLJ1bgD2wYB6yjyjtlILHzStlkXtg=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iTDh6JUZxiIl7ZAL6qlwQn5+v0vnKTderRK+PLsTJN/oQxZhqZs4NvItFQ/UwIiwR
-	 0ytPs8j3lohSXxg5Q8nkA0JeEf4xX2VinKsIB9Lhkj7Pdi8C17PHoo2xrKN5CgnCGn
-	 9OwnQMlu1+G9K1qePU+Nfoo7dqS27iNCPpwMb3Y4Z/FP4V0CJWTDOqo0NsI7MIrhKw
-	 rw2IwQxBa/bBxkqIfSbS3xUMeJ17ekXV5ZO+XkfF/t8shPIX98nm88xOpyW2INzSGQ
-	 wh+8Br1s5sA+ebYY9Mxdlw4rXa2kZ3od6LuqlR9YyuVfpjVwxJvXZJjwCXp4kzM+0V
-	 6oTHvAm1wJb7A==
-Message-ID: <sashiko-outbox-200050@kernel.org>
+	b=DLjGD6ne+zHJ6l2NtLBp7WGG5HHEcKsAxosFKuR0a7RNuYJAWYFmlP+Eo4EW1JlwF
+	 0VqWA8iJu/xUCfFf45PRI6wxw6ubU1MPAtOe4gnsizzUCn5G90TIhkS+JaYX/xS0Rt
+	 KJgyyZLcQTrRIU+/OkMZbrLRNYgpvjs3AQ62AWHHgn+9vKzQLgChpIiAzq6Sfn7mbe
+	 QHvGzpOfFXUXvhf6Sp6Bstrs4fyt+JGWdnKOviq93faMpWfzEPEWnjRXTOWMz15JYf
+	 bGpLKj6EreLgLDC1RKy7AynA060/DZ2MLXiHudUwyVC6r2EJBdb29sdOTmnyqWnhCd
+	 8WBHWj+qczWmQ==
+Message-ID: <sashiko-outbox-200051@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 16/30] profiling: mark /proc/profile permanent
+Subject: Re: [PATCH RESEND v2 17/30] sched/psi: let procfs own the seq_file
+ of the pressure files
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -54,12 +55,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-fs-v2-16-319e0f9a8aae@kernel.org>
+In-Reply-To: <20261104-work-procfs-fs-v2-17-319e0f9a8aae@kernel.org>
 References: <20261104-work-procfs-fs-v2-0-319e0f9a8aae@kernel.org>
- <20261104-work-procfs-fs-v2-16-319e0f9a8aae@kernel.org>
+ <20261104-work-procfs-fs-v2-17-319e0f9a8aae@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:57:59 +0000
+Date: Thu, 05 Nov 2026 19:58:02 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -69,9 +70,9 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> /proc/profile is created when profiling is turned on and never removed.
-> Say so with PROC_ENTRY_PERMANENT, procfs then calls into it without
-> pinning it.
+> Declare the show functions and let procfs open and free the seq_file of
+> /proc/pressure/*. That makes the open functions unnecessary and
+> ->proc_release() only destroys the trigger now.
 >=20
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
@@ -79,5 +80,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-fs-v2-0-319e0f9a8aae@kernel.org?part=3D16
+s-fs-v2-0-319e0f9a8aae@kernel.org?part=3D17
 
