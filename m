@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793906934;
-	b=W4VsGG0YcUFNWt52bEgwnHTTHSXFlWb0c1XUbn0pyIx01bFOJztFqq+U6m/A8HlPAIFx
-	 HLRiXdYs7PsiFpal7Ivo056AECN+dBZvtCasaMdNA4BahSP7SRgfb+nIjPxk0M+1N/NCv
-	 hqE4q5yt+SUiNkxyoQm1gs5epsyc4epSr8raR6GCVIxklVmjj1GR5FnMrLw22UeseKHi4
-	 S3wqhETpkv0ygenGqRIXUwjyTUxXWGJubY1H4i5RbQGzkywbMiZHoyh9AwdQeJH9PMirK
-	 LTD4ZdRH6WS3ol/SK1NZx2MVpvj7QnR1DdhG7jS9nwEU8hz+pcNZSn26ClmfAOwrVyw==
+	t=1793906947;
+	b=amv/o+/U5+5NqjaaQ+VTYS9WY6JyqMxVtJ8GrP+jOLLzB3WUQeSJYqViAvT0QH+qNm6l
+	 IFMAGxiFPqfvxSGANlhID9bX/fYflNBHtuhFM0XQynezrWoOE1xumthp144iUXF+rtKq1
+	 v4nzV61GiAVZmwhT2JA7efRxEuAh8eD15NL5KmrrtDS1iulhwlPX/MdvfP+bX2CdCnS5k
+	 CZwJSAT5NAG71d6Fw9AQG/5wvc425kOgiNXoWRKf+z3KHV1ns/Zo1jkGDt+YvDlVoFr+H
+	 J/qovnGoC8/wo+H+6sigUNl8zhRDIKJcUXFKFtEvVXl9bMgOIcmtwEdtCCN59cgtAOw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793906934;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793906947;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=Dl7+6TE3klHc2brN+bZbN2jvo5bJeOK9y0vggKbBQEw=;
-	b=Z+0xtmtj1bzxUfDd1/gPpiFrsuzpUym6eRk65dz/ZPNV9EKKwYlkyrAXI2om9zDUcWh9
-	 TYJOjzaXF862EIaqZhnnjwQoeJRy9S3yD8UJDZgpmnmumd5ehIxPFAb3b+dhw9KvBBp1z
-	 loXTJAUtiZtj0+E84ojRVtB/UxHFKpbeOokXcFT9owVlRUCKV9z1/SrLNjFmOs2nVC2tg
-	 8XHjbxVWhYVNEbtM5D+o9jTbJdO9EBb7sUt9TtCzAhWq+0q5rFL7u5wjSLQ2cZgWgys5h
-	 IamwR4oVCSdBkRkemsMX2LVY6N5J9nGCux+xU5OpOHWrOHb78zl/H9lAOfno5bQ7xFQ==
+	bh=EJ5x6oSnf+RrWzbB6XOjg/oJy0lPZOuvIIJGGMYahYs=;
+	b=cYgsEZsQytSExXg5AKNCdg1IeTFT0xeDzc4MuVr+TznEbF1x+8XZcRPuZ59R5skhy74I
+	 3aH56/gq2UEy/HzDa89ZYDUNvQOAszQu9UuGa1fXE4hnqFtXbwfk4yQHjNoxSBc2dPGAh
+	 sumMc0JYkrPTerdVzGLqSqHXZqSEpmfVTKSVjrcvA91m7HU7SJgRYKeDrVnQUY/gRU4OS
+	 +L/F4zvQjItRpP1KV7KEA1qBfJMf/0/s8ma99bjmmibmAj+YRpN7MQP0bb0l4NB4b78GT
+	 NimHWMGPXR0S7snk1Pblw1nn1ZTVscHWOOdL/gB5syxDMkSmW7FUTLHg37ORel2zvrw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jS5u1c3K;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hhwYqi2Q;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63869606D82D;
-	Thu,  5 Nov 2026 19:28:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4AD3606EEAD;
+	Thu,  5 Nov 2026 19:29:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=jS5u1c3K
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73A841F00919;
-	Thu,  5 Nov 2026 19:28:52 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=hhwYqi2Q
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA3DA1F00A02;
+	Thu,  5 Nov 2026 19:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793906934;
-	bh=Dl7+6TE3klHc2brN+bZbN2jvo5bJeOK9y0vggKbBQEw=;
+	s=k20260515; t=1793906946;
+	bh=EJ5x6oSnf+RrWzbB6XOjg/oJy0lPZOuvIIJGGMYahYs=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=jS5u1c3K7ImMy0Crh/Iyk2SB/21MWY/WEpvgJVP8JqocmivL2vqyijNAqT7WiHjiW
-	 6Ua6xCh3Ij5H7KLcgaQqR8ixyHADZco61udOB+jlfTExiv59U4z+85rPVir6KFx0I1
-	 ObSC7TmsTyRLViUk/SGlKk2mUSVLDinXNea60PUpTBUb3+Z2hC3lUIZS8S2tOJbqUr
-	 AKLtI1OGNz8Uwoag5jqRzukuHqTD25SiOWs27vYk4NAWf9jGI4TCW+iBo9EUmmHNnG
-	 9mVPo4N3xUODMaacXqbONIqxB5Wjo2lV603RHlVY2XtZFGaIEcNZr1t9RV/1OvaXBn
-	 v83WwqOK20reg==
-Message-ID: <sashiko-outbox-199866@kernel.org>
+	b=hhwYqi2QU+5PCxcWnPTB3hxrvFDBanBpjqltnKnowdGwOrQnCfcILl/BCmwovaNzo
+	 wp68GIO/nSzr/nY+0O2mYBFsgas/t8X9pDclsi8l3rtLr8f9yNbcTsGRq+iy4MJ65n
+	 iPM2oWsFb0Z85B1qPfkhGzqkfncZWH+JeXHP4yd2t4cuJpVO4Y7yY85ohQIrqcGzeA
+	 C7/bMiWsDMhTh5YJuMjMHWRP5Zy9sUTojv9oJFEyBgQPOPeojiiAhYUcSybcJI2n7t
+	 19ML9X1uaSQk/DmhtxZof8n0vxdU5xWdxA5OrGQzUPOsV+PQEYss0Ieh46MVONkx2a
+	 deUWye+6T8JuA==
+Message-ID: <sashiko-outbox-199872@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH RESEND v2 03/51] ALSA: cs46xx: hand the region to the
- region proc files
+Subject: Re: [PATCH RESEND v2 09/51] profiling: report it when /proc/profile
+ can't be created
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Christian Brauner" <brauner@kernel.org>
 Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.com>, "Josef
@@ -55,12 +55,12 @@ Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Jann Horn" <jannh@google.
  Iwai" <tiwai@suse.de>, linux-ext4@vger.kernel.org, "Chuck Lever" <cel@kernel.org>, tytso@mit.edu, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261104-work-procfs-bugfixes-v2-3-021c84d852e0@kernel.org>
+In-Reply-To: <20261104-work-procfs-bugfixes-v2-9-021c84d852e0@kernel.org>
 References: <20261104-work-procfs-bugfixes-v2-0-021c84d852e0@kernel.org>
- <20261104-work-procfs-bugfixes-v2-3-021c84d852e0@kernel.org>
+ <20261104-work-procfs-bugfixes-v2-9-021c84d852e0@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Thu, 05 Nov 2026 19:28:52 +0000
+Date: Thu, 05 Nov 2026 19:29:04 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -70,19 +70,18 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> snd_cs46xx_proc_init() stores the chip in the private data of the five
-> region entries, but snd_cs46xx_io_read() reads that back as the region,
-> so a read of /proc/asound/cardN/CS46xx_BA0 and friends copies from
-> whatever sits at the region's offset in struct snd_cs46xx instead of
-> the mapped registers. Store the region.
+> create_proc_profile() returns 0 whether proc_create() worked or not, so
+> a write to /sys/kernel/profiling that turned profiling on but didn't
+> get the file reports success and there is no file to read the profile
+> from. Return -ENOMEM like the other failures of that write do.
 >=20
-> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> Cc: stable@vger.kernel.org
+> Fixes: 22b8ce94708f ("profiling: dynamically enable readprofile at runtim=
+e")
 > Signed-off-by: Christian Brauner (Amutable) <brauner@kernel.org>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261104-work-procf=
-s-bugfixes-v2-0-021c84d852e0@kernel.org?part=3D3
+s-bugfixes-v2-0-021c84d852e0@kernel.org?part=3D9
 
