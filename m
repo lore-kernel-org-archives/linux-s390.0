@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793982233;
-	b=noIJaXiNSevRt8HaF/92bA0F+bAVNfzGfHGvYZalPc0FUV5Z+DlzZAtOYYJoml5V2v0Z
-	 Rdda7XMSl5P3a3Ty5PG4KYmyPifSrMp4AxWXAp4fHhx2smeeAiYPohKZBqKyHNmvMZ/1k
-	 3oY4GBO1WneyvT0l8ziCB+0xdRF2kCO9scDmUSklkG+Pv10ebaV3AYVFnjlEBM93zpctv
-	 hqqmtkFuoLotWX9vFBu6FuEt8Z5udEQA82je+BRehfyEZr7izomjuW2PaG8FVWpNrmrfy
-	 GEzOcsB5NNoqT70p3rXProlcwHMjy3FTlIM3boIGv102CGbIFFfbcC9EMYuDcoD2hBw==
+	t=1793982326;
+	b=C2XXCcB5YbitZ5EtQATByOHU4t5lWUqwHmGx/9hLIhHR0DznYNXkmeUuNH5uClcPk5+p
+	 zgBLNe4uRpqWSqPeawkp/VN+NDNr7w9wlGt4XGOcmWWchWHx99gX7tusZ7arbxcF7HfBY
+	 yqF3IshRPwrZrWm8eWpcXFNPZqfJFpAWTn5x4f2NwxcvGR/qDaOZ/Q8ni0Gd6IErF0a1M
+	 PQE0ns6pPIQ9ZiC/uAnCNRBDGpd0mQtvITlTcWdgTv3kjZRSy1zhI/5U5meLrh1WqlomT
+	 Ps1cXQvygnfR997xccLggNtm/WQ1KzsSOC1bmd+q6JFUrv+yf+0ihErHZL2BhljqLvA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793982233;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793982326;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=nivzUp82dTqtDHjRtfO+hp5LsfGX9nGjZN1xrbtHJ+M=;
-	b=1WKir8avVdNYDTM8ptQ6L/9XzNxo1tLW+tmfPJRYqtm0d2Cq+bRApNsMttZ4WIWx8QX+
-	 lYRhKKI4fTKTZIL3wdTFgShJB8EQE7GdY9PKPlRamG6Y/fw1dpql4YqIM5kI1yIalHEwX
-	 CxR0HqlDoIdw9U+7JEE2FomPJRbB8Dreu6jQF8fJ6BooTVfiKR5gZVSAIbqmlw60MN+kg
-	 q5FgkUPzgueik2cVPXrp8jstJsTjMBigdp50UUeKjmAnKaD3fYurKAMDpT8dcorBEk4m1
-	 PLwERrJX7rcNHg80RgNhKkyLEvMd7NJvQKTMgIsIMaynFiI4DLB/JRkIJBdPTd4cWmw==
+	bh=3p5mlKl/PckiXDCg6/nBWjYORRFu029BUm/CGhRL04o=;
+	b=jFXc4aBb0dEkjlx0dL8BE9vIcZxcWcPyPU28gagWY1W45U5FWI5nxRgGVM92lywELhjG
+	 qjLqSAyW94RLq0lw2f0fA2l1NiZKIl6nV+tHkpB8EQZ36fD8Y5mGEDDMAukRpmoVhamhk
+	 1wiTw6xpIlL5IIZIFrmj1bNss/OJdxGlceIUtVAOuowdu79+5AENXtn2udSPMnl4NzFQA
+	 hKtATYhqkA9pGJaL7Ojc3k5dU+7KCFbMAW1WR7joNVfShFIYCtvlwMWyz3nTjYzHT7zx7
+	 MC4eV8o1BEB25kZ4/WYwgUfdUgqLzFvMP3P1yruFlYlHgU9HZUEtVScAz31DuU8aPvA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mWNnMFbO;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L2WpxG9u;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CEC5606A329
-	for <linux-s390@vger.kernel.org>; Fri,  6 Nov 2026 16:23:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F1FD606A329
+	for <linux-s390@vger.kernel.org>; Fri,  6 Nov 2026 16:25:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=mWNnMFbO
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CD0A1F0089F;
-	Fri,  6 Nov 2026 16:23:52 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L2WpxG9u
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 401B91F0089F;
+	Fri,  6 Nov 2026 16:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793982232;
-	bh=nivzUp82dTqtDHjRtfO+hp5LsfGX9nGjZN1xrbtHJ+M=;
+	s=k20260515; t=1793982325;
+	bh=3p5mlKl/PckiXDCg6/nBWjYORRFu029BUm/CGhRL04o=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=mWNnMFbOKLJdo7BwRAPB/MUTlGD2LLHdb9QnNXFhaN5cRBRXFT0y6nfhGrvky9eg1
-	 J+nJSbt5+G/mwwM7nI5+KdYDxQjT+IQ8UT1g4+vYaIJZRvGQXa3h6GM0saFai0JBvd
-	 xL++DKJDPp4YkpX++28rIpJIMu6JujEgAvzWkrC4qO8h8yJyx3eO9sBJ1fgvejo1so
-	 26/usDSuTroWVb8zo2WqYRBWBxFxV57G+van1ye48Ji5jK/Syjih4gvxadQp7YGH3P
-	 APLYhyWDVLcAxCRKwsOwEObfvOc6fVStz6rpyErUqOX8vuhmzo1s/vgnzwV5i2ZhSi
-	 HE+pNk2q+92yQ==
-Message-ID: <sashiko-outbox-201799@kernel.org>
+	b=L2WpxG9u/2+2A3K5x+9mVBdtqX+0UCNzKT5F43/yzrrE+CyoMJrT5WzV29EKelXN7
+	 yUJwybVEjDJEXrlMKdlhxehdjQT9YA6EmzD48l365T8zWhOpSg40ZoQ3iBWhofk/XS
+	 +SOFCKn+98kyXINhq23Inc2uFfyURN4mfDNC7+gb+8+j6nTgfJmVLHDf6AqFu0o8xP
+	 BkX0dTitFyGff/y1JH4dpaOki/EUXAhsTVb95OVoGpBaCL+c2zzJiloLCOxbWWySey
+	 r1T+bJoBsVvi2Rwhq9yt6fjhm36Q6KDpVFjtoYRM84rJS3+qG0gd61WHvrA1A0dp6E
+	 ge6zzemdJUxhQ==
+Message-ID: <sashiko-outbox-201801@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 01/23] KVM: arm64: Refactor idreg caching into
- dedicated structure
+Subject: Re: [PATCH v3 02/23] KVM: arm64: Extract number of sys_reg_desc
+ into a constant
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Steffen Eiden" <seiden@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261106-sysreg-v3-1-75e95980fb10@linux.ibm.com>
+In-Reply-To: <20261106-sysreg-v3-2-75e95980fb10@linux.ibm.com>
 References: <20261106-sysreg-v3-0-75e95980fb10@linux.ibm.com>
- <20261106-sysreg-v3-1-75e95980fb10@linux.ibm.com>
+ <20261106-sysreg-v3-2-75e95980fb10@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 16:23:52 +0000
+Date: Fri, 06 Nov 2026 16:25:24 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,14 +63,20 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Move VM-wide ID register emulation fields from struct kvm_arch into a
-> new struct kvm_vm_id_regs. The new struct is placed in a shared region.
-> Update all users to use the new structure.
+> Define the constant `num_sys_reg_descs` which stores the number of
+> elements in the sys_reg_descs array. Replace all occurrences of
+> ARRAY_SIZE(sys_reg_descs) with the new constant.
+>=20
+> This refactoring eases the integration of handling system registers for
+> arm on s390. s390 needs code from the shared code to define the
+> sys_reg_descs. But also the shared code needs the definition of the
+> sys_reg_array and we cannot forward declare arrays and use their size
+> before it is properly defined. This patch solves this chicken or egg
+> problem. For the time being s390 cannot process the full arm64 defined
+> sys_reg_descs array.
 >=20
 > No functional changes.
 >=20
-> Co-developed-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
-> Signed-off-by: Nina Schoetterl-Glausch <nsg@linux.ibm.com>
 > Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
 > Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
 > Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
@@ -79,5 +85,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106-sysreg-v3-=
-0-75e95980fb10@linux.ibm.com?part=3D1
+0-75e95980fb10@linux.ibm.com?part=3D2
 
