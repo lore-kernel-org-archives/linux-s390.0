@@ -1,81 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793964179;
-	b=4JKBaSS+DsS8j3+XbNi1sdHy9c1P8KVejxJYcQXpDBUK6O5Q51kZIKG9QqwrFql1embE
-	 UPojybP0Gf8cOCwk9VYiiQPxDbrTC6UKZ6aJ3/LfQgvtFxB6qwK8lx33iiyVQl/Df5jLj
-	 ZxxrUT8slnjE8pq3GhRRUdHdwxGR/fpwTBpBcENYQ2hgaoAZeqfmJWJCR5oi6ow1YfLrb
-	 Cc/9BBqzUiyfL2WrGr0kL/YqZwsODSP7KVQ4e3IMTUalYiS8QNqr69pNAE+9QazkTo1qc
-	 JOgRSsmc5sRNTj3RrnHXwTZEqPCI9ZKFc8eLQkBzadIY2/HUDE68tce+4ZCD9trzXIw==
+	t=1793967009;
+	b=tmKWzhRzYvFoGZP1pfE8iLh7xLvLsoREBsFAuYFFhk0MYhMeWb2tjAMC7+2MeCDvNCvq
+	 /pqyMO9JeghdqlvPKX+NlgwpfBrkHVOISmL1HjFRsXvfPo3+wAGqIgE2/lzmO31darVJi
+	 HJSANOKhlJWkG6nS+77vVhvERbaH36E4GjYdsqR7Anb2NF76R3MsLhJd7KhaJZ2YJdlu9
+	 UuEYIFd2IoNmVk9MLFX6pzKD5LQHYzC+Lht0SnX1QHZSElozz2Bw5Zw2v0Hi5z5tdXKwb
+	 Sdtt3O0o0SAAz6JMmyM9PsJKU1qxQ0bhe16o9jIu/gIdBAx05Rr3B8HIxtYLOb3+Mmw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793964179;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793967009;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:References:Content-Language:From:Cc:In-Reply-To:
+	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
 	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Proofpoint-ORIG-GUID:X-Proofpoint-GUID:X-Authority-Analysis:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-ORIG-GUID:X-Authority-Analysis:X-Proofpoint-GUID:
+	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Spam-Info:
 	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=XSkCRP/iCAmBq/Ps3sn+ycEaOS8RbaoK3GlU0yrOuoo=;
-	b=XWdDzECTnH5HBFcucBFztlABKFL7Nh7UrCFcbGjUXnFjE0i2TmyeyCF+KbqzWSsJon7r
-	 V57FDlSwrAkIRAJ+1EjTDlGEoQ5JcQCP/PztZRDtWPKw696jVsCDCMtOh5PqxDUfTwGDl
-	 XM5t0auG/40OTrWnSgBfBWeR1WNbAAvGfw4t8+lU9AQUxsrbzFGgwi8e/zQaDKguUYEnL
-	 FOlABOw+G2/hGnO+Urztt08gF0UtvJHQ7Ob2p2nk7yrEBDEBVK4mvArcACBDdA1Za0uue
-	 7gvnrfRS9bCSdEQFsAAGo4uqB4Uubl1n1XFUiQ8IPBuuZAt1pa8ym1CsfpgvH4fl/ew==
+	bh=2byU4wVi1StoOHLsHgcPhZKBXMDgVuCzlcG5Ij2GSIg=;
+	b=hF5EJfTzdAAGhOrNiJy7j5e+kaWSvB+H0EDW/GW5IsiIrSBE75tSHqjZcU5VcszO4Y05
+	 7zidYFmkB2NdgjqYKxWUDnWvG4V0Bxhw64GFW5d0xBm0LvBM557wmB5CKxTNlIB7aqog/
+	 FHFVWwREiEPxA7U7ZbnK7AaR13dfuzHy35mlAU/JgqpI3xHQUJb91cT5rfJpvxb6OgLEp
+	 DIxiRDxS9kUyzmVHV8O0B/y5jSzfoJP/oLWZyMZEw+e7UzYMtPyF86rhS8id0gmJrS1+i
+	 hMJrLss+m2zj36aCnS+FzGcK1WVAjGqi396ci3AoRROZQwQuV/d+FnIYLalT540ggRg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b="Pu/0y5rW";
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=OGhsr59H;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 821C2606A326;
-	Fri,  6 Nov 2026 11:22:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 821C2606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 816A9606A339;
+	Fri,  6 Nov 2026 12:10:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 816A9606A339
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=Pu/0y5rW
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6AjbgX980374;
-	Fri, 6 Nov 2026 11:21:20 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=OGhsr59H
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6Ai9lN2368358;
+	Fri, 6 Nov 2026 12:10:07 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=XSkCRP
-	/iCAmBq/Ps3sn+ycEaOS8RbaoK3GlU0yrOuoo=; b=Pu/0y5rWc2ZrdPZqiI2pP/
-	Te1Gta1kngdRT+2amzGzZ3MydLtq4CkBKZ3uTRCtTMnXvT6bfDYrxyaANsvsyh/R
-	33MRcI1343pdxyf0lDnJTeppbWzknzuWe6v+lZE85A8jlrqurH0KuEH0AzoqF4Kz
-	O3bTMiT3XWDVeKsIjcefVIoUGfSMcyODzR86L8Eh0ByIm4KME+zQuOUwkBu0ViRV
-	u9n6gZZVa+vhgJ6V8lIqJYVOcAQiM2XE//xsnf5N684CZqNamr6X8XLVKLo9+dbe
-	t+GxoilQWHzPfmqJDHAHFO04CE9iRQkfkQbp29ay4xXoMwquAyO65vzF9cUiCnGQ
+	:message-id:mime-version:references:subject:to; s=pp1; bh=2byU4w
+	Vi1StoOHLsHgcPhZKBXMDgVuCzlcG5Ij2GSIg=; b=OGhsr59HYN5jmPfIxZyNNY
+	J9TCTXdSWz6KzktpgqHGdsbCU+x/s9946oKIW/0bW49zpXTxTwtaRLWZTFQKBgu5
+	VqvQdAuXIXNY2fGDkG79KQulaP1exi4CpbdoYngB4itUMpnEME+/7m2m/pH9KiEx
+	03/OTveaXdEyl36IjtSe9fxt+40rrRJ36T/xHueJTZDUWiSu4PpCRLPl1GWLML/z
+	aXdhSCvMvO6dRrJJY21Hdysf+AcAAWTE8fOcn/A50DzlPgUnPIIdaVD1mMB9huu4
+	o/csDMWXQUBO91WrFXtxsdgOkmqljKxyfLvUOOUoPrK+JRjP8MB1fNykMXDKnyYw
 	==
 Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hs3rbuufn-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hs3rcc2yk-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 06 Nov 2026 11:21:20 +0000 (GMT)
+	Fri, 06 Nov 2026 12:10:07 +0000 (GMT)
 Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6Ao7943260750;
-	Fri, 6 Nov 2026 11:21:19 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hqv1v6tfh-1
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6Anoxs3260566;
+	Fri, 6 Nov 2026 12:10:06 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hqv1v6ys9-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Nov 2026 11:21:19 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A6BLIss4981286
+	Fri, 06 Nov 2026 12:10:06 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A6CA5lk49742220
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 6 Nov 2026 11:21:18 GMT
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2EA5F5805D;
-	Fri,  6 Nov 2026 11:21:18 +0000 (GMT)
-Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6CA0D58058;
-	Fri,  6 Nov 2026 11:21:14 +0000 (GMT)
-Received: from [9.111.151.197] (unknown [9.111.151.197])
-	by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri,  6 Nov 2026 11:21:14 +0000 (GMT)
-Message-ID: <0a3c64d1-2b8f-4e0b-87ca-5397d1aaa3ee@linux.ibm.com>
-Date: Fri, 6 Nov 2026 12:21:12 +0100
+	Fri, 6 Nov 2026 12:10:05 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1C1875805A;
+	Fri,  6 Nov 2026 12:10:05 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6B1775805E;
+	Fri,  6 Nov 2026 12:10:04 +0000 (GMT)
+Received: from [9.61.114.69] (unknown [9.61.114.69])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri,  6 Nov 2026 12:10:04 +0000 (GMT)
+Message-ID: <570bdfce-fc42-4aab-856b-dfe66656d3be@linux.ibm.com>
+Date: Fri, 6 Nov 2026 07:10:03 -0500
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -86,89 +86,332 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] crash: keep crashkernel CMA pages reserved if activation
- fails
-To: Usama Arif <usama.arif@linux.dev>,
-        Andrew Morton <akpm@linux-foundation.org>, baoquan.he@linux.dev,
-        rppt@kernel.org, pasha.tatashin@soleen.com, pratyush@kernel.org,
-        ruirui.yang@linux.dev, jbohac@suse.cz, david@kernel.org,
-        hbathini@linux.ibm.com, leitao@debian.org, kexec@lists.infradead.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org, kas@kernel.org,
-        hannes@cmpxchg.org, riel@surriel.com, shakeel.butt@linux.dev,
-        kernel-team@meta.com
-References: <20261104145600.3708886-1-usama.arif@linux.dev>
+Subject: Re: [PATCH v11 03/14] s390/vfio-ap: Functions to initialize/release
+ vfio device migration data
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Jason Herne <jjherne@linux.ibm.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>
+References: <20261102151604.2150055-1-akrowiak@linux.ibm.com>
+ <20261102151604.2150055-4-akrowiak@linux.ibm.com>
+ <sashiko-outbox-193701@kernel.org>
 Content-Language: en-US
-From: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org,
-        Bradley Morgan <brads@mainlining.org>
-In-Reply-To: <20261104145600.3708886-1-usama.arif@linux.dev>
-Content-Type: text/plain; charset=UTF-8
+From: Anthony Krowiak <akrowiak@linux.ibm.com>
+In-Reply-To: <sashiko-outbox-193701@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: zxaghCs0BOzGJLIG7jFmKscVIT5NRM5b
-X-Proofpoint-GUID: zxaghCs0BOzGJLIG7jFmKscVIT5NRM5b
-X-Authority-Analysis: v=2.4 cv=MqLHeGae c=1 sm=1 tr=0 ts=6aedb830 cx=c_pps
+X-Proofpoint-ORIG-GUID: P3LMfPqEJAuQIw-OdTKBLwJgYEwbKcK1
+X-Authority-Analysis: v=2.4 cv=A635rKWG c=1 sm=1 tr=0 ts=6aedc39f cx=c_pps
  a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=v7f7EczwOuDDiPIii9gA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA2MDA0NCBTYWx0ZWRfX7zq9oNWaXh0U
- FC1wxkRX4UHerDFfCDSe/7AR824SCkh7FVX0m2cCeucIHT4Qq+DAREGwDLQSjfLCCK+nKG0/Z1I
- k4IO/PNS/iN+mDiWAQFfOU4tOWY5As4=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA2MDA0NCBTYWx0ZWRfX3tB4QAo85Yle
- twUqL/+8aN7LMEcEsB0CAs9RLVC9vrrZteEwPlo0j3uRnR1W7YoMALXTqFVp8Q8esXu727tdaNN
- DzdYK3osL5l2FKNQAldUR0T/tbOAmH1Ye7UE3wTJuE0EOaRNi70qgaUXGol9TOXkv2GzsZtVF8Y
- HzOla4OtHShSHyenU7fM371K9csCj8c/HHABc9VweEns5PXP7bX7EL4kWFCss4zMnR2/zKaKLCe
- teVC0uDbMbjV2EJNV5CkaHjB/+l0F1RJo7ul4xS36lSlXia5Ma/cCGqXFB6bNEwM41dH2yFJZgu
- CztOkLSkX+4K90IxdqV2zMzKwQLt6WM6P78Rn3Nh7gGTu/4e1UxH+zNtWduHbZJbrf1VG2i/nBd
- tbST2q9naYNAlGRwdh3794QaOWbdN9MwRT+TrDPbHB+1Y0HEQNOYk3xyea7O1qObAt4ldoqYP+b
- IYwsVB69XIeNuxIWUOw==
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
+ a=VnNF1IyMAAAA:8 a=qGfIvsC6O27SEb7dLMIA:9 a=QEXdDO2ut3YA:10 a=O8hF6Hzn-FEA:10
+X-Proofpoint-GUID: P3LMfPqEJAuQIw-OdTKBLwJgYEwbKcK1
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA2MDA0NiBTYWx0ZWRfXyaatC79fAflw
+ c/2q3J2ipFIvuQXxeL1K+55MU9v1PQG7Dz7dsOZSmOWyfXrSlsHboR3fRY3XfBKbju4SzwEIHbi
+ +/FZ8RbfsSs77OVwNzptk6bppGggpRKb+ceT7M8dyREG4HC3h19qFFfItWthI6LZxwHHygPfm0K
+ EeYct6LxCNd1hI0dUhzHPRiWMh+8QtsIhWcme0aabxu8yHqzkzp/62ZlZ39fSNVHx4+Xx1aD+Wi
+ rJspAluzXP7cX0JDyvRWm95dOF2eLz4BMSwK+Uw2gHB29uRe72xy59AvzDnqctRwVL0+kmWYOpL
+ TVIhxav7RzhpbLaWydXQ5QOzjsStbjKZ0YsT5Jb8aBSDjlEO/FgnGd77f2tGQUhoT16AZpn8YJD
+ 6VBdsCn/mZ8BA+ymTKIyQBPzqUCvgIY3V/hS6XoXMhOmwiX/41wRREa5armUsEJvLNmoSfkDsdf
+ KTg3GsCojHNo1/g7a6w==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA2MDA0NiBTYWx0ZWRfX3DGP//Rev2cX
+ 3ml4l2e66boEX1Ipn1rRaJH0KylnA+k4+A5LvSI2Qm5nNI6vtZHOK9EzEPcHjGA9vMqSwPj+vAk
+ Sf/f4JjxTl19tciW24iXtDZeRyI9xX4=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-06_03,2026-11-04_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 phishscore=0 priorityscore=1501 adultscore=0 clxscore=1011
- malwarescore=0 impostorscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0
+ bulkscore=0 priorityscore=1501 impostorscore=0 phishscore=0 spamscore=0
+ malwarescore=0 adultscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611060044
+ reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611060046
 
 
 
-On 04-Nov-26 15:56, Usama Arif wrote:
-> reserve_crashkernel_cma() adds each crashkernel CMA area to
-> crashk_cma_ranges[] as soon as it is declared. If the area later fails
-> activation, e.g. because movablecore= put the ZONE_MOVABLE boundary
-> inside it, cma_activate_area() releases the pages to the buddy allocator
-> as ordinary memory. The range is still handed to the crash kernel and
-> excluded from the vmcore, so kernel data that lands there is overwritten
-> by the crash kernel and missing from the dump.
-> 
-> Mark the areas with cma_reserve_pages_on_error(), so that a failed
-> activation leaves the pages reserved: lost to the first kernel, but safe
-> for the crash kernel to use.
-> 
-> Fixes: ab475510e042 ("kdump: implement reserve_crashkernel_cma")
-> Signed-off-by: Usama Arif <usama.arif@linux.dev>
-> ---
-s390 hits this without movablecore= (adding the s390 maintainers and
-linux-s390) since ZONE_DMA ends at 2G here.
-CMA tries to reserve areas above 4G first, but falls back to lower
-memory when it doesn't fit, so a cma area can end up across the 2G boundary.
-I ran into this while adding crashkernel=,cma support for s390, which I
-will post soon, and came up with the same fix.
+On 11/2/26 10:46 AM, sashiko-bot@kernel.org wrote:
+> Thank you for your contribution! Sashiko AI review found 3 potential issue(s) to consider:
+> - [Critical] s390/vfio-ap: use-after-free of mig_data when migration FD outlives device FD
+> - [Medium] s390/vfio-ap: commit message does not match code in vfio_ap_migration.c
+> - [Low] s390/vfio-ap: malformed kernel-doc comment on vfio_ap_release_mig_files()
+> --
+>
+> commit 2bff67e6f9b81966cd8ed45a78897f37868b65ad
+> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
+>
+> s390/vfio-ap: Functions to initialize/release vfio device migration data
+>
+> This commit adds functions to allocate, initialize, and release the data
+> structures used to maintain live guest migration state for vfio_ap mediated
+> devices when the VFIO device is opened, closed, or released.
+>
+>>      s390/vfio-ap: Functions to initialize/release vfio device migration data
+>>      
+>>      Provides the functions that initialize and release the data structures
+>>      used during live guest migration:
+>>      
+>>      * vfio_ap_init_migration_data
+>>      
+>>        Allocates and initializes the object used to maintain the state of the
+>>        VFIO migration. It is called when the VFIO device is opened.
+>>      
+>>      * vfio_ap_release_migration_data
+>>      
+>>        Frees the memory of the object used to maintain the VFIO migration
+>>        state. It is called when the VFIO device release callback is invoked
+>>        and when the VFIO device is closed.
+>>      
+>>      * vfio_ap_release_mig_files
+>>      
+>>        This function is called from the vfio_ap_release_migration_data
+>>        function (above) and releases the vfio_ap_migration_file objects
+>>        contained within the vfio_ap_migation_data object used to maintain
+>>        the state of the VFIO migration process.
+>>      
+>>      * vfio_ap_release_stop_copy_file
+>>      
+>>        This function is called from the vfio_ap_release_mig_files function
+>>        (above) to release the vfio_ap_migration_file used during the
+>>        STOP_COPY phase of migration. For now, this is a stub function that
+>>        will be fully implemented in a subsequent patch after the
+>>        vfio_ap_config object referenced within is allocated, as it will
+>>        need to be freed according to how it is allocated.
+>>      
+>>      * vfio_ap_release_resuming_file
+>>      
+>>        This function is called from the vfio_ap_release_mig_files function
+>>        (above) to release the vfio_ap_migration_file used during the
+>>        RESUMING phase of migration. For now, this is a stub function that
+>>        will be fully implemented in a subsequent patch after the
+>>        vfio_ap_config object referenced within is allocated, as it will
+>>        need to be freed according to how it is allocated.
+>>      
+>>      * vfio_ap_set_state, vfio_ap_get_state and vfio_ap_get_data_size
+>>      
+>>        These three functions are callback functions assigned to the
+>>        vfio_ap_migration_ops (.migration_set_state, .migration_get_state
+>>        and .migration_get_data_size function pointers).
+>>      
+>>      Signed-off-by: Anthony Krowiak <akrowiak@linux.ibm.com>
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypto/vfio_ap_migration.c
+>> index 2a0a8c76f820e..d525dec782a18 100644
+>> --- a/drivers/s390/crypto/vfio_ap_migration.c
+>> +++ b/drivers/s390/crypto/vfio_ap_migration.c
+>> @@ -4,6 +4,7 @@
+>>    *
+>>    * Copyright IBM Corp. 2025
+>>    */
+>> +#include <linux/file.h>
+>>   #include "vfio_ap_private.h"
+>>   
+>>   /* Magic number and version for the vfio_ap_config migration blob */
+>> @@ -123,3 +124,105 @@ struct vfio_ap_config {
+>>   	u64				adm[DIV_ROUND_UP(AP_DOMAINS, 64)];
+>>   	struct vfio_ap_queue_info	qinfo[] __counted_by(num_queues);
+>>   };
+>> +
+>> +static void
+>> +vfio_ap_release_stop_copy_file(struct vfio_ap_migration_data *mig_data)
+>> +{
+>> +	kvfree(mig_data->stop_copy_mig_file.ap_config);
+>> +	mig_data->stop_copy_mig_file.ap_config = NULL;
+>> +	mig_data->stop_copy_mig_file.config_sz = 0;
+>> +	mig_data->stop_copy_mig_file.filp = NULL;
+>> +}
+>> +
+>> +static void vfio_ap_release_resuming_file(struct vfio_ap_migration_data *mig_data)
+>> +{
+>> +	kvfree(mig_data->resuming_mig_file.ap_config);
+>> +	mig_data->resuming_mig_file.ap_config = NULL;
+>> +	mig_data->resuming_mig_file.config_sz = 0;
+>> +	mig_data->resuming_mig_file.filp = NULL;
+>> +	mig_data->resuming_mig_data_complete = false;
+>> +}
+> [Severity: Medium]
+> Is the commit message out of sync with the changes in
+> drivers/s390/crypto/vfio_ap_migration.c?
+>
+> The changelog describes vfio_ap_release_stop_copy_file() and
+> vfio_ap_release_resuming_file() as stubs to be implemented in a subsequent
+> patch, but both functions are already fully implemented here to call
+> kvfree() on ap_config and reset the fields on stop_copy_mig_file and
+> resuming_mig_file.
+>
+> The changelog also states that this commit provides vfio_ap_set_state(),
+> vfio_ap_get_state(), and vfio_ap_get_data_size() assigned to
+> vfio_ap_migration_ops, which are not present in this patch and instead get
+> introduced in later patches in the series, along with the usage of the newly
+> added linux/file.h include.
 
-About dropping the range instead, as you offered for v2: I'd keep this
-version. With the range dropped, the kdump kernel gets less memory than
-configured, and that only shows at crash time. With this patch, the
-the first kernel 'loses' the memory as with a regular crashkernel= reservation
-of the same size.
+Will change for next version
 
-There is a second problem in the same loop: all areas are named
-"crashkernel", which breaks the CMA sysfs and debugfs entries when
-there are several. I've sent a separate fix for that:
+>
+>> +
+>> +/**
+>> + * vfio_ap_init_migration_data - initialize migration data and functions
+>> + *
+>> + * @matrix_mdev: pointer to object containing the mdev state
+>> + *
+>> + * Return: zero if initialization is successful; otherwise, returns a error.
+>> + */
+>> +int vfio_ap_init_migration_data(struct ap_matrix_mdev *matrix_mdev)
+>> +{
+>> +	struct vfio_ap_migration_data *mig_data;
+>> +
+>> +	lockdep_assert_held(&matrix_dev->mdevs_lock);
+>> +
+>> +	/*
+>> +	 * Live guest migration is not supported for SE guests, so there is no
+>> +	 * need to initialize the migration data.
+>> +	 */
+>> +	if (ap_is_se_guest())
+>> +		return 0;
+>> +
+>> +	mig_data = kzalloc_obj(struct vfio_ap_migration_data, GFP_KERNEL);
+>> +	if (!mig_data)
+>> +		return -ENOMEM;
+>> +
+>> +	mig_data->mig_state = VFIO_DEVICE_STATE_RUNNING;
+>> +	mig_data->resuming_mig_data_complete = false;
+>> +	mig_data->resuming_mig_file.matrix_mdev = matrix_mdev;
+>> +	mutex_init(&mig_data->resuming_mig_file.lock);
+>> +	mig_data->stop_copy_mig_file.matrix_mdev = matrix_mdev;
+>> +	mutex_init(&mig_data->stop_copy_mig_file.lock);
+>> +	matrix_mdev->mig_data = mig_data;
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +/**
+>> + * vfio_ap_release_mig_files:
+>> + *
+>> + * Free the ap_config buffers for any open migration FDs. Although a
+>> + * migration FD may still be held open by userspace, it is safe to free
+>> + * mig_data here because:
+>> + *
+>> + *   1. matrix_mdev remains valid for the lifetime of any open migration
+>> + *      FD via the vfio_device registration reference taken in
+>> + *      vfio_ap_open_file_stream() and dropped in
+>> + *      vfio_ap_release_mig_file().
+>> + *
+>> + *   2. mig_data is only accessed by the migration file ops
+>> + *      (vfio_ap_stop_copy_read, vfio_ap_resuming_write) under
+>> + *      mdevs_lock. Once mig_data is set to NULL by the caller, those
+>> + *      paths will see NULL and return -ENODEV before dereferencing it.
+>> + *
+>> + * @matrix_mdev: The object used to maintain the state for a mediated device
+>> + */
+>> +static void vfio_ap_release_mig_files(struct ap_matrix_mdev *matrix_mdev)
+> [Severity: Low]
+> This isn't a bug, but the kernel-doc comment on vfio_ap_release_mig_files()
+> in drivers/s390/crypto/vfio_ap_migration.c omits the short description on the
+> identifier line and places the @matrix_mdev parameter description after the
+> body text, which triggers a scripts/kernel-doc warning about a missing
+> initial short description. Should the short description and @matrix_mdev
+> parameter be moved to the top of the kernel-doc block?
 
-https://lore.kernel.org/r/20261106104309.3669583-1-zaslonko@linux.ibm.com
+Will fix for next version.
 
-Reviewed-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-Tested-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+>
+>> +{
+>> +	struct vfio_ap_migration_data *mig_data;
+>> +
+>> +	lockdep_assert_held(&matrix_dev->mdevs_lock);
+>> +
+>> +	mig_data = matrix_mdev->mig_data;
+>> +	vfio_ap_release_stop_copy_file(mig_data);
+>> +	vfio_ap_release_resuming_file(mig_data);
+>> +}
+>> +
+>> +/**
+>> + * vfio_ap_release_migration_data: reclaim private migration data
+>> + *
+>> + * @matrix_mdev: pointer to the object containing the state of the mdev
+>> + */
+>> +void vfio_ap_release_migration_data(struct ap_matrix_mdev *matrix_mdev)
+>> +{
+>> +	lockdep_assert_held(&matrix_dev->mdevs_lock);
+>> +
+>> +	if (!matrix_mdev->mig_data)
+>> +		return;
+>> +
+>> +	vfio_ap_release_mig_files(matrix_mdev);
+>> +	mutex_destroy(&matrix_mdev->mig_data->stop_copy_mig_file.lock);
+>> +	mutex_destroy(&matrix_mdev->mig_data->resuming_mig_file.lock);
+>> +	kfree(matrix_mdev->mig_data);
+>> +	matrix_mdev->mig_data = NULL;
+>> +}
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>> index 01439f0ca42ab..1aada3068df5f 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> [ ... ]
+>
+>> @@ -2052,19 +2062,39 @@ static int vfio_ap_mdev_reset_qlist(struct list_head *qlist)
+> [ ... ]
+>
+>>   static void vfio_ap_mdev_close_device(struct vfio_device *vdev)
+>>   {
+>> -	struct ap_matrix_mdev *matrix_mdev =
+>> -		container_of(vdev, struct ap_matrix_mdev, vdev);
+>> +	struct ap_matrix_mdev *matrix_mdev;
+>> +
+>> +	mutex_lock(&matrix_dev->mdevs_lock);
+>> +	matrix_mdev = container_of(vdev, struct ap_matrix_mdev, vdev);
+>> +	vfio_ap_release_migration_data(matrix_mdev);
+>> +	mutex_unlock(&matrix_dev->mdevs_lock);
+>>   
+>>   	vfio_ap_mdev_unset_kvm(matrix_mdev);
+>>   }
+> [Severity: Critical]
+> As reported by Sashiko on v3 [1], can closing the VFIO device file descriptor
+> while a migration file descriptor remains open trigger a use-after-free of
+> matrix_mdev->mig_data?
+>
+> In drivers/s390/crypto/vfio_ap_migration.c, struct vfio_ap_migration_data
+> embeds resuming_mig_file and stop_copy_mig_file by value:
+>
+> struct vfio_ap_migration_data {
+> 	enum vfio_device_mig_state	mig_state;
+> 	bool				resuming_mig_data_complete;
+> 	struct vfio_ap_migration_file	resuming_mig_file;
+> 	struct vfio_ap_migration_file	stop_copy_mig_file;
+> };
+>
+> When a migration stream file descriptor is opened in
+> vfio_ap_open_file_stream() (added in later patches in this series),
+> anon_inode_getfile() sets filp->private_data to &mig_data->stop_copy_mig_file
+> or &mig_data->resuming_mig_file, and takes a registration reference on
+> vdev via vfio_device_try_get_registration().
+>
+> That registration reference keeps struct ap_matrix_mdev alive until
+> vfio_ap_mdev_release_dev(), but it does not prevent the last close of the
+> VFIO device file descriptor from calling
+> vfio_ap_mdev_close_device()->vfio_ap_release_migration_data(), which destroys
+> stop_copy_mig_file.lock and resuming_mig_file.lock and frees
+> matrix_mdev->mig_data with kfree().
+>
+> When userspace subsequently reads, writes, or closes the open migration file
+> descriptor (including during process exit when close_files() closes the
+> lower-numbered VFIO device FD before the migration FD),
+> vfio_ap_stop_copy_read(), vfio_ap_resuming_write(), and
+> vfio_ap_release_mig_file() dereference filp->private_data (mig_file->lock,
+> mig_file->filp, and mig_file->matrix_mdev) inside the freed mig_data object.
+
+Confirmed. Closing the VFIO device FD while a migration FD remained open
+freed matrix_mdev->mig_data because vfio_ap_mdev_close_device() called
+vfio_ap_release_migration_data(). While vfio_ap_open_file_stream() holds a
+vfio_device registration reference that keeps matrix_mdev alive, it did
+not protect mig_data from being freed on device close.
+
+In v12, this is resolved by decoupling migration data lifetime from device
+close
+
+>
+> [1] https://lore.kernel.org/r/20260630111142.08F0A1F00A3A@smtp.kernel.org
+>
+
