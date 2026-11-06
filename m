@@ -1,48 +1,47 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793997225;
-	b=gas6BPNNwqJgkkCT5j3cZq34FW33kHOKBcY4MOSNTTtuXv1TZKDx+u96gkoffw2YfzaA
-	 749O6TmEACf5gsVEb63/mQJaW8RYgPd8T6l68ctVhsr/ZOuUktFzDjPqj94iRTeLwbgoG
-	 2J3KzNFIsns+jEBoc7IfHMT67V82wEYXuTCa+lKWpJli0KT8CN2vJR7KR10fyBBFe4/kI
-	 NxmfwVVSeM6Z5xw84LMlK/qkc0x6uZhQ92DMrEddtWzeKb+OuAb/3W+4308iW2z82kBIo
-	 TV+qXAFTX52Tui87FXglU6ZfgckFEk07h0LQiEB6H2wk8GjQIi0dxhnbA2qIyb9Zpew==
+	t=1793997228;
+	b=cxsx4qPz8eQQxZTT1PGOMsJbgTrg4GQFMvCDUd0VBTMvDH3qqSmW3FyTNZsw4DiovWS1
+	 xSO8p5Wr9T8AkauIFscaFSp0XBjM9uInTsCvOGvglCh8/4D2dRMuykE2h8M/gajXoj511
+	 4eo9JaCX19mNqTnAXCDORBUUdOmYzZ/VyRPM8uXipECq/JBTGjp1uw1j2XHYd4SxtzDd0
+	 bZjQHqA1NTFT9eOLCOSwZe81OG4s0BeY9Pbnqv9S38dEY8Et2O7dojpexzyDOD7h18xXY
+	 bS5jJFJTvEaP8SD1FA2AGq9Poi1VcnWdLTC0204qTnd2Jbx+F3Wodc9yDKNE5icou1A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793997225;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793997228;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=z6IU49XWVLXmp5ObaZtq/UrMcH0Z7jLgrOzSGwNJ8Js=;
-	b=1NM/u5Faglaf0wazdVAf74MAroV4FVv5HAd9b6RgOwp3HY7O7SXR9MQWeRHNVj2at3l+
-	 aoV7tNMhGYvDUUjv40OjcTo/y4YV/IBxnaGKkTZu3DyVEKfE0u/4k+xOypP6+UJwgAnLH
-	 EAUWVDY+mby/ANkOYM3FTpaIGgVJugrqfoUfwWdYlv4NhmqA18yf/80ew8dxPV4wqpRCz
-	 7T3WHkLuDewe9g14pL6T4Qe0La2574kjaIsDQRTF0r/AwJSUxoucy6v+IDlN5VQQ4kUQl
-	 3GsYMgvGc+RxTlP7nUUtOzejulzyM8ia5cqvgeQaqJRcnpXOuJvA7J8yCgTnXIVNhEQ==
+	bh=Y0HE2WoOUooJZsk8MBhpeVE91XrH4bDn1VveDmcxCjc=;
+	b=ycPcQnEtp1Xa5ujw6VDy6Gz9ZyJlCXUMVpxcEvxKVfKrsK3Syv+6k+3y07r1cm6jFgBA
+	 EjM3ijyQBjnmYGRcqAh1+4YbCZjyONOxDm1u82S67amMFUKTyEOf10awR9axZvaTrlyjq
+	 P3vuLpnChI6A2giTadj1/eaEBFHmjrlrV7mEn3OqgUWeIxGoXVaexStxjnY0gW80bNwn4
+	 JG3VBp8aedAovlT7IMt6sg/QnoqJIiq2lwBjVzka036R8yEVBZ9VhJVLWht7sAKM/I0pm
+	 TDMueG/tozLaR4Bohazso7WSeyj4R3qJn3DJRSiMrim8Jgkvy7P5FrD51T0gdjr0Q3Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bb7gIoiO;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=a3G5bUk3;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C86B606A32E;
-	Fri,  6 Nov 2026 20:33:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBBBC606A334;
+	Fri,  6 Nov 2026 20:33:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Bb7gIoiO
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77E4C1F0089F;
-	Fri,  6 Nov 2026 20:33:44 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=a3G5bUk3
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3BC91F0089F;
+	Fri,  6 Nov 2026 20:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793997225;
-	bh=z6IU49XWVLXmp5ObaZtq/UrMcH0Z7jLgrOzSGwNJ8Js=;
+	s=k20260515; t=1793997227;
+	bh=Y0HE2WoOUooJZsk8MBhpeVE91XrH4bDn1VveDmcxCjc=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=Bb7gIoiOZuXkkfT9+xPuonQD46x1EKuHgiSdFec5DePhHr+7+PRSKdOYSkH+KBELg
-	 KxZKvZeEbKB/AAjtA7Ov14SWDPpDgVKSsMpL8XOkDVH8eMheh08Xdq42A+ytun8WmC
-	 lNdjMMjYRp2ye+8RdJSFx+0BoddGCdxD/EjqFq9Ne656gGesZc4ktDyyG2fuaxeTER
-	 iRh++uXxP8RsBW+M3ZDXjwg4zl/LR8AjqM0QCiHFVocoBXk9UKTMo1eYndDqcGvf5d
-	 YmM5q9VkDX4sKangYPRAnXM01NSO2Oodwa+ccafIpPnoHGPCtLqK9FWIIH+fdQypzv
-	 s8cr5uFjOYy7Q==
-Message-ID: <sashiko-outbox-202226@kernel.org>
+	b=a3G5bUk3DTKKIeKkMKf3Jqu5ffYoFAZCH7GtYtkOCRSOoVFUhk+xkZYBuR9TpE4Ok
+	 pU4GY2rKdMGkospQ6pkIc9UGNj0yCdr5PdfeXFrYlZp344qrWBQDo1t6Jirl0jK0ei
+	 M23Ukd4hozO+JiB/EHbKAfyJ+CQ2X+5Ujwkrdkahxhu+H5Yj0cUOgwkV3oXTCjzJez
+	 j+8RxjaCFnSknmQIxZ9WTF83AM/NjTxMuTjx0g4GobMU8Q9JZaGtpG2OPX/qq1bBfy
+	 +/5QQOJMWYYGTFM+23nUJFTlI9e/YJ/jLjc/I5BcftiMjdCdORlFJkKjcUd+dn2dvT
+	 pZW+ZBeBEJonA==
+Message-ID: <sashiko-outbox-202228@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 13/15] syscalls: Avoid matching substrings in the ABI
- parsing
+Subject: Re: [PATCH v9 15/15] arm: Use common syscall table
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?QW5kcsOpIEFsbWVpZGE=?= <andrealmeid@igalia.com>, "Masami
  Hiramatsu" <mhiramat@kernel.org>, "Arnd Bergmanon" <arnd@arndb.de>
@@ -50,12 +49,12 @@ Cc: "Christian Brauner" <brauner@kernel.org>, linux-kbuild@vger.kernel.org, kern
  Bogendoerfer" <tsbogend@alpha.franken.de>, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, nathan@kernel.org, nsc@kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261105-tonyk-syscall_table-v9-13-8d1275885d9c@igalia.com>
+In-Reply-To: <20261105-tonyk-syscall_table-v9-15-8d1275885d9c@igalia.com>
 References: <20261105-tonyk-syscall_table-v9-0-8d1275885d9c@igalia.com>
- <20261105-tonyk-syscall_table-v9-13-8d1275885d9c@igalia.com>
+ <20261105-tonyk-syscall_table-v9-15-8d1275885d9c@igalia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 20:33:44 +0000
+Date: Fri, 06 Nov 2026 20:33:46 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -65,93 +64,115 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-Thank you for your contribution! Sashiko AI review found 1 potential
-issue to consider:
-- [High] syscalls: gen_hdr() and gen_tbl() regex breaks empty --abis and
-  repeats $abis
+Thank you for your contribution! Sashiko AI review found 2 potential
+issues to consider:
+- [High] arm: syscalls: missing oabic entry for sys_syscall() breaks
+  OABI syscall(113)
+- [Low] arm: syscalls: gen-y overwrite in arch/arm/tools/Makefile breaks
+  !CONFIG_AEABI
 --
 
-commit a315ea4d793f1941d3f493720c8515e41d764ee1
+commit d6fa13c999788d3882cc5cb046177290257ed17e
 Author: Andr=C3=A9 Almeida <andrealmeid@igalia.com>
 
-syscalls: Avoid matching substrings in the ABI parsing
+arm: Use common syscall table
 
-This commit updates the grep regular expressions in scripts/syscallhdr.sh
-and scripts/syscalltbl.sh to require trailing whitespace after the ABI
-pattern so that ABI names do not match as substrings, and appends "|| true"
-to prevent the scripts from exiting early when grep finds no matches.
+This commit switches arch/arm to use the shared scripts/syscall_common.tbl
+for common syscall numbers 403 and above, updating arch/arm/tools/Makefile
+and removing the duplicated entries from arch/arm/tools/syscall.tbl.
 
-> diff --git a/scripts/syscallhdr.sh b/scripts/syscallhdr.sh
-> index cf6bba3019b12..cf35ff05b8242 100755
-> --- a/scripts/syscallhdr.sh
-> +++ b/scripts/syscallhdr.sh
-> @@ -109,7 +109,7 @@ gen_hdr() {
->  	tmpfile=3D$(mktemp)
->  	offset_nr=3D$2
+> diff --git a/arch/arm/tools/Makefile b/arch/arm/tools/Makefile
+> index cde235b382bdc..6fed368c3df77 100644
+> --- a/arch/arm/tools/Makefile
+> +++ b/arch/arm/tools/Makefile
+> @@ -12,6 +12,8 @@ syshdr :=3D $(srctree)/scripts/syscallhdr.sh
+>  sysnr :=3D $(src)/syscallnr.sh
+>  systbl :=3D $(srctree)/scripts/syscalltbl.sh
+>  syscall :=3D $(src)/syscall.tbl
+> +syscalltbl_common :=3D $(srctree)/scripts/syscall_common.tbl
+> +abis :=3D common,clone3,32
 > =20
-> -	grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis" "$input" > $tmpfile
-> +	grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis+[[:space:]]" "$input" > $tmpf=
-ile || true
->  	while read nr abi name native compat; do
-> =20
->  		if [ -n "$offset_nr" ]; then
-> diff --git a/scripts/syscalltbl.sh b/scripts/syscalltbl.sh
-> index 1e9cac32c02d2..403a604e7c760 100755
-> --- a/scripts/syscalltbl.sh
-> +++ b/scripts/syscalltbl.sh
-> @@ -70,7 +70,7 @@ gen_tbl() {
->  	tmpfile=3D$(mktemp)
->  	offset_nr=3D$2
-> =20
-> -	grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis" "$input" > $tmpfile
-> +	grep -E "^[0-9A-Fa-fXx]+[[:space:]]+$abis+[[:space:]]" "$input" > $tmpf=
-ile || true
+>  gen-y :=3D $(gen)/calls-oabi.S
+>  gen-y :=3D $(gen)/calls-oabic.S
+
+[Severity: Low]
+Does assigning gen-y :=3D $(gen)/calls-oabic.S with :=3D instead of +=3D he=
+re in
+arch/arm/tools/Makefile break builds when CONFIG_AEABI is disabled?
+
+Because :=3D overwrites gen-y, $(gen)/calls-oabi.S is dropped from both
+targets and the kapi prerequisites in arch/arm/tools/Makefile:
+
+    gen-y :=3D $(gen)/calls-oabi.S
+    gen-y :=3D $(gen)/calls-oabic.S
+    gen-y +=3D $(gen)/calls-eabi.S
+    ...
+    targets :=3D $(patsubst $(src)/%,%,$(kapi-hdrs-y) $(uapi-hdrs-y) $(gen-=
+y))
+
+    PHONY +=3D kapi uapi
+    kapi:   $(kapi-hdrs-y) $(gen-y)
+
+When building a non-AEABI kernel (such as rpc_defconfig or assabet_defconfi=
+g),
+sys_call_table in arch/arm/kernel/entry-common.S includes <calls-oabi.S>:
+
+    #ifdef CONFIG_AEABI
+    #include <calls-eabi.S>
+    #else
+    #include <calls-oabi.S>
+    #endif
+
+Since arch/arm/include/generated/calls-oabi.S is no longer generated, the
+build fails with a missing header error. Should the second assignment use
++=3D instead?
+
+[ ... ]
+
+> diff --git a/arch/arm/tools/syscall.tbl b/arch/arm/tools/syscall.tbl
+> index 944f11030ab4a..36c1e5cc3e022 100644
+> --- a/arch/arm/tools/syscall.tbl
+> +++ b/arch/arm/tools/syscall.tbl
+> @@ -463,72 +463,3 @@
+>  400	common	migrate_pages		sys_migrate_pages
+>  401	common	kexec_file_load		sys_kexec_file_load
+>  # 402 is unused
 
 [Severity: High]
-What happens in gen_hdr() in scripts/syscallhdr.sh and gen_tbl() in
-scripts/syscalltbl.sh when --abis is not passed on the command line?
+With the switch to calls-oabic.S for CONFIG_OABI_COMPAT earlier in this
+series (commit f142c55483ad), is syscall 113 (sys_syscall) missing an oabic
+entry in arch/arm/tools/syscall.tbl?
 
-Both scripts initialize abis to an empty string by default when --abis is
-omitted:
+Currently arch/arm/tools/syscall.tbl only defines syscall 113 for oabi:
 
-    # default unless specified by options
-    abis=3D
+    # syscall to call a syscall!
+    113	oabi	syscall			sys_syscall
 
-Architectures such as m68k, microblaze, sh, and xtensa invoke syscallhdr.sh
-and syscalltbl.sh without --abis, for example in
-arch/m68k/kernel/syscalls/Makefile:
+In arch/arm/kernel/entry-common.S, sys_oabi_call_table (built under
+CONFIG_OABI_COMPAT) now includes <calls-oabic.S>, which is generated with
+--abis $(abis),oabic:
 
-    cmd_syshdr =3D $(CONFIG_SHELL) $(syshdr) --emit-nr $< $@
+    	syscall_table_start sys_oabi_call_table
+    #undef __SYSCALL_WITH_COMPAT
+    #define __SYSCALL_WITH_COMPAT(nr, native, compat)	__SYSCALL(nr, native)
+    #include <calls-oabic.S>
+    	syscall_table_end sys_oabi_call_table
 
-    quiet_cmd_systbl =3D SYSTBL  $@
-          cmd_systbl =3D $(CONFIG_SHELL) $(systbl) $< $@
+And sys_syscall in arch/arm/kernel/entry-common.S explicitly handles OABI
+indirect syscalls by clearing __NR_OABI_SYSCALL_BASE and indexing into tbl:
 
-When abis is empty, the pattern in gen_hdr() and gen_tbl() expands to:
+    sys_syscall:
+    		bic	scno, r0, #__NR_OABI_SYSCALL_BASE
+    		cmp	scno, #__NR_syscall - __NR_SYSCALL_BASE
+    		cmpne	scno, #NR_syscalls	@ check range
 
-    ^[0-9A-Fa-fXx]+[[:space:]]++[[:space:]]
-
-Because there is no subpattern to match the ABI column (such as common) and
-the syscall number is separated from the ABI name by a single tab character,
-grep matches zero lines (or rejects ++ as an invalid ERE repetition). With
-"|| true" suppressing the non-zero exit status from grep, wouldn't gen_hdr()
-and gen_tbl() read an empty tmpfile and silently generate empty syscall
-headers and syscall tables for those architectures?
-
-Also, when --abis is specified, the option parser constructs a parenthesized
-group:
-
-    --abis)
-        abis=3D"($(echo "${2%,}" | tr ',' '|'))"
-
-Writing "$abis+[[:space:]]" places the "+" quantifier on the "$abis" group
-rather than on "[[:space:]]", expanding to "(abc)+[[:space:]]" or
-"(common|64)+[[:space:]]", which matches repeated or concatenated ABI names
-such as "abcabc" or "common64".
-
-Should abis instead default to a pattern that matches any non-whitespace
-token (such as "[^[:space:]]+"), or should the "[[:space:]]+" suffix be
-included inside abis only when --abis is set?
+Without a matching oabic entry for syscall 113 in arch/arm/tools/syscall.tb=
+l,
+calls-oabic.S emits __SYSCALL(113, sys_ni_syscall), causing indirect
+syscall(2) invocations from OABI user-space binaries under CONFIG_OABI_COMP=
+AT
+to fail with -ENOSYS.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105-tonyk-sysc=
-all_table-v9-0-8d1275885d9c@igalia.com?part=3D13
+all_table-v9-0-8d1275885d9c@igalia.com?part=3D15
