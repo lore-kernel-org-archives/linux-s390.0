@@ -1,82 +1,63 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=210.118.77.12
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793975124;
-	b=B0Bavm/gb+yDV0s2Yv5uNesNgQQo8TUnsD5WNBrXIXWXZzVe4aZ4TvDN+84n3qCWx0Wi
-	 jJ2PWr+O0WEJIXrniBawY9k4uuS2FMI8eaeI+7xDRigtKDwuGXk9wiYwCgY9nfr3UZ0LZ
-	 MLAgOnZU1LHCSn4WL8D4Jtd3zJ0GQjmztD7cpEXIc9+TwLpM1dj23dSlmgedpzCsfDq7Z
-	 INzl4898qbOCRIb5uRepCvRtaYLz4HU7SdQnoDxT/kUHhPmKb0HXTTvH5iTyeuzcUHhcQ
-	 zksnWO6UW5+45jUlrY0p0I/9ezbciZ3vpRhmsYG/XT/dlp0AQpmtqJ3voBDpdAHZXnw==
+	t=1793976171;
+	b=QEzJqmPqmkPs5/+qqzK8CDcQ4g6EbgXg6fDwiXms6aDSOOwFCgfTERG81XTIGqumSo/5
+	 YLjJ04ucdhOUeNSdVpz+fZW0pR3KmeXwmCw7Oay4YkmQtyduxSuizW7uG3FVBTizP145x
+	 5EDj41GRc/5mPckbv5jP6b7y8Xn4Eog3oH6zGPcfBF853VZ1uAKSvkdDJwhcSaslrFvG3
+	 KFjU4ofOiJ1gdr0SDewkkqezWrmwXPE7pzSS4R8PM3xvqU6doNsks4GlPyqlFyyaCpLjt
+	 JnuMv6fdCf/QD6+uQnlrVPskQxjF2PgMKnY5DoPBUQOWYmBL5u43yt1BY0u/ZFL7/Zg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793975124;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Authority-Analysis:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=CnzZ9tu/PJ0Xc56iPjJhoZcChGnPBcjUy3GAK0JvUCU=;
-	b=lxMw1K2WwgcZ4HFMjozRB8QoQFL/6bShq0FwuWdp8ZVKFxQkgsOTtq/egAzeVySxG/Mi
-	 KQJ6E6z2qakjs1TfwlefWhY2DdfIXjnDD5sJmKJSg5iTjUwGSlOo3OWlxAHJ/LfW1DgSS
-	 J3MTM9K3ON4O/+xel2J8NoZEPW7b0GRwGu5oSoo65OAYjminb5uGAJDPPIoSFVCJf3eUp
-	 m+6qoTWsSpUlKC8fwUg4CHR21/A/Amhpytirv62mOopXZCMrvwtllyRnQ6a+1pH8nf3QD
-	 7h7cTwhTsR9UGYyQbHgzqucfDJiVUJ5i5mQ6nhRBxvcbq2ZlRru5r7IDdMkpf0ux58w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793976171;
+	h=DMARC-Filter:Received:DKIM-Filter:DKIM-Signature:Received:Received:
+	 From:Subject:Date:Message-Id:MIME-Version:Content-Transfer-Encoding:
+	 X-B4-Tracking:X-Change-ID:To:Cc:X-Mailer:X-Developer-Signature:
+	 X-Developer-Key:X-CMS-MailID:X-Msg-Generator:Content-Type:X-RootMTR:
+	 X-EPHeader:X-CMS-RootMailID:References;
+	bh=qEvUsSQ8oHgd+U12jDuRB72u7Zwo8Q4AXWrOiHlDlZI=;
+	b=UQ1LCTWjhM4S+lWsxjfZQFVfak4dJF44f/WX39Ca/DC8HRkii3Unez8S3mvbteSIp/mc
+	 tzbZiLnfFnF3kJjQZntSaqsYJwbI7hKK1Ky2IWCxLPbddbG0v+R6lCv0no0AowdnyPzm3
+	 /2ACwySsIqakv+NC1/kzd62/ZHhH6S0zNqN0GURchZrRYjC9p4H67kMprR2h5+GobB2A0
+	 nm10bTbVDkGCEVNvkTSJTXvbqdr1f62q6wBVqlUnjATlnabVBFyF6Ve0ZMKGsU+t2XD6x
+	 m+w7/TvcgkT3NQ3wLr2E2pNKE9ldopV8Bb9frrPrmRVRGsXiXmcOeehNG9Vfs35vNHw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=DRb+1yN1;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	dmarc=pass header.from=samsung.com;
+	spf=pass smtp.mailfrom=samsung.com;
+	dkim=pass header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b="O/KOIhPM";
+	arc=none smtp.remote-ip=210.118.77.12
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
+	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6423C606A33D;
-	Fri,  6 Nov 2026 14:25:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 6423C606A33D
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BC95606A32C;
+	Fri,  6 Nov 2026 14:42:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0BC95606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=DRb+1yN1
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6EENGk2577588;
-	Fri, 6 Nov 2026 14:25:23 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=CnzZ9t
-	u/PJ0Xc56iPjJhoZcChGnPBcjUy3GAK0JvUCU=; b=DRb+1yN1b58UA3vJgQlIsQ
-	LRLFKOt5bzU7Dm/sT3rdlOPfLA42Fbm5SmGiH7Q0P3w80Lh1INz2gVxBDf+fJWJ5
-	wiOx1LwY8Y1VZWDSJemZEpoau4Cvo2+rGn1CZFRVS+Qk+PyIVimzrvzBnFxMGS0a
-	lFtKAAlvHRyNo9FZlmWY+gNKETnGlxUWdxZcJ0I7Fa0He89NJq8BBSv2zqY9N/KY
-	oIbahz6hXm803/Izviwfv/tuaPrLaB9W6oIqKV7099EvNhbWQv4wFZPVBX17CB8U
-	BgJClIC5G0JsjygQGpLAgGGlg7u5Sa9x/+e7vfpIfxv1Hz/mu1mLsE6fdoqUF/ng
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hs3r94s6v-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 06 Nov 2026 14:25:23 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6Do4Mt3519503;
-	Fri, 6 Nov 2026 14:25:22 GMT
-Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hrdd7txkx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Nov 2026 14:25:22 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
-	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A6EPLlU30671506
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 6 Nov 2026 14:25:21 GMT
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 541665805A;
-	Fri,  6 Nov 2026 14:25:21 +0000 (GMT)
-Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A354058062;
-	Fri,  6 Nov 2026 14:25:20 +0000 (GMT)
-Received: from [9.61.114.69] (unknown [9.61.114.69])
-	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  6 Nov 2026 14:25:20 +0000 (GMT)
-Message-ID: <0cc314a9-2fe1-41c5-bacc-bbf5552d1aeb@linux.ibm.com>
-Date: Fri, 6 Nov 2026 09:25:20 -0500
+	dkim=pass (1024-bit key, unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=O/KOIhPM
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20261106144248euoutp02f49d0ceb5c399c84a56a0d9efbe9d496~le9Hs_U2k1199311993euoutp02B;
+	Fri,  6 Nov 2026 14:42:48 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20261106144248euoutp02f49d0ceb5c399c84a56a0d9efbe9d496~le9Hs_U2k1199311993euoutp02B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1793976168;
+	bh=qEvUsSQ8oHgd+U12jDuRB72u7Zwo8Q4AXWrOiHlDlZI=;
+	h=From:Subject:Date:To:Cc:References:From;
+	b=O/KOIhPMNr5fvGwnIFx0OHpQiEz8JdSZLEtl0RQ/qRetqaNI1X9cja2oaka5Lhopz
+	 o3+qiAgVYknoP4vOvWrVkK55MsAy+4qtuMElPNieKOyEMrnUQUobYKR4Do09K0IlAW
+	 5lluxIhdkIx047/zGIDlcEmnqr+P6uuq8knZHMCQ=
+Received: from eusmtip1.samsung.com (unknown [203.254.199.221]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+	20261106144247eucas1p15bdd0704f32d1cb3b19f9d2296a0cbc3~le9G5JH1c0320803208eucas1p1W;
+	Fri,  6 Nov 2026 14:42:47 +0000 (GMT)
+Received: from AMDC4942.eu.corp.samsungelectronics.net (unknown
+	[106.210.136.40]) by eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20261106144245eusmtip1424e79dc85f8d505d60f5a807f37d8a5~le9FUmO2M0066400664eusmtip1W;
+	Fri,  6 Nov 2026 14:42:45 +0000 (GMT)
+From: Michal Wilczynski <m.wilczynski@samsung.com>
+Subject: [PATCH v2 00/15] lib/lz4: stop forking upstream LZ4, vendor it
+ instead
+Date: Fri, 06 Nov 2026 15:42:40 +0100
+Message-Id: <20261106-lz4-vendor-upstream-v2-0-ee04c3f0d7dc@samsung.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -86,238 +67,260 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v11 09/14] s390/vfio-ap: File ops called to resume the
- vfio device migration
-To: sashiko-reviews@lists.linux.dev, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>
-References: <20261102151604.2150055-1-akrowiak@linux.ibm.com>
- <20261102151604.2150055-10-akrowiak@linux.ibm.com>
- <sashiko-outbox-193805@kernel.org>
-Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <sashiko-outbox-193805@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=O86sLx9W c=1 sm=1 tr=0 ts=6aede353 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=CTQ77ZSDLaTwiO4wZoYA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: hOb1hci8Vvvixm5yIoOJhp9F6q6yRYh3
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA2MDA1NiBTYWx0ZWRfXyw9cZJ36XzOF
- ZGpWjXi95+Ga0Xjrf0xE/Xr3CLXzcKXwk6+Js/MPnrxSfN7HyVpiz1a4qfDUBJ8TOCOEbX8RXyw
- pMHEjsbN0mc61E6xisiiZtTyU1GcmfPWU7pp2ENcmxMAqaF8SACjD9paOjZi4Kk1jQjD1krBNM8
- sK8BjqJryq7MidGTM0qOYX3SYLWnHJfO1XyPzCjUgF+V64JKtu8ICqrmXiRJl7y0JZZpgWEkV3Z
- 6BkiIJZ/47CSbxRXMl52Jod2ppoU93TNXZishJJCU1SLU9ZZg5SnFsMC4i49BX1HMykG99PBgOB
- WMNfHnX2V/S0J5dL/fB7Tjp3Hx2IA8Mc3yo/5l2IVHHakw3ulzeeijmOCPSROY6Mjx9swyro9L3
- QXZXJQnZx9ESYQX7zqpyYpmfts4iq5j8RsNKeajFHYKfKm3Guwu+mPBixfMBc0RPKmgGeguaWqx
- WXa7Xes7syP4qmyGuMA==
-X-Proofpoint-GUID: hOb1hci8Vvvixm5yIoOJhp9F6q6yRYh3
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA2MDA1NiBTYWx0ZWRfX2LXfP12l1Dh1
- 81bNBar8qpco0d0Xd5vXZP7XMUU4xDPfsSh7tLg1cv6wK+ESHu6C+SLBLY396+REkrdyRWAeKo7
- Q/rLZ1OxyEFctGUO+t5Ez2xzqyfnZTc=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-06_03,2026-11-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 malwarescore=0 adultscore=0 suspectscore=0 spamscore=0
- bulkscore=0 priorityscore=1501 phishscore=0 impostorscore=0
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
- definitions=main-2611060056
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAGDn7WoC/22NwQ6CMBBEf4Xs2TVtUzV68j8Ih1K20ERa0oVGJ
+	fy7lXj0+CYzb1ZgSp4YbtUKibJnH0MBdajADib0hL4rDEqos7gKjY+3xkyhiwmXiedEZkTdWlU
+	KnXDOQllOiZx/7ta6KTx4nmN67SdZftOfT53++rJEgdJenGtJSavbO5uRl9AfbRyh2bbtA0LW5
+	9G4AAAA
+X-Change-ID: 20260904-lz4-vendor-upstream-4bc2202d0ffc
+To: Michal Wilczynski <m.wilczynski@samsung.com>,  Nathan Chancellor
+	<nathan@kernel.org>,  Nick Desaulniers <ndesaulniers@google.com>,  Bill
+	Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>,  Russell
+	King <linux@armlinux.org.uk>,  Thomas Bogendoerfer
+	<tsbogend@alpha.franken.de>,  "James E.J. Bottomley"
+	<James.Bottomley@HansenPartnership.com>,  Helge Deller <deller@gmx.de>,
+	Heiko Carstens <hca@linux.ibm.com>,  Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>,  Christian Borntraeger
+	<borntraeger@linux.ibm.com>,  Sven Schnelle <svens@linux.ibm.com>, Thomas
+	Gleixner <tglx@kernel.org>,  Ingo Molnar <mingo@redhat.com>, Borislav Petkov
+	<bp@alien8.de>,  Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, Minchan Kim <minchan@kernel.org>,  Sergey
+	Senozhatsky <senozhatsky@chromium.org>, Jens Axboe <axboe@kernel.dk>, 
+	Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-block@vger.kernel.org, Yann Collet <yann.collet.73@gmail.com>,  Nick
+	Terrell <terrelln@meta.com>, Gao Xiang <xiang@kernel.org>,  Chao Yu
+	<chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,  Eric Biggers
+	<ebiggers@kernel.org>,  Herbert Xu <herbert@gondor.apana.org.au>,  David
+	Laight <david.laight.linux@gmail.com>,  Sungguk <sungguk.na@samsung.com>,
+	Jaehoon Chung <jh80.chung@samsung.com>,  Marek Szyprowski
+	<m.szyprowski@samsung.com>, linux-erofs@lists.ozlabs.org, 
+	linux-f2fs-devel@lists.sourceforge.net, linux-crypto@vger.kernel.org
+X-Mailer: b4 0.15-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=10637;
+	i=m.wilczynski@samsung.com; h=from:subject:message-id;
+	bh=wz6WKeqe9aM/51sYWqggJMCdGKknzWWNE5KRnyp6sjs=;
+	b=owGbwMvMwCGWumv6zndzRCIZT6slMWS9fZ4y20Jt3qO5Hc4C/EfW7vFdUCzJIrNi5qfGlESR2
+	T0TnCSudJSyMIhxMMiKKbKc3RhtJPmP4Wn58ce/YOawMoEMYeDiFICJmMcx/DOtMv9k+ftIImMA
+	m+V9X+Ulr5ItPu+eu2z1muXeRTK2i94xMjTuE3xZtyDYes7GKJVcMTur+hn7twUyrGHYd1Ppdfx
+	na3YA
+X-Developer-Key: i=m.wilczynski@samsung.com; a=openpgp;
+	fpr=CDB15B3219FE00E577C7E3FA65BA97B9EE9C1459
+X-CMS-MailID: 20261106144247eucas1p15bdd0704f32d1cb3b19f9d2296a0cbc3
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20261106144247eucas1p15bdd0704f32d1cb3b19f9d2296a0cbc3
+X-EPHeader: CA
+X-CMS-RootMailID: 20261106144247eucas1p15bdd0704f32d1cb3b19f9d2296a0cbc3
+References: <CGME20261106144247eucas1p15bdd0704f32d1cb3b19f9d2296a0cbc3@eucas1p1.samsung.com>
 
+The in-kernel LZ4 is a fork. The decompressor was last synced with
+upstream v1.8.3 in 2018 and the compressor with v1.7.3 in 2017, both by
+hand. Upstream has made 488 commits against lib/ since, and the gap is
+maintained one cherry-pick at a time.
 
+That has left real bugs in place for example the forked
+LZ4_decompress_fast() has no bounds checks on its input, so corrupted
+input reads past its end and before the output buffer.
 
-On 11/2/26 12:09 PM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
-> - [High] s390/vfio-ap: use-after-free of mig_file in vfio_ap_resuming_write()
-> - [High] s390/vfio-ap: fortify panic in vfio_ap_resuming_write() on chunked writes
-> --
->
-> commit 05b49746b964ad1916518e2c783de5c6220f1f14
-> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
->
-> s390/vfio-ap: File ops called to resume the vfio device migration
->
-> This commit implements the write callback for the migration file stream used
-> during the RESUMING phase to receive and validate the source guest's AP
-> configuration on the destination host.
->
->> diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypto/vfio_ap_migration.c
->> index 526d83e8590d9..47f05e43b9e0e 100644
->> --- a/drivers/s390/crypto/vfio_ap_migration.c
->> +++ b/drivers/s390/crypto/vfio_ap_migration.c
-> [ ... ]
->
->> @@ -466,11 +511,562 @@ static struct file *vfio_ap_open_file_stream(struct vfio_ap_migration_file *mig_
->>   	return filp;
->>   }
->>   
->> +static int validate_resuming_write_parms(struct vfio_ap_migration_file *mig_file,
->> +					 struct file *filp, size_t len)
->> +{
->> +	loff_t total_len;
->> +
->> +	lockdep_assert_held(&mig_file->lock);
->> +	lockdep_assert_held(&matrix_dev->mdevs_lock);
->> +
->> +	if (!len || filp->f_pos < 0)
->> +		return -EINVAL;
->> +
->> +	if (!mig_file->matrix_mdev->mig_data)
->> +		return -ENODEV;
-> [ ... ]
->
->>   static ssize_t vfio_ap_resuming_write(struct file *filp, const char __user *buf,
->>   				      size_t len, loff_t *pos)
->>   {
->> -	/* TODO */
->> -	return -EOPNOTSUPP;
->> +	struct vfio_ap_migration_file *mig_file;
->> +	struct vfio_ap_config *ap_config;
->> +	ssize_t ret;
->> +	void *kbuf;
-> [ ... ]
->
->> +	mig_file = filp->private_data;
->> +	mutex_lock(&mig_file->lock);
->> +	mutex_lock(&ap_attr_mutex);
->> +	mutex_lock(&matrix_dev->mdevs_lock);
->> +	pos = &filp->f_pos;
->> +
->> +	ret = validate_resuming_write_parms(mig_file, filp, len);
->> +	if (ret)
->> +		goto out_unlock;
-> [Severity: High]
-> Can this trigger a use-after-free on mig_file if the VFIO device file
-> descriptor is closed while the migration file descriptor remains open?
->
-> In vfio_ap_resuming_init() -> vfio_ap_open_file_stream(), filp->private_data
-> is set to &mig_data->resuming_mig_file, which is embedded inside
-> matrix_mdev->mig_data:
->
-> drivers/s390/crypto/vfio_ap_migration.c:
-> struct vfio_ap_migration_data {
-> 	enum vfio_device_mig_state	mig_state;
-> 	bool				resuming_mig_data_complete;
-> 	struct vfio_ap_migration_file	resuming_mig_file;
-> 	struct vfio_ap_migration_file	stop_copy_mig_file;
-> };
->
-> While vfio_ap_open_file_stream() calls vfio_device_try_get_registration() to
-> keep matrix_mdev alive until vfio_ap_release_mig_file() runs, closing the
-> VFIO device file descriptor invokes:
->
-> vfio_ap_mdev_close_device()
->    vfio_ap_release_migration_data() {
-> 	...
-> 	vfio_ap_release_mig_files(matrix_mdev);
-> 	mutex_destroy(&matrix_mdev->mig_data->stop_copy_mig_file.lock);
-> 	mutex_destroy(&matrix_mdev->mig_data->resuming_mig_file.lock);
-> 	kfree(matrix_mdev->mig_data);
-> 	matrix_mdev->mig_data = NULL;
->    }
->
-> Although validate_resuming_write_parms() checks
-> !mig_file->matrix_mdev->mig_data under matrix_dev->mdevs_lock, mig_file
-> itself lives inside the freed matrix_mdev->mig_data object. Calling
-> vfio_ap_resuming_write() after or concurrently with
-> vfio_ap_mdev_close_device() will lock and unlock the destroyed
-> mig_file->lock and dereference mig_file->matrix_mdev in freed memory.
+This series vendors the upstream sources unmodified and adapts them at
+build time, so a re-sync becomes a directory copy:
 
-Confirmed:
-This is the RESUMING write path of the same mig_data lifetime
-issue reported on patches 03/14, 06/14, and 08/14, and will be resolved 
-in v12
-by moving mig_data deallocation to vfio_ap_mdev_release_dev() and resetting
-migration state on device close.
+  upstream/lz4.c, upstream/lz4.h    verbatim upstream sources
+  upstream/lz4hc.c, upstream/lz4hc.h
+  lz4_deps.h                        the build environment
+  lz4_kernel_api.h                  hands the LZ4 names back
+  freestanding/                     ISO C headers -nostdinc drops
+  lz4_compress.c                    the kernel's entry points
+  lz4_decompress.c
+  lz4hc_compress.c
 
->
->> +
->> +	ap_config = mig_file->ap_config;
->> +	memcpy((char *)ap_config + *pos, kbuf, len);
->> +	*pos += len;
->> +
->> +	/*
->> +	 * Check whether we have received all the data.  We know the total
->> +	 * expected size once num_queues has arrived, i.e. once *pos is past
->> +	 * the fixed header.  Until then keep accumulating.
->> +	 */
->> +	if (*pos >= offsetofend(struct vfio_ap_config, num_queues)) {
->> +		size_t expected_sz;
->> +
->> +		if (ap_config->num_queues > MAX_AP_QUEUES) {
->> +			ret = -EINVAL;
->> +			goto out_unlock;
->> +		}
->> +
->> +		expected_sz = sizeof(struct vfio_ap_config) +
->> +			      ap_config->num_queues *
->> +			      sizeof(struct vfio_ap_queue_info);
->> +
->> +		if (*pos > (loff_t)expected_sz) {
->> +			ret = -EINVAL;
->> +			goto out_unlock;
->> +		}
-> [Severity: High]
-> As reported by Sashiko on v9 [1], can the memcpy() in
-> vfio_ap_resuming_write() trigger a fortify_panic() on chunked writes when
-> CONFIG_FORTIFY_SOURCE and CONFIG_CC_HAS_COUNTED_BY are enabled?
->
-> In struct vfio_ap_config, qinfo[] is annotated with
-> __counted_by(num_queues):
->
-> struct vfio_ap_config {
-> 	u32				magic;
-> 	u32				version;
-> 	u32				num_queues;
-> 	u8				reserved[4];
-> 	u64				adm[DIV_ROUND_UP(AP_DOMAINS, 64)];
-> 	struct vfio_ap_queue_info	qinfo[] __counted_by(num_queues);
-> };
->
-> Although vfio_ap_resuming_init() initializes ap_config->num_queues to
-> MAX_AP_QUEUES, fortified memcpy((char *)ap_config + *pos, kbuf, len)
-> evaluates __struct_size((char *)ap_config + *pos) using the current value of
-> ap_config->num_queues in memory before the expected_sz check runs:
->
-> 1. Once an earlier chunk writes the header with num_queues < MAX_AP_QUEUES,
->     the dynamic object size of *ap_config shrinks to expected_sz. If a
->     subsequent write() supplies more bytes than expected_sz - *pos (while
->     staying within VFIO_AP_CONFIG_MAX_SIZE), memcpy() executes before the
->     *pos > (loff_t)expected_sz check and calls fortify_panic() instead of
->     returning -EINVAL.
->
-> 2. On big-endian s390, MAX_AP_QUEUES (0x00010000) has bytes 0x00, 0x01,
->     0x00, 0x00 at offsets 8..11. If an initial chunk of 10 or 11 bytes writes
->     the upper two bytes of a valid num_queues < 65536 (0x00, 0x00),
->     ap_config->num_queues in memory becomes 0. If the next chunk writes past
->     the header into qinfo[], fortified memcpy() evaluates __struct_size()
->     with ap_config->num_queues == 0 before copying the remaining bytes of
->     num_queues, triggering fortify_panic() on valid migration data.
+Patches 1-3 apply to the fork as it stands: patch 1 moves the pre-boot
+decompressor off LZ4_decompress_fast(), patch 2 removes it and its
+variants, and patch 3 stops zram's lz4hc backend resetting its stream
+for every page. Patch 4 imports the sources. Patches 5-7 backport the
+upstream fixes the kernel needs on top of v1.10.0. Patch 8 adds the
+build environment. Patch 9 puts the freestanding headers on the pre-boot
+decompressor path. Patches 10, 11 and 13 convert the compressor, HC
+compressor and decompressor in turn; patch 12 widens the in-place margin
+erofs relies on for the new decoder. Patch 14 drops the last duplicated
+prototype list. Patch 15 gives lib/lz4 a MAINTAINERS entry, which it has
+never had.
 
-Confirmed:
-In v12, will be resolved :
-    - Changing ap_config in struct vfio_ap_migration_file to a void * 
-buffer
-      representing the raw VFIO_AP_CONFIG_MAX_SIZE allocation.
-    - Performing memcpy((char *)mig_file->ap_config + *pos, kbuf, len) into
-      the raw buffer so fortified memcpy checks against 
-VFIO_AP_CONFIG_MAX_SIZE.
-    - Casting to struct vfio_ap_config * and evaluating num_queues, 
-expected_sz,
-      and do_post_copy_validation() only after the full fixed header has 
-arrived
-      (*pos >= offsetofend(struct vfio_ap_config, num_queues)).
+This is meant to go through Andrew's tree; patch 9 needs acks from the
+boot maintainers.
 
->
-> [1] https://lore.kernel.org/r/sashiko-outbox-170099@kernel.org
->
+The exported API changes in four ways.
+
+The three stream types become incomplete. <linux/lz4.h> spelled out their
+layout for the fork's benefit, upstream headers define the same types and
+lib/decompress_unlz4.c ends up with both in one translation unit. Callers
+allocate LZ4_MEM_COMPRESS, LZ4HC_MEM_COMPRESS or LZ4_MEM_DECOMPRESS bytes
+instead of sizeof() every caller but zram already did. Each conversion
+patch makes its own type incomplete so no step leaves the tree broken.
+
+Sixteen macros go with them: the hash geometry (LZ4_HASHLOG,
+LZ4_HASHTABLESIZE, LZ4_HASH_SIZE_U32, LZ4HC_DICTIONARY_LOGSIZE, LZ4HC_MAXD,
+LZ4HC_MAXD_MASK, LZ4HC_HASH_LOG, LZ4HC_HASHTABLESIZE, LZ4HC_HASH_MASK) and
+the sizes derived from it (LZ4_MEMORY_USAGE, LZ4_STREAMSIZE{,_U64},
+LZ4_STREAMHCSIZE{,_SIZET}, LZ4_STREAMDECODESIZE{,_U64}). They existed to
+lay out structures the fork defined here none has an in tree user outside
+lib/lz4. LZ4_compressBound() goes too a static inline whose only caller
+was lib/decompress_unlz4.c, now using the LZ4_COMPRESSBOUND() macro.
+
+LZ4_MEM_DECOMPRESS and LZ4HC_CLAMP_CLEVEL are new.
+
+LZ4_decompress_fast(), LZ4_decompress_fast_continue() and
+LZ4_decompress_fast_usingDict() go. Upstream has deprecated them since
+v1.9, and their last in-tree user, the pre-boot decompressor, now uses
+LZ4_decompress_safe_partial().
+
+There are some behaviour changes. All of them come from upstream rather
+than from this series and I have kept them rather than patching them
+out: a local fix on top of vendored sources is exactly the divergence
+this series exists to remove.
+
+ - LZ4HC levels 10 and up are clamped to 9. Upstream routes them to its
+   optimal parser, whose ~64K opt[] does not fit a kernel stack. The
+   fork had no optimal parser at all - level only scaled search depth -
+   so its levels 10-16 beat its own level 9 by 0.01%. Clamping rather
+   than rejecting keeps existing f2fs and zram settings working.
+
+ - LZ4_decompress_safe_partial() with a zero-length target returns 0
+   rather than -1, matching upstream since 725cb0aafdf7. No in-tree
+   caller depends on it.
+
+ - The compressors require wrkmem aligned to 8 bytes. Upstream checks
+   this and LZ4_initStream() returns NULL, which upstream's own callers
+   then dereference or ignore. The entry points check the alignment
+   themselves, warn once and fail the call. Every in-tree caller uses
+   kmalloc() or vmalloc() and is already aligned; <linux/lz4.h> now
+   documents the requirement.
+
+The layout follows lib/zstd, which keeps upstream's sources in a
+subdirectory and the kernel glue on top. zstd has an upstream import
+tool and an upstream zstd_deps.h; LZ4 has neither, so the kernel glue
+here lives outside the vendored files.
+
+The import is the v1.10.0 release tag. It does not build under
+-Wmissing-prototypes without upstream commit 5ef1f16929b5, which patch 5
+backports. Patch 6 backports upstream's arm64 fast decode loop and patch
+7 its match length limit fix; those are the only deviations from the
+tag. The rest of PR #1753 fixes code added after v1.10.0, so it will
+come with the next release.
+
+checkpatch reports some 3500 errors against patch 4: upstream's coding
+style, and no SPDX tags, in files kept verbatim.
+
+Measured in the kernel: three kernels differing only in lib/lz4, booted
+one core under KVM, each reading 1.3GB of kernel source from an LZ4
+erofs image with the page cache dropped before every pass. For v2 this
+was remeasured with more runs on an idle machine: median of 140 passes.
+The middle column is upstream v1.10.0 with LZ4_FAST_DEC_LOOP=0,
+to separate the version bump from the decode loop upstream added in
+v1.9.0.
+
+                        erofs read, MB/s
+  erofs cluster    today   v1.10.0   + fast loop    net
+             4K     2486      2549          2665    +7%
+            64K     3013      3104          3225    +7%
+
+The same three decoders at the library level, each block decompressed
+on its own the way zram treats a page. x86_64, the fork's and upstream's
+sources built with the kernel's code generation flags (so no SSE), all
+decoding the same compressed input, median of 21 interleaved runs. The
+first corpus is upstream's tests/datagen with a fixed seed, so it is
+byte-identical anywhere; the second is a tar of kernel sources:
+
+                                 decompression, MB/s
+  corpus           block  ratio    today   v1.10.0  + fast loop   net
+  datagen -s0 -P60   4K  1.09x     4584      4535         5097   +11%
+                    16K  1.34x     3960      3978         4828   +22%
+                    64K  1.90x     4797      4802         5598   +17%
+                   256K  1.92x     6749      6559         7600   +13%
+  kernel source tar  4K  2.29x     3719      3832         4219   +13%
+                    16K  2.57x     3778      3880         4203   +11%
+                    64K  2.80x     3792      3886         4179   +10%
+                   256K  2.95x     4165      4280         4750   +14%
+
+Compression is not uniformly faster: lz4hc on small blocks of poorly
+compressible data is up to 15% slower. Patches 10 and 11 have the
+numbers.
+
+The cost is size: lib/lz4 grows from 45K to 86K of text on x86_64,
+lz4hc most (12K to 39K). That is upstream code the fork never had.
+
+---
+Changes in v2:
+- Drop the RFC prefix
+- New patches 1-2: move the pre-boot decompressor to
+  LZ4_decompress_safe_partial() and remove LZ4_decompress_fast() and its
+  variants from the fork, ahead of the import (Sergey)
+- New patch 3: zram's lz4hc backend resets its stream once, not per page
+- New patches 6-7: backport upstream's arm64 fast decode loop (Sergey)
+  and its match length limit fix
+- New patch 12: widen LZ4_DECOMPRESS_INPLACE_MARGIN for the fast decode
+  loop
+- Compressor entry points check wrkmem alignment, warn and fail (Sergey)
+- Patch 13 names the upstream counterpart of each retired local patch
+  (Sergey)
+- MAINTAINERS: also cover lib/decompress_unlz4.c and
+  include/linux/decompress/unlz4.h (Eric)
+- Remeasure erofs reads with more runs on an idle machine
+- Link to v1: https://lore.kernel.org/r/20260925-lz4-vendor-upstream-v1-0-1c7ffbe21c4b@samsung.com
+
+---
+Michal Wilczynski (15):
+      lib/decompress_unlz4: use LZ4_decompress_safe_partial() before boot
+      lib/lz4: remove LZ4_decompress_fast() and its variants
+      zram: lz4hc: reset the dictionary stream once, not per page
+      lib/lz4: import upstream LZ4 sources verbatim
+      lib/lz4: backport upstream's -Wmissing-prototypes fix
+      lib/lz4: backport upstream's aarch64 fast decode loop enablement
+      lib/lz4: backport upstream's match length limit fix
+      lib/lz4: add the build environment for the vendored sources
+      arch: boot: put the LZ4 freestanding headers on the decompressor path
+      lib/lz4: switch the compressor to the vendored sources
+      lib/lz4: switch the HC compressor to the vendored sources
+      lib/lz4: widen LZ4_DECOMPRESS_INPLACE_MARGIN for the fast decode loop
+      lib/lz4: switch the decompressor to the vendored sources
+      lib/lz4: replace lz4_kernel_api.h's prototypes with <linux/lz4.h>
+      MAINTAINERS: add an entry for the LZ4 compression library
+
+ Documentation/filesystems/f2fs.rst   |    2 +
+ MAINTAINERS                          |   10 +
+ arch/arm/boot/compressed/Makefile    |    3 +
+ arch/mips/boot/compressed/Makefile   |    4 +
+ arch/parisc/boot/compressed/Makefile |    3 +
+ arch/s390/boot/Makefile              |    3 +
+ arch/x86/boot/compressed/Makefile    |    3 +
+ drivers/block/zram/backend_lz4.c     |    8 +-
+ drivers/block/zram/backend_lz4hc.c   |    8 +-
+ include/linux/lz4.h                  |  253 +--
+ lib/decompress_unlz4.c               |   17 +-
+ lib/lz4/Makefile                     |   16 +-
+ lib/lz4/freestanding/limits.h        |   14 +
+ lib/lz4/freestanding/stddef.h        |   15 +
+ lib/lz4/freestanding/stdint.h        |   14 +
+ lib/lz4/freestanding/string.h        |   14 +
+ lib/lz4/lz4_compress.c               |  946 +-----------
+ lib/lz4/lz4_decompress.c             |  724 +--------
+ lib/lz4/lz4_deps.h                   |  118 ++
+ lib/lz4/lz4_kernel_api.h             |   34 +
+ lib/lz4/lz4defs.h                    |  247 ---
+ lib/lz4/lz4hc_compress.c             |  792 +---------
+ lib/lz4/upstream/lz4.c               | 2824 ++++++++++++++++++++++++++++++++++
+ lib/lz4/upstream/lz4.h               |  884 +++++++++++
+ lib/lz4/upstream/lz4hc.c             | 2192 ++++++++++++++++++++++++++
+ lib/lz4/upstream/lz4hc.h             |  414 +++++
+ 26 files changed, 6813 insertions(+), 2749 deletions(-)
+---
+base-commit: 93f51579e7df248780214094418f205253383cc5
+change-id: 20260904-lz4-vendor-upstream-4bc2202d0ffc
+
+Best regards,
+-- 
+Michal Wilczynski <m.wilczynski@samsung.com>
 
