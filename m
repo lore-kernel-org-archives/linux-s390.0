@@ -1,82 +1,83 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1793981324;
-	b=tkENd4aDueEscUnm7G7Q51No+RF6YiwCQAUHHoPqUqQHCywDDrEUJLvlKwwbmEDoSC23
-	 2xwXKyq1ytKjBMT5x3YUgnZbOoyfNaREgw+oR1LvZQ6ChkWvnVWWhmGJGh696cVsrFa3A
-	 VQ40FFrzXhG/+k8lvM5FFHvWJwct/mTYXgcDRkSdyJ8Fk94Ef/lPQeBpIg8co+1mPYk9q
-	 TGgE1MkN8dmsytRh8vzTxF8ZNkO8D4faWmnxn5n8WV1NARvpz5GWl6kCo8dERgJG7o9qU
-	 cv1b85sJ1qxn7IqFGWCZ8kU74b/PBwxQ+AGtxi6zAg7lvAkuHWAGxdcAo/3yJpivGVA==
+	b=G9Fyz9/Qnsvd2d+oxIWx+8wwTYGUeXVjlYe0GzkqBy5V/bkB0dpYeOhbyhwSAyz6mnDA
+	 9XO5wePIFVn/O6LoBBIYjT+sKgBvzS+fv+qEEp5HBJx+F/YXnCNzuNfqDgR1E2XTT95Wj
+	 Aqqffw5NE1D9q0j/SASfkBsF7w105KMTMHDJ0TpPVPpkRD26hR43Jc3nACBVD6bz3qWrC
+	 SgU+ze2wU/6339IxFcZupBsSdK6MELFI49GOaYuE0wT5fscLvysZT2LHyDmKEBHZM8z9E
+	 A4lwJxg68jTK1OfL5+dA9zayNmVfMO/nxeOMRa5Smp1Eqz0GkTO9bhk+OKMq5Av+6TA==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793981324;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
-	 In-Reply-To:To:Cc:X-Mailer:X-TM-AS-GCONF:X-Authority-Analysis:
-	 X-Proofpoint-GUID:X-Proofpoint-ORIG-GUID:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
+	 In-Reply-To:To:Cc:X-Mailer:X-TM-AS-GCONF:X-Proofpoint-ORIG-GUID:
+	 X-Authority-Analysis:X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=1S09I8a7yWrqvahJtv4gmjvFPe1GtmBLLAtRtlKmIjM=;
-	b=KCDnlmcfs8Q5Ai0KWymdD5niNqVYUNXjk/HGo96VW2vdVhYBjCB1qDyHuI8DyoHZOBRN
-	 7AixE9MHJWa/vldYLeZAL8JrpjXoHsnRsYTVa1NfOwoePftzL6bBQG3A7W2V0yrxYezQp
-	 fS8GYCXK2S8e/bJttJYSteNfgR0MoW4Qd2Cbl8hIyBxyNrQnYGlPjgCBU7nuHwsg8Y6CN
-	 hVX0nqU6ZuYMQJzQuRPhVNg/ZlQKRSLEngEN0phtmLWdY6J+FS82oUblsL5g6BVLwHAul
-	 ZWLjY0y9z0SQCcXrvwpht5rAab+7C6pwZHbikqtmsZciGG6dA9qxtAb8DXJJFwHENpA==
+	bh=IrWQ8uyRNpiuUgwIHv/xG8dMDSEjnpkf5UrJq74oLLM=;
+	b=u9kHeGrEp9WAMHuKAjp+mV5fzKzJKsZb4xdgCQq5+12HQlapcz8K4jACOHAi2DZOQKiE
+	 YYV63wPWRdUuOMyK0IQAaqZyuprwFH5/2gXKns8JQtBU2mXgXiHShk1HKOeubZpW3Kzam
+	 qM0XI1ojjVdOQWCi0c2BUW48xPURXvXQJOOcKWuV8cfp1i1/2sYaj0EoSiU0tftTiuVal
+	 ZXuH/bmpezDI1tLbJwqHaj15TXAtyMiIuPJHCgOXv9ExjQqutBifThv0mxM0oucouZHAR
+	 /UJAWs7DZwFpMzeYBcN3xPmLKuT3K+72oG62MxyLSar8qqTJsXWGZHT45iVIUafR7Ig==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=dy6XQ8yQ;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=gS8sw9Wa;
 	arc=none smtp.remote-ip=148.163.156.1
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A80C0606A33A;
-	Fri,  6 Nov 2026 16:08:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org A80C0606A33A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C2EE606A33E;
+	Fri,  6 Nov 2026 16:08:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 0C2EE606A33E
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=dy6XQ8yQ
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6FE4fW1094477;
-	Fri, 6 Nov 2026 16:08:25 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=gS8sw9Wa
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6FEEud2936029;
+	Fri, 6 Nov 2026 16:08:20 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=1S09I8
-	a7yWrqvahJtv4gmjvFPe1GtmBLLAtRtlKmIjM=; b=dy6XQ8yQaSzcRS6WOAC0Kc
-	Bl6duE+Tcm100gIvdH9WAwqb1/dtJujm3Pf10KQZIkp38g0b3BTBSww/GOoSVt9L
-	W6ir6ISWnevLPYLvgpcbR++PphSbPJAdtt4NdB2xFC1tUIQHrENPZWuqhDkEXV50
-	WCgr4PyEKAigwxx7RvgJJHQ9U7Rh8+BBXVC6L5Q3aL2mjG4hou5NzQ3L/rNFYfM3
-	gTpI/z5rw4bGO9M09Rt87Jodv9Co8pxGUAftVuCuFd+z4rrSdRg5zzQlp8Wf21Jn
-	YyZWfF3RjYGJ7Ud4yt4sDa4KsAoJ9qxDtKnS2SEnKu5+cvcFDm9x1jfOPT5Rp3Jg
+	:message-id:mime-version:references:subject:to; s=pp1; bh=IrWQ8u
+	yRNpiuUgwIHv/xG8dMDSEjnpkf5UrJq74oLLM=; b=gS8sw9Wa9BfYd08n8DTEbD
+	XBD6xQxut0Tm0+QFg8a3hjC+3XZJQCWIj0jp5rH4t4eGJ0DOh/NAHszVLeedyr8V
+	6sLi1+3q1FyZoxMA8LMDFDnexPRAr7w0y8f/2cKSPAnwIZ3f061IKPFbFmYCa9my
+	r6Qxo0Y0LnQl1apyyF9jqP+BCMyIsce8aqRYOCs3epxdJhzg4osV/6Lb5T9VuZUA
+	6Qa8cmLLozN2m4uvED2DwhcYzrJhZDYFByh8WaBSahfWF3hPesovj7RladGsHqqk
+	duUAObWQ8YZtb89xnroSUEH857Obquzwr3aa8cSINuORK3cO3R5yMQC0/1TaOExA
 	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hs3rawj04-1
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hs3rcdhet-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 06 Nov 2026 16:08:25 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6F4vxg3617218;
-	Fri, 6 Nov 2026 16:08:24 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hrdd7ukcp-1
+	Fri, 06 Nov 2026 16:08:19 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6FK7xv3577902;
+	Fri, 6 Nov 2026 16:08:18 GMT
+Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hqv1v870k-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Nov 2026 16:08:24 +0000 (GMT)
+	Fri, 06 Nov 2026 16:08:18 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A6G8KHo56033582
+	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A6G8EZ735389860
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 6 Nov 2026 16:08:20 GMT
+	Fri, 6 Nov 2026 16:08:14 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 1B4F12004B;
-	Fri,  6 Nov 2026 16:08:20 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id B9DC92004F;
+	Fri,  6 Nov 2026 16:08:14 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A9B4420067;
-	Fri,  6 Nov 2026 16:08:19 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 5889C2004B;
+	Fri,  6 Nov 2026 16:08:14 +0000 (GMT)
 Received: from a46lp73.lnxne.boe (unknown [9.87.84.240])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  6 Nov 2026 16:08:19 +0000 (GMT)
+	Fri,  6 Nov 2026 16:08:14 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
-Date: Fri, 06 Nov 2026 17:07:48 +0100
-Subject: [PATCH v3 15/23] KVM: s390: arm64: Implement feature sanitisation
+Date: Fri, 06 Nov 2026 17:07:35 +0100
+Subject: [PATCH v3 02/23] KVM: arm64: Extract number of sys_reg_desc into a
+ constant
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -88,7 +89,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261106-sysreg-v3-15-75e95980fb10@linux.ibm.com>
+Message-Id: <20261106-sysreg-v3-2-75e95980fb10@linux.ibm.com>
 References: <20261106-sysreg-v3-0-75e95980fb10@linux.ibm.com>
 In-Reply-To: <20261106-sysreg-v3-0-75e95980fb10@linux.ibm.com>
 To: Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>,
@@ -117,389 +118,161 @@ Cc: linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
         linux-s390@vger.kernel.org, Steffen Eiden <seiden@linux.ibm.com>
 X-Mailer: b4 0.14.3
 X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=QYDzLcbv c=1 sm=1 tr=0 ts=6aedfb79 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+X-Proofpoint-ORIG-GUID: okE7hTDatj3n1WZfogT40Zd1Y7MAF8xp
+X-Authority-Analysis: v=2.4 cv=A635rKWG c=1 sm=1 tr=0 ts=6aedfb73 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=Oy4CJlU8JfxsjEMJYM8A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: xQav5-pQc2VEFR4eZ4Y1e5nbgbjxKHwv
-X-Proofpoint-ORIG-GUID: xQav5-pQc2VEFR4eZ4Y1e5nbgbjxKHwv
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA2MDA2MiBTYWx0ZWRfX9QLP60xuCNSF
- SAj5QG9WFZ81UvW97tUjQhcpZExR09JEbN5/Cs2Lw4KzxPnOb+UcFzZSprijk72F0PVwtwGW+gN
- rKmgg4NzremG2YIl1I1w9l46UlG17dU=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA2MDA2MiBTYWx0ZWRfX3KH9ahbLGN36
- 9AhaHcKzRg3rrLI/2MogTrryQqEzA0F4dPst+mzVcBUSolDuWTaFgw1fUDaKa1QxhCw+3e+gYmJ
- c6hB79oIyDiBF4YDoP8O2P1T6veP/R+QIQwevQAROGKQphTZqN6IKQmMnkAZveewYxTfiqjlcgL
- 0iy/GCd55ieWCX+o1VironOU8Czj68v/894k4jBp2dDkUt0cOa4fJ7oIWsHNVojkHsMin1Rz8j+
- AWuNcRFVuaFftOUhXUJ26/+NtWPxRKBdTCiridH37TBc6vWC1u9JSuRxIYY9yN6emPtv4VE3lJO
- 1lvtQgc54X+sh06lcMJcJRAb7xdMCy0e78UYJSRXN2j/huNNTHsyG/AQXENmdQxB9c3e86M3BPt
- +TOzYiDPDV975AZdGnnQD8jjWLiExcVI5NUqToLTgPI5oPs1OwtsfXSO01KGwfsQQCKOLZDPUVh
- S5pWNCL514TPk7LAtHQ==
+ a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8
+ a=cPKN5jb6Pdq7kSXABbwA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: okE7hTDatj3n1WZfogT40Zd1Y7MAF8xp
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA2MDA2MiBTYWx0ZWRfX5OUXNknPa1yT
+ PYi4gahsDzI3H5QhTYRjRp1Z6le/XUUYgJZJMMdjh/vNzlD2uROGkaQTE5dlc+R7S2fHGlPFph2
+ 9TFCHSYelbppSkotpNJCSkrl08O6+sHwUpflo9xmZM7+jnRazWTs+Ew3ybHTvYp7wrNJZ6xOjqr
+ abMbTXfXva809pF7qYNFx1Hv6/c+Qm82/XxPPTQomlx+eUPwhKocjNS24tdOFwvsc4jqt6nIqwG
+ cuh+aVsMXAj7m2NTEKnz4z+eDKUUxgoCW+3l8UDPYZcBeCy4vslROF733JOP57qDBQGWzzHkUE4
+ DE3hV+Ly/12T/1C0pPTw4tqj8sm4FbH5GTX2Mi9i0w7WqWEwx/X3KoQ81L+zym4t3GgO2lTeEa/
+ aQzTkjpYQ2b757C2pK5BmXqL/VtAU01gD/6q10Ly3+5OPpRCLXPNrbBuo6TrHjk/XU4gThe1ZfO
+ BimHVFdzRufJIz/Y1sw==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA2MDA2MiBTYWx0ZWRfX/oR6f3OGjERy
+ hJlSRmiMUQMGwEJdcWPXBmY1XZ0tsmnVp2gcNi7a7gFq71/5H/oFdzu64vsuIaUArHfUgeNx2m1
+ cqeF9iwXS29qR/YLH33qQwDb8LMUsKo=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-06_05,2026-11-06_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 adultscore=0 clxscore=1015 impostorscore=0 suspectscore=0
- lowpriorityscore=0 priorityscore=1501 bulkscore=0 malwarescore=0 phishscore=0
+ bulkscore=0 priorityscore=1501 impostorscore=0 phishscore=0 spamscore=0
+ malwarescore=0 adultscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611060062
 
-Implement feature detection and sanitization for arm64 KVM guests on
-s390.
+Define the constant `num_sys_reg_descs` which stores the number of
+elements in the sys_reg_descs array. Replace all occurrences of
+ARRAY_SIZE(sys_reg_descs) with the new constant.
 
-Query hardware capabilities using QAAF instruction and sanitize arm64 ID
-registers. Provide accessor functions for queried capabilities and
-integrate feature detection into module initialization sequence.
+This refactoring eases the integration of handling system registers for
+arm on s390. s390 needs code from the shared code to define the
+sys_reg_descs. But also the shared code needs the definition of the
+sys_reg_array and we cannot forward declare arrays and use their size
+before it is properly defined. This patch solves this chicken or egg
+problem. For the time being s390 cannot process the full arm64 defined
+sys_reg_descs array.
+
+No functional changes.
 
 Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
 Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host_arm64.h |  13 +++
- arch/s390/kvm/arm64/Makefile           |   1 +
- arch/s390/kvm/arm64/arm.c              |   2 +-
- arch/s390/kvm/arm64/feature.c          | 163 +++++++++++++++++++++++++++++++++
- arch/s390/kvm/arm64/feature.h          |  86 +++++++++++++++++
- arch/s390/kvm/arm64/qaaf.c             |   2 +
- 6 files changed, 266 insertions(+), 1 deletion(-)
+ arch/arm64/kvm/sys_regs.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host_arm64.h b/arch/s390/include/asm/kvm_host_arm64.h
-index 3e69724f17c9..9afe37f6696c 100644
---- a/arch/s390/include/asm/kvm_host_arm64.h
-+++ b/arch/s390/include/asm/kvm_host_arm64.h
-@@ -15,6 +15,19 @@ enum vcpu_sysreg;
+diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+index 0f0b0495b710..2b28b929f9f3 100644
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -3976,6 +3976,8 @@ static const struct sys_reg_desc sys_reg_descs[] = {
+ 	EL2_REG(SP_EL2, NULL, reset_unknown, 0),
+ };
  
- #include <asm/sae.h>
- 
-+enum {
-+	ARM64_HAS_WFXT,
-+	ARM64_HAS_RASV1P1_EXTN,
-+	ARM64_HAS_STAGE2_FWB,
-+	ARM64_HAS_RAS_EXTN,
-+	ARM64_HAS_EVT,
-+	ARM64_HAS_HCR_NV1,
-+	ARM64_MISMATCHED_CACHE_TYPE,
-+	ARM64_HAS_ECV_CNTPOFF,
-+};
++static const size_t num_sys_reg_descs = ARRAY_SIZE(sys_reg_descs);
 +
-+bool cpus_have_final_cap(unsigned int num);
-+
- #define KVM_HAVE_MMU_RWLOCK
- #define KVM_MAX_VCPUS 1
- #define __KVM_HAVE_VCPU_RUN_PID_CHANGE
-diff --git a/arch/s390/kvm/arm64/Makefile b/arch/s390/kvm/arm64/Makefile
-index e9587c6d6de9..e75b38071f8a 100644
---- a/arch/s390/kvm/arm64/Makefile
-+++ b/arch/s390/kvm/arm64/Makefile
-@@ -11,6 +11,7 @@ ccflags-y += -I $(src) -I $(objtree)/$(obj) -I$(srctree)/arch/$(SRCARCH)/kvm/gma
- 
- kvm-arm64-local := \
- 	arm.o \
-+	feature.o \
- 	guest.o \
- 	handle_exit.o \
- 	inject_fault.o \
-diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
-index 3af0b47b8377..ba6235629c7d 100644
---- a/arch/s390/kvm/arm64/arm.c
-+++ b/arch/s390/kvm/arm64/arm.c
-@@ -20,6 +20,7 @@
- #include <kvm_mmu.h>
- 
- #include "arm.h"
-+#include "feature.h"
- #include "handle_exit.h"
- #include "qaaf.h"
- 
-@@ -27,7 +28,6 @@
- #include "trace.h"
- 
- static unsigned long system_supported_vcpu_features(struct kvm_vcpu *vcpu);
--#define read_sanitised_ftr_reg(_id) 0
- 
- #define __INCL_GEN_ARM_FILE
- #include "generated/arm.inc"
-diff --git a/arch/s390/kvm/arm64/feature.c b/arch/s390/kvm/arm64/feature.c
-new file mode 100644
-index 000000000000..f8b23ba85f9e
---- /dev/null
-+++ b/arch/s390/kvm/arm64/feature.c
-@@ -0,0 +1,163 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+
-+#include <linux/kvm_host.h>
-+#include <linux/printk.h>
-+#include <linux/bitfield.h>
-+#include <asm/sae.h>
-+#include <asm/kvm_host_types.h>
-+
-+#include <arm64/sysreg.h>
-+
-+#include "feature.h"
-+
-+#define MASK_RESERVED(_qaafp, _id)				\
-+	({							\
-+		u64 *_reg = &((_qaafp)->regs[QAAF_REG_##_id]);	\
-+		*_reg = (*_reg & ~_id##_RES0) | _id##_RES1;	\
-+	})
-+
-+#define QAAF_FIELD_MODIFY(_idp, _id_field, _val) \
-+	FIELD_MODIFY(_id_field##_MASK, _idp, _id_field##_##_val)
-+
-+#define MODIFY(_qaafp, _id, _field, _val) \
-+	QAAF_FIELD_MODIFY(&((_qaafp)->regs[QAAF_REG_##_id]), _id##_##_field, _val)
-+
-+void __init kvm_arm_host_sanitize_features(struct qaaf_qmc_block *qaaf_qmc)
-+{
-+	MASK_RESERVED(qaaf_qmc, ID_AA64ISAR0_EL1);
-+
-+	MODIFY(qaaf_qmc, ID_AA64ISAR1_EL1, LS64, NI);
-+	MASK_RESERVED(qaaf_qmc, ID_AA64ISAR1_EL1);
-+
-+	MODIFY(qaaf_qmc, ID_AA64ISAR2_EL1, SYSINSTR_128, NI);
-+	MODIFY(qaaf_qmc, ID_AA64ISAR2_EL1, SYSREG_128, NI);
-+	MODIFY(qaaf_qmc, ID_AA64ISAR2_EL1, PAC_frac, NI);
-+	MASK_RESERVED(qaaf_qmc, ID_AA64ISAR2_EL1);
-+
-+	MASK_RESERVED(qaaf_qmc, ID_AA64ISAR3_EL1);
-+
-+	MASK_RESERVED(qaaf_qmc, ID_AA64MMFR0_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_AA64MMFR1_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_AA64MMFR2_EL1);
-+
-+	MODIFY(qaaf_qmc, ID_AA64MMFR3_EL1, Spec_FPACC, NI);
-+	MODIFY(qaaf_qmc, ID_AA64MMFR3_EL1, ADERR, NI);
-+	MODIFY(qaaf_qmc, ID_AA64MMFR3_EL1, SDERR, NI);
-+	MODIFY(qaaf_qmc, ID_AA64MMFR3_EL1, ANERR, NI);
-+	MODIFY(qaaf_qmc, ID_AA64MMFR3_EL1, SNERR, NI);
-+	MODIFY(qaaf_qmc, ID_AA64MMFR3_EL1, MEC, NI);
-+	MASK_RESERVED(qaaf_qmc, ID_AA64MMFR3_EL1);
-+
-+	MODIFY(qaaf_qmc, ID_AA64MMFR4_EL1, SRMASK, NI);
-+	MODIFY(qaaf_qmc, ID_AA64MMFR4_EL1, E3DSE, NI);
-+	MODIFY(qaaf_qmc, ID_AA64MMFR4_EL1, RMEGDI, NI);
-+	MODIFY(qaaf_qmc, ID_AA64MMFR4_EL1, FGWTE3, NI);
-+	MODIFY(qaaf_qmc, ID_AA64MMFR4_EL1, ASID2, NI);
-+	MASK_RESERVED(qaaf_qmc, ID_AA64MMFR4_EL1);
-+
-+	MODIFY(qaaf_qmc, ID_AA64PFR0_EL1, SEL2, NI);
-+	MODIFY(qaaf_qmc, ID_AA64PFR0_EL1, SVE, NI);
-+	MASK_RESERVED(qaaf_qmc, ID_AA64PFR0_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_AA64PFR1_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_AA64PFR2_EL1);
-+
-+	MODIFY(qaaf_qmc, ID_AA64DFR0_EL1, PMUVer, NI);
-+	MASK_RESERVED(qaaf_qmc, ID_AA64DFR0_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_AA64DFR1_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_AA64DFR2_EL1);
-+
-+	MASK_RESERVED(qaaf_qmc, ID_AA64AFR0_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_AA64AFR1_EL1);
-+
-+	MASK_RESERVED(qaaf_qmc, ID_AA64ZFR0_EL1);
-+
-+	MASK_RESERVED(qaaf_qmc, ID_AA64SMFR0_EL1);
-+
-+	MASK_RESERVED(qaaf_qmc, ID_AA64FPFR0_EL1);
-+
-+	MASK_RESERVED(qaaf_qmc, ID_PFR0_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_PFR1_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_PFR2_EL1);
-+
-+	MASK_RESERVED(qaaf_qmc, ID_DFR0_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_DFR1_EL1);
-+
-+	MASK_RESERVED(qaaf_qmc, ID_MMFR0_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_MMFR1_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_MMFR2_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_MMFR3_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_MMFR4_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_MMFR5_EL1);
-+
-+	MASK_RESERVED(qaaf_qmc, ID_ISAR0_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_ISAR1_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_ISAR2_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_ISAR3_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_ISAR4_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_ISAR5_EL1);
-+	MASK_RESERVED(qaaf_qmc, ID_ISAR6_EL1);
-+
-+	MASK_RESERVED(qaaf_qmc, MVFR0_EL1);
-+	MASK_RESERVED(qaaf_qmc, MVFR1_EL1);
-+	MASK_RESERVED(qaaf_qmc, MVFR2_EL1);
-+
-+	MASK_RESERVED(qaaf_qmc, CTR_EL0);
-+
-+	MASK_RESERVED(qaaf_qmc, ICH_VTR_EL2);
-+}
-+
-+/**
-+ * cpus_have_final_cap - Check if an ARM64 CPU capability is supported
-+ * @num: Capability number to check
-+ *
-+ * Maps ARM64 CPU capabilities to their corresponding ID register fields
-+ * and checks if the feature is supported by the s390 hardware via QAAF.
-+ *
-+ * Return: true if capability is supported, false otherwise
-+ */
-+bool cpus_have_final_cap(unsigned int num)
-+{
-+	u64 reg_val;
-+
-+	switch (num) {
-+	case ARM64_HAS_STAGE2_FWB:
-+		reg_val = read_sanitised_ftr_reg(SYS_ID_AA64MMFR2_EL1);
-+		return SYS_FIELD_GET(ID_AA64MMFR2_EL1, FWB, reg_val) >=
-+		       ID_AA64MMFR2_EL1_FWB_IMP;
-+
-+	case ARM64_HAS_WFXT:
-+		reg_val = read_sanitised_ftr_reg(SYS_ID_AA64ISAR2_EL1);
-+		return SYS_FIELD_GET(ID_AA64ISAR2_EL1, WFxT, reg_val) >=
-+		       ID_AA64ISAR2_EL1_WFxT_IMP;
-+
-+	case ARM64_HAS_RASV1P1_EXTN:
-+		reg_val = read_sanitised_ftr_reg(SYS_ID_AA64PFR1_EL1);
-+		return SYS_FIELD_GET(ID_AA64PFR1_EL1, RAS_frac, reg_val) ==
-+		       ID_AA64PFR1_EL1_RAS_frac_RASv1p1;
-+
-+	case ARM64_HAS_HCR_NV1:
-+		reg_val = read_sanitised_ftr_reg(SYS_ID_AA64MMFR4_EL1);
-+		return SYS_FIELD_GET(ID_AA64MMFR4_EL1, E2H0, reg_val) ==
-+		       ID_AA64MMFR4_EL1_E2H0_IMP;
-+
-+	case ARM64_HAS_RAS_EXTN:
-+		reg_val = read_sanitised_ftr_reg(SYS_ID_AA64PFR0_EL1);
-+		return SYS_FIELD_GET(ID_AA64PFR0_EL1, RAS, reg_val) >=
-+		       ID_AA64PFR0_EL1_RAS_IMP;
-+
-+	case ARM64_HAS_EVT:
-+		reg_val = read_sanitised_ftr_reg(SYS_ID_AA64MMFR2_EL1);
-+		return SYS_FIELD_GET(ID_AA64MMFR2_EL1, EVT, reg_val) >=
-+		       ID_AA64MMFR2_EL1_EVT_IMP;
-+
-+	case ARM64_HAS_ECV_CNTPOFF:
-+		reg_val = read_sanitised_ftr_reg(SYS_ID_AA64MMFR0_EL1);
-+		return SYS_FIELD_GET(ID_AA64MMFR0_EL1, ECV, reg_val) >=
-+		       ID_AA64MMFR0_EL1_ECV_CNTPOFF;
-+
-+	case ARM64_MISMATCHED_CACHE_TYPE:
-+		return false;
-+	default:
-+		return false;
-+	}
-+}
-diff --git a/arch/s390/kvm/arm64/feature.h b/arch/s390/kvm/arm64/feature.h
-new file mode 100644
-index 000000000000..0a59047fda6e
---- /dev/null
-+++ b/arch/s390/kvm/arm64/feature.h
-@@ -0,0 +1,86 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+
-+#ifndef ARCH_S390_KVM_FEATURE_H
-+#define ARCH_S390_KVM_FEATURE_H
-+
-+#include <linux/types.h>
-+#include <linux/bitfield.h>
-+
-+#include <asm/sae.h>
-+
-+#include "qaaf.h"
-+
-+void __init kvm_arm_host_sanitize_features(struct qaaf_qmc_block *qaaf_qmc);
-+
-+/**
-+ * read_sanitised_ftr_reg() - Get the value of a sys register
-+ *
-+ * @id - ARM sysreg id
-+ *
-+ * Get the value of a sys register describing the host configuration.
-+ * The returned value indicates support by the machine (HW/FW)
-+ * after some sanitisation.
-+ *
-+ * Example:
-+ *	read_sanitised_ftr_reg(SYS_ID_AA64PFR0_EL1)
-+ *
-+ * Return: Sanitised HW value of the specified register
-+ */
-+static inline u64 read_sanitised_ftr_reg(u32 id)
-+{
-+	return kvm_qaaf_read_ftr_reg(id);
-+}
-+
-+/**
-+ * kvm_sae_supported_sd_formats() - Retrieve supported SAE SD formats
-+ *
-+ * Return: Bitmap of supported SAE state description formats.
-+ */
-+static inline u32 kvm_sae_supported_sd_formats(void)
-+{
-+	struct qaaf_qmc_block *qmc = kvm_qaaf_qmc();
-+
-+	return qmc->ssdf;
-+}
-+
-+/**
-+ * kvm_sae_supported_sa_formats() - Retrieve supported SAE SA formats
-+ *
-+ * Return: Bitmap of supported SAE save area formats.
-+ */
-+static inline u32 kvm_sae_supported_sa_formats(void)
-+{
-+	struct qaaf_qmc_block *qmc = kvm_qaaf_qmc();
-+
-+	return qmc->ssaf;
-+}
-+
-+/**
-+ * kvm_sae_max_vcpus() - Retrieve maximum supported vcpus
-+ *
-+ * Return: Max number of vCPUs supported by the SAE instruction/the machine
-+ *	as indicated by QAAF, not necessarily that supported by the host software.
-+ */
-+static inline u32 kvm_sae_max_vcpus(void)
-+{
-+	struct qaaf_qmc_block *qmc = kvm_qaaf_qmc();
-+
-+	/* QAAF QMC reports the max id not the max num */
-+	return qmc->maxncpu + 1;
-+}
-+
-+/**
-+ * kvm_sae_irptc() - Retrieve supported SAE IRPTCs
-+ *
-+ * Return: Bitmap of supported SAE IRPTCs.
-+ */
-+static inline u64 kvm_sae_irptc(void)
-+{
-+	struct qaaf_qmc_block *qmc = kvm_qaaf_qmc();
-+
-+	return qmc->regs[QAAF_IRPTC];
-+}
-+
-+#define kvm_vcpu_has_pmu(_v) false
-+
-+#endif /* ARCH_S390_KVM_FEATURE_H */
-diff --git a/arch/s390/kvm/arm64/qaaf.c b/arch/s390/kvm/arm64/qaaf.c
-index f6b1750aed68..36487025013c 100644
---- a/arch/s390/kvm/arm64/qaaf.c
-+++ b/arch/s390/kvm/arm64/qaaf.c
-@@ -3,6 +3,7 @@
- #include <linux/kvm_host.h>
- #include <asm/aef.h>
- #include "qaaf.h"
-+#include "feature.h"
- 
- static struct qaaf_qmc_block qmc_sanitized;
- 
-@@ -17,6 +18,7 @@ struct qaaf_qmc_block *kvm_qaaf_qmc(void)
- void __init kvm_init_qaaf(void)
+ static bool handle_at_s1e01(struct kvm_vcpu *vcpu, struct sys_reg_params *p,
+ 			    const struct sys_reg_desc *r)
  {
- 	qmc_sanitized = *aef_qmc();
-+	kvm_arm_host_sanitize_features(&qmc_sanitized);
+@@ -5187,7 +5189,7 @@ static bool emulate_sys_reg(struct kvm_vcpu *vcpu,
+ {
+ 	const struct sys_reg_desc *r;
+ 
+-	r = find_reg(params, sys_reg_descs, ARRAY_SIZE(sys_reg_descs));
++	r = find_reg(params, sys_reg_descs, num_sys_reg_descs);
+ 	if (likely(r)) {
+ 		perform_access(vcpu, params, r);
+ 		return true;
+@@ -5205,7 +5207,7 @@ static const struct sys_reg_desc *idregs_debug_find(struct kvm *kvm, loff_t pos)
+ {
+ 	unsigned long i, idreg_idx = 0;
+ 
+-	for (i = 0; i < ARRAY_SIZE(sys_reg_descs); i++) {
++	for (i = 0; i < num_sys_reg_descs; i++) {
+ 		const struct sys_reg_desc *r = &sys_reg_descs[i];
+ 
+ 		if (!is_vm_ftr_id_reg(reg_to_encoding(r)))
+@@ -5268,7 +5270,7 @@ static const struct sys_reg_desc *sr_resx_find(struct kvm *kvm, loff_t pos)
+ {
+ 	unsigned long i, sr_idx = 0;
+ 
+-	for (i = 0; i < ARRAY_SIZE(sys_reg_descs); i++) {
++	for (i = 0; i < num_sys_reg_descs; i++) {
+ 		const struct sys_reg_desc *r = &sys_reg_descs[i];
+ 
+ 		if (r->reg < __SANITISED_REG_START__)
+@@ -5370,7 +5372,7 @@ void kvm_reset_sys_regs(struct kvm_vcpu *vcpu)
+ 	struct kvm *kvm = vcpu->kvm;
+ 	unsigned long i;
+ 
+-	for (i = 0; i < ARRAY_SIZE(sys_reg_descs); i++) {
++	for (i = 0; i < num_sys_reg_descs; i++) {
+ 		const struct sys_reg_desc *r = &sys_reg_descs[i];
+ 
+ 		if (!r->reset)
+@@ -5594,8 +5596,8 @@ int kvm_arm_sys_reg_get_reg(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg
+ 	if ((reg->id & KVM_REG_ARM_COPROC_MASK) == KVM_REG_ARM_DEMUX)
+ 		return demux_c15_get(vcpu, reg->id, uaddr);
+ 
+-	return kvm_sys_reg_get_user(vcpu, reg,
+-				    sys_reg_descs, ARRAY_SIZE(sys_reg_descs));
++	return kvm_sys_reg_get_user(vcpu, reg, sys_reg_descs,
++				    num_sys_reg_descs);
  }
  
- #define _qaaf_reg_case(id) case SYS_##id: return qmc_sanitized.regs[QAAF_REG_##id]
+ int kvm_sys_reg_set_user(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg,
+@@ -5634,8 +5636,8 @@ int kvm_arm_sys_reg_set_reg(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg
+ 	if ((reg->id & KVM_REG_ARM_COPROC_MASK) == KVM_REG_ARM_DEMUX)
+ 		return demux_c15_set(vcpu, reg->id, uaddr);
+ 
+-	return kvm_sys_reg_set_user(vcpu, reg,
+-				    sys_reg_descs, ARRAY_SIZE(sys_reg_descs));
++	return kvm_sys_reg_set_user(vcpu, reg, sys_reg_descs,
++				    num_sys_reg_descs);
+ }
+ 
+ static unsigned int num_demux_regs(void)
+@@ -5723,7 +5725,7 @@ static int walk_sys_regs(struct kvm_vcpu *vcpu, u64 __user *uind)
+ 	int err;
+ 
+ 	i2 = sys_reg_descs;
+-	end2 = sys_reg_descs + ARRAY_SIZE(sys_reg_descs);
++	end2 = sys_reg_descs + num_sys_reg_descs;
+ 
+ 	while (i2 != end2) {
+ 		err = walk_one_sys_reg(vcpu, i2++, &uind, &total);
+@@ -5772,7 +5774,7 @@ int kvm_vm_ioctl_get_reg_writable_masks(struct kvm *kvm, struct reg_mask_range *
+ 	if (clear_user(masks, KVM_ARM_FEATURE_ID_RANGE_SIZE * sizeof(__u64)))
+ 		return -EFAULT;
+ 
+-	for (int i = 0; i < ARRAY_SIZE(sys_reg_descs); i++) {
++	for (int i = 0; i < num_sys_reg_descs; i++) {
+ 		const struct sys_reg_desc *reg = &sys_reg_descs[i];
+ 		u32 encoding = reg_to_encoding(reg);
+ 		u64 val;
+@@ -5957,7 +5959,7 @@ int __init kvm_sys_reg_table_init(void)
+ 	int ret = 0;
+ 
+ 	/* Make sure tables are unique and in order. */
+-	valid &= check_sysreg_table(sys_reg_descs, ARRAY_SIZE(sys_reg_descs), true);
++	valid &= check_sysreg_table(sys_reg_descs, num_sys_reg_descs, true);
+ 	valid &= check_sysreg_table(cp14_regs, ARRAY_SIZE(cp14_regs), false);
+ 	valid &= check_sysreg_table(cp14_64_regs, ARRAY_SIZE(cp14_64_regs), false);
+ 	valid &= check_sysreg_table(cp15_regs, ARRAY_SIZE(cp15_regs), false);
+@@ -5980,7 +5982,7 @@ int __init kvm_sys_reg_table_init(void)
+ 
+ 	check_feature_map();
+ 
+-	for (i = 0; !ret && i < ARRAY_SIZE(sys_reg_descs); i++)
++	for (i = 0; !ret && i < num_sys_reg_descs; i++)
+ 		ret = populate_sysreg_config(sys_reg_descs + i, i);
+ 
+ 	for (i = 0; !ret && i < ARRAY_SIZE(sys_insn_descs); i++)
 
 -- 
 2.56.0
