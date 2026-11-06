@@ -1,59 +1,60 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793982326;
-	b=C2XXCcB5YbitZ5EtQATByOHU4t5lWUqwHmGx/9hLIhHR0DznYNXkmeUuNH5uClcPk5+p
-	 zgBLNe4uRpqWSqPeawkp/VN+NDNr7w9wlGt4XGOcmWWchWHx99gX7tusZ7arbxcF7HfBY
-	 yqF3IshRPwrZrWm8eWpcXFNPZqfJFpAWTn5x4f2NwxcvGR/qDaOZ/Q8ni0Gd6IErF0a1M
-	 PQE0ns6pPIQ9ZiC/uAnCNRBDGpd0mQtvITlTcWdgTv3kjZRSy1zhI/5U5meLrh1WqlomT
-	 Ps1cXQvygnfR997xccLggNtm/WQ1KzsSOC1bmd+q6JFUrv+yf+0ihErHZL2BhljqLvA==
+	t=1793982882;
+	b=vkMF30KpOh7cJwmrV4ExaBvc/mKqaqF8NNt3kktGbn1AHib2NPuBkhbydkwWrAU0IPFc
+	 YMf0JUBs7faFntQoLkJL7Tvp7NCH2r6iIf/E58wHLI6OWRlveamNiXN0UPrWK9xUuamHG
+	 JiGSm8ttLItpEgxt62/PGkfWKvyeEl2od3M7PG8V0/d+65zh+t6LOWKZJdKrL2XzbYmfq
+	 eLBOmQB+IGrmfTM54/dUc5hSSX1sU5oQT4qeRe23oNWFzBUHVZOrse11yZzUhlOgn/tJq
+	 pn0nobOxncqHErOWYKoajKE4+TUOe6xNlupALdJ5815A2295QOrR4ziaf5KmxGwvS8Q==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793982326;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793982882;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=3p5mlKl/PckiXDCg6/nBWjYORRFu029BUm/CGhRL04o=;
-	b=jFXc4aBb0dEkjlx0dL8BE9vIcZxcWcPyPU28gagWY1W45U5FWI5nxRgGVM92lywELhjG
-	 qjLqSAyW94RLq0lw2f0fA2l1NiZKIl6nV+tHkpB8EQZ36fD8Y5mGEDDMAukRpmoVhamhk
-	 1wiTw6xpIlL5IIZIFrmj1bNss/OJdxGlceIUtVAOuowdu79+5AENXtn2udSPMnl4NzFQA
-	 hKtATYhqkA9pGJaL7Ojc3k5dU+7KCFbMAW1WR7joNVfShFIYCtvlwMWyz3nTjYzHT7zx7
-	 MC4eV8o1BEB25kZ4/WYwgUfdUgqLzFvMP3P1yruFlYlHgU9HZUEtVScAz31DuU8aPvA==
+	bh=Cp+tZVOrkmD7nG2RhQ6YN+Z0lOkuIfJ+qQn8uFGND2c=;
+	b=RBFvRJU7S+4it8sR7dLk7eu8BmWRWKa1FhGJF4H2VDpIFeMK04XaPVTcwqukhnn9zQCC
+	 GjWF2Stc1tLjjYwQINOdL1xSNSoM7Lvf0b0ddIZwggbTpRQMMnP1zDYWI20MwUBbAZ8gt
+	 z58udOEMkY5YUr3AGUq3RqM9GaJuq1InnP7+xgBM+aCr6JIlQu0qzLZ2MlA+1uRGzh0M2
+	 upn6vSUlW+zRTH0u21/7JH017sOjw5b7fAP6PHOr+cr0RxGaEiz+7rsdkpFW98ASXpeAk
+	 vNDedjW2sr+COnmu9isEZY1GnEYcVaZXaL0shersyxaXHLwZFhbeBtdUXv8eQ6R1Q+g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L2WpxG9u;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EHANWA66;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F1FD606A329
-	for <linux-s390@vger.kernel.org>; Fri,  6 Nov 2026 16:25:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6846D606A338;
+	Fri,  6 Nov 2026 16:34:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L2WpxG9u
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 401B91F0089F;
-	Fri,  6 Nov 2026 16:25:25 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=EHANWA66
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 728A71F008BC;
+	Fri,  6 Nov 2026 16:34:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793982325;
-	bh=3p5mlKl/PckiXDCg6/nBWjYORRFu029BUm/CGhRL04o=;
+	s=k20260515; t=1793982882;
+	bh=Cp+tZVOrkmD7nG2RhQ6YN+Z0lOkuIfJ+qQn8uFGND2c=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=L2WpxG9u/2+2A3K5x+9mVBdtqX+0UCNzKT5F43/yzrrE+CyoMJrT5WzV29EKelXN7
-	 yUJwybVEjDJEXrlMKdlhxehdjQT9YA6EmzD48l365T8zWhOpSg40ZoQ3iBWhofk/XS
-	 +SOFCKn+98kyXINhq23Inc2uFfyURN4mfDNC7+gb+8+j6nTgfJmVLHDf6AqFu0o8xP
-	 BkX0dTitFyGff/y1JH4dpaOki/EUXAhsTVb95OVoGpBaCL+c2zzJiloLCOxbWWySey
-	 r1T+bJoBsVvi2Rwhq9yt6fjhm36Q6KDpVFjtoYRM84rJS3+qG0gd61WHvrA1A0dp6E
-	 ge6zzemdJUxhQ==
-Message-ID: <sashiko-outbox-201801@kernel.org>
+	b=EHANWA66ONkLPMq3+7IOO+507vY2TicQubzfBZAMq1QAD945Nrxeb08V/q98v/99K
+	 qkoCCgYy1dnzSfK1GolMPt1pvCJ5teZq7K+gFrQ72n0oNFjR1rB1V/Mk7nE6E5IitI
+	 7RTScJG7oqTyU7y+1h4V3Ojx0KqsIiARMPXVJ3gw62QajcVtWelM/ydUFf/g5mmNNK
+	 vV4T7V2eIwaQCwuXkx1mqnmImGU3TZi9ezc6nP7Cp8Ozge4jwEsica42PICwOa/eNK
+	 gS6dqm/Ov92ckqUHOEUcajS4xxXCN+IhaTIi+aCLM6hHDMPia8+YT7PjG2/2WIzO7Z
+	 o71mIuLmwMA6g==
+Message-ID: <sashiko-outbox-201828@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v3 02/23] KVM: arm64: Extract number of sys_reg_desc
- into a constant
+Subject: Re: [PATCH v3 03/23] arm64: sysreg: Convert OSLSR to automatic
+ register generation
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Steffen Eiden" <seiden@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261106-sysreg-v3-2-75e95980fb10@linux.ibm.com>
+Cc: kvmarm@lists.linux.dev, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Oliver
+ Upton" <oupton@kernel.org>, "Marc Zyngier" <maz@kernel.org>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261106-sysreg-v3-3-75e95980fb10@linux.ibm.com>
 References: <20261106-sysreg-v3-0-75e95980fb10@linux.ibm.com>
- <20261106-sysreg-v3-2-75e95980fb10@linux.ibm.com>
+ <20261106-sysreg-v3-3-75e95980fb10@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 16:25:24 +0000
+Date: Fri, 06 Nov 2026 16:34:41 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,27 +64,52 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Define the constant `num_sys_reg_descs` which stores the number of
-> elements in the sys_reg_descs array. Replace all occurrences of
-> ARRAY_SIZE(sys_reg_descs) with the new constant.
->=20
-> This refactoring eases the integration of handling system registers for
-> arm on s390. s390 needs code from the shared code to define the
-> sys_reg_descs. But also the shared code needs the definition of the
-> sys_reg_array and we cannot forward declare arrays and use their size
-> before it is properly defined. This patch solves this chicken or egg
-> problem. For the time being s390 cannot process the full arm64 defined
-> sys_reg_descs array.
->=20
-> No functional changes.
->=20
-> Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
-> Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
-> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] arm64: sysreg: OSLSR_EL1_OSLK redefinition in tools/ sysreg.h
+  breaks perf
+--
 
-Sashiko has reviewed this patch and found no issues.
+commit 33e9aa857b4dfa390c27f99a1a44127d7465fe7b
+Author: Steffen Eiden <seiden@linux.ibm.com>
+
+arm64: sysreg: Convert OSLSR to automatic register generation
+
+This commit converts OSLSR_EL1 to automatic system register generation in
+arch/arm64/tools/sysreg and renames OSLSR_EL1_OSLM_IMPLEMENTED to
+OSLSR_EL1_OSLM_IMP.
+
+> diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sys=
+reg.h
+> index e3b60ee030230..2ec9ba9cd896f 100644
+> --- a/arch/arm64/include/asm/sysreg.h
+> +++ b/arch/arm64/include/asm/sysreg.h
+> @@ -186,11 +186,13 @@
+>  #define SYS_DBGWCRn_EL1(n)		sys_reg(2, 0, 0, n, 7)
+>  #define SYS_MDRAR_EL1			sys_reg(2, 0, 1, 0, 0)
+> =20
+> -#define SYS_OSLSR_EL1			sys_reg(2, 0, 1, 1, 4)
+> -#define OSLSR_EL1_OSLM_MASK		(BIT(3) | BIT(0))
+> -#define OSLSR_EL1_OSLM_NI		0
+> -#define OSLSR_EL1_OSLM_IMPLEMENTED	BIT(3)
+> -#define OSLSR_EL1_OSLK			BIT(1)
+> +#define OSLSR_EL1_OSLM_MASK (OSLSR_EL1_OSLM0_MASK | OSLSR_EL1_OSLM1_MASK)
+> +#define OSLSR_EL1_OSLM_NI						\
+> +	((OSLSR_EL1_OSLM1_NI << OSLSR_EL1_OSLM1_SHIFT) |		\
+> +	(OSLSR_EL1_OSLM0_VAL_0 << OSLSR_EL1_OSLM0_SHIFT))
+> +#define OSLSR_EL1_OSLM_IMP						\
+> +	((OSLSR_EL1_OSLM1_IMP << OSLSR_EL1_OSLM1_SHIFT) |		\
+> +	(OSLSR_EL1_OSLM0_VAL_0 << OSLSR_EL1_OSLM0_SHIFT))
+
+[Severity: Medium]
+Should tools/arch/arm64/include/asm/sysreg.h receive the same update?
+
+The tools build generates its own asm/sysreg-defs.h from
+arch/arm64/tools/sysreg, which now defines OSLSR_EL1_OSLK as GENMASK(1, 1).
+Because tools/arch/arm64/include/asm/sysreg.h includes asm/sysreg-defs.h and
+still defines OSLSR_EL1_OSLK as BIT(1), building tools/perf fails under
+-Werror with a macro redefinition error.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106-sysreg-v3-=
-0-75e95980fb10@linux.ibm.com?part=3D2
-
+0-75e95980fb10@linux.ibm.com?part=3D3
