@@ -1,58 +1,60 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793990586;
-	b=quJSwvwUx2m9Xg4s1QoLraUHQl8o7oK1dC3YT+bNNTiBEsdPthUfq/n5Mtem8to7TYQz
-	 e8PMq8ZiqualNOA4mwdJnLVf+ebRp80xapu8jyhIVlOQt72M1uyQ/xpUvctIed9ftRaSf
-	 j49XLk+est0u0XNf5FfUzxX2iuxAV75HgIkZto6sRysmyyUT9Z1GbLdapTYnRuFGy4nYi
-	 DgfK9Z+DplZMdOUINGoXNxUL9cSK6kPswCdF0zDJB7Ru0Sa4qcn8Jweq22aXfi1vV9NmT
-	 K08X43Kq/fudYaI5CxhrkQtsf0HbDQ453wRKoKaQnjjDI8viWHuKeqyZusNHbkck3/w==
+	t=1793990729;
+	b=Ixn1OPuxpxl+CgwjbJUb4l6rfVDxO1ZPWc6LqXUV1LszUII7cT0qYEnUcbroPIND2TSa
+	 Amuv81nnsAd77DOPPaO2B5VuQFLz71ohv7ZeAah3H8KBmonRoRwYvaGfvG83gFr78Dn9x
+	 Ct2wnbt6NGDfEWAwEsrEKvcwuGRZGRx+27EMQBhNb628xQGv2MP3bFFpvVVk2nfyBUOUc
+	 XNxXypnsyJc03EvX4yxtO9G6ZPh86sqolAYStRO2uHN3rq5pVvIwdbwEgQ0P0MY3TUNBX
+	 kPcDJkfls42ZS0fe3Yw8Ukn6G9ZmX1qC3HdYIREhhAGK7ICgGieYRPeVl6cjZf3OUUg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793990586;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793990729;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=qmN0atWAN3An7+bcolqsibinTAm8GPOht2ykX3zJyTc=;
-	b=U7mUfyL8y+ulatSzfRfFYvoH+XTGdxI6plRveExvTggxXSfQLKlBSUPoXVpNf/g6BTMM
-	 MyR+3rHWAjj4KcjlOyFCTieIt/Ux+HZO1lAl32C8MqkfhxVjSngq0JkYcKSLek5imXPTU
-	 4sYu3ix8ZFYM33N4rKPSXnrXBPicA//v3xi6zxqctZXk6FhEEeNEsWY6JtCWoNJx6kPaF
-	 fRRGwnV2Xiwy0er86jlFq7MBMBb9rd18Ml0sExLAoK0spzcRPZBtnh/bx+TWorv1NA2/9
-	 9Kte9gRgZD3gptWusEPZCaklfTq8Q9vhvf2SiaZIHPoeUkoOgY8xaziIehpGEocm+RQ==
+	bh=FNLxcl/7ryzRAwl+jM/Z8IFsimfNedXfhYCn8zPHQEE=;
+	b=YfGGVhyV8AdzZPtOFeVsqUm/WAn+037ZafhW+OiC3B7jRJoJ3tWo82PSXluoCaazwNXF
+	 05Mn+YOxyKNZMZfHs3b9jqNHUl5dDHC2MNpkfeokJvMRiqJFpr6+WViDxjhJMSq/eBG+h
+	 LRZXZ2eeaod845S9fVKFh2oZlME6r2ihWHI08kU1cxLKMZxZhblR5kU3zZbt/IO92Vsdo
+	 Vw4Z0phhCuqIzCAPoWfwmBwj0z9BNSKy3Ymwz4Zx8SJoMbEMgGNlqm7WUACiWg5irMFn8
+	 Ya2XRARgu1lWp9A0x+ZSl30eLO/m/fr94TXrDrjWLUrQzzJGAw50YQVfeYGfXIfXBcg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZP56SFba;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bRYPyyjX;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAD8E606A326
-	for <linux-s390@vger.kernel.org>; Fri,  6 Nov 2026 18:43:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B4AF606A326;
+	Fri,  6 Nov 2026 18:45:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=ZP56SFba
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FAB21F0089F;
-	Fri,  6 Nov 2026 18:43:05 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=bRYPyyjX
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87C9F1F0089F;
+	Fri,  6 Nov 2026 18:45:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793990585;
-	bh=qmN0atWAN3An7+bcolqsibinTAm8GPOht2ykX3zJyTc=;
+	s=k20260515; t=1793990729;
+	bh=FNLxcl/7ryzRAwl+jM/Z8IFsimfNedXfhYCn8zPHQEE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=ZP56SFbaWitPPFrBDsAx9Gxax+dAAR5t4onN4MxZVvrZYebKFbTYy29oH9KYEyUfc
-	 fcVbVdkpfi0VWSP+dB1fPd+2l/bY6zQmgVlsdUyCJCD1TEtGtRw9SyxkPas8RAKn9c
-	 q/qFQcBz8IoSmW20eluym4vY9bJY1pZXOFlUcvWAFzZwz2YE91tYUW+vbhrABF6Arh
-	 /jjg3H7O3Ii08FrezZQXxtEZ814JADOzFPzK1zibopJrUk0ORI1p7+fisFnU1IT7C1
-	 Ws1qlNTZdDRsBPA5VocE5mqj8l9u/2lU/YEy0kwZwG4A7wGQ2pMS7mpuy10jfB57rs
-	 uI3+sqWFjxK3g==
-Message-ID: <sashiko-outbox-202061@kernel.org>
+	b=bRYPyyjXlAWM5shDLcYNZZdHBKNyELV6SZ+p3K/aARncKjm2gaWxNAlu4pc/lvGws
+	 cuzq0RagKboo+XGrHZtTsDAWdEqLPzLnwgnn32Cai5JGfuWCsAcJQgeOeL39J1N8Z8
+	 tD0xeBjezjk7YWW9QVzF/kK6Q/Lf8CQft/BqfzA/SowxFEnr3RXiT3dKw+H5AIUNJQ
+	 Wwpg74ORaFyYivtvmsmAJxaMGzFqh2qU/2VDHyvMMvC7xswKHa7ZzHEF8YJ+0N84HU
+	 a7jZo+aojtd+QLTo/bUPZAtTs/smWRUWrbaZRzxPdqyGAG+/38V/zQKAHjv43XnHOn
+	 NrHfp3vBJFHaQ==
+Message-ID: <sashiko-outbox-202093@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 06/32] s390: mm: add PMD swap-exclusive helpers
+Subject: Re: [PATCH v3 16/23] KVM: s390: arm64: Implement arm sysreg
+ managing infrastructure
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Usama Arif" <usama.arif@linux.dev>
-Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
- Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261105183940.2236717-7-usama.arif@linux.dev>
-References: <20261105183940.2236717-1-usama.arif@linux.dev>
- <20261105183940.2236717-7-usama.arif@linux.dev>
+To: "Steffen Eiden" <seiden@linux.ibm.com>
+Cc: kvmarm@lists.linux.dev, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Oliver
+ Upton" <oupton@kernel.org>, "Marc Zyngier" <maz@kernel.org>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261106-sysreg-v3-16-75e95980fb10@linux.ibm.com>
+References: <20261106-sysreg-v3-0-75e95980fb10@linux.ibm.com>
+ <20261106-sysreg-v3-16-75e95980fb10@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 18:43:04 +0000
+Date: Fri, 06 Nov 2026 18:45:28 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,26 +64,98 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Prepare for keeping a PMD-mapped anonymous THP mapped by a PMD across the
-> swap round-trip, which makes PG_anon_exclusive have to survive in a swap
-> PMD and not just in a swap PTE.
->=20
-> s390 is the one architecture where a swap PMD is not a swap PTE in
-> disguise: it is an RSTE with its own layout, converted to a fake PTE swap
-> entry for the common code. Give it its own exclusive bit rather than
-> borrowing the PTE-format macro, and document it in the RSTE swap layout,
-> where bit 52 was listed as unused.
->=20
-> Cc: Alexander Gordeev <agordeev@linux.ibm.com>
-> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-> Cc: Heiko Carstens <hca@linux.ibm.com>
-> Cc: Vasily Gorbik <gor@linux.ibm.com>
-> Cc: linux-s390@vger.kernel.org
-> Signed-off-by: Usama Arif <usama.arif@linux.dev>
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [High] KVM: s390: arm64: preemptible smp_processor_id() in
+  _vcpu_read/write_sys_reg()
+--
 
-Sashiko has reviewed this patch and found no issues.
+commit a0eb8c366cfc592c3052299b9ed41b9fe9cc173f
+Author: Steffen Eiden <seiden@linux.ibm.com>
+
+KVM: s390: arm64: Implement arm sysreg managing infrastructure
+
+This commit implements the infrastructure for the s390 host to read, write,
+and trap guest arm64 system registers using EASR/SASR instructions and
+shared arm64 sysreg tables.
+
+> diff --git a/arch/s390/include/asm/kvm_host_arm64.h b/arch/s390/include/a=
+sm/kvm_host_arm64.h
+> index 9afe37f6696c8..35b6d8972359c 100644
+> --- a/arch/s390/include/asm/kvm_host_arm64.h
+> +++ b/arch/s390/include/asm/kvm_host_arm64.h
+[ ... ]
+> @@ -219,4 +245,181 @@ static inline void kvm_arch_async_page_present_queu=
+ed(struct kvm_vcpu *vcpu)
+> =20
+>  #define kvm_supports_32bit_el0() false
+> =20
+> +#define __vcpu_sys_reg(__vcpu, __reg) \
+> +	vcpu_read_sys_reg(__vcpu, __reg)
+> +
+> +#define __vcpu_assign_sys_reg(__vcpu, __reg, __val) \
+> +	vcpu_write_sys_reg(__vcpu, __val, __reg)
+> +
+> +#define __vcpu_rmw_sys_reg(v, r, op, val)				\
+> +	do {								\
+> +		u64 __v =3D vcpu_read_sys_reg(v, r);			\
+> +		__v op (val);						\
+> +		vcpu_write_sys_reg(v, __v, r);				\
+> +	} while (0)
+> +
+> +/**
+> + * _vcpu_read_sys_reg() - read a guest sysreg with easr
+> + * @C: vcpu to read from; if loaded, may only be called from its own thr=
+ead
+> + * @R: sysreg id; must be readable by easr; must be compile time constant
+> + *
+> + *   if SYSREGS_ON_CPU: proceed with flags =3D 0
+> + *   otherwise:         proceed with flags =3D EASR_FLAG_SA
+> + *
+> + */
+> +#define _vcpu_read_sys_reg(C, R) \
+> +	({	BUILD_BUG_ON(!__builtin_constant_p((R))); \
+> +		KVM_BUG_ON(vcpu_is_loaded(C) && smp_processor_id() !=3D (C)->cpu, (C)-=
+>kvm); \
+> +		(vcpu_is_loaded(C)) \
+> +			? __vcpu_read_sr((C), (R), 0) \
+> +			: __vcpu_read_sr((C), (R), EASR_FLAG_SA); })
+> +
+> +/**
+> + * _vcpu_write_sys_reg() - write a guest sysreg with sasr
+> + *
+> + * @C: vcpu to write to; if loaded, may only be called from its own thre=
+ad
+> + * @V: value to write
+> + * @R: sysreg id; must be writable by sasr; must be compile time constant
+> +
+> + *   if SYSREGS_ON_CPU: proceed with flags =3D 0
+> + *   otherwise:         proceed with flags =3D SASR_FLAG_INITIALIZED
+> + */
+> +#define _vcpu_write_sys_reg(C, V, R) \
+> +	({	BUILD_BUG_ON(!__builtin_constant_p((R))); \
+> +		KVM_BUG_ON(vcpu_is_loaded(C) && smp_processor_id() !=3D (C)->cpu, (C)-=
+>kvm); \
+> +		(vcpu_is_loaded(C)) \
+> +			? __vcpu_write_sr((C), (V), (R), 0) \
+> +			: __vcpu_write_sr((C), (V), (R), SASR_FLAG_INITIALIZED); })
+
+[Severity: High]
+Can _vcpu_read_sys_reg() and _vcpu_write_sys_reg() call smp_processor_id()
+with preemption enabled?
+
+vcpu_load() sets vcpu->cpu and then calls put_cpu(), and
+kvm_arch_vcpu_ioctl_run() re-enables local interrupts before calling
+handle_exit().  When exit handlers such as kvm_handle_sys_reg() or
+kvm_handle_guest_abort() read or write save-area registers,
+vcpu_is_loaded() is true in preemptible context.
+
+On CONFIG_DEBUG_PREEMPT=3Dy kernels, smp_processor_id() triggers a
+check_preemption_disabled() BUG splat.  On any preemptible kernel, if the
+vCPU thread is migrated between reading (C)->cpu and evaluating
+smp_processor_id(), the preempt notifier updates (C)->cpu to the new CPU
+and KVM_BUG_ON() fires falsely, killing the VM.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105183940.2236=
-717-1-usama.arif@linux.dev?part=3D6
-
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106-sysreg-v3-=
+0-75e95980fb10@linux.ibm.com?part=3D16
