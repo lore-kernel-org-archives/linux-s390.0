@@ -1,88 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793984936;
-	b=yNI7dg5FW01WwRnrQps48ddDp057trqug+SFlmDtWjl4V4zBg/bSXw9m5zNJDNeY10cF
-	 JjPH8DjF3YO4Flrc5JY01evQHfseQfPHxvnvcaZnyXzzzEWSSzhLjYfaXxU1T8pwpAQar
-	 iHt3so5c/TxVq4iVIUc3YREmDVMrdkoPU92C+iQtmbxWvUkME1LC5/vZEMqx1GlyCb2F0
-	 ejKOLfyaXk1mbtFse1CvvwYgHg+E+VUtiEz4bQxeOvdy26rDHQxnEy4wpbWYkiTuMOD3A
-	 dD4ISrdMghHD6XQ/86OUu0rdOCl6UAuMB8u0v3td1OCoyakEJDjBqPVmlOFajcum19g==
+	t=1793985487;
+	b=qbjh/7fYXGLzJsZ80sAad0qr7JN3gN2+1hLElXkjOy+to9VpKgpRxIq3/HOIbQZURWGP
+	 GVhvNM+heiNEcmpoCEwi5wZrm4s78prWKSfC0bjQ5pXfaFd2s2tgYjwKk6l4iz5jUrKh1
+	 kgPuSGsT7KcHPoeE5AcyTQmZdqJIRLciyhSHRn8ZiZXqiDCpNnc+avuAq2dknzZjXe7yu
+	 zz2rI5fta7KtuDd3tumFU8hBilHbUU4ik590f5PJ7ors4j10nSfNc/cbZ8jsq70RjDjfw
+	 v603twmqnxPaqZUD06U662YkGiqIAYQRbQM9PXMDUlDQLNbWvFhnPilqKmSKtyZHXtQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793984936;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
-	 Message-ID:X-Mailer:MIME-Version:Content-Transfer-Encoding:
-	 X-TM-AS-GCONF:X-Proofpoint-Spam-Info:X-Proofpoint-GUID:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-ORIG-GUID:
-	 X-Authority-Analysis:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=nlT/v3ATiR6+zB79ygw3drO2I5hBU8Lt2SllnCuPKMA=;
-	b=kjqPXQ3dNxf6dPR8R9/R3KqVJq0KSPk8WoVUyFk/j7dB3lWXZ7bZQkQNzOgvLN0npj8U
-	 VNno2gUl1x4d6xLXz+XWupr2SgxvJ5/Ow5hvQ4c8sVn8xUnnt6h16DLRdfB7zVYgU0qpt
-	 IkjDbHTYkAW0QiGTdcqyRMVM3wyNUXxZW5sz45f1fNoYoSt22LXunr9LRuPPueosBaOHN
-	 zl2amh/K1Uze847XU4up6UVrDKdCLH8GUS+sDoWxA7Pi1YkFRgt+K3TKJnLX/qaBacrwY
-	 oIrqqd/WZuhkCdnxUFfQWhv6D0l/W8lKCk2VSP/m8OKG83q9TWzXJHeC2L0SoghsJjw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793985487;
+	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
+	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
+	bh=xMAGa3S8aYyHIE/94f8xfinpQSCHE0yPXUnRRCP8Qww=;
+	b=WEakt97o5oRrWaOVQ8reXalazB4KQTL/yKG4eSf1A0300NnGl99t9GCJzZmdMn90s8K1
+	 5hS2d8VSx6F68MivfPGJgp+d54gRnjwKRv/cLvPKMcdOcoAjVGwh4eDxQbEDfJUZoqWG2
+	 0lER4R4zd+qU/gGTn5+tFLjp3hI8I+ciauNfRPbfEImS7Ka4SV1+Kp/27VGk7baDCqwy+
+	 k/seuE4O+nnVkyU40DH0n3XXbStnsu6DyMJA+8gAvBSJrItT91lQF0I8kEwnXwbYr6wMf
+	 xiAa5UNDqTjZVu+36ySwstHkDaM6qPY6Rhm2QMFNbOqnhph7q3gXQYNl9KLDg/47XGQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=eEarNtwD;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b="Q/TCih5o";
+	arc=none smtp.remote-ip=100.103.45.18
+Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59E4E606A326
-	for <linux-s390@vger.kernel.org>; Fri,  6 Nov 2026 17:08:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 59E4E606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB5D7606A326;
+	Fri,  6 Nov 2026 17:18:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=eEarNtwD
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6FEDiA2656411
-	for <linux-s390@vger.kernel.org>; Fri, 6 Nov 2026 17:08:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=nlT/v3ATiR6+zB79ygw3drO2I5hBU8Lt2SllnCuPK
-	MA=; b=eEarNtwD01WuNGjaSGRC9jc7rDmH9/ke67U/qqOSoU2+u5lhOhwXBAkaH
-	xsyAS91i6RP2QNvXsrad73R+23j4pmffNmM6JmctIOM/uS3BlbUtMfYjcRnQPxzx
-	BMpNSEla9kXPgBCnlOVeOim0cVX+MgLXc4P0erTHeOVCdsgYJIfozkt+t777N7Rj
-	YgNZBOVdqHhKD2gIblACAvoZSIQjEw4Fz2S/OQUHZvRDo1mVJZuHzgGa5t0zVw2b
-	HEeEZq76k5G+GrtexMKj4nAZ0elWhM/vWw1r5DrGZB/iRhXviNF/XMU3ww9Z+CUy
-	bjhuF6J2t10+gI+rfenl3v9zQdptA==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hs3rc634t-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 06 Nov 2026 17:08:55 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6GxtZR3538277
-	for <linux-s390@vger.kernel.org>; Fri, 6 Nov 2026 17:08:54 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hrk9mtqmk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <linux-s390@vger.kernel.org>; Fri, 06 Nov 2026 17:08:54 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A6H8oA930081304
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 6 Nov 2026 17:08:50 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 96CC720043;
-	Fri,  6 Nov 2026 17:08:50 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 763ED20040;
-	Fri,  6 Nov 2026 17:08:50 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  6 Nov 2026 17:08:50 +0000 (GMT)
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-To: linux-s390 <linux-s390@vger.kernel.org>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Ilya Leoshkevich <iii@linux.ibm.com>
-Subject: [PATCH] s390/mm: Allow hugepage migration for s390
-Date: Fri,  6 Nov 2026 18:08:44 +0100
-Message-ID: <20261106170844.4079771-1-gerald.schaefer@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=Q/TCih5o
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 105C41F008A1;
+	Fri,  6 Nov 2026 17:18:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1793985486;
+	bh=xMAGa3S8aYyHIE/94f8xfinpQSCHE0yPXUnRRCP8Qww=;
+	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
+	b=Q/TCih5oYWiGwtP04gvJW2Sj8pl0muq1PQKRakZ1TE5pfgP9oDseRS0IAjjOKCjIS
+	 l2YfNJwmP1jJlWZ+Q4Jtyaox7AleNX/d2VdyHsTghXlYUlg3vjb4U3+PJBrUNCvL4d
+	 jAlVRDl2PHVtlwGeF524qZCwLc2Tb1RXJ8O50LgbI3wfKXVhMrSnUvGouHZTvEs/lP
+	 y8UXXlboBuxSC2GPoQSxllU1KCiJDR5jz0pTBuSqgf6ZRT3UevMPEHhCGqe1DvGKsx
+	 bXNhQDlFxe9R6WgI8s+gGkfCDMkOI9MRhGFhHZdv6PWash+kFt1Szm2PLrv7Vyu2YS
+	 n8OwVXWvm050g==
+Message-ID: <sashiko-outbox-201908@kernel.org>
+From: sashiko-bot@kernel.org
+Subject: Re: [PATCH v3 08/23] KVM: arm64: Share system register code with
+ s390
+Reply-To: sashiko-reviews@lists.linux.dev
+To: "Steffen Eiden" <seiden@linux.ibm.com>
+Cc: kvmarm@lists.linux.dev, kvm@vger.kernel.org, linux-s390@vger.kernel.org, "Oliver
+ Upton" <oupton@kernel.org>, "Marc Zyngier" <maz@kernel.org>, "Heiko
+ Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261106-sysreg-v3-8-75e95980fb10@linux.ibm.com>
+References: <20261106-sysreg-v3-0-75e95980fb10@linux.ibm.com>
+ <20261106-sysreg-v3-8-75e95980fb10@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 06 Nov 2026 17:18:05 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -91,114 +63,114 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA2MDA2NiBTYWx0ZWRfX+z2RZhqjS1ms
- zZOWHZyY0vUdXNHfhcMp+4/UH1/BUBe0ZzD3+2sKZhqb+vuhhgNilHds1NAC7rQ15EN4onHlZu/
- cLJYQtMQEr6uSUnq5RhM9dhsL6Zf3I4=
-X-Proofpoint-GUID: slRozmJO34dxtVcBMloIBqrVbHG8kGFx
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA2MDA2NiBTYWx0ZWRfX6VuNbmzFFfNp
- AAiXXJbSjcIqiksDFHbFK/JgjhbzMYVFmbvtx4j5uJnobMp5Yq6xGR4+gPMJE7go2SjOGKeR1Y/
- aELkBOG4pnbgo7XO8FUwenEaRYqVkplyXIFyb8h+Gz2fWdh3/zjZ//9D2RTSUhHvaNUTEpkb1Jp
- FETAHaLvA6Ii8Oc2sfRl11mzaxTvM2taWYTWdlHdNMpVxbLps2tLyouMNxZEmsPnPyQ9wWZ5cnL
- IOT5KdC4GyhwZkZyqmv7C/SljGGpbtksgHB/J4AWxbWcUIxaqnrNGdovZ4NoCqk/0+zYntOubqg
- 1o+9+Mgs5iB3TDLJ+pyBbQRPSnnoD0CSDtXGveEXcTX6m72VI52GeTL0UWxe9SZc2o37WPiFgTg
- rUbek9Ka5wvVstjiKxgVlby+mvD5KARJXm8bbUZMQgCDvNyfBdRe4uv+eQdXNK2CSBDZuqKozuV
- G8H7BWdvnTdlTG1iqpQ==
-X-Proofpoint-ORIG-GUID: slRozmJO34dxtVcBMloIBqrVbHG8kGFx
-X-Authority-Analysis: v=2.4 cv=CY+dd7rl c=1 sm=1 tr=0 ts=6aee09a7 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8 a=dqShpuBjQzf0R5tXLcIA:9
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-06_05,2026-11-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 suspectscore=0 bulkscore=0 phishscore=0 impostorscore=0
- malwarescore=0 lowpriorityscore=0 spamscore=0 clxscore=1015 adultscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611060066
 
-After hugetlbfs PTE_MARKER support for s390 introduced region-third
-and segment table swap entries, it is possible to also allow hugepage
-migration for s390.
+Thank you for your contribution! Sashiko AI review found 1 potential
+issue to consider:
+- [Medium] KVM: arm64: piecemeal sys_regs.c sharing and mixed PAuth/SVE
+  changes
+--
 
-This fixes the problem that hugetlbfs pages could not be allocated
-from ZONE_MOVABLE memory, which is often used in combination with
-memory hotplug. Therefore, without support for hugepage migration,
-a large portion of system memory could be unavailable for hugetlbfs
-page allocations.
+commit 0c97a3ae40885547f256dfa51f22f3c444581c17
+Author: Steffen Eiden <seiden@linux.ibm.com>
 
-Besides selecting ARCH_ENABLE_HUGEPAGE_MIGRATION, this only requires
-definition of arch_hugetlb_migration_supported(), which can make use
-of the existing arch_hugetlb_valid_size() function, similar to other
-architectures.
+KVM: arm64: Share system register code with s390
 
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
----
- arch/s390/Kconfig               |  1 +
- arch/s390/include/asm/hugetlb.h |  5 +++++
- arch/s390/mm/hugetlbpage.c      | 14 +++++++++++++-
- 3 files changed, 19 insertions(+), 1 deletion(-)
+This commit wraps selected pointer authentication, SVE, and system register
+helpers in arch/arm64/kvm/ with ARM64_S390_COMMON guards so they can be
+compiled into s390 KVM.
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 612885228824..e3a704f423f3 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -83,6 +83,7 @@ config S390
- 	select ALTERNATE_USER_ADDRESS_SPACE
- 	select ARCH_32BIT_USTAT_F_TINODE
- 	select ARCH_CORRECT_STACKTRACE_ON_KRETPROBE
-+	select ARCH_ENABLE_HUGEPAGE_MIGRATION if HUGETLB_PAGE && MIGRATION
- 	select ARCH_ENABLE_MEMORY_HOTPLUG if SPARSEMEM
- 	select ARCH_ENABLE_SPLIT_PMD_PTLOCK if PGTABLE_LEVELS > 2
- 	select ARCH_HAS_PMD_SOFTLEAVES if TRANSPARENT_HUGEPAGE
-diff --git a/arch/s390/include/asm/hugetlb.h b/arch/s390/include/asm/hugetlb.h
-index aea754b67c89..356a18a75d99 100644
---- a/arch/s390/include/asm/hugetlb.h
-+++ b/arch/s390/include/asm/hugetlb.h
-@@ -17,6 +17,11 @@
- 
- #define hugepages_supported()	cpu_has_edat1()
- 
-+#ifdef CONFIG_ARCH_ENABLE_HUGEPAGE_MIGRATION
-+bool arch_hugetlb_migration_supported(struct hstate *h);
-+#define arch_hugetlb_migration_supported arch_hugetlb_migration_supported
-+#endif
-+
- #define __HAVE_ARCH_HUGE_SET_HUGE_PTE_AT
- void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
- 		     pte_t *ptep, pte_t pte, unsigned long sz);
-diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
-index f84aa9265430..ce61f8738465 100644
---- a/arch/s390/mm/hugetlbpage.c
-+++ b/arch/s390/mm/hugetlbpage.c
-@@ -224,7 +224,7 @@ pte_t *huge_pte_offset(struct mm_struct *mm,
- 	return (pte_t *) pmdp;
- }
- 
--bool __init arch_hugetlb_valid_size(unsigned long size)
-+static bool __hugetlb_valid_size(unsigned long size)
- {
- 	if (cpu_has_edat1() && size == PMD_SIZE)
- 		return true;
-@@ -241,3 +241,15 @@ unsigned int __init arch_hugetlb_cma_order(void)
- 
- 	return 0;
- }
-+
-+bool __init arch_hugetlb_valid_size(unsigned long size)
-+{
-+	return __hugetlb_valid_size(size);
-+}
-+
-+#ifdef CONFIG_ARCH_ENABLE_HUGEPAGE_MIGRATION
-+bool arch_hugetlb_migration_supported(struct hstate *h)
-+{
-+	return __hugetlb_valid_size(huge_page_size(h));
-+}
-+#endif
--- 
-2.53.0
+> diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+> index 157bf4b812020..d83df5ff68f4a 100644
+> --- a/arch/arm64/kvm/arm.c
+> +++ b/arch/arm64/kvm/arm.c
+> @@ -366,6 +366,7 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+>  	kvm_arm_teardown_hypercalls(kvm);
+>  }
+> =20
+> +#if ARM64_S390_COMMON =3D=3D 1
+>  static bool kvm_has_full_ptr_auth(void)
+>  {
+>  	bool apa, gpa, api, gpi, apa3, gpa3;
+> @@ -400,6 +401,8 @@ static bool kvm_has_full_ptr_auth(void)
+>  		(apa + api + apa3) =3D=3D 1);
+>  }
+> =20
+> +#endif /* ARM64_S390_COMMON =3D=3D 1 */
+> +
+>  int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+>  {
+>  	int r;
+> diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
+> index 878ea4500c5c5..26ec4751e17e2 100644
+> --- a/arch/arm64/kvm/guest.c
+> +++ b/arch/arm64/kvm/guest.c
+> @@ -307,12 +307,12 @@ static int set_core_reg(struct kvm_vcpu *vcpu, cons=
+t struct kvm_one_reg *reg)
+>  	return err;
+>  }
+> =20
+> -#endif /* ARM64_S390_COMMON =3D=3D 1 */
+> -
+>  #define vq_word(vq) (((vq) - SVE_VQ_MIN) / 64)
+>  #define vq_mask(vq) ((u64)1 << ((vq) - SVE_VQ_MIN) % 64)
+>  #define vq_present(vqs, vq) (!!((vqs)[vq_word(vq)] & vq_mask(vq)))
+> =20
+> +#endif /* ARM64_S390_COMMON =3D=3D 1 */
 
+[ ... ]
+
+> diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+> index e71c1b169b491..fa1ed13daeb92 100644
+> --- a/arch/arm64/kvm/sys_regs.c
+> +++ b/arch/arm64/kvm/sys_regs.c
+
+[ ... ]
+
+> @@ -3269,6 +3288,8 @@ static int set_imp_id_reg(struct kvm_vcpu *vcpu, co=
+nst struct sys_reg_desc *r,
+>  	.val =3D mask,					\
+>  	}
+> =20
+> +#endif /* ARM64_S390_COMMON =3D=3D 1 */
+> +
+>  static u64 reset_mdcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *=
+r)
+>  {
+>  	__vcpu_assign_sys_reg(vcpu, r->reg, vcpu->kvm->arch.nr_pmu_counters);
+
+[ ... ]
+
+> @@ -5416,6 +5440,7 @@ int kvm_handle_sys_reg(struct kvm_vcpu *vcpu)
+>  	return 1;
+>  }
+> =20
+> +#if ARM64_S390_COMMON =3D=3D 1
+>  static void reset_vm_ftr_id_reg(struct kvm_vcpu *vcpu, const struct sys_=
+reg_desc *reg)
+>  {
+>  	u32 id =3D reg_to_encoding(reg);
+
+[Severity: Medium]
+As reported by Marc Zyngier on v2 [1], why does this patch cherry-pick
+isolated helper blocks from arch/arm64/kvm/sys_regs.c instead of sharing the
+architectural system register code and sys_reg_descs[] table as a whole?
+
+Leaving sys_reg_descs[], kvm_reset_sys_regs(), kvm_handle_sys_reg(), and
+arm64_check_features() unshared causes commit "KVM: s390: arm64: Implement
+arm sysreg managing infrastructure" to duplicate the architectural system
+register table and core handling logic in arch/s390/kvm/arm64/sys_regs.c,
+which risks the two implementations diverging over time. Abstracting the
+underlying vCPU state accessors would allow reusing sys_regs.c and its
+descriptor tables directly.
+
+In addition, this commit bundles pointer authentication capability sharing =
+in
+arch/arm64/kvm/arm.c and SVE helper sharing in arch/arm64/kvm/guest.c into
+the same patch as the system register changes, rather than splitting them to
+match the corresponding s390 feature patches.
+
+[1] https://lore.kernel.org/r/87o6ehmkzz.wl-maz@kernel.org
+
+--=20
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106-sysreg-v3-=
+0-75e95980fb10@linux.ibm.com?part=3D8
