@@ -1,62 +1,81 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.182
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793970719;
-	b=taTRMI7MG3yYValfH0dv4/5ZgyOioAqQH0EClopdqELphl8PsidR5WlTwZJgylMvN+kc
-	 AZEl3h+7FiRtBKTJ5oWKM+w6L0U4QkI4EC6B0pVhLcbBxReRSgl/Lkknk5Lt+XAC3gsQe
-	 L1Ate4oRsxDUuKkFmje9fi8Is0bZS6RE5ctR5ywqBNvw7mFbSQfKBGBREJuG1MZzqm91M
-	 o2RxyE49aEC8IB82LzPEh8szZdWZNwLXO4qENv+EyPbQbOkJuz7agmiKSNL8qhE9Ffxwu
-	 i/JlAzYsV75JiK3fzWZkbcQDSXQS3z1nRwZUsRcnv5p9qFoTh4rTN1/xJ1vVdMLprbA==
+	t=1793973963;
+	b=SUwPUIqjOwQWfOLaYor9KMpf349jOKD7FaW0eXRyMbvvRroMSMOneYoyPhUD1f2Y79X3
+	 WIGt1NBIEx19/r7lYQ8Sh5yBtXvgggmlePaKtw8U9Z7IxOtmfz7xl1qvRhdhpPUTrbkcy
+	 s+TdAss2iKyet+FMMi9Qzz1lEbbPiK0uhSzSLfWo6y4taYkBTyQ+27HM0brn2ShrLJ+q1
+	 99M14oDuW648ywGjc3XHhVUEz8YwxbwPwHR7coifbOvVINsbLiTZPsgzWq0yAE4rZqndW
+	 qtjv1yDbuDOmOKJiei0EANGoKV9YLFAJJWXVDFK0U+KXZ/4/xAs5mc8QaYt0/NOgC9w==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793970719;
-	h=Received:DKIM-Signature:From:To:Cc:Subject:Date:Message-ID:
-	 In-Reply-To:References:Auto-Submitted:Content-Type:
-	 Content-Transfer-Encoding:MIME-Version;
-	bh=Z9zRtXHe/J1k/4/9wAeq1n+PwAt+ioXmV3zyjSNrjDw=;
-	b=HETRtqTERejFlDwRcWc6BebILnh68XfD1Hq22tImQdB/9irwzhvcyEHqgj+hXsARGROU
-	 86GkYhGFeaSdPPZ5Q0oUBd5rfbZrvSIon5+YuPw38/dwlDgPjnkozSt7EFoTgG2e4L1Vj
-	 YFhlMzlm5uWCibX1AdfIX1RLsy1Yc7CVcSXU7zhr7PMYLiAMgYpF/DokZfvQSTimZRZ9S
-	 jNNxlqrT7qMrROcheMf2k0+JrIF6wJ0C7GDXcuqzpHoYcqh6bTVqRnqUmC4lGxvqAHg0I
-	 XJHMpUOQ6L1QlxCZh3v7eNWVa3vaYZe5x4HQc9Wu0W84NIKuBhOPeKBPzlFEy9jv6/A==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793973963;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:In-Reply-To:References:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=PuZSxoPIfBuBWYT5kGfR/wiii4e+fymaeZzVU1jtsaI=;
+	b=a+JFyCwSI9FzCZVfV8SDnF+R4rEoTlgXYxOz1pGMvV08dlRJcBVbOcdqvOd3BtSGXr+4
+	 sFY+SAZqaX8TNLvADhye3/j3C/vgUDcmpogfSURHsr5nmdseyrZCXtAgHgU+OqP9RwWBg
+	 uoj1HZJL+pPEXMCTft3QbOQ6Xz3HutaiZ8lj4eOlW0NPVESd/OTUuHMl+9eajcyWxZJOi
+	 nttUxtg70zbUMVnffd95otTb4yXqOLoCPmJFodJqOCMSdFW8Bv+se2yMosVEGbkVp65PK
+	 rQrTRl4WCApaKyJpsfZUY/1NXNE1sku8n3VcUKufEjvMlsyQnI3ElcugG8ATVcXFZ9w==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OVwlr1g1;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	arc=none smtp.remote-ip=91.218.175.182
+Received: from mta0.migadu.com (out-182.mta0.migadu.com [91.218.175.182])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47C20606A326;
-	Fri,  6 Nov 2026 13:11:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=OVwlr1g1
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BEDF1F0089F;
-	Fri,  6 Nov 2026 13:11:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793970719;
-	bh=Z9zRtXHe/J1k/4/9wAeq1n+PwAt+ioXmV3zyjSNrjDw=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=OVwlr1g182n1x45bOXoD6sJakmUWubgrgMrjfowyi+ONkh15lxkNV32o9QI+jYLSh
-	 83YJ00F+GETQD1UzgiOYR4csjrX/UMmFVHV3Wi+ddhhCWOwDsHgpaMANQQ+lCEIGTt
-	 p6gLLk2OKR9SBvkkso57wJ8O8ZgpUwxk7sTE+G8TjbcL0uSmJ9WFypl3apiwNIxWKh
-	 FpjBV68jue16sefLFR840f22D7uMxLd4WBA0yIhuOxZRCRUeENZbgHV/TZ8VqbzLFM
-	 MseNaQVE8VGunt9GjTayJ9NeLe/3Cgs9YB0CBL3mbrGFxPdd0aUdf7IwembiBR9Vo/
-	 tNVBzwBQdsQUQ==
-From: netdev-bot+sinfo@kernel.org
-To: Mahanta Jambigi <mjambigi@linux.ibm.com>
-Cc: andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, alibuda@linux.alibaba.com,
- dust.li@linux.alibaba.com, sidraya@linux.ibm.com, hidayath@linux.ibm.com,
- pasic@linux.ibm.com, horms@kernel.org, tonylu@linux.alibaba.com,
- guwen@linux.alibaba.com, stable@vger.kernel.org, netdev@vger.kernel.org,
- linux-s390@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: 
- Re: [PATCH net v2] net/smc: fix link group ownership in handshake abort
-Date: Fri, 06 Nov 2026 13:11:57 +0000
-Message-ID: <179397071760.488859.2441300053954897931@kernel.org>
-In-Reply-To: <20261106130457.1092203-1-mjambigi@linux.ibm.com>
-References: <20261106130457.1092203-1-mjambigi@linux.ibm.com>
-Auto-Submitted: auto-generated
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F448606A326
+	for <linux-s390@vger.kernel.org>; Fri,  6 Nov 2026 14:06:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 8F448606A326
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+X-Envelope-To: linux-s390@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=KdFDOOwfZpllsNIG61lzpXhrUDjzYe3zHf7j2d/rM0w=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1793973959; v=1; x=1794578759;
+ b=LVdL5OTgDLMIMrDfJNp3W6jbpvLzebf6/nHzDbVsgTI0/F2WoQhDR4vMHHY/shEStctNJS22
+ dd7IxwlftsFazxu7/U6NZrUo2Y07ny27+rcGp8oRXvl5hSd/nIpV9I9I0S59iRX/LC+xgzdwdnv
+ ibgHVLBtX3zy2134lTvrWdOs=
+X-Envelope-To: linux-s390@vger.kernel.org
+Received: by mta12.migadu.com with ESMTPS id 5b86ef43620373c7;
+	Fri, 06 Nov 2026 14:05:59 +0000
+X-Mizu-Trace-ID: 5b86ef43620373c7
+X-Migadu-Flow: FLOW_OUT
+From: Usama Arif <usama.arif@linux.dev>
+To: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+Cc: Usama Arif <usama.arif@linux.dev>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	baoquan.he@linux.dev,
+	rppt@kernel.org,
+	pasha.tatashin@soleen.com,
+	pratyush@kernel.org,
+	ruirui.yang@linux.dev,
+	jbohac@suse.cz,
+	david@kernel.org,
+	hbathini@linux.ibm.com,
+	leitao@debian.org,
+	kexec@lists.infradead.org,
+	linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	kas@kernel.org,
+	hannes@cmpxchg.org,
+	riel@surriel.com,
+	shakeel.butt@linux.dev,
+	kernel-team@meta.com,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	linux-s390@vger.kernel.org,
+	Bradley Morgan <brads@mainlining.org>
+Subject: Re: [PATCH] crash: keep crashkernel CMA pages reserved if activation fails
+Date: Fri,  6 Nov 2026 06:05:54 -0800
+Message-ID: <20261106140556.1667159-1-usama.arif@linux.dev>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <0a3c64d1-2b8f-4e0b-87ca-5397d1aaa3ee@linux.ibm.com>
+References: 
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -66,25 +85,59 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-Hi!
+On Fri, 6 Nov 2026 12:21:12 +0100 Mikhail Zaslonko <zaslonko@linux.ibm.com> wrote:
 
-This is an automated message. This series looks like a fix, but its
-commit messages seem to be missing some information:
+> 
+> 
+> On 04-Nov-26 15:56, Usama Arif wrote:
+> > reserve_crashkernel_cma() adds each crashkernel CMA area to
+> > crashk_cma_ranges[] as soon as it is declared. If the area later fails
+> > activation, e.g. because movablecore= put the ZONE_MOVABLE boundary
+> > inside it, cma_activate_area() releases the pages to the buddy allocator
+> > as ordinary memory. The range is still handed to the crash kernel and
+> > excluded from the vmcore, so kernel data that lands there is overwritten
+> > by the crash kernel and missing from the dump.
+> > 
+> > Mark the areas with cma_reserve_pages_on_error(), so that a failed
+> > activation leaves the pages reserved: lost to the first kernel, but safe
+> > for the crash kernel to use.
+> > 
+> > Fixes: ab475510e042 ("kdump: implement reserve_crashkernel_cma")
+> > Signed-off-by: Usama Arif <usama.arif@linux.dev>
+> > ---
+> s390 hits this without movablecore= (adding the s390 maintainers and
+> linux-s390) since ZONE_DMA ends at 2G here.
+> CMA tries to reserve areas above 4G first, but falls back to lower
+> memory when it doesn't fit, so a cma area can end up across the 2G boundary.
+> I ran into this while adding crashkernel=,cma support for s390, which I
+> will post soon, and came up with the same fix.
+> 
+> About dropping the range instead, as you offered for v2: I'd keep this
+> version. With the range dropped, the kdump kernel gets less memory than
+> configured, and that only shows at crash time. With this patch, the
+> the first kernel 'loses' the memory as with a regular crashkernel= reservation
+> of the same size.
 
- - How the issue was discovered, e.g. hit in production, hit during
-   development, syzbot report, manual code inspection, LLM or static
-   analysis tool scan.
+Yes, I do agree with this. Losing memory in first kernel is preferrable
+and it will then force someone to fix whatever is broken rather than
+finding out when their kernel crashes.
 
- - Whether the issue was actually triggered, or is only theoretical
-   (e.g. found by code inspection). If it was triggered please include
-   the symptoms, like the stack trace or error messages.
+> 
+> There is a second problem in the same loop: all areas are named
+> "crashkernel", which breaks the CMA sysfs and debugfs entries when
+> there are several. I've sent a separate fix for that:
+> 
+> https://lore.kernel.org/r/20261106104309.3669583-1-zaslonko@linux.ibm.com
+> 
 
-Please do not repost the series just to address the above. Instead,
-reply to this email with the missing information, so that reviewers
-can take it into account. If the series needs another revision for
-other reasons, please include the information in the commit messages
-then.
+Thanks! I reviewed this now.
 
-The evaluation is done by an LLM so it may be wrong, if you think
-that is the case please reply and explain.
+> Reviewed-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+> Tested-by: Mikhail Zaslonko <zaslonko@linux.ibm.com>
+> 
+
+Thanks for testing and reviewing!
+
+Usama
