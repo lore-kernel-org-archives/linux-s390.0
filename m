@@ -1,58 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793997220;
-	b=vZMOMaCiIjk+TQUz0YwGTS+3h3BcEtyuPfHolOXivjhHWy6AOgPTXWLk+BS3ya5OaHJd
-	 cZjP5FTJOGU2voo/lrZk+s7IlmB49/Mva5B+LE2KDM++L1CdJG242s57Y1Xt2Xa5azqgN
-	 MAh7KXQx+lzmlW3hBrNjHjas9PPR2Fu9XwbpeDgDqsvzo+1HMWfUT77JUy6cQ76kMHOUU
-	 qu8AIDYo8n+7Oe9Xvq9XTGqR4oZiNHiX6jAQq5VsfOajlJiRoL6qw75O3sUrMB7ITPzpa
-	 sLsW+HcPytc9xv9nTzicsOVAy2cJxlD3tsuguQv78Wew9TojRe83eKkeNA0siA+4Z3g==
+	t=1793997221;
+	b=cmF+EC6MJdNDi5JNruboEMsn76cz9cq+k7iNaaVn8skQCEAFlP31iDCD8x3q5me+Jb/F
+	 HI+Acj5/fyS3yM1XyJLndIFyVuXC5mu5Ct758bfVqd2KMX7di6U9fitDv0q/FOH0aD4Ji
+	 KLclvcZ9kdmasef/rZ/fWBq+qTM+2boNEvi54I6xNTfc1zZCdJgADEX+pSrTi3FCHGtzJ
+	 iA4ti7vCHekMSLz87zC7DZI7OAXJw0KDYFx53Cu5b+zDw//S5NOkm+Xjtnvm52tyQdFuM
+	 maJLgSAwa0QKQb/eE9zuaotMu/qh+wlviGM7nSRy9KYOT1nZezNiaapymSQJDdaEtZg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793997220;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793997221;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=97CsXCcghL4nDx0dXWoMCvGVXXNqaL9oSUO5weKHTWo=;
-	b=T7g5RNAg+qyYis0y4YxHZJKi855lkPXSjBhs0pmrmmoWqcjQbS5SP7FHG3CBxOI4kqnt
-	 b0abmD5ut4ATY8irIcrJRtTUQks0xcy6pCclKzjMCI8uefZAqeaoq0qiCx5LO27xyptuI
-	 U9UrmWKVL5xYUKNeUFqfiPtAej2U+h5StPsHPnByH/eHMTlQ6n5xSj7QETUa8are/BjFw
-	 SJKaAp46N9kpXLxvDwEqroZydhq9yCZ8R2rXDxl0G5G6Armrl2WnSLveQqcK2WyUcP7/m
-	 zxOPsOvB3a8JrBz4iS6nZxvFshexdRGSRASbU3/jeclfKzcDBP3CXpwU4ONRO+dJmtw==
+	bh=0IHaW5GwwXjDDhF4J/HrSfBXZQUtgzdWlgSKuUbuekE=;
+	b=D+2asS/wQ/2kBWVqiIezFg1Z/LtGkv39tWZXxV++reQ1nccXlOcs+CyEyL8hvDUU1R/w
+	 5D7VmO79NjOpi9pDJbPd+UZLrJkavejNb99ovoRRtrRztm23VjLDzvqlAexNSQ/DBr4xM
+	 pwlJG2CvkkLoEko9T9H3p1W9uRb8zp6nyLL5w+lLdppR7Sau1dgLoft+DBZ6Z4Q/7WiHp
+	 PStvi+/qaO7419JI2qRV/n/EBGQnsRsJ7+tlAixvypaXb0t4CjKp+4zpTfvJ1xGJi4J63
+	 637zXsU0BdrGV448GCiI/nehnBIzNXvikUBUTW6aSbubfGfPnWt7ZqzcC+azp1Sm5gA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QX+X0ABV;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eS73N3lx;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81572606A32D
-	for <linux-s390@vger.kernel.org>; Fri,  6 Nov 2026 20:33:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80024606A326
+	for <linux-s390@vger.kernel.org>; Fri,  6 Nov 2026 20:33:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=QX+X0ABV
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 199281F008A1;
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=eS73N3lx
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0A9F1F0089F;
 	Fri,  6 Nov 2026 20:33:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793997220;
-	bh=97CsXCcghL4nDx0dXWoMCvGVXXNqaL9oSUO5weKHTWo=;
+	s=k20260515; t=1793997221;
+	bh=0IHaW5GwwXjDDhF4J/HrSfBXZQUtgzdWlgSKuUbuekE=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=QX+X0ABV+nx6h4RCNJ1pf+6RwpymcXOFBk2gLUcqkoj79+cAn0jNFWg0ijhLmS/dH
-	 oeneWOA3O/DVl94KmdoaSVi/hsbg/QQS52K1ZU6eBYgsiE+FX940yIdrOqDvr/BLZ/
-	 OKbsrICmC5K2thDcLmYw64YEJRbdpwy+QR68EqEhEV4iegfu+j+nV7qpe8Uq4/4cnS
-	 EHUZ2DMNKXmFe3pEh6246RszYxySTfb1jfnz4ayuz0cr4sB1nsM3od4LDpfbPO0FTb
-	 EIWCJyYrb0nZpb9RFstWtiWWH1VjwE2ahHtcqWtVsefrRnh2CBInnvOzi1pbNevkRv
-	 I4WS5ih4uRxFw==
-Message-ID: <sashiko-outbox-202221@kernel.org>
+	b=eS73N3lxDi4EIYnBiLxt2sybsmPTNII1i3Jh2JFT9meOg2/hUzVFRo6sZKKdbwoA7
+	 XV+ku8dMqpDWbnGoB61OpKCe7xbFkIFjwfA/9+BV3a5kxr/jE1M/qlLb0SY20q8rD8
+	 GWGpGJZk9Tcgq7BtNEvgvmaenrGPIzM3u2Jq5wtFpqF7XH4ejxH4ninKzEEqudWEpo
+	 oWDEH2DnT3MKJwL8WE8D8Rk7YQ2/0MbXfBa3n3HMboHtQfb9STu1m+ocL2RqX8laE/
+	 GMmwanQ3s8XU3IBj9wIzRyCP60VqD4gvqWiaTeow2UkiuEGfML8uV2qIYsCuEnJDFw
+	 Y544B7CcJ/j4Q==
+Message-ID: <sashiko-outbox-202222@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [PATCH v9 08/15] mips: Use the common syscall table
+Subject: Re: [PATCH v9 09/15] syscalls: Add an option for offsetting the
+ common table
 Reply-To: sashiko-reviews@lists.linux.dev
 To: =?utf-8?b?QW5kcsOpIEFsbWVpZGE=?= <andrealmeid@igalia.com>
 Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
  Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
  Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261105-tonyk-syscall_table-v9-8-8d1275885d9c@igalia.com>
+In-Reply-To: <20261105-tonyk-syscall_table-v9-9-8d1275885d9c@igalia.com>
 References: <20261105-tonyk-syscall_table-v9-0-8d1275885d9c@igalia.com>
- <20261105-tonyk-syscall_table-v9-8-8d1275885d9c@igalia.com>
+ <20261105-tonyk-syscall_table-v9-9-8d1275885d9c@igalia.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 20:33:39 +0000
+Date: Fri, 06 Nov 2026 20:33:40 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,22 +63,11 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Syscall numbers from 403 are shared with all architectures, so move the
-> toolchain to use the common syscall table and remove duplicated code.
->=20
-> The generated files are not exactly the same as before, but they have no
-> functional changes:
->=20
->  - For O32 ABI, the syscall table would have entries like
->  __SYSCALL_WITH_COMPAT(403, sys_clock_gettime, sys_clock_gettime)
->  which is equivalent to the new entry __SYSCALL(403, sys_clock_gettime)
->=20
->  - For N32 ABI, the syscall table would have entries like
->  __SYSCALL(413, compat_sys_pselect6_time64), which is equivalent to
->  __SYSCALL_WITH_COMPAT(413, sys_pselect6, compat_sys_pselect6_time64)
->  given the new __SYSCALL_WITH_COMPAT() definition for N32.
->=20
->  - The above applies for N64 ABI as well.
+> To better support architectures that doesn't share the same syscall
+> numbers, but have them in the same sequence, add an new option to offset
+> the common syscall table numbers by a value. This make it possible to reu=
+se
+> the common syscall table for alpha.
 >=20
 > Signed-off-by: Andr=C3=A9 Almeida <andrealmeid@igalia.com>
 
@@ -85,5 +75,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105-tonyk-sysc=
-all_table-v9-0-8d1275885d9c@igalia.com?part=3D8
+all_table-v9-0-8d1275885d9c@igalia.com?part=3D9
 
