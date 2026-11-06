@@ -1,78 +1,78 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793983811;
-	b=MCTrH41dh+Zu7sfBPRLZVun+qP7KnNLCmGLLIQaNZKfrdnMW1m51oW/ALn69VpcQL4Kl
-	 quvq09rezA93wOag9y2ctWZ86o2i3ExBLxYh4GFqzuSR7JmdKHVulipwmgFDFqhUjPYhJ
-	 yefSziff+FFV0nsVNQs4fJgiPrcuAlNvU9HFdMOO4Tlzw3GPQecuoGh0uLa6H2pBEp1Av
-	 FtKGRwv80w3xBwZM+YchXegRae6QeCrohzaUmzwflL3g4JeO8nMF3gZYo6f8aN+e3ViQI
-	 MTDJSzmOJNZW4PxtOvaVAeeyNXT8kRgWTDCPOuOsBQmHRAwVrbPNdTjLGomyNaSOm4g==
+	t=1793983816;
+	b=ie5AsAGavW2aL03Nv+SNgcC8pJCi1uE4O4dI7DhBa4uBVblUPbTlw6G0nPRm9valiyok
+	 Zu6jzrWusBPpCiFjgIMlspcnjyDhEnC0ya1JKVhL5jjseMD2z0Qa4J1fsi19pypXCtyRF
+	 WdJ24KP6ALjRG5Iroi0HWXSHFvriBXtvnwQZ3GTp8iiW3cc83SQGuHP/+ZOyGlx+92hgT
+	 xetiI1jmKT301Q07pRQlBg/yUezyRAs+lnS0LfAXBrkHXLmdQenyvP6qYcgQYMZPfPpyv
+	 snpvO0wnrdwZRGFppozl863iuI6EI7YInFSdFCjGy0Ntr4lIUvP79RgYTRhuxW/sTRQ==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793983811;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793983816;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:From:To:Cc:Subject:Date:
 	 Message-ID:X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding:X-TM-AS-GCONF:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-GUID:X-Authority-Analysis:X-Proofpoint-Spam-Info:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-Virus-Version:
+	 X-Authority-Analysis:X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
+	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
 	 X-Proofpoint-Spam-Details;
-	bh=PeQihC3y7/REzVrQYHI/7rfz49AoexqILKgTo689pzQ=;
-	b=SoVNq4bFieX6QsA/u5XMjE+D9AIdqchBkfF7UNpiSpFyQ0/LDn3uGT2BaAdhKSfxxSH2
-	 j2Uls53Plp3PVhCV0hEKbU/c99UMW/qSHq+V/INIetETpx6EUCUSuaiZcB6OIwCAp1Yqi
-	 mkGZfmed0ISjkQk9I6PFH0+elvIRySOnueXCiuwu8gjtpDG4aeWUoJ2dBzqhYFB9DYcvZ
-	 0C/FWTh+faTsu/Uy+y+QKMnlLp4JArlxkQYeMfnfwSVOAJFs/neHXexUThjZfW9ZmlSne
-	 KxLOMzMUOioHFXXHhSprcxU33Zj4hpyP+sdlx5xrK9Iy5CQYpQxHcM87z6Zk33ItU4w==
+	bh=gvwAesyibltb58QjTUBJhLVL56XUqlkhJBEIlWNhHG0=;
+	b=syKw4gGoddUfo2Fgx2IHNVe7bnDC8lMf6thcFC+KrteoCPa78hmM6tmRR9yV7hjlhqiI
+	 3AFN5RvoVM5jD5kLBJ9TfhuM21TJxl1yk6oAatXYukloeN0PupKKSMUL7NIYTCrIiVALl
+	 fsjjueiw9aJGAGA8rXzSiIlygfcsvKT6aIYhLeXbUv+dB1ZMecxZLOhAiRU5jqPywlmSW
+	 PU69c7QZxajUC5luc4qgFFkYyPc5vRylhtI4S28GjrIRFWPVlgcqxSz7AsXXc4PMcoSt9
+	 uxAGgXnuaKUTzZV42+MAkWFjjNFGwjW+GPVO5MQ/o/fpb8QR929DqARJWnqU5S2wdsg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=fBrZbmNB;
-	arc=none smtp.remote-ip=148.163.158.5
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=f1kIkAWS;
+	arc=none smtp.remote-ip=148.163.156.1
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 125BF606A326;
-	Fri,  6 Nov 2026 16:50:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 125BF606A326
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 449A6606A331;
+	Fri,  6 Nov 2026 16:50:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 449A6606A331
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=fBrZbmNB
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6FEMpL1544506;
-	Fri, 6 Nov 2026 16:50:06 GMT
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=f1kIkAWS
+Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6FEEV22936024;
+	Fri, 6 Nov 2026 16:50:13 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=PeQihC3y7/REzVrQY
-	HI/7rfz49AoexqILKgTo689pzQ=; b=fBrZbmNBPscBupYva1w8Un73+pGyTclNq
-	oOV6noQ9s1YFDXfk24n0dAM627PtK4dP236eGxgZcwwOrQyPF1lXBpV6/Yk3Viz9
-	WiBDo/7b5Yvbo+sUa7sFzMtsOWI4M59N9qRmp/7Ae5uSY3Nt6oBJoefcG7KH+3yT
-	/XELuEm2e7qfBwbgpm/QA5G0kJm7Dl2LQEjH8wjYXm47qkOPFCuIjaFnIIAeV7he
-	JZuDqUFOFAMO+5/HctxrNvcSOXrStzDELdXOX85b7126Xtinw1mD8ADS98nMt8vI
-	pCui/BamutmaJb4tf+eNX1ScLpBZuiwwr07qGOxz+nW1H1ztUZjlA==
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hs3rbwvr5-1
+	:mime-version:references:subject:to; s=pp1; bh=gvwAesyibltb58QjT
+	UBJhLVL56XUqlkhJBEIlWNhHG0=; b=f1kIkAWS2imWQvV1AGr6vpMVik06l5oUF
+	OZlNFvE4SUQhCOlqwCX57+SQl7G8+YTwyy16ExjViwofi11cu555u0RHvJxbUU/P
+	1xtWsvzBEGhx5Qs1smW5GLa9tANe5lugH3g6wd2M8LAelQLiEycah2ugBXsU+kQa
+	TRs00At7t3KjGkQ1CY5cylRZzQAaFUyLyyG2CQ9aoDvbfbGd/nLYGiDDXSgBTldo
+	xOuaJlkiwi+rB7A8Iv0OY8wtMrsGsbZyifhUPzTyq3/gHIS/YokIvmNNPhR3gjTI
+	FApwNB/u6wSXydoOhirO1IjfrVMhpii/2hmpRTjBzXDSgno341dVw==
+Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hs3rcdy7y-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 06 Nov 2026 16:50:06 +0000 (GMT)
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6F4ssW3584921;
-	Fri, 6 Nov 2026 16:50:05 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hrka72gt5-1
+	Fri, 06 Nov 2026 16:50:12 +0000 (GMT)
+Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6F4tS32390103;
+	Fri, 6 Nov 2026 16:50:12 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hs7h149vy-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Nov 2026 16:50:05 +0000 (GMT)
+	Fri, 06 Nov 2026 16:50:12 +0000 (GMT)
 Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A6Go4HD10748456
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A6GnLbw27263662
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 6 Nov 2026 16:50:04 GMT
+	Fri, 6 Nov 2026 16:49:21 GMT
 Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C43FA5805A;
-	Fri,  6 Nov 2026 16:50:04 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2E3075805C;
+	Fri,  6 Nov 2026 16:50:10 +0000 (GMT)
 Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 5BBFD5805F;
-	Fri,  6 Nov 2026 16:50:02 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id BAA645805A;
+	Fri,  6 Nov 2026 16:50:07 +0000 (GMT)
 Received: from b35lp69.lnxne.boe (unknown [9.87.84.240])
 	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  6 Nov 2026 16:50:02 +0000 (GMT)
+	Fri,  6 Nov 2026 16:50:07 +0000 (GMT)
 From: Christian Borntraeger <borntraeger@linux.ibm.com>
 To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
@@ -87,9 +87,9 @@ Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>,
         Steffen Eiden <seiden@linux.ibm.com>,
         Gautam Gala <ggala@linux.ibm.com>, Marc Zyngier <maz@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [GIT PULL 1/6] KVM: s390: fix ESSA addressing exception injection in migration mode
-Date: Fri,  6 Nov 2026 17:49:53 +0100
-Message-ID: <20261106164958.431978-2-borntraeger@linux.ibm.com>
+Subject: [GIT PULL 3/6] KVM: s390: arm64: Turn vcpu->arch.pause into a counter
+Date: Fri,  6 Nov 2026 17:49:55 +0100
+Message-ID: <20261106164958.431978-4-borntraeger@linux.ibm.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20261106164958.431978-1-borntraeger@linux.ibm.com>
 References: <20261106164958.431978-1-borntraeger@linux.ibm.com>
@@ -104,96 +104,73 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: GNgYzOxJrzsxzRgrK08rlXUtsPVX_5UL
-X-Proofpoint-GUID: GNgYzOxJrzsxzRgrK08rlXUtsPVX_5UL
-X-Authority-Analysis: v=2.4 cv=MqLHeGae c=1 sm=1 tr=0 ts=6aee053e cx=c_pps
- a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
+X-Proofpoint-ORIG-GUID: QV6XP1_WQY7mNAMYtrwW9fT5__I7MRII
+X-Authority-Analysis: v=2.4 cv=A635rKWG c=1 sm=1 tr=0 ts=6aee0544 cx=c_pps
+ a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
  a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8 a=DC66tu63K5JfY2WZsL0A:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA2MDA2NiBTYWx0ZWRfX2bxiJUEcac1U
- ZXZYSDaKpFZlYm4n1UHBs4rb+mwt5Mb5qsaOdimAw6a6vU+0fpARhjCoph+EY3SX+al2qGE+fjY
- 0Ylq2Ho/J7finuijvSwfSQOpa3diljU=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA2MDA2NiBTYWx0ZWRfXxXH8qY2xUl/k
- yC0JFxHB5ZVGDbEnadiKFad0kz5PBN1cFy0zgRsFr7/5FFlIxHYIpvPlQRrb+dy/mEeanrj+w6n
- +gsc6l4Ve/okX4fn3zODCkeeNFGYHnEMIbXD0R57S8Ul08HOK9TtlXbb28QdIbrh8i5jhNU7ueX
- aMRQJr3RVapi5ZmkDxwEltQZfKQWo3aaN4d+npt8LW8t/lL5iYC4K/mhRbg11OwvotSTDBlTclS
- WBBKjq1C7mgC5LwmycorZX6YYfAXkH3j0DaPJy0KezImC5oKflZTKKyyn3oHlhg0gNLZz35NLuk
- 5LPif6nlPQQz+Gz2GfppLhoCO390GcGNwyYVPg77dWemSqdaGRF/AJF2eq0gpqbAyrLhSfIMhLO
- xCv3M9CyM2HtKVhqWgk+it0YAxvBV3rd42nZBOmQ8FoefGgN2rjr3tQdBjWhPrs5cHPSNA335ZP
- xtBDWO2+t4/dY8LHpkA==
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=VnNF1IyMAAAA:8 a=VwQbUJbxAAAA:8
+ a=3n9Dgo04BRxGV_azSxAA:9
+X-Proofpoint-GUID: QV6XP1_WQY7mNAMYtrwW9fT5__I7MRII
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA2MDA2NiBTYWx0ZWRfXw9HjwOAkSkPs
+ 00phZEETldE2MXu1ouD2YS7/vT+Bv3OexR6H58dcj9OzVTXZEm9qFx8JzCBEQwUgARtLMb2jGPC
+ K8Ck+rY53RD0MmttfVQVu327CArb4V43dNfW7MXL1UrdN9SLr9h0f8qCdMMoHfLf3GDNv0w4zca
+ 80Kx6jiLq8qj61DBx3myjlwN6+WwPQgaE3B39Acyecf88u7d8RnqzcJPCYd1d5vXExKAv4zMDUu
+ 9hEHa/R3eK06C0S2Uhn/VXBfM2sInWNP++475Mfn7qjxR8VUyXpdkpU1V4MKDA2pWaFgYrH6SVu
+ ogDycnAue7r/VfkFt8bBX/OqMkF8KnLkRCj22vNZYyakaW9VeHx8OIFn+OA88QjQ2kZx0YFNbyN
+ llxgm1qOLk4HopAg4PTOTGG6W1k793HewajB0EQzf34WbfWaMIS63SGG5tZ8x2bQnbb5VJINDtb
+ rxKBgxQSW8MbQGok2wQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA2MDA2NiBTYWx0ZWRfX+EVfAly4B5z3
+ ny1EwvIa1CUPTD73qGHEPPxlurCTTLf4L19B8hpXvGFKzCHCzCasFnOrjNe9iCsPnoGSDen+efw
+ A9vJmgIfykEIJToAo/wh9ryG16+Est4=
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-06_05,2026-11-06_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 phishscore=0 priorityscore=1501 adultscore=0 clxscore=1015
- malwarescore=0 impostorscore=0 spamscore=0 lowpriorityscore=0 bulkscore=0
+ bulkscore=0 priorityscore=1501 impostorscore=0 phishscore=0 spamscore=0
+ malwarescore=0 adultscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611060066
 
-From: Gautam Gala <ggala@linux.ibm.com>
+From: Steffen Eiden <seiden@linux.ibm.com>
 
-__do_essa() treated any negative return from dat_perform_essa() as the
-normal "no CBRL entry appended" case and returned 0, so a page-table
-walk failure silently dropped the addressing exception.
+The s390 arm64 vcpu struct mirrors arm64's kvm_vcpu_arch. When commit
+e64309198eda2 ("KVM: arm64: Turn vcpu->arch.pause into a counter")
+changed the type of kvm_vcpu_arch.pause from bool to atomic_t, the merge
+into this tree missed the s390 copy, leaving it out of sync.
 
-Return -PGM_ADDRESSING on a walk failure and inject the program
-interrupt in __do_essa() for the -PGM_ADDRESSING return value.
+Nothing on the s390 side accesses vcpu->arch.pause yet, so this has
+no functional effect. Align the type to keep the mirror identical to
+its arm64 counterpart.
 
-DAT_WALK_ANY is required in the dat_entry_walk() call so that a GFN
-backed by a large page (segment or region entry) does not return an
-error: the walk stops early but succeeds, leaving ptep as NULL, which is
-already handled by the existing "set exception state, return -1" path.
-Without DAT_WALK_ANY such addresses would fall through to the new error
-path and incorrectly inject PGM_ADDRESSING.
-
-Fixes: e38c884df921 ("KVM: s390: Switch to new gmap")
-Reported-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Suggested-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Signed-off-by: Gautam Gala <ggala@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Fixes: e6c329180d1d ("KVM: s390: arm64: Introduce host definitions")
+Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
+Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
+Reviewed-by: Andreas Grapentin <gra@linux.ibm.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 ---
- arch/s390/kvm/gmap/dat.c  | 5 ++++-
- arch/s390/kvm/s390/priv.c | 2 ++
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/kvm_host_arm64.h | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kvm/gmap/dat.c b/arch/s390/kvm/gmap/dat.c
-index ff80d02c9f564..a2031aece4ed1 100644
---- a/arch/s390/kvm/gmap/dat.c
-+++ b/arch/s390/kvm/gmap/dat.c
-@@ -1084,6 +1084,7 @@ int dat_set_prefix_notif_bit(union asce asce, gfn_t gfn)
-  * * %1 if the page state has been altered and the page is to be added to the CBRL
-  * * %0 if the page state has been altered, but the page is not to be added to the CBRL
-  * * %-1 if the page state has not been altered and the page is not to be added to the CBRL
-+ * * %PGM_ADDRESSING if the guest page-table walk failed
-  */
- int dat_perform_essa(union asce asce, gfn_t gfn, int orc, union essa_state *state, bool *dirty)
- {
-@@ -1092,7 +1093,9 @@ int dat_perform_essa(union asce asce, gfn_t gfn, int orc, union essa_state *stat
- 	union pte *ptep;
- 	int res = 0;
+diff --git a/arch/s390/include/asm/kvm_host_arm64.h b/arch/s390/include/asm/kvm_host_arm64.h
+index 82343e723ebf4..a3e40650d75d0 100644
+--- a/arch/s390/include/asm/kvm_host_arm64.h
++++ b/arch/s390/include/asm/kvm_host_arm64.h
+@@ -63,11 +63,10 @@ struct kvm_vcpu_arch {
+ 	/*
+ 	 * Don't run the guest (internal implementation need).
+ 	 *
+-	 * Contrary to the flags above, this is set/cleared outside of
+-	 * a vcpu context, and thus cannot be mixed with the flags
+-	 * themselves (or the flag accesses need to be made atomic).
++	 * Contrary to the flags above, this is updated outside of
++	 * a vcpu context, and thus cannot be mixed with the flags.
+ 	 */
+-	bool pause;
++	atomic_t pause;
  
--	if (dat_entry_walk(NULL, gfn, asce, 0, TABLE_TYPE_PAGE_TABLE, &crstep, &ptep)) {
-+	if (dat_entry_walk(NULL, gfn, asce, DAT_WALK_ANY, TABLE_TYPE_PAGE_TABLE, &crstep, &ptep))
-+		return PGM_ADDRESSING;
-+	if (!ptep) {
- 		*state = (union essa_state) { .exception = 1 };
- 		return -1;
- 	}
-diff --git a/arch/s390/kvm/s390/priv.c b/arch/s390/kvm/s390/priv.c
-index 856939acf012f..b252c812dcbe7 100644
---- a/arch/s390/kvm/s390/priv.c
-+++ b/arch/s390/kvm/s390/priv.c
-@@ -1169,6 +1169,8 @@ static inline int __do_essa(struct kvm_vcpu *vcpu, const int orc)
- 	entries = (vcpu->arch.sie_block->cbrlo & ~PAGE_MASK) >> 3;
- 
- 	nappended = dat_perform_essa(vcpu->arch.gmap->asce, gfn, orc, &state, &dirtied);
-+	if (nappended == PGM_ADDRESSING)
-+		return kvm_s390_inject_program_int(vcpu, PGM_ADDRESSING);
- 	vcpu->run->s.regs.gprs[r1] = state.val;
- 	if (nappended < 0)
- 		return 0;
+ 	/* vcpu power state */
+ 	struct kvm_mp_state mp_state;
 -- 
 2.53.0
 
