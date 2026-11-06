@@ -1,59 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793926449;
-	b=kYL+XmbFmfgOQqde9Uns/lVMPajckBkCXAs2Sbb0kMoVkGMyPtmdsVqSAfcPP45kAJvH
-	 tnDaNpHj/cXjM3Exf2c+zE7SvHnHopVV3R+Si83LYOnKWZpVw93JR8w5Qu7/kgiu+fX7H
-	 wrcpxqaPjZ3DoUJZhI3EQUQtXktsMXJGZGexSM9Qg3Wwi8zHzVdh9AXnv896GNCqdfZEE
-	 cBXQum8M8gMXwb4otDhF7QXJ3emxG5F9OfCjIPX+sh71RilBexxm1j5GEF3zVB7zPik7Y
-	 6Y3mY4IXcTwDW6yrplq/WlRFD7owIisCloJzY1w60Qy4U+HsUNVvFX1EEn0/rXrekRA==
+	t=1793926451;
+	b=hGJCIN5tsCZVCuv8jrrkGkVAqE6rB9CpHLPtTav5+h9tEgS0rrjQa9/h5NYjFpa/HSOy
+	 mzkdYM3ZFWuFrATB5JlGmu3k3VVAS3ykRF7y2RzxV89BZD9Pi1rCEWcsdr9U1acX3AN1K
+	 fA7S/m7JYWTjRPtly/25OE/sQZLSmNz7IcMclhC2QcpaOIGQHvLE6j8vdw+so6NY2SICq
+	 FNNyzy6vTiL52LdB58W7CVIDuLj5eW+22+0/c1GNfV7WpQhOhdgmRsOUQv4CKj2NeVuWR
+	 Qjxb0N5U2tP96GZJchsfp7TPXLFPfGJdQ0m/MxWLM0kETBz+aq366jrlUs96OSlXTUw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793926449;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793926451;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=OebrSLQ65etwomxUDseEIJVL9D9Oxa+/lHk1B03ekB4=;
-	b=m6C66qmEXGIdbcp+HVKLpPSAcCVn6xqAEF9914Qm1PACtpWL9lbnLZffN2ytqUxlQBQG
-	 urMEVLVzcVqydP/2+Z9G4ZwVVTJA6SPomiPmU7x/2GtLGi9hpy5fmDSsmnn9x90AcqFuT
-	 AkxnxhniQF4V1Q4f0YY327EoZfCM/RnHKceUBlXBs32kGpW4IxpXG5w/EQPWjmAhTKcaA
-	 1BB5n+nf3Ud1Cft7olM246GBZ7l0BbIHdOE0nXgAKsyb0UlATr+KcVyX6u/MB83Iis+C0
-	 r1o7gNqTewgSfK2BTtDcElk4rCSzwS0wblpEvzufUG+v1XxXQUY8mlxWBh2p11roTNw==
+	bh=2nihGnGj8fzImesesmLeHZoAcJKpuQC7+/ytcZs2Kfk=;
+	b=1hcEMs8NXQL1VqbYvqbe70nX6gauV44H6OWi9MYyK8xX+ursWFsVA5HzD3Ui2pap3XRP
+	 55O1Jo5vRekKleJcVNf2GAvO0184Wa1jn7JQb2mPBOK91vbYXxuZWSnJC/e0w5nhxoRFy
+	 L82pvWsWBhxxV+zjGZeNW47y67SxfxaLpNDt2IWVmKsfrfoM2PzMAZNehFdCPX3K9ryBx
+	 W0foYNGouqo0kb5KdzLLXvci+d/IFACGgcd0HcxC2FYUBTaDoL0teP1tuS/mx0MxsCUXS
+	 QeBS99yKS8KkDyX7VhHzTD2WM18SGDPF745Zdu+vZncYYKVCzICP7ULk8ekylDsj82Q==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YsqMM4RF;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cgNEVKW9;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 976D1606A326;
-	Fri,  6 Nov 2026 00:54:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DA75606A32F;
+	Fri,  6 Nov 2026 00:54:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=YsqMM4RF
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2354B1F008A4;
-	Fri,  6 Nov 2026 00:54:09 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=cgNEVKW9
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C33111F008A1;
+	Fri,  6 Nov 2026 00:54:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793926449;
-	bh=OebrSLQ65etwomxUDseEIJVL9D9Oxa+/lHk1B03ekB4=;
+	s=k20260515; t=1793926451;
+	bh=2nihGnGj8fzImesesmLeHZoAcJKpuQC7+/ytcZs2Kfk=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=YsqMM4RFCixLf7PQIvgSzfo/FALSaU6cAfxgyO+0D286DVIi6EV2Jtzv2RFlG8aJs
-	 LA+0YYZRtPr4LA+PLfQ4edzbi39MteXJIGecigmQNjbjWlnnjBWpcLcwuZ7+5ojcM1
-	 g8Bd4Lhbm4TV1HUK3xh9F5V0F0VjXVsi0G1/qmvRxQ6jUuOkkcHuTeAMs3qTNMos26
-	 +xkZERNI0Dx9RPuIiLsZV/NnrSnYtEavpuFiswpU7LR5OBiBj4lm+7KnVnYYbxYkxU
-	 onY9H9hU0JNf+H1ye37VBz/4G3v9pjBqCm34s2+H/U1wqQwCRd9K8DdH8z4Bp3BzzN
-	 oBt0u5tZtcLzQ==
-Message-ID: <sashiko-outbox-200460@kernel.org>
+	b=cgNEVKW9hc7jlAx09pl0+ANE3RGHrI7v9wPRrsIBz11WDei6wt+UKQk+vZnFZnSut
+	 l1JQSw1UGu14Wr43AUOaIWYTLCo5JeoJui1IIuJ/CDieH2DH6UtbkjJW88CjbeuV4Q
+	 galRm/4azY+haPJf2Qs79m6679/diux3gvssGQ8d77g3//qTKRfBAgLesk/cqlTINq
+	 2bJl5clRJY1vzgs9ClxVagCHxNTGROq6WJOmsp/e4SLw+XO2n62rgqxG0hVwFuzMxh
+	 8EFmdZcBjWA6+4vSLTxrY7xJDNReFIyrHvcvkVfPnFPGqO1TvH1J6A2Vvsni7w0X45
+	 MswGBv0ppGOJQ==
+Message-ID: <sashiko-outbox-200462@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v3 05/11] s390/cert_store: Start tracking subsystem
- keys
+Subject: Re: [RFC PATCH v3 07/11] KEYS: trusted: TEE: Synchronize session
+ lifetime
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jarkko Sakkinen" <jarkko@kernel.org>
 Cc: linux-s390@vger.kernel.org, linux-security-module@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261105005311.804098-6-jarkko@kernel.org>
+In-Reply-To: <20261105005311.804098-8-jarkko@kernel.org>
 References: <20261105005311.804098-1-jarkko@kernel.org>
- <20261105005311.804098-6-jarkko@kernel.org>
+ <20261105005311.804098-8-jarkko@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 00:54:08 +0000
+Date: Fri, 06 Nov 2026 00:54:10 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,14 +63,18 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> cert_store refreshes its keyring by unregistering and then registering
-> again key_type_cert_store_key. Once keys pin to the kernel module of their
-> key type, this is no longer necessary.
+> While the sysfs bind attributes are now suppressed, the parent TEE device
+> can still remove the device while the instances keep trusted.ko loaded.
 >=20
-> Register key_type_cert_store_key once during init before creating sysfs
-> attributes, and track subsystem-created keys explicitly so that the refre=
-sh
-> operationunlinks and invalidates previous entries directly.
+> Update the static calls before invoking backend init() and reset them in
+> the case of a failure.
+>=20
+> In the TEE backend, guard session context state with a mutex, publish
+> pvt_data.dev before registering key_type_trusted and sanitize pvt_data on
+> probe failure and removal.
+>=20
+> When an active TEE has not been bound, reject seal, unseal and get_random
+> with -ENODEV.
 >=20
 > Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 
@@ -78,5 +82,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105005311.8040=
-98-1-jarkko@kernel.org?part=3D5
+98-1-jarkko@kernel.org?part=3D7
 
