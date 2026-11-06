@@ -1,82 +1,104 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=195.135.223.131
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793977309;
-	b=l0GfUD0s+W6lk9Sl/i46rQRsz1BHwcRthZFHlrSCiwbs7WKCdWOCQAXCD2mY6CB0gN5O
-	 aXAPh0wfhstx7AEYvh2nElTPArhKGGJRAjTFm3bVKHCSv3NddNaM2zSMu9cLvH2jizs69
-	 f84ZUP5D8CtmB0R+iZoY++HAru50+tNa5lwf33XeOlbksMXwQ7Wrhw4GXPshDWfCG/0yS
-	 h41d0RuOQqARlSgyvN041FUFBwSrxj/6Zk7c7ucM9oVIDY0AZDff1oFZUxx9bxsZFRNN8
-	 jykdGDLAcQc80/Y+5pY30vbbidpfzPf980man6ke170Gcm9iDDtRZW7t5aIXCzyJRYA==
+	t=1793977409;
+	b=fMEWjezyFt4e/KQMTMzgm84qywVHWxN8aKyc+d07zLfQyvok2GS2uTDIBg4EScwDG2mY
+	 XwcgCsjkK0UvOqA2EDUvBaHQ5M7W0I1/YWeDaGOZdUn0Y9MheFgZp6ODmVOXRWB+1HvlV
+	 RnmEz9SPw3DxklRS0VptVcDcUHO4UIQXDkOuBKdPzaZiFvofQ7LfLPdaefGgaRQHiJNAu
+	 ws+Uw/6eIcJlcPeBbBUeCTKTyfXz9NQt1QybctKY40bH6xuCRaGqL5LMZ6HwKAZfN3pBU
+	 d0izc1g/aeAWAmWVXBluedsjQ8O4T3I1Dv0AaKzWRlX3UZxzI8OSJH5m5f5R0fA8nSg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793977309;
-	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
-	 Received:Received:Received:Received:Message-ID:Date:MIME-Version:
-	 User-Agent:Subject:To:Cc:References:Content-Language:From:In-Reply-To:
-	 Content-Type:Content-Transfer-Encoding:X-TM-AS-GCONF:
-	 X-Authority-Analysis:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-Spam-Details-Enc:X-Proofpoint-GUID:
-	 X-Proofpoint-Spam-Info:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details;
-	bh=a+5V2TWWjdIGM55phHUzPvi/R6Wf6wFpaSva/g6FU5w=;
-	b=Gct82dYZTBVdSVJXOTyFkVp/0rUmlr87OoONsM5L7YXEWw/lk9O4gRVr0nrqbJPy/vkZ
-	 WxI2Q0bRdoW6oolRs8oCbTH33VGsTNnlkhBUNPyQNa6b6Z4GfRNuaP7WaKqQrI4CrRt1B
-	 3FRZBf6g1TWnF9EsggJMhDV78ZXjIUKUaruDDmgFgNMJ4esD6vuMCoZdJ7gJlKUJ9RTJV
-	 rZ+bx3OQ88n8bjJFWaXlPy4qJ2tudMEfN5EosUXMAPVJNqcJVc1nMpgnz6PwFPYGETA3e
-	 4DtYxS3+DMWx1bFdPbqUKqXoA56mpuKYE6iixLugHpm/CrVWCsNKTMdH1ZeJfKhWm1w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793977409;
+	h=DMARC-Filter:Received:DKIM-Signature:DKIM-Signature:DKIM-Signature:
+	 DKIM-Signature:Received:Received:Message-ID:Date:MIME-Version:
+	 User-Agent:Subject:To:Cc:References:From:Content-Language:In-Reply-To:
+	 Content-Type:Content-Transfer-Encoding:X-Spamd-Result:X-Rspamd-Server:
+	 X-Rspamd-Action:X-Spam-Flag:X-Spam-Score:X-Spam-Level:
+	 X-Rspamd-Queue-Id;
+	bh=6FoXJI83hjTO3ej0IaD9RjGbYyhgQtVCqkHhpUVyi4c=;
+	b=jcfvwMUD9nx27WsaiGBSpsngaXthCbm+PWF/bIJPXbWA8vJlWQHkrFr8BjWFOyp9RYYF
+	 fXshXnxGhbiXrT9oJeVHyJrwY3WfiCxLQAGV8bjUyy0xOyl6keD0giq1V+EzVLdPU3v9x
+	 UM2T/wqSeEYmtG02tu8EQkrhrpoMrxRiyagZGOp1wPaPoygEeUK/DdVObV+ZhtA0RXTTx
+	 BPva+/o4BR1pCG2/SN21f52yxjAhPRXX0ZawvCv2Wmsxpe8Z0lz0BBjpleEBYZLBArsFo
+	 QsxWduXGH/8tJIGyiD6p18EBqEQmgR3yMehWvr28mQTJ8xQ1espcvDA2PASPzp+YC7g==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=linux.ibm.com;
-	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=KDAmkwJA;
-	arc=none smtp.remote-ip=148.163.156.1
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	dmarc=pass header.from=suse.de;
+	spf=pass smtp.mailfrom=suse.de;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=T99h4t2e;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=A2iRrZUk;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=TrP7zV8B;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=pwChqOUr;
+	arc=none smtp.remote-ip=195.135.223.131
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8782606A326;
-	Fri,  6 Nov 2026 15:01:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E8782606A326
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6DD9606A33F;
+	Fri,  6 Nov 2026 15:03:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org E6DD9606A33F
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=KDAmkwJA
-Received: from pps.filterd (m0356517.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6EiCRY2644635;
-	Fri, 6 Nov 2026 15:01:47 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=a+5V2T
-	WWjdIGM55phHUzPvi/R6Wf6wFpaSva/g6FU5w=; b=KDAmkwJA6GWdk4zhYTbN0v
-	fWq1O/noiMmC1YcznmR3XY/eoqcgruirkERFaaGqxMjLeam9BnUaoSpM7VKandBh
-	JsOa5GWRSPJK+6N6poOh9WbgTswqB5nVMYV3BfIQoMIBHLva6+HdiD1RL9F/jvxJ
-	9Du/FWWPg9HZZyCIqTV5mg3SH+5Ff/NRRc5q69jAzJEWllIW3YAJL23bY8s5ltfy
-	mhINBUdXJf0IllS0iJR8WFqQkr/yKYXyhJffY+tc5SnS/nVO82KNCjpOhwqL6lSj
-	8OUsYzMbBc9hl7dHeinX1Pe/bErgLn42Km7Lvu7K2lR2IOTHebl4mI31DffJRQxw
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hs3r9518b-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 06 Nov 2026 15:01:47 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6EZ6i23578419;
-	Fri, 6 Nov 2026 15:01:46 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4hrdd7u5nu-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Nov 2026 15:01:46 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A6F1ixk65864072
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 6 Nov 2026 15:01:45 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AF4EE58068;
-	Fri,  6 Nov 2026 15:01:44 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0A27B5805A;
-	Fri,  6 Nov 2026 15:01:44 +0000 (GMT)
-Received: from [9.61.114.69] (unknown [9.61.114.69])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  6 Nov 2026 15:01:43 +0000 (GMT)
-Message-ID: <0ec8976f-beca-4070-825f-1f828cecbd35@linux.ibm.com>
-Date: Fri, 6 Nov 2026 10:01:43 -0500
+	dkim=pass (1024-bit key, unprotected) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=T99h4t2e;
+	dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=A2iRrZUk;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=TrP7zV8B;
+	dkim=neutral header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=pwChqOUr
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id C528B1F452;
+	Fri,  6 Nov 2026 15:03:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1793977407; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=6FoXJI83hjTO3ej0IaD9RjGbYyhgQtVCqkHhpUVyi4c=;
+	b=T99h4t2eVaDmcmrjVcu27YVtUhLbvUNfnyHjcqGwmJAK8EY3JM5NW5F64yAYp/wwy8z4CL
+	OQ3ZR7qiT0H/FjFFL5nmUgbhfEZgFD9A5EtEfwwQfjsDhOuOnsVFcTehzefBuemiKXfZT6
+	E8gfqHNX/vfuRnQ1iXGfrwne/66b0go=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1793977407;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=6FoXJI83hjTO3ej0IaD9RjGbYyhgQtVCqkHhpUVyi4c=;
+	b=A2iRrZUkUprSGaX3DSBXtYraW62Mf+y73dvDiOil3BLXplUYqTBbKk5eyLZK8lPx4MkHqO
+	AdHMM067QoKSB0DQ==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=TrP7zV8B;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=pwChqOUr
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1793977405; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=6FoXJI83hjTO3ej0IaD9RjGbYyhgQtVCqkHhpUVyi4c=;
+	b=TrP7zV8B8N1md/3I8OjCcYITIt4ESSWHs0Yz8xJhnNoMmua2OoyrnWj4n7PNXBtu2z1R9G
+	90BoSMUNQDUeYsD97x9WMj89IbtxNHO6Bl24ZQQIgRG5rYGqdWpolgLjdvqds6BCDhpws1
+	YspriT66b/zBgFq/O7crDSGBMle7v+M=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1793977405;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=6FoXJI83hjTO3ej0IaD9RjGbYyhgQtVCqkHhpUVyi4c=;
+	b=pwChqOUrbMtB61kYeSJynpZeIOHohxyjdHnde7E83dlZHSYA2ThLpp3JiZ/YStXID2sheR
+	ThpKDcjnpwj+lDBw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 33B42132C9;
+	Fri,  6 Nov 2026 15:03:24 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id mWThNTvs7Wo+GAAAD6G6ig
+	(envelope-from <clopez@suse.de>); Fri, 06 Nov 2026 15:03:24 +0000
+Message-ID: <8e5f0caa-6292-4a65-ba8b-7ae647dd3b1f@suse.de>
+Date: Fri, 6 Nov 2026 16:03:19 +0100
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -87,233 +109,131 @@ List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v11 10/14] s390/vfio-ap: Transition device migration state
- to from/to STOP
-To: sashiko-reviews@lists.linux.dev, linux-s390@vger.kernel.org,
-        kvm@vger.kernel.org
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Jason Herne <jjherne@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>
-References: <20261102151604.2150055-1-akrowiak@linux.ibm.com>
- <20261102151604.2150055-11-akrowiak@linux.ibm.com>
- <sashiko-outbox-193825@kernel.org>
+Subject: Re: [PATCH v2 5/9] mm/mprotect: keep writable entries writable on
+ permission upgrades
+To: "David Hildenbrand (Arm)" <david@kernel.org>, kvm@vger.kernel.org,
+ linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org,
+ linux-riscv@lists.infradead.org, seanjc@google.com, pbonzini@redhat.com,
+ akpm@linux-foundation.org, peterx@redhat.com, ljs@kernel.org,
+ imbrenda@linux.ibm.com, borntraeger@linux.ibm.com, frankja@linux.ibm.com,
+ Zi Yan <ziy@nvidia.com>, Baolin Wang <baolin.wang@linux.alibaba.com>,
+ "Liam R. Howlett" <liam@infradead.org>, Nico Pache <nico.pache@linux.dev>,
+ Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
+ Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
+ Usama Arif <usama.arif@linux.dev>, Kiryl Shutsemau <kas@kernel.org>,
+ Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>
+References: <20261105165004.2663799-4-clopez@suse.de>
+ <20261105165004.2663799-9-clopez@suse.de>
+ <60c4f0a0-e3c9-42dc-b2e0-0860ab6e30f0@kernel.org>
+From: =?UTF-8?Q?Carlos_L=C3=B3pez?= <clopez@suse.de>
 Content-Language: en-US
-From: Anthony Krowiak <akrowiak@linux.ibm.com>
-In-Reply-To: <sashiko-outbox-193825@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Authority-Analysis: v=2.4 cv=O86sLx9W c=1 sm=1 tr=0 ts=6aedebdb cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=U7nrCbtTmkRpXpFmAIza:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=-kYsNA629sg9qs7RJlcA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: mhXcRIpuLNCY1qhQvrXtfVDI2mGbSLn9
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA2MDA1OCBTYWx0ZWRfXyhQFWCxCqNfD
- o+42zbaQd4GcIxDDtMdU95PzPCqv7LyGeLyQhUDgPKGFcS6l9l7aYo4YKlWwT+NfBZ/clCjLBwd
- Z+EBCVnVv0g06lSPYa/Klt6FXsu5mCAfNQRFBiNqviuL9Xec0bzafmQ0flK9O4KJbNZkRJZd86B
- VIz7R0oGpox+hEpUmoHiQf3xs74fTU40MbRtp9dOzxrnG+vQdcZM3RQkGTIduz34BPII4xxfZ9y
- twP39bqnlQl9eUUYuHKzxidsnIS1HmK2/uohxSWAOcnFF+zWZMBC7m3Jxu3Od8NKbOQqofNlgNC
- IY4f40CfF+fCh0iwhxfdSv5BRPfGZ9NIxPQdfboFoMVCkf4ErmTZ88g8B9XMqzDinR5TgVTQDQP
- KzJNhbwGI27kktZJvR0u2ITZSWqJxf0uKA8nLqS3EDI2lUncIT419VqUD3zOw5PbGvPFZbQ0P7h
- 8y4rXsOJ1EyypbGiDDw==
-X-Proofpoint-GUID: mhXcRIpuLNCY1qhQvrXtfVDI2mGbSLn9
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA2MDA1OCBTYWx0ZWRfX8HQ4JgfXikZE
- xnOZPoI1D44nHzwo5kgq0P/51e3KCV6XeUXQ5HEJHkcHd2KN0p+9fuUMQqERgPE0K6F2UExdsHV
- scYLK/sltV+dNloUYxsirnM999m76rg=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
- definitions=2026-11-06_04,2026-11-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 malwarescore=0 adultscore=0 suspectscore=0 spamscore=0
- bulkscore=0 priorityscore=1501 phishscore=0 impostorscore=0
- lowpriorityscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2611040001
- definitions=main-2611060058
+In-Reply-To: <60c4f0a0-e3c9-42dc-b2e0-0860ab6e30f0@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-14.50 / 50.00];
+	SUSE_INTERNAL_BYPASS(-9.00)[];
+	BAYES_HAM(-3.00)[100.00%];
+	DWL_DNSWL_LOW(-1.00)[suse.de:dkim];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	XM_UA_NO_VERSION(0.01)[];
+	MX_GOOD(-0.01)[];
+	FROM_HAS_DN(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	ARC_NA(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCPT_COUNT_TWELVE(0.00)[30];
+	MIME_TRACE(0.00)[0:+];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:dkim]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -14.50
+X-Spam-Level: 
+X-Rspamd-Queue-Id: C528B1F452
 
-
-
-On 11/2/26 12:23 PM, sashiko-bot@kernel.org wrote:
-> Thank you for your contribution! Sashiko AI review found 2 potential issue(s) to consider:
-> - [Critical] s390/vfio-ap: use-after-free of mig_data when device FD closes before data FD
-> - [High] s390/vfio-ap: fortify panic on chunked writes in vfio_ap_resuming_write()
-> --
->
-> commit 6775fb7f340ff449dd183124e50a9831181c55db
-> Author: Anthony Krowiak <akrowiak@linux.ibm.com>
->
-> s390/vfio-ap: Transition device migration state to from/to STOP
->
-> This commit implements the VFIO migration state transitions to and from
-> VFIO_DEVICE_STATE_STOP in vfio_ap_transition_to_state(), releasing
-> migration file state when leaving RESUMING, STOP_COPY, or STOP.
-
-All concerns expressed below have been handled in response to review 
-comments
-in several other patches. The fixes will be in the forthcoming v12 
-series. See
-my responses below for details.
-
->
->> diff --git a/drivers/s390/crypto/vfio_ap_migration.c b/drivers/s390/crypto/vfio_ap_migration.c
->> index 47f05e43b9e0e..c5534c6ee3cef 100644
->> --- a/drivers/s390/crypto/vfio_ap_migration.c
->> +++ b/drivers/s390/crypto/vfio_ap_migration.c
-> [ ... ]
->
->> @@ -1170,20 +1172,46 @@ vfio_ap_transition_to_state(struct ap_matrix_mdev *matrix_mdev,
->>   		return filp;
->>   	}
->>   
->> -	if ((cur_state == VFIO_DEVICE_STATE_RESUMING &&
->> -	     new_state == VFIO_DEVICE_STATE_STOP) ||
->> -	    (cur_state == VFIO_DEVICE_STATE_STOP_COPY &&
->> -	     new_state == VFIO_DEVICE_STATE_STOP)) {
->> -		/* TODO */
->> -		return ERR_PTR(-EOPNOTSUPP);
->> +	/*
->> +	 * Terminates the data transfer session of the vfio-ap device state
->> +	 * to the destination guest.
->> +	 */
->> +	if (cur_state == VFIO_DEVICE_STATE_RESUMING &&
->> +	    new_state == VFIO_DEVICE_STATE_STOP) {
->> +		if (!mig_data->resuming_mig_data_complete)
->> +			return ERR_PTR(-EINVAL);
+On 11/5/26 6:06 PM, David Hildenbrand (Arm) wrote:
+> On 11/5/26 17:50, Carlos López wrote:
+>> change_protection() applies vma->vm_page_prot, which lacks the write bit
+>> for CoW and write-notified mappings, so it write-protects every entry
+>> in them. When an entry would simply be made writable on fault without
+>> further checks (e.g. dirty PTEs in shared mappings, exclusive anonymous
+>> pages), MM_CP_TRY_CHANGE_WRITABLE makes the entry writable again to
+>> avoid the future fault.
+>>
+>> However, writable entries in shared mappings that are not dirty still
+>> become read-only. For example, a uffd-wp unprotect makes clean shmem
+>> PTEs read-only even if they were never write-protected, e.g. when they
+>> were mapped by a read fault before uffd-wp was registered. The next
+>> write to each of them causes a fault that only restores the write bit.
+>>
+>> Now that MM_CP_PERM_UPGRADE indicates whether mprotect() only adds
+>> permissions, change_protection() can tell, together with the
+>> userfaultfd unprotect flags, when a change revokes no access. Keep
+>> writable entries writable in these cases, at the PTE, PMD and PUD
+>> levels. This is consistent with the write fault handler, as an entry
+>> that is already writable needs no write fault.
+>>
+>> Signed-off-by: Carlos López <clopez@suse.de>
+>> ---
+>>  mm/huge_memory.c | 7 +++++++
+>>  mm/internal.h    | 7 +++++++
+>>  mm/mprotect.c    | 4 ++++
+>>  3 files changed, 18 insertions(+)
+>>
+>> diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+>> index 506e1e61c0fd..6e23d0e4ae66 100644
+>> --- a/mm/huge_memory.c
+>> +++ b/mm/huge_memory.c
+>> @@ -2809,6 +2809,10 @@ int change_huge_pmd(struct mmu_gather *tlb, struct vm_area_struct *vma,
+>>  	if (userfaultfd_rwp(vma) && pmd_uffd(entry))
+>>  		entry = pmd_modify(entry, PAGE_NONE);
+>>  
+>> +	/* See change_present_ptes(). */
+>> +	if (mm_cp_is_perm_upgrade(cp_flags) && pmd_write(oldpmd))
+>> +		entry = pmd_mkwrite(entry, vma);
 >> +
->> +		/* Set resuming_mig_data_complete to false for clean reuse */
->> +		matrix_mdev->mig_data->resuming_mig_data_complete = false;
->> +		vfio_ap_release_resuming_file(matrix_mdev->mig_data);
->> +		return NULL;
->> +	}
->> +
->> +	/*
->> +	 * Terminates the transfer session of the vfio-ap device state from
->> +	 * the source guest.
->> +	 */
->> +	if (cur_state == VFIO_DEVICE_STATE_STOP_COPY &&
->> +	    new_state == VFIO_DEVICE_STATE_STOP) {
->> +		vfio_ap_release_stop_copy_file(matrix_mdev->mig_data);
->> +		return NULL;
->> +	}
->> +
->> +	/*
->> +	 * These states indicate migration has either not been initiated or
->> +	 * has completed and the vfio-ap device is operating normally. Since the
->> +	 * vfio-ap device does not virtualize a DMA device, there is no internal
->> +	 * device state to incorporate into the vfio-ap device on the target.
->> +	 */
->> +	if (cur_state == VFIO_DEVICE_STATE_STOP &&
->> +	    new_state == VFIO_DEVICE_STATE_RUNNING) {
->> +		vfio_ap_release_mig_files(matrix_mdev);
->> +		return NULL;
->>   	}
->>   
->> -	if ((cur_state == VFIO_DEVICE_STATE_STOP &&
->> -	     new_state == VFIO_DEVICE_STATE_RUNNING) ||
->> -	    (cur_state == VFIO_DEVICE_STATE_RUNNING &&
->> -	     new_state == VFIO_DEVICE_STATE_STOP)) {
->> -		/* TODO */
->> -		return ERR_PTR(-EOPNOTSUPP);
->> +	if (cur_state == VFIO_DEVICE_STATE_RUNNING &&
->> +	    new_state == VFIO_DEVICE_STATE_STOP) {
->> +		return NULL;
->>   	}
-> [Severity: Critical]
-> As reported by Sashiko on v5 [1], with the transitions to and from
-> VFIO_DEVICE_STATE_STOP enabled in vfio_ap_transition_to_state(), userspace can
-> now enter VFIO_DEVICE_STATE_STOP_COPY or VFIO_DEVICE_STATE_RESUMING and open a
-> migration stream file descriptor.
->
-> When vfio_ap_open_file_stream() creates that file descriptor, it sets
-> filp->private_data to &matrix_mdev->mig_data->stop_copy_mig_file or
-> &matrix_mdev->mig_data->resuming_mig_file and pins the registration of
-> matrix_mdev->vdev via vfio_device_try_get_registration(). However, Both
-> stop_copy_mig_file and resuming_mig_file are embedded inside struct
-> vfio_ap_migration_data (matrix_mdev->mig_data) rather than struct
-> ap_matrix_mdev:
->
-> struct vfio_ap_migration_data {
-> 	enum vfio_device_mig_state	mig_state;
-> 	bool				resuming_mig_data_complete;
-> 	struct vfio_ap_migration_file	resuming_mig_file;
-> 	struct vfio_ap_migration_file	stop_copy_mig_file;
-> };
->
-> When the VFIO device file descriptor is closed while the migration stream file
-> descriptor is still open (including during process exit, since close_files()
-> closes file descriptors in ascending order), vfio_ap_mdev_close_device() calls
-> vfio_ap_release_migration_data(), which destroys the mutexes and frees
-> matrix_mdev->mig_data:
->
-> void vfio_ap_release_migration_data(struct ap_matrix_mdev *matrix_mdev)
-> {
-> 	lockdep_assert_held(&matrix_dev->mdevs_lock);
->
-> 	if (!matrix_mdev->mig_data)
-> 		return;
->
-> 	vfio_ap_release_mig_files(matrix_mdev);
-> 	mutex_destroy(&matrix_mdev->mig_data->stop_copy_mig_file.lock);
-> 	mutex_destroy(&matrix_mdev->mig_data->resuming_mig_file.lock);
-> 	kfree(matrix_mdev->mig_data);
-> 	matrix_mdev->mig_data = NULL;
-> }
->
-> Doesn't this cause a use-after-free when the open migration file descriptor is
-> subsequently read in vfio_ap_stop_copy_read(), written in
-> vfio_ap_resuming_write(), or closed in vfio_ap_release_mig_file(), where
-> filp->private_data (mig_file) is dereferenced and mig_file->lock is locked or
-> unlocked after matrix_mdev->mig_data has been freed?
+>>  	/* See change_pte_range(). */
+>>  	if ((cp_flags & MM_CP_TRY_CHANGE_WRITABLE) && !pmd_write(entry) &&
+>>  	    can_change_pmd_writable(vma, addr, entry))
+>> @@ -2885,6 +2889,9 @@ int change_huge_pud(struct mmu_gather *tlb, struct vm_area_struct *vma,
+>>  	 */
+>>  	oldpud = pudp_invalidate(vma, addr, pudp);
+>>  	entry = pud_modify(oldpud, newprot);
+>> +	/* See change_present_ptes(). */
+>> +	if (mm_cp_is_perm_upgrade(cp_flags) && pud_write(oldpud))
+>> +		entry = pud_mkwrite(entry);
+> 
+> That looks completely hacked on. We do have can_change_pud_writable() below to
+> make such decisions.
 
-In v12:
-The lifetime of mig_data is tied to the vfio_device registration
-rather than the device FD open/close cycle. mig_data is deallocated only in
-vfio_ap_mdev_release_dev() after all open migration stream FDs have dropped
-their registration references. On device close, vfio_ap_mdev_close_device()
-resets the active migration files (clearing filp) via 
-vfio_ap_reset_migration_state()
-rather than freeing mig_data. Any subsequent or concurrent access on an 
-open
-migration stream safely encounters valid memory and returns -EINVAL/-ENXIO.
+Okay, for v3 I can pass the old entry to can_change_{pmd,pud}_writable()
+and return true if it was writable, after the existing write-tracking
+checks (uffd-wp/soft-dirty). For PTEs, can_change_pte_writable() is not
+used on the change_protection() path, so the same check would go in
+set_write_prot_commit_flush_ptes().
 
->
-> [Severity: High]
-> In addition, with VFIO_DEVICE_STATE_RESUMING now reachable via
-> vfio_ap_transition_to_state(), can chunked writes in vfio_ap_resuming_write()
-> trigger a fortify_panic() when CONFIG_FORTIFY_SOURCE is enabled?
->
-> In struct vfio_ap_config, qinfo[] is annotated with __counted_by(num_queues).
-> While vfio_ap_resuming_init() initializes ap_config->num_queues to
-> MAX_AP_QUEUES when the stream is opened, vfio_ap_resuming_write() copies
-> incoming chunks directly into ap_config before checking whether *pos exceeds
-> expected_sz:
->
-> 	ap_config = mig_file->ap_config;
-> 	memcpy((char *)ap_config + *pos, kbuf, len);
-> 	*pos += len;
->
-> If an earlier write chunk overwrites ap_config->num_queues with a smaller
-> value (or splits the 4-byte num_queues field across two write calls so that
-> its upper bytes are zeroed first) and a subsequent write chunk writes past
-> sizeof(struct vfio_ap_config) + ap_config->num_queues *
-> sizeof(struct vfio_ap_queue_info), won't fortified memcpy() evaluate the
-> updated ap_config->num_queues and call fortify_panic() before the bounds check
+Does that sound more reasonable?
 
-In v12:
-The receive buffer in struct vfio_ap_migration_file is tracked as
-a raw void * allocation (VFIO_AP_CONFIG_MAX_SIZE). Incoming write chunks
-are copied directly into this raw buffer, ensuring fortified memcpy() 
-evaluates
-bounds against the full buffer allocation rather than the dynamic 
-__counted_by
-bounds of qinfo[]. Validation of num_queues, expected_sz, and the full
-configuration is performed cleanly in kernel code once the complete header
-has arrived.
+> Whaatever you propose here is either wrong or way too shaky, sorry.
 
-> after memcpy() is reached?
->
-> [1] https://lore.kernel.org/r/20260724182949.EA9C51F000E9@smtp.kernel.org
->
-
+The idea is that MM_CP_TRY_CHANGE_WRITABLE relies on the dirty bit to
+make entries in shared mappings writable, which misses clean entries
+that were already writable (e.g. shmem read-faulted before uffd-wp
+registration). Such entries can stay writable, as anything that relies
+on write faults write-protects the entry first.
