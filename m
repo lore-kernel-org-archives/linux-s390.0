@@ -1,58 +1,59 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793984355;
-	b=urr3ap7K7kwNbOcItW95ayK7Aep+qNgrRTpxmuircpbrzkZ6myh57hYcfOTY+5mNOKYx
-	 H9U1LoVmomG/Tlcdmh/KObpu9rTf38cqaN1iZEZ+blWQcO0ZCKbC6cj+t5Gi+NKcWekjU
-	 oTwRug8U4eIny24i888ANSrK9aKF1/0OaFtqKYjRuQ9zjT7K9Q1kXuLRu5eDTFa7bPS0U
-	 vczpDgBezHfpRrPH+mWv0cIgna2S3NT7ZL/jMhc+rrHabXpL1bZsYB8JiKbizWssHTSSg
-	 FHbVGP6564bRve875UsTNEDq8yyHWIpDoTZ86tat7VolM33hD+y3P2httlO266b4Q/Q==
+	t=1793984720;
+	b=DBe3dN6wYBuUTo59VajoR0lirYKE3I4seJn5tm5cQgSOwphhd64vvFysSEUwyc+S92sz
+	 wHGAc/jXYJcDieyWT1BGtvbr9wi7WmSz1/lvi8frDyibz4iMyYTcXDEYwreycT9szQ8RG
+	 +IUVhRjrrBEVfwM0hKtBv1VG4p3wMvX8bj2JREWq8pAISfwoSFBfAwafAoY1IdDf2zRMM
+	 YA4JC0awHR1JdFvCmqwFvpF/A48gVs850+8oKfVzbXAUhIZuH7NogHyrIk0sSdtrBVzT0
+	 +RnygGjYmOJob3o1dvCvQ0FVY8VBOFighCy6EA0Ot/OQ/NhggX+X8rY+xJ1+dFNRSjg==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793984355;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793984720;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=d80VfVqLZ5LzPHvN+Qp7QXqfV2/mGTMFW9uFRBGrIAo=;
-	b=OWgIowpZaLTbm96E4ZLNVFRo30Cw/a1QXmGn1nlhrzEizdj68M4eBzEvtIzlwgnvlC/J
-	 crFV0jEyUZ/ez1js1Uc5qC7/I18Bf6EEn+zFA1IbDxqyNb9LXfGEe4UEd5D933y8JF9OP
-	 406ag5ytuf+b30WO1CBTMoedfGS1yqmlYQABCMrSP7D15D4VAe9bLgd50HuFhJNZ8ezz1
-	 QzX6EZFvZJr7O5ovKrl3QyQVK30GzSIveano2HzxpLHWCtQ4Et1nHhtgbCtGXYw0kFSu8
-	 3ssSMbYrSdfaVa+TQhXfBKTZ5wWMbVCqwnnjoqCHg2M+7XHYAtrHp57zyuusTQxZj8w==
+	bh=1tyGEiyXnOl/PRQPnRa4v57aHUp66yzSf311ZlTdCi4=;
+	b=sUmusp1650BFpi4qbverWiUwGjxRqF75qQWzoda7THVYkA2YOGvrOV64qCh+b2fneK+g
+	 q/Pq4IGWxbpIhNiswLi04Cp5SAdR5np9wxgsB3HXM7XHxESNBPVKRyuzgMNfOGL2Bnlex
+	 bB3W5H98HupxnZH8CvHiWuG3VGTTZcgvmZ453vTJkQx0YJEQfMjjJTbTQhUsvSi5hq2Ru
+	 ngqpBX9XANcy8cZ09Q8b4lv9DwG8Wi8risLxY317tT9xwBJvAoAYVgts9oVgYSx9HoU7Y
+	 WvJR7OqzeT61mzT6dUICKMTF3ZRP3p7uxTaSnQn9vUue7QrQOkKstodiVriGOAo5sKQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UsrqjcF0;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JbbhWjbx;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 885A7606A326
-	for <linux-s390@vger.kernel.org>; Fri,  6 Nov 2026 16:59:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10B45606A326
+	for <linux-s390@vger.kernel.org>; Fri,  6 Nov 2026 17:05:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UsrqjcF0
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 221B11F008A3;
-	Fri,  6 Nov 2026 16:59:15 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=JbbhWjbx
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5233F1F0089F;
+	Fri,  6 Nov 2026 17:05:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793984355;
-	bh=d80VfVqLZ5LzPHvN+Qp7QXqfV2/mGTMFW9uFRBGrIAo=;
+	s=k20260515; t=1793984719;
+	bh=1tyGEiyXnOl/PRQPnRa4v57aHUp66yzSf311ZlTdCi4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UsrqjcF0Z0mdEU64901UeN/y2jmh79Hf+vGM/2/Vuoe01JRc+dmHK56eZZCJX6Pe2
-	 U0c/M0L8Un9Y/BgXRqnLJOA46AN2Lcmc3HGeKc7lh4jSlucDUVq/KxixqTCGdzA2/x
-	 JD5pN/ZfLbsEEWdEOZEMpazHRuwNPovP2rqlG3A3sNwOPJDZsQyGjgM82ql+wtr+yu
-	 27GVF8+TvdOqa3/yxT4Pgd4yOBU8HNOj9vArmOsAd0DlPWkGIwcMHCdCKTB1jzuZyp
-	 i1GidIHwbwMegaTAQOAKmlmALsVI5CnO3rwUeldjzF6jP2oLUwIYwn+U0kooEXnUM6
-	 1W9kyp6RVQBMg==
-Message-ID: <sashiko-outbox-201882@kernel.org>
+	b=JbbhWjbxYLHRrcwtmzi/BZNXFeAdGOJ3cjTlXZfHDTG9WWLy4VFROSRVRkeG1NH6j
+	 qeMDNCgwY2Gy3wlfdAW3/wvK7zdsgUgXhcFU/PmqvZToQjgGDF4viBE67fbwOuRpyH
+	 iRjybhuiZzbSA2Srbx7Ntva18nHvvBmMPQVpfjZkgTeig8ian1bqSUoWmlJYlrmch+
+	 McQprvX8OD2nLXdc1AhgAnFmwf9hpG/WjxWqRz3fFE3hSKrJUZRxFYqNv0Qr+sTY+j
+	 IQOYxrYuVpDPAdhynyFnSl4GNNwyIa6tprpsrRj1nydkILcP7JruxJ+uEVLneSsy/s
+	 CmwaYdxlJphlQ==
+Message-ID: <sashiko-outbox-201894@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [GIT PULL 5/6] KVM: s390: arm64: Fix kvm_arm64 module naming
- consistency
+Subject: Re: [PATCH v3 06/23] KVM: s390: arm64: Prepare for sharing arm64
+ SVE and ftr-reg code
 Reply-To: sashiko-reviews@lists.linux.dev
-To: "Christian Borntraeger" <borntraeger@linux.ibm.com>
-Cc: linux-s390 <linux-s390@vger.kernel.org>, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
- Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>
-In-Reply-To: <20261106164958.431978-6-borntraeger@linux.ibm.com>
-References: <20261106164958.431978-1-borntraeger@linux.ibm.com>
- <20261106164958.431978-6-borntraeger@linux.ibm.com>
+To: "Steffen Eiden" <seiden@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, "Heiko Carstens" <hca@linux.ibm.com>, "Vasily
+ Gorbik" <gor@linux.ibm.com>, "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian
+ Borntraeger" <borntraeger@linux.ibm.com>
+In-Reply-To: <20261106-sysreg-v3-6-75e95980fb10@linux.ibm.com>
+References: <20261106-sysreg-v3-0-75e95980fb10@linux.ibm.com>
+ <20261106-sysreg-v3-6-75e95980fb10@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 16:59:14 +0000
+Date: Fri, 06 Nov 2026 17:05:18 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,22 +63,19 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> From: Andreas Grapentin <gra@linux.ibm.com>
+> Add required SVE and feature-register definitions to the arm64 on s390
+> host code. The definitions are required to be able to build shared SVE
+> related code.
 >=20
-> the module build for the kvm_arm64 module produced kvm-arm64.ko, fix the
-> Makefile to produce kvm_arm64.ko instead, so the output file name
-> matches the module name.
+> No functional changes.
 >=20
+> Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
 > Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
-> Fixes: 91b87e6eea4d0 ("KVM: s390: arm64: Integrate arm on s390")
-> Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-> Reviewed-by: Steffen Eiden <seiden@linux.ibm.com>
-> Acked-by: Marc Zyngier <maz@kernel.org>
-> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+> Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 
 Sashiko has reviewed this patch and found no issues.
 
 --=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106164958.4319=
-78-6-borntraeger@linux.ibm.com?part=3D1
+Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261106-sysreg-v3-=
+0-75e95980fb10@linux.ibm.com?part=3D6
 
