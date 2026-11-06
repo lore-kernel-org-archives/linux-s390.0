@@ -1,59 +1,83 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.213
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793926451;
-	b=ZUmjWqyOv6c8nLMTsY+VhbdqufDDM4aNTrK19K0OQoYL/jg42GNqm0AKaRJORsiUd9oi
-	 N7hCgYdSSkYYMQzcO+WcK/iHe0sQPd+nPSjn/LMMSMIHoZmtpjZR8o9yMqQ4c+4vEH8nk
-	 IZOJaoN0msJyCK+xF2SQrAQ0xlTlYFjsdkOpHE23LMSX63TX52g6K17ISMB7s8qDyR9In
-	 ZvYBZl7nHOvraXObPpJ958ZuTNqdLm9j+MwBk1YkkoZasI85jyQfuh9cd62XyHIzl1JNW
-	 bXXitz09VmhKZw/QV5HH/s10/1DbuZpV7C0doAbSL/056ZClvmIms3hK53vv1YIUZew==
+	t=1793939896;
+	b=dAuAnsFkas+k2LvQd1DKitTDAhjR90FVABmjX2VaF6EVOWvo8dXj7GAgasLW6vfBVm2p
+	 G5WrRi8FU340l22cAD9FzP3RzRQAKEo9LWcSYwHZ8AXd7zvaWXseInfUleWB6A/byq9OE
+	 j8qWutAG8xIE63tQOUIUyGtFYAHErcBh+P8w9+YR12uEwSpL0GFyOx/5OwYhJLf90fCX7
+	 BVZESR1UO6e7KQHV1vJ0L1pubgB59kukgTjac9RhdGWmHbwVBp0/qFEPUsP3rKQvRWbyV
+	 6TWPaLYJq61ryPRfLQ1TUS2yksza9Xz3/mrSrRcU/xhvbaRwnXKy6ZrOldVx19Hehww==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793926451;
-	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
-	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=PMEbTVTresFJt3v7kxA+XMB+c4Cigbl0qfO+3lR3EWk=;
-	b=dWPxZAH1wVOsgfu60toxClo4+cBHO4U71Om5kisoI3tvEZljZ9/lwTeTz2iPwIETWT21
-	 DmvMYuqSuhqT8iMrDzCE6qKi15mA8zeeuf+46JQKZqzjdnVA5BZXgjHpR5PYV33Dswz7W
-	 Xey4R3ZzT13t0P6lRnHAz/CSXDzPSD+gF9KK/6PrLAMjBDKwymlzEzlav2eW0Dtyts0Xl
-	 tXtT/jQeAkXAn86zLWoDBz4iMXHGlOBPXF834rVEUUscwVuTi2y3p64ZJ9kpXV3JFBfOx
-	 bMMg9o74dThqa4110QQteFlFmVTiFW+TowxXw9HD/OLvxMJDpR9cnmAKv+WhtWfh+5w==
+	a=rsa-sha256; c=relaxed/relaxed; t=1793939896;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:From:To:Cc:Subject:Date:Message-ID:
+	 X-Mailer:In-Reply-To:References:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding;
+	bh=/Yx3i1zeQ5pe4eBI/JzCvDsEdxLLepzecCOmB7O2Y5Q=;
+	b=zAkMxctVnPhU0LUfoGHFd5/fdR6KhKAKqKAOdbm+gSKsxK5j5mERdQ0Ac3zYojfh5xFr
+	 Y+J1hbizFlU8brKTPXOxehou4jUfBHtEl7rPWRrX3HcWfUe+QY0Yo2fqwV+CtpQpi9qZG
+	 t9qV0G4cyMcyEZt9R8jOZKzpybQ1NXL05ussFJShpgx/hc6c27137DQHWK/60AemjniC/
+	 5a+XphrDbWSiAnA38fF/6yCgrJIbLarHd0DHX7GWiMKRM+FUlqceXwidcsMHALFv7Ik+K
+	 2iWVDAlpmwbLJjrgAyiantAiV9KUBTmNV2uQeeoquHAnm9fv5C3sEJzWBlWJTfs1Gtw==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UvYFuQE+;
-	arc=none smtp.remote-ip=100.103.45.18
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1))
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=h2NarzBu;
+	arc=none smtp.remote-ip=91.218.175.213
+Received: from mta0.migadu.com (out-213.mta0.migadu.com [91.218.175.213])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B65CC606A329;
-	Fri,  6 Nov 2026 00:54:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16918606A328
+	for <linux-s390@vger.kernel.org>; Fri,  6 Nov 2026 04:38:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 16918606A328
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=UvYFuQE+
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB0031F008AB;
-	Fri,  6 Nov 2026 00:54:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793926450;
-	bh=PMEbTVTresFJt3v7kxA+XMB+c4Cigbl0qfO+3lR3EWk=;
-	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=UvYFuQE+FdUTn9bUd6Wq4KlqgbHpXTzq+JaIpfrHVs20RgFrdBsaK3GN6iAf9bEdV
-	 JplCEqJPfa6+PBotTQBZ4xoiEua2fdVIrf+qqb4ThBBtfnr1DmDwQ7idYdknnmlQt5
-	 b2ReNEVJvjOkEnEDiOB7HbUZ2py2esB3zVKAHNrzZeuMiTyIGWC6Zs35errCUzaIuy
-	 FOLgAlqwxI+QZ9qnj6onmFpDkeLYyJ23lkBzFCti8DgCmrTiwUJPhvkO9pqddgO5hK
-	 D+5ps7tcQhQiDRb8FI+SMjkwrTivIs57ZreY7liSdMfariKt45PcYFYUH8x69sKwn6
-	 W6ljGpqX1wiXA==
-Message-ID: <sashiko-outbox-200461@kernel.org>
-From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v3 06/11] KEYS: trusted: TEE: Disable sysfs bind
- attributes
-Reply-To: sashiko-reviews@lists.linux.dev
-To: "Jarkko Sakkinen" <jarkko@kernel.org>
-Cc: linux-s390@vger.kernel.org, linux-security-module@vger.kernel.org, "Heiko
- Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261105005311.804098-7-jarkko@kernel.org>
-References: <20261105005311.804098-1-jarkko@kernel.org>
- <20261105005311.804098-7-jarkko@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 00:54:09 +0000
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=h2NarzBu
+X-Envelope-To: linux-s390@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=/Yx3i1zeQ5pe4eBI/JzCvDsEdxLLepzecCOmB7O2Y5Q=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1793939893; v=1; x=1794544693;
+ b=h2NarzBu5wSfv3HGLjDaliK2QJozxMk1T8AWSAyQrfXgHTDTPCv+ZGuVrnREakda/ZEx8QA1
+ 8oHdr4LZFwNJAxqLIVYaUXa8CPvRrYRT1iKnDBFCbx5htEVpTCoeBhb92BY4AQ1xCcuyadvcBnR
+ 1nSZlm5DlYnhXsdFYvkrWORw=
+X-Envelope-To: linux-s390@vger.kernel.org
+Received: by smtp.migadu.com with ESMTPS id 9188c1b74d12ac2b;
+	Fri, 06 Nov 2026 04:38:13 +0000
+X-Mizu-Trace-ID: 9188c1b74d12ac2b
+X-Migadu-Flow: FLOW_OUT
+From: Lance Yang <lance.yang@linux.dev>
+To: songmuchun@bytedance.com
+Cc: david@kernel.org,
+	maddy@linux.ibm.com,
+	rppt@kernel.org,
+	akpm@linux-foundation.org,
+	lance.yang@linux.dev,
+	mpe@ellerman.id.au,
+	npiggin@gmail.com,
+	chleroy@kernel.org,
+	ritesh.list@gmail.com,
+	sshegde@linux.ibm.com,
+	osalvador@suse.de,
+	qi.zheng@linux.dev,
+	muchun.song@linux.dev,
+	chenhuacai@kernel.org,
+	kernel@xen0n.name,
+	linux-mm@kvack.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-riscv@lists.infradead.org,
+	x86@kernel.org,
+	loongarch@lists.linux.dev,
+	linux-s390@vger.kernel.org
+Subject: Re: [PATCH v2 1/5] powerpc/mm: make vmemmap_populate_compound_pages() static
+Date: Fri,  6 Nov 2026 12:38:07 +0800
+Message-ID: <20261106043807.32969-1-lance.yang@linux.dev>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20261105061217.13302-2-songmuchun@bytedance.com>
+References: <20261105061217.13302-2-songmuchun@bytedance.com>
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -62,16 +86,22 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-> Suppress sysfs bind and unbind attributes on trusted_key_driver so that
-> userspace cannot unbind the driver and unregister key_type_trusted while
-> the trusted module remains loaded.
->=20
-> Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 
-Sashiko has reviewed this patch and found no issues.
+On Thu, Nov 05, 2026 at 02:12:13PM +0800, Muchun Song wrote:
+>vmemmap_populate_compound_pages() is no longer used outside
+>radix_pgtable.c.
+>
+>Make it static and drop the unused dev_pagemap argument from
+>its only remaining caller to simplify the code.
+>
+>Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+>Acked-by: Qi Zheng <qi.zheng@linux.dev>
+>---
 
---=20
-Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105005311.8040=
-98-1-jarkko@kernel.org?part=3D6
+Feel free to add:
 
+Reviewed-by: Lance Yang <lance.yang@linux.dev>
