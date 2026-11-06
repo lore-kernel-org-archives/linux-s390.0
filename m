@@ -1,100 +1,54 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.218.51
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1793944950;
-	b=BQ7emHxUivV/c+LPFHebiSpRyjbDKS7Bmi5WhL0/gybct/SaQoPP5pTU98WhNXk0PZby
-	 4TIgr0MnOizgPSwN3mh0wzCmDT40wfdWuL0P3SZQmlYimK7f3FKl254AivE2B4cNwHxbJ
-	 GerLzt8MqVJrQyM4Q6KQ+y618JyT1oSiLULVjyG3PqAgRDKMMc4EBqcyKKnz+uI3IvctV
-	 d1n426j4ELfG3MpIYpp+649YUklkwPY4KvN6+yNOuQWxaRPYb2iZQC8M27fiUhSL8Sf6E
-	 hIua1B5Ezbnj4Ww3QIbBueQwYgNbJB4vUiNEOFmtRNhjJZVR3OqIZw/yePQzifurrbQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793944950;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:
-	 MIME-Version:References:In-Reply-To:From:Date:X-Gm-Features:
-	 Message-ID:Subject:To:Cc:Content-Type:Content-Transfer-Encoding;
-	bh=upxm4MPlU7N3NfgqAJOH0IPRX5g3aVwXiEtIrdH4MTo=;
-	b=nRpO+zyAsR8HA6ilAft9za/N4btmgpq9Pi7uF3CrUFcNmLVNMUk+nVhibtIkED4pCF4q
-	 k2HR+zaQw7E7n0MAN7qIR2xB8ivWGTEadSWbVuY1orVVeCLyiSGV0AP95TKv+CPppfGkA
-	 60E5F3MfuGTscUePydWbgtE833v98qLh8yMOv8QH7idVl44AWpFSCVg62Q3A1D7cPo/5B
-	 3Uxp0zHsUqcWRb46lbD4UgmzoLPoqS9O3uPuGNCxDLn8S92Omx7Zb0rJYYDfqc/1QhuzQ
-	 Tdc7COrx1kHk6NCEZHI7ItoB3yMSlPykvVi3BiWDitvfoMoYW1r4BKqIKJH0ifpg0ig==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MU217h2+;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.218.51
-Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=91.218.175.60
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1793945402;
+	b=r88YaZ9ZO6vRymiA/CsUK/6YuwQfM+kojdGkDu1y/f3hzfaZHjwEmbDMxNIpV3EInZIm
+	 v3E/Xd1ZGv4szrrHo3wEQxV56Tp9WYSraXzLCrvohlzrAEoV57xqdH4ZxIqdCh6/9xJWV
+	 QqxRwvSW+KFJoBl0aGfw7Hl6rbhg9wDMRapFrE7VsN+dCplYCgq3hGY/f9xW2tW9o5/ej
+	 7B4KjdB6Gh9a799HxLOd9ltMEzhWqXWAxtEsybiYr7jlezmJ/GPNqcaBcJIsjcFTB3Jwv
+	 bNZoQhDJvyqrt12MRvdae51WFsYKAykrlo4N85Y2USmkzkBTYz6qafz4bcGgo4fklfQ==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793945402;
+	h=DMARC-Filter:X-Envelope-To:DKIM-Signature:X-Envelope-To:Received:
+	 X-Mizu-Trace-ID:X-Migadu-Flow:Content-Type:Mime-Version:Subject:From:
+	 In-Reply-To:Date:Cc:Content-Transfer-Encoding:Message-Id:References:
+	 To:X-Mailer;
+	bh=odu5xQIFS9JlM9FDfnwszB/Td3i57T5yLrDAwemp88g=;
+	b=NSl7R2W9Gqtsp6YWXK2oSoRAbk95gUo0YHTgHLPww/9Ujp774H9Rjzwgq7fox+ui0VJx
+	 1t6I6m/YBzhtN3YPahs3Tx1eibj7baDz0mxdUI1UsE2njMrhUHbURYSH8lLtwLdEQSb3x
+	 YVFB/mFou2HEzi6SzxrBbK90yahrT4fhoBHbbPvIL5IsCrUKZ1Xrwn9FXSAsRFJ0xNi8A
+	 N7hiEXEOOwQQX0RRVrVZt3Gj7HcmUAv7DNTURJn+b88qQXpWkIu64fRXgPBeTp+0TH01B
+	 jyxD7lmv3uuSBypN0IBGq7igaD2ByV5nGIv9sKdU4AUSDifKZfa/KFNYVbiCyyIHccQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=pass header.from=linux.dev;
+	spf=pass smtp.mailfrom=linux.dev;
+	dkim=pass header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=LPUwG9DY;
+	arc=none smtp.remote-ip=91.218.175.60
+Received: from mta0.migadu.com (out-60.mta0.migadu.com [91.218.175.60])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EADFA606A328
-	for <linux-s390@vger.kernel.org>; Fri,  6 Nov 2026 06:02:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org EADFA606A328
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE8C5606A33A
+	for <linux-s390@vger.kernel.org>; Fri,  6 Nov 2026 06:10:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org DE8C5606A33A
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=MU217h2+
-Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-c45551fa84eso41546966b.3
-        for <linux-s390@vger.kernel.org>; Thu, 05 Nov 2026 22:02:29 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1793944948; cv=none;
-        d=google.com; s=arc-20260327;
-        b=N2dmW6zdobr5NO2JmmfHoYNIiKtNWVjyr7l9SJMT5MVP8Q55lnFAX9rlikdPKBXvU0
-         d9S2Ko4JhqWTTBdN880bkNrgaR0SW1G4Cz/etxADJMRVKg+3oMo/swIw035Pb+cwXZuW
-         dNKOAiYORnYQ5OFjYoulOGUGrdenkz/g56zd/uMzCD96zDtVzEu6iJ2/1ofzTso6H1wD
-         +RqxJbQIsQd4HdKiuTBo5+RKMQXMXU46HtPWuRxw5WbLtlSZ4TvTl41CuojLeMbIRm/Z
-         /WEcOOPPttrPgfrq2mJoDMa5ga1iagu0oQRCqwH/HtCIXAGXsmn+4ZYG4AnR/5QfI9ax
-         GkeA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=upxm4MPlU7N3NfgqAJOH0IPRX5g3aVwXiEtIrdH4MTo=;
-        fh=Uznc2Y+elTY4ZKH0PSjsoUPwmKTh2BD7h52EAFKfAaQ=;
-        b=OpkDuzgYVH2fuKrihe3yFuziehcyiK928W+a3NGzOv5HADrU8IECACG9SqXZREJ58R
-         HVrKin9nj6XUWv/YfWZB4ixDl/LgPUhoD7IxkDbznZspnvWM272eMvHMzcYzGFiNhqz9
-         TGVWcGg3hfL5vP8eGLtHOl0NLG2WiFl3UhSXg8dqzWu5dTd+Qwam9rCjJ5gZl4bzhaQ5
-         ixcHL6YzIg/ZgRqSxNmmusQ9jwkmsIQKDglEr0rvcaOFI3pBEyaLtbj5rUcddVAYDUyq
-         sn/RXcKB3Cx6fikD9KDD7fpHKkRBnVI4CPjn/TctmyE1UtoMl5u/azoa4G3AZuUnMB2E
-         qgTA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1793944948; x=1794549748; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=upxm4MPlU7N3NfgqAJOH0IPRX5g3aVwXiEtIrdH4MTo=;
-        b=MU217h2+0eERrqYba0rrf3WXQN92LuCzTp6j7sdlJu+GYLO/kCkie1ZHHu9k9lrgZp
-         CKKnTMQfLQs5kiyXAfxCxwfvnBZXPVAFqPHSxoGpdKUE3ZOt0kpMnXkBn/uaf+FwTTu0
-         BG5QSdusCxDz45pvQAkbgGTw7ondU7W7b9OxYbF1ZXSWe9yP4urk/zgYauxOQ5upl0IN
-         a7cxcQJNl9iPjiPPJwL8T2v2nDl/Iug8czBx2fOKeMNd3OsUUK5jDN9v7UarVZvUjxoN
-         wSBPLDyG8antoD6ihod1LeQD0yK97xnwSDBWzaCLiEbaH6U0MRXfIsBF2jEr7T/Y2npW
-         cp1w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1793944948; x=1794549748;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=upxm4MPlU7N3NfgqAJOH0IPRX5g3aVwXiEtIrdH4MTo=;
-        b=x4Ihm+2AMCb9nKftivwkaqZt4TgVpq5s+oAQU7gEi8TQtSNeQpnFGpX/GzvWs4r/lk
-         tL/DNVzk8qXXNSYCxt4bdGH09N0PCjc94UletggR97ikLsode4TY0gufw7jQfxKz4wUe
-         506wp+kKFrgpfeXP6d15eO02q4n7yN3mK2Yp6hi1G81cI8CwInJhyWrXqT4wQxhSqd4l
-         z4BS34fZNVc0BOzwO2MuSuxn8z300OYJD0Sm+xm4r/idtFKpdxoTpj89SZaNDz0wxp88
-         dWYVjqRp+8odftNRiL+J4+USp8aK87wzgN62JdiGKkIEtK3OXUyfp//nrXwOCcmp04bB
-         XS8g==
-X-Forwarded-Encrypted: i=1; AKwUvBxCLyBwMX/oxHaykelvHoiFLHRP4LgxKlxJ0nFHZe9tujzpCKoKcEFMM1uI4qYtO0A/9ozLJrrwt1AI@vger.kernel.org
-X-Gm-Message-State: APuU4Z9Dw5xOT3L25h448kFxqBkA/tBxsFcOidvq8AOuriczSTfMrf54
-	DDYM+WFdRJAEuLaxOx/MXeRYcjDu46MEYNpDUAyzwCPOcdlq7VikJAX9LHKHIZ10/Sk5tsGv71q
-	bHzEWs2coh+gB9R90g/Tgo1LVrD8otFI=
-X-Gm-Gg: AYBFou2zQBp7wLUNUzvNw02RLIiY9dm2RM+ImHYBoNfowPDQpDH+ruFGZFk7jfHQNif
-	JrXauDcMUACsmOs6J2rCm8EpNeeFvMrTGGU43ngpvf5dLMxGlGZ0FCDq6rwiaUyBAw8SJvxQPFo
-	yNP1nxCvLwZRXZHGd4Qc0pHlD8AajsgBKcQFVe+IMB7XfQna/9HuExQgTrHhJSqjZPcTl3vGcrR
-	KWXfU/KQF/u0wp+PapM2sCnaV6h96nNsupuFJ9w+WsRiPF029Vc+SmPuEyiwQgG/hAGtN3hLx4p
-	OTXIwEWi629/PdMDrLDarlId4eFpXri1yzwf/bvPBk+6+228VB0OdQHvHx2uVR8P9bPVOW3CnFt
-	GM8URXeRHz3zcRufzWdAUh95976WtH0I1sg1ZrrZDYuqlVpKkvi9Y6CnSu7QDsbpZQynC
-X-Received: by 2002:a17:907:7b9e:b0:c42:4750:8d33 with SMTP id
- a640c23a62f3a-c4d355354efmr132932866b.28.1793944948293; Thu, 05 Nov 2026
- 22:02:28 -0800 (PST)
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=LPUwG9DY
+X-Envelope-To: linux-s390@vger.kernel.org
+DKIM-Signature: a=rsa-sha256; bh=96w6STjHwYkE35n2l9bpIcIdDPfklnzi3TLMb74lvdA=;
+ c=simple/simple; d=linux.dev;
+ h=from:to:subject:date:message-id:mime-version:content-type; s=key1;
+ t=1793945400; v=1; x=1794550200;
+ b=LPUwG9DY+37Mw47I04qtDylr24akTAUKpuuHl+5P9OIhn0B4ba2SW/p0v/RPgl3W/VAkN+iY
+ rArmYPbQoJE9dqX9LLgkA3iiCQ63d16uVHTV1yKiy/l7mkcFE5gJbU6PQ0Ouh1XS6bxXoTYFMM3
+ d9L12BGO6tLvlABqfAArRQKw=
+X-Envelope-To: linux-s390@vger.kernel.org
+Received: by mta12.migadu.com with ESMTPS id c4f90aeb3fa4551c;
+	Fri, 06 Nov 2026 06:09:59 +0000
+X-Mizu-Trace-ID: c4f90aeb3fa4551c
+X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain;
+	charset=us-ascii
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -103,37 +57,171 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-References: <20261105193426.2999631-1-stjepan.poljak@gmail.com> <20261105144316-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20261105144316-mutt-send-email-mst@kernel.org>
-From: Stjepan Poljak <stjepan.poljak@gmail.com>
-Date: Fri, 6 Nov 2026 07:02:16 +0100
-X-Gm-Features: AclHuK-YNzSXRW1RHjomN8YIUKv427RnMYB6bCZCxyhE73XOJIrYBtMyz-mjos8
-Message-ID: <CAKVkeTxfwL9vFx_AFgevsQ1Kg0=DE9aSPYTcw8ZuyejhE+w7ng@mail.gmail.com>
-Subject: Re: [PATCH] virtio_ring: return an error pointer from vring_create_virtqueue()
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowangio@gmail.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 
-	Johannes Berg <johannes@sipsolutions.net>, Cornelia Huck <cohuck@redhat.com>, 
-	Halil Pasic <pasic@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Alexander Graf <graf@amazon.com>, virtualization@lists.linux.dev, 
-	linux-um@lists.infradead.org, linux-s390@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3901.200.71.1.16\))
+Subject: Re: [PATCH v2 2/5] powerpc/mm: drop powerpc vmemmap_can_optimize()
+From: Muchun Song <muchun.song@linux.dev>
+In-Reply-To: <20261105080241.57241-1-lance.yang@linux.dev>
+Date: Fri, 6 Nov 2026 14:09:39 +0800
+Cc: Sashiko <sashiko-bot@kernel.org>,
+ Muchun Song <songmuchun@bytedance.com>,
+ David Hildenbrand <david@kernel.org>,
+ maddy@linux.ibm.com,
+ Mike Rapoport <rppt@kernel.org>,
+ akpm@linux-foundation.org,
+ mpe@ellerman.id.au,
+ npiggin@gmail.com,
+ chleroy@kernel.org,
+ ritesh.list@gmail.com,
+ sshegde@linux.ibm.com,
+ osalvador@suse.de,
+ Qi Zheng <qi.zheng@linux.dev>,
+ chenhuacai@kernel.org,
+ kernel@xen0n.name,
+ linux-mm@kvack.org,
+ x86@kernel.org,
+ linux-s390@vger.kernel.org,
+ hca@linux.ibm.com,
+ gor@linux.ibm.com,
+ agordeev@linux.ibm.com,
+ borntraeger@linux.ibm.com
 Content-Transfer-Encoding: quoted-printable
+Message-Id: <2AB0A0B1-1613-44CC-A007-2453F6206D77@linux.dev>
+References: <sashiko-outbox-198652@kernel.org>
+ <20261105080241.57241-1-lance.yang@linux.dev>
+To: Lance Yang <lance.yang@linux.dev>
+X-Mailer: Apple Mail (2.3901.200.71.1.16)
 
-On Thu, Nov 5, 2026 at 8:43=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com> =
+
+
+> On Nov 5, 2026, at 16:02, Lance Yang <lance.yang@linux.dev> wrote:
+>=20
+>=20
+> On Thu, Nov 05, 2026 at 07:16:48AM +0000, sashiko-bot@kernel.org =
 wrote:
->
-> not how you ae supposed to attribute LLM use.
->
+>> Thank you for your contribution! Sashiko AI review found 2 potential =
+issue(s) to consider:
+>> - [Low] mm: undeclared vmemmap in =
+section_vmemmap_optimization_disable()
+>> - [Low] mm: define vmemmap_optimizable_order() before =
+section_vmemmap_optimizable()
+>> --
+>=20
+> IIUC, on LoongArch, asm/pgtable.h includes vmemmap-optimization.h =
+before
+> defining vmemmap.
 
-Sorry about that. I've sent the v2 with corrected LLM disclosure as
-"Assisted-by": https://lore.kernel.org/virtualization/20261106055635.301988=
-9-1-stjepan.poljak@gmail.com/T/#u
+Yeah. Really nasty.
 
-Thank you,
-Stjepan Poljak
+>=20
+> How about taking a PFN and page count instead, and leaving the =
+conversion
+> to the callers?
+
+However, although this can solve the compilation problem, for the =
+caller,
+it is not very straightforward because they need to calculate nr_pages.
+section_vmemmap_optimization_disable is only supposed to be used in the
+vmemmap population path, and in these paths, the most direct parameters
+are start and end. I think this function could be moved to
+mm/sparse-vmemmap.c, and that way the compilation dependency problem
+would be solved.
+
+What do you think?
+
+Thanks,
+Muchun
+
+>=20
+> ---8<---
+> diff --git a/arch/loongarch/mm/init.c b/arch/loongarch/mm/init.c
+> index c91afce46136..5a3a225135be 100644
+> --- a/arch/loongarch/mm/init.c
+> +++ b/arch/loongarch/mm/init.c
+> @@ -143,7 +143,8 @@ void __meminit vmemmap_set_pmd(pmd_t *pmd, void =
+*p, int node,
+> int __meminit vmemmap_populate(unsigned long start, unsigned long end,
+> 			       int node, struct vmem_altmap *altmap)
+> {
+> -	section_vmemmap_optimization_disable(start, end);
+> +	section_vmemmap_optimization_disable(page_to_pfn((struct page =
+*)start),
+> +					     (end - start) / =
+sizeof(struct page));
+> #if CONFIG_PGTABLE_LEVELS =3D=3D 2
+> 	return vmemmap_populate_basepages(start, end, node, NULL);
+> #else
+> diff --git a/arch/powerpc/mm/init_64.c b/arch/powerpc/mm/init_64.c
+> index 4d6928f717cf..43c98aec29aa 100644
+> --- a/arch/powerpc/mm/init_64.c
+> +++ b/arch/powerpc/mm/init_64.c
+> @@ -283,7 +283,8 @@ int __meminit vmemmap_populate(unsigned long =
+start, unsigned long end, int node,
+> 		return radix__vmemmap_populate(start, end, node, =
+altmap);
+> #endif
+>=20
+> -	section_vmemmap_optimization_disable(start, end);
+> +	section_vmemmap_optimization_disable(page_to_pfn((struct page =
+*)start),
+> +					     (end - start) / =
+sizeof(struct page));
+> 	return __vmemmap_populate(start, end, node, altmap);
+> }
+>=20
+> diff --git a/include/linux/vmemmap-optimization.h =
+b/include/linux/vmemmap-optimization.h
+> index 9d9f7a67d195..0501234ab16b 100644
+> --- a/include/linux/vmemmap-optimization.h
+> +++ b/include/linux/vmemmap-optimization.h
+> @@ -76,11 +76,9 @@ static inline bool =
+section_vmemmap_optimizable(const struct mem_section *section
+> 	return =
+vmemmap_optimizable_order(section_compound_order(section));
+> }
+>=20
+> -static inline void section_vmemmap_optimization_disable(unsigned long =
+start,
+> -		unsigned long end)
+> +static inline void section_vmemmap_optimization_disable(unsigned long =
+pfn,
+> +							unsigned long =
+nr_pages)
+> {
+> -	unsigned long pfn =3D page_to_pfn((struct page *)start);
+> -	unsigned long nr_pages =3D (end - start) / sizeof(struct page);
+> 	struct mem_section *section =3D __pfn_to_section(pfn);
+>=20
+> 	if (nr_pages < PAGES_PER_SECTION) {
+> @@ -119,8 +117,8 @@ static inline bool =
+section_vmemmap_optimizable(const struct mem_section *section
+> 	return false;
+> }
+>=20
+> -static inline void section_vmemmap_optimization_disable(unsigned long =
+start,
+> -		unsigned long end)
+> +static inline void section_vmemmap_optimization_disable(unsigned long =
+pfn,
+> +							unsigned long =
+nr_pages)
+> {
+> }
+>=20
+> diff --git a/mm/sparse-vmemmap.c b/mm/sparse-vmemmap.c
+> index 5777f2e29684..64bc346d0fc5 100644
+> --- a/mm/sparse-vmemmap.c
+> +++ b/mm/sparse-vmemmap.c
+> @@ -474,7 +474,7 @@ struct page * __meminit =
+__populate_section_memmap(unsigned long pfn,
+>=20
+> 	/* Altmap-backed vmemmap pages cannot be optimized. */
+> 	if (altmap)
+> -		section_vmemmap_optimization_disable(start, end);
+> +		section_vmemmap_optimization_disable(pfn, nr_pages);
+> 	r =3D vmemmap_populate(start, end, nid, altmap);
+> 	if (r < 0)
+> 		return NULL;
+> ---
+>=20
+> Cheers, Lance
+
