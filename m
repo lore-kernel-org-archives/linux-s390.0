@@ -1,59 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
 	t=1793926453;
-	b=ZHU996VaYPtE/smKLJnVl37Xo5hTcPG31uWVwcrHGjvQMjxjT/bRr5GeId9cDLss9Xif
-	 iO3Vi1rqRHgTh3Chz2XXhTXHa2ZLyJC+D3QiMPCf1IHmNpv/0feLR2AHZaHAj2qyk8s6E
-	 Q/KK7ZBSqJDGsGXkHyh9VxWPupJkaO2dpmQL4MHgg6NCvkyZsJya+tIV4bXvwPb89Rzmc
-	 IhRih60y3mA+OKJOP8T/3TUBe6P0XAy6S+I9NEnm2/mMyc4K1VE28xUkCZXyC63ZtioUu
-	 BtYWk5vHO12UMQOG2i0+SMIMdmAAE7SipgEDA/Pdqzlmp8DaX7+40DqVifs6Q/gBqjA==
+	b=uCp/iYEaPIriHRRbWbJC33j/L71UsrerRwjhMbDBuYjyeyl4Ge9xJdnGhkRgK6GFKj4S
+	 XvZz61+LCh4V6HM64IvG8DTwbp6Y0L8dczOS4efQvDhAIVmXcv3EXZK5mmBCwFfg/UHLa
+	 sAhsHSPkr45JcRJf3l3NUhK9KhVOhe4jjeI0JHl2Ymp0i2aiwVTvytQf46Qllnep14U68
+	 Y9ThiFYf2kXphsQ5vKUFgo7+HQyh3B7iLq+JkPjNujeZmuQ4cDQFvygu1nvo2wpeB3qGN
+	 cZAFg3FvhzwROkIFMSgmweeZZwYqYXmQz9GXTIosGS2KLmy5GWzIy2iQauQ2NGynq3A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	a=rsa-sha256; c=relaxed/relaxed; t=1793926453;
 	h=Received:DKIM-Signature:Message-ID:From:Subject:Reply-To:To:Cc:
 	 In-Reply-To:References:Content-Type:Content-Transfer-Encoding:Date;
-	bh=Cf3gbPEemvhtmquY/hbDBAk5cxzKMbbyZ9H+OWTLeqQ=;
-	b=MkPiwW5Qul8DJ4S8gbNoiDplEpq+fIMKPzJmgpjrlD1ivRyRWJemAH6rLz5FYLsm4j6n
-	 h+e/s1pKXMZhX9/T5waGEEH9jmrToLFyVNZ7chL1HSAJ7mARThBALZQlfBNkme/dZHdom
-	 ZAGjvVcxFLQU90pouJMrbGyfqFsmKvG7Ew3NDYpzdVryTDpks0P22KYogArezmT4+uNJb
-	 MmO5GEgAA2rTGBuSoqFQXXVz3BVLbOmAvrEf5rS/pm9JZLL8Fp1x/TgEI7rF2om2OjmsW
-	 +wN4ApEuXU4RhmuRA9docrHLDgY16eQB0N88jMp/dPIdDh9ktcybICFsNPy/TtPzDiA==
+	bh=eLMqWZ5zqX5yn9HI33iCtD+6kEC8KuIRrsN9qbOhCk4=;
+	b=yQk21tLMLNkjj//JwWlfk1yxPwPPSKjcIYeMbLsoWY7WoSA5Z0xvzXv7sOVNUVAwU+8v
+	 FPSVjHtjEXgSh2h7tf1Pijxh7GqebXg48ycFhOyImThD/lycYw8U74zgzECHqiTAjwiRO
+	 kZatlVATLLwiFoW3jReWbgMm7kgcP/pezbAiVBwXvo/6b3qYR5kMn4uKgfQzmOWfcqNPL
+	 +tCTMlclhpR43eJ96lVb9ZnsnUGxRU8m34Xlt7zsYlVVK3guMLujnbeHzMAaQiymwQcUf
+	 huXPXfRMs1xxE8j3CVx7c93H6/0SElwvXQX2hE23laMI5nYcdWlJr2xECtYf+SZNlAg==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iSaGjn5S;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MpWUgC7n;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA3D7606A335;
-	Fri,  6 Nov 2026 00:54:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 895D8606A32E;
+	Fri,  6 Nov 2026 00:54:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=iSaGjn5S
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EFCA1F008A1;
-	Fri,  6 Nov 2026 00:54:12 +0000 (UTC)
+	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=MpWUgC7n
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 135AB1F008A5;
+	Fri,  6 Nov 2026 00:54:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1793926452;
-	bh=Cf3gbPEemvhtmquY/hbDBAk5cxzKMbbyZ9H+OWTLeqQ=;
+	s=k20260515; t=1793926453;
+	bh=eLMqWZ5zqX5yn9HI33iCtD+6kEC8KuIRrsN9qbOhCk4=;
 	h=From:Subject:Reply-To:To:Cc:In-Reply-To:References:Date;
-	b=iSaGjn5S3BZzrSolgtu3Txtzmf1gNY7+YPGw/MAEXBoK+Rno52VCZh8dQBH1CZkDx
-	 TBHXvBZbVoZHNKZv+D/wLsJzOLj4u30RA7fh1uJq+zuHRQNhvtIlP6B0k0kKryx70H
-	 gBTEB2z8cl4jVVCgdvUQv8Mp1B7FC5rzxWvSbM9egkIBuIVo7lebYl/+6SkJ22Tkdn
-	 gvLEdXRIFqNKdrj5aqGPo12lz0aZzbHGWHJavSwPrkSyxAjzSLFIw1tZZ9+s/Eo4HC
-	 QzctvrC9939DGa7GxXRVNZYoWgwzwWb8Zz2PDO1emJK0jwPn9pw5ExzeRt3krQu+76
-	 O+cRJz9gdvB/g==
-Message-ID: <sashiko-outbox-200464@kernel.org>
+	b=MpWUgC7nDcsaiAv/LpeHmub4ky4VnWLMo+XkWNvKgM3QNT1UH3GiIKWDuXrco5XyG
+	 +0O+dr16yL2bmw4sLtXVkGt1xi5wm9qO9qv4mSXup/4MUfYJZTsLRhert4WZNFGWKZ
+	 wRt96jzsrWfJVXj5eWk9pEAbKn9EokqRUeoLStvuIkKZCYjCNl7nUQr5jGbBrVpRu1
+	 JxzMMSDdJRrRXqB3M2290phxcjadkOjsFaePr4V7Pt+VxPeRhzARCnxNNVhfxIZ3N1
+	 k/KcR8sX+oa1HxMK+E2ItoQxNOFszxrc4S3MaTyO872IIB1dq+cJfhPf/6fRXSXO/F
+	 J91i6HfxEWsKg==
+Message-ID: <sashiko-outbox-200465@kernel.org>
 From: sashiko-bot@kernel.org
-Subject: Re: [RFC PATCH v3 09/11] KEYS: Pin the backing kernel module for a
- key type
+Subject: Re: [RFC PATCH v3 10/11] KEYS: Remove key_type_dead
 Reply-To: sashiko-reviews@lists.linux.dev
 To: "Jarkko Sakkinen" <jarkko@kernel.org>
 Cc: linux-s390@vger.kernel.org, linux-security-module@vger.kernel.org, "Heiko
  Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
  Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger" <borntraeger@linux.ibm.com>
-In-Reply-To: <20261105005311.804098-10-jarkko@kernel.org>
+In-Reply-To: <20261105005311.804098-11-jarkko@kernel.org>
 References: <20261105005311.804098-1-jarkko@kernel.org>
- <20261105005311.804098-10-jarkko@kernel.org>
+ <20261105005311.804098-11-jarkko@kernel.org>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Date: Fri, 06 Nov 2026 00:54:11 +0000
+Date: Fri, 06 Nov 2026 00:54:12 +0000
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -63,14 +62,10 @@ List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
 
-> Add the owner field (populated with THIS_MODULE) to struct key_type.
+> unregister_key_type() no longer needs to retype live keys as keys and
+> restrictions pin the module while they reference it.
 >=20
-> Pin the module in key_alloc() and keyring_restrict(), and release it in
-> key_gc_unused_keys() and keyring_destroy(), which are wires to the keys
-> and restrictions.
->=20
-> Reject module owners still in MODULE_STATE_COMING so that the failed
-> module_init() paths cannot leave behind referenced keys.
+> Remove key_type_dead and associated code from the keyring GC.
 >=20
 > Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 
@@ -78,5 +73,5 @@ Sashiko has reviewed this patch and found no issues.
 
 --=20
 Sashiko AI review =C2=B7 https://sashiko.dev/#/patchset/20261105005311.8040=
-98-1-jarkko@kernel.org?part=3D9
+98-1-jarkko@kernel.org?part=3D10
 
