@@ -1,13 +1,13 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=148.163.158.5
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1793981341;
-	b=K8GLVwCPCF4O6vaESXQBWlxY65dAE8YF8gfFmru5LwW4xoQ5IycSyKFqKvTJq0r2tyBQ
-	 49P9mYDOQSJ7siqckT9bknP3n8oaoTm4McAY0PP/VFt1ilroqtbAgFm8SNpmtrw4PPd18
-	 +PchepDQtzxqllABneDwvOTV+zSWf5TyE1ee7yy4+PBsKQ1gD2AUiTJIDZ7KOydY25I8X
-	 IQ6knx8ZGa7E8Sb7DdIAmv57rCwx+n0ZF0mAqV8t4XU4kgr/VkjfJhjkdZZp0+2qo0paQ
-	 KaR7+kei6H2H08pq5Kh82CObxjrW5OgiBDd/uYIMg5B2LNqs3z4cWTsEXEg4DAbdjWg==
+	t=1793981336;
+	b=CvOWyRYjT4yrUXDgSGmWv7taVnf8X9oNDP6MVuLYR6sIz/gF9jzKVDb2xkD2Dfe0S2NX
+	 y0QNxkEZtFLiydWMxUIZoJNQ/TXqRbhR+B6oL7EU75jZlJXjyin3mAeD95cczcdTmNnXg
+	 j26i1ywrvU+LhvGdkPrlfw4iLxEMkD+r3V4cnuJXeBhxekNsc14QuLCHl4SiQ/zMIkvJu
+	 uc1/KtLIWmtOFA1jPzk24WMzc+UX1dlQsF/oL6dQPzlqNwEAq19sz+3aZsBwmKSnSklS8
+	 NO+YNvFPC5dZ7mLgQnwwpqPz1jpmML/P2MPccChfUWWjbyTF/lnRbPGjGy+6Mib95Uw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1793981341;
+	a=rsa-sha256; c=relaxed/relaxed; t=1793981336;
 	h=DMARC-Filter:Received:DKIM-Signature:Received:Received:Received:
 	 Received:Received:Received:Received:From:Date:Subject:MIME-Version:
 	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
@@ -15,68 +15,68 @@ ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
 	 X-Proofpoint-GUID:X-Proofpoint-Spam-Details-Enc:
 	 X-Proofpoint-ORIG-GUID:X-Authority-Analysis:
 	 X-Proofpoint-Virus-Version:X-Proofpoint-Spam-Details;
-	bh=UoG+N7sFPyhJfOQ3AS4CdkcQ5IpgxCbwJzW/6wfd6d0=;
-	b=xnyN2qBkA3pmIm07S//IMMca5404l93OoFq+oy9hr8brmejd272lTQ4aHW1I5/qeG7uu
-	 uIRhFwy/lA8gMU/IsHsZt0xqdd8R2zkVDwQmf1v9KeKOeF6rXpLEdapvdRiDab6NukEh5
-	 JOLQU371HUAW6Jd1FLHUTcw9/AphUjVYyK9KfnnIXpDckI8UrJSNEG9husMvjMrJZE4NA
-	 sJ6WA+KHUhPZabuQzEzx/vQHYUTuj5FhgesmiN8DPCBwRHoFxpTofXbsklyW9hgl4qIwU
-	 A9+II5FJ8l6rPQ+xBcmQmWovEIDei7o2kEuN56mVkvt4tmiY+oxfdEKOfZ/Xj5BbzbA==
+	bh=01XaVDFyHS1v8Vm6tncXokfJcSWetYXwjrAXCkBdHNU=;
+	b=3PqS8azm4ZcffRqzx0Eo/zzV5moMkXFmJO+IXjN5zphEqv9CfOb8Mt4EP0dRqMEWw+6c
+	 UfWLufzk46IaxncNpGBQnRBw0ytb82YTwHS2MgirZW8IElBrKxbu16YnfHKDUUSjUkqVw
+	 O7sQyq2y8uPDwkHPvTT0+t5EbgeucEfEWkXGBuzPQOQ36bqJSpLHx9/1K8VzG0o/iPWhQ
+	 10AYqmRwA2ld4Uta2GYulniI7d1t4phbXtPKnz15bpGRJIZakczxGgLkEjzf/VWrZHf31
+	 EeMHOzjMAnF5+qP6wlntzFzv1ep0KnHfL1hiGST1FOLY9G8bn7iKEyHYA7hHmM6yUTA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=linux.ibm.com;
 	spf=pass smtp.mailfrom=linux.ibm.com;
-	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=VNIqd4Mf;
+	dkim=pass header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=K1CJ+gHP;
 	arc=none smtp.remote-ip=148.163.158.5
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D268860A3810;
-	Fri,  6 Nov 2026 16:09:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org D268860A3810
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41E4C6083614;
+	Fri,  6 Nov 2026 16:08:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 41E4C6083614
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=VNIqd4Mf
+	dkim=pass (2048-bit key, unprotected) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=K1CJ+gHP
 Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6FEC752656391;
-	Fri, 6 Nov 2026 16:08:24 GMT
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6FEC742656391;
+	Fri, 6 Nov 2026 16:08:23 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=UoG+N7
-	sFPyhJfOQ3AS4CdkcQ5IpgxCbwJzW/6wfd6d0=; b=VNIqd4MfMVi6uGMJkMiD1D
-	YOJg48vL+/0pNStM07JJ8p3zNFPveK61JhuD/zXCm561/4rPwwAiLYv9/NpMvI9y
-	kcN13hsiEqS0kFZiBjtZe6dz1qylnXuGZ1htsglESqwfKFXuDItZ8NAgmlWYoQjw
-	eElIqTF/rK1DQPrP/EQvXZCpHhuxOQAE6+2q3L4Ai5uxq8Yt4ls/Tg+JrAt7CnWr
-	9qcWeAx95YHG1IYIN7fxaAnSUwpZVxqxuCjy3hxL6SQoynuHLtiX/6icXVkshnn3
-	Dhto4qcvFvOSqxMoZAr/7oTJFJQhhEkBUppBz1TVga1La0s5N9DQh3qr2h1V83BA
+	:message-id:mime-version:references:subject:to; s=pp1; bh=01XaVD
+	FyHS1v8Vm6tncXokfJcSWetYXwjrAXCkBdHNU=; b=K1CJ+gHPzC9cSTKfFSPqgG
+	AIWc4+jFWObHaWpIjjKcn20tlCmaLcKQ+2pJL3pNo40B7C9fJmuf90GVxaTMYxZt
+	T2tzvTMJduXXG+pCU5iOtBzH2gUjbulAhTyMdt8dJNYZr5ornl/pFjIgCJdPT/XS
+	6YrEK14bZIg2L1upcKi+NQvSnXLonti+mVPw17ADLu18FOF9U/6QfhEOwVxXi3ba
+	5OAmYZH/j9s6UYC5P5Aw2UINxEYraLi1t5F59VWn4Z0vUO7LUc3zOwbAPeVrXU9Y
+	zk/UlIHV3rYmImHIfZiYC57E+Rs4QciOKpu6n9rBJxTbaoLaJeUTXL7tV5QokJwA
 	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hs3rc5ets-1
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4hs3rc5etj-1
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Fri, 06 Nov 2026 16:08:23 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6F4wgh2390145;
-	Fri, 6 Nov 2026 16:08:23 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hs7h13wer-1
+	Fri, 06 Nov 2026 16:08:22 +0000 (GMT)
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma11.dal12v.mail.ibm.com (8.18.1.11/8.18.1.11) with ESMTP id 6A6F4s403584917;
+	Fri, 6 Nov 2026 16:08:22 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 4hrka724bc-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 06 Nov 2026 16:08:23 +0000 (GMT)
+	Fri, 06 Nov 2026 16:08:22 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A6G8JFw16646640
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 6A6G8Hvq30278042
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 6 Nov 2026 16:08:19 GMT
+	Fri, 6 Nov 2026 16:08:18 GMT
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 450C920040;
-	Fri,  6 Nov 2026 16:08:19 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 379F32004F;
+	Fri,  6 Nov 2026 16:08:17 +0000 (GMT)
 Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D19052004F;
-	Fri,  6 Nov 2026 16:08:18 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id C4DA72004B;
+	Fri,  6 Nov 2026 16:08:16 +0000 (GMT)
 Received: from a46lp73.lnxne.boe (unknown [9.87.84.240])
 	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri,  6 Nov 2026 16:08:18 +0000 (GMT)
+	Fri,  6 Nov 2026 16:08:16 +0000 (GMT)
 From: Steffen Eiden <seiden@linux.ibm.com>
-Date: Fri, 06 Nov 2026 17:07:46 +0100
-Subject: [PATCH v3 13/23] KVM: s390: arm64: Query Available Arm features
+Date: Fri, 06 Nov 2026 17:07:41 +0100
+Subject: [PATCH v3 08/23] KVM: arm64: Share system register code with s390
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -88,7 +88,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261106-sysreg-v3-13-75e95980fb10@linux.ibm.com>
+Message-Id: <20261106-sysreg-v3-8-75e95980fb10@linux.ibm.com>
 References: <20261106-sysreg-v3-0-75e95980fb10@linux.ibm.com>
 In-Reply-To: <20261106-sysreg-v3-0-75e95980fb10@linux.ibm.com>
 To: Marc Zyngier <maz@kernel.org>, Oliver Upton <oupton@kernel.org>,
@@ -117,24 +117,24 @@ Cc: linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
         linux-s390@vger.kernel.org, Steffen Eiden <seiden@linux.ibm.com>
 X-Mailer: b4 0.14.3
 X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA2MDA2MiBTYWx0ZWRfX+3Y8vjxsShH0
- S4kYSfH8y2YidXXo02LTwo3jX+B+4rfCc5+95guHCsCyGKZRzWG1qjfDLx6vUFbiV1BJ09bmuiT
- FW/ttW15L3in3f42StvFSDNhQZ81+10=
-X-Proofpoint-GUID: QW562MhpmT1a_Ahx8PlWauJ0TJNjV3LU
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA2MDA2MiBTYWx0ZWRfX/7dnktGWn2vM
- g/WbByH/hU4RCgyZvtwJu2nPo0aKcrbbT3Aqg1WHcWXttpO30HdmC60Skz9ndhl+s1LnNPSVLYT
- LsXMFF/bkY5lCx8qlah6qZeLxyj5G6iw6j9beazqxuQhHQnW/t396kE/9CihnJQCZ+r62VPjI6v
- bv5W+yHoJ3t3oEOXNR2hAWnYXv4+dntNAdgK5XWnKMWV19fLAK6UqakiMZXE2JnpxGrn67HhHnY
- YAV148cMO3SgxIXqxY/5bC/x2Qd5VNQDYzP+ap8CdJ072sAOZGgKOcdHB+cmxAULQb5ffi/BQlq
- rPJEDerNjI3C7aalBxsxuRPg2r2LViIgbPpzK/p+4lArlcuxrD5cLPV4Y7XBYUJLbFsTG7RUlMM
- /s/tv8oO9fwyaYNtaOfbPV/W9NyuzPnlS/GjhyM0vfrJNTofCf9w2g1GPJ+Plv3jjnl8eweMXY1
- qJc8y9ErjW4Z3BTXC7Q==
-X-Proofpoint-ORIG-GUID: QW562MhpmT1a_Ahx8PlWauJ0TJNjV3LU
-X-Authority-Analysis: v=2.4 cv=CY+dd7rl c=1 sm=1 tr=0 ts=6aedfb78 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
+X-Proofpoint-Spam-Info: AW1haW4tMjYxMTA2MDA2MiBTYWx0ZWRfX7u9GWPzLxfpP
+ TLKJBYzLwAxlrxNDD6P+cOKIYMeKrBxZ84eB763ScuylvSyqXCk/7/LveFo3SNe0vxjIuNGHIHn
+ UdBq0uzQcoqzIhIo1OR/Jpheoa8xXJU=
+X-Proofpoint-GUID: b_3lSkkcRwIkuydlZjWET0az5WVzQ8TE
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYxMTA2MDA2MiBTYWx0ZWRfX0WOnDBCutLWh
+ Yl57gK3I1sdCIdoNRXaq0NcMoq5GcMcMwTbx/3KJ+F+wsSfed89KQjtPyunvj9DSiq8Kxo4madm
+ 0DMXVGZkmxEOE6cwSlevEHbs1Ui/eVBv0w8X5kLpUjV8IV2QFn92MV7W0+vBmt8E4qoH4ufjPaj
+ 1kux5SrPZcW0acFpsfz3XJa2GnSdyKfe12kuNZpdfphmMuOA4wRPXWXAirdQnyHPrhBWf4DGgNI
+ mPs/WWXpe1ARHMda1Yew50B1afthYYJx8LlU4pabWw6z2GAbhBTeQwkcBuqa5Ph9LL1pDme6uBB
+ JfKmg879Aqlj5eN3lMCKxbKxnct+WLKhrdm0j1r/epP5wko8dAqbRCzIRKcTOrU5Dc/tPiBm+0N
+ QOZcPNt6rvsvK3KADhB08SWDscmKZeAw6IVXZCIdPuj3h17CbDB2H/BIgAHzDXBrb4diw8pZcGR
+ ymx7MYCnRYLo8jUcINQ==
+X-Proofpoint-ORIG-GUID: b_3lSkkcRwIkuydlZjWET0az5WVzQ8TE
+X-Authority-Analysis: v=2.4 cv=CY+dd7rl c=1 sm=1 tr=0 ts=6aedfb76 cx=c_pps
+ a=aDMHemPKRhS1OARIsFnwRA==:117 a=aDMHemPKRhS1OARIsFnwRA==:17
  a=IkcTkHD0fZMA:10 a=zJRp6_cAMcgA:10 a=VkNPw1HP01LnGYTKEx00:22
  a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=VnNF1IyMAAAA:8
- a=o3ct1ghBEqN8h786NAEA:9 a=QEXdDO2ut3YA:10
+ a=Ta4cUnT-blxcx9JQKIoA:9 a=QEXdDO2ut3YA:10
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.138,FMLib:17.12.100.49
  definitions=2026-11-06_05,2026-11-06_01,2025-10-01_01
@@ -144,493 +144,254 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2611040001 definitions=main-2611060062
 
-QAAF enables s390 hosts to gain information about the support
-and handling of various arm features supported by the machine.
-
-Function code 1 provides general information about available formats,
-machine defined content of system/id register, and other various
-information for running arm guests.
-
-Function code 2 provides a initialised save area.
+Mark functions that s390 can use to implement system registers for arm
+on s390 guests as shared functions. The new shared functionality covers
+system register infrastructure for KVM, Pointer auth checks and
+shareable parts of the SVE register API. In order to reduce the number
+of shared sections more code than s390 requires is shared. This is no
+problem as for the shared code unused function checking is disabled.
 
 Co-developed-by: Andreas Grapentin <gra@linux.ibm.com>
 Signed-off-by: Andreas Grapentin <gra@linux.ibm.com>
 Signed-off-by: Steffen Eiden <seiden@linux.ibm.com>
 ---
- arch/s390/include/asm/aef.h                  |  12 +++
- arch/s390/include/asm/kvm_host_arm64_types.h | 115 +++++++++++++++++++++++++++
- arch/s390/include/asm/sae.h                  |  26 ++++++
- arch/s390/kernel/Makefile                    |   2 +-
- arch/s390/kernel/aef.c                       |  94 ++++++++++++++++++++++
- arch/s390/kvm/arm64/Makefile                 |   1 +
- arch/s390/kvm/arm64/arm.c                    |   6 +-
- arch/s390/kvm/arm64/qaaf.c                   |  83 +++++++++++++++++++
- arch/s390/kvm/arm64/qaaf.h                   |  12 +++
- arch/s390/tools/opcodes.txt                  |   1 +
- 10 files changed, 350 insertions(+), 2 deletions(-)
+ arch/arm64/kvm/arm.c      |  3 +++
+ arch/arm64/kvm/guest.c    | 11 +++++++----
+ arch/arm64/kvm/sys_regs.c | 27 +++++++++++++++++++++++++++
+ 3 files changed, 37 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/include/asm/aef.h b/arch/s390/include/asm/aef.h
-new file mode 100644
-index 000000000000..06519cc575be
---- /dev/null
-+++ b/arch/s390/include/asm/aef.h
-@@ -0,0 +1,12 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+
-+#ifndef _ASM_S390_AEF_H
-+#define _ASM_S390_AEF_H
-+
-+#include <asm/kvm_host_arm64_types.h>
-+
-+const struct kvm_sae_save_area *aef_gisrsa(void);
-+const struct qaaf_qmc_block *aef_qmc(void);
-+bool aef_usable(void);
-+
-+#endif /* _ASM_S390_AEF_H */
-diff --git a/arch/s390/include/asm/kvm_host_arm64_types.h b/arch/s390/include/asm/kvm_host_arm64_types.h
-index 8783a66d3029..d9471f3b0d46 100644
---- a/arch/s390/include/asm/kvm_host_arm64_types.h
-+++ b/arch/s390/include/asm/kvm_host_arm64_types.h
-@@ -121,4 +121,119 @@ struct kvm_sae_save_area {
- } __packed __aligned(PAGE_SIZE);
- static_assert(sizeof(struct kvm_sae_save_area) == PAGE_SIZE);
- 
-+#define QAAF_FC_QMC	1
-+#define QAAF_FC_GISRSA	2
-+
-+union qaaf_gr0_gisrsa {
-+	struct {
-+		u8 _0000[6];
-+		u8 saf;
-+		u8 : 2;
-+		u8 fc : 6;
-+	};
-+	u64 val;
-+};
-+
-+static_assert(sizeof(union qaaf_gr0_gisrsa) == sizeof(u64));
-+
-+/* QAAF Query Model Capabilities */
-+struct qaaf_qmc_block {
-+	u64	_0000;			/* 0x0000 */
-+	u8	ssdf;			/* 0x0008 */
-+	u8	_0009;			/* 0x0009 */
-+	u8	ssaf;			/* 0x000a */
-+	u8	_000b[3];		/* 0x000b */
-+	u16	maxncpu;		/* 0x000e */
-+	u64	_0010[2];		/* 0x0010 */
-+	u64	regs[0x1fc];		/* 0x0020 */
-+} __aligned(PAGE_SIZE);
-+static_assert(sizeof(struct qaaf_qmc_block) == PAGE_SIZE);
-+
-+union qaaf_block {
-+	struct qaaf_qmc_block qmc;
-+	struct kvm_sae_save_area save_area;
-+} __aligned(PAGE_SIZE);
-+static_assert(sizeof(union qaaf_block) == PAGE_SIZE);
-+
-+/*
-+ * Keep in sync with mapping from SYS_* to QAAF_* in qaaf.c!
-+ */
-+enum {
-+	QAAF_REG_MIDR_EL1		= 0x00,
-+	/* 0x01-0x04 reserved */
-+	QAAF_REG_MPIDR_EL1		= 0x05,
-+	QAAF_REG_REVIDR_EL1		= 0x06,
-+	/* 0x07 reserved */
-+	QAAF_REG_ID_PFR0_EL1		= 0x08,
-+	QAAF_REG_ID_PFR1_EL1		= 0x09,
-+	QAAF_REG_ID_DFR0_EL1		= 0x0a,
-+	QAAF_REG_ID_AFR0_EL1		= 0x0b,
-+	QAAF_REG_ID_MMFR0_EL1		= 0x0c,
-+	QAAF_REG_ID_MMFR1_EL1		= 0x0d,
-+	QAAF_REG_ID_MMFR2_EL1		= 0x0e,
-+	QAAF_REG_ID_MMFR3_EL1		= 0x0f,
-+	QAAF_REG_ID_ISAR0_EL1		= 0x10,
-+	QAAF_REG_ID_ISAR1_EL1		= 0x11,
-+	QAAF_REG_ID_ISAR2_EL1		= 0x12,
-+	QAAF_REG_ID_ISAR3_EL1		= 0x13,
-+	QAAF_REG_ID_ISAR4_EL1		= 0x14,
-+	QAAF_REG_ID_ISAR5_EL1		= 0x15,
-+	QAAF_REG_ID_MMFR4_EL1		= 0x16,
-+	QAAF_REG_ID_ISAR6_EL1		= 0x17,
-+	QAAF_REG_MVFR0_EL1		= 0x18,
-+	QAAF_REG_MVFR1_EL1		= 0x19,
-+	QAAF_REG_MVFR2_EL1		= 0x1a,
-+	/* 0x1b reserved */
-+	QAAF_REG_ID_PFR2_EL1		= 0x1c,
-+	QAAF_REG_ID_DFR1_EL1		= 0x1d,
-+	QAAF_REG_ID_MMFR5_EL1		= 0x1e,
-+	/* 0x1f reserved */
-+	QAAF_REG_ID_AA64PFR0_EL1	= 0x20,
-+	QAAF_REG_ID_AA64PFR1_EL1	= 0x21,
-+	QAAF_REG_ID_AA64PFR2_EL1	= 0x22,
-+	/* 0x23 reserved */
-+	QAAF_REG_ID_AA64ZFR0_EL1	= 0x24,
-+	QAAF_REG_ID_AA64SMFR0_EL1	= 0x25,
-+	/* 0x26 reserved */
-+	QAAF_REG_ID_AA64FPFR0_EL1	= 0x27,
-+	QAAF_REG_ID_AA64DFR0_EL1	= 0x28,
-+	QAAF_REG_ID_AA64DFR1_EL1	= 0x29,
-+	QAAF_REG_ID_AA64DFR2_EL1	= 0x2a,
-+	/* 0x2b reserved */
-+	QAAF_REG_ID_AA64AFR0_EL1	= 0x2c,
-+	QAAF_REG_ID_AA64AFR1_EL1	= 0x2d,
-+	/* 0x2e,0x2f reserved */
-+	QAAF_REG_ID_AA64ISAR0_EL1	= 0x30,
-+	QAAF_REG_ID_AA64ISAR1_EL1	= 0x31,
-+	QAAF_REG_ID_AA64ISAR2_EL1	= 0x32,
-+	QAAF_REG_ID_AA64ISAR3_EL1	= 0x33,
-+	/* 0x34-0x37 reserved */
-+	QAAF_REG_ID_AA64MMFR0_EL1	= 0x38,
-+	QAAF_REG_ID_AA64MMFR1_EL1	= 0x39,
-+	QAAF_REG_ID_AA64MMFR2_EL1	= 0x3a,
-+	QAAF_REG_ID_AA64MMFR3_EL1	= 0x3b,
-+	QAAF_REG_ID_AA64MMFR4_EL1	= 0x3c,
-+	/* 0x3d-0x3f reserved */
-+	QAAF_REG_CNTFRQ_EL0		= 0x40,
-+	QAAF_REG_CTR_EL0		= 0x41,
-+	QAAF_REG_AIDR_EL1		= 0x42,
-+	/* 0x43-0x47 reserved */
-+	QAAF_IRPTC			= 0x48,
-+	/* 0x49 reserved */
-+	QAAF_REG_ICH_VTR_EL2		= 0x4a,
-+	QAAF_GIC_ATTR			= 0x4b,
-+	/* 0x4c-0x4f reserved */
-+	QAAF_REG_PMMIR_EL1		= 0x50,
-+	QAAF_REG_PMCR_EL0		= 0x51,
-+	QAAF_REG_PMCEID0_EL0		= 0x52,
-+	QAAF_REG_PMCEID1_EL0		= 0x53,
-+	/* 0x54-0x1fb reserved */
-+	_QAAF_MAX
-+};
-+
-+static_assert((sizeof(struct qaaf_qmc_block) -
-+	       offsetof(struct qaaf_qmc_block, regs)) /
-+		      8 >=
-+	      _QAAF_MAX);
-+
- #endif /* ASM_KVM_HOST_ARM64_TYPES_H */
-diff --git a/arch/s390/include/asm/sae.h b/arch/s390/include/asm/sae.h
-index cac4fbf58e88..d1b9af770108 100644
---- a/arch/s390/include/asm/sae.h
-+++ b/arch/s390/include/asm/sae.h
-@@ -12,6 +12,7 @@
- asmlinkage void sae(phys_addr_t sae_block_phys);
- 
- #include <linux/io.h>
-+#include <asm/extable.h>
- #include <asm/kvm_host_arm64_types.h>
- #include <asm/insn-common-asm-emit.h>
- 
-@@ -112,5 +113,30 @@ static __always_inline void lasrm(struct kvm_sae_save_area *save_area)
- 	);
+diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
+index 157bf4b81202..d83df5ff68f4 100644
+--- a/arch/arm64/kvm/arm.c
++++ b/arch/arm64/kvm/arm.c
+@@ -366,6 +366,7 @@ void kvm_arch_destroy_vm(struct kvm *kvm)
+ 	kvm_arm_teardown_hypercalls(kvm);
  }
  
-+/**
-+ * qaaf() - Query Available Arm Features
-+ * @gr0: QAAF function code
-+ * @qaaf_block: Pointer to the page for the output
-+ *
-+ * Perform QAAF. The result is written to qaaf_block.
-+ */
-+static __always_inline int qaaf(u64 gr0, union qaaf_block *qaaf_block)
-+{
-+	int exception = 1;
-+
-+	asm_inline volatile(
-+		"	lgr	0,%[r0]\n"
-+		"0:	.insn	rre,0xb9ad0000,%[r1],0\n"
-+		"	lhi	%[exc],0\n"
-+		"1:\n"
-+		EX_TABLE_INSN(0b, 1b)
-+		: "=m" (*qaaf_block), [exc] "+d" (exception)
-+		: [r1] "a" (qaaf_block), [r0] "d" (gr0)
-+		: "0"
-+	);
-+
-+	return exception;
-+}
-+
- #endif /* !__ASSEMBLER__ */
- #endif /* __ASM_S390_SAE_H */
-diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
-index f84b8fb41331..0f3b9fcd1885 100644
---- a/arch/s390/kernel/Makefile
-+++ b/arch/s390/kernel/Makefile
-@@ -46,7 +46,7 @@ obj-y	+= runtime_instr.o cache.o fpu.o dumpstack.o guarded_storage.o sthyi.o
- obj-y	+= entry.o reipl.o kdebugfs.o alternative.o skey.o
- obj-y	+= nospec-branch.o ipl_vmparm.o machine_kexec_reloc.o unwind_bc.o
- obj-y	+= smp.o text_amode31.o stacktrace.o abs_lowcore.o facility.o uv.o wti.o
--obj-y	+= diag/
-+obj-y	+= diag/ aef.o
- 
- always-$(KBUILD_BUILTIN)	+= vmlinux.lds
- 
-diff --git a/arch/s390/kernel/aef.c b/arch/s390/kernel/aef.c
-new file mode 100644
-index 000000000000..31e18953d7b3
---- /dev/null
-+++ b/arch/s390/kernel/aef.c
-@@ -0,0 +1,94 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <linux/export.h>
-+#include <linux/sysfs.h>
-+#include <linux/kobject.h>
-+#include <linux/slab.h>
-+
-+#include <asm/aef.h>
-+#include <asm/sae.h>
-+#include <asm/sclp.h>
-+
-+static struct qaaf_qmc_block qmc = {};
-+static struct kvm_sae_save_area save_area = {};
-+
-+const struct kvm_sae_save_area *aef_gisrsa(void)
-+{
-+	return &save_area;
-+}
-+EXPORT_SYMBOL_GPL(aef_gisrsa);
-+
-+const struct qaaf_qmc_block *aef_qmc(void)
-+{
-+	return &qmc;
-+}
-+EXPORT_SYMBOL_GPL(aef_qmc);
-+
-+/* set once the QMC block and GISRSA save area were fetched successfully */
-+static bool aef_valid;
-+
-+/**
-+ * aef_usable() - Report whether the QAAF query data is available
-+ *
-+ * false if sclp.has_aef is not set or the QAAF instruction failed.
-+ */
-+bool aef_usable(void)
-+{
-+	return aef_valid;
-+}
-+EXPORT_SYMBOL_GPL(aef_usable);
-+
-+static int __init aef_init_save_area(void)
-+{
-+	int ret;
-+
-+	union qaaf_gr0_gisrsa gr0 = {
-+		.fc = QAAF_FC_GISRSA,
-+		.saf = SAE_SAVE_AREA_FORMAT_0,
-+	};
-+
-+	if (!sclp.has_aef)
-+		return 0;
-+
-+	ret = qaaf(gr0.val, (union qaaf_block *)&save_area);
-+	if (ret)
-+		return -EIO;
-+
-+	return 0;
-+}
-+
-+static int __init aef_query_info(void)
-+{
-+	int ret;
-+
-+	if (!sclp.has_aef)
-+		return 0;
-+
-+	ret = qaaf(QAAF_FC_QMC, (union qaaf_block *)&qmc);
-+	if (ret)
-+		return -EIO;
-+
-+	return 0;
-+}
-+
-+static int __init aef_sysfs_init(void)
-+{
-+	int rc;
-+
-+	if (!sclp.has_aef)
-+		return 0;
-+
-+	rc = aef_query_info();
-+	if (rc)
-+		return rc;
-+
-+	rc = aef_init_save_area();
-+	if (rc)
-+		return rc;
-+
-+	aef_valid = true;
-+
-+	return 0;
-+}
-+
-+arch_initcall(aef_sysfs_init);
-diff --git a/arch/s390/kvm/arm64/Makefile b/arch/s390/kvm/arm64/Makefile
-index b48dc65b7aaa..e9587c6d6de9 100644
---- a/arch/s390/kvm/arm64/Makefile
-+++ b/arch/s390/kvm/arm64/Makefile
-@@ -16,6 +16,7 @@ kvm-arm64-local := \
- 	inject_fault.o \
- 	mmio.o \
- 	mmu.o \
-+	qaaf.o \
- 	reset.o
- 
- kvm-arm64-obj := $(kvm-arm64-local)
-diff --git a/arch/s390/kvm/arm64/arm.c b/arch/s390/kvm/arm64/arm.c
-index 29d3add0bbda..62c2b45599b9 100644
---- a/arch/s390/kvm/arm64/arm.c
-+++ b/arch/s390/kvm/arm64/arm.c
-@@ -11,6 +11,7 @@
- #include <linux/bitfield.h>
- 
- #include <asm/access-regs.h>
-+#include <asm/aef.h>
- 
- #include <arm64/kvm_emulate.h>
- #include <arm64/sysreg.h>
-@@ -20,6 +21,7 @@
- 
- #include "arm.h"
- #include "handle_exit.h"
-+#include "qaaf.h"
- 
- #define CREATE_TRACE_POINTS
- #include "trace.h"
-@@ -741,9 +743,11 @@ long kvm_arch_vcpu_unlocked_ioctl(struct file *filp, unsigned int ioctl,
- 
- static int __init kvm_s390_arm64_init(void)
++#if ARM64_S390_COMMON == 1
+ static bool kvm_has_full_ptr_auth(void)
  {
--	if (!sclp.has_aef)
-+	if (!sclp.has_aef || !aef_usable())
- 		return -ENODEV;
- 
-+	kvm_init_qaaf();
-+
- 	return kvm_init(sizeof(struct kvm_vcpu), 0, THIS_MODULE);
+ 	bool apa, gpa, api, gpi, apa3, gpa3;
+@@ -400,6 +401,8 @@ static bool kvm_has_full_ptr_auth(void)
+ 		(apa + api + apa3) == 1);
  }
  
-diff --git a/arch/s390/kvm/arm64/qaaf.c b/arch/s390/kvm/arm64/qaaf.c
-new file mode 100644
-index 000000000000..f6b1750aed68
---- /dev/null
-+++ b/arch/s390/kvm/arm64/qaaf.c
-@@ -0,0 +1,83 @@
-+// SPDX-License-Identifier: GPL-2.0-only
++#endif /* ARM64_S390_COMMON == 1 */
 +
-+#include <linux/kvm_host.h>
-+#include <asm/aef.h>
-+#include "qaaf.h"
+ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ {
+ 	int r;
+diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
+index 878ea4500c5c..26ec4751e17e 100644
+--- a/arch/arm64/kvm/guest.c
++++ b/arch/arm64/kvm/guest.c
+@@ -307,12 +307,12 @@ static int set_core_reg(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
+ 	return err;
+ }
+ 
+-#endif /* ARM64_S390_COMMON == 1 */
+-
+ #define vq_word(vq) (((vq) - SVE_VQ_MIN) / 64)
+ #define vq_mask(vq) ((u64)1 << ((vq) - SVE_VQ_MIN) % 64)
+ #define vq_present(vqs, vq) (!!((vqs)[vq_word(vq)] & vq_mask(vq)))
+ 
++#endif /* ARM64_S390_COMMON == 1 */
 +
-+static struct qaaf_qmc_block qmc_sanitized;
+ static int get_sve_vls(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
+ {
+ 	unsigned int max_vq, vq;
+@@ -383,6 +383,7 @@ static int set_sve_vls(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
+ 	return 0;
+ }
+ 
++#if ARM64_S390_COMMON == 1
+ #define SVE_REG_SLICE_SHIFT	0
+ #define SVE_REG_SLICE_BITS	5
+ #define SVE_REG_ID_SHIFT	(SVE_REG_SLICE_SHIFT + SVE_REG_SLICE_BITS)
+@@ -399,6 +400,8 @@ static int set_sve_vls(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
+ #define KVM_SVE_ZREG_SIZE KVM_REG_SIZE(KVM_REG_ARM64_SVE_ZREG(0, 0))
+ #define KVM_SVE_PREG_SIZE KVM_REG_SIZE(KVM_REG_ARM64_SVE_PREG(0, 0))
+ 
++#endif /* ARM64_S390_COMMON == 1 */
 +
-+/**
-+ * kvm_qaaf_qmc() - Get the sanitised QAAF QMC block
-+ */
-+struct qaaf_qmc_block *kvm_qaaf_qmc(void)
-+{
-+	return &qmc_sanitized;
-+}
+ /*
+  * Number of register slices required to cover each whole SVE register.
+  * NOTE: Only the first slice every exists, for now.
+@@ -595,8 +598,6 @@ static unsigned long num_core_regs(const struct kvm_vcpu *vcpu)
+ 	return copy_core_reg_indices(vcpu, NULL);
+ }
+ 
+-#endif /* ARM64_S390_COMMON == 1 */
+-
+ static unsigned long num_sve_regs(const struct kvm_vcpu *vcpu)
+ {
+ 	const unsigned int slices = vcpu_sve_slices(vcpu);
+@@ -658,6 +659,8 @@ static int copy_sve_reg_indices(const struct kvm_vcpu *vcpu,
+ 	return num_regs;
+ }
+ 
++#endif /* ARM64_S390_COMMON == 1 */
 +
-+void __init kvm_init_qaaf(void)
-+{
-+	qmc_sanitized = *aef_qmc();
-+}
+ /**
+  * kvm_arm_num_regs - how many registers do we present via KVM_GET_ONE_REG
+  * @vcpu: the vCPU pointer
+diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
+index e71c1b169b49..fa1ed13daeb9 100644
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -45,6 +45,7 @@
+  * 64bit interface.
+  */
+ 
++#if ARM64_S390_COMMON == 1
+ static u64 sys_reg_to_index(const struct sys_reg_desc *reg);
+ static int set_id_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+ 		      u64 val);
+@@ -82,6 +83,8 @@ static bool write_to_read_only(struct kvm_vcpu *vcpu,
+ 			"sys_reg write to read-only register");
+ }
+ 
++#endif /* ARM64_S390_COMMON == 1 */
 +
-+#define _qaaf_reg_case(id) case SYS_##id: return qmc_sanitized.regs[QAAF_REG_##id]
-+u64 kvm_qaaf_read_ftr_reg(u32 id)
-+{
-+	switch (id) {
-+	_qaaf_reg_case(MIDR_EL1);
-+	_qaaf_reg_case(MPIDR_EL1);
-+	_qaaf_reg_case(REVIDR_EL1);
-+	_qaaf_reg_case(ID_PFR0_EL1);
-+	_qaaf_reg_case(ID_PFR1_EL1);
-+	_qaaf_reg_case(ID_DFR0_EL1);
-+	_qaaf_reg_case(ID_AFR0_EL1);
-+	_qaaf_reg_case(ID_MMFR0_EL1);
-+	_qaaf_reg_case(ID_MMFR1_EL1);
-+	_qaaf_reg_case(ID_MMFR2_EL1);
-+	_qaaf_reg_case(ID_MMFR3_EL1);
-+	_qaaf_reg_case(ID_ISAR0_EL1);
-+	_qaaf_reg_case(ID_ISAR1_EL1);
-+	_qaaf_reg_case(ID_ISAR2_EL1);
-+	_qaaf_reg_case(ID_ISAR3_EL1);
-+	_qaaf_reg_case(ID_ISAR4_EL1);
-+	_qaaf_reg_case(ID_ISAR5_EL1);
-+	_qaaf_reg_case(ID_MMFR4_EL1);
-+	_qaaf_reg_case(ID_ISAR6_EL1);
-+	_qaaf_reg_case(MVFR0_EL1);
-+	_qaaf_reg_case(MVFR1_EL1);
-+	_qaaf_reg_case(MVFR2_EL1);
-+	_qaaf_reg_case(ID_PFR2_EL1);
-+	_qaaf_reg_case(ID_DFR1_EL1);
-+	_qaaf_reg_case(ID_MMFR5_EL1);
-+	_qaaf_reg_case(ID_AA64PFR0_EL1);
-+	_qaaf_reg_case(ID_AA64PFR1_EL1);
-+	_qaaf_reg_case(ID_AA64PFR2_EL1);
-+	_qaaf_reg_case(ID_AA64ZFR0_EL1);
-+	_qaaf_reg_case(ID_AA64SMFR0_EL1);
-+	_qaaf_reg_case(ID_AA64FPFR0_EL1);
-+	_qaaf_reg_case(ID_AA64DFR0_EL1);
-+	_qaaf_reg_case(ID_AA64DFR1_EL1);
-+	_qaaf_reg_case(ID_AA64DFR2_EL1);
-+	_qaaf_reg_case(ID_AA64AFR0_EL1);
-+	_qaaf_reg_case(ID_AA64AFR1_EL1);
-+	_qaaf_reg_case(ID_AA64ISAR0_EL1);
-+	_qaaf_reg_case(ID_AA64ISAR1_EL1);
-+	_qaaf_reg_case(ID_AA64ISAR2_EL1);
-+	_qaaf_reg_case(ID_AA64ISAR3_EL1);
-+	_qaaf_reg_case(ID_AA64MMFR0_EL1);
-+	_qaaf_reg_case(ID_AA64MMFR1_EL1);
-+	_qaaf_reg_case(ID_AA64MMFR2_EL1);
-+	_qaaf_reg_case(ID_AA64MMFR3_EL1);
-+	_qaaf_reg_case(ID_AA64MMFR4_EL1);
-+	_qaaf_reg_case(CNTFRQ_EL0);
-+	_qaaf_reg_case(CTR_EL0);
-+	_qaaf_reg_case(AIDR_EL1);
-+	_qaaf_reg_case(ICH_VTR_EL2);
-+	_qaaf_reg_case(PMMIR_EL1);
-+	_qaaf_reg_case(PMCR_EL0);
-+	_qaaf_reg_case(PMCEID0_EL0);
-+	_qaaf_reg_case(PMCEID1_EL0);
-+	default:
-+		WARN(true, "Unknown feature register 0x%x\n", id);
-+		return 0xbad1234bad;
-+	}
-+}
-diff --git a/arch/s390/kvm/arm64/qaaf.h b/arch/s390/kvm/arm64/qaaf.h
-new file mode 100644
-index 000000000000..f1d50a9654b1
---- /dev/null
-+++ b/arch/s390/kvm/arm64/qaaf.h
-@@ -0,0 +1,12 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
+ enum sr_loc_attr {
+ 	SR_LOC_MEMORY	= 0,	  /* Register definitely in memory */
+ 	SR_LOC_LOADED	= BIT(0), /* Register on CPU, unless it cannot */
+@@ -428,6 +431,7 @@ void vcpu_write_sys_reg(struct kvm_vcpu *vcpu, u64 val, enum vcpu_sysreg reg)
+ 	__vcpu_assign_sys_reg(vcpu, reg, val);
+ }
+ 
++#if ARM64_S390_COMMON == 1
+ /* CSSELR values; used to index KVM_REG_ARM_DEMUX_ID_CCSIDR */
+ #define CSSELR_MAX 14
+ 
+@@ -533,6 +537,8 @@ static bool access_rw(struct kvm_vcpu *vcpu,
+ 	return true;
+ }
+ 
++#endif /* ARM64_S390_COMMON == 1 */
 +
-+#ifndef ARCH_S390_KVM_ARM64_QAAF_H
-+#define ARCH_S390_KVM_ARM64_QAAF_H
+ /*
+  * See note at ARMv7 ARM B1.14.4 (TL;DR: S/W ops are not easily virtualized).
+  */
+@@ -800,6 +806,7 @@ static bool access_gicv5_ppi_enabler(struct kvm_vcpu *vcpu,
+ 	return true;
+ }
+ 
++#if ARM64_S390_COMMON == 1
+ static bool trap_raz_wi(struct kvm_vcpu *vcpu,
+ 			struct sys_reg_params *p,
+ 			const struct sys_reg_desc *r)
+@@ -853,6 +860,8 @@ static bool trap_oslsr_el1(struct kvm_vcpu *vcpu,
+ 	return true;
+ }
+ 
++#endif /* ARM64_S390_COMMON == 1 */
 +
-+#include <asm/aef.h>
+ static int set_oslsr_el1(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+ 			 u64 val)
+ {
+@@ -1012,6 +1021,7 @@ static u64 reset_actlr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r)
+ 	return actlr;
+ }
+ 
++#if ARM64_S390_COMMON == 1
+ static u64 reset_mpidr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r)
+ {
+ 	u64 mpidr = kvm_calculate_mpidr(vcpu);
+@@ -1020,6 +1030,8 @@ static u64 reset_mpidr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r)
+ 	return mpidr;
+ }
+ 
++#endif /* ARM64_S390_COMMON == 1 */
 +
-+__init void kvm_init_qaaf(void);
-+struct qaaf_qmc_block *kvm_qaaf_qmc(void);
-+u64 kvm_qaaf_read_ftr_reg(u32 id);
+ static unsigned int hidden_visibility(const struct kvm_vcpu *vcpu,
+ 				      const struct sys_reg_desc *r)
+ {
+@@ -1589,6 +1601,7 @@ static int set_pmcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r,
+ #define AMU_AMEVCNTR1_EL0(n) { SYS_DESC(SYS_AMEVCNTR1_EL0(n)), undef_access }
+ #define AMU_AMEVTYPER1_EL0(n) { SYS_DESC(SYS_AMEVTYPER1_EL0(n)), undef_access }
+ 
++#if ARM64_S390_COMMON == 1
+ static unsigned int ptrauth_visibility(const struct kvm_vcpu *vcpu,
+ 			const struct sys_reg_desc *rd)
+ {
+@@ -1609,6 +1622,8 @@ static unsigned int ptrauth_visibility(const struct kvm_vcpu *vcpu,
+ 	__PTRAUTH_KEY(k ## KEYLO_EL1),					\
+ 	__PTRAUTH_KEY(k ## KEYHI_EL1)
+ 
++#endif /* ARM64_S390_COMMON == 1 */
 +
-+#endif
-diff --git a/arch/s390/tools/opcodes.txt b/arch/s390/tools/opcodes.txt
-index 22fb9c500a56..bb4ba4038cb0 100644
---- a/arch/s390/tools/opcodes.txt
-+++ b/arch/s390/tools/opcodes.txt
-@@ -600,6 +600,7 @@ b9a7	stiasrm	RRE_R0
- b9aa	lptea	RRF_RURR2
- b9ab	essa	RRF_U0RR
- b9ac	irbm	RRE_RR
-+b9ad	qaaf	RRE_R0
- b9ae	rrbm	RRE_RR
- b9af	pfmf	RRE_RR
- b9b0	cu14	RRF_U0RR
+ static bool access_arch_timer(struct kvm_vcpu *vcpu,
+ 			      struct sys_reg_params *p,
+ 			      const struct sys_reg_desc *r)
+@@ -1906,6 +1921,7 @@ static int arm64_check_features(struct kvm_vcpu *vcpu,
+ 	return 0;
+ }
+ 
++#if ARM64_S390_COMMON == 1
+ static u8 pmuver_to_perfmon(u8 pmuver)
+ {
+ 	switch (pmuver) {
+@@ -2840,6 +2856,8 @@ static bool bad_redir_trap(struct kvm_vcpu *vcpu,
+ 	.val = 0,				\
+ }
+ 
++#endif /* ARM64_S390_COMMON == 1 */
++
+ static bool access_sp_el1(struct kvm_vcpu *vcpu,
+ 			  struct sys_reg_params *p,
+ 			  const struct sys_reg_desc *r)
+@@ -3212,6 +3230,7 @@ static void init_imp_id_regs(void)
+ 	boot_cpu_aidr_val = read_sysreg(aidr_el1);
+ }
+ 
++#if ARM64_S390_COMMON == 1
+ static u64 reset_imp_id_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r)
+ {
+ 	switch (reg_to_encoding(r)) {
+@@ -3269,6 +3288,8 @@ static int set_imp_id_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r,
+ 	.val = mask,					\
+ 	}
+ 
++#endif /* ARM64_S390_COMMON == 1 */
++
+ static u64 reset_mdcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r)
+ {
+ 	__vcpu_assign_sys_reg(vcpu, r->reg, vcpu->kvm->arch.nr_pmu_counters);
+@@ -4833,6 +4854,7 @@ static const struct sys_reg_desc cp15_64_regs[] = {
+ 	{ SYS_DESC(SYS_AARCH32_CNTVCTSS),     access_arch_timer },
+ };
+ 
++#if ARM64_S390_COMMON == 1
+ static bool check_sysreg_table(const struct sys_reg_desc *table, unsigned int n,
+ 			       bool reset_check)
+ {
+@@ -4882,6 +4904,8 @@ static void perform_access(struct kvm_vcpu *vcpu,
+ 		kvm_incr_pc(vcpu);
+ }
+ 
++#endif /* ARM64_S390_COMMON == 1 */
++
+ int kvm_handle_cp14_load_store(struct kvm_vcpu *vcpu)
+ {
+ 	kvm_inject_undefined(vcpu);
+@@ -5416,6 +5440,7 @@ int kvm_handle_sys_reg(struct kvm_vcpu *vcpu)
+ 	return 1;
+ }
+ 
++#if ARM64_S390_COMMON == 1
+ static void reset_vm_ftr_id_reg(struct kvm_vcpu *vcpu, const struct sys_reg_desc *reg)
+ {
+ 	u32 id = reg_to_encoding(reg);
+@@ -5757,6 +5782,8 @@ int kvm_arm_copy_sys_reg_indices(struct kvm_vcpu *vcpu, u64 __user *uindices)
+ 	return write_demux_regids(uindices);
+ }
+ 
++#endif /* ARM64_S390_COMMON == 1 */
++
+ #define KVM_ARM_FEATURE_ID_RANGE_INDEX(r)			\
+ 	KVM_ARM_FEATURE_ID_RANGE_IDX(sys_reg_Op0(r),		\
+ 		sys_reg_Op1(r),					\
 
 -- 
 2.56.0
