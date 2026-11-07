@@ -1,78 +1,111 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=209.85.215.172
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794002458;
-	b=UfAN2Q1bGdPzpWgZps+ifHgVfbvCNIqg45UxPYNNIi7Q5eGBJBQkTbiMqYQ2UXF+aSiI
-	 tV5BiQscW2Z4h7GVjs/x8TOOGz6HFTa6ykHk1gUK+3ktYji+FMQzqxk72vcKiAqEXZKtl
-	 QSmxlKYM+gIABYg5xq7s6CLd/5MLiqQCfwN8rlrdhkdfrp/Lt0dqmFnJXTTMhXGGm5ugh
-	 S5T6ls4+obxmzzvgB7Cac07IWYZ9bra/3aZ9kvRMuLRYK37IYjQklgaqk3bOAnEyGQT14
-	 bBXmvk6E5a/tg/cadQ4SCei5eZ1GMOeKkes9pshbOdRIuWFutAAHr01VnE25ffHzhlA==
+	t=1794025919;
+	b=fTEWj9P3I5RiiZpzsBmCxHmV5vU0Wh7e7wVLHqfSDEBoG3kWXlGPyDyalDvyiMv6wA/U
+	 BvlR3m41/Q7RCEBDmw0K9m2KlTnczDsXNoc6CfDm3gy415KgNRREns/AI5wNK6qgbx832
+	 lQ/HWBXgISGzLA+8lftBAUYJZfhF4M5FNTca4DFvt7/jaFWyM1j3xrKPgGtOK7d6fBoUh
+	 Dntl6ayd1rOEOiAwzl8dnooicJIHGJJOirwbXFk4CulzQl4R6yevGaUEiQZ3ySsF94+Sl
+	 zSyjKDlnemRXM5f3J+84HDKaO2366wuiWPRmafNtrEkGnk86ECupzfOwdhloFScPnQw==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794002458;
-	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
-	 X-IronPort-AV:X-IronPort-AV:Received:X-CSE-ConnectionGUID:
-	 X-CSE-MsgGUID:X-ExtLoop1:X-IronPort-AV:Received:Received:Date:From:To:
-	 Cc:Subject:Message-ID:User-Agent;
-	bh=GpB22hhUY2zvJPZHm3rXXr6BOtUtdqjdOzRABACpRsA=;
-	b=wOGgTyII7lqIt1rGrT+IXQiEZbqgtGBG6qtcGWyQcACfwh2XyuDUAkvWwfJ5K1k3wY8D
-	 LDpYWkk5uqL/AJKRdcXTNh1yQQbZVSUB0Ijki8sLRzW8/Vk5m5Ej+CJyw3Zf+Zneq7m9I
-	 1t4JzlQyFFvLTiTiXY1gYNAtST60tQuw0p+yJsOoxdsv4PK/KJh/z3aZdzWc253HIc4Sy
-	 3qUMA+UJzx87BZ39bduHTZewqcp5MYGhp8UI9Tl93ryx/mVKXvBR/vO6FUFNX3na4zRxN
-	 gVjzejOGF1KFP7ffTx9Hqk5JhjRIEy4VkUW5Wh6USv/VoxqW5AnKQupUCSKnKU0tuxw==
+	a=rsa-sha256; c=relaxed/relaxed; t=1794025919;
+	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Forwarded-Encrypted:X-Gm-Message-State:X-Gm-Gg:X-Received:Received:
+	 From:To:Cc:Subject:Date:Message-ID:X-Mailer:MIME-Version:
+	 Content-Transfer-Encoding;
+	bh=tMJYIXC5HK/L92Fsjcvgr4iGfrMwtNzZGIshDMxf8u0=;
+	b=teHwfarDrmU+lx6MZjR2Lp+A19DS1Y/dKkp58VzL9/gfK14HJRyYU83RBHfYxW4SJD9S
+	 zVs7jVoXWx7oNFUSypSEIOSE8SwVY6vhAT8jeTaTaZwYdH6tlrukEeFpTMQ43YqybG97q
+	 oYcvtsLE+9GTb7VG4/1LEH0o+HIOXsD70yAlhbVPetGC331KZiuhl6ZPh4xLLO/hrcWhb
+	 0QewsTDKJTX2XeXM1K5CH2oH9EUGljDtrOJOfiAWpmEf902mVP2DZuk2N5Fcl5igfO5xd
+	 6RoZvsE2hCqGSi4Vgwiwc9UNkBZCDKsf1HRnfqAw+3ChTUcdQw2YNh1yJ9TD3xf00ZA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=intel.com;
-	spf=pass smtp.mailfrom=intel.com;
-	dkim=pass header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=kssO6CkJ;
-	arc=none smtp.remote-ip=192.198.163.13
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
-	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
+	dmarc=pass header.from=bytedance.com;
+	spf=pass smtp.mailfrom=bytedance.com;
+	dkim=pass header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=X0EQnD75;
+	arc=none smtp.remote-ip=209.85.215.172
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD093606A32C
-	for <linux-s390@vger.kernel.org>; Fri,  6 Nov 2026 22:00:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org AD093606A32C
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29B38606A32C
+	for <linux-s390@vger.kernel.org>; Sat,  7 Nov 2026 04:31:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 29B38606A32C
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=kssO6CkJ
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1794002458; x=1825538458;
-  h=date:from:to:cc:subject:message-id;
-  bh=aAp6Tu7QcFopIFffjieEDnZkJKOKlsAtEygrBAHSvy8=;
-  b=kssO6CkJzQXpWs++EcSsJpHsNQndv5F74nVfg1KoOgMASFE0bgm8tYHj
-   0oBcWMg5r8Cm+CiAMvs5tiLxiCuRYlHoaaIoiXisMatFOYCzqvRdjCOe+
-   3GPeyfH72FikAoYbLFXw+0pc3QsulKoZHw+I5l8Q03Xk7I7hhAvb0yJrw
-   6S3FWQZAN76lMF+6A2SrTsslYeTeoJ0mpxmI72irpAGGKjLMQ7btL3Tl4
-   ANt99CzlMnyINQZg73ZDNAkILo5rhpfdwfsh67Rb9Wi+s6rr50DvmG812
-   31vY+j63Op3yGQfyoBdnE5v+QrVKhr5025qqt8oRyVmIf/q9KsZcYleAm
-   g==;
-X-CSE-ConnectionGUID: AVb9B5pVQOmxxnSppk2DQg==
-X-CSE-MsgGUID: xtFW6bYoReCW5mrXxkx01Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11958"; a="2813319"
-X-IronPort-AV: E=Sophos;i="6.27,199,1787036400"; 
-   d="scan'208";a="2813319"
-Received: from fmviesa011.fm.intel.com ([10.60.135.151])
-  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Nov 2026 14:00:57 -0800
-X-CSE-ConnectionGUID: jlRyCy4wSmirlNzBw9ed7w==
-X-CSE-MsgGUID: kiloUs9BR4+6YZjzcOEAYA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.27,199,1787036400"; 
-   d="scan'208";a="9147850"
-Received: from igk-lkp-server01.igk.intel.com (HELO 58ca8a381a5c) ([10.211.93.152])
-  by fmviesa011.fm.intel.com with ESMTP; 06 Nov 2026 14:00:53 -0800
-Received: from kbuild by 58ca8a381a5c with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1xPRzN-00000000ANH-48dX;
-	Fri, 06 Nov 2026 22:00:49 +0000
-Date: Fri, 06 Nov 2026 23:00:36 +0100
-From: kernel test robot <lkp@intel.com>
-To: Steffen Eiden <seiden@linux.ibm.com>
-Cc: oe-kbuild-all@lists.linux.dev, linux-s390@vger.kernel.org,
- Janosch Frank <frankja@linux.ibm.com>,
- Andreas Grapentin <gra@linux.ibm.com>
-Subject: [kvms390:sae 28/28] arch/s390/kernel/aef.c:79:1: sparse:
- sparse: symbol 'bin_attr_qmc' was not declared. Should it be static?
-Message-ID: <202611062241.QRhwhHK0-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=X0EQnD75
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-cc147d86bebso163430a12.0
+        for <linux-s390@vger.kernel.org>; Fri, 06 Nov 2026 20:31:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance.com; s=google; t=1794025917; x=1794630717; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=tMJYIXC5HK/L92Fsjcvgr4iGfrMwtNzZGIshDMxf8u0=;
+        b=X0EQnD75PIK6vc2eVCS5KpgklpuhKr/WyFpvsPfyHY+zSsNm071AVoO8F1DmpaUfWD
+         yp3xzgMU557Jkf+8OJGDlyt1CFU4YFbYmSFv/iRjSUsXoy2x7PYtDUwOTpsqoobZ/1EQ
+         XVNB7Vpsd3nF8nCwMkMR5NT5LfRqIfAqeEySi4P6QWAI9xMCRD59iSf0FzYVB6KksWRz
+         /Y+4EMYXWNT81sZZoapBW8joObXg3geIsx0HLll0rLrf/sUN7AYArzIwohjQJyt2fy/e
+         nIxShM6NJMqtmwp7UXNNqw2SztYcQpkY0Va0eW9FkB0IiButJ4dF8j2OtlAYN19AKsZN
+         sVYg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20260707; t=1794025917; x=1794630717;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=tMJYIXC5HK/L92Fsjcvgr4iGfrMwtNzZGIshDMxf8u0=;
+        b=WxnEhI+gXL4vd94JRhjpggz8w8hly7kGOLv3NmRqvp99lCIBJXwmaYjSuNoBcv6Cxr
+         0eREb6vijtx105eOfx3dxEr2d32y6v2poc85JVEWJWj8zNet/h6q+X6Y/ZPQK92pjvIY
+         XLd7tpQsvDRZ1c5Fy0izO955Qgtl86jtlV9fua1tEaCNX3tQ14z1QSBmZwi+DRNGa/J+
+         wQweYF4zNuCwvKGmpjH3m6pSCUcQLrVcq4DqyLBU7ItqI402RvsoDA2WMv/7xPiYHd9o
+         jo5c246FlPyj1DgnNjtsKt7JWADkv5deDBsFhpA+wgdZ2eKgwgGbJgVLQqMajJx+UMBc
+         MVtA==
+X-Forwarded-Encrypted: i=1; AL+hErHhYx/N4U13WdxcTpAok0KBfOvhVF/NYynAYK+MFrWfZdlezGDfF5VtyrdpGX3WywzDBPualOt/SJbo@vger.kernel.org
+X-Gm-Message-State: APuU4Z+fH0xrheK+V0ceckVgew7DwK+OE2QPo24XKtc178et+2vrVx9s
+	gVcMjrUgOqC6u3oEMw4hmwkhA5FWpwf0ytWCexyHwma2+uV+C5o1qaIyqaYo8rBZPCE=
+X-Gm-Gg: AYBFou01ctR9QPlRJQ94OP8kabGNpDvfwHX5PDyvE9N0nCtqKjDXnjGJpcHQAca76Ol
+	4XTEM+h/W78dqYetOAqvFTG3fg9HuJYg9HMbrRJHdFXgbGxD2rmAlH9BBPjfti5HNsqcf68bVPX
+	Vc3Fsb3nSIu2FcboG/GIATFS5E0tE/xtmhmJuBlvGvJD+Fc/x4G/eGZ5EtGndXFjxK0SO299+7r
+	cf+HqKhlisX8gzHecXUnH1AsaIUz9jEUW8Dt9gkC9ZgbzPcwRroBTKXpguWTptLMSeY0h/QYXZz
+	rVJPBo8grOc0NxSlU4lZQMnhGBaEna3f45yZBby/f98ONr7cw4C72iv+c4QZEVyFFs3/1ngM9N0
+	w18C1x0HO8YILIetEblCfgO8KxVGb+5z80a2J0f2hufmW9Z/rx/7eBnRUVHuoGScFEQfmmOHgV/
+	3PHPSl83/IQRy5snJA+4h/qxXtzOZZYoUxlYZVMzg9ESzeaEwPR4YWwS8QxPUWynwMZ0LXhWC88
+	sGw6CsWgJi1c8T4AeMeSUmJhhC3jtONVFesx2K2jd3IHJ3pWBoGNlD5T+1IeLSOBY2ODbMa47pL
+	3eaGiQmiQ66e10tHzZ/2om0Ocl8gV1NSMAcCVFYTKZy1SczoAt3A1LEqCzDf
+X-Received: by 2002:a17:90b:3c0a:b0:3a0:eec6:b065 with SMTP id 98e67ed59e1d1-3b1060a6be4mr758538a91.13.1794025917280;
+        Fri, 06 Nov 2026 20:31:57 -0800 (PST)
+Received: from G6L4RL2QG9 ([2409:8a00:1832:6900:c8de:13da:804b:a0fa])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3b10584b66bsm1578451a91.14.2026.11.06.20.31.47
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Fri, 06 Nov 2026 20:31:56 -0800 (PST)
+From: Muchun Song <songmuchun@bytedance.com>
+To: David Hildenbrand <david@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Mike Rapoport <rppt@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>
+Cc: Lance Yang <lance.yang@linux.dev>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	Ritesh Harjani <ritesh.list@gmail.com>,
+	Shrikanth Hegde <sshegde@linux.ibm.com>,
+	Oscar Salvador <osalvador@suse.de>,
+	Qi Zheng <qi.zheng@linux.dev>,
+	Muchun Song <muchun.song@linux.dev>,
+	Huacai Chen <chenhuacai@kernel.org>,
+	WANG Xuerui <kernel@xen0n.name>,
+	linux-mm@kvack.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-riscv@lists.infradead.org,
+	x86@kernel.org,
+	loongarch@lists.linux.dev,
+	linux-s390@vger.kernel.org,
+	Muchun Song <songmuchun@bytedance.com>
+Subject: [PATCH v3 0/5] mm: Simplify device DAX vmemmap optimization plumbing
+Date: Sat,  7 Nov 2026 12:31:17 +0800
+Message-ID: <20261107043122.25650-1-songmuchun@bytedance.com>
+X-Mailer: git-send-email 2.54.0
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
 List-Post: <mailto:linux-s390@vger.kernel.org>
@@ -81,40 +114,89 @@ List-Subscribe: <mailto:linux-s390+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-s390+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:linux-s390+owner@vger.kernel.org>
 Precedence: list
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git sae
-head:   2abfa741008fd96c3684c316a2f5f37d3bb7bd8b
-commit: 6f0139f1ab685b923aadef3e1653c6f3b2f963c0 [28/28] s390: Report AEF features to sysfs
-config: s390-randconfig-r2307-20261106 (https://download.01.org/0day-ci/archive/20261106/202611062241.QRhwhHK0-lkp@intel.com/config)
-compiler: clang version 17.0.6 (https://github.com/llvm/llvm-project 6009708b4367171ccdbf4b5905cb6a803753fe18)
-sparse: v0.6.5-rc1-21-g84ec0658
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20261106/202611062241.QRhwhHK0-lkp@intel.com/reproduce)
+Hi,
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202611062241.QRhwhHK0-lkp@intel.com/
+This series is split out from the earlier, larger series "mm: Generalize
+HVO for HugeTLB and device DAX" [1]. While the parent series generalizes
+vmemmap optimization across HugeTLB and device DAX, this subset addresses
+a single, self-contained step: simplifying the device DAX vmemmap
+optimization plumbing.
 
-sparse warnings: (new ones prefixed by >>)
->> arch/s390/kernel/aef.c:79:1: sparse: sparse: symbol 'bin_attr_qmc' was not declared. Should it be static?
->> arch/s390/kernel/aef.c:89:1: sparse: sparse: symbol 'bin_attr_save_area' was not declared. Should it be static?
+After device DAX was converted to section-based vmemmap optimization,
+whether a mapping can be optimized is carried in mem_section, and the
+architecture-specific population path can handle any remaining fallback.
+The code still retains the DAX-specific vmemmap_can_optimize() helper, a
+PowerPC override, and @pgmap arguments threaded through lower-level
+vmemmap population and memory-removal interfaces. These duplicate the
+section-order policy and keep otherwise generic paths coupled to
+dev_pagemap.
 
-vim +/bin_attr_qmc +79 arch/s390/kernel/aef.c
+This series removes that obsolete plumbing by consolidating the
+optimization policy around memory-section metadata and simplifying the
+generic and architecture-specific population paths. This also eliminates
+dependencies that are no longer needed once the optimization state is
+carried by the memory section.
 
-    78	
-  > 79	BIN_ATTR_RO(qmc, sizeof(qmc));
-    80	
-    81	static ssize_t save_area_read(struct file *filp, struct kobject *kobj,
-    82				      const struct bin_attribute *attr, char *buf,
-    83				      loff_t off, size_t count)
-    84	{
-    85		return memory_read_from_buffer(buf, count, &off, &save_area,
-    86					       sizeof(save_area));
-    87	}
-    88	
-  > 89	BIN_ATTR_RO(save_area, sizeof(save_area));
-    90	
+This leaves the section compound order as the single source of truth for
+vmemmap optimization and decouples the generic sparse-vmemmap and
+memory-hotplug paths from device DAX.
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+This is another smaller step toward the broader HVO generalization.
+
+[1] https://lore.kernel.org/20260513130542.35604-1-songmuchun@bytedance.com/
+
+v3:
+- Rebase onto mm-new at 684242af7090.
+- Move section_vmemmap_optimization_disable() out of line to fix the
+  LoongArch header-order build failure (reported by Sashiko and the
+  kernel test robot).
+- Keep section_vmemmap_optimizable() in mm/sparse.h and leave the
+  vmemmap_optimizable_order() relocation in patch 4.
+- Tighten the disable helper checks to require one aligned memory
+  section.
+- Collect Reviewed-by from Lance Yang.
+
+v2: https://lore.kernel.org/20261105061217.13302-1-songmuchun@bytedance.com/
+- Rebase onto mm-new at dba8aba0a9a0
+- Add section_vmemmap_optimization_disable() and use it for PowerPC,
+  LoongArch, and altmap fallbacks.
+- Add a LoongArch patch that keeps device DAX vmemmap optimization
+  disabled while leaving HugeTLB HVO unchanged.
+- Ignore section compound orders that cannot be optimized.
+- Add direct vmemmap-optimization.h includes for architecture users.
+
+v1: https://lore.kernel.org/20261030140720.1256062-1-songmuchun@bytedance.com/
+
+Muchun Song (5):
+  powerpc/mm: make vmemmap_populate_compound_pages() static
+  powerpc/mm: drop powerpc vmemmap_can_optimize()
+  loongarch/mm: disable device DAX vmemmap optimization
+  mm/sparse-vmemmap: drop vmemmap_can_optimize()
+  mm/sparse-vmemmap: drop @pgmap from vmemmap population APIs
+
+ arch/arm64/mm/mmu.c                        |  5 +--
+ arch/loongarch/mm/init.c                   |  7 ++--
+ arch/powerpc/include/asm/book3s/64/radix.h | 12 ------
+ arch/powerpc/mm/book3s64/radix_pgtable.c   | 23 ++++-------
+ arch/powerpc/mm/init_64.c                  |  2 +
+ arch/powerpc/mm/mem.c                      |  5 +--
+ arch/riscv/mm/init.c                       |  5 +--
+ arch/s390/mm/init.c                        |  5 +--
+ arch/x86/mm/init_64.c                      |  5 +--
+ include/linux/memory_hotplug.h             |  8 ++--
+ include/linux/mm.h                         | 40 +------------------
+ include/linux/vmemmap-optimization.h       | 31 +++++++++------
+ mm/memory_hotplug.c                        | 16 ++++----
+ mm/memremap.c                              |  4 +-
+ mm/sparse-vmemmap.c                        | 46 +++++++++++++++-------
+ mm/sparse.c                                |  6 +--
+ 16 files changed, 89 insertions(+), 131 deletions(-)
+
+
+base-commit: 684242af7090928ada5e48fd40a0f3a539b3fd5b
+-- 
+2.54.0
+
