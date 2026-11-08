@@ -1,48 +1,48 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=100.103.45.18
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1794127755;
-	b=afJ1rMuBF8xG9jEYHKyhTubwsWP7kyENp9/WLC/YwBm2D+3yLooh0nZIKRzjjNmpbJxZ
-	 Dd2AQXmD6BMaTUTduQ8z92BWrKHaVgE1SgNbR1h8PeECLOwd6Rv8+RlAcJWSBJ9W4jvdn
-	 /WZlS8Do329eXGmJPDQ28db6TABtUN/W59gQ9QPnVzDb+a/aGn4aF+fDuRCxZeyzaeD8g
-	 Slpm84OrqP6vBDmDa8w7zByB6CGjfMy6/0lVMWTtOG9AFSmGEjjSHOE5UdVXPcLk/twEp
-	 vDe8VHF62k+BZlmzZP+pfxQ7U+ElaSt5cT6F/yMaE8l8eo6zZAXqbSznkW17j4s2Vtg==
+	t=1794127764;
+	b=zShq8CpTYBCGF/dOFbHimqmmaeB6+mtBrs8UhVvC3BsLzw99jwFtgwwC9qFQODdz/QM6
+	 DJdyhZcauxKOYSbLKSbPQnwWR3/XpgOUyKr+B7WtrMrp361iH6X8BC21hmbwU4uFfsfeH
+	 hvlscMOtkL1f13a5SLpkQyJVuTT3kIWrwR+EcRxekkFCXtYFj8JNlVk8UM7wR8pxlhXe8
+	 y0IZIEdrgzgRGobGsNdcnyEiAA8tPfNRCKwkcsbrLr2pF5D1eJ2zrobWDFRDoC99wgmn2
+	 WcOozCSjpPDyyozoTw4olNlMsTTRhUYYMRwpe8ATOZMQPV5uGU8wBhQ2IvgLteYNc7A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794127755;
+	a=rsa-sha256; c=relaxed/relaxed; t=1794127764;
 	h=Received:DKIM-Signature:From:Date:Subject:MIME-Version:Content-Type:
 	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
 	 X-Mailer;
-	bh=jyfscNgfuH4Bgz6xRWZ3M/NAQI+U46EGvUlQUq6/bgc=;
-	b=afO3RB7tt+WHSl+vdqUzzaxiDUfEpz2H3Sw8ZtcuXPqI0F0KIHPN8wQgImI2aFWyb3AS
-	 mog+cvnGgYWH+qPjau+U70S7RZeD6NbVbBRRCmxDbfcHOl58alwQJhHp0iBHqloRPPkOX
-	 Y+RqodEEBuQ1dNG/rbRLecfUjdnlc0l80JPWB7yU/kKNUhfUwC4ZpMGhwJJRAx28hiehf
-	 mMnFolvLJA2ggzMpHTfIuiCVXX4s3tAMKMB9zN0qJ/2KDdjDwYnJKGqc1zaSRKAmBQF9j
-	 AqAcjJCFwV+gLqCYol6H9K9dIznQ85ccdIR/uTBoBAldVQOrmGX0PIwwe88x9rjoj4A==
+	bh=H0/h2A5rwxJVNDSipV463VVDQJBhqLVmF0Nxvl0ClsM=;
+	b=kJT1B2yI7DrFuZgiuosgU4EkCnXt7KLw4ZXZcFH6vwIhBOWOnwOUK/iPEMa6C3G+KkDj
+	 POAGPdwMR90fP4tTifK4P7466MAEnvsulSWllQYheBQTQxMzYYzQitsaWDd5cGKuvCOlx
+	 N6vCwQcaEkwuDwYnhs5l6cmPy2/WP8wMq42wxpngK1E0kZrRTIFxmWsfXD0ePwgdxWwtx
+	 TLwvSuqj1sRYgaavC5Q58qVzUEGjvtPjqlfQAb1u9zQ+0Qg7sIqfNlFHRqOA8Q1ecc76k
+	 nukq3COH/MdycznuQno1Li4TW3/X0cVsAo6Nkv07PsGfkqZp5hSjH8aHa/ElrKEq9iQ==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
-	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KQxTPPvi;
+	dkim=pass header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L3LnY97A;
 	arc=none smtp.remote-ip=100.103.45.18
 Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	 key-exchange X25519 server-signature ECDSA (prime256v1))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8079B606A322;
-	Sun,  8 Nov 2026 08:49:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E336B606A33A;
+	Sun,  8 Nov 2026 08:49:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=KQxTPPvi
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 225691F008A1;
-	Sun,  8 Nov 2026 08:49:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=L3LnY97A
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CB541F0089F;
+	Sun,  8 Nov 2026 08:49:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1794127755;
-	bh=jyfscNgfuH4Bgz6xRWZ3M/NAQI+U46EGvUlQUq6/bgc=;
+	s=k20260515; t=1794127758;
+	bh=H0/h2A5rwxJVNDSipV463VVDQJBhqLVmF0Nxvl0ClsM=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=KQxTPPvir/kfH+2bqchdYnHZIzVjk+t3znnd5k6S/8nUsbyTYUhn635WW8Ztv9MQt
-	 1qL/XGAWJzB6TBHx/w6r8eH8Ubrx3N7uDREpMYDAoKD+YWI/y2sRf/Z3xlpuvy6utX
-	 dKBaaT1iJ7s38+RjBbVPbxVQBnUMkm4peKHJE/jM3C++JcRAE/mtbWzpTxbzDvTmIv
-	 Unktv4xstpWzRvIqV1Bg3/D+/Nz1po34iHKssRZsYAE7tkoyz8TAFTPTo4Y02/+lIi
-	 LOLT6FTrdAf8A7SX697ByCc2Cjt5q4s4f21YjUmNJ5BmnnEvb4S0hmr6fiPzvrj5QT
-	 ZaGqWjNFEJefg==
+	b=L3LnY97A1SL8QgstjBbwFfQ0TcuCvOVWGbAi+Pvhq73TMaxhAzAZTxGr34Hw4XIc+
+	 80VpQzH0GrADK+Fecfhpg01a6PP1Nu8xD0RZOuPDS98IRWNWYyy6hSlKq/RNdG0SfR
+	 VLy46A96daD9K8EDQqVdOUFqHVEi7B6tUhIbpcAwQOWs1foo1cUu0loUG5IasH3MJE
+	 5G6PhjCSkAUB2O7XwQ9zKDKQypic1YVwkNcmzK1TUXIggJen2dQRGf03syqSRn921/
+	 nohv5C68eyceCV/EmZu+mkWF0f7YVGKwPbUIQBoQN96+8toclCnpdStMRjq8MeXud1
+	 mrLVHbQ56XRdQ==
 From: "Mike Rapoport (Microsoft)" <rppt@kernel.org>
-Date: Sun, 08 Nov 2026 10:49:00 +0200
-Subject: [PATCH 3/5] s390/vmlogrdr: Replace get_zeroed_page() with
+Date: Sun, 08 Nov 2026 10:49:01 +0200
+Subject: [PATCH 4/5] s390/uvdevice: Replace get_zeroed_page() with
  kzalloc()
 X-Mailing-List: linux-s390@vger.kernel.org
 List-Id: <linux-s390.vger.kernel.org>
@@ -55,7 +55,7 @@ Precedence: list
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20261108-s390-char-ready-v1-3-3db507722530@kernel.org>
+Message-Id: <20261108-s390-char-ready-v1-4-3db507722530@kernel.org>
 References: <20261108-s390-char-ready-v1-0-3db507722530@kernel.org>
 In-Reply-To: <20261108-s390-char-ready-v1-0-3db507722530@kernel.org>
 To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
@@ -68,11 +68,11 @@ Cc: Christian Borntraeger <borntraeger@linux.ibm.com>,
  linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-mm@kvack.org
 X-Mailer: b4 0.16.1-dev
 
-vmlogrdr_init() allocates the buffers used to receive z/VM system
-service records via IUCV.
+uvio_list_secrets() allocates the buffer that receives the list of
+secrets returned by the Ultravisor.
 
-These buffers can be allocated with kmalloc() as there's nothing special
-about them to go directly to the page allocator.
+This buffer can be allocated with kmalloc() as there's nothing special
+about it to go directly to the page allocator.
 
 kmalloc() provides a better API that does not require ugly casts and
 kfree() does not need to know the size of the freed object.
@@ -90,31 +90,29 @@ kfree().
 Link: https://lore.kernel.org/all/635405e4-9423-4a25-a6e7-e03c8ea0bcbe@redhat.com
 Signed-off-by: Mike Rapoport (Microsoft) <rppt@kernel.org>
 ---
- drivers/s390/char/vmlogrdr.c | 4 ++--
+ drivers/s390/char/uvdevice.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/char/vmlogrdr.c b/drivers/s390/char/vmlogrdr.c
-index 005735a899203..229a0f71dc453 100644
---- a/drivers/s390/char/vmlogrdr.c
-+++ b/drivers/s390/char/vmlogrdr.c
-@@ -793,7 +793,7 @@ static void vmlogrdr_cleanup(void)
- 	}
- 	for (i=0; i < MAXMINOR; ++i ) {
- 		vmlogrdr_unregister_device(&sys_ser[i]);
--		free_page((unsigned long)sys_ser[i].buffer);
-+		kfree(sys_ser[i].buffer);
- 	}
- 	vmlogrdr_unregister_driver();
- 	if (vmlogrdr_major) {
-@@ -826,7 +826,7 @@ static int __init vmlogrdr_init(void)
- 		goto cleanup;
+diff --git a/drivers/s390/char/uvdevice.c b/drivers/s390/char/uvdevice.c
+index 4d274a2ee84dd..5375cbef2810c 100644
+--- a/drivers/s390/char/uvdevice.c
++++ b/drivers/s390/char/uvdevice.c
+@@ -371,13 +371,13 @@ static int uvio_list_secrets(struct uvio_ioctl_cb *uv_ioctl)
+ 	    uv_ioctl->argument_len % UVIO_LIST_SECRETS_LEN != 0)
+ 		return -EINVAL;
  
- 	for (i=0; i < MAXMINOR; ++i ) {
--		sys_ser[i].buffer = (char *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
-+		sys_ser[i].buffer = kzalloc(PAGE_SIZE, GFP_KERNEL | GFP_DMA);
- 		if (!sys_ser[i].buffer) {
- 			rc = -ENOMEM;
- 			break;
+-	zpage = (void *)get_zeroed_page(GFP_KERNEL);
++	zpage = kzalloc(PAGE_SIZE, GFP_KERNEL);
+ 	if (!zpage)
+ 		return -ENOMEM;
+ 
+ 	rc = uvio_get_list(zpage, uv_ioctl);
+ 
+-	free_page((unsigned long)zpage);
++	kfree(zpage);
+ 	return rc;
+ }
+ 
 
 -- 
 2.53.0
